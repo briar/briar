@@ -17,6 +17,7 @@ import org.briarproject.briar.android.activity.ActivityComponent;
 import org.briarproject.briar.android.fragment.BaseFragment;
 import org.briarproject.briar.android.util.BriarSnackbarBuilder;
 import org.briarproject.briar.android.view.BriarRecyclerView;
+import org.briarproject.briar.android.widget.LinkDialogFragment;
 import org.briarproject.briar.api.blog.Blog;
 
 import java.util.List;
@@ -44,7 +45,7 @@ public class FeedFragment extends BaseFragment
 	ViewModelProvider.Factory viewModelFactory;
 
 	private FeedViewModel viewModel;
-	private BlogPostAdapter adapter;
+	private final BlogPostAdapter adapter = new BlogPostAdapter(this);
 	private LinearLayoutManager layoutManager;
 	private BriarRecyclerView list;
 	@Nullable
@@ -78,8 +79,6 @@ public class FeedFragment extends BaseFragment
 		requireActivity().setTitle(R.string.blogs_button);
 
 		View v = inflater.inflate(R.layout.fragment_blog, container, false);
-
-		adapter = new BlogPostAdapter(this, getParentFragmentManager());
 
 		layoutManager = new LinearLayoutManager(getActivity());
 		list = v.findViewById(R.id.postList);
@@ -183,6 +182,12 @@ public class FeedFragment extends BaseFragment
 		i.putExtra(GROUP_ID, post.getGroupId().getBytes());
 		i.setFlags(FLAG_ACTIVITY_CLEAR_TOP);
 		requireContext().startActivity(i);
+	}
+
+	@Override
+	public void onLinkClick(String url) {
+		LinkDialogFragment f = LinkDialogFragment.newInstance(url);
+		f.show(getParentFragmentManager(), f.getUniqueTag());
 	}
 
 	@Override

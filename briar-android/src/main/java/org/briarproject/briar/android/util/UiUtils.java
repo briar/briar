@@ -34,7 +34,6 @@ import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.reporting.FeedbackActivity;
 import org.briarproject.briar.android.view.ArticleMovementMethod;
-import org.briarproject.briar.android.widget.LinkDialogFragment;
 
 import java.util.Locale;
 
@@ -49,8 +48,8 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.core.content.ContextCompat;
 import androidx.core.hardware.fingerprint.FingerprintManagerCompat;
 import androidx.core.text.HtmlCompat;
+import androidx.core.util.Consumer;
 import androidx.fragment.app.FragmentActivity;
-import androidx.fragment.app.FragmentManager;
 import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.Observer;
@@ -198,8 +197,7 @@ public class UiUtils {
 	}
 
 	public static void makeLinksClickable(TextView v,
-			@Nullable FragmentManager fm) {
-		if (fm == null) return;
+			Consumer<String> onLinkClicked) {
 		SpannableStringBuilder ssb = new SpannableStringBuilder(v.getText());
 		URLSpan[] spans = ssb.getSpans(0, ssb.length(), URLSpan.class);
 		for (URLSpan span : spans) {
@@ -210,8 +208,7 @@ public class UiUtils {
 			ClickableSpan cSpan = new ClickableSpan() {
 				@Override
 				public void onClick(View v2) {
-					LinkDialogFragment f = LinkDialogFragment.newInstance(url);
-					f.show(fm, f.getUniqueTag());
+					onLinkClicked.accept(url);
 				}
 			};
 			ssb.setSpan(cSpan, start, end, 0);

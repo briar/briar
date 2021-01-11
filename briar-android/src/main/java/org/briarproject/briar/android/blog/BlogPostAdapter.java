@@ -8,8 +8,6 @@ import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
 import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
 import org.briarproject.briar.R;
 
-import androidx.annotation.Nullable;
-import androidx.fragment.app.FragmentManager;
 import androidx.recyclerview.widget.DiffUtil;
 import androidx.recyclerview.widget.ListAdapter;
 
@@ -18,11 +16,8 @@ import androidx.recyclerview.widget.ListAdapter;
 class BlogPostAdapter extends ListAdapter<BlogPostItem, BlogPostViewHolder> {
 
 	private final OnBlogPostClickListener listener;
-	@Nullable
-	private final FragmentManager fragmentManager;
 
-	BlogPostAdapter(OnBlogPostClickListener listener,
-			@Nullable FragmentManager fragmentManager) {
+	BlogPostAdapter(OnBlogPostClickListener listener) {
 		super(new DiffUtil.ItemCallback<BlogPostItem>() {
 			@Override
 			public boolean areItemsTheSame(BlogPostItem a, BlogPostItem b) {
@@ -35,7 +30,6 @@ class BlogPostAdapter extends ListAdapter<BlogPostItem, BlogPostViewHolder> {
 			}
 		});
 		this.listener = listener;
-		this.fragmentManager = fragmentManager;
 	}
 
 	@Override
@@ -43,7 +37,7 @@ class BlogPostAdapter extends ListAdapter<BlogPostItem, BlogPostViewHolder> {
 			int viewType) {
 		View v = LayoutInflater.from(parent.getContext()).inflate(
 				R.layout.list_item_blog_post, parent, false);
-		return new BlogPostViewHolder(v, false, listener, fragmentManager);
+		return new BlogPostViewHolder(v, false, listener);
 	}
 
 	@Override

@@ -14,6 +14,7 @@ import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
 import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.fragment.BaseFragment;
+import org.briarproject.briar.android.widget.LinkDialogFragment;
 
 import java.util.logging.Logger;
 
@@ -76,7 +77,13 @@ abstract class BasePostFragment extends BaseFragment {
 				i.setFlags(FLAG_ACTIVITY_CLEAR_TOP);
 				getContext().startActivity(i);
 			}
-		}, getFragmentManager());
+
+			@Override
+			public void onLinkClick(String url) {
+				LinkDialogFragment f = LinkDialogFragment.newInstance(url);
+				f.show(getParentFragmentManager(), f.getUniqueTag());
+			}
+		});
 		return view;
 	}
 

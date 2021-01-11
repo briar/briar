@@ -29,6 +29,7 @@ import org.briarproject.briar.android.sharing.BlogSharingStatusActivity;
 import org.briarproject.briar.android.sharing.ShareBlogActivity;
 import org.briarproject.briar.android.util.BriarSnackbarBuilder;
 import org.briarproject.briar.android.view.BriarRecyclerView;
+import org.briarproject.briar.android.widget.LinkDialogFragment;
 import org.briarproject.briar.api.blog.BlogPostHeader;
 
 import java.util.Collection;
@@ -69,7 +70,7 @@ public class BlogFragment extends BaseFragment
 	private Parcelable layoutManagerState;
 
 	private GroupId groupId;
-	private BlogPostAdapter adapter;
+	private final BlogPostAdapter adapter = new BlogPostAdapter(this);
 	private LayoutManager layoutManager;
 	private BriarRecyclerView list;
 	private MenuItem writeButton, deleteButton;
@@ -104,7 +105,6 @@ public class BlogFragment extends BaseFragment
 
 		View v = inflater.inflate(R.layout.fragment_blog, container, false);
 
-		adapter = new BlogPostAdapter(this, getParentFragmentManager());
 		list = v.findViewById(R.id.postList);
 		layoutManager = new LinearLayoutManager(getActivity());
 		list.setLayoutManager(layoutManager);
@@ -254,6 +254,12 @@ public class BlogFragment extends BaseFragment
 		i.putExtra(GROUP_ID, post.getGroupId().getBytes());
 		i.setFlags(FLAG_ACTIVITY_CLEAR_TOP);
 		getContext().startActivity(i);
+	}
+
+	@Override
+	public void onLinkClick(String url) {
+		LinkDialogFragment f = LinkDialogFragment.newInstance(url);
+		f.show(getParentFragmentManager(), f.getUniqueTag());
 	}
 
 	private void loadBlogPosts(boolean reload) {

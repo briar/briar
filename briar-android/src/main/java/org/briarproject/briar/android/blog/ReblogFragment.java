@@ -17,6 +17,7 @@ import org.briarproject.briar.android.fragment.BaseFragment;
 import org.briarproject.briar.android.view.TextInputView;
 import org.briarproject.briar.android.view.TextSendController;
 import org.briarproject.briar.android.view.TextSendController.SendListener;
+import org.briarproject.briar.android.widget.LinkDialogFragment;
 import org.briarproject.briar.api.attachment.AttachmentHeader;
 
 import java.util.List;
@@ -151,7 +152,13 @@ public class ReblogFragment extends BaseFragment implements SendListener {
 				public void onAuthorClick(BlogPostItem post) {
 					// probably don't want to allow author clicks here
 				}
-			}, getParentFragmentManager());
+
+				@Override
+				public void onLinkClick(String url) {
+					LinkDialogFragment f = LinkDialogFragment.newInstance(url);
+					f.show(getParentFragmentManager(), f.getUniqueTag());
+				}
+			});
 			input = v.findViewById(R.id.inputText);
 		}
 	}
