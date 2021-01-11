@@ -74,9 +74,6 @@ public class BlogPostItem implements Comparable<BlogPostItem> {
 
 	protected static int compare(BlogPostHeader h1, BlogPostHeader h2) {
 		// The newest post comes first
-		long aTime = h1.getTimeReceived(), bTime = h2.getTimeReceived();
-		if (aTime > bTime) return -1;
-		if (aTime < bTime) return 1;
-		return 0;
+		return Long.compare(h2.getTimeReceived(), h1.getTimeReceived());
 	}
 }

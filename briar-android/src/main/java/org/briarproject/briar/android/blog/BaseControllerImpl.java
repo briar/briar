@@ -23,6 +23,7 @@ import org.briarproject.briar.util.HtmlUtils;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executor;
@@ -80,10 +81,10 @@ abstract class BaseControllerImpl extends DbControllerImpl
 
 	@Override
 	public void loadBlogPosts(GroupId groupId,
-			ResultExceptionHandler<Collection<BlogPostItem>, DbException> handler) {
+			ResultExceptionHandler<List<BlogPostItem>, DbException> handler) {
 		runOnDbThread(() -> {
 			try {
-				Collection<BlogPostItem> items = loadItems(groupId);
+				List<BlogPostItem> items = loadItems(groupId);
 				handler.onResult(items);
 			} catch (DbException e) {
 				logException(LOG, WARNING, e);
@@ -92,12 +93,12 @@ abstract class BaseControllerImpl extends DbControllerImpl
 		});
 	}
 
-	Collection<BlogPostItem> loadItems(GroupId groupId) throws DbException {
+	List<BlogPostItem> loadItems(GroupId groupId) throws DbException {
 		long start = now();
 		Collection<BlogPostHeader> headers =
 				blogManager.getPostHeaders(groupId);
 		logDuration(LOG, "Loading headers", start);
-		Collection<BlogPostItem> items = new ArrayList<>(headers.size());
+		List<BlogPostItem> items = new ArrayList<>(headers.size());
 		start = now();
 		for (BlogPostHeader h : headers) {
 			headerCache.put(h.getId(), h);

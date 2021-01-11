@@ -144,6 +144,24 @@ public abstract class DbViewModel extends AndroidViewModel {
 
 	/**
 	 * Creates a copy of the list available in the given LiveData
+	 * and adds the given item to the copy.
+	 *
+	 * @return a copy of the list in the LiveData with item added or null when
+	 * <ul>
+	 * <li> LiveData does not have a value
+	 * <li> LiveResult in the LiveData has an error
+	 * </ul>
+	 */
+	@Nullable
+	protected <T> List<T> addListItem(LiveData<LiveResult<List<T>>> liveData, T item) {
+		List<T> items = getListCopy(liveData);
+		if (items == null) return null;
+		items.add(item);
+		return items;
+	}
+
+	/**
+	 * Creates a copy of the list available in the given LiveData
 	 * and replaces items where the given test function returns true.
 	 *
 	 * @return a copy of the list in the LiveData with item(s) replaced

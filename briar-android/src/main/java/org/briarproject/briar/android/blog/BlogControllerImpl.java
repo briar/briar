@@ -30,6 +30,7 @@ import org.briarproject.briar.api.sharing.event.ContactLeftShareableEvent;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.concurrent.Executor;
 import java.util.logging.Logger;
 
@@ -140,7 +141,7 @@ class BlogControllerImpl extends BaseControllerImpl
 
 	@Override
 	public void loadBlogPosts(
-			ResultExceptionHandler<Collection<BlogPostItem>, DbException> handler) {
+			ResultExceptionHandler<List<BlogPostItem>, DbException> handler) {
 		if (groupId == null) throw new IllegalStateException();
 		loadBlogPosts(groupId, handler);
 	}

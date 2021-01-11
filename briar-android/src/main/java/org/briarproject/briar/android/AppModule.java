@@ -30,6 +30,7 @@ import org.briarproject.bramble.util.StringUtils;
 import org.briarproject.briar.android.account.DozeHelperModule;
 import org.briarproject.briar.android.account.LockManagerImpl;
 import org.briarproject.briar.android.account.SetupModule;
+import org.briarproject.briar.android.blog.BlogModule;
 import org.briarproject.briar.android.contact.ContactListModule;
 import org.briarproject.briar.android.forum.ForumModule;
 import org.briarproject.briar.android.introduction.IntroductionModule;
@@ -85,6 +86,7 @@ import static org.briarproject.briar.android.TestingConstants.IS_DEBUG_BUILD;
 		ContactListModule.class,
 		IntroductionModule.class,
 		// below need to be within same scope as ViewModelProvider.Factory
+		BlogModule.BindsModule.class,
 		ForumModule.class,
 		GroupListModule.class,
 		GroupConversationModule.class,

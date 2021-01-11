@@ -8,6 +8,7 @@ import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.briar.android.controller.handler.ResultExceptionHandler;
 
 import java.util.Collection;
+import java.util.List;
 
 import androidx.annotation.UiThread;
 
@@ -23,7 +24,7 @@ public interface BlogController extends BaseController {
 	void unsetBlogSharingListener(BlogSharingListener listener);
 
 	void loadBlogPosts(
-			ResultExceptionHandler<Collection<BlogPostItem>, DbException> handler);
+			ResultExceptionHandler<List<BlogPostItem>, DbException> handler);
 
 	void loadBlogPost(MessageId m,
 			ResultExceptionHandler<BlogPostItem, DbException> handler);

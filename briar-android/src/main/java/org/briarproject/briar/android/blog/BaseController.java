@@ -8,7 +8,7 @@ import org.briarproject.briar.android.controller.handler.ExceptionHandler;
 import org.briarproject.briar.android.controller.handler.ResultExceptionHandler;
 import org.briarproject.briar.api.blog.BlogPostHeader;
 
-import java.util.Collection;
+import java.util.List;
 
 import javax.annotation.Nullable;
 
@@ -24,7 +24,7 @@ interface BaseController {
 	void onStop();
 
 	void loadBlogPosts(GroupId g,
-			ResultExceptionHandler<Collection<BlogPostItem>, DbException> handler);
+			ResultExceptionHandler<List<BlogPostItem>, DbException> handler);
 
 	void loadBlogPost(BlogPostHeader header,
 			ResultExceptionHandler<BlogPostItem, DbException> handler);

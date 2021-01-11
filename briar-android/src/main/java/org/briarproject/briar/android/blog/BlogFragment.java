@@ -32,6 +32,7 @@ import org.briarproject.briar.android.view.BriarRecyclerView;
 import org.briarproject.briar.api.blog.BlogPostHeader;
 
 import java.util.Collection;
+import java.util.List;
 
 import javax.inject.Inject;
 
@@ -103,8 +104,7 @@ public class BlogFragment extends BaseFragment
 
 		View v = inflater.inflate(R.layout.fragment_blog, container, false);
 
-		adapter = new BlogPostAdapter(requireActivity(), this,
-				getFragmentManager());
+		adapter = new BlogPostAdapter(this, getParentFragmentManager());
 		list = v.findViewById(R.id.postList);
 		layoutManager = new LinearLayoutManager(getActivity());
 		list.setLayoutManager(layoutManager);
@@ -219,7 +219,7 @@ public class BlogFragment extends BaseFragment
 						this) {
 					@Override
 					public void onResultUi(BlogPostItem post) {
-						adapter.add(post);
+//						adapter.add(post);
 						if (local) {
 							list.scrollToPosition(0);
 							displaySnackbar(R.string.blogs_blog_post_created,
@@ -258,14 +258,14 @@ public class BlogFragment extends BaseFragment
 
 	private void loadBlogPosts(boolean reload) {
 		blogController.loadBlogPosts(
-				new UiResultExceptionHandler<Collection<BlogPostItem>,
+				new UiResultExceptionHandler<List<BlogPostItem>,
 						DbException>(this) {
 					@Override
-					public void onResultUi(Collection<BlogPostItem> posts) {
+					public void onResultUi(List<BlogPostItem> posts) {
 						if (posts.isEmpty()) {
 							list.showData();
 						} else {
-							adapter.addAll(posts);
+							adapter.submitList(posts);
 							if (reload || layoutManagerState == null) {
 								list.scrollToPosition(0);
 							} else {
