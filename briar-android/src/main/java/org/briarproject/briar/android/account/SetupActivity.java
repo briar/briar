@@ -4,7 +4,6 @@ import android.annotation.TargetApi;
 import android.content.Intent;
 import android.os.Bundle;
 
-import org.briarproject.bramble.api.account.AccountManager;
 import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
 import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
 import org.briarproject.briar.R;
@@ -15,28 +14,36 @@ import org.briarproject.briar.android.fragment.BaseFragment.BaseFragmentListener
 import javax.annotation.Nullable;
 import javax.inject.Inject;
 
+import androidx.lifecycle.ViewModelProvider;
+
 import static android.content.Intent.FLAG_ACTIVITY_CLEAR_TASK;
 import static android.content.Intent.FLAG_ACTIVITY_CLEAR_TOP;
 import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
 import static android.content.Intent.FLAG_ACTIVITY_TASK_ON_HOME;
 import static org.briarproject.briar.android.BriarApplication.ENTRY_ACTIVITY;
+import static org.briarproject.briar.android.account.SetupViewModel.State.AUTHOR_NAME;
+import static org.briarproject.briar.android.account.SetupViewModel.State.CREATED;
+import static org.briarproject.briar.android.account.SetupViewModel.State.DOZE;
+import static org.briarproject.briar.android.account.SetupViewModel.State.FAILED;
+import static org.briarproject.briar.android.account.SetupViewModel.State.SET_PASSWORD;
 
 @MethodsNotNullByDefault
 @ParametersNotNullByDefault
 public class SetupActivity extends BaseActivity
 		implements BaseFragmentListener {
 
-	private static final String STATE_KEY_AUTHOR_NAME = "authorName";
-	private static final String STATE_KEY_PASSWORD = "password";
-
 	@Inject
-	AccountManager accountManager;
+	ViewModelProvider.Factory viewModelFactory;
+	SetupViewModel viewModel;
 
-	@Inject
-	SetupController setupController;
+	@Override
+	public void injectActivity(ActivityComponent component) {
+		component.inject(this);
 
-	@Nullable
-	private String authorName, password;
+		viewModel = new ViewModelProvider(this, viewModelFactory)
+				.get(SetupViewModel.class);
+		viewModel.getState().observeEvent(this, this::onStateChanged);
+	}
 
 	@Override
 	public void onCreate(@Nullable Bundle state) {
@@ -44,58 +51,27 @@ public class SetupActivity extends BaseActivity
 		// fade-in after splash screen instead of default animation
 		overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
 		setContentView(R.layout.activity_fragment_container);
+	}
 
-		if (state == null) {
-			if (accountManager.accountExists()) throw new AssertionError();
+	private void onStateChanged(SetupViewModel.State state) {
+		if (state == AUTHOR_NAME) {
 			showInitialFragment(AuthorNameFragment.newInstance());
-		} else {
-			authorName = state.getString(STATE_KEY_AUTHOR_NAME);
-			password = state.getString(STATE_KEY_PASSWORD);
+		} else if (state == SET_PASSWORD) {
+			showPasswordFragment();
+		} else if (state == DOZE) {
+			showDozeFragment();
+		} else if (state == CREATED || state == FAILED) {
+			// TODO: Show an error if failed
+			showApp();
 		}
 	}
 
-	@Override
-	public void injectActivity(ActivityComponent component) {
-		component.inject(this);
-		setupController.setSetupActivity(this);
-	}
-
-	@Override
-	protected void onSaveInstanceState(Bundle state) {
-		super.onSaveInstanceState(state);
-		if (authorName != null)
-			state.putString(STATE_KEY_AUTHOR_NAME, authorName);
-		if (password != null)
-			state.putString(STATE_KEY_PASSWORD, password);
-	}
-
-	@Nullable
-	String getAuthorName() {
-		return authorName;
-	}
-
-	void setAuthorName(String authorName) {
-		this.authorName = authorName;
-	}
-
-	@Nullable
-	String getPassword() {
-		return password;
-	}
-
-	void setPassword(String password) {
-		this.password = password;
-	}
-
 	void showPasswordFragment() {
-		if (authorName == null) throw new IllegalStateException();
 		showNextFragment(SetPasswordFragment.newInstance());
 	}
 
 	@TargetApi(23)
 	void showDozeFragment() {
-		if (authorName == null) throw new IllegalStateException();
-		if (password == null) throw new IllegalStateException();
 		showNextFragment(DozeFragment.newInstance());
 	}
 

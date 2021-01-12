@@ -2,8 +2,6 @@ package org.briarproject.briar.android.activity;
 
 import android.app.Activity;
 
-import org.briarproject.briar.android.account.SetupController;
-import org.briarproject.briar.android.account.SetupControllerImpl;
 import org.briarproject.briar.android.controller.BriarController;
 import org.briarproject.briar.android.controller.BriarControllerImpl;
 import org.briarproject.briar.android.controller.DbController;
@@ -33,13 +31,6 @@ public class ActivityModule {
 	@Provides
 	Activity provideActivity() {
 		return activity;
-	}
-
-	@ActivityScope
-	@Provides
-	SetupController provideSetupController(
-			SetupControllerImpl setupController) {
-		return setupController;
 	}
 
 	@ActivityScope

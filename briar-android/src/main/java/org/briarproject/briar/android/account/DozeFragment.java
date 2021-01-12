@@ -104,9 +104,15 @@ public class DozeFragment extends SetupFragment
 
 	@Override
 	public void onClick(View view) {
-		next.setVisibility(INVISIBLE);
-		progressBar.setVisibility(VISIBLE);
-		setupController.createAccount();
+		setNextClicked();
+		viewModel.dozeExceptionConfirmed();
 	}
 
+	@Override
+	void setNextClicked() {
+		super.setNextClicked();
+
+		next.setVisibility(INVISIBLE);
+		progressBar.setVisibility(VISIBLE);
+	}
 }

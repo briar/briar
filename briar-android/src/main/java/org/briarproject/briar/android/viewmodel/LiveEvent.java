@@ -34,6 +34,11 @@ public class LiveEvent<T> extends LiveData<LiveEvent.ConsumableEvent<T>> {
 		super.observe(owner, observer);
 	}
 
+	public void observeEventForever(LiveEventHandler<T> handler) {
+		LiveEventObserver<T> observer = new LiveEventObserver<>(handler);
+		super.observeForever(observer);
+	}
+
 	static class ConsumableEvent<T> {
 
 		private final T content;

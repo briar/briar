@@ -27,7 +27,9 @@ import org.briarproject.bramble.plugin.tcp.AndroidLanTcpPluginFactory;
 import org.briarproject.bramble.plugin.tor.AndroidTorPluginFactory;
 import org.briarproject.bramble.util.AndroidUtils;
 import org.briarproject.bramble.util.StringUtils;
+import org.briarproject.briar.android.account.DozeHelperModule;
 import org.briarproject.briar.android.account.LockManagerImpl;
+import org.briarproject.briar.android.account.SetupModule;
 import org.briarproject.briar.android.contact.ContactListModule;
 import org.briarproject.briar.android.forum.ForumModule;
 import org.briarproject.briar.android.keyagreement.ContactExchangeModule;
@@ -64,6 +66,8 @@ import static org.briarproject.bramble.api.reporting.ReportingConstants.DEV_PUBL
 import static org.briarproject.briar.android.TestingConstants.IS_DEBUG_BUILD;
 
 @Module(includes = {
+		SetupModule.class,
+		DozeHelperModule.class,
 		ContactExchangeModule.class,
 		LoginModule.class,
 		NavDrawerModule.class,
