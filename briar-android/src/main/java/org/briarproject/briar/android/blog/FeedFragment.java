@@ -2,7 +2,6 @@ package org.briarproject.briar.android.blog;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.Parcelable;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -48,8 +47,6 @@ public class FeedFragment extends BaseFragment
 	private final BlogPostAdapter adapter = new BlogPostAdapter(this);
 	private LinearLayoutManager layoutManager;
 	private BriarRecyclerView list;
-	@Nullable
-	private Parcelable layoutManagerState;
 
 	public static FeedFragment newInstance() {
 		FeedFragment f = new FeedFragment();
@@ -93,11 +90,6 @@ public class FeedFragment extends BaseFragment
 						.onSuccess(this::onBlogPostsLoaded)
 		);
 
-		if (savedInstanceState != null) {
-			layoutManagerState =
-					savedInstanceState.getParcelable("layoutManager");
-		}
-
 		return v;
 	}
 
@@ -114,15 +106,6 @@ public class FeedFragment extends BaseFragment
 		super.onStop();
 		viewModel.unblockAllBlogPostNotifications();
 		list.stopPeriodicUpdate();
-	}
-
-	@Override
-	public void onSaveInstanceState(Bundle outState) {
-		super.onSaveInstanceState(outState);
-		if (layoutManager != null) {
-			layoutManagerState = layoutManager.onSaveInstanceState();
-			outState.putParcelable("layoutManager", layoutManagerState);
-		}
 	}
 
 	private void onBlogPostsLoaded(List<BlogPostItem> items) {

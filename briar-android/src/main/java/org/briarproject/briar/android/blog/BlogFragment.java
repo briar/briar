@@ -2,7 +2,6 @@ package org.briarproject.briar.android.blog;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.Parcelable;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -52,13 +51,10 @@ public class BlogFragment extends BaseFragment
 
 	@Inject
 	ViewModelProvider.Factory viewModelFactory;
-	@Nullable
-	private Parcelable layoutManagerState;
 
 	private GroupId groupId;
 	private BlogViewModel viewModel;
 	private final BlogPostAdapter adapter = new BlogPostAdapter(this);
-	private LayoutManager layoutManager;
 	private BriarRecyclerView list;
 
 	static BlogFragment newInstance(GroupId groupId) {
@@ -91,7 +87,7 @@ public class BlogFragment extends BaseFragment
 		View v = inflater.inflate(R.layout.fragment_blog, container, false);
 
 		list = v.findViewById(R.id.postList);
-		layoutManager = new LinearLayoutManager(getActivity());
+		LayoutManager layoutManager = new LinearLayoutManager(getActivity());
 		list.setLayoutManager(layoutManager);
 		list.setAdapter(adapter);
 		list.showProgressBar();
@@ -104,12 +100,6 @@ public class BlogFragment extends BaseFragment
 		viewModel.getBlogRemoved().observe(getViewLifecycleOwner(), removed -> {
 			if (removed) finish();
 		});
-
-		if (savedInstanceState != null) {
-			layoutManagerState =
-					savedInstanceState.getParcelable("layoutManager");
-		}
-
 		return v;
 	}
 
@@ -126,15 +116,6 @@ public class BlogFragment extends BaseFragment
 		super.onStop();
 		viewModel.unblockNotifications();
 		list.stopPeriodicUpdate();
-	}
-
-	@Override
-	public void onSaveInstanceState(Bundle outState) {
-		super.onSaveInstanceState(outState);
-		if (layoutManager != null) {
-			layoutManagerState = layoutManager.onSaveInstanceState();
-			outState.putParcelable("layoutManager", layoutManagerState);
-		}
 	}
 
 	@Override
@@ -208,12 +189,6 @@ public class BlogFragment extends BaseFragment
 						true);
 			}
 			list.showData();
-			if (layoutManagerState == null) {
-				list.scrollToPosition(0);
-			} else {
-				layoutManager.onRestoreInstanceState(
-						layoutManagerState);
-			}
 		});
 	}
 
