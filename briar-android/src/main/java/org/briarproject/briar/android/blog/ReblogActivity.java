@@ -11,7 +11,7 @@ import org.briarproject.briar.android.activity.ActivityComponent;
 import org.briarproject.briar.android.activity.BriarActivity;
 import org.briarproject.briar.android.fragment.BaseFragment.BaseFragmentListener;
 
-import static org.briarproject.briar.android.blog.BasePostFragment.POST_ID;
+import static org.briarproject.briar.android.blog.BlogPostFragment.POST_ID;
 
 public class ReblogActivity extends BriarActivity implements
 		BaseFragmentListener {
@@ -39,13 +39,11 @@ public class ReblogActivity extends BriarActivity implements
 
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
-		switch (item.getItemId()) {
-			case android.R.id.home:
-				onBackPressed();
-				return true;
-			default:
-				return super.onOptionsItemSelected(item);
+		if (item.getItemId() == android.R.id.home) {
+			onBackPressed();
+			return true;
 		}
+		return super.onOptionsItemSelected(item);
 	}
 
 	@Override

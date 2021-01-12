@@ -148,8 +148,8 @@ class BlogViewModel extends BaseViewModel {
 		notificationManager.unblockNotification(groupId);
 	}
 
-	void loadBlogPosts(GroupId groupId) {
-		loadList(txn -> loadBlogPosts(txn, groupId), this::updateBlogPosts);
+	private void loadBlogPosts(GroupId groupId) {
+		loadList(txn -> loadBlogPosts(txn, groupId), blogPosts::setValue);
 	}
 
 	private void loadSharingContacts(GroupId groupId) {

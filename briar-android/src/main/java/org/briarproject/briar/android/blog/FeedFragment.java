@@ -62,9 +62,6 @@ public class FeedFragment extends BaseFragment
 		component.inject(this);
 		viewModel = new ViewModelProvider(this, viewModelFactory)
 				.get(FeedViewModel.class);
-		// TODO ideally we only do this once when the ViewModel gets created
-		viewModel.loadPersonalBlog();
-		viewModel.loadAllBlogPosts();
 	}
 
 	@Nullable
@@ -154,8 +151,8 @@ public class FeedFragment extends BaseFragment
 
 	@Override
 	public void onBlogPostClick(BlogPostItem post) {
-		FeedPostFragment f =
-				FeedPostFragment.newInstance(post.getGroupId(), post.getId());
+		BaseFragment f =
+				BlogPostFragment.newInstance(post.getGroupId(), post.getId());
 		showNextFragment(f);
 	}
 

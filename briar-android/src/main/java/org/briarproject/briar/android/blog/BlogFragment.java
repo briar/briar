@@ -166,7 +166,6 @@ public class BlogFragment extends BaseFragment
 
 		if (request == REQUEST_WRITE_BLOG_POST && result == RESULT_OK) {
 			displaySnackbar(R.string.blogs_blog_post_created, true);
-			viewModel.loadBlogPosts(groupId);
 		} else if (request == REQUEST_SHARE_BLOG && result == RESULT_OK) {
 			displaySnackbar(R.string.blogs_sharing_snackbar, false);
 		}
@@ -194,7 +193,8 @@ public class BlogFragment extends BaseFragment
 
 	@Override
 	public void onBlogPostClick(BlogPostItem post) {
-		BlogPostFragment f = BlogPostFragment.newInstance(post.getId());
+		BlogPostFragment f =
+				BlogPostFragment.newInstance(groupId, post.getId());
 		showNextFragment(f);
 	}
 

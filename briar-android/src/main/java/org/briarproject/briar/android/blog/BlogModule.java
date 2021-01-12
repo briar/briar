@@ -13,11 +13,11 @@ public interface BlogModule {
 	@Binds
 	@IntoMap
 	@ViewModelKey(FeedViewModel.class)
-	abstract ViewModel bindFeedViewModel(FeedViewModel feedViewModel);
+	ViewModel bindFeedViewModel(FeedViewModel feedViewModel);
 
 	@Binds
 	@IntoMap
 	@ViewModelKey(BlogViewModel.class)
-	abstract ViewModel bindBlogViewModel(BlogViewModel blogViewModel);
+	ViewModel bindBlogViewModel(BlogViewModel blogViewModel);
 
 }

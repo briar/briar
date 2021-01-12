@@ -33,7 +33,7 @@ import static android.view.View.INVISIBLE;
 import static android.view.View.VISIBLE;
 import static java.util.Objects.requireNonNull;
 import static org.briarproject.briar.android.activity.BriarActivity.GROUP_ID;
-import static org.briarproject.briar.android.blog.BasePostFragment.POST_ID;
+import static org.briarproject.briar.android.blog.BlogPostFragment.POST_ID;
 import static org.briarproject.briar.api.blog.BlogConstants.MAX_BLOG_POST_TEXT_LENGTH;
 
 @MethodsNotNullByDefault
@@ -45,7 +45,7 @@ public class ReblogFragment extends BaseFragment implements SendListener {
 	@Inject
 	ViewModelProvider.Factory viewModelFactory;
 
-	private FeedViewModel viewModel;
+	private BlogViewModel viewModel;
 	private ViewHolder ui;
 	private BlogPostItem item;
 
@@ -69,7 +69,7 @@ public class ReblogFragment extends BaseFragment implements SendListener {
 	public void injectFragment(ActivityComponent component) {
 		component.inject(this);
 		viewModel = new ViewModelProvider(requireActivity(), viewModelFactory)
-				.get(FeedViewModel.class);
+				.get(BlogViewModel.class);
 	}
 
 	@Override
@@ -131,7 +131,7 @@ public class ReblogFragment extends BaseFragment implements SendListener {
 		ui.input.setVisibility(VISIBLE);
 	}
 
-	private class ViewHolder {
+	private class ViewHolder implements OnBlogPostClickListener {
 
 		private final ScrollView scrollView;
 		private final ProgressBar progressBar;
@@ -142,24 +142,25 @@ public class ReblogFragment extends BaseFragment implements SendListener {
 			scrollView = v.findViewById(R.id.scrollView);
 			progressBar = v.findViewById(R.id.progressBar);
 			post = new BlogPostViewHolder(v.findViewById(R.id.postLayout),
-					true, new OnBlogPostClickListener() {
-				@Override
-				public void onBlogPostClick(BlogPostItem post) {
-					// do nothing
-				}
-
-				@Override
-				public void onAuthorClick(BlogPostItem post) {
-					// probably don't want to allow author clicks here
-				}
-
-				@Override
-				public void onLinkClick(String url) {
-					LinkDialogFragment f = LinkDialogFragment.newInstance(url);
-					f.show(getParentFragmentManager(), f.getUniqueTag());
-				}
-			});
+					true, this);
 			input = v.findViewById(R.id.inputText);
 		}
+
+		@Override
+		public void onBlogPostClick(BlogPostItem post) {
+			// do nothing
+		}
+
+		@Override
+		public void onAuthorClick(BlogPostItem post) {
+			// probably don't want to allow author clicks here
+		}
+
+		@Override
+		public void onLinkClick(String url) {
+			LinkDialogFragment f = LinkDialogFragment.newInstance(url);
+			f.show(getParentFragmentManager(), f.getUniqueTag());
+		}
 	}
+
 }

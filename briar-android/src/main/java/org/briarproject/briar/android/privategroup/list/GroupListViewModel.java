@@ -193,10 +193,7 @@ class GroupListViewModel extends DbViewModel implements EventListener {
 
 	@UiThread
 	private void onGroupRemoved(GroupId groupId) {
-		List<GroupItem> list =
-				removeListItems(groupItems, i -> i.getId().equals(groupId));
-		if (list == null) return;
-		groupItems.setValue(new LiveResult<>(list));
+		removeAndUpdateListItems(groupItems, i -> i.getId().equals(groupId));
 	}
 
 	void removeGroup(GroupId g) {

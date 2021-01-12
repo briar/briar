@@ -17,6 +17,7 @@ import org.briarproject.bramble.api.sync.GroupId;
 import org.briarproject.bramble.api.sync.event.GroupAddedEvent;
 import org.briarproject.bramble.api.sync.event.GroupRemovedEvent;
 import org.briarproject.bramble.api.system.AndroidExecutor;
+import org.briarproject.briar.android.viewmodel.LiveResult;
 import org.briarproject.briar.api.android.AndroidNotificationManager;
 import org.briarproject.briar.api.blog.Blog;
 import org.briarproject.briar.api.blog.BlogManager;
@@ -59,6 +60,8 @@ class FeedViewModel extends BaseViewModel {
 			BlogManager blogManager) {
 		super(application, dbExecutor, lifecycleManager, db, androidExecutor,
 				eventBus, identityManager, notificationManager, blogManager);
+		loadPersonalBlog();
+		loadAllBlogPosts();
 	}
 
 	@Override
@@ -71,13 +74,15 @@ class FeedViewModel extends BaseViewModel {
 			GroupAddedEvent g = (GroupAddedEvent) e;
 			if (g.getGroup().getClientId().equals(CLIENT_ID)) {
 				LOG.info("Blog added");
-				loadAllBlogPosts();
+				// TODO how can this even happen?
+				//  added RSS feeds should trigger BlogPostAddedEvent, no?
+				onBlogAdded(g.getGroup().getId());
 			}
 		} else if (e instanceof GroupRemovedEvent) {
 			GroupRemovedEvent g = (GroupRemovedEvent) e;
 			if (g.getGroup().getClientId().equals(CLIENT_ID)) {
 				LOG.info("Blog removed");
-				loadAllBlogPosts();
+				onBlogRemoved(g.getGroup().getId());
 			}
 		}
 	}
@@ -94,7 +99,7 @@ class FeedViewModel extends BaseViewModel {
 		notificationManager.unblockAllBlogPostNotifications();
 	}
 
-	void loadPersonalBlog() {
+	private void loadPersonalBlog() {
 		runOnDbThread(() -> {
 			try {
 				long start = now();
@@ -112,8 +117,8 @@ class FeedViewModel extends BaseViewModel {
 		return personalBlog;
 	}
 
-	void loadAllBlogPosts() {
-		loadList(this::loadAllBlogPosts, this::updateBlogPosts);
+	private void loadAllBlogPosts() {
+		loadList(this::loadAllBlogPosts, blogPosts::setValue);
 	}
 
 	@DatabaseExecutor
@@ -131,6 +136,32 @@ class FeedViewModel extends BaseViewModel {
 		Collections.sort(posts);
 		logDuration(LOG, "Loading all posts", start);
 		return posts;
+	}
+
+	private void onBlogAdded(GroupId g) {
+		runOnDbThread(() -> {
+			try {
+				db.transaction(true, txn -> {
+					List<BlogPostItem> posts = loadBlogPosts(txn, g);
+					txn.attach(() -> {
+						List<BlogPostItem> items =
+								addListItems(blogPosts, posts);
+						if (items != null) {
+							Collections.sort(items);
+							blogPosts.setValue(new LiveResult<>(items));
+						}
+					});
+				});
+			} catch (DbException e) {
+				logException(LOG, WARNING, e);
+			}
+		});
+	}
+
+	private void onBlogRemoved(GroupId g) {
+		removeAndUpdateListItems(blogPosts, item ->
+				item.getGroupId().equals(g)
+		);
 	}
 
 }

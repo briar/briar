@@ -25,11 +25,14 @@ import androidx.recyclerview.widget.RecyclerView;
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
 import static org.briarproject.briar.android.activity.BriarActivity.GROUP_ID;
-import static org.briarproject.briar.android.blog.BasePostFragment.POST_ID;
+import static org.briarproject.briar.android.blog.BlogPostFragment.POST_ID;
 import static org.briarproject.briar.android.util.UiUtils.TEASER_LENGTH;
 import static org.briarproject.briar.android.util.UiUtils.getSpanned;
 import static org.briarproject.briar.android.util.UiUtils.getTeaser;
 import static org.briarproject.briar.android.util.UiUtils.makeLinksClickable;
+import static org.briarproject.briar.android.view.AuthorView.COMMENTER;
+import static org.briarproject.briar.android.view.AuthorView.REBLOGGER;
+import static org.briarproject.briar.android.view.AuthorView.RSS_FEED_REBLOGGED;
 import static org.briarproject.briar.api.blog.MessageType.POST;
 
 @UiThread
@@ -138,17 +141,16 @@ class BlogPostViewHolder extends RecyclerView.ViewHolder {
 			reblogger.setAuthorClickable(v -> listener.onAuthorClick(item));
 		}
 		reblogger.setVisibility(VISIBLE);
-		reblogger.setPersona(AuthorView.REBLOGGER);
+		reblogger.setPersona(REBLOGGER);
 
 		author.setPersona(item.getHeader().getRootPost().isRssFeed() ?
-				AuthorView.RSS_FEED_REBLOGGED :
-				AuthorView.COMMENTER);
+				RSS_FEED_REBLOGGED : COMMENTER);
 
 		// comments
+		// TODO use nested RecyclerView instead like we do for Image Attachments
 		for (BlogCommentHeader c : item.getComments()) {
-			View v = LayoutInflater.from(ctx)
-					.inflate(R.layout.list_item_blog_comment,
-							commentContainer, false);
+			View v = LayoutInflater.from(ctx).inflate(
+					R.layout.list_item_blog_comment, commentContainer, false);
 
 			AuthorView author = v.findViewById(R.id.authorView);
 			TextView text = v.findViewById(R.id.textView);

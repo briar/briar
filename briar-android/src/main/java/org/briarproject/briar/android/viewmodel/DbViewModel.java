@@ -13,6 +13,7 @@ import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.system.AndroidExecutor;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.concurrent.Executor;
@@ -27,6 +28,7 @@ import androidx.arch.core.util.Function;
 import androidx.core.util.Consumer;
 import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
+import androidx.lifecycle.MutableLiveData;
 import androidx.recyclerview.widget.RecyclerView;
 
 import static java.util.logging.Level.WARNING;
@@ -153,11 +155,31 @@ public abstract class DbViewModel extends AndroidViewModel {
 	 * </ul>
 	 */
 	@Nullable
-	protected <T> List<T> addListItem(LiveData<LiveResult<List<T>>> liveData, T item) {
+	protected <T> List<T> addListItem(LiveData<LiveResult<List<T>>> liveData,
+			T item) {
 		List<T> items = getListCopy(liveData);
 		if (items == null) return null;
 		items.add(item);
 		return items;
+	}
+
+	/**
+	 * Creates a copy of the list available in the given LiveData
+	 * and adds the given items to the copy.
+	 *
+	 * @return a copy of the list in the LiveData with items added or null when
+	 * <ul>
+	 * <li> LiveData does not have a value
+	 * <li> LiveResult in the LiveData has an error
+	 * </ul>
+	 */
+	@Nullable
+	protected <T> List<T> addListItems(LiveData<LiveResult<List<T>>> liveData,
+			Collection<T> items) {
+		List<T> copiedItems = getListCopy(liveData);
+		if (copiedItems == null) return null;
+		copiedItems.addAll(items);
+		return copiedItems;
 	}
 
 	/**
@@ -219,6 +241,25 @@ public abstract class DbViewModel extends AndroidViewModel {
 			}
 		}
 		return changed ? items : null;
+	}
+
+	/**
+	 * Updates the given LiveData with a copy of its list
+	 * with the items removed where the given test function returns true.
+	 * <p>
+	 * Nothing is updated, if the
+	 * <ul>
+	 * <li> LiveData does not have a value
+	 * <li> LiveResult in the LiveData has an error
+	 * <li> test function did return false for all items in the list
+	 * </ul>
+	 */
+	@UiThread
+	protected <T> void removeAndUpdateListItems(
+			MutableLiveData<LiveResult<List<T>>> liveData,
+			Function<T, Boolean> test) {
+		List<T> list = removeListItems(liveData, test);
+		if (list != null) liveData.setValue(new LiveResult<>(list));
 	}
 
 	/**

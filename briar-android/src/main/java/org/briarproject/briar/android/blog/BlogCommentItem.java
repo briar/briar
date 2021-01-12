@@ -8,7 +8,9 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
-// This class is not thread-safe
+import javax.annotation.concurrent.NotThreadSafe;
+
+@NotThreadSafe
 class BlogCommentItem extends BlogPostItem {
 
 	private static final BlogCommentComparator COMPARATOR =

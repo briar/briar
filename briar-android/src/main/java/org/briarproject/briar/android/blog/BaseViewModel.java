@@ -6,7 +6,6 @@ import org.briarproject.bramble.api.db.DatabaseExecutor;
 import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.db.Transaction;
 import org.briarproject.bramble.api.db.TransactionManager;
-import org.briarproject.bramble.api.event.Event;
 import org.briarproject.bramble.api.event.EventBus;
 import org.briarproject.bramble.api.event.EventListener;
 import org.briarproject.bramble.api.identity.IdentityManager;
@@ -28,13 +27,10 @@ import org.briarproject.briar.util.HtmlUtils;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executor;
 import java.util.logging.Logger;
 
 import javax.annotation.Nullable;
-import javax.inject.Inject;
 
 import androidx.annotation.UiThread;
 import androidx.lifecycle.LiveData;
@@ -48,27 +44,23 @@ import static org.briarproject.bramble.util.LogUtils.now;
 import static org.briarproject.briar.util.HtmlUtils.ARTICLE;
 
 @NotNullByDefault
-public class BaseViewModel extends DbViewModel implements EventListener {
+abstract class BaseViewModel extends DbViewModel implements EventListener {
 
 	private static final Logger LOG = getLogger(BaseViewModel.class.getName());
 
-	protected final TransactionManager db;
 	private final EventBus eventBus;
+	protected final TransactionManager db;
 	protected final IdentityManager identityManager;
 	protected final AndroidNotificationManager notificationManager;
 	protected final BlogManager blogManager;
 
-	private final MutableLiveData<LiveResult<List<BlogPostItem>>> blogPosts =
+	protected final MutableLiveData<LiveResult<List<BlogPostItem>>> blogPosts =
 			new MutableLiveData<>();
 
-	// TODO do we still need those caches?
-	private final Map<MessageId, String> textCache = new ConcurrentHashMap<>();
-	private final Map<MessageId, BlogPostHeader> headerCache =
-			new ConcurrentHashMap<>();
+	// UI thread
 	@Nullable
 	private Boolean postAddedWasLocal = null;
 
-	@Inject
 	BaseViewModel(Application application,
 			@DatabaseExecutor Executor dbExecutor,
 			LifecycleManager lifecycleManager,
@@ -84,7 +76,6 @@ public class BaseViewModel extends DbViewModel implements EventListener {
 		this.identityManager = identityManager;
 		this.notificationManager = notificationManager;
 		this.blogManager = blogManager;
-
 		eventBus.addListener(this);
 	}
 
@@ -92,10 +83,6 @@ public class BaseViewModel extends DbViewModel implements EventListener {
 	protected void onCleared() {
 		super.onCleared();
 		eventBus.removeListener(this);
-	}
-
-	@Override
-	public void eventOccurred(Event e) {
 	}
 
 	@DatabaseExecutor
@@ -108,7 +95,6 @@ public class BaseViewModel extends DbViewModel implements EventListener {
 		List<BlogPostItem> items = new ArrayList<>(headers.size());
 		start = now();
 		for (BlogPostHeader h : headers) {
-			headerCache.put(h.getId(), h);
 			BlogPostItem item = getItem(txn, h);
 			items.add(item);
 		}
@@ -135,12 +121,7 @@ public class BaseViewModel extends DbViewModel implements EventListener {
 	@DatabaseExecutor
 	private String getPostText(Transaction txn, MessageId m)
 			throws DbException {
-		String text = textCache.get(m);
-		if (text == null) {
-			text = HtmlUtils.clean(blogManager.getPostText(txn, m), ARTICLE);
-			textCache.put(m, text);
-		}
-		return text;
+		return HtmlUtils.clean(blogManager.getPostText(txn, m), ARTICLE);
 	}
 
 	LiveData<LiveResult<BlogPostItem>> loadBlogPost(GroupId g, MessageId m) {
@@ -149,7 +130,7 @@ public class BaseViewModel extends DbViewModel implements EventListener {
 		runOnDbThread(() -> {
 			try {
 				long start = now();
-				BlogPostHeader header = getPostHeader(g, m);
+				BlogPostHeader header = blogManager.getPostHeader(g, m);
 				BlogPostItem item = db.transactionWithResult(true, txn ->
 						getItem(txn, header)
 				);
@@ -163,24 +144,7 @@ public class BaseViewModel extends DbViewModel implements EventListener {
 		return result;
 	}
 
-	@DatabaseExecutor
-	private BlogPostHeader getPostHeader(GroupId g, MessageId m)
-			throws DbException {
-		BlogPostHeader header = headerCache.get(m);
-		if (header == null) {
-			header = blogManager.getPostHeader(g, m);
-			headerCache.put(m, header);
-		}
-		return header;
-	}
-
-	@UiThread
-	protected void updateBlogPosts(LiveResult<List<BlogPostItem>> posts) {
-		blogPosts.setValue(posts);
-	}
-
 	protected void onBlogPostAdded(BlogPostHeader header, boolean local) {
-		postAddedWasLocal = local;
 		runOnDbThread(() -> {
 			try {
 				db.transaction(true, txn -> {
@@ -189,6 +153,7 @@ public class BaseViewModel extends DbViewModel implements EventListener {
 						List<BlogPostItem> items = addListItem(blogPosts, item);
 						if (items != null) {
 							Collections.sort(items);
+							postAddedWasLocal = local;
 							blogPosts.setValue(new LiveResult<>(items));
 						}
 					});

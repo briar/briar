@@ -17,7 +17,7 @@ public class BlogPostItem implements Comparable<BlogPostItem> {
 	private final BlogPostHeader header;
 	@Nullable
 	protected String text;
-	private boolean read;
+	private final boolean read;
 
 	BlogPostItem(BlogPostHeader header, @Nullable String text) {
 		this.header = header;

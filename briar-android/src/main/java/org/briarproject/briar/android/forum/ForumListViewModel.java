@@ -156,11 +156,9 @@ class ForumListViewModel extends DbViewModel implements EventListener {
 
 	@UiThread
 	private void onGroupRemoved(GroupId groupId) {
-		List<ForumListItem> list = removeListItems(forumItems, i ->
+		removeAndUpdateListItems(forumItems, i ->
 				i.getForum().getId().equals(groupId)
 		);
-		if (list == null) return;
-		forumItems.setValue(new LiveResult<>(list));
 	}
 
 	void loadForumInvitations() {
