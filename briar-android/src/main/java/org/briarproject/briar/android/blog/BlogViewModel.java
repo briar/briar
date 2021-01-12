@@ -2,6 +2,8 @@ package org.briarproject.briar.android.blog;
 
 import android.app.Application;
 
+import org.briarproject.bramble.api.contact.Contact;
+import org.briarproject.bramble.api.contact.ContactId;
 import org.briarproject.bramble.api.db.DatabaseExecutor;
 import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.db.TransactionManager;
@@ -10,20 +12,26 @@ import org.briarproject.bramble.api.event.EventBus;
 import org.briarproject.bramble.api.identity.IdentityManager;
 import org.briarproject.bramble.api.identity.LocalAuthor;
 import org.briarproject.bramble.api.lifecycle.LifecycleManager;
-import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
+import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
+import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
 import org.briarproject.bramble.api.sync.GroupId;
 import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.bramble.api.sync.event.GroupRemovedEvent;
 import org.briarproject.bramble.api.system.AndroidExecutor;
+import org.briarproject.briar.android.sharing.SharingController;
+import org.briarproject.briar.android.sharing.SharingController.SharingInfo;
 import org.briarproject.briar.android.viewmodel.LiveResult;
 import org.briarproject.briar.api.android.AndroidNotificationManager;
 import org.briarproject.briar.api.blog.Blog;
 import org.briarproject.briar.api.blog.BlogInvitationResponse;
 import org.briarproject.briar.api.blog.BlogManager;
+import org.briarproject.briar.api.blog.BlogSharingManager;
 import org.briarproject.briar.api.blog.event.BlogInvitationResponseReceivedEvent;
 import org.briarproject.briar.api.blog.event.BlogPostAddedEvent;
 import org.briarproject.briar.api.sharing.event.ContactLeftShareableEvent;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.concurrent.Executor;
 import java.util.logging.Logger;
 
@@ -38,13 +46,16 @@ import static org.briarproject.bramble.util.LogUtils.logDuration;
 import static org.briarproject.bramble.util.LogUtils.logException;
 import static org.briarproject.bramble.util.LogUtils.now;
 
-@NotNullByDefault
+@MethodsNotNullByDefault
+@ParametersNotNullByDefault
 class BlogViewModel extends BaseViewModel {
 
 	private static final Logger LOG = getLogger(BlogViewModel.class.getName());
 
-	// implicitly non-null
-	private volatile GroupId groupId = null;
+	private final BlogSharingManager blogSharingManager;
+	private final SharingController sharingController;
+
+	private volatile GroupId groupId;
 
 	private final MutableLiveData<BlogItem> blog = new MutableLiveData<>();
 	private final MutableLiveData<Boolean> blogRemoved =
@@ -59,9 +70,13 @@ class BlogViewModel extends BaseViewModel {
 			EventBus eventBus,
 			IdentityManager identityManager,
 			AndroidNotificationManager notificationManager,
-			BlogManager blogManager) {
+			BlogManager blogManager,
+			BlogSharingManager blogSharingManager,
+			SharingController sharingController) {
 		super(application, dbExecutor, lifecycleManager, db, androidExecutor,
 				eventBus, identityManager, notificationManager, blogManager);
+		this.blogSharingManager = blogSharingManager;
+		this.sharingController = sharingController;
 	}
 
 	@Override
@@ -78,17 +93,13 @@ class BlogViewModel extends BaseViewModel {
 			BlogInvitationResponse r = b.getMessageHeader();
 			if (r.getShareableId().equals(groupId) && r.wasAccepted()) {
 				LOG.info("Blog invitation accepted");
-				// TODO
-//				onBlogInvitationAccepted(b.getContactId());
-// 				sharingController.add(c);
+				sharingController.add(b.getContactId());
 			}
 		} else if (e instanceof ContactLeftShareableEvent) {
 			ContactLeftShareableEvent s = (ContactLeftShareableEvent) e;
 			if (s.getGroupId().equals(groupId)) {
 				LOG.info("Blog left by contact");
-				// TODO
-//				onBlogLeft(s.getContactId());
-// 				sharingController.remove(c);
+				sharingController.remove(s.getContactId());
 			}
 		} else if (e instanceof GroupRemovedEvent) {
 			GroupRemovedEvent g = (GroupRemovedEvent) e;
@@ -106,6 +117,7 @@ class BlogViewModel extends BaseViewModel {
 		this.groupId = groupId;
 		loadBlog(groupId);
 		loadBlogPosts(groupId);
+		loadSharingContacts(groupId);
 	}
 
 	private void loadBlog(GroupId groupId) {
@@ -140,6 +152,21 @@ class BlogViewModel extends BaseViewModel {
 		loadList(txn -> loadBlogPosts(txn, groupId), this::updateBlogPosts);
 	}
 
+	private void loadSharingContacts(GroupId groupId) {
+		runOnDbThread(() -> {
+			try {
+				Collection<Contact> contacts =
+						blogSharingManager.getSharedWith(groupId);
+				Collection<ContactId> contactIds =
+						new ArrayList<>(contacts.size());
+				for (Contact c : contacts) contactIds.add(c.getId());
+				sharingController.addAll(contactIds);
+			} catch (DbException e) {
+				logException(LOG, WARNING, e);
+			}
+		});
+	}
+
 	void deleteBlog() {
 		runOnDbThread(() -> {
 			try {
@@ -165,4 +192,7 @@ class BlogViewModel extends BaseViewModel {
 		return blogRemoved;
 	}
 
+	LiveData<SharingInfo> getSharingInfo() {
+		return sharingController.getSharingInfo();
+	}
 }

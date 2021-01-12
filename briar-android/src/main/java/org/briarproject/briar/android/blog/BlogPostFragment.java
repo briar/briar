@@ -25,8 +25,6 @@ public class BlogPostFragment extends BasePostFragment {
 
 	@Inject
 	ViewModelProvider.Factory viewModelFactory;
-	@Inject
-	BlogController blogController;
 
 	private BlogViewModel viewModel;
 

@@ -11,7 +11,6 @@ import org.briarproject.briar.android.account.SetupActivity;
 import org.briarproject.briar.android.account.UnlockActivity;
 import org.briarproject.briar.android.blog.BlogActivity;
 import org.briarproject.briar.android.blog.BlogFragment;
-import org.briarproject.briar.android.blog.BlogModule;
 import org.briarproject.briar.android.blog.BlogPostFragment;
 import org.briarproject.briar.android.blog.FeedFragment;
 import org.briarproject.briar.android.blog.FeedPostFragment;
@@ -85,7 +84,6 @@ import dagger.Component;
 @ActivityScope
 @Component(modules = {
 		ActivityModule.class,
-		BlogModule.class,
 		CreateGroupModule.class,
 		GroupInvitationModule.class,
 		GroupMemberModule.class,

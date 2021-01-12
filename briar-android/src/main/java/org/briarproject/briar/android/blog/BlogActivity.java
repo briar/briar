@@ -18,6 +18,8 @@ import javax.inject.Inject;
 import androidx.appcompat.widget.Toolbar;
 import androidx.lifecycle.ViewModelProvider;
 
+import static java.util.Objects.requireNonNull;
+
 @MethodsNotNullByDefault
 @ParametersNotNullByDefault
 public class BlogActivity extends BriarActivity
@@ -25,8 +27,6 @@ public class BlogActivity extends BriarActivity
 
 	@Inject
 	ViewModelProvider.Factory viewModelFactory;
-	@Inject
-	BlogController blogController;
 
 	private BlogViewModel viewModel;
 
@@ -43,28 +43,36 @@ public class BlogActivity extends BriarActivity
 
 		// GroupId from Intent
 		Intent i = getIntent();
-		byte[] b = i.getByteArrayExtra(GROUP_ID);
-		if (b == null) throw new IllegalStateException("No group ID in intent");
-		GroupId groupId = new GroupId(b);
-		blogController.setGroupId(groupId);
+		GroupId groupId =
+				new GroupId(requireNonNull(i.getByteArrayExtra(GROUP_ID)));
 		viewModel.setGroupId(groupId);
 
 		setContentView(R.layout.activity_fragment_container_toolbar);
 		Toolbar toolbar = setUpCustomToolbar(false);
 
 		// Open Sharing Status on Toolbar click
-		if (toolbar != null) {
-			toolbar.setOnClickListener(v -> {
-				Intent i1 = new Intent(BlogActivity.this,
-						BlogSharingStatusActivity.class);
-				i1.putExtra(GROUP_ID, groupId.getBytes());
-				startActivity(i1);
-			});
-		}
+		toolbar.setOnClickListener(v -> {
+			Intent i1 = new Intent(BlogActivity.this,
+					BlogSharingStatusActivity.class);
+			i1.putExtra(GROUP_ID, groupId.getBytes());
+			startActivity(i1);
+		});
+
+		viewModel.getBlog().observe(this, blog ->
+				setTitle(blog.getBlog().getAuthor().getName())
+		);
+		viewModel.getSharingInfo().observe(this, info ->
+				setToolbarSubTitle(info.total, info.online)
+		);
 
 		if (state == null) {
 			showInitialFragment(BlogFragment.newInstance(groupId));
 		}
+	}
+
+	private void setToolbarSubTitle(int total, int online) {
+		requireNonNull(getSupportActionBar())
+				.setSubtitle(getString(R.string.shared_with, total, online));
 	}
 
 }

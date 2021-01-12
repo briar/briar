@@ -11,17 +11,11 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
-import org.briarproject.bramble.api.contact.ContactId;
-import org.briarproject.bramble.api.db.DbException;
-import org.briarproject.bramble.api.identity.Author;
 import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
 import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
 import org.briarproject.bramble.api.sync.GroupId;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.activity.ActivityComponent;
-import org.briarproject.briar.android.activity.BriarActivity;
-import org.briarproject.briar.android.controller.SharingController;
-import org.briarproject.briar.android.controller.handler.UiResultExceptionHandler;
 import org.briarproject.briar.android.fragment.BaseFragment;
 import org.briarproject.briar.android.sharing.BlogSharingStatusActivity;
 import org.briarproject.briar.android.sharing.ShareBlogActivity;
@@ -29,14 +23,12 @@ import org.briarproject.briar.android.util.BriarSnackbarBuilder;
 import org.briarproject.briar.android.view.BriarRecyclerView;
 import org.briarproject.briar.android.widget.LinkDialogFragment;
 
-import java.util.Collection;
 import java.util.List;
 
 import javax.inject.Inject;
 
 import androidx.annotation.Nullable;
 import androidx.annotation.UiThread;
-import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AlertDialog;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -49,22 +41,17 @@ import static com.google.android.material.snackbar.Snackbar.LENGTH_LONG;
 import static org.briarproject.briar.android.activity.BriarActivity.GROUP_ID;
 import static org.briarproject.briar.android.activity.RequestCodes.REQUEST_SHARE_BLOG;
 import static org.briarproject.briar.android.activity.RequestCodes.REQUEST_WRITE_BLOG_POST;
-import static org.briarproject.briar.android.controller.SharingController.SharingListener;
 
 @UiThread
 @MethodsNotNullByDefault
 @ParametersNotNullByDefault
 public class BlogFragment extends BaseFragment
-		implements SharingListener, OnBlogPostClickListener {
+		implements OnBlogPostClickListener {
 
 	private final static String TAG = BlogFragment.class.getName();
 
 	@Inject
 	ViewModelProvider.Factory viewModelFactory;
-	@Inject
-	BlogController blogController;
-	@Inject
-	SharingController sharingController;
 	@Nullable
 	private Parcelable layoutManagerState;
 
@@ -89,7 +76,6 @@ public class BlogFragment extends BaseFragment
 		component.inject(this);
 		viewModel = new ViewModelProvider(requireActivity(), viewModelFactory)
 				.get(BlogViewModel.class);
-		sharingController.setSharingListener(this);
 	}
 
 	@Nullable
@@ -132,8 +118,6 @@ public class BlogFragment extends BaseFragment
 		super.onStart();
 		viewModel.blockNotifications();
 		viewModel.clearBlogPostNotifications();
-		sharingController.onStart();
-		loadSharedContacts();
 		list.startPeriodicUpdate();
 	}
 
@@ -141,14 +125,7 @@ public class BlogFragment extends BaseFragment
 	public void onStop() {
 		super.onStop();
 		viewModel.unblockNotifications();
-		sharingController.onStop();
 		list.stopPeriodicUpdate();
-	}
-
-	@Override
-	public void onDestroy() {
-		super.onDestroy();
-		sharingController.unsetSharingListener(this);
 	}
 
 	@Override
@@ -166,7 +143,6 @@ public class BlogFragment extends BaseFragment
 		MenuItem writeButton = menu.findItem(R.id.action_write_blog_post);
 		MenuItem deleteButton = menu.findItem(R.id.action_blog_delete);
 		viewModel.getBlog().observe(getViewLifecycleOwner(), blog -> {
-			setToolbarTitle(blog.getBlog().getAuthor());
 			if (blog.isOurs()) writeButton.setVisible(true);
 			if (blog.canBeRemoved()) deleteButton.setEnabled(true);
 		});
@@ -263,42 +239,6 @@ public class BlogFragment extends BaseFragment
 	public void onLinkClick(String url) {
 		LinkDialogFragment f = LinkDialogFragment.newInstance(url);
 		f.show(getParentFragmentManager(), f.getUniqueTag());
-	}
-
-	private void setToolbarTitle(Author a) {
-		requireActivity().setTitle(a.getName());
-	}
-
-	private void loadSharedContacts() {
-		blogController.loadSharingContacts(
-				new UiResultExceptionHandler<Collection<ContactId>,
-						DbException>(this) {
-					@Override
-					public void onResultUi(Collection<ContactId> contacts) {
-						sharingController.addAll(contacts);
-						int online = sharingController.getOnlineCount();
-						setToolbarSubTitle(contacts.size(), online);
-					}
-
-					@Override
-					public void onExceptionUi(DbException exception) {
-						handleException(exception);
-					}
-				});
-	}
-
-	@Override
-	public void onSharingInfoUpdated(int total, int online) {
-		setToolbarSubTitle(total, online);
-	}
-
-	private void setToolbarSubTitle(int total, int online) {
-		ActionBar actionBar =
-				((BriarActivity) requireActivity()).getSupportActionBar();
-		if (actionBar != null) {
-			actionBar.setSubtitle(
-					getString(R.string.shared_with, total, online));
-		}
 	}
 
 	private void displaySnackbar(int stringId, boolean scroll) {
