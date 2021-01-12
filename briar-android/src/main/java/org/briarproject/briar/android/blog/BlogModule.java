@@ -21,6 +21,11 @@ public class BlogModule {
 		@IntoMap
 		@ViewModelKey(FeedViewModel.class)
 		abstract ViewModel bindFeedViewModel(FeedViewModel feedViewModel);
+
+		@Binds
+		@IntoMap
+		@ViewModelKey(BlogViewModel.class)
+		abstract ViewModel bindBlogViewModel(BlogViewModel blogViewModel);
 	}
 
 	@ActivityScope

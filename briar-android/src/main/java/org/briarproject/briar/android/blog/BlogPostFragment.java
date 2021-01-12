@@ -1,29 +1,34 @@
 package org.briarproject.briar.android.blog;
 
 import android.os.Bundle;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
 
-import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
 import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
 import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.briar.android.activity.ActivityComponent;
-import org.briarproject.briar.android.blog.BaseController.BlogListener;
-import org.briarproject.briar.android.controller.handler.UiResultExceptionHandler;
-import org.briarproject.briar.api.blog.BlogPostHeader;
 
+import javax.annotation.Nullable;
 import javax.inject.Inject;
 
 import androidx.annotation.UiThread;
+import androidx.lifecycle.ViewModelProvider;
 
 @UiThread
 @MethodsNotNullByDefault
 @ParametersNotNullByDefault
-public class BlogPostFragment extends BasePostFragment implements BlogListener {
+public class BlogPostFragment extends BasePostFragment {
 
 	private static final String TAG = BlogPostFragment.class.getName();
 
 	@Inject
+	ViewModelProvider.Factory viewModelFactory;
+	@Inject
 	BlogController blogController;
+
+	private BlogViewModel viewModel;
 
 	static BlogPostFragment newInstance(MessageId postId) {
 		BlogPostFragment f = new BlogPostFragment();
@@ -36,41 +41,28 @@ public class BlogPostFragment extends BasePostFragment implements BlogListener {
 	}
 
 	@Override
+	public void injectFragment(ActivityComponent component) {
+		component.inject(this);
+		viewModel = new ViewModelProvider(requireActivity(), viewModelFactory)
+				.get(BlogViewModel.class);
+	}
+
+	@Override
 	public String getUniqueTag() {
 		return TAG;
 	}
 
+	@Nullable
 	@Override
-	public void injectFragment(ActivityComponent component) {
-		component.inject(this);
-	}
-
-	@Override
-	public void onStart() {
-		super.onStart();
-		blogController.loadBlogPost(postId,
-				new UiResultExceptionHandler<BlogPostItem, DbException>(
-						this) {
-					@Override
-					public void onResultUi(BlogPostItem post) {
-						onBlogPostLoaded(post);
-					}
-
-					@Override
-					public void onExceptionUi(DbException exception) {
-						handleException(exception);
-					}
-				});
-	}
-
-	@Override
-	public void onBlogPostAdded(BlogPostHeader header, boolean local) {
-		// doesn't matter here
-	}
-
-	@Override
-	public void onBlogRemoved() {
-		finish();
+	public View onCreateView(LayoutInflater inflater,
+			@Nullable ViewGroup container,
+			@Nullable Bundle savedInstanceState) {
+		View v = super.onCreateView(inflater, container, savedInstanceState);
+		viewModel.loadBlogPost(postId).observe(getViewLifecycleOwner(), res ->
+				res.onError(this::handleException)
+						.onSuccess(this::onBlogPostLoaded)
+		);
+		return v;
 	}
 
 }

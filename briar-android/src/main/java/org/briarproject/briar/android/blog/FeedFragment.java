@@ -63,8 +63,7 @@ public class FeedFragment extends BaseFragment
 	@Override
 	public void injectFragment(ActivityComponent component) {
 		component.inject(this);
-		// TODO don't use NavDrawerActivity scope here
-		viewModel = new ViewModelProvider(requireActivity(), viewModelFactory)
+		viewModel = new ViewModelProvider(this, viewModelFactory)
 				.get(FeedViewModel.class);
 		// TODO ideally we only do this once when the ViewModel gets created
 		viewModel.loadPersonalBlog();
@@ -88,7 +87,7 @@ public class FeedFragment extends BaseFragment
 		list.setEmptyText(R.string.blogs_feed_empty_state);
 		list.setEmptyAction(R.string.blogs_feed_empty_state_action);
 
-		viewModel.getAllBlogPosts().observe(getViewLifecycleOwner(), result ->
+		viewModel.getBlogPosts().observe(getViewLifecycleOwner(), result ->
 				result
 						.onError(this::handleException)
 						.onSuccess(this::onBlogPostsLoaded)
@@ -135,6 +134,7 @@ public class FeedFragment extends BaseFragment
 			} else if (wasLocal != null) {
 				showSnackBar(R.string.blogs_blog_post_received);
 			}
+			list.showData();
 		});
 	}
 

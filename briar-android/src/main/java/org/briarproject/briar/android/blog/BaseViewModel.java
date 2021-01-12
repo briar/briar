@@ -4,7 +4,6 @@ import android.app.Application;
 
 import org.briarproject.bramble.api.db.DatabaseExecutor;
 import org.briarproject.bramble.api.db.DbException;
-import org.briarproject.bramble.api.db.NoSuchMessageException;
 import org.briarproject.bramble.api.db.Transaction;
 import org.briarproject.bramble.api.db.TransactionManager;
 import org.briarproject.bramble.api.event.Event;
@@ -19,6 +18,7 @@ import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.bramble.api.system.AndroidExecutor;
 import org.briarproject.briar.android.viewmodel.DbViewModel;
 import org.briarproject.briar.android.viewmodel.LiveResult;
+import org.briarproject.briar.api.android.AndroidNotificationManager;
 import org.briarproject.briar.api.blog.Blog;
 import org.briarproject.briar.api.blog.BlogCommentHeader;
 import org.briarproject.briar.api.blog.BlogManager;
@@ -26,6 +26,7 @@ import org.briarproject.briar.api.blog.BlogPostHeader;
 import org.briarproject.briar.util.HtmlUtils;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -35,11 +36,10 @@ import java.util.logging.Logger;
 import javax.annotation.Nullable;
 import javax.inject.Inject;
 
+import androidx.annotation.UiThread;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
-import androidx.lifecycle.Transformations;
 
-import static java.util.Objects.requireNonNull;
 import static java.util.logging.Level.WARNING;
 import static java.util.logging.Logger.getLogger;
 import static org.briarproject.bramble.util.LogUtils.logDuration;
@@ -50,20 +50,23 @@ import static org.briarproject.briar.util.HtmlUtils.ARTICLE;
 @NotNullByDefault
 public class BaseViewModel extends DbViewModel implements EventListener {
 
-	private static Logger LOG = getLogger(BaseViewModel.class.getName());
+	private static final Logger LOG = getLogger(BaseViewModel.class.getName());
 
 	protected final TransactionManager db;
 	private final EventBus eventBus;
 	protected final IdentityManager identityManager;
+	protected final AndroidNotificationManager notificationManager;
 	protected final BlogManager blogManager;
 
-	protected final MutableLiveData<LiveResult<List<BlogPostItem>>> blogPosts =
+	private final MutableLiveData<LiveResult<List<BlogPostItem>>> blogPosts =
 			new MutableLiveData<>();
 
 	// TODO do we still need those caches?
 	private final Map<MessageId, String> textCache = new ConcurrentHashMap<>();
 	private final Map<MessageId, BlogPostHeader> headerCache =
 			new ConcurrentHashMap<>();
+	@Nullable
+	private Boolean postAddedWasLocal = null;
 
 	@Inject
 	BaseViewModel(Application application,
@@ -73,11 +76,13 @@ public class BaseViewModel extends DbViewModel implements EventListener {
 			AndroidExecutor androidExecutor,
 			EventBus eventBus,
 			IdentityManager identityManager,
+			AndroidNotificationManager notificationManager,
 			BlogManager blogManager) {
 		super(application, dbExecutor, lifecycleManager, db, androidExecutor);
 		this.db = db;
 		this.eventBus = eventBus;
 		this.identityManager = identityManager;
+		this.notificationManager = notificationManager;
 		this.blogManager = blogManager;
 
 		eventBus.addListener(this);
@@ -91,10 +96,6 @@ public class BaseViewModel extends DbViewModel implements EventListener {
 
 	@Override
 	public void eventOccurred(Event e) {
-	}
-
-	void loadItems(GroupId groupId) {
-		loadList(txn -> loadBlogPosts(txn, groupId), blogPosts::setValue);
 	}
 
 	@DatabaseExecutor
@@ -148,9 +149,9 @@ public class BaseViewModel extends DbViewModel implements EventListener {
 		runOnDbThread(() -> {
 			try {
 				long start = now();
-				BlogPostHeader header1 = getPostHeader(g, m);
+				BlogPostHeader header = getPostHeader(g, m);
 				BlogPostItem item = db.transactionWithResult(true, txn ->
-						getItem(txn, header1)
+						getItem(txn, header)
 				);
 				logDuration(LOG, "Loading post", start);
 				result.postValue(new LiveResult<>(item));
@@ -173,6 +174,31 @@ public class BaseViewModel extends DbViewModel implements EventListener {
 		return header;
 	}
 
+	@UiThread
+	protected void updateBlogPosts(LiveResult<List<BlogPostItem>> posts) {
+		blogPosts.setValue(posts);
+	}
+
+	protected void onBlogPostAdded(BlogPostHeader header, boolean local) {
+		postAddedWasLocal = local;
+		runOnDbThread(() -> {
+			try {
+				db.transaction(true, txn -> {
+					BlogPostItem item = getItem(txn, header);
+					txn.attach(() -> {
+						List<BlogPostItem> items = addListItem(blogPosts, item);
+						if (items != null) {
+							Collections.sort(items);
+							blogPosts.setValue(new LiveResult<>(items));
+						}
+					});
+				});
+			} catch (DbException e) {
+				logException(LOG, WARNING, e);
+			}
+		});
+	}
+
 	void repeatPost(BlogPostItem item, @Nullable String comment) {
 		runOnDbThread(() -> {
 			try {
@@ -186,34 +212,17 @@ public class BaseViewModel extends DbViewModel implements EventListener {
 		});
 	}
 
-	LiveData<LiveResult<List<BlogPostItem>>> getAllBlogPosts() {
+	LiveData<LiveResult<List<BlogPostItem>>> getBlogPosts() {
 		return blogPosts;
 	}
 
-	LiveData<LiveResult<List<BlogPostItem>>> getBlogPosts(GroupId g) {
-		return Transformations.map(blogPosts, result -> {
-			List<BlogPostItem> allPosts = result.getResultOrNull();
-			if (allPosts == null) return result;
-			List<BlogPostItem> groupPosts = new ArrayList<>();
-			for (BlogPostItem item : allPosts) {
-				if (item.getGroupId().equals(g)) groupPosts.add(item);
-			}
-			return new LiveResult<>(groupPosts);
-		});
-	}
-
-	LiveData<LiveResult<BlogPostItem>> getBlogPost(MessageId m) {
-		return Transformations.map(blogPosts, result -> {
-			List<BlogPostItem> allPosts = result.getResultOrNull();
-			if (allPosts == null) {
-				Exception e = requireNonNull(result.getException());
-				return new LiveResult<>(e);
-			}
-			for (BlogPostItem item : allPosts) {
-				if (item.getId().equals(m)) return new LiveResult<>(item);
-			}
-			return new LiveResult<>(new NoSuchMessageException());
-		});
+	@UiThread
+	@Nullable
+	Boolean getPostAddedWasLocalAndReset() {
+		if (postAddedWasLocal == null) return null;
+		boolean wasLocal = postAddedWasLocal;
+		postAddedWasLocal = null;
+		return wasLocal;
 	}
 
 }

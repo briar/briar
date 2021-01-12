@@ -17,11 +17,9 @@ import org.briarproject.bramble.api.sync.GroupId;
 import org.briarproject.bramble.api.sync.event.GroupAddedEvent;
 import org.briarproject.bramble.api.sync.event.GroupRemovedEvent;
 import org.briarproject.bramble.api.system.AndroidExecutor;
-import org.briarproject.briar.android.viewmodel.LiveResult;
 import org.briarproject.briar.api.android.AndroidNotificationManager;
 import org.briarproject.briar.api.blog.Blog;
 import org.briarproject.briar.api.blog.BlogManager;
-import org.briarproject.briar.api.blog.BlogPostHeader;
 import org.briarproject.briar.api.blog.event.BlogPostAddedEvent;
 
 import java.util.ArrayList;
@@ -30,10 +28,8 @@ import java.util.List;
 import java.util.concurrent.Executor;
 import java.util.logging.Logger;
 
-import javax.annotation.Nullable;
 import javax.inject.Inject;
 
-import androidx.annotation.UiThread;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
@@ -49,11 +45,7 @@ class FeedViewModel extends BaseViewModel {
 
 	private static final Logger LOG = getLogger(FeedViewModel.class.getName());
 
-	protected final AndroidNotificationManager notificationManager;
-
 	private final MutableLiveData<Blog> personalBlog = new MutableLiveData<>();
-	@Nullable
-	private Boolean postAddedWasLocal = null;
 
 	@Inject
 	FeedViewModel(Application application,
@@ -63,11 +55,10 @@ class FeedViewModel extends BaseViewModel {
 			AndroidExecutor androidExecutor,
 			EventBus eventBus,
 			IdentityManager identityManager,
-			BlogManager blogManager,
-			AndroidNotificationManager notificationManager) {
+			AndroidNotificationManager notificationManager,
+			BlogManager blogManager) {
 		super(application, dbExecutor, lifecycleManager, db, androidExecutor,
-				eventBus, identityManager, blogManager);
-		this.notificationManager = notificationManager;
+				eventBus, identityManager, notificationManager, blogManager);
 	}
 
 	@Override
@@ -122,7 +113,7 @@ class FeedViewModel extends BaseViewModel {
 	}
 
 	void loadAllBlogPosts() {
-		loadList(this::loadAllBlogPosts, blogPosts::setValue);
+		loadList(this::loadAllBlogPosts, this::updateBlogPosts);
 	}
 
 	@DatabaseExecutor
@@ -140,35 +131,6 @@ class FeedViewModel extends BaseViewModel {
 		Collections.sort(posts);
 		logDuration(LOG, "Loading all posts", start);
 		return posts;
-	}
-
-	private void onBlogPostAdded(BlogPostHeader header, boolean local) {
-		postAddedWasLocal = local;
-		runOnDbThread(() -> {
-			try {
-				db.transaction(true, txn -> {
-					BlogPostItem item = getItem(txn, header);
-					txn.attach(() -> {
-						List<BlogPostItem> items = addListItem(blogPosts, item);
-						if (items != null) {
-							Collections.sort(items);
-							blogPosts.setValue(new LiveResult<>(items));
-						}
-					});
-				});
-			} catch (DbException e) {
-				logException(LOG, WARNING, e);
-			}
-		});
-	}
-
-	@UiThread
-	@Nullable
-	Boolean getPostAddedWasLocalAndReset() {
-		if (postAddedWasLocal == null) return null;
-		boolean wasLocal = postAddedWasLocal;
-		postAddedWasLocal = null;
-		return wasLocal;
 	}
 
 }

@@ -16,6 +16,7 @@ import javax.annotation.Nullable;
 import javax.inject.Inject;
 
 import androidx.appcompat.widget.Toolbar;
+import androidx.lifecycle.ViewModelProvider;
 
 @MethodsNotNullByDefault
 @ParametersNotNullByDefault
@@ -23,7 +24,18 @@ public class BlogActivity extends BriarActivity
 		implements BaseFragmentListener {
 
 	@Inject
+	ViewModelProvider.Factory viewModelFactory;
+	@Inject
 	BlogController blogController;
+
+	private BlogViewModel viewModel;
+
+	@Override
+	public void injectActivity(ActivityComponent component) {
+		component.inject(this);
+		viewModel = new ViewModelProvider(this, viewModelFactory)
+				.get(BlogViewModel.class);
+	}
 
 	@Override
 	public void onCreate(@Nullable Bundle state) {
@@ -35,6 +47,7 @@ public class BlogActivity extends BriarActivity
 		if (b == null) throw new IllegalStateException("No group ID in intent");
 		GroupId groupId = new GroupId(b);
 		blogController.setGroupId(groupId);
+		viewModel.setGroupId(groupId);
 
 		setContentView(R.layout.activity_fragment_container_toolbar);
 		Toolbar toolbar = setUpCustomToolbar(false);
@@ -52,11 +65,6 @@ public class BlogActivity extends BriarActivity
 		if (state == null) {
 			showInitialFragment(BlogFragment.newInstance(groupId));
 		}
-	}
-
-	@Override
-	public void injectActivity(ActivityComponent component) {
-		component.inject(this);
 	}
 
 }
