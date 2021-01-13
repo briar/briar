@@ -60,6 +60,7 @@ import org.briarproject.briar.android.view.TextAttachmentController;
 import org.briarproject.briar.android.view.TextAttachmentController.AttachmentListener;
 import org.briarproject.briar.android.view.TextInputView;
 import org.briarproject.briar.android.view.TextSendController;
+import org.briarproject.briar.android.view.TextSendController.SendState;
 import org.briarproject.briar.api.android.AndroidNotificationManager;
 import org.briarproject.briar.api.attachment.AttachmentHeader;
 import org.briarproject.briar.api.blog.BlogSharingManager;
@@ -747,12 +748,13 @@ public class ConversationActivity extends BriarActivity
 	}
 
 	@Override
-	public void onSendClick(@Nullable String text,
-			List<AttachmentHeader> attachmentHeaders) {
+	public LiveData<SendState> onSendClick(@Nullable String text,
+			List<AttachmentHeader> attachmentHeaders,
+			long expectedAutoDeleteTimer) {
 		if (isNullOrEmpty(text) && attachmentHeaders.isEmpty())
 			throw new AssertionError();
-		viewModel.sendMessage(text, attachmentHeaders);
-		textInputView.clearText();
+		return viewModel
+				.sendMessage(text, attachmentHeaders, expectedAutoDeleteTimer);
 	}
 
 	private void onAddedPrivateMessage(@Nullable PrivateMessageHeader h) {

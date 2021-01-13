@@ -29,11 +29,13 @@ import org.briarproject.briar.android.attachment.AttachmentResult;
 import org.briarproject.briar.android.attachment.AttachmentRetriever;
 import org.briarproject.briar.android.contact.ContactItem;
 import org.briarproject.briar.android.util.UiUtils;
+import org.briarproject.briar.android.view.TextSendController.SendState;
 import org.briarproject.briar.android.viewmodel.DbViewModel;
 import org.briarproject.briar.android.viewmodel.LiveEvent;
 import org.briarproject.briar.android.viewmodel.MutableLiveEvent;
 import org.briarproject.briar.api.attachment.AttachmentHeader;
 import org.briarproject.briar.api.autodelete.AutoDeleteManager;
+import org.briarproject.briar.api.autodelete.UnexpectedTimerException;
 import org.briarproject.briar.api.autodelete.event.AutoDeleteTimerMirroredEvent;
 import org.briarproject.briar.api.avatar.event.AvatarUpdatedEvent;
 import org.briarproject.briar.api.conversation.ConversationManager;
@@ -61,6 +63,7 @@ import androidx.lifecycle.MutableLiveData;
 import static androidx.lifecycle.Transformations.map;
 import static java.util.Objects.requireNonNull;
 import static java.util.concurrent.TimeUnit.DAYS;
+import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
 import static java.util.logging.Logger.getLogger;
 import static org.briarproject.bramble.util.LogUtils.logDuration;
@@ -68,6 +71,10 @@ import static org.briarproject.bramble.util.LogUtils.logException;
 import static org.briarproject.bramble.util.LogUtils.now;
 import static org.briarproject.briar.android.settings.SettingsFragment.SETTINGS_NAMESPACE;
 import static org.briarproject.briar.android.util.UiUtils.observeForeverOnce;
+import static org.briarproject.briar.android.view.TextSendController.SendState.ERROR;
+import static org.briarproject.briar.android.view.TextSendController.SendState.SENDING;
+import static org.briarproject.briar.android.view.TextSendController.SendState.SENT;
+import static org.briarproject.briar.android.view.TextSendController.SendState.UNEXPECTED_TIMER;
 import static org.briarproject.briar.api.autodelete.AutoDeleteConstants.NO_AUTO_DELETE_TIMER;
 import static org.briarproject.briar.api.messaging.PrivateMessageFormat.TEXT_IMAGES;
 import static org.briarproject.briar.api.messaging.PrivateMessageFormat.TEXT_ONLY;
@@ -260,17 +267,6 @@ public class ConversationViewModel extends DbViewModel
 		});
 	}
 
-	@UiThread
-	void sendMessage(@Nullable String text, List<AttachmentHeader> headers) {
-		// messagingGroupId is loaded with the contact
-		observeForeverOnce(messagingGroupId, groupId -> {
-			requireNonNull(groupId);
-			observeForeverOnce(privateMessageFormat, format ->
-					storeMessage(requireNonNull(contactId), groupId, text,
-							headers, format));
-		});
-	}
-
 	@Override
 	@UiThread
 	public LiveData<AttachmentResult> storeAttachments(Collection<Uri> uris,
@@ -300,6 +296,8 @@ public class ConversationViewModel extends DbViewModel
 		// check if images and auto-deletion are supported
 		PrivateMessageFormat format = db.transactionWithResult(true, txn ->
 				messagingManager.getContactMessageFormat(txn, c));
+		if (LOG.isLoggable(INFO))
+			LOG.info("PrivateMessageFormat loaded: " + format.name());
 		privateMessageFormat.postValue(format);
 
 		// check if introductions are supported
@@ -327,40 +325,16 @@ public class ConversationViewModel extends DbViewModel
 		settingsManager.mergeSettings(settings, SETTINGS_NAMESPACE);
 	}
 
-	private PrivateMessage createMessage(Transaction txn, ContactId c,
-			GroupId groupId, @Nullable String text,
-			List<AttachmentHeader> headers, PrivateMessageFormat format)
-			throws DbException {
-		long timestamp =
-				conversationManager.getTimestampForOutgoingMessage(txn, c);
-		try {
-			if (format == TEXT_ONLY) {
-				return privateMessageFactory.createLegacyPrivateMessage(
-						groupId, timestamp, requireNonNull(text));
-			} else if (format == TEXT_IMAGES) {
-				return privateMessageFactory.createPrivateMessage(groupId,
-						timestamp, text, headers);
-			} else {
-				long timer = autoDeleteManager.getAutoDeleteTimer(txn, c,
-						timestamp);
-				return privateMessageFactory.createPrivateMessage(groupId,
-						timestamp, text, headers, timer);
-			}
-		} catch (FormatException e) {
-			throw new AssertionError(e);
-		}
-	}
-
 	@UiThread
-	private void storeMessage(ContactId c, GroupId groupId,
-			@Nullable String text, List<AttachmentHeader> headers,
-			PrivateMessageFormat format) {
+	LiveData<SendState> sendMessage(@Nullable String text,
+			List<AttachmentHeader> headers, long expectedTimer) {
+		MutableLiveData<SendState> liveData = new MutableLiveData<>(SENDING);
 		runOnDbThread(() -> {
 			try {
 				db.transaction(false, txn -> {
 					long start = now();
-					PrivateMessage m = createMessage(txn, c, groupId, text,
-							headers, format);
+					PrivateMessage m = createMessage(txn, text, headers,
+							expectedTimer);
 					messagingManager.addLocalMessage(txn, m);
 					logDuration(LOG, "Storing message", start);
 					Message message = m.getMessage();
@@ -372,12 +346,50 @@ public class ConversationViewModel extends DbViewModel
 					// TODO add text to cache when available here
 					MessageId id = message.getId();
 					txn.attach(() -> attachmentCreator.onAttachmentsSent(id));
+					liveData.postValue(SENT);
 					addedHeader.postEvent(h);
 				});
+			} catch (UnexpectedTimerException e) {
+				liveData.postValue(UNEXPECTED_TIMER);
 			} catch (DbException e) {
 				logException(LOG, WARNING, e);
+				liveData.postValue(ERROR);
 			}
 		});
+		return liveData;
+	}
+
+	private PrivateMessage createMessage(Transaction txn, @Nullable String text,
+			List<AttachmentHeader> headers, long expectedTimer)
+			throws DbException {
+		// Sending is only possible (setReady(true)) after loading all messages
+		// which happens after the contact has been loaded.
+		// privateMessageFormat is loaded together with contact
+		Contact contact =
+				requireNonNull(this.contactItem.getValue()).getContact();
+		GroupId groupId = messagingManager.getContactGroup(contact).getId();
+		PrivateMessageFormat format =
+				requireNonNull(privateMessageFormat.getValue());
+		long timestamp = conversationManager
+				.getTimestampForOutgoingMessage(txn, requireNonNull(contactId));
+		try {
+			if (format == TEXT_ONLY) {
+				return privateMessageFactory.createLegacyPrivateMessage(
+						groupId, timestamp, requireNonNull(text));
+			} else if (format == TEXT_IMAGES) {
+				return privateMessageFactory.createPrivateMessage(groupId,
+						timestamp, text, headers);
+			} else {
+				long timer = autoDeleteManager
+						.getAutoDeleteTimer(txn, contactId, timestamp);
+				if (timer != expectedTimer)
+					throw new UnexpectedTimerException();
+				return privateMessageFactory.createPrivateMessage(groupId,
+						timestamp, text, headers, timer);
+			}
+		} catch (FormatException e) {
+			throw new AssertionError(e);
+		}
 	}
 
 	void setAutoDeleteTimerEnabled(boolean enabled) {

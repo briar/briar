@@ -20,12 +20,16 @@ import org.briarproject.briar.android.fragment.BaseFragment;
 import org.briarproject.briar.android.view.TextInputView;
 import org.briarproject.briar.android.view.TextSendController;
 import org.briarproject.briar.android.view.TextSendController.SendListener;
+import org.briarproject.briar.android.view.TextSendController.SendState;
 import org.briarproject.briar.api.attachment.AttachmentHeader;
 
 import java.util.List;
 
 import javax.annotation.Nullable;
 import javax.inject.Inject;
+
+import androidx.lifecycle.LiveData;
+import androidx.lifecycle.MutableLiveData;
 
 import static android.view.View.FOCUS_DOWN;
 import static android.view.View.GONE;
@@ -34,6 +38,7 @@ import static android.view.View.VISIBLE;
 import static java.util.Objects.requireNonNull;
 import static org.briarproject.briar.android.activity.BriarActivity.GROUP_ID;
 import static org.briarproject.briar.android.blog.BasePostFragment.POST_ID;
+import static org.briarproject.briar.android.view.TextSendController.SendState.SENT;
 import static org.briarproject.briar.api.blog.BlogConstants.MAX_BLOG_POST_TEXT_LENGTH;
 
 @MethodsNotNullByDefault
@@ -121,8 +126,8 @@ public class ReblogFragment extends BaseFragment implements SendListener {
 	}
 
 	@Override
-	public void onSendClick(@Nullable String text,
-			List<AttachmentHeader> headers) {
+	public LiveData<SendState> onSendClick(@Nullable String text,
+			List<AttachmentHeader> headers, long expectedAutoDeleteTimer) {
 		ui.input.hideSoftKeyboard();
 		feedController.repeatPost(item, text,
 				new UiExceptionHandler<DbException>(this) {
@@ -132,6 +137,7 @@ public class ReblogFragment extends BaseFragment implements SendListener {
 					}
 				});
 		finish();
+		return new MutableLiveData<>(SENT);
 	}
 
 	private void showProgressBar() {
