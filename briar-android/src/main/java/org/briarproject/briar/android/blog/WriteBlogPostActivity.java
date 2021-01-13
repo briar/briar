@@ -31,12 +31,16 @@ import java.util.logging.Logger;
 import javax.inject.Inject;
 
 import androidx.annotation.Nullable;
+import androidx.lifecycle.LiveData;
+import androidx.lifecycle.MutableLiveData;
 
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
 import static java.util.logging.Level.WARNING;
 import static org.briarproject.bramble.util.LogUtils.logException;
 import static org.briarproject.bramble.util.StringUtils.isNullOrEmpty;
+import static org.briarproject.briar.android.view.TextSendController.SendState;
+import static org.briarproject.briar.android.view.TextSendController.SendState.SENT;
 import static org.briarproject.briar.api.blog.BlogConstants.MAX_BLOG_POST_TEXT_LENGTH;
 
 @MethodsNotNullByDefault
@@ -112,8 +116,8 @@ public class WriteBlogPostActivity extends BriarActivity
 	}
 
 	@Override
-	public void onSendClick(@Nullable String text,
-			List<AttachmentHeader> headers) {
+	public LiveData<SendState> onSendClick(@Nullable String text,
+			List<AttachmentHeader> headers, long expectedAutoDeleteTimer) {
 		if (isNullOrEmpty(text)) throw new AssertionError();
 
 		// hide publish button, show progress bar
@@ -122,6 +126,7 @@ public class WriteBlogPostActivity extends BriarActivity
 		progressBar.setVisibility(VISIBLE);
 
 		storePost(text);
+		return new MutableLiveData<>(SENT);
 	}
 
 	private void storePost(String text) {

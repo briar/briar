@@ -19,6 +19,7 @@ import org.briarproject.briar.android.view.BriarRecyclerView;
 import org.briarproject.briar.android.view.TextInputView;
 import org.briarproject.briar.android.view.TextSendController;
 import org.briarproject.briar.android.view.TextSendController.SendListener;
+import org.briarproject.briar.android.view.TextSendController.SendState;
 import org.briarproject.briar.android.view.UnreadMessageButton;
 import org.briarproject.briar.api.attachment.AttachmentHeader;
 
@@ -29,10 +30,13 @@ import javax.annotation.Nullable;
 import androidx.annotation.CallSuper;
 import androidx.annotation.StringRes;
 import androidx.appcompat.app.ActionBar;
+import androidx.lifecycle.LiveData;
+import androidx.lifecycle.MutableLiveData;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
 import static androidx.recyclerview.widget.RecyclerView.NO_POSITION;
 import static org.briarproject.bramble.util.StringUtils.isNullOrEmpty;
+import static org.briarproject.briar.android.view.TextSendController.SendState.SENT;
 
 @MethodsNotNullByDefault
 @ParametersNotNullByDefault
@@ -231,8 +235,8 @@ public abstract class ThreadListActivity<I extends ThreadItem, A extends ThreadI
 	}
 
 	@Override
-	public void onSendClick(@Nullable String text,
-			List<AttachmentHeader> headers) {
+	public LiveData<SendState> onSendClick(@Nullable String text,
+			List<AttachmentHeader> headers, long expectedAutoDeleteTimer) {
 		if (isNullOrEmpty(text)) throw new AssertionError();
 
 		MessageId replyId = getViewModel().getReplyId();
@@ -241,6 +245,7 @@ public abstract class ThreadListActivity<I extends ThreadItem, A extends ThreadI
 		textInput.clearText();
 		getViewModel().setReplyId(null);
 		updateTextInput();
+		return new MutableLiveData<>(SENT);
 	}
 
 	protected abstract int getMaxTextLength();

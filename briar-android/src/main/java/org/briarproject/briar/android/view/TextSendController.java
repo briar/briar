@@ -3,6 +3,7 @@ package org.briarproject.briar.android.view;
 import android.content.Context;
 import android.os.Parcelable;
 import android.view.View;
+import android.widget.Toast;
 
 import com.google.android.material.snackbar.Snackbar;
 
@@ -17,9 +18,15 @@ import androidx.annotation.CallSuper;
 import androidx.annotation.Nullable;
 import androidx.annotation.UiThread;
 import androidx.appcompat.app.AlertDialog;
+import androidx.lifecycle.LifecycleOwner;
+import androidx.lifecycle.LiveData;
 
+import static android.widget.Toast.LENGTH_LONG;
 import static com.google.android.material.snackbar.Snackbar.LENGTH_SHORT;
 import static java.util.Collections.emptyList;
+import static org.briarproject.briar.android.view.TextSendController.SendState.ERROR;
+import static org.briarproject.briar.android.view.TextSendController.SendState.SENT;
+import static org.briarproject.briar.android.view.TextSendController.SendState.UNEXPECTED_TIMER;
 import static org.briarproject.briar.api.autodelete.AutoDeleteConstants.NO_AUTO_DELETE_TIMER;
 
 @UiThread
@@ -33,7 +40,7 @@ public class TextSendController implements TextInputListener {
 	protected boolean textIsEmpty = true;
 	private boolean ready = true;
 	private long currentTimer = NO_AUTO_DELETE_TIMER;
-	private long expectedTimer = NO_AUTO_DELETE_TIMER;
+	protected long expectedTimer = NO_AUTO_DELETE_TIMER;
 
 	private final CharSequence defaultHint;
 	private final boolean allowEmptyText;
@@ -58,7 +65,21 @@ public class TextSendController implements TextInputListener {
 	@Override
 	public void onSendEvent() {
 		if (canSend()) {
-			listener.onSendClick(textInput.getText(), emptyList());
+			listener.onSendClick(textInput.getText(), emptyList(),
+					expectedTimer).observe(listener, this::onSendStateChanged);
+		}
+	}
+
+	@CallSuper
+	protected void onSendStateChanged(SendState sendState) {
+		if (sendState == SENT) {
+			textInput.clearText();
+		} else if (sendState == UNEXPECTED_TIMER) {
+			boolean enabled = expectedTimer == NO_AUTO_DELETE_TIMER;
+			showTimerChangedDialog(enabled);
+		} else if (sendState == ERROR) {
+			Toast.makeText(textInput.getContext(), R.string.message_error,
+					LENGTH_LONG).show();
 		}
 	}
 
@@ -123,11 +144,6 @@ public class TextSendController implements TextInputListener {
 					LENGTH_SHORT).show();
 			return false;
 		}
-		if (expectedTimer != currentTimer) {
-			boolean enabled = currentTimer != NO_AUTO_DELETE_TIMER;
-			showTimerChangedDialog(enabled);
-			return false;
-		}
 		return ready && (canSendEmptyText() || !textIsEmpty);
 	}
 
@@ -162,9 +178,11 @@ public class TextSendController implements TextInputListener {
 		return state;
 	}
 
-	@UiThread
-	public interface SendListener {
-		void onSendClick(@Nullable String text, List<AttachmentHeader> headers);
+	public enum SendState {SENDING, SENT, ERROR, UNEXPECTED_TIMER}
+
+	public interface SendListener extends LifecycleOwner {
+		LiveData<SendState> onSendClick(@Nullable String text,
+				List<AttachmentHeader> headers, long expectedAutoDeleteTimer);
 	}
 
 }

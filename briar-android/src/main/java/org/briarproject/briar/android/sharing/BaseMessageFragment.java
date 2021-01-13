@@ -15,6 +15,7 @@ import org.briarproject.briar.android.fragment.BaseFragment;
 import org.briarproject.briar.android.view.LargeTextInputView;
 import org.briarproject.briar.android.view.TextSendController;
 import org.briarproject.briar.android.view.TextSendController.SendListener;
+import org.briarproject.briar.android.view.TextSendController.SendState;
 import org.briarproject.briar.api.attachment.AttachmentHeader;
 
 import java.util.List;
@@ -22,6 +23,10 @@ import java.util.List;
 import androidx.annotation.Nullable;
 import androidx.annotation.StringRes;
 import androidx.annotation.UiThread;
+import androidx.lifecycle.LiveData;
+import androidx.lifecycle.MutableLiveData;
+
+import static org.briarproject.briar.android.view.TextSendController.SendState.SENT;
 
 @MethodsNotNullByDefault
 @ParametersNotNullByDefault
@@ -79,13 +84,14 @@ public abstract class BaseMessageFragment extends BaseFragment
 	}
 
 	@Override
-	public void onSendClick(@Nullable String text,
-			List<AttachmentHeader> headers) {
+	public LiveData<SendState> onSendClick(@Nullable String text,
+			List<AttachmentHeader> headers, long expectedAutoDeleteTimer) {
 		// disable button to prevent accidental double actions
 		sendController.setReady(false);
 		message.hideSoftKeyboard();
 
 		listener.onButtonClick(text);
+		return new MutableLiveData<>(SENT);
 	}
 
 	@UiThread
