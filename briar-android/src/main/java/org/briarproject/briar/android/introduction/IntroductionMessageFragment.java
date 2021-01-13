@@ -35,6 +35,8 @@ import javax.inject.Inject;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBar;
+import androidx.lifecycle.LiveData;
+import androidx.lifecycle.MutableLiveData;
 import de.hdodenhof.circleimageview.CircleImageView;
 
 import static android.app.Activity.RESULT_OK;
@@ -46,6 +48,8 @@ import static org.briarproject.bramble.util.LogUtils.logException;
 import static org.briarproject.briar.android.util.UiUtils.getContactDisplayName;
 import static org.briarproject.briar.android.util.UiUtils.hideSoftKeyboard;
 import static org.briarproject.briar.android.view.AuthorView.setAvatar;
+import static org.briarproject.briar.android.view.TextSendController.SendState;
+import static org.briarproject.briar.android.view.TextSendController.SendState.SENT;
 import static org.briarproject.briar.api.introduction.IntroductionConstants.MAX_INTRODUCTION_TEXT_LENGTH;
 
 @MethodsNotNullByDefault
@@ -201,8 +205,8 @@ public class IntroductionMessageFragment extends BaseFragment
 	}
 
 	@Override
-	public void onSendClick(@Nullable String text,
-			List<AttachmentHeader> headers) {
+	public LiveData<SendState> onSendClick(@Nullable String text,
+			List<AttachmentHeader> headers, long expectedAutoDeleteTimer) {
 		// disable button to prevent accidental double invitations
 		ui.message.setReady(false);
 
@@ -212,6 +216,7 @@ public class IntroductionMessageFragment extends BaseFragment
 		hideSoftKeyboard(ui.message);
 		introductionActivity.setResult(RESULT_OK);
 		introductionActivity.supportFinishAfterTransition();
+		return new MutableLiveData<>(SENT);
 	}
 
 	private void makeIntroduction(Contact c1, Contact c2,
