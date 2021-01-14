@@ -89,15 +89,12 @@ public class ConversationSettingsFragment extends BaseFragment {
 				contentView.findViewById(R.id.switchDisappearingMessages);
 
 		switchDisappearingMessages
-				.setOnCheckedChangeListener((button, value) -> {
-					viewModel.setAutoDeleteTimerEnabled(value);
-				});
+				.setOnCheckedChangeListener((button, value) -> viewModel
+						.setAutoDeleteTimerEnabled(value));
 
 		TextView buttonLearnMore =
 				contentView.findViewById(R.id.buttonLearnMore);
-		buttonLearnMore.setOnClickListener(e -> {
-			showLearnMoreDialog();
-		});
+		buttonLearnMore.setOnClickListener(e -> showLearnMoreDialog());
 
 		viewModel = ViewModelProviders.of(requireActivity(), viewModelFactory)
 				.get(ConversationViewModel.class);
