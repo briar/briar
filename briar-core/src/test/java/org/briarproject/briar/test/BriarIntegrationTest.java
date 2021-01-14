@@ -523,10 +523,10 @@ public abstract class BriarIntegrationTest<C extends BriarIntegrationTestCompone
 		contactManager0.removeContact(contactId2From0);
 		contactManager1.removeContact(contactId0From1);
 		contactManager2.removeContact(contactId0From2);
-		assertNotNull(contactId2From1);
-		contactManager1.removeContact(contactId2From1);
-		assertNotNull(contactId1From2);
-		contactManager2.removeContact(contactId1From2);
+		if (contactId2From1 != null)
+			contactManager1.removeContact(contactId2From1);
+		if (contactId1From2 != null)
+			contactManager2.removeContact(contactId1From2);
 	}
 
 	protected void setAutoDeleteTimer(BriarIntegrationTestComponent component,

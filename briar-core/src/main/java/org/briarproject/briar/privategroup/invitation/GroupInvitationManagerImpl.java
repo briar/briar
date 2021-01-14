@@ -126,11 +126,15 @@ class GroupInvitationManagerImpl extends ConversationClientImpl
 		db.setGroupVisibility(txn, c.getId(), g.getId(), client);
 		// Attach the contact ID to the group
 		clientHelper.setContactId(txn, g.getId(), c.getId());
-		// If the contact belongs to any private groups, create a peer session
+		// If the contact belongs to any private groups (we didn't create),
+		// create a peer session
 		for (Group pg : db.getGroups(txn, PrivateGroupManager.CLIENT_ID,
 				PrivateGroupManager.MAJOR_VERSION)) {
-			if (privateGroupManager.isMember(txn, pg.getId(), c.getAuthor()))
-				addingMember(txn, pg.getId(), c);
+			if (privateGroupManager.isMember(txn, pg.getId(), c.getAuthor())) {
+				if (!privateGroupManager.isOurPrivateGroup(txn, pg.getId())) {
+					addingMember(txn, pg.getId(), c);
+				}
+			}
 		}
 	}
 
