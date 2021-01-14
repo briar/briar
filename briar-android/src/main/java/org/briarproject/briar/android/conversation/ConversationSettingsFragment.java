@@ -118,9 +118,8 @@ public class ConversationSettingsFragment extends BaseFragment {
 								.getAutoDeleteTimer(txn, c.getId());
 						disappearingMessages = timer != NO_AUTO_DELETE_TIMER;
 					});
-					listener.runOnUiThreadUnlessDestroyed(() -> {
-						displaySettings();
-					});
+					listener.runOnUiThreadUnlessDestroyed(
+							this::displaySettings);
 				} catch (DbException e) {
 					logException(LOG, WARNING, e);
 				}
