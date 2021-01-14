@@ -118,7 +118,9 @@ public class ConversationSettingsFragment extends BaseFragment {
 								.getAutoDeleteTimer(txn, c.getId());
 						disappearingMessages = timer != NO_AUTO_DELETE_TIMER;
 					});
-					displaySettings();
+					listener.runOnUiThreadUnlessDestroyed(() -> {
+						displaySettings();
+					});
 				} catch (DbException e) {
 					logException(LOG, WARNING, e);
 				}
@@ -127,10 +129,8 @@ public class ConversationSettingsFragment extends BaseFragment {
 	}
 
 	private void displaySettings() {
-		listener.runOnUiThreadUnlessDestroyed(() -> {
-			switchDisappearingMessages.setChecked(disappearingMessages);
-			switchDisappearingMessages.setEnabled(true);
-		});
+		switchDisappearingMessages.setChecked(disappearingMessages);
+		switchDisappearingMessages.setEnabled(true);
 	}
 
 	@Override
