@@ -46,21 +46,17 @@ public class ConversationSettingsFragment extends BaseFragment {
 
 	@Inject
 	ViewModelProvider.Factory viewModelFactory;
-
 	@Inject
 	@DatabaseExecutor
 	Executor dbExecutor;
-
 	@Inject
 	TransactionManager db;
-
 	@Inject
 	AutoDeleteManager autoDeleteManager;
 
 	private ConversationSettingsActivity listener;
-
+	private ConversationViewModel viewModel;
 	private Switch switchDisappearingMessages;
-
 	private volatile boolean disappearingMessages = false;
 
 	@Override
@@ -108,8 +104,6 @@ public class ConversationSettingsFragment extends BaseFragment {
 
 		return contentView;
 	}
-
-	private ConversationViewModel viewModel;
 
 	@Override
 	public void onStart() {
