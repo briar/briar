@@ -167,10 +167,15 @@
 	<string name="set_contact_alias">Change contact name</string>
 	<string name="set_contact_alias_hint">Contact name</string>
 	<string name="menu_item_disappearing_messages">Disappearing messages</string>
-	<string name="auto_delete_msg_you_enabled">Your messages will disappear after 7 days.</string>
-	<string name="auto_delete_msg_you_disabled">Your messages will not disappear.</string>
-	<string name="auto_delete_msg_contact_enabled">%1$s\'s messages will disappear after 7 days.</string>
-	<string name="auto_delete_msg_contact_disabled">%1$s\'s messages will not disappear.</string>
+	<!-- The placeholder at the end will add "Tap to learn more." -->
+	<string name="auto_delete_msg_you_enabled">Your messages will disappear after 7 days. %1$s</string>
+	<!-- The placeholder at the end will add "Tap to learn more." -->
+	<string name="auto_delete_msg_you_disabled">Your messages will not disappear. %1$s</string>
+	<!-- The second placeholder at the end will add "Tap to learn more." -->
+	<string name="auto_delete_msg_contact_enabled">%1$s\'s messages will disappear after 7 days. %2$s</string>
+	<!-- The second placeholder at the end will add "Tap to learn more." -->
+	<string name="auto_delete_msg_contact_disabled">%1$s\'s messages will not disappear. %2$s</string>
+	<string name="tap_to_learn_more">Tap to learn more.</string>
 	<string name="delete_all_messages">Delete all messages</string>
 	<string name="dialog_title_delete_all_messages">Confirm Message Deletion</string>
 	<string name="dialog_message_delete_all_messages">Are you sure that you want to delete all messages?</string>

@@ -81,20 +81,23 @@ abstract class ConversationItemViewHolder extends ViewHolder {
 			Context ctx = itemView.getContext();
 			topNotice.setVisibility(VISIBLE);
 			boolean enabled = item.getAutoDeleteTimer() != NO_AUTO_DELETE_TIMER;
+			String tapToLearnMore = ctx.getString(R.string.tap_to_learn_more);
 			String text;
 			if (item.isIncoming()) {
 				String name = item.getContactName().getValue();
 				int strRes = enabled ?
 						R.string.auto_delete_msg_contact_enabled :
 						R.string.auto_delete_msg_contact_disabled;
-				text = ctx.getString(strRes, name);
+				text = ctx.getString(strRes, name, tapToLearnMore);
 			} else {
 				int strRes = enabled ?
 						R.string.auto_delete_msg_you_enabled :
 						R.string.auto_delete_msg_you_disabled;
-				text = ctx.getString(strRes);
+				text = ctx.getString(strRes, tapToLearnMore);
 			}
 			topNotice.setText(text);
+			topNotice.setOnClickListener(
+					v -> listener.onAutoDeleteTimerNoticeClicked());
 		} else {
 			topNotice.setVisibility(GONE);
 		}
