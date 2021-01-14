@@ -20,7 +20,6 @@
 			app:layout_constraintTop_toTopOf="parent"
 			app:tint="?attr/colorControlNormal" />
 
-
 		<TextView
 			android:id="@+id/buttonLearnMore"
 			android:layout_width="wrap_content"
@@ -68,7 +67,7 @@
 			app:layout_constraintStart_toStartOf="parent"
 			app:layout_constraintTop_toBottomOf="@+id/headlineSetting" />
 
-		<Switch
+		<androidx.appcompat.widget.SwitchCompat
 			android:id="@+id/switchDisappearingMessages"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"

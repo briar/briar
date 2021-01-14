@@ -8,7 +8,6 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Switch;
 import android.widget.TextView;
 
 import org.briarproject.bramble.api.db.DatabaseExecutor;
@@ -26,6 +25,7 @@ import java.util.logging.Logger;
 import javax.annotation.Nullable;
 import javax.inject.Inject;
 
+import androidx.appcompat.widget.SwitchCompat;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.lifecycle.ViewModelProviders;
 
@@ -56,7 +56,7 @@ public class ConversationSettingsFragment extends BaseFragment {
 
 	private ConversationSettingsActivity listener;
 	private ConversationViewModel viewModel;
-	private Switch switchDisappearingMessages;
+	private SwitchCompat switchDisappearingMessages;
 	private volatile boolean disappearingMessages = false;
 
 	@Override
