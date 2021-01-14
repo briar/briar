@@ -5,11 +5,14 @@ import android.os.Bundle;
 import android.view.MenuItem;
 
 import org.briarproject.bramble.api.contact.ContactId;
+import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
+import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.activity.ActivityComponent;
 import org.briarproject.briar.android.activity.BriarActivity;
 import org.briarproject.briar.android.fragment.BaseFragment.BaseFragmentListener;
 
+import javax.annotation.Nullable;
 import javax.inject.Inject;
 
 import androidx.appcompat.app.ActionBar;
@@ -18,6 +21,8 @@ import androidx.lifecycle.ViewModelProviders;
 
 import static org.briarproject.briar.android.conversation.ConversationActivity.CONTACT_ID;
 
+@MethodsNotNullByDefault
+@ParametersNotNullByDefault
 public class ConversationSettingsActivity extends BriarActivity implements
 		BaseFragmentListener {
 
@@ -25,11 +30,10 @@ public class ConversationSettingsActivity extends BriarActivity implements
 	ViewModelProvider.Factory viewModelFactory;
 
 	private ConversationViewModel viewModel;
-
 	private ContactId contactId;
 
 	@Override
-	public void onCreate(Bundle bundle) {
+	public void onCreate(@Nullable Bundle bundle) {
 		super.onCreate(bundle);
 
 		Intent i = getIntent();
