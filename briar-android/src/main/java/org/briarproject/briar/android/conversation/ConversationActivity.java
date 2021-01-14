@@ -113,7 +113,6 @@ import static android.os.Build.VERSION.SDK_INT;
 import static android.view.Gravity.RIGHT;
 import static android.widget.Toast.LENGTH_SHORT;
 import static androidx.core.app.ActivityOptionsCompat.makeSceneTransitionAnimation;
-import static androidx.core.view.ViewCompat.setTransitionName;
 import static androidx.lifecycle.Lifecycle.State.STARTED;
 import static androidx.recyclerview.widget.SortedList.INVALID_POSITION;
 import static java.util.Collections.sort;
@@ -134,8 +133,6 @@ import static org.briarproject.briar.android.conversation.ImageActivity.ATTACHME
 import static org.briarproject.briar.android.conversation.ImageActivity.DATE;
 import static org.briarproject.briar.android.conversation.ImageActivity.ITEM_ID;
 import static org.briarproject.briar.android.conversation.ImageActivity.NAME;
-import static org.briarproject.briar.android.util.UiUtils.getAvatarTransitionName;
-import static org.briarproject.briar.android.util.UiUtils.getBulbTransitionName;
 import static org.briarproject.briar.android.util.UiUtils.observeOnce;
 import static org.briarproject.briar.api.messaging.MessagingConstants.MAX_ATTACHMENTS_PER_MESSAGE;
 import static org.briarproject.briar.api.messaging.MessagingConstants.MAX_PRIVATE_MESSAGE_TEXT_LENGTH;
@@ -251,9 +248,6 @@ public class ConversationActivity extends BriarActivity
 		});
 		viewModel.getAddedPrivateMessage().observeEvent(this,
 				this::onAddedPrivateMessage);
-
-		setTransitionName(toolbarAvatar, getAvatarTransitionName(contactId));
-		setTransitionName(toolbarStatus, getBulbTransitionName(contactId));
 
 		visitor = new ConversationVisitor(this, this, this,
 				viewModel.getContactDisplayName());

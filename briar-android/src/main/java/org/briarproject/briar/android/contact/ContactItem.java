@@ -3,14 +3,14 @@ package org.briarproject.briar.android.contact;
 import org.briarproject.bramble.api.contact.Contact;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 
-import javax.annotation.concurrent.NotThreadSafe;
+import javax.annotation.concurrent.Immutable;
 
-@NotThreadSafe
+@Immutable
 @NotNullByDefault
 public class ContactItem {
 
 	private final Contact contact;
-	private boolean connected;
+	private final boolean connected;
 
 	public ContactItem(Contact contact) {
 		this(contact, false);
@@ -27,10 +27,6 @@ public class ContactItem {
 
 	boolean isConnected() {
 		return connected;
-	}
-
-	void setConnected(boolean connected) {
-		this.connected = connected;
 	}
 
 }

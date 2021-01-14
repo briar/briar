@@ -180,6 +180,11 @@ public interface ContactManager {
 	Collection<Contact> getContacts() throws DbException;
 
 	/**
+	 * Returns all contacts.
+	 */
+	Collection<Contact> getContacts(Transaction txn) throws DbException;
+
+	/**
 	 * Removes a contact and all associated state.
 	 */
 	void removeContact(ContactId c) throws DbException;

@@ -15,8 +15,8 @@ import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.activity.ActivityComponent;
 import org.briarproject.briar.android.contact.BaseContactListAdapter.OnContactClickListener;
-import org.briarproject.briar.android.contact.ContactListAdapter;
 import org.briarproject.briar.android.contact.ContactListItem;
+import org.briarproject.briar.android.contact.LegacyContactListAdapter;
 import org.briarproject.briar.android.fragment.BaseFragment;
 import org.briarproject.briar.android.view.BriarRecyclerView;
 import org.briarproject.briar.api.client.MessageTracker.GroupCount;
@@ -45,7 +45,7 @@ public class ContactChooserFragment extends BaseFragment {
 	private static final Logger LOG = Logger.getLogger(TAG);
 
 	private BriarRecyclerView list;
-	private ContactListAdapter adapter;
+	private LegacyContactListAdapter adapter;
 	private ContactId contactId;
 
 	// Fields that are accessed from background threads must be volatile
@@ -72,7 +72,8 @@ public class ContactChooserFragment extends BaseFragment {
 	}
 
 	@Override
-	public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container,
+	public View onCreateView(LayoutInflater inflater,
+			@Nullable ViewGroup container,
 			@Nullable Bundle savedInstanceState) {
 
 		View contentView = inflater.inflate(R.layout.list, container, false);
@@ -83,7 +84,7 @@ public class ContactChooserFragment extends BaseFragment {
 					Contact c2 = item.getContact();
 					showMessageScreen(c1, c2);
 				};
-		adapter = new ContactListAdapter(requireActivity(),
+		adapter = new LegacyContactListAdapter(requireActivity(),
 				onContactClickListener);
 
 		list = contentView.findViewById(R.id.list);
