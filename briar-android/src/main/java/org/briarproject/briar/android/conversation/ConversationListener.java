@@ -18,4 +18,6 @@ interface ConversationListener {
 	void onAttachmentClicked(View view, ConversationMessageItem messageItem,
 			AttachmentItem attachmentItem);
 
+	void onAutoDeleteTimerNoticeClicked();
+
 }
