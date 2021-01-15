@@ -110,9 +110,9 @@ public interface PrivateGroupManager {
 			throws DbException;
 
 	/**
-	 * Returns true if the private group with the given ID was created by us.
+	 * Returns true if the given private group was created by us.
 	 */
-	boolean isOurPrivateGroup(Transaction txn, GroupId g) throws DbException;
+	boolean isOurPrivateGroup(Transaction txn, PrivateGroup g) throws DbException;
 
 	/**
 	 * Returns the text of the private group message with the given ID.

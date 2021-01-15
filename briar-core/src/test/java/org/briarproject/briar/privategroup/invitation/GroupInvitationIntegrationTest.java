@@ -722,15 +722,26 @@ public class GroupInvitationIntegrationTest
 		sync0To1(2, true); // + one invitation protocol join message
 		sync1To0(1, true);
 
+		// inviting again is not possible
 		assertFalse(groupInvitationManager0
 				.isInvitationAllowed(contact1From0, privateGroup.getId()));
 
-		// re-add contacts
+		// contacts remove each other
 		removeAllContacts();
+
+		// group gets dissolved for invitee automatically, but not creator
+		assertFalse(groupManager0.isDissolved(privateGroup.getId()));
+		assertTrue(groupManager1.isDissolved(privateGroup.getId()));
+
+		// contacts re-add each other
 		addDefaultContacts();
 
-		assertTrue(groupInvitationManager0
+		// creator can still not invite again
+		assertFalse(groupInvitationManager0
 				.isInvitationAllowed(contact1From0, privateGroup.getId()));
+
+		// finally invitee can remove group without issues
+		groupManager1.removePrivateGroup(privateGroup.getId());
 	}
 
 	private Collection<ConversationMessageHeader> getMessages1From0()
