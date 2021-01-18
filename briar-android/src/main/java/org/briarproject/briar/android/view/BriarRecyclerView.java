@@ -87,6 +87,26 @@ public class BriarRecyclerView extends FrameLayout {
 		}
 
 		emptyObserver = new RecyclerView.AdapterDataObserver() {
+
+			@Override
+			public void onChanged() {
+				super.onChanged();
+				showData();
+			}
+
+			@Override
+			public void onItemRangeChanged(int positionStart, int itemCount) {
+				super.onItemRangeChanged(positionStart, itemCount);
+				if (itemCount > 0) showData();
+			}
+
+			@Override
+			public void onItemRangeMoved(int fromPosition, int toPosition,
+					int itemCount) {
+				super.onItemRangeMoved(fromPosition, toPosition, itemCount);
+				if (itemCount > 0) showData();
+			}
+
 			@Override
 			public void onItemRangeInserted(int positionStart, int itemCount) {
 				super.onItemRangeInserted(positionStart, itemCount);

@@ -7,6 +7,7 @@ import android.view.ViewGroup;
 
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.briar.R;
+import org.briarproject.briar.android.contact.OnContactClickListener;
 
 @NotNullByDefault
 class ContactSelectorAdapter extends
