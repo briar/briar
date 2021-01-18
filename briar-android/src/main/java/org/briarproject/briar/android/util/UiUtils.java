@@ -28,7 +28,6 @@ import android.widget.TextView;
 import com.google.android.material.textfield.TextInputLayout;
 
 import org.briarproject.bramble.api.contact.Contact;
-import org.briarproject.bramble.api.contact.ContactId;
 import org.briarproject.bramble.api.identity.Author;
 import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
 import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
@@ -238,14 +237,6 @@ public class UiUtils {
 		ssb.setSpan(cSpan, start, end, 0);
 		textView.setText(ssb);
 		textView.setMovementMethod(new LinkMovementMethod());
-	}
-
-	public static String getAvatarTransitionName(ContactId c) {
-		return "avatar" + c.getInt();
-	}
-
-	public static String getBulbTransitionName(ContactId c) {
-		return "bulb" + c.getInt();
 	}
 
 	public static OnClickListener getGoToSettingsListener(Context context) {

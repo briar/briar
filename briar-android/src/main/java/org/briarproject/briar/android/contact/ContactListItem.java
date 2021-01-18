@@ -5,15 +5,16 @@ import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.briar.api.client.MessageTracker.GroupCount;
 import org.briarproject.briar.api.conversation.ConversationMessageHeader;
 
-import javax.annotation.concurrent.NotThreadSafe;
+import javax.annotation.concurrent.Immutable;
 
-@NotThreadSafe
+@Immutable
 @NotNullByDefault
-public class ContactListItem extends ContactItem {
+public class ContactListItem extends ContactItem
+		implements Comparable<ContactListItem> {
 
-	private boolean empty;
-	private long timestamp;
-	private int unread;
+	private final boolean empty;
+	private final long timestamp;
+	private final int unread;
 
 	public ContactListItem(Contact contact, boolean connected,
 			GroupCount count) {
@@ -23,10 +24,23 @@ public class ContactListItem extends ContactItem {
 		this.timestamp = count.getLatestMsgTime();
 	}
 
-	void addMessage(ConversationMessageHeader h) {
-		empty = false;
-		if (h.getTimestamp() > timestamp) timestamp = h.getTimestamp();
-		if (!h.isRead()) unread++;
+	private ContactListItem(Contact contact, boolean connected, boolean empty,
+			int unread, long timestamp) {
+		super(contact, connected);
+		this.empty = empty;
+		this.timestamp = timestamp;
+		this.unread = unread;
+	}
+
+	ContactListItem(ContactListItem item, boolean connected) {
+		this(item.getContact(), connected, item.empty, item.unread,
+				item.timestamp);
+	}
+
+	ContactListItem(ContactListItem item, ConversationMessageHeader h) {
+		this(item.getContact(), item.isConnected(), false,
+				h.isRead() ? item.unread : item.unread + 1,
+				Math.max(h.getTimestamp(), item.timestamp));
 	}
 
 	boolean isEmpty() {
@@ -41,4 +55,8 @@ public class ContactListItem extends ContactItem {
 		return unread;
 	}
 
+	@Override
+	public int compareTo(ContactListItem o) {
+		return Long.compare(o.getTimestamp(), timestamp);
+	}
 }

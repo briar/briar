@@ -214,6 +214,11 @@ class ContactManagerImpl implements ContactManager, EventListener {
 	}
 
 	@Override
+	public Collection<Contact> getContacts(Transaction txn) throws DbException {
+		return db.getContacts(txn);
+	}
+
+	@Override
 	public void removeContact(ContactId c) throws DbException {
 		db.transaction(false, txn -> removeContact(txn, c));
 	}
