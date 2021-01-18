@@ -6,6 +6,7 @@ import org.briarproject.bramble.api.contact.ContactId;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.briar.android.contact.BaseContactListAdapter;
 import org.briarproject.briar.android.contact.ContactItemViewHolder;
+import org.briarproject.briar.android.contact.OnContactClickListener;
 
 import java.util.ArrayList;
 import java.util.Collection;

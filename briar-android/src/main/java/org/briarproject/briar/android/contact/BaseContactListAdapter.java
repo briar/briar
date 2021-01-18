@@ -1,7 +1,6 @@
 package org.briarproject.briar.android.contact;
 
 import android.content.Context;
-import android.view.View;
 
 import org.briarproject.briar.android.util.BriarAdapter;
 
@@ -43,10 +42,6 @@ public abstract class BaseContactListAdapter<I extends ContactItem, VH extends C
 	@Override
 	public boolean areContentsTheSame(ContactItem c1, ContactItem c2) {
 		return true;
-	}
-
-	public interface OnContactClickListener<I> {
-		void onItemClick(View view, I item);
 	}
 
 }

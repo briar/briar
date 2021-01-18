@@ -52,7 +52,8 @@ public class BriarRecyclerView extends FrameLayout {
 				R.styleable.BriarRecyclerView);
 		isScrollingToEnd = attributes
 				.getBoolean(R.styleable.BriarRecyclerView_scrollToEnd, true);
-		int drawableRes = attributes.getResourceId(R.styleable.BriarRecyclerView_emptyImage, -1);
+		int drawableRes = attributes
+				.getResourceId(R.styleable.BriarRecyclerView_emptyImage, -1);
 		if (drawableRes != -1) setEmptyImage(drawableRes);
 		String emtpyText =
 				attributes.getString(R.styleable.BriarRecyclerView_emptyText);
@@ -87,10 +88,30 @@ public class BriarRecyclerView extends FrameLayout {
 		}
 
 		emptyObserver = new RecyclerView.AdapterDataObserver() {
+
+			@Override
+			public void onChanged() {
+				super.onChanged();
+				showData();
+			}
+
+			@Override
+			public void onItemRangeChanged(int positionStart, int itemCount) {
+				super.onItemRangeChanged(positionStart, itemCount);
+				if (itemCount > 0) showData();
+			}
+
+			@Override
+			public void onItemRangeMoved(int fromPosition, int toPosition,
+					int itemCount) {
+				super.onItemRangeMoved(fromPosition, toPosition, itemCount);
+				if (itemCount > 0) showData();
+			}
+
 			@Override
 			public void onItemRangeInserted(int positionStart, int itemCount) {
 				super.onItemRangeInserted(positionStart, itemCount);
-				if (itemCount > 0) showData();
+				showData();
 			}
 
 			@Override

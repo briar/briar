@@ -43,7 +43,7 @@ public abstract class DbViewModel extends AndroidViewModel {
 	private final Executor dbExecutor;
 	private final LifecycleManager lifecycleManager;
 	private final TransactionManager db;
-	private final AndroidExecutor androidExecutor;
+	protected final AndroidExecutor androidExecutor;
 
 	public DbViewModel(
 			@NonNull Application application,

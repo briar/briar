@@ -7,7 +7,6 @@ import android.view.ViewGroup;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.nullsafety.NullSafety;
 import org.briarproject.briar.R;
-import org.briarproject.briar.android.contact.BaseContactListAdapter.OnContactClickListener;
 
 import androidx.recyclerview.widget.DiffUtil.ItemCallback;
 import androidx.recyclerview.widget.ListAdapter;
@@ -16,9 +15,6 @@ import androidx.recyclerview.widget.ListAdapter;
 public class ContactListAdapter extends
 		ListAdapter<ContactListItem, ContactListItemViewHolder> {
 
-	// TODO: using the click listener interface from BaseContactListAdapter on
-	// purpose here because it is entangled with ContactListItemViewHolder. At
-	// some point we probably want to change that.
 	protected final OnContactClickListener<ContactListItem> listener;
 
 	public ContactListAdapter(
