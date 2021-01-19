@@ -11,6 +11,7 @@ import org.briarproject.bramble.api.identity.AuthorFactory;
 import org.briarproject.bramble.api.identity.IdentityManager;
 import org.briarproject.bramble.api.lifecycle.LifecycleManager;
 import org.briarproject.bramble.api.properties.TransportPropertyManager;
+import org.briarproject.bramble.api.system.Clock;
 import org.briarproject.bramble.test.BrambleCoreIntegrationTestModule;
 import org.briarproject.briar.api.attachment.AttachmentReader;
 import org.briarproject.briar.api.autodelete.AutoDeleteManager;
@@ -133,6 +134,8 @@ public interface BriarIntegrationTestComponent
 	ConnectionManager getConnectionManager();
 
 	AutoDeleteManager getAutoDeleteManager();
+
+	Clock getClock();
 
 	class Helper {
 

@@ -83,7 +83,7 @@ public class PrivateGroupManagerIntegrationTest
 		addGroup();
 
 		// create and add test message
-		long time = clock.currentTimeMillis();
+		long time = c0.getClock().currentTimeMillis();
 		String text = "This is a test message!";
 		MessageId previousMsgId =
 				groupManager0.getPreviousMsgId(groupId0);
@@ -125,7 +125,7 @@ public class PrivateGroupManagerIntegrationTest
 
 		// create and add test message with no previousMsgId
 		GroupMessage msg = groupMessageFactory.createGroupMessage(groupId0,
-				clock.currentTimeMillis(), null, author0, "test", null);
+				c0.getClock().currentTimeMillis(), null, author0, "test", null);
 		groupManager0.addLocalMessage(msg);
 
 		// sync test message
@@ -136,9 +136,9 @@ public class PrivateGroupManagerIntegrationTest
 
 		// create and add test message with random previousMsgId
 		MessageId previousMsgId = new MessageId(getRandomId());
-		msg = groupMessageFactory
-				.createGroupMessage(groupId0, clock.currentTimeMillis(), null,
-						author0, "test", previousMsgId);
+		msg = groupMessageFactory.createGroupMessage(groupId0,
+				c0.getClock().currentTimeMillis(), null, author0, "test",
+				previousMsgId);
 		groupManager0.addLocalMessage(msg);
 
 		// sync test message
@@ -149,9 +149,9 @@ public class PrivateGroupManagerIntegrationTest
 
 		// create and add test message with wrong previousMsgId
 		previousMsgId = groupManager1.getPreviousMsgId(groupId0);
-		msg = groupMessageFactory
-				.createGroupMessage(groupId0, clock.currentTimeMillis(), null,
-						author0, "test", previousMsgId);
+		msg = groupMessageFactory.createGroupMessage(groupId0,
+				c0.getClock().currentTimeMillis(), null, author0, "test",
+				previousMsgId);
 		groupManager0.addLocalMessage(msg);
 
 		// sync test message
@@ -168,9 +168,9 @@ public class PrivateGroupManagerIntegrationTest
 		// create and add test message with random parentMsgId
 		MessageId parentMsgId = new MessageId(getRandomId());
 		MessageId previousMsgId = groupManager0.getPreviousMsgId(groupId0);
-		GroupMessage msg = groupMessageFactory
-				.createGroupMessage(groupId0, clock.currentTimeMillis(),
-						parentMsgId, author0, "test", previousMsgId);
+		GroupMessage msg = groupMessageFactory.createGroupMessage(groupId0,
+				c0.getClock().currentTimeMillis(), parentMsgId, author0, "test",
+				previousMsgId);
 		groupManager0.addLocalMessage(msg);
 
 		// sync test message
@@ -181,9 +181,9 @@ public class PrivateGroupManagerIntegrationTest
 
 		// create and add test message with wrong parentMsgId
 		parentMsgId = previousMsgId;
-		msg = groupMessageFactory
-				.createGroupMessage(groupId0, clock.currentTimeMillis(),
-						parentMsgId, author0, "test", previousMsgId);
+		msg = groupMessageFactory.createGroupMessage(groupId0,
+				c0.getClock().currentTimeMillis(), parentMsgId, author0, "test",
+				previousMsgId);
 		groupManager0.addLocalMessage(msg);
 
 		// sync test message
@@ -211,7 +211,7 @@ public class PrivateGroupManagerIntegrationTest
 		assertEquals(2, groupManager1.getHeaders(groupId0).size());
 
 		// create and add test message with good timestamp
-		long time = clock.currentTimeMillis();
+		long time = c0.getClock().currentTimeMillis();
 		msg = groupMessageFactory
 				.createGroupMessage(groupId0, time, null, author0, "test",
 						previousMsgId);
@@ -238,7 +238,7 @@ public class PrivateGroupManagerIntegrationTest
 	@Test
 	public void testWrongJoinMessages1() throws Exception {
 		// author0 joins privateGroup0 with wrong join message
-		long joinTime = clock.currentTimeMillis();
+		long joinTime = c0.getClock().currentTimeMillis();
 		GroupMessage joinMsg0 = groupMessageFactory
 				.createJoinMessage(privateGroup0.getId(), joinTime, author0,
 						joinTime, getRandomBytes(12));
@@ -251,7 +251,7 @@ public class PrivateGroupManagerIntegrationTest
 				contactId1From0, privateGroup0.getId(), SHARED));
 
 		// author1 joins privateGroup0 with wrong timestamp
-		joinTime = clock.currentTimeMillis();
+		joinTime = c1.getClock().currentTimeMillis();
 		long inviteTime = joinTime;
 		Contact c1 = contactManager0.getContact(contactId1From0);
 		byte[] creatorSignature = groupInvitationFactory
@@ -283,7 +283,7 @@ public class PrivateGroupManagerIntegrationTest
 	@Test
 	public void testWrongJoinMessages2() throws Exception {
 		// author0 joins privateGroup0 with wrong member's join message
-		long joinTime = clock.currentTimeMillis();
+		long joinTime = c0.getClock().currentTimeMillis();
 		long inviteTime = joinTime - 1;
 		BdfList toSign = groupInvitationFactory
 				.createInviteToken(author0.getId(), author0.getId(),
@@ -303,7 +303,7 @@ public class PrivateGroupManagerIntegrationTest
 				contactId1From0, privateGroup0.getId(), SHARED));
 
 		// author1 joins privateGroup0 with wrong signature in join message
-		joinTime = clock.currentTimeMillis();
+		joinTime = c1.getClock().currentTimeMillis();
 		inviteTime = joinTime - 1;
 		// signature uses joiner's key, not creator's key
 		Contact c1 = contactManager0.getContact(contactId1From0);
@@ -365,7 +365,7 @@ public class PrivateGroupManagerIntegrationTest
 				contactId2From0, privateGroup0.getId(), SHARED));
 
 		// author2 joins privateGroup0
-		long joinTime = clock.currentTimeMillis();
+		long joinTime = c2.getClock().currentTimeMillis();
 		long inviteTime = joinTime - 1;
 		Contact c2 = contactManager0.getContact(contactId2From0);
 		byte[] creatorSignature = groupInvitationFactory
@@ -447,7 +447,7 @@ public class PrivateGroupManagerIntegrationTest
 
 	private void addGroup() throws Exception {
 		// author0 joins privateGroup0
-		long joinTime = clock.currentTimeMillis();
+		long joinTime = c0.getClock().currentTimeMillis();
 		GroupMessage joinMsg0 = groupMessageFactory
 				.createJoinMessage(privateGroup0.getId(), joinTime, author0);
 		groupManager0.addPrivateGroup(privateGroup0, joinMsg0, true);
@@ -459,7 +459,7 @@ public class PrivateGroupManagerIntegrationTest
 				contactId1From0, privateGroup0.getId(), SHARED));
 
 		// author1 joins privateGroup0
-		joinTime = clock.currentTimeMillis();
+		joinTime = c1.getClock().currentTimeMillis();
 		long inviteTime = joinTime - 1;
 		Contact c1 = contactManager0.getContact(contactId1From0);
 		byte[] creatorSignature = groupInvitationFactory
