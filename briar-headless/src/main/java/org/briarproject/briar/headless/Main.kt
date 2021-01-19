@@ -17,9 +17,13 @@ import java.lang.System.getProperty
 import java.lang.System.setProperty
 import java.nio.file.Files.setPosixFilePermissions
 import java.nio.file.attribute.PosixFilePermission
-import java.nio.file.attribute.PosixFilePermission.*
+import java.nio.file.attribute.PosixFilePermission.OWNER_EXECUTE
+import java.nio.file.attribute.PosixFilePermission.OWNER_READ
+import java.nio.file.attribute.PosixFilePermission.OWNER_WRITE
 import java.security.SecureRandom
-import java.util.logging.Level.*
+import java.util.logging.Level.ALL
+import java.util.logging.Level.INFO
+import java.util.logging.Level.WARNING
 import java.util.logging.LogManager
 
 private const val DEFAULT_PORT = 7000
@@ -72,6 +76,7 @@ private class Main : CliktCommand(
         // dependency graphs
         BrambleCoreEagerSingletons.Helper.injectEagerSingletons(app)
         BriarCoreEagerSingletons.Helper.injectEagerSingletons(app)
+        HeadlessEagerSingletons.Helper.injectEagerSingletons(app)
 
         val authToken = getOrCreateAuthToken(dataDir, app.getSecureRandom())
 

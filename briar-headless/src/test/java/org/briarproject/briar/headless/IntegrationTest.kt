@@ -34,6 +34,7 @@ abstract class IntegrationTest {
             .build()
         BrambleCoreEagerSingletons.Helper.injectEagerSingletons(app)
         BriarCoreEagerSingletons.Helper.injectEagerSingletons(app)
+        HeadlessEagerSingletons.Helper.injectEagerSingletons(app)
         router = app.getRouter()
         crypto = app.getCryptoComponent()
         testDataCreator = app.getTestDataCreator()

@@ -16,7 +16,8 @@ import javax.inject.Singleton
     ]
 )
 @Singleton
-internal interface BriarHeadlessApp : BrambleCoreEagerSingletons, BriarCoreEagerSingletons {
+internal interface BriarHeadlessApp : BrambleCoreEagerSingletons, BriarCoreEagerSingletons,
+    HeadlessEagerSingletons {
 
     fun getRouter(): Router
 
