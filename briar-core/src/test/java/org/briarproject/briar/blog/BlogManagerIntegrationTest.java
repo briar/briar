@@ -127,7 +127,7 @@ public class BlogManagerIntegrationTest
 
 		// add a post to blog0
 		BlogPost p = blogPostFactory.createBlogPost(blog0.getId(),
-				clock.currentTimeMillis(), null, author0, text);
+				c0.getClock().currentTimeMillis(), null, author0, text);
 		blogManager0.addLocalPost(p);
 
 		// check that post is now in blog0
@@ -158,9 +158,8 @@ public class BlogManagerIntegrationTest
 	public void testBlogPostInWrongBlog() throws Exception {
 		// add a post to blog1
 		String text = getRandomString(42);
-		BlogPost p = blogPostFactory
-				.createBlogPost(blog1.getId(), clock.currentTimeMillis(), null,
-						author0, text);
+		BlogPost p = blogPostFactory.createBlogPost(blog1.getId(),
+				c0.getClock().currentTimeMillis(), null, author0, text);
 		blogManager0.addLocalPost(p);
 
 		// check that post is now in blog1
@@ -197,9 +196,8 @@ public class BlogManagerIntegrationTest
 	public void testBlogComment() throws Exception {
 		// add a post to blog0
 		String text = getRandomString(42);
-		BlogPost p = blogPostFactory
-				.createBlogPost(blog0.getId(), clock.currentTimeMillis(), null,
-						author0, text);
+		BlogPost p = blogPostFactory.createBlogPost(blog0.getId(),
+				c0.getClock().currentTimeMillis(), null, author0, text);
 		blogManager0.addLocalPost(p);
 
 		// sync the post over
@@ -242,9 +240,8 @@ public class BlogManagerIntegrationTest
 	public void testBlogCommentOnOwnPost() throws Exception {
 		// add a post to blog0
 		String text = getRandomString(42);
-		BlogPost p = blogPostFactory
-				.createBlogPost(blog0.getId(), clock.currentTimeMillis(), null,
-						author0, text);
+		BlogPost p = blogPostFactory.createBlogPost(blog0.getId(),
+				c0.getClock().currentTimeMillis(), null, author0, text);
 		blogManager0.addLocalPost(p);
 
 		// get header of own post
@@ -278,9 +275,8 @@ public class BlogManagerIntegrationTest
 	public void testCommentOnComment() throws Exception {
 		// add a post to blog0
 		String text = getRandomString(42);
-		BlogPost p = blogPostFactory
-				.createBlogPost(blog0.getId(), clock.currentTimeMillis(), null,
-						author0, text);
+		BlogPost p = blogPostFactory.createBlogPost(blog0.getId(),
+				c0.getClock().currentTimeMillis(), null, author0, text);
 		blogManager0.addLocalPost(p);
 
 		// sync the post over
@@ -366,9 +362,8 @@ public class BlogManagerIntegrationTest
 	public void testCommentOnOwnComment() throws Exception {
 		// add a post to blog0
 		String text = getRandomString(42);
-		BlogPost p = blogPostFactory
-				.createBlogPost(blog0.getId(), clock.currentTimeMillis(), null,
-						author0, text);
+		BlogPost p = blogPostFactory.createBlogPost(blog0.getId(),
+				c0.getClock().currentTimeMillis(), null, author0, text);
 		blogManager0.addLocalPost(p);
 
 		// sync the post over
@@ -411,9 +406,8 @@ public class BlogManagerIntegrationTest
 
 		// add a feed post to rssBlog
 		String text = getRandomString(42);
-		BlogPost p = blogPostFactory
-				.createBlogPost(rssBlog.getId(), clock.currentTimeMillis(),
-						null, author0, text);
+		BlogPost p = blogPostFactory.createBlogPost(rssBlog.getId(),
+				c0.getClock().currentTimeMillis(), null, author0, text);
 		blogManager0.addLocalPost(p);
 
 		// make sure it got saved as an RSS feed post
@@ -430,9 +424,8 @@ public class BlogManagerIntegrationTest
 	public void testFeedReblog() throws Exception {
 		// add a feed post to rssBlog
 		String text = getRandomString(42);
-		BlogPost p = blogPostFactory
-				.createBlogPost(rssBlog.getId(), clock.currentTimeMillis(),
-						null, author0, text);
+		BlogPost p = blogPostFactory.createBlogPost(rssBlog.getId(),
+				c0.getClock().currentTimeMillis(), null, author0, text);
 		blogManager0.addLocalPost(p);
 
 		// reblog feed post to own blog

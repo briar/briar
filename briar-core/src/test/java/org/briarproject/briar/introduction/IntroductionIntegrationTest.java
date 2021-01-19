@@ -1042,10 +1042,12 @@ public class IntroductionIntegrationTest
 		contactManager1.removeContact(contactId0From1);
 		SecretKey rootKey0_1 = getSecretKey();
 		contactId1From0 = contactManager0.addContact(author1, author0.getId(),
-				rootKey0_1, clock.currentTimeMillis(), true, true, true);
+				rootKey0_1, c0.getClock().currentTimeMillis(), true, true,
+				true);
 		contact1From0 = contactManager0.getContact(contactId1From0);
 		contactId0From1 = contactManager1.addContact(author0, author1.getId(),
-				rootKey0_1, clock.currentTimeMillis(), false, true, true);
+				rootKey0_1, c1.getClock().currentTimeMillis(), false, true,
+				true);
 		contact0From1 = contactManager1.getContact(contactId0From1);
 
 		// Sync initial client versioning updates and transport properties
@@ -1169,7 +1171,7 @@ public class IntroductionIntegrationTest
 				m -> new AcceptMessage(m.getMessageId(), m.getGroupId(),
 						m.getTimestamp(), m.getPreviousMessageId(),
 						m.getSessionId(), m.getEphemeralPublicKey(),
-						clock.currentTimeMillis(),
+						c0.getClock().currentTimeMillis(),
 						m.getTransportProperties(), NO_AUTO_DELETE_TIMER)
 		);
 	}

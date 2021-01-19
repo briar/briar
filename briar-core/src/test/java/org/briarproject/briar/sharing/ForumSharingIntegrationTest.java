@@ -725,7 +725,7 @@ public class ForumSharingIntegrationTest
 		assertResponseReceived(listener0, contactId1From0, true);
 
 		// sharer posts into the forum
-		long time = clock.currentTimeMillis();
+		long time = c0.getClock().currentTimeMillis();
 		String text = getRandomString(42);
 		ForumPost p = forumPostFactory
 				.createPost(forum.getId(), time, null, author0, text);
@@ -743,7 +743,7 @@ public class ForumSharingIntegrationTest
 		assertEquals(author0, header.getAuthor());
 
 		// now invitee creates a post
-		time = clock.currentTimeMillis();
+		time = c1.getClock().currentTimeMillis();
 		text = getRandomString(42);
 		p = forumPostFactory
 				.createPost(forum.getId(), time, null, author1, text);
@@ -789,7 +789,7 @@ public class ForumSharingIntegrationTest
 		assertResponseReceived(listener0, contactId1From0, true);
 
 		// now invitee creates a post
-		time = clock.currentTimeMillis();
+		time = c1.getClock().currentTimeMillis();
 		text = getRandomString(42);
 		p = forumPostFactory
 				.createPost(forum.getId(), time, null, author1, text);
@@ -848,7 +848,7 @@ public class ForumSharingIntegrationTest
 		// send an accept message for the same forum
 		Message m = messageEncoder.encodeAcceptMessage(
 				forumSharingManager0.getContactGroup(contact1From0).getId(),
-				forum.getId(), clock.currentTimeMillis(), invitationId);
+				forum.getId(), c0.getClock().currentTimeMillis(), invitationId);
 		c0.getClientHelper().addLocalMessage(m, new BdfDictionary(), true);
 
 		// sync unexpected message and the expected abort message back
