@@ -61,7 +61,7 @@ public class PrivateGroupIntegrationTest
 		privateGroup0 =
 				privateGroupFactory.createPrivateGroup("Test Group", author0);
 		groupId0 = privateGroup0.getId();
-		long joinTime = clock.currentTimeMillis();
+		long joinTime = c0.getClock().currentTimeMillis();
 		GroupMessage joinMsg0 = groupMessageFactory
 				.createJoinMessage(groupId0, joinTime, author0);
 		groupManager0.addPrivateGroup(privateGroup0, joinMsg0, true);
@@ -92,7 +92,8 @@ public class PrivateGroupIntegrationTest
 
 	@Test
 	public void testMembership() throws Exception {
-		sendInvitation(contactId1From0, clock.currentTimeMillis(), "Hi!");
+		sendInvitation(contactId1From0, c0.getClock().currentTimeMillis(),
+				"Hi!");
 
 		// our group has only one member (ourselves)
 		Collection<GroupMember> members = groupManager0.getMembers(groupId0);
@@ -135,8 +136,10 @@ public class PrivateGroupIntegrationTest
 	@Test
 	public void testRevealContacts() throws Exception {
 		// invite two contacts
-		sendInvitation(contactId1From0, clock.currentTimeMillis(), "Hi 1!");
-		sendInvitation(contactId2From0, clock.currentTimeMillis(), "Hi 2!");
+		sendInvitation(contactId1From0, c0.getClock().currentTimeMillis(),
+				"Hi 1!");
+		sendInvitation(contactId2From0, c0.getClock().currentTimeMillis(),
+				"Hi 2!");
 		sync0To1(1, true);
 		sync0To2(1, true);
 
@@ -182,7 +185,7 @@ public class PrivateGroupIntegrationTest
 				getGroupMember(groupManager2, author1.getId()).getVisibility());
 
 		// 2 sends a message to the group
-		long time = clock.currentTimeMillis();
+		long time = c2.getClock().currentTimeMillis();
 		String text = "This is a test message!";
 		MessageId previousMsgId = groupManager2.getPreviousMsgId(groupId0);
 		GroupMessage msg = groupMessageFactory

@@ -1,6 +1,7 @@
 package org.briarproject.briar.android.logging;
 
 import org.briarproject.bramble.BrambleCoreModule;
+import org.briarproject.bramble.system.ClockModule;
 import org.briarproject.bramble.test.TestSecureRandomModule;
 
 import java.security.SecureRandom;
@@ -11,6 +12,7 @@ import dagger.Component;
 
 @Singleton
 @Component(modules = {
+		ClockModule.class,
 		BrambleCoreModule.class,
 		TestSecureRandomModule.class,
 		LoggingModule.class,
