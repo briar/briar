@@ -26,7 +26,6 @@ import org.briarproject.bramble.api.sync.MessageFactory;
 import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.bramble.api.sync.event.MessageStateChangedEvent;
 import org.briarproject.bramble.api.sync.event.MessagesAckedEvent;
-import org.briarproject.bramble.api.system.Clock;
 import org.briarproject.bramble.test.TestTransportConnectionReader;
 import org.briarproject.bramble.test.TestTransportConnectionWriter;
 import org.briarproject.bramble.test.TestUtils;
@@ -97,8 +96,6 @@ public abstract class BriarIntegrationTest<C extends BriarIntegrationTestCompone
 			lifecycleManager2;
 
 	@Inject
-	protected Clock clock;
-	@Inject
 	protected CryptoComponent crypto;
 	@Inject
 	protected ClientHelper clientHelper;
@@ -139,9 +136,9 @@ public abstract class BriarIntegrationTest<C extends BriarIntegrationTestCompone
 	private final SecretKey rootKey0_2 = getSecretKey();
 	private final SecretKey rootKey1_2 = getSecretKey();
 
-	protected File t0Dir = new File(testDir, AUTHOR0);
-	protected File t1Dir = new File(testDir, AUTHOR1);
-	protected File t2Dir = new File(testDir, AUTHOR2);
+	protected final File t0Dir = new File(testDir, AUTHOR0);
+	protected final File t1Dir = new File(testDir, AUTHOR1);
+	protected final File t2Dir = new File(testDir, AUTHOR2);
 
 	@Before
 	public void setUp() throws Exception {
@@ -269,16 +266,20 @@ public abstract class BriarIntegrationTest<C extends BriarIntegrationTestCompone
 
 	protected void addDefaultContacts() throws Exception {
 		contactId1From0 = contactManager0.addContact(author1, author0.getId(),
-				rootKey0_1, clock.currentTimeMillis(), true, true, true);
+				rootKey0_1, c0.getClock().currentTimeMillis(), true, true,
+				true);
 		contact1From0 = contactManager0.getContact(contactId1From0);
 		contactId0From1 = contactManager1.addContact(author0, author1.getId(),
-				rootKey0_1, clock.currentTimeMillis(), false, true, true);
+				rootKey0_1, c1.getClock().currentTimeMillis(), false, true,
+				true);
 		contact0From1 = contactManager1.getContact(contactId0From1);
 		contactId2From0 = contactManager0.addContact(author2, author0.getId(),
-				rootKey0_2, clock.currentTimeMillis(), true, true, true);
+				rootKey0_2, c0.getClock().currentTimeMillis(), true, true,
+				true);
 		contact2From0 = contactManager0.getContact(contactId2From0);
 		contactId0From2 = contactManager2.addContact(author0, author2.getId(),
-				rootKey0_2, clock.currentTimeMillis(), false, true, true);
+				rootKey0_2, c2.getClock().currentTimeMillis(), false, true,
+				true);
 		contact0From2 = contactManager2.getContact(contactId0From2);
 
 		// Sync initial client versioning updates
@@ -297,9 +298,11 @@ public abstract class BriarIntegrationTest<C extends BriarIntegrationTestCompone
 	protected void addContacts1And2(boolean haveTransportProperties)
 			throws Exception {
 		contactId2From1 = contactManager1.addContact(author2, author1.getId(),
-				rootKey1_2, clock.currentTimeMillis(), true, true, true);
+				rootKey1_2, c1.getClock().currentTimeMillis(), true, true,
+				true);
 		contactId1From2 = contactManager2.addContact(author1, author2.getId(),
-				rootKey1_2, clock.currentTimeMillis(), false, true, true);
+				rootKey1_2, c2.getClock().currentTimeMillis(), false, true,
+				true);
 
 		// Sync initial client versioning updates
 		sync1To2(1, true);

@@ -14,6 +14,7 @@ import dagger.Provides;
 		DefaultEventExecutorModule.class,
 		DefaultTaskSchedulerModule.class,
 		DefaultWakefulIoExecutorModule.class,
+		TestClockModule.class,
 		TestDatabaseConfigModule.class,
 		TestPluginConfigModule.class,
 		TestSecureRandomModule.class

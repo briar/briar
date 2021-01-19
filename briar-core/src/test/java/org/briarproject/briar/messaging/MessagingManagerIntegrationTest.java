@@ -256,7 +256,7 @@ public class MessagingManagerIntegrationTest
 		// send legacy message
 		GroupId g = c0.getMessagingManager().getConversationId(contactId);
 		PrivateMessage m0 = messageFactory.createLegacyPrivateMessage(g,
-				clock.currentTimeMillis(), getRandomString(42));
+				c0.getClock().currentTimeMillis(), getRandomString(42));
 		c0.getMessagingManager().addLocalMessage(m0);
 		syncMessage(c0, c1, contactId, 1, true);
 
@@ -384,7 +384,8 @@ public class MessagingManagerIntegrationTest
 			throws Exception {
 		GroupId g = from.getMessagingManager().getConversationId(contactId);
 		PrivateMessage m = messageFactory.createPrivateMessage(g,
-				clock.currentTimeMillis(), text, attachments, autoDeleteTimer);
+				from.getClock().currentTimeMillis(), text, attachments,
+				autoDeleteTimer);
 		from.getMessagingManager().addLocalMessage(m);
 		syncMessage(from, to, contactId, 1 + attachments.size(), true);
 		return m;
@@ -395,7 +396,7 @@ public class MessagingManagerIntegrationTest
 		GroupId g = c.getMessagingManager().getConversationId(contactId);
 		InputStream stream = new ByteArrayInputStream(getRandomBytes(42));
 		return c.getMessagingManager().addLocalAttachment(g,
-				clock.currentTimeMillis(), "image/jpeg", stream);
+				c.getClock().currentTimeMillis(), "image/jpeg", stream);
 	}
 
 	private Collection<ConversationMessageHeader> getMessages(

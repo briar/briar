@@ -84,9 +84,9 @@ public class ForumManagerTest
 	@Test
 	public void testForumPost() throws Exception {
 		assertEquals(1, forumManager0.getForums().size());
-		long ms1 = clock.currentTimeMillis() - 1000L;
+		long ms1 = c0.getClock().currentTimeMillis() - 1000L;
 		String text1 = "some forum text";
-		long ms2 = clock.currentTimeMillis();
+		long ms2 = c0.getClock().currentTimeMillis();
 		String text2 = "some other forum text";
 		ForumPost post1 =
 				createForumPost(forum0.getGroup().getId(), null, text1, ms1);
@@ -136,7 +136,7 @@ public class ForumManagerTest
 	@Test
 	public void testForumPostDelivery() throws Exception {
 		// add one forum post
-		long time = clock.currentTimeMillis();
+		long time = c0.getClock().currentTimeMillis();
 		ForumPost post1 = createForumPost(groupId0, null, "a", time);
 		forumManager0.addLocalPost(post1);
 		assertEquals(1, forumManager0.getPostHeaders(groupId0).size());
@@ -150,7 +150,7 @@ public class ForumManagerTest
 		assertGroupCount(messageTracker1, groupId0, 1, 1, time);
 
 		// add another forum post
-		long time2 = clock.currentTimeMillis();
+		long time2 = c0.getClock().currentTimeMillis();
 		ForumPost post2 = createForumPost(groupId0, null, "b", time2);
 		forumManager1.addLocalPost(post2);
 		assertEquals(1, forumManager0.getPostHeaders(groupId0).size());
@@ -167,7 +167,7 @@ public class ForumManagerTest
 	@Test
 	public void testForumPostDeliveredAfterParent() throws Exception {
 		// add one forum post without the parent
-		long time = clock.currentTimeMillis();
+		long time = c0.getClock().currentTimeMillis();
 		ForumPost post1 = createForumPost(groupId0, null, "a", time);
 		ForumPost post2 = createForumPost(groupId0, post1, "a", time);
 		forumManager0.addLocalPost(post2);
@@ -199,7 +199,7 @@ public class ForumManagerTest
 		sync1To0(1, true);
 
 		// add one forum post with a parent in another forum
-		long time = clock.currentTimeMillis();
+		long time = c0.getClock().currentTimeMillis();
 		ForumPost post1 = createForumPost(g1, null, "a", time);
 		ForumPost post = createForumPost(groupId0, post1, "b", time);
 		forumManager0.addLocalPost(post);
