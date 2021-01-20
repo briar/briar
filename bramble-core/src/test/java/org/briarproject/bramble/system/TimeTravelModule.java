@@ -41,6 +41,7 @@ public class TimeTravelModule {
 		scheduledExecutorService =
 				new ScheduledThreadPoolExecutor(1, policy);
 		if (travel) {
+			// Use a SettableClock and TestTaskScheduler to allow time travel
 			AtomicLong time = new AtomicLong(System.currentTimeMillis());
 			clock = new SettableClock(time);
 			TestTaskScheduler testTaskScheduler = new TestTaskScheduler(clock);
@@ -61,6 +62,7 @@ public class TimeTravelModule {
 				}
 			};
 		} else {
+			// Use the default clock and task scheduler
 			clock = new SystemClock();
 			taskScheduler = new TaskSchedulerImpl(scheduledExecutorService);
 			timeTravel = new TimeTravel() {

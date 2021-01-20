@@ -15,6 +15,10 @@ import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static java.util.concurrent.TimeUnit.MINUTES;
 import static org.junit.Assert.fail;
 
+/**
+ * A {@link TaskScheduler} for use in tests. The scheduler keeps all scheduled
+ * tasks in a queue until {@link #runTasks()} is called.
+ */
 @NotNullByDefault
 class TestTaskScheduler implements TaskScheduler {
 
@@ -60,12 +64,16 @@ class TestTaskScheduler implements TaskScheduler {
 		return schedule(wrapped, executor, delay, unit, cancelled);
 	}
 
+	/**
+	 * Runs any scheduled tasks that are due.
+	 */
 	void runTasks() throws InterruptedException {
 		long now = clock.currentTimeMillis();
 		while (true) {
 			Task t = queue.peek();
 			if (t == null || t.dueMillis > now) return;
 			t = queue.poll();
+			// Submit the task to its executor and wait for it to finish
 			if (!t.run().await(1, MINUTES)) fail();
 		}
 	}
@@ -92,6 +100,10 @@ class TestTaskScheduler implements TaskScheduler {
 			return Long.valueOf(dueMillis).compareTo(task.dueMillis);
 		}
 
+		/**
+		 * Submits the task to its executor and returns a latch that will be
+		 * released when the task finishes.
+		 */
 		public CountDownLatch run() {
 			if (cancelled.get()) return new CountDownLatch(0);
 			CountDownLatch latch = new CountDownLatch(1);
