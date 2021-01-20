@@ -1,18 +1,18 @@
 package org.briarproject.bramble;
 
-import org.briarproject.bramble.system.DefaultTaskSchedulerModule;
+import org.briarproject.bramble.system.TimeTravelModule;
 
 public interface BrambleCoreIntegrationTestEagerSingletons
 		extends BrambleCoreEagerSingletons {
 
-	void inject(DefaultTaskSchedulerModule.EagerSingletons init);
+	void inject(TimeTravelModule.EagerSingletons init);
 
 	class Helper {
 
 		public static void injectEagerSingletons(
 				BrambleCoreIntegrationTestEagerSingletons c) {
 			BrambleCoreEagerSingletons.Helper.injectEagerSingletons(c);
-			c.inject(new DefaultTaskSchedulerModule.EagerSingletons());
+			c.inject(new TimeTravelModule.EagerSingletons());
 		}
 	}
 }
