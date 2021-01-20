@@ -284,11 +284,14 @@ public abstract class BriarIntegrationTest<C extends BriarIntegrationTestCompone
 
 		// Sync initial client versioning updates
 		sync0To1(1, true);
-		sync0To2(1, true);
 		sync1To0(1, true);
-		sync2To0(1, true);
 		sync0To1(1, true);
+		ack1To0(1);
+
 		sync0To2(1, true);
+		sync2To0(1, true);
+		sync0To2(1, true);
+		ack2To0(1);
 	}
 
 	protected void addContacts1And2() throws Exception {
@@ -307,9 +310,13 @@ public abstract class BriarIntegrationTest<C extends BriarIntegrationTestCompone
 		// Sync initial client versioning updates
 		sync1To2(1, true);
 		sync2To1(1, true);
-		sync1To2(haveTransportProperties ? 2 : 1, true);
 		if (haveTransportProperties) {
+			sync1To2(2, true);
 			sync2To1(1, true);
+			ack1To2(1);
+		} else {
+			sync1To2(1, true);
+			ack2To1(1);
 		}
 	}
 
@@ -360,6 +367,32 @@ public abstract class BriarIntegrationTest<C extends BriarIntegrationTestCompone
 	protected void sync1To2(int num, boolean valid) throws Exception {
 		assertNotNull(contactId2From1);
 		syncMessage(c1, c2, contactId2From1, num, valid);
+	}
+
+	protected void ack0To1(int num) throws Exception {
+		sendAcks(c0, c1, contactId1From0, num);
+	}
+
+	protected void ack0To2(int num) throws Exception {
+		sendAcks(c0, c2, contactId2From0, num);
+	}
+
+	protected void ack1To0(int num) throws Exception {
+		sendAcks(c1, c0, contactId0From1, num);
+	}
+
+	protected void ack2To0(int num) throws Exception {
+		sendAcks(c2, c0, contactId0From2, num);
+	}
+
+	protected void ack2To1(int num) throws Exception {
+		assertNotNull(contactId1From2);
+		sendAcks(c2, c1, contactId1From2, num);
+	}
+
+	protected void ack1To2(int num) throws Exception {
+		assertNotNull(contactId2From1);
+		sendAcks(c1, c2, contactId2From1, num);
 	}
 
 	protected void syncMessage(BriarIntegrationTestComponent fromComponent,

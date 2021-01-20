@@ -1314,7 +1314,7 @@ public class IntroductionIntegrationTest
 		assertGroupCount(messageTracker1, g1.getId(), 2, 1);
 
 		// ACK last message
-		sendAcks(c0, c1, contactId1From0, 1);
+		ack0To1(1);
 
 		// introducee1 can now remove messages
 		assertTrue(deleteAllMessages0From1().allDeleted());
@@ -1427,14 +1427,14 @@ public class IntroductionIntegrationTest
 		assertFalse(deleteAllMessages2From0().allDeleted());
 
 		// introducer can remove messages after getting ACK from introducee1
-		sendAcks(c1, c0, contactId0From1, 1);
+		ack1To0(1);
 		assertTrue(deleteAllMessages1From0().allDeleted());
 		assertEquals(0, getMessages1From0().size());
 		// a second time nothing happens
 		assertTrue(deleteAllMessages1From0().allDeleted());
 
 		// introducer can remove messages after getting ACK from introducee2
-		sendAcks(c2, c0, contactId0From2, 1);
+		ack2To0(1);
 		assertTrue(deleteAllMessages2From0().allDeleted());
 		assertEquals(0, getMessages2From0().size());
 		// a second time nothing happens
@@ -1491,7 +1491,7 @@ public class IntroductionIntegrationTest
 		sync0To1(1, true);
 
 		// introducer can remove messages after getting ACK from introducee1
-		sendAcks(c1, c0, contactId0From1, 1);
+		ack1To0(1);
 		assertTrue(deleteAllMessages1From0().allDeleted());
 		assertEquals(0, getMessages1From0().size());
 		// a second time nothing happens
@@ -1512,7 +1512,7 @@ public class IntroductionIntegrationTest
 		sync0To1(1, true);
 
 		// introducer can remove messages after getting ACK from introducee1
-		sendAcks(c1, c0, contactId0From1, 1);
+		ack1To0(1);
 		assertTrue(deleteAllMessages1From0().allDeleted());
 		assertEquals(0, getMessages1From0().size());
 		assertTrue(deleteAllMessages1From0()
@@ -1520,7 +1520,7 @@ public class IntroductionIntegrationTest
 
 		// introducer can remove messages after getting ACK from introducee2
 		// if this succeeds, we still had the session object after delete above
-		sendAcks(c2, c0, contactId0From2, 1);
+		ack2To0(1);
 		assertTrue(deleteAllMessages2From0().allDeleted());
 		assertEquals(0, getMessages2From0().size());
 		assertTrue(deleteAllMessages2From0()
