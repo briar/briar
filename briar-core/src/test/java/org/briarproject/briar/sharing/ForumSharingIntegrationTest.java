@@ -920,7 +920,7 @@ public class ForumSharingIntegrationTest
 		assertGroupCount(messageTracker1, g0From1, 2, 1);
 
 		// 0 sends an ACK to their last message
-		sendAcks(c0, c1, contactId1From0, 1);
+		ack0To1(1);
 
 		// 1 can now delete all messages, as last one has been ACKed
 		assertTrue(deleteAllMessages0From1().allDeleted());
@@ -955,7 +955,7 @@ public class ForumSharingIntegrationTest
 		sync0To1(1, true);
 
 		// 1 sends an ACK to their last message
-		sendAcks(c1, c0, contactId0From1, 1);
+		ack1To0(1);
 
 		// messages can now get deleted again
 		assertTrue(deleteAllMessages1From0().allDeleted());
@@ -988,7 +988,7 @@ public class ForumSharingIntegrationTest
 		assertFalse(deleteAllMessages0From1().allDeleted());
 
 		// 0 sends an ACK to their last message
-		sendAcks(c0, c1, contactId1From0, 1);
+		ack0To1(1);
 
 		// 1 can now delete all messages, as last one has been ACKed
 		assertTrue(deleteAllMessages0From1().allDeleted());
@@ -1058,7 +1058,7 @@ public class ForumSharingIntegrationTest
 				.hasInvitationSessionInProgress());
 
 		// 0 sends an ACK to their last message
-		sendAcks(c0, c1, contactId1From0, 1);
+		ack0To1(1);
 
 		// 1 can now delete all messages, as last one has been ACKed
 		assertTrue(deleteMessages0From1(toDelete).allDeleted());
