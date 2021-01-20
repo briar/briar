@@ -599,7 +599,7 @@ public class GroupInvitationIntegrationTest
 		assertEquals(2, getMessages0From1().size());
 
 		// creator sends ACK
-		sendAcks(c0, c1, contactId1From0, 1);
+		ack0To1(1);
 
 		// now invitee can also delete messages
 		assertTrue(deleteAllMessages0From1().allDeleted());
@@ -624,7 +624,7 @@ public class GroupInvitationIntegrationTest
 		sync1To0(1, true);
 
 		// creator sends ACK
-		sendAcks(c0, c1, contactId1From0, 1);
+		ack0To1(1);
 
 		// asserting group counts
 		assertGroupCount(messageTracker1, g0From1.getId(), 2, 1);
@@ -691,7 +691,7 @@ public class GroupInvitationIntegrationTest
 		assertGroupCount(messageTracker1, g0From1.getId(), 2, 1);
 
 		// 0 sends an ACK to their last message
-		sendAcks(c0, c1, contactId1From0, 1);
+		ack0To1(1);
 
 		// 1 can now delete all messages, as last one has been ACKed
 		assertTrue(deleteMessages0From1(toDelete).allDeleted());
