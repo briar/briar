@@ -17,9 +17,8 @@
 		app:showAsAction="never" />
 
 	<item
-		android:id="@+id/action_auto_delete"
-		android:checkable="true"
-		android:title="@string/menu_item_auto_delete"
+		android:id="@+id/action_conversation_settings"
+		android:title="@string/menu_item_disappearing_messages"
 		android:visible="false"
 		app:showAsAction="never"
 		tools:visible="true" />
