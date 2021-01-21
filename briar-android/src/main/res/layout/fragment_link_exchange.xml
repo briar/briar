@@ -81,9 +81,9 @@
 			android:layout_marginTop="32dp"
 			android:background="@drawable/bubble_accent"
 			android:scaleType="center"
-			android:src="@drawable/ic_call_made"
 			app:layout_constraintStart_toStartOf="parent"
 			app:layout_constraintTop_toBottomOf="@+id/stepOneText"
+			app:srcCompat="@drawable/ic_call_made"
 			app:tint="@android:color/white" />
 
 		<TextView
@@ -157,9 +157,9 @@
 			android:layout_marginTop="16dp"
 			android:background="@drawable/bubble_accent"
 			android:scaleType="center"
-			android:src="@drawable/ic_call_received"
 			app:layout_constraintStart_toStartOf="parent"
 			app:layout_constraintTop_toBottomOf="@+id/copyButton"
+			app:srcCompat="@drawable/ic_call_received"
 			app:tint="@android:color/white" />
 
 		<TextView

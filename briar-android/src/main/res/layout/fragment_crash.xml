@@ -24,7 +24,6 @@
 				android:layout_width="0dp"
 				android:layout_height="0dp"
 				android:padding="8dp"
-				android:src="@drawable/ic_crash"
 				app:layout_constraintBottom_toTopOf="@+id/crashed"
 				app:layout_constraintDimensionRatio="1:1"
 				app:layout_constraintEnd_toEndOf="parent"
@@ -32,6 +31,7 @@
 				app:layout_constraintStart_toStartOf="parent"
 				app:layout_constraintTop_toTopOf="parent"
 				app:layout_constraintVertical_chainStyle="packed"
+				app:srcCompat="@drawable/ic_crash"
 				app:tint="?attr/colorControlNormal"
 				tools:ignore="ContentDescription" />
 

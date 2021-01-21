@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <merge xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:app="http://schemas.android.com/apk/res-auto"
 	xmlns:tools="http://schemas.android.com/tools"
 	tools:showIn="@layout/fragment_keyagreement_qr">
 
@@ -25,6 +26,6 @@
 		android:alpha="0.54"
 		android:background="?attr/selectableItemBackground"
 		android:contentDescription="@string/show_qr_code_fullscreen"
-		android:src="@drawable/ic_fullscreen_black_48dp" />
+		app:srcCompat="@drawable/ic_fullscreen_black_48dp" />
 
 </merge>

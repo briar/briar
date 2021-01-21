@@ -77,13 +77,13 @@
 			android:layout_width="0dp"
 			android:layout_height="0dp"
 			android:layout_marginTop="32dp"
-			android:src="@drawable/ic_nickname"
 			app:layout_constraintBottom_toTopOf="@+id/nicknameIcon"
 			app:layout_constraintDimensionRatio="1:1"
 			app:layout_constraintEnd_toEndOf="parent"
 			app:layout_constraintHeight_max="256dp"
 			app:layout_constraintStart_toStartOf="parent"
 			app:layout_constraintTop_toBottomOf="@+id/stepOneText"
+			app:srcCompat="@drawable/ic_nickname"
 			tools:ignore="ContentDescription" />
 
 		<androidx.appcompat.widget.AppCompatImageView
@@ -93,10 +93,10 @@
 			android:layout_marginTop="32dp"
 			android:background="@drawable/bubble_accent"
 			android:scaleType="center"
-			android:src="@drawable/ic_person"
 			app:layout_constraintBottom_toTopOf="@+id/contactNameLayout"
 			app:layout_constraintStart_toStartOf="parent"
 			app:layout_constraintTop_toBottomOf="@+id/imageView"
+			app:srcCompat="@drawable/ic_person"
 			app:tint="@android:color/white" />
 
 		<TextView

@@ -25,6 +25,8 @@ android {
 		versionCode 10213
 		versionName "1.2.13"
 		applicationId "org.briarproject.briar.android"
+
+		vectorDrawables.useSupportLibrary = true
 		buildConfigField "String", "GitHash",
 				"\"${getStdout(['git', 'rev-parse', '--short=7', 'HEAD'], 'No commit hash')}\""
 		def now = (long) (System.currentTimeMillis() / 1000)

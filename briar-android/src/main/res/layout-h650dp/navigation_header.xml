@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:app="http://schemas.android.com/apk/res-auto"
 	xmlns:tools="http://schemas.android.com/tools"
 	android:layout_width="match_parent"
 	android:layout_height="85dp"
@@ -16,6 +17,6 @@
 		android:layout_marginRight="@dimen/margin_medium"
 		android:layout_marginBottom="@dimen/margin_medium"
 		android:contentDescription="@string/app_name"
-		android:src="@drawable/navigation_drawer_header" />
+		app:srcCompat="@drawable/navigation_drawer_header" />
 
 </FrameLayout>

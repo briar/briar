@@ -47,9 +47,9 @@
 			android:layout_height="@dimen/button_size"
 			android:background="?attr/selectableItemBackgroundBorderless"
 			android:contentDescription="@string/blogs_reblog_comment_hint"
-			android:src="@drawable/ic_repeat"
 			app:layout_constraintEnd_toEndOf="parent"
 			app:layout_constraintTop_toTopOf="parent"
+			app:srcCompat="@drawable/ic_repeat"
 			app:tint="?attr/colorControlNormal" />
 
 		<com.vanniktech.emoji.EmojiTextView
