@@ -68,8 +68,8 @@
 
 	</com.google.android.material.appbar.AppBarLayout>
 
-	<fragment
-		android:id="@+id/fragment"
+	<androidx.fragment.app.FragmentContainerView
+		android:id="@+id/fragmentContainer"
 		android:name="org.briarproject.briar.android.settings.SettingsFragment"
 		android:layout_width="match_parent"
 		android:layout_height="match_parent"

@@ -1,7 +1,6 @@
 package org.briarproject.briar.android.settings;
 
 import android.annotation.TargetApi;
-import android.app.AlertDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.drawable.ColorDrawable;
@@ -30,13 +29,7 @@ import org.briarproject.bramble.api.system.LocationUtils;
 import org.briarproject.bramble.plugin.tor.CircumventionProvider;
 import org.briarproject.bramble.util.StringUtils;
 import org.briarproject.briar.R;
-import org.briarproject.briar.android.Localizer;
-import org.briarproject.briar.android.util.UiUtils;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Locale;
 import java.util.logging.Logger;
 
 import javax.inject.Inject;
@@ -44,7 +37,6 @@ import javax.inject.Inject;
 import androidx.annotation.Nullable;
 import androidx.annotation.StringRes;
 import androidx.core.content.ContextCompat;
-import androidx.core.text.TextUtilsCompat;
 import androidx.preference.ListPreference;
 import androidx.preference.Preference;
 import androidx.preference.Preference.OnPreferenceChangeListener;
@@ -53,9 +45,6 @@ import androidx.preference.PreferenceGroup;
 import androidx.preference.SwitchPreference;
 
 import static android.app.Activity.RESULT_OK;
-import static android.content.Intent.FLAG_ACTIVITY_CLEAR_TASK;
-import static android.content.Intent.FLAG_ACTIVITY_CLEAR_TOP;
-import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
 import static android.media.RingtoneManager.ACTION_RINGTONE_PICKER;
 import static android.media.RingtoneManager.EXTRA_RINGTONE_DEFAULT_URI;
 import static android.media.RingtoneManager.EXTRA_RINGTONE_EXISTING_URI;
@@ -70,9 +59,7 @@ import static android.provider.Settings.EXTRA_APP_PACKAGE;
 import static android.provider.Settings.EXTRA_CHANNEL_ID;
 import static android.provider.Settings.System.DEFAULT_NOTIFICATION_URI;
 import static android.widget.Toast.LENGTH_SHORT;
-import static androidx.core.view.ViewCompat.LAYOUT_DIRECTION_LTR;
 import static java.util.Objects.requireNonNull;
-import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
 import static org.briarproject.bramble.api.plugin.Plugin.PREF_PLUGIN_ENABLE;
 import static org.briarproject.bramble.api.plugin.TorConstants.DEFAULT_PREF_TOR_MOBILE;
@@ -86,10 +73,8 @@ import static org.briarproject.bramble.api.plugin.TorConstants.PREF_TOR_ONLY_WHE
 import static org.briarproject.bramble.util.LogUtils.logDuration;
 import static org.briarproject.bramble.util.LogUtils.logException;
 import static org.briarproject.bramble.util.LogUtils.now;
-import static org.briarproject.briar.android.BriarApplication.ENTRY_ACTIVITY;
 import static org.briarproject.briar.android.TestingConstants.IS_DEBUG_BUILD;
 import static org.briarproject.briar.android.activity.RequestCodes.REQUEST_RINGTONE;
-import static org.briarproject.briar.android.navdrawer.NavDrawerActivity.SIGN_OUT_URI;
 import static org.briarproject.briar.android.util.UiUtils.getCountryDisplayName;
 import static org.briarproject.briar.android.util.UiUtils.hasScreenLock;
 import static org.briarproject.briar.android.util.UiUtils.triggerFeedback;
@@ -112,7 +97,6 @@ public class SettingsFragment extends PreferenceFragmentCompat
 		implements EventListener, OnPreferenceChangeListener {
 
 	public static final String SETTINGS_NAMESPACE = "android-ui";
-	public static final String LANGUAGE = "pref_key_language";
 	public static final String PREF_SCREEN_LOCK = "pref_key_lock";
 	public static final String PREF_SCREEN_LOCK_TIMEOUT =
 			"pref_key_lock_timeout";
@@ -136,7 +120,6 @@ public class SettingsFragment extends PreferenceFragmentCompat
 			Logger.getLogger(SettingsFragment.class.getName());
 
 	private SettingsActivity listener;
-	private ListPreference language;
 	private SwitchPreference enableBluetooth;
 	private SwitchPreference enableWifi;
 	private SwitchPreference enableTor;
@@ -177,9 +160,6 @@ public class SettingsFragment extends PreferenceFragmentCompat
 	public void onCreatePreferences(Bundle bundle, String s) {
 		addPreferencesFromResource(R.xml.settings);
 
-		language = findPreference(LANGUAGE);
-		setLanguageEntries();
-		ListPreference theme = findPreference("pref_key_theme");
 		enableBluetooth = findPreference(BT_ENABLE);
 		enableWifi = findPreference(WIFI_ENABLE);
 		enableTor = findPreference(TOR_ENABLE);
@@ -196,24 +176,6 @@ public class SettingsFragment extends PreferenceFragmentCompat
 		notifyVibration = findPreference("pref_key_notify_vibration");
 		notifySound = findPreference("pref_key_notify_sound");
 
-		language.setOnPreferenceChangeListener(this);
-		theme.setOnPreferenceChangeListener((preference, newValue) -> {
-			if (getActivity() != null) {
-				// activate new theme
-				UiUtils.setTheme(getActivity(), (String) newValue);
-				// bring up parent activity, so it can change its theme as well
-				// upstream bug: https://issuetracker.google.com/issues/38352704
-				Intent intent = new Intent(getActivity(), ENTRY_ACTIVITY);
-				intent.setFlags(
-						FLAG_ACTIVITY_CLEAR_TASK | FLAG_ACTIVITY_NEW_TASK);
-				startActivity(intent);
-				// bring this activity back to the foreground
-				intent = new Intent(getActivity(), getActivity().getClass());
-				startActivity(intent);
-				getActivity().finish();
-			}
-			return true;
-		});
 		enableBluetooth.setOnPreferenceChangeListener(this);
 		enableWifi.setOnPreferenceChangeListener(this);
 		enableTor.setOnPreferenceChangeListener(this);
@@ -230,19 +192,6 @@ public class SettingsFragment extends PreferenceFragmentCompat
 			return true;
 		});
 
-		if (SDK_INT < 27) {
-			// remove System Default Theme option from preference entries
-			// as it is not functional on this API anyway
-			List<CharSequence> entries =
-					new ArrayList<>(Arrays.asList(theme.getEntries()));
-			entries.remove(getString(R.string.pref_theme_system));
-			theme.setEntries(entries.toArray(new CharSequence[0]));
-			// also remove corresponding value
-			List<CharSequence> values =
-					new ArrayList<>(Arrays.asList(theme.getEntryValues()));
-			values.remove(getString(R.string.pref_theme_system_value));
-			theme.setEntryValues(values.toArray(new CharSequence[0]));
-		}
 		Preference explode = requireNonNull(findPreference("pref_key_explode"));
 		if (IS_DEBUG_BUILD) {
 			explode.setOnPreferenceClickListener(preference -> {
@@ -271,6 +220,7 @@ public class SettingsFragment extends PreferenceFragmentCompat
 	@Override
 	public void onStart() {
 		super.onStart();
+		requireActivity().setTitle(R.string.settings_button);
 		eventBus.addListener(this);
 		setSettingsEnabled(false);
 		loadSettings();
@@ -280,51 +230,6 @@ public class SettingsFragment extends PreferenceFragmentCompat
 	public void onStop() {
 		super.onStop();
 		eventBus.removeListener(this);
-	}
-
-	private void setLanguageEntries() {
-		CharSequence[] tags = language.getEntryValues();
-		List<CharSequence> entries = new ArrayList<>(tags.length);
-		List<CharSequence> entryValues = new ArrayList<>(tags.length);
-		for (CharSequence cs : tags) {
-			String tag = cs.toString();
-			if (tag.equals("default")) {
-				entries.add(getString(R.string.pref_language_default));
-				entryValues.add(tag);
-				continue;
-			}
-			Locale locale = Localizer.getLocaleFromTag(tag);
-			if (locale == null)
-				throw new IllegalStateException();
-			// Exclude RTL locales on API < 17, they won't be laid out correctly
-			if (SDK_INT < 17 && !isLeftToRight(locale)) {
-				if (LOG.isLoggable(INFO))
-					LOG.info("Skipping RTL locale " + tag);
-				continue;
-			}
-			String nativeName = locale.getDisplayName(locale);
-			// Fallback to English if the name is unknown in both native and
-			// current locale.
-			if (nativeName.equals(tag)) {
-				String tmp = locale.getDisplayLanguage(Locale.ENGLISH);
-				if (!tmp.isEmpty() && !tmp.equals(nativeName))
-					nativeName = tmp;
-			}
-			// Prefix with LRM marker to prevent any RTL direction
-			entries.add("\u200E" + nativeName.substring(0, 1).toUpperCase()
-					+ nativeName.substring(1));
-			entryValues.add(tag);
-		}
-		language.setEntries(entries.toArray(new CharSequence[0]));
-		language.setEntryValues(entryValues.toArray(new CharSequence[0]));
-	}
-
-	private boolean isLeftToRight(Locale locale) {
-		// TextUtilsCompat returns the wrong direction for Hebrew on some phones
-		String language = locale.getLanguage();
-		if (language.equals("iw") || language.equals("he")) return false;
-		int direction = TextUtilsCompat.getLayoutDirectionFromLocale(locale);
-		return direction == LAYOUT_DIRECTION_LTR;
 	}
 
 	private void setTorNetworkSummary(int torNetworkSetting) {
@@ -573,11 +478,7 @@ public class SettingsFragment extends PreferenceFragmentCompat
 
 	@Override
 	public boolean onPreferenceChange(Preference preference, Object newValue) {
-		if (preference == language) {
-			if (!language.getValue().equals(newValue))
-				languageChanged((String) newValue);
-			return false;
-		} else if (preference == enableBluetooth) {
+		if (preference == enableBluetooth) {
 			boolean btSetting = (Boolean) newValue;
 			storeBluetoothSetting(btSetting);
 		} else if (preference == enableWifi) {
@@ -628,25 +529,6 @@ public class SettingsFragment extends PreferenceFragmentCompat
 			storeSettings(s);
 		}
 		return true;
-	}
-
-	private void languageChanged(String newValue) {
-		AlertDialog.Builder builder =
-				new AlertDialog.Builder(getActivity());
-		builder.setTitle(R.string.pref_language_title);
-		builder.setMessage(R.string.pref_language_changed);
-		builder.setPositiveButton(R.string.sign_out_button,
-				(dialogInterface, i) -> {
-					language.setValue(newValue);
-					Intent intent = new Intent(getContext(), ENTRY_ACTIVITY);
-					intent.setFlags(FLAG_ACTIVITY_CLEAR_TOP);
-					intent.setData(SIGN_OUT_URI);
-					requireActivity().startActivity(intent);
-					requireActivity().finish();
-				});
-		builder.setNegativeButton(R.string.cancel, null);
-		builder.setCancelable(false);
-		builder.show();
 	}
 
 	private void storeTorEnabledSetting(boolean torEnabledSetting) {

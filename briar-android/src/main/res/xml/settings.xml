@@ -1,29 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
-<PreferenceScreen
-	xmlns:android="http://schemas.android.com/apk/res/android"
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
 	xmlns:app="http://schemas.android.com/apk/res-auto">
-	<PreferenceCategory
-		android:layout="@layout/preferences_category"
-		android:title="@string/display_settings_title">
 
-		<ListPreference
-			android:defaultValue="default"
-			android:entryValues="@array/pref_language_values"
-			android:key="pref_key_language"
-			android:summary="%s"
-			android:title="@string/pref_language_title"
-			app:iconSpaceReserved="false"/>
-
-		<ListPreference
-			android:defaultValue="@string/pref_theme_light_value"
-			android:entries="@array/pref_theme_entries"
-			android:entryValues="@array/pref_theme_values"
-			android:key="pref_key_theme"
-			android:summary="%s"
-			android:title="@string/pref_theme_title"
-			app:iconSpaceReserved="false"/>
-
-	</PreferenceCategory>
+	<Preference
+		android:title="@string/display_settings_title"
+		app:fragment="org.briarproject.briar.android.settings.DisplayFragment"
+		app:icon="@drawable/ic_settings_brightness" />
 
 	<PreferenceCategory
 		android:layout="@layout/preferences_category"
@@ -35,7 +17,7 @@
 			android:persistent="false"
 			android:title="@string/bluetooth_setting"
 			android:widgetLayout="@layout/preference_switch_compat"
-			app:iconSpaceReserved="false"/>
+			app:iconSpaceReserved="false" />
 
 		<SwitchPreference
 			android:defaultValue="false"
@@ -43,16 +25,16 @@
 			android:persistent="false"
 			android:title="@string/wifi_setting"
 			android:widgetLayout="@layout/preference_switch_compat"
-			app:iconSpaceReserved="false"/>
+			app:iconSpaceReserved="false" />
 
 		<SwitchPreference
 			android:defaultValue="true"
 			android:key="pref_key_tor_enable"
 			android:persistent="false"
-			android:title="@string/tor_enable_title"
 			android:summary="@string/tor_enable_summary"
+			android:title="@string/tor_enable_title"
 			android:widgetLayout="@layout/preference_switch_compat"
-			app:iconSpaceReserved="false"/>
+			app:iconSpaceReserved="false" />
 
 		<ListPreference
 			android:defaultValue="0"
@@ -63,7 +45,7 @@
 			android:persistent="false"
 			android:summary="%s"
 			android:title="@string/tor_network_setting"
-			app:iconSpaceReserved="false"/>
+			app:iconSpaceReserved="false" />
 
 		<SwitchPreference
 			android:defaultValue="true"
@@ -72,17 +54,17 @@
 			android:persistent="false"
 			android:title="@string/tor_mobile_data_title"
 			android:widgetLayout="@layout/preference_switch_compat"
-			app:iconSpaceReserved="false"/>
+			app:iconSpaceReserved="false" />
 
 		<SwitchPreference
 			android:defaultValue="false"
 			android:dependency="pref_key_tor_enable"
 			android:key="pref_key_tor_only_when_charging"
 			android:persistent="false"
-			android:title="@string/tor_only_when_charging_title"
 			android:summary="@string/tor_only_when_charging_summary"
+			android:title="@string/tor_only_when_charging_title"
 			android:widgetLayout="@layout/preference_switch_compat"
-			app:iconSpaceReserved="false"/>
+			app:iconSpaceReserved="false" />
 
 	</PreferenceCategory>
 
@@ -97,7 +79,7 @@
 			android:summary="@string/pref_lock_summary"
 			android:title="@string/pref_lock_title"
 			android:widgetLayout="@layout/preference_switch_compat"
-			app:iconSpaceReserved="false"/>
+			app:iconSpaceReserved="false" />
 
 		<ListPreference
 			android:defaultValue="@string/pref_lock_timeout_value_default"
@@ -108,7 +90,7 @@
 			android:persistent="false"
 			android:summary="@string/pref_lock_timeout_summary"
 			android:title="@string/pref_lock_timeout_title"
-			app:iconSpaceReserved="false"/>
+			app:iconSpaceReserved="false" />
 
 		<Preference
 			android:key="pref_key_change_password"
@@ -117,7 +99,7 @@
 
 			<intent
 				android:targetClass="org.briarproject.briar.android.login.ChangePasswordActivity"
-				android:targetPackage="@string/app_package"/>
+				android:targetPackage="@string/app_package" />
 		</Preference>
 
 	</PreferenceCategory>
@@ -133,7 +115,7 @@
 
 			<intent
 				android:targetClass="org.briarproject.briar.android.panic.PanicPreferencesActivity"
-				android:targetPackage="@string/app_package"/>
+				android:targetPackage="@string/app_package" />
 
 		</Preference>
 
@@ -149,7 +131,7 @@
 			android:summary="@string/notify_sign_in_summary"
 			android:title="@string/notify_sign_in_title"
 			android:widgetLayout="@layout/preference_switch_compat"
-			app:iconSpaceReserved="false"/>
+			app:iconSpaceReserved="false" />
 
 		<SwitchPreference
 			android:defaultValue="true"
@@ -158,7 +140,7 @@
 			android:summary="@string/notify_private_messages_setting_summary"
 			android:title="@string/notify_private_messages_setting_title"
 			android:widgetLayout="@layout/preference_switch_compat"
-			app:iconSpaceReserved="false"/>
+			app:iconSpaceReserved="false" />
 
 		<SwitchPreference
 			android:defaultValue="true"
@@ -167,7 +149,7 @@
 			android:summary="@string/notify_group_messages_setting_summary"
 			android:title="@string/notify_group_messages_setting_title"
 			android:widgetLayout="@layout/preference_switch_compat"
-			app:iconSpaceReserved="false"/>
+			app:iconSpaceReserved="false" />
 
 		<SwitchPreference
 			android:defaultValue="true"
@@ -176,7 +158,7 @@
 			android:summary="@string/notify_forum_posts_setting_summary"
 			android:title="@string/notify_forum_posts_setting_title"
 			android:widgetLayout="@layout/preference_switch_compat"
-			app:iconSpaceReserved="false"/>
+			app:iconSpaceReserved="false" />
 
 		<SwitchPreference
 			android:defaultValue="true"
@@ -185,7 +167,7 @@
 			android:summary="@string/notify_blog_posts_setting_summary"
 			android:title="@string/notify_blog_posts_setting_title"
 			android:widgetLayout="@layout/preference_switch_compat"
-			app:iconSpaceReserved="false"/>
+			app:iconSpaceReserved="false" />
 
 		<SwitchPreference
 			android:defaultValue="true"
@@ -193,12 +175,12 @@
 			android:persistent="false"
 			android:title="@string/notify_vibration_setting"
 			android:widgetLayout="@layout/preference_switch_compat"
-			app:iconSpaceReserved="false"/>
+			app:iconSpaceReserved="false" />
 
 		<Preference
 			android:key="pref_key_notify_sound"
 			android:title="@string/notify_sound_setting"
-			app:iconSpaceReserved="false"/>
+			app:iconSpaceReserved="false" />
 
 	</PreferenceCategory>
 
@@ -209,7 +191,7 @@
 		<Preference
 			android:key="pref_key_send_feedback"
 			android:title="@string/send_feedback"
-			app:iconSpaceReserved="false"/>
+			app:iconSpaceReserved="false" />
 
 	</PreferenceCategory>
 
@@ -224,13 +206,13 @@
 
 			<intent
 				android:targetClass="org.briarproject.briar.android.test.TestDataActivity"
-				android:targetPackage="@string/app_package"/>
+				android:targetPackage="@string/app_package" />
 		</Preference>
 
 		<Preference
 			android:key="pref_key_explode"
 			android:title="Crash"
-			app:iconSpaceReserved="false"/>
+			app:iconSpaceReserved="false" />
 
 	</PreferenceCategory>
 

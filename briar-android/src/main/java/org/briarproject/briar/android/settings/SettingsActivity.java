@@ -9,6 +9,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import org.briarproject.bramble.api.FeatureFlags;
+import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
+import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.activity.ActivityComponent;
 import org.briarproject.briar.android.activity.BriarActivity;
@@ -19,23 +21,39 @@ import javax.inject.Inject;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBar;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentFactory;
+import androidx.fragment.app.FragmentManager;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.preference.Preference;
+import androidx.preference.PreferenceFragmentCompat;
+import androidx.preference.PreferenceFragmentCompat.OnPreferenceStartFragmentCallback;
 import de.hdodenhof.circleimageview.CircleImageView;
 
 import static android.widget.Toast.LENGTH_LONG;
 import static org.briarproject.briar.android.activity.RequestCodes.REQUEST_AVATAR_IMAGE;
 
-public class SettingsActivity extends BriarActivity {
+@MethodsNotNullByDefault
+@ParametersNotNullByDefault
+public class SettingsActivity extends BriarActivity
+		implements OnPreferenceStartFragmentCallback {
 
 	@Inject
 	ViewModelProvider.Factory viewModelFactory;
-	private SettingsViewModel settingsViewModel;
-
 	@Inject
 	FeatureFlags featureFlags;
 
+	private SettingsViewModel settingsViewModel;
+
 	@Override
-	public void onCreate(Bundle bundle) {
+	public void injectActivity(ActivityComponent component) {
+		component.inject(this);
+		settingsViewModel = new ViewModelProvider(this, viewModelFactory)
+				.get(SettingsViewModel.class);
+	}
+
+	@Override
+	public void onCreate(@Nullable Bundle bundle) {
 		super.onCreate(bundle);
 
 		ActionBar actionBar = getSupportActionBar();
@@ -47,10 +65,6 @@ public class SettingsActivity extends BriarActivity {
 		setContentView(R.layout.activity_settings);
 
 		if (featureFlags.shouldEnableProfilePictures()) {
-			ViewModelProvider provider =
-					new ViewModelProvider(this, viewModelFactory);
-			settingsViewModel = provider.get(SettingsViewModel.class);
-
 			TextView textViewUserName = findViewById(R.id.username);
 			CircleImageView imageViewAvatar =
 					findViewById(R.id.avatarImage);
@@ -76,11 +90,6 @@ public class SettingsActivity extends BriarActivity {
 			View view = findViewById(R.id.avatarGroup);
 			view.setVisibility(View.GONE);
 		}
-	}
-
-	@Override
-	public void injectActivity(ActivityComponent component) {
-		component.inject(this);
 	}
 
 	@Override
@@ -116,6 +125,25 @@ public class SettingsActivity extends BriarActivity {
 				ConfirmAvatarDialogFragment.newInstance(uri);
 		dialog.show(getSupportFragmentManager(),
 				ConfirmAvatarDialogFragment.TAG);
+	}
+
+	@Override
+	public boolean onPreferenceStartFragment(PreferenceFragmentCompat caller,
+			Preference pref) {
+		FragmentManager fragmentManager = getSupportFragmentManager();
+		FragmentFactory fragmentFactory = fragmentManager.getFragmentFactory();
+		Fragment fragment = fragmentFactory
+				.instantiate(getClassLoader(), pref.getFragment());
+		fragment.setTargetFragment(caller, 0);
+		// Replace the existing Fragment with the new Fragment
+		fragmentManager.beginTransaction()
+				.setCustomAnimations(R.anim.step_next_in,
+						R.anim.step_previous_out, R.anim.step_previous_in,
+						R.anim.step_next_out)
+				.replace(R.id.fragmentContainer, fragment)
+				.addToBackStack(null)
+				.commit();
+		return true;
 	}
 
 }
