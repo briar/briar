@@ -43,6 +43,16 @@
 		<item name="android:filterTouchesWhenObscured">true</item>
 	</style>
 
+	<style name="BriarFullScreenDialogTheme" parent="BriarDialogTheme">
+		<item name="android:windowIsFloating">false</item>
+		<item name="android:windowAnimationStyle">@style/FullScreenDialogAnimation</item>
+	</style>
+
+	<style name="FullScreenDialogAnimation" parent="@android:style/Animation.Activity">
+		<item name="android:windowEnterAnimation">@anim/step_next_in</item>
+		<item name="android:windowExitAnimation">@anim/step_next_out</item>
+	</style>
+
 	<!-- Use this with care. Only used for the screen filter warning dialog -->
 	<style name="BriarDialogThemeNoFilter" parent="BriarDialogTheme">
 		<item name="android:filterTouchesWhenObscured">false</item>
