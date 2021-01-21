@@ -166,7 +166,7 @@
 	<string name="image_attach_error_invalid_mime_type">Image format unsupported: %s</string>
 	<string name="set_contact_alias">Change contact name</string>
 	<string name="set_contact_alias_hint">Contact name</string>
-	<string name="menu_item_auto_delete">Disappearing messages</string>
+	<string name="menu_item_disappearing_messages">Disappearing messages</string>
 	<string name="auto_delete_msg_you_enabled">Your messages will disappear after 7 days.</string>
 	<string name="auto_delete_msg_you_disabled">Your messages will not disappear.</string>
 	<string name="auto_delete_msg_contact_enabled">%1$s\'s messages will disappear after 7 days.</string>
@@ -556,6 +556,19 @@
 	<string name="notify_sound_setting_disabled">None</string>
 	<string name="choose_ringtone_title">Choose ringtone</string>
 	<string name="cannot_load_ringtone">Cannot load ringtone</string>
+
+	<!-- Conversation Settings -->
+	<string name="disappearing_messages_title">Disappearing messages</string>
+	<string name="disappearing_messages_explanation_long">Turning on this setting will make new
+		messages in this conversation automatically disappear 7\u00A0days after being received.
+		This applies to messages you send to your contact as well as messages your contact sends to you.
+		Your contact can also change this setting for the both of you.
+		\n\nMessages that will disappear are marked with a bomb icon.
+		\n\nKeep in mind that recipients can still make copies of the messages you send.
+		\n\nIf you change this setting, it will apply to your messages immediately and to your
+		contact\'s messages once they receive your next message.</string>
+	<string name="learn_more">Learn more</string>
+	<string name="disappearing_messages_summary">Make future messages in this conversation automatically disappear 7\u00A0days after being received.</string>
 
 	<!-- Settings Feedback -->
 	<string name="send_feedback">Send feedback</string>
