@@ -50,6 +50,7 @@ import org.briarproject.briar.android.blog.BlogActivity;
 import org.briarproject.briar.android.conversation.ConversationVisitor.AttachmentCache;
 import org.briarproject.briar.android.conversation.ConversationVisitor.TextCache;
 import org.briarproject.briar.android.forum.ForumActivity;
+import org.briarproject.briar.android.fragment.BaseFragment.BaseFragmentListener;
 import org.briarproject.briar.android.introduction.IntroductionActivity;
 import org.briarproject.briar.android.privategroup.conversation.GroupActivity;
 import org.briarproject.briar.android.util.BriarSnackbarBuilder;
@@ -136,7 +137,6 @@ import static org.briarproject.briar.android.conversation.ImageActivity.ITEM_ID;
 import static org.briarproject.briar.android.conversation.ImageActivity.NAME;
 import static org.briarproject.briar.android.util.UiUtils.observeOnce;
 import static org.briarproject.briar.android.view.AuthorView.setAvatar;
-import static org.briarproject.briar.api.autodelete.AutoDeleteConstants.NO_AUTO_DELETE_TIMER;
 import static org.briarproject.briar.api.messaging.MessagingConstants.MAX_ATTACHMENTS_PER_MESSAGE;
 import static org.briarproject.briar.api.messaging.MessagingConstants.MAX_PRIVATE_MESSAGE_TEXT_LENGTH;
 import static org.briarproject.briar.api.messaging.PrivateMessageFormat.TEXT_IMAGES_AUTO_DELETE;
@@ -145,8 +145,8 @@ import static org.briarproject.briar.api.messaging.PrivateMessageFormat.TEXT_ONL
 @MethodsNotNullByDefault
 @ParametersNotNullByDefault
 public class ConversationActivity extends BriarActivity
-		implements EventListener, ConversationListener, TextCache,
-		AttachmentCache, AttachmentListener, ActionMode.Callback {
+		implements BaseFragmentListener, EventListener, ConversationListener,
+		TextCache, AttachmentCache, AttachmentListener, ActionMode.Callback {
 
 	public static final String CONTACT_ID = "briar.CONTACT_ID";
 
@@ -374,10 +374,8 @@ public class ConversationActivity extends BriarActivity
 		// show auto-delete timer setting only, if contacts supports it
 		observeOnce(viewModel.getPrivateMessageFormat(), this, format -> {
 			boolean visible = format == TEXT_IMAGES_AUTO_DELETE;
-			MenuItem item = menu.findItem(R.id.action_auto_delete);
+			MenuItem item = menu.findItem(R.id.action_conversation_settings);
 			item.setVisible(visible);
-			viewModel.getAutoDeleteTimer().observe(this, timer ->
-					item.setChecked(timer != NO_AUTO_DELETE_TIMER));
 		});
 
 		return super.onCreateOptionsMenu(menu);
@@ -400,10 +398,12 @@ public class ConversationActivity extends BriarActivity
 				AliasDialogFragment.newInstance().show(
 						getSupportFragmentManager(), AliasDialogFragment.TAG);
 				return true;
-			case R.id.action_auto_delete:
-				boolean enabled = !item.isChecked();
-				viewModel.setAutoDeleteTimerEnabled(enabled);
-				item.setChecked(enabled);
+			case R.id.action_conversation_settings:
+				if (contactId == null) return false;
+				ConversationSettingsDialog dialog =
+						ConversationSettingsDialog.newInstance(contactId);
+				dialog.show(getSupportFragmentManager(),
+						ConversationSettingsDialog.TAG);
 				return true;
 			case R.id.action_delete_all_messages:
 				askToDeleteAllMessages();
