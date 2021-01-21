@@ -2,6 +2,7 @@ package org.briarproject.briar.android.navdrawer;
 
 import android.content.Intent;
 import android.content.res.Configuration;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -59,6 +60,7 @@ import androidx.fragment.app.FragmentTransaction;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.lifecycle.ViewModelProviders;
+import androidx.vectordrawable.graphics.drawable.VectorDrawableCompat;
 import uk.co.samuelwall.materialtaptargetprompt.MaterialTapTargetPrompt;
 
 import static android.view.View.GONE;
@@ -433,8 +435,7 @@ public class NavDrawerActivity extends BriarActivity implements
 				Transport t = getItem(position);
 
 				ImageView icon = view.findViewById(R.id.imageView);
-				icon.setImageDrawable(ContextCompat.getDrawable(
-						NavDrawerActivity.this, t.iconDrawable));
+				icon.setImageResource(t.iconDrawable);
 				icon.setColorFilter(ContextCompat.getColor(
 						NavDrawerActivity.this, t.iconColor));
 
@@ -476,11 +477,13 @@ public class NavDrawerActivity extends BriarActivity implements
 	private void showTransportsOnboarding(boolean show, ImageView imageView) {
 		if (show) {
 			int color = resolveColorAttribute(this, R.attr.colorControlNormal);
+			Drawable drawable = VectorDrawableCompat
+					.create(getResources(), R.drawable.transport_tor, null);
 			new MaterialTapTargetPrompt.Builder(NavDrawerActivity.this,
 					R.style.OnboardingDialogTheme).setTarget(imageView)
 					.setPrimaryText(R.string.network_settings_title)
 					.setSecondaryText(R.string.transports_onboarding_text)
-					.setIcon(R.drawable.transport_tor)
+					.setIconDrawable(drawable)
 					.setIconDrawableColourFilter(color)
 					.setBackgroundColour(
 							ContextCompat.getColor(this, R.color.briar_primary))

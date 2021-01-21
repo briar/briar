@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.ClipData;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Parcel;
 import android.os.Parcelable;
@@ -28,6 +29,7 @@ import androidx.customview.view.AbsSavedState;
 import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.Observer;
+import androidx.vectordrawable.graphics.drawable.VectorDrawableCompat;
 import uk.co.samuelwall.materialtaptargetprompt.MaterialTapTargetPrompt;
 
 import static android.os.Build.VERSION.SDK_INT;
@@ -253,12 +255,14 @@ public class TextAttachmentController extends TextSendController
 
 	public void showImageOnboarding(Activity activity) {
 		int color = resolveColorAttribute(activity, R.attr.colorControlNormal);
+		Drawable drawable = VectorDrawableCompat
+				.create(activity.getResources(), R.drawable.ic_image, null);
 		new MaterialTapTargetPrompt.Builder(activity,
 				R.style.OnboardingDialogTheme).setTarget(sendButton)
 				.setPrimaryText(R.string.dialog_title_image_support)
 				.setSecondaryText(R.string.dialog_message_image_support)
 				.setBackgroundColour(getColor(activity, R.color.briar_primary))
-				.setIcon(R.drawable.ic_image)
+				.setIconDrawable(drawable)
 				.setIconDrawableColourFilter(color)
 				.show();
 	}

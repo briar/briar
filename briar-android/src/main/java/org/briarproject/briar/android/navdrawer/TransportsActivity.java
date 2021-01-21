@@ -141,8 +141,7 @@ public class TransportsActivity extends BriarActivity {
 				Transport t = getItem(position);
 
 				ImageView icon = view.findViewById(R.id.icon);
-				icon.setImageDrawable(ContextCompat.getDrawable(
-						TransportsActivity.this, t.iconDrawable));
+				icon.setImageResource(t.iconDrawable);
 				icon.setColorFilter(ContextCompat.getColor(
 						TransportsActivity.this, t.iconColor));
 

@@ -2,7 +2,6 @@ package org.briarproject.briar.android.view;
 
 import android.content.Context;
 import android.content.res.TypedArray;
-import android.graphics.drawable.Drawable;
 import android.os.Handler;
 import android.os.Looper;
 import android.util.AttributeSet;
@@ -53,9 +52,8 @@ public class BriarRecyclerView extends FrameLayout {
 				R.styleable.BriarRecyclerView);
 		isScrollingToEnd = attributes
 				.getBoolean(R.styleable.BriarRecyclerView_scrollToEnd, true);
-		Drawable drawable = attributes
-				.getDrawable(R.styleable.BriarRecyclerView_emptyImage);
-		if (drawable != null) setEmptyImage(drawable);
+		int drawableRes = attributes.getResourceId(R.styleable.BriarRecyclerView_emptyImage, -1);
+		if (drawableRes != -1) setEmptyImage(drawableRes);
 		String emtpyText =
 				attributes.getString(R.styleable.BriarRecyclerView_emptyText);
 		if (emtpyText != null) setEmptyText(emtpyText);
@@ -137,11 +135,6 @@ public class BriarRecyclerView extends FrameLayout {
 				emptyObserver.onChanged();
 			}
 		}
-	}
-
-	public void setEmptyImage(Drawable drawable) {
-		if (recyclerView == null) initViews();
-		emptyImage.setImageDrawable(drawable);
 	}
 
 	public void setEmptyImage(@DrawableRes int res) {
