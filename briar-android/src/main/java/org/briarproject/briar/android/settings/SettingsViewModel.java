@@ -14,7 +14,8 @@ import org.briarproject.bramble.api.identity.IdentityManager;
 import org.briarproject.bramble.api.identity.LocalAuthor;
 import org.briarproject.bramble.api.lifecycle.IoExecutor;
 import org.briarproject.bramble.api.lifecycle.LifecycleManager;
-import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
+import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
+import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
 import org.briarproject.bramble.api.plugin.BluetoothConstants;
 import org.briarproject.bramble.api.plugin.LanTcpConstants;
 import org.briarproject.bramble.api.plugin.TorConstants;
@@ -53,14 +54,15 @@ import static org.briarproject.bramble.util.LogUtils.logException;
 import static org.briarproject.bramble.util.LogUtils.now;
 import static org.briarproject.briar.android.settings.SecurityFragment.PREF_SCREEN_LOCK;
 import static org.briarproject.briar.android.settings.SecurityFragment.PREF_SCREEN_LOCK_TIMEOUT;
+import static org.briarproject.briar.android.settings.SettingsFragment.SETTINGS_NAMESPACE;
 
-@NotNullByDefault
+@MethodsNotNullByDefault
+@ParametersNotNullByDefault
 class SettingsViewModel extends DbViewModel implements EventListener {
 
 	private final static Logger LOG =
 			getLogger(SettingsViewModel.class.getName());
 
-	public static final String SETTINGS_NAMESPACE = "android-ui";
 	static final String BT_NAMESPACE =
 			BluetoothConstants.ID.getString();
 	static final String WIFI_NAMESPACE = LanTcpConstants.ID.getString();
@@ -73,10 +75,11 @@ class SettingsViewModel extends DbViewModel implements EventListener {
 	private final AuthorManager authorManager;
 	private final ImageCompressor imageCompressor;
 	private final Executor ioExecutor;
-	private final ConnectionsManager connectionsManager;
 
 	final SettingsStore settingsStore;
 	final TorSummaryProvider torSummaryProvider;
+	final ConnectionsManager connectionsManager;
+	final NotificationsManager notificationsManager;
 
 	private volatile Settings settings;
 
@@ -114,10 +117,12 @@ class SettingsViewModel extends DbViewModel implements EventListener {
 		this.ioExecutor = ioExecutor;
 		this.settingsStore = new SettingsStore(settingsManager, dbExecutor,
 				SETTINGS_NAMESPACE);
-		this.torSummaryProvider = new TorSummaryProvider(getApplication(),
+		torSummaryProvider = new TorSummaryProvider(getApplication(),
 				locationUtils, circumventionProvider);
-		this.connectionsManager =
+		connectionsManager =
 				new ConnectionsManager(settingsManager, dbExecutor);
+		notificationsManager = new NotificationsManager(getApplication(),
+				settingsManager, dbExecutor);
 
 		eventBus.addListener(this);
 		loadSettings();
@@ -192,6 +197,7 @@ class SettingsViewModel extends DbViewModel implements EventListener {
 		screenLockTimeout.postValue(String.valueOf(
 				settings.getInt(PREF_SCREEN_LOCK_TIMEOUT, defaultTimeout)
 		));
+		notificationsManager.updateSettings(settings);
 	}
 
 	void setAvatar(Uri uri) {
@@ -243,10 +249,6 @@ class SettingsViewModel extends DbViewModel implements EventListener {
 
 	LiveData<String> getScreenLockTimeout() {
 		return screenLockTimeout;
-	}
-
-	ConnectionsManager getConnectionsManager() {
-		return connectionsManager;
 	}
 
 }

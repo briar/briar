@@ -17,88 +17,23 @@
 		app:fragment="org.briarproject.briar.android.settings.SecurityFragment"
 		app:icon="@drawable/ic_settings_security" />
 
-	<PreferenceCategory
-		android:layout="@layout/preferences_category"
-		android:title="@string/notification_settings_title">
+	<Preference
+		android:title="@string/notification_settings_title"
+		app:fragment="org.briarproject.briar.android.settings.NotificationsFragment"
+		app:icon="@drawable/ic_notifications" />
 
-		<SwitchPreference
-			android:defaultValue="true"
-			android:key="pref_key_notify_sign_in"
-			android:summary="@string/notify_sign_in_summary"
-			android:title="@string/notify_sign_in_title"
-			android:widgetLayout="@layout/preference_switch_compat"
-			app:iconSpaceReserved="false" />
-
-		<SwitchPreference
-			android:defaultValue="true"
-			android:key="pref_key_notify_private_messages"
-			android:persistent="false"
-			android:summary="@string/notify_private_messages_setting_summary"
-			android:title="@string/notify_private_messages_setting_title"
-			android:widgetLayout="@layout/preference_switch_compat"
-			app:iconSpaceReserved="false" />
-
-		<SwitchPreference
-			android:defaultValue="true"
-			android:key="pref_key_notify_group_messages"
-			android:persistent="false"
-			android:summary="@string/notify_group_messages_setting_summary"
-			android:title="@string/notify_group_messages_setting_title"
-			android:widgetLayout="@layout/preference_switch_compat"
-			app:iconSpaceReserved="false" />
-
-		<SwitchPreference
-			android:defaultValue="true"
-			android:key="pref_key_notify_forum_posts"
-			android:persistent="false"
-			android:summary="@string/notify_forum_posts_setting_summary"
-			android:title="@string/notify_forum_posts_setting_title"
-			android:widgetLayout="@layout/preference_switch_compat"
-			app:iconSpaceReserved="false" />
-
-		<SwitchPreference
-			android:defaultValue="true"
-			android:key="pref_key_notify_blog_posts"
-			android:persistent="false"
-			android:summary="@string/notify_blog_posts_setting_summary"
-			android:title="@string/notify_blog_posts_setting_title"
-			android:widgetLayout="@layout/preference_switch_compat"
-			app:iconSpaceReserved="false" />
-
-		<SwitchPreference
-			android:defaultValue="true"
-			android:key="pref_key_notify_vibration"
-			android:persistent="false"
-			android:title="@string/notify_vibration_setting"
-			android:widgetLayout="@layout/preference_switch_compat"
-			app:iconSpaceReserved="false" />
-
-		<Preference
-			android:key="pref_key_notify_sound"
-			android:title="@string/notify_sound_setting"
-			app:iconSpaceReserved="false" />
-
-	</PreferenceCategory>
+	<Preference
+		android:key="pref_key_send_feedback"
+		android:title="@string/send_feedback" />
 
 	<PreferenceCategory
 		android:layout="@layout/preferences_category"
-		android:title="@string/feedback_settings_title">
-
-		<Preference
-			android:key="pref_key_send_feedback"
-			android:title="@string/send_feedback"
-			app:iconSpaceReserved="false" />
-
-	</PreferenceCategory>
-
-	<PreferenceCategory
-		android:layout="@layout/preferences_category"
-		android:title="Testing">
+		android:title="Developer Options"
+		app:allowDividerAbove="true">
 
 		<Preference
 			android:key="pref_key_test_data"
-			android:title="Create Test Data"
-			app:iconSpaceReserved="false">
+			android:title="Create test data">
 
 			<intent
 				android:targetClass="org.briarproject.briar.android.test.TestDataActivity"
@@ -107,8 +42,7 @@
 
 		<Preference
 			android:key="pref_key_explode"
-			android:title="Crash"
-			app:iconSpaceReserved="false" />
+			android:title="Crash" />
 
 	</PreferenceCategory>
 

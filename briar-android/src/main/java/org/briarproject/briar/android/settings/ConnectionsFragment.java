@@ -53,7 +53,7 @@ public class ConnectionsFragment extends PreferenceFragmentCompat {
 		getAndroidComponent(context).inject(this);
 		viewModel = new ViewModelProvider(requireActivity(), viewModelFactory)
 				.get(SettingsViewModel.class);
-		connectionsManager = viewModel.getConnectionsManager();
+		connectionsManager = viewModel.connectionsManager;
 	}
 
 	@Override

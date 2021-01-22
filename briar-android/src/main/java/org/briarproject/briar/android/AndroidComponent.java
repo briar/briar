@@ -37,6 +37,7 @@ import org.briarproject.briar.android.conversation.glide.BriarModelLoader;
 import org.briarproject.briar.android.logging.CachingLogHandler;
 import org.briarproject.briar.android.login.SignInReminderReceiver;
 import org.briarproject.briar.android.settings.ConnectionsFragment;
+import org.briarproject.briar.android.settings.NotificationsFragment;
 import org.briarproject.briar.android.settings.SecurityFragment;
 import org.briarproject.briar.android.view.EmojiTextInputView;
 import org.briarproject.briar.api.android.AndroidNotificationManager;
@@ -199,4 +200,6 @@ public interface AndroidComponent
 	void inject(ConnectionsFragment connectionsFragment);
 
 	void inject(SecurityFragment securityFragment);
+
+	void inject(NotificationsFragment notificationsFragment);
 }

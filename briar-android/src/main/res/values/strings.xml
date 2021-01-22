@@ -552,7 +552,6 @@
 	<string name="cannot_load_ringtone">Cannot load ringtone</string>
 
 	<!-- Settings Feedback -->
-	<string name="feedback_settings_title">Feedback</string>
 	<string name="send_feedback">Send feedback</string>
 
 	<!-- Link Warning -->

@@ -1,5 +1,6 @@
 package org.briarproject.briar.android.settings;
 
+import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.plugin.BluetoothConstants;
 import org.briarproject.bramble.api.plugin.LanTcpConstants;
 import org.briarproject.bramble.api.plugin.TorConstants;
@@ -23,6 +24,7 @@ import static org.briarproject.briar.android.settings.SettingsViewModel.BT_NAMES
 import static org.briarproject.briar.android.settings.SettingsViewModel.TOR_NAMESPACE;
 import static org.briarproject.briar.android.settings.SettingsViewModel.WIFI_NAMESPACE;
 
+@NotNullByDefault
 class ConnectionsManager {
 
 	final ConnectionsStore btStore;
