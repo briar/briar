@@ -12,6 +12,7 @@ import androidx.annotation.Nullable;
 import androidx.preference.PreferenceDataStore;
 
 import static java.util.Objects.requireNonNull;
+import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
 import static java.util.logging.Logger.getLogger;
 import static org.briarproject.bramble.util.LogUtils.logDuration;
@@ -42,6 +43,8 @@ class SettingsStore extends PreferenceDataStore {
 
 	@Override
 	public void putBoolean(String key, boolean value) {
+		if (LOG.isLoggable(INFO))
+			LOG.info("Store bool setting: " + key + "=" + value);
 		Settings s = new Settings();
 		s.putBoolean(key, value);
 		storeSettings(s);
@@ -49,6 +52,8 @@ class SettingsStore extends PreferenceDataStore {
 
 	@Override
 	public void putInt(String key, int value) {
+		if (LOG.isLoggable(INFO))
+			LOG.info("Store int setting: " + key + "=" + value);
 		Settings s = new Settings();
 		s.putInt(key, value);
 		storeSettings(s);

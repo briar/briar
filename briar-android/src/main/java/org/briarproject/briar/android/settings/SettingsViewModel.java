@@ -24,6 +24,7 @@ import org.briarproject.bramble.api.settings.event.SettingsUpdatedEvent;
 import org.briarproject.bramble.api.system.AndroidExecutor;
 import org.briarproject.bramble.api.system.LocationUtils;
 import org.briarproject.bramble.plugin.tor.CircumventionProvider;
+import org.briarproject.briar.R;
 import org.briarproject.briar.android.attachment.UnsupportedMimeTypeException;
 import org.briarproject.briar.android.attachment.media.ImageCompressor;
 import org.briarproject.briar.android.viewmodel.DbViewModel;
@@ -50,6 +51,8 @@ import static org.briarproject.bramble.util.AndroidUtils.getSupportedImageConten
 import static org.briarproject.bramble.util.LogUtils.logDuration;
 import static org.briarproject.bramble.util.LogUtils.logException;
 import static org.briarproject.bramble.util.LogUtils.now;
+import static org.briarproject.briar.android.settings.SecurityFragment.PREF_SCREEN_LOCK;
+import static org.briarproject.briar.android.settings.SecurityFragment.PREF_SCREEN_LOCK_TIMEOUT;
 
 @NotNullByDefault
 class SettingsViewModel extends DbViewModel implements EventListener {
@@ -81,6 +84,10 @@ class SettingsViewModel extends DbViewModel implements EventListener {
 			new MutableLiveData<>();
 	private final MutableLiveEvent<Boolean> setAvatarFailed =
 			new MutableLiveEvent<>();
+	private final MutableLiveData<Boolean> screenLockEnabled =
+			new MutableLiveData<>();
+	private final MutableLiveData<String> screenLockTimeout =
+			new MutableLiveData<>();
 
 	@Inject
 	SettingsViewModel(Application application,
@@ -128,6 +135,7 @@ class SettingsViewModel extends DbViewModel implements EventListener {
 			try {
 				long start = now();
 				settings = settingsManager.getSettings(SETTINGS_NAMESPACE);
+				updateSettings(settings);
 				connectionsManager.updateBtSetting(
 						settingsManager.getSettings(BT_NAMESPACE));
 				connectionsManager.updateWifiSettings(
@@ -159,7 +167,11 @@ class SettingsViewModel extends DbViewModel implements EventListener {
 		if (e instanceof SettingsUpdatedEvent) {
 			SettingsUpdatedEvent s = (SettingsUpdatedEvent) e;
 			String namespace = s.getNamespace();
-			if (namespace.equals(BT_NAMESPACE)) {
+			if (namespace.equals(SETTINGS_NAMESPACE)) {
+				LOG.info("Settings updated");
+				settings = s.getSettings();
+				updateSettings(settings);
+			} else if (namespace.equals(BT_NAMESPACE)) {
 				LOG.info("Bluetooth settings updated");
 				connectionsManager.updateBtSetting(s.getSettings());
 			} else if (namespace.equals(WIFI_NAMESPACE)) {
@@ -170,6 +182,16 @@ class SettingsViewModel extends DbViewModel implements EventListener {
 				connectionsManager.updateTorSettings(s.getSettings());
 			}
 		}
+	}
+
+	private void updateSettings(Settings settings) {
+		screenLockEnabled.postValue(settings.getBoolean(PREF_SCREEN_LOCK,
+				false));
+		int defaultTimeout = Integer.parseInt(getApplication()
+				.getString(R.string.pref_lock_timeout_value_default));
+		screenLockTimeout.postValue(String.valueOf(
+				settings.getInt(PREF_SCREEN_LOCK_TIMEOUT, defaultTimeout)
+		));
 	}
 
 	void setAvatar(Uri uri) {
@@ -213,6 +235,14 @@ class SettingsViewModel extends DbViewModel implements EventListener {
 
 	LiveEvent<Boolean> getSetAvatarFailed() {
 		return setAvatarFailed;
+	}
+
+	LiveData<Boolean> getScreenLockEnabled() {
+		return screenLockEnabled;
+	}
+
+	LiveData<String> getScreenLockTimeout() {
+		return screenLockTimeout;
 	}
 
 	ConnectionsManager getConnectionsManager() {

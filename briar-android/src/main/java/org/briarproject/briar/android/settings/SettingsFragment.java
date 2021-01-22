@@ -32,7 +32,6 @@ import javax.inject.Inject;
 import androidx.annotation.Nullable;
 import androidx.annotation.StringRes;
 import androidx.core.content.ContextCompat;
-import androidx.preference.ListPreference;
 import androidx.preference.Preference;
 import androidx.preference.Preference.OnPreferenceChangeListener;
 import androidx.preference.PreferenceFragmentCompat;
@@ -61,7 +60,6 @@ import static org.briarproject.bramble.util.LogUtils.logException;
 import static org.briarproject.bramble.util.LogUtils.now;
 import static org.briarproject.briar.android.TestingConstants.IS_DEBUG_BUILD;
 import static org.briarproject.briar.android.activity.RequestCodes.REQUEST_RINGTONE;
-import static org.briarproject.briar.android.util.UiUtils.hasScreenLock;
 import static org.briarproject.briar.android.util.UiUtils.triggerFeedback;
 import static org.briarproject.briar.api.android.AndroidNotificationManager.BLOG_CHANNEL_ID;
 import static org.briarproject.briar.api.android.AndroidNotificationManager.CONTACT_CHANNEL_ID;
@@ -82,17 +80,12 @@ public class SettingsFragment extends PreferenceFragmentCompat
 		implements EventListener, OnPreferenceChangeListener {
 
 	public static final String SETTINGS_NAMESPACE = "android-ui";
-	public static final String PREF_SCREEN_LOCK = "pref_key_lock";
-	public static final String PREF_SCREEN_LOCK_TIMEOUT =
-			"pref_key_lock_timeout";
 	public static final String NOTIFY_SIGN_IN = "pref_key_notify_sign_in";
 
 	private static final Logger LOG =
 			Logger.getLogger(SettingsFragment.class.getName());
 
 	private SettingsActivity listener;
-	private SwitchPreference screenLock;
-	private ListPreference screenLockTimeout;
 	private SwitchPreference notifyPrivateMessages;
 	private SwitchPreference notifyGroupMessages;
 	private SwitchPreference notifyForumPosts;
@@ -121,8 +114,6 @@ public class SettingsFragment extends PreferenceFragmentCompat
 	public void onCreatePreferences(Bundle bundle, String s) {
 		addPreferencesFromResource(R.xml.settings);
 
-		screenLock = findPreference(PREF_SCREEN_LOCK);
-		screenLockTimeout = findPreference(PREF_SCREEN_LOCK_TIMEOUT);
 		notifyPrivateMessages =
 				findPreference("pref_key_notify_private_messages");
 		notifyGroupMessages = findPreference("pref_key_notify_group_messages");
@@ -130,9 +121,6 @@ public class SettingsFragment extends PreferenceFragmentCompat
 		notifyBlogPosts = findPreference("pref_key_notify_blog_posts");
 		notifyVibration = findPreference("pref_key_notify_vibration");
 		notifySound = findPreference("pref_key_notify_sound");
-
-		screenLock.setOnPreferenceChangeListener(this);
-		screenLockTimeout.setOnPreferenceChangeListener(this);
 
 		Preference prefFeedback =
 				requireNonNull(findPreference("pref_key_send_feedback"));
@@ -200,8 +188,6 @@ public class SettingsFragment extends PreferenceFragmentCompat
 			// due to events, we might try to display before a load completed
 			if (!settingsLoaded) return;
 
-			displayScreenLockSetting();
-
 			if (SDK_INT < 26) {
 				notifyPrivateMessages.setChecked(settings.getBoolean(
 						PREF_NOTIFY_PRIVATE, true));
@@ -253,54 +239,13 @@ public class SettingsFragment extends PreferenceFragmentCompat
 
 	private void setSettingsEnabled(boolean enabled) {
 		// preferences not needed here, because handled by SharedPreferences:
-		// - pref_key_theme
 		// - pref_key_notify_sign_in
-		// preferences partly needed here, because they have their own logic
-		// - pref_key_lock (screenLock -> displayScreenLockSetting())
-		// - pref_key_lock_timeout (screenLockTimeout)
-		if (!enabled) screenLock.setEnabled(false);
 		notifyPrivateMessages.setEnabled(enabled);
 		notifyGroupMessages.setEnabled(enabled);
 		notifyForumPosts.setEnabled(enabled);
 		notifyBlogPosts.setEnabled(enabled);
 		notifyVibration.setEnabled(enabled);
 		notifySound.setEnabled(enabled);
-	}
-
-	private void displayScreenLockSetting() {
-		if (SDK_INT < 21) {
-			screenLock.setVisible(false);
-			screenLockTimeout.setVisible(false);
-		} else {
-			if (getActivity() != null && hasScreenLock(getActivity())) {
-				screenLock.setEnabled(true);
-				screenLock.setChecked(
-						settings.getBoolean(PREF_SCREEN_LOCK, false));
-				screenLock.setSummary(R.string.pref_lock_summary);
-			} else {
-				screenLock.setEnabled(false);
-				screenLock.setChecked(false);
-				screenLock.setSummary(R.string.pref_lock_disabled_summary);
-			}
-			// timeout depends on screenLock and gets disabled automatically
-			int timeout = settings.getInt(PREF_SCREEN_LOCK_TIMEOUT,
-					Integer.valueOf(getString(
-							R.string.pref_lock_timeout_value_default)));
-			String newValue = String.valueOf(timeout);
-			screenLockTimeout.setValue(newValue);
-			setScreenLockTimeoutSummary(newValue);
-		}
-	}
-
-	private void setScreenLockTimeoutSummary(String timeout) {
-		String never = getString(R.string.pref_lock_timeout_value_never);
-		if (timeout.equals(never)) {
-			screenLockTimeout
-					.setSummary(R.string.pref_lock_timeout_never_summary);
-		} else {
-			screenLockTimeout
-					.setSummary(R.string.pref_lock_timeout_summary);
-		}
 	}
 
 	@TargetApi(26)
@@ -352,17 +297,7 @@ public class SettingsFragment extends PreferenceFragmentCompat
 
 	@Override
 	public boolean onPreferenceChange(Preference preference, Object newValue) {
-		if (preference == screenLock) {
-			Settings s = new Settings();
-			s.putBoolean(PREF_SCREEN_LOCK, (Boolean) newValue);
-			storeSettings(s);
-		} else if (preference == screenLockTimeout) {
-			Settings s = new Settings();
-			String value = (String) newValue;
-			s.putInt(PREF_SCREEN_LOCK_TIMEOUT, Integer.parseInt(value));
-			storeSettings(s);
-			setScreenLockTimeoutSummary(value);
-		} else if (preference == notifyPrivateMessages) {
+		if (preference == notifyPrivateMessages) {
 			Settings s = new Settings();
 			s.putBoolean(PREF_NOTIFY_PRIVATE, (Boolean) newValue);
 			storeSettings(s);
