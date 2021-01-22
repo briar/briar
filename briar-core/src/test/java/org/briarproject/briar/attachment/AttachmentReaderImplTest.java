@@ -9,7 +9,6 @@ import org.briarproject.bramble.api.sync.Message;
 import org.briarproject.bramble.test.BrambleMockTestCase;
 import org.briarproject.briar.api.attachment.Attachment;
 import org.briarproject.briar.api.attachment.AttachmentHeader;
-import org.briarproject.briar.api.attachment.InvalidAttachmentException;
 import org.jmock.Expectations;
 import org.junit.Test;
 
@@ -51,14 +50,14 @@ public class AttachmentReaderImplTest extends BrambleMockTestCase {
 		attachmentReader.getAttachment(wrongGroup);
 	}
 
-	@Test(expected = InvalidAttachmentException.class)
+	@Test(expected = NoSuchMessageException.class)
 	public void testMissingContentType() throws Exception {
 		BdfDictionary meta = new BdfDictionary();
 
 		testInvalidMetadata(meta);
 	}
 
-	@Test(expected = InvalidAttachmentException.class)
+	@Test(expected = NoSuchMessageException.class)
 	public void testWrongContentType() throws Exception {
 		BdfDictionary meta = BdfDictionary.of(
 				new BdfEntry(MSG_KEY_CONTENT_TYPE, "image/png"));
@@ -66,7 +65,7 @@ public class AttachmentReaderImplTest extends BrambleMockTestCase {
 		testInvalidMetadata(meta);
 	}
 
-	@Test(expected = InvalidAttachmentException.class)
+	@Test(expected = NoSuchMessageException.class)
 	public void testMissingDescriptorLength() throws Exception {
 		BdfDictionary meta = BdfDictionary.of(
 				new BdfEntry(MSG_KEY_CONTENT_TYPE, contentType));

@@ -10,7 +10,6 @@ import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.briar.api.attachment.Attachment;
 import org.briarproject.briar.api.attachment.AttachmentHeader;
 import org.briarproject.briar.api.attachment.AttachmentReader;
-import org.briarproject.briar.api.attachment.InvalidAttachmentException;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
@@ -44,13 +43,13 @@ public class AttachmentReaderImpl implements AttachmentReader {
 			BdfDictionary meta = clientHelper.getMessageMetadataAsDictionary(m);
 			String contentType = meta.getString(MSG_KEY_CONTENT_TYPE);
 			if (!contentType.equals(h.getContentType()))
-				throw new InvalidAttachmentException();
+				throw new NoSuchMessageException();
 			int offset = meta.getLong(MSG_KEY_DESCRIPTOR_LENGTH).intValue();
 			InputStream stream = new ByteArrayInputStream(body, offset,
 					body.length - offset);
 			return new Attachment(h, stream);
 		} catch (FormatException e) {
-			throw new InvalidAttachmentException(e);
+			throw new NoSuchMessageException();
 		}
 	}
 
