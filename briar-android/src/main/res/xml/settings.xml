@@ -2,6 +2,8 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
 	xmlns:app="http://schemas.android.com/apk/res-auto">
 
+	<org.briarproject.briar.android.settings.AvatarPreference android:key="pref_key_avatar" />
+
 	<Preference
 		android:title="@string/display_settings_title"
 		app:fragment="org.briarproject.briar.android.settings.DisplayFragment"
@@ -24,9 +26,11 @@
 
 	<Preference
 		android:key="pref_key_send_feedback"
-		android:title="@string/send_feedback" />
+		android:title="@string/send_feedback"
+		app:icon="@drawable/ic_feedback" />
 
 	<PreferenceCategory
+		android:key="pref_key_dev"
 		android:layout="@layout/preferences_category"
 		android:title="Developer Options"
 		app:allowDividerAbove="true">

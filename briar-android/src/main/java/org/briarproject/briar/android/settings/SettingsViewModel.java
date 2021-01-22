@@ -3,7 +3,9 @@ package org.briarproject.briar.android.settings;
 import android.app.Application;
 import android.content.ContentResolver;
 import android.net.Uri;
+import android.widget.Toast;
 
+import org.briarproject.bramble.api.FeatureFlags;
 import org.briarproject.bramble.api.db.DatabaseExecutor;
 import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.db.TransactionManager;
@@ -29,8 +31,6 @@ import org.briarproject.briar.R;
 import org.briarproject.briar.android.attachment.UnsupportedMimeTypeException;
 import org.briarproject.briar.android.attachment.media.ImageCompressor;
 import org.briarproject.briar.android.viewmodel.DbViewModel;
-import org.briarproject.briar.android.viewmodel.LiveEvent;
-import org.briarproject.briar.android.viewmodel.MutableLiveEvent;
 import org.briarproject.briar.api.avatar.AvatarManager;
 import org.briarproject.briar.api.identity.AuthorInfo;
 import org.briarproject.briar.api.identity.AuthorManager;
@@ -45,6 +45,7 @@ import javax.inject.Inject;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
+import static android.widget.Toast.LENGTH_LONG;
 import static java.util.Arrays.asList;
 import static java.util.logging.Level.WARNING;
 import static java.util.logging.Logger.getLogger;
@@ -75,6 +76,7 @@ class SettingsViewModel extends DbViewModel implements EventListener {
 	private final AuthorManager authorManager;
 	private final ImageCompressor imageCompressor;
 	private final Executor ioExecutor;
+	private final FeatureFlags featureFlags;
 
 	final SettingsStore settingsStore;
 	final TorSummaryProvider torSummaryProvider;
@@ -85,8 +87,6 @@ class SettingsViewModel extends DbViewModel implements EventListener {
 
 	private final MutableLiveData<OwnIdentityInfo> ownIdentityInfo =
 			new MutableLiveData<>();
-	private final MutableLiveEvent<Boolean> setAvatarFailed =
-			new MutableLiveEvent<>();
 	private final MutableLiveData<Boolean> screenLockEnabled =
 			new MutableLiveData<>();
 	private final MutableLiveData<String> screenLockTimeout =
@@ -106,7 +106,8 @@ class SettingsViewModel extends DbViewModel implements EventListener {
 			ImageCompressor imageCompressor,
 			LocationUtils locationUtils,
 			CircumventionProvider circumventionProvider,
-			@IoExecutor Executor ioExecutor) {
+			@IoExecutor Executor ioExecutor,
+			FeatureFlags featureFlags) {
 		super(application, dbExecutor, lifecycleManager, db, androidExecutor);
 		this.settingsManager = settingsManager;
 		this.identityManager = identityManager;
@@ -115,6 +116,7 @@ class SettingsViewModel extends DbViewModel implements EventListener {
 		this.avatarManager = avatarManager;
 		this.authorManager = authorManager;
 		this.ioExecutor = ioExecutor;
+		this.featureFlags = featureFlags;
 		this.settingsStore = new SettingsStore(settingsManager, dbExecutor,
 				SETTINGS_NAMESPACE);
 		torSummaryProvider = new TorSummaryProvider(getApplication(),
@@ -126,7 +128,7 @@ class SettingsViewModel extends DbViewModel implements EventListener {
 
 		eventBus.addListener(this);
 		loadSettings();
-		loadOwnIdentityInfo();
+		if (shouldEnableProfilePictures()) loadOwnIdentityInfo();
 	}
 
 	@Override
@@ -152,6 +154,10 @@ class SettingsViewModel extends DbViewModel implements EventListener {
 				logException(LOG, WARNING, e);
 			}
 		});
+	}
+
+	boolean shouldEnableProfilePictures() {
+		return featureFlags.shouldEnableProfilePictures();
 	}
 
 	private void loadOwnIdentityInfo() {
@@ -206,7 +212,7 @@ class SettingsViewModel extends DbViewModel implements EventListener {
 				trySetAvatar(uri);
 			} catch (IOException e) {
 				logException(LOG, WARNING, e);
-				setAvatarFailed.postEvent(true);
+				onSetAvatarFailed();
 			}
 		});
 	}
@@ -230,17 +236,19 @@ class SettingsViewModel extends DbViewModel implements EventListener {
 				loadOwnIdentityInfo();
 			} catch (IOException | DbException e) {
 				logException(LOG, WARNING, e);
-				setAvatarFailed.postEvent(true);
+				onSetAvatarFailed();
 			}
 		});
 	}
 
-	LiveData<OwnIdentityInfo> getOwnIdentityInfo() {
-		return ownIdentityInfo;
+	private void onSetAvatarFailed() {
+		Toast.makeText(getApplication(),
+				R.string.change_profile_picture_failed_message,
+				LENGTH_LONG).show();
 	}
 
-	LiveEvent<Boolean> getSetAvatarFailed() {
-		return setAvatarFailed;
+	LiveData<OwnIdentityInfo> getOwnIdentityInfo() {
+		return ownIdentityInfo;
 	}
 
 	LiveData<Boolean> getScreenLockEnabled() {
