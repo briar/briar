@@ -1,0 +1,75 @@
+package org.briarproject.briar.android.settings;
+
+import org.briarproject.bramble.api.db.DbException;
+import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
+import org.briarproject.bramble.api.settings.Settings;
+import org.briarproject.bramble.api.settings.SettingsManager;
+
+import java.util.concurrent.Executor;
+import java.util.logging.Logger;
+
+import androidx.annotation.Nullable;
+import androidx.preference.PreferenceDataStore;
+
+import static java.util.Objects.requireNonNull;
+import static java.util.logging.Level.WARNING;
+import static java.util.logging.Logger.getLogger;
+import static org.briarproject.bramble.util.LogUtils.logDuration;
+import static org.briarproject.bramble.util.LogUtils.logException;
+import static org.briarproject.bramble.util.LogUtils.now;
+
+/**
+ * A custom PreferenceDataStore that stores settings in Briar's encrypted DB.
+ * <p>
+ * Warning: This expects all strings to be integers and stores them as such.
+ */
+@NotNullByDefault
+class SettingsStore extends PreferenceDataStore {
+
+	private final static Logger LOG = getLogger(SettingsStore.class.getName());
+
+	private final SettingsManager settingsManager;
+	private final Executor dbExecutor;
+	private final String namespace;
+
+	SettingsStore(SettingsManager settingsManager,
+			Executor dbExecutor,
+			String namespace) {
+		this.settingsManager = settingsManager;
+		this.dbExecutor = dbExecutor;
+		this.namespace = namespace;
+	}
+
+	@Override
+	public void putBoolean(String key, boolean value) {
+		Settings s = new Settings();
+		s.putBoolean(key, value);
+		storeSettings(s);
+	}
+
+	@Override
+	public void putInt(String key, int value) {
+		Settings s = new Settings();
+		s.putInt(key, value);
+		storeSettings(s);
+	}
+
+	@Override
+	public void putString(String key, @Nullable String value) {
+		int integer = Integer.parseInt(requireNonNull(value));
+		putInt(key, integer);
+	}
+
+	private void storeSettings(Settings s) {
+		dbExecutor.execute(() -> {
+			try {
+				long start = now();
+				settingsManager.mergeSettings(s, namespace);
+				logDuration(LOG, "Merging " + namespace + " settings", start);
+			} catch (DbException e) {
+				logException(LOG, WARNING, e);
+			}
+		});
+	}
+
+}

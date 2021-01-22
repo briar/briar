@@ -146,4 +146,17 @@ public class SettingsActivity extends BriarActivity
 		return true;
 	}
 
+	/**
+	 * If the preference is not yet enabled, this enables the preference
+	 * and makes it persist changed values.
+	 * Call this after setting the initial value
+	 * to prevent this change from getting persisted in the DB unnecessarily.
+	 */
+	static void enableAndPersist(Preference pref) {
+		if (!pref.isEnabled()) {
+			pref.setEnabled(true);
+			pref.setPersistent(true);
+		}
+	}
+
 }

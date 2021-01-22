@@ -19,14 +19,9 @@ import org.briarproject.bramble.api.event.EventBus;
 import org.briarproject.bramble.api.event.EventListener;
 import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
 import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
-import org.briarproject.bramble.api.plugin.BluetoothConstants;
-import org.briarproject.bramble.api.plugin.LanTcpConstants;
-import org.briarproject.bramble.api.plugin.TorConstants;
 import org.briarproject.bramble.api.settings.Settings;
 import org.briarproject.bramble.api.settings.SettingsManager;
 import org.briarproject.bramble.api.settings.event.SettingsUpdatedEvent;
-import org.briarproject.bramble.api.system.LocationUtils;
-import org.briarproject.bramble.plugin.tor.CircumventionProvider;
 import org.briarproject.bramble.util.StringUtils;
 import org.briarproject.briar.R;
 
@@ -61,21 +56,11 @@ import static android.provider.Settings.System.DEFAULT_NOTIFICATION_URI;
 import static android.widget.Toast.LENGTH_SHORT;
 import static java.util.Objects.requireNonNull;
 import static java.util.logging.Level.WARNING;
-import static org.briarproject.bramble.api.plugin.Plugin.PREF_PLUGIN_ENABLE;
-import static org.briarproject.bramble.api.plugin.TorConstants.DEFAULT_PREF_TOR_MOBILE;
-import static org.briarproject.bramble.api.plugin.TorConstants.DEFAULT_PREF_TOR_NETWORK;
-import static org.briarproject.bramble.api.plugin.TorConstants.DEFAULT_PREF_TOR_ONLY_WHEN_CHARGING;
-import static org.briarproject.bramble.api.plugin.TorConstants.PREF_TOR_MOBILE;
-import static org.briarproject.bramble.api.plugin.TorConstants.PREF_TOR_NETWORK;
-import static org.briarproject.bramble.api.plugin.TorConstants.PREF_TOR_NETWORK_AUTOMATIC;
-import static org.briarproject.bramble.api.plugin.TorConstants.PREF_TOR_NETWORK_NEVER;
-import static org.briarproject.bramble.api.plugin.TorConstants.PREF_TOR_ONLY_WHEN_CHARGING;
 import static org.briarproject.bramble.util.LogUtils.logDuration;
 import static org.briarproject.bramble.util.LogUtils.logException;
 import static org.briarproject.bramble.util.LogUtils.now;
 import static org.briarproject.briar.android.TestingConstants.IS_DEBUG_BUILD;
 import static org.briarproject.briar.android.activity.RequestCodes.REQUEST_RINGTONE;
-import static org.briarproject.briar.android.util.UiUtils.getCountryDisplayName;
 import static org.briarproject.briar.android.util.UiUtils.hasScreenLock;
 import static org.briarproject.briar.android.util.UiUtils.triggerFeedback;
 import static org.briarproject.briar.api.android.AndroidNotificationManager.BLOG_CHANNEL_ID;
@@ -102,30 +87,10 @@ public class SettingsFragment extends PreferenceFragmentCompat
 			"pref_key_lock_timeout";
 	public static final String NOTIFY_SIGN_IN = "pref_key_notify_sign_in";
 
-	private static final String BT_NAMESPACE =
-			BluetoothConstants.ID.getString();
-	private static final String BT_ENABLE = "pref_key_bluetooth";
-
-	private static final String WIFI_NAMESPACE = LanTcpConstants.ID.getString();
-	private static final String WIFI_ENABLE = "pref_key_wifi";
-
-	private static final String TOR_NAMESPACE = TorConstants.ID.getString();
-	private static final String TOR_ENABLE = "pref_key_tor_enable";
-	private static final String TOR_NETWORK = "pref_key_tor_network";
-	private static final String TOR_MOBILE = "pref_key_tor_mobile_data";
-	private static final String TOR_ONLY_WHEN_CHARGING =
-			"pref_key_tor_only_when_charging";
-
 	private static final Logger LOG =
 			Logger.getLogger(SettingsFragment.class.getName());
 
 	private SettingsActivity listener;
-	private SwitchPreference enableBluetooth;
-	private SwitchPreference enableWifi;
-	private SwitchPreference enableTor;
-	private ListPreference torNetwork;
-	private SwitchPreference torMobile;
-	private SwitchPreference torOnlyWhenCharging;
 	private SwitchPreference screenLock;
 	private ListPreference screenLockTimeout;
 	private SwitchPreference notifyPrivateMessages;
@@ -137,17 +102,13 @@ public class SettingsFragment extends PreferenceFragmentCompat
 	private Preference notifySound;
 
 	// Fields that are accessed from background threads must be volatile
-	private volatile Settings settings, btSettings, wifiSettings, torSettings;
+	private volatile Settings settings;
 	private volatile boolean settingsLoaded = false;
 
 	@Inject
 	volatile SettingsManager settingsManager;
 	@Inject
 	volatile EventBus eventBus;
-	@Inject
-	LocationUtils locationUtils;
-	@Inject
-	CircumventionProvider circumventionProvider;
 
 	@Override
 	public void onAttach(Context context) {
@@ -160,12 +121,6 @@ public class SettingsFragment extends PreferenceFragmentCompat
 	public void onCreatePreferences(Bundle bundle, String s) {
 		addPreferencesFromResource(R.xml.settings);
 
-		enableBluetooth = findPreference(BT_ENABLE);
-		enableWifi = findPreference(WIFI_ENABLE);
-		enableTor = findPreference(TOR_ENABLE);
-		torNetwork = findPreference(TOR_NETWORK);
-		torMobile = findPreference(TOR_MOBILE);
-		torOnlyWhenCharging = findPreference(TOR_ONLY_WHEN_CHARGING);
 		screenLock = findPreference(PREF_SCREEN_LOCK);
 		screenLockTimeout = findPreference(PREF_SCREEN_LOCK_TIMEOUT);
 		notifyPrivateMessages =
@@ -176,12 +131,6 @@ public class SettingsFragment extends PreferenceFragmentCompat
 		notifyVibration = findPreference("pref_key_notify_vibration");
 		notifySound = findPreference("pref_key_notify_sound");
 
-		enableBluetooth.setOnPreferenceChangeListener(this);
-		enableWifi.setOnPreferenceChangeListener(this);
-		enableTor.setOnPreferenceChangeListener(this);
-		torNetwork.setOnPreferenceChangeListener(this);
-		torMobile.setOnPreferenceChangeListener(this);
-		torOnlyWhenCharging.setOnPreferenceChangeListener(this);
 		screenLock.setOnPreferenceChangeListener(this);
 		screenLockTimeout.setOnPreferenceChangeListener(this);
 
@@ -232,39 +181,11 @@ public class SettingsFragment extends PreferenceFragmentCompat
 		eventBus.removeListener(this);
 	}
 
-	private void setTorNetworkSummary(int torNetworkSetting) {
-		if (torNetworkSetting != PREF_TOR_NETWORK_AUTOMATIC) {
-			torNetwork.setSummary("%s");  // use setting value
-			return;
-		}
-
-		// Look up country name in the user's chosen language if available
-		String country = locationUtils.getCurrentCountry();
-		String countryName = getCountryDisplayName(country);
-
-		boolean blocked =
-				circumventionProvider.isTorProbablyBlocked(country);
-		boolean useBridges = circumventionProvider.doBridgesWork(country);
-		String setting =
-				getString(R.string.tor_network_setting_without_bridges);
-		if (blocked && useBridges) {
-			setting = getString(R.string.tor_network_setting_with_bridges);
-		} else if (blocked) {
-			setting = getString(R.string.tor_network_setting_never);
-		}
-		torNetwork.setSummary(
-				getString(R.string.tor_network_setting_summary, setting,
-						countryName));
-	}
-
 	private void loadSettings() {
 		listener.runOnDbThread(() -> {
 			try {
 				long start = now();
 				settings = settingsManager.getSettings(SETTINGS_NAMESPACE);
-				btSettings = settingsManager.getSettings(BT_NAMESPACE);
-				wifiSettings = settingsManager.getSettings(WIFI_NAMESPACE);
-				torSettings = settingsManager.getSettings(TOR_NAMESPACE);
 				settingsLoaded = true;
 				logDuration(LOG, "Loading settings", start);
 				displaySettings();
@@ -274,51 +195,10 @@ public class SettingsFragment extends PreferenceFragmentCompat
 		});
 	}
 
-	// TODO: Remove after a reasonable migration period (added 2020-06-25)
-	private Settings migrateTorSettings(Settings s) {
-		int network = s.getInt(PREF_TOR_NETWORK, DEFAULT_PREF_TOR_NETWORK);
-		if (network == PREF_TOR_NETWORK_NEVER) {
-			s.putInt(PREF_TOR_NETWORK, DEFAULT_PREF_TOR_NETWORK);
-			s.putBoolean(PREF_PLUGIN_ENABLE, false);
-			// We don't need to save the migrated settings - the Tor plugin is
-			// responsible for that. This code just handles the case where the
-			// settings are loaded before the plugin migrates them.
-		}
-		return s;
-	}
-
 	private void displaySettings() {
 		listener.runOnUiThreadUnlessDestroyed(() -> {
 			// due to events, we might try to display before a load completed
 			if (!settingsLoaded) return;
-
-			boolean btEnabledSetting = btSettings.getBoolean(PREF_PLUGIN_ENABLE,
-					BluetoothConstants.DEFAULT_PREF_PLUGIN_ENABLE);
-			enableBluetooth.setChecked(btEnabledSetting);
-
-			boolean wifiEnabledSetting =
-					wifiSettings.getBoolean(PREF_PLUGIN_ENABLE,
-							LanTcpConstants.DEFAULT_PREF_PLUGIN_ENABLE);
-			enableWifi.setChecked(wifiEnabledSetting);
-
-			boolean torEnabledSetting =
-					torSettings.getBoolean(PREF_PLUGIN_ENABLE,
-							TorConstants.DEFAULT_PREF_PLUGIN_ENABLE);
-			enableTor.setChecked(torEnabledSetting);
-
-			int torNetworkSetting = torSettings.getInt(PREF_TOR_NETWORK,
-					DEFAULT_PREF_TOR_NETWORK);
-			torNetwork.setValue(Integer.toString(torNetworkSetting));
-			setTorNetworkSummary(torNetworkSetting);
-
-			boolean torMobileSetting = torSettings.getBoolean(PREF_TOR_MOBILE,
-					DEFAULT_PREF_TOR_MOBILE);
-			torMobile.setChecked(torMobileSetting);
-
-			boolean torChargingSetting =
-					torSettings.getBoolean(PREF_TOR_ONLY_WHEN_CHARGING,
-							DEFAULT_PREF_TOR_ONLY_WHEN_CHARGING);
-			torOnlyWhenCharging.setChecked(torChargingSetting);
 
 			displayScreenLockSetting();
 
@@ -378,12 +258,6 @@ public class SettingsFragment extends PreferenceFragmentCompat
 		// preferences partly needed here, because they have their own logic
 		// - pref_key_lock (screenLock -> displayScreenLockSetting())
 		// - pref_key_lock_timeout (screenLockTimeout)
-		enableBluetooth.setEnabled(enabled);
-		enableWifi.setEnabled(enabled);
-		enableTor.setEnabled(enabled);
-		torNetwork.setEnabled(enabled);
-		torMobile.setEnabled(enabled);
-		torOnlyWhenCharging.setEnabled(enabled);
 		if (!enabled) screenLock.setEnabled(false);
 		notifyPrivateMessages.setEnabled(enabled);
 		notifyGroupMessages.setEnabled(enabled);
@@ -478,33 +352,14 @@ public class SettingsFragment extends PreferenceFragmentCompat
 
 	@Override
 	public boolean onPreferenceChange(Preference preference, Object newValue) {
-		if (preference == enableBluetooth) {
-			boolean btSetting = (Boolean) newValue;
-			storeBluetoothSetting(btSetting);
-		} else if (preference == enableWifi) {
-			boolean wifiSetting = (Boolean) newValue;
-			storeWifiSetting(wifiSetting);
-		} else if (preference == enableTor) {
-			boolean torEnabledSetting = (Boolean) newValue;
-			storeTorEnabledSetting(torEnabledSetting);
-		} else if (preference == torNetwork) {
-			int torNetworkSetting = Integer.valueOf((String) newValue);
-			storeTorNetworkSetting(torNetworkSetting);
-			setTorNetworkSummary(torNetworkSetting);
-		} else if (preference == torMobile) {
-			boolean torMobileSetting = (Boolean) newValue;
-			storeTorMobileSetting(torMobileSetting);
-		} else if (preference == torOnlyWhenCharging) {
-			boolean torChargingSetting = (Boolean) newValue;
-			storeTorChargingSetting(torChargingSetting);
-		} else if (preference == screenLock) {
+		if (preference == screenLock) {
 			Settings s = new Settings();
 			s.putBoolean(PREF_SCREEN_LOCK, (Boolean) newValue);
 			storeSettings(s);
 		} else if (preference == screenLockTimeout) {
 			Settings s = new Settings();
 			String value = (String) newValue;
-			s.putInt(PREF_SCREEN_LOCK_TIMEOUT, Integer.valueOf(value));
+			s.putInt(PREF_SCREEN_LOCK_TIMEOUT, Integer.parseInt(value));
 			storeSettings(s);
 			setScreenLockTimeoutSummary(value);
 		} else if (preference == notifyPrivateMessages) {
@@ -531,41 +386,6 @@ public class SettingsFragment extends PreferenceFragmentCompat
 		return true;
 	}
 
-	private void storeTorEnabledSetting(boolean torEnabledSetting) {
-		Settings s = new Settings();
-		s.putBoolean(PREF_PLUGIN_ENABLE, torEnabledSetting);
-		mergeSettings(s, TOR_NAMESPACE);
-	}
-
-	private void storeTorNetworkSetting(int torNetworkSetting) {
-		Settings s = new Settings();
-		s.putInt(PREF_TOR_NETWORK, torNetworkSetting);
-		mergeSettings(s, TOR_NAMESPACE);
-	}
-
-	private void storeTorMobileSetting(boolean torMobileSetting) {
-		Settings s = new Settings();
-		s.putBoolean(PREF_TOR_MOBILE, torMobileSetting);
-		mergeSettings(s, TOR_NAMESPACE);
-	}
-
-	private void storeTorChargingSetting(boolean torChargingSetting) {
-		Settings s = new Settings();
-		s.putBoolean(PREF_TOR_ONLY_WHEN_CHARGING, torChargingSetting);
-		mergeSettings(s, TOR_NAMESPACE);
-	}
-
-	private void storeBluetoothSetting(boolean btSetting) {
-		Settings s = new Settings();
-		s.putBoolean(PREF_PLUGIN_ENABLE, btSetting);
-		mergeSettings(s, BT_NAMESPACE);
-	}
-
-	private void storeWifiSetting(boolean wifiSetting) {
-		Settings s = new Settings();
-		s.putBoolean(PREF_PLUGIN_ENABLE, wifiSetting);
-		mergeSettings(s, WIFI_NAMESPACE);
-	}
 
 	private void storeSettings(Settings s) {
 		mergeSettings(s, SETTINGS_NAMESPACE);
@@ -584,7 +404,8 @@ public class SettingsFragment extends PreferenceFragmentCompat
 	}
 
 	@Override
-	public void onActivityResult(int request, int result, Intent data) {
+	public void onActivityResult(int request, int result,
+			@Nullable Intent data) {
 		super.onActivityResult(request, result, data);
 		if (request == REQUEST_RINGTONE && result == RESULT_OK) {
 			Settings s = new Settings();
@@ -624,18 +445,6 @@ public class SettingsFragment extends PreferenceFragmentCompat
 			if (namespace.equals(SETTINGS_NAMESPACE)) {
 				LOG.info("Settings updated");
 				settings = s.getSettings();
-				displaySettings();
-			} else if (namespace.equals(BT_NAMESPACE)) {
-				LOG.info("Bluetooth settings updated");
-				btSettings = s.getSettings();
-				displaySettings();
-			} else if (namespace.equals(WIFI_NAMESPACE)) {
-				LOG.info("Wifi settings updated");
-				wifiSettings = s.getSettings();
-				displaySettings();
-			} else if (namespace.equals(TOR_NAMESPACE)) {
-				LOG.info("Tor settings updated");
-				torSettings = migrateTorSettings(s.getSettings());
 				displaySettings();
 			}
 		}
