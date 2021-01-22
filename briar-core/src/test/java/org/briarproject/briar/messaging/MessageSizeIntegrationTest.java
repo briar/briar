@@ -73,7 +73,8 @@ public class MessageSizeIntegrationTest extends BriarTestCase {
 		// Create the maximum number of maximum-length attachment headers
 		List<AttachmentHeader> headers = new ArrayList<>();
 		for (int i = 0; i < MAX_ATTACHMENTS_PER_MESSAGE; i++) {
-			headers.add(new AttachmentHeader(new MessageId(getRandomId()),
+			headers.add(new AttachmentHeader(groupId,
+					new MessageId(getRandomId()),
 					getRandomString(MAX_CONTENT_TYPE_BYTES)));
 		}
 		PrivateMessage message = privateMessageFactory.createPrivateMessage(

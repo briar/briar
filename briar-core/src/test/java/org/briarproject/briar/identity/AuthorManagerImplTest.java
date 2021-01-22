@@ -8,6 +8,7 @@ import org.briarproject.bramble.api.identity.Author;
 import org.briarproject.bramble.api.identity.AuthorId;
 import org.briarproject.bramble.api.identity.IdentityManager;
 import org.briarproject.bramble.api.identity.LocalAuthor;
+import org.briarproject.bramble.api.sync.GroupId;
 import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.bramble.test.BrambleMockTestCase;
 import org.briarproject.bramble.test.DbExpectations;
@@ -49,7 +50,8 @@ public class AuthorManagerImplTest extends BrambleMockTestCase {
 	private final Contact contact = getContact(remote, local, verified);
 	private final String contentType = getRandomString(MAX_CONTENT_TYPE_BYTES);
 	private final AttachmentHeader avatarHeader =
-			new AttachmentHeader(new MessageId(getRandomId()), contentType);
+			new AttachmentHeader(new GroupId(getRandomId()),
+					new MessageId(getRandomId()), contentType);
 
 	private final AuthorManagerImpl authorManager =
 			new AuthorManagerImpl(db, identityManager, avatarManager);

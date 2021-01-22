@@ -4,6 +4,8 @@ import org.briarproject.bramble.api.FormatException;
 import org.briarproject.bramble.api.client.ClientHelper;
 import org.briarproject.bramble.api.data.BdfDictionary;
 import org.briarproject.bramble.api.db.DbException;
+import org.briarproject.bramble.api.db.NoSuchMessageException;
+import org.briarproject.bramble.api.sync.Message;
 import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.briar.api.attachment.Attachment;
 import org.briarproject.briar.api.attachment.AttachmentHeader;
@@ -31,7 +33,13 @@ public class AttachmentReaderImpl implements AttachmentReader {
 	public Attachment getAttachment(AttachmentHeader h) throws DbException {
 		// TODO: Support large messages
 		MessageId m = h.getMessageId();
-		byte[] body = clientHelper.getMessage(m).getBody();
+		Message message = clientHelper.getMessage(m);
+		// Check that the message is in the expected group, to prevent it from
+		// being loaded in the context of a different group
+		if (!message.getGroupId().equals(h.getGroupId())) {
+			throw new NoSuchMessageException();
+		}
+		byte[] body = message.getBody();
 		try {
 			BdfDictionary meta = clientHelper.getMessageMetadataAsDictionary(m);
 			String contentType = meta.getString(MSG_KEY_CONTENT_TYPE);
