@@ -16,7 +16,7 @@ import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.preference.ListPreference;
 import androidx.preference.PreferenceFragmentCompat;
-import androidx.preference.SwitchPreference;
+import androidx.preference.SwitchPreferenceCompat;
 
 import static android.os.Build.VERSION.SDK_INT;
 import static java.util.Objects.requireNonNull;
@@ -36,7 +36,7 @@ public class SecurityFragment extends PreferenceFragmentCompat {
 	ViewModelProvider.Factory viewModelFactory;
 
 	private SettingsViewModel viewModel;
-	private SwitchPreference screenLock;
+	private SwitchPreferenceCompat screenLock;
 	private ListPreference screenLockTimeout;
 
 	@Override

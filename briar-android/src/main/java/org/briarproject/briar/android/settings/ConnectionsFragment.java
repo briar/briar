@@ -16,7 +16,7 @@ import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.preference.ListPreference;
 import androidx.preference.PreferenceFragmentCompat;
-import androidx.preference.SwitchPreference;
+import androidx.preference.SwitchPreferenceCompat;
 
 import static org.briarproject.briar.android.AppModule.getAndroidComponent;
 import static org.briarproject.briar.android.settings.SettingsActivity.enableAndPersist;
@@ -40,12 +40,12 @@ public class ConnectionsFragment extends PreferenceFragmentCompat {
 	private SettingsViewModel viewModel;
 	private ConnectionsManager connectionsManager;
 
-	private SwitchPreference enableBluetooth;
-	private SwitchPreference enableWifi;
-	private SwitchPreference enableTor;
+	private SwitchPreferenceCompat enableBluetooth;
+	private SwitchPreferenceCompat enableWifi;
+	private SwitchPreferenceCompat enableTor;
 	private ListPreference torNetwork;
-	private SwitchPreference torMobile;
-	private SwitchPreference torOnlyWhenCharging;
+	private SwitchPreferenceCompat torMobile;
+	private SwitchPreferenceCompat torOnlyWhenCharging;
 
 	@Override
 	public void onAttach(@NonNull Context context) {

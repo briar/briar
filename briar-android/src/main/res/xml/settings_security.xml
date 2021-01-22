@@ -3,13 +3,12 @@
 	xmlns:app="http://schemas.android.com/apk/res-auto"
 	xmlns:tools="http://schemas.android.com/tools">
 
-	<SwitchPreference
+	<SwitchPreferenceCompat
 		android:enabled="false"
 		android:key="pref_key_lock"
 		android:persistent="false"
 		android:summary="@string/pref_lock_summary"
 		android:title="@string/pref_lock_title"
-		android:widgetLayout="@layout/preference_switch_compat"
 		app:iconSpaceReserved="false" />
 
 	<ListPreference
