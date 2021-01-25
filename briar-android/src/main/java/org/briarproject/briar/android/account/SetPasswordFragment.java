@@ -30,7 +30,6 @@ import static org.briarproject.briar.android.util.UiUtils.setError;
 @MethodsNotNullByDefault
 @ParametersNotNullByDefault
 public class SetPasswordFragment extends SetupFragment {
-
 	private final static String TAG = SetPasswordFragment.class.getName();
 
 	private TextInputLayout passwordEntryWrapper;
@@ -56,7 +55,7 @@ public class SetPasswordFragment extends SetupFragment {
 			@Nullable Bundle savedInstanceState) {
 		requireActivity().setTitle(getString(R.string.setup_password_intro));
 		View v = inflater.inflate(R.layout.fragment_setup_password, container,
-						false);
+				false);
 
 		strengthMeter = v.findViewById(R.id.strength_meter);
 		passwordEntryWrapper = v.findViewById(R.id.password_entry_wrapper);
@@ -71,7 +70,7 @@ public class SetPasswordFragment extends SetupFragment {
 		passwordConfirmation.addTextChangedListener(this);
 		nextButton.setOnClickListener(this);
 
-		if (!setupController.needToShowDozeFragment()) {
+		if (!viewModel.needToShowDozeFragment()) {
 			nextButton.setText(R.string.create_account_button);
 			passwordConfirmation.setImeOptions(IME_ACTION_DONE);
 		}
@@ -97,7 +96,7 @@ public class SetPasswordFragment extends SetupFragment {
 
 		strengthMeter
 				.setVisibility(password1.length() > 0 ? VISIBLE : INVISIBLE);
-		float strength = setupController.estimatePasswordStrength(password1);
+		float strength = viewModel.estimatePasswordStrength(password1);
 		strengthMeter.setStrength(strength);
 		boolean strongEnough = strength >= QUITE_WEAK;
 
@@ -117,14 +116,20 @@ public class SetPasswordFragment extends SetupFragment {
 		IBinder token = passwordEntry.getWindowToken();
 		Object o = getContext().getSystemService(INPUT_METHOD_SERVICE);
 		((InputMethodManager) o).hideSoftInputFromWindow(token, 0);
-		setupController.setPassword(passwordEntry.getText().toString());
-		if (setupController.needToShowDozeFragment()) {
-			setupController.showDozeFragment();
-		} else {
-			nextButton.setVisibility(INVISIBLE);
-			progressBar.setVisibility(VISIBLE);
-			setupController.createAccount();
-		}
+
+		setNextClicked();
+		viewModel.setPassword(passwordEntry.getText().toString());
 	}
 
+	@Override
+	void setNextClicked() {
+		super.setNextClicked();
+
+		passwordEntry.setFocusable(false);
+		passwordConfirmation.setFocusable(false);
+		if (!viewModel.needToShowDozeFragment()) {
+			nextButton.setVisibility(INVISIBLE);
+			progressBar.setVisibility(VISIBLE);
+		}
+	}
 }
