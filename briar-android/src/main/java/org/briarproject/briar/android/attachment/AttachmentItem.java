@@ -4,6 +4,7 @@ import android.os.Parcel;
 import android.os.Parcelable;
 
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
+import org.briarproject.bramble.api.sync.GroupId;
 import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.briar.api.attachment.AttachmentHeader;
 
@@ -78,6 +79,9 @@ public class AttachmentItem implements Parcelable {
 	}
 
 	protected AttachmentItem(Parcel in) {
+		byte[] groupIdByte = new byte[GroupId.LENGTH];
+		in.readByteArray(groupIdByte);
+		GroupId groupId = new GroupId(groupIdByte);
 		byte[] messageIdByte = new byte[MessageId.LENGTH];
 		in.readByteArray(messageIdByte);
 		MessageId messageId = new MessageId(messageIdByte);
@@ -88,7 +92,7 @@ public class AttachmentItem implements Parcelable {
 		thumbnailWidth = in.readInt();
 		thumbnailHeight = in.readInt();
 		state = State.valueOf(requireNonNull(in.readString()));
-		header = new AttachmentHeader(messageId, mimeType);
+		header = new AttachmentHeader(groupId, messageId, mimeType);
 	}
 
 	public AttachmentHeader getHeader() {
@@ -142,6 +146,7 @@ public class AttachmentItem implements Parcelable {
 
 	@Override
 	public void writeToParcel(Parcel dest, int flags) {
+		dest.writeByteArray(header.getGroupId().getBytes());
 		dest.writeByteArray(header.getMessageId().getBytes());
 		dest.writeInt(width);
 		dest.writeInt(height);

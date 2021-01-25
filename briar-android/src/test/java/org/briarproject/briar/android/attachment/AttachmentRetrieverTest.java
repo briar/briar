@@ -1,5 +1,6 @@
 package org.briarproject.briar.android.attachment;
 
+import org.briarproject.bramble.api.sync.GroupId;
 import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.bramble.test.BrambleMockTestCase;
 import org.briarproject.bramble.test.ImmediateExecutor;
@@ -28,6 +29,7 @@ public class AttachmentRetrieverTest extends BrambleMockTestCase {
 	private final AttachmentDimensions dimensions = new AttachmentDimensions(
 			100, 50, 200, 75, 300
 	);
+	private final GroupId groupId = new GroupId(getRandomId());
 	private final MessageId msgId = new MessageId(getRandomId());
 	private final ImageHelper imageHelper = context.mock(ImageHelper.class);
 	private final ImageSizeCalculator imageSizeCalculator;
@@ -136,7 +138,8 @@ public class AttachmentRetrieverTest extends BrambleMockTestCase {
 	}
 
 	private Attachment getAttachment(String contentType) {
-		AttachmentHeader header = new AttachmentHeader(msgId, contentType);
+		AttachmentHeader header =
+				new AttachmentHeader(groupId, msgId, contentType);
 		InputStream in = new ByteArrayInputStream(getRandomBytes(42));
 		return new Attachment(header, in);
 	}

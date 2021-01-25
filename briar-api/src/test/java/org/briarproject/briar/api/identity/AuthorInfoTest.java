@@ -1,5 +1,6 @@
 package org.briarproject.briar.api.identity;
 
+import org.briarproject.bramble.api.sync.GroupId;
 import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.bramble.test.BrambleTestCase;
 import org.briarproject.briar.api.attachment.AttachmentHeader;
@@ -17,7 +18,8 @@ public class AuthorInfoTest extends BrambleTestCase {
 
 	private final String contentType = getRandomString(MAX_CONTENT_TYPE_BYTES);
 	private final AttachmentHeader avatarHeader =
-			new AttachmentHeader(new MessageId(getRandomId()), contentType);
+			new AttachmentHeader(new GroupId(getRandomId()),
+					new MessageId(getRandomId()), contentType);
 
 	@Test
 	public void testEquals() {

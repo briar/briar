@@ -149,7 +149,8 @@ class AvatarManagerImpl implements AvatarManager, OpenDatabaseHook, ContactHook,
 			}
 			ContactId contactId = getContactId(txn, m.getGroupId());
 			String contentType = d.getString(MSG_KEY_CONTENT_TYPE);
-			AttachmentHeader a = new AttachmentHeader(m.getId(), contentType);
+			AttachmentHeader a = new AttachmentHeader(m.getGroupId(), m.getId(),
+					contentType);
 			txn.attach(new AvatarUpdatedEvent(contactId, a));
 		} catch (FormatException e) {
 			throw new InvalidMessageException(e);
@@ -184,7 +185,7 @@ class AvatarManagerImpl implements AvatarManager, OpenDatabaseHook, ContactHook,
 			if (newLatest != null && newLatest.version > version) {
 				// latest update is newer than our own
 				// no need to store or delete anything, just return latest
-				return new AttachmentHeader(newLatest.messageId,
+				return new AttachmentHeader(groupId, newLatest.messageId,
 						newLatest.contentType);
 			} else if (newLatest != null) {
 				// delete latest update if it has the same or lower version
@@ -192,7 +193,7 @@ class AvatarManagerImpl implements AvatarManager, OpenDatabaseHook, ContactHook,
 				db.deleteMessageMetadata(txn2, newLatest.messageId);
 			}
 			clientHelper.addLocalMessage(txn2, m, meta, true, false);
-			return new AttachmentHeader(m.getId(), contentType);
+			return new AttachmentHeader(groupId, m.getId(), contentType);
 		});
 	}
 
@@ -225,7 +226,8 @@ class AvatarManagerImpl implements AvatarManager, OpenDatabaseHook, ContactHook,
 			throws DbException, FormatException {
 		LatestUpdate latest = findLatest(txn, groupId);
 		if (latest == null) return null;
-		return new AttachmentHeader(latest.messageId, latest.contentType);
+		return new AttachmentHeader(groupId, latest.messageId,
+				latest.contentType);
 	}
 
 	@Nullable

@@ -172,7 +172,7 @@ class MessagingManagerImpl implements MessagingManager, IncomingMessageHook,
 			} else if (messageType == PRIVATE_MESSAGE) {
 				boolean hasText = metaDict.getBoolean(MSG_KEY_HAS_TEXT);
 				List<AttachmentHeader> headers =
-						parseAttachmentHeaders(metaDict);
+						parseAttachmentHeaders(m.getGroupId(), metaDict);
 				incomingPrivateMessage(txn, m, metaDict, hasText, headers);
 			} else if (messageType == ATTACHMENT) {
 				incomingAttachment(txn, m);
@@ -203,16 +203,17 @@ class MessagingManagerImpl implements MessagingManager, IncomingMessageHook,
 		messageTracker.trackIncomingMessage(txn, m);
 	}
 
-	private List<AttachmentHeader> parseAttachmentHeaders(BdfDictionary meta)
+	private List<AttachmentHeader> parseAttachmentHeaders(GroupId g,
+			BdfDictionary meta)
 			throws FormatException {
 		BdfList attachmentHeaders = meta.getList(MSG_KEY_ATTACHMENT_HEADERS);
 		int length = attachmentHeaders.size();
 		List<AttachmentHeader> headers = new ArrayList<>(length);
 		for (int i = 0; i < length; i++) {
 			BdfList header = attachmentHeaders.getList(i);
-			MessageId id = new MessageId(header.getRaw(0));
+			MessageId m = new MessageId(header.getRaw(0));
 			String contentType = header.getString(1);
-			headers.add(new AttachmentHeader(id, contentType));
+			headers.add(new AttachmentHeader(g, m, contentType));
 		}
 		return headers;
 	}
@@ -280,7 +281,7 @@ class MessagingManagerImpl implements MessagingManager, IncomingMessageHook,
 		// Mark attachments as temporary, not shared until we're ready to send
 		db.transaction(false, txn ->
 				clientHelper.addLocalMessage(txn, m, meta, false, true));
-		return new AttachmentHeader(m.getId(), contentType);
+		return new AttachmentHeader(groupId, m.getId(), contentType);
 	}
 
 	@Override
@@ -357,7 +358,7 @@ class MessagingManagerImpl implements MessagingManager, IncomingMessageHook,
 					boolean hasText = meta.getBoolean(MSG_KEY_HAS_TEXT);
 					headers.add(new PrivateMessageHeader(id, g, timestamp,
 							local, read, s.isSent(), s.isSeen(), hasText,
-							parseAttachmentHeaders(meta)));
+							parseAttachmentHeaders(g, meta)));
 				}
 			} catch (FormatException e) {
 				throw new DbException(e);
@@ -424,6 +425,7 @@ class MessagingManagerImpl implements MessagingManager, IncomingMessageHook,
 	public DeletionResult deleteMessages(Transaction txn, ContactId c,
 			Set<MessageId> messageIds) throws DbException {
 		DeletionResult result = new DeletionResult();
+		GroupId g = getContactGroup(db.getContact(txn, c)).getId();
 		for (MessageId m : messageIds) {
 			// get attachment headers
 			List<AttachmentHeader> headers;
@@ -434,7 +436,7 @@ class MessagingManagerImpl implements MessagingManager, IncomingMessageHook,
 				if (messageType != null && messageType != PRIVATE_MESSAGE)
 					throw new AssertionError("not supported");
 				headers = messageType == null ? emptyList() :
-						parseAttachmentHeaders(meta);
+						parseAttachmentHeaders(g, meta);
 			} catch (FormatException e) {
 				throw new DbException(e);
 			}
@@ -460,7 +462,6 @@ class MessagingManagerImpl implements MessagingManager, IncomingMessageHook,
 				result.addNotFullyDownloaded();
 			}
 		}
-		GroupId g = getContactGroup(db.getContact(txn, c)).getId();
 		recalculateGroupCount(txn, g);
 		return result;
 	}
