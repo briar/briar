@@ -1,6 +1,7 @@
 package org.briarproject.briar.api.identity;
 
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
+import org.briarproject.bramble.api.nullsafety.NullSafety;
 import org.briarproject.briar.api.attachment.AttachmentHeader;
 
 import javax.annotation.Nullable;
@@ -60,13 +61,10 @@ public class AuthorInfo {
 	public boolean equals(Object o) {
 		if (!(o instanceof AuthorInfo)) return false;
 		AuthorInfo info = (AuthorInfo) o;
-		//noinspection EqualsReplaceableByObjectsCall
 		return status == info.status &&
 				// aliases are equal
-				(alias == null ? info.alias == null :
-						alias.equals(info.alias)) &&
+				NullSafety.equals(alias, info.alias) &&
 				// avatars are equal
-				(avatarHeader == null ? info.avatarHeader == null :
-						avatarHeader.equals(info.avatarHeader));
+				NullSafety.equals(avatarHeader, info.avatarHeader);
 	}
 }
