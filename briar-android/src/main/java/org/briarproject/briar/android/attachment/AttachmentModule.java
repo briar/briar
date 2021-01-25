@@ -13,16 +13,6 @@ import static org.briarproject.briar.android.attachment.AttachmentDimensions.get
 public class AttachmentModule {
 
 	@Provides
-	ImageHelper provideImageHelper(ImageHelperImpl imageHelper) {
-		return imageHelper;
-	}
-
-	@Provides
-	ImageSizeCalculator provideImageSizeCalculator(ImageHelper imageHelper) {
-		return new ImageSizeCalculator(imageHelper);
-	}
-
-	@Provides
 	AttachmentDimensions provideAttachmentDimensions(Application app) {
 		return getAttachmentDimensions(app.getResources());
 	}

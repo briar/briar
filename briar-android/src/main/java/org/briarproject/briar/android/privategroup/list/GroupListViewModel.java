@@ -11,7 +11,6 @@ import org.briarproject.bramble.api.event.Event;
 import org.briarproject.bramble.api.event.EventBus;
 import org.briarproject.bramble.api.event.EventListener;
 import org.briarproject.bramble.api.identity.AuthorId;
-import org.briarproject.bramble.api.identity.AuthorInfo;
 import org.briarproject.bramble.api.lifecycle.LifecycleManager;
 import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
 import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
@@ -24,6 +23,8 @@ import org.briarproject.briar.android.viewmodel.DbViewModel;
 import org.briarproject.briar.android.viewmodel.LiveResult;
 import org.briarproject.briar.api.android.AndroidNotificationManager;
 import org.briarproject.briar.api.client.MessageTracker.GroupCount;
+import org.briarproject.briar.api.identity.AuthorInfo;
+import org.briarproject.briar.api.identity.AuthorManager;
 import org.briarproject.briar.api.privategroup.GroupMessageHeader;
 import org.briarproject.briar.api.privategroup.PrivateGroup;
 import org.briarproject.briar.api.privategroup.PrivateGroupManager;
@@ -64,7 +65,7 @@ class GroupListViewModel extends DbViewModel implements EventListener {
 
 	private final PrivateGroupManager groupManager;
 	private final GroupInvitationManager groupInvitationManager;
-	private final ContactManager contactManager;
+	private final AuthorManager authorManager;
 	private final AndroidNotificationManager notificationManager;
 	private final EventBus eventBus;
 
@@ -81,12 +82,12 @@ class GroupListViewModel extends DbViewModel implements EventListener {
 			AndroidExecutor androidExecutor,
 			PrivateGroupManager groupManager,
 			GroupInvitationManager groupInvitationManager,
-			ContactManager contactManager,
+			AuthorManager authorManager,
 			AndroidNotificationManager notificationManager, EventBus eventBus) {
 		super(application, dbExecutor, lifecycleManager, db, androidExecutor);
 		this.groupManager = groupManager;
 		this.groupInvitationManager = groupInvitationManager;
-		this.contactManager = contactManager;
+		this.authorManager = authorManager;
 		this.notificationManager = notificationManager;
 		this.eventBus = eventBus;
 		this.eventBus.addListener(this);
@@ -157,7 +158,7 @@ class GroupListViewModel extends DbViewModel implements EventListener {
 			if (authorInfos.containsKey(authorId)) {
 				authorInfo = requireNonNull(authorInfos.get(authorId));
 			} else {
-				authorInfo = contactManager.getAuthorInfo(txn, authorId);
+				authorInfo = authorManager.getAuthorInfo(txn, authorId);
 				authorInfos.put(authorId, authorInfo);
 			}
 			GroupCount count = groupManager.getGroupCount(txn, id);

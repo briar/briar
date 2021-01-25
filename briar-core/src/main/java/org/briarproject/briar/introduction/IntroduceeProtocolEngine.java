@@ -14,7 +14,6 @@ import org.briarproject.bramble.api.db.ContactExistsException;
 import org.briarproject.bramble.api.db.DatabaseComponent;
 import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.db.Transaction;
-import org.briarproject.bramble.api.identity.AuthorInfo;
 import org.briarproject.bramble.api.identity.IdentityManager;
 import org.briarproject.bramble.api.identity.LocalAuthor;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
@@ -29,6 +28,8 @@ import org.briarproject.bramble.api.transport.KeySetId;
 import org.briarproject.briar.api.client.MessageTracker;
 import org.briarproject.briar.api.client.ProtocolStateException;
 import org.briarproject.briar.api.client.SessionId;
+import org.briarproject.briar.api.identity.AuthorInfo;
+import org.briarproject.briar.api.identity.AuthorManager;
 import org.briarproject.briar.api.introduction.IntroductionRequest;
 import org.briarproject.briar.api.introduction.event.IntroductionAbortedEvent;
 import org.briarproject.briar.api.introduction.event.IntroductionRequestReceivedEvent;
@@ -71,6 +72,7 @@ class IntroduceeProtocolEngine
 			ContactGroupFactory contactGroupFactory,
 			MessageTracker messageTracker,
 			IdentityManager identityManager,
+			AuthorManager authorManager,
 			MessageParser messageParser,
 			MessageEncoder messageEncoder,
 			Clock clock,
@@ -78,8 +80,8 @@ class IntroduceeProtocolEngine
 			KeyManager keyManager,
 			TransportPropertyManager transportPropertyManager) {
 		super(db, clientHelper, contactManager, contactGroupFactory,
-				messageTracker, identityManager, messageParser, messageEncoder,
-				clock);
+				messageTracker, identityManager, authorManager, messageParser,
+				messageEncoder, clock);
 		this.crypto = crypto;
 		this.keyManager = keyManager;
 		this.transportPropertyManager = transportPropertyManager;
@@ -254,7 +256,7 @@ class IntroduceeProtocolEngine
 		Contact c = contactManager.getContact(txn, s.getIntroducer().getId(),
 				localAuthor.getId());
 		AuthorInfo authorInfo =
-				contactManager.getAuthorInfo(txn, m.getAuthor().getId());
+				authorManager.getAuthorInfo(txn, m.getAuthor().getId());
 		IntroductionRequest request = new IntroductionRequest(m.getMessageId(),
 				m.getGroupId(), m.getTimestamp(), false, false, false, false,
 				s.getSessionId(), m.getAuthor(), m.getText(), false,
@@ -443,13 +445,11 @@ class IntroduceeProtocolEngine
 					s.getRemote().author.getId(), localAuthor.getId());
 
 			// add the keys to the new contact
-			//noinspection ConstantConditions
 			keys = keyManager.addRotationKeys(txn, c.getId(),
 					new SecretKey(s.getMasterKey()), timestamp,
 					s.getLocal().alice, false);
 
 			// add signed transport properties for the contact
-			//noinspection ConstantConditions
 			transportPropertyManager.addRemoteProperties(txn, c.getId(),
 					s.getRemote().transportProperties);
 		} catch (ContactExistsException e) {

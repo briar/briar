@@ -113,7 +113,7 @@
   <string name="no_private_messages">Ei viestejä</string>
   <string name="message_hint">Kirjoita viesti</string>
   <string name="set_contact_alias_hint">Yhteystiedon nimi</string>
-  <string name="set_alias_button">Muuta</string>
+  <string name="change">Muuta</string>
   <string name="delete_contact">Poista yhteystieto</string>
   <string name="dialog_title_delete_contact">Vahvista yhteystiedon poistaminen</string>
   <string name="dialog_message_delete_contact">Oletko varma, että haluat poistaa tämän yhteyshenkilön ja kaikki hänen kanssa vaihdetut viestit?</string>

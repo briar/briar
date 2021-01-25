@@ -154,7 +154,7 @@
   <string name="image_attach_error_invalid_mime_type">فرمت تصویر پشتیبانی نمی‌شود: %s</string>
   <string name="set_contact_alias">تغییر نام مخاطب</string>
   <string name="set_contact_alias_hint">نام مخاطب</string>
-  <string name="set_alias_button">تغییر</string>
+  <string name="change">تغییر</string>
   <string name="delete_all_messages">حذف تمام پیام ها</string>
   <string name="dialog_title_delete_all_messages">تایید حذف پیام</string>
   <string name="dialog_message_delete_all_messages">آیا از حذف تمام پیام‌ ها اطمینان دارید؟</string>

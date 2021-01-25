@@ -32,6 +32,7 @@ import org.briarproject.bramble.plugin.tor.CircumventionProvider;
 import org.briarproject.briar.BriarCoreEagerSingletons;
 import org.briarproject.briar.BriarCoreModule;
 import org.briarproject.briar.android.attachment.AttachmentModule;
+import org.briarproject.briar.android.attachment.media.MediaModule;
 import org.briarproject.briar.android.conversation.glide.BriarModelLoader;
 import org.briarproject.briar.android.login.SignInReminderReceiver;
 import org.briarproject.briar.android.view.EmojiTextInputView;
@@ -39,6 +40,7 @@ import org.briarproject.briar.api.android.AndroidNotificationManager;
 import org.briarproject.briar.api.android.DozeWatchdog;
 import org.briarproject.briar.api.android.LockManager;
 import org.briarproject.briar.api.android.ScreenFilterMonitor;
+import org.briarproject.briar.api.attachment.AttachmentReader;
 import org.briarproject.briar.api.blog.BlogManager;
 import org.briarproject.briar.api.blog.BlogPostFactory;
 import org.briarproject.briar.api.blog.BlogSharingManager;
@@ -47,6 +49,7 @@ import org.briarproject.briar.api.conversation.ConversationManager;
 import org.briarproject.briar.api.feed.FeedManager;
 import org.briarproject.briar.api.forum.ForumManager;
 import org.briarproject.briar.api.forum.ForumSharingManager;
+import org.briarproject.briar.api.identity.AuthorManager;
 import org.briarproject.briar.api.introduction.IntroductionManager;
 import org.briarproject.briar.api.messaging.MessagingManager;
 import org.briarproject.briar.api.messaging.PrivateMessageFactory;
@@ -71,7 +74,8 @@ import dagger.Component;
 		BrambleAndroidModule.class,
 		BriarAccountModule.class,
 		AppModule.class,
-		AttachmentModule.class
+		AttachmentModule.class,
+		MediaModule.class
 })
 public interface AndroidComponent
 		extends BrambleCoreEagerSingletons, BrambleAndroidEagerSingletons,
@@ -93,6 +97,10 @@ public interface AndroidComponent
 	LifecycleManager lifecycleManager();
 
 	IdentityManager identityManager();
+
+	AttachmentReader attachmentReader();
+
+	AuthorManager authorManager();
 
 	PluginManager pluginManager();
 

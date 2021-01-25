@@ -161,7 +161,7 @@
   <string name="image_attach_error_invalid_mime_type">Nepalaikomas paveikslo formatas: %s</string>
   <string name="set_contact_alias">Pakeisti adresato vardą</string>
   <string name="set_contact_alias_hint">Adresato vardas</string>
-  <string name="set_alias_button">Pakeisti</string>
+  <string name="change">Pakeisti</string>
   <string name="delete_all_messages">Ištrinti visas žinutes</string>
   <string name="dialog_title_delete_all_messages">Patvirtinkite žinutės ištrynimą</string>
   <string name="dialog_message_delete_all_messages">Ar tikrai norite ištrinti visas žinutes?</string>

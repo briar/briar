@@ -9,8 +9,6 @@ interface MessagingConstants {
 	String MSG_KEY_TIMESTAMP = "timestamp";
 	String MSG_KEY_LOCAL = "local";
 	String MSG_KEY_MSG_TYPE = "messageType";
-	String MSG_KEY_CONTENT_TYPE = "contentType";
-	String MSG_KEY_DESCRIPTOR_LENGTH = "descriptorLength";
 	String MSG_KEY_HAS_TEXT = "hasText";
 	String MSG_KEY_ATTACHMENT_HEADERS = "attachmentHeaders";
 }

@@ -163,7 +163,7 @@
   <string name="image_attach_error_invalid_mime_type">Формат изображения не поддерживается: %s</string>
   <string name="set_contact_alias">Изменить имя контакта</string>
   <string name="set_contact_alias_hint">Имя контакта</string>
-  <string name="set_alias_button">Изменить</string>
+  <string name="change">Изменить</string>
   <string name="delete_all_messages">Удалить все сообщения</string>
   <string name="dialog_title_delete_all_messages">Подтверждение удаления сообщений</string>
   <string name="dialog_message_delete_all_messages">Вы уверены, что хотите удалить все сообщения?</string>

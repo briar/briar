@@ -1,7 +1,7 @@
 package org.briarproject.briar.android.forum;
 
 import org.briarproject.bramble.api.identity.Author;
-import org.briarproject.bramble.api.identity.AuthorInfo;
+import org.briarproject.briar.api.identity.AuthorInfo;
 import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.briar.android.threaded.ThreadItem;
 import org.briarproject.briar.api.forum.ForumPostHeader;

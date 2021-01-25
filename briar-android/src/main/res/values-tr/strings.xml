@@ -151,7 +151,7 @@
   <string name="image_attach_error_invalid_mime_type">Resim biçimi desteklenmiyor: %s</string>
   <string name="set_contact_alias">Kişi adını değiştir</string>
   <string name="set_contact_alias_hint">Ad</string>
-  <string name="set_alias_button">Değiştir</string>
+  <string name="change">Değiştir</string>
   <string name="delete_all_messages">Tüm iletileri sil</string>
   <string name="dialog_title_delete_all_messages">İleti Silmeyi Onayla</string>
   <string name="dialog_message_delete_all_messages">Tüm iletileri silmek istediğinizden emin misiniz?</string>

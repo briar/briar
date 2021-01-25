@@ -1,11 +1,15 @@
 package org.briarproject.briar.android.attachment;
 
+import org.briarproject.bramble.api.sync.GroupId;
 import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.bramble.test.BrambleMockTestCase;
 import org.briarproject.bramble.test.ImmediateExecutor;
-import org.briarproject.briar.api.messaging.Attachment;
-import org.briarproject.briar.api.messaging.AttachmentHeader;
-import org.briarproject.briar.api.messaging.MessagingManager;
+import org.briarproject.briar.android.attachment.media.ImageHelper;
+import org.briarproject.briar.android.attachment.media.ImageSizeCalculator;
+import org.briarproject.briar.android.attachment.media.Size;
+import org.briarproject.briar.api.attachment.Attachment;
+import org.briarproject.briar.api.attachment.AttachmentHeader;
+import org.briarproject.briar.api.attachment.AttachmentReader;
 import org.jmock.Expectations;
 import org.jmock.lib.legacy.ClassImposteriser;
 import org.junit.Test;
@@ -25,6 +29,7 @@ public class AttachmentRetrieverTest extends BrambleMockTestCase {
 	private final AttachmentDimensions dimensions = new AttachmentDimensions(
 			100, 50, 200, 75, 300
 	);
+	private final GroupId groupId = new GroupId(getRandomId());
 	private final MessageId msgId = new MessageId(getRandomId());
 	private final ImageHelper imageHelper = context.mock(ImageHelper.class);
 	private final ImageSizeCalculator imageSizeCalculator;
@@ -32,11 +37,11 @@ public class AttachmentRetrieverTest extends BrambleMockTestCase {
 
 	public AttachmentRetrieverTest() {
 		context.setImposteriser(ClassImposteriser.INSTANCE);
-		MessagingManager messagingManager =
-				context.mock(MessagingManager.class);
+		AttachmentReader attachmentReader =
+				context.mock(AttachmentReader.class);
 		imageSizeCalculator = context.mock(ImageSizeCalculator.class);
 		Executor dbExecutor = new ImmediateExecutor();
-		retriever = new AttachmentRetrieverImpl(dbExecutor, messagingManager,
+		retriever = new AttachmentRetrieverImpl(dbExecutor, attachmentReader,
 				dimensions, imageHelper, imageSizeCalculator);
 	}
 
@@ -133,7 +138,8 @@ public class AttachmentRetrieverTest extends BrambleMockTestCase {
 	}
 
 	private Attachment getAttachment(String contentType) {
-		AttachmentHeader header = new AttachmentHeader(msgId, contentType);
+		AttachmentHeader header =
+				new AttachmentHeader(groupId, msgId, contentType);
 		InputStream in = new ByteArrayInputStream(getRandomBytes(42));
 		return new Attachment(header, in);
 	}

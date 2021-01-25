@@ -24,7 +24,7 @@ import java.util.Collection;
 
 import javax.annotation.Nullable;
 
-import static org.briarproject.bramble.api.identity.AuthorInfo.Status.OURSELVES;
+import static org.briarproject.briar.api.identity.AuthorInfo.Status.OURSELVES;
 import static org.briarproject.briar.api.privategroup.Visibility.INVISIBLE;
 import static org.briarproject.briar.api.privategroup.Visibility.REVEALED_BY_CONTACT;
 import static org.briarproject.briar.api.privategroup.Visibility.REVEALED_BY_US;

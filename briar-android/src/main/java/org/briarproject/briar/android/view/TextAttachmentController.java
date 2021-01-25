@@ -14,6 +14,7 @@ import org.briarproject.briar.R;
 import org.briarproject.briar.android.attachment.AttachmentItemResult;
 import org.briarproject.briar.android.attachment.AttachmentManager;
 import org.briarproject.briar.android.attachment.AttachmentResult;
+import org.briarproject.briar.android.util.UiUtils;
 import org.briarproject.briar.android.view.ImagePreview.ImagePreviewListener;
 
 import java.util.ArrayList;
@@ -29,18 +30,12 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.Observer;
 import uk.co.samuelwall.materialtaptargetprompt.MaterialTapTargetPrompt;
 
-import static android.content.Intent.ACTION_GET_CONTENT;
-import static android.content.Intent.ACTION_OPEN_DOCUMENT;
-import static android.content.Intent.CATEGORY_OPENABLE;
-import static android.content.Intent.EXTRA_ALLOW_MULTIPLE;
-import static android.content.Intent.EXTRA_MIME_TYPES;
 import static android.os.Build.VERSION.SDK_INT;
 import static android.view.View.GONE;
 import static android.widget.Toast.LENGTH_LONG;
 import static androidx.core.content.ContextCompat.getColor;
 import static androidx.customview.view.AbsSavedState.EMPTY_STATE;
 import static androidx.lifecycle.Lifecycle.State.DESTROYED;
-import static org.briarproject.bramble.util.AndroidUtils.getSupportedImageContentTypes;
 import static org.briarproject.briar.android.util.UiUtils.resolveColorAttribute;
 import static org.briarproject.briar.api.messaging.MessagingConstants.MAX_ATTACHMENTS_PER_MESSAGE;
 
@@ -120,26 +115,15 @@ public class TextAttachmentController extends TextSendController
 			builder.show();
 			return;
 		}
-		Intent intent = getAttachFileIntent();
+		Intent intent = UiUtils.createSelectImageIntent(true);
 		if (attachmentListener.getLifecycle().getCurrentState() != DESTROYED) {
 			attachmentListener.onAttachImage(intent);
 		}
 	}
 
-	private Intent getAttachFileIntent() {
-		Intent intent = new Intent(SDK_INT >= 19 ?
-				ACTION_OPEN_DOCUMENT : ACTION_GET_CONTENT);
-		intent.setType("image/*");
-		intent.addCategory(CATEGORY_OPENABLE);
-		if (SDK_INT >= 19)
-			intent.putExtra(EXTRA_MIME_TYPES, getSupportedImageContentTypes());
-		if (SDK_INT >= 18) intent.putExtra(EXTRA_ALLOW_MULTIPLE, true);
-		return intent;
-	}
-
 	/**
-	 * This is called with the result Intent
-	 * returned by the Activity started with {@link #getAttachFileIntent()}.
+	 * This is called with the result Intent returned by the Activity started
+	 * with {@link UiUtils#createSelectImageIntent(boolean)}.
 	 * <p>
 	 * This method must be called at most once per call to
 	 * {@link AttachmentListener#onAttachImage(Intent)}.

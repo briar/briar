@@ -5,7 +5,6 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import org.briarproject.bramble.api.identity.Author;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.contact.BaseContactListAdapter.OnContactClickListener;
@@ -14,9 +13,9 @@ import javax.annotation.Nullable;
 
 import androidx.annotation.UiThread;
 import androidx.recyclerview.widget.RecyclerView;
-import im.delight.android.identicons.IdenticonDrawable;
 
 import static org.briarproject.briar.android.util.UiUtils.getContactDisplayName;
+import static org.briarproject.briar.android.view.AuthorView.setAvatar;
 
 @UiThread
 @NotNullByDefault
@@ -40,9 +39,7 @@ public class ContactItemViewHolder<I extends ContactItem>
 	}
 
 	protected void bind(I item, @Nullable OnContactClickListener<I> listener) {
-		Author author = item.getContact().getAuthor();
-		avatar.setImageDrawable(
-				new IdenticonDrawable(author.getId().getBytes()));
+		setAvatar(avatar, item);
 		name.setText(getContactDisplayName(item.getContact()));
 
 		if (bulb != null) {

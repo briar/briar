@@ -14,15 +14,4 @@ public interface MessagingConstants {
 	 */
 	int MAX_ATTACHMENTS_PER_MESSAGE = 10;
 
-	/**
-	 * The maximum length of an attachment's content type in UTF-8 bytes.
-	 */
-	int MAX_CONTENT_TYPE_BYTES = 50;
-
-	/**
-	 * The maximum allowed size of image attachments.
-	 * TODO: Different limit for GIFs?
-	 */
-	int MAX_IMAGE_SIZE = MAX_MESSAGE_BODY_LENGTH - 100; // 6 * 1024 * 1024;
-
 }

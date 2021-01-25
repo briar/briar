@@ -24,20 +24,9 @@ public class TestDataActivity extends BriarActivity {
 	@Inject
 	TestDataCreator testDataCreator;
 
-	private TextView contactsTextView;
-	private SeekBar contactsSeekBar;
-
-	private TextView messagesTextView;
-	private SeekBar messagesSeekBar;
-
-	private TextView blogPostsTextView;
-	private SeekBar blogPostsSeekBar;
-
-	private TextView forumsTextView;
-	private SeekBar forumsSeekBar;
-
-	private TextView forumPostsTextView;
-	private SeekBar forumPostsSeekBar;
+	private TextView contactsTextView, forumsTextView;
+	private SeekBar contactsSeekBar, messagesSeekBar, avatarsSeekBar,
+			blogPostsSeekBar, forumsSeekBar, forumPostsSeekBar;
 
 	@Override
 	public void onCreate(Bundle bundle) {
@@ -51,12 +40,15 @@ public class TestDataActivity extends BriarActivity {
 
 		setContentView(R.layout.activity_test_data);
 		contactsTextView = findViewById(R.id.textViewContactsSb);
-		messagesTextView = findViewById(R.id.textViewMessagesSb);
-		blogPostsTextView = findViewById(R.id.TextViewBlogPostsSb);
+		TextView messagesTextView = findViewById(R.id.textViewMessagesSb);
+		TextView avatarsTextView = findViewById(R.id.textViewAvatarsSb);
+		TextView blogPostsTextView = findViewById(R.id.TextViewBlogPostsSb);
 		forumsTextView = findViewById(R.id.TextViewForumsSb);
-		forumPostsTextView = findViewById(R.id.TextViewForumMessagesSb);
+		TextView forumPostsTextView =
+				findViewById(R.id.TextViewForumMessagesSb);
 		contactsSeekBar = findViewById(R.id.seekBarContacts);
 		messagesSeekBar = findViewById(R.id.seekBarMessages);
+		avatarsSeekBar = findViewById(R.id.seekBarAvatars);
 		blogPostsSeekBar = findViewById(R.id.seekBarBlogPosts);
 		forumsSeekBar = findViewById(R.id.seekBarForums);
 		forumPostsSeekBar = findViewById(R.id.seekBarForumMessages);
@@ -78,40 +70,12 @@ public class TestDataActivity extends BriarActivity {
 					}
 				});
 
-		messagesSeekBar
-				.setOnSeekBarChangeListener(new OnSeekBarChangeListener() {
-					@Override
-					public void onProgressChanged(SeekBar seekBar,
-							int progress, boolean fromUser) {
-						messagesTextView.setText(String.valueOf(progress));
-					}
-
-					@Override
-					public void onStartTrackingTouch(SeekBar seekBar) {
-					}
-
-					@Override
-					public void onStopTrackingTouch(SeekBar seekBar) {
-					}
-				});
-
-		blogPostsSeekBar
-				.setOnSeekBarChangeListener(new OnSeekBarChangeListener() {
-					@Override
-					public void onProgressChanged(SeekBar seekBar,
-							int progress, boolean fromUser) {
-						blogPostsTextView.setText(String.valueOf(progress));
-					}
-
-					@Override
-					public void onStartTrackingTouch(SeekBar seekBar) {
-					}
-
-					@Override
-					public void onStopTrackingTouch(SeekBar seekBar) {
-					}
-				});
-
+		messagesSeekBar.setOnSeekBarChangeListener(
+				new OnSeekBarChangeUpdateProgress(messagesTextView));
+		avatarsSeekBar.setOnSeekBarChangeListener(
+				new OnSeekBarChangeUpdateProgress(avatarsTextView));
+		blogPostsSeekBar.setOnSeekBarChangeListener(
+				new OnSeekBarChangeUpdateProgress(blogPostsTextView));
 		forumsSeekBar
 				.setOnSeekBarChangeListener(new OnSeekBarChangeListener() {
 					@Override
@@ -129,23 +93,8 @@ public class TestDataActivity extends BriarActivity {
 					public void onStopTrackingTouch(SeekBar seekBar) {
 					}
 				});
-
-		forumPostsSeekBar
-				.setOnSeekBarChangeListener(new OnSeekBarChangeListener() {
-					@Override
-					public void onProgressChanged(SeekBar seekBar,
-							int progress, boolean fromUser) {
-						forumPostsTextView.setText(String.valueOf(progress));
-					}
-
-					@Override
-					public void onStartTrackingTouch(SeekBar seekBar) {
-					}
-
-					@Override
-					public void onStopTrackingTouch(SeekBar seekBar) {
-					}
-				});
+		forumPostsSeekBar.setOnSeekBarChangeListener(
+				new OnSeekBarChangeUpdateProgress(forumPostsTextView));
 
 		findViewById(R.id.buttonCreateTestData).setOnClickListener(
 				v -> createTestData());
@@ -153,8 +102,9 @@ public class TestDataActivity extends BriarActivity {
 
 	private void createTestData() {
 		testDataCreator.createTestData(contactsSeekBar.getProgress() + 1,
-				messagesSeekBar.getProgress(), blogPostsSeekBar.getProgress(),
-				forumsSeekBar.getProgress(), forumPostsSeekBar.getProgress());
+				messagesSeekBar.getProgress(), avatarsSeekBar.getProgress(),
+				blogPostsSeekBar.getProgress(), forumsSeekBar.getProgress(),
+				forumPostsSeekBar.getProgress());
 		Intent intent = new Intent(this, ENTRY_ACTIVITY);
 		intent.addFlags(FLAG_ACTIVITY_CLEAR_TOP);
 		startActivity(intent);
@@ -174,4 +124,28 @@ public class TestDataActivity extends BriarActivity {
 		}
 		return false;
 	}
+
+	private static class OnSeekBarChangeUpdateProgress
+			implements OnSeekBarChangeListener {
+		private final TextView textView;
+
+		private OnSeekBarChangeUpdateProgress(TextView textView) {
+			this.textView = textView;
+		}
+
+		@Override
+		public void onProgressChanged(SeekBar seekBar, int progress,
+				boolean fromUser) {
+			textView.setText(String.valueOf(progress));
+		}
+
+		@Override
+		public void onStartTrackingTouch(SeekBar seekBar) {
+		}
+
+		@Override
+		public void onStopTrackingTouch(SeekBar seekBar) {
+		}
+	}
+
 }

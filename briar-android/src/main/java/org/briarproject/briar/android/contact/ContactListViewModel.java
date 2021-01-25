@@ -25,10 +25,13 @@ import org.briarproject.bramble.api.system.AndroidExecutor;
 import org.briarproject.briar.android.viewmodel.DbViewModel;
 import org.briarproject.briar.android.viewmodel.LiveResult;
 import org.briarproject.briar.api.android.AndroidNotificationManager;
+import org.briarproject.briar.api.avatar.event.AvatarUpdatedEvent;
 import org.briarproject.briar.api.client.MessageTracker;
 import org.briarproject.briar.api.conversation.ConversationManager;
 import org.briarproject.briar.api.conversation.ConversationMessageHeader;
 import org.briarproject.briar.api.conversation.event.ConversationMessageReceivedEvent;
+import org.briarproject.briar.api.identity.AuthorInfo;
+import org.briarproject.briar.api.identity.AuthorManager;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -55,6 +58,7 @@ class ContactListViewModel extends DbViewModel implements EventListener {
 			getLogger(ContactListViewModel.class.getName());
 
 	private final ContactManager contactManager;
+	private final AuthorManager authorManager;
 	private final ConversationManager conversationManager;
 	private final ConnectionRegistry connectionRegistry;
 	private final EventBus eventBus;
@@ -71,11 +75,13 @@ class ContactListViewModel extends DbViewModel implements EventListener {
 			@DatabaseExecutor Executor dbExecutor,
 			LifecycleManager lifecycleManager, TransactionManager db,
 			AndroidExecutor androidExecutor, ContactManager contactManager,
+			AuthorManager authorManager,
 			ConversationManager conversationManager,
 			ConnectionRegistry connectionRegistry, EventBus eventBus,
 			AndroidNotificationManager notificationManager) {
 		super(application, dbExecutor, lifecycleManager, db, androidExecutor);
 		this.contactManager = contactManager;
+		this.authorManager = authorManager;
 		this.conversationManager = conversationManager;
 		this.connectionRegistry = connectionRegistry;
 		this.eventBus = eventBus;
@@ -99,10 +105,11 @@ class ContactListViewModel extends DbViewModel implements EventListener {
 		List<ContactListItem> contacts = new ArrayList<>();
 		for (Contact c : contactManager.getContacts(txn)) {
 			ContactId id = c.getId();
+			AuthorInfo authorInfo = authorManager.getAuthorInfo(txn, c);
 			MessageTracker.GroupCount count =
 					conversationManager.getGroupCount(txn, id);
 			boolean connected = connectionRegistry.isConnected(c.getId());
-			contacts.add(new ContactListItem(c, connected, count));
+			contacts.add(new ContactListItem(c, authorInfo, connected, count));
 		}
 		Collections.sort(contacts);
 		logDuration(LOG, "Full load", start);
@@ -133,6 +140,10 @@ class ContactListViewModel extends DbViewModel implements EventListener {
 		} else if (e instanceof PendingContactAddedEvent ||
 				e instanceof PendingContactRemovedEvent) {
 			checkForPendingContacts();
+		} else if (e instanceof AvatarUpdatedEvent) {
+			AvatarUpdatedEvent a = (AvatarUpdatedEvent) e;
+			updateItem(a.getContactId(), item -> new ContactListItem(item,
+					a.getAttachmentHeader()), false);
 		}
 	}
 

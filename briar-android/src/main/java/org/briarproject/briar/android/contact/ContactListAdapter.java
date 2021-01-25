@@ -5,6 +5,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
+import org.briarproject.bramble.api.nullsafety.NullSafety;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.contact.BaseContactListAdapter.OnContactClickListener;
 
@@ -48,7 +49,11 @@ public class ContactListAdapter extends
 			if (c1.getTimestamp() != c2.getTimestamp()) {
 				return false;
 			}
-			return c1.isConnected() == c2.isConnected();
+			if (c1.isConnected() != c2.isConnected()) {
+				return false;
+			}
+			return NullSafety.equals(c1.getAuthorInfo().getAvatarHeader(),
+					c2.getAuthorInfo().getAvatarHeader());
 		}
 	}
 

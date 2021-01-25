@@ -8,10 +8,15 @@ import android.view.LayoutInflater;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
+
 import org.briarproject.bramble.api.identity.Author;
-import org.briarproject.bramble.api.identity.AuthorInfo;
+import org.briarproject.bramble.api.identity.AuthorId;
 import org.briarproject.briar.R;
+import org.briarproject.briar.android.contact.ContactItem;
+import org.briarproject.briar.android.conversation.glide.GlideApp;
 import org.briarproject.briar.android.util.UiUtils;
+import org.briarproject.briar.api.identity.AuthorInfo;
 
 import javax.annotation.Nullable;
 
@@ -24,10 +29,10 @@ import im.delight.android.identicons.IdenticonDrawable;
 import static android.content.Context.LAYOUT_INFLATER_SERVICE;
 import static android.graphics.Typeface.BOLD;
 import static android.util.TypedValue.COMPLEX_UNIT_PX;
-import static org.briarproject.bramble.api.identity.AuthorInfo.Status.NONE;
-import static org.briarproject.bramble.api.identity.AuthorInfo.Status.OURSELVES;
 import static org.briarproject.briar.android.util.UiUtils.getContactDisplayName;
 import static org.briarproject.briar.android.util.UiUtils.resolveAttribute;
+import static org.briarproject.briar.api.identity.AuthorInfo.Status.NONE;
+import static org.briarproject.briar.api.identity.AuthorInfo.Status.OURSELVES;
 
 @UiThread
 public class AuthorView extends ConstraintLayout {
@@ -74,8 +79,7 @@ public class AuthorView extends ConstraintLayout {
 	public void setAuthor(Author author, AuthorInfo authorInfo) {
 		authorName
 				.setText(getContactDisplayName(author, authorInfo.getAlias()));
-		IdenticonDrawable d = new IdenticonDrawable(author.getId().getBytes());
-		avatar.setImageDrawable(d);
+		setAvatar(avatar, author.getId(), authorInfo);
 
 		if (authorInfo.getStatus() != NONE) {
 			trustIndicator.setTrustLevel(authorInfo.getStatus());
@@ -92,6 +96,27 @@ public class AuthorView extends ConstraintLayout {
 
 		invalidate();
 		requestLayout();
+	}
+
+	public static void setAvatar(ImageView v, AuthorId id, AuthorInfo info) {
+		IdenticonDrawable identicon = new IdenticonDrawable(id.getBytes());
+		if (info.getAvatarHeader() == null) {
+			GlideApp.with(v)
+					.clear(v);
+			v.setImageDrawable(identicon);
+		} else {
+			GlideApp.with(v)
+					.load(info.getAvatarHeader())
+					.diskCacheStrategy(DiskCacheStrategy.NONE)
+					.error(identicon)
+					.into(v)
+					.waitForLayout();
+		}
+	}
+
+	public static void setAvatar(ImageView v, ContactItem contactItem) {
+		AuthorId authorId = contactItem.getContact().getAuthor().getId();
+		setAvatar(v, authorId, contactItem.getAuthorInfo());
 	}
 
 	public void setDate(long date) {
@@ -117,10 +142,10 @@ public class AuthorView extends ConstraintLayout {
 
 	/**
 	 * Styles this view for a different persona.
-	 *
+	 * <p>
 	 * Attention: RSS_FEED and RSS_FEED_REBLOGGED change the avatar
-	 *            and override the one set by
-	 *            {@link AuthorView#setAuthor(Author, AuthorInfo)}.
+	 * and override the one set by
+	 * {@link AuthorView#setAuthor(Author, AuthorInfo)}.
 	 */
 	public void setPersona(int persona) {
 		switch (persona) {

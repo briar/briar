@@ -16,6 +16,7 @@ import org.briarproject.bramble.api.sync.Message;
 import org.briarproject.bramble.api.sync.MessageContext;
 import org.briarproject.bramble.api.sync.validation.MessageValidator;
 import org.briarproject.bramble.api.system.Clock;
+import org.briarproject.briar.attachment.CountingInputStream;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -27,15 +28,15 @@ import static org.briarproject.bramble.api.sync.SyncConstants.MAX_MESSAGE_BODY_L
 import static org.briarproject.bramble.api.transport.TransportConstants.MAX_CLOCK_DIFFERENCE;
 import static org.briarproject.bramble.util.ValidationUtils.checkLength;
 import static org.briarproject.bramble.util.ValidationUtils.checkSize;
+import static org.briarproject.briar.api.attachment.MediaConstants.MAX_CONTENT_TYPE_BYTES;
+import static org.briarproject.briar.api.attachment.MediaConstants.MSG_KEY_CONTENT_TYPE;
+import static org.briarproject.briar.api.attachment.MediaConstants.MSG_KEY_DESCRIPTOR_LENGTH;
 import static org.briarproject.briar.api.messaging.MessagingConstants.MAX_ATTACHMENTS_PER_MESSAGE;
-import static org.briarproject.briar.api.messaging.MessagingConstants.MAX_CONTENT_TYPE_BYTES;
 import static org.briarproject.briar.api.messaging.MessagingConstants.MAX_PRIVATE_MESSAGE_TEXT_LENGTH;
 import static org.briarproject.briar.client.MessageTrackerConstants.MSG_KEY_READ;
 import static org.briarproject.briar.messaging.MessageTypes.ATTACHMENT;
 import static org.briarproject.briar.messaging.MessageTypes.PRIVATE_MESSAGE;
 import static org.briarproject.briar.messaging.MessagingConstants.MSG_KEY_ATTACHMENT_HEADERS;
-import static org.briarproject.briar.messaging.MessagingConstants.MSG_KEY_CONTENT_TYPE;
-import static org.briarproject.briar.messaging.MessagingConstants.MSG_KEY_DESCRIPTOR_LENGTH;
 import static org.briarproject.briar.messaging.MessagingConstants.MSG_KEY_HAS_TEXT;
 import static org.briarproject.briar.messaging.MessagingConstants.MSG_KEY_LOCAL;
 import static org.briarproject.briar.messaging.MessagingConstants.MSG_KEY_MSG_TYPE;

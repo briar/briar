@@ -46,7 +46,7 @@ class ImagePreviewViewHolder extends ViewHolder {
 					.clear(imageView);
 		} else {
 			GlideApp.with(imageView)
-					.load(item.getItem())
+					.load(item.getItem().getHeader())
 					.diskCacheStrategy(NONE)
 					.error(ERROR_RES)
 					.downsample(FIT_CENTER)

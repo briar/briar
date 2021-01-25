@@ -35,13 +35,16 @@ import org.briarproject.briar.android.forum.ForumModule;
 import org.briarproject.briar.android.keyagreement.ContactExchangeModule;
 import org.briarproject.briar.android.login.LoginModule;
 import org.briarproject.briar.android.navdrawer.NavDrawerModule;
+import org.briarproject.briar.android.settings.SettingsModule;
 import org.briarproject.briar.android.privategroup.list.GroupListModule;
 import org.briarproject.briar.android.reporting.DevReportModule;
+import org.briarproject.briar.android.test.TestAvatarCreatorImpl;
 import org.briarproject.briar.android.viewmodel.ViewModelModule;
 import org.briarproject.briar.api.android.AndroidNotificationManager;
 import org.briarproject.briar.api.android.DozeWatchdog;
 import org.briarproject.briar.api.android.LockManager;
 import org.briarproject.briar.api.android.ScreenFilterMonitor;
+import org.briarproject.briar.api.test.TestAvatarCreator;
 
 import java.io.File;
 import java.security.GeneralSecurityException;
@@ -72,6 +75,7 @@ import static org.briarproject.briar.android.TestingConstants.IS_DEBUG_BUILD;
 		LoginModule.class,
 		NavDrawerModule.class,
 		ViewModelModule.class,
+		SettingsModule.class,
 		DevReportModule.class,
 		ContactListModule.class,
 		// below need to be within same scope as ViewModelProvider.Factory
@@ -189,6 +193,12 @@ public class AppModule {
 	}
 
 	@Provides
+	TestAvatarCreator provideTestAvatarCreator(
+			TestAvatarCreatorImpl testAvatarCreator) {
+		return testAvatarCreator;
+	}
+
+	@Provides
 	SharedPreferences provideSharedPreferences(Application app) {
 		// FIXME unify this with getDefaultSharedPreferences()
 		return app.getSharedPreferences("db", MODE_PRIVATE);
@@ -251,6 +261,17 @@ public class AppModule {
 
 	@Provides
 	FeatureFlags provideFeatureFlags() {
-		return () -> IS_DEBUG_BUILD;
+		return new FeatureFlags() {
+
+			@Override
+			public boolean shouldEnableImageAttachments() {
+				return IS_DEBUG_BUILD;
+			}
+
+			@Override
+			public boolean shouldEnableProfilePictures() {
+				return IS_DEBUG_BUILD;
+			}
+		};
 	}
 }

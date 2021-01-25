@@ -123,7 +123,7 @@ Izaberite dugačku lozinku koju je teško pogoditi, kao četiri nasumične rije�
   <string name="image_attach">Zakaci sliku</string>
   <string name="set_contact_alias">Promijeni ime kontakta</string>
   <string name="set_contact_alias_hint">Ime kontakta</string>
-  <string name="set_alias_button">Promijeni</string>
+  <string name="change">Promijeni</string>
   <string name="delete_contact">Izbrišite kontakt</string>
   <string name="dialog_title_delete_contact">Potvrdite brisanje kontakta</string>
   <string name="dialog_message_delete_contact">Jeste li sigurni da želite da uklonite ovaj kontakt i sve poruke koje ste razmijenili?</string>

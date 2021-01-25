@@ -1,15 +1,12 @@
 package org.briarproject.briar.test;
 
 import org.briarproject.bramble.api.FormatException;
-import org.briarproject.bramble.api.client.ClientHelper;
 import org.briarproject.bramble.api.contact.Contact;
 import org.briarproject.bramble.api.contact.ContactId;
 import org.briarproject.bramble.api.contact.ContactManager;
 import org.briarproject.bramble.api.crypto.SecretKey;
-import org.briarproject.bramble.api.data.BdfDictionary;
 import org.briarproject.bramble.api.db.DatabaseComponent;
 import org.briarproject.bramble.api.db.DbException;
-import org.briarproject.bramble.api.db.Transaction;
 import org.briarproject.bramble.api.identity.AuthorFactory;
 import org.briarproject.bramble.api.identity.AuthorId;
 import org.briarproject.bramble.api.identity.IdentityManager;
@@ -23,22 +20,28 @@ import org.briarproject.bramble.api.plugin.TransportId;
 import org.briarproject.bramble.api.properties.TransportProperties;
 import org.briarproject.bramble.api.properties.TransportPropertyManager;
 import org.briarproject.bramble.api.sync.Group;
+import org.briarproject.bramble.api.sync.GroupFactory;
 import org.briarproject.bramble.api.sync.GroupId;
+import org.briarproject.bramble.api.sync.Message;
 import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.bramble.api.system.Clock;
+import org.briarproject.briar.api.avatar.AvatarManager;
+import org.briarproject.briar.api.avatar.AvatarMessageEncoder;
 import org.briarproject.briar.api.blog.Blog;
 import org.briarproject.briar.api.blog.BlogManager;
 import org.briarproject.briar.api.blog.BlogPost;
 import org.briarproject.briar.api.blog.BlogPostFactory;
-import org.briarproject.briar.api.client.MessageTracker;
 import org.briarproject.briar.api.forum.Forum;
 import org.briarproject.briar.api.forum.ForumManager;
 import org.briarproject.briar.api.forum.ForumPost;
 import org.briarproject.briar.api.messaging.MessagingManager;
 import org.briarproject.briar.api.messaging.PrivateMessage;
 import org.briarproject.briar.api.messaging.PrivateMessageFactory;
+import org.briarproject.briar.api.test.TestAvatarCreator;
 import org.briarproject.briar.api.test.TestDataCreator;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.security.GeneralSecurityException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -54,8 +57,10 @@ import javax.inject.Inject;
 import static java.util.Collections.emptyList;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
+import static java.util.logging.Logger.getLogger;
 import static org.briarproject.bramble.api.plugin.BluetoothConstants.UUID_BYTES;
 import static org.briarproject.bramble.api.sync.Group.Visibility.SHARED;
+import static org.briarproject.bramble.util.LogUtils.logException;
 import static org.briarproject.bramble.util.StringUtils.getRandomString;
 import static org.briarproject.briar.test.TestData.AUTHOR_NAMES;
 import static org.briarproject.briar.test.TestData.GROUP_NAMES;
@@ -64,13 +69,12 @@ import static org.briarproject.briar.test.TestData.GROUP_NAMES;
 public class TestDataCreatorImpl implements TestDataCreator {
 
 	private final Logger LOG =
-			Logger.getLogger(TestDataCreatorImpl.class.getName());
+			getLogger(TestDataCreatorImpl.class.getName());
 
 	private final AuthorFactory authorFactory;
 	private final Clock clock;
+	private final GroupFactory groupFactory;
 	private final PrivateMessageFactory privateMessageFactory;
-	private final ClientHelper clientHelper;
-	private final MessageTracker messageTracker;
 	private final BlogPostFactory blogPostFactory;
 
 	private final DatabaseComponent db;
@@ -80,6 +84,8 @@ public class TestDataCreatorImpl implements TestDataCreator {
 	private final MessagingManager messagingManager;
 	private final BlogManager blogManager;
 	private final ForumManager forumManager;
+	private final TestAvatarCreator testAvatarCreator;
+	private final AvatarMessageEncoder avatarMessageEncoder;
 
 	@IoExecutor
 	private final Executor ioExecutor;
@@ -89,18 +95,20 @@ public class TestDataCreatorImpl implements TestDataCreator {
 
 	@Inject
 	TestDataCreatorImpl(AuthorFactory authorFactory, Clock clock,
+			GroupFactory groupFactory,
 			PrivateMessageFactory privateMessageFactory,
-			ClientHelper clientHelper, MessageTracker messageTracker,
 			BlogPostFactory blogPostFactory, DatabaseComponent db,
 			IdentityManager identityManager, ContactManager contactManager,
 			TransportPropertyManager transportPropertyManager,
 			MessagingManager messagingManager, BlogManager blogManager,
-			ForumManager forumManager, @IoExecutor Executor ioExecutor) {
+			ForumManager forumManager,
+			TestAvatarCreator testAvatarCreator,
+			AvatarMessageEncoder avatarMessageEncoder,
+			@IoExecutor Executor ioExecutor) {
 		this.authorFactory = authorFactory;
 		this.clock = clock;
+		this.groupFactory = groupFactory;
 		this.privateMessageFactory = privateMessageFactory;
-		this.clientHelper = clientHelper;
-		this.messageTracker = messageTracker;
 		this.blogPostFactory = blogPostFactory;
 		this.db = db;
 		this.identityManager = identityManager;
@@ -109,52 +117,56 @@ public class TestDataCreatorImpl implements TestDataCreator {
 		this.messagingManager = messagingManager;
 		this.blogManager = blogManager;
 		this.forumManager = forumManager;
+		this.testAvatarCreator = testAvatarCreator;
+		this.avatarMessageEncoder = avatarMessageEncoder;
 		this.ioExecutor = ioExecutor;
 	}
 
 	@Override
 	public void createTestData(int numContacts, int numPrivateMsgs,
-			int numBlogPosts, int numForums, int numForumPosts) {
-		if (numContacts == 0) throw new IllegalArgumentException(
-				"Number of contacts must be >= 1");
+			int avatarPercent, int numBlogPosts, int numForums,
+			int numForumPosts) {
+		if (numContacts == 0) throw new IllegalArgumentException();
+		if (avatarPercent < 0 || avatarPercent > 100)
+			throw new IllegalArgumentException();
 		ioExecutor.execute(() -> {
 			try {
 				createTestDataOnIoExecutor(numContacts, numPrivateMsgs,
-						numBlogPosts, numForums, numForumPosts);
+						avatarPercent, numBlogPosts, numForums, numForumPosts);
 			} catch (DbException e) {
-				LOG.log(WARNING, "Creating test data failed", e);
+				logException(LOG, WARNING, e);
 			}
 		});
 	}
 
 	@IoExecutor
 	private void createTestDataOnIoExecutor(int numContacts, int numPrivateMsgs,
-			int numBlogPosts, int numForums, int numForumPosts)
-			throws DbException {
-		List<Contact> contacts = createContacts(numContacts);
+			int avatarPercent, int numBlogPosts, int numForums,
+			int numForumPosts) throws DbException {
+		List<Contact> contacts = createContacts(numContacts, avatarPercent);
 		createPrivateMessages(contacts, numPrivateMsgs);
 		createBlogPosts(contacts, numBlogPosts);
-		List<Forum> forums = createForums(contacts, numForums, numForumPosts);
-
+		List<Forum> forums = createForums(contacts, numForums);
 		for (Forum forum : forums) {
 			createRandomForumPosts(forum, contacts, numForumPosts);
 		}
 	}
 
-	private List<Contact> createContacts(int numContacts) throws DbException {
+	private List<Contact> createContacts(int numContacts, int avatarPercent)
+			throws DbException {
 		List<Contact> contacts = new ArrayList<>(numContacts);
 		LocalAuthor localAuthor = identityManager.getLocalAuthor();
 		for (int i = 0; i < numContacts; i++) {
 			LocalAuthor remote = getRandomAuthor();
-			Contact contact = addContact(localAuthor.getId(), remote);
+			Contact contact =
+					addContact(localAuthor.getId(), remote, avatarPercent);
 			contacts.add(contact);
 		}
 		return contacts;
 	}
 
-	private Contact addContact(AuthorId localAuthorId, LocalAuthor remote)
-			throws DbException {
-
+	private Contact addContact(AuthorId localAuthorId, LocalAuthor remote,
+			int avatarPercent) throws DbException {
 		// prepare to add contact
 		SecretKey secretKey = getSecretKey();
 		long timestamp = clock.currentTimeMillis();
@@ -164,36 +176,32 @@ public class TestDataCreatorImpl implements TestDataCreator {
 		Map<TransportId, TransportProperties> props =
 				getRandomTransportProperties();
 
-		Contact contact;
-		Transaction txn = db.startTransaction(false);
-		try {
-			ContactId contactId = contactManager
-					.addContact(txn, remote, localAuthorId, secretKey,
-							timestamp, true, verified, true);
+		Contact contact = db.transactionWithResult(false, txn -> {
+			ContactId contactId = contactManager.addContact(txn, remote,
+					localAuthorId, secretKey, timestamp, true, verified, true);
 			if (random.nextBoolean()) {
-				contactManager
-						.setContactAlias(txn, contactId, getRandomAuthorName());
+				contactManager.setContactAlias(txn, contactId,
+						getRandomAuthorName());
 			}
 			transportPropertyManager.addRemoteProperties(txn, contactId, props);
-			contact = db.getContact(txn, contactId);
-			db.commitTransaction(txn);
-		} finally {
-			db.endTransaction(txn);
-		}
+			return db.getContact(txn, contactId);
+		});
+		if (random.nextInt(100) + 1 <= avatarPercent) addAvatar(contact);
 
 		if (LOG.isLoggable(INFO)) {
-			LOG.info("Added contact " + remote.getName());
-			LOG.info("with transport properties: " + props.toString());
+			LOG.info("Added contact " + remote.getName() +
+					" with transport properties: " + props);
 		}
 		localAuthors.put(contact, remote);
 		return contact;
 	}
 
 	@Override
-	public Contact addContact(String name) throws DbException {
+	public Contact addContact(String name, boolean avatar) throws DbException {
 		LocalAuthor localAuthor = identityManager.getLocalAuthor();
 		LocalAuthor remote = authorFactory.createLocalAuthor(name);
-		return addContact(localAuthor.getId(), remote);
+		int avatarPercent = avatar ? 100 : 0;
+		return addContact(localAuthor.getId(), remote, avatarPercent);
 	}
 
 	private String getRandomAuthorName() {
@@ -213,7 +221,6 @@ public class TestDataCreatorImpl implements TestDataCreator {
 
 	private Map<TransportId, TransportProperties> getRandomTransportProperties() {
 		Map<TransportId, TransportProperties> props = new HashMap<>();
-
 		// Bluetooth
 		TransportProperties bt = new TransportProperties();
 		String btAddress = getRandomBluetoothAddress();
@@ -267,13 +274,11 @@ public class TestDataCreatorImpl implements TestDataCreator {
 		if (random.nextInt(5) == 0) {
 			sb.append("10.");
 			sb.append(random.nextInt(2)).append('.');
-			sb.append(random.nextInt(2)).append('.');
-			sb.append(random.nextInt(255));
 		} else {
 			sb.append("192.168.");
-			sb.append(random.nextInt(2)).append('.');
-			sb.append(random.nextInt(255));
 		}
+		sb.append(random.nextInt(2)).append('.');
+		sb.append(random.nextInt(255));
 		// port
 		sb.append(':').append(getRandomPortNumber());
 		return sb.toString();
@@ -293,16 +298,46 @@ public class TestDataCreatorImpl implements TestDataCreator {
 		return sb.toString();
 	}
 
+	private void addAvatar(Contact c) throws DbException {
+		AuthorId authorId = c.getAuthor().getId();
+		GroupId groupId = groupFactory.createGroup(AvatarManager.CLIENT_ID,
+				AvatarManager.MAJOR_VERSION, authorId.getBytes()).getId();
+		InputStream is;
+		try {
+			is = testAvatarCreator.getAvatarInputStream();
+		} catch (IOException e) {
+			logException(LOG, WARNING, e);
+			return;
+		}
+		if (is == null) return;
+		Message m;
+		try {
+			m = avatarMessageEncoder.encodeUpdateMessage(groupId, 0,
+					"image/jpeg", is).getFirst();
+		} catch (IOException e) {
+			throw new DbException(e);
+		}
+		db.transaction(false, txn -> {
+			// TODO: Do this properly via clients without breaking encapsulation
+			db.setGroupVisibility(txn, c.getId(), groupId, SHARED);
+			db.receiveMessage(txn, c.getId(), m);
+		});
+	}
+
+	// TODO: Do this properly via clients without breaking encapsulation
+	private void shareGroup(ContactId contactId, GroupId groupId)
+			throws DbException {
+		db.transaction(false, txn ->
+				db.setGroupVisibility(txn, contactId, groupId, SHARED));
+	}
+
 	private void createPrivateMessages(List<Contact> contacts,
 			int numPrivateMsgs) throws DbException {
 		for (Contact contact : contacts) {
 			Group group = messagingManager.getContactGroup(contact);
+			shareGroup(contact.getId(), group.getId());
 			for (int i = 0; i < numPrivateMsgs; i++) {
-				try {
-					createRandomPrivateMessage(group.getId(), i);
-				} catch (FormatException e) {
-					throw new RuntimeException(e);
-				}
+				createRandomPrivateMessage(contact.getId(), group.getId(), i);
 			}
 		}
 		if (LOG.isLoggable(INFO)) {
@@ -311,62 +346,66 @@ public class TestDataCreatorImpl implements TestDataCreator {
 		}
 	}
 
-	private void createRandomPrivateMessage(GroupId groupId, int num)
-			throws DbException, FormatException {
+	private void createRandomPrivateMessage(ContactId contactId,
+			GroupId groupId, int num) throws DbException {
 		long timestamp = clock.currentTimeMillis() - num * 60 * 1000;
 		String text = getRandomText();
 		boolean local = random.nextBoolean();
-		createPrivateMessage(groupId, text, timestamp, local);
+		createPrivateMessage(contactId, groupId, text, timestamp, local);
 	}
 
-	private void createPrivateMessage(GroupId groupId, String text,
-			long timestamp, boolean local) throws DbException, FormatException {
-		PrivateMessage m = privateMessageFactory
-				.createPrivateMessage(groupId, timestamp, text, emptyList());
-		BdfDictionary meta = new BdfDictionary();
-		meta.put("timestamp", timestamp);
-		meta.put("local", local);
-		meta.put("read", local);  // all local messages are read
-
-		Transaction txn = db.startTransaction(false);
+	private void createPrivateMessage(ContactId contactId, GroupId groupId,
+			String text, long timestamp, boolean local) throws DbException {
 		try {
-			clientHelper.addLocalMessage(txn, m.getMessage(), meta, true,
-					false);
-			if (local) messageTracker.trackOutgoingMessage(txn, m.getMessage());
-			else messageTracker.trackIncomingMessage(txn, m.getMessage());
-			db.commitTransaction(txn);
-		} finally {
-			db.endTransaction(txn);
+			PrivateMessage m = privateMessageFactory.createPrivateMessage(
+					groupId, timestamp, text, emptyList());
+			if (local) {
+				messagingManager.addLocalMessage(m);
+			} else {
+				db.transaction(false, txn ->
+						db.receiveMessage(txn, contactId, m.getMessage()));
+			}
+		} catch (FormatException e) {
+			throw new AssertionError(e);
 		}
 	}
 
 	private void createBlogPosts(List<Contact> contacts, int numBlogPosts)
 			throws DbException {
+		LocalAuthor localAuthor = identityManager.getLocalAuthor();
+		Blog ours = blogManager.getPersonalBlog(localAuthor);
+		for (Contact contact : contacts) {
+			Blog theirs = blogManager.getPersonalBlog(contact.getAuthor());
+			shareGroup(contact.getId(), ours.getId());
+			shareGroup(contact.getId(), theirs.getId());
+		}
 		for (int i = 0; i < numBlogPosts; i++) {
 			Contact contact = contacts.get(random.nextInt(contacts.size()));
 			LocalAuthor author = localAuthors.get(contact);
-			addBlogPost(author, i);
+			addBlogPost(contact.getId(), author, i);
 		}
 		if (LOG.isLoggable(INFO)) {
 			LOG.info("Created " + numBlogPosts + " blog posts.");
 		}
 	}
 
-	private void addBlogPost(LocalAuthor author, int num) throws DbException {
+	private void addBlogPost(ContactId contactId, LocalAuthor author, int num)
+			throws DbException {
 		Blog blog = blogManager.getPersonalBlog(author);
 		long timestamp = clock.currentTimeMillis() - num * 60 * 1000;
 		String text = getRandomText();
 		try {
 			BlogPost blogPost = blogPostFactory.createBlogPost(blog.getId(),
 					timestamp, null, author, text);
-			blogManager.addLocalPost(blogPost);
+			db.transaction(false, txn ->
+					db.receiveMessage(txn, contactId, blogPost.getMessage()));
 		} catch (FormatException | GeneralSecurityException e) {
-			throw new RuntimeException(e);
+			throw new AssertionError(e);
 		}
 	}
 
-	private List<Forum> createForums(List<Contact> contacts, int numForums,
-			int numForumPosts) throws DbException {
+	private List<Forum> createForums(List<Contact> contacts, int numForums)
+			throws DbException {
 		List<Forum> forums = new ArrayList<>(numForums);
 		for (int i = 0; i < numForums; i++) {
 			// create forum
@@ -374,21 +413,13 @@ public class TestDataCreatorImpl implements TestDataCreator {
 			Forum forum = forumManager.addForum(name);
 
 			// share with all contacts
-			Transaction txn = db.startTransaction(false);
-			try {
-				for (Contact c : contacts) {
-					db.setGroupVisibility(txn, c.getId(), forum.getId(),
-							SHARED);
-				}
-				db.commitTransaction(txn);
-			} finally {
-				db.endTransaction(txn);
+			for (Contact contact : contacts) {
+				shareGroup(contact.getId(), forum.getId());
 			}
 			forums.add(forum);
 		}
 		if (LOG.isLoggable(INFO)) {
-			LOG.info("Created " + numForums + " forums with " +
-					numForumPosts + " posts each.");
+			LOG.info("Created " + numForums + " forums.");
 		}
 		return forums;
 	}
@@ -403,18 +434,17 @@ public class TestDataCreatorImpl implements TestDataCreator {
 			String text = getRandomText();
 			MessageId parent = null;
 			if (random.nextBoolean() && posts.size() > 0) {
-				ForumPost parentPost =
-						posts.get(random.nextInt(posts.size()));
+				ForumPost parentPost = posts.get(random.nextInt(posts.size()));
 				parent = parentPost.getMessage().getId();
 			}
 			ForumPost post = forumManager.createLocalPost(forum.getId(), text,
 					timestamp, parent, author);
 			posts.add(post);
-			forumManager.addLocalPost(post);
-			if (random.nextBoolean()) {
-				forumManager.setReadFlag(forum.getId(),
-						post.getMessage().getId(), false);
-			}
+			db.transaction(false, txn ->
+					db.receiveMessage(txn, contact.getId(), post.getMessage()));
+		}
+		if (LOG.isLoggable(INFO)) {
+			LOG.info("Created " + numForumPosts + " forum posts.");
 		}
 	}
 

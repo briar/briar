@@ -6,9 +6,12 @@ import org.briarproject.bramble.api.db.NoSuchMessageException;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.briar.android.attachment.AttachmentItem.State;
-import org.briarproject.briar.api.messaging.Attachment;
-import org.briarproject.briar.api.messaging.AttachmentHeader;
-import org.briarproject.briar.api.messaging.MessagingManager;
+import org.briarproject.briar.android.attachment.media.ImageHelper;
+import org.briarproject.briar.android.attachment.media.ImageSizeCalculator;
+import org.briarproject.briar.android.attachment.media.Size;
+import org.briarproject.briar.api.attachment.Attachment;
+import org.briarproject.briar.api.attachment.AttachmentHeader;
+import org.briarproject.briar.api.attachment.AttachmentReader;
 import org.briarproject.briar.api.messaging.PrivateMessageHeader;
 
 import java.io.BufferedInputStream;
@@ -43,7 +46,7 @@ class AttachmentRetrieverImpl implements AttachmentRetriever {
 
 	@DatabaseExecutor
 	private final Executor dbExecutor;
-	private final MessagingManager messagingManager;
+	private final AttachmentReader attachmentReader;
 	private final ImageHelper imageHelper;
 	private final ImageSizeCalculator imageSizeCalculator;
 	private final int defaultSize;
@@ -57,11 +60,10 @@ class AttachmentRetrieverImpl implements AttachmentRetriever {
 
 	@Inject
 	AttachmentRetrieverImpl(@DatabaseExecutor Executor dbExecutor,
-			MessagingManager messagingManager,
-			AttachmentDimensions dimensions, ImageHelper imageHelper,
-			ImageSizeCalculator imageSizeCalculator) {
+			AttachmentReader attachmentReader, AttachmentDimensions dimensions,
+			ImageHelper imageHelper, ImageSizeCalculator imageSizeCalculator) {
 		this.dbExecutor = dbExecutor;
-		this.messagingManager = messagingManager;
+		this.attachmentReader = attachmentReader;
 		this.imageHelper = imageHelper;
 		this.imageSizeCalculator = imageSizeCalculator;
 		defaultSize = dimensions.defaultSize;
@@ -75,7 +77,7 @@ class AttachmentRetrieverImpl implements AttachmentRetriever {
 	@DatabaseExecutor
 	public Attachment getMessageAttachment(AttachmentHeader h)
 			throws DbException {
-		return messagingManager.getAttachment(h);
+		return attachmentReader.getAttachment(h);
 	}
 
 	@Override
@@ -86,13 +88,11 @@ class AttachmentRetrieverImpl implements AttachmentRetriever {
 		boolean needsSize = headers.size() == 1;
 		for (AttachmentHeader h : headers) {
 			// try cache for existing item live data
-			MutableLiveData<AttachmentItem> liveData;
-			if (needsSize) liveData = itemsWithSize.get(h.getMessageId());
-			else {
-				// try items with size first, as they work as well
-				liveData = itemsWithSize.get(h.getMessageId());
-				if (liveData == null)
-					liveData = itemsWithoutSize.get(h.getMessageId());
+			MutableLiveData<AttachmentItem> liveData =
+					itemsWithSize.get(h.getMessageId());
+			if (!needsSize && liveData == null) {
+				// check cache for items that don't need the size
+				liveData = itemsWithoutSize.get(h.getMessageId());
 			}
 
 			// create new live data with LOADING item if cache miss
@@ -131,7 +131,7 @@ class AttachmentRetrieverImpl implements AttachmentRetriever {
 		// If a live data is already cached we don't need to do anything
 		if (itemsWithSize.containsKey(h.getMessageId())) return;
 		try {
-			Attachment a = messagingManager.getAttachment(h);
+			Attachment a = attachmentReader.getAttachment(h);
 			AttachmentItem item = createAttachmentItem(a, true);
 			MutableLiveData<AttachmentItem> liveData =
 					new MutableLiveData<>(item);
@@ -173,7 +173,7 @@ class AttachmentRetrieverImpl implements AttachmentRetriever {
 		Attachment a;
 		AttachmentItem item;
 		try {
-			a = messagingManager.getAttachment(h);
+			a = attachmentReader.getAttachment(h);
 			item = createAttachmentItem(a, needsSize);
 		} catch (NoSuchMessageException e) {
 			LOG.info("Attachment not received yet");
@@ -210,26 +210,30 @@ class AttachmentRetrieverImpl implements AttachmentRetriever {
 
 	private AttachmentItem createAttachmentItem(AttachmentHeader h, Size size) {
 		// calculate thumbnail size
-		Size thumbnailSize = new Size(defaultSize, defaultSize, size.mimeType);
-		if (!size.error) {
+		Size thumbnailSize =
+				new Size(defaultSize, defaultSize, size.getMimeType());
+		if (!size.hasError()) {
 			thumbnailSize =
-					getThumbnailSize(size.width, size.height, size.mimeType);
+					getThumbnailSize(size.getWidth(), size.getHeight(),
+							size.getMimeType());
 		}
 		// get file extension
-		String extension = imageHelper.getExtensionFromMimeType(size.mimeType);
-		boolean hasError = extension == null || size.error;
-		if (!h.getContentType().equals(size.mimeType)) {
+		String extension =
+				imageHelper.getExtensionFromMimeType(size.getMimeType());
+		boolean hasError = extension == null || size.hasError();
+		if (!h.getContentType().equals(size.getMimeType())) {
 			if (LOG.isLoggable(WARNING)) {
 				LOG.warning("Header has different mime type (" +
-						h.getContentType() + ") than image (" + size.mimeType +
-						").");
+						h.getContentType() + ") than image (" +
+						size.getMimeType() + ").");
 			}
 			hasError = true;
 		}
 		if (extension == null) extension = "";
 		State state = hasError ? ERROR : AVAILABLE;
-		return new AttachmentItem(h, size.width, size.height,
-				extension, thumbnailSize.width, thumbnailSize.height, state);
+		return new AttachmentItem(h, size.getWidth(), size.getHeight(),
+				extension, thumbnailSize.getWidth(), thumbnailSize.getHeight(),
+				state);
 	}
 
 	private Size getThumbnailSize(int width, int height, String mimeType) {

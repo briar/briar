@@ -117,7 +117,7 @@
   <string name="image_attach_error_invalid_mime_type">圖片格式不支援: %s</string>
   <string name="set_contact_alias">更改聯絡人姓名</string>
   <string name="set_contact_alias_hint">聯絡人姓名</string>
-  <string name="set_alias_button">更改</string>
+  <string name="change">更改</string>
   <string name="delete_contact">刪除聯絡人</string>
   <string name="dialog_title_delete_contact">確認刪除聯絡人</string>
   <string name="dialog_message_delete_contact">確認要刪除該聯絡人和與其交流訊息嗎？</string>

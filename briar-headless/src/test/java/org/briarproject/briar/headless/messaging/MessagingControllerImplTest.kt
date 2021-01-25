@@ -7,9 +7,9 @@ import io.javalin.plugin.json.JavalinJson.toJson
 import io.mockk.*
 import org.briarproject.bramble.api.contact.ContactId
 import org.briarproject.bramble.api.db.NoSuchContactException
-import org.briarproject.bramble.api.identity.AuthorInfo
-import org.briarproject.bramble.api.identity.AuthorInfo.Status.UNVERIFIED
-import org.briarproject.bramble.api.identity.AuthorInfo.Status.VERIFIED
+import org.briarproject.briar.api.identity.AuthorInfo
+import org.briarproject.briar.api.identity.AuthorInfo.Status.UNVERIFIED
+import org.briarproject.briar.api.identity.AuthorInfo.Status.VERIFIED
 import org.briarproject.bramble.api.sync.MessageId
 import org.briarproject.bramble.api.sync.event.MessagesAckedEvent
 import org.briarproject.bramble.api.sync.event.MessagesSentEvent

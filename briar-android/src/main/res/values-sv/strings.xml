@@ -151,7 +151,7 @@
   <string name="image_attach_error_invalid_mime_type">Bildformatet stöds ej: %s</string>
   <string name="set_contact_alias">Ändra namn på kontakt</string>
   <string name="set_contact_alias_hint">Kontaktnamn</string>
-  <string name="set_alias_button">Ändra</string>
+  <string name="change">Ändra</string>
   <string name="delete_all_messages">Ta bort alla meddelanden</string>
   <string name="dialog_title_delete_all_messages">Bekräfta meddelande borttagning</string>
   <string name="dialog_message_delete_all_messages">Är du säker på att du vill ta bort alla meddelanden?</string>

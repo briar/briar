@@ -121,7 +121,7 @@ public class ImageFragment extends Fragment
 
 	private void loadImage() {
 		GlideApp.with(this)
-				.load(attachment)
+				.load(attachment.getHeader())
 				// TODO allow if size < maxTextureSize ?
 //					.override(SIZE_ORIGINAL)
 				.diskCacheStrategy(NONE)

@@ -21,6 +21,8 @@ import org.briarproject.briar.android.fragment.BaseFragment;
 import org.briarproject.briar.android.view.BriarRecyclerView;
 import org.briarproject.briar.api.client.MessageTracker.GroupCount;
 import org.briarproject.briar.api.conversation.ConversationManager;
+import org.briarproject.briar.api.identity.AuthorInfo;
+import org.briarproject.briar.api.identity.AuthorManager;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -49,9 +51,11 @@ public class ContactChooserFragment extends BaseFragment {
 	private ContactId contactId;
 
 	// Fields that are accessed from background threads must be volatile
-	volatile Contact c1;
+	private volatile Contact c1;
 	@Inject
 	volatile ContactManager contactManager;
+	@Inject
+	volatile AuthorManager authorManager;
 	@Inject
 	volatile ConversationManager conversationManager;
 	@Inject
@@ -123,12 +127,14 @@ public class ContactChooserFragment extends BaseFragment {
 					if (c.getId().equals(contactId)) {
 						c1 = c;
 					} else {
+						AuthorInfo authorInfo = authorManager.getAuthorInfo(c);
 						ContactId id = c.getId();
 						GroupCount count =
 								conversationManager.getGroupCount(id);
 						boolean connected =
 								connectionRegistry.isConnected(c.getId());
-						contacts.add(new ContactListItem(c, connected, count));
+						contacts.add(new ContactListItem(c, authorInfo,
+								connected, count));
 					}
 				}
 				displayContacts(contacts);

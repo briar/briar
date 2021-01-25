@@ -10,7 +10,7 @@ import org.briarproject.briar.android.threaded.ThreadItemAdapter.ThreadItemListe
 
 import androidx.annotation.UiThread;
 
-import static org.briarproject.bramble.api.identity.AuthorInfo.Status.OURSELVES;
+import static org.briarproject.briar.api.identity.AuthorInfo.Status.OURSELVES;
 
 @UiThread
 @NotNullByDefault

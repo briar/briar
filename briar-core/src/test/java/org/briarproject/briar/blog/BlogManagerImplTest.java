@@ -3,7 +3,6 @@ package org.briarproject.briar.blog;
 import org.briarproject.bramble.api.FormatException;
 import org.briarproject.bramble.api.client.ClientHelper;
 import org.briarproject.bramble.api.contact.Contact;
-import org.briarproject.bramble.api.contact.ContactManager;
 import org.briarproject.bramble.api.data.BdfDictionary;
 import org.briarproject.bramble.api.data.BdfEntry;
 import org.briarproject.bramble.api.data.BdfList;
@@ -15,7 +14,6 @@ import org.briarproject.bramble.api.db.EventAction;
 import org.briarproject.bramble.api.db.Transaction;
 import org.briarproject.bramble.api.event.Event;
 import org.briarproject.bramble.api.identity.Author;
-import org.briarproject.bramble.api.identity.AuthorInfo;
 import org.briarproject.bramble.api.identity.IdentityManager;
 import org.briarproject.bramble.api.identity.LocalAuthor;
 import org.briarproject.bramble.api.sync.Group;
@@ -28,14 +26,13 @@ import org.briarproject.briar.api.blog.BlogPost;
 import org.briarproject.briar.api.blog.BlogPostFactory;
 import org.briarproject.briar.api.blog.BlogPostHeader;
 import org.briarproject.briar.api.blog.event.BlogPostAddedEvent;
+import org.briarproject.briar.api.identity.AuthorInfo;
+import org.briarproject.briar.api.identity.AuthorManager;
 import org.briarproject.briar.test.BriarTestCase;
 import org.jmock.Expectations;
 import org.jmock.Mockery;
 import org.junit.Test;
 
-import static org.briarproject.bramble.api.identity.AuthorInfo.Status.NONE;
-import static org.briarproject.bramble.api.identity.AuthorInfo.Status.OURSELVES;
-import static org.briarproject.bramble.api.identity.AuthorInfo.Status.VERIFIED;
 import static org.briarproject.bramble.test.TestUtils.getContact;
 import static org.briarproject.bramble.test.TestUtils.getGroup;
 import static org.briarproject.bramble.test.TestUtils.getLocalAuthor;
@@ -59,6 +56,9 @@ import static org.briarproject.briar.api.blog.MessageType.COMMENT;
 import static org.briarproject.briar.api.blog.MessageType.POST;
 import static org.briarproject.briar.api.blog.MessageType.WRAPPED_COMMENT;
 import static org.briarproject.briar.api.blog.MessageType.WRAPPED_POST;
+import static org.briarproject.briar.api.identity.AuthorInfo.Status.NONE;
+import static org.briarproject.briar.api.identity.AuthorInfo.Status.OURSELVES;
+import static org.briarproject.briar.api.identity.AuthorInfo.Status.VERIFIED;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
@@ -69,8 +69,8 @@ public class BlogManagerImplTest extends BriarTestCase {
 	private final Mockery context = new Mockery();
 	private final BlogManagerImpl blogManager;
 	private final DatabaseComponent db = context.mock(DatabaseComponent.class);
-	private final ContactManager contactManager =
-			context.mock(ContactManager.class);
+	private final AuthorManager authorManager =
+			context.mock(AuthorManager.class);
 	private final IdentityManager identityManager =
 			context.mock(IdentityManager.class);
 	private final ClientHelper clientHelper = context.mock(ClientHelper.class);
@@ -90,7 +90,7 @@ public class BlogManagerImplTest extends BriarTestCase {
 
 	public BlogManagerImplTest() {
 		MetadataParser metadataParser = context.mock(MetadataParser.class);
-		blogManager = new BlogManagerImpl(db, contactManager, identityManager,
+		blogManager = new BlogManagerImpl(db, identityManager, authorManager,
 				clientHelper, metadataParser, blogFactory, blogPostFactory);
 
 		localAuthor1 = getLocalAuthor();
@@ -180,7 +180,7 @@ public class BlogManagerImplTest extends BriarTestCase {
 		context.checking(new Expectations() {{
 			oneOf(clientHelper).parseAndValidateAuthor(authorList1);
 			will(returnValue(localAuthor1));
-			oneOf(contactManager).getAuthorInfo(txn, localAuthor1.getId());
+			oneOf(authorManager).getAuthorInfo(txn, localAuthor1.getId());
 			will(returnValue(verifiedInfo));
 		}});
 
@@ -291,7 +291,7 @@ public class BlogManagerImplTest extends BriarTestCase {
 					false);
 			oneOf(clientHelper).parseAndValidateAuthor(authorList1);
 			will(returnValue(localAuthor1));
-			oneOf(contactManager).getAuthorInfo(txn, localAuthor1.getId());
+			oneOf(authorManager).getAuthorInfo(txn, localAuthor1.getId());
 			will(returnValue(ourselvesInfo));
 			oneOf(db).commitTransaction(txn);
 			oneOf(db).endTransaction(txn);
@@ -413,13 +413,13 @@ public class BlogManagerImplTest extends BriarTestCase {
 			// Create the headers for the comment and its parent
 			oneOf(clientHelper).parseAndValidateAuthor(authorList1);
 			will(returnValue(localAuthor1));
-			oneOf(contactManager).getAuthorInfo(txn, localAuthor1.getId());
+			oneOf(authorManager).getAuthorInfo(txn, localAuthor1.getId());
 			will(returnValue(ourselvesInfo));
 			oneOf(clientHelper).getMessageMetadataAsDictionary(txn, messageId);
 			will(returnValue(postMeta));
 			oneOf(clientHelper).parseAndValidateAuthor(authorList1);
 			will(returnValue(localAuthor1));
-			oneOf(contactManager).getAuthorInfo(txn, localAuthor1.getId());
+			oneOf(authorManager).getAuthorInfo(txn, localAuthor1.getId());
 			will(returnValue(ourselvesInfo));
 			oneOf(db).commitTransaction(txn);
 			oneOf(db).endTransaction(txn);
@@ -523,14 +523,14 @@ public class BlogManagerImplTest extends BriarTestCase {
 			// Create the headers for the comment and the wrapped post
 			oneOf(clientHelper).parseAndValidateAuthor(authorList2);
 			will(returnValue(localAuthor2));
-			oneOf(contactManager).getAuthorInfo(txn, localAuthor2.getId());
+			oneOf(authorManager).getAuthorInfo(txn, localAuthor2.getId());
 			will(returnValue(ourselvesInfo));
 			oneOf(clientHelper).getMessageMetadataAsDictionary(txn,
 					wrappedPostId);
 			will(returnValue(wrappedPostMeta));
 			oneOf(clientHelper).parseAndValidateAuthor(authorList1);
 			will(returnValue(localAuthor1));
-			oneOf(contactManager).getAuthorInfo(txn, localAuthor1.getId());
+			oneOf(authorManager).getAuthorInfo(txn, localAuthor1.getId());
 			will(returnValue(verifiedInfo));
 			oneOf(db).commitTransaction(txn);
 			oneOf(db).endTransaction(txn);
@@ -634,7 +634,7 @@ public class BlogManagerImplTest extends BriarTestCase {
 			// Create the headers for the comment and the wrapped post
 			oneOf(clientHelper).parseAndValidateAuthor(authorList1);
 			will(returnValue(localAuthor1));
-			oneOf(contactManager).getAuthorInfo(txn, localAuthor1.getId());
+			oneOf(authorManager).getAuthorInfo(txn, localAuthor1.getId());
 			will(returnValue(ourselvesInfo));
 			oneOf(clientHelper).getMessageMetadataAsDictionary(txn,
 					wrappedPostId);
@@ -775,14 +775,14 @@ public class BlogManagerImplTest extends BriarTestCase {
 			// the rewrapped post
 			oneOf(clientHelper).parseAndValidateAuthor(authorList2);
 			will(returnValue(localAuthor2));
-			oneOf(contactManager).getAuthorInfo(txn, localAuthor2.getId());
+			oneOf(authorManager).getAuthorInfo(txn, localAuthor2.getId());
 			will(returnValue(ourselvesInfo));
 			oneOf(clientHelper).getMessageMetadataAsDictionary(txn,
 					wrappedCommentId);
 			will(returnValue(wrappedCommentMeta));
 			oneOf(clientHelper).parseAndValidateAuthor(authorList1);
 			will(returnValue(localAuthor1));
-			oneOf(contactManager).getAuthorInfo(txn, localAuthor1.getId());
+			oneOf(authorManager).getAuthorInfo(txn, localAuthor1.getId());
 			will(returnValue(verifiedInfo));
 			oneOf(clientHelper).getMessageMetadataAsDictionary(txn,
 					rewrappedPostId);

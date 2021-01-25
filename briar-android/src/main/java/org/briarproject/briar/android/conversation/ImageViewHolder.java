@@ -77,7 +77,7 @@ class ImageViewHolder extends ViewHolder {
 	private void loadImage(AttachmentItem a, Radii r) {
 		Transformation<Bitmap> transformation = new BriarImageTransformation(r);
 		GlideApp.with(imageView)
-				.load(a)
+				.load(a.getHeader())
 				.diskCacheStrategy(NONE)
 				.error(ERROR_RES)
 				.transform(transformation)

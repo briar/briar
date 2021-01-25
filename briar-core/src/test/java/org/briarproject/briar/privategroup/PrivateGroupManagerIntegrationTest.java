@@ -20,7 +20,7 @@ import org.junit.Test;
 
 import java.util.Collection;
 
-import static org.briarproject.bramble.api.identity.AuthorInfo.Status.VERIFIED;
+import static org.briarproject.briar.api.identity.AuthorInfo.Status.VERIFIED;
 import static org.briarproject.bramble.api.sync.Group.Visibility.SHARED;
 import static org.briarproject.bramble.test.TestUtils.getRandomBytes;
 import static org.briarproject.bramble.test.TestUtils.getRandomId;

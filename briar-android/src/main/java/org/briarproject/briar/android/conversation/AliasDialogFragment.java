@@ -21,7 +21,6 @@ import javax.inject.Inject;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatDialogFragment;
 import androidx.lifecycle.ViewModelProvider;
-import androidx.lifecycle.ViewModelProviders;
 
 import static android.view.WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE;
 import static java.util.Objects.requireNonNull;
@@ -59,7 +58,7 @@ public class AliasDialogFragment extends AppCompatDialogFragment {
 
 		setStyle(STYLE_NO_TITLE, R.style.BriarDialogTheme);
 
-		viewModel = ViewModelProviders.of(requireActivity(), viewModelFactory)
+		viewModel = new ViewModelProvider(requireActivity(), viewModelFactory)
 				.get(ConversationViewModel.class);
 	}
 
@@ -72,7 +71,8 @@ public class AliasDialogFragment extends AppCompatDialogFragment {
 
 		aliasEditLayout = v.findViewById(R.id.aliasEditLayout);
 		aliasEditText = v.findViewById(R.id.aliasEditText);
-		Contact contact = requireNonNull(viewModel.getContact().getValue());
+		Contact contact = requireNonNull(viewModel.getContactItem().getValue())
+				.getContact();
 		String alias = contact.getAlias();
 		aliasEditText.setText(alias);
 		if (alias != null) aliasEditText.setSelection(alias.length());

@@ -1,7 +1,7 @@
 package org.briarproject.bramble.identity
 
 import org.briarproject.bramble.api.identity.Author
-import org.briarproject.bramble.api.identity.AuthorInfo
+import org.briarproject.briar.api.identity.AuthorInfo
 import org.briarproject.briar.headless.json.JsonDict
 
 fun Author.output() = JsonDict(

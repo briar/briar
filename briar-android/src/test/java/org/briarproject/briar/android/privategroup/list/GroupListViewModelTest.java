@@ -3,14 +3,12 @@ package org.briarproject.briar.android.privategroup.list;
 import android.app.Application;
 
 import org.briarproject.bramble.api.contact.Contact;
-import org.briarproject.bramble.api.contact.ContactManager;
 import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.db.Transaction;
 import org.briarproject.bramble.api.db.TransactionManager;
 import org.briarproject.bramble.api.event.Event;
 import org.briarproject.bramble.api.event.EventBus;
 import org.briarproject.bramble.api.event.EventListener;
-import org.briarproject.bramble.api.identity.AuthorInfo;
 import org.briarproject.bramble.api.lifecycle.LifecycleManager;
 import org.briarproject.bramble.api.sync.Group;
 import org.briarproject.bramble.api.system.AndroidExecutor;
@@ -20,6 +18,8 @@ import org.briarproject.bramble.test.ImmediateExecutor;
 import org.briarproject.briar.android.AndroidExecutorTestImpl;
 import org.briarproject.briar.android.viewmodel.LiveResult;
 import org.briarproject.briar.api.android.AndroidNotificationManager;
+import org.briarproject.briar.api.identity.AuthorInfo;
+import org.briarproject.briar.api.identity.AuthorManager;
 import org.briarproject.briar.api.privategroup.PrivateGroup;
 import org.briarproject.briar.api.privategroup.PrivateGroupManager;
 import org.briarproject.briar.api.privategroup.event.GroupDissolvedEvent;
@@ -67,8 +67,8 @@ public class GroupListViewModelTest extends BrambleMockTestCase {
 			context.mock(PrivateGroupManager.class);
 	private final GroupInvitationManager groupInvitationManager =
 			context.mock(GroupInvitationManager.class);
-	private final ContactManager contactManager =
-			context.mock(ContactManager.class);
+	private final AuthorManager authorManager =
+			context.mock(AuthorManager.class);
 	private final AndroidNotificationManager notificationManager =
 			context.mock(AndroidNotificationManager.class);
 	private final EventBus eventBus = context.mock(EventBus.class);
@@ -105,7 +105,7 @@ public class GroupListViewModelTest extends BrambleMockTestCase {
 				new AndroidExecutorTestImpl(dbExecutor);
 		viewModel = new GroupListViewModel(app, dbExecutor, lifecycleManager,
 				db, androidExecutor, groupManager, groupInvitationManager,
-				contactManager, notificationManager, eventBus);
+				authorManager, notificationManager, eventBus);
 	}
 
 	@Test
@@ -199,7 +199,7 @@ public class GroupListViewModelTest extends BrambleMockTestCase {
 			AuthorInfo authorInfo, GroupCount groupCount, boolean dissolved)
 			throws DbException {
 		context.checking(new DbExpectations() {{
-			oneOf(contactManager)
+			oneOf(authorManager)
 					.getAuthorInfo(txn, privateGroup.getCreator().getId());
 			will(returnValue(authorInfo));
 			oneOf(groupManager).getGroupCount(txn, privateGroup.getId());

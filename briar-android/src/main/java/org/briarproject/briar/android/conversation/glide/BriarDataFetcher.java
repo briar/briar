@@ -7,9 +7,9 @@ import com.bumptech.glide.load.data.DataFetcher;
 import org.briarproject.bramble.api.db.DatabaseExecutor;
 import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
-import org.briarproject.briar.android.attachment.AttachmentItem;
-import org.briarproject.briar.api.messaging.Attachment;
-import org.briarproject.briar.api.messaging.MessagingManager;
+import org.briarproject.briar.api.attachment.Attachment;
+import org.briarproject.briar.api.attachment.AttachmentHeader;
+import org.briarproject.briar.api.attachment.AttachmentReader;
 
 import java.io.InputStream;
 import java.util.concurrent.Executor;
@@ -30,21 +30,22 @@ class BriarDataFetcher implements DataFetcher<InputStream> {
 	private final static Logger LOG =
 			getLogger(BriarDataFetcher.class.getName());
 
-	private final MessagingManager messagingManager;
+	private final AttachmentReader attachmentReader;
 	@DatabaseExecutor
 	private final Executor dbExecutor;
-	private final AttachmentItem attachment;
+	private final AttachmentHeader attachmentHeader;
 
 	@Nullable
 	private volatile InputStream inputStream;
 	private volatile boolean cancel = false;
 
 	@Inject
-	BriarDataFetcher(MessagingManager messagingManager,
-			@DatabaseExecutor Executor dbExecutor, AttachmentItem attachment) {
-		this.messagingManager = messagingManager;
+	BriarDataFetcher(AttachmentReader attachmentReader,
+			@DatabaseExecutor Executor dbExecutor,
+			AttachmentHeader attachmentHeader) {
+		this.attachmentReader = attachmentReader;
 		this.dbExecutor = dbExecutor;
-		this.attachment = attachment;
+		this.attachmentHeader = attachmentHeader;
 	}
 
 	@Override
@@ -53,8 +54,7 @@ class BriarDataFetcher implements DataFetcher<InputStream> {
 		dbExecutor.execute(() -> {
 			if (cancel) return;
 			try {
-				Attachment a =
-						messagingManager.getAttachment(attachment.getHeader());
+				Attachment a = attachmentReader.getAttachment(attachmentHeader);
 				inputStream = a.getStream();
 				callback.onDataReady(inputStream);
 			} catch (DbException e) {

@@ -27,22 +27,19 @@ import org.briarproject.bramble.api.sync.MessageStatus;
 import org.briarproject.bramble.api.sync.validation.IncomingMessageHook;
 import org.briarproject.bramble.api.versioning.ClientVersioningManager;
 import org.briarproject.bramble.api.versioning.ClientVersioningManager.ClientVersioningHook;
+import org.briarproject.briar.api.attachment.AttachmentHeader;
+import org.briarproject.briar.api.attachment.FileTooBigException;
 import org.briarproject.briar.api.client.MessageTracker;
 import org.briarproject.briar.api.client.MessageTracker.GroupCount;
 import org.briarproject.briar.api.conversation.ConversationManager.ConversationClient;
 import org.briarproject.briar.api.conversation.ConversationMessageHeader;
 import org.briarproject.briar.api.conversation.DeletionResult;
-import org.briarproject.briar.api.messaging.Attachment;
-import org.briarproject.briar.api.messaging.AttachmentHeader;
-import org.briarproject.briar.api.messaging.FileTooBigException;
-import org.briarproject.briar.api.messaging.InvalidAttachmentException;
 import org.briarproject.briar.api.messaging.MessagingManager;
 import org.briarproject.briar.api.messaging.PrivateMessage;
 import org.briarproject.briar.api.messaging.PrivateMessageHeader;
 import org.briarproject.briar.api.messaging.event.AttachmentReceivedEvent;
 import org.briarproject.briar.api.messaging.event.PrivateMessageReceivedEvent;
 
-import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -60,13 +57,13 @@ import static java.util.Collections.emptyList;
 import static org.briarproject.bramble.api.sync.SyncConstants.MAX_MESSAGE_BODY_LENGTH;
 import static org.briarproject.bramble.api.sync.validation.MessageState.DELIVERED;
 import static org.briarproject.bramble.util.IoUtils.copyAndClose;
+import static org.briarproject.briar.api.attachment.MediaConstants.MSG_KEY_CONTENT_TYPE;
+import static org.briarproject.briar.api.attachment.MediaConstants.MSG_KEY_DESCRIPTOR_LENGTH;
 import static org.briarproject.briar.client.MessageTrackerConstants.MSG_KEY_READ;
 import static org.briarproject.briar.messaging.MessageTypes.ATTACHMENT;
 import static org.briarproject.briar.messaging.MessageTypes.PRIVATE_MESSAGE;
 import static org.briarproject.briar.messaging.MessagingConstants.GROUP_KEY_CONTACT_ID;
 import static org.briarproject.briar.messaging.MessagingConstants.MSG_KEY_ATTACHMENT_HEADERS;
-import static org.briarproject.briar.messaging.MessagingConstants.MSG_KEY_CONTENT_TYPE;
-import static org.briarproject.briar.messaging.MessagingConstants.MSG_KEY_DESCRIPTOR_LENGTH;
 import static org.briarproject.briar.messaging.MessagingConstants.MSG_KEY_HAS_TEXT;
 import static org.briarproject.briar.messaging.MessagingConstants.MSG_KEY_LOCAL;
 import static org.briarproject.briar.messaging.MessagingConstants.MSG_KEY_MSG_TYPE;
@@ -175,7 +172,7 @@ class MessagingManagerImpl implements MessagingManager, IncomingMessageHook,
 			} else if (messageType == PRIVATE_MESSAGE) {
 				boolean hasText = metaDict.getBoolean(MSG_KEY_HAS_TEXT);
 				List<AttachmentHeader> headers =
-						parseAttachmentHeaders(metaDict);
+						parseAttachmentHeaders(m.getGroupId(), metaDict);
 				incomingPrivateMessage(txn, m, metaDict, hasText, headers);
 			} else if (messageType == ATTACHMENT) {
 				incomingAttachment(txn, m);
@@ -206,16 +203,17 @@ class MessagingManagerImpl implements MessagingManager, IncomingMessageHook,
 		messageTracker.trackIncomingMessage(txn, m);
 	}
 
-	private List<AttachmentHeader> parseAttachmentHeaders(BdfDictionary meta)
+	private List<AttachmentHeader> parseAttachmentHeaders(GroupId g,
+			BdfDictionary meta)
 			throws FormatException {
 		BdfList attachmentHeaders = meta.getList(MSG_KEY_ATTACHMENT_HEADERS);
 		int length = attachmentHeaders.size();
 		List<AttachmentHeader> headers = new ArrayList<>(length);
 		for (int i = 0; i < length; i++) {
 			BdfList header = attachmentHeaders.getList(i);
-			MessageId id = new MessageId(header.getRaw(0));
+			MessageId m = new MessageId(header.getRaw(0));
 			String contentType = header.getString(1);
-			headers.add(new AttachmentHeader(id, contentType));
+			headers.add(new AttachmentHeader(g, m, contentType));
 		}
 		return headers;
 	}
@@ -283,7 +281,7 @@ class MessagingManagerImpl implements MessagingManager, IncomingMessageHook,
 		// Mark attachments as temporary, not shared until we're ready to send
 		db.transaction(false, txn ->
 				clientHelper.addLocalMessage(txn, m, meta, false, true));
-		return new AttachmentHeader(m.getId(), contentType);
+		return new AttachmentHeader(groupId, m.getId(), contentType);
 	}
 
 	@Override
@@ -297,7 +295,7 @@ class MessagingManagerImpl implements MessagingManager, IncomingMessageHook,
 		try {
 			BdfDictionary meta =
 					clientHelper.getGroupMetadataAsDictionary(txn, g);
-			return new ContactId(meta.getLong("contactId").intValue());
+			return new ContactId(meta.getLong(GROUP_KEY_CONTACT_ID).intValue());
 		} catch (FormatException e) {
 			throw new DbException(e);
 		}
@@ -307,7 +305,7 @@ class MessagingManagerImpl implements MessagingManager, IncomingMessageHook,
 	public ContactId getContactId(GroupId g) throws DbException {
 		try {
 			BdfDictionary meta = clientHelper.getGroupMetadataAsDictionary(g);
-			return new ContactId(meta.getLong("contactId").intValue());
+			return new ContactId(meta.getLong(GROUP_KEY_CONTACT_ID).intValue());
 		} catch (FormatException e) {
 			throw new DbException(e);
 		}
@@ -360,7 +358,7 @@ class MessagingManagerImpl implements MessagingManager, IncomingMessageHook,
 					boolean hasText = meta.getBoolean(MSG_KEY_HAS_TEXT);
 					headers.add(new PrivateMessageHeader(id, g, timestamp,
 							local, read, s.isSent(), s.isSeen(), hasText,
-							parseAttachmentHeaders(meta)));
+							parseAttachmentHeaders(g, meta)));
 				}
 			} catch (FormatException e) {
 				throw new DbException(e);
@@ -401,27 +399,6 @@ class MessagingManagerImpl implements MessagingManager, IncomingMessageHook,
 	}
 
 	@Override
-	public Attachment getAttachment(AttachmentHeader h) throws DbException {
-		// TODO: Support large messages
-		MessageId m = h.getMessageId();
-		byte[] body = clientHelper.getMessage(m).getBody();
-		try {
-			BdfDictionary meta = clientHelper.getMessageMetadataAsDictionary(m);
-			Long messageType = meta.getOptionalLong(MSG_KEY_MSG_TYPE);
-			if (messageType == null || messageType != ATTACHMENT)
-				throw new InvalidAttachmentException();
-			String contentType = meta.getString(MSG_KEY_CONTENT_TYPE);
-			if (!contentType.equals(h.getContentType()))
-				throw new InvalidAttachmentException();
-			int offset = meta.getLong(MSG_KEY_DESCRIPTOR_LENGTH).intValue();
-			return new Attachment(h, new ByteArrayInputStream(body, offset,
-					body.length - offset));
-		} catch (FormatException e) {
-			throw new DbException(e);
-		}
-	}
-
-	@Override
 	public boolean contactSupportsImages(Transaction txn, ContactId c)
 			throws DbException {
 		int minorVersion = clientVersioningManager
@@ -448,6 +425,7 @@ class MessagingManagerImpl implements MessagingManager, IncomingMessageHook,
 	public DeletionResult deleteMessages(Transaction txn, ContactId c,
 			Set<MessageId> messageIds) throws DbException {
 		DeletionResult result = new DeletionResult();
+		GroupId g = getContactGroup(db.getContact(txn, c)).getId();
 		for (MessageId m : messageIds) {
 			// get attachment headers
 			List<AttachmentHeader> headers;
@@ -458,7 +436,7 @@ class MessagingManagerImpl implements MessagingManager, IncomingMessageHook,
 				if (messageType != null && messageType != PRIVATE_MESSAGE)
 					throw new AssertionError("not supported");
 				headers = messageType == null ? emptyList() :
-						parseAttachmentHeaders(meta);
+						parseAttachmentHeaders(g, meta);
 			} catch (FormatException e) {
 				throw new DbException(e);
 			}
@@ -484,7 +462,6 @@ class MessagingManagerImpl implements MessagingManager, IncomingMessageHook,
 				result.addNotFullyDownloaded();
 			}
 		}
-		GroupId g = getContactGroup(db.getContact(txn, c)).getId();
 		recalculateGroupCount(txn, g);
 		return result;
 	}

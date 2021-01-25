@@ -15,6 +15,7 @@ import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.bramble.api.system.Clock;
 import org.briarproject.briar.api.client.MessageTracker;
 import org.briarproject.briar.api.client.ProtocolStateException;
+import org.briarproject.briar.api.identity.AuthorManager;
 import org.briarproject.briar.api.introduction.event.IntroductionAbortedEvent;
 import org.briarproject.briar.introduction.IntroducerSession.Introducee;
 
@@ -48,12 +49,13 @@ class IntroducerProtocolEngine
 			ContactGroupFactory contactGroupFactory,
 			MessageTracker messageTracker,
 			IdentityManager identityManager,
+			AuthorManager authorManager,
 			MessageParser messageParser,
 			MessageEncoder messageEncoder,
 			Clock clock) {
 		super(db, clientHelper, contactManager, contactGroupFactory,
-				messageTracker, identityManager, messageParser, messageEncoder,
-				clock);
+				messageTracker, identityManager, authorManager, messageParser,
+				messageEncoder, clock);
 	}
 
 	@Override

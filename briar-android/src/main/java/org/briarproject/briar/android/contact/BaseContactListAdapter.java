@@ -3,14 +3,12 @@ package org.briarproject.briar.android.contact;
 import android.content.Context;
 import android.view.View;
 
-import org.briarproject.bramble.api.contact.ContactId;
 import org.briarproject.briar.android.util.BriarAdapter;
 
 import javax.annotation.Nullable;
 
 import androidx.annotation.NonNull;
 
-import static androidx.recyclerview.widget.SortedList.INVALID_POSITION;
 import static org.briarproject.briar.android.util.UiUtils.getContactDisplayName;
 
 public abstract class BaseContactListAdapter<I extends ContactItem, VH extends ContactItemViewHolder<I>>
@@ -45,15 +43,6 @@ public abstract class BaseContactListAdapter<I extends ContactItem, VH extends C
 	@Override
 	public boolean areContentsTheSame(ContactItem c1, ContactItem c2) {
 		return true;
-	}
-
-	int findItemPosition(ContactId c) {
-		for (int i = 0; i < getItemCount(); i++) {
-			I item = getItemAt(i);
-			if (item != null && item.getContact().getId().equals(c))
-				return i;
-		}
-		return INVALID_POSITION; // Not found
 	}
 
 	public interface OnContactClickListener<I> {

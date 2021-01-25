@@ -161,7 +161,7 @@
   <string name="image_attach_error_invalid_mime_type">תסדיר תמונה בלתי נתמך: %s</string>
   <string name="set_contact_alias">שַׁנֵּה שם איש קשר</string>
   <string name="set_contact_alias_hint">שם איש הקשר</string>
-  <string name="set_alias_button">שַׁנֵּה</string>
+  <string name="change">שַׁנֵּה</string>
   <string name="delete_all_messages">מחק את כל ההודעות</string>
   <string name="dialog_title_delete_all_messages">אשר מחיקת הודעה</string>
   <string name="dialog_message_delete_all_messages">האם אתה בטוח שאתה רוצה למחוק את כל ההודעות?</string>
