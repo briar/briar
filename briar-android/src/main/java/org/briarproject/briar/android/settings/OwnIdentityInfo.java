@@ -4,6 +4,9 @@ import org.briarproject.bramble.api.identity.LocalAuthor;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.briar.api.identity.AuthorInfo;
 
+import javax.annotation.concurrent.Immutable;
+
+@Immutable
 @NotNullByDefault
 class OwnIdentityInfo {
 

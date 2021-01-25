@@ -10,12 +10,13 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
+import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.activity.BaseActivity;
 
 import javax.inject.Inject;
 
-import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.FragmentActivity;
@@ -24,6 +25,7 @@ import androidx.lifecycle.ViewModelProvider;
 import static java.util.Objects.requireNonNull;
 
 @MethodsNotNullByDefault
+@ParametersNotNullByDefault
 public class ConfirmAvatarDialogFragment extends DialogFragment {
 
 	final static String TAG = ConfirmAvatarDialogFragment.class.getName();
@@ -46,13 +48,13 @@ public class ConfirmAvatarDialogFragment extends DialogFragment {
 	}
 
 	@Override
-	public void onAttach(@NonNull Context ctx) {
+	public void onAttach(Context ctx) {
 		super.onAttach(ctx);
 		((BaseActivity) requireActivity()).getActivityComponent().inject(this);
 	}
 
 	@Override
-	public Dialog onCreateDialog(Bundle savedInstanceState) {
+	public Dialog onCreateDialog(@Nullable Bundle savedInstanceState) {
 		Bundle args = requireArguments();
 		String argUri = requireNonNull(args.getString(ARG_URI));
 		uri = Uri.parse(argUri);

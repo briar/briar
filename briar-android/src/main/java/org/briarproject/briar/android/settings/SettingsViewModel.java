@@ -10,7 +10,6 @@ import org.briarproject.bramble.api.identity.IdentityManager;
 import org.briarproject.bramble.api.identity.LocalAuthor;
 import org.briarproject.bramble.api.lifecycle.IoExecutor;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
-import org.briarproject.bramble.util.LogUtils;
 import org.briarproject.briar.android.attachment.UnsupportedMimeTypeException;
 import org.briarproject.briar.android.attachment.media.ImageCompressor;
 import org.briarproject.briar.android.viewmodel.LiveEvent;
@@ -34,6 +33,7 @@ import static java.util.Arrays.asList;
 import static java.util.logging.Level.WARNING;
 import static java.util.logging.Logger.getLogger;
 import static org.briarproject.bramble.util.AndroidUtils.getSupportedImageContentTypes;
+import static org.briarproject.bramble.util.LogUtils.logException;
 
 @NotNullByDefault
 class SettingsViewModel extends AndroidViewModel {
@@ -91,7 +91,7 @@ class SettingsViewModel extends AndroidViewModel {
 				ownIdentityInfo.postValue(
 						new OwnIdentityInfo(localAuthor, authorInfo));
 			} catch (DbException e) {
-				LogUtils.logException(LOG, WARNING, e);
+				logException(LOG, WARNING, e);
 			}
 		});
 	}
@@ -101,7 +101,7 @@ class SettingsViewModel extends AndroidViewModel {
 			try {
 				trySetAvatar(uri);
 			} catch (IOException e) {
-				LogUtils.logException(LOG, WARNING, e);
+				logException(LOG, WARNING, e);
 				setAvatarFailed.postEvent(true);
 			}
 		});
@@ -118,15 +118,14 @@ class SettingsViewModel extends AndroidViewModel {
 		InputStream is = contentResolver.openInputStream(uri);
 		if (is == null) throw new IOException(
 				"ContentResolver returned null when opening InputStream");
-		InputStream compressed = imageCompressor
-				.compressImage(is, contentType);
+		InputStream compressed = imageCompressor.compressImage(is, contentType);
 
 		dbExecutor.execute(() -> {
 			try {
 				avatarManager.addAvatar(ImageCompressor.MIME_TYPE, compressed);
 				loadOwnIdentityInfo();
 			} catch (IOException | DbException e) {
-				LogUtils.logException(LOG, WARNING, e);
+				logException(LOG, WARNING, e);
 				setAvatarFailed.postEvent(true);
 			}
 		});

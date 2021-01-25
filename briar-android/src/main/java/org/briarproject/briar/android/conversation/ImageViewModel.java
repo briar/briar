@@ -76,7 +76,8 @@ public class ImageViewModel extends DbViewModel implements EventListener {
 
 	@Inject
 	ImageViewModel(Application application, AttachmentReader attachmentReader,
-			EventBus eventBus, @DatabaseExecutor Executor dbExecutor,LifecycleManager lifecycleManager,
+			EventBus eventBus, @DatabaseExecutor Executor dbExecutor,
+			LifecycleManager lifecycleManager,
 			TransactionManager db,
 			AndroidExecutor androidExecutor,
 			@IoExecutor Executor ioExecutor) {
