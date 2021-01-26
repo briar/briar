@@ -10,7 +10,6 @@ import org.briarproject.bramble.api.contact.PendingContactState;
 import org.briarproject.bramble.api.contact.event.PendingContactRemovedEvent;
 import org.briarproject.bramble.api.contact.event.PendingContactStateChangedEvent;
 import org.briarproject.bramble.api.db.DatabaseExecutor;
-import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.db.TransactionManager;
 import org.briarproject.bramble.api.event.Event;
 import org.briarproject.bramble.api.event.EventBus;
@@ -33,10 +32,8 @@ import javax.inject.Inject;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
-import static java.util.logging.Level.WARNING;
 import static java.util.logging.Logger.getLogger;
 import static org.briarproject.bramble.api.contact.PendingContactState.OFFLINE;
-import static org.briarproject.bramble.util.LogUtils.logException;
 
 @NotNullByDefault
 public class PendingContactListViewModel extends DbViewModel
@@ -90,24 +87,20 @@ public class PendingContactListViewModel extends DbViewModel
 	}
 
 	private void loadPendingContacts() {
-		runOnDbThread(() -> {
-			try {
-				Collection<Pair<PendingContact, PendingContactState>> pairs =
-						contactManager.getPendingContacts();
-				List<PendingContactItem> items = new ArrayList<>(pairs.size());
-				boolean online = pairs.isEmpty();
-				for (Pair<PendingContact, PendingContactState> pair : pairs) {
-					PendingContact p = pair.getFirst();
-					PendingContactState state = pair.getSecond();
-					long lastPoll = rendezvousPoller.getLastPollTime(p.getId());
-					items.add(new PendingContactItem(p, state, lastPoll));
-					online = online || state != OFFLINE;
-				}
-				pendingContacts.postValue(items);
-				hasInternetConnection.postValue(online);
-			} catch (DbException e) {
-				logException(LOG, WARNING, e);
+		runOnDbThreadOrLogException(() -> {
+			Collection<Pair<PendingContact, PendingContactState>> pairs =
+					contactManager.getPendingContacts();
+			List<PendingContactItem> items = new ArrayList<>(pairs.size());
+			boolean online = pairs.isEmpty();
+			for (Pair<PendingContact, PendingContactState> pair : pairs) {
+				PendingContact p = pair.getFirst();
+				PendingContactState state = pair.getSecond();
+				long lastPoll = rendezvousPoller.getLastPollTime(p.getId());
+				items.add(new PendingContactItem(p, state, lastPoll));
+				online = online || state != OFFLINE;
 			}
+			pendingContacts.postValue(items);
+			hasInternetConnection.postValue(online);
 		});
 	}
 
@@ -116,13 +109,8 @@ public class PendingContactListViewModel extends DbViewModel
 	}
 
 	void removePendingContact(PendingContactId id) {
-		runOnDbThread(() -> {
-			try {
-				contactManager.removePendingContact(id);
-			} catch (DbException e) {
-				logException(LOG, WARNING, e);
-			}
-		});
+		runOnDbThreadOrLogException(() ->
+				contactManager.removePendingContact(id));
 	}
 
 	LiveData<Boolean> getHasInternetConnection() {

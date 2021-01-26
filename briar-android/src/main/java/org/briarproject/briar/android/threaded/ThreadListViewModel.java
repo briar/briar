@@ -44,10 +44,8 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
 import static java.util.logging.Level.INFO;
-import static java.util.logging.Level.WARNING;
 import static java.util.logging.Logger.getLogger;
 import static org.briarproject.bramble.util.LogUtils.logDuration;
-import static org.briarproject.bramble.util.LogUtils.logException;
 import static org.briarproject.bramble.util.LogUtils.now;
 
 @MethodsNotNullByDefault
@@ -145,16 +143,11 @@ public abstract class ThreadListViewModel<I extends ThreadItem>
 	}
 
 	private void loadStoredMessageId() {
-		runOnDbThread(() -> {
-			try {
-				storedMessageId
-						.set(messageTracker.loadStoredMessageId(groupId));
-				if (LOG.isLoggable(INFO)) {
-					LOG.info("Loaded last top visible message id " +
-							storedMessageId);
-				}
-			} catch (DbException e) {
-				logException(LOG, WARNING, e);
+		runOnDbThreadOrLogException(() -> {
+			storedMessageId.set(messageTracker.loadStoredMessageId(groupId));
+			if (LOG.isLoggable(INFO)) {
+				LOG.info("Loaded last top visible message id " +
+						storedMessageId);
 			}
 		});
 	}
@@ -229,13 +222,10 @@ public abstract class ThreadListViewModel<I extends ThreadItem>
 	}
 
 	void storeMessageId(@Nullable MessageId messageId) {
-		if (messageId != null) runOnDbThread(() -> {
-			try {
-				messageTracker.storeMessageId(groupId, messageId);
-			} catch (DbException e) {
-				logException(LOG, WARNING, e);
-			}
-		});
+		if (messageId != null) {
+			runOnDbThreadOrLogException(() ->
+					messageTracker.storeMessageId(groupId, messageId));
+		}
 	}
 
 	protected abstract void markItemRead(I item);

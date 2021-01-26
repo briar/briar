@@ -2,7 +2,6 @@ package org.briarproject.briar.android.privategroup.list;
 
 import android.app.Application;
 
-import org.briarproject.bramble.api.contact.ContactManager;
 import org.briarproject.bramble.api.db.DatabaseExecutor;
 import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.db.Transaction;
@@ -49,10 +48,8 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
 import static java.util.Objects.requireNonNull;
-import static java.util.logging.Level.WARNING;
 import static java.util.logging.Logger.getLogger;
 import static org.briarproject.bramble.util.LogUtils.logDuration;
-import static org.briarproject.bramble.util.LogUtils.logException;
 import static org.briarproject.bramble.util.LogUtils.now;
 import static org.briarproject.briar.api.privategroup.PrivateGroupManager.CLIENT_ID;
 
@@ -200,25 +197,17 @@ class GroupListViewModel extends DbViewModel implements EventListener {
 	}
 
 	void removeGroup(GroupId g) {
-		runOnDbThread(() -> {
-			try {
-				long start = now();
-				groupManager.removePrivateGroup(g);
-				logDuration(LOG, "Removing group", start);
-			} catch (DbException e) {
-				logException(LOG, WARNING, e);
-			}
+		runOnDbThreadOrLogException(() -> {
+			long start = now();
+			groupManager.removePrivateGroup(g);
+			logDuration(LOG, "Removing group", start);
 		});
 	}
 
 	void loadNumInvitations() {
-		runOnDbThread(() -> {
-			try {
-				int i = groupInvitationManager.getInvitations().size();
-				numInvitations.postValue(i);
-			} catch (DbException e) {
-				logException(LOG, WARNING, e);
-			}
+		runOnDbThreadOrLogException(() -> {
+			int i = groupInvitationManager.getInvitations().size();
+			numInvitations.postValue(i);
 		});
 	}
 

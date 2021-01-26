@@ -66,15 +66,10 @@ public class AddContactViewModel extends DbViewModel {
 	}
 
 	private void loadHandshakeLink() {
-		runOnDbThread(() -> {
-			try {
-				handshakeLink.postValue(contactManager.getHandshakeLink());
-			} catch (DbException e) {
-				logException(LOG, WARNING, e);
-				// the UI should stay disabled in this case,
-				// leaving the user unable to proceed
-			}
-		});
+		// If an exception is thrown the UI should stay disabled,
+		// leaving the user unable to proceed
+		runOnDbThreadOrLogException(() ->
+				handshakeLink.postValue(contactManager.getHandshakeLink()));
 	}
 
 	LiveData<String> getHandshakeLink() {

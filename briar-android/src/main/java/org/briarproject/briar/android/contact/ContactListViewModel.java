@@ -45,10 +45,8 @@ import androidx.arch.core.util.Function;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
-import static java.util.logging.Level.WARNING;
 import static java.util.logging.Logger.getLogger;
 import static org.briarproject.bramble.util.LogUtils.logDuration;
-import static org.briarproject.bramble.util.LogUtils.logException;
 import static org.briarproject.bramble.util.LogUtils.now;
 
 @NotNullByDefault
@@ -173,14 +171,9 @@ class ContactListViewModel extends DbViewModel implements EventListener {
 	}
 
 	void checkForPendingContacts() {
-		runOnDbThread(() -> {
-			try {
-				boolean hasPending =
-						!contactManager.getPendingContacts().isEmpty();
-				hasPendingContacts.postValue(hasPending);
-			} catch (DbException e) {
-				logException(LOG, WARNING, e);
-			}
+		runOnDbThreadOrLogException(() -> {
+			boolean hasPending = !contactManager.getPendingContacts().isEmpty();
+			hasPendingContacts.postValue(hasPending);
 		});
 	}
 

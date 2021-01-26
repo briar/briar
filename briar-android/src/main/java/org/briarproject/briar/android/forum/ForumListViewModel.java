@@ -40,10 +40,8 @@ import androidx.annotation.UiThread;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
-import static java.util.logging.Level.WARNING;
 import static java.util.logging.Logger.getLogger;
 import static org.briarproject.bramble.util.LogUtils.logDuration;
-import static org.briarproject.bramble.util.LogUtils.logException;
 import static org.briarproject.bramble.util.LogUtils.now;
 import static org.briarproject.briar.api.forum.ForumManager.CLIENT_ID;
 
@@ -164,15 +162,11 @@ class ForumListViewModel extends DbViewModel implements EventListener {
 	}
 
 	void loadForumInvitations() {
-		runOnDbThread(() -> {
-			try {
-				long start = now();
-				int available = forumSharingManager.getInvitations().size();
-				logDuration(LOG, "Loading available", start);
-				numInvitations.postValue(available);
-			} catch (DbException e) {
-				logException(LOG, WARNING, e);
-			}
+		runOnDbThreadOrLogException(() -> {
+			long start = now();
+			int available = forumSharingManager.getInvitations().size();
+			logDuration(LOG, "Loading available", start);
+			numInvitations.postValue(available);
 		});
 	}
 

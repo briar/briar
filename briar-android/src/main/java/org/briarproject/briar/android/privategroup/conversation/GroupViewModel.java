@@ -52,10 +52,8 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
 import static java.lang.Math.max;
-import static java.util.logging.Level.WARNING;
 import static java.util.logging.Logger.getLogger;
 import static org.briarproject.bramble.util.LogUtils.logDuration;
-import static org.briarproject.bramble.util.LogUtils.logException;
 import static org.briarproject.bramble.util.LogUtils.now;
 
 @MethodsNotNullByDefault
@@ -143,15 +141,11 @@ class GroupViewModel extends ThreadListViewModel<GroupMessageItem> {
 	}
 
 	private void loadPrivateGroup(GroupId groupId) {
-		runOnDbThread(() -> {
-			try {
-				PrivateGroup g = privateGroupManager.getPrivateGroup(groupId);
-				privateGroup.postValue(g);
-				Author author = identityManager.getLocalAuthor();
-				isCreator.postValue(g.getCreator().equals(author));
-			} catch (DbException e) {
-				logException(LOG, WARNING, e);
-			}
+		runOnDbThreadOrLogException(() -> {
+			PrivateGroup g = privateGroupManager.getPrivateGroup(groupId);
+			privateGroup.postValue(g);
+			Author author = identityManager.getLocalAuthor();
+			isCreator.postValue(g.getCreator().equals(author));
 		});
 	}
 
@@ -190,18 +184,14 @@ class GroupViewModel extends ThreadListViewModel<GroupMessageItem> {
 	@Override
 	public void createAndStoreMessage(String text,
 			@Nullable MessageId parentId) {
-		runOnDbThread(() -> {
-			try {
-				LocalAuthor author = identityManager.getLocalAuthor();
-				MessageId previousMsgId =
-						privateGroupManager.getPreviousMsgId(groupId);
-				GroupCount count = privateGroupManager.getGroupCount(groupId);
-				long timestamp = count.getLatestMsgTime();
-				timestamp = max(clock.currentTimeMillis(), timestamp + 1);
-				createMessage(text, timestamp, parentId, author, previousMsgId);
-			} catch (DbException e) {
-				logException(LOG, WARNING, e);
-			}
+		runOnDbThreadOrLogException(() -> {
+			LocalAuthor author = identityManager.getLocalAuthor();
+			MessageId previousMsgId =
+					privateGroupManager.getPreviousMsgId(groupId);
+			GroupCount count = privateGroupManager.getGroupCount(groupId);
+			long timestamp = count.getLatestMsgTime();
+			timestamp = max(clock.currentTimeMillis(), timestamp + 1);
+			createMessage(text, timestamp, parentId, author, previousMsgId);
 		});
 	}
 
@@ -217,55 +207,36 @@ class GroupViewModel extends ThreadListViewModel<GroupMessageItem> {
 	}
 
 	private void storePost(GroupMessage msg, String text) {
-		runOnDbThread(() -> {
-			try {
-				long start = now();
-				GroupMessageHeader header =
-						privateGroupManager.addLocalMessage(msg);
-				addItemAsync(buildItem(header, text));
-				logDuration(LOG, "Storing group message", start);
-			} catch (DbException e) {
-				logException(LOG, WARNING, e);
-			}
+		runOnDbThreadOrLogException(() -> {
+			long start = now();
+			GroupMessageHeader header =
+					privateGroupManager.addLocalMessage(msg);
+			addItemAsync(buildItem(header, text));
+			logDuration(LOG, "Storing group message", start);
 		});
 	}
 
 	@Override
 	protected void markItemRead(GroupMessageItem item) {
-		runOnDbThread(() -> {
-			try {
-				privateGroupManager.setReadFlag(groupId, item.getId(), true);
-			} catch (DbException e) {
-				logException(LOG, WARNING, e);
-			}
-		});
+		runOnDbThreadOrLogException(() ->
+				privateGroupManager.setReadFlag(groupId, item.getId(), true));
 	}
 
 	public void loadSharingContacts() {
-		runOnDbThread(() -> {
-			try {
-				Collection<GroupMember> members =
-						privateGroupManager.getMembers(groupId);
-				Collection<ContactId> contactIds = new ArrayList<>();
-				for (GroupMember m : members) {
-					if (m.getContactId() != null)
-						contactIds.add(m.getContactId());
-				}
-				sharingController.addAll(contactIds);
-			} catch (DbException e) {
-				logException(LOG, WARNING, e);
+		runOnDbThreadOrLogException(() -> {
+			Collection<GroupMember> members =
+					privateGroupManager.getMembers(groupId);
+			Collection<ContactId> contactIds = new ArrayList<>();
+			for (GroupMember m : members) {
+				if (m.getContactId() != null) contactIds.add(m.getContactId());
 			}
+			sharingController.addAll(contactIds);
 		});
 	}
 
 	void deletePrivateGroup() {
-		runOnDbThread(() -> {
-			try {
-				privateGroupManager.removePrivateGroup(groupId);
-			} catch (DbException e) {
-				logException(LOG, WARNING, e);
-			}
-		});
+		runOnDbThreadOrLogException(() ->
+				privateGroupManager.removePrivateGroup(groupId));
 	}
 
 	LiveData<PrivateGroup> getPrivateGroup() {

@@ -2,6 +2,7 @@ package org.briarproject.briar.android.viewmodel;
 
 import android.app.Application;
 
+import org.briarproject.bramble.api.ThrowingRunnable;
 import org.briarproject.bramble.api.db.DatabaseExecutor;
 import org.briarproject.bramble.api.db.DbCallable;
 import org.briarproject.bramble.api.db.DbException;
@@ -72,6 +73,30 @@ public abstract class DbViewModel extends AndroidViewModel {
 			} catch (InterruptedException e) {
 				LOG.warning("Interrupted while waiting for database");
 				Thread.currentThread().interrupt();
+			}
+		});
+	}
+
+	/**
+	 * Runs the given task on the {@link DatabaseExecutor}
+	 * and waits for the DB to open. If the task throws a {@link DbException}
+	 * it's caught and logged.
+	 * <p>
+	 * If you need a list of items to be displayed in a
+	 * {@link RecyclerView.Adapter},
+	 * use {@link #loadList(DbCallable, UiConsumer)} instead.
+	 */
+	protected void runOnDbThreadOrLogException(
+			ThrowingRunnable<DbException> task) {
+		dbExecutor.execute(() -> {
+			try {
+				lifecycleManager.waitForDatabase();
+				task.run();
+			} catch (InterruptedException e) {
+				LOG.warning("Interrupted while waiting for database");
+				Thread.currentThread().interrupt();
+			} catch (DbException e) {
+				logException(LOG, WARNING, e);
 			}
 		});
 	}

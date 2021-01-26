@@ -45,12 +45,10 @@ import static android.bluetooth.BluetoothAdapter.ACTION_STATE_CHANGED;
 import static android.bluetooth.BluetoothAdapter.EXTRA_STATE;
 import static android.bluetooth.BluetoothAdapter.STATE_ON;
 import static java.util.logging.Level.INFO;
-import static java.util.logging.Level.WARNING;
 import static java.util.logging.Logger.getLogger;
 import static org.briarproject.bramble.api.plugin.Plugin.PREF_PLUGIN_ENABLE;
 import static org.briarproject.bramble.api.plugin.Plugin.State.STARTING_STOPPING;
 import static org.briarproject.bramble.util.LogUtils.logDuration;
-import static org.briarproject.bramble.util.LogUtils.logException;
 import static org.briarproject.bramble.util.LogUtils.now;
 
 @NotNullByDefault
@@ -185,20 +183,16 @@ public class PluginViewModel extends DbViewModel implements EventListener {
 	}
 
 	private void loadSettings() {
-		runOnDbThread(() -> {
-			try {
-				boolean tor = isPluginEnabled(TorConstants.ID,
-						TorConstants.DEFAULT_PREF_PLUGIN_ENABLE);
-				torEnabledSetting.postValue(tor);
-				boolean wifi = isPluginEnabled(LanTcpConstants.ID,
-						LanTcpConstants.DEFAULT_PREF_PLUGIN_ENABLE);
-				wifiEnabledSetting.postValue(wifi);
-				boolean bt = isPluginEnabled(BluetoothConstants.ID,
-						BluetoothConstants.DEFAULT_PREF_PLUGIN_ENABLE);
-				btEnabledSetting.postValue(bt);
-			} catch (DbException e) {
-				logException(LOG, WARNING, e);
-			}
+		runOnDbThreadOrLogException(() -> {
+			boolean tor = isPluginEnabled(TorConstants.ID,
+					TorConstants.DEFAULT_PREF_PLUGIN_ENABLE);
+			torEnabledSetting.postValue(tor);
+			boolean wifi = isPluginEnabled(LanTcpConstants.ID,
+					LanTcpConstants.DEFAULT_PREF_PLUGIN_ENABLE);
+			wifiEnabledSetting.postValue(wifi);
+			boolean bt = isPluginEnabled(BluetoothConstants.ID,
+					BluetoothConstants.DEFAULT_PREF_PLUGIN_ENABLE);
+			btEnabledSetting.postValue(bt);
 		});
 	}
 
@@ -222,14 +216,10 @@ public class PluginViewModel extends DbViewModel implements EventListener {
 	}
 
 	private void mergeSettings(Settings s, String namespace) {
-		runOnDbThread(() -> {
-			try {
-				long start = now();
-				settingsManager.mergeSettings(s, namespace);
-				logDuration(LOG, "Merging settings", start);
-			} catch (DbException e) {
-				logException(LOG, WARNING, e);
-			}
+		runOnDbThreadOrLogException(() -> {
+			long start = now();
+			settingsManager.mergeSettings(s, namespace);
+			logDuration(LOG, "Merging settings", start);
 		});
 	}
 

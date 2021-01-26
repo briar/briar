@@ -51,10 +51,8 @@ import androidx.lifecycle.MutableLiveData;
 
 import static android.widget.Toast.LENGTH_SHORT;
 import static java.lang.Math.max;
-import static java.util.logging.Level.WARNING;
 import static java.util.logging.Logger.getLogger;
 import static org.briarproject.bramble.util.LogUtils.logDuration;
-import static org.briarproject.bramble.util.LogUtils.logException;
 import static org.briarproject.bramble.util.LogUtils.now;
 
 @MethodsNotNullByDefault
@@ -122,14 +120,8 @@ class ForumViewModel extends ThreadListViewModel<ForumPostItem> {
 
 	LiveData<Forum> loadForum() {
 		MutableLiveData<Forum> forum = new MutableLiveData<>();
-		runOnDbThread(() -> {
-			try {
-				Forum f = forumManager.getForum(groupId);
-				forum.postValue(f);
-			} catch (DbException e) {
-				logException(LOG, WARNING, e);
-			}
-		});
+		runOnDbThreadOrLogException(() ->
+				forum.postValue(forumManager.getForum(groupId)));
 		return forum;
 	}
 
@@ -147,16 +139,12 @@ class ForumViewModel extends ThreadListViewModel<ForumPostItem> {
 	@Override
 	public void createAndStoreMessage(String text,
 			@Nullable MessageId parentId) {
-		runOnDbThread(() -> {
-			try {
-				LocalAuthor author = identityManager.getLocalAuthor();
-				GroupCount count = forumManager.getGroupCount(groupId);
-				long timestamp = max(count.getLatestMsgTime() + 1,
-						clock.currentTimeMillis());
-				createMessage(text, timestamp, parentId, author);
-			} catch (DbException e) {
-				logException(LOG, WARNING, e);
-			}
+		runOnDbThreadOrLogException(() -> {
+			LocalAuthor author = identityManager.getLocalAuthor();
+			GroupCount count = forumManager.getGroupCount(groupId);
+			long timestamp = max(count.getLatestMsgTime() + 1,
+					clock.currentTimeMillis());
+			createMessage(text, timestamp, parentId, author);
 		});
 	}
 
@@ -171,15 +159,11 @@ class ForumViewModel extends ThreadListViewModel<ForumPostItem> {
 	}
 
 	private void storePost(ForumPost msg, String text) {
-		runOnDbThread(() -> {
-			try {
-				long start = now();
-				ForumPostHeader header = forumManager.addLocalPost(msg);
-				addItemAsync(buildItem(header, text));
-				logDuration(LOG, "Storing forum post", start);
-			} catch (DbException e) {
-				logException(LOG, WARNING, e);
-			}
+		runOnDbThreadOrLogException(() -> {
+			long start = now();
+			ForumPostHeader header = forumManager.addLocalPost(msg);
+			addItemAsync(buildItem(header, text));
+			logDuration(LOG, "Storing forum post", start);
 		});
 	}
 
@@ -195,39 +179,23 @@ class ForumViewModel extends ThreadListViewModel<ForumPostItem> {
 
 	@Override
 	protected void markItemRead(ForumPostItem item) {
-		runOnDbThread(() -> {
-			try {
-				forumManager.setReadFlag(groupId, item.getId(), true);
-			} catch (DbException e) {
-				logException(LOG, WARNING, e);
-			}
-		});
+		runOnDbThreadOrLogException(() ->
+				forumManager.setReadFlag(groupId, item.getId(), true));
 	}
 
 	public void loadSharingContacts() {
-		runOnDbThread(() -> {
-			try {
-				Collection<Contact> contacts =
-						forumSharingManager.getSharedWith(groupId);
-				Collection<ContactId> contactIds =
-						new ArrayList<>(contacts.size());
-				for (Contact c : contacts) contactIds.add(c.getId());
-				sharingController.addAll(contactIds);
-			} catch (DbException e) {
-				logException(LOG, WARNING, e);
-			}
+		runOnDbThreadOrLogException(() -> {
+			Collection<Contact> contacts =
+					forumSharingManager.getSharedWith(groupId);
+			Collection<ContactId> contactIds = new ArrayList<>(contacts.size());
+			for (Contact c : contacts) contactIds.add(c.getId());
+			sharingController.addAll(contactIds);
 		});
 	}
 
 	void deleteForum() {
-		runOnDbThread(() -> {
-			try {
-				Forum f = forumManager.getForum(groupId);
-				forumManager.removeForum(f);
-			} catch (DbException e) {
-				logException(LOG, WARNING, e);
-			}
-		});
+		runOnDbThreadOrLogException(() ->
+				forumManager.removeForum(forumManager.getForum(groupId)));
 		Toast.makeText(getApplication(), R.string.forum_left_toast,
 				LENGTH_SHORT).show();
 	}

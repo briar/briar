@@ -212,26 +212,18 @@ public class ConversationViewModel extends DbViewModel
 	}
 
 	void markMessageRead(GroupId g, MessageId m) {
-		runOnDbThread(() -> {
-			try {
-				long start = now();
-				messagingManager.setReadFlag(g, m, true);
-				logDuration(LOG, "Marking read", start);
-			} catch (DbException e) {
-				logException(LOG, WARNING, e);
-			}
+		runOnDbThreadOrLogException(() -> {
+			long start = now();
+			messagingManager.setReadFlag(g, m, true);
+			logDuration(LOG, "Marking read", start);
 		});
 	}
 
 	void setContactAlias(String alias) {
-		runOnDbThread(() -> {
-			try {
-				contactManager.setContactAlias(requireNonNull(contactId),
-						alias.isEmpty() ? null : alias);
-				loadContact(contactId);
-			} catch (DbException e) {
-				logException(LOG, WARNING, e);
-			}
+		runOnDbThreadOrLogException(() -> {
+			contactManager.setContactAlias(requireNonNull(contactId),
+					alias.isEmpty() ? null : alias);
+			loadContact(contactId);
 		});
 	}
 
@@ -327,21 +319,17 @@ public class ConversationViewModel extends DbViewModel
 	@UiThread
 	private void storeMessage(PrivateMessage m) {
 		attachmentCreator.onAttachmentsSent(m.getMessage().getId());
-		runOnDbThread(() -> {
-			try {
-				long start = now();
-				messagingManager.addLocalMessage(m);
-				logDuration(LOG, "Storing message", start);
-				Message message = m.getMessage();
-				PrivateMessageHeader h = new PrivateMessageHeader(
-						message.getId(), message.getGroupId(),
-						message.getTimestamp(), true, true, false, false,
-						m.hasText(), m.getAttachmentHeaders());
-				// TODO add text to cache when available here
-				addedHeader.postEvent(h);
-			} catch (DbException e) {
-				logException(LOG, WARNING, e);
-			}
+		runOnDbThreadOrLogException(() -> {
+			long start = now();
+			messagingManager.addLocalMessage(m);
+			logDuration(LOG, "Storing message", start);
+			Message message = m.getMessage();
+			PrivateMessageHeader h = new PrivateMessageHeader(
+					message.getId(), message.getGroupId(),
+					message.getTimestamp(), true, true, false, false,
+					m.hasText(), m.getAttachmentHeaders());
+			// TODO add text to cache when available here
+			addedHeader.postEvent(h);
 		});
 	}
 
@@ -383,12 +371,7 @@ public class ConversationViewModel extends DbViewModel
 
 	@UiThread
 	void recheckFeaturesAndOnboarding(ContactId contactId) {
-		runOnDbThread(() -> {
-			try {
-				checkFeaturesAndOnboarding(contactId);
-			} catch (DbException e) {
-				logException(LOG, WARNING, e);
-			}
-		});
+		runOnDbThreadOrLogException(() ->
+				checkFeaturesAndOnboarding(contactId));
 	}
 }

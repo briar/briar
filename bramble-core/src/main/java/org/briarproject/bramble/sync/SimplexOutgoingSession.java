@@ -1,5 +1,6 @@
 package org.briarproject.bramble.sync;
 
+import org.briarproject.bramble.api.ThrowingRunnable;
 import org.briarproject.bramble.api.contact.ContactId;
 import org.briarproject.bramble.api.contact.event.ContactRemovedEvent;
 import org.briarproject.bramble.api.db.DatabaseComponent;
