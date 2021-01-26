@@ -15,6 +15,7 @@ import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
 import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.activity.ActivityComponent;
+import org.briarproject.briar.android.bluetoothsetup.BluetoothSetupActivity;
 import org.briarproject.briar.android.contact.BaseContactListAdapter.OnContactClickListener;
 import org.briarproject.briar.android.contact.add.remote.AddContactActivity;
 import org.briarproject.briar.android.contact.add.remote.PendingContactListActivity;
@@ -134,6 +135,10 @@ public class ContactListFragment extends BaseFragment
 			case R.id.action_add_contact_remotely:
 				startActivity(
 						new Intent(getContext(), AddContactActivity.class));
+			case R.id.action_bluetooth_setup:
+				startActivity(
+						new Intent(getContext(),
+								BluetoothSetupActivity.class));
 		}
 	}
 

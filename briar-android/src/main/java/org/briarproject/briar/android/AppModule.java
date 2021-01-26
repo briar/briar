@@ -30,14 +30,15 @@ import org.briarproject.bramble.util.StringUtils;
 import org.briarproject.briar.android.account.DozeHelperModule;
 import org.briarproject.briar.android.account.LockManagerImpl;
 import org.briarproject.briar.android.account.SetupModule;
+import org.briarproject.briar.android.bluetoothsetup.BluetoothSetupModule;
 import org.briarproject.briar.android.contact.ContactListModule;
 import org.briarproject.briar.android.forum.ForumModule;
 import org.briarproject.briar.android.keyagreement.ContactExchangeModule;
 import org.briarproject.briar.android.login.LoginModule;
 import org.briarproject.briar.android.navdrawer.NavDrawerModule;
-import org.briarproject.briar.android.settings.SettingsModule;
 import org.briarproject.briar.android.privategroup.list.GroupListModule;
 import org.briarproject.briar.android.reporting.DevReportModule;
+import org.briarproject.briar.android.settings.SettingsModule;
 import org.briarproject.briar.android.test.TestAvatarCreatorImpl;
 import org.briarproject.briar.android.viewmodel.ViewModelModule;
 import org.briarproject.briar.api.android.AndroidNotificationManager;
@@ -78,6 +79,7 @@ import static org.briarproject.briar.android.TestingConstants.IS_DEBUG_BUILD;
 		SettingsModule.class,
 		DevReportModule.class,
 		ContactListModule.class,
+		BluetoothSetupModule.class,
 		// below need to be within same scope as ViewModelProvider.Factory
 		ForumModule.BindsModule.class,
 		GroupListModule.class,

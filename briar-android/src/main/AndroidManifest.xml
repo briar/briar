@@ -448,6 +448,12 @@
 			android:label="@string/pending_contact_requests"
 			android:theme="@style/BriarTheme" />
 
+		<activity
+			android:name=".android.bluetoothsetup.BluetoothSetupActivity"
+			android:label="Bluetooth Setup"
+			android:theme="@style/BriarTheme"
+			android:windowSoftInputMode="adjustResize|stateHidden" />
+
 	</application>
 
 	<queries>

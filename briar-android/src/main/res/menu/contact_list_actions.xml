@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<menu
-	xmlns:android="http://schemas.android.com/apk/res/android"
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
 	xmlns:app="http://schemas.android.com/apk/res-auto">
 
 	<item
@@ -8,13 +7,20 @@
 		android:icon="@drawable/ic_nearby"
 		android:orderInCategory="3"
 		android:title="@string/add_contact_nearby_title"
-		app:showAsAction="never"/>
+		app:showAsAction="never" />
 
 	<item
 		android:id="@+id/action_add_contact_remotely"
 		android:icon="@drawable/ic_link_menu"
 		android:orderInCategory="2"
 		android:title="@string/add_contact_remotely_title"
-		app:showAsAction="never"/>
+		app:showAsAction="never" />
+
+	<item
+		android:id="@+id/action_bluetooth_setup"
+		android:icon="@drawable/ic_link_menu"
+		android:orderInCategory="4"
+		android:title="Bluetooth setup"
+		app:showAsAction="never" />
 
 </menu>
