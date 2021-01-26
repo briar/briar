@@ -6,6 +6,7 @@ import org.briarproject.bramble.api.ThrowingRunnable;
 import org.briarproject.bramble.api.db.DatabaseExecutor;
 import org.briarproject.bramble.api.db.DbCallable;
 import org.briarproject.bramble.api.db.DbException;
+import org.briarproject.bramble.api.db.DbRunnable;
 import org.briarproject.bramble.api.db.Transaction;
 import org.briarproject.bramble.api.db.TransactionManager;
 import org.briarproject.bramble.api.lifecycle.LifecycleManager;
@@ -24,6 +25,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.UiThread;
 import androidx.arch.core.util.Function;
+import androidx.core.util.Consumer;
 import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
 import androidx.recyclerview.widget.RecyclerView;
@@ -58,14 +60,15 @@ public abstract class DbViewModel extends AndroidViewModel {
 	}
 
 	/**
-	 * Runs the given task on the {@link DatabaseExecutor}
-	 * and waits for the DB to open.
+	 * Waits for the DB to open and runs the given task on the
+	 * {@link DatabaseExecutor}.
 	 * <p>
 	 * If you need a list of items to be displayed in a
 	 * {@link RecyclerView.Adapter},
 	 * use {@link #loadList(DbCallable, UiConsumer)} instead.
 	 */
-	protected void runOnDbThread(Runnable task) {
+	protected void runOnDbThread(ThrowingRunnable<Exception> task,
+			Consumer<Exception> err) {
 		dbExecutor.execute(() -> {
 			try {
 				lifecycleManager.waitForDatabase();
@@ -73,13 +76,52 @@ public abstract class DbViewModel extends AndroidViewModel {
 			} catch (InterruptedException e) {
 				LOG.warning("Interrupted while waiting for database");
 				Thread.currentThread().interrupt();
+			} catch (Exception e) {
+				err.accept(e);
 			}
 		});
 	}
 
 	/**
-	 * Runs the given task on the {@link DatabaseExecutor}
-	 * and waits for the DB to open. If the task throws a {@link DbException}
+	 * Waits for the DB to open and runs the given task on the
+	 * {@link DatabaseExecutor}.
+	 * <p>
+	 * If you need a list of items to be displayed in a
+	 * {@link RecyclerView.Adapter},
+	 * use {@link #loadList(DbCallable, UiConsumer)} instead.
+	 */
+	protected void runOnDbThread(boolean readOnly,
+			DbRunnable<Exception> task, Consumer<Exception> err) {
+		dbExecutor.execute(() -> {
+			try {
+				lifecycleManager.waitForDatabase();
+				db.transaction(readOnly, task);
+			} catch (InterruptedException e) {
+				LOG.warning("Interrupted while waiting for database");
+				Thread.currentThread().interrupt();
+			} catch (Exception e) {
+				err.accept(e);
+			}
+		});
+	}
+
+	/**
+	 * Waits for the DB to open and runs the given task on the
+	 * {@link DatabaseExecutor}. If the task throws a {@link DbException}
+	 * it's caught and logged.
+	 * <p>
+	 * If you need a list of items to be displayed in a
+	 * {@link RecyclerView.Adapter},
+	 * use {@link #loadList(DbCallable, UiConsumer)} instead.
+	 */
+	protected void runOnDbThreadOrLogException(boolean readOnly,
+			DbRunnable<Exception> task) {
+		runOnDbThread(readOnly, task, e -> logException(LOG, WARNING, e));
+	}
+
+	/**
+	 * Waits for the DB to open and runs the given task on the
+	 * {@link DatabaseExecutor}. If the task throws a {@link DbException}
 	 * it's caught and logged.
 	 * <p>
 	 * If you need a list of items to be displayed in a
@@ -87,18 +129,8 @@ public abstract class DbViewModel extends AndroidViewModel {
 	 * use {@link #loadList(DbCallable, UiConsumer)} instead.
 	 */
 	protected void runOnDbThreadOrLogException(
-			ThrowingRunnable<DbException> task) {
-		dbExecutor.execute(() -> {
-			try {
-				lifecycleManager.waitForDatabase();
-				task.run();
-			} catch (InterruptedException e) {
-				LOG.warning("Interrupted while waiting for database");
-				Thread.currentThread().interrupt();
-			} catch (DbException e) {
-				logException(LOG, WARNING, e);
-			}
-		});
+			ThrowingRunnable<Exception> task) {
+		runOnDbThread(task, e -> logException(LOG, WARNING, e));
 	}
 
 	/**

@@ -2,12 +2,9 @@ package org.briarproject.briar.android.contact.add.remote;
 
 import android.app.Application;
 
-import org.briarproject.bramble.api.FormatException;
-import org.briarproject.bramble.api.UnsupportedVersionException;
 import org.briarproject.bramble.api.contact.ContactManager;
 import org.briarproject.bramble.api.contact.PendingContact;
 import org.briarproject.bramble.api.db.DatabaseExecutor;
-import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.db.NoSuchPendingContactException;
 import org.briarproject.bramble.api.db.TransactionManager;
 import org.briarproject.bramble.api.lifecycle.LifecycleManager;
@@ -18,7 +15,6 @@ import org.briarproject.briar.android.viewmodel.LiveEvent;
 import org.briarproject.briar.android.viewmodel.LiveResult;
 import org.briarproject.briar.android.viewmodel.MutableLiveEvent;
 
-import java.security.GeneralSecurityException;
 import java.util.concurrent.Executor;
 import java.util.logging.Logger;
 
@@ -101,17 +97,11 @@ public class AddContactViewModel extends DbViewModel {
 	void addContact(String nickname) {
 		if (remoteHandshakeLink == null) throw new IllegalStateException();
 		runOnDbThread(() -> {
-			try {
-				contactManager.addPendingContact(remoteHandshakeLink, nickname);
-				addContactResult.postValue(new LiveResult<>(true));
-			} catch (UnsupportedVersionException e) {
-				logException(LOG, WARNING, e);
-				addContactResult.postValue(new LiveResult<>(e));
-			} catch (DbException | FormatException
-					| GeneralSecurityException e) {
-				logException(LOG, WARNING, e);
-				addContactResult.postValue(new LiveResult<>(e));
-			}
+			contactManager.addPendingContact(remoteHandshakeLink, nickname);
+			addContactResult.postValue(new LiveResult<>(true));
+		}, e -> {
+			logException(LOG, WARNING, e);
+			addContactResult.postValue(new LiveResult<>(e));
 		});
 	}
 
@@ -121,13 +111,13 @@ public class AddContactViewModel extends DbViewModel {
 
 	public void updatePendingContact(String name, PendingContact p) {
 		runOnDbThread(() -> {
-			try {
-				contactManager.removePendingContact(p.getId());
-				addContact(name);
-			} catch (NoSuchPendingContactException e) {
+			contactManager.removePendingContact(p.getId());
+			addContact(name);
+		}, e -> {
+			if (e instanceof NoSuchPendingContactException) {
 				logException(LOG, WARNING, e);
 				// no error in UI as pending contact was converted into contact
-			} catch (DbException e) {
+			} else {
 				logException(LOG, WARNING, e);
 				addContactResult.postValue(new LiveResult<>(e));
 			}

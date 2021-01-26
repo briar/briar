@@ -1,7 +1,6 @@
 package org.briarproject.briar.android.sharing;
 
 import org.briarproject.bramble.api.contact.ContactId;
-import org.briarproject.bramble.api.db.DatabaseExecutor;
 import org.briarproject.bramble.api.event.EventBus;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 
@@ -28,7 +27,7 @@ public interface SharingController {
 	/**
 	 * Adds a collection of contacts to be tracked.
 	 */
-	@DatabaseExecutor
+	@UiThread
 	void addAll(Collection<ContactId> contacts);
 
 	/**

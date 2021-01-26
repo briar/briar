@@ -130,6 +130,12 @@ public interface PrivateGroupManager {
 	Collection<GroupMember> getMembers(GroupId g) throws DbException;
 
 	/**
+	 * Returns all members of the given private group.
+	 */
+	Collection<GroupMember> getMembers(Transaction txn, GroupId g)
+			throws DbException;
+
+	/**
 	 * Returns true if the given author is a member of the given private group.
 	 */
 	boolean isMember(Transaction txn, GroupId g, Author a) throws DbException;

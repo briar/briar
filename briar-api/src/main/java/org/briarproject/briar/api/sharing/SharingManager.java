@@ -3,6 +3,7 @@ package org.briarproject.briar.api.sharing;
 import org.briarproject.bramble.api.contact.Contact;
 import org.briarproject.bramble.api.contact.ContactId;
 import org.briarproject.bramble.api.db.DbException;
+import org.briarproject.bramble.api.db.Transaction;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.sync.GroupId;
 import org.briarproject.briar.api.client.SessionId;
@@ -44,6 +45,12 @@ public interface SharingManager<S extends Shareable>
 	 * Returns all contacts with whom the given group is shared.
 	 */
 	Collection<Contact> getSharedWith(GroupId g) throws DbException;
+
+	/**
+	 * Returns all contacts with whom the given group is shared.
+	 */
+	Collection<Contact> getSharedWith(Transaction txn, GroupId g)
+			throws DbException;
 
 	/**
 	 * Returns true if the group not already shared and no invitation is open

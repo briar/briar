@@ -2,14 +2,12 @@ package org.briarproject.briar.android.sharing;
 
 import org.briarproject.bramble.api.connection.ConnectionRegistry;
 import org.briarproject.bramble.api.contact.ContactId;
-import org.briarproject.bramble.api.db.DatabaseExecutor;
 import org.briarproject.bramble.api.event.Event;
 import org.briarproject.bramble.api.event.EventBus;
 import org.briarproject.bramble.api.event.EventListener;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.plugin.event.ContactConnectedEvent;
 import org.briarproject.bramble.api.plugin.event.ContactDisconnectedEvent;
-import org.briarproject.bramble.api.system.AndroidExecutor;
 
 import java.util.Collection;
 import java.util.HashSet;
@@ -26,7 +24,6 @@ public class SharingControllerImpl implements SharingController, EventListener {
 
 	private final EventBus eventBus;
 	private final ConnectionRegistry connectionRegistry;
-	private final AndroidExecutor executor;
 
 	// UI thread
 	private final Set<ContactId> contacts = new HashSet<>();
@@ -35,11 +32,9 @@ public class SharingControllerImpl implements SharingController, EventListener {
 
 	@Inject
 	SharingControllerImpl(EventBus eventBus,
-			ConnectionRegistry connectionRegistry,
-			AndroidExecutor executor) {
+			ConnectionRegistry connectionRegistry) {
 		this.eventBus = eventBus;
 		this.connectionRegistry = connectionRegistry;
-		this.executor = executor;
 		eventBus.addListener(this);
 	}
 
@@ -78,13 +73,11 @@ public class SharingControllerImpl implements SharingController, EventListener {
 		return online;
 	}
 
+	@UiThread
 	@Override
-	@DatabaseExecutor
 	public void addAll(Collection<ContactId> c) {
-		executor.runOnUiThread(() -> {
-			contacts.addAll(c);
-			updateLiveData();
-		});
+		contacts.addAll(c);
+		updateLiveData();
 	}
 
 	@UiThread

@@ -149,7 +149,7 @@ public class ConversationViewModel extends DbViewModel
 			AttachmentReceivedEvent a = (AttachmentReceivedEvent) e;
 			if (a.getContactId().equals(contactId)) {
 				LOG.info("Attachment received");
-				runOnDbThread(() -> attachmentRetriever
+				runOnDbThreadOrLogException(() -> attachmentRetriever
 						.loadAttachmentItem(a.getMessageId()));
 			}
 		} else if (e instanceof AvatarUpdatedEvent) {
@@ -194,18 +194,18 @@ public class ConversationViewModel extends DbViewModel
 
 	private void loadContact(ContactId contactId) {
 		runOnDbThread(() -> {
-			try {
-				long start = now();
-				Contact c = contactManager.getContact(contactId);
-				AuthorInfo authorInfo = authorManager.getAuthorInfo(c);
-				contactItem.postValue(new ContactItem(c, authorInfo));
-				logDuration(LOG, "Loading contact", start);
-				start = now();
-				checkFeaturesAndOnboarding(contactId);
-				logDuration(LOG, "Checking for image support", start);
-			} catch (NoSuchContactException e) {
+			long start = now();
+			Contact c = contactManager.getContact(contactId);
+			AuthorInfo authorInfo = authorManager.getAuthorInfo(c);
+			contactItem.postValue(new ContactItem(c, authorInfo));
+			logDuration(LOG, "Loading contact", start);
+			start = now();
+			checkFeaturesAndOnboarding(contactId);
+			logDuration(LOG, "Checking for image support", start);
+		}, e -> {
+			if (e instanceof NoSuchContactException) {
 				contactDeleted.postValue(true);
-			} catch (DbException e) {
+			} else {
 				logException(LOG, WARNING, e);
 			}
 		});

@@ -3,7 +3,6 @@ package org.briarproject.briar.android.navdrawer;
 import android.app.Application;
 
 import org.briarproject.bramble.api.db.DatabaseExecutor;
-import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.db.TransactionManager;
 import org.briarproject.bramble.api.lifecycle.LifecycleManager;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
@@ -114,15 +113,12 @@ public class NavDrawerViewModel extends DbViewModel {
 			return;
 		}
 		runOnDbThread(() -> {
-			try {
-				Settings settings =
-						settingsManager.getSettings(SETTINGS_NAMESPACE);
-				boolean ask = settings.getBoolean(DOZE_ASK_AGAIN, true);
-				shouldAskForDozeWhitelisting.postValue(ask);
-			} catch (DbException e) {
-				logException(LOG, WARNING, e);
-				shouldAskForDozeWhitelisting.postValue(true);
-			}
+			Settings settings = settingsManager.getSettings(SETTINGS_NAMESPACE);
+			boolean ask = settings.getBoolean(DOZE_ASK_AGAIN, true);
+			shouldAskForDozeWhitelisting.postValue(ask);
+		}, e -> {
+			logException(LOG, WARNING, e);
+			shouldAskForDozeWhitelisting.postValue(true);
 		});
 	}
 

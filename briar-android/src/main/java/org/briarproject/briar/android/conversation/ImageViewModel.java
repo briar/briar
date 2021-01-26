@@ -6,7 +6,6 @@ import android.net.Uri;
 import android.view.View;
 
 import org.briarproject.bramble.api.db.DatabaseExecutor;
-import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.db.TransactionManager;
 import org.briarproject.bramble.api.event.Event;
 import org.briarproject.bramble.api.event.EventBus;
@@ -198,14 +197,12 @@ public class ImageViewModel extends DbViewModel implements EventListener {
 	private void saveImage(AttachmentItem attachment, OutputStreamProvider osp,
 			@Nullable Runnable afterCopy) {
 		runOnDbThread(() -> {
-			try {
-				Attachment a =
-						attachmentReader.getAttachment(attachment.getHeader());
-				copyImageFromDb(a, osp, afterCopy);
-			} catch (DbException e) {
-				logException(LOG, WARNING, e);
-				saveState.postEvent(true);
-			}
+			Attachment a =
+					attachmentReader.getAttachment(attachment.getHeader());
+			copyImageFromDb(a, osp, afterCopy);
+		}, e -> {
+			logException(LOG, WARNING, e);
+			saveState.postEvent(true);
 		});
 	}
 
