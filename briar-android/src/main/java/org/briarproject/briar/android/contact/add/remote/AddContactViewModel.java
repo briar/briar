@@ -124,7 +124,7 @@ public class AddContactViewModel extends DbViewModel {
 		return addContactResult;
 	}
 
-	public void updatePendingContact(String name, PendingContact p) {
+	void updatePendingContact(String name, PendingContact p) {
 		runOnDbThread(() -> {
 			try {
 				contactManager.removePendingContact(p.getId());
