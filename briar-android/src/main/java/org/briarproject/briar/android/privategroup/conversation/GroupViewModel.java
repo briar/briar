@@ -138,7 +138,7 @@ class GroupViewModel extends ThreadListViewModel<GroupMessageItem> {
 		loadPrivateGroup(groupId);
 	}
 
-	public void clearGroupMessageNotifications() {
+	protected void clearNotifications() {
 		notificationManager.clearGroupMessageNotification(groupId);
 	}
 

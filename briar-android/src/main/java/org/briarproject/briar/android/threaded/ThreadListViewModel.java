@@ -124,8 +124,11 @@ public abstract class ThreadListViewModel<I extends ThreadItem>
 		loadSharingContacts();
 	}
 
-	public void blockNotifications() {
+	protected abstract void clearNotifications();
+
+	public void blockAndClearNotifications() {
 		notificationManager.blockNotification(groupId);
+		clearNotifications();
 	}
 
 	public void unblockNotifications() {

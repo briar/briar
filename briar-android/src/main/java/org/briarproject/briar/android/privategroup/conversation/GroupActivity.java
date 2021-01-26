@@ -85,12 +85,6 @@ public class GroupActivity extends
 	}
 
 	@Override
-	public void onStart() {
-		super.onStart();
-		viewModel.clearGroupMessageNotifications();
-	}
-
-	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		// Inflate the menu items for use in the action bar
 		MenuInflater inflater = getMenuInflater();

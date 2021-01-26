@@ -80,12 +80,6 @@ public class ForumActivity extends
 	}
 
 	@Override
-	public void onStart() {
-		super.onStart();
-		viewModel.clearForumPostNotification();
-	}
-
-	@Override
 	protected void onActivityResult(int request, int result,
 			@Nullable Intent data) {
 		super.onActivityResult(request, result, data);

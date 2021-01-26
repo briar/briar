@@ -116,7 +116,7 @@ class ForumViewModel extends ThreadListViewModel<ForumPostItem> {
 		}
 	}
 
-	void clearForumPostNotification() {
+	protected void clearNotifications() {
 		notificationManager.clearForumPostNotification(groupId);
 	}
 

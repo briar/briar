@@ -110,7 +110,7 @@ public abstract class ThreadListActivity<I extends ThreadItem, A extends ThreadI
 	@Override
 	public void onStart() {
 		super.onStart();
-		getViewModel().blockNotifications();
+		getViewModel().blockAndClearNotifications();
 		list.startPeriodicUpdate();
 	}
 
