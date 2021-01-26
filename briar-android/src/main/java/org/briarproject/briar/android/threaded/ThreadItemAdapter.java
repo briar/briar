@@ -4,8 +4,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
-import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
+import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.util.ItemReturningAdapter;
@@ -21,8 +20,7 @@ import androidx.recyclerview.widget.ListAdapter;
 import static androidx.recyclerview.widget.RecyclerView.NO_POSITION;
 
 @UiThread
-@MethodsNotNullByDefault
-@ParametersNotNullByDefault
+@NotNullByDefault
 public class ThreadItemAdapter<I extends ThreadItem>
 		extends ListAdapter<I, BaseThreadItemViewHolder<I>>
 		implements ItemReturningAdapter<I> {
@@ -41,7 +39,7 @@ public class ThreadItemAdapter<I extends ThreadItem>
 			@Override
 			public boolean areContentsTheSame(I a, I b) {
 				return a.isHighlighted() == b.isHighlighted() &&
-						a.isRead() && b.isRead();
+						a.isRead() == b.isRead();
 			}
 		});
 		this.listener = listener;
@@ -63,7 +61,7 @@ public class ThreadItemAdapter<I extends ThreadItem>
 		ui.bind(item, listener);
 	}
 
-	public int findItemPosition(MessageId id) {
+	int findItemPosition(MessageId id) {
 		for (int i = 0; i < getItemCount(); i++) {
 			if (id.equals(getItem(i).getId())) return i;
 		}
@@ -91,8 +89,7 @@ public class ThreadItemAdapter<I extends ThreadItem>
 
 	@Nullable
 	I getHighlightedItem() {
-		for (int i = 0; i < getItemCount(); i++) {
-			I item = getItem(i);
+		for (I item : getCurrentList()) {
 			if (item.isHighlighted()) return item;
 		}
 		return null;

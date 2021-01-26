@@ -104,6 +104,9 @@ class GroupViewModel extends ThreadListViewModel<GroupMessageItem> {
 				LOG.info("Group message received, adding...");
 				GroupMessageItem item = buildItem(g.getHeader(), g.getText());
 				addItem(item);
+				// In case the join message comes from the creator,
+				// we need to reload the sharing contacts
+				// in case it was delayed and the sharing count is wrong (#850).
 				if (item instanceof JoinMessageItem &&
 						(((JoinMessageItem) item).isInitial())) {
 					loadSharingContacts();

@@ -25,6 +25,7 @@ import androidx.lifecycle.ViewModelProvider;
 
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
+import static org.briarproject.bramble.api.nullsafety.NullSafety.requireNonNull;
 import static org.briarproject.briar.android.activity.RequestCodes.REQUEST_GROUP_INVITE;
 import static org.briarproject.briar.android.util.UiUtils.observeOnce;
 import static org.briarproject.briar.api.privategroup.PrivateGroupConstants.MAX_GROUP_POST_TEXT_LENGTH;
@@ -110,26 +111,26 @@ public class GroupActivity extends
 			startActivity(i);
 			return true;
 		} else if (itemId == R.id.action_group_reveal) {
-			if (viewModel.isCreator().getValue())
+			if (requireNonNull(viewModel.isCreator().getValue()))
 				throw new IllegalStateException();
 			Intent i = new Intent(this, RevealContactsActivity.class);
 			i.putExtra(GROUP_ID, groupId.getBytes());
 			startActivity(i);
 			return true;
 		} else if (itemId == R.id.action_group_invite) {
-			if (!viewModel.isCreator().getValue())
+			if (!requireNonNull(viewModel.isCreator().getValue()))
 				throw new IllegalStateException();
 			Intent i = new Intent(this, GroupInviteActivity.class);
 			i.putExtra(GROUP_ID, groupId.getBytes());
 			startActivityForResult(i, REQUEST_GROUP_INVITE);
 			return true;
 		} else if (itemId == R.id.action_group_leave) {
-			if (viewModel.isCreator().getValue())
+			if (requireNonNull(viewModel.isCreator().getValue()))
 				throw new IllegalStateException();
 			showLeaveGroupDialog();
 			return true;
 		} else if (itemId == R.id.action_group_dissolve) {
-			if (!viewModel.isCreator().getValue())
+			if (!requireNonNull(viewModel.isCreator().getValue()))
 				throw new IllegalStateException();
 			showDissolveGroupDialog();
 			return true;
@@ -152,7 +153,8 @@ public class GroupActivity extends
 
 	@Override
 	public void onReplyClick(GroupMessageItem item) {
-		if (!viewModel.isDissolved().getValue()) super.onReplyClick(item);
+		Boolean isDissolved = viewModel.isDissolved().getValue();
+		if (isDissolved != null && !isDissolved) super.onReplyClick(item);
 	}
 
 	private void setGroupEnabled(boolean enabled) {
@@ -195,7 +197,7 @@ public class GroupActivity extends
 		viewModel.deletePrivateGroup();
 	}
 
-	public void onGroupDissolved() {
+	private void onGroupDissolved() {
 		AlertDialog.Builder builder =
 				new AlertDialog.Builder(this, R.style.BriarDialogTheme);
 		builder.setTitle(getString(R.string.groups_dissolved_dialog_title));

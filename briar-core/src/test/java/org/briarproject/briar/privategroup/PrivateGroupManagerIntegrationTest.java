@@ -357,19 +357,6 @@ public class PrivateGroupManagerIntegrationTest
 	}
 
 	@Test
-	public void testJoinMessages() throws Exception {
-		addGroup();
-
-		Collection<GroupMessageHeader> headers0 =
-				groupManager0.getHeaders(groupId0);
-		assertEquals(2, headers0.size());
-
-		Collection<GroupMessageHeader> headers1 =
-				groupManager1.getHeaders(groupId0);
-		assertEquals(2, headers1.size());
-	}
-
-	@Test
 	public void testRevealingRelationships() throws Exception {
 		addGroup();
 

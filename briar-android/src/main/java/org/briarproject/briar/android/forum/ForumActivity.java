@@ -103,16 +103,16 @@ public class ForumActivity extends
 		// Handle presses on the action bar items
 		int itemId = item.getItemId();
 		if (itemId == R.id.action_forum_share) {
-			Intent i2 = new Intent(this, ShareForumActivity.class);
-			i2.setFlags(FLAG_ACTIVITY_CLEAR_TOP);
-			i2.putExtra(GROUP_ID, groupId.getBytes());
-			startActivityForResult(i2, REQUEST_SHARE_FORUM);
+			Intent i = new Intent(this, ShareForumActivity.class);
+			i.setFlags(FLAG_ACTIVITY_CLEAR_TOP);
+			i.putExtra(GROUP_ID, groupId.getBytes());
+			startActivityForResult(i, REQUEST_SHARE_FORUM);
 			return true;
 		} else if (itemId == R.id.action_forum_sharing_status) {
-			Intent i3 = new Intent(this, ForumSharingStatusActivity.class);
-			i3.setFlags(FLAG_ACTIVITY_CLEAR_TOP);
-			i3.putExtra(GROUP_ID, groupId.getBytes());
-			startActivity(i3);
+			Intent i = new Intent(this, ForumSharingStatusActivity.class);
+			i.setFlags(FLAG_ACTIVITY_CLEAR_TOP);
+			i.putExtra(GROUP_ID, groupId.getBytes());
+			startActivity(i);
 			return true;
 		} else if (itemId == R.id.action_forum_delete) {
 			showUnsubscribeDialog();

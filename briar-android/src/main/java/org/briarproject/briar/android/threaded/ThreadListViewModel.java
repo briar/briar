@@ -67,7 +67,6 @@ public abstract class ThreadListViewModel<I extends ThreadItem>
 	private final MessageTracker messageTracker;
 	private final EventBus eventBus;
 
-	@DatabaseExecutor
 	private final MessageTree<I> messageTree = new MessageTreeImpl<>();
 	private final MutableLiveData<LiveResult<List<I>>> items =
 			new MutableLiveData<>();
@@ -126,12 +125,12 @@ public abstract class ThreadListViewModel<I extends ThreadItem>
 
 	protected abstract void clearNotifications();
 
-	public void blockAndClearNotifications() {
+	void blockAndClearNotifications() {
 		notificationManager.blockNotification(groupId);
 		clearNotifications();
 	}
 
-	public void unblockNotifications() {
+	void unblockNotifications() {
 		notificationManager.unblockNotification(groupId);
 	}
 
@@ -221,24 +220,26 @@ public abstract class ThreadListViewModel<I extends ThreadItem>
 			PostHeader header) throws DbException;
 
 	@UiThread
-	public void setReplyId(@Nullable MessageId id) {
+	void setReplyId(@Nullable MessageId id) {
 		replyId = id;
 	}
 
 	@UiThread
 	@Nullable
-	public MessageId getReplyId() {
+	MessageId getReplyId() {
 		return replyId;
 	}
 
 	void storeMessageId(@Nullable MessageId messageId) {
-		if (messageId != null) runOnDbThread(() -> {
-			try {
-				messageTracker.storeMessageId(groupId, messageId);
-			} catch (DbException e) {
-				logException(LOG, WARNING, e);
-			}
-		});
+		if (messageId != null) {
+			runOnDbThread(() -> {
+				try {
+					messageTracker.storeMessageId(groupId, messageId);
+				} catch (DbException e) {
+					logException(LOG, WARNING, e);
+				}
+			});
+		}
 	}
 
 	protected abstract void markItemRead(I item);

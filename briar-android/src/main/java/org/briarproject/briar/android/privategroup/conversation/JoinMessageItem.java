@@ -16,7 +16,7 @@ class JoinMessageItem extends GroupMessageItem {
 
 	JoinMessageItem(JoinMessageHeader h, String text) {
 		super(h, text);
-		this.isInitial = h.isInitial();
+		isInitial = h.isInitial();
 	}
 
 	@Override
