@@ -210,34 +210,35 @@ class PrivateGroupManagerImpl extends BdfIncomingMessageHook
 	@Override
 	public GroupMessageHeader addLocalMessage(GroupMessage m)
 			throws DbException {
-		return db.transactionWithResult(false, txn -> {
-			try {
-				return addLocalMessage(txn, m);
-			} catch (FormatException e) {
-				throw new DbException(e);
-			}
-		});
+		return db.transactionWithResult(false, txn -> addLocalMessage(txn, m));
 	}
 
-	private GroupMessageHeader addLocalMessage(Transaction txn, GroupMessage m)
-			throws DbException, FormatException {
-		// store message and metadata
-		BdfDictionary meta = new BdfDictionary();
-		meta.put(KEY_TYPE, POST.getInt());
-		if (m.getParent() != null)
-			meta.put(KEY_PARENT_MSG_ID, m.getParent());
-		addMessageMetadata(meta, m);
-		GroupId g = m.getMessage().getGroupId();
-		clientHelper.addLocalMessage(txn, m.getMessage(), meta, true, false);
-		// track message
-		setPreviousMsgId(txn, g, m.getMessage().getId());
-		messageTracker.trackOutgoingMessage(txn, m.getMessage());
-		// broadcast event
-		attachGroupMessageAddedEvent(txn, m.getMessage(), meta, true);
-		AuthorInfo authorInfo = authorManager.getMyAuthorInfo(txn);
-		return new GroupMessageHeader(m.getMessage().getGroupId(),
-				m.getMessage().getId(), m.getParent(),
-				m.getMessage().getTimestamp(), m.getMember(), authorInfo, true);
+	@Override
+	public GroupMessageHeader addLocalMessage(Transaction txn, GroupMessage m)
+			throws DbException {
+		try {
+			// store message and metadata
+			BdfDictionary meta = new BdfDictionary();
+			meta.put(KEY_TYPE, POST.getInt());
+			if (m.getParent() != null)
+				meta.put(KEY_PARENT_MSG_ID, m.getParent());
+			addMessageMetadata(meta, m);
+			GroupId g = m.getMessage().getGroupId();
+			clientHelper
+					.addLocalMessage(txn, m.getMessage(), meta, true, false);
+			// track message
+			setPreviousMsgId(txn, g, m.getMessage().getId());
+			messageTracker.trackOutgoingMessage(txn, m.getMessage());
+			// broadcast event
+			attachGroupMessageAddedEvent(txn, m.getMessage(), meta, true);
+			AuthorInfo authorInfo = authorManager.getMyAuthorInfo(txn);
+			return new GroupMessageHeader(m.getMessage().getGroupId(),
+					m.getMessage().getId(), m.getParent(),
+					m.getMessage().getTimestamp(), m.getMember(), authorInfo,
+					true);
+		} catch (FormatException e) {
+			throw new DbException(e);
+		}
 	}
 
 	private void addMessageMetadata(BdfDictionary meta, GroupMessage m) {

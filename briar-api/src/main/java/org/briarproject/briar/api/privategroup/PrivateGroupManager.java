@@ -83,6 +83,12 @@ public interface PrivateGroupManager {
 	GroupMessageHeader addLocalMessage(GroupMessage p) throws DbException;
 
 	/**
+	 * Stores and sends a local private group message.
+	 */
+	GroupMessageHeader addLocalMessage(Transaction txn, GroupMessage p)
+			throws DbException;
+
+	/**
 	 * Returns the private group with the given ID.
 	 */
 	PrivateGroup getPrivateGroup(GroupId g) throws DbException;

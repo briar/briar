@@ -126,29 +126,30 @@ class ForumManagerImpl extends BdfIncomingMessageHook implements ForumManager {
 
 	@Override
 	public ForumPostHeader addLocalPost(ForumPost p) throws DbException {
-		return db.transactionWithResult(false, txn -> {
-			try {
-				return addLocalPost(txn, p);
-			} catch (FormatException e) {
-				throw new AssertionError(e);
-			}
-		});
+		return db.transactionWithResult(false, txn -> addLocalPost(txn, p));
 	}
 
-	private ForumPostHeader addLocalPost(Transaction txn, ForumPost p)
-			throws DbException, FormatException {
-		BdfDictionary meta = new BdfDictionary();
-		meta.put(KEY_TIMESTAMP, p.getMessage().getTimestamp());
-		if (p.getParent() != null) meta.put(KEY_PARENT, p.getParent());
-		Author a = p.getAuthor();
-		meta.put(KEY_AUTHOR, clientHelper.toList(a));
-		meta.put(KEY_LOCAL, true);
-		meta.put(MSG_KEY_READ, true);
-		clientHelper.addLocalMessage(txn, p.getMessage(), meta, true, false);
-		messageTracker.trackOutgoingMessage(txn, p.getMessage());
-		AuthorInfo authorInfo = authorManager.getMyAuthorInfo(txn);
-		return new ForumPostHeader(p.getMessage().getId(), p.getParent(),
-				p.getMessage().getTimestamp(), p.getAuthor(), authorInfo, true);
+	@Override
+	public ForumPostHeader addLocalPost(Transaction txn, ForumPost p)
+			throws DbException {
+		try {
+			BdfDictionary meta = new BdfDictionary();
+			meta.put(KEY_TIMESTAMP, p.getMessage().getTimestamp());
+			if (p.getParent() != null) meta.put(KEY_PARENT, p.getParent());
+			Author a = p.getAuthor();
+			meta.put(KEY_AUTHOR, clientHelper.toList(a));
+			meta.put(KEY_LOCAL, true);
+			meta.put(MSG_KEY_READ, true);
+			clientHelper
+					.addLocalMessage(txn, p.getMessage(), meta, true, false);
+			messageTracker.trackOutgoingMessage(txn, p.getMessage());
+			AuthorInfo authorInfo = authorManager.getMyAuthorInfo(txn);
+			return new ForumPostHeader(p.getMessage().getId(), p.getParent(),
+					p.getMessage().getTimestamp(), p.getAuthor(), authorInfo,
+					true);
+		} catch (FormatException e) {
+			throw new AssertionError(e);
+		}
 	}
 
 	@Override

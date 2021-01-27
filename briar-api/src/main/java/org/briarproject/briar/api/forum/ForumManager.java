@@ -61,6 +61,12 @@ public interface ForumManager {
 	ForumPostHeader addLocalPost(ForumPost p) throws DbException;
 
 	/**
+	 * Stores a local forum post.
+	 */
+	ForumPostHeader addLocalPost(Transaction txn, ForumPost p)
+			throws DbException;
+
+	/**
 	 * Returns the forum with the given ID.
 	 */
 	Forum getForum(GroupId g) throws DbException;
