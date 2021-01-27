@@ -205,18 +205,13 @@ class ForumViewModel extends ThreadListViewModel<ForumPostItem> {
 	}
 
 	public void loadSharingContacts() {
-		runOnDbThread(() -> {
-			try {
-				Collection<Contact> contacts =
-						forumSharingManager.getSharedWith(groupId);
-				Collection<ContactId> contactIds =
-						new ArrayList<>(contacts.size());
-				for (Contact c : contacts) contactIds.add(c.getId());
-				sharingController.addAll(contactIds);
-			} catch (DbException e) {
-				logException(LOG, WARNING, e);
-			}
-		});
+		runOnDbThread(true, txn -> {
+			Collection<Contact> contacts =
+					forumSharingManager.getSharedWith(txn, groupId);
+			Collection<ContactId> contactIds = new ArrayList<>(contacts.size());
+			for (Contact c : contacts) contactIds.add(c.getId());
+			txn.attach(() -> sharingController.addAll(contactIds));
+		}, e -> logException(LOG, WARNING, e));
 	}
 
 	void deleteForum() {
