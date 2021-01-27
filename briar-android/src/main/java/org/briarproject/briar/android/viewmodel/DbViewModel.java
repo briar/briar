@@ -5,6 +5,7 @@ import android.app.Application;
 import org.briarproject.bramble.api.db.DatabaseExecutor;
 import org.briarproject.bramble.api.db.DbCallable;
 import org.briarproject.bramble.api.db.DbException;
+import org.briarproject.bramble.api.db.DbRunnable;
 import org.briarproject.bramble.api.db.Transaction;
 import org.briarproject.bramble.api.db.TransactionManager;
 import org.briarproject.bramble.api.lifecycle.LifecycleManager;
@@ -23,6 +24,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.UiThread;
 import androidx.arch.core.util.Function;
+import androidx.core.util.Consumer;
 import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
 import androidx.recyclerview.widget.RecyclerView;
@@ -57,8 +59,8 @@ public abstract class DbViewModel extends AndroidViewModel {
 	}
 
 	/**
-	 * Runs the given task on the {@link DatabaseExecutor}
-	 * and waits for the DB to open.
+	 * Waits for the DB to open and runs the given task on the
+	 * {@link DatabaseExecutor}.
 	 * <p>
 	 * If you need a list of items to be displayed in a
 	 * {@link RecyclerView.Adapter},
@@ -72,6 +74,29 @@ public abstract class DbViewModel extends AndroidViewModel {
 			} catch (InterruptedException e) {
 				LOG.warning("Interrupted while waiting for database");
 				Thread.currentThread().interrupt();
+			}
+		});
+	}
+
+	/**
+	 * Waits for the DB to open and runs the given task on the
+	 * {@link DatabaseExecutor}.
+	 * <p>
+	 * If you need a list of items to be displayed in a
+	 * {@link RecyclerView.Adapter},
+	 * use {@link #loadList(DbCallable, UiConsumer)} instead.
+	 */
+	protected void runOnDbThread(boolean readOnly,
+			DbRunnable<Exception> task, Consumer<Exception> err) {
+		dbExecutor.execute(() -> {
+			try {
+				lifecycleManager.waitForDatabase();
+				db.transaction(readOnly, task);
+			} catch (InterruptedException e) {
+				LOG.warning("Interrupted while waiting for database");
+				Thread.currentThread().interrupt();
+			} catch (Exception e) {
+				err.accept(e);
 			}
 		});
 	}
