@@ -245,20 +245,16 @@ class GroupViewModel extends ThreadListViewModel<GroupMessageItem> {
 	}
 
 	public void loadSharingContacts() {
-		runOnDbThread(() -> {
-			try {
-				Collection<GroupMember> members =
-						privateGroupManager.getMembers(groupId);
-				Collection<ContactId> contactIds = new ArrayList<>();
-				for (GroupMember m : members) {
-					if (m.getContactId() != null)
-						contactIds.add(m.getContactId());
-				}
-				sharingController.addAll(contactIds);
-			} catch (DbException e) {
-				logException(LOG, WARNING, e);
+		runOnDbThread(true, txn -> {
+			Collection<GroupMember> members =
+					privateGroupManager.getMembers(txn, groupId);
+			Collection<ContactId> contactIds = new ArrayList<>();
+			for (GroupMember m : members) {
+				if (m.getContactId() != null)
+					contactIds.add(m.getContactId());
 			}
-		});
+			txn.attach(() -> sharingController.addAll(contactIds));
+		}, e -> logException(LOG, WARNING, e));
 	}
 
 	void deletePrivateGroup() {
