@@ -408,35 +408,34 @@ class PrivateGroupManagerImpl extends BdfIncomingMessageHook
 
 	@Override
 	public Collection<GroupMember> getMembers(GroupId g) throws DbException {
-		Transaction txn = db.startTransaction(true);
-		try {
-			Collection<GroupMember> members = new ArrayList<>();
-			Map<Author, Visibility> authors = getMembers(txn, g);
-			LocalAuthor la = identityManager.getLocalAuthor(txn);
-			PrivateGroup privateGroup = getPrivateGroup(txn, g);
-			for (Entry<Author, Visibility> m : authors.entrySet()) {
-				Author a = m.getKey();
-				AuthorInfo authorInfo =
-						authorManager.getAuthorInfo(txn, a.getId());
-				Status status = authorInfo.getStatus();
-				Visibility v = m.getValue();
-				ContactId c = null;
-				if (v != INVISIBLE &&
-						(status == VERIFIED || status == UNVERIFIED)) {
-					c = contactManager.getContact(txn, a.getId(), la.getId())
-							.getId();
-				}
-				boolean isCreator = privateGroup.getCreator().equals(a);
-				members.add(new GroupMember(a, authorInfo, isCreator, c, v));
-			}
-			db.commitTransaction(txn);
-			return members;
-		} finally {
-			db.endTransaction(txn);
-		}
+		return db.transactionWithResult(true, txn -> getMembers(txn, g));
 	}
 
-	private Map<Author, Visibility> getMembers(Transaction txn, GroupId g)
+	@Override
+	public Collection<GroupMember> getMembers(Transaction txn, GroupId g)
+			throws DbException {
+		Collection<GroupMember> members = new ArrayList<>();
+		Map<Author, Visibility> authors = getMemberAuthors(txn, g);
+		LocalAuthor la = identityManager.getLocalAuthor(txn);
+		PrivateGroup privateGroup = getPrivateGroup(txn, g);
+		for (Entry<Author, Visibility> m : authors.entrySet()) {
+			Author a = m.getKey();
+			AuthorInfo authorInfo = authorManager.getAuthorInfo(txn, a.getId());
+			Status status = authorInfo.getStatus();
+			Visibility v = m.getValue();
+			ContactId c = null;
+			if (v != INVISIBLE &&
+					(status == VERIFIED || status == UNVERIFIED)) {
+				c = contactManager.getContact(txn, a.getId(), la.getId())
+						.getId();
+			}
+			boolean isCreator = privateGroup.getCreator().equals(a);
+			members.add(new GroupMember(a, authorInfo, isCreator, c, v));
+		}
+		return members;
+	}
+
+	private Map<Author, Visibility> getMemberAuthors(Transaction txn, GroupId g)
 			throws DbException {
 		try {
 			BdfDictionary meta =
@@ -458,7 +457,7 @@ class PrivateGroupManagerImpl extends BdfIncomingMessageHook
 	@Override
 	public boolean isMember(Transaction txn, GroupId g, Author a)
 			throws DbException {
-		for (Author member : getMembers(txn, g).keySet()) {
+		for (Author member : getMemberAuthors(txn, g).keySet()) {
 			if (member.equals(a)) return true;
 		}
 		return false;
