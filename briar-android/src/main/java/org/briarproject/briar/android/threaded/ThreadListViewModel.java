@@ -5,7 +5,6 @@ import android.app.Application;
 import org.briarproject.bramble.api.crypto.CryptoExecutor;
 import org.briarproject.bramble.api.db.DatabaseExecutor;
 import org.briarproject.bramble.api.db.DbException;
-import org.briarproject.bramble.api.db.Transaction;
 import org.briarproject.bramble.api.db.TransactionManager;
 import org.briarproject.bramble.api.event.Event;
 import org.briarproject.bramble.api.event.EventBus;
@@ -26,11 +25,8 @@ import org.briarproject.briar.android.viewmodel.LiveResult;
 import org.briarproject.briar.api.android.AndroidNotificationManager;
 import org.briarproject.briar.api.client.MessageTracker;
 import org.briarproject.briar.api.client.MessageTree;
-import org.briarproject.briar.api.client.PostHeader;
 import org.briarproject.briar.client.MessageTreeImpl;
 
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicReference;
@@ -46,9 +42,7 @@ import androidx.lifecycle.MutableLiveData;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
 import static java.util.logging.Logger.getLogger;
-import static org.briarproject.bramble.util.LogUtils.logDuration;
 import static org.briarproject.bramble.util.LogUtils.logException;
-import static org.briarproject.bramble.util.LogUtils.now;
 
 @MethodsNotNullByDefault
 @ParametersNotNullByDefault
@@ -67,6 +61,7 @@ public abstract class ThreadListViewModel<I extends ThreadItem>
 	private final MessageTracker messageTracker;
 	private final EventBus eventBus;
 
+	// UIThread
 	private final MessageTree<I> messageTree = new MessageTreeImpl<>();
 	private final MutableLiveData<LiveResult<List<I>>> items =
 			new MutableLiveData<>();
@@ -175,54 +170,33 @@ public abstract class ThreadListViewModel<I extends ThreadItem>
 	 * Loads the ContactIds of all contacts the group is shared with
 	 * and adds them to {@link SharingController}.
 	 */
-	public abstract void loadSharingContacts();
+	protected abstract void loadSharingContacts();
 
 	@UiThread
 	protected void setItems(LiveResult<List<I>> items) {
-		this.items.setValue(items);
-	}
-
-	@DatabaseExecutor
-	protected <H extends PostHeader> List<I> createItems(
-			Transaction txn, Collection<H> headers, ItemGetter<H, I> itemGetter)
-			throws DbException {
-		long start = now();
-		List<I> items = new ArrayList<>();
-		for (H header : headers) {
-			String text = loadMessageText(txn, header);
-			items.add(itemGetter.getItem(header, text));
+		if (items.hasError()) {
+			this.items.setValue(items);
+		} else {
+			messageTree.clear();
+			// not null, because hasError() is false
+			messageTree.add(items.getResultOrNull());
+			LiveResult<List<I>> result =
+					new LiveResult<>(messageTree.depthFirstOrder());
+			this.items.setValue(result);
 		}
-		logDuration(LOG, "Loading bodies and creating items", start);
-
-		messageTree.clear();
-		messageTree.add(items);
-		return messageTree.depthFirstOrder();
 	}
 
 	/**
 	 * Add a remote item on the UI thread.
-	 * The list will not scroll, but show an unread indicator.
+	 *
+	 * @param scrollToItem whether the list will scroll to the newly added item
 	 */
 	@UiThread
-	protected void addItem(I item) {
+	protected void addItem(I item, boolean scrollToItem) {
 		messageTree.add(item);
+		if (scrollToItem) this.scrollToItem.set(item.getId());
 		items.setValue(new LiveResult<>(messageTree.depthFirstOrder()));
 	}
-
-	/**
-	 * Add a local item from the DB thread.
-	 * The list will scroll to the new item.
-	 */
-	@DatabaseExecutor
-	protected void addItemAsync(I item) {
-		messageTree.add(item);
-		scrollToItem.set(item.getId());
-		items.postValue(new LiveResult<>(messageTree.depthFirstOrder()));
-	}
-
-	@DatabaseExecutor
-	protected abstract String loadMessageText(Transaction txn,
-			PostHeader header) throws DbException;
 
 	@UiThread
 	void setReplyId(@Nullable MessageId id) {
@@ -269,10 +243,6 @@ public abstract class ThreadListViewModel<I extends ThreadItem>
 	@Nullable
 	MessageId getAndResetScrollToItem() {
 		return scrollToItem.getAndSet(null);
-	}
-
-	public interface ItemGetter<H extends PostHeader, I> {
-		I getItem(H header, String text);
 	}
 
 }

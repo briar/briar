@@ -27,7 +27,6 @@ import org.briarproject.briar.android.viewmodel.MutableLiveEvent;
 import org.briarproject.briar.api.android.AndroidNotificationManager;
 import org.briarproject.briar.api.client.MessageTracker;
 import org.briarproject.briar.api.client.MessageTracker.GroupCount;
-import org.briarproject.briar.api.client.PostHeader;
 import org.briarproject.briar.api.privategroup.GroupMember;
 import org.briarproject.briar.api.privategroup.GroupMessage;
 import org.briarproject.briar.api.privategroup.GroupMessageFactory;
@@ -105,7 +104,7 @@ class GroupViewModel extends ThreadListViewModel<GroupMessageItem> {
 			if (!g.isLocal() && g.getGroupId().equals(groupId)) {
 				LOG.info("Group message received, adding...");
 				GroupMessageItem item = buildItem(g.getHeader(), g.getText());
-				addItem(item);
+				addItem(item, false);
 				// In case the join message comes from the creator,
 				// we need to reload the sharing contacts
 				// in case it was delayed and the sharing count is wrong (#850).
@@ -171,8 +170,26 @@ class GroupViewModel extends ThreadListViewModel<GroupMessageItem> {
 			List<GroupMessageHeader> headers =
 					privateGroupManager.getHeaders(txn, groupId);
 			logDuration(LOG, "Loading headers", start);
-			return createItems(txn, headers, this::buildItem);
+			start = now();
+			List<GroupMessageItem> items = new ArrayList<>();
+			for (GroupMessageHeader header : headers) {
+				items.add(loadItem(txn, header));
+			}
+			logDuration(LOG, "Loading bodies and creating items", start);
+			return items;
 		}, this::setItems);
+	}
+
+	private GroupMessageItem loadItem(Transaction txn,
+			GroupMessageHeader header) throws DbException {
+		String text;
+		if (header instanceof JoinMessageHeader) {
+			// will be looked up later
+			text = "";
+		} else {
+			text = privateGroupManager.getMessageText(txn, header.getId());
+		}
+		return buildItem(header, text);
 	}
 
 	private GroupMessageItem buildItem(GroupMessageHeader header, String text) {
@@ -180,16 +197,6 @@ class GroupViewModel extends ThreadListViewModel<GroupMessageItem> {
 			return new JoinMessageItem((JoinMessageHeader) header, text);
 		}
 		return new GroupMessageItem(header, text);
-	}
-
-	@Override
-	protected String loadMessageText(
-			Transaction txn, PostHeader header) throws DbException {
-		if (header instanceof JoinMessageHeader) {
-			// will be looked up later
-			return "";
-		}
-		return privateGroupManager.getMessageText(txn, header.getId());
 	}
 
 	@Override
@@ -222,17 +229,15 @@ class GroupViewModel extends ThreadListViewModel<GroupMessageItem> {
 	}
 
 	private void storePost(GroupMessage msg, String text) {
-		runOnDbThread(() -> {
-			try {
-				long start = now();
-				GroupMessageHeader header =
-						privateGroupManager.addLocalMessage(msg);
-				addItemAsync(buildItem(header, text));
-				logDuration(LOG, "Storing group message", start);
-			} catch (DbException e) {
-				logException(LOG, WARNING, e);
-			}
-		});
+		runOnDbThread(false, txn -> {
+			long start = now();
+			GroupMessageHeader header =
+					privateGroupManager.addLocalMessage(txn, msg);
+			logDuration(LOG, "Storing group message", start);
+			txn.attach(() ->
+					addItem(buildItem(header, text), true)
+			);
+		}, e -> logException(LOG, WARNING, e));
 	}
 
 	@Override

@@ -94,8 +94,9 @@ class ForumViewModel extends ThreadListViewModel<ForumPostItem> {
 			ForumPostReceivedEvent f = (ForumPostReceivedEvent) e;
 			if (f.getGroupId().equals(groupId)) {
 				LOG.info("Forum post received, adding...");
-				ForumPostItem item = buildItem(f.getHeader(), f.getText());
-				addItem(item);
+				ForumPostItem item =
+						new ForumPostItem(f.getHeader(), f.getText());
+				addItem(item, false);
 			}
 		} else if (e instanceof ForumInvitationResponseReceivedEvent) {
 			ForumInvitationResponseReceivedEvent f =
@@ -140,8 +141,21 @@ class ForumViewModel extends ThreadListViewModel<ForumPostItem> {
 			List<ForumPostHeader> headers =
 					forumManager.getPostHeaders(txn, groupId);
 			logDuration(LOG, "Loading headers", start);
-			return createItems(txn, headers, this::buildItem);
+			start = now();
+			List<ForumPostItem> items = new ArrayList<>();
+			for (ForumPostHeader header : headers) {
+				items.add(loadItem(txn, header));
+			}
+			logDuration(LOG, "Loading bodies and creating items", start);
+			return items;
 		}, this::setItems);
+	}
+
+	private ForumPostItem loadItem(Transaction txn, PostHeader header)
+			throws DbException {
+		if (!(header instanceof ForumPostHeader)) throw new AssertionError();
+		String text = forumManager.getPostText(txn, header.getId());
+		return new ForumPostItem((ForumPostHeader) header, text);
 	}
 
 	@Override
@@ -171,26 +185,15 @@ class ForumViewModel extends ThreadListViewModel<ForumPostItem> {
 	}
 
 	private void storePost(ForumPost msg, String text) {
-		runOnDbThread(() -> {
-			try {
-				long start = now();
-				ForumPostHeader header = forumManager.addLocalPost(msg);
-				addItemAsync(buildItem(header, text));
-				logDuration(LOG, "Storing forum post", start);
-			} catch (DbException e) {
-				logException(LOG, WARNING, e);
-			}
-		});
-	}
-
-	private ForumPostItem buildItem(ForumPostHeader header, String text) {
-		return new ForumPostItem(header, text);
-	}
-
-	@Override
-	protected String loadMessageText(Transaction txn, PostHeader header)
-			throws DbException {
-		return forumManager.getPostText(txn, header.getId());
+		runOnDbThread(false, txn -> {
+			long start = now();
+			ForumPostHeader header = forumManager.addLocalPost(txn, msg);
+			logDuration(LOG, "Storing forum post", start);
+			txn.attach(() -> {
+				ForumPostItem item = new ForumPostItem(header, text);
+				addItem(item, true);
+			});
+		}, e -> logException(LOG, WARNING, e));
 	}
 
 	@Override
