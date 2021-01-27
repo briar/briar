@@ -79,7 +79,7 @@ public class GroupActivity extends
 
 		// start with group disabled and enable when not dissolved
 		setGroupEnabled(false);
-		viewModel.isDissolved().observe(this, dissolved -> {
+		viewModel.isDissolved().observeEvent(this, dissolved -> {
 			setGroupEnabled(!dissolved);
 			if (dissolved) onGroupDissolved();
 		});
@@ -153,7 +153,7 @@ public class GroupActivity extends
 
 	@Override
 	public void onReplyClick(GroupMessageItem item) {
-		Boolean isDissolved = viewModel.isDissolved().getValue();
+		Boolean isDissolved = viewModel.isDissolved().getLastValue();
 		if (isDissolved != null && !isDissolved) super.onReplyClick(item);
 	}
 

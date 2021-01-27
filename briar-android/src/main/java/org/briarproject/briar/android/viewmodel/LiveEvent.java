@@ -39,6 +39,17 @@ public class LiveEvent<T> extends LiveData<LiveEvent.ConsumableEvent<T>> {
 		super.observeForever(observer);
 	}
 
+	/**
+	 * Returns the last value of the event (even if already consumed)
+	 * or null if there hasn't been any value so far.
+	 */
+	@Nullable
+	public T getLastValue() {
+		ConsumableEvent<T> event = getValue();
+		if (event == null) return null;
+		return event.content;
+	}
+
 	static class ConsumableEvent<T> {
 
 		private final T content;

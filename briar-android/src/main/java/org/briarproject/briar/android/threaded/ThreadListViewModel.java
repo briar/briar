@@ -115,9 +115,14 @@ public abstract class ThreadListViewModel<I extends ThreadItem>
 	 * Needs to be called right after initialization,
 	 * before calling any other methods.
 	 */
-	@CallSuper
-	public void setGroupId(GroupId groupId) {
+	public final void setGroupId(GroupId groupId) {
+		boolean needsInitialLoad = this.groupId == null;
 		this.groupId = groupId;
+		if (needsInitialLoad) performInitialLoad();
+	}
+
+	@CallSuper
+	protected void performInitialLoad() {
 		loadStoredMessageId();
 		loadItems();
 		loadSharingContacts();

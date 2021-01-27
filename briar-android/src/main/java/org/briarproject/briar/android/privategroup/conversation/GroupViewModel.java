@@ -22,6 +22,8 @@ import org.briarproject.bramble.api.system.AndroidExecutor;
 import org.briarproject.bramble.api.system.Clock;
 import org.briarproject.briar.android.sharing.SharingController;
 import org.briarproject.briar.android.threaded.ThreadListViewModel;
+import org.briarproject.briar.android.viewmodel.LiveEvent;
+import org.briarproject.briar.android.viewmodel.MutableLiveEvent;
 import org.briarproject.briar.api.android.AndroidNotificationManager;
 import org.briarproject.briar.api.client.MessageTracker;
 import org.briarproject.briar.api.client.MessageTracker.GroupCount;
@@ -70,8 +72,8 @@ class GroupViewModel extends ThreadListViewModel<GroupMessageItem> {
 	private final MutableLiveData<PrivateGroup> privateGroup =
 			new MutableLiveData<>();
 	private final MutableLiveData<Boolean> isCreator = new MutableLiveData<>();
-	private final MutableLiveData<Boolean> isDissolved =
-			new MutableLiveData<>();
+	private final MutableLiveEvent<Boolean> isDissolved =
+			new MutableLiveEvent<>();
 
 	@Inject
 	GroupViewModel(Application application,
@@ -128,7 +130,7 @@ class GroupViewModel extends ThreadListViewModel<GroupMessageItem> {
 		} else if (e instanceof GroupDissolvedEvent) {
 			GroupDissolvedEvent g = (GroupDissolvedEvent) e;
 			if (g.getGroupId().equals(groupId)) {
-				isDissolved.setValue(true);
+				isDissolved.setEvent(true);
 			}
 		} else {
 			super.eventOccurred(e);
@@ -136,8 +138,8 @@ class GroupViewModel extends ThreadListViewModel<GroupMessageItem> {
 	}
 
 	@Override
-	public void setGroupId(GroupId groupId) {
-		super.setGroupId(groupId);
+	protected void performInitialLoad() {
+		super.performInitialLoad();
 		loadPrivateGroup(groupId);
 	}
 
@@ -163,7 +165,7 @@ class GroupViewModel extends ThreadListViewModel<GroupMessageItem> {
 		loadList(txn -> {
 			// check first if group is dissolved
 			isDissolved
-					.postValue(privateGroupManager.isDissolved(txn, groupId));
+					.postEvent(privateGroupManager.isDissolved(txn, groupId));
 			// now continue to load the items
 			long start = now();
 			List<GroupMessageHeader> headers =
@@ -275,7 +277,7 @@ class GroupViewModel extends ThreadListViewModel<GroupMessageItem> {
 		return isCreator;
 	}
 
-	LiveData<Boolean> isDissolved() {
+	LiveEvent<Boolean> isDissolved() {
 		return isDissolved;
 	}
 
