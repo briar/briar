@@ -74,13 +74,13 @@
 
 		<TextView
 			android:id="@+id/discoveryText"
-			android:layout_marginTop="32dp"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
 			android:layout_marginStart="8dp"
 			android:layout_marginLeft="8dp"
-			android:textSize="16sp"
+			android:layout_marginTop="32dp"
 			android:text="Pick the nearby contact to perform the setup with."
+			android:textSize="16sp"
 			app:layout_constraintBottom_toTopOf="@id/contacts"
 			app:layout_constraintEnd_toEndOf="parent"
 			app:layout_constraintStart_toStartOf="parent"
@@ -113,10 +113,13 @@
 			android:id="@+id/commentTextView2"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
+			android:layout_marginStart="148dp"
+			android:layout_marginLeft="148dp"
+			android:layout_marginTop="124dp"
 			android:text="list of all [contact-name-and-avatar]"
 			android:textColor="@color/briar_red_500"
-			tools:layout_editor_absoluteX="72dp"
-			tools:layout_editor_absoluteY="189dp" />
+			app:layout_constraintStart_toStartOf="parent"
+			app:layout_constraintTop_toTopOf="parent" />
 
 	</androidx.constraintlayout.widget.ConstraintLayout>
 </ScrollView>
