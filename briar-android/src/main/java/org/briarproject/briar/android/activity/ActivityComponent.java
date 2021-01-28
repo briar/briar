@@ -21,7 +21,7 @@ import org.briarproject.briar.android.blog.RssFeedImportActivity;
 import org.briarproject.briar.android.blog.RssFeedManageActivity;
 import org.briarproject.briar.android.blog.WriteBlogPostActivity;
 import org.briarproject.briar.android.bluetoothsetup.BluetoothSetupActivity;
-import org.briarproject.briar.android.bluetoothsetup.BluetoothSetupDiscoveryFragment;
+import org.briarproject.briar.android.bluetoothsetup.BluetoothSetupChooseFragment;
 import org.briarproject.briar.android.bluetoothsetup.BluetoothSetupPendingFragment;
 import org.briarproject.briar.android.bluetoothsetup.BluetoothSetupStartFragment;
 import org.briarproject.briar.android.contact.ContactListFragment;
@@ -250,7 +250,7 @@ public interface ActivityComponent {
 
 	void inject(BluetoothSetupStartFragment fragment);
 
-	void inject(BluetoothSetupDiscoveryFragment fragment);
+	void inject(BluetoothSetupChooseFragment fragment);
 
 	void inject(BluetoothSetupPendingFragment fragment);
 

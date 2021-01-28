@@ -54,7 +54,6 @@ public class BluetoothSetupPendingFragment extends BaseFragment {
 	}
 
 	private void onContinueButtonClicked() {
-		// showNextFragment(BluetoothSetupDiscoveryFragment.newInstance());
 	}
 
 }

@@ -19,9 +19,9 @@ import androidx.lifecycle.ViewModelProvider;
 
 @MethodsNotNullByDefault
 @ParametersNotNullByDefault
-public class BluetoothSetupDiscoveryFragment extends BaseFragment {
+public class BluetoothSetupChooseFragment extends BaseFragment {
 	private static final String TAG =
-			BluetoothSetupDiscoveryFragment.class.getName();
+			BluetoothSetupChooseFragment.class.getName();
 
 	@Inject
 	ViewModelProvider.Factory viewModelFactory;
@@ -49,7 +49,7 @@ public class BluetoothSetupDiscoveryFragment extends BaseFragment {
 				.get(BluetoothSetupViewModel.class);
 
 		View v =
-				inflater.inflate(R.layout.fragment_bluetooth_setup_discovery,
+				inflater.inflate(R.layout.fragment_bluetooth_setup_choose,
 						container, false);
 
 		// TODO to enable when user picks a device from list
@@ -59,6 +59,13 @@ public class BluetoothSetupDiscoveryFragment extends BaseFragment {
 			showNextFragment(new BluetoothSetupPendingFragment());
 		});
 		continueButton.setEnabled(true);
+
+//		RecyclerView devices = v.findViewById(R.id.devices);
+//		devices.setHasFixedSize(true);
+//		final LinearLayoutManager layoutManager =
+//				new LinearLayoutManager(getActivity(),
+//						LinearLayoutManager.VERTICAL, false);
+//		devices.setLayoutManager(layoutManager);
 
 		return v;
 	}

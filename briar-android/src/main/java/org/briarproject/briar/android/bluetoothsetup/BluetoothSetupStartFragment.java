@@ -55,7 +55,7 @@ public class BluetoothSetupStartFragment extends BaseFragment {
 
 		Button startButton = v.findViewById(R.id.startButton);
 		startButton.setOnClickListener(view -> {
-			showNextFragment(new BluetoothSetupDiscoveryFragment());
+			showNextFragment(new BluetoothSetupChooseFragment());
 		});
 		startButton.setEnabled(true);
 

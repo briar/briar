@@ -33,7 +33,7 @@
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
 			android:layout_margin="8dp"
-			android:text="Pick contact's device"
+			android:text="Pick contact"
 			app:layout_constraintEnd_toStartOf="@+id/guideline"
 			app:layout_constraintStart_toStartOf="parent"
 			app:layout_constraintTop_toBottomOf="@+id/stepOne" />
@@ -65,20 +65,20 @@
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
 			android:layout_margin="8dp"
-			android:text="Wait for contact"
+			android:text="Wait for setup"
 			app:layout_constraintEnd_toEndOf="parent"
 			app:layout_constraintStart_toEndOf="@+id/guideline"
 			app:layout_constraintTop_toBottomOf="@+id/stepTwo" />
 
 		<TextView
-			android:id="@+id/discoveryText"
+			android:id="@+id/pendingText"
 			android:layout_marginTop="32dp"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
 			android:layout_marginStart="8dp"
 			android:layout_marginLeft="8dp"
 			android:textSize="16sp"
-			android:text="Waiting for your contact to pick your device"
+			android:text="Waiting for a connection to be established with:\n\n[chosen contact-name-and-avatar]"
 			app:layout_constraintEnd_toEndOf="parent"
 			app:layout_constraintStart_toStartOf="parent"
 			app:layout_constraintTop_toBottomOf="@id/stepOneText" />
