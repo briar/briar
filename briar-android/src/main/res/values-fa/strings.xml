@@ -132,6 +132,7 @@
   <string name="send">ارسال</string>
   <string name="allow">اجازه دادن</string>
   <string name="open">باز کردن</string>
+  <string name="change">تغییر</string>
   <string name="no_data">داده ای موجود نمی باشد</string>
   <string name="ellipsis">…</string>
   <string name="text_too_long">متن وارد شده بیش از حد طولانی می باشد</string>
@@ -154,7 +155,6 @@
   <string name="image_attach_error_invalid_mime_type">فرمت تصویر پشتیبانی نمی‌شود: %s</string>
   <string name="set_contact_alias">تغییر نام مخاطب</string>
   <string name="set_contact_alias_hint">نام مخاطب</string>
-  <string name="change">تغییر</string>
   <string name="delete_all_messages">حذف تمام پیام ها</string>
   <string name="dialog_title_delete_all_messages">تایید حذف پیام</string>
   <string name="dialog_message_delete_all_messages">آیا از حذف تمام پیام‌ ها اطمینان دارید؟</string>
@@ -461,6 +461,7 @@
 
 برای وارد کردن خوراک روی آیکون + ضربه بزنید</string>
   <string name="blogs_rss_feeds_manage_error">مشکلی با بارگذاری فیدهای شما وجود داشت. لطفا بعدا امتحان کنید.</string>
+  <!--Settings Profile Picture-->
   <!--Settings Display-->
   <string name="pref_language_title">زبان و منطقه</string>
   <string name="pref_language_changed">این تنظیمات زمانی که Briar (برایر) را ری استارت کنید تاثیر خود را می گذارند. لطفا خارج شوید و Briar (برایر) را دوباره راه اندازی کنید.</string>

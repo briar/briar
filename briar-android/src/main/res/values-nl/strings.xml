@@ -129,6 +129,7 @@
   <string name="send">Verstuur</string>
   <string name="allow">Sta toe</string>
   <string name="open">Open</string>
+  <string name="change">Wijzigen</string>
   <string name="no_data">Geen gegevens</string>
   <string name="ellipsis">…</string>
   <string name="text_too_long">De ingevoerde tekst is te lang</string>
@@ -151,7 +152,6 @@
   <string name="image_attach_error_invalid_mime_type">Bestandsformaat wordt niet ondersteund: %s</string>
   <string name="set_contact_alias">Verander naam van contact</string>
   <string name="set_contact_alias_hint">Contactnaam</string>
-  <string name="change">Wijzigen</string>
   <string name="delete_all_messages">Verwijder alle berichten</string>
   <string name="dialog_title_delete_all_messages">Bevestig verwijderen berichten</string>
   <string name="dialog_message_delete_all_messages">Weet je zeker dat je alle berichten wil verwijderen?</string>
@@ -424,6 +424,7 @@
   <string name="blogs_rss_feeds_manage_delete_error">De feed kon niet worden verwijderd.</string>
   <string name="blogs_rss_feeds_manage_empty_state">Geen RSS-feeds om te tonen\n\nTik op het +-icoon om een feed te importeren</string>
   <string name="blogs_rss_feeds_manage_error">Er was een probleem met het laden van je feeds. Probeer het alsjeblieft later nog een keer.</string>
+  <!--Settings Profile Picture-->
   <!--Settings Display-->
   <string name="pref_language_title">Taal &amp; regio</string>
   <string name="pref_language_changed">Deze instelling zal werken wanneer u Briar opnieuw opstart. Gelieve uit te loggen en Briar opnieuw te starten.</string>

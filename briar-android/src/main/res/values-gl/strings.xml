@@ -129,6 +129,7 @@
   <string name="send">Enviar</string>
   <string name="allow">Permitir</string>
   <string name="open">Abrir</string>
+  <string name="change">Cambiar</string>
   <string name="no_data">Sen datos</string>
   <string name="ellipsis">...</string>
   <string name="text_too_long">O texto inserido e demasiado longo</string>
@@ -151,7 +152,6 @@
   <string name="image_attach_error_invalid_mime_type">Formato non admitido: %s</string>
   <string name="set_contact_alias">Cambiar o nome do contacto</string>
   <string name="set_contact_alias_hint">Nome do contacto</string>
-  <string name="change">Cambiar</string>
   <string name="delete_all_messages">Borrar todas as mensaxes</string>
   <string name="dialog_title_delete_all_messages">Confirmar borrado de mensaxes</string>
   <string name="dialog_message_delete_all_messages">Seguro que queres borrar todas as mensaxes?</string>
@@ -424,6 +424,7 @@
   <string name="blogs_rss_feeds_manage_delete_error">Non se puido eliminar a fonte!</string>
   <string name="blogs_rss_feeds_manage_empty_state">Sen fontes RSS que mostrar\n\nToque na icona + para importar unha fonte</string>
   <string name="blogs_rss_feeds_manage_error">Aconteceu un problema ao cargar as súas fontes. Por favor, inténteo máis tarde.</string>
+  <!--Settings Profile Picture-->
   <!--Settings Display-->
   <string name="pref_language_title">Idioma  &amp; rexión</string>
   <string name="pref_language_changed">Este axuste terá efecto cando reinicie Briar. Por favor desconecte e volte a iniciar Briar.</string>

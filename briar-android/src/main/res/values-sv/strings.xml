@@ -129,6 +129,7 @@
   <string name="send">Skicka</string>
   <string name="allow">Tillåt</string>
   <string name="open">Öppen</string>
+  <string name="change">Ändra</string>
   <string name="no_data">Ingen data</string>
   <string name="ellipsis">…</string>
   <string name="text_too_long">Texten innehåller för många tecken</string>
@@ -151,7 +152,6 @@
   <string name="image_attach_error_invalid_mime_type">Bildformatet stöds ej: %s</string>
   <string name="set_contact_alias">Ändra namn på kontakt</string>
   <string name="set_contact_alias_hint">Kontaktnamn</string>
-  <string name="change">Ändra</string>
   <string name="delete_all_messages">Ta bort alla meddelanden</string>
   <string name="dialog_title_delete_all_messages">Bekräfta meddelande borttagning</string>
   <string name="dialog_message_delete_all_messages">Är du säker på att du vill ta bort alla meddelanden?</string>
@@ -424,6 +424,7 @@
   <string name="blogs_rss_feeds_manage_delete_error">Flödet kunde ej tas bort!</string>
   <string name="blogs_rss_feeds_manage_empty_state">Inga RSS-flöden\n\nTryck plus-ikonen (+) för att importera ett flöde</string>
   <string name="blogs_rss_feeds_manage_error">Något gick fel när dina flöden skulle laddas. Försök ingen senare.</string>
+  <!--Settings Profile Picture-->
   <!--Settings Display-->
   <string name="pref_language_title">Språk &amp; region</string>
   <string name="pref_language_changed">Den här inställningen träder i kraft när Briar startas om. Logga ur och starta om Briar.</string>

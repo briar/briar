@@ -96,6 +96,7 @@
   <string name="send">送信</string>
   <string name="allow">許可</string>
   <string name="open">開く</string>
+  <string name="change">変更</string>
   <string name="no_data">データなし</string>
   <string name="ellipsis">...</string>
   <string name="text_too_long">入力された文章が長すぎます。</string>
@@ -117,7 +118,6 @@
   <string name="image_attach_error_invalid_mime_type">サポートされていない画像形式：%s</string>
   <string name="set_contact_alias">連絡先を変更</string>
   <string name="set_contact_alias_hint">連絡先名</string>
-  <string name="change">変更</string>
   <string name="delete_contact">この連絡先を削除</string>
   <string name="dialog_title_delete_contact">連絡先の削除時に確認</string>
   <string name="dialog_message_delete_contact">この連絡先と、この連絡先とのすべてのメッセージを削除してもよろしいですか？</string>
@@ -372,6 +372,7 @@
   <string name="blogs_rss_feeds_manage_delete_error">フィードを削除できませんでした！</string>
   <string name="blogs_rss_feeds_manage_empty_state">表示するRSSフィードはありません\n\n「＋」アイコンをタップしてフィードをインポートします</string>
   <string name="blogs_rss_feeds_manage_error">フィードの読み込み中に問題が発生しました。 後でもう一度やり直してください。</string>
+  <!--Settings Profile Picture-->
   <!--Settings Display-->
   <string name="pref_language_title">言語 &amp; 領域</string>
   <string name="pref_language_changed">この設定は、Briarを再起動すると有効になります。 サインアウトしてBriarを再起動してください。</string>

@@ -101,6 +101,7 @@
   <string name="send">भेजना</string>
   <string name="allow">अनुमति दें</string>
   <string name="open">खोलें </string>
+  <string name="change">परिवर्तन</string>
   <string name="no_data">नो डाटा </string>
   <string name="ellipsis">…</string>
   <string name="text_too_long">प्रवेश किया हुआ पाठ बहुत लंबा है</string>
@@ -122,7 +123,6 @@
   <string name="image_attach_error_invalid_mime_type">छवि प्रारूप असमर्थित: %s</string>
   <string name="set_contact_alias">संपर्क नाम बदलें</string>
   <string name="set_contact_alias_hint">संपर्क नाम</string>
-  <string name="change">परिवर्तन</string>
   <string name="delete_contact">संपर्क मिटा दें</string>
   <string name="dialog_title_delete_contact">संपर्क हटाने की पुष्टि करें</string>
   <string name="dialog_message_delete_contact">क्या आप निश्चित हैं कि आप इस संपर्क और सभी संदेशों को इस संपर्क से निकाला जाना चाहते हैं?</string>
@@ -382,6 +382,7 @@
   <string name="blogs_rss_feeds_manage_delete_error">फीड हटाया नहीं जा सका!</string>
   <string name="blogs_rss_feeds_manage_empty_state">कोई आरएसएस फ़ीड दिखाने के लिए फ़ीड नहीं करता \ n \ n फ़ीड आयात करने के लिए + आइकन टैप करें</string>
   <string name="blogs_rss_feeds_manage_error">आपकी फ़ीड लोड करने में एक समस्या थी बाद में पुन: प्रयास करें।</string>
+  <!--Settings Profile Picture-->
   <!--Settings Display-->
   <string name="pref_language_title">भाषा और amp; क्षेत्र</string>
   <string name="pref_language_changed">जब आप Briar को पुनरारंभ करते हैं तो यह सेटिंग प्रभावी होगी। कृपया साइन आउट करें और Briar को पुनरारंभ करें।</string>

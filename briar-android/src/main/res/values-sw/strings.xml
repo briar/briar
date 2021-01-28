@@ -121,6 +121,7 @@ Umepoteza nenosiri.</string>
   <string name="send">Tuma</string>
   <string name="allow">Ruhusu</string>
   <string name="open">Fungua</string>
+  <string name="change">Badili</string>
   <string name="no_data">Hakuna data</string>
   <string name="ellipsis">...</string>
   <string name="text_too_long">Maneno ulio yainguza nimarefu sana </string>
@@ -143,7 +144,6 @@ Umepoteza nenosiri.</string>
   <string name="image_attach_error_invalid_mime_type">Mfumo wa taswira hauendani: %s</string>
   <string name="set_contact_alias">Badilisha jina lako la mawasiliano </string>
   <string name="set_contact_alias_hint">Jina la mawasiliano </string>
-  <string name="change">Badili</string>
   <string name="delete_all_messages">Futa jumbe zote</string>
   <string name="dialog_title_delete_all_messages">Hakiki ufutaji  wa ujumbe</string>
   <string name="dialog_message_delete_all_messages">Je, unauhakika wa kufuta jumbe zote?</string>
@@ -406,6 +406,7 @@ Umepoteza nenosiri.</string>
   <string name="blogs_rss_feeds_manage_delete_error">Taharifa haziwezekani kuzifuta! </string>
   <string name="blogs_rss_feeds_manage_empty_state">Hakuna RSS taharifa zaku onyesha\n\nBonyeza + ikoni kuleta taharifa </string>
   <string name="blogs_rss_feeds_manage_error">Kulikuwa na tatizo la kufungua taharifa . Tafathali jaribu baadae kidogo.</string>
+  <!--Settings Profile Picture-->
   <!--Settings Display-->
   <string name="pref_language_title">Lugha &amp;mkoa</string>
   <string name="pref_language_changed">Huu mpango utafanya kazi utakapo anzisha tena Briar. Tafathali toka na kuanzisha tena Briar.</string>

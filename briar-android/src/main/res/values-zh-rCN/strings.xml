@@ -124,6 +124,7 @@
   <string name="send">发送</string>
   <string name="allow">允许</string>
   <string name="open">打开</string>
+  <string name="change">更改</string>
   <string name="no_data">没有数据</string>
   <string name="ellipsis">……</string>
   <string name="text_too_long">输入的文本过长</string>
@@ -146,7 +147,6 @@
   <string name="image_attach_error_invalid_mime_type">不支持的图片格式：%s</string>
   <string name="set_contact_alias">更改联系人姓名</string>
   <string name="set_contact_alias_hint">联系人姓名</string>
-  <string name="change">更改</string>
   <string name="delete_all_messages">删除全部消息</string>
   <string name="dialog_title_delete_all_messages">确认删除消息</string>
   <string name="dialog_message_delete_all_messages">您确定要删除所有消息吗？</string>
@@ -414,6 +414,11 @@
   <string name="blogs_rss_feeds_manage_delete_error">该订阅源无法被删除！</string>
   <string name="blogs_rss_feeds_manage_empty_state">尚无订阅源可供显示\n\n轻按 + 号导入一个订阅源</string>
   <string name="blogs_rss_feeds_manage_error">加载订阅源时出错。请稍候再试。</string>
+  <!--Settings Profile Picture-->
+  <string name="change_profile_picture">轻按更改你的个人资料图片</string>
+  <string name="dialog_confirm_profile_picture_title">更改个人资料图片</string>
+  <string name="dialog_confirm_profile_picture_remark">只有你的联系人能看到你的个人资料图片</string>
+  <string name="change_profile_picture_failed_message">抱歉，更新你的个人资料图片时出了问题</string>
   <!--Settings Display-->
   <string name="pref_language_title">语言 &amp; 区域</string>
   <string name="pref_language_changed">该设置将会在 Briar 重启后生效。请登出并重启 Briar。</string>

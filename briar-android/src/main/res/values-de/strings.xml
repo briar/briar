@@ -129,6 +129,7 @@
   <string name="send">Senden</string>
   <string name="allow">Erlauben</string>
   <string name="open">Öffnen</string>
+  <string name="change">Ändern</string>
   <string name="no_data">Keine Daten</string>
   <string name="ellipsis">…</string>
   <string name="text_too_long">Der eingegebene Text ist zu lang</string>
@@ -151,7 +152,6 @@
   <string name="image_attach_error_invalid_mime_type">Nicht unterstütztes Bildformat: %s</string>
   <string name="set_contact_alias">Kontaktnamen ändern</string>
   <string name="set_contact_alias_hint">Name des Kontakts</string>
-  <string name="change">Ändern</string>
   <string name="delete_all_messages">Alle Nachrichten löschen</string>
   <string name="dialog_title_delete_all_messages">Löschen der Nachrichten bestätigen</string>
   <string name="dialog_message_delete_all_messages">Bist du sicher, dass du alle Nachrichten löschen willst?</string>
@@ -177,7 +177,7 @@
   <string name="dialog_title_no_image_support">Bilder nicht verfügbar</string>
   <string name="dialog_message_no_image_support">Der Briar deines Kontakts unterstützt noch keine Bildanhänge. Sobald die Aktualisierung abgeschlossen ist, siehst du ein anderes Symbol.</string>
   <string name="dialog_title_image_support">Du kannst nun Bilder an diesen Kontakt senden</string>
-  <string name="dialog_message_image_support">Tippe auf das Symbol, um Bilder anzuhängen.</string>
+  <string name="dialog_message_image_support">Tippe auf dieses Symbol, um Bilder anzuhängen.</string>
   <string name="messaging_too_many_attachments_toast">Nur die ersten %d Bilder werden übertragen werden</string>
   <!--Adding Contacts-->
   <string name="add_contact_title">Kontakt in der Nähe hinzufügen</string>
@@ -424,6 +424,11 @@
   <string name="blogs_rss_feeds_manage_delete_error">Der Feed konnte nicht gelöscht werden!</string>
   <string name="blogs_rss_feeds_manage_empty_state">Keine RSS-Feeds vorhanden\n\nTippe auf das + Symbol, um einen Feed zu importieren</string>
   <string name="blogs_rss_feeds_manage_error">Es gab ein Problem beim Laden deiner Feeds. Bitte versuche es später erneut.</string>
+  <!--Settings Profile Picture-->
+  <string name="change_profile_picture">Tippe, um dein Profilbild zu ändern</string>
+  <string name="dialog_confirm_profile_picture_title">Profilbild ändern</string>
+  <string name="dialog_confirm_profile_picture_remark">Nur deine Kontakte können dein Profilbild sehen</string>
+  <string name="change_profile_picture_failed_message">Es tut uns leid, aber beim Aktualisieren deines Profilbildes ist ein Fehler aufgetreten</string>
   <!--Settings Display-->
   <string name="pref_language_title">Sprache &amp; Region</string>
   <string name="pref_language_changed">Diese Einstellung wird beim Neustart von Briar wirksam. Bitte melde dich ab und starte Briar neu.</string>
@@ -552,7 +557,9 @@
   <!--Screen Filters & Tapjacking-->
   <string name="screen_filter_title">Bildschirmüberlagerung erkannt</string>
   <string name="screen_filter_body">Eine andere App überlagert Briar. Um deine Sicherheit zu gewährleisten, reagiert Briar in diesem Fall nicht auf deine Eingaben.\n\nDie folgenden Apps könnten überlagern:\n\n%1$s</string>
+  <string name="screen_filter_body_api_30">Eine andere App überlagert Briar. Um deine Sicherheit zu gewährleisten, reagiert Briar in diesem Fall nicht auf deine Eingaben.\n\nÜberprüfe die unten aufgeführten Apps, um die betreffende App zu finden.</string>
   <string name="screen_filter_allow">Erlaube diesen Apps die Bildschirmüberlagerung</string>
+  <string name="screen_filter_review_apps">Apps überprüfen</string>
   <!--Permission Requests-->
   <string name="permission_camera_title">Berechtigung Kamera</string>
   <string name="permission_camera_request_body">Um den QR-Code zu scannen, benötigt Briar Zugriff auf die Kamera.</string>

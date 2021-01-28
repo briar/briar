@@ -149,6 +149,7 @@
   <string name="send">ارسال</string>
   <string name="allow">السماح</string>
   <string name="open">فتح</string>
+  <string name="change">تعديل</string>
   <string name="no_data">لا يوجد بيانات</string>
   <string name="ellipsis">...</string>
   <string name="text_too_long">النص المُدخل طويل جدًا</string>
@@ -171,7 +172,6 @@
   <string name="image_attach_error_invalid_mime_type">نوع ملف الصورة غير مدعوم : %s</string>
   <string name="set_contact_alias">تعديل إسم جهة الاتصال</string>
   <string name="set_contact_alias_hint">اسم جهة الاتصال</string>
-  <string name="change">تعديل</string>
   <string name="delete_all_messages">حذف جميع الرّسائل </string>
   <string name="dialog_title_delete_all_messages">تأكيد حذف الرّسالة</string>
   <string name="dialog_message_delete_all_messages">هل أنتم متأكّدون من حذف جميع الرّسائل؟ </string>
@@ -465,6 +465,7 @@
   <string name="blogs_rss_feeds_manage_delete_error">لا يمكن حذف الخلاصة!</string>
   <string name="blogs_rss_feeds_manage_empty_state">لا خلاصات RSS للعرض\n\nالرجاء لمس علامة + لإستيراد خلاصة.</string>
   <string name="blogs_rss_feeds_manage_error">حدث خطأ في جلب خلاصاتك. الرجاء المحاولة لاحقًا.</string>
+  <!--Settings Profile Picture-->
   <!--Settings Display-->
   <string name="pref_language_title">اللغة &amp; المنطقة</string>
   <string name="pref_language_changed">هذا الإعداد سيتفعل بعد إعادة تشغيل Briar (براير). الرجاء تسجيل الخروج ثم اعادة تشغيل Briar (براير).</string>

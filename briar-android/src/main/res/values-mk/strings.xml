@@ -129,6 +129,7 @@
   <string name="send">Испрати</string>
   <string name="allow">Дозволи</string>
   <string name="open">Отвори</string>
+  <string name="change">Промени</string>
   <string name="no_data">Нема податоци</string>
   <string name="ellipsis">…</string>
   <string name="text_too_long">Внесениот текст е предолг</string>
@@ -151,7 +152,6 @@
   <string name="image_attach_error_invalid_mime_type">Форматот на сликата не е поддржан: %s</string>
   <string name="set_contact_alias">Промена на име на контакт</string>
   <string name="set_contact_alias_hint">Име на контакт</string>
-  <string name="change">Промени</string>
   <string name="delete_all_messages">Избриши ги сите пораки</string>
   <string name="dialog_title_delete_all_messages">Потврди бришење на порака</string>
   <string name="dialog_message_delete_all_messages">Дали сте сигурни дека сакате да ги избришете сите пораки?</string>
@@ -424,6 +424,7 @@
   <string name="blogs_rss_feeds_manage_delete_error">Тековникот не може да биде избришан!</string>
   <string name="blogs_rss_feeds_manage_empty_state">Нема RSS тековници за прикажување\n\nДопрете ја + иконата за да увезете тековник</string>
   <string name="blogs_rss_feeds_manage_error">Настана проблем при вчитувањето на вашите тековници. Ве молиме обидете се повторно подоцна.</string>
+  <!--Settings Profile Picture-->
   <!--Settings Display-->
   <string name="pref_language_title">Јазик &amp; регион</string>
   <string name="pref_language_changed">Оваа поставка ќе биде ефективна после рестартирањето на Briar. Ве молиме одјавете се и рестартирајте го Briar.</string>

@@ -129,6 +129,7 @@
   <string name="send">Dërgoje</string>
   <string name="allow">Lejoje</string>
   <string name="open">Hape</string>
+  <string name="change">Ndryshoje</string>
   <string name="no_data">S\’ka të dhëna</string>
   <string name="ellipsis">…</string>
   <string name="text_too_long">Teksti i dhënë është shumë i gjatë</string>
@@ -151,7 +152,6 @@
   <string name="image_attach_error_invalid_mime_type">Format i pambuluar figure: %s</string>
   <string name="set_contact_alias">Ndryshoni emër kontakti</string>
   <string name="set_contact_alias_hint">Emër kontakti</string>
-  <string name="change">Ndryshoje</string>
   <string name="delete_all_messages">Fshiji krejt mesazhet</string>
   <string name="dialog_title_delete_all_messages">Ripohoni Fshirje Mesazhesh</string>
   <string name="dialog_message_delete_all_messages">Jeni i sigurt se doni të fshihen krejt mesazhet?</string>
@@ -424,6 +424,11 @@
   <string name="blogs_rss_feeds_manage_delete_error">S\’u fshi dot prurja!</string>
   <string name="blogs_rss_feeds_manage_empty_state">S’ka prurje RSS për shfaqje\n\nPrekni ikonën + që të importohet një prurje</string>
   <string name="blogs_rss_feeds_manage_error">Pati një problem me ngarkimin e prurjeve tuaja. Ju lutemi, riprovoni më vonë.</string>
+  <!--Settings Profile Picture-->
+  <string name="change_profile_picture">Që të ndryshoni foton e profilit tuaj, prekeni</string>
+  <string name="dialog_confirm_profile_picture_title">Ndryshoni foto profili</string>
+  <string name="dialog_confirm_profile_picture_remark">Figurën e profilit tuaj mund ta shohin vetëm kontaktet tuaj</string>
+  <string name="change_profile_picture_failed_message">Na ndjeni, por diç shkoi ters me përditësimin e fotos së profilit tuaj</string>
   <!--Settings Display-->
   <string name="pref_language_title">Gjuhë &amp; rajon</string>
   <string name="pref_language_changed">Ky rregullim do të hyjë në fuqi kur të rinisni Briar-in. Ju lutemi, bëni daljen nga llogaria dhe rinisni Briar-in.</string>

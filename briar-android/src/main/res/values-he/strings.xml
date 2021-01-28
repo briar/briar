@@ -139,6 +139,7 @@
   <string name="send">שלח</string>
   <string name="allow">התר</string>
   <string name="open">פתח</string>
+  <string name="change">שנה</string>
   <string name="no_data">אין נתונים</string>
   <string name="ellipsis">…</string>
   <string name="text_too_long">הטקסט המוכנס ארוך מדי</string>
@@ -161,7 +162,6 @@
   <string name="image_attach_error_invalid_mime_type">תסדיר תמונה בלתי נתמך: %s</string>
   <string name="set_contact_alias">שַׁנֵּה שם איש קשר</string>
   <string name="set_contact_alias_hint">שם איש הקשר</string>
-  <string name="change">שַׁנֵּה</string>
   <string name="delete_all_messages">מחק את כל ההודעות</string>
   <string name="dialog_title_delete_all_messages">אשר מחיקת הודעה</string>
   <string name="dialog_message_delete_all_messages">האם אתה בטוח שאתה רוצה למחוק את כל ההודעות?</string>
@@ -448,6 +448,7 @@
   <string name="blogs_rss_feeds_manage_delete_error">ההזנה לא יכלה להימחק!</string>
   <string name="blogs_rss_feeds_manage_empty_state">אין הזנות RSS להראות\n\nהקש על הצלמית + כדי לייבא הזנה</string>
   <string name="blogs_rss_feeds_manage_error">הייתה בעיה בטעינת ההזנות שלך. אנא נסה שוב מאוחר יותר.</string>
+  <!--Settings Profile Picture-->
   <!--Settings Display-->
   <string name="pref_language_title">שפה ואזור</string>
   <string name="pref_language_changed">הגדרה זו תיכנס לתוקף כשתפעיל מחדש את Briar. אנא התנתק והפעל מחדש את Briar.</string>

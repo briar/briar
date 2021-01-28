@@ -129,6 +129,7 @@
   <string name="send">Enviar</string>
   <string name="allow">Permitir</string>
   <string name="open">Abrir</string>
+  <string name="change">Alterar</string>
   <string name="no_data">Nenhum dado</string>
   <string name="ellipsis">…</string>
   <string name="text_too_long">O texto entrado é muito grande</string>
@@ -151,7 +152,6 @@
   <string name="image_attach_error_invalid_mime_type">Formato da imagem não suportado: %s</string>
   <string name="set_contact_alias">Alterar nome do contato</string>
   <string name="set_contact_alias_hint">Nome de contato</string>
-  <string name="change">Trocar</string>
   <string name="delete_all_messages">Deletar todas as mensagens</string>
   <string name="dialog_title_delete_all_messages">Confirmar exclusão de mensagem</string>
   <string name="dialog_message_delete_all_messages">Você tem certeza que deseja excluir todas as mensagens?</string>
@@ -424,6 +424,7 @@
   <string name="blogs_rss_feeds_manage_delete_error">O Feed não pode ser deletado!</string>
   <string name="blogs_rss_feeds_manage_empty_state">Nenhum feed RSS para ser exibido\n\nPressione o ícone + para importar um feed</string>
   <string name="blogs_rss_feeds_manage_error">Houve um problema ao carregar seus Feeds. Por favor tente novamente.</string>
+  <!--Settings Profile Picture-->
   <!--Settings Display-->
   <string name="pref_language_title">Linguagem &amp; região</string>
   <string name="pref_language_changed">Essa configuração vai tomar efeito quando você reiniciar o Briar. Por favor saia e reinicie o Briar.</string>

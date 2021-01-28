@@ -139,6 +139,7 @@
   <string name="send">Siųsti</string>
   <string name="allow">Leisti</string>
   <string name="open">Atverti</string>
+  <string name="change">Pakeisti</string>
   <string name="no_data">Nėra duomenų</string>
   <string name="ellipsis">…</string>
   <string name="text_too_long">Įvestas tekstas yra per ilgas</string>
@@ -161,7 +162,6 @@
   <string name="image_attach_error_invalid_mime_type">Nepalaikomas paveikslo formatas: %s</string>
   <string name="set_contact_alias">Pakeisti adresato vardą</string>
   <string name="set_contact_alias_hint">Adresato vardas</string>
-  <string name="change">Pakeisti</string>
   <string name="delete_all_messages">Ištrinti visas žinutes</string>
   <string name="dialog_title_delete_all_messages">Patvirtinkite žinutės ištrynimą</string>
   <string name="dialog_message_delete_all_messages">Ar tikrai norite ištrinti visas žinutes?</string>
@@ -444,6 +444,11 @@
   <string name="blogs_rss_feeds_manage_delete_error">Nepavyko ištrinti kanalo!</string>
   <string name="blogs_rss_feeds_manage_empty_state">Nėra rodytinų RSS kanalų\n\nNorėdami importuoti kanalą, bakstelėkite + piktogramą</string>
   <string name="blogs_rss_feeds_manage_error">Įkeliant jūsų kanalus, atsirado problemų. Vėliau bandykite dar kartą.</string>
+  <!--Settings Profile Picture-->
+  <string name="change_profile_picture">Bakstelėkite norėdami pasikeisti profilio paveikslą</string>
+  <string name="dialog_confirm_profile_picture_title">Keisti profilio paveikslą</string>
+  <string name="dialog_confirm_profile_picture_remark">Jūsų profilio paveikslą gali matyti tik jūsų adresatai</string>
+  <string name="change_profile_picture_failed_message">Atleiskite, bet atnaujinant jūsų profilio paveikslą kažkas nutiko</string>
   <!--Settings Display-->
   <string name="pref_language_title">Kalba ir regionas</string>
   <string name="pref_language_changed">Šis nustatymas įsigalios, kai paleisite Briar iš naujo. Atsijunkite ir paleiskite Briar iš naujo.</string>

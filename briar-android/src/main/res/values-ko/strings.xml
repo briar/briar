@@ -124,6 +124,7 @@
   <string name="send">보내기</string>
   <string name="allow">허용하기</string>
   <string name="open">열기</string>
+  <string name="change">바꾸기</string>
   <string name="no_data">데이터가 없습니다</string>
   <string name="ellipsis">...</string>
   <string name="text_too_long">입력된 내용이 너무 깁니다</string>
@@ -146,7 +147,6 @@
   <string name="image_attach_error_invalid_mime_type">%s는 지원되지 않는 이미지 형식입니다.</string>
   <string name="set_contact_alias">연락처 이름 바꾸기</string>
   <string name="set_contact_alias_hint">연락처 이름</string>
-  <string name="change">바꾸기</string>
   <string name="delete_all_messages">모든 메시지 지우기</string>
   <string name="dialog_title_delete_all_messages">메시지 삭제 확인</string>
   <string name="dialog_message_delete_all_messages">정말로 모든 메시지를 지우려고 하시나요?</string>
@@ -414,6 +414,7 @@
   <string name="blogs_rss_feeds_manage_delete_error">피드를 삭제할 수 없었습니다!</string>
   <string name="blogs_rss_feeds_manage_empty_state">보여드릴 RSS 피드가 없습니다\n\n+ 상징을 눌러 피드를 불러오세요</string>
   <string name="blogs_rss_feeds_manage_error">피드를 불러오는 과정에서 문제가 있었습니다. 나중에 다시 시도해 주세요.</string>
+  <!--Settings Profile Picture-->
   <!--Settings Display-->
   <string name="pref_language_title">Language &amp; region</string>
   <string name="pref_language_changed">Briar를 다시 시작한 후에 설정이 적용됩니다. 부디 로그아웃하고 Briar를 다시 시작해 주세요.</string>

@@ -105,6 +105,7 @@
   <string name="send">Bidali</string>
   <string name="allow">Baimendu</string>
   <string name="open">Ireki</string>
+  <string name="change">Aldatu</string>
   <string name="no_data">Daturik ez</string>
   <string name="ellipsis">…</string>
   <string name="text_too_long">Sartutako testua luzeegia da</string>
@@ -127,7 +128,6 @@
   <string name="image_attach_error_invalid_mime_type">Onartu gabeko irudi formatua: %s</string>
   <string name="set_contact_alias">Aldatu kontaktuaren izena</string>
   <string name="set_contact_alias_hint">Kontaktuaren izena</string>
-  <string name="change">Aldatu</string>
   <string name="delete_all_messages">Ezabatu mezu guztiak</string>
   <string name="dialog_title_delete_all_messages">Baieztatu mezuak ezabatzea</string>
   <string name="dialog_message_delete_all_messages">Ziur mezu guztiak ezabatu nahi dituzula?</string>
@@ -400,6 +400,7 @@
   <string name="blogs_rss_feeds_manage_delete_error">Ezin izan da jarioa ezabatu!</string>
   <string name="blogs_rss_feeds_manage_empty_state">Ez dago erakusteko RSS jariorik\n\nSakatu + ikonoa jario bat inportatzeko</string>
   <string name="blogs_rss_feeds_manage_error">Arazo bat egon da zure jarioak kargatzean. Saiatu berriro geroago.</string>
+  <!--Settings Profile Picture-->
   <!--Settings Display-->
   <string name="pref_language_title">Hizkuntza eta eskualdea</string>
   <string name="pref_language_changed">Ezarpen hau Briar berrabiaraztean jarriko da indarrean. Amaitu saioa eta berrabiarazi Briar.</string>

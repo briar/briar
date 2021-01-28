@@ -129,6 +129,7 @@
   <string name="send">Küldés</string>
   <string name="allow">Engedélyez</string>
   <string name="open">Megnyitás</string>
+  <string name="change">Módosítás</string>
   <string name="no_data">Nincs adat</string>
   <string name="ellipsis">...</string>
   <string name="text_too_long">A beírt szöveg túl hosszú</string>
@@ -151,7 +152,6 @@
   <string name="image_attach_error_invalid_mime_type">Képformátum nem támogatott: %s</string>
   <string name="set_contact_alias">Kapcsolat nevének megváltoztatása</string>
   <string name="set_contact_alias_hint">Kapcsolat neve</string>
-  <string name="change">Módosítás</string>
   <string name="delete_all_messages">Minden üzenet törlése</string>
   <string name="dialog_title_delete_all_messages">Üzenet törlés megerősítése</string>
   <string name="dialog_message_delete_all_messages">Biztos, hogy szeretné törölni összes üzenetét?</string>
@@ -432,6 +432,7 @@ Kapcsolatai, akivel megosztotta ezt a blogot, lehet nem kapnak többé frissít�
   <string name="blogs_rss_feeds_manage_delete_error">A feed nem törölhető!</string>
   <string name="blogs_rss_feeds_manage_empty_state">Nincs megjelenítendő</string>
   <string name="blogs_rss_feeds_manage_error">Hiba történt a feed-jei betöltésével. Kérjük próbálja újra később.</string>
+  <!--Settings Profile Picture-->
   <!--Settings Display-->
   <string name="pref_language_title">Nyelv és régió</string>
   <string name="pref_language_changed">Ez a beállítás a Briar újraindítása után lép életbe.  Kérjük lépjen ki és indítsa újra a Briar-t.</string>

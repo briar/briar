@@ -129,6 +129,7 @@
   <string name="send">Invia</string>
   <string name="allow">Abilita</string>
   <string name="open">Apri</string>
+  <string name="change">Cambia</string>
   <string name="no_data">Nessun dato</string>
   <string name="ellipsis">...</string>
   <string name="text_too_long">Il testo inserito è troppo lungo</string>
@@ -151,7 +152,6 @@
   <string name="image_attach_error_invalid_mime_type">Formato immagine non supportato: %s</string>
   <string name="set_contact_alias">Cambia il nome del contatto</string>
   <string name="set_contact_alias_hint">Nome contatto</string>
-  <string name="change">Cambia</string>
   <string name="delete_all_messages">Elimina tutti i messaggi</string>
   <string name="dialog_title_delete_all_messages">Conferma l\'eliminazione dei messaggi</string>
   <string name="dialog_message_delete_all_messages">Sei sicuro di voler eliminare tutti i messaggi?</string>
@@ -424,6 +424,7 @@
   <string name="blogs_rss_feeds_manage_delete_error">Non è stato possibile cancellare il feed!</string>
   <string name="blogs_rss_feeds_manage_empty_state">Nessun feed RSS da mostrare\n\nClicca l\'icona + per importare un feed</string>
   <string name="blogs_rss_feeds_manage_error">C\'è stato un problema nel caricare i tuoi feeds. Per favore riprova fra poco.</string>
+  <!--Settings Profile Picture-->
   <!--Settings Display-->
   <string name="pref_language_title">Lingua &amp; regione</string>
   <string name="pref_language_changed">Questa impostazione avrà effetto quando riavvierai Briar. Per favore, esci e riavvia Briar.</string>
@@ -552,7 +553,9 @@
   <!--Screen Filters & Tapjacking-->
   <string name="screen_filter_title">È stata rilevata un\'overlay sullo schermo</string>
   <string name="screen_filter_body">Un\'altra app si sta sovrapponendo a Briar. Per proteggere la tua sicurezza, Briar non risponderà ai tocchi quando un\'app si sovrappone.\n\nLe seguenti app potrebbero sovrapporsi:\n\n%1$s</string>
+  <string name="screen_filter_body_api_30">Un\'altra app si sta sovrapponendo a Briar. Per proteggere la tua sicurezza, Briar non risponderà ai tocchi quando un\'app si sovrappone.\n\nTrova l\'app responsabile tra le seguenti.</string>
   <string name="screen_filter_allow">Permetti a queste app di sovrapporsi</string>
+  <string name="screen_filter_review_apps">Controlla le app</string>
   <!--Permission Requests-->
   <string name="permission_camera_title">Autorizzazione fotocamera</string>
   <string name="permission_camera_request_body">Per scansionare il codice QR, Briar deve accedere alla fotocamera.</string>

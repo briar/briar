@@ -103,6 +103,7 @@
   <string name="send">Göndər</string>
   <string name="allow">Izn vermək</string>
   <string name="open">Aç</string>
+  <string name="change">Dəyiş</string>
   <string name="no_data">Məlumat yoxdur</string>
   <string name="ellipsis">...</string>
   <string name="text_too_long">Daxil olunmuş mətn çox uzundur</string>
@@ -125,7 +126,6 @@
   <string name="image_attach_error_invalid_mime_type">Şəkil formatı dəstəklənmir: %s</string>
   <string name="set_contact_alias">Kontakt adı dəyişdirin</string>
   <string name="set_contact_alias_hint">Əlaqə adı</string>
-  <string name="change">Dəyiş</string>
   <string name="delete_all_messages">Bütün mesajları sil</string>
   <string name="dialog_title_delete_all_messages">Silməyi təsdiq et</string>
   <string name="dialog_message_delete_all_messages">Bütün mesajları silmək istədiyinizə əminsinizmi? </string>
@@ -357,6 +357,7 @@
   <string name="blogs_rss_feeds_manage_delete_error">Feed silinmədi</string>
   <string name="blogs_rss_feeds_manage_empty_state">Xeyr RSS əks etdirmir\n\nİdxal etmək üçün + düyməsinə toxunun</string>
   <string name="blogs_rss_feeds_manage_error">Kanal yükləmədə bir problem var. Zəhmət olmasa bir az sonra yenə cəhd edin.</string>
+  <!--Settings Profile Picture-->
   <!--Settings Display-->
   <string name="pref_language_title">Dil və region</string>
   <string name="pref_language_changed">Briar-ı yenidən başlatdığınızda bu parametr qüvvəyə minir. Lütfən çıxın və Briar-ı yenidən başladın.</string>

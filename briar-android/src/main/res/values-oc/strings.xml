@@ -107,6 +107,7 @@ Volètz suprimir vòstre compte e ne crear un nòu ?\n
   <string name="send">Mandar</string>
   <string name="allow">Autorizar</string>
   <string name="open">Dobrir</string>
+  <string name="change">Cambiar</string>
   <string name="no_data">Pas donada</string>
   <string name="ellipsis">...</string>
   <string name="text_too_long">Lo tèxte picat es tròp long</string>
@@ -128,7 +129,6 @@ Volètz suprimir vòstre compte e ne crear un nòu ?\n
   <string name="image_attach_error_invalid_mime_type">Format d’imatge pas compatible : %s</string>
   <string name="set_contact_alias">Cambiar lo nom del contacte</string>
   <string name="set_contact_alias_hint">Nom del contacte</string>
-  <string name="change">Cambiar</string>
   <string name="delete_all_messages">Suprimir totes los messatges</string>
   <string name="dialog_title_delete_all_messages">Confirmatz la supression dels messatges</string>
   <string name="dialog_message_delete_all_messages">Volètz vertadièrament suprimir totes los messatges ?</string>
@@ -401,6 +401,7 @@ contactes qu’avètz partejat aqueste flux quitaràn benlèu de recebre las mes
   <string name="blogs_rss_feeds_manage_delete_error">Impossible de suprimir lo flux !</string>
   <string name="blogs_rss_feeds_manage_empty_state">Cap de flux RSS de far veire.\n\nTocatz l’icòna + per n’importar un</string>
   <string name="blogs_rss_feeds_manage_error">Error en cargar vòstres fluxes. Ensajatz mai tard.</string>
+  <!--Settings Profile Picture-->
   <!--Settings Display-->
   <string name="pref_language_title">Lenga &amp; region</string>
   <string name="pref_language_changed">Aquel paramètre serà pres en compte aprèp una reaviada de Briar. Desconnectatz-vos e reaviatz Briar.</string>

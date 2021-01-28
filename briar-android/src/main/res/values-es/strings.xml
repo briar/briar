@@ -129,6 +129,7 @@
   <string name="send">Enviar</string>
   <string name="allow">Permitir</string>
   <string name="open">Abrir</string>
+  <string name="change">Cambiar</string>
   <string name="no_data">Sin datos</string>
   <string name="ellipsis">…</string>
   <string name="text_too_long">El texto ingresado es demasiado largo</string>
@@ -151,7 +152,6 @@
   <string name="image_attach_error_invalid_mime_type">Formato de imagen no admitido: %s</string>
   <string name="set_contact_alias">Cambiar nombre del contacto</string>
   <string name="set_contact_alias_hint">Nombre del contacto</string>
-  <string name="change">Cambiar</string>
   <string name="delete_all_messages">Eliminar todos los mensajes</string>
   <string name="dialog_title_delete_all_messages">Confirmar la eliminación del mensaje</string>
   <string name="dialog_message_delete_all_messages">¿Estás seguro de que deseas eliminar todos los mensajes?</string>
@@ -424,6 +424,11 @@
   <string name="blogs_rss_feeds_manage_delete_error">¡El canal no pudo ser eliminado!</string>
   <string name="blogs_rss_feeds_manage_empty_state">No hay canales RSS que mostrar\n\nGolpea el icono + para importar uno</string>
   <string name="blogs_rss_feeds_manage_error">Hubo un problema cargando tus canales RSS. Por favor, prueba más tarde.</string>
+  <!--Settings Profile Picture-->
+  <string name="change_profile_picture">Pulsar para cambiar la imagen de tu perfil</string>
+  <string name="dialog_confirm_profile_picture_title">Cambiar imagen de perfil</string>
+  <string name="dialog_confirm_profile_picture_remark">Solo tus contactos pueden ver la imagen de tu perfil</string>
+  <string name="change_profile_picture_failed_message">Lo sentimos, pero algo falló mientras se estaba actualizando la imagen de tu perfil</string>
   <!--Settings Display-->
   <string name="pref_language_title">Lenguaje &amp; región</string>
   <string name="pref_language_changed">Esta configuración se hará efectiva cuando reinicies Briar. Por favor, cerrar sesión y reiniciar Briar.</string>

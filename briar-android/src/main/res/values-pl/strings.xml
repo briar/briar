@@ -111,6 +111,7 @@
   <string name="send">Wyślij</string>
   <string name="allow">Pozwól</string>
   <string name="open">Otwórz</string>
+  <string name="change">Zmień</string>
   <string name="no_data">Brak danych</string>
   <string name="ellipsis">...</string>
   <string name="text_too_long">Wprowadzony tekst jest zbyt długi</string>
@@ -132,7 +133,6 @@
   <string name="image_attach_error_invalid_mime_type">Format obrazu jest nieobsługiwany: %s</string>
   <string name="set_contact_alias">Zmień nazwę kontaktu</string>
   <string name="set_contact_alias_hint">Nazwa kontaktu</string>
-  <string name="change">Zmień</string>
   <string name="dialog_title_not_all_messages_deleted">Nie mogłem usunąć wszystkich wiadomości</string>
   <string name="delete_contact">Usuń kontakt</string>
   <string name="dialog_title_delete_contact">Potwierdź usunięcie kontaktu</string>
@@ -403,6 +403,7 @@
   <string name="blogs_rss_feeds_manage_delete_error">Kanał nie mógł zostać usunięty!</string>
   <string name="blogs_rss_feeds_manage_empty_state">Brak RSS do wyświetlenia\n\nDotknij ikonki + aby zaimportować kanał.</string>
   <string name="blogs_rss_feeds_manage_error">Wystąpił problem podczas ładowania twoich kanałów RSS. Proszę spróbować ponownie później.</string>
+  <!--Settings Profile Picture-->
   <!--Settings Display-->
   <string name="pref_language_title">Język &amp; region</string>
   <string name="pref_language_changed">Te ustawienia zostaną zastosowane gdy zrestartujesz Briar. Proszę się wylogować i zrestartować Briar.</string>

@@ -141,6 +141,7 @@
   <string name="send">Отправить</string>
   <string name="allow">Разрешить</string>
   <string name="open">Открыть</string>
+  <string name="change">Изменить</string>
   <string name="no_data">Нет данных</string>
   <string name="ellipsis">…</string>
   <string name="text_too_long">Введенный текст слишком длинный</string>
@@ -163,7 +164,6 @@
   <string name="image_attach_error_invalid_mime_type">Формат изображения не поддерживается: %s</string>
   <string name="set_contact_alias">Изменить имя контакта</string>
   <string name="set_contact_alias_hint">Имя контакта</string>
-  <string name="change">Изменить</string>
   <string name="delete_all_messages">Удалить все сообщения</string>
   <string name="dialog_title_delete_all_messages">Подтверждение удаления сообщений</string>
   <string name="dialog_message_delete_all_messages">Вы уверены, что хотите удалить все сообщения?</string>
@@ -446,6 +446,7 @@
   <string name="blogs_rss_feeds_manage_delete_error">Не удалось удалить ленту!</string>
   <string name="blogs_rss_feeds_manage_empty_state">Нет RSS-лент для отображения\n\nКоснитесь значка + для импорта ленты</string>
   <string name="blogs_rss_feeds_manage_error">Ошибка при загрузке вашей ленты. Повторите попытку позже.</string>
+  <!--Settings Profile Picture-->
   <!--Settings Display-->
   <string name="pref_language_title">Язык и регион</string>
   <string name="pref_language_changed">Этот параметр вступит в силу после перезапуска Briar. Пожалуйста, выйдите и перезапустите Briar.</string>

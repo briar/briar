@@ -96,6 +96,7 @@
   <string name="send">發送</string>
   <string name="allow">允許</string>
   <string name="open">打開</string>
+  <string name="change">變動</string>
   <string name="no_data">沒有數據</string>
   <string name="ellipsis">……</string>
   <string name="text_too_long">輸入的文本過長</string>
@@ -117,7 +118,6 @@
   <string name="image_attach_error_invalid_mime_type">圖片格式不支援: %s</string>
   <string name="set_contact_alias">更改聯絡人姓名</string>
   <string name="set_contact_alias_hint">聯絡人姓名</string>
-  <string name="change">更改</string>
   <string name="delete_contact">刪除聯絡人</string>
   <string name="dialog_title_delete_contact">確認刪除聯絡人</string>
   <string name="dialog_message_delete_contact">確認要刪除該聯絡人和與其交流訊息嗎？</string>
@@ -372,6 +372,7 @@
   <string name="blogs_rss_feeds_manage_delete_error">無法刪除這訂閱源！</string>
   <string name="blogs_rss_feeds_manage_empty_state">尚無訂閱源可供顯示\n\n輕按 + 號導入訂閱源</string>
   <string name="blogs_rss_feeds_manage_error">加載訂閱源時出錯。請稍候再試。</string>
+  <!--Settings Profile Picture-->
   <!--Settings Display-->
   <string name="pref_language_title">語言 &amp; 區域</string>
   <string name="pref_language_changed">該設置將會在 Briar 重啓後生效。請登出並重啓 Briar。</string>

@@ -129,6 +129,7 @@
   <string name="send">Senda</string>
   <string name="allow">Leyfa</string>
   <string name="open">Opna</string>
+  <string name="change">Breyta</string>
   <string name="no_data">Engin gögn</string>
   <string name="ellipsis">…</string>
   <string name="text_too_long">Textinn sem var settur inn er of langur</string>
@@ -151,7 +152,6 @@
   <string name="image_attach_error_invalid_mime_type">Myndskráarsnið er ekki stutt: %s</string>
   <string name="set_contact_alias">Breyta nafni tengiliðar</string>
   <string name="set_contact_alias_hint">Nafn tengiliðar</string>
-  <string name="change">Breyta</string>
   <string name="delete_all_messages">Eyða öllum skilaboðum</string>
   <string name="dialog_title_delete_all_messages">Staðfesta eyðingu skilaboða</string>
   <string name="dialog_message_delete_all_messages">Ertu viss um að þú viljir eyða öllum skilaboðum?</string>
@@ -424,6 +424,7 @@
   <string name="blogs_rss_feeds_manage_delete_error">Ekki var hægt að eyða streyminu!</string>
   <string name="blogs_rss_feeds_manage_empty_state">Engin RSS-streymi til að birta\n\nÝttu á + táknið til að flytja inn streymi</string>
   <string name="blogs_rss_feeds_manage_error">Vandamál hefur komið upp með að hlaða inn streymunum þínum. Reyndu aftur síðar.</string>
+  <!--Settings Profile Picture-->
   <!--Settings Display-->
   <string name="pref_language_title">Tungumál og landsvæði</string>
   <string name="pref_language_changed">Þessi stilling tekur gildi í næst þegar þú skráir þig inn í Briar. Skráðu þig út og endurræstu Briar.</string>

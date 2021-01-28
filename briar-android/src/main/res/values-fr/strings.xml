@@ -129,6 +129,7 @@
   <string name="send">Envoyer</string>
   <string name="allow">Autoriser</string>
   <string name="open">Ouvrir</string>
+  <string name="change">Changer</string>
   <string name="no_data">Aucune donnée</string>
   <string name="ellipsis">...</string>
   <string name="text_too_long">Le texte saisi est trop long</string>
@@ -151,7 +152,6 @@
   <string name="image_attach_error_invalid_mime_type">Format d’image non pris en charge : %s</string>
   <string name="set_contact_alias">Changer le nom du contact</string>
   <string name="set_contact_alias_hint">Nom du contact</string>
-  <string name="change">Modifier</string>
   <string name="delete_all_messages">Supprimer tous les messages</string>
   <string name="dialog_title_delete_all_messages">Confirmer la suppression des messages</string>
   <string name="dialog_message_delete_all_messages">Voulez-vous vraiment supprimer tous les messages ?</string>
@@ -424,6 +424,11 @@
   <string name="blogs_rss_feeds_manage_delete_error">Impossible de supprimer le fil !</string>
   <string name="blogs_rss_feeds_manage_empty_state">Aucun fil RSS à afficher\n\nTouchez l’icône + pour importer un fil</string>
   <string name="blogs_rss_feeds_manage_error">Un problème est survenu lors du chargement de vos fils. Veuillez réessayer plus tard.</string>
+  <!--Settings Profile Picture-->
+  <string name="change_profile_picture">Touchez pour changer votre photo de profil</string>
+  <string name="dialog_confirm_profile_picture_title">Changer la photo de profil</string>
+  <string name="dialog_confirm_profile_picture_remark">Seuls vos contacts peuvent voir votre photo de profil</string>
+  <string name="change_profile_picture_failed_message">Nous sommes désolés, mais un problème est survenu lors de la mise à jour de votre photo de profil</string>
   <!--Settings Display-->
   <string name="pref_language_title">Langue et région</string>
   <string name="pref_language_changed">Ce paramètre prendra effet une fois que vous aurez redémarré Briar. Veuillez vous déconnecter et redémarrer Briar.</string>
@@ -531,25 +536,30 @@
   <string name="optional_contact_email">Votre adresse courriel (facultative)</string>
   <string name="include_debug_report_crash">Inclure des données anonymes concernant le plantage</string>
   <string name="include_debug_report_feedback">Inclure des données anonymes concernant cet appareil</string>
-  <string name="dev_report_basic_info">Informations de base</string>
-  <string name="dev_report_device_info">Informations sur l\'appareil</string>
-  <string name="dev_report_time_info">Informations temporelles</string>
+  <string name="dev_report_basic_info">Renseignements de base</string>
+  <string name="dev_report_device_info">Renseignements sur l’appareil</string>
+  <string name="dev_report_stacktrace">Trace d’appels</string>
+  <string name="dev_report_time_info">Renseignements temporels</string>
   <string name="dev_report_memory">Mémoire</string>
   <string name="dev_report_storage">Stockage</string>
   <string name="dev_report_connectivity">Connectivité</string>
-  <string name="dev_report_device_features">Fonctionnalités de l\'appareil</string>
+  <string name="dev_report_build_config">Configuration de la version</string>
+  <string name="dev_report_logcat">Journal de l’appli</string>
+  <string name="dev_report_device_features">Caractéristiques de l’appareil</string>
   <string name="send_report">Envoyer le rapport</string>
   <string name="close">Fermer</string>
   <string name="dev_report_sending">Envoi de la rétroaction…</string>
-  <string name="dev_report_sent">Rétroaction envoyée avec succès</string>
+  <string name="dev_report_sent">La rétroaction a été envoyée avec succès</string>
   <string name="dev_report_saved">Le rapport a été enregistré. Il sera envoyé lors de votre prochaine connexion à Briar.</string>
-  <string name="dev_report_error">Erreur : l\'envoi du signalement a échoué</string>
+  <string name="dev_report_error">Erreur : échec d’envoi du rapport</string>
   <!--Sign Out-->
   <string name="progress_title_logout">Déconnexion de Briar…</string>
   <!--Screen Filters & Tapjacking-->
   <string name="screen_filter_title">Une superposition d’écran a été détectée</string>
   <string name="screen_filter_body">Une autre appli s’affiche par-dessus Briar. Pour protéger votre sécurité, Briar ne répondra pas au toucher si une autre appli s’affiche par-dessus.\n\nLes applis suivantes pourraient s’afficher par-dessus Briar : \n\n%1$s</string>
+  <string name="screen_filter_body_api_30">Une autre appli s’affiche par-dessus Briar. Afin de protéger votre sécurité, Briar ne répondra pas au toucher si une autre appli s’affiche par-dessus.\n\nExaminez les applis ci-dessous afin de trouver l’appli en cause.</string>
   <string name="screen_filter_allow">Permettre à ces applis de s’afficher par-dessus</string>
+  <string name="screen_filter_review_apps">Examiner les applis</string>
   <!--Permission Requests-->
   <string name="permission_camera_title">Autorisation d’accès à l’appareil photo</string>
   <string name="permission_camera_request_body">Afin de balayer le code QR, Briar doit accéder à l’appareil photo.</string>

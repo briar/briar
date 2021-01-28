@@ -129,6 +129,7 @@
   <string name="send">Envia</string>
   <string name="allow">Permet</string>
   <string name="open">Obre</string>
+  <string name="change">Canvia</string>
   <string name="no_data">Sense dades</string>
   <string name="ellipsis">...</string>
   <string name="text_too_long">El text és massa llarg</string>
@@ -151,7 +152,6 @@
   <string name="image_attach_error_invalid_mime_type">El format de la imatge no s\'admet: %s</string>
   <string name="set_contact_alias">Canvia el nom del contacte</string>
   <string name="set_contact_alias_hint">Nom del contacte</string>
-  <string name="change">Canvia</string>
   <string name="delete_all_messages">Esborra tots els missatges</string>
   <string name="dialog_title_delete_all_messages">Confirmeu l\'esborrat dels missatges</string>
   <string name="dialog_message_delete_all_messages">Segur que voleu esborrar tots els missatges?</string>
@@ -425,6 +425,7 @@ Així que l\'actualitzi li veureu una icona diferent .</string>
   <string name="blogs_rss_feeds_manage_delete_error">La subscripció al canal de notícies no s\'ha pogut suprimir.</string>
   <string name="blogs_rss_feeds_manage_empty_state">No hi ha cap notícia per mostrar\n\nFeu un toc sobre la icona + per subscriure-us a un canal de notícies</string>
   <string name="blogs_rss_feeds_manage_error">S\'ha produït un problema en actualitzar els vostres canals de notícies. Torneu-ho a provar més endavant.</string>
+  <!--Settings Profile Picture-->
   <!--Settings Display-->
   <string name="pref_language_title">Llengua i regió</string>
   <string name="pref_language_changed">L\'efecte d\'aquest canvi només l\'apreciareu després de reiniciar Briar. Si us plau, tanqueu la sessió i reinicieu Briar.</string>
