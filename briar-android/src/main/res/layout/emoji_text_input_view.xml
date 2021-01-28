@@ -16,7 +16,7 @@
 		android:background="?attr/selectableItemBackground"
 		android:padding="@dimen/margin_small"
 		android:scaleType="center"
-		android:src="@drawable/ic_emoji_toggle"
+		app:srcCompat="@drawable/ic_emoji_toggle"
 		app:tint="?attr/colorControlNormal" />
 
 	<com.vanniktech.emoji.EmojiEditText

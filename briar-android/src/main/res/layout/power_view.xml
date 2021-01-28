@@ -26,11 +26,11 @@
 		android:layout_width="24dp"
 		android:layout_height="24dp"
 		android:layout_margin="@dimen/margin_medium"
-		android:src="@drawable/ic_check_white"
 		android:visibility="invisible"
 		app:layout_constraintBottom_toBottomOf="@+id/button"
 		app:layout_constraintStart_toStartOf="parent"
 		app:layout_constraintTop_toTopOf="@+id/button"
+		app:srcCompat="@drawable/ic_check_white"
 		app:tint="?attr/colorControlNormal"
 		tools:ignore="ContentDescription" />
 
@@ -52,10 +52,10 @@
 		android:layout_height="24dp"
 		android:layout_margin="@dimen/margin_medium"
 		android:contentDescription="@string/help"
-		android:src="@drawable/ic_help_outline_white"
 		android:tint="@color/briar_button_text_positive"
 		app:layout_constraintBottom_toBottomOf="@+id/button"
 		app:layout_constraintEnd_toEndOf="parent"
-		app:layout_constraintTop_toTopOf="@+id/button" />
+		app:layout_constraintTop_toTopOf="@+id/button"
+		app:srcCompat="@drawable/ic_help_outline_white" />
 
 </merge>

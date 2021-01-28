@@ -8,7 +8,6 @@ import org.briarproject.briar.R;
 
 import androidx.annotation.UiThread;
 import androidx.appcompat.widget.AppCompatImageView;
-import androidx.core.content.ContextCompat;
 
 @UiThread
 public class TrustIndicatorView extends AppCompatImageView {
@@ -44,7 +43,7 @@ public class TrustIndicatorView extends AppCompatImageView {
 			default:
 				res = R.drawable.trust_indicator_unknown;
 		}
-		setImageDrawable(ContextCompat.getDrawable(getContext(), res));
+		setImageResource(res);
 		setVisibility(VISIBLE);
 
 		invalidate();

@@ -43,11 +43,11 @@
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
 			android:layout_margin="@dimen/margin_large"
-			android:src="@drawable/ic_contact_introduction"
 			app:layout_constraintBottom_toBottomOf="@+id/barrier"
 			app:layout_constraintEnd_toEndOf="parent"
 			app:layout_constraintStart_toStartOf="parent"
 			app:layout_constraintTop_toTopOf="@+id/avatarContact2"
+			app:srcCompat="@drawable/ic_contact_introduction"
 			app:tint="?attr/colorControlNormal"
 			tools:ignore="ContentDescription" />
 

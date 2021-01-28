@@ -255,7 +255,7 @@ class AndroidNotificationManagerImpl implements AndroidNotificationManager,
 				R.string.ongoing_notification_title;
 		int text = locked ? R.string.lock_tap_to_unlock :
 				R.string.ongoing_notification_text;
-		int icon = locked ? R.drawable.startup_lock :
+		int icon = locked ? R.drawable.notification_lock :
 				R.drawable.notification_ongoing;
 		// Ongoing foreground notification that shows BriarService is running
 		NotificationCompat.Builder b =
@@ -624,7 +624,7 @@ class AndroidNotificationManagerImpl implements AndroidNotificationManager,
 
 		NotificationCompat.Builder b =
 				new NotificationCompat.Builder(appContext, REMINDER_CHANNEL_ID);
-		b.setSmallIcon(R.drawable.ic_signout);
+		b.setSmallIcon(R.drawable.notification_signout);
 		b.setColor(getColor(appContext, R.color.briar_primary));
 		b.setContentTitle(
 				appContext.getText(R.string.reminder_notification_title));

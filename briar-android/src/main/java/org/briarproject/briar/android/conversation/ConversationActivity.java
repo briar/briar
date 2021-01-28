@@ -3,6 +3,7 @@ package org.briarproject.briar.android.conversation;
 import android.annotation.SuppressLint;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.transition.Slide;
@@ -105,6 +106,7 @@ import androidx.recyclerview.selection.SelectionTracker.SelectionObserver;
 import androidx.recyclerview.selection.StorageStrategy;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.vectordrawable.graphics.drawable.VectorDrawableCompat;
 import de.hdodenhof.circleimageview.CircleImageView;
 import uk.co.samuelwall.materialtaptargetprompt.MaterialTapTargetPrompt;
 
@@ -479,12 +481,10 @@ public class ConversationActivity extends BriarActivity
 	@UiThread
 	private void displayContactOnlineStatus() {
 		if (connectionRegistry.isConnected(contactId)) {
-			toolbarStatus.setImageDrawable(ContextCompat.getDrawable(
-					ConversationActivity.this, R.drawable.contact_online));
+			toolbarStatus.setImageResource(R.drawable.contact_online);
 			toolbarStatus.setContentDescription(getString(R.string.online));
 		} else {
-			toolbarStatus.setImageDrawable(ContextCompat.getDrawable(
-					ConversationActivity.this, R.drawable.contact_offline));
+			toolbarStatus.setImageResource(R.drawable.contact_offline);
 			toolbarStatus.setContentDescription(getString(R.string.offline));
 		}
 	}
@@ -935,13 +935,16 @@ public class ConversationActivity extends BriarActivity
 			return;
 		}
 
+		int color =
+				ContextCompat.getColor(this, R.color.briar_primary);
+		Drawable drawable = VectorDrawableCompat
+				.create(getResources(), R.drawable.ic_more_vert_accent, null);
 		new MaterialTapTargetPrompt.Builder(ConversationActivity.this,
 				R.style.OnboardingDialogTheme).setTarget(target)
 				.setPrimaryText(R.string.introduction_onboarding_title)
 				.setSecondaryText(R.string.introduction_onboarding_text)
-				.setIcon(R.drawable.ic_more_vert_accent)
-				.setBackgroundColour(
-						ContextCompat.getColor(this, R.color.briar_primary))
+				.setIconDrawable(drawable)
+				.setBackgroundColour(color)
 				.show();
 	}
 

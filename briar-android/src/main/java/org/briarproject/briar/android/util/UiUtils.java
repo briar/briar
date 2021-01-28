@@ -54,6 +54,7 @@ import androidx.fragment.app.FragmentManager;
 import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.Observer;
+import androidx.vectordrawable.graphics.drawable.VectorDrawableCompat;
 
 import static android.content.Context.KEYGUARD_SERVICE;
 import static android.content.Context.POWER_SERVICE;
@@ -88,7 +89,6 @@ import static androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_NO;
 import static androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_YES;
 import static androidx.appcompat.app.AppCompatDelegate.setDefaultNightMode;
 import static androidx.core.content.ContextCompat.getColor;
-import static androidx.core.content.ContextCompat.getDrawable;
 import static androidx.core.content.ContextCompat.getSystemService;
 import static androidx.core.graphics.drawable.DrawableCompat.setTint;
 import static androidx.core.view.ViewCompat.LAYOUT_DIRECTION_RTL;
@@ -436,7 +436,8 @@ public class UiUtils {
 	}
 
 	public static Drawable getDialogIcon(Context ctx, @DrawableRes int resId) {
-		Drawable icon = getDrawable(ctx, resId);
+		Drawable icon =
+				VectorDrawableCompat.create(ctx.getResources(), resId, null);
 		setTint(requireNonNull(icon), getColor(ctx, R.color.color_primary));
 		return icon;
 	}

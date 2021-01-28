@@ -29,10 +29,10 @@
 		android:contentDescription="@string/blogs_reblog_button"
 		android:padding="2dp"
 		android:scaleType="fitCenter"
-		android:src="@drawable/ic_repeat"
 		android:visibility="invisible"
 		app:layout_constraintBottom_toBottomOf="@+id/avatar"
-		app:layout_constraintEnd_toEndOf="@+id/avatar" />
+		app:layout_constraintEnd_toEndOf="@+id/avatar"
+		app:srcCompat="@drawable/ic_repeat" />
 
 	<com.vanniktech.emoji.EmojiTextView
 		android:id="@+id/authorName"
