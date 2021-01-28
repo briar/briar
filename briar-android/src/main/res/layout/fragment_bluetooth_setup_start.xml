@@ -11,6 +11,19 @@
 		android:layout_height="wrap_content"
 		android:padding="@dimen/margin_large">
 
+		<ImageView
+			android:id="@+id/diagram"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:adjustViewBounds="true"
+			android:paddingBottom="@dimen/margin_large"
+			android:scaleType="fitCenter"
+			android:src="@drawable/bluetooth"
+			app:layout_constraintBottom_toTopOf="@id/explanationText"
+			app:layout_constraintEnd_toEndOf="parent"
+			app:layout_constraintStart_toStartOf="parent"
+			app:layout_constraintTop_toTopOf="parent" />
+
 		<TextView
 			android:id="@+id/explanationText"
 			android:layout_width="wrap_content"
@@ -18,10 +31,10 @@
 			android:gravity="left|start"
 			android:text="To be able to communicate over Bluetooth with contacts that were previously added at a distance, Briar needs to learn the Bluetooth address of your device. This only needs to be done once.\n\nTo accomplish this, you need to have one of your contacts nearby to perform the Bluetooth Setup.\n\nBefore you start the setup, your contact also needs bring up the Bluetooth Setup screen by navigating [here-and-here].\n\nNote: Bluetooth Pairing is not a required part of the setup."
 			android:textSize="16sp"
-			app:layout_constraintBottom_toBottomOf="parent"
+			app:layout_constraintBottom_toTopOf="@id/startButton"
 			app:layout_constraintEnd_toEndOf="parent"
 			app:layout_constraintStart_toStartOf="parent"
-			app:layout_constraintTop_toTopOf="parent" />
+			app:layout_constraintTop_toBottomOf="@id/diagram" />
 
 		<Button
 			android:id="@+id/startButton"
