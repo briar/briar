@@ -2,8 +2,8 @@ image: briar/ci-image-android:latest
 
 stages:
 - test
-- check_reproducibility
 - optional_tests
+- check_reproducibility
 
 test:
   stage: test
@@ -33,7 +33,7 @@ test_reproducible:
   only:
     - tags
 
-optional_tests:
+.optional_tests:
   stage: optional_tests
   before_script:
     - set -e
@@ -52,4 +52,13 @@ optional_tests:
     - rm -f $GRADLE_USER_HOME/caches/modules-2/modules-2.lock
     - rm -fr $GRADLE_USER_HOME/caches/*/plugin-resolution/
 
+manual_tests:
+  extends: .optional_tests
   when: manual
+  except:
+    - tags
+
+pre_release_tests:
+  extends: .optional_tests
+  only:
+    - tags
