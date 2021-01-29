@@ -14,7 +14,6 @@ import org.briarproject.briar.android.BriarApplication;
 import org.briarproject.briar.android.DestroyableContext;
 import org.briarproject.briar.android.Localizer;
 import org.briarproject.briar.android.controller.ActivityLifecycleController;
-import org.briarproject.briar.android.forum.ForumModule;
 import org.briarproject.briar.android.fragment.BaseFragment;
 import org.briarproject.briar.android.fragment.ScreenFilterDialogFragment;
 import org.briarproject.briar.android.util.UiUtils;
@@ -87,7 +86,6 @@ public abstract class BaseActivity extends AppCompatActivity
 		activityComponent = DaggerActivityComponent.builder()
 				.androidComponent(applicationComponent)
 				.activityModule(getActivityModule())
-				.forumModule(getForumModule())
 				.build();
 		injectActivity(activityComponent);
 		super.onCreate(state);
@@ -120,11 +118,6 @@ public abstract class BaseActivity extends AppCompatActivity
 	// This exists to make test overrides easier
 	protected ActivityModule getActivityModule() {
 		return new ActivityModule(this);
-	}
-
-	// TODO use a test module where this is used in tests
-	protected ForumModule getForumModule() {
-		return new ForumModule();
 	}
 
 	@Override

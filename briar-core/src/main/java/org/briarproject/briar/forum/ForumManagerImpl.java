@@ -126,29 +126,30 @@ class ForumManagerImpl extends BdfIncomingMessageHook implements ForumManager {
 
 	@Override
 	public ForumPostHeader addLocalPost(ForumPost p) throws DbException {
-		return db.transactionWithResult(false, txn -> {
-			try {
-				return addLocalPost(txn, p);
-			} catch (FormatException e) {
-				throw new AssertionError(e);
-			}
-		});
+		return db.transactionWithResult(false, txn -> addLocalPost(txn, p));
 	}
 
-	private ForumPostHeader addLocalPost(Transaction txn, ForumPost p)
-			throws DbException, FormatException {
-		BdfDictionary meta = new BdfDictionary();
-		meta.put(KEY_TIMESTAMP, p.getMessage().getTimestamp());
-		if (p.getParent() != null) meta.put(KEY_PARENT, p.getParent());
-		Author a = p.getAuthor();
-		meta.put(KEY_AUTHOR, clientHelper.toList(a));
-		meta.put(KEY_LOCAL, true);
-		meta.put(MSG_KEY_READ, true);
-		clientHelper.addLocalMessage(txn, p.getMessage(), meta, true, false);
-		messageTracker.trackOutgoingMessage(txn, p.getMessage());
-		AuthorInfo authorInfo = authorManager.getMyAuthorInfo(txn);
-		return new ForumPostHeader(p.getMessage().getId(), p.getParent(),
-				p.getMessage().getTimestamp(), p.getAuthor(), authorInfo, true);
+	@Override
+	public ForumPostHeader addLocalPost(Transaction txn, ForumPost p)
+			throws DbException {
+		try {
+			BdfDictionary meta = new BdfDictionary();
+			meta.put(KEY_TIMESTAMP, p.getMessage().getTimestamp());
+			if (p.getParent() != null) meta.put(KEY_PARENT, p.getParent());
+			Author a = p.getAuthor();
+			meta.put(KEY_AUTHOR, clientHelper.toList(a));
+			meta.put(KEY_LOCAL, true);
+			meta.put(MSG_KEY_READ, true);
+			clientHelper
+					.addLocalMessage(txn, p.getMessage(), meta, true, false);
+			messageTracker.trackOutgoingMessage(txn, p.getMessage());
+			AuthorInfo authorInfo = authorManager.getMyAuthorInfo(txn);
+			return new ForumPostHeader(p.getMessage().getId(), p.getParent(),
+					p.getMessage().getTimestamp(), p.getAuthor(), authorInfo,
+					true);
+		} catch (FormatException e) {
+			throw new AssertionError(e);
+		}
 	}
 
 	@Override
@@ -192,6 +193,15 @@ class ForumManagerImpl extends BdfIncomingMessageHook implements ForumManager {
 		}
 	}
 
+	@Override
+	public String getPostText(Transaction txn, MessageId m) throws DbException {
+		try {
+			return getPostText(clientHelper.getMessageAsList(txn, m));
+		} catch (FormatException e) {
+			throw new DbException(e);
+		}
+	}
+
 	private String getPostText(BdfList body) throws FormatException {
 		// Parent ID, author, text, signature
 		return body.getString(2);
@@ -200,33 +210,35 @@ class ForumManagerImpl extends BdfIncomingMessageHook implements ForumManager {
 	@Override
 	public Collection<ForumPostHeader> getPostHeaders(GroupId g)
 			throws DbException {
+		return db.transactionWithResult(true, txn -> getPostHeaders(txn, g));
+	}
+
+	@Override
+	public List<ForumPostHeader> getPostHeaders(Transaction txn, GroupId g)
+			throws DbException {
 		try {
-			return db.transactionWithResult(true, txn -> {
-				Collection<ForumPostHeader> headers = new ArrayList<>();
-				Map<MessageId, BdfDictionary> metadata =
-						clientHelper.getMessageMetadataAsDictionary(txn, g);
-				// get all authors we need to get the info for
-				Set<AuthorId> authors = new HashSet<>();
-				for (Entry<MessageId, BdfDictionary> entry :
-						metadata.entrySet()) {
-					BdfList authorList = entry.getValue().getList(KEY_AUTHOR);
-					Author a = clientHelper.parseAndValidateAuthor(authorList);
-					authors.add(a.getId());
-				}
-				// get information for all authors
-				Map<AuthorId, AuthorInfo> authorInfos = new HashMap<>();
-				for (AuthorId id : authors) {
-					authorInfos.put(id, authorManager.getAuthorInfo(txn, id));
-				}
-				// Parse the metadata
-				for (Entry<MessageId, BdfDictionary> entry :
-						metadata.entrySet()) {
-					BdfDictionary meta = entry.getValue();
-					headers.add(getForumPostHeader(txn, entry.getKey(), meta,
-							authorInfos));
-				}
-				return headers;
-			});
+			List<ForumPostHeader> headers = new ArrayList<>();
+			Map<MessageId, BdfDictionary> metadata =
+					clientHelper.getMessageMetadataAsDictionary(txn, g);
+			// get all authors we need to get the info for
+			Set<AuthorId> authors = new HashSet<>();
+			for (Entry<MessageId, BdfDictionary> entry : metadata.entrySet()) {
+				BdfList authorList = entry.getValue().getList(KEY_AUTHOR);
+				Author a = clientHelper.parseAndValidateAuthor(authorList);
+				authors.add(a.getId());
+			}
+			// get information for all authors
+			Map<AuthorId, AuthorInfo> authorInfos = new HashMap<>();
+			for (AuthorId id : authors) {
+				authorInfos.put(id, authorManager.getAuthorInfo(txn, id));
+			}
+			// Parse the metadata
+			for (Entry<MessageId, BdfDictionary> entry : metadata.entrySet()) {
+				BdfDictionary meta = entry.getValue();
+				headers.add(getForumPostHeader(txn, entry.getKey(), meta,
+						authorInfos));
+			}
+			return headers;
 		} catch (FormatException e) {
 			throw new DbException(e);
 		}

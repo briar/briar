@@ -12,6 +12,7 @@ import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.briar.api.client.MessageTracker.GroupCount;
 
 import java.util.Collection;
+import java.util.List;
 
 @NotNullByDefault
 public interface PrivateGroupManager {
@@ -82,6 +83,12 @@ public interface PrivateGroupManager {
 	GroupMessageHeader addLocalMessage(GroupMessage p) throws DbException;
 
 	/**
+	 * Stores and sends a local private group message.
+	 */
+	GroupMessageHeader addLocalMessage(Transaction txn, GroupMessage p)
+			throws DbException;
+
+	/**
 	 * Returns the private group with the given ID.
 	 */
 	PrivateGroup getPrivateGroup(GroupId g) throws DbException;
@@ -108,14 +115,31 @@ public interface PrivateGroupManager {
 	String getMessageText(MessageId m) throws DbException;
 
 	/**
+	 * Returns the text of the private group message with the given ID.
+	 */
+	String getMessageText(Transaction txn, MessageId m) throws DbException;
+
+	/**
 	 * Returns the headers of all messages in the given private group.
 	 */
 	Collection<GroupMessageHeader> getHeaders(GroupId g) throws DbException;
 
 	/**
+	 * Returns the headers of all messages in the given private group.
+	 */
+	List<GroupMessageHeader> getHeaders(Transaction txn, GroupId g)
+			throws DbException;
+
+	/**
 	 * Returns all members of the given private group.
 	 */
 	Collection<GroupMember> getMembers(GroupId g) throws DbException;
+
+	/**
+	 * Returns all members of the given private group.
+	 */
+	Collection<GroupMember> getMembers(Transaction txn, GroupId g)
+			throws DbException;
 
 	/**
 	 * Returns true if the given author is a member of the given private group.

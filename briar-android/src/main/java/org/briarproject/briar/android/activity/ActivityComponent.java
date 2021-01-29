@@ -32,7 +32,6 @@ import org.briarproject.briar.android.conversation.ImageFragment;
 import org.briarproject.briar.android.forum.CreateForumActivity;
 import org.briarproject.briar.android.forum.ForumActivity;
 import org.briarproject.briar.android.forum.ForumListFragment;
-import org.briarproject.briar.android.forum.ForumModule;
 import org.briarproject.briar.android.fragment.ScreenFilterDialogFragment;
 import org.briarproject.briar.android.introduction.ContactChooserFragment;
 import org.briarproject.briar.android.introduction.IntroductionActivity;
@@ -50,7 +49,6 @@ import org.briarproject.briar.android.navdrawer.TransportsActivity;
 import org.briarproject.briar.android.panic.PanicPreferencesActivity;
 import org.briarproject.briar.android.panic.PanicResponderActivity;
 import org.briarproject.briar.android.privategroup.conversation.GroupActivity;
-import org.briarproject.briar.android.privategroup.conversation.GroupConversationModule;
 import org.briarproject.briar.android.privategroup.creation.CreateGroupActivity;
 import org.briarproject.briar.android.privategroup.creation.CreateGroupFragment;
 import org.briarproject.briar.android.privategroup.creation.CreateGroupModule;
@@ -89,12 +87,10 @@ import dagger.Component;
 		ActivityModule.class,
 		BlogModule.class,
 		CreateGroupModule.class,
-		ForumModule.class,
 		GroupInvitationModule.class,
-		GroupConversationModule.class,
 		GroupMemberModule.class,
 		GroupRevealModule.class,
-		SharingModule.class
+		SharingModule.SharingLegacyModule.class
 }, dependencies = AndroidComponent.class)
 public interface ActivityComponent {
 

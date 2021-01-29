@@ -426,17 +426,17 @@ abstract class SharingManagerImpl<S extends Shareable>
 
 	@Override
 	public Collection<Contact> getSharedWith(GroupId g) throws DbException {
+		return db.transactionWithResult(true, txn -> getSharedWith(txn, g));
+	}
+
+	@Override
+	public Collection<Contact> getSharedWith(Transaction txn, GroupId g)
+			throws DbException {
 		// TODO report also pending invitations
 		Collection<Contact> contacts = new ArrayList<>();
-		Transaction txn = db.startTransaction(true);
-		try {
-			for (Contact c : db.getContacts(txn)) {
-				if (db.getGroupVisibility(txn, c.getId(), g) == SHARED)
-					contacts.add(c);
-			}
-			db.commitTransaction(txn);
-		} finally {
-			db.endTransaction(txn);
+		for (Contact c : db.getContacts(txn)) {
+			if (db.getGroupVisibility(txn, c.getId(), g) == SHARED)
+				contacts.add(c);
 		}
 		return contacts;
 	}
