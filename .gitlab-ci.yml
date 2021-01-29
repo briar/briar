@@ -3,6 +3,7 @@ image: briar/ci-image-android:latest
 stages:
 - test
 - check_reproducibility
+- optional_tests
 
 test:
   stage: test
@@ -31,3 +32,24 @@ test_reproducible:
     - "curl -X POST -F token=${RELEASE_CHECK_TOKEN} -F ref=master -F variables[RELEASE_TAG]=${CI_COMMIT_REF_NAME} https://code.briarproject.org/api/v4/projects/61/trigger/pipeline"
   only:
     - tags
+
+optional_tests:
+  stage: optional_tests
+  before_script:
+    - set -e
+    - export GRADLE_USER_HOME=$PWD/.gradle
+
+  cache:
+    paths:
+      - .gradle/wrapper
+      - .gradle/caches
+
+  script:
+    - OPTIONAL_TESTS=org.briarproject.bramble.plugin.tor.BridgeTest ./gradlew --info bramble-java:test --tests BridgeTest
+
+  after_script:
+    # these file change every time but should not be cached
+    - rm -f $GRADLE_USER_HOME/caches/modules-2/modules-2.lock
+    - rm -fr $GRADLE_USER_HOME/caches/*/plugin-resolution/
+
+  when: manual
