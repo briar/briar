@@ -53,7 +53,7 @@ public class BridgeTest extends BrambleTestCase {
 		return component.getCircumventionProvider().getBridges(false);
 	}
 
-	private final static long TIMEOUT = SECONDS.toMillis(30);
+	private final static long TIMEOUT = SECONDS.toMillis(60);
 
 	private final static Logger LOG = getLogger(BridgeTest.class.getName());
 
