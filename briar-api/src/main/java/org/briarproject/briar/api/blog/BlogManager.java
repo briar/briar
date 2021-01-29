@@ -107,7 +107,8 @@ public interface BlogManager {
 	/**
 	 * Returns the header of the blog post with the given ID.
 	 */
-	BlogPostHeader getPostHeader(GroupId g, MessageId m) throws DbException;
+	BlogPostHeader getPostHeader(Transaction txn, GroupId g, MessageId m)
+			throws DbException;
 
 	/**
 	 * Returns the text of the blog post with the given ID.

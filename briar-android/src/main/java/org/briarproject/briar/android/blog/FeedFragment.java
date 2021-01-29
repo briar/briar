@@ -24,7 +24,6 @@ import java.util.List;
 import javax.inject.Inject;
 
 import androidx.annotation.Nullable;
-import androidx.annotation.UiThread;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
@@ -32,7 +31,6 @@ import static android.content.Intent.FLAG_ACTIVITY_CLEAR_TOP;
 import static com.google.android.material.snackbar.Snackbar.LENGTH_LONG;
 import static org.briarproject.briar.android.activity.BriarActivity.GROUP_ID;
 
-@UiThread
 @MethodsNotNullByDefault
 @ParametersNotNullByDefault
 public class FeedFragment extends BaseFragment
@@ -82,8 +80,7 @@ public class FeedFragment extends BaseFragment
 		list.setEmptyAction(R.string.blogs_feed_empty_state_action);
 
 		viewModel.getBlogPosts().observe(getViewLifecycleOwner(), result ->
-				result
-						.onError(this::handleException)
+				result.onError(this::handleException)
 						.onSuccess(this::onBlogPostsLoaded)
 		);
 
@@ -93,8 +90,7 @@ public class FeedFragment extends BaseFragment
 	@Override
 	public void onStart() {
 		super.onStart();
-		viewModel.blockAllBlogPostNotifications();
-		viewModel.clearAllBlogPostNotifications();
+		viewModel.blockAndClearAllBlogPostNotifications();
 		list.startPeriodicUpdate();
 	}
 

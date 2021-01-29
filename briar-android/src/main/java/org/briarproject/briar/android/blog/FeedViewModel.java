@@ -4,7 +4,6 @@ import android.app.Application;
 
 import org.briarproject.bramble.api.db.DatabaseExecutor;
 import org.briarproject.bramble.api.db.DbException;
-import org.briarproject.bramble.api.db.NoSuchMessageException;
 import org.briarproject.bramble.api.db.Transaction;
 import org.briarproject.bramble.api.db.TransactionManager;
 import org.briarproject.bramble.api.event.Event;
@@ -31,6 +30,7 @@ import java.util.logging.Logger;
 
 import javax.inject.Inject;
 
+import androidx.annotation.UiThread;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
@@ -87,11 +87,8 @@ class FeedViewModel extends BaseViewModel {
 		}
 	}
 
-	void blockAllBlogPostNotifications() {
+	void blockAndClearAllBlogPostNotifications() {
 		notificationManager.blockAllBlogPostNotifications();
-	}
-
-	void clearAllBlogPostNotifications() {
 		notificationManager.clearAllBlogPostNotifications();
 	}
 
@@ -127,11 +124,7 @@ class FeedViewModel extends BaseViewModel {
 		long start = now();
 		List<BlogPostItem> posts = new ArrayList<>();
 		for (GroupId g : blogManager.getBlogIds(txn)) {
-			try {
-				posts.addAll(loadBlogPosts(txn, g));
-			} catch (NoSuchMessageException e) {
-				logException(LOG, WARNING, e);
-			}
+			posts.addAll(loadBlogPosts(txn, g));
 		}
 		Collections.sort(posts);
 		logDuration(LOG, "Loading all posts", start);
@@ -139,23 +132,19 @@ class FeedViewModel extends BaseViewModel {
 	}
 
 	private void onBlogAdded(GroupId g) {
-		runOnDbThread(() -> {
-			try {
-				db.transaction(true, txn -> {
-					List<BlogPostItem> posts = loadBlogPosts(txn, g);
-					txn.attach(() -> {
-						List<BlogPostItem> items =
-								addListItems(blogPosts, posts);
-						if (items != null) {
-							Collections.sort(items);
-							blogPosts.setValue(new LiveResult<>(items));
-						}
-					});
-				});
-			} catch (DbException e) {
-				logException(LOG, WARNING, e);
-			}
-		});
+		runOnDbThread(true, txn -> {
+			List<BlogPostItem> posts = loadBlogPosts(txn, g);
+			txn.attach(() -> onBlogPostItemsAdded(posts));
+		}, e -> logException(LOG, WARNING, e));
+	}
+
+	@UiThread
+	private void onBlogPostItemsAdded(List<BlogPostItem> posts) {
+		List<BlogPostItem> items = addListItems(blogPosts, posts);
+		if (items != null) {
+			Collections.sort(items);
+			blogPosts.setValue(new LiveResult<>(items));
+		}
 	}
 
 	private void onBlogRemoved(GroupId g) {

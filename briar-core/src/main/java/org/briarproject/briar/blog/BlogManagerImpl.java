@@ -454,19 +454,14 @@ class BlogManagerImpl extends BdfIncomingMessageHook implements BlogManager,
 	}
 
 	@Override
-	public BlogPostHeader getPostHeader(GroupId g, MessageId m)
+	public BlogPostHeader getPostHeader(Transaction txn, GroupId g, MessageId m)
 			throws DbException {
-		Transaction txn = db.startTransaction(true);
 		try {
 			BdfDictionary meta =
 					clientHelper.getMessageMetadataAsDictionary(txn, m);
-			BlogPostHeader h = getPostHeaderFromMetadata(txn, g, m, meta);
-			db.commitTransaction(txn);
-			return h;
+			return getPostHeaderFromMetadata(txn, g, m, meta);
 		} catch (FormatException e) {
 			throw new DbException(e);
-		} finally {
-			db.endTransaction(txn);
 		}
 	}
 

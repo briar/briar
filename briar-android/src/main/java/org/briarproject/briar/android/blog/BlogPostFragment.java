@@ -23,7 +23,6 @@ import java.util.logging.Logger;
 import javax.annotation.Nullable;
 import javax.inject.Inject;
 
-import androidx.annotation.CallSuper;
 import androidx.annotation.UiThread;
 import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.ViewModelProvider;
@@ -36,7 +35,6 @@ import static java.util.logging.Logger.getLogger;
 import static org.briarproject.briar.android.activity.BriarActivity.GROUP_ID;
 import static org.briarproject.briar.android.util.UiUtils.MIN_DATE_RESOLUTION;
 
-@UiThread
 @MethodsNotNullByDefault
 @ParametersNotNullByDefault
 public class BlogPostFragment extends BaseFragment
@@ -82,7 +80,8 @@ public class BlogPostFragment extends BaseFragment
 		Bundle args = requireArguments();
 		GroupId groupId =
 				new GroupId(requireNonNull(args.getByteArray(GROUP_ID)));
-		MessageId postId = new MessageId(args.getByteArray(POST_ID));
+		MessageId postId =
+				new MessageId(requireNonNull(args.getByteArray(POST_ID)));
 
 		View view = inflater.inflate(R.layout.fragment_blog_post, container,
 				false);
@@ -97,14 +96,12 @@ public class BlogPostFragment extends BaseFragment
 		return view;
 	}
 
-	@CallSuper
 	@Override
 	public void onStart() {
 		super.onStart();
 		startPeriodicUpdate();
 	}
 
-	@CallSuper
 	@Override
 	public void onStop() {
 		super.onStop();
@@ -128,7 +125,7 @@ public class BlogPostFragment extends BaseFragment
 		Intent i = new Intent(requireContext(), BlogActivity.class);
 		i.putExtra(GROUP_ID, post.getGroupId().getBytes());
 		i.setFlags(FLAG_ACTIVITY_CLEAR_TOP);
-		getContext().startActivity(i);
+		requireContext().startActivity(i);
 	}
 
 	@Override

@@ -15,12 +15,10 @@ import org.briarproject.bramble.api.lifecycle.LifecycleManager;
 import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
 import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
 import org.briarproject.bramble.api.sync.GroupId;
-import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.bramble.api.sync.event.GroupRemovedEvent;
 import org.briarproject.bramble.api.system.AndroidExecutor;
 import org.briarproject.briar.android.sharing.SharingController;
 import org.briarproject.briar.android.sharing.SharingController.SharingInfo;
-import org.briarproject.briar.android.viewmodel.LiveResult;
 import org.briarproject.briar.api.android.AndroidNotificationManager;
 import org.briarproject.briar.api.blog.Blog;
 import org.briarproject.briar.api.blog.BlogInvitationResponse;
@@ -37,6 +35,7 @@ import java.util.logging.Logger;
 
 import javax.inject.Inject;
 
+import androidx.annotation.UiThread;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
@@ -136,11 +135,8 @@ class BlogViewModel extends BaseViewModel {
 		});
 	}
 
-	void blockNotifications() {
+	void blockAndClearNotifications() {
 		notificationManager.blockNotification(groupId);
-	}
-
-	void clearBlogPostNotifications() {
 		notificationManager.clearBlogPostNotification(groupId);
 	}
 
@@ -153,18 +149,18 @@ class BlogViewModel extends BaseViewModel {
 	}
 
 	private void loadSharingContacts(GroupId groupId) {
-		runOnDbThread(() -> {
-			try {
-				Collection<Contact> contacts =
-						blogSharingManager.getSharedWith(groupId);
-				Collection<ContactId> contactIds =
-						new ArrayList<>(contacts.size());
-				for (Contact c : contacts) contactIds.add(c.getId());
-				sharingController.addAll(contactIds);
-			} catch (DbException e) {
-				logException(LOG, WARNING, e);
-			}
-		});
+		runOnDbThread(true, txn -> {
+			Collection<Contact> contacts =
+					blogSharingManager.getSharedWith(txn, groupId);
+			txn.attach(() -> onSharingContactsLoaded(contacts));
+		}, e -> logException(LOG, WARNING, e));
+	}
+
+	@UiThread
+	private void onSharingContactsLoaded(Collection<Contact> contacts) {
+		Collection<ContactId> contactIds = new ArrayList<>(contacts.size());
+		for (Contact c : contacts) contactIds.add(c.getId());
+		sharingController.addAll(contactIds);
 	}
 
 	void deleteBlog() {
@@ -178,10 +174,6 @@ class BlogViewModel extends BaseViewModel {
 				logException(LOG, WARNING, e);
 			}
 		});
-	}
-
-	LiveData<LiveResult<BlogPostItem>> loadBlogPost(MessageId m) {
-		return loadBlogPost(groupId, m);
 	}
 
 	LiveData<BlogItem> getBlog() {

@@ -106,8 +106,7 @@ public class BlogFragment extends BaseFragment
 	@Override
 	public void onStart() {
 		super.onStart();
-		viewModel.blockNotifications();
-		viewModel.clearBlogPostNotifications();
+		viewModel.blockAndClearNotifications();
 		list.startPeriodicUpdate();
 	}
 
@@ -134,23 +133,22 @@ public class BlogFragment extends BaseFragment
 	public boolean onOptionsItemSelected(MenuItem item) {
 		int itemId = item.getItemId();
 		if (itemId == R.id.action_write_blog_post) {
-			Intent i = new Intent(getActivity(),
-					WriteBlogPostActivity.class);
+			Intent i = new Intent(getActivity(), WriteBlogPostActivity.class);
 			i.putExtra(GROUP_ID, groupId.getBytes());
 			startActivityForResult(i, REQUEST_WRITE_BLOG_POST);
 			return true;
 		} else if (itemId == R.id.action_blog_share) {
-			Intent i2 = new Intent(getActivity(), ShareBlogActivity.class);
-			i2.setFlags(FLAG_ACTIVITY_CLEAR_TOP);
-			i2.putExtra(GROUP_ID, groupId.getBytes());
-			startActivityForResult(i2, REQUEST_SHARE_BLOG);
+			Intent i = new Intent(getActivity(), ShareBlogActivity.class);
+			i.setFlags(FLAG_ACTIVITY_CLEAR_TOP);
+			i.putExtra(GROUP_ID, groupId.getBytes());
+			startActivityForResult(i, REQUEST_SHARE_BLOG);
 			return true;
 		} else if (itemId == R.id.action_blog_sharing_status) {
-			Intent i3 = new Intent(getActivity(),
-					BlogSharingStatusActivity.class);
-			i3.setFlags(FLAG_ACTIVITY_CLEAR_TOP);
-			i3.putExtra(GROUP_ID, groupId.getBytes());
-			startActivity(i3);
+			Intent i =
+					new Intent(getActivity(), BlogSharingStatusActivity.class);
+			i.setFlags(FLAG_ACTIVITY_CLEAR_TOP);
+			i.putExtra(GROUP_ID, groupId.getBytes());
+			startActivity(i);
 			return true;
 		} else if (itemId == R.id.action_blog_delete) {
 			showDeleteDialog();

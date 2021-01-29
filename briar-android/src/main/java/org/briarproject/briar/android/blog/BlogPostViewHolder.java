@@ -9,6 +9,7 @@ import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.TextView;
 
+import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.view.AuthorView;
@@ -17,7 +18,6 @@ import org.briarproject.briar.api.blog.BlogPostHeader;
 
 import javax.annotation.Nullable;
 
-import androidx.annotation.NonNull;
 import androidx.annotation.UiThread;
 import androidx.core.view.ViewCompat;
 import androidx.recyclerview.widget.RecyclerView;
@@ -36,6 +36,7 @@ import static org.briarproject.briar.android.view.AuthorView.RSS_FEED_REBLOGGED;
 import static org.briarproject.briar.api.blog.MessageType.POST;
 
 @UiThread
+@NotNullByDefault
 class BlogPostViewHolder extends RecyclerView.ViewHolder {
 
 	private final Context ctx;
@@ -47,11 +48,10 @@ class BlogPostViewHolder extends RecyclerView.ViewHolder {
 	private final ViewGroup commentContainer;
 	private final boolean fullText;
 
-	@NonNull
 	private final OnBlogPostClickListener listener;
 
 	BlogPostViewHolder(View v, boolean fullText,
-			@NonNull OnBlogPostClickListener listener) {
+			OnBlogPostClickListener listener) {
 		super(v);
 		this.fullText = fullText;
 		this.listener = listener;

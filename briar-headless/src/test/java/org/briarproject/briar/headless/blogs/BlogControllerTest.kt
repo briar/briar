@@ -6,14 +6,22 @@ import io.mockk.Runs
 import io.mockk.every
 import io.mockk.just
 import io.mockk.mockk
-import org.briarproject.briar.api.identity.AuthorInfo
-import org.briarproject.briar.api.identity.AuthorInfo.Status.OURSELVES
+import io.mockk.slot
+import org.briarproject.bramble.api.db.DbCallable
+import org.briarproject.bramble.api.db.DbException
+import org.briarproject.bramble.api.db.Transaction
 import org.briarproject.bramble.api.sync.MessageId
 import org.briarproject.bramble.identity.output
 import org.briarproject.bramble.util.StringUtils.getRandomString
-import org.briarproject.briar.api.blog.*
+import org.briarproject.briar.api.blog.Blog
 import org.briarproject.briar.api.blog.BlogConstants.MAX_BLOG_POST_TEXT_LENGTH
+import org.briarproject.briar.api.blog.BlogManager
+import org.briarproject.briar.api.blog.BlogPost
+import org.briarproject.briar.api.blog.BlogPostFactory
+import org.briarproject.briar.api.blog.BlogPostHeader
 import org.briarproject.briar.api.blog.MessageType.POST
+import org.briarproject.briar.api.identity.AuthorInfo
+import org.briarproject.briar.api.identity.AuthorInfo.Status.OURSELVES
 import org.briarproject.briar.headless.ControllerTest
 import org.junit.jupiter.api.Assertions.assertThrows
 import org.junit.jupiter.api.Test
@@ -24,7 +32,7 @@ internal class BlogControllerTest : ControllerTest() {
     private val blogPostFactory = mockk<BlogPostFactory>()
 
     private val controller =
-        BlogControllerImpl(blogManager, blogPostFactory, identityManager, objectMapper, clock)
+        BlogControllerImpl(blogManager, blogPostFactory, db, identityManager, objectMapper, clock)
 
     private val blog = Blog(group, author, false)
     private val parentId: MessageId? = null
@@ -46,6 +54,8 @@ internal class BlogControllerTest : ControllerTest() {
     @Test
     fun testCreate() {
         val post = BlogPost(message, null, localAuthor)
+        val dbSlot = slot<DbCallable<BlogPostHeader, DbException>>()
+        val txn = Transaction(Object(), true)
 
         every { ctx.body() } returns """{"text": "$text"}"""
         every { identityManager.localAuthor } returns localAuthor
@@ -60,8 +70,13 @@ internal class BlogControllerTest : ControllerTest() {
                 text
             )
         } returns post
-        every { blogManager.addLocalPost(post) } just Runs
-        every { blogManager.getPostHeader(post.message.groupId, post.message.id) } returns header
+        every { db.transactionWithResult(true, capture(dbSlot)) } answers {
+            dbSlot.captured.call(txn)
+        }
+        every { blogManager.addLocalPost(txn, post) } just Runs
+        every {
+            blogManager.getPostHeader(txn, post.message.groupId, post.message.id)
+        } returns header
         every { ctx.json(header.output(text)) } returns ctx
 
         controller.createPost(ctx)

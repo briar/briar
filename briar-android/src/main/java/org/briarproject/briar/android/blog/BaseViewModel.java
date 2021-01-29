@@ -127,41 +127,34 @@ abstract class BaseViewModel extends DbViewModel implements EventListener {
 	LiveData<LiveResult<BlogPostItem>> loadBlogPost(GroupId g, MessageId m) {
 		MutableLiveData<LiveResult<BlogPostItem>> result =
 				new MutableLiveData<>();
-		runOnDbThread(() -> {
-			try {
-				long start = now();
-				BlogPostHeader header = blogManager.getPostHeader(g, m);
-				BlogPostItem item = db.transactionWithResult(true, txn ->
-						getItem(txn, header)
-				);
-				logDuration(LOG, "Loading post", start);
-				result.postValue(new LiveResult<>(item));
-			} catch (DbException e) {
-				logException(LOG, WARNING, e);
-				result.postValue(new LiveResult<>(e));
-			}
+		runOnDbThread(true, txn -> {
+			long start = now();
+			BlogPostHeader header = blogManager.getPostHeader(txn, g, m);
+			BlogPostItem item = getItem(txn, header);
+			logDuration(LOG, "Loading post", start);
+			result.postValue(new LiveResult<>(item));
+		}, e -> {
+			logException(LOG, WARNING, e);
+			result.postValue(new LiveResult<>(e));
 		});
 		return result;
 	}
 
 	protected void onBlogPostAdded(BlogPostHeader header, boolean local) {
-		runOnDbThread(() -> {
-			try {
-				db.transaction(true, txn -> {
-					BlogPostItem item = getItem(txn, header);
-					txn.attach(() -> {
-						List<BlogPostItem> items = addListItem(blogPosts, item);
-						if (items != null) {
-							Collections.sort(items);
-							postAddedWasLocal = local;
-							blogPosts.setValue(new LiveResult<>(items));
-						}
-					});
-				});
-			} catch (DbException e) {
-				logException(LOG, WARNING, e);
-			}
-		});
+		runOnDbThread(true, txn -> {
+			BlogPostItem item = getItem(txn, header);
+			txn.attach(() -> onBlogPostItemAdded(item, local));
+		}, e -> logException(LOG, WARNING, e));
+	}
+
+	@UiThread
+	private void onBlogPostItemAdded(BlogPostItem item, boolean local) {
+		List<BlogPostItem> items = addListItem(blogPosts, item);
+		if (items != null) {
+			Collections.sort(items);
+			postAddedWasLocal = local;
+			blogPosts.setValue(new LiveResult<>(items));
+		}
 	}
 
 	void repeatPost(BlogPostItem item, @Nullable String comment) {
