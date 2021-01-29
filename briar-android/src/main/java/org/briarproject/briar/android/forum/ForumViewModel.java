@@ -26,7 +26,6 @@ import org.briarproject.briar.android.threaded.ThreadListViewModel;
 import org.briarproject.briar.api.android.AndroidNotificationManager;
 import org.briarproject.briar.api.client.MessageTracker;
 import org.briarproject.briar.api.client.MessageTracker.GroupCount;
-import org.briarproject.briar.api.client.PostHeader;
 import org.briarproject.briar.api.forum.Forum;
 import org.briarproject.briar.api.forum.ForumInvitationResponse;
 import org.briarproject.briar.api.forum.ForumManager;
@@ -151,11 +150,10 @@ class ForumViewModel extends ThreadListViewModel<ForumPostItem> {
 		}, this::setItems);
 	}
 
-	private ForumPostItem loadItem(Transaction txn, PostHeader header)
+	private ForumPostItem loadItem(Transaction txn, ForumPostHeader header)
 			throws DbException {
-		if (!(header instanceof ForumPostHeader)) throw new AssertionError();
 		String text = forumManager.getPostText(txn, header.getId());
-		return new ForumPostItem((ForumPostHeader) header, text);
+		return new ForumPostItem(header, text);
 	}
 
 	@Override

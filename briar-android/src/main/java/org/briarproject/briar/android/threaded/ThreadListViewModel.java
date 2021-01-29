@@ -39,6 +39,7 @@ import androidx.annotation.UiThread;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
+import static java.util.Objects.requireNonNull;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
 import static java.util.logging.Logger.getLogger;
@@ -47,8 +48,7 @@ import static org.briarproject.bramble.util.LogUtils.logException;
 @MethodsNotNullByDefault
 @ParametersNotNullByDefault
 public abstract class ThreadListViewModel<I extends ThreadItem>
-		extends DbViewModel
-		implements EventListener {
+		extends DbViewModel implements EventListener {
 
 	private static final Logger LOG =
 			getLogger(ThreadListViewModel.class.getName());
@@ -73,6 +73,9 @@ public abstract class ThreadListViewModel<I extends ThreadItem>
 	protected volatile GroupId groupId;
 	@Nullable
 	private MessageId replyId;
+	/**
+	 * Stored list position. Needs to be loaded and set before the list itself.
+	 */
 	private final AtomicReference<MessageId> storedMessageId =
 			new AtomicReference<>();
 
@@ -118,6 +121,7 @@ public abstract class ThreadListViewModel<I extends ThreadItem>
 
 	@CallSuper
 	protected void performInitialLoad() {
+		// load stored MessageId (last list position) before the list itself
 		loadStoredMessageId();
 		loadItems();
 		loadSharingContacts();
@@ -179,7 +183,7 @@ public abstract class ThreadListViewModel<I extends ThreadItem>
 		} else {
 			messageTree.clear();
 			// not null, because hasError() is false
-			messageTree.add(items.getResultOrNull());
+			messageTree.add(requireNonNull(items.getResultOrNull()));
 			LiveResult<List<I>> result =
 					new LiveResult<>(messageTree.depthFirstOrder());
 			this.items.setValue(result);
@@ -223,6 +227,10 @@ public abstract class ThreadListViewModel<I extends ThreadItem>
 
 	protected abstract void markItemRead(I item);
 
+	/**
+	 * Returns the {@link MessageId} of the item that was at the top of the
+	 * list last time or null if there has been nothing stored, yet.
+	 */
 	@Nullable
 	MessageId getAndResetRestoredMessageId() {
 		return storedMessageId.getAndSet(null);
