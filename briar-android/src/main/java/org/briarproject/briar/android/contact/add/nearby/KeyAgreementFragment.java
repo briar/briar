@@ -1,4 +1,4 @@
-package org.briarproject.briar.android.keyagreement;
+package org.briarproject.briar.android.contact.add.nearby;
 
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -344,7 +344,7 @@ public class KeyAgreementFragment extends BaseEventFragment
 
 	@Override
 	protected void finish() {
-		getActivity().getSupportFragmentManager().popBackStack();
+		requireActivity().getSupportFragmentManager().popBackStack();
 	}
 
 	@NotNullByDefault

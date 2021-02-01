@@ -1,4 +1,4 @@
-package org.briarproject.briar.android.keyagreement;
+package org.briarproject.briar.android.contact.add.nearby;
 
 import android.os.Bundle;
 import android.widget.Toast;
@@ -15,7 +15,6 @@ import javax.inject.Inject;
 
 import androidx.annotation.UiThread;
 import androidx.lifecycle.ViewModelProvider;
-import androidx.lifecycle.ViewModelProviders;
 
 import static android.widget.Toast.LENGTH_LONG;
 import static java.util.Objects.requireNonNull;
@@ -39,7 +38,7 @@ public class ContactExchangeActivity extends KeyAgreementActivity {
 		super.onCreate(state);
 		requireNonNull(getSupportActionBar())
 				.setTitle(R.string.add_contact_title);
-		viewModel = ViewModelProviders.of(this, viewModelFactory)
+		viewModel = new ViewModelProvider(this, viewModelFactory)
 				.get(ContactExchangeViewModel.class);
 	}
 

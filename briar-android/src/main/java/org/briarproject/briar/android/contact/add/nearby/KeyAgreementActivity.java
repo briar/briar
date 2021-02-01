@@ -1,4 +1,4 @@
-package org.briarproject.briar.android.keyagreement;
+package org.briarproject.briar.android.contact.add.nearby;
 
 import android.bluetooth.BluetoothAdapter;
 import android.content.BroadcastReceiver;
@@ -24,8 +24,8 @@ import org.briarproject.briar.android.activity.ActivityComponent;
 import org.briarproject.briar.android.activity.BriarActivity;
 import org.briarproject.briar.android.fragment.BaseFragment;
 import org.briarproject.briar.android.fragment.BaseFragment.BaseFragmentListener;
-import org.briarproject.briar.android.keyagreement.IntroFragment.IntroScreenSeenListener;
-import org.briarproject.briar.android.keyagreement.KeyAgreementFragment.KeyAgreementEventListener;
+import org.briarproject.briar.android.contact.add.nearby.IntroFragment.IntroScreenSeenListener;
+import org.briarproject.briar.android.contact.add.nearby.KeyAgreementFragment.KeyAgreementEventListener;
 
 import java.util.logging.Logger;
 
