@@ -22,10 +22,10 @@ import org.briarproject.bramble.api.plugin.event.TransportStateEvent;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.activity.ActivityComponent;
 import org.briarproject.briar.android.activity.BriarActivity;
-import org.briarproject.briar.android.fragment.BaseFragment;
-import org.briarproject.briar.android.fragment.BaseFragment.BaseFragmentListener;
 import org.briarproject.briar.android.contact.add.nearby.IntroFragment.IntroScreenSeenListener;
 import org.briarproject.briar.android.contact.add.nearby.KeyAgreementFragment.KeyAgreementEventListener;
+import org.briarproject.briar.android.fragment.BaseFragment;
+import org.briarproject.briar.android.fragment.BaseFragment.BaseFragmentListener;
 
 import java.util.logging.Logger;
 
@@ -38,6 +38,7 @@ import androidx.appcompat.app.AlertDialog.Builder;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.FragmentManager;
+import androidx.lifecycle.ViewModelProvider;
 
 import static android.Manifest.permission.ACCESS_FINE_LOCATION;
 import static android.Manifest.permission.CAMERA;
@@ -97,11 +98,17 @@ public abstract class KeyAgreementActivity extends BriarActivity implements
 	private static final Logger LOG =
 			getLogger(KeyAgreementActivity.class.getName());
 
+
+	@Inject
+	ViewModelProvider.Factory viewModelFactory;
+
 	@Inject
 	EventBus eventBus;
 
 	@Inject
 	PluginManager pluginManager;
+
+	protected ContactExchangeViewModel viewModel;
 
 	/**
 	 * Set to true in onPostResume() and false in onPause(). This prevents the
@@ -140,6 +147,8 @@ public abstract class KeyAgreementActivity extends BriarActivity implements
 	@Override
 	public void injectActivity(ActivityComponent component) {
 		component.inject(this);
+		viewModel = new ViewModelProvider(this, viewModelFactory)
+				.get(ContactExchangeViewModel.class);
 	}
 
 	@Override

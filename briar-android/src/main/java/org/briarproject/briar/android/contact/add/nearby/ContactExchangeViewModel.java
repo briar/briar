@@ -8,17 +8,17 @@ import org.briarproject.bramble.api.contact.ContactExchangeManager;
 import org.briarproject.bramble.api.crypto.SecretKey;
 import org.briarproject.bramble.api.db.ContactExistsException;
 import org.briarproject.bramble.api.db.DbException;
-import org.briarproject.bramble.api.identity.Author;
 import org.briarproject.bramble.api.lifecycle.IoExecutor;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.plugin.TransportId;
 import org.briarproject.bramble.api.plugin.duplex.DuplexTransportConnection;
+import org.briarproject.briar.android.contact.add.nearby.ContactExchangeResult.Error;
+import org.briarproject.briar.android.contact.add.nearby.ContactExchangeResult.Success;
 
 import java.io.IOException;
 import java.util.concurrent.Executor;
 import java.util.logging.Logger;
 
-import javax.annotation.Nullable;
 import javax.inject.Inject;
 
 import androidx.annotation.UiThread;
@@ -39,10 +39,8 @@ class ContactExchangeViewModel extends AndroidViewModel {
 	private final Executor ioExecutor;
 	private final ContactExchangeManager contactExchangeManager;
 	private final ConnectionManager connectionManager;
-	private final MutableLiveData<Boolean> succeeded = new MutableLiveData<>();
-
-	@Nullable
-	private volatile Author remoteAuthor, duplicateAuthor;
+	private final MutableLiveData<ContactExchangeResult> exchangeResult =
+			new MutableLiveData<>();
 
 	@Inject
 	ContactExchangeViewModel(Application app, @IoExecutor Executor ioExecutor,
@@ -62,18 +60,16 @@ class ContactExchangeViewModel extends AndroidViewModel {
 				Contact contact = contactExchangeManager.exchangeContacts(conn,
 						masterKey, alice, true);
 				// Reuse the connection as a transport connection
-				connectionManager.manageOutgoingConnection(contact.getId(),
-						t, conn);
-				remoteAuthor = contact.getAuthor();
-				succeeded.postValue(true);
+				connectionManager
+						.manageOutgoingConnection(contact.getId(), t, conn);
+				exchangeResult.postValue(new Success(contact.getAuthor()));
 			} catch (ContactExistsException e) {
 				tryToClose(conn);
-				duplicateAuthor = e.getRemoteAuthor();
-				succeeded.postValue(false);
+				exchangeResult.postValue(new Error(e.getRemoteAuthor()));
 			} catch (DbException | IOException e) {
 				tryToClose(conn);
 				logException(LOG, WARNING, e);
-				succeeded.postValue(false);
+				exchangeResult.postValue(new Error(null));
 			}
 		});
 	}
@@ -87,19 +83,7 @@ class ContactExchangeViewModel extends AndroidViewModel {
 		}
 	}
 
-	@UiThread
-	@Nullable
-	Author getRemoteAuthor() {
-		return remoteAuthor;
-	}
-
-	@UiThread
-	@Nullable
-	Author getDuplicateAuthor() {
-		return duplicateAuthor;
-	}
-
-	LiveData<Boolean> getSucceeded() {
-		return succeeded;
+	LiveData<ContactExchangeResult> getContactExchangeResult() {
+		return exchangeResult;
 	}
 }

@@ -8,13 +8,10 @@ import org.briarproject.bramble.api.keyagreement.KeyAgreementResult;
 import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
 import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
 import org.briarproject.briar.R;
-import org.briarproject.briar.android.activity.ActivityComponent;
 
 import javax.annotation.Nullable;
-import javax.inject.Inject;
 
 import androidx.annotation.UiThread;
-import androidx.lifecycle.ViewModelProvider;
 
 import static android.widget.Toast.LENGTH_LONG;
 import static java.util.Objects.requireNonNull;
@@ -23,40 +20,29 @@ import static java.util.Objects.requireNonNull;
 @ParametersNotNullByDefault
 public class ContactExchangeActivity extends KeyAgreementActivity {
 
-	@Inject
-	ViewModelProvider.Factory viewModelFactory;
-
-	private ContactExchangeViewModel viewModel;
-
-	@Override
-	public void injectActivity(ActivityComponent component) {
-		component.inject(this);
-	}
-
 	@Override
 	public void onCreate(@Nullable Bundle state) {
 		super.onCreate(state);
 		requireNonNull(getSupportActionBar())
 				.setTitle(R.string.add_contact_title);
-		viewModel = new ViewModelProvider(this, viewModelFactory)
-				.get(ContactExchangeViewModel.class);
 	}
 
-	private void startContactExchange(KeyAgreementResult result) {
-		viewModel.getSucceeded().observe(this, succeeded -> {
-			if (succeeded == null) return;
-			if (succeeded) {
-				Author remote = requireNonNull(viewModel.getRemoteAuthor());
-				contactExchangeSucceeded(remote);
-			} else {
-				Author duplicate = viewModel.getDuplicateAuthor();
-				if (duplicate == null) contactExchangeFailed();
-				else duplicateContact(duplicate);
-			}
+	private void startContactExchange(KeyAgreementResult agreementResult) {
+		viewModel.getContactExchangeResult().observe(this, result -> {
+			if (result instanceof ContactExchangeResult.Success) {
+				Author remoteAuthor =
+						((ContactExchangeResult.Success) result).remoteAuthor;
+				contactExchangeSucceeded(remoteAuthor);
+			} else if (result instanceof ContactExchangeResult.Error) {
+				Author duplicateAuthor =
+						((ContactExchangeResult.Error) result).duplicateAuthor;
+				if (duplicateAuthor == null) contactExchangeFailed();
+				else duplicateContact(duplicateAuthor);
+			} else throw new AssertionError();
 		});
-		viewModel.startContactExchange(result.getTransportId(),
-				result.getConnection(), result.getMasterKey(),
-				result.wasAlice());
+		viewModel.startContactExchange(agreementResult.getTransportId(),
+				agreementResult.getConnection(), agreementResult.getMasterKey(),
+				agreementResult.wasAlice());
 	}
 
 	@UiThread
