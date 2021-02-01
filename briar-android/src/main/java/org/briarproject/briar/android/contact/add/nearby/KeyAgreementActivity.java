@@ -23,7 +23,6 @@ import org.briarproject.briar.R;
 import org.briarproject.briar.android.activity.ActivityComponent;
 import org.briarproject.briar.android.activity.BriarActivity;
 import org.briarproject.briar.android.contact.add.nearby.IntroFragment.IntroScreenSeenListener;
-import org.briarproject.briar.android.contact.add.nearby.KeyAgreementFragment.KeyAgreementEventListener;
 import org.briarproject.briar.android.fragment.BaseFragment;
 import org.briarproject.briar.android.fragment.BaseFragment.BaseFragmentListener;
 
@@ -61,8 +60,7 @@ import static org.briarproject.briar.android.util.UiUtils.getGoToSettingsListene
 @MethodsNotNullByDefault
 @ParametersNotNullByDefault
 public abstract class KeyAgreementActivity extends BriarActivity implements
-		BaseFragmentListener, IntroScreenSeenListener,
-		KeyAgreementEventListener, EventListener {
+		BaseFragmentListener, IntroScreenSeenListener, EventListener {
 
 	private enum BluetoothDecision {
 		/**

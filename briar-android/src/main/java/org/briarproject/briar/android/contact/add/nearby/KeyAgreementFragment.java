@@ -17,23 +17,17 @@ import com.google.zxing.Result;
 import org.briarproject.bramble.api.UnsupportedVersionException;
 import org.briarproject.bramble.api.event.Event;
 import org.briarproject.bramble.api.event.EventBus;
-import org.briarproject.bramble.api.keyagreement.KeyAgreementResult;
 import org.briarproject.bramble.api.keyagreement.KeyAgreementTask;
 import org.briarproject.bramble.api.keyagreement.Payload;
 import org.briarproject.bramble.api.keyagreement.PayloadEncoder;
 import org.briarproject.bramble.api.keyagreement.PayloadParser;
-import org.briarproject.bramble.api.keyagreement.event.KeyAgreementAbortedEvent;
-import org.briarproject.bramble.api.keyagreement.event.KeyAgreementFailedEvent;
-import org.briarproject.bramble.api.keyagreement.event.KeyAgreementFinishedEvent;
 import org.briarproject.bramble.api.keyagreement.event.KeyAgreementListeningEvent;
-import org.briarproject.bramble.api.keyagreement.event.KeyAgreementStartedEvent;
-import org.briarproject.bramble.api.keyagreement.event.KeyAgreementWaitingEvent;
 import org.briarproject.bramble.api.lifecycle.IoExecutor;
 import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
-import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.activity.ActivityComponent;
+import org.briarproject.briar.android.contact.add.nearby.ContactExchangeViewModel.KeyAgreementState;
 import org.briarproject.briar.android.fragment.BaseEventFragment;
 import org.briarproject.briar.android.view.QrCodeView;
 
@@ -47,6 +41,8 @@ import javax.inject.Inject;
 import javax.inject.Provider;
 
 import androidx.annotation.UiThread;
+import androidx.lifecycle.LifecycleOwner;
+import androidx.lifecycle.ViewModelProvider;
 
 import static android.content.pm.ActivityInfo.SCREEN_ORIENTATION_NOSENSOR;
 import static android.view.View.INVISIBLE;
@@ -57,6 +53,11 @@ import static android.widget.Toast.LENGTH_LONG;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
 import static org.briarproject.bramble.util.LogUtils.logException;
+import static org.briarproject.briar.android.contact.add.nearby.ContactExchangeViewModel.KeyAgreementState.ABORTED;
+import static org.briarproject.briar.android.contact.add.nearby.ContactExchangeViewModel.KeyAgreementState.FAILED;
+import static org.briarproject.briar.android.contact.add.nearby.ContactExchangeViewModel.KeyAgreementState.FINISHED;
+import static org.briarproject.briar.android.contact.add.nearby.ContactExchangeViewModel.KeyAgreementState.STARTED;
+import static org.briarproject.briar.android.contact.add.nearby.ContactExchangeViewModel.KeyAgreementState.WAITING;
 
 @MethodsNotNullByDefault
 @ParametersNotNullByDefault
@@ -70,6 +71,8 @@ public class KeyAgreementFragment extends BaseEventFragment
 	private static final Charset ISO_8859_1 = Charset.forName("ISO-8859-1");
 
 	@Inject
+	ViewModelProvider.Factory viewModelFactory;
+	@Inject
 	Provider<KeyAgreementTask> keyAgreementTaskProvider;
 	@Inject
 	PayloadEncoder payloadEncoder;
@@ -81,6 +84,7 @@ public class KeyAgreementFragment extends BaseEventFragment
 	@Inject
 	EventBus eventBus;
 
+	private ContactExchangeViewModel viewModel;
 	private CameraView cameraView;
 	private LinearLayout cameraOverlay;
 	private View statusView;
@@ -90,7 +94,6 @@ public class KeyAgreementFragment extends BaseEventFragment
 	private boolean gotRemotePayload;
 	private volatile boolean gotLocalPayload;
 	private KeyAgreementTask task;
-	private KeyAgreementEventListener listener;
 
 	public static KeyAgreementFragment newInstance() {
 		Bundle args = new Bundle();
@@ -100,14 +103,10 @@ public class KeyAgreementFragment extends BaseEventFragment
 	}
 
 	@Override
-	public void onAttach(Context context) {
-		super.onAttach(context);
-		listener = (KeyAgreementEventListener) context;
-	}
-
-	@Override
 	public void injectFragment(ActivityComponent component) {
 		component.inject(this);
+		viewModel = new ViewModelProvider(requireActivity(), viewModelFactory)
+				.get(ContactExchangeViewModel.class);
 	}
 
 	@Override
@@ -133,6 +132,10 @@ public class KeyAgreementFragment extends BaseEventFragment
 		status = view.findViewById(R.id.connect_status);
 		qrCodeView = view.findViewById(R.id.qr_code_view);
 		qrCodeView.setFullscreenListener(this);
+
+		LifecycleOwner lifecycleOwner = getViewLifecycleOwner();
+		viewModel.getKeyAgreementState()
+				.observe(lifecycleOwner, this::onKeyAgreementStateChanged);
 	}
 
 	@Override
@@ -271,48 +274,23 @@ public class KeyAgreementFragment extends BaseEventFragment
 			KeyAgreementListeningEvent event = (KeyAgreementListeningEvent) e;
 			gotLocalPayload = true;
 			setQrCode(event.getLocalPayload());
-		} else if (e instanceof KeyAgreementFailedEvent) {
-			keyAgreementFailed();
-		} else if (e instanceof KeyAgreementWaitingEvent) {
-			keyAgreementWaiting();
-		} else if (e instanceof KeyAgreementStartedEvent) {
-			keyAgreementStarted();
-		} else if (e instanceof KeyAgreementAbortedEvent) {
-			KeyAgreementAbortedEvent event = (KeyAgreementAbortedEvent) e;
-			keyAgreementAborted(event.didRemoteAbort());
-		} else if (e instanceof KeyAgreementFinishedEvent) {
-			keyAgreementFinished(((KeyAgreementFinishedEvent) e).getResult());
 		}
 	}
 
 	@UiThread
-	private void keyAgreementFailed() {
-		reset();
-		listener.keyAgreementFailed();
-	}
-
-	@UiThread
-	private void keyAgreementWaiting() {
-		status.setText(listener.keyAgreementWaiting());
-	}
-
-	@UiThread
-	private void keyAgreementStarted() {
-		qrCodeView.setVisibility(INVISIBLE);
-		statusView.setVisibility(VISIBLE);
-		status.setText(listener.keyAgreementStarted());
-	}
-
-	@UiThread
-	private void keyAgreementAborted(boolean remoteAborted) {
-		reset();
-		listener.keyAgreementAborted(remoteAborted);
-	}
-
-	@UiThread
-	private void keyAgreementFinished(KeyAgreementResult result) {
-		statusView.setVisibility(VISIBLE);
-		status.setText(listener.keyAgreementFinished(result));
+	private void onKeyAgreementStateChanged(KeyAgreementState state) {
+		if (state == WAITING) {
+			status.setText(R.string.waiting_for_contact_to_scan);
+		} else if (state == STARTED) {
+			qrCodeView.setVisibility(INVISIBLE);
+			statusView.setVisibility(VISIBLE);
+			status.setText(R.string.authenticating_with_device);
+		} else if (state == FINISHED) {
+			statusView.setVisibility(VISIBLE);
+			status.setText(R.string.exchanging_contact_details);
+		} else if (state == ABORTED || state == FAILED) {
+			reset();
+		}
 	}
 
 	private void setQrCode(Payload localPayload) {
@@ -328,7 +306,8 @@ public class KeyAgreementFragment extends BaseEventFragment
 			// Use ISO 8859-1 to encode bytes directly as a string
 			String content = new String(payloadBytes, ISO_8859_1);
 			Bitmap qrCode = QrCodeUtils.createQrCode(dm, content);
-			runOnUiThreadUnlessDestroyed(() -> qrCodeView.setQrCode(qrCode));
+			runOnUiThreadUnlessDestroyed(
+					() -> qrCodeView.setQrCode(qrCode));
 		});
 	}
 
@@ -347,29 +326,4 @@ public class KeyAgreementFragment extends BaseEventFragment
 		requireActivity().getSupportFragmentManager().popBackStack();
 	}
 
-	@NotNullByDefault
-	interface KeyAgreementEventListener {
-
-		@UiThread
-		void keyAgreementFailed();
-
-		// Should return a string to be displayed as status.
-		@UiThread
-		@Nullable
-		String keyAgreementWaiting();
-
-		// Should return a string to be displayed as status.
-		@UiThread
-		@Nullable
-		String keyAgreementStarted();
-
-		// Will show an error fragment.
-		@UiThread
-		void keyAgreementAborted(boolean remoteAborted);
-
-		// Should return a string to be displayed as status.
-		@UiThread
-		@Nullable
-		String keyAgreementFinished(KeyAgreementResult result);
-	}
 }
