@@ -3,6 +3,8 @@ package org.briarproject.briar.headless.contact
 import com.fasterxml.jackson.databind.ObjectMapper
 import io.javalin.http.BadRequestResponse
 import io.javalin.http.Context
+import io.javalin.http.ForbiddenResponse
+import io.javalin.http.HttpResponseException
 import io.javalin.http.NotFoundResponse
 import org.briarproject.bramble.api.connection.ConnectionRegistry
 import org.briarproject.bramble.api.contact.ContactManager
@@ -12,8 +14,10 @@ import org.briarproject.bramble.api.contact.event.ContactAddedEvent
 import org.briarproject.bramble.api.contact.event.PendingContactAddedEvent
 import org.briarproject.bramble.api.contact.event.PendingContactRemovedEvent
 import org.briarproject.bramble.api.contact.event.PendingContactStateChangedEvent
+import org.briarproject.bramble.api.db.ContactExistsException
 import org.briarproject.bramble.api.db.NoSuchContactException
 import org.briarproject.bramble.api.db.NoSuchPendingContactException
+import org.briarproject.bramble.api.db.PendingContactExistsException
 import org.briarproject.bramble.api.event.Event
 import org.briarproject.bramble.api.event.EventListener
 import org.briarproject.bramble.api.identity.AuthorConstants.MAX_AUTHOR_NAME_LENGTH
@@ -25,8 +29,11 @@ import org.briarproject.briar.headless.event.WebSocketController
 import org.briarproject.briar.headless.getContactIdFromPathParam
 import org.briarproject.briar.headless.getFromJson
 import org.briarproject.briar.headless.json.JsonDict
+import org.eclipse.jetty.http.HttpStatus.BAD_REQUEST_400
+import org.eclipse.jetty.http.HttpStatus.FORBIDDEN_403
 import org.spongycastle.util.encoders.Base64
 import org.spongycastle.util.encoders.DecoderException
+import java.security.GeneralSecurityException
 import javax.annotation.concurrent.Immutable
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -91,9 +98,27 @@ constructor(
     override fun addPendingContact(ctx: Context): Context {
         val link = ctx.getFromJson(objectMapper, "link")
         val alias = ctx.getFromJson(objectMapper, "alias")
-        if (!LINK_REGEX.matcher(link).find()) throw BadRequestResponse("Invalid Link")
+        if (!LINK_REGEX.matcher(link).find()) {
+            ctx.status(BAD_REQUEST_400)
+            val details = mapOf("error" to "INVALID_LINK")
+            return ctx.json(details)
+        }
         checkAliasLength(alias)
-        val pendingContact = contactManager.addPendingContact(link, alias)
+        val pendingContact = try {
+            contactManager.addPendingContact(link, alias)
+        } catch (e: GeneralSecurityException) {
+            ctx.status(BAD_REQUEST_400)
+            val details = mapOf("error" to "INVALID_PUBLIC_KEY")
+            return ctx.json(details)
+        } catch (e: ContactExistsException) {
+            ctx.status(FORBIDDEN_403)
+            val details = mapOf("error" to "CONTACT_EXISTS")
+            return ctx.json(details)
+        } catch (e: PendingContactExistsException) {
+            ctx.status(FORBIDDEN_403)
+            val details = mapOf("error" to "PENDING_EXISTS")
+            return ctx.json(details)
+        }
         return ctx.json(pendingContact.output())
     }
 

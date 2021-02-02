@@ -105,7 +105,7 @@ The link and the alias should be posted as a JSON object:
 }
 ```
 
-This starts the process of adding the contact.
+Adding a pending contact starts the process of adding the contact.
 Until it is completed, a pending contact is returned as JSON:
 
 ```json
@@ -115,6 +115,60 @@ Until it is completed, a pending contact is returned as JSON:
     "timestamp": 1557838312175
 }
 ```
+
+Possible errors when adding a pending contact are:
+
+#### 400: Pending contact's handshake public key is invalid
+
+```json
+{
+    "error": "INVALID_PUBLIC_KEY"
+}
+```
+
+#### 403: A contact with the same handshake public key already exists
+
+This error may be caused by someone attacking the user with the goal
+of discovering the contacts of the user.
+
+In the Android client, upon encountering this issue a message dialog
+is shown that asks whether the contact and the just added pending contact
+are the same person. If that's the case, a message is shown that the
+contact already exists and the pending contact isn't added.
+If that's not the case and they are two different persons, the Android
+client
+[shows the following message](https://code.briarproject.org/briar/briar/-/blob/beta-1.2.14/briar-android/src/main/res/values/strings.xml#L271)
+when this happens:
+> [Alice] and [Bob] sent you the same link.
+>
+> One of them may be trying to discover who your contacts are.
+>
+> Don't tell them you received the same link from someone else.
+
+```json
+{
+    "error": "CONTACT_EXISTS"
+}
+```
+
+#### 403: A pending contact with the same handshake public key already exists
+
+This error, too, may be caused by someone attacking the user with the goal
+of discovering the contacts of the user.
+
+Just like above, upon encountering this issue a message dialog is shown in
+the Android client that asks whether the contact and the just added pending
+contact are the same person. If that's the case, the pending contact gets
+updated. If that's not the case and they are two different persons, the
+Android client shows the same message as above, warning the user about the
+possible attack.
+
+```json
+{
+    "error": "PENDING_EXISTS"
+}
+```
+-----------
 
 Before users can send messages to contacts, they become pending contacts.
 In this state Briar still needs to do some work in the background (e.g.
