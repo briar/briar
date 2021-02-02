@@ -205,6 +205,7 @@ public abstract class KeyAgreementActivity extends BriarActivity implements
 		if (isResumed && continueClicked && areEssentialPermissionsGranted()) {
 			if (isWifiReady() && isBluetoothReady()) {
 				LOG.info("Wifi and Bluetooth are ready");
+				viewModel.startListening();
 				showQrCodeFragment();
 			} else {
 				if (shouldEnableWifi()) {

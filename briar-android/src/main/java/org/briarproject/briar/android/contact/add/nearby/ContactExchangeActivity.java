@@ -7,14 +7,15 @@ import org.briarproject.bramble.api.identity.Author;
 import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
 import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
 import org.briarproject.briar.R;
-import org.briarproject.briar.android.contact.add.nearby.ContactExchangeViewModel.KeyAgreementState;
+import org.briarproject.briar.android.contact.add.nearby.ContactAddingState.ContactExchangeFinished;
+import org.briarproject.briar.android.contact.add.nearby.ContactAddingState.Failed;
 
 import javax.annotation.Nullable;
 
+import androidx.appcompat.widget.Toolbar;
+
 import static android.widget.Toast.LENGTH_LONG;
 import static java.util.Objects.requireNonNull;
-import static org.briarproject.briar.android.contact.add.nearby.ContactExchangeViewModel.KeyAgreementState.ABORTED;
-import static org.briarproject.briar.android.contact.add.nearby.ContactExchangeViewModel.KeyAgreementState.FAILED;
 
 @MethodsNotNullByDefault
 @ParametersNotNullByDefault
@@ -25,15 +26,33 @@ public class ContactExchangeActivity extends KeyAgreementActivity {
 		super.onCreate(state);
 		requireNonNull(getSupportActionBar())
 				.setTitle(R.string.add_contact_title);
-		viewModel.getKeyAgreementState()
-				.observe(this, this::onKeyAgreementStateChanged);
-		viewModel.getContactExchangeResult()
-				.observe(this, this::onContactExchangeResult);
+		viewModel.getState()
+				.observe(this, this::onContactAddingStateChanged);
 	}
 
-	private void onKeyAgreementStateChanged(KeyAgreementState state) {
-		if (state == ABORTED || state == FAILED) {
-			showErrorFragment();
+	@Override
+	public void onBackPressed() {
+		if (viewModel.getState().getValue() instanceof Failed) {
+			// finish this activity when going back in failed state
+			supportFinishAfterTransition();
+		} else {
+			super.onBackPressed();
+		}
+	}
+
+	private void onContactAddingStateChanged(ContactAddingState state) {
+		if (state instanceof ContactExchangeFinished) {
+			ContactExchangeResult result =
+					((ContactExchangeFinished) state).result;
+			onContactExchangeResult(result);
+		} else if (state instanceof Failed) {
+			// Remove navigation icon, so user can't go back when failed
+			// ErrorFragment will finish or relaunch this activity
+			Toolbar toolbar = findViewById(R.id.toolbar);
+			toolbar.setNavigationIcon(null);
+
+			Boolean qrCodeTooOld = ((Failed) state).qrCodeTooOld;
+			onAddingContactFailed(qrCodeTooOld);
 		}
 	}
 
@@ -58,6 +77,22 @@ public class ContactExchangeActivity extends KeyAgreementActivity {
 				supportFinishAfterTransition();
 			}
 		} else throw new AssertionError();
+	}
+
+	private void onAddingContactFailed(@Nullable Boolean qrCodeTooOld) {
+		if (qrCodeTooOld == null) {
+			showErrorFragment();
+		} else {
+			String msg;
+			if (qrCodeTooOld) {
+				msg = getString(R.string.qr_code_too_old,
+						getString(R.string.app_name));
+			} else {
+				msg = getString(R.string.qr_code_too_new,
+						getString(R.string.app_name));
+			}
+			showNextFragment(ContactExchangeErrorFragment.newInstance(msg));
+		}
 	}
 
 	private void showErrorFragment() {
