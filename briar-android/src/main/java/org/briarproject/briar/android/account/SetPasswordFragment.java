@@ -38,7 +38,6 @@ public class SetPasswordFragment extends SetupFragment {
 	private TextInputEditText passwordConfirmation;
 	private StrengthMeter strengthMeter;
 	private Button nextButton;
-	private ProgressBar progressBar;
 
 	public static SetPasswordFragment newInstance() {
 		return new SetPasswordFragment();
@@ -64,7 +63,7 @@ public class SetPasswordFragment extends SetupFragment {
 				v.findViewById(R.id.password_confirm_wrapper);
 		passwordConfirmation = v.findViewById(R.id.password_confirm);
 		nextButton = v.findViewById(R.id.next);
-		progressBar = v.findViewById(R.id.progress);
+		ProgressBar progressBar = v.findViewById(R.id.progress);
 
 		passwordEntry.addTextChangedListener(this);
 		passwordConfirmation.addTextChangedListener(this);
@@ -74,6 +73,17 @@ public class SetPasswordFragment extends SetupFragment {
 			nextButton.setText(R.string.create_account_button);
 			passwordConfirmation.setImeOptions(IME_ACTION_DONE);
 		}
+
+		viewModel.getIsCreatingAccount()
+				.observe(getViewLifecycleOwner(), isCreatingAccount -> {
+					if (isCreatingAccount) {
+						nextButton.setVisibility(INVISIBLE);
+						progressBar.setVisibility(VISIBLE);
+						// this also avoids the keyboard popping up
+						passwordEntry.setFocusable(false);
+						passwordConfirmation.setFocusable(false);
+					}
+				});
 
 		return v;
 	}
@@ -116,20 +126,6 @@ public class SetPasswordFragment extends SetupFragment {
 		IBinder token = passwordEntry.getWindowToken();
 		Object o = getContext().getSystemService(INPUT_METHOD_SERVICE);
 		((InputMethodManager) o).hideSoftInputFromWindow(token, 0);
-
-		setNextClicked();
 		viewModel.setPassword(passwordEntry.getText().toString());
-	}
-
-	@Override
-	void setNextClicked() {
-		super.setNextClicked();
-
-		passwordEntry.setFocusable(false);
-		passwordConfirmation.setFocusable(false);
-		if (!viewModel.needToShowDozeFragment()) {
-			nextButton.setVisibility(INVISIBLE);
-			progressBar.setVisibility(VISIBLE);
-		}
 	}
 }
