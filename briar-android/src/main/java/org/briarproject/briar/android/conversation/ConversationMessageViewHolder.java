@@ -1,5 +1,6 @@
 package org.briarproject.briar.android.conversation;
 
+import android.content.res.ColorStateList;
 import android.view.View;
 import android.view.ViewGroup;
 
@@ -14,6 +15,7 @@ import androidx.recyclerview.widget.RecyclerView.RecycledViewPool;
 
 import static androidx.constraintlayout.widget.ConstraintSet.WRAP_CONTENT;
 import static androidx.core.content.ContextCompat.getColor;
+import static androidx.core.widget.ImageViewCompat.setImageTintList;
 
 @UiThread
 @NotNullByDefault
@@ -84,6 +86,7 @@ class ConversationMessageViewHolder extends ConversationItemViewHolder {
 		if (item.getText() == null) {
 			statusLayout.setBackgroundResource(R.drawable.msg_status_bubble);
 			time.setTextColor(timeColorBubble);
+			setImageTintList(bomb, ColorStateList.valueOf(timeColorBubble));
 			constraintSet = imageConstraints;
 		} else {
 			resetStatusLayoutForText();
@@ -111,6 +114,7 @@ class ConversationMessageViewHolder extends ConversationItemViewHolder {
 		// also reset padding (the background drawable defines some)
 		statusLayout.setPadding(0, 0, 0, 0);
 		time.setTextColor(timeColor);
+		setImageTintList(bomb, ColorStateList.valueOf(timeColor));
 	}
 
 }
