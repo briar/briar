@@ -25,8 +25,6 @@ import org.briarproject.bramble.api.Pair;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.briar.BuildConfig;
 import org.briarproject.briar.R;
-import org.briarproject.briar.android.BriarApplication;
-import org.briarproject.briar.android.logging.BriefLogFormatter;
 import org.briarproject.briar.android.reporting.ReportData.MultiReportInfo;
 import org.briarproject.briar.android.reporting.ReportData.ReportItem;
 import org.briarproject.briar.android.reporting.ReportData.SingleReportInfo;
@@ -41,8 +39,6 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.logging.Formatter;
-import java.util.logging.LogRecord;
 
 import javax.annotation.concurrent.Immutable;
 
@@ -74,8 +70,8 @@ class BriarReportCollector {
 		this.ctx = ctx;
 	}
 
-	public ReportData collectReportData(@Nullable Throwable t,
-			long appStartTime) {
+	ReportData collectReportData(@Nullable Throwable t, long appStartTime,
+			String logs) {
 		ReportData reportData = new ReportData()
 				.add(getBasicInfo(t))
 				.add(getDeviceInfo());
@@ -86,7 +82,7 @@ class BriarReportCollector {
 				.add(getStorage())
 				.add(getConnectivity())
 				.add(getBuildConfig())
-				.add(getLogcat())
+				.add(getLogcat(logs))
 				.add(getDeviceFeatures());
 	}
 
@@ -313,15 +309,8 @@ class BriarReportCollector {
 				buildConfig);
 	}
 
-	private ReportItem getLogcat() {
-		BriarApplication app = (BriarApplication) ctx.getApplicationContext();
-		StringBuilder sb = new StringBuilder();
-		Formatter formatter = new BriefLogFormatter();
-		for (LogRecord record : app.getRecentLogRecords()) {
-			sb.append(formatter.format(record)).append('\n');
-		}
-		return new ReportItem("Logcat", R.string.dev_report_logcat,
-				sb.toString());
+	private ReportItem getLogcat(String logs) {
+		return new ReportItem("Logcat", R.string.dev_report_logcat, logs);
 	}
 
 	private ReportItem getDeviceFeatures() {

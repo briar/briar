@@ -35,6 +35,7 @@ public class CrashReportActivity extends BaseActivity
 
 	public static final String EXTRA_THROWABLE = "throwable";
 	public static final String EXTRA_APP_START_TIME = "appStartTime";
+	public static final String EXTRA_APP_LOGCAT = "logcat";
 
 	@Inject
 	ViewModelProvider.Factory viewModelFactory;
@@ -56,7 +57,8 @@ public class CrashReportActivity extends BaseActivity
 		Intent intent = getIntent();
 		Throwable t = (Throwable) intent.getSerializableExtra(EXTRA_THROWABLE);
 		long appStartTime = intent.getLongExtra(EXTRA_APP_START_TIME, -1);
-		viewModel.init(t, appStartTime);
+		byte[] logKey = intent.getByteArrayExtra(EXTRA_APP_LOGCAT);
+		viewModel.init(t, appStartTime, logKey);
 		viewModel.getShowReport().observeEvent(this, show -> {
 			if (show) displayFragment(true);
 		});

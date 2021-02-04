@@ -13,4 +13,6 @@ public interface DevConfig {
 	String getDevOnionAddress();
 
 	File getReportDir();
+
+	File getLogcatFile();
 }

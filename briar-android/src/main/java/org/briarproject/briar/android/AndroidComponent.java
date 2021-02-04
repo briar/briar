@@ -34,6 +34,7 @@ import org.briarproject.briar.BriarCoreModule;
 import org.briarproject.briar.android.attachment.AttachmentModule;
 import org.briarproject.briar.android.attachment.media.MediaModule;
 import org.briarproject.briar.android.conversation.glide.BriarModelLoader;
+import org.briarproject.briar.android.logging.CachingLogHandler;
 import org.briarproject.briar.android.login.SignInReminderReceiver;
 import org.briarproject.briar.android.view.EmojiTextInputView;
 import org.briarproject.briar.api.android.AndroidNotificationManager;
@@ -178,6 +179,10 @@ public interface AndroidComponent
 	FeatureFlags featureFlags();
 
 	AndroidWakeLockManager wakeLockManager();
+
+	CachingLogHandler logHandler();
+
+	Thread.UncaughtExceptionHandler exceptionHandler();
 
 	void inject(SignInReminderReceiver briarService);
 

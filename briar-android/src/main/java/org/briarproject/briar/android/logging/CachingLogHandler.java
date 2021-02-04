@@ -21,6 +21,10 @@ public class CachingLogHandler extends Handler {
 	// Locking: lock
 	private final Queue<LogRecord> recent = new LinkedList<>();
 
+	// package-private constructor
+	CachingLogHandler() {
+	}
+
 	@Override
 	public void publish(LogRecord record) {
 		synchronized (lock) {

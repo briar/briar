@@ -33,12 +33,13 @@ import org.briarproject.briar.android.account.SetupModule;
 import org.briarproject.briar.android.contact.ContactListModule;
 import org.briarproject.briar.android.forum.ForumModule;
 import org.briarproject.briar.android.keyagreement.ContactExchangeModule;
+import org.briarproject.briar.android.logging.LoggingModule;
 import org.briarproject.briar.android.login.LoginModule;
 import org.briarproject.briar.android.navdrawer.NavDrawerModule;
 import org.briarproject.briar.android.privategroup.conversation.GroupConversationModule;
-import org.briarproject.briar.android.settings.SettingsModule;
 import org.briarproject.briar.android.privategroup.list.GroupListModule;
 import org.briarproject.briar.android.reporting.DevReportModule;
+import org.briarproject.briar.android.settings.SettingsModule;
 import org.briarproject.briar.android.sharing.SharingModule;
 import org.briarproject.briar.android.test.TestAvatarCreatorImpl;
 import org.briarproject.briar.android.viewmodel.ViewModelModule;
@@ -74,6 +75,7 @@ import static org.briarproject.briar.android.TestingConstants.IS_DEBUG_BUILD;
 		SetupModule.class,
 		DozeHelperModule.class,
 		ContactExchangeModule.class,
+		LoggingModule.class,
 		LoginModule.class,
 		NavDrawerModule.class,
 		ViewModelModule.class,
@@ -191,6 +193,11 @@ public class AppModule {
 			@Override
 			public File getReportDir() {
 				return AndroidUtils.getReportDir(app.getApplicationContext());
+			}
+
+			@Override
+			public File getLogcatFile() {
+				return AndroidUtils.getLogcatFile(app.getApplicationContext());
 			}
 		};
 		return devConfig;

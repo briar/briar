@@ -97,6 +97,7 @@ import static java.util.concurrent.TimeUnit.DAYS;
 import static org.briarproject.bramble.util.AndroidUtils.getSupportedImageContentTypes;
 import static org.briarproject.briar.BuildConfig.APPLICATION_ID;
 import static org.briarproject.briar.android.TestingConstants.EXPIRY_DATE;
+import static org.briarproject.briar.android.reporting.CrashReportActivity.EXTRA_APP_LOGCAT;
 import static org.briarproject.briar.android.reporting.CrashReportActivity.EXTRA_APP_START_TIME;
 import static org.briarproject.briar.android.reporting.CrashReportActivity.EXTRA_THROWABLE;
 
@@ -357,16 +358,17 @@ public class UiUtils {
 	}
 
 	public static void triggerFeedback(Context ctx) {
-		startDevReportActivity(ctx, FeedbackActivity.class, null, null);
+		startDevReportActivity(ctx, FeedbackActivity.class, null, null, null);
 	}
 
 	public static void startDevReportActivity(Context ctx,
 			Class<? extends FragmentActivity> activity, @Nullable Throwable t,
-			@Nullable Long appStartTime) {
+			@Nullable Long appStartTime, @Nullable byte[] logKey) {
 		final Intent dialogIntent = new Intent(ctx, activity);
 		dialogIntent.setFlags(FLAG_ACTIVITY_NEW_TASK);
 		dialogIntent.putExtra(EXTRA_THROWABLE, t);
 		dialogIntent.putExtra(EXTRA_APP_START_TIME, appStartTime);
+		dialogIntent.putExtra(EXTRA_APP_LOGCAT, logKey);
 		ctx.startActivity(dialogIntent);
 	}
 
