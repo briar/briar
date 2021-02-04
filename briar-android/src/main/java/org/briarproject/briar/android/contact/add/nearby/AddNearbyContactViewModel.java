@@ -40,13 +40,13 @@ import org.briarproject.bramble.api.plugin.TransportId;
 import org.briarproject.bramble.api.plugin.duplex.DuplexTransportConnection;
 import org.briarproject.bramble.api.plugin.event.TransportStateEvent;
 import org.briarproject.briar.R;
-import org.briarproject.briar.android.contact.add.nearby.ContactAddingState.ContactExchangeFinished;
-import org.briarproject.briar.android.contact.add.nearby.ContactAddingState.ContactExchangeStarted;
-import org.briarproject.briar.android.contact.add.nearby.ContactAddingState.KeyAgreementListening;
-import org.briarproject.briar.android.contact.add.nearby.ContactAddingState.KeyAgreementStarted;
-import org.briarproject.briar.android.contact.add.nearby.ContactAddingState.KeyAgreementWaiting;
-import org.briarproject.briar.android.contact.add.nearby.ContactExchangeResult.Error;
-import org.briarproject.briar.android.contact.add.nearby.ContactExchangeResult.Success;
+import org.briarproject.briar.android.contact.add.nearby.AddContactState.ContactExchangeFinished;
+import org.briarproject.briar.android.contact.add.nearby.AddContactState.ContactExchangeResult.Error;
+import org.briarproject.briar.android.contact.add.nearby.AddContactState.ContactExchangeResult.Success;
+import org.briarproject.briar.android.contact.add.nearby.AddContactState.ContactExchangeStarted;
+import org.briarproject.briar.android.contact.add.nearby.AddContactState.KeyAgreementListening;
+import org.briarproject.briar.android.contact.add.nearby.AddContactState.KeyAgreementStarted;
+import org.briarproject.briar.android.contact.add.nearby.AddContactState.KeyAgreementWaiting;
 import org.briarproject.briar.android.viewmodel.LiveEvent;
 import org.briarproject.briar.android.viewmodel.MutableLiveEvent;
 
@@ -75,15 +75,15 @@ import static org.briarproject.bramble.api.plugin.Plugin.State.DISABLED;
 import static org.briarproject.bramble.api.plugin.Plugin.State.INACTIVE;
 import static org.briarproject.bramble.api.plugin.Plugin.State.STARTING_STOPPING;
 import static org.briarproject.bramble.util.LogUtils.logException;
-import static org.briarproject.briar.android.contact.add.nearby.ContactExchangeViewModel.BluetoothDecision.REFUSED;
-import static org.briarproject.briar.android.contact.add.nearby.ContactExchangeViewModel.BluetoothDecision.UNKNOWN;
+import static org.briarproject.briar.android.contact.add.nearby.AddNearbyContactViewModel.BluetoothDecision.REFUSED;
+import static org.briarproject.briar.android.contact.add.nearby.AddNearbyContactViewModel.BluetoothDecision.UNKNOWN;
 
 @NotNullByDefault
-class ContactExchangeViewModel extends AndroidViewModel
+class AddNearbyContactViewModel extends AndroidViewModel
 		implements EventListener, QrCodeDecoder.ResultCallback {
 
 	private static final Logger LOG =
-			getLogger(ContactExchangeViewModel.class.getName());
+			getLogger(AddNearbyContactViewModel.class.getName());
 
 	enum BluetoothDecision {
 		/**
@@ -135,7 +135,7 @@ class ContactExchangeViewModel extends AndroidViewModel
 			new MutableLiveEvent<>();
 	private final MutableLiveEvent<TransportId> transportStateChanged =
 			new MutableLiveEvent<>();
-	private final MutableLiveData<ContactAddingState> state =
+	private final MutableLiveData<AddContactState> state =
 			new MutableLiveData<>();
 
 	final QrCodeDecoder qrCodeDecoder;
@@ -164,7 +164,7 @@ class ContactExchangeViewModel extends AndroidViewModel
 	private volatile boolean gotLocalPayload = false, gotRemotePayload = false;
 
 	@Inject
-	ContactExchangeViewModel(Application app,
+	AddNearbyContactViewModel(Application app,
 			EventBus eventBus,
 			@IoExecutor Executor ioExecutor,
 			PluginManager pluginManager,
@@ -336,11 +336,11 @@ class ContactExchangeViewModel extends AndroidViewModel
 		} else if (e instanceof KeyAgreementAbortedEvent) {
 			LOG.info("KeyAgreementAbortedEvent received");
 			resetPayloadFlags();
-			state.setValue(new ContactAddingState.Failed());
+			state.setValue(new AddContactState.Failed());
 		} else if (e instanceof KeyAgreementFailedEvent) {
 			LOG.info("KeyAgreementFailedEvent received");
 			resetPayloadFlags();
-			state.setValue(new ContactAddingState.Failed());
+			state.setValue(new AddContactState.Failed());
 		}
 	}
 
@@ -377,16 +377,16 @@ class ContactExchangeViewModel extends AndroidViewModel
 			Payload remotePayload = payloadParser.parse(payloadBytes);
 			gotRemotePayload = true;
 			requireNonNull(task).connectAndRunProtocol(remotePayload);
-			state.postValue(new ContactAddingState.QrCodeScanned());
+			state.postValue(new AddContactState.QrCodeScanned());
 		} catch (UnsupportedVersionException e) {
 			resetPayloadFlags();
-			state.postValue(new ContactAddingState.Failed(e.isTooOld()));
+			state.postValue(new AddContactState.Failed(e.isTooOld()));
 		} catch (IOException | IllegalArgumentException e) {
 			LOG.log(WARNING, "QR Code Invalid", e);
 			Toast.makeText(getApplication(), R.string.qr_code_invalid,
 					LENGTH_LONG).show();
 			resetPayloadFlags();
-			state.postValue(new ContactAddingState.Failed());
+			state.postValue(new AddContactState.Failed());
 		}
 	}
 
@@ -448,7 +448,7 @@ class ContactExchangeViewModel extends AndroidViewModel
 		return showQrCodeFragment;
 	}
 
-	LiveData<ContactAddingState> getState() {
+	LiveData<AddContactState> getState() {
 		return state;
 	}
 

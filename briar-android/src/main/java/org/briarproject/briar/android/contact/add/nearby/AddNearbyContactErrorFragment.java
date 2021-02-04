@@ -24,14 +24,14 @@ import static org.briarproject.briar.android.util.UiUtils.onSingleLinkClick;
 
 @MethodsNotNullByDefault
 @ParametersNotNullByDefault
-public class ContactExchangeErrorFragment extends BaseFragment {
+public class AddNearbyContactErrorFragment extends BaseFragment {
 
 	public static final String TAG =
-			ContactExchangeErrorFragment.class.getName();
+			AddNearbyContactErrorFragment.class.getName();
 	private static final String ERROR_MSG = "errorMessage";
 
-	public static ContactExchangeErrorFragment newInstance(String errorMsg) {
-		ContactExchangeErrorFragment f = new ContactExchangeErrorFragment();
+	public static AddNearbyContactErrorFragment newInstance(String errorMsg) {
+		AddNearbyContactErrorFragment f = new AddNearbyContactErrorFragment();
 		Bundle args = new Bundle();
 		args.putString(ERROR_MSG, errorMsg);
 		f.setArguments(args);
@@ -72,7 +72,7 @@ public class ContactExchangeErrorFragment extends BaseFragment {
 		tryAgain.setOnClickListener(view -> {
 			// Recreate the activity so we return to the intro fragment
 			FragmentActivity activity = requireActivity();
-			Intent i = new Intent(activity, ContactExchangeActivity.class);
+			Intent i = new Intent(activity, AddNearbyContactActivity.class);
 			i.setFlags(FLAG_ACTIVITY_CLEAR_TOP);
 			activity.startActivity(i);
 		});

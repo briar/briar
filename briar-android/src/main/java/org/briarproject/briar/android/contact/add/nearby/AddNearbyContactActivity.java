@@ -6,13 +6,19 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
 import android.view.MenuItem;
+import android.widget.Toast;
 
+import org.briarproject.bramble.api.identity.Author;
 import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
+import org.briarproject.bramble.api.nullsafety.NullSafety;
 import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.activity.ActivityComponent;
 import org.briarproject.briar.android.activity.BriarActivity;
-import org.briarproject.briar.android.contact.add.nearby.ContactExchangeViewModel.BluetoothDecision;
+import org.briarproject.briar.android.contact.add.nearby.AddContactState.ContactExchangeFinished;
+import org.briarproject.briar.android.contact.add.nearby.AddContactState.ContactExchangeResult;
+import org.briarproject.briar.android.contact.add.nearby.AddContactState.Failed;
+import org.briarproject.briar.android.contact.add.nearby.AddNearbyContactViewModel.BluetoothDecision;
 import org.briarproject.briar.android.fragment.BaseFragment;
 import org.briarproject.briar.android.fragment.BaseFragment.BaseFragmentListener;
 
@@ -21,32 +27,32 @@ import java.util.logging.Logger;
 import javax.annotation.Nullable;
 import javax.inject.Inject;
 
-import androidx.annotation.UiThread;
 import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.FragmentManager;
 import androidx.lifecycle.ViewModelProvider;
 
 import static android.bluetooth.BluetoothAdapter.ACTION_REQUEST_DISCOVERABLE;
 import static android.bluetooth.BluetoothAdapter.ACTION_SCAN_MODE_CHANGED;
+import static android.widget.Toast.LENGTH_LONG;
+import static java.util.Objects.requireNonNull;
 import static java.util.logging.Logger.getLogger;
-import static org.briarproject.bramble.api.nullsafety.NullSafety.requireNonNull;
 import static org.briarproject.briar.android.activity.RequestCodes.REQUEST_BLUETOOTH_DISCOVERABLE;
-import static org.briarproject.briar.android.contact.add.nearby.ContactExchangeViewModel.BluetoothDecision.ACCEPTED;
-import static org.briarproject.briar.android.contact.add.nearby.ContactExchangeViewModel.BluetoothDecision.REFUSED;
-import static org.briarproject.briar.android.contact.add.nearby.ContactExchangeViewModel.BluetoothDecision.UNKNOWN;
+import static org.briarproject.briar.android.contact.add.nearby.AddNearbyContactViewModel.BluetoothDecision.ACCEPTED;
+import static org.briarproject.briar.android.contact.add.nearby.AddNearbyContactViewModel.BluetoothDecision.REFUSED;
+import static org.briarproject.briar.android.contact.add.nearby.AddNearbyContactViewModel.BluetoothDecision.UNKNOWN;
 
 @MethodsNotNullByDefault
 @ParametersNotNullByDefault
-public abstract class KeyAgreementActivity extends BriarActivity
+public class AddNearbyContactActivity extends BriarActivity
 		implements BaseFragmentListener {
 
 	private static final Logger LOG =
-			getLogger(KeyAgreementActivity.class.getName());
+			getLogger(AddNearbyContactActivity.class.getName());
 
 	@Inject
 	ViewModelProvider.Factory viewModelFactory;
 
-	protected ContactExchangeViewModel viewModel;
+	private AddNearbyContactViewModel viewModel;
 	private AddNearbyContactPermissionManager permissionManager;
 
 	/**
@@ -62,7 +68,7 @@ public abstract class KeyAgreementActivity extends BriarActivity
 	public void injectActivity(ActivityComponent component) {
 		component.inject(this);
 		viewModel = new ViewModelProvider(this, viewModelFactory)
-				.get(ContactExchangeViewModel.class);
+				.get(AddNearbyContactViewModel.class);
 		permissionManager = new AddNearbyContactPermissionManager(this,
 				viewModel.isBluetoothSupported());
 	}
@@ -73,9 +79,10 @@ public abstract class KeyAgreementActivity extends BriarActivity
 		setContentView(R.layout.activity_fragment_container_toolbar);
 		Toolbar toolbar = findViewById(R.id.toolbar);
 		setSupportActionBar(toolbar);
-		requireNonNull(getSupportActionBar()).setDisplayHomeAsUpEnabled(true);
+		NullSafety.requireNonNull(getSupportActionBar())
+				.setDisplayHomeAsUpEnabled(true);
 		if (state == null) {
-			showInitialFragment(IntroFragment.newInstance());
+			showInitialFragment(AddNearbyContactIntroFragment.newInstance());
 		}
 		IntentFilter filter = new IntentFilter(ACTION_SCAN_MODE_CHANGED);
 		bluetoothReceiver = new BluetoothStateReceiver();
@@ -90,6 +97,10 @@ public abstract class KeyAgreementActivity extends BriarActivity
 		viewModel.getShowQrCodeFragment().observeEvent(this, show -> {
 			if (show) showQrCodeFragment();
 		});
+		requireNonNull(getSupportActionBar())
+				.setTitle(R.string.add_contact_title);
+		viewModel.getState()
+				.observe(this, this::onAddContactStateChanged);
 	}
 
 	@Override
@@ -121,15 +132,6 @@ public abstract class KeyAgreementActivity extends BriarActivity
 	}
 
 	@Override
-	public boolean onOptionsItemSelected(MenuItem item) {
-		if (item.getItemId() == android.R.id.home) {
-			onBackPressed();
-			return true;
-		}
-		return super.onOptionsItemSelected(item);
-	}
-
-	@Override
 	public void onActivityResult(int request, int result,
 			@Nullable Intent data) {
 		if (request == REQUEST_BLUETOOTH_DISCOVERABLE) {
@@ -145,13 +147,31 @@ public abstract class KeyAgreementActivity extends BriarActivity
 	}
 
 	@Override
-	@UiThread
+	public boolean onOptionsItemSelected(MenuItem item) {
+		if (item.getItemId() == android.R.id.home) {
+			onBackPressed();
+			return true;
+		}
+		return super.onOptionsItemSelected(item);
+	}
+
+	@Override
 	public void onRequestPermissionsResult(int requestCode,
 			String[] permissions, int[] grantResults) {
 		super.onRequestPermissionsResult(requestCode, permissions,
 				grantResults);
 		permissionManager.onRequestPermissionsResult(requestCode, permissions,
 				grantResults, this::showQrCodeFragmentIfAllowed);
+	}
+
+	@Override
+	public void onBackPressed() {
+		if (viewModel.getState().getValue() instanceof Failed) {
+			// finish this activity when going back in failed state
+			supportFinishAfterTransition();
+		} else {
+			super.onBackPressed();
+		}
 	}
 
 	private void requestBluetoothDiscoverable() {
@@ -174,7 +194,8 @@ public abstract class KeyAgreementActivity extends BriarActivity
 	@SuppressWarnings("StatementWithEmptyBody")
 	private void showQrCodeFragmentIfAllowed() {
 		boolean continueClicked = // never set to null
-				requireNonNull(viewModel.getWasContinueClicked().getValue());
+				NullSafety.requireNonNull(
+						viewModel.getWasContinueClicked().getValue());
 		boolean permissionsGranted =
 				permissionManager.areEssentialPermissionsGranted();
 		if (isResumed && continueClicked && permissionsGranted) {
@@ -197,13 +218,72 @@ public abstract class KeyAgreementActivity extends BriarActivity
 	private void showQrCodeFragment() {
 		// FIXME #824
 		FragmentManager fm = getSupportFragmentManager();
-		if (fm.findFragmentByTag(KeyAgreementFragment.TAG) == null) {
-			BaseFragment f = KeyAgreementFragment.newInstance();
+		if (fm.findFragmentByTag(AddNearbyContactFragment.TAG) == null) {
+			BaseFragment f = AddNearbyContactFragment.newInstance();
 			fm.beginTransaction()
 					.replace(R.id.fragmentContainer, f, f.getUniqueTag())
 					.addToBackStack(f.getUniqueTag())
 					.commit();
 		}
+	}
+
+	private void onAddContactStateChanged(AddContactState state) {
+		if (state instanceof ContactExchangeFinished) {
+			ContactExchangeResult result =
+					((ContactExchangeFinished) state).result;
+			onContactExchangeResult(result);
+		} else if (state instanceof Failed) {
+			// Remove navigation icon, so user can't go back when failed
+			// ErrorFragment will finish or relaunch this activity
+			Toolbar toolbar = findViewById(R.id.toolbar);
+			toolbar.setNavigationIcon(null);
+
+			Boolean qrCodeTooOld = ((Failed) state).qrCodeTooOld;
+			onAddingContactFailed(qrCodeTooOld);
+		}
+	}
+
+	private void onContactExchangeResult(ContactExchangeResult result) {
+		if (result instanceof ContactExchangeResult.Success) {
+			Author remoteAuthor =
+					((ContactExchangeResult.Success) result).remoteAuthor;
+			String contactName = remoteAuthor.getName();
+			String text = getString(R.string.contact_added_toast, contactName);
+			Toast.makeText(this, text, LENGTH_LONG).show();
+			supportFinishAfterTransition();
+		} else if (result instanceof ContactExchangeResult.Error) {
+			Author duplicateAuthor =
+					((ContactExchangeResult.Error) result).duplicateAuthor;
+			if (duplicateAuthor == null) {
+				showErrorFragment();
+			} else {
+				String contactName = duplicateAuthor.getName();
+				String text =
+						getString(R.string.contact_already_exists, contactName);
+				Toast.makeText(this, text, LENGTH_LONG).show();
+				supportFinishAfterTransition();
+			}
+		} else throw new AssertionError();
+	}
+
+	private void onAddingContactFailed(@Nullable Boolean qrCodeTooOld) {
+		if (qrCodeTooOld == null) {
+			showErrorFragment();
+		} else {
+			String msg;
+			if (qrCodeTooOld) {
+				msg = getString(R.string.qr_code_too_old,
+						getString(R.string.app_name));
+			} else {
+				msg = getString(R.string.qr_code_too_new,
+						getString(R.string.app_name));
+			}
+			showNextFragment(AddNearbyContactErrorFragment.newInstance(msg));
+		}
+	}
+
+	private void showErrorFragment() {
+		showNextFragment(new AddNearbyContactErrorFragment());
 	}
 
 	private class BluetoothStateReceiver extends BroadcastReceiver {

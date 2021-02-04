@@ -21,11 +21,10 @@ import org.briarproject.briar.android.blog.RssFeedImportActivity;
 import org.briarproject.briar.android.blog.RssFeedManageActivity;
 import org.briarproject.briar.android.blog.WriteBlogPostActivity;
 import org.briarproject.briar.android.contact.ContactListFragment;
-import org.briarproject.briar.android.contact.add.nearby.ContactExchangeActivity;
-import org.briarproject.briar.android.contact.add.nearby.ContactExchangeErrorFragment;
-import org.briarproject.briar.android.contact.add.nearby.IntroFragment;
-import org.briarproject.briar.android.contact.add.nearby.KeyAgreementActivity;
-import org.briarproject.briar.android.contact.add.nearby.KeyAgreementFragment;
+import org.briarproject.briar.android.contact.add.nearby.AddNearbyContactActivity;
+import org.briarproject.briar.android.contact.add.nearby.AddNearbyContactErrorFragment;
+import org.briarproject.briar.android.contact.add.nearby.AddNearbyContactFragment;
+import org.briarproject.briar.android.contact.add.nearby.AddNearbyContactIntroFragment;
 import org.briarproject.briar.android.contact.add.remote.AddContactActivity;
 import org.briarproject.briar.android.contact.add.remote.LinkExchangeFragment;
 import org.briarproject.briar.android.contact.add.remote.NicknameFragment;
@@ -109,9 +108,7 @@ public interface ActivityComponent {
 
 	void inject(PanicPreferencesActivity activity);
 
-	void inject(ContactExchangeActivity activity);
-
-	void inject(KeyAgreementActivity activity);
+	void inject(AddNearbyContactActivity activity);
 
 	void inject(ConversationActivity activity);
 
@@ -209,9 +206,9 @@ public interface ActivityComponent {
 
 	void inject(FeedFragment fragment);
 
-	void inject(IntroFragment fragment);
-	
-	void inject(KeyAgreementFragment fragment);
+	void inject(AddNearbyContactIntroFragment fragment);
+
+	void inject(AddNearbyContactFragment fragment);
 
 	void inject(LinkExchangeFragment fragment);
 
@@ -229,7 +226,7 @@ public interface ActivityComponent {
 
 	void inject(ScreenFilterDialogFragment fragment);
 
-	void inject(ContactExchangeErrorFragment fragment);
+	void inject(AddNearbyContactErrorFragment fragment);
 
 	void inject(AliasDialogFragment aliasDialogFragment);
 

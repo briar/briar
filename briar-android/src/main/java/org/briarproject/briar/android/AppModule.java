@@ -31,7 +31,7 @@ import org.briarproject.briar.android.account.DozeHelperModule;
 import org.briarproject.briar.android.account.LockManagerImpl;
 import org.briarproject.briar.android.account.SetupModule;
 import org.briarproject.briar.android.contact.ContactListModule;
-import org.briarproject.briar.android.contact.add.nearby.ContactExchangeModule;
+import org.briarproject.briar.android.contact.add.nearby.AddNearbyContactModule;
 import org.briarproject.briar.android.forum.ForumModule;
 import org.briarproject.briar.android.introduction.IntroductionModule;
 import org.briarproject.briar.android.logging.LoggingModule;
@@ -75,7 +75,7 @@ import static org.briarproject.briar.android.TestingConstants.IS_DEBUG_BUILD;
 @Module(includes = {
 		SetupModule.class,
 		DozeHelperModule.class,
-		ContactExchangeModule.class,
+		AddNearbyContactModule.class,
 		LoggingModule.class,
 		LoginModule.class,
 		NavDrawerModule.class,

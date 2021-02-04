@@ -21,20 +21,21 @@ import static android.view.View.FOCUS_DOWN;
 
 @MethodsNotNullByDefault
 @ParametersNotNullByDefault
-public class IntroFragment extends BaseFragment {
+public class AddNearbyContactIntroFragment extends BaseFragment {
 
-	public static final String TAG = IntroFragment.class.getName();
+	public static final String TAG = AddNearbyContactIntroFragment.class.getName();
 
 	@Inject
 	ViewModelProvider.Factory viewModelFactory;
 
-	private ContactExchangeViewModel viewModel;
+	private AddNearbyContactViewModel viewModel;
 
 	private ScrollView scrollView;
 
-	public static IntroFragment newInstance() {
+	public static AddNearbyContactIntroFragment newInstance() {
 		Bundle args = new Bundle();
-		IntroFragment fragment = new IntroFragment();
+		AddNearbyContactIntroFragment
+				fragment = new AddNearbyContactIntroFragment();
 		fragment.setArguments(args);
 		return fragment;
 	}
@@ -43,7 +44,7 @@ public class IntroFragment extends BaseFragment {
 	public void injectFragment(ActivityComponent component) {
 		component.inject(this);
 		viewModel = new ViewModelProvider(requireActivity(), viewModelFactory)
-				.get(ContactExchangeViewModel.class);
+				.get(AddNearbyContactViewModel.class);
 	}
 
 	@Nullable

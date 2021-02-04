@@ -14,11 +14,11 @@ import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
 import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.activity.ActivityComponent;
-import org.briarproject.briar.android.contact.add.nearby.ContactAddingState.ContactExchangeStarted;
-import org.briarproject.briar.android.contact.add.nearby.ContactAddingState.Failed;
-import org.briarproject.briar.android.contact.add.nearby.ContactAddingState.KeyAgreementStarted;
-import org.briarproject.briar.android.contact.add.nearby.ContactAddingState.KeyAgreementWaiting;
-import org.briarproject.briar.android.contact.add.nearby.ContactAddingState.QrCodeScanned;
+import org.briarproject.briar.android.contact.add.nearby.AddContactState.ContactExchangeStarted;
+import org.briarproject.briar.android.contact.add.nearby.AddContactState.Failed;
+import org.briarproject.briar.android.contact.add.nearby.AddContactState.KeyAgreementStarted;
+import org.briarproject.briar.android.contact.add.nearby.AddContactState.KeyAgreementWaiting;
+import org.briarproject.briar.android.contact.add.nearby.AddContactState.QrCodeScanned;
 import org.briarproject.briar.android.fragment.BaseFragment;
 import org.briarproject.briar.android.view.QrCodeView;
 
@@ -42,26 +42,26 @@ import static org.briarproject.bramble.util.LogUtils.logException;
 
 @MethodsNotNullByDefault
 @ParametersNotNullByDefault
-public class KeyAgreementFragment extends BaseFragment
+public class AddNearbyContactFragment extends BaseFragment
 		implements QrCodeView.FullscreenListener {
 
-	static final String TAG = KeyAgreementFragment.class.getName();
+	static final String TAG = AddNearbyContactFragment.class.getName();
 
 	private static final Logger LOG = Logger.getLogger(TAG);
 
 	@Inject
 	ViewModelProvider.Factory viewModelFactory;
 
-	private ContactExchangeViewModel viewModel;
+	private AddNearbyContactViewModel viewModel;
 	private CameraView cameraView;
 	private LinearLayout cameraOverlay;
 	private View statusView;
 	private QrCodeView qrCodeView;
 	private TextView status;
 
-	public static KeyAgreementFragment newInstance() {
+	public static AddNearbyContactFragment newInstance() {
 		Bundle args = new Bundle();
-		KeyAgreementFragment fragment = new KeyAgreementFragment();
+		AddNearbyContactFragment fragment = new AddNearbyContactFragment();
 		fragment.setArguments(args);
 		return fragment;
 	}
@@ -70,7 +70,7 @@ public class KeyAgreementFragment extends BaseFragment
 	public void injectFragment(ActivityComponent component) {
 		component.inject(this);
 		viewModel = new ViewModelProvider(requireActivity(), viewModelFactory)
-				.get(ContactExchangeViewModel.class);
+				.get(AddNearbyContactViewModel.class);
 	}
 
 	@Nullable
@@ -93,7 +93,7 @@ public class KeyAgreementFragment extends BaseFragment
 		qrCodeView.setFullscreenListener(this);
 
 		viewModel.getState().observe(getViewLifecycleOwner(),
-				this::onContactAddingStateChanged);
+				this::onAddContactStateChanged);
 	}
 
 	@Override
@@ -153,10 +153,10 @@ public class KeyAgreementFragment extends BaseFragment
 	}
 
 	@UiThread
-	private void onContactAddingStateChanged(ContactAddingState state) {
-		if (state instanceof ContactAddingState.KeyAgreementListening) {
+	private void onAddContactStateChanged(AddContactState state) {
+		if (state instanceof AddContactState.KeyAgreementListening) {
 			Bitmap qrCode =
-					((ContactAddingState.KeyAgreementListening) state).qrCode;
+					((AddContactState.KeyAgreementListening) state).qrCode;
 			qrCodeView.setQrCode(qrCode);
 		} else if (state instanceof QrCodeScanned) {
 			try {
