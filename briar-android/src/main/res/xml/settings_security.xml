@@ -9,7 +9,8 @@
 		android:persistent="false"
 		android:summary="@string/pref_lock_summary"
 		android:title="@string/pref_lock_title"
-		app:iconSpaceReserved="false" />
+		app:iconSpaceReserved="false"
+		app:singleLineTitle="false" />
 
 	<ListPreference
 		android:defaultValue="@string/pref_lock_timeout_value_default"

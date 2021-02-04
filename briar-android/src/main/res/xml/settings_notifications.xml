@@ -7,7 +7,8 @@
 		android:key="pref_key_notify_sign_in"
 		android:summary="@string/notify_sign_in_summary"
 		android:title="@string/notify_sign_in_title"
-		app:iconSpaceReserved="false" />
+		app:iconSpaceReserved="false"
+		app:singleLineTitle="false" />
 
 	<SwitchPreferenceCompat
 		android:defaultValue="true"
@@ -16,7 +17,8 @@
 		android:persistent="false"
 		android:summary="@string/notify_private_messages_setting_summary"
 		android:title="@string/notify_private_messages_setting_title"
-		app:iconSpaceReserved="false" />
+		app:iconSpaceReserved="false"
+		app:singleLineTitle="false" />
 
 	<SwitchPreferenceCompat
 		android:defaultValue="true"
@@ -25,7 +27,8 @@
 		android:persistent="false"
 		android:summary="@string/notify_group_messages_setting_summary"
 		android:title="@string/notify_group_messages_setting_title"
-		app:iconSpaceReserved="false" />
+		app:iconSpaceReserved="false"
+		app:singleLineTitle="false" />
 
 	<SwitchPreferenceCompat
 		android:defaultValue="true"
@@ -34,7 +37,8 @@
 		android:persistent="false"
 		android:summary="@string/notify_forum_posts_setting_summary"
 		android:title="@string/notify_forum_posts_setting_title"
-		app:iconSpaceReserved="false" />
+		app:iconSpaceReserved="false"
+		app:singleLineTitle="false" />
 
 	<SwitchPreferenceCompat
 		android:defaultValue="true"
@@ -43,7 +47,8 @@
 		android:persistent="false"
 		android:summary="@string/notify_blog_posts_setting_summary"
 		android:title="@string/notify_blog_posts_setting_title"
-		app:iconSpaceReserved="false" />
+		app:iconSpaceReserved="false"
+		app:singleLineTitle="false" />
 
 	<SwitchPreferenceCompat
 		android:defaultValue="true"
@@ -51,7 +56,8 @@
 		android:key="notifyVibration"
 		android:persistent="false"
 		android:title="@string/notify_vibration_setting"
-		app:iconSpaceReserved="false" />
+		app:iconSpaceReserved="false"
+		app:singleLineTitle="false" />
 
 	<Preference
 		android:key="notifySound"
