@@ -51,7 +51,7 @@ class StreamEncrypterFactoryImpl implements StreamEncrypterFactory {
 	}
 
 	@Override
-	public StreamEncrypter createContactExchangeStreamDecrypter(
+	public StreamEncrypter createContactExchangeStreamEncrypter(
 			OutputStream out, SecretKey headerKey) {
 		AuthenticatedCipher cipher = cipherProvider.get();
 		byte[] streamHeaderNonce = new byte[STREAM_HEADER_NONCE_LENGTH];
@@ -59,5 +59,11 @@ class StreamEncrypterFactoryImpl implements StreamEncrypterFactory {
 		SecretKey frameKey = crypto.generateSecretKey();
 		return new StreamEncrypterImpl(out, cipher, 0, null, streamHeaderNonce,
 				headerKey, frameKey);
+	}
+
+	@Override
+	public StreamEncrypter createLogStreamEncrypter(OutputStream out,
+			SecretKey headerKey) {
+		return createContactExchangeStreamEncrypter(out, headerKey);
 	}
 }

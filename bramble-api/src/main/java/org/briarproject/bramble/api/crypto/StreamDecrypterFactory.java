@@ -19,4 +19,10 @@ public interface StreamDecrypterFactory {
 	 */
 	StreamDecrypter createContactExchangeStreamDecrypter(InputStream in,
 			SecretKey headerKey);
+
+	/**
+	 * Creates a {@link StreamDecrypter} for decrypting a log stream.
+	 */
+	StreamDecrypter createLogStreamDecrypter(InputStream in,
+			SecretKey headerKey);
 }
