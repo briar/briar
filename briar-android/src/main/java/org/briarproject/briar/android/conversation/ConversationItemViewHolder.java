@@ -2,6 +2,7 @@ package org.briarproject.briar.android.conversation;
 
 import android.content.Context;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
@@ -30,7 +31,7 @@ abstract class ConversationItemViewHolder extends ViewHolder {
 	private final OutItemViewHolder outViewHolder;
 	private final TextView topNotice, text;
 	protected final TextView time;
-	private final View bomb;
+	protected final ImageView bomb;
 	@Nullable
 	private String itemKey = null;
 
@@ -38,7 +39,7 @@ abstract class ConversationItemViewHolder extends ViewHolder {
 			boolean isIncoming) {
 		super(v);
 		this.listener = listener;
-		this.outViewHolder = isIncoming ? null : new OutItemViewHolder(v);
+		outViewHolder = isIncoming ? null : new OutItemViewHolder(v);
 		root = v;
 		topNotice = v.findViewById(R.id.topNotice);
 		layout = v.findViewById(R.id.layout);
