@@ -42,6 +42,7 @@ import java.util.logging.Logger;
 
 import javax.inject.Inject;
 
+import androidx.annotation.AnyThread;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
@@ -117,7 +118,7 @@ class SettingsViewModel extends DbViewModel implements EventListener {
 		this.authorManager = authorManager;
 		this.ioExecutor = ioExecutor;
 		this.featureFlags = featureFlags;
-		this.settingsStore = new SettingsStore(settingsManager, dbExecutor,
+		settingsStore = new SettingsStore(settingsManager, dbExecutor,
 				SETTINGS_NAMESPACE);
 		torSummaryProvider = new TorSummaryProvider(getApplication(),
 				locationUtils, circumventionProvider);
@@ -195,6 +196,7 @@ class SettingsViewModel extends DbViewModel implements EventListener {
 		}
 	}
 
+	@AnyThread
 	private void updateSettings(Settings settings) {
 		screenLockEnabled.postValue(settings.getBoolean(PREF_SCREEN_LOCK,
 				false));

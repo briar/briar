@@ -11,7 +11,6 @@ import java.util.logging.Logger;
 import androidx.annotation.Nullable;
 import androidx.preference.PreferenceDataStore;
 
-import static java.util.Objects.requireNonNull;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
 import static java.util.logging.Logger.getLogger;
@@ -21,8 +20,6 @@ import static org.briarproject.bramble.util.LogUtils.now;
 
 /**
  * A custom PreferenceDataStore that stores settings in Briar's encrypted DB.
- * <p>
- * Warning: This expects all strings to be integers and stores them as such.
  */
 @NotNullByDefault
 class SettingsStore extends PreferenceDataStore {
@@ -61,8 +58,11 @@ class SettingsStore extends PreferenceDataStore {
 
 	@Override
 	public void putString(String key, @Nullable String value) {
-		int integer = Integer.parseInt(requireNonNull(value));
-		putInt(key, integer);
+		if (LOG.isLoggable(INFO))
+			LOG.info("Store string setting: " + key + "=" + value);
+		Settings s = new Settings();
+		s.put(key, value);
+		storeSettings(s);
 	}
 
 	private void storeSettings(Settings s) {

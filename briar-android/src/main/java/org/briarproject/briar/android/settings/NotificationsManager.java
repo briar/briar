@@ -37,7 +37,6 @@ import static org.briarproject.briar.api.android.AndroidNotificationManager.PREF
 import static org.briarproject.briar.api.android.AndroidNotificationManager.PREF_NOTIFY_SOUND;
 import static org.briarproject.briar.api.android.AndroidNotificationManager.PREF_NOTIFY_VIBRATION;
 
-
 @MethodsNotNullByDefault
 @ParametersNotNullByDefault
 class NotificationsManager {
@@ -64,7 +63,7 @@ class NotificationsManager {
 
 	private volatile String ringtoneName, ringtoneUri;
 
-	public NotificationsManager(Context ctx,
+	NotificationsManager(Context ctx,
 			SettingsManager settingsManager,
 			Executor dbExecutor) {
 		this.ctx = ctx;
@@ -153,7 +152,7 @@ class NotificationsManager {
 		return ringtoneName;
 	}
 
-	public String getRingtoneUri() {
+	String getRingtoneUri() {
 		return ringtoneUri;
 	}
 }

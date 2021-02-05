@@ -5,6 +5,8 @@ import org.briarproject.bramble.api.settings.SettingsManager;
 
 import java.util.concurrent.Executor;
 
+import androidx.annotation.Nullable;
+
 import static org.briarproject.bramble.api.plugin.Plugin.PREF_PLUGIN_ENABLE;
 import static org.briarproject.bramble.api.plugin.TorConstants.PREF_TOR_MOBILE;
 import static org.briarproject.bramble.api.plugin.TorConstants.PREF_TOR_NETWORK;
@@ -49,12 +51,12 @@ class ConnectionsStore extends SettingsStore {
 	}
 
 	@Override
-	public void putInt(String key, int value) {
+	public void putString(String key, @Nullable String value) {
 		// translate between Android UI pref keys and bramble keys
 		if (key.equals(PREF_KEY_TOR_NETWORK)) {
-			super.putInt(PREF_TOR_NETWORK, value);
+			super.putString(PREF_TOR_NETWORK, value);
 		} else {
-			throw new AssertionError();
+			throw new AssertionError(key);
 		}
 	}
 

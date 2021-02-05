@@ -5,6 +5,7 @@ import android.util.AttributeSet;
 import android.view.View;
 import android.widget.TextView;
 
+import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.briar.R;
 
 import androidx.annotation.Nullable;
@@ -14,6 +15,7 @@ import de.hdodenhof.circleimageview.CircleImageView;
 
 import static org.briarproject.briar.android.view.AuthorView.setAvatar;
 
+@NotNullByDefault
 public class AvatarPreference extends Preference {
 
 	@Nullable

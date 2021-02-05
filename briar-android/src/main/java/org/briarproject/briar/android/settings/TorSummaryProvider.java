@@ -20,7 +20,7 @@ class TorSummaryProvider implements SummaryProvider<ListPreference> {
 	private final LocationUtils locationUtils;
 	private final CircumventionProvider circumventionProvider;
 
-	public TorSummaryProvider(Context ctx,
+	TorSummaryProvider(Context ctx,
 			LocationUtils locationUtils,
 			CircumventionProvider circumventionProvider) {
 		this.ctx = ctx;

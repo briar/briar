@@ -16,6 +16,7 @@ import java.util.Locale;
 import java.util.logging.Logger;
 
 import androidx.core.text.TextUtilsCompat;
+import androidx.fragment.app.FragmentActivity;
 import androidx.preference.ListPreference;
 import androidx.preference.Preference;
 import androidx.preference.PreferenceFragmentCompat;
@@ -25,6 +26,7 @@ import static android.content.Intent.FLAG_ACTIVITY_CLEAR_TOP;
 import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
 import static android.os.Build.VERSION.SDK_INT;
 import static androidx.core.view.ViewCompat.LAYOUT_DIRECTION_LTR;
+import static java.util.Objects.requireNonNull;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Logger.getLogger;
 import static org.briarproject.briar.android.BriarApplication.ENTRY_ACTIVITY;
@@ -43,11 +45,11 @@ public class DisplayFragment extends PreferenceFragmentCompat {
 	public void onCreatePreferences(Bundle bundle, String s) {
 		addPreferencesFromResource(R.xml.settings_display);
 
-		ListPreference language = findPreference(PREF_LANGUAGE);
+		ListPreference language = requireNonNull(findPreference(PREF_LANGUAGE));
 		setLanguageEntries(language);
 		language.setOnPreferenceChangeListener(this::onLanguageChanged);
 
-		ListPreference theme = findPreference(PREF_THEME);
+		ListPreference theme = requireNonNull(findPreference(PREF_THEME));
 		setThemeEntries(theme);
 		theme.setOnPreferenceChangeListener(this::onThemeChanged);
 	}
@@ -121,7 +123,8 @@ public class DisplayFragment extends PreferenceFragmentCompat {
 
 	private boolean onThemeChanged(Preference preference, Object newValue) {
 		// activate new theme
-		UiUtils.setTheme(getActivity(), (String) newValue);
+		FragmentActivity activity = requireActivity();
+		UiUtils.setTheme(activity, (String) newValue);
 		// bring up parent activity, so it can change its theme as well
 		// upstream bug: https://issuetracker.google.com/issues/38352704
 		Intent intent = new Intent(getActivity(), ENTRY_ACTIVITY);
@@ -129,9 +132,9 @@ public class DisplayFragment extends PreferenceFragmentCompat {
 		startActivity(intent);
 		// bring this activity back to the foreground
 		// TODO maybe tell the activity here to relaunch this fragment?
-		intent = new Intent(getActivity(), getActivity().getClass());
+		intent = new Intent(getActivity(), activity.getClass());
 		startActivity(intent);
-		getActivity().finish();
+		activity.finish();
 		return true;
 	}
 
