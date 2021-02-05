@@ -72,7 +72,6 @@ import static org.briarproject.bramble.util.LogUtils.now;
 import static org.briarproject.briar.android.settings.SettingsFragment.SETTINGS_NAMESPACE;
 import static org.briarproject.briar.android.util.UiUtils.observeForeverOnce;
 import static org.briarproject.briar.android.view.TextSendController.SendState.ERROR;
-import static org.briarproject.briar.android.view.TextSendController.SendState.SENDING;
 import static org.briarproject.briar.android.view.TextSendController.SendState.SENT;
 import static org.briarproject.briar.android.view.TextSendController.SendState.UNEXPECTED_TIMER;
 import static org.briarproject.briar.api.autodelete.AutoDeleteConstants.NO_AUTO_DELETE_TIMER;
@@ -328,7 +327,7 @@ public class ConversationViewModel extends DbViewModel
 	@UiThread
 	LiveData<SendState> sendMessage(@Nullable String text,
 			List<AttachmentHeader> headers, long expectedTimer) {
-		MutableLiveData<SendState> liveData = new MutableLiveData<>(SENDING);
+		MutableLiveData<SendState> liveData = new MutableLiveData<>();
 		runOnDbThread(() -> {
 			try {
 				db.transaction(false, txn -> {
@@ -345,9 +344,11 @@ public class ConversationViewModel extends DbViewModel
 							m.getAutoDeleteTimer());
 					// TODO add text to cache when available here
 					MessageId id = message.getId();
-					txn.attach(() -> attachmentCreator.onAttachmentsSent(id));
-					liveData.postValue(SENT);
-					addedHeader.postEvent(h);
+					txn.attach(() -> {
+						attachmentCreator.onAttachmentsSent(id);
+						liveData.setValue(SENT);
+						addedHeader.setEvent(h);
+					});
 				});
 			} catch (UnexpectedTimerException e) {
 				liveData.postValue(UNEXPECTED_TIMER);
@@ -365,8 +366,7 @@ public class ConversationViewModel extends DbViewModel
 		// Sending is only possible (setReady(true)) after loading all messages
 		// which happens after the contact has been loaded.
 		// privateMessageFormat is loaded together with contact
-		Contact contact =
-				requireNonNull(this.contactItem.getValue()).getContact();
+		Contact contact = requireNonNull(contactItem.getValue()).getContact();
 		GroupId groupId = messagingManager.getContactGroup(contact).getId();
 		PrivateMessageFormat format =
 				requireNonNull(privateMessageFormat.getValue());

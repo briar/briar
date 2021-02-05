@@ -178,7 +178,7 @@ public class TextSendController implements TextInputListener {
 		return state;
 	}
 
-	public enum SendState {SENDING, SENT, ERROR, UNEXPECTED_TIMER}
+	public enum SendState {SENT, ERROR, UNEXPECTED_TIMER}
 
 	public interface SendListener extends LifecycleOwner {
 		LiveData<SendState> onSendClick(@Nullable String text,
