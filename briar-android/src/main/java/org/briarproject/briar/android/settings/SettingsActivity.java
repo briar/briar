@@ -23,6 +23,8 @@ import androidx.preference.PreferenceFragmentCompat.OnPreferenceStartFragmentCal
 public class SettingsActivity extends BriarActivity
 		implements OnPreferenceStartFragmentCallback {
 
+	static final String EXTRA_THEME_CHANGE = "themeChange";
+
 	@Override
 	public void injectActivity(ActivityComponent component) {
 		component.inject(this);
@@ -36,6 +38,14 @@ public class SettingsActivity extends BriarActivity
 		if (actionBar != null) {
 			actionBar.setHomeButtonEnabled(true);
 			actionBar.setDisplayHomeAsUpEnabled(true);
+		}
+
+		// show display fragment after theme change
+		Bundle extras = getIntent().getExtras();
+		if (bundle == null && extras != null &&
+				extras.getBoolean(EXTRA_THEME_CHANGE, false)) {
+			FragmentManager fragmentManager = getSupportFragmentManager();
+			showNextFragment(fragmentManager, new DisplayFragment());
 		}
 
 		setContentView(R.layout.activity_settings);
@@ -59,14 +69,18 @@ public class SettingsActivity extends BriarActivity
 				.instantiate(getClassLoader(), pref.getFragment());
 		fragment.setTargetFragment(caller, 0);
 		// Replace the existing Fragment with the new Fragment
+		showNextFragment(fragmentManager, fragment);
+		return true;
+	}
+
+	private void showNextFragment(FragmentManager fragmentManager, Fragment f) {
 		fragmentManager.beginTransaction()
 				.setCustomAnimations(R.anim.step_next_in,
 						R.anim.step_previous_out, R.anim.step_previous_in,
 						R.anim.step_next_out)
-				.replace(R.id.fragmentContainer, fragment)
+				.replace(R.id.fragmentContainer, f)
 				.addToBackStack(null)
 				.commit();
-		return true;
 	}
 
 	/**

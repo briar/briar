@@ -31,6 +31,7 @@ import static java.util.logging.Level.INFO;
 import static java.util.logging.Logger.getLogger;
 import static org.briarproject.briar.android.BriarApplication.ENTRY_ACTIVITY;
 import static org.briarproject.briar.android.navdrawer.NavDrawerActivity.SIGN_OUT_URI;
+import static org.briarproject.briar.android.settings.SettingsActivity.EXTRA_THEME_CHANGE;
 
 @NotNullByDefault
 public class DisplayFragment extends PreferenceFragmentCompat {
@@ -131,8 +132,8 @@ public class DisplayFragment extends PreferenceFragmentCompat {
 		intent.setFlags(FLAG_ACTIVITY_CLEAR_TASK | FLAG_ACTIVITY_NEW_TASK);
 		startActivity(intent);
 		// bring this activity back to the foreground
-		// TODO maybe tell the activity here to relaunch this fragment?
 		intent = new Intent(getActivity(), activity.getClass());
+		intent.putExtra(EXTRA_THEME_CHANGE, true);
 		startActivity(intent);
 		activity.finish();
 		return true;
