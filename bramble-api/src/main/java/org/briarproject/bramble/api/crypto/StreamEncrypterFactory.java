@@ -17,6 +17,12 @@ public interface StreamEncrypterFactory {
 	 * Creates a {@link StreamEncrypter} for encrypting a contact exchange
 	 * stream.
 	 */
-	StreamEncrypter createContactExchangeStreamDecrypter(OutputStream out,
+	StreamEncrypter createContactExchangeStreamEncrypter(OutputStream out,
+			SecretKey headerKey);
+
+	/**
+	 * Creates a {@link StreamEncrypter} for encrypting a log stream.
+	 */
+	StreamEncrypter createLogStreamEncrypter(OutputStream out,
 			SecretKey headerKey);
 }

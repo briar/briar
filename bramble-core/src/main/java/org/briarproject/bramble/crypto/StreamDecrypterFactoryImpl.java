@@ -36,4 +36,10 @@ class StreamDecrypterFactoryImpl implements StreamDecrypterFactory {
 			SecretKey headerKey) {
 		return new StreamDecrypterImpl(in, cipherProvider.get(), 0, headerKey);
 	}
+
+	@Override
+	public StreamDecrypter createLogStreamDecrypter(InputStream in,
+			SecretKey headerKey) {
+		return createContactExchangeStreamDecrypter(in, headerKey);
+	}
 }

@@ -20,12 +20,10 @@ import org.briarproject.bramble.BrambleCoreEagerSingletons;
 import org.briarproject.briar.BriarCoreEagerSingletons;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.logging.CachingLogHandler;
-import org.briarproject.briar.android.reporting.BriarExceptionHandler;
 import org.briarproject.briar.android.util.UiUtils;
 
-import java.util.Collection;
+import java.lang.Thread.UncaughtExceptionHandler;
 import java.util.logging.Handler;
-import java.util.logging.LogRecord;
 import java.util.logging.Logger;
 
 import androidx.annotation.NonNull;
@@ -42,16 +40,11 @@ public class BriarApplicationImpl extends Application
 	private static final Logger LOG =
 			getLogger(BriarApplicationImpl.class.getName());
 
-	private final CachingLogHandler logHandler = new CachingLogHandler();
-	private final BriarExceptionHandler exceptionHandler =
-			new BriarExceptionHandler(this);
-
 	private AndroidComponent applicationComponent;
 	private volatile SharedPreferences prefs;
 
 	@Override
 	protected void attachBaseContext(Context base) {
-		Thread.setDefaultUncaughtExceptionHandler(exceptionHandler);
 		if (prefs == null)
 			prefs = PreferenceManager.getDefaultSharedPreferences(base);
 		// Loading the language needs to be done here.
@@ -67,6 +60,11 @@ public class BriarApplicationImpl extends Application
 
 		if (IS_DEBUG_BUILD) enableStrictMode();
 
+		applicationComponent = createApplicationComponent();
+		UncaughtExceptionHandler exceptionHandler =
+				applicationComponent.exceptionHandler();
+		Thread.setDefaultUncaughtExceptionHandler(exceptionHandler);
+
 		Logger rootLogger = getLogger("");
 		Handler[] handlers = rootLogger.getHandlers();
 		// Disable the Android logger for release builds
@@ -78,12 +76,12 @@ public class BriarApplicationImpl extends Application
 			// Restore the default handlers after the level raising handler
 			for (Handler handler : handlers) rootLogger.addHandler(handler);
 		}
+		CachingLogHandler logHandler = applicationComponent.logHandler();
 		rootLogger.addHandler(logHandler);
 		rootLogger.setLevel(IS_DEBUG_BUILD ? FINE : INFO);
 
 		LOG.info("Created");
 
-		applicationComponent = createApplicationComponent();
 		EmojiManager.install(new GoogleEmojiProvider());
 	}
 
@@ -134,11 +132,6 @@ public class BriarApplicationImpl extends Application
 	@Override
 	public BrambleAppComponent getBrambleAppComponent() {
 		return applicationComponent;
-	}
-
-	@Override
-	public Collection<LogRecord> getRecentLogRecords() {
-		return logHandler.getRecentLogRecords();
 	}
 
 	@Override

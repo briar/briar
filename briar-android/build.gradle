@@ -136,6 +136,7 @@ dependencies {
 	testImplementation "org.jmock:jmock:$jmockVersion"
 	testImplementation "org.jmock:jmock-junit4:$jmockVersion"
 	testImplementation "org.jmock:jmock-legacy:$jmockVersion"
+	testAnnotationProcessor "com.google.dagger:dagger-compiler:2.24"
 
 	androidTestImplementation project(path: ':bramble-api', configuration: 'testOutput')
 	androidTestImplementation 'androidx.test.ext:junit:1.1.2'

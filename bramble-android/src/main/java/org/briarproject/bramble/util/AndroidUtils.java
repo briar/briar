@@ -31,6 +31,7 @@ public class AndroidUtils {
 	private static final String FAKE_BLUETOOTH_ADDRESS = "02:00:00:00:00:00";
 
 	private static final String STORED_REPORTS = "dev-reports";
+	private static final String STORED_LOGCAT = "dev-logcat";
 
 	public static Collection<String> getSupportedArchitectures() {
 		List<String> abis = new ArrayList<>();
@@ -105,6 +106,10 @@ public class AndroidUtils {
 
 	public static File getReportDir(Context ctx) {
 		return ctx.getDir(STORED_REPORTS, MODE_PRIVATE);
+	}
+
+	public static File getLogcatFile(Context ctx) {
+		return new File(ctx.getFilesDir(), STORED_LOGCAT);
 	}
 
 	/**

@@ -11,6 +11,9 @@ import org.briarproject.bramble.api.plugin.TorConstants;
 import org.briarproject.bramble.api.reporting.DevReporter;
 import org.briarproject.bramble.util.AndroidUtils;
 import org.briarproject.briar.R;
+import org.briarproject.briar.android.logging.BriefLogFormatter;
+import org.briarproject.briar.android.logging.CachingLogHandler;
+import org.briarproject.briar.android.logging.LogDecrypter;
 import org.briarproject.briar.android.reporting.ReportData.MultiReportInfo;
 import org.briarproject.briar.android.viewmodel.LiveEvent;
 import org.briarproject.briar.android.viewmodel.MutableLiveEvent;
@@ -19,6 +22,7 @@ import org.json.JSONException;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.UUID;
+import java.util.logging.Formatter;
 import java.util.logging.Logger;
 
 import javax.inject.Inject;
@@ -36,13 +40,16 @@ import static java.util.logging.Logger.getLogger;
 import static org.briarproject.bramble.api.plugin.Plugin.State.ACTIVE;
 import static org.briarproject.bramble.util.LogUtils.logException;
 import static org.briarproject.bramble.util.StringUtils.isNullOrEmpty;
+import static org.briarproject.briar.android.logging.BriefLogFormatter.formatLog;
 
 @NotNullByDefault
-public class ReportViewModel extends AndroidViewModel {
+class ReportViewModel extends AndroidViewModel {
 
 	private static final Logger LOG =
 			getLogger(ReportViewModel.class.getName());
 
+	private final CachingLogHandler logHandler;
+	private final LogDecrypter logDecrypter;
 	private final BriarReportCollector collector;
 	private final DevReporter reporter;
 	private final PluginManager pluginManager;
@@ -58,18 +65,39 @@ public class ReportViewModel extends AndroidViewModel {
 	private boolean isFeedback;
 
 	@Inject
-	public ReportViewModel(@NonNull Application application,
-			DevReporter reporter, PluginManager pluginManager) {
+	ReportViewModel(@NonNull Application application,
+			CachingLogHandler logHandler,
+			LogDecrypter logDecrypter,
+			DevReporter reporter,
+			PluginManager pluginManager) {
 		super(application);
-		this.collector = new BriarReportCollector(application);
+		collector = new BriarReportCollector(application);
+		this.logHandler = logHandler;
+		this.logDecrypter = logDecrypter;
 		this.reporter = reporter;
 		this.pluginManager = pluginManager;
 	}
 
-	void init(@Nullable Throwable t, long appStartTime) {
+	void init(@Nullable Throwable t, long appStartTime,
+			@Nullable byte[] logKey) {
 		isFeedback = t == null;
 		if (reportData.getValue() == null) new SingleShotAndroidExecutor(() -> {
-			ReportData data = collector.collectReportData(t, appStartTime);
+			String decryptedLogs;
+			if (isFeedback) {
+				Formatter formatter = new BriefLogFormatter();
+				decryptedLogs =
+						formatLog(formatter, logHandler.getRecentLogRecords());
+			} else {
+				decryptedLogs = logDecrypter.decryptLogs(logKey);
+				if (decryptedLogs == null) {
+					// error decrypting logs, get logs from this process
+					Formatter formatter = new BriefLogFormatter();
+					decryptedLogs = formatLog(formatter,
+							logHandler.getRecentLogRecords());
+				}
+			}
+			ReportData data =
+					collector.collectReportData(t, appStartTime, decryptedLogs);
 			reportData.postValue(data);
 		}).start();
 	}
@@ -110,8 +138,8 @@ public class ReportViewModel extends AndroidViewModel {
 	}
 
 	/**
-	 * The content of the report
-	 * that will be loaded after {@link #init(Throwable, long)} was called.
+	 * The content of the report that will be loaded after
+	 * {@link #init(Throwable, long, byte[])} was called.
 	 */
 	LiveData<ReportData> getReportData() {
 		return reportData;
