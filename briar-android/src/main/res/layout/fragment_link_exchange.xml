@@ -112,7 +112,6 @@
 			android:textColor="@color/briar_primary"
 			android:textIsSelectable="true"
 			android:textSize="18sp"
-			android:typeface="monospace"
 			app:layout_constraintEnd_toEndOf="parent"
 			app:layout_constraintStart_toStartOf="parent"
 			app:layout_constraintTop_toBottomOf="@+id/yourLinkIcon"
