@@ -1,8 +1,10 @@
 dependencyVerification {
     verify = [
+        'junit:junit:4.13.1:junit-4.13.1.jar:c30719db974d6452793fe191b3638a5777005485bae145924044530ffa5f6122',
         'org.codehaus.mojo.signature:java16:1.1:java16-1.1.signature:53799223a2c98dba2d0add810bed76315460df285c69e4f397ae6098f87dd619',
         'org.codehaus.mojo:animal-sniffer-ant-tasks:1.16:animal-sniffer-ant-tasks-1.16.jar:890040976fbe2d584619a6a61b1fd2e925b3b5eb342a85eb2762c467c0d64e90',
         'org.codehaus.mojo:animal-sniffer:1.16:animal-sniffer-1.16.jar:72be8bcc226ba43b937c722a08a07852bfa1b11400089265d5df0ee7b38b1d52',
+        'org.hamcrest:hamcrest-core:1.3:hamcrest-core-1.3.jar:66fdef91e9739348df7a096aa384a5685f4e875584cce89386a7a47251c4d8e9',
         'org.ow2.asm:asm-all:5.2:asm-all-5.2.jar:7fbffbc1db3422e2101689fd88df8384b15817b52b9b2b267b9f6d2511dc198d',
     ]
 }
