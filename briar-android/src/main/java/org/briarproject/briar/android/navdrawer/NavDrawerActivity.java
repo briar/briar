@@ -68,6 +68,7 @@ import static android.view.View.VISIBLE;
 import static androidx.core.view.GravityCompat.START;
 import static androidx.drawerlayout.widget.DrawerLayout.LOCK_MODE_LOCKED_CLOSED;
 import static androidx.fragment.app.FragmentManager.POP_BACK_STACK_INCLUSIVE;
+import static androidx.lifecycle.Lifecycle.State.STARTED;
 import static java.util.Objects.requireNonNull;
 import static java.util.logging.Logger.getLogger;
 import static org.briarproject.bramble.api.lifecycle.LifecycleManager.LifecycleState.RUNNING;
@@ -297,6 +298,12 @@ public class NavDrawerActivity extends BriarActivity implements
 				finish();
 			} else if (fm.getBackStackEntryCount() == 0
 					&& fm.findFragmentByTag(ContactListFragment.TAG) == null) {
+				// don't start fragments in the wrong part of lifecycle (#1904)
+				if (!getLifecycle().getCurrentState().isAtLeast(STARTED)) {
+					LOG.warning("Tried to start contacts fragment in state " +
+							getLifecycle().getCurrentState().name());
+					return;
+				}
 				/*
 				 * This makes sure that the first fragment (ContactListFragment) the
 				 * user sees is the same as the last fragment the user sees before
