@@ -29,11 +29,11 @@ import org.briarproject.briar.android.fragment.BaseFragment;
 import javax.annotation.Nullable;
 import javax.inject.Inject;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.StringRes;
 import androidx.appcompat.app.AlertDialog.Builder;
 import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.ViewModelProvider;
-import androidx.lifecycle.ViewModelProviders;
 
 import static android.view.View.INVISIBLE;
 import static android.view.View.VISIBLE;
@@ -48,6 +48,7 @@ import static org.briarproject.briar.android.util.UiUtils.getDialogIcon;
 public class NicknameFragment extends BaseFragment {
 
 	private static final String TAG = NicknameFragment.class.getName();
+	private static final String SAVED_LINK = "savedLink";
 
 	@Inject
 	ViewModelProvider.Factory viewModelFactory;
@@ -67,6 +68,20 @@ public class NicknameFragment extends BaseFragment {
 	@Override
 	public void injectFragment(ActivityComponent component) {
 		component.inject(this);
+		viewModel = new ViewModelProvider(requireActivity(), viewModelFactory)
+				.get(AddContactViewModel.class);
+	}
+
+	@Override
+	public void onCreate(@Nullable Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		if (savedInstanceState != null) {
+			// When the activity (and the ViewModel) get destroyed,
+			// the link will not be available anymore and needs to be restored.
+			// TODO migrate to SavedStateViewModelFactory (once we can use it)
+			String savedLink = savedInstanceState.getString(SAVED_LINK);
+			if (savedLink != null) viewModel.setRemoteHandshakeLink(savedLink);
+		}
 	}
 
 	@Nullable
@@ -74,13 +89,8 @@ public class NicknameFragment extends BaseFragment {
 	public View onCreateView(LayoutInflater inflater,
 			@Nullable ViewGroup container,
 			@Nullable Bundle savedInstanceState) {
-		if (getActivity() == null || getContext() == null) return null;
-
 		View v = inflater.inflate(R.layout.fragment_nickname,
 				container, false);
-
-		viewModel = ViewModelProviders.of(getActivity(), viewModelFactory)
-				.get(AddContactViewModel.class);
 
 		contactNameLayout = v.findViewById(R.id.contactNameLayout);
 		contactNameInput = v.findViewById(R.id.contactNameInput);
@@ -91,6 +101,12 @@ public class NicknameFragment extends BaseFragment {
 		progressBar = v.findViewById(R.id.progressBar);
 
 		return v;
+	}
+
+	@Override
+	public void onSaveInstanceState(@NonNull Bundle outState) {
+		super.onSaveInstanceState(outState);
+		outState.putString(SAVED_LINK, viewModel.getRemoteHandshakeLink());
 	}
 
 	@Nullable
