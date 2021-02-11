@@ -6,6 +6,7 @@ import android.app.KeyguardManager;
 import android.content.Context;
 import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
+import android.content.res.Resources;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.PowerManager;
@@ -75,6 +76,7 @@ import static android.text.format.DateUtils.FORMAT_ABBREV_TIME;
 import static android.text.format.DateUtils.FORMAT_SHOW_DATE;
 import static android.text.format.DateUtils.FORMAT_SHOW_TIME;
 import static android.text.format.DateUtils.FORMAT_SHOW_YEAR;
+import static android.text.format.DateUtils.HOUR_IN_MILLIS;
 import static android.text.format.DateUtils.MINUTE_IN_MILLIS;
 import static android.text.format.DateUtils.WEEK_IN_MILLIS;
 import static android.text.format.DateUtils.YEAR_IN_MILLIS;
@@ -164,6 +166,28 @@ public class UiUtils {
 		long diff = System.currentTimeMillis() - time;
 		if (diff >= YEAR_IN_MILLIS) flags |= FORMAT_SHOW_YEAR;
 		return DateUtils.formatDateTime(ctx, time, flags);
+	}
+
+	/**
+	 * Returns the given duration in a human-friendly format. For example,
+	 * "7 days" or "1 hour". Returns only the largest meaningful unit of time,
+	 * from days up to hours.
+	 */
+	public static String formatDuration(Context ctx, long millis) {
+		Resources r = ctx.getResources();
+		if (millis >= DAY_IN_MILLIS) {
+			int days = (int) (millis / DAY_IN_MILLIS);
+			int rest = (int) (millis % DAY_IN_MILLIS);
+			String dayStr =
+					r.getQuantityString(R.plurals.duration_days, days, days);
+			if (rest < HOUR_IN_MILLIS / 2) return dayStr;
+			else return dayStr + " " + formatDuration(ctx, rest);
+		} else {
+			int hours = (int) ((millis + HOUR_IN_MILLIS / 2) / HOUR_IN_MILLIS);
+			// anything less than one hour is shown as one hour
+			if (hours < 1) hours = 1;
+			return r.getQuantityString(R.plurals.duration_hours, hours, hours);
+		}
 	}
 
 	public static long getDaysUntilExpiry() {
