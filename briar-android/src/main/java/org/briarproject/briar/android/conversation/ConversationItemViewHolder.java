@@ -18,6 +18,7 @@ import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
 import static org.briarproject.bramble.util.StringUtils.trim;
 import static org.briarproject.briar.android.util.UiUtils.formatDate;
+import static org.briarproject.briar.android.util.UiUtils.formatDuration;
 import static org.briarproject.briar.api.autodelete.AutoDeleteConstants.NO_AUTO_DELETE_TIMER;
 
 @UiThread
@@ -82,19 +83,23 @@ abstract class ConversationItemViewHolder extends ViewHolder {
 			Context ctx = itemView.getContext();
 			topNotice.setVisibility(VISIBLE);
 			boolean enabled = item.getAutoDeleteTimer() != NO_AUTO_DELETE_TIMER;
+			String duration = enabled ?
+					formatDuration(ctx, item.getAutoDeleteTimer()) : "";
 			String tapToLearnMore = ctx.getString(R.string.tap_to_learn_more);
 			String text;
 			if (item.isIncoming()) {
 				String name = item.getContactName().getValue();
-				int strRes = enabled ?
-						R.string.auto_delete_msg_contact_enabled :
-						R.string.auto_delete_msg_contact_disabled;
-				text = ctx.getString(strRes, name, tapToLearnMore);
+				text = enabled ?
+						ctx.getString(R.string.auto_delete_msg_contact_enabled,
+								name, duration, tapToLearnMore) :
+						ctx.getString(R.string.auto_delete_msg_contact_disabled,
+								name, tapToLearnMore);
 			} else {
-				int strRes = enabled ?
-						R.string.auto_delete_msg_you_enabled :
-						R.string.auto_delete_msg_you_disabled;
-				text = ctx.getString(strRes, tapToLearnMore);
+				text = enabled ?
+						ctx.getString(R.string.auto_delete_msg_you_enabled,
+								duration, tapToLearnMore) :
+						ctx.getString(R.string.auto_delete_msg_you_disabled,
+								tapToLearnMore);
 			}
 			topNotice.setText(text);
 			topNotice.setOnClickListener(
