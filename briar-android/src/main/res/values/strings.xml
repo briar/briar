@@ -168,12 +168,20 @@
 	<string name="set_contact_alias">Change contact name</string>
 	<string name="set_contact_alias_hint">Contact name</string>
 	<string name="menu_item_disappearing_messages">Disappearing messages</string>
-	<!-- The placeholder at the end will add "Tap to learn more." -->
-	<string name="auto_delete_msg_you_enabled">Your messages will disappear after 7 days. %1$s</string>
+	<!-- The first placeholder will show a duration like "7 days". The second placeholder at the end will add "Tap to learn more." -->
+	<string name="auto_delete_msg_you_enabled">Your messages will disappear after %1$s. %2$s</string>
 	<!-- The placeholder at the end will add "Tap to learn more." -->
 	<string name="auto_delete_msg_you_disabled">Your messages will not disappear. %1$s</string>
-	<!-- The second placeholder at the end will add "Tap to learn more." -->
-	<string name="auto_delete_msg_contact_enabled">%1$s\'s messages will disappear after 7 days. %2$s</string>
+	<!-- The second placeholder will show a duration like "7 days". The third placeholder at the end will add "Tap to learn more." -->
+	<string name="auto_delete_msg_contact_enabled">%1$s\'s messages will disappear after %2$s. %3$s</string>
+	<plurals name="duration_hours">
+		<item quantity="one">%d hour</item>
+		<item quantity="other">%d hours</item>
+	</plurals>
+	<plurals name="duration_days">
+		<item quantity="one">%d day</item>
+		<item quantity="other">%d days</item>
+	</plurals>
 	<!-- The second placeholder at the end will add "Tap to learn more." -->
 	<string name="auto_delete_msg_contact_disabled">%1$s\'s messages will not disappear. %2$s</string>
 	<string name="tap_to_learn_more">Tap to learn more.</string>
