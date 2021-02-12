@@ -13,6 +13,7 @@ import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.os.Binder;
 import android.os.IBinder;
+import android.util.Log;
 
 import org.briarproject.bramble.api.account.AccountManager;
 import org.briarproject.bramble.api.crypto.SecretKey;
@@ -160,7 +161,9 @@ public class BriarService extends Service {
 
 	@Override
 	protected void attachBaseContext(Context base) {
+		Log.d("language", "BriarService#attachBaseContext()");
 		super.attachBaseContext(Localizer.getInstance().setLocale(base));
+		Localizer.getInstance().setLocale(this);
 	}
 
 	private void showStartupFailureNotification(StartResult result) {

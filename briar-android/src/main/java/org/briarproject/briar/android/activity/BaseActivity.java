@@ -2,6 +2,7 @@ package org.briarproject.briar.android.activity;
 
 import android.content.Context;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewGroup.LayoutParams;
@@ -36,6 +37,7 @@ import javax.inject.Inject;
 import androidx.annotation.LayoutRes;
 import androidx.annotation.UiThread;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.view.ContextThemeWrapper;
 import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
@@ -106,12 +108,24 @@ public abstract class BaseActivity extends AppCompatActivity
 		for (ActivityLifecycleController alc : lifecycleControllers) {
 			alc.onActivityCreate(this);
 		}
+
+		Log.d("language", "BaseActivity#onCreate()");
+		Context baseContext = getBaseContext();
+		Log.d("language", "Context: " + getBaseContext().toString());
+		if (baseContext instanceof ContextThemeWrapper) {
+			ContextThemeWrapper wrapper = (ContextThemeWrapper) baseContext;
+			Context wrapped = wrapper.getBaseContext();
+			Log.d("language", "Wrapped: " + wrapped.toString());
+		}
 	}
 
 	@Override
 	protected void attachBaseContext(Context base) {
+		Log.d("language", "BaseActivity#attachBaseContext()");
+		Log.d("language", "Context: " + base.toString());
 		super.attachBaseContext(
 				Localizer.getInstance().setLocale(base));
+		Localizer.getInstance().setLocale(this);
 	}
 
 	public ActivityComponent getActivityComponent() {

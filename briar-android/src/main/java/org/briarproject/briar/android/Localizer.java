@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.content.res.Resources;
+import android.util.Log;
 
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 
@@ -26,22 +27,29 @@ public class Localizer {
 	private Localizer(SharedPreferences sharedPreferences) {
 		this(Locale.getDefault(), getLocaleFromTag(
 				sharedPreferences.getString(LANGUAGE, "default")));
+		Log.d("language", "preference: " +
+				sharedPreferences.getString(LANGUAGE, "default"));
 	}
 
 	private Localizer(Locale systemLocale, @Nullable Locale userLocale) {
 		this.systemLocale = systemLocale;
 		if (userLocale == null) locale = systemLocale;
 		else locale = userLocale;
+		Log.d("language", "Localizer() system locale: " + systemLocale);
+		Log.d("language", "Localizer() current locale: " + locale);
 	}
 
 	// Instantiate the Localizer.
 	public static synchronized void initialize(SharedPreferences prefs) {
+		Log.d("language", "Localizer#initialize()");
+		Log.d("language", "sdk: " + SDK_INT);
 		if (INSTANCE == null)
 			INSTANCE = new Localizer(prefs);
 	}
 
 	// Reinstantiate the Localizer with the system locale
 	public static synchronized void reinitialize() {
+		Log.d("language", "Localizer#reinitialize()");
 		if (INSTANCE != null)
 			INSTANCE = new Localizer(INSTANCE.systemLocale, null);
 	}
@@ -72,17 +80,20 @@ public class Localizer {
 	public Context setLocale(Context context) {
 		Resources res = context.getResources();
 		Configuration conf = res.getConfiguration();
+
 		Locale currentLocale;
 		if (SDK_INT >= 24) {
 			currentLocale = conf.getLocales().get(0);
 		} else
 			currentLocale = conf.locale;
+		Log.d("language", "current locale: " + currentLocale);
 		if (locale.equals(currentLocale))
 			return context;
+		Log.d("language", "set locale: " + locale);
 		Locale.setDefault(locale);
 		if (SDK_INT >= 17) {
 			conf.setLocale(locale);
-			context.createConfigurationContext(conf);
+			context = context.createConfigurationContext(conf);
 		} else
 			conf.locale = locale;
 		//noinspection deprecation

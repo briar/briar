@@ -10,6 +10,7 @@ import android.os.StrictMode;
 import android.os.StrictMode.ThreadPolicy;
 import android.os.StrictMode.VmPolicy;
 import android.preference.PreferenceManager;
+import android.util.Log;
 
 import com.vanniktech.emoji.EmojiManager;
 import com.vanniktech.emoji.google.GoogleEmojiProvider;
@@ -96,6 +97,7 @@ public class BriarApplicationImpl extends Application
 		Localizer.initialize(prefs);
 		super.attachBaseContext(
 				Localizer.getInstance().setLocale(base));
+		Localizer.getInstance().setLocale(this);
 		setTheme(base, prefs);
 		ACRA.init(this);
 	}
@@ -145,6 +147,7 @@ public class BriarApplicationImpl extends Application
 	@Override
 	public void onConfigurationChanged(Configuration newConfig) {
 		super.onConfigurationChanged(newConfig);
+		Log.d("language", "BriarApplicationImpl#onConfigurationChanged()");
 		Localizer.getInstance().setLocale(this);
 	}
 
