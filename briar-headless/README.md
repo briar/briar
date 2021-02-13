@@ -118,6 +118,14 @@ Until it is completed, a pending contact is returned as JSON:
 
 Possible errors when adding a pending contact are:
 
+#### 400: Pending contact's link is invalid
+
+```json
+{
+    "error": "INVALID_LINK"
+}
+```
+
 #### 400: Pending contact's handshake public key is invalid
 
 ```json
@@ -147,7 +155,8 @@ when this happens:
 
 ```json
 {
-    "error": "CONTACT_EXISTS"
+    "error": "CONTACT_EXISTS",
+    "remoteAuthorName": "Bob"
 }
 ```
 
@@ -165,7 +174,8 @@ possible attack.
 
 ```json
 {
-    "error": "PENDING_EXISTS"
+    "error": "PENDING_EXISTS",
+    "pendingContactAlias": "Alice"
 }
 ```
 -----------

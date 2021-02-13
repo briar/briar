@@ -183,8 +183,15 @@ internal class ContactControllerTest : ControllerTest() {
                 link,
                 alias
             )
-        } throws ContactExistsException(null, null)
-        every { ctx.json(mapOf("error" to "CONTACT_EXISTS")) } returns ctx
+        } throws ContactExistsException(null, author)
+        every {
+            ctx.json(
+                mapOf(
+                    "error" to "CONTACT_EXISTS",
+                    "remoteAuthorName" to author.name
+                )
+            )
+        } returns ctx
         controller.addPendingContact(ctx)
         verify { ctx.status(403) }
     }
@@ -204,8 +211,15 @@ internal class ContactControllerTest : ControllerTest() {
                 link,
                 alias
             )
-        } throws PendingContactExistsException(null)
-        every { ctx.json(mapOf("error" to "PENDING_EXISTS")) } returns ctx
+        } throws PendingContactExistsException(pendingContact)
+        every {
+            ctx.json(
+                mapOf(
+                    "error" to "PENDING_EXISTS",
+                    "pendingContactAlias" to pendingContact.alias
+                )
+            )
+        } returns ctx
         controller.addPendingContact(ctx)
         verify { ctx.status(403) }
     }

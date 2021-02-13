@@ -135,6 +135,7 @@ class ContactControllerIntegrationTest: IntegrationTest() {
         response = post("$url/contacts/add/pending", json)
         assertEquals(403, response.statusCode)
         assertEquals("PENDING_EXISTS", response.jsonObject.getString("error"))
+        assertEquals(alias, response.jsonObject.getString("pendingContactAlias"))
     }
 
     @Test
