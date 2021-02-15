@@ -170,6 +170,7 @@ public class BriarService extends Service {
 	@Override
 	protected void attachBaseContext(Context base) {
 		super.attachBaseContext(Localizer.getInstance().setLocale(base));
+		Localizer.getInstance().setLocale(this);
 	}
 
 	private void showStartupFailureNotification(StartResult result) {

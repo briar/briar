@@ -109,6 +109,7 @@ public abstract class BaseActivity extends AppCompatActivity
 	protected void attachBaseContext(Context base) {
 		super.attachBaseContext(
 				Localizer.getInstance().setLocale(base));
+		Localizer.getInstance().setLocale(this);
 	}
 
 	public ActivityComponent getActivityComponent() {

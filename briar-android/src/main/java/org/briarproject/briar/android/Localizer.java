@@ -82,7 +82,7 @@ public class Localizer {
 		Locale.setDefault(locale);
 		if (SDK_INT >= 17) {
 			conf.setLocale(locale);
-			context.createConfigurationContext(conf);
+			context = context.createConfigurationContext(conf);
 		} else
 			conf.locale = locale;
 		//noinspection deprecation

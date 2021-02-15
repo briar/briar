@@ -58,6 +58,7 @@ public class BriarApplicationImpl extends Application
 		Localizer.initialize(prefs);
 		super.attachBaseContext(
 				Localizer.getInstance().setLocale(base));
+		Localizer.getInstance().setLocale(this);
 		setTheme(base, prefs);
 	}
 
