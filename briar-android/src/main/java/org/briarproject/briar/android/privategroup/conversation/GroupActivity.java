@@ -79,9 +79,10 @@ public class GroupActivity extends
 
 		// start with group disabled and enable when not dissolved
 		setGroupEnabled(false);
-		viewModel.isDissolved().observeEvent(this, dissolved -> {
+		viewModel.isDissolved().observe(this, dissolved -> {
 			setGroupEnabled(!dissolved);
-			if (dissolved) onGroupDissolved();
+			// only show dialog when no prior state
+			if (dissolved && state == null) onGroupDissolved();
 		});
 	}
 
@@ -153,7 +154,7 @@ public class GroupActivity extends
 
 	@Override
 	public void onReplyClick(GroupMessageItem item) {
-		Boolean isDissolved = viewModel.isDissolved().getLastValue();
+		Boolean isDissolved = viewModel.isDissolved().getValue();
 		if (isDissolved != null && !isDissolved) super.onReplyClick(item);
 	}
 
