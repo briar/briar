@@ -117,22 +117,9 @@
 
 		<activity
 			android:name="org.briarproject.briar.android.navdrawer.NavDrawerActivity"
+			android:exported="false"
 			android:launchMode="singleTask"
-			android:theme="@style/BriarTheme.NoActionBar">
-			<intent-filter android:label="@string/add_contact_remotely_title_case">
-				<action android:name="android.intent.action.VIEW" />
-
-				<category android:name="android.intent.category.DEFAULT" />
-				<category android:name="android.intent.category.BROWSABLE" />
-
-				<data android:scheme="briar" />
-			</intent-filter>
-			<intent-filter android:label="@string/add_contact_remotely_title_case">
-				<action android:name="android.intent.action.SEND" />
-				<category android:name="android.intent.category.DEFAULT" />
-				<data android:mimeType="text/plain" />
-			</intent-filter>
-		</activity>
+			android:theme="@style/BriarTheme.NoActionBar" />
 
 		<activity
 			android:name="org.briarproject.briar.android.conversation.ConversationActivity"
@@ -440,8 +427,27 @@
 		<activity
 			android:name=".android.contact.add.remote.AddContactActivity"
 			android:label="@string/add_contact_remotely_title_case"
+			android:parentActivityName="org.briarproject.briar.android.navdrawer.NavDrawerActivity"
 			android:theme="@style/BriarTheme"
-			android:windowSoftInputMode="adjustResize|stateHidden" />
+			android:windowSoftInputMode="adjustResize|stateHidden">
+			<meta-data
+				android:name="android.support.PARENT_ACTIVITY"
+				android:value="org.briarproject.briar.android.navdrawer.NavDrawerActivity" />
+
+			<intent-filter android:label="@string/add_contact_remotely_title_case">
+				<action android:name="android.intent.action.VIEW" />
+
+				<category android:name="android.intent.category.DEFAULT" />
+				<category android:name="android.intent.category.BROWSABLE" />
+
+				<data android:scheme="briar" />
+			</intent-filter>
+			<intent-filter android:label="@string/add_contact_remotely_title_case">
+				<action android:name="android.intent.action.SEND" />
+				<category android:name="android.intent.category.DEFAULT" />
+				<data android:mimeType="text/plain" />
+			</intent-filter>
+		</activity>
 
 		<activity
 			android:name=".android.contact.add.remote.PendingContactListActivity"

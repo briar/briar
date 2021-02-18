@@ -11,6 +11,7 @@ import org.briarproject.briar.R;
 import org.briarproject.briar.android.activity.ActivityComponent;
 import org.briarproject.briar.android.activity.BriarActivity;
 import org.briarproject.briar.android.fragment.BaseFragment.BaseFragmentListener;
+import org.briarproject.briar.android.navdrawer.NavDrawerActivity;
 
 import javax.annotation.Nullable;
 import javax.inject.Inject;
@@ -100,6 +101,13 @@ public class AddContactActivity extends BriarActivity implements
 			return true;
 		}
 		return super.onOptionsItemSelected(item);
+	}
+
+	@Override
+	public void onBackPressed() {
+		Intent i = new Intent(this, NavDrawerActivity.class);
+		startActivity(i);
+		finish();
 	}
 
 }

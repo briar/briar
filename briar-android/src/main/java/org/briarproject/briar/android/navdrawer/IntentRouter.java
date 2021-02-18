@@ -14,6 +14,7 @@ import static org.briarproject.bramble.api.contact.HandshakeLinkConstants.LINK_R
 
 class IntentRouter {
 
+	// TODO
 	static void handleExternalIntent(Context ctx, Intent i) {
 		String action = i.getAction();
 		// add remote contact with clicked briar:// link
