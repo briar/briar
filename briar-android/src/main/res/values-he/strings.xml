@@ -449,6 +449,10 @@
   <string name="blogs_rss_feeds_manage_empty_state">אין הזנות RSS להראות\n\nהקש על הצלמית + כדי לייבא הזנה</string>
   <string name="blogs_rss_feeds_manage_error">הייתה בעיה בטעינת ההזנות שלך. אנא נסה שוב מאוחר יותר.</string>
   <!--Settings Profile Picture-->
+  <string name="change_profile_picture">הקש כדי לשנות את תמונת הפרופיל שלך</string>
+  <string name="dialog_confirm_profile_picture_title">שנה תמונת פרופיל</string>
+  <string name="dialog_confirm_profile_picture_remark">רק אנשי הקשר שלך יכולים לראות את תמונת הפרופיל שלך</string>
+  <string name="change_profile_picture_failed_message">אנו מצטערים משהו השתבש בעת עדכון תמונת הפרופיל שלך</string>
   <!--Settings Display-->
   <string name="pref_language_title">שפה ואזור</string>
   <string name="pref_language_changed">הגדרה זו תיכנס לתוקף כשתפעיל מחדש את Briar. אנא התנתק והפעל מחדש את Briar.</string>
@@ -558,6 +562,7 @@
   <string name="include_debug_report_feedback">כלול נתונים אלמוניים לגבי מכשיר זה</string>
   <string name="dev_report_basic_info">מידע בסיסי</string>
   <string name="dev_report_device_info">מידע מכשיר</string>
+  <string name="dev_report_stacktrace">מחסנית עקיבה (Stacktrace)</string>
   <string name="dev_report_time_info">מידע זמן</string>
   <string name="dev_report_memory">זיכרון</string>
   <string name="dev_report_storage">אחסון</string>

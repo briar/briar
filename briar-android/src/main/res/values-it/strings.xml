@@ -425,6 +425,10 @@
   <string name="blogs_rss_feeds_manage_empty_state">Nessun feed RSS da mostrare\n\nClicca l\'icona + per importare un feed</string>
   <string name="blogs_rss_feeds_manage_error">C\'è stato un problema nel caricare i tuoi feeds. Per favore riprova fra poco.</string>
   <!--Settings Profile Picture-->
+  <string name="change_profile_picture">Tocca per cambiare l\'immagine del profilo</string>
+  <string name="dialog_confirm_profile_picture_title">Cambia immagine profilo</string>
+  <string name="dialog_confirm_profile_picture_remark">Solo i tuoi contatti possono vedere l\'immagine del profilo</string>
+  <string name="change_profile_picture_failed_message">Spiacenti, qualcosa è andato storto aggiornando la tua foto del profilo.</string>
   <!--Settings Display-->
   <string name="pref_language_title">Lingua &amp; regione</string>
   <string name="pref_language_changed">Questa impostazione avrà effetto quando riavvierai Briar. Per favore, esci e riavvia Briar.</string>

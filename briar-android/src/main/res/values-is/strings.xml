@@ -425,6 +425,10 @@
   <string name="blogs_rss_feeds_manage_empty_state">Engin RSS-streymi til að birta\n\nÝttu á + táknið til að flytja inn streymi</string>
   <string name="blogs_rss_feeds_manage_error">Vandamál hefur komið upp með að hlaða inn streymunum þínum. Reyndu aftur síðar.</string>
   <!--Settings Profile Picture-->
+  <string name="change_profile_picture">Ýttu til að skipta um auðkennismyndina þína</string>
+  <string name="dialog_confirm_profile_picture_title">Skipta um auðkennismynd</string>
+  <string name="dialog_confirm_profile_picture_remark">Einungis tengiliðirnir þínir geta séð auðkennismyndina þína</string>
+  <string name="change_profile_picture_failed_message">Því miður, eitthvað fór úrskeiðis við að uppfæra auðkennismyndina þína.</string>
   <!--Settings Display-->
   <string name="pref_language_title">Tungumál og landsvæði</string>
   <string name="pref_language_changed">Þessi stilling tekur gildi í næst þegar þú skráir þig inn í Briar. Skráðu þig út og endurræstu Briar.</string>

@@ -425,6 +425,10 @@
   <string name="blogs_rss_feeds_manage_empty_state">Geen RSS-feeds om te tonen\n\nTik op het +-icoon om een feed te importeren</string>
   <string name="blogs_rss_feeds_manage_error">Er was een probleem met het laden van je feeds. Probeer het alsjeblieft later nog een keer.</string>
   <!--Settings Profile Picture-->
+  <string name="change_profile_picture">Tik om je profielfoto te wijzigen</string>
+  <string name="dialog_confirm_profile_picture_title">Wijzig profielfoto</string>
+  <string name="dialog_confirm_profile_picture_remark">Alleen je contacten kunnen je profielfoto zien</string>
+  <string name="change_profile_picture_failed_message">Excuses, maar er is iets misgegaan met het updaten van je profielfoto</string>
   <!--Settings Display-->
   <string name="pref_language_title">Taal &amp; regio</string>
   <string name="pref_language_changed">Deze instelling zal werken wanneer u Briar opnieuw opstart. Gelieve uit te loggen en Briar opnieuw te starten.</string>
@@ -564,7 +568,7 @@
   <string name="permission_camera_location_title">Camera en locatie</string>
   <string name="permission_camera_location_request_body">Om de QR-code in te scannen heeft Briar toegang nodig tot de camera.\n\nOm bluetoothapparaten te ontdekken heeft Briar toestemming nodig tot je locatie.\n\nBriar slaat je locatie niet op en deelt het met niemand.</string>
   <string name="permission_camera_denied_body">Je hebt toegang tot de camera niet vrijgegeven, terwijl het toevoegen van contacten de camera nodig heeft.\n\nOverweeg alsjeblieft toegang vrij te geven.</string>
-  <string name="permission_location_denied_body">Je hebt geen toegang tot je locatie gegeven, maar Briar heeft deze rechten nodig om apparaten via bleutooth te vinden.\n\nOverweeg a.u.b. deze rechten te geven.</string>
+  <string name="permission_location_denied_body">Je hebt geen toegang tot je locatie gegeven, maar Briar heeft deze rechten nodig om apparaten via bluetooth te vinden.\n\nOverweeg a.u.b. deze rechten te geven.</string>
   <string name="qr_code">QR-code</string>
   <string name="show_qr_code_fullscreen">Toon QR-code op volledig scherm</string>
   <!--App Locking-->

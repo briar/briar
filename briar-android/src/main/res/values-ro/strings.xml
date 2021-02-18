@@ -435,6 +435,10 @@
   <string name="blogs_rss_feeds_manage_empty_state">Nici un flux RSS de arătat\n\nAtingeți iconița + pentru a adăuga un flux</string>
   <string name="blogs_rss_feeds_manage_error">A apărut o eroare la încărcarea fluxurilor dumneavoastră. Vă rugăm să încercați din nou mai târziu.</string>
   <!--Settings Profile Picture-->
+  <string name="change_profile_picture">Atingeți pentru a vă schimba poza de profil</string>
+  <string name="dialog_confirm_profile_picture_title">Schimbare poză de profil</string>
+  <string name="dialog_confirm_profile_picture_remark">Doar contactele vor vedea poza de contact</string>
+  <string name="change_profile_picture_failed_message">Ne pare rău, dar ceva nu a funcționat cum trebuie la actualizarea pozei de profil</string>
   <!--Settings Display-->
   <string name="pref_language_title">Limbă &amp; Regiune</string>
   <string name="pref_language_changed">Această setare va avea efect după repornirea Briar. Vă rugăm să ieșiți din Briar și să reporniți aplicația.</string>

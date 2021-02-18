@@ -67,8 +67,11 @@
   <string name="lock_button">قفل کردن برنامه</string>
   <string name="settings_button">تنظیمات</string>
   <string name="sign_out_button">خروج</string>
+  <string name="transports_onboarding_text">برای کنترل چگونگی اتصال Briar (برایر) به مخاطبین خود، اینجا را لمس کنید.</string>
   <!--Transports: Tor-->
   <string name="transport_tor">اینترنت</string>
+  <string name="tor_device_status_online_wifi">تلفن شما از طریق Wi-Fi به اینترنت دسترسی دارد.</string>
+  <string name="tor_device_status_online_mobile">تلفن شما از طریق دیتا سیمکارت به اینترنت دسترسی دارد.</string>
   <string name="tor_device_status_offline">تلفن شما دارای دسترسی اینترنتی نیست</string>
   <string name="tor_plugin_status_enabling">Briar در حال اتصال به اینترنت می باشد</string>
   <string name="tor_plugin_status_active">Briar به اینترنت متصل شد</string>
@@ -462,6 +465,10 @@
 برای وارد کردن خوراک روی آیکون + ضربه بزنید</string>
   <string name="blogs_rss_feeds_manage_error">مشکلی با بارگذاری فیدهای شما وجود داشت. لطفا بعدا امتحان کنید.</string>
   <!--Settings Profile Picture-->
+  <string name="change_profile_picture">برای تغییر تصویر نمایه خود اینجا را لمس کنید.</string>
+  <string name="dialog_confirm_profile_picture_title">تغییر تصویر نمایه</string>
+  <string name="dialog_confirm_profile_picture_remark">تنها مخاطبین شما می‌توانند تصویر نمایه شما را مشاهده کنند.</string>
+  <string name="change_profile_picture_failed_message">تاسفیم اما هنگام بروزرسانی تصویر نمایه شما مشکلی رخ داد.</string>
   <!--Settings Display-->
   <string name="pref_language_title">زبان و منطقه</string>
   <string name="pref_language_changed">این تنظیمات زمانی که Briar (برایر) را ری استارت کنید تاثیر خود را می گذارند. لطفا خارج شوید و Briar (برایر) را دوباره راه اندازی کنید.</string>
@@ -571,17 +578,20 @@
   <string name="include_debug_report_feedback">قرار دادن داده های ناشناس درباره این دستگاه</string>
   <string name="dev_report_basic_info">اطلاعات پایه</string>
   <string name="dev_report_device_info">اطلاعات دستگاه</string>
+  <string name="dev_report_stacktrace">Stacktrace</string>
   <string name="dev_report_time_info">اطلاعات زمانی</string>
   <string name="dev_report_memory">حافظه</string>
   <string name="dev_report_storage">حافظه</string>
   <string name="dev_report_connectivity">اتصال</string>
   <string name="dev_report_build_config">پیکربندی ساخت</string>
+  <string name="dev_report_logcat">لاگ برنامه</string>
   <string name="dev_report_device_features">ویژگی‌های دستگاه</string>
   <string name="send_report">ارسال گزارش</string>
   <string name="close">بستن</string>
   <string name="dev_report_sending">در حال فرستادن نظر...</string>
   <string name="dev_report_sent">بازخورد ارسال شد</string>
   <string name="dev_report_saved">گزارش ذخیره شد. دفعه بعدی که وارد Briar (برایر) شدید فرستاده خواهد شد.</string>
+  <string name="dev_report_error">خطا در ارسال گزارش</string>
   <!--Sign Out-->
   <string name="progress_title_logout">خروج از Briar (برایر)...</string>
   <!--Screen Filters & Tapjacking-->
@@ -591,7 +601,9 @@
 این برنامه ها ممکن است روی Briar (برایر) قرار گرفته باشند:
 
 %1$s</string>
+  <string name="screen_filter_body_api_30">برنامه دیگری بر روی برنامه Briar (برایر) قرار دارد. برای محافظت از امنیت شما، Briar (برایر) هنگامی که برنامه دیگری روی آن باز است، به لمس پاسخ نخواهد داد. \n\nبرای یافتن برنامه مذکور، برنامه‌های زیر را بررسی کنید.</string>
   <string name="screen_filter_allow">به این برنامه ها اجازه بده تا روی Briar (برایر) قرار بگیرند</string>
+  <string name="screen_filter_review_apps">بررسی برنامه‌ها</string>
   <!--Permission Requests-->
   <string name="permission_camera_title">دسترسی به دوربین</string>
   <string name="permission_camera_request_body">برای اسکن کردن کد کیوآر دسترسی به دوربین لازم است.</string>
@@ -608,6 +620,7 @@ Briar (برایر) موقعیت شما را ذخیره نمی‌کند و آن �
   <string name="permission_camera_denied_body">شما دسترسی به دوربین را رد کرده اید، اما افزودن مخاطب نیاز به دوربین دارد.
 
 لطفا اجازه دسترسی را بدهید.</string>
+  <string name="permission_location_denied_body">شما دسترسی به موقعیت خود را نداده‌اید اما Briar (برایر) برای یافتن دستگاه‌های بلوتوث نیاز به این دسترسی دارد.\n\nلطفا این دسترسی را فراهم کنید.</string>
   <string name="qr_code">کد کیوآر</string>
   <string name="show_qr_code_fullscreen">نمایش کد کیوآر به صورت فول اسکرین</string>
   <!--App Locking-->
@@ -618,6 +631,7 @@ Briar (برایر) موقعیت شما را ذخیره نمی‌کند و آن �
   <string name="lock_is_locked">Briar (برایر) قفل می باشد</string>
   <string name="lock_tap_to_unlock">برای آنلاک کردن کلیک کنید</string>
   <!--Connections Screen-->
+  <string name="transports_help_text">Briar (برایر) می‌تواند از طریق اینترنت، Wi-Fi و یا بلوتوث به مخاطبین شما متصل گردد.\n\nارتباط با اینترنت از طریق شبکه‌ی تور صورت می‌پذیرد.\n\nاگر دسترسی به مخاطب شما از روش‌های مختلفی ممکن باشد، Briar (برایر) به صورت موازی از آن‌ها استفاده خواهد کرد.</string>
   <!--Screenshots-->
   <!--This is a name to be used in screenshots. Feel free to change it to a local name.-->
   <string name="screenshot_alice">آلیس</string>

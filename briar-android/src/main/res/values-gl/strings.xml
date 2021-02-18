@@ -425,6 +425,10 @@
   <string name="blogs_rss_feeds_manage_empty_state">Sen fontes RSS que mostrar\n\nToque na icona + para importar unha fonte</string>
   <string name="blogs_rss_feeds_manage_error">Aconteceu un problema ao cargar as súas fontes. Por favor, inténteo máis tarde.</string>
   <!--Settings Profile Picture-->
+  <string name="change_profile_picture">Toca para cambiar a túa imaxe de perfil</string>
+  <string name="dialog_confirm_profile_picture_title">Mudar imaxe de perfil</string>
+  <string name="dialog_confirm_profile_picture_remark">Só os teus contactos poden ver a túa imaxe de perfil</string>
+  <string name="change_profile_picture_failed_message">Lamentámolo, pero algo fallou cando intentamos actualizar a túa imaxe de pefil</string>
   <!--Settings Display-->
   <string name="pref_language_title">Idioma  &amp; rexión</string>
   <string name="pref_language_changed">Este axuste terá efecto cando reinicie Briar. Por favor desconecte e volte a iniciar Briar.</string>

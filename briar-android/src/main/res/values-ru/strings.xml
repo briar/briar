@@ -447,6 +447,10 @@
   <string name="blogs_rss_feeds_manage_empty_state">Нет RSS-лент для отображения\n\nКоснитесь значка + для импорта ленты</string>
   <string name="blogs_rss_feeds_manage_error">Ошибка при загрузке вашей ленты. Повторите попытку позже.</string>
   <!--Settings Profile Picture-->
+  <string name="change_profile_picture">Нажмите, чтобы изменить изображение вашего профиля </string>
+  <string name="dialog_confirm_profile_picture_title">Изменить изображение профиля</string>
+  <string name="dialog_confirm_profile_picture_remark">Только ваши контакты могут видеть изображение вашего профиля</string>
+  <string name="change_profile_picture_failed_message">Нам очень жаль, но что-то пошло не так во время обновления изображения вашего профиля.</string>
   <!--Settings Display-->
   <string name="pref_language_title">Язык и регион</string>
   <string name="pref_language_changed">Этот параметр вступит в силу после перезапуска Briar. Пожалуйста, выйдите и перезапустите Briar.</string>
