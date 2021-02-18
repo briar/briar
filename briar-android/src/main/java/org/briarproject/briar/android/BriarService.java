@@ -37,7 +37,7 @@ import javax.inject.Inject;
 import androidx.core.app.NotificationCompat;
 
 import static android.app.NotificationManager.IMPORTANCE_DEFAULT;
-import static android.app.NotificationManager.IMPORTANCE_NONE;
+import static android.app.NotificationManager.IMPORTANCE_LOW;
 import static android.app.PendingIntent.FLAG_UPDATE_CURRENT;
 import static android.content.Intent.ACTION_SHUTDOWN;
 import static android.content.Intent.FLAG_ACTIVITY_CLEAR_TASK;
@@ -56,6 +56,7 @@ import static org.briarproject.briar.android.BriarApplication.ENTRY_ACTIVITY;
 import static org.briarproject.briar.api.android.AndroidNotificationManager.FAILURE_CHANNEL_ID;
 import static org.briarproject.briar.api.android.AndroidNotificationManager.FAILURE_NOTIFICATION_ID;
 import static org.briarproject.briar.api.android.AndroidNotificationManager.ONGOING_CHANNEL_ID;
+import static org.briarproject.briar.api.android.AndroidNotificationManager.ONGOING_CHANNEL_OLD_ID;
 import static org.briarproject.briar.api.android.AndroidNotificationManager.ONGOING_NOTIFICATION_ID;
 import static org.briarproject.briar.api.android.LockManager.ACTION_LOCK;
 
@@ -120,11 +121,17 @@ public class BriarService extends Service {
 			if (SDK_INT >= 26) {
 				NotificationManager nm = (NotificationManager)
 						requireNonNull(getSystemService(NOTIFICATION_SERVICE));
+				// Delete the old notification channel, which had
+				// IMPORTANCE_NONE and showed a badge
+				nm.deleteNotificationChannel(ONGOING_CHANNEL_OLD_ID);
+				// Use IMPORTANCE_LOW so the system doesn't show its own
+				// notification on API 26-27
 				NotificationChannel ongoingChannel = new NotificationChannel(
 						ONGOING_CHANNEL_ID,
 						getString(R.string.ongoing_notification_title),
-						IMPORTANCE_NONE);
+						IMPORTANCE_LOW);
 				ongoingChannel.setLockscreenVisibility(VISIBILITY_SECRET);
+				ongoingChannel.setShowBadge(false);
 				nm.createNotificationChannel(ongoingChannel);
 				NotificationChannel failureChannel = new NotificationChannel(
 						FAILURE_CHANNEL_ID,

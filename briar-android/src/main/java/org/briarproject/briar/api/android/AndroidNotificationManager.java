@@ -39,7 +39,8 @@ public interface AndroidNotificationManager {
 	String BLOG_CHANNEL_ID = "blogs";
 	// Channels are sorted by channel ID in the Settings app, so use IDs
 	// that will sort below the main channels such as contacts
-	String ONGOING_CHANNEL_ID = "zForegroundService";
+	String ONGOING_CHANNEL_OLD_ID = "zForegroundService";
+	String ONGOING_CHANNEL_ID = "zForegroundService2";
 	String FAILURE_CHANNEL_ID = "zStartupFailure";
 	String REMINDER_CHANNEL_ID = "zSignInReminder";
 
