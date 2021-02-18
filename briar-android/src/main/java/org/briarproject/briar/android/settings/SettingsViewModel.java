@@ -56,6 +56,9 @@ class SettingsViewModel extends AndroidViewModel {
 	private final MutableLiveEvent<Boolean> setAvatarFailed =
 			new MutableLiveEvent<>();
 
+	private final MutableLiveEvent<Boolean> languageChanged =
+			new MutableLiveEvent<>();
+
 	@Inject
 	SettingsViewModel(Application application,
 			IdentityManager identityManager,
@@ -81,6 +84,10 @@ class SettingsViewModel extends AndroidViewModel {
 
 	public LiveEvent<Boolean> getSetAvatarFailed() {
 		return setAvatarFailed;
+	}
+
+	LiveEvent<Boolean> getLanguageChange() {
+		return languageChanged;
 	}
 
 	private void loadOwnIdentityInfo() {
@@ -129,6 +136,10 @@ class SettingsViewModel extends AndroidViewModel {
 				setAvatarFailed.postEvent(true);
 			}
 		});
+	}
+
+	void languageChanged() {
+		languageChanged.setEvent(true);
 	}
 
 }

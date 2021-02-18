@@ -46,11 +46,16 @@ public class SettingsActivity extends BriarActivity {
 
 		setContentView(R.layout.activity_settings);
 
-		if (featureFlags.shouldEnableProfilePictures()) {
-			ViewModelProvider provider =
-					new ViewModelProvider(this, viewModelFactory);
-			settingsViewModel = provider.get(SettingsViewModel.class);
+		ViewModelProvider provider =
+				new ViewModelProvider(this, viewModelFactory);
+		settingsViewModel = provider.get(SettingsViewModel.class);
 
+		settingsViewModel.getLanguageChange().observeEvent(this, b -> {
+			signOut(false, false);
+			finishAffinity();
+		});
+
+		if (featureFlags.shouldEnableProfilePictures()) {
 			TextView textViewUserName = findViewById(R.id.username);
 			CircleImageView imageViewAvatar =
 					findViewById(R.id.avatarImage);
@@ -116,11 +121,6 @@ public class SettingsActivity extends BriarActivity {
 				ConfirmAvatarDialogFragment.newInstance(uri);
 		dialog.show(getSupportFragmentManager(),
 				ConfirmAvatarDialogFragment.TAG);
-	}
-
-	void languageChanged() {
-		signOut(false, false);
-		finishAffinity();
 	}
 
 }

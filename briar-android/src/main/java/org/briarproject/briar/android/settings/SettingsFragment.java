@@ -45,6 +45,7 @@ import androidx.annotation.Nullable;
 import androidx.annotation.StringRes;
 import androidx.core.content.ContextCompat;
 import androidx.core.text.TextUtilsCompat;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.preference.ListPreference;
 import androidx.preference.Preference;
 import androidx.preference.Preference.OnPreferenceChangeListener;
@@ -163,12 +164,19 @@ public class SettingsFragment extends PreferenceFragmentCompat
 	LocationUtils locationUtils;
 	@Inject
 	CircumventionProvider circumventionProvider;
+	@Inject
+	ViewModelProvider.Factory viewModelFactory;
+
+	private SettingsViewModel viewModel;
 
 	@Override
 	public void onAttach(Context context) {
 		super.onAttach(context);
 		listener = (SettingsActivity) context;
 		listener.getActivityComponent().inject(this);
+
+		viewModel = new ViewModelProvider(requireActivity(), viewModelFactory)
+				.get(SettingsViewModel.class);
 	}
 
 	@Override
@@ -636,7 +644,7 @@ public class SettingsFragment extends PreferenceFragmentCompat
 		builder.setPositiveButton(R.string.sign_out_button,
 				(dialogInterface, i) -> {
 					language.setValue(newValue);
-					listener.languageChanged();
+					viewModel.languageChanged();
 				});
 		builder.setNegativeButton(R.string.cancel, null);
 		builder.setCancelable(false);
