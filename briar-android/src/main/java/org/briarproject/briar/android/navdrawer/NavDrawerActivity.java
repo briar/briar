@@ -101,8 +101,6 @@ public class NavDrawerActivity extends BriarActivity implements
 			Uri.parse("briar-content://org.briarproject.briar/blog");
 	public static Uri CONTACT_ADDED_URI =
 			Uri.parse("briar-content://org.briarproject.briar/contact/added");
-	public static Uri SIGN_OUT_URI =
-			Uri.parse("briar-content://org.briarproject.briar/sign-out");
 
 	private final List<Transport> transports = new ArrayList<>(3);
 	private final MutableLiveData<ImageView> torIcon = new MutableLiveData<>();
@@ -236,8 +234,6 @@ public class NavDrawerActivity extends BriarActivity implements
 			startFragment(ForumListFragment.newInstance(), R.id.nav_btn_forums);
 		} else if (BLOG_URI.equals(uri)) {
 			startFragment(FeedFragment.newInstance(), R.id.nav_btn_blogs);
-		} else if (SIGN_OUT_URI.equals(uri)) {
-			signOut(false, false);
 		}
 	}
 
