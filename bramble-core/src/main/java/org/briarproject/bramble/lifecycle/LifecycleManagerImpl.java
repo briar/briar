@@ -179,6 +179,13 @@ class LifecycleManagerImpl implements LifecycleManager, MigrationListener {
 			LOG.info("Stopping services");
 			state = STOPPING;
 			eventBus.broadcast(new LifecycleEvent(STOPPING));
+			LOG.info("Sleeping a bit to simulate slowness");
+			try {
+				Thread.sleep(5000);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+			LOG.info("Done simulating slowness");
 			for (Service s : services) {
 				long start = now();
 				s.stopService();

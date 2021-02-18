@@ -146,11 +146,6 @@ public class BriarControllerImpl implements BriarController {
 				// Shut down the service and wait for it to shut down
 				LOG.info("Shutting down service");
 				service.shutdown();
-				try {
-					Thread.sleep(5000);
-				} catch (InterruptedException e) {
-					e.printStackTrace();
-				}
 				service.waitForShutdown();
 			} catch (InterruptedException e) {
 				LOG.warning("Interrupted while waiting for service");
