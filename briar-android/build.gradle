@@ -22,8 +22,8 @@ android {
 	defaultConfig {
 		minSdkVersion 16
 		targetSdkVersion 29
-		versionCode 10215
-		versionName "1.2.15"
+		versionCode 10216
+		versionName "1.2.16"
 		applicationId "org.briarproject.briar.android"
 
 		vectorDrawables.useSupportLibrary = true
