@@ -197,6 +197,10 @@ public abstract class ThreadListViewModel<I extends ThreadItem>
 	 */
 	@UiThread
 	protected void addItem(I item, boolean scrollToItem) {
+		// If items haven't loaded, we need to wait until they have.
+		// Since this was a R/W DB transaction, the load will pick up this item.
+		if (items.getValue() == null) return;
+
 		messageTree.add(item);
 		if (scrollToItem) this.scrollToItem.set(item.getId());
 		items.setValue(new LiveResult<>(messageTree.depthFirstOrder()));
