@@ -117,8 +117,11 @@ constructor(
             return ctx.json(details)
         } catch (e: PendingContactExistsException) {
             ctx.status(FORBIDDEN_403)
-            val details =
-                mapOf("error" to "PENDING_EXISTS", "pendingContactAlias" to e.pendingContact.alias)
+            val details = mapOf(
+                "error" to "PENDING_EXISTS",
+                "pendingContactId" to e.pendingContact.id.bytes,
+                "pendingContactAlias" to e.pendingContact.alias
+            )
             return ctx.json(details)
         }
         return ctx.json(pendingContact.output())

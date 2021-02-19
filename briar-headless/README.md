@@ -175,6 +175,7 @@ possible attack.
 ```json
 {
     "error": "PENDING_EXISTS",
+    "pendingContactId": "jsTgWcsEQ2g9rnomeK1g/hmO8M1Ix6ZIGWAjgBtlS9U=",
     "pendingContactAlias": "Alice"
 }
 ```

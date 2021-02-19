@@ -216,6 +216,7 @@ internal class ContactControllerTest : ControllerTest() {
             ctx.json(
                 mapOf(
                     "error" to "PENDING_EXISTS",
+                    "pendingContactId" to pendingContact.id.bytes,
                     "pendingContactAlias" to pendingContact.alias
                 )
             )
