@@ -14,11 +14,17 @@ import org.briarproject.bramble.api.system.ResourceProvider;
 
 import java.io.File;
 import java.util.concurrent.Executor;
+import java.util.logging.Logger;
 
 import javax.net.SocketFactory;
 
+import static java.util.logging.Level.INFO;
+import static java.util.logging.Logger.getLogger;
+
 @NotNullByDefault
 class UnixTorPlugin extends JavaTorPlugin {
+
+	private static final Logger LOG = getLogger(UnixTorPlugin.class.getName());
 
 	UnixTorPlugin(Executor ioExecutor,
 			Executor wakefulIoExecutor,
@@ -41,6 +47,8 @@ class UnixTorPlugin extends JavaTorPlugin {
 				circumventionProvider, batteryManager, backoff,
 				torRendezvousCrypto, callback, architecture,
 				maxLatency, maxIdleTime, torDirectory);
+		boolean isGlibc = isGlibc();
+		if (LOG.isLoggable(INFO)) LOG.info("System uses glibc: " + isGlibc);
 	}
 
 	@Override
@@ -48,10 +56,27 @@ class UnixTorPlugin extends JavaTorPlugin {
 		return CLibrary.INSTANCE.getpid();
 	}
 
+	protected boolean isGlibc() {
+		try {
+			GnuCLibrary glibc = Native.loadLibrary("c", GnuCLibrary.class);
+			if (LOG.isLoggable(INFO)) {
+				LOG.info("glibc version " + glibc.gnu_get_libc_version());
+			}
+			return true;
+		} catch (UnsatisfiedLinkError e) {
+			return false;
+		}
+	}
+
 	private interface CLibrary extends Library {
 
 		CLibrary INSTANCE = Native.loadLibrary("c", CLibrary.class);
 
 		int getpid();
+	}
+
+	private interface GnuCLibrary extends Library {
+
+		String gnu_get_libc_version();
 	}
 }
