@@ -96,14 +96,20 @@ public class UnixTorPluginFactory implements DuplexPluginFactory {
 		String architecture = null;
 		if (isLinux()) {
 			String arch = System.getProperty("os.arch");
+			LOG.info("System's os.arch is " + arch);
 			if (arch.equals("amd64")) {
 				architecture = "linux-x86_64";
+			}
+			else if (arch.equals("aarch64")) {
+				architecture = "linux-aarch64";
 			}
 		}
 		if (architecture == null) {
 			LOG.info("Tor is not supported on this architecture");
 			return null;
 		}
+
+		LOG.info("The selected architecture for Tor is " + architecture);
 
 		Backoff backoff = backoffFactory.createBackoff(MIN_POLLING_INTERVAL,
 				MAX_POLLING_INTERVAL, BACKOFF_BASE);
