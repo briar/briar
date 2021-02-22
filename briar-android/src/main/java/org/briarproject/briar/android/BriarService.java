@@ -46,6 +46,7 @@ import static android.content.Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS;
 import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
 import static android.content.Intent.FLAG_ACTIVITY_NO_ANIMATION;
 import static android.os.Build.VERSION.SDK_INT;
+import static android.os.Process.myPid;
 import static androidx.core.app.NotificationCompat.VISIBILITY_SECRET;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
@@ -59,6 +60,7 @@ import static org.briarproject.briar.api.android.AndroidNotificationManager.ONGO
 import static org.briarproject.briar.api.android.AndroidNotificationManager.ONGOING_CHANNEL_OLD_ID;
 import static org.briarproject.briar.api.android.AndroidNotificationManager.ONGOING_NOTIFICATION_ID;
 import static org.briarproject.briar.api.android.LockManager.ACTION_LOCK;
+import static org.briarproject.briar.api.android.LockManager.EXTRA_PID;
 
 public class BriarService extends Service {
 
@@ -210,7 +212,12 @@ public class BriarService extends Service {
 	@Override
 	public int onStartCommand(Intent intent, int flags, int startId) {
 		if (ACTION_LOCK.equals(intent.getAction())) {
-			lockManager.setLocked(true);
+			int pid = intent.getIntExtra(EXTRA_PID, -1);
+			if (pid == myPid()) lockManager.setLocked(true);
+			else if (LOG.isLoggable(WARNING)) {
+				LOG.warning("Tried to lock process " + pid + " but this is " +
+						myPid());
+			}
 		}
 		return START_NOT_STICKY; // Don't restart automatically if killed
 	}

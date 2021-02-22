@@ -32,8 +32,10 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
 import static android.app.AlarmManager.ELAPSED_REALTIME;
+import static android.app.PendingIntent.FLAG_UPDATE_CURRENT;
 import static android.app.PendingIntent.getService;
 import static android.content.Context.ALARM_SERVICE;
+import static android.os.Process.myPid;
 import static android.os.SystemClock.elapsedRealtime;
 import static java.util.concurrent.TimeUnit.MINUTES;
 import static java.util.logging.Level.WARNING;
@@ -75,23 +77,25 @@ public class LockManagerImpl implements LockManager, Service, EventListener {
 	LockManagerImpl(Application app, SettingsManager settingsManager,
 			AndroidNotificationManager notificationManager,
 			@DatabaseExecutor Executor dbExecutor) {
-		this.appContext = app.getApplicationContext();
+		appContext = app.getApplicationContext();
 		this.settingsManager = settingsManager;
 		this.notificationManager = notificationManager;
 		this.dbExecutor = dbExecutor;
-		this.alarmManager =
+		alarmManager =
 				(AlarmManager) appContext.getSystemService(ALARM_SERVICE);
 		Intent i =
 				new Intent(ACTION_LOCK, null, appContext, BriarService.class);
-		this.lockIntent = getService(appContext, 0, i, 0);
-		this.timeoutNever = Integer.valueOf(
+		i.putExtra(EXTRA_PID, myPid());
+		// When not using FLAG_UPDATE_CURRENT, the intent might have no extras
+		lockIntent = getService(appContext, 0, i, FLAG_UPDATE_CURRENT);
+		timeoutNever = Integer.parseInt(
 				appContext.getString(R.string.pref_lock_timeout_value_never));
-		this.timeoutDefault = Integer.valueOf(
+		timeoutDefault = Integer.parseInt(
 				appContext.getString(R.string.pref_lock_timeout_value_default));
-		this.timeoutMinutes = timeoutNever;
+		timeoutMinutes = timeoutNever;
 
 		// setting this in the constructor makes #getValue() @NonNull
-		this.lockable.setValue(false);
+		lockable.setValue(false);
 	}
 
 	@Override
@@ -148,7 +152,7 @@ public class LockManagerImpl implements LockManager, Service, EventListener {
 		boolean oldValue = lockable.getValue();
 		boolean newValue = hasScreenLock(appContext) && lockableSetting;
 		if (oldValue != newValue) {
-			this.lockable.setValue(newValue);
+			lockable.setValue(newValue);
 		}
 	}
 
