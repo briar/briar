@@ -456,7 +456,7 @@
 	<!-- Settings Profile Picture -->
 	<string name="change_profile_picture">Tap to change your profile picture</string>
 	<string name="dialog_confirm_profile_picture_title">Change profile picture</string>
-	<string name="dialog_confirm_profile_picture_remark">Only your contacts can see your profile image</string>
+	<string name="dialog_confirm_profile_picture_remark">Only your contacts can see this picture</string>
 	<string name="change_profile_picture_failed_message">We\'re sorry, but something went wrong while updating your profile picture</string>
 
 	<!-- Settings Display -->
