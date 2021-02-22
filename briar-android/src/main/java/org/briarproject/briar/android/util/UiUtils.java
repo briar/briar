@@ -171,7 +171,7 @@ public class UiUtils {
 	/**
 	 * Returns the given duration in a human-friendly format. For example,
 	 * "7 days" or "1 hour". Returns only the largest meaningful unit of time,
-	 * from days up to hours.
+	 * from days up to minutes.
 	 */
 	public static String formatDuration(Context ctx, long millis) {
 		Resources r = ctx.getResources();
@@ -182,11 +182,20 @@ public class UiUtils {
 					r.getQuantityString(R.plurals.duration_days, days, days);
 			if (rest < HOUR_IN_MILLIS / 2) return dayStr;
 			else return dayStr + " " + formatDuration(ctx, rest);
+		} else if (millis >= HOUR_IN_MILLIS) {
+			int hours = (int) (millis / HOUR_IN_MILLIS);
+			int rest = (int) (millis % HOUR_IN_MILLIS);
+			String hourStr =
+					r.getQuantityString(R.plurals.duration_hours, hours, hours);
+			if (rest < MINUTE_IN_MILLIS / 2) return hourStr;
+			else return hourStr + " " + formatDuration(ctx, rest);
 		} else {
-			int hours = (int) ((millis + HOUR_IN_MILLIS / 2) / HOUR_IN_MILLIS);
-			// anything less than one hour is shown as one hour
-			if (hours < 1) hours = 1;
-			return r.getQuantityString(R.plurals.duration_hours, hours, hours);
+			int minutes =
+					(int) ((millis + MINUTE_IN_MILLIS / 2) / MINUTE_IN_MILLIS);
+			// anything less than one minute is shown as one minute
+			if (minutes < 1) minutes = 1;
+			return r.getQuantityString(R.plurals.duration_minutes, minutes,
+					minutes);
 		}
 	}
 
