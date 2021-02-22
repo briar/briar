@@ -49,14 +49,12 @@ import androidx.annotation.DrawableRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.StringRes;
-import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.FragmentManager;
-import androidx.fragment.app.FragmentTransaction;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.lifecycle.ViewModelProviders;
@@ -67,9 +65,7 @@ import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
 import static androidx.core.view.GravityCompat.START;
 import static androidx.drawerlayout.widget.DrawerLayout.LOCK_MODE_LOCKED_CLOSED;
-import static androidx.fragment.app.FragmentManager.POP_BACK_STACK_INCLUSIVE;
 import static androidx.lifecycle.Lifecycle.State.STARTED;
-import static java.util.Objects.requireNonNull;
 import static java.util.logging.Logger.getLogger;
 import static org.briarproject.bramble.api.lifecycle.LifecycleManager.LifecycleState.RUNNING;
 import static org.briarproject.bramble.api.plugin.Plugin.State.ACTIVE;
@@ -146,7 +142,7 @@ public class NavDrawerActivity extends BriarActivity implements
 			if (ask) showDozeDialog(getString(R.string.setup_doze_intro));
 		});
 
-		Toolbar toolbar = findViewById(R.id.toolbar);
+		Toolbar toolbar = setUpCustomToolbar(false);
 		drawerLayout = findViewById(R.id.drawer_layout);
 		navigation = findViewById(R.id.navigation);
 		GridView transportsView = findViewById(R.id.transportsView);
@@ -155,11 +151,6 @@ public class NavDrawerActivity extends BriarActivity implements
 			LOG.info("Starting transports activity");
 			startActivity(new Intent(this, TransportsActivity.class));
 		});
-
-		setSupportActionBar(toolbar);
-		ActionBar actionBar = requireNonNull(getSupportActionBar());
-		actionBar.setDisplayHomeAsUpEnabled(true);
-		actionBar.setHomeButtonEnabled(true);
 
 		drawerToggle = new ActionBarDrawerToggle(this, drawerLayout, toolbar,
 				R.string.nav_drawer_open_description,
@@ -184,9 +175,6 @@ public class NavDrawerActivity extends BriarActivity implements
 
 		if (lifecycleManager.getLifecycleState().isAfter(RUNNING)) {
 			showSignOutFragment();
-		} else if (state == null) {
-			startFragment(ContactListFragment.newInstance(),
-					R.id.nav_btn_contacts);
 		}
 		if (state == null) {
 			// do not call this again when there's existing state
@@ -276,7 +264,6 @@ public class NavDrawerActivity extends BriarActivity implements
 	@Override
 	public boolean onNavigationItemSelected(@NonNull MenuItem item) {
 		drawerLayout.closeDrawer(START);
-		clearBackStack();
 		if (item.getItemId() == R.id.nav_btn_lock) {
 			lockManager.setLocked(true);
 			ActivityCompat.finishAfterTransition(this);
@@ -296,8 +283,8 @@ public class NavDrawerActivity extends BriarActivity implements
 			FragmentManager fm = getSupportFragmentManager();
 			if (fm.findFragmentByTag(SignOutFragment.TAG) != null) {
 				finish();
-			} else if (fm.getBackStackEntryCount() == 0
-					&& fm.findFragmentByTag(ContactListFragment.TAG) == null) {
+			} else if (fm.getBackStackEntryCount() == 0 &&
+					fm.findFragmentByTag(ContactListFragment.TAG) == null) {
 				// don't start fragments in the wrong part of lifecycle (#1904)
 				if (!getLifecycle().getCurrentState().isAtLeast(STARTED)) {
 					LOG.warning("Tried to start contacts fragment in state " +
@@ -346,30 +333,12 @@ public class NavDrawerActivity extends BriarActivity implements
 		startFragment(fragment);
 	}
 
-	private void startFragment(BaseFragment fragment) {
-		if (getSupportFragmentManager().getBackStackEntryCount() == 0)
-			startFragment(fragment, false);
-		else startFragment(fragment, true);
-	}
-
-	private void startFragment(BaseFragment fragment,
-			boolean isAddedToBackStack) {
-		FragmentTransaction trans =
-				getSupportFragmentManager().beginTransaction()
-						.setCustomAnimations(R.anim.fade_in,
-								R.anim.fade_out, R.anim.fade_in,
-								R.anim.fade_out)
-						.replace(R.id.fragmentContainer, fragment,
-								fragment.getUniqueTag());
-		if (isAddedToBackStack) {
-			trans.addToBackStack(fragment.getUniqueTag());
-		}
-		trans.commit();
-	}
-
-	private void clearBackStack() {
-		getSupportFragmentManager().popBackStackImmediate(null,
-				POP_BACK_STACK_INCLUSIVE);
+	private void startFragment(BaseFragment f) {
+		getSupportFragmentManager().beginTransaction()
+				.setCustomAnimations(R.anim.fade_in, R.anim.fade_out,
+						R.anim.fade_in, R.anim.fade_out)
+				.replace(R.id.fragmentContainer, f, f.getUniqueTag())
+				.commit();
 	}
 
 	@Override
