@@ -32,7 +32,7 @@ public class ConfirmAvatarDialogFragment extends DialogFragment {
 
 	@Inject
 	ViewModelProvider.Factory viewModelFactory;
-	private SettingsViewModel settingsViewModel;
+	private SettingsViewModel viewModel;
 
 	private static final String ARG_URI = "uri";
 	private Uri uri;
@@ -51,6 +51,9 @@ public class ConfirmAvatarDialogFragment extends DialogFragment {
 	public void onAttach(Context ctx) {
 		super.onAttach(ctx);
 		((BaseActivity) requireActivity()).getActivityComponent().inject(this);
+		ViewModelProvider provider =
+				new ViewModelProvider(requireActivity(), viewModelFactory);
+		viewModel = provider.get(SettingsViewModel.class);
 	}
 
 	@Override
@@ -60,32 +63,27 @@ public class ConfirmAvatarDialogFragment extends DialogFragment {
 		uri = Uri.parse(argUri);
 
 		FragmentActivity activity = requireActivity();
-
-		ViewModelProvider provider =
-				new ViewModelProvider(activity, viewModelFactory);
-		settingsViewModel = provider.get(SettingsViewModel.class);
-
-		AlertDialog.Builder builder =
-				new AlertDialog.Builder(activity, R.style.BriarDialogTheme);
-
-		LayoutInflater inflater = LayoutInflater.from(getContext());
+		LayoutInflater inflater = LayoutInflater.from(activity);
 		final View view =
 				inflater.inflate(R.layout.fragment_confirm_avatar_dialog, null);
-		builder.setView(view);
-
-		builder.setTitle(R.string.dialog_confirm_profile_picture_title);
-		builder.setNegativeButton(R.string.cancel, null);
-		builder.setPositiveButton(R.string.change,
-				(dialog, id) -> settingsViewModel.setAvatar(uri));
-
 		ImageView imageView = view.findViewById(R.id.image);
-		imageView.setImageURI(uri);
-
 		TextView textViewUserName = view.findViewById(R.id.username);
-		settingsViewModel.getOwnIdentityInfo().observe(activity,
-				us -> textViewUserName.setText(us.getLocalAuthor().getName()));
 
-		return builder.create();
+		// we can't use getViewLifecycleOwner() here
+		// as this fragment technically doesn't have a view
+		viewModel.getOwnIdentityInfo().observe(activity, us ->
+				textViewUserName.setText(us.getLocalAuthor().getName())
+		);
+
+		int theme = R.style.BriarDialogTheme;
+		return new AlertDialog.Builder(activity, theme)
+				.setView(view)
+				.setTitle(R.string.dialog_confirm_profile_picture_title)
+				.setNegativeButton(R.string.cancel, null)
+				.setPositiveButton(R.string.change, (d, id) ->
+						viewModel.setAvatar(uri)
+				)
+				.create();
 	}
 
 }
