@@ -411,6 +411,8 @@ public abstract class KeyAgreementActivity extends BriarActivity implements
 	@UiThread
 	public void onRequestPermissionsResult(int requestCode,
 			String[] permissions, int[] grantResults) {
+		super.onRequestPermissionsResult(requestCode, permissions,
+				grantResults);
 		if (requestCode != REQUEST_PERMISSION_CAMERA_LOCATION)
 			throw new AssertionError();
 		if (gotPermission(CAMERA, permissions, grantResults)) {
