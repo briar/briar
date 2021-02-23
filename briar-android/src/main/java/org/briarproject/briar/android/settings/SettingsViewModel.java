@@ -2,6 +2,8 @@ package org.briarproject.briar.android.settings;
 
 import android.app.Application;
 import android.content.ContentResolver;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
 
 import org.briarproject.bramble.api.db.DatabaseExecutor;
@@ -25,6 +27,8 @@ import java.util.logging.Logger;
 
 import javax.inject.Inject;
 
+import androidx.annotation.UiThread;
+import androidx.core.util.Pair;
 import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
@@ -55,6 +59,8 @@ class SettingsViewModel extends AndroidViewModel {
 
 	private final MutableLiveEvent<Boolean> setAvatarFailed =
 			new MutableLiveEvent<>();
+	private final MutableLiveData<Bitmap> avatarPreview =
+			new MutableLiveData<>();
 
 	@Inject
 	SettingsViewModel(Application application,
@@ -79,8 +85,12 @@ class SettingsViewModel extends AndroidViewModel {
 		return ownIdentityInfo;
 	}
 
-	public LiveEvent<Boolean> getSetAvatarFailed() {
+	LiveEvent<Boolean> getSetAvatarFailed() {
 		return setAvatarFailed;
+	}
+
+	LiveData<Bitmap> getAvatarPreview() {
+		return avatarPreview;
 	}
 
 	private void loadOwnIdentityInfo() {
@@ -92,6 +102,26 @@ class SettingsViewModel extends AndroidViewModel {
 						new OwnIdentityInfo(localAuthor, authorInfo));
 			} catch (DbException e) {
 				logException(LOG, WARNING, e);
+			}
+		});
+	}
+
+	@UiThread
+	void loadAvatarPreview(Uri uri) {
+		// reset to not show previous avatar, the ImageView can handle null
+		avatarPreview.setValue(null);
+		ioExecutor.execute(() -> {
+			try {
+				Pair<InputStream, String> pair = getInputStreamForUri(uri);
+				InputStream is = pair.first;
+				String contentType = pair.second;
+				InputStream compressed =
+						imageCompressor.compressImage(is, contentType);
+				Bitmap bitmap = BitmapFactory.decodeStream(compressed);
+				avatarPreview.postValue(bitmap);
+			} catch (IOException e) {
+				logException(LOG, WARNING, e);
+				setAvatarFailed.postEvent(true);
 			}
 		});
 	}
@@ -108,16 +138,12 @@ class SettingsViewModel extends AndroidViewModel {
 	}
 
 	private void trySetAvatar(Uri uri) throws IOException {
-		ContentResolver contentResolver =
-				getApplication().getContentResolver();
-		String contentType = contentResolver.getType(uri);
-		if (contentType == null) throw new IOException("null content type");
-		if (!asList(getSupportedImageContentTypes()).contains(contentType)) {
-			throw new UnsupportedMimeTypeException(contentType, uri);
-		}
-		InputStream is = contentResolver.openInputStream(uri);
-		if (is == null) throw new IOException(
-				"ContentResolver returned null when opening InputStream");
+		// TODO should we use the already compressed avatarPreview here?
+		//  If so how to get the InputStream from the Bitmap, compressing again?
+		//  How to ensure the preview is loaded when CHANGE is clicked?
+		Pair<InputStream, String> pair = getInputStreamForUri(uri);
+		InputStream is = pair.first;
+		String contentType = pair.second;
 		InputStream compressed = imageCompressor.compressImage(is, contentType);
 
 		dbExecutor.execute(() -> {
@@ -129,6 +155,20 @@ class SettingsViewModel extends AndroidViewModel {
 				setAvatarFailed.postEvent(true);
 			}
 		});
+	}
+
+	private Pair<InputStream, String> getInputStreamForUri(Uri uri)
+			throws IOException {
+		ContentResolver contentResolver = getApplication().getContentResolver();
+		String contentType = contentResolver.getType(uri);
+		if (contentType == null) throw new IOException("null content type");
+		if (!asList(getSupportedImageContentTypes()).contains(contentType)) {
+			throw new UnsupportedMimeTypeException(contentType, uri);
+		}
+		InputStream is = contentResolver.openInputStream(uri);
+		if (is == null) throw new IOException(
+				"ContentResolver returned null when opening InputStream");
+		return new Pair<>(is, contentType);
 	}
 
 }

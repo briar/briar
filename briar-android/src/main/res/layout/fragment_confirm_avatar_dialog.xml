@@ -7,6 +7,15 @@
 	android:orientation="vertical"
 	android:paddingHorizontal="?dialogPreferredPadding">
 
+	<ProgressBar
+		android:id="@+id/progressBar"
+		android:layout_width="0dp"
+		android:layout_height="0dp"
+		app:layout_constraintBottom_toBottomOf="@+id/image"
+		app:layout_constraintEnd_toEndOf="@+id/image"
+		app:layout_constraintStart_toStartOf="@+id/image"
+		app:layout_constraintTop_toTopOf="@+id/image" />
+
 	<de.hdodenhof.circleimageview.CircleImageView
 		android:id="@+id/image"
 		style="@style/BriarAvatar"

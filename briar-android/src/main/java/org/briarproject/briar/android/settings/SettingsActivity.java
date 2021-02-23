@@ -112,6 +112,7 @@ public class SettingsActivity extends BriarActivity {
 		Uri uri = resultData.getData();
 		if (uri == null) return;
 
+		settingsViewModel.loadAvatarPreview(uri);
 		ConfirmAvatarDialogFragment dialog =
 				ConfirmAvatarDialogFragment.newInstance(uri);
 		dialog.show(getSupportFragmentManager(),
