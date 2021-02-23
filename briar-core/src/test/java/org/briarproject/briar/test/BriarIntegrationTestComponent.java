@@ -12,6 +12,7 @@ import org.briarproject.bramble.api.identity.IdentityManager;
 import org.briarproject.bramble.api.lifecycle.LifecycleManager;
 import org.briarproject.bramble.api.properties.TransportPropertyManager;
 import org.briarproject.bramble.test.BrambleCoreIntegrationTestModule;
+import org.briarproject.briar.BriarCoreModule;
 import org.briarproject.briar.api.attachment.AttachmentReader;
 import org.briarproject.briar.api.avatar.AvatarManager;
 import org.briarproject.briar.api.blog.BlogFactory;
@@ -26,10 +27,8 @@ import org.briarproject.briar.api.messaging.MessagingManager;
 import org.briarproject.briar.api.messaging.PrivateMessageFactory;
 import org.briarproject.briar.api.privategroup.PrivateGroupManager;
 import org.briarproject.briar.api.privategroup.invitation.GroupInvitationManager;
-import org.briarproject.briar.attachment.AttachmentModule;
 import org.briarproject.briar.avatar.AvatarModule;
 import org.briarproject.briar.blog.BlogModule;
-import org.briarproject.briar.client.BriarClientModule;
 import org.briarproject.briar.forum.ForumModule;
 import org.briarproject.briar.identity.IdentityModule;
 import org.briarproject.briar.introduction.IntroductionModule;
@@ -46,17 +45,7 @@ import dagger.Component;
 @Component(modules = {
 		BrambleCoreIntegrationTestModule.class,
 		BrambleCoreModule.class,
-		AvatarModule.class,
-		BlogModule.class,
-		BriarClientModule.class,
-		ForumModule.class,
-		GroupInvitationModule.class,
-		IdentityModule.class,
-		IntroductionModule.class,
-		AttachmentModule.class,
-		MessagingModule.class,
-		PrivateGroupModule.class,
-		SharingModule.class
+		BriarCoreModule.class
 })
 public interface BriarIntegrationTestComponent
 		extends BrambleCoreIntegrationTestEagerSingletons {
