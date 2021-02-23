@@ -10,19 +10,16 @@ import org.briarproject.bramble.api.data.BdfList;
 import org.briarproject.bramble.api.identity.Identity;
 import org.briarproject.bramble.api.identity.LocalAuthor;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
-import org.briarproject.bramble.api.plugin.TransportId;
-import org.briarproject.bramble.api.properties.TransportProperties;
+import org.briarproject.briar.api.socialbackup.Shard;
 
 import java.security.GeneralSecurityException;
 import java.security.SecureRandom;
 import java.util.List;
-import java.util.Map;
 
 import javax.annotation.concurrent.Immutable;
 import javax.inject.Inject;
 import javax.inject.Provider;
 
-import static org.briarproject.bramble.api.nullsafety.NullSafety.requireNonNull;
 import static org.briarproject.briar.socialbackup.SocialBackupConstants.AUTH_TAG_BYTES;
 import static org.briarproject.briar.socialbackup.SocialBackupConstants.NONCE_BYTES;
 
@@ -33,49 +30,49 @@ class BackupPayloadEncoderImpl implements BackupPayloadEncoder {
 	private final ClientHelper clientHelper;
 	private final Provider<AuthenticatedCipher> cipherProvider;
 	private final SecureRandom secureRandom;
+	private final MessageEncoder messageEncoder;
 
 	@Inject
 	BackupPayloadEncoderImpl(ClientHelper clientHelper,
 			Provider<AuthenticatedCipher> cipherProvider,
-			SecureRandom secureRandom) {
+			SecureRandom secureRandom,
+			MessageEncoder messageEncoder) {
 		this.clientHelper = clientHelper;
 		this.cipherProvider = cipherProvider;
 		this.secureRandom = secureRandom;
+		this.messageEncoder = messageEncoder;
 	}
 
 	@Override
 	public BackupPayload encodeBackupPayload(SecretKey secret,
-			Identity identity, List<Contact> contacts,
-			List<Map<TransportId, TransportProperties>> properties,
-			int version) {
-		if (contacts.size() != properties.size()) {
-			throw new IllegalArgumentException();
-		}
+			Identity identity, List<ContactData> contactData, int version) {
 		// Encode the local identity
-		BdfList identityData = new BdfList();
+		BdfList bdfIdentity = new BdfList();
 		LocalAuthor localAuthor = identity.getLocalAuthor();
-		identityData.add(clientHelper.toList(localAuthor));
-		identityData.add(localAuthor.getPrivateKey().getEncoded());
-		identityData.add(identity.getHandshakePublicKey().getEncoded());
-		identityData.add(identity.getHandshakePrivateKey().getEncoded());
-		// Encode the contacts
-		BdfList contactData = new BdfList();
-		for (int i = 0; i < contacts.size(); i++) {
-			Contact contact = contacts.get(i);
-			Map<TransportId, TransportProperties> props = properties.get(i);
-			BdfList data = new BdfList();
-			data.add(clientHelper.toList(contact.getAuthor()));
-			data.add(contact.getAlias());
-			PublicKey pub = requireNonNull(contact.getHandshakePublicKey());
-			data.add(pub.getEncoded());
-			data.add(clientHelper.toDictionary(props));
-			contactData.add(data);
+		bdfIdentity.add(clientHelper.toList(localAuthor));
+		bdfIdentity.add(localAuthor.getPrivateKey().getEncoded());
+		bdfIdentity.add(identity.getHandshakePublicKey().getEncoded());
+		bdfIdentity.add(identity.getHandshakePrivateKey().getEncoded());
+		// Encode the contact data
+		BdfList bdfContactData = new BdfList();
+		for (ContactData cd : contactData) {
+			BdfList bdfData = new BdfList();
+			Contact contact = cd.getContact();
+			bdfData.add(clientHelper.toList(contact.getAuthor()));
+			bdfData.add(contact.getAlias());
+			PublicKey pub = contact.getHandshakePublicKey();
+			bdfData.add(pub == null ? null : pub.getEncoded());
+			bdfData.add(clientHelper.toDictionary(cd.getProperties()));
+			Shard shard = cd.getShard();
+			if (shard == null) bdfData.add(null);
+			else bdfData.add(messageEncoder.encodeShardMessage(shard));
+			bdfContactData.add(bdfData);
 		}
 		// Encode and encrypt the payload
 		BdfList backup = new BdfList();
 		backup.add(version);
-		backup.add(identityData);
-		backup.add(contactData);
+		backup.add(bdfIdentity);
+		backup.add(bdfContactData);
 		try {
 			byte[] plaintext = clientHelper.toByteArray(backup);
 			byte[] ciphertext = new byte[plaintext.length + AUTH_TAG_BYTES];

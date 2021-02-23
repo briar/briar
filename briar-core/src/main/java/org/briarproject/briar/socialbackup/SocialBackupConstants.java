@@ -3,6 +3,7 @@ package org.briarproject.briar.socialbackup;
 interface SocialBackupConstants {
 
 	// Group metadata keys
+	String GROUP_KEY_CONTACT_ID = "contactId";
 	String GROUP_KEY_SECRET = "secret";
 	String GROUP_KEY_CUSTODIANS = "custodians";
 	String GROUP_KEY_THRESHOLD = "threshold";

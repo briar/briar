@@ -1,6 +1,7 @@
 package org.briarproject.briar.socialbackup;
 
 import org.briarproject.bramble.api.FormatException;
+import org.briarproject.bramble.api.Pair;
 import org.briarproject.bramble.api.client.BdfIncomingMessageHook;
 import org.briarproject.bramble.api.client.ClientHelper;
 import org.briarproject.bramble.api.client.ContactGroupFactory;
@@ -16,10 +17,12 @@ import org.briarproject.bramble.api.data.BdfList;
 import org.briarproject.bramble.api.data.MetadataParser;
 import org.briarproject.bramble.api.db.DatabaseComponent;
 import org.briarproject.bramble.api.db.DbException;
+import org.briarproject.bramble.api.db.NoSuchContactException;
 import org.briarproject.bramble.api.db.Transaction;
 import org.briarproject.bramble.api.identity.Author;
 import org.briarproject.bramble.api.identity.Identity;
 import org.briarproject.bramble.api.identity.IdentityManager;
+import org.briarproject.bramble.api.identity.LocalAuthor;
 import org.briarproject.bramble.api.lifecycle.LifecycleManager.OpenDatabaseHook;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.plugin.TorConstants;
@@ -42,6 +45,7 @@ import org.briarproject.briar.api.socialbackup.SocialBackupManager;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.ListIterator;
 import java.util.Map;
 import java.util.Map.Entry;
 
@@ -49,8 +53,11 @@ import javax.annotation.Nullable;
 import javax.inject.Inject;
 
 import static java.util.Collections.singletonMap;
+import static org.briarproject.bramble.api.nullsafety.NullSafety.requireNonNull;
 import static org.briarproject.briar.socialbackup.MessageType.BACKUP;
 import static org.briarproject.briar.socialbackup.MessageType.SHARD;
+import static org.briarproject.briar.socialbackup.SocialBackupConstants.GROUP_KEY_CONTACT_ID;
+import static org.briarproject.briar.socialbackup.SocialBackupConstants.GROUP_KEY_VERSION;
 import static org.briarproject.briar.socialbackup.SocialBackupConstants.MSG_KEY_LOCAL;
 import static org.briarproject.briar.socialbackup.SocialBackupConstants.MSG_KEY_MESSAGE_TYPE;
 import static org.briarproject.briar.socialbackup.SocialBackupConstants.MSG_KEY_VERSION;
@@ -66,6 +73,7 @@ class SocialBackupManagerImpl extends BdfIncomingMessageHook
 	private final BackupMetadataParser backupMetadataParser;
 	private final BackupMetadataEncoder backupMetadataEncoder;
 	private final BackupPayloadEncoder backupPayloadEncoder;
+	private final MessageParser messageParser;
 	private final MessageEncoder messageEncoder;
 	private final IdentityManager identityManager;
 	private final ContactManager contactManager;
@@ -85,6 +93,7 @@ class SocialBackupManagerImpl extends BdfIncomingMessageHook
 			BackupMetadataParser backupMetadataParser,
 			BackupMetadataEncoder backupMetadataEncoder,
 			BackupPayloadEncoder backupPayloadEncoder,
+			MessageParser messageParser,
 			MessageEncoder messageEncoder,
 			IdentityManager identityManager,
 			ContactManager contactManager,
@@ -98,6 +107,7 @@ class SocialBackupManagerImpl extends BdfIncomingMessageHook
 		this.backupMetadataParser = backupMetadataParser;
 		this.backupMetadataEncoder = backupMetadataEncoder;
 		this.backupPayloadEncoder = backupPayloadEncoder;
+		this.messageParser = messageParser;
 		this.messageEncoder = messageEncoder;
 		this.identityManager = identityManager;
 		this.contactManager = contactManager;
@@ -125,13 +135,21 @@ class SocialBackupManagerImpl extends BdfIncomingMessageHook
 		Visibility client = clientVersioningManager.getClientVisibility(txn,
 				c.getId(), CLIENT_ID, MAJOR_VERSION);
 		db.setGroupVisibility(txn, c.getId(), g.getId(), client);
-		// TODO: Add the contact to our backup, if any
+		// Attach the contact ID to the group
+		setContactId(txn, g.getId(), c.getId());
+		// Add the contact to our backup, if any
+		if (localBackupExists(txn)) {
+			updateBackup(txn, loadContactData(txn));
+		}
 	}
 
 	@Override
 	public void removingContact(Transaction txn, Contact c) throws DbException {
 		db.removeGroup(txn, getContactGroup(c));
-		// TODO: Remove the contact from our backup, if any
+		// Remove the contact from our backup, if any
+		if (localBackupExists(txn)) {
+			updateBackup(txn, loadContactData(txn));
+		}
 	}
 
 	@Override
@@ -147,20 +165,34 @@ class SocialBackupManagerImpl extends BdfIncomingMessageHook
 			BdfDictionary meta) throws DbException, FormatException {
 		MessageType type = MessageType.fromValue(body.getLong(0).intValue());
 		if (type == SHARD) {
-			// TODO: Add the shard to our backup, if any
+			// Only one shard should be received from each contact
+			if (findMessage(txn, m.getGroupId(), SHARD, false) != null) {
+				throw new FormatException();
+			}
+			// Add the shard to our backup, if any
+			if (localBackupExists(txn)) {
+				Shard shard = messageParser.parseShardMessage(body);
+				ContactId c = getContactId(txn, m.getGroupId());
+				List<ContactData> contactData = loadContactData(txn);
+				ListIterator<ContactData> it = contactData.listIterator();
+				while (it.hasNext()) {
+					ContactData cd = it.next();
+					if (cd.getContact().getId().equals(c)) {
+						it.set(new ContactData(cd.getContact(),
+								cd.getProperties(), shard));
+						updateBackup(txn, contactData);
+						break;
+					}
+				}
+			}
 		} else if (type == BACKUP) {
 			// Keep the newest version of the backup, delete any older versions
 			int version = meta.getLong(MSG_KEY_VERSION).intValue();
-			BdfDictionary query = BdfDictionary.of(
-					new BdfEntry(MSG_KEY_MESSAGE_TYPE, BACKUP.getValue()),
-					new BdfEntry(MSG_KEY_LOCAL, false));
-			Map<MessageId, BdfDictionary> results =
-					clientHelper.getMessageMetadataAsDictionary(txn,
-							m.getGroupId(), query);
-			if (results.size() > 1) throw new DbException();
-			for (Entry<MessageId, BdfDictionary> e : results.entrySet()) {
-				MessageId prevId = e.getKey();
-				BdfDictionary prevMeta = e.getValue();
+			Pair<MessageId, BdfDictionary> prev =
+					findMessage(txn, m.getGroupId(), BACKUP, false);
+			if (prev != null) {
+				MessageId prevId = prev.getFirst();
+				BdfDictionary prevMeta = prev.getSecond();
 				int prevVersion = prevMeta.getLong(MSG_KEY_VERSION).intValue();
 				if (version > prevVersion) {
 					// This backup is newer - delete the previous backup
@@ -192,7 +224,7 @@ class SocialBackupManagerImpl extends BdfIncomingMessageHook
 	@Override
 	public void createBackup(Transaction txn, List<ContactId> custodianIds,
 			int threshold) throws DbException {
-		if (getBackupMetadata(txn) != null) throw new BackupExistsException();
+		if (localBackupExists(txn)) throw new BackupExistsException();
 		// Load the contacts
 		List<Contact> custodians = new ArrayList<>(custodianIds.size());
 		for (ContactId custodianId : custodianIds) {
@@ -200,7 +232,9 @@ class SocialBackupManagerImpl extends BdfIncomingMessageHook
 		}
 		// Create the encrypted backup payload
 		SecretKey secret = crypto.generateSecretKey();
-		BackupPayload payload = createBackupPayload(txn, secret, 0);
+		List<ContactData> contactData = loadContactData(txn);
+		BackupPayload payload =
+				createBackupPayload(txn, secret, contactData, 0);
 		// Create the shards
 		List<Shard> shards = darkCrystal.createShards(secret,
 				custodians.size(), threshold);
@@ -232,23 +266,50 @@ class SocialBackupManagerImpl extends BdfIncomingMessageHook
 				MAJOR_VERSION, c);
 	}
 
-	private BackupPayload createBackupPayload(Transaction txn,
-			SecretKey secret, int version) throws DbException {
-		Identity identity = identityManager.getIdentity(txn);
-		Collection<Contact> contacts = contactManager.getContacts(txn);
-		List<Contact> eligible = new ArrayList<>();
-		List<Map<TransportId, TransportProperties>> properties =
-				new ArrayList<>();
-		// Include all contacts whose handshake public keys we know
-		for (Contact c : contacts) {
-			if (c.getHandshakePublicKey() != null) {
-				eligible.add(c);
-				properties.add(getTransportProperties(txn, c.getId()));
-				// TODO: Include shard received from contact, if any
-			}
+	private void setContactId(Transaction txn, GroupId g, ContactId c)
+			throws DbException {
+		BdfDictionary d = new BdfDictionary();
+		d.put(GROUP_KEY_CONTACT_ID, c.getInt());
+		try {
+			clientHelper.mergeGroupMetadata(txn, g, d);
+		} catch (FormatException e) {
+			throw new AssertionError(e);
 		}
+	}
+
+	private ContactId getContactId(Transaction txn, GroupId g)
+			throws DbException {
+		try {
+			BdfDictionary meta =
+					clientHelper.getGroupMetadataAsDictionary(txn, g);
+			return new ContactId(meta.getLong(GROUP_KEY_CONTACT_ID).intValue());
+		} catch (FormatException e) {
+			throw new DbException(e);
+		}
+	}
+
+	private BackupPayload createBackupPayload(Transaction txn,
+			SecretKey secret, List<ContactData> contactData, int version)
+			throws DbException {
+		Identity identity = identityManager.getIdentity(txn);
 		return backupPayloadEncoder.encodeBackupPayload(secret, identity,
-				eligible, properties, version);
+				contactData, version);
+	}
+
+	private List<ContactData> loadContactData(Transaction txn)
+			throws DbException {
+		Collection<Contact> contacts = contactManager.getContacts(txn);
+		List<ContactData> contactData = new ArrayList<>();
+		for (Contact c : contacts) {
+			// Skip contacts that are in the process of being removed
+			Group contactGroup = getContactGroup(c);
+			if (!db.containsGroup(txn, contactGroup.getId())) continue;
+			Map<TransportId, TransportProperties> props =
+					getTransportProperties(txn, c.getId());
+			Shard shard = getRemoteShard(txn, contactGroup.getId());
+			contactData.add(new ContactData(c, props, shard));
+		}
+		return contactData;
 	}
 
 	private Map<TransportId, TransportProperties> getTransportProperties(
@@ -283,5 +344,77 @@ class SocialBackupManagerImpl extends BdfIncomingMessageHook
 				new BdfEntry(MSG_KEY_LOCAL, true),
 				new BdfEntry(MSG_KEY_VERSION, version));
 		clientHelper.addLocalMessage(txn, m, meta, true, false);
+	}
+
+	private boolean localBackupExists(Transaction txn) throws DbException {
+		return !db.getGroupMetadata(txn, localGroup.getId()).isEmpty();
+	}
+
+	@Nullable
+	private Shard getRemoteShard(Transaction txn, GroupId g)
+			throws DbException {
+		try {
+			Pair<MessageId, BdfDictionary> prev =
+					findMessage(txn, g, SHARD, false);
+			if (prev == null) return null;
+			BdfList body = clientHelper.getMessageAsList(txn, prev.getFirst());
+			return messageParser.parseShardMessage(body);
+		} catch (FormatException e) {
+			throw new DbException(e);
+		}
+	}
+
+	private void updateBackup(Transaction txn, List<ContactData> contactData)
+			throws DbException {
+		BackupMetadata backupMetadata = requireNonNull(getBackupMetadata(txn));
+		int newVersion = backupMetadata.getVersion() + 1;
+		BackupPayload payload = createBackupPayload(txn,
+				backupMetadata.getSecret(), contactData, newVersion);
+		LocalAuthor localAuthor = identityManager.getLocalAuthor(txn);
+		try {
+			for (Author author : backupMetadata.getCustodians()) {
+				try {
+					Contact custodian = contactManager.getContact(txn,
+							author.getId(), localAuthor.getId());
+					Group contactGroup = getContactGroup(custodian);
+					Pair<MessageId, BdfDictionary> prev = findMessage(txn,
+							contactGroup.getId(), BACKUP, true);
+					if (prev != null) {
+						// Delete the previous backup message
+						MessageId prevId = prev.getFirst();
+						db.deleteMessage(txn, prevId);
+						db.deleteMessageMetadata(txn, prevId);
+					}
+					sendBackupMessage(txn, custodian, newVersion, payload);
+				} catch (NoSuchContactException e) {
+					// The custodian is no longer a contact - continue
+				}
+			}
+		} catch (FormatException e) {
+			throw new DbException(e);
+		}
+		BdfDictionary meta =
+				BdfDictionary.of(new BdfEntry(GROUP_KEY_VERSION, newVersion));
+		try {
+			clientHelper.mergeGroupMetadata(txn, localGroup.getId(), meta);
+		} catch (FormatException e) {
+			throw new AssertionError(e);
+		}
+	}
+
+	@Nullable
+	private Pair<MessageId, BdfDictionary> findMessage(Transaction txn,
+			GroupId g, MessageType type, boolean local)
+			throws DbException, FormatException {
+		BdfDictionary query = BdfDictionary.of(
+				new BdfEntry(MSG_KEY_MESSAGE_TYPE, type.getValue()),
+				new BdfEntry(MSG_KEY_LOCAL, local));
+		Map<MessageId, BdfDictionary> results =
+				clientHelper.getMessageMetadataAsDictionary(txn, g, query);
+		if (results.size() > 1) throw new DbException();
+		if (results.isEmpty()) return null;
+		Entry<MessageId, BdfDictionary> e =
+				results.entrySet().iterator().next();
+		return new Pair<>(e.getKey(), e.getValue());
 	}
 }
