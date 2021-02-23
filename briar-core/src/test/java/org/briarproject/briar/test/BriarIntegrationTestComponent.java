@@ -27,6 +27,7 @@ import org.briarproject.briar.api.messaging.MessagingManager;
 import org.briarproject.briar.api.messaging.PrivateMessageFactory;
 import org.briarproject.briar.api.privategroup.PrivateGroupManager;
 import org.briarproject.briar.api.privategroup.invitation.GroupInvitationManager;
+import org.briarproject.briar.api.socialbackup.SocialBackupManager;
 import org.briarproject.briar.avatar.AvatarModule;
 import org.briarproject.briar.blog.BlogModule;
 import org.briarproject.briar.forum.ForumModule;
@@ -36,6 +37,7 @@ import org.briarproject.briar.messaging.MessagingModule;
 import org.briarproject.briar.privategroup.PrivateGroupModule;
 import org.briarproject.briar.privategroup.invitation.GroupInvitationModule;
 import org.briarproject.briar.sharing.SharingModule;
+import org.briarproject.briar.socialbackup.SocialBackupModule;
 
 import javax.inject.Singleton;
 
@@ -69,6 +71,8 @@ public interface BriarIntegrationTestComponent
 	void inject(PrivateGroupModule.EagerSingletons init);
 
 	void inject(SharingModule.EagerSingletons init);
+
+	void inject(SocialBackupModule.EagerSingletons init);
 
 	LifecycleManager getLifecycleManager();
 
@@ -116,6 +120,8 @@ public interface BriarIntegrationTestComponent
 
 	ConnectionManager getConnectionManager();
 
+	SocialBackupManager getSocialBackupManager();
+
 	class Helper {
 
 		public static void injectEagerSingletons(
@@ -131,6 +137,7 @@ public interface BriarIntegrationTestComponent
 			c.inject(new MessagingModule.EagerSingletons());
 			c.inject(new PrivateGroupModule.EagerSingletons());
 			c.inject(new SharingModule.EagerSingletons());
+			c.inject(new SocialBackupModule.EagerSingletons());
 		}
 	}
 }

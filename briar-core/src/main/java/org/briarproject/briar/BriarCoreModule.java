@@ -13,6 +13,7 @@ import org.briarproject.briar.messaging.MessagingModule;
 import org.briarproject.briar.privategroup.PrivateGroupModule;
 import org.briarproject.briar.privategroup.invitation.GroupInvitationModule;
 import org.briarproject.briar.sharing.SharingModule;
+import org.briarproject.briar.socialbackup.SocialBackupModule;
 import org.briarproject.briar.test.TestModule;
 
 import dagger.Module;
@@ -31,6 +32,7 @@ import dagger.Module;
 		MessagingModule.class,
 		PrivateGroupModule.class,
 		SharingModule.class,
+		SocialBackupModule.class,
 		TestModule.class
 })
 public class BriarCoreModule {

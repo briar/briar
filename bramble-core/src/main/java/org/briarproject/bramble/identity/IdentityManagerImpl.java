@@ -119,6 +119,11 @@ class IdentityManagerImpl implements IdentityManager, OpenDatabaseHook {
 	}
 
 	@Override
+	public Identity getIdentity(Transaction txn) throws DbException {
+		return getCachedIdentity(txn);
+	}
+
+	@Override
 	public LocalAuthor getLocalAuthor(Transaction txn) throws DbException {
 		return getCachedIdentity(txn).getLocalAuthor();
 	}

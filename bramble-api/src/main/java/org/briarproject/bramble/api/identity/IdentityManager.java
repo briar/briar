@@ -29,6 +29,11 @@ public interface IdentityManager {
 	/**
 	 * Returns the cached local identity or loads it from the database.
 	 */
+	Identity getIdentity(Transaction txn) throws DbException;
+
+	/**
+	 * Returns the cached local identity or loads it from the database.
+	 */
 	LocalAuthor getLocalAuthor() throws DbException;
 
 	/**

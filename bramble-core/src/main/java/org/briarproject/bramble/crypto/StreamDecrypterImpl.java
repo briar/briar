@@ -1,6 +1,7 @@
 package org.briarproject.bramble.crypto;
 
 import org.briarproject.bramble.api.FormatException;
+import org.briarproject.bramble.api.crypto.AuthenticatedCipher;
 import org.briarproject.bramble.api.crypto.SecretKey;
 import org.briarproject.bramble.api.crypto.StreamDecrypter;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;

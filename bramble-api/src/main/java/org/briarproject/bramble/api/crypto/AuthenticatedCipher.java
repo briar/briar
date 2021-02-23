@@ -1,12 +1,11 @@
-package org.briarproject.bramble.crypto;
+package org.briarproject.bramble.api.crypto;
 
-import org.briarproject.bramble.api.crypto.SecretKey;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 
 import java.security.GeneralSecurityException;
 
 @NotNullByDefault
-interface AuthenticatedCipher {
+public interface AuthenticatedCipher {
 
 	/**
 	 * Initializes this cipher for encryption or decryption with a key and an

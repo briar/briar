@@ -294,7 +294,13 @@ class TransportPropertyManagerImpl implements TransportPropertyManager,
 	public TransportProperties getRemoteProperties(ContactId c, TransportId t)
 			throws DbException {
 		return db.transactionWithResult(true, txn ->
-				getRemoteProperties(txn, db.getContact(txn, c), t));
+				getRemoteProperties(txn, c, t));
+	}
+
+	@Override
+	public TransportProperties getRemoteProperties(Transaction txn,
+			ContactId c, TransportId t) throws DbException {
+		return getRemoteProperties(txn, db.getContact(txn, c), t);
 	}
 
 	@Override

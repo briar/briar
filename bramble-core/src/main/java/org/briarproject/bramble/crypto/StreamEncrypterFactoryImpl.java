@@ -1,5 +1,6 @@
 package org.briarproject.bramble.crypto;
 
+import org.briarproject.bramble.api.crypto.AuthenticatedCipher;
 import org.briarproject.bramble.api.crypto.CryptoComponent;
 import org.briarproject.bramble.api.crypto.SecretKey;
 import org.briarproject.bramble.api.crypto.StreamEncrypter;

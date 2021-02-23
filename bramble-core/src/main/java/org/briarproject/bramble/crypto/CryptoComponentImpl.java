@@ -6,6 +6,7 @@ import net.i2p.crypto.eddsa.KeyPairGenerator;
 
 import org.briarproject.bramble.api.crypto.AgreementPrivateKey;
 import org.briarproject.bramble.api.crypto.AgreementPublicKey;
+import org.briarproject.bramble.api.crypto.AuthenticatedCipher;
 import org.briarproject.bramble.api.crypto.CryptoComponent;
 import org.briarproject.bramble.api.crypto.DecryptionException;
 import org.briarproject.bramble.api.crypto.KeyPair;
