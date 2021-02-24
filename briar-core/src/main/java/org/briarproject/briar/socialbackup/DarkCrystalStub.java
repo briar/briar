@@ -29,7 +29,7 @@ class DarkCrystalStub implements DarkCrystal {
 		for (int i = 0; i < numShards; i++) {
 			byte[] shard = new byte[123];
 			random.nextBytes(shard);
-			shards.add(new Shard(secretId, numShards, threshold, shard));
+			shards.add(new Shard(secretId, shard));
 		}
 		return shards;
 	}
