@@ -9,26 +9,14 @@ import javax.annotation.concurrent.Immutable;
 public class Shard {
 
 	private final byte[] secretId, shard;
-	private final int numShards, threshold;
 
-	public Shard(byte[] secretId, int numShards, int threshold,
-			byte[] shard) {
+	public Shard(byte[] secretId, byte[] shard) {
 		this.secretId = secretId;
-		this.numShards = numShards;
-		this.threshold = threshold;
 		this.shard = shard;
 	}
 
 	public byte[] getSecretId() {
 		return secretId;
-	}
-
-	public int getNumShards() {
-		return numShards;
-	}
-
-	public int getThreshold() {
-		return threshold;
 	}
 
 	public byte[] getShard() {
