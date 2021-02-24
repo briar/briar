@@ -4,7 +4,9 @@ import org.briarproject.bramble.api.crypto.SecretKey;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.briar.api.socialbackup.Shard;
 
+import java.security.GeneralSecurityException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 
@@ -32,5 +34,20 @@ class DarkCrystalStub implements DarkCrystal {
 			shards.add(new Shard(secretId, shard));
 		}
 		return shards;
+	}
+
+    @Override
+	public SecretKey combineShards(List<Shard> shards) throws
+			GeneralSecurityException {
+		// Check each shard has the same secret Id
+		byte[] secretId = shards.get(0).getSecretId();
+		for (Shard shard : shards) {
+			if (!Arrays.equals(shard.getSecretId(), secretId)) throw new GeneralSecurityException();
+		}
+
+		Random random = new Random();
+		byte[] secretBytes = new byte[SecretKey.LENGTH];
+		random.nextBytes(secretId);
+		return new SecretKey(secretBytes);
 	}
 }
