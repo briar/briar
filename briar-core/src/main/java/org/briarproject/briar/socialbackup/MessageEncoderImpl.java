@@ -28,8 +28,6 @@ class MessageEncoderImpl implements MessageEncoder {
 		BdfList body = BdfList.of(
 				SHARD.getValue(),
 				shard.getSecretId(),
-				shard.getNumShards(),
-				shard.getThreshold(),
 				shard.getShard()
 		);
 		return encodeBody(body);
