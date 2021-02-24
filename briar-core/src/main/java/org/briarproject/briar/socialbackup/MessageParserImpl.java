@@ -18,12 +18,10 @@ class MessageParserImpl implements MessageParser {
 
 	@Override
 	public Shard parseShardMessage(BdfList body) throws FormatException {
-		// Message type, secret ID, num shards, threshold, shard
+		// Message type, secret ID, shard
 		byte[] secretId = body.getRaw(1);
-		int numShards = body.getLong(2).intValue();
-		int threshold = body.getLong(3).intValue();
-		byte[] shard = body.getRaw(4);
-		return new Shard(secretId, numShards, threshold, shard);
+		byte[] shard = body.getRaw(2);
+		return new Shard(secretId, shard);
 	}
 
 	@Override
