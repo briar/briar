@@ -34,6 +34,7 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.security.GeneralSecurityException;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -152,6 +153,12 @@ class ClientHelperImpl implements ClientHelper {
 			GroupId g) throws DbException, FormatException {
 		Metadata metadata = db.getGroupMetadata(txn, g);
 		return metadataParser.parse(metadata);
+	}
+
+	@Override
+	public Collection<MessageId> getMessageIds(Transaction txn, GroupId g,
+			BdfDictionary query) throws DbException, FormatException {
+		return db.getMessageIds(txn, g, metadataEncoder.encode(query));
 	}
 
 	@Override

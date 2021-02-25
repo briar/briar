@@ -510,11 +510,11 @@ public class DatabaseComponentImplTest extends BrambleMockTestCase {
 			throws Exception {
 		context.checking(new Expectations() {{
 			// Check whether the group is in the DB (which it's not)
-			exactly(8).of(database).startTransaction();
+			exactly(10).of(database).startTransaction();
 			will(returnValue(txn));
-			exactly(8).of(database).containsGroup(txn, groupId);
+			exactly(10).of(database).containsGroup(txn, groupId);
 			will(returnValue(false));
-			exactly(8).of(database).abortTransaction(txn);
+			exactly(10).of(database).abortTransaction(txn);
 			// Allow other checks to pass
 			allowing(database).containsContact(txn, contactId);
 			will(returnValue(true));
@@ -523,7 +523,7 @@ public class DatabaseComponentImplTest extends BrambleMockTestCase {
 				eventExecutor, shutdownManager);
 
 		try {
-			db.transaction(false, transaction ->
+			db.transaction(true, transaction ->
 					db.getGroup(transaction, groupId));
 			fail();
 		} catch (NoSuchGroupException expected) {
@@ -531,7 +531,7 @@ public class DatabaseComponentImplTest extends BrambleMockTestCase {
 		}
 
 		try {
-			db.transaction(false, transaction ->
+			db.transaction(true, transaction ->
 					db.getGroupMetadata(transaction, groupId));
 			fail();
 		} catch (NoSuchGroupException expected) {
@@ -539,7 +539,23 @@ public class DatabaseComponentImplTest extends BrambleMockTestCase {
 		}
 
 		try {
-			db.transaction(false, transaction ->
+			db.transaction(true, transaction ->
+					db.getMessageIds(transaction, groupId));
+			fail();
+		} catch (NoSuchGroupException expected) {
+			// Expected
+		}
+
+		try {
+			db.transaction(true, transaction ->
+					db.getMessageIds(transaction, groupId, new Metadata()));
+			fail();
+		} catch (NoSuchGroupException expected) {
+			// Expected
+		}
+
+		try {
+			db.transaction(true, transaction ->
 					db.getMessageMetadata(transaction, groupId));
 			fail();
 		} catch (NoSuchGroupException expected) {
@@ -547,7 +563,7 @@ public class DatabaseComponentImplTest extends BrambleMockTestCase {
 		}
 
 		try {
-			db.transaction(false, transaction ->
+			db.transaction(true, transaction ->
 					db.getMessageMetadata(transaction, groupId,
 							new Metadata()));
 			fail();
@@ -556,7 +572,7 @@ public class DatabaseComponentImplTest extends BrambleMockTestCase {
 		}
 
 		try {
-			db.transaction(false, transaction ->
+			db.transaction(true, transaction ->
 					db.getMessageStatus(transaction, contactId, groupId));
 			fail();
 		} catch (NoSuchGroupException expected) {
