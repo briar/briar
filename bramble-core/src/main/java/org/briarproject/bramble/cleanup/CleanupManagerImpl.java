@@ -163,6 +163,7 @@ class CleanupManagerImpl implements CleanupManager, Service, EventListener {
 				messageIds.add(m);
 			} else {
 				LOG.info("Message was not deleted");
+				db.stopCleanupTimer(txn, m);
 			}
 		}
 		for (Entry<GroupId, Collection<MessageId>> e : deleted.entrySet()) {
