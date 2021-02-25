@@ -5,6 +5,7 @@ import org.briarproject.briar.autodelete.AutoDeleteModule;
 import org.briarproject.briar.avatar.AvatarModule;
 import org.briarproject.briar.blog.BlogModule;
 import org.briarproject.briar.client.BriarClientModule;
+import org.briarproject.briar.conversation.ConversationModule;
 import org.briarproject.briar.feed.DnsModule;
 import org.briarproject.briar.feed.FeedModule;
 import org.briarproject.briar.forum.ForumModule;
@@ -24,8 +25,9 @@ import dagger.Module;
 		AvatarModule.class,
 		BlogModule.class,
 		BriarClientModule.class,
-		FeedModule.class,
+		ConversationModule.class,
 		DnsModule.class,
+		FeedModule.class,
 		ForumModule.class,
 		GroupInvitationModule.class,
 		IdentityModule.class,

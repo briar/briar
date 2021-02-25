@@ -34,6 +34,7 @@ import org.briarproject.briar.autodelete.AutoDeleteModule;
 import org.briarproject.briar.avatar.AvatarModule;
 import org.briarproject.briar.blog.BlogModule;
 import org.briarproject.briar.client.BriarClientModule;
+import org.briarproject.briar.conversation.ConversationModule;
 import org.briarproject.briar.forum.ForumModule;
 import org.briarproject.briar.identity.IdentityModule;
 import org.briarproject.briar.introduction.IntroductionModule;
@@ -55,6 +56,7 @@ import dagger.Component;
 		AvatarModule.class,
 		BlogModule.class,
 		BriarClientModule.class,
+		ConversationModule.class,
 		ForumModule.class,
 		GroupInvitationModule.class,
 		IdentityModule.class,
@@ -73,6 +75,8 @@ public interface BriarIntegrationTestComponent
 	void inject(AvatarModule.EagerSingletons init);
 
 	void inject(BlogModule.EagerSingletons init);
+
+	void inject(ConversationModule.EagerSingletons init);
 
 	void inject(ForumModule.EagerSingletons init);
 
@@ -149,6 +153,7 @@ public interface BriarIntegrationTestComponent
 			c.inject(new AutoDeleteModule.EagerSingletons());
 			c.inject(new AvatarModule.EagerSingletons());
 			c.inject(new BlogModule.EagerSingletons());
+			c.inject(new ConversationModule.EagerSingletons());
 			c.inject(new ForumModule.EagerSingletons());
 			c.inject(new GroupInvitationModule.EagerSingletons());
 			c.inject(new IdentityModule.EagerSingletons());

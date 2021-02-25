@@ -12,6 +12,7 @@ import org.briarproject.briar.api.messaging.MessagingManager;
 import org.briarproject.briar.api.messaging.PrivateMessageFactory;
 import org.briarproject.briar.autodelete.AutoDeleteModule;
 import org.briarproject.briar.client.BriarClientModule;
+import org.briarproject.briar.conversation.ConversationModule;
 
 import javax.inject.Singleton;
 
@@ -23,6 +24,7 @@ import dagger.Component;
 		BrambleCoreIntegrationTestModule.class,
 		BrambleCoreModule.class,
 		BriarClientModule.class,
+		ConversationModule.class,
 		MessagingModule.class
 })
 interface SimplexMessagingIntegrationTestComponent
