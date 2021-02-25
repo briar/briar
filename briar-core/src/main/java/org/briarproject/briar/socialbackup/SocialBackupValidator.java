@@ -47,16 +47,11 @@ class SocialBackupValidator extends BdfMessageValidator {
 
 	private BdfMessageContext validateShardMessage(BdfList body)
 			throws FormatException {
-		// Message type, secret ID, num shards, threshold, shard
-		checkSize(body, 5);
+		// Message type, secret ID, shard
+		checkSize(body, 3);
 		byte[] secretId = body.getRaw(1);
 		checkLength(secretId, SECRET_ID_BYTES);
-		int numShards = body.getLong(2).intValue();
-		if (numShards < 2) throw new FormatException();
-		int threshold = body.getLong(3).intValue();
-		if (threshold < 2) throw new FormatException();
-		if (threshold > numShards) throw new FormatException();
-		byte[] shard = body.getRaw(4);
+		byte[] shard = body.getRaw(2);
 		checkLength(shard, 1, MAX_SHARD_BYTES);
 		BdfDictionary meta = BdfDictionary.of(
 				new BdfEntry(MSG_KEY_MESSAGE_TYPE, SHARD.getValue()),
