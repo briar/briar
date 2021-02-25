@@ -95,15 +95,12 @@ class CleanupManagerImpl implements CleanupManager, Service, EventListener {
 
 	private void maybeScheduleTask(long deadline) {
 		synchronized (lock) {
-			long minDeadline = Long.MAX_VALUE;
 			for (CleanupTask task : pending) {
-				if (task.deadline < minDeadline) minDeadline = task.deadline;
+				if (task.deadline <= deadline) return;
 			}
-			if (deadline < minDeadline) {
-				CleanupTask task = new CleanupTask(deadline);
-				pending.add(task);
-				scheduleTask(task);
-			}
+			CleanupTask task = new CleanupTask(deadline);
+			pending.add(task);
+			scheduleTask(task);
 		}
 	}
 
