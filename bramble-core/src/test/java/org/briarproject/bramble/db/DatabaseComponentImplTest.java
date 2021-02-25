@@ -1,5 +1,6 @@
 package org.briarproject.bramble.db;
 
+import org.briarproject.bramble.api.cleanup.event.CleanupTimerStartedEvent;
 import org.briarproject.bramble.api.contact.Contact;
 import org.briarproject.bramble.api.contact.ContactId;
 import org.briarproject.bramble.api.contact.PendingContactId;
@@ -69,6 +70,8 @@ import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.emptyMap;
 import static java.util.Collections.singletonList;
+import static java.util.concurrent.TimeUnit.HOURS;
+import static org.briarproject.bramble.api.db.DatabaseComponent.TIMER_NOT_STARTED;
 import static org.briarproject.bramble.api.sync.Group.Visibility.INVISIBLE;
 import static org.briarproject.bramble.api.sync.Group.Visibility.SHARED;
 import static org.briarproject.bramble.api.sync.Group.Visibility.VISIBLE;
@@ -610,11 +613,11 @@ public class DatabaseComponentImplTest extends BrambleMockTestCase {
 			throws Exception {
 		context.checking(new Expectations() {{
 			// Check whether the message is in the DB (which it's not)
-			exactly(12).of(database).startTransaction();
+			exactly(15).of(database).startTransaction();
 			will(returnValue(txn));
-			exactly(12).of(database).containsMessage(txn, messageId);
+			exactly(15).of(database).containsMessage(txn, messageId);
 			will(returnValue(false));
-			exactly(12).of(database).abortTransaction(txn);
+			exactly(15).of(database).abortTransaction(txn);
 			// Allow other checks to pass
 			allowing(database).containsContact(txn, contactId);
 			will(returnValue(true));
@@ -639,7 +642,7 @@ public class DatabaseComponentImplTest extends BrambleMockTestCase {
 		}
 
 		try {
-			db.transaction(false, transaction ->
+			db.transaction(true, transaction ->
 					db.getMessage(transaction, messageId));
 			fail();
 		} catch (NoSuchMessageException expected) {
@@ -647,7 +650,7 @@ public class DatabaseComponentImplTest extends BrambleMockTestCase {
 		}
 
 		try {
-			db.transaction(false, transaction ->
+			db.transaction(true, transaction ->
 					db.getMessageMetadata(transaction, messageId));
 			fail();
 		} catch (NoSuchMessageException expected) {
@@ -655,7 +658,7 @@ public class DatabaseComponentImplTest extends BrambleMockTestCase {
 		}
 
 		try {
-			db.transaction(false, transaction ->
+			db.transaction(true, transaction ->
 					db.getMessageState(transaction, messageId));
 			fail();
 		} catch (NoSuchMessageException expected) {
@@ -663,7 +666,7 @@ public class DatabaseComponentImplTest extends BrambleMockTestCase {
 		}
 
 		try {
-			db.transaction(false, transaction ->
+			db.transaction(true, transaction ->
 					db.getMessageStatus(transaction, contactId, messageId));
 			fail();
 		} catch (NoSuchMessageException expected) {
@@ -673,6 +676,15 @@ public class DatabaseComponentImplTest extends BrambleMockTestCase {
 		try {
 			db.transaction(false, transaction ->
 					db.mergeMessageMetadata(transaction, messageId, metadata));
+			fail();
+		} catch (NoSuchMessageException expected) {
+			// Expected
+		}
+
+		try {
+			db.transaction(false, transaction ->
+					db.setCleanupTimerDuration(transaction, message.getId(),
+							HOURS.toMillis(1)));
 			fail();
 		} catch (NoSuchMessageException expected) {
 			// Expected
@@ -703,7 +715,7 @@ public class DatabaseComponentImplTest extends BrambleMockTestCase {
 		}
 
 		try {
-			db.transaction(false, transaction ->
+			db.transaction(true, transaction ->
 					db.getMessageDependencies(transaction, messageId));
 			fail();
 		} catch (NoSuchMessageException expected) {
@@ -711,8 +723,24 @@ public class DatabaseComponentImplTest extends BrambleMockTestCase {
 		}
 
 		try {
-			db.transaction(false, transaction ->
+			db.transaction(true, transaction ->
 					db.getMessageDependents(transaction, messageId));
+			fail();
+		} catch (NoSuchMessageException expected) {
+			// Expected
+		}
+
+		try {
+			db.transaction(false, transaction ->
+					db.startCleanupTimer(transaction, messageId));
+			fail();
+		} catch (NoSuchMessageException expected) {
+			// Expected
+		}
+
+		try {
+			db.transaction(false, transaction ->
+					db.stopCleanupTimer(transaction, messageId));
 			fail();
 		} catch (NoSuchMessageException expected) {
 			// Expected
@@ -997,7 +1025,60 @@ public class DatabaseComponentImplTest extends BrambleMockTestCase {
 			oneOf(database).containsVisibleMessage(txn, contactId, messageId);
 			will(returnValue(true));
 			oneOf(database).raiseSeenFlag(txn, contactId, messageId);
+			will(returnValue(true));
+			oneOf(database).startCleanupTimer(txn, messageId);
+			will(returnValue(TIMER_NOT_STARTED)); // No cleanup duration was set
 			oneOf(database).commitTransaction(txn);
+			oneOf(eventBus).broadcast(with(any(MessagesAckedEvent.class)));
+		}});
+		DatabaseComponent db = createDatabaseComponent(database, eventBus,
+				eventExecutor, shutdownManager);
+
+		db.transaction(false, transaction -> {
+			Ack a = new Ack(singletonList(messageId));
+			db.receiveAck(transaction, contactId, a);
+		});
+	}
+
+	@Test
+	public void testReceiveDuplicateAck() throws Exception {
+		context.checking(new Expectations() {{
+			oneOf(database).startTransaction();
+			will(returnValue(txn));
+			oneOf(database).containsContact(txn, contactId);
+			will(returnValue(true));
+			oneOf(database).containsVisibleMessage(txn, contactId, messageId);
+			will(returnValue(true));
+			oneOf(database).raiseSeenFlag(txn, contactId, messageId);
+			will(returnValue(false)); // Already acked
+			oneOf(database).commitTransaction(txn);
+		}});
+		DatabaseComponent db = createDatabaseComponent(database, eventBus,
+				eventExecutor, shutdownManager);
+
+		db.transaction(false, transaction -> {
+			Ack a = new Ack(singletonList(messageId));
+			db.receiveAck(transaction, contactId, a);
+		});
+	}
+
+	@Test
+	public void testReceiveAckWithCleanupTimer() throws Exception {
+		long deadline = System.currentTimeMillis();
+		context.checking(new Expectations() {{
+			oneOf(database).startTransaction();
+			will(returnValue(txn));
+			oneOf(database).containsContact(txn, contactId);
+			will(returnValue(true));
+			oneOf(database).containsVisibleMessage(txn, contactId, messageId);
+			will(returnValue(true));
+			oneOf(database).raiseSeenFlag(txn, contactId, messageId);
+			will(returnValue(true));
+			oneOf(database).startCleanupTimer(txn, messageId);
+			will(returnValue(deadline));
+			oneOf(database).commitTransaction(txn);
+			oneOf(eventBus).broadcast(with(any(
+					CleanupTimerStartedEvent.class)));
 			oneOf(eventBus).broadcast(with(any(MessagesAckedEvent.class)));
 		}});
 		DatabaseComponent db = createDatabaseComponent(database, eventBus,

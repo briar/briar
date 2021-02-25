@@ -1,5 +1,6 @@
 package org.briarproject.bramble;
 
+import org.briarproject.bramble.cleanup.CleanupModule;
 import org.briarproject.bramble.client.ClientModule;
 import org.briarproject.bramble.connection.ConnectionModule;
 import org.briarproject.bramble.contact.ContactModule;
@@ -27,6 +28,7 @@ import org.briarproject.bramble.versioning.VersioningModule;
 import dagger.Module;
 
 @Module(includes = {
+		CleanupModule.class,
 		ClientModule.class,
 		ConnectionModule.class,
 		ContactModule.class,

@@ -1,5 +1,6 @@
 package org.briarproject.bramble.db;
 
+import org.briarproject.bramble.api.cleanup.event.CleanupTimerStartedEvent;
 import org.briarproject.bramble.api.contact.Contact;
 import org.briarproject.bramble.api.contact.ContactId;
 import org.briarproject.bramble.api.contact.PendingContact;
@@ -607,6 +608,13 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 	}
 
 	@Override
+	public Map<MessageId, GroupId> getMessagesToDelete(Transaction transaction)
+			throws DbException {
+		T txn = unbox(transaction);
+		return db.getMessagesToDelete(txn);
+	}
+
+	@Override
 	public Map<MessageId, Metadata> getMessageMetadata(Transaction transaction,
 			GroupId g) throws DbException {
 		T txn = unbox(transaction);
@@ -699,6 +707,13 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 		if (!db.containsMessage(txn, m))
 			throw new NoSuchMessageException();
 		return db.getMessageDependents(txn, m);
+	}
+
+	@Override
+	public long getNextCleanupDeadline(Transaction transaction)
+			throws DbException {
+		T txn = unbox(transaction);
+		return db.getNextCleanupDeadline(txn);
 	}
 
 	@Override
@@ -804,8 +819,15 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 		Collection<MessageId> acked = new ArrayList<>();
 		for (MessageId m : a.getMessageIds()) {
 			if (db.containsVisibleMessage(txn, c, m)) {
-				db.raiseSeenFlag(txn, c, m);
-				acked.add(m);
+				if (db.raiseSeenFlag(txn, c, m)) {
+					// This is the first time the message has been acked
+					long deadline = db.startCleanupTimer(txn, m);
+					if (deadline != TIMER_NOT_STARTED) {
+						transaction.attach(new CleanupTimerStartedEvent(m,
+								deadline));
+					}
+					acked.add(m);
+				}
 			}
 		}
 		if (acked.size() > 0) {
@@ -962,6 +984,16 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 	}
 
 	@Override
+	public void setCleanupTimerDuration(Transaction transaction, MessageId m,
+			long duration) throws DbException {
+		if (transaction.isReadOnly()) throw new IllegalArgumentException();
+		T txn = unbox(transaction);
+		if (!db.containsMessage(txn, m))
+			throw new NoSuchMessageException();
+		db.setCleanupTimerDuration(txn, m, duration);
+	}
+
+	@Override
 	public void setContactVerified(Transaction transaction, ContactId c)
 			throws DbException {
 		if (transaction.isReadOnly()) throw new IllegalArgumentException();
@@ -1011,6 +1043,16 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 	}
 
 	@Override
+	public void setMessageNotShared(Transaction transaction, MessageId m)
+			throws DbException {
+		if (transaction.isReadOnly()) throw new IllegalArgumentException();
+		T txn = unbox(transaction);
+		if (!db.containsMessage(txn, m))
+			throw new NoSuchMessageException();
+		db.setMessageShared(txn, m, false);
+	}
+
+	@Override
 	public void setMessageShared(Transaction transaction, MessageId m)
 			throws DbException {
 		if (transaction.isReadOnly()) throw new IllegalArgumentException();
@@ -1019,7 +1061,7 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 			throw new NoSuchMessageException();
 		if (db.getMessageState(txn, m) != DELIVERED)
 			throw new IllegalArgumentException("Shared undelivered message");
-		db.setMessageShared(txn, m);
+		db.setMessageShared(txn, m, true);
 		transaction.attach(new MessageSharedEvent(m));
 	}
 
@@ -1089,6 +1131,30 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 		if (!db.containsTransport(txn, t))
 			throw new NoSuchTransportException();
 		db.setTransportKeysActive(txn, t, k);
+	}
+
+	@Override
+	public long startCleanupTimer(Transaction transaction, MessageId m)
+			throws DbException {
+		if (transaction.isReadOnly()) throw new IllegalArgumentException();
+		T txn = unbox(transaction);
+		if (!db.containsMessage(txn, m))
+			throw new NoSuchMessageException();
+		long deadline = db.startCleanupTimer(txn, m);
+		if (deadline != TIMER_NOT_STARTED) {
+			transaction.attach(new CleanupTimerStartedEvent(m, deadline));
+		}
+		return deadline;
+	}
+
+	@Override
+	public void stopCleanupTimer(Transaction transaction, MessageId m)
+			throws DbException {
+		if (transaction.isReadOnly()) throw new IllegalArgumentException();
+		T txn = unbox(transaction);
+		if (!db.containsMessage(txn, m))
+			throw new NoSuchMessageException();
+		db.stopCleanupTimer(txn, m);
 	}
 
 	@Override
