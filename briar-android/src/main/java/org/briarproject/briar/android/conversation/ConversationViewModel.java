@@ -62,7 +62,6 @@ import androidx.lifecycle.MutableLiveData;
 
 import static androidx.lifecycle.Transformations.map;
 import static java.util.Objects.requireNonNull;
-import static java.util.concurrent.TimeUnit.DAYS;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
 import static java.util.logging.Logger.getLogger;
@@ -75,6 +74,7 @@ import static org.briarproject.briar.android.view.TextSendController.SendState.E
 import static org.briarproject.briar.android.view.TextSendController.SendState.SENT;
 import static org.briarproject.briar.android.view.TextSendController.SendState.UNEXPECTED_TIMER;
 import static org.briarproject.briar.api.autodelete.AutoDeleteConstants.NO_AUTO_DELETE_TIMER;
+import static org.briarproject.briar.api.autodelete.AutoDeleteManager.DEFAULT_TIMER_DURATION;
 import static org.briarproject.briar.api.messaging.PrivateMessageFormat.TEXT_IMAGES;
 import static org.briarproject.briar.api.messaging.PrivateMessageFormat.TEXT_ONLY;
 
@@ -393,7 +393,7 @@ public class ConversationViewModel extends DbViewModel
 	}
 
 	void setAutoDeleteTimerEnabled(boolean enabled) {
-		final long timer = enabled ? DAYS.toMillis(7) : NO_AUTO_DELETE_TIMER;
+		long timer = enabled ? DEFAULT_TIMER_DURATION : NO_AUTO_DELETE_TIMER;
 		// ContactId is set before menu gets inflated and UI interaction
 		final ContactId c = requireNonNull(contactId);
 		runOnDbThread(() -> {
