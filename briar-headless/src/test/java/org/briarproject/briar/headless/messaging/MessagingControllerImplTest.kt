@@ -386,15 +386,13 @@ internal class MessagingControllerImplTest : ControllerTest() {
         if (Random.nextBoolean()) result.addInvitationSessionInProgress()
         if (Random.nextBoolean()) result.addIntroductionNotAllSelected()
         if (Random.nextBoolean()) result.addIntroductionSessionInProgress()
-        if (Random.nextBoolean()) result.addNotFullyDownloaded()
         val json = """
             {
                 "allDeleted": ${result.allDeleted()},
                 "hasIntroductionSessionInProgress": ${result.hasIntroductionSessionInProgress()},
                 "hasInvitationSessionInProgress": ${result.hasInvitationSessionInProgress()},
                 "hasNotAllIntroductionSelected": ${result.hasNotAllIntroductionSelected()},
-                "hasNotAllInvitationSelected": ${result.hasNotAllInvitationSelected()},
-                "hasNotFullyDownloaded": ${result.hasNotFullyDownloaded()}
+                "hasNotAllInvitationSelected": ${result.hasNotAllInvitationSelected()}
             }
         """
         assertJsonEquals(json, result.output())

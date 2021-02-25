@@ -8,7 +8,6 @@ import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.bramble.test.TestDatabaseConfigModule;
 import org.briarproject.briar.api.attachment.AttachmentHeader;
 import org.briarproject.briar.api.conversation.ConversationMessageHeader;
-import org.briarproject.briar.api.conversation.DeletionResult;
 import org.briarproject.briar.api.messaging.MessagingManager;
 import org.briarproject.briar.api.messaging.PrivateMessage;
 import org.briarproject.briar.api.messaging.PrivateMessageFactory;
@@ -30,10 +29,7 @@ import javax.annotation.Nullable;
 
 import static java.util.Collections.emptyList;
 import static java.util.Collections.emptySet;
-import static java.util.Collections.singleton;
 import static java.util.Collections.singletonList;
-import static org.briarproject.bramble.api.sync.validation.MessageState.DELIVERED;
-import static org.briarproject.bramble.api.sync.validation.MessageState.PENDING;
 import static org.briarproject.bramble.test.TestUtils.getRandomBytes;
 import static org.briarproject.bramble.util.StringUtils.getRandomString;
 import static org.briarproject.briar.api.autodelete.AutoDeleteConstants.MIN_AUTO_DELETE_TIMER_MS;
@@ -293,56 +289,6 @@ public class MessagingManagerIntegrationTest
 				.allDeleted());
 		assertTrue(db1.transactionWithResult(false,
 				txn -> messagingManager1.deleteAllMessages(txn, contactId))
-				.allDeleted());
-
-		// attachment was deleted on both devices
-		try {
-			db0.transaction(true, txn -> db0.getMessage(txn, h.getMessageId()));
-			fail();
-		} catch (MessageDeletedException e) {
-			// expected
-		}
-		try {
-			db1.transaction(true, txn -> db1.getMessage(txn, h.getMessageId()));
-			fail();
-		} catch (MessageDeletedException e) {
-			// expected
-		}
-	}
-
-	@Test
-	public void testDeleteSomeAttachment() throws Exception {
-		// send one message with attachment
-		AttachmentHeader h = addAttachment(c0);
-		PrivateMessage m =
-				sendMessage(c0, c1, getRandomString(42), singletonList(h));
-
-		// attachment exists on both devices, state set to PENDING for receiver
-		db1.transaction(false, txn -> {
-			db1.getMessage(txn, h.getMessageId());
-			db1.setMessageState(txn, h.getMessageId(), PENDING);
-		});
-
-		// deleting succeeds for sender
-		Set<MessageId> toDelete = singleton(m.getMessage().getId());
-		DeletionResult result0 = db0.transactionWithResult(false, txn ->
-				messagingManager0.deleteMessages(txn, contactId, toDelete));
-		assertTrue(result0.allDeleted());
-
-		// deleting message fails for receiver,
-		// because attachment is not yet delivered
-		DeletionResult result1 = db1.transactionWithResult(false, txn ->
-				messagingManager1.deleteMessages(txn, contactId, toDelete));
-		assertFalse(result1.allDeleted());
-		assertTrue(result1.hasNotFullyDownloaded());
-
-		// deliver attachment
-		db1.transaction(false,
-				txn -> db1.setMessageState(txn, h.getMessageId(), DELIVERED));
-
-		// deleting message and attachment works for sender now
-		assertTrue(db1.transactionWithResult(false, txn ->
-				messagingManager1.deleteMessages(txn, contactId, toDelete))
 				.allDeleted());
 
 		// attachment was deleted on both devices

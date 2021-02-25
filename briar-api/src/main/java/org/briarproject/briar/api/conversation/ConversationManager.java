@@ -21,7 +21,6 @@ public interface ConversationManager {
 	int DELETE_SESSION_INVITATION_INCOMPLETE = 1 << 1;
 	int DELETE_SESSION_INTRODUCTION_IN_PROGRESS = 1 << 2;
 	int DELETE_SESSION_INVITATION_IN_PROGRESS = 1 << 3;
-	int DELETE_NOT_DOWNLOADED = 1 << 4;
 
 	/**
 	 * Clients that present messages in a private conversation need to
