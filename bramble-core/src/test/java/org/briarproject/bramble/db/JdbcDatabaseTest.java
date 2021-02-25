@@ -57,10 +57,11 @@ import java.util.concurrent.atomic.AtomicLong;
 
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
-import static java.util.Collections.emptyMap;
 import static java.util.Collections.singletonList;
 import static java.util.Collections.singletonMap;
 import static java.util.concurrent.TimeUnit.SECONDS;
+import static org.briarproject.bramble.api.db.DatabaseComponent.NO_CLEANUP_DEADLINE;
+import static org.briarproject.bramble.api.db.DatabaseComponent.TIMER_NOT_STARTED;
 import static org.briarproject.bramble.api.db.Metadata.REMOVE;
 import static org.briarproject.bramble.api.identity.AuthorConstants.MAX_AUTHOR_NAME_LENGTH;
 import static org.briarproject.bramble.api.sync.Group.Visibility.INVISIBLE;
@@ -355,7 +356,7 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 		assertTrue(ids.isEmpty());
 
 		// Sharing the message should make it sendable
-		db.setMessageShared(txn, messageId);
+		db.setMessageShared(txn, messageId, true);
 		ids = db.getMessagesToSend(txn, contactId, ONE_MEGABYTE, MAX_LATENCY);
 		assertEquals(singletonList(messageId), ids);
 		ids = db.getMessagesToOffer(txn, contactId, 100, MAX_LATENCY);
@@ -635,8 +636,7 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 
 		// The group should not be visible to the contact
 		assertEquals(INVISIBLE, db.getGroupVisibility(txn, contactId, groupId));
-		assertEquals(emptyMap(),
-				db.getGroupVisibility(txn, groupId));
+		assertTrue(db.getGroupVisibility(txn, groupId).isEmpty());
 
 		// Make the group visible to the contact
 		db.addGroupVisibility(txn, contactId, groupId, false);
@@ -659,8 +659,7 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 		// Make the group invisible again
 		db.removeGroupVisibility(txn, contactId, groupId);
 		assertEquals(INVISIBLE, db.getGroupVisibility(txn, contactId, groupId));
-		assertEquals(emptyMap(),
-				db.getGroupVisibility(txn, groupId));
+		assertTrue(db.getGroupVisibility(txn, groupId).isEmpty());
 
 		db.commitTransaction(txn);
 		db.close();
@@ -2044,7 +2043,7 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 		assertEquals(Long.MAX_VALUE, db.getNextSendTime(txn, contactId));
 
 		// Share the message - now it should be sendable immediately
-		db.setMessageShared(txn, messageId);
+		db.setMessageShared(txn, messageId, true);
 		assertEquals(0, db.getNextSendTime(txn, contactId));
 
 		// Mark the message as requested - it should still be sendable
@@ -2410,6 +2409,87 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 		db.close();
 		db = open(true);
 		assertFalse(db.wasDirtyOnInitialisation());
+	}
+
+	@Test
+	public void testCleanupTimer() throws Exception {
+		long duration = 60_000;
+		long now = System.currentTimeMillis();
+		AtomicLong time = new AtomicLong(now);
+		Database<Connection> db =
+				open(false, new TestMessageFactory(), new SettableClock(time));
+		Connection txn = db.startTransaction();
+
+		// No messages should be due or scheduled for deletion
+		assertTrue(db.getMessagesToDelete(txn).isEmpty());
+		assertEquals(NO_CLEANUP_DEADLINE, db.getNextCleanupDeadline(txn));
+
+		// Add a group and a message
+		db.addGroup(txn, group);
+		db.addMessage(txn, message, DELIVERED, false, false, null);
+
+		// No messages should be due or scheduled for deletion
+		assertTrue(db.getMessagesToDelete(txn).isEmpty());
+		assertEquals(NO_CLEANUP_DEADLINE, db.getNextCleanupDeadline(txn));
+
+		// Set the message's cleanup timer duration
+		db.setCleanupTimerDuration(txn, messageId, duration);
+
+		// No messages should be due or scheduled for deletion
+		assertTrue(db.getMessagesToDelete(txn).isEmpty());
+		assertEquals(NO_CLEANUP_DEADLINE, db.getNextCleanupDeadline(txn));
+
+		// Start the message's cleanup timer
+		assertEquals(now + duration, db.startCleanupTimer(txn, messageId));
+
+		// The timer can't be started again
+		assertEquals(TIMER_NOT_STARTED, db.startCleanupTimer(txn, messageId));
+
+		// No messages should be due for deletion, but the message should be
+		// scheduled for deletion
+		assertTrue(db.getMessagesToDelete(txn).isEmpty());
+		assertEquals(now + duration, db.getNextCleanupDeadline(txn));
+
+		// Stop the timer
+		db.stopCleanupTimer(txn, messageId);
+
+		// No messages should be due or scheduled for deletion
+		assertTrue(db.getMessagesToDelete(txn).isEmpty());
+		assertEquals(NO_CLEANUP_DEADLINE, db.getNextCleanupDeadline(txn));
+
+		// Start the timer again
+		assertEquals(now + duration, db.startCleanupTimer(txn, messageId));
+
+		// No messages should be due for deletion, but the message should be
+		// scheduled for deletion
+		assertTrue(db.getMessagesToDelete(txn).isEmpty());
+		assertEquals(now + duration, db.getNextCleanupDeadline(txn));
+
+		// 1 ms before the timer expires, no messages should be due for
+		// deletion but the message should be scheduled for deletion
+		time.set(now + duration - 1);
+		assertTrue(db.getMessagesToDelete(txn).isEmpty());
+		assertEquals(now + duration, db.getNextCleanupDeadline(txn));
+
+		// When the timer expires, the message should be due and scheduled for
+		// deletion
+		time.set(now + duration);
+		assertEquals(singletonMap(messageId, groupId),
+				db.getMessagesToDelete(txn));
+		assertEquals(now + duration, db.getNextCleanupDeadline(txn));
+
+		// 1 ms after the timer expires, the message should be due and
+		// scheduled for deletion
+		time.set(now + duration + 1);
+		assertEquals(singletonMap(messageId, groupId),
+				db.getMessagesToDelete(txn));
+		assertEquals(now + duration, db.getNextCleanupDeadline(txn));
+
+		// Once the message has been deleted, it should no longer be due
+		// or scheduled for deletion
+		db.deleteMessage(txn, messageId);
+		assertTrue(db.getMessagesToDelete(txn).isEmpty());
+		assertEquals(NO_CLEANUP_DEADLINE, db.getNextCleanupDeadline(txn));
 	}
 
 	private Database<Connection> open(boolean resume) throws Exception {

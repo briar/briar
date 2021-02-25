@@ -505,6 +505,24 @@ interface Database<T> {
 	Collection<MessageId> getMessagesToShare(T txn) throws DbException;
 
 	/**
+	 * Returns the IDs of any messages of any messages that are due for
+	 * deletion, along with their group IDs.
+	 * <p/>
+	 * Read-only.
+	 */
+	Map<MessageId, GroupId> getMessagesToDelete(T txn) throws DbException;
+
+	/**
+	 * Returns the next time (in milliseconds since the Unix epoch) when a
+	 * message is due to be deleted, or
+	 * {@link DatabaseComponent#NO_CLEANUP_DEADLINE} if no messages are
+	 * scheduled to be deleted.
+	 * <p/>
+	 * Read-only.
+	 */
+	long getNextCleanupDeadline(T txn) throws DbException;
+
+	/**
 	 * Returns the next time (in milliseconds since the Unix epoch) when a
 	 * message is due to be sent to the given contact. The returned value may
 	 * be zero if a message is due to be sent immediately, or Long.MAX_VALUE
@@ -613,8 +631,10 @@ interface Database<T> {
 
 	/**
 	 * Marks a message as having been seen by the given contact.
+	 *
+	 * @return True if the message was not already marked as seen.
 	 */
-	void raiseSeenFlag(T txn, ContactId c, MessageId m) throws DbException;
+	boolean raiseSeenFlag(T txn, ContactId c, MessageId m) throws DbException;
 
 	/**
 	 * Removes a contact from the database.
@@ -679,6 +699,13 @@ interface Database<T> {
 	void resetExpiryTime(T txn, ContactId c, MessageId m) throws DbException;
 
 	/**
+	 * Sets the cleanup timer duration for the given message. This does not
+	 * start the message's cleanup timer.
+	 */
+	void setCleanupTimerDuration(T txn, MessageId m, long duration)
+			throws DbException;
+
+	/**
 	 * Marks the given contact as verified.
 	 */
 	void setContactVerified(T txn, ContactId c) throws DbException;
@@ -708,9 +735,10 @@ interface Database<T> {
 	void setMessagePermanent(T txn, MessageId m) throws DbException;
 
 	/**
-	 * Marks the given message as shared.
+	 * Marks the given message as shared or not.
 	 */
-	void setMessageShared(T txn, MessageId m) throws DbException;
+	void setMessageShared(T txn, MessageId m, boolean shared)
+			throws DbException;
 
 	/**
 	 * Sets the validation and delivery state of the given message.
@@ -736,6 +764,22 @@ interface Database<T> {
 	 */
 	void setTransportKeysActive(T txn, TransportId t, KeySetId k)
 			throws DbException;
+
+	/**
+	 * Starts the cleanup timer for the given message, if a timer duration
+	 * has been set and the timer has not already been started.
+	 *
+	 * @return The cleanup deadline, or
+	 * {@link DatabaseComponent#TIMER_NOT_STARTED} if no timer duration has
+	 * been set for this message or its timer has already been started.
+	 */
+	long startCleanupTimer(T txn, MessageId m) throws DbException;
+
+	/**
+	 * Stops the cleanup timer for the given message, if the timer has been
+	 * started.
+	 */
+	void stopCleanupTimer(T txn, MessageId m) throws DbException;
 
 	/**
 	 * Updates the transmission count, expiry time and estimated time of arrival
