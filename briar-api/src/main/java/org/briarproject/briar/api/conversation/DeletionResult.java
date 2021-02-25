@@ -4,7 +4,6 @@ import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
-import static org.briarproject.briar.api.conversation.ConversationManager.DELETE_NOT_DOWNLOADED;
 import static org.briarproject.briar.api.conversation.ConversationManager.DELETE_SESSION_INTRODUCTION_INCOMPLETE;
 import static org.briarproject.briar.api.conversation.ConversationManager.DELETE_SESSION_INTRODUCTION_IN_PROGRESS;
 import static org.briarproject.briar.api.conversation.ConversationManager.DELETE_SESSION_INVITATION_INCOMPLETE;
@@ -36,10 +35,6 @@ public class DeletionResult {
 		result |= DELETE_SESSION_INTRODUCTION_IN_PROGRESS;
 	}
 
-	public void addNotFullyDownloaded() {
-		result |= DELETE_NOT_DOWNLOADED;
-	}
-
 	public boolean allDeleted() {
 		return result == 0;
 	}
@@ -59,9 +54,4 @@ public class DeletionResult {
 	public boolean hasNotAllInvitationSelected() {
 		return (result & DELETE_SESSION_INVITATION_INCOMPLETE) != 0;
 	}
-
-	public boolean hasNotFullyDownloaded() {
-		return (result & DELETE_NOT_DOWNLOADED) != 0;
-	}
-
 }

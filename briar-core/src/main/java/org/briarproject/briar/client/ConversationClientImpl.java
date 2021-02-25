@@ -42,6 +42,7 @@ public abstract class ConversationClientImpl extends BdfIncomingMessageHook
 	@Override
 	public void setReadFlag(GroupId g, MessageId m, boolean read)
 			throws DbException {
-		messageTracker.setReadFlag(g, m, read);
+		db.transaction(false, txn ->
+				messageTracker.setReadFlag(txn, g, m, read));
 	}
 }

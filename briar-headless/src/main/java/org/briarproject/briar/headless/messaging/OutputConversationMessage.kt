@@ -53,8 +53,7 @@ internal fun DeletionResult.output() = JsonDict(
     "hasIntroductionSessionInProgress" to hasIntroductionSessionInProgress(),
     "hasInvitationSessionInProgress" to hasInvitationSessionInProgress(),
     "hasNotAllIntroductionSelected" to hasNotAllIntroductionSelected(),
-    "hasNotAllInvitationSelected" to hasNotAllInvitationSelected(),
-    "hasNotFullyDownloaded" to hasNotFullyDownloaded()
+    "hasNotAllInvitationSelected" to hasNotAllInvitationSelected()
 )
 
 internal fun MessagesAckedEvent.output() = JsonDict(
