@@ -1,4 +1,4 @@
-package org.briarproject.briar.messaging;
+package org.briarproject.briar.conversation;
 
 import org.briarproject.bramble.api.contact.ContactId;
 import org.briarproject.bramble.api.db.DatabaseComponent;
