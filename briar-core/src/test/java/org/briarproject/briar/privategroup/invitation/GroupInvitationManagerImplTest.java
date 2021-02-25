@@ -720,10 +720,8 @@ public class GroupInvitationManagerImplTest extends BrambleMockTestCase {
 	public void testGetInvitations() throws Exception {
 		BdfDictionary query = BdfDictionary.of(new BdfEntry("q", "u"));
 		Message message2 = getMessage(contactGroup.getId());
-		BdfDictionary meta2 = BdfDictionary.of(new BdfEntry("m2", "e"));
-		Map<MessageId, BdfDictionary> results = new HashMap<>();
-		results.put(message.getId(), meta);
-		results.put(message2.getId(), meta2);
+		Collection<MessageId> results =
+				asList(message.getId(), message2.getId());
 		long time1 = 1L, time2 = 2L;
 		String groupName = getRandomString(MAX_GROUP_NAME_LENGTH);
 		byte[] salt = getRandomBytes(GROUP_SALT_LENGTH);
@@ -748,8 +746,7 @@ public class GroupInvitationManagerImplTest extends BrambleMockTestCase {
 			oneOf(contactGroupFactory).createContactGroup(CLIENT_ID,
 					MAJOR_VERSION, contact);
 			will(returnValue(contactGroup));
-			oneOf(clientHelper).getMessageMetadataAsDictionary(txn,
-					contactGroup.getId(), query);
+			oneOf(clientHelper).getMessageIds(txn, contactGroup.getId(), query);
 			will(returnValue(results));
 			// message 1
 			oneOf(messageParser).getInviteMessage(txn, message.getId());

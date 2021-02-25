@@ -577,6 +577,15 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 	}
 
 	@Override
+	public Collection<MessageId> getMessageIds(Transaction transaction,
+			GroupId g, Metadata query) throws DbException {
+		T txn = unbox(transaction);
+		if (!db.containsGroup(txn, g))
+			throw new NoSuchGroupException();
+		return db.getMessageIds(txn, g, query);
+	}
+
+	@Override
 	public Collection<MessageId> getMessagesToValidate(Transaction transaction)
 			throws DbException {
 		T txn = unbox(transaction);

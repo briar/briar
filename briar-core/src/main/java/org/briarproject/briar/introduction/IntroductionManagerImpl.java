@@ -494,15 +494,14 @@ class IntroductionManagerImpl extends ConversationClientImpl
 			Contact introducer) throws DbException {
 		BdfDictionary query = sessionEncoder
 				.getIntroduceeSessionsByIntroducerQuery(introducer.getAuthor());
-		Map<MessageId, BdfDictionary> sessions;
+		Collection<MessageId> sessionIds;
 		try {
-			sessions = clientHelper
-					.getMessageMetadataAsDictionary(txn, localGroup.getId(),
-							query);
+			sessionIds = clientHelper.getMessageIds(txn, localGroup.getId(),
+					query);
 		} catch (FormatException e) {
 			throw new DbException(e);
 		}
-		for (MessageId id : sessions.keySet()) {
+		for (MessageId id : sessionIds) {
 			db.removeMessage(txn, id);
 		}
 	}
@@ -708,9 +707,7 @@ class IntroductionManagerImpl extends ConversationClientImpl
 		GroupId g = getContactGroup(db.getContact(txn, c)).getId();
 		BdfDictionary query = messageParser.getMessagesVisibleInUiQuery();
 		try {
-			Map<MessageId, BdfDictionary> results =
-					clientHelper.getMessageMetadataAsDictionary(txn, g, query);
-			return results.keySet();
+			return new HashSet<>(clientHelper.getMessageIds(txn, g, query));
 		} catch (FormatException e) {
 			throw new DbException(e);
 		}
