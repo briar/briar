@@ -17,6 +17,7 @@ import org.briarproject.bramble.api.sync.Message;
 import org.briarproject.bramble.api.sync.MessageId;
 
 import java.security.GeneralSecurityException;
+import java.util.Collection;
 import java.util.Map;
 
 @NotNullByDefault
@@ -51,9 +52,11 @@ public interface ClientHelper {
 	BdfDictionary getGroupMetadataAsDictionary(Transaction txn, GroupId g)
 			throws DbException, FormatException;
 
+	Collection<MessageId> getMessageIds(Transaction txn, GroupId g,
+			BdfDictionary query) throws DbException, FormatException;
+
 	BdfDictionary getMessageMetadataAsDictionary(MessageId m)
-			throws DbException,
-			FormatException;
+			throws DbException, FormatException;
 
 	BdfDictionary getMessageMetadataAsDictionary(Transaction txn, MessageId m)
 			throws DbException, FormatException;

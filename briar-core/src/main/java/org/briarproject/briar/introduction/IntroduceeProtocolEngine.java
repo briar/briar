@@ -38,6 +38,7 @@ import org.briarproject.briar.api.introduction.event.IntroductionAbortedEvent;
 import org.briarproject.briar.api.introduction.event.IntroductionRequestReceivedEvent;
 
 import java.security.GeneralSecurityException;
+import java.util.Collection;
 import java.util.Map;
 import java.util.logging.Logger;
 
@@ -587,10 +588,9 @@ class IntroduceeProtocolEngine
 		BdfDictionary query = messageParser
 				.getRequestsAvailableToAnswerQuery(s.getSessionId());
 		try {
-			Map<MessageId, BdfDictionary> results =
-					clientHelper.getMessageMetadataAsDictionary(txn,
-							s.getContactGroupId(), query);
-			for (MessageId m : results.keySet())
+			Collection<MessageId> results = clientHelper.getMessageIds(txn,
+					s.getContactGroupId(), query);
+			for (MessageId m : results)
 				markRequestAvailableToAnswer(txn, m, false);
 		} catch (FormatException e) {
 			throw new AssertionError(e);

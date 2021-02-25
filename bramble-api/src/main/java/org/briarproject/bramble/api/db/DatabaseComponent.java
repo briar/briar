@@ -289,6 +289,16 @@ public interface DatabaseComponent extends TransactionManager {
 			throws DbException;
 
 	/**
+	 * Returns the IDs of any delivered messages in the given group with
+	 * metadata that matches all entries in the given query. If the query is
+	 * empty, the IDs of all delivered messages are returned.
+	 * <p/>
+	 * Read-only.
+	 */
+	Collection<MessageId> getMessageIds(Transaction txn, GroupId g,
+			Metadata query) throws DbException;
+
+	/**
 	 * Returns the IDs of any messages that need to be validated.
 	 * <p/>
 	 * Read-only.

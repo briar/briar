@@ -10,9 +10,9 @@ import org.briarproject.briar.api.privategroup.GroupMessage;
 import org.jmock.Expectations;
 import org.junit.Test;
 
-import java.util.Collections;
-import java.util.Map;
+import java.util.Collection;
 
+import static java.util.Collections.singletonList;
 import static org.briarproject.bramble.api.sync.Group.Visibility.INVISIBLE;
 import static org.briarproject.bramble.api.sync.Group.Visibility.SHARED;
 import static org.briarproject.bramble.api.sync.Group.Visibility.VISIBLE;
@@ -757,15 +757,12 @@ public class InviteeProtocolEngineTest extends AbstractProtocolEngineTest {
 
 	private void expectMarkInvitesUnavailableToAnswer() throws Exception {
 		BdfDictionary query = BdfDictionary.of(new BdfEntry("query", ""));
-		BdfDictionary meta = BdfDictionary.of(new BdfEntry("meta", ""));
-		Map<MessageId, BdfDictionary> invites =
-				Collections.singletonMap(lastRemoteMessageId, meta);
+		Collection<MessageId> invites = singletonList(lastRemoteMessageId);
 		context.checking(new Expectations() {{
 			oneOf(messageParser)
 					.getInvitesAvailableToAnswerQuery(privateGroupId);
 			will(returnValue(query));
-			oneOf(clientHelper)
-					.getMessageMetadataAsDictionary(txn, contactGroupId, query);
+			oneOf(clientHelper).getMessageIds(txn, contactGroupId, query);
 			will(returnValue(invites));
 		}});
 		expectMarkMessageAvailableToAnswer(lastRemoteMessageId, false);
