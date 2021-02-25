@@ -690,9 +690,7 @@ abstract class SharingManagerImpl<S extends Shareable>
 		GroupId g = getContactGroup(db.getContact(txn, c)).getId();
 		BdfDictionary query = messageParser.getMessagesVisibleInUiQuery();
 		try {
-			Map<MessageId, BdfDictionary> results =
-					clientHelper.getMessageMetadataAsDictionary(txn, g, query);
-			return results.keySet();
+			return new HashSet<>(clientHelper.getMessageIds(txn, g, query));
 		} catch (FormatException e) {
 			throw new DbException(e);
 		}
