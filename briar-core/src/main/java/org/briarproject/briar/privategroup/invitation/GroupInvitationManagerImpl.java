@@ -437,10 +437,9 @@ class GroupInvitationManagerImpl extends ConversationClientImpl
 			// Look up the available invite messages for each contact
 			for (Contact c : db.getContacts(txn)) {
 				GroupId contactGroupId = getContactGroup(c).getId();
-				Map<MessageId, BdfDictionary> results =
-						clientHelper.getMessageMetadataAsDictionary(txn,
-								contactGroupId, query);
-				for (MessageId m : results.keySet())
+				Collection<MessageId> results = clientHelper.getMessageIds(txn,
+						contactGroupId, query);
+				for (MessageId m : results)
 					items.add(parseGroupInvitationItem(txn, c, m));
 			}
 			db.commitTransaction(txn);
@@ -769,9 +768,7 @@ class GroupInvitationManagerImpl extends ConversationClientImpl
 		GroupId g = getContactGroup(db.getContact(txn, c)).getId();
 		BdfDictionary query = messageParser.getMessagesVisibleInUiQuery();
 		try {
-			Map<MessageId, BdfDictionary> results =
-					clientHelper.getMessageMetadataAsDictionary(txn, g, query);
-			return results.keySet();
+			return new HashSet<>(clientHelper.getMessageIds(txn, g, query));
 		} catch (FormatException e) {
 			throw new DbException(e);
 		}

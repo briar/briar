@@ -27,7 +27,7 @@ import org.briarproject.briar.api.privategroup.PrivateGroupFactory;
 import org.briarproject.briar.api.privategroup.PrivateGroupManager;
 import org.briarproject.briar.api.privategroup.invitation.GroupInvitationManager;
 
-import java.util.Map;
+import java.util.Collection;
 
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
@@ -237,10 +237,9 @@ abstract class AbstractProtocolEngine<S extends Session<?>>
 		GroupId privateGroupId = session.getPrivateGroupId();
 		BdfDictionary query =
 				messageParser.getInvitesAvailableToAnswerQuery(privateGroupId);
-		Map<MessageId, BdfDictionary> results =
-				clientHelper.getMessageMetadataAsDictionary(txn,
-						session.getContactGroupId(), query);
-		for (MessageId m : results.keySet())
+		Collection<MessageId> results = clientHelper.getMessageIds(txn,
+				session.getContactGroupId(), query);
+		for (MessageId m : results)
 			markMessageAvailableToAnswer(txn, m, false);
 	}
 
