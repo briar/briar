@@ -61,8 +61,11 @@ public interface MessageTracker {
 
 	/**
 	 * Marks a message as read or unread and updates the group count.
+	 *
+	 * @return True if the message was previously marked as read
 	 */
-	void setReadFlag(GroupId g, MessageId m, boolean read) throws DbException;
+	boolean setReadFlag(Transaction txn, GroupId g, MessageId m, boolean read)
+			throws DbException;
 
 	/**
 	 * Resets the {@link GroupCount} to the given msgCount and unreadCount.

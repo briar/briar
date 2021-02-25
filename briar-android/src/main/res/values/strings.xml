@@ -200,7 +200,6 @@
 	<string name="dialog_message_not_deleted_ongoing_both">Messages related to ongoing invitations and introductions cannot be deleted until they conclude.</string>
 	<string name="dialog_message_not_deleted_ongoing_introductions">Messages related to ongoing introductions cannot be deleted until they conclude.</string>
 	<string name="dialog_message_not_deleted_ongoing_invitations">Messages related to ongoing invitations cannot be deleted until they conclude.</string>
-	<string name="dialog_message_not_deleted_partly_downloaded">Partly downloaded messages cannot be deleted until they have finished downloading.</string>
 	<string name="dialog_message_not_deleted_not_all_selected_both">To delete an invitation or introduction, you need to select the request and the response.</string>
 	<string name="dialog_message_not_deleted_not_all_selected_introductions">To delete an introduction, you need to select the request and the response.</string>
 	<string name="dialog_message_not_deleted_not_all_selected_invitations">To delete an invitation, you need to select the request and the response.</string>
