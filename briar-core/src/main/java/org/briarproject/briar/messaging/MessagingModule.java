@@ -28,8 +28,6 @@ public class MessagingModule {
 		@Inject
 		MessagingManager messagingManager;
 		@Inject
-		ConversationManager conversationManager;
-		@Inject
 		PrivateMessageValidator privateMessageValidator;
 	}
 
@@ -67,12 +65,4 @@ public class MessagingModule {
 				MINOR_VERSION, messagingManager);
 		return messagingManager;
 	}
-
-	@Provides
-	@Singleton
-	ConversationManager getConversationManager(
-			ConversationManagerImpl conversationManager) {
-		return conversationManager;
-	}
-
 }
