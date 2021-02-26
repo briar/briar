@@ -20,9 +20,7 @@ import org.briarproject.bramble.api.system.Clock;
 import org.briarproject.bramble.api.system.TaskScheduler;
 import org.briarproject.bramble.api.versioning.ClientMajorVersion;
 
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -132,39 +130,25 @@ class CleanupManagerImpl implements CleanupManager, Service, EventListener {
 	}
 
 	private void deleteMessages(Transaction txn) throws DbException {
-		Map<GroupId, ClientMajorVersion> clientCache = new HashMap<>();
-		Map<GroupId, Collection<MessageId>> deleted = new HashMap<>();
-		Map<MessageId, GroupId> ids = db.getMessagesToDelete(txn);
-		if (LOG.isLoggable(INFO)) LOG.info(ids.size() + " messages to delete");
-		for (Entry<MessageId, GroupId> e : ids.entrySet()) {
-			MessageId m = e.getKey();
-			GroupId g = e.getValue();
-			ClientMajorVersion cv = clientCache.get(g);
-			if (cv == null) {
-				Group group = db.getGroup(txn, g);
-				cv = new ClientMajorVersion(group.getClientId(),
-						group.getMajorVersion());
-				clientCache.put(g, cv);
+		Map<GroupId, Collection<MessageId>> ids = db.getMessagesToDelete(txn);
+		for (Entry<GroupId, Collection<MessageId>> e : ids.entrySet()) {
+			GroupId groupId = e.getKey();
+			Collection<MessageId> messageIds = e.getValue();
+			if (LOG.isLoggable(INFO)) {
+				LOG.info(messageIds.size() + " messages to delete");
 			}
+			Group group = db.getGroup(txn, groupId);
+			ClientMajorVersion cv = new ClientMajorVersion(group.getClientId(),
+					group.getMajorVersion());
 			CleanupHook hook = hooks.get(cv);
 			if (hook == null) {
 				throw new IllegalStateException("No cleanup hook for " + cv);
 			}
-			if (hook.deleteMessage(txn, g, m)) {
-				Collection<MessageId> messageIds = deleted.get(g);
-				if (messageIds == null) {
-					messageIds = new ArrayList<>();
-					deleted.put(g, messageIds);
-				}
-				messageIds.add(m);
-			} else {
-				LOG.info("Message was not deleted");
-				// Stop the timer so we don't keep trying to delete this message
+			for (MessageId m : messageIds) {
+				hook.deleteMessage(txn, groupId, m);
 				db.stopCleanupTimer(txn, m);
 			}
-		}
-		for (Entry<GroupId, Collection<MessageId>> e : deleted.entrySet()) {
-			txn.attach(new MessagesCleanedUpEvent(e.getKey(), e.getValue()));
+			txn.attach(new MessagesCleanedUpEvent(groupId, messageIds));
 		}
 	}
 
