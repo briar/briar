@@ -63,6 +63,7 @@ import org.briarproject.briar.android.view.TextSendController;
 import org.briarproject.briar.android.view.TextSendController.SendState;
 import org.briarproject.briar.api.android.AndroidNotificationManager;
 import org.briarproject.briar.api.attachment.AttachmentHeader;
+import org.briarproject.briar.api.autodelete.event.ConversationMessagesDeletedEvent;
 import org.briarproject.briar.api.blog.BlogSharingManager;
 import org.briarproject.briar.api.client.ProtocolStateException;
 import org.briarproject.briar.api.client.SessionId;
@@ -671,6 +672,13 @@ public class ConversationActivity extends BriarActivity
 				LOG.info("Messages acked");
 				markMessages(m.getMessageIds(), true, true);
 			}
+		} else if (e instanceof ConversationMessagesDeletedEvent) {
+			ConversationMessagesDeletedEvent m =
+					(ConversationMessagesDeletedEvent) e;
+			if (m.getContactId().equals(contactId)) {
+				LOG.info("Messages auto-deleted");
+				onConversationMessagesDeleted(m.getMessageIds());
+			}
 		} else if (e instanceof ContactConnectedEvent) {
 			ContactConnectedEvent c = (ContactConnectedEvent) e;
 			if (c.getContactId().equals(contactId)) {
@@ -716,6 +724,13 @@ public class ConversationActivity extends BriarActivity
 			// visitor also loads message text and attachments (if existing)
 			addConversationItem(h.accept(visitor));
 		}
+	}
+
+	@UiThread
+	private void onConversationMessagesDeleted(
+			Collection<MessageId> messageIds) {
+		adapter.incrementRevision();
+		adapter.removeItems(messageIds);
 	}
 
 	@UiThread
