@@ -550,27 +550,22 @@ class MessagingManagerImpl implements MessagingManager, IncomingMessageHook,
 
 	private void recalculateGroupCount(Transaction txn, GroupId g)
 			throws DbException {
-		BdfDictionary query = BdfDictionary.of(
-				new BdfEntry(MSG_KEY_MSG_TYPE, PRIVATE_MESSAGE));
-		Map<MessageId, BdfDictionary> results;
 		try {
-			results =
-					clientHelper.getMessageMetadataAsDictionary(txn, g, query);
+			Map<MessageId, BdfDictionary> metadata =
+					clientHelper.getMessageMetadataAsDictionary(txn, g);
+			int msgCount = 0;
+			int unreadCount = 0;
+			for (Entry<MessageId, BdfDictionary> entry : metadata.entrySet()) {
+				BdfDictionary meta = entry.getValue();
+				Long messageType = meta.getOptionalLong(MSG_KEY_MSG_TYPE);
+				if (messageType == null || messageType == PRIVATE_MESSAGE) {
+					msgCount++;
+					if (!meta.getBoolean(MSG_KEY_READ)) unreadCount++;
+				}
+			}
+			messageTracker.resetGroupCount(txn, g, msgCount, unreadCount);
 		} catch (FormatException e) {
 			throw new DbException(e);
 		}
-		int msgCount = results.size();
-		int unreadCount = 0;
-		for (Entry<MessageId, BdfDictionary> entry : results.entrySet()) {
-			BdfDictionary meta = entry.getValue();
-			boolean read;
-			try {
-				read = meta.getBoolean(MSG_KEY_READ);
-			} catch (FormatException e) {
-				throw new DbException(e);
-			}
-			if (!read) unreadCount++;
-		}
-		messageTracker.resetGroupCount(txn, g, msgCount, unreadCount);
 	}
 }
