@@ -2268,8 +2268,8 @@ abstract class JdbcDatabase implements Database<Connection> {
 	}
 
 	@Override
-	public Map<MessageId, GroupId> getMessagesToDelete(Connection txn)
-			throws DbException {
+	public Map<GroupId, Collection<MessageId>> getMessagesToDelete(
+			Connection txn) throws DbException {
 		long now = clock.currentTimeMillis();
 		PreparedStatement ps = null;
 		ResultSet rs = null;
@@ -2279,10 +2279,16 @@ abstract class JdbcDatabase implements Database<Connection> {
 			ps = txn.prepareStatement(sql);
 			ps.setLong(1, now);
 			rs = ps.executeQuery();
-			Map<MessageId, GroupId> ids = new HashMap<>();
+			Map<GroupId, Collection<MessageId>> ids = new HashMap<>();
 			while (rs.next()) {
-				ids.put(new MessageId(rs.getBytes(1)),
-						new GroupId(rs.getBytes(2)));
+				MessageId m = new MessageId(rs.getBytes(1));
+				GroupId g = new GroupId(rs.getBytes(2));
+				Collection<MessageId> messageIds = ids.get(g);
+				if (messageIds == null) {
+					messageIds = new ArrayList<>();
+					ids.put(g, messageIds);
+				}
+				messageIds.add(m);
 			}
 			rs.close();
 			ps.close();

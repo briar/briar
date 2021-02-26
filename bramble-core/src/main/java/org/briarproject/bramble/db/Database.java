@@ -510,7 +510,8 @@ interface Database<T> {
 	 * <p/>
 	 * Read-only.
 	 */
-	Map<MessageId, GroupId> getMessagesToDelete(T txn) throws DbException;
+	Map<GroupId, Collection<MessageId>> getMessagesToDelete(T txn)
+			throws DbException;
 
 	/**
 	 * Returns the next time (in milliseconds since the Unix epoch) when a

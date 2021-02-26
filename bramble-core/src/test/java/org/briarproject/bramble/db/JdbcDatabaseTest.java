@@ -2474,14 +2474,14 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 		// When the timer expires, the message should be due and scheduled for
 		// deletion
 		time.set(now + duration);
-		assertEquals(singletonMap(messageId, groupId),
+		assertEquals(singletonMap(groupId, singletonList(messageId)),
 				db.getMessagesToDelete(txn));
 		assertEquals(now + duration, db.getNextCleanupDeadline(txn));
 
 		// 1 ms after the timer expires, the message should be due and
 		// scheduled for deletion
 		time.set(now + duration + 1);
-		assertEquals(singletonMap(messageId, groupId),
+		assertEquals(singletonMap(groupId, singletonList(messageId)),
 				db.getMessagesToDelete(txn));
 		assertEquals(now + duration, db.getNextCleanupDeadline(txn));
 
