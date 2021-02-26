@@ -581,15 +581,16 @@
 	<!-- Conversation Settings -->
 	<string name="disappearing_messages_title">Disappearing messages</string>
 	<string name="disappearing_messages_explanation_long">Turning on this setting will make new
-		messages in this conversation automatically disappear 7\u00A0days after being received.
-		This applies to messages you send to your contact as well as messages your contact sends to you.
-		Your contact can also change this setting for the both of you.
+		messages in this conversation automatically disappear after 7\u00A0days.
+		\n\nThe countdown for the sender\'s copy of the message starts after it has been delivered,
+		while it starts for the recipient after they have read the message.
 		\n\nMessages that will disappear are marked with a bomb icon.
 		\n\nKeep in mind that recipients can still make copies of the messages you send.
-		\n\nIf you change this setting, it will apply to your messages immediately and to your
-		contact\'s messages once they receive your next message.</string>
+		\n\nIf you change this setting, it will apply to your new messages immediately and to your
+		contact\'s messages once they receive your next message.
+		Your contact can also change this setting for the both of you.</string>
 	<string name="learn_more">Learn more</string>
-	<string name="disappearing_messages_summary">Make future messages in this conversation automatically disappear 7\u00A0days after being received.</string>
+	<string name="disappearing_messages_summary">Make future messages in this conversation automatically disappear after 7\u00A0days.</string>
 
 	<!-- Settings Feedback -->
 	<string name="send_feedback">Send feedback</string>
