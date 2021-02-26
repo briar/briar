@@ -1,5 +1,6 @@
 package org.briarproject.briar.messaging;
 
+import org.briarproject.bramble.api.cleanup.CleanupManager;
 import org.briarproject.bramble.api.contact.ContactManager;
 import org.briarproject.bramble.api.data.BdfReaderFactory;
 import org.briarproject.bramble.api.data.MetadataEncoder;
@@ -28,8 +29,6 @@ public class MessagingModule {
 		@Inject
 		MessagingManager messagingManager;
 		@Inject
-		ConversationManager conversationManager;
-		@Inject
 		PrivateMessageValidator privateMessageValidator;
 	}
 
@@ -57,6 +56,7 @@ public class MessagingModule {
 			ContactManager contactManager, ValidationManager validationManager,
 			ConversationManager conversationManager,
 			ClientVersioningManager clientVersioningManager,
+			CleanupManager cleanupManager,
 			MessagingManagerImpl messagingManager) {
 		lifecycleManager.registerOpenDatabaseHook(messagingManager);
 		contactManager.registerContactHook(messagingManager);
@@ -65,14 +65,8 @@ public class MessagingModule {
 		conversationManager.registerConversationClient(messagingManager);
 		clientVersioningManager.registerClient(CLIENT_ID, MAJOR_VERSION,
 				MINOR_VERSION, messagingManager);
+		cleanupManager.registerCleanupHook(CLIENT_ID, MAJOR_VERSION,
+				messagingManager);
 		return messagingManager;
 	}
-
-	@Provides
-	@Singleton
-	ConversationManager getConversationManager(
-			ConversationManagerImpl conversationManager) {
-		return conversationManager;
-	}
-
 }

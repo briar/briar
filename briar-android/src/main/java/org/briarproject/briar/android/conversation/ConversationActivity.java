@@ -829,10 +829,6 @@ public class ConversationActivity extends BriarActivity
 			fails.add(getString(
 					R.string.dialog_message_not_deleted_ongoing_invitations));
 		}
-		if (result.hasNotFullyDownloaded()) {
-			fails.add(getString(
-					R.string.dialog_message_not_deleted_partly_downloaded));
-		}
 		// add problems the user can resolve
 		if (result.hasNotAllIntroductionSelected() &&
 				result.hasNotAllInvitationSelected()) {

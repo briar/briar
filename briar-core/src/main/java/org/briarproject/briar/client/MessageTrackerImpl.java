@@ -138,9 +138,8 @@ class MessageTrackerImpl implements MessageTracker {
 	}
 
 	@Override
-	public void setReadFlag(GroupId g, MessageId m, boolean read)
-			throws DbException {
-		Transaction txn = db.startTransaction(false);
+	public boolean setReadFlag(Transaction txn, GroupId g, MessageId m,
+			boolean read) throws DbException {
 		try {
 			// check current read status of message
 			BdfDictionary old =
@@ -161,11 +160,9 @@ class MessageTrackerImpl implements MessageTracker {
 				storeGroupCount(txn, g, new GroupCount(c.getMsgCount(),
 						unreadCount, c.getLatestMsgTime()));
 			}
-			db.commitTransaction(txn);
+			return wasRead;
 		} catch (FormatException e) {
 			throw new DbException(e);
-		} finally {
-			db.endTransaction(txn);
 		}
 	}
 
