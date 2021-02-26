@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:app="http://schemas.android.com/apk/res-auto"
+	xmlns:tools="http://schemas.android.com/tools"
+	android:layout_width="match_parent"
+	android:layout_height="match_parent">
+
+	<LinearLayout
+		android:id="@+id/linearLayout"
+		android:layout_width="match_parent"
+		android:layout_height="match_parent"
+		android:orientation="vertical"
+		android:paddingLeft="@dimen/margin_large"
+		android:paddingTop="@dimen/margin_medium"
+		android:paddingRight="@dimen/margin_large"
+		android:paddingBottom="@dimen/margin_medium">
+
+		<TextView
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:text="Backup creation" />
+
+		<Button
+			android:id="@+id/buttonSelectThreshold"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:drawableLeft="@drawable/ic_security"
+			android:text="Select Threshold" />
+
+		<Button
+			android:id="@+id/buttonShardsSent"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:drawableLeft="@drawable/ic_security"
+			android:text="Shards sent" />
+
+		<TextView
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:text="Setup" />
+
+		<Button
+			android:id="@+id/buttonWelcome"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:drawableLeft="@drawable/ic_security"
+			android:text="Welcome" />
+
+		<TextView
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:text="Recovery from secrect owner's point of view" />
+
+		<Button
+			android:id="@+id/buttonOwnerRecoveryExplainer"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:drawableLeft="@drawable/ic_security"
+			android:text="Explainer" />
+
+		<Button
+			android:id="@+id/buttonOwnerRecoveryReceivedShard"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:drawableLeft="@drawable/ic_security"
+			android:text="Shard received" />
+
+		<Button
+			android:id="@+id/buttonOwnerRecoveryMain1"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:drawableLeft="@drawable/ic_security"
+			android:text="Main (0 shards)" />
+
+		<Button
+			android:id="@+id/buttonOwnerRecoveryMain2"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:drawableLeft="@drawable/ic_security"
+			android:text="Main (1 shard)" />
+
+		<Button
+			android:id="@+id/buttonOwnerRecoveryMain3"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:drawableLeft="@drawable/ic_security"
+			android:text="Recovering account…" />
+
+		<Button
+			android:id="@+id/buttonOwnerRecoveryAccountRecovered"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:drawableLeft="@drawable/ic_security"
+			android:text="Account recovered" />
+
+		<Button
+			android:id="@+id/buttonOwnerRecoveryErrorExplainer"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:drawableLeft="@drawable/ic_security"
+			android:text="Error" />
+
+		<TextView
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:text="Recovery from custodian's point of view" />
+
+		<Button
+			android:id="@+id/buttonCustodianRecoveryExplainer"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:drawableLeft="@drawable/ic_security"
+			android:text="Explainer" />
+
+		<Button
+			android:id="@+id/buttonCustodianRecoveryErrorExplainer"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:drawableLeft="@drawable/ic_security"
+			android:text="Error" />
+
+		<Button
+			android:id="@+id/buttonCustodianRecoveryDone"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:drawableLeft="@drawable/ic_security"
+			android:text="Done" />
+
+	</LinearLayout>
+</ScrollView>
