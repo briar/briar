@@ -3,7 +3,6 @@ package org.briarproject.bramble.cleanup;
 import org.briarproject.bramble.api.cleanup.CleanupHook;
 import org.briarproject.bramble.api.cleanup.CleanupManager;
 import org.briarproject.bramble.api.cleanup.event.CleanupTimerStartedEvent;
-import org.briarproject.bramble.api.cleanup.event.MessagesCleanedUpEvent;
 import org.briarproject.bramble.api.db.DatabaseComponent;
 import org.briarproject.bramble.api.db.DatabaseExecutor;
 import org.briarproject.bramble.api.db.DbException;
@@ -146,7 +145,6 @@ class CleanupManagerImpl implements CleanupManager, Service, EventListener {
 				throw new IllegalStateException("No cleanup hook for " + cv);
 			}
 			hook.deleteMessages(txn, groupId, messageIds);
-			txn.attach(new MessagesCleanedUpEvent(groupId, messageIds));
 		}
 	}
 
