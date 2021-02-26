@@ -13,6 +13,7 @@ import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.activity.ActivityComponent;
 import org.briarproject.briar.android.fragment.BaseFragment;
+import org.briarproject.briar.android.widget.OnboardingFullDialogFragment;
 
 import java.util.logging.Logger;
 
@@ -113,10 +114,10 @@ public class ConversationSettingsDialog extends DialogFragment {
 	}
 
 	private void showLearnMoreDialog() {
-		ConversationSettingsLearnMoreDialog
-				dialog = new ConversationSettingsLearnMoreDialog();
-		dialog.show(getChildFragmentManager(),
-				ConversationSettingsLearnMoreDialog.TAG);
+		OnboardingFullDialogFragment.newInstance(
+				R.string.disappearing_messages_title,
+				R.string.disappearing_messages_explanation_long
+		).show(getChildFragmentManager(), OnboardingFullDialogFragment.TAG);
 	}
 
 }
