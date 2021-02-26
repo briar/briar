@@ -137,6 +137,7 @@ class CleanupManagerImpl implements CleanupManager, Service, EventListener {
 			if (LOG.isLoggable(INFO)) {
 				LOG.info(messageIds.size() + " messages to delete");
 			}
+			for (MessageId m : messageIds) db.stopCleanupTimer(txn, m);
 			Group group = db.getGroup(txn, groupId);
 			ClientMajorVersion cv = new ClientMajorVersion(group.getClientId(),
 					group.getMajorVersion());
@@ -144,10 +145,7 @@ class CleanupManagerImpl implements CleanupManager, Service, EventListener {
 			if (hook == null) {
 				throw new IllegalStateException("No cleanup hook for " + cv);
 			}
-			for (MessageId m : messageIds) {
-				hook.deleteMessage(txn, groupId, m);
-				db.stopCleanupTimer(txn, m);
-			}
+			hook.deleteMessages(txn, groupId, messageIds);
 			txn.attach(new MessagesCleanedUpEvent(groupId, messageIds));
 		}
 	}
