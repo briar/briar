@@ -573,7 +573,7 @@ public class ConversationActivity extends BriarActivity
 							this::showImageOnboarding);
 				}
 				List<ConversationItem> items = createItems(headers);
-				adapter.addAll(items);
+				adapter.replaceAll(items);
 				list.showData();
 				if (layoutManagerState == null) {
 					scrollToBottom();
