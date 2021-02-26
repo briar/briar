@@ -292,6 +292,7 @@ class MessagingManagerImpl implements MessagingManager, IncomingMessageHook,
 	public void addLocalMessage(Transaction txn, PrivateMessage m)
 			throws DbException {
 		try {
+			long timer = m.getAutoDeleteTimer();
 			BdfDictionary meta = new BdfDictionary();
 			meta.put(MSG_KEY_TIMESTAMP, m.getMessage().getTimestamp());
 			meta.put(MSG_KEY_LOCAL, true);
@@ -305,11 +306,9 @@ class MessagingManagerImpl implements MessagingManager, IncomingMessageHook,
 							BdfList.of(a.getMessageId(), a.getContentType()));
 				}
 				meta.put(MSG_KEY_ATTACHMENT_HEADERS, headers);
-				if (m.getFormat() == TEXT_IMAGES_AUTO_DELETE) {
-					long timer = m.getAutoDeleteTimer();
-					if (timer != NO_AUTO_DELETE_TIMER) {
-						meta.put(MSG_KEY_AUTO_DELETE_TIMER, timer);
-					}
+				if (m.getFormat() == TEXT_IMAGES_AUTO_DELETE
+						&& timer != NO_AUTO_DELETE_TIMER) {
+					meta.put(MSG_KEY_AUTO_DELETE_TIMER, timer);
 				}
 			}
 			// Mark attachments as shared and permanent now we're ready to send
@@ -317,7 +316,6 @@ class MessagingManagerImpl implements MessagingManager, IncomingMessageHook,
 				db.setMessageShared(txn, a.getMessageId());
 				db.setMessagePermanent(txn, a.getMessageId());
 			}
-			long timer = m.getAutoDeleteTimer();
 			clientHelper.addLocalMessage(txn, m.getMessage(), meta, true,
 					false);
 			if (timer != NO_AUTO_DELETE_TIMER) {
