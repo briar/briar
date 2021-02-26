@@ -19,7 +19,6 @@
 	<ScrollView
 		android:layout_width="match_parent"
 		android:layout_height="0dp"
-		android:paddingHorizontal="@dimen/margin_large"
 		app:layout_constraintBottom_toBottomOf="parent"
 		app:layout_constraintEnd_toEndOf="parent"
 		app:layout_constraintStart_toStartOf="parent"
@@ -43,24 +42,25 @@
 
 			<androidx.appcompat.widget.SwitchCompat
 				android:id="@+id/switchDisappearingMessages"
-				android:layout_width="wrap_content"
+				android:layout_width="0dp"
 				android:layout_height="wrap_content"
-				android:layout_marginTop="16dp"
+				android:layout_margin="16dp"
 				android:enabled="false"
 				android:text="@string/disappearing_messages_summary"
 				app:layout_constraintEnd_toEndOf="parent"
 				app:layout_constraintStart_toStartOf="parent"
-				app:layout_constraintTop_toBottomOf="@+id/imageViewBomb" />
+				app:layout_constraintTop_toBottomOf="@+id/imageViewBomb"
+				tools:enabled="true" />
 
-			<TextView
+			<Button
 				android:id="@+id/buttonLearnMore"
+				style="@style/BriarButtonFlat.Positive"
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
-				android:layout_marginTop="@dimen/margin_large"
-				android:clickable="true"
-				android:focusable="true"
+				android:padding="16dp"
 				android:text="@string/learn_more"
-				android:textColor="@color/briar_text_link"
+				android:textAllCaps="false"
+				android:textSize="14sp"
 				app:layout_constraintStart_toStartOf="parent"
 				app:layout_constraintTop_toBottomOf="@+id/switchDisappearingMessages" />
 

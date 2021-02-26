@@ -582,8 +582,8 @@
 	<string name="disappearing_messages_title">Disappearing messages</string>
 	<string name="disappearing_messages_explanation_long">Turning on this setting will make new
 		messages in this conversation automatically disappear after 7\u00A0days.
-		\n\nThe countdown for the sender\'s copy of the message starts after it has been delivered,
-		while it starts for the recipient after they have read the message.
+		\n\nThe countdown for the sender\'s copy of the message starts after it has been delivered.
+		The countdown starts for the recipient after they have read the message.
 		\n\nMessages that will disappear are marked with a bomb icon.
 		\n\nKeep in mind that recipients can still make copies of the messages you send.
 		\n\nIf you change this setting, it will apply to your new messages immediately and to your

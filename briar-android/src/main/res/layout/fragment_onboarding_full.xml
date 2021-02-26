@@ -46,7 +46,7 @@
 				android:layout_height="wrap_content"
 				android:layout_margin="16dp"
 				android:textColor="@color/briar_text_secondary_inverse"
-				app:layout_constraintBottom_toBottomOf="parent"
+				app:layout_constraintBottom_toTopOf="@+id/button"
 				app:layout_constraintEnd_toEndOf="parent"
 				app:layout_constraintStart_toStartOf="parent"
 				app:layout_constraintTop_toBottomOf="@+id/imageView"
