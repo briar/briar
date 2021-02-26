@@ -3400,7 +3400,6 @@ abstract class JdbcDatabase implements Database<Connection> {
 	public void stopCleanupTimer(Connection txn, MessageId m)
 			throws DbException {
 		PreparedStatement ps = null;
-		ResultSet rs = null;
 		try {
 			String sql = "UPDATE messages SET cleanupDeadline = NULL"
 					+ " WHERE messageId = ?";
@@ -3410,7 +3409,6 @@ abstract class JdbcDatabase implements Database<Connection> {
 			if (affected < 0 || affected > 1) throw new DbStateException();
 			ps.close();
 		} catch (SQLException e) {
-			tryToClose(rs, LOG, WARNING);
 			tryToClose(ps, LOG, WARNING);
 			throw new DbException(e);
 		}
