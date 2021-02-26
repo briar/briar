@@ -342,7 +342,7 @@ public interface DatabaseComponent extends TransactionManager {
 	 * <p/>
 	 * Read-only.
 	 */
-	Map<MessageId, GroupId> getMessagesToDelete(Transaction txn)
+	Map<GroupId, Collection<MessageId>> getMessagesToDelete(Transaction txn)
 			throws DbException;
 
 	/**
