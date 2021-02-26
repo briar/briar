@@ -151,6 +151,8 @@ class CleanupManagerImpl implements CleanupManager, Service, EventListener {
 				if (LOG.isLoggable(WARNING)) {
 					LOG.warning("No cleanup hook for " + cv);
 				}
+				// Stop the timer so we don't keep trying to delete this message
+				db.stopCleanupTimer(txn, m);
 			} else if (hook.deleteMessage(txn, g, m)) {
 				Collection<MessageId> messageIds = deleted.get(g);
 				if (messageIds == null) {
@@ -160,6 +162,7 @@ class CleanupManagerImpl implements CleanupManager, Service, EventListener {
 				messageIds.add(m);
 			} else {
 				LOG.info("Message was not deleted");
+				// Stop the timer so we don't keep trying to delete this message
 				db.stopCleanupTimer(txn, m);
 			}
 		}
