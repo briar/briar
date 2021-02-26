@@ -1,8 +1,8 @@
-package org.briarproject.bramble.api.cleanup.event;
+package org.briarproject.briar.api.autodelete.event;
 
+import org.briarproject.bramble.api.contact.ContactId;
 import org.briarproject.bramble.api.event.Event;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
-import org.briarproject.bramble.api.sync.GroupId;
 import org.briarproject.bramble.api.sync.MessageId;
 
 import java.util.Collection;
@@ -10,24 +10,24 @@ import java.util.Collection;
 import javax.annotation.concurrent.Immutable;
 
 /**
- * An event that is broadcast when one or more messages in a group are
- * cleaned up.
+ * An event that is broadcast when one or more messages
+ * in the private conversation with a contact have been deleted.
  */
 @Immutable
 @NotNullByDefault
-public class MessagesCleanedUpEvent extends Event {
+public class ConversationMessagesDeletedEvent extends Event {
 
-	private final GroupId groupId;
+	private final ContactId contactId;
 	private final Collection<MessageId> messageIds;
 
-	public MessagesCleanedUpEvent(GroupId groupId,
+	public ConversationMessagesDeletedEvent(ContactId contactId,
 			Collection<MessageId> messageIds) {
-		this.groupId = groupId;
+		this.contactId = contactId;
 		this.messageIds = messageIds;
 	}
 
-	public GroupId getGroupId() {
-		return groupId;
+	public ContactId getContactId() {
+		return contactId;
 	}
 
 	public Collection<MessageId> getMessageIds() {

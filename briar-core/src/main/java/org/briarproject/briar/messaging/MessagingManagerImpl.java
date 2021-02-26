@@ -31,6 +31,7 @@ import org.briarproject.bramble.api.versioning.ClientVersioningManager.ClientVer
 import org.briarproject.briar.api.attachment.AttachmentHeader;
 import org.briarproject.briar.api.attachment.FileTooBigException;
 import org.briarproject.briar.api.autodelete.AutoDeleteManager;
+import org.briarproject.briar.api.autodelete.event.ConversationMessagesDeletedEvent;
 import org.briarproject.briar.api.client.MessageTracker;
 import org.briarproject.briar.api.client.MessageTracker.GroupCount;
 import org.briarproject.briar.api.conversation.ConversationManager.ConversationClient;
@@ -532,6 +533,8 @@ class MessagingManagerImpl implements MessagingManager, IncomingMessageHook,
 			Collection<MessageId> messageIds) throws DbException {
 		for (MessageId m : messageIds) deleteMessage(txn, g, m);
 		recalculateGroupCount(txn, g);
+		ContactId c = getContactId(txn, g);
+		txn.attach(new ConversationMessagesDeletedEvent(c, messageIds));
 	}
 
 	private void deleteMessage(Transaction txn, GroupId g, MessageId m)
