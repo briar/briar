@@ -13,10 +13,13 @@ import org.briarproject.briar.R;
 import org.briarproject.briar.android.util.BriarAdapter;
 import org.briarproject.briar.android.util.ItemReturningAdapter;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
 import androidx.annotation.LayoutRes;
 import androidx.annotation.Nullable;
+import androidx.annotation.UiThread;
 import androidx.recyclerview.selection.SelectionTracker;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView.RecycledViewPool;
@@ -117,12 +120,28 @@ class ConversationAdapter
 	}
 
 	@Override
-	public void addAll(Collection<ConversationItem> itemsToAdd) {
+	public void replaceAll(Collection<ConversationItem> itemsToReplace) {
 		items.beginBatchedUpdates();
 		// there can be items already in the adapter
 		// SortedList takes care of duplicates and detecting changed items
-		items.addAll(itemsToAdd);
+		items.replaceAll(itemsToReplace);
 		updateTimersInBatch();
+		items.endBatchedUpdates();
+	}
+
+	@UiThread
+	void removeItems(Collection<MessageId> messageIds) {
+		// Collect all items to be deleted first
+		// and then delete them in one batched update.
+		// Deleting them right away would cause issues
+		// due to changing list positions.
+		List<ConversationItem> toRemove = new ArrayList<>(messageIds.size());
+		for (int i = 0; i < items.size(); i++) {
+			ConversationItem item = items.get(i);
+			if (messageIds.contains(item.getId())) toRemove.add(item);
+		}
+		items.beginBatchedUpdates();
+		for (ConversationItem item : toRemove) items.remove(item);
 		items.endBatchedUpdates();
 	}
 
