@@ -11,6 +11,7 @@ import org.briarproject.bramble.system.TimeTravelModule;
 import org.briarproject.bramble.test.TestDatabaseConfigModule;
 import org.briarproject.briar.api.attachment.AttachmentHeader;
 import org.briarproject.briar.api.autodelete.AutoDeleteManager;
+import org.briarproject.briar.api.client.MessageTracker.GroupCount;
 import org.briarproject.briar.api.conversation.ConversationManager;
 import org.briarproject.briar.api.conversation.ConversationMessageHeader;
 import org.briarproject.briar.api.messaging.MessagingManager;
@@ -96,6 +97,7 @@ public class AutoDeleteIntegrationTest
 		// 0 creates a message without a timer
 		MessageId messageId = createMessageWithoutTimer(c0, contactId1From0);
 		// The message should have been added to 0's view of the conversation
+		assertGroupCount(c0, contactId1From0, 1, 0);
 		List<ConversationMessageHeader> headers0 =
 				getMessageHeaders(c0, contactId1From0);
 		assertEquals(1, headers0.size());
@@ -106,6 +108,7 @@ public class AutoDeleteIntegrationTest
 		// Sync the message to 1
 		sync0To1(1, true);
 		// The message should have been added to 1's view of the conversation
+		assertGroupCount(c1, contactId0From1, 1, 1);
 		List<ConversationMessageHeader> headers1 =
 				getMessageHeaders(c1, contactId0From1);
 		assertEquals(1, headers1.size());
@@ -120,6 +123,7 @@ public class AutoDeleteIntegrationTest
 		// 0 creates a message with the default timer
 		MessageId messageId = createMessageWithTimer(c0, contactId1From0);
 		// The message should have been added to 0's view of the conversation
+		assertGroupCount(c0, contactId1From0, 1, 0);
 		List<ConversationMessageHeader> headers0 =
 				getMessageHeaders(c0, contactId1From0);
 		assertEquals(1, headers0.size());
@@ -132,6 +136,7 @@ public class AutoDeleteIntegrationTest
 		// Sync the ack to 0
 		ack1To0(1);
 		// The message should have been added to 1's view of the conversation
+		assertGroupCount(c1, contactId0From1, 1, 1);
 		List<ConversationMessageHeader> headers1 =
 				getMessageHeaders(c1, contactId0From1);
 		assertEquals(1, headers1.size());
@@ -159,6 +164,7 @@ public class AutoDeleteIntegrationTest
 		// 0 creates a message with the new timer
 		MessageId messageId = createMessageWithTimer(c0, contactId1From0);
 		// The message should have been added to 0's view of the conversation
+		assertGroupCount(c0, contactId1From0, 1, 0);
 		List<ConversationMessageHeader> headers0 =
 				getMessageHeaders(c0, contactId1From0);
 		assertEquals(1, headers0.size());
@@ -171,6 +177,7 @@ public class AutoDeleteIntegrationTest
 		// Sync the ack to 0 - this starts 0's timer
 		ack1To0(1);
 		// The message should have been added to 1's view of the conversation
+		assertGroupCount(c1, contactId0From1, 1, 1);
 		List<ConversationMessageHeader> headers1 =
 				getMessageHeaders(c1, contactId0From1);
 		assertEquals(1, headers1.size());
@@ -187,35 +194,36 @@ public class AutoDeleteIntegrationTest
 		long timerLatency = MIN_AUTO_DELETE_TIMER_MS + BATCH_DELAY_MS;
 		c0.getTimeTravel().addCurrentTimeMillis(timerLatency - 1);
 		c1.getTimeTravel().addCurrentTimeMillis(timerLatency - 1);
-		headers0 = getMessageHeaders(c0, contactId1From0);
-		assertEquals(1, headers0.size());
-		headers1 = getMessageHeaders(c1, contactId0From1);
-		assertEquals(1, headers1.size());
+		assertGroupCount(c0, contactId1From0, 1, 0);
+		assertEquals(1, getMessageHeaders(c0, contactId1From0).size());
+		assertGroupCount(c1, contactId0From1, 1, 1);
+		assertEquals(1, getMessageHeaders(c1, contactId0From1).size());
 		// When 0's timer has elapsed, the message should be deleted from 0's
 		// view of the conversation but 1 should still see the message
 		c0.getTimeTravel().addCurrentTimeMillis(1);
 		c1.getTimeTravel().addCurrentTimeMillis(1);
-		headers0 = getMessageHeaders(c0, contactId1From0);
-		assertEquals(0, headers0.size());
-		headers1 = getMessageHeaders(c1, contactId0From1);
-		assertEquals(1, headers1.size());
+		assertGroupCount(c0, contactId1From0, 0, 0);
+		assertEquals(0, getMessageHeaders(c0, contactId1From0).size());
+		assertGroupCount(c1, contactId0From1, 1, 1);
+		assertEquals(1, getMessageHeaders(c1, contactId0From1).size());
 		// 1 marks the message as read - this starts 1's timer
 		markMessageRead(c1, contact0From1, messageId);
+		assertGroupCount(c1, contactId0From1, 1, 0);
 		// Before 1's timer elapses, 1 should still see the message
 		c0.getTimeTravel().addCurrentTimeMillis(timerLatency - 1);
 		c1.getTimeTravel().addCurrentTimeMillis(timerLatency - 1);
-		headers0 = getMessageHeaders(c0, contactId1From0);
-		assertEquals(0, headers0.size());
-		headers1 = getMessageHeaders(c1, contactId0From1);
-		assertEquals(1, headers1.size());
+		assertGroupCount(c0, contactId1From0, 0, 0);
+		assertEquals(0, getMessageHeaders(c0, contactId1From0).size());
+		assertGroupCount(c1, contactId0From1, 1, 0);
+		assertEquals(1, getMessageHeaders(c1, contactId0From1).size());
 		// When 1's timer has elapsed, the message should be deleted from 1's
 		// view of the conversation
 		c0.getTimeTravel().addCurrentTimeMillis(1);
 		c1.getTimeTravel().addCurrentTimeMillis(1);
-		headers0 = getMessageHeaders(c0, contactId1From0);
-		assertEquals(0, headers0.size());
-		headers1 = getMessageHeaders(c1, contactId0From1);
-		assertEquals(0, headers1.size());
+		assertGroupCount(c0, contactId1From0, 0, 0);
+		assertEquals(0, getMessageHeaders(c0, contactId1From0).size());
+		assertGroupCount(c1, contactId0From1, 0, 0);
+		assertEquals(0, getMessageHeaders(c1, contactId0From1).size());
 	}
 
 	@Test
@@ -231,6 +239,7 @@ public class AutoDeleteIntegrationTest
 		// 0 creates a message with the new timer
 		MessageId messageId0 = createMessageWithTimer(c0, contactId1From0);
 		// The message should have been added to 0's view of the conversation
+		assertGroupCount(c0, contactId1From0, 1, 0);
 		List<ConversationMessageHeader> headers0 =
 				getMessageHeaders(c0, contactId1From0);
 		assertEquals(1, headers0.size());
@@ -243,6 +252,7 @@ public class AutoDeleteIntegrationTest
 		// Sync the ack to 0 - this starts 0's timer
 		ack1To0(1);
 		// The message should have been added to 1's view of the conversation
+		assertGroupCount(c1, contactId0From1, 1, 1);
 		List<ConversationMessageHeader> headers1 =
 				getMessageHeaders(c1, contactId0From1);
 		assertEquals(1, headers1.size());
@@ -259,38 +269,40 @@ public class AutoDeleteIntegrationTest
 		long timerLatency = MIN_AUTO_DELETE_TIMER_MS + BATCH_DELAY_MS;
 		c0.getTimeTravel().addCurrentTimeMillis(timerLatency - 1);
 		c1.getTimeTravel().addCurrentTimeMillis(timerLatency - 1);
-		headers0 = getMessageHeaders(c0, contactId1From0);
-		assertEquals(1, headers0.size());
-		headers1 = getMessageHeaders(c1, contactId0From1);
-		assertEquals(1, headers1.size());
+		assertGroupCount(c0, contactId1From0, 1, 0);
+		assertEquals(1, getMessageHeaders(c0, contactId1From0).size());
+		assertGroupCount(c1, contactId0From1, 1, 1);
+		assertEquals(1, getMessageHeaders(c1, contactId0From1).size());
 		// When 0's timer has elapsed, the message should be deleted from 0's
 		// view of the conversation but 1 should still see the message
 		c0.getTimeTravel().addCurrentTimeMillis(1);
 		c1.getTimeTravel().addCurrentTimeMillis(1);
-		headers0 = getMessageHeaders(c0, contactId1From0);
-		assertEquals(0, headers0.size());
-		headers1 = getMessageHeaders(c1, contactId0From1);
-		assertEquals(1, headers1.size());
+		assertGroupCount(c0, contactId1From0, 0, 0);
+		assertEquals(0, getMessageHeaders(c0, contactId1From0).size());
+		assertGroupCount(c1, contactId0From1, 1, 1);
+		assertEquals(1, getMessageHeaders(c1, contactId0From1).size());
 		// 1 marks the message as read - this starts 1's timer
 		markMessageRead(c1, contact0From1, messageId0);
+		assertGroupCount(c1, contactId0From1, 1, 0);
 		// Before 1's timer elapses, 1 should still see the message
 		c0.getTimeTravel().addCurrentTimeMillis(timerLatency - 1);
 		c1.getTimeTravel().addCurrentTimeMillis(timerLatency - 1);
-		headers0 = getMessageHeaders(c0, contactId1From0);
-		assertEquals(0, headers0.size());
-		headers1 = getMessageHeaders(c1, contactId0From1);
-		assertEquals(1, headers1.size());
+		assertGroupCount(c0, contactId1From0, 0, 0);
+		assertEquals(0, getMessageHeaders(c0, contactId1From0).size());
+		assertGroupCount(c1, contactId0From1, 1, 0);
+		assertEquals(1, getMessageHeaders(c1, contactId0From1).size());
 		// When 1's timer has elapsed, the message should be deleted from 1's
 		// view of the conversation
 		c0.getTimeTravel().addCurrentTimeMillis(1);
 		c1.getTimeTravel().addCurrentTimeMillis(1);
-		headers0 = getMessageHeaders(c0, contactId1From0);
-		assertEquals(0, headers0.size());
-		headers1 = getMessageHeaders(c1, contactId0From1);
-		assertEquals(0, headers1.size());
+		assertGroupCount(c0, contactId1From0, 0, 0);
+		assertEquals(0, getMessageHeaders(c0, contactId1From0).size());
+		assertGroupCount(c1, contactId0From1, 0, 0);
+		assertEquals(0, getMessageHeaders(c1, contactId0From1).size());
 		// 1 creates a message
 		MessageId messageId1 = createMessageWithTimer(c1, contactId0From1);
 		// The message should have been added to 1's view of the conversation
+		assertGroupCount(c1, contactId0From1, 1, 0);
 		headers1 = getMessageHeaders(c1, contactId0From1);
 		assertEquals(1, headers1.size());
 		assertEquals(messageId1, headers1.get(0).getId());
@@ -302,6 +314,7 @@ public class AutoDeleteIntegrationTest
 		// Sync the ack to 1 - this starts 1's timer
 		ack0To1(1);
 		// The message should have been added to 0's view of the conversation
+		assertGroupCount(c0, contactId1From0, 1, 1);
 		headers0 = getMessageHeaders(c0, contactId1From0);
 		assertEquals(1, headers0.size());
 		assertEquals(messageId1, headers0.get(0).getId());
@@ -316,35 +329,36 @@ public class AutoDeleteIntegrationTest
 		// Before 1's timer elapses, both peers should still see the message
 		c0.getTimeTravel().addCurrentTimeMillis(timerLatency - 1);
 		c1.getTimeTravel().addCurrentTimeMillis(timerLatency - 1);
-		headers0 = getMessageHeaders(c0, contactId1From0);
-		assertEquals(1, headers0.size());
-		headers1 = getMessageHeaders(c1, contactId0From1);
-		assertEquals(1, headers1.size());
+		assertGroupCount(c0, contactId1From0, 1, 1);
+		assertEquals(1, getMessageHeaders(c0, contactId1From0).size());
+		assertGroupCount(c1, contactId0From1, 1, 0);
+		assertEquals(1, getMessageHeaders(c1, contactId0From1).size());
 		// When 1's timer has elapsed, the message should be deleted from 1's
 		// view of the conversation but 0 should still see the message
 		c0.getTimeTravel().addCurrentTimeMillis(1);
 		c1.getTimeTravel().addCurrentTimeMillis(1);
-		headers0 = getMessageHeaders(c0, contactId1From0);
-		assertEquals(1, headers0.size());
-		headers1 = getMessageHeaders(c1, contactId0From1);
-		assertEquals(0, headers1.size());
+		assertGroupCount(c0, contactId1From0, 1, 1);
+		assertEquals(1, getMessageHeaders(c0, contactId1From0).size());
+		assertGroupCount(c1, contactId0From1, 0, 0);
+		assertEquals(0, getMessageHeaders(c1, contactId0From1).size());
 		// 0 marks the message as read - this starts 0's timer
 		markMessageRead(c0, contact1From0, messageId1);
+		assertGroupCount(c0, contactId1From0, 1, 0);
 		// Before 0's timer elapses, 0 should still see the message
 		c0.getTimeTravel().addCurrentTimeMillis(timerLatency - 1);
 		c1.getTimeTravel().addCurrentTimeMillis(timerLatency - 1);
-		headers0 = getMessageHeaders(c0, contactId1From0);
-		assertEquals(1, headers0.size());
-		headers1 = getMessageHeaders(c1, contactId0From1);
-		assertEquals(0, headers1.size());
+		assertGroupCount(c0, contactId1From0, 1, 0);
+		assertEquals(1, getMessageHeaders(c0, contactId1From0).size());
+		assertGroupCount(c1, contactId0From1, 0, 0);
+		assertEquals(0, getMessageHeaders(c1, contactId0From1).size());
 		// When 0's timer has elapsed, the message should be deleted from 0's
 		// view of the conversation
 		c0.getTimeTravel().addCurrentTimeMillis(1);
 		c1.getTimeTravel().addCurrentTimeMillis(1);
-		headers0 = getMessageHeaders(c0, contactId1From0);
-		assertEquals(0, headers0.size());
-		headers1 = getMessageHeaders(c1, contactId0From1);
-		assertEquals(0, headers1.size());
+		assertGroupCount(c0, contactId1From0, 0, 0);
+		assertEquals(0, getMessageHeaders(c0, contactId1From0).size());
+		assertGroupCount(c1, contactId0From1, 0, 0);
+		assertEquals(0, getMessageHeaders(c1, contactId0From1).size());
 	}
 
 	@Test
@@ -358,6 +372,7 @@ public class AutoDeleteIntegrationTest
 		MessageId messageId = createMessageWithTimer(c0, contactId1From0,
 				singletonList(attachmentHeader));
 		// The message should have been added to 0's view of the conversation
+		assertGroupCount(c0, contactId1From0, 1, 0);
 		List<ConversationMessageHeader> headers0 =
 				getMessageHeaders(c0, contactId1From0);
 		assertEquals(1, headers0.size());
@@ -368,6 +383,7 @@ public class AutoDeleteIntegrationTest
 		// Sync the acks to 0 - this starts 0's timer
 		ack1To0(2);
 		// The message should have been added to 1's view of the conversation
+		assertGroupCount(c1, contactId0From1, 1, 1);
 		List<ConversationMessageHeader> headers1 =
 				getMessageHeaders(c1, contactId0From1);
 		assertEquals(1, headers1.size());
@@ -378,41 +394,43 @@ public class AutoDeleteIntegrationTest
 		long timerLatency = MIN_AUTO_DELETE_TIMER_MS + BATCH_DELAY_MS;
 		c0.getTimeTravel().addCurrentTimeMillis(timerLatency - 1);
 		c1.getTimeTravel().addCurrentTimeMillis(timerLatency - 1);
-		headers0 = getMessageHeaders(c0, contactId1From0);
-		assertEquals(1, headers0.size());
+		assertGroupCount(c0, contactId1From0, 1, 0);
+		assertEquals(1, getMessageHeaders(c0, contactId1From0).size());
 		assertFalse(messageIsDeleted(c0, attachmentHeader.getMessageId()));
-		headers1 = getMessageHeaders(c1, contactId0From1);
-		assertEquals(1, headers1.size());
+		assertGroupCount(c1, contactId0From1, 1, 1);
+		assertEquals(1, getMessageHeaders(c1, contactId0From1).size());
 		assertFalse(messageIsDeleted(c1, attachmentHeader.getMessageId()));
 		// When 0's timer has elapsed, the message should be deleted from 0's
 		// view of the conversation but 1 should still see the message
 		c0.getTimeTravel().addCurrentTimeMillis(1);
 		c1.getTimeTravel().addCurrentTimeMillis(1);
-		headers0 = getMessageHeaders(c0, contactId1From0);
-		assertEquals(0, headers0.size());
+		assertGroupCount(c0, contactId1From0, 0, 0);
+		assertEquals(0, getMessageHeaders(c0, contactId1From0).size());
 		assertTrue(messageIsDeleted(c0, attachmentHeader.getMessageId()));
-		headers1 = getMessageHeaders(c1, contactId0From1);
-		assertEquals(1, headers1.size());
+		assertGroupCount(c1, contactId0From1, 1, 1);
+		assertEquals(1, getMessageHeaders(c1, contactId0From1).size());
 		assertFalse(messageIsDeleted(c1, attachmentHeader.getMessageId()));
 		// 1 marks the message as read - this starts 1's timer
 		markMessageRead(c1, contact0From1, messageId);
+		assertGroupCount(c1, contactId0From1, 1, 0);
 		// Before 1's timer elapses, 1 should still see the message
 		c0.getTimeTravel().addCurrentTimeMillis(timerLatency - 1);
 		c1.getTimeTravel().addCurrentTimeMillis(timerLatency - 1);
-		assertEquals(0, headers0.size());
+		assertGroupCount(c0, contactId1From0, 0, 0);
+		assertEquals(0, getMessageHeaders(c0, contactId1From0).size());
 		assertTrue(messageIsDeleted(c0, attachmentHeader.getMessageId()));
-		headers1 = getMessageHeaders(c1, contactId0From1);
-		assertEquals(1, headers1.size());
+		assertGroupCount(c1, contactId0From1, 1, 0);
+		assertEquals(1, getMessageHeaders(c1, contactId0From1).size());
 		assertFalse(messageIsDeleted(c1, attachmentHeader.getMessageId()));
 		// When 1's timer has elapsed, the message should be deleted from 1's
 		// view of the conversation
 		c0.getTimeTravel().addCurrentTimeMillis(1);
 		c1.getTimeTravel().addCurrentTimeMillis(1);
-		headers0 = getMessageHeaders(c0, contactId1From0);
-		assertEquals(0, headers0.size());
+		assertGroupCount(c0, contactId1From0, 0, 0);
+		assertEquals(0, getMessageHeaders(c0, contactId1From0).size());
 		assertTrue(messageIsDeleted(c0, attachmentHeader.getMessageId()));
-		headers1 = getMessageHeaders(c1, contactId0From1);
-		assertEquals(0, headers1.size());
+		assertGroupCount(c1, contactId0From1, 0, 0);
+		assertEquals(0, getMessageHeaders(c1, contactId0From1).size());
 		assertTrue(messageIsDeleted(c1, attachmentHeader.getMessageId()));
 	}
 
@@ -428,6 +446,7 @@ public class AutoDeleteIntegrationTest
 		MessageId messageId = createMessageWithTimer(c0, contactId1From0,
 				singletonList(attachmentHeader));
 		// The message should have been added to 0's view of the conversation
+		assertGroupCount(c0, contactId1From0, 1, 0);
 		List<ConversationMessageHeader> headers0 =
 				getMessageHeaders(c0, contactId1From0);
 		assertEquals(1, headers0.size());
@@ -440,6 +459,7 @@ public class AutoDeleteIntegrationTest
 		// Sync the ack to 0 - this starts 0's timer
 		ack1To0(1);
 		// The message should have been added to 1's view of the conversation
+		assertGroupCount(c1, contactId0From1, 1, 1);
 		List<ConversationMessageHeader> headers1 =
 				getMessageHeaders(c1, contactId0From1);
 		assertEquals(1, headers1.size());
@@ -449,39 +469,40 @@ public class AutoDeleteIntegrationTest
 		long timerLatency = MIN_AUTO_DELETE_TIMER_MS + BATCH_DELAY_MS;
 		c0.getTimeTravel().addCurrentTimeMillis(timerLatency - 1);
 		c1.getTimeTravel().addCurrentTimeMillis(timerLatency - 1);
-		headers0 = getMessageHeaders(c0, contactId1From0);
-		assertEquals(1, headers0.size());
+		assertGroupCount(c0, contactId1From0, 1, 0);
+		assertEquals(1, getMessageHeaders(c0, contactId1From0).size());
 		assertFalse(messageIsDeleted(c0, attachmentHeader.getMessageId()));
-		headers1 = getMessageHeaders(c1, contactId0From1);
-		assertEquals(1, headers1.size());
+		assertGroupCount(c1, contactId0From1, 1, 1);
+		assertEquals(1, getMessageHeaders(c1, contactId0From1).size());
 		// When 0's timer has elapsed, the message should be deleted from 0's
 		// view of the conversation but 1 should still see the message
 		c0.getTimeTravel().addCurrentTimeMillis(1);
 		c1.getTimeTravel().addCurrentTimeMillis(1);
-		headers0 = getMessageHeaders(c0, contactId1From0);
-		assertEquals(0, headers0.size());
+		assertGroupCount(c0, contactId1From0, 0, 0);
+		assertEquals(0, getMessageHeaders(c0, contactId1From0).size());
 		assertTrue(messageIsDeleted(c0, attachmentHeader.getMessageId()));
-		headers1 = getMessageHeaders(c1, contactId0From1);
-		assertEquals(1, headers1.size());
+		assertGroupCount(c1, contactId0From1, 1, 1);
+		assertEquals(1, getMessageHeaders(c1, contactId0From1).size());
 		// 1 marks the message as read - this starts 1's timer
 		markMessageRead(c1, contact0From1, messageId);
+		assertGroupCount(c1, contactId0From1, 1, 0);
 		// Before 1's timer elapses, 1 should still see the message
 		c0.getTimeTravel().addCurrentTimeMillis(timerLatency - 1);
 		c1.getTimeTravel().addCurrentTimeMillis(timerLatency - 1);
-		headers0 = getMessageHeaders(c0, contactId1From0);
-		assertEquals(0, headers0.size());
+		assertGroupCount(c0, contactId1From0, 0, 0);
+		assertEquals(0, getMessageHeaders(c0, contactId1From0).size());
 		assertTrue(messageIsDeleted(c0, attachmentHeader.getMessageId()));
-		headers1 = getMessageHeaders(c1, contactId0From1);
-		assertEquals(1, headers1.size());
+		assertGroupCount(c1, contactId0From1, 1, 0);
+		assertEquals(1, getMessageHeaders(c1, contactId0From1).size());
 		// When 1's timer has elapsed, the message should be deleted from 1's
 		// view of the conversation
 		c0.getTimeTravel().addCurrentTimeMillis(1);
 		c1.getTimeTravel().addCurrentTimeMillis(1);
-		headers0 = getMessageHeaders(c0, contactId1From0);
-		assertEquals(0, headers0.size());
+		assertGroupCount(c0, contactId1From0, 0, 0);
+		assertEquals(0, getMessageHeaders(c0, contactId1From0).size());
 		assertTrue(messageIsDeleted(c0, attachmentHeader.getMessageId()));
-		headers1 = getMessageHeaders(c1, contactId0From1);
-		assertEquals(0, headers1.size());
+		assertGroupCount(c1, contactId0From1, 0, 0);
+		assertEquals(0, getMessageHeaders(c1, contactId0From1).size());
 	}
 
 	@Test
@@ -495,6 +516,7 @@ public class AutoDeleteIntegrationTest
 		MessageId messageId = createMessageWithTimer(c0, contactId1From0,
 				singletonList(attachmentHeader));
 		// The message should have been added to 0's view of the conversation
+		assertGroupCount(c0, contactId1From0, 1, 0);
 		List<ConversationMessageHeader> headers0 =
 				getMessageHeaders(c0, contactId1From0);
 		assertEquals(1, headers0.size());
@@ -509,6 +531,7 @@ public class AutoDeleteIntegrationTest
 		ack1To0(1);
 		// The message should not have been added to 1's view of the
 		// conversation
+		assertGroupCount(c1, contactId0From1, 0, 0);
 		List<ConversationMessageHeader> headers1 =
 				getMessageHeaders(c1, contactId0From1);
 		assertEquals(0, headers1.size());
@@ -533,50 +556,53 @@ public class AutoDeleteIntegrationTest
 		// Sync the ack to 0 - this starts 0's timer
 		ack1To0(1);
 		// The message should have been added to 1's view of the conversation
+		assertGroupCount(c1, contactId0From1, 1, 1);
 		headers1 = getMessageHeaders(c1, contactId0From1);
 		assertEquals(1, headers1.size());
+		assertEquals(messageId, headers1.get(0).getId());
 		assertTrue(messageIsDeleted(c1, attachmentHeader.getMessageId()));
 		// Before 0's timer elapses, both peers should still see the message
 		// and 0 should still have the attachment (1 has deleted it)
 		timerLatency = MIN_AUTO_DELETE_TIMER_MS + BATCH_DELAY_MS;
 		c0.getTimeTravel().addCurrentTimeMillis(timerLatency - 1);
 		c1.getTimeTravel().addCurrentTimeMillis(timerLatency - 1);
-		headers0 = getMessageHeaders(c0, contactId1From0);
-		assertEquals(1, headers0.size());
+		assertGroupCount(c0, contactId1From0, 1, 0);
+		assertEquals(1, getMessageHeaders(c0, contactId1From0).size());
 		assertFalse(messageIsDeleted(c0, attachmentHeader.getMessageId()));
-		headers1 = getMessageHeaders(c1, contactId0From1);
-		assertEquals(1, headers1.size());
+		assertGroupCount(c1, contactId0From1, 1, 1);
+		assertEquals(1, getMessageHeaders(c1, contactId0From1).size());
 		assertTrue(messageIsDeleted(c1, attachmentHeader.getMessageId()));
 		// When 0's timer has elapsed, the message should be deleted from 0's
 		// view of the conversation but 1 should still see the message
 		c0.getTimeTravel().addCurrentTimeMillis(1);
 		c1.getTimeTravel().addCurrentTimeMillis(1);
-		headers0 = getMessageHeaders(c0, contactId1From0);
-		assertEquals(0, headers0.size());
+		assertGroupCount(c0, contactId1From0, 0, 0);
+		assertEquals(0, getMessageHeaders(c0, contactId1From0).size());
 		assertTrue(messageIsDeleted(c0, attachmentHeader.getMessageId()));
-		headers1 = getMessageHeaders(c1, contactId0From1);
-		assertEquals(1, headers1.size());
+		assertGroupCount(c1, contactId0From1, 1, 1);
+		assertEquals(1, getMessageHeaders(c1, contactId0From1).size());
 		assertTrue(messageIsDeleted(c1, attachmentHeader.getMessageId()));
 		// 1 marks the message as read - this starts 1's timer
 		markMessageRead(c1, contact0From1, messageId);
+		assertGroupCount(c1, contactId0From1, 1, 0);
 		// Before 1's timer elapses, 1 should still see the message
 		c0.getTimeTravel().addCurrentTimeMillis(timerLatency - 1);
 		c1.getTimeTravel().addCurrentTimeMillis(timerLatency - 1);
-		headers0 = getMessageHeaders(c0, contactId1From0);
-		assertEquals(0, headers0.size());
+		assertGroupCount(c0, contactId1From0, 0, 0);
+		assertEquals(0, getMessageHeaders(c0, contactId1From0).size());
 		assertTrue(messageIsDeleted(c0, attachmentHeader.getMessageId()));
-		headers1 = getMessageHeaders(c1, contactId0From1);
-		assertEquals(1, headers1.size());
+		assertGroupCount(c1, contactId0From1, 1, 0);
+		assertEquals(1, getMessageHeaders(c1, contactId0From1).size());
 		assertTrue(messageIsDeleted(c1, attachmentHeader.getMessageId()));
 		// When 1's timer has elapsed, the message should be deleted from 1's
 		// view of the conversation
 		c0.getTimeTravel().addCurrentTimeMillis(1);
 		c1.getTimeTravel().addCurrentTimeMillis(1);
-		headers0 = getMessageHeaders(c0, contactId1From0);
-		assertEquals(0, headers0.size());
+		assertGroupCount(c0, contactId1From0, 0, 0);
+		assertEquals(0, getMessageHeaders(c0, contactId1From0).size());
 		assertTrue(messageIsDeleted(c0, attachmentHeader.getMessageId()));
-		headers1 = getMessageHeaders(c1, contactId0From1);
-		assertEquals(0, headers1.size());
+		assertGroupCount(c1, contactId0From1, 0, 0);
+		assertEquals(0, getMessageHeaders(c1, contactId0From1).size());
 		assertTrue(messageIsDeleted(c1, attachmentHeader.getMessageId()));
 	}
 
@@ -592,6 +618,7 @@ public class AutoDeleteIntegrationTest
 		MessageId messageId = createMessageWithTimer(c0, contactId1From0,
 				singletonList(attachmentHeader));
 		// The message should have been added to 0's view of the conversation
+		assertGroupCount(c0, contactId1From0, 1, 0);
 		List<ConversationMessageHeader> headers0 =
 				getMessageHeaders(c0, contactId1From0);
 		assertEquals(1, headers0.size());
@@ -606,6 +633,7 @@ public class AutoDeleteIntegrationTest
 		ack1To0(1);
 		// The message should not have been added to 1's view of the
 		// conversation
+		assertGroupCount(c1, contactId0From1, 0, 0);
 		List<ConversationMessageHeader> headers1 =
 				getMessageHeaders(c1, contactId0From1);
 		assertEquals(0, headers1.size());
@@ -621,18 +649,20 @@ public class AutoDeleteIntegrationTest
 		setMessageShared(c0, messageId);
 		sync0To1(1, true);
 		// The message should have been added to 1's view of the conversation
+		assertGroupCount(c1, contactId0From1, 1, 1);
 		headers1 = getMessageHeaders(c1, contactId0From1);
 		assertEquals(1, headers1.size());
+		assertEquals(messageId, headers1.get(0).getId());
 		assertFalse(messageIsDeleted(c1, attachmentHeader.getMessageId()));
 		// When 1's timer has elapsed, both peers should still see the message
 		// and both should still have the attachment
 		c0.getTimeTravel().addCurrentTimeMillis(1);
 		c1.getTimeTravel().addCurrentTimeMillis(1);
-		headers0 = getMessageHeaders(c0, contactId1From0);
-		assertEquals(1, headers0.size());
+		assertGroupCount(c0, contactId1From0, 1, 0);
+		assertEquals(1, getMessageHeaders(c0, contactId1From0).size());
 		assertFalse(messageIsDeleted(c0, attachmentHeader.getMessageId()));
-		headers1 = getMessageHeaders(c1, contactId0From1);
-		assertEquals(1, headers1.size());
+		assertGroupCount(c1, contactId0From1, 1, 1);
+		assertEquals(1, getMessageHeaders(c1, contactId0From1).size());
 		assertFalse(messageIsDeleted(c1, attachmentHeader.getMessageId()));
 		// Sync the ack to 0 - this starts 0's timer
 		ack1To0(1);
@@ -641,42 +671,43 @@ public class AutoDeleteIntegrationTest
 		timerLatency = MIN_AUTO_DELETE_TIMER_MS + BATCH_DELAY_MS;
 		c0.getTimeTravel().addCurrentTimeMillis(timerLatency - 1);
 		c1.getTimeTravel().addCurrentTimeMillis(timerLatency - 1);
-		headers0 = getMessageHeaders(c0, contactId1From0);
-		assertEquals(1, headers0.size());
+		assertGroupCount(c0, contactId1From0, 1, 0);
+		assertEquals(1, getMessageHeaders(c0, contactId1From0).size());
 		assertFalse(messageIsDeleted(c0, attachmentHeader.getMessageId()));
-		headers1 = getMessageHeaders(c1, contactId0From1);
-		assertEquals(1, headers1.size());
+		assertGroupCount(c1, contactId0From1, 1, 1);
+		assertEquals(1, getMessageHeaders(c1, contactId0From1).size());
 		assertFalse(messageIsDeleted(c1, attachmentHeader.getMessageId()));
 		// When 0's timer has elapsed, the message should be deleted from 0's
 		// view of the conversation but 1 should still see the message
 		c0.getTimeTravel().addCurrentTimeMillis(1);
 		c1.getTimeTravel().addCurrentTimeMillis(1);
-		headers0 = getMessageHeaders(c0, contactId1From0);
-		assertEquals(0, headers0.size());
+		assertGroupCount(c0, contactId1From0, 0, 0);
+		assertEquals(0, getMessageHeaders(c0, contactId1From0).size());
 		assertTrue(messageIsDeleted(c0, attachmentHeader.getMessageId()));
-		headers1 = getMessageHeaders(c1, contactId0From1);
-		assertEquals(1, headers1.size());
+		assertGroupCount(c1, contactId0From1, 1, 1);
+		assertEquals(1, getMessageHeaders(c1, contactId0From1).size());
 		assertFalse(messageIsDeleted(c1, attachmentHeader.getMessageId()));
 		// 1 marks the message as read - this starts 1's timer
 		markMessageRead(c1, contact0From1, messageId);
+		assertGroupCount(c1, contactId0From1, 1, 0);
 		// Before 1's timer elapses, 1 should still see the message
 		c0.getTimeTravel().addCurrentTimeMillis(timerLatency - 1);
 		c1.getTimeTravel().addCurrentTimeMillis(timerLatency - 1);
-		headers0 = getMessageHeaders(c0, contactId1From0);
-		assertEquals(0, headers0.size());
+		assertGroupCount(c0, contactId1From0, 0, 0);
+		assertEquals(0, getMessageHeaders(c0, contactId1From0).size());
 		assertTrue(messageIsDeleted(c0, attachmentHeader.getMessageId()));
-		headers1 = getMessageHeaders(c1, contactId0From1);
-		assertEquals(1, headers1.size());
+		assertGroupCount(c1, contactId0From1, 1, 0);
+		assertEquals(1, getMessageHeaders(c1, contactId0From1).size());
 		assertFalse(messageIsDeleted(c1, attachmentHeader.getMessageId()));
 		// When 1's timer has elapsed, the message should be deleted from 1's
 		// view of the conversation
 		c0.getTimeTravel().addCurrentTimeMillis(1);
 		c1.getTimeTravel().addCurrentTimeMillis(1);
-		headers0 = getMessageHeaders(c0, contactId1From0);
-		assertEquals(0, headers0.size());
+		assertGroupCount(c0, contactId1From0, 0, 0);
+		assertEquals(0, getMessageHeaders(c0, contactId1From0).size());
 		assertTrue(messageIsDeleted(c0, attachmentHeader.getMessageId()));
-		headers1 = getMessageHeaders(c1, contactId0From1);
-		assertEquals(0, headers1.size());
+		assertGroupCount(c1, contactId0From1, 0, 0);
+		assertEquals(0, getMessageHeaders(c1, contactId0From1).size());
 		assertTrue(messageIsDeleted(c1, attachmentHeader.getMessageId()));
 	}
 
@@ -791,6 +822,18 @@ public class AutoDeleteIntegrationTest
 		} catch (MessageDeletedException e) {
 			return true;
 		}
+	}
+
+	private void assertGroupCount(BriarIntegrationTestComponent component,
+			ContactId contactId, int messageCount, int unreadCount)
+			throws DbException {
+		DatabaseComponent db = component.getDatabaseComponent();
+		MessagingManager messagingManager = component.getMessagingManager();
+
+		GroupCount gc = db.transactionWithResult(true, txn ->
+				messagingManager.getGroupCount(txn, contactId));
+		assertEquals(messageCount, gc.getMsgCount());
+		assertEquals(unreadCount, gc.getUnreadCount());
 	}
 
 	@SuppressWarnings({"UseCompareMethod", "Java8ListSort"}) // Animal Sniffer
