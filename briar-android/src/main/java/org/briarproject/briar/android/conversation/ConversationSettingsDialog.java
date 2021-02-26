@@ -5,7 +5,7 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.TextView;
+import android.widget.Button;
 
 import org.briarproject.bramble.api.contact.ContactId;
 import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
@@ -96,7 +96,7 @@ public class ConversationSettingsDialog extends DialogFragment {
 		switchDisappearingMessages.setOnCheckedChangeListener(
 				(button, value) -> viewModel.setAutoDeleteTimerEnabled(value));
 
-		TextView buttonLearnMore =
+		Button buttonLearnMore =
 				view.findViewById(R.id.buttonLearnMore);
 		buttonLearnMore.setOnClickListener(e -> showLearnMoreDialog());
 
