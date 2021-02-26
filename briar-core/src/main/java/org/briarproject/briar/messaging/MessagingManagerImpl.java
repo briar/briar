@@ -53,14 +53,18 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.logging.Logger;
 
 import javax.annotation.concurrent.Immutable;
 import javax.inject.Inject;
 
 import static java.util.Collections.emptyList;
+import static java.util.logging.Logger.getLogger;
 import static org.briarproject.bramble.api.client.ContactGroupConstants.GROUP_KEY_CONTACT_ID;
 import static org.briarproject.bramble.api.sync.SyncConstants.MAX_MESSAGE_BODY_LENGTH;
 import static org.briarproject.bramble.util.IoUtils.copyAndClose;
+import static org.briarproject.bramble.util.LogUtils.logDuration;
+import static org.briarproject.bramble.util.LogUtils.now;
 import static org.briarproject.briar.api.attachment.MediaConstants.MSG_KEY_CONTENT_TYPE;
 import static org.briarproject.briar.api.attachment.MediaConstants.MSG_KEY_DESCRIPTOR_LENGTH;
 import static org.briarproject.briar.api.autodelete.AutoDeleteConstants.NO_AUTO_DELETE_TIMER;
@@ -83,6 +87,9 @@ import static org.briarproject.briar.messaging.MessagingConstants.MSG_KEY_TIMEST
 class MessagingManagerImpl implements MessagingManager, IncomingMessageHook,
 		ConversationClient, OpenDatabaseHook, ContactHook,
 		ClientVersioningHook, CleanupHook {
+
+	private static final Logger LOG =
+			getLogger(MessagingManagerImpl.class.getName());
 
 	private final DatabaseComponent db;
 	private final ClientHelper clientHelper;
@@ -201,6 +208,7 @@ class MessagingManagerImpl implements MessagingManager, IncomingMessageHook,
 	private void incomingPrivateMessage(Transaction txn, Message m,
 			BdfDictionary meta, boolean hasText, List<AttachmentHeader> headers)
 			throws DbException, FormatException {
+		long start = now();
 		GroupId groupId = m.getGroupId();
 		long timestamp = meta.getLong(MSG_KEY_TIMESTAMP);
 		boolean local = meta.getBoolean(MSG_KEY_LOCAL);
@@ -221,6 +229,7 @@ class MessagingManagerImpl implements MessagingManager, IncomingMessageHook,
 		autoDeleteManager.receiveAutoDeleteTimer(txn, contactId, timer,
 				timestamp);
 		if (!headers.isEmpty()) stopAttachmentCleanupTimers(txn, m, headers);
+		logDuration(LOG, "Receiving private message", start);
 	}
 
 	private List<AttachmentHeader> parseAttachmentHeaders(GroupId g,
@@ -256,6 +265,7 @@ class MessagingManagerImpl implements MessagingManager, IncomingMessageHook,
 
 	private void incomingAttachment(Transaction txn, Message m)
 			throws DbException {
+		long start = now();
 		ContactId contactId = getContactId(txn, m.getGroupId());
 		txn.attach(new AttachmentReceivedEvent(m.getId(), contactId));
 		// If no private messages that list this attachment have been
@@ -281,6 +291,7 @@ class MessagingManagerImpl implements MessagingManager, IncomingMessageHook,
 		} catch (FormatException e) {
 			throw new DbException(e);
 		}
+		logDuration(LOG, "Receiving attachment", start);
 	}
 
 	@Override
