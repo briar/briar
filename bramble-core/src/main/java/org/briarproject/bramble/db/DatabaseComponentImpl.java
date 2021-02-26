@@ -608,8 +608,8 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 	}
 
 	@Override
-	public Map<MessageId, GroupId> getMessagesToDelete(Transaction transaction)
-			throws DbException {
+	public Map<GroupId, Collection<MessageId>> getMessagesToDelete(
+			Transaction transaction) throws DbException {
 		T txn = unbox(transaction);
 		return db.getMessagesToDelete(txn);
 	}
