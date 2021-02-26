@@ -820,7 +820,9 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 		for (MessageId m : a.getMessageIds()) {
 			if (db.containsVisibleMessage(txn, c, m)) {
 				if (db.raiseSeenFlag(txn, c, m)) {
-					// This is the first time the message has been acked
+					// This is the first time the message has been acked by
+					// this contact. Start the cleanup timer (a no-op unless
+					// a cleanup deadline has been set for this message)
 					long deadline = db.startCleanupTimer(txn, m);
 					if (deadline != TIMER_NOT_STARTED) {
 						transaction.attach(new CleanupTimerStartedEvent(m,
