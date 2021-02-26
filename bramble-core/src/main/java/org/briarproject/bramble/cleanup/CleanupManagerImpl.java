@@ -148,12 +148,9 @@ class CleanupManagerImpl implements CleanupManager, Service, EventListener {
 			}
 			CleanupHook hook = hooks.get(cv);
 			if (hook == null) {
-				if (LOG.isLoggable(WARNING)) {
-					LOG.warning("No cleanup hook for " + cv);
-				}
-				// Stop the timer so we don't keep trying to delete this message
-				db.stopCleanupTimer(txn, m);
-			} else if (hook.deleteMessage(txn, g, m)) {
+				throw new IllegalStateException("No cleanup hook for " + cv);
+			}
+			if (hook.deleteMessage(txn, g, m)) {
 				Collection<MessageId> messageIds = deleted.get(g);
 				if (messageIds == null) {
 					messageIds = new ArrayList<>();
