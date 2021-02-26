@@ -5,6 +5,9 @@ import org.briarproject.bramble.api.contact.ContactId;
 import org.briarproject.bramble.api.db.DatabaseComponent;
 import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.db.MessageDeletedException;
+import org.briarproject.bramble.api.event.Event;
+import org.briarproject.bramble.api.event.EventBus;
+import org.briarproject.bramble.api.event.EventListener;
 import org.briarproject.bramble.api.sync.GroupId;
 import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.bramble.system.TimeTravelModule;
@@ -28,10 +31,14 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.concurrent.CountDownLatch;
+
+import javax.annotation.Nonnull;
 
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
 import static java.util.Collections.sort;
+import static java.util.concurrent.TimeUnit.MINUTES;
 import static org.briarproject.bramble.api.cleanup.CleanupManager.BATCH_DELAY_MS;
 import static org.briarproject.bramble.test.TestUtils.getRandomBytes;
 import static org.briarproject.briar.api.autodelete.AutoDeleteConstants.MIN_AUTO_DELETE_TIMER_MS;
@@ -176,6 +183,7 @@ public class AutoDeleteIntegrationTest
 		sync0To1(1, true);
 		// Sync the ack to 0 - this starts 0's timer
 		ack1To0(1);
+		waitForEvents(c0);
 		// The message should have been added to 1's view of the conversation
 		assertGroupCount(c1, contactId0From1, 1, 1);
 		List<ConversationMessageHeader> headers1 =
@@ -208,6 +216,7 @@ public class AutoDeleteIntegrationTest
 		assertEquals(1, getMessageHeaders(c1, contactId0From1).size());
 		// 1 marks the message as read - this starts 1's timer
 		markMessageRead(c1, contact0From1, messageId);
+		waitForEvents(c1);
 		assertGroupCount(c1, contactId0From1, 1, 0);
 		// Before 1's timer elapses, 1 should still see the message
 		c0.getTimeTravel().addCurrentTimeMillis(timerLatency - 1);
@@ -251,6 +260,7 @@ public class AutoDeleteIntegrationTest
 		sync0To1(1, true);
 		// Sync the ack to 0 - this starts 0's timer
 		ack1To0(1);
+		waitForEvents(c0);
 		// The message should have been added to 1's view of the conversation
 		assertGroupCount(c1, contactId0From1, 1, 1);
 		List<ConversationMessageHeader> headers1 =
@@ -283,6 +293,7 @@ public class AutoDeleteIntegrationTest
 		assertEquals(1, getMessageHeaders(c1, contactId0From1).size());
 		// 1 marks the message as read - this starts 1's timer
 		markMessageRead(c1, contact0From1, messageId0);
+		waitForEvents(c1);
 		assertGroupCount(c1, contactId0From1, 1, 0);
 		// Before 1's timer elapses, 1 should still see the message
 		c0.getTimeTravel().addCurrentTimeMillis(timerLatency - 1);
@@ -313,6 +324,7 @@ public class AutoDeleteIntegrationTest
 		sync1To0(1, true);
 		// Sync the ack to 1 - this starts 1's timer
 		ack0To1(1);
+		waitForEvents(c1);
 		// The message should have been added to 0's view of the conversation
 		assertGroupCount(c0, contactId1From0, 1, 1);
 		headers0 = getMessageHeaders(c0, contactId1From0);
@@ -343,6 +355,7 @@ public class AutoDeleteIntegrationTest
 		assertEquals(0, getMessageHeaders(c1, contactId0From1).size());
 		// 0 marks the message as read - this starts 0's timer
 		markMessageRead(c0, contact1From0, messageId1);
+		waitForEvents(c0);
 		assertGroupCount(c0, contactId1From0, 1, 0);
 		// Before 0's timer elapses, 0 should still see the message
 		c0.getTimeTravel().addCurrentTimeMillis(timerLatency - 1);
@@ -382,6 +395,7 @@ public class AutoDeleteIntegrationTest
 		sync0To1(2, true);
 		// Sync the acks to 0 - this starts 0's timer
 		ack1To0(2);
+		waitForEvents(c0);
 		// The message should have been added to 1's view of the conversation
 		assertGroupCount(c1, contactId0From1, 1, 1);
 		List<ConversationMessageHeader> headers1 =
@@ -412,6 +426,7 @@ public class AutoDeleteIntegrationTest
 		assertFalse(messageIsDeleted(c1, attachmentHeader.getMessageId()));
 		// 1 marks the message as read - this starts 1's timer
 		markMessageRead(c1, contact0From1, messageId);
+		waitForEvents(c1);
 		assertGroupCount(c1, contactId0From1, 1, 0);
 		// Before 1's timer elapses, 1 should still see the message
 		c0.getTimeTravel().addCurrentTimeMillis(timerLatency - 1);
@@ -458,6 +473,7 @@ public class AutoDeleteIntegrationTest
 		sync0To1(1, true);
 		// Sync the ack to 0 - this starts 0's timer
 		ack1To0(1);
+		waitForEvents(c0);
 		// The message should have been added to 1's view of the conversation
 		assertGroupCount(c1, contactId0From1, 1, 1);
 		List<ConversationMessageHeader> headers1 =
@@ -485,6 +501,7 @@ public class AutoDeleteIntegrationTest
 		assertEquals(1, getMessageHeaders(c1, contactId0From1).size());
 		// 1 marks the message as read - this starts 1's timer
 		markMessageRead(c1, contact0From1, messageId);
+		waitForEvents(c1);
 		assertGroupCount(c1, contactId0From1, 1, 0);
 		// Before 1's timer elapses, 1 should still see the message
 		c0.getTimeTravel().addCurrentTimeMillis(timerLatency - 1);
@@ -527,6 +544,7 @@ public class AutoDeleteIntegrationTest
 		// Sync the attachment (but not the message) to 1 - this starts 1's
 		// orphan cleanup timer
 		sync0To1(1, true);
+		waitForEvents(c1);
 		// Sync the ack to 0
 		ack1To0(1);
 		// The message should not have been added to 1's view of the
@@ -555,6 +573,7 @@ public class AutoDeleteIntegrationTest
 		sync0To1(1, true);
 		// Sync the ack to 0 - this starts 0's timer
 		ack1To0(1);
+		waitForEvents(c0);
 		// The message should have been added to 1's view of the conversation
 		assertGroupCount(c1, contactId0From1, 1, 1);
 		headers1 = getMessageHeaders(c1, contactId0From1);
@@ -584,6 +603,7 @@ public class AutoDeleteIntegrationTest
 		assertTrue(messageIsDeleted(c1, attachmentHeader.getMessageId()));
 		// 1 marks the message as read - this starts 1's timer
 		markMessageRead(c1, contact0From1, messageId);
+		waitForEvents(c1);
 		assertGroupCount(c1, contactId0From1, 1, 0);
 		// Before 1's timer elapses, 1 should still see the message
 		c0.getTimeTravel().addCurrentTimeMillis(timerLatency - 1);
@@ -629,6 +649,7 @@ public class AutoDeleteIntegrationTest
 		// Sync the attachment (but not the message) to 1 - this starts 1's
 		// orphan cleanup timer
 		sync0To1(1, true);
+		waitForEvents(c1);
 		// Sync the ack to 0
 		ack1To0(1);
 		// The message should not have been added to 1's view of the
@@ -666,6 +687,7 @@ public class AutoDeleteIntegrationTest
 		assertFalse(messageIsDeleted(c1, attachmentHeader.getMessageId()));
 		// Sync the ack to 0 - this starts 0's timer
 		ack1To0(1);
+		waitForEvents(c0);
 		// Before 0's timer elapses, both peers should still see the message
 		// and both should still have the attachment
 		timerLatency = MIN_AUTO_DELETE_TIMER_MS + BATCH_DELAY_MS;
@@ -689,6 +711,7 @@ public class AutoDeleteIntegrationTest
 		assertFalse(messageIsDeleted(c1, attachmentHeader.getMessageId()));
 		// 1 marks the message as read - this starts 1's timer
 		markMessageRead(c1, contact0From1, messageId);
+		waitForEvents(c1);
 		assertGroupCount(c1, contactId0From1, 1, 0);
 		// Before 1's timer elapses, 1 should still see the message
 		c0.getTimeTravel().addCurrentTimeMillis(timerLatency - 1);
@@ -843,5 +866,30 @@ public class AutoDeleteIntegrationTest
 		sort(out, (a, b) ->
 				Long.valueOf(a.getTimestamp()).compareTo(b.getTimestamp()));
 		return out;
+	}
+
+	/**
+	 * Broadcasts a marker event and waits for it to be delivered, which
+	 * indicates that all previously broadcast events have been delivered.
+	 */
+	private void waitForEvents(BriarIntegrationTestComponent component)
+			throws Exception {
+		CountDownLatch latch = new CountDownLatch(1);
+		MarkerEvent marker = new MarkerEvent();
+		EventBus eventBus = component.getEventBus();
+		eventBus.addListener(new EventListener() {
+			@Override
+			public void eventOccurred(@Nonnull Event e) {
+				if (e == marker) {
+					latch.countDown();
+					eventBus.removeListener(this);
+				}
+			}
+		});
+		eventBus.broadcast(marker);
+		if (!latch.await(1, MINUTES)) fail();
+	}
+
+	private static class MarkerEvent extends Event {
 	}
 }
