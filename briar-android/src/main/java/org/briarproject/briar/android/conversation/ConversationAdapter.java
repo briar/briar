@@ -120,11 +120,11 @@ class ConversationAdapter
 	}
 
 	@Override
-	public void addAll(Collection<ConversationItem> itemsToAdd) {
+	public void replaceAll(Collection<ConversationItem> itemsToReplace) {
 		items.beginBatchedUpdates();
 		// there can be items already in the adapter
 		// SortedList takes care of duplicates and detecting changed items
-		items.addAll(itemsToAdd);
+		items.replaceAll(itemsToReplace);
 		updateTimersInBatch();
 		items.endBatchedUpdates();
 	}
