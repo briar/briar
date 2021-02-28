@@ -103,6 +103,9 @@ public class UnixTorPluginFactory implements DuplexPluginFactory {
 			else if (arch.equals("aarch64")) {
 				architecture = "linux-aarch64";
 			}
+			else if (arch.equals("arm")) {
+				architecture = "linux-armhf";
+			}
 		}
 		if (architecture == null) {
 			LOG.info("Tor is not supported on this architecture");

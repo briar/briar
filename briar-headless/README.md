@@ -15,6 +15,7 @@ To build the `jar` file, you need to specify the combination of architecture and
 
     $ ./gradlew --configure-on-demand briar-headless:x86LinuxJar
     $ ./gradlew --configure-on-demand briar-headless:aarch64LinuxJar
+    $ ./gradlew --configure-on-demand briar-headless:armhfLinuxJar
 
 You can start the peer (and its API server) like this:
 
