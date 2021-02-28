@@ -58,7 +58,7 @@ void jarFactory(Jar jarTask, jarArchitecture) {
 		configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
 	}
 			{
-				List<String> architectures = List.of("linux-aarch64", "linux-x86_64")
+				String[] architectures = ["linux-aarch64", "linux-x86_64"]
 				for (String arch : architectures) {
 					if (arch != jarArchitecture) {
 						exclude "obfs4proxy_" + arch + ".zip"
