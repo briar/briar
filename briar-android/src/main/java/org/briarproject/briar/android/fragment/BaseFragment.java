@@ -10,9 +10,8 @@ import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
 import org.briarproject.briar.android.DestroyableContext;
 import org.briarproject.briar.android.activity.ActivityComponent;
 
-import javax.annotation.Nullable;
-
 import androidx.annotation.CallSuper;
+import androidx.annotation.Nullable;
 import androidx.annotation.UiThread;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
@@ -47,13 +46,11 @@ public abstract class BaseFragment extends Fragment
 
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
-		switch (item.getItemId()) {
-			case android.R.id.home:
-				listener.onBackPressed();
-				return true;
-			default:
-				return super.onOptionsItemSelected(item);
+		if (item.getItemId() == android.R.id.home) {
+			requireActivity().onBackPressed();
+			return true;
 		}
+		return super.onOptionsItemSelected(item);
 	}
 
 	@UiThread
@@ -79,6 +76,7 @@ public abstract class BaseFragment extends Fragment
 		void handleException(Exception e);
 	}
 
+	@Deprecated
 	@CallSuper
 	@Override
 	public void runOnUiThreadUnlessDestroyed(Runnable r) {

@@ -34,7 +34,6 @@ import io.github.kobakei.materialfabspeeddial.FabSpeedDial;
 import io.github.kobakei.materialfabspeeddial.FabSpeedDial.OnMenuItemClickListener;
 
 import static com.google.android.material.snackbar.BaseTransientBottomBar.LENGTH_INDEFINITE;
-import static org.briarproject.bramble.api.nullsafety.NullSafety.requireNonNull;
 import static org.briarproject.briar.android.conversation.ConversationActivity.CONTACT_ID;
 
 @MethodsNotNullByDefault
@@ -102,7 +101,8 @@ public class ContactListFragment extends BaseFragment
 				.observe(getViewLifecycleOwner(), result -> {
 					result.onError(this::handleException).onSuccess(items -> {
 						adapter.submitList(items);
-						if (requireNonNull(items).size() == 0) list.showData();
+						// TODO remove when BriarRecyclerView was adapted
+						list.showData();
 					});
 				});
 		viewModel.getHasPendingContacts()
