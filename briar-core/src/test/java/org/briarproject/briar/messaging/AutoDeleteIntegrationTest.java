@@ -1,44 +1,29 @@
 package org.briarproject.briar.messaging;
 
-import org.briarproject.bramble.api.contact.Contact;
 import org.briarproject.bramble.api.contact.ContactId;
 import org.briarproject.bramble.api.db.DatabaseComponent;
 import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.db.MessageDeletedException;
-import org.briarproject.bramble.api.event.Event;
-import org.briarproject.bramble.api.event.EventBus;
-import org.briarproject.bramble.api.event.EventListener;
 import org.briarproject.bramble.api.sync.GroupId;
 import org.briarproject.bramble.api.sync.MessageId;
-import org.briarproject.bramble.system.TimeTravelModule;
-import org.briarproject.bramble.test.TestDatabaseConfigModule;
 import org.briarproject.briar.api.attachment.AttachmentHeader;
 import org.briarproject.briar.api.autodelete.AutoDeleteManager;
-import org.briarproject.briar.api.client.MessageTracker.GroupCount;
 import org.briarproject.briar.api.conversation.ConversationManager;
+import org.briarproject.briar.api.conversation.ConversationManager.ConversationClient;
 import org.briarproject.briar.api.conversation.ConversationMessageHeader;
 import org.briarproject.briar.api.messaging.MessagingManager;
 import org.briarproject.briar.api.messaging.PrivateMessage;
 import org.briarproject.briar.api.messaging.PrivateMessageFactory;
-import org.briarproject.briar.test.BriarIntegrationTest;
+import org.briarproject.briar.autodelete.AbstractAutoDeleteTest;
 import org.briarproject.briar.test.BriarIntegrationTestComponent;
-import org.briarproject.briar.test.DaggerBriarIntegrationTestComponent;
-import org.junit.Before;
 import org.junit.Test;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
-import java.util.concurrent.CountDownLatch;
-
-import javax.annotation.Nonnull;
 
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
-import static java.util.Collections.sort;
-import static java.util.concurrent.TimeUnit.MINUTES;
 import static org.briarproject.bramble.api.cleanup.CleanupManager.BATCH_DELAY_MS;
 import static org.briarproject.bramble.test.TestUtils.getRandomBytes;
 import static org.briarproject.briar.api.autodelete.AutoDeleteConstants.MIN_AUTO_DELETE_TIMER_MS;
@@ -47,56 +32,13 @@ import static org.briarproject.briar.messaging.MessagingConstants.MISSING_ATTACH
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 
-public class AutoDeleteIntegrationTest
-		extends BriarIntegrationTest<BriarIntegrationTestComponent> {
+public class AutoDeleteIntegrationTest extends AbstractAutoDeleteTest {
 
 	@Override
-	protected void createComponents() {
-		BriarIntegrationTestComponent component =
-				DaggerBriarIntegrationTestComponent.builder().build();
-		BriarIntegrationTestComponent.Helper.injectEagerSingletons(component);
-		component.inject(this);
-
-		c0 = DaggerBriarIntegrationTestComponent.builder()
-				.testDatabaseConfigModule(new TestDatabaseConfigModule(t0Dir))
-				.timeTravelModule(new TimeTravelModule(true))
-				.build();
-		BriarIntegrationTestComponent.Helper.injectEagerSingletons(c0);
-
-		c1 = DaggerBriarIntegrationTestComponent.builder()
-				.testDatabaseConfigModule(new TestDatabaseConfigModule(t1Dir))
-				.timeTravelModule(new TimeTravelModule(true))
-				.build();
-		BriarIntegrationTestComponent.Helper.injectEagerSingletons(c1);
-
-		c2 = DaggerBriarIntegrationTestComponent.builder()
-				.testDatabaseConfigModule(new TestDatabaseConfigModule(t2Dir))
-				.timeTravelModule(new TimeTravelModule(true))
-				.build();
-		BriarIntegrationTestComponent.Helper.injectEagerSingletons(c2);
-
-		// Use different times to avoid creating identical messages that are
-		// treated as redundant copies of the same message (#1907)
-		try {
-			long now = System.currentTimeMillis();
-			c0.getTimeTravel().setCurrentTimeMillis(now);
-			c1.getTimeTravel().setCurrentTimeMillis(now + 1);
-			c2.getTimeTravel().setCurrentTimeMillis(now + 2);
-		} catch (InterruptedException e) {
-			fail();
-		}
-	}
-
-	@Override
-	@Before
-	public void setUp() throws Exception {
-		super.setUp();
-		// Run the initial cleanup task that was scheduled at startup
-		c0.getTimeTravel().addCurrentTimeMillis(BATCH_DELAY_MS);
-		c1.getTimeTravel().addCurrentTimeMillis(BATCH_DELAY_MS);
-		c2.getTimeTravel().addCurrentTimeMillis(BATCH_DELAY_MS);
+	protected ConversationClient getConversationClient(
+			BriarIntegrationTestComponent component) {
+		return component.getMessagingManager();
 	}
 
 	@Test
@@ -216,7 +158,6 @@ public class AutoDeleteIntegrationTest
 		assertEquals(1, getMessageHeaders(c1, contactId0From1).size());
 		// 1 marks the message as read - this starts 1's timer
 		markMessageRead(c1, contact0From1, messageId);
-		waitForEvents(c1);
 		assertGroupCount(c1, contactId0From1, 1, 0);
 		// Before 1's timer elapses, 1 should still see the message
 		c0.getTimeTravel().addCurrentTimeMillis(timerLatency - 1);
@@ -293,7 +234,6 @@ public class AutoDeleteIntegrationTest
 		assertEquals(1, getMessageHeaders(c1, contactId0From1).size());
 		// 1 marks the message as read - this starts 1's timer
 		markMessageRead(c1, contact0From1, messageId0);
-		waitForEvents(c1);
 		assertGroupCount(c1, contactId0From1, 1, 0);
 		// Before 1's timer elapses, 1 should still see the message
 		c0.getTimeTravel().addCurrentTimeMillis(timerLatency - 1);
@@ -355,7 +295,6 @@ public class AutoDeleteIntegrationTest
 		assertEquals(0, getMessageHeaders(c1, contactId0From1).size());
 		// 0 marks the message as read - this starts 0's timer
 		markMessageRead(c0, contact1From0, messageId1);
-		waitForEvents(c0);
 		assertGroupCount(c0, contactId1From0, 1, 0);
 		// Before 0's timer elapses, 0 should still see the message
 		c0.getTimeTravel().addCurrentTimeMillis(timerLatency - 1);
@@ -426,7 +365,6 @@ public class AutoDeleteIntegrationTest
 		assertFalse(messageIsDeleted(c1, attachmentHeader.getMessageId()));
 		// 1 marks the message as read - this starts 1's timer
 		markMessageRead(c1, contact0From1, messageId);
-		waitForEvents(c1);
 		assertGroupCount(c1, contactId0From1, 1, 0);
 		// Before 1's timer elapses, 1 should still see the message
 		c0.getTimeTravel().addCurrentTimeMillis(timerLatency - 1);
@@ -501,7 +439,6 @@ public class AutoDeleteIntegrationTest
 		assertEquals(1, getMessageHeaders(c1, contactId0From1).size());
 		// 1 marks the message as read - this starts 1's timer
 		markMessageRead(c1, contact0From1, messageId);
-		waitForEvents(c1);
 		assertGroupCount(c1, contactId0From1, 1, 0);
 		// Before 1's timer elapses, 1 should still see the message
 		c0.getTimeTravel().addCurrentTimeMillis(timerLatency - 1);
@@ -603,7 +540,6 @@ public class AutoDeleteIntegrationTest
 		assertTrue(messageIsDeleted(c1, attachmentHeader.getMessageId()));
 		// 1 marks the message as read - this starts 1's timer
 		markMessageRead(c1, contact0From1, messageId);
-		waitForEvents(c1);
 		assertGroupCount(c1, contactId0From1, 1, 0);
 		// Before 1's timer elapses, 1 should still see the message
 		c0.getTimeTravel().addCurrentTimeMillis(timerLatency - 1);
@@ -711,7 +647,6 @@ public class AutoDeleteIntegrationTest
 		assertFalse(messageIsDeleted(c1, attachmentHeader.getMessageId()));
 		// 1 marks the message as read - this starts 1's timer
 		markMessageRead(c1, contact0From1, messageId);
-		waitForEvents(c1);
 		assertGroupCount(c1, contactId0From1, 1, 0);
 		// Before 1's timer elapses, 1 should still see the message
 		c0.getTimeTravel().addCurrentTimeMillis(timerLatency - 1);
@@ -808,33 +743,6 @@ public class AutoDeleteIntegrationTest
 		db.transaction(false, txn -> db.setMessageShared(txn, messageId));
 	}
 
-	private List<ConversationMessageHeader> getMessageHeaders(
-			BriarIntegrationTestComponent component, ContactId contactId)
-			throws Exception {
-		DatabaseComponent db = component.getDatabaseComponent();
-		MessagingManager messagingManager = component.getMessagingManager();
-
-		return sortHeaders(db.transactionWithResult(true, txn ->
-				messagingManager.getMessageHeaders(txn, contactId)));
-	}
-
-	private long getAutoDeleteTimer(BriarIntegrationTestComponent component,
-			ContactId contactId) throws DbException {
-		DatabaseComponent db = component.getDatabaseComponent();
-		AutoDeleteManager autoDeleteManager = component.getAutoDeleteManager();
-
-		return db.transactionWithResult(false,
-				txn -> autoDeleteManager.getAutoDeleteTimer(txn, contactId));
-	}
-
-	private void markMessageRead(BriarIntegrationTestComponent component,
-			Contact contact, MessageId messageId) throws DbException {
-		MessagingManager messagingManager = component.getMessagingManager();
-
-		GroupId groupId = messagingManager.getContactGroup(contact).getId();
-		messagingManager.setReadFlag(groupId, messageId, true);
-	}
-
 	private boolean messageIsDeleted(BriarIntegrationTestComponent component,
 			MessageId messageId) throws DbException {
 		DatabaseComponent db = component.getDatabaseComponent();
@@ -847,49 +755,4 @@ public class AutoDeleteIntegrationTest
 		}
 	}
 
-	private void assertGroupCount(BriarIntegrationTestComponent component,
-			ContactId contactId, int messageCount, int unreadCount)
-			throws DbException {
-		DatabaseComponent db = component.getDatabaseComponent();
-		MessagingManager messagingManager = component.getMessagingManager();
-
-		GroupCount gc = db.transactionWithResult(true, txn ->
-				messagingManager.getGroupCount(txn, contactId));
-		assertEquals(messageCount, gc.getMsgCount());
-		assertEquals(unreadCount, gc.getUnreadCount());
-	}
-
-	@SuppressWarnings({"UseCompareMethod", "Java8ListSort"}) // Animal Sniffer
-	private List<ConversationMessageHeader> sortHeaders(
-			Collection<ConversationMessageHeader> in) {
-		List<ConversationMessageHeader> out = new ArrayList<>(in);
-		sort(out, (a, b) ->
-				Long.valueOf(a.getTimestamp()).compareTo(b.getTimestamp()));
-		return out;
-	}
-
-	/**
-	 * Broadcasts a marker event and waits for it to be delivered, which
-	 * indicates that all previously broadcast events have been delivered.
-	 */
-	private void waitForEvents(BriarIntegrationTestComponent component)
-			throws Exception {
-		CountDownLatch latch = new CountDownLatch(1);
-		MarkerEvent marker = new MarkerEvent();
-		EventBus eventBus = component.getEventBus();
-		eventBus.addListener(new EventListener() {
-			@Override
-			public void eventOccurred(@Nonnull Event e) {
-				if (e == marker) {
-					latch.countDown();
-					eventBus.removeListener(this);
-				}
-			}
-		});
-		eventBus.broadcast(marker);
-		if (!latch.await(1, MINUTES)) fail();
-	}
-
-	private static class MarkerEvent extends Event {
-	}
 }
