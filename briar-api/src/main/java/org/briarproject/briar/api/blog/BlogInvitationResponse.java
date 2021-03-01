@@ -15,7 +15,7 @@ public class BlogInvitationResponse extends InvitationResponse {
 			SessionId sessionId, boolean accept, GroupId shareableId,
 			long autoDeleteTimer) {
 		super(id, groupId, time, local, read, sent, seen, sessionId,
-				accept, shareableId, autoDeleteTimer);
+				accept, shareableId, autoDeleteTimer, false);
 	}
 
 	@Override

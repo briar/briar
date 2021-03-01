@@ -194,7 +194,7 @@ abstract class AbstractProtocolEngineTest extends BrambleMockTestCase {
 		context.checking(new Expectations() {{
 			oneOf(messageEncoder).encodeMetadata(type, privateGroupId,
 					message.getTimestamp(), true, true, visible, false, false,
-					NO_AUTO_DELETE_TIMER);
+					NO_AUTO_DELETE_TIMER, false);
 			will(returnValue(meta));
 			oneOf(clientHelper).addLocalMessage(txn, message, meta, true,
 					false);

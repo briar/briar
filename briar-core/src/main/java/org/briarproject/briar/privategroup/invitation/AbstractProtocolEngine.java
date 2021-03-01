@@ -180,15 +180,20 @@ abstract class AbstractProtocolEngine<S extends Session<?>>
 		return m;
 	}
 
-	Message sendLeaveMessage(Transaction txn, S s, boolean visibleInUi)
-			throws DbException {
+	Message sendLeaveMessage(Transaction txn, S s) throws DbException {
+		return sendLeaveMessage(txn, s, false, false);
+	}
+
+	Message sendLeaveMessage(Transaction txn, S s, boolean visibleInUi,
+			boolean isAutoDecline) throws DbException {
+		if (!visibleInUi && isAutoDecline) throw new IllegalArgumentException();
 		Message m;
 		long localTimestamp = visibleInUi
 				? getTimestampForVisibleMessage(txn, s)
 				: getTimestampForInvisibleMessage(s);
 		ContactId c = getContactId(txn, s.getContactGroupId());
 		if (contactSupportsAutoDeletion(txn, c)) {
-			// Set auto-delete timer if manually accepting an invitation
+			// Set auto-delete timer if declining an invitation
 			long timer = NO_AUTO_DELETE_TIMER;
 			if (visibleInUi) {
 				timer = autoDeleteManager.getAutoDeleteTimer(txn, c,
@@ -198,8 +203,8 @@ abstract class AbstractProtocolEngine<S extends Session<?>>
 					s.getPrivateGroupId(), localTimestamp,
 					s.getLastLocalMessageId(), timer);
 			sendMessage(txn, m, LEAVE, s.getPrivateGroupId(), visibleInUi,
-					timer);
-			// Set the auto-delete timer duration on the message
+					timer, isAutoDecline);
+			// Set the auto-delete timer duration on the local message
 			if (timer != NO_AUTO_DELETE_TIMER) {
 				db.setCleanupTimerDuration(txn, m.getId(), timer);
 			}
@@ -321,9 +326,17 @@ abstract class AbstractProtocolEngine<S extends Session<?>>
 	private void sendMessage(Transaction txn, Message m, MessageType type,
 			GroupId privateGroupId, boolean visibleInConversation,
 			long autoDeleteTimer) throws DbException {
+		sendMessage(txn, m, type, privateGroupId, visibleInConversation,
+				autoDeleteTimer, false);
+	}
+
+	private void sendMessage(Transaction txn, Message m, MessageType type,
+			GroupId privateGroupId, boolean visibleInConversation,
+			long autoDeleteTimer, boolean isAutoDecline) throws DbException {
 		BdfDictionary meta = messageEncoder.encodeMetadata(type,
 				privateGroupId, m.getTimestamp(), true, true,
-				visibleInConversation, false, false, autoDeleteTimer);
+				visibleInConversation, false, false, autoDeleteTimer,
+				isAutoDecline);
 		try {
 			clientHelper.addLocalMessage(txn, m, meta, true, false);
 		} catch (FormatException e) {
