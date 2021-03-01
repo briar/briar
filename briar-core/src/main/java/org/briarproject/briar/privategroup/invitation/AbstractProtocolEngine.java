@@ -132,6 +132,10 @@ abstract class AbstractProtocolEngine<S extends Session<?>>
 					privateGroup.getCreator(), privateGroup.getSalt(), text,
 					signature, timer);
 			sendMessage(txn, m, INVITE, privateGroup.getId(), true, timer);
+			// Set the auto-delete timer duration on the message
+			if (timer != NO_AUTO_DELETE_TIMER) {
+				db.setCleanupTimerDuration(txn, m.getId(), timer);
+			}
 		} else {
 			m = messageEncoder.encodeInviteMessage(s.getContactGroupId(),
 					privateGroup.getId(), timestamp, privateGroup.getName(),
@@ -162,6 +166,10 @@ abstract class AbstractProtocolEngine<S extends Session<?>>
 					s.getLastLocalMessageId(), timer);
 			sendMessage(txn, m, JOIN, s.getPrivateGroupId(), visibleInUi,
 					timer);
+			// Set the auto-delete timer duration on the message
+			if (timer != NO_AUTO_DELETE_TIMER) {
+				db.setCleanupTimerDuration(txn, m.getId(), timer);
+			}
 		} else {
 			m = messageEncoder.encodeJoinMessage(s.getContactGroupId(),
 					s.getPrivateGroupId(), localTimestamp,
@@ -191,6 +199,10 @@ abstract class AbstractProtocolEngine<S extends Session<?>>
 					s.getLastLocalMessageId(), timer);
 			sendMessage(txn, m, LEAVE, s.getPrivateGroupId(), visibleInUi,
 					timer);
+			// Set the auto-delete timer duration on the message
+			if (timer != NO_AUTO_DELETE_TIMER) {
+				db.setCleanupTimerDuration(txn, m.getId(), timer);
+			}
 		} else {
 			m = messageEncoder.encodeLeaveMessage(s.getContactGroupId(),
 					s.getPrivateGroupId(), localTimestamp,
