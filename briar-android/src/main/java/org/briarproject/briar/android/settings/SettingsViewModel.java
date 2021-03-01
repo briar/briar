@@ -79,7 +79,7 @@ class SettingsViewModel extends AndroidViewModel {
 		return ownIdentityInfo;
 	}
 
-	public LiveEvent<Boolean> getSetAvatarFailed() {
+	LiveEvent<Boolean> getSetAvatarFailed() {
 		return setAvatarFailed;
 	}
 
