@@ -1,5 +1,6 @@
 package org.briarproject.briar.messaging;
 
+import org.briarproject.bramble.api.FeatureFlags;
 import org.briarproject.bramble.api.cleanup.CleanupManager;
 import org.briarproject.bramble.api.contact.ContactManager;
 import org.briarproject.bramble.api.data.BdfReaderFactory;
@@ -56,15 +57,19 @@ public class MessagingModule {
 			ContactManager contactManager, ValidationManager validationManager,
 			ConversationManager conversationManager,
 			ClientVersioningManager clientVersioningManager,
-			CleanupManager cleanupManager,
+			CleanupManager cleanupManager, FeatureFlags featureFlags,
 			MessagingManagerImpl messagingManager) {
 		lifecycleManager.registerOpenDatabaseHook(messagingManager);
 		contactManager.registerContactHook(messagingManager);
 		validationManager.registerIncomingMessageHook(CLIENT_ID, MAJOR_VERSION,
 				messagingManager);
 		conversationManager.registerConversationClient(messagingManager);
+		// Don't advertise support for disappearing messages unless the
+		// feature flag is enabled
+		int minorVersion = featureFlags.shouldEnableDisappearingMessages()
+				? MINOR_VERSION : 2;
 		clientVersioningManager.registerClient(CLIENT_ID, MAJOR_VERSION,
-				MINOR_VERSION, messagingManager);
+				minorVersion, messagingManager);
 		cleanupManager.registerCleanupHook(CLIENT_ID, MAJOR_VERSION,
 				messagingManager);
 		return messagingManager;
