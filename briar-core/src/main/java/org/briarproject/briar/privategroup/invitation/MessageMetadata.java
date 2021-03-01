@@ -13,10 +13,12 @@ class MessageMetadata {
 	private final GroupId privateGroupId;
 	private final long timestamp, autoDeleteTimer;
 	private final boolean local, read, visible, available, accepted;
+	private final boolean isAutoDecline;
 
 	MessageMetadata(MessageType type, GroupId privateGroupId,
 			long timestamp, boolean local, boolean read, boolean visible,
-			boolean available, boolean accepted, long autoDeleteTimer) {
+			boolean available, boolean accepted, long autoDeleteTimer,
+			boolean isAutoDecline) {
 		this.privateGroupId = privateGroupId;
 		this.type = type;
 		this.timestamp = timestamp;
@@ -26,6 +28,7 @@ class MessageMetadata {
 		this.available = available;
 		this.accepted = accepted;
 		this.autoDeleteTimer = autoDeleteTimer;
+		this.isAutoDecline = isAutoDecline;
 	}
 
 	MessageType getMessageType() {
@@ -58,7 +61,7 @@ class MessageMetadata {
 
 	/**
 	 * Returns true if the invitation was accepted.
-	 *
+	 * <p>
 	 * Only applies to messages of type INVITE.
 	 */
 	public boolean wasAccepted() {
@@ -67,5 +70,9 @@ class MessageMetadata {
 
 	public long getAutoDeleteTimer() {
 		return autoDeleteTimer;
+	}
+
+	public boolean isAutoDecline() {
+		return isAutoDecline;
 	}
 }

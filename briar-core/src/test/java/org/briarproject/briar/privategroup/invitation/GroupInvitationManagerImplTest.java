@@ -593,7 +593,7 @@ public class GroupInvitationManagerImplTest extends BrambleMockTestCase {
 					.parseInviteeSession(contactGroup.getId(), bdfSession);
 			will(returnValue(inviteeSession));
 			if (accept) oneOf(inviteeEngine).onJoinAction(txn, inviteeSession);
-			else oneOf(inviteeEngine).onLeaveAction(txn, inviteeSession);
+			else oneOf(inviteeEngine).onLeaveAction(txn, inviteeSession, false);
 			will(returnValue(inviteeSession));
 		}});
 		expectStoreSession(inviteeSession, storageMessage.getId());
@@ -653,10 +653,10 @@ public class GroupInvitationManagerImplTest extends BrambleMockTestCase {
 		long time1 = 1L, time2 = 2L;
 		MessageMetadata messageMetadata1 =
 				new MessageMetadata(INVITE, privateGroup.getId(), time1, true,
-						true, true, false, true, NO_AUTO_DELETE_TIMER);
+						true, true, false, true, NO_AUTO_DELETE_TIMER, false);
 		MessageMetadata messageMetadata2 =
 				new MessageMetadata(JOIN, privateGroup.getId(), time2, true,
-						true, true, true, false, NO_AUTO_DELETE_TIMER);
+						true, true, true, false, NO_AUTO_DELETE_TIMER, false);
 		InviteMessage invite =
 				new InviteMessage(message.getId(), contactGroup.getId(),
 						privateGroup.getId(), time1, "name", author,
@@ -876,7 +876,7 @@ public class GroupInvitationManagerImplTest extends BrambleMockTestCase {
 			oneOf(sessionParser)
 					.parseCreatorSession(contactGroup.getId(), bdfSession);
 			will(returnValue(creatorSession));
-			oneOf(creatorEngine).onLeaveAction(txn, creatorSession);
+			oneOf(creatorEngine).onLeaveAction(txn, creatorSession, false);
 			will(returnValue(creatorSession));
 			// session 2
 			oneOf(sessionParser).getRole(bdfSession2);
@@ -884,7 +884,7 @@ public class GroupInvitationManagerImplTest extends BrambleMockTestCase {
 			oneOf(sessionParser)
 					.parseInviteeSession(contactGroup2.getId(), bdfSession2);
 			will(returnValue(inviteeSession));
-			oneOf(inviteeEngine).onLeaveAction(txn, inviteeSession);
+			oneOf(inviteeEngine).onLeaveAction(txn, inviteeSession, false);
 			will(returnValue(inviteeSession));
 			// session 3
 			oneOf(sessionParser).getRole(bdfSession3);
@@ -892,7 +892,7 @@ public class GroupInvitationManagerImplTest extends BrambleMockTestCase {
 			oneOf(sessionParser)
 					.parsePeerSession(contactGroup3.getId(), bdfSession3);
 			will(returnValue(peerSession));
-			oneOf(peerEngine).onLeaveAction(txn, peerSession);
+			oneOf(peerEngine).onLeaveAction(txn, peerSession, false);
 			will(returnValue(peerSession));
 		}});
 

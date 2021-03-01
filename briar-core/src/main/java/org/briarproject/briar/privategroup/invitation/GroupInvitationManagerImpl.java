@@ -310,11 +310,12 @@ class GroupInvitationManagerImpl extends ConversationClientImpl
 	public void respondToInvitation(ContactId c, SessionId sessionId,
 			boolean accept) throws DbException {
 		db.transaction(false,
-				txn -> respondToInvitation(txn, c, sessionId, accept));
+				txn -> respondToInvitation(txn, c, sessionId, accept, false));
 	}
 
 	private void respondToInvitation(Transaction txn, ContactId c,
-			SessionId sessionId, boolean accept) throws DbException {
+			SessionId sessionId, boolean accept, boolean isAutoDecline)
+			throws DbException {
 		try {
 			// Look up the session
 			Contact contact = db.getContact(txn, c);
@@ -326,7 +327,8 @@ class GroupInvitationManagerImpl extends ConversationClientImpl
 					.parseInviteeSession(contactGroupId, ss.bdfSession);
 			// Handle the join or leave action
 			if (accept) session = inviteeEngine.onJoinAction(txn, session);
-			else session = inviteeEngine.onLeaveAction(txn, session);
+			else session =
+					inviteeEngine.onLeaveAction(txn, session, isAutoDecline);
 			// Store the updated session
 			storeSession(txn, ss.storageId, session);
 		} catch (FormatException e) {
@@ -366,7 +368,7 @@ class GroupInvitationManagerImpl extends ConversationClientImpl
 		} else if (type == LocalAction.JOIN) {
 			return engine.onJoinAction(txn, session);
 		} else if (type == LocalAction.LEAVE) {
-			return engine.onLeaveAction(txn, session);
+			return engine.onLeaveAction(txn, session, false);
 		} else if (type == LocalAction.MEMBER_ADDED) {
 			return engine.onMemberAddedAction(txn, session);
 		} else {
@@ -435,7 +437,8 @@ class GroupInvitationManagerImpl extends ConversationClientImpl
 		return new GroupInvitationResponse(m, contactGroupId,
 				meta.getTimestamp(), meta.isLocal(), meta.isRead(),
 				status.isSent(), status.isSeen(), sessionId, accept,
-				meta.getPrivateGroupId(), meta.getAutoDeleteTimer());
+				meta.getPrivateGroupId(), meta.getAutoDeleteTimer(),
+				meta.isAutoDecline());
 	}
 
 	@Override
@@ -813,7 +816,7 @@ class GroupInvitationManagerImpl extends ConversationClientImpl
 			// decline invitee sessions waiting for a response before
 			if (session.state instanceof InviteeState &&
 					session.state.isAwaitingResponse()) {
-				respondToInvitation(txn, c, entry.getKey(), false);
+				respondToInvitation(txn, c, entry.getKey(), false, true);
 			}
 			for (MessageId m : session.messages) {
 				db.deleteMessage(txn, m);
