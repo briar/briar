@@ -110,8 +110,7 @@ class GroupInvitationValidator extends BdfMessageValidator {
 		}
 		// Create the metadata
 		BdfDictionary meta = messageEncoder.encodeMetadata(INVITE,
-				privateGroup.getId(), m.getTimestamp(), false, false, false,
-				false, false, timer);
+				privateGroup.getId(), m.getTimestamp(), timer);
 		return new BdfMessageContext(meta);
 	}
 
@@ -132,8 +131,7 @@ class GroupInvitationValidator extends BdfMessageValidator {
 		}
 
 		BdfDictionary meta = messageEncoder.encodeMetadata(JOIN,
-				new GroupId(privateGroupId), m.getTimestamp(), false, false,
-				false, false, false, timer);
+				new GroupId(privateGroupId), m.getTimestamp(), timer);
 		if (previousMessageId == null) {
 			return new BdfMessageContext(meta);
 		} else {
@@ -160,8 +158,7 @@ class GroupInvitationValidator extends BdfMessageValidator {
 		}
 
 		BdfDictionary meta = messageEncoder.encodeMetadata(LEAVE,
-				new GroupId(privateGroupId), m.getTimestamp(), false, false,
-				false, false, false, timer);
+				new GroupId(privateGroupId), m.getTimestamp(), timer);
 		if (previousMessageId == null) {
 			return new BdfMessageContext(meta);
 		} else {
@@ -177,8 +174,8 @@ class GroupInvitationValidator extends BdfMessageValidator {
 		byte[] privateGroupId = body.getRaw(1);
 		checkLength(privateGroupId, UniqueId.LENGTH);
 		BdfDictionary meta = messageEncoder.encodeMetadata(ABORT,
-				new GroupId(privateGroupId), m.getTimestamp(), false, false,
-				false, false, false, NO_AUTO_DELETE_TIMER);
+				new GroupId(privateGroupId), m.getTimestamp(),
+				NO_AUTO_DELETE_TIMER);
 		return new BdfMessageContext(meta);
 	}
 }

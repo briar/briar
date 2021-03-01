@@ -84,8 +84,8 @@ class CreatorProtocolEngine extends AbstractProtocolEngine<CreatorSession> {
 	}
 
 	@Override
-	public CreatorSession onLeaveAction(Transaction txn, CreatorSession s)
-			throws DbException {
+	public CreatorSession onLeaveAction(Transaction txn, CreatorSession s,
+			boolean isAutoDecline) throws DbException {
 		switch (s.getState()) {
 			case START:
 			case DISSOLVED:
@@ -180,7 +180,7 @@ class CreatorProtocolEngine extends AbstractProtocolEngine<CreatorSession> {
 			throw new DbException(e); // Invalid group metadata
 		}
 		// Send a LEAVE message
-		Message sent = sendLeaveMessage(txn, s, false);
+		Message sent = sendLeaveMessage(txn, s);
 		// Move to the DISSOLVED state
 		return new CreatorSession(s.getContactGroupId(), s.getPrivateGroupId(),
 				sent.getId(), s.getLastRemoteMessageId(), sent.getTimestamp(),
@@ -276,6 +276,6 @@ class CreatorProtocolEngine extends AbstractProtocolEngine<CreatorSession> {
 		SessionId sessionId = new SessionId(m.getPrivateGroupId().getBytes());
 		return new GroupInvitationResponse(m.getId(), m.getContactGroupId(),
 				m.getTimestamp(), false, false, false, false, sessionId,
-				accept, m.getPrivateGroupId(), m.getAutoDeleteTimer());
+				accept, m.getPrivateGroupId(), m.getAutoDeleteTimer(), false);
 	}
 }

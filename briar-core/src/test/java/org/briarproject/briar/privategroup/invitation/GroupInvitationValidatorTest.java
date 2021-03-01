@@ -636,8 +636,7 @@ public class GroupInvitationValidatorTest extends ValidatorTestCase {
 			long autoDeleteTimer, BdfDictionary metadata) {
 		context.checking(new Expectations() {{
 			oneOf(messageEncoder).encodeMetadata(type, message.getGroupId(),
-					message.getTimestamp(), false, false, false, false, false,
-					autoDeleteTimer);
+					message.getTimestamp(), autoDeleteTimer);
 			will(returnValue(metadata));
 		}});
 	}

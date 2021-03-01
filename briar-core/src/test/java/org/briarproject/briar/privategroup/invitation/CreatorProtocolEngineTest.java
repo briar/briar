@@ -123,19 +123,19 @@ public class CreatorProtocolEngineTest extends AbstractProtocolEngineTest {
 	@Test
 	public void testOnLeaveActionFromStart() throws Exception {
 		CreatorSession session = getDefaultSession(START);
-		assertEquals(session, engine.onLeaveAction(txn, session));
+		assertEquals(session, engine.onLeaveAction(txn, session, false));
 	}
 
 	@Test
 	public void testOnLeaveActionFromDissolved() throws Exception {
 		CreatorSession session = getDefaultSession(DISSOLVED);
-		assertEquals(session, engine.onLeaveAction(txn, session));
+		assertEquals(session, engine.onLeaveAction(txn, session, false));
 	}
 
 	@Test
 	public void testOnLeaveActionFromError() throws Exception {
 		CreatorSession session = getDefaultSession(ERROR);
-		assertEquals(session, engine.onLeaveAction(txn, session));
+		assertEquals(session, engine.onLeaveAction(txn, session, false));
 	}
 
 	@Test
@@ -143,7 +143,7 @@ public class CreatorProtocolEngineTest extends AbstractProtocolEngineTest {
 		CreatorSession session = getDefaultSession(INVITED);
 
 		expectOnLocalLeave();
-		CreatorSession newSession = engine.onLeaveAction(txn, session);
+		CreatorSession newSession = engine.onLeaveAction(txn, session, false);
 		assertEquals(DISSOLVED, newSession.getState());
 		assertEquals(messageId, newSession.getLastLocalMessageId());
 		assertEquals(lastRemoteMessageId, newSession.getLastRemoteMessageId());
@@ -157,7 +157,7 @@ public class CreatorProtocolEngineTest extends AbstractProtocolEngineTest {
 		CreatorSession session = getDefaultSession(JOINED);
 
 		expectOnLocalLeave();
-		CreatorSession newSession = engine.onLeaveAction(txn, session);
+		CreatorSession newSession = engine.onLeaveAction(txn, session, false);
 		assertEquals(DISSOLVED, newSession.getState());
 		assertEquals(messageId, newSession.getLastLocalMessageId());
 		assertEquals(lastRemoteMessageId, newSession.getLastRemoteMessageId());
@@ -171,7 +171,7 @@ public class CreatorProtocolEngineTest extends AbstractProtocolEngineTest {
 		CreatorSession session = getDefaultSession(LEFT);
 
 		expectOnLocalLeave();
-		CreatorSession newSession = engine.onLeaveAction(txn, session);
+		CreatorSession newSession = engine.onLeaveAction(txn, session, false);
 		assertEquals(DISSOLVED, newSession.getState());
 		assertEquals(messageId, newSession.getLastLocalMessageId());
 		assertEquals(lastRemoteMessageId, newSession.getLastRemoteMessageId());

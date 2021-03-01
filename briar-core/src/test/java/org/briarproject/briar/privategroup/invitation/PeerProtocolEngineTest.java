@@ -145,31 +145,31 @@ public class PeerProtocolEngineTest extends AbstractProtocolEngineTest {
 	@Test
 	public void testOnLeaveActionFromStart() throws Exception {
 		PeerSession session = getDefaultSession(START);
-		assertEquals(session, engine.onLeaveAction(txn, session));
+		assertEquals(session, engine.onLeaveAction(txn, session, false));
 	}
 
 	@Test
 	public void testOnLeaveActionFromAwaitMember() throws Exception {
 		PeerSession session = getDefaultSession(AWAIT_MEMBER);
-		assertEquals(session, engine.onLeaveAction(txn, session));
+		assertEquals(session, engine.onLeaveAction(txn, session, false));
 	}
 
 	@Test
 	public void testOnLeaveActionFromNeitherJoined() throws Exception {
 		PeerSession session = getDefaultSession(NEITHER_JOINED);
-		assertEquals(session, engine.onLeaveAction(txn, session));
+		assertEquals(session, engine.onLeaveAction(txn, session, false));
 	}
 
 	@Test
 	public void testOnLeaveActionFromLocalLeft() throws Exception {
 		PeerSession session = getDefaultSession(LOCAL_LEFT);
-		assertEquals(session, engine.onLeaveAction(txn, session));
+		assertEquals(session, engine.onLeaveAction(txn, session, false));
 	}
 
 	@Test
 	public void testOnLeaveActionFromError() throws Exception {
 		PeerSession session = getDefaultSession(ERROR);
-		assertEquals(session, engine.onLeaveAction(txn, session));
+		assertEquals(session, engine.onLeaveAction(txn, session, false));
 	}
 
 	@Test
@@ -178,7 +178,7 @@ public class PeerProtocolEngineTest extends AbstractProtocolEngineTest {
 
 		expectSendLeaveMessage(false);
 		expectSetPrivateGroupVisibility(INVISIBLE);
-		PeerSession newSession = engine.onLeaveAction(txn, session);
+		PeerSession newSession = engine.onLeaveAction(txn, session, false);
 
 		assertEquals(NEITHER_JOINED, newSession.getState());
 		assertSessionRecordedSentMessage(newSession);
@@ -191,7 +191,7 @@ public class PeerProtocolEngineTest extends AbstractProtocolEngineTest {
 
 		expectSendLeaveMessage(false);
 		expectSetPrivateGroupVisibility(INVISIBLE);
-		PeerSession newSession = engine.onLeaveAction(txn, session);
+		PeerSession newSession = engine.onLeaveAction(txn, session, false);
 
 		assertEquals(LOCAL_LEFT, newSession.getState());
 		assertSessionRecordedSentMessage(newSession);

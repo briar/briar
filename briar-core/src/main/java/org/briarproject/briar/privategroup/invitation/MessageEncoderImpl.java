@@ -20,6 +20,7 @@ import static org.briarproject.briar.client.MessageTrackerConstants.MSG_KEY_READ
 import static org.briarproject.briar.privategroup.invitation.GroupInvitationConstants.MSG_KEY_AUTO_DELETE_TIMER;
 import static org.briarproject.briar.privategroup.invitation.GroupInvitationConstants.MSG_KEY_AVAILABLE_TO_ANSWER;
 import static org.briarproject.briar.privategroup.invitation.GroupInvitationConstants.MSG_KEY_INVITATION_ACCEPTED;
+import static org.briarproject.briar.privategroup.invitation.GroupInvitationConstants.MSG_KEY_IS_AUTO_DECLINE;
 import static org.briarproject.briar.privategroup.invitation.GroupInvitationConstants.MSG_KEY_LOCAL;
 import static org.briarproject.briar.privategroup.invitation.GroupInvitationConstants.MSG_KEY_MESSAGE_TYPE;
 import static org.briarproject.briar.privategroup.invitation.GroupInvitationConstants.MSG_KEY_PRIVATE_GROUP_ID;
@@ -48,7 +49,7 @@ class MessageEncoderImpl implements MessageEncoder {
 	public BdfDictionary encodeMetadata(MessageType type,
 			GroupId privateGroupId, long timestamp, boolean local, boolean read,
 			boolean visible, boolean available, boolean accepted,
-			long autoDeleteTimer) {
+			long autoDeleteTimer, boolean isAutoDecline) {
 		BdfDictionary meta = new BdfDictionary();
 		meta.put(MSG_KEY_MESSAGE_TYPE, type.getValue());
 		meta.put(MSG_KEY_PRIVATE_GROUP_ID, privateGroupId);
@@ -61,7 +62,17 @@ class MessageEncoderImpl implements MessageEncoder {
 		if (autoDeleteTimer != NO_AUTO_DELETE_TIMER) {
 			meta.put(MSG_KEY_AUTO_DELETE_TIMER, autoDeleteTimer);
 		}
+		if (isAutoDecline) {
+			meta.put(MSG_KEY_IS_AUTO_DECLINE, isAutoDecline);
+		}
 		return meta;
+	}
+
+	@Override
+	public BdfDictionary encodeMetadata(MessageType type,
+			GroupId privateGroupId, long timestamp, long autoDeleteTimer) {
+		return encodeMetadata(type, privateGroupId, timestamp, false, false,
+				false, false, false, autoDeleteTimer, false);
 	}
 
 	@Override

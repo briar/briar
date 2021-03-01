@@ -89,8 +89,8 @@ class InviteeProtocolEngine extends AbstractProtocolEngine<InviteeSession> {
 	}
 
 	@Override
-	public InviteeSession onLeaveAction(Transaction txn, InviteeSession s)
-			throws DbException {
+	public InviteeSession onLeaveAction(Transaction txn, InviteeSession s,
+			boolean isAutoDecline) throws DbException {
 		switch (s.getState()) {
 			case START:
 			case LEFT:
@@ -98,7 +98,7 @@ class InviteeProtocolEngine extends AbstractProtocolEngine<InviteeSession> {
 			case ERROR:
 				return s; // Ignored in these states
 			case INVITED:
-				return onLocalDecline(txn, s);
+				return onLocalDecline(txn, s, isAutoDecline);
 			case ACCEPTED:
 			case JOINED:
 				return onLocalLeave(txn, s);
@@ -203,14 +203,14 @@ class InviteeProtocolEngine extends AbstractProtocolEngine<InviteeSession> {
 				s.getInviteTimestamp(), ACCEPTED);
 	}
 
-	private InviteeSession onLocalDecline(Transaction txn, InviteeSession s)
-			throws DbException {
+	private InviteeSession onLocalDecline(Transaction txn, InviteeSession s,
+			boolean isAutoDecline) throws DbException {
 		// Mark the invite message unavailable to answer
 		MessageId inviteId = s.getLastRemoteMessageId();
 		if (inviteId == null) throw new IllegalStateException();
 		markMessageAvailableToAnswer(txn, inviteId, false);
 		// Send a LEAVE message
-		Message sent = sendLeaveMessage(txn, s, true);
+		Message sent = sendLeaveMessage(txn, s, true, isAutoDecline);
 		// Track the message
 		messageTracker.trackOutgoingMessage(txn, sent);
 		// Move to the START state
@@ -222,7 +222,7 @@ class InviteeProtocolEngine extends AbstractProtocolEngine<InviteeSession> {
 	private InviteeSession onLocalLeave(Transaction txn, InviteeSession s)
 			throws DbException {
 		// Send a LEAVE message
-		Message sent = sendLeaveMessage(txn, s, false);
+		Message sent = sendLeaveMessage(txn, s);
 		try {
 			// Make the private group invisible to the contact
 			setPrivateGroupVisibility(txn, s, INVISIBLE);
