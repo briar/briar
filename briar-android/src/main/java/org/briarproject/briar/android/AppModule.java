@@ -36,9 +36,9 @@ import org.briarproject.briar.android.keyagreement.ContactExchangeModule;
 import org.briarproject.briar.android.login.LoginModule;
 import org.briarproject.briar.android.navdrawer.NavDrawerModule;
 import org.briarproject.briar.android.privategroup.conversation.GroupConversationModule;
-import org.briarproject.briar.android.settings.SettingsModule;
 import org.briarproject.briar.android.privategroup.list.GroupListModule;
 import org.briarproject.briar.android.reporting.DevReportModule;
+import org.briarproject.briar.android.settings.SettingsModule;
 import org.briarproject.briar.android.sharing.SharingModule;
 import org.briarproject.briar.android.test.TestAvatarCreatorImpl;
 import org.briarproject.briar.android.viewmodel.ViewModelModule;
@@ -274,6 +274,11 @@ public class AppModule {
 
 			@Override
 			public boolean shouldEnableProfilePictures() {
+				return IS_DEBUG_BUILD;
+			}
+
+			@Override
+			public boolean shouldEnableDisappearingMessages() {
 				return IS_DEBUG_BUILD;
 			}
 		};

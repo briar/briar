@@ -81,6 +81,7 @@ internal class HeadlessTestModule(private val appDir: File) {
     internal fun provideFeatureFlags() = object : FeatureFlags {
         override fun shouldEnableImageAttachments() = false
         override fun shouldEnableProfilePictures() = false
+        override fun shouldEnableDisappearingMessages() = false
     }
 
     @Provides
