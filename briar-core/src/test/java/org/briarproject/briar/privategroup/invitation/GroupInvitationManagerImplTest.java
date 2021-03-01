@@ -21,6 +21,7 @@ import org.briarproject.bramble.api.sync.Message;
 import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.bramble.api.versioning.ClientVersioningManager;
 import org.briarproject.bramble.test.BrambleMockTestCase;
+import org.briarproject.bramble.test.DbExpectations;
 import org.briarproject.bramble.test.TestUtils;
 import org.briarproject.briar.api.client.MessageTracker;
 import org.briarproject.briar.api.client.SessionId;
@@ -329,10 +330,11 @@ public class GroupInvitationManagerImplTest extends BrambleMockTestCase {
 		context.checking(new Expectations() {{
 			oneOf(messageParser).parseMetadata(meta);
 			will(returnValue(messageMetadata));
+			oneOf(messageMetadata).getAutoDeleteTimer();
+			will(returnValue(NO_AUTO_DELETE_TIMER));
 			oneOf(messageMetadata).getPrivateGroupId();
 			will(returnValue(privateGroup.getId()));
 		}});
-
 	}
 
 	private void expectIncomingMessage(Role role, MessageType type)
@@ -530,15 +532,13 @@ public class GroupInvitationManagerImplTest extends BrambleMockTestCase {
 	public void testRespondToInvitationWithoutSession() throws Exception {
 		SessionId sessionId = new SessionId(getRandomId());
 
-		context.checking(new Expectations() {{
-			oneOf(db).startTransaction(false);
-			will(returnValue(txn));
+		context.checking(new DbExpectations() {{
+			oneOf(db).transaction(with(false), withDbRunnable(txn));
 			oneOf(db).getContact(txn, contactId);
 			will(returnValue(contact));
 			oneOf(contactGroupFactory).createContactGroup(CLIENT_ID,
 					MAJOR_VERSION, contact);
 			will(returnValue(contactGroup));
-			oneOf(db).endTransaction(txn);
 		}});
 		expectGetSession(noResults, sessionId, contactGroup.getId());
 
@@ -582,9 +582,8 @@ public class GroupInvitationManagerImplTest extends BrambleMockTestCase {
 	private void expectRespondToInvitation(SessionId sessionId, boolean accept)
 			throws Exception {
 		expectGetSession(oneResult, sessionId, contactGroup.getId());
-		context.checking(new Expectations() {{
-			oneOf(db).startTransaction(false);
-			will(returnValue(txn));
+		context.checking(new DbExpectations() {{
+			oneOf(db).transaction(with(false), withDbRunnable(txn));
 			oneOf(db).getContact(txn, contactId);
 			will(returnValue(contact));
 			oneOf(contactGroupFactory).createContactGroup(CLIENT_ID,
@@ -596,8 +595,6 @@ public class GroupInvitationManagerImplTest extends BrambleMockTestCase {
 			if (accept) oneOf(inviteeEngine).onJoinAction(txn, inviteeSession);
 			else oneOf(inviteeEngine).onLeaveAction(txn, inviteeSession);
 			will(returnValue(inviteeSession));
-			oneOf(db).commitTransaction(txn);
-			oneOf(db).endTransaction(txn);
 		}});
 		expectStoreSession(inviteeSession, storageMessage.getId());
 	}

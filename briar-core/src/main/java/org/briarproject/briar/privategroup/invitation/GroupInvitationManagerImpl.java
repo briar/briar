@@ -1,6 +1,7 @@
 package org.briarproject.briar.privategroup.invitation;
 
 import org.briarproject.bramble.api.FormatException;
+import org.briarproject.bramble.api.cleanup.CleanupHook;
 import org.briarproject.bramble.api.client.ClientHelper;
 import org.briarproject.bramble.api.client.ContactGroupFactory;
 import org.briarproject.bramble.api.contact.Contact;
@@ -24,6 +25,7 @@ import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.bramble.api.sync.MessageStatus;
 import org.briarproject.bramble.api.versioning.ClientVersioningManager;
 import org.briarproject.bramble.api.versioning.ClientVersioningManager.ClientVersioningHook;
+import org.briarproject.briar.api.autodelete.event.ConversationMessagesDeletedEvent;
 import org.briarproject.briar.api.client.MessageTracker;
 import org.briarproject.briar.api.client.SessionId;
 import org.briarproject.briar.api.conversation.ConversationMessageHeader;
@@ -52,6 +54,7 @@ import javax.annotation.concurrent.Immutable;
 import javax.inject.Inject;
 
 import static org.briarproject.bramble.api.sync.Group.Visibility.SHARED;
+import static org.briarproject.briar.api.autodelete.AutoDeleteConstants.NO_AUTO_DELETE_TIMER;
 import static org.briarproject.briar.privategroup.invitation.CreatorState.START;
 import static org.briarproject.briar.privategroup.invitation.MessageType.ABORT;
 import static org.briarproject.briar.privategroup.invitation.MessageType.INVITE;
@@ -65,7 +68,7 @@ import static org.briarproject.briar.privategroup.invitation.Role.PEER;
 @NotNullByDefault
 class GroupInvitationManagerImpl extends ConversationClientImpl
 		implements GroupInvitationManager, OpenDatabaseHook, ContactHook,
-		PrivateGroupHook, ClientVersioningHook {
+		PrivateGroupHook, ClientVersioningHook, CleanupHook {
 
 	private final ClientVersioningManager clientVersioningManager;
 	private final ContactGroupFactory contactGroupFactory;
@@ -148,6 +151,11 @@ class GroupInvitationManagerImpl extends ConversationClientImpl
 			BdfDictionary bdfMeta) throws DbException, FormatException {
 		// Parse the metadata
 		MessageMetadata meta = messageParser.parseMetadata(bdfMeta);
+		// set the clean-up timer that will be started when message gets read
+		long timer = meta.getAutoDeleteTimer();
+		if (timer != NO_AUTO_DELETE_TIMER) {
+			db.setCleanupTimerDuration(txn, m.getId(), timer);
+		}
 		// Look up the session, if there is one
 		SessionId sessionId = getSessionId(meta.getPrivateGroupId());
 		StoredSession ss = getSession(txn, m.getGroupId(), sessionId);
@@ -301,7 +309,12 @@ class GroupInvitationManagerImpl extends ConversationClientImpl
 	@Override
 	public void respondToInvitation(ContactId c, SessionId sessionId,
 			boolean accept) throws DbException {
-		Transaction txn = db.startTransaction(false);
+		db.transaction(false,
+				txn -> respondToInvitation(txn, c, sessionId, accept));
+	}
+
+	private void respondToInvitation(Transaction txn, ContactId c,
+			SessionId sessionId, boolean accept) throws DbException {
 		try {
 			// Look up the session
 			Contact contact = db.getContact(txn, c);
@@ -316,11 +329,8 @@ class GroupInvitationManagerImpl extends ConversationClientImpl
 			else session = inviteeEngine.onLeaveAction(txn, session);
 			// Store the updated session
 			storeSession(txn, ss.storageId, session);
-			db.commitTransaction(txn);
 		} catch (FormatException e) {
 			throw new DbException(e);
-		} finally {
-			db.endTransaction(txn);
 		}
 	}
 
@@ -686,7 +696,7 @@ class GroupInvitationManagerImpl extends ConversationClientImpl
 		// get ID of the contact group
 		GroupId g = getContactGroup(db.getContact(txn, c)).getId();
 
-		// get metadata for all messages in the
+		// get metadata for all messages in the group
 		// (these are sessions *and* protocol messages)
 		Map<MessageId, BdfDictionary> metadata;
 		try {
@@ -760,6 +770,59 @@ class GroupInvitationManagerImpl extends ConversationClientImpl
 			}
 		}
 		return result;
+	}
+
+	@Override
+	public void deleteMessages(Transaction txn, GroupId g,
+			Collection<MessageId> messageIds) throws DbException {
+		ContactId c;
+		Map<SessionId, DeletableSession> sessions = new HashMap<>();
+		try {
+			// get the ContactId from the given GroupId
+			c = clientHelper.getContactId(txn, g);
+			// get sessions for all messages to be deleted
+			for (MessageId messageId : messageIds) {
+				BdfDictionary d = clientHelper
+						.getMessageMetadataAsDictionary(txn, messageId);
+				MessageMetadata messageMetadata =
+						messageParser.parseMetadata(d);
+				if (!messageMetadata.isVisibleInConversation())
+					throw new IllegalArgumentException();
+				SessionId sessionId =
+						getSessionId(messageMetadata.getPrivateGroupId());
+				DeletableSession deletableSession = sessions.get(sessionId);
+				if (deletableSession == null) {
+					StoredSession ss = getSession(txn, g, sessionId);
+					if (ss == null) throw new DbException();
+					BdfDictionary sessionMeta = clientHelper
+							.getMessageMetadataAsDictionary(txn, ss.storageId);
+					Session<?> session = sessionParser
+							.parseSession(g, sessionMeta);
+					deletableSession = new DeletableSession(session.getState());
+					sessions.put(sessionId, deletableSession);
+				}
+				deletableSession.messages.add(messageId);
+			}
+		} catch (FormatException e) {
+			throw new DbException(e);
+		}
+
+		// delete given visible messages in sessions and auto-respond before
+		for (Entry<SessionId, DeletableSession> entry : sessions.entrySet()) {
+			DeletableSession session = entry.getValue();
+			// decline invitee sessions waiting for a response before
+			if (session.state instanceof InviteeState &&
+					session.state.isAwaitingResponse()) {
+				respondToInvitation(txn, c, entry.getKey(), false);
+			}
+			for (MessageId m : session.messages) {
+				db.deleteMessage(txn, m);
+				db.deleteMessageMetadata(txn, m);
+			}
+		}
+		recalculateGroupCount(txn, g);
+
+		txn.attach(new ConversationMessagesDeletedEvent(c, messageIds));
 	}
 
 	@Override
