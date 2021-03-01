@@ -9,10 +9,13 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
+
 import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
 import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.activity.BaseActivity;
+import org.briarproject.briar.android.conversation.glide.GlideApp;
 
 import javax.inject.Inject;
 
@@ -68,6 +71,13 @@ public class ConfirmAvatarDialogFragment extends DialogFragment {
 				inflater.inflate(R.layout.fragment_confirm_avatar_dialog, null);
 		ImageView imageView = view.findViewById(R.id.image);
 		TextView textViewUserName = view.findViewById(R.id.username);
+
+		GlideApp.with(imageView)
+				.load(uri)
+				.diskCacheStrategy(DiskCacheStrategy.NONE)
+				.error(R.drawable.ic_image_broken)
+				.into(imageView)
+				.waitForLayout();
 
 		// we can't use getViewLifecycleOwner() here
 		// as this fragment technically doesn't have a view
