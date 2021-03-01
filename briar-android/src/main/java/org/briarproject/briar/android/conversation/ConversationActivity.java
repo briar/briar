@@ -374,11 +374,14 @@ public class ConversationActivity extends BriarActivity
 		observeOnce(viewModel.getContactItem(), this, contact ->
 				menu.findItem(R.id.action_set_alias).setEnabled(true));
 		// show auto-delete timer setting only, if contacts supports it
-		observeOnce(viewModel.getPrivateMessageFormat(), this, format -> {
-			boolean visible = format == TEXT_IMAGES_AUTO_DELETE;
-			MenuItem item = menu.findItem(R.id.action_conversation_settings);
-			item.setVisible(visible);
-		});
+		if (featureFlags.shouldEnableDisappearingMessages()) {
+			observeOnce(viewModel.getPrivateMessageFormat(), this, format -> {
+				boolean visible = format == TEXT_IMAGES_AUTO_DELETE;
+				MenuItem item =
+						menu.findItem(R.id.action_conversation_settings);
+				item.setVisible(visible);
+			});
+		}
 
 		return super.onCreateOptionsMenu(menu);
 	}
