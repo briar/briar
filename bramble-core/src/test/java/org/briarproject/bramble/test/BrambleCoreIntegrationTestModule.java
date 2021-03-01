@@ -33,6 +33,11 @@ public class BrambleCoreIntegrationTestModule {
 			public boolean shouldEnableProfilePictures() {
 				return true;
 			}
+
+			@Override
+			public boolean shouldEnableDisappearingMessages() {
+				return true;
+			}
 		};
 	}
 }

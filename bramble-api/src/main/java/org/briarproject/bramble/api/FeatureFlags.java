@@ -9,4 +9,5 @@ public interface FeatureFlags {
 
 	boolean shouldEnableProfilePictures();
 
+	boolean shouldEnableDisappearingMessages();
 }
