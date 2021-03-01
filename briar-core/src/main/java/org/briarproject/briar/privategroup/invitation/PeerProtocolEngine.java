@@ -85,8 +85,8 @@ class PeerProtocolEngine extends AbstractProtocolEngine<PeerSession> {
 	}
 
 	@Override
-	public PeerSession onLeaveAction(Transaction txn, PeerSession s)
-			throws DbException {
+	public PeerSession onLeaveAction(Transaction txn, PeerSession s,
+			boolean isAutoDecline) throws DbException {
 		switch (s.getState()) {
 			case START:
 			case AWAIT_MEMBER:
@@ -213,7 +213,7 @@ class PeerProtocolEngine extends AbstractProtocolEngine<PeerSession> {
 	private PeerSession onLocalLeaveFromBothJoined(Transaction txn,
 			PeerSession s) throws DbException {
 		// Send a LEAVE message
-		Message sent = sendLeaveMessage(txn, s, false);
+		Message sent = sendLeaveMessage(txn, s);
 		try {
 			// Make the private group invisible to the contact
 			setPrivateGroupVisibility(txn, s, INVISIBLE);
@@ -229,7 +229,7 @@ class PeerProtocolEngine extends AbstractProtocolEngine<PeerSession> {
 	private PeerSession onLocalLeaveFromLocalJoined(Transaction txn,
 			PeerSession s) throws DbException {
 		// Send a LEAVE message
-		Message sent = sendLeaveMessage(txn, s, false);
+		Message sent = sendLeaveMessage(txn, s);
 		try {
 			// Make the private group invisible to the contact
 			setPrivateGroupVisibility(txn, s, INVISIBLE);
