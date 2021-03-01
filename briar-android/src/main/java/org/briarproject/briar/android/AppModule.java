@@ -293,6 +293,11 @@ public class AppModule {
 			public boolean shouldEnableProfilePictures() {
 				return IS_DEBUG_BUILD;
 			}
+
+			@Override
+			public boolean shouldEnableDisappearingMessages() {
+				return IS_DEBUG_BUILD;
+			}
 		};
 	}
 }
