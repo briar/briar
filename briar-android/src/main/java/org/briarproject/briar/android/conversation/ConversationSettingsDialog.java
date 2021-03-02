@@ -5,7 +5,7 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.TextView;
+import android.widget.Button;
 
 import org.briarproject.bramble.api.contact.ContactId;
 import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
@@ -13,6 +13,7 @@ import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.activity.ActivityComponent;
 import org.briarproject.briar.android.fragment.BaseFragment;
+import org.briarproject.briar.android.widget.OnboardingFullDialogFragment;
 
 import java.util.logging.Logger;
 
@@ -95,7 +96,7 @@ public class ConversationSettingsDialog extends DialogFragment {
 		switchDisappearingMessages.setOnCheckedChangeListener(
 				(button, value) -> viewModel.setAutoDeleteTimerEnabled(value));
 
-		TextView buttonLearnMore =
+		Button buttonLearnMore =
 				view.findViewById(R.id.buttonLearnMore);
 		buttonLearnMore.setOnClickListener(e -> showLearnMoreDialog());
 
@@ -113,10 +114,10 @@ public class ConversationSettingsDialog extends DialogFragment {
 	}
 
 	private void showLearnMoreDialog() {
-		ConversationSettingsLearnMoreDialog
-				dialog = new ConversationSettingsLearnMoreDialog();
-		dialog.show(getChildFragmentManager(),
-				ConversationSettingsLearnMoreDialog.TAG);
+		OnboardingFullDialogFragment.newInstance(
+				R.string.disappearing_messages_title,
+				R.string.disappearing_messages_explanation_long
+		).show(getChildFragmentManager(), OnboardingFullDialogFragment.TAG);
 	}
 
 }
