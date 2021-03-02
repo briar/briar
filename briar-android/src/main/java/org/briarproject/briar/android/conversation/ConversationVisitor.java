@@ -209,6 +209,10 @@ class ConversationVisitor implements
 				text = ctx.getString(
 						R.string.groups_invitations_response_accepted_sent,
 						contactName.getValue());
+			} else if (r.isAutoDecline()) {
+				text = ctx.getString(
+						R.string.groups_invitations_response_declined_auto,
+						contactName.getValue());
 			} else {
 				text = ctx.getString(
 						R.string.groups_invitations_response_declined_sent,

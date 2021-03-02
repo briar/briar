@@ -365,6 +365,7 @@
 	</plurals>
 	<string name="groups_invitations_response_accepted_sent">You accepted the group invitation from %s.</string>
 	<string name="groups_invitations_response_declined_sent">You declined the group invitation from %s.</string>
+	<string name="groups_invitations_response_declined_auto">The group invitation from %s was automatically declined.</string>
 	<string name="groups_invitations_response_accepted_received">%s accepted the group invitation.</string>
 	<string name="groups_invitations_response_declined_received">%s declined the group invitation.</string>
 	<string name="sharing_status_groups">Only the creator can invite new members to the group. Below are all current members of the group.</string>

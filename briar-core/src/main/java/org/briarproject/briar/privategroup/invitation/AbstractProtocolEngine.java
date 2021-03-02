@@ -7,6 +7,7 @@ import org.briarproject.bramble.api.data.BdfDictionary;
 import org.briarproject.bramble.api.db.DatabaseComponent;
 import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.db.Transaction;
+import org.briarproject.bramble.api.event.Event;
 import org.briarproject.bramble.api.identity.IdentityManager;
 import org.briarproject.bramble.api.identity.LocalAuthor;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
@@ -19,13 +20,16 @@ import org.briarproject.bramble.api.system.Clock;
 import org.briarproject.bramble.api.versioning.ClientVersioningManager;
 import org.briarproject.briar.api.autodelete.AutoDeleteManager;
 import org.briarproject.briar.api.client.MessageTracker;
+import org.briarproject.briar.api.client.SessionId;
 import org.briarproject.briar.api.conversation.ConversationManager;
 import org.briarproject.briar.api.privategroup.GroupMessage;
 import org.briarproject.briar.api.privategroup.GroupMessageFactory;
 import org.briarproject.briar.api.privategroup.PrivateGroup;
 import org.briarproject.briar.api.privategroup.PrivateGroupFactory;
 import org.briarproject.briar.api.privategroup.PrivateGroupManager;
+import org.briarproject.briar.api.privategroup.event.GroupInvitationResponseReceivedEvent;
 import org.briarproject.briar.api.privategroup.invitation.GroupInvitationManager;
+import org.briarproject.briar.api.privategroup.invitation.GroupInvitationResponse;
 
 import java.util.Collection;
 
@@ -207,6 +211,17 @@ abstract class AbstractProtocolEngine<S extends Session<?>>
 			// Set the auto-delete timer duration on the local message
 			if (timer != NO_AUTO_DELETE_TIMER) {
 				db.setCleanupTimerDuration(txn, m.getId(), timer);
+			}
+			if (isAutoDecline) {
+				// Broadcast an event, so the auto-decline becomes visible
+				SessionId sessionId =
+						new SessionId(s.getPrivateGroupId().getBytes());
+				GroupInvitationResponse response = new GroupInvitationResponse(
+						m.getId(), s.getContactGroupId(), m.getTimestamp(),
+						true, true, false, false, sessionId, false,
+						s.getPrivateGroupId(), timer, true);
+				Event e = new GroupInvitationResponseReceivedEvent(response, c);
+				txn.attach(e);
 			}
 		} else {
 			m = messageEncoder.encodeLeaveMessage(s.getContactGroupId(),
