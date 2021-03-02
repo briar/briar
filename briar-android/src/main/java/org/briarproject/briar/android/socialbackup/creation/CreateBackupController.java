@@ -1,0 +1,26 @@
+package org.briarproject.briar.android.socialbackup.creation;
+
+import org.briarproject.bramble.api.contact.ContactId;
+import org.briarproject.bramble.api.db.DbException;
+import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
+import org.briarproject.bramble.api.sync.GroupId;
+import org.briarproject.briar.android.contactselection.ContactSelectorController;
+import org.briarproject.briar.android.contactselection.SelectableContactItem;
+import org.briarproject.briar.android.controller.handler.ResultExceptionHandler;
+
+import java.util.Collection;
+
+import androidx.annotation.Nullable;
+
+@NotNullByDefault
+public interface CreateBackupController
+		extends ContactSelectorController<SelectableContactItem> {
+
+	void createGroup(String name,
+			ResultExceptionHandler<GroupId, DbException> result);
+
+	void sendInvitation(GroupId g, Collection<ContactId> contacts,
+			@Nullable String text,
+			ResultExceptionHandler<Void, DbException> result);
+
+}

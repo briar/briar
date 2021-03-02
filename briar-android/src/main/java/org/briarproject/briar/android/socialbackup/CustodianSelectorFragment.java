@@ -1,4 +1,4 @@
-package org.briarproject.briar.android.darkcrystal;
+package org.briarproject.briar.android.socialbackup;
 
 import android.os.Bundle;
 import android.view.MenuItem;
@@ -11,7 +11,7 @@ import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
 import org.briarproject.bramble.api.sync.GroupId;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.activity.ActivityComponent;
-import org.briarproject.briar.android.backup.creation.CreateBackupController;
+import org.briarproject.briar.android.socialbackup.creation.CreateBackupController;
 import org.briarproject.briar.android.contactselection.BaseContactSelectorAdapter;
 import org.briarproject.briar.android.contactselection.ContactSelectorController;
 import org.briarproject.briar.android.contactselection.ContactSelectorFragment;
@@ -51,7 +51,7 @@ public class CustodianSelectorFragment extends ContactSelectorFragment {
 	@Override
 	public void onCreate(@Nullable Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		requireNonNull(getActivity()).setTitle(R.string.title_select_custodians);
+		requireActivity().setTitle(R.string.title_select_custodians);
 	}
 
 	@Override

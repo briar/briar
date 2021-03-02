@@ -36,7 +36,7 @@ public class ThresholdSelectorFragment extends BaseFragment {
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        requireNonNull(getActivity()).setTitle(R.string.title_define_threshold);
+        requireActivity().setTitle(R.string.title_define_threshold);
     }
 
     @Nullable

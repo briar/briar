@@ -1,4 +1,4 @@
-package org.briarproject.briar.android.darkcrystal;
+package org.briarproject.briar.android.socialbackup;
 
 import android.os.Bundle;
 import android.widget.Toast;

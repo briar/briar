@@ -1,4 +1,4 @@
-package org.briarproject.briar.android.darkcrystal;
+package org.briarproject.briar.android.socialbackup;
 
 import android.content.Context;
 import android.os.Bundle;
@@ -11,7 +11,7 @@ import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
 import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.activity.ActivityComponent;
-import org.briarproject.briar.android.backup.creation.CreateBackupController;
+import org.briarproject.briar.android.socialbackup.creation.CreateBackupController;
 import org.briarproject.briar.android.contact.BaseContactListAdapter;
 import org.briarproject.briar.android.contactselection.BaseContactSelectorFragment;
 import org.briarproject.briar.android.contactselection.ContactDisplayAdapter;
@@ -71,7 +71,7 @@ public class CustodianDisplayFragment extends BaseContactSelectorFragment<Select
 	@Override
 	public void onCreate(@Nullable Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		requireNonNull(getActivity()).setTitle(R.string.activity_name_distributed_backup);
+		requireActivity().setTitle(R.string.activity_name_distributed_backup);
 	}
 
 	@Override
