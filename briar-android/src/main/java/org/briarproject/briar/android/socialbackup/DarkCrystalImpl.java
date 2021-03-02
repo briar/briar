@@ -1,7 +1,7 @@
 package org.briarproject.briar.android.socialbackup;
 import org.briarproject.bramble.api.crypto.SecretKey;
 import org.briarproject.briar.api.socialbackup.Shard;
-import org.briarproject.briar.socialbackup.DarkCrystal;
+import org.briarproject.briar.api.socialbackup.DarkCrystal;
 import org.magmacollective.darkcrystal.secretsharingwrapper.SecretSharingWrapper;
 
 import java.security.GeneralSecurityException;
