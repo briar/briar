@@ -101,6 +101,7 @@ dependencies {
 	implementation 'androidx.constraintlayout:constraintlayout:2.0.4'
 	implementation 'com.google.android.material:material:1.2.1'
 	implementation 'androidx.recyclerview:recyclerview-selection:1.1.0-rc03'
+	implementation 'org.magmacollective.darkcrystal:dark-crystal-secret-sharing-wrapper:1.0.0'
 
 	implementation 'info.guardianproject.panic:panic:1.0'
 	implementation 'info.guardianproject.trustedintents:trustedintents:0.2'
