@@ -114,6 +114,7 @@ public class AutoDeleteIntegrationTest extends AbstractAutoDeleteTest {
 		assertEquals(0, getMessageHeaders(c0, contactId1From0).size());
 		assertGroupCount(c1, contactId0From1, 1, 0);
 		assertEquals(1, getMessageHeaders(c1, contactId0From1).size());
+//		waitForEvents(c1);
 
 		// When 1's timer has elapsed, the message should be deleted from 1's
 		// view of the conversation and the invitation auto-declined
@@ -150,6 +151,7 @@ public class AutoDeleteIntegrationTest extends AbstractAutoDeleteTest {
 		assertEquals(1, getMessageHeaders(c0, contactId1From0).size());
 		assertGroupCount(c1, contactId0From1, 1, 0);
 		assertEquals(1, getMessageHeaders(c1, contactId0From1).size());
+//		waitForEvents(c1);
 		// When 1's timer has elapsed, the auto-decline message should be
 		// deleted from 1's view of the conversation
 		c0.getTimeTravel().addCurrentTimeMillis(1);
@@ -169,6 +171,7 @@ public class AutoDeleteIntegrationTest extends AbstractAutoDeleteTest {
 		c0.getTimeTravel().addCurrentTimeMillis(timerLatency - 1);
 		assertGroupCount(c0, contactId1From0, 1, 0);
 		assertEquals(1, getMessageHeaders(c0, contactId1From0).size());
+//		waitForEvents(c0);
 
 		// When 0's timer has elapsed, the message should be deleted from 0's
 		// view of the conversation
@@ -229,6 +232,7 @@ public class AutoDeleteIntegrationTest extends AbstractAutoDeleteTest {
 		assertEquals(2, getMessageHeaders(c0, contactId1From0).size());
 		assertGroupCount(c1, contactId0From1, 2, 2);
 		assertEquals(2, getMessageHeaders(c1, contactId0From1).size());
+//		waitForEvents(c0);
 
 		// When 0's timer has elapsed, the message should be deleted from 0's
 		// view of the conversation but 1 should still see the message
@@ -256,6 +260,7 @@ public class AutoDeleteIntegrationTest extends AbstractAutoDeleteTest {
 		assertEquals(1, getMessageHeaders(c0, contactId1From0).size());
 		assertGroupCount(c1, contactId0From1, 2, 0);
 		assertEquals(2, getMessageHeaders(c1, contactId0From1).size());
+//		waitForEvents(c1);
 
 		// When 1's timer has elapsed, the message should be deleted from 1's
 		// view of the conversation and the invitation auto-declined
@@ -287,7 +292,7 @@ public class AutoDeleteIntegrationTest extends AbstractAutoDeleteTest {
 		waitForEvents(c1);
 		// 0 marks the message as read - this starts 0's timer
 		GroupInvitationResponse autoDeclineMessage = (GroupInvitationResponse)
-				getMessageHeaders(c1, contactId0From1).get(1);
+				getMessageHeaders(c0, contactId1From0).get(1);
 		markMessageRead(c0, contact1From0, autoDeclineMessage.getId());
 		assertGroupCount(c0, contactId1From0, 2, 0);
 		assertGroupCount(c1, contactId0From1, 2, 0);
@@ -329,6 +334,7 @@ public class AutoDeleteIntegrationTest extends AbstractAutoDeleteTest {
 		assertEquals(2, getMessageHeaders(c0, contactId1From0).size());
 		assertGroupCount(c1, contactId0From1, 2, 0);
 		assertEquals(2, getMessageHeaders(c1, contactId0From1).size());
+//		waitForEvents(c1);
 
 		// When 1's timer has elapsed, the message should be deleted from 1's
 		// view of the conversation
@@ -358,6 +364,7 @@ public class AutoDeleteIntegrationTest extends AbstractAutoDeleteTest {
 		c1.getTimeTravel().addCurrentTimeMillis(timerLatency - 1);
 		assertGroupCount(c0, contactId1From0, 2, 0);
 		assertGroupCount(c1, contactId0From1, 1, 0);
+//		waitForEvents(c0);
 
 		// When 0's timer has elapsed, the messages should be deleted from 0's
 		// view of the conversation, only the initial invitation remains
