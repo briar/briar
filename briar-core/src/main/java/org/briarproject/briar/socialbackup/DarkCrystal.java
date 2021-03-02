@@ -8,6 +8,7 @@ import java.security.GeneralSecurityException;
 import java.util.List;
 
 @NotNullByDefault
+public
 interface DarkCrystal {
 
 	List<Shard> createShards(SecretKey secret, int shards, int threshold);
