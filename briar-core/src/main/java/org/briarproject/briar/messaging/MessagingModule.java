@@ -64,10 +64,11 @@ public class MessagingModule {
 		validationManager.registerIncomingMessageHook(CLIENT_ID, MAJOR_VERSION,
 				messagingManager);
 		conversationManager.registerConversationClient(messagingManager);
-		// Don't advertise support for disappearing messages unless the
-		// feature flag is enabled
-		int minorVersion = featureFlags.shouldEnableDisappearingMessages()
-				? MINOR_VERSION : 2;
+		// Don't advertise support for image attachments or disappearing
+		// messages unless the respective feature flags are enabled
+		boolean images = featureFlags.shouldEnableImageAttachments();
+		boolean disappear = featureFlags.shouldEnableDisappearingMessages();
+		int minorVersion = images ? (disappear ? MINOR_VERSION : 2) : 0;
 		clientVersioningManager.registerClient(CLIENT_ID, MAJOR_VERSION,
 				minorVersion, messagingManager);
 		cleanupManager.registerCleanupHook(CLIENT_ID, MAJOR_VERSION,
