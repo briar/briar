@@ -729,20 +729,6 @@ public class AutoDeleteIntegrationTest extends AbstractAutoDeleteTest {
 				component.getClock().currentTimeMillis(), "image/jpeg", in);
 	}
 
-	private void setMessageNotShared(BriarIntegrationTestComponent component,
-			MessageId messageId) throws Exception {
-		DatabaseComponent db = component.getDatabaseComponent();
-
-		db.transaction(false, txn -> db.setMessageNotShared(txn, messageId));
-	}
-
-	private void setMessageShared(BriarIntegrationTestComponent component,
-			MessageId messageId) throws Exception {
-		DatabaseComponent db = component.getDatabaseComponent();
-
-		db.transaction(false, txn -> db.setMessageShared(txn, messageId));
-	}
-
 	private boolean messageIsDeleted(BriarIntegrationTestComponent component,
 			MessageId messageId) throws DbException {
 		DatabaseComponent db = component.getDatabaseComponent();
@@ -754,5 +740,4 @@ public class AutoDeleteIntegrationTest extends AbstractAutoDeleteTest {
 			return true;
 		}
 	}
-
 }
