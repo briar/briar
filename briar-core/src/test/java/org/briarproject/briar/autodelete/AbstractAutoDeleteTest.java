@@ -4,9 +4,6 @@ import org.briarproject.bramble.api.contact.Contact;
 import org.briarproject.bramble.api.contact.ContactId;
 import org.briarproject.bramble.api.db.DatabaseComponent;
 import org.briarproject.bramble.api.db.DbException;
-import org.briarproject.bramble.api.event.Event;
-import org.briarproject.bramble.api.event.EventBus;
-import org.briarproject.bramble.api.event.EventListener;
 import org.briarproject.bramble.api.sync.GroupId;
 import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.bramble.system.TimeTravelModule;
@@ -24,12 +21,8 @@ import org.junit.Before;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.concurrent.CountDownLatch;
-
-import javax.annotation.Nonnull;
 
 import static java.util.Collections.sort;
-import static java.util.concurrent.TimeUnit.MINUTES;
 import static org.briarproject.bramble.api.cleanup.CleanupManager.BATCH_DELAY_MS;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
@@ -151,30 +144,4 @@ public abstract class AbstractAutoDeleteTest extends
 		assertEquals("messageCount", messageCount, gc.getMsgCount());
 		assertEquals("unreadCount", unreadCount, gc.getUnreadCount());
 	}
-
-	/**
-	 * Broadcasts a marker event and waits for it to be delivered, which
-	 * indicates that all previously broadcast events have been delivered.
-	 */
-	protected void waitForEvents(BriarIntegrationTestComponent component)
-			throws Exception {
-		CountDownLatch latch = new CountDownLatch(1);
-		MarkerEvent marker = new MarkerEvent();
-		EventBus eventBus = component.getEventBus();
-		eventBus.addListener(new EventListener() {
-			@Override
-			public void eventOccurred(@Nonnull Event e) {
-				if (e == marker) {
-					latch.countDown();
-					eventBus.removeListener(this);
-				}
-			}
-		});
-		eventBus.broadcast(marker);
-		if (!latch.await(1, MINUTES)) fail();
-	}
-
-	private static class MarkerEvent extends Event {
-	}
-
 }
