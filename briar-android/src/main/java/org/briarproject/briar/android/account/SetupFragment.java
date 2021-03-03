@@ -7,7 +7,6 @@ import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
-import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.TextView;
 import android.widget.TextView.OnEditorActionListener;
@@ -19,8 +18,6 @@ import org.briarproject.briar.android.fragment.BaseFragment;
 
 import javax.inject.Inject;
 
-import androidx.annotation.CallSuper;
-import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.lifecycle.ViewModelProvider;
 
@@ -35,7 +32,6 @@ abstract class SetupFragment extends BaseFragment implements TextWatcher,
 		OnEditorActionListener, OnClickListener {
 
 	private final static String STATE_KEY_CLICKED = "setupFragmentClicked";
-	private boolean clicked = false;
 
 	@Inject
 	ViewModelProvider.Factory viewModelFactory;
@@ -46,27 +42,6 @@ abstract class SetupFragment extends BaseFragment implements TextWatcher,
 		super.onCreate(savedInstanceState);
 		viewModel = new ViewModelProvider(requireActivity())
 				.get(SetupViewModel.class);
-	}
-
-	@Override
-	public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
-		if (savedInstanceState != null) {
-			clicked = savedInstanceState.getBoolean(STATE_KEY_CLICKED);
-		}
-		if (clicked) {
-			setNextClicked();
-		}
-	}
-
-	@Override
-	public void onSaveInstanceState(@NonNull Bundle outState) {
-		super.onSaveInstanceState(outState);
-		outState.putBoolean(STATE_KEY_CLICKED, clicked);
-	}
-
-	@CallSuper
-	void setNextClicked() {
-		this.clicked = true;
 	}
 
 	@Override
@@ -114,5 +89,4 @@ abstract class SetupFragment extends BaseFragment implements TextWatcher,
 	public void afterTextChanged(Editable editable) {
 		// noop
 	}
-
 }
