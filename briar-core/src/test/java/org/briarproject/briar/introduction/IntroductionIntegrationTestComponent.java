@@ -49,6 +49,8 @@ interface IntroductionIntegrationTestComponent
 
 	void inject(IntroductionCryptoIntegrationTest init);
 
+	void inject(AutoDeleteIntegrationTest init);
+
 	MessageEncoder getMessageEncoder();
 
 	MessageParser getMessageParser();

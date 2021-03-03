@@ -133,7 +133,7 @@ class IntroductionValidator extends BdfMessageValidator {
 
 		SessionId sessionId = new SessionId(sessionIdBytes);
 		BdfDictionary meta = messageEncoder.encodeMetadata(ACCEPT, sessionId,
-				m.getTimestamp(), false, false, false, timer);
+				m.getTimestamp(), timer);
 		if (previousMessageId == null) {
 			return new BdfMessageContext(meta);
 		} else {
@@ -163,7 +163,7 @@ class IntroductionValidator extends BdfMessageValidator {
 
 		SessionId sessionId = new SessionId(sessionIdBytes);
 		BdfDictionary meta = messageEncoder.encodeMetadata(type, sessionId,
-				m.getTimestamp(), false, false, false, timer);
+				m.getTimestamp(), timer);
 		if (previousMessageId == null) {
 			return new BdfMessageContext(meta);
 		} else {
@@ -190,7 +190,7 @@ class IntroductionValidator extends BdfMessageValidator {
 
 		SessionId sessionId = new SessionId(sessionIdBytes);
 		BdfDictionary meta = messageEncoder.encodeMetadata(AUTH, sessionId,
-				m.getTimestamp(), false, false, false, NO_AUTO_DELETE_TIMER);
+				m.getTimestamp(), NO_AUTO_DELETE_TIMER);
 		MessageId dependency = new MessageId(previousMessageId);
 		return new BdfMessageContext(meta, singletonList(dependency));
 	}
@@ -210,7 +210,7 @@ class IntroductionValidator extends BdfMessageValidator {
 
 		SessionId sessionId = new SessionId(sessionIdBytes);
 		BdfDictionary meta = messageEncoder.encodeMetadata(ACTIVATE, sessionId,
-				m.getTimestamp(), false, false, false, NO_AUTO_DELETE_TIMER);
+				m.getTimestamp(), NO_AUTO_DELETE_TIMER);
 		if (previousMessageId == null) {
 			return new BdfMessageContext(meta);
 		} else {
@@ -231,7 +231,7 @@ class IntroductionValidator extends BdfMessageValidator {
 
 		SessionId sessionId = new SessionId(sessionIdBytes);
 		BdfDictionary meta = messageEncoder.encodeMetadata(type, sessionId,
-				m.getTimestamp(), false, false, false, NO_AUTO_DELETE_TIMER);
+				m.getTimestamp(), NO_AUTO_DELETE_TIMER);
 		if (previousMessageId == null) {
 			return new BdfMessageContext(meta);
 		} else {

@@ -98,7 +98,7 @@ class IntroducerProtocolEngine
 
 	@Override
 	public IntroducerSession onDeclineAction(Transaction txn,
-			IntroducerSession s) {
+			IntroducerSession s, boolean isAutoDecline) {
 		throw new UnsupportedOperationException(); // Invalid in this role
 	}
 
@@ -387,7 +387,7 @@ class IntroducerProtocolEngine
 		Introducee i = getOtherIntroducee(s, m.getGroupId());
 		// The forwarded message will be visible to the introducee
 		long localTimestamp = getTimestampForVisibleMessage(txn, s, i);
-		Message sent = sendDeclineMessage(txn, i, localTimestamp, false);
+		Message sent = sendDeclineMessage(txn, i, localTimestamp, false, false);
 
 		// Create the next state
 		IntroducerState state = START;
@@ -442,7 +442,7 @@ class IntroducerProtocolEngine
 		Introducee i = getOtherIntroducee(s, m.getGroupId());
 		// The forwarded message will be visible to the introducee
 		long localTimestamp = getTimestampForVisibleMessage(txn, s, i);
-		Message sent = sendDeclineMessage(txn, i, localTimestamp, false);
+		Message sent = sendDeclineMessage(txn, i, localTimestamp, false, false);
 
 		Introducee introduceeA, introduceeB;
 		Author sender, other;

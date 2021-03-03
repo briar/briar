@@ -317,6 +317,7 @@
 	<string name="introduction_response_accepted_sent">You accepted the introduction to %1$s.</string>
 	<string name="introduction_response_accepted_sent_info">Before %1$s gets added to your contacts, they need to accept the introduction as well. This might take some time.</string>
 	<string name="introduction_response_declined_sent">You declined the introduction to %1$s.</string>
+	<string name="introduction_response_declined_auto">The introduction to %1$s was automatically declined.</string>
 	<string name="introduction_response_accepted_received">%1$s accepted the introduction to %2$s.</string>
 	<string name="introduction_response_declined_received">%1$s declined the introduction to %2$s.</string>
 	<string name="introduction_response_declined_received_by_introducee">%1$s says that %2$s declined the introduction.</string>

@@ -20,7 +20,7 @@ interface IntroductionCrypto {
 
 	/**
 	 * Returns true if the local author is alice
-	 *
+	 * <p>
 	 * Alice is the Author whose unique ID has the lower ID,
 	 * comparing the IDs as byte strings.
 	 */

@@ -22,8 +22,13 @@ interface MessageEncoder {
 			long autoDeleteTimer);
 
 	BdfDictionary encodeMetadata(MessageType type,
+			@Nullable SessionId sessionId, long timestamp,
+			long autoDeleteTimer);
+
+	BdfDictionary encodeMetadata(MessageType type,
 			@Nullable SessionId sessionId, long timestamp, boolean local,
-			boolean read, boolean visible, long autoDeleteTimer);
+			boolean read, boolean visible, long autoDeleteTimer,
+			boolean isAutoDecline);
 
 	void addSessionId(BdfDictionary meta, SessionId sessionId);
 

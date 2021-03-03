@@ -1,5 +1,6 @@
 package org.briarproject.briar.introduction;
 
+import org.briarproject.bramble.api.cleanup.CleanupManager;
 import org.briarproject.bramble.api.client.ClientHelper;
 import org.briarproject.bramble.api.contact.ContactManager;
 import org.briarproject.bramble.api.data.MetadataEncoder;
@@ -50,7 +51,8 @@ public class IntroductionModule {
 			ValidationManager validationManager,
 			ConversationManager conversationManager,
 			ClientVersioningManager clientVersioningManager,
-			IntroductionManagerImpl introductionManager) {
+			IntroductionManagerImpl introductionManager,
+			CleanupManager cleanupManager) {
 		lifecycleManager.registerOpenDatabaseHook(introductionManager);
 		contactManager.registerContactHook(introductionManager);
 		validationManager.registerIncomingMessageHook(CLIENT_ID,
@@ -58,6 +60,8 @@ public class IntroductionModule {
 		conversationManager.registerConversationClient(introductionManager);
 		clientVersioningManager.registerClient(CLIENT_ID, MAJOR_VERSION,
 				MINOR_VERSION, introductionManager);
+		cleanupManager.registerCleanupHook(CLIENT_ID, MAJOR_VERSION,
+				introductionManager);
 		return introductionManager;
 	}
 

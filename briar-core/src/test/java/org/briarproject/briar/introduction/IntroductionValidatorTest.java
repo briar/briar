@@ -640,8 +640,7 @@ public class IntroductionValidatorTest extends ValidatorTestCase {
 	private void expectEncodeMetadata(MessageType type, long autoDeleteTimer) {
 		context.checking(new Expectations() {{
 			oneOf(messageEncoder).encodeMetadata(type, sessionId,
-					message.getTimestamp(), false, false, false,
-					autoDeleteTimer);
+					message.getTimestamp(), autoDeleteTimer);
 			will(returnValue(meta));
 		}});
 	}

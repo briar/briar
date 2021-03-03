@@ -11,6 +11,7 @@ import org.briarproject.bramble.api.data.BdfDictionary;
 import org.briarproject.bramble.api.db.DatabaseComponent;
 import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.db.Transaction;
+import org.briarproject.bramble.api.event.Event;
 import org.briarproject.bramble.api.identity.Author;
 import org.briarproject.bramble.api.identity.AuthorId;
 import org.briarproject.bramble.api.identity.IdentityManager;
@@ -39,6 +40,7 @@ import javax.annotation.concurrent.Immutable;
 import static org.briarproject.briar.api.autodelete.AutoDeleteConstants.NO_AUTO_DELETE_TIMER;
 import static org.briarproject.briar.api.introduction.IntroductionManager.CLIENT_ID;
 import static org.briarproject.briar.api.introduction.IntroductionManager.MAJOR_VERSION;
+import static org.briarproject.briar.api.introduction.Role.INTRODUCEE;
 import static org.briarproject.briar.introduction.MessageType.ABORT;
 import static org.briarproject.briar.introduction.MessageType.ACCEPT;
 import static org.briarproject.briar.introduction.MessageType.ACTIVATE;
@@ -105,6 +107,10 @@ abstract class AbstractProtocolEngine<S extends Session<?>>
 			m = messageEncoder.encodeRequestMessage(s.getContactGroupId(),
 					timestamp, s.getLastLocalMessageId(), author, text, timer);
 			sendMessage(txn, REQUEST, s.getSessionId(), m, true, timer);
+			// Set the auto-delete timer duration on the local message
+			if (timer != NO_AUTO_DELETE_TIMER) {
+				db.setCleanupTimerDuration(txn, m.getId(), timer);
+			}
 		} else {
 			m = messageEncoder.encodeRequestMessage(s.getContactGroupId(),
 					timestamp, s.getLastLocalMessageId(), author, text);
@@ -128,6 +134,10 @@ abstract class AbstractProtocolEngine<S extends Session<?>>
 					ephemeralPublicKey, acceptTimestamp, transportProperties,
 					timer);
 			sendMessage(txn, ACCEPT, s.getSessionId(), m, visible, timer);
+			// Set the auto-delete timer duration on the message
+			if (timer != NO_AUTO_DELETE_TIMER) {
+				db.setCleanupTimerDuration(txn, m.getId(), timer);
+			}
 		} else {
 			m = messageEncoder.encodeAcceptMessage(s.getContactGroupId(),
 					timestamp, s.getLastLocalMessageId(), s.getSessionId(),
@@ -139,7 +149,8 @@ abstract class AbstractProtocolEngine<S extends Session<?>>
 	}
 
 	Message sendDeclineMessage(Transaction txn, PeerSession s, long timestamp,
-			boolean visible) throws DbException {
+			boolean visible, boolean isAutoDecline) throws DbException {
+		if (!visible && isAutoDecline) throw new IllegalArgumentException();
 		Message m;
 		ContactId c = getContactId(txn, s.getContactGroupId());
 		if (contactSupportsAutoDeletion(txn, c)) {
@@ -148,7 +159,25 @@ abstract class AbstractProtocolEngine<S extends Session<?>>
 			m = messageEncoder.encodeDeclineMessage(s.getContactGroupId(),
 					timestamp, s.getLastLocalMessageId(), s.getSessionId(),
 					timer);
-			sendMessage(txn, DECLINE, s.getSessionId(), m, visible, timer);
+			sendMessage(txn, DECLINE, s.getSessionId(), m, visible, timer,
+					isAutoDecline);
+			// Set the auto-delete timer duration on the local message
+			if (timer != NO_AUTO_DELETE_TIMER) {
+				db.setCleanupTimerDuration(txn, m.getId(), timer);
+			}
+			if (isAutoDecline) {
+				// Broadcast an event, so the auto-decline becomes visible
+				IntroduceeSession session = (IntroduceeSession) s;
+				Author author = session.getRemote().author;
+				AuthorInfo authorInfo =
+						authorManager.getAuthorInfo(txn, author.getId());
+				IntroductionResponse response = new IntroductionResponse(
+						m.getId(), s.getContactGroupId(), m.getTimestamp(),
+						true, true, false, false, s.getSessionId(), false,
+						author, authorInfo, INTRODUCEE, false, timer, true);
+				Event e = new IntroductionResponseReceivedEvent(response, c);
+				txn.attach(e);
+			}
 		} else {
 			m = messageEncoder.encodeDeclineMessage(s.getContactGroupId(),
 					timestamp, s.getLastLocalMessageId(), s.getSessionId());
@@ -192,9 +221,16 @@ abstract class AbstractProtocolEngine<S extends Session<?>>
 	private void sendMessage(Transaction txn, MessageType type,
 			SessionId sessionId, Message m, boolean visibleInConversation,
 			long autoDeleteTimer) throws DbException {
+		sendMessage(txn, type, sessionId, m, visibleInConversation,
+				autoDeleteTimer, false);
+	}
+
+	private void sendMessage(Transaction txn, MessageType type,
+			SessionId sessionId, Message m, boolean visibleInConversation,
+			long autoDeleteTimer, boolean isAutoDecline) throws DbException {
 		BdfDictionary meta = messageEncoder.encodeMetadata(type, sessionId,
 				m.getTimestamp(), true, true, visibleInConversation,
-				autoDeleteTimer);
+				autoDeleteTimer, isAutoDecline);
 		try {
 			clientHelper.addLocalMessage(txn, m, meta, true, false);
 		} catch (FormatException e) {
@@ -215,7 +251,7 @@ abstract class AbstractProtocolEngine<S extends Session<?>>
 						m.getTimestamp(), false, false, false, false,
 						s.getSessionId(), m instanceof AcceptMessage,
 						otherAuthor, otherAuthorInfo, s.getRole(), canSucceed,
-						m.getAutoDeleteTimer());
+						m.getAutoDeleteTimer(), false);
 		IntroductionResponseReceivedEvent e =
 				new IntroductionResponseReceivedEvent(response, c.getId());
 		txn.attach(e);
