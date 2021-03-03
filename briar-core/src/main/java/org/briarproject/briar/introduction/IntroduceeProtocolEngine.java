@@ -123,12 +123,13 @@ class IntroduceeProtocolEngine
 
 	@Override
 	public IntroduceeSession onDeclineAction(Transaction txn,
-			IntroduceeSession session) throws DbException {
+			IntroduceeSession session, boolean isAutoDecline)
+			throws DbException {
 		switch (session.getState()) {
 			case AWAIT_RESPONSES:
 			case REMOTE_DECLINED:
 			case REMOTE_ACCEPTED:
-				return onLocalDecline(txn, session);
+				return onLocalDecline(txn, session, isAutoDecline);
 			case START:
 			case LOCAL_DECLINED:
 			case LOCAL_ACCEPTED:
@@ -319,13 +320,14 @@ class IntroduceeProtocolEngine
 	}
 
 	private IntroduceeSession onLocalDecline(Transaction txn,
-			IntroduceeSession s) throws DbException {
+			IntroduceeSession s, boolean isAutoDecline) throws DbException {
 		// Mark the request message unavailable to answer
 		markRequestsUnavailableToAnswer(txn, s);
 
 		// Send a DECLINE message
 		long localTimestamp = getTimestampForVisibleMessage(txn, s);
-		Message sent = sendDeclineMessage(txn, s, localTimestamp, true);
+		Message sent =
+				sendDeclineMessage(txn, s, localTimestamp, true, isAutoDecline);
 
 		// Track the message
 		messageTracker.trackOutgoingMessage(txn, sent);

@@ -107,7 +107,7 @@ public class MessageEncoderParserIntegrationTest extends BrambleTestCase {
 	@Test
 	public void testMessageMetadata() throws FormatException {
 		BdfDictionary d = messageEncoder.encodeMetadata(ABORT, sessionId,
-				timestamp, false, true, false, MAX_AUTO_DELETE_TIMER_MS);
+				timestamp, false, true, false, MAX_AUTO_DELETE_TIMER_MS, false);
 		MessageMetadata meta = messageParser.parseMetadata(d);
 
 		assertEquals(ABORT, meta.getMessageType());

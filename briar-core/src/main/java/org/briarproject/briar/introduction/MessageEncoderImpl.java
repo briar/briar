@@ -24,6 +24,7 @@ import static org.briarproject.briar.api.autodelete.AutoDeleteConstants.NO_AUTO_
 import static org.briarproject.briar.client.MessageTrackerConstants.MSG_KEY_READ;
 import static org.briarproject.briar.introduction.IntroductionConstants.MSG_KEY_AUTO_DELETE_TIMER;
 import static org.briarproject.briar.introduction.IntroductionConstants.MSG_KEY_AVAILABLE_TO_ANSWER;
+import static org.briarproject.briar.introduction.IntroductionConstants.MSG_KEY_IS_AUTO_DECLINE;
 import static org.briarproject.briar.introduction.IntroductionConstants.MSG_KEY_LOCAL;
 import static org.briarproject.briar.introduction.IntroductionConstants.MSG_KEY_MESSAGE_TYPE;
 import static org.briarproject.briar.introduction.IntroductionConstants.MSG_KEY_SESSION_ID;
@@ -53,15 +54,24 @@ class MessageEncoderImpl implements MessageEncoder {
 	public BdfDictionary encodeRequestMetadata(long timestamp,
 			long autoDeleteTimer) {
 		BdfDictionary meta = encodeMetadata(REQUEST, null, timestamp,
-				false, false, false, autoDeleteTimer);
+				autoDeleteTimer);
 		meta.put(MSG_KEY_AVAILABLE_TO_ANSWER, false);
 		return meta;
 	}
 
 	@Override
 	public BdfDictionary encodeMetadata(MessageType type,
+			@Nullable SessionId sessionId, long timestamp,
+			long autoDeleteTimer) {
+		return encodeMetadata(type, sessionId, timestamp, false, false, false,
+				autoDeleteTimer, false);
+	}
+
+	@Override
+	public BdfDictionary encodeMetadata(MessageType type,
 			@Nullable SessionId sessionId, long timestamp, boolean local,
-			boolean read, boolean visible, long autoDeleteTimer) {
+			boolean read, boolean visible, long autoDeleteTimer,
+			boolean isAutoDecline) {
 		BdfDictionary meta = new BdfDictionary();
 		meta.put(MSG_KEY_MESSAGE_TYPE, type.getValue());
 		if (sessionId != null)
@@ -74,6 +84,9 @@ class MessageEncoderImpl implements MessageEncoder {
 		meta.put(MSG_KEY_VISIBLE_IN_UI, visible);
 		if (autoDeleteTimer != NO_AUTO_DELETE_TIMER) {
 			meta.put(MSG_KEY_AUTO_DELETE_TIMER, autoDeleteTimer);
+		}
+		if (isAutoDecline) {
+			meta.put(MSG_KEY_IS_AUTO_DECLINE, isAutoDecline);
 		}
 		return meta;
 	}

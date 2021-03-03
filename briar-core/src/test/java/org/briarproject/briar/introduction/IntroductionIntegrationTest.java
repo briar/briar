@@ -381,9 +381,6 @@ public class IntroductionIntegrationTest
 				listener2.getResponse().getIntroducedAuthor().getName());
 		assertFalse(listener2.getResponse().canSucceed());
 
-		// note how the introducer does not forward the second response,
-		// because after the first decline the protocol finished
-
 		assertFalse(listener1.succeeded);
 		assertFalse(listener2.succeeded);
 

@@ -15,7 +15,14 @@ interface ProtocolEngine<S extends Session<?>> {
 
 	S onAcceptAction(Transaction txn, S session) throws DbException;
 
-	S onDeclineAction(Transaction txn, S session) throws DbException;
+	/**
+	 * Declines an introduction.
+	 *
+	 * @param isAutoDecline true if automatically declined due to deletion
+	 * and false if initiated by the user.
+	 */
+	S onDeclineAction(Transaction txn, S session, boolean isAutoDecline)
+			throws DbException;
 
 	S onRequestMessage(Transaction txn, S session, RequestMessage m)
 			throws DbException, FormatException;

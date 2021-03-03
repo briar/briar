@@ -102,7 +102,7 @@ public abstract class AbstractAutoDeleteTest extends
 
 	@FunctionalInterface
 	protected interface HeaderConsumer {
-		void accept(ConversationMessageHeader header);
+		void accept(ConversationMessageHeader header) throws DbException;
 	}
 
 	protected void forEachHeader(BriarIntegrationTestComponent component,

@@ -289,6 +289,10 @@ class ConversationVisitor implements
 				text = ctx.getString(
 						R.string.introduction_response_accepted_sent,
 						introducedAuthor) + suffix;
+			} else if (r.isAutoDecline()) {
+				text = ctx.getString(
+						R.string.introduction_response_declined_auto,
+						introducedAuthor);
 			} else {
 				text = ctx.getString(
 						R.string.introduction_response_declined_sent,

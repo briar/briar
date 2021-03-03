@@ -23,6 +23,7 @@ import static org.briarproject.briar.api.autodelete.AutoDeleteConstants.NO_AUTO_
 import static org.briarproject.briar.client.MessageTrackerConstants.MSG_KEY_READ;
 import static org.briarproject.briar.introduction.IntroductionConstants.MSG_KEY_AUTO_DELETE_TIMER;
 import static org.briarproject.briar.introduction.IntroductionConstants.MSG_KEY_AVAILABLE_TO_ANSWER;
+import static org.briarproject.briar.introduction.IntroductionConstants.MSG_KEY_IS_AUTO_DECLINE;
 import static org.briarproject.briar.introduction.IntroductionConstants.MSG_KEY_LOCAL;
 import static org.briarproject.briar.introduction.IntroductionConstants.MSG_KEY_MESSAGE_TYPE;
 import static org.briarproject.briar.introduction.IntroductionConstants.MSG_KEY_SESSION_ID;
@@ -46,7 +47,8 @@ class MessageParserImpl implements MessageParser {
 	}
 
 	@Override
-	public BdfDictionary getRequestsAvailableToAnswerQuery(SessionId sessionId) {
+	public BdfDictionary getRequestsAvailableToAnswerQuery(
+			SessionId sessionId) {
 		return BdfDictionary.of(
 				new BdfEntry(MSG_KEY_AVAILABLE_TO_ANSWER, true),
 				new BdfEntry(MSG_KEY_MESSAGE_TYPE, REQUEST.getValue()),
@@ -68,8 +70,9 @@ class MessageParserImpl implements MessageParser {
 		boolean visible = d.getBoolean(MSG_KEY_VISIBLE_IN_UI);
 		boolean available = d.getBoolean(MSG_KEY_AVAILABLE_TO_ANSWER, false);
 		long timer = d.getLong(MSG_KEY_AUTO_DELETE_TIMER, NO_AUTO_DELETE_TIMER);
+		boolean isAutoDecline = d.getBoolean(MSG_KEY_IS_AUTO_DECLINE, false);
 		return new MessageMetadata(type, sessionId, timestamp, local, read,
-				visible, available, timer);
+				visible, available, timer, isAutoDecline);
 	}
 
 	@Override
