@@ -193,25 +193,25 @@ public class InviteeProtocolEngineTest extends AbstractProtocolEngineTest {
 	@Test
 	public void testOnLeaveActionFromStart() throws Exception {
 		InviteeSession session = getDefaultSession(START);
-		assertEquals(session, engine.onLeaveAction(txn, session));
+		assertEquals(session, engine.onLeaveAction(txn, session, false));
 	}
 
 	@Test
 	public void testOnLeaveActionFromLeft() throws Exception {
 		InviteeSession session = getDefaultSession(LEFT);
-		assertEquals(session, engine.onLeaveAction(txn, session));
+		assertEquals(session, engine.onLeaveAction(txn, session, false));
 	}
 
 	@Test
 	public void testOnLeaveActionFromDissolved() throws Exception {
 		InviteeSession session = getDefaultSession(DISSOLVED);
-		assertEquals(session, engine.onLeaveAction(txn, session));
+		assertEquals(session, engine.onLeaveAction(txn, session, false));
 	}
 
 	@Test
 	public void testOnLeaveActionFromError() throws Exception {
 		InviteeSession session = getDefaultSession(ERROR);
-		assertEquals(session, engine.onLeaveAction(txn, session));
+		assertEquals(session, engine.onLeaveAction(txn, session, false));
 	}
 
 	@Test
@@ -223,7 +223,7 @@ public class InviteeProtocolEngineTest extends AbstractProtocolEngineTest {
 		}});
 
 		InviteeSession session = getDefaultSession(INVITED);
-		InviteeSession newSession = engine.onLeaveAction(txn, session);
+		InviteeSession newSession = engine.onLeaveAction(txn, session, false);
 
 		assertEquals(START, newSession.getState());
 		assertSessionRecordedSentMessage(newSession);
@@ -245,7 +245,7 @@ public class InviteeProtocolEngineTest extends AbstractProtocolEngineTest {
 		expectSendLeaveMessage(false);
 		expectSetPrivateGroupVisibility(INVISIBLE);
 		InviteeSession session = getDefaultSession(ACCEPTED);
-		InviteeSession newSession = engine.onLeaveAction(txn, session);
+		InviteeSession newSession = engine.onLeaveAction(txn, session, false);
 
 		assertEquals(LEFT, newSession.getState());
 		assertSessionRecordedSentMessage(newSession);
@@ -257,7 +257,7 @@ public class InviteeProtocolEngineTest extends AbstractProtocolEngineTest {
 		expectSendLeaveMessage(false);
 		expectSetPrivateGroupVisibility(INVISIBLE);
 		InviteeSession session = getDefaultSession(JOINED);
-		InviteeSession newSession = engine.onLeaveAction(txn, session);
+		InviteeSession newSession = engine.onLeaveAction(txn, session, false);
 
 		assertEquals(LEFT, newSession.getState());
 		assertSessionRecordedSentMessage(newSession);

@@ -28,6 +28,7 @@ import org.briarproject.briar.api.introduction.IntroductionManager;
 import org.briarproject.briar.api.messaging.MessagingManager;
 import org.briarproject.briar.api.messaging.PrivateMessageFactory;
 import org.briarproject.briar.api.privategroup.PrivateGroupManager;
+import org.briarproject.briar.api.privategroup.invitation.GroupInvitationFactory;
 import org.briarproject.briar.api.privategroup.invitation.GroupInvitationManager;
 import org.briarproject.briar.attachment.AttachmentModule;
 import org.briarproject.briar.autodelete.AutoDeleteModule;
@@ -119,6 +120,8 @@ public interface BriarIntegrationTestComponent
 	ForumManager getForumManager();
 
 	GroupInvitationManager getGroupInvitationManager();
+
+	GroupInvitationFactory getGroupInvitationFactory();
 
 	IntroductionManager getIntroductionManager();
 
