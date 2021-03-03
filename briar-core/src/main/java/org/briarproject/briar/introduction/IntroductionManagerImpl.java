@@ -1,6 +1,7 @@
 package org.briarproject.briar.introduction;
 
 import org.briarproject.bramble.api.FormatException;
+import org.briarproject.bramble.api.cleanup.CleanupHook;
 import org.briarproject.bramble.api.client.ClientHelper;
 import org.briarproject.bramble.api.client.ContactGroupFactory;
 import org.briarproject.bramble.api.contact.Contact;
@@ -28,6 +29,7 @@ import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.bramble.api.sync.MessageStatus;
 import org.briarproject.bramble.api.versioning.ClientVersioningManager;
 import org.briarproject.bramble.api.versioning.ClientVersioningManager.ClientVersioningHook;
+import org.briarproject.briar.api.autodelete.event.ConversationMessagesDeletedEvent;
 import org.briarproject.briar.api.client.MessageTracker;
 import org.briarproject.briar.api.client.SessionId;
 import org.briarproject.briar.api.conversation.ConversationMessageHeader;
@@ -54,8 +56,10 @@ import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 import javax.inject.Inject;
 
+import static org.briarproject.briar.api.autodelete.AutoDeleteConstants.NO_AUTO_DELETE_TIMER;
 import static org.briarproject.briar.api.introduction.Role.INTRODUCEE;
 import static org.briarproject.briar.api.introduction.Role.INTRODUCER;
+import static org.briarproject.briar.introduction.IntroduceeState.AWAIT_RESPONSES;
 import static org.briarproject.briar.introduction.IntroduceeState.REMOTE_DECLINED;
 import static org.briarproject.briar.introduction.IntroducerState.A_DECLINED;
 import static org.briarproject.briar.introduction.IntroducerState.B_DECLINED;
@@ -71,7 +75,7 @@ import static org.briarproject.briar.introduction.MessageType.REQUEST;
 @NotNullByDefault
 class IntroductionManagerImpl extends ConversationClientImpl
 		implements IntroductionManager, OpenDatabaseHook, ContactHook,
-		ClientVersioningHook {
+		ClientVersioningHook, CleanupHook {
 
 	private final ClientVersioningManager clientVersioningManager;
 	private final ContactGroupFactory contactGroupFactory;
@@ -170,6 +174,11 @@ class IntroductionManagerImpl extends ConversationClientImpl
 			BdfDictionary bdfMeta) throws DbException, FormatException {
 		// Parse the metadata
 		MessageMetadata meta = messageParser.parseMetadata(bdfMeta);
+		// set the clean-up timer that will be started when message gets read
+		long timer = meta.getAutoDeleteTimer();
+		if (timer != NO_AUTO_DELETE_TIMER) {
+			db.setCleanupTimerDuration(txn, m.getId(), timer);
+		}
 		// Look up the session, if there is one
 		SessionId sessionId = meta.getSessionId();
 		IntroduceeSession newIntroduceeSession = null;
@@ -362,7 +371,19 @@ class IntroductionManagerImpl extends ConversationClientImpl
 	@Override
 	public void respondToIntroduction(ContactId contactId, SessionId sessionId,
 			boolean accept) throws DbException {
-		Transaction txn = db.startTransaction(false);
+		respondToIntroduction(contactId, sessionId, accept, false);
+	}
+
+	private void respondToIntroduction(ContactId contactId, SessionId sessionId,
+			boolean accept, boolean isAutoDecline) throws DbException {
+		db.transaction(false,
+				txn -> respondToIntroduction(txn, contactId, sessionId, accept,
+						isAutoDecline));
+	}
+
+	private void respondToIntroduction(Transaction txn, ContactId contactId,
+			SessionId sessionId, boolean accept, boolean isAutoDecline)
+			throws DbException {
 		try {
 			// Look up the session
 			StoredSession ss = getSession(txn, sessionId);
@@ -381,15 +402,13 @@ class IntroductionManagerImpl extends ConversationClientImpl
 			if (accept) {
 				session = introduceeEngine.onAcceptAction(txn, session);
 			} else {
-				session = introduceeEngine.onDeclineAction(txn, session);
+				session = introduceeEngine
+						.onDeclineAction(txn, session, isAutoDecline);
 			}
 			// Store the updated session
 			storeSession(txn, ss.storageId, session);
-			db.commitTransaction(txn);
 		} catch (FormatException e) {
 			throw new DbException(e);
-		} finally {
-			db.endTransaction(txn);
 		}
 	}
 
@@ -487,7 +506,7 @@ class IntroductionManagerImpl extends ConversationClientImpl
 		return new IntroductionResponse(m, contactGroupId, meta.getTimestamp(),
 				meta.isLocal(), meta.isRead(), status.isSent(), status.isSeen(),
 				sessionId, accept, author, authorInfo, role, canSucceed,
-				meta.getAutoDeleteTimer());
+				meta.getAutoDeleteTimer(), meta.isAutoDecline());
 	}
 
 	private void removeSessionWithIntroducer(Transaction txn,
@@ -545,6 +564,67 @@ class IntroductionManagerImpl extends ConversationClientImpl
 		} else {
 			db.removeMessage(txn, storageId);
 		}
+	}
+
+	@Override
+	public void deleteMessages(Transaction txn, GroupId g,
+			Collection<MessageId> messageIds) throws DbException {
+		ContactId c;
+		Map<SessionId, DeletableSession> sessions = new HashMap<>();
+		try {
+			// get the ContactId from the given GroupId
+			c = clientHelper.getContactId(txn, g);
+			// get sessions for all messages to be deleted
+			for (MessageId messageId : messageIds) {
+				BdfDictionary d = clientHelper
+						.getMessageMetadataAsDictionary(txn, messageId);
+				MessageMetadata messageMetadata =
+						messageParser.parseMetadata(d);
+				if (!messageMetadata.isVisibleInConversation())
+					throw new IllegalArgumentException();
+				SessionId sessionId = messageMetadata.getSessionId();
+				DeletableSession deletableSession =
+						sessions.get(sessionId);
+				if (deletableSession == null) {
+					StoredSession ss = getSession(txn, sessionId);
+					if (ss == null) throw new DbException();
+					Role role = sessionParser.getRole(ss.bdfSession);
+					Session session;
+					if (role == INTRODUCER) {
+						session = sessionParser
+								.parseIntroducerSession(ss.bdfSession);
+					} else if (role == INTRODUCEE) {
+						session = sessionParser
+								.parseIntroduceeSession(g, ss.bdfSession);
+					} else throw new AssertionError();
+					deletableSession = new DeletableSession(session.getState());
+					sessions.put(sessionId, deletableSession);
+				}
+				deletableSession.messages.add(messageId);
+			}
+		} catch (FormatException e) {
+			throw new DbException(e);
+		}
+
+		// delete given visible messages in sessions and auto-respond before
+		for (Entry<SessionId, DeletableSession> entry : sessions.entrySet()) {
+			DeletableSession session = entry.getValue();
+			// decline invitee sessions waiting for a response before
+			if (session.state instanceof IntroduceeState) {
+				IntroduceeState introduceeState =
+						(IntroduceeState) session.state;
+				if (introduceeState == AWAIT_RESPONSES) {
+					respondToIntroduction(txn, c, entry.getKey(), false, true);
+				}
+			}
+			for (MessageId m : session.messages) {
+				db.deleteMessage(txn, m);
+				db.deleteMessageMetadata(txn, m);
+			}
+		}
+		recalculateGroupCount(txn, g);
+
+		txn.attach(new ConversationMessagesDeletedEvent(c, messageIds));
 	}
 
 	@FunctionalInterface
