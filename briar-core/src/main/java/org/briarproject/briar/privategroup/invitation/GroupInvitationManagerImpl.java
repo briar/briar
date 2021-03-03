@@ -797,10 +797,8 @@ class GroupInvitationManagerImpl extends ConversationClientImpl
 				if (deletableSession == null) {
 					StoredSession ss = getSession(txn, g, sessionId);
 					if (ss == null) throw new DbException();
-					BdfDictionary sessionMeta = clientHelper
-							.getMessageMetadataAsDictionary(txn, ss.storageId);
-					Session<?> session = sessionParser
-							.parseSession(g, sessionMeta);
+					Session<?> session =
+							sessionParser.parseSession(g, ss.bdfSession);
 					deletableSession = new DeletableSession(session.getState());
 					sessions.put(sessionId, deletableSession);
 				}
