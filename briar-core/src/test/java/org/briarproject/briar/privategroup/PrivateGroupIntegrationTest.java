@@ -175,8 +175,10 @@ public class PrivateGroupIntegrationTest
 		// 1 reveals the contact relationship to 2
 		assertNotNull(contactId2From1);
 		groupInvitationManager1.revealRelationship(contactId2From1, groupId0);
-		sync1To2(1, true);
-		sync2To1(1, true);
+		sync1To2(1, true); // 1 sends an invitation protocol join message
+		// 2 sends an invitation protocol join message and three private group
+		// protocol join messages, which 1 has already seen
+		syncMessage(c2, c1, contactId1From2, 1, 3, 0, 1);
 
 		// their relationship is now revealed
 		assertEquals(REVEALED_BY_US,

@@ -166,25 +166,27 @@ public class ForumManagerTest
 
 	@Test
 	public void testForumPostDeliveredAfterParent() throws Exception {
-		// add one forum post without the parent
+		// Add a parent post and a child post
 		long time = c0.getClock().currentTimeMillis();
 		ForumPost post1 = createForumPost(groupId0, null, "a", time);
 		ForumPost post2 = createForumPost(groupId0, post1, "a", time);
-		forumManager0.addLocalPost(post2);
-		assertEquals(1, forumManager0.getPostHeaders(groupId0).size());
-		assertEquals(0, forumManager1.getPostHeaders(groupId0).size());
-
-		// send post to 1 without waiting for message delivery
-		sync0To1(1, false);
-		assertEquals(0, forumManager1.getPostHeaders(groupId0).size());
-
-		// now add the parent post as well
 		forumManager0.addLocalPost(post1);
+		forumManager0.addLocalPost(post2);
 		assertEquals(2, forumManager0.getPostHeaders(groupId0).size());
 		assertEquals(0, forumManager1.getPostHeaders(groupId0).size());
 
-		// and send it over to 1 and wait for a second message to be delivered
-		sync0To1(2, true);
+		// Unshare the parent so it won't be sent yet
+		setMessageNotShared(c0, post1.getMessage().getId());
+
+		// Send the child post to 1 - it should be validated but not delivered
+		// yet, as the parent is missing, and no headers should be returned yet
+		syncMessage(c0, c1, contactId1From0, 1, 0, 1, 0);
+		assertEquals(0, forumManager1.getPostHeaders(groupId0).size());
+
+		// Now send the parent post to 1 - it should be validated, both
+		// posts should be delivered, and both headers should be returned
+		setMessageShared(c0, post1.getMessage().getId());
+		syncMessage(c0, c1, contactId1From0, 1, 0, 0, 2);
 		assertEquals(2, forumManager1.getPostHeaders(groupId0).size());
 	}
 

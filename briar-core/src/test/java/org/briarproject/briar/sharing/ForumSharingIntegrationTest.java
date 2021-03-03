@@ -783,8 +783,8 @@ public class ForumSharingIntegrationTest
 		// invitee accepts
 		respondToRequest(contactId0From1, true);
 
-		// sync response back
-		sync1To0(1, true);
+		// sync response and both posts back (0 has already seen the posts)
+		syncMessage(c1, c0, contactId0From1, 1, 2, 0, 1);
 		eventWaiter.await(TIMEOUT, 1);
 		assertResponseReceived(listener0, contactId1From0, true);
 
