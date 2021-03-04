@@ -1,9 +1,8 @@
-package org.briarproject.briar.socialbackup;
-
+package org.briarproject.briar.android.socialbackup;
 import org.briarproject.bramble.api.crypto.SecretKey;
-import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
-import org.briarproject.briar.api.socialbackup.DarkCrystal;
 import org.briarproject.briar.api.socialbackup.Shard;
+import org.briarproject.briar.api.socialbackup.DarkCrystal;
+import org.magmacollective.darkcrystal.secretsharingwrapper.SecretSharingWrapper;
 
 import java.security.GeneralSecurityException;
 import java.util.ArrayList;
@@ -11,16 +10,9 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 
-import javax.inject.Inject;
-
 import static org.briarproject.briar.socialbackup.SocialBackupConstants.SECRET_ID_BYTES;
 
-@NotNullByDefault
-class DarkCrystalStub implements DarkCrystal {
-
-	@Inject
-	DarkCrystalStub() {
-	}
+public class DarkCrystalImpl implements DarkCrystal {
 
 	@Override
 	public List<Shard> createShards(SecretKey secret, int numShards,
@@ -28,16 +20,15 @@ class DarkCrystalStub implements DarkCrystal {
 		Random random = new Random();
 		byte[] secretId = new byte[SECRET_ID_BYTES];
 		random.nextBytes(secretId);
+		List<byte[]> shardsBytes = SecretSharingWrapper.share(secret.getBytes(), numShards, threshold);
 		List<Shard> shards = new ArrayList<>(numShards);
-		for (int i = 0; i < numShards; i++) {
-			byte[] shard = new byte[123];
-			random.nextBytes(shard);
-			shards.add(new Shard(secretId, shard));
+		for (byte[] shardBytes : shardsBytes) {
+			shards.add(new Shard(secretId, shardBytes));
 		}
 		return shards;
 	}
 
-    @Override
+	@Override
 	public SecretKey combineShards(List<Shard> shards) throws
 			GeneralSecurityException {
 		// Check each shard has the same secret Id
@@ -45,10 +36,11 @@ class DarkCrystalStub implements DarkCrystal {
 		for (Shard shard : shards) {
 			if (!Arrays.equals(shard.getSecretId(), secretId)) throw new GeneralSecurityException();
 		}
-
-		Random random = new Random();
-		byte[] secretBytes = new byte[SecretKey.LENGTH];
-		random.nextBytes(secretId);
+        List<byte[]> shardsBytes = new ArrayList<>(shards.size());
+		for (Shard shard : shards) {
+			shardsBytes.add(shard.getShard());
+		}
+		byte[] secretBytes = SecretSharingWrapper.combine(shardsBytes);
 		return new SecretKey(secretBytes);
 	}
 }

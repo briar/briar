@@ -1,6 +1,6 @@
 package org.briarproject.briar.socialbackup;
 
-interface SocialBackupConstants {
+public interface SocialBackupConstants {
 
 	// Group metadata keys
 	String GROUP_KEY_CONTACT_ID = "contactId";
