@@ -638,4 +638,26 @@
 	<!-- This is a message to be used in screenshots. -->
 	<string name="screenshot_message_3">No problem, hope you like it 😀</string>
 
+	<!-- social backup procedure -->
+
+	<string name="select_custodians">Select Trusted Contacts:</string>
+
+	<string name="select_at_least_n_contacts">Please select at least %d contacts</string>
+	<string name="select_at_least_n_more_contacts">Please select at least %d more contacts</string>
+
+	<string name="threshold">The minimum number of trusted contacts needed to restore your account:</string>
+	<string name="threshold_secure">Secure</string>
+	<string name="threshold_low_insecure">Insecure – higher threshold recommended</string>
+	<string name="threshold_high_insecure">Danger of loss – lower threshold recommended</string>
+	<!-- the next one does only appear when long-pressing the submit arrow in the app bar-->
+	<string name="threshold_defined">Choose Threshold</string>
+
+	<string name="backup_done_info">Backup pieces sent to trusted contacts</string>
+	<string name="backup_done_dismiss">Got it</string>
+
+	<string name="backup_created">Backup created 1/6/2020</string>
+
+	<!-- Symbols for visualising threshold values for social backup -->
+	<string name="filled_bullet">\u25CF</string>
+    <string name="linear_bullet">\u25CB</string>
 </resources>
