@@ -15,6 +15,7 @@ import org.briarproject.bramble.api.sync.GroupId;
 import org.briarproject.bramble.api.system.Clock;
 import org.briarproject.briar.android.contactselection.ContactSelectorControllerImpl;
 import org.briarproject.briar.android.controller.handler.ResultExceptionHandler;
+import org.briarproject.briar.api.identity.AuthorManager;
 import org.briarproject.briar.api.privategroup.GroupMessage;
 import org.briarproject.briar.api.privategroup.GroupMessageFactory;
 import org.briarproject.briar.api.privategroup.PrivateGroup;
@@ -67,8 +68,8 @@ class CreateBackupControllerImpl extends ContactSelectorControllerImpl
 			GroupMessageFactory groupMessageFactory,
 			PrivateGroupManager groupManager,
 			GroupInvitationFactory groupInvitationFactory,
-			GroupInvitationManager groupInvitationManager, Clock clock) {
-		super(dbExecutor, lifecycleManager, contactManager);
+			GroupInvitationManager groupInvitationManager, Clock clock, AuthorManager authorManager) {
+		super(dbExecutor, lifecycleManager, contactManager, authorManager);
 		this.cryptoExecutor = cryptoExecutor;
 		this.contactManager = contactManager;
 		this.identityManager = identityManager;

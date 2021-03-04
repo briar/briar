@@ -77,6 +77,12 @@ import org.briarproject.briar.android.sharing.ShareBlogFragment;
 import org.briarproject.briar.android.sharing.ShareForumActivity;
 import org.briarproject.briar.android.sharing.ShareForumFragment;
 import org.briarproject.briar.android.sharing.SharingModule;
+import org.briarproject.briar.android.socialbackup.CustodianDisplayFragment;
+import org.briarproject.briar.android.socialbackup.CustodianSelectorFragment;
+import org.briarproject.briar.android.socialbackup.DistributedBackupActivity;
+import org.briarproject.briar.android.socialbackup.OldDistributedBackupActivity;
+import org.briarproject.briar.android.socialbackup.ShardsSentFragment;
+import org.briarproject.briar.android.socialbackup.ThresholdSelectorFragment;
 import org.briarproject.briar.android.splash.SplashScreenActivity;
 import org.briarproject.briar.android.test.TestDataActivity;
 
@@ -238,4 +244,15 @@ public interface ActivityComponent {
 
 	void inject(ConfirmAvatarDialogFragment fragment);
 
+	void inject(ThresholdSelectorFragment thresholdSelectorFragment);
+
+	void inject(DistributedBackupActivity distributedBackupActivity);
+
+	void inject(CustodianDisplayFragment custodianDisplayFragment);
+
+	void inject(CustodianSelectorFragment custodianSelectorFragment);
+
+	void inject(ShardsSentFragment shardsSentFragment);
+
+	void inject(OldDistributedBackupActivity oldDistributedBackupActivity);
 }
