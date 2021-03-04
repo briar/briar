@@ -20,6 +20,7 @@ import org.briarproject.briar.R;
 import org.briarproject.briar.android.activity.ActivityComponent;
 import org.briarproject.briar.android.contactselection.ContactSelectorListener;
 import org.briarproject.briar.android.fragment.BaseFragment;
+import org.magmacollective.darkcrystal.secretsharingwrapper.SecretSharingWrapper;
 
 import static java.util.Objects.requireNonNull;
 
@@ -30,7 +31,7 @@ public class ThresholdSelectorFragment extends BaseFragment {
     protected ThresholdDefinedListener listener;
 
     private SeekBar seekBar;
-    private ImageView image;
+    private TextView thresholdRepresentation;
     private TextView message;
 
     @Override
@@ -46,7 +47,7 @@ public class ThresholdSelectorFragment extends BaseFragment {
                 container, false);
 
         seekBar = view.findViewById(R.id.seekBar);
-        image = view.findViewById(R.id.imageView);
+        thresholdRepresentation = view.findViewById(R.id.textViewThresholdRepresentation);
         message = view.findViewById(R.id.textViewMessage);
 
         seekBar.setMax(2);
@@ -95,19 +96,26 @@ public class ThresholdSelectorFragment extends BaseFragment {
         @Override
         public void onProgressChanged(SeekBar seekBar, int progress,
                 boolean fromUser) {
-            // progress can be 0, 1, 2
-            int drawable = R.drawable.ic_pie_2_of_5;
-            switch (progress) {
-                case 1:
-                    drawable = R.drawable.ic_pie_3_of_5;
-                    break;
-                case 2:
-                    drawable = R.drawable.ic_pie_4_of_5;
-                    break;
+            int numCustodians = 5; // TODO this should be the actual number of custodians
+            // progress can be 0, 1, 2 - translate allowed slider value to actual
+            // threshold
+	        int threshold = progress + 2;
+
+            String thresholdRepresentationText = "";
+            for (int i = 0; i < threshold; i++) {
+                thresholdRepresentationText += R.string.filled_bullet;
             }
-            int text = progress < 1 ? R.string.threshold_insecure : R.string.threshold_secure;
-            image.setImageDrawable(getContext().getResources().getDrawable(drawable));
+            for (int i = 0; i < (numCustodians - threshold); i++) {
+                thresholdRepresentationText += R.string.linear_bullet;
+            }
+            thresholdRepresentation.setText(thresholdRepresentationText);
+
+            int sanityLevel = SecretSharingWrapper.thresholdSanity(threshold, numCustodians);
+            int text = R.string.threshold_secure;
+            if (sanityLevel < -1) text = R.string.threshold_low_insecure;
+            if (sanityLevel > 1) text = R.string.threshold_high_insecure;
             message.setText(text);
+            // TODO change colour of thresholdRepresentation to green/red based on sanityLevel
         }
 
         @Override
