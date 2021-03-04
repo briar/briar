@@ -30,6 +30,8 @@ public class ThresholdSelectorFragment extends BaseFragment {
 
     protected ThresholdDefinedListener listener;
 
+    // TODO this should be the actual number of custodians
+    private int numberOfCustodians = 5;
     private SeekBar seekBar;
     private TextView thresholdRepresentation;
     private TextView message;
@@ -54,6 +56,7 @@ public class ThresholdSelectorFragment extends BaseFragment {
         seekBar.setOnSeekBarChangeListener(new SeekBarListener());
         seekBar.setProgress(1);
 
+        thresholdRepresentation.setText(buildThresholdRepresentationString(3));
         return view;
     }
 
@@ -91,26 +94,31 @@ public class ThresholdSelectorFragment extends BaseFragment {
         }
     }
 
+    private String buildThresholdRepresentationString (int threshold) {
+        String thresholdRepresentationText = "";
+        for (int i = 0; i < threshold; i++) {
+            thresholdRepresentationText += R.string.filled_bullet;
+        }
+        for (int i = 0; i < (numberOfCustodians - threshold); i++) {
+            thresholdRepresentationText += R.string.linear_bullet;
+        }
+        return thresholdRepresentationText;
+    }
+
     private class SeekBarListener implements SeekBar.OnSeekBarChangeListener {
 
         @Override
         public void onProgressChanged(SeekBar seekBar, int progress,
                 boolean fromUser) {
-            int numCustodians = 5; // TODO this should be the actual number of custodians
             // progress can be 0, 1, 2 - translate allowed slider value to actual
             // threshold
 	        int threshold = progress + 2;
 
-            String thresholdRepresentationText = "";
-            for (int i = 0; i < threshold; i++) {
-                thresholdRepresentationText += R.string.filled_bullet;
-            }
-            for (int i = 0; i < (numCustodians - threshold); i++) {
-                thresholdRepresentationText += R.string.linear_bullet;
-            }
-            thresholdRepresentation.setText(thresholdRepresentationText);
+            thresholdRepresentation.setText(
+                    buildThresholdRepresentationString(threshold)
+            );
 
-            int sanityLevel = SecretSharingWrapper.thresholdSanity(threshold, numCustodians);
+            int sanityLevel = SecretSharingWrapper.thresholdSanity(threshold, numberOfCustodians);
             int text = R.string.threshold_secure;
             if (sanityLevel < -1) text = R.string.threshold_low_insecure;
             if (sanityLevel > 1) text = R.string.threshold_high_insecure;
