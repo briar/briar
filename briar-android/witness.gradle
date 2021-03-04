@@ -221,7 +221,7 @@ dependencyVerification {
         'org.jmock:jmock:2.8.2:jmock-2.8.2.jar:6c73cb4a2e6dbfb61fd99c9a768539c170ab6568e57846bd60dbf19596b65b16',
         'org.jvnet.staxex:stax-ex:1.8:stax-ex-1.8.jar:95b05d9590af4154c6513b9c5dc1fb2e55b539972ba0a9ef28e9a0c01d83ad77',
         'org.magmacollective.darkcrystal:dark-crystal-key-backup-crypto:1.0.0:dark-crystal-key-backup-crypto-1.0.0.jar:7c808f30314f7bc0c715b53415b07bd7e9a6bbcc55e5f672a296e5298d335f78',
-        'org.magmacollective.darkcrystal:dark-crystal-secret-sharing-wrapper:1.0.0:dark-crystal-secret-sharing-wrapper-1.0.0.aar:c31c51628a34f37ff7f61b6fe08536b4f9419f14ecb6aa9c1330c3ccbc44f637',
+        'org.magmacollective.darkcrystal:dark-crystal-secret-sharing-wrapper:1.1.0:dark-crystal-secret-sharing-wrapper-1.1.0.aar:b8cac2348b9e652de413fa587168e9bb6ff36f6eea4bd1c72d3ecd56fc186e09',
         'org.magmacollective.darkcrystal:shamir-secret-sharing-jna:1.0.0:shamir-secret-sharing-jna-1.0.0.aar:cdccfaf74dc1fcf30799a45d034c406315ce8507a8f4382eee118a66fb229ced',
         'org.mockito:mockito-core:3.1.0:mockito-core-3.1.0.jar:89b09e518e04f5c35f5ccf7abe45e72f594070a53d95cc2579001bd392c5afa6',
         'org.objenesis:objenesis:2.6:objenesis-2.6.jar:5e168368fbc250af3c79aa5fef0c3467a2d64e5a7bd74005f25d8399aeb0708d',
