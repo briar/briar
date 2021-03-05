@@ -638,6 +638,16 @@
 	<!-- This is a message to be used in screenshots. -->
 	<string name="screenshot_message_3">No problem, hope you like it 😀</string>
 
+	<!-- social backup -->
+
+	<!-- settings -->
+
+	<string name="pref_distributed_backup_title">Social backup</string>
+	<string name="pref_distributed_backup_summary">Backup your account using trusted contacts</string>
+
+	<string name="pref_distributed_old_backup_title">Existing Social backup</string>
+	<string name="pref_distributed_old_backup_summary">Information about your most recent social backup</string>
+
 	<!-- social backup procedure -->
 
 	<string name="select_custodians">Select Trusted Contacts:</string>
@@ -656,6 +666,7 @@
 	<string name="backup_done_dismiss">Got it</string>
 
 	<string name="backup_created">Backup created 1/6/2020</string>
+
 	<!-- recovery from the secret owner's POV -->
 
 	<string name="recovery_explainer">You need to meet your trusted contacts in-person to receive pieces by scanning QR codes</string>
@@ -682,6 +693,11 @@
 	<string name="title_define_threshold">Choose Threshold</string>
 	<string name="title_recovery_mode">Recovery Mode</string>
 	<string name="title_help_recover">Help recover account</string>
+
+	<!-- setup screen -->
+
+	<string name="setup_new_account">Create new account</string>
+	<string name="setup_restore_account">Restore account from backup</string>
 
 	<!-- Symbols for visualising threshold values for social backup -->
 	<string name="filled_bullet">\u25CF</string>
