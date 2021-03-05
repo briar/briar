@@ -102,6 +102,10 @@ class ConversationVisitor implements
 				text = ctx.getString(
 						R.string.blogs_sharing_response_accepted_sent,
 						contactName.getValue());
+			} else if (r.isAutoDecline()) {
+				text = ctx.getString(
+						R.string.blogs_sharing_response_declined_auto,
+						contactName.getValue());
 			} else {
 				text = ctx.getString(
 						R.string.blogs_sharing_response_declined_sent,
@@ -154,6 +158,10 @@ class ConversationVisitor implements
 			if (r.wasAccepted()) {
 				text = ctx.getString(
 						R.string.forum_invitation_response_accepted_sent,
+						contactName.getValue());
+			} else if (r.isAutoDecline()) {
+				text = ctx.getString(
+						R.string.forum_invitation_response_declined_auto,
 						contactName.getValue());
 			} else {
 				text = ctx.getString(

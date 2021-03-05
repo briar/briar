@@ -302,11 +302,13 @@ abstract class SharingManagerImpl<S extends Shareable>
 	@Override
 	public void respondToInvitation(ContactId c, SessionId id, boolean accept)
 			throws DbException {
-		db.transaction(false, txn -> respondToInvitation(txn, c, id, accept));
+		db.transaction(false,
+				txn -> respondToInvitation(txn, c, id, accept, false));
 	}
 
 	private void respondToInvitation(Transaction txn, ContactId c,
-			SessionId id, boolean accept) throws DbException {
+			SessionId id, boolean accept, boolean isAutoDecline)
+			throws DbException {
 		try {
 			// Look up the session
 			Contact contact = db.getContact(txn, c);
@@ -318,7 +320,7 @@ abstract class SharingManagerImpl<S extends Shareable>
 					sessionParser.parseSession(contactGroupId, ss.bdfSession);
 			// Handle the accept or decline action
 			if (accept) session = engine.onAcceptAction(txn, session);
-			else session = engine.onDeclineAction(txn, session);
+			else session = engine.onDeclineAction(txn, session, isAutoDecline);
 			// Store the updated session
 			storeSession(txn, ss.storageId, session);
 		} catch (FormatException e) {
@@ -381,7 +383,7 @@ abstract class SharingManagerImpl<S extends Shareable>
 		return invitationFactory.createInvitationResponse(m, contactGroupId,
 				meta.getTimestamp(), meta.isLocal(), status.isSent(),
 				status.isSeen(), meta.isRead(), accept, meta.getShareableId(),
-				meta.getAutoDeleteTimer());
+				meta.getAutoDeleteTimer(), meta.isAutoDecline());
 	}
 
 	@Override
@@ -583,7 +585,6 @@ abstract class SharingManagerImpl<S extends Shareable>
 		}, messageId -> false);
 	}
 
-
 	@Override
 	public DeletionResult deleteMessages(Transaction txn, ContactId c,
 			Set<MessageId> messageIds) throws DbException {
@@ -731,9 +732,10 @@ abstract class SharingManagerImpl<S extends Shareable>
 		// delete given visible messages in sessions
 		for (Entry<SessionId, DeletableSession> entry : sessions.entrySet()) {
 			DeletableSession session = entry.getValue();
-			// first decline pending shareable we're invited to
+			// first decline pending invitation to shareable
 			if (session.state == LOCAL_INVITED) {
-				respondToInvitation(txn, c, entry.getKey(), false);
+				// marked as autoDecline
+				respondToInvitation(txn, c, entry.getKey(), false, true);
 			}
 			for (MessageId m : session.messages) {
 				db.deleteMessage(txn, m);

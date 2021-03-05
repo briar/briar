@@ -210,7 +210,7 @@ public abstract class SharingValidatorTest extends ValidatorTestCase {
 	void expectEncodeMetadata(MessageType type, long autoDeleteTimer) {
 		context.checking(new Expectations() {{
 			oneOf(messageEncoder).encodeMetadata(type, groupId, timestamp,
-					false, false, false, false, false, autoDeleteTimer);
+					false, false, false, false, false, autoDeleteTimer, false);
 			will(returnValue(meta));
 		}});
 	}

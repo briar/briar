@@ -419,6 +419,7 @@
 	<string name="forum_invitation_already_sharing">Already sharing</string>
 	<string name="forum_invitation_response_accepted_sent">You accepted the forum invitation from %s.</string>
 	<string name="forum_invitation_response_declined_sent">You declined the forum invitation from %s.</string>
+	<string name="forum_invitation_response_declined_auto">The forum invitation from %s was automatically declined.</string>
 	<string name="forum_invitation_response_accepted_received">%s accepted the forum invitation.</string>
 	<string name="forum_invitation_response_declined_received">%s declined the forum invitation.</string>
 
@@ -456,6 +457,7 @@
 	<string name="blogs_sharing_snackbar">Blog shared with chosen contacts</string>
 	<string name="blogs_sharing_response_accepted_sent">You accepted the blog invitation from %s.</string>
 	<string name="blogs_sharing_response_declined_sent">You declined the blog invitation from %s.</string>
+	<string name="blogs_sharing_response_declined_auto">The blog invitation from %s was automatically declined.</string>
 	<string name="blogs_sharing_response_accepted_received">%s accepted the blog invitation.</string>
 	<string name="blogs_sharing_response_declined_received">%s declined the blog invitation.</string>
 	<string name="blogs_sharing_invitation_received">%1$s has shared the blog \"%2$s\" with you.</string>

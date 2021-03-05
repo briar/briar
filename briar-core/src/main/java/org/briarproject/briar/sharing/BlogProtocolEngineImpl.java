@@ -8,6 +8,7 @@ import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.db.Transaction;
 import org.briarproject.bramble.api.event.Event;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
+import org.briarproject.bramble.api.sync.Message;
 import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.bramble.api.system.Clock;
 import org.briarproject.bramble.api.versioning.ClientVersioningManager;
@@ -71,7 +72,8 @@ class BlogProtocolEngineImpl extends ProtocolEngineImpl<Blog> {
 		BlogInvitationResponse response = invitationFactory
 				.createInvitationResponse(m.getId(), m.getContactGroupId(),
 						m.getTimestamp(), false, false, false, false,
-						true, m.getShareableId(), m.getAutoDeleteTimer());
+						true, m.getShareableId(), m.getAutoDeleteTimer(),
+						false);
 		return new BlogInvitationResponseReceivedEvent(response, contactId);
 	}
 
@@ -81,7 +83,18 @@ class BlogProtocolEngineImpl extends ProtocolEngineImpl<Blog> {
 		BlogInvitationResponse response = invitationFactory
 				.createInvitationResponse(m.getId(), m.getContactGroupId(),
 						m.getTimestamp(), false, false, false, false,
-						false, m.getShareableId(), m.getAutoDeleteTimer());
+						false, m.getShareableId(), m.getAutoDeleteTimer(),
+						false);
+		return new BlogInvitationResponseReceivedEvent(response, contactId);
+	}
+
+	@Override
+	Event getAutoDeclineInvitationResponseReceivedEvent(Session s, Message m,
+			ContactId contactId, long timer) {
+		BlogInvitationResponse response = invitationFactory
+				.createInvitationResponse(m.getId(), s.getContactGroupId(),
+						m.getTimestamp(), true, false, false, true,
+						false, s.getShareableId(), timer, true);
 		return new BlogInvitationResponseReceivedEvent(response, contactId);
 	}
 

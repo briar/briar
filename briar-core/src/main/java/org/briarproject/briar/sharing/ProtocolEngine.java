@@ -16,8 +16,8 @@ interface ProtocolEngine<S extends Shareable> {
 
 	Session onAcceptAction(Transaction txn, Session session) throws DbException;
 
-	Session onDeclineAction(Transaction txn, Session session)
-			throws DbException;
+	Session onDeclineAction(Transaction txn, Session session,
+			boolean isAutoDecline) throws DbException;
 
 	Session onLeaveAction(Transaction txn, Session session) throws DbException;
 

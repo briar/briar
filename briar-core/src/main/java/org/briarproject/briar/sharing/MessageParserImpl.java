@@ -20,6 +20,7 @@ import static org.briarproject.briar.sharing.MessageType.INVITE;
 import static org.briarproject.briar.sharing.SharingConstants.MSG_KEY_AUTO_DELETE_TIMER;
 import static org.briarproject.briar.sharing.SharingConstants.MSG_KEY_AVAILABLE_TO_ANSWER;
 import static org.briarproject.briar.sharing.SharingConstants.MSG_KEY_INVITATION_ACCEPTED;
+import static org.briarproject.briar.sharing.SharingConstants.MSG_KEY_IS_AUTO_DECLINE;
 import static org.briarproject.briar.sharing.SharingConstants.MSG_KEY_LOCAL;
 import static org.briarproject.briar.sharing.SharingConstants.MSG_KEY_MESSAGE_TYPE;
 import static org.briarproject.briar.sharing.SharingConstants.MSG_KEY_READ;
@@ -74,8 +75,9 @@ abstract class MessageParserImpl<S extends Shareable>
 		boolean accepted = meta.getBoolean(MSG_KEY_INVITATION_ACCEPTED, false);
 		long timer = meta.getLong(MSG_KEY_AUTO_DELETE_TIMER,
 				NO_AUTO_DELETE_TIMER);
+		boolean isAutoDecline = meta.getBoolean(MSG_KEY_IS_AUTO_DECLINE, false);
 		return new MessageMetadata(type, shareableId, timestamp, local, read,
-				visible, available, accepted, timer);
+				visible, available, accepted, timer, isAutoDecline);
 	}
 
 	@Override

@@ -15,6 +15,7 @@ public interface InvitationFactory<S extends Shareable, R extends InvitationResp
 
 	R createInvitationResponse(MessageId id, GroupId contactGroupId, long time,
 			boolean local, boolean sent, boolean seen, boolean read,
-			boolean accept, GroupId shareableId, long autoDeleteTimer);
+			boolean accept, GroupId shareableId, long autoDeleteTimer,
+			boolean isAutoDecline);
 
 }

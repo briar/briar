@@ -14,6 +14,7 @@ interface SharingConstants {
 	String MSG_KEY_AVAILABLE_TO_ANSWER = "availableToAnswer";
 	String MSG_KEY_INVITATION_ACCEPTED = "invitationAccepted";
 	String MSG_KEY_AUTO_DELETE_TIMER = "autoDeleteTimer";
+	String MSG_KEY_IS_AUTO_DECLINE = "isAutoDecline";
 
 	// Session keys
 	String SESSION_KEY_IS_SESSION = "isSession";
