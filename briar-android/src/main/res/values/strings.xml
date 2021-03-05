@@ -703,4 +703,9 @@
 	<!-- Symbols for visualising threshold values for social backup -->
 	<string name="filled_bullet">\u25CF</string>
     <string name="linear_bullet">\u25CB</string>
+
+	<!-- activity names -->
+	<string name="activity_name_distributed_backup">Social Backup</string>
+	<string name="activity_name_old_distributed_backup">Old Social Backup</string>
+
 </resources>
