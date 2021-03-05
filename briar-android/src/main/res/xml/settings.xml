@@ -90,6 +90,17 @@
 		android:layout="@layout/preferences_category"
 		android:title="@string/security_settings_title">
 
+		<Preference
+			android:summary="@string/pref_distributed_backup_summary"
+			android:title="@string/pref_distributed_backup_title"
+			app:iconSpaceReserved="false">
+
+			<intent
+				android:targetClass="org.briarproject.briar.android.darkcrystal.DistributedBackupActivity"
+				android:targetPackage="@string/app_package" />
+
+		</Preference>
+
 		<SwitchPreference
 			android:enabled="false"
 			android:key="pref_key_lock"
