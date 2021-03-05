@@ -148,6 +148,10 @@ abstract class ProtocolEngineImpl<S extends Shareable>
 					localTimestamp, s.getLastLocalMessageId(), descriptor,
 					text, timer);
 			sendMessage(txn, m, INVITE, s.getShareableId(), true, timer);
+			// Set the auto-delete timer duration on the message
+			if (timer != NO_AUTO_DELETE_TIMER) {
+				db.setCleanupTimerDuration(txn, m.getId(), timer);
+			}
 		} else {
 			m = messageEncoder.encodeInviteMessage(s.getContactGroupId(),
 					localTimestamp, s.getLastLocalMessageId(), descriptor,
@@ -216,6 +220,10 @@ abstract class ProtocolEngineImpl<S extends Shareable>
 					s.getShareableId(), localTimestamp,
 					s.getLastLocalMessageId(), timer);
 			sendMessage(txn, m, ACCEPT, s.getShareableId(), true, timer);
+			// Set the auto-delete timer duration on the message
+			if (timer != NO_AUTO_DELETE_TIMER) {
+				db.setCleanupTimerDuration(txn, m.getId(), timer);
+			}
 		} else {
 			m = messageEncoder.encodeAcceptMessage(s.getContactGroupId(),
 					s.getShareableId(), localTimestamp,
@@ -271,6 +279,10 @@ abstract class ProtocolEngineImpl<S extends Shareable>
 					s.getShareableId(), localTimestamp,
 					s.getLastLocalMessageId(), timer);
 			sendMessage(txn, m, DECLINE, s.getShareableId(), true, timer);
+			// Set the auto-delete timer duration on the local message
+			if (timer != NO_AUTO_DELETE_TIMER) {
+				db.setCleanupTimerDuration(txn, m.getId(), timer);
+			}
 		} else {
 			m = messageEncoder.encodeDeclineMessage(s.getContactGroupId(),
 					s.getShareableId(), localTimestamp,
