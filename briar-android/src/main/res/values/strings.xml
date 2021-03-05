@@ -656,6 +656,32 @@
 	<string name="backup_done_dismiss">Got it</string>
 
 	<string name="backup_created">Backup created 1/6/2020</string>
+	<!-- recovery from the secret owner's POV -->
+
+	<string name="recovery_explainer">You need to meet your trusted contacts in-person to receive pieces by scanning QR codes</string>
+	<string name="recovery_begin">Begin</string>
+	<string name="recovery_failed_to_receive">Failed to receive backup piece</string>
+	<string name="recovery_helpful_suggestions">Please check that bluetooth is swtiched on and that no-one but your trusted contact is able to scan the QR code</string>
+	<string name="recovery_retry">Retry</string>
+	<string name="recovery_recovered_shards">Recovered backup pieces:</string>
+	<string name="recovery_scan_qr_code">Scan QR code</string>
+	<string name="recovery_recovering_account">Recovering account…</string>
+	<string name="recovery_shard_received">Account backup piece received</string>
+	<string name="recovery_account_recovered">Account recovered</string>
+
+	<!-- recovery from the custodian's POV -->
+
+	<string name="custodian_recovery_explainer">You need to meet in-person to transfer backup piece</string>
+	<string name="custodian_recovery_failed_to_send">Failed to send backup piece</string>
+	<string name="custodian_scan_code">Scan code</string>
+	<string name="custodian_shard_sent">Account backup piece transmitted</string>
+
+	<!-- titles for the app bar -->
+
+	<string name="title_select_custodians">Select Trusted Contacts</string>
+	<string name="title_define_threshold">Choose Threshold</string>
+	<string name="title_recovery_mode">Recovery Mode</string>
+	<string name="title_help_recover">Help recover account</string>
 
 	<!-- Symbols for visualising threshold values for social backup -->
 	<string name="filled_bullet">\u25CF</string>
