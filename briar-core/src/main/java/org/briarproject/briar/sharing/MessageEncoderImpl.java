@@ -23,6 +23,7 @@ import static org.briarproject.briar.sharing.MessageType.LEAVE;
 import static org.briarproject.briar.sharing.SharingConstants.MSG_KEY_AUTO_DELETE_TIMER;
 import static org.briarproject.briar.sharing.SharingConstants.MSG_KEY_AVAILABLE_TO_ANSWER;
 import static org.briarproject.briar.sharing.SharingConstants.MSG_KEY_INVITATION_ACCEPTED;
+import static org.briarproject.briar.sharing.SharingConstants.MSG_KEY_IS_AUTO_DECLINE;
 import static org.briarproject.briar.sharing.SharingConstants.MSG_KEY_LOCAL;
 import static org.briarproject.briar.sharing.SharingConstants.MSG_KEY_MESSAGE_TYPE;
 import static org.briarproject.briar.sharing.SharingConstants.MSG_KEY_READ;
@@ -48,7 +49,7 @@ class MessageEncoderImpl implements MessageEncoder {
 	public BdfDictionary encodeMetadata(MessageType type,
 			GroupId shareableId, long timestamp, boolean local, boolean read,
 			boolean visible, boolean available, boolean accepted,
-			long autoDeleteTimer) {
+			long autoDeleteTimer, boolean isAutoDecline) {
 		BdfDictionary meta = new BdfDictionary();
 		meta.put(MSG_KEY_MESSAGE_TYPE, type.getValue());
 		meta.put(MSG_KEY_SHAREABLE_ID, shareableId);
@@ -60,6 +61,9 @@ class MessageEncoderImpl implements MessageEncoder {
 		meta.put(MSG_KEY_INVITATION_ACCEPTED, accepted);
 		if (autoDeleteTimer != NO_AUTO_DELETE_TIMER) {
 			meta.put(MSG_KEY_AUTO_DELETE_TIMER, autoDeleteTimer);
+		}
+		if (isAutoDecline) {
+			meta.put(MSG_KEY_IS_AUTO_DECLINE, isAutoDecline);
 		}
 		return meta;
 	}

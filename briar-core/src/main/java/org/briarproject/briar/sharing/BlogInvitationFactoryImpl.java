@@ -33,11 +33,11 @@ public class BlogInvitationFactoryImpl
 	public BlogInvitationResponse createInvitationResponse(MessageId id,
 			GroupId contactGroupId, long time, boolean local, boolean sent,
 			boolean seen, boolean read, boolean accept, GroupId shareableId,
-			long autoDeleteTimer) {
+			long autoDeleteTimer, boolean isAutoDecline) {
 		SessionId sessionId = new SessionId(shareableId.getBytes());
 		return new BlogInvitationResponse(id, contactGroupId, time, local, read,
 				sent, seen, sessionId, accept, shareableId,
-				autoDeleteTimer);
+				autoDeleteTimer, isAutoDecline);
 	}
 
 }
