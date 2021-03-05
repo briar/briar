@@ -689,6 +689,7 @@
 
 	<!-- titles for the app bar -->
 
+	<string name="title_distributed_backup">Social Backup</string>
 	<string name="title_select_custodians">Select Trusted Contacts</string>
 	<string name="title_define_threshold">Choose Threshold</string>
 	<string name="title_recovery_mode">Recovery Mode</string>
