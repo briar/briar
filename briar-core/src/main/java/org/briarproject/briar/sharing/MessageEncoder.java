@@ -14,7 +14,8 @@ interface MessageEncoder {
 
 	BdfDictionary encodeMetadata(MessageType type, GroupId shareableId,
 			long timestamp, boolean local, boolean read, boolean visible,
-			boolean available, boolean accepted, long autoDeleteTimer);
+			boolean available, boolean accepted, long autoDeleteTimer,
+			boolean isAutoDecline);
 
 	void setVisibleInUi(BdfDictionary meta, boolean visible);
 
