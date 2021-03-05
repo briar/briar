@@ -56,8 +56,11 @@ public abstract class BaseContactSelectorFragment<I extends SelectableContactIte
 
 		Bundle args = requireArguments();
 		byte[] b = args.getByteArray(GROUP_ID);
-		if (b == null) throw new IllegalStateException("No GroupId");
-		groupId = new GroupId(b);
+//		if (b == null) throw new IllegalStateException("No GroupId");
+		// TODO find what the groupId should be when selecting custodians
+		if (b != null) {
+			groupId = new GroupId(b);
+		}
 	}
 
 	@Override
