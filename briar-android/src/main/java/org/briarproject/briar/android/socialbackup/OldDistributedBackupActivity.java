@@ -25,10 +25,10 @@ public class OldDistributedBackupActivity extends BriarActivity
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_distributed_backup);
 
-		CustodianDisplayFragment fragment =
-				CustodianDisplayFragment.newInstance();
-
-		showInitialFragment(fragment);
+//		CustodianDisplayFragment fragment =
+//				CustodianDisplayFragment.newInstance();
+//
+//		showInitialFragment(fragment);
 	}
 
 	@Override

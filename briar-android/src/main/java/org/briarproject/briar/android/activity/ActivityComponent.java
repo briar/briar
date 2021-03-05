@@ -83,20 +83,23 @@ import org.briarproject.briar.android.socialbackup.DistributedBackupActivity;
 import org.briarproject.briar.android.socialbackup.OldDistributedBackupActivity;
 import org.briarproject.briar.android.socialbackup.ShardsSentFragment;
 import org.briarproject.briar.android.socialbackup.ThresholdSelectorFragment;
+import org.briarproject.briar.android.socialbackup.creation.CreateBackupController;
+import org.briarproject.briar.android.socialbackup.creation.CreateBackupModule;
 import org.briarproject.briar.android.splash.SplashScreenActivity;
 import org.briarproject.briar.android.test.TestDataActivity;
 
 import dagger.Component;
 
 @ActivityScope
-@Component(modules = {
+@Component(modules ={
 		ActivityModule.class,
 		BlogModule.class,
 		CreateGroupModule.class,
 		GroupInvitationModule.class,
 		GroupMemberModule.class,
 		GroupRevealModule.class,
-		SharingModule.SharingLegacyModule.class
+		SharingModule.SharingLegacyModule.class,
+		CreateBackupModule.class
 }, dependencies = AndroidComponent.class)
 public interface ActivityComponent {
 
@@ -247,7 +250,7 @@ public interface ActivityComponent {
 	void inject(ThresholdSelectorFragment thresholdSelectorFragment);
 
 	void inject(DistributedBackupActivity distributedBackupActivity);
-
+//    void inject(CreateBackupController createBackupController);
 //	void inject(CustodianDisplayFragment custodianDisplayFragment);
 
 	void inject(CustodianSelectorFragment custodianSelectorFragment);
