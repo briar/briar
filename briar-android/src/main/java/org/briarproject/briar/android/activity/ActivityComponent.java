@@ -77,7 +77,7 @@ import org.briarproject.briar.android.sharing.ShareBlogFragment;
 import org.briarproject.briar.android.sharing.ShareForumActivity;
 import org.briarproject.briar.android.sharing.ShareForumFragment;
 import org.briarproject.briar.android.sharing.SharingModule;
-import org.briarproject.briar.android.socialbackup.CustodianDisplayFragment;
+//import org.briarproject.briar.android.socialbackup.CustodianDisplayFragment;
 import org.briarproject.briar.android.socialbackup.CustodianSelectorFragment;
 import org.briarproject.briar.android.socialbackup.DistributedBackupActivity;
 import org.briarproject.briar.android.socialbackup.OldDistributedBackupActivity;
@@ -248,7 +248,7 @@ public interface ActivityComponent {
 
 	void inject(DistributedBackupActivity distributedBackupActivity);
 
-	void inject(CustodianDisplayFragment custodianDisplayFragment);
+//	void inject(CustodianDisplayFragment custodianDisplayFragment);
 
 	void inject(CustodianSelectorFragment custodianSelectorFragment);
 
