@@ -1,5 +1,6 @@
 package org.briarproject.briar.sharing;
 
+import org.briarproject.bramble.api.cleanup.CleanupManager;
 import org.briarproject.bramble.api.client.ClientHelper;
 import org.briarproject.bramble.api.contact.ContactManager;
 import org.briarproject.bramble.api.data.MetadataEncoder;
@@ -75,7 +76,8 @@ public class SharingModule {
 			ValidationManager validationManager,
 			ConversationManager conversationManager, BlogManager blogManager,
 			ClientVersioningManager clientVersioningManager,
-			BlogSharingManagerImpl blogSharingManager) {
+			BlogSharingManagerImpl blogSharingManager,
+			CleanupManager cleanupManager) {
 		lifecycleManager.registerOpenDatabaseHook(blogSharingManager);
 		contactManager.registerContactHook(blogSharingManager);
 		validationManager.registerIncomingMessageHook(
@@ -91,6 +93,9 @@ public class SharingModule {
 		clientVersioningManager.registerClient(BlogManager.CLIENT_ID,
 				BlogManager.MAJOR_VERSION, BlogManager.MINOR_VERSION,
 				blogSharingManager.getShareableClientVersioningHook());
+		cleanupManager.registerCleanupHook(BlogSharingManager.CLIENT_ID,
+				BlogSharingManager.MAJOR_VERSION,
+				blogSharingManager);
 		return blogSharingManager;
 	}
 
@@ -134,7 +139,8 @@ public class SharingModule {
 			ValidationManager validationManager,
 			ConversationManager conversationManager, ForumManager forumManager,
 			ClientVersioningManager clientVersioningManager,
-			ForumSharingManagerImpl forumSharingManager) {
+			ForumSharingManagerImpl forumSharingManager,
+			CleanupManager cleanupManager) {
 		lifecycleManager.registerOpenDatabaseHook(forumSharingManager);
 		contactManager.registerContactHook(forumSharingManager);
 		validationManager.registerIncomingMessageHook(
@@ -150,6 +156,9 @@ public class SharingModule {
 		clientVersioningManager.registerClient(ForumManager.CLIENT_ID,
 				ForumManager.MAJOR_VERSION, ForumManager.MINOR_VERSION,
 				forumSharingManager.getShareableClientVersioningHook());
+		cleanupManager.registerCleanupHook(ForumSharingManager.CLIENT_ID,
+				ForumSharingManager.MAJOR_VERSION,
+				forumSharingManager);
 		return forumSharingManager;
 	}
 
