@@ -378,7 +378,7 @@ public class ConversationActivity extends BriarActivity
 			MenuItem item = menu.findItem(R.id.action_conversation_settings);
 			item.setVisible(true);
 			// Enable menu item only if contact supports auto-delete
-			observeOnce(viewModel.getPrivateMessageFormat(), this, format ->
+			viewModel.getPrivateMessageFormat().observe(this, format ->
 					item.setEnabled(format == TEXT_IMAGES_AUTO_DELETE));
 		}
 
