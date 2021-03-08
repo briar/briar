@@ -2,6 +2,7 @@ package org.briarproject.briar.android.activity;
 
 import android.app.Activity;
 
+import org.briarproject.bramble.api.db.DatabaseComponent;
 import org.briarproject.briar.android.AndroidComponent;
 import org.briarproject.briar.android.StartupFailureActivity;
 import org.briarproject.briar.android.account.AuthorNameFragment;
@@ -77,20 +78,29 @@ import org.briarproject.briar.android.sharing.ShareBlogFragment;
 import org.briarproject.briar.android.sharing.ShareForumActivity;
 import org.briarproject.briar.android.sharing.ShareForumFragment;
 import org.briarproject.briar.android.sharing.SharingModule;
+//import org.briarproject.briar.android.socialbackup.CustodianDisplayFragment;
+import org.briarproject.briar.android.socialbackup.CustodianSelectorFragment;
+import org.briarproject.briar.android.socialbackup.DistributedBackupActivity;
+import org.briarproject.briar.android.socialbackup.OldDistributedBackupActivity;
+import org.briarproject.briar.android.socialbackup.ShardsSentFragment;
+import org.briarproject.briar.android.socialbackup.ThresholdSelectorFragment;
+import org.briarproject.briar.android.socialbackup.creation.CreateBackupController;
+import org.briarproject.briar.android.socialbackup.creation.CreateBackupModule;
 import org.briarproject.briar.android.splash.SplashScreenActivity;
 import org.briarproject.briar.android.test.TestDataActivity;
 
 import dagger.Component;
 
 @ActivityScope
-@Component(modules = {
+@Component(modules ={
 		ActivityModule.class,
 		BlogModule.class,
 		CreateGroupModule.class,
 		GroupInvitationModule.class,
 		GroupMemberModule.class,
 		GroupRevealModule.class,
-		SharingModule.SharingLegacyModule.class
+		SharingModule.SharingLegacyModule.class,
+		CreateBackupModule.class
 }, dependencies = AndroidComponent.class)
 public interface ActivityComponent {
 
@@ -238,4 +248,17 @@ public interface ActivityComponent {
 
 	void inject(ConfirmAvatarDialogFragment fragment);
 
+	void inject(ThresholdSelectorFragment thresholdSelectorFragment);
+
+	void inject(DistributedBackupActivity distributedBackupActivity);
+//    void inject(CreateBackupController createBackupController);
+//	void inject(CustodianDisplayFragment custodianDisplayFragment);
+
+	void inject(DatabaseComponent databaseComponent);
+
+	void inject(CustodianSelectorFragment custodianSelectorFragment);
+
+	void inject(ShardsSentFragment shardsSentFragment);
+
+	void inject(OldDistributedBackupActivity oldDistributedBackupActivity);
 }

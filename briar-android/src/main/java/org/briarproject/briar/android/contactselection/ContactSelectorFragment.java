@@ -18,7 +18,7 @@ public abstract class ContactSelectorFragment extends
 
 	public static final String TAG = ContactSelectorFragment.class.getName();
 
-	private Menu menu;
+	protected Menu menu;
 
 	@Override
 	protected ContactSelectorAdapter getAdapter(Context context,

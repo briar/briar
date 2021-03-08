@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:app="http://schemas.android.com/apk/res-auto"
+	xmlns:tools="http://schemas.android.com/tools"
+	android:id="@+id/linearLayout"
+	android:layout_width="match_parent"
+	android:layout_height="match_parent"
+	android:paddingLeft="@dimen/margin_large"
+	android:paddingTop="@dimen/margin_medium"
+	android:paddingRight="@dimen/margin_large"
+	android:paddingBottom="@dimen/margin_medium"
+	tools:showIn="@layout/activity_preview_welcome">
+
+	<Button
+		android:id="@+id/buttonSelectThreshold"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:drawableLeft="@drawable/ic_contacts"
+		android:text="@string/setup_new_account"
+		app:layout_constraintEnd_toEndOf="parent"
+		app:layout_constraintStart_toStartOf="parent"
+		app:layout_constraintTop_toTopOf="parent" />
+
+	<Button
+		android:id="@+id/buttonShardsSent"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:drawableLeft="@drawable/ic_repeat"
+		android:text="@string/setup_restore_account"
+		app:layout_constraintEnd_toEndOf="parent"
+		app:layout_constraintStart_toStartOf="parent"
+		app:layout_constraintTop_toBottomOf="@+id/buttonSelectThreshold" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

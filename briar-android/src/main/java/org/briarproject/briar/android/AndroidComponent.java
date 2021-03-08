@@ -13,6 +13,7 @@ import org.briarproject.bramble.api.contact.ContactExchangeManager;
 import org.briarproject.bramble.api.contact.ContactManager;
 import org.briarproject.bramble.api.crypto.CryptoExecutor;
 import org.briarproject.bramble.api.crypto.PasswordStrengthEstimator;
+import org.briarproject.bramble.api.db.DatabaseComponent;
 import org.briarproject.bramble.api.db.DatabaseExecutor;
 import org.briarproject.bramble.api.db.TransactionManager;
 import org.briarproject.bramble.api.event.EventBus;
@@ -59,7 +60,9 @@ import org.briarproject.briar.api.privategroup.PrivateGroupFactory;
 import org.briarproject.briar.api.privategroup.PrivateGroupManager;
 import org.briarproject.briar.api.privategroup.invitation.GroupInvitationFactory;
 import org.briarproject.briar.api.privategroup.invitation.GroupInvitationManager;
+import org.briarproject.briar.api.socialbackup.SocialBackupManager;
 import org.briarproject.briar.api.test.TestDataCreator;
+import org.briarproject.briar.socialbackup.SocialBackupManagerImpl_Factory;
 
 import java.util.concurrent.Executor;
 
@@ -183,6 +186,9 @@ public interface AndroidComponent
 	CachingLogHandler logHandler();
 
 	Thread.UncaughtExceptionHandler exceptionHandler();
+
+	SocialBackupManager socialBackupManager();
+    DatabaseComponent databaseComponent();
 
 	void inject(SignInReminderReceiver briarService);
 

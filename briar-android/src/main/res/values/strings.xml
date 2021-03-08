@@ -638,4 +638,78 @@
 	<!-- This is a message to be used in screenshots. -->
 	<string name="screenshot_message_3">No problem, hope you like it 😀</string>
 
+	<!-- social backup -->
+
+	<!-- settings -->
+
+	<string name="pref_distributed_backup_title">Social backup</string>
+	<string name="pref_distributed_backup_summary">Backup your account using trusted contacts</string>
+
+	<string name="pref_distributed_old_backup_title">Existing Social backup</string>
+	<string name="pref_distributed_old_backup_summary">Information about your most recent social backup</string>
+
+	<!-- social backup procedure -->
+
+	<string name="select_custodians">Select Trusted Contacts:</string>
+
+	<string name="select_at_least_n_contacts">Please select at least %d contacts</string>
+	<string name="select_at_least_n_more_contacts">Please select at least %d more contacts</string>
+
+	<string name="threshold">The minimum number of trusted contacts needed to restore your account:</string>
+	<string name="threshold_secure">Secure</string>
+	<string name="threshold_recommended">Secure - recommended threshold</string>
+	<string name="threshold_low_insecure">Insecure – higher threshold recommended</string>
+	<string name="threshold_high_insecure">Danger of loss – lower threshold recommended</string>
+	<string name="threshold_defined">Choose Threshold</string>
+
+	<string name="backup_done_info">Backup pieces sent to trusted contacts</string>
+	<string name="backup_done_dismiss">Got it</string>
+
+	<string name="backup_created">Backup created 1/6/2020</string>
+
+	<!-- recovery from the secret owner's POV -->
+
+	<string name="recovery_explainer">You need to meet your trusted contacts in-person to receive pieces by scanning QR codes</string>
+	<string name="recovery_begin">Begin</string>
+	<string name="recovery_failed_to_receive">Failed to receive backup piece</string>
+	<string name="recovery_helpful_suggestions">Please check that bluetooth is swtiched on and that no-one but your trusted contact is able to scan the QR code</string>
+	<string name="recovery_retry">Retry</string>
+	<string name="recovery_recovered_shards">Recovered backup pieces:</string>
+	<string name="recovery_scan_qr_code">Scan QR code</string>
+	<string name="recovery_recovering_account">Recovering account…</string>
+	<string name="recovery_shard_received">Account backup piece received</string>
+	<string name="recovery_account_recovered">Account recovered</string>
+
+	<!-- recovery from the custodian's POV -->
+
+	<string name="custodian_recovery_explainer">You need to meet in-person to transfer backup piece</string>
+	<string name="custodian_recovery_failed_to_send">Failed to send backup piece</string>
+	<string name="custodian_scan_code">Scan code</string>
+	<string name="custodian_shard_sent">Account backup piece transmitted</string>
+
+	<!-- titles for the app bar -->
+
+	<string name="title_distributed_backup">Social Backup</string>
+	<string name="title_select_custodians">Select Trusted Contacts</string>
+	<string name="title_define_threshold">Choose Threshold</string>
+	<string name="title_recovery_mode">Recovery Mode</string>
+	<string name="title_help_recover">Help recover account</string>
+
+	<!-- conversation action for custodian -->
+
+	<string name="help_recover_account">Help recover account</string>
+
+	<!-- setup screen -->
+
+	<string name="setup_new_account">Create new account</string>
+	<string name="setup_restore_account">Restore account from backup</string>
+
+	<!-- Symbols for visualising threshold values for social backup -->
+	<string name="filled_bullet">\u25CF</string>
+    <string name="linear_bullet">\u25CB</string>
+
+	<!-- activity names -->
+	<string name="activity_name_distributed_backup">Social Backup</string>
+	<string name="activity_name_old_distributed_backup">Old Social Backup</string>
+
 </resources>
