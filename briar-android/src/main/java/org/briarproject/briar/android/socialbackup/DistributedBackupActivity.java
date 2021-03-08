@@ -24,6 +24,9 @@ public class DistributedBackupActivity extends BriarActivity implements
 	private Collection<ContactId> custodians;
     private SocialBackupManager socialBackupManager;
 
+    DistributedBackupActivity() {
+    }
+
 	@Inject
     DistributedBackupActivity(SocialBackupManager socialBackupManager) {
 		this.socialBackupManager = socialBackupManager;
