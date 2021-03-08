@@ -15,11 +15,19 @@ import org.briarproject.briar.api.socialbackup.SocialBackupManager;
 
 import java.util.Collection;
 
+import javax.inject.Inject;
+
 public class DistributedBackupActivity extends BriarActivity implements
 		BaseFragment.BaseFragmentListener, ContactSelectorListener,
 		ThresholdDefinedListener, ShardsSentDismissedListener {
 
 	private Collection<ContactId> custodians;
+    private SocialBackupManager socialBackupManager;
+
+	@Inject
+    DistributedBackupActivity(SocialBackupManager socialBackupManager) {
+		this.socialBackupManager = socialBackupManager;
+    }
 
 	@Override
 	public void injectActivity(ActivityComponent component) {
@@ -52,7 +60,8 @@ public class DistributedBackupActivity extends BriarActivity implements
 
 	@Override
 	public void thresholdDefined(int threshold) {
-		// TODO this is the place to call socialBackupManager.createBackup()
+		// TODO this is the place to call
+		//socialBackupManager.createBackup();
 		ShardsSentFragment fragment = new ShardsSentFragment();
 		showNextFragment(fragment);
 	}
