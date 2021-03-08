@@ -18,6 +18,8 @@ public class DistributedBackupActivity extends BriarActivity implements
 		BaseFragment.BaseFragmentListener, ContactSelectorListener,
 		ThresholdDefinedListener, ShardsSentDismissedListener {
 
+	private Collection<ContactId> custodians;
+
 	@Override
 	public void injectActivity(ActivityComponent component) {
 		component.inject(this);
@@ -39,12 +41,14 @@ public class DistributedBackupActivity extends BriarActivity implements
 		Toast.makeText(this,
 				String.format("selected %d contacts", contacts.size()),
 				Toast.LENGTH_SHORT).show();
+		custodians = contacts;
 		ThresholdSelectorFragment fragment = ThresholdSelectorFragment.newInstance(contacts.size());
 		showNextFragment(fragment);
 	}
 
 	@Override
 	public void thresholdDefined(int threshold) {
+//		SocialBackupManager socialBackupManager
 		ShardsSentFragment fragment = new ShardsSentFragment();
 		showNextFragment(fragment);
 	}

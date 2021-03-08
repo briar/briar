@@ -43,7 +43,6 @@ public class ThresholdSelectorFragment extends BaseFragment {
         bundle.putInt(NUMBER_CUSTODIANS, numberCustodians);
         ThresholdSelectorFragment fragment = new ThresholdSelectorFragment();
         fragment.setArguments(bundle);
-//        fragment.setNumberCustodians(numberCustodians);
         return fragment;
     }
 
@@ -62,9 +61,6 @@ public class ThresholdSelectorFragment extends BaseFragment {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_select_threshold,
                 container, false);
-//        if (savedInstanceState != null) {
-//            numberOfCustodians = savedInstanceState.getInt("numberCustodians");
-//        }
 	    Bundle args = requireArguments();
 	    numberOfCustodians = args.getInt(NUMBER_CUSTODIANS);
 
