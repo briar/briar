@@ -16,7 +16,7 @@ dependencies {
 	implementation fileTree(dir: 'libs', include: '*.jar')
 	implementation 'net.java.dev.jna:jna:4.5.2'
 	implementation 'net.java.dev.jna:jna-platform:4.5.2'
-	tor 'org.briarproject:tor:0.3.5.13@zip'
+	tor 'org.briarproject:tor:0.3.5.13-1@zip'
 	tor 'org.briarproject:obfs4proxy:0.0.12-dev-40245c4a@zip'
 
 	annotationProcessor 'com.google.dagger:dagger-compiler:2.24'
