@@ -695,6 +695,10 @@
 	<string name="title_recovery_mode">Recovery Mode</string>
 	<string name="title_help_recover">Help recover account</string>
 
+	<!-- conversation action for custodian -->
+
+	<string name="help_recover_account">Help recover account</string>
+
 	<!-- setup screen -->
 
 	<string name="setup_new_account">Create new account</string>
