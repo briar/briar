@@ -34,9 +34,11 @@ public class ThresholdSelectorFragment extends BaseFragment {
     // TODO this should be the actual number of custodians
     private int numberOfCustodians;
     private int threshold;
+    private int recommendedThreshold;
     private SeekBar seekBar;
     private TextView thresholdRepresentation;
     private TextView message;
+    private TextView mOfn;
 
     public static ThresholdSelectorFragment newInstance(int numberCustodians) {
         Bundle bundle = new Bundle();
@@ -44,10 +46,6 @@ public class ThresholdSelectorFragment extends BaseFragment {
         ThresholdSelectorFragment fragment = new ThresholdSelectorFragment();
         fragment.setArguments(bundle);
         return fragment;
-    }
-
-    private void setNumberCustodians(int numberCustodians) {
-        numberOfCustodians = numberCustodians;
     }
 
     @Override
@@ -67,15 +65,22 @@ public class ThresholdSelectorFragment extends BaseFragment {
         seekBar = view.findViewById(R.id.seekBar);
         thresholdRepresentation = view.findViewById(R.id.textViewThresholdRepresentation);
         message = view.findViewById(R.id.textViewMessage);
+        mOfn = view.findViewById(R.id.textViewmOfn);
         int max = numberOfCustodians - 3;
         seekBar.setMax(max);
         seekBar.setOnSeekBarChangeListener(new SeekBarListener());
-        threshold = SecretSharingWrapper.defaultThreshold(numberOfCustodians);
+        recommendedThreshold = SecretSharingWrapper.defaultThreshold(numberOfCustodians);
+        threshold = recommendedThreshold;
         seekBar.setProgress(threshold - 2);
 
         thresholdRepresentation.setText(buildThresholdRepresentationString());
+        setmOfnText();
         return view;
 //        return super.onCreateView(inflater, container, savedInstanceState);
+    }
+
+    private void setmOfnText() {
+        mOfn.setText(String.format("%d of %d contacts needed to recover your account", threshold, numberOfCustodians));
     }
 
     @Override
@@ -116,11 +121,9 @@ public class ThresholdSelectorFragment extends BaseFragment {
         String thresholdRepresentationText = "";
         for (int i = 0; i < threshold; i++) {
             thresholdRepresentationText += getString(R.string.filled_bullet);
-//            thresholdRepresentationText += "1 ";
         }
         for (int i = 0; i < (numberOfCustodians - threshold); i++) {
             thresholdRepresentationText += getString(R.string.linear_bullet);
-//            thresholdRepresentationText += "0 ";
         }
         return thresholdRepresentationText;
     }
@@ -135,11 +138,12 @@ public class ThresholdSelectorFragment extends BaseFragment {
             thresholdRepresentation.setText(
                     buildThresholdRepresentationString()
             );
+            setmOfnText();
 
             int sanityLevel = SecretSharingWrapper.thresholdSanity(threshold, numberOfCustodians);
             int text = R.string.threshold_secure;
-            // TODO use 1 / -1 instead of 0
-            if (sanityLevel < 0) text = R.string.threshold_low_insecure;
+            if (threshold == recommendedThreshold) text = R.string.threshold_recommended;
+            if (sanityLevel < -1) text = R.string.threshold_low_insecure;
             if (sanityLevel > 0) text = R.string.threshold_high_insecure;
             message.setText(text);
             // TODO change colour of thresholdRepresentation to green/red based on sanityLevel

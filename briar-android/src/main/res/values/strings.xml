@@ -657,9 +657,9 @@
 
 	<string name="threshold">The minimum number of trusted contacts needed to restore your account:</string>
 	<string name="threshold_secure">Secure</string>
+	<string name="threshold_recommended">Secure - recommended threshold</string>
 	<string name="threshold_low_insecure">Insecure – higher threshold recommended</string>
 	<string name="threshold_high_insecure">Danger of loss – lower threshold recommended</string>
-	<!-- the next one does only appear when long-pressing the submit arrow in the app bar-->
 	<string name="threshold_defined">Choose Threshold</string>
 
 	<string name="backup_done_info">Backup pieces sent to trusted contacts</string>
