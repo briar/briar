@@ -27,6 +27,7 @@ import static java.util.Objects.requireNonNull;
 public class ThresholdSelectorFragment extends BaseFragment {
 
     public static final String TAG = ThresholdSelectorFragment.class.getName();
+    private static final String NUMBER_CUSTODIANS = "numberCustodians";
 
     protected ThresholdDefinedListener listener;
 
@@ -38,10 +39,10 @@ public class ThresholdSelectorFragment extends BaseFragment {
 
     public static ThresholdSelectorFragment newInstance(int numberCustodians) {
         Bundle bundle = new Bundle();
-        bundle.putInt("numberCustodians", numberCustodians);
+        bundle.putInt(NUMBER_CUSTODIANS, numberCustodians);
         ThresholdSelectorFragment fragment = new ThresholdSelectorFragment();
         fragment.setArguments(bundle);
-        fragment.setNumberCustodians(numberCustodians);
+//        fragment.setNumberCustodians(numberCustodians);
         return fragment;
     }
 
@@ -60,19 +61,24 @@ public class ThresholdSelectorFragment extends BaseFragment {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_select_threshold,
                 container, false);
-        if (savedInstanceState != null) {
-            numberOfCustodians = savedInstanceState.getInt("numberCustodians");
-        }
+//        if (savedInstanceState != null) {
+//            numberOfCustodians = savedInstanceState.getInt("numberCustodians");
+//        }
+	    Bundle args = requireArguments();
+	    numberOfCustodians = args.getInt(NUMBER_CUSTODIANS);
+
         seekBar = view.findViewById(R.id.seekBar);
         thresholdRepresentation = view.findViewById(R.id.textViewThresholdRepresentation);
         message = view.findViewById(R.id.textViewMessage);
-
-        seekBar.setMax(2);
+        int max = numberOfCustodians - 3;
+        seekBar.setMax(max);
         seekBar.setOnSeekBarChangeListener(new SeekBarListener());
-        seekBar.setProgress(1);
+        int defaultThreshold = SecretSharingWrapper.defaultThreshold(numberOfCustodians);
+        seekBar.setProgress(defaultThreshold - 2);
 
-        thresholdRepresentation.setText(buildThresholdRepresentationString(3));
+        thresholdRepresentation.setText(buildThresholdRepresentationString(defaultThreshold));
         return view;
+//        return super.onCreateView(inflater, container, savedInstanceState);
     }
 
     @Override
@@ -112,12 +118,12 @@ public class ThresholdSelectorFragment extends BaseFragment {
     private String buildThresholdRepresentationString (int threshold) {
         String thresholdRepresentationText = "";
         for (int i = 0; i < threshold; i++) {
-//            thresholdRepresentationText += R.string.filled_bullet;
-            thresholdRepresentationText += "1";
+            thresholdRepresentationText += getString(R.string.filled_bullet);
+//            thresholdRepresentationText += "1 ";
         }
         for (int i = 0; i < (numberOfCustodians - threshold); i++) {
-//            thresholdRepresentationText += R.string.linear_bullet;
-            thresholdRepresentationText += "0";
+            thresholdRepresentationText += getString(R.string.linear_bullet);
+//            thresholdRepresentationText += "0 ";
         }
         return thresholdRepresentationText;
     }
@@ -127,8 +133,6 @@ public class ThresholdSelectorFragment extends BaseFragment {
         @Override
         public void onProgressChanged(SeekBar seekBar, int progress,
                 boolean fromUser) {
-            // progress can be 0, 1, 2 - translate allowed slider value to actual
-            // threshold
 	        int threshold = progress + 2;
 
             thresholdRepresentation.setText(
@@ -137,8 +141,9 @@ public class ThresholdSelectorFragment extends BaseFragment {
 
             int sanityLevel = SecretSharingWrapper.thresholdSanity(threshold, numberOfCustodians);
             int text = R.string.threshold_secure;
-            if (sanityLevel < -1) text = R.string.threshold_low_insecure;
-            if (sanityLevel > 1) text = R.string.threshold_high_insecure;
+            // TODO use 1 / -1 instead of 0
+            if (sanityLevel < 0) text = R.string.threshold_low_insecure;
+            if (sanityLevel > 0) text = R.string.threshold_high_insecure;
             message.setText(text);
             // TODO change colour of thresholdRepresentation to green/red based on sanityLevel
         }
