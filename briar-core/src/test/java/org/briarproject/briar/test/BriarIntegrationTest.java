@@ -566,7 +566,7 @@ public abstract class BriarIntegrationTest<C extends BriarIntegrationTestCompone
 	 * Broadcasts a marker event and waits for it to be delivered, which
 	 * indicates that all previously broadcast events have been delivered.
 	 */
-	protected void waitForEvents(BriarIntegrationTestComponent component)
+	public static void waitForEvents(BriarIntegrationTestComponent component)
 			throws Exception {
 		CountDownLatch latch = new CountDownLatch(1);
 		MarkerEvent marker = new MarkerEvent();

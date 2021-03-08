@@ -4,10 +4,12 @@ import org.briarproject.bramble.api.contact.ContactId;
 import org.briarproject.bramble.api.db.DatabaseComponent;
 import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.sync.MessageId;
+import org.briarproject.briar.api.autodelete.event.ConversationMessagesDeletedEvent;
 import org.briarproject.briar.api.conversation.ConversationManager.ConversationClient;
 import org.briarproject.briar.api.privategroup.GroupMessage;
 import org.briarproject.briar.api.privategroup.PrivateGroup;
 import org.briarproject.briar.api.privategroup.PrivateGroupManager;
+import org.briarproject.briar.api.privategroup.event.GroupInvitationResponseReceivedEvent;
 import org.briarproject.briar.api.privategroup.invitation.GroupInvitationManager;
 import org.briarproject.briar.api.privategroup.invitation.GroupInvitationRequest;
 import org.briarproject.briar.api.privategroup.invitation.GroupInvitationResponse;
@@ -21,6 +23,7 @@ import javax.annotation.Nullable;
 import static org.briarproject.bramble.api.cleanup.CleanupManager.BATCH_DELAY_MS;
 import static org.briarproject.briar.api.autodelete.AutoDeleteConstants.MIN_AUTO_DELETE_TIMER_MS;
 import static org.briarproject.briar.api.autodelete.AutoDeleteConstants.NO_AUTO_DELETE_TIMER;
+import static org.briarproject.briar.test.TestEventListener.assertEvent;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotEquals;
@@ -94,8 +97,15 @@ public class AutoDeleteIntegrationTest extends AbstractAutoDeleteTest {
 
 		// When 0's timer has elapsed, the message should be deleted from 0's
 		// view of the conversation but 1 should still see the message
-		c0.getTimeTravel().addCurrentTimeMillis(1);
+		ConversationMessagesDeletedEvent event = assertEvent(c0,
+				ConversationMessagesDeletedEvent.class, () ->
+						c0.getTimeTravel().addCurrentTimeMillis(1)
+		);
 		c1.getTimeTravel().addCurrentTimeMillis(1);
+
+		// assert that the proper event got broadcast
+		assertEquals(contactId1From0, event.getContactId());
+
 		assertGroupCount(c0, contactId1From0, 0, 0);
 		assertEquals(0, getMessageHeaders(c0, contactId1From0).size());
 		assertGroupCount(c1, contactId0From1, 1, 1);
@@ -118,7 +128,13 @@ public class AutoDeleteIntegrationTest extends AbstractAutoDeleteTest {
 		// When 1's timer has elapsed, the message should be deleted from 1's
 		// view of the conversation and the invitation auto-declined
 		c0.getTimeTravel().addCurrentTimeMillis(1);
-		c1.getTimeTravel().addCurrentTimeMillis(1);
+		GroupInvitationResponseReceivedEvent e = assertEvent(c1,
+				GroupInvitationResponseReceivedEvent.class, () ->
+						c1.getTimeTravel().addCurrentTimeMillis(1)
+		);
+		// assert that the proper event got broadcast
+		assertEquals(contactId0From1, e.getContactId());
+
 		assertGroupCount(c0, contactId1From0, 0, 0);
 		assertEquals(0, getMessageHeaders(c0, contactId1From0).size());
 		assertGroupCount(c1, contactId0From1, 1, 0);
@@ -126,6 +142,7 @@ public class AutoDeleteIntegrationTest extends AbstractAutoDeleteTest {
 			// The only message is not the same as before, but declined response
 			assertNotEquals(messageId0, h.getId());
 			assertTrue(h instanceof GroupInvitationResponse);
+			assertEquals(h.getId(), e.getMessageHeader().getId());
 			assertFalse(((GroupInvitationResponse) h).wasAccepted());
 			assertTrue(((GroupInvitationResponse) h).isAutoDecline());
 			// The auto-decline message should have the expected timer
@@ -260,7 +277,12 @@ public class AutoDeleteIntegrationTest extends AbstractAutoDeleteTest {
 		// When 1's timer has elapsed, the message should be deleted from 1's
 		// view of the conversation and the invitation auto-declined
 		c0.getTimeTravel().addCurrentTimeMillis(1);
-		c1.getTimeTravel().addCurrentTimeMillis(1);
+		GroupInvitationResponseReceivedEvent event = assertEvent(c1,
+				GroupInvitationResponseReceivedEvent.class,
+				() -> c1.getTimeTravel().addCurrentTimeMillis(1)
+		);
+		// assert that the proper event got broadcast
+		assertEquals(contactId0From1, event.getContactId());
 		assertGroupCount(c0, contactId1From0, 1, 0);
 		assertEquals(1, getMessageHeaders(c0, contactId1From0).size());
 		// 1's total count is still 2, because of the added auto-decline
@@ -273,6 +295,7 @@ public class AutoDeleteIntegrationTest extends AbstractAutoDeleteTest {
 			} else {
 				assertTrue(h instanceof GroupInvitationResponse);
 				GroupInvitationResponse r = (GroupInvitationResponse) h;
+				assertEquals(h.getId(), event.getMessageHeader().getId());
 				// is auto-decline for 2nd invitation
 				assertEquals(privateGroup.getId(), r.getShareableId());
 				assertTrue(r.isAutoDecline());
