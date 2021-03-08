@@ -37,6 +37,7 @@ public class CustodianSelectorFragment extends ContactSelectorFragment {
 
 	public static CustodianSelectorFragment newInstance() {
 		Bundle args = new Bundle();
+
 		CustodianSelectorFragment fragment = new CustodianSelectorFragment();
 		fragment.setArguments(args);
 
@@ -51,6 +52,7 @@ public class CustodianSelectorFragment extends ContactSelectorFragment {
 	@Override
 	public void onCreate(@Nullable Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+
 		requireActivity().setTitle(R.string.title_select_custodians);
 	}
 

@@ -31,10 +31,23 @@ public class ThresholdSelectorFragment extends BaseFragment {
     protected ThresholdDefinedListener listener;
 
     // TODO this should be the actual number of custodians
-    private int numberOfCustodians = 5;
+    private int numberOfCustodians;
     private SeekBar seekBar;
     private TextView thresholdRepresentation;
     private TextView message;
+
+    public static ThresholdSelectorFragment newInstance(int numberCustodians) {
+        Bundle bundle = new Bundle();
+        bundle.putInt("numberCustodians", numberCustodians);
+        ThresholdSelectorFragment fragment = new ThresholdSelectorFragment();
+        fragment.setArguments(bundle);
+        fragment.setNumberCustodians(numberCustodians);
+        return fragment;
+    }
+
+    private void setNumberCustodians(int numberCustodians) {
+        numberOfCustodians = numberCustodians;
+    }
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -47,7 +60,9 @@ public class ThresholdSelectorFragment extends BaseFragment {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_select_threshold,
                 container, false);
-
+        if (savedInstanceState != null) {
+            numberOfCustodians = savedInstanceState.getInt("numberCustodians");
+        }
         seekBar = view.findViewById(R.id.seekBar);
         thresholdRepresentation = view.findViewById(R.id.textViewThresholdRepresentation);
         message = view.findViewById(R.id.textViewMessage);
@@ -97,10 +112,12 @@ public class ThresholdSelectorFragment extends BaseFragment {
     private String buildThresholdRepresentationString (int threshold) {
         String thresholdRepresentationText = "";
         for (int i = 0; i < threshold; i++) {
-            thresholdRepresentationText += R.string.filled_bullet;
+//            thresholdRepresentationText += R.string.filled_bullet;
+            thresholdRepresentationText += "1";
         }
         for (int i = 0; i < (numberOfCustodians - threshold); i++) {
-            thresholdRepresentationText += R.string.linear_bullet;
+//            thresholdRepresentationText += R.string.linear_bullet;
+            thresholdRepresentationText += "0";
         }
         return thresholdRepresentationText;
     }

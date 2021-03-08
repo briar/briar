@@ -39,8 +39,7 @@ public class DistributedBackupActivity extends BriarActivity implements
 		Toast.makeText(this,
 				String.format("selected %d contacts", contacts.size()),
 				Toast.LENGTH_SHORT).show();
-
-		ThresholdSelectorFragment fragment = new ThresholdSelectorFragment();
+		ThresholdSelectorFragment fragment = ThresholdSelectorFragment.newInstance(contacts.size());
 		showNextFragment(fragment);
 	}
 
