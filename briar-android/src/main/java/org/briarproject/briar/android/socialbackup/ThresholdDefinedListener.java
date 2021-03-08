@@ -5,6 +5,6 @@ import androidx.annotation.UiThread;
 public interface ThresholdDefinedListener {
 
 	@UiThread
-	void thresholdDefined();
+	void thresholdDefined(int threshold);
 
 }

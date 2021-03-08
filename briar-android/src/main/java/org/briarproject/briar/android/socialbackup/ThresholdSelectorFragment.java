@@ -33,6 +33,7 @@ public class ThresholdSelectorFragment extends BaseFragment {
 
     // TODO this should be the actual number of custodians
     private int numberOfCustodians;
+    private int threshold;
     private SeekBar seekBar;
     private TextView thresholdRepresentation;
     private TextView message;
@@ -73,10 +74,10 @@ public class ThresholdSelectorFragment extends BaseFragment {
         int max = numberOfCustodians - 3;
         seekBar.setMax(max);
         seekBar.setOnSeekBarChangeListener(new SeekBarListener());
-        int defaultThreshold = SecretSharingWrapper.defaultThreshold(numberOfCustodians);
-        seekBar.setProgress(defaultThreshold - 2);
+        threshold = SecretSharingWrapper.defaultThreshold(numberOfCustodians);
+        seekBar.setProgress(threshold - 2);
 
-        thresholdRepresentation.setText(buildThresholdRepresentationString(defaultThreshold));
+        thresholdRepresentation.setText(buildThresholdRepresentationString());
         return view;
 //        return super.onCreateView(inflater, container, savedInstanceState);
     }
@@ -108,14 +109,14 @@ public class ThresholdSelectorFragment extends BaseFragment {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.action_threshold_defined:
-                listener.thresholdDefined();
+                listener.thresholdDefined(threshold);
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
         }
     }
 
-    private String buildThresholdRepresentationString (int threshold) {
+    private String buildThresholdRepresentationString () {
         String thresholdRepresentationText = "";
         for (int i = 0; i < threshold; i++) {
             thresholdRepresentationText += getString(R.string.filled_bullet);
@@ -133,10 +134,10 @@ public class ThresholdSelectorFragment extends BaseFragment {
         @Override
         public void onProgressChanged(SeekBar seekBar, int progress,
                 boolean fromUser) {
-	        int threshold = progress + 2;
+	        threshold = progress + 2;
 
             thresholdRepresentation.setText(
-                    buildThresholdRepresentationString(threshold)
+                    buildThresholdRepresentationString()
             );
 
             int sanityLevel = SecretSharingWrapper.thresholdSanity(threshold, numberOfCustodians);

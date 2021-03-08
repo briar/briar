@@ -44,7 +44,7 @@ public class DistributedBackupActivity extends BriarActivity implements
 	}
 
 	@Override
-	public void thresholdDefined() {
+	public void thresholdDefined(int threshold) {
 		ShardsSentFragment fragment = new ShardsSentFragment();
 		showNextFragment(fragment);
 	}
