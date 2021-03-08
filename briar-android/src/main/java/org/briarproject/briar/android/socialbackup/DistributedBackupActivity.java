@@ -11,6 +11,7 @@ import org.briarproject.briar.android.activity.ActivityComponent;
 import org.briarproject.briar.android.activity.BriarActivity;
 import org.briarproject.briar.android.contactselection.ContactSelectorListener;
 import org.briarproject.briar.android.fragment.BaseFragment;
+import org.briarproject.briar.api.socialbackup.SocialBackupManager;
 
 import java.util.Collection;
 
@@ -29,10 +30,13 @@ public class DistributedBackupActivity extends BriarActivity implements
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_distributed_backup);
-
+        // TODO here we should check if we already have a backup
+		// BackupMetadata backupMetadata = socialBackupManager.getBackupMetadata();
+		// if (backupMetadata == null) {
 		CustodianSelectorFragment fragment =
 				CustodianSelectorFragment.newInstance();
-
+        // } else {
+		//   display the backup metadata
 		showInitialFragment(fragment);
 	}
 
@@ -48,7 +52,7 @@ public class DistributedBackupActivity extends BriarActivity implements
 
 	@Override
 	public void thresholdDefined(int threshold) {
-//		SocialBackupManager socialBackupManager
+		// TODO this is the place to call socialBackupManager.createBackup()
 		ShardsSentFragment fragment = new ShardsSentFragment();
 		showNextFragment(fragment);
 	}
