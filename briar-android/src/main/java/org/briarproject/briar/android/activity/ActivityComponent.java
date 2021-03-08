@@ -2,6 +2,7 @@ package org.briarproject.briar.android.activity;
 
 import android.app.Activity;
 
+import org.briarproject.bramble.api.db.DatabaseComponent;
 import org.briarproject.briar.android.AndroidComponent;
 import org.briarproject.briar.android.StartupFailureActivity;
 import org.briarproject.briar.android.account.AuthorNameFragment;
@@ -252,6 +253,8 @@ public interface ActivityComponent {
 	void inject(DistributedBackupActivity distributedBackupActivity);
 //    void inject(CreateBackupController createBackupController);
 //	void inject(CustodianDisplayFragment custodianDisplayFragment);
+
+	void inject(DatabaseComponent databaseComponent);
 
 	void inject(CustodianSelectorFragment custodianSelectorFragment);
 

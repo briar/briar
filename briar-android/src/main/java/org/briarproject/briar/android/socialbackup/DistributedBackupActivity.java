@@ -25,17 +25,12 @@ public class DistributedBackupActivity extends BriarActivity implements
 		ThresholdDefinedListener, ShardsSentDismissedListener {
 
 	private Collection<ContactId> custodians;
-    private SocialBackupManager socialBackupManager;
-    private DatabaseComponent db;
-
-    public DistributedBackupActivity() {
-    }
 
 	@Inject
-    public DistributedBackupActivity(SocialBackupManager socialBackupManager, DatabaseComponent db) {
-		this.socialBackupManager = socialBackupManager;
-		this.db = db;
-    }
+    public SocialBackupManager socialBackupManager;
+
+	@Inject
+    public DatabaseComponent db;
 
 	@Override
 	public void injectActivity(ActivityComponent component) {
