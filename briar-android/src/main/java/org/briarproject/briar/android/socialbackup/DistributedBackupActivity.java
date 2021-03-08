@@ -6,6 +6,8 @@ import android.widget.Toast;
 import androidx.fragment.app.FragmentTransaction;
 
 import org.briarproject.bramble.api.contact.ContactId;
+import org.briarproject.bramble.api.db.DatabaseComponent;
+import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.activity.ActivityComponent;
 import org.briarproject.briar.android.activity.BriarActivity;
@@ -14,6 +16,7 @@ import org.briarproject.briar.android.fragment.BaseFragment;
 import org.briarproject.briar.api.socialbackup.SocialBackupManager;
 
 import java.util.Collection;
+import java.util.List;
 
 import javax.inject.Inject;
 
@@ -23,13 +26,15 @@ public class DistributedBackupActivity extends BriarActivity implements
 
 	private Collection<ContactId> custodians;
     private SocialBackupManager socialBackupManager;
+    private DatabaseComponent db;
 
-    DistributedBackupActivity() {
+    public DistributedBackupActivity() {
     }
 
 	@Inject
-    DistributedBackupActivity(SocialBackupManager socialBackupManager) {
+    public DistributedBackupActivity(SocialBackupManager socialBackupManager, DatabaseComponent db) {
 		this.socialBackupManager = socialBackupManager;
+		this.db = db;
     }
 
 	@Override
@@ -62,11 +67,12 @@ public class DistributedBackupActivity extends BriarActivity implements
 	}
 
 	@Override
-	public void thresholdDefined(int threshold) {
-		// TODO this is the place to call
-		//socialBackupManager.createBackup();
-		ShardsSentFragment fragment = new ShardsSentFragment();
-		showNextFragment(fragment);
+	public void thresholdDefined(int threshold) throws DbException {
+		db.transaction(false, txn -> {
+			socialBackupManager.createBackup(txn, (List<ContactId>) custodians, threshold);
+			ShardsSentFragment fragment = new ShardsSentFragment();
+			showNextFragment(fragment);
+		});
 	}
 
 	@Override
