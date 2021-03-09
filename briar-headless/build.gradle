@@ -58,7 +58,7 @@ void jarFactory(Jar jarTask, jarArchitecture) {
 		configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
 	}
 			{
-				String[] architectures = ["linux-aarch64", "linux-x86_64"]
+				String[] architectures = ["linux-aarch64", "linux-armhf", "linux-x86_64"]
 				for (String arch : architectures) {
 					if (arch != jarArchitecture) {
 						exclude "obfs4proxy_" + arch + ".zip"
@@ -100,6 +100,10 @@ void jarFactory(Jar jarTask, jarArchitecture) {
 
 task aarch64LinuxJar(type: Jar) {
 	jarFactory(it, 'linux-aarch64')
+}
+
+task armhfLinuxJar(type: Jar) {
+	jarFactory(it, 'linux-armhf')
 }
 
 task x86LinuxJar(type: Jar) {

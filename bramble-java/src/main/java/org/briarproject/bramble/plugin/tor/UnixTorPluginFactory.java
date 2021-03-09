@@ -25,6 +25,7 @@ import javax.annotation.concurrent.Immutable;
 import javax.inject.Inject;
 import javax.net.SocketFactory;
 
+import static java.util.logging.Level.INFO;
 import static java.util.logging.Logger.getLogger;
 import static org.briarproject.bramble.util.OsUtils.isLinux;
 
@@ -96,12 +97,15 @@ public class UnixTorPluginFactory implements DuplexPluginFactory {
 		String architecture = null;
 		if (isLinux()) {
 			String arch = System.getProperty("os.arch");
-			LOG.info("System's os.arch is " + arch);
+			if (LOG.isLoggable(INFO)) {
+				LOG.info("System's os.arch is " + arch);
+			}
 			if (arch.equals("amd64")) {
 				architecture = "linux-x86_64";
-			}
-			else if (arch.equals("aarch64")) {
+			} else if (arch.equals("aarch64")) {
 				architecture = "linux-aarch64";
+			} else if (arch.equals("arm")) {
+				architecture = "linux-armhf";
 			}
 		}
 		if (architecture == null) {
@@ -109,7 +113,9 @@ public class UnixTorPluginFactory implements DuplexPluginFactory {
 			return null;
 		}
 
-		LOG.info("The selected architecture for Tor is " + architecture);
+		if (LOG.isLoggable(INFO)) {
+			LOG.info("The selected architecture for Tor is " + architecture);
+		}
 
 		Backoff backoff = backoffFactory.createBackoff(MIN_POLLING_INTERVAL,
 				MAX_POLLING_INTERVAL, BACKOFF_BASE);
