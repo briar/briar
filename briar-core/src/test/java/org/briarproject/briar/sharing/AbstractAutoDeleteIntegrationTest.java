@@ -19,19 +19,18 @@ import static org.junit.Assert.assertTrue;
 public abstract class AbstractAutoDeleteIntegrationTest
 		extends AbstractAutoDeleteTest {
 
-	protected SharingManager<? extends Shareable> sharingManager0;
-	protected Shareable shareable;
-	protected Class<? extends ConversationMessageReceivedEvent<? extends InvitationResponse>>
-			responseReceivedEventClass;
+	protected abstract SharingManager<? extends Shareable> getSharingManager0();
 
-	protected void testAutoDeclinedSharing(
-			SharingManager<? extends Shareable> sharingManager0,
-			Shareable shareable) throws Exception {
+	protected abstract Shareable getShareable();
+
+	protected abstract Class<? extends ConversationMessageReceivedEvent<? extends InvitationResponse>> getResponseReceivedEventClass();
+
+	protected void testAutoDeclinedSharing() throws Exception {
 		setAutoDeleteTimer(c0, contactId1From0, MIN_AUTO_DELETE_TIMER_MS);
 
 		// Send invitation
-		sharingManager0.sendInvitation(
-				shareable.getId(), contactId1From0, "This shareable!");
+		getSharingManager0().sendInvitation(
+				getShareable().getId(), contactId1From0, "This shareable!");
 
 		// The message should have been added to 0's view of the conversation
 		assertGroupCount(c0, contactId1From0, 1, 0);
@@ -100,7 +99,7 @@ public abstract class AbstractAutoDeleteIntegrationTest
 		// view of the conversation and the invitation auto-declined
 		c0.getTimeTravel().addCurrentTimeMillis(1);
 		ConversationMessageReceivedEvent<? extends InvitationResponse> e =
-				assertEvent(c1, responseReceivedEventClass,
+				assertEvent(c1, getResponseReceivedEventClass(),
 						() -> c1.getTimeTravel().addCurrentTimeMillis(1)
 				);
 		// assert that the proper event got broadcast
@@ -128,8 +127,8 @@ public abstract class AbstractAutoDeleteIntegrationTest
 		waitForEvents(c1);
 
 		// 0 can invite 1 again
-		assertTrue(sharingManager0
-				.canBeShared(shareable.getId(), contact1From0));
+		assertTrue(getSharingManager0()
+				.canBeShared(getShareable().getId(), contact1From0));
 
 		// Before 1's timer elapses, 1 should still see the auto-decline message
 		c0.getTimeTravel().addCurrentTimeMillis(timerLatency - 1);
@@ -165,11 +164,12 @@ public abstract class AbstractAutoDeleteIntegrationTest
 		assertEquals(0, getMessageHeaders(c0, contactId1From0).size());
 
 		// 0 can invite 1 again and really does invite
-		assertTrue(sharingManager0
-				.canBeShared(shareable.getId(), contact1From0));
+		assertTrue(getSharingManager0()
+				.canBeShared(getShareable().getId(), contact1From0));
 		// Send invitation
-		sharingManager0.sendInvitation(shareable.getId(), contactId1From0,
-				"This shareable, please be quick!");
+		getSharingManager0()
+				.sendInvitation(getShareable().getId(), contactId1From0,
+						"This shareable, please be quick!");
 		sync0To1(1, true);
 		assertGroupCount(c1, contactId0From1, 1, 1);
 	}
