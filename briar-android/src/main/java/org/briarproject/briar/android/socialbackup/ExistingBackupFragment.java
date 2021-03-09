@@ -24,8 +24,6 @@ public class ExistingBackupFragment extends BaseFragment {
 	private static final String THRESHOLD = "threshold";
 	private static final String CUSTODIANS = "custodians";
 	public static final String TAG = ExistingBackupFragment.class.getName();
-    private TextView textViewBackupMetadata;
-
 
 	public static ExistingBackupFragment newInstance(
 			BackupMetadata backupMetadata) {
@@ -58,10 +56,12 @@ public class ExistingBackupFragment extends BaseFragment {
         ArrayList<String> custodianNames = args.getStringArrayList(CUSTODIANS);
         String custodianNamesString = "";
         for (String custodianName : custodianNames) {
-          	custodianNamesString += custodianName + " ";
+          	custodianNamesString += custodianName + ", ";
         }
-        textViewBackupMetadata = view.findViewById(R.id.textViewBackupMetadata);
-        textViewBackupMetadata.setText(String.format("Threshold is %d", args.getInt(THRESHOLD)) + custodianNamesString);
+        TextView textViewThreshold = view.findViewById(R.id.textViewThreshold);
+        textViewThreshold.setText(String.format("%d of %d contacts needed to restore account", args.getInt(THRESHOLD), custodianNames.size()));
+        TextView textViewCustodians = view.findViewById(R.id.textViewCustodians);
+        textViewCustodians.setText(custodianNamesString);
 		return view;
 	}
 
