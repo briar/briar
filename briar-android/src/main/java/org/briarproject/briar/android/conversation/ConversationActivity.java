@@ -225,7 +225,7 @@ public class ConversationActivity extends BriarActivity
 	private final ActivityResultLauncher<String> permissionRequest =
 			registerForActivityResult(new RequestPermission(), result -> {
 				BluetoothConnecter bc = viewModel.getBluetoothConnecter();
-				bc.onLocationPermissionResult(result,
+				bc.onLocationPermissionResult(this, result,
 						bluetoothDiscoverableRequest);
 			});
 

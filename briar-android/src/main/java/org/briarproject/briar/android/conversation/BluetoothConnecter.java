@@ -1,5 +1,6 @@
 package org.briarproject.briar.android.conversation;
 
+import android.app.Activity;
 import android.app.Application;
 import android.bluetooth.BluetoothAdapter;
 import android.content.Context;
@@ -25,9 +26,11 @@ import androidx.annotation.UiThread;
 import androidx.appcompat.app.AlertDialog;
 
 import static android.Manifest.permission.ACCESS_FINE_LOCATION;
+import static androidx.core.app.ActivityCompat.shouldShowRequestPermissionRationale;
 import static java.util.logging.Level.WARNING;
 import static java.util.logging.Logger.getLogger;
 import static org.briarproject.bramble.util.LogUtils.logException;
+import static org.briarproject.briar.android.util.UiUtils.getGoToSettingsListener;
 
 class BluetoothConnecter {
 
@@ -63,7 +66,7 @@ class BluetoothConnecter {
 	}
 
 	@UiThread
-	void onLocationPermissionResult(boolean result,
+	void onLocationPermissionResult(Activity activity, boolean result,
 			ActivityResultLauncher<Integer> bluetoothDiscoverableRequest) {
 		if (result) {
 			if (isBluetoothSupported()) {
@@ -71,14 +74,25 @@ class BluetoothConnecter {
 			} else {
 				showToast(R.string.toast_connect_via_bluetooth_error);
 			}
-		} else {
-			// could also show the same dialog as KeyAgreementActivity
+		} else if (shouldShowRequestPermissionRationale(activity,
+				ACCESS_FINE_LOCATION)) {
 			showToast(R.string.permission_location_denied_body);
+		} else {
+			showRationale(activity);
 		}
 	}
 
 	private boolean isBluetoothSupported() {
 		return bt != null && bluetoothPlugin != null;
+	}
+
+	private void showRationale(Context ctx) {
+		new AlertDialog.Builder(ctx, R.style.BriarDialogTheme)
+				.setTitle(R.string.permission_location_title)
+				.setMessage(R.string.permission_location_request_body)
+				.setPositiveButton(R.string.ok, getGoToSettingsListener(ctx))
+				.setNegativeButton(R.string.cancel, null)
+				.show();
 	}
 
 	@UiThread
