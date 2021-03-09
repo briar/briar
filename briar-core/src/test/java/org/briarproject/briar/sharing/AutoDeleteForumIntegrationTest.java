@@ -1,7 +1,7 @@
 package org.briarproject.briar.sharing;
 
 import org.briarproject.briar.api.conversation.ConversationManager;
-import org.briarproject.briar.api.forum.ForumManager;
+import org.briarproject.briar.api.forum.event.ForumInvitationResponseReceivedEvent;
 import org.briarproject.briar.test.BriarIntegrationTestComponent;
 import org.junit.Before;
 import org.junit.Test;
@@ -13,10 +13,10 @@ public class AutoDeleteForumIntegrationTest
 	@Override
 	public void setUp() throws Exception {
 		super.setUp();
-		ForumManager forumManager0 = c0.getForumManager();
-		shareable = forumManager0.addForum("Test Forum");
+		shareable = c0.getForumManager().addForum("Test Forum");
 		sharingManager0 = c0.getForumSharingManager();
 		addContacts1And2();
+		responseReceivedEventClass = ForumInvitationResponseReceivedEvent.class;
 	}
 
 	@Override
