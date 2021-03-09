@@ -1,5 +1,6 @@
 package org.briarproject.briar.sharing;
 
+import org.briarproject.briar.api.blog.event.BlogInvitationResponseReceivedEvent;
 import org.briarproject.briar.api.conversation.ConversationManager;
 import org.briarproject.briar.test.BriarIntegrationTestComponent;
 import org.junit.Before;
@@ -16,6 +17,7 @@ public class AutoDeleteBlogIntegrationTest
 		shareable = c0.getBlogManager().getPersonalBlog(author2);
 		sharingManager0 = c0.getBlogSharingManager();
 		addContacts1And2();
+		responseReceivedEventClass = BlogInvitationResponseReceivedEvent.class;
 	}
 
 	@Override
