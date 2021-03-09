@@ -4,7 +4,7 @@ import org.briarproject.bramble.api.event.Event;
 import org.briarproject.bramble.api.event.EventListener;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 
-import javax.annotation.Nullable;
+import java.util.concurrent.atomic.AtomicReference;
 
 import static org.briarproject.briar.test.BriarIntegrationTest.waitForEvents;
 import static org.junit.Assert.assertNotNull;
@@ -38,21 +38,20 @@ public class TestEventListener<T extends Event> implements EventListener {
 
 	private final Class<T> clazz;
 
-	@Nullable
-	private T event;
+	private final AtomicReference<T> event = new AtomicReference<>();
 
 	@Override
 	public void eventOccurred(Event e) {
 		if (e.getClass().equals(clazz)) {
-			assertNull("Event already received", event);
 			//noinspection unchecked
-			event = (T) e;
+			assertNull("Event already received", event.getAndSet((T) e));
 		}
 	}
 
 	private T assertAndGetEvent() {
-		assertNotNull("No event received", event);
-		return event;
+		T t = event.get();
+		assertNotNull("No event received", t);
+		return t;
 	}
 
 }
