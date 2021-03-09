@@ -81,6 +81,7 @@ import org.briarproject.briar.android.sharing.SharingModule;
 //import org.briarproject.briar.android.socialbackup.CustodianDisplayFragment;
 import org.briarproject.briar.android.socialbackup.CustodianSelectorFragment;
 import org.briarproject.briar.android.socialbackup.DistributedBackupActivity;
+import org.briarproject.briar.android.socialbackup.ExistingBackupFragment;
 import org.briarproject.briar.android.socialbackup.OldDistributedBackupActivity;
 import org.briarproject.briar.android.socialbackup.ShardsSentFragment;
 import org.briarproject.briar.android.socialbackup.ThresholdSelectorFragment;
@@ -259,6 +260,8 @@ public interface ActivityComponent {
 	void inject(CustodianSelectorFragment custodianSelectorFragment);
 
 	void inject(ShardsSentFragment shardsSentFragment);
+
+	void inject(ExistingBackupFragment existingBackupFragment);
 
 	void inject(OldDistributedBackupActivity oldDistributedBackupActivity);
 }

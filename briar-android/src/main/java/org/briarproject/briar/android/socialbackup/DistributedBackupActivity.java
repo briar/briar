@@ -53,8 +53,7 @@ public class DistributedBackupActivity extends BriarActivity implements
 						CustodianSelectorFragment.newInstance();
 					 showInitialFragment(fragment);
 				 } else {
-				 	 // TODO make a fragment to display the backup metadata
-					 ShardsSentFragment fragment = new ShardsSentFragment();
+					 ExistingBackupFragment fragment = ExistingBackupFragment.newInstance(backupMetadata);
 					 showInitialFragment(fragment);
 				 }
 			});
