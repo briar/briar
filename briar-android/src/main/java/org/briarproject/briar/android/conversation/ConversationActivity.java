@@ -47,6 +47,7 @@ import org.briarproject.briar.android.activity.BriarActivity;
 import org.briarproject.briar.android.attachment.AttachmentItem;
 import org.briarproject.briar.android.attachment.AttachmentRetriever;
 import org.briarproject.briar.android.blog.BlogActivity;
+import org.briarproject.briar.android.contact.ContactItem;
 import org.briarproject.briar.android.conversation.ConversationVisitor.AttachmentCache;
 import org.briarproject.briar.android.conversation.ConversationVisitor.TextCache;
 import org.briarproject.briar.android.forum.ForumActivity;
@@ -91,6 +92,8 @@ import java.util.logging.Logger;
 
 import javax.inject.Inject;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts.RequestPermission;
 import androidx.annotation.Nullable;
 import androidx.annotation.UiThread;
 import androidx.appcompat.app.AlertDialog;
@@ -210,6 +213,21 @@ public class ConversationActivity extends BriarActivity
 	private ActionMode actionMode;
 
 	private volatile ContactId contactId;
+
+	private final ActivityResultLauncher<Integer> bluetoothDiscoverableRequest =
+			registerForActivityResult(new RequestBluetoothDiscoverable(), r -> {
+				// MenuItem only gets enabled after contactItem has loaded
+				ContactItem contact =
+						requireNonNull(viewModel.getContactItem().getValue());
+				BluetoothConnecter bc = viewModel.getBluetoothConnecter();
+				bc.onBluetoothDiscoverable(r, contact);
+			});
+	private final ActivityResultLauncher<String> permissionRequest =
+			registerForActivityResult(new RequestPermission(), result -> {
+				BluetoothConnecter bc = viewModel.getBluetoothConnecter();
+				bc.onLocationPermissionResult(result,
+						bluetoothDiscoverableRequest);
+			});
 
 	@Override
 	public void onCreate(@Nullable Bundle state) {
@@ -370,9 +388,11 @@ public class ConversationActivity extends BriarActivity
 						this::showIntroductionOnboarding);
 			}
 		});
-		// enable alias action if available
-		observeOnce(viewModel.getContactItem(), this, contact ->
-				menu.findItem(R.id.action_set_alias).setEnabled(true));
+		// enable alias and bluetooth action once available
+		observeOnce(viewModel.getContactItem(), this, contact -> {
+			menu.findItem(R.id.action_set_alias).setEnabled(true);
+			menu.findItem(R.id.action_connect_via_bluetooth).setEnabled(true);
+		});
 		// Show auto-delete menu item if feature is enabled
 		if (featureFlags.shouldEnableDisappearingMessages()) {
 			MenuItem item = menu.findItem(R.id.action_conversation_settings);
@@ -381,40 +401,39 @@ public class ConversationActivity extends BriarActivity
 			viewModel.getPrivateMessageFormat().observe(this, format ->
 					item.setEnabled(format == TEXT_IMAGES_AUTO_DELETE));
 		}
-
 		return super.onCreateOptionsMenu(menu);
 	}
 
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
-		// Handle presses on the action bar items
-		switch (item.getItemId()) {
-			case android.R.id.home:
-				onBackPressed();
-				return true;
-			case R.id.action_introduction:
-				if (contactId == null) return false;
-				Intent intent = new Intent(this, IntroductionActivity.class);
-				intent.putExtra(CONTACT_ID, contactId.getInt());
-				startActivityForResult(intent, REQUEST_INTRODUCTION);
-				return true;
-			case R.id.action_set_alias:
-				AliasDialogFragment.newInstance().show(
-						getSupportFragmentManager(), AliasDialogFragment.TAG);
-				return true;
-			case R.id.action_conversation_settings:
-				if (contactId == null) return false;
-				onAutoDeleteTimerNoticeClicked();
-				return true;
-			case R.id.action_delete_all_messages:
-				askToDeleteAllMessages();
-				return true;
-			case R.id.action_social_remove_person:
-				askToRemoveContact();
-				return true;
-			default:
-				return super.onOptionsItemSelected(item);
+		// contactId gets set before in onCreate()
+		int itemId = item.getItemId();
+		if (itemId == android.R.id.home) {
+			onBackPressed();
+			return true;
+		} else if (itemId == R.id.action_introduction) {
+			Intent intent = new Intent(this, IntroductionActivity.class);
+			intent.putExtra(CONTACT_ID, contactId.getInt());
+			startActivityForResult(intent, REQUEST_INTRODUCTION);
+			return true;
+		} else if (itemId == R.id.action_set_alias) {
+			AliasDialogFragment.newInstance().show(
+					getSupportFragmentManager(), AliasDialogFragment.TAG);
+			return true;
+		} else if (itemId == R.id.action_conversation_settings) {
+			onAutoDeleteTimerNoticeClicked();
+			return true;
+		} else if (itemId == R.id.action_connect_via_bluetooth) {
+			BluetoothConnecter.showDialog(this, permissionRequest);
+			return true;
+		} else if (itemId == R.id.action_delete_all_messages) {
+			askToDeleteAllMessages();
+			return true;
+		} else if (itemId == R.id.action_social_remove_person) {
+			askToRemoveContact();
+			return true;
 		}
+		return super.onOptionsItemSelected(item);
 	}
 
 	@Override

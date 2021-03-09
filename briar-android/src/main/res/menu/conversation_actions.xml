@@ -24,6 +24,12 @@
 		tools:visible="true" />
 
 	<item
+		android:id="@+id/action_connect_via_bluetooth"
+		android:enabled="false"
+		android:title="@string/menu_item_connect_via_bluetooth"
+		app:showAsAction="never" />
+
+	<item
 		android:id="@+id/action_delete_all_messages"
 		android:title="@string/delete_all_messages"
 		app:showAsAction="never" />
