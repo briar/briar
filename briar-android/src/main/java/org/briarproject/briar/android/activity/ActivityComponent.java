@@ -7,6 +7,7 @@ import org.briarproject.briar.android.AndroidComponent;
 import org.briarproject.briar.android.StartupFailureActivity;
 import org.briarproject.briar.android.account.AuthorNameFragment;
 import org.briarproject.briar.android.account.DozeFragment;
+import org.briarproject.briar.android.account.NewOrRecoverFragment;
 import org.briarproject.briar.android.account.SetPasswordFragment;
 import org.briarproject.briar.android.account.SetupActivity;
 import org.briarproject.briar.android.account.UnlockActivity;
@@ -89,6 +90,7 @@ import org.briarproject.briar.android.socialbackup.creation.CreateBackupControll
 import org.briarproject.briar.android.socialbackup.creation.CreateBackupModule;
 import org.briarproject.briar.android.splash.SplashScreenActivity;
 import org.briarproject.briar.android.test.TestDataActivity;
+import org.h2.util.New;
 
 import dagger.Component;
 
@@ -262,6 +264,8 @@ public interface ActivityComponent {
 	void inject(ShardsSentFragment shardsSentFragment);
 
 	void inject(ExistingBackupFragment existingBackupFragment);
+
+	void inject(NewOrRecoverFragment newOrRecoverFragment);
 
 	void inject(OldDistributedBackupActivity oldDistributedBackupActivity);
 }
