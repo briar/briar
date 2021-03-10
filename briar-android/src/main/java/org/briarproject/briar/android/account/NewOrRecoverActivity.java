@@ -1,5 +1,6 @@
 package org.briarproject.briar.android.account;
 
+import android.content.Intent;
 import android.os.Bundle;
 
 import org.briarproject.briar.R;
@@ -7,7 +8,13 @@ import org.briarproject.briar.android.activity.ActivityComponent;
 import org.briarproject.briar.android.activity.BaseActivity;
 import org.briarproject.briar.android.fragment.BaseFragment;
 
-public class NewOrRecoverActivity extends BaseActivity implements BaseFragment.BaseFragmentListener {
+import static android.content.Intent.FLAG_ACTIVITY_CLEAR_TASK;
+import static android.content.Intent.FLAG_ACTIVITY_CLEAR_TOP;
+import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
+import static android.content.Intent.FLAG_ACTIVITY_TASK_ON_HOME;
+
+public class NewOrRecoverActivity extends BaseActivity implements
+		BaseFragment.BaseFragmentListener, SetupNewAccountChosenListener {
 
 	@Override
 	public void injectActivity(ActivityComponent component) {
@@ -22,6 +29,15 @@ public class NewOrRecoverActivity extends BaseActivity implements BaseFragment.B
         setContentView(R.layout.activity_fragment_container);
 		NewOrRecoverFragment fragment = NewOrRecoverFragment.newInstance();
 		showInitialFragment(fragment);
+	}
+
+	@Override
+	public void setupNewAccountChosen () {
+		finish();
+		Intent i = new Intent(this, SetupActivity.class);
+		i.addFlags(FLAG_ACTIVITY_NEW_TASK | FLAG_ACTIVITY_CLEAR_TOP |
+				FLAG_ACTIVITY_CLEAR_TASK | FLAG_ACTIVITY_TASK_ON_HOME);
+		startActivity(i);
 	}
 
 	@Override
