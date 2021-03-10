@@ -3,9 +3,6 @@ package org.briarproject.briar.android.socialbackup;
 import android.content.Context;
 import android.os.Bundle;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -16,8 +13,6 @@ import org.briarproject.briar.android.fragment.BaseFragment;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-
-import static java.util.Objects.requireNonNull;
 
 public class ShardsSentFragment extends BaseFragment {
 

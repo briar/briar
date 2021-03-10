@@ -46,5 +46,4 @@ public class NewOrRecoverFragment extends BaseFragment {
 	public void injectFragment(ActivityComponent component) {
 		component.inject(this);
 	}
-
 }

@@ -3,8 +3,6 @@ package org.briarproject.briar.android.socialbackup;
 import android.os.Bundle;
 import android.widget.Toast;
 
-import androidx.fragment.app.FragmentTransaction;
-
 import org.briarproject.bramble.api.contact.ContactId;
 import org.briarproject.bramble.api.db.DatabaseComponent;
 import org.briarproject.bramble.api.db.DbException;
@@ -14,7 +12,6 @@ import org.briarproject.briar.android.activity.BriarActivity;
 import org.briarproject.briar.android.contactselection.ContactSelectorListener;
 import org.briarproject.briar.android.fragment.BaseFragment;
 import org.briarproject.briar.api.socialbackup.BackupMetadata;
-import org.briarproject.briar.api.socialbackup.Shard;
 import org.briarproject.briar.api.socialbackup.SocialBackupManager;
 
 import java.util.Collection;

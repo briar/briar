@@ -7,6 +7,7 @@ import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
 import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.BriarService;
+import org.briarproject.briar.android.account.NewOrRecoverActivity;
 import org.briarproject.briar.android.account.SetupActivity;
 import org.briarproject.briar.android.activity.ActivityComponent;
 import org.briarproject.briar.android.activity.BaseActivity;
@@ -107,7 +108,7 @@ public class StartupActivity extends BaseActivity implements
 	private void onAccountDeleted() {
 		setResult(RESULT_CANCELED);
 		finish();
-		Intent i = new Intent(this, SetupActivity.class);
+		Intent i = new Intent(this, NewOrRecoverActivity.class);
 		i.addFlags(FLAG_ACTIVITY_NEW_TASK | FLAG_ACTIVITY_CLEAR_TOP |
 				FLAG_ACTIVITY_CLEAR_TASK | FLAG_ACTIVITY_TASK_ON_HOME);
 		startActivity(i);

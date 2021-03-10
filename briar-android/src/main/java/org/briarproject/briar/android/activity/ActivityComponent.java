@@ -7,6 +7,7 @@ import org.briarproject.briar.android.AndroidComponent;
 import org.briarproject.briar.android.StartupFailureActivity;
 import org.briarproject.briar.android.account.AuthorNameFragment;
 import org.briarproject.briar.android.account.DozeFragment;
+import org.briarproject.briar.android.account.NewOrRecoverActivity;
 import org.briarproject.briar.android.account.NewOrRecoverFragment;
 import org.briarproject.briar.android.account.SetPasswordFragment;
 import org.briarproject.briar.android.account.SetupActivity;
@@ -194,6 +195,8 @@ public interface ActivityComponent {
 	void inject(PendingContactListActivity activity);
 
 	void inject(CrashReportActivity crashReportActivity);
+
+	void inject(NewOrRecoverActivity newOrRecoverActivity);
 
 	// Fragments
 

@@ -712,4 +712,5 @@
 	<string name="activity_name_distributed_backup">Social Backup</string>
 	<string name="activity_name_old_distributed_backup">Old Social Backup</string>
 
+	<string name="activity_name_new_or_recover_account">Create new account or recover existing account</string>
 </resources>
