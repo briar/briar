@@ -226,7 +226,7 @@ public class ImageViewModel extends DbViewModel implements EventListener {
 	}
 
 	private String getFileName() {
-		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss",
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd",
 				Locale.getDefault());
 		return sdf.format(new Date());
 	}
