@@ -1,5 +1,8 @@
 package org.briarproject.briar.sharing;
 
+import org.briarproject.bramble.api.db.DbException;
+import org.briarproject.briar.api.blog.Blog;
+import org.briarproject.briar.api.blog.BlogManager;
 import org.briarproject.briar.api.blog.event.BlogInvitationResponseReceivedEvent;
 import org.briarproject.briar.api.conversation.ConversationManager;
 import org.briarproject.briar.api.conversation.event.ConversationMessageReceivedEvent;
@@ -10,22 +13,29 @@ import org.briarproject.briar.test.BriarIntegrationTestComponent;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.util.Collection;
+
 public class AutoDeleteBlogIntegrationTest
 		extends AbstractAutoDeleteIntegrationTest {
 
-	private SharingManager<? extends Shareable> sharingManager0;
-	private Shareable shareable;
-	private Class<? extends ConversationMessageReceivedEvent<? extends InvitationResponse>>
+	private SharingManager<Blog> sharingManager0;
+	private SharingManager<Blog> sharingManager1;
+	private Blog shareable;
+	private BlogManager manager0;
+	private BlogManager manager1;
+	private Class<BlogInvitationResponseReceivedEvent>
 			responseReceivedEventClass;
 
 	@Before
 	@Override
 	public void setUp() throws Exception {
 		super.setUp();
+		manager0 = c0.getBlogManager();
+		manager1 = c1.getBlogManager();
 		// personalBlog(author0) is already shared with c1
-		shareable = c0.getBlogManager().getPersonalBlog(author2);
+		shareable = manager0.getPersonalBlog(author2);
 		sharingManager0 = c0.getBlogSharingManager();
-		addContacts1And2();
+		sharingManager1 = c1.getBlogSharingManager();
 		responseReceivedEventClass = BlogInvitationResponseReceivedEvent.class;
 	}
 
@@ -41,8 +51,23 @@ public class AutoDeleteBlogIntegrationTest
 	}
 
 	@Override
+	protected SharingManager<? extends Shareable> getSharingManager1() {
+		return sharingManager1;
+	}
+
+	@Override
 	protected Shareable getShareable() {
 		return shareable;
+	}
+
+	@Override
+	protected Collection<Blog> subscriptions0() throws DbException {
+		return manager0.getBlogs();
+	}
+
+	@Override
+	protected Collection<Blog> subscriptions1() throws DbException {
+		return manager1.getBlogs();
 	}
 
 	@Override
@@ -53,5 +78,10 @@ public class AutoDeleteBlogIntegrationTest
 	@Test
 	public void testAutoDeclinedBlogSharing() throws Exception {
 		testAutoDeclinedSharing();
+	}
+
+	@Test
+	public void testRespondAfterSenderDeletedBlogInvitation() throws Exception {
+		testRespondAfterSenderDeletedInvitation();
 	}
 }
