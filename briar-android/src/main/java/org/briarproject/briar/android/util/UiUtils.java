@@ -59,7 +59,6 @@ import androidx.vectordrawable.graphics.drawable.VectorDrawableCompat;
 import static android.content.Context.KEYGUARD_SERVICE;
 import static android.content.Context.POWER_SERVICE;
 import static android.content.Intent.ACTION_GET_CONTENT;
-import static android.content.Intent.ACTION_OPEN_DOCUMENT;
 import static android.content.Intent.CATEGORY_DEFAULT;
 import static android.content.Intent.CATEGORY_OPENABLE;
 import static android.content.Intent.EXTRA_ALLOW_MULTIPLE;
@@ -258,8 +257,9 @@ public class UiUtils {
 	}
 
 	public static Intent createSelectImageIntent(boolean allowMultiple) {
-		Intent intent = new Intent(SDK_INT >= 19 ?
-				ACTION_OPEN_DOCUMENT : ACTION_GET_CONTENT);
+		// ACTION_GET_CONTENT returns more content providers than
+		// ACTION_OPEN_DOCUMENT (https://stackoverflow.com/questions/27568139/)
+		Intent intent = new Intent(ACTION_GET_CONTENT);
 		intent.setType("image/*");
 		intent.addCategory(CATEGORY_OPENABLE);
 		if (SDK_INT >= 19)
