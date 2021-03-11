@@ -11,9 +11,11 @@ The REST API peer comes as a `jar` file
 and needs a Java Runtime Environment (JRE) that supports at least Java 8.
 It currently works only on GNU/Linux operating systems.
 
-To build the `jar` file, you can do this:
+To build the `jar` file, you need to specify the combination of architecture and platform:
 
-    $ ./gradlew --configure-on-demand briar-headless:jar
+    $ ./gradlew --configure-on-demand briar-headless:x86LinuxJar
+    $ ./gradlew --configure-on-demand briar-headless:aarch64LinuxJar
+    $ ./gradlew --configure-on-demand briar-headless:armhfLinuxJar
 
 You can start the peer (and its API server) like this:
 
