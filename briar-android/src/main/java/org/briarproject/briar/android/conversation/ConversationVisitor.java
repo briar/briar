@@ -16,6 +16,7 @@ import org.briarproject.briar.api.introduction.IntroductionResponse;
 import org.briarproject.briar.api.messaging.PrivateMessageHeader;
 import org.briarproject.briar.api.privategroup.invitation.GroupInvitationRequest;
 import org.briarproject.briar.api.privategroup.invitation.GroupInvitationResponse;
+import org.briarproject.briar.api.socialbackup.ShardMessageHeader;
 
 import java.util.List;
 
@@ -287,6 +288,19 @@ class ConversationVisitor implements
 						contactName.getValue(),
 						introducedAuthor);
 			}
+			return new ConversationNoticeItem(
+					R.layout.list_item_conversation_notice_in, text, r);
+		}
+	}
+
+	@Override
+	public ConversationItem visitShardMessage(ShardMessageHeader r) {
+		if (r.isLocal()) {
+			String text = ctx.getString(R.string.social_backup_shard_sent);
+			return new ConversationNoticeItem(
+					R.layout.list_item_conversation_notice_out, text, r);
+		} else {
+			String text = ctx.getString(R.string.social_backup_shard_received);
 			return new ConversationNoticeItem(
 					R.layout.list_item_conversation_notice_in, text, r);
 		}

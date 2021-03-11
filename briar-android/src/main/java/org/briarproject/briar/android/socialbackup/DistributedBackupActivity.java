@@ -3,8 +3,6 @@ package org.briarproject.briar.android.socialbackup;
 import android.os.Bundle;
 import android.widget.Toast;
 
-import androidx.fragment.app.FragmentTransaction;
-
 import org.briarproject.bramble.api.contact.ContactId;
 import org.briarproject.bramble.api.db.DatabaseComponent;
 import org.briarproject.bramble.api.db.DbException;
@@ -14,7 +12,6 @@ import org.briarproject.briar.android.activity.BriarActivity;
 import org.briarproject.briar.android.contactselection.ContactSelectorListener;
 import org.briarproject.briar.android.fragment.BaseFragment;
 import org.briarproject.briar.api.socialbackup.BackupMetadata;
-import org.briarproject.briar.api.socialbackup.Shard;
 import org.briarproject.briar.api.socialbackup.SocialBackupManager;
 
 import java.util.Collection;
@@ -29,10 +26,10 @@ public class DistributedBackupActivity extends BriarActivity implements
 	private Collection<ContactId> custodians;
 
 	@Inject
-    public SocialBackupManager socialBackupManager;
+	public SocialBackupManager socialBackupManager;
 
 	@Inject
-    public DatabaseComponent db;
+	public DatabaseComponent db;
 
 	@Override
 	public void injectActivity(ActivityComponent component) {
@@ -43,19 +40,21 @@ public class DistributedBackupActivity extends BriarActivity implements
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_distributed_backup);
-        // TODO here we should check if we already have a backup
+		// TODO here we should check if we already have a backup
 
 		try {
 			db.transaction(false, txn -> {
-				BackupMetadata backupMetadata = socialBackupManager.getBackupMetadata(txn);
-				 if (backupMetadata == null) {
-				CustodianSelectorFragment fragment =
-						CustodianSelectorFragment.newInstance();
-					 showInitialFragment(fragment);
-				 } else {
-					 ExistingBackupFragment fragment = ExistingBackupFragment.newInstance(backupMetadata);
-					 showInitialFragment(fragment);
-				 }
+				BackupMetadata backupMetadata =
+						socialBackupManager.getBackupMetadata(txn);
+				if (backupMetadata == null) {
+					CustodianSelectorFragment fragment =
+							CustodianSelectorFragment.newInstance();
+					showInitialFragment(fragment);
+				} else {
+					ExistingBackupFragment fragment =
+							ExistingBackupFragment.newInstance(backupMetadata);
+					showInitialFragment(fragment);
+				}
 			});
 		} catch (DbException e) {
 			e.printStackTrace();
@@ -68,14 +67,16 @@ public class DistributedBackupActivity extends BriarActivity implements
 				String.format("selected %d contacts", contacts.size()),
 				Toast.LENGTH_SHORT).show();
 		custodians = contacts;
-		ThresholdSelectorFragment fragment = ThresholdSelectorFragment.newInstance(contacts.size());
+		ThresholdSelectorFragment fragment =
+				ThresholdSelectorFragment.newInstance(contacts.size());
 		showNextFragment(fragment);
 	}
 
 	@Override
 	public void thresholdDefined(int threshold) throws DbException {
 		db.transaction(false, txn -> {
-			socialBackupManager.createBackup(txn, (List<ContactId>) custodians, threshold);
+			socialBackupManager
+					.createBackup(txn, (List<ContactId>) custodians, threshold);
 			ShardsSentFragment fragment = new ShardsSentFragment();
 			showNextFragment(fragment);
 		});

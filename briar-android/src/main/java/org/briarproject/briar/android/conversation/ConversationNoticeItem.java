@@ -3,6 +3,7 @@ package org.briarproject.briar.android.conversation;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.briar.api.conversation.ConversationRequest;
 import org.briarproject.briar.api.conversation.ConversationResponse;
+import org.briarproject.briar.api.socialbackup.ShardMessageHeader;
 
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.NotThreadSafe;
@@ -25,6 +26,13 @@ class ConversationNoticeItem extends ConversationItem {
 
 	ConversationNoticeItem(@LayoutRes int layoutRes, String text,
 			ConversationResponse r) {
+		super(layoutRes, r);
+		this.text = text;
+		this.msgText = null;
+	}
+
+	ConversationNoticeItem(@LayoutRes int layoutRes, String text,
+			ShardMessageHeader r) {
 		super(layoutRes, r);
 		this.text = text;
 		this.msgText = null;

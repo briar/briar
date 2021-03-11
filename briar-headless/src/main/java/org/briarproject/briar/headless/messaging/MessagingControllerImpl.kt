@@ -11,9 +11,9 @@ import org.briarproject.bramble.api.db.DatabaseExecutor
 import org.briarproject.bramble.api.db.NoSuchContactException
 import org.briarproject.bramble.api.event.Event
 import org.briarproject.bramble.api.event.EventListener
+import org.briarproject.bramble.api.sync.MessageId
 import org.briarproject.bramble.api.sync.event.MessagesAckedEvent
 import org.briarproject.bramble.api.sync.event.MessagesSentEvent
-import org.briarproject.bramble.api.sync.MessageId
 import org.briarproject.bramble.api.system.Clock
 import org.briarproject.bramble.util.StringUtils.utf8IsTooLong
 import org.briarproject.briar.api.blog.BlogInvitationRequest
@@ -31,6 +31,7 @@ import org.briarproject.briar.api.messaging.PrivateMessageFactory
 import org.briarproject.briar.api.messaging.PrivateMessageHeader
 import org.briarproject.briar.api.privategroup.invitation.GroupInvitationRequest
 import org.briarproject.briar.api.privategroup.invitation.GroupInvitationResponse
+import org.briarproject.briar.api.socialbackup.ShardMessageHeader
 import org.briarproject.briar.headless.event.WebSocketController
 import org.briarproject.briar.headless.event.output
 import org.briarproject.briar.headless.getContactIdFromPathParam
@@ -169,4 +170,6 @@ private class JsonVisitor(
     override fun visitIntroductionRequest(r: IntroductionRequest) = r.output(contactId)
 
     override fun visitIntroductionResponse(r: IntroductionResponse) = r.output(contactId)
+
+    override fun visitShardMessage(r: ShardMessageHeader) = r.output(contactId)
 }

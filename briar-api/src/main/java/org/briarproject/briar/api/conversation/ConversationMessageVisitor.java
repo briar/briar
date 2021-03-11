@@ -10,6 +10,7 @@ import org.briarproject.briar.api.introduction.IntroductionResponse;
 import org.briarproject.briar.api.messaging.PrivateMessageHeader;
 import org.briarproject.briar.api.privategroup.invitation.GroupInvitationRequest;
 import org.briarproject.briar.api.privategroup.invitation.GroupInvitationResponse;
+import org.briarproject.briar.api.socialbackup.ShardMessageHeader;
 
 @NotNullByDefault
 public interface ConversationMessageVisitor<T> {
@@ -31,4 +32,6 @@ public interface ConversationMessageVisitor<T> {
 	T visitIntroductionRequest(IntroductionRequest r);
 
 	T visitIntroductionResponse(IntroductionResponse r);
+
+	T visitShardMessage(ShardMessageHeader r);
 }
