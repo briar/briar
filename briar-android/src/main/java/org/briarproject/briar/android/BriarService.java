@@ -21,6 +21,7 @@ import org.briarproject.bramble.api.lifecycle.LifecycleManager;
 import org.briarproject.bramble.api.lifecycle.LifecycleManager.StartResult;
 import org.briarproject.bramble.api.system.AndroidExecutor;
 import org.briarproject.bramble.api.system.AndroidWakeLockManager;
+import org.briarproject.bramble.api.system.Clock;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.logout.HideUiActivity;
 import org.briarproject.briar.api.android.AndroidNotificationManager;
@@ -32,6 +33,8 @@ import java.util.logging.Logger;
 
 import javax.annotation.Nullable;
 import javax.inject.Inject;
+
+import androidx.annotation.UiThread;
 
 import static android.app.NotificationManager.IMPORTANCE_LOW;
 import static android.content.Intent.ACTION_SHUTDOWN;
@@ -48,6 +51,7 @@ import static java.util.logging.Level.WARNING;
 import static org.briarproject.bramble.api.lifecycle.LifecycleManager.StartResult.ALREADY_RUNNING;
 import static org.briarproject.bramble.api.lifecycle.LifecycleManager.StartResult.SUCCESS;
 import static org.briarproject.bramble.api.nullsafety.NullSafety.requireNonNull;
+import static org.briarproject.bramble.util.AndroidUtils.isUiThread;
 import static org.briarproject.briar.android.BriarApplication.ENTRY_ACTIVITY;
 import static org.briarproject.briar.api.android.AndroidNotificationManager.FAILURE_CHANNEL_ID;
 import static org.briarproject.briar.api.android.AndroidNotificationManager.ONGOING_CHANNEL_ID;
@@ -65,6 +69,12 @@ public class BriarService extends Service {
 
 	private static final Logger LOG =
 			Logger.getLogger(BriarService.class.getName());
+
+	/**
+	 * Don't clear the Glide cache repeatedly if low memory warnings arrive
+	 * in quick succession.
+	 */
+	private static final long MIN_GLIDE_CACHE_CLEAR_INTERVAL_MS = 5000;
 
 	private final AtomicBoolean created = new AtomicBoolean(false);
 	private final Binder binder = new BriarBinder();
@@ -87,7 +97,11 @@ public class BriarService extends Service {
 	volatile LifecycleManager lifecycleManager;
 	@Inject
 	volatile AndroidExecutor androidExecutor;
+	@Inject
+	volatile Clock clock;
+
 	private volatile boolean started = false;
+	private volatile long glideCacheCleared = 0;
 
 	@Override
 	public void onCreate() {
@@ -221,6 +235,7 @@ public class BriarService extends Service {
 	public void onLowMemory() {
 		super.onLowMemory();
 		LOG.warning("Memory is low");
+		maybeClearGlideCache();
 		// If we're not in the foreground, clear the UI to save memory
 		if (app.isRunningInBackground()) hideUi();
 	}
@@ -238,17 +253,36 @@ public class BriarService extends Service {
 			LOG.info("Trim memory: near end of LRU list");
 		} else if (level == TRIM_MEMORY_RUNNING_MODERATE) {
 			LOG.info("Trim memory: running moderately low");
-			Glide.get(getApplicationContext()).clearMemory();
+			maybeClearGlideCache();
 		} else if (level == TRIM_MEMORY_RUNNING_LOW) {
 			LOG.info("Trim memory: running low");
-			// TODO investigate if we can clear Glide cache here as well
+			maybeClearGlideCache();
 		} else if (level == TRIM_MEMORY_RUNNING_CRITICAL) {
 			LOG.warning("Trim memory: running critically low");
-			// TODO investigate if we can clear Glide cache here as well
+			maybeClearGlideCache();
 			// If we're not in the foreground, clear the UI to save memory
 			if (app.isRunningInBackground()) hideUi();
 		} else if (LOG.isLoggable(INFO)) {
 			LOG.info("Trim memory: unknown level " + level);
+		}
+	}
+
+	private void maybeClearGlideCache() {
+		if (isUiThread()) {
+			maybeClearGlideCacheUiThread();
+		} else {
+			LOG.warning("Low memory callback was not called on main thread");
+			androidExecutor.runOnUiThread(this::maybeClearGlideCacheUiThread);
+		}
+	}
+
+	@UiThread
+	private void maybeClearGlideCacheUiThread() {
+		long now = clock.currentTimeMillis();
+		if (now - glideCacheCleared >= MIN_GLIDE_CACHE_CLEAR_INTERVAL_MS) {
+			LOG.info("Clearing Glide cache");
+			Glide.get(getApplicationContext()).clearMemory();
+			glideCacheCleared = now;
 		}
 	}
 
