@@ -5,6 +5,7 @@ import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.briar.api.autodelete.event.ConversationMessagesDeletedEvent;
 import org.briarproject.briar.api.blog.Blog;
+import org.briarproject.briar.api.client.BaseGroup;
 import org.briarproject.briar.api.conversation.event.ConversationMessageReceivedEvent;
 import org.briarproject.briar.api.forum.Forum;
 import org.briarproject.briar.api.sharing.InvitationResponse;
@@ -253,6 +254,12 @@ public abstract class AbstractAutoDeleteIntegrationTest
 				getMessageHeaders(c0, contactId1From0).get(0).getId());
 		assertGroupCount(c0, contactId1From0, 1, 0);
 		assertGroupCount(c1, contactId0From1, 2, 0);
+
+		// ensure accept message (invitation response) is linking to shareable
+		InvitationResponse acceptMessage = (InvitationResponse)
+				getMessageHeaders(c1, contactId0From1).get(1);
+		assertEquals(acceptMessage.getShareableId(),
+				((BaseGroup) getShareable()).getId());
 
 		// both peers delete all messages after their timers expire
 		c0.getTimeTravel().addCurrentTimeMillis(timerLatency);
