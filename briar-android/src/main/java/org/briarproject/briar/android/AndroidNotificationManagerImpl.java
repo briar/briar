@@ -37,6 +37,7 @@ import org.briarproject.briar.android.splash.SplashScreenActivity;
 import org.briarproject.briar.android.util.BriarNotificationBuilder;
 import org.briarproject.briar.api.android.AndroidNotificationManager;
 import org.briarproject.briar.api.blog.event.BlogPostAddedEvent;
+import org.briarproject.briar.api.conversation.ConversationResponse;
 import org.briarproject.briar.api.conversation.event.ConversationMessageReceivedEvent;
 import org.briarproject.briar.api.forum.event.ForumPostReceivedEvent;
 import org.briarproject.briar.api.privategroup.event.GroupMessageAddedEvent;
@@ -226,6 +227,12 @@ class AndroidNotificationManagerImpl implements AndroidNotificationManager,
 		} else if (e instanceof ConversationMessageReceivedEvent) {
 			ConversationMessageReceivedEvent<?> p =
 					(ConversationMessageReceivedEvent<?>) e;
+			if (p.getMessageHeader() instanceof ConversationResponse) {
+				ConversationResponse r =
+						(ConversationResponse) p.getMessageHeader();
+				// don't show notification for own auto-decline responses
+				if (r.isAutoDecline()) return;
+			}
 			showContactNotification(p.getContactId());
 		} else if (e instanceof GroupMessageAddedEvent) {
 			GroupMessageAddedEvent g = (GroupMessageAddedEvent) e;
