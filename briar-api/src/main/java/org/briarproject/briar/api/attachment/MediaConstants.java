@@ -11,7 +11,7 @@ public interface MediaConstants {
 	/**
 	 * The maximum length of an attachment's content type in UTF-8 bytes.
 	 */
-	int MAX_CONTENT_TYPE_BYTES = 50;
+	int MAX_CONTENT_TYPE_BYTES = 80;
 
 	/**
 	 * The maximum allowed size of image attachments.

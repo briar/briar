@@ -31,7 +31,7 @@ import static org.briarproject.briar.api.attachment.MediaConstants.MAX_CONTENT_T
 import static org.briarproject.briar.api.attachment.MediaConstants.MSG_KEY_CONTENT_TYPE;
 import static org.briarproject.briar.api.attachment.MediaConstants.MSG_KEY_DESCRIPTOR_LENGTH;
 import static org.briarproject.briar.api.messaging.MessagingConstants.MAX_ATTACHMENTS_PER_MESSAGE;
-import static org.briarproject.briar.api.messaging.MessagingConstants.MAX_PRIVATE_MESSAGE_TEXT_LENGTH;
+import static org.briarproject.briar.api.messaging.MessagingConstants.MAX_PRIVATE_MESSAGE_INCOMING_TEXT_LENGTH;
 import static org.briarproject.briar.client.MessageTrackerConstants.MSG_KEY_READ;
 import static org.briarproject.briar.messaging.MessageTypes.ATTACHMENT;
 import static org.briarproject.briar.messaging.MessageTypes.PRIVATE_MESSAGE;
@@ -55,7 +55,7 @@ public class PrivateMessageValidatorTest extends BrambleMockTestCase {
 	private final Message message = getMessage(group.getId());
 	private final long now = message.getTimestamp() + 1000;
 	private final String text =
-			getRandomString(MAX_PRIVATE_MESSAGE_TEXT_LENGTH);
+			getRandomString(MAX_PRIVATE_MESSAGE_INCOMING_TEXT_LENGTH);
 	private final BdfList attachmentHeader = getAttachmentHeader();
 	private final MessageId attachmentId = new MessageId(getRandomId());
 	private final String contentType = getRandomString(MAX_CONTENT_TYPE_BYTES);
@@ -132,7 +132,7 @@ public class PrivateMessageValidatorTest extends BrambleMockTestCase {
 	@Test(expected = InvalidMessageException.class)
 	public void testRejectsTooLongTextForLegacyMessage() throws Exception {
 		String invalidText =
-				getRandomString(MAX_PRIVATE_MESSAGE_TEXT_LENGTH + 1);
+				getRandomString(MAX_PRIVATE_MESSAGE_INCOMING_TEXT_LENGTH + 1);
 
 		testRejectsLegacyMessage(BdfList.of(invalidText));
 	}
@@ -190,7 +190,7 @@ public class PrivateMessageValidatorTest extends BrambleMockTestCase {
 	@Test(expected = InvalidMessageException.class)
 	public void testRejectsTooLongTextForPrivateMessage() throws Exception {
 		String invalidText =
-				getRandomString(MAX_PRIVATE_MESSAGE_TEXT_LENGTH + 1);
+				getRandomString(MAX_PRIVATE_MESSAGE_INCOMING_TEXT_LENGTH + 1);
 
 		testRejectsPrivateMessage(
 				BdfList.of(PRIVATE_MESSAGE, invalidText, new BdfList()));
