@@ -40,7 +40,6 @@ public class DistributedBackupActivity extends BriarActivity implements
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_distributed_backup);
-		// TODO here we should check if we already have a backup
 
 		try {
 			db.transaction(false, txn -> {
