@@ -175,6 +175,11 @@ class AndroidBluetoothPlugin
 		} catch (IOException e) {
 			IoUtils.tryToClose(s, LOG, WARNING);
 			throw e;
+		} catch (NullPointerException e) {
+			// BluetoothSocket#connect() may throw an NPE under unknown
+			// circumstances
+			IoUtils.tryToClose(s, LOG, WARNING);
+			throw new IOException(e);
 		}
 	}
 
