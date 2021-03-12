@@ -3,6 +3,7 @@ package org.briarproject.briar.introduction;
 import org.briarproject.bramble.BrambleCoreModule;
 import org.briarproject.bramble.test.BrambleCoreIntegrationTestModule;
 import org.briarproject.briar.BriarCoreModule;
+import org.briarproject.briar.socialbackup.DefaultSocialBackupModule;
 import org.briarproject.briar.test.BriarIntegrationTestComponent;
 
 import javax.inject.Singleton;
@@ -13,7 +14,8 @@ import dagger.Component;
 @Component(modules = {
 		BrambleCoreIntegrationTestModule.class,
 		BrambleCoreModule.class,
-		BriarCoreModule.class
+		BriarCoreModule.class,
+		DefaultSocialBackupModule.class
 })
 interface IntroductionIntegrationTestComponent
 		extends BriarIntegrationTestComponent {

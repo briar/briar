@@ -47,7 +47,8 @@ import dagger.Component;
 @Component(modules = {
 		BrambleCoreIntegrationTestModule.class,
 		BrambleCoreModule.class,
-		BriarCoreModule.class
+		BriarCoreModule.class,
+		DefaultSocialBackupModule.class
 })
 public interface BriarIntegrationTestComponent
 		extends BrambleCoreIntegrationTestEagerSingletons {
