@@ -48,6 +48,7 @@ import org.briarproject.briar.api.android.DozeWatchdog;
 import org.briarproject.briar.api.android.LockManager;
 import org.briarproject.briar.api.android.ScreenFilterMonitor;
 import org.briarproject.briar.api.test.TestAvatarCreator;
+import org.briarproject.briar.socialbackup.AndroidSocialBackupModule;
 
 import java.io.File;
 import java.security.GeneralSecurityException;
@@ -82,6 +83,7 @@ import static org.briarproject.briar.android.TestingConstants.IS_DEBUG_BUILD;
 		SettingsModule.class,
 		DevReportModule.class,
 		ContactListModule.class,
+		AndroidSocialBackupModule.class,
 		// below need to be within same scope as ViewModelProvider.Factory
 		ForumModule.class,
 		GroupListModule.class,

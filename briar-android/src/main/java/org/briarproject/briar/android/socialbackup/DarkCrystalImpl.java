@@ -1,5 +1,6 @@
 package org.briarproject.briar.android.socialbackup;
 import org.briarproject.bramble.api.crypto.SecretKey;
+import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.briar.api.socialbackup.Shard;
 import org.briarproject.briar.api.socialbackup.DarkCrystal;
 import org.magmacollective.darkcrystal.secretsharingwrapper.SecretSharingWrapper;
@@ -10,9 +11,18 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 
+import javax.inject.Inject;
+
+import dagger.Provides;
+
 import static org.briarproject.briar.socialbackup.SocialBackupConstants.SECRET_ID_BYTES;
 
+@NotNullByDefault
 public class DarkCrystalImpl implements DarkCrystal {
+
+    @Inject
+	DarkCrystalImpl() {
+	}
 
 	@Override
 	public List<Shard> createShards(SecretKey secret, int numShards,

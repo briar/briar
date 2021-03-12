@@ -21,7 +21,7 @@ import static org.briarproject.briar.api.socialbackup.SocialBackupManager.MAJOR_
 import static org.briarproject.briar.api.socialbackup.SocialBackupManager.MINOR_VERSION;
 
 @Module
-public class SocialBackupModule {
+public class DefaultSocialBackupModule {
 
 	public static class EagerSingletons {
 		@Inject
