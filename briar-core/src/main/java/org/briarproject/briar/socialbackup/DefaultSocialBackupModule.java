@@ -91,7 +91,6 @@ public class DefaultSocialBackupModule {
 
 	@Provides
 	DarkCrystal darkCrystal(DarkCrystalStub darkCrystal) {
-		// TODO: Replace this with a real implementation
 		return darkCrystal;
 	}
 }
