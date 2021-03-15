@@ -347,8 +347,12 @@ class SocialBackupManagerImpl extends BdfIncomingMessageHook
 		clientHelper.addLocalMessage(txn, m, meta, true, false);
 	}
 
-	private boolean localBackupExists(Transaction txn) throws DbException {
-		return !db.getGroupMetadata(txn, localGroup.getId()).isEmpty();
+	private boolean localBackupExists(Transaction txn) {
+		try {
+			return !db.getGroupMetadata(txn, localGroup.getId()).isEmpty();
+		} catch (DbException e) {
+			return false;
+		}
 	}
 
 	@Nullable
