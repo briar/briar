@@ -45,18 +45,15 @@ public class DistributedBackupActivity extends BriarActivity implements
 			db.transaction(false, txn -> {
 				BackupMetadata backupMetadata =
 						socialBackupManager.getBackupMetadata(txn);
-				if (backupMetadata == null) {
-					CustodianSelectorFragment fragment =
-							CustodianSelectorFragment.newInstance();
-					showInitialFragment(fragment);
-				} else {
-					ExistingBackupFragment fragment =
-							ExistingBackupFragment.newInstance(backupMetadata);
-					showInitialFragment(fragment);
-				}
+				if (backupMetadata == null) throw new DbException();
+				ExistingBackupFragment fragment =
+						ExistingBackupFragment.newInstance(backupMetadata);
+				showInitialFragment(fragment);
 			});
 		} catch (DbException e) {
-			e.printStackTrace();
+			CustodianSelectorFragment fragment =
+					CustodianSelectorFragment.newInstance();
+			showInitialFragment(fragment);
 		}
 	}
 
