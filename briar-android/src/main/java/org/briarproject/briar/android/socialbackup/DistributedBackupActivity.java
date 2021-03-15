@@ -69,13 +69,17 @@ public class DistributedBackupActivity extends BriarActivity implements
 	}
 
 	@Override
-	public void thresholdDefined(int threshold) throws DbException {
-		db.transaction(false, txn -> {
-			socialBackupManager
-					.createBackup(txn, (List<ContactId>) custodians, threshold);
-			ShardsSentFragment fragment = new ShardsSentFragment();
-			showNextFragment(fragment);
-		});
+	public void thresholdDefined(int threshold) {
+		try {
+			db.transaction(false, txn -> {
+				socialBackupManager
+						.createBackup(txn, (List<ContactId>) custodians, threshold);
+				ShardsSentFragment fragment = new ShardsSentFragment();
+				showNextFragment(fragment);
+			});
+		} catch (DbException e) {
+			e.printStackTrace();
+		}
 	}
 
 	@Override
