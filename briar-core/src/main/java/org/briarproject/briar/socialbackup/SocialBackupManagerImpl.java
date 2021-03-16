@@ -37,11 +37,18 @@ import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.bramble.api.system.Clock;
 import org.briarproject.bramble.api.versioning.ClientVersioningManager;
 import org.briarproject.bramble.api.versioning.ClientVersioningManager.ClientVersioningHook;
+import org.briarproject.briar.api.attachment.AttachmentHeader;
+import org.briarproject.briar.api.client.MessageTracker;
+import org.briarproject.briar.api.conversation.ConversationManager;
+import org.briarproject.briar.api.conversation.ConversationMessageHeader;
+import org.briarproject.briar.api.conversation.DeletionResult;
 import org.briarproject.briar.api.socialbackup.BackupExistsException;
 import org.briarproject.briar.api.socialbackup.BackupMetadata;
 import org.briarproject.briar.api.socialbackup.DarkCrystal;
 import org.briarproject.briar.api.socialbackup.Shard;
+import org.briarproject.briar.api.socialbackup.ShardMessageHeader;
 import org.briarproject.briar.api.socialbackup.SocialBackupManager;
+import org.briarproject.briar.client.ConversationClientImpl;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -49,6 +56,7 @@ import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import javax.annotation.Nullable;
 import javax.inject.Inject;
@@ -61,10 +69,11 @@ import static org.briarproject.briar.socialbackup.SocialBackupConstants.GROUP_KE
 import static org.briarproject.briar.socialbackup.SocialBackupConstants.GROUP_KEY_VERSION;
 import static org.briarproject.briar.socialbackup.SocialBackupConstants.MSG_KEY_LOCAL;
 import static org.briarproject.briar.socialbackup.SocialBackupConstants.MSG_KEY_MESSAGE_TYPE;
+import static org.briarproject.briar.socialbackup.SocialBackupConstants.MSG_KEY_TIMESTAMP;
 import static org.briarproject.briar.socialbackup.SocialBackupConstants.MSG_KEY_VERSION;
 
 @NotNullByDefault
-class SocialBackupManagerImpl extends BdfIncomingMessageHook
+class SocialBackupManagerImpl extends ConversationClientImpl
 		implements SocialBackupManager, OpenDatabaseHook, ContactHook,
 		ClientVersioningHook {
 
@@ -100,8 +109,11 @@ class SocialBackupManagerImpl extends BdfIncomingMessageHook
 			ContactManager contactManager,
 			CryptoComponent crypto,
 			DarkCrystal darkCrystal,
-			Clock clock) {
-		super(db, clientHelper, metadataParser);
+			Clock clock,
+			MessageTracker messageTracker,
+			ConversationManager conversationManager
+	) {
+		super(db, clientHelper, metadataParser, messageTracker);
 		this.clientVersioningManager = clientVersioningManager;
 		this.transportPropertyManager = transportPropertyManager;
 		this.contactGroupFactory = contactGroupFactory;
@@ -257,16 +269,64 @@ class SocialBackupManagerImpl extends BdfIncomingMessageHook
 			BdfDictionary meta =
 					backupMetadataEncoder.encodeBackupMetadata(backupMetadata);
 
-			if (!db.containsGroup(txn, localGroup.getId())) db.addGroup(txn, localGroup);
+			if (!db.containsGroup(txn, localGroup.getId()))
+				db.addGroup(txn, localGroup);
 			clientHelper.mergeGroupMetadata(txn, localGroup.getId(), meta);
 		} catch (FormatException e) {
 			throw new AssertionError(e);
 		}
 	}
 
-	private Group getContactGroup(Contact c) {
+	public Group getContactGroup(Contact c) {
 		return contactGroupFactory.createContactGroup(CLIENT_ID,
 				MAJOR_VERSION, c);
+	}
+
+	@Override
+	public Collection<ConversationMessageHeader> getMessageHeaders(
+			Transaction txn, ContactId contactId) throws DbException {
+		try {
+			Contact contact = db.getContact(txn, contactId);
+			GroupId contactGroupId = getContactGroup(contact).getId();
+			Map<MessageId, BdfDictionary> messages = clientHelper
+					.getMessageMetadataAsDictionary(txn, contactGroupId);
+			List<ConversationMessageHeader> headers =
+					new ArrayList<>();
+			List<AttachmentHeader> attachmentHeaders = new ArrayList<>();
+			for (Entry<MessageId, BdfDictionary> messageEntry : messages
+					.entrySet()) {
+				BdfDictionary message = messageEntry.getValue();
+				if (message.getLong(MSG_KEY_MESSAGE_TYPE).intValue() ==
+						SHARD.getValue()) {
+					long timestamp = message.getLong(MSG_KEY_TIMESTAMP);
+					ShardMessageHeader shardHeader = new ShardMessageHeader(
+							messageEntry.getKey(), contactGroupId, timestamp,
+							false, false, false, false, attachmentHeaders);
+					headers.add(shardHeader);
+				}
+			}
+			return headers;
+		} catch (FormatException e) {
+			throw new DbException(e);
+		}
+	}
+
+	@Override
+	public Set<MessageId> getMessageIds(Transaction txn, ContactId contactId)
+			throws DbException {
+		return null;
+	}
+
+	@Override
+	public DeletionResult deleteAllMessages(Transaction txn, ContactId c)
+			throws DbException {
+		return null;
+	}
+
+	@Override
+	public DeletionResult deleteMessages(Transaction txn, ContactId c,
+			Set<MessageId> messageIds) throws DbException {
+		return null;
 	}
 
 	private void setContactId(Transaction txn, GroupId g, ContactId c)
