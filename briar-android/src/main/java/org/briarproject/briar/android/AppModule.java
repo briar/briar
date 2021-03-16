@@ -32,6 +32,7 @@ import org.briarproject.briar.android.account.LockManagerImpl;
 import org.briarproject.briar.android.account.SetupModule;
 import org.briarproject.briar.android.contact.ContactListModule;
 import org.briarproject.briar.android.forum.ForumModule;
+import org.briarproject.briar.android.introduction.IntroductionModule;
 import org.briarproject.briar.android.keyagreement.ContactExchangeModule;
 import org.briarproject.briar.android.logging.LoggingModule;
 import org.briarproject.briar.android.login.LoginModule;
@@ -82,6 +83,7 @@ import static org.briarproject.briar.android.TestingConstants.IS_DEBUG_BUILD;
 		SettingsModule.class,
 		DevReportModule.class,
 		ContactListModule.class,
+		IntroductionModule.class,
 		// below need to be within same scope as ViewModelProvider.Factory
 		ForumModule.class,
 		GroupListModule.class,
