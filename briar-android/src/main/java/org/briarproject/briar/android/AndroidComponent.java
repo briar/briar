@@ -188,6 +188,7 @@ public interface AndroidComponent
 	Thread.UncaughtExceptionHandler exceptionHandler();
 
 	SocialBackupManager socialBackupManager();
+
     DatabaseComponent databaseComponent();
 
 	void inject(SignInReminderReceiver briarService);

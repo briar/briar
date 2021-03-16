@@ -8,6 +8,7 @@ import org.briarproject.bramble.api.sync.validation.ValidationManager;
 import org.briarproject.bramble.api.system.Clock;
 import org.briarproject.bramble.api.versioning.ClientVersioningManager;
 import org.briarproject.briar.android.socialbackup.DarkCrystalImpl;
+import org.briarproject.briar.api.conversation.ConversationManager;
 import org.briarproject.briar.api.socialbackup.DarkCrystal;
 import org.briarproject.briar.api.socialbackup.SocialBackupManager;
 
@@ -38,13 +39,15 @@ public class AndroidSocialBackupModule {
 			ContactManager contactManager,
 			ValidationManager validationManager,
 			ClientVersioningManager clientVersioningManager,
-			SocialBackupManagerImpl socialBackupManager) {
+			SocialBackupManagerImpl socialBackupManager,
+			ConversationManager conversationManager) {
 		lifecycleManager.registerOpenDatabaseHook(socialBackupManager);
 		contactManager.registerContactHook(socialBackupManager);
 		validationManager.registerIncomingMessageHook(CLIENT_ID,
 				MAJOR_VERSION, socialBackupManager);
 		clientVersioningManager.registerClient(CLIENT_ID, MAJOR_VERSION,
 				MINOR_VERSION, socialBackupManager);
+		conversationManager.registerConversationClient(socialBackupManager);
 		return socialBackupManager;
 	}
 
