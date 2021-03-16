@@ -153,14 +153,13 @@
 		</activity>
 
 		<activity
-			android:name="org.briarproject.briar.android.socialbackup.OldDistributedBackupActivity"
-			android:label="@string/activity_name_old_distributed_backup"
-			android:parentActivityName="org.briarproject.briar.android.settings.SettingsActivity">
+			android:name="org.briarproject.briar.android.socialbackup.RecoverActivity"
+			android:label="@string/activity_name_recovery"
+			android:parentActivityName="org.briarproject.briar.android.account.NewOrRecoverActivity">
 			<meta-data
 				android:name="android.support.PARENT_ACTIVITY"
-				android:value="org.briarproject.briar.android.settings.SettingsActivity" />
+				android:value="org.briarproject.briar.android.account.NewOrRecoverActivity" />
 		</activity>
-
 
 		<activity
 			android:name="org.briarproject.briar.android.conversation.ConversationActivity"

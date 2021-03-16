@@ -18,7 +18,8 @@ public class NewOrRecoverFragment extends BaseFragment {
 
 	public static final String TAG = NewOrRecoverFragment.class.getName();
 
-	protected SetupNewAccountChosenListener listener;
+	protected SetupNewAccountChosenListener setupNewAccountListener;
+	protected RecoverAccountListener recoverAccountListener;
 
 	public static NewOrRecoverFragment newInstance() {
 		Bundle bundle = new Bundle();
@@ -38,9 +39,14 @@ public class NewOrRecoverFragment extends BaseFragment {
 			ViewGroup container, @Nullable Bundle savedInstanceState) {
 		View view = inflater.inflate(R.layout.fragment_new_or_recover,
 				container, false);
-		Button button = view.findViewById(R.id.buttonSetupNewAccount);
-		button.setOnClickListener(e -> {
-			listener.setupNewAccountChosen();
+		Button newAccountButton = view.findViewById(R.id.buttonSetupNewAccount);
+		newAccountButton.setOnClickListener(e -> {
+			setupNewAccountListener.setupNewAccountChosen();
+		});
+
+		Button recoverAccountButton = view.findViewById(R.id.buttonRestoreAccount);
+		recoverAccountButton.setOnClickListener(e -> {
+			recoverAccountListener.recoverAccountChosen();
 		});
 		return view;
 	}
@@ -48,7 +54,8 @@ public class NewOrRecoverFragment extends BaseFragment {
 	@Override
 	public void onAttach(Context context) {
 		super.onAttach(context);
-		listener = (SetupNewAccountChosenListener) context;
+		setupNewAccountListener = (SetupNewAccountChosenListener) context;
+		recoverAccountListener = (RecoverAccountListener) context;
 	}
 
 	@Override

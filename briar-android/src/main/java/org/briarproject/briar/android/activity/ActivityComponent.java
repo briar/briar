@@ -85,6 +85,8 @@ import org.briarproject.briar.android.socialbackup.CustodianSelectorFragment;
 import org.briarproject.briar.android.socialbackup.DistributedBackupActivity;
 import org.briarproject.briar.android.socialbackup.ExistingBackupFragment;
 import org.briarproject.briar.android.socialbackup.OldDistributedBackupActivity;
+import org.briarproject.briar.android.socialbackup.OwnerRecoveryModeExplainerFragment;
+import org.briarproject.briar.android.socialbackup.RecoverActivity;
 import org.briarproject.briar.android.socialbackup.ShardsSentFragment;
 import org.briarproject.briar.android.socialbackup.ThresholdSelectorFragment;
 import org.briarproject.briar.android.socialbackup.creation.CreateBackupController;
@@ -257,14 +259,16 @@ public interface ActivityComponent {
 	void inject(ThresholdSelectorFragment thresholdSelectorFragment);
 
 	void inject(DistributedBackupActivity distributedBackupActivity);
-//    void inject(CreateBackupController createBackupController);
-//	void inject(CustodianDisplayFragment custodianDisplayFragment);
+
+	void inject(RecoverActivity recoverActivity);
 
 	void inject(DatabaseComponent databaseComponent);
 
 	void inject(CustodianSelectorFragment custodianSelectorFragment);
 
 	void inject(ShardsSentFragment shardsSentFragment);
+
+	void inject(OwnerRecoveryModeExplainerFragment ownerRecoveryModeExplainerFragment);
 
 	void inject(ExistingBackupFragment existingBackupFragment);
 
