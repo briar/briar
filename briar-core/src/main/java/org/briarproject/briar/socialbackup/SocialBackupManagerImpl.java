@@ -256,6 +256,8 @@ class SocialBackupManagerImpl extends BdfIncomingMessageHook
 					new BackupMetadata(secret, authors, threshold, 0);
 			BdfDictionary meta =
 					backupMetadataEncoder.encodeBackupMetadata(backupMetadata);
+
+			if (!db.containsGroup(txn, localGroup.getId())) db.addGroup(txn, localGroup);
 			clientHelper.mergeGroupMetadata(txn, localGroup.getId(), meta);
 		} catch (FormatException e) {
 			throw new AssertionError(e);
@@ -323,7 +325,9 @@ class SocialBackupManagerImpl extends BdfIncomingMessageHook
 
 	private void sendShardMessage(Transaction txn, Contact custodian,
 			Shard shard) throws DbException, FormatException {
-		GroupId g = getContactGroup(custodian).getId();
+		Group group = getContactGroup(custodian);
+		GroupId g = group.getId();
+		if (!db.containsGroup(txn, g)) db.addGroup(txn, group);
 		long timestamp = clock.currentTimeMillis();
 		byte[] body = messageEncoder.encodeShardMessage(shard);
 		Message m = clientHelper.createMessage(g, timestamp, body);
