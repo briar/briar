@@ -716,4 +716,5 @@
 	<string name="social_backup_shard_received">You have received a social backup shard.</string>
 	<string name="social_backup_shard_sent">You have sent a social backup shard.</string>
 
+	<string name="activity_name_new_or_recover_account">Create new account or recover existing account</string>
 </resources>
