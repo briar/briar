@@ -49,7 +49,6 @@ abstract class BaseViewModel extends DbViewModel implements EventListener {
 	private static final Logger LOG = getLogger(BaseViewModel.class.getName());
 
 	private final EventBus eventBus;
-	protected final TransactionManager db;
 	protected final IdentityManager identityManager;
 	protected final AndroidNotificationManager notificationManager;
 	protected final BlogManager blogManager;
@@ -71,7 +70,6 @@ abstract class BaseViewModel extends DbViewModel implements EventListener {
 			AndroidNotificationManager notificationManager,
 			BlogManager blogManager) {
 		super(application, dbExecutor, lifecycleManager, db, androidExecutor);
-		this.db = db;
 		this.eventBus = eventBus;
 		this.identityManager = identityManager;
 		this.notificationManager = notificationManager;
