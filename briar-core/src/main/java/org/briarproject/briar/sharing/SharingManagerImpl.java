@@ -1,6 +1,7 @@
 package org.briarproject.briar.sharing;
 
 import org.briarproject.bramble.api.FormatException;
+import org.briarproject.bramble.api.cleanup.CleanupHook;
 import org.briarproject.bramble.api.client.ClientHelper;
 import org.briarproject.bramble.api.client.ContactGroupFactory;
 import org.briarproject.bramble.api.contact.Contact;
@@ -24,6 +25,7 @@ import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.bramble.api.sync.MessageStatus;
 import org.briarproject.bramble.api.versioning.ClientVersioningManager;
 import org.briarproject.bramble.api.versioning.ClientVersioningManager.ClientVersioningHook;
+import org.briarproject.briar.api.autodelete.event.ConversationMessagesDeletedEvent;
 import org.briarproject.briar.api.client.MessageTracker;
 import org.briarproject.briar.api.client.SessionId;
 import org.briarproject.briar.api.conversation.ConversationMessageHeader;
@@ -47,18 +49,20 @@ import java.util.Set;
 import javax.annotation.Nullable;
 
 import static org.briarproject.bramble.api.sync.Group.Visibility.SHARED;
+import static org.briarproject.briar.api.autodelete.AutoDeleteConstants.NO_AUTO_DELETE_TIMER;
 import static org.briarproject.briar.sharing.MessageType.ABORT;
 import static org.briarproject.briar.sharing.MessageType.ACCEPT;
 import static org.briarproject.briar.sharing.MessageType.DECLINE;
 import static org.briarproject.briar.sharing.MessageType.INVITE;
 import static org.briarproject.briar.sharing.MessageType.LEAVE;
+import static org.briarproject.briar.sharing.State.LOCAL_INVITED;
 import static org.briarproject.briar.sharing.State.SHARING;
 
 @NotNullByDefault
 abstract class SharingManagerImpl<S extends Shareable>
 		extends ConversationClientImpl
 		implements SharingManager<S>, OpenDatabaseHook, ContactHook,
-		ClientVersioningHook {
+		ClientVersioningHook, CleanupHook {
 
 	private final ClientVersioningManager clientVersioningManager;
 	private final MessageParser<S> messageParser;
@@ -133,6 +137,11 @@ abstract class SharingManagerImpl<S extends Shareable>
 			BdfDictionary d) throws DbException, FormatException {
 		// Parse the metadata
 		MessageMetadata meta = messageParser.parseMetadata(d);
+		// set the clean-up timer that will be started when message gets read
+		long timer = meta.getAutoDeleteTimer();
+		if (timer != NO_AUTO_DELETE_TIMER) {
+			db.setCleanupTimerDuration(txn, m.getId(), timer);
+		}
 		// Look up the session, if there is one
 		SessionId sessionId = getSessionId(meta.getShareableId());
 		StoredSession ss = getSession(txn, m.getGroupId(), sessionId);
@@ -293,7 +302,13 @@ abstract class SharingManagerImpl<S extends Shareable>
 	@Override
 	public void respondToInvitation(ContactId c, SessionId id, boolean accept)
 			throws DbException {
-		Transaction txn = db.startTransaction(false);
+		db.transaction(false,
+				txn -> respondToInvitation(txn, c, id, accept, false));
+	}
+
+	private void respondToInvitation(Transaction txn, ContactId c,
+			SessionId id, boolean accept, boolean isAutoDecline)
+			throws DbException {
 		try {
 			// Look up the session
 			Contact contact = db.getContact(txn, c);
@@ -305,14 +320,11 @@ abstract class SharingManagerImpl<S extends Shareable>
 					sessionParser.parseSession(contactGroupId, ss.bdfSession);
 			// Handle the accept or decline action
 			if (accept) session = engine.onAcceptAction(txn, session);
-			else session = engine.onDeclineAction(txn, session);
+			else session = engine.onDeclineAction(txn, session, isAutoDecline);
 			// Store the updated session
 			storeSession(txn, ss.storageId, session);
-			db.commitTransaction(txn);
 		} catch (FormatException e) {
 			throw new DbException(e);
-		} finally {
-			db.endTransaction(txn);
 		}
 	}
 
@@ -371,7 +383,7 @@ abstract class SharingManagerImpl<S extends Shareable>
 		return invitationFactory.createInvitationResponse(m, contactGroupId,
 				meta.getTimestamp(), meta.isLocal(), status.isSent(),
 				status.isSeen(), meta.isRead(), accept, meta.getShareableId(),
-				meta.getAutoDeleteTimer());
+				meta.getAutoDeleteTimer(), meta.isAutoDecline());
 	}
 
 	@Override
@@ -682,6 +694,57 @@ abstract class SharingManagerImpl<S extends Shareable>
 			}
 		}
 		return result;
+	}
+
+	@Override
+	public void deleteMessages(Transaction txn, GroupId g,
+			Collection<MessageId> messageIds) throws DbException {
+		ContactId c;
+		Map<SessionId, DeletableSession> sessions = new HashMap<>();
+		try {
+			// get the ContactId from the given GroupId
+			c = clientHelper.getContactId(txn, g);
+			// get sessions for all messages to be deleted
+			for (MessageId messageId : messageIds) {
+				BdfDictionary d = clientHelper
+						.getMessageMetadataAsDictionary(txn, messageId);
+				MessageMetadata messageMetadata =
+						messageParser.parseMetadata(d);
+				if (!messageMetadata.isVisibleInConversation())
+					throw new IllegalArgumentException();
+				SessionId sessionId =
+						getSessionId(messageMetadata.getShareableId());
+				DeletableSession deletableSession = sessions.get(sessionId);
+				if (deletableSession == null) {
+					StoredSession ss = getSession(txn, g, sessionId);
+					if (ss == null) throw new DbException();
+					Session session = sessionParser
+							.parseSession(g, ss.bdfSession);
+					deletableSession = new DeletableSession(session.getState());
+					sessions.put(sessionId, deletableSession);
+				}
+				deletableSession.messages.add(messageId);
+			}
+		} catch (FormatException e) {
+			throw new DbException(e);
+		}
+
+		// delete given visible messages in sessions
+		for (Entry<SessionId, DeletableSession> entry : sessions.entrySet()) {
+			DeletableSession session = entry.getValue();
+			// first decline pending invitation to shareable
+			if (session.state == LOCAL_INVITED) {
+				// marked as autoDecline
+				respondToInvitation(txn, c, entry.getKey(), false, true);
+			}
+			for (MessageId m : session.messages) {
+				db.deleteMessage(txn, m);
+				db.deleteMessageMetadata(txn, m);
+			}
+		}
+		recalculateGroupCount(txn, g);
+
+		txn.attach(new ConversationMessagesDeletedEvent(c, messageIds));
 	}
 
 	@Override

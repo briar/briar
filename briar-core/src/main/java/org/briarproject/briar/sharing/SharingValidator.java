@@ -74,7 +74,8 @@ abstract class SharingValidator extends BdfMessageValidator {
 		}
 
 		BdfDictionary meta = messageEncoder.encodeMetadata(INVITE, shareableId,
-				m.getTimestamp(), false, false, false, false, false, timer);
+				m.getTimestamp(), false, false, false, false, false, timer,
+				false);
 		if (previousMessageId == null) {
 			return new BdfMessageContext(meta);
 		} else {
@@ -96,7 +97,7 @@ abstract class SharingValidator extends BdfMessageValidator {
 
 		BdfDictionary meta = messageEncoder.encodeMetadata(type,
 				new GroupId(shareableId), m.getTimestamp(), false, false,
-				false, false, false, NO_AUTO_DELETE_TIMER);
+				false, false, false, NO_AUTO_DELETE_TIMER, false);
 		if (previousMessageId == null) {
 			return new BdfMessageContext(meta);
 		} else {
@@ -123,7 +124,7 @@ abstract class SharingValidator extends BdfMessageValidator {
 
 		BdfDictionary meta = messageEncoder.encodeMetadata(type,
 				new GroupId(shareableId), m.getTimestamp(), false, false,
-				false, false, false, timer);
+				false, false, false, timer, false);
 		if (previousMessageId == null) {
 			return new BdfMessageContext(meta);
 		} else {
