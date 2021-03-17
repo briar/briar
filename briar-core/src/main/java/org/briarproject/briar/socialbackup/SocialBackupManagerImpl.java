@@ -314,7 +314,15 @@ class SocialBackupManagerImpl extends ConversationClientImpl
 	@Override
 	public Set<MessageId> getMessageIds(Transaction txn, ContactId contactId)
 			throws DbException {
-		return null;
+		Contact contact = db.getContact(txn, contactId);
+		GroupId contactGroupId = getContactGroup(contact).getId();
+		try {
+			Map<MessageId, BdfDictionary> messages = clientHelper
+					.getMessageMetadataAsDictionary(txn, contactGroupId);
+			return messages.keySet();
+		} catch (FormatException e) {
+			throw new DbException(e);
+		}
 	}
 
 	@Override
@@ -326,7 +334,8 @@ class SocialBackupManagerImpl extends ConversationClientImpl
 	@Override
 	public DeletionResult deleteMessages(Transaction txn, ContactId c,
 			Set<MessageId> messageIds) throws DbException {
-		return null;
+		DeletionResult result = new DeletionResult();
+		return result;
 	}
 
 	private void setContactId(Transaction txn, GroupId g, ContactId c)
