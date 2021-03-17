@@ -34,7 +34,7 @@
 		app:srcCompat="@drawable/qr_code_intro" />
 
 	<Button
-		android:id="@+id/button"
+		android:id="@+id/beginButton"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
 		android:layout_marginTop="24dp"

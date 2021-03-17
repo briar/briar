@@ -1,5 +1,6 @@
 package org.briarproject.briar.android.socialbackup;
 
+import android.content.Context;
 import android.os.Bundle;
 
 import android.view.LayoutInflater;
@@ -16,6 +17,7 @@ import androidx.annotation.Nullable;
 
 public class OwnerRecoveryModeExplainerFragment extends BaseFragment {
 
+	protected ExplainerDismissedListener listener;
 	public static final String TAG =
 			OwnerRecoveryModeExplainerFragment.class.getName();
 
@@ -32,12 +34,16 @@ public class OwnerRecoveryModeExplainerFragment extends BaseFragment {
 			@Nullable Bundle savedInstanceState) {
 		View view = inflater.inflate(R.layout.fragment_recovery_owner_explainer,
 				container, false);
-//		Button button = view.findViewById(R.id.button);
-//		button.setOnClickListener(e -> {
-//			listener.shardsSentDismissed();
-//		});
+		Button button = view.findViewById(R.id.beginButton);
+		button.setOnClickListener(e -> listener.explainerDismissed());
 
 		return view;
+	}
+
+	@Override
+	public void onAttach(Context context) {
+		super.onAttach(context);
+		listener = (ExplainerDismissedListener) context;
 	}
 
 	@Override

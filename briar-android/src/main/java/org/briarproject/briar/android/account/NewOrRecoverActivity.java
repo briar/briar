@@ -42,6 +42,7 @@ public class NewOrRecoverActivity extends BaseActivity implements
 		startActivity(i);
 	}
 
+	@Override
 	public void recoverAccountChosen() {
 		finish();
 		Intent i = new Intent(this, RecoverActivity.class);
@@ -51,7 +52,8 @@ public class NewOrRecoverActivity extends BaseActivity implements
 	}
 
 	@Override
+	@Deprecated
 	public void runOnDbThread(Runnable runnable) {
-
+		throw new RuntimeException("Don't use this deprecated method here.");
 	}
 }
