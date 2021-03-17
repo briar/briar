@@ -299,7 +299,8 @@ class SocialBackupManagerImpl extends ConversationClientImpl
 						SHARD.getValue()) {
 					long timestamp = message.getLong(MSG_KEY_TIMESTAMP);
 					boolean isLocal = message.getBoolean(MSG_KEY_LOCAL);
-					List<AttachmentHeader> attachmentHeaders = new ArrayList<>();
+					List<AttachmentHeader> attachmentHeaders =
+							new ArrayList<>();
 					ShardMessageHeader shardHeader = new ShardMessageHeader(
 							messageEntry.getKey(), contactGroupId, timestamp,
 							isLocal, false, true, false, attachmentHeaders);
@@ -403,7 +404,9 @@ class SocialBackupManagerImpl extends ConversationClientImpl
 		Message m = clientHelper.createMessage(g, timestamp, body);
 		BdfDictionary meta = BdfDictionary.of(
 				new BdfEntry(MSG_KEY_MESSAGE_TYPE, SHARD.getValue()),
-				new BdfEntry(MSG_KEY_LOCAL, true));
+				new BdfEntry(MSG_KEY_LOCAL, true),
+				new BdfEntry(MSG_KEY_TIMESTAMP, timestamp)
+		);
 		clientHelper.addLocalMessage(txn, m, meta, true, false);
 	}
 
