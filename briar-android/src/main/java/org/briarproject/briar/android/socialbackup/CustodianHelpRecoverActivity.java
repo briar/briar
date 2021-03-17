@@ -8,7 +8,7 @@ import org.briarproject.briar.android.activity.BriarActivity;
 import org.briarproject.briar.android.fragment.BaseFragment;
 
 public class CustodianHelpRecoverActivity extends BriarActivity implements
-		BaseFragment.BaseFragmentListener {
+		BaseFragment.BaseFragmentListener, CustodianScanQrButtonListener {
 	@Override
 	public void injectActivity(ActivityComponent component) {
 		component.inject(this);
@@ -23,5 +23,11 @@ public class CustodianHelpRecoverActivity extends BriarActivity implements
 		CustodianRecoveryModeExplainerFragment fragment =
 				new CustodianRecoveryModeExplainerFragment();
 		showInitialFragment(fragment);
+	}
+
+	@Override
+	public void scanQrButtonClicked() {
+		// TODO scan qr code
+		finish();
 	}
 }
