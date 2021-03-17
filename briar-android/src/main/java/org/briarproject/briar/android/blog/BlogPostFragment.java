@@ -44,6 +44,7 @@ public class BlogPostFragment extends BaseFragment
 	private static final Logger LOG = getLogger(TAG);
 
 	static final String POST_ID = "briar.POST_ID";
+	static final String IS_FEED = "briar.IS_FEED";
 
 	protected BlogViewModel viewModel;
 	private final Handler handler = new Handler(Looper.getMainLooper());
@@ -56,11 +57,13 @@ public class BlogPostFragment extends BaseFragment
 	@Inject
 	ViewModelProvider.Factory viewModelFactory;
 
-	static BlogPostFragment newInstance(GroupId blogId, MessageId postId) {
+	static BlogPostFragment newInstance(GroupId blogId, MessageId postId,
+			boolean isFeed) {
 		BlogPostFragment f = new BlogPostFragment();
 		Bundle bundle = new Bundle();
 		bundle.putByteArray(GROUP_ID, blogId.getBytes());
 		bundle.putByteArray(POST_ID, postId.getBytes());
+		bundle.putBoolean(IS_FEED, isFeed);
 		f.setArguments(bundle);
 		return f;
 	}
@@ -82,12 +85,13 @@ public class BlogPostFragment extends BaseFragment
 				new GroupId(requireNonNull(args.getByteArray(GROUP_ID)));
 		MessageId postId =
 				new MessageId(requireNonNull(args.getByteArray(POST_ID)));
+		boolean isFeed = args.getBoolean(IS_FEED);
 
 		View view = inflater.inflate(R.layout.fragment_blog_post, container,
 				false);
 		progressBar = view.findViewById(R.id.progressBar);
 		progressBar.setVisibility(VISIBLE);
-		ui = new BlogPostViewHolder(view, true, this);
+		ui = new BlogPostViewHolder(view, true, this, isFeed);
 		LifecycleOwner owner = getViewLifecycleOwner();
 		viewModel.loadBlogPost(groupId, postId).observe(owner, result ->
 				result.onError(this::handleException)

@@ -142,7 +142,7 @@ public class ReblogFragment extends BaseFragment implements SendListener {
 			scrollView = v.findViewById(R.id.scrollView);
 			progressBar = v.findViewById(R.id.progressBar);
 			post = new BlogPostViewHolder(v.findViewById(R.id.postLayout),
-					true, this);
+					true, this, false);
 			input = v.findViewById(R.id.inputText);
 		}
 

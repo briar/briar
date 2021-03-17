@@ -42,7 +42,7 @@ public class FeedFragment extends BaseFragment
 	ViewModelProvider.Factory viewModelFactory;
 
 	private FeedViewModel viewModel;
-	private final BlogPostAdapter adapter = new BlogPostAdapter(this);
+	private final BlogPostAdapter adapter = new BlogPostAdapter(true, this);
 	private LinearLayoutManager layoutManager;
 	private BriarRecyclerView list;
 
@@ -147,8 +147,8 @@ public class FeedFragment extends BaseFragment
 
 	@Override
 	public void onBlogPostClick(BlogPostItem post) {
-		BaseFragment f =
-				BlogPostFragment.newInstance(post.getGroupId(), post.getId());
+		BaseFragment f = BlogPostFragment
+				.newInstance(post.getGroupId(), post.getId(), true);
 		showNextFragment(f);
 	}
 

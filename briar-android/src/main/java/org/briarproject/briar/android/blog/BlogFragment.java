@@ -54,7 +54,7 @@ public class BlogFragment extends BaseFragment
 
 	private GroupId groupId;
 	private BlogViewModel viewModel;
-	private final BlogPostAdapter adapter = new BlogPostAdapter(this);
+	private final BlogPostAdapter adapter = new BlogPostAdapter(false, this);
 	private BriarRecyclerView list;
 
 	static BlogFragment newInstance(GroupId groupId) {
@@ -192,7 +192,7 @@ public class BlogFragment extends BaseFragment
 	@Override
 	public void onBlogPostClick(BlogPostItem post) {
 		BlogPostFragment f =
-				BlogPostFragment.newInstance(groupId, post.getId());
+				BlogPostFragment.newInstance(groupId, post.getId(), false);
 		showNextFragment(f);
 	}
 

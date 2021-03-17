@@ -33,7 +33,6 @@ import static org.briarproject.briar.android.util.UiUtils.makeLinksClickable;
 import static org.briarproject.briar.android.view.AuthorView.COMMENTER;
 import static org.briarproject.briar.android.view.AuthorView.REBLOGGER;
 import static org.briarproject.briar.android.view.AuthorView.RSS_FEED_REBLOGGED;
-import static org.briarproject.briar.api.blog.MessageType.POST;
 
 @UiThread
 @NotNullByDefault
@@ -46,15 +45,16 @@ class BlogPostViewHolder extends RecyclerView.ViewHolder {
 	private final ImageButton reblogButton;
 	private final TextView text;
 	private final ViewGroup commentContainer;
-	private final boolean fullText;
+	private final boolean fullText, authorClickable;
 
 	private final OnBlogPostClickListener listener;
 
 	BlogPostViewHolder(View v, boolean fullText,
-			OnBlogPostClickListener listener) {
+			OnBlogPostClickListener listener, boolean authorClickable) {
 		super(v);
 		this.fullText = fullText;
 		this.listener = listener;
+		this.authorClickable = authorClickable;
 
 		ctx = v.getContext();
 		layout = v.findViewById(R.id.postLayout);
@@ -97,7 +97,7 @@ class BlogPostViewHolder extends RecyclerView.ViewHolder {
 		author.setPersona(
 				item.isRssFeed() ? AuthorView.RSS_FEED : AuthorView.NORMAL);
 		// TODO make author clickable more often #624
-		if (!fullText && item.getHeader().getType() == POST) {
+		if (authorClickable) {
 			author.setAuthorClickable(v -> listener.onAuthorClick(item));
 		} else {
 			author.setAuthorNotClickable();

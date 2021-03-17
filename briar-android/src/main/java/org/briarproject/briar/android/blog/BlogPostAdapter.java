@@ -15,9 +15,10 @@ import androidx.recyclerview.widget.ListAdapter;
 @ParametersNotNullByDefault
 class BlogPostAdapter extends ListAdapter<BlogPostItem, BlogPostViewHolder> {
 
+	private final boolean authorClickable;
 	private final OnBlogPostClickListener listener;
 
-	BlogPostAdapter(OnBlogPostClickListener listener) {
+	BlogPostAdapter(boolean authorClickable, OnBlogPostClickListener listener) {
 		super(new DiffUtil.ItemCallback<BlogPostItem>() {
 			@Override
 			public boolean areItemsTheSame(BlogPostItem a, BlogPostItem b) {
@@ -29,6 +30,7 @@ class BlogPostAdapter extends ListAdapter<BlogPostItem, BlogPostViewHolder> {
 				return a.isRead() == b.isRead();
 			}
 		});
+		this.authorClickable = authorClickable;
 		this.listener = listener;
 	}
 
@@ -37,7 +39,7 @@ class BlogPostAdapter extends ListAdapter<BlogPostItem, BlogPostViewHolder> {
 			int viewType) {
 		View v = LayoutInflater.from(parent.getContext()).inflate(
 				R.layout.list_item_blog_post, parent, false);
-		return new BlogPostViewHolder(v, false, listener);
+		return new BlogPostViewHolder(v, false, listener, authorClickable);
 	}
 
 	@Override
