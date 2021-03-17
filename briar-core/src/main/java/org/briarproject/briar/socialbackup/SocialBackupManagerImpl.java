@@ -292,16 +292,17 @@ class SocialBackupManagerImpl extends ConversationClientImpl
 					.getMessageMetadataAsDictionary(txn, contactGroupId);
 			List<ConversationMessageHeader> headers =
 					new ArrayList<>();
-			List<AttachmentHeader> attachmentHeaders = new ArrayList<>();
 			for (Entry<MessageId, BdfDictionary> messageEntry : messages
 					.entrySet()) {
 				BdfDictionary message = messageEntry.getValue();
 				if (message.getLong(MSG_KEY_MESSAGE_TYPE).intValue() ==
 						SHARD.getValue()) {
 					long timestamp = message.getLong(MSG_KEY_TIMESTAMP);
+					boolean isLocal = message.getBoolean(MSG_KEY_LOCAL);
+					List<AttachmentHeader> attachmentHeaders = new ArrayList<>();
 					ShardMessageHeader shardHeader = new ShardMessageHeader(
 							messageEntry.getKey(), contactGroupId, timestamp,
-							false, false, false, false, attachmentHeaders);
+							isLocal, false, true, false, attachmentHeaders);
 					headers.add(shardHeader);
 				}
 			}
