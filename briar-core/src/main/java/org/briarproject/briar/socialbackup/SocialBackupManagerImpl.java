@@ -198,6 +198,9 @@ class SocialBackupManagerImpl extends ConversationClientImpl
 					}
 				}
 			}
+			messageTracker.trackIncomingMessage(txn, m);
+			// TODO broadcast an event, extending ConversationMessageReceivedEvent
+			// attach the header to this event
 		} else if (type == BACKUP) {
 			// Keep the newest version of the backup, delete any older versions
 			int version = meta.getLong(MSG_KEY_VERSION).intValue();
@@ -418,6 +421,7 @@ class SocialBackupManagerImpl extends ConversationClientImpl
 				new BdfEntry(MSG_KEY_TIMESTAMP, timestamp)
 		);
 		clientHelper.addLocalMessage(txn, m, meta, true, false);
+		messageTracker.trackOutgoingMessage(txn, m);
 	}
 
 	private void sendBackupMessage(Transaction txn, Contact custodian,
