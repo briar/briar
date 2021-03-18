@@ -1,30 +1,46 @@
 image: briar/ci-image-android:latest
 
 stages:
-- test
-- optional_tests
-- check_reproducibility
+  - test
+  - optional_tests
+  - check_reproducibility
 
-test:
+.base-test:
   stage: test
   before_script:
     - set -e
     - export GRADLE_USER_HOME=$PWD/.gradle
-
   cache:
+    key: "$CI_COMMIT_REF_SLUG"
     paths:
       - .gradle/wrapper
       - .gradle/caches
-
-  script:
-    - ./gradlew --no-daemon -Djava.security.egd=file:/dev/urandom animalSnifferMain animalSnifferTest
-    - ./gradlew --no-daemon -Djava.security.egd=file:/dev/urandom check compileOfficialDebugAndroidTestSources compileScreenshotDebugAndroidTestSources
-
   after_script:
-    # these file change every time but should not be cached
+    # these file change every time and should not be cached
     - rm -f $GRADLE_USER_HOME/caches/modules-2/modules-2.lock
     - rm -fr $GRADLE_USER_HOME/caches/*/plugin-resolution/
 
+test:
+  extends: .base-test
+  script:
+    - ./gradlew --no-daemon -Djava.security.egd=file:/dev/urandom animalSnifferMain animalSnifferTest
+    - ./gradlew --no-daemon -Djava.security.egd=file:/dev/urandom check
+
+android test:
+  extends: .base-test
+  image: briar/ci-image-android-emulator:latest
+  script:
+    # start emulator first, so it can fail early
+    - start-emulator.sh
+    # run normal and screenshot tests together (exclude Large tests)
+    - ./gradlew -Djava.security.egd=file:/dev/urandom connectedAndroidTest -Pandroid.testInstrumentationRunnerArguments.notAnnotation=androidx.test.filters.LargeTest
+  only:
+    refs:
+      - merge_requests
+    changes:
+      - briar-android/**/*
+  tags:
+    - kvm
 
 test_reproducible:
   stage: check_reproducibility
@@ -40,6 +56,7 @@ test_reproducible:
     - export GRADLE_USER_HOME=$PWD/.gradle
 
   cache:
+    key: "$CI_COMMIT_REF_SLUG"
     paths:
       - .gradle/wrapper
       - .gradle/caches
