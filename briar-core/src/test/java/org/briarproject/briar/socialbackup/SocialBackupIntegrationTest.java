@@ -2,7 +2,10 @@ package org.briarproject.briar.socialbackup;
 
 import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.identity.Author;
+import org.briarproject.bramble.api.sync.Group;
+import org.briarproject.bramble.api.sync.GroupId;
 import org.briarproject.bramble.test.TestDatabaseConfigModule;
+import org.briarproject.briar.api.client.MessageTracker;
 import org.briarproject.briar.api.conversation.ConversationMessageHeader;
 import org.briarproject.briar.api.socialbackup.BackupMetadata;
 import org.briarproject.briar.api.socialbackup.ShardMessageHeader;
@@ -30,6 +33,11 @@ public class SocialBackupIntegrationTest
 	private SocialBackupManager socialBackupManager1;
 	private SocialBackupManager socialBackupManager2;
 
+	private Group g1From0;
+	private Group g0From1;
+	private Group g2From0;
+	private Group g0From2;
+
 	@Before
 	@Override
 	public void setUp() throws Exception {
@@ -37,6 +45,11 @@ public class SocialBackupIntegrationTest
 		socialBackupManager0 = c0.getSocialBackupManager();
 		socialBackupManager1 = c1.getSocialBackupManager();
 		socialBackupManager2 = c2.getSocialBackupManager();
+
+		g1From0 = socialBackupManager0.getContactGroup(contact1From0);
+		g0From1 = socialBackupManager1.getContactGroup(contact0From1);
+		g2From0 = socialBackupManager0.getContactGroup(contact2From0);
+		g0From2 = socialBackupManager2.getContactGroup(contact0From2);
 	}
 
 	@Override
@@ -119,6 +132,12 @@ public class SocialBackupIntegrationTest
 			ShardMessageHeader s = (ShardMessageHeader) h;
 			assertFalse(s.isLocal());
 		}
+
+		// assert group counts
+		assertGroupCount(messageTracker0, g1From0.getId(), 1, 0);
+		assertGroupCount(messageTracker0, g2From0.getId(), 1, 0);
+		assertGroupCount(messageTracker1, g0From1.getId(), 1, 1);
+		assertGroupCount(messageTracker2, g0From2.getId(), 1, 1);
 	}
 
 	private Collection<ConversationMessageHeader> getMessages1At0()
@@ -143,6 +162,13 @@ public class SocialBackupIntegrationTest
 			throws DbException {
 		return db1.transactionWithResult(true, txn -> socialBackupManager2
 				.getMessageHeaders(txn, contactId0From2));
+	}
+
+	public static void assertGroupCount(MessageTracker tracker, GroupId g,
+			long msgCount, long unreadCount) throws DbException {
+		MessageTracker.GroupCount c1 = tracker.getGroupCount(g);
+		assertEquals(msgCount, c1.getMsgCount());
+		assertEquals(unreadCount, c1.getUnreadCount());
 	}
 
 }

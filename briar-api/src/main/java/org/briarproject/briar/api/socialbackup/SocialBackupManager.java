@@ -5,6 +5,7 @@ import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.db.Transaction;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.sync.ClientId;
+import org.briarproject.briar.api.conversation.ConversationManager;
 import org.briarproject.briar.api.conversation.ConversationMessageHeader;
 
 import java.util.Collection;
@@ -13,7 +14,8 @@ import java.util.List;
 import javax.annotation.Nullable;
 
 @NotNullByDefault
-public interface SocialBackupManager {
+public interface SocialBackupManager extends
+		ConversationManager.ConversationClient {
 
 	/**
 	 * The unique ID of the social backup client.
@@ -47,6 +49,7 @@ public interface SocialBackupManager {
 	void createBackup(Transaction txn, List<ContactId> custodianIds,
 			int threshold) throws DbException;
 
+	@Override
 	Collection<ConversationMessageHeader> getMessageHeaders(
 			Transaction txn, ContactId contactId) throws DbException;
 }
