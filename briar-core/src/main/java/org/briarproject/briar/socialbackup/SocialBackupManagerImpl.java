@@ -33,6 +33,7 @@ import org.briarproject.bramble.api.sync.Group.Visibility;
 import org.briarproject.bramble.api.sync.GroupId;
 import org.briarproject.bramble.api.sync.Message;
 import org.briarproject.bramble.api.sync.MessageId;
+import org.briarproject.bramble.api.sync.MessageStatus;
 import org.briarproject.bramble.api.system.Clock;
 import org.briarproject.bramble.api.versioning.ClientVersioningManager;
 import org.briarproject.bramble.api.versioning.ClientVersioningManager.ClientVersioningHook;
@@ -298,6 +299,8 @@ class SocialBackupManagerImpl extends ConversationClientImpl
 				if (meta.getLong(MSG_KEY_MESSAGE_TYPE).intValue() ==
 						SHARD.getValue()) {
 					boolean isLocal = meta.getBoolean(MSG_KEY_LOCAL);
+
+					MessageStatus status = db.getMessageStatus(txn, contactId, messageEntry.getKey());
 					long timestamp;
 					if (isLocal) {
 						timestamp = meta.getLong(MSG_KEY_TIMESTAMP);
@@ -310,7 +313,7 @@ class SocialBackupManagerImpl extends ConversationClientImpl
 							new ArrayList<>();
 					ShardMessageHeader shardHeader = new ShardMessageHeader(
 							messageEntry.getKey(), contactGroupId, timestamp,
-							isLocal, false, true, false, attachmentHeaders);
+							isLocal, false, status.isSent(), status.isSeen(), attachmentHeaders);
 					headers.add(shardHeader);
 				}
 			}
