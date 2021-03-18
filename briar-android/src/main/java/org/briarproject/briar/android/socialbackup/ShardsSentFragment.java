@@ -13,48 +13,58 @@ import org.briarproject.briar.android.fragment.BaseFragment;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.UiThread;
 
 public class ShardsSentFragment extends BaseFragment {
 
-    public static final String TAG = ShardsSentFragment.class.getName();
+	public static final String TAG = ShardsSentFragment.class.getName();
 
-    protected ShardsSentDismissedListener listener;
+	interface ShardsSentDismissedListener {
 
-    @Override
-    public void onCreate(@Nullable Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        requireActivity().setTitle(R.string.title_distributed_backup);
-    }
+		@UiThread
+		void shardsSentDismissed();
 
-    @Nullable
-    @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_shards_sent,
-                container, false);
+	}
 
-        Button button = view.findViewById(R.id.button);
-        button.setOnClickListener(e -> {
-            listener.shardsSentDismissed();
-        });
+	protected ShardsSentDismissedListener listener;
 
-        return view;
-    }
+	@Override
+	public void onCreate(@Nullable Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		requireActivity().setTitle(R.string.title_distributed_backup);
+	}
 
-    @Override
-    public void onAttach(Context context) {
-        super.onAttach(context);
-        listener = (ShardsSentDismissedListener) context;
-    }
+	@Nullable
+	@Override
+	public View onCreateView(@NonNull LayoutInflater inflater,
+			@Nullable ViewGroup container,
+			@Nullable Bundle savedInstanceState) {
+		View view = inflater.inflate(R.layout.fragment_shards_sent,
+				container, false);
+
+		Button button = view.findViewById(R.id.button);
+		button.setOnClickListener(e -> {
+			listener.shardsSentDismissed();
+		});
+
+		return view;
+	}
+
+	@Override
+	public void onAttach(Context context) {
+		super.onAttach(context);
+		listener = (ShardsSentDismissedListener) context;
+	}
 
 
-    @Override
-    public String getUniqueTag() {
-        return TAG;
-    }
+	@Override
+	public String getUniqueTag() {
+		return TAG;
+	}
 
-    @Override
-    public void injectFragment(ActivityComponent component) {
-        component.inject(this);
-    }
+	@Override
+	public void injectFragment(ActivityComponent component) {
+		component.inject(this);
+	}
 
 }

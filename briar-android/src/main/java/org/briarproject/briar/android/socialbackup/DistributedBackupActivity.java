@@ -21,7 +21,8 @@ import javax.inject.Inject;
 
 public class DistributedBackupActivity extends BriarActivity implements
 		BaseFragment.BaseFragmentListener, ContactSelectorListener,
-		ThresholdDefinedListener, ShardsSentDismissedListener {
+		ThresholdDefinedListener,
+		ShardsSentFragment.ShardsSentDismissedListener {
 
 	private Collection<ContactId> custodians;
 
@@ -73,7 +74,8 @@ public class DistributedBackupActivity extends BriarActivity implements
 		try {
 			db.transaction(false, txn -> {
 				socialBackupManager
-						.createBackup(txn, (List<ContactId>) custodians, threshold);
+						.createBackup(txn, (List<ContactId>) custodians,
+								threshold);
 				ShardsSentFragment fragment = new ShardsSentFragment();
 				showNextFragment(fragment);
 			});
