@@ -2,7 +2,6 @@ package org.briarproject.briar.socialbackup;
 
 import org.briarproject.bramble.api.FormatException;
 import org.briarproject.bramble.api.Pair;
-import org.briarproject.bramble.api.client.BdfIncomingMessageHook;
 import org.briarproject.bramble.api.client.ClientHelper;
 import org.briarproject.bramble.api.client.ContactGroupFactory;
 import org.briarproject.bramble.api.contact.Contact;
@@ -277,6 +276,7 @@ class SocialBackupManagerImpl extends ConversationClientImpl
 		}
 	}
 
+	@Override
 	public Group getContactGroup(Contact c) {
 		return contactGroupFactory.createContactGroup(CLIENT_ID,
 				MAJOR_VERSION, c);
@@ -294,11 +294,18 @@ class SocialBackupManagerImpl extends ConversationClientImpl
 					new ArrayList<>();
 			for (Entry<MessageId, BdfDictionary> messageEntry : messages
 					.entrySet()) {
-				BdfDictionary message = messageEntry.getValue();
-				if (message.getLong(MSG_KEY_MESSAGE_TYPE).intValue() ==
+				BdfDictionary meta = messageEntry.getValue();
+				if (meta.getLong(MSG_KEY_MESSAGE_TYPE).intValue() ==
 						SHARD.getValue()) {
-					long timestamp = message.getLong(MSG_KEY_TIMESTAMP);
-					boolean isLocal = message.getBoolean(MSG_KEY_LOCAL);
+					boolean isLocal = meta.getBoolean(MSG_KEY_LOCAL);
+					long timestamp;
+					if (isLocal) {
+						timestamp = meta.getLong(MSG_KEY_TIMESTAMP);
+					} else {
+						Message message = clientHelper
+								.getMessage(txn, messageEntry.getKey());
+						timestamp = message.getTimestamp();
+					}
 					List<AttachmentHeader> attachmentHeaders =
 							new ArrayList<>();
 					ShardMessageHeader shardHeader = new ShardMessageHeader(
@@ -420,6 +427,7 @@ class SocialBackupManagerImpl extends ConversationClientImpl
 		BdfDictionary meta = BdfDictionary.of(
 				new BdfEntry(MSG_KEY_MESSAGE_TYPE, BACKUP.getValue()),
 				new BdfEntry(MSG_KEY_LOCAL, true),
+				new BdfEntry(MSG_KEY_TIMESTAMP, timestamp),
 				new BdfEntry(MSG_KEY_VERSION, version));
 		clientHelper.addLocalMessage(txn, m, meta, true, false);
 	}
