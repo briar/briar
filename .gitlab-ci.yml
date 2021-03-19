@@ -34,9 +34,17 @@ android test:
     - start-emulator.sh
     # run normal and screenshot tests together (exclude Large tests)
     - ./gradlew -Djava.security.egd=file:/dev/urandom connectedAndroidTest -Pandroid.testInstrumentationRunnerArguments.notAnnotation=androidx.test.filters.LargeTest
+  artifacts:
+    name: "${CI_PROJECT_PATH}_${CI_JOB_STAGE}_${CI_COMMIT_REF_NAME}_${CI_COMMIT_SHA}"
+    paths:
+      - kernel.log
+      - logcat.txt
+    expire_in: 3 days
+    when: on_failure
   only:
     refs:
       - merge_requests
+      - branches
     changes:
       - briar-android/**/*
   tags:
