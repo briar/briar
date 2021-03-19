@@ -61,6 +61,8 @@ public class SplashScreenActivity extends BaseActivity {
 			startNextActivity(ENTRY_ACTIVITY);
 			finish();
 		} else {
+			int duration =
+					getResources().getInteger(R.integer.splashScreenDuration);
 			new Handler().postDelayed(() -> {
 				if (currentTimeMillis() >= EXPIRY_DATE) {
 					LOG.info("Expired");
@@ -69,7 +71,7 @@ public class SplashScreenActivity extends BaseActivity {
 					startNextActivity(ENTRY_ACTIVITY);
 				}
 				supportFinishAfterTransition();
-			}, 500);
+			}, duration);
 		}
 	}
 

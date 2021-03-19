@@ -3,6 +3,8 @@
 
 	<integer name="animationSpeed">@android:integer/config_mediumAnimTime</integer>
 
+	<integer name="splashScreenDuration">500</integer>
+
 	<declare-styleable name="BriarRecyclerView">
 		<attr name="scrollToEnd" format="boolean" />
 		<attr name="emptyImage" format="integer" />
