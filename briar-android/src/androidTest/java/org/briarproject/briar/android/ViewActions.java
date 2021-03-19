@@ -14,7 +14,10 @@ import androidx.test.runner.lifecycle.ActivityLifecycleMonitor;
 import androidx.test.runner.lifecycle.ActivityLifecycleMonitorRegistry;
 import androidx.test.runner.lifecycle.Stage;
 
+import static androidx.test.espresso.Espresso.onView;
+import static androidx.test.espresso.matcher.ViewMatchers.hasDescendant;
 import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
+import static androidx.test.espresso.matcher.ViewMatchers.isRoot;
 import static androidx.test.espresso.util.HumanReadables.describe;
 import static androidx.test.espresso.util.TreeIterables.breadthFirstViewTraversal;
 import static java.lang.System.currentTimeMillis;
@@ -24,6 +27,10 @@ public class ViewActions {
 
 	private final static long TIMEOUT_MS = SECONDS.toMillis(10);
 	private final static long WAIT_MS = 50;
+
+	public static void waitFor(final Matcher<View> viewMatcher) {
+		onView(isRoot()).perform(waitUntilMatches(hasDescendant(viewMatcher)));
+	}
 
 	public static ViewAction waitUntilMatches(Matcher<View> viewMatcher) {
 		return waitUntilMatches(viewMatcher, TIMEOUT_MS);
