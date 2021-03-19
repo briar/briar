@@ -24,5 +24,6 @@ public interface TestDataCreator {
 			int numBlogPosts, int numForums, int numForumPosts);
 
 	@IoExecutor
-	Contact addContact(String name, boolean avatar) throws DbException;
+	Contact addContact(String name, boolean alias, boolean avatar)
+			throws DbException;
 }

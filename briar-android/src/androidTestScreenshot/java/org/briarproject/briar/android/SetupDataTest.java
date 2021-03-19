@@ -116,7 +116,7 @@ public class SetupDataTest extends ScreenshotTest {
 			throws DbException {
 		Context ctx = getApplicationContext();
 		String bobName = ctx.getString(R.string.screenshot_bob);
-		Contact bob = testDataCreator.addContact(bobName, true);
+		Contact bob = testDataCreator.addContact(bobName, false, true);
 
 		// TODO add messages
 

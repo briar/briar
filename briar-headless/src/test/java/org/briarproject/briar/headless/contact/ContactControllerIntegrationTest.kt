@@ -25,7 +25,7 @@ class ContactControllerIntegrationTest: IntegrationTest() {
 
         // add one test contact
         val testContactName= "testContactName"
-        testDataCreator.addContact(testContactName, false)
+        testDataCreator.addContact(testContactName, true, false)
 
         // retrieve list with one test contact
         response = get("$url/contacts")
