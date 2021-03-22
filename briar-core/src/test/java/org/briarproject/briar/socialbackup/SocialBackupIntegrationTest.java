@@ -138,6 +138,11 @@ public class SocialBackupIntegrationTest
 		assertGroupCount(messageTracker0, g2From0.getId(), 1, 0);
 		assertGroupCount(messageTracker1, g0From1.getId(), 1, 1);
 		assertGroupCount(messageTracker2, g0From2.getId(), 1, 1);
+
+		// mark a message as read
+		socialBackupManager1.setReadFlag(g0From1.getId(),
+				messages0At1.iterator().next().getId(), true);
+		assertGroupCount(messageTracker1, g0From1.getId(), 1, 0);
 	}
 
 	private Collection<ConversationMessageHeader> getMessages1At0()

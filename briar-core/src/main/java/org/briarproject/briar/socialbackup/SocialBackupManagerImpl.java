@@ -303,7 +303,8 @@ class SocialBackupManagerImpl extends ConversationClientImpl
 						SHARD.getValue()) {
 					boolean isLocal = meta.getBoolean(MSG_KEY_LOCAL);
 
-					MessageStatus status = db.getMessageStatus(txn, contactId, messageEntry.getKey());
+					MessageStatus status = db.getMessageStatus(txn, contactId,
+							messageEntry.getKey());
 					long timestamp;
 					if (isLocal) {
 						timestamp = meta.getLong(MSG_KEY_TIMESTAMP);
@@ -316,7 +317,8 @@ class SocialBackupManagerImpl extends ConversationClientImpl
 							new ArrayList<>();
 					ShardMessageHeader shardHeader = new ShardMessageHeader(
 							messageEntry.getKey(), contactGroupId, timestamp,
-							isLocal, false, status.isSent(), status.isSeen(), attachmentHeaders);
+							isLocal, false, status.isSent(), status.isSeen(),
+							attachmentHeaders);
 					headers.add(shardHeader);
 				}
 			}
