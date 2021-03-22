@@ -13,13 +13,12 @@ import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
 import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.activity.ActivityComponent;
+import org.briarproject.briar.android.blog.BaseViewModel.ListUpdate;
 import org.briarproject.briar.android.fragment.BaseFragment;
 import org.briarproject.briar.android.util.BriarSnackbarBuilder;
 import org.briarproject.briar.android.view.BriarRecyclerView;
 import org.briarproject.briar.android.widget.LinkDialogFragment;
 import org.briarproject.briar.api.blog.Blog;
-
-import java.util.List;
 
 import javax.inject.Inject;
 
@@ -101,10 +100,9 @@ public class FeedFragment extends BaseFragment
 		list.stopPeriodicUpdate();
 	}
 
-	private void onBlogPostsLoaded(List<BlogPostItem> items) {
-		if (items.isEmpty()) list.showData();
-		else adapter.submitList(items, () -> {
-			Boolean wasLocal = viewModel.getPostAddedWasLocalAndReset();
+	private void onBlogPostsLoaded(ListUpdate update) {
+		adapter.submitList(update.getItems(), () -> {
+			Boolean wasLocal = update.getPostAddedWasLocal();
 			if (wasLocal != null && wasLocal) {
 				showSnackBar(R.string.blogs_blog_post_created);
 			} else if (wasLocal != null) {

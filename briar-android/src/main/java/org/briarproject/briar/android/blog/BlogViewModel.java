@@ -145,7 +145,8 @@ class BlogViewModel extends BaseViewModel {
 	}
 
 	private void loadBlogPosts(GroupId groupId) {
-		loadList(txn -> loadBlogPosts(txn, groupId), blogPosts::setValue);
+		loadFromDb(txn -> new ListUpdate(null, loadBlogPosts(txn, groupId)),
+				blogPosts::setValue);
 	}
 
 	private void loadSharingContacts(GroupId groupId) {

@@ -13,7 +13,6 @@ import org.briarproject.bramble.api.identity.IdentityManager;
 import org.briarproject.bramble.api.lifecycle.LifecycleManager;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.sync.GroupId;
-import org.briarproject.bramble.api.sync.event.GroupAddedEvent;
 import org.briarproject.bramble.api.sync.event.GroupRemovedEvent;
 import org.briarproject.bramble.api.system.AndroidExecutor;
 import org.briarproject.briar.android.viewmodel.LiveResult;
@@ -34,10 +33,8 @@ import androidx.annotation.UiThread;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
-import static java.util.logging.Level.WARNING;
 import static java.util.logging.Logger.getLogger;
 import static org.briarproject.bramble.util.LogUtils.logDuration;
-import static org.briarproject.bramble.util.LogUtils.logException;
 import static org.briarproject.bramble.util.LogUtils.now;
 import static org.briarproject.briar.api.blog.BlogManager.CLIENT_ID;
 
@@ -70,14 +67,6 @@ class FeedViewModel extends BaseViewModel {
 			BlogPostAddedEvent b = (BlogPostAddedEvent) e;
 			LOG.info("Blog post added");
 			onBlogPostAdded(b.getHeader(), b.isLocal());
-		} else if (e instanceof GroupAddedEvent) {
-			GroupAddedEvent g = (GroupAddedEvent) e;
-			if (g.getGroup().getClientId().equals(CLIENT_ID)) {
-				LOG.info("Blog added");
-				// TODO how can this even happen?
-				//  added RSS feeds should trigger BlogPostAddedEvent, no?
-				onBlogAdded(g.getGroup().getId());
-			}
 		} else if (e instanceof GroupRemovedEvent) {
 			GroupRemovedEvent g = (GroupRemovedEvent) e;
 			if (g.getGroup().getClientId().equals(CLIENT_ID)) {
@@ -115,11 +104,11 @@ class FeedViewModel extends BaseViewModel {
 	}
 
 	private void loadAllBlogPosts() {
-		loadList(this::loadAllBlogPosts, blogPosts::setValue);
+		loadFromDb(this::loadAllBlogPosts, blogPosts::setValue);
 	}
 
 	@DatabaseExecutor
-	private List<BlogPostItem> loadAllBlogPosts(Transaction txn)
+	private ListUpdate loadAllBlogPosts(Transaction txn)
 			throws DbException {
 		long start = now();
 		List<BlogPostItem> posts = new ArrayList<>();
@@ -128,29 +117,17 @@ class FeedViewModel extends BaseViewModel {
 		}
 		Collections.sort(posts);
 		logDuration(LOG, "Loading all posts", start);
-		return posts;
-	}
-
-	private void onBlogAdded(GroupId g) {
-		runOnDbThread(true, txn -> {
-			List<BlogPostItem> posts = loadBlogPosts(txn, g);
-			txn.attach(() -> onBlogPostItemsAdded(posts));
-		}, e -> logException(LOG, WARNING, e));
+		return new ListUpdate(null, posts);
 	}
 
 	@UiThread
-	private void onBlogPostItemsAdded(List<BlogPostItem> posts) {
-		List<BlogPostItem> items = addListItems(blogPosts, posts);
-		if (items != null) {
-			Collections.sort(items);
-			blogPosts.setValue(new LiveResult<>(items));
-		}
-	}
-
 	private void onBlogRemoved(GroupId g) {
-		removeAndUpdateListItems(blogPosts, item ->
+		List<BlogPostItem> items = removeListItems(getBlogPostItems(), item ->
 				item.getGroupId().equals(g)
 		);
+		if (items != null) {
+			blogPosts.setValue(new LiveResult<>(new ListUpdate(null, items)));
+		}
 	}
 
 }

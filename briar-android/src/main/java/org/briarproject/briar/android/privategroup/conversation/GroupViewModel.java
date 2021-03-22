@@ -159,7 +159,7 @@ class GroupViewModel extends ThreadListViewModel<GroupMessageItem> {
 
 	@Override
 	public void loadItems() {
-		loadList(txn -> {
+		loadFromDb(txn -> {
 			// check first if group is dissolved
 			isDissolved
 					.postValue(privateGroupManager.isDissolved(txn, groupId));

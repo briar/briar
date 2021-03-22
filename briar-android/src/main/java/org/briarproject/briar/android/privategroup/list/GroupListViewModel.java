@@ -2,7 +2,6 @@ package org.briarproject.briar.android.privategroup.list;
 
 import android.app.Application;
 
-import org.briarproject.bramble.api.contact.ContactManager;
 import org.briarproject.bramble.api.db.DatabaseExecutor;
 import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.db.Transaction;
@@ -142,7 +141,7 @@ class GroupListViewModel extends DbViewModel implements EventListener {
 	}
 
 	void loadGroups() {
-		loadList(this::loadGroups, groupItems::setValue);
+		loadFromDb(this::loadGroups, groupItems::setValue);
 	}
 
 	@DatabaseExecutor
@@ -173,7 +172,7 @@ class GroupListViewModel extends DbViewModel implements EventListener {
 	@UiThread
 	private void onGroupMessageAdded(GroupMessageHeader header) {
 		GroupId g = header.getGroupId();
-		List<GroupItem> list = updateListItems(groupItems,
+		List<GroupItem> list = updateListItems(getList(groupItems),
 				itemToTest -> itemToTest.getId().equals(g),
 				itemToUpdate -> new GroupItem(itemToUpdate, header));
 		if (list == null) return;
@@ -184,7 +183,7 @@ class GroupListViewModel extends DbViewModel implements EventListener {
 
 	@UiThread
 	private void onGroupDissolved(GroupId groupId) {
-		List<GroupItem> list = updateListItems(groupItems,
+		List<GroupItem> list = updateListItems(getList(groupItems),
 				itemToTest -> itemToTest.getId().equals(groupId),
 				itemToUpdate -> new GroupItem(itemToUpdate, true));
 		if (list == null) return;

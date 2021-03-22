@@ -53,12 +53,8 @@ abstract class BaseViewModel extends DbViewModel implements EventListener {
 	protected final AndroidNotificationManager notificationManager;
 	protected final BlogManager blogManager;
 
-	protected final MutableLiveData<LiveResult<List<BlogPostItem>>> blogPosts =
+	protected final MutableLiveData<LiveResult<ListUpdate>> blogPosts =
 			new MutableLiveData<>();
-
-	// UI thread
-	@Nullable
-	private Boolean postAddedWasLocal = null;
 
 	BaseViewModel(Application application,
 			@DatabaseExecutor Executor dbExecutor,
@@ -147,11 +143,10 @@ abstract class BaseViewModel extends DbViewModel implements EventListener {
 
 	@UiThread
 	private void onBlogPostItemAdded(BlogPostItem item, boolean local) {
-		List<BlogPostItem> items = addListItem(blogPosts, item);
+		List<BlogPostItem> items = addListItem(getBlogPostItems(), item);
 		if (items != null) {
 			Collections.sort(items);
-			postAddedWasLocal = local;
-			blogPosts.setValue(new LiveResult<>(items));
+			blogPosts.setValue(new LiveResult<>(new ListUpdate(local, items)));
 		}
 	}
 
@@ -168,17 +163,42 @@ abstract class BaseViewModel extends DbViewModel implements EventListener {
 		});
 	}
 
-	LiveData<LiveResult<List<BlogPostItem>>> getBlogPosts() {
+	LiveData<LiveResult<ListUpdate>> getBlogPosts() {
 		return blogPosts;
 	}
 
 	@UiThread
 	@Nullable
-	Boolean getPostAddedWasLocalAndReset() {
-		if (postAddedWasLocal == null) return null;
-		boolean wasLocal = postAddedWasLocal;
-		postAddedWasLocal = null;
-		return wasLocal;
+	protected List<BlogPostItem> getBlogPostItems() {
+		LiveResult<ListUpdate> value = blogPosts.getValue();
+		if (value == null) return null;
+		ListUpdate result = value.getResultOrNull();
+		return result == null ? null : result.getItems();
 	}
 
+	static class ListUpdate {
+
+		@Nullable
+		private final Boolean postAddedWasLocal;
+		private final List<BlogPostItem> items;
+
+		ListUpdate(@Nullable Boolean postAddedWasLocal,
+				List<BlogPostItem> items) {
+			this.postAddedWasLocal = postAddedWasLocal;
+			this.items = items;
+		}
+
+		/**
+		 * @return null when not a single post was added with this update.
+		 * true when a single post was added locally and false if remotely.
+		 */
+		@Nullable
+		public Boolean getPostAddedWasLocal() {
+			return postAddedWasLocal;
+		}
+
+		public List<BlogPostItem> getItems() {
+			return items;
+		}
+	}
 }

@@ -86,7 +86,7 @@ public class ContactsViewModel extends DbViewModel implements EventListener {
 	}
 
 	protected void loadContacts() {
-		loadList(this::loadContacts, contactListItems::setValue);
+		loadFromDb(this::loadContacts, contactListItems::setValue);
 	}
 
 	private List<ContactListItem> loadContacts(Transaction txn)
@@ -151,7 +151,7 @@ public class ContactsViewModel extends DbViewModel implements EventListener {
 	@UiThread
 	private void updateItem(ContactId c,
 			Function<ContactListItem, ContactListItem> replacer, boolean sort) {
-		List<ContactListItem> list = updateListItems(contactListItems,
+		List<ContactListItem> list = updateListItems(getList(contactListItems),
 				itemToTest -> itemToTest.getContact().getId().equals(c),
 				replacer);
 		if (list == null) return;
@@ -161,10 +161,8 @@ public class ContactsViewModel extends DbViewModel implements EventListener {
 
 	@UiThread
 	private void removeItem(ContactId c) {
-		List<ContactListItem> list = removeListItems(contactListItems,
+		removeAndUpdateListItems(contactListItems,
 				itemToTest -> itemToTest.getContact().getId().equals(c));
-		if (list == null) return;
-		contactListItems.setValue(new LiveResult<>(list));
 	}
 
 }
