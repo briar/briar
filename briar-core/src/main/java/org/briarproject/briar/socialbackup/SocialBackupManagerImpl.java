@@ -42,8 +42,6 @@ import org.briarproject.briar.api.client.MessageTracker;
 import org.briarproject.briar.api.conversation.ConversationManager;
 import org.briarproject.briar.api.conversation.ConversationMessageHeader;
 import org.briarproject.briar.api.conversation.DeletionResult;
-import org.briarproject.briar.api.privategroup.PrivateGroup;
-import org.briarproject.briar.api.privategroup.event.GroupInvitationRequestReceivedEvent;
 import org.briarproject.briar.api.socialbackup.BackupExistsException;
 import org.briarproject.briar.api.socialbackup.BackupMetadata;
 import org.briarproject.briar.api.socialbackup.DarkCrystal;
@@ -66,6 +64,7 @@ import javax.inject.Inject;
 
 import static java.util.Collections.singletonMap;
 import static org.briarproject.bramble.api.nullsafety.NullSafety.requireNonNull;
+import static org.briarproject.briar.client.MessageTrackerConstants.MSG_KEY_READ;
 import static org.briarproject.briar.socialbackup.MessageType.BACKUP;
 import static org.briarproject.briar.socialbackup.MessageType.SHARD;
 import static org.briarproject.briar.socialbackup.SocialBackupConstants.GROUP_KEY_CONTACT_ID;
@@ -180,6 +179,7 @@ class SocialBackupManagerImpl extends ConversationClientImpl
 	protected boolean incomingMessage(Transaction txn, Message m, BdfList body,
 			BdfDictionary meta) throws DbException, FormatException {
 		MessageType type = MessageType.fromValue(body.getLong(0).intValue());
+		System.out.println("GOT INCOMING DC MESSAGE");
 		if (type == SHARD) {
 			// Only one shard should be received from each contact
 			if (findMessage(txn, m.getGroupId(), SHARD, false) != null) {
@@ -298,7 +298,7 @@ class SocialBackupManagerImpl extends ConversationClientImpl
 			throws FormatException {
 
 		boolean isLocal = meta.getBoolean(MSG_KEY_LOCAL);
-
+		boolean read = meta.getBoolean(MSG_KEY_READ, false);
 		long timestamp;
 		if (isLocal) {
 			timestamp = meta.getLong(MSG_KEY_TIMESTAMP);
@@ -309,7 +309,7 @@ class SocialBackupManagerImpl extends ConversationClientImpl
 				new ArrayList<>();
 		return new ShardMessageHeader(
 				message.getId(), message.getGroupId(), timestamp,
-				isLocal, false, status.isSent(), status.isSeen(),
+				isLocal, read, status.isSent(), status.isSeen(),
 				attachmentHeaders);
 	}
 
