@@ -28,6 +28,7 @@ import org.briarproject.briar.headless.contact.HeadlessContactModule
 import org.briarproject.briar.headless.event.HeadlessEventModule
 import org.briarproject.briar.headless.forums.HeadlessForumModule
 import org.briarproject.briar.headless.messaging.HeadlessMessagingModule
+import org.briarproject.briar.socialbackup.DefaultDarkCrystalModule
 import java.io.File
 import java.util.Collections.emptyList
 import javax.inject.Singleton
@@ -37,6 +38,7 @@ import javax.inject.Singleton
         AccountModule::class,
         CircumventionModule::class,
         DefaultBatteryManagerModule::class,
+        DefaultDarkCrystalModule::class, // FIXME: Real implementation needed
         DefaultEventExecutorModule::class,
         DefaultTaskSchedulerModule::class,
         DefaultWakefulIoExecutorModule::class,
