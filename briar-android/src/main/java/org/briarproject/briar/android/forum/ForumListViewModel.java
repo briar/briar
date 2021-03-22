@@ -145,7 +145,7 @@ class ForumListViewModel extends DbViewModel implements EventListener {
 
 	@UiThread
 	private void onForumPostReceived(GroupId g, ForumPostHeader header) {
-		List<ForumListItem> list = updateListItems(forumItems,
+		List<ForumListItem> list = updateListItems(getList(forumItems),
 				itemToTest -> itemToTest.getForum().getId().equals(g),
 				itemToUpdate -> new ForumListItem(itemToUpdate, header));
 		if (list == null) return;

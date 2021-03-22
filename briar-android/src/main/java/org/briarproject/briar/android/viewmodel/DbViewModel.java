@@ -120,9 +120,11 @@ public abstract class DbViewModel extends AndroidViewModel {
 	 * This method ensures that those operations can be processed on the
 	 * UiThread in the correct order so that the removed message will not be
 	 * re-added when the re-load completes.
+	 *
+	 * TODO: Rename this method and update javadoc, as it's not restricted to
+	 *  lists
 	 */
-	protected <T extends List<?>> void loadList(
-			DbCallable<T, DbException> task,
+	protected <T> void loadList(DbCallable<T, DbException> task,
 			UiConsumer<LiveResult<T>> uiConsumer) {
 		dbExecutor.execute(() -> {
 			try {
@@ -149,63 +151,46 @@ public abstract class DbViewModel extends AndroidViewModel {
 	}
 
 	/**
-	 * Creates a copy of the list available in the given LiveData
-	 * and adds the given item to the copy.
+	 * Creates a copy of the given list and adds the given item to the copy.
 	 *
-	 * @return a copy of the list in the LiveData with item added or null when
-	 * <ul>
-	 * <li> LiveData does not have a value
-	 * <li> LiveResult in the LiveData has an error
-	 * </ul>
+	 * @return an updated copy of the list, or null if the list is null
 	 */
 	@Nullable
-	protected <T> List<T> addListItem(LiveData<LiveResult<List<T>>> liveData,
-			T item) {
-		List<T> items = getListCopy(liveData);
-		if (items == null) return null;
-		items.add(item);
-		return items;
+	protected <T> List<T> addListItem(@Nullable List<T> list, T item) {
+		if (list == null) return null;
+		List<T> copy = new ArrayList<>(list);
+		copy.add(item);
+		return copy;
 	}
 
 	/**
-	 * Creates a copy of the list available in the given LiveData
-	 * and adds the given items to the copy.
+	 * Creates a copy of the given list and adds the given items to the copy.
 	 *
-	 * @return a copy of the list in the LiveData with items added or null when
-	 * <ul>
-	 * <li> LiveData does not have a value
-	 * <li> LiveResult in the LiveData has an error
-	 * </ul>
+	 * @return an updated copy of the list, or null if the list is null
 	 */
 	@Nullable
-	protected <T> List<T> addListItems(LiveData<LiveResult<List<T>>> liveData,
+	protected <T> List<T> addListItems(@Nullable List<T> list,
 			Collection<T> items) {
-		List<T> copiedItems = getListCopy(liveData);
-		if (copiedItems == null) return null;
-		copiedItems.addAll(items);
-		return copiedItems;
+		if (list == null) return null;
+		List<T> copy = new ArrayList<>(list);
+		copy.addAll(items);
+		return copy;
 	}
 
 	/**
-	 * Creates a copy of the list available in the given LiveData
-	 * and replaces items where the given test function returns true.
+	 * Creates a copy of the given list, replacing items where the given test
+	 * function returns true.
 	 *
-	 * @return a copy of the list in the LiveData with item(s) replaced
-	 * or null when the
-	 * <ul>
-	 * <li> LiveData does not have a value
-	 * <li> LiveResult in the LiveData has an error
-	 * <li> test function did return false for all items in the list
-	 * </ul>
+	 * @return an updated copy of the list, or null if either the list is null
+	 * or the test function returns false for all items
 	 */
 	@Nullable
-	protected <T> List<T> updateListItems(
-			LiveData<LiveResult<List<T>>> liveData, Function<T, Boolean> test,
-			Function<T, T> replacer) {
-		List<T> items = getListCopy(liveData);
-		if (items == null) return null;
+	protected <T> List<T> updateListItems(@Nullable List<T> list,
+			Function<T, Boolean> test, Function<T, T> replacer) {
+		if (list == null) return null;
+		List<T> copy = new ArrayList<>(list);
 
-		ListIterator<T> iterator = items.listIterator();
+		ListIterator<T> iterator = copy.listIterator();
 		boolean changed = false;
 		while (iterator.hasNext()) {
 			T item = iterator.next();
@@ -214,28 +199,23 @@ public abstract class DbViewModel extends AndroidViewModel {
 				iterator.set(replacer.apply(item));
 			}
 		}
-		return changed ? items : null;
+		return changed ? copy : null;
 	}
 
 	/**
-	 * Creates a copy of the list available in the given LiveData
-	 * and removes the items from it where the given test function returns true.
+	 * Creates a copy of the given list, removing items from it where the given
+	 * test function returns true.
 	 *
-	 * @return a copy of the list in the LiveData with item(s) removed
-	 * or null when the
-	 * <ul>
-	 * <li> LiveData does not have a value
-	 * <li> LiveResult in the LiveData has an error
-	 * <li> test function did return false for all items in the list
-	 * </ul>
+	 * @return an updated copy of the list, or null if either the list is null
+	 * or the test function returns false for all items
 	 */
 	@Nullable
-	protected <T> List<T> removeListItems(
-			LiveData<LiveResult<List<T>>> liveData, Function<T, Boolean> test) {
-		List<T> items = getListCopy(liveData);
-		if (items == null) return null;
+	protected <T> List<T> removeListItems(@Nullable List<T> list,
+			Function<T, Boolean> test) {
+		if (list == null) return null;
+		List<T> copy = new ArrayList<>(list);
 
-		ListIterator<T> iterator = items.listIterator();
+		ListIterator<T> iterator = copy.listIterator();
 		boolean changed = false;
 		while (iterator.hasNext()) {
 			T item = iterator.next();
@@ -244,7 +224,7 @@ public abstract class DbViewModel extends AndroidViewModel {
 				iterator.remove();
 			}
 		}
-		return changed ? items : null;
+		return changed ? copy : null;
 	}
 
 	/**
@@ -255,29 +235,26 @@ public abstract class DbViewModel extends AndroidViewModel {
 	 * <ul>
 	 * <li> LiveData does not have a value
 	 * <li> LiveResult in the LiveData has an error
-	 * <li> test function did return false for all items in the list
+	 * <li> test function returned false for all items in the list
 	 * </ul>
 	 */
 	@UiThread
 	protected <T> void removeAndUpdateListItems(
 			MutableLiveData<LiveResult<List<T>>> liveData,
 			Function<T, Boolean> test) {
-		List<T> list = removeListItems(liveData, test);
-		if (list != null) liveData.setValue(new LiveResult<>(list));
+		List<T> copy = removeListItems(getList(liveData), test);
+		if (copy != null) liveData.setValue(new LiveResult<>(copy));
 	}
 
 	/**
-	 * Retrieves a copy of the list of items from the given LiveData
-	 * or null if it is not available.
-	 * The list copy can be safely mutated.
+	 * Returns the list of items from the given LiveData, or null if no list is
+	 * available.
 	 */
 	@Nullable
-	private <T> List<T> getListCopy(LiveData<LiveResult<List<T>>> liveData) {
+	protected <T> List<T> getList(LiveData<LiveResult<List<T>>> liveData) {
 		LiveResult<List<T>> value = liveData.getValue();
 		if (value == null) return null;
-		List<T> list = value.getResultOrNull();
-		if (list == null) return null;
-		return new ArrayList<>(list);
+		return value.getResultOrNull();
 	}
 
 	/**

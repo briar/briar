@@ -15,14 +15,13 @@ import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
 import org.briarproject.bramble.api.sync.GroupId;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.activity.ActivityComponent;
+import org.briarproject.briar.android.blog.BaseViewModel.ListUpdate;
 import org.briarproject.briar.android.fragment.BaseFragment;
 import org.briarproject.briar.android.sharing.BlogSharingStatusActivity;
 import org.briarproject.briar.android.sharing.ShareBlogActivity;
 import org.briarproject.briar.android.util.BriarSnackbarBuilder;
 import org.briarproject.briar.android.view.BriarRecyclerView;
 import org.briarproject.briar.android.widget.LinkDialogFragment;
-
-import java.util.List;
 
 import javax.inject.Inject;
 
@@ -174,9 +173,9 @@ public class BlogFragment extends BaseFragment
 		return TAG;
 	}
 
-	private void onBlogPostsLoaded(List<BlogPostItem> items) {
-		adapter.submitList(items, () -> {
-			Boolean wasLocal = viewModel.getPostAddedWasLocalAndReset();
+	private void onBlogPostsLoaded(ListUpdate update) {
+		adapter.submitList(update.getItems(), () -> {
+			Boolean wasLocal = update.getPostAddedWasLocal();
 			if (wasLocal != null && wasLocal) {
 				list.scrollToPosition(0);
 				displaySnackbar(R.string.blogs_blog_post_created,
