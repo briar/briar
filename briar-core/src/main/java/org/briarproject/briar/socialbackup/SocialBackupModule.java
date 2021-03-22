@@ -7,9 +7,7 @@ import org.briarproject.bramble.api.lifecycle.LifecycleManager;
 import org.briarproject.bramble.api.sync.validation.ValidationManager;
 import org.briarproject.bramble.api.system.Clock;
 import org.briarproject.bramble.api.versioning.ClientVersioningManager;
-import org.briarproject.briar.android.socialbackup.DarkCrystalImpl;
 import org.briarproject.briar.api.conversation.ConversationManager;
-import org.briarproject.briar.api.socialbackup.DarkCrystal;
 import org.briarproject.briar.api.socialbackup.SocialBackupManager;
 
 import javax.inject.Inject;
@@ -23,7 +21,7 @@ import static org.briarproject.briar.api.socialbackup.SocialBackupManager.MAJOR_
 import static org.briarproject.briar.api.socialbackup.SocialBackupManager.MINOR_VERSION;
 
 @Module
-public class AndroidSocialBackupModule {
+public class SocialBackupModule {
 
 	public static class EagerSingletons {
 		@Inject
@@ -91,10 +89,5 @@ public class AndroidSocialBackupModule {
 	@Provides
 	MessageParser messageParser(MessageParserImpl messageParser) {
 		return messageParser;
-	}
-
-	@Provides
-	DarkCrystal darkCrystal(DarkCrystalImpl darkCrystal) {
-		return darkCrystal;
 	}
 }
