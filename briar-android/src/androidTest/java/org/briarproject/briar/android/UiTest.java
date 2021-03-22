@@ -52,7 +52,7 @@ public abstract class UiTest {
 		@Override
 		protected void beforeActivityLaunched() {
 			super.beforeActivityLaunched();
-			accountManager.deleteAccount();
+			// Android Test Orchestrator already clears existing accounts
 			accountManager.createAccount(USERNAME, PASSWORD);
 			Intent serviceIntent =
 					new Intent(getApplicationContext(), BriarService.class);

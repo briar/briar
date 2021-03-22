@@ -14,7 +14,6 @@ import org.junit.runner.RunWith;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.test.espresso.contrib.DrawerActions;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
-import androidx.test.rule.ActivityTestRule;
 
 import static androidx.test.core.app.ApplicationProvider.getApplicationContext;
 import static androidx.test.espresso.Espresso.onView;
@@ -38,8 +37,8 @@ import static org.junit.Assume.assumeTrue;
 public class SettingsActivityScreenshotTest extends ScreenshotTest {
 
 	@Rule
-	public ActivityTestRule<SettingsActivity> testRule =
-			new ActivityTestRule<>(SettingsActivity.class);
+	public CleanAccountTestRule<SettingsActivity> testRule =
+			new CleanAccountTestRule<>(SettingsActivity.class);
 
 	@Override
 	protected void inject(BriarUiTestComponent component) {

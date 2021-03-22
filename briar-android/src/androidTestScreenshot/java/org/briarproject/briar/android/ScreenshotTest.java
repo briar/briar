@@ -10,6 +10,7 @@ import org.junit.ClassRule;
 
 import javax.inject.Inject;
 
+import androidx.test.ext.junit.rules.ActivityScenarioRule;
 import tools.fastlane.screengrab.FalconScreenshotStrategy;
 import tools.fastlane.screengrab.Screengrab;
 import tools.fastlane.screengrab.locale.LocaleTestRule;
@@ -25,6 +26,10 @@ public abstract class ScreenshotTest extends UiTest {
 	protected ConnectionRegistry connectionRegistry;
 	@Inject
 	protected Clock clock;
+
+	protected void screenshot(String name, ActivityScenarioRule<?> rule) {
+		rule.getScenario().onActivity(activity -> screenshot(name, activity));
+	}
 
 	protected void screenshot(String name, Activity activity) {
 		try {

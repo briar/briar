@@ -40,6 +40,7 @@ android test:
     paths:
       - kernel.log
       - logcat.txt
+      - briar-android/build/reports/androidTests/connected/flavors/*
     expire_in: 3 days
     when: on_failure
   when: manual
