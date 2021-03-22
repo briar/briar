@@ -42,11 +42,14 @@ import org.briarproject.briar.api.client.MessageTracker;
 import org.briarproject.briar.api.conversation.ConversationManager;
 import org.briarproject.briar.api.conversation.ConversationMessageHeader;
 import org.briarproject.briar.api.conversation.DeletionResult;
+import org.briarproject.briar.api.privategroup.PrivateGroup;
+import org.briarproject.briar.api.privategroup.event.GroupInvitationRequestReceivedEvent;
 import org.briarproject.briar.api.socialbackup.BackupExistsException;
 import org.briarproject.briar.api.socialbackup.BackupMetadata;
 import org.briarproject.briar.api.socialbackup.DarkCrystal;
 import org.briarproject.briar.api.socialbackup.Shard;
 import org.briarproject.briar.api.socialbackup.ShardMessageHeader;
+import org.briarproject.briar.api.socialbackup.ShardReceivedEvent;
 import org.briarproject.briar.api.socialbackup.SocialBackupManager;
 import org.briarproject.briar.client.ConversationClientImpl;
 
@@ -182,15 +185,15 @@ class SocialBackupManagerImpl extends ConversationClientImpl
 			if (findMessage(txn, m.getGroupId(), SHARD, false) != null) {
 				throw new FormatException();
 			}
+			ContactId contactId = getContactId(txn, m.getGroupId());
 			// Add the shard to our backup, if any
 			if (localBackupExists(txn)) {
 				Shard shard = messageParser.parseShardMessage(body);
-				ContactId c = getContactId(txn, m.getGroupId());
 				List<ContactData> contactData = loadContactData(txn);
 				ListIterator<ContactData> it = contactData.listIterator();
 				while (it.hasNext()) {
 					ContactData cd = it.next();
-					if (cd.getContact().getId().equals(c)) {
+					if (cd.getContact().getId().equals(contactId)) {
 						it.set(new ContactData(cd.getContact(),
 								cd.getProperties(), shard));
 						updateBackup(txn, contactData);
@@ -199,8 +202,11 @@ class SocialBackupManagerImpl extends ConversationClientImpl
 				}
 			}
 			messageTracker.trackIncomingMessage(txn, m);
-			// TODO broadcast an event, extending ConversationMessageReceivedEvent
-			// attach the header to this event
+
+			MessageStatus status = db.getMessageStatus(txn, contactId,
+					m.getId());
+			txn.attach(new ShardReceivedEvent(
+					createShardMessageHeader(m, meta, status), contactId));
 		} else if (type == BACKUP) {
 			// Keep the newest version of the backup, delete any older versions
 			int version = meta.getLong(MSG_KEY_VERSION).intValue();
@@ -286,6 +292,27 @@ class SocialBackupManagerImpl extends ConversationClientImpl
 				MAJOR_VERSION, c);
 	}
 
+	private ShardMessageHeader createShardMessageHeader(
+			Message message, BdfDictionary meta, MessageStatus status
+	)
+			throws FormatException {
+
+		boolean isLocal = meta.getBoolean(MSG_KEY_LOCAL);
+
+		long timestamp;
+		if (isLocal) {
+			timestamp = meta.getLong(MSG_KEY_TIMESTAMP);
+		} else {
+			timestamp = message.getTimestamp();
+		}
+		List<AttachmentHeader> attachmentHeaders =
+				new ArrayList<>();
+		return new ShardMessageHeader(
+				message.getId(), message.getGroupId(), timestamp,
+				isLocal, false, status.isSent(), status.isSeen(),
+				attachmentHeaders);
+	}
+
 	@Override
 	public Collection<ConversationMessageHeader> getMessageHeaders(
 			Transaction txn, ContactId contactId) throws DbException {
@@ -301,25 +328,11 @@ class SocialBackupManagerImpl extends ConversationClientImpl
 				BdfDictionary meta = messageEntry.getValue();
 				if (meta.getLong(MSG_KEY_MESSAGE_TYPE).intValue() ==
 						SHARD.getValue()) {
-					boolean isLocal = meta.getBoolean(MSG_KEY_LOCAL);
-
+					Message message = clientHelper
+							.getMessage(txn, messageEntry.getKey());
 					MessageStatus status = db.getMessageStatus(txn, contactId,
 							messageEntry.getKey());
-					long timestamp;
-					if (isLocal) {
-						timestamp = meta.getLong(MSG_KEY_TIMESTAMP);
-					} else {
-						Message message = clientHelper
-								.getMessage(txn, messageEntry.getKey());
-						timestamp = message.getTimestamp();
-					}
-					List<AttachmentHeader> attachmentHeaders =
-							new ArrayList<>();
-					ShardMessageHeader shardHeader = new ShardMessageHeader(
-							messageEntry.getKey(), contactGroupId, timestamp,
-							isLocal, false, status.isSent(), status.isSeen(),
-							attachmentHeaders);
-					headers.add(shardHeader);
+					headers.add(createShardMessageHeader(message, meta, status));
 				}
 			}
 			return headers;
