@@ -230,6 +230,17 @@ class SocialBackupManagerImpl extends ConversationClientImpl
 		return false;
 	}
 
+	public boolean amCustodian(Transaction txn, ContactId contactId) {
+		try {
+			GroupId groupId = getContactGroup(db.getContact(txn, contactId)).getId();
+			return findMessage(txn, groupId, SHARD, false) != null;
+		} catch (DbException e) {
+			return false;
+		} catch (FormatException e) {
+			return false;
+		}
+	}
+
 	@Nullable
 	@Override
 	public BackupMetadata getBackupMetadata(Transaction txn)

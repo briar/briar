@@ -1,5 +1,6 @@
 package org.briarproject.briar.api.socialbackup;
 
+import org.briarproject.bramble.api.contact.Contact;
 import org.briarproject.bramble.api.contact.ContactId;
 import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.db.Transaction;
@@ -52,4 +53,6 @@ public interface SocialBackupManager extends
 	@Override
 	Collection<ConversationMessageHeader> getMessageHeaders(
 			Transaction txn, ContactId contactId) throws DbException;
+
+	boolean amCustodian(Transaction txn, ContactId contactId);
 }

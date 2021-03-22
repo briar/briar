@@ -122,6 +122,9 @@ public class SocialBackupIntegrationTest
 			ShardMessageHeader s = (ShardMessageHeader) h;
 			assertFalse(s.isLocal());
 		}
+        db1.transaction(false, txn -> {
+        	assertTrue(socialBackupManager1.amCustodian(txn, contactId0From1));
+        });
 
 		// the shard message from 0 should have arrived at 2
 		Collection<ConversationMessageHeader> messages0At2 =
