@@ -105,7 +105,7 @@ class FeedViewModel extends BaseViewModel {
 				logDuration(LOG, "Loading personal blog", start);
 				personalBlog.postValue(b);
 			} catch (DbException e) {
-				logException(LOG, WARNING, e);
+				handleException(e);
 			}
 		});
 	}

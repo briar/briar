@@ -142,7 +142,7 @@ abstract class BaseViewModel extends DbViewModel implements EventListener {
 		runOnDbThread(true, txn -> {
 			BlogPostItem item = getItem(txn, header);
 			txn.attach(() -> onBlogPostItemAdded(item, local));
-		}, e -> logException(LOG, WARNING, e));
+		}, this::handleException);
 	}
 
 	@UiThread
@@ -163,7 +163,7 @@ abstract class BaseViewModel extends DbViewModel implements EventListener {
 				BlogPostHeader h = item.getHeader();
 				blogManager.addLocalComment(a, b.getId(), comment, h);
 			} catch (DbException e) {
-				logException(LOG, WARNING, e);
+				handleException(e);
 			}
 		});
 	}

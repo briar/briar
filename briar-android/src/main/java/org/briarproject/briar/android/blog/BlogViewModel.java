@@ -39,10 +39,8 @@ import androidx.annotation.UiThread;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
-import static java.util.logging.Level.WARNING;
 import static java.util.logging.Logger.getLogger;
 import static org.briarproject.bramble.util.LogUtils.logDuration;
-import static org.briarproject.bramble.util.LogUtils.logException;
 import static org.briarproject.bramble.util.LogUtils.now;
 
 @MethodsNotNullByDefault
@@ -132,7 +130,7 @@ class BlogViewModel extends BaseViewModel {
 				blog.postValue(new BlogItem(b, ours, removable));
 				logDuration(LOG, "Loading blog", start);
 			} catch (DbException e) {
-				logException(LOG, WARNING, e);
+				handleException(e);
 			}
 		});
 	}
@@ -155,7 +153,7 @@ class BlogViewModel extends BaseViewModel {
 			Collection<Contact> contacts =
 					blogSharingManager.getSharedWith(txn, groupId);
 			txn.attach(() -> onSharingContactsLoaded(contacts));
-		}, e -> logException(LOG, WARNING, e));
+		}, this::handleException);
 	}
 
 	@UiThread
@@ -173,7 +171,7 @@ class BlogViewModel extends BaseViewModel {
 				blogManager.removeBlog(b);
 				logDuration(LOG, "Removing blog", start);
 			} catch (DbException e) {
-				logException(LOG, WARNING, e);
+				handleException(e);
 			}
 		});
 	}
