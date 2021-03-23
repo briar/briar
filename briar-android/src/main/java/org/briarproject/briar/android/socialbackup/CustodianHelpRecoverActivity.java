@@ -11,7 +11,6 @@ import org.briarproject.briar.R;
 import org.briarproject.briar.android.activity.ActivityComponent;
 import org.briarproject.briar.android.activity.BriarActivity;
 import org.briarproject.briar.android.fragment.BaseFragment;
-import org.briarproject.briar.api.socialbackup.BackupMetadata;
 import org.briarproject.briar.api.socialbackup.SocialBackupManager;
 
 import javax.inject.Inject;
@@ -41,7 +40,7 @@ public class CustodianHelpRecoverActivity extends BriarActivity implements
 		if (id == -1) throw new IllegalStateException("No ContactId");
 		ContactId contactId = new ContactId(id);
 
-        // check if we have a shard for this secret owner
+		// check if we have a shard for this secret owner
 		try {
 			db.transaction(false, txn -> {
 				if (!socialBackupManager.amCustodian(txn, contactId)) {

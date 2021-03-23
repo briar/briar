@@ -27,7 +27,6 @@ public class ThresholdSelectorFragment extends BaseFragment {
 
 	protected ThresholdDefinedListener listener;
 
-	// TODO this should be the actual number of custodians
 	private int numberOfCustodians;
 	private int threshold;
 	private int recommendedThreshold;
@@ -59,20 +58,31 @@ public class ThresholdSelectorFragment extends BaseFragment {
 				container, false);
 		Bundle args = requireArguments();
 		numberOfCustodians = args.getInt(NUMBER_CUSTODIANS);
-
 		seekBar = view.findViewById(R.id.seekBar);
 		thresholdRepresentation =
 				view.findViewById(R.id.textViewThresholdRepresentation);
 		message = view.findViewById(R.id.textViewMessage);
 		mOfn = view.findViewById(R.id.textViewmOfn);
-		int max = numberOfCustodians - 3;
-		seekBar.setMax(max);
-		seekBar.setOnSeekBarChangeListener(new SeekBarListener());
-		recommendedThreshold =
-				SecretSharingWrapper.defaultThreshold(numberOfCustodians);
-		threshold = recommendedThreshold;
-		seekBar.setProgress(threshold - 2);
 
+		if (numberOfCustodians == 2) {
+			message.setText(R.string.threshold_too_few_custodians);
+		}
+		if (numberOfCustodians > 3) {
+			seekBar.setMax(numberOfCustodians -3);
+			seekBar.setProgress(threshold - 2);
+			seekBar.setOnSeekBarChangeListener(new SeekBarListener());
+			recommendedThreshold =
+					SecretSharingWrapper.defaultThreshold(numberOfCustodians);
+			threshold = recommendedThreshold;
+
+		} else {
+			seekBar.setEnabled(false);
+			threshold = 2;
+			seekBar.setMax(numberOfCustodians);
+			seekBar.setProgress(threshold);
+			TextView t = view.findViewById(R.id.title_threshold);
+			t.setText(R.string.threshold_disabled);
+		}
 		thresholdRepresentation.setText(buildThresholdRepresentationString());
 		setmOfnText();
 		return view;
@@ -81,7 +91,7 @@ public class ThresholdSelectorFragment extends BaseFragment {
 
 	private void setmOfnText() {
 		mOfn.setText(String.format(
-				"%d of %d contacts needed to recover your account", threshold,
+				getString(R.string.threshold_m_of_n), threshold,
 				numberOfCustodians));
 	}
 
