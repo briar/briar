@@ -303,6 +303,79 @@ public class AutoDeleteIntegrationTest extends AbstractAutoDeleteTest {
 	}
 
 	/**
+	 * Go through two full cycles of introducing two contacts with
+	 * self-destructing messages enabled, lettings them both introducees expire
+	 * their introductions, thereby auto-declining it.
+	 */
+	@Test
+	public void testTwoIntroductionCycles() throws Exception {
+		// FIRST CYCLE
+		introduceAndAutoDecline();
+
+		// SECOND CYCLE
+		introduceAndAutoDecline();
+	}
+
+	private void introduceAndAutoDecline() throws Exception {
+		// send introduction
+		makeIntroduction(true, true);
+		markMessagesRead(c1, contact0From1);
+		markMessagesRead(c2, contact0From2);
+		assertGroupCounts(1, 0, 1, 0, 1, 0, 1, 0);
+
+		// ack from 1 and 2 to 0. This starts 0's timer
+		ack1To0(1);
+		ack2To0(1);
+		waitForEvents(c0);
+
+		// time travel on all devices, destroying the introductions at 0 and
+		// making 1 and 2 auto-decline
+		timeTravel(c0);
+		timeTravel(c1);
+		timeTravel(c2);
+		assertGroupCounts(0, 0, 0, 0, 1, 0, 1, 0);
+
+		// sync the auto-decline messages to 0
+		sync1To0(1, true);
+		sync2To0(1, true);
+		waitForEvents(c0);
+		assertGroupCounts(1, 1, 1, 1, 1, 0, 1, 0);
+
+		// mark declines read on 0, starting the timer there and let them expire
+		markMessagesRead(c0, contact1From0);
+		markMessagesRead(c0, contact2From0);
+		timeTravel(c0);
+		assertGroupCounts(0, 0, 0, 0, 1, 0, 1, 0);
+
+		// sync responses to 1 and 2
+		sync0To1(1, true);
+		sync0To2(1, true);
+		waitForEvents(c1);
+		waitForEvents(c2);
+
+		// ack the responses to 0 to clear the ack counts for subsequent cycles,
+		// also starts the timer for the responses at 1 and 2
+		ack1To0(1);
+		ack2To0(1);
+		waitForEvents(c0);
+		assertGroupCounts(0, 0, 0, 0, 1, 0, 1, 0);
+
+		// let timers for responses expire
+		timeTravel(c1);
+		timeTravel(c2);
+		assertGroupCounts(0, 0, 0, 0, 0, 0, 0, 0);
+	}
+
+	private void assertGroupCounts(int count01, int unread01, int count02,
+			int unread02, int count10, int unread10, int count20, int unread20)
+			throws Exception {
+		assertGroupCountAt0With1(count01, unread01);
+		assertGroupCountAt0With2(count02, unread02);
+		assertGroupCountAt1With0(count10, unread10);
+		assertGroupCountAt2With0(count20, unread20);
+	}
+
+	/**
 	 * Let introductions self-destruct at the introducer and one of the
 	 * introducees
 	 * ASSERT that auto-declines get sent and arrive
