@@ -64,6 +64,11 @@ public class DistributedBackupActivity extends BriarActivity implements
 				String.format("selected %d contacts", contacts.size()),
 				Toast.LENGTH_SHORT).show();
 		custodians = contacts;
+		if (contacts.size() < 4) {
+			// For 2 or 3 contacts, there is no choice of threshold
+			thresholdDefined(2);
+			return;
+		}
 		ThresholdSelectorFragment fragment =
 				ThresholdSelectorFragment.newInstance(contacts.size());
 		showNextFragment(fragment);
