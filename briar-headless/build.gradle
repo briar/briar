@@ -76,7 +76,7 @@ void jarFactory(Jar jarTask, jarArchitecture) {
 		JarFile srcJarFile = new JarFile(srcFile)
 		OutputStream destStream = new JarOutputStream(new FileOutputStream(jar))
 		// Read and sort the entries
-		Map<String, JarEntry> entries = new TreeMap<String, JarEntry>()
+		Map<String, JarEntry> entries = new TreeMap<>()
 		for (JarEntry e : list(srcJarFile.entries())) entries.put(e.getName(), e)
 		// Write the sorted entries
 		for (JarEntry srcEntry : entries.values()) {
