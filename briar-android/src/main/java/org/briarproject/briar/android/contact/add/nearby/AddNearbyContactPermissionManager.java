@@ -1,5 +1,7 @@
 package org.briarproject.briar.android.contact.add.nearby;
 
+import android.content.Context;
+
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.activity.BaseActivity;
 
@@ -11,6 +13,8 @@ import static android.Manifest.permission.ACCESS_FINE_LOCATION;
 import static android.Manifest.permission.CAMERA;
 import static android.content.pm.PackageManager.PERMISSION_GRANTED;
 import static android.os.Build.VERSION.SDK_INT;
+import static androidx.core.app.ActivityCompat.shouldShowRequestPermissionRationale;
+import static androidx.core.content.ContextCompat.checkSelfPermission;
 import static org.briarproject.briar.android.activity.RequestCodes.REQUEST_PERMISSION_CAMERA_LOCATION;
 import static org.briarproject.briar.android.util.UiUtils.getGoToSettingsListener;
 
@@ -35,6 +39,15 @@ class AddNearbyContactPermissionManager {
 	void resetPermissions() {
 		cameraPermission = Permission.UNKNOWN;
 		locationPermission = Permission.UNKNOWN;
+	}
+
+	static boolean areEssentialPermissionsGranted(Context ctx,
+			boolean isBluetoothSupported) {
+		int ok = PERMISSION_GRANTED;
+		return checkSelfPermission(ctx, CAMERA) == ok &&
+				(SDK_INT < 23 ||
+						checkSelfPermission(ctx, ACCESS_FINE_LOCATION) == ok ||
+						!isBluetoothSupported);
 	}
 
 	boolean areEssentialPermissionsGranted() {
@@ -147,8 +160,7 @@ class AddNearbyContactPermissionManager {
 	}
 
 	private boolean shouldShowRationale(String permission) {
-		return ActivityCompat
-				.shouldShowRequestPermissionRationale(ctx, permission);
+		return shouldShowRequestPermissionRationale(ctx, permission);
 	}
 
 }

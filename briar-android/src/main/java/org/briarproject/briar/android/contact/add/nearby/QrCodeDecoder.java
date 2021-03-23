@@ -18,6 +18,7 @@ import org.briarproject.bramble.api.lifecycle.IoExecutor;
 import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
+import org.briarproject.bramble.api.system.AndroidExecutor;
 
 import java.util.concurrent.Executor;
 import java.util.logging.Logger;
@@ -35,6 +36,7 @@ class QrCodeDecoder implements PreviewConsumer, PreviewCallback {
 
 	private static final Logger LOG = getLogger(QrCodeDecoder.class.getName());
 
+	private final AndroidExecutor androidExecutor;
 	private final Executor ioExecutor;
 	private final Reader reader = new QRCodeReader();
 	private final ResultCallback callback;
@@ -42,7 +44,9 @@ class QrCodeDecoder implements PreviewConsumer, PreviewCallback {
 	private Camera camera = null;
 	private int cameraIndex = 0;
 
-	QrCodeDecoder(@IoExecutor Executor ioExecutor, ResultCallback callback) {
+	QrCodeDecoder(AndroidExecutor androidExecutor,
+			@IoExecutor Executor ioExecutor, ResultCallback callback) {
+		this.androidExecutor = androidExecutor;
 		this.ioExecutor = ioExecutor;
 		this.callback = callback;
 	}
@@ -104,9 +108,9 @@ class QrCodeDecoder implements PreviewConsumer, PreviewCallback {
 				LOG.warning("Invalid preview frame");
 			} finally {
 				reader.reset();
+				androidExecutor.runOnUiThread(this::askForPreviewFrame);
 			}
 		});
-		askForPreviewFrame();
 	}
 
 	private static BinaryBitmap binarize(byte[] data, int width, int height,

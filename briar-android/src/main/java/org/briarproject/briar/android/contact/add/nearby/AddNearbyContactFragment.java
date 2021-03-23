@@ -171,10 +171,8 @@ public class AddNearbyContactFragment extends BaseFragment
 			status.setText(R.string.waiting_for_contact_to_scan);
 		} else if (state instanceof KeyAgreementStarted) {
 			qrCodeView.setVisibility(INVISIBLE);
-			statusView.setVisibility(VISIBLE);
 			status.setText(R.string.authenticating_with_device);
 		} else if (state instanceof ContactExchangeStarted) {
-			statusView.setVisibility(VISIBLE);
 			status.setText(R.string.exchanging_contact_details);
 		} else if (state instanceof Failed) {
 			// the activity will replace this fragment with an error fragment

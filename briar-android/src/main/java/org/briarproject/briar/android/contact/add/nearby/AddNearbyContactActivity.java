@@ -1,16 +1,12 @@
 package org.briarproject.briar.android.contact.add.nearby;
 
-import android.content.BroadcastReceiver;
-import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.os.Bundle;
 import android.view.MenuItem;
 import android.widget.Toast;
 
 import org.briarproject.bramble.api.identity.Author;
 import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
-import org.briarproject.bramble.api.nullsafety.NullSafety;
 import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.activity.ActivityComponent;
@@ -21,25 +17,25 @@ import org.briarproject.briar.android.contact.add.nearby.AddContactState.Failed;
 import org.briarproject.briar.android.contact.add.nearby.AddNearbyContactViewModel.BluetoothDecision;
 import org.briarproject.briar.android.fragment.BaseFragment;
 import org.briarproject.briar.android.fragment.BaseFragment.BaseFragmentListener;
+import org.briarproject.briar.android.util.RequestBluetoothDiscoverable;
 
 import java.util.logging.Logger;
 
 import javax.annotation.Nullable;
 import javax.inject.Inject;
 
+import androidx.activity.result.ActivityResultLauncher;
 import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.FragmentManager;
 import androidx.lifecycle.ViewModelProvider;
 
 import static android.bluetooth.BluetoothAdapter.ACTION_REQUEST_DISCOVERABLE;
-import static android.bluetooth.BluetoothAdapter.ACTION_SCAN_MODE_CHANGED;
+import static android.content.Intent.FLAG_ACTIVITY_CLEAR_TOP;
 import static android.widget.Toast.LENGTH_LONG;
 import static java.util.Objects.requireNonNull;
 import static java.util.logging.Logger.getLogger;
-import static org.briarproject.briar.android.activity.RequestCodes.REQUEST_BLUETOOTH_DISCOVERABLE;
 import static org.briarproject.briar.android.contact.add.nearby.AddNearbyContactViewModel.BluetoothDecision.ACCEPTED;
 import static org.briarproject.briar.android.contact.add.nearby.AddNearbyContactViewModel.BluetoothDecision.REFUSED;
-import static org.briarproject.briar.android.contact.add.nearby.AddNearbyContactViewModel.BluetoothDecision.UNKNOWN;
 
 @MethodsNotNullByDefault
 @ParametersNotNullByDefault
@@ -55,14 +51,9 @@ public class AddNearbyContactActivity extends BriarActivity
 	private AddNearbyContactViewModel viewModel;
 	private AddNearbyContactPermissionManager permissionManager;
 
-	/**
-	 * Set to true in onPostResume() and false in onPause(). This prevents the
-	 * QR code fragment from being shown if onRequestPermissionsResult() is
-	 * called while the activity is paused, which could cause a crash due to
-	 * https://issuetracker.google.com/issues/37067655.
-	 */
-	private boolean isResumed = false;
-	private BroadcastReceiver bluetoothReceiver = null;
+	private final ActivityResultLauncher<Integer> bluetoothLauncher =
+			registerForActivityResult(new RequestBluetoothDiscoverable(),
+					this::onBluetoothDiscoverableResult);
 
 	@Override
 	public void injectActivity(ActivityComponent component) {
@@ -79,21 +70,14 @@ public class AddNearbyContactActivity extends BriarActivity
 		setContentView(R.layout.activity_fragment_container_toolbar);
 		Toolbar toolbar = findViewById(R.id.toolbar);
 		setSupportActionBar(toolbar);
-		NullSafety.requireNonNull(getSupportActionBar())
-				.setDisplayHomeAsUpEnabled(true);
+		requireNonNull(getSupportActionBar()).setDisplayHomeAsUpEnabled(true);
 		if (state == null) {
 			showInitialFragment(AddNearbyContactIntroFragment.newInstance());
 		}
-		IntentFilter filter = new IntentFilter(ACTION_SCAN_MODE_CHANGED);
-		bluetoothReceiver = new BluetoothStateReceiver();
-		registerReceiver(bluetoothReceiver, filter);
-		viewModel.getWasContinueClicked().observe(this, clicked -> {
-			if (clicked && permissionManager.checkPermissions()) {
-				showQrCodeFragmentIfAllowed();
-			}
-		});
-		viewModel.getTransportStateChanged().observeEvent(this,
-				t -> showQrCodeFragmentIfAllowed());
+		viewModel.getCheckPermissions().observeEvent(this, check ->
+				permissionManager.checkPermissions()); // never false
+		viewModel.getRequestBluetoothDiscoverable().observeEvent(this, r ->
+				requestBluetoothDiscoverable()); // never false
 		viewModel.getShowQrCodeFragment().observeEvent(this, show -> {
 			if (show) showQrCodeFragment();
 		});
@@ -113,37 +97,23 @@ public class AddNearbyContactActivity extends BriarActivity
 	@Override
 	protected void onPostResume() {
 		super.onPostResume();
-		isResumed = true;
-		// Workaround for
-		// https://code.google.com/p/android/issues/detail?id=190966
-		showQrCodeFragmentIfAllowed();
+		viewModel.setIsActivityResumed(true);
 	}
 
 	@Override
 	protected void onPause() {
 		super.onPause();
-		isResumed = false;
+		viewModel.setIsActivityResumed(false);
 	}
 
-	@Override
-	public void onDestroy() {
-		super.onDestroy();
-		if (bluetoothReceiver != null) unregisterReceiver(bluetoothReceiver);
-	}
-
-	@Override
-	public void onActivityResult(int request, int result,
-			@Nullable Intent data) {
-		if (request == REQUEST_BLUETOOTH_DISCOVERABLE) {
-			if (result == RESULT_CANCELED) {
-				LOG.info("Bluetooth discoverability was refused");
-				viewModel.bluetoothDecision = REFUSED;
-			} else {
-				LOG.info("Bluetooth discoverability was accepted");
-				viewModel.bluetoothDecision = ACCEPTED;
-			}
-			showQrCodeFragmentIfAllowed();
-		} else super.onActivityResult(request, result, data);
+	private void onBluetoothDiscoverableResult(boolean discoverable) {
+		if (discoverable) {
+			LOG.info("Bluetooth discoverability was accepted");
+			viewModel.setBluetoothDecision(ACCEPTED);
+		} else {
+			LOG.info("Bluetooth discoverability was refused");
+			viewModel.setBluetoothDecision(REFUSED);
+		}
 	}
 
 	@Override
@@ -161,14 +131,16 @@ public class AddNearbyContactActivity extends BriarActivity
 		super.onRequestPermissionsResult(requestCode, permissions,
 				grantResults);
 		permissionManager.onRequestPermissionsResult(requestCode, permissions,
-				grantResults, this::showQrCodeFragmentIfAllowed);
+				grantResults, viewModel::showQrCodeFragmentIfAllowed);
 	}
 
 	@Override
 	public void onBackPressed() {
 		if (viewModel.getState().getValue() instanceof Failed) {
-			// finish this activity when going back in failed state
-			supportFinishAfterTransition();
+			// re-create this activity when going back in failed state
+			Intent i = new Intent(this, AddNearbyContactActivity.class);
+			i.setFlags(FLAG_ACTIVITY_CLEAR_TOP);
+			startActivity(i);
 		} else {
 			super.onBackPressed();
 		}
@@ -176,41 +148,15 @@ public class AddNearbyContactActivity extends BriarActivity
 
 	private void requestBluetoothDiscoverable() {
 		if (!viewModel.isBluetoothSupported()) {
-			viewModel.bluetoothDecision = BluetoothDecision.NO_ADAPTER;
-			showQrCodeFragmentIfAllowed();
+			viewModel.setBluetoothDecision(BluetoothDecision.NO_ADAPTER);
 		} else {
 			Intent i = new Intent(ACTION_REQUEST_DISCOVERABLE);
 			if (i.resolveActivity(getPackageManager()) != null) {
 				LOG.info("Asking for Bluetooth discoverability");
-				viewModel.bluetoothDecision = BluetoothDecision.WAITING;
-				startActivityForResult(i, REQUEST_BLUETOOTH_DISCOVERABLE);
+				viewModel.setBluetoothDecision(BluetoothDecision.WAITING);
+				bluetoothLauncher.launch(120); // 2min discoverable
 			} else {
-				viewModel.bluetoothDecision = BluetoothDecision.NO_ADAPTER;
-				showQrCodeFragmentIfAllowed();
-			}
-		}
-	}
-
-	@SuppressWarnings("StatementWithEmptyBody")
-	private void showQrCodeFragmentIfAllowed() {
-		boolean continueClicked = // never set to null
-				NullSafety.requireNonNull(
-						viewModel.getWasContinueClicked().getValue());
-		boolean permissionsGranted =
-				permissionManager.areEssentialPermissionsGranted();
-		if (isResumed && continueClicked && permissionsGranted) {
-			if (viewModel.isWifiReady() && viewModel.isBluetoothReady()) {
-				LOG.info("Wifi and Bluetooth are ready");
-				viewModel.startAddingContact();
-			} else {
-				viewModel.enableWifiIfWeShould();
-				if (viewModel.bluetoothDecision == UNKNOWN) {
-					requestBluetoothDiscoverable();
-				} else if (viewModel.bluetoothDecision == REFUSED) {
-					// Ask again when the user clicks "continue"
-				} else {
-					viewModel.enableBluetoothIfWeShould();
-				}
+				viewModel.setBluetoothDecision(BluetoothDecision.NO_ADAPTER);
 			}
 		}
 	}
@@ -233,11 +179,6 @@ public class AddNearbyContactActivity extends BriarActivity
 					((ContactExchangeFinished) state).result;
 			onContactExchangeResult(result);
 		} else if (state instanceof Failed) {
-			// Remove navigation icon, so user can't go back when failed
-			// ErrorFragment will finish or relaunch this activity
-			Toolbar toolbar = findViewById(R.id.toolbar);
-			toolbar.setNavigationIcon(null);
-
 			Boolean qrCodeTooOld = ((Failed) state).qrCodeTooOld;
 			onAddingContactFailed(qrCodeTooOld);
 		}
@@ -286,11 +227,4 @@ public class AddNearbyContactActivity extends BriarActivity
 		showNextFragment(new AddNearbyContactErrorFragment());
 	}
 
-	private class BluetoothStateReceiver extends BroadcastReceiver {
-		@Override
-		public void onReceive(Context context, Intent intent) {
-			LOG.info("Bluetooth scan mode changed");
-			showQrCodeFragmentIfAllowed();
-		}
-	}
 }

@@ -2,6 +2,10 @@ package org.briarproject.briar.android.contact.add.nearby;
 
 import android.app.Application;
 import android.bluetooth.BluetoothAdapter;
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.graphics.Bitmap;
 import android.util.DisplayMetrics;
 import android.widget.Toast;
@@ -39,6 +43,7 @@ import org.briarproject.bramble.api.plugin.PluginManager;
 import org.briarproject.bramble.api.plugin.TransportId;
 import org.briarproject.bramble.api.plugin.duplex.DuplexTransportConnection;
 import org.briarproject.bramble.api.plugin.event.TransportStateEvent;
+import org.briarproject.bramble.api.system.AndroidExecutor;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.contact.add.nearby.AddContactState.ContactExchangeFinished;
 import org.briarproject.briar.android.contact.add.nearby.AddContactState.ContactExchangeResult.Error;
@@ -64,6 +69,7 @@ import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
+import static android.bluetooth.BluetoothAdapter.ACTION_SCAN_MODE_CHANGED;
 import static android.bluetooth.BluetoothAdapter.SCAN_MODE_CONNECTABLE_DISCOVERABLE;
 import static android.widget.Toast.LENGTH_LONG;
 import static java.util.Objects.requireNonNull;
@@ -75,6 +81,7 @@ import static org.briarproject.bramble.api.plugin.Plugin.State.DISABLED;
 import static org.briarproject.bramble.api.plugin.Plugin.State.INACTIVE;
 import static org.briarproject.bramble.api.plugin.Plugin.State.STARTING_STOPPING;
 import static org.briarproject.bramble.util.LogUtils.logException;
+import static org.briarproject.briar.android.contact.add.nearby.AddNearbyContactPermissionManager.areEssentialPermissionsGranted;
 import static org.briarproject.briar.android.contact.add.nearby.AddNearbyContactViewModel.BluetoothDecision.REFUSED;
 import static org.briarproject.briar.android.contact.add.nearby.AddNearbyContactViewModel.BluetoothDecision.UNKNOWN;
 
@@ -116,6 +123,7 @@ class AddNearbyContactViewModel extends AndroidViewModel
 	private static final Charset ISO_8859_1 = Charset.forName("ISO-8859-1");
 
 	private final EventBus eventBus;
+	private final AndroidExecutor androidExecutor;
 	private final Executor ioExecutor;
 	private final PluginManager pluginManager;
 	private final PayloadEncoder payloadEncoder;
@@ -124,28 +132,28 @@ class AddNearbyContactViewModel extends AndroidViewModel
 	private final ContactExchangeManager contactExchangeManager;
 	private final ConnectionManager connectionManager;
 
-	/**
-	 * Set to true when the continue button is clicked, and false when the QR
-	 * code fragment is shown. This prevents the QR code fragment from being
-	 * shown automatically before the continue button has been clicked.
-	 */
-	private final MutableLiveData<Boolean> wasContinueClicked =
-			new MutableLiveData<>(false);
-	private final MutableLiveEvent<Boolean> showQrCodeFragment =
+	private final MutableLiveEvent<Boolean> checkPermissions =
 			new MutableLiveEvent<>();
-	private final MutableLiveEvent<TransportId> transportStateChanged =
+	private final MutableLiveEvent<Boolean> requestBluetoothDiscoverable =
+			new MutableLiveEvent<>();
+	private final MutableLiveEvent<Boolean> showQrCodeFragment =
 			new MutableLiveEvent<>();
 	private final MutableLiveData<AddContactState> state =
 			new MutableLiveData<>();
 
 	final QrCodeDecoder qrCodeDecoder;
+	final BroadcastReceiver bluetoothReceiver = new BluetoothStateReceiver();
 
 	@Nullable
 	private final BluetoothAdapter bt;
 	@Nullable
 	private final Plugin wifiPlugin, bluetoothPlugin;
+
 	// UiThread
-	BluetoothDecision bluetoothDecision = BluetoothDecision.UNKNOWN;
+	private BluetoothDecision bluetoothDecision = BluetoothDecision.UNKNOWN;
+
+	private boolean wasContinueClicked = false;
+	private boolean isActivityResumed = false;
 
 	/**
 	 * Records whether we've enabled the wifi plugin so we don't enable it more
@@ -166,6 +174,7 @@ class AddNearbyContactViewModel extends AndroidViewModel
 	@Inject
 	AddNearbyContactViewModel(Application app,
 			EventBus eventBus,
+			AndroidExecutor androidExecutor,
 			@IoExecutor Executor ioExecutor,
 			PluginManager pluginManager,
 			PayloadEncoder payloadEncoder,
@@ -175,6 +184,7 @@ class AddNearbyContactViewModel extends AndroidViewModel
 			ConnectionManager connectionManager) {
 		super(app);
 		this.eventBus = eventBus;
+		this.androidExecutor = androidExecutor;
 		this.ioExecutor = ioExecutor;
 		this.pluginManager = pluginManager;
 		this.payloadEncoder = payloadEncoder;
@@ -185,13 +195,16 @@ class AddNearbyContactViewModel extends AndroidViewModel
 		bt = BluetoothAdapter.getDefaultAdapter();
 		wifiPlugin = pluginManager.getPlugin(LanTcpConstants.ID);
 		bluetoothPlugin = pluginManager.getPlugin(BluetoothConstants.ID);
-		qrCodeDecoder = new QrCodeDecoder(ioExecutor, this);
+		qrCodeDecoder = new QrCodeDecoder(androidExecutor, ioExecutor, this);
 		eventBus.addListener(this);
+		IntentFilter filter = new IntentFilter(ACTION_SCAN_MODE_CHANGED);
+		getApplication().registerReceiver(bluetoothReceiver, filter);
 	}
 
 	@Override
 	protected void onCleared() {
 		super.onCleared();
+		getApplication().unregisterReceiver(bluetoothReceiver);
 		eventBus.removeListener(this);
 		stopListening();
 	}
@@ -201,7 +214,9 @@ class AddNearbyContactViewModel extends AndroidViewModel
 		if (bluetoothDecision == REFUSED) {
 			bluetoothDecision = UNKNOWN; // Ask again
 		}
-		wasContinueClicked.setValue(true);
+		wasContinueClicked = true;
+		checkPermissions.setEvent(true);
+		showQrCodeFragmentIfAllowed();
 	}
 
 	@UiThread
@@ -266,7 +281,7 @@ class AddNearbyContactViewModel extends AndroidViewModel
 	void startAddingContact() {
 		// If we return to the intro fragment, the continue button needs to be
 		// clicked again before showing the QR code fragment
-		wasContinueClicked.setValue(false);
+		wasContinueClicked = false;
 		// If we return to the intro fragment, ask for Bluetooth
 		// discoverability again before showing the QR code fragment
 		bluetoothDecision = UNKNOWN;
@@ -310,12 +325,12 @@ class AddNearbyContactViewModel extends AndroidViewModel
 				if (LOG.isLoggable(INFO)) {
 					LOG.info("Bluetooth state changed to " + t.getState());
 				}
-				transportStateChanged.setEvent(t.getTransportId());
+				showQrCodeFragmentIfAllowed();
 			} else if (t.getTransportId().equals(LanTcpConstants.ID)) {
 				if (LOG.isLoggable(INFO)) {
 					LOG.info("Wifi state changed to " + t.getState());
 				}
-				transportStateChanged.setEvent(t.getTransportId());
+				showQrCodeFragmentIfAllowed();
 			}
 		} else if (e instanceof KeyAgreementListeningEvent) {
 			LOG.info("KeyAgreementListeningEvent received");
@@ -341,6 +356,28 @@ class AddNearbyContactViewModel extends AndroidViewModel
 			LOG.info("KeyAgreementFailedEvent received");
 			resetPayloadFlags();
 			state.setValue(new AddContactState.Failed());
+		}
+	}
+
+	@SuppressWarnings("StatementWithEmptyBody")
+	@UiThread
+	void showQrCodeFragmentIfAllowed() {
+		boolean permissionsGranted = areEssentialPermissionsGranted(
+				getApplication(), isBluetoothSupported());
+		if (isActivityResumed && wasContinueClicked && permissionsGranted) {
+			if (isWifiReady() && isBluetoothReady()) {
+				LOG.info("Wifi and Bluetooth are ready");
+				startAddingContact();
+			} else {
+				enableWifiIfWeShould();
+				if (bluetoothDecision == UNKNOWN) {
+					requestBluetoothDiscoverable.setEvent(true);
+				} else if (bluetoothDecision == REFUSED) {
+					// Ask again when the user clicks "continue"
+				} else {
+					enableBluetoothIfWeShould();
+				}
+			}
 		}
 	}
 
@@ -383,8 +420,8 @@ class AddNearbyContactViewModel extends AndroidViewModel
 			state.postValue(new AddContactState.Failed(e.isTooOld()));
 		} catch (IOException | IllegalArgumentException e) {
 			LOG.log(WARNING, "QR Code Invalid", e);
-			Toast.makeText(getApplication(), R.string.qr_code_invalid,
-					LENGTH_LONG).show();
+			androidExecutor.runOnUiThread(() -> Toast.makeText(getApplication(),
+					R.string.qr_code_invalid, LENGTH_LONG).show());
 			resetPayloadFlags();
 			state.postValue(new AddContactState.Failed());
 		}
@@ -423,6 +460,15 @@ class AddNearbyContactViewModel extends AndroidViewModel
 		});
 	}
 
+	private class BluetoothStateReceiver extends BroadcastReceiver {
+		@UiThread
+		@Override
+		public void onReceive(Context context, Intent intent) {
+			LOG.info("Bluetooth scan mode changed");
+			showQrCodeFragmentIfAllowed();
+		}
+	}
+
 	private void tryToClose(DuplexTransportConnection conn) {
 		try {
 			conn.getReader().dispose(true, true);
@@ -432,16 +478,33 @@ class AddNearbyContactViewModel extends AndroidViewModel
 		}
 	}
 
-	LiveData<Boolean> getWasContinueClicked() {
-		return wasContinueClicked;
+	/**
+	 * Set to true in onPostResume() and false in onPause(). This prevents the
+	 * QR code fragment from being shown if onRequestPermissionsResult() is
+	 * called while the activity is paused, which could cause a crash due to
+	 * https://issuetracker.google.com/issues/37067655.
+	 * TODO check if this is still happening when using new permission requesting
+	 */
+	@UiThread
+	void setIsActivityResumed(boolean resumed) {
+		isActivityResumed = resumed;
+		// Workaround for
+		// https://code.google.com/p/android/issues/detail?id=190966
+		showQrCodeFragmentIfAllowed();
 	}
 
-	/**
-	 * Receives an event when the transport state of the WiFi or Bluetooth
-	 * plugins changes.
-	 */
-	LiveEvent<TransportId> getTransportStateChanged() {
-		return transportStateChanged;
+	@UiThread
+	void setBluetoothDecision(BluetoothDecision decision) {
+		bluetoothDecision = decision;
+		showQrCodeFragmentIfAllowed();
+	}
+
+	LiveEvent<Boolean> getCheckPermissions() {
+		return checkPermissions;
+	}
+
+	LiveEvent<Boolean> getRequestBluetoothDiscoverable() {
+		return requestBluetoothDiscoverable;
 	}
 
 	LiveEvent<Boolean> getShowQrCodeFragment() {
