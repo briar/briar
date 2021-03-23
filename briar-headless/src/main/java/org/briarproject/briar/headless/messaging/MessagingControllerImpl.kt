@@ -11,9 +11,9 @@ import org.briarproject.bramble.api.db.DatabaseExecutor
 import org.briarproject.bramble.api.db.NoSuchContactException
 import org.briarproject.bramble.api.event.Event
 import org.briarproject.bramble.api.event.EventListener
+import org.briarproject.bramble.api.sync.MessageId
 import org.briarproject.bramble.api.sync.event.MessagesAckedEvent
 import org.briarproject.bramble.api.sync.event.MessagesSentEvent
-import org.briarproject.bramble.api.sync.MessageId
 import org.briarproject.bramble.api.system.Clock
 import org.briarproject.bramble.util.StringUtils.utf8IsTooLong
 import org.briarproject.briar.api.blog.BlogInvitationRequest
@@ -92,7 +92,7 @@ constructor(
 
         val messageIdString = ctx.getFromJson(objectMapper, "messageId")
         val messageId = deserializeMessageId(messageIdString)
-        messagingManager.setReadFlag(groupId, messageId, true)
+        conversationManager.setReadFlag(groupId, messageId, true)
         return ctx.json(messageIdString)
     }
 

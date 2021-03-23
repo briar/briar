@@ -5,6 +5,7 @@ import org.briarproject.bramble.api.sync.Group;
 import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.bramble.test.TestDatabaseConfigModule;
 import org.briarproject.briar.api.client.ProtocolStateException;
+import org.briarproject.briar.api.conversation.ConversationManager;
 import org.briarproject.briar.api.conversation.ConversationMessageHeader;
 import org.briarproject.briar.api.conversation.DeletionResult;
 import org.briarproject.briar.api.privategroup.GroupMessage;
@@ -41,6 +42,7 @@ public class GroupInvitationIntegrationTest
 	private PrivateGroupManager groupManager0, groupManager1;
 	private GroupInvitationManager groupInvitationManager0,
 			groupInvitationManager1;
+	private ConversationManager conversationManager1;
 	private Group g1From0, g0From1;
 
 	@Before
@@ -52,6 +54,7 @@ public class GroupInvitationIntegrationTest
 		groupManager1 = c1.getPrivateGroupManager();
 		groupInvitationManager0 = c0.getGroupInvitationManager();
 		groupInvitationManager1 = c1.getGroupInvitationManager();
+		conversationManager1 = c1.getConversationManager();
 		g1From0 = groupInvitationManager0.getContactGroup(contact1From0);
 		g0From1 = groupInvitationManager1.getContactGroup(contact0From1);
 
@@ -302,7 +305,7 @@ public class GroupInvitationIntegrationTest
 		assertGroupCount(messageTracker1, g0.getId(), 2, 1);
 
 		// now all messages should be read
-		groupInvitationManager1.setReadFlag(g0.getId(), m.getId(), true);
+		conversationManager1.setReadFlag(g0.getId(), m.getId(), true);
 		assertGroupCount(messageTracker1, g0.getId(), 2, 0);
 
 		sync1To0(1, true);

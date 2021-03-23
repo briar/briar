@@ -10,9 +10,9 @@ import org.briarproject.bramble.system.TimeTravelModule;
 import org.briarproject.bramble.test.TestDatabaseConfigModule;
 import org.briarproject.briar.api.autodelete.AutoDeleteManager;
 import org.briarproject.briar.api.client.MessageTracker.GroupCount;
+import org.briarproject.briar.api.conversation.ConversationManager;
 import org.briarproject.briar.api.conversation.ConversationManager.ConversationClient;
 import org.briarproject.briar.api.conversation.ConversationMessageHeader;
-import org.briarproject.briar.api.messaging.MessagingManager;
 import org.briarproject.briar.test.BriarIntegrationTest;
 import org.briarproject.briar.test.BriarIntegrationTestComponent;
 import org.briarproject.briar.test.DaggerBriarIntegrationTestComponent;
@@ -124,11 +124,12 @@ public abstract class AbstractAutoDeleteTest extends
 
 	protected void markMessageRead(BriarIntegrationTestComponent component,
 			Contact contact, MessageId messageId) throws Exception {
-		MessagingManager messagingManager = component.getMessagingManager();
+		ConversationManager conversationManager =
+				component.getConversationManager();
 		ConversationClient conversationClient =
 				getConversationClient(component);
 		GroupId groupId = conversationClient.getContactGroup(contact).getId();
-		messagingManager.setReadFlag(groupId, messageId, true);
+		conversationManager.setReadFlag(groupId, messageId, true);
 		waitForEvents(component);
 	}
 
