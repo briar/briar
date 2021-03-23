@@ -127,15 +127,6 @@ class MessagingManagerImpl implements MessagingManager, IncomingMessageHook,
 	}
 
 	@Override
-	public void setReadFlag(GroupId g, MessageId m, boolean read)
-			throws DbException {
-		db.transaction(false, txn -> {
-			boolean wasRead = messageTracker.setReadFlag(txn, g, m, read);
-			if (read && !wasRead) db.startCleanupTimer(txn, m);
-		});
-	}
-
-	@Override
 	public void onDatabaseOpened(Transaction txn) throws DbException {
 		// Create a local group to indicate that we've set this client up
 		Group localGroup = contactGroupFactory.createLocalGroup(CLIENT_ID,
