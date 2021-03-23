@@ -303,20 +303,24 @@ public class AutoDeleteIntegrationTest extends AbstractAutoDeleteTest {
 	}
 
 	/**
-	 * Go through two full cycles of introducing two contacts with
-	 * self-destructing messages enabled, lettings them both introducees expire
-	 * their introductions, thereby auto-declining it.
+	 * The forwarded accepts are not visible in the conversation
+	 * and should not expire.
 	 */
 	@Test
-	public void testTwoIntroductionCycles() throws Exception {
-		// FIRST CYCLE
-		introduceAndAutoDecline();
-
-		// SECOND CYCLE
-		introduceAndAutoDecline();
+	public void testInvisibleAcceptForwards() throws Exception {
+		testInvisibleForwards(true);
 	}
 
-	private void introduceAndAutoDecline() throws Exception {
+	/**
+	 * The forwarded declines are not visible in the conversation
+	 * and should not expire.
+	 */
+	@Test
+	public void testInvisibleDeclineForwards() throws Exception {
+		testInvisibleForwards(false);
+	}
+
+	private void testInvisibleForwards(boolean accept) throws Exception {
 		// send introduction
 		makeIntroduction(true, true);
 		markMessagesRead(c1, contact0From1);
@@ -328,39 +332,49 @@ public class AutoDeleteIntegrationTest extends AbstractAutoDeleteTest {
 		ack2To0(1);
 		waitForEvents(c0);
 
-		// time travel on all devices, destroying the introductions at 0 and
-		// making 1 and 2 auto-decline
+		// respond to the introduction
+		respondToMostRecentIntroduction(c1, contactId0From1, accept);
+		respondToMostRecentIntroduction(c2, contactId0From2, accept);
+
+		// time travel on all devices, destroying the introductions
 		timeTravel(c0);
 		timeTravel(c1);
 		timeTravel(c2);
 		assertGroupCounts(0, 0, 0, 0, 1, 0, 1, 0);
 
-		// sync the auto-decline messages to 0
+		// sync the response messages to 0
 		sync1To0(1, true);
 		sync2To0(1, true);
 		waitForEvents(c0);
 		assertGroupCounts(1, 1, 1, 1, 1, 0, 1, 0);
 
-		// mark declines read on 0, starting the timer there and let them expire
+		// mark responses read on 0, starting the timer there and let them expire
 		markMessagesRead(c0, contact1From0);
 		markMessagesRead(c0, contact2From0);
 		timeTravel(c0);
 		assertGroupCounts(0, 0, 0, 0, 1, 0, 1, 0);
 
-		// sync responses to 1 and 2
+		// sync forwarded responses to 1 and 2
 		sync0To1(1, true);
 		sync0To2(1, true);
 		waitForEvents(c1);
 		waitForEvents(c2);
 
-		// ack the responses to 0 to clear the ack counts for subsequent cycles,
+		// ack the forwarded responses to 0
 		// also starts the timer for the responses at 1 and 2
-		ack1To0(1);
-		ack2To0(1);
+		if (accept) {
+			// when accepting, another message is sent together with the ACK
+			sync1To0(1, true);
+			sync2To0(1, true);
+		} else {
+			ack1To0(1);
+			ack2To0(1);
+		}
 		waitForEvents(c0);
 		assertGroupCounts(0, 0, 0, 0, 1, 0, 1, 0);
 
-		// let timers for responses expire
+		// let timers for responses and their forwards expire
+		timeTravel(c0);
 		timeTravel(c1);
 		timeTravel(c2);
 		assertGroupCounts(0, 0, 0, 0, 0, 0, 0, 0);
