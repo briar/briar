@@ -246,7 +246,7 @@ public class ConversationViewModel extends DbViewModel
 		runOnDbThread(() -> {
 			try {
 				long start = now();
-				messagingManager.setReadFlag(g, m, true);
+				conversationManager.setReadFlag(g, m, true);
 				logDuration(LOG, "Marking read", start);
 			} catch (DbException e) {
 				logException(LOG, WARNING, e);

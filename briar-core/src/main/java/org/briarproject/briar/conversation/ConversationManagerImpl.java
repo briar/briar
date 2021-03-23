@@ -5,8 +5,10 @@ import org.briarproject.bramble.api.db.DatabaseComponent;
 import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.db.Transaction;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
+import org.briarproject.bramble.api.sync.GroupId;
 import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.bramble.api.system.Clock;
+import org.briarproject.briar.api.client.MessageTracker;
 import org.briarproject.briar.api.client.MessageTracker.GroupCount;
 import org.briarproject.briar.api.conversation.ConversationManager;
 import org.briarproject.briar.api.conversation.ConversationMessageHeader;
@@ -28,12 +30,15 @@ import static java.lang.Math.max;
 class ConversationManagerImpl implements ConversationManager {
 
 	private final DatabaseComponent db;
+	private final MessageTracker messageTracker;
 	private final Clock clock;
 	private final Set<ConversationClient> clients;
 
 	@Inject
-	ConversationManagerImpl(DatabaseComponent db, Clock clock) {
+	ConversationManagerImpl(DatabaseComponent db, MessageTracker messageTracker,
+			Clock clock) {
 		this.db = db;
+		this.messageTracker = messageTracker;
 		this.clock = clock;
 		clients = new CopyOnWriteArraySet<>();
 	}
@@ -79,6 +84,15 @@ class ConversationManagerImpl implements ConversationManager {
 				latestTime = count.getLatestMsgTime();
 		}
 		return new GroupCount(msgCount, unreadCount, latestTime);
+	}
+
+	@Override
+	public void setReadFlag(GroupId g, MessageId m, boolean read)
+			throws DbException {
+		db.transaction(false, txn -> {
+			boolean wasRead = messageTracker.setReadFlag(txn, g, m, read);
+			if (read && !wasRead) db.startCleanupTimer(txn, m);
+		});
 	}
 
 	@Override

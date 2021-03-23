@@ -47,6 +47,9 @@ public interface ConversationManager {
 	 */
 	GroupCount getGroupCount(Transaction txn, ContactId c) throws DbException;
 
+	void setReadFlag(GroupId g, MessageId m, boolean read)
+			throws DbException;
+
 	/**
 	 * Returns a timestamp for an outgoing message, which is later than the
 	 * timestamp of any message in the conversation with the given contact.
@@ -81,9 +84,6 @@ public interface ConversationManager {
 				throws DbException;
 
 		GroupCount getGroupCount(Transaction txn, ContactId c)
-				throws DbException;
-
-		void setReadFlag(GroupId g, MessageId m, boolean read)
 				throws DbException;
 
 		/**

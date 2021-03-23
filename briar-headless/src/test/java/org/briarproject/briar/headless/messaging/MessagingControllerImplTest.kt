@@ -220,7 +220,7 @@ internal class MessagingControllerImplTest : ControllerTest() {
         every { messagingManager.getContactGroup(contact).id } returns group.id
         every { ctx.getFromJson(objectMapper, "messageId") } returns messageIdString
         every { Base64.decode(messageIdString) } returns message.id.bytes
-        every { messagingManager.setReadFlag(group.id, message.id, true) } just Runs
+        every { conversationManager.setReadFlag(group.id, message.id, true) } just Runs
         every { ctx.json(messageIdString) } returns ctx
 
         controller.markMessageRead(ctx)
