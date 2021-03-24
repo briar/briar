@@ -17,6 +17,7 @@ import org.briarproject.briar.api.introduction.IntroductionResponse;
 import org.briarproject.briar.api.introduction.event.IntroductionResponseReceivedEvent;
 import org.briarproject.briar.autodelete.AbstractAutoDeleteTest;
 import org.briarproject.briar.test.BriarIntegrationTestComponent;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -399,8 +400,14 @@ public class AutoDeleteIntegrationTest extends AbstractAutoDeleteTest {
 		// FIRST CYCLE
 		introduceAndAutoDecline();
 
+		Assert.assertTrue(c0.getIntroductionManager()
+				.canIntroduce(contact1From0, contact2From0));
+
 		// SECOND CYCLE
 		introduceAndAutoDecline();
+
+		Assert.assertTrue(c0.getIntroductionManager()
+				.canIntroduce(contact1From0, contact2From0));
 	}
 
 	private void introduceAndAutoDecline() throws Exception {
