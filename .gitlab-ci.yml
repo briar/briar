@@ -6,7 +6,6 @@ stages:
   - check_reproducibility
 
 .base-test:
-  stage: test
   before_script:
     - set -e
     - export GRADLE_USER_HOME=$PWD/.gradle
@@ -22,12 +21,14 @@ stages:
 
 test:
   extends: .base-test
+  stage: test
   script:
     - ./gradlew --no-daemon -Djava.security.egd=file:/dev/urandom animalSnifferMain animalSnifferTest
     - ./gradlew --no-daemon -Djava.security.egd=file:/dev/urandom check
 
 android test:
   extends: .base-test
+  stage: optional_tests
   image: briar/ci-image-android-emulator:latest
   script:
     # start emulator first, so it can fail early
@@ -41,12 +42,9 @@ android test:
       - logcat.txt
     expire_in: 3 days
     when: on_failure
-  only:
-    refs:
-      - merge_requests
-      - branches
-    changes:
-      - briar-android/**/*
+  when: manual
+  except:
+    - tags
   tags:
     - kvm
 
