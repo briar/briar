@@ -127,7 +127,12 @@ public class CameraView extends SurfaceView implements SurfaceHolder.Callback,
 		setDisplayOrientation(getScreenRotationDegrees());
 		if (camera == null) throw new CameraException("No camera found");
 		// Use barcode scene mode if it's available
-		Parameters params = camera.getParameters();
+		Parameters params;
+		try {
+			params = camera.getParameters();
+		} catch (RuntimeException e) {
+			throw new CameraException(e);
+		}
 		params = setSceneMode(camera, params);
 		if (SCENE_MODE_BARCODE.equals(params.getSceneMode())) {
 			// If the scene mode enabled the flash, try to disable it
