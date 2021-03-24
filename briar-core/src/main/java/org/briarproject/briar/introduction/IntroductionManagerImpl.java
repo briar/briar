@@ -580,8 +580,6 @@ class IntroductionManagerImpl extends ConversationClientImpl
 						.getMessageMetadataAsDictionary(txn, messageId);
 				MessageMetadata messageMetadata =
 						messageParser.parseMetadata(d);
-				if (!messageMetadata.isVisibleInConversation())
-					throw new IllegalArgumentException();
 				SessionId sessionId = messageMetadata.getSessionId();
 				DeletableSession deletableSession =
 						sessions.get(sessionId);
