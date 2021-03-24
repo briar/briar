@@ -127,17 +127,15 @@ abstract class AbstractProtocolEngine<S extends Session<?>>
 		Message m;
 		ContactId c = getContactId(txn, s.getContactGroupId());
 		if (contactSupportsAutoDeletion(txn, c)) {
-			long timer =
-					autoDeleteManager.getAutoDeleteTimer(txn, c, timestamp);
+			long timer = autoDeleteManager.getAutoDeleteTimer(txn, c,
+					timestamp);
 			m = messageEncoder.encodeAcceptMessage(s.getContactGroupId(),
 					timestamp, s.getLastLocalMessageId(), s.getSessionId(),
 					ephemeralPublicKey, acceptTimestamp, transportProperties,
 					timer);
 			sendMessage(txn, ACCEPT, s.getSessionId(), m, visible, timer);
 			// Set the auto-delete timer duration on the message
-			// only if it is visible in our conversation.
-			// It will be sent with timer, so it destructs at introducee.
-			if (visible && timer != NO_AUTO_DELETE_TIMER) {
+			if (timer != NO_AUTO_DELETE_TIMER) {
 				db.setCleanupTimerDuration(txn, m.getId(), timer);
 			}
 		} else {
@@ -156,17 +154,15 @@ abstract class AbstractProtocolEngine<S extends Session<?>>
 		Message m;
 		ContactId c = getContactId(txn, s.getContactGroupId());
 		if (contactSupportsAutoDeletion(txn, c)) {
-			long timer =
-					autoDeleteManager.getAutoDeleteTimer(txn, c, timestamp);
+			long timer = autoDeleteManager.getAutoDeleteTimer(txn, c,
+					timestamp);
 			m = messageEncoder.encodeDeclineMessage(s.getContactGroupId(),
 					timestamp, s.getLastLocalMessageId(), s.getSessionId(),
 					timer);
 			sendMessage(txn, DECLINE, s.getSessionId(), m, visible, timer,
 					isAutoDecline);
 			// Set the auto-delete timer duration on the local message
-			// only if it is visible in our conversation.
-			// It will be sent with timer, so it destructs at introducee.
-			if (visible && timer != NO_AUTO_DELETE_TIMER) {
+			if (timer != NO_AUTO_DELETE_TIMER) {
 				db.setCleanupTimerDuration(txn, m.getId(), timer);
 			}
 			if (isAutoDecline) {
