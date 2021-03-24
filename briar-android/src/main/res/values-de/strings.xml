@@ -171,7 +171,7 @@
   <string name="you">Du</string>
   <string name="save_image">Bild speichern</string>
   <string name="dialog_title_save_image">Bild speichern?</string>
-  <string name="dialog_message_save_image">Gespeicherte Bilder können von vielen anderen Apps eingesehen werden.\n\nBist du sicher, dass du das Bild speichern möchtest?</string>
+  <string name="dialog_message_save_image">Durch das Speichern dieses Bildes können andere Apps auf das Bild zugreifen.\n\nBist du sicher, dass du das Bild speichern möchtest?</string>
   <string name="save_image_success">Bild wurde gespeichert</string>
   <string name="save_image_error">Bild konnte nicht gespeichert werden</string>
   <string name="dialog_title_no_image_support">Bilder nicht verfügbar</string>
@@ -427,7 +427,7 @@
   <!--Settings Profile Picture-->
   <string name="change_profile_picture">Tippe, um dein Profilbild zu ändern</string>
   <string name="dialog_confirm_profile_picture_title">Profilbild ändern</string>
-  <string name="dialog_confirm_profile_picture_remark">Nur deine Kontakte können dein Profilbild sehen</string>
+  <string name="dialog_confirm_profile_picture_remark">Nur deine Kontakte können dieses Bild sehen</string>
   <string name="change_profile_picture_failed_message">Es tut uns leid, aber beim Aktualisieren deines Profilbildes ist ein Fehler aufgetreten</string>
   <!--Settings Display-->
   <string name="pref_language_title">Sprache &amp; Region</string>

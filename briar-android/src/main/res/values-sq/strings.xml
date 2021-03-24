@@ -427,7 +427,7 @@
   <!--Settings Profile Picture-->
   <string name="change_profile_picture">Që të ndryshoni foton e profilit tuaj, prekeni</string>
   <string name="dialog_confirm_profile_picture_title">Ndryshoni foto profili</string>
-  <string name="dialog_confirm_profile_picture_remark">Figurën e profilit tuaj mund ta shohin vetëm kontaktet tuaj</string>
+  <string name="dialog_confirm_profile_picture_remark">Këtë foto mund ta shohin vetëm kontaktet tuaja</string>
   <string name="change_profile_picture_failed_message">Na ndjeni, por diç shkoi ters me përditësimin e fotos së profilit tuaj</string>
   <!--Settings Display-->
   <string name="pref_language_title">Gjuhë &amp; rajon</string>

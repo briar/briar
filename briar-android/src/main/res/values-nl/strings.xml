@@ -427,7 +427,7 @@
   <!--Settings Profile Picture-->
   <string name="change_profile_picture">Tik om je profielfoto te wijzigen</string>
   <string name="dialog_confirm_profile_picture_title">Wijzig profielfoto</string>
-  <string name="dialog_confirm_profile_picture_remark">Alleen je contacten kunnen je profielfoto zien</string>
+  <string name="dialog_confirm_profile_picture_remark">Alleen je contacten kunnen deze afbeelding zien</string>
   <string name="change_profile_picture_failed_message">Excuses, maar er is iets misgegaan met het updaten van je profielfoto</string>
   <!--Settings Display-->
   <string name="pref_language_title">Taal &amp; regio</string>

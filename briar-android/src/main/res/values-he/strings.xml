@@ -1,25 +1,25 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources xmlns:tools="http://schemas.android.com/tools">
   <!--Setup-->
-  <string name="setup_title">ברוך הבא אל Briar</string>
+  <string name="setup_title">ברוך בואך אל Briar</string>
   <string name="setup_name_explanation">כינויך יוראה ליד תוכן כלשהו שתכתוב. אינך יכול לשנות אותו לאחר יצירת חשבונך.</string>
   <string name="setup_next">הבא</string>
-  <string name="setup_password_intro">בחר סיסמה</string>
+  <string name="setup_password_intro">נא לבחור סיסמה</string>
   <string name="setup_password_explanation">חשבון Briar שלך מאוחסן באופן מוצפן במכשירך, לא בענן. אם תשכח את סיסמתך או תסיר את Briar, אין דרך להשיב את חשבונך.\n\nבחר סיסמה ארוכה שקשה לנחש אותה, כגון ארבע מילים אקראיות, או עשרה תווים אקראיים של אותיות, מספרים וסמלים.</string>
   <string name="setup_doze_title">חיבורי רקע</string>
   <string name="setup_doze_intro">כדי לקבל הודעות, Briar צריך להישאר מחובר ברקע.</string>
   <string name="setup_doze_explanation">כדי לקבל הודעות, Briar צריך להישאר מחובר ברקע. אנא השבת מיטובי סוללה כך ש־Briar יוכל להישאר מחובר.</string>
   <string name="setup_doze_button">התר חיבורים</string>
-  <string name="choose_nickname">בחר את הכינוי שלך</string>
+  <string name="choose_nickname">נא לבחור את הכינוי שלך</string>
   <string name="choose_password">בחר סיסמה</string>
   <string name="confirm_password">אשר סיסמה</string>
   <string name="name_too_long">השם ארוך מדי</string>
   <string name="password_too_weak">הסיסמה חלשה מדי</string>
   <string name="passwords_do_not_match">הסיסמאות לא תואמות</string>
-  <string name="create_account_button">צור חשבון</string>
-  <string name="more_info">עוד מידע</string>
-  <string name="don_t_ask_again">אל תשאל שוב</string>
-  <string name="setup_huawei_text">אנא הקש על הכפתור למטה ווודא כי Briar מוגן במסך \"יישומים מוגנים\".</string>
+  <string name="create_account_button">יצירת חשבון</string>
+  <string name="more_info">מידע נוסף</string>
+  <string name="don_t_ask_again">לא לשאול שוב</string>
+  <string name="setup_huawei_text">נא להקיש על הכפתור למטה וולוודא כי Briar מוגן במסך \"יישומים מוגנים\".</string>
   <string name="setup_huawei_button">הגן על Briar</string>
   <string name="setup_huawei_help">אם Briar אינו מוסף אל רשימת היישומים המוגנים, הוא לא יוכל לרוץ ברקע.</string>
   <string name="warning_dozed">%s לא היה יכול לרוץ ברקע</string>
@@ -28,12 +28,12 @@
   <string name="try_again">סיסמה שגויה, נסה שוב</string>
   <string name="dialog_title_cannot_check_password">לא יכול לבדוק סיסמה</string>
   <string name="dialog_message_cannot_check_password">Briar לא יכול לבדוק את הסיסמה שלך. אנא נסה לאתחל מחדש את המכשיר שלך כדי לפתור בעיה זאת.</string>
-  <string name="sign_in_button">היכנס</string>
+  <string name="sign_in_button">כניסה</string>
   <string name="forgotten_password">שכחתי את הסיסמה שלי</string>
   <string name="dialog_title_lost_password">סיסמה אבודה</string>
   <string name="dialog_message_lost_password">חשבון Briar שלך מאוחסן באופן מוצפן על המכשיר שלך, לא בענן, כך שאנחנו לא יכולים לאפס את הסיסמה שלך. האם תרצה למחוק את החשבון שלך ולהתחיל מחדש?\n\nזהירות: הזהויות, אנשי הקשר וההודעות שלך יאבדו לצמיתות.</string>
   <string name="startup_failed_notification_title">Briar לא היה ניתן להתחיל</string>
-  <string name="startup_failed_notification_text">הקש לעוד מידע.</string>
+  <string name="startup_failed_notification_text">יש להקיש למידע נוסף.</string>
   <string name="startup_failed_activity_title">כישלון הזנק Briar</string>
   <string name="startup_failed_db_error">מסיבה כלשהי, מסד נתונים Briar שלך פגום ללא יכולת תיקון. החשבון שלך, הנתונים שלך וכל אנשי הקשר שלך אבדו. למרבה הצער, אתה צריך להתקין מחדש את Briar או להגדיר חשבון חדש ע״י בחירה באפשרות \'שכחתי את הסיסמה שלי\' בתזכיר הסיסמה.</string>
   <string name="startup_failed_data_too_old_error">החשבון שלך נוצר עם גרסה ישנה של יישום זה ואינו יכול להיפתח עם גרסה זו. אתה חייב להתקין מחדש את הגרסה הישנה או להגדיר חשבון חדש ע״י בחירה באפשרות \'שכחתי את הסיסמה שלי\' בתזכיר הסיסמה.</string>
@@ -62,13 +62,13 @@
   <!--This is part of the main menu. The app will be locked when this is tapped.-->
   <string name="lock_button">נעל יישום</string>
   <string name="settings_button">הגדרות</string>
-  <string name="sign_out_button">התנתק</string>
+  <string name="sign_out_button">יציאה</string>
   <string name="transports_onboarding_text">הקש כאן כדי לשלוט איך Briar מתחבר אל אנשי הקשר שלך.</string>
   <!--Transports: Tor-->
   <string name="transport_tor">אינטרנט</string>
-  <string name="tor_device_status_online_wifi">לטלפון שלך יש גישת אינטרנט באמצעות Wi-Fi</string>
-  <string name="tor_device_status_online_mobile">לטלפון שלך יש חיבור אינטרנט באמצעות נתונים סלולריים</string>
-  <string name="tor_device_status_offline">לטלפון שלך אין גישת אינטרנט</string>
+  <string name="tor_device_status_online_wifi">לטלפון שלך גישה לאינטרנט באמצעות רשת אלחוטית</string>
+  <string name="tor_device_status_online_mobile">לטלפון שלך גישה לאינטרנט באמצעות נתונים ניידים</string>
+  <string name="tor_device_status_offline">לטלפון שלך אין גישה לאינטרנט</string>
   <string name="tor_plugin_status_enabling">Briar מתחבר אל האינטרנט</string>
   <string name="tor_plugin_status_active">Briar מחובר אל האינטרנט</string>
   <string name="tor_plugin_status_inactive">Briar אינו יכול להתחבר אל האינטרנט</string>
@@ -128,25 +128,25 @@
   <string name="now">עכשיו</string>
   <string name="show">הראה</string>
   <string name="hide">הסתר</string>
-  <string name="ok">אשר</string>
-  <string name="cancel">בטל</string>
+  <string name="ok">אישור</string>
+  <string name="cancel">ביטול</string>
   <string name="got_it">הבנתי</string>
-  <string name="delete">מחק</string>
+  <string name="delete">מחיקה</string>
   <string name="accept">קבל</string>
   <string name="decline">סרב</string>
-  <string name="online">מקוון</string>
+  <string name="online">מחובר</string>
   <string name="offline">לא מקוון</string>
-  <string name="send">שלח</string>
+  <string name="send">שליחה</string>
   <string name="allow">התר</string>
-  <string name="open">פתח</string>
-  <string name="change">שנה</string>
+  <string name="open">פתיחה</string>
+  <string name="change">שינוי</string>
   <string name="no_data">אין נתונים</string>
   <string name="ellipsis">…</string>
   <string name="text_too_long">הטקסט המוכנס ארוך מדי</string>
   <string name="show_onboarding">הראה דו־שיח עזרה</string>
   <string name="fix">תקן</string>
   <string name="help">עזרה</string>
-  <string name="sorry">סליחה</string>
+  <string name="sorry">עמך הסליחה</string>
   <string name="error_start_activity">בלתי זמין במערכת שלך</string>
   <string name="status_heading">מצב</string>
   <!--Contacts and Private Conversations-->
@@ -162,7 +162,7 @@
   <string name="image_attach_error_invalid_mime_type">תסדיר תמונה בלתי נתמך: %s</string>
   <string name="set_contact_alias">שַׁנֵּה שם איש קשר</string>
   <string name="set_contact_alias_hint">שם איש הקשר</string>
-  <string name="delete_all_messages">מחק את כל ההודעות</string>
+  <string name="delete_all_messages">מחיקת כל ההודעות</string>
   <string name="dialog_title_delete_all_messages">אשר מחיקת הודעה</string>
   <string name="dialog_message_delete_all_messages">האם אתה בטוח שאתה רוצה למחוק את כל ההודעות?</string>
   <string name="dialog_title_not_all_messages_deleted">לא היה ניתן למחוק את כל ההודעות</string>
@@ -178,11 +178,11 @@
   <string name="dialog_message_delete_contact">האם אתה בטוח שאתה רוצה למחוק איש קשר זה ואת כל ההודעות שהוחלפו עם איש קשר זה?</string>
   <string name="contact_deleted_toast">איש קשר נמחק</string>
   <!--This is shown in the action bar when opening an image in fullscreen that the user sent-->
-  <string name="you">אתה</string>
+  <string name="you">את/ה</string>
   <string name="save_image">שמור תמונה</string>
-  <string name="dialog_title_save_image">לשמור תמונה?</string>
+  <string name="dialog_title_save_image">לשמור את התמונה?</string>
   <string name="dialog_message_save_image">שמירת תמונה זו תאפשר ליישומים להשיג גישה אל התמונה.\n\nהאם אתה בטוח שאתה רוצה לשמור?</string>
-  <string name="save_image_success">תמונה נשמרה</string>
+  <string name="save_image_success">התמונה נשמרה</string>
   <string name="save_image_error">לא היה ניתן לשמור תמונה</string>
   <string name="dialog_title_no_image_support">תמונות בלתי זמינות</string>
   <string name="dialog_message_no_image_support">Briar של איש הקשר שלך אינו תומך בצרופות תמונה. ברגע שהוא ישדרג, תראה צלמית שונה.</string>
@@ -193,10 +193,10 @@
   <string name="add_contact_title">הוסף איש קשר בקרבה</string>
   <string name="face_to_face">אתה חייב להיפגש עם האדם שאותו אתה רוצה להוסיף כאיש קשר.\n\nזה ימנע מכל אחד להתחזות אליך או לקרוא את ההודעות שלך בעתיד.</string>
   <string name="continue_button">המשך</string>
-  <string name="try_again_button">נסה שוב</string>
+  <string name="try_again_button">ניסיון חוזר</string>
   <string name="waiting_for_contact_to_scan">ממתין שאיש הקשר יסרוק ויתחבר\u2026</string>
   <string name="exchanging_contact_details">מחליף פרטי איש קשר\u2026</string>
-  <string name="contact_added_toast">איש קשר התווסף: %s</string>
+  <string name="contact_added_toast">נוסף איש קשר: %s</string>
   <string name="contact_already_exists">איש הקשר %s קיים כבר</string>
   <string name="qr_code_invalid">קוד ה־QR אינו תקף</string>
   <string name="qr_code_too_old">קוד ה־QR שסרקת מגיע מגרסה ישנה יותר של %s.\n\nאנא בקש מאיש הקשר שלך לשדרג את הגרסה האחרונה ואז נסה שוב.</string>
@@ -215,7 +215,7 @@
   <string name="paste_button">הדבק</string>
   <string name="add_contact_button">הוסף איש קשר</string>
   <string name="copy_button">העתק</string>
-  <string name="share_button">שתף</string>
+  <string name="share_button">שיתוף</string>
   <string name="send_link_title">החלף קישורים</string>
   <string name="add_contact_choose_nickname">בחר כינוי</string>
   <string name="add_contact_choose_a_nickname">הכנס כינוי</string>
@@ -227,7 +227,7 @@
   <string name="pending_contact_requests_snackbar">יש בקשות ממתינות של אנשי קשר</string>
   <string name="pending_contact_requests">בקשות ממתינות של אנשי קשר</string>
   <string name="no_pending_contacts">אין בקשות ממתינות של אנשי קשר</string>
-  <string name="waiting_for_contact_to_come_online">ממתין אל איש הקשר שיהיה מקוון…</string>
+  <string name="waiting_for_contact_to_come_online">ממתין להתחברות איש הקשר…</string>
   <string name="connecting">מתחבר…</string>
   <string name="adding_contact">מוסיף איש קשר…</string>
   <string name="adding_contact_failed">הוספת איש קשר נכשלה</string>
@@ -270,7 +270,7 @@
   <string name="introduction_onboarding_text">אתה יכול להכיר בין אנשי הקשר שלך אחד עם השני, כך שהם לא צריכים להיפגש פנים מול פנים כדי להתחבר ב־Briar.</string>
   <string name="introduction_menu_item">בצע היכרות</string>
   <string name="introduction_activity_title">בחר איש קשר</string>
-  <string name="introduction_not_possible">יש לך כבר היכרות אחת בתהליך עם אנשי קשר אלו. אנא התר לה תחילה לסיים. אם אתה או אנשי הקשר שלך לעיתים נדירות מקוונים, זה עשוי לקחת זמן מה.</string>
+  <string name="introduction_not_possible">יש לך כבר היכרות אחת בתהליך עם אנשי קשר אלו. אנא התר לה תחילה לסיים. אם אתה או אנשי הקשר שלך לעיתים נדירות מחוברים, זה עשוי לקחת זמן מה.</string>
   <string name="introduction_message_title">הכר בין אנשי קשר</string>
   <string name="introduction_message_hint">הוסף הודעה (רשותי)</string>
   <string name="introduction_button">בצע היכרות</string>
@@ -302,7 +302,7 @@
   <string name="groups_create_group_title">צור קבוצה פרטית</string>
   <string name="groups_create_group_button">צור קבוצה</string>
   <string name="groups_create_group_invitation_button">שלח הזמנה</string>
-  <string name="groups_create_group_hint">בחר שם לקבוצה הפרטית שלך</string>
+  <string name="groups_create_group_hint">נא לבחור שם לקבוצה הפרטית שלך</string>
   <string name="groups_invitation_sent">הזמנה קבוצתית נשלחה</string>
   <string name="groups_member_list">רשימת חברי קבוצה</string>
   <string name="groups_invite_members">הזמן חברי קבוצה</string>
@@ -366,7 +366,7 @@
   <string name="forum_leave">עזוב פורום</string>
   <string name="dialog_title_leave_forum">אשר עזיבת פורום</string>
   <string name="dialog_message_leave_forum">האם אתה בטוח שאתה רוצה לעזוב פורום זה?\n\nאנשי קשר כלשהם ששיתפת איתם פורום זה עשויים להפסיק לקבל עדכונים.</string>
-  <string name="dialog_button_leave">עזוב</string>
+  <string name="dialog_button_leave">עזיבה</string>
   <string name="forum_left_toast">עזב פורום</string>
   <!--Forum Sharing-->
   <string name="forum_share_button">שתף פורום</string>
@@ -391,7 +391,7 @@
   <string name="forum_invitation_response_declined_received">%s סירב אל ההזמנה לפורום.</string>
   <string name="sharing_status">מעמד שיתוף</string>
   <string name="sharing_status_forum">כל חבר פורום יכול לשתף את הפורום עם אנשי הקשר שלו. אתה משתף פורום זה עם אנשי הקשר הבאים. יתכן שיש חברי פורום אחרים שאינך יכול לראות.</string>
-  <string name="shared_with">משותף עם %1$d (%2$d מקוונים)</string>
+  <string name="shared_with">משותף עם %1$d (%2$d מחוברים)</string>
   <plurals name="forums_shared">
     <item quantity="one">פורום %d משותף ע״י אנשי קשר</item>
     <item quantity="two">%d פורומים משותפים ע״י אנשי קשר</item>
@@ -404,7 +404,7 @@
   <string name="read_more">קרא עוד</string>
   <string name="blogs_write_blog_post">כתוב רשומת בלוג</string>
   <string name="blogs_write_blog_post_body_hint">הקלד את רשומת הבלוג שלך</string>
-  <string name="blogs_publish_blog_post">פרסם</string>
+  <string name="blogs_publish_blog_post">פרסום</string>
   <string name="blogs_blog_post_created">רשומת בלוג נוצרה</string>
   <string name="blogs_blog_post_received">רשומת בלוג חדשה התקבלה</string>
   <string name="blogs_blog_post_scroll_to">גלול אל</string>
@@ -416,7 +416,7 @@
   <string name="blogs_remove_blog_dialog_message">האם אתה בטוח שאתה רוצה להסיר בלוג זה?\n\nרשומות יוסרו ממכשירך אבל לא ממכשירים של אנשים אחרים.\n\nאנשי קשר כלשהם ששיתפת איתם בלוג זה עלולים להפסיק לקבל עדכונים.</string>
   <string name="blogs_remove_blog_ok">הסר</string>
   <string name="blogs_blog_removed">בלוג הוסר</string>
-  <string name="blogs_reblog_comment_hint">הוסף תגובה (רשותי)</string>
+  <string name="blogs_reblog_comment_hint">הוספת תגובה (רשות)</string>
   <string name="blogs_reblog_button">פרסם מחדש</string>
   <!--Blog Sharing-->
   <string name="blogs_sharing_share">שתף בלוג</string>
@@ -443,7 +443,7 @@
   <string name="blogs_rss_feeds_manage_author">מחבר:</string>
   <string name="blogs_rss_feeds_manage_updated">עודכן לאחרונה:</string>
   <string name="blogs_rss_remove_feed">הסר הזנה</string>
-  <string name="blogs_rss_remove_feed_dialog_message">האם אתה בטוח שאתה רוצה להסיר הזנה זו?\n\nרשומות יוסרו ממכשירך אבל לא ממכשירים של אנשים אחרים.\n\nאנשי קשר כלשהם ששיתפת איתם הזנה זו עלולים להפסיק לקבל עדכונים. </string>
+  <string name="blogs_rss_remove_feed_dialog_message">האם אכן ברצונך להסיר הזנה זו?\n\nרשומות יוסרו ממכשירך אבל לא ממכשירים של אנשים אחרים.\n\nאנשי קשר כלשהם ששיתפת איתם הזנה זו עלולים להפסיק לקבל עדכונים.</string>
   <string name="blogs_rss_remove_feed_ok">הסר</string>
   <string name="blogs_rss_feeds_manage_delete_error">ההזנה לא יכלה להימחק!</string>
   <string name="blogs_rss_feeds_manage_empty_state">אין הזנות RSS להראות\n\nהקש על הצלמית + כדי לייבא הזנה</string>
@@ -451,7 +451,7 @@
   <!--Settings Profile Picture-->
   <string name="change_profile_picture">הקש כדי לשנות את תמונת הפרופיל שלך</string>
   <string name="dialog_confirm_profile_picture_title">שנה תמונת פרופיל</string>
-  <string name="dialog_confirm_profile_picture_remark">רק אנשי הקשר שלך יכולים לראות את תמונת הפרופיל שלך</string>
+  <string name="dialog_confirm_profile_picture_remark">רק אנשי הקשר שלך יכולים לראות את התמונה הזו</string>
   <string name="change_profile_picture_failed_message">אנו מצטערים משהו השתבש בעת עדכון תמונת הפרופיל שלך</string>
   <!--Settings Display-->
   <string name="pref_language_title">שפה ואזור</string>
@@ -499,7 +499,7 @@
   <string name="pref_lock_timeout_60">שעה 1</string>
   <string name="pref_lock_timeout_never">לעולם לא</string>
   <string name="pref_lock_timeout_never_summary">לעולם אל תנעל את Briar באופן אוטומטי</string>
-  <string name="change_password">שנה סיסמה</string>
+  <string name="change_password">שינוי הסיסמה</string>
   <string name="current_password">סיסמה נוכחית</string>
   <string name="choose_new_password">סיסמה חדשה</string>
   <string name="confirm_new_password">אשר סיסמה חדשה</string>
@@ -550,13 +550,13 @@
   <string name="link_warning_open_link">פתח קישור</string>
   <!--Crash Reporter-->
   <string name="crash_report_title">דוח קריסת Briar</string>
-  <string name="briar_crashed">סליחה, Briar קרס.</string>
+  <string name="briar_crashed">Briar התרסק, עמך הסליחה.</string>
   <string name="not_your_fault">זאת לא אשמתך.</string>
   <string name="please_send_report">אנא עזור לנו לבנות Briar טוב יותר ע״י שליחת דוח קריסה אלינו.</string>
   <string name="report_is_encrypted">אנו מבטיחים שהדוח הזה מוצפן ונשלח באופן מאובטח.</string>
   <string name="feedback_title">משוב</string>
   <string name="describe_crash">תאר מה קרה (רשותי)</string>
-  <string name="enter_feedback">הכנס את משובך</string>
+  <string name="enter_feedback">נא לתת את המשוב שלך</string>
   <string name="optional_contact_email">כתובת הדוא״ל שלך (רשותי)</string>
   <string name="include_debug_report_crash">כלול נתונים אלמוניים לגבי הקריסה</string>
   <string name="include_debug_report_feedback">כלול נתונים אלמוניים לגבי מכשיר זה</string>
@@ -571,13 +571,13 @@
   <string name="dev_report_logcat">יומן יישום</string>
   <string name="dev_report_device_features">מאפייני מכשיר</string>
   <string name="send_report">שלח דוח</string>
-  <string name="close">סגור</string>
+  <string name="close">סגירה</string>
   <string name="dev_report_sending">שולח משוב…</string>
   <string name="dev_report_sent">משוב נשלח</string>
   <string name="dev_report_saved">הדוח נשמר. הוא יישלח בפעם הבאה שתתחבר אל Briar.</string>
   <string name="dev_report_error">שגיאה: שליחת דוח נכשלה</string>
   <!--Sign Out-->
-  <string name="progress_title_logout">מתנתק מן Briar…</string>
+  <string name="progress_title_logout">יוצא מ־Briar…</string>
   <!--Screen Filters & Tapjacking-->
   <string name="screen_filter_title">ציפוי מסך התגלה</string>
   <string name="screen_filter_body">יישום אחר מציירת מעל Briar. כדי להגן על אבטחתך, Briar לא יגיב לנגיעות כאשר יישום אחר מצייר מעל.\n\nהיישומים הבאים יכולים לצייר מעל:\n\n%1$s</string>
@@ -601,20 +601,20 @@
   <string name="lock_unlock_fingerprint_description">גע בחיישן טביעת האצבע שלך עם האצבע הרשומה כדי להמשיך</string>
   <string name="lock_unlock_password">השתמש בסיסמה</string>
   <string name="lock_is_locked">Briar נעול</string>
-  <string name="lock_tap_to_unlock">הקש כדי לבטל נעילה</string>
+  <string name="lock_tap_to_unlock">הקשה תבטל את הנעילה</string>
   <!--Connections Screen-->
   <string name="transports_help_text">Briar יכול להתחבר אל אנשי הקשר שלך באמצעות האינטרנט, Wi-Fi או Bluetooth.\n\nכל חיבורי האינטרנט עוברים דרך רשת Tor למען פרטיות.\n\nאם איש קשר ניתן להשגה באמצעות שיטות רבות, Briar משתמש בהן במקביל.</string>
   <!--Screenshots-->
   <!--This is a name to be used in screenshots. Feel free to change it to a local name.-->
   <string name="screenshot_alice">נועה</string>
   <!--This is a name to be used in screenshots. Feel free to change it to a local name.-->
-  <string name="screenshot_bob">יונתן</string>
+  <string name="screenshot_bob">יהונתן</string>
   <!--This is a name to be used in screenshots. Feel free to change it to a local name.-->
   <string name="screenshot_carol">דניאל</string>
   <!--This is a message to be used in screenshots. Please use the same translation for Bob!-->
-  <string name="screenshot_message_1">היי יונתן!</string>
+  <string name="screenshot_message_1">היי יהונתן!</string>
   <!--This is a message to be used in screenshots. Please use the same translation for Alice!-->
-  <string name="screenshot_message_2">היי נועה! תודה שאמרת לי על Briar!</string>
+  <string name="screenshot_message_2">היי נועה! תודה שסיפרת לי על Briar!</string>
   <!--This is a message to be used in screenshots.-->
   <string name="screenshot_message_3">על לא דבר, אני מקווה שאתה אוהב אותו 😀</string>
 </resources>

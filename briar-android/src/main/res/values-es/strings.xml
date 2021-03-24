@@ -427,7 +427,7 @@
   <!--Settings Profile Picture-->
   <string name="change_profile_picture">Pulsar para cambiar la imagen de tu perfil</string>
   <string name="dialog_confirm_profile_picture_title">Cambiar imagen de perfil</string>
-  <string name="dialog_confirm_profile_picture_remark">Solo tus contactos pueden ver la imagen de tu perfil</string>
+  <string name="dialog_confirm_profile_picture_remark">Solo tus contactos pueden ver esta imagen</string>
   <string name="change_profile_picture_failed_message">Lo sentimos, pero algo falló mientras se estaba actualizando la imagen de tu perfil</string>
   <!--Settings Display-->
   <string name="pref_language_title">Lenguaje &amp; región</string>

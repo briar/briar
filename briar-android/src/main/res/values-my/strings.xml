@@ -1,0 +1,558 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources xmlns:tools="http://schemas.android.com/tools">
+  <!--Setup-->
+  <string name="setup_title">ဘရိုင်ယာမှ ကြိုဆိုပါသည်</string>
+  <string name="setup_name_explanation">သင့်နာမည်ပြောင်သည် သင်တင်ထားသမျှအရာ၏ဘေးတွင် ပေါ်နေပါလိမ့်မည်။ သို့ပါ၍ သင့်နာမည်ပြောင်အား အကောင့်ဖွင့်ပြီးနောက် ပြောင်း၍မရတော့ပါ။</string>
+  <string name="setup_next">ရှေ့သို့</string>
+  <string name="setup_password_intro">စကားဝှက်တစ်ခု ရွေးပါ</string>
+  <string name="setup_password_explanation">သင့်ဘရိုင်ယာအကောင့်ကို ကလောက်တွင်မဟုတ်ဘဲ သင့်ကိရိယာတွင်သာ လျှို့ဝှက်ကုဒ်ပြောင်းသိမ်းဆည်းထားပါသည်။ သင့်စကားဝှက်ကို မေ့သွားလျှင် (သို့) ဘရိုင်ယာကို ဖြုတ်လိုက်လျှင် သင့်အကောင့်ကို မည်သည့်နည်းနှင့်မှ ပြန်မရယူနိုင်တော့ပါ။\n\nကြုံရာစကားလုံးလေးလုံး (သို့) ကြုံရာအက္ခရာဆယ်လုံး၊ နံပါတ်များနှင့် သင်္ကေတများကဲ့သို့ ခန့်မှန်းရခက်သည့် ရှည်လျားသောစကားဝှက်ကို ရွေးချယ်ပါ။</string>
+  <string name="setup_doze_title">နောက်ခံချိတ်ဆက်မှုများ</string>
+  <string name="setup_doze_intro">မက်ဆေ့ချ်များလက်ခံရယူနိုင်ရန် ဘရိုင်ယာသည် နောက်ခံချိတ်ဆက်နေရန် လိုအပ်သည်။</string>
+  <string name="setup_doze_explanation">မက်ဆေ့ချ်များလက်ခံရယူနိုင်ရန် ဘရိုင်ယာသည် နောက်ခံချိတ်ဆက်နေရန် လိုအပ်သည်။ ဘရိုင်ယာအနေဖြင့် ချိတ်ဆက်မှုမပြတ်ရှိနေစေရန် ဘတ္ထရီအားအကောင်းဆုံးထိန်းညှိခြင်းကို ကျေးဇူးပြု၍ ပိတ်ထားပေးပါ။</string>
+  <string name="setup_doze_button">ချိတ်ဆက်မှုများ ခွင့်ပြုမည်</string>
+  <string name="choose_nickname">သင့်နာမည်ပြောင်ကို ရွေးပါ</string>
+  <string name="choose_password">သင့်စကားဝှက်ကို ရွေးပါ</string>
+  <string name="confirm_password">သင့်စကားဝှက်ကို အတည်ပြုပါ</string>
+  <string name="name_too_long">နာမည်ရှည်လွန်းသည်</string>
+  <string name="password_too_weak">စကားဝှက်က အားနည်းလွန်းသည်</string>
+  <string name="passwords_do_not_match">စကားဝှက်ကိုက်ညီမှုမရှိပါ</string>
+  <string name="create_account_button">အကောင့်ဖွင့်မည်</string>
+  <string name="more_info">ပိုမိုသိရှိရန်</string>
+  <string name="don_t_ask_again">ထပ်မမေးပါနှင့်</string>
+  <string name="setup_huawei_text">အောက်ပါခလုတ်ကိုနှိပ်၍ \"ကာကွယ်မှုပေးထားသောအက်ပ်များ\" စခရင်တွင် ဘရိုင်ယာကို ကာကွယ်ထားကြောင်း သေချာစေပါ။</string>
+  <string name="setup_huawei_button">ဘရိုင်ယာကို ကာကွယ်မည်</string>
+  <string name="setup_huawei_help">ကာကွယ်မှုပေးထားသောအက်ပ်များစာရင်းတွင် ထည့်မထားလျှင် ဘရိုင်ယာကို နောက်ကွယ်တွင် ဖွင့်ထားနိုင်မည်မဟုတ်ပါ။</string>
+  <string name="warning_dozed">%s ကို နောက်ကွယ်တွင် မဖွင့်ထားနိုင်ပါ</string>
+  <!--Login-->
+  <string name="enter_password">စကားဝှက်</string>
+  <string name="try_again">စကားဝှက်မှားနေသည်၊ ထပ်စမ်းကြည့်ပါ</string>
+  <string name="dialog_title_cannot_check_password">စကားဝှက်ကို စစ်ဆေး၍မရပါ</string>
+  <string name="dialog_message_cannot_check_password">ဘရိုင်ယာက သင့်စကားဝှက်ကို မစစ်ဆေးနိုင်ပါ။ ဤပြဿနာကို ဖြေရှင်းရန် သင့်ကိရိယာကို ပိတ်ပြီးပြန်ဖွင့်ကြည့်ပါ။</string>
+  <string name="sign_in_button">အကောင့်ဝင်မည်</string>
+  <string name="forgotten_password">ကျွန်ုပ်၏စကားဝှက်ကို မေ့သွားပါသည်</string>
+  <string name="dialog_title_lost_password">စကားဝှက်ပျောက်ဆုံး</string>
+  <string name="dialog_message_lost_password">သင့်ဘရိုင်ယာအကောင့်ကို ကလောက်တွင်မဟုတ်ဘဲ သင့်ကိရိယာတွင်သာ လျှို့ဝှက်ကုဒ်ပြောင်းသိမ်းဆည်းထားသောကြောင့် သင့်စကားဝှက်ကို ပြန်လည်သတ်မှတ်မပေးနိုင်ပါ။ သင့်အကောင့်ကို ဖျက်ပစ်ပြီး အသစ်ပြန်ဖွင့်ချင်ပါသလား။\n\nသတိ - သင့်ကိုယ်ပိုင်အချက်အလက်များ၊ အဆက်အသွယ်များနှင့် မက်ဆေ့ချ်များအားလုံး အပြီးပျက်သွားပါလိမ့်မည်။</string>
+  <string name="startup_failed_notification_title">ဘရိုင်ယာ မစတင်နိုင်ပါ</string>
+  <string name="startup_failed_notification_text">အချက်အလက်များကို ပိုမိုကြည့်ရှုရန် နှိပ်ပါ။</string>
+  <string name="startup_failed_activity_title">ဘရိုင်ယာ မစတင်နိုင်ပါ</string>
+  <string name="startup_failed_db_error">အကြောင်းကြောင်းကြောင့် သင့်ဘရိုင်ယာအချက်အလက်အစုတစ်ခုလုံး လုံးဝပျက်စီးသွားပါသည်။ သင့်အကောင့်၊ သင့်အချက်အလက်နှင့် သင့်အဆက်အသွယ်အကုန်လုံး ပျောက်ဆုံးသွားပါသည်။ ကံမကောင်းစွာဘဲ သင့်အနေဖြင့် ဘရိုင်ယာကို ပြန်လည်ထည့်သွင်းရပါမည် (သို့) စကားဝှက်တောင်းသည့်နေရာတွင် \'ကျွန်ုပ်၏စကားဝှက်ကို မေ့သွားပါသည်\' ကို ရွေးချယ်ပြီး အကောင့်အသစ်တစ်ခု ဖွင့်နိုင်ပါသည်။</string>
+  <string name="startup_failed_data_too_old_error">သင့်အကောင့်ကို ဤအက်ပ်၏ဗားရှင်းအဟောင်းတစ်ခုဖြင့် ဖွင့်ခဲ့သောကြောင့် ယခုဗားရှင်းဖြင့် ဖွင့်၍မရပါ။ ဗားရှင်းအဟောင်းကို ပြန်ထည့်သွင်းရပါမည် (သို့) စကားဝှက်တောင်းသည့်နေရာတွင် \'ကျွန်ုပ်၏စကားဝှက်ကို မေ့သွားပါသည်\' ကို ရွေးချယ်ပြီး အကောင့်အသစ်တစ်ခု ဖွင့်နိုင်ပါသည်။</string>
+  <string name="startup_failed_data_too_new_error">ဤအက်ပ်ဗားရှင်းသည် အလွန်ဟောင်းနေသောကြောင့် နောက်ဆုံးဗားရှင်းမြှင့်ပြီး ထပ်စမ်းကြည့်ပါ။</string>
+  <string name="startup_failed_service_error">ဘရိုင်ယာသည် လိုအပ်သည့် ချိတ်ဆက်ပရိုဂရမ်တစ်ခုကို မဖွင့်နိုင်ပါ။ ဘရိုင်ယာကို ပြန်ထည့်သွင်းခြင်းက ဤပြဿနာကို ပြေလည်စေလေ့ရှိပါသည်။ သို့သော်လည်း ဘရိုင်ယာသည် သင့်အချက်အလက်များသိမ်းဆည်းရန် ဗဟိုပြုဆာဗာများကို အသုံးပြုမနေသောကြောင့် သင့်အကောင့်နှင့် ဆက်စပ်အချက်အလက်အားလုံးကို ဆုံးရှုံးသွားပါလိမ့်မည်။</string>
+  <plurals name="expiry_warning">
+    <item quantity="other">ဤအရာသည် Briar ၏ စမ်းသပ်ဆဲဗားရှင်းဖြစ်ပါသည်။ သင့်အကောင့်သည် %d ရက်နေ့တွင် သက်တမ်းကုန်ဆုံးမည်ဖြစ်ပြီး သက်တမ်းတိုး၍မရနိုင်ပါ။</item>
+  </plurals>
+  <string name="expiry_date_reached">ဤဆော့ဖ်ဝဲသည် သက်တမ်းကုန်သွားပါပြီ။\nစမ်းသပ်အသုံးပြုခြင်းအတွက် ကျေးဇူးတင်ပါသည်။</string>
+  <string name="download_briar">ဘရိုင်ယာကို ဆက်လက်အသုံးပြုလိုပါက နောက်ဆုံးထွက်ထားသည်ကို ဒေါင်းလုဒ်လုပ်ပါ။</string>
+  <string name="create_new_account">အကောင့်အသစ်ဖွင့်ရန် လိုအပ်သော်လည်း သုံးလက်စနာမည်ပြောင်ကို ဆက်သုံးနိုင်ပါသည်။</string>
+  <string name="download_briar_button">နောက်ဆုံးထွက်ထားသည်ကို ဒေါင်းလုဒ်လုပ်မည်</string>
+  <string name="startup_open_database">အချက်အလက်အစုကို ပြန်ဖြည်နေသည်…</string>
+  <string name="startup_migrate_database">အချက်အလက်အစုကို အဆင့်မြှင့်နေသည်…</string>
+  <string name="startup_compact_database">အချက်အလက်အစုကို သိပ်သည်းစေရန်လုပ်နေသည်…</string>
+  <!--Navigation Drawer-->
+  <string name="nav_drawer_open_description">လမ်းညွှန်အံ ဖွင့်မည်</string>
+  <string name="nav_drawer_close_description">လမ်းညွှန်အံ ပိတ်မည်</string>
+  <string name="contact_list_button">အဆက်အသွယ်များ</string>
+  <string name="groups_button">ကိုယ်ရေးကိုယ်တာအဖွဲ့များ</string>
+  <string name="forums_button">ဖိုရမ်များ</string>
+  <string name="blogs_button">ဘလော့ဂ်များ</string>
+  <!--This is part of the main menu. The app will be locked when this is tapped.-->
+  <string name="lock_button">အပ္ပလီကေးရှင်းကို သော့ခတ်မည်</string>
+  <string name="settings_button">ဆက်တင်များ</string>
+  <string name="sign_out_button">အကောင့်ထွက်မည်</string>
+  <string name="transports_onboarding_text">ဘရိုင်ယာက သင့်အဆက်အသွယ်များနှင့် မည်သို့ချိတ်ဆက်သည်ကို ထိန်းချုပ်ရန် ဤနေရာကိုနှိပ်ပါ။</string>
+  <!--Transports: Tor-->
+  <string name="transport_tor">အင်တာနက်</string>
+  <string name="tor_device_status_online_wifi">သင့်ဖုန်းသည် ဝိုင်ဖိုင်မှတစ်ဆင့် အင်တာနက်ရရှိနေသည်</string>
+  <string name="tor_device_status_online_mobile">သင့်ဖုန်းသည် မိုဘိုင်းလ်ဒေတာမှတစ်ဆင့် အင်တာနက်ရရှိနေသည်</string>
+  <string name="tor_device_status_offline">သင့်ဖုန်းတွင် အင်တာနက်ရရှိမနေပါ</string>
+  <string name="tor_plugin_status_enabling">ဘရိုင်ယာသည် အင်တာနက်ချိတ်ဆက်နေပါသည်</string>
+  <string name="tor_plugin_status_active">ဘရိုင်ယာသည် အင်တာနက်ချိတ်ဆက်ထားသည်</string>
+  <string name="tor_plugin_status_inactive">ဘရိုင်ယာသည် အင်တာနက်မချိတ်ဆက်နိုင်ပါ</string>
+  <string name="tor_plugin_status_disabled">အင်တာနက်အသုံးမပြုရန် ဘရိုင်ယာကို ချိန်ညှိထားသည်</string>
+  <string name="tor_plugin_status_disabled_mobile_data">မိုဘိုင်းလ်ဒေတာအသုံးမပြုရန် ဘရိုင်ယာကို ချိန်ညှိထားသည်</string>
+  <string name="tor_plugin_status_disabled_battery">ဘတ္ထရီအသုံးပြုနေပါက အင်တာနက်အသုံးမပြုရန် ဘရိုင်ယာကို ချိန်ညှိထားသည်</string>
+  <string name="tor_plugin_status_disabled_country_blocked">ဤနိုင်ငံတွင် အင်တာနက်အသုံးမပြုရန် ဘရိုင်ယာကို ချိန်ညှိထားသည်</string>
+  <!--Transports: Wi-Fi-->
+  <string name="transport_lan">ဝိုင်ဖိုင်</string>
+  <string name="transport_lan_long">တူညီသောဝိုင်ဖိုင်ကွန်ရက်</string>
+  <string name="lan_device_status_on">သင့်ဖုန်းသည် ဝိုင်ဖိုင်ချိတ်ဆက်ထားသည်</string>
+  <string name="lan_device_status_off">သင့်ဖုန်းသည် ဝိုင်ဖိုင်ချိတ်ဆက်မထားပါ</string>
+  <string name="lan_plugin_status_enabling">ဘရိုင်ယာသည် ဝိုင်ဖိုင်ကွန်ရက်ကို ချိတ်ဆက်နေပါသည်</string>
+  <string name="lan_plugin_status_active">ဘရိုင်ယာသည် ဝိုင်ဖိုင်ကွန်ရက်ကို ချိတ်ဆက်ထားသည်</string>
+  <string name="lan_plugin_status_inactive">ဘရိုင်ယာသည် ဝိုင်ဖိုင်ကွန်ရက်ကို မချိတ်ဆက်နိုင်ပါ</string>
+  <string name="lan_plugin_status_disabled">ဝိုင်ဖိုင်ကွန်ရက်အသုံးမပြုရန် ဘရိုင်ယာကို ချိန်ညှိထားသည်</string>
+  <!--Transports: Bluetooth-->
+  <string name="transport_bt">ဘလူးတုသ်</string>
+  <string name="bt_device_status_on">သင့်ဖုန်းဘလူးတုသ် ဖွင့်ထားသည်</string>
+  <string name="bt_device_status_off">သင့်ဖုန်းဘလူးတုသ် ပိတ်ထားသည်</string>
+  <string name="bt_plugin_status_enabling">ဘရိုင်ယာသည် ဘလူးတုသ်ချိတ်ဆက်နေသည်</string>
+  <string name="bt_plugin_status_active">ဘရိုင်ယာသည် ဘလူးတုသ်ချိတ်ဆက်ထားသည်</string>
+  <string name="bt_plugin_status_inactive">ဘရိုင်ယာသည် ဘလူးတုသ်မချိတ်ဆက်နိုင်ပါ</string>
+  <string name="bt_plugin_status_disabled">ဘလူးတုသ်အသုံးမပြုရန် ဘရိုင်ယာကို ချိန်ညှိထားသည်</string>
+  <!--Notifications-->
+  <string name="reminder_notification_title">ဘရိုင်ယာမှ အကောင့်ထွက်ထားသည်</string>
+  <string name="reminder_notification_text">အကောင့်ပြန်ဝင်ရန် နှိပ်ပါ။</string>
+  <string name="reminder_notification_channel_title">ဘရိုင်ယာအကောင့်ဝင်ရန် သတိပေးချက်</string>
+  <string name="reminder_notification_dismiss">ဖြုတ်မယ်</string>
+  <string name="ongoing_notification_title">ဘရိုင်ယာသို့ အကောင့်ဝင်ထားသည်</string>
+  <string name="ongoing_notification_text">ဘရိုင်ယာဖွင့်ရန် နှိပ်ပါ</string>
+  <plurals name="private_message_notification_text">
+    <item quantity="other">ကိုယ်ရေးမက်ဆေ့ချ်အသစ် %d ခု။</item>
+  </plurals>
+  <plurals name="group_message_notification_text">
+    <item quantity="other">အဖွဲ့မက်ဆေ့ချ်အသစ် %d ခု။</item>
+  </plurals>
+  <plurals name="forum_post_notification_text">
+    <item quantity="other">ဆွေးနွေးမှုဖိုရမ်ပို့စ်အသစ် %d ခု။</item>
+  </plurals>
+  <plurals name="blog_post_notification_text">
+    <item quantity="other">ဘလော့ဂ်ပို့စ်အသစ် %d ခု။</item>
+  </plurals>
+  <!--Misc-->
+  <string name="now">ယခု</string>
+  <string name="show">ပြပါ</string>
+  <string name="hide">ဖျောက်ထားမယ်</string>
+  <string name="ok">အိုကေ</string>
+  <string name="cancel">ပယ်ဖျက်မယ်</string>
+  <string name="got_it">ရသွားပါပြီ</string>
+  <string name="delete">ဖျက်သိမ်းမယ်</string>
+  <string name="accept">လက်ခံသည်</string>
+  <string name="decline">ငြင်းဆန်သည်</string>
+  <string name="online">လိုင်းတက်နေသည်</string>
+  <string name="offline">လိုင်းတက်မနေပါ</string>
+  <string name="send">ပို့မယ်</string>
+  <string name="allow">ခွင့်ပြုသည်</string>
+  <string name="open">ဖွင့်မယ်</string>
+  <string name="change">ပြောင်းလဲမယ်</string>
+  <string name="no_data">ဒေတာမရှိ</string>
+  <string name="ellipsis">…</string>
+  <string name="text_too_long">ရိုက်ထားသောစာများ ရှည်နေပါသည်</string>
+  <string name="show_onboarding">ကူညီရေးစကားဝိုင်းကို ပြပါ</string>
+  <string name="fix">ဖြေရှင်းမယ်</string>
+  <string name="help">အကူအညီ</string>
+  <string name="sorry">ဝမ်းနည်းပါတယ်</string>
+  <string name="error_start_activity">သင်၏စနစ်တွင် မရရှိနိုင်ပါ</string>
+  <string name="status_heading">အခြေအနေ -</string>
+  <!--Contacts and Private Conversations-->
+  <string name="no_contacts">ပြသစရာအဆက်အသွယ် မရှိပါ</string>
+  <string name="no_contacts_action">+ (အပေါင်းအိုင်ကွန်) အား နှိပ်၍ အဆက်အသွယ်ကို ထည့်သွင်းပါ</string>
+  <string name="date_no_private_messages">မက်ဆေ့ချ်များမရှိပါ</string>
+  <string name="no_private_messages">ပြသစရာမက်ဆေ့ချ် မရှိပါ</string>
+  <string name="message_hint">စာရိုက်ပါ</string>
+  <string name="image_caption_hint">စာတန်းထည့်ရန် (မဖြစ်မနေမဟုတ်ပါ)</string>
+  <string name="image_attach">ရုပ်ပုံတွဲမယ်</string>
+  <string name="image_attach_error">ရုပ်ပုံ(များ)အား တွဲ၍ မရနိုင်ပါ</string>
+  <string name="image_attach_error_too_big">ရုပ်ပုံဆိုဒ်ကြီး နေပါသည်။ %d MB ပဲဆံ့ပါသည်။</string>
+  <string name="image_attach_error_invalid_mime_type">ပုံ၏ ဖိုင်ပုံစံ မပံ့ပိုးပါ - %s</string>
+  <string name="set_contact_alias">အဆက်အသွယ်အမည်အား ပြောင်းမယ်</string>
+  <string name="set_contact_alias_hint">အဆက်အသွယ်အမည်</string>
+  <string name="delete_all_messages">မက်ဆေ့ချ်များအားလုံး ဖျက်မယ်</string>
+  <string name="dialog_title_delete_all_messages">မက်ဆေ့ချ်ပယ်ဖျက်ခြင်းအား အတည်ပြုမယ်</string>
+  <string name="dialog_message_delete_all_messages">မက်ဆေ့ချ်များအားလုံးကို အပြီးပယ်ဖျက်ရန် သေချာပြီလား?</string>
+  <string name="dialog_title_not_all_messages_deleted">မက်ဆေ့ချ်များအားလုံးကို အပြီးပယ်ဖျက်၍ မရနိုင်ပါ</string>
+  <string name="dialog_message_not_deleted_ongoing_both">ဆက်လက်ဖြစ်နေဆဲရှိသော ဖိတ်ကြားခြင်းများနှင့် မိတ်ဆက်ခြင်းများနှင့် ပတ်သက်သော မက်ဆေ့ချ်များ မပြီးဆုံးခြင်းထိ ပယ်ဖျက်၍မရပါ။</string>
+  <string name="dialog_message_not_deleted_ongoing_introductions">ဆက်လက်ဖြစ်နေဆဲရှိသော မိတ်ဆက်ခြင်းများနှင့် ပတ်သက်သော မက်ဆေ့ချ်များ မပြီးဆုံးခြင်းထိ ပယ်ဖျက်၍မရပါ။</string>
+  <string name="dialog_message_not_deleted_ongoing_invitations">ဆက်လက်ဖြစ်နေဆဲရှိသော ဖိတ်ကြားခြင်းများနှင့် ပတ်သက်သော မက်ဆေ့ချ်များ မပြီးဆုံးခြင်းထိ ပယ်ဖျက်၍မရပါ။</string>
+  <string name="dialog_message_not_deleted_partly_downloaded">တစ်စိတ်တစ်ပိုင်းသာ ဒေါင်းလုပ်ပြုလုပ်ထားရသေးသော မက်ဆေ့ချ်များအား ဒေါင်းလုပ်လုံးလုံး မပြီးဆုံးခြင်းထိ ပယ်ဖျက်၍မရပါ။</string>
+  <string name="dialog_message_not_deleted_not_all_selected_both">ဖိတ်ကြားခြင်း သို့မဟုတ် မိတ်ဆက်ခြင်းအား ပယ်ဖျက်ရန် တောင်းဆိုချက်နှင့် တုံ့ပြန်ချက်အား သင်ရွေးထားရပါသည်။</string>
+  <string name="dialog_message_not_deleted_not_all_selected_introductions">မိတ်ဆက်ခြင်းအား ပယ်ဖျက်ရန် တောင်းဆိုချက်နှင့် တုံ့ပြန်ချက်အား သင်ရွေးထားရပါသည်။</string>
+  <string name="dialog_message_not_deleted_not_all_selected_invitations">ဖိတ်ကြားခြင်းအား ပယ်ဖျက်ရန် တောင်းဆိုချက်နှင့် တုံ့ပြန်ချက်အား သင်ရွေးထားရပါသည်။</string>
+  <string name="delete_contact">အဆက်အသွယ်ကို ဖျက်မည်</string>
+  <string name="dialog_title_delete_contact">အဆက်အသွယ်ကို အပြီးပယ်ဖျက်ခြင်းအား အတည်ပြုမည်</string>
+  <string name="dialog_message_delete_contact">ဤအဆက်အသွယ်အပြင် ၎င်းနှင့်ပြောထားသမျှမက်ဆေ့ချ်အားလုံးကို ဖယ်ရှားချင်တာ သေချာပါသလား?</string>
+  <string name="contact_deleted_toast">အဆက်အသွယ်ကို ဖျက်ပြီးပါပြီ</string>
+  <!--This is shown in the action bar when opening an image in fullscreen that the user sent-->
+  <string name="you">သင်</string>
+  <string name="save_image">ရုပ်ပုံသိမ်းဆည်းမယ်</string>
+  <string name="dialog_title_save_image">ရုပ်ပုံသိမ်းဆည်းမည်လား?</string>
+  <string name="dialog_message_save_image">ဤရုပ်ပုံသိမ်းဆည်းခြင်းဖြင့် ၎င်းအား အခြားအပ္ပလီကေးရှင်းများ အသုံးပြုနိုင်ပါသည်။​ \n\n သင်သိမ်းဆည်းမည်ဆိုတာ သေချာပါလား?</string>
+  <string name="save_image_success">ရုပ်ပုံအား သိမ်းဆည်းပြီး</string>
+  <string name="save_image_error">ရုပ်ပုံအား သိမ်းဆည်း၍ မရနိုင်ပါ</string>
+  <string name="dialog_title_no_image_support">ရုပ်ပုံများ မရှိပါ</string>
+  <string name="dialog_message_no_image_support">သင့် အဆက်အသွယ်၏ ဘရိုင်ယာသည် ရုပ်ပုံပူးတွဲဖိုင်များ မပံ့ပိုးပါ။ ၎င်းတို့မှ အဆင့်မြှင့်ခဲ့လျှင် သင်သည် အခြားအိုင်ကွန်တွေ့ရှိပါမည်။</string>
+  <string name="dialog_title_image_support">ရုပ်ပုံများကို ဤအဆက်အသွယ်လိပ်စာသို့ ပို့လို့ရပါပြီ</string>
+  <string name="dialog_message_image_support">ဤအိုင်ကွန်ကို နှိပ်ပြီး ရုပ်ပုံများကို ပူးတွဲပါ</string>
+  <string name="messaging_too_many_attachments_toast">ပထမဆုံး %d ရုပ်ပုံများသာလျှင် ပို့ပါမည်</string>
+  <!--Adding Contacts-->
+  <string name="add_contact_title">အနီးနားရှိ အဆက်အသွယ်အား ထည့်သွင်းမယ်</string>
+  <string name="face_to_face">သင်သည် ဤလူပုဂ္ဂိုလ်အား တွေ့ရှိမှသာလျှင် ၎င်း၏အဆက်အသွယ်ကို ပေါင်းထည့်လို့ရပါမည်။ \n\n ဒါမှသာလျှင် နောင်တွင် အခြားလူများ သင့်အား အယောင်ဆောင်ခြင်း သို့မဟုတ် သင့်မက်ဆေ့များချ်ဖတ်ရှုခြင်း တို့ကို တားဆီးနိုင်ပါမည်။</string>
+  <string name="continue_button">ဆက်လုပ်မယ်</string>
+  <string name="try_again_button">ထပ်မံကြိုးစားမယ်</string>
+  <string name="waiting_for_contact_to_scan">အဆက်အသွယ်မှ​ စကန်ဖတ်ချိတ်ဆက်ရန် စောင့်နေပါသည် \u2026</string>
+  <string name="exchanging_contact_details">အဆက်အသွယ်အသေးစိတ်ကို ဖလှယ်နေသည် \u2026</string>
+  <string name="contact_added_toast">ထည့်ပြီးသောအဆက်အသွယ် - %s ခု</string>
+  <string name="contact_already_exists">အဆက်အသွယ်လိပ်စာ %s သည် ရှိနှင့်ပြီးဖြစ်သည်</string>
+  <string name="qr_code_invalid">ဒီ QR ကုဒ်သည် အသုံးပြုလို့ မဆီလျော်ပါ</string>
+  <string name="qr_code_too_old">သင် စကန်ဖတ်ထားသော QR ကုဒ်သည် %s အရင်ဗားရှင်းအဟောင်းမှ ဖြစ်ပါသည်။ \n\n ကျေးဇူးပြု၍ သင့် အဆက်အသွယ်အား နောက်ဆုံးဗားရှင်းသို့ အဆင့်မြှင့်ရန် တောင်းဆိုပေးပြီး ပြန်စမ်းကြည့်ပေးပါ။</string>
+  <string name="qr_code_too_new">သင် စကန်ဖတ်ထားသော QR ကုဒ်သည် %s ဗားရှင်းအသစ်မှ ဖြစ်ပါသည်။ \n\n ကျေးဇူးပြု၍ နောက်ဆုံးဗားရှင်းသို့ အဆင့်မြှင့်ပြီး ပြန်စမ်းကြည့်ပေးပါ။</string>
+  <string name="camera_error">ကင်မရာ ပြဿနာ</string>
+  <string name="connecting_to_device">ဤစက်ပစ္စည်း \u2026 နှင့် ချိတ်ဆက်နေပါသည်</string>
+  <string name="authenticating_with_device">ဤစက် \u2026 ကို စစ်မှန်ကြောင်း စစ်ဆေးနေပါသည်</string>
+  <string name="connection_error_title">သင့်ရဲ့အဆက်အသွယ်လိပ်စာနှင့် ချိတ်ဆက်လို့မရပါ</string>
+  <string name="connection_error_feedback">ဤပြဿနာသည် ဆက်လက်ဖြစ်ဆဲလျှင် ကျေးဇူးပြု၍ အပ္ပလီကေးရှင်းတိုးတက်ရန် <a href="feedback"> တုံ့ပြန်ချက် ပေးပို့ပေးပါ </a> ။</string>
+  <!--Adding Contacts Remotely-->
+  <string name="add_contact_remotely_title_case">အဝေးက အဆက်အသွယ်လိပ်စာကို ထည့်သွင်းမယ်</string>
+  <string name="add_contact_nearby_title">အနီးနားရှိ အဆက်အသွယ်အား ထည့်သွင်းမယ်</string>
+  <string name="add_contact_remotely_title">အဝေးက အဆက်အသွယ်လိပ်စာကို ထည့်သွင်းမယ်</string>
+  <string name="contact_link_intro">သင့်အဆက်အသွယ်ထံမှလင့်ခ်ကို ဤနေရာတွင် ဖြည့်ပါ</string>
+  <string name="contact_link_hint">အဆက်အသွယ်၏ လင့်ခ်</string>
+  <string name="paste_button">ကူးထားသောအရာ တင်မယ်</string>
+  <string name="add_contact_button">အဆက်အသွယ် ထည့်မယ်</string>
+  <string name="copy_button">ကူးမယ်</string>
+  <string name="share_button">ဝေမျှမယ်</string>
+  <string name="send_link_title">လင့်ခ်များကို လဲလှယ်မယ်</string>
+  <string name="add_contact_choose_nickname">နာမည်ပြောင်အားရွေးချယ်ပါ</string>
+  <string name="add_contact_choose_a_nickname">နာမည်ပြောင် ထည့်သွင်းမယ်</string>
+  <string name="nickname_intro">သင်၏ အဆက်အသွယ်အား နာမည်ပြောင်ပေးပါ။ ဤအရာကို သင်သာလျှင် မြင်နိုင်ပါသည်။</string>
+  <string name="your_link">သင်ထည့်ချင်သည့် အဆက်အသွယ်အား ဤလင့်ခ်ကို ပေးပါ</string>
+  <string name="link_clip_label">ဘရိုင်ယာလင့်ခ်</string>
+  <string name="link_copied_toast">လင့်ခ်ကို ကော်ပီကူးထားပါသည်</string>
+  <string name="adding_contact_error">အဆက်အသွယ်လိပ်စာကို ထည့်သွင်းခြင်းမှာ ပြဿနာဖြစ်ခဲ့သည်။</string>
+  <string name="pending_contact_requests_snackbar">ဆိုင်းငံ့ထားသော ဆက်သွယ်ရန်တောင်းဆိုမှုများ ရှိပါသည်</string>
+  <string name="pending_contact_requests">ဆိုင်းငံ့ထားသော ဆက်သွယ်ရန်တောင်းဆိုမှုများ</string>
+  <string name="no_pending_contacts">ဆိုင်းငံ့ထားသော အဆက်အသွယ်လိပ်စာများ မရှိပါ</string>
+  <string name="waiting_for_contact_to_come_online">အဆက်အသွယ်လိပ်စာ အွန်လိုင်းပေါ်ရောက်လာသည်ကို စောင့်နေပါသည်…</string>
+  <string name="connecting">ချိတ်ဆက်နေသည်…</string>
+  <string name="adding_contact">အဆက်အသွယ်လိပ်စာကို ထည့်သွင်းနေပါသည်…</string>
+  <string name="adding_contact_failed">အဆက်အသွယ်လိပ်စာထည့်သွင်းခြင်း မအောင်မြင်ပါ</string>
+  <string name="dialog_title_remove_pending_contact">ဖယ်ရှားခြင်းကို အတည်ပြုပါ</string>
+  <string name="dialog_message_remove_pending_contact">ဒီအဆက်အသွယ်လိပ်စာကို ခုထိထည့်သွင်းထားပါသည်။ ခုဖယ်ရှားပါက ထည့်တော့မည်မဟုတ်ပါ။</string>
+  <string name="own_link_error">သင်မဟုတ်သော သင့်အဆက်အသွယ်၏ လင့်ခ်အား ထည့်သွင်းပါ</string>
+  <string name="nickname_missing">နာမည်ပြောင်အား ထည့်သွင်းပါ</string>
+  <string name="invalid_link">မဆီလျော်သောလင့်ခ်</string>
+  <string name="unsupported_link">ဤလင့်ခ်သည် ဘရိုင်ယာဗားရှင်းအသစ်မှ ဖြစ်ပါသည်။ ကျေးဇူးပြု၍ နောက်ဆုံးပေါ်ဗားရှင်းထိ မြှင့်တင်ပြီး ပြန်၍ကြိုးစားကြည့်ပါ။</string>
+  <string name="intent_own_link">သင့်ရဲ့ ကိုယ်ပိုင်လင့်ခ်ကို သင်ကိုယ်တိုင် ဖွင့်ထားပါသည်။ သင်ထည့်ချင်တဲ့ အဆက်အသွယ်လိပ်စာကို အသုံးပြုပါ။</string>
+  <string name="missing_link">ကျေးဇူးပြု၍ လင့်ခ်အား ထည့်သွင်းပါ။</string>
+  <!--This is a numeral indicating the first step in a series of screens-->
+  <string name="step_1">၁</string>
+  <!--This is a numeral indicating the second step in a series of screens-->
+  <string name="step_2">၂</string>
+  <plurals name="contact_added_notification_text">
+    <item quantity="other">%dအဆက်အသွယ်လိပ်စာများ ထပ်ထည့်ထားသည်။</item>
+  </plurals>
+  <string name="offline_state">အင်တာနက်ချိတ်ဆက်မှု မရှိ</string>
+  <string name="duplicate_link_dialog_title">လင့်ခ်ကို ကူးပွားမယ်</string>
+  <string name="duplicate_link_dialog_text_1">သင့်မှာ ဒီလင့်ခ်နဲ့ ပတ်သက်ပြီး ဆိုင်းငံ့ထားသော အဆက်အသွယ်လိပ်စာ ရှိပြီးဖြစ်သည်: %s</string>
+  <string name="duplicate_link_dialog_text_1_contact">သင့်မှာ ဒီလင့်ခ်နဲ့ အဆက်အသွယ်လိပ်စာ ရှိပြီးဖြစ်သည်: %s</string>
+  <!--This is a question asking whether two nicknames refer to the same person-->
+  <string name="duplicate_link_dialog_text_2">%s နှင့် %s သည် တစ်ဦးတည်း ဖြစ်ပါသလား?</string>
+  <!--This is a button for answering that two nicknames do indeed refer to the same person. This
+	string will be used in a dialog button, so if the translation of this string is longer than 20
+	characters, please use "Yes" instead, and use "No" for the "Different Person" button-->
+  <string name="same_person_button">တစ်ဦးတည်း</string>
+  <!--This is a button for answering that two nicknames refer to different people. This string
+	will be used in a dialog button, so if the translation of this string longer than 20 characters,
+	please use "No" instead, and use "Yes" for the "Same Person" button-->
+  <string name="different_person_button">နောက်တစ်ယောက် </string>
+  <string name="duplicate_link_dialog_text_3">%s နှင့် %s သည် သင့်စီသို့ တူညီသောလင့်ခ်တစ်ခု မျှဝေခဲ့ပါသည်။ \n\n သူတို့ထဲမှတစ်ဦးသည် သင့်အဆက်အသွယ်များကို ရှာဖွေနေနိုင်ပါသည်။ \n\n သူတို့အား နောက်တစ်ဦးစီမှ တူညီသောလင့်ခ်ရခဲ့သည်ကို မပြောပြပါနှင့်။</string>
+  <string name="pending_contact_updated_toast">ဆိုင်းငံ့ထားသော အဆက်အသွယ်ကို အပ်ဒိတ်လုပ်ပြီး</string>
+  <!--Introductions-->
+  <string name="introduction_onboarding_title">သင့်ရဲ့ အဆက်အသွယ်လိပ်စာများကို မိတ်ဆက်ပါ</string>
+  <string name="introduction_onboarding_text">သင့်ရဲ့အဆက်အသွယ်လိပ်စာများကို အချင်းချင်း မိတ်ဆက်နိုင်ပါသည်၊ ထိုမှသာ သူတို့အချင်းချင်း အပြင်မှာတွေ့စရာမလိုပဲ ဘရိုင်ယာပေါ်မှာ ချိတ်ဆက်လို့ရမှာဖြစ်ပါတယ်။</string>
+  <string name="introduction_menu_item">မိတ်ဆက်ခြင်း ပြုလုပ်ပါ</string>
+  <string name="introduction_activity_title">အဆက်အသွယ်လိပ်စာကို ရွေးထားပါ</string>
+  <string name="introduction_not_possible">ဤအဆက်အသွယ်များထဲမှ သင့်စီတွင် မိတ်ဆက်ခြင်းတစ်ခု ရှိလျက်ဖြစ်ပါသည်။ ပြီးစီးရန် ခွင့်ပြုပေးပါ။ သင့်မှ သို့မဟုတ် သင့်အဆက်အသွယ်များမှ အွန်လိုင်းမတက်ရှိလျှင် ဤလုပ်ငန်းစဥ်သည် ကြန့်ကြာနိုင်ပါသည်။</string>
+  <string name="introduction_message_title"> အဆက်အသွယ်လိပ်စာများကို မိတ်ဆက်ခြင်း</string>
+  <string name="introduction_message_hint">စာထည့်သွင်းပါ (မဖြစ်မနေမဟုတ်ပါ)</string>
+  <string name="introduction_button">မိတ်ဆက်ခြင်း ပြုလုပ်ပါ</string>
+  <string name="introduction_sent">သင့်ရဲ့ မိတ်ဆက်ခြင်းကို ပို့ပြီးပါပြီ။</string>
+  <string name="introduction_error">မိတ်ဆက်ခြင်းပြုလုပ်မှုမှာ ပြဿနာဖြစ်ခဲ့ပါသည်။</string>
+  <string name="introduction_request_sent">သင့်ကို %1$s ကနေ %2$s ကို မိတ်ဆက်ဖို့  တောင်းဆိုလိုက်ပါသည်။</string>
+  <string name="introduction_request_received">%1$s မှ သင့်ကို %2$s နှင့် မိတ်ဆက်ပေးဖို့ တောင်းဆိုပါသည်။ သင့် အဆက်အသွယ်စာရင်းထဲသို့ %2$s အားပေါင်းထည့်ချင်ပါသလား?</string>
+  <string name="introduction_request_exists_received">%1$s မှ သင့်ကို %2$s နှင့် မိတ်ဆက်ပေးဖို့တောင်းဆိုပါသည်၊ သို့သော်လည်း %2$s သည် သင့် အဆက်အသွယ်စာရင်းထဲတွင် ရှိပြီးသားဖြစ်နေပါသည်။ %1$s မှ ဤအကြောင်းမသိရှိနိုင်သေး၍ သင် ပြန်တုံ့ပြန်ထားနိုင်ပါသည် -</string>
+  <string name="introduction_request_answered_received">%2$s ကို သင်မှ မိတ်ဆက်ပေးရန် %1$s ကတောင်းဆိုထားပါသည်။</string>
+  <string name="introduction_response_accepted_sent">%1$s နှင့် မိတ်ဆက်ခြင်းအား သင်လက်ခံခဲ့ပါသည်။</string>
+  <string name="introduction_response_accepted_sent_info">သင့် အဆက်အသွယ်စာရင်းထဲသို့ %1$s အားမထည့်သွင်းပြီးခင် ၎င်းတို့မှ မိတ်ဆက်ခြင်းအား အရင်လက်ခံထားရပါသည်။ ဤလုပ်ငန်းစဥ်သည် ကြန့်ကြာနိုင်ပါသည်။</string>
+  <string name="introduction_response_declined_sent">%1$s နှင့် မိတ်ဆက်ခြင်းအား သင် ငြင်းဆိုခဲ့ပါသည်။</string>
+  <string name="introduction_response_accepted_received">%2$s နှင့် မိတ်ဆက်ခြင်းကို %1$s က လက်ခံခဲ့ပါသည်။</string>
+  <string name="introduction_response_declined_received">%2$s နှင့် မိတ်ဆက်ခြင်းကို %1$s က ငြင်းဆိုခဲ့ပါသည်။</string>
+  <string name="introduction_response_declined_received_by_introducee">%2$s မှ မိတ်ဆက်ခြင်းအား ငြင်းဆိုခဲ့သည်ကို %1$s မှ ပြောပါသည်။</string>
+  <!--Private Groups-->
+  <string name="groups_list_empty">ပြသစရာအဖွဲ့များမရှိ</string>
+  <string name="groups_list_empty_action">+ (အပေါင်းအိုင်ကွန်) အား နှိပ်၍ အဖွဲ့ဖန်တီးပါ သို့မဟုတ် သင့် အဆက်အသွယ်များကို သင့်စီသို့ အဖွဲ့များ ဝေမျှရန် တောင်းဆိုပါ</string>
+  <string name="groups_created_by">%s မှ ဖန်တီးခဲ့သည်</string>
+  <plurals name="messages">
+    <item quantity="other">မက်ဆေ့ချ် %d ခု</item>
+  </plurals>
+  <string name="groups_group_is_empty">ဤအဖွဲ့သည် ဗလာဖြစ်နေပါသည်</string>
+  <string name="groups_group_is_dissolved">ဤအဖွဲ့အား ဖျက်သိမ်းလိုက်ပြီဖြစ်ပါသည်</string>
+  <string name="groups_remove">ဖယ်ရှားမယ်</string>
+  <string name="groups_create_group_title">ကိုယ်ပိုင်အဖွဲ့ ဖန်တီးမယ်</string>
+  <string name="groups_create_group_button">အဖွဲ့အသစ် ဖန်တီးမယ်</string>
+  <string name="groups_create_group_invitation_button">ဖိတ်ကြားစာပေးပို့မယ်</string>
+  <string name="groups_create_group_hint">သင်၏ ကိုယ်ပိုင်အဖွဲ့အတွက် အမည်ရွေးချယ်ပါ</string>
+  <string name="groups_invitation_sent">အဖွဲ့လိုက်ဖိတ်ကြားစာ ပေးပို့ပြီး</string>
+  <string name="groups_member_list">အဖွဲ့ဝင်စာရင်း</string>
+  <string name="groups_invite_members">အဖွဲ့ဝင်များ ဖိတ်ခေါ်မယ်</string>
+  <string name="groups_member_created_you">သင်သည် အဖွဲ့အား ဖန်တီးခဲ့သည်</string>
+  <string name="groups_member_created">%sသည် အဖွဲ့အား ဖန်တီးခဲ့သည်</string>
+  <string name="groups_member_joined_you">သင်သည် အဖွဲ့သို့ ဝင်ရောက်ခဲ့သည်</string>
+  <string name="groups_member_joined">%s သည် အဖွဲ့သို့ ဝင်ရောက်ခဲ့သည်</string>
+  <string name="groups_leave">အဖွဲ့မှ ထွက်မယ်</string>
+  <string name="groups_leave_dialog_title">အဖွဲ့မှ ထွက်ခြင်းအား အတည်ပြုသည်</string>
+  <string name="groups_leave_dialog_message">အဖွဲ့မှ ထွက်ရန် ‌သေချာပါသလား?</string>
+  <string name="groups_dissolve">အဖွဲ့အား ဖျက်သိမ်းမယ်</string>
+  <string name="groups_dissolve_dialog_title">အဖွဲ့ကို ဖျက်သိမ်းခြင်းအား အတည်ပြုသည်</string>
+  <string name="groups_dissolve_dialog_message">ဤအဖွဲ့အား ဖျက်သိမ်းမည်ဆိုတာ သင်သေချာပါသလား? \n\n အခြားအဖွဲ့ဝင်များအားလုံးသည် ၎င်းတို့ စကားပြောဆိုမှုများနှင့် နောက်ဆုံးမက်ဆေ့ချ်များ ဆက်လက်ပေးပို့လက်ခံရန် မရရှိနိုင်တော့ပါ။</string>
+  <string name="groups_dissolve_button">ဖျက်သိမ်းမယ်</string>
+  <string name="groups_dissolved_dialog_title">အဖွဲ့အား ဖျက်သိမ်းပြီးပြီဖြစ်ပါသည်</string>
+  <string name="groups_dissolved_dialog_message">ဤအဖွဲ့ဖန်တီးသူသည် ဤအဖွဲ့အား ဖျက်သိမ်းခဲ့ပါသည်။ ​\n\n သင်သည် အဖွဲ့စီသို့ မက်ဆေ့ချ်များ ရေးသား၍မရနိုင်ပါ နှင့် ယခင်က ရေးပြီးသားပို့စ်များကိုလည်း မလက်ခံနိုင်လောက်ပါ။</string>
+  <!--Private Group Invitations-->
+  <string name="groups_invitations_title">အဖွဲ့လိုက် ဖိတ်ခေါ်မှုများ</string>
+  <string name="groups_invitations_invitation_sent">သင်အား %1$s သို့  \"%2$s\" အဖွဲ့သို့ ပါဝင်ရန် ဖိတ်ခေါ်ခဲ့ပါသည်။</string>
+  <string name="groups_invitations_invitation_received">%1$sကသင့်ကို\"%2$s\"အစုထဲဝင်ဖို့ဖိတ်လိုက်တယ်။</string>
+  <string name="groups_invitations_joined">အဖွဲ့ထဲဝင်ပြီး</string>
+  <string name="groups_invitations_declined">အဖွဲ့လိုက် ဖိတ်ခေါ်မှုအား ငြင်းဆိုခံရသည်</string>
+  <plurals name="groups_invitations_open">
+    <item quantity="other">%d အဖွဲ့၏ ဖိတ်ကြားခြင်းများကို ဖွင့်လှစ်ခြင်း</item>
+  </plurals>
+  <string name="groups_invitations_response_accepted_sent">%s မှ အဖွဲ့လိုက် ဖိတ်ခေါ်မှုအား သင် လက်ခံခဲ့ပါသည်။</string>
+  <string name="groups_invitations_response_declined_sent">%s မှ အဖွဲ့လိုက် ဖိတ်ခေါ်မှုအား သင် ငြင်းဆိုခဲ့ပါသည်။</string>
+  <string name="groups_invitations_response_accepted_received">%s သည် အဖွဲ့လိုက်ဖိတ်ခေါ်မှုအား လက်ခံခဲ့ပါသည်။</string>
+  <string name="groups_invitations_response_declined_received">%s သည် အဖွဲ့လိုက်ဖိတ်ခေါ်မှုအား ငြင်းဆိုခဲ့ပါသည်။</string>
+  <string name="sharing_status_groups">ဖန်းတီးသူသာ အဖွဲ့ထဲသို့ အဖွဲ့ဝင်အသစ်များ ဖိတ်ခေါ်ဆိုနိုင်ပါသည်။ အောက်ပါစာရင်းသည် လက်ရှိအဖွဲ့ဝင်များဖြစ်ပါသည်။</string>
+  <!--Private Groups Revealing Contacts-->
+  <string name="groups_reveal_contacts">အဆက်အသွယ်များ ထုတ်ဖော်မယ်</string>
+  <string name="groups_reveal_dialog_message">ယခု နှင့် နောင်အဖွဲ့ဝင်များစီသို့ သင်သည် အဆက်အသွယ်များ ထုတ်ဖေါ်ပြရန် ရွေးနိုင်ပါသည်။ \n\n အဆက်အသွယ်များထုတ်ဖေါ်ခြင်းသည် သင့် အဖွဲ့နှင့်ချိတ်ဆက်မှုလိုင်းအား ပိုမြန်စေပြီး ပိုစိတ်ချယုံကြည်စွာဖြစ်စေပါသည်၊ အဘယ်ကြောင့်ဆိုသည်မှာ အဖွဲ့ဖန်တီးသူ လိုင်းပေါ်မရှိလျှင်လည်း သင်သည် ထုတ်ဖေါ်ထားသော အဆက်အသွယ်များနှင့် ဆက်သွယ်နိုင်ပါသည်။</string>
+  <string name="groups_reveal_visible">အဆက်အသွယ်နှင့် ဆက်သွယ်မှုသည် အဖွဲ့မှ တွေ့မြင်နိုင်ပါသည်</string>
+  <string name="groups_reveal_visible_revealed_by_us">အဆက်အသွယ်နှင့် ဆက်သွယ်မှုသည် အဖွဲ့မှ တွေ့မြင်နိုင်ပါသည် (သင်မှ ထုတ်ဖော်ထားခြင်းဖြစ်၍)</string>
+  <string name="groups_reveal_visible_revealed_by_contact">အဆက်အသွယ်နှင့် ဆက်သွယ်မှုသည် အဖွဲ့မှ တွေ့မြင်နိုင်ပါသည် (%s မှ ထုတ်ဖော်ထားခြင်းဖြစ်၍)</string>
+  <string name="groups_reveal_invisible">အဆက်အသွယ်နှင့် ဆက်သွယ်မှုသည် အဖွဲ့မှ မတွေ့မြင်နိုင်ပါသည် </string>
+  <!--Forums-->
+  <string name="no_forums">ပြသစရာဖိုရမ် မရှိပါ</string>
+  <string name="no_forums_action">+ (အပေါင်းအိုင်ကွန်) အား နှိပ်၍ ဆွေးနွေးမှုဖိုရမ်ပါ သို့မဟုတ် သင့် အဆက်အသွယ်များကို သင့်စီသို့ ဆွေးနွေးမှုဖိုရမ်များ ဝေမျှရန် တောင်းဆိုပါ</string>
+  <string name="create_forum_title">ဖိုရမ် ဖန်တီးမယ်</string>
+  <string name="choose_forum_hint">သင့် ဆွေးနွေးမှုဖိုရမ်အတွက် အမည်ရွေးပါ</string>
+  <string name="create_forum_button">ဖိုရမ်ဖန်တီးရန်</string>
+  <string name="forum_created_toast">ဖိုရမ် ဖန်တီးပြီးပါပြီ</string>
+  <string name="no_forum_posts">ပြစရာ ပို့စ်များမရှိ</string>
+  <string name="no_posts">ပို့စ်များမရှိ</string>
+  <plurals name="posts">
+    <item quantity="other">ပို့စ် %d ခု</item>
+  </plurals>
+  <string name="forum_new_message_hint">ပို့စ်အသစ်</string>
+  <string name="forum_message_reply_hint">ပြန်ကြားချက်အသစ်</string>
+  <string name="btn_reply">ပြန်ကြားမယ်</string>
+  <string name="forum_leave">ဆွေးနွေးမှုဖိုရမ်မှ ထွက်မယ်</string>
+  <string name="dialog_title_leave_forum">ဆွေးနွေးမှုဖိုရမ်မှ ထွက်ခြင်း အတည်ပြုမယ်</string>
+  <string name="dialog_message_leave_forum">ဤဖိုရမ်မှ ထွက်ချင်တာ သေချာပါသလား? \n\n သင် ဤဖိုရမ်ကိုမျှဝေထားသည့် သင့်အဆက်အသွယ်များအနေဖြင့် သတင်းအသစ်များရရှိမှု ရပ်တန့်သွားနိုင်ပါသည်။</string>
+  <string name="dialog_button_leave">ထွက်မယ်</string>
+  <string name="forum_left_toast">ဆွေးနွေးမှုဖိုရမ်မှ ထွက်သွားပါပြီ</string>
+  <!--Forum Sharing-->
+  <string name="forum_share_button">ဆွေးနွေးမှုဖိုရမ်ကို ဝေမျှမယ်</string>
+  <string name="contacts_selected">အဆက်အသွယ်များ ရွေးထားသည်</string>
+  <string name="activity_share_toolbar_header">အဆက်အသွယ်များ ရွေးမယ်</string>
+  <string name="no_contacts_selector">ပြသစရာအဆက်အသွယ် မရှိပါ</string>
+  <string name="no_contacts_selector_action">အဆက်အသွယ်တစ်ခုထည့်ပြီးလျှင် ဤနေရာကို ပြန်လာပါ</string>
+  <string name="forum_shared_snackbar">ရွေးထားသော အဆက်အသွယ်များနှင့် ဆွေးနွေးမှုဖိုရမ်အား မျှဝေပြီး</string>
+  <string name="forum_share_message">စာထည့်သွင်းပါ (မဖြစ်မနေမဟုတ်ပါ)</string>
+  <string name="forum_share_error">ဤဖိုရမ်ကို မျှဝေရာတွင် ပြဿနာတစ်ခု ရှိနေသည်။</string>
+  <string name="forum_invitation_received">%1$s မှ သင့်စီသို့ \"%2$s\" ဆွေးနွေးမှုဖိုရမ်အား မျှဝေခဲ့ပါသည်။</string>
+  <string name="forum_invitation_sent">သင်မှ %2$s စီသို့ \"%1$s\" ဆွေးနွေးမှုဖိုရမ်အား မျှဝေခဲ့ပါသည်။</string>
+  <string name="forum_invitations_title">ဆွေးနွေးမှုဖိုရမ် ဖိတ်ကြားခြင်း</string>
+  <string name="forum_invitation_exists">သင်ဤဖိုရမ်သို့ဖိတ်စာတစ်ခုကိုလက်ခံပြီးဖြစ်သည်။\n\nဖိတ်စာများများလက်ခံခြင်းအားဖြင့်ဖိုရမ်နှင့်သင်၏ဆက်သွယ်မှုကိုပိုမိုမြန်ဆန်စေပြီးယုံကြည်စိတ်ချရစေသည်။</string>
+  <string name="forum_joined_toast">ဆွေးနွေးမှုဖိုရမ်သို့ဝင်ပြီး</string>
+  <string name="forum_declined_toast">ဖိတ်ကြားမှု ငြင်းဆိုခဲ့သည်</string>
+  <string name="shared_by_format">%s ဦး မျှဝေထားသည်</string>
+  <string name="forum_invitation_already_sharing">မျှဝေထားခြင်းဖြစ်သည်</string>
+  <string name="forum_invitation_response_accepted_sent">%s မှ ဖိတ်ကြားမှုကို သင်သည် လက်ခံခဲ့ပါသည်။</string>
+  <string name="forum_invitation_response_declined_sent">%s မှ ဖိတ်ကြားမှုကို သင်သည် ငြင်းဆိုခဲ့ပါသည်။</string>
+  <string name="forum_invitation_response_accepted_received">%s သည် ဖိုရမ်ဖိတ်ကြားမှုအား လက်ခံခဲ့ပါသည်။</string>
+  <string name="forum_invitation_response_declined_received">%s သည် ဖိုရမ်ဖိတ်ကြားမှုအား ငြင်းဆိုခဲ့ပါသည်။</string>
+  <string name="sharing_status">မျှဝေခြင်း အခြေအနေ</string>
+  <string name="sharing_status_forum">ဖိုရမ်ထဲမှ မည်သူမဆို ၎င်းတို့၏ အဆက်အသွယ်များနှင့် မျှဝေနိုင်ပါသည်။ သင်သည် အောက်ပါအဆက်အသွယ်များနှင့် ဤဖိုရမ်အား မျှဝေထားပါသည်။​ သင် မတွေ့နိုင်သော အခြားအဖွဲ့ဝင်များလဲ ရှိနိုင်ပါသည်။</string>
+  <plurals name="forums_shared">
+    <item quantity="other">အဆက်အသွယ်များက ဖိုရမ် %d ခု မျှဝေထားသည်</item>
+  </plurals>
+  <string name="nobody">မည်သူမျှ</string>
+  <!--Blogs-->
+  <string name="blogs_other_blog_empty_state">ပြစရာ ပို့စ်များမရှိ</string>
+  <string name="read_more">ထပ်မံဖတ်ရှုမယ်</string>
+  <string name="blogs_write_blog_post">ဘလော့ဂ်ပို့စ် ရေးသားမယ်</string>
+  <string name="blogs_write_blog_post_body_hint">သင့် ဘလော့ဂ်ပို့စ် ရေးသားပါ</string>
+  <string name="blogs_publish_blog_post">ထုတ်ဝေမယ်</string>
+  <string name="blogs_blog_post_created">ဘလော့ဂ်ပို့စ် ဖန်တီးပြီး</string>
+  <string name="blogs_blog_post_received">ဘလော့ဂ်ပို့စ်အသစ် လက်ခံရယူပြီး</string>
+  <string name="blogs_feed_empty_state">ပြစရာ ပို့စ်များမရှိ</string>
+  <string name="blogs_feed_empty_state_action">သင့် အဆက်အသွယ်များနှင့် သင်စာရင်းသွင်းရှိထားသော ဘလော့ဂ်များမှ ပို့စ်များသည် ဤနေရာတွင် ပေါ်ပါမည်။​ \n\n ဘောပင်အိုင်ကွန်အားနှိပ်၍ ပို့စ်ရေးပါ</string>
+  <string name="blogs_remove_blog">ဘလော့ဂ်အား ဖယ်ရှားမယ်</string>
+  <string name="blogs_remove_blog_dialog_message">ဤဘလော့ဂ်ကို ဖယ်ရှားချင်တာ သေချာပါသလား။\n\nပို့စ်များကို သင့်ကိရိယာမှ ဖယ်ရှားလိုက်မည်ဖြစ်သော်လည်း အခြားသူများ၏ကိရိယာများမှမူ ဖယ်ရှားလိုက်မည်မဟုတ်ပါ။\n\nသင် ဤဘလော့ဂ်ကိုမျှဝေထားသည့် သင့်အဆက်အသွယ်များအနေဖြင့် သတင်းအသစ်များရရှိမှု ရပ်တန့်သွားနိုင်ပါသည်။</string>
+  <string name="blogs_remove_blog_ok">ဖယ်ရှားမယ်</string>
+  <string name="blogs_blog_removed">ဘလော့ဂ်အား ဖယ်ရှားပြီး</string>
+  <string name="blogs_reblog_comment_hint">မှတ်ချက်ထည့်မယ် (မဖြစ်မနေမဟုတ်ပါ)</string>
+  <string name="blogs_reblog_button">ထပ်မံဘလော့ဂ်မယ်</string>
+  <!--Blog Sharing-->
+  <string name="blogs_sharing_share">ဘလော့ဂ်အား မျှဝေမယ်</string>
+  <string name="blogs_sharing_error">ဘလော့ဂ်အား မျှဝေခြင်းတွင် ပျက်ယွင်းချက်ဖြစ်ခဲ့ပါသည်</string>
+  <string name="blogs_sharing_button">ဘလော့ဂ်အား မျှဝေမယ်</string>
+  <string name="blogs_sharing_snackbar">ဤဘလော့ဂ်ကိုရွေးချယ်ထားသောအဆက်အသွယ်များနှင့်မျှဝေပြီးပါပြီ။</string>
+  <string name="blogs_sharing_response_accepted_sent">%s မှ ဘလော့ဂ်သို့ ဖိတ်ခေါ်မှုအား သင်သည် လက်ခံခဲ့ပါသည်။</string>
+  <string name="blogs_sharing_response_declined_sent">%s မှ ဘလော့ဂ်သို့ ဖိတ်ခေါ်မှုအား သင်သည် ငြင်းဆိုခဲ့ပါသည်။</string>
+  <string name="blogs_sharing_response_accepted_received">%s သည် ဘလော့ဂ်သို့ ဖိတ်ခေါ်မှုအား လက်ခံခဲ့ပါသည်။</string>
+  <string name="blogs_sharing_response_declined_received">%s သည် ဘလော့ဂ်သို့ ဖိတ်ခေါ်မှုအား ငြင်းဆိုခဲ့ပါသည်။</string>
+  <string name="blogs_sharing_invitations_title">လော့ဂ်သို့ ဖိတ်ခေါ်မှုများ</string>
+  <string name="blogs_sharing_joined_toast">ဗလော့ဂ်စီသို့ စာရင်းသွင်းထား</string>
+  <string name="blogs_sharing_declined_toast">ဖိတ်ကြားမှု ငြင်းဆိုခဲ့သည်</string>
+  <!--RSS Feeds-->
+  <string name="blogs_rss_feeds_import_button">တင်သွင်းမယ်</string>
+  <string name="blogs_rss_feeds_manage_imported">တင်သွင်းထားသော</string>
+  <string name="blogs_rss_feeds_manage_author">စာရေးဆရာ -</string>
+  <string name="blogs_rss_feeds_manage_updated">နောက်ဆုံးအပ်ဒိတ်လုပ်ခဲ့ခြင်း -</string>
+  <string name="blogs_rss_remove_feed_dialog_message">ဤသတင်းပြန်ကြားရေးကို ဖယ်ရှားချင်တာ သေချာပါသလား။\n\nပို့စ်များကို သင့်ကိရိယာမှ ဖယ်ရှားလိုက်မည်ဖြစ်သော်လည်း အခြားသူများ၏ကိရိယာများမှမူ ဖယ်ရှားလိုက်မည်မဟုတ်ပါ။\n\nသင် ဤသတင်းပြန်ကြားရေးကိုမျှဝေထားသည့် သင့်အဆက်အသွယ်များအနေဖြင့် သတင်းအသစ်များရရှိမှု ရပ်တန့်သွားနိုင်ပါသည်။</string>
+  <string name="blogs_rss_remove_feed_ok">ဖယ်ရှားမယ်</string>
+  <string name="blogs_rss_feeds_manage_empty_state">RSS သတင်းများပြရန် မရှိပါ \n\n + (အပေါင်းအိုင်ကွန်) အားနှိပ်၍ သတင်းများ တင်သွင်းပါ</string>
+  <!--Settings Profile Picture-->
+  <string name="dialog_confirm_profile_picture_remark">သင့် အဆက်အသွယ်များသည် ဤရုပ်ပုံကို တွေ့မြင်ရပါသည်</string>
+  <!--Settings Display-->
+  <string name="pref_language_title">ဘာသာစကား &amp; ဒေသ</string>
+  <string name="pref_language_default">နဂိုမူလ စနစ်</string>
+  <string name="display_settings_title">ရုပ်ထင်မှန်သား</string>
+  <string name="pref_theme_title">ပြသမှုဆောင်ပုဒ်</string>
+  <string name="pref_theme_light">အနုရောင်</string>
+  <string name="pref_theme_dark">အနက်ရောင်</string>
+  <string name="pref_theme_auto">အလိုအလျောက် (နေ့လည်ပိုင်း)</string>
+  <string name="pref_theme_system">စနစ်၏ နဂိုမူလ</string>
+  <!--Settings Connections-->
+  <string name="network_settings_title">ချိတ်ဆက်မှုများ</string>
+  <string name="bluetooth_setting">ဘလူးတုသ်မှတစ်ဆင့် အဆက်အသွယ်များနှင့် ချိတ်ဆက်မည်</string>
+  <string name="wifi_setting">တူညီသောဝိုင်ဖိုင်လိုင်းပေါ်ရှိ အဆက်အသွယ်များနှင့် ချိတ်ဆက်မယ်</string>
+  <string name="tor_enable_title">အင်တာနက်သုံး၍ အဆက်အသွယ်များနှင့် ချိတ်ဆက်မယ်</string>
+  <string name="tor_enable_summary">လုံခြုံမှုအတွက် ချိတ်ဆက်မှုများသည် Tor ကွန်ယက်ပေါ်  ဖြတ်သန်းပါသည်</string>
+  <string name="tor_network_setting">Tor ကွန်ယက်အတွက် ချိတ်ဆက်မှု နည်းလမ်း</string>
+  <string name="tor_network_setting_automatic">တည်နေရာပေါ် အခြေခံပြီး အလိုအလျောက်</string>
+  <string name="tor_network_setting_never">အင်တာနက်နှင့် မချိတ်ဆက်ပါ</string>
+  <!--How and when Briar will connect to Tor: E.g. "Don't connect to the Internet (in China)" or "Use Tor network with bridges (in Belarus)"-->
+  <string name="tor_network_setting_summary">အလိုအလျောက် - %1$s (%2$s တွင်းရှိလျှင်)</string>
+  <string name="tor_mobile_data_title">မိုဘိုင်းလ်ဒေတာ</string>
+  <string name="tor_only_when_charging_title">အားသွင်းနေမှသာ အင်တာနက်နှင့် ချိတ်ဆက်မယ်</string>
+  <string name="tor_only_when_charging_summary">ကိရိယာက ဘတ္ထရီအသုံးပြုနေလျှင် အင်တာနက်ချိတ်ဆက်မှုကို ပိတ်ပေးသည်</string>
+  <!--Settings Security and Panic-->
+  <string name="security_settings_title">လုံခြုံရေး</string>
+  <string name="pref_lock_title">အပ္ပလီကေးရှင်း သော့</string>
+  <!--The %s placeholder is replaced with the following time spans, e.g. 5 Minutes, 1 Hour-->
+  <!--Will be shown in a list of lock times. Should fit into the %s of "automatically lock it after %s"-->
+  <string name="pref_lock_timeout_1">၁ မိနစ်</string>
+  <!--Will be shown in a list of lock times. Should fit into the %s of "automatically lock it after %s"-->
+  <string name="pref_lock_timeout_5">၅ မိနစ်</string>
+  <!--Will be shown in a list of lock times. Should fit into the %s of "automatically lock it after %s"-->
+  <string name="pref_lock_timeout_15">၁၅ မိနစ်</string>
+  <!--Will be shown in a list of lock times. Should fit into the %s of "automatically lock it after %s"-->
+  <string name="pref_lock_timeout_30">၃၀ မိနစ်</string>
+  <!--Will be shown in a list of lock times. Should fit into the %s of "automatically lock it after %s"-->
+  <string name="pref_lock_timeout_60">၁ နာရီ</string>
+  <string name="pref_lock_timeout_never">ဘယ်တော့မှမ</string>
+  <string name="pref_lock_timeout_never_summary">Briar အား အလိုအလျောက် ဘယ်တော့မှမ သော့မခတ်ပါနှင့်</string>
+  <string name="change_password">စကားဝှက် ပြောင်းလဲမယ်</string>
+  <string name="current_password">ယခု စကားဝှက်</string>
+  <string name="choose_new_password">စကားဝှက် အသစ်</string>
+  <string name="confirm_new_password">စကားဝှက် အသစ်အား အတည်ပြုမယ်</string>
+  <string name="password_changed">စကားဝှက် အားပြောင်းလဲပြီးပါပြီ</string>
+  <string name="panic_setting">ထိတ်လန့်ခလုတ် အပြင်အဆင်</string>
+  <string name="panic_setting_title">ထိတ်လန့်ခလုတ်</string>
+  <string name="panic_setting_hint">ထိတ်လန့်ခလုတ်အား နှိပ်လျှင် ဘရိုင်ယာမှ မည်ကဲ့သို့ လုပ်ဆောင်ရန် ပြင်ဆင်ချိန်ဆမယ်</string>
+  <string name="panic_app_setting_title">ထိတ်လန့်ခလုတ် အပ္ပလီကေးရှင်း</string>
+  <string name="unknown_app">အမည်မသိသော အပ္ပလီကေးရှင်း</string>
+  <string name="panic_app_setting_summary">မည်သည့် အပ္ပလီကေးရှင်းမှ သတ်မှတ်ထားခြင်းမရှိပါ</string>
+  <string name="panic_app_setting_none">ဘာမှမရှိ</string>
+  <string name="dialog_title_connect_panic_app">ထိတ်လန့် အပ္ပလီကေးရှင်းအား အတည်ပြုမယ်</string>
+  <string name="dialog_message_connect_panic_app">ထိတ်လန့်ခလုတ်ဖြင့် ဖျက်သိမ်းရန် လုပ်ဆောင်ချက်များ လှုံ့ဆော်ခြင်းကို %1$s အား ခွင့်ပြုမည်ဆိုသည် သင်သေချာပါသလား?</string>
+  <string name="panic_setting_destructive_action">ဖျက်သိမ်းမှု လုပ်ဆောင်ချက်များ</string>
+  <string name="panic_setting_signout_title">အကောင့်ထွက်မည်</string>
+  <string name="panic_setting_signout_summary">ထိတ်လန့်ခလုတ် အားနှိပ်ခံရလျှင် ဘရိုင်ယာအကောင့်မှ ထွက်ခွာမည်</string>
+  <string name="purge_setting_title">အကောင့် ဖျက်သိမ်းမယ်</string>
+  <string name="purge_setting_summary">ထိတ်လန့်ခလုတ်အား နှိပ်ခံရလျှင် ဘရိုင်ယာအကောင့်ကို ဖျက်သိမ်းမည်။ သတိ၊ ဤလုပ်ခြင်းဖြင့် သင့် အထောက်အထားများ၊ အဆက်အသွယ်များ နှင့် မက်ဆေ့ချ်များ ပါဖျက်သိမ်းခံရပါမည်။</string>
+  <!--Settings Notifications-->
+  <string name="notification_settings_title">အသိပေးချက်များ</string>
+  <string name="notify_sign_in_title">အကောင့်ဝင်ရန် သတိပေးပါ</string>
+  <string name="notify_sign_in_summary">ဖုန်းပွင့်သောအခါ (သို့) အက်ပ်ကို အပ်ဒိတ်လုပ်ပြီးသောအခါ သတိပေးချက်တစ်ခု ပြပါ</string>
+  <string name="notify_private_messages_setting_title">သီးသန့် မက်ဆေ့ချ်များ</string>
+  <string name="notify_private_messages_setting_summary">သီးသန့် မက်ဆေ့ချ်များအတွက် အသိပေးချက်များ ပြသပါ</string>
+  <string name="notify_private_messages_setting_summary_26">သီးသန့် မက်ဆေ့ချ်များအတွက် အသိပေးချက်များ ချိန်ညှိပြင်ဆင်မယ်</string>
+  <string name="notify_group_messages_setting_title">အဖွဲ့ မက်ဆေ့ချ်များ</string>
+  <string name="notify_group_messages_setting_summary">အဖွဲ့ မက်ဆေ့ချ်များအတွက် အသိပေးချက်များ ပြသပါ</string>
+  <string name="notify_group_messages_setting_summary_26">အဖွဲ့ မက်ဆေ့ချ်များအတွက် အသိပေးချက်များ ချိန်ညှိပြင်ဆင်မယ်</string>
+  <string name="notify_forum_posts_setting_title">ဖိုရမ်ပို့စ်များ</string>
+  <string name="notify_forum_posts_setting_summary">ဖိုရမ်ပို့စ်များအတွက် အသိပေးချက်များ ပြသပါ</string>
+  <string name="notify_forum_posts_setting_summary_26">ဖိုရမ်ပို့စ်များအတွက် အသိပေးချက်များ ချိန်ညှိပြင်ဆင်မယ်</string>
+  <string name="notify_blog_posts_setting_title">ဗလော့ပို့စ်များ</string>
+  <string name="notify_blog_posts_setting_summary">ဗလော့ပို့စ်များအတွက် အသိပေးချက်များ ပြသပါ</string>
+  <string name="notify_blog_posts_setting_summary_26">ဗလော့ပို့စ်များအတွက် အသိပေးချက်များ ချိန်ညှိပြင်ဆင်မယ်</string>
+  <string name="notify_vibration_setting">တုန်ခါမှု</string>
+  <string name="notify_sound_setting">အသံ</string>
+  <string name="notify_sound_setting_default">မူလဖုန်းမြည်သံ</string>
+  <string name="notify_sound_setting_disabled">ဘာမှမရှိ</string>
+  <string name="choose_ringtone_title">ဖုန်းမြည်သံရွေးမည်</string>
+  <string name="cannot_load_ringtone">ဖုန်းမြည်သံမဖွင့်နိုင်ပါ</string>
+  <!--Settings Feedback-->
+  <string name="feedback_settings_title">အကြံပြုချက်များ</string>
+  <string name="send_feedback">တုံ့ပြန်ချက် ပေးပို့မယ်</string>
+  <!--Link Warning-->
+  <string name="link_warning_title">လင့်ခ် သတိပေးချက်</string>
+  <string name="link_warning_intro">သင်သည် ဖေါ်ပြပါလင့်ခ်အား ပြင်ပ အပ္ပလီကေးရှင်းဖြင့် ဖွင့်တော့ပါမည်။</string>
+  <string name="link_warning_text">သင့်အား ဖေါ်ထုတ်နိုင်ပါသည်။ သင့်စီသို့ ပေးပို့ခဲ့သော ပုဂ္ဂိုလ်အား သင်ယုံကြည်နိုင်ခြင်း ရှိမရှိအကဲဖြတ်၍ Tor ဘရောင်ဇာနှင့် ဖွင့်ရန် စဥ်းစားပါ။</string>
+  <string name="link_warning_open_link">လင့်ခ်ဖွင့်မယ်</string>
+  <!--Crash Reporter-->
+  <string name="crash_report_title">ဘရိုင်ယာပျက်ယွင်းမှုတိုင်ကြားခြင်း</string>
+  <string name="briar_crashed">ဝမ်းနည်းပါတယ်၊ ဘရိုင်ယာ ပျက်သွားပါသည်။</string>
+  <string name="not_your_fault">သင့်အမှားမဟုတ်ပါ။</string>
+  <string name="please_send_report">ပျက်ကွက်မှု တိုင်ကြားစာ ပေးပို့၍ ကျွန်ုပ်တို့်အား ဘရိုင်ယာအပ္ပလီကေးရှင်း တိုးတက်ရန် ကူညီပေးပါ။</string>
+  <string name="report_is_encrypted">သင်၏တိုင်ကြားမှုကို လျှို့ဝှက်ကုဒ်ပြောင်း၍ လုံခြုံစွာပို့ကြောင်း ကတိပြုပါသည်။</string>
+  <string name="feedback_title">အကြံပြုချက်များ</string>
+  <string name="describe_crash">ဖြစ်စဥ်ကို ဖေါ်ပြပေးပါ (မဖြစ်မနေ ရေးစရာမလိုပါ)</string>
+  <string name="enter_feedback">သင့် တုံ့ပြန်ချက်အား ရိုက်ထည့်ပေးပါ</string>
+  <string name="optional_contact_email">သင့် အီးမေးလ်လိပ်စာ (မဖြစ်မနေ ရေးစရာမလိုပါ)</string>
+  <string name="include_debug_report_crash"> ပျက်ကွက်မှုနှင့် ပတ်သက်၍ ပုဂ္ဂိုလ်မထုတ်ဖေါ်နိုင်သော အချက်အလက်များ ထည့်မယ်</string>
+  <string name="include_debug_report_feedback">စက်ပစ္စည်းနှင့် ပတ်သက်၍ ပုဂ္ဂိုလ်မထုတ်ဖေါ်နိုင်သော အချက်အလက်များ ထည့်မယ်</string>
+  <string name="dev_report_basic_info">အခြေခံ အချက်အလက်များ</string>
+  <string name="dev_report_device_info">စက်ပစ္စည်း အချက်အလက်များ</string>
+  <string name="dev_report_time_info">အချိန် အချက်အလက်များ</string>
+  <string name="dev_report_storage">သိမ်းဆည်းမှု</string>
+  <string name="dev_report_connectivity">ချိတ်ဆက်မှု</string>
+  <string name="dev_report_build_config">ပြင်ဆင်ချိန်ဆမှု တည်ဆောက်မယ်</string>
+  <string name="dev_report_logcat">အပ္ပလီကေးရှင်း မှတ်တမ်း</string>
+  <string name="dev_report_device_features">စက်ပစ္စည်း အင်္ဂါရပ်များ</string>
+  <string name="send_report">တိုင်ကြားစာ ပေးပို့မယ်</string>
+  <string name="close">ပိတ်မယ်</string>
+  <string name="dev_report_sending">အကြံပြုချက်ပို့နေပါသည်…</string>
+  <string name="dev_report_sent">တုံ့ပြန်ချက် ပေးပို့ပြီး</string>
+  <string name="dev_report_saved">တိုင်ကြားစာ သိမ်းဆည်းပြီး။ နောက်တစ်ကြိမ် သင် ဘရိုင်ယာ ထဲသို့ လော့အင်ဝင်လျှင် ပေးပို့လိုက်ပါမည်။</string>
+  <string name="dev_report_error">ပျက်ကွက်မှု - တိုင်ကြားစာ ပေးပို့ခြင်း မအောင်မြင်ပါ</string>
+  <!--Sign Out-->
+  <string name="progress_title_logout">ဘရိုင်ယာမှ အကောင့်ထွက်နေသည်…</string>
+  <!--Screen Filters & Tapjacking-->
+  <string name="screen_filter_allow">ဤအပ္ပလီကေးရှင်းများ အပေါ်မှ ဆွဲရန် ခွင့်ပြုမည်</string>
+  <string name="screen_filter_review_apps">အပ္ပလီကေးရှင်းများ သုံးသပ်မယ်</string>
+  <!--Permission Requests-->
+  <string name="permission_camera_title">ကင်မရာသုံးခွင့်</string>
+  <string name="permission_camera_request_body">QR ကုဒ်အား စကင်ဖတ်ရန် ဘရိုင်ယာမှ ကင်မရာသုံးခွင့်လိုအပ်ပါသည်။</string>
+  <string name="permission_location_title">တည်နေရာသုံးခွင့်</string>
+  <string name="permission_location_request_body">ဘလူးတုသ် စက်ပစ္စည်းများ ရှာဖွေရန် ဘရိုင်ယာမှ သင့် တည်နေရာသုံးခွင့် လိုအပ်ပါသည်။ \n\n ဘရိုင်ယာမှ သင့် တည်နေရာအား သိမ်းဆည်းခြင်းနှင့် မည်သူစီသို့ မျှဝေခြင်း မပြုလုပ်ပါ။</string>
+  <string name="permission_camera_location_title">ကင်မရာ နှင့် တည်နေရာ</string>
+  <string name="permission_camera_location_request_body">QR ကုဒ် စကင်ဖတ်ရန် ဘရိုင်ယာမှ ကင်မရာသုံးခွင့် လိုအပ်ပါသည်။ \n\n ဘလူးတုသ် စက်ပစ္စည်းများ ရှာဖွေရန် ဘရိုင်ယာမှ သင့် တည်နေရာသုံးခွင့် လိုအပ်ပါသည်။ \n\n ဘရိုင်ယာမှ သင့် တည်နေရာအား သိမ်းဆည်းခြင်းနှင့် မည်သူစီသို့ မျှဝေခြင်း မပြုလုပ်ပါ။</string>
+  <string name="permission_camera_denied_body">သင်မှ ကင်မရာသုံးခွင့် ငြင်းပယ်ခဲ့ပါသည်၊ သို့သော်လည်း အဆက်အသွယ်များပေါင်းထည့်ရန် ကင်မရာသုံးခွင့် လိုအပ်ပါသည်။ \n\n ကျေးဇူးပြု၍ သုံးခွင့်ပေးရန် စဥ်းစားပေးပါ။</string>
+  <string name="permission_location_denied_body">သင်မှ တည်နေရာသုံးခွင့် ငြင်းပယ်ခဲ့ပါသည်၊ သို့သော်လည်း ဘလူးတုသ်ရှာဖွေရန် ဤသုံးခွင့် လိုအပ်ပါသည်။ \n\n ကျေးဇူးပြု၍ သုံးခွင့်ပေးရန် စဥ်းစားပေးပါ။</string>
+  <string name="qr_code">QR ကုဒ်</string>
+  <string name="show_qr_code_fullscreen">စကရင်အပြည့်တွင် QR ကုဒ် ပြပါ</string>
+  <!--App Locking-->
+  <string name="lock_unlock">ဘရိုင်ယာ သော့ဖွင့်မယ်</string>
+  <string name="lock_unlock_verbose">ဘရိုင်ယာ သော့ဖွင့်ရန် သင့် စက်၏ ပင်နံပါတ်၊ ကုဒ်ပုံစံ သို့မဟုတ် စကားဝှက်အား ရိုက်ထည့်ပေးပါ</string>
+  <string name="lock_unlock_fingerprint_description">ဆက်လက်ရန် လက်ဗွေမှတ်ထားသော လက်ချောင်းဖြင့် လက်ဗွေမှတ်နေရာပေါ်နှိပ်ပါ</string>
+  <string name="lock_unlock_password">စကားဝှက်အား အသုံးပြုပါ</string>
+  <string name="lock_is_locked">ဘရိုင်ယာ အားသော့ခတ်ထားပါသည်</string>
+  <string name="lock_tap_to_unlock">နှိပ်၍ သော့ဖွင့်မယ်</string>
+  <!--Connections Screen-->
+  <!--Screenshots-->
+  <!--This is a name to be used in screenshots. Feel free to change it to a local name.-->
+  <string name="screenshot_alice">Alice</string>
+  <!--This is a name to be used in screenshots. Feel free to change it to a local name.-->
+  <string name="screenshot_bob">Bob</string>
+  <!--This is a name to be used in screenshots. Feel free to change it to a local name.-->
+  <string name="screenshot_carol">Carol</string>
+  <!--This is a message to be used in screenshots. Please use the same translation for Bob!-->
+  <string name="screenshot_message_1">မင်္ဂလာပါ Bob!</string>
+  <!--This is a message to be used in screenshots. Please use the same translation for Alice!-->
+  <string name="screenshot_message_2">မင်္ဂလာပါ Alice! Briar အကြောင်းပြောပြတဲ့အတွက် ကျေးဇူတင်ပါတယ်!</string>
+  <!--This is a message to be used in screenshots.-->
+  <string name="screenshot_message_3">ကိစ္စမရှိပါဘူး၊ မင်းကြိုက်မယ်လို့မျှော်လင့်ပါတယ်။</string>
+</resources>

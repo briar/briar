@@ -472,6 +472,7 @@
   <string name="include_debug_report_crash">クラッシュに関する匿名のデータを添付する</string>
   <string name="include_debug_report_feedback">このデバイスに関する匿名のデータを添付する</string>
   <string name="dev_report_basic_info">基本情報</string>
+  <string name="dev_report_memory">メモリー</string>
   <string name="dev_report_storage">ストレージ</string>
   <string name="dev_report_connectivity">接続</string>
   <string name="send_report">レポートを送信</string>

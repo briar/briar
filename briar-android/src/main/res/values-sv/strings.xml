@@ -425,6 +425,10 @@
   <string name="blogs_rss_feeds_manage_empty_state">Inga RSS-flöden\n\nTryck plus-ikonen (+) för att importera ett flöde</string>
   <string name="blogs_rss_feeds_manage_error">Något gick fel när dina flöden skulle laddas. Försök ingen senare.</string>
   <!--Settings Profile Picture-->
+  <string name="change_profile_picture">Tryck för att ändra din profilbild</string>
+  <string name="dialog_confirm_profile_picture_title">Ändra profilbild</string>
+  <string name="dialog_confirm_profile_picture_remark">Bara din kontakter kan se denna bild</string>
+  <string name="change_profile_picture_failed_message">Tyvärr, något gick fel när din profilbild skulle ändras</string>
   <!--Settings Display-->
   <string name="pref_language_title">Språk &amp; region</string>
   <string name="pref_language_changed">Den här inställningen träder i kraft när Briar startas om. Logga ur och starta om Briar.</string>

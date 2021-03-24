@@ -427,7 +427,7 @@
   <!--Settings Profile Picture-->
   <string name="change_profile_picture">Tocca per cambiare l\'immagine del profilo</string>
   <string name="dialog_confirm_profile_picture_title">Cambia immagine profilo</string>
-  <string name="dialog_confirm_profile_picture_remark">Solo i tuoi contatti possono vedere l\'immagine del profilo</string>
+  <string name="dialog_confirm_profile_picture_remark">Solo i tuoi contatti possono vedere questa immagine</string>
   <string name="change_profile_picture_failed_message">Spiacenti, qualcosa è andato storto aggiornando la tua foto del profilo.</string>
   <!--Settings Display-->
   <string name="pref_language_title">Lingua &amp; regione</string>

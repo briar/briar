@@ -213,7 +213,7 @@
   <string name="your_link">Donnez ce lien au contact que vous souhaitez ajouter</string>
   <string name="link_clip_label">Lien Briar</string>
   <string name="link_copied_toast">Le lien a été copié</string>
-  <string name="adding_contact_error">Une erreur est survenue lors de l’ajout du contact</string>
+  <string name="adding_contact_error">Une erreur est survenue lors de l’ajout du contact.</string>
   <string name="pending_contact_requests_snackbar">Des demandes de contact sont en attente</string>
   <string name="pending_contact_requests">Demandes de contact en attente</string>
   <string name="no_pending_contacts">Il n’y a aucun contact en attente</string>
@@ -427,7 +427,7 @@
   <!--Settings Profile Picture-->
   <string name="change_profile_picture">Touchez pour changer votre photo de profil</string>
   <string name="dialog_confirm_profile_picture_title">Changer la photo de profil</string>
-  <string name="dialog_confirm_profile_picture_remark">Seuls vos contacts peuvent voir votre photo de profil</string>
+  <string name="dialog_confirm_profile_picture_remark">Seuls vos contacts peuvent voir cette photo</string>
   <string name="change_profile_picture_failed_message">Nous sommes désolés, mais un problème est survenu lors de la mise à jour de votre photo de profil</string>
   <!--Settings Display-->
   <string name="pref_language_title">Langue et région</string>

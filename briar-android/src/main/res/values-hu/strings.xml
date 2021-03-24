@@ -433,6 +433,10 @@ Kapcsolatai, akivel megosztotta ezt a blogot, lehet nem kapnak többé frissít�
   <string name="blogs_rss_feeds_manage_empty_state">Nincs megjelenítendő</string>
   <string name="blogs_rss_feeds_manage_error">Hiba történt a feed-jei betöltésével. Kérjük próbálja újra később.</string>
   <!--Settings Profile Picture-->
+  <string name="change_profile_picture">Érintse meg a profilképe cseréjéhez</string>
+  <string name="dialog_confirm_profile_picture_title">Profil kép cseréje</string>
+  <string name="dialog_confirm_profile_picture_remark">Csak a kapcsolataid láthatják ezt a képet</string>
+  <string name="change_profile_picture_failed_message">Sajnáljuk, de valami hiba történt a profil kép frissítése során</string>
   <!--Settings Display-->
   <string name="pref_language_title">Nyelv és régió</string>
   <string name="pref_language_changed">Ez a beállítás a Briar újraindítása után lép életbe.  Kérjük lépjen ki és indítsa újra a Briar-t.</string>

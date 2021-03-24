@@ -447,7 +447,7 @@
   <!--Settings Profile Picture-->
   <string name="change_profile_picture">Bakstelėkite norėdami pasikeisti profilio paveikslą</string>
   <string name="dialog_confirm_profile_picture_title">Keisti profilio paveikslą</string>
-  <string name="dialog_confirm_profile_picture_remark">Jūsų profilio paveikslą gali matyti tik jūsų adresatai</string>
+  <string name="dialog_confirm_profile_picture_remark">Šį paveikslą gali matyti tik jūsų adresatai</string>
   <string name="change_profile_picture_failed_message">Atleiskite, bet atnaujinant jūsų profilio paveikslą kažkas nutiko</string>
   <!--Settings Display-->
   <string name="pref_language_title">Kalba ir regionas</string>

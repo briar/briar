@@ -132,7 +132,7 @@
   <string name="hide">Скрыть</string>
   <string name="ok">OK</string>
   <string name="cancel">Отмена</string>
-  <string name="got_it">Понятно</string>
+  <string name="got_it">ОК</string>
   <string name="delete">Удалить</string>
   <string name="accept">Принять</string>
   <string name="decline">Отклонить</string>
@@ -168,12 +168,12 @@
   <string name="dialog_title_delete_all_messages">Подтверждение удаления сообщений</string>
   <string name="dialog_message_delete_all_messages">Вы уверены, что хотите удалить все сообщения?</string>
   <string name="dialog_title_not_all_messages_deleted">Не удалось удалить все сообщения</string>
-  <string name="dialog_message_not_deleted_ongoing_both">Сообщения, связанные с текущими приглашениями и представлениями, не могут быть удалены до их завершения.</string>
-  <string name="dialog_message_not_deleted_ongoing_introductions">Сообщения, связанные с текущими представлениями, не могут быть удалены до их завершения.</string>
+  <string name="dialog_message_not_deleted_ongoing_both">Сообщения, связанные с текущими приглашениями и знакомствами, не могут быть удалены до их завершения.</string>
+  <string name="dialog_message_not_deleted_ongoing_introductions">Сообщения, связанные с текущими знакомствами, не могут быть удалены до их завершения.</string>
   <string name="dialog_message_not_deleted_ongoing_invitations">Сообщения, связанные с текущими приглашениями, не могут быть удалены до их завершения.</string>
   <string name="dialog_message_not_deleted_partly_downloaded">Частично загруженные сообщения не могут быть удалены, пока они не загрузятся полностью.</string>
-  <string name="dialog_message_not_deleted_not_all_selected_both">Чтобы удалить приглашение или представление, вам необходимо выбрать запрос и ответ.</string>
-  <string name="dialog_message_not_deleted_not_all_selected_introductions">Чтобы удалить представление, необходимо выбрать запрос и ответ.</string>
+  <string name="dialog_message_not_deleted_not_all_selected_both">Чтобы удалить приглашение или знакомство, вам необходимо выбрать запрос и ответ.</string>
+  <string name="dialog_message_not_deleted_not_all_selected_introductions">Чтобы удалить знакомство, необходимо выбрать запрос и ответ.</string>
   <string name="dialog_message_not_deleted_not_all_selected_invitations">Чтобы удалить приглашение, необходимо выбрать запрос и ответ.</string>
   <string name="delete_contact">Удалить контакт</string>
   <string name="dialog_title_delete_contact">Подтвердите удаление контакта</string>
@@ -270,24 +270,24 @@
   <!--Introductions-->
   <string name="introduction_onboarding_title">Представление ваших контактов</string>
   <string name="introduction_onboarding_text">Вы можете представить ваши контакты друг другу. Это позволит исключить личную встречу, чтобы связаться через Briar. </string>
-  <string name="introduction_menu_item">Сделать представление</string>
+  <string name="introduction_menu_item">Выполнить знакомство</string>
   <string name="introduction_activity_title">Выберите контакт</string>
-  <string name="introduction_not_possible">Вы уже сделали представление этих контактов. Пожалуйста, подождите пока они ответят на него. Если вы или ваши контакты редко бываете в сети, это может занять некоторое время.</string>
+  <string name="introduction_not_possible">Вы уже познакомили эти контакты. Пожалуйста, подождите пока они ответят на него. Если вы или ваши контакты редко бываете в сети, это может занять некоторое время.</string>
   <string name="introduction_message_title">Представить контакты</string>
   <string name="introduction_message_hint">Добавить сообщение (необязательно)</string>
-  <string name="introduction_button">Сделать представление</string>
-  <string name="introduction_sent">Ваше представление было отправлено.</string>
-  <string name="introduction_error">Произошла ошибка во время представления.</string>
+  <string name="introduction_button">Выполнить знакомство</string>
+  <string name="introduction_sent">Ваше знакомство было отправлено.</string>
+  <string name="introduction_error">Произошла ошибка во время знакомства.</string>
   <string name="introduction_request_sent">Вы сделали представление %1$s %2$s.</string>
   <string name="introduction_request_received">%1$s попросил(-а) вас представить %2$s. Вы хотите добавить %2$s в ваш список контактов?</string>
   <string name="introduction_request_exists_received">%1$s попросил(-а) вас представить %2$s, но %2$s уже находится в вашем списке контактов. Поскольку %1$s может не знать об этом, вы все равно можете ответить:</string>
   <string name="introduction_request_answered_received">%1$s попросил(-а) вас представить %2$s.</string>
-  <string name="introduction_response_accepted_sent">Вы приняли представление %1$s.</string>
-  <string name="introduction_response_accepted_sent_info">%1$s будет добавлен(-а) в контакты после принятия представления. Это может занять некоторое время.</string>
-  <string name="introduction_response_declined_sent">Вы отказались от представления %1$s.</string>
-  <string name="introduction_response_accepted_received">%1$s принял(-а) представление %2$s.</string>
-  <string name="introduction_response_declined_received">%1$s отказался от представления %2$s.</string>
-  <string name="introduction_response_declined_received_by_introducee">%1$s сообщает, что %2$s отказался от представления.</string>
+  <string name="introduction_response_accepted_sent">Вы приняли знакомство с %1$s.</string>
+  <string name="introduction_response_accepted_sent_info">%1$s будет добавлен(-а) в контакты после принятия знакомства. Это может занять некоторое время.</string>
+  <string name="introduction_response_declined_sent">Вы отказались от знакомства с %1$s.</string>
+  <string name="introduction_response_accepted_received">%1$s принял(-а) знакомство с %2$s.</string>
+  <string name="introduction_response_declined_received">%1$s отказался от знакомства с %2$s.</string>
+  <string name="introduction_response_declined_received_by_introducee">%1$s сообщает, что %2$s отказался от знакомства.</string>
   <!--Private Groups-->
   <string name="groups_list_empty">Нет групп для отображения</string>
   <string name="groups_list_empty_action">Для создания группы нажмите значок + или попросите ваши контакты поделиться с вами группами</string>
@@ -449,7 +449,7 @@
   <!--Settings Profile Picture-->
   <string name="change_profile_picture">Нажмите, чтобы изменить изображение вашего профиля </string>
   <string name="dialog_confirm_profile_picture_title">Изменить изображение профиля</string>
-  <string name="dialog_confirm_profile_picture_remark">Только ваши контакты могут видеть изображение вашего профиля</string>
+  <string name="dialog_confirm_profile_picture_remark">Это изображение могут видеть только ваши контакты</string>
   <string name="change_profile_picture_failed_message">Нам очень жаль, но что-то пошло не так во время обновления изображения вашего профиля.</string>
   <!--Settings Display-->
   <string name="pref_language_title">Язык и регион</string>
@@ -466,7 +466,7 @@
   <string name="bluetooth_setting">Подключение к контактам через Bluetooth</string>
   <string name="wifi_setting">Подключение к контактам в той же сети Wi-Fi</string>
   <string name="tor_enable_title">Подключение к контактам через интернет</string>
-  <string name="tor_enable_summary">Все соединения проходят через сеть Tor для обеспечения конфиденциальности</string>
+  <string name="tor_enable_summary">Для обеспечения конфиденциальности все подключения проходят через сеть Tor</string>
   <string name="tor_network_setting">Способ подключения для сети Tor</string>
   <string name="tor_network_setting_automatic">Автоматически на основе местоположения</string>
   <string name="tor_network_setting_without_bridges">Использовать сеть Tor без мостов</string>
@@ -486,7 +486,7 @@
   <!--The %s placeholder is replaced with the following time spans, e.g. 5 Minutes, 1 Hour-->
   <string name="pref_lock_timeout_summary">Автоматически блокировать Briar через %s</string>
   <!--Will be shown in a list of lock times. Should fit into the %s of "automatically lock it after %s"-->
-  <string name="pref_lock_timeout_1">1 минута</string>
+  <string name="pref_lock_timeout_1">1 минуту</string>
   <!--Will be shown in a list of lock times. Should fit into the %s of "automatically lock it after %s"-->
   <string name="pref_lock_timeout_5">5 минут</string>
   <!--Will be shown in a list of lock times. Should fit into the %s of "automatically lock it after %s"-->
@@ -601,7 +601,7 @@
   <string name="lock_is_locked">Briar заблокирован</string>
   <string name="lock_tap_to_unlock">Нажмите для разблокировки</string>
   <!--Connections Screen-->
-  <string name="transports_help_text">Briar может подключаться к контактам через интернет, Wi-Fi или Bluetooth.\n\nВсе интернет-соединения проходят через сеть Tor для обеспечения конфиденциальности.\n\nЕсли с контактом можно связаться несколькими способами, Briar использует их параллельно.</string>
+  <string name="transports_help_text">Briar может подключаться к контактам через интернет, Wi-Fi или Bluetooth.\n\nДля обеспечения конфиденциальности все интернет-подключения проходят через сеть Tor.\n\nЕсли с контактом можно связаться несколькими способами, Briar использует их параллельно.</string>
   <!--Screenshots-->
   <!--This is a name to be used in screenshots. Feel free to change it to a local name.-->
   <string name="screenshot_alice">Бузова</string>

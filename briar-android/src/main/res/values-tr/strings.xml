@@ -427,7 +427,7 @@
   <!--Settings Profile Picture-->
   <string name="change_profile_picture">Profil resminizi değiştirmek için dokunun</string>
   <string name="dialog_confirm_profile_picture_title">Profil resminizi değiştirin</string>
-  <string name="dialog_confirm_profile_picture_remark">Sadece bağlantılarınız profil resminizi görebilir</string>
+  <string name="dialog_confirm_profile_picture_remark">Sadece bağlantılarınız bu resmi görebilir</string>
   <string name="change_profile_picture_failed_message">Özür dileriz, profil resminizi güncellerken bir şeyler ters gitti</string>
   <!--Settings Display-->
   <string name="pref_language_title">Dil ve Bölge</string>
