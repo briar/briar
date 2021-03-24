@@ -70,6 +70,7 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
 import static android.bluetooth.BluetoothAdapter.ACTION_SCAN_MODE_CHANGED;
+import static android.bluetooth.BluetoothAdapter.EXTRA_SCAN_MODE;
 import static android.bluetooth.BluetoothAdapter.SCAN_MODE_CONNECTABLE_DISCOVERABLE;
 import static android.widget.Toast.LENGTH_LONG;
 import static java.util.Objects.requireNonNull;
@@ -464,7 +465,8 @@ class AddNearbyContactViewModel extends AndroidViewModel
 		@UiThread
 		@Override
 		public void onReceive(Context context, Intent intent) {
-			LOG.info("Bluetooth scan mode changed");
+			int scanMode = intent.getIntExtra(EXTRA_SCAN_MODE, -1);
+			LOG.info("Bluetooth scan mode changed: " + scanMode);
 			showQrCodeFragmentIfAllowed();
 		}
 	}
@@ -483,7 +485,7 @@ class AddNearbyContactViewModel extends AndroidViewModel
 	 * QR code fragment from being shown if onRequestPermissionsResult() is
 	 * called while the activity is paused, which could cause a crash due to
 	 * https://issuetracker.google.com/issues/37067655.
-	 * TODO check if this is still happening when using new permission requesting
+	 * TODO check if this is still happening with new permission requesting
 	 */
 	@UiThread
 	void setIsActivityResumed(boolean resumed) {

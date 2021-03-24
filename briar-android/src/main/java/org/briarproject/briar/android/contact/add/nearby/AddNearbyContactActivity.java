@@ -25,6 +25,7 @@ import javax.annotation.Nullable;
 import javax.inject.Inject;
 
 import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts.RequestMultiplePermissions;
 import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.FragmentManager;
 import androidx.lifecycle.ViewModelProvider;
@@ -51,6 +52,10 @@ public class AddNearbyContactActivity extends BriarActivity
 	private AddNearbyContactViewModel viewModel;
 	private AddNearbyContactPermissionManager permissionManager;
 
+	private final ActivityResultLauncher<String[]> permissionLauncher =
+			registerForActivityResult(new RequestMultiplePermissions(), r ->
+					permissionManager.onRequestPermissionResult(r,
+							viewModel::showQrCodeFragmentIfAllowed));
 	private final ActivityResultLauncher<Integer> bluetoothLauncher =
 			registerForActivityResult(new RequestBluetoothDiscoverable(),
 					this::onBluetoothDiscoverableResult);
@@ -61,7 +66,7 @@ public class AddNearbyContactActivity extends BriarActivity
 		viewModel = new ViewModelProvider(this, viewModelFactory)
 				.get(AddNearbyContactViewModel.class);
 		permissionManager = new AddNearbyContactPermissionManager(this,
-				viewModel.isBluetoothSupported());
+				permissionLauncher::launch, viewModel.isBluetoothSupported());
 	}
 
 	@Override
@@ -75,7 +80,7 @@ public class AddNearbyContactActivity extends BriarActivity
 			showInitialFragment(AddNearbyContactIntroFragment.newInstance());
 		}
 		viewModel.getCheckPermissions().observeEvent(this, check ->
-				permissionManager.checkPermissions()); // never false
+				permissionManager.checkPermissions());
 		viewModel.getRequestBluetoothDiscoverable().observeEvent(this, r ->
 				requestBluetoothDiscoverable()); // never false
 		viewModel.getShowQrCodeFragment().observeEvent(this, show -> {
@@ -123,15 +128,6 @@ public class AddNearbyContactActivity extends BriarActivity
 			return true;
 		}
 		return super.onOptionsItemSelected(item);
-	}
-
-	@Override
-	public void onRequestPermissionsResult(int requestCode,
-			String[] permissions, int[] grantResults) {
-		super.onRequestPermissionsResult(requestCode, permissions,
-				grantResults);
-		permissionManager.onRequestPermissionsResult(requestCode, permissions,
-				grantResults, viewModel::showQrCodeFragmentIfAllowed);
 	}
 
 	@Override

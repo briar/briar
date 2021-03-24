@@ -5,9 +5,11 @@ import android.content.Context;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.activity.BaseActivity;
 
+import java.util.Map;
+
 import androidx.annotation.StringRes;
 import androidx.appcompat.app.AlertDialog;
-import androidx.core.app.ActivityCompat;
+import androidx.core.util.Consumer;
 
 import static android.Manifest.permission.ACCESS_FINE_LOCATION;
 import static android.Manifest.permission.CAMERA;
@@ -15,7 +17,6 @@ import static android.content.pm.PackageManager.PERMISSION_GRANTED;
 import static android.os.Build.VERSION.SDK_INT;
 import static androidx.core.app.ActivityCompat.shouldShowRequestPermissionRationale;
 import static androidx.core.content.ContextCompat.checkSelfPermission;
-import static org.briarproject.briar.android.activity.RequestCodes.REQUEST_PERMISSION_CAMERA_LOCATION;
 import static org.briarproject.briar.android.util.UiUtils.getGoToSettingsListener;
 
 class AddNearbyContactPermissionManager {
@@ -28,11 +29,14 @@ class AddNearbyContactPermissionManager {
 	private Permission locationPermission = Permission.UNKNOWN;
 
 	private final BaseActivity ctx;
+	private final Consumer<String[]> requestPermissions;
 	private final boolean isBluetoothSupported;
 
 	AddNearbyContactPermissionManager(BaseActivity ctx,
+			Consumer<String[]> requestPermissions,
 			boolean isBluetoothSupported) {
 		this.ctx = ctx;
+		this.requestPermissions = requestPermissions;
 		this.isBluetoothSupported = isBluetoothSupported;
 	}
 
@@ -116,15 +120,12 @@ class AddNearbyContactPermissionManager {
 		} else {
 			permissions = new String[] {CAMERA};
 		}
-		ActivityCompat.requestPermissions(ctx, permissions,
-				REQUEST_PERMISSION_CAMERA_LOCATION);
+		requestPermissions.accept(permissions);
 	}
 
-	void onRequestPermissionsResult(int requestCode, String[] permissions,
-			int[] grantResults, Runnable onPermissionsGranted) {
-		if (requestCode != REQUEST_PERMISSION_CAMERA_LOCATION)
-			throw new AssertionError();
-		if (gotPermission(CAMERA, permissions, grantResults)) {
+	void onRequestPermissionResult(Map<String, Boolean> result,
+			Runnable onPermissionsGranted) {
+		if (gotPermission(CAMERA, result)) {
 			cameraPermission = Permission.GRANTED;
 		} else if (shouldShowRationale(CAMERA)) {
 			cameraPermission = Permission.SHOW_RATIONALE;
@@ -132,8 +133,7 @@ class AddNearbyContactPermissionManager {
 			cameraPermission = Permission.PERMANENTLY_DENIED;
 		}
 		if (isBluetoothSupported) {
-			if (gotPermission(ACCESS_FINE_LOCATION, permissions,
-					grantResults)) {
+			if (gotPermission(ACCESS_FINE_LOCATION, result)) {
 				locationPermission = Permission.GRANTED;
 			} else if (shouldShowRationale(ACCESS_FINE_LOCATION)) {
 				locationPermission = Permission.SHOW_RATIONALE;
@@ -150,13 +150,15 @@ class AddNearbyContactPermissionManager {
 		if (checkPermissions()) onPermissionsGranted.run();
 	}
 
-	private boolean gotPermission(String permission, String[] permissions,
-			int[] grantResults) {
-		for (int i = 0; i < permissions.length; i++) {
-			if (permission.equals(permissions[i]))
-				return grantResults[i] == PERMISSION_GRANTED;
-		}
-		return false;
+	private boolean gotPermission(String permission,
+			Map<String, Boolean> result) {
+		Boolean permissionResult = result.get(permission);
+		return permissionResult == null ?
+				isGranted(permission) : permissionResult;
+	}
+
+	private boolean isGranted(String permission) {
+		return checkSelfPermission(ctx, permission) == PERMISSION_GRANTED;
 	}
 
 	private boolean shouldShowRationale(String permission) {
