@@ -60,6 +60,7 @@ import static org.briarproject.briar.api.autodelete.AutoDeleteConstants.NO_AUTO_
 import static org.briarproject.briar.api.introduction.Role.INTRODUCEE;
 import static org.briarproject.briar.api.introduction.Role.INTRODUCER;
 import static org.briarproject.briar.introduction.IntroduceeState.AWAIT_RESPONSES;
+import static org.briarproject.briar.introduction.IntroduceeState.REMOTE_ACCEPTED;
 import static org.briarproject.briar.introduction.IntroduceeState.REMOTE_DECLINED;
 import static org.briarproject.briar.introduction.IntroducerState.A_DECLINED;
 import static org.briarproject.briar.introduction.IntroducerState.B_DECLINED;
@@ -611,7 +612,9 @@ class IntroductionManagerImpl extends ConversationClientImpl
 			if (session.state instanceof IntroduceeState) {
 				IntroduceeState introduceeState =
 						(IntroduceeState) session.state;
-				if (introduceeState == AWAIT_RESPONSES) {
+				if (introduceeState == AWAIT_RESPONSES ||
+						introduceeState == REMOTE_DECLINED ||
+						introduceeState == REMOTE_ACCEPTED) {
 					respondToIntroduction(txn, c, entry.getKey(), false, true);
 				}
 			}
