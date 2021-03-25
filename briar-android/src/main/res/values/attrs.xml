@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
+	<integer name="animationSpeed">@android:integer/config_mediumAnimTime</integer>
+
 	<declare-styleable name="BriarRecyclerView">
 		<attr name="scrollToEnd" format="boolean" />
 		<attr name="emptyImage" format="integer" />

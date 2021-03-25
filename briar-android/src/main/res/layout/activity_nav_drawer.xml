@@ -52,16 +52,17 @@
 				android:layout_height="0dp"
 				android:contentDescription="@string/close"
 				android:scaleType="center"
-				app:srcCompat="@drawable/ic_close"
 				app:layout_constraintBottom_toBottomOf="parent"
 				app:layout_constraintEnd_toEndOf="parent"
 				app:layout_constraintTop_toTopOf="parent"
+				app:srcCompat="@drawable/ic_close"
 				app:tint="@color/briar_text_tertiary_inverse" />
 
 		</androidx.constraintlayout.widget.ConstraintLayout>
 
-		<FrameLayout
+		<androidx.fragment.app.FragmentContainerView
 			android:id="@+id/fragmentContainer"
+			android:name="org.briarproject.briar.android.contact.ContactListFragment"
 			android:layout_width="0dp"
 			android:layout_height="0dp"
 			app:layout_constraintBottom_toBottomOf="parent"

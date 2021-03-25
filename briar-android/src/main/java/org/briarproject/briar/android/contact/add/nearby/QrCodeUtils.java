@@ -1,4 +1,4 @@
-package org.briarproject.briar.android.keyagreement;
+package org.briarproject.briar.android.contact.add.nearby;
 
 import android.graphics.Bitmap;
 import android.util.DisplayMetrics;
@@ -18,13 +18,13 @@ import static android.graphics.Color.BLACK;
 import static android.graphics.Color.WHITE;
 import static com.google.zxing.BarcodeFormat.QR_CODE;
 import static java.util.logging.Level.WARNING;
+import static java.util.logging.Logger.getLogger;
 import static org.briarproject.bramble.util.LogUtils.logException;
 
 @NotNullByDefault
 class QrCodeUtils {
 
-	private static final Logger LOG =
-			Logger.getLogger(QrCodeUtils.class.getName());
+	private static final Logger LOG = getLogger(QrCodeUtils.class.getName());
 
 	@Nullable
 	static Bitmap createQrCode(DisplayMetrics dm, String input) {

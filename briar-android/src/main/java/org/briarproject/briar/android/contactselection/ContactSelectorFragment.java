@@ -8,7 +8,7 @@ import android.view.MenuItem;
 import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
 import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
 import org.briarproject.briar.R;
-import org.briarproject.briar.android.contact.BaseContactListAdapter.OnContactClickListener;
+import org.briarproject.briar.android.contact.OnContactClickListener;
 
 @MethodsNotNullByDefault
 @ParametersNotNullByDefault

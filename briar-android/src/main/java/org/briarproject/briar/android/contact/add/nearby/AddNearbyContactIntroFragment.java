@@ -1,6 +1,5 @@
-package org.briarproject.briar.android.keyagreement;
+package org.briarproject.briar.android.contact.add.nearby;
 
-import android.content.Context;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -10,43 +9,42 @@ import android.widget.ScrollView;
 import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
 import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
 import org.briarproject.briar.R;
+import org.briarproject.briar.android.activity.ActivityComponent;
 import org.briarproject.briar.android.fragment.BaseFragment;
 
 import javax.annotation.Nullable;
+import javax.inject.Inject;
+
+import androidx.lifecycle.ViewModelProvider;
 
 import static android.view.View.FOCUS_DOWN;
 
 @MethodsNotNullByDefault
 @ParametersNotNullByDefault
-public class IntroFragment extends BaseFragment {
+public class AddNearbyContactIntroFragment extends BaseFragment {
 
-	interface IntroScreenSeenListener {
-		void showNextScreen();
-	}
+	public static final String TAG = AddNearbyContactIntroFragment.class.getName();
 
-	public static final String TAG = IntroFragment.class.getName();
+	@Inject
+	ViewModelProvider.Factory viewModelFactory;
 
-	private IntroScreenSeenListener screenSeenListener;
+	private AddNearbyContactViewModel viewModel;
+
 	private ScrollView scrollView;
 
-	public static IntroFragment newInstance() {
-
+	public static AddNearbyContactIntroFragment newInstance() {
 		Bundle args = new Bundle();
-
-		IntroFragment fragment = new IntroFragment();
+		AddNearbyContactIntroFragment
+				fragment = new AddNearbyContactIntroFragment();
 		fragment.setArguments(args);
 		return fragment;
 	}
 
 	@Override
-	public void onAttach(Context context) {
-		super.onAttach(context);
-		screenSeenListener = (IntroScreenSeenListener) context;
-	}
-
-	@Override
-	public String getUniqueTag() {
-		return TAG;
+	public void injectFragment(ActivityComponent component) {
+		component.inject(this);
+		viewModel = new ViewModelProvider(requireActivity(), viewModelFactory)
+				.get(AddNearbyContactViewModel.class);
 	}
 
 	@Nullable
@@ -59,7 +57,7 @@ public class IntroFragment extends BaseFragment {
 				false);
 		scrollView = v.findViewById(R.id.scrollView);
 		View button = v.findViewById(R.id.continueButton);
-		button.setOnClickListener(view -> screenSeenListener.showNextScreen());
+		button.setOnClickListener(view -> viewModel.onContinueClicked());
 		return v;
 	}
 
@@ -67,6 +65,11 @@ public class IntroFragment extends BaseFragment {
 	public void onStart() {
 		super.onStart();
 		scrollView.post(() -> scrollView.fullScroll(FOCUS_DOWN));
+	}
+
+	@Override
+	public String getUniqueTag() {
+		return TAG;
 	}
 
 }

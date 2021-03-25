@@ -17,6 +17,8 @@ import javax.inject.Inject;
 
 import androidx.annotation.Nullable;
 import androidx.lifecycle.AndroidViewModel;
+import androidx.lifecycle.LiveData;
+import androidx.lifecycle.MutableLiveData;
 
 import static java.util.logging.Logger.getLogger;
 import static org.briarproject.briar.android.account.SetupViewModel.State.AUTHOR_NAME;
@@ -36,6 +38,8 @@ class SetupViewModel extends AndroidViewModel {
 	@Nullable
 	private String authorName, password;
 	private final MutableLiveEvent<State> state = new MutableLiveEvent<>();
+	private final MutableLiveData<Boolean> isCreatingAccount =
+			new MutableLiveData<>(false);
 
 	private final AccountManager accountManager;
 	private final Executor ioExecutor;
@@ -65,6 +69,10 @@ class SetupViewModel extends AndroidViewModel {
 
 	LiveEvent<State> getState() {
 		return state;
+	}
+
+	LiveData<Boolean> getIsCreatingAccount() {
+		return isCreatingAccount;
 	}
 
 	void setAuthorName(String authorName) {
@@ -97,6 +105,7 @@ class SetupViewModel extends AndroidViewModel {
 	private void createAccount() {
 		if (authorName == null) throw new IllegalStateException();
 		if (password == null) throw new IllegalStateException();
+		isCreatingAccount.setValue(true);
 		ioExecutor.execute(() -> {
 			if (accountManager.createAccount(authorName, password)) {
 				LOG.info("Created account");

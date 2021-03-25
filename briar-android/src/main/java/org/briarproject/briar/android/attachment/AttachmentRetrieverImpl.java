@@ -28,9 +28,12 @@ import javax.inject.Inject;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
+import static java.util.Arrays.asList;
 import static java.util.Objects.requireNonNull;
+import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
 import static java.util.logging.Logger.getLogger;
+import static org.briarproject.bramble.util.AndroidUtils.getSupportedImageContentTypes;
 import static org.briarproject.bramble.util.IoUtils.tryToClose;
 import static org.briarproject.bramble.util.LogUtils.logException;
 import static org.briarproject.briar.android.attachment.AttachmentItem.State.AVAILABLE;
@@ -86,7 +89,17 @@ class AttachmentRetrieverImpl implements AttachmentRetriever {
 		List<AttachmentHeader> headers = messageHeader.getAttachmentHeaders();
 		List<LiveData<AttachmentItem>> items = new ArrayList<>(headers.size());
 		boolean needsSize = headers.size() == 1;
+		List<String> supported = asList(getSupportedImageContentTypes());
 		for (AttachmentHeader h : headers) {
+			// Fail early if we don't support the content type
+			if (!supported.contains(h.getContentType())) {
+				if (LOG.isLoggable(INFO)) {
+					LOG.info("Unsupported content type " + h.getContentType());
+				}
+				AttachmentItem item = new AttachmentItem(h, "", ERROR);
+				items.add(new MutableLiveData<>(item));
+				continue;
+			}
 			// try cache for existing item live data
 			MutableLiveData<AttachmentItem> liveData =
 					itemsWithSize.get(h.getMessageId());

@@ -33,7 +33,6 @@ public class DozeFragment extends SetupFragment
 	private DozeView dozeView;
 	private HuaweiView huaweiView;
 	private Button next;
-	private ProgressBar progressBar;
 	private boolean secondAttempt = false;
 
 	public static DozeFragment newInstance() {
@@ -58,10 +57,18 @@ public class DozeFragment extends SetupFragment
 		huaweiView = v.findViewById(R.id.huaweiView);
 		huaweiView.setOnCheckedChangedListener(this);
 		next = v.findViewById(R.id.next);
-		progressBar = v.findViewById(R.id.progress);
+		ProgressBar progressBar = v.findViewById(R.id.progress);
 
 		dozeView.setOnButtonClickListener(this::askForDozeWhitelisting);
 		next.setOnClickListener(this);
+
+		viewModel.getIsCreatingAccount()
+				.observe(getViewLifecycleOwner(), isCreatingAccount -> {
+					if (isCreatingAccount) {
+						next.setVisibility(INVISIBLE);
+						progressBar.setVisibility(VISIBLE);
+					}
+				});
 
 		return v;
 	}
@@ -104,15 +111,6 @@ public class DozeFragment extends SetupFragment
 
 	@Override
 	public void onClick(View view) {
-		setNextClicked();
 		viewModel.dozeExceptionConfirmed();
-	}
-
-	@Override
-	void setNextClicked() {
-		super.setNextClicked();
-
-		next.setVisibility(INVISIBLE);
-		progressBar.setVisibility(VISIBLE);
 	}
 }

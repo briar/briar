@@ -1,4 +1,4 @@
-package org.briarproject.briar.android.keyagreement;
+package org.briarproject.briar.android.contact.add.nearby;
 
 import android.content.Context;
 import android.hardware.Camera;
@@ -40,7 +40,6 @@ import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
 import static org.briarproject.bramble.util.LogUtils.logException;
 
-@SuppressWarnings("deprecation")
 @MethodsNotNullByDefault
 @ParametersNotNullByDefault
 public class CameraView extends SurfaceView implements SurfaceHolder.Callback,
@@ -126,8 +125,14 @@ public class CameraView extends SurfaceView implements SurfaceHolder.Callback,
 			throw new CameraException(e);
 		}
 		setDisplayOrientation(getScreenRotationDegrees());
+		if (camera == null) throw new CameraException("No camera found");
 		// Use barcode scene mode if it's available
-		Parameters params = camera.getParameters();
+		Parameters params;
+		try {
+			params = camera.getParameters();
+		} catch (RuntimeException e) {
+			throw new CameraException(e);
+		}
 		params = setSceneMode(camera, params);
 		if (SCENE_MODE_BARCODE.equals(params.getSceneMode())) {
 			// If the scene mode enabled the flash, try to disable it

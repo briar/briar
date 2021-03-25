@@ -19,12 +19,16 @@ android {
 	compileSdkVersion 30
 	buildToolsVersion '30.0.2'
 
+	packagingOptions {
+		doNotStrip '**/*.so'
+	}
+
 	defaultConfig {
 		minSdkVersion 16
 		targetSdkVersion 29
-		versionCode 10216
-		versionName "1.2.16"
-		applicationId "org.briarproject.briar.socialbackup"
+		versionCode 10218
+		versionName "1.2.18"
+		applicationId "org.briarproject.briar.android"
 
 		vectorDrawables.useSupportLibrary = true
 		buildConfigField "String", "GitHash",
@@ -95,6 +99,7 @@ dependencies {
 	implementation project(path: ':bramble-core', configuration: 'default')
 	implementation project(':bramble-android')
 
+	implementation 'androidx.fragment:fragment:1.3.0'
 	implementation 'androidx.preference:preference:1.1.1'
 	implementation 'androidx.exifinterface:exifinterface:1.3.1'
 	implementation 'androidx.lifecycle:lifecycle-extensions:2.2.0'

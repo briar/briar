@@ -8,11 +8,15 @@ android {
 	compileSdkVersion 30
 	buildToolsVersion '30.0.2'
 
+	packagingOptions {
+		doNotStrip '**/*.so'
+	}
+
 	defaultConfig {
 		minSdkVersion 16
 		targetSdkVersion 29
-		versionCode 10216
-		versionName "1.2.16"
+		versionCode 10218
+		versionName "1.2.18"
 		consumerProguardFiles 'proguard-rules.txt'
 
 		testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"

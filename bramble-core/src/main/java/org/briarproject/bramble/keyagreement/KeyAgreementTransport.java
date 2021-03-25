@@ -34,12 +34,12 @@ class KeyAgreementTransport {
 			Logger.getLogger(KeyAgreementTransport.class.getName());
 
 	// Accept records with current protocol version, known record type
-	private static Predicate<Record> ACCEPT = r ->
+	private static final Predicate<Record> ACCEPT = r ->
 			r.getProtocolVersion() == PROTOCOL_VERSION &&
 					isKnownRecordType(r.getRecordType());
 
 	// Ignore records with current protocol version, unknown record type
-	private static Predicate<Record> IGNORE = r ->
+	private static final Predicate<Record> IGNORE = r ->
 			r.getProtocolVersion() == PROTOCOL_VERSION &&
 					!isKnownRecordType(r.getRecordType());
 

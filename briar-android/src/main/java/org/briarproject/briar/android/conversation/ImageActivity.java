@@ -24,10 +24,7 @@ import org.briarproject.briar.android.attachment.AttachmentItem;
 import org.briarproject.briar.android.util.BriarSnackbarBuilder;
 import org.briarproject.briar.android.view.PullDownLayout;
 
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.List;
-import java.util.Locale;
 
 import javax.inject.Inject;
 
@@ -293,13 +290,10 @@ public class ImageActivity extends BriarActivity
 
 	@RequiresApi(api = 19)
 	private Intent getCreationIntent() {
-		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss",
-				Locale.getDefault());
-		String fileName = sdf.format(new Date());
 		Intent intent = new Intent(ACTION_CREATE_DOCUMENT);
 		intent.addCategory(CATEGORY_OPENABLE);
 		intent.setType(getVisibleAttachment().getMimeType());
-		intent.putExtra(EXTRA_TITLE, fileName);
+		intent.putExtra(EXTRA_TITLE, viewModel.getFileName());
 		return intent;
 	}
 
