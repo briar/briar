@@ -10,6 +10,7 @@ import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.settings.Settings;
 import org.briarproject.bramble.api.settings.SettingsManager;
 import org.briarproject.briar.R;
+import org.junit.ClassRule;
 
 import javax.inject.Inject;
 
@@ -22,6 +23,10 @@ import static org.briarproject.briar.android.settings.SettingsFragment.SETTINGS_
 
 @SuppressWarnings("WeakerAccess")
 public abstract class UiTest {
+
+	@ClassRule
+	public static final ScreenshotOnFailureRule screenshotOnFailureRule =
+			new ScreenshotOnFailureRule();
 
 	protected final String USERNAME =
 			getApplicationContext().getString(R.string.screenshot_alice);
