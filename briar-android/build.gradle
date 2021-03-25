@@ -37,7 +37,7 @@ android {
 		buildConfigField "Long", "BuildTimestamp",
 				"${getStdout(['git', 'log', '-n', '1', '--format=%ct'], now)}000L"
 		testInstrumentationRunner 'org.briarproject.briar.android.BriarTestRunner'
-		testInstrumentationRunnerArguments disableAnalytics: 'true', clearPackageData: 'true'
+		testInstrumentationRunnerArguments disableAnalytics: 'true'
 	}
 
 	buildTypes {

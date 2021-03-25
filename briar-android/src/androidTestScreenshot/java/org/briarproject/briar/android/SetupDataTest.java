@@ -42,6 +42,7 @@ public class SetupDataTest extends ScreenshotTest {
 	@Override
 	protected void inject(BriarUiTestComponent component) {
 		component.inject(this);
+		accountManager.deleteAccount();
 	}
 
 	@Test

@@ -8,6 +8,9 @@ import org.briarproject.bramble.api.contact.ContactManager;
 import org.briarproject.bramble.api.contact.PendingContact;
 import org.briarproject.bramble.api.contact.PendingContactState;
 import org.briarproject.briar.R;
+import org.briarproject.briar.android.account.SetupActivity;
+import org.briarproject.briar.android.contact.add.remote.PendingContactListActivity;
+import org.briarproject.briar.android.navdrawer.NavDrawerActivity;
 import org.briarproject.briar.android.splash.SplashScreenActivity;
 import org.hamcrest.Matcher;
 import org.junit.Rule;
@@ -66,6 +69,7 @@ public class PromoVideoTest extends ScreenshotTest {
 	@Override
 	protected void inject(BriarUiTestComponent component) {
 		component.inject(this);
+		accountManager.deleteAccount();
 	}
 
 	@Test
@@ -80,9 +84,8 @@ public class PromoVideoTest extends ScreenshotTest {
 		onView(withId(R.id.logoView))
 				.perform(waitUntilMatches(isDisplayed()));
 
-		int duration = getApplicationContext().getResources()
-				.getInteger(R.integer.splashScreenDuration);
-		sleep(Math.max(DELAY_LONG, duration));
+		if (debug) waitFor(SetupActivity.class, 25_000);
+		sleep(DELAY_LONG);
 
 		// Enter username
 		onView(withText(R.string.setup_title))
@@ -132,7 +135,8 @@ public class PromoVideoTest extends ScreenshotTest {
 
 		sleep(DELAY_SMALL);
 
-		waitFor(allOf(withId(R.id.speedDial), isDisplayed()));
+		// wait for contact list to be shown
+		if (debug) waitFor(NavDrawerActivity.class);
 
 		// clicking the FAB doesn't work, so we click its inner FAB as well
 		onView(withId(R.id.speedDial))
@@ -173,8 +177,11 @@ public class PromoVideoTest extends ScreenshotTest {
 		sleep(DELAY_LONG);
 
 		// wait for pending contact list activity to be shown
-		waitFor(allOf(withText(R.string.pending_contact_requests),
-				isDisplayed()));
+		if (debug) {
+			waitFor(PendingContactListActivity.class);
+			waitFor(allOf(withText(R.string.pending_contact_requests),
+					isDisplayed()));
+		}
 
 		// remove pending contact
 		for (Pair<PendingContact, PendingContactState> p : contactManager
@@ -187,8 +194,14 @@ public class PromoVideoTest extends ScreenshotTest {
 		connectionRegistry.registerIncomingConnection(bob.getId(), ID, () -> {
 		});
 
+		sleep(DELAY_LONG);
+
 		// wait for contact list to be shown
-		waitFor(allOf(withText(R.string.contact_list_button), isDisplayed()));
+		if (debug) {
+			waitFor(NavDrawerActivity.class);
+			waitFor(allOf(withText(R.string.contact_list_button),
+					isDisplayed()));
+		}
 
 		// click on new contact
 		doItemClick(withId(R.id.recyclerView), 0);

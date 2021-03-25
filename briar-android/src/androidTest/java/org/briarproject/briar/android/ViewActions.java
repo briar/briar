@@ -1,6 +1,7 @@
 package org.briarproject.briar.android;
 
 import android.app.Activity;
+import android.util.Log;
 import android.view.View;
 
 import org.hamcrest.Matcher;
@@ -20,6 +21,7 @@ import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static androidx.test.espresso.matcher.ViewMatchers.isRoot;
 import static androidx.test.espresso.util.HumanReadables.describe;
 import static androidx.test.espresso.util.TreeIterables.breadthFirstViewTraversal;
+import static androidx.test.runner.lifecycle.Stage.RESUMED;
 import static java.lang.System.currentTimeMillis;
 import static java.util.concurrent.TimeUnit.SECONDS;
 
@@ -32,13 +34,22 @@ public class ViewActions {
 		onView(isRoot()).perform(waitUntilMatches(hasDescendant(viewMatcher)));
 	}
 
+	public static void waitFor(final Class<? extends Activity> clazz) {
+		onView(isRoot()).perform(waitForActivity(clazz, RESUMED, TIMEOUT_MS));
+	}
+
+	public static void waitFor(final Class<? extends Activity> clazz,
+			long timeout) {
+		onView(isRoot()).perform(waitForActivity(clazz, RESUMED, timeout));
+	}
+
 	public static ViewAction waitUntilMatches(Matcher<View> viewMatcher) {
 		return waitUntilMatches(viewMatcher, TIMEOUT_MS);
 	}
 
 	private static ViewAction waitUntilMatches(Matcher<View> viewMatcher,
 			long timeout) {
-		return new CustomViewAction() {
+		return new CustomViewAction(timeout) {
 			@Override
 			protected boolean exitConditionTrue(View view) {
 				for (View child : breadthFirstViewTraversal(view)) {
@@ -55,24 +66,43 @@ public class ViewActions {
 		};
 	}
 
-	public static ViewAction waitForActivity(Activity activity, Stage stage) {
+	public static ViewAction waitForActivity(Class<? extends Activity> clazz,
+			Stage stage, long timeout) {
 		return new CustomViewAction() {
 			@Override
 			protected boolean exitConditionTrue(View view) {
+				boolean found = false;
 				ActivityLifecycleMonitor lifecycleMonitor =
 						ActivityLifecycleMonitorRegistry.getInstance();
-				return lifecycleMonitor.getLifecycleStageOf(activity) == stage;
+				for (Activity a : lifecycleMonitor
+						.getActivitiesInStage(stage)) {
+					Log.e("TEST", a.getClass().getSimpleName() +
+							" is in state " + stage);
+					if (a.getClass().equals(clazz)) found = true;
+				}
+				return found;
 			}
 
 			@Override
 			public String getDescription() {
-				return "Wait for activity " + activity.getClass().getName() +
-						" to resume within " + TIMEOUT_MS + " milliseconds.";
+				return "Wait for activity " + clazz.getName() + " in stage " +
+						stage.name() + " within " + timeout +
+						" milliseconds.";
 			}
 		};
 	}
 
 	private static abstract class CustomViewAction implements ViewAction {
+		private final long timeout;
+
+		public CustomViewAction() {
+			this(TIMEOUT_MS);
+		}
+
+		public CustomViewAction(long timeout) {
+			this.timeout = timeout;
+		}
+
 		@Override
 		public Matcher<View> getConstraints() {
 			return isDisplayed();
@@ -81,7 +111,7 @@ public class ViewActions {
 		@Override
 		public void perform(UiController uiController, View view) {
 			uiController.loopMainThreadUntilIdle();
-			long endTime = currentTimeMillis() + TIMEOUT_MS;
+			long endTime = currentTimeMillis() + timeout;
 			do {
 				if (exitConditionTrue(view)) return;
 				uiController.loopMainThreadForAtLeast(WAIT_MS);
