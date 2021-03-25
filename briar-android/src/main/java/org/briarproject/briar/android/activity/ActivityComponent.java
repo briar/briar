@@ -85,11 +85,12 @@ import org.briarproject.briar.android.socialbackup.CustodianHelpRecoverActivity;
 import org.briarproject.briar.android.socialbackup.CustodianSelectorFragment;
 import org.briarproject.briar.android.socialbackup.DistributedBackupActivity;
 import org.briarproject.briar.android.socialbackup.ExistingBackupFragment;
-import org.briarproject.briar.android.socialbackup.OwnerRecoveryModeExplainerFragment;
-import org.briarproject.briar.android.socialbackup.RecoverActivity;
+import org.briarproject.briar.android.socialbackup.recover.OwnerRecoveryModeExplainerFragment;
+import org.briarproject.briar.android.socialbackup.recover.RecoverActivity;
 import org.briarproject.briar.android.socialbackup.ShardsSentFragment;
 import org.briarproject.briar.android.socialbackup.ThresholdSelectorFragment;
 import org.briarproject.briar.android.socialbackup.creation.CreateBackupModule;
+import org.briarproject.briar.android.socialbackup.recover.ReturnShardActivity;
 import org.briarproject.briar.android.splash.SplashScreenActivity;
 import org.briarproject.briar.android.test.TestDataActivity;
 
@@ -197,6 +198,8 @@ public interface ActivityComponent {
 	void inject(NewOrRecoverActivity newOrRecoverActivity);
 
 	void inject(CustodianHelpRecoverActivity custodianHelpRecoverActivity);
+
+	void inject(ReturnShardActivity returnShardActivity);
 
 	// Fragments
 

@@ -7,7 +7,8 @@ import org.briarproject.briar.R;
 import org.briarproject.briar.android.activity.ActivityComponent;
 import org.briarproject.briar.android.activity.BaseActivity;
 import org.briarproject.briar.android.fragment.BaseFragment;
-import org.briarproject.briar.android.socialbackup.RecoverActivity;
+import org.briarproject.briar.android.socialbackup.recover.RecoverActivity;
+import org.briarproject.briar.android.socialbackup.recover.ReturnShardActivity;
 
 import static android.content.Intent.FLAG_ACTIVITY_CLEAR_TASK;
 import static android.content.Intent.FLAG_ACTIVITY_CLEAR_TOP;
@@ -45,7 +46,7 @@ public class NewOrRecoverActivity extends BaseActivity implements
 	@Override
 	public void recoverAccountChosen() {
 		finish();
-		Intent i = new Intent(this, RecoverActivity.class);
+		Intent i = new Intent(this, ReturnShardActivity.class);
 		i.addFlags(FLAG_ACTIVITY_NEW_TASK | FLAG_ACTIVITY_CLEAR_TOP |
 				FLAG_ACTIVITY_CLEAR_TASK | FLAG_ACTIVITY_TASK_ON_HOME);
 		startActivity(i);

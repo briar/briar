@@ -1,4 +1,4 @@
-package org.briarproject.briar.android.socialbackup;
+package org.briarproject.briar.android.socialbackup.recover;
 
 import android.os.Bundle;
 import android.widget.Toast;
@@ -7,6 +7,9 @@ import org.briarproject.briar.R;
 import org.briarproject.briar.android.activity.ActivityComponent;
 import org.briarproject.briar.android.activity.BaseActivity;
 import org.briarproject.briar.android.fragment.BaseFragment;
+import org.briarproject.briar.android.socialbackup.ExplainerDismissedListener;
+import org.briarproject.briar.android.socialbackup.OwnerRecoveryModeMainFragment;
+import org.briarproject.briar.android.socialbackup.ScanQrButtonListener;
 
 public class RecoverActivity extends BaseActivity implements
 		BaseFragment.BaseFragmentListener, ExplainerDismissedListener,

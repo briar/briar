@@ -1,8 +1,6 @@
-package org.briarproject.briar.android.socialbackup;
+package org.briarproject.briar.android.socialbackup.recover;
 
-import android.content.Context;
 import android.os.Bundle;
-
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,14 +10,21 @@ import org.briarproject.briar.R;
 import org.briarproject.briar.android.activity.ActivityComponent;
 import org.briarproject.briar.android.fragment.BaseFragment;
 
+import javax.inject.Inject;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.lifecycle.ViewModelProvider;
 
 public class OwnerRecoveryModeExplainerFragment extends BaseFragment {
 
-	protected ExplainerDismissedListener listener;
 	public static final String TAG =
 			OwnerRecoveryModeExplainerFragment.class.getName();
+
+	@Inject
+	ViewModelProvider.Factory viewModelFactory;
+
+	private ReturnShardViewModel viewModel;
 
 	@Override
 	public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -35,20 +40,16 @@ public class OwnerRecoveryModeExplainerFragment extends BaseFragment {
 		View view = inflater.inflate(R.layout.fragment_recovery_owner_explainer,
 				container, false);
 		Button button = view.findViewById(R.id.beginButton);
-		button.setOnClickListener(e -> listener.explainerDismissed());
+		button.setOnClickListener(e -> viewModel.onContinueClicked());
 
 		return view;
 	}
 
 	@Override
-	public void onAttach(Context context) {
-		super.onAttach(context);
-		listener = (ExplainerDismissedListener) context;
-	}
-
-	@Override
 	public void injectFragment(ActivityComponent component) {
 		component.inject(this);
+		viewModel = new ViewModelProvider(requireActivity(), viewModelFactory)
+				.get(ReturnShardViewModel.class);
 	}
 
 	@Override
