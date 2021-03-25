@@ -87,6 +87,7 @@ import org.briarproject.briar.android.socialbackup.DistributedBackupActivity;
 import org.briarproject.briar.android.socialbackup.ExistingBackupFragment;
 import org.briarproject.briar.android.socialbackup.OwnerRecoveryModeExplainerFragment;
 import org.briarproject.briar.android.socialbackup.RecoverActivity;
+import org.briarproject.briar.android.socialbackup.ShardQrCodeFragment;
 import org.briarproject.briar.android.socialbackup.ShardsSentFragment;
 import org.briarproject.briar.android.socialbackup.ThresholdSelectorFragment;
 import org.briarproject.briar.android.socialbackup.creation.CreateBackupModule;
@@ -257,6 +258,8 @@ public interface ActivityComponent {
 	void inject(ConfirmAvatarDialogFragment fragment);
 
 	void inject(ThresholdSelectorFragment thresholdSelectorFragment);
+
+	void inject(ShardQrCodeFragment shardQrCodeFragment);
 
 	void inject(DistributedBackupActivity distributedBackupActivity);
 
