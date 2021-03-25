@@ -127,7 +127,7 @@ class ForumListViewModel extends DbViewModel implements EventListener {
 	}
 
 	public void loadForums() {
-		loadList(this::loadForums, forumItems::setValue);
+		loadFromDb(this::loadForums, forumItems::setValue);
 	}
 
 	@DatabaseExecutor
@@ -145,7 +145,7 @@ class ForumListViewModel extends DbViewModel implements EventListener {
 
 	@UiThread
 	private void onForumPostReceived(GroupId g, ForumPostHeader header) {
-		List<ForumListItem> list = updateListItems(forumItems,
+		List<ForumListItem> list = updateListItems(getList(forumItems),
 				itemToTest -> itemToTest.getForum().getId().equals(g),
 				itemToUpdate -> new ForumListItem(itemToUpdate, header));
 		if (list == null) return;
@@ -156,11 +156,9 @@ class ForumListViewModel extends DbViewModel implements EventListener {
 
 	@UiThread
 	private void onGroupRemoved(GroupId groupId) {
-		List<ForumListItem> list = removeListItems(forumItems, i ->
+		removeAndUpdateListItems(forumItems, i ->
 				i.getForum().getId().equals(groupId)
 		);
-		if (list == null) return;
-		forumItems.setValue(new LiveResult<>(list));
 	}
 
 	void loadForumInvitations() {

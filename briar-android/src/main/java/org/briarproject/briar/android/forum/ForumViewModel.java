@@ -135,7 +135,7 @@ class ForumViewModel extends ThreadListViewModel<ForumPostItem> {
 
 	@Override
 	public void loadItems() {
-		loadList(txn -> {
+		loadFromDb(txn -> {
 			long start = now();
 			List<ForumPostHeader> headers =
 					forumManager.getPostHeaders(txn, groupId);

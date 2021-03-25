@@ -7,6 +7,7 @@ import io.mockk.mockk
 import org.briarproject.bramble.api.connection.ConnectionRegistry
 import org.briarproject.bramble.api.contact.Contact
 import org.briarproject.bramble.api.contact.ContactManager
+import org.briarproject.bramble.api.db.TransactionManager
 import org.briarproject.bramble.api.identity.Author
 import org.briarproject.bramble.api.identity.IdentityManager
 import org.briarproject.bramble.api.identity.LocalAuthor
@@ -24,6 +25,7 @@ import javax.servlet.http.HttpServletResponse
 
 abstract class ControllerTest {
 
+    protected val db = mockk<TransactionManager>()
     protected val contactManager = mockk<ContactManager>()
     protected val conversationManager = mockk<ConversationManager>()
     protected val identityManager = mockk<IdentityManager>()

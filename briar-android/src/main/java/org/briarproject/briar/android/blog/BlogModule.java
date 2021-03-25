@@ -1,35 +1,23 @@
 package org.briarproject.briar.android.blog;
 
-import org.briarproject.briar.android.activity.ActivityScope;
-import org.briarproject.briar.android.activity.BaseActivity;
-import org.briarproject.briar.android.controller.SharingController;
-import org.briarproject.briar.android.controller.SharingControllerImpl;
+import org.briarproject.briar.android.viewmodel.ViewModelKey;
 
+import androidx.lifecycle.ViewModel;
+import dagger.Binds;
 import dagger.Module;
-import dagger.Provides;
+import dagger.multibindings.IntoMap;
 
 @Module
-public class BlogModule {
+public interface BlogModule {
 
-	@ActivityScope
-	@Provides
-	BlogController provideBlogController(BaseActivity activity,
-			BlogControllerImpl blogController) {
-		activity.addLifecycleController(blogController);
-		return blogController;
-	}
+	@Binds
+	@IntoMap
+	@ViewModelKey(FeedViewModel.class)
+	ViewModel bindFeedViewModel(FeedViewModel feedViewModel);
 
-	@ActivityScope
-	@Provides
-	FeedController provideFeedController(FeedControllerImpl feedController) {
-		return feedController;
-	}
-
-	@ActivityScope
-	@Provides
-	SharingController provideSharingController(
-			SharingControllerImpl sharingController) {
-		return sharingController;
-	}
+	@Binds
+	@IntoMap
+	@ViewModelKey(BlogViewModel.class)
+	ViewModel bindBlogViewModel(BlogViewModel blogViewModel);
 
 }

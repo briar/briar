@@ -11,10 +11,8 @@ import org.briarproject.briar.android.account.SetupActivity;
 import org.briarproject.briar.android.account.UnlockActivity;
 import org.briarproject.briar.android.blog.BlogActivity;
 import org.briarproject.briar.android.blog.BlogFragment;
-import org.briarproject.briar.android.blog.BlogModule;
 import org.briarproject.briar.android.blog.BlogPostFragment;
 import org.briarproject.briar.android.blog.FeedFragment;
-import org.briarproject.briar.android.blog.FeedPostFragment;
 import org.briarproject.briar.android.blog.ReblogActivity;
 import org.briarproject.briar.android.blog.ReblogFragment;
 import org.briarproject.briar.android.blog.RssFeedImportActivity;
@@ -85,7 +83,6 @@ import dagger.Component;
 @ActivityScope
 @Component(modules = {
 		ActivityModule.class,
-		BlogModule.class,
 		CreateGroupModule.class,
 		GroupInvitationModule.class,
 		GroupMemberModule.class,
@@ -151,8 +148,6 @@ public interface ActivityComponent {
 	void inject(BlogFragment fragment);
 
 	void inject(BlogPostFragment fragment);
-
-	void inject(FeedPostFragment fragment);
 
 	void inject(ReblogFragment fragment);
 
