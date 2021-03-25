@@ -381,15 +381,6 @@ public class AutoDeleteIntegrationTest extends AbstractAutoDeleteTest {
 		assertGroupCounts(0, 0, 0, 0, 0, 0, 0, 0);
 	}
 
-	private void assertGroupCounts(int count01, int unread01, int count02,
-			int unread02, int count10, int unread10, int count20, int unread20)
-			throws Exception {
-		assertGroupCountAt0With1(count01, unread01);
-		assertGroupCountAt0With2(count02, unread02);
-		assertGroupCountAt1With0(count10, unread10);
-		assertGroupCountAt2With0(count20, unread20);
-	}
-
 	/**
 	 * Go through two full cycles of introducing two contacts with
 	 * self-destructing messages enabled, lettings them both introducees expire
@@ -853,6 +844,105 @@ public class AutoDeleteIntegrationTest extends AbstractAutoDeleteTest {
 		assertNewIntroductionSucceeds();
 	}
 
+	/**
+	 * Make sure that an auto-decline is sent even if an accept has already been
+	 * received from the other introducee.
+	 * <p>
+	 * ASSERT that a new introduction can succeed afterwards
+	 */
+	@Test
+	public void testAutoDecliningHappensEvenIfAcceptAlreadyReceived()
+			throws Exception {
+		testAutoDecliningHappensEvenIfResponseAlreadyReceived(true);
+	}
+
+	/**
+	 * Make sure that an auto-decline is sent even if a decline has already been
+	 * received from the other introducee.
+	 * <p>
+	 * ASSERT that a new introduction can succeed afterwards
+	 */
+	@Test
+	public void testAutoDecliningHappensEvenIfDeclineAlreadyReceived()
+			throws Exception {
+		testAutoDecliningHappensEvenIfResponseAlreadyReceived(false);
+	}
+
+	private void testAutoDecliningHappensEvenIfResponseAlreadyReceived(
+			boolean accept) throws Exception {
+		makeIntroduction(false, true);
+		markMessagesRead(c1, contact0From1);
+		markMessagesRead(c2, contact0From2);
+		assertGroupCounts(1, 0, 1, 0, 1, 0, 1, 0);
+
+		// ack from 1 and 2 to 0. This starts 0's timer
+		ack1To0(1);
+		ack2To0(1);
+		waitForEvents(c0);
+
+		// time travel at 0, destroying introduction to 2 at 0
+		timeTravel(c0);
+		assertGroupCounts(1, 0, 0, 0, 1, 0, 1, 0);
+
+		// accept or decline the introduction at 1
+		respondToMostRecentIntroduction(c1, contactId0From1, accept);
+		assertGroupCounts(1, 0, 0, 0, 2, 0, 1, 0);
+
+		// sync the response message from 1 to 0
+		sync1To0(1, true);
+		waitForEvents(c0);
+		assertGroupCounts(2, 1, 0, 0, 2, 0, 1, 0);
+
+		assertIntroduceeStatus(c2, IntroduceeState.AWAIT_RESPONSES);
+
+		if (accept) {
+			// forward the accept message from 0 to 2
+			sync0To2(1, true);
+			waitForEvents(c2);
+			assertGroupCounts(2, 1, 0, 0, 2, 0, 1, 0);
+			assertIntroduceeStatus(c2, IntroduceeState.REMOTE_ACCEPTED);
+
+			// time travel at 2, deleting the introduction and auto-declining.
+			// message count does not increase due to the deleted introduction
+			timeTravel(c2);
+			assertGroupCounts(2, 1, 0, 0, 2, 0, 1, 0);
+
+			// sync the auto-decline message from 2 to 0
+			sync2To0(1, true);
+			waitForEvents(c0);
+			assertGroupCounts(2, 1, 1, 1, 2, 0, 1, 0);
+
+			// forward the auto-decline message from 0 to 1
+			sync0To1(1, true);
+			waitForEvents(c1);
+			assertGroupCounts(2, 1, 1, 1, 3, 1, 1, 0);
+		} else {
+			// forward the decline message from 0 to 2
+			sync0To2(1, true);
+			waitForEvents(c2);
+			assertGroupCounts(2, 1, 0, 0, 2, 0, 2, 1);
+			assertIntroduceeStatus(c2, IntroduceeState.REMOTE_DECLINED);
+
+			// time travel at 2, deleting the introduction and auto-declining
+			// message count does not increase due to the deleted introduction
+			timeTravel(c2);
+			assertGroupCounts(2, 1, 0, 0, 2, 0, 2, 1);
+
+			// sync the auto-decline message from 2 to 0
+			sync2To0(1, true);
+			waitForEvents(c0);
+			assertGroupCounts(2, 1, 1, 1, 2, 0, 2, 1);
+
+			// forward the auto-decline message from 0 to 1
+			sync0To1(1, true);
+			waitForEvents(c1);
+			assertGroupCounts(2, 1, 1, 1, 2, 0, 2, 1);
+		}
+
+		// it should be possible for 0 to introduce 1 and 2 again and it should succeed
+		assertNewIntroductionSucceeds();
+	}
+
 	private void makeIntroduction(boolean enableTimer1, boolean enableTimer2)
 			throws Exception {
 		if (enableTimer1) {
@@ -930,6 +1020,15 @@ public class AutoDeleteIntegrationTest extends AbstractAutoDeleteTest {
 		assertGroupCount(c0, contactId2From0, 1, 0);
 		assertGroupCount(c1, contactId0From1, 1, 1);
 		assertGroupCount(c2, contactId0From2, 1, 1);
+	}
+
+	private void assertGroupCounts(int count01, int unread01, int count02,
+			int unread02, int count10, int unread10, int count20, int unread20)
+			throws Exception {
+		assertGroupCountAt0With1(count01, unread01);
+		assertGroupCountAt0With2(count02, unread02);
+		assertGroupCountAt1With0(count10, unread10);
+		assertGroupCountAt2With0(count20, unread20);
 	}
 
 	private void assertGroupCountAt0With1(int messageCount, int unreadCount)
