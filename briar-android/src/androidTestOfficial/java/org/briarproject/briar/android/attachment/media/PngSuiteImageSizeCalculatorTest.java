@@ -12,11 +12,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
 
+import androidx.test.filters.LargeTest;
+
 import static java.util.logging.Logger.getLogger;
 import static org.briarproject.bramble.api.nullsafety.NullSafety.requireNonNull;
 import static org.briarproject.bramble.test.TestUtils.isOptionalTestEnabled;
 import static org.junit.Assume.assumeTrue;
 
+@LargeTest
 @RunWith(Parameterized.class)
 public class PngSuiteImageSizeCalculatorTest
 		extends AbstractImageSizeCalculatorTest {

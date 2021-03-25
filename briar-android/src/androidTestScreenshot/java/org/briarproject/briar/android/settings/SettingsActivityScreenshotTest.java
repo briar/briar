@@ -16,6 +16,7 @@ import androidx.test.espresso.contrib.DrawerActions;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.rule.ActivityTestRule;
 
+import static androidx.test.core.app.ApplicationProvider.getApplicationContext;
 import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.action.ViewActions.click;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
@@ -29,7 +30,9 @@ import static androidx.test.espresso.matcher.ViewMatchers.withClassName;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
 import static org.briarproject.briar.android.ViewActions.waitUntilMatches;
+import static org.briarproject.briar.android.util.UiUtils.hasScreenLock;
 import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assume.assumeTrue;
 
 @RunWith(AndroidJUnit4.class)
 public class SettingsActivityScreenshotTest extends ScreenshotTest {
@@ -76,6 +79,8 @@ public class SettingsActivityScreenshotTest extends ScreenshotTest {
 
 	@Test
 	public void appLock() {
+		assumeTrue("device has no screen lock",
+				hasScreenLock(getApplicationContext()));
 		// scroll down
 		onView(withClassName(is(RecyclerView.class.getName())))
 				.perform(scrollTo(hasDescendant(

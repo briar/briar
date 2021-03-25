@@ -1,30 +1,52 @@
 image: briar/ci-image-android:latest
 
 stages:
-- test
-- optional_tests
-- check_reproducibility
+  - test
+  - optional_tests
+  - check_reproducibility
 
-test:
-  stage: test
+.base-test:
   before_script:
     - set -e
     - export GRADLE_USER_HOME=$PWD/.gradle
-
   cache:
+    key: "$CI_COMMIT_REF_SLUG"
     paths:
       - .gradle/wrapper
       - .gradle/caches
-
-  script:
-    - ./gradlew --no-daemon -Djava.security.egd=file:/dev/urandom animalSnifferMain animalSnifferTest
-    - ./gradlew --no-daemon -Djava.security.egd=file:/dev/urandom check compileOfficialDebugAndroidTestSources compileScreenshotDebugAndroidTestSources
-
   after_script:
-    # these file change every time but should not be cached
+    # these file change every time and should not be cached
     - rm -f $GRADLE_USER_HOME/caches/modules-2/modules-2.lock
     - rm -fr $GRADLE_USER_HOME/caches/*/plugin-resolution/
 
+test:
+  extends: .base-test
+  stage: test
+  script:
+    - ./gradlew --no-daemon -Djava.security.egd=file:/dev/urandom animalSnifferMain animalSnifferTest
+    - ./gradlew --no-daemon -Djava.security.egd=file:/dev/urandom check
+
+android test:
+  extends: .base-test
+  stage: optional_tests
+  image: briar/ci-image-android-emulator:latest
+  script:
+    # start emulator first, so it can fail early
+    - start-emulator.sh
+    # run normal and screenshot tests together (exclude Large tests)
+    - ./gradlew -Djava.security.egd=file:/dev/urandom connectedAndroidTest -Pandroid.testInstrumentationRunnerArguments.notAnnotation=androidx.test.filters.LargeTest
+  artifacts:
+    name: "${CI_PROJECT_PATH}_${CI_JOB_STAGE}_${CI_COMMIT_REF_NAME}_${CI_COMMIT_SHA}"
+    paths:
+      - kernel.log
+      - logcat.txt
+    expire_in: 3 days
+    when: on_failure
+  when: manual
+  except:
+    - tags
+  tags:
+    - kvm
 
 test_reproducible:
   stage: check_reproducibility
@@ -40,6 +62,7 @@ test_reproducible:
     - export GRADLE_USER_HOME=$PWD/.gradle
 
   cache:
+    key: "$CI_COMMIT_REF_SLUG"
     paths:
       - .gradle/wrapper
       - .gradle/caches
