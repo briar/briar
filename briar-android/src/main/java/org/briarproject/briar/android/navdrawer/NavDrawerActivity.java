@@ -27,6 +27,7 @@ import org.briarproject.bramble.api.plugin.Plugin.State;
 import org.briarproject.bramble.api.plugin.TorConstants;
 import org.briarproject.bramble.api.plugin.TransportId;
 import org.briarproject.briar.R;
+import org.briarproject.briar.android.BriarApplication;
 import org.briarproject.briar.android.activity.ActivityComponent;
 import org.briarproject.briar.android.activity.BriarActivity;
 import org.briarproject.briar.android.blog.FeedFragment;
@@ -71,7 +72,6 @@ import static org.briarproject.bramble.api.lifecycle.LifecycleManager.LifecycleS
 import static org.briarproject.bramble.api.plugin.Plugin.State.ACTIVE;
 import static org.briarproject.bramble.api.plugin.Plugin.State.ENABLING;
 import static org.briarproject.bramble.api.plugin.Plugin.State.STARTING_STOPPING;
-import static org.briarproject.briar.BuildConfig.FLAVOR;
 import static org.briarproject.briar.android.BriarService.EXTRA_STARTUP_FAILED;
 import static org.briarproject.briar.android.TestingConstants.IS_DEBUG_BUILD;
 import static org.briarproject.briar.android.activity.RequestCodes.REQUEST_PASSWORD;
@@ -135,7 +135,8 @@ public class NavDrawerActivity extends BriarActivity implements
 		navDrawerViewModel = provider.get(NavDrawerViewModel.class);
 		pluginViewModel = provider.get(PluginViewModel.class);
 
-		if (IS_DEBUG_BUILD && (FLAVOR != "screenshot")) {
+		BriarApplication app = (BriarApplication) getApplication();
+		if (IS_DEBUG_BUILD && !app.isInstrumentationTest()) {
 			navDrawerViewModel.showExpiryWarning()
 					.observe(this, this::showExpiryWarning);
 		}

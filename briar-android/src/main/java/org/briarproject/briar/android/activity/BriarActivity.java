@@ -10,6 +10,7 @@ import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
 import org.briarproject.bramble.api.system.AndroidWakeLockManager;
 import org.briarproject.bramble.api.system.Wakeful;
 import org.briarproject.briar.R;
+import org.briarproject.briar.android.BriarApplication;
 import org.briarproject.briar.android.account.UnlockActivity;
 import org.briarproject.briar.android.controller.BriarController;
 import org.briarproject.briar.android.controller.DbController;
@@ -236,7 +237,8 @@ public abstract class BriarActivity extends BaseActivity {
 		if (SDK_INT >= 21) finishAndRemoveTask();
 		else supportFinishAfterTransition();
 		LOG.info("Exiting");
-		System.exit(0);
+		BriarApplication app = (BriarApplication) getApplication();
+		if (!app.isInstrumentationTest()) System.exit(0);
 	}
 
 	@Deprecated

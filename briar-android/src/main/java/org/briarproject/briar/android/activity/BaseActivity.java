@@ -44,7 +44,6 @@ import static androidx.lifecycle.Lifecycle.State.STARTED;
 import static java.util.Collections.emptyList;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Logger.getLogger;
-import static org.briarproject.briar.BuildConfig.FLAVOR;
 import static org.briarproject.briar.android.TestingConstants.PREVENT_SCREENSHOTS;
 import static org.briarproject.briar.android.util.UiUtils.hideSoftKeyboard;
 
@@ -194,7 +193,9 @@ public abstract class BaseActivity extends AppCompatActivity
 	}
 
 	private boolean showScreenFilterWarning() {
-		if (FLAVOR == "screenshot") return false;
+		if (((BriarApplication) getApplication()).isInstrumentationTest()) {
+			return false;
+		}
 		// If the dialog is already visible, filter the tap
 		ScreenFilterDialogFragment f = findDialogFragment();
 		if (f != null && f.isVisible()) return false;

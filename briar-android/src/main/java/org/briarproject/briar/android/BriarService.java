@@ -301,7 +301,9 @@ public class BriarService extends Service {
 					LOG.info("Interrupted while waiting for shutdown");
 				}
 				LOG.info("Exiting");
-				System.exit(0);
+				if (!app.isInstrumentationTest()) {
+					System.exit(0);
+				}
 			}, "BackgroundShutdown");
 		}, "BackgroundShutdown");
 	}
