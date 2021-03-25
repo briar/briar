@@ -15,6 +15,7 @@ import org.briarproject.briar.android.logging.BriefLogFormatter;
 import org.briarproject.briar.android.logging.CachingLogHandler;
 import org.briarproject.briar.android.logging.LogDecrypter;
 import org.briarproject.briar.android.reporting.ReportData.MultiReportInfo;
+import org.briarproject.briar.android.reporting.ReportData.ReportItem;
 import org.briarproject.briar.android.viewmodel.LiveEvent;
 import org.briarproject.briar.android.viewmodel.MutableLiveEvent;
 import org.json.JSONException;
@@ -156,7 +157,8 @@ class ReportViewModel extends AndroidViewModel {
 			MultiReportInfo userInfo = new MultiReportInfo();
 			if (!isNullOrEmpty(comment)) userInfo.add("Comment", comment);
 			if (!isNullOrEmpty(email)) userInfo.add("Email", email);
-			data.add(new ReportData.ReportItem("UserInfo", 0, userInfo, false));
+			data.add(new ReportItem("UserInfo", R.string.dev_report_user_info,
+					userInfo, false));
 		}
 
 		// check the state of the TorPlugin, if this is feedback

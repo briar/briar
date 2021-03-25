@@ -51,15 +51,15 @@ class ReportData {
 		final boolean isOptional;
 		boolean isIncluded = true;
 
-		ReportItem(String name, int nameRes, ReportInfo info) {
+		ReportItem(String name, @StringRes int nameRes, ReportInfo info) {
 			this(name, nameRes, info, true);
 		}
 
-		ReportItem(String name, int nameRes, String info) {
+		ReportItem(String name, @StringRes int nameRes, String info) {
 			this(name, nameRes, new SingleReportInfo(info), true);
 		}
 
-		ReportItem(String name, int nameRes, ReportInfo info,
+		ReportItem(String name, @StringRes int nameRes, ReportInfo info,
 				boolean isOptional) {
 			this.name = name;
 			this.nameRes = nameRes;

@@ -573,6 +573,7 @@
 	<string name="optional_contact_email">Your email address (optional)</string>
 	<string name="include_debug_report_crash">Include anonymous data about the crash</string>
 	<string name="include_debug_report_feedback">Include anonymous data about this device</string>
+	<string name="dev_report_user_info">User information</string>
 	<string name="dev_report_basic_info">Basic information</string>
 	<string name="dev_report_device_info">Device information</string>
 	<string name="dev_report_stacktrace">Stacktrace</string>
