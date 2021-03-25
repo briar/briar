@@ -47,7 +47,7 @@
   </plurals>
   <string name="expiry_date_reached">תוכנה זו פגה.\nתודה על הבדיקה!</string>
   <string name="download_briar">כדי להמשיך להשתמש ב־Briar, אנא הורד את השחרור האחרון.</string>
-  <string name="create_new_account">תיצטרך ליצור חשבון חדש, אבל אתה יכול להשתמש באותו כינוי.</string>
+  <string name="create_new_account">יהיה צריך ליצור חשבון חדש, אבל אפשר להשתמש באותו הכינוי.</string>
   <string name="download_briar_button">הורד שחרור אחרון</string>
   <string name="startup_open_database">מפענח מסד נתונים…</string>
   <string name="startup_migrate_database">משדרג מסד נתונים…</string>
@@ -77,14 +77,14 @@
   <string name="tor_plugin_status_disabled_battery">Briar מתוצר לא להשתמש באינטרנט בעת הרצה על סוללה</string>
   <string name="tor_plugin_status_disabled_country_blocked">Briar מתוצר לא להשתמש באינטרנט במדינה זו</string>
   <!--Transports: Wi-Fi-->
-  <string name="transport_lan">Wi-Fi</string>
-  <string name="transport_lan_long">אותה רשת Wi-Fi</string>
-  <string name="lan_device_status_on">הטלפון שלך מחובר אל Wi-Fi</string>
-  <string name="lan_device_status_off">הטלפון שלך אינו מחובר אל Wi-Fi</string>
-  <string name="lan_plugin_status_enabling">Briar מתחבר אל רשת ה־Wi-Fi</string>
-  <string name="lan_plugin_status_active">Briar מחובר אל רשת ה־Wi-Fi</string>
-  <string name="lan_plugin_status_inactive">Briar אינו יכול להתחבר אל רשת ה־Wi-Fi</string>
-  <string name="lan_plugin_status_disabled">Briar מתוצר לא להשתמש ברשת ה־Wi-Fi</string>
+  <string name="transport_lan">רשת אלחוטית</string>
+  <string name="transport_lan_long">אותה הרשת האלחוטית</string>
+  <string name="lan_device_status_on">הטלפון שלך מחובר לרשת אלחוטית</string>
+  <string name="lan_device_status_off">הטלפון שלך אינו מחובר לרשת האלחוטית</string>
+  <string name="lan_plugin_status_enabling">Briar מתחבר לרשת האלחוטית</string>
+  <string name="lan_plugin_status_active">Briar מחובר לרשת האלחוטית</string>
+  <string name="lan_plugin_status_inactive">אין באפשרות Briar להתחבר לרשת האלחוטית</string>
+  <string name="lan_plugin_status_disabled">Briar מוגדר לא להשתמש ברשת האלחוטית</string>
   <!--Transports: Bluetooth-->
   <string name="transport_bt">Bluetooth</string>
   <string name="bt_device_status_on">Bluetooth של הטלפון שלך מופעל</string>
@@ -143,7 +143,7 @@
   <string name="no_data">אין נתונים</string>
   <string name="ellipsis">…</string>
   <string name="text_too_long">הטקסט המוכנס ארוך מדי</string>
-  <string name="show_onboarding">הראה דו־שיח עזרה</string>
+  <string name="show_onboarding">הצגת דו־שיח עזרה</string>
   <string name="fix">תקן</string>
   <string name="help">עזרה</string>
   <string name="sorry">עמך הסליחה</string>
@@ -164,29 +164,29 @@
   <string name="set_contact_alias_hint">שם איש הקשר</string>
   <string name="delete_all_messages">מחיקת כל ההודעות</string>
   <string name="dialog_title_delete_all_messages">אשר מחיקת הודעה</string>
-  <string name="dialog_message_delete_all_messages">האם אתה בטוח שאתה רוצה למחוק את כל ההודעות?</string>
+  <string name="dialog_message_delete_all_messages">האם אכן ברצונך למחוק את כל ההודעות?</string>
   <string name="dialog_title_not_all_messages_deleted">לא היה ניתן למחוק את כל ההודעות</string>
   <string name="dialog_message_not_deleted_ongoing_both">הודעות שקשורות אל הזמנות והיכרויות מתמשכות אינן יכולות להימחק עד שההיכרויות או ההזמנות יסוימו.</string>
   <string name="dialog_message_not_deleted_ongoing_introductions">הודעות שקשורות אל היכרויות מתמשכות אינן יכולות להימחק עד שהההיכרויות יסוימו.</string>
   <string name="dialog_message_not_deleted_ongoing_invitations">הודעות שקשורות אל הזמנות מתמשכות אינן יכולות להימחק עד שההזמנות יסוימו.</string>
   <string name="dialog_message_not_deleted_partly_downloaded">הודעות שירדו חלקית אינן יכולות להימחק עד שהן יסיימו לרדת.</string>
-  <string name="dialog_message_not_deleted_not_all_selected_both">כדי למחוק הזמנה או היכרות, אתה צריך לבחור את הבקשה והתגובה.</string>
-  <string name="dialog_message_not_deleted_not_all_selected_introductions">כדי למחוק את ההיכרות, אתה צריך לבחור את הבקשה והתגובה.</string>
-  <string name="dialog_message_not_deleted_not_all_selected_invitations">כדי למחוק את ההזמנה, אתה צריך לבחור את הבקשה והתגובה.</string>
+  <string name="dialog_message_not_deleted_not_all_selected_both">כדי למחוק הזמנה או היכרות, צריך לבחור את הבקשה והתגובה.</string>
+  <string name="dialog_message_not_deleted_not_all_selected_introductions">כדי למחוק את ההיכרות, צריך לבחור את הבקשה והתגובה.</string>
+  <string name="dialog_message_not_deleted_not_all_selected_invitations">כדי למחוק את ההזמנה, צריך לבחור את הבקשה והתגובה.</string>
   <string name="delete_contact">מחק איש קשר</string>
   <string name="dialog_title_delete_contact">אשר מחיקת איש קשר</string>
-  <string name="dialog_message_delete_contact">האם אתה בטוח שאתה רוצה למחוק איש קשר זה ואת כל ההודעות שהוחלפו עם איש קשר זה?</string>
+  <string name="dialog_message_delete_contact">האם אכן ברצונך למחוק איש קשר זה ואת כל ההודעות שהוחלפו עם איש קשר זה?</string>
   <string name="contact_deleted_toast">איש קשר נמחק</string>
   <!--This is shown in the action bar when opening an image in fullscreen that the user sent-->
   <string name="you">את/ה</string>
   <string name="save_image">שמור תמונה</string>
   <string name="dialog_title_save_image">לשמור את התמונה?</string>
-  <string name="dialog_message_save_image">שמירת תמונה זו תאפשר ליישומים להשיג גישה אל התמונה.\n\nהאם אתה בטוח שאתה רוצה לשמור?</string>
+  <string name="dialog_message_save_image">שמירת תמונה זו תאפשר ליישומים אחרים לגשת אליה.\n\nהאם אכן ברצונך לשמור?</string>
   <string name="save_image_success">התמונה נשמרה</string>
   <string name="save_image_error">לא היה ניתן לשמור תמונה</string>
   <string name="dialog_title_no_image_support">תמונות בלתי זמינות</string>
   <string name="dialog_message_no_image_support">Briar של איש הקשר שלך אינו תומך בצרופות תמונה. ברגע שהוא ישדרג, תראה צלמית שונה.</string>
-  <string name="dialog_title_image_support">אתה יכול כעת לשלוח תמונות אל איש קשר זה</string>
+  <string name="dialog_title_image_support">כעת אפשר לשלוח תמונות אל איש קשר זה</string>
   <string name="dialog_message_image_support">הקש על צלמית זו כדי לצרף תמונות.</string>
   <string name="messaging_too_many_attachments_toast">רק %d התמונות הראשונות יישלחו</string>
   <!--Adding Contacts-->
@@ -219,8 +219,8 @@
   <string name="send_link_title">החלף קישורים</string>
   <string name="add_contact_choose_nickname">בחר כינוי</string>
   <string name="add_contact_choose_a_nickname">הכנס כינוי</string>
-  <string name="nickname_intro">תן כינוי אל איש הקשר שלך. רק אתה יכול לראות אותו.</string>
-  <string name="your_link">תן את הקישור הזה לאיש הקשר שאתה רוצה להוסיף</string>
+  <string name="nickname_intro">יש לתת את הכינוי לאיש הקשר שלך. רק את/ה יכול/ה לראות אותו.</string>
+  <string name="your_link">יש לתת את הקישור הזה לאיש הקשר שברצונך להוסיף</string>
   <string name="link_clip_label">קישור Briar</string>
   <string name="link_copied_toast">קישור הועתק</string>
   <string name="adding_contact_error">הייתה שגיאה בהוספת איש הקשר.</string>
@@ -237,7 +237,7 @@
   <string name="nickname_missing">אנא הכנס כינוי</string>
   <string name="invalid_link">קישור בלתי תקף</string>
   <string name="unsupported_link">קישור זה מגיע מגרסה חדשה יותר של Briar. אנא שדרג אל הגרסה האחרונה ונסה שוב.</string>
-  <string name="intent_own_link">פתחת את הקישור של עצמך. השתמש באחד של איש הקשר שאתה רוצה להוסיף!</string>
+  <string name="intent_own_link">פתחת את הקישור של עצמך. יש להשתמש בקישור של איש הקשר שברצונך להוסיף!</string>
   <string name="missing_link">אנא הכנס קישור</string>
   <!--This is a numeral indicating the first step in a series of screens-->
   <string name="step_1">1</string>
@@ -267,7 +267,7 @@
   <string name="pending_contact_updated_toast">איש קשר ממתין עודכן</string>
   <!--Introductions-->
   <string name="introduction_onboarding_title">הכר בין אנשי הקשר שלך</string>
-  <string name="introduction_onboarding_text">אתה יכול להכיר בין אנשי הקשר שלך אחד עם השני, כך שהם לא צריכים להיפגש פנים מול פנים כדי להתחבר ב־Briar.</string>
+  <string name="introduction_onboarding_text">אפשר להכיר בין אנשי הקשר שלך אחד עם השני, כך שהם לא צריכים להיפגש פנים מול פנים כדי להתחבר ב־Briar.</string>
   <string name="introduction_menu_item">בצע היכרות</string>
   <string name="introduction_activity_title">בחר איש קשר</string>
   <string name="introduction_not_possible">יש לך כבר היכרות אחת בתהליך עם אנשי קשר אלו. אנא התר לה תחילה לסיים. אם אתה או אנשי הקשר שלך לעיתים נדירות מחוברים, זה עשוי לקחת זמן מה.</string>
@@ -278,7 +278,7 @@
   <string name="introduction_error">הייתה שגיאה בעת ביצוע ההיכרות.</string>
   <string name="introduction_request_sent">ביקשת להכיר את %1$s בפני %2$s.</string>
   <string name="introduction_request_received">%1$s ביקש להכיר אותך בפני %2$s. האם אתה רוצה להוסיף את %2$s אל רשימת אנשי הקשר שלך?</string>
-  <string name="introduction_request_exists_received">%1$s ביקש להכיר אותך בפני %2$s, אבל %2$s כבר ברשימת אנשי הקשר שלך. מאחר ש%1$s כנראה לא יודע זאת, אתה עדיין יכול להגיב:</string>
+  <string name="introduction_request_exists_received">%1$s ביקש להכיר אותך בפני %2$s, אבל %2$s כבר ברשימת אנשי הקשר שלך. מאחר שכנראה %1$s לא יודע זאת, עדיין אפשר להגיב:</string>
   <string name="introduction_request_answered_received">%1$s ביקש להכיר אותך בפני %2$s.</string>
   <string name="introduction_response_accepted_sent">הסכמת אל ההיכרות בפני %1$s.</string>
   <string name="introduction_response_accepted_sent_info">בטרם %1$s יוכל להתווסף אל אנשי הקשר שלך, הוא צריך לקבל את ההיכרות בנוסף. זה עשוי לקחת זמן מה.</string>
@@ -312,13 +312,13 @@
   <string name="groups_member_joined">%s הצטרף אל הקבוצה</string>
   <string name="groups_leave">עזוב קבוצה</string>
   <string name="groups_leave_dialog_title">אשר עזיבת קבוצה</string>
-  <string name="groups_leave_dialog_message">האם אתה בטוח שאתה רוצה לעזוב קבוצה זו?</string>
+  <string name="groups_leave_dialog_message">האם אכן ברצונך לעזוב קבוצה זו?</string>
   <string name="groups_dissolve">פרק קבוצה</string>
   <string name="groups_dissolve_dialog_title">אשר פירוק קבוצה</string>
-  <string name="groups_dissolve_dialog_message">האם אתה בטוח שאתה רוצה לפרק את הקבוצה הזאתו?\n\nכל חברי הקבוצה האחרים לא יוכלו להמשיך בשיחתם וכנראה לא יקבלו את ההודעות האחרונות.</string>
+  <string name="groups_dissolve_dialog_message">האם אכן ברצונך לפרק את הקבוצה הזאת?\n\nכל חברי הקבוצה האחרים לא יוכלו להמשיך בשיחתם וכנראה לא יקבלו את ההודעות האחרונות.</string>
   <string name="groups_dissolve_button">פרק</string>
   <string name="groups_dissolved_dialog_title">הקבוצה פורקה</string>
-  <string name="groups_dissolved_dialog_message">היוצר של הקבוצה הזאת פירק אותה.\n\nאתה לא יכול עוד לכתוב הודעות אל הקבוצה וכנראה שלא תקבל את כל הרשומות שנכתבו.</string>
+  <string name="groups_dissolved_dialog_message">היוצר של הקבוצה הזאת פירק אותה.\n\nאי אפשר לכתוב הודעות לקבוצה יותר וכנראה שלא ייתקבלו כל הרשומות שנכתבו.</string>
   <!--Private Group Invitations-->
   <string name="groups_invitations_title">הזמנות לקבוצה</string>
   <string name="groups_invitations_invitation_sent">הזמנת את %1$s להצטרף אל הקבוצה \"%2$s\".</string>
@@ -365,7 +365,7 @@
   <string name="btn_reply">השב</string>
   <string name="forum_leave">עזוב פורום</string>
   <string name="dialog_title_leave_forum">אשר עזיבת פורום</string>
-  <string name="dialog_message_leave_forum">האם אתה בטוח שאתה רוצה לעזוב פורום זה?\n\nאנשי קשר כלשהם ששיתפת איתם פורום זה עשויים להפסיק לקבל עדכונים.</string>
+  <string name="dialog_message_leave_forum">האם אכן ברצונך לעזוב פורום זה?\n\nכל אנשי הקשר ששיתפת איתם פורום זה עשויים להפסיק לקבל עדכונים.</string>
   <string name="dialog_button_leave">עזיבה</string>
   <string name="forum_left_toast">עזב פורום</string>
   <!--Forum Sharing-->
@@ -466,7 +466,7 @@
   <!--Settings Connections-->
   <string name="network_settings_title">חיבורים</string>
   <string name="bluetooth_setting">התחבר אל אנשי קשר באמצעות Bluetooth</string>
-  <string name="wifi_setting">התחבר אל אנשי קשר באותה רשת Wi-Fi</string>
+  <string name="wifi_setting">התחבר אל אנשי קשר באותה הרשת האלחוטית</string>
   <string name="tor_enable_title">התחבר אל אנשי קשר באמצעות האינטרנט</string>
   <string name="tor_enable_summary">כל החיבורים עוברים דרך רשת Tor למען פרטיות</string>
   <string name="tor_network_setting">שיטת חיבור עבור רשת Tor</string>
@@ -545,8 +545,8 @@
   <string name="send_feedback">שלח משוב</string>
   <!--Link Warning-->
   <string name="link_warning_title">אזהרת קישור</string>
-  <string name="link_warning_intro">אתה עומד לפתוח את הקישור הבא עם יישום חיצוני.</string>
-  <string name="link_warning_text">זה יכול לשמש כדי לזהות אותך. חשוב על האם אתה בוטח באיש ששלח לך קישור זה ושקול לפתוח את הקישור עם דפדפן Tor.</string>
+  <string name="link_warning_intro">הקישור הבא עומד להיפתח עם יישום חיצוני.</string>
+  <string name="link_warning_text">זה יכול לשמש כדי לזהות אותך. נא לחשוב האם הנך בוטח/ת באיש ששלח לך את הקישור הזה ולשקול לפתוח את הקישור עם דפדפן Tor.</string>
   <string name="link_warning_open_link">פתח קישור</string>
   <!--Crash Reporter-->
   <string name="crash_report_title">דוח קריסת Briar</string>
@@ -603,7 +603,7 @@
   <string name="lock_is_locked">Briar נעול</string>
   <string name="lock_tap_to_unlock">הקשה תבטל את הנעילה</string>
   <!--Connections Screen-->
-  <string name="transports_help_text">Briar יכול להתחבר אל אנשי הקשר שלך באמצעות האינטרנט, Wi-Fi או Bluetooth.\n\nכל חיבורי האינטרנט עוברים דרך רשת Tor למען פרטיות.\n\nאם איש קשר ניתן להשגה באמצעות שיטות רבות, Briar משתמש בהן במקביל.</string>
+  <string name="transports_help_text">Briar יכול להתחבר אל אנשי הקשר שלך באמצעות האינטרנט, הרשת האלחוטית או Bluetooth.\n\nכל חיבורי האינטרנט עוברים דרך רשת Tor למען פרטיות.\n\nאם איש קשר ניתן להשגה באמצעות שיטות רבות, Briar משתמש בהן במקביל.</string>
   <!--Screenshots-->
   <!--This is a name to be used in screenshots. Feel free to change it to a local name.-->
   <string name="screenshot_alice">נועה</string>
@@ -616,5 +616,5 @@
   <!--This is a message to be used in screenshots. Please use the same translation for Alice!-->
   <string name="screenshot_message_2">היי נועה! תודה שסיפרת לי על Briar!</string>
   <!--This is a message to be used in screenshots.-->
-  <string name="screenshot_message_3">על לא דבר, אני מקווה שאתה אוהב אותו 😀</string>
+  <string name="screenshot_message_3">על לא דבר, מקווה שאתה אוהב אותו 😀</string>
 </resources>

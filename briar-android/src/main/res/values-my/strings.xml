@@ -394,8 +394,10 @@
   <string name="blogs_sharing_invitations_title">လော့ဂ်သို့ ဖိတ်ခေါ်မှုများ</string>
   <string name="blogs_sharing_joined_toast">ဗလော့ဂ်စီသို့ စာရင်းသွင်းထား</string>
   <string name="blogs_sharing_declined_toast">ဖိတ်ကြားမှု ငြင်းဆိုခဲ့သည်</string>
+  <string name="sharing_status_blog">ဗလော့ဂ်စီသို့ စာရင်းသွင်းထားသူသည် ၎င်းတို့၏ အဆက်အသွယ်များဖြင့် မျှဝေလို့ရပါသည်။ သင်သည် အောက်ပါအဆက်အသွယ်များဖြင့် ဤဗလော့ဂ်အား မျှဝေထားနေပါသည်။ သင်မမြင်နိုင်သော အခြား စာရင်းသွင်းထားသူများလည်း ရှိနိုင်ပါသည်။</string>
   <!--RSS Feeds-->
   <string name="blogs_rss_feeds_import_button">တင်သွင်းမယ်</string>
+  <string name="blogs_rss_feeds_import_error">ဝမ်းနည်းပါသည်! သင့် သတင်းပို့စ်စာမျက်နှာအား တင်သွင်းရာတွင် ပျက်ကွက်မှု ဖြစ်ခဲ့ပါသည်။</string>
   <string name="blogs_rss_feeds_manage_imported">တင်သွင်းထားသော</string>
   <string name="blogs_rss_feeds_manage_author">စာရေးဆရာ -</string>
   <string name="blogs_rss_feeds_manage_updated">နောက်ဆုံးအပ်ဒိတ်လုပ်ခဲ့ခြင်း -</string>
@@ -403,9 +405,13 @@
   <string name="blogs_rss_remove_feed_ok">ဖယ်ရှားမယ်</string>
   <string name="blogs_rss_feeds_manage_empty_state">RSS သတင်းများပြရန် မရှိပါ \n\n + (အပေါင်းအိုင်ကွန်) အားနှိပ်၍ သတင်းများ တင်သွင်းပါ</string>
   <!--Settings Profile Picture-->
+  <string name="change_profile_picture">နှိပ်၍ သင့် ပရိုဖိုင်းပုံ ပြောင်းလဲပါ</string>
+  <string name="dialog_confirm_profile_picture_title">ပရိုဖိုင်းပုံ ပြောင်းလဲမယ်</string>
   <string name="dialog_confirm_profile_picture_remark">သင့် အဆက်အသွယ်များသည် ဤရုပ်ပုံကို တွေ့မြင်ရပါသည်</string>
+  <string name="change_profile_picture_failed_message">ဝမ်းနည်းပါသည်၊ သင့် ပရိုဖိုင်းပုံကို အပ်ဒိတ်ပြုလုပ်တုန်း တစ်ခုခု မှားယွင်းသွားပါသည်။</string>
   <!--Settings Display-->
   <string name="pref_language_title">ဘာသာစကား &amp; ဒေသ</string>
+  <string name="pref_language_changed">ဘရိုင်ယာအား ပြန်လည်စတင်လျှင် ဤအပြင်အဆင်သည် အကျိုးသက်ရောက်ပါမည်။ အကောင့်မှ ထွက်ခွာ၍ ဘရိုင်ယာအား ပြန်လည်စတင်ပေးပါ။</string>
   <string name="pref_language_default">နဂိုမူလ စနစ်</string>
   <string name="display_settings_title">ရုပ်ထင်မှန်သား</string>
   <string name="pref_theme_title">ပြသမှုဆောင်ပုဒ်</string>
@@ -430,6 +436,7 @@
   <!--Settings Security and Panic-->
   <string name="security_settings_title">လုံခြုံရေး</string>
   <string name="pref_lock_title">အပ္ပလီကေးရှင်း သော့</string>
+  <string name="pref_lock_disabled_summary">ဤအင်္ဂါရပ်အားသုံးရန် သင့်စက်အတွက် စကင်သော့တပ်ဆင်ပေးပါ</string>
   <!--The %s placeholder is replaced with the following time spans, e.g. 5 Minutes, 1 Hour-->
   <!--Will be shown in a list of lock times. Should fit into the %s of "automatically lock it after %s"-->
   <string name="pref_lock_timeout_1">၁ မိနစ်</string>
@@ -542,6 +549,7 @@
   <string name="lock_is_locked">ဘရိုင်ယာ အားသော့ခတ်ထားပါသည်</string>
   <string name="lock_tap_to_unlock">နှိပ်၍ သော့ဖွင့်မယ်</string>
   <!--Connections Screen-->
+  <string name="transports_help_text">ဘရိုင်ယာသည် သင့်အဆက်အသွယ်များကို အင်တာနက်၊ ဝိုင်ဖိုင်၊ သို့မဟုတ် ဘလူးတုသ် မှတစ်ဆင့် ချိတ်ဆက်နိုင်ပါသည်။ \n\n အင်တာနက်ချိတ်ဆက်မှုအားလုံးသည် လုံခြုံရေးအတွက် Tor ကွန်ယက်မှတစ်ဆင့် ဖြတ်သန်းပါသည်။ \n\n အဆက်အသွယ်တစ်ခုအား နည်းမျိုးစုံနှင့် ဆက်သွယ်နိုင်ခဲ့လျှင် ဘရိုင်ယာသည် နည်းမျိုးစုံအား တစ်ပြိုင်နက်တည်း အသုံးပြုနေပါသည်။</string>
   <!--Screenshots-->
   <!--This is a name to be used in screenshots. Feel free to change it to a local name.-->
   <string name="screenshot_alice">Alice</string>
