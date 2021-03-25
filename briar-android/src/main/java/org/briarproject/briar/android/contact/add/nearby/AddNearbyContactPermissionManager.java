@@ -19,7 +19,7 @@ import static androidx.core.app.ActivityCompat.shouldShowRequestPermissionRation
 import static androidx.core.content.ContextCompat.checkSelfPermission;
 import static org.briarproject.briar.android.util.UiUtils.getGoToSettingsListener;
 
-class AddNearbyContactPermissionManager {
+public class AddNearbyContactPermissionManager {
 
 	private enum Permission {
 		UNKNOWN, GRANTED, SHOW_RATIONALE, PERMANENTLY_DENIED
@@ -32,7 +32,7 @@ class AddNearbyContactPermissionManager {
 	private final Consumer<String[]> requestPermissions;
 	private final boolean isBluetoothSupported;
 
-	AddNearbyContactPermissionManager(BaseActivity ctx,
+	public AddNearbyContactPermissionManager(BaseActivity ctx,
 			Consumer<String[]> requestPermissions,
 			boolean isBluetoothSupported) {
 		this.ctx = ctx;
@@ -40,12 +40,12 @@ class AddNearbyContactPermissionManager {
 		this.isBluetoothSupported = isBluetoothSupported;
 	}
 
-	void resetPermissions() {
+	public void resetPermissions() {
 		cameraPermission = Permission.UNKNOWN;
 		locationPermission = Permission.UNKNOWN;
 	}
 
-	static boolean areEssentialPermissionsGranted(Context ctx,
+	public static boolean areEssentialPermissionsGranted(Context ctx,
 			boolean isBluetoothSupported) {
 		int ok = PERMISSION_GRANTED;
 		return checkSelfPermission(ctx, CAMERA) == ok &&
@@ -60,7 +60,7 @@ class AddNearbyContactPermissionManager {
 						!isBluetoothSupported);
 	}
 
-	boolean checkPermissions() {
+    public boolean checkPermissions() {
 		if (areEssentialPermissionsGranted()) return true;
 		// If an essential permission has been permanently denied, ask the
 		// user to change the setting
@@ -123,7 +123,7 @@ class AddNearbyContactPermissionManager {
 		requestPermissions.accept(permissions);
 	}
 
-	void onRequestPermissionResult(Map<String, Boolean> result,
+	public void onRequestPermissionResult(Map<String, Boolean> result,
 			Runnable onPermissionsGranted) {
 		if (gotPermission(CAMERA, result)) {
 			cameraPermission = Permission.GRANTED;

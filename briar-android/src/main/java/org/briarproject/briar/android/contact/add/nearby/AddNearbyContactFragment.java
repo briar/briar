@@ -45,7 +45,7 @@ import static org.briarproject.bramble.util.LogUtils.logException;
 public class AddNearbyContactFragment extends BaseFragment
 		implements QrCodeView.FullscreenListener {
 
-	static final String TAG = AddNearbyContactFragment.class.getName();
+	public static final String TAG = AddNearbyContactFragment.class.getName();
 
 	private static final Logger LOG = Logger.getLogger(TAG);
 

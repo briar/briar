@@ -22,12 +22,12 @@ import static java.util.logging.Logger.getLogger;
 import static org.briarproject.bramble.util.LogUtils.logException;
 
 @NotNullByDefault
-class QrCodeUtils {
+public class QrCodeUtils {
 
 	private static final Logger LOG = getLogger(QrCodeUtils.class.getName());
 
 	@Nullable
-	static Bitmap createQrCode(DisplayMetrics dm, String input) {
+	public static Bitmap createQrCode(DisplayMetrics dm, String input) {
 		int smallestDimen = Math.min(dm.widthPixels, dm.heightPixels);
 		try {
 			// Generate QR code

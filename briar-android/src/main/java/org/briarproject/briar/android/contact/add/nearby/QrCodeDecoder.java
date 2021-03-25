@@ -32,7 +32,7 @@ import static java.util.logging.Logger.getLogger;
 
 @MethodsNotNullByDefault
 @ParametersNotNullByDefault
-class QrCodeDecoder implements PreviewConsumer, PreviewCallback {
+public class QrCodeDecoder implements PreviewConsumer, PreviewCallback {
 
 	private static final Logger LOG = getLogger(QrCodeDecoder.class.getName());
 
@@ -44,7 +44,7 @@ class QrCodeDecoder implements PreviewConsumer, PreviewCallback {
 	private Camera camera = null;
 	private int cameraIndex = 0;
 
-	QrCodeDecoder(AndroidExecutor androidExecutor,
+	public QrCodeDecoder(AndroidExecutor androidExecutor,
 			@IoExecutor Executor ioExecutor, ResultCallback callback) {
 		this.androidExecutor = androidExecutor;
 		this.ioExecutor = ioExecutor;
@@ -127,7 +127,7 @@ class QrCodeDecoder implements PreviewConsumer, PreviewCallback {
 	}
 
 	@NotNullByDefault
-	interface ResultCallback {
+	public interface ResultCallback {
 		@IoExecutor
 		void onQrCodeDecoded(Result result);
 	}
