@@ -26,24 +26,11 @@ public class OwnerRecoveryModeExplainerFragment extends BaseFragment {
 
 	private ReturnShardViewModel viewModel;
 
-	@Override
-	public void onCreate(@Nullable Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
-		requireActivity().setTitle(R.string.title_recovery_mode);
-	}
-
-	@Nullable
-	@Override
-	public View onCreateView(@NonNull LayoutInflater inflater,
-			@Nullable ViewGroup container,
-			@Nullable Bundle savedInstanceState) {
-		View view = inflater.inflate(R.layout.fragment_recovery_owner_explainer,
-				container, false);
-		Button button = view.findViewById(R.id.beginButton);
-		button.setOnClickListener(e -> viewModel.onContinueClicked());
-
-		return view;
-	}
+//	@Override
+//	public void onCreate(@Nullable Bundle savedInstanceState) {
+//		super.onCreate(savedInstanceState);
+//		requireActivity().setTitle(R.string.title_recovery_mode);
+//	}
 
 	@Override
 	public void injectFragment(ActivityComponent component) {
@@ -53,7 +40,20 @@ public class OwnerRecoveryModeExplainerFragment extends BaseFragment {
 	}
 
 	@Override
-	public String getUniqueTag() {
-		return TAG;
+	public String getUniqueTag() { return TAG; }
+
+	@Nullable
+	@Override
+	public View onCreateView(@NonNull LayoutInflater inflater,
+			@Nullable ViewGroup container,
+			@Nullable Bundle savedInstanceState) {
+		System.out.println("GOt here *************************************");
+		View view = inflater.inflate(R.layout.fragment_recovery_owner_explainer,
+				container, false);
+		Button button = view.findViewById(R.id.beginButton);
+		button.setOnClickListener(e -> viewModel.onContinueClicked());
+
+		return view;
 	}
+
 }

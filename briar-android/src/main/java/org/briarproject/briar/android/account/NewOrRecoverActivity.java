@@ -28,6 +28,7 @@ public class NewOrRecoverActivity extends BaseActivity implements
 	public void onCreate(Bundle state) {
 		super.onCreate(state);
 		// fade-in after splash screen instead of default animation
+		// TODO the fade in is not working
 		overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
 		setContentView(R.layout.activity_fragment_container);
 		NewOrRecoverFragment fragment = NewOrRecoverFragment.newInstance();

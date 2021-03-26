@@ -10,7 +10,7 @@ import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
 import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.activity.ActivityComponent;
-import org.briarproject.briar.android.activity.BriarActivity;
+import org.briarproject.briar.android.activity.BaseActivity;
 import org.briarproject.briar.android.contact.add.nearby.AddNearbyContactErrorFragment;
 import org.briarproject.briar.android.contact.add.nearby.AddNearbyContactFragment;
 import org.briarproject.briar.android.contact.add.nearby.AddNearbyContactPermissionManager;
@@ -24,25 +24,21 @@ import javax.inject.Inject;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
-import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.FragmentManager;
 import androidx.lifecycle.ViewModelProvider;
 
 import static android.bluetooth.BluetoothAdapter.ACTION_REQUEST_DISCOVERABLE;
 import static android.content.Intent.FLAG_ACTIVITY_CLEAR_TOP;
 import static android.widget.Toast.LENGTH_LONG;
-import static java.util.Objects.requireNonNull;
 import static java.util.logging.Logger.getLogger;
 
 @MethodsNotNullByDefault
 @ParametersNotNullByDefault
-public class ReturnShardActivity extends BriarActivity
+public class ReturnShardActivity extends BaseActivity
 		implements BaseFragment.BaseFragmentListener {
 
 	private static final Logger LOG =
-			getLogger(
-					org.briarproject.briar.android.contact.add.nearby.AddNearbyContactActivity.class
-							.getName());
+			getLogger(ReturnShardActivity.class.getName());
 
 	@Inject
 	ViewModelProvider.Factory viewModelFactory;
@@ -72,10 +68,8 @@ public class ReturnShardActivity extends BriarActivity
 	@Override
 	public void onCreate(@Nullable Bundle state) {
 		super.onCreate(state);
-		setContentView(R.layout.activity_fragment_container_toolbar);
-		Toolbar toolbar = findViewById(R.id.toolbar);
-		setSupportActionBar(toolbar);
-		requireNonNull(getSupportActionBar()).setDisplayHomeAsUpEnabled(true);
+
+		setContentView(R.layout.activity_fragment_container);
 		if (state == null) {
 			showInitialFragment(getExplainerFragment());
 		}
@@ -86,8 +80,6 @@ public class ReturnShardActivity extends BriarActivity
 		viewModel.getShowQrCodeFragment().observeEvent(this, show -> {
 			if (show) showQrCodeFragment();
 		});
-		requireNonNull(getSupportActionBar())
-				.setTitle(R.string.add_contact_title);
 		viewModel.getState()
 				.observe(this, this::onReturnShardStateChanged);
 	}
@@ -235,4 +227,9 @@ public class ReturnShardActivity extends BriarActivity
 		showNextFragment(new AddNearbyContactErrorFragment());
 	}
 
+	@Override
+	@Deprecated
+	public void runOnDbThread(Runnable runnable) {
+		throw new RuntimeException("Don't use this deprecated method here.");
+	}
 }
