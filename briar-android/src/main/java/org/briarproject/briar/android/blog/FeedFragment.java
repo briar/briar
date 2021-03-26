@@ -110,6 +110,7 @@ public class FeedFragment extends BaseFragment
 			} else if (wasLocal != null) {
 				showSnackBar(R.string.blogs_blog_post_received);
 			}
+			viewModel.resetLocalUpdate();
 			list.showData();
 		});
 	}
