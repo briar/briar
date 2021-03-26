@@ -243,10 +243,11 @@ class SettingsViewModel extends DbViewModel implements EventListener {
 		});
 	}
 
+	@AnyThread
 	private void onSetAvatarFailed() {
-		Toast.makeText(getApplication(),
-				R.string.change_profile_picture_failed_message,
-				LENGTH_LONG).show();
+		androidExecutor.runOnUiThread(() -> Toast.makeText(getApplication(),
+				R.string.change_profile_picture_failed_message, LENGTH_LONG)
+				.show());
 	}
 
 	LiveData<OwnIdentityInfo> getOwnIdentityInfo() {
