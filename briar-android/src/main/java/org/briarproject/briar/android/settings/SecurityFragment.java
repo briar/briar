@@ -75,19 +75,8 @@ public class SecurityFragment extends PreferenceFragmentCompat {
 			screenLock.setVisible(false);
 			screenLockTimeout.setVisible(false);
 		} else {
-			LifecycleOwner lifecycleOwner = getViewLifecycleOwner();
-			if (getActivity() != null && hasScreenLock(getActivity())) {
-				viewModel.getScreenLockEnabled().observe(lifecycleOwner, on -> {
-					screenLock.setChecked(on);
-					enableAndPersist(screenLock);
-				});
-				screenLock.setSummary(R.string.pref_lock_summary);
-			} else {
-				screenLock.setEnabled(false);
-				screenLock.setChecked(false);
-				screenLock.setSummary(R.string.pref_lock_disabled_summary);
-			}
 			// timeout depends on screenLock and gets disabled automatically
+			LifecycleOwner lifecycleOwner = getViewLifecycleOwner();
 			viewModel.getScreenLockTimeout().observe(lifecycleOwner, value -> {
 				screenLockTimeout.setValue(value);
 				enableAndPersist(screenLockTimeout);
@@ -99,6 +88,25 @@ public class SecurityFragment extends PreferenceFragmentCompat {
 	public void onStart() {
 		super.onStart();
 		requireActivity().setTitle(R.string.security_settings_title);
+		checkScreenLock();
+	}
+
+	private void checkScreenLock() {
+		if (SDK_INT < 21) return;
+		LifecycleOwner lifecycleOwner = getViewLifecycleOwner();
+		viewModel.getScreenLockEnabled().removeObservers(lifecycleOwner);
+		if (hasScreenLock(requireActivity())) {
+			viewModel.getScreenLockEnabled().observe(lifecycleOwner, on -> {
+				screenLock.setChecked(on);
+				enableAndPersist(screenLock);
+			});
+			screenLock.setSummary(R.string.pref_lock_summary);
+		} else {
+			screenLock.setEnabled(false);
+			screenLock.setPersistent(false);
+			screenLock.setChecked(false);
+			screenLock.setSummary(R.string.pref_lock_disabled_summary);
+		}
 	}
 
 }
