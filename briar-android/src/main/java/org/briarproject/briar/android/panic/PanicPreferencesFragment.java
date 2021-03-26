@@ -20,7 +20,7 @@ import javax.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.preference.ListPreference;
 import androidx.preference.PreferenceFragmentCompat;
-import androidx.preference.SwitchPreference;
+import androidx.preference.SwitchPreferenceCompat;
 import info.guardianproject.panic.PanicResponder;
 
 import static android.app.Activity.RESULT_CANCELED;
@@ -40,7 +40,7 @@ public class PanicPreferencesFragment extends PreferenceFragmentCompat
 			Logger.getLogger(PanicPreferencesFragment.class.getName());
 
 	private PackageManager pm;
-	private SwitchPreference lockPref, purgePref;
+	private SwitchPreferenceCompat lockPref, purgePref;
 	private ListPreference panicAppPref;
 
 	@Override
@@ -51,9 +51,9 @@ public class PanicPreferencesFragment extends PreferenceFragmentCompat
 	private void updatePreferences() {
 		pm = getActivity().getPackageManager();
 
-		lockPref = (SwitchPreference) findPreference(KEY_LOCK);
+		lockPref = (SwitchPreferenceCompat) findPreference(KEY_LOCK);
 		panicAppPref = (ListPreference) findPreference(KEY_PANIC_APP);
-		purgePref = (SwitchPreference) findPreference(KEY_PURGE);
+		purgePref = (SwitchPreferenceCompat) findPreference(KEY_PURGE);
 
 		// check for connect/disconnect intents from panic trigger apps
 		if (PanicResponder.checkForDisconnectIntent(getActivity())) {
