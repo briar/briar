@@ -191,7 +191,7 @@ public class BlogFragment extends BaseFragment
 	@Override
 	public void onBlogPostClick(BlogPostItem post) {
 		BlogPostFragment f =
-				BlogPostFragment.newInstance(groupId, post.getId(), false);
+				BlogPostFragment.newInstance(groupId, post.getId());
 		showNextFragment(f);
 	}
 

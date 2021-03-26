@@ -111,11 +111,11 @@ class BlogViewModel extends BaseViewModel {
 	 * Set this before calling any other methods.
 	 */
 	@UiThread
-	public void setGroupId(GroupId groupId) {
+	public void setGroupId(GroupId groupId, boolean loadAllPosts) {
 		if (this.groupId == groupId) return; // configuration change
 		this.groupId = groupId;
 		loadBlog(groupId);
-		loadBlogPosts(groupId);
+		if (loadAllPosts) loadBlogPosts(groupId);
 		loadSharingContacts(groupId);
 	}
 
