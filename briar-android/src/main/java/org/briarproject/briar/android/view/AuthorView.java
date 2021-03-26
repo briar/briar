@@ -135,9 +135,10 @@ public class AuthorView extends ConstraintLayout {
 	}
 
 	public void setAuthorNotClickable() {
-		setClickable(false);
-		setBackgroundResource(0);
 		setOnClickListener(null);
+		setClickable(false);
+		setFocusable(false);
+		setBackgroundResource(0);
 	}
 
 	/**

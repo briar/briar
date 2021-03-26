@@ -11,6 +11,7 @@ import android.view.ViewGroup;
 
 import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
 import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
+import org.briarproject.bramble.api.sync.GroupId;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.activity.ActivityComponent;
 import org.briarproject.briar.android.blog.BaseViewModel.ListUpdate;
@@ -29,6 +30,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import static android.content.Intent.FLAG_ACTIVITY_CLEAR_TOP;
 import static com.google.android.material.snackbar.Snackbar.LENGTH_LONG;
 import static org.briarproject.briar.android.activity.BriarActivity.GROUP_ID;
+import static org.briarproject.briar.android.blog.BlogPostFragment.POST_ID;
 
 @MethodsNotNullByDefault
 @ParametersNotNullByDefault
@@ -108,6 +110,7 @@ public class FeedFragment extends BaseFragment
 			} else if (wasLocal != null) {
 				showSnackBar(R.string.blogs_blog_post_received);
 			}
+			viewModel.resetLocalUpdate();
 			list.showData();
 		});
 	}
@@ -145,16 +148,14 @@ public class FeedFragment extends BaseFragment
 
 	@Override
 	public void onBlogPostClick(BlogPostItem post) {
-		BaseFragment f = BlogPostFragment
-				.newInstance(post.getGroupId(), post.getId(), true);
-		showNextFragment(f);
+		Intent i = getBlogActivityIntent(post.getGroupId());
+		i.putExtra(POST_ID, post.getId().getBytes());
+		requireContext().startActivity(i);
 	}
 
 	@Override
 	public void onAuthorClick(BlogPostItem post) {
-		Intent i = new Intent(requireContext(), BlogActivity.class);
-		i.putExtra(GROUP_ID, post.getGroupId().getBytes());
-		i.setFlags(FLAG_ACTIVITY_CLEAR_TOP);
+		Intent i = getBlogActivityIntent(post.getGroupId());
 		requireContext().startActivity(i);
 	}
 
@@ -167,6 +168,13 @@ public class FeedFragment extends BaseFragment
 	@Override
 	public String getUniqueTag() {
 		return TAG;
+	}
+
+	private Intent getBlogActivityIntent(GroupId groupId) {
+		Intent i = new Intent(requireContext(), BlogActivity.class);
+		i.putExtra(GROUP_ID, groupId.getBytes());
+		i.setFlags(FLAG_ACTIVITY_CLEAR_TOP);
+		return i;
 	}
 
 	private void showSnackBar(int stringRes) {

@@ -6,9 +6,11 @@ import android.os.Bundle;
 import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
 import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
 import org.briarproject.bramble.api.sync.GroupId;
+import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.activity.ActivityComponent;
 import org.briarproject.briar.android.activity.BriarActivity;
+import org.briarproject.briar.android.fragment.BaseFragment;
 import org.briarproject.briar.android.fragment.BaseFragment.BaseFragmentListener;
 import org.briarproject.briar.android.sharing.BlogSharingStatusActivity;
 
@@ -19,6 +21,7 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.lifecycle.ViewModelProvider;
 
 import static java.util.Objects.requireNonNull;
+import static org.briarproject.briar.android.blog.BlogPostFragment.POST_ID;
 
 @MethodsNotNullByDefault
 @ParametersNotNullByDefault
@@ -45,7 +48,10 @@ public class BlogActivity extends BriarActivity
 		Intent i = getIntent();
 		GroupId groupId =
 				new GroupId(requireNonNull(i.getByteArrayExtra(GROUP_ID)));
-		viewModel.setGroupId(groupId);
+		// Get post info from intent
+		@Nullable byte[] postId = i.getByteArrayExtra(POST_ID);
+
+		viewModel.setGroupId(groupId, postId == null);
 
 		setContentView(R.layout.activity_fragment_container_toolbar);
 		Toolbar toolbar = setUpCustomToolbar(false);
@@ -66,7 +72,14 @@ public class BlogActivity extends BriarActivity
 		);
 
 		if (state == null) {
-			showInitialFragment(BlogFragment.newInstance(groupId));
+			if (postId == null) {
+				showInitialFragment(BlogFragment.newInstance(groupId));
+			} else {
+				MessageId messageId = new MessageId(postId);
+				BaseFragment f =
+						BlogPostFragment.newInstance(groupId, messageId);
+				showInitialFragment(f);
+			}
 		}
 	}
 

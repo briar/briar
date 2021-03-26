@@ -38,7 +38,6 @@ import static android.widget.Toast.LENGTH_SHORT;
 import static com.google.android.material.snackbar.Snackbar.LENGTH_LONG;
 import static org.briarproject.briar.android.activity.BriarActivity.GROUP_ID;
 import static org.briarproject.briar.android.activity.RequestCodes.REQUEST_SHARE_BLOG;
-import static org.briarproject.briar.android.activity.RequestCodes.REQUEST_WRITE_BLOG_POST;
 
 @UiThread
 @MethodsNotNullByDefault
@@ -134,7 +133,7 @@ public class BlogFragment extends BaseFragment
 		if (itemId == R.id.action_write_blog_post) {
 			Intent i = new Intent(getActivity(), WriteBlogPostActivity.class);
 			i.putExtra(GROUP_ID, groupId.getBytes());
-			startActivityForResult(i, REQUEST_WRITE_BLOG_POST);
+			startActivity(i);
 			return true;
 		} else if (itemId == R.id.action_blog_share) {
 			Intent i = new Intent(getActivity(), ShareBlogActivity.class);
@@ -160,10 +159,7 @@ public class BlogFragment extends BaseFragment
 	public void onActivityResult(int request, int result,
 			@Nullable Intent data) {
 		super.onActivityResult(request, result, data);
-
-		if (request == REQUEST_WRITE_BLOG_POST && result == RESULT_OK) {
-			displaySnackbar(R.string.blogs_blog_post_created, true);
-		} else if (request == REQUEST_SHARE_BLOG && result == RESULT_OK) {
+		if (request == REQUEST_SHARE_BLOG && result == RESULT_OK) {
 			displaySnackbar(R.string.blogs_sharing_snackbar, false);
 		}
 	}
@@ -184,6 +180,7 @@ public class BlogFragment extends BaseFragment
 				displaySnackbar(R.string.blogs_blog_post_received,
 						true);
 			}
+			viewModel.resetLocalUpdate();
 			list.showData();
 		});
 	}
@@ -191,7 +188,7 @@ public class BlogFragment extends BaseFragment
 	@Override
 	public void onBlogPostClick(BlogPostItem post) {
 		BlogPostFragment f =
-				BlogPostFragment.newInstance(groupId, post.getId(), false);
+				BlogPostFragment.newInstance(groupId, post.getId());
 		showNextFragment(f);
 	}
 

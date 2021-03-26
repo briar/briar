@@ -176,10 +176,22 @@ abstract class BaseViewModel extends DbViewModel implements EventListener {
 		return result == null ? null : result.getItems();
 	}
 
+	/**
+	 * Call this after {@link ListUpdate#getPostAddedWasLocal()} was processed.
+	 * This prevents it from getting processed again.
+	 */
+	@UiThread
+	void resetLocalUpdate() {
+		LiveResult<ListUpdate> value = blogPosts.getValue();
+		if (value == null) return;
+		ListUpdate result = value.getResultOrNull();
+		result.postAddedWasLocal = null;
+	}
+
 	static class ListUpdate {
 
 		@Nullable
-		private final Boolean postAddedWasLocal;
+		private Boolean postAddedWasLocal;
 		private final List<BlogPostItem> items;
 
 		ListUpdate(@Nullable Boolean postAddedWasLocal,
