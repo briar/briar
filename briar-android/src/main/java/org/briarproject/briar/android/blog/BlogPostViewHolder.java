@@ -16,8 +16,6 @@ import org.briarproject.briar.android.view.AuthorView;
 import org.briarproject.briar.api.blog.BlogCommentHeader;
 import org.briarproject.briar.api.blog.BlogPostHeader;
 
-import javax.annotation.Nullable;
-
 import androidx.annotation.UiThread;
 import androidx.core.view.ViewCompat;
 import androidx.recyclerview.widget.RecyclerView;
@@ -81,14 +79,14 @@ class BlogPostViewHolder extends RecyclerView.ViewHolder {
 		return "blogPost" + id.hashCode();
 	}
 
-	void bindItem(@Nullable BlogPostItem item) {
-		if (item == null) return;
-
+	void bindItem(BlogPostItem item) {
 		setTransitionName(item.getId());
 		if (!fullText) {
 			layout.setClickable(true);
 			layout.setOnClickListener(v -> listener.onBlogPostClick(item));
 		}
+
+		boolean isReblog = item instanceof BlogCommentItem;
 
 		// author and date
 		BlogPostHeader post = item.getPostHeader();
@@ -97,7 +95,7 @@ class BlogPostViewHolder extends RecyclerView.ViewHolder {
 		author.setPersona(
 				item.isRssFeed() ? AuthorView.RSS_FEED : AuthorView.NORMAL);
 		// TODO make author clickable more often #624
-		if (authorClickable) {
+		if (authorClickable && !isReblog) {
 			author.setAuthorClickable(v -> listener.onAuthorClick(item));
 		} else {
 			author.setAuthorNotClickable();
@@ -126,19 +124,21 @@ class BlogPostViewHolder extends RecyclerView.ViewHolder {
 
 		// comments
 		commentContainer.removeAllViews();
-		if (item instanceof BlogCommentItem) {
-			onBindComment((BlogCommentItem) item);
+		if (isReblog) {
+			onBindComment((BlogCommentItem) item, authorClickable);
 		} else {
 			reblogger.setVisibility(GONE);
 		}
 	}
 
-	private void onBindComment(BlogCommentItem item) {
+	private void onBindComment(BlogCommentItem item, boolean authorClickable) {
 		// reblogger
 		reblogger.setAuthor(item.getAuthor(), item.getAuthorInfo());
 		reblogger.setDate(item.getTimestamp());
-		if (!fullText) {
+		if (authorClickable) {
 			reblogger.setAuthorClickable(v -> listener.onAuthorClick(item));
+		} else {
+			reblogger.setAuthorNotClickable();
 		}
 		reblogger.setVisibility(VISIBLE);
 		reblogger.setPersona(REBLOGGER);
