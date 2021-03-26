@@ -6,7 +6,7 @@ import org.briarproject.bramble.api.crypto.SecretKey;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 
 @NotNullByDefault
-interface ContactExchangeCrypto {
+public interface ContactExchangeCrypto {
 
 	/**
 	 * Derives the header key for a contact exchange stream from the master key.

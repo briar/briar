@@ -1,6 +1,6 @@
 package org.briarproject.bramble.contact;
 
-interface ContactExchangeConstants {
+public interface ContactExchangeConstants {
 
 	/**
 	 * The current version of the contact exchange protocol.
