@@ -536,6 +536,7 @@
   <string name="optional_contact_email">E-posta adresiniz (isteğe bağlı)</string>
   <string name="include_debug_report_crash">Çökme ile  ilgili anonim verileri ekle</string>
   <string name="include_debug_report_feedback">Bu aygıtla ilgili anonim verileri ekle</string>
+  <string name="dev_report_user_info">Kullanıcı bilgisi</string>
   <string name="dev_report_basic_info">Temel bilgi</string>
   <string name="dev_report_device_info">Aygıt bilgisi</string>
   <string name="dev_report_stacktrace">Yığın izleme</string>

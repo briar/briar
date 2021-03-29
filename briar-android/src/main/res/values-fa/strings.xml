@@ -467,6 +467,7 @@
   <!--Settings Profile Picture-->
   <string name="change_profile_picture">برای تغییر تصویر نمایه خود اینجا را لمس کنید.</string>
   <string name="dialog_confirm_profile_picture_title">تغییر تصویر نمایه</string>
+  <string name="dialog_confirm_profile_picture_remark">تنها مخاطبین شما می‌توانند این تصویر را مشاهده کنند.</string>
   <string name="change_profile_picture_failed_message">تاسفیم اما هنگام بروزرسانی تصویر نمایه شما مشکلی رخ داد.</string>
   <!--Settings Display-->
   <string name="pref_language_title">زبان و منطقه</string>
@@ -575,6 +576,7 @@
   <string name="optional_contact_email">آدرس ایمیل شما (اختیاری)</string>
   <string name="include_debug_report_crash">قرار دادن داده های ناشناس مربوط به خرابی</string>
   <string name="include_debug_report_feedback">قرار دادن داده های ناشناس درباره این دستگاه</string>
+  <string name="dev_report_user_info">اطلاعات کاربر</string>
   <string name="dev_report_basic_info">اطلاعات پایه</string>
   <string name="dev_report_device_info">اطلاعات دستگاه</string>
   <string name="dev_report_stacktrace">Stacktrace</string>

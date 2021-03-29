@@ -556,6 +556,7 @@
   <string name="optional_contact_email">Jūsų el. pašto adresas (nebūtina)</string>
   <string name="include_debug_report_crash">Įtraukti anoniminius duomenis apie strigtį</string>
   <string name="include_debug_report_feedback">Įtraukti anoniminius duomenis apie šį įrenginį</string>
+  <string name="dev_report_user_info">Naudotojo informacija</string>
   <string name="dev_report_basic_info">Pagrindinė informacija</string>
   <string name="dev_report_device_info">Įrenginio informacija</string>
   <string name="dev_report_stacktrace">Dėklo pėdsakas</string>

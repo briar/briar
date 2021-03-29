@@ -219,9 +219,9 @@
   <string name="copy_button">Копировать</string>
   <string name="share_button">Поделиться</string>
   <string name="send_link_title">Обмен ссылками</string>
-  <string name="add_contact_choose_nickname">Выберите ник</string>
-  <string name="add_contact_choose_a_nickname">Введите ник</string>
-  <string name="nickname_intro">Дайте вашему контакту ник. Увидеть его сможете только вы.</string>
+  <string name="add_contact_choose_nickname">Выберите псевдоним</string>
+  <string name="add_contact_choose_a_nickname">Введите псевдоним</string>
+  <string name="nickname_intro">Дайте вашему контакту псевдоним. Увидеть его сможете только вы.</string>
   <string name="your_link">Передайте эту ссылку контакту, который вы хотите добавить.</string>
   <string name="link_clip_label">Ссылка Briar</string>
   <string name="link_copied_toast">Ссылка скопирована</string>
@@ -236,7 +236,7 @@
   <string name="dialog_title_remove_pending_contact">Подтвердите удаление</string>
   <string name="dialog_message_remove_pending_contact">Этот контакт находится в процессе добавления. Если вы удалите его сейчас, он не будет добавлен.</string>
   <string name="own_link_error">Введите ссылку вашего контакта, а не свою</string>
-  <string name="nickname_missing">Пожалуйста, введите ник</string>
+  <string name="nickname_missing">Пожалуйста, введите псевдоним</string>
   <string name="invalid_link">Неправильная ссылка</string>
   <string name="unsupported_link">Эта ссылка из более новой версии Briar. Пожалуйста, обновитесь до последней версии и попробуйте снова.</string>
   <string name="intent_own_link">Вы открыли свою собственную ссылку. Используйте контакт, который вы хотите добавить!</string>
@@ -558,6 +558,7 @@
   <string name="optional_contact_email">Ваш адрес email (необязательно)</string>
   <string name="include_debug_report_crash">Включить анонимные данные о сбое</string>
   <string name="include_debug_report_feedback">Включить анонимные данные об этом устройстве</string>
+  <string name="dev_report_user_info">Информация о пользователе</string>
   <string name="dev_report_basic_info">Основная информация</string>
   <string name="dev_report_device_info">Информация об устройстве</string>
   <string name="dev_report_stacktrace">Трассировки стека</string>

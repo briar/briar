@@ -536,6 +536,7 @@
   <string name="optional_contact_email">Votre adresse courriel (facultative)</string>
   <string name="include_debug_report_crash">Inclure des données anonymes concernant le plantage</string>
   <string name="include_debug_report_feedback">Inclure des données anonymes concernant cet appareil</string>
+  <string name="dev_report_user_info">Renseignements sur l’utilisateur</string>
   <string name="dev_report_basic_info">Renseignements de base</string>
   <string name="dev_report_device_info">Renseignements sur l’appareil</string>
   <string name="dev_report_stacktrace">Trace d’appels</string>
