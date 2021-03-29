@@ -1,6 +1,8 @@
 package org.briarproject.briar.android.contact.add.nearby;
 
 import android.content.Context;
+import android.content.Intent;
+import android.location.LocationManager;
 
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.activity.BaseActivity;
@@ -15,6 +17,7 @@ import static android.Manifest.permission.ACCESS_FINE_LOCATION;
 import static android.Manifest.permission.CAMERA;
 import static android.content.pm.PackageManager.PERMISSION_GRANTED;
 import static android.os.Build.VERSION.SDK_INT;
+import static android.provider.Settings.ACTION_LOCATION_SOURCE_SETTINGS;
 import static androidx.core.app.ActivityCompat.shouldShowRequestPermissionRationale;
 import static androidx.core.content.ContextCompat.checkSelfPermission;
 import static org.briarproject.briar.android.util.UiUtils.getGoToSettingsListener;
@@ -45,6 +48,19 @@ class AddNearbyContactPermissionManager {
 		locationPermission = Permission.UNKNOWN;
 	}
 
+	/**
+	 * @return true if location is enabled,
+	 * or it isn't required due to this being a SDK < 28 device.
+	 */
+	static boolean isLocationEnabled(Context ctx) {
+		if (SDK_INT >= 28) {
+			LocationManager lm = ctx.getSystemService(LocationManager.class);
+			return lm.isLocationEnabled();
+		} else {
+			return true;
+		}
+	}
+
 	static boolean areEssentialPermissionsGranted(Context ctx,
 			boolean isBluetoothSupported) {
 		int ok = PERMISSION_GRANTED;
@@ -61,7 +77,8 @@ class AddNearbyContactPermissionManager {
 	}
 
 	boolean checkPermissions() {
-		if (areEssentialPermissionsGranted()) return true;
+		boolean locationEnabled = isLocationEnabled(ctx);
+		if (locationEnabled && areEssentialPermissionsGranted()) return true;
 		// If an essential permission has been permanently denied, ask the
 		// user to change the setting
 		if (cameraPermission == Permission.PERMANENTLY_DENIED) {
@@ -86,8 +103,10 @@ class AddNearbyContactPermissionManager {
 		} else if (locationPermission == Permission.SHOW_RATIONALE) {
 			showRationale(R.string.permission_location_title,
 					R.string.permission_location_request_body);
-		} else {
+		} else if (isLocationEnabled(ctx)) {
 			requestPermissions();
+		} else {
+			showLocationDialog(ctx);
 		}
 		return false;
 	}
@@ -110,6 +129,20 @@ class AddNearbyContactPermissionManager {
 		builder.setMessage(body);
 		builder.setNeutralButton(R.string.continue_button,
 				(dialog, which) -> requestPermissions());
+		builder.show();
+	}
+
+	private static void showLocationDialog(Context ctx) {
+		AlertDialog.Builder builder =
+				new AlertDialog.Builder(ctx, R.style.BriarDialogTheme);
+		builder.setTitle(R.string.permission_location_setting_title);
+		builder.setMessage(R.string.permission_location_setting_body);
+		builder.setNegativeButton(R.string.cancel, null);
+		builder.setPositiveButton(R.string.permission_location_setting_button,
+				(dialog, which) -> {
+					Intent i = new Intent(ACTION_LOCATION_SOURCE_SETTINGS);
+					ctx.startActivity(i);
+				});
 		builder.show();
 	}
 

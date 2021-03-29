@@ -83,6 +83,7 @@ import static org.briarproject.bramble.api.plugin.Plugin.State.INACTIVE;
 import static org.briarproject.bramble.api.plugin.Plugin.State.STARTING_STOPPING;
 import static org.briarproject.bramble.util.LogUtils.logException;
 import static org.briarproject.briar.android.contact.add.nearby.AddNearbyContactPermissionManager.areEssentialPermissionsGranted;
+import static org.briarproject.briar.android.contact.add.nearby.AddNearbyContactPermissionManager.isLocationEnabled;
 import static org.briarproject.briar.android.contact.add.nearby.AddNearbyContactViewModel.BluetoothDecision.REFUSED;
 import static org.briarproject.briar.android.contact.add.nearby.AddNearbyContactViewModel.BluetoothDecision.UNKNOWN;
 
@@ -365,7 +366,9 @@ class AddNearbyContactViewModel extends AndroidViewModel
 	void showQrCodeFragmentIfAllowed() {
 		boolean permissionsGranted = areEssentialPermissionsGranted(
 				getApplication(), isBluetoothSupported());
-		if (isActivityResumed && wasContinueClicked && permissionsGranted) {
+		boolean locationEnabled = isLocationEnabled(getApplication());
+		if (isActivityResumed && wasContinueClicked && permissionsGranted &&
+				locationEnabled) {
 			if (isWifiReady() && isBluetoothReady()) {
 				LOG.info("Wifi and Bluetooth are ready");
 				startAddingContact();

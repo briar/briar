@@ -609,6 +609,9 @@
 	<string name="permission_camera_location_request_body">To scan the QR code, Briar needs access to the camera.\n\nTo discover Bluetooth devices, Briar needs permission to access your location.\n\nBriar does not store your location or share it with anyone.</string>
 	<string name="permission_camera_denied_body">You have denied access to the camera, but adding contacts requires using the camera.\n\nPlease consider granting access.</string>
 	<string name="permission_location_denied_body">You have denied access to your location, but Briar needs this permission to discover Bluetooth devices.\n\nPlease consider granting access.</string>
+	<string name="permission_location_setting_title">Location setting</string>
+	<string name="permission_location_setting_body">Your device\'s location setting must be turned on to find other devices via Bluetooth. Please enable location to continue. You can disable it again afterwards.</string>
+	<string name="permission_location_setting_button">Enable location</string>
 	<string name="qr_code">QR code</string>
 	<string name="show_qr_code_fullscreen">Show QR code fullscreen</string>
 
