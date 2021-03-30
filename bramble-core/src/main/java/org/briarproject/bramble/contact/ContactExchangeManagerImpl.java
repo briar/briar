@@ -4,6 +4,7 @@ import org.briarproject.bramble.api.FormatException;
 import org.briarproject.bramble.api.Predicate;
 import org.briarproject.bramble.api.client.ClientHelper;
 import org.briarproject.bramble.api.contact.Contact;
+import org.briarproject.bramble.api.contact.ContactExchangeCrypto;
 import org.briarproject.bramble.api.contact.ContactExchangeManager;
 import org.briarproject.bramble.api.contact.ContactId;
 import org.briarproject.bramble.api.contact.ContactManager;
@@ -47,8 +48,8 @@ import javax.inject.Inject;
 
 import static java.util.logging.Logger.getLogger;
 import static org.briarproject.bramble.api.identity.AuthorConstants.MAX_SIGNATURE_LENGTH;
-import static org.briarproject.bramble.contact.ContactExchangeConstants.PROTOCOL_VERSION;
-import static org.briarproject.bramble.contact.ContactExchangeRecordTypes.CONTACT_INFO;
+import static org.briarproject.bramble.api.contact.ContactExchangeConstants.PROTOCOL_VERSION;
+import static org.briarproject.bramble.api.contact.ContactExchangeRecordTypes.CONTACT_INFO;
 import static org.briarproject.bramble.util.ValidationUtils.checkLength;
 import static org.briarproject.bramble.util.ValidationUtils.checkSize;
 
@@ -81,7 +82,8 @@ class ContactExchangeManagerImpl implements ContactExchangeManager {
 	private final ContactManager contactManager;
 	private final IdentityManager identityManager;
 	private final TransportPropertyManager transportPropertyManager;
-	private final ContactExchangeCrypto contactExchangeCrypto;
+	private final org.briarproject.bramble.api.contact.ContactExchangeCrypto
+			contactExchangeCrypto;
 	private final StreamReaderFactory streamReaderFactory;
 	private final StreamWriterFactory streamWriterFactory;
 

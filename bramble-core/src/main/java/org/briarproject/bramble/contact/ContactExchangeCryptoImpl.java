@@ -1,5 +1,6 @@
 package org.briarproject.bramble.contact;
 
+import org.briarproject.bramble.api.contact.ContactExchangeCrypto;
 import org.briarproject.bramble.api.crypto.CryptoComponent;
 import org.briarproject.bramble.api.crypto.PrivateKey;
 import org.briarproject.bramble.api.crypto.PublicKey;
@@ -10,12 +11,12 @@ import java.security.GeneralSecurityException;
 
 import javax.inject.Inject;
 
-import static org.briarproject.bramble.contact.ContactExchangeConstants.ALICE_KEY_LABEL;
-import static org.briarproject.bramble.contact.ContactExchangeConstants.ALICE_NONCE_LABEL;
-import static org.briarproject.bramble.contact.ContactExchangeConstants.BOB_KEY_LABEL;
-import static org.briarproject.bramble.contact.ContactExchangeConstants.BOB_NONCE_LABEL;
-import static org.briarproject.bramble.contact.ContactExchangeConstants.PROTOCOL_VERSION;
-import static org.briarproject.bramble.contact.ContactExchangeConstants.SIGNING_LABEL;
+import static org.briarproject.bramble.api.contact.ContactExchangeConstants.ALICE_KEY_LABEL;
+import static org.briarproject.bramble.api.contact.ContactExchangeConstants.ALICE_NONCE_LABEL;
+import static org.briarproject.bramble.api.contact.ContactExchangeConstants.BOB_KEY_LABEL;
+import static org.briarproject.bramble.api.contact.ContactExchangeConstants.BOB_NONCE_LABEL;
+import static org.briarproject.bramble.api.contact.ContactExchangeConstants.PROTOCOL_VERSION;
+import static org.briarproject.bramble.api.contact.ContactExchangeConstants.SIGNING_LABEL;
 
 @NotNullByDefault
 class ContactExchangeCryptoImpl implements ContactExchangeCrypto {

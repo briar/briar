@@ -1,5 +1,6 @@
 package org.briarproject.bramble.contact;
 
+import org.briarproject.bramble.api.contact.ContactExchangeCrypto;
 import org.briarproject.bramble.api.contact.ContactExchangeManager;
 import org.briarproject.bramble.api.contact.ContactManager;
 import org.briarproject.bramble.api.contact.HandshakeManager;
