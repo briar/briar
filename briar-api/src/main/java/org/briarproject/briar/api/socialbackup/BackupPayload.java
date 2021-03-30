@@ -1,4 +1,4 @@
-package org.briarproject.briar.socialbackup;
+package org.briarproject.briar.api.socialbackup;
 
 import org.briarproject.bramble.api.Bytes;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
@@ -7,9 +7,9 @@ import javax.annotation.concurrent.Immutable;
 
 @Immutable
 @NotNullByDefault
-class BackupPayload extends Bytes {
+public class BackupPayload extends Bytes {
 
-	BackupPayload(byte[] payload) {
+	public BackupPayload(byte[] payload) {
 		super(payload);
 	}
 }
