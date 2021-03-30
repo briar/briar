@@ -1,11 +1,10 @@
-package org.briarproject.bramble.socialbackup;
+package org.briarproject.briar.socialbackup;
 
 import org.briarproject.bramble.api.FormatException;
 import org.briarproject.bramble.api.Predicate;
 import org.briarproject.bramble.api.client.ClientHelper;
 import org.briarproject.bramble.api.contact.Contact;
 import org.briarproject.bramble.api.contact.ContactExchangeManager;
-import org.briarproject.bramble.api.contact.ContactId;
 import org.briarproject.bramble.api.contact.ContactManager;
 import org.briarproject.bramble.api.contact.PendingContactId;
 import org.briarproject.bramble.api.crypto.PublicKey;
@@ -14,7 +13,6 @@ import org.briarproject.bramble.api.data.BdfDictionary;
 import org.briarproject.bramble.api.data.BdfList;
 import org.briarproject.bramble.api.db.DatabaseComponent;
 import org.briarproject.bramble.api.db.DbException;
-import org.briarproject.bramble.api.db.Transaction;
 import org.briarproject.bramble.api.identity.Author;
 import org.briarproject.bramble.api.identity.IdentityManager;
 import org.briarproject.bramble.api.identity.LocalAuthor;
@@ -38,7 +36,6 @@ import java.io.EOFException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.security.GeneralSecurityException;
 import java.util.Map;
 import java.util.logging.Logger;
 
@@ -62,16 +59,16 @@ class SocialBackupExchangeManagerImpl implements ContactExchangeManager {
 
 	// Accept records with current protocol version, known record type
 	private static final Predicate<Record> ACCEPT = r ->
-			r.getProtocolVersion() == PROTOCOL_VERSION &&
+			r.getProtocolVersion() == ContactExchangeConstants.PROTOCOL_VERSION &&
 					isKnownRecordType(r.getRecordType());
 
 	// Ignore records with current protocol version, unknown record type
 	private static final Predicate<Record> IGNORE = r ->
-			r.getProtocolVersion() == PROTOCOL_VERSION &&
+			r.getProtocolVersion() == ContactExchangeConstants.PROTOCOL_VERSION &&
 					!isKnownRecordType(r.getRecordType());
 
 	private static boolean isKnownRecordType(byte type) {
-		return type == CONTACT_INFO;
+		return type == ContactExchangeRecordTypes.CONTACT_INFO;
 	}
 
 	private final DatabaseComponent db;
@@ -109,18 +106,60 @@ class SocialBackupExchangeManagerImpl implements ContactExchangeManager {
 	}
 
 	@Override
-	public Contact exchangeContacts(DuplexTransportConnection conn,
+	public void sendSocialBackup(DuplexTransportConnection conn,
 			SecretKey masterKey, boolean alice,
 			boolean verified) throws IOException, DbException {
 		return exchange(null, conn, masterKey, alice, verified);
 	}
 
 	@Override
-	public Contact exchangeContacts(PendingContactId p,
-			DuplexTransportConnection conn, SecretKey masterKey, boolean alice,
-			boolean verified) throws IOException, DbException {
-		return exchange(p, conn, masterKey, alice, verified);
+	public ReturnShardPayload receiveSocialBackup(DuplexTransportConnection conn,
+			SecretKey masterKey, boolean verified) throws IOException, DbException {
+		boolean alice = false;
+		InputStream in = conn.getReader().getInputStream();
+
+		Map<TransportId, TransportProperties> localProperties =
+				transportPropertyManager.getLocalProperties();
+
+		// Derive the header keys for the transport streams
+		SecretKey remoteHeaderKey =
+				contactExchangeCrypto.deriveHeaderKey(masterKey, !alice);
+
+		// Create the readers
+		InputStream streamReader = streamReaderFactory
+				.createContactExchangeStreamReader(in, remoteHeaderKey);
+		RecordReader recordReader =
+				recordReaderFactory.createRecordReader(streamReader);
+
+		long localTimestamp = clock.currentTimeMillis();
+		ContactInfo remoteInfo;
+		remoteInfo = receiveContactInfo(recordReader);
+
+		// Skip any remaining records from the incoming stream
+		recordReader.readRecord(r -> false, IGNORE);
+
+		// Verify the contact's signature
+		PublicKey remotePublicKey = remoteInfo.author.getPublicKey();
+		if (!contactExchangeCrypto.verify(remotePublicKey,
+				masterKey, !alice, remoteInfo.signature)) {
+			LOG.warning("Invalid signature");
+			throw new FormatException();
+		}
+
+		// The agreed timestamp is the minimum of the peers' timestamps
+		long timestamp = Math.min(localTimestamp, remoteInfo.timestamp);
+
+		// Contact exchange succeeded
+		LOG.info("Received social backup");
+		return contact;
 	}
+
+//	@Override
+//	public Contact exchangeContacts(PendingContactId p,
+//			DuplexTransportConnection conn, SecretKey masterKey, boolean alice,
+//			boolean verified) throws IOException, DbException {
+//		return exchange(p, conn, masterKey, alice, verified);
+//	}
 
 	private Contact exchange(@Nullable PendingContactId p,
 			DuplexTransportConnection conn, SecretKey masterKey, boolean alice,
@@ -160,9 +199,9 @@ class SocialBackupExchangeManagerImpl implements ContactExchangeManager {
 		long localTimestamp = clock.currentTimeMillis();
 		ContactInfo remoteInfo;
 		if (alice) {
-			sendContactInfo(recordWriter, localAuthor, localProperties,
+			sendShardAndBackup(recordWriter, localAuthor, localProperties,
 					localSignature, localTimestamp);
-			remoteInfo = receiveContactInfo(recordReader);
+			remoteAcknowledgement = receiveRemoteAcknowledgement(recordReader);
 		} else {
 			remoteInfo = receiveContactInfo(recordReader);
 			sendContactInfo(recordWriter, localAuthor, localProperties,
@@ -201,7 +240,8 @@ class SocialBackupExchangeManagerImpl implements ContactExchangeManager {
 		BdfList authorList = clientHelper.toList(author);
 		BdfDictionary props = clientHelper.toDictionary(properties);
 		BdfList payload = BdfList.of(authorList, props, signature, timestamp);
-		recordWriter.writeRecord(new Record(PROTOCOL_VERSION, CONTACT_INFO,
+		recordWriter.writeRecord(new Record(
+				ContactExchangeConstants.PROTOCOL_VERSION, ContactExchangeRecordTypes.CONTACT_INFO,
 				clientHelper.toByteArray(payload)));
 		recordWriter.flush();
 		LOG.info("Sent contact info");
@@ -225,35 +265,6 @@ class SocialBackupExchangeManagerImpl implements ContactExchangeManager {
 		return new ContactInfo(author, properties, signature, timestamp);
 	}
 
-	private Contact addContact(@Nullable PendingContactId pendingContactId,
-			Author remoteAuthor, LocalAuthor localAuthor, SecretKey masterKey,
-			long timestamp, boolean alice, boolean verified,
-			Map<TransportId, TransportProperties> remoteProperties)
-			throws DbException, FormatException {
-		Transaction txn = db.startTransaction(false);
-		try {
-			ContactId contactId;
-			if (pendingContactId == null) {
-				contactId = contactManager.addContact(txn, remoteAuthor,
-						localAuthor.getId(), masterKey, timestamp, alice,
-						verified, true);
-			} else {
-				contactId = contactManager.addContact(txn, pendingContactId,
-						remoteAuthor, localAuthor.getId(), masterKey,
-						timestamp, alice, verified, true);
-			}
-			transportPropertyManager.addRemoteProperties(txn, contactId,
-					remoteProperties);
-			Contact contact = contactManager.getContact(txn, contactId);
-			db.commitTransaction(txn);
-			return contact;
-		} catch (GeneralSecurityException e) {
-			// Pending contact's public key is invalid
-			throw new FormatException();
-		} finally {
-			db.endTransaction(txn);
-		}
-	}
 
 	private static class ContactInfo {
 
