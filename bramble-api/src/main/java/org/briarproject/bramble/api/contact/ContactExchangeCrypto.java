@@ -1,4 +1,4 @@
-package org.briarproject.bramble.contact;
+package org.briarproject.bramble.api.contact;
 
 import org.briarproject.bramble.api.crypto.PrivateKey;
 import org.briarproject.bramble.api.crypto.PublicKey;

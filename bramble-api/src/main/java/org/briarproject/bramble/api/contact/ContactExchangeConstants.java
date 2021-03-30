@@ -1,4 +1,4 @@
-package org.briarproject.bramble.contact;
+package org.briarproject.bramble.api.contact;
 
 public interface ContactExchangeConstants {
 
