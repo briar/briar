@@ -10,5 +10,5 @@ interface MessageParser {
 
 	Shard parseShardMessage(BdfList body) throws FormatException;
 
-	BackupPayload parseBackupMessage(BdfList body) throws FormatException;
+	org.briarproject.briar.api.socialbackup.BackupPayload parseBackupMessage(BdfList body) throws FormatException;
 }

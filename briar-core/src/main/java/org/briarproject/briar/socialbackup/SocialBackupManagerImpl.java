@@ -46,6 +46,7 @@ import org.briarproject.briar.api.socialbackup.BackupExistsException;
 import org.briarproject.briar.api.socialbackup.BackupMetadata;
 import org.briarproject.briar.api.socialbackup.DarkCrystal;
 import org.briarproject.briar.api.socialbackup.Shard;
+import org.briarproject.briar.api.socialbackup.BackupPayload;
 import org.briarproject.briar.api.socialbackup.ShardMessageHeader;
 import org.briarproject.briar.api.socialbackup.ShardReceivedEvent;
 import org.briarproject.briar.api.socialbackup.SocialBackupManager;

@@ -34,7 +34,7 @@ class MessageEncoderImpl implements MessageEncoder {
 	}
 
 	@Override
-	public byte[] encodeBackupMessage(int version, BackupPayload payload) {
+	public byte[] encodeBackupMessage(int version, org.briarproject.briar.api.socialbackup.BackupPayload payload) {
 		BdfList body = BdfList.of(
 				BACKUP.getValue(),
 				version,

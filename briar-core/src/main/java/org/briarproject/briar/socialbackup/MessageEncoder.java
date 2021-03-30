@@ -8,5 +8,5 @@ interface MessageEncoder {
 
 	byte[] encodeShardMessage(Shard shard);
 
-	byte[] encodeBackupMessage(int version, BackupPayload payload);
+	byte[] encodeBackupMessage(int version, org.briarproject.briar.api.socialbackup.BackupPayload payload);
 }

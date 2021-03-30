@@ -44,7 +44,7 @@ class BackupPayloadEncoderImpl implements BackupPayloadEncoder {
 	}
 
 	@Override
-	public BackupPayload encodeBackupPayload(SecretKey secret,
+	public org.briarproject.briar.api.socialbackup.BackupPayload encodeBackupPayload(SecretKey secret,
 			Identity identity, List<ContactData> contactData, int version) {
 		// Encode the local identity
 		BdfList bdfIdentity = new BdfList();
@@ -83,7 +83,7 @@ class BackupPayloadEncoderImpl implements BackupPayloadEncoder {
 			int encrypted = cipher.process(plaintext, 0, plaintext.length,
 					ciphertext, 0);
 			if (encrypted != ciphertext.length) throw new AssertionError();
-			return new BackupPayload(ciphertext);
+			return new org.briarproject.briar.api.socialbackup.BackupPayload(ciphertext);
 		} catch (FormatException | GeneralSecurityException e) {
 			throw new AssertionError(e);
 		}
