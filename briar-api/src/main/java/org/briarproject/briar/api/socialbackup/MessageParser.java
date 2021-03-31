@@ -1,14 +1,15 @@
-package org.briarproject.briar.socialbackup;
+package org.briarproject.briar.api.socialbackup;
 
 import org.briarproject.bramble.api.FormatException;
 import org.briarproject.bramble.api.data.BdfList;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
-import org.briarproject.briar.api.socialbackup.Shard;
 
 @NotNullByDefault
-interface MessageParser {
+public interface MessageParser {
 
 	Shard parseShardMessage(BdfList body) throws FormatException;
 
-	org.briarproject.briar.api.socialbackup.BackupPayload parseBackupMessage(BdfList body) throws FormatException;
+	BackupPayload parseBackupMessage(BdfList body) throws FormatException;
+
+	ReturnShardPayload parseReturnShardPayload(BdfList body) throws FormatException;
 }

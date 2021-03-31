@@ -18,9 +18,9 @@ public interface SocialBackupExchangeManager {
 	 * @throws IOException
 	 * @throws DbException
 	 */
-	public void sendReturnShard(DuplexTransportConnection conn,
+	void sendReturnShard(DuplexTransportConnection conn,
 			SecretKey masterKey,
-			boolean verified) throws IOException, DbException;
+			boolean verified, ReturnShardPayload returnShardPayload) throws IOException, DbException;
 
 	/**
 	 * Receive a returned shard and encrypted backup from a custodian
@@ -31,7 +31,7 @@ public interface SocialBackupExchangeManager {
 	 * @throws IOException
 	 * @throws DbException
 	 */
-	public ReturnShardPayload receiveReturnShard(DuplexTransportConnection conn,
+	ReturnShardPayload receiveReturnShard(DuplexTransportConnection conn,
 			SecretKey masterKey, boolean verified)
 			throws IOException, DbException;
 }

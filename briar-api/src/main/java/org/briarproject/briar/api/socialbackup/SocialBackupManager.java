@@ -55,4 +55,7 @@ public interface SocialBackupManager extends
 			Transaction txn, ContactId contactId) throws DbException;
 
 	boolean amCustodian(Transaction txn, ContactId contactId);
+
+	ReturnShardPayload getReturnShardPayload(Transaction txn, ContactId contactId)
+			throws DbException;
 }
