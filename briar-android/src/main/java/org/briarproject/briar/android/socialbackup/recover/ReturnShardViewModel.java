@@ -48,6 +48,9 @@ import org.briarproject.briar.android.contact.add.nearby.QrCodeDecoder;
 import org.briarproject.briar.android.contact.add.nearby.QrCodeUtils;
 import org.briarproject.briar.android.viewmodel.LiveEvent;
 import org.briarproject.briar.android.viewmodel.MutableLiveEvent;
+import org.briarproject.briar.api.socialbackup.ReturnShardPayload;
+import org.briarproject.briar.api.socialbackup.SocialBackupExchangeManager;
+import org.briarproject.briar.api.socialbackup.SocialBackupManager;
 
 import java.io.IOException;
 import java.nio.charset.Charset;
@@ -116,6 +119,9 @@ class ReturnShardViewModel extends AndroidViewModel
 	@SuppressWarnings("CharsetObjectCanBeUsed") // Requires minSdkVersion >= 19
 	private static final Charset ISO_8859_1 = Charset.forName("ISO-8859-1");
 
+	private boolean sending;
+	private ReturnShardPayload returnShardPayload;
+
 	private final EventBus eventBus;
 	private final AndroidExecutor androidExecutor;
 	private final Executor ioExecutor;
@@ -123,7 +129,8 @@ class ReturnShardViewModel extends AndroidViewModel
 	private final PayloadEncoder payloadEncoder;
 	private final PayloadParser payloadParser;
 	private final Provider<KeyAgreementTask> keyAgreementTaskProvider;
-	private final ContactExchangeManager contactExchangeManager;
+	private final SocialBackupExchangeManager socialBackupExchangeManager;
+	private final SocialBackupManager socialBackupManager;
 	private final ConnectionManager connectionManager;
 
 	private final MutableLiveEvent<Boolean> checkPermissions =
@@ -176,7 +183,8 @@ class ReturnShardViewModel extends AndroidViewModel
 			PayloadEncoder payloadEncoder,
 			PayloadParser payloadParser,
 			Provider<KeyAgreementTask> keyAgreementTaskProvider,
-			ContactExchangeManager contactExchangeManager,
+			SocialBackupExchangeManager socialBackupExchangeManager,
+			SocialBackupManager socialBackupManager,
 			ConnectionManager connectionManager) {
 		super(app);
 		this.eventBus = eventBus;
@@ -186,7 +194,8 @@ class ReturnShardViewModel extends AndroidViewModel
 		this.payloadEncoder = payloadEncoder;
 		this.payloadParser = payloadParser;
 		this.keyAgreementTaskProvider = keyAgreementTaskProvider;
-		this.contactExchangeManager = contactExchangeManager;
+		this.socialBackupExchangeManager = socialBackupExchangeManager;
+		this.socialBackupManager = socialBackupManager;
 		this.connectionManager = connectionManager;
 		bt = BluetoothAdapter.getDefaultAdapter();
 		wifiPlugin = pluginManager.getPlugin(LanTcpConstants.ID);
@@ -437,8 +446,11 @@ class ReturnShardViewModel extends AndroidViewModel
 		boolean alice = result.wasAlice();
 		ioExecutor.execute(() -> {
 			try {
-				Contact contact = contactExchangeManager.exchangeContacts(conn,
-						masterKey, alice, true);
+				if (sending) {
+					socialBackupExchangeManager.sendReturnShard(conn, masterKey, alice, returnShardPayload);
+				} else {
+					ReturnShardPayload returnShardPayload = socialBackupExchangeManager.receiveReturnShard(conn, masterKey, alice);
+				}
 				// Reuse the connection as a transport connection
 				connectionManager
 						.manageOutgoingConnection(contact.getId(), t, conn);
@@ -523,4 +535,11 @@ class ReturnShardViewModel extends AndroidViewModel
 		return state;
 	}
 
+    public void setSending(boolean sending) {
+		this.sending = sending;
+    }
+
+    public void setReturnShardPayload(ReturnShardPayload returnShardPayload) {
+		this.returnShardPayload = returnShardPayload;
+    }
 }

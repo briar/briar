@@ -5,6 +5,9 @@ import android.os.Bundle;
 import android.view.MenuItem;
 import android.widget.Toast;
 
+import org.briarproject.bramble.api.FormatException;
+import org.briarproject.bramble.api.client.ClientHelper;
+import org.briarproject.bramble.api.data.BdfList;
 import org.briarproject.bramble.api.identity.Author;
 import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
 import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
@@ -16,6 +19,9 @@ import org.briarproject.briar.android.contact.add.nearby.AddNearbyContactFragmen
 import org.briarproject.briar.android.contact.add.nearby.AddNearbyContactPermissionManager;
 import org.briarproject.briar.android.fragment.BaseFragment;
 import org.briarproject.briar.android.util.RequestBluetoothDiscoverable;
+import org.briarproject.briar.api.socialbackup.MessageEncoder;
+import org.briarproject.briar.api.socialbackup.MessageParser;
+import org.briarproject.briar.api.socialbackup.ReturnShardPayload;
 
 import java.util.logging.Logger;
 
@@ -31,6 +37,7 @@ import static android.bluetooth.BluetoothAdapter.ACTION_REQUEST_DISCOVERABLE;
 import static android.content.Intent.FLAG_ACTIVITY_CLEAR_TOP;
 import static android.widget.Toast.LENGTH_LONG;
 import static java.util.logging.Logger.getLogger;
+import static org.briarproject.briar.android.socialbackup.CustodianHelpRecoverActivity.RETURN_SHARD_PAYLOAD;
 
 @MethodsNotNullByDefault
 @ParametersNotNullByDefault
@@ -42,6 +49,12 @@ public class ReturnShardActivity extends BaseActivity
 
 	@Inject
 	ViewModelProvider.Factory viewModelFactory;
+
+	@Inject
+	MessageParser messageParser;
+
+	@Inject
+	ClientHelper clientHelper;
 
 	private ReturnShardViewModel viewModel;
 	private AddNearbyContactPermissionManager permissionManager;
@@ -69,6 +82,20 @@ public class ReturnShardActivity extends BaseActivity
 	public void onCreate(@Nullable Bundle state) {
 		super.onCreate(state);
 
+		byte[] returnShardPayloadBytes = getIntent().getByteArrayExtra(RETURN_SHARD_PAYLOAD);
+		if (returnShardPayloadBytes != null) {
+			try {
+				ReturnShardPayload returnShardPayload = messageParser
+						.parseReturnShardPayload(clientHelper.toList(returnShardPayloadBytes));
+				viewModel.setSending(true);
+				viewModel.setReturnShardPayload(returnShardPayload);
+			} catch (FormatException e) {
+				Toast.makeText(this,
+						"Error reading social backup",
+						Toast.LENGTH_SHORT).show();
+				finish();
+			}
+		}
 		setContentView(R.layout.activity_fragment_container);
 		if (state == null) {
 			showInitialFragment(getExplainerFragment());

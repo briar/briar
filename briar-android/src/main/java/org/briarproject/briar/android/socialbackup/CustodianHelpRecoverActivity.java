@@ -11,6 +11,9 @@ import org.briarproject.briar.R;
 import org.briarproject.briar.android.activity.ActivityComponent;
 import org.briarproject.briar.android.activity.BriarActivity;
 import org.briarproject.briar.android.fragment.BaseFragment;
+import org.briarproject.briar.android.socialbackup.recover.ReturnShardActivity;
+import org.briarproject.briar.api.socialbackup.MessageEncoder;
+import org.briarproject.briar.api.socialbackup.ReturnShardPayload;
 import org.briarproject.briar.api.socialbackup.SocialBackupManager;
 
 import javax.inject.Inject;
@@ -24,8 +27,15 @@ public class CustodianHelpRecoverActivity extends BriarActivity implements
 		component.inject(this);
 	}
 
+	public static final String RETURN_SHARD_PAYLOAD = "ReturnShardPayload";
+
+	private ContactId contactId;
+
 	@Inject
 	public SocialBackupManager socialBackupManager;
+
+	@Inject
+	private MessageEncoder messageEncoder;
 
 	@Inject
 	public DatabaseComponent db;
@@ -38,7 +48,7 @@ public class CustodianHelpRecoverActivity extends BriarActivity implements
 		Intent intent = getIntent();
 		int id = intent.getIntExtra(CONTACT_ID, -1);
 		if (id == -1) throw new IllegalStateException("No ContactId");
-		ContactId contactId = new ContactId(id);
+		contactId = new ContactId(id);
 
 		// check if we have a shard for this secret owner
 		try {
@@ -61,7 +71,22 @@ public class CustodianHelpRecoverActivity extends BriarActivity implements
 
 	@Override
 	public void scanQrButtonClicked() {
-		// TODO scan qr code
-		finish();
+		try {
+			db.transaction(false, txn -> {
+				ReturnShardPayload returnShardPayload = socialBackupManager
+						.getReturnShardPayload(txn, contactId);
+				byte[] returnShardPayloadBytes = messageEncoder
+						.encodeReturnShardPayload(returnShardPayload);
+
+				Intent i = new Intent(this, ReturnShardActivity.class);
+				i.putExtra(RETURN_SHARD_PAYLOAD, returnShardPayloadBytes);
+				startActivity(i);
+			});
+		} catch (DbException e) {
+			Toast.makeText(this,
+					"Error reading social backup from storage",
+					Toast.LENGTH_SHORT).show();
+			finish();
+		}
 	}
 }
