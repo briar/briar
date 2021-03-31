@@ -45,6 +45,7 @@ import org.briarproject.briar.api.conversation.DeletionResult;
 import org.briarproject.briar.api.socialbackup.BackupExistsException;
 import org.briarproject.briar.api.socialbackup.BackupMetadata;
 import org.briarproject.briar.api.socialbackup.DarkCrystal;
+import org.briarproject.briar.api.socialbackup.ReturnShardPayload;
 import org.briarproject.briar.api.socialbackup.Shard;
 import org.briarproject.briar.api.socialbackup.BackupPayload;
 import org.briarproject.briar.api.socialbackup.ShardMessageHeader;
@@ -86,8 +87,10 @@ class SocialBackupManagerImpl extends ConversationClientImpl
 	private final BackupMetadataParser backupMetadataParser;
 	private final BackupMetadataEncoder backupMetadataEncoder;
 	private final BackupPayloadEncoder backupPayloadEncoder;
-	private final MessageParser messageParser;
-	private final MessageEncoder messageEncoder;
+	private final org.briarproject.briar.api.socialbackup.MessageParser
+			messageParser;
+	private final org.briarproject.briar.api.socialbackup.MessageEncoder
+			messageEncoder;
 	private final IdentityManager identityManager;
 	private final ContactManager contactManager;
 	private final CryptoComponent crypto;
@@ -106,8 +109,8 @@ class SocialBackupManagerImpl extends ConversationClientImpl
 			BackupMetadataParser backupMetadataParser,
 			BackupMetadataEncoder backupMetadataEncoder,
 			BackupPayloadEncoder backupPayloadEncoder,
-			MessageParser messageParser,
-			MessageEncoder messageEncoder,
+			org.briarproject.briar.api.socialbackup.MessageParser messageParser,
+			org.briarproject.briar.api.socialbackup.MessageEncoder messageEncoder,
 			IdentityManager identityManager,
 			ContactManager contactManager,
 			CryptoComponent crypto,
@@ -229,6 +232,11 @@ class SocialBackupManagerImpl extends ConversationClientImpl
 			}
 		}
 		return false;
+	}
+
+	public ReturnShardPayload getReturnShardPayload(Transaction txn, ContactId contactId) throws DbException {
+		GroupId groupId = getContactGroup(db.getContact(txn, contactId)).getId();
+		return new ReturnShardPayload(getRemoteShard(txn, groupId), getRemoteBackup(txn, groupId));
 	}
 
 	public boolean amCustodian(Transaction txn, ContactId contactId) {
@@ -488,6 +496,19 @@ class SocialBackupManagerImpl extends ConversationClientImpl
 		}
 	}
 
+	@Nullable
+	private BackupPayload getRemoteBackup(Transaction txn, GroupId g)
+			throws DbException {
+		try {
+			Pair<MessageId, BdfDictionary> prev =
+					findMessage(txn, g, BACKUP, false);
+			if (prev == null) return null;
+			BdfList body = clientHelper.getMessageAsList(txn, prev.getFirst());
+			return messageParser.parseBackupMessage(body);
+		} catch (FormatException e) {
+			throw new DbException(e);
+		}
+	}
 	private void updateBackup(Transaction txn, List<ContactData> contactData)
 			throws DbException {
 		BackupMetadata backupMetadata = requireNonNull(getBackupMetadata(txn));

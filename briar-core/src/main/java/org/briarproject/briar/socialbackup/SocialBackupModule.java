@@ -82,12 +82,12 @@ public class SocialBackupModule {
 	}
 
 	@Provides
-	MessageEncoder messageEncoder(MessageEncoderImpl messageEncoder) {
+	org.briarproject.briar.api.socialbackup.MessageEncoder messageEncoder(MessageEncoderImpl messageEncoder) {
 		return messageEncoder;
 	}
 
 	@Provides
-	MessageParser messageParser(MessageParserImpl messageParser) {
+	org.briarproject.briar.api.socialbackup.MessageParser messageParser(MessageParserImpl messageParser) {
 		return messageParser;
 	}
 }

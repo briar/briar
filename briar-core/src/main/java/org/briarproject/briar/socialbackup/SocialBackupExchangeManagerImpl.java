@@ -115,7 +115,7 @@ class SocialBackupExchangeManagerImpl implements SocialBackupExchangeManager {
 	@Override
 	public void sendReturnShard(DuplexTransportConnection conn,
 			SecretKey masterKey,
-			boolean verified) throws IOException, DbException {
+			boolean verified, ReturnShardPayload returnShardPayload) throws IOException, DbException {
 		boolean alice = true;
 		// Get the transport connection's input and output streams
 		InputStream in = conn.getReader().getInputStream();
@@ -243,7 +243,7 @@ class SocialBackupExchangeManagerImpl implements SocialBackupExchangeManager {
 			ReturnShardPayload returnShardPayload,
 			long timestamp) throws IOException {
 //		BdfList authorList = clientHelper.toList(author);
-		BdfDictionary props = clientHelper.toDictionary(properties);
+//		BdfDictionary props = clientHelper.toDictionary(properties);
 		Shard shard = returnShardPayload.getShard();
 		BdfList shardList = BdfList.of(shard.getSecretId(), shard.getShard());
 		BdfList payload = BdfList.of(shardList,

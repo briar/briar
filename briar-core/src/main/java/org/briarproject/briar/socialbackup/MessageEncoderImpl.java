@@ -4,17 +4,22 @@ import org.briarproject.bramble.api.FormatException;
 import org.briarproject.bramble.api.client.ClientHelper;
 import org.briarproject.bramble.api.data.BdfList;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
+import org.briarproject.briar.api.socialbackup.BackupPayload;
+import org.briarproject.briar.api.socialbackup.ReturnShardPayload;
 import org.briarproject.briar.api.socialbackup.Shard;
 
 import javax.annotation.concurrent.Immutable;
 import javax.inject.Inject;
+
+import dagger.Reusable;
 
 import static org.briarproject.briar.socialbackup.MessageType.BACKUP;
 import static org.briarproject.briar.socialbackup.MessageType.SHARD;
 
 @Immutable
 @NotNullByDefault
-class MessageEncoderImpl implements MessageEncoder {
+class MessageEncoderImpl implements
+		org.briarproject.briar.api.socialbackup.MessageEncoder {
 
 	private final ClientHelper clientHelper;
 
@@ -40,6 +45,23 @@ class MessageEncoderImpl implements MessageEncoder {
 				version,
 				payload.getBytes()
 		);
+		return encodeBody(body);
+	}
+
+	public byte[] encodeReturnShardPayload(ReturnShardPayload returnShardPayload) {
+		Shard shard = returnShardPayload.getShard();
+		BdfList shardList = BdfList.of(
+				SHARD.getValue(),
+				shard.getSecretId(),
+				shard.getShard()
+		);
+		org.briarproject.briar.api.socialbackup.BackupPayload backupPayload = returnShardPayload.getBackupPayload();
+
+		BdfList body = BdfList.of(
+			shardList,
+			returnShardPayload.getBackupPayload().getBytes()
+		);
+
 		return encodeBody(body);
 	}
 

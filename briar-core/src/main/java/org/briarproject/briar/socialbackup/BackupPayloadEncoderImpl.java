@@ -30,13 +30,14 @@ class BackupPayloadEncoderImpl implements BackupPayloadEncoder {
 	private final ClientHelper clientHelper;
 	private final Provider<AuthenticatedCipher> cipherProvider;
 	private final SecureRandom secureRandom;
-	private final MessageEncoder messageEncoder;
+	private final org.briarproject.briar.api.socialbackup.MessageEncoder
+			messageEncoder;
 
 	@Inject
 	BackupPayloadEncoderImpl(ClientHelper clientHelper,
 			Provider<AuthenticatedCipher> cipherProvider,
 			SecureRandom secureRandom,
-			MessageEncoder messageEncoder) {
+			org.briarproject.briar.api.socialbackup.MessageEncoder messageEncoder) {
 		this.clientHelper = clientHelper;
 		this.cipherProvider = cipherProvider;
 		this.secureRandom = secureRandom;
