@@ -1,41 +1,37 @@
 package org.briarproject.briar.android.settings;
 
-import android.content.Intent;
-import android.net.Uri;
 import android.os.Bundle;
 import android.view.MenuItem;
-import android.view.View;
-import android.widget.TextView;
-import android.widget.Toast;
 
-import org.briarproject.bramble.api.FeatureFlags;
+import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
+import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.activity.ActivityComponent;
 import org.briarproject.briar.android.activity.BriarActivity;
-import org.briarproject.briar.android.util.UiUtils;
-import org.briarproject.briar.android.view.AuthorView;
-
-import javax.inject.Inject;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBar;
-import androidx.lifecycle.ViewModelProvider;
-import de.hdodenhof.circleimageview.CircleImageView;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentFactory;
+import androidx.fragment.app.FragmentManager;
+import androidx.preference.Preference;
+import androidx.preference.PreferenceFragmentCompat;
+import androidx.preference.PreferenceFragmentCompat.OnPreferenceStartFragmentCallback;
 
-import static android.widget.Toast.LENGTH_LONG;
-import static org.briarproject.briar.android.activity.RequestCodes.REQUEST_AVATAR_IMAGE;
+@MethodsNotNullByDefault
+@ParametersNotNullByDefault
+public class SettingsActivity extends BriarActivity
+		implements OnPreferenceStartFragmentCallback {
 
-public class SettingsActivity extends BriarActivity {
-
-	@Inject
-	ViewModelProvider.Factory viewModelFactory;
-	private SettingsViewModel settingsViewModel;
-
-	@Inject
-	FeatureFlags featureFlags;
+	static final String EXTRA_THEME_CHANGE = "themeChange";
 
 	@Override
-	public void onCreate(Bundle bundle) {
+	public void injectActivity(ActivityComponent component) {
+		component.inject(this);
+	}
+
+	@Override
+	public void onCreate(@Nullable Bundle bundle) {
 		super.onCreate(bundle);
 
 		ActionBar actionBar = getSupportActionBar();
@@ -44,43 +40,15 @@ public class SettingsActivity extends BriarActivity {
 			actionBar.setDisplayHomeAsUpEnabled(true);
 		}
 
-		setContentView(R.layout.activity_settings);
-
-		if (featureFlags.shouldEnableProfilePictures()) {
-			ViewModelProvider provider =
-					new ViewModelProvider(this, viewModelFactory);
-			settingsViewModel = provider.get(SettingsViewModel.class);
-
-			TextView textViewUserName = findViewById(R.id.username);
-			CircleImageView imageViewAvatar =
-					findViewById(R.id.avatarImage);
-
-			settingsViewModel.getOwnIdentityInfo().observe(this, us -> {
-				textViewUserName.setText(us.getLocalAuthor().getName());
-				AuthorView.setAvatar(imageViewAvatar,
-						us.getLocalAuthor().getId(), us.getAuthorInfo());
-			});
-
-			settingsViewModel.getSetAvatarFailed()
-					.observeEvent(this, failed -> {
-						if (failed) {
-							Toast.makeText(this,
-									R.string.change_profile_picture_failed_message,
-									LENGTH_LONG).show();
-						}
-					});
-
-			View avatarGroup = findViewById(R.id.avatarGroup);
-			avatarGroup.setOnClickListener(e -> selectAvatarImage());
-		} else {
-			View view = findViewById(R.id.avatarGroup);
-			view.setVisibility(View.GONE);
+		// show display fragment after theme change
+		Bundle extras = getIntent().getExtras();
+		if (bundle == null && extras != null &&
+				extras.getBoolean(EXTRA_THEME_CHANGE, false)) {
+			FragmentManager fragmentManager = getSupportFragmentManager();
+			showNextFragment(fragmentManager, new DisplayFragment());
 		}
-	}
 
-	@Override
-	public void injectActivity(ActivityComponent component) {
-		component.inject(this);
+		setContentView(R.layout.activity_settings);
 	}
 
 	@Override
@@ -92,30 +60,40 @@ public class SettingsActivity extends BriarActivity {
 		return false;
 	}
 
-	private void selectAvatarImage() {
-		Intent intent = UiUtils.createSelectImageIntent(false);
-		startActivityForResult(intent, REQUEST_AVATAR_IMAGE);
-	}
-
 	@Override
-	protected void onActivityResult(int request, int result,
-			@Nullable Intent data) {
-		super.onActivityResult(request, result, data);
-
-		if (request == REQUEST_AVATAR_IMAGE && result == RESULT_OK) {
-			onAvatarImageReceived(data);
-		}
+	public boolean onPreferenceStartFragment(PreferenceFragmentCompat caller,
+			Preference pref) {
+		FragmentManager fragmentManager = getSupportFragmentManager();
+		FragmentFactory fragmentFactory = fragmentManager.getFragmentFactory();
+		Fragment fragment = fragmentFactory
+				.instantiate(getClassLoader(), pref.getFragment());
+		fragment.setTargetFragment(caller, 0);
+		// Replace the existing Fragment with the new Fragment
+		showNextFragment(fragmentManager, fragment);
+		return true;
 	}
 
-	private void onAvatarImageReceived(@Nullable Intent resultData) {
-		if (resultData == null) return;
-		Uri uri = resultData.getData();
-		if (uri == null) return;
+	private void showNextFragment(FragmentManager fragmentManager, Fragment f) {
+		fragmentManager.beginTransaction()
+				.setCustomAnimations(R.anim.step_next_in,
+						R.anim.step_previous_out, R.anim.step_previous_in,
+						R.anim.step_next_out)
+				.replace(R.id.fragmentContainer, f)
+				.addToBackStack(null)
+				.commit();
+	}
 
-		ConfirmAvatarDialogFragment dialog =
-				ConfirmAvatarDialogFragment.newInstance(uri);
-		dialog.show(getSupportFragmentManager(),
-				ConfirmAvatarDialogFragment.TAG);
+	/**
+	 * If the preference is not yet enabled, this enables the preference
+	 * and makes it persist changed values.
+	 * Call this after setting the initial value
+	 * to prevent this change from getting persisted in the DB unnecessarily.
+	 */
+	static void enableAndPersist(Preference pref) {
+		if (!pref.isEnabled()) {
+			pref.setEnabled(true);
+			pref.setPersistent(true);
+		}
 	}
 
 }

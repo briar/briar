@@ -40,8 +40,8 @@ import static android.os.SystemClock.elapsedRealtime;
 import static java.util.concurrent.TimeUnit.MINUTES;
 import static java.util.logging.Level.WARNING;
 import static org.briarproject.bramble.util.LogUtils.logException;
-import static org.briarproject.briar.android.settings.SettingsFragment.PREF_SCREEN_LOCK;
-import static org.briarproject.briar.android.settings.SettingsFragment.PREF_SCREEN_LOCK_TIMEOUT;
+import static org.briarproject.briar.android.settings.SecurityFragment.PREF_SCREEN_LOCK;
+import static org.briarproject.briar.android.settings.SecurityFragment.PREF_SCREEN_LOCK_TIMEOUT;
 import static org.briarproject.briar.android.settings.SettingsFragment.SETTINGS_NAMESPACE;
 import static org.briarproject.briar.android.util.UiUtils.hasScreenLock;
 

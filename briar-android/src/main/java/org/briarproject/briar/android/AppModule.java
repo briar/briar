@@ -1,6 +1,7 @@
 package org.briarproject.briar.android;
 
 import android.app.Application;
+import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.StrictMode;
 
@@ -113,6 +114,11 @@ public class AppModule {
 
 	public AppModule(Application application) {
 		this.application = application;
+	}
+
+	public static AndroidComponent getAndroidComponent(Context ctx) {
+		BriarApplication app = (BriarApplication) ctx.getApplicationContext();
+		return app.getApplicationComponent();
 	}
 
 	@Provides

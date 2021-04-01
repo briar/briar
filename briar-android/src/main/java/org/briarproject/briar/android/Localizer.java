@@ -12,7 +12,7 @@ import java.util.Locale;
 import javax.annotation.Nullable;
 
 import static android.os.Build.VERSION.SDK_INT;
-import static org.briarproject.briar.android.settings.SettingsFragment.LANGUAGE;
+import static org.briarproject.briar.android.settings.DisplayFragment.PREF_LANGUAGE;
 
 @NotNullByDefault
 public class Localizer {
@@ -25,7 +25,7 @@ public class Localizer {
 
 	private Localizer(SharedPreferences sharedPreferences) {
 		this(Locale.getDefault(), getLocaleFromTag(
-				sharedPreferences.getString(LANGUAGE, "default")));
+				sharedPreferences.getString(PREF_LANGUAGE, "default")));
 	}
 
 	private Localizer(Locale systemLocale, @Nullable Locale userLocale) {

@@ -468,7 +468,7 @@
 	<string name="pref_theme_light">Light</string>
 	<string name="pref_theme_dark">Dark</string>
 	<string name="pref_theme_auto">Automatic (Daytime)</string>
-	<string name="pref_theme_system">System Default</string>
+	<string name="pref_theme_system">System default</string>
 
 	<!-- Settings Connections -->
 	<string name="network_settings_title">Connections</string>
@@ -552,7 +552,6 @@
 	<string name="cannot_load_ringtone">Cannot load ringtone</string>
 
 	<!-- Settings Feedback -->
-	<string name="feedback_settings_title">Feedback</string>
 	<string name="send_feedback">Send feedback</string>
 
 	<!-- Link Warning -->
