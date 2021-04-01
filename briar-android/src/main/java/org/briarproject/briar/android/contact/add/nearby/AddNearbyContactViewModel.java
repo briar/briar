@@ -84,6 +84,7 @@ import static org.briarproject.bramble.api.plugin.Plugin.State.STARTING_STOPPING
 import static org.briarproject.bramble.util.LogUtils.logException;
 import static org.briarproject.briar.android.contact.add.nearby.AddNearbyContactPermissionManager.areEssentialPermissionsGranted;
 import static org.briarproject.briar.android.contact.add.nearby.AddNearbyContactPermissionManager.isLocationEnabled;
+import static org.briarproject.briar.android.contact.add.nearby.AddNearbyContactViewModel.BluetoothDecision.NO_ADAPTER;
 import static org.briarproject.briar.android.contact.add.nearby.AddNearbyContactViewModel.BluetoothDecision.REFUSED;
 import static org.briarproject.briar.android.contact.add.nearby.AddNearbyContactViewModel.BluetoothDecision.UNKNOWN;
 
@@ -375,7 +376,11 @@ class AddNearbyContactViewModel extends AndroidViewModel
 			} else {
 				enableWifiIfWeShould();
 				if (bluetoothDecision == UNKNOWN) {
-					requestBluetoothDiscoverable.setEvent(true);
+					if (isBluetoothSupported()) {
+						requestBluetoothDiscoverable.setEvent(true);
+					} else {
+						bluetoothDecision = NO_ADAPTER;
+					}
 				} else if (bluetoothDecision == REFUSED) {
 					// Ask again when the user clicks "continue"
 				} else {

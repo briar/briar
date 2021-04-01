@@ -143,17 +143,13 @@ public class AddNearbyContactActivity extends BriarActivity
 	}
 
 	private void requestBluetoothDiscoverable() {
-		if (!viewModel.isBluetoothSupported()) {
-			viewModel.setBluetoothDecision(BluetoothDecision.NO_ADAPTER);
+		Intent i = new Intent(ACTION_REQUEST_DISCOVERABLE);
+		if (i.resolveActivity(getPackageManager()) != null) {
+			LOG.info("Asking for Bluetooth discoverability");
+			viewModel.setBluetoothDecision(BluetoothDecision.WAITING);
+			bluetoothLauncher.launch(120); // 2min discoverable
 		} else {
-			Intent i = new Intent(ACTION_REQUEST_DISCOVERABLE);
-			if (i.resolveActivity(getPackageManager()) != null) {
-				LOG.info("Asking for Bluetooth discoverability");
-				viewModel.setBluetoothDecision(BluetoothDecision.WAITING);
-				bluetoothLauncher.launch(120); // 2min discoverable
-			} else {
-				viewModel.setBluetoothDecision(BluetoothDecision.NO_ADAPTER);
-			}
+			viewModel.setBluetoothDecision(BluetoothDecision.NO_ADAPTER);
 		}
 	}
 
