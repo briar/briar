@@ -68,19 +68,38 @@ public class ViewActions {
 
 	public static ViewAction waitForActivity(Class<? extends Activity> clazz,
 			Stage stage, long timeout) {
-		return new CustomViewAction() {
+		return new CustomViewAction(timeout) {
 			@Override
 			protected boolean exitConditionTrue(View view) {
 				boolean found = false;
 				ActivityLifecycleMonitor lifecycleMonitor =
 						ActivityLifecycleMonitorRegistry.getInstance();
+				log(lifecycleMonitor);
+				for (Activity a : lifecycleMonitor
+						.getActivitiesInStage(stage)) {
+					if (a.getClass().equals(clazz)) found = true;
+				}
+				return found;
+			}
+
+			private void log(ActivityLifecycleMonitor lifecycleMonitor) {
+				log(lifecycleMonitor, Stage.PRE_ON_CREATE);
+				log(lifecycleMonitor, Stage.CREATED);
+				log(lifecycleMonitor, Stage.STARTED);
+				log(lifecycleMonitor, Stage.RESUMED);
+				log(lifecycleMonitor, Stage.PAUSED);
+				log(lifecycleMonitor, Stage.STOPPED);
+				log(lifecycleMonitor, Stage.RESTARTED);
+				log(lifecycleMonitor, Stage.DESTROYED);
+			}
+
+			private void log(ActivityLifecycleMonitor lifecycleMonitor,
+					Stage stage) {
 				for (Activity a : lifecycleMonitor
 						.getActivitiesInStage(stage)) {
 					Log.e("TEST", a.getClass().getSimpleName() +
 							" is in state " + stage);
-					if (a.getClass().equals(clazz)) found = true;
 				}
-				return found;
 			}
 
 			@Override

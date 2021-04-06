@@ -30,6 +30,7 @@ import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.action.ViewActions.click;
 import static androidx.test.espresso.action.ViewActions.closeSoftKeyboard;
 import static androidx.test.espresso.action.ViewActions.replaceText;
+import static androidx.test.espresso.action.ViewActions.scrollTo;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
 import static androidx.test.espresso.contrib.RecyclerViewActions.actionOnItemAtPosition;
 import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
@@ -49,13 +50,13 @@ import static org.junit.Assert.assertTrue;
 @RunWith(AndroidJUnit4.class)
 public class PromoVideoTest extends ScreenshotTest {
 
-	// we can leave debug to true (to speed up CI)
-	// and only set it to false when doing recordings
-	private static final boolean debug = true;
+	// we can leave isFilming to false (to speed up CI)
+	// and only set it to true when doing recordings
+	private static final boolean isFilming = false;
 
-	private static final int DELAY_SMALL = debug ? 0 : 4_000;
-	private static final int DELAY_MEDIUM = debug ? 0 : 7_500;
-	private static final int DELAY_LONG = debug ? 0 : 10_000;
+	private static final int DELAY_SMALL = isFilming ? 4_000 : 0;
+	private static final int DELAY_MEDIUM = isFilming ? 7_500 : 0;
+	private static final int DELAY_LONG = isFilming ? 10_000 : 0;
 
 	@Rule
 	public ActivityScenarioRule<SplashScreenActivity> testRule =
@@ -74,7 +75,7 @@ public class PromoVideoTest extends ScreenshotTest {
 
 	@Test
 	public void createAccountAddContact() throws Throwable {
-		if (!debug) {
+		if (isFilming) {
 			// Using this breaks emulator CI tests for some reason.
 			// Only use it for filming for now until we have time to debug this.
 			overlayView = OverlayView.attach(getApplicationContext());
@@ -84,7 +85,14 @@ public class PromoVideoTest extends ScreenshotTest {
 		onView(withId(R.id.logoView))
 				.perform(waitUntilMatches(isDisplayed()));
 
-		if (debug) waitFor(SetupActivity.class, 25_000);
+		// It takes a long time for SetupActivity to start after the splash,
+		// (because it is shown longer for videos), so increase timeout.
+		if (!isFilming) waitFor(SetupActivity.class, 20_000);
+
+		// Note: We use waiting code only when not filming,
+		//       to make the test reliable for CI. Otherwise, we used fixed
+		//       delays to deterministically align with subtitles.
+
 		sleep(DELAY_LONG);
 
 		// Enter username
@@ -136,7 +144,7 @@ public class PromoVideoTest extends ScreenshotTest {
 		sleep(DELAY_SMALL);
 
 		// wait for contact list to be shown
-		if (debug) waitFor(NavDrawerActivity.class);
+		if (!isFilming) waitFor(NavDrawerActivity.class);
 
 		// clicking the FAB doesn't work, so we click its inner FAB as well
 		onView(withId(R.id.speedDial))
@@ -173,11 +181,12 @@ public class PromoVideoTest extends ScreenshotTest {
 		sleep(DELAY_SMALL);
 
 		// add pending contact
+		onView(withId(R.id.addButton)).perform(scrollTo());
 		doClick(withId(R.id.addButton));
 		sleep(DELAY_LONG);
 
 		// wait for pending contact list activity to be shown
-		if (debug) {
+		if (!isFilming) {
 			waitFor(PendingContactListActivity.class);
 			waitFor(allOf(withText(R.string.pending_contact_requests),
 					isDisplayed()));
@@ -197,10 +206,11 @@ public class PromoVideoTest extends ScreenshotTest {
 		sleep(DELAY_LONG);
 
 		// wait for contact list to be shown
-		if (debug) {
+		if (!isFilming) {
 			waitFor(NavDrawerActivity.class);
 			waitFor(allOf(withText(R.string.contact_list_button),
 					isDisplayed()));
+			waitFor(allOf(withId(R.id.recyclerView), isDisplayed()));
 		}
 
 		// click on new contact
@@ -239,12 +249,12 @@ public class PromoVideoTest extends ScreenshotTest {
 	private void doClick(final Matcher<View> viewMatcher, long sleepMs)
 			throws InterruptedException {
 		doClick(viewMatcher);
-		if (!debug) sleep(sleepMs);
+		if (isFilming) sleep(sleepMs);
 	}
 
 	private void doClick(final Matcher<View> viewMatcher)
 			throws InterruptedException {
-		if (!debug) {
+		if (isFilming) {
 			onView(viewMatcher)
 					.perform(waitUntilMatches(isDisplayed()))
 					.perform(visualClick(overlayView));
@@ -257,7 +267,7 @@ public class PromoVideoTest extends ScreenshotTest {
 
 	private void doItemClick(final Matcher<View> viewMatcher, int pos)
 			throws InterruptedException {
-		if (!debug) {
+		if (isFilming) {
 			onView(viewMatcher).perform(
 					actionOnItemAtPosition(pos, visualClick(overlayView)));
 			sleep(500);
@@ -268,7 +278,7 @@ public class PromoVideoTest extends ScreenshotTest {
 
 	private void closeKeyboard(final Matcher<View> viewMatcher)
 			throws InterruptedException {
-		if (!debug) sleep(750);
+		if (isFilming) sleep(750);
 		onView(viewMatcher).perform(closeSoftKeyboard());
 	}
 
