@@ -34,8 +34,8 @@ public class CustodianHelpRecoverActivity extends BriarActivity implements
 	@Inject
 	public SocialBackupManager socialBackupManager;
 
-	@Inject
-	private MessageEncoder messageEncoder;
+//	@Inject
+//	public MessageEncoder messageEncoder;
 
 	@Inject
 	public DatabaseComponent db;
@@ -73,10 +73,8 @@ public class CustodianHelpRecoverActivity extends BriarActivity implements
 	public void scanQrButtonClicked() {
 		try {
 			db.transaction(false, txn -> {
-				ReturnShardPayload returnShardPayload = socialBackupManager
-						.getReturnShardPayload(txn, contactId);
-				byte[] returnShardPayloadBytes = messageEncoder
-						.encodeReturnShardPayload(returnShardPayload);
+				byte[] returnShardPayloadBytes = socialBackupManager
+						.getReturnShardPayloadBytes(txn, contactId);
 
 				Intent i = new Intent(this, ReturnShardActivity.class);
 				i.putExtra(RETURN_SHARD_PAYLOAD, returnShardPayloadBytes);

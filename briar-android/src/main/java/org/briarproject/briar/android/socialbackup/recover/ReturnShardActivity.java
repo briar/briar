@@ -8,7 +8,6 @@ import android.widget.Toast;
 import org.briarproject.bramble.api.FormatException;
 import org.briarproject.bramble.api.client.ClientHelper;
 import org.briarproject.bramble.api.data.BdfList;
-import org.briarproject.bramble.api.identity.Author;
 import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
 import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
 import org.briarproject.briar.R;
@@ -19,9 +18,10 @@ import org.briarproject.briar.android.contact.add.nearby.AddNearbyContactFragmen
 import org.briarproject.briar.android.contact.add.nearby.AddNearbyContactPermissionManager;
 import org.briarproject.briar.android.fragment.BaseFragment;
 import org.briarproject.briar.android.util.RequestBluetoothDiscoverable;
-import org.briarproject.briar.api.socialbackup.MessageEncoder;
+import org.briarproject.briar.api.socialbackup.BackupPayload;
 import org.briarproject.briar.api.socialbackup.MessageParser;
 import org.briarproject.briar.api.socialbackup.ReturnShardPayload;
+import org.briarproject.briar.api.socialbackup.Shard;
 
 import java.util.logging.Logger;
 
@@ -37,6 +37,7 @@ import static android.bluetooth.BluetoothAdapter.ACTION_REQUEST_DISCOVERABLE;
 import static android.content.Intent.FLAG_ACTIVITY_CLEAR_TOP;
 import static android.widget.Toast.LENGTH_LONG;
 import static java.util.logging.Logger.getLogger;
+import static org.briarproject.bramble.util.ValidationUtils.checkSize;
 import static org.briarproject.briar.android.socialbackup.CustodianHelpRecoverActivity.RETURN_SHARD_PAYLOAD;
 
 @MethodsNotNullByDefault
@@ -50,8 +51,8 @@ public class ReturnShardActivity extends BaseActivity
 	@Inject
 	ViewModelProvider.Factory viewModelFactory;
 
-	@Inject
-	MessageParser messageParser;
+//	@Inject
+//	MessageParser messageParser;
 
 	@Inject
 	ClientHelper clientHelper;
@@ -78,15 +79,33 @@ public class ReturnShardActivity extends BaseActivity
 				permissionLauncher::launch, viewModel.isBluetoothSupported());
 	}
 
+	// TODO the following two methods should be injected from messageParser
+	private Shard parseShardMessage(BdfList body) throws FormatException {
+		// Message type, secret ID, shard
+		byte[] secretId = body.getRaw(1);
+		byte[] shard = body.getRaw(2);
+		return new Shard(secretId, shard);
+	}
+
+	private ReturnShardPayload parseReturnShardPayload(BdfList body)
+			throws FormatException {
+		checkSize(body, 2);
+		Shard shard = parseShardMessage(body.getList(0));
+		org.briarproject.briar.api.socialbackup.BackupPayload backupPayload =
+				new BackupPayload(body.getRaw(1));
+		return new ReturnShardPayload(shard, backupPayload);
+	}
+
 	@Override
 	public void onCreate(@Nullable Bundle state) {
 		super.onCreate(state);
 
-		byte[] returnShardPayloadBytes = getIntent().getByteArrayExtra(RETURN_SHARD_PAYLOAD);
+		byte[] returnShardPayloadBytes =
+				getIntent().getByteArrayExtra(RETURN_SHARD_PAYLOAD);
 		if (returnShardPayloadBytes != null) {
 			try {
-				ReturnShardPayload returnShardPayload = messageParser
-						.parseReturnShardPayload(clientHelper.toList(returnShardPayloadBytes));
+				ReturnShardPayload returnShardPayload = parseReturnShardPayload(
+						clientHelper.toList(returnShardPayloadBytes));
 				viewModel.setSending(true);
 				viewModel.setReturnShardPayload(returnShardPayload);
 			} catch (FormatException e) {
@@ -199,10 +218,10 @@ public class ReturnShardActivity extends BaseActivity
 	}
 
 	private void onReturnShardStateChanged(ReturnShardState state) {
-		if (state instanceof ReturnShardState.ContactExchangeFinished) {
-			ReturnShardState.ContactExchangeResult result =
-					((ReturnShardState.ContactExchangeFinished) state).result;
-			onContactExchangeResult(result);
+		if (state instanceof ReturnShardState.SocialBackupExchangeFinished) {
+			ReturnShardState.SocialBackupExchangeResult result =
+					((ReturnShardState.SocialBackupExchangeFinished) state).result;
+			onSocialBackupExchangeResult(result);
 		} else if (state instanceof ReturnShardState.Failed) {
 			Boolean qrCodeTooOld =
 					((ReturnShardState.Failed) state).qrCodeTooOld;
@@ -210,27 +229,14 @@ public class ReturnShardActivity extends BaseActivity
 		}
 	}
 
-	private void onContactExchangeResult(
-			ReturnShardState.ContactExchangeResult result) {
-		if (result instanceof ReturnShardState.ContactExchangeResult.Success) {
-			Author remoteAuthor =
-					((ReturnShardState.ContactExchangeResult.Success) result).remoteAuthor;
-			String contactName = remoteAuthor.getName();
-			String text = getString(R.string.contact_added_toast, contactName);
-			Toast.makeText(this, text, LENGTH_LONG).show();
+	private void onSocialBackupExchangeResult(
+			ReturnShardState.SocialBackupExchangeResult result) {
+		if (result instanceof ReturnShardState.SocialBackupExchangeResult.Success) {
+//			String text = getString(R.string.contact_added_toast, contactName);
+			Toast.makeText(this, "Shard return successful", LENGTH_LONG).show();
 			supportFinishAfterTransition();
-		} else if (result instanceof ReturnShardState.ContactExchangeResult.Error) {
-			Author duplicateAuthor =
-					((ReturnShardState.ContactExchangeResult.Error) result).duplicateAuthor;
-			if (duplicateAuthor == null) {
-				showErrorFragment();
-			} else {
-				String contactName = duplicateAuthor.getName();
-				String text =
-						getString(R.string.contact_already_exists, contactName);
-				Toast.makeText(this, text, LENGTH_LONG).show();
-				supportFinishAfterTransition();
-			}
+		} else if (result instanceof ReturnShardState.SocialBackupExchangeResult.Error) {
+			showErrorFragment();
 		} else throw new AssertionError();
 	}
 

@@ -27,15 +27,15 @@ abstract class ReturnShardState {
 	static class KeyAgreementStarted extends ReturnShardState {
 	}
 
-	static class ContactExchangeStarted extends ReturnShardState {
+	static class SocialBackupExchangeStarted extends ReturnShardState {
 	}
 
-	static class ContactExchangeFinished extends ReturnShardState {
-		final ContactExchangeResult
+	static class SocialBackupExchangeFinished extends ReturnShardState {
+		final SocialBackupExchangeResult
 				result;
 
-		ContactExchangeFinished(
-				ContactExchangeResult result) {
+		SocialBackupExchangeFinished(
+				SocialBackupExchangeResult result) {
 			this.result = result;
 		}
 	}
@@ -58,16 +58,12 @@ abstract class ReturnShardState {
 		}
 	}
 
-	abstract static class ContactExchangeResult {
-		static class Success extends ContactExchangeResult {
-			final Author remoteAuthor;
-
-			Success(Author remoteAuthor) {
-				this.remoteAuthor = remoteAuthor;
-			}
+	abstract static class SocialBackupExchangeResult {
+		static class Success extends SocialBackupExchangeResult {
+			Success() {}
 		}
 
-		static class Error extends ContactExchangeResult {
+		static class Error extends SocialBackupExchangeResult {
 			@Nullable
 			final Author duplicateAuthor;
 

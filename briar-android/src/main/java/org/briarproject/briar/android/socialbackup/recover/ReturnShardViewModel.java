@@ -353,7 +353,7 @@ class ReturnShardViewModel extends AndroidViewModel
 			KeyAgreementResult result =
 					((KeyAgreementFinishedEvent) e).getResult();
 			startContactExchange(result);
-			state.setValue(new ReturnShardState.ContactExchangeStarted());
+			state.setValue(new ReturnShardState.SocialBackupExchangeStarted());
 		} else if (e instanceof KeyAgreementAbortedEvent) {
 			LOG.info("KeyAgreementAbortedEvent received");
 			resetPayloadFlags();
@@ -449,32 +449,28 @@ class ReturnShardViewModel extends AndroidViewModel
 				if (sending) {
 					socialBackupExchangeManager.sendReturnShard(conn, masterKey, alice, returnShardPayload);
 				} else {
-					ReturnShardPayload returnShardPayload = socialBackupExchangeManager.receiveReturnShard(conn, masterKey, alice);
+					returnShardPayload = socialBackupExchangeManager.receiveReturnShard(conn, masterKey, alice);
 				}
-				// Reuse the connection as a transport connection
-				connectionManager
-						.manageOutgoingConnection(contact.getId(), t, conn);
-				ReturnShardState.ContactExchangeResult.Success
+				ReturnShardState.SocialBackupExchangeResult.Success
 						success =
-						new ReturnShardState.ContactExchangeResult.Success(
-								contact.getAuthor());
+						new ReturnShardState.SocialBackupExchangeResult.Success();
 				state.postValue(
-						new ReturnShardState.ContactExchangeFinished(success));
+						new ReturnShardState.SocialBackupExchangeFinished(success));
 			} catch (ContactExistsException e) {
 				tryToClose(conn);
-				ReturnShardState.ContactExchangeResult.Error
-						error = new ReturnShardState.ContactExchangeResult.Error(
+				ReturnShardState.SocialBackupExchangeResult.Error
+						error = new ReturnShardState.SocialBackupExchangeResult.Error(
 						e.getRemoteAuthor());
 				state.postValue(
-						new ReturnShardState.ContactExchangeFinished(error));
+						new ReturnShardState.SocialBackupExchangeFinished(error));
 			} catch (DbException | IOException e) {
 				tryToClose(conn);
 				logException(LOG, WARNING, e);
-				ReturnShardState.ContactExchangeResult.Error
+				ReturnShardState.SocialBackupExchangeResult.Error
 						error =
-						new ReturnShardState.ContactExchangeResult.Error(null);
+						new ReturnShardState.SocialBackupExchangeResult.Error(null);
 				state.postValue(
-						new ReturnShardState.ContactExchangeFinished(error));
+						new ReturnShardState.SocialBackupExchangeFinished(error));
 			}
 		});
 	}
