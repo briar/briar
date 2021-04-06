@@ -58,4 +58,7 @@ public interface SocialBackupManager extends
 
 	ReturnShardPayload getReturnShardPayload(Transaction txn, ContactId contactId)
 			throws DbException;
+
+	byte[] getReturnShardPayloadBytes(Transaction txn, ContactId contactId)
+			throws DbException;
 }
