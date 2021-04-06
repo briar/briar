@@ -239,6 +239,10 @@ class SocialBackupManagerImpl extends ConversationClientImpl
 		return new ReturnShardPayload(getRemoteShard(txn, groupId), getRemoteBackup(txn, groupId));
 	}
 
+	public byte[] getReturnShardPayloadBytes(Transaction txn, ContactId contactId) throws DbException {
+		return messageEncoder.encodeReturnShardPayload(getReturnShardPayload(txn, contactId));
+	}
+
 	public boolean amCustodian(Transaction txn, ContactId contactId) {
 		try {
 			GroupId groupId = getContactGroup(db.getContact(txn, contactId)).getId();

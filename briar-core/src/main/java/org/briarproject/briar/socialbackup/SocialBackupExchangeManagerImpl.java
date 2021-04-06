@@ -4,17 +4,13 @@ import org.briarproject.bramble.api.FormatException;
 import org.briarproject.bramble.api.Predicate;
 import org.briarproject.bramble.api.client.ClientHelper;
 import org.briarproject.bramble.api.contact.ContactExchangeConstants;
-import org.briarproject.bramble.api.contact.ContactExchangeManager;
+import org.briarproject.bramble.api.contact.ContactExchangeCrypto;
 import org.briarproject.bramble.api.contact.ContactExchangeRecordTypes;
 import org.briarproject.bramble.api.contact.ContactManager;
-import org.briarproject.bramble.api.crypto.PublicKey;
 import org.briarproject.bramble.api.crypto.SecretKey;
-import org.briarproject.bramble.api.data.BdfDictionary;
 import org.briarproject.bramble.api.data.BdfList;
 import org.briarproject.bramble.api.db.DatabaseComponent;
 import org.briarproject.bramble.api.db.DbException;
-import org.briarproject.bramble.api.identity.IdentityManager;
-import org.briarproject.bramble.api.identity.LocalAuthor;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.plugin.TransportId;
 import org.briarproject.bramble.api.plugin.duplex.DuplexTransportConnection;
@@ -29,10 +25,9 @@ import org.briarproject.bramble.api.system.Clock;
 import org.briarproject.bramble.api.transport.StreamReaderFactory;
 import org.briarproject.bramble.api.transport.StreamWriter;
 import org.briarproject.bramble.api.transport.StreamWriterFactory;
-import org.briarproject.bramble.api.contact.ContactExchangeCrypto;
+import org.briarproject.briar.api.socialbackup.BackupPayload;
 import org.briarproject.briar.api.socialbackup.ReturnShardPayload;
 import org.briarproject.briar.api.socialbackup.Shard;
-import org.briarproject.briar.api.socialbackup.BackupPayload;
 import org.briarproject.briar.api.socialbackup.SocialBackupExchangeManager;
 
 import java.io.EOFException;
@@ -42,15 +37,10 @@ import java.io.OutputStream;
 import java.util.Map;
 import java.util.logging.Logger;
 
-import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 import javax.inject.Inject;
 
-import sun.java2d.xr.XRBackendNative;
-
 import static java.util.logging.Logger.getLogger;
-import static org.briarproject.bramble.api.identity.AuthorConstants.MAX_SIGNATURE_LENGTH;
-import static org.briarproject.bramble.util.ValidationUtils.checkLength;
 import static org.briarproject.bramble.util.ValidationUtils.checkSize;
 
 @Immutable
@@ -115,7 +105,8 @@ class SocialBackupExchangeManagerImpl implements SocialBackupExchangeManager {
 	@Override
 	public void sendReturnShard(DuplexTransportConnection conn,
 			SecretKey masterKey,
-			boolean verified, ReturnShardPayload returnShardPayload) throws IOException, DbException {
+			boolean verified, ReturnShardPayload returnShardPayload)
+			throws IOException, DbException {
 		boolean alice = true;
 		// Get the transport connection's input and output streams
 		InputStream in = conn.getReader().getInputStream();
@@ -151,7 +142,8 @@ class SocialBackupExchangeManagerImpl implements SocialBackupExchangeManager {
 		// Exchange contact info
 		long localTimestamp = clock.currentTimeMillis();
 
-		sendShardPayload(recordWriter, localProperties, returnShardPayload, localTimestamp);
+		sendShardPayload(recordWriter, localProperties, returnShardPayload,
+				localTimestamp);
 		receiveAcknowledgement(recordReader);
 
 		// Send EOF on the outgoing stream
