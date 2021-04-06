@@ -9,11 +9,14 @@ import org.briarproject.briar.R;
 import org.briarproject.briar.android.activity.ActivityComponent;
 import org.briarproject.briar.android.activity.BriarActivity;
 
+import javax.inject.Inject;
+
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBar;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentFactory;
 import androidx.fragment.app.FragmentManager;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.preference.Preference;
 import androidx.preference.PreferenceFragmentCompat;
 import androidx.preference.PreferenceFragmentCompat.OnPreferenceStartFragmentCallback;
@@ -24,6 +27,11 @@ public class SettingsActivity extends BriarActivity
 		implements OnPreferenceStartFragmentCallback {
 
 	static final String EXTRA_THEME_CHANGE = "themeChange";
+
+	@Inject
+	ViewModelProvider.Factory viewModelFactory;
+
+	private SettingsViewModel viewModel;
 
 	@Override
 	public void injectActivity(ActivityComponent component) {
@@ -49,6 +57,15 @@ public class SettingsActivity extends BriarActivity
 		}
 
 		setContentView(R.layout.activity_settings);
+
+		ViewModelProvider provider =
+				new ViewModelProvider(this, viewModelFactory);
+		viewModel = provider.get(SettingsViewModel.class);
+
+		viewModel.getLanguageChange().observeEvent(this, b -> {
+			signOut(false, false);
+			finishAffinity();
+		});
 	}
 
 	@Override

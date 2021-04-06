@@ -1,6 +1,7 @@
 package org.briarproject.briar.android.settings;
 
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 
@@ -15,22 +16,25 @@ import java.util.List;
 import java.util.Locale;
 import java.util.logging.Logger;
 
+import javax.inject.Inject;
+
+import androidx.annotation.NonNull;
 import androidx.core.text.TextUtilsCompat;
 import androidx.fragment.app.FragmentActivity;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.preference.ListPreference;
 import androidx.preference.Preference;
 import androidx.preference.PreferenceFragmentCompat;
 
 import static android.content.Intent.FLAG_ACTIVITY_CLEAR_TASK;
-import static android.content.Intent.FLAG_ACTIVITY_CLEAR_TOP;
 import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
 import static android.os.Build.VERSION.SDK_INT;
 import static androidx.core.view.ViewCompat.LAYOUT_DIRECTION_LTR;
 import static java.util.Objects.requireNonNull;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Logger.getLogger;
+import static org.briarproject.briar.android.AppModule.getAndroidComponent;
 import static org.briarproject.briar.android.BriarApplication.ENTRY_ACTIVITY;
-import static org.briarproject.briar.android.navdrawer.NavDrawerActivity.SIGN_OUT_URI;
 import static org.briarproject.briar.android.settings.SettingsActivity.EXTRA_THEME_CHANGE;
 
 @NotNullByDefault
@@ -41,6 +45,19 @@ public class DisplayFragment extends PreferenceFragmentCompat {
 
 	private static final Logger LOG =
 			getLogger(DisplayFragment.class.getName());
+
+	@Inject
+	ViewModelProvider.Factory viewModelFactory;
+
+	private SettingsViewModel viewModel;
+
+	@Override
+	public void onAttach(@NonNull Context context) {
+		super.onAttach(context);
+		getAndroidComponent(context).inject(this);
+		viewModel = new ViewModelProvider(requireActivity(), viewModelFactory)
+				.get(SettingsViewModel.class);
+	}
 
 	@Override
 	public void onCreatePreferences(Bundle bundle, String s) {
@@ -148,11 +165,7 @@ public class DisplayFragment extends PreferenceFragmentCompat {
 			builder.setMessage(R.string.pref_language_changed);
 			builder.setPositiveButton(R.string.sign_out_button, (d, i) -> {
 				language.setValue((String) newValue);
-				Intent intent = new Intent(getContext(), ENTRY_ACTIVITY);
-				intent.setFlags(FLAG_ACTIVITY_CLEAR_TOP);
-				intent.setData(SIGN_OUT_URI);
-				requireActivity().startActivity(intent);
-				requireActivity().finish();
+				viewModel.languageChanged();
 			});
 			builder.setNegativeButton(R.string.cancel, null);
 			builder.setCancelable(false);

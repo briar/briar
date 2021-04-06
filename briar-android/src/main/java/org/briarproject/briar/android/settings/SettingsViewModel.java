@@ -31,6 +31,8 @@ import org.briarproject.briar.R;
 import org.briarproject.briar.android.attachment.UnsupportedMimeTypeException;
 import org.briarproject.briar.android.attachment.media.ImageCompressor;
 import org.briarproject.briar.android.viewmodel.DbViewModel;
+import org.briarproject.briar.android.viewmodel.LiveEvent;
+import org.briarproject.briar.android.viewmodel.MutableLiveEvent;
 import org.briarproject.briar.api.avatar.AvatarManager;
 import org.briarproject.briar.api.identity.AuthorInfo;
 import org.briarproject.briar.api.identity.AuthorManager;
@@ -92,6 +94,8 @@ class SettingsViewModel extends DbViewModel implements EventListener {
 			new MutableLiveData<>();
 	private final MutableLiveData<String> screenLockTimeout =
 			new MutableLiveData<>();
+	private final MutableLiveEvent<Boolean> languageChanged =
+			new MutableLiveEvent<>();
 
 	@Inject
 	SettingsViewModel(Application application,
@@ -250,6 +254,10 @@ class SettingsViewModel extends DbViewModel implements EventListener {
 				.show());
 	}
 
+	void languageChanged() {
+		languageChanged.setEvent(true);
+	}
+
 	LiveData<OwnIdentityInfo> getOwnIdentityInfo() {
 		return ownIdentityInfo;
 	}
@@ -260,6 +268,10 @@ class SettingsViewModel extends DbViewModel implements EventListener {
 
 	LiveData<String> getScreenLockTimeout() {
 		return screenLockTimeout;
+	}
+
+	LiveEvent<Boolean> getLanguageChange() {
+		return languageChanged;
 	}
 
 }
