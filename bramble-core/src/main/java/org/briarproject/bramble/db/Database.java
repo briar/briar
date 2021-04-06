@@ -69,6 +69,13 @@ interface Database<T> {
 	void close() throws DbException;
 
 	/**
+	 * Returns true if the dirty flag was set while opening the database,
+	 * indicating that the database has not been shut down properly the last
+	 * time it was closed and some data could be lost.
+	 */
+	boolean wasDirtyOnInitialisation();
+
+	/**
 	 * Starts a new transaction and returns an object representing it.
 	 */
 	T startTransaction() throws DbException;

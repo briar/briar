@@ -84,9 +84,15 @@ class H2Database extends JdbcDatabase {
 	@Override
 	public void close() throws DbException {
 		// H2 will close the database when the last connection closes
+		Connection c = null;
 		try {
+			c = createConnection();
 			super.closeAllConnections();
+			setDirty(c, false);
+			c.commit();
+			c.close();
 		} catch (SQLException e) {
+			tryToClose(c, LOG, WARNING);
 			throw new DbException(e);
 		}
 	}

@@ -81,6 +81,8 @@ class HyperSqlDatabase extends JdbcDatabase {
 		try {
 			super.closeAllConnections();
 			c = createConnection();
+			setDirty(c, false);
+			c.commit();
 			s = c.createStatement();
 			s.executeQuery("SHUTDOWN");
 			s.close();
