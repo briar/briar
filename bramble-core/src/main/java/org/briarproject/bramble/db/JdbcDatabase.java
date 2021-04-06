@@ -395,6 +395,9 @@ abstract class JdbcDatabase implements Database<Connection> {
 				initialiseSettings(txn);
 				compact = false;
 			}
+			if (LOG.isLoggable(INFO)) {
+				LOG.info("db dirty? " + wasDirtyOnInitialisation);
+			}
 			createIndexes(txn);
 			setDirty(txn, true);
 			commitTransaction(txn);
