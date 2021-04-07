@@ -100,7 +100,7 @@ public class AddNearbyContactFragment extends BaseFragment
 	public void onActivityCreated(@Nullable Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
 		requireActivity().setRequestedOrientation(SCREEN_ORIENTATION_NOSENSOR);
-		cameraView.setPreviewConsumer(viewModel.qrCodeDecoder);
+		cameraView.setPreviewConsumer(viewModel.getQrCodeDecoder());
 	}
 
 	@Override
@@ -153,7 +153,7 @@ public class AddNearbyContactFragment extends BaseFragment
 	}
 
 	@UiThread
-	private void onAddContactStateChanged(AddContactState state) {
+	private void onAddContactStateChanged(@Nullable AddContactState state) {
 		if (state instanceof AddContactState.KeyAgreementListening) {
 			Bitmap qrCode =
 					((AddContactState.KeyAgreementListening) state).qrCode;
