@@ -8,6 +8,7 @@ import org.briarproject.bramble.BrambleCoreModule;
 import org.briarproject.bramble.account.BriarAccountModule;
 import org.briarproject.bramble.api.FeatureFlags;
 import org.briarproject.bramble.api.account.AccountManager;
+import org.briarproject.bramble.api.client.ClientHelper;
 import org.briarproject.bramble.api.connection.ConnectionRegistry;
 import org.briarproject.bramble.api.contact.ContactExchangeManager;
 import org.briarproject.bramble.api.contact.ContactManager;
@@ -62,7 +63,6 @@ import org.briarproject.briar.api.privategroup.invitation.GroupInvitationFactory
 import org.briarproject.briar.api.privategroup.invitation.GroupInvitationManager;
 import org.briarproject.briar.api.socialbackup.SocialBackupManager;
 import org.briarproject.briar.api.test.TestDataCreator;
-import org.briarproject.briar.socialbackup.SocialBackupManagerImpl_Factory;
 
 import java.util.concurrent.Executor;
 
@@ -190,6 +190,8 @@ public interface AndroidComponent
 	SocialBackupManager socialBackupManager();
 
     DatabaseComponent databaseComponent();
+
+    ClientHelper clientHelper();
 
 	void inject(SignInReminderReceiver briarService);
 

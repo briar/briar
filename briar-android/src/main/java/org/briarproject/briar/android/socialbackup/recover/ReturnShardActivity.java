@@ -55,7 +55,7 @@ public class ReturnShardActivity extends BaseActivity
 //	MessageParser messageParser;
 
 	@Inject
-	ClientHelper clientHelper;
+	public ClientHelper clientHelper;
 
 	private ReturnShardViewModel viewModel;
 	private AddNearbyContactPermissionManager permissionManager;
