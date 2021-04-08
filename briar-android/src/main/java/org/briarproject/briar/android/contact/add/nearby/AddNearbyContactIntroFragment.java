@@ -37,9 +37,12 @@ public class AddNearbyContactIntroFragment extends BaseFragment {
 	private ScrollView scrollView;
 
 	private final ActivityResultLauncher<String[]> permissionLauncher =
-			registerForActivityResult(new RequestMultiplePermissions(), r ->
-					permissionManager.onRequestPermissionResult(r,
-							viewModel::showQrCodeFragmentIfAllowed));
+			registerForActivityResult(new RequestMultiplePermissions(), r -> {
+				permissionManager.onRequestPermissionResult(r);
+				if (permissionManager.checkPermissions()) {
+					viewModel.showQrCodeFragmentIfAllowed();
+				}
+			});
 
 	public static AddNearbyContactIntroFragment newInstance() {
 		Bundle args = new Bundle();

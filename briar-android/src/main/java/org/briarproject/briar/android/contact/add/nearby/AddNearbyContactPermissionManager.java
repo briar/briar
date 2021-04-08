@@ -164,8 +164,7 @@ class AddNearbyContactPermissionManager {
 		requestPermissions.accept(permissions);
 	}
 
-	void onRequestPermissionResult(Map<String, Boolean> result,
-			Runnable onPermissionsGranted) {
+	void onRequestPermissionResult(Map<String, Boolean> result) {
 		if (gotPermission(CAMERA, result)) {
 			cameraPermission = Permission.GRANTED;
 		} else if (shouldShowRationale(CAMERA)) {
@@ -182,7 +181,6 @@ class AddNearbyContactPermissionManager {
 				locationPermission = Permission.PERMANENTLY_DENIED;
 			}
 		}
-		if (checkPermissions()) onPermissionsGranted.run();
 	}
 
 	private boolean gotPermission(String permission,
