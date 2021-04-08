@@ -65,6 +65,7 @@ import javax.inject.Provider;
 
 import androidx.annotation.Nullable;
 import androidx.annotation.UiThread;
+import androidx.core.util.Supplier;
 import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
@@ -83,6 +84,8 @@ import static org.briarproject.bramble.api.plugin.Plugin.State.INACTIVE;
 import static org.briarproject.bramble.api.plugin.Plugin.State.STARTING_STOPPING;
 import static org.briarproject.bramble.util.LogUtils.logException;
 import static org.briarproject.briar.android.contact.add.nearby.AddNearbyContactPermissionManager.areEssentialPermissionsGranted;
+import static org.briarproject.briar.android.contact.add.nearby.AddNearbyContactPermissionManager.isLocationEnabled;
+import static org.briarproject.briar.android.contact.add.nearby.AddNearbyContactViewModel.BluetoothDecision.NO_ADAPTER;
 import static org.briarproject.briar.android.contact.add.nearby.AddNearbyContactViewModel.BluetoothDecision.REFUSED;
 import static org.briarproject.briar.android.contact.add.nearby.AddNearbyContactViewModel.BluetoothDecision.UNKNOWN;
 
@@ -133,8 +136,6 @@ class AddNearbyContactViewModel extends AndroidViewModel
 	private final ContactExchangeManager contactExchangeManager;
 	private final ConnectionManager connectionManager;
 
-	private final MutableLiveEvent<Boolean> checkPermissions =
-			new MutableLiveEvent<>();
 	private final MutableLiveEvent<Boolean> requestBluetoothDiscoverable =
 			new MutableLiveEvent<>();
 	private final MutableLiveEvent<Boolean> showQrCodeFragment =
@@ -142,8 +143,9 @@ class AddNearbyContactViewModel extends AndroidViewModel
 	private final MutableLiveData<AddContactState> state =
 			new MutableLiveData<>();
 
-	final QrCodeDecoder qrCodeDecoder;
-	final BroadcastReceiver bluetoothReceiver = new BluetoothStateReceiver();
+	private final QrCodeDecoder qrCodeDecoder;
+	private final BroadcastReceiver bluetoothReceiver =
+			new BluetoothStateReceiver();
 
 	@Nullable
 	private final BluetoothAdapter bt;
@@ -169,7 +171,7 @@ class AddNearbyContactViewModel extends AndroidViewModel
 	private boolean hasEnabledBluetooth = false;
 
 	@Nullable
-	private KeyAgreementTask task;
+	private volatile KeyAgreementTask task;
 	private volatile boolean gotLocalPayload = false, gotRemotePayload = false;
 
 	@Inject
@@ -211,13 +213,12 @@ class AddNearbyContactViewModel extends AndroidViewModel
 	}
 
 	@UiThread
-	void onContinueClicked() {
+	void onContinueClicked(Supplier<Boolean> checkPermissions) {
 		if (bluetoothDecision == REFUSED) {
 			bluetoothDecision = UNKNOWN; // Ask again
 		}
 		wasContinueClicked = true;
-		checkPermissions.setEvent(true);
-		showQrCodeFragmentIfAllowed();
+		if (checkPermissions.get()) showQrCodeFragmentIfAllowed();
 	}
 
 	@UiThread
@@ -226,7 +227,7 @@ class AddNearbyContactViewModel extends AndroidViewModel
 	}
 
 	@UiThread
-	boolean isWifiReady() {
+	private boolean isWifiReady() {
 		if (wifiPlugin == null) return true; // Continue without wifi
 		State state = wifiPlugin.getState();
 		// Wait for plugin to become enabled
@@ -234,7 +235,7 @@ class AddNearbyContactViewModel extends AndroidViewModel
 	}
 
 	@UiThread
-	boolean isBluetoothReady() {
+	private boolean isBluetoothReady() {
 		if (bt == null || bluetoothPlugin == null) {
 			// Continue without Bluetooth
 			return true;
@@ -254,7 +255,7 @@ class AddNearbyContactViewModel extends AndroidViewModel
 	}
 
 	@UiThread
-	void enableWifiIfWeShould() {
+	private void enableWifiIfWeShould() {
 		if (hasEnabledWifi) return;
 		if (wifiPlugin == null) return;
 		State state = wifiPlugin.getState();
@@ -266,7 +267,7 @@ class AddNearbyContactViewModel extends AndroidViewModel
 	}
 
 	@UiThread
-	void enableBluetoothIfWeShould() {
+	private void enableBluetoothIfWeShould() {
 		if (bluetoothDecision != BluetoothDecision.ACCEPTED) return;
 		if (hasEnabledBluetooth) return;
 		if (bluetoothPlugin == null || !isBluetoothSupported()) return;
@@ -279,7 +280,7 @@ class AddNearbyContactViewModel extends AndroidViewModel
 	}
 
 	@UiThread
-	void startAddingContact() {
+	private void startAddingContact() {
 		// If we return to the intro fragment, the continue button needs to be
 		// clicked again before showing the QR code fragment
 		wasContinueClicked = false;
@@ -290,6 +291,8 @@ class AddNearbyContactViewModel extends AndroidViewModel
 		// Bluetooth again
 		hasEnabledWifi = false;
 		hasEnabledBluetooth = false;
+		// reset state, so we don't show an old QR code again
+		state.setValue(null);
 		// start to listen with a KeyAgreementTask
 		startListening();
 		showQrCodeFragment.setEvent(true);
@@ -365,14 +368,20 @@ class AddNearbyContactViewModel extends AndroidViewModel
 	void showQrCodeFragmentIfAllowed() {
 		boolean permissionsGranted = areEssentialPermissionsGranted(
 				getApplication(), isBluetoothSupported());
-		if (isActivityResumed && wasContinueClicked && permissionsGranted) {
+		boolean locationEnabled = isLocationEnabled(getApplication());
+		if (isActivityResumed && wasContinueClicked && permissionsGranted &&
+				locationEnabled) {
 			if (isWifiReady() && isBluetoothReady()) {
 				LOG.info("Wifi and Bluetooth are ready");
 				startAddingContact();
 			} else {
 				enableWifiIfWeShould();
 				if (bluetoothDecision == UNKNOWN) {
-					requestBluetoothDiscoverable.setEvent(true);
+					if (isBluetoothSupported()) {
+						requestBluetoothDiscoverable.setEvent(true);
+					} else {
+						bluetoothDecision = NO_ADAPTER;
+					}
 				} else if (bluetoothDecision == REFUSED) {
 					// Ask again when the user clicks "continue"
 				} else {
@@ -501,8 +510,8 @@ class AddNearbyContactViewModel extends AndroidViewModel
 		showQrCodeFragmentIfAllowed();
 	}
 
-	LiveEvent<Boolean> getCheckPermissions() {
-		return checkPermissions;
+	QrCodeDecoder getQrCodeDecoder() {
+		return qrCodeDecoder;
 	}
 
 	LiveEvent<Boolean> getRequestBluetoothDiscoverable() {
@@ -513,6 +522,9 @@ class AddNearbyContactViewModel extends AndroidViewModel
 		return showQrCodeFragment;
 	}
 
+	/**
+	 * This LiveData will be null initially.
+	 */
 	LiveData<AddContactState> getState() {
 		return state;
 	}

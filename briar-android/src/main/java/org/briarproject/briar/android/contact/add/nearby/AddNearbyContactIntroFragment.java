@@ -15,6 +15,8 @@ import org.briarproject.briar.android.fragment.BaseFragment;
 import javax.annotation.Nullable;
 import javax.inject.Inject;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts.RequestMultiplePermissions;
 import androidx.lifecycle.ViewModelProvider;
 
 import static android.view.View.FOCUS_DOWN;
@@ -23,14 +25,21 @@ import static android.view.View.FOCUS_DOWN;
 @ParametersNotNullByDefault
 public class AddNearbyContactIntroFragment extends BaseFragment {
 
-	public static final String TAG = AddNearbyContactIntroFragment.class.getName();
+	public static final String TAG =
+			AddNearbyContactIntroFragment.class.getName();
 
 	@Inject
 	ViewModelProvider.Factory viewModelFactory;
 
 	private AddNearbyContactViewModel viewModel;
+	private AddNearbyContactPermissionManager permissionManager;
 
 	private ScrollView scrollView;
+
+	private final ActivityResultLauncher<String[]> permissionLauncher =
+			registerForActivityResult(new RequestMultiplePermissions(), r ->
+					permissionManager.onRequestPermissionResult(r,
+							viewModel::showQrCodeFragmentIfAllowed));
 
 	public static AddNearbyContactIntroFragment newInstance() {
 		Bundle args = new Bundle();
@@ -45,6 +54,9 @@ public class AddNearbyContactIntroFragment extends BaseFragment {
 		component.inject(this);
 		viewModel = new ViewModelProvider(requireActivity(), viewModelFactory)
 				.get(AddNearbyContactViewModel.class);
+		permissionManager = new AddNearbyContactPermissionManager(
+				requireActivity(), permissionLauncher::launch,
+				viewModel.isBluetoothSupported());
 	}
 
 	@Nullable
@@ -57,13 +69,17 @@ public class AddNearbyContactIntroFragment extends BaseFragment {
 				false);
 		scrollView = v.findViewById(R.id.scrollView);
 		View button = v.findViewById(R.id.continueButton);
-		button.setOnClickListener(view -> viewModel.onContinueClicked());
+		button.setOnClickListener(view -> viewModel.onContinueClicked(() ->
+				permissionManager.checkPermissions()
+		));
 		return v;
 	}
 
 	@Override
 	public void onStart() {
 		super.onStart();
+		// Permissions may have been granted manually while we were stopped
+		permissionManager.resetPermissions();
 		scrollView.post(() -> scrollView.fullScroll(FOCUS_DOWN));
 	}
 
