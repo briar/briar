@@ -28,7 +28,7 @@ android {
 		targetSdkVersion 29
 		versionCode 10218
 		versionName "1.2.18"
-		applicationId "org.briarproject.briar.android"
+		applicationId "org.briarproject.briar.socialbackup"
 
 		vectorDrawables.useSupportLibrary = true
 		buildConfigField "String", "GitHash",
