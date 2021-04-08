@@ -156,7 +156,6 @@ class AddNearbyContactViewModel extends AndroidViewModel
 	private BluetoothDecision bluetoothDecision = BluetoothDecision.UNKNOWN;
 
 	private boolean wasContinueClicked = false;
-	private boolean isActivityResumed = false;
 
 	/**
 	 * Records whether we've enabled the wifi plugin so we don't enable it more
@@ -369,8 +368,7 @@ class AddNearbyContactViewModel extends AndroidViewModel
 		boolean permissionsGranted = areEssentialPermissionsGranted(
 				getApplication(), isBluetoothSupported());
 		boolean locationEnabled = isLocationEnabled(getApplication());
-		if (isActivityResumed && wasContinueClicked && permissionsGranted &&
-				locationEnabled) {
+		if (wasContinueClicked && permissionsGranted && locationEnabled) {
 			if (isWifiReady() && isBluetoothReady()) {
 				LOG.info("Wifi and Bluetooth are ready");
 				startAddingContact();
@@ -487,21 +485,6 @@ class AddNearbyContactViewModel extends AndroidViewModel
 		} catch (IOException e) {
 			logException(LOG, WARNING, e);
 		}
-	}
-
-	/**
-	 * Set to true in onPostResume() and false in onPause(). This prevents the
-	 * QR code fragment from being shown if onRequestPermissionsResult() is
-	 * called while the activity is paused, which could cause a crash due to
-	 * https://issuetracker.google.com/issues/37067655.
-	 * TODO check if this is still happening with new permission requesting
-	 */
-	@UiThread
-	void setIsActivityResumed(boolean resumed) {
-		isActivityResumed = resumed;
-		// Workaround for
-		// https://code.google.com/p/android/issues/detail?id=190966
-		showQrCodeFragmentIfAllowed();
 	}
 
 	@UiThread

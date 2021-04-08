@@ -81,18 +81,6 @@ public class AddNearbyContactActivity extends BriarActivity
 				.observe(this, this::onAddContactStateChanged);
 	}
 
-	@Override
-	protected void onPostResume() {
-		super.onPostResume();
-		viewModel.setIsActivityResumed(true);
-	}
-
-	@Override
-	protected void onPause() {
-		super.onPause();
-		viewModel.setIsActivityResumed(false);
-	}
-
 	private void onBluetoothDiscoverableResult(boolean discoverable) {
 		if (discoverable) {
 			LOG.info("Bluetooth discoverability was accepted");

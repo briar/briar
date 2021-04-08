@@ -182,12 +182,6 @@ class AddNearbyContactPermissionManager {
 				locationPermission = Permission.PERMANENTLY_DENIED;
 			}
 		}
-		// If a permission dialog has been shown, showing the QR code fragment
-		// on this call path would cause a crash due to
-		// https://code.google.com/p/android/issues/detail?id=190966.
-		// In that case the isResumed flag prevents the fragment from being
-		// shown here, and showQrCodeFragmentIfAllowed() will be called again
-		// from onPostResume().
 		if (checkPermissions()) onPermissionsGranted.run();
 	}
 
