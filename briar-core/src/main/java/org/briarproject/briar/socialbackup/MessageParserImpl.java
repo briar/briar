@@ -32,8 +32,8 @@ class MessageParserImpl implements
 	@Override
 	public org.briarproject.briar.api.socialbackup.BackupPayload parseBackupMessage(BdfList body)
 			throws FormatException {
-		// Message type, backup payload
-		return new org.briarproject.briar.api.socialbackup.BackupPayload(body.getRaw(1));
+		// Message type, version, backup payload
+		return new org.briarproject.briar.api.socialbackup.BackupPayload(body.getRaw(2));
 	}
 
 	@Override
