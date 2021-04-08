@@ -410,7 +410,7 @@ class ReturnShardViewModel extends AndroidViewModel
 	@Override
 	@IoExecutor
 	public void onQrCodeDecoded(Result result) {
-		LOG.info("Got result from decoder");
+		LOG.info("Got result from decoder"+gotLocalPayload+gotRemotePayload);
 		// Ignore results until the KeyAgreementTask is ready
 		if (!gotLocalPayload || gotRemotePayload) return;
 		try {
@@ -538,4 +538,8 @@ class ReturnShardViewModel extends AndroidViewModel
     public void setReturnShardPayload(ReturnShardPayload returnShardPayload) {
 		this.returnShardPayload = returnShardPayload;
     }
+
+	QrCodeDecoder getQrCodeDecoder() {
+		return qrCodeDecoder;
+	}
 }

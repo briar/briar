@@ -14,12 +14,10 @@ import org.briarproject.briar.R;
 import org.briarproject.briar.android.activity.ActivityComponent;
 import org.briarproject.briar.android.activity.BaseActivity;
 import org.briarproject.briar.android.contact.add.nearby.AddNearbyContactErrorFragment;
-import org.briarproject.briar.android.contact.add.nearby.AddNearbyContactFragment;
 import org.briarproject.briar.android.contact.add.nearby.AddNearbyContactPermissionManager;
 import org.briarproject.briar.android.fragment.BaseFragment;
 import org.briarproject.briar.android.util.RequestBluetoothDiscoverable;
 import org.briarproject.briar.api.socialbackup.BackupPayload;
-import org.briarproject.briar.api.socialbackup.MessageParser;
 import org.briarproject.briar.api.socialbackup.ReturnShardPayload;
 import org.briarproject.briar.api.socialbackup.Shard;
 
@@ -208,8 +206,8 @@ public class ReturnShardActivity extends BaseActivity
 	private void showQrCodeFragment() {
 		// FIXME #824
 		FragmentManager fm = getSupportFragmentManager();
-		if (fm.findFragmentByTag(AddNearbyContactFragment.TAG) == null) {
-			BaseFragment f = AddNearbyContactFragment.newInstance();
+		if (fm.findFragmentByTag(ReturnShardFragment.TAG) == null) {
+			BaseFragment f = ReturnShardFragment.newInstance();
 			fm.beginTransaction()
 					.replace(R.id.fragmentContainer, f, f.getUniqueTag())
 					.addToBackStack(f.getUniqueTag())

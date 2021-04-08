@@ -91,6 +91,7 @@ import org.briarproject.briar.android.socialbackup.ShardsSentFragment;
 import org.briarproject.briar.android.socialbackup.ThresholdSelectorFragment;
 import org.briarproject.briar.android.socialbackup.creation.CreateBackupModule;
 import org.briarproject.briar.android.socialbackup.recover.ReturnShardActivity;
+import org.briarproject.briar.android.socialbackup.recover.ReturnShardFragment;
 import org.briarproject.briar.android.splash.SplashScreenActivity;
 import org.briarproject.briar.android.test.TestDataActivity;
 
@@ -276,4 +277,6 @@ public interface ActivityComponent {
 	void inject(ExistingBackupFragment existingBackupFragment);
 
 	void inject(NewOrRecoverFragment newOrRecoverFragment);
+
+	void inject(ReturnShardFragment returnShardFragment);
 }
