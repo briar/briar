@@ -292,6 +292,7 @@ class AddNearbyContactViewModel extends AndroidViewModel
 		hasEnabledBluetooth = false;
 		// reset state, so we don't show an old QR code again
 		state.setValue(null);
+		resetPayloadFlags();
 		// start to listen with a KeyAgreementTask
 		startListening();
 		showQrCodeFragment.setEvent(true);
