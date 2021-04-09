@@ -15,8 +15,11 @@ import org.briarproject.briar.android.activity.ActivityComponent;
 import org.briarproject.briar.android.fragment.BaseFragment;
 import org.briarproject.briar.android.util.UiUtils;
 
+import javax.inject.Inject;
+
 import androidx.annotation.Nullable;
 import androidx.fragment.app.FragmentActivity;
+import androidx.lifecycle.ViewModelProvider;
 
 import static android.content.Intent.FLAG_ACTIVITY_CLEAR_TOP;
 import static android.view.View.GONE;
@@ -29,6 +32,11 @@ public class AddNearbyContactErrorFragment extends BaseFragment {
 	public static final String TAG =
 			AddNearbyContactErrorFragment.class.getName();
 	private static final String ERROR_MSG = "errorMessage";
+
+	@Inject
+	ViewModelProvider.Factory viewModelFactory;
+
+	private AddNearbyContactViewModel viewModel;
 
 	public static AddNearbyContactErrorFragment newInstance(String errorMsg) {
 		AddNearbyContactErrorFragment f = new AddNearbyContactErrorFragment();
@@ -46,6 +54,8 @@ public class AddNearbyContactErrorFragment extends BaseFragment {
 	@Override
 	public void injectFragment(ActivityComponent component) {
 		component.inject(this);
+		viewModel = new ViewModelProvider(requireActivity(), viewModelFactory)
+				.get(AddNearbyContactViewModel.class);
 	}
 
 	@Nullable
@@ -79,6 +89,15 @@ public class AddNearbyContactErrorFragment extends BaseFragment {
 		Button cancel = v.findViewById(R.id.cancelButton);
 		cancel.setOnClickListener(view -> finish());
 		return v;
+	}
+
+	@Override
+	public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
+		super.onViewCreated(view, savedInstanceState);
+		// We don't do this in AddNearbyContactFragment#onDestroy()
+		// because it gets called when creating AddNearbyContactFragment
+		// in landscape orientation to force portrait orientation.
+		viewModel.stopListening();
 	}
 
 	private void triggerFeedback() {

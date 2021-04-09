@@ -79,6 +79,15 @@ public class AddNearbyContactIntroFragment extends BaseFragment {
 	}
 
 	@Override
+	public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
+		super.onViewCreated(view, savedInstanceState);
+		// We don't do this in AddNearbyContactFragment#onDestroy()
+		// because it gets called when creating AddNearbyContactFragment
+		// in landscape orientation to force portrait orientation.
+		viewModel.stopListening();
+	}
+
+	@Override
 	public void onStart() {
 		super.onStart();
 		// Permissions may have been granted manually while we were stopped

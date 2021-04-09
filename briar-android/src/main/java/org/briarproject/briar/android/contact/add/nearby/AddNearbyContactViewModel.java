@@ -314,10 +314,13 @@ class AddNearbyContactViewModel extends AndroidViewModel
 	}
 
 	@UiThread
-	private void stopListening() {
+	void stopListening() {
 		KeyAgreementTask oldTask = task;
 		ioExecutor.execute(() -> {
-			if (oldTask != null) oldTask.stopListening();
+			if (oldTask != null) {
+				oldTask.stopListening();
+				task = null;
+			}
 		});
 	}
 

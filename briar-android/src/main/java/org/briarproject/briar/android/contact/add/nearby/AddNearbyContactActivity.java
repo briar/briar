@@ -103,7 +103,8 @@ public class AddNearbyContactActivity extends BriarActivity
 	@Override
 	public void onBackPressed() {
 		if (viewModel.getState().getValue() instanceof Failed) {
-			// re-create this activity when going back in failed state
+			// Re-create this activity when going back in failed state.
+			// This will also re-create the ViewModel, so we start fresh.
 			Intent i = new Intent(this, AddNearbyContactActivity.class);
 			i.setFlags(FLAG_ACTIVITY_CLEAR_TOP);
 			startActivity(i);

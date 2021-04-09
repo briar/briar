@@ -31,7 +31,6 @@ import androidx.annotation.UiThread;
 import androidx.lifecycle.ViewModelProvider;
 
 import static android.content.pm.ActivityInfo.SCREEN_ORIENTATION_NOSENSOR;
-import static android.content.pm.ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED;
 import static android.view.View.INVISIBLE;
 import static android.view.View.VISIBLE;
 import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
@@ -86,21 +85,17 @@ public class AddNearbyContactFragment extends BaseFragment
 	public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
 		super.onViewCreated(view, savedInstanceState);
 		cameraView = view.findViewById(R.id.camera_view);
+		cameraView.setPreviewConsumer(viewModel.getQrCodeDecoder());
 		cameraOverlay = view.findViewById(R.id.camera_overlay);
 		statusView = view.findViewById(R.id.status_container);
 		status = view.findViewById(R.id.connect_status);
 		qrCodeView = view.findViewById(R.id.qr_code_view);
 		qrCodeView.setFullscreenListener(this);
 
+		requireActivity().setRequestedOrientation(SCREEN_ORIENTATION_NOSENSOR);
+
 		viewModel.getState().observe(getViewLifecycleOwner(),
 				this::onAddContactStateChanged);
-	}
-
-	@Override
-	public void onActivityCreated(@Nullable Bundle savedInstanceState) {
-		super.onActivityCreated(savedInstanceState);
-		requireActivity().setRequestedOrientation(SCREEN_ORIENTATION_NOSENSOR);
-		cameraView.setPreviewConsumer(viewModel.getQrCodeDecoder());
 	}
 
 	@Override
@@ -121,13 +116,6 @@ public class AddNearbyContactFragment extends BaseFragment
 		} catch (CameraException e) {
 			logCameraExceptionAndFinish(e);
 		}
-	}
-
-	@Override
-	public void onDestroy() {
-		requireActivity()
-				.setRequestedOrientation(SCREEN_ORIENTATION_UNSPECIFIED);
-		super.onDestroy();
 	}
 
 	@Override
