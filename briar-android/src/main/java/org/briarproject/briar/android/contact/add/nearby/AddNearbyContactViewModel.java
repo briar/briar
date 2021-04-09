@@ -65,7 +65,6 @@ import javax.inject.Provider;
 
 import androidx.annotation.Nullable;
 import androidx.annotation.UiThread;
-import androidx.core.util.Supplier;
 import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
@@ -211,12 +210,11 @@ class AddNearbyContactViewModel extends AndroidViewModel
 	}
 
 	@UiThread
-	void onContinueClicked(Supplier<Boolean> checkPermissions) {
+	void onContinueClicked() {
 		if (bluetoothDecision == REFUSED) {
 			bluetoothDecision = UNKNOWN; // Ask again
 		}
 		wasContinueClicked = true;
-		if (checkPermissions.get()) showQrCodeFragmentIfAllowed();
 	}
 
 	@UiThread

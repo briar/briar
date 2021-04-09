@@ -72,9 +72,12 @@ public class AddNearbyContactIntroFragment extends BaseFragment {
 				false);
 		scrollView = v.findViewById(R.id.scrollView);
 		View button = v.findViewById(R.id.continueButton);
-		button.setOnClickListener(view -> viewModel.onContinueClicked(() ->
-				permissionManager.checkPermissions()
-		));
+		button.setOnClickListener(view -> {
+			viewModel.onContinueClicked();
+			if (permissionManager.checkPermissions()) {
+				viewModel.showQrCodeFragmentIfAllowed();
+			}
+		});
 		return v;
 	}
 
