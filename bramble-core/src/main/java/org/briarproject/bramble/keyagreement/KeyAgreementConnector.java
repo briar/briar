@@ -127,6 +127,7 @@ class KeyAgreementConnector {
 		List<Pair<DuplexPlugin, BdfList>> transports = new ArrayList<>();
 		for (TransportId id : PREFERRED_TRANSPORTS) {
 			TransportDescriptor d = descriptors.get(id);
+			LOG.info("id: " + id + " d: " + d);
 			Plugin p = pluginManager.getPlugin(id);
 			if (d != null && p instanceof DuplexPlugin) {
 				if (LOG.isLoggable(INFO))
@@ -137,6 +138,9 @@ class KeyAgreementConnector {
 
 		// TODO: If we don't have any transports in common with the peer,
 		//  warn the user and give up (#1224)
+        if (transports.isEmpty()) {
+           LOG.info("No transports found");
+        }
 
 		if (!transports.isEmpty()) {
 			byte[] commitment = remotePayload.getCommitment();
