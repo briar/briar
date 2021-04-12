@@ -1,10 +1,9 @@
-package org.briarproject.briar.android.keyagreement;
+package org.briarproject.briar.android.contact.add.nearby;
 
 import android.hardware.Camera;
 import android.hardware.Camera.CameraInfo;
 import android.hardware.Camera.PreviewCallback;
 import android.hardware.Camera.Size;
-import android.os.AsyncTask;
 
 import com.google.zxing.BinaryBitmap;
 import com.google.zxing.LuminanceSource;
@@ -15,10 +14,13 @@ import com.google.zxing.Result;
 import com.google.zxing.common.HybridBinarizer;
 import com.google.zxing.qrcode.QRCodeReader;
 
+import org.briarproject.bramble.api.lifecycle.IoExecutor;
 import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
+import org.briarproject.bramble.api.system.AndroidExecutor;
 
+import java.util.concurrent.Executor;
 import java.util.logging.Logger;
 
 import androidx.annotation.UiThread;
@@ -26,22 +28,26 @@ import androidx.annotation.UiThread;
 import static com.google.zxing.DecodeHintType.CHARACTER_SET;
 import static java.util.Collections.singletonMap;
 import static java.util.logging.Level.WARNING;
+import static java.util.logging.Logger.getLogger;
 
-@SuppressWarnings("deprecation")
 @MethodsNotNullByDefault
 @ParametersNotNullByDefault
 class QrCodeDecoder implements PreviewConsumer, PreviewCallback {
 
-	private static final Logger LOG =
-			Logger.getLogger(QrCodeDecoder.class.getName());
+	private static final Logger LOG = getLogger(QrCodeDecoder.class.getName());
 
+	private final AndroidExecutor androidExecutor;
+	private final Executor ioExecutor;
 	private final Reader reader = new QRCodeReader();
 	private final ResultCallback callback;
 
 	private Camera camera = null;
 	private int cameraIndex = 0;
 
-	QrCodeDecoder(ResultCallback callback) {
+	QrCodeDecoder(AndroidExecutor androidExecutor,
+			@IoExecutor Executor ioExecutor, ResultCallback callback) {
+		this.androidExecutor = androidExecutor;
+		this.ioExecutor = ioExecutor;
 		this.callback = callback;
 	}
 
@@ -74,8 +80,7 @@ class QrCodeDecoder implements PreviewConsumer, PreviewCallback {
 				if (data.length == size.width * size.height * 3 / 2) {
 					CameraInfo info = new CameraInfo();
 					Camera.getCameraInfo(cameraIndex, info);
-					new DecoderTask(data, size.width, size.height,
-							info.orientation).execute();
+					decode(data, size.width, size.height, info.orientation);
 				} else {
 					// Camera parameters have changed - ask for a new preview
 					LOG.info("Preview size does not match camera parameters");
@@ -89,43 +94,23 @@ class QrCodeDecoder implements PreviewConsumer, PreviewCallback {
 		}
 	}
 
-	private class DecoderTask extends AsyncTask<Void, Void, Void> {
-
-		private final byte[] data;
-		private final int width, height, orientation;
-
-		private DecoderTask(byte[] data, int width, int height,
-				int orientation) {
-			this.data = data;
-			this.width = width;
-			this.height = height;
-			this.orientation = orientation;
-		}
-
-		@Override
-		protected Void doInBackground(Void... params) {
+	private void decode(byte[] data, int width, int height, int orientation) {
+		ioExecutor.execute(() -> {
 			BinaryBitmap bitmap = binarize(data, width, height, orientation);
 			Result result;
 			try {
 				result = reader.decode(bitmap,
 						singletonMap(CHARACTER_SET, "ISO8859_1"));
+				callback.onQrCodeDecoded(result);
 			} catch (ReaderException e) {
 				// No barcode found
-				return null;
 			} catch (RuntimeException e) {
 				LOG.warning("Invalid preview frame");
-				return null;
 			} finally {
 				reader.reset();
+				androidExecutor.runOnUiThread(this::askForPreviewFrame);
 			}
-			callback.handleResult(result);
-			return null;
-		}
-
-		@Override
-		protected void onPostExecute(Void result) {
-			askForPreviewFrame();
-		}
+		});
 	}
 
 	private static BinaryBitmap binarize(byte[] data, int width, int height,
@@ -143,7 +128,7 @@ class QrCodeDecoder implements PreviewConsumer, PreviewCallback {
 
 	@NotNullByDefault
 	interface ResultCallback {
-
-		void handleResult(Result result);
+		@IoExecutor
+		void onQrCodeDecoded(Result result);
 	}
 }

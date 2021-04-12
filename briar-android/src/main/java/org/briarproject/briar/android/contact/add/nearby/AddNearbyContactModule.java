@@ -1,4 +1,4 @@
-package org.briarproject.briar.android.keyagreement;
+package org.briarproject.briar.android.contact.add.nearby;
 
 import org.briarproject.briar.android.viewmodel.ViewModelKey;
 
@@ -8,12 +8,12 @@ import dagger.Module;
 import dagger.multibindings.IntoMap;
 
 @Module
-public abstract class ContactExchangeModule {
+public abstract class AddNearbyContactModule {
 
 	@Binds
 	@IntoMap
-	@ViewModelKey(ContactExchangeViewModel.class)
+	@ViewModelKey(AddNearbyContactViewModel.class)
 	abstract ViewModel bindContactExchangeViewModel(
-			ContactExchangeViewModel contactExchangeViewModel);
+			AddNearbyContactViewModel addNearbyContactViewModel);
 
 }

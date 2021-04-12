@@ -18,6 +18,7 @@ local.properties
 
 # Android Studio
 .idea/*
+!.idea/inspectionProfiles/
 !.idea/runConfigurations/
 !.idea/codeStyleSettings.xml
 !.idea/codeStyles

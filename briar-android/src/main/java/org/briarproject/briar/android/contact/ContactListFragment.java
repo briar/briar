@@ -15,11 +15,11 @@ import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
 import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.activity.ActivityComponent;
+import org.briarproject.briar.android.contact.add.nearby.AddNearbyContactActivity;
 import org.briarproject.briar.android.contact.add.remote.AddContactActivity;
 import org.briarproject.briar.android.contact.add.remote.PendingContactListActivity;
 import org.briarproject.briar.android.conversation.ConversationActivity;
 import org.briarproject.briar.android.fragment.BaseFragment;
-import org.briarproject.briar.android.keyagreement.ContactExchangeActivity;
 import org.briarproject.briar.android.util.BriarSnackbarBuilder;
 import org.briarproject.briar.android.view.BriarRecyclerView;
 
@@ -125,7 +125,8 @@ public class ContactListFragment extends BaseFragment
 		switch (itemId) {
 			case R.id.action_add_contact_nearby:
 				Intent intent =
-						new Intent(getContext(), ContactExchangeActivity.class);
+						new Intent(getContext(),
+								AddNearbyContactActivity.class);
 				startActivity(intent);
 				return;
 			case R.id.action_add_contact_remotely:

@@ -1,4 +1,4 @@
-package org.briarproject.briar.android.keyagreement;
+package org.briarproject.briar.android.contact.add.nearby;
 
 import android.hardware.Camera;
 
@@ -6,7 +6,6 @@ import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 
 import androidx.annotation.UiThread;
 
-@SuppressWarnings("deprecation")
 @NotNullByDefault
 interface PreviewConsumer {
 

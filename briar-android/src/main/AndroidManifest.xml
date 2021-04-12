@@ -342,7 +342,7 @@
 		</activity>
 
 		<activity
-			android:name="org.briarproject.briar.android.keyagreement.ContactExchangeActivity"
+			android:name="org.briarproject.briar.android.contact.add.nearby.AddNearbyContactActivity"
 			android:label="@string/add_contact_title"
 			android:parentActivityName="org.briarproject.briar.android.navdrawer.NavDrawerActivity"
 			android:theme="@style/BriarTheme.NoActionBar">
