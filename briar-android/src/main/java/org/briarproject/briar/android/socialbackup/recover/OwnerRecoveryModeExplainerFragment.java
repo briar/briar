@@ -24,7 +24,7 @@ public class OwnerRecoveryModeExplainerFragment extends BaseFragment {
 	@Inject
 	ViewModelProvider.Factory viewModelFactory;
 
-	private ReturnShardViewModel viewModel;
+	private OwnerReturnShardViewModel viewModel;
 
 //	@Override
 //	public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -36,7 +36,7 @@ public class OwnerRecoveryModeExplainerFragment extends BaseFragment {
 	public void injectFragment(ActivityComponent component) {
 		component.inject(this);
 		viewModel = new ViewModelProvider(requireActivity(), viewModelFactory)
-				.get(ReturnShardViewModel.class);
+				.get(OwnerReturnShardViewModel.class);
 	}
 
 	@Override

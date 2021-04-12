@@ -224,8 +224,8 @@ class OwnerReturnShardViewModel extends AndroidViewModel implements SecretOwnerT
 		       // Use ISO 8859-1 to encode bytes directly as a string
 		       String content = new String(payloadBytes, ISO_8859_1);
 		       qrCodeBitmap = QrCodeUtils.createQrCode(dm, content);
-		       showQrCodeFragment.setEvent(true);
 	       });
+	       showQrCodeFragment.setEvent(true);
        }
 	}
 }
