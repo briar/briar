@@ -15,21 +15,21 @@ public interface CustodianTask {
 
 	class State {
 
-		static class Connecting extends State {
+		public static class Connecting extends State {
 		}
 
-		static class SendingShard extends State {
+		public static class SendingShard extends State {
 		}
 
-		static class ReceivingAck extends State {
+		public static class ReceivingAck extends State {
 		}
 
-		static class Success extends State {
+		public static class Success extends State {
 		}
 
-		static class Failure extends State {
+		public static class Failure extends State {
 
-			enum Reason {
+			public enum Reason {
 				QR_CODE_INVALID,
 				QR_CODE_TOO_OLD,
 				QR_CODE_TOO_NEW,
@@ -39,7 +39,7 @@ public interface CustodianTask {
 
 			private final Reason reason;
 
-			Failure(Reason reason) {
+			public Failure(Reason reason) {
 				this.reason = reason;
 			}
 
