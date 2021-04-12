@@ -22,11 +22,14 @@ public interface SecretOwnerTask {
 
 			private final PublicKey publicKey;
 			private final InetSocketAddress socketAddress;
+			private final byte[] localPayload;
 
 			public Listening(PublicKey publicKey,
 					InetSocketAddress socketAddress) {
 				this.publicKey = publicKey;
 				this.socketAddress = socketAddress;
+				// TODO this should also include the socket address
+				this.localPayload = publicKey.getEncoded();
 			}
 
 			public PublicKey getPublicKey() {
@@ -35,6 +38,10 @@ public interface SecretOwnerTask {
 
 			public InetSocketAddress getSocketAddress() {
 				return socketAddress;
+			}
+
+			public byte[] getLocalPayload() {
+				return localPayload;
 			}
 		}
 
