@@ -80,11 +80,13 @@ import org.briarproject.briar.android.sharing.ShareBlogFragment;
 import org.briarproject.briar.android.sharing.ShareForumActivity;
 import org.briarproject.briar.android.sharing.ShareForumFragment;
 import org.briarproject.briar.android.sharing.SharingModule;
-//import org.briarproject.briar.android.socialbackup.CustodianDisplayFragment;
 import org.briarproject.briar.android.socialbackup.CustodianHelpRecoverActivity;
+import org.briarproject.briar.android.socialbackup.CustodianRecoveryModeExplainerFragment;
 import org.briarproject.briar.android.socialbackup.CustodianSelectorFragment;
 import org.briarproject.briar.android.socialbackup.DistributedBackupActivity;
 import org.briarproject.briar.android.socialbackup.ExistingBackupFragment;
+import org.briarproject.briar.android.socialbackup.recover.CustodianReturnShardActivity;
+import org.briarproject.briar.android.socialbackup.recover.CustodianReturnShardFragment;
 import org.briarproject.briar.android.socialbackup.recover.OwnerRecoveryModeExplainerFragment;
 import org.briarproject.briar.android.socialbackup.recover.RecoverActivity;
 import org.briarproject.briar.android.socialbackup.ShardsSentFragment;
@@ -202,6 +204,8 @@ public interface ActivityComponent {
 
 	void inject(ReturnShardActivity returnShardActivity);
 
+	void inject(CustodianReturnShardActivity custodianSendShardActivity);
+
 	// Fragments
 
 	void inject(AuthorNameFragment fragment);
@@ -279,4 +283,8 @@ public interface ActivityComponent {
 	void inject(NewOrRecoverFragment newOrRecoverFragment);
 
 	void inject(ReturnShardFragment returnShardFragment);
+
+	void inject(CustodianRecoveryModeExplainerFragment custodianRecoveryModeExplainerFragment);
+
+	void inject(CustodianReturnShardFragment custodianReturnShardFragment);
 }

@@ -47,7 +47,6 @@ public class OwnerRecoveryModeExplainerFragment extends BaseFragment {
 	public View onCreateView(@NonNull LayoutInflater inflater,
 			@Nullable ViewGroup container,
 			@Nullable Bundle savedInstanceState) {
-		System.out.println("GOt here *************************************");
 		View view = inflater.inflate(R.layout.fragment_recovery_owner_explainer,
 				container, false);
 		Button button = view.findViewById(R.id.beginButton);
