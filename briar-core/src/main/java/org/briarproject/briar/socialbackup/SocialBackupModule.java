@@ -10,6 +10,8 @@ import org.briarproject.bramble.api.versioning.ClientVersioningManager;
 import org.briarproject.briar.api.conversation.ConversationManager;
 import org.briarproject.briar.api.socialbackup.SocialBackupExchangeManager;
 import org.briarproject.briar.api.socialbackup.SocialBackupManager;
+import org.briarproject.briar.api.socialbackup.recovery.SecretOwnerTask;
+import org.briarproject.briar.socialbackup.recovery.SecretOwnerTaskImpl;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -95,5 +97,10 @@ public class SocialBackupModule {
 	@Provides
 	SocialBackupExchangeManager socialBackupExchangeManager(SocialBackupExchangeManagerImpl socialBackupExchangeManager) {
 		return socialBackupExchangeManager;
+	}
+
+	@Provides
+	SecretOwnerTask secretOwnerTask(SecretOwnerTaskImpl secretOwnerTask) {
+		return secretOwnerTask;
 	}
 }
