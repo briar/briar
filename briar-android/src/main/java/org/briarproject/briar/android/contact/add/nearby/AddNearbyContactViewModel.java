@@ -74,7 +74,6 @@ import static android.bluetooth.BluetoothAdapter.ACTION_SCAN_MODE_CHANGED;
 import static android.bluetooth.BluetoothAdapter.EXTRA_SCAN_MODE;
 import static android.bluetooth.BluetoothAdapter.SCAN_MODE_CONNECTABLE_DISCOVERABLE;
 import static android.widget.Toast.LENGTH_LONG;
-import static java.util.Objects.requireNonNull;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
 import static java.util.logging.Logger.getLogger;
@@ -417,15 +416,16 @@ class AddNearbyContactViewModel extends AndroidViewModel
 	@IoExecutor
 	public void onQrCodeDecoded(Result result) {
 		LOG.info("Got result from decoder");
+		KeyAgreementTask currentTask = task;
 		// Ignore results until the KeyAgreementTask is ready
-		if (!gotLocalPayload || gotRemotePayload) return;
+		if (!gotLocalPayload || gotRemotePayload || currentTask == null) return;
 		try {
 			byte[] payloadBytes = result.getText().getBytes(ISO_8859_1);
 			if (LOG.isLoggable(INFO))
 				LOG.info("Remote payload is " + payloadBytes.length + " bytes");
 			Payload remotePayload = payloadParser.parse(payloadBytes);
 			gotRemotePayload = true;
-			requireNonNull(task).connectAndRunProtocol(remotePayload);
+			currentTask.connectAndRunProtocol(remotePayload);
 			state.postValue(new AddContactState.QrCodeScanned());
 		} catch (UnsupportedVersionException e) {
 			resetPayloadFlags();
