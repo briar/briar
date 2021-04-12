@@ -18,7 +18,7 @@ public interface SecretOwnerTask {
 
 	class State {
 
-		static class Listening extends State {
+		public static class Listening extends State {
 
 			private final PublicKey publicKey;
 			private final InetSocketAddress socketAddress;
@@ -38,16 +38,16 @@ public interface SecretOwnerTask {
 			}
 		}
 
-		static class ReceivingShard extends State {
+		public static class ReceivingShard extends State {
 		}
 
-		static class SendingAck extends State {
+		public static class SendingAck extends State {
 		}
 
-		static class Success extends State {
+		public static class Success extends State {
 		}
 
-		static class Failure extends State {
+		public static class Failure extends State {
 		}
 	}
 }
