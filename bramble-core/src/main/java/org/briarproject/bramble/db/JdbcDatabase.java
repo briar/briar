@@ -81,6 +81,7 @@ import static org.briarproject.bramble.api.sync.validation.MessageState.DELIVERE
 import static org.briarproject.bramble.api.sync.validation.MessageState.PENDING;
 import static org.briarproject.bramble.api.sync.validation.MessageState.UNKNOWN;
 import static org.briarproject.bramble.db.DatabaseConstants.DB_SETTINGS_NAMESPACE;
+import static org.briarproject.bramble.db.DatabaseConstants.DIRTY_KEY;
 import static org.briarproject.bramble.db.DatabaseConstants.LAST_COMPACTED_KEY;
 import static org.briarproject.bramble.db.DatabaseConstants.MAX_COMPACTION_INTERVAL_MS;
 import static org.briarproject.bramble.db.DatabaseConstants.SCHEMA_VERSION_KEY;
@@ -354,9 +355,14 @@ abstract class JdbcDatabase implements Database<Connection> {
 	@GuardedBy("connectionsLock")
 	private boolean closed = false;
 
+	private volatile boolean wasDirtyOnInitialisation = false;
+
 	protected abstract Connection createConnection()
 			throws DbException, SQLException;
 
+	// Used exclusively during open to compact the database after schema
+	// migrations or after DatabaseConstants#MAX_COMPACTION_INTERVAL_MS has
+	// elapsed
 	protected abstract void compactAndClose() throws DbException;
 
 	JdbcDatabase(DatabaseTypes databaseTypes, MessageFactory messageFactory,
@@ -381,13 +387,19 @@ abstract class JdbcDatabase implements Database<Connection> {
 		try {
 			if (reopen) {
 				Settings s = getSettings(txn, DB_SETTINGS_NAMESPACE);
+				wasDirtyOnInitialisation = isDirty(s);
 				compact = migrateSchema(txn, s, listener) || isCompactionDue(s);
 			} else {
+				wasDirtyOnInitialisation = false;
 				createTables(txn);
 				initialiseSettings(txn);
 				compact = false;
 			}
+			if (LOG.isLoggable(INFO)) {
+				LOG.info("db dirty? " + wasDirtyOnInitialisation);
+			}
 			createIndexes(txn);
+			setDirty(txn, true);
 			commitTransaction(txn);
 		} catch (DbException e) {
 			abortTransaction(txn);
@@ -412,6 +424,11 @@ abstract class JdbcDatabase implements Database<Connection> {
 				throw e;
 			}
 		}
+	}
+
+	@Override
+	public boolean wasDirtyOnInitialisation() {
+		return wasDirtyOnInitialisation;
 	}
 
 	/**
@@ -485,6 +502,16 @@ abstract class JdbcDatabase implements Database<Connection> {
 	private void storeLastCompacted(Connection txn) throws DbException {
 		Settings s = new Settings();
 		s.putLong(LAST_COMPACTED_KEY, clock.currentTimeMillis());
+		mergeSettings(txn, s, DB_SETTINGS_NAMESPACE);
+	}
+
+	private boolean isDirty(Settings s) {
+		return s.getBoolean(DIRTY_KEY, false);
+	}
+
+	protected void setDirty(Connection txn, boolean dirty) throws DbException {
+		Settings s = new Settings();
+		s.putBoolean(DIRTY_KEY, dirty);
 		mergeSettings(txn, s, DB_SETTINGS_NAMESPACE);
 	}
 

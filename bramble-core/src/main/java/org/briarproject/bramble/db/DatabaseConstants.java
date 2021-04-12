@@ -37,4 +37,10 @@ interface DatabaseConstants {
 	 * has passed since the last compaction.
 	 */
 	long MAX_COMPACTION_INTERVAL_MS = DAYS.toMillis(30);
+
+	/**
+	 * The {@link Settings} key under which the flag is stored indicating
+	 * whether the database is marked as dirty.
+	 */
+	String DIRTY_KEY = "dirty";
 }

@@ -41,8 +41,12 @@ import org.junit.Test;
 
 import java.io.File;
 import java.sql.Connection;
+import java.sql.Driver;
+import java.sql.DriverManager;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Enumeration;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -2347,6 +2351,67 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 		db.close();
 	}
 
+
+	@Test
+	public void testShutdownGracefully() throws Exception {
+		Database<Connection> db = open(false);
+		db.close();
+		open(true);
+		assertFalse(db.wasDirtyOnInitialisation());
+	}
+
+	@Test
+	public void testShutdownDirty() throws Exception {
+		Database<Connection> db = open(false);
+
+		// We want to simulate a dirty shutdown here which would normally be
+		// caused by an empty battery or by force closing the Android app.
+		// As there is no obvious way to simulate this, we're artificially
+		// causing an SqlException during close() here by unloading the JDBC
+		// drivers.
+		List<String> unloadedDrivers = unloadDrivers();
+
+		try {
+			db.close();
+			fail();
+		} catch (Exception e) {
+			// continue
+			e.printStackTrace();
+		}
+
+		// Reloading drivers to continue so that we're able to work with the
+		// database again.
+		reloadDrivers(unloadedDrivers);
+
+		db = open(true);
+		assertTrue(db.wasDirtyOnInitialisation());
+	}
+
+	@Test
+	public void testShutdownDirtyThenGracefully() throws Exception {
+		Database<Connection> db = open(false);
+
+		// Simulating a dirty shutdown here, look at #testShutdownDirty for
+		// details.
+		List<String> unloadedDrivers = unloadDrivers();
+
+		try {
+			db.close();
+			fail();
+		} catch (Exception e) {
+			// continue
+		}
+
+		reloadDrivers(unloadedDrivers);
+
+		db = open(true);
+		assertTrue(db.wasDirtyOnInitialisation());
+
+		db.close();
+		db = open(true);
+		assertFalse(db.wasDirtyOnInitialisation());
+	}
+
 	private Database<Connection> open(boolean resume) throws Exception {
 		return open(resume, new TestMessageFactory(), new SystemClock());
 	}
@@ -2400,6 +2465,31 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 				timePeriod, 456, true);
 		return new TransportKeys(transportId, inPrev, inCurr, inNext, outCurr,
 				rootKey, alice);
+	}
+
+	private List<String> unloadDrivers() {
+		Enumeration<Driver> drivers = DriverManager.getDrivers();
+		List<String> unloaded = new ArrayList<>();
+		while (drivers.hasMoreElements()) {
+			Driver d = drivers.nextElement();
+			try {
+				DriverManager.deregisterDriver(d);
+				unloaded.add(d.getClass().getName());
+			} catch (SQLException e) {
+				e.printStackTrace();
+				fail();
+			}
+		}
+		return unloaded;
+	}
+
+	private void reloadDrivers(List<String> unloadedDrivers)
+			throws ClassNotFoundException, IllegalAccessException,
+			InstantiationException, SQLException {
+		for (String driverName : unloadedDrivers) {
+			DriverManager.registerDriver(
+					(Driver) Class.forName(driverName).newInstance());
+		}
 	}
 
 	@After
