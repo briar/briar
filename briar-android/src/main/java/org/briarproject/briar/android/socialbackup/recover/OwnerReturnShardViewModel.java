@@ -4,23 +4,14 @@ import android.app.Application;
 import android.graphics.Bitmap;
 import android.util.DisplayMetrics;
 
-import org.briarproject.bramble.api.crypto.SecretKey;
-import org.briarproject.bramble.api.db.ContactExistsException;
-import org.briarproject.bramble.api.db.DbException;
-import org.briarproject.bramble.api.keyagreement.KeyAgreementResult;
-import org.briarproject.bramble.api.keyagreement.Payload;
 import org.briarproject.bramble.api.lifecycle.IoExecutor;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
-import org.briarproject.bramble.api.plugin.TransportId;
-import org.briarproject.bramble.api.plugin.duplex.DuplexTransportConnection;
 import org.briarproject.bramble.api.system.AndroidExecutor;
 import org.briarproject.briar.android.contact.add.nearby.QrCodeUtils;
 import org.briarproject.briar.android.viewmodel.LiveEvent;
 import org.briarproject.briar.android.viewmodel.MutableLiveEvent;
-import org.briarproject.briar.api.socialbackup.ReturnShardPayload;
 import org.briarproject.briar.api.socialbackup.recovery.SecretOwnerTask;
 
-import java.io.IOException;
 import java.nio.charset.Charset;
 import java.util.concurrent.Executor;
 import java.util.logging.Logger;
@@ -33,12 +24,10 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
 import static java.util.logging.Level.INFO;
-import static java.util.logging.Level.WARNING;
 import static java.util.logging.Logger.getLogger;
-import static org.briarproject.bramble.util.LogUtils.logException;
 
 @NotNullByDefault
-class OwnerReturnShardViewModel extends AndroidViewModel {
+class OwnerReturnShardViewModel extends AndroidViewModel implements SecretOwnerTask.Observer {
 
 	private static final Logger LOG =
 			getLogger(OwnerReturnShardViewModel.class.getName());
@@ -46,10 +35,11 @@ class OwnerReturnShardViewModel extends AndroidViewModel {
 	@SuppressWarnings("CharsetObjectCanBeUsed") // Requires minSdkVersion >= 19
 	private static final Charset ISO_8859_1 = Charset.forName("ISO-8859-1");
 
-	private ReturnShardPayload returnShardPayload;
+//	private ReturnShardPayload returnShardPayload;
 
 	private final AndroidExecutor androidExecutor;
 	private final Executor ioExecutor;
+	private final SecretOwnerTask task;
 
 	private final MutableLiveEvent<Boolean> showQrCodeFragment =
 			new MutableLiveEvent<>();
@@ -58,14 +48,17 @@ class OwnerReturnShardViewModel extends AndroidViewModel {
 
 	private boolean wasContinueClicked = false;
 	private boolean isActivityResumed = false;
+	private Bitmap qrCodeBitmap;
 
 	@Inject
 	OwnerReturnShardViewModel(Application app,
 			AndroidExecutor androidExecutor,
+			SecretOwnerTask task,
 			@IoExecutor Executor ioExecutor) {
 		super(app);
 		this.androidExecutor = androidExecutor;
 		this.ioExecutor = ioExecutor;
+		this.task = task;
 //		IntentFilter filter = new IntentFilter(ACTION_SCAN_MODE_CHANGED);
 	}
 
@@ -89,11 +82,11 @@ class OwnerReturnShardViewModel extends AndroidViewModel {
 		// If we return to the intro fragment, we may need to enable wifi and
 //		hasEnabledWifi = false;
 		startListening();
-		showQrCodeFragment.setEvent(true);
 	}
 
 	@UiThread
 	private void startListening() {
+		task.start(this);
 //		KeyAgreementTask oldTask = task;
 //		KeyAgreementTask newTask = keyAgreementTaskProvider.get();
 //		task = newTask;
@@ -105,6 +98,7 @@ class OwnerReturnShardViewModel extends AndroidViewModel {
 
 	@UiThread
 	private void stopListening() {
+		task.cancel();
 //		KeyAgreementTask oldTask = task;
 //		ioExecutor.execute(() -> {
 //			if (oldTask != null) oldTask.stopListening();
@@ -153,26 +147,6 @@ class OwnerReturnShardViewModel extends AndroidViewModel {
 //		}
 //	}
 
-	/**
-	 * This sets the QR code by setting the state to KeyAgreementListening.
-	 */
-	private void onLocalPayloadReceived(Payload localPayload) {
-		if (gotLocalPayload) return;
-		DisplayMetrics dm = getApplication().getResources().getDisplayMetrics();
-		ioExecutor.execute(() -> {
-			byte[] payloadBytes = payloadEncoder.encode(localPayload);
-			if (LOG.isLoggable(INFO)) {
-				LOG.info("Local payload is " + payloadBytes.length
-						+ " bytes");
-			}
-			// Use ISO 8859-1 to encode bytes directly as a string
-			String content = new String(payloadBytes, ISO_8859_1);
-			Bitmap qrCode = QrCodeUtils.createQrCode(dm, content);
-			gotLocalPayload = true;
-			state.postValue(new SecretOwnerTask.State.Listening(qrCode));
-		});
-	}
-
 	@UiThread
 //	private void startContactExchange(KeyAgreementResult result) {
 //		TransportId t = result.getTransportId();
@@ -218,7 +192,6 @@ class OwnerReturnShardViewModel extends AndroidViewModel {
 	 * https://issuetracker.google.com/issues/37067655.
 	 * TODO check if this is still happening with new permission requesting
 	 */
-	@UiThread
 	void setIsActivityResumed(boolean resumed) {
 		isActivityResumed = resumed;
 		// Workaround for
@@ -232,5 +205,27 @@ class OwnerReturnShardViewModel extends AndroidViewModel {
 
 	LiveData<SecretOwnerTask.State> getState() {
 		return state;
+	}
+
+	public Bitmap getQrCodeBitmap() {
+		return qrCodeBitmap;
+	}
+
+	@Override
+	public void onStateChanged(SecretOwnerTask.State state) {
+       if (state instanceof SecretOwnerTask.State.Listening) {
+	       DisplayMetrics dm = getApplication().getResources().getDisplayMetrics();
+	       ioExecutor.execute(() -> {
+		       byte[] payloadBytes = ((SecretOwnerTask.State.Listening) state).getLocalPayload();
+		       if (LOG.isLoggable(INFO)) {
+			       LOG.info("Local payload is " + payloadBytes.length
+					       + " bytes");
+		       }
+		       // Use ISO 8859-1 to encode bytes directly as a string
+		       String content = new String(payloadBytes, ISO_8859_1);
+		       qrCodeBitmap = QrCodeUtils.createQrCode(dm, content);
+		       showQrCodeFragment.setEvent(true);
+	       });
+       }
 	}
 }

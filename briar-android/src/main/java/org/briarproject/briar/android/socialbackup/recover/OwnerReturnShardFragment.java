@@ -129,8 +129,7 @@ public class OwnerReturnShardFragment extends BaseFragment
 	@UiThread
 	private void onReturnShardStateChanged(@Nullable SecretOwnerTask.State state) {
 		if (state instanceof SecretOwnerTask.State.Listening) {
-			Bitmap qrCode =
-					((ReturnShardState.KeyAgreementListening) state).qrCode;
+			Bitmap qrCode = viewModel.getQrCodeBitmap();
 			qrCodeView.setQrCode(qrCode);
 		} else if (state instanceof SecretOwnerTask.State.ReceivingShard) {
 			statusView.setVisibility(VISIBLE);

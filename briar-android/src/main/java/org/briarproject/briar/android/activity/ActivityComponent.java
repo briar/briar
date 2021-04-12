@@ -88,6 +88,7 @@ import org.briarproject.briar.android.socialbackup.ExistingBackupFragment;
 import org.briarproject.briar.android.socialbackup.recover.CustodianReturnShardActivity;
 import org.briarproject.briar.android.socialbackup.recover.CustodianReturnShardFragment;
 import org.briarproject.briar.android.socialbackup.recover.OwnerRecoveryModeExplainerFragment;
+import org.briarproject.briar.android.socialbackup.recover.OwnerReturnShardActivity;
 import org.briarproject.briar.android.socialbackup.recover.OwnerReturnShardFragment;
 import org.briarproject.briar.android.socialbackup.recover.RecoverActivity;
 import org.briarproject.briar.android.socialbackup.ShardsSentFragment;
@@ -205,7 +206,9 @@ public interface ActivityComponent {
 
 	void inject(ReturnShardActivity returnShardActivity);
 
-	void inject(CustodianReturnShardActivity custodianSendShardActivity);
+	void inject(CustodianReturnShardActivity custodianReturnShardActivity);
+
+    void inject(OwnerReturnShardActivity ownerReturnShardActivity);
 
 	// Fragments
 

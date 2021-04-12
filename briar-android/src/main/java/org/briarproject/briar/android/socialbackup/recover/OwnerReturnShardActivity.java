@@ -12,15 +12,13 @@ import org.briarproject.briar.android.activity.ActivityComponent;
 import org.briarproject.briar.android.activity.BaseActivity;
 import org.briarproject.briar.android.contact.add.nearby.AddNearbyContactErrorFragment;
 import org.briarproject.briar.android.fragment.BaseFragment;
-import org.briarproject.briar.android.util.RequestBluetoothDiscoverable;
+import org.briarproject.briar.api.socialbackup.recovery.SecretOwnerTask;
 
 import java.util.logging.Logger;
 
 import javax.annotation.Nullable;
 import javax.inject.Inject;
 
-import androidx.activity.result.ActivityResultLauncher;
-import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.fragment.app.FragmentManager;
 import androidx.lifecycle.ViewModelProvider;
 
@@ -87,8 +85,8 @@ public class OwnerReturnShardActivity extends BaseActivity
 		viewModel.getShowQrCodeFragment().observeEvent(this, show -> {
 			if (show) showQrCodeFragment();
 		});
-//		viewModel.getState()
-//				.observe(this, this::onReturnShardStateChanged);
+		viewModel.getState()
+				.observe(this, this::onReturnShardStateChanged);
 	}
 
 	@Override
@@ -120,9 +118,9 @@ public class OwnerReturnShardActivity extends BaseActivity
 	@Override
 	public void onBackPressed() {
 		if (viewModel.getState()
-				.getValue() instanceof ReturnShardState.Failed) {
+				.getValue() instanceof SecretOwnerTask.State.Failure) {
 			// re-create this activity when going back in failed state
-			Intent i = new Intent(this, ReturnShardActivity.class);
+			Intent i = new Intent(this, OwnerReturnShardActivity.class);
 			i.setFlags(FLAG_ACTIVITY_CLEAR_TOP);
 			startActivity(i);
 		} else {
@@ -141,16 +139,16 @@ public class OwnerReturnShardActivity extends BaseActivity
 		}
 	}
 
-	private void onReturnShardStateChanged(ReturnShardState state) {
-		if (state instanceof ReturnShardState.SocialBackupExchangeFinished) {
-			ReturnShardState.SocialBackupExchangeResult result =
-					((ReturnShardState.SocialBackupExchangeFinished) state).result;
-			onSocialBackupExchangeResult(result);
-		} else if (state instanceof ReturnShardState.Failed) {
-			Boolean qrCodeTooOld =
-					((ReturnShardState.Failed) state).qrCodeTooOld;
-			onAddingContactFailed(qrCodeTooOld);
-		}
+	private void onReturnShardStateChanged(SecretOwnerTask.State state) {
+//		if (state instanceof ReturnShardState.SocialBackupExchangeFinished) {
+//			ReturnShardState.SocialBackupExchangeResult result =
+//					((ReturnShardState.SocialBackupExchangeFinished) state).result;
+//			onSocialBackupExchangeResult(result);
+//		} else if (state instanceof ReturnShardState.Failed) {
+//			Boolean qrCodeTooOld =
+//					((ReturnShardState.Failed) state).qrCodeTooOld;
+//			onAddingContactFailed(qrCodeTooOld);
+//		}
 	}
 
 	private void onSocialBackupExchangeResult(
