@@ -50,10 +50,8 @@ import androidx.lifecycle.MutableLiveData;
 
 import static android.widget.Toast.LENGTH_SHORT;
 import static java.lang.Math.max;
-import static java.util.logging.Level.WARNING;
 import static java.util.logging.Logger.getLogger;
 import static org.briarproject.bramble.util.LogUtils.logDuration;
-import static org.briarproject.bramble.util.LogUtils.logException;
 import static org.briarproject.bramble.util.LogUtils.now;
 
 @MethodsNotNullByDefault
@@ -116,6 +114,7 @@ class ForumViewModel extends ThreadListViewModel<ForumPostItem> {
 		}
 	}
 
+	@Override
 	protected void clearNotifications() {
 		notificationManager.clearForumPostNotification(groupId);
 	}
@@ -127,7 +126,7 @@ class ForumViewModel extends ThreadListViewModel<ForumPostItem> {
 				Forum f = forumManager.getForum(groupId);
 				forum.postValue(f);
 			} catch (DbException e) {
-				logException(LOG, WARNING, e);
+				handleException(e);
 			}
 		});
 		return forum;
@@ -167,7 +166,7 @@ class ForumViewModel extends ThreadListViewModel<ForumPostItem> {
 						clock.currentTimeMillis());
 				createMessage(text, timestamp, parentId, author);
 			} catch (DbException e) {
-				logException(LOG, WARNING, e);
+				handleException(e);
 			}
 		});
 	}
@@ -191,7 +190,7 @@ class ForumViewModel extends ThreadListViewModel<ForumPostItem> {
 				ForumPostItem item = new ForumPostItem(header, text);
 				addItem(item, true);
 			});
-		}, e -> logException(LOG, WARNING, e));
+		}, this::handleException);
 	}
 
 	@Override
@@ -200,11 +199,12 @@ class ForumViewModel extends ThreadListViewModel<ForumPostItem> {
 			try {
 				forumManager.setReadFlag(groupId, item.getId(), true);
 			} catch (DbException e) {
-				logException(LOG, WARNING, e);
+				handleException(e);
 			}
 		});
 	}
 
+	@Override
 	public void loadSharingContacts() {
 		runOnDbThread(true, txn -> {
 			Collection<Contact> contacts =
@@ -212,7 +212,7 @@ class ForumViewModel extends ThreadListViewModel<ForumPostItem> {
 			Collection<ContactId> contactIds = new ArrayList<>(contacts.size());
 			for (Contact c : contacts) contactIds.add(c.getId());
 			txn.attach(() -> sharingController.addAll(contactIds));
-		}, e -> logException(LOG, WARNING, e));
+		}, this::handleException);
 	}
 
 	void deleteForum() {
@@ -220,12 +220,13 @@ class ForumViewModel extends ThreadListViewModel<ForumPostItem> {
 			try {
 				Forum f = forumManager.getForum(groupId);
 				forumManager.removeForum(f);
+				androidExecutor.runOnUiThread(() -> Toast
+						.makeText(getApplication(), R.string.forum_left_toast,
+								LENGTH_SHORT).show());
 			} catch (DbException e) {
-				logException(LOG, WARNING, e);
+				handleException(e);
 			}
 		});
-		Toast.makeText(getApplication(), R.string.forum_left_toast,
-				LENGTH_SHORT).show();
 	}
 
 }

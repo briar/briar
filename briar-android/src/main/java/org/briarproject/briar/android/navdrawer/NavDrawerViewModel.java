@@ -94,7 +94,7 @@ public class NavDrawerViewModel extends DbViewModel {
 					}
 				}
 			} catch (DbException e) {
-				logException(LOG, WARNING, e);
+				handleException(e);
 			}
 		});
 	}
@@ -109,7 +109,7 @@ public class NavDrawerViewModel extends DbViewModel {
 				settings.putInt(EXPIRY_DATE_WARNING, date);
 				settingsManager.mergeSettings(settings, SETTINGS_NAMESPACE);
 			} catch (DbException e) {
-				logException(LOG, WARNING, e);
+				handleException(e);
 			}
 		});
 	}
@@ -156,7 +156,7 @@ public class NavDrawerViewModel extends DbViewModel {
 						settings.getBoolean(SHOW_TRANSPORTS_ONBOARDING, true);
 				showTransportsOnboarding.postValue(show);
 			} catch (DbException e) {
-				logException(LOG, WARNING, e);
+				handleException(e);
 			}
 		});
 	}
@@ -170,7 +170,7 @@ public class NavDrawerViewModel extends DbViewModel {
 				settings.putBoolean(SHOW_TRANSPORTS_ONBOARDING, false);
 				settingsManager.mergeSettings(settings, SETTINGS_NAMESPACE);
 			} catch (DbException e) {
-				logException(LOG, WARNING, e);
+				handleException(e);
 			}
 		});
 	}

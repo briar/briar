@@ -48,10 +48,8 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
 import static java.util.Objects.requireNonNull;
-import static java.util.logging.Level.WARNING;
 import static java.util.logging.Logger.getLogger;
 import static org.briarproject.bramble.util.LogUtils.logDuration;
-import static org.briarproject.bramble.util.LogUtils.logException;
 import static org.briarproject.bramble.util.LogUtils.now;
 import static org.briarproject.briar.api.privategroup.PrivateGroupManager.CLIENT_ID;
 
@@ -202,7 +200,7 @@ class GroupListViewModel extends DbViewModel implements EventListener {
 				groupManager.removePrivateGroup(g);
 				logDuration(LOG, "Removing group", start);
 			} catch (DbException e) {
-				logException(LOG, WARNING, e);
+				handleException(e);
 			}
 		});
 	}
@@ -213,7 +211,7 @@ class GroupListViewModel extends DbViewModel implements EventListener {
 				int i = groupInvitationManager.getInvitations().size();
 				numInvitations.postValue(i);
 			} catch (DbException e) {
-				logException(LOG, WARNING, e);
+				handleException(e);
 			}
 		});
 	}

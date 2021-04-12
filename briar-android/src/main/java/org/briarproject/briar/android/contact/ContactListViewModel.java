@@ -19,22 +19,14 @@ import org.briarproject.briar.api.conversation.ConversationManager;
 import org.briarproject.briar.api.identity.AuthorManager;
 
 import java.util.concurrent.Executor;
-import java.util.logging.Logger;
 
 import javax.inject.Inject;
 
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
-import static java.util.logging.Level.WARNING;
-import static java.util.logging.Logger.getLogger;
-import static org.briarproject.bramble.util.LogUtils.logException;
-
 @NotNullByDefault
 class ContactListViewModel extends ContactsViewModel {
-
-	private static final Logger LOG =
-			getLogger(ContactListViewModel.class.getName());
 
 	private final AndroidNotificationManager notificationManager;
 
@@ -76,7 +68,7 @@ class ContactListViewModel extends ContactsViewModel {
 						!contactManager.getPendingContacts().isEmpty();
 				hasPendingContacts.postValue(hasPending);
 			} catch (DbException e) {
-				logException(LOG, WARNING, e);
+				handleException(e);
 			}
 		});
 	}

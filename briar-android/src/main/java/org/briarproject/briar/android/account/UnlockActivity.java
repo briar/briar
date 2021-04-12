@@ -51,6 +51,7 @@ public class UnlockActivity extends BaseActivity {
 		component.inject(this);
 	}
 
+	@Override
 	public void onCreate(@Nullable Bundle state) {
 		super.onCreate(state);
 		overridePendingTransition(0, 0);

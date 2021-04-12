@@ -45,12 +45,10 @@ import static android.bluetooth.BluetoothAdapter.ACTION_STATE_CHANGED;
 import static android.bluetooth.BluetoothAdapter.EXTRA_STATE;
 import static android.bluetooth.BluetoothAdapter.STATE_ON;
 import static java.util.logging.Level.INFO;
-import static java.util.logging.Level.WARNING;
 import static java.util.logging.Logger.getLogger;
 import static org.briarproject.bramble.api.plugin.Plugin.PREF_PLUGIN_ENABLE;
 import static org.briarproject.bramble.api.plugin.Plugin.State.STARTING_STOPPING;
 import static org.briarproject.bramble.util.LogUtils.logDuration;
-import static org.briarproject.bramble.util.LogUtils.logException;
 import static org.briarproject.bramble.util.LogUtils.now;
 
 @NotNullByDefault
@@ -197,7 +195,7 @@ public class PluginViewModel extends DbViewModel implements EventListener {
 						BluetoothConstants.DEFAULT_PREF_PLUGIN_ENABLE);
 				btEnabledSetting.postValue(bt);
 			} catch (DbException e) {
-				logException(LOG, WARNING, e);
+				handleException(e);
 			}
 		});
 	}
@@ -228,7 +226,7 @@ public class PluginViewModel extends DbViewModel implements EventListener {
 				settingsManager.mergeSettings(s, namespace);
 				logDuration(LOG, "Merging settings", start);
 			} catch (DbException e) {
-				logException(LOG, WARNING, e);
+				handleException(e);
 			}
 		});
 	}

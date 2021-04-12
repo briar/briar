@@ -70,7 +70,7 @@ public class AddContactViewModel extends DbViewModel {
 			try {
 				handshakeLink.postValue(contactManager.getHandshakeLink());
 			} catch (DbException e) {
-				logException(LOG, WARNING, e);
+				handleException(e);
 				// the UI should stay disabled in this case,
 				// leaving the user unable to proceed
 			}
