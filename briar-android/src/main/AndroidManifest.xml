@@ -166,7 +166,7 @@
 		</activity>
 
 		<activity
-			android:name="org.briarproject.briar.android.socialbackup.recover.ReturnShardActivity"
+			android:name="org.briarproject.briar.android.socialbackup.recover.OwnerReturnShardActivity"
 			android:label="@string/activity_name_recovery"
 			android:parentActivityName="org.briarproject.briar.android.account.NewOrRecoverActivity">
 			<meta-data
