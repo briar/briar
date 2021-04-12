@@ -193,6 +193,9 @@ public abstract class BaseActivity extends AppCompatActivity
 	}
 
 	private boolean showScreenFilterWarning() {
+		if (((BriarApplication) getApplication()).isInstrumentationTest()) {
+			return false;
+		}
 		// If the dialog is already visible, filter the tap
 		ScreenFilterDialogFragment f = findDialogFragment();
 		if (f != null && f.isVisible()) return false;

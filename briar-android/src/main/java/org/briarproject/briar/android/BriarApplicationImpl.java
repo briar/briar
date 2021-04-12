@@ -151,4 +151,9 @@ public class BriarApplicationImpl extends Application
 		ActivityManager.getMyMemoryState(info);
 		return (info.importance != IMPORTANCE_FOREGROUND);
 	}
+
+	@Override
+	public boolean isInstrumentationTest() {
+		return false;
+	}
 }

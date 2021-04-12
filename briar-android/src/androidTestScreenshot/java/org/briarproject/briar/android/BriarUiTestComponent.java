@@ -31,4 +31,6 @@ public interface BriarUiTestComponent extends AndroidComponent {
 
 	void inject(SettingsActivityScreenshotTest test);
 
+	void inject(PromoVideoTest test);
+
 }

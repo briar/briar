@@ -10,7 +10,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import androidx.test.espresso.intent.rule.IntentsTestRule;
+import androidx.test.ext.junit.rules.ActivityScenarioRule;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.uiautomator.UiDevice;
 import androidx.test.uiautomator.UiObject;
@@ -22,30 +22,27 @@ import static androidx.test.espresso.action.ViewActions.click;
 import static androidx.test.espresso.action.ViewActions.typeText;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
 import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
+import static androidx.test.espresso.matcher.ViewMatchers.isEnabled;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
 import static androidx.test.platform.app.InstrumentationRegistry.getInstrumentation;
 import static org.briarproject.bramble.api.plugin.LanTcpConstants.ID;
 import static org.briarproject.briar.android.ViewActions.waitUntilMatches;
 import static org.briarproject.briar.android.util.UiUtils.needsDozeWhitelisting;
+import static org.hamcrest.Matchers.allOf;
 import static org.junit.Assert.assertTrue;
 
 @RunWith(AndroidJUnit4.class)
 public class SetupDataTest extends ScreenshotTest {
 
 	@Rule
-	public IntentsTestRule<SetupActivity> testRule =
-			new IntentsTestRule<SetupActivity>(SetupActivity.class) {
-				@Override
-				protected void beforeActivityLaunched() {
-					super.beforeActivityLaunched();
-					accountManager.deleteAccount();
-				}
-			};
+	public ActivityScenarioRule<SetupActivity> testRule =
+			new ActivityScenarioRule<>(SetupActivity.class);
 
 	@Override
 	protected void inject(BriarUiTestComponent component) {
 		component.inject(this);
+		accountManager.deleteAccount();
 	}
 
 	@Test
@@ -59,7 +56,7 @@ public class SetupDataTest extends ScreenshotTest {
 		onView(withId(R.id.nickname_entry))
 				.perform(waitUntilMatches(withText(USERNAME)));
 
-		screenshot("manual_create_account", testRule.getActivity());
+		screenshot("manual_create_account", testRule);
 
 		onView(withId(R.id.next))
 				.check(matches(isDisplayed()))
@@ -73,7 +70,7 @@ public class SetupDataTest extends ScreenshotTest {
 				.check(matches(isDisplayed()))
 				.perform(typeText(PASSWORD));
 		onView(withId(R.id.next))
-				.check(matches(isDisplayed()))
+				.check(matches(allOf(isDisplayed(), isEnabled())))
 				.perform(click());
 
 		// White-list Doze if needed
@@ -94,14 +91,6 @@ public class SetupDataTest extends ScreenshotTest {
 		lifecycleManager.waitForStartup();
 		assertTrue(accountManager.hasDatabaseKey());
 		createTestData();
-
-		// close expiry warning
-		onView(withId(R.id.expiryWarning))
-				.perform(waitUntilMatches(isDisplayed()));
-		onView(withId(R.id.expiryWarningClose))
-				.check(matches(isDisplayed()));
-		onView(withId(R.id.expiryWarningClose))
-				.perform(click());
 	}
 
 	private void createTestData() {
@@ -116,7 +105,7 @@ public class SetupDataTest extends ScreenshotTest {
 			throws DbException {
 		Context ctx = getApplicationContext();
 		String bobName = ctx.getString(R.string.screenshot_bob);
-		Contact bob = testDataCreator.addContact(bobName, true);
+		Contact bob = testDataCreator.addContact(bobName, false, true);
 
 		// TODO add messages
 

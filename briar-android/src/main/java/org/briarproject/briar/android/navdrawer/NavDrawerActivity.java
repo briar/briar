@@ -27,6 +27,7 @@ import org.briarproject.bramble.api.plugin.Plugin.State;
 import org.briarproject.bramble.api.plugin.TorConstants;
 import org.briarproject.bramble.api.plugin.TransportId;
 import org.briarproject.briar.R;
+import org.briarproject.briar.android.BriarApplication;
 import org.briarproject.briar.android.activity.ActivityComponent;
 import org.briarproject.briar.android.activity.BriarActivity;
 import org.briarproject.briar.android.blog.FeedFragment;
@@ -134,7 +135,8 @@ public class NavDrawerActivity extends BriarActivity implements
 		navDrawerViewModel = provider.get(NavDrawerViewModel.class);
 		pluginViewModel = provider.get(PluginViewModel.class);
 
-		if (IS_DEBUG_BUILD) {
+		BriarApplication app = (BriarApplication) getApplication();
+		if (IS_DEBUG_BUILD && !app.isInstrumentationTest()) {
 			navDrawerViewModel.showExpiryWarning()
 					.observe(this, this::showExpiryWarning);
 		}

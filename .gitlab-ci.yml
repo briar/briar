@@ -34,12 +34,16 @@ android test:
     # start emulator first, so it can fail early
     - start-emulator.sh
     # run normal and screenshot tests together (exclude Large tests)
-    - ./gradlew -Djava.security.egd=file:/dev/urandom connectedAndroidTest -Pandroid.testInstrumentationRunnerArguments.notAnnotation=androidx.test.filters.LargeTest
+    - ./gradlew -Djava.security.egd=file:/dev/urandom connectedAndroidTest -Pandroid.testInstrumentationRunnerArguments.package=org.briarproject.briar.android -Pandroid.testInstrumentationRunnerArguments.notAnnotation=androidx.test.filters.LargeTest
+  after_script:
+    - adb pull /sdcard/Pictures/screenshots
   artifacts:
     name: "${CI_PROJECT_PATH}_${CI_JOB_STAGE}_${CI_COMMIT_REF_NAME}_${CI_COMMIT_SHA}"
     paths:
       - kernel.log
       - logcat.txt
+      - briar-android/build/reports/androidTests/connected/flavors/*
+      - screenshots
     expire_in: 3 days
     when: on_failure
   when: manual

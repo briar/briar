@@ -10,6 +10,7 @@ import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.settings.Settings;
 import org.briarproject.bramble.api.settings.SettingsManager;
 import org.briarproject.bramble.api.system.AndroidExecutor;
+import org.briarproject.briar.android.BriarApplication;
 import org.briarproject.briar.android.viewmodel.DbViewModel;
 
 import java.util.concurrent.Executor;
@@ -120,7 +121,9 @@ public class NavDrawerViewModel extends DbViewModel {
 	@UiThread
 	void checkDozeWhitelisting() {
 		// check this first, to hit the DbThread only when really necessary
-		if (!needsDozeWhitelisting(getApplication())) {
+		BriarApplication app = (BriarApplication) getApplication();
+		if (app.isInstrumentationTest() ||
+				!needsDozeWhitelisting(getApplication())) {
 			shouldAskForDozeWhitelisting.setValue(false);
 			return;
 		}

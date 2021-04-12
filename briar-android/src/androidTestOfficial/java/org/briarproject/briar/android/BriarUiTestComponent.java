@@ -4,6 +4,8 @@ import org.briarproject.bramble.BrambleAndroidModule;
 import org.briarproject.bramble.BrambleCoreModule;
 import org.briarproject.bramble.account.BriarAccountModule;
 import org.briarproject.briar.BriarCoreModule;
+import org.briarproject.briar.android.account.SignInTestCreateAccount;
+import org.briarproject.briar.android.account.SignInTestSignIn;
 import org.briarproject.briar.android.attachment.AttachmentModule;
 import org.briarproject.briar.android.attachment.media.MediaModule;
 import org.briarproject.briar.android.navdrawer.NavDrawerActivityTest;
@@ -25,5 +27,9 @@ import dagger.Component;
 public interface BriarUiTestComponent extends AndroidComponent {
 
 	void inject(NavDrawerActivityTest test);
+
+	void inject(SignInTestCreateAccount test);
+
+	void inject(SignInTestSignIn test);
 
 }

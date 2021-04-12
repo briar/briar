@@ -158,15 +158,15 @@ public class TestDataCreatorImpl implements TestDataCreator {
 		LocalAuthor localAuthor = identityManager.getLocalAuthor();
 		for (int i = 0; i < numContacts; i++) {
 			LocalAuthor remote = getRandomAuthor();
-			Contact contact =
-					addContact(localAuthor.getId(), remote, avatarPercent);
+			Contact contact = addContact(localAuthor.getId(), remote,
+					random.nextBoolean(), avatarPercent);
 			contacts.add(contact);
 		}
 		return contacts;
 	}
 
 	private Contact addContact(AuthorId localAuthorId, LocalAuthor remote,
-			int avatarPercent) throws DbException {
+			boolean alias, int avatarPercent) throws DbException {
 		// prepare to add contact
 		SecretKey secretKey = getSecretKey();
 		long timestamp = clock.currentTimeMillis();
@@ -179,7 +179,7 @@ public class TestDataCreatorImpl implements TestDataCreator {
 		Contact contact = db.transactionWithResult(false, txn -> {
 			ContactId contactId = contactManager.addContact(txn, remote,
 					localAuthorId, secretKey, timestamp, true, verified, true);
-			if (random.nextBoolean()) {
+			if (alias) {
 				contactManager.setContactAlias(txn, contactId,
 						getRandomAuthorName());
 			}
@@ -197,11 +197,12 @@ public class TestDataCreatorImpl implements TestDataCreator {
 	}
 
 	@Override
-	public Contact addContact(String name, boolean avatar) throws DbException {
+	public Contact addContact(String name, boolean alias, boolean avatar)
+			throws DbException {
 		LocalAuthor localAuthor = identityManager.getLocalAuthor();
 		LocalAuthor remote = authorFactory.createLocalAuthor(name);
 		int avatarPercent = avatar ? 100 : 0;
-		return addContact(localAuthor.getId(), remote, avatarPercent);
+		return addContact(localAuthor.getId(), remote, alias, avatarPercent);
 	}
 
 	private String getRandomAuthorName() {
