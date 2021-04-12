@@ -2354,37 +2354,8 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 
 	@Test
 	public void testShutdownGracefully() throws Exception {
-		CountDownLatch closing = new CountDownLatch(1);
-		CountDownLatch closed = new CountDownLatch(1);
-		AtomicBoolean transactionFinished = new AtomicBoolean(false);
-		AtomicBoolean error = new AtomicBoolean(false);
 		Database<Connection> db = open(false);
-
-		// Start a transaction
-		Connection txn = db.startTransaction();
-		// In another thread, close the database
-		Thread close = new Thread(() -> {
-			try {
-				closing.countDown();
-				db.close();
-				if (!transactionFinished.get()) error.set(true);
-				closed.countDown();
-			} catch (Exception e) {
-				error.set(true);
-			}
-		});
-		close.start();
-		closing.await();
-		// Do whatever the transaction needs to do
-		Thread.sleep(10);
-		transactionFinished.set(true);
-		// Abort the transaction
-		db.abortTransaction(txn);
-		// The other thread should now terminate
-		assertTrue(closed.await(5, SECONDS));
-		// Check that the other thread didn't encounter an error
-		assertFalse(error.get());
-
+		db.close();
 		open(true);
 		assertFalse(db.wasDirtyOnInitialisation());
 	}
@@ -2393,6 +2364,35 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 	public void testShutdownDirty() throws Exception {
 		Database<Connection> db = open(false);
 
+		// We want to simulate a dirty shutdown here which would normally be
+		// caused by an empty battery or by force closing the Android app.
+		// As there is no obvious way to simulate this, we're artificially
+		// causing an SqlException during close() here by unloading the JDBC
+		// drivers.
+		List<String> unloadedDrivers = unloadDrivers();
+
+		try {
+			db.close();
+			fail();
+		} catch (Exception e) {
+			// continue
+			e.printStackTrace();
+		}
+
+		// Reloading drivers to continue so that we're able to work with the
+		// database again.
+		reloadDrivers(unloadedDrivers);
+
+		db = open(true);
+		assertTrue(db.wasDirtyOnInitialisation());
+	}
+
+	@Test
+	public void testShutdownDirtyThenGracefully() throws Exception {
+		Database<Connection> db = open(false);
+
+		// Simulating a dirty shutdown here, look at #testShutdownDirty for
+		// details.
 		List<String> unloadedDrivers = unloadDrivers();
 
 		try {
@@ -2406,6 +2406,10 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 
 		db = open(true);
 		assertTrue(db.wasDirtyOnInitialisation());
+
+		db.close();
+		db = open(true);
+		assertFalse(db.wasDirtyOnInitialisation());
 	}
 
 	private Database<Connection> open(boolean resume) throws Exception {
@@ -2473,6 +2477,7 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 				unloaded.add(d.getClass().getName());
 			} catch (SQLException e) {
 				e.printStackTrace();
+				fail();
 			}
 		}
 		return unloaded;

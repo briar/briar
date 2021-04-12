@@ -89,7 +89,6 @@ class H2Database extends JdbcDatabase {
 			c = createConnection();
 			super.closeAllConnections();
 			setDirty(c, false);
-			c.commit();
 			c.close();
 		} catch (SQLException e) {
 			tryToClose(c, LOG, WARNING);

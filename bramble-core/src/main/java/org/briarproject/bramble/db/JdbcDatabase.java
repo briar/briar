@@ -355,13 +355,13 @@ abstract class JdbcDatabase implements Database<Connection> {
 	@GuardedBy("connectionsLock")
 	private boolean closed = false;
 
-	private boolean wasDirtyOnInitialisation = false;
+	private volatile boolean wasDirtyOnInitialisation = false;
 
 	protected abstract Connection createConnection()
 			throws DbException, SQLException;
 
 	// Used exclusively during open to compact the database after schema
-	// migrations and after DatabaseConstants#MAX_COMPACTION_INTERVAL_MS has
+	// migrations or after DatabaseConstants#MAX_COMPACTION_INTERVAL_MS has
 	// elapsed
 	protected abstract void compactAndClose() throws DbException;
 
