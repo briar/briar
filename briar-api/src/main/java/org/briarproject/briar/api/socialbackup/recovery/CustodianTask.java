@@ -9,6 +9,8 @@ public interface CustodianTask {
 
 	void cancel();
 
+	void qrCodeDecoded(byte[] qrCodePayload);
+
 	interface Observer {
 		void onStateChanged(State state);
 	}

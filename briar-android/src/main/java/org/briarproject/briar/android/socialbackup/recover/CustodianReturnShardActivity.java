@@ -7,6 +7,7 @@ import org.briarproject.briar.android.activity.ActivityComponent;
 import org.briarproject.briar.android.activity.BriarActivity;
 import org.briarproject.briar.android.fragment.BaseFragment;
 import org.briarproject.briar.android.socialbackup.CustodianRecoveryModeExplainerFragment;
+import org.briarproject.briar.api.socialbackup.recovery.CustodianTask;
 
 import java.util.logging.Logger;
 
@@ -55,15 +56,15 @@ public class CustodianReturnShardActivity extends BriarActivity
 		if (state == null) {
 			showInitialFragment(new CustodianRecoveryModeExplainerFragment());
 		}
-//		viewModel.getCheckPermissions().observeEvent(this, check ->
-//				permissionManager.checkPermissions());
-//		viewModel.getRequestBluetoothDiscoverable().observeEvent(this, r ->
-//				requestBluetoothDiscoverable()); // never false
 		viewModel.getShowCameraFragment().observeEvent(this, show -> {
 			if (show) showCameraFragment();
 		});
-//		viewModel.getState()
-//				.observe(this, this::onReturnShardStateChanged);
+		viewModel.getState()
+				.observe(this, this::onReturnShardStateChanged);
+	}
+
+	private void onReturnShardStateChanged(CustodianTask.State state) {
+
 	}
 
 	private void showCameraFragment() {

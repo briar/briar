@@ -14,6 +14,7 @@ import org.briarproject.briar.android.contact.add.nearby.QrCodeDecoder;
 import org.briarproject.briar.android.viewmodel.LiveEvent;
 import org.briarproject.briar.android.viewmodel.MutableLiveEvent;
 import org.briarproject.briar.api.socialbackup.recovery.CustodianTask;
+import org.briarproject.briar.api.socialbackup.recovery.SecretOwnerTask;
 
 import java.io.IOException;
 import java.nio.charset.Charset;
@@ -36,7 +37,7 @@ import static java.util.logging.Level.WARNING;
 import static java.util.logging.Logger.getLogger;
 
 public class CustodianReturnShardViewModel extends AndroidViewModel
-		implements QrCodeDecoder.ResultCallback {
+		implements QrCodeDecoder.ResultCallback, CustodianTask.Observer {
 
 	private static final Logger LOG =
 			getLogger(CustodianReturnShardViewModel.class.getName());
@@ -49,6 +50,7 @@ public class CustodianReturnShardViewModel extends AndroidViewModel
 	private final MutableLiveData<CustodianTask.State> state =
 			new MutableLiveData<>();
 	final QrCodeDecoder qrCodeDecoder;
+	private final CustodianTask task;
 
 	@SuppressWarnings("CharsetObjectCanBeUsed") // Requires minSdkVersion >= 19
 	private static final Charset ISO_8859_1 = Charset.forName("ISO-8859-1");
@@ -57,12 +59,15 @@ public class CustodianReturnShardViewModel extends AndroidViewModel
 	public CustodianReturnShardViewModel(
 			@NonNull Application application,
 			@IoExecutor Executor ioExecutor,
+			CustodianTask task,
 			AndroidExecutor androidExecutor) {
 		super(application);
 
 		this.androidExecutor = androidExecutor;
 		this.ioExecutor = ioExecutor;
+		this.task = task;
 		qrCodeDecoder = new QrCodeDecoder(androidExecutor, ioExecutor, this);
+		task.start(this);
 	}
 
 	@IoExecutor
@@ -75,17 +80,12 @@ public class CustodianReturnShardViewModel extends AndroidViewModel
 			byte[] payloadBytes = result.getText().getBytes(ISO_8859_1);
 			if (LOG.isLoggable(INFO))
 				LOG.info("Remote payload is " + payloadBytes.length + " bytes");
-//			Payload remotePayload = payloadParser.parse(payloadBytes);
-//			gotRemotePayload = true;
-//			requireNonNull(task).connectAndRunProtocol(remotePayload);
-//			state.postValue(new ReturnShardState.QrCodeScanned());
+			task.qrCodeDecoded(payloadBytes);
 		} catch (IllegalArgumentException e) {
 			LOG.log(WARNING, "QR Code Invalid", e);
 			androidExecutor.runOnUiThread(() -> Toast.makeText(getApplication(),
 					R.string.qr_code_invalid, LENGTH_LONG).show());
-//			resetPayloadFlags();
-			state.postValue(new CustodianTask.State.Failure(
-					CustodianTask.State.Failure.Reason.QR_CODE_INVALID));
+			task.qrCodeDecoded(null);
 		}
 	}
 
@@ -106,5 +106,13 @@ public class CustodianReturnShardViewModel extends AndroidViewModel
 
 	LiveData<CustodianTask.State> getState() {
 		return state;
+	}
+
+	@Override
+	public void onStateChanged(CustodianTask.State state) {
+		// Connecting, SendingShard, ReceivingAck, Success, Failure
+        if (state instanceof CustodianTask.State.SendingShard) {
+
+        }
 	}
 }
