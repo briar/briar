@@ -47,7 +47,6 @@ import org.briarproject.briar.android.activity.BriarActivity;
 import org.briarproject.briar.android.attachment.AttachmentItem;
 import org.briarproject.briar.android.attachment.AttachmentRetriever;
 import org.briarproject.briar.android.blog.BlogActivity;
-import org.briarproject.briar.android.contact.ContactItem;
 import org.briarproject.briar.android.conversation.ConversationVisitor.AttachmentCache;
 import org.briarproject.briar.android.conversation.ConversationVisitor.TextCache;
 import org.briarproject.briar.android.forum.ForumActivity;
@@ -92,8 +91,6 @@ import java.util.logging.Logger;
 
 import javax.inject.Inject;
 
-import androidx.activity.result.ActivityResultLauncher;
-import androidx.activity.result.contract.ActivityResultContracts.RequestPermission;
 import androidx.annotation.Nullable;
 import androidx.annotation.UiThread;
 import androidx.appcompat.app.AlertDialog;
@@ -102,6 +99,7 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
 import androidx.core.app.ActivityOptionsCompat;
 import androidx.core.content.ContextCompat;
+import androidx.fragment.app.FragmentManager;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
@@ -213,21 +211,6 @@ public class ConversationActivity extends BriarActivity
 	private ActionMode actionMode;
 
 	private volatile ContactId contactId;
-
-	private final ActivityResultLauncher<Integer> bluetoothDiscoverableRequest =
-			registerForActivityResult(new RequestBluetoothDiscoverable(), r -> {
-				// MenuItem only gets enabled after contactItem has loaded
-				ContactItem contact =
-						requireNonNull(viewModel.getContactItem().getValue());
-				BluetoothConnecter bc = viewModel.getBluetoothConnecter();
-				bc.onBluetoothDiscoverable(r, contact);
-			});
-	private final ActivityResultLauncher<String> permissionRequest =
-			registerForActivityResult(new RequestPermission(), result -> {
-				BluetoothConnecter bc = viewModel.getBluetoothConnecter();
-				bc.onLocationPermissionResult(this, result,
-						bluetoothDiscoverableRequest);
-			});
 
 	@Override
 	public void onCreate(@Nullable Bundle state) {
@@ -424,7 +407,9 @@ public class ConversationActivity extends BriarActivity
 			onAutoDeleteTimerNoticeClicked();
 			return true;
 		} else if (itemId == R.id.action_connect_via_bluetooth) {
-			BluetoothConnecter.showDialog(this, permissionRequest);
+			FragmentManager fm = getSupportFragmentManager();
+			new BluetoothConnecterDialogFragment().show(fm,
+					BluetoothConnecterDialogFragment.TAG);
 			return true;
 		} else if (itemId == R.id.action_delete_all_messages) {
 			askToDeleteAllMessages();

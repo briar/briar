@@ -1,10 +1,6 @@
 package org.briarproject.briar.android.contact.add.nearby;
 
-import android.content.ActivityNotFoundException;
 import android.content.Context;
-import android.content.Intent;
-import android.location.LocationManager;
-import android.widget.Toast;
 
 import org.briarproject.briar.R;
 
@@ -19,11 +15,11 @@ import static android.Manifest.permission.ACCESS_FINE_LOCATION;
 import static android.Manifest.permission.CAMERA;
 import static android.content.pm.PackageManager.PERMISSION_GRANTED;
 import static android.os.Build.VERSION.SDK_INT;
-import static android.provider.Settings.ACTION_LOCATION_SOURCE_SETTINGS;
-import static android.widget.Toast.LENGTH_LONG;
 import static androidx.core.app.ActivityCompat.shouldShowRequestPermissionRationale;
 import static androidx.core.content.ContextCompat.checkSelfPermission;
 import static org.briarproject.briar.android.util.UiUtils.getGoToSettingsListener;
+import static org.briarproject.briar.android.util.UiUtils.isLocationEnabled;
+import static org.briarproject.briar.android.util.UiUtils.showLocationDialog;
 
 class AddNearbyContactPermissionManager {
 
@@ -49,19 +45,6 @@ class AddNearbyContactPermissionManager {
 	void resetPermissions() {
 		cameraPermission = Permission.UNKNOWN;
 		locationPermission = Permission.UNKNOWN;
-	}
-
-	/**
-	 * @return true if location is enabled,
-	 * or it isn't required due to this being a SDK < 28 device.
-	 */
-	static boolean isLocationEnabled(Context ctx) {
-		if (SDK_INT >= 28) {
-			LocationManager lm = ctx.getSystemService(LocationManager.class);
-			return lm.isLocationEnabled();
-		} else {
-			return true;
-		}
 	}
 
 	static boolean areEssentialPermissionsGranted(Context ctx,
@@ -106,7 +89,7 @@ class AddNearbyContactPermissionManager {
 		} else if (locationPermission == Permission.SHOW_RATIONALE) {
 			showRationale(R.string.permission_location_title,
 					R.string.permission_location_request_body);
-		} else if (isLocationEnabled(ctx)) {
+		} else if (locationEnabled) {
 			requestPermissions();
 		} else {
 			showLocationDialog(ctx);
@@ -132,25 +115,6 @@ class AddNearbyContactPermissionManager {
 		builder.setMessage(body);
 		builder.setNeutralButton(R.string.continue_button,
 				(dialog, which) -> requestPermissions());
-		builder.show();
-	}
-
-	private static void showLocationDialog(Context ctx) {
-		AlertDialog.Builder builder =
-				new AlertDialog.Builder(ctx, R.style.BriarDialogTheme);
-		builder.setTitle(R.string.permission_location_setting_title);
-		builder.setMessage(R.string.permission_location_setting_body);
-		builder.setNegativeButton(R.string.cancel, null);
-		builder.setPositiveButton(R.string.permission_location_setting_button,
-				(dialog, which) -> {
-					Intent i = new Intent(ACTION_LOCATION_SOURCE_SETTINGS);
-					try {
-						ctx.startActivity(i);
-					} catch (ActivityNotFoundException e) {
-						Toast.makeText(ctx, R.string.error_start_activity,
-								LENGTH_LONG).show();
-					}
-				});
 		builder.show();
 	}
 
