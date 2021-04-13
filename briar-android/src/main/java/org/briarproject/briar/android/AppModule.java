@@ -42,6 +42,7 @@ import org.briarproject.briar.android.privategroup.list.GroupListModule;
 import org.briarproject.briar.android.reporting.DevReportModule;
 import org.briarproject.briar.android.settings.SettingsModule;
 import org.briarproject.briar.android.sharing.SharingModule;
+import org.briarproject.briar.android.socialbackup.recover.CustodianReturnShardModule;
 import org.briarproject.briar.android.socialbackup.recover.OwnerReturnShardModule;
 import org.briarproject.briar.android.test.TestAvatarCreatorImpl;
 import org.briarproject.briar.android.viewmodel.ViewModelModule;
@@ -92,7 +93,8 @@ import static org.briarproject.briar.android.TestingConstants.IS_DEBUG_BUILD;
 		GroupListModule.class,
 		GroupConversationModule.class,
 		SharingModule.class,
-		OwnerReturnShardModule.class
+		OwnerReturnShardModule.class,
+		CustodianReturnShardModule.class
 })
 public class AppModule {
 

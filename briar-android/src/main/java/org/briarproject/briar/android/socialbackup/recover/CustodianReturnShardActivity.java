@@ -18,9 +18,10 @@ import androidx.lifecycle.ViewModelProvider;
 
 import static java.util.logging.Logger.getLogger;
 
-public class CustodianReturnShardActivity extends BriarActivity {
-	private CustodianReturnShardViewModel viewModel;
+public class CustodianReturnShardActivity extends BriarActivity
+		implements BaseFragment.BaseFragmentListener {
 
+	private CustodianReturnShardViewModel viewModel;
 	private static final Logger LOG =
 			getLogger(CustodianReturnShardActivity.class.getName());
 
