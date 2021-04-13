@@ -1,6 +1,5 @@
 package org.briarproject.briar.socialbackup.recovery;
 
-import org.briarproject.bramble.api.FormatException;
 import org.briarproject.bramble.api.client.ClientHelper;
 import org.briarproject.bramble.api.crypto.CryptoComponent;
 import org.briarproject.bramble.api.crypto.KeyPair;
@@ -34,7 +33,7 @@ public class SecretOwnerTaskImpl implements SecretOwnerTask {
 
 	@Inject
 	SecretOwnerTaskImpl(CryptoComponent crypto,
-		@IoExecutor Executor ioExecutor, ClientHelper clientHelper) {
+			@IoExecutor Executor ioExecutor, ClientHelper clientHelper) {
 		this.crypto = crypto;
 		this.ioExecutor = ioExecutor;
 		this.clientHelper = clientHelper;
@@ -77,7 +76,7 @@ public class SecretOwnerTaskImpl implements SecretOwnerTask {
 		try {
 			socket = serverSocket.accept();
 			observer.onStateChanged(new State.ReceivingShard());
-            InputStream inputStream = socket.getInputStream();
+			InputStream inputStream = socket.getInputStream();
 			byte[] payloadRaw = new byte[7];
 			int read = inputStream.read(payloadRaw);
 			if (read < 0) throw new IOException("Payload not read");
@@ -85,6 +84,7 @@ public class SecretOwnerTaskImpl implements SecretOwnerTask {
 			OutputStream outputStream = socket.getOutputStream();
 			outputStream.write("ack".getBytes());
 			serverSocket.close();
+			observer.onStateChanged(new State.Success());
 		} catch (IOException e) {
 			observer.onStateChanged(new State.Failure());
 		}
@@ -92,9 +92,9 @@ public class SecretOwnerTaskImpl implements SecretOwnerTask {
 
 	@Override
 	public void cancel() {
-        cancelled = true;
+		cancelled = true;
 		try {
-            serverSocket.close();
+			serverSocket.close();
 		} catch (IOException e) {
 			observer.onStateChanged(new State.Failure());
 		}
