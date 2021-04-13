@@ -54,7 +54,7 @@ public class CustodianTaskImpl implements CustodianTask {
 
 	   Socket s = new Socket();
 	   try {
-		   s.connect(remoteSocketAddress);
+		   s.connect(remoteSocketAddress, 120 * 1000);
 	   } catch (IOException e) {
 		   observer.onStateChanged(new CustodianTask.State.Failure(State.Failure.Reason.QR_CODE_INVALID));
 	   }
