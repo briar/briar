@@ -28,7 +28,7 @@ public class SecretOwnerTaskImpl implements SecretOwnerTask {
 	@Override
 	public void start(Observer observer) {
 		// TODO use the actual ip address on local network
-		InetSocketAddress socketAddress = InetSocketAddress.createUnresolved("localhost", 1234);
+		InetSocketAddress socketAddress = InetSocketAddress.createUnresolved("192.168.1.1", 1234);
 		observer.onStateChanged(new State.Listening(localKeyPair.getPublic(), socketAddress));
 	}
 
