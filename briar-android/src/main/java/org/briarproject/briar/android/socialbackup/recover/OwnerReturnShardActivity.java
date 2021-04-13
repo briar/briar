@@ -129,6 +129,7 @@ public class OwnerReturnShardActivity extends BaseActivity
 	}
 
 	private void showQrCodeFragment() {
+		LOG.info("showQrCodeFragment called");
 		FragmentManager fm = getSupportFragmentManager();
 		if (fm.findFragmentByTag(OwnerReturnShardFragment.TAG) == null) {
 			BaseFragment f = OwnerReturnShardFragment.newInstance();

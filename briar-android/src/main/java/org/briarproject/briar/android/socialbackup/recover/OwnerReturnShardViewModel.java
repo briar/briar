@@ -60,6 +60,7 @@ class OwnerReturnShardViewModel extends AndroidViewModel implements SecretOwnerT
 		this.ioExecutor = ioExecutor;
 		this.task = task;
 //		IntentFilter filter = new IntentFilter(ACTION_SCAN_MODE_CHANGED);
+		startListening();
 	}
 
 	@Override
@@ -81,7 +82,7 @@ class OwnerReturnShardViewModel extends AndroidViewModel implements SecretOwnerT
 		wasContinueClicked = false;
 		// If we return to the intro fragment, we may need to enable wifi and
 //		hasEnabledWifi = false;
-		startListening();
+		showQrCodeFragment.setEvent(true);
 	}
 
 	@UiThread
@@ -208,6 +209,7 @@ class OwnerReturnShardViewModel extends AndroidViewModel implements SecretOwnerT
 	}
 
 	public Bitmap getQrCodeBitmap() {
+		LOG.info("getting qrCodeBitmap");
 		return qrCodeBitmap;
 	}
 
@@ -225,7 +227,6 @@ class OwnerReturnShardViewModel extends AndroidViewModel implements SecretOwnerT
 		       String content = new String(payloadBytes, ISO_8859_1);
 		       qrCodeBitmap = QrCodeUtils.createQrCode(dm, content);
 	       });
-	       showQrCodeFragment.setEvent(true);
        }
 	}
 }

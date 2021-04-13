@@ -7,14 +7,11 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
 import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.activity.ActivityComponent;
-import org.briarproject.briar.android.contact.add.nearby.CameraException;
-import org.briarproject.briar.android.contact.add.nearby.CameraView;
 import org.briarproject.briar.android.fragment.BaseFragment;
 import org.briarproject.briar.android.view.QrCodeView;
 import org.briarproject.briar.api.socialbackup.recovery.SecretOwnerTask;
@@ -86,6 +83,10 @@ public class OwnerReturnShardFragment extends BaseFragment
 
 		viewModel.getState().observe(getViewLifecycleOwner(),
 				this::onReturnShardStateChanged);
+		Bitmap qrCodeBitmap = viewModel.getQrCodeBitmap();
+		if (qrCodeBitmap != null) {
+			qrCodeView.setQrCode(qrCodeBitmap);
+		}
 	}
 
 	@Override
@@ -107,15 +108,21 @@ public class OwnerReturnShardFragment extends BaseFragment
 		if (fullscreen) {
 			// Grow the QR code view to fill its parent
 			statusParams = new LinearLayout.LayoutParams(0, 0, 0f);
-			qrCodeParams = new LinearLayout.LayoutParams(MATCH_PARENT, MATCH_PARENT, 1f);
+			qrCodeParams =
+					new LinearLayout.LayoutParams(MATCH_PARENT, MATCH_PARENT,
+							1f);
 		} else {
 			// Shrink the QR code view to fill half its parent
 			if (cameraOverlay.getOrientation() == HORIZONTAL) {
-				statusParams = new LinearLayout.LayoutParams(0, MATCH_PARENT, 1f);
-				qrCodeParams = new LinearLayout.LayoutParams(0, MATCH_PARENT, 1f);
+				statusParams =
+						new LinearLayout.LayoutParams(0, MATCH_PARENT, 1f);
+				qrCodeParams =
+						new LinearLayout.LayoutParams(0, MATCH_PARENT, 1f);
 			} else {
-				statusParams = new LinearLayout.LayoutParams(MATCH_PARENT, 0, 1f);
-				qrCodeParams = new LinearLayout.LayoutParams(MATCH_PARENT, 0, 1f);
+				statusParams =
+						new LinearLayout.LayoutParams(MATCH_PARENT, 0, 1f);
+				qrCodeParams =
+						new LinearLayout.LayoutParams(MATCH_PARENT, 0, 1f);
 			}
 		}
 		statusView.setLayoutParams(statusParams);
@@ -124,7 +131,8 @@ public class OwnerReturnShardFragment extends BaseFragment
 	}
 
 	@UiThread
-	private void onReturnShardStateChanged(@Nullable SecretOwnerTask.State state) {
+	private void onReturnShardStateChanged(
+			@Nullable SecretOwnerTask.State state) {
 		if (state instanceof SecretOwnerTask.State.Listening) {
 			Bitmap qrCode = viewModel.getQrCodeBitmap();
 			qrCodeView.setQrCode(qrCode);
