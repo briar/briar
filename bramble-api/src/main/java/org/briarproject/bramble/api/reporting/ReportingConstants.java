@@ -21,5 +21,6 @@ public interface ReportingConstants {
 	 * Hidden service address for reporting crashes and feedback to the
 	 * developers.
 	 */
-	String DEV_ONION_ADDRESS = "cwqmubyvnig3wag3.onion";
+	String DEV_ONION_ADDRESS =
+			"b2nkt5doeamvdmjzfz7g42hk5vdtlnktlgzhel2bgjcc4v4jhnx2qrqd.onion";
 }
