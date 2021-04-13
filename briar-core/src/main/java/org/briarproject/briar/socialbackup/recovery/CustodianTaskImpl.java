@@ -2,8 +2,13 @@ package org.briarproject.briar.socialbackup.recovery;
 
 import org.briarproject.bramble.api.FormatException;
 import org.briarproject.bramble.api.client.ClientHelper;
+import org.briarproject.bramble.api.crypto.AgreementPublicKey;
 import org.briarproject.bramble.api.data.BdfList;
 import org.briarproject.briar.api.socialbackup.recovery.CustodianTask;
+
+import java.net.InetAddress;
+import java.net.InetSocketAddress;
+import java.security.PublicKey;
 
 import javax.inject.Inject;
 
@@ -12,6 +17,7 @@ public class CustodianTaskImpl implements CustodianTask {
 	private boolean cancelled = false;
 	private Observer observer;
 	private ClientHelper clientHelper;
+	private InetSocketAddress remoteSocketAddress;
 
 	@Inject
 	CustodianTaskImpl(ClientHelper clientHelper) {
@@ -33,12 +39,13 @@ public class CustodianTaskImpl implements CustodianTask {
 	public void qrCodeDecoded(byte[] qrCodePayloadRaw) {
 	   try {
 		   BdfList qrCodePayload = clientHelper.toList(qrCodePayloadRaw);
-		   byte[] publicKeyRaw = qrCodePayload.getRaw(0);
+		   AgreementPublicKey publicKey = new AgreementPublicKey(qrCodePayload.getRaw(0));
 		   byte[] addressRaw = qrCodePayload.getRaw(1);
-		   Long port = qrCodePayload.getLong(2);
-		   System.out.println(" Qr code decoded " + publicKeyRaw.length + " " + addressRaw.length + " "+ port);
+		   int port = qrCodePayload.getLong(2).intValue();
+		   remoteSocketAddress = new InetSocketAddress(InetAddress.getByAddress(addressRaw), port);
+		   System.out.println(" Qr code decoded " + publicKey.getEncoded().length + " " + remoteSocketAddress);
 		   observer.onStateChanged(new CustodianTask.State.SendingShard());
-	   } catch (FormatException e) {
+	   } catch (Exception e) {
 	   	   observer.onStateChanged(new CustodianTask.State.Failure(State.Failure.Reason.QR_CODE_INVALID));
 	   }
 	}

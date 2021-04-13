@@ -3,12 +3,13 @@ package org.briarproject.briar.api.socialbackup.recovery;
 import org.briarproject.bramble.api.crypto.PublicKey;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 
+import java.net.InetAddress;
 import java.net.InetSocketAddress;
 
 @NotNullByDefault
 public interface SecretOwnerTask {
 
-	void start(Observer observer);
+	void start(Observer observer, InetAddress inetAddress);
 
 	void cancel();
 

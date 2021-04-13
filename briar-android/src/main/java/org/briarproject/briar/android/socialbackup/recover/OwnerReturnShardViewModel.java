@@ -2,8 +2,11 @@ package org.briarproject.briar.android.socialbackup.recover;
 
 import android.app.Application;
 import android.graphics.Bitmap;
+import android.net.wifi.WifiInfo;
+import android.net.wifi.WifiManager;
 import android.util.DisplayMetrics;
 
+import org.briarproject.bramble.api.Pair;
 import org.briarproject.bramble.api.lifecycle.IoExecutor;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.system.AndroidExecutor;
@@ -12,17 +15,23 @@ import org.briarproject.briar.android.viewmodel.LiveEvent;
 import org.briarproject.briar.android.viewmodel.MutableLiveEvent;
 import org.briarproject.briar.api.socialbackup.recovery.SecretOwnerTask;
 
+import java.net.InetAddress;
+import java.net.InterfaceAddress;
+import java.net.UnknownHostException;
 import java.nio.charset.Charset;
+import java.util.List;
 import java.util.concurrent.Executor;
 import java.util.logging.Logger;
 
 import javax.inject.Inject;
 
+import androidx.annotation.Nullable;
 import androidx.annotation.UiThread;
 import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
+import static android.content.Context.WIFI_SERVICE;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Logger.getLogger;
 
@@ -45,10 +54,10 @@ class OwnerReturnShardViewModel extends AndroidViewModel implements SecretOwnerT
 			new MutableLiveEvent<>();
 	private final MutableLiveData<SecretOwnerTask.State> state =
 			new MutableLiveData<>();
-
 	private boolean wasContinueClicked = false;
 	private boolean isActivityResumed = false;
 	private Bitmap qrCodeBitmap;
+	private WifiManager wifiManager;
 
 	@Inject
 	OwnerReturnShardViewModel(Application app,
@@ -59,8 +68,34 @@ class OwnerReturnShardViewModel extends AndroidViewModel implements SecretOwnerT
 		this.androidExecutor = androidExecutor;
 		this.ioExecutor = ioExecutor;
 		this.task = task;
+		wifiManager = (WifiManager) app.getSystemService(WIFI_SERVICE);
+
 //		IntentFilter filter = new IntentFilter(ACTION_SCAN_MODE_CHANGED);
 		startListening();
+	}
+
+	private InetAddress getWifiIpv4Address() {
+		if (wifiManager == null) return null;
+		// If we're connected to a wifi network, return its address
+		WifiInfo info = wifiManager.getConnectionInfo();
+		if (info != null && info.getIpAddress() != 0) {
+			return intToInetAddress(info.getIpAddress());
+		}
+		return null;
+	}
+
+	private InetAddress intToInetAddress(int ip) {
+		byte[] ipBytes = new byte[4];
+		ipBytes[0] = (byte) (ip & 0xFF);
+		ipBytes[1] = (byte) ((ip >> 8) & 0xFF);
+		ipBytes[2] = (byte) ((ip >> 16) & 0xFF);
+		ipBytes[3] = (byte) ((ip >> 24) & 0xFF);
+		try {
+			return InetAddress.getByAddress(ipBytes);
+		} catch (UnknownHostException e) {
+			// Should only be thrown if address has illegal length
+			throw new AssertionError(e);
+		}
 	}
 
 	@Override
@@ -87,7 +122,7 @@ class OwnerReturnShardViewModel extends AndroidViewModel implements SecretOwnerT
 
 	@UiThread
 	private void startListening() {
-		task.start(this);
+		task.start(this, getWifiIpv4Address());
 //		KeyAgreementTask oldTask = task;
 //		KeyAgreementTask newTask = keyAgreementTaskProvider.get();
 //		task = newTask;

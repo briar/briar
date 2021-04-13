@@ -33,13 +33,14 @@ public class SecretOwnerTaskImpl implements SecretOwnerTask {
 	}
 
 	@Override
-	public void start(Observer observer) {
-		// TODO use the actual ip address on local network
-		byte[] hostBytes = { (byte) 192, (byte) 168, 1,1};
-		// TODO add version number
+	public void start(Observer observer, InetAddress inetAddress) {
+		if (inetAddress == null) observer.onStateChanged(new State.Failure());
+		System.out.println("InetAddress is " + inetAddress);
+		socketAddress = new InetSocketAddress(inetAddress, 3002);
+		// TODO start listening on socketAddress
 		try {
+			// TODO add version number
 			BdfList payloadList = new BdfList();
-			socketAddress = new InetSocketAddress(InetAddress.getByAddress(hostBytes), 1234);
 			payloadList.add(localKeyPair.getPublic().getEncoded());
 			payloadList.add(socketAddress.getAddress().getAddress());
 			payloadList.add(socketAddress.getPort());
