@@ -61,7 +61,7 @@ public class DistributedBackupActivity extends BriarActivity implements
 	@Override
 	public void contactsSelected(Collection<ContactId> contacts) {
 		Toast.makeText(this,
-				String.format("selected %d contacts", contacts.size()),
+				String.format("Selected %d contacts", contacts.size()),
 				Toast.LENGTH_SHORT).show();
 		custodians = contacts;
 		ThresholdSelectorFragment fragment =

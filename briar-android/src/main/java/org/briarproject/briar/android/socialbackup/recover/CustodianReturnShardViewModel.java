@@ -48,6 +48,8 @@ public class CustodianReturnShardViewModel extends AndroidViewModel
 	private boolean qrCodeRead = false;
 	private final MutableLiveEvent<Boolean> showCameraFragment =
 			new MutableLiveEvent<>();
+	private final MutableLiveEvent<Boolean> successDismissed =
+			new MutableLiveEvent<>();
 	private final MutableLiveData<CustodianTask.State> state =
 			new MutableLiveData<>();
 	final QrCodeDecoder qrCodeDecoder;
@@ -100,6 +102,12 @@ public class CustodianReturnShardViewModel extends AndroidViewModel
 		showCameraFragment.setEvent(true);
 	}
 
+	@UiThread
+	public void onSuccessDismissed() {
+	    successDismissed.setEvent(true);
+	}
+
+
 	QrCodeDecoder getQrCodeDecoder() {
 		return qrCodeDecoder;
 	}
@@ -108,6 +116,9 @@ public class CustodianReturnShardViewModel extends AndroidViewModel
 		return showCameraFragment;
 	}
 
+	LiveEvent<Boolean> getSuccessDismissed() {
+		return successDismissed;
+	}
 	LiveData<CustodianTask.State> getState() {
 		return state;
 	}

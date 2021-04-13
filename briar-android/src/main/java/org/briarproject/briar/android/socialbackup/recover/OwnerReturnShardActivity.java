@@ -10,7 +10,6 @@ import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.activity.ActivityComponent;
 import org.briarproject.briar.android.activity.BaseActivity;
-import org.briarproject.briar.android.contact.add.nearby.AddNearbyContactErrorFragment;
 import org.briarproject.briar.android.fragment.BaseFragment;
 import org.briarproject.briar.api.socialbackup.recovery.SecretOwnerTask;
 
@@ -23,7 +22,6 @@ import androidx.fragment.app.FragmentManager;
 import androidx.lifecycle.ViewModelProvider;
 
 import static android.content.Intent.FLAG_ACTIVITY_CLEAR_TOP;
-import static android.widget.Toast.LENGTH_LONG;
 import static java.util.logging.Logger.getLogger;
 
 @MethodsNotNullByDefault
@@ -78,10 +76,6 @@ public class OwnerReturnShardActivity extends BaseActivity
 		if (state == null) {
 			showInitialFragment(new OwnerRecoveryModeExplainerFragment());
 		}
-//		viewModel.getCheckPermissions().observeEvent(this, check ->
-//				permissionManager.checkPermissions());
-//		viewModel.getRequestBluetoothDiscoverable().observeEvent(this, r ->
-//				requestBluetoothDiscoverable()); // never false
 		viewModel.getShowQrCodeFragment().observeEvent(this, show -> {
 			if (show) showQrCodeFragment();
 		});
@@ -117,6 +111,7 @@ public class OwnerReturnShardActivity extends BaseActivity
 
 	@Override
 	public void onBackPressed() {
+		// TODO should we cancel the return shard task here?
 		if (viewModel.getState()
 				.getValue() instanceof SecretOwnerTask.State.Failure) {
 			// re-create this activity when going back in failed state
@@ -141,47 +136,23 @@ public class OwnerReturnShardActivity extends BaseActivity
 	}
 
 	private void onReturnShardStateChanged(SecretOwnerTask.State state) {
-//		if (state instanceof ReturnShardState.SocialBackupExchangeFinished) {
-//			ReturnShardState.SocialBackupExchangeResult result =
-//					((ReturnShardState.SocialBackupExchangeFinished) state).result;
-//			onSocialBackupExchangeResult(result);
-//		} else if (state instanceof ReturnShardState.Failed) {
-//			Boolean qrCodeTooOld =
-//					((ReturnShardState.Failed) state).qrCodeTooOld;
-//			onAddingContactFailed(qrCodeTooOld);
-//		}
-	}
-
-	private void onSocialBackupExchangeResult(
-			ReturnShardState.SocialBackupExchangeResult result) {
-		if (result instanceof ReturnShardState.SocialBackupExchangeResult.Success) {
-//			String text = getString(R.string.contact_added_toast, contactName);
-			Toast.makeText(this, "Shard return successful", LENGTH_LONG).show();
-			supportFinishAfterTransition();
-		} else if (result instanceof ReturnShardState.SocialBackupExchangeResult.Error) {
-			showErrorFragment();
-		} else throw new AssertionError();
-	}
-
-	private void onAddingContactFailed(@Nullable Boolean qrCodeTooOld) {
-		if (qrCodeTooOld == null) {
-			showErrorFragment();
-		} else {
-			String msg;
-			if (qrCodeTooOld) {
-				msg = getString(R.string.qr_code_too_old,
-						getString(R.string.app_name));
-			} else {
-				msg = getString(R.string.qr_code_too_new,
-						getString(R.string.app_name));
-			}
-			showNextFragment(AddNearbyContactErrorFragment.newInstance(msg));
+		if (state instanceof SecretOwnerTask.State.Success) {
+			Toast.makeText(this,
+					"Success - got shard",
+					Toast.LENGTH_SHORT).show();
+			finish();
+		} else if (state instanceof SecretOwnerTask.State.Failure) {
+			Toast.makeText(this,
+					"Shard return failed!",
+					Toast.LENGTH_SHORT).show();
+			finish();
 		}
 	}
 
-	private void showErrorFragment() {
-		showNextFragment(new AddNearbyContactErrorFragment());
-	}
+//	private void showErrorFragment() {
+//		// TODO change this for an appropriate error message fragment
+//		showNextFragment(new AddNearbyContactErrorFragment());
+//	}
 
 	@Override
 	@Deprecated

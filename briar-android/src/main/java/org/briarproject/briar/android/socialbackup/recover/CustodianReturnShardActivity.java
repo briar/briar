@@ -7,6 +7,7 @@ import org.briarproject.briar.android.activity.ActivityComponent;
 import org.briarproject.briar.android.activity.BriarActivity;
 import org.briarproject.briar.android.fragment.BaseFragment;
 import org.briarproject.briar.android.socialbackup.CustodianRecoveryModeExplainerFragment;
+import org.briarproject.briar.android.socialbackup.ShardsSentFragment;
 import org.briarproject.briar.api.socialbackup.recovery.CustodianTask;
 
 import java.util.logging.Logger;
@@ -59,13 +60,17 @@ public class CustodianReturnShardActivity extends BriarActivity
 		viewModel.getShowCameraFragment().observeEvent(this, show -> {
 			if (show) showCameraFragment();
 		});
+		viewModel.getSuccessDismissed().observeEvent(this, dismissed -> {
+			if (dismissed) finish();
+		});
 		viewModel.getState()
 				.observe(this, this::onReturnShardStateChanged);
 	}
 
 	private void onReturnShardStateChanged(CustodianTask.State state) {
         if (state instanceof CustodianTask.State.Success) {
-
+	        CustodianReturnShardSuccessFragment fragment = new CustodianReturnShardSuccessFragment();
+	        showNextFragment(fragment);
         }
 	}
 

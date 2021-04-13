@@ -136,91 +136,12 @@ class OwnerReturnShardViewModel extends AndroidViewModel implements SecretOwnerT
 
 	@UiThread
 	private void stopListening() {
-		task.cancel();
-//		KeyAgreementTask oldTask = task;
-//		ioExecutor.execute(() -> {
-//			if (oldTask != null) oldTask.stopListening();
-//		});
+		ioExecutor.execute(() -> {
+			task.cancel();
+		});
 	}
 
-//	@Override
-//	public void eventOccurred(Event e) {
-//		if (e instanceof TransportStateEvent) {
-//			TransportStateEvent t = (TransportStateEvent) e;
-//			if (t.getTransportId().equals(BluetoothConstants.ID)) {
-//				if (LOG.isLoggable(INFO)) {
-//					LOG.info("Bluetooth state changed to " + t.getState());
-//				}
-//				showQrCodeFragmentIfAllowed();
-//			} else if (t.getTransportId().equals(LanTcpConstants.ID)) {
-//				if (LOG.isLoggable(INFO)) {
-//					LOG.info("Wifi state changed to " + t.getState());
-//				}
-//				showQrCodeFragmentIfAllowed();
-//			}
-//		} else if (e instanceof KeyAgreementListeningEvent) {
-//			LOG.info("KeyAgreementListeningEvent received");
-//			KeyAgreementListeningEvent event = (KeyAgreementListeningEvent) e;
-//			onLocalPayloadReceived(event.getLocalPayload());
-//		} else if (e instanceof KeyAgreementWaitingEvent) {
-//			LOG.info("KeyAgreementWaitingEvent received");
-//			state.setValue(new ReturnShardState.KeyAgreementWaiting());
-//		} else if (e instanceof KeyAgreementStartedEvent) {
-//			LOG.info("KeyAgreementStartedEvent received");
-//			state.setValue(new ReturnShardState.KeyAgreementStarted());
-//		} else if (e instanceof KeyAgreementFinishedEvent) {
-//			LOG.info("KeyAgreementFinishedEvent received");
-//			KeyAgreementResult result =
-//					((KeyAgreementFinishedEvent) e).getResult();
-//			startContactExchange(result);
-//			state.setValue(new ReturnShardState.SocialBackupExchangeStarted());
-//		} else if (e instanceof KeyAgreementAbortedEvent) {
-//			LOG.info("KeyAgreementAbortedEvent received");
-//			resetPayloadFlags();
-//			state.setValue(new ReturnShardState.Failed());
-//		} else if (e instanceof KeyAgreementFailedEvent) {
-//			LOG.info("KeyAgreementFailedEvent received");
-//			resetPayloadFlags();
-//			state.setValue(new ReturnShardState.Failed());
-//		}
-//	}
 
-	@UiThread
-//	private void startContactExchange(KeyAgreementResult result) {
-//		TransportId t = result.getTransportId();
-//		DuplexTransportConnection conn = result.getConnection();
-//		SecretKey masterKey = result.getMasterKey();
-//		boolean alice = result.wasAlice();
-//		ioExecutor.execute(() -> {
-//			try {
-//				if (sending) {
-//					socialBackupExchangeManager.sendReturnShard(conn, masterKey, alice, returnShardPayload);
-//				} else {
-//					returnShardPayload = socialBackupExchangeManager.receiveReturnShard(conn, masterKey, alice);
-//				}
-//				ReturnShardState.SocialBackupExchangeResult.Success
-//						success =
-//						new ReturnShardState.SocialBackupExchangeResult.Success();
-//				state.postValue(
-//						new ReturnShardState.SocialBackupExchangeFinished(success));
-//			} catch (ContactExistsException e) {
-//				tryToClose(conn);
-//				ReturnShardState.SocialBackupExchangeResult.Error
-//						error = new ReturnShardState.SocialBackupExchangeResult.Error(
-//						e.getRemoteAuthor());
-//				state.postValue(
-//						new ReturnShardState.SocialBackupExchangeFinished(error));
-//			} catch (DbException | IOException e) {
-//				tryToClose(conn);
-//				logException(LOG, WARNING, e);
-//				ReturnShardState.SocialBackupExchangeResult.Error
-//						error =
-//						new ReturnShardState.SocialBackupExchangeResult.Error(null);
-//				state.postValue(
-//						new ReturnShardState.SocialBackupExchangeFinished(error));
-//			}
-//		});
-//	}
 
 
 	/**
@@ -252,18 +173,19 @@ class OwnerReturnShardViewModel extends AndroidViewModel implements SecretOwnerT
 
 	@Override
 	public void onStateChanged(SecretOwnerTask.State state) {
-       if (state instanceof SecretOwnerTask.State.Listening) {
-	       DisplayMetrics dm = getApplication().getResources().getDisplayMetrics();
-	       ioExecutor.execute(() -> {
-		       byte[] payloadBytes = ((SecretOwnerTask.State.Listening) state).getLocalPayload();
-		       if (LOG.isLoggable(INFO)) {
-			       LOG.info("Local payload is " + payloadBytes.length
-					       + " bytes");
-		       }
-		       // Use ISO 8859-1 to encode bytes directly as a string
-		       String content = new String(payloadBytes, ISO_8859_1);
-		       qrCodeBitmap = QrCodeUtils.createQrCode(dm, content);
-	       });
-       }
+		this.state.postValue(state);
+		if (state instanceof SecretOwnerTask.State.Listening) {
+			DisplayMetrics dm = getApplication().getResources().getDisplayMetrics();
+			ioExecutor.execute(() -> {
+				byte[] payloadBytes = ((SecretOwnerTask.State.Listening) state).getLocalPayload();
+				if (LOG.isLoggable(INFO)) {
+					LOG.info("Local payload is " + payloadBytes.length
+							+ " bytes");
+				}
+				// Use ISO 8859-1 to encode bytes directly as a string
+				String content = new String(payloadBytes, ISO_8859_1);
+				qrCodeBitmap = QrCodeUtils.createQrCode(dm, content);
+			});
+		}
 	}
 }
