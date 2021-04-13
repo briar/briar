@@ -8,8 +8,10 @@ import org.briarproject.bramble.api.data.BdfList;
 import org.briarproject.bramble.api.lifecycle.IoExecutor;
 import org.briarproject.briar.api.socialbackup.recovery.SecretOwnerTask;
 
+import java.io.IOException;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
+import java.net.ServerSocket;
 import java.util.concurrent.Executor;
 
 import javax.inject.Inject;
@@ -37,7 +39,18 @@ public class SecretOwnerTaskImpl implements SecretOwnerTask {
 		if (inetAddress == null) observer.onStateChanged(new State.Failure());
 		System.out.println("InetAddress is " + inetAddress);
 		socketAddress = new InetSocketAddress(inetAddress, 3002);
-		// TODO start listening on socketAddress
+
+		// start listening on socketAddress
+		ServerSocket ss = null;
+		try {
+			ss = new ServerSocket();
+			ss.bind(socketAddress);
+		} catch (IOException e) {
+			observer.onStateChanged(new State.Failure());
+			// TODO could try incrementing the port number
+			return;
+		}
+
 		try {
 			// TODO add version number
 			BdfList payloadList = new BdfList();

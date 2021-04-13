@@ -6,8 +6,10 @@ import org.briarproject.bramble.api.crypto.AgreementPublicKey;
 import org.briarproject.bramble.api.data.BdfList;
 import org.briarproject.briar.api.socialbackup.recovery.CustodianTask;
 
+import java.io.IOException;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
+import java.net.Socket;
 import java.security.PublicKey;
 
 import javax.inject.Inject;
@@ -47,6 +49,15 @@ public class CustodianTaskImpl implements CustodianTask {
 		   observer.onStateChanged(new CustodianTask.State.SendingShard());
 	   } catch (Exception e) {
 	   	   observer.onStateChanged(new CustodianTask.State.Failure(State.Failure.Reason.QR_CODE_INVALID));
+	   	   return;
 	   }
+
+	   Socket s = new Socket();
+	   try {
+		   s.connect(remoteSocketAddress);
+	   } catch (IOException e) {
+		   observer.onStateChanged(new CustodianTask.State.Failure(State.Failure.Reason.QR_CODE_INVALID));
+	   }
+	   System.out.println("Connected *****");
 	}
 }
