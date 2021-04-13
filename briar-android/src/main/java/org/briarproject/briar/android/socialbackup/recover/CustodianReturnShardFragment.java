@@ -141,7 +141,17 @@ public class CustodianReturnShardFragment extends BaseFragment
 
 	@UiThread
 	private void onReturnShardStateChanged(@Nullable CustodianTask.State state) {
-		if (state instanceof CustodianTask.State.Connecting) {
+		LOG.info("State changed");
+//		if (state instanceof CustodianTask.State.Connecting) {
+//			try {
+//				cameraView.stop();
+//			} catch (CameraException e) {
+//				logCameraExceptionAndFinish(e);
+//			}
+//			cameraView.setVisibility(INVISIBLE);
+//			statusView.setVisibility(VISIBLE);
+//			status.setText(R.string.connecting_to_device);
+		if (state instanceof CustodianTask.State.SendingShard) {
 			try {
 				cameraView.stop();
 			} catch (CameraException e) {
@@ -149,8 +159,6 @@ public class CustodianReturnShardFragment extends BaseFragment
 			}
 			cameraView.setVisibility(INVISIBLE);
 			statusView.setVisibility(VISIBLE);
-			status.setText(R.string.connecting_to_device);
-		} else if (state instanceof CustodianTask.State.SendingShard) {
 			status.setText("Sending shard");
 		} else if (state instanceof CustodianTask.State.ReceivingAck) {
 			status.setText("Receiving Ack");

@@ -45,6 +45,7 @@ public class CustodianReturnShardViewModel extends AndroidViewModel
 	private final AndroidExecutor androidExecutor;
 	private final Executor ioExecutor;
 	private boolean wasContinueClicked = false;
+	private boolean qrCodeRead = false;
 	private final MutableLiveEvent<Boolean> showCameraFragment =
 			new MutableLiveEvent<>();
 	private final MutableLiveData<CustodianTask.State> state =
@@ -74,18 +75,21 @@ public class CustodianReturnShardViewModel extends AndroidViewModel
 	@Override
 	public void onQrCodeDecoded(Result result) {
 		LOG.info("Got result from decoder");
-		// Ignore results until the KeyAgreementTask is ready
-//		if (!gotLocalPayload || gotRemotePayload) return;
+		if (qrCodeRead) return;
 		try {
 			byte[] payloadBytes = result.getText().getBytes(ISO_8859_1);
 			if (LOG.isLoggable(INFO))
 				LOG.info("Remote payload is " + payloadBytes.length + " bytes");
-			task.qrCodeDecoded(payloadBytes);
+			ioExecutor.execute(() -> {
+				task.qrCodeDecoded(payloadBytes);
+			});
 		} catch (IllegalArgumentException e) {
 			LOG.log(WARNING, "QR Code Invalid", e);
 			androidExecutor.runOnUiThread(() -> Toast.makeText(getApplication(),
 					R.string.qr_code_invalid, LENGTH_LONG).show());
-			task.qrCodeDecoded(null);
+			ioExecutor.execute(() -> {
+				task.qrCodeDecoded(null);
+			});
 		}
 	}
 
@@ -110,9 +114,10 @@ public class CustodianReturnShardViewModel extends AndroidViewModel
 
 	@Override
 	public void onStateChanged(CustodianTask.State state) {
+		this.state.postValue(state);
 		// Connecting, SendingShard, ReceivingAck, Success, Failure
         if (state instanceof CustodianTask.State.SendingShard) {
-
+            qrCodeRead = true;
         }
 	}
 }

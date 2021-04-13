@@ -122,7 +122,9 @@ class OwnerReturnShardViewModel extends AndroidViewModel implements SecretOwnerT
 
 	@UiThread
 	private void startListening() {
-		task.start(this, getWifiIpv4Address());
+		ioExecutor.execute(() -> {
+			task.start(this, getWifiIpv4Address());
+		});
 //		KeyAgreementTask oldTask = task;
 //		KeyAgreementTask newTask = keyAgreementTaskProvider.get();
 //		task = newTask;

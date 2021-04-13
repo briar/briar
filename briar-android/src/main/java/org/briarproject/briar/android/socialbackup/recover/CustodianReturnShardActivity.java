@@ -64,7 +64,9 @@ public class CustodianReturnShardActivity extends BriarActivity
 	}
 
 	private void onReturnShardStateChanged(CustodianTask.State state) {
+        if (state instanceof CustodianTask.State.Success) {
 
+        }
 	}
 
 	private void showCameraFragment() {
