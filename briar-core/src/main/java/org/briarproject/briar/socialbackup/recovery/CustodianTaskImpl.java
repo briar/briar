@@ -8,6 +8,9 @@ import org.briarproject.bramble.api.crypto.CryptoComponent;
 import org.briarproject.bramble.api.crypto.KeyPair;
 import org.briarproject.bramble.api.crypto.SecretKey;
 import org.briarproject.bramble.api.data.BdfList;
+import org.briarproject.bramble.api.transport.StreamReaderFactory;
+import org.briarproject.bramble.api.transport.StreamWriter;
+import org.briarproject.bramble.api.transport.StreamWriterFactory;
 import org.briarproject.briar.api.socialbackup.recovery.CustodianTask;
 
 import java.io.IOException;
@@ -16,18 +19,23 @@ import java.io.OutputStream;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.Socket;
+import java.net.SocketTimeoutException;
+import java.nio.ByteBuffer;
 import java.security.GeneralSecurityException;
 import java.security.SecureRandom;
+import java.util.logging.Logger;
 
 import javax.inject.Inject;
+
+import static java.util.logging.Logger.getLogger;
 
 public class CustodianTaskImpl implements CustodianTask {
 
 	private boolean cancelled = false;
 	private Observer observer;
-	private ClientHelper clientHelper;
+	private final ClientHelper clientHelper;
 	private InetSocketAddress remoteSocketAddress;
-	private Socket socket = new Socket();
+	private final Socket socket = new Socket();
 	private final CryptoComponent crypto;
 	private final AuthenticatedCipher cipher;
 	private final KeyPair localKeyPair;
@@ -35,13 +43,22 @@ public class CustodianTaskImpl implements CustodianTask {
 	private SecretKey sharedSecret;
 	private final int TIMEOUT = 120 * 1000;
 	private final int NONCE_LENGTH = 24; // TODO get this constant
+	private final StreamReaderFactory streamReaderFactory;
+	private final StreamWriterFactory streamWriterFactory;
+
+	private static final Logger LOG =
+			getLogger(CustodianTaskImpl.class.getName());
 
 	@Inject
 	CustodianTaskImpl(CryptoComponent crypto, ClientHelper clientHelper,
-			AuthenticatedCipher cipher) {
+			AuthenticatedCipher cipher, StreamReaderFactory streamReaderFactory,
+			StreamWriterFactory streamWriterFactory) {
 		this.clientHelper = clientHelper;
 		this.crypto = crypto;
+		this.streamReaderFactory = streamReaderFactory;
+		this.streamWriterFactory = streamWriterFactory;
 		this.secureRandom = crypto.getSecureRandom();
+
 		this.cipher = cipher;
 		localKeyPair = crypto.generateAgreementKeyPair();
 	}
@@ -58,8 +75,10 @@ public class CustodianTaskImpl implements CustodianTask {
 		try {
 			socket.close();
 		} catch (IOException e) {
+			// The reason here is OTHER rather than NO_CONNECTION because
+			// the socket could fail to close because it is already closed
 			observer.onStateChanged(new CustodianTask.State.Failure(
-					State.Failure.Reason.NO_CONNECTION));
+					State.Failure.Reason.OTHER));
 		}
 		observer.onStateChanged(
 				new CustodianTask.State.Failure(State.Failure.Reason.OTHER));
@@ -80,7 +99,7 @@ public class CustodianTaskImpl implements CustodianTask {
 					crypto.deriveSharedSecret("ShardReturn", remotePublicKey,
 							localKeyPair, addressRaw);
 
-			System.out.println(
+			LOG.info(
 					" Qr code decoded " + remotePublicKey.getEncoded().length +
 							" " +
 							remoteSocketAddress);
@@ -96,30 +115,48 @@ public class CustodianTaskImpl implements CustodianTask {
 		observer.onStateChanged(new CustodianTask.State.SendingShard());
 		try {
 			socket.connect(remoteSocketAddress, TIMEOUT);
+			LOG.info("Connected to secret owner " + remoteSocketAddress);
+
 			OutputStream outputStream = socket.getOutputStream();
-			outputStream.write(createPayload());
+
+			// TODO insert the actual payload
+			byte[] payload = "crunchy".getBytes();
+
+			byte[] payloadNonce = new byte[NONCE_LENGTH];
+			secureRandom.nextBytes(payloadNonce);
+			byte[] payloadEncrypted = encrypt(payload, payloadNonce);
+			outputStream.write(localKeyPair.getPublic().getEncoded());
+			outputStream.write(payloadNonce);
+			outputStream.write(ByteBuffer.allocate(4).putInt(payloadEncrypted.length)
+					.array());
+			LOG.info("Written payload header");
+
+			outputStream.write(payloadEncrypted);
+
+//			OutputStream encryptedOutputStream = streamWriterFactory
+//					.createContactExchangeStreamWriter(outputStream,
+//							sharedSecret).getOutputStream();
+//			encryptedOutputStream.write(payload);
+
+			LOG.info("Written payload");
+
 			observer.onStateChanged(new CustodianTask.State.ReceivingAck());
 		} catch (IOException e) {
+			if (e instanceof SocketTimeoutException) {
+				observer.onStateChanged(new CustodianTask.State.Failure(
+						State.Failure.Reason.NO_CONNECTION));
+				return;
+			}
 			observer.onStateChanged(new CustodianTask.State.Failure(
 					State.Failure.Reason.QR_CODE_INVALID));
 			return;
-		}
-		System.out.println("Connected *****");
-		receiveAck();
-	}
-
-	private byte[] createPayload() throws FormatException {
-		BdfList payloadList = new BdfList();
-		payloadList.add(localKeyPair.getPublic().getEncoded());
-		byte[] nonce = new byte[NONCE_LENGTH];
-		secureRandom.nextBytes(nonce);
-		payloadList.add(nonce);
-		try {
-			payloadList.add(encrypt("crunchy".getBytes(), nonce));
+//		}
 		} catch (GeneralSecurityException e) {
-			throw new FormatException();
+			observer.onStateChanged(new CustodianTask.State.Failure(
+					State.Failure.Reason.OTHER));
+			return;
 		}
-		return clientHelper.toByteArray(payloadList);
+		receiveAck();
 	}
 
 	private byte[] encrypt(byte[] message, byte[] nonce)
@@ -141,17 +178,33 @@ public class CustodianTaskImpl implements CustodianTask {
 	private void receiveAck() {
 		try {
 			InputStream inputStream = socket.getInputStream();
-			byte[] ackMessage = new byte[3];
-			int read = inputStream.read(ackMessage);
-			if (read < 0) throw new IOException("Ack not read");
-			System.out.println("ack message: " + new String(ackMessage));
+//			InputStream inputStream = streamReaderFactory
+//					.createContactExchangeStreamReader(socket.getInputStream(),
+//							sharedSecret);
+		    byte[] ackNonce = read(inputStream, NONCE_LENGTH);
+			byte[] ackMessageEncrypted = read(inputStream, 3 + cipher.getMacBytes());
+			byte[] ackMessage = decrypt(ackMessageEncrypted, ackNonce);
+			String ackMessageString = new String(ackMessage);
+			LOG.info("Received ack message: " + new String(ackMessage));
+		    if (!ackMessageString.equals("ack")) throw new GeneralSecurityException("Bad ack message");
 			observer.onStateChanged(new CustodianTask.State.Success());
 			socket.close();
 		} catch (IOException e) {
+			LOG.warning("IO Error reading ack" + e.getMessage());
 			observer.onStateChanged(new CustodianTask.State.Failure(
 					State.Failure.Reason.QR_CODE_INVALID));
-			return;
+		} catch (GeneralSecurityException e) {
+			LOG.warning("Security Error reading ack" + e.getMessage());
+			observer.onStateChanged(new CustodianTask.State.Failure(
+					State.Failure.Reason.OTHER));
 		}
 	}
 
+	private byte[] read(InputStream inputStream, int length)
+			throws IOException {
+		byte[] output = new byte[length];
+		int bytesRead = inputStream.read(output);
+		if (bytesRead < 0) throw new IOException("Cannot read from socket");
+		return output;
+	}
 }
