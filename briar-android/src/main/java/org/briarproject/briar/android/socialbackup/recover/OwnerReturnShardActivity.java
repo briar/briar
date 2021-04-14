@@ -142,10 +142,12 @@ public class OwnerReturnShardActivity extends BaseActivity
 					Toast.LENGTH_SHORT).show();
 			finish();
 		} else if (state instanceof SecretOwnerTask.State.Failure) {
+			// TODO error screen
 			Toast.makeText(this,
 					"Shard return failed!",
 					Toast.LENGTH_SHORT).show();
-			finish();
+			onBackPressed();
+//			showNextFragment(new OwnerRecoveryModeExplainerFragment());
 		}
 	}
 
