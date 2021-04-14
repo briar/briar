@@ -49,6 +49,7 @@ public class ContactListFragment extends BaseFragment
 	private ContactListViewModel viewModel;
 	private final ContactListAdapter adapter = new ContactListAdapter(this);
 	private BriarRecyclerView list;
+	private FabSpeedDial speedDial;
 
 	/**
 	 * The Snackbar is non-null when shown and null otherwise.
@@ -86,7 +87,7 @@ public class ContactListFragment extends BaseFragment
 		View contentView = inflater.inflate(R.layout.fragment_contact_list,
 				container, false);
 
-		FabSpeedDial speedDial = contentView.findViewById(R.id.speedDial);
+		speedDial = contentView.findViewById(R.id.speedDial);
 		speedDial.addOnMenuItemClickListener(this);
 
 		list = contentView.findViewById(R.id.list);
@@ -150,6 +151,8 @@ public class ContactListFragment extends BaseFragment
 		super.onStop();
 		list.stopPeriodicUpdate();
 		dismissSnackBar();
+		// Close the speed dial to prevent a crash (#1672)
+		speedDial.closeMenu();
 	}
 
 	@UiThread
