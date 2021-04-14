@@ -30,6 +30,8 @@ import org.briarproject.briar.api.sharing.event.ContactLeftShareableEvent;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
 import java.util.concurrent.Executor;
 import java.util.logging.Logger;
 
@@ -145,8 +147,11 @@ class BlogViewModel extends BaseViewModel {
 	}
 
 	private void loadBlogPosts(GroupId groupId) {
-		loadFromDb(txn -> new ListUpdate(null, loadBlogPosts(txn, groupId)),
-				blogPosts::setValue);
+		loadFromDb(txn -> {
+			List<BlogPostItem> posts = loadBlogPosts(txn, groupId);
+			Collections.sort(posts);
+			return new ListUpdate(null, posts);
+		}, blogPosts::setValue);
 	}
 
 	private void loadSharingContacts(GroupId groupId) {
