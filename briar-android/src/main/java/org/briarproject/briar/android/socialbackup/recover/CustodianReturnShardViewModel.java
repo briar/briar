@@ -70,6 +70,7 @@ public class CustodianReturnShardViewModel extends AndroidViewModel
 		this.ioExecutor = ioExecutor;
 		this.task = task;
 		qrCodeDecoder = new QrCodeDecoder(androidExecutor, ioExecutor, this);
+		task.cancel();
 		task.start(this);
 	}
 
