@@ -25,6 +25,7 @@ import android.view.KeyEvent;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.android.material.textfield.TextInputLayout;
 
@@ -32,12 +33,16 @@ import org.briarproject.bramble.api.contact.Contact;
 import org.briarproject.bramble.api.identity.Author;
 import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
 import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
+import org.briarproject.bramble.api.system.AndroidExecutor;
+import org.briarproject.bramble.util.StringUtils;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.reporting.FeedbackActivity;
 import org.briarproject.briar.android.view.ArticleMovementMethod;
 
 import java.util.Locale;
+import java.util.logging.Logger;
 
+import androidx.annotation.AnyThread;
 import androidx.annotation.AttrRes;
 import androidx.annotation.ColorInt;
 import androidx.annotation.ColorRes;
@@ -84,6 +89,7 @@ import static android.view.KeyEvent.ACTION_DOWN;
 import static android.view.KeyEvent.KEYCODE_ENTER;
 import static android.view.inputmethod.EditorInfo.IME_NULL;
 import static android.view.inputmethod.InputMethodManager.SHOW_IMPLICIT;
+import static android.widget.Toast.LENGTH_LONG;
 import static androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_AUTO_TIME;
 import static androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM;
 import static androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_NO;
@@ -95,7 +101,9 @@ import static androidx.core.graphics.drawable.DrawableCompat.setTint;
 import static androidx.core.view.ViewCompat.LAYOUT_DIRECTION_RTL;
 import static java.util.Objects.requireNonNull;
 import static java.util.concurrent.TimeUnit.DAYS;
+import static java.util.logging.Level.WARNING;
 import static org.briarproject.bramble.util.AndroidUtils.getSupportedImageContentTypes;
+import static org.briarproject.bramble.util.LogUtils.logException;
 import static org.briarproject.briar.BuildConfig.APPLICATION_ID;
 import static org.briarproject.briar.android.TestingConstants.EXPIRY_DATE;
 import static org.briarproject.briar.android.reporting.CrashReportActivity.EXTRA_APP_LOGCAT;
@@ -471,5 +479,27 @@ public class UiUtils {
 				VectorDrawableCompat.create(ctx.getResources(), resId, null);
 		setTint(requireNonNull(icon), getColor(ctx, R.color.color_primary));
 		return icon;
+	}
+
+	/**
+	 * Logs the exception and shows a Toast to the user.
+	 * <p>
+	 * Errors that are likely or expected to happen should not use this method
+	 * and show proper error states in UI.
+	 */
+	@AnyThread
+	public static void handleException(Context context,
+			AndroidExecutor androidExecutor, Logger logger, Exception e) {
+		logException(logger, WARNING, e);
+		androidExecutor.runOnUiThread(() -> {
+			String msg = "Error: " + e.getClass().getSimpleName();
+			if (!StringUtils.isNullOrEmpty(e.getMessage())) {
+				msg += " " + e.getMessage();
+			}
+			if (e.getCause() != null) {
+				msg += " caused by " + e.getCause().getClass().getSimpleName();
+			}
+			Toast.makeText(context, msg, LENGTH_LONG).show();
+		});
 	}
 }
