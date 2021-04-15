@@ -87,11 +87,14 @@ test_reproducible:
     - rm -f $GRADLE_USER_HOME/caches/modules-2/modules-2.lock
     - rm -fr $GRADLE_USER_HOME/caches/*/plugin-resolution/
 
-manual_tests:
+bridge test:
   extends: .optional_tests
-  when: manual
-  except:
-    - tags
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "schedule"'
+      allow_failure: true
+    - if: '$CI_COMMIT_TAG == null'
+      when: manual
+      allow_failure: true
 
 pre_release_tests:
   extends: .optional_tests
