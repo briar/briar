@@ -26,6 +26,7 @@ import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.FragmentActivity;
 import androidx.lifecycle.ViewModelProvider;
 
+import static java.util.logging.Level.INFO;
 import static org.briarproject.briar.android.conversation.ConversationActivity.CONTACT_ID;
 import static org.briarproject.briar.api.autodelete.AutoDeleteConstants.NO_AUTO_DELETE_TIMER;
 
@@ -102,7 +103,9 @@ public class ConversationSettingsDialog extends DialogFragment {
 
 		viewModel.getAutoDeleteTimer()
 				.observe(getViewLifecycleOwner(), timer -> {
-					LOG.info("Received auto delete timer: " + timer);
+					if (LOG.isLoggable(INFO)) {
+						LOG.info("Received auto delete timer: " + timer);
+					}
 					boolean disappearingMessages =
 							timer != NO_AUTO_DELETE_TIMER;
 					switchDisappearingMessages

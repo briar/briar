@@ -13,6 +13,7 @@ import org.briarproject.briar.api.sharing.Shareable;
 import org.briarproject.briar.api.sharing.SharingInvitationItem;
 import org.briarproject.briar.api.sharing.SharingManager;
 import org.briarproject.briar.autodelete.AbstractAutoDeleteTest;
+import org.junit.Test;
 
 import java.util.Collection;
 
@@ -42,7 +43,8 @@ public abstract class AbstractAutoDeleteIntegrationTest
 
 	protected abstract Class<? extends ConversationMessageReceivedEvent<? extends InvitationResponse>> getResponseReceivedEventClass();
 
-	protected void testAutoDeclinedSharing() throws Exception {
+	@Test
+	public void testAutoDeclinedSharing() throws Exception {
 		setAutoDeleteTimer(c0, contactId1From0, MIN_AUTO_DELETE_TIMER_MS);
 
 		// Send invitation
@@ -191,7 +193,8 @@ public abstract class AbstractAutoDeleteIntegrationTest
 		assertGroupCount(c1, contactId0From1, 1, 1);
 	}
 
-	protected void testRespondAfterSenderDeletedInvitation() throws Exception {
+	@Test
+	public void testRespondAfterSenderDeletedInvitation() throws Exception {
 		setAutoDeleteTimer(c0, contactId1From0, MIN_AUTO_DELETE_TIMER_MS);
 
 		assertTrue(subscriptions0().contains(getShareable()));

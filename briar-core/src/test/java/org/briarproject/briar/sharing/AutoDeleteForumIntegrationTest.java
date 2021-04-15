@@ -1,7 +1,7 @@
 package org.briarproject.briar.sharing;
 
 import org.briarproject.bramble.api.db.DbException;
-import org.briarproject.briar.api.conversation.ConversationManager;
+import org.briarproject.briar.api.conversation.ConversationManager.ConversationClient;
 import org.briarproject.briar.api.conversation.event.ConversationMessageReceivedEvent;
 import org.briarproject.briar.api.forum.Forum;
 import org.briarproject.briar.api.forum.ForumManager;
@@ -11,7 +11,6 @@ import org.briarproject.briar.api.sharing.Shareable;
 import org.briarproject.briar.api.sharing.SharingManager;
 import org.briarproject.briar.test.BriarIntegrationTestComponent;
 import org.junit.Before;
-import org.junit.Test;
 
 import java.util.Collection;
 
@@ -20,10 +19,10 @@ public class AutoDeleteForumIntegrationTest
 
 	private SharingManager<Forum> sharingManager0;
 	private SharingManager<Forum> sharingManager1;
-	protected Forum shareable;
+	private Forum shareable;
 	private ForumManager manager0;
 	private ForumManager manager1;
-	protected Class<ForumInvitationResponseReceivedEvent>
+	private Class<ForumInvitationResponseReceivedEvent>
 			responseReceivedEventClass;
 
 	@Before
@@ -39,7 +38,7 @@ public class AutoDeleteForumIntegrationTest
 	}
 
 	@Override
-	protected ConversationManager.ConversationClient getConversationClient(
+	protected ConversationClient getConversationClient(
 			BriarIntegrationTestComponent component) {
 		return component.getForumSharingManager();
 	}
@@ -72,16 +71,5 @@ public class AutoDeleteForumIntegrationTest
 	@Override
 	protected Class<? extends ConversationMessageReceivedEvent<? extends InvitationResponse>> getResponseReceivedEventClass() {
 		return responseReceivedEventClass;
-	}
-
-	@Test
-	public void testAutoDeclinedForumSharing() throws Exception {
-		testAutoDeclinedSharing();
-	}
-
-	@Test
-	public void testRespondAfterSenderDeletedForumInvitation()
-			throws Exception {
-		testRespondAfterSenderDeletedInvitation();
 	}
 }

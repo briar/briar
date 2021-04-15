@@ -172,7 +172,7 @@
 	<string name="auto_delete_msg_you_enabled">Your messages will disappear after %1$s. %2$s</string>
 	<!-- The placeholder at the end will add "Tap to learn more." -->
 	<string name="auto_delete_msg_you_disabled">Your messages will not disappear. %1$s</string>
-	<!-- The second placeholder will show a duration like "7 days". The third placeholder at the end will add "Tap to learn more." -->
+	<!-- The first placeholder will show a contact's name. The second placeholder will show a duration like "7 days". The third placeholder at the end will add "Tap to learn more." -->
 	<string name="auto_delete_msg_contact_enabled">%1$s\'s messages will disappear after %2$s. %3$s</string>
 	<plurals name="duration_minutes">
 		<item quantity="one">%d minute</item>
@@ -186,7 +186,7 @@
 		<item quantity="one">%d day</item>
 		<item quantity="other">%d days</item>
 	</plurals>
-	<!-- The second placeholder at the end will add "Tap to learn more." -->
+	<!-- The first placeholder will show a contact's name. The second placeholder at the end will add "Tap to learn more." -->
 	<string name="auto_delete_msg_contact_disabled">%1$s\'s messages will not disappear. %2$s</string>
 	<string name="tap_to_learn_more">Tap to learn more.</string>
 	<string name="auto_delete_changed_warning_title">Disappearing messages changed</string>

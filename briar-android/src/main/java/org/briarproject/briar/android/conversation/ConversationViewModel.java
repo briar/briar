@@ -176,7 +176,7 @@ public class ConversationViewModel extends DbViewModel
 		} else if (e instanceof AutoDeleteTimerMirroredEvent) {
 			AutoDeleteTimerMirroredEvent a = (AutoDeleteTimerMirroredEvent) e;
 			if (a.getContactId().equals(contactId)) {
-				autoDeleteTimer.postValue(a.getNewTimer());
+				autoDeleteTimer.setValue(a.getNewTimer());
 			}
 		} else if (e instanceof AvatarUpdatedEvent) {
 			AvatarUpdatedEvent a = (AvatarUpdatedEvent) e;

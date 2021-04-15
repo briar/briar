@@ -4,14 +4,13 @@ import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.briar.api.blog.Blog;
 import org.briarproject.briar.api.blog.BlogManager;
 import org.briarproject.briar.api.blog.event.BlogInvitationResponseReceivedEvent;
-import org.briarproject.briar.api.conversation.ConversationManager;
+import org.briarproject.briar.api.conversation.ConversationManager.ConversationClient;
 import org.briarproject.briar.api.conversation.event.ConversationMessageReceivedEvent;
 import org.briarproject.briar.api.sharing.InvitationResponse;
 import org.briarproject.briar.api.sharing.Shareable;
 import org.briarproject.briar.api.sharing.SharingManager;
 import org.briarproject.briar.test.BriarIntegrationTestComponent;
 import org.junit.Before;
-import org.junit.Test;
 
 import java.util.Collection;
 
@@ -40,7 +39,7 @@ public class AutoDeleteBlogIntegrationTest
 	}
 
 	@Override
-	protected ConversationManager.ConversationClient getConversationClient(
+	protected ConversationClient getConversationClient(
 			BriarIntegrationTestComponent component) {
 		return component.getBlogSharingManager();
 	}
@@ -73,15 +72,5 @@ public class AutoDeleteBlogIntegrationTest
 	@Override
 	protected Class<? extends ConversationMessageReceivedEvent<? extends InvitationResponse>> getResponseReceivedEventClass() {
 		return responseReceivedEventClass;
-	}
-
-	@Test
-	public void testAutoDeclinedBlogSharing() throws Exception {
-		testAutoDeclinedSharing();
-	}
-
-	@Test
-	public void testRespondAfterSenderDeletedBlogInvitation() throws Exception {
-		testRespondAfterSenderDeletedInvitation();
 	}
 }

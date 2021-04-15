@@ -170,8 +170,7 @@ public class UiUtils {
 
 	/**
 	 * Returns the given duration in a human-friendly format. For example,
-	 * "7 days" or "1 hour". Returns only the largest meaningful unit of time,
-	 * from days up to minutes.
+	 * "7 days" or "1 hour 3 minutes".
 	 */
 	public static String formatDuration(Context ctx, long millis) {
 		Resources r = ctx.getResources();

@@ -40,7 +40,8 @@ public interface AutoDeleteManager {
 
 	/**
 	 * Returns the auto-delete timer duration for the given contact, for use in
-	 * a message with the given timestamp. The timestamp is stored.
+	 * a message with the given timestamp. The timestamp is stored. This method
+	 * requires a read-write transaction.
 	 */
 	long getAutoDeleteTimer(Transaction txn, ContactId c, long timestamp)
 			throws DbException;
