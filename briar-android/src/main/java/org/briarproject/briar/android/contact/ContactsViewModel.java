@@ -7,6 +7,7 @@ import org.briarproject.bramble.api.contact.Contact;
 import org.briarproject.bramble.api.contact.ContactId;
 import org.briarproject.bramble.api.contact.ContactManager;
 import org.briarproject.bramble.api.contact.event.ContactAddedEvent;
+import org.briarproject.bramble.api.contact.event.ContactAliasChangedEvent;
 import org.briarproject.bramble.api.contact.event.ContactRemovedEvent;
 import org.briarproject.bramble.api.db.DatabaseExecutor;
 import org.briarproject.bramble.api.db.DbException;
@@ -141,6 +142,10 @@ public class ContactsViewModel extends DbViewModel implements EventListener {
 			AvatarUpdatedEvent a = (AvatarUpdatedEvent) e;
 			updateItem(a.getContactId(), item -> new ContactListItem(item,
 					a.getAttachmentHeader()), false);
+		} else if (e instanceof ContactAliasChangedEvent) {
+			ContactAliasChangedEvent c = (ContactAliasChangedEvent) e;
+			updateItem(c.getContactId(),
+					item -> new ContactListItem(item, c.getAlias()), false);
 		}
 	}
 

@@ -6,6 +6,7 @@ import org.briarproject.bramble.api.contact.ContactId;
 import org.briarproject.bramble.api.contact.PendingContact;
 import org.briarproject.bramble.api.contact.PendingContactId;
 import org.briarproject.bramble.api.contact.event.ContactAddedEvent;
+import org.briarproject.bramble.api.contact.event.ContactAliasChangedEvent;
 import org.briarproject.bramble.api.contact.event.ContactRemovedEvent;
 import org.briarproject.bramble.api.contact.event.ContactVerifiedEvent;
 import org.briarproject.bramble.api.contact.event.PendingContactAddedEvent;
@@ -1013,6 +1014,7 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 		T txn = unbox(transaction);
 		if (!db.containsContact(txn, c))
 			throw new NoSuchContactException();
+		transaction.attach(new ContactAliasChangedEvent(c, alias));
 		db.setContactAlias(txn, c, alias);
 	}
 

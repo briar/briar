@@ -7,6 +7,7 @@ import org.briarproject.briar.api.client.MessageTracker.GroupCount;
 import org.briarproject.briar.api.conversation.ConversationMessageHeader;
 import org.briarproject.briar.api.identity.AuthorInfo;
 
+import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 
 @Immutable
@@ -46,11 +47,23 @@ public class ContactListItem extends ContactItem
 	}
 
 	/**
+	 * Creates a new copy of the given item with a new alias set.
+	 */
+	ContactListItem(ContactListItem item, @Nullable String alias) {
+		this(update(item.getContact(), alias), item.getAuthorInfo(),
+				item.isConnected(), item.empty, item.unread, item.timestamp);
+	}
+
+	private static Contact update(Contact c, @Nullable String alias) {
+		return new Contact(c.getId(), c.getAuthor(), c.getLocalAuthorId(),
+				alias, c.getHandshakePublicKey(), c.isVerified());
+	}
+
+	/**
 	 * Creates a new copy of the given item with a new avatar
 	 * referenced by the given attachment header.
 	 */
-	ContactListItem(ContactListItem item,
-			AttachmentHeader attachmentHeader) {
+	ContactListItem(ContactListItem item, AttachmentHeader attachmentHeader) {
 		this(item.getContact(), new AuthorInfo(item.getAuthorInfo().getStatus(),
 						item.getAuthorInfo().getAlias(), attachmentHeader),
 				item.isConnected(), item.empty, item.unread, item.timestamp);
