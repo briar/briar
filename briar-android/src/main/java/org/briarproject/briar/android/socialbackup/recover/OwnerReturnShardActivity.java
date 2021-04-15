@@ -137,12 +137,13 @@ public class OwnerReturnShardActivity extends BaseActivity
 
 	private void onReturnShardStateChanged(SecretOwnerTask.State state) {
 		if (state instanceof SecretOwnerTask.State.Success) {
+			byte[] shardPayload = ((SecretOwnerTask.State.Success) state).getRemotePayload();
 			Toast.makeText(this,
-					"Success - got shard",
+					"Success - got shard " + shardPayload.length,
 					Toast.LENGTH_SHORT).show();
 			finish();
 		} else if (state instanceof SecretOwnerTask.State.Failure) {
-			// TODO error screen
+			// TODO error screen, handle reason
 			Toast.makeText(this,
 					"Shard return failed!",
 					Toast.LENGTH_SHORT).show();
