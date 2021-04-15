@@ -32,12 +32,17 @@ public interface MessagingManager extends ConversationClient {
 	/**
 	 * The current minor version of the messaging client.
 	 */
-	int MINOR_VERSION = 2;
+	int MINOR_VERSION = 3;
 
 	/**
 	 * Stores a local private message.
 	 */
 	void addLocalMessage(PrivateMessage m) throws DbException;
+
+	/**
+	 * Stores a local private message.
+	 */
+	void addLocalMessage(Transaction txn, PrivateMessage m) throws DbException;
 
 	/**
 	 * Stores a local attachment message.
@@ -70,12 +75,8 @@ public interface MessagingManager extends ConversationClient {
 	String getMessageText(MessageId m) throws DbException;
 
 	/**
-	 * Returns true if the contact with the given {@link ContactId} does support
-	 * image attachments.
-	 * <p>
-	 * Added: 2019-01-01
+	 * Returns the private message format supported by the given contact.
 	 */
-	boolean contactSupportsImages(Transaction txn, ContactId c)
+	PrivateMessageFormat getContactMessageFormat(Transaction txn, ContactId c)
 			throws DbException;
-
 }

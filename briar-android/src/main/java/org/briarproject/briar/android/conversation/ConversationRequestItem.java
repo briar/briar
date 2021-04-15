@@ -11,6 +11,7 @@ import javax.annotation.Nullable;
 import javax.annotation.concurrent.NotThreadSafe;
 
 import androidx.annotation.LayoutRes;
+import androidx.lifecycle.LiveData;
 
 @NotThreadSafe
 @NotNullByDefault
@@ -26,14 +27,15 @@ class ConversationRequestItem extends ConversationNoticeItem {
 	private boolean answered;
 
 	ConversationRequestItem(@LayoutRes int layoutRes, String text,
-			RequestType type, ConversationRequest r) {
-		super(layoutRes, text, r);
+			LiveData<String> contactName, RequestType type,
+			ConversationRequest<?> r) {
+		super(layoutRes, text, contactName, r);
 		this.requestType = type;
 		this.sessionId = r.getSessionId();
 		this.answered = r.wasAnswered();
 		if (r instanceof InvitationRequest) {
 			this.requestedGroupId = ((Shareable) r.getNameable()).getId();
-			this.canBeOpened = ((InvitationRequest) r).canBeOpened();
+			this.canBeOpened = ((InvitationRequest<?>) r).canBeOpened();
 		} else {
 			this.requestedGroupId = null;
 			this.canBeOpened = false;

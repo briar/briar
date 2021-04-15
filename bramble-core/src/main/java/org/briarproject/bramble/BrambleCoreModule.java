@@ -1,5 +1,6 @@
 package org.briarproject.bramble;
 
+import org.briarproject.bramble.cleanup.CleanupModule;
 import org.briarproject.bramble.client.ClientModule;
 import org.briarproject.bramble.connection.ConnectionModule;
 import org.briarproject.bramble.contact.ContactModule;
@@ -21,15 +22,14 @@ import org.briarproject.bramble.rendezvous.RendezvousModule;
 import org.briarproject.bramble.settings.SettingsModule;
 import org.briarproject.bramble.sync.SyncModule;
 import org.briarproject.bramble.sync.validation.ValidationModule;
-import org.briarproject.bramble.system.ClockModule;
 import org.briarproject.bramble.transport.TransportModule;
 import org.briarproject.bramble.versioning.VersioningModule;
 
 import dagger.Module;
 
 @Module(includes = {
+		CleanupModule.class,
 		ClientModule.class,
-		ClockModule.class,
 		ConnectionModule.class,
 		ContactModule.class,
 		CryptoModule.class,

@@ -26,7 +26,6 @@ import androidx.annotation.Nullable;
 import androidx.annotation.UiThread;
 import androidx.appcompat.app.AlertDialog.Builder;
 import androidx.customview.view.AbsSavedState;
-import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.Observer;
 import androidx.vectordrawable.graphics.drawable.VectorDrawableCompat;
@@ -39,6 +38,7 @@ import static androidx.core.content.ContextCompat.getColor;
 import static androidx.customview.view.AbsSavedState.EMPTY_STATE;
 import static androidx.lifecycle.Lifecycle.State.DESTROYED;
 import static org.briarproject.briar.android.util.UiUtils.resolveColorAttribute;
+import static org.briarproject.briar.android.view.TextSendController.SendState.SENT;
 import static org.briarproject.briar.api.messaging.MessagingConstants.MAX_ATTACHMENTS_PER_MESSAGE;
 
 @UiThread
@@ -52,7 +52,6 @@ public class TextAttachmentController extends TextSendController
 	private final AttachmentManager attachmentManager;
 
 	private final List<Uri> imageUris = new ArrayList<>();
-	private final CharSequence textHint;
 	private boolean loadingUris = false;
 
 	public TextAttachmentController(TextInputView v, ImagePreview imagePreview,
@@ -66,23 +65,44 @@ public class TextAttachmentController extends TextSendController
 
 		sendButton = (CompositeSendButton) compositeSendButton;
 		sendButton.setOnImageClickListener(view -> onImageButtonClicked());
-
-		textHint = textInput.getHint();
 	}
 
 	@Override
 	protected void updateViewState() {
-		textInput.setEnabled(ready && !loadingUris);
-		boolean sendEnabled = ready && !loadingUris &&
-				(!textIsEmpty || canSendEmptyText());
+		super.updateViewState();
 		if (loadingUris) {
 			sendButton.showProgress(true);
 		} else if (imageUris.isEmpty()) {
 			sendButton.showProgress(false);
-			sendButton.showImageButton(textIsEmpty, sendEnabled);
+			sendButton.showImageButton(textIsEmpty, isSendButtonEnabled());
 		} else {
 			sendButton.showProgress(false);
-			sendButton.showImageButton(false, sendEnabled);
+			sendButton.showImageButton(false, isSendButtonEnabled());
+		}
+	}
+
+	@Override
+	protected boolean isTextInputEnabled() {
+		return super.isTextInputEnabled() && !loadingUris;
+	}
+
+	@Override
+	protected boolean isSendButtonEnabled() {
+		return super.isSendButtonEnabled() && !loadingUris;
+	}
+
+	@Override
+	protected boolean isBombVisible() {
+		return super.isBombVisible() && (!textIsEmpty || !imageUris.isEmpty());
+	}
+
+	@Override
+	protected CharSequence getCurrentTextHint() {
+		if (imageUris.isEmpty()) {
+			return super.getCurrentTextHint();
+		} else {
+			Context ctx = textInput.getContext();
+			return ctx.getString(R.string.image_caption_hint);
 		}
 	}
 
@@ -91,9 +111,15 @@ public class TextAttachmentController extends TextSendController
 		if (canSend()) {
 			if (loadingUris) throw new AssertionError();
 			listener.onSendClick(textInput.getText(),
-					attachmentManager.getAttachmentHeadersForSending());
-			reset();
+					attachmentManager.getAttachmentHeadersForSending(),
+					expectedTimer).observe(listener, this::onSendStateChanged);
 		}
+	}
+
+	@Override
+	protected void onSendStateChanged(SendState sendState) {
+		super.onSendStateChanged(sendState);
+		if (sendState == SENT) reset();
 	}
 
 	@Override
@@ -154,6 +180,7 @@ public class TextAttachmentController extends TextSendController
 	private void onNewUris(boolean restart, List<Uri> newUris) {
 		if (newUris.isEmpty()) return;
 		if (loadingUris) throw new AssertionError();
+		if (textIsEmpty) onStartingMessage();
 		loadingUris = true;
 		if (newUris.size() > MAX_ATTACHMENTS_PER_MESSAGE) {
 			newUris = newUris.subList(0, MAX_ATTACHMENTS_PER_MESSAGE);
@@ -161,7 +188,6 @@ public class TextAttachmentController extends TextSendController
 		}
 		imageUris.addAll(newUris);
 		updateViewState();
-		textInput.setHint(R.string.image_caption_hint);
 		List<ImagePreviewItem> items = ImagePreviewItem.fromUris(imageUris);
 		imagePreview.showPreview(items);
 		// store attachments and show preview when successful
@@ -207,8 +233,6 @@ public class TextAttachmentController extends TextSendController
 	}
 
 	private void reset() {
-		// restore hint
-		textInput.setHint(textHint);
 		// hide image layout
 		imagePreview.setVisibility(GONE);
 		// reset image URIs
@@ -303,7 +327,7 @@ public class TextAttachmentController extends TextSendController
 	}
 
 	@UiThread
-	public interface AttachmentListener extends SendListener, LifecycleOwner {
+	public interface AttachmentListener extends SendListener {
 
 		void onAttachImage(Intent intent);
 

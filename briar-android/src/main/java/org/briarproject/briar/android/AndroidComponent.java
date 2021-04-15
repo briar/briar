@@ -29,6 +29,7 @@ import org.briarproject.bramble.api.system.AndroidWakeLockManager;
 import org.briarproject.bramble.api.system.Clock;
 import org.briarproject.bramble.api.system.LocationUtils;
 import org.briarproject.bramble.plugin.tor.CircumventionProvider;
+import org.briarproject.bramble.system.ClockModule;
 import org.briarproject.briar.BriarCoreEagerSingletons;
 import org.briarproject.briar.BriarCoreModule;
 import org.briarproject.briar.android.attachment.AttachmentModule;
@@ -46,6 +47,7 @@ import org.briarproject.briar.api.android.DozeWatchdog;
 import org.briarproject.briar.api.android.LockManager;
 import org.briarproject.briar.api.android.ScreenFilterMonitor;
 import org.briarproject.briar.api.attachment.AttachmentReader;
+import org.briarproject.briar.api.autodelete.AutoDeleteManager;
 import org.briarproject.briar.api.blog.BlogManager;
 import org.briarproject.briar.api.blog.BlogPostFactory;
 import org.briarproject.briar.api.blog.BlogSharingManager;
@@ -80,6 +82,7 @@ import dagger.Component;
 		BriarAccountModule.class,
 		AppModule.class,
 		AttachmentModule.class,
+		ClockModule.class,
 		MediaModule.class
 })
 public interface AndroidComponent
@@ -187,6 +190,8 @@ public interface AndroidComponent
 	CachingLogHandler logHandler();
 
 	Thread.UncaughtExceptionHandler exceptionHandler();
+
+	AutoDeleteManager autoDeleteManager();
 
 	void inject(SignInReminderReceiver briarService);
 

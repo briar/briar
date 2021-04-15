@@ -10,9 +10,9 @@ import org.briarproject.briar.api.privategroup.GroupMessage;
 import org.jmock.Expectations;
 import org.junit.Test;
 
-import java.util.Collections;
-import java.util.Map;
+import java.util.Collection;
 
+import static java.util.Collections.singletonList;
 import static org.briarproject.bramble.api.sync.Group.Visibility.INVISIBLE;
 import static org.briarproject.bramble.api.sync.Group.Visibility.SHARED;
 import static org.briarproject.bramble.api.sync.Group.Visibility.VISIBLE;
@@ -21,6 +21,7 @@ import static org.briarproject.bramble.test.TestUtils.getContact;
 import static org.briarproject.bramble.test.TestUtils.getLocalAuthor;
 import static org.briarproject.bramble.test.TestUtils.getRandomId;
 import static org.briarproject.bramble.util.StringUtils.getRandomString;
+import static org.briarproject.briar.api.autodelete.AutoDeleteConstants.NO_AUTO_DELETE_TIMER;
 import static org.briarproject.briar.api.privategroup.PrivateGroupConstants.MAX_GROUP_INVITATION_TEXT_LENGTH;
 import static org.briarproject.briar.privategroup.invitation.InviteeState.ACCEPTED;
 import static org.briarproject.briar.privategroup.invitation.InviteeState.DISSOLVED;
@@ -42,7 +43,8 @@ public class InviteeProtocolEngineTest extends AbstractProtocolEngineTest {
 			new InviteeProtocolEngine(db, clientHelper, clientVersioningManager,
 					privateGroupManager, privateGroupFactory,
 					groupMessageFactory, identityManager, messageParser,
-					messageEncoder, messageTracker, clock);
+					messageEncoder, messageTracker, autoDeleteManager,
+					conversationManager, clock);
 	private final LocalAuthor localAuthor = getLocalAuthor();
 
 	private InviteeSession getDefaultSession(InviteeState state) {
@@ -56,43 +58,43 @@ public class InviteeProtocolEngineTest extends AbstractProtocolEngineTest {
 	@Test(expected = UnsupportedOperationException.class)
 	public void testOnInviteActionFromStart() {
 		engine.onInviteAction(txn, getDefaultSession(START), null,
-				messageTimestamp, signature);
+				messageTimestamp, signature, NO_AUTO_DELETE_TIMER);
 	}
 
 	@Test(expected = UnsupportedOperationException.class)
 	public void testOnInviteActionFromLeft() {
 		engine.onInviteAction(txn, getDefaultSession(ACCEPTED), null,
-				messageTimestamp, signature);
+				messageTimestamp, signature, NO_AUTO_DELETE_TIMER);
 	}
 
 	@Test(expected = UnsupportedOperationException.class)
 	public void testOnInviteActionFromInvited() {
 		engine.onInviteAction(txn, getDefaultSession(INVITED), null,
-				messageTimestamp, signature);
+				messageTimestamp, signature, NO_AUTO_DELETE_TIMER);
 	}
 
 	@Test(expected = UnsupportedOperationException.class)
 	public void testOnInviteActionFromDissolved() {
 		engine.onInviteAction(txn, getDefaultSession(DISSOLVED), null,
-				messageTimestamp, signature);
+				messageTimestamp, signature, NO_AUTO_DELETE_TIMER);
 	}
 
 	@Test(expected = UnsupportedOperationException.class)
 	public void testOnInviteActionFromAccepted() {
 		engine.onInviteAction(txn, getDefaultSession(ACCEPTED), null,
-				messageTimestamp, signature);
+				messageTimestamp, signature, NO_AUTO_DELETE_TIMER);
 	}
 
 	@Test(expected = UnsupportedOperationException.class)
 	public void testOnInviteActionFromJoined() {
 		engine.onInviteAction(txn, getDefaultSession(JOINED), null,
-				messageTimestamp, signature);
+				messageTimestamp, signature, NO_AUTO_DELETE_TIMER);
 	}
 
 	@Test(expected = UnsupportedOperationException.class)
 	public void testOnInviteActionFromError() {
 		engine.onInviteAction(txn, getDefaultSession(ERROR), null,
-				messageTimestamp, signature);
+				messageTimestamp, signature, NO_AUTO_DELETE_TIMER);
 	}
 
 	// onJoinAction
@@ -131,7 +133,8 @@ public class InviteeProtocolEngineTest extends AbstractProtocolEngineTest {
 	public void testOnJoinActionFromInvited() throws Exception {
 		JoinMessage properJoinMessage =
 				new JoinMessage(messageId, contactGroupId, privateGroupId,
-						messageTimestamp, lastRemoteMessageId);
+						messageTimestamp, lastRemoteMessageId,
+						NO_AUTO_DELETE_TIMER);
 		long timestamp = 0L;
 		GroupMessage joinGroupMessage =
 				new GroupMessage(message, null, localAuthor);
@@ -190,25 +193,25 @@ public class InviteeProtocolEngineTest extends AbstractProtocolEngineTest {
 	@Test
 	public void testOnLeaveActionFromStart() throws Exception {
 		InviteeSession session = getDefaultSession(START);
-		assertEquals(session, engine.onLeaveAction(txn, session));
+		assertEquals(session, engine.onLeaveAction(txn, session, false));
 	}
 
 	@Test
 	public void testOnLeaveActionFromLeft() throws Exception {
 		InviteeSession session = getDefaultSession(LEFT);
-		assertEquals(session, engine.onLeaveAction(txn, session));
+		assertEquals(session, engine.onLeaveAction(txn, session, false));
 	}
 
 	@Test
 	public void testOnLeaveActionFromDissolved() throws Exception {
 		InviteeSession session = getDefaultSession(DISSOLVED);
-		assertEquals(session, engine.onLeaveAction(txn, session));
+		assertEquals(session, engine.onLeaveAction(txn, session, false));
 	}
 
 	@Test
 	public void testOnLeaveActionFromError() throws Exception {
 		InviteeSession session = getDefaultSession(ERROR);
-		assertEquals(session, engine.onLeaveAction(txn, session));
+		assertEquals(session, engine.onLeaveAction(txn, session, false));
 	}
 
 	@Test
@@ -220,7 +223,7 @@ public class InviteeProtocolEngineTest extends AbstractProtocolEngineTest {
 		}});
 
 		InviteeSession session = getDefaultSession(INVITED);
-		InviteeSession newSession = engine.onLeaveAction(txn, session);
+		InviteeSession newSession = engine.onLeaveAction(txn, session, false);
 
 		assertEquals(START, newSession.getState());
 		assertSessionRecordedSentMessage(newSession);
@@ -242,7 +245,7 @@ public class InviteeProtocolEngineTest extends AbstractProtocolEngineTest {
 		expectSendLeaveMessage(false);
 		expectSetPrivateGroupVisibility(INVISIBLE);
 		InviteeSession session = getDefaultSession(ACCEPTED);
-		InviteeSession newSession = engine.onLeaveAction(txn, session);
+		InviteeSession newSession = engine.onLeaveAction(txn, session, false);
 
 		assertEquals(LEFT, newSession.getState());
 		assertSessionRecordedSentMessage(newSession);
@@ -254,7 +257,7 @@ public class InviteeProtocolEngineTest extends AbstractProtocolEngineTest {
 		expectSendLeaveMessage(false);
 		expectSetPrivateGroupVisibility(INVISIBLE);
 		InviteeSession session = getDefaultSession(JOINED);
-		InviteeSession newSession = engine.onLeaveAction(txn, session);
+		InviteeSession newSession = engine.onLeaveAction(txn, session, false);
 
 		assertEquals(LEFT, newSession.getState());
 		assertSessionRecordedSentMessage(newSession);
@@ -329,7 +332,7 @@ public class InviteeProtocolEngineTest extends AbstractProtocolEngineTest {
 						privateGroup.getName(), privateGroup.getCreator(),
 						privateGroup.getSalt(),
 						getRandomString(MAX_GROUP_INVITATION_TEXT_LENGTH),
-						signature);
+						signature, NO_AUTO_DELETE_TIMER);
 		Contact notCreatorContact = getContact(contactId, getAuthor(),
 				localAuthor.getId(), true);
 
@@ -352,7 +355,8 @@ public class InviteeProtocolEngineTest extends AbstractProtocolEngineTest {
 				new InviteMessage(new MessageId(getRandomId()), contactGroupId,
 						privateGroupId, session.getInviteTimestamp() + 1,
 						privateGroup.getName(), privateGroup.getCreator(),
-						privateGroup.getSalt(), "msg", signature);
+						privateGroup.getSalt(), "msg", signature,
+						NO_AUTO_DELETE_TIMER);
 		assertEquals(contact.getAuthor(), privateGroup.getCreator());
 
 		expectGetContactId();
@@ -362,9 +366,9 @@ public class InviteeProtocolEngineTest extends AbstractProtocolEngineTest {
 		}});
 		expectMarkMessageVisibleInUi(properInviteMessage.getId());
 		expectMarkMessageAvailableToAnswer(properInviteMessage.getId(), true);
+		expectTrackUnreadMessage(properInviteMessage.getTimestamp());
+		expectReceiveAutoDeleteTimer(properInviteMessage);
 		context.checking(new Expectations() {{
-			oneOf(messageTracker).trackMessage(txn, contactGroupId,
-					properInviteMessage.getTimestamp(), false);
 			oneOf(privateGroupFactory)
 					.createPrivateGroup(properInviteMessage.getGroupName(),
 							properInviteMessage.getCreator(),
@@ -505,7 +509,7 @@ public class InviteeProtocolEngineTest extends AbstractProtocolEngineTest {
 		JoinMessage invalidJoinMessage =
 				new JoinMessage(new MessageId(getRandomId()), contactGroupId,
 						privateGroupId, session.getInviteTimestamp() + 1,
-						lastLocalMessageId);
+						lastLocalMessageId, NO_AUTO_DELETE_TIMER);
 		assertFalse(invalidJoinMessage.getTimestamp() <=
 				session.getInviteTimestamp());
 		assertNotNull(session.getLastRemoteMessageId());
@@ -525,7 +529,7 @@ public class InviteeProtocolEngineTest extends AbstractProtocolEngineTest {
 		JoinMessage properJoinMessage =
 				new JoinMessage(new MessageId(getRandomId()), contactGroupId,
 						privateGroupId, session.getInviteTimestamp() + 1,
-						lastRemoteMessageId);
+						lastRemoteMessageId, NO_AUTO_DELETE_TIMER);
 		assertFalse(properJoinMessage.getTimestamp() <=
 				session.getInviteTimestamp());
 		assertNotNull(session.getLastRemoteMessageId());
@@ -607,7 +611,8 @@ public class InviteeProtocolEngineTest extends AbstractProtocolEngineTest {
 		InviteeSession session = getDefaultSession(INVITED);
 		LeaveMessage invalidLeaveMessage =
 				new LeaveMessage(new MessageId(getRandomId()), contactGroupId,
-						privateGroupId, session.getInviteTimestamp() + 1, null);
+						privateGroupId, session.getInviteTimestamp() + 1, null,
+						NO_AUTO_DELETE_TIMER);
 		assertFalse(invalidLeaveMessage.getTimestamp() <=
 				session.getInviteTimestamp());
 		assertNull(invalidLeaveMessage.getPreviousMessageId());
@@ -624,7 +629,8 @@ public class InviteeProtocolEngineTest extends AbstractProtocolEngineTest {
 		InviteeSession session = getDefaultSession(LEFT);
 		LeaveMessage invalidLeaveMessage =
 				new LeaveMessage(new MessageId(getRandomId()), contactGroupId,
-						privateGroupId, session.getInviteTimestamp() + 1, null);
+						privateGroupId, session.getInviteTimestamp() + 1, null,
+						NO_AUTO_DELETE_TIMER);
 		assertFalse(invalidLeaveMessage.getTimestamp() <=
 				session.getInviteTimestamp());
 		assertNull(invalidLeaveMessage.getPreviousMessageId());
@@ -641,7 +647,7 @@ public class InviteeProtocolEngineTest extends AbstractProtocolEngineTest {
 		LeaveMessage properLeaveMessage =
 				new LeaveMessage(new MessageId(getRandomId()), contactGroupId,
 						privateGroupId, session.getInviteTimestamp() + 1,
-						lastRemoteMessageId);
+						lastRemoteMessageId, NO_AUTO_DELETE_TIMER);
 		assertFalse(properLeaveMessage.getTimestamp() <=
 				session.getInviteTimestamp());
 		assertNotNull(session.getLastRemoteMessageId());
@@ -671,7 +677,7 @@ public class InviteeProtocolEngineTest extends AbstractProtocolEngineTest {
 		LeaveMessage properLeaveMessage =
 				new LeaveMessage(new MessageId(getRandomId()), contactGroupId,
 						privateGroupId, session.getInviteTimestamp() + 1,
-						lastRemoteMessageId);
+						lastRemoteMessageId, NO_AUTO_DELETE_TIMER);
 		assertFalse(properLeaveMessage.getTimestamp() <=
 				session.getInviteTimestamp());
 		assertNotNull(session.getLastRemoteMessageId());
@@ -751,15 +757,12 @@ public class InviteeProtocolEngineTest extends AbstractProtocolEngineTest {
 
 	private void expectMarkInvitesUnavailableToAnswer() throws Exception {
 		BdfDictionary query = BdfDictionary.of(new BdfEntry("query", ""));
-		BdfDictionary meta = BdfDictionary.of(new BdfEntry("meta", ""));
-		Map<MessageId, BdfDictionary> invites =
-				Collections.singletonMap(lastRemoteMessageId, meta);
+		Collection<MessageId> invites = singletonList(lastRemoteMessageId);
 		context.checking(new Expectations() {{
 			oneOf(messageParser)
 					.getInvitesAvailableToAnswerQuery(privateGroupId);
 			will(returnValue(query));
-			oneOf(clientHelper)
-					.getMessageMetadataAsDictionary(txn, contactGroupId, query);
+			oneOf(clientHelper).getMessageIds(txn, contactGroupId, query);
 			will(returnValue(invites));
 		}});
 		expectMarkMessageAvailableToAnswer(lastRemoteMessageId, false);

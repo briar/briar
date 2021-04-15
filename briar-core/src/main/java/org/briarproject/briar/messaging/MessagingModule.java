@@ -1,6 +1,7 @@
 package org.briarproject.briar.messaging;
 
 import org.briarproject.bramble.api.FeatureFlags;
+import org.briarproject.bramble.api.cleanup.CleanupManager;
 import org.briarproject.bramble.api.contact.ContactManager;
 import org.briarproject.bramble.api.data.BdfReaderFactory;
 import org.briarproject.bramble.api.data.MetadataEncoder;
@@ -20,6 +21,7 @@ import dagger.Provides;
 
 import static org.briarproject.briar.api.messaging.MessagingManager.CLIENT_ID;
 import static org.briarproject.briar.api.messaging.MessagingManager.MAJOR_VERSION;
+import static org.briarproject.briar.api.messaging.MessagingManager.MINOR_VERSION;
 
 @Module
 public class MessagingModule {
@@ -27,8 +29,6 @@ public class MessagingModule {
 	public static class EagerSingletons {
 		@Inject
 		MessagingManager messagingManager;
-		@Inject
-		ConversationManager conversationManager;
 		@Inject
 		PrivateMessageValidator privateMessageValidator;
 	}
@@ -57,25 +57,22 @@ public class MessagingModule {
 			ContactManager contactManager, ValidationManager validationManager,
 			ConversationManager conversationManager,
 			ClientVersioningManager clientVersioningManager,
-			FeatureFlags featureFlags, MessagingManagerImpl messagingManager) {
+			CleanupManager cleanupManager, FeatureFlags featureFlags,
+			MessagingManagerImpl messagingManager) {
 		lifecycleManager.registerOpenDatabaseHook(messagingManager);
 		contactManager.registerContactHook(messagingManager);
 		validationManager.registerIncomingMessageHook(CLIENT_ID, MAJOR_VERSION,
 				messagingManager);
 		conversationManager.registerConversationClient(messagingManager);
-		// Advertise the current or previous minor version depending on the
-		// feature flag
-		int minorVersion = featureFlags.shouldEnableImageAttachments() ? 2 : 0;
+		// Don't advertise support for image attachments or disappearing
+		// messages unless the respective feature flags are enabled
+		boolean images = featureFlags.shouldEnableImageAttachments();
+		boolean disappear = featureFlags.shouldEnableDisappearingMessages();
+		int minorVersion = images ? (disappear ? MINOR_VERSION : 2) : 0;
 		clientVersioningManager.registerClient(CLIENT_ID, MAJOR_VERSION,
 				minorVersion, messagingManager);
+		cleanupManager.registerCleanupHook(CLIENT_ID, MAJOR_VERSION,
+				messagingManager);
 		return messagingManager;
 	}
-
-	@Provides
-	@Singleton
-	ConversationManager getConversationManager(
-			ConversationManagerImpl conversationManager) {
-		return conversationManager;
-	}
-
 }

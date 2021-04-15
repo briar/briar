@@ -24,6 +24,7 @@ import java.util.Collection;
 
 import javax.annotation.Nullable;
 
+import static org.briarproject.briar.api.autodelete.AutoDeleteConstants.NO_AUTO_DELETE_TIMER;
 import static org.briarproject.briar.api.identity.AuthorInfo.Status.OURSELVES;
 import static org.briarproject.briar.api.privategroup.Visibility.INVISIBLE;
 import static org.briarproject.briar.api.privategroup.Visibility.REVEALED_BY_CONTACT;
@@ -60,7 +61,7 @@ public class PrivateGroupIntegrationTest
 		privateGroup0 =
 				privateGroupFactory.createPrivateGroup("Test Group", author0);
 		groupId0 = privateGroup0.getId();
-		long joinTime = clock.currentTimeMillis();
+		long joinTime = c0.getClock().currentTimeMillis();
 		GroupMessage joinMsg0 = groupMessageFactory
 				.createJoinMessage(groupId0, joinTime, author0);
 		groupManager0.addPrivateGroup(privateGroup0, joinMsg0, true);
@@ -91,7 +92,8 @@ public class PrivateGroupIntegrationTest
 
 	@Test
 	public void testMembership() throws Exception {
-		sendInvitation(contactId1From0, clock.currentTimeMillis(), "Hi!");
+		sendInvitation(contactId1From0, c0.getClock().currentTimeMillis(),
+				"Hi!");
 
 		// our group has only one member (ourselves)
 		Collection<GroupMember> members = groupManager0.getMembers(groupId0);
@@ -134,8 +136,10 @@ public class PrivateGroupIntegrationTest
 	@Test
 	public void testRevealContacts() throws Exception {
 		// invite two contacts
-		sendInvitation(contactId1From0, clock.currentTimeMillis(), "Hi 1!");
-		sendInvitation(contactId2From0, clock.currentTimeMillis(), "Hi 2!");
+		sendInvitation(contactId1From0, c0.getClock().currentTimeMillis(),
+				"Hi 1!");
+		sendInvitation(contactId2From0, c0.getClock().currentTimeMillis(),
+				"Hi 2!");
 		sync0To1(1, true);
 		sync0To2(1, true);
 
@@ -171,8 +175,10 @@ public class PrivateGroupIntegrationTest
 		// 1 reveals the contact relationship to 2
 		assertNotNull(contactId2From1);
 		groupInvitationManager1.revealRelationship(contactId2From1, groupId0);
-		sync1To2(1, true);
-		sync2To1(1, true);
+		sync1To2(1, true); // 1 sends an invitation protocol join message
+		// 2 sends an invitation protocol join message and three private group
+		// protocol join messages, which 1 has already seen
+		syncMessage(c2, c1, contactId1From2, 1, 3, 0, 1);
 
 		// their relationship is now revealed
 		assertEquals(REVEALED_BY_US,
@@ -181,7 +187,7 @@ public class PrivateGroupIntegrationTest
 				getGroupMember(groupManager2, author1.getId()).getVisibility());
 
 		// 2 sends a message to the group
-		long time = clock.currentTimeMillis();
+		long time = c2.getClock().currentTimeMillis();
 		String text = "This is a test message!";
 		MessageId previousMsgId = groupManager2.getPreviousMsgId(groupId0);
 		GroupMessage msg = groupMessageFactory
@@ -220,8 +226,8 @@ public class PrivateGroupIntegrationTest
 		byte[] signature = groupInvitationFactory
 				.signInvitation(contact, groupId0, timestamp,
 						author0.getPrivateKey());
-		groupInvitationManager0
-				.sendInvitation(groupId0, c, text, timestamp, signature);
+		groupInvitationManager0.sendInvitation(groupId0, c, text, timestamp,
+				signature, NO_AUTO_DELETE_TIMER);
 	}
 
 	private GroupMember getGroupMember(PrivateGroupManager groupManager,

@@ -19,8 +19,11 @@ import java.util.Map;
 
 import javax.inject.Inject;
 
+import static org.briarproject.briar.api.autodelete.AutoDeleteConstants.NO_AUTO_DELETE_TIMER;
 import static org.briarproject.briar.client.MessageTrackerConstants.MSG_KEY_READ;
+import static org.briarproject.briar.introduction.IntroductionConstants.MSG_KEY_AUTO_DELETE_TIMER;
 import static org.briarproject.briar.introduction.IntroductionConstants.MSG_KEY_AVAILABLE_TO_ANSWER;
+import static org.briarproject.briar.introduction.IntroductionConstants.MSG_KEY_IS_AUTO_DECLINE;
 import static org.briarproject.briar.introduction.IntroductionConstants.MSG_KEY_LOCAL;
 import static org.briarproject.briar.introduction.IntroductionConstants.MSG_KEY_MESSAGE_TYPE;
 import static org.briarproject.briar.introduction.IntroductionConstants.MSG_KEY_SESSION_ID;
@@ -44,7 +47,8 @@ class MessageParserImpl implements MessageParser {
 	}
 
 	@Override
-	public BdfDictionary getRequestsAvailableToAnswerQuery(SessionId sessionId) {
+	public BdfDictionary getRequestsAvailableToAnswerQuery(
+			SessionId sessionId) {
 		return BdfDictionary.of(
 				new BdfEntry(MSG_KEY_AVAILABLE_TO_ANSWER, true),
 				new BdfEntry(MSG_KEY_MESSAGE_TYPE, REQUEST.getValue()),
@@ -65,8 +69,10 @@ class MessageParserImpl implements MessageParser {
 		boolean read = d.getBoolean(MSG_KEY_READ);
 		boolean visible = d.getBoolean(MSG_KEY_VISIBLE_IN_UI);
 		boolean available = d.getBoolean(MSG_KEY_AVAILABLE_TO_ANSWER, false);
+		long timer = d.getLong(MSG_KEY_AUTO_DELETE_TIMER, NO_AUTO_DELETE_TIMER);
+		boolean isAutoDecline = d.getBoolean(MSG_KEY_IS_AUTO_DECLINE, false);
 		return new MessageMetadata(type, sessionId, timestamp, local, read,
-				visible, available);
+				visible, available, timer, isAutoDecline);
 	}
 
 	@Override
@@ -77,8 +83,10 @@ class MessageParserImpl implements MessageParser {
 				new MessageId(previousMsgBytes));
 		Author author = clientHelper.parseAndValidateAuthor(body.getList(2));
 		String text = body.getOptionalString(3);
+		long timer = NO_AUTO_DELETE_TIMER;
+		if (body.size() == 5) timer = body.getLong(4, NO_AUTO_DELETE_TIMER);
 		return new RequestMessage(m.getId(), m.getGroupId(),
-				m.getTimestamp(), previousMessageId, author, text);
+				m.getTimestamp(), previousMessageId, author, text, timer);
 	}
 
 	@Override
@@ -92,9 +100,11 @@ class MessageParserImpl implements MessageParser {
 		long acceptTimestamp = body.getLong(4);
 		Map<TransportId, TransportProperties> transportProperties = clientHelper
 				.parseAndValidateTransportPropertiesMap(body.getDictionary(5));
+		long timer = NO_AUTO_DELETE_TIMER;
+		if (body.size() == 7) timer = body.getLong(6, NO_AUTO_DELETE_TIMER);
 		return new AcceptMessage(m.getId(), m.getGroupId(), m.getTimestamp(),
 				previousMessageId, sessionId, ephemeralPublicKey,
-				acceptTimestamp, transportProperties);
+				acceptTimestamp, transportProperties, timer);
 	}
 
 	@Override
@@ -104,8 +114,10 @@ class MessageParserImpl implements MessageParser {
 		byte[] previousMsgBytes = body.getOptionalRaw(2);
 		MessageId previousMessageId = (previousMsgBytes == null ? null :
 				new MessageId(previousMsgBytes));
+		long timer = NO_AUTO_DELETE_TIMER;
+		if (body.size() == 4) timer = body.getLong(3, NO_AUTO_DELETE_TIMER);
 		return new DeclineMessage(m.getId(), m.getGroupId(), m.getTimestamp(),
-				previousMessageId, sessionId);
+				previousMessageId, sessionId, timer);
 	}
 
 	@Override

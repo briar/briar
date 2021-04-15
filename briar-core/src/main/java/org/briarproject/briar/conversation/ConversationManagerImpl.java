@@ -1,11 +1,14 @@
-package org.briarproject.briar.messaging;
+package org.briarproject.briar.conversation;
 
 import org.briarproject.bramble.api.contact.ContactId;
 import org.briarproject.bramble.api.db.DatabaseComponent;
 import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.db.Transaction;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
+import org.briarproject.bramble.api.sync.GroupId;
 import org.briarproject.bramble.api.sync.MessageId;
+import org.briarproject.bramble.api.system.Clock;
+import org.briarproject.briar.api.client.MessageTracker;
 import org.briarproject.briar.api.client.MessageTracker.GroupCount;
 import org.briarproject.briar.api.conversation.ConversationManager;
 import org.briarproject.briar.api.conversation.ConversationMessageHeader;
@@ -20,16 +23,23 @@ import java.util.concurrent.CopyOnWriteArraySet;
 import javax.annotation.concurrent.ThreadSafe;
 import javax.inject.Inject;
 
+import static java.lang.Math.max;
+
 @ThreadSafe
 @NotNullByDefault
 class ConversationManagerImpl implements ConversationManager {
 
 	private final DatabaseComponent db;
+	private final MessageTracker messageTracker;
+	private final Clock clock;
 	private final Set<ConversationClient> clients;
 
 	@Inject
-	ConversationManagerImpl(DatabaseComponent db) {
+	ConversationManagerImpl(DatabaseComponent db, MessageTracker messageTracker,
+			Clock clock) {
 		this.db = db;
+		this.messageTracker = messageTracker;
+		this.clock = clock;
 		clients = new CopyOnWriteArraySet<>();
 	}
 
@@ -77,6 +87,23 @@ class ConversationManagerImpl implements ConversationManager {
 	}
 
 	@Override
+	public void setReadFlag(GroupId g, MessageId m, boolean read)
+			throws DbException {
+		db.transaction(false, txn -> {
+			boolean wasRead = messageTracker.setReadFlag(txn, g, m, read);
+			if (read && !wasRead) db.startCleanupTimer(txn, m);
+		});
+	}
+
+	@Override
+	public long getTimestampForOutgoingMessage(Transaction txn, ContactId c)
+			throws DbException {
+		long now = clock.currentTimeMillis();
+		GroupCount gc = getGroupCount(txn, c);
+		return max(now, gc.getLatestMsgTime() + 1);
+	}
+
+	@Override
 	public DeletionResult deleteAllMessages(ContactId c) throws DbException {
 		return db.transactionWithResult(false, txn -> {
 			DeletionResult result = new DeletionResult();
@@ -89,8 +116,7 @@ class ConversationManagerImpl implements ConversationManager {
 
 	@Override
 	public DeletionResult deleteMessages(ContactId c,
-			Collection<MessageId> toDelete)
-			throws DbException {
+			Collection<MessageId> toDelete) throws DbException {
 		return db.transactionWithResult(false, txn -> {
 			DeletionResult result = new DeletionResult();
 			for (ConversationClient client : clients) {

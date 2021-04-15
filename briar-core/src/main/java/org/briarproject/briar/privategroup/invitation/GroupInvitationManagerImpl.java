@@ -1,6 +1,7 @@
 package org.briarproject.briar.privategroup.invitation;
 
 import org.briarproject.bramble.api.FormatException;
+import org.briarproject.bramble.api.cleanup.CleanupHook;
 import org.briarproject.bramble.api.client.ClientHelper;
 import org.briarproject.bramble.api.client.ContactGroupFactory;
 import org.briarproject.bramble.api.contact.Contact;
@@ -24,6 +25,7 @@ import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.bramble.api.sync.MessageStatus;
 import org.briarproject.bramble.api.versioning.ClientVersioningManager;
 import org.briarproject.bramble.api.versioning.ClientVersioningManager.ClientVersioningHook;
+import org.briarproject.briar.api.autodelete.event.ConversationMessagesDeletedEvent;
 import org.briarproject.briar.api.client.MessageTracker;
 import org.briarproject.briar.api.client.SessionId;
 import org.briarproject.briar.api.conversation.ConversationMessageHeader;
@@ -52,8 +54,8 @@ import javax.annotation.concurrent.Immutable;
 import javax.inject.Inject;
 
 import static org.briarproject.bramble.api.sync.Group.Visibility.SHARED;
+import static org.briarproject.briar.api.autodelete.AutoDeleteConstants.NO_AUTO_DELETE_TIMER;
 import static org.briarproject.briar.privategroup.invitation.CreatorState.START;
-import static org.briarproject.briar.privategroup.invitation.GroupInvitationConstants.GROUP_KEY_CONTACT_ID;
 import static org.briarproject.briar.privategroup.invitation.MessageType.ABORT;
 import static org.briarproject.briar.privategroup.invitation.MessageType.INVITE;
 import static org.briarproject.briar.privategroup.invitation.MessageType.JOIN;
@@ -66,7 +68,7 @@ import static org.briarproject.briar.privategroup.invitation.Role.PEER;
 @NotNullByDefault
 class GroupInvitationManagerImpl extends ConversationClientImpl
 		implements GroupInvitationManager, OpenDatabaseHook, ContactHook,
-		PrivateGroupHook, ClientVersioningHook {
+		PrivateGroupHook, ClientVersioningHook, CleanupHook {
 
 	private final ClientVersioningManager clientVersioningManager;
 	private final ContactGroupFactory contactGroupFactory;
@@ -123,13 +125,7 @@ class GroupInvitationManagerImpl extends ConversationClientImpl
 				c.getId(), CLIENT_ID, MAJOR_VERSION);
 		db.setGroupVisibility(txn, c.getId(), g.getId(), client);
 		// Attach the contact ID to the group
-		BdfDictionary meta = new BdfDictionary();
-		meta.put(GROUP_KEY_CONTACT_ID, c.getId().getInt());
-		try {
-			clientHelper.mergeGroupMetadata(txn, g.getId(), meta);
-		} catch (FormatException e) {
-			throw new AssertionError(e);
-		}
+		clientHelper.setContactId(txn, g.getId(), c.getId());
 		// If the contact belongs to any private groups, create a peer session
 		for (Group pg : db.getGroups(txn, PrivateGroupManager.CLIENT_ID,
 				PrivateGroupManager.MAJOR_VERSION)) {
@@ -155,11 +151,16 @@ class GroupInvitationManagerImpl extends ConversationClientImpl
 			BdfDictionary bdfMeta) throws DbException, FormatException {
 		// Parse the metadata
 		MessageMetadata meta = messageParser.parseMetadata(bdfMeta);
+		// set the clean-up timer that will be started when message gets read
+		long timer = meta.getAutoDeleteTimer();
+		if (timer != NO_AUTO_DELETE_TIMER) {
+			db.setCleanupTimerDuration(txn, m.getId(), timer);
+		}
 		// Look up the session, if there is one
 		SessionId sessionId = getSessionId(meta.getPrivateGroupId());
 		StoredSession ss = getSession(txn, m.getGroupId(), sessionId);
 		// Handle the message
-		Session session;
+		Session<?> session;
 		MessageId storageId;
 		if (ss == null) {
 			session = handleFirstMessage(txn, m, body, meta);
@@ -189,8 +190,9 @@ class GroupInvitationManagerImpl extends ConversationClientImpl
 				results.values().iterator().next());
 	}
 
-	private Session handleFirstMessage(Transaction txn, Message m, BdfList body,
-			MessageMetadata meta) throws DbException, FormatException {
+	private Session<?> handleFirstMessage(Transaction txn, Message m,
+			BdfList body, MessageMetadata meta)
+			throws DbException, FormatException {
 		GroupId privateGroupId = meta.getPrivateGroupId();
 		MessageType type = meta.getMessageType();
 		if (type == INVITE) {
@@ -206,7 +208,7 @@ class GroupInvitationManagerImpl extends ConversationClientImpl
 		}
 	}
 
-	private Session handleMessage(Transaction txn, Message m, BdfList body,
+	private Session<?> handleMessage(Transaction txn, Message m, BdfList body,
 			MessageMetadata meta, BdfDictionary bdfSession)
 			throws DbException, FormatException {
 		MessageType type = meta.getMessageType();
@@ -228,7 +230,7 @@ class GroupInvitationManagerImpl extends ConversationClientImpl
 		}
 	}
 
-	private <S extends Session> S handleMessage(Transaction txn, Message m,
+	private <S extends Session<?>> S handleMessage(Transaction txn, Message m,
 			BdfList body, MessageType type, S session, ProtocolEngine<S> engine)
 			throws DbException, FormatException {
 		if (type == INVITE) {
@@ -256,15 +258,15 @@ class GroupInvitationManagerImpl extends ConversationClientImpl
 	}
 
 	private void storeSession(Transaction txn, MessageId storageId,
-			Session session) throws DbException, FormatException {
+			Session<?> session) throws DbException, FormatException {
 		BdfDictionary d = sessionEncoder.encodeSession(session);
 		clientHelper.mergeMessageMetadata(txn, storageId, d);
 	}
 
 	@Override
 	public void sendInvitation(GroupId privateGroupId, ContactId c,
-			@Nullable String text, long timestamp, byte[] signature)
-			throws DbException {
+			@Nullable String text, long timestamp, byte[] signature,
+			long autoDeleteTimer) throws DbException {
 		SessionId sessionId = getSessionId(privateGroupId);
 		Transaction txn = db.startTransaction(false);
 		try {
@@ -287,7 +289,7 @@ class GroupInvitationManagerImpl extends ConversationClientImpl
 			}
 			// Handle the invite action
 			session = creatorEngine.onInviteAction(txn, session, text,
-					timestamp, signature);
+					timestamp, signature, autoDeleteTimer);
 			// Store the updated session
 			storeSession(txn, storageId, session);
 			db.commitTransaction(txn);
@@ -307,7 +309,13 @@ class GroupInvitationManagerImpl extends ConversationClientImpl
 	@Override
 	public void respondToInvitation(ContactId c, SessionId sessionId,
 			boolean accept) throws DbException {
-		Transaction txn = db.startTransaction(false);
+		db.transaction(false,
+				txn -> respondToInvitation(txn, c, sessionId, accept, false));
+	}
+
+	private void respondToInvitation(Transaction txn, ContactId c,
+			SessionId sessionId, boolean accept, boolean isAutoDecline)
+			throws DbException {
 		try {
 			// Look up the session
 			Contact contact = db.getContact(txn, c);
@@ -319,14 +327,12 @@ class GroupInvitationManagerImpl extends ConversationClientImpl
 					.parseInviteeSession(contactGroupId, ss.bdfSession);
 			// Handle the join or leave action
 			if (accept) session = inviteeEngine.onJoinAction(txn, session);
-			else session = inviteeEngine.onLeaveAction(txn, session);
+			else session =
+					inviteeEngine.onLeaveAction(txn, session, isAutoDecline);
 			// Store the updated session
 			storeSession(txn, ss.storageId, session);
-			db.commitTransaction(txn);
 		} catch (FormatException e) {
 			throw new DbException(e);
-		} finally {
-			db.endTransaction(txn);
 		}
 	}
 
@@ -354,7 +360,7 @@ class GroupInvitationManagerImpl extends ConversationClientImpl
 		}
 	}
 
-	private <S extends Session> S handleAction(Transaction txn,
+	private <S extends Session<?>> S handleAction(Transaction txn,
 			LocalAction type, S session, ProtocolEngine<S> engine)
 			throws DbException {
 		if (type == LocalAction.INVITE) {
@@ -362,7 +368,7 @@ class GroupInvitationManagerImpl extends ConversationClientImpl
 		} else if (type == LocalAction.JOIN) {
 			return engine.onJoinAction(txn, session);
 		} else if (type == LocalAction.LEAVE) {
-			return engine.onLeaveAction(txn, session);
+			return engine.onLeaveAction(txn, session, false);
 		} else if (type == LocalAction.MEMBER_ADDED) {
 			return engine.onMemberAddedAction(txn, session);
 		} else {
@@ -420,7 +426,8 @@ class GroupInvitationManagerImpl extends ConversationClientImpl
 		return new GroupInvitationRequest(m, contactGroupId,
 				meta.getTimestamp(), meta.isLocal(), meta.isRead(),
 				status.isSent(), status.isSeen(), sessionId, pg,
-				invite.getText(), meta.isAvailableToAnswer(), canBeOpened);
+				invite.getText(), meta.isAvailableToAnswer(), canBeOpened,
+				invite.getAutoDeleteTimer());
 	}
 
 	private GroupInvitationResponse parseInvitationResponse(
@@ -430,7 +437,8 @@ class GroupInvitationManagerImpl extends ConversationClientImpl
 		return new GroupInvitationResponse(m, contactGroupId,
 				meta.getTimestamp(), meta.isLocal(), meta.isRead(),
 				status.isSent(), status.isSeen(), sessionId, accept,
-				meta.getPrivateGroupId());
+				meta.getPrivateGroupId(), meta.getAutoDeleteTimer(),
+				meta.isAutoDecline());
 	}
 
 	@Override
@@ -442,10 +450,9 @@ class GroupInvitationManagerImpl extends ConversationClientImpl
 			// Look up the available invite messages for each contact
 			for (Contact c : db.getContacts(txn)) {
 				GroupId contactGroupId = getContactGroup(c).getId();
-				Map<MessageId, BdfDictionary> results =
-						clientHelper.getMessageMetadataAsDictionary(txn,
-								contactGroupId, query);
-				for (MessageId m : results.keySet())
+				Collection<MessageId> results = clientHelper.getMessageIds(txn,
+						contactGroupId, query);
+				for (MessageId m : results)
 					items.add(parseGroupInvitationItem(txn, c, m));
 			}
 			db.commitTransaction(txn);
@@ -508,7 +515,7 @@ class GroupInvitationManagerImpl extends ConversationClientImpl
 			SessionId sessionId = getSessionId(privateGroupId);
 			StoredSession ss = getSession(txn, contactGroupId, sessionId);
 			// Create or parse the session
-			Session session;
+			Session<?> session;
 			MessageId storageId;
 			if (ss == null) {
 				// If there's no session the contact must be a peer,
@@ -543,7 +550,7 @@ class GroupInvitationManagerImpl extends ConversationClientImpl
 				StoredSession ss = getSession(txn, contactGroupId, sessionId);
 				if (ss == null) continue; // No session for this contact
 				// Handle the action
-				Session session = handleAction(txn, LocalAction.LEAVE,
+				Session<?> session = handleAction(txn, LocalAction.LEAVE,
 						contactGroupId, ss.bdfSession);
 				// Store the updated session
 				storeSession(txn, ss.storageId, session);
@@ -553,7 +560,7 @@ class GroupInvitationManagerImpl extends ConversationClientImpl
 		}
 	}
 
-	private Session handleAction(Transaction txn, LocalAction a,
+	private Session<?> handleAction(Transaction txn, LocalAction a,
 			GroupId contactGroupId, BdfDictionary bdfSession)
 			throws DbException, FormatException {
 		Role role = sessionParser.getRole(bdfSession);
@@ -613,7 +620,7 @@ class GroupInvitationManagerImpl extends ConversationClientImpl
 				.getMessageMetadataAsDictionary(txn, contactGroupId, query);
 		Map<GroupId, Visibility> m = new HashMap<>();
 		for (BdfDictionary d : results.values()) {
-			Session s = sessionParser.parseSession(contactGroupId, d);
+			Session<?> s = sessionParser.parseSession(contactGroupId, d);
 			m.put(s.getPrivateGroupId(), s.getState().getVisibility());
 		}
 		return m;
@@ -644,7 +651,7 @@ class GroupInvitationManagerImpl extends ConversationClientImpl
 			Map<GroupId, DeletableSession> sessions = new HashMap<>();
 			for (BdfDictionary d : metadata.values()) {
 				if (!sessionParser.isSession(d)) continue;
-				Session session;
+				Session<?> session;
 				try {
 					session = sessionParser.parseSession(g, d);
 				} catch (FormatException e) {
@@ -673,7 +680,7 @@ class GroupInvitationManagerImpl extends ConversationClientImpl
 							getSessionId(messageMetadata.getPrivateGroupId());
 					StoredSession ss = getSession(txn1, g, sessionId);
 					if (ss == null) throw new DbException();
-					Session session = sessionParser
+					Session<?> session = sessionParser
 							.parseSession(g, metadata.get(ss.storageId));
 					sessions.put(session.getPrivateGroupId(),
 							new DeletableSession(session.getState()));
@@ -692,7 +699,7 @@ class GroupInvitationManagerImpl extends ConversationClientImpl
 		// get ID of the contact group
 		GroupId g = getContactGroup(db.getContact(txn, c)).getId();
 
-		// get metadata for all messages in the
+		// get metadata for all messages in the group
 		// (these are sessions *and* protocol messages)
 		Map<MessageId, BdfDictionary> metadata;
 		try {
@@ -769,14 +776,63 @@ class GroupInvitationManagerImpl extends ConversationClientImpl
 	}
 
 	@Override
+	public void deleteMessages(Transaction txn, GroupId g,
+			Collection<MessageId> messageIds) throws DbException {
+		ContactId c;
+		Map<SessionId, DeletableSession> sessions = new HashMap<>();
+		try {
+			// get the ContactId from the given GroupId
+			c = clientHelper.getContactId(txn, g);
+			// get sessions for all messages to be deleted
+			for (MessageId messageId : messageIds) {
+				BdfDictionary d = clientHelper
+						.getMessageMetadataAsDictionary(txn, messageId);
+				MessageMetadata messageMetadata =
+						messageParser.parseMetadata(d);
+				if (!messageMetadata.isVisibleInConversation())
+					throw new IllegalArgumentException();
+				SessionId sessionId =
+						getSessionId(messageMetadata.getPrivateGroupId());
+				DeletableSession deletableSession = sessions.get(sessionId);
+				if (deletableSession == null) {
+					StoredSession ss = getSession(txn, g, sessionId);
+					if (ss == null) throw new DbException();
+					Session<?> session =
+							sessionParser.parseSession(g, ss.bdfSession);
+					deletableSession = new DeletableSession(session.getState());
+					sessions.put(sessionId, deletableSession);
+				}
+				deletableSession.messages.add(messageId);
+			}
+		} catch (FormatException e) {
+			throw new DbException(e);
+		}
+
+		// delete given visible messages in sessions and auto-respond before
+		for (Entry<SessionId, DeletableSession> entry : sessions.entrySet()) {
+			DeletableSession session = entry.getValue();
+			// decline invitee sessions waiting for a response before
+			if (session.state instanceof InviteeState &&
+					session.state.isAwaitingResponse()) {
+				respondToInvitation(txn, c, entry.getKey(), false, true);
+			}
+			for (MessageId m : session.messages) {
+				db.deleteMessage(txn, m);
+				db.deleteMessageMetadata(txn, m);
+			}
+		}
+		recalculateGroupCount(txn, g);
+
+		txn.attach(new ConversationMessagesDeletedEvent(c, messageIds));
+	}
+
+	@Override
 	public Set<MessageId> getMessageIds(Transaction txn, ContactId c)
 			throws DbException {
 		GroupId g = getContactGroup(db.getContact(txn, c)).getId();
 		BdfDictionary query = messageParser.getMessagesVisibleInUiQuery();
 		try {
-			Map<MessageId, BdfDictionary> results =
-					clientHelper.getMessageMetadataAsDictionary(txn, g, query);
-			return results.keySet();
+			return new HashSet<>(clientHelper.getMessageIds(txn, g, query));
 		} catch (FormatException e) {
 			throw new DbException(e);
 		}

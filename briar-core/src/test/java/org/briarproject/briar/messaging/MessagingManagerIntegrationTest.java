@@ -8,7 +8,6 @@ import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.bramble.test.TestDatabaseConfigModule;
 import org.briarproject.briar.api.attachment.AttachmentHeader;
 import org.briarproject.briar.api.conversation.ConversationMessageHeader;
-import org.briarproject.briar.api.conversation.DeletionResult;
 import org.briarproject.briar.api.messaging.MessagingManager;
 import org.briarproject.briar.api.messaging.PrivateMessage;
 import org.briarproject.briar.api.messaging.PrivateMessageFactory;
@@ -30,12 +29,11 @@ import javax.annotation.Nullable;
 
 import static java.util.Collections.emptyList;
 import static java.util.Collections.emptySet;
-import static java.util.Collections.singleton;
 import static java.util.Collections.singletonList;
-import static org.briarproject.bramble.api.sync.validation.MessageState.DELIVERED;
-import static org.briarproject.bramble.api.sync.validation.MessageState.PENDING;
 import static org.briarproject.bramble.test.TestUtils.getRandomBytes;
 import static org.briarproject.bramble.util.StringUtils.getRandomString;
+import static org.briarproject.briar.api.autodelete.AutoDeleteConstants.MIN_AUTO_DELETE_TIMER_MS;
+import static org.briarproject.briar.api.autodelete.AutoDeleteConstants.NO_AUTO_DELETE_TIMER;
 import static org.briarproject.briar.test.BriarTestUtils.assertGroupCount;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -89,7 +87,7 @@ public class MessagingManagerIntegrationTest
 
 	@Test
 	public void testSimpleConversation() throws Exception {
-		// conversation start out empty
+		// conversation starts out empty
 		Collection<ConversationMessageHeader> messages0 = getMessages(c0);
 		Collection<ConversationMessageHeader> messages1 = getMessages(c1);
 		assertEquals(0, messages0.size());
@@ -108,6 +106,10 @@ public class MessagingManagerIntegrationTest
 				(PrivateMessageHeader) messages1.iterator().next();
 		assertTrue(m0.hasText());
 		assertTrue(m1.hasText());
+		assertEquals(0, m0.getAttachmentHeaders().size());
+		assertEquals(0, m1.getAttachmentHeaders().size());
+		assertEquals(NO_AUTO_DELETE_TIMER, m0.getAutoDeleteTimer());
+		assertEquals(NO_AUTO_DELETE_TIMER, m1.getAutoDeleteTimer());
 		assertTrue(m0.isRead());
 		assertFalse(m1.isRead());
 		assertGroupCounts(c0, 1, 0);
@@ -143,13 +145,44 @@ public class MessagingManagerIntegrationTest
 		assertFalse(m1.hasText());
 		assertEquals(1, m0.getAttachmentHeaders().size());
 		assertEquals(1, m1.getAttachmentHeaders().size());
+		assertEquals(NO_AUTO_DELETE_TIMER, m0.getAutoDeleteTimer());
+		assertEquals(NO_AUTO_DELETE_TIMER, m1.getAutoDeleteTimer());
+		assertTrue(m0.isRead());
+		assertFalse(m1.isRead());
+		assertGroupCounts(c0, 1, 0);
+		assertGroupCounts(c1, 1, 1);
+	}
+
+	@Test
+	public void testAutoDeleteTimer() throws Exception {
+		// send message with auto-delete timer
+		sendMessage(c0, c1, getRandomString(123), emptyList(),
+				MIN_AUTO_DELETE_TIMER_MS);
+
+		// message with timer is sent/displayed properly
+		Collection<ConversationMessageHeader> messages0 = getMessages(c0);
+		Collection<ConversationMessageHeader> messages1 = getMessages(c1);
+		assertEquals(1, messages0.size());
+		assertEquals(1, messages1.size());
+		PrivateMessageHeader m0 =
+				(PrivateMessageHeader) messages0.iterator().next();
+		PrivateMessageHeader m1 =
+				(PrivateMessageHeader) messages1.iterator().next();
+		assertTrue(m0.hasText());
+		assertTrue(m1.hasText());
+		assertEquals(0, m0.getAttachmentHeaders().size());
+		assertEquals(0, m1.getAttachmentHeaders().size());
+		assertEquals(MIN_AUTO_DELETE_TIMER_MS, m0.getAutoDeleteTimer());
+		assertEquals(MIN_AUTO_DELETE_TIMER_MS, m1.getAutoDeleteTimer());
+		assertTrue(m0.isRead());
+		assertFalse(m1.isRead());
 		assertGroupCounts(c0, 1, 0);
 		assertGroupCounts(c1, 1, 1);
 	}
 
 	@Test
 	public void testDeleteAll() throws Exception {
-		// send 3 message (1 with attachment)
+		// send 3 messages (1 with attachment)
 		sendMessage(c0, c1, getRandomString(42));
 		sendMessage(c0, c1, getRandomString(23));
 		sendMessage(c0, c1, null, singletonList(addAttachment(c0)));
@@ -219,7 +252,7 @@ public class MessagingManagerIntegrationTest
 		// send legacy message
 		GroupId g = c0.getMessagingManager().getConversationId(contactId);
 		PrivateMessage m0 = messageFactory.createLegacyPrivateMessage(g,
-				clock.currentTimeMillis(), getRandomString(42));
+				c0.getClock().currentTimeMillis(), getRandomString(42));
 		c0.getMessagingManager().addLocalMessage(m0);
 		syncMessage(c0, c1, contactId, 1, true);
 
@@ -274,56 +307,6 @@ public class MessagingManagerIntegrationTest
 	}
 
 	@Test
-	public void testDeleteSomeAttachment() throws Exception {
-		// send one message with attachment
-		AttachmentHeader h = addAttachment(c0);
-		PrivateMessage m =
-				sendMessage(c0, c1, getRandomString(42), singletonList(h));
-
-		// attachment exists on both devices, state set to PENDING for receiver
-		db1.transaction(false, txn -> {
-			db1.getMessage(txn, h.getMessageId());
-			db1.setMessageState(txn, h.getMessageId(), PENDING);
-		});
-
-		// deleting succeeds for sender
-		Set<MessageId> toDelete = singleton(m.getMessage().getId());
-		DeletionResult result0 = db0.transactionWithResult(false, txn ->
-				messagingManager0.deleteMessages(txn, contactId, toDelete));
-		assertTrue(result0.allDeleted());
-
-		// deleting message fails for receiver,
-		// because attachment is not yet delivered
-		DeletionResult result1 = db1.transactionWithResult(false, txn ->
-				messagingManager1.deleteMessages(txn, contactId, toDelete));
-		assertFalse(result1.allDeleted());
-		assertTrue(result1.hasNotFullyDownloaded());
-
-		// deliver attachment
-		db1.transaction(false,
-				txn -> db1.setMessageState(txn, h.getMessageId(), DELIVERED));
-
-		// deleting message and attachment works for sender now
-		assertTrue(db1.transactionWithResult(false, txn ->
-				messagingManager1.deleteMessages(txn, contactId, toDelete))
-				.allDeleted());
-
-		// attachment was deleted on both devices
-		try {
-			db0.transaction(true, txn -> db0.getMessage(txn, h.getMessageId()));
-			fail();
-		} catch (MessageDeletedException e) {
-			// expected
-		}
-		try {
-			db1.transaction(true, txn -> db1.getMessage(txn, h.getMessageId()));
-			fail();
-		} catch (MessageDeletedException e) {
-			// expected
-		}
-	}
-
-	@Test
 	public void testDeletingEmptySet() throws Exception {
 		assertTrue(db0.transactionWithResult(false, txn ->
 				messagingManager0.deleteMessages(txn, contactId, emptySet()))
@@ -331,17 +314,24 @@ public class MessagingManagerIntegrationTest
 	}
 
 	private PrivateMessage sendMessage(BriarIntegrationTestComponent from,
-			BriarIntegrationTestComponent to, String text)
-			throws Exception {
+			BriarIntegrationTestComponent to, String text) throws Exception {
 		return sendMessage(from, to, text, emptyList());
 	}
 
 	private PrivateMessage sendMessage(BriarIntegrationTestComponent from,
 			BriarIntegrationTestComponent to, @Nullable String text,
 			List<AttachmentHeader> attachments) throws Exception {
+		return sendMessage(from, to, text, attachments, NO_AUTO_DELETE_TIMER);
+	}
+
+	private PrivateMessage sendMessage(BriarIntegrationTestComponent from,
+			BriarIntegrationTestComponent to, @Nullable String text,
+			List<AttachmentHeader> attachments, long autoDeleteTimer)
+			throws Exception {
 		GroupId g = from.getMessagingManager().getConversationId(contactId);
 		PrivateMessage m = messageFactory.createPrivateMessage(g,
-				clock.currentTimeMillis(), text, attachments);
+				from.getClock().currentTimeMillis(), text, attachments,
+				autoDeleteTimer);
 		from.getMessagingManager().addLocalMessage(m);
 		syncMessage(from, to, contactId, 1 + attachments.size(), true);
 		return m;
@@ -352,7 +342,7 @@ public class MessagingManagerIntegrationTest
 		GroupId g = c.getMessagingManager().getConversationId(contactId);
 		InputStream stream = new ByteArrayInputStream(getRandomBytes(42));
 		return c.getMessagingManager().addLocalAttachment(g,
-				clock.currentTimeMillis(), "image/jpeg", stream);
+				c.getClock().currentTimeMillis(), "image/jpeg", stream);
 	}
 
 	private Collection<ConversationMessageHeader> getMessages(

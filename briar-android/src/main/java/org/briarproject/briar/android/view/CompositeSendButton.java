@@ -5,6 +5,7 @@ import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.FrameLayout;
+import android.widget.ImageView;
 import android.widget.ProgressBar;
 
 import org.briarproject.briar.R;
@@ -19,6 +20,7 @@ import static java.util.Objects.requireNonNull;
 public class CompositeSendButton extends FrameLayout {
 
 	private final AppCompatImageButton sendButton, imageButton;
+	private final ImageView bombBadge;
 	private final ProgressBar progressBar;
 
 	private boolean hasImageSupport = false;
@@ -32,6 +34,7 @@ public class CompositeSendButton extends FrameLayout {
 
 		sendButton = findViewById(R.id.sendButton);
 		imageButton = findViewById(R.id.imageButton);
+		bombBadge = findViewById(R.id.bombBadge);
 		progressBar = findViewById(R.id.progressBar);
 	}
 
@@ -69,6 +72,10 @@ public class CompositeSendButton extends FrameLayout {
 
 	public boolean hasImageSupport() {
 		return hasImageSupport;
+	}
+
+	public void setBombVisible(boolean visible) {
+		bombBadge.setVisibility(visible ? VISIBLE : INVISIBLE);
 	}
 
 	public void showImageButton(boolean showImageButton, boolean sendEnabled) {

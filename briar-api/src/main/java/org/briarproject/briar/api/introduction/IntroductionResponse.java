@@ -1,13 +1,13 @@
 package org.briarproject.briar.api.introduction;
 
 import org.briarproject.bramble.api.identity.Author;
-import org.briarproject.briar.api.identity.AuthorInfo;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.sync.GroupId;
 import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.briar.api.client.SessionId;
 import org.briarproject.briar.api.conversation.ConversationMessageVisitor;
 import org.briarproject.briar.api.conversation.ConversationResponse;
+import org.briarproject.briar.api.identity.AuthorInfo;
 
 import javax.annotation.concurrent.Immutable;
 
@@ -25,9 +25,10 @@ public class IntroductionResponse extends ConversationResponse {
 	public IntroductionResponse(MessageId messageId, GroupId groupId, long time,
 			boolean local, boolean read, boolean sent, boolean seen,
 			SessionId sessionId, boolean accepted, Author author,
-			AuthorInfo introducedAuthorInfo, Role role, boolean canSucceed) {
+			AuthorInfo introducedAuthorInfo, Role role, boolean canSucceed,
+			long autoDeleteTimer, boolean isAutoDecline) {
 		super(messageId, groupId, time, local, read, sent, seen, sessionId,
-				accepted);
+				accepted, autoDeleteTimer, isAutoDecline);
 		this.introducedAuthor = author;
 		this.introducedAuthorInfo = introducedAuthorInfo;
 		this.ourRole = role;

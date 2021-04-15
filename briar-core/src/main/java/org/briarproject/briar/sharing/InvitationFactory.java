@@ -11,10 +11,11 @@ public interface InvitationFactory<S extends Shareable, R extends InvitationResp
 
 	ConversationRequest<S> createInvitationRequest(boolean local, boolean sent,
 			boolean seen, boolean read, InviteMessage<S> m, ContactId c,
-			boolean available, boolean canBeOpened);
+			boolean available, boolean canBeOpened, long autoDeleteTimer);
 
 	R createInvitationResponse(MessageId id, GroupId contactGroupId, long time,
 			boolean local, boolean sent, boolean seen, boolean read,
-			boolean accept, GroupId shareableId);
+			boolean accept, GroupId shareableId, long autoDeleteTimer,
+			boolean isAutoDecline);
 
 }

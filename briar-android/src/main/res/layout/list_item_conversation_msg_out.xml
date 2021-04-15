@@ -1,10 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
 	xmlns:app="http://schemas.android.com/apk/res-auto"
 	xmlns:tools="http://schemas.android.com/tools"
 	android:layout_width="match_parent"
 	android:layout_height="wrap_content"
-	android:background="@drawable/list_item_background_selectable">
+	android:background="@drawable/list_item_background_selectable"
+	android:orientation="vertical"
+	android:paddingTop="@dimen/message_bubble_margin">
+
+	<include layout="@layout/list_item_conversation_top_notice_out" />
 
 	<androidx.constraintlayout.widget.ConstraintLayout
 		android:id="@+id/layout"
@@ -73,15 +77,26 @@
 				style="@style/TextMessage.Timestamp"
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
-				android:layout_marginEnd="6dp"
-				android:layout_marginRight="6dp"
+				android:layout_marginEnd="4dp"
+				android:layout_marginRight="4dp"
 				android:textColor="@color/private_message_date_inverse"
 				tools:text="Dec 24, 13:37" />
+
+			<ImageView
+				android:id="@+id/bomb"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:layout_marginEnd="4dp"
+				android:layout_marginRight="4dp"
+				app:srcCompat="@drawable/ic_bomb"
+				app:tint="@color/private_message_date_inverse"
+				tools:ignore="ContentDescription" />
 
 			<ImageView
 				android:id="@+id/status"
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
+				app:tint="@color/private_message_date_inverse"
 				tools:ignore="ContentDescription"
 				tools:src="@drawable/message_delivered" />
 
@@ -89,4 +104,4 @@
 
 	</androidx.constraintlayout.widget.ConstraintLayout>
 
-</FrameLayout>
+</LinearLayout>

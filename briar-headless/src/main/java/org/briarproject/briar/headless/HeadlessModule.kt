@@ -17,6 +17,7 @@ import org.briarproject.bramble.network.JavaNetworkModule
 import org.briarproject.bramble.plugin.tor.CircumventionModule
 import org.briarproject.bramble.plugin.tor.UnixTorPluginFactory
 import org.briarproject.bramble.socks.SocksModule
+import org.briarproject.bramble.system.ClockModule
 import org.briarproject.bramble.system.DefaultTaskSchedulerModule
 import org.briarproject.bramble.system.DefaultWakefulIoExecutorModule
 import org.briarproject.bramble.system.DesktopSecureRandomModule
@@ -36,6 +37,7 @@ import javax.inject.Singleton
     includes = [
         AccountModule::class,
         CircumventionModule::class,
+        ClockModule::class,
         DefaultBatteryManagerModule::class,
         DefaultEventExecutorModule::class,
         DefaultTaskSchedulerModule::class,
@@ -91,5 +93,6 @@ internal class HeadlessModule(private val appDir: File) {
     internal fun provideFeatureFlags() = object : FeatureFlags {
         override fun shouldEnableImageAttachments() = false
         override fun shouldEnableProfilePictures() = false
+        override fun shouldEnableDisappearingMessages() = false
     }
 }

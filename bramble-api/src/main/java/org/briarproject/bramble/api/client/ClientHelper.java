@@ -1,6 +1,7 @@
 package org.briarproject.bramble.api.client;
 
 import org.briarproject.bramble.api.FormatException;
+import org.briarproject.bramble.api.contact.ContactId;
 import org.briarproject.bramble.api.crypto.PrivateKey;
 import org.briarproject.bramble.api.crypto.PublicKey;
 import org.briarproject.bramble.api.data.BdfDictionary;
@@ -16,6 +17,7 @@ import org.briarproject.bramble.api.sync.Message;
 import org.briarproject.bramble.api.sync.MessageId;
 
 import java.security.GeneralSecurityException;
+import java.util.Collection;
 import java.util.Map;
 
 @NotNullByDefault
@@ -50,9 +52,11 @@ public interface ClientHelper {
 	BdfDictionary getGroupMetadataAsDictionary(Transaction txn, GroupId g)
 			throws DbException, FormatException;
 
+	Collection<MessageId> getMessageIds(Transaction txn, GroupId g,
+			BdfDictionary query) throws DbException, FormatException;
+
 	BdfDictionary getMessageMetadataAsDictionary(MessageId m)
-			throws DbException,
-			FormatException;
+			throws DbException, FormatException;
 
 	BdfDictionary getMessageMetadataAsDictionary(Transaction txn, MessageId m)
 			throws DbException, FormatException;
@@ -119,4 +123,17 @@ public interface ClientHelper {
 	Map<TransportId, TransportProperties> parseAndValidateTransportPropertiesMap(
 			BdfDictionary properties) throws FormatException;
 
+	/**
+	 * Retrieves the contact ID from the group metadata of the given contact
+	 * group.
+	 */
+	ContactId getContactId(Transaction txn, GroupId contactGroupId)
+			throws DbException, FormatException;
+
+	/**
+	 * Stores the given contact ID in the group metadata of the given contact
+	 * group.
+	 */
+	void setContactId(Transaction txn, GroupId contactGroupId, ContactId c)
+			throws DbException;
 }

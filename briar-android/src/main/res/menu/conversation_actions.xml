@@ -1,30 +1,37 @@
 <?xml version="1.0" encoding="utf-8"?>
-<menu
-	xmlns:android="http://schemas.android.com/apk/res/android"
-	xmlns:app="http://schemas.android.com/apk/res-auto">
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:app="http://schemas.android.com/apk/res-auto"
+	xmlns:tools="http://schemas.android.com/tools">
 
 	<item
 		android:id="@+id/action_introduction"
+		android:enabled="false"
 		android:icon="@drawable/introduction_white"
 		android:title="@string/introduction_menu_item"
-		android:enabled="false"
-		app:showAsAction="never"/>
+		app:showAsAction="never" />
 
 	<item
 		android:id="@+id/action_set_alias"
-		android:title="@string/set_contact_alias"
 		android:enabled="false"
-		app:showAsAction="never"/>
+		android:title="@string/set_contact_alias"
+		app:showAsAction="never" />
+
+	<item
+		android:id="@+id/action_conversation_settings"
+		android:title="@string/menu_item_disappearing_messages"
+		android:visible="false"
+		app:showAsAction="never"
+		tools:visible="true" />
 
 	<item
 		android:id="@+id/action_delete_all_messages"
 		android:title="@string/delete_all_messages"
-		app:showAsAction="never"/>
+		app:showAsAction="never" />
 
 	<item
 		android:id="@+id/action_social_remove_person"
 		android:icon="@drawable/action_delete_white"
 		android:title="@string/delete_contact"
-		app:showAsAction="never"/>
+		app:showAsAction="never" />
 
 </menu>

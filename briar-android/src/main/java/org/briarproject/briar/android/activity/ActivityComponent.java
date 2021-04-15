@@ -29,6 +29,7 @@ import org.briarproject.briar.android.contact.add.remote.NicknameFragment;
 import org.briarproject.briar.android.contact.add.remote.PendingContactListActivity;
 import org.briarproject.briar.android.conversation.AliasDialogFragment;
 import org.briarproject.briar.android.conversation.ConversationActivity;
+import org.briarproject.briar.android.conversation.ConversationSettingsDialog;
 import org.briarproject.briar.android.conversation.ImageActivity;
 import org.briarproject.briar.android.conversation.ImageFragment;
 import org.briarproject.briar.android.forum.CreateForumActivity;
@@ -232,5 +233,7 @@ public interface ActivityComponent {
 	void inject(CrashFragment crashFragment);
 
 	void inject(ConfirmAvatarDialogFragment fragment);
+
+	void inject(ConversationSettingsDialog dialog);
 
 }

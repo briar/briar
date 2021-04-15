@@ -20,8 +20,9 @@ public class PrivateMessageHeader extends ConversationMessageHeader {
 
 	public PrivateMessageHeader(MessageId id, GroupId groupId, long timestamp,
 			boolean local, boolean read, boolean sent, boolean seen,
-			boolean hasText, List<AttachmentHeader> headers) {
-		super(id, groupId, timestamp, local, read, sent, seen);
+			boolean hasText, List<AttachmentHeader> headers,
+			long autoDeleteTimer) {
+		super(id, groupId, timestamp, local, read, sent, seen, autoDeleteTimer);
 		this.hasText = hasText;
 		this.attachmentHeaders = headers;
 	}
@@ -38,5 +39,4 @@ public class PrivateMessageHeader extends ConversationMessageHeader {
 	public <T> T accept(ConversationMessageVisitor<T> v) {
 		return v.visitPrivateMessageHeader(this);
 	}
-
 }

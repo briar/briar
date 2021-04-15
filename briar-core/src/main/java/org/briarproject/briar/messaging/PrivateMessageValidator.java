@@ -31,16 +31,19 @@ import static org.briarproject.bramble.util.ValidationUtils.checkSize;
 import static org.briarproject.briar.api.attachment.MediaConstants.MAX_CONTENT_TYPE_BYTES;
 import static org.briarproject.briar.api.attachment.MediaConstants.MSG_KEY_CONTENT_TYPE;
 import static org.briarproject.briar.api.attachment.MediaConstants.MSG_KEY_DESCRIPTOR_LENGTH;
+import static org.briarproject.briar.api.autodelete.AutoDeleteConstants.NO_AUTO_DELETE_TIMER;
 import static org.briarproject.briar.api.messaging.MessagingConstants.MAX_ATTACHMENTS_PER_MESSAGE;
 import static org.briarproject.briar.api.messaging.MessagingConstants.MAX_PRIVATE_MESSAGE_INCOMING_TEXT_LENGTH;
 import static org.briarproject.briar.client.MessageTrackerConstants.MSG_KEY_READ;
 import static org.briarproject.briar.messaging.MessageTypes.ATTACHMENT;
 import static org.briarproject.briar.messaging.MessageTypes.PRIVATE_MESSAGE;
 import static org.briarproject.briar.messaging.MessagingConstants.MSG_KEY_ATTACHMENT_HEADERS;
+import static org.briarproject.briar.messaging.MessagingConstants.MSG_KEY_AUTO_DELETE_TIMER;
 import static org.briarproject.briar.messaging.MessagingConstants.MSG_KEY_HAS_TEXT;
 import static org.briarproject.briar.messaging.MessagingConstants.MSG_KEY_LOCAL;
 import static org.briarproject.briar.messaging.MessagingConstants.MSG_KEY_MSG_TYPE;
 import static org.briarproject.briar.messaging.MessagingConstants.MSG_KEY_TIMESTAMP;
+import static org.briarproject.briar.util.ValidationUtils.validateAutoDeleteTimer;
 
 @Immutable
 @NotNullByDefault
@@ -100,7 +103,7 @@ class PrivateMessageValidator implements MessageValidator {
 
 	private BdfMessageContext validateLegacyPrivateMessage(Message m,
 			BdfList body) throws FormatException {
-		// Private message text
+		// Client version 0.0: Private message text
 		checkSize(body, 1);
 		String text = body.getString(0);
 		checkLength(text, 0, MAX_PRIVATE_MESSAGE_INCOMING_TEXT_LENGTH);
@@ -114,8 +117,11 @@ class PrivateMessageValidator implements MessageValidator {
 
 	private BdfMessageContext validatePrivateMessage(Message m, BdfList body)
 			throws FormatException {
-		// Message type, optional private message text, attachment headers
-		checkSize(body, 3);
+		// Client version 0.1 to 0.2: Message type, optional private message
+		// text, attachment headers.
+		// Client version 0.3: Message type, optional private message text,
+		// attachment headers, optional auto-delete timer.
+		checkSize(body, 3, 4);
 		String text = body.getOptionalString(1);
 		checkLength(text, 0, MAX_PRIVATE_MESSAGE_INCOMING_TEXT_LENGTH);
 		BdfList headers = body.getList(2);
@@ -130,6 +136,10 @@ class PrivateMessageValidator implements MessageValidator {
 			String contentType = header.getString(1);
 			checkLength(contentType, 1, MAX_CONTENT_TYPE_BYTES);
 		}
+		long timer = NO_AUTO_DELETE_TIMER;
+		if (body.size() == 4) {
+			timer = validateAutoDeleteTimer(body.getOptionalLong(3));
+		}
 		// Return the metadata
 		BdfDictionary meta = new BdfDictionary();
 		meta.put(MSG_KEY_TIMESTAMP, m.getTimestamp());
@@ -138,6 +148,9 @@ class PrivateMessageValidator implements MessageValidator {
 		meta.put(MSG_KEY_MSG_TYPE, PRIVATE_MESSAGE);
 		meta.put(MSG_KEY_HAS_TEXT, text != null);
 		meta.put(MSG_KEY_ATTACHMENT_HEADERS, headers);
+		if (timer != NO_AUTO_DELETE_TIMER) {
+			meta.put(MSG_KEY_AUTO_DELETE_TIMER, timer);
+		}
 		return new BdfMessageContext(meta);
 	}
 

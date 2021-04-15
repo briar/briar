@@ -18,8 +18,10 @@ import org.briarproject.bramble.api.sync.Message;
 import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.bramble.api.system.Clock;
 import org.briarproject.bramble.api.versioning.ClientVersioningManager;
+import org.briarproject.briar.api.autodelete.AutoDeleteManager;
 import org.briarproject.briar.api.client.MessageTracker;
 import org.briarproject.briar.api.client.ProtocolStateException;
+import org.briarproject.briar.api.conversation.ConversationManager;
 import org.briarproject.briar.api.sharing.Shareable;
 import org.briarproject.briar.api.sharing.event.ContactLeftShareableEvent;
 
@@ -28,15 +30,16 @@ import java.util.Map;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 
+import static java.lang.Math.max;
 import static org.briarproject.bramble.api.sync.Group.Visibility.INVISIBLE;
 import static org.briarproject.bramble.api.sync.Group.Visibility.SHARED;
 import static org.briarproject.bramble.api.sync.Group.Visibility.VISIBLE;
+import static org.briarproject.briar.api.autodelete.AutoDeleteConstants.NO_AUTO_DELETE_TIMER;
 import static org.briarproject.briar.sharing.MessageType.ABORT;
 import static org.briarproject.briar.sharing.MessageType.ACCEPT;
 import static org.briarproject.briar.sharing.MessageType.DECLINE;
 import static org.briarproject.briar.sharing.MessageType.INVITE;
 import static org.briarproject.briar.sharing.MessageType.LEAVE;
-import static org.briarproject.briar.sharing.SharingConstants.GROUP_KEY_CONTACT_ID;
 import static org.briarproject.briar.sharing.State.LOCAL_INVITED;
 import static org.briarproject.briar.sharing.State.LOCAL_LEFT;
 import static org.briarproject.briar.sharing.State.REMOTE_HANGING;
@@ -56,32 +59,47 @@ abstract class ProtocolEngineImpl<S extends Shareable>
 	private final ClientVersioningManager clientVersioningManager;
 	private final MessageEncoder messageEncoder;
 	private final MessageTracker messageTracker;
+	private final AutoDeleteManager autoDeleteManager;
+	private final ConversationManager conversationManager;
 	private final Clock clock;
-	private final ClientId shareableClientId;
-	private final int shareableClientVersion;
+	private final ClientId sharingClientId, shareableClientId;
+	private final int sharingClientMajorVersion, shareableClientMajorVersion;
 
-	ProtocolEngineImpl(DatabaseComponent db, ClientHelper clientHelper,
+	ProtocolEngineImpl(
+			DatabaseComponent db,
+			ClientHelper clientHelper,
 			ClientVersioningManager clientVersioningManager,
-			MessageEncoder messageEncoder, MessageParser<S> messageParser,
-			MessageTracker messageTracker, Clock clock,
-			ClientId shareableClientId, int shareableClientVersion) {
+			MessageEncoder messageEncoder,
+			MessageParser<S> messageParser,
+			MessageTracker messageTracker,
+			AutoDeleteManager autoDeleteManager,
+			ConversationManager conversationManager,
+			Clock clock,
+			ClientId sharingClientId,
+			int sharingClientMajorVersion,
+			ClientId shareableClientId,
+			int shareableClientMajorVersion) {
 		this.db = db;
 		this.clientHelper = clientHelper;
 		this.clientVersioningManager = clientVersioningManager;
 		this.messageEncoder = messageEncoder;
 		this.messageParser = messageParser;
 		this.messageTracker = messageTracker;
+		this.autoDeleteManager = autoDeleteManager;
+		this.conversationManager = conversationManager;
 		this.clock = clock;
+		this.sharingClientId = sharingClientId;
+		this.sharingClientMajorVersion = sharingClientMajorVersion;
 		this.shareableClientId = shareableClientId;
-		this.shareableClientVersion = shareableClientVersion;
+		this.shareableClientMajorVersion = shareableClientMajorVersion;
 	}
 
 	@Override
 	public Session onInviteAction(Transaction txn, Session s,
-			@Nullable String text, long timestamp) throws DbException {
+			@Nullable String text) throws DbException {
 		switch (s.getState()) {
 			case START:
-				return onLocalInvite(txn, s, text, timestamp);
+				return onLocalInvite(txn, s, text);
 			case LOCAL_INVITED:
 			case REMOTE_INVITED:
 			case SHARING:
@@ -94,9 +112,9 @@ abstract class ProtocolEngineImpl<S extends Shareable>
 	}
 
 	private Session onLocalInvite(Transaction txn, Session s,
-			@Nullable String text, long timestamp) throws DbException {
+			@Nullable String text) throws DbException {
 		// Send an INVITE message
-		Message sent = sendInviteMessage(txn, s, text, timestamp);
+		Message sent = sendInviteMessage(txn, s, text);
 		// Track the message
 		messageTracker.trackOutgoingMessage(txn, sent);
 		// Make the shareable visible to the contact
@@ -112,7 +130,7 @@ abstract class ProtocolEngineImpl<S extends Shareable>
 	}
 
 	private Message sendInviteMessage(Transaction txn, Session s,
-			@Nullable String text, long timestamp) throws DbException {
+			@Nullable String text) throws DbException {
 		Group g = db.getGroup(txn, s.getShareableId());
 		BdfList descriptor;
 		try {
@@ -120,10 +138,27 @@ abstract class ProtocolEngineImpl<S extends Shareable>
 		} catch (FormatException e) {
 			throw new DbException(e); // Invalid group descriptor
 		}
-		long localTimestamp = Math.max(timestamp, getLocalTimestamp(s));
-		Message m = messageEncoder.encodeInviteMessage(s.getContactGroupId(),
-				localTimestamp, s.getLastLocalMessageId(), descriptor, text);
-		sendMessage(txn, m, INVITE, s.getShareableId(), true);
+		Message m;
+		long localTimestamp = getTimestampForVisibleMessage(txn, s);
+		ContactId c = getContactId(txn, s.getContactGroupId());
+		if (contactSupportsAutoDeletion(txn, c)) {
+			long timer = autoDeleteManager.getAutoDeleteTimer(txn, c,
+					localTimestamp);
+			m = messageEncoder.encodeInviteMessage(s.getContactGroupId(),
+					localTimestamp, s.getLastLocalMessageId(), descriptor,
+					text, timer);
+			sendMessage(txn, m, INVITE, s.getShareableId(), true, timer);
+			// Set the auto-delete timer duration on the message
+			if (timer != NO_AUTO_DELETE_TIMER) {
+				db.setCleanupTimerDuration(txn, m.getId(), timer);
+			}
+		} else {
+			m = messageEncoder.encodeInviteMessage(s.getContactGroupId(),
+					localTimestamp, s.getLastLocalMessageId(), descriptor,
+					text);
+			sendMessage(txn, m, INVITE, s.getShareableId(), true,
+					NO_AUTO_DELETE_TIMER);
+		}
 		return m;
 	}
 
@@ -173,21 +208,38 @@ abstract class ProtocolEngineImpl<S extends Shareable>
 	protected abstract void addShareable(Transaction txn, MessageId inviteId)
 			throws DbException, FormatException;
 
-	private Message sendAcceptMessage(Transaction txn, Session session)
+	private Message sendAcceptMessage(Transaction txn, Session s)
 			throws DbException {
-		Message m = messageEncoder.encodeAcceptMessage(
-				session.getContactGroupId(), session.getShareableId(),
-				getLocalTimestamp(session), session.getLastLocalMessageId());
-		sendMessage(txn, m, ACCEPT, session.getShareableId(), true);
+		Message m;
+		long localTimestamp = getTimestampForVisibleMessage(txn, s);
+		ContactId c = getContactId(txn, s.getContactGroupId());
+		if (contactSupportsAutoDeletion(txn, c)) {
+			long timer = autoDeleteManager.getAutoDeleteTimer(txn, c,
+					localTimestamp);
+			m = messageEncoder.encodeAcceptMessage(s.getContactGroupId(),
+					s.getShareableId(), localTimestamp,
+					s.getLastLocalMessageId(), timer);
+			sendMessage(txn, m, ACCEPT, s.getShareableId(), true, timer);
+			// Set the auto-delete timer duration on the message
+			if (timer != NO_AUTO_DELETE_TIMER) {
+				db.setCleanupTimerDuration(txn, m.getId(), timer);
+			}
+		} else {
+			m = messageEncoder.encodeAcceptMessage(s.getContactGroupId(),
+					s.getShareableId(), localTimestamp,
+					s.getLastLocalMessageId());
+			sendMessage(txn, m, ACCEPT, s.getShareableId(), true,
+					NO_AUTO_DELETE_TIMER);
+		}
 		return m;
 	}
 
 	@Override
-	public Session onDeclineAction(Transaction txn, Session s)
-			throws DbException {
+	public Session onDeclineAction(Transaction txn, Session s,
+			boolean isAutoDecline) throws DbException {
 		switch (s.getState()) {
 			case LOCAL_INVITED:
-				return onLocalDecline(txn, s);
+				return onLocalDecline(txn, s, isAutoDecline);
 			case START:
 			case REMOTE_INVITED:
 			case SHARING:
@@ -199,14 +251,14 @@ abstract class ProtocolEngineImpl<S extends Shareable>
 		}
 	}
 
-	private Session onLocalDecline(Transaction txn, Session s)
-			throws DbException {
+	private Session onLocalDecline(Transaction txn, Session s,
+			boolean isAutoDecline) throws DbException {
 		// Mark the invite message unavailable to answer
 		MessageId inviteId = s.getLastRemoteMessageId();
 		if (inviteId == null) throw new IllegalStateException();
 		markMessageAvailableToAnswer(txn, inviteId, false);
 		// Send a DECLINE message
-		Message sent = sendDeclineMessage(txn, s);
+		Message sent = sendDeclineMessage(txn, s, isAutoDecline);
 		// Track the message
 		messageTracker.trackOutgoingMessage(txn, sent);
 		// Move to the START state
@@ -215,14 +267,41 @@ abstract class ProtocolEngineImpl<S extends Shareable>
 				s.getInviteTimestamp());
 	}
 
-	private Message sendDeclineMessage(Transaction txn, Session session)
-			throws DbException {
-		Message m = messageEncoder.encodeDeclineMessage(
-				session.getContactGroupId(), session.getShareableId(),
-				getLocalTimestamp(session), session.getLastLocalMessageId());
-		sendMessage(txn, m, DECLINE, session.getShareableId(), true);
+	private Message sendDeclineMessage(Transaction txn, Session s,
+			boolean isAutoDecline) throws DbException {
+		Message m;
+		long localTimestamp = getTimestampForVisibleMessage(txn, s);
+		ContactId c = getContactId(txn, s.getContactGroupId());
+		if (contactSupportsAutoDeletion(txn, c)) {
+			long timer = autoDeleteManager.getAutoDeleteTimer(txn, c,
+					localTimestamp);
+			m = messageEncoder.encodeDeclineMessage(s.getContactGroupId(),
+					s.getShareableId(), localTimestamp,
+					s.getLastLocalMessageId(), timer);
+			sendMessage(txn, m, DECLINE, s.getShareableId(), true, timer,
+					isAutoDecline);
+			// Set the auto-delete timer duration on the local message
+			if (timer != NO_AUTO_DELETE_TIMER) {
+				db.setCleanupTimerDuration(txn, m.getId(), timer);
+			}
+			if (isAutoDecline) {
+				// Broadcast an event, so the auto-decline becomes visible
+				Event e = getAutoDeclineInvitationResponseReceivedEvent(
+						s, m, c, timer);
+				txn.attach(e);
+			}
+		} else {
+			m = messageEncoder.encodeDeclineMessage(s.getContactGroupId(),
+					s.getShareableId(), localTimestamp,
+					s.getLastLocalMessageId());
+			sendMessage(txn, m, DECLINE, s.getShareableId(), true,
+					NO_AUTO_DELETE_TIMER);
+		}
 		return m;
 	}
+
+	abstract Event getAutoDeclineInvitationResponseReceivedEvent(Session s,
+			Message m, ContactId contactId, long timer);
 
 	@Override
 	public Session onLeaveAction(Transaction txn, Session s)
@@ -260,10 +339,12 @@ abstract class ProtocolEngineImpl<S extends Shareable>
 
 	private Message sendLeaveMessage(Transaction txn, Session session)
 			throws DbException {
+		long localTimestamp = getTimestampForInvisibleMessage(session);
 		Message m = messageEncoder.encodeLeaveMessage(
 				session.getContactGroupId(), session.getShareableId(),
-				getLocalTimestamp(session), session.getLastLocalMessageId());
-		sendMessage(txn, m, LEAVE, session.getShareableId(), false);
+				localTimestamp, session.getLastLocalMessageId());
+		sendMessage(txn, m, LEAVE, session.getShareableId(), false,
+				NO_AUTO_DELETE_TIMER);
 		return m;
 	}
 
@@ -301,8 +382,11 @@ abstract class ProtocolEngineImpl<S extends Shareable>
 		// Track the message
 		messageTracker.trackMessage(txn, m.getContactGroupId(),
 				m.getTimestamp(), false);
+		// Receive the auto-delete timer
+		receiveAutoDeleteTimer(txn, m);
 		// Broadcast an event
-		ContactId contactId = getContactId(txn, s.getContactGroupId());
+		ContactId contactId =
+				clientHelper.getContactId(txn, s.getContactGroupId());
 		txn.attach(getInvitationRequestReceivedEvent(m, contactId, available,
 				false));
 		// Move to the next state
@@ -325,12 +409,15 @@ abstract class ProtocolEngineImpl<S extends Shareable>
 		// Track the message
 		messageTracker.trackMessage(txn, m.getContactGroupId(),
 				m.getTimestamp(), false);
+		// Receive the auto-delete timer
+		receiveAutoDeleteTimer(txn, m);
 		// Share the shareable with the contact
 		setShareableVisibility(txn, s, SHARED);
 		// Broadcast an event
-		ContactId contactId = getContactId(txn, s.getContactGroupId());
-		txn.attach(
-				getInvitationRequestReceivedEvent(m, contactId, false, true));
+		ContactId contactId =
+				clientHelper.getContactId(txn, s.getContactGroupId());
+		txn.attach(getInvitationRequestReceivedEvent(m, contactId, false,
+				true));
 		// Move to the next state
 		return new Session(SHARING, s.getContactGroupId(), s.getShareableId(),
 				s.getLastLocalMessageId(), m.getId(), s.getLocalTimestamp(),
@@ -371,8 +458,11 @@ abstract class ProtocolEngineImpl<S extends Shareable>
 		// Track the message
 		messageTracker.trackMessage(txn, m.getContactGroupId(),
 				m.getTimestamp(), false);
+		// Receive the auto-delete timer
+		receiveAutoDeleteTimer(txn, m);
 		// Broadcast an event
-		ContactId contactId = getContactId(txn, m.getContactGroupId());
+		ContactId contactId =
+				clientHelper.getContactId(txn, m.getContactGroupId());
 		txn.attach(getInvitationResponseReceivedEvent(m, contactId));
 		// Move to the next state
 		return new Session(nextState, s.getContactGroupId(), s.getShareableId(),
@@ -423,6 +513,8 @@ abstract class ProtocolEngineImpl<S extends Shareable>
 		// Track the message
 		messageTracker.trackMessage(txn, m.getContactGroupId(),
 				m.getTimestamp(), false);
+		// Receive the auto-delete timer
+		receiveAutoDeleteTimer(txn, m);
 		// Make the shareable invisible (not actually needed in REMOTE_HANGING)
 		try {
 			setShareableVisibility(txn, s, INVISIBLE);
@@ -430,7 +522,8 @@ abstract class ProtocolEngineImpl<S extends Shareable>
 			throw new DbException(e); // Invalid group metadata
 		}
 		// Broadcast an event
-		ContactId contactId = getContactId(txn, m.getContactGroupId());
+		ContactId contactId =
+				clientHelper.getContactId(txn, m.getContactGroupId());
 		txn.attach(getInvitationResponseReceivedEvent(m, contactId));
 		// Move to the next state
 		return new Session(START, s.getContactGroupId(), s.getShareableId(),
@@ -490,7 +583,8 @@ abstract class ProtocolEngineImpl<S extends Shareable>
 		if (isInvalidDependency(s, m.getPreviousMessageId()))
 			return abortWithMessage(txn, s);
 		// Broadcast event informing that contact left
-		ContactId contactId = getContactId(txn, s.getContactGroupId());
+		ContactId contactId =
+				clientHelper.getContactId(txn, s.getContactGroupId());
 		ContactLeftShareableEvent e = new ContactLeftShareableEvent(
 				s.getShareableId(), contactId);
 		txn.attach(e);
@@ -547,26 +641,33 @@ abstract class ProtocolEngineImpl<S extends Shareable>
 			throws DbException {
 		if (!db.containsGroup(txn, g)) return false;
 		Group group = db.getGroup(txn, g);
-		return group.getClientId().equals(getShareableClientId());
+		return group.getClientId().equals(shareableClientId);
 	}
-
-	protected abstract ClientId getShareableClientId();
 
 	private Message sendAbortMessage(Transaction txn, Session session)
 			throws DbException {
+		long localTimestamp = getTimestampForInvisibleMessage(session);
 		Message m = messageEncoder.encodeAbortMessage(
 				session.getContactGroupId(), session.getShareableId(),
-				getLocalTimestamp(session), session.getLastLocalMessageId());
-		sendMessage(txn, m, ABORT, session.getShareableId(), false);
+				localTimestamp, session.getLastLocalMessageId());
+		sendMessage(txn, m, ABORT, session.getShareableId(), false,
+				NO_AUTO_DELETE_TIMER);
 		return m;
 	}
 
 	private void sendMessage(Transaction txn, Message m, MessageType type,
-			GroupId shareableId, boolean visibleInConversation)
-			throws DbException {
-		BdfDictionary meta = messageEncoder
-				.encodeMetadata(type, shareableId, m.getTimestamp(), true, true,
-						visibleInConversation, false, false);
+			GroupId shareableId, boolean visibleInConversation,
+			long autoDeleteTimer) throws DbException {
+		sendMessage(txn, m, type, shareableId, visibleInConversation,
+				autoDeleteTimer, false);
+	}
+
+	private void sendMessage(Transaction txn, Message m, MessageType type,
+			GroupId shareableId, boolean visibleInConversation,
+			long autoDeleteTimer, boolean isAutoDecline) throws DbException {
+		BdfDictionary meta = messageEncoder.encodeMetadata(type, shareableId,
+				m.getTimestamp(), true, true, visibleInConversation, false,
+				false, autoDeleteTimer, isAutoDecline);
 		try {
 			clientHelper.addLocalMessage(txn, m, meta, true, false);
 		} catch (FormatException e) {
@@ -610,18 +711,12 @@ abstract class ProtocolEngineImpl<S extends Shareable>
 	private void setShareableVisibility(Transaction txn, Session session,
 			Visibility preferred) throws DbException, FormatException {
 		// Apply min of preferred visibility and client's visibility
-		ContactId contactId = getContactId(txn, session.getContactGroupId());
+		ContactId contactId =
+				clientHelper.getContactId(txn, session.getContactGroupId());
 		Visibility client = clientVersioningManager.getClientVisibility(txn,
-				contactId, shareableClientId, shareableClientVersion);
+				contactId, shareableClientId, shareableClientMajorVersion);
 		Visibility min = Visibility.min(preferred, client);
 		db.setGroupVisibility(txn, contactId, session.getShareableId(), min);
-	}
-
-	private ContactId getContactId(Transaction txn, GroupId contactGroupId)
-			throws DbException, FormatException {
-		BdfDictionary meta = clientHelper.getGroupMetadataAsDictionary(txn,
-				contactGroupId);
-		return new ContactId(meta.getLong(GROUP_KEY_CONTACT_ID).intValue());
 	}
 
 	private boolean isInvalidDependency(Session session,
@@ -631,10 +726,57 @@ abstract class ProtocolEngineImpl<S extends Shareable>
 		return !dependency.equals(expected);
 	}
 
-	private long getLocalTimestamp(Session session) {
-		return Math.max(clock.currentTimeMillis(),
-				Math.max(session.getLocalTimestamp(),
-						session.getInviteTimestamp()) + 1);
+	/**
+	 * Returns a timestamp for a visible outgoing message. The timestamp is
+	 * later than the timestamp of any message sent or received so far in the
+	 * conversation, and later than the {@link #getSessionTimestamp(Session)
+	 * session timestamp}.
+	 */
+	private long getTimestampForVisibleMessage(Transaction txn, Session s)
+			throws DbException {
+		ContactId c = getContactId(txn, s.getContactGroupId());
+		long conversationTimestamp =
+				conversationManager.getTimestampForOutgoingMessage(txn, c);
+		return max(conversationTimestamp, getSessionTimestamp(s) + 1);
 	}
 
+	/**
+	 * Returns a timestamp for an invisible outgoing message. The timestamp is
+	 * later than the {@link #getSessionTimestamp(Session) session timestamp}.
+	 */
+	private long getTimestampForInvisibleMessage(Session s) {
+		return max(clock.currentTimeMillis(), getSessionTimestamp(s) + 1);
+	}
+
+	/**
+	 * Returns the latest timestamp of any message sent so far in the session,
+	 * and any invite message sent or received so far in the session.
+	 */
+	private long getSessionTimestamp(Session s) {
+		return max(s.getLocalTimestamp(), s.getInviteTimestamp());
+	}
+
+	private void receiveAutoDeleteTimer(Transaction txn,
+			DeletableSharingMessage m) throws DbException {
+		ContactId c = getContactId(txn, m.getContactGroupId());
+		autoDeleteManager.receiveAutoDeleteTimer(txn, c, m.getAutoDeleteTimer(),
+				m.getTimestamp());
+	}
+
+	private ContactId getContactId(Transaction txn, GroupId contactGroupId)
+			throws DbException {
+		try {
+			return clientHelper.getContactId(txn, contactGroupId);
+		} catch (FormatException e) {
+			throw new DbException(e);
+		}
+	}
+
+	private boolean contactSupportsAutoDeletion(Transaction txn, ContactId c)
+			throws DbException {
+		int minorVersion = clientVersioningManager.getClientMinorVersion(txn, c,
+				sharingClientId, sharingClientMajorVersion);
+		// Auto-delete was added in client version 0.1
+		return minorVersion >= 1;
+	}
 }

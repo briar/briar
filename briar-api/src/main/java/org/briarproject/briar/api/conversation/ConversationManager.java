@@ -21,7 +21,6 @@ public interface ConversationManager {
 	int DELETE_SESSION_INVITATION_INCOMPLETE = 1 << 1;
 	int DELETE_SESSION_INTRODUCTION_IN_PROGRESS = 1 << 2;
 	int DELETE_SESSION_INVITATION_IN_PROGRESS = 1 << 3;
-	int DELETE_NOT_DOWNLOADED = 1 << 4;
 
 	/**
 	 * Clients that present messages in a private conversation need to
@@ -47,6 +46,16 @@ public interface ConversationManager {
 	 * Returns the unified group count for all private conversation messages.
 	 */
 	GroupCount getGroupCount(Transaction txn, ContactId c) throws DbException;
+
+	void setReadFlag(GroupId g, MessageId m, boolean read)
+			throws DbException;
+
+	/**
+	 * Returns a timestamp for an outgoing message, which is later than the
+	 * timestamp of any message in the conversation with the given contact.
+	 */
+	long getTimestampForOutgoingMessage(Transaction txn, ContactId c)
+			throws DbException;
 
 	/**
 	 * Deletes all messages exchanged with the given contact.
@@ -75,9 +84,6 @@ public interface ConversationManager {
 				throws DbException;
 
 		GroupCount getGroupCount(Transaction txn, ContactId c)
-				throws DbException;
-
-		void setReadFlag(GroupId g, MessageId m, boolean read)
 				throws DbException;
 
 		/**

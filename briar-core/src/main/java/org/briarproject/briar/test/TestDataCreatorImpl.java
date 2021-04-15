@@ -62,6 +62,8 @@ import static org.briarproject.bramble.api.plugin.BluetoothConstants.UUID_BYTES;
 import static org.briarproject.bramble.api.sync.Group.Visibility.SHARED;
 import static org.briarproject.bramble.util.LogUtils.logException;
 import static org.briarproject.bramble.util.StringUtils.getRandomString;
+import static org.briarproject.briar.api.autodelete.AutoDeleteConstants.MIN_AUTO_DELETE_TIMER_MS;
+import static org.briarproject.briar.api.autodelete.AutoDeleteConstants.NO_AUTO_DELETE_TIMER;
 import static org.briarproject.briar.test.TestData.AUTHOR_NAMES;
 import static org.briarproject.briar.test.TestData.GROUP_NAMES;
 
@@ -352,14 +354,19 @@ public class TestDataCreatorImpl implements TestDataCreator {
 		long timestamp = clock.currentTimeMillis() - num * 60 * 1000;
 		String text = getRandomText();
 		boolean local = random.nextBoolean();
-		createPrivateMessage(contactId, groupId, text, timestamp, local);
+		boolean autoDelete = random.nextBoolean();
+		createPrivateMessage(contactId, groupId, text, timestamp, local,
+				autoDelete);
 	}
 
 	private void createPrivateMessage(ContactId contactId, GroupId groupId,
-			String text, long timestamp, boolean local) throws DbException {
+			String text, long timestamp, boolean local, boolean autoDelete)
+			throws DbException {
+		long timer = autoDelete ?
+				MIN_AUTO_DELETE_TIMER_MS : NO_AUTO_DELETE_TIMER;
 		try {
 			PrivateMessage m = privateMessageFactory.createPrivateMessage(
-					groupId, timestamp, text, emptyList());
+					groupId, timestamp, text, emptyList(), timer);
 			if (local) {
 				messagingManager.addLocalMessage(m);
 			} else {

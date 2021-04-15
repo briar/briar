@@ -157,7 +157,9 @@
 	<string name="no_contacts_action">Tap the + icon to add a contact</string>
 	<string name="date_no_private_messages">No messages.</string>
 	<string name="no_private_messages">No messages to show</string>
-	<string name="message_hint">Type message</string>
+	<string name="message_hint">New message</string>
+	<string name="message_hint_auto_delete">New disappearing message</string>
+	<string name="message_error">Error sending message</string>
 	<string name="image_caption_hint">Add a caption (optional)</string>
 	<string name="image_attach">Attach image</string>
 	<string name="image_attach_error">Could not attach image(s)</string>
@@ -165,6 +167,32 @@
 	<string name="image_attach_error_invalid_mime_type">Image format unsupported: %s</string>
 	<string name="set_contact_alias">Change contact name</string>
 	<string name="set_contact_alias_hint">Contact name</string>
+	<string name="menu_item_disappearing_messages">Disappearing messages</string>
+	<!-- The first placeholder will show a duration like "7 days". The second placeholder at the end will add "Tap to learn more." -->
+	<string name="auto_delete_msg_you_enabled">Your messages will disappear after %1$s. %2$s</string>
+	<!-- The placeholder at the end will add "Tap to learn more." -->
+	<string name="auto_delete_msg_you_disabled">Your messages will not disappear. %1$s</string>
+	<!-- The first placeholder will show a contact's name. The second placeholder will show a duration like "7 days". The third placeholder at the end will add "Tap to learn more." -->
+	<string name="auto_delete_msg_contact_enabled">%1$s\'s messages will disappear after %2$s. %3$s</string>
+	<plurals name="duration_minutes">
+		<item quantity="one">%d minute</item>
+		<item quantity="other">%d minutes</item>
+	</plurals>
+	<plurals name="duration_hours">
+		<item quantity="one">%d hour</item>
+		<item quantity="other">%d hours</item>
+	</plurals>
+	<plurals name="duration_days">
+		<item quantity="one">%d day</item>
+		<item quantity="other">%d days</item>
+	</plurals>
+	<!-- The first placeholder will show a contact's name. The second placeholder at the end will add "Tap to learn more." -->
+	<string name="auto_delete_msg_contact_disabled">%1$s\'s messages will not disappear. %2$s</string>
+	<string name="tap_to_learn_more">Tap to learn more.</string>
+	<string name="auto_delete_changed_warning_title">Disappearing messages changed</string>
+	<string name="auto_delete_changed_warning_message_enabled">Since you started composing your message, disappearing messages have been enabled.</string>
+	<string name="auto_delete_changed_warning_message_disabled">Since you started composing your message, disappearing messages have been disabled.</string>
+	<string name="auto_delete_changed_warning_send">Send anyway</string>
 	<string name="delete_all_messages">Delete all messages</string>
 	<string name="dialog_title_delete_all_messages">Confirm Message Deletion</string>
 	<string name="dialog_message_delete_all_messages">Are you sure that you want to delete all messages?</string>
@@ -172,7 +200,6 @@
 	<string name="dialog_message_not_deleted_ongoing_both">Messages related to ongoing invitations and introductions cannot be deleted until they conclude.</string>
 	<string name="dialog_message_not_deleted_ongoing_introductions">Messages related to ongoing introductions cannot be deleted until they conclude.</string>
 	<string name="dialog_message_not_deleted_ongoing_invitations">Messages related to ongoing invitations cannot be deleted until they conclude.</string>
-	<string name="dialog_message_not_deleted_partly_downloaded">Partly downloaded messages cannot be deleted until they have finished downloading.</string>
 	<string name="dialog_message_not_deleted_not_all_selected_both">To delete an invitation or introduction, you need to select the request and the response.</string>
 	<string name="dialog_message_not_deleted_not_all_selected_introductions">To delete an introduction, you need to select the request and the response.</string>
 	<string name="dialog_message_not_deleted_not_all_selected_invitations">To delete an invitation, you need to select the request and the response.</string>
@@ -290,6 +317,7 @@
 	<string name="introduction_response_accepted_sent">You accepted the introduction to %1$s.</string>
 	<string name="introduction_response_accepted_sent_info">Before %1$s gets added to your contacts, they need to accept the introduction as well. This might take some time.</string>
 	<string name="introduction_response_declined_sent">You declined the introduction to %1$s.</string>
+	<string name="introduction_response_declined_auto">The introduction to %1$s was automatically declined.</string>
 	<string name="introduction_response_accepted_received">%1$s accepted the introduction to %2$s.</string>
 	<string name="introduction_response_declined_received">%1$s declined the introduction to %2$s.</string>
 	<string name="introduction_response_declined_received_by_introducee">%1$s says that %2$s declined the introduction.</string>
@@ -338,6 +366,7 @@
 	</plurals>
 	<string name="groups_invitations_response_accepted_sent">You accepted the group invitation from %s.</string>
 	<string name="groups_invitations_response_declined_sent">You declined the group invitation from %s.</string>
+	<string name="groups_invitations_response_declined_auto">The group invitation from %s was automatically declined.</string>
 	<string name="groups_invitations_response_accepted_received">%s accepted the group invitation.</string>
 	<string name="groups_invitations_response_declined_received">%s declined the group invitation.</string>
 	<string name="sharing_status_groups">Only the creator can invite new members to the group. Below are all current members of the group.</string>
@@ -391,6 +420,7 @@
 	<string name="forum_invitation_already_sharing">Already sharing</string>
 	<string name="forum_invitation_response_accepted_sent">You accepted the forum invitation from %s.</string>
 	<string name="forum_invitation_response_declined_sent">You declined the forum invitation from %s.</string>
+	<string name="forum_invitation_response_declined_auto">The forum invitation from %s was automatically declined.</string>
 	<string name="forum_invitation_response_accepted_received">%s accepted the forum invitation.</string>
 	<string name="forum_invitation_response_declined_received">%s declined the forum invitation.</string>
 
@@ -428,6 +458,7 @@
 	<string name="blogs_sharing_snackbar">Blog shared with chosen contacts</string>
 	<string name="blogs_sharing_response_accepted_sent">You accepted the blog invitation from %s.</string>
 	<string name="blogs_sharing_response_declined_sent">You declined the blog invitation from %s.</string>
+	<string name="blogs_sharing_response_declined_auto">The blog invitation from %s was automatically declined.</string>
 	<string name="blogs_sharing_response_accepted_received">%s accepted the blog invitation.</string>
 	<string name="blogs_sharing_response_declined_received">%s declined the blog invitation.</string>
 	<string name="blogs_sharing_invitation_received">%1$s has shared the blog \"%2$s\" with you.</string>
@@ -550,6 +581,20 @@
 	<string name="notify_sound_setting_disabled">None</string>
 	<string name="choose_ringtone_title">Choose ringtone</string>
 	<string name="cannot_load_ringtone">Cannot load ringtone</string>
+
+	<!-- Conversation Settings -->
+	<string name="disappearing_messages_title">Disappearing messages</string>
+	<string name="disappearing_messages_explanation_long">Turning on this setting will make new
+		messages in this conversation automatically disappear after 7\u00A0days.
+		\n\nThe countdown for the sender\'s copy of the message starts after it has been delivered.
+		The countdown starts for the recipient after they have read the message.
+		\n\nMessages that will disappear are marked with a bomb icon.
+		\n\nKeep in mind that recipients can still make copies of the messages you send.
+		\n\nIf you change this setting, it will apply to your new messages immediately and to your
+		contact\'s messages once they receive your next message.
+		Your contact can also change this setting for the both of you.</string>
+	<string name="learn_more">Learn more</string>
+	<string name="disappearing_messages_summary">Make future messages in this conversation automatically disappear after 7\u00A0days.</string>
 
 	<!-- Settings Feedback -->
 	<string name="send_feedback">Send feedback</string>

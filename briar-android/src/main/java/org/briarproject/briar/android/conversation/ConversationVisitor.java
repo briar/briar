@@ -60,10 +60,12 @@ class ConversationVisitor implements
 		}
 		if (h.isLocal()) {
 			item = new ConversationMessageItem(
-					R.layout.list_item_conversation_msg_out, h, attachments);
+					R.layout.list_item_conversation_msg_out, h, contactName,
+					attachments);
 		} else {
 			item = new ConversationMessageItem(
-					R.layout.list_item_conversation_msg_in, h, attachments);
+					R.layout.list_item_conversation_msg_in, h, contactName,
+					attachments);
 		}
 		if (h.hasText()) {
 			String text = textCache.getText(h.getId());
@@ -79,13 +81,15 @@ class ConversationVisitor implements
 			String text = ctx.getString(R.string.blogs_sharing_invitation_sent,
 					r.getName(), contactName.getValue());
 			return new ConversationNoticeItem(
-					R.layout.list_item_conversation_notice_out, text, r);
+					R.layout.list_item_conversation_notice_out, text,
+					contactName, r);
 		} else {
 			String text = ctx.getString(
 					R.string.blogs_sharing_invitation_received,
 					contactName.getValue(), r.getName());
 			return new ConversationRequestItem(
-					R.layout.list_item_conversation_request, text, BLOG, r);
+					R.layout.list_item_conversation_request, text, contactName,
+					BLOG, r);
 		}
 	}
 
@@ -98,13 +102,18 @@ class ConversationVisitor implements
 				text = ctx.getString(
 						R.string.blogs_sharing_response_accepted_sent,
 						contactName.getValue());
+			} else if (r.isAutoDecline()) {
+				text = ctx.getString(
+						R.string.blogs_sharing_response_declined_auto,
+						contactName.getValue());
 			} else {
 				text = ctx.getString(
 						R.string.blogs_sharing_response_declined_sent,
 						contactName.getValue());
 			}
 			return new ConversationNoticeItem(
-					R.layout.list_item_conversation_notice_out, text, r);
+					R.layout.list_item_conversation_notice_out, text,
+					contactName, r);
 		} else {
 			String text;
 			if (r.wasAccepted()) {
@@ -117,7 +126,8 @@ class ConversationVisitor implements
 						contactName.getValue());
 			}
 			return new ConversationNoticeItem(
-					R.layout.list_item_conversation_notice_in, text, r);
+					R.layout.list_item_conversation_notice_in, text,
+					contactName, r);
 		}
 	}
 
@@ -128,13 +138,15 @@ class ConversationVisitor implements
 			String text = ctx.getString(R.string.forum_invitation_sent,
 					r.getName(), contactName.getValue());
 			return new ConversationNoticeItem(
-					R.layout.list_item_conversation_notice_out, text, r);
+					R.layout.list_item_conversation_notice_out, text,
+					contactName, r);
 		} else {
 			String text = ctx.getString(
 					R.string.forum_invitation_received,
 					contactName.getValue(), r.getName());
 			return new ConversationRequestItem(
-					R.layout.list_item_conversation_request, text, FORUM, r);
+					R.layout.list_item_conversation_request, text, contactName,
+					FORUM, r);
 		}
 	}
 
@@ -147,13 +159,18 @@ class ConversationVisitor implements
 				text = ctx.getString(
 						R.string.forum_invitation_response_accepted_sent,
 						contactName.getValue());
+			} else if (r.isAutoDecline()) {
+				text = ctx.getString(
+						R.string.forum_invitation_response_declined_auto,
+						contactName.getValue());
 			} else {
 				text = ctx.getString(
 						R.string.forum_invitation_response_declined_sent,
 						contactName.getValue());
 			}
 			return new ConversationNoticeItem(
-					R.layout.list_item_conversation_notice_out, text, r);
+					R.layout.list_item_conversation_notice_out, text,
+					contactName, r);
 		} else {
 			String text;
 			if (r.wasAccepted()) {
@@ -166,7 +183,8 @@ class ConversationVisitor implements
 						contactName.getValue());
 			}
 			return new ConversationNoticeItem(
-					R.layout.list_item_conversation_notice_in, text, r);
+					R.layout.list_item_conversation_notice_in, text,
+					contactName, r);
 		}
 	}
 
@@ -178,13 +196,15 @@ class ConversationVisitor implements
 					R.string.groups_invitations_invitation_sent,
 					contactName.getValue(), r.getName());
 			return new ConversationNoticeItem(
-					R.layout.list_item_conversation_notice_out, text, r);
+					R.layout.list_item_conversation_notice_out, text,
+					contactName, r);
 		} else {
 			String text = ctx.getString(
 					R.string.groups_invitations_invitation_received,
 					contactName.getValue(), r.getName());
 			return new ConversationRequestItem(
-					R.layout.list_item_conversation_request, text, GROUP, r);
+					R.layout.list_item_conversation_request, text, contactName,
+					GROUP, r);
 		}
 	}
 
@@ -197,13 +217,18 @@ class ConversationVisitor implements
 				text = ctx.getString(
 						R.string.groups_invitations_response_accepted_sent,
 						contactName.getValue());
+			} else if (r.isAutoDecline()) {
+				text = ctx.getString(
+						R.string.groups_invitations_response_declined_auto,
+						contactName.getValue());
 			} else {
 				text = ctx.getString(
 						R.string.groups_invitations_response_declined_sent,
 						contactName.getValue());
 			}
 			return new ConversationNoticeItem(
-					R.layout.list_item_conversation_notice_out, text, r);
+					R.layout.list_item_conversation_notice_out, text,
+					contactName, r);
 		} else {
 			String text;
 			if (r.wasAccepted()) {
@@ -216,7 +241,8 @@ class ConversationVisitor implements
 						contactName.getValue());
 			}
 			return new ConversationNoticeItem(
-					R.layout.list_item_conversation_notice_in, text, r);
+					R.layout.list_item_conversation_notice_in, text,
+					contactName, r);
 		}
 	}
 
@@ -227,7 +253,8 @@ class ConversationVisitor implements
 			String text = ctx.getString(R.string.introduction_request_sent,
 					contactName.getValue(), name);
 			return new ConversationNoticeItem(
-					R.layout.list_item_conversation_notice_out, text, r);
+					R.layout.list_item_conversation_notice_out, text,
+					contactName, r);
 		} else {
 			String text;
 			if (r.wasAnswered()) {
@@ -243,7 +270,7 @@ class ConversationVisitor implements
 						contactName.getValue(), name);
 			}
 			return new ConversationRequestItem(
-					R.layout.list_item_conversation_request, text,
+					R.layout.list_item_conversation_request, text, contactName,
 					INTRODUCTION, r);
 		}
 	}
@@ -262,13 +289,18 @@ class ConversationVisitor implements
 				text = ctx.getString(
 						R.string.introduction_response_accepted_sent,
 						introducedAuthor) + suffix;
+			} else if (r.isAutoDecline()) {
+				text = ctx.getString(
+						R.string.introduction_response_declined_auto,
+						introducedAuthor);
 			} else {
 				text = ctx.getString(
 						R.string.introduction_response_declined_sent,
 						introducedAuthor);
 			}
 			return new ConversationNoticeItem(
-					R.layout.list_item_conversation_notice_out, text, r);
+					R.layout.list_item_conversation_notice_out, text,
+					contactName, r);
 		} else {
 			String text;
 			if (r.wasAccepted()) {
@@ -288,7 +320,8 @@ class ConversationVisitor implements
 						introducedAuthor);
 			}
 			return new ConversationNoticeItem(
-					R.layout.list_item_conversation_notice_in, text, r);
+					R.layout.list_item_conversation_notice_in, text,
+					contactName, r);
 		}
 	}
 

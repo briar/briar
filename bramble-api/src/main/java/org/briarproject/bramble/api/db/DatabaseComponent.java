@@ -42,6 +42,18 @@ import javax.annotation.Nullable;
 public interface DatabaseComponent extends TransactionManager {
 
 	/**
+	 * Return value for {@link #getNextCleanupDeadline(Transaction)} if
+	 * no messages are scheduled to be deleted.
+	 */
+	long NO_CLEANUP_DEADLINE = -1;
+
+	/**
+	 * Return value for {@link #startCleanupTimer(Transaction, MessageId)}
+	 * if the cleanup timer was not started.
+	 */
+	long TIMER_NOT_STARTED = -1;
+
+	/**
 	 * Opens the database and returns true if the database already existed.
 	 *
 	 * @throws DataTooNewException if the data uses a newer schema than the
@@ -289,6 +301,16 @@ public interface DatabaseComponent extends TransactionManager {
 			throws DbException;
 
 	/**
+	 * Returns the IDs of any delivered messages in the given group with
+	 * metadata that matches all entries in the given query. If the query is
+	 * empty, the IDs of all delivered messages are returned.
+	 * <p/>
+	 * Read-only.
+	 */
+	Collection<MessageId> getMessageIds(Transaction txn, GroupId g,
+			Metadata query) throws DbException;
+
+	/**
 	 * Returns the IDs of any messages that need to be validated.
 	 * <p/>
 	 * Read-only.
@@ -312,6 +334,15 @@ public interface DatabaseComponent extends TransactionManager {
 	 * Read-only.
 	 */
 	Collection<MessageId> getMessagesToShare(Transaction txn)
+			throws DbException;
+
+	/**
+	 * Returns the IDs of any messages of any messages that are due for
+	 * deletion, along with their group IDs.
+	 * <p/>
+	 * Read-only.
+	 */
+	Map<GroupId, Collection<MessageId>> getMessagesToDelete(Transaction txn)
 			throws DbException;
 
 	/**
@@ -394,6 +425,15 @@ public interface DatabaseComponent extends TransactionManager {
 	 */
 	MessageStatus getMessageStatus(Transaction txn, ContactId c, MessageId m)
 			throws DbException;
+
+	/**
+	 * Returns the next time (in milliseconds since the Unix epoch) when a
+	 * message is due to be deleted, or {@link #NO_CLEANUP_DEADLINE}
+	 * if no messages are scheduled to be deleted.
+	 * <p/>
+	 * Read-only.
+	 */
+	long getNextCleanupDeadline(Transaction txn) throws DbException;
 
 	/*
 	 * Returns the next time (in milliseconds since the Unix epoch) when a
@@ -536,6 +576,13 @@ public interface DatabaseComponent extends TransactionManager {
 			throws DbException;
 
 	/**
+	 * Sets the cleanup timer duration for the given message. This does not
+	 * start the message's cleanup timer.
+	 */
+	void setCleanupTimerDuration(Transaction txn, MessageId m, long duration)
+			throws DbException;
+
+	/**
 	 * Marks the given contact as verified.
 	 */
 	void setContactVerified(Transaction txn, ContactId c) throws DbException;
@@ -556,6 +603,12 @@ public interface DatabaseComponent extends TransactionManager {
 	 * Marks the given message as permanent, i.e. not temporary.
 	 */
 	void setMessagePermanent(Transaction txn, MessageId m) throws DbException;
+
+	/**
+	 * Marks the given message as not shared. This method is only meant for
+	 * testing.
+	 */
+	void setMessageNotShared(Transaction txn, MessageId m) throws DbException;
 
 	/**
 	 * Marks the given message as shared.
@@ -598,6 +651,22 @@ public interface DatabaseComponent extends TransactionManager {
 	 */
 	void setTransportKeysActive(Transaction txn, TransportId t, KeySetId k)
 			throws DbException;
+
+	/**
+	 * Starts the cleanup timer for the given message, if a timer duration
+	 * has been set and the timer has not already been started.
+	 *
+	 * @return The cleanup deadline, or {@link #TIMER_NOT_STARTED} if no
+	 * timer duration has been set for this message or its timer has already
+	 * been started.
+	 */
+	long startCleanupTimer(Transaction txn, MessageId m) throws DbException;
+
+	/**
+	 * Stops the cleanup timer for the given message, if the timer has been
+	 * started.
+	 */
+	void stopCleanupTimer(Transaction txn, MessageId m) throws DbException;
 
 	/**
 	 * Stores the given transport keys, deleting any keys they have replaced.

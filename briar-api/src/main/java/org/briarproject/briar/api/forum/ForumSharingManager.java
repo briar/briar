@@ -18,5 +18,5 @@ public interface ForumSharingManager extends SharingManager<Forum> {
 	/**
 	 * The current minor version of the forum sharing client.
 	 */
-	int MINOR_VERSION = 0;
+	int MINOR_VERSION = 1;
 }

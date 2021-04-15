@@ -3,9 +3,11 @@ package org.briarproject.briar.introduction;
 import org.briarproject.bramble.BrambleCoreModule;
 import org.briarproject.bramble.test.BrambleCoreIntegrationTestModule;
 import org.briarproject.briar.attachment.AttachmentModule;
+import org.briarproject.briar.autodelete.AutoDeleteModule;
 import org.briarproject.briar.avatar.AvatarModule;
 import org.briarproject.briar.blog.BlogModule;
 import org.briarproject.briar.client.BriarClientModule;
+import org.briarproject.briar.conversation.ConversationModule;
 import org.briarproject.briar.forum.ForumModule;
 import org.briarproject.briar.identity.IdentityModule;
 import org.briarproject.briar.messaging.MessagingModule;
@@ -22,14 +24,16 @@ import dagger.Component;
 @Component(modules = {
 		BrambleCoreIntegrationTestModule.class,
 		BrambleCoreModule.class,
+		AttachmentModule.class,
+		AutoDeleteModule.class,
 		AvatarModule.class,
 		BlogModule.class,
 		BriarClientModule.class,
+		ConversationModule.class,
 		ForumModule.class,
 		GroupInvitationModule.class,
 		IdentityModule.class,
 		IntroductionModule.class,
-		AttachmentModule.class,
 		MessagingModule.class,
 		PrivateGroupModule.class,
 		SharingModule.class
@@ -44,6 +48,8 @@ interface IntroductionIntegrationTestComponent
 	void inject(SessionEncoderParserIntegrationTest init);
 
 	void inject(IntroductionCryptoIntegrationTest init);
+
+	void inject(AutoDeleteIntegrationTest init);
 
 	MessageEncoder getMessageEncoder();
 

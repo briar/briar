@@ -1,9 +1,8 @@
 package org.briarproject.briar.messaging;
 
-interface MessagingConstants {
+import static java.util.concurrent.TimeUnit.DAYS;
 
-	// Metadata keys for groups
-	String GROUP_KEY_CONTACT_ID = "contactId";
+interface MessagingConstants {
 
 	// Metadata keys for messages
 	String MSG_KEY_TIMESTAMP = "timestamp";
@@ -11,4 +10,11 @@ interface MessagingConstants {
 	String MSG_KEY_MSG_TYPE = "messageType";
 	String MSG_KEY_HAS_TEXT = "hasText";
 	String MSG_KEY_ATTACHMENT_HEADERS = "attachmentHeaders";
+	String MSG_KEY_AUTO_DELETE_TIMER = "autoDeleteTimer";
+
+	/**
+	 * How long to keep incoming attachments that aren't listed by any private
+	 * message before deleting them.
+	 */
+	long MISSING_ATTACHMENT_CLEANUP_DURATION_MS = DAYS.toMillis(28);
 }

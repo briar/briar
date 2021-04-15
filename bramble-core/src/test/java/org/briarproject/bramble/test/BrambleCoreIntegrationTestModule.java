@@ -3,8 +3,8 @@ package org.briarproject.bramble.test;
 import org.briarproject.bramble.api.FeatureFlags;
 import org.briarproject.bramble.battery.DefaultBatteryManagerModule;
 import org.briarproject.bramble.event.DefaultEventExecutorModule;
-import org.briarproject.bramble.system.DefaultTaskSchedulerModule;
 import org.briarproject.bramble.system.DefaultWakefulIoExecutorModule;
+import org.briarproject.bramble.system.TimeTravelModule;
 
 import dagger.Module;
 import dagger.Provides;
@@ -12,11 +12,11 @@ import dagger.Provides;
 @Module(includes = {
 		DefaultBatteryManagerModule.class,
 		DefaultEventExecutorModule.class,
-		DefaultTaskSchedulerModule.class,
 		DefaultWakefulIoExecutorModule.class,
 		TestDatabaseConfigModule.class,
 		TestPluginConfigModule.class,
-		TestSecureRandomModule.class
+		TestSecureRandomModule.class,
+		TimeTravelModule.class
 })
 public class BrambleCoreIntegrationTestModule {
 
@@ -31,6 +31,11 @@ public class BrambleCoreIntegrationTestModule {
 
 			@Override
 			public boolean shouldEnableProfilePictures() {
+				return true;
+			}
+
+			@Override
+			public boolean shouldEnableDisappearingMessages() {
 				return true;
 			}
 		};

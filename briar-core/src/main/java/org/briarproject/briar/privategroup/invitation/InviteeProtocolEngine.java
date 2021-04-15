@@ -13,9 +13,11 @@ import org.briarproject.bramble.api.sync.Message;
 import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.bramble.api.system.Clock;
 import org.briarproject.bramble.api.versioning.ClientVersioningManager;
+import org.briarproject.briar.api.autodelete.AutoDeleteManager;
 import org.briarproject.briar.api.client.MessageTracker;
 import org.briarproject.briar.api.client.ProtocolStateException;
 import org.briarproject.briar.api.client.SessionId;
+import org.briarproject.briar.api.conversation.ConversationManager;
 import org.briarproject.briar.api.privategroup.GroupMessageFactory;
 import org.briarproject.briar.api.privategroup.PrivateGroup;
 import org.briarproject.briar.api.privategroup.PrivateGroupFactory;
@@ -41,22 +43,30 @@ import static org.briarproject.briar.privategroup.invitation.InviteeState.START;
 @NotNullByDefault
 class InviteeProtocolEngine extends AbstractProtocolEngine<InviteeSession> {
 
-	InviteeProtocolEngine(DatabaseComponent db, ClientHelper clientHelper,
+	InviteeProtocolEngine(
+			DatabaseComponent db,
+			ClientHelper clientHelper,
 			ClientVersioningManager clientVersioningManager,
 			PrivateGroupManager privateGroupManager,
 			PrivateGroupFactory privateGroupFactory,
 			GroupMessageFactory groupMessageFactory,
-			IdentityManager identityManager, MessageParser messageParser,
-			MessageEncoder messageEncoder, MessageTracker messageTracker,
+			IdentityManager identityManager,
+			MessageParser messageParser,
+			MessageEncoder messageEncoder,
+			MessageTracker messageTracker,
+			AutoDeleteManager autoDeleteManager,
+			ConversationManager conversationManager,
 			Clock clock) {
 		super(db, clientHelper, clientVersioningManager, privateGroupManager,
 				privateGroupFactory, groupMessageFactory, identityManager,
-				messageParser, messageEncoder, messageTracker, clock);
+				messageParser, messageEncoder, messageTracker,
+				autoDeleteManager, conversationManager, clock);
 	}
 
 	@Override
 	public InviteeSession onInviteAction(Transaction txn, InviteeSession s,
-			@Nullable String text, long timestamp, byte[] signature) {
+			@Nullable String text, long timestamp, byte[] signature,
+			long autoDeleteTimer) {
 		throw new UnsupportedOperationException(); // Invalid in this role
 	}
 
@@ -79,8 +89,8 @@ class InviteeProtocolEngine extends AbstractProtocolEngine<InviteeSession> {
 	}
 
 	@Override
-	public InviteeSession onLeaveAction(Transaction txn, InviteeSession s)
-			throws DbException {
+	public InviteeSession onLeaveAction(Transaction txn, InviteeSession s,
+			boolean isAutoDecline) throws DbException {
 		switch (s.getState()) {
 			case START:
 			case LEFT:
@@ -88,7 +98,7 @@ class InviteeProtocolEngine extends AbstractProtocolEngine<InviteeSession> {
 			case ERROR:
 				return s; // Ignored in these states
 			case INVITED:
-				return onLocalDecline(txn, s);
+				return onLocalDecline(txn, s, isAutoDecline);
 			case ACCEPTED:
 			case JOINED:
 				return onLocalLeave(txn, s);
@@ -193,14 +203,14 @@ class InviteeProtocolEngine extends AbstractProtocolEngine<InviteeSession> {
 				s.getInviteTimestamp(), ACCEPTED);
 	}
 
-	private InviteeSession onLocalDecline(Transaction txn, InviteeSession s)
-			throws DbException {
+	private InviteeSession onLocalDecline(Transaction txn, InviteeSession s,
+			boolean isAutoDecline) throws DbException {
 		// Mark the invite message unavailable to answer
 		MessageId inviteId = s.getLastRemoteMessageId();
 		if (inviteId == null) throw new IllegalStateException();
 		markMessageAvailableToAnswer(txn, inviteId, false);
 		// Send a LEAVE message
-		Message sent = sendLeaveMessage(txn, s, true);
+		Message sent = sendLeaveMessage(txn, s, true, isAutoDecline);
 		// Track the message
 		messageTracker.trackOutgoingMessage(txn, sent);
 		// Move to the START state
@@ -212,7 +222,7 @@ class InviteeProtocolEngine extends AbstractProtocolEngine<InviteeSession> {
 	private InviteeSession onLocalLeave(Transaction txn, InviteeSession s)
 			throws DbException {
 		// Send a LEAVE message
-		Message sent = sendLeaveMessage(txn, s, false);
+		Message sent = sendLeaveMessage(txn, s);
 		try {
 			// Make the private group invisible to the contact
 			setPrivateGroupVisibility(txn, s, INVISIBLE);
@@ -230,7 +240,8 @@ class InviteeProtocolEngine extends AbstractProtocolEngine<InviteeSession> {
 		// The timestamp must be higher than the last invite message, if any
 		if (m.getTimestamp() <= s.getInviteTimestamp()) return abort(txn, s);
 		// Check that the contact is the creator
-		ContactId contactId = getContactId(txn, s.getContactGroupId());
+		ContactId contactId =
+				clientHelper.getContactId(txn, s.getContactGroupId());
 		Author contact = db.getContact(txn, contactId).getAuthor();
 		if (!contact.getId().equals(m.getCreator().getId()))
 			return abort(txn, s);
@@ -240,6 +251,8 @@ class InviteeProtocolEngine extends AbstractProtocolEngine<InviteeSession> {
 		// Track the message
 		messageTracker.trackMessage(txn, m.getContactGroupId(),
 				m.getTimestamp(), false);
+		// Receive the auto-delete timer
+		receiveAutoDeleteTimer(txn, m);
 		// Broadcast an event
 		PrivateGroup privateGroup = privateGroupFactory.createPrivateGroup(
 				m.getGroupName(), m.getCreator(), m.getSalt());
@@ -330,7 +343,7 @@ class InviteeProtocolEngine extends AbstractProtocolEngine<InviteeSession> {
 		SessionId sessionId = new SessionId(m.getPrivateGroupId().getBytes());
 		return new GroupInvitationRequest(m.getId(), m.getContactGroupId(),
 				m.getTimestamp(), false, false, false, false, sessionId, pg,
-				m.getText(), true, false);
+				m.getText(), true, false, m.getAutoDeleteTimer());
 	}
 
 }

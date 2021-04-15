@@ -11,8 +11,10 @@ public abstract class InvitationResponse extends ConversationResponse {
 
 	public InvitationResponse(MessageId id, GroupId groupId, long time,
 			boolean local, boolean read, boolean sent, boolean seen,
-			SessionId sessionId, boolean accepted, GroupId shareableId) {
-		super(id, groupId, time, local, read, sent, seen, sessionId, accepted);
+			SessionId sessionId, boolean accepted, GroupId shareableId,
+			long autoDeleteTimer, boolean isAutoDecline) {
+		super(id, groupId, time, local, read, sent, seen, sessionId, accepted,
+				autoDeleteTimer, isAutoDecline);
 		this.shareableId = shareableId;
 	}
 

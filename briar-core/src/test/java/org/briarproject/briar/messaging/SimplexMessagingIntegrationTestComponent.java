@@ -10,7 +10,9 @@ import org.briarproject.bramble.api.lifecycle.LifecycleManager;
 import org.briarproject.bramble.test.BrambleCoreIntegrationTestModule;
 import org.briarproject.briar.api.messaging.MessagingManager;
 import org.briarproject.briar.api.messaging.PrivateMessageFactory;
+import org.briarproject.briar.autodelete.AutoDeleteModule;
 import org.briarproject.briar.client.BriarClientModule;
+import org.briarproject.briar.conversation.ConversationModule;
 
 import javax.inject.Singleton;
 
@@ -18,9 +20,11 @@ import dagger.Component;
 
 @Singleton
 @Component(modules = {
+		AutoDeleteModule.class,
 		BrambleCoreIntegrationTestModule.class,
 		BrambleCoreModule.class,
 		BriarClientModule.class,
+		ConversationModule.class,
 		MessagingModule.class
 })
 interface SimplexMessagingIntegrationTestComponent

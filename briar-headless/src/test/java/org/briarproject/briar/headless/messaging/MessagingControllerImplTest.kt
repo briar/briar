@@ -4,20 +4,27 @@ import io.javalin.http.BadRequestResponse
 import io.javalin.http.Context
 import io.javalin.http.NotFoundResponse
 import io.javalin.plugin.json.JavalinJson.toJson
-import io.mockk.*
+import io.mockk.CapturingSlot
+import io.mockk.Runs
+import io.mockk.every
+import io.mockk.just
+import io.mockk.mockk
+import io.mockk.mockkStatic
+import io.mockk.runs
 import org.briarproject.bramble.api.contact.ContactId
 import org.briarproject.bramble.api.db.NoSuchContactException
-import org.briarproject.briar.api.identity.AuthorInfo
-import org.briarproject.briar.api.identity.AuthorInfo.Status.UNVERIFIED
-import org.briarproject.briar.api.identity.AuthorInfo.Status.VERIFIED
 import org.briarproject.bramble.api.sync.MessageId
 import org.briarproject.bramble.api.sync.event.MessagesAckedEvent
 import org.briarproject.bramble.api.sync.event.MessagesSentEvent
 import org.briarproject.bramble.test.ImmediateExecutor
 import org.briarproject.bramble.test.TestUtils.getRandomId
 import org.briarproject.bramble.util.StringUtils.getRandomString
+import org.briarproject.briar.api.autodelete.AutoDeleteConstants.NO_AUTO_DELETE_TIMER
 import org.briarproject.briar.api.client.SessionId
 import org.briarproject.briar.api.conversation.DeletionResult
+import org.briarproject.briar.api.identity.AuthorInfo
+import org.briarproject.briar.api.identity.AuthorInfo.Status.UNVERIFIED
+import org.briarproject.briar.api.identity.AuthorInfo.Status.VERIFIED
 import org.briarproject.briar.api.introduction.IntroductionRequest
 import org.briarproject.briar.api.messaging.MessagingConstants.MAX_PRIVATE_MESSAGE_TEXT_LENGTH
 import org.briarproject.briar.api.messaging.MessagingManager
@@ -62,7 +69,8 @@ internal class MessagingControllerImplTest : ControllerTest() {
             true,
             true,
             true,
-            emptyList()
+            emptyList(),
+            NO_AUTO_DELETE_TIMER
         )
     private val sessionId = SessionId(getRandomId())
     private val privateMessage = PrivateMessage(message)
@@ -81,7 +89,7 @@ internal class MessagingControllerImplTest : ControllerTest() {
     fun listIntroductionRequest() {
         val request = IntroductionRequest(
             message.id, group.id, timestamp, true, true, true, false, sessionId, author, text,
-            false, AuthorInfo(UNVERIFIED)
+            false, AuthorInfo(UNVERIFIED), NO_AUTO_DELETE_TIMER
         )
 
         expectGetContact()
@@ -212,7 +220,7 @@ internal class MessagingControllerImplTest : ControllerTest() {
         every { messagingManager.getContactGroup(contact).id } returns group.id
         every { ctx.getFromJson(objectMapper, "messageId") } returns messageIdString
         every { Base64.decode(messageIdString) } returns message.id.bytes
-        every { messagingManager.setReadFlag(group.id, message.id, true) } just Runs
+        every { conversationManager.setReadFlag(group.id, message.id, true) } just Runs
         every { ctx.json(messageIdString) } returns ctx
 
         controller.markMessageRead(ctx)
@@ -322,7 +330,7 @@ internal class MessagingControllerImplTest : ControllerTest() {
     fun testIntroductionRequestWithNullText() {
         val request = IntroductionRequest(
             message.id, group.id, timestamp, true, true, true, false, sessionId, author, null,
-            false, AuthorInfo(VERIFIED)
+            false, AuthorInfo(VERIFIED), NO_AUTO_DELETE_TIMER
         )
         val json = """
             {
@@ -378,15 +386,13 @@ internal class MessagingControllerImplTest : ControllerTest() {
         if (Random.nextBoolean()) result.addInvitationSessionInProgress()
         if (Random.nextBoolean()) result.addIntroductionNotAllSelected()
         if (Random.nextBoolean()) result.addIntroductionSessionInProgress()
-        if (Random.nextBoolean()) result.addNotFullyDownloaded()
         val json = """
             {
                 "allDeleted": ${result.allDeleted()},
                 "hasIntroductionSessionInProgress": ${result.hasIntroductionSessionInProgress()},
                 "hasInvitationSessionInProgress": ${result.hasInvitationSessionInProgress()},
                 "hasNotAllIntroductionSelected": ${result.hasNotAllIntroductionSelected()},
-                "hasNotAllInvitationSelected": ${result.hasNotAllInvitationSelected()},
-                "hasNotFullyDownloaded": ${result.hasNotFullyDownloaded()}
+                "hasNotAllInvitationSelected": ${result.hasNotAllInvitationSelected()}
             }
         """
         assertJsonEquals(json, result.output())

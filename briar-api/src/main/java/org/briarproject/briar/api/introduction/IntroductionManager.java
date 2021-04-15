@@ -31,18 +31,18 @@ public interface IntroductionManager extends ConversationClient {
 	/**
 	 * The current minor version of the introduction client.
 	 */
-	int MINOR_VERSION = 0;
+	int MINOR_VERSION = 1;
 
 	/**
 	 * Sends two initial introduction messages.
 	 */
-	void makeIntroduction(Contact c1, Contact c2, @Nullable String text,
-			long timestamp) throws DbException;
+	void makeIntroduction(Contact c1, Contact c2, @Nullable String text)
+			throws DbException;
 
 	/**
 	 * Responds to an introduction.
 	 */
 	void respondToIntroduction(ContactId contactId, SessionId sessionId,
-			long timestamp, boolean accept) throws DbException;
+			boolean accept) throws DbException;
 
 }

@@ -50,6 +50,7 @@ import org.briarproject.briar.android.blog.BlogActivity;
 import org.briarproject.briar.android.conversation.ConversationVisitor.AttachmentCache;
 import org.briarproject.briar.android.conversation.ConversationVisitor.TextCache;
 import org.briarproject.briar.android.forum.ForumActivity;
+import org.briarproject.briar.android.fragment.BaseFragment.BaseFragmentListener;
 import org.briarproject.briar.android.introduction.IntroductionActivity;
 import org.briarproject.briar.android.privategroup.conversation.GroupActivity;
 import org.briarproject.briar.android.util.BriarSnackbarBuilder;
@@ -59,8 +60,10 @@ import org.briarproject.briar.android.view.TextAttachmentController;
 import org.briarproject.briar.android.view.TextAttachmentController.AttachmentListener;
 import org.briarproject.briar.android.view.TextInputView;
 import org.briarproject.briar.android.view.TextSendController;
+import org.briarproject.briar.android.view.TextSendController.SendState;
 import org.briarproject.briar.api.android.AndroidNotificationManager;
 import org.briarproject.briar.api.attachment.AttachmentHeader;
+import org.briarproject.briar.api.autodelete.event.ConversationMessagesDeletedEvent;
 import org.briarproject.briar.api.blog.BlogSharingManager;
 import org.briarproject.briar.api.client.ProtocolStateException;
 import org.briarproject.briar.api.client.SessionId;
@@ -138,12 +141,14 @@ import static org.briarproject.briar.android.util.UiUtils.observeOnce;
 import static org.briarproject.briar.android.view.AuthorView.setAvatar;
 import static org.briarproject.briar.api.messaging.MessagingConstants.MAX_ATTACHMENTS_PER_MESSAGE;
 import static org.briarproject.briar.api.messaging.MessagingConstants.MAX_PRIVATE_MESSAGE_TEXT_LENGTH;
+import static org.briarproject.briar.api.messaging.PrivateMessageFormat.TEXT_IMAGES_AUTO_DELETE;
+import static org.briarproject.briar.api.messaging.PrivateMessageFormat.TEXT_ONLY;
 
 @MethodsNotNullByDefault
 @ParametersNotNullByDefault
 public class ConversationActivity extends BriarActivity
-		implements EventListener, ConversationListener, TextCache,
-		AttachmentCache, AttachmentListener, ActionMode.Callback {
+		implements BaseFragmentListener, EventListener, ConversationListener,
+		TextCache, AttachmentCache, AttachmentListener, ActionMode.Callback {
 
 	public static final String CONTACT_ID = "briar.CONTACT_ID";
 
@@ -268,15 +273,11 @@ public class ConversationActivity extends BriarActivity
 			ImagePreview imagePreview = findViewById(R.id.imagePreview);
 			sendController = new TextAttachmentController(textInputView,
 					imagePreview, this, viewModel);
-			viewModel.hasImageSupport().observe(this, new Observer<Boolean>() {
-				@Override
-				public void onChanged(@Nullable Boolean hasSupport) {
-					if (hasSupport != null && hasSupport) {
-						// TODO: remove cast when removing feature flag
-						((TextAttachmentController) sendController)
-								.setImagesSupported();
-						viewModel.hasImageSupport().removeObserver(this);
-					}
+			observeOnce(viewModel.getPrivateMessageFormat(), this, format -> {
+				if (format != TEXT_ONLY) {
+					// TODO: remove cast when removing feature flag
+					((TextAttachmentController) sendController)
+							.setImagesSupported();
 				}
 			});
 		} else {
@@ -286,6 +287,9 @@ public class ConversationActivity extends BriarActivity
 		textInputView.setMaxTextLength(MAX_PRIVATE_MESSAGE_TEXT_LENGTH);
 		textInputView.setReady(false);
 		textInputView.setOnKeyboardShownListener(this::scrollToBottom);
+
+		viewModel.getAutoDeleteTimer().observe(this, timer ->
+				sendController.setAutoDeleteTimer(timer));
 	}
 
 	private void scrollToBottom() {
@@ -369,6 +373,14 @@ public class ConversationActivity extends BriarActivity
 		// enable alias action if available
 		observeOnce(viewModel.getContactItem(), this, contact ->
 				menu.findItem(R.id.action_set_alias).setEnabled(true));
+		// Show auto-delete menu item if feature is enabled
+		if (featureFlags.shouldEnableDisappearingMessages()) {
+			MenuItem item = menu.findItem(R.id.action_conversation_settings);
+			item.setVisible(true);
+			// Enable menu item only if contact supports auto-delete
+			viewModel.getPrivateMessageFormat().observe(this, format ->
+					item.setEnabled(format == TEXT_IMAGES_AUTO_DELETE));
+		}
 
 		return super.onCreateOptionsMenu(menu);
 	}
@@ -389,6 +401,10 @@ public class ConversationActivity extends BriarActivity
 			case R.id.action_set_alias:
 				AliasDialogFragment.newInstance().show(
 						getSupportFragmentManager(), AliasDialogFragment.TAG);
+				return true;
+			case R.id.action_conversation_settings:
+				if (contactId == null) return false;
+				onAutoDeleteTimerNoticeClicked();
 				return true;
 			case R.id.action_delete_all_messages:
 				askToDeleteAllMessages();
@@ -559,7 +575,7 @@ public class ConversationActivity extends BriarActivity
 							this::showImageOnboarding);
 				}
 				List<ConversationItem> items = createItems(headers);
-				adapter.addAll(items);
+				adapter.replaceAll(items);
 				list.showData();
 				if (layoutManagerState == null) {
 					scrollToBottom();
@@ -640,8 +656,8 @@ public class ConversationActivity extends BriarActivity
 				supportFinishAfterTransition();
 			}
 		} else if (e instanceof ConversationMessageReceivedEvent) {
-			ConversationMessageReceivedEvent p =
-					(ConversationMessageReceivedEvent) e;
+			ConversationMessageReceivedEvent<?> p =
+					(ConversationMessageReceivedEvent<?>) e;
 			if (p.getContactId().equals(contactId)) {
 				LOG.info("Message received, adding");
 				onNewConversationMessage(p.getMessageHeader());
@@ -657,6 +673,13 @@ public class ConversationActivity extends BriarActivity
 			if (m.getContactId().equals(contactId)) {
 				LOG.info("Messages acked");
 				markMessages(m.getMessageIds(), true, true);
+			}
+		} else if (e instanceof ConversationMessagesDeletedEvent) {
+			ConversationMessagesDeletedEvent m =
+					(ConversationMessagesDeletedEvent) e;
+			if (m.getContactId().equals(contactId)) {
+				LOG.info("Messages auto-deleted");
+				onConversationMessagesDeleted(m.getMessageIds());
 			}
 		} else if (e instanceof ContactConnectedEvent) {
 			ContactConnectedEvent c = (ContactConnectedEvent) e;
@@ -706,6 +729,13 @@ public class ConversationActivity extends BriarActivity
 	}
 
 	@UiThread
+	private void onConversationMessagesDeleted(
+			Collection<MessageId> messageIds) {
+		adapter.incrementRevision();
+		adapter.removeItems(messageIds);
+	}
+
+	@UiThread
 	private void markMessages(Collection<MessageId> messageIds, boolean sent,
 			boolean seen) {
 		adapter.incrementRevision();
@@ -735,20 +765,13 @@ public class ConversationActivity extends BriarActivity
 	}
 
 	@Override
-	public void onSendClick(@Nullable String text,
-			List<AttachmentHeader> attachmentHeaders) {
+	public LiveData<SendState> onSendClick(@Nullable String text,
+			List<AttachmentHeader> attachmentHeaders,
+			long expectedAutoDeleteTimer) {
 		if (isNullOrEmpty(text) && attachmentHeaders.isEmpty())
 			throw new AssertionError();
-		long timestamp = System.currentTimeMillis();
-		timestamp = Math.max(timestamp, getMinTimestampForNewMessage());
-		viewModel.sendMessage(text, attachmentHeaders, timestamp);
-		textInputView.clearText();
-	}
-
-	private long getMinTimestampForNewMessage() {
-		// Don't use an earlier timestamp than the newest message
-		ConversationItem item = adapter.getLastItem();
-		return item == null ? 0 : item.getTime() + 1;
+		return viewModel
+				.sendMessage(text, attachmentHeaders, expectedAutoDeleteTimer);
 	}
 
 	private void onAddedPrivateMessage(@Nullable PrivateMessageHeader h) {
@@ -822,10 +845,6 @@ public class ConversationActivity extends BriarActivity
 		} else if (result.hasInvitationSessionInProgress()) {
 			fails.add(getString(
 					R.string.dialog_message_not_deleted_ongoing_invitations));
-		}
-		if (result.hasNotFullyDownloaded()) {
-			fails.add(getString(
-					R.string.dialog_message_not_deleted_partly_downloaded));
 		}
 		// add problems the user can resolve
 		if (result.hasNotAllIntroductionSelected() &&
@@ -958,13 +977,11 @@ public class ConversationActivity extends BriarActivity
 			adapter.notifyItemChanged(position, item);
 		}
 		runOnDbThread(() -> {
-			long timestamp = System.currentTimeMillis();
-			timestamp = Math.max(timestamp, getMinTimestampForNewMessage());
 			try {
 				switch (item.getRequestType()) {
 					case INTRODUCTION:
 						respondToIntroductionRequest(item.getSessionId(),
-								accept, timestamp);
+								accept);
 						break;
 					case FORUM:
 						respondToForumRequest(item.getSessionId(), accept);
@@ -1038,11 +1055,18 @@ public class ConversationActivity extends BriarActivity
 		ActivityCompat.startActivity(this, i, options.toBundle());
 	}
 
+	@Override
+	public void onAutoDeleteTimerNoticeClicked() {
+		ConversationSettingsDialog dialog =
+				ConversationSettingsDialog.newInstance(contactId);
+		dialog.show(getSupportFragmentManager(),
+				ConversationSettingsDialog.TAG);
+	}
+
 	@DatabaseExecutor
 	private void respondToIntroductionRequest(SessionId sessionId,
-			boolean accept, long time) throws DbException {
-		introductionManager.respondToIntroduction(contactId, sessionId, time,
-				accept);
+			boolean accept) throws DbException {
+		introductionManager.respondToIntroduction(contactId, sessionId, accept);
 	}
 
 	@DatabaseExecutor

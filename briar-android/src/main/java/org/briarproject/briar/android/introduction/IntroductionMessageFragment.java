@@ -25,6 +25,8 @@ import javax.inject.Inject;
 
 import androidx.annotation.Nullable;
 import androidx.fragment.app.FragmentActivity;
+import androidx.lifecycle.LiveData;
+import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModelProvider;
 import de.hdodenhof.circleimageview.CircleImageView;
 
@@ -34,6 +36,8 @@ import static android.view.View.VISIBLE;
 import static org.briarproject.briar.android.util.UiUtils.getContactDisplayName;
 import static org.briarproject.briar.android.util.UiUtils.hideSoftKeyboard;
 import static org.briarproject.briar.android.view.AuthorView.setAvatar;
+import static org.briarproject.briar.android.view.TextSendController.SendState;
+import static org.briarproject.briar.android.view.TextSendController.SendState.SENT;
 import static org.briarproject.briar.api.introduction.IntroductionConstants.MAX_INTRODUCTION_TEXT_LENGTH;
 
 @MethodsNotNullByDefault
@@ -129,8 +133,8 @@ public class IntroductionMessageFragment extends BaseFragment
 	}
 
 	@Override
-	public void onSendClick(@Nullable String text,
-			List<AttachmentHeader> headers) {
+	public LiveData<SendState> onSendClick(@Nullable String text,
+			List<AttachmentHeader> headers, long expectedAutoDeleteTimer) {
 		// disable button to prevent accidental double invitations
 		ui.message.setReady(false);
 
@@ -141,6 +145,7 @@ public class IntroductionMessageFragment extends BaseFragment
 		FragmentActivity activity = requireActivity();
 		activity.setResult(RESULT_OK);
 		activity.supportFinishAfterTransition();
+		return new MutableLiveData<>(SENT);
 	}
 
 	private static class ViewHolder {
