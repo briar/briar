@@ -48,15 +48,12 @@ android test:
     when: on_failure
   rules:
     - if: '$CI_PIPELINE_SOURCE == "schedule"'
-    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
-      changes:
+    - changes:
         - briar-android/**/*
       when: manual
       allow_failure: true
   retry:
     max: 1
-    when:
-      - script_failure
   tags:
     - kvm
 
