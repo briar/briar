@@ -9,8 +9,8 @@ import org.briarproject.bramble.api.transport.StreamReaderFactory;
 import org.briarproject.bramble.api.transport.StreamWriterFactory;
 import org.briarproject.briar.api.socialbackup.recovery.CustodianTask;
 
+import java.io.DataInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
@@ -60,16 +60,20 @@ public class CustodianTaskImpl extends ReturnShardTaskImpl
 	@Override
 	public void cancel() {
 		cancelled = true;
-		try {
-			socket.close();
-		} catch (IOException e) {
-			// The reason here is OTHER rather than NO_CONNECTION because
-			// the socket could fail to close because it is already closed
-			observer.onStateChanged(new CustodianTask.State.Failure(
-					State.Failure.Reason.OTHER));
+		if (socket != null) {
+			try {
+				socket.close();
+			} catch (IOException e) {
+				// The reason here is OTHER rather than NO_CONNECTION because
+				// the socket could fail to close because it is already closed
+				observer.onStateChanged(new CustodianTask.State.Failure(
+						State.Failure.Reason.OTHER));
+			}
 		}
-		observer.onStateChanged(
-				new CustodianTask.State.Failure(State.Failure.Reason.OTHER));
+		if (observer != null) {
+			observer.onStateChanged(
+					new CustodianTask.State.Failure(State.Failure.Reason.OTHER));
+		}
 	}
 
 	@Override
@@ -146,7 +150,7 @@ public class CustodianTaskImpl extends ReturnShardTaskImpl
 
 	private void receiveAck() {
 		try {
-			InputStream inputStream = socket.getInputStream();
+			DataInputStream inputStream = new DataInputStream(socket.getInputStream());
 //			InputStream inputStream = streamReaderFactory
 //					.createContactExchangeStreamReader(socket.getInputStream(),
 //							sharedSecret);

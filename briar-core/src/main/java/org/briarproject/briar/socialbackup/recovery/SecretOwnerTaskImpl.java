@@ -9,6 +9,7 @@ import org.briarproject.bramble.api.data.BdfList;
 import org.briarproject.bramble.api.lifecycle.IoExecutor;
 import org.briarproject.briar.api.socialbackup.recovery.SecretOwnerTask;
 
+import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -28,7 +29,6 @@ import static java.util.logging.Logger.getLogger;
 public class SecretOwnerTaskImpl extends ReturnShardTaskImpl
 		implements SecretOwnerTask {
 
-	//	private final Executor ioExecutor;
 	private boolean cancelled = false;
 	private InetSocketAddress socketAddress;
 	private ClientHelper clientHelper;
@@ -43,9 +43,8 @@ public class SecretOwnerTaskImpl extends ReturnShardTaskImpl
 
 	@Inject
 	SecretOwnerTaskImpl(AuthenticatedCipher cipher, CryptoComponent crypto,
-			@IoExecutor Executor ioExecutor, ClientHelper clientHelper) {
+			ClientHelper clientHelper) {
 		super(cipher, crypto);
-//		this.ioExecutor = ioExecutor;
 		this.clientHelper = clientHelper;
 //		this.streamReaderFactory = streamReaderFactory;
 //		this.streamWriterFactory = streamWriterFactory;
@@ -101,7 +100,7 @@ public class SecretOwnerTaskImpl extends ReturnShardTaskImpl
 			LOG.info("Client connected");
 			observer.onStateChanged(new State.ReceivingShard());
 
-			InputStream inputStream = socket.getInputStream();
+			DataInputStream inputStream = new DataInputStream(socket.getInputStream());
 
 			AgreementPublicKey remotePublicKey =
 					new AgreementPublicKey(
@@ -156,11 +155,16 @@ public class SecretOwnerTaskImpl extends ReturnShardTaskImpl
 	public void cancel() {
 		cancelled = true;
 		LOG.info("Cancel called, failing...");
-		try {
-			serverSocket.close();
-		} catch (IOException e) {
+		if (serverSocket != null) {
+			try {
+				serverSocket.close();
+			} catch (IOException e) {
+				observer.onStateChanged(new State.Failure());
+			}
+		}
+
+		if (observer != null) {
 			observer.onStateChanged(new State.Failure());
 		}
-		observer.onStateChanged(new State.Failure());
 	}
 }

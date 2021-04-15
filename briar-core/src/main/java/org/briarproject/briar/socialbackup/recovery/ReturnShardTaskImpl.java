@@ -60,9 +60,8 @@ public class ReturnShardTaskImpl {
 		return message;
 	}
 
-	byte[] read(InputStream inputStream, int length)
+	byte[] read(DataInputStream dis, int length)
 			throws IOException {
-		DataInputStream dis = new DataInputStream(inputStream);
 		byte[] output = new byte[length];
 		dis.readFully(output);
 		return output;
