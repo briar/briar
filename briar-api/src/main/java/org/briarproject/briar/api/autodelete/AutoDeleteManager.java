@@ -6,7 +6,7 @@ import org.briarproject.bramble.api.db.Transaction;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.sync.ClientId;
 
-import static java.util.concurrent.TimeUnit.MINUTES;
+import static java.util.concurrent.TimeUnit.DAYS;
 
 @NotNullByDefault
 public interface AutoDeleteManager {
@@ -28,9 +28,8 @@ public interface AutoDeleteManager {
 
 	/**
 	 * The default auto-delete timer duration.
-	 * TODO: Change this to one week before release
 	 */
-	long DEFAULT_TIMER_DURATION = MINUTES.toMillis(1);
+	long DEFAULT_TIMER_DURATION = DAYS.toMillis(7);
 
 	/**
 	 * Returns the auto-delete timer duration for the given contact. Use
