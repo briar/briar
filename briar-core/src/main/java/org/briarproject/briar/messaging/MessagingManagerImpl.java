@@ -504,21 +504,6 @@ class MessagingManagerImpl implements MessagingManager, IncomingMessageHook,
 		return new DeletionResult();
 	}
 
-	private List<AttachmentHeader> getAttachmentHeaders(Transaction txn,
-			MessageId m, GroupId g) throws DbException {
-		try {
-			BdfDictionary meta =
-					clientHelper.getMessageMetadataAsDictionary(txn, m);
-			Long messageType = meta.getOptionalLong(MSG_KEY_MSG_TYPE);
-			if (messageType != null && messageType != PRIVATE_MESSAGE)
-				throw new IllegalArgumentException();
-			return messageType == null ? emptyList() :
-					parseAttachmentHeaders(g, meta);
-		} catch (FormatException e) {
-			throw new DbException(e);
-		}
-	}
-
 	@Override
 	public void deleteMessages(Transaction txn, GroupId g,
 			Collection<MessageId> messageIds) throws DbException {
@@ -535,7 +520,7 @@ class MessagingManagerImpl implements MessagingManager, IncomingMessageHook,
 					clientHelper.getMessageMetadataAsDictionary(txn, m);
 			Long messageType = meta.getOptionalLong(MSG_KEY_MSG_TYPE);
 			if (messageType != null && messageType == PRIVATE_MESSAGE) {
-				for (AttachmentHeader h : getAttachmentHeaders(txn, m, g)) {
+				for (AttachmentHeader h : parseAttachmentHeaders(g, meta)) {
 					try {
 						db.deleteMessage(txn, h.getMessageId());
 						db.deleteMessageMetadata(txn, h.getMessageId());
