@@ -11,7 +11,6 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import androidx.recyclerview.widget.RecyclerView;
 import androidx.test.espresso.contrib.DrawerActions;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
@@ -20,17 +19,13 @@ import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.action.ViewActions.click;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
 import static androidx.test.espresso.contrib.DrawerMatchers.isClosed;
-import static androidx.test.espresso.contrib.RecyclerViewActions.scrollTo;
-import static androidx.test.espresso.matcher.ViewMatchers.hasDescendant;
 import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static androidx.test.espresso.matcher.ViewMatchers.isEnabled;
 import static androidx.test.espresso.matcher.ViewMatchers.withChild;
-import static androidx.test.espresso.matcher.ViewMatchers.withClassName;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
 import static org.briarproject.briar.android.ViewActions.waitUntilMatches;
 import static org.briarproject.briar.android.util.UiUtils.hasScreenLock;
-import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assume.assumeTrue;
 
 @RunWith(AndroidJUnit4.class)
@@ -50,6 +45,10 @@ public class SettingsActivityScreenshotTest extends ScreenshotTest {
 		onView(withText(R.string.settings_button))
 				.check(matches(isDisplayed()));
 
+		onView(withText(R.string.display_settings_title))
+				.perform(waitUntilMatches(isDisplayed()))
+				.perform(click(), click());
+
 		screenshot("manual_dark_theme_settings", testRule.getActivity());
 
 		// switch to dark theme
@@ -68,6 +67,9 @@ public class SettingsActivityScreenshotTest extends ScreenshotTest {
 		onView(withText(R.string.settings_button))
 				.check(matches(isDisplayed()))
 				.perform(click());
+		onView(withText(R.string.display_settings_title))
+				.check(matches(isDisplayed()))
+				.perform(click());
 		onView(withText(R.string.pref_theme_title))
 				.check(matches(isDisplayed()))
 				.perform(click());
@@ -80,20 +82,15 @@ public class SettingsActivityScreenshotTest extends ScreenshotTest {
 	public void appLock() {
 		assumeTrue("device has no screen lock",
 				hasScreenLock(getApplicationContext()));
-		// scroll down
-		onView(withClassName(is(RecyclerView.class.getName())))
-				.perform(scrollTo(hasDescendant(
-						// scroll down a bit more to have settings in the middle
-						withText(R.string.panic_setting))));
 
-		// wait for settings to get loaded and enabled
-		onView(withText(R.string.tor_mobile_data_title))
-				.perform(waitUntilMatches(isEnabled()));
+		onView(withText(R.string.security_settings_title))
+				.perform(waitUntilMatches(isDisplayed()))
+				.perform(click(), click());
 
 		// ensure app lock is displayed and enabled
 		onView(withText(R.string.pref_lock_title))
 				.check(matches(isDisplayed()))
-				.check(matches(isEnabled()))
+				.perform(waitUntilMatches(isEnabled()))
 				.perform(click());
 		onView(withChild(withText(R.string.pref_lock_timeout_title)))
 				.check(matches(isDisplayed()))
@@ -108,11 +105,10 @@ public class SettingsActivityScreenshotTest extends ScreenshotTest {
 
 	@Test
 	public void torSettings() {
-		// scroll down
-		onView(withClassName(is(RecyclerView.class.getName())))
-				.perform(scrollTo(hasDescendant(
-						// scroll down a bit more to have settings in the middle
-						withText(R.string.pref_lock_timeout_title))));
+		// click network/connections settings
+		onView(withText(R.string.network_settings_title))
+				.perform(waitUntilMatches(isDisplayed()))
+				.perform(click(), click());
 
 		// wait for settings to get loaded and enabled
 		onView(withText(R.string.tor_network_setting))
