@@ -55,7 +55,7 @@ public class SecretOwnerTaskImpl extends ReturnShardTaskImpl
 		this.observer = observer;
 		if (inetAddress == null) {
 			LOG.warning("Cannot retrieve local IP address, failing.");
-			observer.onStateChanged(new State.Failure());
+			observer.onStateChanged(new State.Failure(State.Failure.Reason.NO_CONNECTION));
 		}
 		LOG.info("InetAddress is " + inetAddress);
 		socketAddress = new InetSocketAddress(inetAddress, PORT);
@@ -69,7 +69,7 @@ public class SecretOwnerTaskImpl extends ReturnShardTaskImpl
 		} catch (IOException e) {
 			LOG.warning(
 					"IO Error when listening on local socket" + e.getMessage());
-			observer.onStateChanged(new State.Failure());
+			observer.onStateChanged(new State.Failure(State.Failure.Reason.NO_CONNECTION));
 			// TODO could try incrementing the port number
 			return;
 		}
@@ -86,7 +86,7 @@ public class SecretOwnerTaskImpl extends ReturnShardTaskImpl
 			LOG.info("changing state to listening done");
 		} catch (FormatException e) {
 			LOG.warning("Error encoding QR code");
-			observer.onStateChanged(new State.Failure());
+			observer.onStateChanged(new State.Failure(State.Failure.Reason.OTHER));
 			return;
 		}
 		LOG.info("receiving payload");
@@ -140,14 +140,14 @@ public class SecretOwnerTaskImpl extends ReturnShardTaskImpl
 
 			serverSocket.close();
 
-			observer.onStateChanged(new State.Success());
+			observer.onStateChanged(new State.Success(payloadClear));
 		} catch (IOException e) {
 			LOG.warning("IO Error receiving payload " + e.getMessage());
 			// TODO reasons
-			observer.onStateChanged(new State.Failure());
+			observer.onStateChanged(new State.Failure(State.Failure.Reason.NO_CONNECTION));
 		} catch (GeneralSecurityException e) {
 			LOG.warning("Security Error receiving payload " + e.getMessage());
-			observer.onStateChanged(new State.Failure());
+			observer.onStateChanged(new State.Failure(State.Failure.Reason.SECURITY));
 		}
 	}
 
@@ -159,12 +159,12 @@ public class SecretOwnerTaskImpl extends ReturnShardTaskImpl
 			try {
 				serverSocket.close();
 			} catch (IOException e) {
-				observer.onStateChanged(new State.Failure());
+				observer.onStateChanged(new State.Failure(State.Failure.Reason.OTHER));
 			}
 		}
 
 		if (observer != null) {
-			observer.onStateChanged(new State.Failure());
+			observer.onStateChanged(new State.Failure(State.Failure.Reason.OTHER));
 		}
 	}
 }

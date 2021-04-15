@@ -12,10 +12,12 @@ import org.junit.Test;
 
 import java.io.File;
 import java.net.InetAddress;
+import java.util.Arrays;
 
 import static junit.framework.TestCase.fail;
 import static org.briarproject.bramble.test.TestUtils.deleteTestDirectory;
 import static org.briarproject.bramble.test.TestUtils.getTestDirectory;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 public class ReturnShardIntegrationTest extends BrambleTestCase {
@@ -47,17 +49,22 @@ public class ReturnShardIntegrationTest extends BrambleTestCase {
 	public void testReturnShard() {
 		SecretOwnerTask secretOwnerTask = owner.getSecretOwnerTask();
 		CustodianTask custodianTask = custodian.getCustodianTask();
+		byte[] payload = "its nice to be important but its more important to be nice".getBytes();
 
 		SecretOwnerTask.Observer ownerObserver =
 				state -> {
 					if (state instanceof SecretOwnerTask.State.Listening) {
 						SecretOwnerTask.State.Listening listening =
 								(SecretOwnerTask.State.Listening) state;
-						byte[] payload = listening.getLocalPayload();
-						System.out.println(payload.length);
-						tansferQrCode(custodianTask, payload);
+						byte[] qrPayload = listening.getLocalPayload();
+						System.out.println(qrPayload.length);
+						transferQrCode(custodianTask, qrPayload);
+					} else if (state instanceof SecretOwnerTask.State.Success) {
+						byte[] remotePayload = ((SecretOwnerTask.State.Success) state).getRemotePayload();
+						assertTrue(Arrays.equals(remotePayload, payload));
+						System.out.println("Success");
 					} else if (state instanceof SecretOwnerTask.State.Failure) {
-						System.out.println("owner state: failure");
+						System.out.println("Owner state: failure");
 						fail();
 					} else {
 						System.out.println(
@@ -66,8 +73,16 @@ public class ReturnShardIntegrationTest extends BrambleTestCase {
 				};
 
 		CustodianTask.Observer custodianObserver =
-				state -> System.out.println(
-						"custodian: " + state.getClass().getSimpleName());
+				state -> {
+					if (state instanceof CustodianTask.State.Success) {
+						assertEquals(1, 1);
+					} else if (state instanceof CustodianTask.State.Failure) {
+						fail();
+					} else {
+						System.out.println(
+								"custodian: " + state.getClass().getSimpleName());
+					}
+				};
 
 		owner.getIoExecutor().execute(() -> {
 			try {
@@ -80,21 +95,25 @@ public class ReturnShardIntegrationTest extends BrambleTestCase {
 
 		custodian.getIoExecutor().execute(() -> {
 			try {
-				custodianTask.start(custodianObserver);
+				custodianTask.start(custodianObserver, payload);
 			} catch (Exception e) {
 				fail();
 			}
 		});
+
+		// TODO how to get the test to wait for the io to finish
+		try {
+			Thread.sleep(1000);
+		} catch (Exception e) {
+			fail();
+		}
+
 	}
 
-	private void tansferQrCode(CustodianTask custodianTask, byte[] payload) {
-		System.out.println("Calling qrCodeDecoded in executor()");
+	private void transferQrCode(CustodianTask custodianTask, byte[] payload) {
 		custodian.getIoExecutor().execute(() -> {
 			try {
-				System.out.println("Calling qrCodeDecoded()");
-				Thread.sleep(500);
 				custodianTask.qrCodeDecoded(payload);
-				System.out.println("qrCodeDecoded() done");
 			} catch (Exception e) {
 				e.printStackTrace();
 				fail();

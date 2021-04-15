@@ -33,6 +33,7 @@ public class CustodianTaskImpl extends ReturnShardTaskImpl
 	private InetSocketAddress remoteSocketAddress;
 	private final Socket socket = new Socket();
 	private final AuthenticatedCipher cipher;
+	private byte[] payload;
 //	private final StreamReaderFactory streamReaderFactory;
 //	private final StreamWriterFactory streamWriterFactory;
 
@@ -52,8 +53,9 @@ public class CustodianTaskImpl extends ReturnShardTaskImpl
 	}
 
 	@Override
-	public void start(Observer observer) {
+	public void start(Observer observer, byte[] payload) {
 		this.observer = observer;
+		this.payload = payload;
 		observer.onStateChanged(new CustodianTask.State.Connecting());
 	}
 
@@ -106,9 +108,6 @@ public class CustodianTaskImpl extends ReturnShardTaskImpl
 			LOG.info("Connected to secret owner " + remoteSocketAddress);
 
 			OutputStream outputStream = socket.getOutputStream();
-
-			// TODO insert the actual payload
-			byte[] payload = "crunchy".getBytes();
 
 			byte[] payloadNonce = generateNonce();
 
