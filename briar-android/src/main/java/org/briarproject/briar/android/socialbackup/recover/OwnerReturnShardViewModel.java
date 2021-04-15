@@ -6,7 +6,6 @@ import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.util.DisplayMetrics;
 
-import org.briarproject.bramble.api.Pair;
 import org.briarproject.bramble.api.lifecycle.IoExecutor;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.system.AndroidExecutor;
@@ -16,16 +15,13 @@ import org.briarproject.briar.android.viewmodel.MutableLiveEvent;
 import org.briarproject.briar.api.socialbackup.recovery.SecretOwnerTask;
 
 import java.net.InetAddress;
-import java.net.InterfaceAddress;
 import java.net.UnknownHostException;
 import java.nio.charset.Charset;
-import java.util.List;
 import java.util.concurrent.Executor;
 import java.util.logging.Logger;
 
 import javax.inject.Inject;
 
-import androidx.annotation.Nullable;
 import androidx.annotation.UiThread;
 import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
@@ -36,7 +32,8 @@ import static java.util.logging.Level.INFO;
 import static java.util.logging.Logger.getLogger;
 
 @NotNullByDefault
-class OwnerReturnShardViewModel extends AndroidViewModel implements SecretOwnerTask.Observer {
+class OwnerReturnShardViewModel extends AndroidViewModel
+		implements SecretOwnerTask.Observer {
 
 	private static final Logger LOG =
 			getLogger(OwnerReturnShardViewModel.class.getName());
@@ -123,6 +120,8 @@ class OwnerReturnShardViewModel extends AndroidViewModel implements SecretOwnerT
 	@UiThread
 	private void startListening() {
 		ioExecutor.execute(() -> {
+			task.cancel();
+			// wait until really cancelled
 			task.start(this, getWifiIpv4Address());
 		});
 //		KeyAgreementTask oldTask = task;
@@ -140,8 +139,6 @@ class OwnerReturnShardViewModel extends AndroidViewModel implements SecretOwnerT
 			task.cancel();
 		});
 	}
-
-
 
 
 	/**
@@ -175,9 +172,11 @@ class OwnerReturnShardViewModel extends AndroidViewModel implements SecretOwnerT
 	public void onStateChanged(SecretOwnerTask.State state) {
 		this.state.postValue(state);
 		if (state instanceof SecretOwnerTask.State.Listening) {
-			DisplayMetrics dm = getApplication().getResources().getDisplayMetrics();
+			DisplayMetrics dm =
+					getApplication().getResources().getDisplayMetrics();
 			ioExecutor.execute(() -> {
-				byte[] payloadBytes = ((SecretOwnerTask.State.Listening) state).getLocalPayload();
+				byte[] payloadBytes = ((SecretOwnerTask.State.Listening) state)
+						.getLocalPayload();
 				if (LOG.isLoggable(INFO)) {
 					LOG.info("Local payload is " + payloadBytes.length
 							+ " bytes");

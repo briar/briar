@@ -97,6 +97,7 @@ public class CustodianTaskImpl extends ReturnShardTaskImpl
 	private void connectAndSendShard() {
 		observer.onStateChanged(new CustodianTask.State.SendingShard());
 		try {
+			LOG.info("Connecting to secret owner " + remoteSocketAddress);
 			socket.connect(remoteSocketAddress, TIMEOUT);
 			LOG.info("Connected to secret owner " + remoteSocketAddress);
 

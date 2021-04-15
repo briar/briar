@@ -5,14 +5,13 @@ import org.briarproject.bramble.api.client.ClientHelper;
 import org.briarproject.bramble.api.crypto.AgreementPublicKey;
 import org.briarproject.bramble.api.crypto.AuthenticatedCipher;
 import org.briarproject.bramble.api.crypto.CryptoComponent;
-import org.briarproject.bramble.api.crypto.KeyPair;
 import org.briarproject.bramble.api.data.BdfList;
 import org.briarproject.bramble.api.lifecycle.IoExecutor;
 import org.briarproject.briar.api.socialbackup.recovery.SecretOwnerTask;
 
+import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
@@ -64,8 +63,10 @@ public class SecretOwnerTaskImpl extends ReturnShardTaskImpl
 
 		// Start listening on socketAddress
 		try {
+			LOG.info("Binding socket");
 			serverSocket = new ServerSocket();
 			serverSocket.bind(socketAddress);
+			LOG.info("Binding socket done");
 		} catch (IOException e) {
 			LOG.warning(
 					"IO Error when listening on local socket" + e.getMessage());
@@ -80,18 +81,22 @@ public class SecretOwnerTaskImpl extends ReturnShardTaskImpl
 			payloadList.add(localKeyPair.getPublic().getEncoded());
 			payloadList.add(socketAddress.getAddress().getAddress());
 			payloadList.add(socketAddress.getPort());
+			LOG.info("changing state to listening");
 			observer.onStateChanged(
 					new State.Listening(clientHelper.toByteArray(payloadList)));
+			LOG.info("changing state to listening done");
 		} catch (FormatException e) {
 			LOG.warning("Error encoding QR code");
 			observer.onStateChanged(new State.Failure());
 			return;
 		}
+		LOG.info("receiving payload");
 		receivePayload();
 	}
 
 	private void receivePayload() {
 		try {
+			LOG.info("Accepting connections");
 			socket = serverSocket.accept();
 			LOG.info("Client connected");
 			observer.onStateChanged(new State.ReceivingShard());
@@ -125,7 +130,8 @@ public class SecretOwnerTaskImpl extends ReturnShardTaskImpl
 //			StreamWriter streamWriter = streamWriterFactory.createContactExchangeStreamWriter(socket.getOutputStream(), sharedSecret);
 //			OutputStream outputStream = streamWriter.getOutputStream();
 
-			OutputStream outputStream = socket.getOutputStream();
+			DataOutputStream outputStream =
+					new DataOutputStream(socket.getOutputStream());
 			byte[] ackNonce = generateNonce();
 			outputStream.write(ackNonce);
 

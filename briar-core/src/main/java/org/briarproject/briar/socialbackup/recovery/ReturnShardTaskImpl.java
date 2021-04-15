@@ -6,6 +6,7 @@ import org.briarproject.bramble.api.crypto.CryptoComponent;
 import org.briarproject.bramble.api.crypto.KeyPair;
 import org.briarproject.bramble.api.crypto.SecretKey;
 
+import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.security.GeneralSecurityException;
@@ -35,7 +36,8 @@ public class ReturnShardTaskImpl {
 		return nonce;
 	}
 
-	void deriveSharedSecret(AgreementPublicKey remotePublicKey, byte[] context) throws
+	void deriveSharedSecret(AgreementPublicKey remotePublicKey, byte[] context)
+			throws
 			GeneralSecurityException {
 		sharedSecret =
 				crypto.deriveSharedSecret("ShardReturn", remotePublicKey,
@@ -60,9 +62,9 @@ public class ReturnShardTaskImpl {
 
 	byte[] read(InputStream inputStream, int length)
 			throws IOException {
+		DataInputStream dis = new DataInputStream(inputStream);
 		byte[] output = new byte[length];
-		int bytesRead = inputStream.read(output);
-		if (bytesRead < 0) throw new IOException("Cannot read from socket");
+		dis.readFully(output);
 		return output;
 	}
 }
