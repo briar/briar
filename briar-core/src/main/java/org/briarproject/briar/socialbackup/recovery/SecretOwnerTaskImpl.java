@@ -30,7 +30,6 @@ public class SecretOwnerTaskImpl extends ReturnShardTaskImpl
 		implements SecretOwnerTask {
 
 	//	private final Executor ioExecutor;
-	private final KeyPair localKeyPair;
 	private boolean cancelled = false;
 	private InetSocketAddress socketAddress;
 	private ClientHelper clientHelper;
@@ -51,7 +50,6 @@ public class SecretOwnerTaskImpl extends ReturnShardTaskImpl
 		this.clientHelper = clientHelper;
 //		this.streamReaderFactory = streamReaderFactory;
 //		this.streamWriterFactory = streamWriterFactory;
-		localKeyPair = crypto.generateAgreementKeyPair();
 	}
 
 	@Override
@@ -139,11 +137,11 @@ public class SecretOwnerTaskImpl extends ReturnShardTaskImpl
 
 			observer.onStateChanged(new State.Success());
 		} catch (IOException e) {
-			LOG.warning("IO Error receiving payload" + e.getMessage());
+			LOG.warning("IO Error receiving payload " + e.getMessage());
 			// TODO reasons
 			observer.onStateChanged(new State.Failure());
 		} catch (GeneralSecurityException e) {
-			LOG.warning("Security Error receiving payload" + e.getMessage());
+			LOG.warning("Security Error receiving payload " + e.getMessage());
 			observer.onStateChanged(new State.Failure());
 		}
 	}
