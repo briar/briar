@@ -39,9 +39,31 @@ public interface SecretOwnerTask {
 		}
 
 		public static class Success extends State {
+			private final byte[] remotePayload;
+
+			public Success(byte[] remotePayload) { this.remotePayload = remotePayload; }
+
+			public byte[] getRemotePayload() { return remotePayload; }
 		}
 
 		public static class Failure extends State {
+
+			public enum Reason {
+				CANCELLED,
+				SECURITY,
+				NO_CONNECTION,
+				OTHER
+			}
+
+			private final Reason reason;
+
+			public Failure(Reason reason) {
+				this.reason = reason;
+			}
+
+			public Reason getReason() {
+				return reason;
+			}
 		}
 	}
 }

@@ -5,7 +5,7 @@ import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 @NotNullByDefault
 public interface CustodianTask {
 
-	void start(Observer observer);
+	void start(Observer observer, byte[] payload);
 
 	void cancel();
 
