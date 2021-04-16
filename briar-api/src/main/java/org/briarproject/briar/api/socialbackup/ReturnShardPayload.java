@@ -22,4 +22,9 @@ public class ReturnShardPayload {
 	public BackupPayload getBackupPayload() {
 		return backupPayload;
 	}
+
+	public boolean equals(ReturnShardPayload otherReturnShardPayload) {
+		return shard.equals(otherReturnShardPayload.getShard()) && backupPayload
+				.equals(otherReturnShardPayload.getBackupPayload());
+	}
 }

@@ -2,6 +2,7 @@ package org.briarproject.briar.api.socialbackup.recovery;
 
 import org.briarproject.bramble.api.crypto.PublicKey;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
+import org.briarproject.briar.api.socialbackup.ReturnShardPayload;
 
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
@@ -39,11 +40,11 @@ public interface SecretOwnerTask {
 		}
 
 		public static class Success extends State {
-			private final byte[] remotePayload;
+			private final ReturnShardPayload remotePayload;
 
-			public Success(byte[] remotePayload) { this.remotePayload = remotePayload; }
+			public Success(ReturnShardPayload remotePayload) { this.remotePayload = remotePayload; }
 
-			public byte[] getRemotePayload() { return remotePayload; }
+			public ReturnShardPayload getRemotePayload() { return remotePayload; }
 		}
 
 		public static class Failure extends State {
