@@ -6,20 +6,19 @@ import org.briarproject.bramble.api.crypto.AgreementPublicKey;
 import org.briarproject.bramble.api.crypto.AuthenticatedCipher;
 import org.briarproject.bramble.api.crypto.CryptoComponent;
 import org.briarproject.bramble.api.data.BdfList;
-import org.briarproject.bramble.api.lifecycle.IoExecutor;
+import org.briarproject.briar.api.socialbackup.MessageParser;
+import org.briarproject.briar.api.socialbackup.ReturnShardPayload;
 import org.briarproject.briar.api.socialbackup.recovery.SecretOwnerTask;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.nio.ByteBuffer;
 import java.security.GeneralSecurityException;
-import java.util.concurrent.Executor;
 import java.util.logging.Logger;
 
 import javax.inject.Inject;
@@ -35,6 +34,8 @@ public class SecretOwnerTaskImpl extends ReturnShardTaskImpl
 	private Observer observer;
 	private ServerSocket serverSocket;
 	private Socket socket;
+	private MessageParser messageParser;
+
 //	private final StreamReaderFactory streamReaderFactory;
 //  private final StreamWriterFactory streamWriterFactory;
 
@@ -55,7 +56,8 @@ public class SecretOwnerTaskImpl extends ReturnShardTaskImpl
 		this.observer = observer;
 		if (inetAddress == null) {
 			LOG.warning("Cannot retrieve local IP address, failing.");
-			observer.onStateChanged(new State.Failure(State.Failure.Reason.NO_CONNECTION));
+			observer.onStateChanged(
+					new State.Failure(State.Failure.Reason.NO_CONNECTION));
 		}
 		LOG.info("InetAddress is " + inetAddress);
 		socketAddress = new InetSocketAddress(inetAddress, PORT);
@@ -69,7 +71,8 @@ public class SecretOwnerTaskImpl extends ReturnShardTaskImpl
 		} catch (IOException e) {
 			LOG.warning(
 					"IO Error when listening on local socket" + e.getMessage());
-			observer.onStateChanged(new State.Failure(State.Failure.Reason.NO_CONNECTION));
+			observer.onStateChanged(
+					new State.Failure(State.Failure.Reason.NO_CONNECTION));
 			// TODO could try incrementing the port number
 			return;
 		}
@@ -80,27 +83,27 @@ public class SecretOwnerTaskImpl extends ReturnShardTaskImpl
 			payloadList.add(localKeyPair.getPublic().getEncoded());
 			payloadList.add(socketAddress.getAddress().getAddress());
 			payloadList.add(socketAddress.getPort());
-			LOG.info("changing state to listening");
 			observer.onStateChanged(
 					new State.Listening(clientHelper.toByteArray(payloadList)));
-			LOG.info("changing state to listening done");
 		} catch (FormatException e) {
 			LOG.warning("Error encoding QR code");
-			observer.onStateChanged(new State.Failure(State.Failure.Reason.OTHER));
+			observer.onStateChanged(
+					new State.Failure(State.Failure.Reason.OTHER));
 			return;
 		}
-		LOG.info("receiving payload");
+		LOG.info("Receiving payload");
 		receivePayload();
 	}
 
 	private void receivePayload() {
 		try {
-			LOG.info("Accepting connections");
+			LOG.info("Waiting for a connection...");
 			socket = serverSocket.accept();
 			LOG.info("Client connected");
 			observer.onStateChanged(new State.ReceivingShard());
 
-			DataInputStream inputStream = new DataInputStream(socket.getInputStream());
+			DataInputStream inputStream =
+					new DataInputStream(socket.getInputStream());
 
 			AgreementPublicKey remotePublicKey =
 					new AgreementPublicKey(
@@ -123,8 +126,10 @@ public class SecretOwnerTaskImpl extends ReturnShardTaskImpl
 
 //		    byte[] payloadClear = read(clearInputStream, payloadLength);
 			byte[] payloadClear = decrypt(payloadRaw, payloadNonce);
+			ReturnShardPayload returnShardPayload = ReturnShardPayload
+					.fromList(clientHelper.toList(payloadClear));
 
-			LOG.info("Payload decrypted: " + new String(payloadClear));
+			LOG.info("Payload decrypted and parsed successfully");
 
 //			StreamWriter streamWriter = streamWriterFactory.createContactExchangeStreamWriter(socket.getOutputStream(), sharedSecret);
 //			OutputStream outputStream = streamWriter.getOutputStream();
@@ -140,14 +145,16 @@ public class SecretOwnerTaskImpl extends ReturnShardTaskImpl
 
 			serverSocket.close();
 
-			observer.onStateChanged(new State.Success(payloadClear));
+			observer.onStateChanged(new State.Success(returnShardPayload));
 		} catch (IOException e) {
 			LOG.warning("IO Error receiving payload " + e.getMessage());
 			// TODO reasons
-			observer.onStateChanged(new State.Failure(State.Failure.Reason.NO_CONNECTION));
+			observer.onStateChanged(
+					new State.Failure(State.Failure.Reason.NO_CONNECTION));
 		} catch (GeneralSecurityException e) {
 			LOG.warning("Security Error receiving payload " + e.getMessage());
-			observer.onStateChanged(new State.Failure(State.Failure.Reason.SECURITY));
+			observer.onStateChanged(
+					new State.Failure(State.Failure.Reason.SECURITY));
 		}
 	}
 
@@ -159,12 +166,14 @@ public class SecretOwnerTaskImpl extends ReturnShardTaskImpl
 			try {
 				serverSocket.close();
 			} catch (IOException e) {
-				observer.onStateChanged(new State.Failure(State.Failure.Reason.OTHER));
+				observer.onStateChanged(
+						new State.Failure(State.Failure.Reason.OTHER));
 			}
 		}
 
 		if (observer != null) {
-			observer.onStateChanged(new State.Failure(State.Failure.Reason.OTHER));
+			observer.onStateChanged(
+					new State.Failure(State.Failure.Reason.OTHER));
 		}
 	}
 }

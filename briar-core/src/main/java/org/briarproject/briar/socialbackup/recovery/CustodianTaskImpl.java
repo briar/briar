@@ -31,7 +31,7 @@ public class CustodianTaskImpl extends ReturnShardTaskImpl
 	private Observer observer;
 	private final ClientHelper clientHelper;
 	private InetSocketAddress remoteSocketAddress;
-	private final Socket socket = new Socket();
+	private Socket socket;
 	private final AuthenticatedCipher cipher;
 	private byte[] payload;
 //	private final StreamReaderFactory streamReaderFactory;
@@ -104,6 +104,7 @@ public class CustodianTaskImpl extends ReturnShardTaskImpl
 		observer.onStateChanged(new CustodianTask.State.SendingShard());
 		try {
 			LOG.info("Connecting to secret owner " + remoteSocketAddress);
+			socket = new Socket();
 			socket.connect(remoteSocketAddress, TIMEOUT);
 			LOG.info("Connected to secret owner " + remoteSocketAddress);
 
@@ -131,15 +132,18 @@ public class CustodianTaskImpl extends ReturnShardTaskImpl
 			observer.onStateChanged(new CustodianTask.State.ReceivingAck());
 		} catch (IOException e) {
 			if (e instanceof SocketTimeoutException) {
+				LOG.warning("Timed out connecting to secret owner");
 				observer.onStateChanged(new CustodianTask.State.Failure(
 						State.Failure.Reason.NO_CONNECTION));
 				return;
 			}
+			LOG.warning("IO Error connecting to secret owner " + e.getMessage());
 			observer.onStateChanged(new CustodianTask.State.Failure(
 					State.Failure.Reason.QR_CODE_INVALID));
 			return;
 //		}
 		} catch (GeneralSecurityException e) {
+			LOG.warning("Security error "+ e.getMessage());
 			observer.onStateChanged(new CustodianTask.State.Failure(
 					State.Failure.Reason.OTHER));
 			return;
@@ -164,11 +168,11 @@ public class CustodianTaskImpl extends ReturnShardTaskImpl
 			observer.onStateChanged(new CustodianTask.State.Success());
 			socket.close();
 		} catch (IOException e) {
-			LOG.warning("IO Error reading ack" + e.getMessage());
+			LOG.warning("IO Error reading ack " + e.getMessage());
 			observer.onStateChanged(new CustodianTask.State.Failure(
 					State.Failure.Reason.QR_CODE_INVALID));
 		} catch (GeneralSecurityException e) {
-			LOG.warning("Security Error reading ack" + e.getMessage());
+			LOG.warning("Security Error reading ack " + e.getMessage());
 			observer.onStateChanged(new CustodianTask.State.Failure(
 					State.Failure.Reason.OTHER));
 		}
