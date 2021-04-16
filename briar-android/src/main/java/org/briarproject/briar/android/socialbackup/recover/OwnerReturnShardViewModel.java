@@ -12,11 +12,13 @@ import org.briarproject.bramble.api.system.AndroidExecutor;
 import org.briarproject.briar.android.contact.add.nearby.QrCodeUtils;
 import org.briarproject.briar.android.viewmodel.LiveEvent;
 import org.briarproject.briar.android.viewmodel.MutableLiveEvent;
+import org.briarproject.briar.api.socialbackup.ReturnShardPayload;
 import org.briarproject.briar.api.socialbackup.recovery.SecretOwnerTask;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.nio.charset.Charset;
+import java.util.ArrayList;
 import java.util.concurrent.Executor;
 import java.util.logging.Logger;
 
@@ -51,8 +53,11 @@ class OwnerReturnShardViewModel extends AndroidViewModel
 			new MutableLiveEvent<>();
 	private final MutableLiveData<SecretOwnerTask.State> state =
 			new MutableLiveData<>();
+	private final MutableLiveEvent<Boolean> startClicked =
+			new MutableLiveEvent<>();
 	private boolean wasContinueClicked = false;
 	private boolean isActivityResumed = false;
+	private ArrayList<ReturnShardPayload> recoveredShards = new ArrayList<>();
 	private Bitmap qrCodeBitmap;
 	private WifiManager wifiManager;
 
@@ -99,6 +104,11 @@ class OwnerReturnShardViewModel extends AndroidViewModel
 	protected void onCleared() {
 		super.onCleared();
 		stopListening();
+	}
+
+	@UiThread
+	void onStartClicked() {
+       startClicked.setEvent(true);
 	}
 
 	@UiThread
@@ -159,6 +169,10 @@ class OwnerReturnShardViewModel extends AndroidViewModel
 		return showQrCodeFragment;
 	}
 
+	LiveEvent<Boolean> getStartClicked() {
+		return startClicked;
+	}
+
 	LiveData<SecretOwnerTask.State> getState() {
 		return state;
 	}
@@ -166,6 +180,10 @@ class OwnerReturnShardViewModel extends AndroidViewModel
 	public Bitmap getQrCodeBitmap() {
 		LOG.info("getting qrCodeBitmap");
 		return qrCodeBitmap;
+	}
+
+	public int getNumberOfShards() {
+		return recoveredShards.size();
 	}
 
 	@Override
@@ -186,5 +204,23 @@ class OwnerReturnShardViewModel extends AndroidViewModel
 				qrCodeBitmap = QrCodeUtils.createQrCode(dm, content);
 			});
 		}
+	}
+
+	// TODO figure out how to actually use a set for these objects
+	public boolean addToShardSet(ReturnShardPayload toAdd) {
+		boolean found = false;
+		for (ReturnShardPayload returnShardPayload : recoveredShards) {
+			if (toAdd.equals(returnShardPayload)) {
+				found = true;
+				break;
+			}
+		}
+		if (!found) recoveredShards.add(toAdd);
+		return !found;
+	}
+
+	public boolean canRecover() {
+		// TODO
+		return false;
 	}
 }

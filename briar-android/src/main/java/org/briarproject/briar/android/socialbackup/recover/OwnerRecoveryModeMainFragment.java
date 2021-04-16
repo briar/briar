@@ -1,4 +1,4 @@
-package org.briarproject.briar.android.socialbackup;
+package org.briarproject.briar.android.socialbackup.recover;
 
 import android.content.Context;
 import android.os.Bundle;
@@ -9,44 +9,47 @@ import android.widget.Button;
 import android.widget.TextView;
 
 import org.briarproject.briar.R;
+import org.briarproject.briar.android.activity.ActivityComponent;
 import org.briarproject.briar.android.fragment.BaseFragment;
+import org.briarproject.briar.android.socialbackup.ScanQrButtonListener;
+
+import javax.inject.Inject;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.lifecycle.ViewModelProvider;
 
 public class OwnerRecoveryModeMainFragment extends BaseFragment {
-
-	protected ScanQrButtonListener listener;
 
 	public static final String NUM_RECOVERED = "num_recovered";
 
 	public static final String TAG =
 			OwnerRecoveryModeMainFragment.class.getName();
 
-	public static OwnerRecoveryModeMainFragment newInstance(int numRecovered) {
-		Bundle args = new Bundle();
-		args.putInt(NUM_RECOVERED, numRecovered);
-		OwnerRecoveryModeMainFragment fragment =
-				new OwnerRecoveryModeMainFragment();
-		fragment.setArguments(args);
-		return fragment;
-	}
+	@Inject
+	ViewModelProvider.Factory viewModelFactory;
 
-	private int numShards;
+	private OwnerReturnShardViewModel viewModel;
+
+	@Override
+	public void injectFragment(ActivityComponent component) {
+		component.inject(this);
+		viewModel = new ViewModelProvider(requireActivity(), viewModelFactory)
+				.get(OwnerReturnShardViewModel.class);
+	}
 
 	@Override
 	public String getUniqueTag() {
 		return TAG;
 	}
 
-	@Override
-	public void onCreate(@Nullable Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
-		requireActivity().setTitle(R.string.title_recovery_mode);
-
-		Bundle args = requireArguments();
-		numShards = args.getInt(NUM_RECOVERED);
-	}
+//	@Override
+//	public void onCreate(@Nullable Bundle savedInstanceState) {
+//		super.onCreate(savedInstanceState);
+//		requireActivity().setTitle(R.string.title_recovery_mode);
+//
+//		Bundle args = requireArguments();
+//	}
 
 	@Nullable
 	@Override
@@ -57,17 +60,10 @@ public class OwnerRecoveryModeMainFragment extends BaseFragment {
 				container, false);
 
 		TextView textViewCount = view.findViewById(R.id.textViewShardCount);
-		textViewCount.setText(String.format("%d", numShards));
+		textViewCount.setText(String.format("%d", viewModel.getNumberOfShards()));
 
 		Button button = view.findViewById(R.id.button);
-		button.setOnClickListener(e -> listener.scanQrButtonClicked());
+		button.setOnClickListener(e -> viewModel.onContinueClicked());
 		return view;
 	}
-
-	@Override
-	public void onAttach(Context context) {
-		super.onAttach(context);
-		listener = (ScanQrButtonListener) context;
-	}
-
 }

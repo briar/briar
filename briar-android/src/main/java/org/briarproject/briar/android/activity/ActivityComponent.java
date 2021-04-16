@@ -80,8 +80,7 @@ import org.briarproject.briar.android.sharing.ShareBlogFragment;
 import org.briarproject.briar.android.sharing.ShareForumActivity;
 import org.briarproject.briar.android.sharing.ShareForumFragment;
 import org.briarproject.briar.android.sharing.SharingModule;
-import org.briarproject.briar.android.socialbackup.CustodianHelpRecoverActivity;
-import org.briarproject.briar.android.socialbackup.CustodianRecoveryModeExplainerFragment;
+import org.briarproject.briar.android.socialbackup.recover.CustodianRecoveryModeExplainerFragment;
 import org.briarproject.briar.android.socialbackup.CustodianSelectorFragment;
 import org.briarproject.briar.android.socialbackup.DistributedBackupActivity;
 import org.briarproject.briar.android.socialbackup.ExistingBackupFragment;
@@ -89,14 +88,12 @@ import org.briarproject.briar.android.socialbackup.recover.CustodianReturnShardA
 import org.briarproject.briar.android.socialbackup.recover.CustodianReturnShardFragment;
 import org.briarproject.briar.android.socialbackup.recover.CustodianReturnShardSuccessFragment;
 import org.briarproject.briar.android.socialbackup.recover.OwnerRecoveryModeExplainerFragment;
+import org.briarproject.briar.android.socialbackup.recover.OwnerRecoveryModeMainFragment;
 import org.briarproject.briar.android.socialbackup.recover.OwnerReturnShardActivity;
 import org.briarproject.briar.android.socialbackup.recover.OwnerReturnShardFragment;
-import org.briarproject.briar.android.socialbackup.recover.RecoverActivity;
 import org.briarproject.briar.android.socialbackup.ShardsSentFragment;
 import org.briarproject.briar.android.socialbackup.ThresholdSelectorFragment;
 import org.briarproject.briar.android.socialbackup.creation.CreateBackupModule;
-import org.briarproject.briar.android.socialbackup.recover.ReturnShardActivity;
-import org.briarproject.briar.android.socialbackup.recover.ReturnShardFragment;
 import org.briarproject.briar.android.splash.SplashScreenActivity;
 import org.briarproject.briar.android.test.TestDataActivity;
 
@@ -203,13 +200,11 @@ public interface ActivityComponent {
 
 	void inject(NewOrRecoverActivity newOrRecoverActivity);
 
-	void inject(CustodianHelpRecoverActivity custodianHelpRecoverActivity);
-
-	void inject(ReturnShardActivity returnShardActivity);
-
 	void inject(CustodianReturnShardActivity custodianReturnShardActivity);
 
     void inject(OwnerReturnShardActivity ownerReturnShardActivity);
+
+    void inject(OwnerRecoveryModeMainFragment ownerRecoveryModeMainFragment);
 
 	// Fragments
 
@@ -273,8 +268,6 @@ public interface ActivityComponent {
 
 	void inject(DistributedBackupActivity distributedBackupActivity);
 
-	void inject(RecoverActivity recoverActivity);
-
 	void inject(DatabaseComponent databaseComponent);
 
 	void inject(CustodianSelectorFragment custodianSelectorFragment);
@@ -286,8 +279,6 @@ public interface ActivityComponent {
 	void inject(ExistingBackupFragment existingBackupFragment);
 
 	void inject(NewOrRecoverFragment newOrRecoverFragment);
-
-	void inject(ReturnShardFragment returnShardFragment);
 
 	void inject(CustodianRecoveryModeExplainerFragment custodianRecoveryModeExplainerFragment);
 

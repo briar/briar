@@ -11,6 +11,7 @@ import org.briarproject.briar.R;
 import org.briarproject.briar.android.activity.ActivityComponent;
 import org.briarproject.briar.android.activity.BaseActivity;
 import org.briarproject.briar.android.fragment.BaseFragment;
+import org.briarproject.briar.api.socialbackup.ReturnShardPayload;
 import org.briarproject.briar.api.socialbackup.recovery.SecretOwnerTask;
 
 import java.util.logging.Logger;
@@ -51,23 +52,6 @@ public class OwnerReturnShardActivity extends BaseActivity
 				.get(OwnerReturnShardViewModel.class);
 	}
 
-	// TODO the following two methods should be injected from messageParser
-//	private Shard parseShardMessage(BdfList body) throws FormatException {
-//		// Message type, secret ID, shard
-//		byte[] secretId = body.getRaw(1);
-//		byte[] shard = body.getRaw(2);
-//		return new Shard(secretId, shard);
-//	}
-//
-//	private ReturnShardPayload parseReturnShardPayload(BdfList body)
-//			throws FormatException {
-//		checkSize(body, 2);
-//		Shard shard = parseShardMessage(body.getList(0));
-//		org.briarproject.briar.api.socialbackup.BackupPayload backupPayload =
-//				new BackupPayload(body.getRaw(1));
-//		return new ReturnShardPayload(shard, backupPayload);
-//	}
-
 	@Override
 	public void onCreate(@Nullable Bundle state) {
 		super.onCreate(state);
@@ -78,6 +62,11 @@ public class OwnerReturnShardActivity extends BaseActivity
 		}
 		viewModel.getShowQrCodeFragment().observeEvent(this, show -> {
 			if (show) showQrCodeFragment();
+		});
+		viewModel.getStartClicked().observeEvent(this, start -> {
+			if (start) {
+				showNextFragment(new OwnerRecoveryModeMainFragment());
+			}
 		});
 		viewModel.getState()
 				.observe(this, this::onReturnShardStateChanged);
@@ -135,13 +124,15 @@ public class OwnerReturnShardActivity extends BaseActivity
 		}
 	}
 
+
 	private void onReturnShardStateChanged(SecretOwnerTask.State state) {
 		if (state instanceof SecretOwnerTask.State.Success) {
-			byte[] shardPayload = ((SecretOwnerTask.State.Success) state).getRemotePayload();
+			ReturnShardPayload shardPayload = ((SecretOwnerTask.State.Success) state).getRemotePayload();
+			boolean added = viewModel.addToShardSet(shardPayload);
 			Toast.makeText(this,
-					"Success - got shard " + shardPayload.length,
+					"Success - got shard" + (added ? "" : " duplicate"),
 					Toast.LENGTH_SHORT).show();
-			finish();
+//			finish();
 		} else if (state instanceof SecretOwnerTask.State.Failure) {
 			// TODO error screen, handle reason
 			Toast.makeText(this,

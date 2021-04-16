@@ -50,7 +50,7 @@ public class OwnerRecoveryModeExplainerFragment extends BaseFragment {
 		View view = inflater.inflate(R.layout.fragment_recovery_owner_explainer,
 				container, false);
 		Button button = view.findViewById(R.id.beginButton);
-		button.setOnClickListener(e -> viewModel.onContinueClicked());
+		button.setOnClickListener(e -> viewModel.onStartClicked());
 
 		return view;
 	}

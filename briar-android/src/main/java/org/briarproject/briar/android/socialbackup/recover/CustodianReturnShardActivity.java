@@ -1,13 +1,15 @@
 package org.briarproject.briar.android.socialbackup.recover;
 
+import android.content.Intent;
 import android.os.Bundle;
+import android.widget.Toast;
 
+import org.briarproject.bramble.api.contact.ContactId;
+import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.activity.ActivityComponent;
 import org.briarproject.briar.android.activity.BriarActivity;
 import org.briarproject.briar.android.fragment.BaseFragment;
-import org.briarproject.briar.android.socialbackup.CustodianRecoveryModeExplainerFragment;
-import org.briarproject.briar.android.socialbackup.ShardsSentFragment;
 import org.briarproject.briar.api.socialbackup.recovery.CustodianTask;
 
 import java.util.logging.Logger;
@@ -19,6 +21,7 @@ import androidx.fragment.app.FragmentManager;
 import androidx.lifecycle.ViewModelProvider;
 
 import static java.util.logging.Logger.getLogger;
+import static org.briarproject.briar.android.conversation.ConversationActivity.CONTACT_ID;
 
 public class CustodianReturnShardActivity extends BriarActivity
 		implements BaseFragment.BaseFragmentListener {
@@ -41,20 +44,21 @@ public class CustodianReturnShardActivity extends BriarActivity
 	public void onCreate(@Nullable Bundle state) {
 		super.onCreate(state);
 
-//		byte[] returnShardPayloadBytes =
-//				getIntent().getByteArrayExtra(RETURN_SHARD_PAYLOAD);
-//		try {
-//			ReturnShardPayload returnShardPayload = parseReturnShardPayload(
-//					clientHelper.toList(returnShardPayloadBytes));
-//			viewModel.setReturnShardPayload(returnShardPayload);
-//		} catch (FormatException e) {
-//			Toast.makeText(this,
-//					"Error reading social backup",
-//					Toast.LENGTH_SHORT).show();
-//			finish();
-//		}
 		setContentView(R.layout.activity_fragment_container);
 		if (state == null) {
+			Intent intent = getIntent();
+			int id = intent.getIntExtra(CONTACT_ID, -1);
+			if (id == -1) throw new IllegalStateException("No ContactId");
+			ContactId contactId = new ContactId(id);
+
+			try {
+				viewModel.start(contactId);
+			} catch (DbException e) {
+				Toast.makeText(this,
+						"You do not hold a backup piece for this contact",
+						Toast.LENGTH_SHORT).show();
+				finish();
+			}
 			showInitialFragment(new CustodianRecoveryModeExplainerFragment());
 		}
 		viewModel.getShowCameraFragment().observeEvent(this, show -> {
@@ -71,6 +75,13 @@ public class CustodianReturnShardActivity extends BriarActivity
         if (state instanceof CustodianTask.State.Success) {
 	        CustodianReturnShardSuccessFragment fragment = new CustodianReturnShardSuccessFragment();
 	        showNextFragment(fragment);
+        } else if (state instanceof CustodianTask.State.Failure) {
+        	// TODO error fragment here
+	        // TODO handle reason
+	        Toast.makeText(this,
+			        "Backup piece transfer failed",
+			        Toast.LENGTH_SHORT).show();
+	        finish();
         }
 	}
 

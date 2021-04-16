@@ -8,8 +8,6 @@ import org.briarproject.briar.android.activity.ActivityComponent;
 import org.briarproject.briar.android.activity.BaseActivity;
 import org.briarproject.briar.android.fragment.BaseFragment;
 import org.briarproject.briar.android.socialbackup.recover.OwnerReturnShardActivity;
-import org.briarproject.briar.android.socialbackup.recover.RecoverActivity;
-import org.briarproject.briar.android.socialbackup.recover.ReturnShardActivity;
 
 import static android.content.Intent.FLAG_ACTIVITY_CLEAR_TASK;
 import static android.content.Intent.FLAG_ACTIVITY_CLEAR_TOP;

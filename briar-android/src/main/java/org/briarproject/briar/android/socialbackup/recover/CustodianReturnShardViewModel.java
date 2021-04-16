@@ -5,20 +5,19 @@ import android.widget.Toast;
 
 import com.google.zxing.Result;
 
-import org.briarproject.bramble.api.UnsupportedVersionException;
-import org.briarproject.bramble.api.keyagreement.Payload;
+import org.briarproject.bramble.api.contact.ContactId;
+import org.briarproject.bramble.api.db.DatabaseComponent;
+import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.lifecycle.IoExecutor;
 import org.briarproject.bramble.api.system.AndroidExecutor;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.contact.add.nearby.QrCodeDecoder;
 import org.briarproject.briar.android.viewmodel.LiveEvent;
 import org.briarproject.briar.android.viewmodel.MutableLiveEvent;
+import org.briarproject.briar.api.socialbackup.SocialBackupManager;
 import org.briarproject.briar.api.socialbackup.recovery.CustodianTask;
-import org.briarproject.briar.api.socialbackup.recovery.SecretOwnerTask;
 
-import java.io.IOException;
 import java.nio.charset.Charset;
-import java.security.cert.CertPathValidatorException;
 import java.util.concurrent.Executor;
 import java.util.logging.Logger;
 
@@ -44,6 +43,9 @@ public class CustodianReturnShardViewModel extends AndroidViewModel
 
 	private final AndroidExecutor androidExecutor;
 	private final Executor ioExecutor;
+	private final SocialBackupManager socialBackupManager;
+	private final DatabaseComponent db;
+	final QrCodeDecoder qrCodeDecoder;
 	private boolean wasContinueClicked = false;
 	private boolean qrCodeRead = false;
 	private final MutableLiveEvent<Boolean> showCameraFragment =
@@ -52,8 +54,8 @@ public class CustodianReturnShardViewModel extends AndroidViewModel
 			new MutableLiveEvent<>();
 	private final MutableLiveData<CustodianTask.State> state =
 			new MutableLiveData<>();
-	final QrCodeDecoder qrCodeDecoder;
 	private final CustodianTask task;
+	private byte[] returnShardPayloadBytes;
 
 	@SuppressWarnings("CharsetObjectCanBeUsed") // Requires minSdkVersion >= 19
 	private static final Charset ISO_8859_1 = Charset.forName("ISO-8859-1");
@@ -62,17 +64,31 @@ public class CustodianReturnShardViewModel extends AndroidViewModel
 	public CustodianReturnShardViewModel(
 			@NonNull Application application,
 			@IoExecutor Executor ioExecutor,
+			SocialBackupManager socialBackupManager,
+			DatabaseComponent db,
 			CustodianTask task,
 			AndroidExecutor androidExecutor) {
 		super(application);
 
 		this.androidExecutor = androidExecutor;
 		this.ioExecutor = ioExecutor;
+		this.socialBackupManager = socialBackupManager;
+		this.db = db;
 		this.task = task;
 		qrCodeDecoder = new QrCodeDecoder(androidExecutor, ioExecutor, this);
-		task.cancel();
-		task.start(this, "replace this with the shard".getBytes());
 	}
+
+    public void start(ContactId contactId) throws DbException {
+	    db.transaction(false, txn -> {
+		    if (!socialBackupManager.amCustodian(txn, contactId)) {
+			    throw new DbException();
+		    }
+		    returnShardPayloadBytes = socialBackupManager
+				    .getReturnShardPayloadBytes(txn, contactId);
+	    });
+	    task.cancel();
+	    task.start(this, returnShardPayloadBytes);
+    }
 
 	@IoExecutor
 	@Override

@@ -675,13 +675,13 @@
 
 	<!-- recovery from the secret owner's POV -->
 
-	<string name="recovery_explainer">You need to meet your trusted contacts in-person to receive pieces by scanning QR codes</string>
+	<string name="recovery_explainer">You need to meet your trusted contacts in-person to receive pieces</string>
 	<string name="recovery_begin">Begin</string>
 	<string name="recovery_failed_to_receive">Failed to receive backup piece</string>
 	<string name="recovery_helpful_suggestions">Please check that bluetooth is swtiched on and that no-one but your trusted contact is able to scan the QR code</string>
 	<string name="recovery_retry">Retry</string>
 	<string name="recovery_recovered_shards">Recovered backup pieces:</string>
-	<string name="recovery_scan_qr_code">Scan QR code</string>
+	<string name="recovery_scan_qr_code">Show QR code</string>
 	<string name="recovery_recovering_account">Recovering account…</string>
 	<string name="recovery_shard_received">Account backup piece received</string>
 	<string name="recovery_account_recovered">Account recovered</string>

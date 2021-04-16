@@ -1,4 +1,4 @@
-package org.briarproject.briar.android.socialbackup;
+package org.briarproject.briar.android.socialbackup.recover;
 
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -9,7 +9,6 @@ import android.widget.Button;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.activity.ActivityComponent;
 import org.briarproject.briar.android.fragment.BaseFragment;
-import org.briarproject.briar.android.socialbackup.recover.CustodianReturnShardViewModel;
 
 import javax.inject.Inject;
 
