@@ -51,10 +51,8 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
 import static java.lang.Math.max;
-import static java.util.logging.Level.WARNING;
 import static java.util.logging.Logger.getLogger;
 import static org.briarproject.bramble.util.LogUtils.logDuration;
-import static org.briarproject.bramble.util.LogUtils.logException;
 import static org.briarproject.bramble.util.LogUtils.now;
 
 @MethodsNotNullByDefault
@@ -140,6 +138,7 @@ class GroupViewModel extends ThreadListViewModel<GroupMessageItem> {
 		loadPrivateGroup(groupId);
 	}
 
+	@Override
 	protected void clearNotifications() {
 		notificationManager.clearGroupMessageNotification(groupId);
 	}
@@ -152,7 +151,7 @@ class GroupViewModel extends ThreadListViewModel<GroupMessageItem> {
 				Author author = identityManager.getLocalAuthor();
 				isCreator.postValue(g.getCreator().equals(author));
 			} catch (DbException e) {
-				logException(LOG, WARNING, e);
+				handleException(e);
 			}
 		});
 	}
@@ -210,7 +209,7 @@ class GroupViewModel extends ThreadListViewModel<GroupMessageItem> {
 				timestamp = max(clock.currentTimeMillis(), timestamp + 1);
 				createMessage(text, timestamp, parentId, author, previousMsgId);
 			} catch (DbException e) {
-				logException(LOG, WARNING, e);
+				handleException(e);
 			}
 		});
 	}
@@ -235,7 +234,7 @@ class GroupViewModel extends ThreadListViewModel<GroupMessageItem> {
 			txn.attach(() ->
 					addItem(buildItem(header, text), true)
 			);
-		}, e -> logException(LOG, WARNING, e));
+		}, this::handleException);
 	}
 
 	@Override
@@ -244,11 +243,12 @@ class GroupViewModel extends ThreadListViewModel<GroupMessageItem> {
 			try {
 				privateGroupManager.setReadFlag(groupId, item.getId(), true);
 			} catch (DbException e) {
-				logException(LOG, WARNING, e);
+				handleException(e);
 			}
 		});
 	}
 
+	@Override
 	public void loadSharingContacts() {
 		runOnDbThread(true, txn -> {
 			Collection<GroupMember> members =
@@ -259,7 +259,7 @@ class GroupViewModel extends ThreadListViewModel<GroupMessageItem> {
 					contactIds.add(m.getContactId());
 			}
 			txn.attach(() -> sharingController.addAll(contactIds));
-		}, e -> logException(LOG, WARNING, e));
+		}, this::handleException);
 	}
 
 	void deletePrivateGroup() {
@@ -267,7 +267,7 @@ class GroupViewModel extends ThreadListViewModel<GroupMessageItem> {
 			try {
 				privateGroupManager.removePrivateGroup(groupId);
 			} catch (DbException e) {
-				logException(LOG, WARNING, e);
+				handleException(e);
 			}
 		});
 	}

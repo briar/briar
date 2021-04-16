@@ -1,7 +1,6 @@
 package org.briarproject.briar.android.viewmodel;
 
 import android.app.Application;
-import android.widget.Toast;
 
 import org.briarproject.bramble.api.db.DatabaseExecutor;
 import org.briarproject.bramble.api.db.DbCallable;
@@ -12,7 +11,7 @@ import org.briarproject.bramble.api.db.TransactionManager;
 import org.briarproject.bramble.api.lifecycle.LifecycleManager;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.system.AndroidExecutor;
-import org.briarproject.bramble.util.StringUtils;
+import org.briarproject.briar.android.util.UiUtils;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -34,7 +33,6 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.recyclerview.widget.RecyclerView;
 
-import static android.widget.Toast.LENGTH_LONG;
 import static java.util.logging.Level.WARNING;
 import static java.util.logging.Logger.getLogger;
 import static org.briarproject.bramble.util.LogUtils.logException;
@@ -262,17 +260,7 @@ public abstract class DbViewModel extends AndroidViewModel {
 	 */
 	@AnyThread
 	protected void handleException(Exception e) {
-		logException(LOG, WARNING, e);
-		androidExecutor.runOnUiThread(() -> {
-			String msg = "Error: " + e.getClass().getSimpleName();
-			if (!StringUtils.isNullOrEmpty(e.getMessage())) {
-				msg += " " + e.getMessage();
-			}
-			if (e.getCause() != null) {
-				msg += " caused by " + e.getCause().getClass().getSimpleName();
-			}
-			Toast.makeText(getApplication(), msg, LENGTH_LONG).show();
-		});
+		UiUtils.handleException(getApplication(), androidExecutor, LOG, e);
 	}
 
 }

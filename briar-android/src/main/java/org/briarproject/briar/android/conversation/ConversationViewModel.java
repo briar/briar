@@ -237,7 +237,7 @@ public class ConversationViewModel extends DbViewModel
 			} catch (NoSuchContactException e) {
 				contactDeleted.postValue(true);
 			} catch (DbException e) {
-				logException(LOG, WARNING, e);
+				handleException(e);
 			}
 		});
 	}
@@ -249,7 +249,7 @@ public class ConversationViewModel extends DbViewModel
 				conversationManager.setReadFlag(g, m, true);
 				logDuration(LOG, "Marking read", start);
 			} catch (DbException e) {
-				logException(LOG, WARNING, e);
+				handleException(e);
 			}
 		});
 	}
@@ -261,7 +261,7 @@ public class ConversationViewModel extends DbViewModel
 						alias.isEmpty() ? null : alias);
 				loadContact(contactId);
 			} catch (DbException e) {
-				logException(LOG, WARNING, e);
+				handleException(e);
 			}
 		});
 	}
@@ -402,7 +402,7 @@ public class ConversationViewModel extends DbViewModel
 						autoDeleteManager.setAutoDeleteTimer(txn, c, timer));
 				autoDeleteTimer.postValue(timer);
 			} catch (DbException e) {
-				logException(LOG, WARNING, e);
+				handleException(e);
 			}
 		});
 	}
@@ -453,7 +453,7 @@ public class ConversationViewModel extends DbViewModel
 			try {
 				checkFeaturesAndOnboarding(contactId);
 			} catch (DbException e) {
-				logException(LOG, WARNING, e);
+				handleException(e);
 			}
 		});
 	}

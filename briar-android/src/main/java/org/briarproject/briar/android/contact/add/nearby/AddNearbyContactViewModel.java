@@ -86,6 +86,7 @@ import static org.briarproject.briar.android.contact.add.nearby.AddNearbyContact
 import static org.briarproject.briar.android.contact.add.nearby.AddNearbyContactViewModel.BluetoothDecision.NO_ADAPTER;
 import static org.briarproject.briar.android.contact.add.nearby.AddNearbyContactViewModel.BluetoothDecision.REFUSED;
 import static org.briarproject.briar.android.contact.add.nearby.AddNearbyContactViewModel.BluetoothDecision.UNKNOWN;
+import static org.briarproject.briar.android.util.UiUtils.handleException;
 
 @NotNullByDefault
 class AddNearbyContactViewModel extends AndroidViewModel
@@ -485,7 +486,7 @@ class AddNearbyContactViewModel extends AndroidViewModel
 			conn.getReader().dispose(true, true);
 			conn.getWriter().dispose(true);
 		} catch (IOException e) {
-			logException(LOG, WARNING, e);
+			handleException(getApplication(), androidExecutor, LOG, e);
 		}
 	}
 

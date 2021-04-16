@@ -41,9 +41,7 @@ import androidx.lifecycle.MutableLiveData;
 
 import static java.util.Objects.requireNonNull;
 import static java.util.logging.Level.INFO;
-import static java.util.logging.Level.WARNING;
 import static java.util.logging.Logger.getLogger;
-import static org.briarproject.bramble.util.LogUtils.logException;
 
 @MethodsNotNullByDefault
 @ParametersNotNullByDefault
@@ -160,7 +158,7 @@ public abstract class ThreadListViewModel<I extends ThreadItem>
 							storedMessageId);
 				}
 			} catch (DbException e) {
-				logException(LOG, WARNING, e);
+				handleException(e);
 			}
 		});
 	}
@@ -223,7 +221,7 @@ public abstract class ThreadListViewModel<I extends ThreadItem>
 				try {
 					messageTracker.storeMessageId(groupId, messageId);
 				} catch (DbException e) {
-					logException(LOG, WARNING, e);
+					handleException(e);
 				}
 			});
 		}

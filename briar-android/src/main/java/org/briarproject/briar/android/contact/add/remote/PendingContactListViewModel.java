@@ -26,24 +26,17 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.Executor;
-import java.util.logging.Logger;
 
 import javax.inject.Inject;
 
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
-import static java.util.logging.Level.WARNING;
-import static java.util.logging.Logger.getLogger;
 import static org.briarproject.bramble.api.contact.PendingContactState.OFFLINE;
-import static org.briarproject.bramble.util.LogUtils.logException;
 
 @NotNullByDefault
 public class PendingContactListViewModel extends DbViewModel
 		implements EventListener {
-
-	private final Logger LOG =
-			getLogger(PendingContactListViewModel.class.getName());
 
 	private final ContactManager contactManager;
 	private final RendezvousPoller rendezvousPoller;
@@ -106,7 +99,7 @@ public class PendingContactListViewModel extends DbViewModel
 				pendingContacts.postValue(items);
 				hasInternetConnection.postValue(online);
 			} catch (DbException e) {
-				logException(LOG, WARNING, e);
+				handleException(e);
 			}
 		});
 	}
@@ -120,7 +113,7 @@ public class PendingContactListViewModel extends DbViewModel
 			try {
 				contactManager.removePendingContact(id);
 			} catch (DbException e) {
-				logException(LOG, WARNING, e);
+				handleException(e);
 			}
 		});
 	}

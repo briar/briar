@@ -57,6 +57,7 @@ public class Author implements Nameable {
 	/**
 	 * Returns the author's name.
 	 */
+	@Override
 	public String getName() {
 		return name;
 	}

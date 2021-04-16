@@ -152,7 +152,7 @@ class SettingsViewModel extends DbViewModel implements EventListener {
 						settingsManager.getSettings(TOR_NAMESPACE));
 				logDuration(LOG, "Loading settings", start);
 			} catch (DbException e) {
-				logException(LOG, WARNING, e);
+				handleException(e);
 			}
 		});
 	}
@@ -169,7 +169,7 @@ class SettingsViewModel extends DbViewModel implements EventListener {
 				ownIdentityInfo.postValue(
 						new OwnIdentityInfo(localAuthor, authorInfo));
 			} catch (DbException e) {
-				logException(LOG, WARNING, e);
+				handleException(e);
 			}
 		});
 	}

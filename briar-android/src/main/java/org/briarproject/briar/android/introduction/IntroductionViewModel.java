@@ -154,7 +154,7 @@ class IntroductionViewModel extends ContactsViewModel {
 				introductionInfo.postValue(
 						new IntroductionInfo(c1, c2, possible));
 			} catch (DbException e) {
-				logException(LOG, WARNING, e);
+				handleException(e);
 			}
 		});
 	}
