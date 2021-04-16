@@ -12,6 +12,7 @@ import org.briarproject.briar.android.activity.BriarActivity;
 import org.briarproject.briar.android.fragment.BaseFragment;
 import org.briarproject.briar.api.socialbackup.recovery.CustodianTask;
 
+import java.io.IOException;
 import java.util.logging.Logger;
 
 import javax.annotation.Nullable;
@@ -53,6 +54,11 @@ public class CustodianReturnShardActivity extends BriarActivity
 
 			try {
 				viewModel.start(contactId);
+			} catch (IOException e) {
+				// TODO improve this
+				Toast.makeText(this,
+						"It looks like you are not connected to a Wifi network",
+						Toast.LENGTH_SHORT).show();
 			} catch (DbException e) {
 				Toast.makeText(this,
 						"You do not hold a backup piece for this contact",

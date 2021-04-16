@@ -6,18 +6,22 @@ import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.util.DisplayMetrics;
 
+import org.briarproject.bramble.api.crypto.SecretKey;
 import org.briarproject.bramble.api.lifecycle.IoExecutor;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.system.AndroidExecutor;
 import org.briarproject.briar.android.contact.add.nearby.QrCodeUtils;
 import org.briarproject.briar.android.viewmodel.LiveEvent;
 import org.briarproject.briar.android.viewmodel.MutableLiveEvent;
+import org.briarproject.briar.api.socialbackup.DarkCrystal;
 import org.briarproject.briar.api.socialbackup.ReturnShardPayload;
+import org.briarproject.briar.api.socialbackup.Shard;
 import org.briarproject.briar.api.socialbackup.recovery.SecretOwnerTask;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.nio.charset.Charset;
+import java.security.GeneralSecurityException;
 import java.util.ArrayList;
 import java.util.concurrent.Executor;
 import java.util.logging.Logger;
@@ -48,6 +52,7 @@ class OwnerReturnShardViewModel extends AndroidViewModel
 	private final AndroidExecutor androidExecutor;
 	private final Executor ioExecutor;
 	private final SecretOwnerTask task;
+	private final DarkCrystal darkCrystal;
 
 	private final MutableLiveEvent<Boolean> showQrCodeFragment =
 			new MutableLiveEvent<>();
@@ -65,15 +70,16 @@ class OwnerReturnShardViewModel extends AndroidViewModel
 	OwnerReturnShardViewModel(Application app,
 			AndroidExecutor androidExecutor,
 			SecretOwnerTask task,
+			DarkCrystal darkCrystal,
 			@IoExecutor Executor ioExecutor) {
 		super(app);
 		this.androidExecutor = androidExecutor;
 		this.ioExecutor = ioExecutor;
+		this.darkCrystal = darkCrystal;
 		this.task = task;
 		wifiManager = (WifiManager) app.getSystemService(WIFI_SERVICE);
 
 //		IntentFilter filter = new IntentFilter(ACTION_SCAN_MODE_CHANGED);
-		startListening();
 	}
 
 	private InetAddress getWifiIpv4Address() {
@@ -86,6 +92,7 @@ class OwnerReturnShardViewModel extends AndroidViewModel
 		return null;
 	}
 
+	// TODO this is not the right place for this
 	private InetAddress intToInetAddress(int ip) {
 		byte[] ipBytes = new byte[4];
 		ipBytes[0] = (byte) (ip & 0xFF);
@@ -128,7 +135,7 @@ class OwnerReturnShardViewModel extends AndroidViewModel
 	}
 
 	@UiThread
-	private void startListening() {
+	public void startListening() {
 		ioExecutor.execute(() -> {
 			task.cancel();
 			// wait until really cancelled
@@ -188,7 +195,6 @@ class OwnerReturnShardViewModel extends AndroidViewModel
 
 	@Override
 	public void onStateChanged(SecretOwnerTask.State state) {
-		this.state.postValue(state);
 		if (state instanceof SecretOwnerTask.State.Listening) {
 			DisplayMetrics dm =
 					getApplication().getResources().getDisplayMetrics();
@@ -196,13 +202,16 @@ class OwnerReturnShardViewModel extends AndroidViewModel
 				byte[] payloadBytes = ((SecretOwnerTask.State.Listening) state)
 						.getLocalPayload();
 				if (LOG.isLoggable(INFO)) {
-					LOG.info("Local payload is " + payloadBytes.length
+					LOG.info("Local QR code payload is " + payloadBytes.length
 							+ " bytes");
 				}
 				// Use ISO 8859-1 to encode bytes directly as a string
 				String content = new String(payloadBytes, ISO_8859_1);
 				qrCodeBitmap = QrCodeUtils.createQrCode(dm, content);
+			    this.state.postValue(state);
 			});
+		}  else {
+			this.state.postValue(state);
 		}
 	}
 
@@ -220,7 +229,20 @@ class OwnerReturnShardViewModel extends AndroidViewModel
 	}
 
 	public boolean canRecover() {
-		// TODO
-		return false;
+        ArrayList<Shard> shards = new ArrayList();
+		for (ReturnShardPayload returnShardPayload : recoveredShards) {
+			// TODO check shards all have same secret id
+		   shards.add(returnShardPayload.getShard());
+		}
+		SecretKey secretKey;
+		try {
+			secretKey = darkCrystal.combineShards(shards);
+		} catch (GeneralSecurityException e) {
+			// TODO handle error message
+			return false;
+		}
+		// TODO find backup with highest version number
+//		recoveredShards.get(0).getBackupPayload();
+		return true;
 	}
 }

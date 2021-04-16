@@ -1,6 +1,8 @@
 package org.briarproject.briar.android.socialbackup.recover;
 
 import android.app.Application;
+import android.net.wifi.WifiInfo;
+import android.net.wifi.WifiManager;
 import android.widget.Toast;
 
 import com.google.zxing.Result;
@@ -17,6 +19,9 @@ import org.briarproject.briar.android.viewmodel.MutableLiveEvent;
 import org.briarproject.briar.api.socialbackup.SocialBackupManager;
 import org.briarproject.briar.api.socialbackup.recovery.CustodianTask;
 
+import java.io.IOException;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.nio.charset.Charset;
 import java.util.concurrent.Executor;
 import java.util.logging.Logger;
@@ -29,8 +34,8 @@ import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
+import static android.content.Context.WIFI_SERVICE;
 import static android.widget.Toast.LENGTH_LONG;
-import static java.util.Objects.requireNonNull;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
 import static java.util.logging.Logger.getLogger;
@@ -48,6 +53,7 @@ public class CustodianReturnShardViewModel extends AndroidViewModel
 	final QrCodeDecoder qrCodeDecoder;
 	private boolean wasContinueClicked = false;
 	private boolean qrCodeRead = false;
+	private WifiManager wifiManager;
 	private final MutableLiveEvent<Boolean> showCameraFragment =
 			new MutableLiveEvent<>();
 	private final MutableLiveEvent<Boolean> successDismissed =
@@ -62,13 +68,13 @@ public class CustodianReturnShardViewModel extends AndroidViewModel
 
 	@Inject
 	public CustodianReturnShardViewModel(
-			@NonNull Application application,
+			@NonNull Application app,
 			@IoExecutor Executor ioExecutor,
 			SocialBackupManager socialBackupManager,
 			DatabaseComponent db,
 			CustodianTask task,
 			AndroidExecutor androidExecutor) {
-		super(application);
+		super(app);
 
 		this.androidExecutor = androidExecutor;
 		this.ioExecutor = ioExecutor;
@@ -76,19 +82,50 @@ public class CustodianReturnShardViewModel extends AndroidViewModel
 		this.db = db;
 		this.task = task;
 		qrCodeDecoder = new QrCodeDecoder(androidExecutor, ioExecutor, this);
+		wifiManager = (WifiManager) app.getSystemService(WIFI_SERVICE);
 	}
 
-    public void start(ContactId contactId) throws DbException {
-	    db.transaction(false, txn -> {
-		    if (!socialBackupManager.amCustodian(txn, contactId)) {
-			    throw new DbException();
-		    }
-		    returnShardPayloadBytes = socialBackupManager
-				    .getReturnShardPayloadBytes(txn, contactId);
-	    });
-	    task.cancel();
-	    task.start(this, returnShardPayloadBytes);
-    }
+	private InetAddress getWifiIpv4Address() {
+		if (wifiManager == null) return null;
+		// If we're connected to a wifi network, return its address
+		WifiInfo info = wifiManager.getConnectionInfo();
+		if (info != null && info.getIpAddress() != 0) {
+			return intToInetAddress(info.getIpAddress());
+		}
+		return null;
+	}
+
+	// TODO this is not the right place for this
+	private InetAddress intToInetAddress(int ip) {
+		byte[] ipBytes = new byte[4];
+		ipBytes[0] = (byte) (ip & 0xFF);
+		ipBytes[1] = (byte) ((ip >> 8) & 0xFF);
+		ipBytes[2] = (byte) ((ip >> 16) & 0xFF);
+		ipBytes[3] = (byte) ((ip >> 24) & 0xFF);
+		try {
+			return InetAddress.getByAddress(ipBytes);
+		} catch (UnknownHostException e) {
+			// Should only be thrown if address has illegal length
+			throw new AssertionError(e);
+		}
+	}
+
+	public void start(ContactId contactId) throws DbException, IOException {
+		InetAddress inetAddress = getWifiIpv4Address();
+		LOG.info("Client InetAddress: " + inetAddress);
+		if (inetAddress == null)
+			throw new IOException("Cannot get IP on local wifi");
+
+		db.transaction(false, txn -> {
+			if (!socialBackupManager.amCustodian(txn, contactId)) {
+				throw new DbException();
+			}
+			returnShardPayloadBytes = socialBackupManager
+					.getReturnShardPayloadBytes(txn, contactId);
+		});
+		task.cancel();
+		task.start(this, returnShardPayloadBytes);
+	}
 
 	@IoExecutor
 	@Override
@@ -121,7 +158,7 @@ public class CustodianReturnShardViewModel extends AndroidViewModel
 
 	@UiThread
 	public void onSuccessDismissed() {
-	    successDismissed.setEvent(true);
+		successDismissed.setEvent(true);
 	}
 
 
@@ -136,6 +173,7 @@ public class CustodianReturnShardViewModel extends AndroidViewModel
 	LiveEvent<Boolean> getSuccessDismissed() {
 		return successDismissed;
 	}
+
 	LiveData<CustodianTask.State> getState() {
 		return state;
 	}
@@ -144,8 +182,8 @@ public class CustodianReturnShardViewModel extends AndroidViewModel
 	public void onStateChanged(CustodianTask.State state) {
 		this.state.postValue(state);
 		// Connecting, SendingShard, ReceivingAck, Success, Failure
-        if (state instanceof CustodianTask.State.SendingShard) {
-            qrCodeRead = true;
-        }
+		if (state instanceof CustodianTask.State.SendingShard) {
+			qrCodeRead = true;
+		}
 	}
 }

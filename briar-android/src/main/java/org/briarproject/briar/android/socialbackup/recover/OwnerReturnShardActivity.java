@@ -61,7 +61,10 @@ public class OwnerReturnShardActivity extends BaseActivity
 			showInitialFragment(new OwnerRecoveryModeExplainerFragment());
 		}
 		viewModel.getShowQrCodeFragment().observeEvent(this, show -> {
-			if (show) showQrCodeFragment();
+			if (show) {
+				viewModel.startListening();
+				showQrCodeFragment();
+			}
 		});
 		viewModel.getStartClicked().observeEvent(this, start -> {
 			if (start) {
@@ -132,6 +135,10 @@ public class OwnerReturnShardActivity extends BaseActivity
 			Toast.makeText(this,
 					"Success - got shard" + (added ? "" : " duplicate"),
 					Toast.LENGTH_SHORT).show();
+			if (added && viewModel.canRecover()) {
+
+			}
+			onBackPressed();
 //			finish();
 		} else if (state instanceof SecretOwnerTask.State.Failure) {
 			// TODO error screen, handle reason
