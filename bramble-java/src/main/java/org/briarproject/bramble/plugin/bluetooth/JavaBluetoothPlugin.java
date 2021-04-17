@@ -25,8 +25,8 @@ import static org.briarproject.bramble.util.StringUtils.isValidMac;
 
 @MethodsNotNullByDefault
 @ParametersNotNullByDefault
-class JavaBluetoothPlugin
-		extends BluetoothPlugin<StreamConnection, StreamConnectionNotifier> {
+class JavaBluetoothPlugin extends
+		AbstractBluetoothPlugin<StreamConnection, StreamConnectionNotifier> {
 
 	private static final Logger LOG =
 			getLogger(JavaBluetoothPlugin.class.getName());
@@ -106,6 +106,11 @@ class JavaBluetoothPlugin
 	@Nullable
 	DuplexTransportConnection discoverAndConnect(String uuid) {
 		return null; // TODO
+	}
+
+	@Override
+	public void stopDiscoverAndConnect() {
+		// TODO
 	}
 
 	private String makeUrl(String address, String uuid) {
