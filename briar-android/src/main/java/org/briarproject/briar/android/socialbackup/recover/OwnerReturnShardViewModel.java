@@ -137,8 +137,6 @@ class OwnerReturnShardViewModel extends AndroidViewModel
 	@UiThread
 	public void startListening() {
 		ioExecutor.execute(() -> {
-			task.cancel();
-			// wait until really cancelled
 			task.start(this, getWifiIpv4Address());
 		});
 //		KeyAgreementTask oldTask = task;
@@ -208,8 +206,12 @@ class OwnerReturnShardViewModel extends AndroidViewModel
 				// Use ISO 8859-1 to encode bytes directly as a string
 				String content = new String(payloadBytes, ISO_8859_1);
 				qrCodeBitmap = QrCodeUtils.createQrCode(dm, content);
-			    this.state.postValue(state);
+				this.state.postValue(state);
 			});
+		} else if (state instanceof SecretOwnerTask.State.Success) {
+//			startClicked.setEvent(true);
+			this.state.postValue(state);
+			// TODO do same for failure
 		}  else {
 			this.state.postValue(state);
 		}

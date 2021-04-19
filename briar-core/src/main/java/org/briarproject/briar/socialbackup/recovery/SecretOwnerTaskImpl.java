@@ -62,6 +62,13 @@ public class SecretOwnerTaskImpl extends ReturnShardTaskImpl
 		LOG.info("InetAddress is " + inetAddress);
 		socketAddress = new InetSocketAddress(inetAddress, PORT);
 
+		// If we have a socket already open, close it and start fresh
+		if (serverSocket != null) {
+			try {
+				serverSocket.close();
+			} catch (IOException ignored) {}
+		}
+
 		// Start listening on socketAddress
 		try {
 			LOG.info("Binding socket");

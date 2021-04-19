@@ -104,15 +104,7 @@ public class OwnerReturnShardActivity extends BaseActivity
 	@Override
 	public void onBackPressed() {
 		// TODO should we cancel the return shard task here?
-		if (viewModel.getState()
-				.getValue() instanceof SecretOwnerTask.State.Failure) {
-			// re-create this activity when going back in failed state
-			Intent i = new Intent(this, OwnerReturnShardActivity.class);
-			i.setFlags(FLAG_ACTIVITY_CLEAR_TOP);
-			startActivity(i);
-		} else {
-			super.onBackPressed();
-		}
+		super.onBackPressed();
 	}
 
 	private void showQrCodeFragment() {
@@ -136,10 +128,13 @@ public class OwnerReturnShardActivity extends BaseActivity
 					"Success - got shard" + (added ? "" : " duplicate"),
 					Toast.LENGTH_SHORT).show();
 			if (added && viewModel.canRecover()) {
-
+				Toast.makeText(this,
+						"Secret key recovered!",
+						Toast.LENGTH_LONG).show();
+				finish();
+				return;
 			}
 			onBackPressed();
-//			finish();
 		} else if (state instanceof SecretOwnerTask.State.Failure) {
 			// TODO error screen, handle reason
 			Toast.makeText(this,
