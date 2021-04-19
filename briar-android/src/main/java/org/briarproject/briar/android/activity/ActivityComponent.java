@@ -4,10 +4,8 @@ import android.app.Activity;
 
 import org.briarproject.briar.android.AndroidComponent;
 import org.briarproject.briar.android.StartupFailureActivity;
-import org.briarproject.briar.android.account.AuthorNameFragment;
-import org.briarproject.briar.android.account.DozeFragment;
-import org.briarproject.briar.android.account.SetPasswordFragment;
 import org.briarproject.briar.android.account.SetupActivity;
+import org.briarproject.briar.android.account.SetupFragment;
 import org.briarproject.briar.android.account.UnlockActivity;
 import org.briarproject.briar.android.blog.BlogActivity;
 import org.briarproject.briar.android.blog.BlogFragment;
@@ -178,11 +176,7 @@ public interface ActivityComponent {
 
 	// Fragments
 
-	void inject(AuthorNameFragment fragment);
-
-	void inject(SetPasswordFragment fragment);
-
-	void inject(DozeFragment fragment);
+	void inject(SetupFragment fragment);
 
 	void inject(PasswordFragment imageFragment);
 

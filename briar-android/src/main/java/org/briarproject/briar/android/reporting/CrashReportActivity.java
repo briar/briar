@@ -45,6 +45,8 @@ public class CrashReportActivity extends BaseActivity
 	@Override
 	public void injectActivity(ActivityComponent component) {
 		component.inject(this);
+		viewModel = new ViewModelProvider(this, viewModelFactory)
+				.get(ReportViewModel.class);
 	}
 
 	@Override
@@ -52,8 +54,6 @@ public class CrashReportActivity extends BaseActivity
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_dev_report);
 
-		viewModel = new ViewModelProvider(this, viewModelFactory)
-				.get(ReportViewModel.class);
 		Intent intent = getIntent();
 		Throwable t = (Throwable) intent.getSerializableExtra(EXTRA_THROWABLE);
 		long appStartTime = intent.getLongExtra(EXTRA_APP_START_TIME, -1);

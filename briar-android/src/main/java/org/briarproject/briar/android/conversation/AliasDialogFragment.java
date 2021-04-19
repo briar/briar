@@ -14,6 +14,7 @@ import org.briarproject.bramble.api.contact.Contact;
 import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
 import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
 import org.briarproject.briar.R;
+import org.briarproject.briar.android.activity.ActivityComponent;
 import org.briarproject.briar.android.activity.BaseActivity;
 
 import javax.inject.Inject;
@@ -51,7 +52,14 @@ public class AliasDialogFragment extends AppCompatDialogFragment {
 	@Override
 	public void onAttach(Context ctx) {
 		super.onAttach(ctx);
-		((BaseActivity) requireActivity()).getActivityComponent().inject(this);
+		injectFragment(
+				((BaseActivity) requireActivity()).getActivityComponent());
+	}
+
+	public void injectFragment(ActivityComponent component) {
+		component.inject(this);
+		viewModel = new ViewModelProvider(requireActivity(), viewModelFactory)
+				.get(ConversationViewModel.class);
 	}
 
 	@Override
@@ -59,9 +67,6 @@ public class AliasDialogFragment extends AppCompatDialogFragment {
 		super.onCreate(savedInstanceState);
 
 		setStyle(STYLE_NO_TITLE, R.style.BriarDialogTheme);
-
-		viewModel = new ViewModelProvider(requireActivity(), viewModelFactory)
-				.get(ConversationViewModel.class);
 	}
 
 	@Override

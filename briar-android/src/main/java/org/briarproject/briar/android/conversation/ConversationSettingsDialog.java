@@ -85,8 +85,6 @@ public class ConversationSettingsDialog extends DialogFragment {
 		ContactId contactId = new ContactId(id);
 
 		FragmentActivity activity = requireActivity();
-		viewModel = new ViewModelProvider(activity, viewModelFactory)
-				.get(ConversationViewModel.class);
 		viewModel.setContactId(contactId);
 
 		Toolbar toolbar = view.findViewById(R.id.toolbar);

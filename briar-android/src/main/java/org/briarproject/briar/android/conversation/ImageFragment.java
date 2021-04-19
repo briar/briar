@@ -17,6 +17,7 @@ import com.github.chrisbanes.photoview.PhotoView;
 import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
 import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.briar.R;
+import org.briarproject.briar.android.activity.ActivityComponent;
 import org.briarproject.briar.android.activity.BaseActivity;
 import org.briarproject.briar.android.attachment.AttachmentItem;
 import org.briarproject.briar.android.conversation.glide.GlideApp;
@@ -29,7 +30,6 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.ViewModelProvider;
-import androidx.lifecycle.ViewModelProviders;
 
 import static android.os.Build.VERSION.SDK_INT;
 import static android.widget.ImageView.ScaleType.FIT_START;
@@ -58,6 +58,12 @@ public class ImageFragment extends Fragment
 	private ImageViewModel viewModel;
 	private PhotoView photoView;
 
+	public void injectFragment(ActivityComponent component) {
+		component.inject(this);
+		viewModel = new ViewModelProvider(requireActivity(),
+				viewModelFactory).get(ImageViewModel.class);
+	}
+
 	static ImageFragment newInstance(AttachmentItem a,
 			MessageId conversationMessageId, boolean isFirst) {
 		ImageFragment f = new ImageFragment();
@@ -72,7 +78,8 @@ public class ImageFragment extends Fragment
 	@Override
 	public void onAttach(Context ctx) {
 		super.onAttach(ctx);
-		((BaseActivity) requireActivity()).getActivityComponent().inject(this);
+		injectFragment(
+				((BaseActivity) requireActivity()).getActivityComponent());
 	}
 
 	@Override
@@ -93,9 +100,6 @@ public class ImageFragment extends Fragment
 			@Nullable Bundle savedInstanceState) {
 		View v = inflater.inflate(R.layout.fragment_image, container,
 				false);
-
-		viewModel = ViewModelProviders.of(requireActivity(),
-				viewModelFactory).get(ImageViewModel.class);
 
 		photoView = v.findViewById(R.id.photoView);
 		photoView.setScaleLevels(1, 2, 4);

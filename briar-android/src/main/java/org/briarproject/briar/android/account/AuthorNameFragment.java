@@ -13,7 +13,6 @@ import com.google.android.material.textfield.TextInputLayout;
 import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
 import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
 import org.briarproject.briar.R;
-import org.briarproject.briar.android.activity.ActivityComponent;
 
 import javax.annotation.Nullable;
 
@@ -33,11 +32,6 @@ public class AuthorNameFragment extends SetupFragment {
 
 	public static AuthorNameFragment newInstance() {
 		return new AuthorNameFragment();
-	}
-
-	@Override
-	public void injectFragment(ActivityComponent component) {
-		component.inject(this);
 	}
 
 	@Override
