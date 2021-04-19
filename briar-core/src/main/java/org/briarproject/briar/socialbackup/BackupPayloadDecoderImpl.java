@@ -30,6 +30,7 @@ import javax.inject.Inject;
 import javax.inject.Provider;
 
 import static org.briarproject.briar.socialbackup.SocialBackupConstants.AUTH_TAG_BYTES;
+import static org.briarproject.briar.socialbackup.SocialBackupConstants.NONCE_BYTES;
 
 public class BackupPayloadDecoderImpl {
 	private final ClientHelper clientHelper;
@@ -50,15 +51,22 @@ public class BackupPayloadDecoderImpl {
 
 	public SocialBackup decodeBackupPayload(
 			SecretKey secret,
-			BackupPayload backupPayload, byte[] nonce)
+			BackupPayload backupPayload)
 			throws FormatException, GeneralSecurityException {
+
+		byte[] ciphertextWithNonce = backupPayload.getBytes();
+		byte[] nonce = new byte[NONCE_BYTES];
+		System.arraycopy(ciphertextWithNonce, 0, nonce, 0, NONCE_BYTES);
+
+		byte[] ciphertext = new byte[ciphertextWithNonce.length - NONCE_BYTES];
+		System.arraycopy(ciphertextWithNonce, nonce.length, ciphertext, 0, ciphertext.length);
 
 		AuthenticatedCipher cipher = cipherProvider.get();
 		cipher.init(false, secret, nonce);
 		byte[] plaintext =
-				new byte[backupPayload.getBytes().length - AUTH_TAG_BYTES];
-		int decrypted = cipher.process(backupPayload.getBytes(), 0,
-				backupPayload.getBytes().length, plaintext, 0);
+				new byte[ciphertext.length - AUTH_TAG_BYTES];
+		int decrypted = cipher.process(ciphertext, 0,
+				ciphertext.length, plaintext, 0);
 		if (decrypted != plaintext.length) throw new AssertionError();
 
 		BdfList backup = clientHelper.toList(plaintext);

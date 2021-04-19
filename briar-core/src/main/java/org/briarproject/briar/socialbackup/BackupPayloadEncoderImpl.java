@@ -84,7 +84,10 @@ class BackupPayloadEncoderImpl implements BackupPayloadEncoder {
 			int encrypted = cipher.process(plaintext, 0, plaintext.length,
 					ciphertext, 0);
 			if (encrypted != ciphertext.length) throw new AssertionError();
-			return new org.briarproject.briar.api.socialbackup.BackupPayload(ciphertext);
+			byte[] ciphertextWithNonce = new byte[ciphertext.length + nonce.length];
+			System.arraycopy(nonce, 0, ciphertextWithNonce, 0, nonce.length);
+			System.arraycopy(ciphertext, 0, ciphertextWithNonce, nonce.length, ciphertext.length);
+			return new org.briarproject.briar.api.socialbackup.BackupPayload(ciphertextWithNonce);
 		} catch (FormatException | GeneralSecurityException e) {
 			throw new AssertionError(e);
 		}

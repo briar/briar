@@ -11,6 +11,6 @@ import java.security.GeneralSecurityException;
 public interface BackupPayloadDecoder {
 	SocialBackup decodeBackupPayload(
 			SecretKey secret,
-			BackupPayload backupPayload, byte[] nonce) throws FormatException,
+			BackupPayload backupPayload) throws FormatException,
 			GeneralSecurityException;
 }
