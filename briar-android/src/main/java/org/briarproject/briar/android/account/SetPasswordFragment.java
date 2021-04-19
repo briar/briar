@@ -46,6 +46,7 @@ public class SetPasswordFragment extends SetupFragment {
 	@Override
 	public void injectFragment(ActivityComponent component) {
 		component.inject(this);
+		super.injectFragment(component);
 	}
 
 	@Override

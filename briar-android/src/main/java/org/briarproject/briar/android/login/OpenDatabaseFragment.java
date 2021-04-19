@@ -18,7 +18,6 @@ import javax.inject.Inject;
 import androidx.annotation.Nullable;
 import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.ViewModelProvider;
-import androidx.lifecycle.ViewModelProviders;
 
 import static org.briarproject.briar.android.login.StartupViewModel.State;
 import static org.briarproject.briar.android.login.StartupViewModel.State.COMPACTING;
@@ -33,12 +32,16 @@ public class OpenDatabaseFragment extends BaseFragment {
 	@Inject
 	ViewModelProvider.Factory viewModelFactory;
 
+	private StartupViewModel viewModel;
+
 	private TextView textView;
 	private ImageView imageView;
 
 	@Override
 	public void injectFragment(ActivityComponent component) {
 		component.inject(this);
+		viewModel = new ViewModelProvider(requireActivity(),
+				viewModelFactory).get(StartupViewModel.class);
 	}
 
 	@Override
@@ -47,11 +50,10 @@ public class OpenDatabaseFragment extends BaseFragment {
 			@Nullable Bundle savedInstanceState) {
 		View v = inflater.inflate(R.layout.fragment_open_database, container,
 				false);
+
 		textView = v.findViewById(R.id.textView);
 		imageView = v.findViewById(R.id.imageView);
 
-		StartupViewModel viewModel = ViewModelProviders.of(requireActivity(),
-				viewModelFactory).get(StartupViewModel.class);
 		LifecycleOwner owner = getViewLifecycleOwner();
 		viewModel.getState().observe(owner, this::onStateChanged);
 

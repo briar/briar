@@ -1,6 +1,5 @@
 package org.briarproject.briar.android.account;
 
-import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.KeyEvent;
@@ -14,6 +13,7 @@ import android.widget.TextView.OnEditorActionListener;
 import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
 import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
 import org.briarproject.briar.R;
+import org.briarproject.briar.android.activity.ActivityComponent;
 import org.briarproject.briar.android.fragment.BaseFragment;
 
 import javax.inject.Inject;
@@ -31,15 +31,12 @@ import static org.briarproject.briar.android.util.UiUtils.showOnboardingDialog;
 abstract class SetupFragment extends BaseFragment implements TextWatcher,
 		OnEditorActionListener, OnClickListener {
 
-	private final static String STATE_KEY_CLICKED = "setupFragmentClicked";
-
 	@Inject
 	ViewModelProvider.Factory viewModelFactory;
 	SetupViewModel viewModel;
 
 	@Override
-	public void onCreate(@Nullable Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
+	public void injectFragment(ActivityComponent component) {
 		viewModel = new ViewModelProvider(requireActivity())
 				.get(SetupViewModel.class);
 	}

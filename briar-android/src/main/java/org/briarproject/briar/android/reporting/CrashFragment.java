@@ -25,16 +25,11 @@ public class CrashFragment extends BaseFragment {
 	@Inject
 	ViewModelProvider.Factory viewModelFactory;
 
-	@Override
-	public void injectFragment(ActivityComponent component) {
-		component.inject(this);
-	}
-
 	private ReportViewModel viewModel;
 
 	@Override
-	public void onCreate(@Nullable Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
+	public void injectFragment(ActivityComponent component) {
+		component.inject(this);
 		viewModel = new ViewModelProvider(requireActivity(), viewModelFactory)
 				.get(ReportViewModel.class);
 	}

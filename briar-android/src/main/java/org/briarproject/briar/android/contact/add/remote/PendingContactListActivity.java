@@ -23,7 +23,6 @@ import javax.inject.Inject;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AlertDialog;
 import androidx.lifecycle.ViewModelProvider;
-import androidx.lifecycle.ViewModelProviders;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
 import static com.google.android.material.snackbar.Snackbar.LENGTH_INDEFINITE;
@@ -46,6 +45,8 @@ public class PendingContactListActivity extends BriarActivity
 	@Override
 	public void injectActivity(ActivityComponent component) {
 		component.inject(this);
+		viewModel = new ViewModelProvider(this, viewModelFactory)
+				.get(PendingContactListViewModel.class);
 	}
 
 	@Override
@@ -59,8 +60,6 @@ public class PendingContactListActivity extends BriarActivity
 			ab.setDisplayHomeAsUpEnabled(true);
 		}
 
-		viewModel = ViewModelProviders.of(this, viewModelFactory)
-				.get(PendingContactListViewModel.class);
 		viewModel.onCreate();
 		viewModel.getPendingContacts()
 				.observe(this, this::onPendingContactsChanged);

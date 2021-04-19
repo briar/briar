@@ -38,6 +38,7 @@ public class AuthorNameFragment extends SetupFragment {
 	@Override
 	public void injectFragment(ActivityComponent component) {
 		component.inject(this);
+		super.injectFragment(component);
 	}
 
 	@Override

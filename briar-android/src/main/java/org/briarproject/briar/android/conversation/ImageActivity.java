@@ -36,7 +36,6 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentStatePagerAdapter;
 import androidx.lifecycle.ViewModelProvider;
-import androidx.lifecycle.ViewModelProviders;
 import androidx.viewpager.widget.ViewPager;
 
 import static android.content.Intent.ACTION_CREATE_DOCUMENT;
@@ -84,6 +83,8 @@ public class ImageActivity extends BriarActivity
 	@Override
 	public void injectActivity(ActivityComponent component) {
 		component.inject(this);
+		viewModel = new ViewModelProvider(this, viewModelFactory)
+				.get(ImageViewModel.class);
 	}
 
 	@Override
@@ -108,9 +109,7 @@ public class ImageActivity extends BriarActivity
 		long time = i.getLongExtra(DATE, 0);
 		byte[] messageIdBytes = requireNonNull(i.getByteArrayExtra(ITEM_ID));
 
-		// get View Model
-		viewModel = ViewModelProviders.of(this, viewModelFactory)
-				.get(ImageViewModel.class);
+		// connect to View Model
 		viewModel.expectAttachments(attachments);
 		viewModel.getSaveState().observeEvent(this,
 				this::onImageSaveStateChanged);
