@@ -25,6 +25,10 @@ test:
   script:
     - ./gradlew --no-daemon -Djava.security.egd=file:/dev/urandom animalSnifferMain animalSnifferTest
     - ./gradlew --no-daemon -Djava.security.egd=file:/dev/urandom check
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+      when: always
+    - when: always
 
 android test:
   extends: .base-test
@@ -48,8 +52,13 @@ android test:
     when: on_failure
   rules:
     - if: '$CI_PIPELINE_SOURCE == "schedule"'
-    - changes:
+      when: on_success
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+      changes:
         - briar-android/**/*
+      when: manual
+      allow_failure: true
+    - if: '$CI_COMMIT_TAG == null'
       when: manual
       allow_failure: true
   retry:
@@ -88,6 +97,7 @@ bridge test:
   extends: .optional_tests
   rules:
     - if: '$CI_PIPELINE_SOURCE == "schedule"'
+      when: on_success
       allow_failure: true
     - if: '$CI_COMMIT_TAG == null'
       when: manual
