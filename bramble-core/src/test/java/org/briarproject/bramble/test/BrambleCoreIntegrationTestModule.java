@@ -38,6 +38,11 @@ public class BrambleCoreIntegrationTestModule {
 			public boolean shouldEnableDisappearingMessages() {
 				return true;
 			}
+
+			@Override
+			public boolean shouldEnableConnectViewBluetooth() {
+				return true;
+			}
 		};
 	}
 }

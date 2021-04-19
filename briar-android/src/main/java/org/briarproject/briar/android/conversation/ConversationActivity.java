@@ -371,6 +371,9 @@ public class ConversationActivity extends BriarActivity
 						this::showIntroductionOnboarding);
 			}
 		});
+		if (!featureFlags.shouldEnableConnectViewBluetooth()) {
+			menu.findItem(R.id.action_connect_via_bluetooth).setVisible(false);
+		}
 		// enable alias and bluetooth action once available
 		observeOnce(viewModel.getContactItem(), this, contact -> {
 			menu.findItem(R.id.action_set_alias).setEnabled(true);
