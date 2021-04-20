@@ -87,17 +87,26 @@ public class SocialBackupModule {
 	}
 
 	@Provides
-	org.briarproject.briar.api.socialbackup.MessageEncoder messageEncoder(MessageEncoderImpl messageEncoder) {
+	BackupPayloadDecoder backupPayloadDecoder(
+			BackupPayloadDecoderImpl backupPayloadDecoder) {
+		return backupPayloadDecoder;
+	}
+
+	@Provides
+	org.briarproject.briar.api.socialbackup.MessageEncoder messageEncoder(
+			MessageEncoderImpl messageEncoder) {
 		return messageEncoder;
 	}
 
 	@Provides
-	org.briarproject.briar.api.socialbackup.MessageParser messageParser(MessageParserImpl messageParser) {
+	org.briarproject.briar.api.socialbackup.MessageParser messageParser(
+			MessageParserImpl messageParser) {
 		return messageParser;
 	}
 
 	@Provides
-	SocialBackupExchangeManager socialBackupExchangeManager(SocialBackupExchangeManagerImpl socialBackupExchangeManager) {
+	SocialBackupExchangeManager socialBackupExchangeManager(
+			SocialBackupExchangeManagerImpl socialBackupExchangeManager) {
 		return socialBackupExchangeManager;
 	}
 
