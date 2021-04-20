@@ -300,7 +300,7 @@ public class AppModule {
 			}
 
 			@Override
-			public boolean shouldEnableConnectViewBluetooth() {
+			public boolean shouldEnableConnectViaBluetooth() {
 				return IS_DEBUG_BUILD;
 			}
 		};

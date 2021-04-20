@@ -103,13 +103,14 @@ public class BluetoothConnecterDialogFragment extends DialogFragment {
 		// to prevent it from automatically dismissing the dialog.
 		// The dialog is shown in onStart(), so we set the listener here later.
 		AlertDialog dialog = (AlertDialog) getDialog();
-		Button positiveButton = (Button) dialog.getButton(BUTTON_POSITIVE);
+		Button positiveButton = dialog.getButton(BUTTON_POSITIVE);
 		positiveButton.setOnClickListener(this::onStartClicked);
 	}
 
 	private void onStartClicked(View v) {
 		// The dialog starts a permission request which comes back as true
-		// if the permission is already granted. So it is a generic entry point.
+		// if the permission is already granted.
+		// So we can use the request as a generic entry point to the whole flow.
 		permissionRequest.launch(ACCESS_FINE_LOCATION);
 	}
 
@@ -117,8 +118,16 @@ public class BluetoothConnecterDialogFragment extends DialogFragment {
 		Activity a = requireActivity();
 		// update permission result in BluetoothConnecter
 		bluetoothConnecter.onLocationPermissionResult(a, result);
+		// what to do when the user denies granting the location permission
+		Runnable onLocationPermissionDenied = () -> {
+			Toast.makeText(requireContext(),
+					R.string.toast_connect_via_bluetooth_no_location_permission,
+					LENGTH_LONG).show();
+			dismiss();
+		};
 		// if requirements are fulfilled, request Bluetooth discoverability
-		if (bluetoothConnecter.areRequirementsFulfilled(a, permissionRequest)) {
+		if (bluetoothConnecter.areRequirementsFulfilled(a, permissionRequest,
+				onLocationPermissionDenied)) {
 			bluetoothDiscoverableRequest.launch(120); // for 2min
 		}
 	}

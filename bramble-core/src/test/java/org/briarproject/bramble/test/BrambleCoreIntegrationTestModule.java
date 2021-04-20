@@ -40,7 +40,7 @@ public class BrambleCoreIntegrationTestModule {
 			}
 
 			@Override
-			public boolean shouldEnableConnectViewBluetooth() {
+			public boolean shouldEnableConnectViaBluetooth() {
 				return true;
 			}
 		};

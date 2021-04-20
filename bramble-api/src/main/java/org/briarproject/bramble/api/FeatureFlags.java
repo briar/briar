@@ -11,5 +11,5 @@ public interface FeatureFlags {
 
 	boolean shouldEnableDisappearingMessages();
 
-	boolean shouldEnableConnectViewBluetooth();
+	boolean shouldEnableConnectViaBluetooth();
 }

@@ -110,14 +110,15 @@ class BluetoothConnecter {
 	}
 
 	boolean areRequirementsFulfilled(Context ctx,
-			ActivityResultLauncher<String> permissionRequest) {
+			ActivityResultLauncher<String> permissionRequest,
+			Runnable onLocationDenied) {
 		boolean permissionGranted =
 				SDK_INT < 23 || locationPermission == Permission.GRANTED;
 		boolean locationEnabled = isLocationEnabled(ctx);
 		if (permissionGranted && locationEnabled) return true;
 
 		if (locationPermission == Permission.PERMANENTLY_DENIED) {
-			showDenialDialog(ctx);
+			showDenialDialog(ctx, onLocationDenied);
 		} else if (locationPermission == Permission.SHOW_RATIONALE) {
 			showRationale(ctx, permissionRequest);
 		} else if (!locationEnabled) {
@@ -126,12 +127,13 @@ class BluetoothConnecter {
 		return false;
 	}
 
-	private void showDenialDialog(Context ctx) {
+	private void showDenialDialog(Context ctx, Runnable onLocationDenied) {
 		new AlertDialog.Builder(ctx, R.style.BriarDialogTheme)
 				.setTitle(R.string.permission_location_title)
 				.setMessage(R.string.permission_location_denied_body)
 				.setPositiveButton(R.string.ok, getGoToSettingsListener(ctx))
-				.setNegativeButton(R.string.cancel, null)
+				.setNegativeButton(R.string.cancel, (v, d) ->
+						onLocationDenied.run())
 				.show();
 	}
 
