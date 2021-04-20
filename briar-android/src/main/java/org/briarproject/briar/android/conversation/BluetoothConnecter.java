@@ -47,11 +47,13 @@ class BluetoothConnecter {
 	}
 
 	private final Application app;
+	private final PluginManager pluginManager;
 	private final Executor ioExecutor;
 	private final AndroidExecutor androidExecutor;
 	private final ConnectionRegistry connectionRegistry;
 	private final BluetoothAdapter bt = BluetoothAdapter.getDefaultAdapter();
-	private final Plugin bluetoothPlugin;
+
+	private volatile Plugin bluetoothPlugin;
 
 	private Permission locationPermission = Permission.UNKNOWN;
 
@@ -62,6 +64,7 @@ class BluetoothConnecter {
 			AndroidExecutor androidExecutor,
 			ConnectionRegistry connectionRegistry) {
 		this.app = app;
+		this.pluginManager = pluginManager;
 		this.ioExecutor = ioExecutor;
 		this.androidExecutor = androidExecutor;
 		this.bluetoothPlugin = pluginManager.getPlugin(BluetoothConstants.ID);
@@ -81,8 +84,12 @@ class BluetoothConnecter {
 	 * Call this when the using activity or fragment starts,
 	 * because permissions might have changed while it was stopped.
 	 */
-	void resetPermissions() {
+	void reset() {
 		locationPermission = Permission.UNKNOWN;
+		// When this class is instantiated before we are logged in
+		// (like when returning to a killed activity), bluetoothPlugin would be
+		// null and we consider bluetooth not supported. So reset here.
+		bluetoothPlugin = pluginManager.getPlugin(BluetoothConstants.ID);
 	}
 
 	@UiThread
@@ -99,9 +106,6 @@ class BluetoothConnecter {
 	}
 
 	boolean isBluetoothNotSupported() {
-		// When this class is instantiated before we are logged in
-		// (like when returning to a killed activity), bluetoothPlugin will be
-		// null and we consider bluetooth not supported.
 		return bt == null || bluetoothPlugin == null;
 	}
 

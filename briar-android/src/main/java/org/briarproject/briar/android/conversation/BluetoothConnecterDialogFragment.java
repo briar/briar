@@ -75,6 +75,7 @@ public class BluetoothConnecterDialogFragment extends DialogFragment {
 	@Override
 	public void onStart() {
 		super.onStart();
+		bluetoothConnecter.reset();
 		if (bluetoothConnecter.isBluetoothNotSupported()) {
 			showToast(R.string.toast_connect_via_bluetooth_error);
 			dismiss();
@@ -92,9 +93,7 @@ public class BluetoothConnecterDialogFragment extends DialogFragment {
 		if (bluetoothConnecter.isDiscovering()) {
 			// TODO showToast(R.string.toast_connect_via_bluetooth_discovering);
 			dismiss();
-			return;
 		}
-		bluetoothConnecter.resetPermissions();
 	}
 
 	@Override
