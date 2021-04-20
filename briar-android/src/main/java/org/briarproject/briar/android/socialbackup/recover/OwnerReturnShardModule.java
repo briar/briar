@@ -9,12 +9,12 @@ import dagger.multibindings.IntoMap;
 
 
 @Module
-public abstract class ReturnShardModule {
+public abstract class OwnerReturnShardModule {
 
 	@Binds
 	@IntoMap
-	@ViewModelKey(ReturnShardViewModel.class)
-	abstract ViewModel bindContactExchangeViewModel(
-			ReturnShardViewModel returnShardViewModel);
+	@ViewModelKey(OwnerReturnShardViewModel.class)
+	abstract ViewModel bindOwnerReturnShardViewModel(
+			OwnerReturnShardViewModel ownerReturnShardViewModel);
 
 }

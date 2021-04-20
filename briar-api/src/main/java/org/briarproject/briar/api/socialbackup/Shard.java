@@ -2,6 +2,8 @@ package org.briarproject.briar.api.socialbackup;
 
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 
+import java.util.Arrays;
+
 import javax.annotation.concurrent.Immutable;
 
 @Immutable
@@ -21,5 +23,10 @@ public class Shard {
 
 	public byte[] getShard() {
 		return shard;
+	}
+
+	public boolean equals(Shard otherShard) {
+		return Arrays.equals(secretId, otherShard.getSecretId()) &&
+				Arrays.equals(shard, otherShard.getShard());
 	}
 }

@@ -52,7 +52,7 @@ import org.briarproject.briar.android.conversation.ConversationVisitor.TextCache
 import org.briarproject.briar.android.forum.ForumActivity;
 import org.briarproject.briar.android.introduction.IntroductionActivity;
 import org.briarproject.briar.android.privategroup.conversation.GroupActivity;
-import org.briarproject.briar.android.socialbackup.CustodianHelpRecoverActivity;
+import org.briarproject.briar.android.socialbackup.recover.CustodianReturnShardActivity;
 import org.briarproject.briar.android.util.BriarSnackbarBuilder;
 import org.briarproject.briar.android.view.BriarRecyclerView;
 import org.briarproject.briar.android.view.ImagePreview;
@@ -399,7 +399,7 @@ public class ConversationActivity extends BriarActivity
 				return true;
 			case R.id.action_help_recover_account:
 				if (contactId == null) return false;
-				Intent i = new Intent(this, CustodianHelpRecoverActivity.class);
+				Intent i = new Intent(this, CustodianReturnShardActivity.class);
 				i.putExtra(CONTACT_ID, contactId.getInt());
 				startActivity(i);
 				return true;

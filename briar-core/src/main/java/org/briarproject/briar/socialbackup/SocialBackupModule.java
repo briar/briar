@@ -10,6 +10,10 @@ import org.briarproject.bramble.api.versioning.ClientVersioningManager;
 import org.briarproject.briar.api.conversation.ConversationManager;
 import org.briarproject.briar.api.socialbackup.SocialBackupExchangeManager;
 import org.briarproject.briar.api.socialbackup.SocialBackupManager;
+import org.briarproject.briar.api.socialbackup.recovery.CustodianTask;
+import org.briarproject.briar.api.socialbackup.recovery.SecretOwnerTask;
+import org.briarproject.briar.socialbackup.recovery.CustodianTaskImpl;
+import org.briarproject.briar.socialbackup.recovery.SecretOwnerTaskImpl;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -83,17 +87,36 @@ public class SocialBackupModule {
 	}
 
 	@Provides
-	org.briarproject.briar.api.socialbackup.MessageEncoder messageEncoder(MessageEncoderImpl messageEncoder) {
+	BackupPayloadDecoder backupPayloadDecoder(
+			BackupPayloadDecoderImpl backupPayloadDecoder) {
+		return backupPayloadDecoder;
+	}
+
+	@Provides
+	org.briarproject.briar.api.socialbackup.MessageEncoder messageEncoder(
+			MessageEncoderImpl messageEncoder) {
 		return messageEncoder;
 	}
 
 	@Provides
-	org.briarproject.briar.api.socialbackup.MessageParser messageParser(MessageParserImpl messageParser) {
+	org.briarproject.briar.api.socialbackup.MessageParser messageParser(
+			MessageParserImpl messageParser) {
 		return messageParser;
 	}
 
 	@Provides
-	SocialBackupExchangeManager socialBackupExchangeManager(SocialBackupExchangeManagerImpl socialBackupExchangeManager) {
+	SocialBackupExchangeManager socialBackupExchangeManager(
+			SocialBackupExchangeManagerImpl socialBackupExchangeManager) {
 		return socialBackupExchangeManager;
+	}
+
+	@Provides
+	SecretOwnerTask secretOwnerTask(SecretOwnerTaskImpl secretOwnerTask) {
+		return secretOwnerTask;
+	}
+
+	@Provides
+	CustodianTask custodianTask(CustodianTaskImpl custodianTask) {
+		return custodianTask;
 	}
 }

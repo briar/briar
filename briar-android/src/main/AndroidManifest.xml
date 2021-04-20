@@ -157,31 +157,23 @@
 		</activity>
 
 		<activity
-			android:name="org.briarproject.briar.android.socialbackup.recover.RecoverActivity"
-			android:label="@string/activity_name_recovery"
-			android:parentActivityName="org.briarproject.briar.android.account.NewOrRecoverActivity">
-			<meta-data
-				android:name="android.support.PARENT_ACTIVITY"
-				android:value="org.briarproject.briar.android.account.NewOrRecoverActivity" />
-		</activity>
-
-		<activity
-			android:name="org.briarproject.briar.android.socialbackup.recover.ReturnShardActivity"
-			android:label="@string/activity_name_recovery"
-			android:parentActivityName="org.briarproject.briar.android.account.NewOrRecoverActivity">
-			<meta-data
-				android:name="android.support.PARENT_ACTIVITY"
-				android:value="org.briarproject.briar.android.account.NewOrRecoverActivity" />
-		</activity>
-
-		<activity
-			android:name="org.briarproject.briar.android.socialbackup.CustodianHelpRecoverActivity"
+			android:name="org.briarproject.briar.android.socialbackup.recover.CustodianReturnShardActivity"
 			android:label="@string/activity_name_custodian_help_recovery"
 			android:parentActivityName="org.briarproject.briar.android.conversation.ConversationActivity">
 			<meta-data
 				android:name="android.support.PARENT_ACTIVITY"
 				android:value="org.briarproject.briar.android.conversation.ConversationActivity" />
 		</activity>
+
+		<activity
+			android:name="org.briarproject.briar.android.socialbackup.recover.OwnerReturnShardActivity"
+			android:label="@string/activity_name_recovery"
+			android:parentActivityName="org.briarproject.briar.android.account.NewOrRecoverActivity">
+			<meta-data
+				android:name="android.support.PARENT_ACTIVITY"
+				android:value="org.briarproject.briar.android.account.NewOrRecoverActivity" />
+		</activity>
+
 
 		<activity
 			android:name="org.briarproject.briar.android.conversation.ConversationActivity"
