@@ -6,6 +6,7 @@ import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.util.DisplayMetrics;
 
+import org.briarproject.bramble.api.FormatException;
 import org.briarproject.bramble.api.crypto.SecretKey;
 import org.briarproject.bramble.api.lifecycle.IoExecutor;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
@@ -13,10 +14,13 @@ import org.briarproject.bramble.api.system.AndroidExecutor;
 import org.briarproject.briar.android.contact.add.nearby.QrCodeUtils;
 import org.briarproject.briar.android.viewmodel.LiveEvent;
 import org.briarproject.briar.android.viewmodel.MutableLiveEvent;
+import org.briarproject.briar.api.socialbackup.BackupPayload;
 import org.briarproject.briar.api.socialbackup.DarkCrystal;
 import org.briarproject.briar.api.socialbackup.ReturnShardPayload;
 import org.briarproject.briar.api.socialbackup.Shard;
 import org.briarproject.briar.api.socialbackup.recovery.SecretOwnerTask;
+import org.briarproject.briar.socialbackup.BackupPayloadDecoder;
+import org.briarproject.briar.socialbackup.SocialBackup;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
@@ -53,6 +57,7 @@ class OwnerReturnShardViewModel extends AndroidViewModel
 	private final Executor ioExecutor;
 	private final SecretOwnerTask task;
 	private final DarkCrystal darkCrystal;
+	private final BackupPayloadDecoder backupPayloadDecoder;
 
 	private final MutableLiveEvent<Boolean> showQrCodeFragment =
 			new MutableLiveEvent<>();
@@ -65,16 +70,19 @@ class OwnerReturnShardViewModel extends AndroidViewModel
 	private ArrayList<ReturnShardPayload> recoveredShards = new ArrayList<>();
 	private Bitmap qrCodeBitmap;
 	private WifiManager wifiManager;
+	private SecretKey secretKey;
 
 	@Inject
 	OwnerReturnShardViewModel(Application app,
 			AndroidExecutor androidExecutor,
 			SecretOwnerTask task,
 			DarkCrystal darkCrystal,
+			BackupPayloadDecoder backupPayloadDecoder,
 			@IoExecutor Executor ioExecutor) {
 		super(app);
 		this.androidExecutor = androidExecutor;
 		this.ioExecutor = ioExecutor;
+		this.backupPayloadDecoder = backupPayloadDecoder;
 		this.darkCrystal = darkCrystal;
 		this.task = task;
 		wifiManager = (WifiManager) app.getSystemService(WIFI_SERVICE);
@@ -236,15 +244,21 @@ class OwnerReturnShardViewModel extends AndroidViewModel
 			// TODO check shards all have same secret id
 		   shards.add(returnShardPayload.getShard());
 		}
-		SecretKey secretKey;
 		try {
 			secretKey = darkCrystal.combineShards(shards);
 		} catch (GeneralSecurityException e) {
 			// TODO handle error message
 			return false;
 		}
-		// TODO find backup with highest version number
-//		recoveredShards.get(0).getBackupPayload();
 		return true;
+	}
+
+	public int recover() throws FormatException, GeneralSecurityException {
+		if (secretKey == null) throw new GeneralSecurityException();
+		// TODO find backup with highest version number
+		BackupPayload backupPayload = recoveredShards.get(0).getBackupPayload();
+		SocialBackup decodedBackup = backupPayloadDecoder.decodeBackupPayload(secretKey, backupPayload);
+		int version = decodedBackup.getVersion();
+		return version;
 	}
 }

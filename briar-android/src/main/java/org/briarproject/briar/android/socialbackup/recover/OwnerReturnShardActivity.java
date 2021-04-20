@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.view.MenuItem;
 import android.widget.Toast;
 
+import org.briarproject.bramble.api.FormatException;
 import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
 import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
 import org.briarproject.briar.R;
@@ -14,6 +15,7 @@ import org.briarproject.briar.android.fragment.BaseFragment;
 import org.briarproject.briar.api.socialbackup.ReturnShardPayload;
 import org.briarproject.briar.api.socialbackup.recovery.SecretOwnerTask;
 
+import java.security.GeneralSecurityException;
 import java.util.logging.Logger;
 
 import javax.annotation.Nullable;
@@ -128,8 +130,25 @@ public class OwnerReturnShardActivity extends BaseActivity
 					"Success - got shard" + (added ? "" : " duplicate"),
 					Toast.LENGTH_SHORT).show();
 			if (added && viewModel.canRecover()) {
+				LOG.info("Secret key recovered");
+				int version = 0;
+				try {
+					version = viewModel.recover();
+				} catch (GeneralSecurityException e) {
+					LOG.warning("Unable to decrypt backup" + e.toString());
+					Toast.makeText(this,
+							"Unable to decrypt backup",
+							Toast.LENGTH_LONG).show();
+					return;
+				} catch (FormatException e) {
+					LOG.warning("Unable to parse backup" + e.getMessage() + e.getStackTrace().toString());
+					Toast.makeText(this,
+							"Unable to parse backup",
+							Toast.LENGTH_LONG).show();
+					return;
+				}
 				Toast.makeText(this,
-						"Secret key recovered!",
+						"Account recovered! " + version,
 						Toast.LENGTH_LONG).show();
 				finish();
 				return;
