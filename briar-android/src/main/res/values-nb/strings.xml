@@ -259,13 +259,11 @@
   <string name="blogs_rss_feeds_import_button">Importer</string>
   <string name="blogs_rss_feeds_import_hint">Skriv inn nettadresse for RSS-strøm</string>
   <string name="blogs_rss_feeds_import_error">Vi beklager! Feil under importering av strøm.</string>
-  <string name="blogs_rss_feeds_manage">Behandle RSS-strømmer</string>
   <string name="blogs_rss_feeds_manage_imported">Importert:</string>
   <string name="blogs_rss_feeds_manage_author">Forfatter:</string>
   <string name="blogs_rss_feeds_manage_updated">Sist oppdatert:</string>
   <string name="blogs_rss_remove_feed">Fjern strøm</string>
   <string name="blogs_rss_remove_feed_ok">Fjern</string>
-  <string name="blogs_rss_feeds_manage_delete_error">Strømmen kunne ikke fjernes!</string>
   <string name="blogs_rss_feeds_manage_error">Feil ved lasting av dine strømmer. Prøv igjen senere.</string>
   <!--Settings Display-->
   <string name="display_settings_title">Vis</string>

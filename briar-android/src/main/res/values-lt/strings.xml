@@ -481,14 +481,12 @@
   <string name="blogs_rss_feeds_import_button">Importuoti</string>
   <string name="blogs_rss_feeds_import_hint">Įveskite RSS kanalo URL</string>
   <string name="blogs_rss_feeds_import_error">Atleiskite! Importuojant jūsų kanalą, įvyko klaida.</string>
-  <string name="blogs_rss_feeds_manage">Tvarkyti RSS kanalus</string>
   <string name="blogs_rss_feeds_manage_imported">Importuota:</string>
   <string name="blogs_rss_feeds_manage_author">Autorius:</string>
   <string name="blogs_rss_feeds_manage_updated">Paskutinį kartą atnaujinta:</string>
   <string name="blogs_rss_remove_feed">Šalinti kanalą</string>
   <string name="blogs_rss_remove_feed_dialog_message">Ar tikrai norite pašalinti šį kanalą?\n\nĮrašai bus pašalinti iš jūsų įrenginio, tačiau liks kitų žmonių įrenginiuose.\n\nBet kokie adresatai, su kuriais bendrinote šį kanalą, gali nustoti gauti atnaujinimus.</string>
   <string name="blogs_rss_remove_feed_ok">Šalinti</string>
-  <string name="blogs_rss_feeds_manage_delete_error">Nepavyko ištrinti kanalo!</string>
   <string name="blogs_rss_feeds_manage_empty_state">Nėra rodytinų RSS kanalų\n\nNorėdami importuoti kanalą, bakstelėkite + piktogramą</string>
   <string name="blogs_rss_feeds_manage_error">Įkeliant jūsų kanalus, atsirado problemų. Vėliau bandykite dar kartą.</string>
   <!--Settings Profile Picture-->

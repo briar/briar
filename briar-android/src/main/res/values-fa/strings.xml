@@ -488,7 +488,6 @@
   <string name="blogs_rss_feeds_import_button">وارد کردن</string>
   <string name="blogs_rss_feeds_import_hint">آدرس خوراک RSS را وارد کنید</string>
   <string name="blogs_rss_feeds_import_error">متاسفیم!  وارد کردن خوراک شما با خطا مواجه شده است.</string>
-  <string name="blogs_rss_feeds_manage">مدیریت خوراک های RSS</string>
   <string name="blogs_rss_feeds_manage_imported">وارد شده:</string>
   <string name="blogs_rss_feeds_manage_author">نویسنده:</string>
   <string name="blogs_rss_feeds_manage_updated">آخرین به روز رسانی:</string>
@@ -499,7 +498,6 @@
 
 هر مخاطبی که با آن این خوراک را به اشتراک گذاشته اید ممکن است دیگر آپدیت دریافت نکند.</string>
   <string name="blogs_rss_remove_feed_ok">حذف</string>
-  <string name="blogs_rss_feeds_manage_delete_error">خوراک نمی تواند پاک شود!</string>
   <string name="blogs_rss_feeds_manage_empty_state">هیچ خوراک RSS برای نمایش وجود ندارد
 
 برای وارد کردن خوراک روی آیکون + ضربه بزنید</string>

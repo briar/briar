@@ -461,7 +461,6 @@ Kapcsolatai, akivel megosztotta ezt a blogot, lehet nem kapnak többé frissít�
   <string name="blogs_rss_feeds_import_button">Importálás</string>
   <string name="blogs_rss_feeds_import_hint">Adja meg az RSS feed URL címét</string>
   <string name="blogs_rss_feeds_import_error">Elnézését kérjük! Probléma akadt a feed-je importálásával.</string>
-  <string name="blogs_rss_feeds_manage">RSS feed-ek kezelés</string>
   <string name="blogs_rss_feeds_manage_imported">Importálva:</string>
   <string name="blogs_rss_feeds_manage_author">Szerző:</string>
   <string name="blogs_rss_feeds_manage_updated">Utolsó frissítés:</string>
@@ -469,7 +468,6 @@ Kapcsolatai, akivel megosztotta ezt a blogot, lehet nem kapnak többé frissít�
   <string name="blogs_rss_remove_feed_dialog_message">Biztosan eltávolítja ezt a feed-et?
 \n\nA bejegyzések törlődni fognak az Ön eszközéről, de nem a többi ember eszközéről.\n\nKapcsolatai, akivel megosztotta ezt a feed-et, lehet nem kapnak többé frissítést.</string>
   <string name="blogs_rss_remove_feed_ok">Eltávolít</string>
-  <string name="blogs_rss_feeds_manage_delete_error">A feed nem törölhető!</string>
   <string name="blogs_rss_feeds_manage_empty_state">Nincs megjelenítendő</string>
   <string name="blogs_rss_feeds_manage_error">Hiba történt a feed-jei betöltésével. Kérjük próbálja újra később.</string>
   <!--Settings Profile Picture-->

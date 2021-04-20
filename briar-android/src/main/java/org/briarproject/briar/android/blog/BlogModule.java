@@ -20,4 +20,8 @@ public interface BlogModule {
 	@ViewModelKey(BlogViewModel.class)
 	ViewModel bindBlogViewModel(BlogViewModel blogViewModel);
 
+	@Binds
+	@IntoMap
+	@ViewModelKey(RssFeedViewModel.class)
+	ViewModel bindRssFeedViewModel(RssFeedViewModel rssFeedViewModel);
 }

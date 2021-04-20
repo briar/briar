@@ -1,6 +1,7 @@
 package org.briarproject.briar.api.feed;
 
 import org.briarproject.bramble.api.db.DbException;
+import org.briarproject.bramble.api.db.Transaction;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.sync.ClientId;
 
@@ -23,7 +24,7 @@ public interface FeedManager {
 	/**
 	 * Adds an RSS feed as a new dedicated blog.
 	 */
-	void addFeed(String url) throws DbException, IOException;
+	Feed addFeed(String url) throws DbException, IOException;
 
 	/**
 	 * Removes an RSS feed.
@@ -35,4 +36,8 @@ public interface FeedManager {
 	 */
 	List<Feed> getFeeds() throws DbException;
 
+	/**
+	 * Returns a list of all added RSS feeds
+	 */
+	List<Feed> getFeeds(Transaction txn) throws DbException;
 }

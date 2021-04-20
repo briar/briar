@@ -444,14 +444,12 @@
   <string name="blogs_rss_feeds_import_button">ייבא</string>
   <string name="blogs_rss_feeds_import_hint">הכנס את כתובת האתר של הזנת ה־RSS</string>
   <string name="blogs_rss_feeds_import_error">אנחנו מצטערים! הייתה שגיאה ביבוא ההזנה שלך.</string>
-  <string name="blogs_rss_feeds_manage">נהל הזנות RSS</string>
   <string name="blogs_rss_feeds_manage_imported">מיובא:</string>
   <string name="blogs_rss_feeds_manage_author">מחבר:</string>
   <string name="blogs_rss_feeds_manage_updated">עודכן לאחרונה:</string>
   <string name="blogs_rss_remove_feed">הסר הזנה</string>
   <string name="blogs_rss_remove_feed_dialog_message">האם אכן ברצונך להסיר הזנה זו?\n\nרשומות יוסרו ממכשירך אבל לא ממכשירים של אנשים אחרים.\n\nאנשי קשר כלשהם ששיתפת איתם הזנה זו עלולים להפסיק לקבל עדכונים.</string>
   <string name="blogs_rss_remove_feed_ok">הסר</string>
-  <string name="blogs_rss_feeds_manage_delete_error">ההזנה לא יכלה להימחק!</string>
   <string name="blogs_rss_feeds_manage_empty_state">אין הזנות RSS להראות\n\nהקש על הצלמית + כדי לייבא הזנה</string>
   <string name="blogs_rss_feeds_manage_error">הייתה בעיה בטעינת ההזנות שלך. אנא נסה שוב מאוחר יותר.</string>
   <!--Settings Profile Picture-->

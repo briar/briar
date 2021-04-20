@@ -395,14 +395,12 @@
   <string name="blogs_rss_feeds_import_button">Inportatu</string>
   <string name="blogs_rss_feeds_import_hint">Sartu RSS jarioaren URLa</string>
   <string name="blogs_rss_feeds_import_error">Sentitzen dugu! Zure jarioa inportatzean errore bat gertatu da.</string>
-  <string name="blogs_rss_feeds_manage">Kudeatu RSS jarioak</string>
   <string name="blogs_rss_feeds_manage_imported">Inportatuta:</string>
   <string name="blogs_rss_feeds_manage_author">Egilea:</string>
   <string name="blogs_rss_feeds_manage_updated">Azken eguneratzea:</string>
   <string name="blogs_rss_remove_feed">Kendu jarioa</string>
   <string name="blogs_rss_remove_feed_dialog_message">Ziur zaude jario hau kendu nahi duzula?\n\nSarrerak zure gailutik kenduko dira baina ez besteen gailuetatik.\n\nJario hau beste inorekin partekatu baduzu agian eguneratzeak jasotzeari utziko diote.</string>
   <string name="blogs_rss_remove_feed_ok">Kendu</string>
-  <string name="blogs_rss_feeds_manage_delete_error">Ezin izan da jarioa ezabatu!</string>
   <string name="blogs_rss_feeds_manage_empty_state">Ez dago erakusteko RSS jariorik\n\nSakatu + ikonoa jario bat inportatzeko</string>
   <string name="blogs_rss_feeds_manage_error">Arazo bat egon da zure jarioak kargatzean. Saiatu berriro geroago.</string>
   <!--Settings Profile Picture-->

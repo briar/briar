@@ -13,8 +13,11 @@ import org.briarproject.briar.android.blog.BlogPostFragment;
 import org.briarproject.briar.android.blog.FeedFragment;
 import org.briarproject.briar.android.blog.ReblogActivity;
 import org.briarproject.briar.android.blog.ReblogFragment;
-import org.briarproject.briar.android.blog.RssFeedImportActivity;
-import org.briarproject.briar.android.blog.RssFeedManageActivity;
+import org.briarproject.briar.android.blog.RssFeedActivity;
+import org.briarproject.briar.android.blog.RssFeedDeleteFeedDialogFragment;
+import org.briarproject.briar.android.blog.RssFeedImportFailedDialogFragment;
+import org.briarproject.briar.android.blog.RssFeedImportFragment;
+import org.briarproject.briar.android.blog.RssFeedManageFragment;
 import org.briarproject.briar.android.blog.WriteBlogPostActivity;
 import org.briarproject.briar.android.contact.ContactListFragment;
 import org.briarproject.briar.android.contact.add.nearby.AddNearbyContactActivity;
@@ -161,9 +164,7 @@ public interface ActivityComponent {
 
 	void inject(IntroductionActivity activity);
 
-	void inject(RssFeedImportActivity activity);
-
-	void inject(RssFeedManageActivity activity);
+	void inject(RssFeedActivity activity);
 
 	void inject(StartupFailureActivity activity);
 
@@ -233,4 +234,12 @@ public interface ActivityComponent {
 
 	void inject(
 			BluetoothConnecterDialogFragment bluetoothConnecterDialogFragment);
+
+	void inject(RssFeedImportFragment fragment);
+
+	void inject(RssFeedManageFragment fragment);
+
+	void inject(RssFeedImportFailedDialogFragment fragment);
+
+	void inject(RssFeedDeleteFeedDialogFragment fragment);
 }

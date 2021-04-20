@@ -419,14 +419,12 @@
   <string name="blogs_rss_feeds_import_button">Увези</string>
   <string name="blogs_rss_feeds_import_hint">Внеси URL на RSS тековник</string>
   <string name="blogs_rss_feeds_import_error">Жал ни е! Настана гршка при увезувањето на вашиот тековник.</string>
-  <string name="blogs_rss_feeds_manage">Уредување на RSS тековници</string>
   <string name="blogs_rss_feeds_manage_imported">Увезени:</string>
   <string name="blogs_rss_feeds_manage_author">Автор:</string>
   <string name="blogs_rss_feeds_manage_updated">Последен пат ажуриран:</string>
   <string name="blogs_rss_remove_feed">Отстрани тековник</string>
   <string name="blogs_rss_remove_feed_dialog_message">Дали сте сигурни дека сакате да го отстраните овој тековник?\n\nОбјавите ќе бидат отстранети од вашиот уред но не и од уредите на другите луѓе.\n\nБило кои од контактите со кои сте го споделиле овој тековник може да престанат да добиваат ажурирања.</string>
   <string name="blogs_rss_remove_feed_ok">Отстрани</string>
-  <string name="blogs_rss_feeds_manage_delete_error">Тековникот не може да биде избришан!</string>
   <string name="blogs_rss_feeds_manage_empty_state">Нема RSS тековници за прикажување\n\nДопрете ја + иконата за да увезете тековник</string>
   <string name="blogs_rss_feeds_manage_error">Настана проблем при вчитувањето на вашите тековници. Ве молиме обидете се повторно подоцна.</string>
   <!--Settings Profile Picture-->

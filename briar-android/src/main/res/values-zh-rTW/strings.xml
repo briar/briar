@@ -362,14 +362,12 @@
   <string name="blogs_rss_feeds_import_button">導入</string>
   <string name="blogs_rss_feeds_import_hint">輸入 RSS 訂閱源鏈接</string>
   <string name="blogs_rss_feeds_import_error">抱歉！導入訂閱源時發生錯誤。</string>
-  <string name="blogs_rss_feeds_manage">管理 RSS 訂閱源</string>
   <string name="blogs_rss_feeds_manage_imported">已導入：</string>
   <string name="blogs_rss_feeds_manage_author">作者：</string>
   <string name="blogs_rss_feeds_manage_updated">最後更新於：</string>
   <string name="blogs_rss_remove_feed">刪除訂閱源</string>
   <string name="blogs_rss_remove_feed_dialog_message">確認要刪除該訂閱源嗎？\n\n博文將從您的裝置上移除，但仍將存在於其他人的裝置。\n\n那些經過您的分享而訂閱該源的聯絡人可能不會再收到更新。</string>
   <string name="blogs_rss_remove_feed_ok">刪除</string>
-  <string name="blogs_rss_feeds_manage_delete_error">無法刪除這訂閱源！</string>
   <string name="blogs_rss_feeds_manage_empty_state">尚無訂閱源可供顯示\n\n輕按 + 號導入訂閱源</string>
   <string name="blogs_rss_feeds_manage_error">加載訂閱源時出錯。請稍候再試。</string>
   <!--Settings Profile Picture-->

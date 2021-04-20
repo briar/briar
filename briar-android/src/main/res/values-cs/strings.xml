@@ -302,13 +302,11 @@
   <string name="blogs_rss_feeds_import_button">Import</string>
   <string name="blogs_rss_feeds_import_hint">Zadejte URL adresu RSS kanálu</string>
   <string name="blogs_rss_feeds_import_error">Omlouváme se! Vyskytla se chyba při importu vašeho kanálu.</string>
-  <string name="blogs_rss_feeds_manage">Správa RSS kanálů</string>
   <string name="blogs_rss_feeds_manage_imported">Importováno:</string>
   <string name="blogs_rss_feeds_manage_author">Autor:</string>
   <string name="blogs_rss_feeds_manage_updated">Naposledy aktualizováno:</string>
   <string name="blogs_rss_remove_feed">Odstranit kanál</string>
   <string name="blogs_rss_remove_feed_ok">Odstranit</string>
-  <string name="blogs_rss_feeds_manage_delete_error">Kanál nemohl být odstraněn !</string>
   <string name="blogs_rss_feeds_manage_empty_state">Žádné RSS kanály k zobrazení\n\nKlikněte na ikonu + pro nahrání příspěvků</string>
   <string name="blogs_rss_feeds_manage_error">Vyskytl se problém s načtením vašeho kanálu příspěvků. Zkuste to prosím později.</string>
   <!--Settings Display-->

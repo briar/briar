@@ -7,91 +7,54 @@ import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.TextView;
 
+import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.briar.R;
-import org.briarproject.briar.android.util.BriarAdapter;
-import org.briarproject.briar.android.util.UiUtils;
 import org.briarproject.briar.api.feed.Feed;
 
+import androidx.recyclerview.widget.DiffUtil;
+import androidx.recyclerview.widget.ListAdapter;
 import androidx.recyclerview.widget.RecyclerView;
 
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
+import static org.briarproject.briar.android.util.UiUtils.formatDate;
 
-class RssFeedAdapter extends BriarAdapter<Feed, RssFeedAdapter.FeedViewHolder> {
+@NotNullByDefault
+class RssFeedAdapter extends ListAdapter<Feed, RssFeedAdapter.FeedViewHolder> {
 
 	private final RssFeedListener listener;
 
-	RssFeedAdapter(Context ctx, RssFeedListener listener) {
-		super(ctx, Feed.class);
+	RssFeedAdapter(RssFeedListener listener) {
+		super(new DiffUtil.ItemCallback<Feed>() {
+			@Override
+			public boolean areItemsTheSame(Feed a, Feed b) {
+				return a.getUrl().equals(b.getUrl()) &&
+						a.getBlogId().equals(b.getBlogId()) &&
+						a.getAdded() == b.getAdded();
+			}
+
+			@Override
+			public boolean areContentsTheSame(Feed a, Feed b) {
+				return a.getUpdated() == b.getUpdated();
+			}
+		});
 		this.listener = listener;
 	}
 
 	@Override
 	public FeedViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-		View v = LayoutInflater.from(ctx).inflate(
+		View v = LayoutInflater.from(parent.getContext()).inflate(
 				R.layout.list_item_rss_feed, parent, false);
 		return new FeedViewHolder(v);
 	}
 
 	@Override
 	public void onBindViewHolder(FeedViewHolder ui, int position) {
-		Feed item = getItemAt(position);
-		if (item == null) return;
-
-		// Feed Title
-		ui.title.setText(item.getTitle());
-
-		// Delete Button
-		ui.delete.setOnClickListener(v -> listener.onDeleteClick(item));
-
-		// Author
-		if (item.getRssAuthor() != null) {
-			ui.author.setText(item.getRssAuthor());
-			ui.author.setVisibility(VISIBLE);
-			ui.authorLabel.setVisibility(VISIBLE);
-		} else {
-			ui.author.setVisibility(GONE);
-			ui.authorLabel.setVisibility(GONE);
-		}
-
-		// Imported and Last Updated
-		ui.imported.setText(UiUtils.formatDate(ctx, item.getAdded()));
-		ui.updated.setText(UiUtils.formatDate(ctx, item.getUpdated()));
-
-		// Description
-		if (item.getDescription() != null) {
-			ui.description.setText(item.getDescription());
-			ui.description.setVisibility(VISIBLE);
-		} else {
-			ui.description.setVisibility(GONE);
-		}
-
-		// Open feed's blog when clicked
-		ui.layout.setOnClickListener(v -> listener.onFeedClick(item));
+		ui.bindItem(getItem(position));
 	}
 
-	@Override
-	public int compare(Feed a, Feed b) {
-		if (a == b) return 0;
-		long aTime = a.getAdded(), bTime = b.getAdded();
-		if (aTime > bTime) return -1;
-		if (aTime < bTime) return 1;
-		return 0;
-	}
-
-	@Override
-	public boolean areContentsTheSame(Feed a, Feed b) {
-		return a.getUpdated() == b.getUpdated();
-	}
-
-	@Override
-	public boolean areItemsTheSame(Feed a, Feed b) {
-		return a.getUrl().equals(b.getUrl()) &&
-				a.getBlogId().equals(b.getBlogId()) &&
-				a.getAdded() == b.getAdded();
-	}
-
-	static class FeedViewHolder extends RecyclerView.ViewHolder {
+	class FeedViewHolder extends RecyclerView.ViewHolder {
+		private final Context ctx;
 		private final View layout;
 		private final TextView title;
 		private final ImageButton delete;
@@ -104,6 +67,7 @@ class RssFeedAdapter extends BriarAdapter<Feed, RssFeedAdapter.FeedViewHolder> {
 		private FeedViewHolder(View v) {
 			super(v);
 
+			ctx = v.getContext();
 			layout = v;
 			title = v.findViewById(R.id.titleView);
 			delete = v.findViewById(R.id.deleteButton);
@@ -113,10 +77,44 @@ class RssFeedAdapter extends BriarAdapter<Feed, RssFeedAdapter.FeedViewHolder> {
 			authorLabel = v.findViewById(R.id.author);
 			description = v.findViewById(R.id.descriptionView);
 		}
+
+		private void bindItem(Feed item) {
+			// Feed Title
+			title.setText(item.getTitle());
+
+			// Delete Button
+			delete.setOnClickListener(v -> listener.onDeleteClick(item));
+
+			// Author
+			if (item.getRssAuthor() != null) {
+				author.setText(item.getRssAuthor());
+				author.setVisibility(VISIBLE);
+				authorLabel.setVisibility(VISIBLE);
+			} else {
+				author.setVisibility(GONE);
+				authorLabel.setVisibility(GONE);
+			}
+
+			// Imported and Last Updated
+			imported.setText(formatDate(ctx, item.getAdded()));
+			updated.setText(formatDate(ctx, item.getUpdated()));
+
+			// Description
+			if (item.getDescription() != null) {
+				description.setText(item.getDescription());
+				description.setVisibility(VISIBLE);
+			} else {
+				description.setVisibility(GONE);
+			}
+
+			// Open feed's blog when clicked
+			layout.setOnClickListener(v -> listener.onFeedClick(item));
+		}
 	}
 
 	interface RssFeedListener {
 		void onFeedClick(Feed feed);
+
 		void onDeleteClick(Feed feed);
 	}
 
