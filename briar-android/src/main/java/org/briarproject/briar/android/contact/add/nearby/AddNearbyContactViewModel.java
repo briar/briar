@@ -148,8 +148,8 @@ class AddNearbyContactViewModel extends AndroidViewModel
 
 	@Nullable
 	private final BluetoothAdapter bt;
-	@Nullable
-	private final Plugin wifiPlugin, bluetoothPlugin;
+	@Nullable // UiThread
+	private Plugin wifiPlugin, bluetoothPlugin;
 
 	// UiThread
 	private BluetoothDecision bluetoothDecision = BluetoothDecision.UNKNOWN;
@@ -208,6 +208,17 @@ class AddNearbyContactViewModel extends AndroidViewModel
 		getApplication().unregisterReceiver(bluetoothReceiver);
 		eventBus.removeListener(this);
 		stopListening();
+	}
+
+	/**
+	 * When this activity gets killed and re-created while the user is not
+	 * signed-in (can happen when a permission is denied which terminates app),
+	 * the plugins will be null, so we need to re-assign them after sign-in.
+	 */
+	@UiThread
+	void resetPlugins() {
+		wifiPlugin = pluginManager.getPlugin(LanTcpConstants.ID);
+		bluetoothPlugin = pluginManager.getPlugin(BluetoothConstants.ID);
 	}
 
 	@UiThread
