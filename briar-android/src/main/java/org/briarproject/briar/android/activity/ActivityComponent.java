@@ -94,8 +94,10 @@ import org.briarproject.briar.android.socialbackup.recover.OwnerReturnShardFragm
 import org.briarproject.briar.android.socialbackup.ShardsSentFragment;
 import org.briarproject.briar.android.socialbackup.ThresholdSelectorFragment;
 import org.briarproject.briar.android.socialbackup.creation.CreateBackupModule;
+import org.briarproject.briar.android.socialbackup.recover.RestoreAccountActivity;
 import org.briarproject.briar.android.splash.SplashScreenActivity;
 import org.briarproject.briar.android.test.TestDataActivity;
+import org.briarproject.briar.api.socialbackup.recovery.RestoreAccount;
 
 import dagger.Component;
 
@@ -205,6 +207,8 @@ public interface ActivityComponent {
     void inject(OwnerReturnShardActivity ownerReturnShardActivity);
 
     void inject(OwnerRecoveryModeMainFragment ownerRecoveryModeMainFragment);
+
+    void inject(RestoreAccountActivity restoreAccountActivity);
 
 	// Fragments
 
