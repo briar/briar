@@ -10,5 +10,5 @@ import java.util.List;
 interface BackupPayloadEncoder {
 
 	org.briarproject.briar.api.socialbackup.BackupPayload encodeBackupPayload(SecretKey secret, Identity identity,
-			List<ContactData> contactData, int version);
+			List<org.briarproject.briar.api.socialbackup.ContactData> contactData, int version);
 }

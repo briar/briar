@@ -6,10 +6,10 @@ import java.util.List;
 
 public class SocialBackup {
 	private Identity identity;
-	private List<ContactData> contacts;
+	private List<org.briarproject.briar.api.socialbackup.ContactData> contacts;
 	private int version;
 
-	SocialBackup (Identity identity, List<ContactData> contacts, int version) {
+	SocialBackup (Identity identity, List<org.briarproject.briar.api.socialbackup.ContactData> contacts, int version) {
 		this.identity = identity;
 		this.contacts = contacts;
 		this.version = version;
@@ -19,7 +19,7 @@ public class SocialBackup {
 		return identity;
 	}
 
-	public List<ContactData> getContacts() {
+	public List<org.briarproject.briar.api.socialbackup.ContactData> getContacts() {
 		return contacts;
 	}
 
