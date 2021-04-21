@@ -176,6 +176,18 @@ class AccountManagerImpl implements AccountManager {
 		}
 	}
 
+	public boolean restoreAccount(Identity identity, String password) {
+		synchronized (stateChangeLock) {
+			if (hasDatabaseKey())
+				throw new AssertionError("Already have a database key");
+			identityManager.registerIdentity(identity);
+			SecretKey key = crypto.generateSecretKey();
+			if (!encryptAndStoreDatabaseKey(key, password)) return false;
+			databaseKey = key;
+			return true;
+		}
+	}
+
 	@GuardedBy("stateChangeLock")
 	private boolean encryptAndStoreDatabaseKey(SecretKey key, String password) {
 		byte[] plaintext = key.getBytes();

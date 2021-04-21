@@ -2,6 +2,7 @@ package org.briarproject.bramble.api.account;
 
 import org.briarproject.bramble.api.crypto.DecryptionException;
 import org.briarproject.bramble.api.crypto.SecretKey;
+import org.briarproject.bramble.api.identity.Identity;
 import org.briarproject.bramble.api.identity.IdentityManager;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 
@@ -42,6 +43,17 @@ public interface AccountManager {
 	 * return true after this method returns true.
 	 */
 	boolean createAccount(String name, String password);
+
+	/**
+	 * Restores a given identity by registering it with the
+	 * {@link IdentityManager}.  Creates a database key, encrypts it with the
+	 * given password and stores it on disk. {@link #accountExists()} will
+	 * return true after this method returns true.
+ 	 * @param identity
+	 * @param password
+	 * @return
+	 */
+	boolean restoreAccount(Identity identity, String password);
 
 	/**
 	 * Deletes all account state from disk. {@link #accountExists()} will
