@@ -1,6 +1,5 @@
 package org.briarproject.briar.android.socialbackup.recover;
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.view.MenuItem;
 import android.widget.Toast;
@@ -24,7 +23,6 @@ import javax.inject.Inject;
 import androidx.fragment.app.FragmentManager;
 import androidx.lifecycle.ViewModelProvider;
 
-import static android.content.Intent.FLAG_ACTIVITY_CLEAR_TOP;
 import static java.util.logging.Logger.getLogger;
 
 @MethodsNotNullByDefault
@@ -64,6 +62,7 @@ public class OwnerReturnShardActivity extends BaseActivity
 		}
 		viewModel.getShowQrCodeFragment().observeEvent(this, show -> {
 			if (show) {
+				LOG.info("Show QR code clicked");
 				viewModel.startListening();
 				showQrCodeFragment();
 			}
@@ -124,7 +123,8 @@ public class OwnerReturnShardActivity extends BaseActivity
 
 	private void onReturnShardStateChanged(SecretOwnerTask.State state) {
 		if (state instanceof SecretOwnerTask.State.Success) {
-			ReturnShardPayload shardPayload = ((SecretOwnerTask.State.Success) state).getRemotePayload();
+			ReturnShardPayload shardPayload =
+					((SecretOwnerTask.State.Success) state).getRemotePayload();
 			boolean added = viewModel.addToShardSet(shardPayload);
 			Toast.makeText(this,
 					"Success - got shard" + (added ? "" : " duplicate"),
@@ -141,7 +141,8 @@ public class OwnerReturnShardActivity extends BaseActivity
 							Toast.LENGTH_LONG).show();
 					return;
 				} catch (FormatException e) {
-					LOG.warning("Unable to parse backup" + e.getMessage() + e.getStackTrace().toString());
+					LOG.warning("Unable to parse backup" + e.getMessage() +
+							e.getStackTrace().toString());
 					Toast.makeText(this,
 							"Unable to parse backup",
 							Toast.LENGTH_LONG).show();
