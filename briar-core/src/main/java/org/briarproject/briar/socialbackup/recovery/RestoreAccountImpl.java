@@ -60,11 +60,17 @@ public class RestoreAccountImpl implements RestoreAccount {
 
 	public int recover() throws FormatException, GeneralSecurityException {
 		if (secretKey == null) throw new GeneralSecurityException();
-		// TODO find backup with highest version number
-		BackupPayload backupPayload = recoveredShards.get(0).getBackupPayload();
-		socialBackup = backupPayloadDecoder.decodeBackupPayload(secretKey, backupPayload);
-		int version = socialBackup.getVersion();
-		return version;
+		// Find backup with highest version number
+		int highestVersion = 0;
+		for (ReturnShardPayload returnShardPayload : recoveredShards) {
+			BackupPayload backupPayload = returnShardPayload.getBackupPayload();
+			SocialBackup s = backupPayloadDecoder.decodeBackupPayload(secretKey, backupPayload);
+			if (s.getVersion() > highestVersion) {
+				socialBackup = s;
+				highestVersion = s.getVersion();
+			}
+		}
+		return highestVersion;
 	}
 
 	public SocialBackup getSocialBackup() {
