@@ -95,6 +95,9 @@ public class AddNearbyContactIntroFragment extends BaseFragment {
 		super.onStart();
 		// Permissions may have been granted manually while we were stopped
 		permissionManager.resetPermissions();
+		// Reset plugins in case they were assigned when we weren't signed-in
+		viewModel.resetPlugins();
+		// Scroll down in case the screen is small, so the button is visible
 		scrollView.post(() -> scrollView.fullScroll(FOCUS_DOWN));
 	}
 
