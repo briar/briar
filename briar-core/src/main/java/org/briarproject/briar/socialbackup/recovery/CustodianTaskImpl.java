@@ -5,8 +5,6 @@ import org.briarproject.bramble.api.crypto.AgreementPublicKey;
 import org.briarproject.bramble.api.crypto.AuthenticatedCipher;
 import org.briarproject.bramble.api.crypto.CryptoComponent;
 import org.briarproject.bramble.api.data.BdfList;
-import org.briarproject.bramble.api.transport.StreamReaderFactory;
-import org.briarproject.bramble.api.transport.StreamWriterFactory;
 import org.briarproject.briar.api.socialbackup.recovery.CustodianTask;
 
 import java.io.DataInputStream;
@@ -34,20 +32,15 @@ public class CustodianTaskImpl extends ReturnShardTaskImpl
 	private Socket socket;
 	private final AuthenticatedCipher cipher;
 	private byte[] payload;
-//	private final StreamReaderFactory streamReaderFactory;
-//	private final StreamWriterFactory streamWriterFactory;
 
 	private static final Logger LOG =
 			getLogger(CustodianTaskImpl.class.getName());
 
 	@Inject
 	CustodianTaskImpl(CryptoComponent crypto, ClientHelper clientHelper,
-			AuthenticatedCipher cipher, StreamReaderFactory streamReaderFactory,
-			StreamWriterFactory streamWriterFactory) {
+			AuthenticatedCipher cipher) {
 		super(cipher, crypto);
 		this.clientHelper = clientHelper;
-//		this.streamReaderFactory = streamReaderFactory;
-//		this.streamWriterFactory = streamWriterFactory;
 
 		this.cipher = cipher;
 	}
@@ -62,12 +55,10 @@ public class CustodianTaskImpl extends ReturnShardTaskImpl
 	@Override
 	public void cancel() {
 		cancelled = true;
-		if (socket != null) {
+		if (socket != null && !socket.isClosed()) {
 			try {
 				socket.close();
 			} catch (IOException e) {
-				// The reason here is OTHER rather than NO_CONNECTION because
-				// the socket could fail to close because it is already closed
 				observer.onStateChanged(new CustodianTask.State.Failure(
 						State.Failure.Reason.OTHER));
 			}
@@ -122,11 +113,6 @@ public class CustodianTaskImpl extends ReturnShardTaskImpl
 
 			outputStream.write(payloadEncrypted);
 
-//			OutputStream encryptedOutputStream = streamWriterFactory
-//					.createContactExchangeStreamWriter(outputStream,
-//							sharedSecret).getOutputStream();
-//			encryptedOutputStream.write(payload);
-
 			LOG.info("Written payload");
 
 			observer.onStateChanged(new CustodianTask.State.ReceivingAck());
@@ -140,12 +126,13 @@ public class CustodianTaskImpl extends ReturnShardTaskImpl
 			LOG.warning("IO Error connecting to secret owner " + e.getMessage());
 			observer.onStateChanged(new CustodianTask.State.Failure(
 					State.Failure.Reason.QR_CODE_INVALID));
+			closeSocket();
 			return;
-//		}
 		} catch (GeneralSecurityException e) {
 			LOG.warning("Security error "+ e.getMessage());
 			observer.onStateChanged(new CustodianTask.State.Failure(
 					State.Failure.Reason.OTHER));
+			closeSocket();
 			return;
 		}
 		receiveAck();
@@ -154,9 +141,6 @@ public class CustodianTaskImpl extends ReturnShardTaskImpl
 	private void receiveAck() {
 		try {
 			DataInputStream inputStream = new DataInputStream(socket.getInputStream());
-//			InputStream inputStream = streamReaderFactory
-//					.createContactExchangeStreamReader(socket.getInputStream(),
-//							sharedSecret);
 			byte[] ackNonce = read(inputStream, NONCE_LENGTH);
 			byte[] ackMessageEncrypted =
 					read(inputStream, 3 + cipher.getMacBytes());
@@ -176,5 +160,12 @@ public class CustodianTaskImpl extends ReturnShardTaskImpl
 			observer.onStateChanged(new CustodianTask.State.Failure(
 					State.Failure.Reason.OTHER));
 		}
+	}
+
+	private void closeSocket() {
+		if (socket.isClosed()) return;
+		try {
+		   socket.close();
+		} catch (IOException ignored) {}
 	}
 }
