@@ -183,7 +183,9 @@ public class PluginViewModel extends DbViewModel implements EventListener {
 	}
 
 	private void loadSettings() {
+		LOG.info("loading settings scheduled");
 		runOnDbThread(() -> {
+			LOG.info("really loading settings");
 			try {
 				boolean tor = isPluginEnabled(TorConstants.ID,
 						TorConstants.DEFAULT_PREF_PLUGIN_ENABLE);
