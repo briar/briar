@@ -1,10 +1,9 @@
-package org.briarproject.briar.socialbackup;
+package org.briarproject.briar.api.socialbackup;
 
 import org.briarproject.bramble.api.contact.Contact;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.plugin.TransportId;
 import org.briarproject.bramble.api.properties.TransportProperties;
-import org.briarproject.briar.api.socialbackup.Shard;
 
 import java.util.Map;
 
