@@ -8,7 +8,6 @@ import org.briarproject.bramble.api.identity.Identity;
 import org.briarproject.bramble.api.lifecycle.IoExecutor;
 import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
 import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
-import org.briarproject.briar.R;
 import org.briarproject.briar.android.account.DozeHelper;
 import org.briarproject.briar.android.viewmodel.LiveEvent;
 import org.briarproject.briar.android.viewmodel.MutableLiveEvent;
