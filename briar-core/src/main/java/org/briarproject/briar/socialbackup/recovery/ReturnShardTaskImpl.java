@@ -8,7 +8,6 @@ import org.briarproject.bramble.api.crypto.SecretKey;
 
 import java.io.DataInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.security.GeneralSecurityException;
 import java.security.SecureRandom;
 
@@ -16,7 +15,6 @@ public class ReturnShardTaskImpl {
 	private final AuthenticatedCipher cipher;
 	private final CryptoComponent crypto;
 	private final SecureRandom secureRandom;
-	final int PORT = 3002;
 	final int TIMEOUT = 120 * 1000;
 	final int NONCE_LENGTH = 24; // TODO get these constants
 	final int AGREEMENT_PUBLIC_KEY_LENGTH = 32;
