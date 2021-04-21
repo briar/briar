@@ -51,9 +51,9 @@ public class PanicPreferencesFragment extends PreferenceFragmentCompat
 	private void updatePreferences() {
 		pm = getActivity().getPackageManager();
 
-		lockPref = (SwitchPreferenceCompat) findPreference(KEY_LOCK);
-		panicAppPref = (ListPreference) findPreference(KEY_PANIC_APP);
-		purgePref = (SwitchPreferenceCompat) findPreference(KEY_PURGE);
+		lockPref = findPreference(KEY_LOCK);
+		panicAppPref = findPreference(KEY_PANIC_APP);
+		purgePref = findPreference(KEY_PURGE);
 
 		// check for connect/disconnect intents from panic trigger apps
 		if (PanicResponder.checkForDisconnectIntent(getActivity())) {
