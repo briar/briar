@@ -6,7 +6,6 @@ import org.briarproject.bramble.api.crypto.AgreementPublicKey;
 import org.briarproject.bramble.api.crypto.AuthenticatedCipher;
 import org.briarproject.bramble.api.crypto.CryptoComponent;
 import org.briarproject.bramble.api.data.BdfList;
-import org.briarproject.briar.api.socialbackup.MessageParser;
 import org.briarproject.briar.api.socialbackup.ReturnShardPayload;
 import org.briarproject.briar.api.socialbackup.recovery.SecretOwnerTask;
 
@@ -28,16 +27,12 @@ import static java.util.logging.Logger.getLogger;
 public class SecretOwnerTaskImpl extends ReturnShardTaskImpl
 		implements SecretOwnerTask {
 
-	private boolean cancelled = false;
+	private boolean closedSocket = false;
 	private InetSocketAddress socketAddress;
 	private ClientHelper clientHelper;
 	private Observer observer;
 	private ServerSocket serverSocket;
 	private Socket socket;
-	private MessageParser messageParser;
-
-//	private final StreamReaderFactory streamReaderFactory;
-//  private final StreamWriterFactory streamWriterFactory;
 
 	private static final Logger LOG =
 			getLogger(SecretOwnerTaskImpl.class.getName());
@@ -47,8 +42,6 @@ public class SecretOwnerTaskImpl extends ReturnShardTaskImpl
 			ClientHelper clientHelper) {
 		super(cipher, crypto);
 		this.clientHelper = clientHelper;
-//		this.streamReaderFactory = streamReaderFactory;
-//		this.streamWriterFactory = streamWriterFactory;
 	}
 
 	@Override
@@ -60,20 +53,23 @@ public class SecretOwnerTaskImpl extends ReturnShardTaskImpl
 					new State.Failure(State.Failure.Reason.NO_CONNECTION));
 		}
 		LOG.info("InetAddress is " + inetAddress);
-		socketAddress = new InetSocketAddress(inetAddress, PORT);
 
 		// If we have a socket already open, close it and start fresh
 		if (serverSocket != null) {
 			try {
+				LOG.info("Closing existing socket with port " + serverSocket.getLocalPort());
+				closedSocket = true;
 				serverSocket.close();
-			} catch (IOException ignored) {}
+			} catch (IOException ignored) {
+			    LOG.info("Ignoring error when closing socket");
+			}
 		}
 
 		// Start listening on socketAddress
 		try {
 			LOG.info("Binding socket");
-			serverSocket = new ServerSocket();
-			serverSocket.bind(socketAddress);
+			serverSocket = new ServerSocket(0, 1, inetAddress);
+//			serverSocket.bind(socketAddress);
 			LOG.info("Binding socket done");
 		} catch (IOException e) {
 			LOG.warning(
@@ -84,6 +80,8 @@ public class SecretOwnerTaskImpl extends ReturnShardTaskImpl
 			return;
 		}
 
+		socketAddress = new InetSocketAddress(inetAddress, serverSocket.getLocalPort());
+		LOG.info("Using port: " + serverSocket.getLocalPort());
 		try {
 			// TODO add version number
 			BdfList payloadList = new BdfList();
@@ -104,7 +102,7 @@ public class SecretOwnerTaskImpl extends ReturnShardTaskImpl
 
 	private void receivePayload() {
 		try {
-			LOG.info("Waiting for a connection...");
+			LOG.info("Waiting for a connection on port:" + serverSocket.getLocalPort());
 			socket = serverSocket.accept();
 			LOG.info("Client connected");
 			observer.onStateChanged(new State.ReceivingShard());
@@ -129,17 +127,11 @@ public class SecretOwnerTaskImpl extends ReturnShardTaskImpl
 
 			byte[] payloadRaw = read(inputStream, payloadLength);
 
-//		    InputStream clearInputStream = streamReaderFactory.createContactExchangeStreamReader(inputStream, sharedSecret);
-
-//		    byte[] payloadClear = read(clearInputStream, payloadLength);
 			byte[] payloadClear = decrypt(payloadRaw, payloadNonce);
 			ReturnShardPayload returnShardPayload = ReturnShardPayload
 					.fromList(clientHelper.toList(payloadClear));
 
 			LOG.info("Payload decrypted and parsed successfully");
-
-//			StreamWriter streamWriter = streamWriterFactory.createContactExchangeStreamWriter(socket.getOutputStream(), sharedSecret);
-//			OutputStream outputStream = streamWriter.getOutputStream();
 
 			DataOutputStream outputStream =
 					new DataOutputStream(socket.getOutputStream());
@@ -155,6 +147,11 @@ public class SecretOwnerTaskImpl extends ReturnShardTaskImpl
 			observer.onStateChanged(new State.Success(returnShardPayload));
 		} catch (IOException e) {
 			LOG.warning("IO Error receiving payload " + e.getMessage());
+			// Only change state to fail if we did not intentionally close
+			if (closedSocket) {
+				closedSocket = false;
+				return;
+			}
 			// TODO reasons
 			observer.onStateChanged(
 					new State.Failure(State.Failure.Reason.NO_CONNECTION));
@@ -167,10 +164,10 @@ public class SecretOwnerTaskImpl extends ReturnShardTaskImpl
 
 	@Override
 	public void cancel() {
-		cancelled = true;
 		LOG.info("Cancel called, failing...");
 		if (serverSocket != null) {
 			try {
+				closedSocket = true;
 				serverSocket.close();
 			} catch (IOException e) {
 				observer.onStateChanged(
