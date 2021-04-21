@@ -121,7 +121,7 @@ public class NavDrawerViewModel extends DbViewModel {
 	@UiThread
 	void checkDozeWhitelisting() {
 		// check this first, to hit the DbThread only when really necessary
-		BriarApplication app = (BriarApplication) getApplication();
+		BriarApplication app = getApplication();
 		if (app.isInstrumentationTest() ||
 				!needsDozeWhitelisting(getApplication())) {
 			shouldAskForDozeWhitelisting.setValue(false);
