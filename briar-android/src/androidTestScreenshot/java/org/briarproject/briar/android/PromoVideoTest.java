@@ -87,7 +87,7 @@ public class PromoVideoTest extends ScreenshotTest {
 
 		// It takes a long time for SetupActivity to start after the splash,
 		// (because it is shown longer for videos), so increase timeout.
-		if (!isFilming) waitFor(SetupActivity.class, 20_000);
+		if (!isFilming) waitFor(SetupActivity.class, 30_000);
 
 		// Note: We use waiting code only when not filming,
 		//       to make the test reliable for CI. Otherwise, we used fixed

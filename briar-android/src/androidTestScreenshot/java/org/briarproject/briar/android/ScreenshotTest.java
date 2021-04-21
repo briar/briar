@@ -3,6 +3,8 @@ package org.briarproject.briar.android;
 import android.app.Activity;
 import android.util.Log;
 
+import com.jraska.falcon.Falcon.UnableToTakeScreenshotException;
+
 import org.briarproject.bramble.api.connection.ConnectionRegistry;
 import org.briarproject.bramble.api.system.Clock;
 import org.briarproject.briar.api.test.TestDataCreator;
@@ -34,6 +36,8 @@ public abstract class ScreenshotTest extends UiTest {
 	protected void screenshot(String name, Activity activity) {
 		try {
 			Screengrab.screenshot(name, new FalconScreenshotStrategy(activity));
+		} catch (UnableToTakeScreenshotException e) {
+			Log.e("Screengrab", "Error taking screenshot", e);
 		} catch (RuntimeException e) {
 			if (e.getMessage() == null ||
 					!e.getMessage().equals("Unable to capture screenshot."))
