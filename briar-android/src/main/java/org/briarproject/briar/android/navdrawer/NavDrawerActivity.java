@@ -9,6 +9,7 @@ import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewTreeObserver.OnGlobalLayoutListener;
 import android.widget.BaseAdapter;
 import android.widget.GridView;
 import android.widget.ImageView;
@@ -166,12 +167,20 @@ public class NavDrawerActivity extends BriarActivity implements
 		drawerLayout.addDrawerListener(drawerToggle);
 		navigation.setNavigationItemSelectedListener(this);
 
+		// Wait for the drawer to be laid out before trying to position the
+		// onboarding tap target
+		drawerLayout.getViewTreeObserver().addOnGlobalLayoutListener(
+				new OnGlobalLayoutListener() {
+					@Override
+					public void onGlobalLayout() {
+						drawerLayout.getViewTreeObserver()
+								.removeOnGlobalLayoutListener(this);
+						observeTransportsOnboarding();
+					}
+				});
+
 		initializeTransports();
 		transportsView.setAdapter(transportsAdapter);
-
-		observeOnce(navDrawerViewModel.showTransportsOnboarding(), this, show ->
-				observeOnce(torIcon, this, imageView ->
-						showTransportsOnboarding(show, imageView)));
 
 		lockManager.isLockable().observe(this, this::setLockVisible);
 
@@ -182,6 +191,16 @@ public class NavDrawerActivity extends BriarActivity implements
 			// do not call this again when there's existing state
 			onNewIntent(getIntent());
 		}
+	}
+
+	private void observeTransportsOnboarding() {
+		observeOnce(navDrawerViewModel.showTransportsOnboarding(), this,
+				show -> {
+					if (show) {
+						observeOnce(torIcon, this,
+								this::showTransportsOnboarding);
+					}
+				});
 	}
 
 	@Override
@@ -452,22 +471,20 @@ public class NavDrawerActivity extends BriarActivity implements
 		return transport;
 	}
 
-	private void showTransportsOnboarding(boolean show, ImageView imageView) {
-		if (show) {
-			int color = resolveColorAttribute(this, R.attr.colorControlNormal);
-			Drawable drawable = VectorDrawableCompat
-					.create(getResources(), R.drawable.transport_tor, null);
-			new MaterialTapTargetPrompt.Builder(NavDrawerActivity.this,
-					R.style.OnboardingDialogTheme).setTarget(imageView)
-					.setPrimaryText(R.string.network_settings_title)
-					.setSecondaryText(R.string.transports_onboarding_text)
-					.setIconDrawable(drawable)
-					.setIconDrawableColourFilter(color)
-					.setBackgroundColour(
-							ContextCompat.getColor(this, R.color.briar_primary))
-					.show();
-			navDrawerViewModel.transportsOnboardingShown();
-		}
+	private void showTransportsOnboarding(ImageView imageView) {
+		int color = resolveColorAttribute(this, R.attr.colorControlNormal);
+		Drawable drawable = VectorDrawableCompat
+				.create(getResources(), R.drawable.transport_tor, null);
+		new MaterialTapTargetPrompt.Builder(NavDrawerActivity.this,
+				R.style.OnboardingDialogTheme).setTarget(imageView)
+				.setPrimaryText(R.string.network_settings_title)
+				.setSecondaryText(R.string.transports_onboarding_text)
+				.setIconDrawable(drawable)
+				.setIconDrawableColourFilter(color)
+				.setBackgroundColour(
+						ContextCompat.getColor(this, R.color.briar_primary))
+				.show();
+		navDrawerViewModel.transportsOnboardingShown();
 	}
 
 	private static class Transport {
