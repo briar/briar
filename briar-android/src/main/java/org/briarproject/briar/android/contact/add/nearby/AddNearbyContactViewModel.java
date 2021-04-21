@@ -82,11 +82,11 @@ import static org.briarproject.bramble.api.plugin.Plugin.State.INACTIVE;
 import static org.briarproject.bramble.api.plugin.Plugin.State.STARTING_STOPPING;
 import static org.briarproject.bramble.util.LogUtils.logException;
 import static org.briarproject.briar.android.contact.add.nearby.AddNearbyContactPermissionManager.areEssentialPermissionsGranted;
-import static org.briarproject.briar.android.contact.add.nearby.AddNearbyContactPermissionManager.isLocationEnabled;
 import static org.briarproject.briar.android.contact.add.nearby.AddNearbyContactViewModel.BluetoothDecision.NO_ADAPTER;
 import static org.briarproject.briar.android.contact.add.nearby.AddNearbyContactViewModel.BluetoothDecision.REFUSED;
 import static org.briarproject.briar.android.contact.add.nearby.AddNearbyContactViewModel.BluetoothDecision.UNKNOWN;
 import static org.briarproject.briar.android.util.UiUtils.handleException;
+import static org.briarproject.briar.android.util.UiUtils.isLocationEnabled;
 
 @NotNullByDefault
 class AddNearbyContactViewModel extends AndroidViewModel

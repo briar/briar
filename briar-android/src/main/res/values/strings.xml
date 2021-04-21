@@ -142,6 +142,7 @@
 	<string name="allow">Allow</string>
 	<string name="open">Open</string>
 	<string name="change">Change</string>
+	<string name="start">Start</string>
 	<string name="no_data">No data</string>
 	<string name="ellipsis">…</string>
 	<string name="text_too_long">The entered text is too long</string>
@@ -168,6 +169,14 @@
 	<string name="set_contact_alias">Change contact name</string>
 	<string name="set_contact_alias_hint">Contact name</string>
 	<string name="menu_item_disappearing_messages">Disappearing messages</string>
+	<string name="menu_item_connect_via_bluetooth">Connect via Bluetooth</string>
+	<string name="dialog_title_connect_via_bluetooth">Connect via Bluetooth</string>
+	<string name="dialog_message_connect_via_bluetooth">Your contact needs to be nearby for this to work.\n\nYou and your contact should both press \"Start\" at the same time.</string>
+	<string name="toast_connect_via_bluetooth_not_discoverable">Cannot continue without Bluetooth</string>
+	<string name="toast_connect_via_bluetooth_no_location_permission">Cannot continue without location permission</string>
+	<string name="toast_connect_via_bluetooth_start">Connecting via Bluetooth…</string>
+	<string name="toast_connect_via_bluetooth_success">Successfully connected via Bluetooth</string>
+	<string name="toast_connect_via_bluetooth_error">Could not connect via Bluetooth</string>
 	<!-- The first placeholder will show a duration like "7 days". The second placeholder at the end will add "Tap to learn more." -->
 	<string name="auto_delete_msg_you_enabled">Your messages will disappear after %1$s. %2$s</string>
 	<!-- The placeholder at the end will add "Tap to learn more." -->

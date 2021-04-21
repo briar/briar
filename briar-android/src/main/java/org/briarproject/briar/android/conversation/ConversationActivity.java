@@ -99,6 +99,7 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
 import androidx.core.app.ActivityOptionsCompat;
 import androidx.core.content.ContextCompat;
+import androidx.fragment.app.FragmentManager;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
@@ -370,9 +371,14 @@ public class ConversationActivity extends BriarActivity
 						this::showIntroductionOnboarding);
 			}
 		});
-		// enable alias action if available
-		observeOnce(viewModel.getContactItem(), this, contact ->
-				menu.findItem(R.id.action_set_alias).setEnabled(true));
+		if (!featureFlags.shouldEnableConnectViaBluetooth()) {
+			menu.findItem(R.id.action_connect_via_bluetooth).setVisible(false);
+		}
+		// enable alias and bluetooth action once available
+		observeOnce(viewModel.getContactItem(), this, contact -> {
+			menu.findItem(R.id.action_set_alias).setEnabled(true);
+			menu.findItem(R.id.action_connect_via_bluetooth).setEnabled(true);
+		});
 		// Show auto-delete menu item if feature is enabled
 		if (featureFlags.shouldEnableDisappearingMessages()) {
 			MenuItem item = menu.findItem(R.id.action_conversation_settings);
@@ -381,40 +387,41 @@ public class ConversationActivity extends BriarActivity
 			viewModel.getPrivateMessageFormat().observe(this, format ->
 					item.setEnabled(format == TEXT_IMAGES_AUTO_DELETE));
 		}
-
 		return super.onCreateOptionsMenu(menu);
 	}
 
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
-		// Handle presses on the action bar items
-		switch (item.getItemId()) {
-			case android.R.id.home:
-				onBackPressed();
-				return true;
-			case R.id.action_introduction:
-				if (contactId == null) return false;
-				Intent intent = new Intent(this, IntroductionActivity.class);
-				intent.putExtra(CONTACT_ID, contactId.getInt());
-				startActivityForResult(intent, REQUEST_INTRODUCTION);
-				return true;
-			case R.id.action_set_alias:
-				AliasDialogFragment.newInstance().show(
-						getSupportFragmentManager(), AliasDialogFragment.TAG);
-				return true;
-			case R.id.action_conversation_settings:
-				if (contactId == null) return false;
-				onAutoDeleteTimerNoticeClicked();
-				return true;
-			case R.id.action_delete_all_messages:
-				askToDeleteAllMessages();
-				return true;
-			case R.id.action_social_remove_person:
-				askToRemoveContact();
-				return true;
-			default:
-				return super.onOptionsItemSelected(item);
+		// contactId gets set before in onCreate()
+		int itemId = item.getItemId();
+		if (itemId == android.R.id.home) {
+			onBackPressed();
+			return true;
+		} else if (itemId == R.id.action_introduction) {
+			Intent intent = new Intent(this, IntroductionActivity.class);
+			intent.putExtra(CONTACT_ID, contactId.getInt());
+			startActivityForResult(intent, REQUEST_INTRODUCTION);
+			return true;
+		} else if (itemId == R.id.action_set_alias) {
+			AliasDialogFragment.newInstance().show(
+					getSupportFragmentManager(), AliasDialogFragment.TAG);
+			return true;
+		} else if (itemId == R.id.action_conversation_settings) {
+			onAutoDeleteTimerNoticeClicked();
+			return true;
+		} else if (itemId == R.id.action_connect_via_bluetooth) {
+			FragmentManager fm = getSupportFragmentManager();
+			new BluetoothConnecterDialogFragment().show(fm,
+					BluetoothConnecterDialogFragment.TAG);
+			return true;
+		} else if (itemId == R.id.action_delete_all_messages) {
+			askToDeleteAllMessages();
+			return true;
+		} else if (itemId == R.id.action_social_remove_person) {
+			askToRemoveContact();
+			return true;
 		}
+		return super.onOptionsItemSelected(item);
 	}
 
 	@Override

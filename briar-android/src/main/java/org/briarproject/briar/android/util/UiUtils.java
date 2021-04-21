@@ -3,11 +3,13 @@ package org.briarproject.briar.android.util;
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.app.KeyguardManager;
+import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
 import android.content.res.Resources;
 import android.graphics.drawable.Drawable;
+import android.location.LocationManager;
 import android.net.Uri;
 import android.os.PowerManager;
 import android.text.Spannable;
@@ -72,6 +74,7 @@ import static android.content.Intent.EXTRA_MIME_TYPES;
 import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
 import static android.os.Build.MANUFACTURER;
 import static android.os.Build.VERSION.SDK_INT;
+import static android.provider.Settings.ACTION_LOCATION_SOURCE_SETTINGS;
 import static android.provider.Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS;
 import static android.text.format.DateUtils.DAY_IN_MILLIS;
 import static android.text.format.DateUtils.FORMAT_ABBREV_ALL;
@@ -331,6 +334,19 @@ public class UiUtils {
 		return i;
 	}
 
+	/**
+	 * @return true if location is enabled,
+	 * or it isn't required due to this being a SDK < 28 device.
+	 */
+	public static boolean isLocationEnabled(Context ctx) {
+		if (SDK_INT >= 28) {
+			LocationManager lm = ctx.getSystemService(LocationManager.class);
+			return lm.isLocationEnabled();
+		} else {
+			return true;
+		}
+	}
+
 	public static boolean isSamsung7() {
 		return (SDK_INT == 24 || SDK_INT == 25) &&
 				MANUFACTURER.equalsIgnoreCase("Samsung");
@@ -472,6 +488,25 @@ public class UiUtils {
 		}
 		// Name is unknown
 		return isoCode;
+	}
+
+	public static void showLocationDialog(Context ctx) {
+		AlertDialog.Builder builder =
+				new AlertDialog.Builder(ctx, R.style.BriarDialogTheme);
+		builder.setTitle(R.string.permission_location_setting_title);
+		builder.setMessage(R.string.permission_location_setting_body);
+		builder.setNegativeButton(R.string.cancel, null);
+		builder.setPositiveButton(R.string.permission_location_setting_button,
+				(dialog, which) -> {
+					Intent i = new Intent(ACTION_LOCATION_SOURCE_SETTINGS);
+					try {
+						ctx.startActivity(i);
+					} catch (ActivityNotFoundException e) {
+						Toast.makeText(ctx, R.string.error_start_activity,
+								LENGTH_LONG).show();
+					}
+				});
+		builder.show();
 	}
 
 	public static Drawable getDialogIcon(Context ctx, @DrawableRes int resId) {

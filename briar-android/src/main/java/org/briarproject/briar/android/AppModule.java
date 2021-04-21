@@ -298,6 +298,11 @@ public class AppModule {
 			public boolean shouldEnableDisappearingMessages() {
 				return IS_DEBUG_BUILD;
 			}
+
+			@Override
+			public boolean shouldEnableConnectViaBluetooth() {
+				return IS_DEBUG_BUILD;
+			}
 		};
 	}
 }

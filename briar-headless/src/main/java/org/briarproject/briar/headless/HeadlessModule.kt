@@ -94,5 +94,6 @@ internal class HeadlessModule(private val appDir: File) {
         override fun shouldEnableImageAttachments() = false
         override fun shouldEnableProfilePictures() = false
         override fun shouldEnableDisappearingMessages() = false
+        override fun shouldEnableConnectViaBluetooth() = false
     }
 }
