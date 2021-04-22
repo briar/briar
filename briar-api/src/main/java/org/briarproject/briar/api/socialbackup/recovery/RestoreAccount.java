@@ -1,6 +1,7 @@
 package org.briarproject.briar.api.socialbackup.recovery;
 
 import org.briarproject.bramble.api.FormatException;
+import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.briar.api.socialbackup.ReturnShardPayload;
 import org.briarproject.briar.api.socialbackup.SocialBackup;
 
@@ -17,4 +18,6 @@ public interface RestoreAccount {
 	int recover() throws FormatException, GeneralSecurityException;
 
 	SocialBackup getSocialBackup();
+
+	void addContactsToDb() throws InterruptedException, DbException;
 }
