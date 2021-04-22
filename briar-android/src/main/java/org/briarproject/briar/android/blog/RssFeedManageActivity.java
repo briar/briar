@@ -79,17 +79,15 @@ public class RssFeedManageActivity extends BriarActivity
 
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
-		switch (item.getItemId()) {
-			case android.R.id.home:
-				onBackPressed();
-				return true;
-			case R.id.action_rss_feeds_import:
-				Intent i = new Intent(this, RssFeedImportActivity.class);
-				startActivity(i);
-				return true;
-			default:
-				return super.onOptionsItemSelected(item);
+		if (item.getItemId() == android.R.id.home) {
+			onBackPressed();
+			return true;
+		} else if (item.getItemId() == R.id.action_rss_feeds_import) {
+			Intent i = new Intent(this, RssFeedImportActivity.class);
+			startActivity(i);
+			return true;
 		}
+		return super.onOptionsItemSelected(item);
 	}
 
 	@Override

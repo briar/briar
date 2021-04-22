@@ -260,25 +260,18 @@ public class NavDrawerActivity extends BriarActivity implements
 
 	private void loadFragment(int fragmentId) {
 		// TODO re-use fragments from the manager when possible (#606)
-		switch (fragmentId) {
-			case R.id.nav_btn_contacts:
-				startFragment(ContactListFragment.newInstance());
-				break;
-			case R.id.nav_btn_groups:
-				startFragment(GroupListFragment.newInstance());
-				break;
-			case R.id.nav_btn_forums:
-				startFragment(ForumListFragment.newInstance());
-				break;
-			case R.id.nav_btn_blogs:
-				startFragment(FeedFragment.newInstance());
-				break;
-			case R.id.nav_btn_settings:
-				startActivity(new Intent(this, SettingsActivity.class));
-				break;
-			case R.id.nav_btn_signout:
-				signOut();
-				break;
+		if (fragmentId == R.id.nav_btn_contacts) {
+			startFragment(ContactListFragment.newInstance());
+		} else if (fragmentId == R.id.nav_btn_groups) {
+			startFragment(GroupListFragment.newInstance());
+		} else if (fragmentId == R.id.nav_btn_forums) {
+			startFragment(ForumListFragment.newInstance());
+		} else if (fragmentId == R.id.nav_btn_blogs) {
+			startFragment(FeedFragment.newInstance());
+		} else if (fragmentId == R.id.nav_btn_settings) {
+			startActivity(new Intent(this, SettingsActivity.class));
+		} else if (fragmentId == R.id.nav_btn_signout) {
+			signOut();
 		}
 	}
 

@@ -123,16 +123,12 @@ public class ContactListFragment extends BaseFragment
 	@Override
 	public void onMenuItemClick(FloatingActionButton fab, @Nullable TextView v,
 			int itemId) {
-		switch (itemId) {
-			case R.id.action_add_contact_nearby:
-				Intent intent =
-						new Intent(getContext(),
-								AddNearbyContactActivity.class);
-				startActivity(intent);
-				return;
-			case R.id.action_add_contact_remotely:
-				startActivity(
-						new Intent(getContext(), AddContactActivity.class));
+		if (itemId == R.id.action_add_contact_nearby) {
+			Intent intent =
+					new Intent(getContext(), AddNearbyContactActivity.class);
+			startActivity(intent);
+		} else if (itemId == R.id.action_add_contact_remotely) {
+			startActivity(new Intent(getContext(), AddContactActivity.class));
 		}
 	}
 

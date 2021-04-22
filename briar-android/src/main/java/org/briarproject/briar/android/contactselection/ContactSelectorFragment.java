@@ -37,14 +37,12 @@ public abstract class ContactSelectorFragment extends
 
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
-		switch (item.getItemId()) {
-			case R.id.action_contacts_selected:
-				selectedContacts = adapter.getSelectedContactIds();
-				listener.contactsSelected(selectedContacts);
-				return true;
-			default:
-				return super.onOptionsItemSelected(item);
+		if (item.getItemId() == R.id.action_contacts_selected) {
+			selectedContacts = adapter.getSelectedContactIds();
+			listener.contactsSelected(selectedContacts);
+			return true;
 		}
+		return super.onOptionsItemSelected(item);
 	}
 
 	@Override

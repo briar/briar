@@ -122,14 +122,12 @@ public class IntroductionMessageFragment extends BaseFragment
 
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
-		switch (item.getItemId()) {
-			case android.R.id.home:
-				hideSoftKeyboard(ui.message);
-				requireActivity().onBackPressed();
-				return true;
-			default:
-				return super.onOptionsItemSelected(item);
+		if (item.getItemId() == android.R.id.home) {
+			hideSoftKeyboard(ui.message);
+			requireActivity().onBackPressed();
+			return true;
 		}
+		return super.onOptionsItemSelected(item);
 	}
 
 	@Override
