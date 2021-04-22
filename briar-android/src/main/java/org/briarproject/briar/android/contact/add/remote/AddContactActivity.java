@@ -17,7 +17,6 @@ import javax.inject.Inject;
 
 import androidx.appcompat.app.ActionBar;
 import androidx.lifecycle.ViewModelProvider;
-import androidx.lifecycle.ViewModelProviders;
 
 import static android.content.Intent.ACTION_SEND;
 import static android.content.Intent.ACTION_VIEW;
@@ -36,6 +35,8 @@ public class AddContactActivity extends BriarActivity implements
 	@Override
 	public void injectActivity(ActivityComponent component) {
 		component.inject(this);
+		viewModel = new ViewModelProvider(this, viewModelFactory)
+				.get(AddContactViewModel.class);
 	}
 
 	@Override
@@ -48,8 +49,6 @@ public class AddContactActivity extends BriarActivity implements
 			ab.setDisplayHomeAsUpEnabled(true);
 		}
 
-		viewModel = ViewModelProviders.of(this, viewModelFactory)
-				.get(AddContactViewModel.class);
 		viewModel.onCreate();
 		viewModel.getRemoteLinkEntered().observeEvent(this, entered -> {
 			if (entered) {

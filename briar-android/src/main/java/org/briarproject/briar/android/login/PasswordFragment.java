@@ -25,7 +25,6 @@ import javax.inject.Inject;
 import androidx.appcompat.app.AlertDialog;
 import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.ViewModelProvider;
-import androidx.lifecycle.ViewModelProviders;
 
 import static android.view.View.INVISIBLE;
 import static android.view.View.VISIBLE;
@@ -56,6 +55,8 @@ public class PasswordFragment extends BaseFragment implements TextWatcher {
 	@Override
 	public void injectFragment(ActivityComponent component) {
 		component.inject(this);
+		viewModel = new ViewModelProvider(requireActivity(), viewModelFactory)
+				.get(StartupViewModel.class);
 	}
 
 	@Override
@@ -64,9 +65,6 @@ public class PasswordFragment extends BaseFragment implements TextWatcher {
 			@Nullable Bundle savedInstanceState) {
 		View v = inflater.inflate(R.layout.fragment_password, container,
 				false);
-
-		viewModel = ViewModelProviders.of(requireActivity(), viewModelFactory)
-				.get(StartupViewModel.class);
 
 		LifecycleOwner owner = getViewLifecycleOwner();
 		viewModel.getPasswordValidated().observeEvent(owner, result -> {

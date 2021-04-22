@@ -213,6 +213,13 @@ public class ConversationActivity extends BriarActivity
 	private volatile ContactId contactId;
 
 	@Override
+	public void injectActivity(ActivityComponent component) {
+		component.inject(this);
+		viewModel = new ViewModelProvider(this, viewModelFactory)
+				.get(ConversationViewModel.class);
+	}
+
+	@Override
 	public void onCreate(@Nullable Bundle state) {
 		if (SDK_INT >= 21) {
 			// Spurious lint warning - using END causes a crash
@@ -228,8 +235,6 @@ public class ConversationActivity extends BriarActivity
 		if (id == -1) throw new IllegalStateException();
 		contactId = new ContactId(id);
 
-		viewModel = new ViewModelProvider(this, viewModelFactory)
-				.get(ConversationViewModel.class);
 		viewModel.setContactId(contactId);
 		attachmentRetriever = viewModel.getAttachmentRetriever();
 
@@ -296,11 +301,6 @@ public class ConversationActivity extends BriarActivity
 	private void scrollToBottom() {
 		int items = adapter.getItemCount();
 		if (items > 0) list.scrollToPosition(items - 1);
-	}
-
-	@Override
-	public void injectActivity(ActivityComponent component) {
-		component.inject(this);
 	}
 
 	@Override

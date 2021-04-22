@@ -29,7 +29,6 @@ import javax.inject.Inject;
 
 import androidx.core.app.ShareCompat.IntentBuilder;
 import androidx.lifecycle.ViewModelProvider;
-import androidx.lifecycle.ViewModelProviders;
 
 import static android.content.Context.CLIPBOARD_SERVICE;
 import static android.widget.Toast.LENGTH_SHORT;
@@ -60,6 +59,8 @@ public class LinkExchangeFragment extends BaseFragment
 	@Override
 	public void injectFragment(ActivityComponent component) {
 		component.inject(this);
+		viewModel = new ViewModelProvider(getActivity(), viewModelFactory)
+				.get(AddContactViewModel.class);
 	}
 
 	@Nullable
@@ -68,9 +69,6 @@ public class LinkExchangeFragment extends BaseFragment
 			@Nullable ViewGroup container,
 			@Nullable Bundle savedInstanceState) {
 		if (getActivity() == null || getContext() == null) return null;
-
-		viewModel = ViewModelProviders.of(getActivity(), viewModelFactory)
-				.get(AddContactViewModel.class);
 
 		View v = inflater.inflate(R.layout.fragment_link_exchange,
 				container, false);

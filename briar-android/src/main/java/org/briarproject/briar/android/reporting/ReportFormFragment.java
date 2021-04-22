@@ -53,14 +53,14 @@ public class ReportFormFragment extends BaseFragment {
 	@Override
 	public void injectFragment(ActivityComponent component) {
 		component.inject(this);
+		viewModel = new ViewModelProvider(requireActivity(), viewModelFactory)
+				.get(ReportViewModel.class);
 	}
 
 	@Override
 	public void onCreate(@Nullable Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setHasOptionsMenu(true);
-		viewModel = new ViewModelProvider(requireActivity(), viewModelFactory)
-				.get(ReportViewModel.class);
 	}
 
 	@Nullable

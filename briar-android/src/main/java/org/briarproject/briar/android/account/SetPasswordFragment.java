@@ -15,7 +15,6 @@ import com.google.android.material.textfield.TextInputLayout;
 import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
 import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
 import org.briarproject.briar.R;
-import org.briarproject.briar.android.activity.ActivityComponent;
 import org.briarproject.briar.android.login.StrengthMeter;
 
 import javax.annotation.Nullable;
@@ -41,11 +40,6 @@ public class SetPasswordFragment extends SetupFragment {
 
 	public static SetPasswordFragment newInstance() {
 		return new SetPasswordFragment();
-	}
-
-	@Override
-	public void injectFragment(ActivityComponent component) {
-		component.inject(this);
 	}
 
 	@Override

@@ -59,7 +59,6 @@ import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.FragmentManager;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModelProvider;
-import androidx.lifecycle.ViewModelProviders;
 import androidx.vectordrawable.graphics.drawable.VectorDrawableCompat;
 import uk.co.samuelwall.materialtaptargetprompt.MaterialTapTargetPrompt;
 
@@ -123,6 +122,10 @@ public class NavDrawerActivity extends BriarActivity implements
 	@Override
 	public void injectActivity(ActivityComponent component) {
 		component.inject(this);
+		ViewModelProvider provider =
+				new ViewModelProvider(this, viewModelFactory);
+		navDrawerViewModel = provider.get(NavDrawerViewModel.class);
+		pluginViewModel = provider.get(PluginViewModel.class);
 	}
 
 	@Override
@@ -130,11 +133,6 @@ public class NavDrawerActivity extends BriarActivity implements
 		super.onCreate(state);
 		exitIfStartupFailed(getIntent());
 		setContentView(R.layout.activity_nav_drawer);
-
-		ViewModelProvider provider =
-				ViewModelProviders.of(this, viewModelFactory);
-		navDrawerViewModel = provider.get(NavDrawerViewModel.class);
-		pluginViewModel = provider.get(PluginViewModel.class);
 
 		BriarApplication app = (BriarApplication) getApplication();
 		if (IS_DEBUG_BUILD && !app.isInstrumentationTest()) {
