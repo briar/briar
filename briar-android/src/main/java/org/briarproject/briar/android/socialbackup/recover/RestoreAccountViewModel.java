@@ -11,6 +11,7 @@ import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
 import org.briarproject.briar.android.account.DozeHelper;
 import org.briarproject.briar.android.viewmodel.LiveEvent;
 import org.briarproject.briar.android.viewmodel.MutableLiveEvent;
+import org.briarproject.briar.api.socialbackup.SocialBackup;
 import org.briarproject.briar.api.socialbackup.recovery.RestoreAccount;
 
 import java.util.concurrent.Executor;
@@ -107,7 +108,12 @@ class RestoreAccountViewModel extends AndroidViewModel {
 //		if (authorName == null) throw new IllegalStateException();
 		if (password == null) throw new IllegalStateException();
 		isCreatingAccount.setValue(true);
-		Identity identity = restoreAccount.getSocialBackup().getIdentity();
+		SocialBackup socialBackup = restoreAccount.getSocialBackup();
+		if (socialBackup == null) {
+			LOG.warning("Cannot retrieve social backup");
+			state.postEvent(State.FAILED);
+		}
+		Identity identity = socialBackup.getIdentity();
 		ioExecutor.execute(() -> {
 			if (accountManager.restoreAccount(identity, password)) {
 				LOG.info("Restore account");

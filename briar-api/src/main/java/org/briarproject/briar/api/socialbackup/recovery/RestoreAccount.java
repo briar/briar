@@ -7,9 +7,14 @@ import org.briarproject.briar.api.socialbackup.SocialBackup;
 import java.security.GeneralSecurityException;
 
 public interface RestoreAccount {
+
 	int getNumberOfShards();
-	boolean addReturnShardPayload(ReturnShardPayload toadd);
+
+	boolean addReturnShardPayload(ReturnShardPayload toAdd);
+
 	boolean canRecover();
+
 	int recover() throws FormatException, GeneralSecurityException;
+
 	SocialBackup getSocialBackup();
 }
