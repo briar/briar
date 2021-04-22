@@ -21,7 +21,7 @@ import static android.os.Build.VERSION.SDK_INT;
 
 @UiThread
 @NotNullByDefault
-class HuaweiView extends PowerView {
+public class HuaweiView extends PowerView {
 
 	private final static String PACKAGE_NAME = "com.huawei.systemmanager";
 	private final static String CLASS_NAME =

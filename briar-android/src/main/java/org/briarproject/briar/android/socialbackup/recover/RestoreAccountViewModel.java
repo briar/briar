@@ -3,7 +3,9 @@ package org.briarproject.briar.android.socialbackup.recover;
 import android.app.Application;
 
 import org.briarproject.bramble.api.account.AccountManager;
+import org.briarproject.bramble.api.contact.ContactManager;
 import org.briarproject.bramble.api.crypto.PasswordStrengthEstimator;
+import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.identity.Identity;
 import org.briarproject.bramble.api.lifecycle.IoExecutor;
 import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
@@ -42,6 +44,7 @@ class RestoreAccountViewModel extends AndroidViewModel {
 			new MutableLiveData<>(false);
 
 	private final AccountManager accountManager;
+	private final ContactManager contactManager;
 	private final Executor ioExecutor;
 	private final PasswordStrengthEstimator strengthEstimator;
 	private final DozeHelper dozeHelper;
@@ -50,12 +53,14 @@ class RestoreAccountViewModel extends AndroidViewModel {
 	@Inject
 	RestoreAccountViewModel(Application app,
 			AccountManager accountManager,
+			ContactManager contactManager,
 			RestoreAccount restoreAccount,
 			@IoExecutor Executor ioExecutor,
 			PasswordStrengthEstimator strengthEstimator,
 			DozeHelper dozeHelper) {
 		super(app);
 		this.accountManager = accountManager;
+		this.contactManager = contactManager;
 		this.ioExecutor = ioExecutor;
 		this.strengthEstimator = strengthEstimator;
 		this.dozeHelper = dozeHelper;
@@ -77,11 +82,6 @@ class RestoreAccountViewModel extends AndroidViewModel {
 	LiveData<Boolean> getIsCreatingAccount() {
 		return isCreatingAccount;
 	}
-
-//	void setAuthorName(String authorName) {
-//		this.authorName = authorName;
-//		state.setEvent(SET_PASSWORD);
-//	}
 
 	void setPassword(String password) {
 		this.password = password;
@@ -105,7 +105,6 @@ class RestoreAccountViewModel extends AndroidViewModel {
 	}
 
 	private void createAccount() {
-//		if (authorName == null) throw new IllegalStateException();
 		if (password == null) throw new IllegalStateException();
 		isCreatingAccount.setValue(true);
 		SocialBackup socialBackup = restoreAccount.getSocialBackup();
@@ -116,7 +115,20 @@ class RestoreAccountViewModel extends AndroidViewModel {
 		Identity identity = socialBackup.getIdentity();
 		ioExecutor.execute(() -> {
 			if (accountManager.restoreAccount(identity, password)) {
-				LOG.info("Restore account");
+				LOG.info("Restored account");
+
+				try {
+					restoreAccount.addContactsToDb();
+				} catch (InterruptedException e) {
+					LOG.warning("Process interrupted when waiting for db to open");
+					state.postEvent(State.FAILED);
+					return;
+				} catch (DbException e) {
+					LOG.warning("DbException when adding contacts");
+					state.postEvent(State.FAILED);
+					return;
+				}
+				LOG.info("Added recovered contacts to database");
 				state.postEvent(State.CREATED);
 			} else {
 				LOG.warning("Failed to create account");

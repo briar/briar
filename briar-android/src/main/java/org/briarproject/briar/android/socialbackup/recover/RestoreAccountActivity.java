@@ -52,7 +52,7 @@ public class RestoreAccountActivity extends BaseActivity
 		if (state == State.SET_PASSWORD) {
 			showInitialFragment(RestoreAccountSetPasswordFragment.newInstance());
 		} else if (state == State.DOZE) {
-//			showDozeFragment();
+			showDozeFragment();
 		} else if (state == State.CREATED || state == State.FAILED) {
 			// TODO: Show an error if failed
 			showApp();
