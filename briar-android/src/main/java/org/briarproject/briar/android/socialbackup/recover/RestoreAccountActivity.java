@@ -8,7 +8,6 @@ import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
 import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.account.DozeFragment;
-import org.briarproject.briar.android.account.SetPasswordFragment;
 import org.briarproject.briar.android.activity.ActivityComponent;
 import org.briarproject.briar.android.activity.BaseActivity;
 import org.briarproject.briar.android.fragment.BaseFragment;
@@ -50,10 +49,10 @@ public class RestoreAccountActivity extends BaseActivity
 	}
 
 	private void onStateChanged(RestoreAccountViewModel.State state) {
-		if (state == RestoreAccountViewModel.State.SET_PASSWORD) {
-			showInitialFragment(SetPasswordFragment.newInstance());
+		if (state == State.SET_PASSWORD) {
+			showInitialFragment(RestoreAccountSetPasswordFragment.newInstance());
 		} else if (state == State.DOZE) {
-			showDozeFragment();
+//			showDozeFragment();
 		} else if (state == State.CREATED || state == State.FAILED) {
 			// TODO: Show an error if failed
 			showApp();

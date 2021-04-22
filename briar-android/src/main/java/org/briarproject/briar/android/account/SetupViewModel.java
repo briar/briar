@@ -29,6 +29,7 @@ import static org.briarproject.briar.android.account.SetupViewModel.State.SET_PA
 
 @MethodsNotNullByDefault
 @ParametersNotNullByDefault
+public
 class SetupViewModel extends AndroidViewModel {
 	enum State {AUTHOR_NAME, SET_PASSWORD, DOZE, CREATED, FAILED}
 
