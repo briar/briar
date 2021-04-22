@@ -123,6 +123,7 @@ public class SocialBackupModule {
 	}
 
 	@Provides
+	@Singleton
 	RestoreAccount restoreAccount(RestoreAccountImpl restoreAccount) {
 		return restoreAccount;
 	}
