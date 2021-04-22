@@ -9,7 +9,7 @@ public class SocialBackup {
 	private List<ContactData> contacts;
 	private int version;
 
-	SocialBackup (Identity identity, List<ContactData> contacts, int version) {
+	public SocialBackup (Identity identity, List<ContactData> contacts, int version) {
 		this.identity = identity;
 		this.contacts = contacts;
 		this.version = version;

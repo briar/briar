@@ -716,7 +716,7 @@
 
 	<!-- activity names -->
 	<string name="activity_name_distributed_backup">Social Backup</string>
-	<string name="activity_name_old_distributed_backup">Old Social Backup</string>
+	<string name="activity_name_restore_account">Restore Account</string>
 
 	<!-- conversation -->
 	<string name="social_backup_shard_received">You have received a social backup shard.</string>

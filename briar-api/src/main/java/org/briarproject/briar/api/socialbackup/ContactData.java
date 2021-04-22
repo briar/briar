@@ -12,14 +12,14 @@ import javax.annotation.concurrent.Immutable;
 
 @Immutable
 @NotNullByDefault
-class ContactData {
+public class ContactData {
 
 	private final Contact contact;
 	private final Map<TransportId, TransportProperties> properties;
 	@Nullable
 	private final Shard shard;
 
-	ContactData(Contact contact,
+	public ContactData(Contact contact,
 			Map<TransportId, TransportProperties> properties,
 			@Nullable Shard shard) {
 		this.contact = contact;

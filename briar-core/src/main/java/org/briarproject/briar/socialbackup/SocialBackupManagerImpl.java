@@ -52,6 +52,7 @@ import org.briarproject.briar.api.socialbackup.ShardMessageHeader;
 import org.briarproject.briar.api.socialbackup.ShardReceivedEvent;
 import org.briarproject.briar.api.socialbackup.SocialBackupManager;
 import org.briarproject.briar.client.ConversationClientImpl;
+import org.briarproject.briar.api.socialbackup.ContactData;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -193,12 +194,12 @@ class SocialBackupManagerImpl extends ConversationClientImpl
 			// Add the shard to our backup, if any
 			if (localBackupExists(txn)) {
 				Shard shard = messageParser.parseShardMessage(body);
-				List<org.briarproject.briar.api.socialbackup.ContactData> contactData = loadContactData(txn);
-				ListIterator<org.briarproject.briar.api.socialbackup.ContactData> it = contactData.listIterator();
+				List<ContactData> contactData = loadContactData(txn);
+				ListIterator<ContactData> it = contactData.listIterator();
 				while (it.hasNext()) {
-					org.briarproject.briar.api.socialbackup.ContactData cd = it.next();
+					ContactData cd = it.next();
 					if (cd.getContact().getId().equals(contactId)) {
-						it.set(new org.briarproject.briar.api.socialbackup.ContactData(cd.getContact(),
+						it.set(new ContactData(cd.getContact(),
 								cd.getProperties(), shard));
 						updateBackup(txn, contactData);
 						break;

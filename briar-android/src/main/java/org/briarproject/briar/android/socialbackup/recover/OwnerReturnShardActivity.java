@@ -1,5 +1,6 @@
 package org.briarproject.briar.android.socialbackup.recover;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.MenuItem;
 import android.widget.Toast;
@@ -23,6 +24,10 @@ import javax.inject.Inject;
 import androidx.fragment.app.FragmentManager;
 import androidx.lifecycle.ViewModelProvider;
 
+import static android.content.Intent.FLAG_ACTIVITY_CLEAR_TASK;
+import static android.content.Intent.FLAG_ACTIVITY_CLEAR_TOP;
+import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
+import static android.content.Intent.FLAG_ACTIVITY_TASK_ON_HOME;
 import static java.util.logging.Logger.getLogger;
 
 @MethodsNotNullByDefault
@@ -152,6 +157,11 @@ public class OwnerReturnShardActivity extends BaseActivity
 						"Account recovered! " + version,
 						Toast.LENGTH_LONG).show();
 				finish();
+				// TODO Success fragment
+				Intent i = new Intent(this, RestoreAccountActivity.class);
+				i.addFlags(FLAG_ACTIVITY_NEW_TASK | FLAG_ACTIVITY_CLEAR_TOP |
+						FLAG_ACTIVITY_CLEAR_TASK | FLAG_ACTIVITY_TASK_ON_HOME);
+				startActivity(i);
 				return;
 			}
 			onBackPressed();
