@@ -3,6 +3,7 @@ package org.briarproject.bramble.api.contact;
 import org.briarproject.bramble.api.FormatException;
 import org.briarproject.bramble.api.Pair;
 import org.briarproject.bramble.api.UnsupportedVersionException;
+import org.briarproject.bramble.api.crypto.PublicKey;
 import org.briarproject.bramble.api.crypto.SecretKey;
 import org.briarproject.bramble.api.db.ContactExistsException;
 import org.briarproject.bramble.api.db.DbException;
@@ -47,6 +48,9 @@ public interface ContactManager {
 	ContactId addContact(Transaction txn, Author remote, AuthorId local,
 			SecretKey rootKey, long timestamp, boolean alice, boolean verified,
 			boolean active) throws DbException;
+
+	ContactId addContact(Transaction txn, Author remote, AuthorId local,
+			PublicKey handshake, boolean verified) throws DbException;
 
 	/**
 	 * Stores a contact associated with the given local and remote pseudonyms,
