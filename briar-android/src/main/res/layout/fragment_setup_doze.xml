@@ -15,17 +15,28 @@
 			android:id="@+id/dozeView"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
+			android:paddingBottom="@dimen/margin_large"
 			app:layout_constraintEnd_toEndOf="parent"
 			app:layout_constraintStart_toStartOf="parent"
 			app:layout_constraintTop_toTopOf="parent" />
 
-		<org.briarproject.briar.android.account.HuaweiView
-			android:id="@+id/huaweiView"
+		<org.briarproject.briar.android.account.HuaweiProtectedAppsView
+			android:id="@+id/huaweiProtectedAppsView"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
+			android:paddingBottom="@dimen/margin_large"
 			app:layout_constraintEnd_toEndOf="parent"
 			app:layout_constraintStart_toStartOf="parent"
 			app:layout_constraintTop_toBottomOf="@+id/dozeView" />
+
+		<org.briarproject.briar.android.account.HuaweiAppLaunchView
+			android:id="@+id/huaweiAppLaunchView"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:paddingBottom="@dimen/margin_large"
+			app:layout_constraintEnd_toEndOf="parent"
+			app:layout_constraintStart_toStartOf="parent"
+			app:layout_constraintTop_toBottomOf="@+id/huaweiProtectedAppsView" />
 
 		<Button
 			android:id="@+id/next"
@@ -37,7 +48,7 @@
 			app:layout_constraintBottom_toBottomOf="parent"
 			app:layout_constraintEnd_toEndOf="parent"
 			app:layout_constraintStart_toStartOf="parent"
-			app:layout_constraintTop_toBottomOf="@+id/huaweiView"
+			app:layout_constraintTop_toBottomOf="@+id/huaweiAppLaunchView"
 			app:layout_constraintVertical_bias="1.0"
 			tools:enabled="true" />
 

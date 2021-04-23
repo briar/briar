@@ -27,6 +27,9 @@
 	<string name="setup_huawei_text">Please tap the button below and make sure Briar is protected in the \"Protected Apps\" screen.</string>
 	<string name="setup_huawei_button">Protect Briar</string>
 	<string name="setup_huawei_help">If Briar is not added to the protected apps list, it will be unable to run in the background.</string>
+	<string name="setup_huawei_app_launch_text">Please tap the button below, open the \"App launch\" screen and make sure Briar is set to \"Manage manually\".</string>
+	<string name="setup_huawei_app_launch_button">Open Battery Settings</string>
+	<string name="setup_huawei_app_launch_help">If Briar is not set to \"Manage manually\" in the \"App launch\" screen, it will not be able to run in the background.</string>
 	<string name="warning_dozed">%s was unable to run in the background</string>
 
 	<!-- Login -->

@@ -17,29 +17,30 @@ import javax.annotation.Nullable;
 import androidx.annotation.StringRes;
 import androidx.annotation.UiThread;
 
+import static android.content.pm.PackageManager.MATCH_DEFAULT_ONLY;
 import static android.os.Build.VERSION.SDK_INT;
 
 @UiThread
 @NotNullByDefault
-class HuaweiView extends PowerView {
+class HuaweiAppLaunchView extends PowerView {
 
 	private final static String PACKAGE_NAME = "com.huawei.systemmanager";
 	private final static String CLASS_NAME =
-			PACKAGE_NAME + ".optimize.process.ProtectActivity";
+			PACKAGE_NAME + ".power.ui.HwPowerManagerActivity";
 
-	public HuaweiView(Context context) {
+	public HuaweiAppLaunchView(Context context) {
 		this(context, null);
 	}
 
-	public HuaweiView(Context context, @Nullable AttributeSet attrs) {
+	public HuaweiAppLaunchView(Context context, @Nullable AttributeSet attrs) {
 		this(context, attrs, 0);
 	}
 
-	public HuaweiView(Context context, @Nullable AttributeSet attrs,
+	public HuaweiAppLaunchView(Context context, @Nullable AttributeSet attrs,
 			int defStyleAttr) {
 		super(context, attrs, defStyleAttr);
-		setText(R.string.setup_huawei_text);
-		setButtonText(R.string.setup_huawei_button);
+		setText(R.string.setup_huawei_app_launch_text);
+		setButtonText(R.string.setup_huawei_app_launch_button);
 	}
 
 	@Override
@@ -48,18 +49,18 @@ class HuaweiView extends PowerView {
 	}
 
 	public static boolean needsToBeShown(Context context) {
-		// "Protected apps" no longer exists on Huawei EMUI 5.0 (Android 7.0)
-		if (SDK_INT >= 24) return false;
+		// "App launch" was introduced in EMUI 8 (Android 8.0)
+		if (SDK_INT < 26) return false;
 		PackageManager pm = context.getPackageManager();
 		List<ResolveInfo> resolveInfos = pm.queryIntentActivities(getIntent(),
-				PackageManager.MATCH_DEFAULT_ONLY);
+				MATCH_DEFAULT_ONLY);
 		return !resolveInfos.isEmpty();
 	}
 
 	@Override
 	@StringRes
 	protected int getHelpText() {
-		return R.string.setup_huawei_help;
+		return R.string.setup_huawei_app_launch_help;
 	}
 
 	@Override

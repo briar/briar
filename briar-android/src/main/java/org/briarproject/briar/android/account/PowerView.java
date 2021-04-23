@@ -43,7 +43,6 @@ abstract class PowerView extends ConstraintLayout {
 		this(context, attrs, 0);
 	}
 
-	@SuppressWarnings("ConstantConditions")
 	public PowerView(Context context, @Nullable AttributeSet attrs,
 			int defStyleAttr) {
 		super(context, attrs, defStyleAttr);
@@ -85,6 +84,7 @@ abstract class PowerView extends ConstraintLayout {
 		setChecked(ss.value[0]);  // also calls listener
 	}
 
+	@SuppressWarnings("BooleanMethodIsAlwaysInverted")
 	public abstract boolean needsToBeShown();
 
 	public void setChecked(boolean checked) {
