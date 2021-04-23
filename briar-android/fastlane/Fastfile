@@ -26,6 +26,21 @@ platform :android do
     system './demo-mode-deactivate.sh'
     system './rename_screenshots.py'
   end
+
+  desc "Updates Google Play metadata (title, descriptions, video, etc.)"
+  lane :metadata do
+    system './update-metadata.sh'
+    upload_to_play_store(
+      skip_upload_apk: true,
+	  skip_upload_aab: true,
+	  skip_upload_metadata: false,
+	  skip_upload_changelogs: true,
+	  skip_upload_images: true,
+	  skip_upload_screenshots: true,
+	  validate_only: false,
+	)
+  end
+
 end
 
 
