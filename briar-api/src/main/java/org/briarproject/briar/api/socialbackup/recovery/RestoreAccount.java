@@ -9,6 +9,7 @@ import java.security.GeneralSecurityException;
 
 public interface RestoreAccount {
 
+
 	int getNumberOfShards();
 
 	boolean addReturnShardPayload(ReturnShardPayload toAdd);
@@ -19,5 +20,5 @@ public interface RestoreAccount {
 
 	SocialBackup getSocialBackup();
 
-	void addContactsToDb() throws InterruptedException, DbException;
+	void addContactsToDb() throws DbException;
 }
