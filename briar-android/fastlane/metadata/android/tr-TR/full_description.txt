@@ -1,0 +1,5 @@
+Briar aktivistler ve gazeteciler başta olmak üzere güvenli, kolay ve sağlam bir iletişim isteyen herkes için tasarlanmış bir ileti sistemidir. Geleneksel ileti sistemlerinin aksine Briar merkezi bir sunucu kullanmaz, iletiler doğrudan kullanıcıların aygıtları arasında eşleştirilir. Briar, eğer İnternet yoksa Bluetooth veya Wi-Fi aracılığıyla da iletileri iletebilir, böylece kriz durumlarında bilgi akışını sürdürür. İnternet varken Briar Tor ağı aracılığıyla iletim sağlar, böylece kullanıcıları ve ilişkilerini gözetimden korumuş olur.  
+
+Bu uygulama özel iletiler, gruplar ve forumlarla birlikte blog özelliklerine sahiptir. Tor ağı desteği uygulamada gömülüdür. Briar üzerinde yaptığınız her şey, siz başka kullanıcılarla paylaşmayı seçmediğiniz sürece, sadece kendi aygıtınızda saklanır.
+
+Ne reklam var, ne de sizi izleme. Uygulamanın kaynak kodu, incelemek isteyen herkese tamamen açıktır ve zaten profesyonel olarak da denetlenmiştir. Briar'ın tüm sürümleri yeniden üretilebilir, böylece yayınlanan kaynak kodun, burada yayınlanan uygulamayla tam olarak eşlendiğini doğrulamak mümkündür. Uygulama kâr amacı gütmeyen küçük bir ekip tarafından geliştirilmektedir.

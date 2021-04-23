@@ -11,7 +11,7 @@ minimum_perc = 80
 
 [briar.google-play-short-description]
 # https://support.google.com/googleplay/android-developer/answer/9844778?hl=en#zippy=%2Cview-list-of-available-languages
-lang_map = en: en-US, de: de-DE
+lang_map = en: en-US, de: de-DE, gl: gl-ES, tr: tr-TR, zh-Hans: zh-CN
 file_filter = fastlane/metadata/android/<lang>/short_description.txt
 source_file = fastlane/metadata/android/en-US/short_description.txt
 source_lang = en
@@ -19,7 +19,7 @@ type = TXT
 minimum_perc = 100
 
 [briar.google-play-full-description]
-lang_map = en: en-US, de: de-DE
+lang_map = en: en-US, de: de-DE, gl: gl-ES, tr: tr-TR, zh-Hans: zh-CN
 file_filter = fastlane/metadata/android/<lang>/full_description.txt
 source_file = fastlane/metadata/android/en-US/full_description.txt
 source_lang = en
