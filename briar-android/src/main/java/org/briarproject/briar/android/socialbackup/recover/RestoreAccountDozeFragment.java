@@ -30,7 +30,7 @@ import static org.briarproject.briar.android.util.UiUtils.showOnboardingDialog;
 public class RestoreAccountDozeFragment extends RestoreAccountFragment
 		implements PowerView.OnCheckedChangedListener {
 
-	private final static String TAG = org.briarproject.briar.android.account.DozeFragment.class.getName();
+	private final static String TAG = RestoreAccountDozeFragment.class.getName();
 
 	private DozeView dozeView;
 	private HuaweiView huaweiView;

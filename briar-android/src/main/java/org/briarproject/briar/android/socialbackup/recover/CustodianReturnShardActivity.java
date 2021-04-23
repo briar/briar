@@ -59,6 +59,8 @@ public class CustodianReturnShardActivity extends BriarActivity
 				Toast.makeText(this,
 						"It looks like you are not connected to a Wifi network",
 						Toast.LENGTH_SHORT).show();
+				showNextFragment(new CustodianReturnShardErrorFragment());
+				return;
 			} catch (DbException e) {
 				Toast.makeText(this,
 						"You do not hold a backup piece for this contact",

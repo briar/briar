@@ -77,6 +77,9 @@ public class OwnerReturnShardActivity extends BaseActivity
 				showNextFragment(new OwnerRecoveryModeMainFragment());
 			}
 		});
+		viewModel.getSuccessDismissed().observeEvent(this, success -> {
+			if (success) onSuccessDismissed();
+		});
 		viewModel.getState()
 				.observe(this, this::onReturnShardStateChanged);
 	}
@@ -125,6 +128,13 @@ public class OwnerReturnShardActivity extends BaseActivity
 		}
 	}
 
+	private void onSuccessDismissed() {
+		finish();
+		Intent i = new Intent(this, RestoreAccountActivity.class);
+		i.addFlags(FLAG_ACTIVITY_NEW_TASK | FLAG_ACTIVITY_CLEAR_TOP |
+				FLAG_ACTIVITY_CLEAR_TASK | FLAG_ACTIVITY_TASK_ON_HOME);
+		startActivity(i);
+	}
 
 	private void onReturnShardStateChanged(SecretOwnerTask.State state) {
 		if (state instanceof SecretOwnerTask.State.Success) {
@@ -136,9 +146,8 @@ public class OwnerReturnShardActivity extends BaseActivity
 					Toast.LENGTH_SHORT).show();
 			if (added && viewModel.canRecover()) {
 				LOG.info("Secret key recovered");
-				int version = 0;
 				try {
-					version = viewModel.recover();
+					viewModel.recover();
 				} catch (GeneralSecurityException e) {
 					LOG.warning("Unable to decrypt backup" + e.toString());
 					Toast.makeText(this,
@@ -153,15 +162,7 @@ public class OwnerReturnShardActivity extends BaseActivity
 							Toast.LENGTH_LONG).show();
 					return;
 				}
-				Toast.makeText(this,
-						"Account recovered! " + version,
-						Toast.LENGTH_LONG).show();
-				finish();
-				// TODO Success fragment
-				Intent i = new Intent(this, RestoreAccountActivity.class);
-				i.addFlags(FLAG_ACTIVITY_NEW_TASK | FLAG_ACTIVITY_CLEAR_TOP |
-						FLAG_ACTIVITY_CLEAR_TASK | FLAG_ACTIVITY_TASK_ON_HOME);
-				startActivity(i);
+				showNextFragment(new OwnerReturnShardSuccessFragment());
 				return;
 			}
 			onBackPressed();

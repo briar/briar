@@ -58,6 +58,7 @@ public class CustodianReturnShardViewModel extends AndroidViewModel
 			new MutableLiveEvent<>();
 	private final MutableLiveEvent<Boolean> successDismissed =
 			new MutableLiveEvent<>();
+	private final MutableLiveEvent<Boolean> errorTryAgain = new MutableLiveEvent<>();
 	private final MutableLiveData<CustodianTask.State> state =
 			new MutableLiveData<>();
 	private final CustodianTask task;
@@ -157,6 +158,16 @@ public class CustodianReturnShardViewModel extends AndroidViewModel
 	}
 
 	@UiThread
+	public void onErrorCancelled() {
+		errorTryAgain.postEvent(false);
+	}
+
+	@UiThread
+	public void onErrorTryAgain() {
+		errorTryAgain.postEvent(true);
+	}
+
+	@UiThread
 	public void onSuccessDismissed() {
 		successDismissed.setEvent(true);
 	}
@@ -185,5 +196,9 @@ public class CustodianReturnShardViewModel extends AndroidViewModel
 		if (state instanceof CustodianTask.State.SendingShard) {
 			qrCodeRead = true;
 		}
+	}
+
+	public MutableLiveEvent<Boolean> getErrorTryAgain() {
+		return errorTryAgain;
 	}
 }

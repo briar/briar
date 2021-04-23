@@ -14,19 +14,14 @@ import org.briarproject.bramble.api.system.AndroidExecutor;
 import org.briarproject.briar.android.contact.add.nearby.QrCodeUtils;
 import org.briarproject.briar.android.viewmodel.LiveEvent;
 import org.briarproject.briar.android.viewmodel.MutableLiveEvent;
-import org.briarproject.briar.api.socialbackup.BackupPayload;
 import org.briarproject.briar.api.socialbackup.ReturnShardPayload;
-import org.briarproject.briar.api.socialbackup.Shard;
 import org.briarproject.briar.api.socialbackup.recovery.RestoreAccount;
 import org.briarproject.briar.api.socialbackup.recovery.SecretOwnerTask;
-import org.briarproject.briar.socialbackup.BackupPayloadDecoder;
-import org.briarproject.briar.api.socialbackup.SocialBackup;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.nio.charset.Charset;
 import java.security.GeneralSecurityException;
-import java.util.ArrayList;
 import java.util.concurrent.Executor;
 import java.util.logging.Logger;
 
@@ -51,8 +46,6 @@ class OwnerReturnShardViewModel extends AndroidViewModel
 	@SuppressWarnings("CharsetObjectCanBeUsed") // Requires minSdkVersion >= 19
 	private static final Charset ISO_8859_1 = Charset.forName("ISO-8859-1");
 
-//	private ReturnShardPayload returnShardPayload;
-
 	private final AndroidExecutor androidExecutor;
 	private final Executor ioExecutor;
 	private final SecretOwnerTask task;
@@ -60,6 +53,7 @@ class OwnerReturnShardViewModel extends AndroidViewModel
 
 	private final MutableLiveEvent<Boolean> showQrCodeFragment =
 			new MutableLiveEvent<>();
+	private final MutableLiveEvent<Boolean> successDismissed = new MutableLiveEvent<>();
 	private final MutableLiveData<SecretOwnerTask.State> state =
 			new MutableLiveData<>();
 	private final MutableLiveEvent<Boolean> startClicked =
@@ -126,6 +120,11 @@ class OwnerReturnShardViewModel extends AndroidViewModel
 	void onContinueClicked() {
 		wasContinueClicked = true;
 		startShardReturn();
+	}
+
+	@UiThread
+	void onSuccessDismissed() {
+	   successDismissed.setEvent(true);
 	}
 
 	@UiThread
@@ -232,5 +231,9 @@ class OwnerReturnShardViewModel extends AndroidViewModel
 
 	public int recover() throws FormatException, GeneralSecurityException {
 		return restoreAccount.recover();
+	}
+
+	public MutableLiveEvent<Boolean> getSuccessDismissed() {
+		return successDismissed;
 	}
 }

@@ -7,7 +7,6 @@ import android.os.Bundle;
 import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
 import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
 import org.briarproject.briar.R;
-import org.briarproject.briar.android.account.DozeFragment;
 import org.briarproject.briar.android.activity.ActivityComponent;
 import org.briarproject.briar.android.activity.BaseActivity;
 import org.briarproject.briar.android.fragment.BaseFragment;
@@ -61,7 +60,7 @@ public class RestoreAccountActivity extends BaseActivity
 
 	@TargetApi(23)
 	void showDozeFragment() {
-		showNextFragment(DozeFragment.newInstance());
+		showNextFragment(RestoreAccountDozeFragment.newInstance());
 	}
 
 	void showApp() {
