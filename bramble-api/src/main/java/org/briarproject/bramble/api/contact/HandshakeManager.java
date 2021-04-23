@@ -24,6 +24,19 @@ public interface HandshakeManager {
 	HandshakeResult handshake(PendingContactId p, InputStream in,
 			StreamWriter out) throws DbException, IOException;
 
+	/**
+	 * Handshakes with the given contact. Returns an ephemeral master key
+	 * authenticated with both parties' handshake key pairs and a flag
+	 * indicating whether the local peer is Alice or Bob.
+	 *
+	 * @param in An incoming stream for the handshake, which must be secured in
+	 * handshake mode
+	 * @param out An outgoing stream for the handshake, which must be secured
+	 * in handshake mode
+	 */
+	HandshakeResult handshake(ContactId c, InputStream in, StreamWriter out)
+			throws DbException, IOException;
+
 	class HandshakeResult {
 
 		private final SecretKey masterKey;

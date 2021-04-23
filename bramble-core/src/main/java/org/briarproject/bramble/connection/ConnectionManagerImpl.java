@@ -101,7 +101,7 @@ class ConnectionManagerImpl implements ConnectionManager {
 		ioExecutor.execute(new OutgoingDuplexSyncConnection(keyManager,
 				connectionRegistry, streamReaderFactory, streamWriterFactory,
 				syncSessionFactory, transportPropertyManager, ioExecutor,
-				secureRandom, c, t, d));
+				secureRandom, handshakeManager, c, t, d));
 	}
 
 	@Override
