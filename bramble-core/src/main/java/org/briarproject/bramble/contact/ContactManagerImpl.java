@@ -120,6 +120,15 @@ class ContactManagerImpl implements ContactManager, EventListener {
 	}
 
 	@Override
+	public ContactId addContact(Transaction txn, Author remote, AuthorId local,
+			PublicKey handshake, boolean verified) throws DbException {
+		ContactId c = db.addContact(txn, remote, local, handshake, verified);
+		Contact contact = db.getContact(txn, c);
+		for (ContactHook hook : hooks) hook.addingContact(txn, contact);
+		return c;
+	}
+
+	@Override
 	public String getHandshakeLink() throws DbException {
 		KeyPair keyPair = db.transactionWithResult(true,
 				identityManager::getHandshakeKeys);
