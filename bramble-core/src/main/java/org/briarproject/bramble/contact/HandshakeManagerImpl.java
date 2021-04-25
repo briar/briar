@@ -3,6 +3,8 @@ package org.briarproject.bramble.contact;
 import org.briarproject.bramble.api.FormatException;
 import org.briarproject.bramble.api.Pair;
 import org.briarproject.bramble.api.Predicate;
+import org.briarproject.bramble.api.contact.Contact;
+import org.briarproject.bramble.api.contact.ContactId;
 import org.briarproject.bramble.api.contact.ContactManager;
 import org.briarproject.bramble.api.contact.HandshakeManager;
 import org.briarproject.bramble.api.contact.PendingContact;
@@ -88,6 +90,27 @@ class HandshakeManagerImpl implements HandshakeManager {
 		});
 		PublicKey theirStaticPublicKey = keys.getFirst();
 		KeyPair ourStaticKeyPair = keys.getSecond();
+		return handshake(theirStaticPublicKey, ourStaticKeyPair, in, out);
+	}
+
+	@Override
+	public HandshakeResult handshake(ContactId c, InputStream in,
+			StreamWriter out) throws DbException, IOException {
+		Pair<PublicKey, KeyPair> keys = db.transactionWithResult(true, txn -> {
+			Contact contact = contactManager.getContact(txn, c);
+			PublicKey handshakePublicKey = contact.getHandshakePublicKey();
+			if (handshakePublicKey == null) throw new DbException();
+			KeyPair keyPair = identityManager.getHandshakeKeys(txn);
+			return new Pair<>(handshakePublicKey, keyPair);
+		});
+		PublicKey theirStaticPublicKey = keys.getFirst();
+		KeyPair ourStaticKeyPair = keys.getSecond();
+		return handshake(theirStaticPublicKey, ourStaticKeyPair, in, out);
+	}
+
+	private HandshakeResult handshake(PublicKey theirStaticPublicKey,
+			KeyPair ourStaticKeyPair, InputStream in, StreamWriter out)
+			throws IOException {
 		boolean alice = transportCrypto.isAlice(theirStaticPublicKey,
 				ourStaticKeyPair);
 		RecordReader recordReader = recordReaderFactory.createRecordReader(in);
