@@ -2,6 +2,8 @@ package org.briarproject.bramble.connection;
 
 import org.briarproject.bramble.api.connection.ConnectionRegistry;
 import org.briarproject.bramble.api.contact.ContactId;
+import org.briarproject.bramble.api.contact.HandshakeManager;
+import org.briarproject.bramble.api.contact.PendingContactId;
 import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.plugin.TransportId;
@@ -13,9 +15,11 @@ import org.briarproject.bramble.api.sync.SyncSessionFactory;
 import org.briarproject.bramble.api.transport.KeyManager;
 import org.briarproject.bramble.api.transport.StreamContext;
 import org.briarproject.bramble.api.transport.StreamReaderFactory;
+import org.briarproject.bramble.api.transport.StreamWriter;
 import org.briarproject.bramble.api.transport.StreamWriterFactory;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.concurrent.Executor;
 
 import static java.util.logging.Level.WARNING;
@@ -24,6 +28,7 @@ import static org.briarproject.bramble.util.LogUtils.logException;
 @NotNullByDefault
 class IncomingDuplexSyncConnection extends DuplexSyncConnection
 		implements Runnable {
+	private final HandshakeManager handshakeManager;
 
 	IncomingDuplexSyncConnection(KeyManager keyManager,
 			ConnectionRegistry connectionRegistry,
@@ -32,10 +37,12 @@ class IncomingDuplexSyncConnection extends DuplexSyncConnection
 			SyncSessionFactory syncSessionFactory,
 			TransportPropertyManager transportPropertyManager,
 			Executor ioExecutor, TransportId transportId,
-			DuplexTransportConnection connection) {
+			DuplexTransportConnection connection,
+			HandshakeManager handshakeManager) {
 		super(keyManager, connectionRegistry, streamReaderFactory,
 				streamWriterFactory, syncSessionFactory,
 				transportPropertyManager, ioExecutor, transportId, connection);
+		this.handshakeManager = handshakeManager;
 	}
 
 	@Override
@@ -54,10 +61,41 @@ class IncomingDuplexSyncConnection extends DuplexSyncConnection
 			return;
 		}
 		if (ctx.isHandshakeMode()) {
+
+			StreamContext ctxIn = ctx;
+			PendingContactId inPendingContactId = ctxIn.getPendingContactId();
+			if (inPendingContactId == null) {
+				LOG.warning("Expected rendezvous tag, got contact tag");
+				onReadError(true);
+				return;
+			}
+			// Allocate the outgoing stream context
+			StreamContext ctxOut =
+					allocateStreamContext(contactId, transportId);
+			if (ctxOut == null) {
+				LOG.warning("Could not allocate stream context");
+				onReadError(true);
+				return;
+			}
+			try {
+				InputStream in = streamReaderFactory.createStreamReader(
+						reader.getInputStream(), ctxIn);
+				// Flush the output stream to send the outgoing stream header
+				StreamWriter out = streamWriterFactory.createStreamWriter(
+						writer.getOutputStream(), ctxOut);
+				out.getOutputStream().flush();
+				HandshakeManager.HandshakeResult result =
+						handshakeManager.handshake(contactId, in, out);
+
+				return;
+			} catch (IOException | DbException e) {
+				logException(LOG, WARNING, e);
+				onReadError(true);
+			}
 			// TODO: Support handshake mode for contacts
-			LOG.warning("Received handshake tag, expected rotation mode");
-			onReadError(true);
-			return;
+//			LOG.warning("Received handshake tag, expected rotation mode");
+//			onReadError(true);
+//			return;
 		}
 		connectionRegistry.registerIncomingConnection(contactId, transportId,
 				this);
