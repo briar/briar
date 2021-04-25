@@ -30,7 +30,7 @@ import static java.util.logging.Logger.getLogger;
 
 @MethodsNotNullByDefault
 @ParametersNotNullByDefault
-class RestoreAccountViewModel extends AndroidViewModel implements RestoreAccount.Observer {
+class RestoreAccountViewModel extends AndroidViewModel {
 
 	enum State {SET_PASSWORD, DOZE, CREATED, FAILED}
 
@@ -118,7 +118,7 @@ class RestoreAccountViewModel extends AndroidViewModel implements RestoreAccount
 			if (accountManager.restoreAccount(identity, password)) {
 				LOG.info("Restored account");
 				try {
-					restoreAccount.addContactsToDb(this);
+					restoreAccount.addContactsToDb();
 				} catch (DbException e) {
 					LOG.warning("Cannot retrieve social backup");
 					state.postEvent(State.FAILED);
@@ -129,15 +129,5 @@ class RestoreAccountViewModel extends AndroidViewModel implements RestoreAccount
 				state.postEvent(State.FAILED);
 			}
 		});
-	}
-
-	@Override
-	public void onAddingContactsFinished(boolean success) {
-		if (success) {
-			LOG.info("Added recovered contacts to database");
-		} else {
-			LOG.warning("Error when adding contacts to database");
-//			state.postEvent(State.FAILED);
-		}
 	}
 }
