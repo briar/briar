@@ -88,6 +88,7 @@ import org.briarproject.briar.android.socialbackup.recover.CustodianReturnShardA
 import org.briarproject.briar.android.socialbackup.recover.CustodianReturnShardErrorFragment;
 import org.briarproject.briar.android.socialbackup.recover.CustodianReturnShardFragment;
 import org.briarproject.briar.android.socialbackup.recover.CustodianReturnShardSuccessFragment;
+import org.briarproject.briar.android.socialbackup.recover.OwnerRecoveryModeErrorFragment;
 import org.briarproject.briar.android.socialbackup.recover.OwnerRecoveryModeExplainerFragment;
 import org.briarproject.briar.android.socialbackup.recover.OwnerRecoveryModeMainFragment;
 import org.briarproject.briar.android.socialbackup.recover.OwnerReturnShardActivity;
@@ -301,6 +302,8 @@ public interface ActivityComponent {
 	void inject(RestoreAccountDozeFragment restoreAccountDozeFragment);
 
 	void inject(OwnerReturnShardSuccessFragment ownerReturnShardSuccessFragment);
+
+	void inject(OwnerRecoveryModeErrorFragment ownerRecoveryModeErrorFragment);
 
 	void inject(CustodianReturnShardErrorFragment custodianReturnShardErrorFragment);
 }

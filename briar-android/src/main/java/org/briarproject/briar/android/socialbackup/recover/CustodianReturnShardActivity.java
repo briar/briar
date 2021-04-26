@@ -21,6 +21,7 @@ import javax.inject.Inject;
 import androidx.fragment.app.FragmentManager;
 import androidx.lifecycle.ViewModelProvider;
 
+import static android.content.Intent.FLAG_ACTIVITY_CLEAR_TOP;
 import static java.util.logging.Logger.getLogger;
 import static org.briarproject.briar.android.conversation.ConversationActivity.CONTACT_ID;
 
@@ -30,6 +31,7 @@ public class CustodianReturnShardActivity extends BriarActivity
 	private CustodianReturnShardViewModel viewModel;
 	private static final Logger LOG =
 			getLogger(CustodianReturnShardActivity.class.getName());
+	private ContactId contactId;
 
 	@Inject
 	ViewModelProvider.Factory viewModelFactory;
@@ -50,34 +52,60 @@ public class CustodianReturnShardActivity extends BriarActivity
 			Intent intent = getIntent();
 			int id = intent.getIntExtra(CONTACT_ID, -1);
 			if (id == -1) throw new IllegalStateException("No ContactId");
-			ContactId contactId = new ContactId(id);
+			contactId = new ContactId(id);
 
 			try {
 				viewModel.start(contactId);
-			} catch (IOException e) {
-				// TODO improve this
-				Toast.makeText(this,
-						"It looks like you are not connected to a Wifi network",
-						Toast.LENGTH_SHORT).show();
-				showNextFragment(new CustodianReturnShardErrorFragment());
-				return;
+//			} catch (IOException e) {
+//				// TODO improve this
+//				Toast.makeText(this,
+//						"It looks like you are not connected to a Wifi network",
+//						Toast.LENGTH_SHORT).show();
+//				showInitialFragment(new CustodianReturnShardErrorFragment());
 			} catch (DbException e) {
 				Toast.makeText(this,
 						"You do not hold a backup piece for this contact",
 						Toast.LENGTH_SHORT).show();
 				finish();
 			}
-			showInitialFragment(new CustodianRecoveryModeExplainerFragment());
 		}
+		showInitialFragment(new CustodianRecoveryModeExplainerFragment());
+
+		viewModel.getContinueClicked().observeEvent(this, clicked -> {
+			if (clicked) beginTransfer();
+		});
+
 		viewModel.getShowCameraFragment().observeEvent(this, show -> {
 			if (show) showCameraFragment();
 		});
 		viewModel.getSuccessDismissed().observeEvent(this, dismissed -> {
 			if (dismissed) finish();
 		});
+		viewModel.getErrorTryAgain().observeEvent(this, tryAgain -> {
+			if (tryAgain) beginTransfer();
+		});
 		viewModel.getState()
 				.observe(this, this::onReturnShardStateChanged);
 	}
+
+	private void beginTransfer() {
+		try {
+			viewModel.beginTransfer();
+		} catch (IOException e) {
+			Toast.makeText(this,
+					"It looks like you are not connected to a Wifi network",
+					Toast.LENGTH_SHORT).show();
+			FragmentManager fm = getSupportFragmentManager();
+			if (fm.findFragmentByTag(CustodianReturnShardFragment.TAG) == null) {
+				BaseFragment f = new CustodianReturnShardErrorFragment();
+				fm.beginTransaction()
+						.replace(R.id.fragmentContainer, f, f.getUniqueTag())
+						.addToBackStack(f.getUniqueTag())
+						.commit();
+			}
+		}
+	}
+
 
 	private void onReturnShardStateChanged(CustodianTask.State state) {
         if (state instanceof CustodianTask.State.Success) {

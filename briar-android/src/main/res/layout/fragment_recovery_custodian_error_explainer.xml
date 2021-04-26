@@ -31,7 +31,7 @@
 		app:layout_constraintEnd_toEndOf="parent"
 		app:layout_constraintStart_toStartOf="parent"
 		app:layout_constraintTop_toBottomOf="@+id/textView1"
-		app:srcCompat="@drawable/qr_code_error" />
+		app:srcCompat="@drawable/qr_code_social_backup_error" />
 
 	<TextView
 		android:id="@+id/textView2"

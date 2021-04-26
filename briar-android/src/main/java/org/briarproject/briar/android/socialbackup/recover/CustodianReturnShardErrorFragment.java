@@ -41,13 +41,12 @@ public class CustodianReturnShardErrorFragment extends BaseFragment {
 	public View onCreateView(@NonNull LayoutInflater inflater,
 			@Nullable ViewGroup container,
 			@Nullable Bundle savedInstanceState) {
-		// TODO change fragment to error
-		View view = inflater.inflate(R.layout.fragment_recovery_custodian_done,
+		View view = inflater.inflate(R.layout.fragment_recovery_custodian_error_explainer,
 				container, false);
-
 		Button button = view.findViewById(R.id.button);
-		button.setOnClickListener(e -> viewModel.onErrorCancelled());
-        // TODO try again button
+		button.setOnClickListener(e -> viewModel.onErrorTryAgain());
+        // TODO cancel button
+//		button.setOnClickListener(e -> viewModel.onErrorCancelled());
 		return view;
 	}
 

@@ -51,9 +51,9 @@ public class CustodianReturnShardViewModel extends AndroidViewModel
 	private final SocialBackupManager socialBackupManager;
 	private final DatabaseComponent db;
 	final QrCodeDecoder qrCodeDecoder;
-	private boolean wasContinueClicked = false;
 	private boolean qrCodeRead = false;
 	private WifiManager wifiManager;
+	private final MutableLiveEvent<Boolean > continueClicked = new MutableLiveEvent<>();
 	private final MutableLiveEvent<Boolean> showCameraFragment =
 			new MutableLiveEvent<>();
 	private final MutableLiveEvent<Boolean> successDismissed =
@@ -111,12 +111,8 @@ public class CustodianReturnShardViewModel extends AndroidViewModel
 		}
 	}
 
-	public void start(ContactId contactId) throws DbException, IOException {
-		InetAddress inetAddress = getWifiIpv4Address();
-		LOG.info("Client InetAddress: " + inetAddress);
-		if (inetAddress == null)
-			throw new IOException("Cannot get IP on local wifi");
-
+	public void start(ContactId contactId) throws DbException {
+		// TODO this should be transactionWithResult
 		db.transaction(false, txn -> {
 			if (!socialBackupManager.amCustodian(txn, contactId)) {
 				throw new DbException();
@@ -124,8 +120,6 @@ public class CustodianReturnShardViewModel extends AndroidViewModel
 			returnShardPayloadBytes = socialBackupManager
 					.getReturnShardPayloadBytes(txn, contactId);
 		});
-		task.cancel();
-		task.start(this, returnShardPayloadBytes);
 	}
 
 	@IoExecutor
@@ -150,11 +144,21 @@ public class CustodianReturnShardViewModel extends AndroidViewModel
 		}
 	}
 
+	public void beginTransfer() throws IOException {
+		InetAddress inetAddress = getWifiIpv4Address();
+		LOG.info("Client InetAddress: " + inetAddress);
+		if (inetAddress == null)
+			throw new IOException("Cannot get IP on local wifi");
+
+		task.cancel();
+		task.start(this, returnShardPayloadBytes);
+		//TODO camera permissions
+		showCameraFragment.setEvent(true);
+	}
 	@UiThread
 	public void onContinueClicked() {
-		wasContinueClicked = true;
+		continueClicked.setEvent(true);
 //		checkPermissions.setEvent(true);
-		showCameraFragment.setEvent(true);
 	}
 
 	@UiThread
@@ -201,4 +205,6 @@ public class CustodianReturnShardViewModel extends AndroidViewModel
 	public MutableLiveEvent<Boolean> getErrorTryAgain() {
 		return errorTryAgain;
 	}
+
+	public MutableLiveEvent<Boolean> getContinueClicked() { return continueClicked; }
 }

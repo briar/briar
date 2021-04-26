@@ -38,7 +38,7 @@ public class OwnerReturnShardSuccessFragment extends BaseFragment {
 	public View onCreateView(@NonNull LayoutInflater inflater,
 			@Nullable ViewGroup container,
 			@Nullable Bundle savedInstanceState) {
-		View view = inflater.inflate(R.layout.fragment_recovery_custodian_done,
+		View view = inflater.inflate(R.layout.fragment_recovery_owner_success,
 				container, false);
 
 		Button button = view.findViewById(R.id.button);

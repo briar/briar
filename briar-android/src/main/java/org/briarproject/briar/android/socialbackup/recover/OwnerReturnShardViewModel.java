@@ -51,6 +51,8 @@ class OwnerReturnShardViewModel extends AndroidViewModel
 	private final SecretOwnerTask task;
 	private final RestoreAccount restoreAccount;
 
+	private final MutableLiveEvent<Boolean> errorTryAgain =
+			new MutableLiveEvent<>();
 	private final MutableLiveEvent<Boolean> showQrCodeFragment =
 			new MutableLiveEvent<>();
 	private final MutableLiveEvent<Boolean> successDismissed = new MutableLiveEvent<>();
@@ -158,6 +160,10 @@ class OwnerReturnShardViewModel extends AndroidViewModel
 		});
 	}
 
+	@UiThread
+	public void onErrorTryAgain() {
+	     errorTryAgain.setEvent(true);
+	}
 
 	/**
 	 * Set to true in onPostResume() and false in onPause(). This prevents the
@@ -235,5 +241,9 @@ class OwnerReturnShardViewModel extends AndroidViewModel
 
 	public MutableLiveEvent<Boolean> getSuccessDismissed() {
 		return successDismissed;
+	}
+
+	public MutableLiveEvent<Boolean> getErrorTryAgain() {
+		return errorTryAgain;
 	}
 }

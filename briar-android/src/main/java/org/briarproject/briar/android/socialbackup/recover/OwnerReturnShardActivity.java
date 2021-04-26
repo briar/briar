@@ -80,6 +80,9 @@ public class OwnerReturnShardActivity extends BaseActivity
 		viewModel.getSuccessDismissed().observeEvent(this, success -> {
 			if (success) onSuccessDismissed();
 		});
+		viewModel.getErrorTryAgain().observeEvent(this, tryAgain -> {
+			if (tryAgain) onBackPressed();
+		});
 		viewModel.getState()
 				.observe(this, this::onReturnShardStateChanged);
 	}
@@ -167,12 +170,11 @@ public class OwnerReturnShardActivity extends BaseActivity
 			}
 			onBackPressed();
 		} else if (state instanceof SecretOwnerTask.State.Failure) {
-			// TODO error screen, handle reason
-			Toast.makeText(this,
-					"Shard return failed!",
-					Toast.LENGTH_SHORT).show();
-			onBackPressed();
-//			showNextFragment(new OwnerRecoveryModeExplainerFragment());
+//			Toast.makeText(this,
+//					"Shard return failed!",
+//					Toast.LENGTH_SHORT).show();
+//			onBackPressed();
+			showNextFragment(new OwnerRecoveryModeErrorFragment());
 		}
 	}
 
