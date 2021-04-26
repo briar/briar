@@ -68,7 +68,7 @@ public class OwnerReturnShardFragment extends BaseFragment
 	public View onCreateView(LayoutInflater inflater,
 			@Nullable ViewGroup container,
 			@Nullable Bundle savedInstanceState) {
-		return inflater.inflate(R.layout.fragment_keyagreement_qr, container,
+		return inflater.inflate(R.layout.fragment_recovery_owner_qr, container,
 				false);
 	}
 
