@@ -100,7 +100,7 @@ dependencies {
 	implementation project(path: ':briar-core', configuration: 'default')
 	implementation project(path: ':bramble-core', configuration: 'default')
 	implementation project(':bramble-android')
-	implementation 'org.briarproject:dont-kill-me-lib:0.2.2'
+	implementation 'org.briarproject:dont-kill-me-lib:0.2.5'
 
 	implementation 'androidx.fragment:fragment:1.3.4'
 	implementation 'androidx.preference:preference:1.1.1'
