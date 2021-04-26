@@ -30,6 +30,9 @@ class IncomingDuplexSyncConnection extends DuplexSyncConnection
 		implements Runnable {
 	private final HandshakeManager handshakeManager;
 
+	// FIXME: Exchange timestamp as part of handshake protocol?
+	private static final long TIMESTAMP = 1617235200; // 1 April 2021 00:00 UTC
+
 	IncomingDuplexSyncConnection(KeyManager keyManager,
 			ConnectionRegistry connectionRegistry,
 			StreamReaderFactory streamReaderFactory,
@@ -61,41 +64,22 @@ class IncomingDuplexSyncConnection extends DuplexSyncConnection
 			return;
 		}
 		if (ctx.isHandshakeMode()) {
-
-			StreamContext ctxIn = ctx;
-			PendingContactId inPendingContactId = ctxIn.getPendingContactId();
-			if (inPendingContactId == null) {
-				LOG.warning("Expected rendezvous tag, got contact tag");
-				onReadError(true);
-				return;
-			}
-			// Allocate the outgoing stream context
-			StreamContext ctxOut =
-					allocateStreamContext(contactId, transportId);
-			if (ctxOut == null) {
+            if (!performHandshake(ctx, contactId)) {
+               LOG.warning("Handshake failed");
+               return;
+            }
+			// Allocate a rotation mode stream context
+			ctx = allocateStreamContext(contactId, transportId);
+			if (ctx == null) {
 				LOG.warning("Could not allocate stream context");
-				onReadError(true);
+				onWriteError();
 				return;
 			}
-			try {
-				InputStream in = streamReaderFactory.createStreamReader(
-						reader.getInputStream(), ctxIn);
-				// Flush the output stream to send the outgoing stream header
-				StreamWriter out = streamWriterFactory.createStreamWriter(
-						writer.getOutputStream(), ctxOut);
-				out.getOutputStream().flush();
-				HandshakeManager.HandshakeResult result =
-						handshakeManager.handshake(contactId, in, out);
-
+			if (ctx.isHandshakeMode()) {
+				LOG.warning("Got handshake mode context after handshaking");
+				onWriteError();
 				return;
-			} catch (IOException | DbException e) {
-				logException(LOG, WARNING, e);
-				onReadError(true);
 			}
-			// TODO: Support handshake mode for contacts
-//			LOG.warning("Received handshake tag, expected rotation mode");
-//			onReadError(true);
-//			return;
 		}
 		connectionRegistry.registerIncomingConnection(contactId, transportId,
 				this);
@@ -139,6 +123,34 @@ class IncomingDuplexSyncConnection extends DuplexSyncConnection
 		} catch (IOException e) {
 			logException(LOG, WARNING, e);
 			onWriteError();
+		}
+	}
+
+	private boolean performHandshake(StreamContext ctxIn, ContactId contactId) {
+		// Allocate the outgoing stream context
+		StreamContext ctxOut =
+				allocateStreamContext(contactId, transportId);
+		if (ctxOut == null) {
+			LOG.warning("Could not allocate stream context");
+			onReadError(true);
+			return false;
+		}
+		try {
+			InputStream in = streamReaderFactory.createStreamReader(
+					reader.getInputStream(), ctxIn);
+			// Flush the output stream to send the outgoing stream header
+			StreamWriter out = streamWriterFactory.createStreamWriter(
+					writer.getOutputStream(), ctxOut);
+			out.getOutputStream().flush();
+			HandshakeManager.HandshakeResult result =
+					handshakeManager.handshake(contactId, in, out);
+			keyManager.addRotationKeys(contactId, result.getMasterKey(),
+					TIMESTAMP, result.isAlice(), true);
+			return true;
+		} catch (IOException | DbException e) {
+			logException(LOG, WARNING, e);
+			onReadError(true);
+			return false;
 		}
 	}
 }
