@@ -142,6 +142,7 @@
   <string name="allow">Разрешить</string>
   <string name="open">Открыть</string>
   <string name="change">Изменить</string>
+  <string name="start">Начать</string>
   <string name="no_data">Нет данных</string>
   <string name="ellipsis">…</string>
   <string name="text_too_long">Введенный текст слишком длинный</string>
@@ -156,7 +157,9 @@
   <string name="no_contacts_action">Для добавления контакта нажмите значок +</string>
   <string name="date_no_private_messages">Нет сообщений.</string>
   <string name="no_private_messages">Нет сообщений для отображения</string>
-  <string name="message_hint">Введите сообщение</string>
+  <string name="message_hint">Новое сообщение</string>
+  <string name="message_hint_auto_delete">Новое исчезающее сообщение</string>
+  <string name="message_error">Ошибка отправки сообщения</string>
   <string name="image_caption_hint">Добавить подпись (необязательно)</string>
   <string name="image_attach">Прикрепить изображение</string>
   <string name="image_attach_error">Не удалось прикрепить изображение(я)</string>
@@ -164,6 +167,40 @@
   <string name="image_attach_error_invalid_mime_type">Формат изображения не поддерживается: %s</string>
   <string name="set_contact_alias">Изменить имя контакта</string>
   <string name="set_contact_alias_hint">Имя контакта</string>
+  <string name="menu_item_disappearing_messages">Исчезающие сообщения</string>
+  <string name="menu_item_connect_via_bluetooth">Подключение через Bluetooth</string>
+  <string name="dialog_title_connect_via_bluetooth">Подключение через Bluetooth</string>
+  <!--The first placeholder will show a duration like "7 days". The second placeholder at the end will add "Tap to learn more."-->
+  <string name="auto_delete_msg_you_enabled">Ваши сообщения исчезнут спустя %1$s. %2$s</string>
+  <!--The placeholder at the end will add "Tap to learn more."-->
+  <string name="auto_delete_msg_you_disabled">Ваши сообщения исчезать не будут. %1$s</string>
+  <!--The first placeholder will show a contact's name. The second placeholder will show a duration like "7 days". The third placeholder at the end will add "Tap to learn more."-->
+  <string name="auto_delete_msg_contact_enabled">Сообщения от %1$s будут исчезать спустя %2$s. %3$s</string>
+  <plurals name="duration_minutes">
+    <item quantity="one">%d минуту</item>
+    <item quantity="few">%d минуты</item>
+    <item quantity="many">%d минут</item>
+    <item quantity="other">%d минут</item>
+  </plurals>
+  <plurals name="duration_hours">
+    <item quantity="one">%d час</item>
+    <item quantity="few">%d часа</item>
+    <item quantity="many">%d часов</item>
+    <item quantity="other">%d часов</item>
+  </plurals>
+  <plurals name="duration_days">
+    <item quantity="one">%d день</item>
+    <item quantity="few">%d дня</item>
+    <item quantity="many">%d дней</item>
+    <item quantity="other">%d дней</item>
+  </plurals>
+  <!--The first placeholder will show a contact's name. The second placeholder at the end will add "Tap to learn more."-->
+  <string name="auto_delete_msg_contact_disabled">Сообщения от %1$s исчезать не будут. %2$s</string>
+  <string name="tap_to_learn_more">Нажмите, чтобы узнать больше.</string>
+  <string name="auto_delete_changed_warning_title">Исчезающие сообщения изменены</string>
+  <string name="auto_delete_changed_warning_message_enabled">С момента начала создания сообщения были включены исчезающие сообщения.</string>
+  <string name="auto_delete_changed_warning_message_disabled">С момента начала создания сообщения исчезающие сообщения были отключены.</string>
+  <string name="auto_delete_changed_warning_send">Отправить в любом случае</string>
   <string name="delete_all_messages">Удалить все сообщения</string>
   <string name="dialog_title_delete_all_messages">Подтверждение удаления сообщений</string>
   <string name="dialog_message_delete_all_messages">Вы уверены, что хотите удалить все сообщения?</string>
@@ -171,7 +208,6 @@
   <string name="dialog_message_not_deleted_ongoing_both">Сообщения, связанные с текущими приглашениями и знакомствами, не могут быть удалены до их завершения.</string>
   <string name="dialog_message_not_deleted_ongoing_introductions">Сообщения, связанные с текущими знакомствами, не могут быть удалены до их завершения.</string>
   <string name="dialog_message_not_deleted_ongoing_invitations">Сообщения, связанные с текущими приглашениями, не могут быть удалены до их завершения.</string>
-  <string name="dialog_message_not_deleted_partly_downloaded">Частично загруженные сообщения не могут быть удалены, пока они не загрузятся полностью.</string>
   <string name="dialog_message_not_deleted_not_all_selected_both">Чтобы удалить приглашение или знакомство, вам необходимо выбрать запрос и ответ.</string>
   <string name="dialog_message_not_deleted_not_all_selected_introductions">Чтобы удалить знакомство, необходимо выбрать запрос и ответ.</string>
   <string name="dialog_message_not_deleted_not_all_selected_invitations">Чтобы удалить приглашение, необходимо выбрать запрос и ответ.</string>
@@ -285,6 +321,7 @@
   <string name="introduction_response_accepted_sent">Вы приняли знакомство с %1$s.</string>
   <string name="introduction_response_accepted_sent_info">%1$s будет добавлен(-а) в контакты после принятия знакомства. Это может занять некоторое время.</string>
   <string name="introduction_response_declined_sent">Вы отказались от знакомства с %1$s.</string>
+  <string name="introduction_response_declined_auto">Знакомство с %1$s было отклонено автоматически.</string>
   <string name="introduction_response_accepted_received">%1$s принял(-а) знакомство с %2$s.</string>
   <string name="introduction_response_declined_received">%1$s отказался от знакомства с %2$s.</string>
   <string name="introduction_response_declined_received_by_introducee">%1$s сообщает, что %2$s отказался от знакомства.</string>
@@ -335,6 +372,7 @@
   </plurals>
   <string name="groups_invitations_response_accepted_sent">Вы приняли приглашение в группу от %s.</string>
   <string name="groups_invitations_response_declined_sent">Вы отклонили приглашение в группу от %s.</string>
+  <string name="groups_invitations_response_declined_auto">Приглашение в группу от %s было отклонено автоматически.</string>
   <string name="groups_invitations_response_accepted_received">%s принял(-а) приглашение в группу.</string>
   <string name="groups_invitations_response_declined_received">%s отклонил(-а) приглашение в группу.</string>
   <string name="sharing_status_groups">Только создатель может пригласить новых участников в группу. Ниже перечислены все текущие участники группы.</string>
@@ -387,6 +425,7 @@
   <string name="forum_invitation_already_sharing">Уже поделился(-лась)</string>
   <string name="forum_invitation_response_accepted_sent">Вы приняли приглашение на форум от %s.</string>
   <string name="forum_invitation_response_declined_sent">Вы отклонили приглашение на форум от %s.</string>
+  <string name="forum_invitation_response_declined_auto">Приглашение на форум от %s было отклонено автоматически.</string>
   <string name="forum_invitation_response_accepted_received">%s принял(-а) приглашение на форум.</string>
   <string name="forum_invitation_response_declined_received">%s отклонил(-а) приглашение на форум.</string>
   <string name="sharing_status">Статус общего доступа</string>
@@ -423,6 +462,7 @@
   <string name="blogs_sharing_snackbar">Доступ к блогу предоставлен выбранным контактам</string>
   <string name="blogs_sharing_response_accepted_sent">Вы приняли приглашение в блог от %s.</string>
   <string name="blogs_sharing_response_declined_sent">Вы отклонили приглашение в блог от %s.</string>
+  <string name="blogs_sharing_response_declined_auto">Приглашение в блог от %s было отклонено автоматически.</string>
   <string name="blogs_sharing_response_accepted_received">%s принял(-а) приглашение в блог.</string>
   <string name="blogs_sharing_response_declined_received">%s отклонил(-а) приглашение в блог.</string>
   <string name="blogs_sharing_invitation_received">%1$s поделился(-лась) блогом \"%2$s\" с вами.</string>
@@ -460,7 +500,7 @@
   <string name="pref_theme_light">Светлая</string>
   <string name="pref_theme_dark">Темная</string>
   <string name="pref_theme_auto">Авто (День)</string>
-  <string name="pref_theme_system">Системные настройки</string>
+  <string name="pref_theme_system">По умолчанию</string>
   <!--Settings Connections-->
   <string name="network_settings_title">Подключения</string>
   <string name="bluetooth_setting">Подключение к контактам через Bluetooth</string>
@@ -538,8 +578,20 @@
   <string name="notify_sound_setting_disabled">Нет</string>
   <string name="choose_ringtone_title">Выберите мелодию звонка</string>
   <string name="cannot_load_ringtone">Не удается загрузить мелодию звонка</string>
+  <!--Conversation Settings-->
+  <string name="disappearing_messages_title">Исчезающие сообщения</string>
+  <string name="disappearing_messages_explanation_long">Включение этого параметра приведет к созданию нового
+		сообщения в этом разговоре автоматически исчезнут спустя 7\u00A0дней.
+		\n\nОбратный отсчет для копии сообщения отправителя начнется после его доставки.
+		Обратный отсчет для получателя начнется после прочтения сообщения.
+		\n\nСообщения, которые исчезнут, помечены значком бомбы.
+		\n\nИмейте в виду, что получатели по-прежнему могут делать копии отправляемых вами сообщений.
+		\n\nЕсли вы измените эту настройку, то она немедленно будет применена к вашим новым сообщениям и вашим
+		сообщениям для контакта, после получения следующего сообщения.
+		Ваш контакт также может изменить эту настройку для вас обоих.</string>
+  <string name="learn_more">Узнать больше</string>
+  <string name="disappearing_messages_summary">Сделайте так, чтобы будущие сообщения в этом разговоре автоматически исчезали спустя 7\u00A0дней.</string>
   <!--Settings Feedback-->
-  <string name="feedback_settings_title">Обратная связь</string>
   <string name="send_feedback">Отправить отзыв</string>
   <!--Link Warning-->
   <string name="link_warning_title">Предупреждение о ссылке</string>
@@ -592,6 +644,9 @@
   <string name="permission_camera_location_request_body">Для сканирования QR-кода Briar необходим доступ к камере.\n\nДля обнаружения Bluetooth-устройств, Briar требуется разрешение на доступ к вашему местоположению.\n\nBriar не хранит ваше местоположение и не делится им кем-либо еще.</string>
   <string name="permission_camera_denied_body">Доступ к камере запрещен, но для добавления контактов необходимо использовать камеру.\n\nРассмотрите возможность предоставления доступа.</string>
   <string name="permission_location_denied_body">Доступ к местоположению запрещен, но Briar необходимо это разрешение для обнаружения устройств Bluetooth.\n\nРассмотрите возможность предоставления доступа.</string>
+  <string name="permission_location_setting_title">Настройка местоположения</string>
+  <string name="permission_location_setting_body">Для поиска других устройств через Bluetooth необходимо включить настройку местоположения вашего устройства. Пожалуйста, включите местоположение, чтобы продолжить. После этого вы можете отключить ее снова.</string>
+  <string name="permission_location_setting_button">Включить местоположение</string>
   <string name="qr_code">QR-код</string>
   <string name="show_qr_code_fullscreen">Показать QR-код во весь экран</string>
   <!--App Locking-->

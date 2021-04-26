@@ -102,6 +102,7 @@
   <string name="allow">अनुमति दें</string>
   <string name="open">खोलें </string>
   <string name="change">परिवर्तन</string>
+  <string name="start">प्रारंभ</string>
   <string name="no_data">नो डाटा </string>
   <string name="ellipsis">…</string>
   <string name="text_too_long">प्रवेश किया हुआ पाठ बहुत लंबा है</string>
@@ -115,7 +116,6 @@
   <string name="no_contacts_action">संपर्क जोड़ने के लिए + आइकन टैप करें</string>
   <string name="date_no_private_messages">कोई संदेश नहीं।</string>
   <string name="no_private_messages">दिखाने के लिए कोई संदेश नहीं</string>
-  <string name="message_hint">संदेश लिखें</string>
   <string name="image_caption_hint">एक कैप्शन जोड़ें (वैकल्पिक)</string>
   <string name="image_attach">छवि संलग्न करें</string>
   <string name="image_attach_error">छवि संलग्न नहीं कर सका</string>
@@ -123,6 +123,12 @@
   <string name="image_attach_error_invalid_mime_type">छवि प्रारूप असमर्थित: %s</string>
   <string name="set_contact_alias">संपर्क नाम बदलें</string>
   <string name="set_contact_alias_hint">संपर्क नाम</string>
+  <string name="menu_item_connect_via_bluetooth">ब्लूटूथ के माध्यम से कनेक्ट करें</string>
+  <string name="dialog_title_connect_via_bluetooth">ब्लूटूथ के माध्यम से कनेक्ट करें</string>
+  <!--The first placeholder will show a duration like "7 days". The second placeholder at the end will add "Tap to learn more."-->
+  <!--The placeholder at the end will add "Tap to learn more."-->
+  <!--The first placeholder will show a contact's name. The second placeholder will show a duration like "7 days". The third placeholder at the end will add "Tap to learn more."-->
+  <!--The first placeholder will show a contact's name. The second placeholder at the end will add "Tap to learn more."-->
   <string name="delete_contact">संपर्क मिटा दें</string>
   <string name="dialog_title_delete_contact">संपर्क हटाने की पुष्टि करें</string>
   <string name="dialog_message_delete_contact">क्या आप निश्चित हैं कि आप इस संपर्क और सभी संदेशों को इस संपर्क से निकाला जाना चाहते हैं?</string>
@@ -460,8 +466,9 @@
   <string name="notify_sound_setting_disabled">कोई नहीं</string>
   <string name="choose_ringtone_title">रिंगटोन चुनें</string>
   <string name="cannot_load_ringtone">रिंगटोन लोड नहीं कर सकता</string>
+  <!--Conversation Settings-->
+  <string name="learn_more">और अधिक जानें</string>
   <!--Settings Feedback-->
-  <string name="feedback_settings_title">प्रतिक्रिया</string>
   <string name="send_feedback">प्रतिक्रिया भेजें</string>
   <!--Link Warning-->
   <string name="link_warning_title">लिंक चेतावनी</string>

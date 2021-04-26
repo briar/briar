@@ -130,6 +130,7 @@
   <string name="allow">Permet</string>
   <string name="open">Obre</string>
   <string name="change">Canvia</string>
+  <string name="start">Inicia</string>
   <string name="no_data">Sense dades</string>
   <string name="ellipsis">...</string>
   <string name="text_too_long">El text és massa llarg</string>
@@ -144,7 +145,7 @@
   <string name="no_contacts_action">Toqueu la icona + per afegir un contacte</string>
   <string name="date_no_private_messages">Sense missatges.</string>
   <string name="no_private_messages">No hi ha cap missatge</string>
-  <string name="message_hint">Escriviu un missatge</string>
+  <string name="message_hint">Nou missatge</string>
   <string name="image_caption_hint">Afegiu una nota (opcional)</string>
   <string name="image_attach">Afegeix una imatge</string>
   <string name="image_attach_error">La imatge(s) no s\'ha pogut afegir </string>
@@ -152,6 +153,12 @@
   <string name="image_attach_error_invalid_mime_type">El format de la imatge no s\'admet: %s</string>
   <string name="set_contact_alias">Canvia el nom del contacte</string>
   <string name="set_contact_alias_hint">Nom del contacte</string>
+  <string name="menu_item_connect_via_bluetooth">Connecta via bluetooth</string>
+  <string name="dialog_title_connect_via_bluetooth">Connecta via bluetooth</string>
+  <!--The first placeholder will show a duration like "7 days". The second placeholder at the end will add "Tap to learn more."-->
+  <!--The placeholder at the end will add "Tap to learn more."-->
+  <!--The first placeholder will show a contact's name. The second placeholder will show a duration like "7 days". The third placeholder at the end will add "Tap to learn more."-->
+  <!--The first placeholder will show a contact's name. The second placeholder at the end will add "Tap to learn more."-->
   <string name="delete_all_messages">Esborra tots els missatges</string>
   <string name="dialog_title_delete_all_messages">Confirmeu l\'esborrat dels missatges</string>
   <string name="dialog_message_delete_all_messages">Segur que voleu esborrar tots els missatges?</string>
@@ -159,7 +166,6 @@
   <string name="dialog_message_not_deleted_ongoing_both">Els missatges relacionats amb presentacions i invitacions pendents no es poden suprimir fins que finalitzen.</string>
   <string name="dialog_message_not_deleted_ongoing_introductions">Els missatges relacionats amb presentacions pendents no es poden suprimir fins que finalitzen.</string>
   <string name="dialog_message_not_deleted_ongoing_invitations">Els missatges relacionats amb invitacions pendents no es poden suprimir fins que finalitzen.</string>
-  <string name="dialog_message_not_deleted_partly_downloaded">Els missatges baixats parcialment no es poden suprimir fins que s\'acabin de baixar.</string>
   <string name="dialog_message_not_deleted_not_all_selected_both">Per a suprimir una invitació o una presentació, cal que seleccioneu la sol·licitud i la resposta.</string>
   <string name="dialog_message_not_deleted_not_all_selected_introductions">Per a suprimir una presentació, cal que seleccioneu la sol·licitud i la resposta.</string>
   <string name="dialog_message_not_deleted_not_all_selected_invitations">Per a suprimir una invitació, cal que seleccioneu la sol·licitud i la resposta.</string>
@@ -513,8 +519,9 @@ Així que l\'actualitzi li veureu una icona diferent .</string>
   <string name="notify_sound_setting_disabled">Cap</string>
   <string name="choose_ringtone_title">Trieu el so d\'avís</string>
   <string name="cannot_load_ringtone">No s\'ha pogut carregar el so d\'avís</string>
+  <!--Conversation Settings-->
+  <string name="learn_more">Més informació</string>
   <!--Settings Feedback-->
-  <string name="feedback_settings_title">Comentaris</string>
   <string name="send_feedback">Envieu comentaris</string>
   <!--Link Warning-->
   <string name="link_warning_title">Avís d\'enllaç</string>

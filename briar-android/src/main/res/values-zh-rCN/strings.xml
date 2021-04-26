@@ -22,6 +22,9 @@
   <string name="setup_huawei_text">轻按下方的按钮将 Briar 加入“受保护的应用”列表。</string>
   <string name="setup_huawei_button">保护 Briar</string>
   <string name="setup_huawei_help">如果 Briar 未被加入受保护应用列表，它将无法在后台运行。</string>
+  <string name="setup_huawei_app_launch_text">轻按下方按钮，打开“App launch”界面，确保 Briar 被设置为“手动管理”。</string>
+  <string name="setup_huawei_app_launch_button">打开电池设置</string>
+  <string name="setup_huawei_app_launch_help">如果“App 启动”界面中 Briar 没有被设置为“手动管理”，则其将无法在后台运行。</string>
   <string name="warning_dozed">%s 无法在后台运行</string>
   <!--Login-->
   <string name="enter_password">密码</string>
@@ -125,6 +128,7 @@
   <string name="allow">允许</string>
   <string name="open">打开</string>
   <string name="change">更改</string>
+  <string name="start">开始</string>
   <string name="no_data">没有数据</string>
   <string name="ellipsis">……</string>
   <string name="text_too_long">输入的文本过长</string>
@@ -139,7 +143,9 @@
   <string name="no_contacts_action">轻按 + 号即可添加联系人</string>
   <string name="date_no_private_messages">没有消息。</string>
   <string name="no_private_messages">尚无消息可供显示</string>
-  <string name="message_hint">输入信息</string>
+  <string name="message_hint">新消息</string>
+  <string name="message_hint_auto_delete">新的自动消失的消息</string>
+  <string name="message_error">发送消息出错</string>
   <string name="image_caption_hint">添加一段描述（可选）</string>
   <string name="image_attach">附加图片</string>
   <string name="image_attach_error">无法附加图片</string>
@@ -147,6 +153,37 @@
   <string name="image_attach_error_invalid_mime_type">不支持的图片格式：%s</string>
   <string name="set_contact_alias">更改联系人姓名</string>
   <string name="set_contact_alias_hint">联系人姓名</string>
+  <string name="menu_item_disappearing_messages">让消息自动消失 </string>
+  <string name="menu_item_connect_via_bluetooth">通过蓝牙连接</string>
+  <string name="dialog_title_connect_via_bluetooth">通过蓝牙连接</string>
+  <string name="dialog_message_connect_via_bluetooth">你的联络人必须在附近才能起作用。\n\n你和你的联系人应该同时按“开始”。</string>
+  <string name="toast_connect_via_bluetooth_not_discoverable">没有蓝牙无法继续 </string>
+  <string name="toast_connect_via_bluetooth_no_location_permission">没有位置权限不能继续 </string>
+  <string name="toast_connect_via_bluetooth_start">正通过蓝牙连接 …</string>
+  <string name="toast_connect_via_bluetooth_success">通过蓝牙连接成功</string>
+  <string name="toast_connect_via_bluetooth_error">无法通过蓝牙连接 </string>
+  <!--The first placeholder will show a duration like "7 days". The second placeholder at the end will add "Tap to learn more."-->
+  <string name="auto_delete_msg_you_enabled">你的消息将在 %1$s 后消失。%2$s</string>
+  <!--The placeholder at the end will add "Tap to learn more."-->
+  <string name="auto_delete_msg_you_disabled">你的消息不会消失。%1$s</string>
+  <!--The first placeholder will show a contact's name. The second placeholder will show a duration like "7 days". The third placeholder at the end will add "Tap to learn more."-->
+  <string name="auto_delete_msg_contact_enabled">%1$s的消息将在%2$s后消失。%3$s</string>
+  <plurals name="duration_minutes">
+    <item quantity="other">%d分钟</item>
+  </plurals>
+  <plurals name="duration_hours">
+    <item quantity="other">%d小时消</item>
+  </plurals>
+  <plurals name="duration_days">
+    <item quantity="other">%d天</item>
+  </plurals>
+  <!--The first placeholder will show a contact's name. The second placeholder at the end will add "Tap to learn more."-->
+  <string name="auto_delete_msg_contact_disabled">%1$s的消息不会消失。%2$s</string>
+  <string name="tap_to_learn_more">轻按了解更多</string>
+  <string name="auto_delete_changed_warning_title">更改了让消息自动消失的设置</string>
+  <string name="auto_delete_changed_warning_message_enabled">自你开始编辑你的消息，使消息消失的设置已经启用。</string>
+  <string name="auto_delete_changed_warning_message_disabled">自你开始编辑你的消息，使消息消失的设置已经启用。 </string>
+  <string name="auto_delete_changed_warning_send">不论如何都要发送</string>
   <string name="delete_all_messages">删除全部消息</string>
   <string name="dialog_title_delete_all_messages">确认删除消息</string>
   <string name="dialog_message_delete_all_messages">您确定要删除所有消息吗？</string>
@@ -154,7 +191,6 @@
   <string name="dialog_message_not_deleted_ongoing_both">与正在进行的邀请和介绍有关的消息在结束之前无法被删除。</string>
   <string name="dialog_message_not_deleted_ongoing_introductions">与正在进行的介绍有关的消息在结束之前无法被删除。</string>
   <string name="dialog_message_not_deleted_ongoing_invitations">与正在进行的邀请有关的消息在结束之前无法被删除。</string>
-  <string name="dialog_message_not_deleted_partly_downloaded">部分下载的消息只有在完成下载后才能被删除。</string>
   <string name="dialog_message_not_deleted_not_all_selected_both">如要删除邀请或介绍，您需要选择该请求和回应。</string>
   <string name="dialog_message_not_deleted_not_all_selected_introductions">如要删除介绍，您需要选择该请求和回应。</string>
   <string name="dialog_message_not_deleted_not_all_selected_invitations">如要删除邀请，您需要选择该请求和回应。</string>
@@ -265,6 +301,7 @@
   <string name="introduction_response_accepted_sent">您已接受与 %1$s 建立联系。</string>
   <string name="introduction_response_accepted_sent_info">在 %1$s 被添加为您的联系人之前，他/她还需要接受介绍。这可能需要一些时间。</string>
   <string name="introduction_response_declined_sent">您已谢绝与 %1$s 建立联系。</string>
+  <string name="introduction_response_declined_auto">向 %1$s 的介绍被自动拒绝了</string>
   <string name="introduction_response_accepted_received">%1$s 已接受与 %2$s 建立联系。</string>
   <string name="introduction_response_declined_received">%1$s 已谢绝与 %2$s 建立联系。</string>
   <string name="introduction_response_declined_received_by_introducee">%1$s 表示 %2$s 谢绝了介绍。</string>
@@ -309,6 +346,7 @@
   </plurals>
   <string name="groups_invitations_response_accepted_sent">您接受了来自 %s 的群聊邀请。</string>
   <string name="groups_invitations_response_declined_sent">您谢绝了来自 %s 的群聊邀请。</string>
+  <string name="groups_invitations_response_declined_auto">来自 %s 的小组邀请被自动拒绝了</string>
   <string name="groups_invitations_response_accepted_received">%s 接受了群聊邀请。</string>
   <string name="groups_invitations_response_declined_received">%s 谢绝了群聊邀请。</string>
   <string name="sharing_status_groups">只有创建者可以邀请新成员加入群聊。下面是目前的群成员。</string>
@@ -358,6 +396,7 @@
   <string name="forum_invitation_already_sharing">已在分享</string>
   <string name="forum_invitation_response_accepted_sent">您接受了来自 %s的论坛邀请</string>
   <string name="forum_invitation_response_declined_sent">您谢绝了来自 %s的论坛邀请</string>
+  <string name="forum_invitation_response_declined_auto">来自 %s 的论坛邀请被自动拒绝了</string>
   <string name="forum_invitation_response_accepted_received">%s 接受了论坛邀请。</string>
   <string name="forum_invitation_response_declined_received">%s 谢绝了论坛邀请。</string>
   <string name="sharing_status">分享状态</string>
@@ -391,6 +430,7 @@
   <string name="blogs_sharing_snackbar">博客已分享给选中的联系人</string>
   <string name="blogs_sharing_response_accepted_sent">您接受了来自 %s 的博客邀请。</string>
   <string name="blogs_sharing_response_declined_sent">您谢绝了来自 %s 的博客邀请。</string>
+  <string name="blogs_sharing_response_declined_auto">来自 %s 的博客邀请被自动拒绝了</string>
   <string name="blogs_sharing_response_accepted_received">%s 接受了博客邀请。</string>
   <string name="blogs_sharing_response_declined_received">%s 谢绝了博客邀请。</string>
   <string name="blogs_sharing_invitation_received">%1$s 向您分享博客 “%2$s”。</string>
@@ -506,8 +546,20 @@
   <string name="notify_sound_setting_disabled">无</string>
   <string name="choose_ringtone_title">选择铃声</string>
   <string name="cannot_load_ringtone">无法加载铃声</string>
+  <!--Conversation Settings-->
+  <string name="disappearing_messages_title">让消息自动消失</string>
+  <string name="disappearing_messages_explanation_long">打开此设置将使
+		此会话中的新消息在7\u00A0天后自动消失。
+		\n\n发送方的消息副本的倒计时在消息交付后开始。
+		对于接收方，倒计时在她们读取了消息后开始
+		\n\n将消失的消息会被标记有炸弹图标。
+		\n\n记住，收件人仍然可以复制你发送的消息。
+		\n\n如果您更改了此设置，它将立即应用于您的新消息
+		对于你的联系人的消息，新设置将在联系人收到你的下条消息后生效
+		你的联系人也可以为双方更改此设置。</string>
+  <string name="learn_more">了解更多</string>
+  <string name="disappearing_messages_summary">在7\u00A0天之后，使此对话中的后续消息自动消失。</string>
   <!--Settings Feedback-->
-  <string name="feedback_settings_title">反馈</string>
   <string name="send_feedback">提交反馈</string>
   <!--Link Warning-->
   <string name="link_warning_title">链接警告</string>
@@ -560,6 +612,9 @@
   <string name="permission_camera_location_request_body"> Briar 需要相机权限以扫描二维码。\n\nBriar 需要位置信息权限以发现蓝牙设备。\n\nBriar 不会存储您的位置或将它分享给任何人。</string>
   <string name="permission_camera_denied_body">您已拒绝相机权限，而添加联系人需要使用相机。\n\n请考虑授予相机权限。</string>
   <string name="permission_location_denied_body">您已拒绝访问您的位置信息，但 Briar 需要此权限才能发现蓝牙设备。\n\n请考虑授予访问权限。</string>
+  <string name="permission_location_setting_title">位置设定</string>
+  <string name="permission_location_setting_body">必须打开你设备的位置设置，才能通过蓝牙找到其他设备。请启用位置以继续。您可以在之后再次禁用它。</string>
+  <string name="permission_location_setting_button">启用位置</string>
   <string name="qr_code">二维码</string>
   <string name="show_qr_code_fullscreen">全屏显示二维码</string>
   <!--App Locking-->

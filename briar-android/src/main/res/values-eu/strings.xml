@@ -106,6 +106,7 @@
   <string name="allow">Baimendu</string>
   <string name="open">Ireki</string>
   <string name="change">Aldatu</string>
+  <string name="start">Abiarazi</string>
   <string name="no_data">Daturik ez</string>
   <string name="ellipsis">…</string>
   <string name="text_too_long">Sartutako testua luzeegia da</string>
@@ -120,7 +121,6 @@
   <string name="no_contacts_action">Sakatu + ikonoa kontaktua gehitzeko</string>
   <string name="date_no_private_messages">Ez dago mezurik.</string>
   <string name="no_private_messages">Ez dago erakusteko mezurik</string>
-  <string name="message_hint">Idatzi mezua</string>
   <string name="image_caption_hint">Gehitu epigrafe bat (aukerakoa)</string>
   <string name="image_attach">Erantsi irudia</string>
   <string name="image_attach_error">Ezin izan da irudia(k) erantsi</string>
@@ -128,6 +128,12 @@
   <string name="image_attach_error_invalid_mime_type">Onartu gabeko irudi formatua: %s</string>
   <string name="set_contact_alias">Aldatu kontaktuaren izena</string>
   <string name="set_contact_alias_hint">Kontaktuaren izena</string>
+  <string name="menu_item_connect_via_bluetooth">Konektatu Bluetooth bidez</string>
+  <string name="dialog_title_connect_via_bluetooth">Konektatu Bluetooth bidez</string>
+  <!--The first placeholder will show a duration like "7 days". The second placeholder at the end will add "Tap to learn more."-->
+  <!--The placeholder at the end will add "Tap to learn more."-->
+  <!--The first placeholder will show a contact's name. The second placeholder will show a duration like "7 days". The third placeholder at the end will add "Tap to learn more."-->
+  <!--The first placeholder will show a contact's name. The second placeholder at the end will add "Tap to learn more."-->
   <string name="delete_all_messages">Ezabatu mezu guztiak</string>
   <string name="dialog_title_delete_all_messages">Baieztatu mezuak ezabatzea</string>
   <string name="dialog_message_delete_all_messages">Ziur mezu guztiak ezabatu nahi dituzula?</string>
@@ -135,7 +141,6 @@
   <string name="dialog_message_not_deleted_ongoing_both">Abian diren gonbidapenen edo aurkezpenen mezuak ezin dira ezabatu hauek amaitu arte.</string>
   <string name="dialog_message_not_deleted_ongoing_introductions">Abian diren aurkezpenen mezuak ezin dira ezabatu hauek amaitu arte.</string>
   <string name="dialog_message_not_deleted_ongoing_invitations">Abian diren gonbidapenen mezuak ezin dira ezabatu hauek amaitu arte.</string>
-  <string name="dialog_message_not_deleted_partly_downloaded">Erdizka deskargatutako mezuak ezin dira ezabatu deskargatzen amaitu arte.</string>
   <string name="dialog_message_not_deleted_not_all_selected_both">Gonbidapen edo aurkezpen bat ezabatzeko eskaria eta erantzuna hautatu behar dituzu.</string>
   <string name="dialog_message_not_deleted_not_all_selected_introductions">Aurkezpen bat ezabatzeko eskaria eta erantzuna hautatu behar dituzu.</string>
   <string name="dialog_message_not_deleted_not_all_selected_invitations">Gonbidapen bat ezabatzeko eskaria eta erantzuna hautatu behar dituzu.</string>
@@ -410,7 +415,7 @@
   <string name="pref_theme_light">Argia</string>
   <string name="pref_theme_dark">Iluna</string>
   <string name="pref_theme_auto">Automatikoa (Egunez)</string>
-  <string name="pref_theme_system">Sistemak lehenetsitakoa</string>
+  <string name="pref_theme_system">Sisteman lehenetsia</string>
   <!--Settings Connections-->
   <string name="tor_network_setting_automatic">Automatikoa kokalekuan oinarritua</string>
   <!--How and when Briar will connect to Tor: E.g. "Don't connect to the Internet (in China)" or "Use Tor network with bridges (in Belarus)"-->
@@ -478,8 +483,9 @@
   <string name="notify_sound_setting_disabled">Bat ere ez</string>
   <string name="choose_ringtone_title">Aukeratu dei-doinua</string>
   <string name="cannot_load_ringtone">Ezin izan da dei-doinua kargatu</string>
+  <!--Conversation Settings-->
+  <string name="learn_more">Gehiago jakin</string>
   <!--Settings Feedback-->
-  <string name="feedback_settings_title">Garatzaileentzako iruzkinak</string>
   <string name="send_feedback">Bidali garatzaileentzako iruzkinak</string>
   <!--Link Warning-->
   <string name="link_warning_title">Estekari buruzko abisua</string>

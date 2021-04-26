@@ -112,6 +112,7 @@
   <string name="allow">Дозволити</string>
   <string name="open">Відкрити</string>
   <string name="change">Змінити</string>
+  <string name="start">Почати</string>
   <string name="no_data">Немає даних</string>
   <string name="ellipsis">…</string>
   <string name="text_too_long">Цей текст занадто довгий</string>
@@ -125,7 +126,7 @@
   <string name="no_contacts_action">Натисніть на символ \"+\" для того, щоб додати контакт</string>
   <string name="date_no_private_messages">Немає повідомлень.</string>
   <string name="no_private_messages">Немає повідомлень для відображення</string>
-  <string name="message_hint">Введіть повідомлення</string>
+  <string name="message_hint">Нове Повідомлення</string>
   <string name="image_caption_hint">Додати заголовок (за бажанням)</string>
   <string name="image_attach">Прикріпити зображення</string>
   <string name="image_attach_error">Неможливо приєднати зображення</string>
@@ -133,6 +134,12 @@
   <string name="image_attach_error_invalid_mime_type">Формат зображення непідтримуваний: %s</string>
   <string name="set_contact_alias">Змінити ім\'я контакту</string>
   <string name="set_contact_alias_hint">Назва контакту</string>
+  <string name="menu_item_connect_via_bluetooth">З\'єднатися через Bluetooth</string>
+  <string name="dialog_title_connect_via_bluetooth">З\'єднатися через Bluetooth</string>
+  <!--The first placeholder will show a duration like "7 days". The second placeholder at the end will add "Tap to learn more."-->
+  <!--The placeholder at the end will add "Tap to learn more."-->
+  <!--The first placeholder will show a contact's name. The second placeholder will show a duration like "7 days". The third placeholder at the end will add "Tap to learn more."-->
+  <!--The first placeholder will show a contact's name. The second placeholder at the end will add "Tap to learn more."-->
   <string name="dialog_title_not_all_messages_deleted">Не вдалося видалити всі повідомлення</string>
   <string name="delete_contact">Вилучити контакт</string>
   <string name="dialog_title_delete_contact">Підтвердити вилучення контакту</string>
@@ -481,8 +488,9 @@
   <string name="notify_sound_setting_disabled">Немає</string>
   <string name="choose_ringtone_title">Обрати мелодію</string>
   <string name="cannot_load_ringtone">Неможливо завантажити мелодію</string>
+  <!--Conversation Settings-->
+  <string name="learn_more">Дізнатися більше</string>
   <!--Settings Feedback-->
-  <string name="feedback_settings_title">Відгук</string>
   <string name="send_feedback">Надіслати відгук</string>
   <!--Link Warning-->
   <string name="link_warning_title">Попередження про посилання</string>

@@ -96,7 +96,7 @@
   <string name="reminder_notification_text">Érintse meg az újra belépéshez.</string>
   <string name="reminder_notification_channel_title">Briar Belépési emlékeztető</string>
   <string name="reminder_notification_dismiss">Kihagy</string>
-  <string name="ongoing_notification_title">Belépve a Briar-ba-</string>
+  <string name="ongoing_notification_title">Belépve a Briar-ba</string>
   <string name="ongoing_notification_text">Érintse meg a Briar megnyitásához.</string>
   <plurals name="private_message_notification_text">
     <item quantity="one">Új privát üzenet.</item>
@@ -130,6 +130,7 @@
   <string name="allow">Engedélyez</string>
   <string name="open">Megnyitás</string>
   <string name="change">Módosítás</string>
+  <string name="start">Indítás</string>
   <string name="no_data">Nincs adat</string>
   <string name="ellipsis">...</string>
   <string name="text_too_long">A beírt szöveg túl hosszú</string>
@@ -144,7 +145,9 @@
   <string name="no_contacts_action">Érintse meg a + gombot kapcsolatok hozzáadásához</string>
   <string name="date_no_private_messages">Nincs üzenet.</string>
   <string name="no_private_messages">Nincs megjeleníthető üzenet</string>
-  <string name="message_hint">Üzenet írása</string>
+  <string name="message_hint">Új üzenet</string>
+  <string name="message_hint_auto_delete">Új eltűnő üzenet</string>
+  <string name="message_error">Hiba az üzenet küldésekor</string>
   <string name="image_caption_hint">Felirat hozzáadása (opcionális)</string>
   <string name="image_attach">Kép csatolása</string>
   <string name="image_attach_error">Nem sikerült a kép(ek) csatolása</string>
@@ -152,14 +155,47 @@
   <string name="image_attach_error_invalid_mime_type">Képformátum nem támogatott: %s</string>
   <string name="set_contact_alias">Kapcsolat nevének megváltoztatása</string>
   <string name="set_contact_alias_hint">Kapcsolat neve</string>
+  <string name="menu_item_disappearing_messages">Eltűnő üzenetek</string>
+  <string name="menu_item_connect_via_bluetooth">Csatlakozás bluetooth-on keresztül</string>
+  <string name="dialog_title_connect_via_bluetooth">Csatlakozás bluetooth-on keresztül</string>
+  <string name="dialog_message_connect_via_bluetooth">A kapcsolatai közel kell legyenek, hogy ez működjön.\n\n Ön és a kapcsolata egyaránt meg kell nyomja a \"Start\" gombot egyidőben.</string>
+  <string name="toast_connect_via_bluetooth_not_discoverable">Nem folytatható Bluetooth nélkül</string>
+  <string name="toast_connect_via_bluetooth_no_location_permission">Nem folytatható hely engedélyek nélkül</string>
+  <string name="toast_connect_via_bluetooth_start">Csatlakozás Bluetooth-on...</string>
+  <string name="toast_connect_via_bluetooth_success">Sikeres csatlakozás Bluetooth-on.</string>
+  <string name="toast_connect_via_bluetooth_error">Nem sikerült csatlakozni Bluetooth-on</string>
+  <!--The first placeholder will show a duration like "7 days". The second placeholder at the end will add "Tap to learn more."-->
+  <string name="auto_delete_msg_you_enabled">Az üzenetei eltűnnek %1$s. %2$s múlva</string>
+  <!--The placeholder at the end will add "Tap to learn more."-->
+  <string name="auto_delete_msg_you_disabled">Az üzenetei nem fognak eltűnni. %1$s</string>
+  <!--The first placeholder will show a contact's name. The second placeholder will show a duration like "7 days". The third placeholder at the end will add "Tap to learn more."-->
+  <string name="auto_delete_msg_contact_enabled">%1$s üzenetei eltűnnek %2$s. %3$s múlva</string>
+  <plurals name="duration_minutes">
+    <item quantity="one">%d perc</item>
+    <item quantity="other">%d perc</item>
+  </plurals>
+  <plurals name="duration_hours">
+    <item quantity="one">%d óra</item>
+    <item quantity="other">%d óra</item>
+  </plurals>
+  <plurals name="duration_days">
+    <item quantity="one">%d nap</item>
+    <item quantity="other">%d nap</item>
+  </plurals>
+  <!--The first placeholder will show a contact's name. The second placeholder at the end will add "Tap to learn more."-->
+  <string name="auto_delete_msg_contact_disabled">%1$s üzenetei nem fognak eltűnni. %2$s</string>
+  <string name="tap_to_learn_more">Érintse meg a további információkért.</string>
+  <string name="auto_delete_changed_warning_title">Eltűnő üzenetek megváltoztak</string>
+  <string name="auto_delete_changed_warning_message_enabled">Azóta, hogy elkezdte írni az üzenetét, az eltűnő üzenetek engedélyezésre kerültek.</string>
+  <string name="auto_delete_changed_warning_message_disabled">Azóta, hogy elkezdte írni az üzenetét, az eltűnő üzenetek tiltásra kerültek.</string>
+  <string name="auto_delete_changed_warning_send">Küldés mindenféleképpen</string>
   <string name="delete_all_messages">Minden üzenet törlése</string>
   <string name="dialog_title_delete_all_messages">Üzenet törlés megerősítése</string>
   <string name="dialog_message_delete_all_messages">Biztos, hogy szeretné törölni összes üzenetét?</string>
   <string name="dialog_title_not_all_messages_deleted">Nem törölhető minden üzenet</string>
-  <string name="dialog_message_not_deleted_ongoing_both">A folyamatban lévő meghívásokkal és bemutatkozásokkal kapcsolatos  üzenetek nem törölhetők, amíg nem teljesülnek.</string>
+  <string name="dialog_message_not_deleted_ongoing_both">A folyamatban lévő meghívásokkal és bemutatkozásokkal kapcsolatos üzenetek nem törölhetők, amíg nem teljesülnek.</string>
   <string name="dialog_message_not_deleted_ongoing_introductions">A folyamatban lévő bemutatkozásokkal kapcsolatos üzenetek nem törölhetők, amíg nem teljesülnek.</string>
   <string name="dialog_message_not_deleted_ongoing_invitations">A folyamatban lévő meghívásokkal kapcsolatos üzenetek nem törölhetők, amíg nem teljesülnek.</string>
-  <string name="dialog_message_not_deleted_partly_downloaded">A részben letöltött üzenetek nem törölhetők, amíg nem töltődnek le teljesen.</string>
   <string name="dialog_message_not_deleted_not_all_selected_both">Egy meghívás vagy bemutatkozás törléséhez ki kell jelölnie a kérelmet és a választ.</string>
   <string name="dialog_message_not_deleted_not_all_selected_introductions">Egy bemutatkozás törléséhez ki kell jelölnie a kérelmet és a választ.</string>
   <string name="dialog_message_not_deleted_not_all_selected_invitations">Egy meghívás törléséhez ki kell jelölnie a kérelmet és a választ.</string>
@@ -272,8 +308,9 @@ Kérjük frissítsen a legutolsó verzióra és próbálja újra.</string>
   <string name="introduction_request_exists_received">%1$s megkérve lett, hogy mutassa be Önt  személynek, de %2$s már a kapcsolatai között található. Mivel %1$s erről nem tudhat, továbbra is válaszolhatja a következőket:</string>
   <string name="introduction_request_answered_received">%1$s szeretné bemutatni Önt %2$s számára.</string>
   <string name="introduction_response_accepted_sent">Ön elfogadta a bemutatását %1$s számára.</string>
-  <string name="introduction_response_accepted_sent_info">Mielőtt %1$shozzáadásra kerülne a kapcsolataihoz, el kell neki is fogadni a bemutatkozást. Ez időbe telhet.</string>
+  <string name="introduction_response_accepted_sent_info">Mielőtt %1$s hozzáadásra kerülne a kapcsolataihoz, el kell neki is fogadni a bemutatkozást. Ez időbe telhet.</string>
   <string name="introduction_response_declined_sent">Ön elutasította a bemutatását %1$s számára.</string>
+  <string name="introduction_response_declined_auto">A bemutatkozás %1$s részére automatikusan elutasításra került.</string>
   <string name="introduction_response_accepted_received">%1$s elfogadta a bemutatkozást %2$s számára.</string>
   <string name="introduction_response_declined_received">%1$s elutasította a bemutatkozást %2$s számára.</string>
   <string name="introduction_response_declined_received_by_introducee">%1$s alapján %2$s elutasította a bemutatkozást.</string>
@@ -320,6 +357,7 @@ Kérjük frissítsen a legutolsó verzióra és próbálja újra.</string>
   </plurals>
   <string name="groups_invitations_response_accepted_sent">Elfogadta a %s csoport meghívását.</string>
   <string name="groups_invitations_response_declined_sent">Elutasította %s a csoport meghívását.</string>
+  <string name="groups_invitations_response_declined_auto"> %s csoport meghívása automatikusan elutasításra került.</string>
   <string name="groups_invitations_response_accepted_received">%s elfogadta a csoport meghívást.</string>
   <string name="groups_invitations_response_declined_received">%s elutasította a csoport meghívást.</string>
   <string name="sharing_status_groups">Csak a csoport létrehozója hívhat mg új tagokat a csoportba. Alább az összes aktuális tagja a csoportnak.</string>
@@ -359,7 +397,7 @@ Kérjük frissítsen a legutolsó verzióra és próbálja újra.</string>
   <string name="no_contacts_selector_action">Kérjük jöjjön vissza az után, ha hozzá adott néhány kapcsolatot</string>
   <string name="forum_shared_snackbar">A fórum csak a megadott kapcsolatokkal megosztott</string>
   <string name="forum_share_message">Üzenet hozzáadása (opcionális)</string>
-  <string name="forum_share_error">Hiba történt a fr</string>
+  <string name="forum_share_error">Hiba történt ennek a fórumnak a megosztásakor.</string>
   <string name="forum_invitation_received">%1$s megosztotta Önnel a \"%2$s\" fórumot.</string>
   <string name="forum_invitation_sent">Ön megosztotta a(z) \"%1$s\" fórumot %2$s számára.</string>
   <string name="forum_invitations_title">Fórum meghívások</string>
@@ -370,6 +408,7 @@ Kérjük frissítsen a legutolsó verzióra és próbálja újra.</string>
   <string name="forum_invitation_already_sharing">Megosztás alatt</string>
   <string name="forum_invitation_response_accepted_sent">Elfogadta a %s fórum meghívását.</string>
   <string name="forum_invitation_response_declined_sent">Elutasította %s a fórum meghívását.</string>
+  <string name="forum_invitation_response_declined_auto"> %s fórum meghívása automatikusan elutasításra került.</string>
   <string name="forum_invitation_response_accepted_received">%s elfogadta a fórum meghívást.</string>
   <string name="forum_invitation_response_declined_received">%s elutasította a fórum meghívást.</string>
   <string name="sharing_status">Állapot megosztása</string>
@@ -407,7 +446,8 @@ Kapcsolatai, akivel megosztotta ezt a blogot, lehet nem kapnak többé frissít�
   <string name="blogs_sharing_button">Blog megosztása</string>
   <string name="blogs_sharing_snackbar">A blog megosztva a kiválasztott kapcsolatokkal</string>
   <string name="blogs_sharing_response_accepted_sent">Elfogadta a %s blog meghívását.</string>
-  <string name="blogs_sharing_response_declined_sent">Elutasította %sblog meghívását. </string>
+  <string name="blogs_sharing_response_declined_sent">Elutasította %s blog meghívását. </string>
+  <string name="blogs_sharing_response_declined_auto"> %s blog meghívása automatikusan elutasításra került.</string>
   <string name="blogs_sharing_response_accepted_received">%s elfogadta a blog meghívást.</string>
   <string name="blogs_sharing_response_declined_received">%s elutasította a blog meghívást.</string>
   <string name="blogs_sharing_invitation_received">%1$s megosztott Önnel a \"%2$s\" blogot.</string>
@@ -525,8 +565,20 @@ Vigyázat: Ez végleg törli az identitásait, kapcsolatait és üzeneteit</stri
   <string name="notify_sound_setting_disabled">Egyik sem</string>
   <string name="choose_ringtone_title">Csengőhang választása</string>
   <string name="cannot_load_ringtone">Sikertelen a csengőhang betöltése</string>
+  <!--Conversation Settings-->
+  <string name="disappearing_messages_title">Eltűnő üzenetek</string>
+  <string name="disappearing_messages_explanation_long">Bekapcsolva ezt  beállítást az új
+		üzenetek ebben a beszélgetésben automatikusan eltűnnek 7\u00A0 nap múlva.
+		\n\nA visszaszámláló a küldő példányában akkor indul, amikor kézbesítésre került.
+		A visszaszámláló a címzett példányában akkor indul, amikor olvasta az üzenetet.
+		\n\nAz eltűnő üzenetek egy bomba ikonnal vannak megjelölve.
+		\n\nTartsa észben, hogy a címzettek még mindig készíthetnek másolatot az eltűnő üzenetekről, amit küldött nekik.
+		\n\nHa megváltoztatja ezt a beállítást, azonnal érvényesülni fog az új üzeneteire és a
+		kapcsolatai üzeneteire, amint megkapták az Ön üzentetét.
+		A kapcsolata ugyanúgy meg tudja változtatni ezt a beállítást az Ön és a saját részére.</string>
+  <string name="learn_more">További információ</string>
+  <string name="disappearing_messages_summary">Make future messages in this conversation automatically disappear after 7\u00A0days.</string>
   <!--Settings Feedback-->
-  <string name="feedback_settings_title">Visszajelzés</string>
   <string name="send_feedback">Visszajelzés küldése</string>
   <!--Link Warning-->
   <string name="link_warning_title">Link figyelmeztetés</string>
@@ -545,6 +597,7 @@ Vigyázat: Ez végleg törli az identitásait, kapcsolatait és üzeneteit</stri
   <string name="optional_contact_email">Email címe (opcionális)</string>
   <string name="include_debug_report_crash">Névtelen adat beágyazása az összeomlásról</string>
   <string name="include_debug_report_feedback">Névtelen adat beágyazása az eszközről</string>
+  <string name="dev_report_user_info">Felhasználó információ</string>
   <string name="dev_report_basic_info">Alapinformáció</string>
   <string name="dev_report_device_info">Eszköz információ</string>
   <string name="dev_report_stacktrace">Stacktrace</string>
@@ -578,6 +631,9 @@ Vigyázat: Ez végleg törli az identitásait, kapcsolatait és üzeneteit</stri
   <string name="permission_camera_location_request_body">A QR kód beszkenneléséhez a Briar-nak szüksége van a Kamerához hozzáférésre.\n\nA Bluetooth eszközök észleléséhez a Briar-nak szükségve van a lokációhoz hozzáférésre.\n\nA Briar nem tárolja lokációját vagy ossza meg bárkivel.</string>
   <string name="permission_camera_denied_body">Megtiltotta hozzáférést a kamerához, de a kapcsolatok hozzáadásához szükséges a kamera.\n\nKérjük gondolja meg a jog megadását.</string>
   <string name="permission_location_denied_body">Megtiltotta hozzáférést a helyhez, azonban a Briar-nak szüksége van erre, hogy detektálja a Bluetooth eszközöket.\n\nKérjük gondolja meg a jog megadását.</string>
+  <string name="permission_location_setting_title">Hely beállítás</string>
+  <string name="permission_location_setting_body">Az eszköze hely beállításai be kell kapcsolva legyenek, hogy megtaláljon más eszközöket Bluetooth-on. Kérjük engedélyezze a folytatáshoz. Utána újra letilthatja.</string>
+  <string name="permission_location_setting_button">Hely engedélyezése</string>
   <string name="qr_code">QR kód</string>
   <string name="show_qr_code_fullscreen">A QR kód teljes képernyősen</string>
   <!--App Locking-->

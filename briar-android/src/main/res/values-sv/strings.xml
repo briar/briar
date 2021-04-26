@@ -130,6 +130,7 @@
   <string name="allow">Tillåt</string>
   <string name="open">Öppen</string>
   <string name="change">Ändra</string>
+  <string name="start">Kör</string>
   <string name="no_data">Ingen data</string>
   <string name="ellipsis">…</string>
   <string name="text_too_long">Texten innehåller för många tecken</string>
@@ -144,7 +145,7 @@
   <string name="no_contacts_action">Tryck på plus-ikonen (+) för att lägga till en kontakt</string>
   <string name="date_no_private_messages">Inga meddelanden</string>
   <string name="no_private_messages">Inga meddelanden</string>
-  <string name="message_hint">Skriv ett meddelande</string>
+  <string name="message_hint">Nytt meddelande</string>
   <string name="image_caption_hint">Lägg till bildtext (valfritt)</string>
   <string name="image_attach">Bifoga bild</string>
   <string name="image_attach_error">Kunde inte bifoga en eller flera bilder</string>
@@ -152,6 +153,12 @@
   <string name="image_attach_error_invalid_mime_type">Bildformatet stöds ej: %s</string>
   <string name="set_contact_alias">Ändra namn på kontakt</string>
   <string name="set_contact_alias_hint">Kontaktnamn</string>
+  <string name="menu_item_connect_via_bluetooth">Anslut via Bluetooth</string>
+  <string name="dialog_title_connect_via_bluetooth">Anslut via Bluetooth</string>
+  <!--The first placeholder will show a duration like "7 days". The second placeholder at the end will add "Tap to learn more."-->
+  <!--The placeholder at the end will add "Tap to learn more."-->
+  <!--The first placeholder will show a contact's name. The second placeholder will show a duration like "7 days". The third placeholder at the end will add "Tap to learn more."-->
+  <!--The first placeholder will show a contact's name. The second placeholder at the end will add "Tap to learn more."-->
   <string name="delete_all_messages">Ta bort alla meddelanden</string>
   <string name="dialog_title_delete_all_messages">Bekräfta meddelande borttagning</string>
   <string name="dialog_message_delete_all_messages">Är du säker på att du vill ta bort alla meddelanden?</string>
@@ -159,7 +166,6 @@
   <string name="dialog_message_not_deleted_ongoing_both">Meddelanden relaterade till pågående inbjudningar och introduktioner kan inte tas bort förrän de avslutas.</string>
   <string name="dialog_message_not_deleted_ongoing_introductions">Meddelanden relaterade till pågående introduktioner kan inte tas bort förrän de avslutas.</string>
   <string name="dialog_message_not_deleted_ongoing_invitations">Meddelanden relaterade till pågående inbjudningar kan inte tas bort förrän de avslutas.</string>
-  <string name="dialog_message_not_deleted_partly_downloaded">Delvis hämtade meddelanden kan inte tas bort förrän de har hämtats.</string>
   <string name="dialog_message_not_deleted_not_all_selected_both">För att ta bort en inbjudan eller introduktion måste du välja förfrågan och svaret.</string>
   <string name="dialog_message_not_deleted_not_all_selected_introductions">För att ta bort en introduktion måste du välja förfrågan och svaret.</string>
   <string name="dialog_message_not_deleted_not_all_selected_invitations">För att ta bort en inbjudan måste du välja förfrågan och svaret.</string>
@@ -516,8 +522,9 @@
   <string name="notify_sound_setting_disabled">Ingen</string>
   <string name="choose_ringtone_title">Välj ringsignal</string>
   <string name="cannot_load_ringtone">Kan ej ladda ringsignal</string>
+  <!--Conversation Settings-->
+  <string name="learn_more">Läs mer</string>
   <!--Settings Feedback-->
-  <string name="feedback_settings_title">Synpunkter</string>
   <string name="send_feedback">Lämna synpunkter</string>
   <!--Link Warning-->
   <string name="link_warning_title">Länkvarning</string>

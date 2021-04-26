@@ -22,6 +22,9 @@
   <string name="setup_huawei_text">Ju lutemi, prekni butoni më poshtë dhe sigurohuni që Briar-i të jetë i mbrojtur, te skena \"Aplikacione të Mbrojtur\".</string>
   <string name="setup_huawei_button">Mbroje Briar-in</string>
   <string name="setup_huawei_help">Nëse Briar-i s\’është shtuar te lista e aplikacioneve të mbrojtur, s\’do të jetë në gjendje të xhirojë në prapaskenë.</string>
+  <string name="setup_huawei_app_launch_text">Ju lutemi, prekni butonin më poshtë, hapni skenën “Nisje aplikacioni” dhe sigurohuni se për Briar-in është zgjedhur “Administrojeni dorazi”.</string>
+  <string name="setup_huawei_app_launch_button">Hapni Rregullime Baterie</string>
+  <string name="setup_huawei_app_launch_help">Nëse për Briar-in s’është zgjedhur “Administroje Dorazi” te skena “Nisje Aplikacioni”, s’do të jetë në gjendje të xhirojë në prapaskenë.</string>
   <string name="warning_dozed">%s s\’qe në gjendje të xhirojë në prapaskenë</string>
   <!--Login-->
   <string name="enter_password">Fjalëkalim</string>
@@ -130,6 +133,7 @@
   <string name="allow">Lejoje</string>
   <string name="open">Hape</string>
   <string name="change">Ndryshoje</string>
+  <string name="start">Nise</string>
   <string name="no_data">S\’ka të dhëna</string>
   <string name="ellipsis">…</string>
   <string name="text_too_long">Teksti i dhënë është shumë i gjatë</string>
@@ -144,7 +148,9 @@
   <string name="no_contacts_action">Prekni ikonën + që të shtoni një kontakt</string>
   <string name="date_no_private_messages">S\’ka mesazhe.</string>
   <string name="no_private_messages">S’ka mesazhe për shfaqje</string>
-  <string name="message_hint">Shtypni mesazhin</string>
+  <string name="message_hint">Mesazh i ri</string>
+  <string name="message_hint_auto_delete">Mesazh i ri që tretet</string>
+  <string name="message_error">Gabim në dërgim mesazhi</string>
   <string name="image_caption_hint">Shtoni një titull (në daçi)</string>
   <string name="image_attach">Bashkëngjitni figurë</string>
   <string name="image_attach_error">S\’u bashkëngjit dot figurë(a)</string>
@@ -152,6 +158,40 @@
   <string name="image_attach_error_invalid_mime_type">Format i pambuluar figure: %s</string>
   <string name="set_contact_alias">Ndryshoni emër kontakti</string>
   <string name="set_contact_alias_hint">Emër kontakti</string>
+  <string name="menu_item_disappearing_messages">Mesazhe që treten</string>
+  <string name="menu_item_connect_via_bluetooth">Lidhu përmes Bluetooth-i</string>
+  <string name="dialog_title_connect_via_bluetooth">Lidhu përmes Bluetooth-i</string>
+  <string name="dialog_message_connect_via_bluetooth">Është e nevojshme që kontakti juaj të jetë atypari, që kjo të funksionojë.\n\nJu dhe kontakti juaj duhet që të shtypin “Fillo” në të njëjtën kohë.</string>
+  <string name="toast_connect_via_bluetooth_not_discoverable">S’mund të vazhdohet pa Bluetooth</string>
+  <string name="toast_connect_via_bluetooth_no_location_permission">S’mund të vazhdohet pa leje vendore</string>
+  <string name="toast_connect_via_bluetooth_start">Po lidhet me Bluetooth…</string>
+  <string name="toast_connect_via_bluetooth_success">U lidh me sukses përmes Bluetooth-i</string>
+  <string name="toast_connect_via_bluetooth_error">S’u lidh dot përmes Bluetooth-i</string>
+  <!--The first placeholder will show a duration like "7 days". The second placeholder at the end will add "Tap to learn more."-->
+  <string name="auto_delete_msg_you_enabled">Mesazhet tuaja do të treten pas %1$s. %2$s</string>
+  <!--The placeholder at the end will add "Tap to learn more."-->
+  <string name="auto_delete_msg_you_disabled">Mesazhet tuaj s’do të treten. %1$s</string>
+  <!--The first placeholder will show a contact's name. The second placeholder will show a duration like "7 days". The third placeholder at the end will add "Tap to learn more."-->
+  <string name="auto_delete_msg_contact_enabled">Mesazhet e %1$s do të treten pas %2$s. %3$s</string>
+  <plurals name="duration_minutes">
+    <item quantity="one">%d minute</item>
+    <item quantity="other">%d minutash</item>
+  </plurals>
+  <plurals name="duration_hours">
+    <item quantity="one">%d ore</item>
+    <item quantity="other">%d orësh</item>
+  </plurals>
+  <plurals name="duration_days">
+    <item quantity="one">%d dite</item>
+    <item quantity="other">%d ditësh</item>
+  </plurals>
+  <!--The first placeholder will show a contact's name. The second placeholder at the end will add "Tap to learn more."-->
+  <string name="auto_delete_msg_contact_disabled">Mesazhet e %1$s s’do të treten. %2$s</string>
+  <string name="tap_to_learn_more">Prekeni për të mësuar më shumë.</string>
+  <string name="auto_delete_changed_warning_title">Ndryshuan mesazhe që treten</string>
+  <string name="auto_delete_changed_warning_message_enabled">Që nga çasti që zutë të hartonit mesazhin tuaj, janë aktivizuar mesazhe që treten.</string>
+  <string name="auto_delete_changed_warning_message_disabled">Që nga çasti që zutë të hartonit mesazhin tuaj, janë çaktivizuar mesazhe që treten.</string>
+  <string name="auto_delete_changed_warning_send">Dërgoje sido qoftë</string>
   <string name="delete_all_messages">Fshiji krejt mesazhet</string>
   <string name="dialog_title_delete_all_messages">Ripohoni Fshirje Mesazhesh</string>
   <string name="dialog_message_delete_all_messages">Jeni i sigurt se doni të fshihen krejt mesazhet?</string>
@@ -159,7 +199,6 @@
   <string name="dialog_message_not_deleted_ongoing_both">Mesazhe të lidhur me ftesa dhe prezantime në kryerje e sipër s\’mund të fshihen para se të kryhen.</string>
   <string name="dialog_message_not_deleted_ongoing_introductions">Mesazhe të lidhur me prezantime në kryerje e sipër s\’mund të fshihen para se të kryhen.</string>
   <string name="dialog_message_not_deleted_ongoing_invitations">Mesazhe të lidhur me ftesa në kryerje e sipër s\’mund të fshihen para se të kryhen.</string>
-  <string name="dialog_message_not_deleted_partly_downloaded">Mesazhe të shkarkuar pjesërisht s\’mund të fshihen para se të përfundojë shkarkimi.</string>
   <string name="dialog_message_not_deleted_not_all_selected_both">Për të fshirë një ftesë apo prezantim, lypset të përzgjidhni kërkesën dhe përgjigjen.</string>
   <string name="dialog_message_not_deleted_not_all_selected_introductions">Për të fshirë një prezantim, lypset të përzgjidhni kërkesën dhe përgjigjen.</string>
   <string name="dialog_message_not_deleted_not_all_selected_invitations">Për të fshirë një ftesë, lypset të përzgjidhni kërkesën dhe përgjigjen.</string>
@@ -271,6 +310,7 @@
   <string name="introduction_response_accepted_sent">Pranuat prezantimin te %1$s.</string>
   <string name="introduction_response_accepted_sent_info">Para se %1$s të shtohet te kontaktet tuaja, duhet të pranojë prezantimin tuaj. Kjo mund të dojë ca kohë.</string>
   <string name="introduction_response_declined_sent">Hodhët poshtë prezantimin te %1$s.</string>
+  <string name="introduction_response_declined_auto">Hyrja te %1$s u hodh poshtë automatikisht.</string>
   <string name="introduction_response_accepted_received">%1$s pranoi prezantimin te %2$s.</string>
   <string name="introduction_response_declined_received">%1$s hodhi poshtë prezantimin te %2$s.</string>
   <string name="introduction_response_declined_received_by_introducee">%1$s thotë se %2$s hodhi poshtë prezantimin.</string>
@@ -317,6 +357,7 @@
   </plurals>
   <string name="groups_invitations_response_accepted_sent">Pranuat ftesën e grupit nga %s.</string>
   <string name="groups_invitations_response_declined_sent">Hodhët poshtë ftesën për në grup nga %s.</string>
+  <string name="groups_invitations_response_declined_auto">Ftesa e grupit nga %s u hodh poshtë automatikisht.</string>
   <string name="groups_invitations_response_accepted_received">%s e pranoi ftesën e grupit.</string>
   <string name="groups_invitations_response_declined_received">%s e hodhi poshtë ftesën për në grup.</string>
   <string name="sharing_status_groups">Vetëm krijuesi mund të ftojë anëtarë të rinj në grup. Më poshtë gjenden tërë anëtarët e tanishëm të grupit.</string>
@@ -367,6 +408,7 @@
   <string name="forum_invitation_already_sharing">Ndarë tashmë</string>
   <string name="forum_invitation_response_accepted_sent">Pranuat ftesën e forumit nga %s.</string>
   <string name="forum_invitation_response_declined_sent">Hodhët poshtë ftesën e forumit nga %s.</string>
+  <string name="forum_invitation_response_declined_auto">Ftesa për në forum nga %s u hodh poshtë automatikisht.</string>
   <string name="forum_invitation_response_accepted_received">%s pranoi ftesën e forumit.</string>
   <string name="forum_invitation_response_declined_received">%s e hodhi poshtë ftesën e forumit.</string>
   <string name="sharing_status">Gjendje Ndarjeje Me të Tjerë</string>
@@ -401,6 +443,7 @@
   <string name="blogs_sharing_snackbar">Blogu u nda me kontaktet e zgjedhur</string>
   <string name="blogs_sharing_response_accepted_sent">Pranuat ftesën e blogut nga %s.</string>
   <string name="blogs_sharing_response_declined_sent">Hodhët poshtë ftesën e blogut nga %s.</string>
+  <string name="blogs_sharing_response_declined_auto">Ftesa për te blogu nga %s u hodh poshtë automatikisht.</string>
   <string name="blogs_sharing_response_accepted_received">%s pranoi ftesën e blogut.</string>
   <string name="blogs_sharing_response_declined_received">%s hodhi poshtë ftesë blogu.</string>
   <string name="blogs_sharing_invitation_received">%1$s ndau me ju \"%2$s\".</string>
@@ -438,7 +481,7 @@
   <string name="pref_theme_light">E çelët</string>
   <string name="pref_theme_dark">E errët</string>
   <string name="pref_theme_auto">Automatike (Daytime)</string>
-  <string name="pref_theme_system">Parazgjedhje Sistemi</string>
+  <string name="pref_theme_system">Parazgjedhje sistemi</string>
   <!--Settings Connections-->
   <string name="network_settings_title">Lidhje</string>
   <string name="bluetooth_setting">Lidhuni me kontaktet përmes Bluetooth-i</string>
@@ -516,8 +559,20 @@
   <string name="notify_sound_setting_disabled">Asnjë</string>
   <string name="choose_ringtone_title">Zgjidhni zile</string>
   <string name="cannot_load_ringtone">S\’ngarkohet dot zile</string>
+  <!--Conversation Settings-->
+  <string name="disappearing_messages_title">Mesazhe që treten</string>
+  <string name="disappearing_messages_explanation_long">Aktivizimi i këtij rregullimi do të bëjë që
+mesazhet e reja në këtë bisedë të treten automatikisht pas 7\u00A0ditësh.
+\n\nKohëmatja për kopjen e dërguesit fillon pasi të jetë dorëzuar mesazhi.
+Për marrësin kohëmatja fillon pasi të ketë lexuar mesazhin.
+\n\nMesazhet që do të treten tregohen me një ikonë bombe.
+\n\nMbani parasysh që marrësit prapë mund të bëjnë kopje të mesazheve që dërgoni.
+\n\nNëse e ndryshoni këtë rregullim, do të aplikohet mbi mesazhet tuaja të reja
+menjëherë dhe mbi mesazhet e kontaktit sapo të marrë mesazhin tuaj të radhës.
+Këtë rregullim mund ta ndryshojë edhe kontakti juaj, për të dy ju.</string>
+  <string name="learn_more">Mësoni më tepër</string>
+  <string name="disappearing_messages_summary">Bëji mesazhet e ardhshëm në këtë bisedë të treten automatikisht pas 7\u00A0ditësh.</string>
   <!--Settings Feedback-->
-  <string name="feedback_settings_title">Përshtypje</string>
   <string name="send_feedback">Dërgoji përshtypjet</string>
   <!--Link Warning-->
   <string name="link_warning_title">Sinjalizim Lidhjeje</string>
@@ -569,6 +624,9 @@
   <string name="permission_camera_location_request_body">Që të skanojë kodin QR, Briar-it i duhet të përdorë kamerën.\n\nQë të pikasë pajisje Bluetooth, Briar-i lyp leje të njohë vendin tuaj.\n\nBriar-i nuk e depoziton vendin tuaj, as e ndan me dikë.</string>
   <string name="permission_camera_denied_body">Keni mohuar hyrjen në kamera, por shtimi i kontakteve lyp përdorimin e kamerës.\n\nJu lutemi, shihni mundësinë e akordimit të hyrjes.</string>
   <string name="permission_location_denied_body">Keni mohuar hyrje te vendndodhja juaj, por Briar-i ka nevojë për këtë leje, që të mund të zbulojë pajisje Bluetooth.\n\nJu lutemi, shihni mundësinë e akordimit të hyrjes.</string>
+  <string name="permission_location_setting_title">Rregullime vendndodhjeje</string>
+  <string name="permission_location_setting_body">Që të gjenden pajisje të tjera përmes Bluetooth-i, rregullimi për vendndodhjen e pajisjes tuaj duhet të jetë i aktivizuar. Ju lutemi, që të vazhdohet, aktivizoni vendndodhjen. Më pas, mund ta çaktivizoni prapë.</string>
+  <string name="permission_location_setting_button">Aktivizoni vendndodhje</string>
   <string name="qr_code">Kod QR</string>
   <string name="show_qr_code_fullscreen">Shfaqe kodin QR sa tërë ekrani</string>
   <!--App Locking-->

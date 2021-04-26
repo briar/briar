@@ -130,6 +130,7 @@
   <string name="allow">Autoriser</string>
   <string name="open">Ouvrir</string>
   <string name="change">Changer</string>
+  <string name="start">Commencer</string>
   <string name="no_data">Aucune donnée</string>
   <string name="ellipsis">...</string>
   <string name="text_too_long">Le texte saisi est trop long</string>
@@ -144,7 +145,9 @@
   <string name="no_contacts_action">Touchez l’icône + pour ajouter un contact</string>
   <string name="date_no_private_messages">Aucun message.</string>
   <string name="no_private_messages">Aucun message à afficher</string>
-  <string name="message_hint">Rédigez un message</string>
+  <string name="message_hint">Nouveau message</string>
+  <string name="message_hint_auto_delete">Nouveau message éphémère</string>
+  <string name="message_error">Erreur d’envoi du message</string>
   <string name="image_caption_hint">Ajouter une légende (facultatif)</string>
   <string name="image_attach">Joindre une image</string>
   <string name="image_attach_error">Impossible de joindre une ou des images</string>
@@ -152,6 +155,39 @@
   <string name="image_attach_error_invalid_mime_type">Format d’image non pris en charge : %s</string>
   <string name="set_contact_alias">Changer le nom du contact</string>
   <string name="set_contact_alias_hint">Nom du contact</string>
+  <string name="menu_item_disappearing_messages">Messages éphémères</string>
+  <string name="menu_item_connect_via_bluetooth">Se connecter par Bluetooth</string>
+  <string name="dialog_title_connect_via_bluetooth">Se connecter par Bluetooth</string>
+  <string name="dialog_message_connect_via_bluetooth">Afin que cela fonctionne, votre contact doit être à proximité.\n\nVotre contact et vous devriez appuyer ensemble sur « Commencer ».</string>
+  <string name="toast_connect_via_bluetooth_not_discoverable">Impossible de poursuivre sans le Bluetooth</string>
+  <string name="toast_connect_via_bluetooth_no_location_permission">Impossible de poursuivre sans la permission de position</string>
+  <string name="toast_connect_via_bluetooth_start">Connexion par Bluetooth…</string>
+  <string name="toast_connect_via_bluetooth_success">Connectée par Bluetooth avec succès</string>
+  <string name="toast_connect_via_bluetooth_error">Impossible de se connecter par Bluetooth</string>
+  <!--The first placeholder will show a duration like "7 days". The second placeholder at the end will add "Tap to learn more."-->
+  <string name="auto_delete_msg_you_enabled">Vos messages disparaîtront après %1$s. %2$s</string>
+  <!--The placeholder at the end will add "Tap to learn more."-->
+  <string name="auto_delete_msg_you_disabled">Vos messages ne disparaîtront pas. %1$s</string>
+  <!--The first placeholder will show a contact's name. The second placeholder will show a duration like "7 days". The third placeholder at the end will add "Tap to learn more."-->
+  <plurals name="duration_minutes">
+    <item quantity="one">%d minute</item>
+    <item quantity="other">%d minutes</item>
+  </plurals>
+  <plurals name="duration_hours">
+    <item quantity="one">%d heure</item>
+    <item quantity="other">%d heures</item>
+  </plurals>
+  <plurals name="duration_days">
+    <item quantity="one">%d jour</item>
+    <item quantity="other">%d jours</item>
+  </plurals>
+  <!--The first placeholder will show a contact's name. The second placeholder at the end will add "Tap to learn more."-->
+  <string name="auto_delete_msg_contact_disabled">Les messages de %1$s ne disparaîtront pas. %2$s</string>
+  <string name="tap_to_learn_more">Toucher pour en apprendre davantage.</string>
+  <string name="auto_delete_changed_warning_title">Les messages éphémères ont changé</string>
+  <string name="auto_delete_changed_warning_message_enabled">Depuis que vous avez commencé à composer votre message, les messages éphémères ont été activés.</string>
+  <string name="auto_delete_changed_warning_message_disabled">Depuis que vous avez commencé à composer votre message, les messages éphémères ont été désactivés.</string>
+  <string name="auto_delete_changed_warning_send">Envoyer quand même</string>
   <string name="delete_all_messages">Supprimer tous les messages</string>
   <string name="dialog_title_delete_all_messages">Confirmer la suppression des messages</string>
   <string name="dialog_message_delete_all_messages">Voulez-vous vraiment supprimer tous les messages ?</string>
@@ -159,7 +195,6 @@
   <string name="dialog_message_not_deleted_ongoing_both">Les messages relatifs aux invitations et présentations en cours ne peuvent pas être supprimés jusqu’à leur conclusion.</string>
   <string name="dialog_message_not_deleted_ongoing_introductions">Les messages relatifs aux présentations en cours ne peuvent pas être supprimés jusqu’à leur conclusion.</string>
   <string name="dialog_message_not_deleted_ongoing_invitations">Les messages relatifs aux invitations en cours ne peuvent pas être supprimés jusqu’à leur conclusion.</string>
-  <string name="dialog_message_not_deleted_partly_downloaded">Les messages partiellement téléchargés ne peuvent pas être supprimés tant que le téléchargement n’est pas terminé.</string>
   <string name="dialog_message_not_deleted_not_all_selected_both">Pour supprimer une invitation ou une présentation, vous devez sélectionner la demande et la réponse.</string>
   <string name="dialog_message_not_deleted_not_all_selected_introductions">Pour supprimer une présentation, vous devez sélectionner la demande et la réponse.</string>
   <string name="dialog_message_not_deleted_not_all_selected_invitations">Pour supprimer une invitation, vous devez sélectionner la demande et la réponse.</string>
@@ -271,6 +306,7 @@
   <string name="introduction_response_accepted_sent">Vous avez accepté d’être présenté à %1$s.</string>
   <string name="introduction_response_accepted_sent_info">Avant que %1$s ne soit ajouté à vos contacts, ce contact doit aussi accepter la présentation. Cela peut prendre du temps. </string>
   <string name="introduction_response_declined_sent">Vous avez refusé d’être présenté à %1$s.</string>
+  <string name="introduction_response_declined_auto">La présentation à %1$s a été refusée automatiquement.</string>
   <string name="introduction_response_accepted_received">%1$s a accepté d’être présenté à %2$s.</string>
   <string name="introduction_response_declined_received">%1$s a refusé d’être présenté à %2$s.</string>
   <string name="introduction_response_declined_received_by_introducee">%1$s annonce que %2$s a refusé la présentation.</string>
@@ -317,6 +353,7 @@
   </plurals>
   <string name="groups_invitations_response_accepted_sent">Vous avez accepté l’invitation de groupe de %s.</string>
   <string name="groups_invitations_response_declined_sent">Vous avez refusé l’invitation de groupe de %s.</string>
+  <string name="groups_invitations_response_declined_auto">L’invitation au groupe provenant de %s a été refusée automatiquement.</string>
   <string name="groups_invitations_response_accepted_received">%s a accepté l’invitation de groupe.</string>
   <string name="groups_invitations_response_declined_received">%s a refusé l’invitation de groupe.</string>
   <string name="sharing_status_groups">Seul le créateur peut inviter de nouveaux participants. Voici la liste des membres actuels du groupe.</string>
@@ -367,6 +404,7 @@
   <string name="forum_invitation_already_sharing">Le forum est déjà partagé</string>
   <string name="forum_invitation_response_accepted_sent">Vous avez accepté l’invitation de %s au forum.</string>
   <string name="forum_invitation_response_declined_sent">Vous avez refusé l’invitation de %s au forum.</string>
+  <string name="forum_invitation_response_declined_auto">L’invitation au forum provenant de %s a été refusée automatiquement.</string>
   <string name="forum_invitation_response_accepted_received">%s a accepté l’invitation au forum.</string>
   <string name="forum_invitation_response_declined_received">%s a refusé l’invitation au forum.</string>
   <string name="sharing_status">État de partage</string>
@@ -401,6 +439,7 @@
   <string name="blogs_sharing_snackbar">Le blogue a été partagé avec les contacts choisis</string>
   <string name="blogs_sharing_response_accepted_sent">Vous avez accepté l’invitation de %s au blogue.</string>
   <string name="blogs_sharing_response_declined_sent">Vous avez refusé l’invitation de %s au blogue.</string>
+  <string name="blogs_sharing_response_declined_auto">L’invitation au blogue provenant de %s a été refusée automatiquement.</string>
   <string name="blogs_sharing_response_accepted_received">%s a accepté l’invitation au blogue.</string>
   <string name="blogs_sharing_response_declined_received">%s a refusé l’invitation au blogue.</string>
   <string name="blogs_sharing_invitation_received">%1$s a partagé le blogue « %2$s » avec vous.</string>
@@ -516,8 +555,13 @@
   <string name="notify_sound_setting_disabled">Aucun</string>
   <string name="choose_ringtone_title">Choisir une sonnerie</string>
   <string name="cannot_load_ringtone">Impossible de charger la sonnerie</string>
+  <!--Conversation Settings-->
+  <string name="disappearing_messages_title">Messages éphémères</string>
+  <string name="disappearing_messages_explanation_long">dsvkjfjhgvfdkjhgv dfkjgh fkjhsgkjfdkj fhfgfhg
+</string>
+  <string name="learn_more">En apprendre davantage</string>
+  <string name="disappearing_messages_summary">Faire disparaître automatiquement les futurs messages de cette conversation après 7 jours.</string>
   <!--Settings Feedback-->
-  <string name="feedback_settings_title">Rétroaction</string>
   <string name="send_feedback">Envoyer une rétroaction</string>
   <!--Link Warning-->
   <string name="link_warning_title">Avertissement de lien</string>
@@ -570,6 +614,9 @@
   <string name="permission_camera_location_request_body">Afin de balayer le code QR, Briar doit accéder à l’appareil photo.\n\nAfin de découvrir des périphériques Bluetooth, Briar doit accéder à votre position.\n\nBriar n’enregistre pas votre position et ne la partage avec personne.</string>
   <string name="permission_camera_denied_body">Vous avez refusé l’accès à la caméra, mais l’ajout de contacts exige l’utilisation de celle-ci.\n\nVeuillez envisager d’y accorder l’accès.</string>
   <string name="permission_location_denied_body">Vous avez refusé l’accès à votre position géographique, mais Briar en a besoin pour découvrir les appareils Bluetooth.\n\nVeuillez envisager d’y accorder l’accès.</string>
+  <string name="permission_location_setting_title">Paramètre de localisation</string>
+  <string name="permission_location_setting_body">Afin de trouver d’autres appareils par Bluetooth, le paramètre Position de votre appareil doit être activé. Veuillez l’activer afin de poursuivre. Vous pourrez le désactiver ultérieurement.</string>
+  <string name="permission_location_setting_button">Activer la position</string>
   <string name="qr_code">Code QR</string>
   <string name="show_qr_code_fullscreen">Afficher le code QR en plein écran</string>
   <!--App Locking-->

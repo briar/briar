@@ -22,6 +22,9 @@
   <string name="setup_huawei_text">Bitte tippe auf die Schaltfläche unten und stelle sicher, dass Briar unter \"Geschützte Apps\" angezeigt wird.</string>
   <string name="setup_huawei_button">Briar schützen</string>
   <string name="setup_huawei_help">Wenn Briar nicht zur Liste der geschützten Apps hinzugefügt wird, kann es nicht im Hintergrund ausgeführt werden.</string>
+  <string name="setup_huawei_app_launch_text">Bitte tippe auf die Schaltfläche unten, öffne den Bereich \"App-Start\" und stelle sicher, dass Briar auf \"Manuell verwalten\" eingestellt ist.</string>
+  <string name="setup_huawei_app_launch_button">Akkueinstellungen öffnen</string>
+  <string name="setup_huawei_app_launch_help">Wenn Briar im Bereich \"App-Start\" nicht auf \"Manuell verwalten\" eingestellt ist, kann es nicht im Hintergrund ausgeführt werden.</string>
   <string name="warning_dozed">%s konnte nicht im Hintergrund ausgeführt werden</string>
   <!--Login-->
   <string name="enter_password">Passwort</string>
@@ -46,7 +49,7 @@
   <string name="expiry_date_reached">Diese Software ist abgelaufen.\nDanke, dass du Briar getestet hast!</string>
   <string name="download_briar">Bitte lade die aktuelle Version von Briar herunter, um es weiter zu benutzen.</string>
   <string name="create_new_account">Du wirst ein neues Konto erstellen müssen, wobei du jedoch wieder denselben Benutzernamen verwenden kannst.</string>
-  <string name="download_briar_button">Lade die aktuelle Version herunter</string>
+  <string name="download_briar_button">Aktuelle Version herunterladen</string>
   <string name="startup_open_database">Datenbank wird entschlüsselt...</string>
   <string name="startup_migrate_database">Datenbank wird aktualisiert...</string>
   <string name="startup_compact_database">Datenbank wird komprimiert ...</string>
@@ -85,8 +88,8 @@
   <string name="lan_plugin_status_disabled">Briar ist so konfiguriert, dass kein WLAN-Netzwerk verwendet werden soll</string>
   <!--Transports: Bluetooth-->
   <string name="transport_bt">Bluetooth</string>
-  <string name="bt_device_status_on">Die Bluetooth-Funktion deines Telefons ist eingeschaltet</string>
-  <string name="bt_device_status_off">Die Bluetooth-Funktion deines Telefons ist ausgeschaltet</string>
+  <string name="bt_device_status_on">Bluetooth-Funktion deines Telefons ist eingeschaltet</string>
+  <string name="bt_device_status_off">Bluetooth-Funktion deines Telefons ist ausgeschaltet</string>
   <string name="bt_plugin_status_enabling">Briar verbindet sich über Bluetooth</string>
   <string name="bt_plugin_status_active">Briar ist über Bluetooth verbunden</string>
   <string name="bt_plugin_status_inactive">Briar kann keine Verbindung über Bluetooth herstellen</string>
@@ -130,6 +133,7 @@
   <string name="allow">Erlauben</string>
   <string name="open">Öffnen</string>
   <string name="change">Ändern</string>
+  <string name="start">Start</string>
   <string name="no_data">Keine Daten</string>
   <string name="ellipsis">…</string>
   <string name="text_too_long">Der eingegebene Text ist zu lang</string>
@@ -144,7 +148,9 @@
   <string name="no_contacts_action">Tippe auf das + Symbol, um einen Kontakt hinzuzufügen</string>
   <string name="date_no_private_messages">Keine Nachrichten.</string>
   <string name="no_private_messages">Keine Nachrichten vorhanden</string>
-  <string name="message_hint">Nachricht eingeben</string>
+  <string name="message_hint">Neue Nachricht</string>
+  <string name="message_hint_auto_delete">Neue selbstlöschende Nachricht</string>
+  <string name="message_error">Fehler beim Senden der Nachricht</string>
   <string name="image_caption_hint">Überschrift hinzufügen (optional)</string>
   <string name="image_attach">Bild anhängen</string>
   <string name="image_attach_error">Bild(er) konnte(n) nicht angehängt werden</string>
@@ -152,6 +158,40 @@
   <string name="image_attach_error_invalid_mime_type">Nicht unterstütztes Bildformat: %s</string>
   <string name="set_contact_alias">Kontaktnamen ändern</string>
   <string name="set_contact_alias_hint">Name des Kontakts</string>
+  <string name="menu_item_disappearing_messages">Selbstlöschende Nachrichten</string>
+  <string name="menu_item_connect_via_bluetooth">Über Bluetooth verbinden</string>
+  <string name="dialog_title_connect_via_bluetooth">Über Bluetooth verbinden</string>
+  <string name="dialog_message_connect_via_bluetooth">Dein Kontakt muss in der Nähe sein, damit dies funktioniert.\n\nDu und dein Kontakt sollten beide gleichzeitig \"Start\" drücken.</string>
+  <string name="toast_connect_via_bluetooth_not_discoverable">Kann ohne Bluetooth nicht fortgesetzt werden</string>
+  <string name="toast_connect_via_bluetooth_no_location_permission">Kann ohne Standortberechtigung nicht fortgesetzt werden</string>
+  <string name="toast_connect_via_bluetooth_start">Verbinde über Bluetooth…</string>
+  <string name="toast_connect_via_bluetooth_success">Erfolgsreich über Bluetooth verbunden</string>
+  <string name="toast_connect_via_bluetooth_error">Konnte keine Verbindung über Bluetooth herstellen</string>
+  <!--The first placeholder will show a duration like "7 days". The second placeholder at the end will add "Tap to learn more."-->
+  <string name="auto_delete_msg_you_enabled">Deine Nachrichten werden nach %1$sgelöscht. %2$s</string>
+  <!--The placeholder at the end will add "Tap to learn more."-->
+  <string name="auto_delete_msg_you_disabled">Deine Nachrichten werden nicht gelöscht. %1$s</string>
+  <!--The first placeholder will show a contact's name. The second placeholder will show a duration like "7 days". The third placeholder at the end will add "Tap to learn more."-->
+  <string name="auto_delete_msg_contact_enabled">%1$s\'s Nachrichten werden nach%2$sgelöscht. %3$s</string>
+  <plurals name="duration_minutes">
+    <item quantity="one">%d Minute</item>
+    <item quantity="other">%d Minuten</item>
+  </plurals>
+  <plurals name="duration_hours">
+    <item quantity="one">%d Stunde</item>
+    <item quantity="other">%d Stunden</item>
+  </plurals>
+  <plurals name="duration_days">
+    <item quantity="one">%d Tag</item>
+    <item quantity="other">%d Tage</item>
+  </plurals>
+  <!--The first placeholder will show a contact's name. The second placeholder at the end will add "Tap to learn more."-->
+  <string name="auto_delete_msg_contact_disabled">%1$s\'s Nachrichten werden nicht gelöscht. %2$s</string>
+  <string name="tap_to_learn_more">Antippen, um mehr zu erfahren.</string>
+  <string name="auto_delete_changed_warning_title">Selbstlöschende Nachrichten geändert</string>
+  <string name="auto_delete_changed_warning_message_enabled">Nachdem du mit dem Verfassen deiner Nachricht begonnen hast, sind selbstlöschende Nachrichten aktiviert worden.</string>
+  <string name="auto_delete_changed_warning_message_disabled">Nachdem du mit dem Verfassen deiner Nachricht begonnen hast, sind selbstlöschende Nachrichten deaktiviert worden.</string>
+  <string name="auto_delete_changed_warning_send">Trotzdem senden</string>
   <string name="delete_all_messages">Alle Nachrichten löschen</string>
   <string name="dialog_title_delete_all_messages">Löschen der Nachrichten bestätigen</string>
   <string name="dialog_message_delete_all_messages">Bist du sicher, dass du alle Nachrichten löschen willst?</string>
@@ -159,7 +199,6 @@
   <string name="dialog_message_not_deleted_ongoing_both">Nachrichten, die sich auf laufende Einladungen und Kontaktempfehlungen beziehen, können nicht gelöscht werden, bis sie abgeschlossen sind.</string>
   <string name="dialog_message_not_deleted_ongoing_introductions">Nachrichten, die sich auf laufende Kontaktempfehlungen beziehen, können nicht gelöscht werden, bis sie abgeschlossen sind.</string>
   <string name="dialog_message_not_deleted_ongoing_invitations">Nachrichten, die sich auf laufende Einladungen beziehen, können nicht gelöscht werden, bis sie abgeschlossen sind.</string>
-  <string name="dialog_message_not_deleted_partly_downloaded">Teilweise heruntergeladene Nachrichten können erst nach dem Ende des Downloads gelöscht werden.</string>
   <string name="dialog_message_not_deleted_not_all_selected_both">Um eine Einladung oder Kontaktempfehlung zu löschen, musst du die Anfrage und die Antwort auswählen.</string>
   <string name="dialog_message_not_deleted_not_all_selected_introductions">Um eine Kontaktempfehlung zu löschen, musst du die Anfrage und die Antwort auswählen.</string>
   <string name="dialog_message_not_deleted_not_all_selected_invitations">Um eine Einladung zu löschen, musst du die Anfrage und die Antwort auswählen.</string>
@@ -218,7 +257,7 @@
   <string name="pending_contact_requests">Ausstehende Kontaktanfragen</string>
   <string name="no_pending_contacts">Keine ausstehenden Kontakte</string>
   <string name="waiting_for_contact_to_come_online">Warte auf Online-Aktivität des Kontakts ...</string>
-  <string name="connecting">Verbindung wird aufgebaut …</string>
+  <string name="connecting">Verbinde…</string>
   <string name="adding_contact">Kontakt hinzufügen...</string>
   <string name="adding_contact_failed">Hinzufügen von Kontakt ist fehlgeschlagen</string>
   <string name="dialog_title_remove_pending_contact">Entfernung bestätigen</string>
@@ -227,8 +266,8 @@
   <string name="nickname_missing">Bitte gib einen Spitznamen an</string>
   <string name="invalid_link">Ungültiger Link</string>
   <string name="unsupported_link">Dieser Link kommt von einer neueren Version von Briar. Bitte führe eine Aktualisierung auf die aktuelle Version durch und versuche es dann nochmal. </string>
-  <string name="intent_own_link">Du hast deinen eigenen Link aufgerufen. Nutze den Link des  Kontaktes, den du hinzufügen möchtest!</string>
-  <string name="missing_link">Bitte gebe einen Link ein</string>
+  <string name="intent_own_link">Du hast deinen eigenen Link aufgerufen. Nutze den Link des Kontaktes, den du hinzufügen möchtest!</string>
+  <string name="missing_link">Bitte gib einen Link ein</string>
   <!--This is a numeral indicating the first step in a series of screens-->
   <string name="step_1">1</string>
   <!--This is a numeral indicating the second step in a series of screens-->
@@ -271,6 +310,7 @@
   <string name="introduction_response_accepted_sent">Du hast die Kontaktempfehlung von %1$s angenommen.</string>
   <string name="introduction_response_accepted_sent_info">Bevor %1$s zu deinen Kontakten hinzugefügt werden, müssen sie die Kontaktempfehlung ebenfalls akzeptieren. Dies kann eine Weile dauern.</string>
   <string name="introduction_response_declined_sent">Du hast die Kontaktempfehlung von %1$s abgelehnt.</string>
+  <string name="introduction_response_declined_auto">Die Kontaktempfehlung mit %1$s wurde automatisch abgelehnt.</string>
   <string name="introduction_response_accepted_received">%1$s hat die Kontaktempfehlung für %2$s angenommen.</string>
   <string name="introduction_response_declined_received">%1$s hat die Kontaktempfehlung von %2$s abgelehnt.</string>
   <string name="introduction_response_declined_received_by_introducee">%1$s meldet, dass %2$s die Kontaktempfehlung abgelehnt hat.</string>
@@ -317,7 +357,8 @@
   </plurals>
   <string name="groups_invitations_response_accepted_sent">Gruppeneinladung von %s angenommen.</string>
   <string name="groups_invitations_response_declined_sent">Du hast die Gruppeneinladung abgelehnt von %s abgelehnt.</string>
-  <string name="groups_invitations_response_accepted_received">%s hat die Einladung zur Gruppe angenommen.</string>
+  <string name="groups_invitations_response_declined_auto">Die Gruppeneinladung von %s wurde automatisch abgelehnt.</string>
+  <string name="groups_invitations_response_accepted_received">%s hat die Gruppeneinladung angenommen.</string>
   <string name="groups_invitations_response_declined_received">%s hat die Gruppeneinladung abgelehnt.</string>
   <string name="sharing_status_groups">Nur der Ersteller kann neue Mitglieder zu einer Gruppe einladen. Hier werden alle aktuellen Mitglieder dieser Gruppe angezeigt.</string>
   <!--Private Groups Revealing Contacts-->
@@ -359,7 +400,7 @@
   <string name="forum_share_error">Es gab einen Fehler beim Versuch, dieses Forum zu teilen.</string>
   <string name="forum_invitation_received">%1$s hat das Forum \"%2$s\" mit dir geteilt.</string>
   <string name="forum_invitation_sent">Du hast das Forum \"%1$s\" mit %2$s geteilt.</string>
-  <string name="forum_invitations_title">Foreneinladungen</string>
+  <string name="forum_invitations_title">Forumeinladungen</string>
   <string name="forum_invitation_exists">Du hast bereits eine Einladung zu diesem Forum angenommen.\n\nMehrere Einladungen anzunehmen wird deine Verbindung zu diesem Forum schneller und zuverlässiger machen.</string>
   <string name="forum_joined_toast">Dem Forum beigetreten</string>
   <string name="forum_declined_toast">Einladung abgelehnt</string>
@@ -367,6 +408,7 @@
   <string name="forum_invitation_already_sharing">Bereits geteilt.</string>
   <string name="forum_invitation_response_accepted_sent">Du hast die Forumseinladung von %s angenommen.</string>
   <string name="forum_invitation_response_declined_sent">Du hast die Forumeinladung von %s abgelehnt.</string>
+  <string name="forum_invitation_response_declined_auto">Die Forumeinladung von %s wurde automatisch abgelehnt.</string>
   <string name="forum_invitation_response_accepted_received">%s hat die Forumeinladung angenommen.</string>
   <string name="forum_invitation_response_declined_received">%s hat die Forumeinladung abgelehnt.</string>
   <string name="sharing_status">Freigabestatus</string>
@@ -390,7 +432,7 @@
   <string name="blogs_feed_empty_state_action">Beiträge von deinen Kontakten und abonnierten Blogs werden hier erscheinen\n\nTippe auf das Stiftsymbol, um einen Beitrag zu verfassen</string>
   <string name="blogs_remove_blog">Blog entfernen</string>
   <string name="blogs_remove_blog_dialog_message">Bist du sicher, dass du diesen Blog löschen willst?\n\nBeiträge werden von deinem Gerät entfernt, aber nicht von den Geräten anderer Personen.\n\nAlle Kontakte, für die du diesen Blog freigegeben hast, können keine Updates mehr erhalten.</string>
-  <string name="blogs_remove_blog_ok">Aufheben</string>
+  <string name="blogs_remove_blog_ok">Entfernen</string>
   <string name="blogs_blog_removed">Blog wurde entfernt</string>
   <string name="blogs_reblog_comment_hint">Kommentar hinzufügen (optional)</string>
   <string name="blogs_reblog_button">Rebloggen</string>
@@ -401,6 +443,7 @@
   <string name="blogs_sharing_snackbar">Blog wurde mit ausgewählten Kontakten geteilt</string>
   <string name="blogs_sharing_response_accepted_sent">Du hast die Blogeinladung von %s angenommen.</string>
   <string name="blogs_sharing_response_declined_sent">Du hast die Blogeinladung von %s abgelehnt.</string>
+  <string name="blogs_sharing_response_declined_auto">Die Blogeinladung von %s wurde automatisch abgelehnt.</string>
   <string name="blogs_sharing_response_accepted_received">%s hat die Blogeinladung angenommen.</string>
   <string name="blogs_sharing_response_declined_received">%s hat die Blogeinladung abgelehnt.</string>
   <string name="blogs_sharing_invitation_received">%1$shat den Blog \"%2$s\" mit dir geteilt.</string>
@@ -516,8 +559,20 @@
   <string name="notify_sound_setting_disabled">Keine</string>
   <string name="choose_ringtone_title">Klingelton auswählen</string>
   <string name="cannot_load_ringtone">Klingelton kann nicht geladen werden</string>
+  <!--Conversation Settings-->
+  <string name="disappearing_messages_title">Selbstlöschende Nachrichten</string>
+  <string name="disappearing_messages_explanation_long">Wenn diese Einstellung aktiviert ist, werden neue
+		Nachrichten in dieser Unterhaltung automatisch nach 7\u00A0Tagen gelöscht.
+		\n\nDer Countdown für die Nachrichtenkopie des Absenders beginnt, nachdem sie zugestellt wurde.
+		Für den Empfänger beginnt der Countdown, nachdem er die Nachricht gelesen hat.
+		\n\nNachrichten, die gelöscht werden, sind mit einem Bombensymbol gekennzeichnet.
+		\n\nDenke daran, dass die Empfänger weiterhin Kopien der von deinen gesendeten Nachrichten erstellen können.
+		\n\nWenn du diese Einstellung änderst, gilt sie sofort für deine neuen Nachrichten und für die
+		Nachrichten deines Kontakts, sobald dieser deine nächste Nachricht erhält.
+		Dein Kontakt kann diese Einstellung auch für euch beide ändern.</string>
+  <string name="learn_more">Mehr erfahren</string>
+  <string name="disappearing_messages_summary">Zukünftige Nachrichten in dieser Unterhaltung werden automatisch nach 7\u00A0Tagen gelöscht.</string>
   <!--Settings Feedback-->
-  <string name="feedback_settings_title">Feedback</string>
   <string name="send_feedback">Feedback senden</string>
   <!--Link Warning-->
   <string name="link_warning_title">Link-Warnung</string>
@@ -570,6 +625,9 @@
   <string name="permission_camera_location_request_body">Um den QR-Code zu scannen, braucht Briar Zugriff auf die Kamera.\n\nUm Bluetooth-Geräte zu finden, braucht Briar Zugriff auf deinen Standort.\n\nBriar speichert weder deinen Standort noch gibt es ihn an andere weiter.</string>
   <string name="permission_camera_denied_body">Du hast den Zugriff auf die Kamera verweigert, aber das Hinzufügen von Kontakten erfordert die Verwendung der Kamera.\n\nBitte gewähre den Zugriff.</string>
   <string name="permission_location_denied_body">Du hast den Zugriff auf deinen Standort verweigert, aber Briar benötigt diese Berechtigung, um Bluetooth-Geräte zu erkennen.\n\nBitte gewähre den Zugriff.</string>
+  <string name="permission_location_setting_title">Standorteinstellung</string>
+  <string name="permission_location_setting_body">Die Standorteinstellung deines Geräts muss aktiviert sein, um andere Geräte über Bluetooth zu finden. Bitte aktiviere den Standort, um fortzufahren. Du kannst sie anschließend wieder deaktivieren.</string>
+  <string name="permission_location_setting_button">Standort aktivieren</string>
   <string name="qr_code">QR-Code</string>
   <string name="show_qr_code_fullscreen">QR-Code im Vollbildmodus anzeigen</string>
   <!--App Locking-->

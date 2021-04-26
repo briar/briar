@@ -122,6 +122,7 @@ Umepoteza nenosiri.</string>
   <string name="allow">Ruhusu</string>
   <string name="open">Fungua</string>
   <string name="change">Badili</string>
+  <string name="start">Anza</string>
   <string name="no_data">Hakuna data</string>
   <string name="ellipsis">...</string>
   <string name="text_too_long">Maneno ulio yainguza nimarefu sana </string>
@@ -136,7 +137,6 @@ Umepoteza nenosiri.</string>
   <string name="no_contacts_action">Bonyeza ikoni + kuongeza mawasiliano </string>
   <string name="date_no_private_messages">Hakuna ujumbe </string>
   <string name="no_private_messages">Hakuna ujumbe wakuonyesha </string>
-  <string name="message_hint">Andika ujumbe </string>
   <string name="image_caption_hint">Ongeza maelezo mafupi (sio ya hiari)</string>
   <string name="image_attach">Ambatanisha taswira</string>
   <string name="image_attach_error">Imeshidikana kuambatanisha taswira</string>
@@ -144,6 +144,12 @@ Umepoteza nenosiri.</string>
   <string name="image_attach_error_invalid_mime_type">Mfumo wa taswira hauendani: %s</string>
   <string name="set_contact_alias">Badilisha jina lako la mawasiliano </string>
   <string name="set_contact_alias_hint">Jina la mawasiliano </string>
+  <string name="menu_item_connect_via_bluetooth">Unganisha kwa Bluetooth</string>
+  <string name="dialog_title_connect_via_bluetooth">Unganisha kwa Bluetooth</string>
+  <!--The first placeholder will show a duration like "7 days". The second placeholder at the end will add "Tap to learn more."-->
+  <!--The placeholder at the end will add "Tap to learn more."-->
+  <!--The first placeholder will show a contact's name. The second placeholder will show a duration like "7 days". The third placeholder at the end will add "Tap to learn more."-->
+  <!--The first placeholder will show a contact's name. The second placeholder at the end will add "Tap to learn more."-->
   <string name="delete_all_messages">Futa jumbe zote</string>
   <string name="dialog_title_delete_all_messages">Hakiki ufutaji  wa ujumbe</string>
   <string name="dialog_message_delete_all_messages">Je, unauhakika wa kufuta jumbe zote?</string>
@@ -151,7 +157,6 @@ Umepoteza nenosiri.</string>
   <string name="dialog_message_not_deleted_ongoing_both">Jumbe unaohusiana na mialiko inayoendelea na utangulizi haziwezi kufutwa hadi amalize.</string>
   <string name="dialog_message_not_deleted_ongoing_introductions">Jumbe zinazohusiana na utangulizi unaoendelea haziwezi kufutwa hadi amalize.</string>
   <string name="dialog_message_not_deleted_ongoing_invitations">Jumbe zinazohusiana na mialiko inayoendelea haziwezi kufutwa hadi itakapomalizika.</string>
-  <string name="dialog_message_not_deleted_partly_downloaded">Jumbe zilizopakuliwa kwa sehemu haziwezi kufutwa hadi amalize kupakua.</string>
   <string name="dialog_message_not_deleted_not_all_selected_both"> Kufuta mwaliko au utangulizi, unahitaji kuchagua ombi na jibu.</string>
   <string name="dialog_message_not_deleted_not_all_selected_introductions">Ili kufuta utangulizi, unahitaji kuchagua ombi na jibu. </string>
   <string name="dialog_message_not_deleted_not_all_selected_invitations">Ili kufuta mwaliko, unahitaji kuchagua ombi na jibu.</string>
@@ -416,7 +421,7 @@ Umepoteza nenosiri.</string>
   <string name="pref_theme_light">mwanga</string>
   <string name="pref_theme_dark">Giza</string>
   <string name="pref_theme_auto">kiotomatiki (Mchana)</string>
-  <string name="pref_theme_system">Mfumo Msingi </string>
+  <string name="pref_theme_system">Mfumo msingi </string>
   <!--Settings Connections-->
   <string name="network_settings_title">Viunganishi</string>
   <string name="bluetooth_setting">Unganisha kwa anwani kupitia Bluetooth</string>
@@ -494,8 +499,9 @@ Umepoteza nenosiri.</string>
   <string name="notify_sound_setting_disabled">Hakuna</string>
   <string name="choose_ringtone_title">Chagua mwiito </string>
   <string name="cannot_load_ringtone">Ina shindikana kufungua mwiito </string>
+  <!--Conversation Settings-->
+  <string name="learn_more">Kujifunza zaidi</string>
   <!--Settings Feedback-->
-  <string name="feedback_settings_title">Maoni</string>
   <string name="send_feedback">Tuma Maoni </string>
   <!--Link Warning-->
   <string name="link_warning_title">kiungo  onyo</string>

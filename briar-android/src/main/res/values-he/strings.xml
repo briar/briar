@@ -140,6 +140,7 @@
   <string name="allow">התר</string>
   <string name="open">פתיחה</string>
   <string name="change">שינוי</string>
+  <string name="start">התחל</string>
   <string name="no_data">אין נתונים</string>
   <string name="ellipsis">…</string>
   <string name="text_too_long">הטקסט המוכנס ארוך מדי</string>
@@ -154,7 +155,7 @@
   <string name="no_contacts_action">הקש על הצלמית + כדי להוסיף איש קשר</string>
   <string name="date_no_private_messages">אין הודעות.</string>
   <string name="no_private_messages">אין הודעות להראות</string>
-  <string name="message_hint">הקלד הודעה</string>
+  <string name="message_hint">הודעה חדשה</string>
   <string name="image_caption_hint">הוסף כיתוב (רשותי)</string>
   <string name="image_attach">צרף תמונה</string>
   <string name="image_attach_error">לא היה ניתן לצרף תמונה (או תמונות)</string>
@@ -162,6 +163,12 @@
   <string name="image_attach_error_invalid_mime_type">תסדיר תמונה בלתי נתמך: %s</string>
   <string name="set_contact_alias">שַׁנֵּה שם איש קשר</string>
   <string name="set_contact_alias_hint">שם איש הקשר</string>
+  <string name="menu_item_connect_via_bluetooth">התחבר באמצעות שן כחולה</string>
+  <string name="dialog_title_connect_via_bluetooth">התחבר באמצעות שן כחולה</string>
+  <!--The first placeholder will show a duration like "7 days". The second placeholder at the end will add "Tap to learn more."-->
+  <!--The placeholder at the end will add "Tap to learn more."-->
+  <!--The first placeholder will show a contact's name. The second placeholder will show a duration like "7 days". The third placeholder at the end will add "Tap to learn more."-->
+  <!--The first placeholder will show a contact's name. The second placeholder at the end will add "Tap to learn more."-->
   <string name="delete_all_messages">מחיקת כל ההודעות</string>
   <string name="dialog_title_delete_all_messages">אשר מחיקת הודעה</string>
   <string name="dialog_message_delete_all_messages">האם אכן ברצונך למחוק את כל ההודעות?</string>
@@ -169,7 +176,6 @@
   <string name="dialog_message_not_deleted_ongoing_both">הודעות שקשורות אל הזמנות והיכרויות מתמשכות אינן יכולות להימחק עד שההיכרויות או ההזמנות יסוימו.</string>
   <string name="dialog_message_not_deleted_ongoing_introductions">הודעות שקשורות אל היכרויות מתמשכות אינן יכולות להימחק עד שהההיכרויות יסוימו.</string>
   <string name="dialog_message_not_deleted_ongoing_invitations">הודעות שקשורות אל הזמנות מתמשכות אינן יכולות להימחק עד שההזמנות יסוימו.</string>
-  <string name="dialog_message_not_deleted_partly_downloaded">הודעות שירדו חלקית אינן יכולות להימחק עד שהן יסיימו לרדת.</string>
   <string name="dialog_message_not_deleted_not_all_selected_both">כדי למחוק הזמנה או היכרות, צריך לבחור את הבקשה והתגובה.</string>
   <string name="dialog_message_not_deleted_not_all_selected_introductions">כדי למחוק את ההיכרות, צריך לבחור את הבקשה והתגובה.</string>
   <string name="dialog_message_not_deleted_not_all_selected_invitations">כדי למחוק את ההזמנה, צריך לבחור את הבקשה והתגובה.</string>
@@ -462,7 +468,7 @@
   <string name="pref_theme_light">בהיר</string>
   <string name="pref_theme_dark">כהה</string>
   <string name="pref_theme_auto">אוטומטי (שעות יום)</string>
-  <string name="pref_theme_system">ברירת מחדל</string>
+  <string name="pref_theme_system">ברירת מחדל של מערכת</string>
   <!--Settings Connections-->
   <string name="network_settings_title">חיבורים</string>
   <string name="bluetooth_setting">התחבר אל אנשי קשר באמצעות Bluetooth</string>
@@ -540,8 +546,9 @@
   <string name="notify_sound_setting_disabled">כלום</string>
   <string name="choose_ringtone_title">בחר צלצול</string>
   <string name="cannot_load_ringtone">לא ניתן לטעון צלצול</string>
+  <!--Conversation Settings-->
+  <string name="learn_more">למד עוד</string>
   <!--Settings Feedback-->
-  <string name="feedback_settings_title">משוב</string>
   <string name="send_feedback">שלח משוב</string>
   <!--Link Warning-->
   <string name="link_warning_title">אזהרת קישור</string>

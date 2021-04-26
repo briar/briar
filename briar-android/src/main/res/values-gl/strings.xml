@@ -130,6 +130,7 @@
   <string name="allow">Permitir</string>
   <string name="open">Abrir</string>
   <string name="change">Cambiar</string>
+  <string name="start">Comezar</string>
   <string name="no_data">Sen datos</string>
   <string name="ellipsis">...</string>
   <string name="text_too_long">O texto inserido e demasiado longo</string>
@@ -144,7 +145,9 @@
   <string name="no_contacts_action">Toca na icona + para engadir un contacto</string>
   <string name="date_no_private_messages">Sen mensaxes</string>
   <string name="no_private_messages">Sen mensaxes que amosar</string>
-  <string name="message_hint">Escibe unha mensaxe</string>
+  <string name="message_hint">Nova mensaxe</string>
+  <string name="message_hint_auto_delete">Nova mensaxe efémera</string>
+  <string name="message_error">Erro ao enviar a mensaxe</string>
   <string name="image_caption_hint">Engadir un comentario (optativo)</string>
   <string name="image_attach">Anexar imaxe</string>
   <string name="image_attach_error">Non se anexaron imaxe(s)</string>
@@ -152,6 +155,40 @@
   <string name="image_attach_error_invalid_mime_type">Formato non admitido: %s</string>
   <string name="set_contact_alias">Cambiar o nome do contacto</string>
   <string name="set_contact_alias_hint">Nome do contacto</string>
+  <string name="menu_item_disappearing_messages">Mensaxes efémeras</string>
+  <string name="menu_item_connect_via_bluetooth">Conectar vía Bluetooth</string>
+  <string name="dialog_title_connect_via_bluetooth">Conectar vía Bluetooth</string>
+  <string name="dialog_message_connect_via_bluetooth">O teu contacto ten que estar preto para que isto funcione.\n\nTi e o teu contacto tedes que premer en \"Iniciar\" ao mesmo tempo.</string>
+  <string name="toast_connect_via_bluetooth_not_discoverable">Non se pode continuar sen o Bluetooth</string>
+  <string name="toast_connect_via_bluetooth_no_location_permission">Non se pode continuar sen o permiso de localización</string>
+  <string name="toast_connect_via_bluetooth_start">Conectando vía Bluetooth...</string>
+  <string name="toast_connect_via_bluetooth_success">Conectouse correctamente vía Bluetooth</string>
+  <string name="toast_connect_via_bluetooth_error">Non se puido conectar vía Bluetooth</string>
+  <!--The first placeholder will show a duration like "7 days". The second placeholder at the end will add "Tap to learn more."-->
+  <string name="auto_delete_msg_you_enabled">As túas mensaxes desaparecerán após %1$s . %2$s</string>
+  <!--The placeholder at the end will add "Tap to learn more."-->
+  <string name="auto_delete_msg_you_disabled">As túas mensaxes non desaparecerán. %1$s</string>
+  <!--The first placeholder will show a contact's name. The second placeholder will show a duration like "7 days". The third placeholder at the end will add "Tap to learn more."-->
+  <string name="auto_delete_msg_contact_enabled">As mensaxes de %1$s desaparecerán após %2$s . %3$s</string>
+  <plurals name="duration_minutes">
+    <item quantity="one">%d minuto</item>
+    <item quantity="other">%dminutos</item>
+  </plurals>
+  <plurals name="duration_hours">
+    <item quantity="one">%dhora</item>
+    <item quantity="other">%dhoras</item>
+  </plurals>
+  <plurals name="duration_days">
+    <item quantity="one">%ddía</item>
+    <item quantity="other">%ddías</item>
+  </plurals>
+  <!--The first placeholder will show a contact's name. The second placeholder at the end will add "Tap to learn more."-->
+  <string name="auto_delete_msg_contact_disabled">As mensaxes de %1$snon desaparecerán. %2$s</string>
+  <string name="tap_to_learn_more">Toca para saber máis.</string>
+  <string name="auto_delete_changed_warning_title">As mensaxes efémeras cambiaron</string>
+  <string name="auto_delete_changed_warning_message_enabled">Desde que comezaches a escribir a mensaxe, as mensaxes efémeras foron activadas.</string>
+  <string name="auto_delete_changed_warning_message_disabled">Desde que comezaches a escribir a mensaxe, foron desactivadas as mensaxes efémeras.</string>
+  <string name="auto_delete_changed_warning_send">Enviar igualmente</string>
   <string name="delete_all_messages">Borrar tódalas mensaxes</string>
   <string name="dialog_title_delete_all_messages">Confirmar borrado de mensaxes</string>
   <string name="dialog_message_delete_all_messages">Seguro que queres borrar tódalas mensaxes?</string>
@@ -159,7 +196,6 @@
   <string name="dialog_message_not_deleted_ongoing_both">As mensaxes relacionadas con convites e presentacións actuais non se poden borrar ata que conclúan.</string>
   <string name="dialog_message_not_deleted_ongoing_introductions">As mensaxes relacionadas con presentacións en curso non se poden borrar ata que conclúan.</string>
   <string name="dialog_message_not_deleted_ongoing_invitations">As mensaxes relacionadas con convites en curso non se poden borrar ata que conclúan.</string>
-  <string name="dialog_message_not_deleted_partly_downloaded">As mensaxes parcialmente descargadas non se poden borrar ata que rematen de descargarse.</string>
   <string name="dialog_message_not_deleted_not_all_selected_both">Para borrar un convite ou presentación, debes seleccionar a solicitude e a resposta.</string>
   <string name="dialog_message_not_deleted_not_all_selected_introductions">Para borrar unha presentación, debes seleccionar a solicitude e a resposta.</string>
   <string name="dialog_message_not_deleted_not_all_selected_invitations">Para borrar un convite, debes seleccionar a solicitude e a resposta.</string>
@@ -271,6 +307,7 @@
   <string name="introduction_response_accepted_sent">Aceptaches a presentación a %1$s.</string>
   <string name="introduction_response_accepted_sent_info">Antes de engadir a %1$s aos teus contactos, eles precisan aceptar a presentación tamén. Esto podería levar algún tempo.</string>
   <string name="introduction_response_declined_sent">Rexeitaches a presentación a %1$s.</string>
+  <string name="introduction_response_declined_auto">A presentación a %1$sfoi rexeitada automáticamente. </string>
   <string name="introduction_response_accepted_received">%1$s aceptou a presentación a %2$s.</string>
   <string name="introduction_response_declined_received">%1$s rexeitou a presentación a %2$s.</string>
   <string name="introduction_response_declined_received_by_introducee">%1$s di que %2$srexeitou a presentación.</string>
@@ -317,6 +354,7 @@
   </plurals>
   <string name="groups_invitations_response_accepted_sent">Aceptou o convite de grupo de %s.</string>
   <string name="groups_invitations_response_declined_sent">Rexeitou o convite de grupo de %s.</string>
+  <string name="groups_invitations_response_declined_auto">O convite ao grupo desde %s foi automáticamente rexeitado.</string>
   <string name="groups_invitations_response_accepted_received">%s aceptou o convite de grupo.</string>
   <string name="groups_invitations_response_declined_received">%s rexeitou o convite de grupo.</string>
   <string name="sharing_status_groups">Só a persoa creadora poder convidar a novos membros ao grupo. Abaixo está a membresía do grupo.</string>
@@ -367,6 +405,7 @@
   <string name="forum_invitation_already_sharing">Xa compartindo</string>
   <string name="forum_invitation_response_accepted_sent">Aceptaches o convite de %s ao foro.</string>
   <string name="forum_invitation_response_declined_sent">Rexeitaches o convite de %s ao foro.</string>
+  <string name="forum_invitation_response_declined_auto">O convite ao foro desde %sfoi automáticamente rexeitado.</string>
   <string name="forum_invitation_response_accepted_received">%s aceptou o convite ao foro.</string>
   <string name="forum_invitation_response_declined_received">%s rexeitou o convite ao foro.</string>
   <string name="sharing_status">Estado do compartido</string>
@@ -401,6 +440,7 @@
   <string name="blogs_sharing_snackbar">Blog compartido cos contactos escollidos</string>
   <string name="blogs_sharing_response_accepted_sent">Aceptaches o convite ao blog de %s.</string>
   <string name="blogs_sharing_response_declined_sent">Rexeitaches o convite ao blog de %s.</string>
+  <string name="blogs_sharing_response_declined_auto">O convite ao blog desde %s foi automáticamente rexeitado.</string>
   <string name="blogs_sharing_response_accepted_received">%s aceptou o convite ao blog.</string>
   <string name="blogs_sharing_response_declined_received">%s rexeitou o convite ao blog.</string>
   <string name="blogs_sharing_invitation_received">%1$s compartiu o blog \"%2$s\" contigo.</string>
@@ -516,8 +556,20 @@
   <string name="notify_sound_setting_disabled">Ningún</string>
   <string name="choose_ringtone_title">Escolle ton</string>
   <string name="cannot_load_ringtone">Non se cargou o ton</string>
+  <!--Conversation Settings-->
+  <string name="disappearing_messages_title">Mensaxes efémeras</string>
+  <string name="disappearing_messages_explanation_long">Ao activar esta función farás que as novas
+		mensaxes nesta conversa desaparezan automáticamente após 7\u00A0días.
+		\n\nA conta atrás para a copia da remitente da mensaxe comeza xusto cando se entrega.
+		A conta atrás para a correspondente comeza xusto cando le a mensaxe.
+		\n\nAs mensaxes efémeras están marcadas coa icona dunha bomba.
+		\n\nTen en conta que as correspondentes poden facer copias das mensaxes que lles envías.
+		\n\nSe cambias este axuste, aplicarase ás túas novas mensaxes inmediatamente e aos teus contactos
+		cando reciban a túa mensaxe.
+		O teu contacto tamén pode cambiar este axuste para ambas.</string>
+  <string name="learn_more">Aprender máis</string>
+  <string name="disappearing_messages_summary">Facer que as futuras mensaxes da conversa desaparecerán automáticamente após 7\u00A0días.</string>
   <!--Settings Feedback-->
-  <string name="feedback_settings_title">Avaliación</string>
   <string name="send_feedback">Envía a avaliación</string>
   <!--Link Warning-->
   <string name="link_warning_title">Aviso de ligazón</string>
@@ -536,6 +588,7 @@
   <string name="optional_contact_email">O teu enderezo e-mail (optativo)</string>
   <string name="include_debug_report_crash">Incluír datos anónimos sobre o fallo</string>
   <string name="include_debug_report_feedback">Incluír datos anónimos sobre este dispositivo</string>
+  <string name="dev_report_user_info">Información da usuaria</string>
   <string name="dev_report_basic_info">Información básica</string>
   <string name="dev_report_device_info">Información do dispositivo</string>
   <string name="dev_report_stacktrace">Trazas</string>
@@ -569,6 +622,9 @@
   <string name="permission_camera_location_request_body">Para escanear o código QR, Briar precisa acceso a cámara.\n\nPara descubrir dispositivos Bluetooth, Briar precisa permiso a túa localización.\n\nBriar non garda a túa localización nin a comparte con ninguén.</string>
   <string name="permission_camera_denied_body">Denegaches o permiso de acceso a cámara, pero é necesario para engadir contactos.\n\nPor favor, considera conceder o permiso.</string>
   <string name="permission_location_denied_body">Denegache o acceso á localización, mais Briar precisa este permiso para descubrir dispositivos Bluetooth.\n\nConsidera conceder o permiso.</string>
+  <string name="permission_location_setting_title">Axuste da localización</string>
+  <string name="permission_location_setting_body">O axuste de localización do teu dispositivo ten que activarse para atopar outros dispositivos vía Bluetooth. Activa este axuste para continuar. Podes desactivala tras finalizar.</string>
+  <string name="permission_location_setting_button">Activar localización</string>
   <string name="qr_code">Código QR</string>
   <string name="show_qr_code_fullscreen">Amosar o código QR a pantalla completa</string>
   <!--App Locking-->

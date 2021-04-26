@@ -135,6 +135,7 @@
   <string name="allow">Permite</string>
   <string name="open">Deschide</string>
   <string name="change">Modifică</string>
+  <string name="start">Start</string>
   <string name="no_data">Fără date</string>
   <string name="ellipsis">…</string>
   <string name="text_too_long">Textul introdus este prea lung</string>
@@ -149,7 +150,7 @@
   <string name="no_contacts_action">Atingeți iconița + pentru a adăuga un contact</string>
   <string name="date_no_private_messages">Fără mesaje.</string>
   <string name="no_private_messages">Niciun mesaj de arătat</string>
-  <string name="message_hint">Tastați mesajul</string>
+  <string name="message_hint">Mesaj nou:</string>
   <string name="image_caption_hint">Adaugă un subtitlu (opțional)</string>
   <string name="image_attach">Atașează imagine</string>
   <string name="image_attach_error">Nu s-au putut atașa imaginile</string>
@@ -157,6 +158,27 @@
   <string name="image_attach_error_invalid_mime_type">Format de imagine incompatibil: %s</string>
   <string name="set_contact_alias">Schimbă nume contact</string>
   <string name="set_contact_alias_hint">Nume contact</string>
+  <string name="menu_item_connect_via_bluetooth">Conectare prin Bluetooth</string>
+  <string name="dialog_title_connect_via_bluetooth">Conectare prin Bluetooth</string>
+  <!--The first placeholder will show a duration like "7 days". The second placeholder at the end will add "Tap to learn more."-->
+  <!--The placeholder at the end will add "Tap to learn more."-->
+  <!--The first placeholder will show a contact's name. The second placeholder will show a duration like "7 days". The third placeholder at the end will add "Tap to learn more."-->
+  <plurals name="duration_minutes">
+    <item quantity="one">%d minut</item>
+    <item quantity="few">%d minute</item>
+    <item quantity="other">%d de minute</item>
+  </plurals>
+  <plurals name="duration_hours">
+    <item quantity="one">%d oră</item>
+    <item quantity="few">%d ore</item>
+    <item quantity="other">%d de ore</item>
+  </plurals>
+  <plurals name="duration_days">
+    <item quantity="one">%d zi</item>
+    <item quantity="few">%d zile</item>
+    <item quantity="other">%d de zile</item>
+  </plurals>
+  <!--The first placeholder will show a contact's name. The second placeholder at the end will add "Tap to learn more."-->
   <string name="delete_all_messages">Șterge toate mesajele</string>
   <string name="dialog_title_delete_all_messages">Confirmare ștergere mesaj</string>
   <string name="dialog_message_delete_all_messages">Sigur doriți să ștergeți toate mesajele?</string>
@@ -164,7 +186,6 @@
   <string name="dialog_message_not_deleted_ongoing_both">Mesajele referitoare la recomandări sau invitații în curs nu pot fi șterse înainte de a se încheia.</string>
   <string name="dialog_message_not_deleted_ongoing_introductions">Mesajele referitoare la recomandări în curs nu pot fi șterse înainte de a se încheia.</string>
   <string name="dialog_message_not_deleted_ongoing_invitations">Mesajele referitoare la invitații în curs nu pot fi șterse înainte de a se încheia.</string>
-  <string name="dialog_message_not_deleted_partly_downloaded">Mesajele descărcate parțial nu pot fi șterse înainte de a se termina de descărcat.</string>
   <string name="dialog_message_not_deleted_not_all_selected_both">Pentru a șterge o invitație sau o recomandare, trebuie să selectați cererea și răspunsul.</string>
   <string name="dialog_message_not_deleted_not_all_selected_introductions">Pentru a șterge o recomandare trebuie să selectați cererea și răspunsul.</string>
   <string name="dialog_message_not_deleted_not_all_selected_invitations">Pentru a șterge o invitație trebuie să selectați cererea și răspunsul.</string>
@@ -526,8 +547,9 @@
   <string name="notify_sound_setting_disabled">Nici unul</string>
   <string name="choose_ringtone_title">Alegeți sunetul</string>
   <string name="cannot_load_ringtone">Nu se poate încărca sunetul</string>
+  <!--Conversation Settings-->
+  <string name="learn_more">Află mai mult</string>
   <!--Settings Feedback-->
-  <string name="feedback_settings_title">Feed-back</string>
   <string name="send_feedback">Trimiteți feed-back</string>
   <!--Link Warning-->
   <string name="link_warning_title">Avertizare adresă</string>
@@ -546,6 +568,7 @@
   <string name="optional_contact_email">Adresa de email (opțional)</string>
   <string name="include_debug_report_crash">Include date anonime despre eroare</string>
   <string name="include_debug_report_feedback">Include date anonime despre acest dispozitiv</string>
+  <string name="dev_report_user_info">Informații despre utilizator</string>
   <string name="dev_report_basic_info">Informații de bază</string>
   <string name="dev_report_device_info">Informații despre dispozitiv</string>
   <string name="dev_report_stacktrace">Jurnal eroare</string>
@@ -579,6 +602,9 @@
   <string name="permission_camera_location_request_body">Pentru a scana codul QR, Briar are nevoie să acceseze camera foto.\n\nPentru a putea descoperi dispozitive Bluetooth, Briar are nevoie de permisiunea de a vă accesa locația.\n\nBriar nu vă stochează locația și nici nu o partajează cu nimeni.  </string>
   <string name="permission_camera_denied_body">Ați refuzat accesul la camera foto, dar pentru a adăuga contacte este necesară folosirea camerei foto.\n\nVă rugăm să luați în considerare acordarea accesului.</string>
   <string name="permission_location_denied_body">Ați refuzat accesul la locație, dar Briar are nevoie de această permisiune pentru a descoperi dispozitive Bluetooth.\n\nVă rugăm să luați în considerare acordarea accesului.</string>
+  <string name="permission_location_setting_title">Setări de locație</string>
+  <string name="permission_location_setting_body">Setarea locației dispozitivului trebuie să fie activată pentru a găsi alte dispozitive prin Bluetooth. Activați locația pentru a continua. Puteți să o dezactivați din nou după aceea.</string>
+  <string name="permission_location_setting_button">Activează locația</string>
   <string name="qr_code">Cod QR</string>
   <string name="show_qr_code_fullscreen">Arată codul QR pe tot ecranul</string>
   <!--App Locking-->

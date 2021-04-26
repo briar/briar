@@ -130,6 +130,7 @@
   <string name="allow">İzin ver</string>
   <string name="open">Aç</string>
   <string name="change">Değişiklik</string>
+  <string name="start">Başlat</string>
   <string name="no_data">Bilgi yok</string>
   <string name="ellipsis">…</string>
   <string name="text_too_long">Girilen metin çok uzun</string>
@@ -144,7 +145,9 @@
   <string name="no_contacts_action">kişi eklemek için + simgesine dokunun</string>
   <string name="date_no_private_messages">Hiç ileti yok.</string>
   <string name="no_private_messages">Gösterilecek ileti yok</string>
-  <string name="message_hint">İleti yazın</string>
+  <string name="message_hint">Yeni mesaj</string>
+  <string name="message_hint_auto_delete">Yeni kaybolan ileti</string>
+  <string name="message_error">İleti gönderme hatası</string>
   <string name="image_caption_hint">Başlık ekle (isteğe bağlı)</string>
   <string name="image_attach">Resim ekle</string>
   <string name="image_attach_error">Resim(ler) eklenemedi</string>
@@ -152,6 +155,40 @@
   <string name="image_attach_error_invalid_mime_type">Resim biçimi desteklenmiyor: %s</string>
   <string name="set_contact_alias">Kişi adını değiştir</string>
   <string name="set_contact_alias_hint">Ad</string>
+  <string name="menu_item_disappearing_messages">Kaybolan iletiler</string>
+  <string name="menu_item_connect_via_bluetooth">Bluetooth ile Bağlan</string>
+  <string name="dialog_title_connect_via_bluetooth">Bluetooth ile Bağlan</string>
+  <string name="dialog_message_connect_via_bluetooth">Bunun çalışması için kişinin yakınlarda olması gerekiyor.\n\nSizin ve kişinin \"Başlat\" düğmesine aynı anda basması gerekiyor.</string>
+  <string name="toast_connect_via_bluetooth_not_discoverable">Bluetooth olmadan devam edilemez</string>
+  <string name="toast_connect_via_bluetooth_no_location_permission">Konum izni olmadan devam edilemez</string>
+  <string name="toast_connect_via_bluetooth_start">Bluetooth ile bağlanılıyor…</string>
+  <string name="toast_connect_via_bluetooth_success">Bluetooth ile başarılı bir şekilde bağlandı</string>
+  <string name="toast_connect_via_bluetooth_error">Bluetooth ile bağlanamıyor</string>
+  <!--The first placeholder will show a duration like "7 days". The second placeholder at the end will add "Tap to learn more."-->
+  <string name="auto_delete_msg_you_enabled">İletileriniz %1$s sonra kaybolacak. %2$s</string>
+  <!--The placeholder at the end will add "Tap to learn more."-->
+  <string name="auto_delete_msg_you_disabled">İletileriniz kaybolmayacak. %1$s</string>
+  <!--The first placeholder will show a contact's name. The second placeholder will show a duration like "7 days". The third placeholder at the end will add "Tap to learn more."-->
+  <string name="auto_delete_msg_contact_enabled">%1$s kişisinin iletileri %2$s sonra kaybolacak. %3$s</string>
+  <plurals name="duration_minutes">
+    <item quantity="one">%d dakika</item>
+    <item quantity="other">%d dakika</item>
+  </plurals>
+  <plurals name="duration_hours">
+    <item quantity="one">%d saat</item>
+    <item quantity="other">%d saat</item>
+  </plurals>
+  <plurals name="duration_days">
+    <item quantity="one">%d gün</item>
+    <item quantity="other">%d gün</item>
+  </plurals>
+  <!--The first placeholder will show a contact's name. The second placeholder at the end will add "Tap to learn more."-->
+  <string name="auto_delete_msg_contact_disabled">%1$s kişisinin iletileri kaybolmayacak. %2$s</string>
+  <string name="tap_to_learn_more">Daha fazlasını öğrenmek için dokunun.</string>
+  <string name="auto_delete_changed_warning_title">Kaybolan iletiler değişti</string>
+  <string name="auto_delete_changed_warning_message_enabled">İletinizi yazmaya başladığınızdan sonra kaybolan iletiler etkinleştirildi.</string>
+  <string name="auto_delete_changed_warning_message_disabled">İletinizi yazmaya başladığınızdan sonra kaybolan iletiler etkisizleştirildi.</string>
+  <string name="auto_delete_changed_warning_send">Yine de gönder</string>
   <string name="delete_all_messages">Tüm iletileri sil</string>
   <string name="dialog_title_delete_all_messages">İleti Silmeyi Onayla</string>
   <string name="dialog_message_delete_all_messages">Tüm iletileri silmek istediğinizden emin misiniz?</string>
@@ -159,7 +196,6 @@
   <string name="dialog_message_not_deleted_ongoing_both">Devam eden davetler ve tanıştırmalarla ilgili iletiler, sonuçlandırılana kadar silinemez.</string>
   <string name="dialog_message_not_deleted_ongoing_introductions">Devam eden tanıştırmalarla ilgili iletiler, sonuçlandırılana kadar silinemez.</string>
   <string name="dialog_message_not_deleted_ongoing_invitations">Devam eden davetlerle ilgili iletiler, sonuçlandırılana kadar silinemez.</string>
-  <string name="dialog_message_not_deleted_partly_downloaded">Kısmen indirilen iletiler indirme bitirilene kadar silinemez.</string>
   <string name="dialog_message_not_deleted_not_all_selected_both">Bir daveti veya tanıştırmayı silmek için isteği ve yanıtı seçmeniz gerekir.</string>
   <string name="dialog_message_not_deleted_not_all_selected_introductions">Bir tanıştırmayı silmek için isteği ve yanıtı seçmeniz gerekir.</string>
   <string name="dialog_message_not_deleted_not_all_selected_invitations">Bir daveti silmek için isteği ve yanıtı seçmeniz gerekir.</string>
@@ -271,6 +307,7 @@
   <string name="introduction_response_accepted_sent">%1$s kişisinin tanıştırma isteğini kabul ettiniz.</string>
   <string name="introduction_response_accepted_sent_info">%1$s kişilerinize eklenmeden önce, tanıştırmayı kabul etmeleri de gerekiyor. Bu biraz zaman alabilir.</string>
   <string name="introduction_response_declined_sent">%1$s kişisinin tanıştırma isteğini reddettiniz.</string>
+  <string name="introduction_response_declined_auto">%1$s kişisine tanıtım otomatik olarak reddedildi.</string>
   <string name="introduction_response_accepted_received">%1$s, %2$s ile tanışmayı kabul etti.</string>
   <string name="introduction_response_declined_received">%1$s, %2$s ile tanışmayı reddetti.</string>
   <string name="introduction_response_declined_received_by_introducee">%1$s, %2$s kişisinin tanışmayı reddettiğini söyledi.</string>
@@ -317,6 +354,7 @@
   </plurals>
   <string name="groups_invitations_response_accepted_sent">%s kişisinden gelen grup davetini kabul ettiniz.</string>
   <string name="groups_invitations_response_declined_sent">%s kişisinden gelen grup davetini reddettiniz.</string>
+  <string name="groups_invitations_response_declined_auto">%s kişisinin grup daveti otomatik olarak reddedildi.</string>
   <string name="groups_invitations_response_accepted_received">%s grup davetini kabul etti.</string>
   <string name="groups_invitations_response_declined_received">%s grup davetini reddetti.</string>
   <string name="sharing_status_groups">Sadece grubu oluşturan kişi gruba yeni üyeler davet edebilir. Aşağıda, grubun şimdiki üyeleri bulunmaktadır.</string>
@@ -367,6 +405,7 @@
   <string name="forum_invitation_already_sharing">Zaten paylaşılıyor</string>
   <string name="forum_invitation_response_accepted_sent">%s tarafından yapılan forum davetini kabul ettiniz.</string>
   <string name="forum_invitation_response_declined_sent">%s tarafından yapılan forum davetini reddettiniz.</string>
+  <string name="forum_invitation_response_declined_auto">%s kişisinin forum daveti otomatik olarak reddedildi.</string>
   <string name="forum_invitation_response_accepted_received">%s forum davetini kabul etti.</string>
   <string name="forum_invitation_response_declined_received">%s forum davetini reddetti.</string>
   <string name="sharing_status">Paylaşım Durumu</string>
@@ -401,6 +440,7 @@
   <string name="blogs_sharing_snackbar">Blog seçilen kişilerle paylaşıldı</string>
   <string name="blogs_sharing_response_accepted_sent">%s kişisinden gelen blog davetini kabul ettiniz.</string>
   <string name="blogs_sharing_response_declined_sent">%s kişisinden gelen blog davetini reddettiniz.</string>
+  <string name="blogs_sharing_response_declined_auto">%s kişisinin blog daveti otomatik olarak reddedildi.</string>
   <string name="blogs_sharing_response_accepted_received">%s blog davetini kabul etti.</string>
   <string name="blogs_sharing_response_declined_received">%s blog davetini reddetti.</string>
   <string name="blogs_sharing_invitation_received">%1$s sizinle %2$s blogunu paylaştı.</string>
@@ -516,8 +556,20 @@
   <string name="notify_sound_setting_disabled">Yok</string>
   <string name="choose_ringtone_title">Zil sesi seçin</string>
   <string name="cannot_load_ringtone">Zil sesi yüklenemiyor</string>
+  <!--Conversation Settings-->
+  <string name="disappearing_messages_title">Kaybolan iletiler</string>
+  <string name="disappearing_messages_explanation_long">Bu ayarı etkinleştirmeniz durumunda
+ 		bu konuşmadaki yeni iletiler 7\u00A0gün sonra otomatik olarak kaybolacak.
+		\n\nGönderenin iletisinin kopyasının geriye sayımı, ileti teslim edildiğinde başlar.
+		Alıcının geriye sayımı iletiyi okuduklarında başlar.
+		\n\nKaybolacak olan iletiler bir bomba simgesiyle işaretleniyor.
+		\n\nUnutmayın ki alıcılar gönderdiğiniz iletinin kopyasını oluşturabilirler.
+		\n\nEğer bu ayarı değiştirirseniz, yeni iletileriniz için hemen etkinleşecek, kişinin
+		iletileri için ise sonraki iletinizi aldığında etkinleşecek.
+		Kişiniz bu ayarı her ikiniz için değiştirebilir.</string>
+  <string name="learn_more">Ayrıntılı bilgi alın</string>
+  <string name="disappearing_messages_summary">Bu konuşmadaki gelecekteki iletileri 7\u00A0gün içinde otomatik olarak kaybolacak şekilde ayarla.</string>
   <!--Settings Feedback-->
-  <string name="feedback_settings_title">Geri bildirim</string>
   <string name="send_feedback">Geri bildirim gönder</string>
   <!--Link Warning-->
   <string name="link_warning_title">Uyarı Bağlantısı</string>
@@ -570,6 +622,9 @@
   <string name="permission_camera_location_request_body">QR kodunu taramak için, Briar\'ın kameranıza erişmesi gerekiyor.\n\nBluetooth aygıtlarını keşfetmek için Briar\'ın konumunuza erişmesi gerekiyor.\n\nBriar konumunuzu saklamaz ve hiç kimseyle paylaşmaz.</string>
   <string name="permission_camera_denied_body">Kameraya erişimi engellediniz, ancak kişi eklemek için kamerayı kullanmanız gerekiyor.\n\nLütfen erişim izni vermeyi düşünün.</string>
   <string name="permission_location_denied_body">Konuma erişimi engellediniz, ancak Briar\'ın Bluetooth aygıtlarını bulabilmek için bu izne ihtiyacı var.\n\nLütfen erişim izni vermeyi düşünün.</string>
+  <string name="permission_location_setting_title">Konum ayarı</string>
+  <string name="permission_location_setting_body">Diğer aygıtları Bluetooth aracılığıyla bulmak için aygıtınızın konum ayarını açmanız gerekiyor. Devam etmek için lütfen konumu etkinleştirin. Daha sonra tekrar etkisizleştirebilirsiniz. </string>
+  <string name="permission_location_setting_button">Konumu etkinleştir</string>
   <string name="qr_code">QR kodu</string>
   <string name="show_qr_code_fullscreen">QR kodunu tam ekran göster</string>
   <!--App Locking-->

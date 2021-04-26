@@ -130,6 +130,7 @@
   <string name="allow">Sta toe</string>
   <string name="open">Open</string>
   <string name="change">Wijzigen</string>
+  <string name="start">Beginnen</string>
   <string name="no_data">Geen gegevens</string>
   <string name="ellipsis">…</string>
   <string name="text_too_long">De ingevoerde tekst is te lang</string>
@@ -144,7 +145,7 @@
   <string name="no_contacts_action">Tik op het +-icoon om een contact toe te voegen</string>
   <string name="date_no_private_messages">Geen berichten.</string>
   <string name="no_private_messages">Geen berichten om te tonen</string>
-  <string name="message_hint">Schrijf een bericht</string>
+  <string name="message_hint">Nieuw bericht</string>
   <string name="image_caption_hint">Voeg een titel toe (optioneel)</string>
   <string name="image_attach">Voeg een afbeelding toe</string>
   <string name="image_attach_error">Kon afbeelding(en) niet toevoegen</string>
@@ -152,6 +153,12 @@
   <string name="image_attach_error_invalid_mime_type">Bestandsformaat wordt niet ondersteund: %s</string>
   <string name="set_contact_alias">Verander naam van contact</string>
   <string name="set_contact_alias_hint">Contactnaam</string>
+  <string name="menu_item_connect_via_bluetooth">Verbind via Bluetooth</string>
+  <string name="dialog_title_connect_via_bluetooth">Verbind via Bluetooth</string>
+  <!--The first placeholder will show a duration like "7 days". The second placeholder at the end will add "Tap to learn more."-->
+  <!--The placeholder at the end will add "Tap to learn more."-->
+  <!--The first placeholder will show a contact's name. The second placeholder will show a duration like "7 days". The third placeholder at the end will add "Tap to learn more."-->
+  <!--The first placeholder will show a contact's name. The second placeholder at the end will add "Tap to learn more."-->
   <string name="delete_all_messages">Verwijder alle berichten</string>
   <string name="dialog_title_delete_all_messages">Bevestig verwijderen berichten</string>
   <string name="dialog_message_delete_all_messages">Weet je zeker dat je alle berichten wil verwijderen?</string>
@@ -159,7 +166,6 @@
   <string name="dialog_message_not_deleted_ongoing_both">Berichten gerelateerd aan uitgaande uitnodigingen of introducties kunnen niet worden verwijderd totdat ze zijn afgerond.</string>
   <string name="dialog_message_not_deleted_ongoing_introductions">Berichten gerelateerd aan uitgaande introducties kunnen niet worden verwijderd totdat ze zijn afgerond.</string>
   <string name="dialog_message_not_deleted_ongoing_invitations">Berichten gerelateerd aan uitgaande uitnodigingen kunnen niet worden verwijderd totdat ze zijn afgerond.</string>
-  <string name="dialog_message_not_deleted_partly_downloaded">Gedeeltelijk gedownloade berichten kunnen niet worden verwijderd totdat ze volledig zijn gedownload.</string>
   <string name="dialog_message_not_deleted_not_all_selected_both">Om een uitnodiging of introductie te verwijderen met je het verzoek en het antwoord selecteren.</string>
   <string name="dialog_message_not_deleted_not_all_selected_introductions">Om een introductie te verwijderen met je het verzoek en het antwoord selecteren.</string>
   <string name="dialog_message_not_deleted_not_all_selected_invitations">Om een uitnodiging te verwijderen met je het verzoek en het antwoord selecteren.</string>
@@ -516,8 +522,9 @@
   <string name="notify_sound_setting_disabled">Geen</string>
   <string name="choose_ringtone_title">Kies meldingsgeluid</string>
   <string name="cannot_load_ringtone">Kan meldingsgeluid niet laden</string>
+  <!--Conversation Settings-->
+  <string name="learn_more">Meer info</string>
   <!--Settings Feedback-->
-  <string name="feedback_settings_title">Feedback</string>
   <string name="send_feedback">Verstuur feedback</string>
   <!--Link Warning-->
   <string name="link_warning_title">Linkwaarschuwing</string>

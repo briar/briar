@@ -121,7 +121,6 @@ Volètz suprimir vòstre compte e ne crear un nòu ?\n
   <string name="no_contacts_action">Tocatz l’icòna + per ajustar un contacte</string>
   <string name="date_no_private_messages">Cap messatge</string>
   <string name="no_private_messages">Cap de messatge de mostrar</string>
-  <string name="message_hint">Picatz lo messatge</string>
   <string name="image_caption_hint">Ajustar una legenda (optionala)</string>
   <string name="image_attach">Juntar un imatge</string>
   <string name="image_attach_error">Impossible de juntar d’imatges</string>
@@ -129,11 +128,16 @@ Volètz suprimir vòstre compte e ne crear un nòu ?\n
   <string name="image_attach_error_invalid_mime_type">Format d’imatge pas compatible : %s</string>
   <string name="set_contact_alias">Cambiar lo nom del contacte</string>
   <string name="set_contact_alias_hint">Nom del contacte</string>
+  <string name="menu_item_connect_via_bluetooth">Se connectar per Bluetooth</string>
+  <string name="dialog_title_connect_via_bluetooth">Se connectar per Bluetooth</string>
+  <!--The first placeholder will show a duration like "7 days". The second placeholder at the end will add "Tap to learn more."-->
+  <!--The placeholder at the end will add "Tap to learn more."-->
+  <!--The first placeholder will show a contact's name. The second placeholder will show a duration like "7 days". The third placeholder at the end will add "Tap to learn more."-->
+  <!--The first placeholder will show a contact's name. The second placeholder at the end will add "Tap to learn more."-->
   <string name="delete_all_messages">Suprimir totes los messatges</string>
   <string name="dialog_title_delete_all_messages">Confirmatz la supression dels messatges</string>
   <string name="dialog_message_delete_all_messages">Volètz vertadièrament suprimir totes los messatges ?</string>
   <string name="dialog_title_not_all_messages_deleted">Supression de totes los messatges impossibla</string>
-  <string name="dialog_message_not_deleted_partly_downloaded">Los messatges pas complètament telecargats pòdon pas èsser suprimits fins que lo telecargament siá acabat.</string>
   <string name="dialog_message_not_deleted_not_all_selected_both">Per suprimir una invitacion o una presentacion, vos cal seleccionar la demanda e la responsa.</string>
   <string name="dialog_message_not_deleted_not_all_selected_introductions">Per suprimir una presentacion, vos cal seleccionar la demanda e la responsa.</string>
   <string name="dialog_message_not_deleted_not_all_selected_invitations">Per suprimir una invitacion, vos cal seleccionar la demanda e la responsa.</string>
@@ -411,7 +415,7 @@ contactes qu’avètz partejat aqueste flux quitaràn benlèu de recebre las mes
   <string name="pref_theme_light">Clar</string>
   <string name="pref_theme_dark">Escur</string>
   <string name="pref_theme_auto">Automatic (Segon l’ora)</string>
-  <string name="pref_theme_system">Per defaut sistèma</string>
+  <string name="pref_theme_system">Sistèma per defaut</string>
   <!--Settings Connections-->
   <string name="tor_network_setting_automatic">Automaticament basat sus l’emplaçament</string>
   <!--How and when Briar will connect to Tor: E.g. "Don't connect to the Internet (in China)" or "Use Tor network with bridges (in Belarus)"-->
@@ -479,8 +483,8 @@ contactes qu’avètz partejat aqueste flux quitaràn benlèu de recebre las mes
   <string name="notify_sound_setting_disabled">Cap</string>
   <string name="choose_ringtone_title">Causir la sonariá</string>
   <string name="cannot_load_ringtone">Cargament impossible de las sonariás</string>
+  <!--Conversation Settings-->
   <!--Settings Feedback-->
-  <string name="feedback_settings_title">Comentaris</string>
   <string name="send_feedback">Enviar vòstres comentaris</string>
   <!--Link Warning-->
   <string name="link_warning_title">Avertiment de ligam</string>

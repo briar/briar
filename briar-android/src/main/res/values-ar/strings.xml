@@ -150,6 +150,7 @@
   <string name="allow">السماح</string>
   <string name="open">فتح</string>
   <string name="change">تعديل</string>
+  <string name="start">ابدأ</string>
   <string name="no_data">لا يوجد بيانات</string>
   <string name="ellipsis">...</string>
   <string name="text_too_long">النص المُدخل طويل جدًا</string>
@@ -164,7 +165,7 @@
   <string name="no_contacts_action">لمس علامة + لإضافة جهة إتصال</string>
   <string name="date_no_private_messages">لا رسائل.</string>
   <string name="no_private_messages">لا رسائل للعرض.</string>
-  <string name="message_hint">كتابة رسالة</string>
+  <string name="message_hint">رسالة جديدة</string>
   <string name="image_caption_hint">إضافة تعليق (اختياري) </string>
   <string name="image_attach">إرفاق صورة</string>
   <string name="image_attach_error">لم نتمكّن من إرفاق الصّور(ة)</string>
@@ -172,6 +173,12 @@
   <string name="image_attach_error_invalid_mime_type">نوع ملف الصورة غير مدعوم : %s</string>
   <string name="set_contact_alias">تعديل إسم جهة الاتصال</string>
   <string name="set_contact_alias_hint">اسم جهة الاتصال</string>
+  <string name="menu_item_connect_via_bluetooth">الإتصال عبر بلوتوث</string>
+  <string name="dialog_title_connect_via_bluetooth">الإتصال عبر بلوتوث</string>
+  <!--The first placeholder will show a duration like "7 days". The second placeholder at the end will add "Tap to learn more."-->
+  <!--The placeholder at the end will add "Tap to learn more."-->
+  <!--The first placeholder will show a contact's name. The second placeholder will show a duration like "7 days". The third placeholder at the end will add "Tap to learn more."-->
+  <!--The first placeholder will show a contact's name. The second placeholder at the end will add "Tap to learn more."-->
   <string name="delete_all_messages">حذف جميع الرّسائل </string>
   <string name="dialog_title_delete_all_messages">تأكيد حذف الرّسالة</string>
   <string name="dialog_message_delete_all_messages">هل أنتم متأكّدون من حذف جميع الرّسائل؟ </string>
@@ -179,7 +186,6 @@
   <string name="dialog_message_not_deleted_ongoing_both">لا يمكن حذف الرّسائل القائمة والمتعلّقة بالدعوات وطلبات التعارف حتى حسمها.</string>
   <string name="dialog_message_not_deleted_ongoing_introductions">لا يمكن حذف الرّسائل المتعلّقة بطلبات التعارف القائمة حتى حسمها.</string>
   <string name="dialog_message_not_deleted_ongoing_invitations">لا يمكن حذف الرّسائل القائمة والمتعلّقة بالدعوات حتى حسمها.</string>
-  <string name="dialog_message_not_deleted_partly_downloaded">لا يمكن حذف الرّسائل المُحمّلة جزئيّاً قبل الانتهاء من تحميلها بشكل كامل. </string>
   <string name="dialog_message_not_deleted_not_all_selected_both">لحذف دعوة أو طلب تعارف، عليكم اختيار الطّلب والرّد. </string>
   <string name="dialog_message_not_deleted_not_all_selected_introductions">لحذف طلب تعارف، عليكم اختيار الطّلب والرّد.</string>
   <string name="dialog_message_not_deleted_not_all_selected_invitations">لحذف دعوة، عليكم اختيار الطّلب والرّد. </string>
@@ -475,7 +481,7 @@
   <string name="pref_theme_light">نهاري</string>
   <string name="pref_theme_dark">ليلي</string>
   <string name="pref_theme_auto">تلقائي (توقيت النهار)</string>
-  <string name="pref_theme_system">النظام الافتراضي</string>
+  <string name="pref_theme_system">الافتراضي بالنظام</string>
   <!--Settings Connections-->
   <string name="network_settings_title">شبكات الاتصال</string>
   <string name="bluetooth_setting">ربط جهات الاتصال عن طريق بلوتوث</string>
@@ -553,8 +559,9 @@
   <string name="notify_sound_setting_disabled">لا شيء</string>
   <string name="choose_ringtone_title">اختر نغمة</string>
   <string name="cannot_load_ringtone">لا يمكن تشغيل النغمة</string>
+  <!--Conversation Settings-->
+  <string name="learn_more">تعرف على المزيد</string>
   <!--Settings Feedback-->
-  <string name="feedback_settings_title">الإفادة حول التطبيق</string>
   <string name="send_feedback">أرسل ملاحظاتك</string>
   <!--Link Warning-->
   <string name="link_warning_title">تنبيه بوجود رابط</string>

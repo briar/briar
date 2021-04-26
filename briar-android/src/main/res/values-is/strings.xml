@@ -130,6 +130,7 @@
   <string name="allow">Leyfa</string>
   <string name="open">Opna</string>
   <string name="change">Breyta</string>
+  <string name="start">Byrja</string>
   <string name="no_data">Engin gögn</string>
   <string name="ellipsis">…</string>
   <string name="text_too_long">Textinn sem var settur inn er of langur</string>
@@ -144,7 +145,9 @@
   <string name="no_contacts_action">Ýttu á + táknið til að bæta við tengilið</string>
   <string name="date_no_private_messages">Engin skilaboð.</string>
   <string name="no_private_messages">Engin skilaboð sem hægt er að birta</string>
-  <string name="message_hint">Skrifaðu skilaboð</string>
+  <string name="message_hint">Ný skilaboð</string>
+  <string name="message_hint_auto_delete">Ný sjálfeyðandi skilaboð</string>
+  <string name="message_error">Villa við að senda skilaboð</string>
   <string name="image_caption_hint">Bæta við fyrirsögn (valfrjálst)</string>
   <string name="image_attach">Hengja við mynd</string>
   <string name="image_attach_error">Gat ekki hengt við mynd(ir)</string>
@@ -152,6 +155,40 @@
   <string name="image_attach_error_invalid_mime_type">Myndskráarsnið er ekki stutt: %s</string>
   <string name="set_contact_alias">Breyta nafni tengiliðar</string>
   <string name="set_contact_alias_hint">Nafn tengiliðar</string>
+  <string name="menu_item_disappearing_messages">Sjálfeyðandi skilaboð</string>
+  <string name="menu_item_connect_via_bluetooth">Tengjast í gegnum Bluetooth</string>
+  <string name="dialog_title_connect_via_bluetooth">Tengjast í gegnum Bluetooth</string>
+  <string name="dialog_message_connect_via_bluetooth">Tengiliðurinn þinn þarf að vera nálægt til að þetta virki.\n\nÞú og tengiliðurinn ættuð bæði að ýta á \"Byrja\" á sama tíma.</string>
+  <string name="toast_connect_via_bluetooth_not_discoverable">Get ekki haldið áfram án Bluetooth</string>
+  <string name="toast_connect_via_bluetooth_no_location_permission">Get ekki haldið áfram án heimildar til að nota staðsetningu</string>
+  <string name="toast_connect_via_bluetooth_start">Tengist í gegnum Bluetooth…</string>
+  <string name="toast_connect_via_bluetooth_success">Tókst að tengjast í gegnum Bluetooth</string>
+  <string name="toast_connect_via_bluetooth_error">Gat ekki tengst í gegnum Bluetooth</string>
+  <!--The first placeholder will show a duration like "7 days". The second placeholder at the end will add "Tap to learn more."-->
+  <string name="auto_delete_msg_you_enabled">Skilaboðin þín munu hverfa eftir %1$s. %2$s</string>
+  <!--The placeholder at the end will add "Tap to learn more."-->
+  <string name="auto_delete_msg_you_disabled">Skilaboðin þín munu ekki hverfa. %1$s</string>
+  <!--The first placeholder will show a contact's name. The second placeholder will show a duration like "7 days". The third placeholder at the end will add "Tap to learn more."-->
+  <string name="auto_delete_msg_contact_enabled">Skilaboðin frá %1$s munu hverfa eftir %2$s. %3$s</string>
+  <plurals name="duration_minutes">
+    <item quantity="one">%d mínúta</item>
+    <item quantity="other">%d mínútur</item>
+  </plurals>
+  <plurals name="duration_hours">
+    <item quantity="one">%d klst</item>
+    <item quantity="other">%d klst</item>
+  </plurals>
+  <plurals name="duration_days">
+    <item quantity="one">%d dag</item>
+    <item quantity="other">%d daga</item>
+  </plurals>
+  <!--The first placeholder will show a contact's name. The second placeholder at the end will add "Tap to learn more."-->
+  <string name="auto_delete_msg_contact_disabled">Skilaboð frá %1$s munu ekki hverfa. %2$s</string>
+  <string name="tap_to_learn_more">Ýttu til að kanna nánar.</string>
+  <string name="auto_delete_changed_warning_title">Breytt sjálfeyðandi skilaboð</string>
+  <string name="auto_delete_changed_warning_message_enabled">Síðan þú byrjaðir að skrifa skilaboðin þín, hafa sjálfeyðandi skilaboð verið virkjuð.</string>
+  <string name="auto_delete_changed_warning_message_disabled">Síðan þú byrjaðir að skrifa skilaboðin þín, hafa sjálfeyðandi skilaboð verið gerð óvirk.</string>
+  <string name="auto_delete_changed_warning_send">Senda samt</string>
   <string name="delete_all_messages">Eyða öllum skilaboðum</string>
   <string name="dialog_title_delete_all_messages">Staðfesta eyðingu skilaboða</string>
   <string name="dialog_message_delete_all_messages">Ertu viss um að þú viljir eyða öllum skilaboðum?</string>
@@ -159,7 +196,6 @@
   <string name="dialog_message_not_deleted_ongoing_both">Skilaboð sem tengjast fyrirliggjandi kynningum fyrirliggjandi boðum og kynningum er ekki hægt að eyða fyrr en viðkomandi ferli er lokið.</string>
   <string name="dialog_message_not_deleted_ongoing_introductions">Skilaboð sem tengjast fyrirliggjandi kynningum fyrirliggjandi kynningum er ekki hægt að eyða fyrr en viðkomandi ferli er lokið.</string>
   <string name="dialog_message_not_deleted_ongoing_invitations">Skilaboð sem tengjast fyrirliggjandi kynningum fyrirliggjandi boðum er ekki hægt að eyða fyrr en viðkomandi ferli er lokið.</string>
-  <string name="dialog_message_not_deleted_partly_downloaded">Skilaboðum sem sótt hafa verið að hluta er ekki hægt að eyða fyrr en niðurhali þeirra er lokið.</string>
   <string name="dialog_message_not_deleted_not_all_selected_both">Til að eyða boði eða kynningu, þarftu að velja beiðnina og svarið.</string>
   <string name="dialog_message_not_deleted_not_all_selected_introductions">Til að eyða kynningu, þarftu að velja beiðnina og svarið.</string>
   <string name="dialog_message_not_deleted_not_all_selected_invitations">Til að eyða boði, þarftu að velja beiðnina og svarið.</string>
@@ -271,6 +307,7 @@
   <string name="introduction_response_accepted_sent">Þú samþykktir kynningu við %1$s.</string>
   <string name="introduction_response_accepted_sent_info">Áður en %1$s verður bætt í tengiliðaskrána þína, verða þeir einnig að samþykkja kynninguna. Það gæti tekið svolítinn tíma.</string>
   <string name="introduction_response_declined_sent">Þú hafnaðir kynningu við %1$s.</string>
+  <string name="introduction_response_declined_auto">Kynningu við %1$s var sjálfvirkt hafnað.</string>
   <string name="introduction_response_accepted_received">%1$s samþykkti kynningu við %2$s.</string>
   <string name="introduction_response_declined_received">%1$s hafnaði kynningu við %2$s.</string>
   <string name="introduction_response_declined_received_by_introducee">%1$s segir að %2$s hafi hafnað kynningunni.</string>
@@ -317,6 +354,7 @@
   </plurals>
   <string name="groups_invitations_response_accepted_sent">Þú samþykktir boð í hóp frá %s.</string>
   <string name="groups_invitations_response_declined_sent">Þú hafnaðir boði í hóp frá %s.</string>
+  <string name="groups_invitations_response_declined_auto">Boði í hóp frá %s var sjálfvirkt hafnað.</string>
   <string name="groups_invitations_response_accepted_received">%s samþykkti boð í hóp.</string>
   <string name="groups_invitations_response_declined_received">%s hafnaði boði í hóp.</string>
   <string name="sharing_status_groups">Einungis stofnandinn getur boðið nýjum meðlimum í hópinn. Hé fyrir neðan eru allir skráðir meðlimir í hópnum.</string>
@@ -367,6 +405,7 @@
   <string name="forum_invitation_already_sharing">Þegar deilt</string>
   <string name="forum_invitation_response_accepted_sent">Þú samþykktir boð á spjallsvæði frá %s.</string>
   <string name="forum_invitation_response_declined_sent">Þú hafnaðir boði á spjallsvæði frá %s.</string>
+  <string name="forum_invitation_response_declined_auto">Boði á spjallsvæði frá %s var sjálfvirkt hafnað.</string>
   <string name="forum_invitation_response_accepted_received">%s samþykkti boð á spjallsvæði.</string>
   <string name="forum_invitation_response_declined_received">%s hafnaði boði á spjallsvæði.</string>
   <string name="sharing_status">Staða deilingar</string>
@@ -401,6 +440,7 @@
   <string name="blogs_sharing_snackbar">Bloggi deilt með völdum tengiliðum</string>
   <string name="blogs_sharing_response_accepted_sent">Þú samþykktir boð á blogg frá %s.</string>
   <string name="blogs_sharing_response_declined_sent">Þú hafnaðir boði á blogg frá %s.</string>
+  <string name="blogs_sharing_response_declined_auto">Boði á blogg frá %s var sjálfvirkt hafnað.</string>
   <string name="blogs_sharing_response_accepted_received">%s samþykkti boð á blogg.</string>
   <string name="blogs_sharing_response_declined_received">%s hafnaði boði á blogg.</string>
   <string name="blogs_sharing_invitation_received">%1$s deildi blogginu \"%2$s\" með þér.</string>
@@ -516,8 +556,20 @@
   <string name="notify_sound_setting_disabled">Ekkert</string>
   <string name="choose_ringtone_title">Veldu hringitón</string>
   <string name="cannot_load_ringtone">Get ekki hlaðið inn hringitóni</string>
+  <!--Conversation Settings-->
+  <string name="disappearing_messages_title">Sjálfeyðandi skilaboð</string>
+  <string name="disappearing_messages_explanation_long">Ef kveikt er á þessari stillingu munu ný
+		skilaboð í þessu samtali hverfa sjálfkrafa eftir 7\u00A0daga.
+		\n\nNiðurtalning fyrir afrit sendandans af skilaboðum hefst eftir að það hefur verið afhent.
+		Niðurtalning fyrir viðtakandann hefst þegar hann hefur lesið skilaboðin.
+		\n\nSjálfeyðandi skilaboð eru merkt með sprengjutákni.
+		\n\nHafðu í huga að viðtakendur geta eftir sem áður gert afrit af skilaboðum sem þú sendir.
+		\n\nEf þú breytir þessum stillingum, munu þær eiga strax við um ný skilaboð og við skilaboð 
+		tengiliðarins þíns um leið og hann fær næstu skilaboð frá þér.
+		Tengiliðurinn þinn getur líka breytt þessari stillingu fyrir ykkur báða.</string>
+  <string name="learn_more">Fræðast frekar</string>
+  <string name="disappearing_messages_summary">Láta öll frekari skilaboð í þessu samtali hverfa sjálfkrafa eftir 7\u00A0daga.</string>
   <!--Settings Feedback-->
-  <string name="feedback_settings_title">Umsagnir</string>
   <string name="send_feedback">Senda umsögn</string>
   <!--Link Warning-->
   <string name="link_warning_title">Aðvörun vegna tengils</string>
@@ -536,6 +588,7 @@
   <string name="optional_contact_email">Tölvupóstfangið þitt (valfrjálst)</string>
   <string name="include_debug_report_crash">Senda nafnlaus gögn um hrunið</string>
   <string name="include_debug_report_feedback">Senda nafnlaus gögn um tækið</string>
+  <string name="dev_report_user_info">Upplýsingar um notanda</string>
   <string name="dev_report_basic_info">Grunnupplýsingar</string>
   <string name="dev_report_device_info">Upplýsingar um tæki</string>
   <string name="dev_report_stacktrace">Stacktrace-rakning</string>
@@ -569,6 +622,9 @@
   <string name="permission_camera_location_request_body">Til að skanna QR-kóðann, þarf Briar aðgang að myndavélinni.\n\nTil að finna Bluetooth-tæki, þarf Briar heimild til að nota staðsetningu þína.\n\nBriar geymir ekki staðsetningar eða deilir þeim með neinum.</string>
   <string name="permission_camera_denied_body">Þú hefur hafnað aðgangi að myndavélinni, en það að bæta við tengiliðum krefst notkun hennar.\n\nÍhugaðu að veita þennan aðgang.</string>
   <string name="permission_location_denied_body">Þú hefur hafnað aðgangi að staðsetningu, en Briar þarf þessa heimild til að geta fundið Bluetooth-tæki.\n\nÍhugaðu að veita þennan aðgang.</string>
+  <string name="permission_location_setting_title">Stilling staðsetningar</string>
+  <string name="permission_location_setting_body">Kveikt þarf að vera á staðsetningu tækisins þíns til að geta fundið önnur tæki með Bluetooth. Virkjaðu staðsetningu til að halda áfram. Þú getur svo gert hana óvirka aftur á eftir.</string>
+  <string name="permission_location_setting_button">Virkja staðsetningu</string>
   <string name="qr_code">QR-kóði</string>
   <string name="show_qr_code_fullscreen">Birta QR-kóða á öllum skjánum</string>
   <!--App Locking-->

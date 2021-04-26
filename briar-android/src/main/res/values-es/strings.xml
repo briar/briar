@@ -22,6 +22,9 @@
   <string name="setup_huawei_text">Por favor pulsa el botón de abajo y asegúrate de que Briar está protegido en la pantalla \"Aplicaciones protegidas\".</string>
   <string name="setup_huawei_button">Proteger Briar</string>
   <string name="setup_huawei_help">Si Briar no se agrega a la lista de aplicaciones protegidas, no podrá ejecutarse en segundo plano.</string>
+  <string name="setup_huawei_app_launch_text">Por favor, pulsa el botón de abajo, abre la pantalla \"lanzamiento de aplicación\" y asegúrate de que Briar esté configurado como \"Gestionar manualmente\".</string>
+  <string name="setup_huawei_app_launch_button">Abrir Ajustes de Batería</string>
+  <string name="setup_huawei_app_launch_help">Si Briar no está configurado como \"Gestionar manualmente\" en la pantalla \"lanzamiento de aplicación\", no será capaz de ejecutarse en segundo plano.</string>
   <string name="warning_dozed">%s no pudo ejecutarse en segundo plano</string>
   <!--Login-->
   <string name="enter_password">Contraseña</string>
@@ -130,6 +133,7 @@
   <string name="allow">Permitir</string>
   <string name="open">Abrir</string>
   <string name="change">Cambiar</string>
+  <string name="start">Iniciar</string>
   <string name="no_data">Sin datos</string>
   <string name="ellipsis">…</string>
   <string name="text_too_long">El texto ingresado es demasiado largo</string>
@@ -144,7 +148,9 @@
   <string name="no_contacts_action">Golpear el icono + para añadir un contacto</string>
   <string name="date_no_private_messages">Sin mensajes.</string>
   <string name="no_private_messages">No hay mensajes que mostrar</string>
-  <string name="message_hint">Escribe un mensaje</string>
+  <string name="message_hint">Nuevo mensaje</string>
+  <string name="message_hint_auto_delete">Nuevo mensaje con caducidad</string>
+  <string name="message_error">Error enviando mensaje</string>
   <string name="image_caption_hint">Añade una breve descripción (opcional)</string>
   <string name="image_attach">Adjuntar imagen</string>
   <string name="image_attach_error">No se pudieron adjuntar las imágenes</string>
@@ -152,6 +158,40 @@
   <string name="image_attach_error_invalid_mime_type">Formato de imagen no admitido: %s</string>
   <string name="set_contact_alias">Cambiar nombre del contacto</string>
   <string name="set_contact_alias_hint">Nombre del contacto</string>
+  <string name="menu_item_disappearing_messages">Mensajes con caducidad</string>
+  <string name="menu_item_connect_via_bluetooth">Conectar mediante Bluetooth</string>
+  <string name="dialog_title_connect_via_bluetooth">Conectar mediante Bluetooth</string>
+  <string name="dialog_message_connect_via_bluetooth">Tu contacto necesita estar cerca para que esto funcione.\n\nTú y tu contacto deberían presionar \"Iniciar\" ambos al mismo tiempo.</string>
+  <string name="toast_connect_via_bluetooth_not_discoverable">No se puede continuar sin Bluetooth</string>
+  <string name="toast_connect_via_bluetooth_no_location_permission">No se puede continuar sin permiso de ubicación</string>
+  <string name="toast_connect_via_bluetooth_start">Conectar mediante Bluetooth...</string>
+  <string name="toast_connect_via_bluetooth_success">Conectado exitosamente mediante Bluetooth</string>
+  <string name="toast_connect_via_bluetooth_error">No se pudo conectar mediante Bluetooth</string>
+  <!--The first placeholder will show a duration like "7 days". The second placeholder at the end will add "Tap to learn more."-->
+  <string name="auto_delete_msg_you_enabled">Tus mensajes desaparecerán después de %1$s. %2$s</string>
+  <!--The placeholder at the end will add "Tap to learn more."-->
+  <string name="auto_delete_msg_you_disabled">Tus mensajes no desaparecerán. %1$s</string>
+  <!--The first placeholder will show a contact's name. The second placeholder will show a duration like "7 days". The third placeholder at the end will add "Tap to learn more."-->
+  <string name="auto_delete_msg_contact_enabled">Los mensajes de %1$s desaparecerán después de %2$s. %3$s</string>
+  <plurals name="duration_minutes">
+    <item quantity="one">%d minuto</item>
+    <item quantity="other">%d minutos</item>
+  </plurals>
+  <plurals name="duration_hours">
+    <item quantity="one">%d hora</item>
+    <item quantity="other">%d horas</item>
+  </plurals>
+  <plurals name="duration_days">
+    <item quantity="one">%d día</item>
+    <item quantity="other">%d días</item>
+  </plurals>
+  <!--The first placeholder will show a contact's name. The second placeholder at the end will add "Tap to learn more."-->
+  <string name="auto_delete_msg_contact_disabled">Los mensajes de %1$s no desaparecerán. %2$s</string>
+  <string name="tap_to_learn_more">Pulsa para aprender más.</string>
+  <string name="auto_delete_changed_warning_title">Mensajes con caducidad cambiado</string>
+  <string name="auto_delete_changed_warning_message_enabled">Desde que empezaste a componer tu mensaje, la caducidad de los mismos ha sido habilitada.</string>
+  <string name="auto_delete_changed_warning_message_disabled">Desde que empezaste a componer tu mensaje, la caducidad de los mismos ha sido deshabilitada.</string>
+  <string name="auto_delete_changed_warning_send">Enviar de todos modos</string>
   <string name="delete_all_messages">Eliminar todos los mensajes</string>
   <string name="dialog_title_delete_all_messages">Confirmar la eliminación del mensaje</string>
   <string name="dialog_message_delete_all_messages">¿Estás seguro de que deseas eliminar todos los mensajes?</string>
@@ -159,7 +199,6 @@
   <string name="dialog_message_not_deleted_ongoing_both">Los mensajes relacionados con presentaciones o invitaciones en curso no se pueden eliminar hasta que finalicen.</string>
   <string name="dialog_message_not_deleted_ongoing_introductions">Los mensajes relacionados con presentaciones no se pueden eliminar hasta que finalicen.</string>
   <string name="dialog_message_not_deleted_ongoing_invitations">Los mensajes relacionados a invitaciones en curso no pueden ser borrados hasta su conclusión.</string>
-  <string name="dialog_message_not_deleted_partly_downloaded">Los mensajes parcialmente descargados no se pueden eliminar hasta que haya finalizado la descarga.</string>
   <string name="dialog_message_not_deleted_not_all_selected_both">Para borrar una invitación o presentación, debes seleccionar la petición y la respuesta.</string>
   <string name="dialog_message_not_deleted_not_all_selected_introductions">Para eliminar una introducción, debes seleccionar la solicitud y la respuesta.</string>
   <string name="dialog_message_not_deleted_not_all_selected_invitations">Para eliminar una invitación, debes seleccionar la solicitud y la respuesta.</string>
@@ -271,6 +310,7 @@
   <string name="introduction_response_accepted_sent">Has aceptado la presentación a %1$s.</string>
   <string name="introduction_response_accepted_sent_info">Antes que %1$s quede añadido a tus contactos, el también necesita aceptar la presentación. Esto puede tomar algún tiempo.</string>
   <string name="introduction_response_declined_sent">Has rechazado la presentación a %1$s.</string>
+  <string name="introduction_response_declined_auto">La presentación a %1$s fue automáticamente rechazada.</string>
   <string name="introduction_response_accepted_received">%1$s aceptó la presentación a %2$s.</string>
   <string name="introduction_response_declined_received">%1$s rechazó la presentación a %2$s.</string>
   <string name="introduction_response_declined_received_by_introducee">%1$s dice que %2$s rechazó la presentación.</string>
@@ -317,6 +357,7 @@
   </plurals>
   <string name="groups_invitations_response_accepted_sent">Aceptaste la invitación de grupo de %s.</string>
   <string name="groups_invitations_response_declined_sent">Declinaste la invitación de grupo de %s.</string>
+  <string name="groups_invitations_response_declined_auto">La invitación grupal de %s fue automáticamente rechazada.</string>
   <string name="groups_invitations_response_accepted_received">%s ha aceptado la invitación al grupo.</string>
   <string name="groups_invitations_response_declined_received">%s ha declinado la invitación al grupo.</string>
   <string name="sharing_status_groups">Solo el creador puede invitar nuevos miembros al grupo. Abajo se listan todos los participantes actuales.</string>
@@ -367,6 +408,7 @@
   <string name="forum_invitation_already_sharing">Ya se está compartiendo</string>
   <string name="forum_invitation_response_accepted_sent">Aceptaste la invitación al foro de %s.</string>
   <string name="forum_invitation_response_declined_sent">Rechazaste la invitación al foro de %s.</string>
+  <string name="forum_invitation_response_declined_auto">La invitación al foro de %s fue automáticamente rechazada.</string>
   <string name="forum_invitation_response_accepted_received">%s aceptó la invitación al foro.</string>
   <string name="forum_invitation_response_declined_received">%s rechazó la invitación al foro.</string>
   <string name="sharing_status">Estado de la compartición</string>
@@ -401,6 +443,7 @@
   <string name="blogs_sharing_snackbar">Blog compartido con los contactos seleccionados</string>
   <string name="blogs_sharing_response_accepted_sent">Aceptaste la invitación al blog de %s.</string>
   <string name="blogs_sharing_response_declined_sent">Rechazaste la invitación al blog de %s.</string>
+  <string name="blogs_sharing_response_declined_auto">La invitación al blog de %s fue automáticamente rechazada.</string>
   <string name="blogs_sharing_response_accepted_received">%s aceptó la invitación al blog.</string>
   <string name="blogs_sharing_response_declined_received">%s rechazó la invitación al blog.</string>
   <string name="blogs_sharing_invitation_received">%1$s ha compartido el blog \"%2$s\" contigo.</string>
@@ -516,8 +559,20 @@
   <string name="notify_sound_setting_disabled">Ninguno</string>
   <string name="choose_ringtone_title">Elegir tono de notificación</string>
   <string name="cannot_load_ringtone">No se puede cargar el tono de notificación</string>
+  <!--Conversation Settings-->
+  <string name="disappearing_messages_title">Mensajes con caducidad</string>
+  <string name="disappearing_messages_explanation_long">Activar este ajuste hará que los nuevos
+		mensajes en esta conversación desaparezcan automáticamente después de 7\u00A0días.
+		\n\nLa cuenta regresiva para la copia del mensaje del emisor empieza después de que haya sido entregado.
+		La cuenta regresiva empieza para el receptor después de que haya leído el mensaje.
+		\n\nLos mensajes con caducidad están marcados con el ícono de una bomba.
+		\n\nTen presente que los receptores aún pueden hacer copias de los mensajes que envías.
+		\n\nSi cambias este ajuste, se aplicará a tus nuevos mensajes inmediatamente, y a los
+		mensajes de tus contactos una vez que reciban tu próximo mensaje.
+		Tu contacto también puede cambiar este ajuste para ambos.</string>
+  <string name="learn_more">Aprende más</string>
+  <string name="disappearing_messages_summary">Haz que futuros mensajes en esta conversación desaparezcan automáticamente después de 7\u00A0days.</string>
   <!--Settings Feedback-->
-  <string name="feedback_settings_title">Comentarios</string>
   <string name="send_feedback">Enviar comentario</string>
   <!--Link Warning-->
   <string name="link_warning_title">Advertencia sobre el enlace</string>
@@ -570,6 +625,9 @@
   <string name="permission_camera_location_request_body">Para escanear el código QR, Briar necesita acceso a la cámara.\n\nPara descubrir dispositivos Bluetooth, Briar necesita permiso para acceder tu ubicación.\n\nBriar no la almacena o la comparte con nadie.</string>
   <string name="permission_camera_denied_body">Has denegado el acceso a la cámara, pero para añadir contactos se requiere el uso de la cámara.\n\nPor favor considera la posibilidad de conceder el acceso.</string>
   <string name="permission_location_denied_body">Has denegado el acceso a tu ubicación, pero Briar necesita este permiso para descubrir dispositivos Bluetooth.\n\nPor favor considera la posibilidad de conceder el acceso.</string>
+  <string name="permission_location_setting_title">Configuración de ubicación</string>
+  <string name="permission_location_setting_body">La configuración de ubicación de tu dispositivo debe estar activada para encontrar otros dispositivos vía Bluetooth. Por favor, habilita ubicación para continuar. Puedes deshabilitarla nuevamente con posterioridad.</string>
+  <string name="permission_location_setting_button">Activar ubicación</string>
   <string name="qr_code">Código QR</string>
   <string name="show_qr_code_fullscreen">Mostrar código QR a pantalla completa</string>
   <!--App Locking-->

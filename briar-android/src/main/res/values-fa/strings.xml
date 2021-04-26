@@ -136,6 +136,7 @@
   <string name="allow">اجازه دادن</string>
   <string name="open">باز کردن</string>
   <string name="change">تغییر</string>
+  <string name="start">آغاز</string>
   <string name="no_data">داده ای موجود نمی باشد</string>
   <string name="ellipsis">…</string>
   <string name="text_too_long">متن وارد شده بیش از حد طولانی می باشد</string>
@@ -150,7 +151,9 @@
   <string name="no_contacts_action">برای افزودن مخاطب روی + کلیک کنید</string>
   <string name="date_no_private_messages">هیچ پیامی موجود نیست</string>
   <string name="no_private_messages">هیچ پیامی برای نشان دادن وجود ندارد</string>
-  <string name="message_hint">نوشتن پیام</string>
+  <string name="message_hint">پیام جدید</string>
+  <string name="message_hint_auto_delete">پیام ناپدید شونده جدید</string>
+  <string name="message_error">خطا در ارسال پیام</string>
   <string name="image_caption_hint">افزودن یک شرح (اختیاری)</string>
   <string name="image_attach">پیوست کردن تصویر</string>
   <string name="image_attach_error">پیوست کردن تصویر(ها) ممکن نمی باشد</string>
@@ -158,6 +161,40 @@
   <string name="image_attach_error_invalid_mime_type">فرمت تصویر پشتیبانی نمی‌شود: %s</string>
   <string name="set_contact_alias">تغییر نام مخاطب</string>
   <string name="set_contact_alias_hint">نام مخاطب</string>
+  <string name="menu_item_disappearing_messages">پیام‌های ناپدید شونده</string>
+  <string name="menu_item_connect_via_bluetooth">اتصال از طریق بلوتوث</string>
+  <string name="dialog_title_connect_via_bluetooth">اتصال از طریق بلوتوث</string>
+  <string name="dialog_message_connect_via_bluetooth">برای امکان این عملکرد، مخاطب شما باید نزدیک باشد. \n\n شما و مخاطبتان باید همزمان گزینه‌ی \"شروع\" را بفشارید.</string>
+  <string name="toast_connect_via_bluetooth_not_discoverable">امکان ادامه بدون بلوتوث وجود ندارد</string>
+  <string name="toast_connect_via_bluetooth_no_location_permission">امکان ادامه بدون اجازه مکان‌یابی وجود ندارد</string>
+  <string name="toast_connect_via_bluetooth_start">در حال اتصال از طریق بلوتوث</string>
+  <string name="toast_connect_via_bluetooth_success">ارتباط از طریق بلوتوث با موفقیت انجام شد</string>
+  <string name="toast_connect_via_bluetooth_error">اتصال از طریق بلوتوث برقرار نشد</string>
+  <!--The first placeholder will show a duration like "7 days". The second placeholder at the end will add "Tap to learn more."-->
+  <string name="auto_delete_msg_you_enabled">پیام شما پس از %1$s ناپدید خواهد شد. %2$s</string>
+  <!--The placeholder at the end will add "Tap to learn more."-->
+  <string name="auto_delete_msg_you_disabled">پیام شما ناپدید نخواهد شد. %1$s</string>
+  <!--The first placeholder will show a contact's name. The second placeholder will show a duration like "7 days". The third placeholder at the end will add "Tap to learn more."-->
+  <string name="auto_delete_msg_contact_enabled">پیام %1$s پس از %2$s ناپدید خواهد شد. %3$s</string>
+  <plurals name="duration_minutes">
+    <item quantity="one">%d دقیقه</item>
+    <item quantity="other">%d دقیقه</item>
+  </plurals>
+  <plurals name="duration_hours">
+    <item quantity="one">%d ساعت</item>
+    <item quantity="other">%d ساعت</item>
+  </plurals>
+  <plurals name="duration_days">
+    <item quantity="one">%d روز</item>
+    <item quantity="other">%d روز</item>
+  </plurals>
+  <!--The first placeholder will show a contact's name. The second placeholder at the end will add "Tap to learn more."-->
+  <string name="auto_delete_msg_contact_disabled">پیام %1$s ناپدید نخواهد شد. %2$s</string>
+  <string name="tap_to_learn_more">برای اطلاعات بیشتر اینجا را بفشارید.</string>
+  <string name="auto_delete_changed_warning_title">پیام‌های ناپدید شونده تغییر یافت</string>
+  <string name="auto_delete_changed_warning_message_enabled">از زمانی که شروع به نوشتن پیام خود کرده‌اید، پیام‌های ناپدید شونده فعال شده است.</string>
+  <string name="auto_delete_changed_warning_message_disabled">از زمانی که شروع به نوشتن پیام خود کرده‌اید، پیام‌های ناپدید شونده غیرفعال شده است.</string>
+  <string name="auto_delete_changed_warning_send">به هر حال ارسال کن</string>
   <string name="delete_all_messages">حذف تمام پیام ها</string>
   <string name="dialog_title_delete_all_messages">تایید حذف پیام</string>
   <string name="dialog_message_delete_all_messages">آیا از حذف تمام پیام‌ ها اطمینان دارید؟</string>
@@ -165,7 +202,6 @@
   <string name="dialog_message_not_deleted_ongoing_both">پیام های مرتبط با دعوت ها و معرفی های جاری نمی توانند حذف شوند تا زمانی که به نتیجه برسند.</string>
   <string name="dialog_message_not_deleted_ongoing_introductions">پیام های مرتبط با معرفی های جاری نمی توانند حذف شوند تا زمانی که به نتیجه برسند.</string>
   <string name="dialog_message_not_deleted_ongoing_invitations">پیام های مرتبط با دعوت نامه های جاری نمی توانند حذف شوند تا زمانی که به نتیجه برسند.</string>
-  <string name="dialog_message_not_deleted_partly_downloaded">پیام‌های نیمه دانلود شده تا زمانی که دانلود آن ها پایان نیافته است قابل حذف نیستند.</string>
   <string name="dialog_message_not_deleted_not_all_selected_both">برای حذف یک دعوت نامه یا معرفی، باید درخواست و پاسخ را انتخاب کنید.</string>
   <string name="dialog_message_not_deleted_not_all_selected_introductions">برای حذف یک معرفی، باید درخواست و پاسخ را انتخاب کنید.</string>
   <string name="dialog_message_not_deleted_not_all_selected_invitations">برای حذف یک دعوت نامه، باید درخواست و پاسخ آن را انتخاب کنید.</string>
@@ -289,6 +325,7 @@
   <string name="introduction_response_accepted_sent">شما معرفی به %1$sرا پذیرفتید.</string>
   <string name="introduction_response_accepted_sent_info">قبل از اضافه شدن %1$s به مخاطبان شما، آن ها باید معرفی را بپذیرند. این شاید کمی زمان ببرد.</string>
   <string name="introduction_response_declined_sent">شما معرفی به %1$sرا رد کردید.</string>
+  <string name="introduction_response_declined_auto">معرفی به %1$s به صورت خودکار رد شد.</string>
   <string name="introduction_response_accepted_received">%1$s معرفی به %2$s را پذیرفت.</string>
   <string name="introduction_response_declined_received">%1$s معرفی به %2$s را رد کرد.</string>
   <string name="introduction_response_declined_received_by_introducee">%1$s می گوید که %2$s دعوت نامه  را رد کرد.</string>
@@ -339,6 +376,7 @@
   </plurals>
   <string name="groups_invitations_response_accepted_sent">شما دعوت نامه گروه از %s را پذیرفتید.</string>
   <string name="groups_invitations_response_declined_sent">شما دعوت نامه گروه از %s را رد کردید.</string>
+  <string name="groups_invitations_response_declined_auto">دعوت به گروه از %s به صورت خودکار رد شد.</string>
   <string name="groups_invitations_response_accepted_received">%sدعوت نامه گروه را پذیرفت.</string>
   <string name="groups_invitations_response_declined_received">%s دعوت نامه گروه را رد کرد.</string>
   <string name="sharing_status_groups">فقط سازنده گروه می تواند اعضای جدید را به گروه دعوت کند. در پایین تمام اعضای فعلی گروه آمده است.</string>
@@ -395,6 +433,7 @@
   <string name="forum_invitation_already_sharing">در حال به اشتراک گذاری</string>
   <string name="forum_invitation_response_accepted_sent">شما دعوت نامه فروم از %s را پذیرفتید.</string>
   <string name="forum_invitation_response_declined_sent">شما دعوت نامه فروم از %s را رد کردید.</string>
+  <string name="forum_invitation_response_declined_auto">دعوت به تالار از %s به صورت خودکار رد شد.</string>
   <string name="forum_invitation_response_accepted_received">%s دعوت نامه فروم را پذیرفت.</string>
   <string name="forum_invitation_response_declined_received">%s دعوت نامه فروم را رد کرد.</string>
   <string name="sharing_status">به اشتراک گذاری وضعیت</string>
@@ -435,6 +474,7 @@
   <string name="blogs_sharing_snackbar">بلاگ با مخاطبان انتخاب شده به اشتراک گذاشته شد</string>
   <string name="blogs_sharing_response_accepted_sent">شما دعوت نامه بلاگ از طرف %s را پذیرفتید.</string>
   <string name="blogs_sharing_response_declined_sent">شما دعوت نامه بلاگ از %s را رد کردید.</string>
+  <string name="blogs_sharing_response_declined_auto">دعوت به وبلاگ از %s به صورت خودکار رد شد.</string>
   <string name="blogs_sharing_response_accepted_received">%sدعوت نامه بلاگ را پذیرفت.</string>
   <string name="blogs_sharing_response_declined_received">%s دعوت نامه بلاگ را رد کرد.</string>
   <string name="blogs_sharing_invitation_received">%1$s بلاگ \"%2$s\" را با شما به اشتراک گذاشت.</string>
@@ -556,8 +596,20 @@
   <string name="notify_sound_setting_disabled">هیچکدام</string>
   <string name="choose_ringtone_title">انتخاب رینگتون</string>
   <string name="cannot_load_ringtone">ناتوانی در بارگذاری رینگتون</string>
+  <!--Conversation Settings-->
+  <string name="disappearing_messages_title">پیام‌های ناپدید شونده</string>
+  <string name="disappearing_messages_explanation_long">روشن کردن این تنظیمات موجب خواهد شد تا پیام‌های جدید
+		در این گفتگو به صورت خودکار پس از 7\u00A0 روز ناپدید شوند.
+		\n\n شمارش معکوس برای نسخه‌ی ارسال کننده پیام از زمانی آغاز می‌شود که پیام رسیده باشد.
+		شماره معکوس برای گیرنده از زمانی آغاز می‌شود که پیام خوانده شده باشد.
+		\n\n پیام‌های ناپدید شونده با علامت بمب نشانه‌گذاری شده‌اند.
+		\n\n توجه داشته باشید که گیرنده کماکان می‌تواند پیام شما را کپی کند.
+		\n\n اگر این تنظیمات را تغییر دهید، تنظیمات جدید بلافاصله بر روی پیام‌های جدید شما و
+		 مخاطب شما به محض دریافت پیام اعمال خواهند شد.
+		 همچنین مخاطب شما می‌تواند این تنظیمات را برای شما تغییر دهد.</string>
+  <string name="learn_more">اطلاعات بیشتر</string>
+  <string name="disappearing_messages_summary">پس از این پیام‌های این گفتگو را بعد از 7\u00A0 روز ناپدید کن.</string>
   <!--Settings Feedback-->
-  <string name="feedback_settings_title">بازخورد</string>
   <string name="send_feedback">ارسال بازخورد</string>
   <!--Link Warning-->
   <string name="link_warning_title">هشدار پیوند</string>
@@ -622,6 +674,9 @@ Briar (برایر) موقعیت شما را ذخیره نمی‌کند و آن �
 
 لطفا اجازه دسترسی را بدهید.</string>
   <string name="permission_location_denied_body">شما دسترسی به موقعیت خود را نداده‌اید اما Briar (برایر) برای یافتن دستگاه‌های بلوتوث نیاز به این دسترسی دارد.\n\nلطفا این دسترسی را فراهم کنید.</string>
+  <string name="permission_location_setting_title">تنظیمات مکان‌یابی</string>
+  <string name="permission_location_setting_body">تنظیمات مکانی دستگاه شما باید روشن شود تا بتوانید سایر دستگاه‌ها را از طریق بلوتوث بیابید. برای ادامه لطفا مکان‌یابی خود را فعال کنید. شما می‌توانید بعدا آن رو دوباره غیرفعال کنید.</string>
+  <string name="permission_location_setting_button">فعالسازی مکان‌یابی</string>
   <string name="qr_code">کد کیوآر</string>
   <string name="show_qr_code_fullscreen">نمایش کد کیوآر به صورت فول اسکرین</string>
   <!--App Locking-->

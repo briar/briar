@@ -130,6 +130,7 @@
   <string name="allow">Дозволи</string>
   <string name="open">Отвори</string>
   <string name="change">Промени</string>
+  <string name="start">Започни</string>
   <string name="no_data">Нема податоци</string>
   <string name="ellipsis">…</string>
   <string name="text_too_long">Внесениот текст е предолг</string>
@@ -144,7 +145,6 @@
   <string name="no_contacts_action">Допрете ја + иконата за да додадете контакт</string>
   <string name="date_no_private_messages">Нема пораки.</string>
   <string name="no_private_messages">Нема пораки за прикажување</string>
-  <string name="message_hint">Напиши порака</string>
   <string name="image_caption_hint">Додај наслов (опционално)</string>
   <string name="image_attach">Прикачи слика</string>
   <string name="image_attach_error">Сликата/те не може да се прикачи(ат)</string>
@@ -152,6 +152,12 @@
   <string name="image_attach_error_invalid_mime_type">Форматот на сликата не е поддржан: %s</string>
   <string name="set_contact_alias">Промена на име на контакт</string>
   <string name="set_contact_alias_hint">Име на контакт</string>
+  <string name="menu_item_connect_via_bluetooth">Поврзи се преку Bluetooth</string>
+  <string name="dialog_title_connect_via_bluetooth">Поврзи се преку Bluetooth</string>
+  <!--The first placeholder will show a duration like "7 days". The second placeholder at the end will add "Tap to learn more."-->
+  <!--The placeholder at the end will add "Tap to learn more."-->
+  <!--The first placeholder will show a contact's name. The second placeholder will show a duration like "7 days". The third placeholder at the end will add "Tap to learn more."-->
+  <!--The first placeholder will show a contact's name. The second placeholder at the end will add "Tap to learn more."-->
   <string name="delete_all_messages">Избриши ги сите пораки</string>
   <string name="dialog_title_delete_all_messages">Потврди бришење на порака</string>
   <string name="dialog_message_delete_all_messages">Дали сте сигурни дека сакате да ги избришете сите пораки?</string>
@@ -159,7 +165,6 @@
   <string name="dialog_message_not_deleted_ongoing_both">Пораките поврзани со покани и запознавања кои се во тек не можат да бидат избрашини додека не бидат завршени.</string>
   <string name="dialog_message_not_deleted_ongoing_introductions">Пораките поврзани со запознавања кои се во тек не можат да бидат избрашини додека не бидат завршени.</string>
   <string name="dialog_message_not_deleted_ongoing_invitations">Пораките поврзани со покани кои се во тек не можат да бидат избрашини додека не бидат завршени.</string>
-  <string name="dialog_message_not_deleted_partly_downloaded">Делумно преземените пораки не можат да бидат избрашини додека не се преземат целосно.</string>
   <string name="dialog_message_not_deleted_not_all_selected_both">За да избришете покана или запознавање, треба да изберете барање и одговор.</string>
   <string name="dialog_message_not_deleted_not_all_selected_introductions">За да избришете запознавање, треба да изберете барање и одговор.</string>
   <string name="dialog_message_not_deleted_not_all_selected_invitations">За да избришете покана, треба да изберете барање и одговор.</string>
@@ -512,8 +517,9 @@
   <string name="notify_sound_setting_disabled">Ништо</string>
   <string name="choose_ringtone_title">Избери рингтон</string>
   <string name="cannot_load_ringtone">Не може да вчита рингтон</string>
+  <!--Conversation Settings-->
+  <string name="learn_more">Научете повеќе</string>
   <!--Settings Feedback-->
-  <string name="feedback_settings_title">Повратни информации</string>
   <string name="send_feedback">Испрати повратни информации</string>
   <!--Link Warning-->
   <string name="link_warning_title">Линк предупредување</string>

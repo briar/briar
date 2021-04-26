@@ -130,6 +130,7 @@
   <string name="allow">Permitir</string>
   <string name="open">Abrir</string>
   <string name="change">Alterar</string>
+  <string name="start">Início</string>
   <string name="no_data">Nenhum dado</string>
   <string name="ellipsis">…</string>
   <string name="text_too_long">O texto entrado é muito grande</string>
@@ -144,7 +145,7 @@
   <string name="no_contacts_action">Toque no ícone + para adicionar um contato</string>
   <string name="date_no_private_messages">Sem Mensagens</string>
   <string name="no_private_messages">Nenhuma mensagem para ser exibida</string>
-  <string name="message_hint">Digite a mensagem</string>
+  <string name="message_hint">Nova mensagem</string>
   <string name="image_caption_hint">Adicione uma legenda (opcional)</string>
   <string name="image_attach">Anexar imagem</string>
   <string name="image_attach_error">Não foi possível anexar imagem(s)</string>
@@ -152,6 +153,12 @@
   <string name="image_attach_error_invalid_mime_type">Formato da imagem não suportado: %s</string>
   <string name="set_contact_alias">Alterar nome do contato</string>
   <string name="set_contact_alias_hint">Nome de contato</string>
+  <string name="menu_item_connect_via_bluetooth">Conectar via Bluetooth</string>
+  <string name="dialog_title_connect_via_bluetooth">Conectar via Bluetooth</string>
+  <!--The first placeholder will show a duration like "7 days". The second placeholder at the end will add "Tap to learn more."-->
+  <!--The placeholder at the end will add "Tap to learn more."-->
+  <!--The first placeholder will show a contact's name. The second placeholder will show a duration like "7 days". The third placeholder at the end will add "Tap to learn more."-->
+  <!--The first placeholder will show a contact's name. The second placeholder at the end will add "Tap to learn more."-->
   <string name="delete_all_messages">Deletar todas as mensagens</string>
   <string name="dialog_title_delete_all_messages">Confirmar exclusão de mensagem</string>
   <string name="dialog_message_delete_all_messages">Você tem certeza que deseja excluir todas as mensagens?</string>
@@ -159,7 +166,6 @@
   <string name="dialog_message_not_deleted_ongoing_both">Mensagens relacionadas a convites e apresentações em andamento não podem ser deletadas até que o convite ou apresentação seja concluído. </string>
   <string name="dialog_message_not_deleted_ongoing_introductions">Mensagens relacionadas a apresentações em andamento não podem ser deletadas até que a apresentação seja concluída.</string>
   <string name="dialog_message_not_deleted_ongoing_invitations">Mensagens relacionadas a apresentações em andamento não podem ser deletadas até que a apresentação seja concluída.</string>
-  <string name="dialog_message_not_deleted_partly_downloaded">Mensagens baixadas parcialmente não podem ser deletas até que o download seja concluído.</string>
   <string name="dialog_message_not_deleted_not_all_selected_both">Para deletar um convite ou apresentação, você precisa selecionar a solicitação e a resposta.</string>
   <string name="dialog_message_not_deleted_not_all_selected_introductions">Para deletar uma apresentação, você precisa selecionar a solicitação e a resposta.</string>
   <string name="dialog_message_not_deleted_not_all_selected_invitations">Para deletar um convite, você precisa selecionar a solicitação e a resposta.</string>
@@ -434,7 +440,7 @@
   <string name="pref_theme_light">Claro</string>
   <string name="pref_theme_dark">Escuro</string>
   <string name="pref_theme_auto">Automático (dia)</string>
-  <string name="pref_theme_system">Padrão do Sistema</string>
+  <string name="pref_theme_system">Padrão do sistema</string>
   <!--Settings Connections-->
   <string name="network_settings_title">Conexões</string>
   <string name="bluetooth_setting">Acessar contatos via Bluetooth</string>
@@ -512,8 +518,9 @@
   <string name="notify_sound_setting_disabled">Nenhum</string>
   <string name="choose_ringtone_title">Escolher toque</string>
   <string name="cannot_load_ringtone">Não foi possível carregar o toque</string>
+  <!--Conversation Settings-->
+  <string name="learn_more">Saiba Mais</string>
   <!--Settings Feedback-->
-  <string name="feedback_settings_title">Feedback</string>
   <string name="send_feedback">Enviar feedback</string>
   <!--Link Warning-->
   <string name="link_warning_title">Aviso sobre Link</string>

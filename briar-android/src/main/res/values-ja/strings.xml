@@ -97,6 +97,7 @@
   <string name="allow">許可</string>
   <string name="open">開く</string>
   <string name="change">変更</string>
+  <string name="start">スタート</string>
   <string name="no_data">データなし</string>
   <string name="ellipsis">...</string>
   <string name="text_too_long">入力された文章が長すぎます。</string>
@@ -110,7 +111,7 @@
   <string name="no_contacts_action">「＋」アイコンをタップして連絡先を追加</string>
   <string name="date_no_private_messages">メッセージがありません。</string>
   <string name="no_private_messages">表示するメッセージがありません</string>
-  <string name="message_hint">メッセージ入力</string>
+  <string name="message_hint">新しいメッセージ</string>
   <string name="image_caption_hint">説明文を追加する（任意）</string>
   <string name="image_attach">画像を添付</string>
   <string name="image_attach_error">画像を添付できませんでした</string>
@@ -118,6 +119,12 @@
   <string name="image_attach_error_invalid_mime_type">サポートされていない画像形式：%s</string>
   <string name="set_contact_alias">連絡先を変更</string>
   <string name="set_contact_alias_hint">連絡先名</string>
+  <string name="menu_item_connect_via_bluetooth">Bluetooth経由で接続する</string>
+  <string name="dialog_title_connect_via_bluetooth">Bluetooth経由で接続する</string>
+  <!--The first placeholder will show a duration like "7 days". The second placeholder at the end will add "Tap to learn more."-->
+  <!--The placeholder at the end will add "Tap to learn more."-->
+  <!--The first placeholder will show a contact's name. The second placeholder will show a duration like "7 days". The third placeholder at the end will add "Tap to learn more."-->
+  <!--The first placeholder will show a contact's name. The second placeholder at the end will add "Tap to learn more."-->
   <string name="delete_contact">この連絡先を削除</string>
   <string name="dialog_title_delete_contact">連絡先の削除時に確認</string>
   <string name="dialog_message_delete_contact">この連絡先と、この連絡先とのすべてのメッセージを削除してもよろしいですか？</string>
@@ -382,7 +389,7 @@
   <string name="pref_theme_light">ライト</string>
   <string name="pref_theme_dark">ダーク</string>
   <string name="pref_theme_auto">自動（昼間）</string>
-  <string name="pref_theme_system">システムデフォルト</string>
+  <string name="pref_theme_system">システムのデフォルト</string>
   <!--Settings Connections-->
   <string name="network_settings_title">接続</string>
   <string name="tor_network_setting_automatic">場所に基づいて自動的に接続する</string>
@@ -451,8 +458,9 @@
   <string name="notify_sound_setting_disabled">なし</string>
   <string name="choose_ringtone_title">着信音を選択</string>
   <string name="cannot_load_ringtone">着信音を読み込めません</string>
+  <!--Conversation Settings-->
+  <string name="learn_more">詳細情報</string>
   <!--Settings Feedback-->
-  <string name="feedback_settings_title">フィードバック</string>
   <string name="send_feedback">フィードバックを送信</string>
   <!--Link Warning-->
   <string name="link_warning_title">リンクの警告</string>

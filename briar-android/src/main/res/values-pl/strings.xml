@@ -112,6 +112,7 @@
   <string name="allow">Pozwól</string>
   <string name="open">Otwórz</string>
   <string name="change">Zmień</string>
+  <string name="start">Start</string>
   <string name="no_data">Brak danych</string>
   <string name="ellipsis">...</string>
   <string name="text_too_long">Wprowadzony tekst jest zbyt długi</string>
@@ -125,7 +126,7 @@
   <string name="no_contacts_action">Dotknij ikonki + aby dodać kontakt</string>
   <string name="date_no_private_messages">Brak wiadomości.</string>
   <string name="no_private_messages">Brak wiadomości do pokazania</string>
-  <string name="message_hint">Typ wiadomości</string>
+  <string name="message_hint">Nowa wiadomość</string>
   <string name="image_caption_hint">Dodaj podpis (opcjonalne)</string>
   <string name="image_attach">Załącz obraz</string>
   <string name="image_attach_error">Nie udało się dołączyć obrazu(ów)</string>
@@ -133,6 +134,12 @@
   <string name="image_attach_error_invalid_mime_type">Format obrazu jest nieobsługiwany: %s</string>
   <string name="set_contact_alias">Zmień nazwę kontaktu</string>
   <string name="set_contact_alias_hint">Nazwa kontaktu</string>
+  <string name="menu_item_connect_via_bluetooth">Połącz przez Bluetooth</string>
+  <string name="dialog_title_connect_via_bluetooth">Połącz przez Bluetooth</string>
+  <!--The first placeholder will show a duration like "7 days". The second placeholder at the end will add "Tap to learn more."-->
+  <!--The placeholder at the end will add "Tap to learn more."-->
+  <!--The first placeholder will show a contact's name. The second placeholder will show a duration like "7 days". The third placeholder at the end will add "Tap to learn more."-->
+  <!--The first placeholder will show a contact's name. The second placeholder at the end will add "Tap to learn more."-->
   <string name="dialog_title_not_all_messages_deleted">Nie mogłem usunąć wszystkich wiadomości</string>
   <string name="delete_contact">Usuń kontakt</string>
   <string name="dialog_title_delete_contact">Potwierdź usunięcie kontaktu</string>
@@ -413,7 +420,7 @@
   <string name="pref_theme_light">Jasny</string>
   <string name="pref_theme_dark">Ciemny</string>
   <string name="pref_theme_auto">Automatycznie (w czasie dnia)</string>
-  <string name="pref_theme_system">Domyślny Systemu</string>
+  <string name="pref_theme_system">Domyślny systemu</string>
   <!--Settings Connections-->
   <string name="network_settings_title">Połączenia</string>
   <string name="tor_network_setting_automatic">Automatycznie bazując na lokalizacji</string>
@@ -482,8 +489,9 @@
   <string name="notify_sound_setting_disabled">Brak</string>
   <string name="choose_ringtone_title">Wybierz dzwonek</string>
   <string name="cannot_load_ringtone">Nie mogę załadować dzwonka</string>
+  <!--Conversation Settings-->
+  <string name="learn_more">Dowiedz się więcej</string>
   <!--Settings Feedback-->
-  <string name="feedback_settings_title">Twoja opinia</string>
   <string name="send_feedback">Wyślij opinię</string>
   <!--Link Warning-->
   <string name="link_warning_title">Ostrzeżenie o linku</string>
