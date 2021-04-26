@@ -687,6 +687,7 @@
 	<string name="recovery_shard_received">Account backup piece received</string>
 	<string name="recovery_account_recovered">Account recovered</string>
 	<string name="recovery_account_recovered_explain">You must now set a new password for your account</string>
+	<string name="recovery_sending_ack">Sending acknowledgement</string>
 
 	<!-- recovery from the custodian's POV -->
 

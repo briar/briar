@@ -134,13 +134,13 @@ public class OwnerReturnShardFragment extends BaseFragment
 	private void onReturnShardStateChanged(
 			@Nullable SecretOwnerTask.State state) {
 		if (state instanceof SecretOwnerTask.State.Listening) {
+			status.setText(R.string.waiting_for_contact_to_scan);
 			Bitmap qrCode = viewModel.getQrCodeBitmap();
 			qrCodeView.setQrCode(qrCode);
 		} else if (state instanceof SecretOwnerTask.State.ReceivingShard) {
-			statusView.setVisibility(VISIBLE);
 			status.setText(R.string.connecting_to_device);
 		} else if (state instanceof SecretOwnerTask.State.SendingAck) {
-			status.setText(R.string.waiting_for_contact_to_scan);
+			status.setText(R.string.recovery_sending_ack);
 		} else if (state instanceof SecretOwnerTask.State.Success) {
 			status.setText("Success");
 		} else if (state instanceof SecretOwnerTask.State.Failure) {
