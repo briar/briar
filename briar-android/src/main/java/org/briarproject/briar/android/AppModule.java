@@ -286,17 +286,17 @@ public class AppModule {
 
 			@Override
 			public boolean shouldEnableImageAttachments() {
-				return IS_DEBUG_BUILD;
+				return true;
 			}
 
 			@Override
 			public boolean shouldEnableProfilePictures() {
-				return IS_DEBUG_BUILD;
+				return true;
 			}
 
 			@Override
 			public boolean shouldEnableDisappearingMessages() {
-				return IS_DEBUG_BUILD;
+				return true;
 			}
 
 			@Override
