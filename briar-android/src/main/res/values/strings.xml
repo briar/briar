@@ -30,6 +30,9 @@
 	<string name="setup_huawei_app_launch_text">Please tap the button below, open the \"App launch\" screen and make sure Briar is set to \"Manage manually\".</string>
 	<string name="setup_huawei_app_launch_button">Open Battery Settings</string>
 	<string name="setup_huawei_app_launch_help">If Briar is not set to \"Manage manually\" in the \"App launch\" screen, it will not be able to run in the background.</string>
+	<string name="setup_xiaomi_text">Please tap the button below and make sure Briar is set to \"No restrictions\".</string>
+	<string name="setup_xiaomi_button">Open Background Settings</string>
+	<string name="setup_xiaomi_help">Briar must be set to \"No restrictions\" in the \"Background settings\" screen so that it can run in the background.</string>
 	<string name="warning_dozed">%s was unable to run in the background</string>
 
 	<!-- Login -->
