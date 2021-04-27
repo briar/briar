@@ -20,6 +20,7 @@ import org.briarproject.bramble.api.properties.TransportProperties;
 import org.briarproject.briar.api.socialbackup.BackupPayload;
 import org.briarproject.briar.api.socialbackup.MessageParser;
 import org.briarproject.briar.api.socialbackup.Shard;
+import org.briarproject.briar.api.socialbackup.SocialBackup;
 
 import java.security.GeneralSecurityException;
 import java.security.SecureRandom;
@@ -54,7 +55,7 @@ public class BackupPayloadDecoderImpl implements BackupPayloadDecoder {
 		this.messageParser = messageParser;
 	}
 
-	public SocialBackup decodeBackupPayload(
+	public org.briarproject.briar.api.socialbackup.SocialBackup decodeBackupPayload(
 			SecretKey secret,
 			BackupPayload backupPayload)
 			throws FormatException, GeneralSecurityException {
@@ -103,7 +104,7 @@ public class BackupPayloadDecoderImpl implements BackupPayloadDecoder {
 				handShakePrivateKey, created);
 		LOG.info("New identity created");
 
-		List<ContactData> contactDataList = new ArrayList();
+		List<org.briarproject.briar.api.socialbackup.ContactData> contactDataList = new ArrayList();
 
 		for (int i = 0; i < bdfContactData.size(); i++) {
 			BdfList bdfData = bdfContactData.getList(i);
@@ -139,8 +140,8 @@ public class BackupPayloadDecoderImpl implements BackupPayloadDecoder {
 			Contact contact =
 					new Contact(contactId, author, author.getId(), alias,
 							contactHandshakePublicKey, false);
-			ContactData contactData =
-					new ContactData(contact, properties, shard);
+			org.briarproject.briar.api.socialbackup.ContactData contactData =
+					new org.briarproject.briar.api.socialbackup.ContactData(contact, properties, shard);
 			contactDataList.add(contactData);
 			LOG.info("Contact added");
 		}

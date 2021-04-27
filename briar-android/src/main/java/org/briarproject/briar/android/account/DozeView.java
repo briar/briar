@@ -14,7 +14,7 @@ import static org.briarproject.briar.android.util.UiUtils.needsDozeWhitelisting;
 
 @UiThread
 @NotNullByDefault
-class DozeView extends PowerView {
+public class DozeView extends PowerView {
 
 	@Nullable
 	private Runnable onButtonClickListener;

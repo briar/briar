@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:tools="http://schemas.android.com/tools"
+	android:layout_width="match_parent"
+	android:layout_height="match_parent"
+	android:keepScreenOn="true">
+
+<!--	<org.briarproject.briar.android.contact.add.nearby.CameraView-->
+<!--		android:id="@+id/camera_view"-->
+<!--		android:layout_width="match_parent"-->
+<!--		android:layout_height="match_parent" />-->
+
+	<LinearLayout
+		android:id="@+id/camera_overlay"
+		android:layout_width="match_parent"
+		android:layout_height="match_parent"
+		android:baselineAligned="false"
+		android:orientation="vertical">
+
+		<LinearLayout
+			android:id="@+id/status_container"
+			android:layout_width="match_parent"
+			android:layout_height="0dp"
+			android:layout_weight="1"
+			android:gravity="center"
+			android:orientation="vertical"
+			android:padding="@dimen/margin_medium"
+			android:visibility="visible"
+			tools:visibility="visible">
+
+<!--			<ProgressBar-->
+<!--				style="?android:attr/progressBarStyleLarge"-->
+<!--				android:layout_width="wrap_content"-->
+<!--				android:layout_height="wrap_content" />-->
+
+			<TextView
+				android:id="@+id/connect_status"
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:gravity="center"
+				android:paddingTop="@dimen/margin_large"
+				android:textSize="20sp"
+				android:text="@string/waiting_for_contact_to_scan" />
+		</LinearLayout>
+
+		<org.briarproject.briar.android.view.QrCodeView
+			android:id="@+id/qr_code_view"
+			android:layout_width="match_parent"
+			android:layout_height="0dp"
+			android:layout_weight="1"
+			android:background="@android:color/white"
+			tools:visibility="visible" />
+
+	</LinearLayout>
+
+</FrameLayout>

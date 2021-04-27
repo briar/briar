@@ -676,19 +676,23 @@
 	<!-- recovery from the secret owner's POV -->
 
 	<string name="recovery_explainer">You need to meet your trusted contacts in-person to receive pieces</string>
+	<string name="recovery_explainer_extra">Your trusted contact must scan a QR code to initiate the transfer.\n\nYou must both be connected to the same wifi network</string>
 	<string name="recovery_begin">Begin</string>
 	<string name="recovery_failed_to_receive">Failed to receive backup piece</string>
-	<string name="recovery_helpful_suggestions">Please check that bluetooth is swtiched on and that no-one but your trusted contact is able to scan the QR code</string>
+	<string name="recovery_helpful_suggestions">Please check that you are both connected to the same wifi network and try again</string>
 	<string name="recovery_retry">Retry</string>
 	<string name="recovery_recovered_shards">Recovered backup pieces:</string>
 	<string name="recovery_scan_qr_code">Show QR code</string>
 	<string name="recovery_recovering_account">Recovering account…</string>
 	<string name="recovery_shard_received">Account backup piece received</string>
 	<string name="recovery_account_recovered">Account recovered</string>
+	<string name="recovery_account_recovered_explain">You must now set a new password for your account</string>
+	<string name="recovery_sending_ack">Sending acknowledgement</string>
 
 	<!-- recovery from the custodian's POV -->
 
 	<string name="custodian_recovery_explainer">You need to meet in-person to transfer backup piece</string>
+	<string name="custodian_recovery_explainer_extra">Make sure you are both connected to the same wifi network, and scan the QR code on your contact\'s device to begin transferring the backup piece</string>
 	<string name="custodian_recovery_failed_to_send">Failed to send backup piece</string>
 	<string name="custodian_scan_code">Scan code</string>
 	<string name="custodian_shard_sent">Account backup piece transmitted</string>
@@ -716,7 +720,7 @@
 
 	<!-- activity names -->
 	<string name="activity_name_distributed_backup">Social Backup</string>
-	<string name="activity_name_old_distributed_backup">Old Social Backup</string>
+	<string name="activity_name_restore_account">Restore Account</string>
 
 	<!-- conversation -->
 	<string name="social_backup_shard_received">You have received a social backup shard.</string>

@@ -46,7 +46,7 @@ class BackupPayloadEncoderImpl implements BackupPayloadEncoder {
 
 	@Override
 	public org.briarproject.briar.api.socialbackup.BackupPayload encodeBackupPayload(SecretKey secret,
-			Identity identity, List<ContactData> contactData, int version) {
+			Identity identity, List<org.briarproject.briar.api.socialbackup.ContactData> contactData, int version) {
 		// Encode the local identity
 		BdfList bdfIdentity = new BdfList();
 		LocalAuthor localAuthor = identity.getLocalAuthor();
@@ -56,7 +56,7 @@ class BackupPayloadEncoderImpl implements BackupPayloadEncoder {
 		bdfIdentity.add(identity.getHandshakePrivateKey().getEncoded());
 		// Encode the contact data
 		BdfList bdfContactData = new BdfList();
-		for (ContactData cd : contactData) {
+		for (org.briarproject.briar.api.socialbackup.ContactData cd : contactData) {
 			BdfList bdfData = new BdfList();
 			Contact contact = cd.getContact();
 			bdfData.add(clientHelper.toList(contact.getAuthor()));

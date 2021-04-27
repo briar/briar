@@ -1,5 +1,6 @@
 package org.briarproject.briar.android.socialbackup.recover;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.MenuItem;
 import android.widget.Toast;
@@ -23,6 +24,10 @@ import javax.inject.Inject;
 import androidx.fragment.app.FragmentManager;
 import androidx.lifecycle.ViewModelProvider;
 
+import static android.content.Intent.FLAG_ACTIVITY_CLEAR_TASK;
+import static android.content.Intent.FLAG_ACTIVITY_CLEAR_TOP;
+import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
+import static android.content.Intent.FLAG_ACTIVITY_TASK_ON_HOME;
 import static java.util.logging.Logger.getLogger;
 
 @MethodsNotNullByDefault
@@ -72,6 +77,12 @@ public class OwnerReturnShardActivity extends BaseActivity
 				showNextFragment(new OwnerRecoveryModeMainFragment());
 			}
 		});
+		viewModel.getSuccessDismissed().observeEvent(this, success -> {
+			if (success) onSuccessDismissed();
+		});
+		viewModel.getErrorTryAgain().observeEvent(this, tryAgain -> {
+			if (tryAgain) onBackPressed();
+		});
 		viewModel.getState()
 				.observe(this, this::onReturnShardStateChanged);
 	}
@@ -120,6 +131,13 @@ public class OwnerReturnShardActivity extends BaseActivity
 		}
 	}
 
+	private void onSuccessDismissed() {
+		finish();
+		Intent i = new Intent(this, RestoreAccountActivity.class);
+		i.addFlags(FLAG_ACTIVITY_NEW_TASK | FLAG_ACTIVITY_CLEAR_TOP |
+				FLAG_ACTIVITY_CLEAR_TASK | FLAG_ACTIVITY_TASK_ON_HOME);
+		startActivity(i);
+	}
 
 	private void onReturnShardStateChanged(SecretOwnerTask.State state) {
 		if (state instanceof SecretOwnerTask.State.Success) {
@@ -131,9 +149,8 @@ public class OwnerReturnShardActivity extends BaseActivity
 					Toast.LENGTH_SHORT).show();
 			if (added && viewModel.canRecover()) {
 				LOG.info("Secret key recovered");
-				int version = 0;
 				try {
-					version = viewModel.recover();
+					viewModel.recover();
 				} catch (GeneralSecurityException e) {
 					LOG.warning("Unable to decrypt backup" + e.toString());
 					Toast.makeText(this,
@@ -148,20 +165,16 @@ public class OwnerReturnShardActivity extends BaseActivity
 							Toast.LENGTH_LONG).show();
 					return;
 				}
-				Toast.makeText(this,
-						"Account recovered! " + version,
-						Toast.LENGTH_LONG).show();
-				finish();
+				showNextFragment(new OwnerReturnShardSuccessFragment());
 				return;
 			}
 			onBackPressed();
 		} else if (state instanceof SecretOwnerTask.State.Failure) {
-			// TODO error screen, handle reason
-			Toast.makeText(this,
-					"Shard return failed!",
-					Toast.LENGTH_SHORT).show();
-			onBackPressed();
-//			showNextFragment(new OwnerRecoveryModeExplainerFragment());
+//			Toast.makeText(this,
+//					"Shard return failed!",
+//					Toast.LENGTH_SHORT).show();
+//			onBackPressed();
+			showNextFragment(new OwnerRecoveryModeErrorFragment());
 		}
 	}
 

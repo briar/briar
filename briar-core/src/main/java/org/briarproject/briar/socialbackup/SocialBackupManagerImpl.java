@@ -52,6 +52,7 @@ import org.briarproject.briar.api.socialbackup.ShardMessageHeader;
 import org.briarproject.briar.api.socialbackup.ShardReceivedEvent;
 import org.briarproject.briar.api.socialbackup.SocialBackupManager;
 import org.briarproject.briar.client.ConversationClientImpl;
+import org.briarproject.briar.api.socialbackup.ContactData;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -278,7 +279,7 @@ class SocialBackupManagerImpl extends ConversationClientImpl
 		}
 		// Create the encrypted backup payload
 		SecretKey secret = crypto.generateSecretKey();
-		List<ContactData> contactData = loadContactData(txn);
+		List<org.briarproject.briar.api.socialbackup.ContactData> contactData = loadContactData(txn);
 		BackupPayload payload =
 				createBackupPayload(txn, secret, contactData, 0);
 		// Create the shards
@@ -415,17 +416,17 @@ class SocialBackupManagerImpl extends ConversationClientImpl
 	}
 
 	private BackupPayload createBackupPayload(Transaction txn,
-			SecretKey secret, List<ContactData> contactData, int version)
+			SecretKey secret, List<org.briarproject.briar.api.socialbackup.ContactData> contactData, int version)
 			throws DbException {
 		Identity identity = identityManager.getIdentity(txn);
 		return backupPayloadEncoder.encodeBackupPayload(secret, identity,
 				contactData, version);
 	}
 
-	private List<ContactData> loadContactData(Transaction txn)
+	private List<org.briarproject.briar.api.socialbackup.ContactData> loadContactData(Transaction txn)
 			throws DbException {
 		Collection<Contact> contacts = contactManager.getContacts(txn);
-		List<ContactData> contactData = new ArrayList<>();
+		List<org.briarproject.briar.api.socialbackup.ContactData> contactData = new ArrayList<>();
 		for (Contact c : contacts) {
 			// Skip contacts that are in the process of being removed
 			Group contactGroup = getContactGroup(c);
@@ -433,7 +434,7 @@ class SocialBackupManagerImpl extends ConversationClientImpl
 			Map<TransportId, TransportProperties> props =
 					getTransportProperties(txn, c.getId());
 			Shard shard = getRemoteShard(txn, contactGroup.getId());
-			contactData.add(new ContactData(c, props, shard));
+			contactData.add(new org.briarproject.briar.api.socialbackup.ContactData(c, props, shard));
 		}
 		return contactData;
 	}
@@ -513,7 +514,7 @@ class SocialBackupManagerImpl extends ConversationClientImpl
 			throw new DbException(e);
 		}
 	}
-	private void updateBackup(Transaction txn, List<ContactData> contactData)
+	private void updateBackup(Transaction txn, List<org.briarproject.briar.api.socialbackup.ContactData> contactData)
 			throws DbException {
 		BackupMetadata backupMetadata = requireNonNull(getBackupMetadata(txn));
 		int newVersion = backupMetadata.getVersion() + 1;

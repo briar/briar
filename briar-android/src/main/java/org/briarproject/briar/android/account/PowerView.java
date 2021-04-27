@@ -24,7 +24,7 @@ import static org.briarproject.briar.android.util.UiUtils.showOnboardingDialog;
 
 @UiThread
 @NotNullByDefault
-abstract class PowerView extends ConstraintLayout {
+public abstract class PowerView extends ConstraintLayout {
 
 	private final TextView textView;
 	private final ImageView checkImage;
@@ -156,7 +156,7 @@ abstract class PowerView extends ConstraintLayout {
 		};
 	}
 
-	interface OnCheckedChangedListener {
+	public interface OnCheckedChangedListener {
 		void onCheckedChanged();
 	}
 

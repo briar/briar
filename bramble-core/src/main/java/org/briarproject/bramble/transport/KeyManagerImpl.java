@@ -101,9 +101,9 @@ class KeyManagerImpl implements KeyManager, Service, EventListener {
 	}
 
 	@Override
-	public Map<TransportId, KeySetId> addRotationKeys(
-			Transaction txn, ContactId c, SecretKey rootKey, long timestamp,
-			boolean alice, boolean active) throws DbException {
+	public Map<TransportId, KeySetId> addRotationKeys(Transaction txn,
+			ContactId c, SecretKey rootKey, long timestamp, boolean alice,
+			boolean active) throws DbException {
 		Map<TransportId, KeySetId> ids = new HashMap<>();
 		for (Entry<TransportId, TransportKeyManager> e : managers.entrySet()) {
 			TransportId t = e.getKey();
@@ -112,6 +112,14 @@ class KeyManagerImpl implements KeyManager, Service, EventListener {
 					alice, active));
 		}
 		return ids;
+	}
+
+	@Override
+	public Map<TransportId, KeySetId> addRotationKeys(ContactId c,
+			SecretKey rootKey, long timestamp, boolean alice, boolean active)
+			throws DbException {
+		return db.transactionWithResult(false, txn ->
+				addRotationKeys(txn, c, rootKey, timestamp, alice, active));
 	}
 
 	@Override
@@ -137,7 +145,7 @@ class KeyManagerImpl implements KeyManager, Service, EventListener {
 			PendingContactId p, PublicKey theirPublicKey, KeyPair ourKeyPair)
 			throws DbException, GeneralSecurityException {
 		SecretKey staticMasterKey = transportCrypto
-					.deriveStaticMasterKey(theirPublicKey, ourKeyPair);
+				.deriveStaticMasterKey(theirPublicKey, ourKeyPair);
 		SecretKey rootKey =
 				transportCrypto.deriveHandshakeRootKey(staticMasterKey, true);
 		boolean alice = transportCrypto.isAlice(theirPublicKey, ourKeyPair);

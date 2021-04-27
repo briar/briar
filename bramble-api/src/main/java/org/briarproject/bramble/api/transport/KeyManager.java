@@ -36,6 +36,20 @@ public interface KeyManager {
 			boolean active) throws DbException;
 
 	/**
+	 * Derives and stores a set of rotation mode transport keys for
+	 * communicating with the given contact over each transport and returns the
+	 * key set IDs.
+	 * <p/>
+	 * {@link StreamContext StreamContexts} for the contact can be created
+	 * after this method has returned.
+	 *
+	 * @param alice True if the local party is Alice
+	 * @param active Whether the derived keys can be used for outgoing streams
+	 */
+	Map<TransportId, KeySetId> addRotationKeys(ContactId c, SecretKey rootKey,
+			long timestamp, boolean alice, boolean active) throws DbException;
+
+	/**
 	 * Informs the key manager that a new contact has been added. Derives and
 	 * stores a set of handshake mode transport keys for communicating with the
 	 * contact over each transport and returns the key set IDs.

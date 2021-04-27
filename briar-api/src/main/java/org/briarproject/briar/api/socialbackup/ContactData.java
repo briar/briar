@@ -1,10 +1,9 @@
-package org.briarproject.briar.socialbackup;
+package org.briarproject.briar.api.socialbackup;
 
 import org.briarproject.bramble.api.contact.Contact;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.plugin.TransportId;
 import org.briarproject.bramble.api.properties.TransportProperties;
-import org.briarproject.briar.api.socialbackup.Shard;
 
 import java.util.Map;
 
@@ -13,14 +12,14 @@ import javax.annotation.concurrent.Immutable;
 
 @Immutable
 @NotNullByDefault
-class ContactData {
+public class ContactData {
 
 	private final Contact contact;
 	private final Map<TransportId, TransportProperties> properties;
 	@Nullable
 	private final Shard shard;
 
-	ContactData(Contact contact,
+	public ContactData(Contact contact,
 			Map<TransportId, TransportProperties> properties,
 			@Nullable Shard shard) {
 		this.contact = contact;

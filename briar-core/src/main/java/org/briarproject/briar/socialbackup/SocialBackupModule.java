@@ -11,8 +11,10 @@ import org.briarproject.briar.api.conversation.ConversationManager;
 import org.briarproject.briar.api.socialbackup.SocialBackupExchangeManager;
 import org.briarproject.briar.api.socialbackup.SocialBackupManager;
 import org.briarproject.briar.api.socialbackup.recovery.CustodianTask;
+import org.briarproject.briar.api.socialbackup.recovery.RestoreAccount;
 import org.briarproject.briar.api.socialbackup.recovery.SecretOwnerTask;
 import org.briarproject.briar.socialbackup.recovery.CustodianTaskImpl;
+import org.briarproject.briar.socialbackup.recovery.RestoreAccountImpl;
 import org.briarproject.briar.socialbackup.recovery.SecretOwnerTaskImpl;
 
 import javax.inject.Inject;
@@ -118,5 +120,11 @@ public class SocialBackupModule {
 	@Provides
 	CustodianTask custodianTask(CustodianTaskImpl custodianTask) {
 		return custodianTask;
+	}
+
+	@Provides
+	@Singleton
+	RestoreAccount restoreAccount(RestoreAccountImpl restoreAccount) {
+		return restoreAccount;
 	}
 }

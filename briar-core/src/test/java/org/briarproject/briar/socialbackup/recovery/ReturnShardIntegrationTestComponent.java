@@ -2,6 +2,7 @@ package org.briarproject.briar.socialbackup.recovery;
 
 import org.briarproject.bramble.BrambleCoreIntegrationTestEagerSingletons;
 import org.briarproject.bramble.BrambleCoreModule;
+import org.briarproject.bramble.api.client.ClientHelper;
 import org.briarproject.bramble.api.connection.ConnectionManager;
 import org.briarproject.bramble.api.contact.ContactExchangeManager;
 import org.briarproject.bramble.api.contact.ContactManager;
@@ -10,6 +11,7 @@ import org.briarproject.bramble.api.identity.IdentityManager;
 import org.briarproject.bramble.api.lifecycle.IoExecutor;
 import org.briarproject.bramble.api.lifecycle.LifecycleManager;
 import org.briarproject.bramble.test.BrambleCoreIntegrationTestModule;
+import org.briarproject.briar.api.socialbackup.MessageEncoder;
 import org.briarproject.briar.api.socialbackup.recovery.CustodianTask;
 import org.briarproject.briar.api.socialbackup.recovery.SecretOwnerTask;
 import org.briarproject.briar.socialbackup.SocialBackupModule;
@@ -43,6 +45,8 @@ interface ReturnShardIntegrationTestComponent
 	Executor getIoExecutor();
 
 	LifecycleManager getLifecycleManager();
+
+	MessageEncoder getMessageEncoder();
 
 	SecretOwnerTask getSecretOwnerTask();
 

@@ -2,6 +2,7 @@ package org.briarproject.bramble.connection;
 
 import org.briarproject.bramble.api.connection.ConnectionRegistry;
 import org.briarproject.bramble.api.contact.ContactId;
+import org.briarproject.bramble.api.contact.HandshakeManager;
 import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.plugin.TransportId;
@@ -14,9 +15,11 @@ import org.briarproject.bramble.api.sync.SyncSessionFactory;
 import org.briarproject.bramble.api.transport.KeyManager;
 import org.briarproject.bramble.api.transport.StreamContext;
 import org.briarproject.bramble.api.transport.StreamReaderFactory;
+import org.briarproject.bramble.api.transport.StreamWriter;
 import org.briarproject.bramble.api.transport.StreamWriterFactory;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.security.SecureRandom;
 import java.util.concurrent.Executor;
 
@@ -28,21 +31,31 @@ import static org.briarproject.bramble.util.LogUtils.logException;
 class OutgoingDuplexSyncConnection extends DuplexSyncConnection
 		implements Runnable {
 
+	// FIXME: Exchange timestamp as part of handshake protocol?
+	private static final long TIMESTAMP = 1617235200; // 1 April 2021 00:00 UTC
+
 	private final SecureRandom secureRandom;
+	private final HandshakeManager handshakeManager;
 	private final ContactId contactId;
 
-	OutgoingDuplexSyncConnection(KeyManager keyManager,
+	OutgoingDuplexSyncConnection(
+			KeyManager keyManager,
 			ConnectionRegistry connectionRegistry,
 			StreamReaderFactory streamReaderFactory,
 			StreamWriterFactory streamWriterFactory,
 			SyncSessionFactory syncSessionFactory,
 			TransportPropertyManager transportPropertyManager,
-			Executor ioExecutor, SecureRandom secureRandom, ContactId contactId,
-			TransportId transportId, DuplexTransportConnection connection) {
+			Executor ioExecutor,
+			SecureRandom secureRandom,
+			HandshakeManager handshakeManager,
+			ContactId contactId,
+			TransportId transportId,
+			DuplexTransportConnection connection) {
 		super(keyManager, connectionRegistry, streamReaderFactory,
 				streamWriterFactory, syncSessionFactory,
 				transportPropertyManager, ioExecutor, transportId, connection);
 		this.secureRandom = secureRandom;
+		this.handshakeManager = handshakeManager;
 		this.contactId = contactId;
 	}
 
@@ -56,10 +69,22 @@ class OutgoingDuplexSyncConnection extends DuplexSyncConnection
 			return;
 		}
 		if (ctx.isHandshakeMode()) {
-			// TODO: Support handshake mode for contacts
-			LOG.warning("Cannot use handshake mode stream context");
-			onWriteError();
-			return;
+			if (!performHandshake(ctx)) {
+				LOG.warning("Handshake failed");
+				return;
+			}
+			// Allocate a rotation mode stream context
+			ctx = allocateStreamContext(contactId, transportId);
+			if (ctx == null) {
+				LOG.warning("Could not allocate stream context");
+				onWriteError();
+				return;
+			}
+			if (ctx.isHandshakeMode()) {
+				LOG.warning("Got handshake mode context after handshaking");
+				onWriteError();
+				return;
+			}
 		}
 		// Start the incoming session on another thread
 		Priority priority = generatePriority();
@@ -124,6 +149,57 @@ class OutgoingDuplexSyncConnection extends DuplexSyncConnection
 			onReadError();
 			connectionRegistry.unregisterConnection(contactId, transportId,
 					this, false, true);
+		}
+	}
+
+	private boolean performHandshake(StreamContext ctxOut) {
+		// Flush the output stream to send the outgoing stream header
+		StreamWriter out;
+		try {
+			out = streamWriterFactory.createStreamWriter(
+					writer.getOutputStream(), ctxOut);
+			out.getOutputStream().flush();
+		} catch (IOException e) {
+			logException(LOG, WARNING, e);
+			onWriteError();
+			return false;
+		}
+		// Read and recognise the tag
+		StreamContext ctxIn = recogniseTag(reader, transportId);
+		// Unrecognised tags are suspicious in this case
+		if (ctxIn == null) {
+			LOG.warning("Unrecognised tag for returning stream");
+			onReadError();
+			return false;
+		}
+		// Check that the stream comes from the expected contact
+		ContactId inContactId = ctxIn.getContactId();
+		if (contactId == null) {
+			LOG.warning("Expected contact tag, got rendezvous tag");
+			onReadError();
+			return false;
+		}
+		if (!inContactId.equals(contactId)) {
+			LOG.warning("Wrong contact ID for returning stream");
+			onReadError();
+			return false;
+		}
+		// TODO: Register the connection, close it if it's redundant
+		// Handshake and exchange contacts
+		try {
+			InputStream in = streamReaderFactory.createStreamReader(
+					reader.getInputStream(), ctxIn);
+			HandshakeManager.HandshakeResult result =
+					handshakeManager.handshake(contactId, in, out);
+			keyManager.addRotationKeys(contactId, result.getMasterKey(),
+					TIMESTAMP, result.isAlice(), true);
+			return true;
+		} catch (IOException | DbException e) {
+			logException(LOG, WARNING, e);
+			onWriteError();
+			return false;
+		} finally {
+			// TODO: Unregister the connection
 		}
 	}
 
