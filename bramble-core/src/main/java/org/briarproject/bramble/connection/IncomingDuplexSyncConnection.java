@@ -50,6 +50,7 @@ class IncomingDuplexSyncConnection extends DuplexSyncConnection
 
 	@Override
 	public void run() {
+		LOG.info("Running IncomingDuplexSyncConnection");
 		// Read and recognise the tag
 		StreamContext ctx = recogniseTag(reader, transportId);
 		if (ctx == null) {
@@ -127,6 +128,7 @@ class IncomingDuplexSyncConnection extends DuplexSyncConnection
 	}
 
 	private boolean performHandshake(StreamContext ctxIn, ContactId contactId) {
+		LOG.info("Performing handshake (Incoming)");
 		// Allocate the outgoing stream context
 		StreamContext ctxOut =
 				allocateStreamContext(contactId, transportId);
@@ -146,6 +148,7 @@ class IncomingDuplexSyncConnection extends DuplexSyncConnection
 					handshakeManager.handshake(contactId, in, out);
 			keyManager.addRotationKeys(contactId, result.getMasterKey(),
 					TIMESTAMP, result.isAlice(), true);
+			LOG.info("Rotation keys added");
 			return true;
 		} catch (IOException | DbException e) {
 			logException(LOG, WARNING, e);
