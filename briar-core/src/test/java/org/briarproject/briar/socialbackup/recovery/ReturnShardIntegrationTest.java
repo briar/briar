@@ -22,7 +22,6 @@ import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static junit.framework.TestCase.fail;
 import static org.briarproject.bramble.test.TestUtils.deleteTestDirectory;
 import static org.briarproject.bramble.test.TestUtils.getTestDirectory;
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 public class ReturnShardIntegrationTest extends BrambleTestCase {
