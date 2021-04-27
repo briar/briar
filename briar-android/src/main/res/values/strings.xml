@@ -175,6 +175,7 @@
 	<string name="menu_item_connect_via_bluetooth">Connect via Bluetooth</string>
 	<string name="dialog_title_connect_via_bluetooth">Connect via Bluetooth</string>
 	<string name="dialog_message_connect_via_bluetooth">Your contact needs to be nearby for this to work.\n\nYou and your contact should both press \"Start\" at the same time.</string>
+	<string name="toast_connect_via_bluetooth_already_discovering">Already trying to connect via Bluetooth</string>
 	<string name="toast_connect_via_bluetooth_not_discoverable">Cannot continue without Bluetooth</string>
 	<string name="toast_connect_via_bluetooth_no_location_permission">Cannot continue without location permission</string>
 	<string name="toast_connect_via_bluetooth_start">Connecting via Bluetooth…</string>

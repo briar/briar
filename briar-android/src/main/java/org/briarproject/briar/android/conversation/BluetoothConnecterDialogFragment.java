@@ -91,7 +91,7 @@ public class BluetoothConnecterDialogFragment extends DialogFragment {
 			return;
 		}
 		if (bluetoothConnecter.isDiscovering()) {
-			// TODO showToast(R.string.toast_connect_via_bluetooth_discovering);
+			showToast(R.string.toast_connect_via_bluetooth_already_discovering);
 			dismiss();
 		}
 	}

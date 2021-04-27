@@ -44,6 +44,7 @@ import org.briarproject.bramble.api.plugin.TransportId;
 import org.briarproject.bramble.api.plugin.duplex.DuplexTransportConnection;
 import org.briarproject.bramble.api.plugin.event.TransportStateEvent;
 import org.briarproject.bramble.api.system.AndroidExecutor;
+import org.briarproject.bramble.plugin.bluetooth.BluetoothPlugin;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.contact.add.nearby.AddContactState.ContactExchangeFinished;
 import org.briarproject.briar.android.contact.add.nearby.AddContactState.ContactExchangeResult.Error;
@@ -149,7 +150,9 @@ class AddNearbyContactViewModel extends AndroidViewModel
 	@Nullable
 	private final BluetoothAdapter bt;
 	@Nullable // UiThread
-	private Plugin wifiPlugin, bluetoothPlugin;
+	private Plugin wifiPlugin;
+	@Nullable // UiThread
+	private BluetoothPlugin bluetoothPlugin;
 
 	// UiThread
 	private BluetoothDecision bluetoothDecision = BluetoothDecision.UNKNOWN;
@@ -195,7 +198,8 @@ class AddNearbyContactViewModel extends AndroidViewModel
 		this.connectionManager = connectionManager;
 		bt = BluetoothAdapter.getDefaultAdapter();
 		wifiPlugin = pluginManager.getPlugin(LanTcpConstants.ID);
-		bluetoothPlugin = pluginManager.getPlugin(BluetoothConstants.ID);
+		bluetoothPlugin = (BluetoothPlugin) pluginManager
+				.getPlugin(BluetoothConstants.ID);
 		qrCodeDecoder = new QrCodeDecoder(androidExecutor, ioExecutor, this);
 		eventBus.addListener(this);
 		IntentFilter filter = new IntentFilter(ACTION_SCAN_MODE_CHANGED);
@@ -218,7 +222,8 @@ class AddNearbyContactViewModel extends AndroidViewModel
 	@UiThread
 	void resetPlugins() {
 		wifiPlugin = pluginManager.getPlugin(LanTcpConstants.ID);
-		bluetoothPlugin = pluginManager.getPlugin(BluetoothConstants.ID);
+		bluetoothPlugin = (BluetoothPlugin) pluginManager
+				.getPlugin(BluetoothConstants.ID);
 	}
 
 	@UiThread
@@ -373,6 +378,13 @@ class AddNearbyContactViewModel extends AndroidViewModel
 			resetPayloadFlags();
 			state.setValue(new AddContactState.Failed());
 		}
+	}
+
+	void stopDiscovery() {
+		if (!isBluetoothSupported() || !bluetoothPlugin.isDiscovering()) {
+			return;
+		}
+		bluetoothPlugin.stopDiscoverAndConnect();
 	}
 
 	@SuppressWarnings("StatementWithEmptyBody")
