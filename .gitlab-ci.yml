@@ -5,6 +5,15 @@ stages:
   - optional_tests
   - check_reproducibility
 
+workflow:
+  # when to create a CI pipeline
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+    - if: '$CI_COMMIT_BRANCH && $CI_OPEN_MERGE_REQUESTS'
+      when: never # avoids duplicate jobs for branch and MR
+    - if: '$CI_COMMIT_BRANCH'
+    - if: '$CI_COMMIT_TAG'
+
 .base-test:
   before_script:
     - set -e
