@@ -62,7 +62,7 @@ dependencyVerification {
         'javax.annotation:jsr250-api:1.0:jsr250-api-1.0.jar:a1a922d0d9b6d183ed3800dfac01d1e1eb159f0e8c6f94736931c1def54a941f',
         'javax.inject:javax.inject:1:javax.inject-1.jar:91c77044a50c481636c32d916fd89c9118a72195390452c81065080f957de7ff',
         'javax.xml.bind:jaxb-api:2.3.1:jaxb-api-2.3.1.jar:88b955a0df57880a26a74708bc34f74dcaf8ebf4e78843a28b50eae945732b06',
-        'junit:junit:4.12:junit-4.12.jar:59721f0805e223d84b90677887d9ff567dc534d7c502ca903c0c2b17f05c116a',
+        'junit:junit:4.13.1:junit-4.13.1.jar:c30719db974d6452793fe191b3638a5777005485bae145924044530ffa5f6122',
         'net.ltgt.gradle.incap:incap:0.2:incap-0.2.jar:b625b9806b0f1e4bc7a2e3457119488de3cd57ea20feedd513db070a573a4ffd',
         'net.sf.jopt-simple:jopt-simple:4.9:jopt-simple-4.9.jar:26c5856e954b5f864db76f13b86919b59c6eecf9fd930b96baa8884626baf2f5',
         'net.sf.kxml:kxml2:2.3.0:kxml2-2.3.0.jar:f264dd9f79a1fde10ce5ecc53221eff24be4c9331c830b7d52f2f08a7b633de2',

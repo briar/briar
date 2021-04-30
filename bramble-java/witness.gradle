@@ -16,7 +16,7 @@ dependencyVerification {
         'com.squareup:javapoet:1.11.1:javapoet-1.11.1.jar:9cbf2107be499ec6e95afd36b58e3ca122a24166cdd375732e51267d64058e90',
         'javax.annotation:jsr250-api:1.0:jsr250-api-1.0.jar:a1a922d0d9b6d183ed3800dfac01d1e1eb159f0e8c6f94736931c1def54a941f',
         'javax.inject:javax.inject:1:javax.inject-1.jar:91c77044a50c481636c32d916fd89c9118a72195390452c81065080f957de7ff',
-        'junit:junit:4.12:junit-4.12.jar:59721f0805e223d84b90677887d9ff567dc534d7c502ca903c0c2b17f05c116a',
+        'junit:junit:4.13.1:junit-4.13.1.jar:c30719db974d6452793fe191b3638a5777005485bae145924044530ffa5f6122',
         'net.java.dev.jna:jna-platform:4.5.2:jna-platform-4.5.2.jar:f1d00c167d8921c6e23c626ef9f1c3ae0be473c95c68ffa012bc7ae55a87e2d6',
         'net.java.dev.jna:jna:4.5.2:jna-4.5.2.jar:0c8eb7acf67261656d79005191debaba3b6bf5dd60a43735a245429381dbecff',
         'net.ltgt.gradle.incap:incap:0.2:incap-0.2.jar:b625b9806b0f1e4bc7a2e3457119488de3cd57ea20feedd513db070a573a4ffd',
