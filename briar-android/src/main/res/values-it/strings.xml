@@ -420,14 +420,12 @@
   <string name="blogs_rss_feeds_import_button">Importa</string>
   <string name="blogs_rss_feeds_import_hint">Inserire l\'URL dell\'RSS feed</string>
   <string name="blogs_rss_feeds_import_error">Ci dispiace! C\'è stato un errore nell\'importazione del tuo feed.</string>
-  <string name="blogs_rss_feeds_manage">Gestisci gli RSS Feed</string>
   <string name="blogs_rss_feeds_manage_imported">Importato:</string>
   <string name="blogs_rss_feeds_manage_author">Autore:</string>
   <string name="blogs_rss_feeds_manage_updated">Ultimo Aggiornamento:</string>
   <string name="blogs_rss_remove_feed">Rimuovi feed</string>
   <string name="blogs_rss_remove_feed_dialog_message">Sei sicuro di voler rimuovere questo feed?\n\nI post saranno rimossi dal tuo dispositivo ma non dai dispositivi delle altre persone.\n\nTutti i contatti con cui hai condiviso questo feed potrebbero smettere di ricevere aggiornamenti.</string>
   <string name="blogs_rss_remove_feed_ok">Rimuovi</string>
-  <string name="blogs_rss_feeds_manage_delete_error">Non è stato possibile cancellare il feed!</string>
   <string name="blogs_rss_feeds_manage_empty_state">Nessun feed RSS da mostrare\n\nClicca l\'icona + per importare un feed</string>
   <string name="blogs_rss_feeds_manage_error">C\'è stato un problema nel caricare i tuoi feeds. Per favore riprova fra poco.</string>
   <!--Settings Profile Picture-->

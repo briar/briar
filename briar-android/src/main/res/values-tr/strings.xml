@@ -454,14 +454,12 @@
   <string name="blogs_rss_feeds_import_button">İçe Aktar</string>
   <string name="blogs_rss_feeds_import_hint">RSS beslemesi URL\'sini girin</string>
   <string name="blogs_rss_feeds_import_error">Üzgünüz! RSS beslemeniz içe aktarılırken bir hata oluştu.</string>
-  <string name="blogs_rss_feeds_manage">RSS Beslemelerini Yönet</string>
   <string name="blogs_rss_feeds_manage_imported">İçe Aktarıldı:</string>
   <string name="blogs_rss_feeds_manage_author">Yazar:</string>
   <string name="blogs_rss_feeds_manage_updated">Son Güncelleme:</string>
   <string name="blogs_rss_remove_feed">Beslemeyi Kaldır</string>
   <string name="blogs_rss_remove_feed_dialog_message">Bu beslemeyi kaldırmak istediğinizden emin misiniz?\n\nGönderiler sizin aygıtınızdan değil, diğer insanların aygıtlarından kaldırılacaktır.\n\nBu beslemeyi paylaştığınız kişiler güncellemeleri alması durabilir.</string>
   <string name="blogs_rss_remove_feed_ok">Kaldır</string>
-  <string name="blogs_rss_feeds_manage_delete_error">Besleme silinemedi!</string>
   <string name="blogs_rss_feeds_manage_empty_state">Gösterilecek RSS beslemesi yok\n\nBir beslemeyi içe aktarmak için + simgesine dokunun</string>
   <string name="blogs_rss_feeds_manage_error">Beslemeleriniz yüklenirken bir hata oluştu. Lütfen daha sonra tekrar deneyin.</string>
   <!--Settings Profile Picture-->

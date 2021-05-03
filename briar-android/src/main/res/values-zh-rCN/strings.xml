@@ -444,14 +444,12 @@
   <string name="blogs_rss_feeds_import_button">导入</string>
   <string name="blogs_rss_feeds_import_hint">输入 RSS 订阅源链接</string>
   <string name="blogs_rss_feeds_import_error">抱歉！导入订阅源时发生错误。</string>
-  <string name="blogs_rss_feeds_manage">管理 RSS 订阅源</string>
   <string name="blogs_rss_feeds_manage_imported">已导入：</string>
   <string name="blogs_rss_feeds_manage_author">作者：</string>
   <string name="blogs_rss_feeds_manage_updated">最后更新于：</string>
   <string name="blogs_rss_remove_feed">删除订阅源</string>
   <string name="blogs_rss_remove_feed_dialog_message">确认要删除该订阅源吗？\n\n博文将从您的设备上移除，但仍将存在于其他人的设备。\n\n那些经过您的分享而订阅该源的联系人可能不会再收到更新。</string>
   <string name="blogs_rss_remove_feed_ok">删除</string>
-  <string name="blogs_rss_feeds_manage_delete_error">该订阅源无法被删除！</string>
   <string name="blogs_rss_feeds_manage_empty_state">尚无订阅源可供显示\n\n轻按 + 号导入一个订阅源</string>
   <string name="blogs_rss_feeds_manage_error">加载订阅源时出错。请稍候再试。</string>
   <!--Settings Profile Picture-->

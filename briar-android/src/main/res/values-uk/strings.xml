@@ -400,14 +400,12 @@
   <string name="blogs_rss_feeds_import_button">Імпортувати</string>
   <string name="blogs_rss_feeds_import_hint">Введіть URL-посилання RSS-стрічки</string>
   <string name="blogs_rss_feeds_import_error">Нам шкода! Виникла помилка під час імпорту вашої стрічки.</string>
-  <string name="blogs_rss_feeds_manage">Kерувати RSS-стрічками</string>
   <string name="blogs_rss_feeds_manage_imported">Імпортовано:</string>
   <string name="blogs_rss_feeds_manage_author">Автор:</string>
   <string name="blogs_rss_feeds_manage_updated">Востаннє оновлювалося:</string>
   <string name="blogs_rss_remove_feed">Видалити стрічку</string>
   <string name="blogs_rss_remove_feed_dialog_message">Ви впевнені, що хочете видалити цю стрічку?\n\nДописи буде видалено з вашого пристрою, але не з пристроїв інших осіб.\n\nБудь-хто з контактів, з якими ви поділилися цією стрічкою, можуть припинити отримувати оноволення.</string>
   <string name="blogs_rss_remove_feed_ok">Вилучити</string>
-  <string name="blogs_rss_feeds_manage_delete_error">Ця стрічка не може бути видалена!</string>
   <string name="blogs_rss_feeds_manage_empty_state">Немає RSS-стрічок до відображення\n\nНатисніть на символ \"+\", щоб імпортувати стрічку</string>
   <string name="blogs_rss_feeds_manage_error">Під час завантаження ваших стрічок виникла проблема. Будь ласка, спробуйте пізніше.</string>
   <!--Settings Profile Picture-->

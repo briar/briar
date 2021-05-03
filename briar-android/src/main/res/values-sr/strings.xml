@@ -340,7 +340,6 @@ Kontakti kojima ste podijelili ovaj blog će možda prestati da dobijaju novosti
   <string name="blogs_rss_feeds_import_button">Uvezi</string>
   <string name="blogs_rss_feeds_import_hint">Unesi URL od RSS kanala</string>
   <string name="blogs_rss_feeds_import_error">Žao nam je! Došlo je do greške pri unosu vašeg kanala.</string>
-  <string name="blogs_rss_feeds_manage">Rukujte RSS kanalima</string>
   <string name="blogs_rss_feeds_manage_imported">Uvezeno:</string>
   <string name="blogs_rss_feeds_manage_author">Autor:</string>
   <string name="blogs_rss_feeds_manage_updated">Zadnje ažuriranje:</string>
@@ -351,7 +350,6 @@ Postovi će biti uklonjeni sa vašeg uređaja ali ne is uređaja drugih ljudi.
 
 Kontakti kojima ste podijelili ovaj blog će možda prestati da dobijaju novosti.</string>
   <string name="blogs_rss_remove_feed_ok">Ukloni</string>
-  <string name="blogs_rss_feeds_manage_delete_error">Kanal nije bilo moguće ukloniti!</string>
   <string name="blogs_rss_feeds_manage_empty_state">Nema RSS kanala za prikazivanje
 
 Dotaknite + ikonu da uvezete kanal</string>

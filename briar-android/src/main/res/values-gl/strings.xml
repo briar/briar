@@ -454,14 +454,12 @@
   <string name="blogs_rss_feeds_import_button">Importar</string>
   <string name="blogs_rss_feeds_import_hint">Escribe o URL da fonte RSS</string>
   <string name="blogs_rss_feeds_import_error">Lamentámolo! Algo fallou ao importar a fonte.</string>
-  <string name="blogs_rss_feeds_manage">Xestionar Fontes RSS</string>
   <string name="blogs_rss_feeds_manage_imported">Importado:</string>
   <string name="blogs_rss_feeds_manage_author">Autor/a:</string>
   <string name="blogs_rss_feeds_manage_updated">Última actualización:</string>
   <string name="blogs_rss_remove_feed">Eliminar fonte</string>
   <string name="blogs_rss_remove_feed_dialog_message">Tes a certeza de querer eliminar esta fonte?\n\nAs entradas eliminaranse do teu dispositivo pero non dos dispositivos doutras persoas\n\nTodas as persoas coas que compartiches esta fonte poderían deixar de recibir actualizacións.</string>
   <string name="blogs_rss_remove_feed_ok">Eliminar</string>
-  <string name="blogs_rss_feeds_manage_delete_error">Non se puido eliminar a fonte!</string>
   <string name="blogs_rss_feeds_manage_empty_state">Sen fontes RSS que mostrar\n\nToque na icona + para importar unha fonte</string>
   <string name="blogs_rss_feeds_manage_error">Aconteceu un problema ao cargar as túas fontes. Por favor, inténtao máis tarde.</string>
   <!--Settings Profile Picture-->

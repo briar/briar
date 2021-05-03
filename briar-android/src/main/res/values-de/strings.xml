@@ -457,14 +457,12 @@
   <string name="blogs_rss_feeds_import_button">Importieren</string>
   <string name="blogs_rss_feeds_import_hint">URL des RSS-Feeds eingeben</string>
   <string name="blogs_rss_feeds_import_error">Es tut uns Leid! Es gab einen Fehler beim Importieren deines Feeds.</string>
-  <string name="blogs_rss_feeds_manage">RSS-Feeds verwalten</string>
   <string name="blogs_rss_feeds_manage_imported">Importiert:</string>
   <string name="blogs_rss_feeds_manage_author">Autor:</string>
   <string name="blogs_rss_feeds_manage_updated">Letzte Aktualisierung:</string>
   <string name="blogs_rss_remove_feed">Feed entfernen</string>
   <string name="blogs_rss_remove_feed_dialog_message">Bist du sicher, dass du diesen Feed löschen willst?\n\nBeiträge werden von deinem Gerät entfernt, aber nicht von den Geräten anderer Personen.\n\nAlle Kontakte, für die du diesen Feed freigegeben hast, können keine Updates mehr erhalten.</string>
   <string name="blogs_rss_remove_feed_ok">Aufheben</string>
-  <string name="blogs_rss_feeds_manage_delete_error">Der Feed konnte nicht gelöscht werden!</string>
   <string name="blogs_rss_feeds_manage_empty_state">Keine RSS-Feeds vorhanden\n\nTippe auf das + Symbol, um einen Feed zu importieren</string>
   <string name="blogs_rss_feeds_manage_error">Es gab ein Problem beim Laden deiner Feeds. Bitte versuche es später erneut.</string>
   <!--Settings Profile Picture-->

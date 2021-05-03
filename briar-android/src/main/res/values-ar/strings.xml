@@ -461,14 +461,12 @@
   <string name="blogs_rss_feeds_import_button">إستيراد</string>
   <string name="blogs_rss_feeds_import_hint">ادخال رابط تحديثات RSS</string>
   <string name="blogs_rss_feeds_import_error">معذرة! حدث خطأ في استيراد التحديثات.</string>
-  <string name="blogs_rss_feeds_manage">إدارة تحديثات RSS</string>
   <string name="blogs_rss_feeds_manage_imported">تم استيراد:</string>
   <string name="blogs_rss_feeds_manage_author">المؤلف/ة:</string>
   <string name="blogs_rss_feeds_manage_updated">آخر تحديث:</string>
   <string name="blogs_rss_remove_feed">ازالة الخلاصة</string>
   <string name="blogs_rss_remove_feed_dialog_message">هل أنت متأكد/ة من رغبتك في حذف هذه الخلاصة؟\n\nالمنشورات ستحذف من جهازك وليس من أجهزة الآخرين.\n\nأي جهة اتصال قمت/ي بمشاركة هذه الخلاصة معها قد لا تتمكن من استلام التحديثات.</string>
   <string name="blogs_rss_remove_feed_ok">حذف</string>
-  <string name="blogs_rss_feeds_manage_delete_error">لا يمكن حذف الخلاصة!</string>
   <string name="blogs_rss_feeds_manage_empty_state">لا خلاصات RSS للعرض\n\nالرجاء لمس علامة + لإستيراد خلاصة.</string>
   <string name="blogs_rss_feeds_manage_error">حدث خطأ في جلب خلاصاتك. الرجاء المحاولة لاحقًا.</string>
   <!--Settings Profile Picture-->
