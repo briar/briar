@@ -22,7 +22,9 @@
   <string name="setup_huawei_text">Bakstelėkite žemiau esantį mygtuką ir įsitikinkite, kad \"Apsaugotų programėlių\" rodinyje Briar yra apsaugota.</string>
   <string name="setup_huawei_button">Apsaugoti Briar</string>
   <string name="setup_huawei_help">Jei Briar nebus pridėta į apsaugotų programėlių sąrašą, ji negalės veikti fone.</string>
+  <string name="setup_huawei_app_launch_text">Bakstelėkite mygtuką žemiau, atverkite langą „Programų paleidimas (angl. App launch)“ ir įsitikinkite, kad Briar yra nustatyta į „Tvarkyti rankiniu būdu (angl. Manage manually)“.</string>
   <string name="setup_huawei_app_launch_button">Atverti akumuliatoriaus nustatymus</string>
+  <string name="setup_huawei_app_launch_help">Jeigu „Programų paleidimo (angl. App launch)“ lange Briar nėra nustatyta į „Tvarkyti rankiniu būdu (angl. Manage manually)“, tuomet programėlė negalės veikti fone.</string>
   <string name="warning_dozed">%s nepavyko pasileisti fone</string>
   <!--Login-->
   <string name="enter_password">Slaptažodis</string>
@@ -170,6 +172,7 @@
   <string name="menu_item_connect_via_bluetooth">Prisijungti per Bluetooth</string>
   <string name="dialog_title_connect_via_bluetooth">Prisijungti per Bluetooth</string>
   <string name="dialog_message_connect_via_bluetooth">Norint, kad tai suveiktų, jūsų adresatas privalo būti šalia jūsų.\n\nJūs ir jūsų adresatas abu vienu metu turėtumėte paspausti „Pradėti“.</string>
+  <string name="toast_connect_via_bluetooth_already_discovering">Jau bandoma prisijungti per Bluetooth</string>
   <string name="toast_connect_via_bluetooth_not_discoverable">Nepavyksta tęsti be Bluetooth</string>
   <string name="toast_connect_via_bluetooth_no_location_permission">Nepavyksta tęsti be įrenginio vietovės leidimo</string>
   <string name="toast_connect_via_bluetooth_start">Jungiamasi per Bluetooth…</string>

@@ -22,6 +22,9 @@
   <string name="setup_huawei_text">အောက်ပါခလုတ်ကိုနှိပ်၍ \"ကာကွယ်မှုပေးထားသောအက်ပ်များ\" စခရင်တွင် Briar ကို ကာကွယ်ထားကြောင်း သေချာစေပါ။</string>
   <string name="setup_huawei_button">Briar ကို ကာကွယ်မည်</string>
   <string name="setup_huawei_help">ကာကွယ်မှုပေးထားသောအက်ပ်များစာရင်းတွင် ထည့်မထားလျှင် Briar ကို နောက်ကွယ်တွင် ဖွင့်ထားနိုင်မည်မဟုတ်ပါ။</string>
+  <string name="setup_huawei_app_launch_text">အောက်က ခလုတ်ကို နှိပ်၍ \"အပ္ပလီကေးရှင်း ဖွင့်ရန်\" စကင်ရင်ကို ဖွင့်ပါ၊ ပြီးလျှင် Briar ကို \"ကိုယ်တိုင်စီမံမယ်\" လို့ သတ်မှတ်ပါ။</string>
+  <string name="setup_huawei_app_launch_button">ဘက်ထရီအပြင်အဆင်များကို ဖွင့်ပါ</string>
+  <string name="setup_huawei_app_launch_help">Briar ကို \"အပ္ပလီကေးရှင်း ဖွင့်ရန်\" စကင်ရင်ပေါ်တွင် \"ကိုယ်တိုင်စီမံမယ်\" လို့မသတ်မှတ်ထားလျှင် နောက်ခံတွင် ၎င်းကို လည်ပတ်၍ မရနိုင်ပါ။</string>
   <string name="warning_dozed">%s ကို နောက်ကွယ်တွင် မဖွင့်ထားနိုင်ပါ</string>
   <!--Login-->
   <string name="enter_password">စကားဝှက်</string>
@@ -154,6 +157,7 @@
   <string name="menu_item_connect_via_bluetooth">ဘလူးတုသ် နှင့် ချိတ်မယ်</string>
   <string name="dialog_title_connect_via_bluetooth">ဘလူးတုသ် နှင့် ချိတ်မယ်</string>
   <string name="dialog_message_connect_via_bluetooth">လုပ်ဆောင်ချက် အောင်မြင်နိုင်ရန် သင်၏ အဆက်အသွယ်သည် အနီးအနားတွင်ရှိရပါမည်။ \n\n သင် နှင့် သင်၏ အဆက်အသွယ် နှစ်ဦးစလုံးသည် \"စတင်ရန်\" ကို တစ်ပြိုင်တည်း နှိပ်ရပါမည်။</string>
+  <string name="toast_connect_via_bluetooth_already_discovering">ဘလူးတုသ် နှင့် ချိတ်ဆက်ရန် ကြိုးစားနေပါသည်</string>
   <string name="toast_connect_via_bluetooth_not_discoverable">ဘလူးတုသ် မပါဘဲ ဆက်လက်မလုပ်ဆောင်နိုင်ပါ</string>
   <string name="toast_connect_via_bluetooth_no_location_permission">တည်နေရာသုံးခွင့် မပါဘဲ ဆက်လက်မလုပ်ဆောင်နိုင်ပါ</string>
   <string name="toast_connect_via_bluetooth_start">ဘလူးတုသ် နှင့် ချိတ်ဆက်နေသည်...</string>

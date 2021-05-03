@@ -24,6 +24,9 @@
   <string name="setup_huawei_text">لطفا روی دکمه زیر کلیک کنید و مطمئن شوید که از Briar (برایر) در صفحه \"برنامه های محافظت شده\" محافظت می شود.</string>
   <string name="setup_huawei_button">حفاظت از Briar (برایر)</string>
   <string name="setup_huawei_help">اگر Briar (برایر) به فهرست برنامه های محافظت شده اضافه نشده، نمی تواند در پس زمینه مشغول به کار باشد.</string>
+  <string name="setup_huawei_app_launch_text">لطفا روی دکمه زیر زده، صفحه‌ی \"راه اندازی برنامه\" را باز کرده و از این که برایر (Briar) بر روی \"مدیریت دستی\" تنظیم شده باشد، اطمینان حاصل کنید.</string>
+  <string name="setup_huawei_app_launch_button">باز کردن تنظیمات باتری</string>
+  <string name="setup_huawei_app_launch_help">اگر در صفحه \"راه اندازی برنامه\"، برایر (Briar) بر روی گزینه \"مدیریت دستی\" تنظیم نشده باشد، برنامه قادر به فعالیت در پس‌زمینه نخواهد بود.</string>
   <string name="warning_dozed">ناتوانی %s برای اجراء در پس زمینه</string>
   <!--Login-->
   <string name="enter_password">گذرواژه</string>
@@ -165,6 +168,7 @@
   <string name="menu_item_connect_via_bluetooth">اتصال از طریق بلوتوث</string>
   <string name="dialog_title_connect_via_bluetooth">اتصال از طریق بلوتوث</string>
   <string name="dialog_message_connect_via_bluetooth">برای امکان این عملکرد، مخاطب شما باید نزدیک باشد. \n\n شما و مخاطبتان باید همزمان گزینه‌ی \"شروع\" را بفشارید.</string>
+  <string name="toast_connect_via_bluetooth_already_discovering">در حال تلاش برای اتصال از طریق بلوتوث</string>
   <string name="toast_connect_via_bluetooth_not_discoverable">امکان ادامه بدون بلوتوث وجود ندارد</string>
   <string name="toast_connect_via_bluetooth_no_location_permission">امکان ادامه بدون اجازه مکان‌یابی وجود ندارد</string>
   <string name="toast_connect_via_bluetooth_start">در حال اتصال از طریق بلوتوث</string>

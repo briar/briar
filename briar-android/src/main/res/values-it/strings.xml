@@ -22,6 +22,9 @@
   <string name="setup_huawei_text">Premi il pulsante qua sotto e assicurati che Briar sia protetto nella schermata \"App protette\"</string>
   <string name="setup_huawei_button">Proteggi Briar</string>
   <string name="setup_huawei_help">Se Briar non viene aggiunto nell\'elenco di app protette, non potrà funzionare in background.</string>
+  <string name="setup_huawei_app_launch_text">Tocca il pulsante sotto, apri la schermata \"Esecuzione app\" e assicurati che Briar sia su \"Gestisci manualmente\".</string>
+  <string name="setup_huawei_app_launch_button">Apri impostazioni batteria</string>
+  <string name="setup_huawei_app_launch_help">Se Briar non è su \"Gestisci manualmente\" nella schermata \"Esecuzione app\", non potrà funzionare in secondo piano.</string>
   <string name="warning_dozed">%s non ha potuto funzionare in background</string>
   <!--Login-->
   <string name="enter_password">Password</string>
@@ -130,7 +133,7 @@
   <string name="allow">Abilita</string>
   <string name="open">Apri</string>
   <string name="change">Cambia</string>
-  <string name="start">Avvia</string>
+  <string name="start">Inizia</string>
   <string name="no_data">Nessun dato</string>
   <string name="ellipsis">...</string>
   <string name="text_too_long">Il testo inserito è troppo lungo</string>
@@ -146,6 +149,8 @@
   <string name="date_no_private_messages">Nessun messaggio.</string>
   <string name="no_private_messages">Nessun messaggio da mostrare</string>
   <string name="message_hint">Nuovo messaggio</string>
+  <string name="message_hint_auto_delete">Nuovo messaggio dissolvente</string>
+  <string name="message_error">Errore nell\'invio del messaggio</string>
   <string name="image_caption_hint">Aggiungi una didascalia (facoltativo)</string>
   <string name="image_attach">Allega immagine</string>
   <string name="image_attach_error">Impossibile allegare l\'immagine/i</string>
@@ -153,12 +158,41 @@
   <string name="image_attach_error_invalid_mime_type">Formato immagine non supportato: %s</string>
   <string name="set_contact_alias">Cambia il nome del contatto</string>
   <string name="set_contact_alias_hint">Nome contatto</string>
+  <string name="menu_item_disappearing_messages">Messaggi dissolventi</string>
   <string name="menu_item_connect_via_bluetooth">Connessione attraverso Bluetooth</string>
   <string name="dialog_title_connect_via_bluetooth">Connessione attraverso Bluetooth</string>
+  <string name="dialog_message_connect_via_bluetooth">Per funzionare, il tuo contatto deve essere nelle vicinanze.\n\nDovreste entrambi premere \"Inizia\" nello stesso momento.</string>
+  <string name="toast_connect_via_bluetooth_already_discovering">Si sta già tentanto di connettersi via Bluetooth</string>
+  <string name="toast_connect_via_bluetooth_not_discoverable">Impossibile continuare senza Bluetooth</string>
+  <string name="toast_connect_via_bluetooth_no_location_permission">Impossibile continuare senza l\'autorizzazione per la geolocalizzazione</string>
+  <string name="toast_connect_via_bluetooth_start">Connessione via Bluetooth…</string>
+  <string name="toast_connect_via_bluetooth_success">Connessione via Bluetooth riuscita</string>
+  <string name="toast_connect_via_bluetooth_error">Connessione via Bluetooth fallita</string>
   <!--The first placeholder will show a duration like "7 days". The second placeholder at the end will add "Tap to learn more."-->
+  <string name="auto_delete_msg_you_enabled">I tuoi messaggi spariranno dopo %1$s. %2$s</string>
   <!--The placeholder at the end will add "Tap to learn more."-->
+  <string name="auto_delete_msg_you_disabled">I tuoi messaggi non spariranno. %1$s</string>
   <!--The first placeholder will show a contact's name. The second placeholder will show a duration like "7 days". The third placeholder at the end will add "Tap to learn more."-->
+  <string name="auto_delete_msg_contact_enabled">I messaggi di %1$s spariranno dopo %2$s. %3$s</string>
+  <plurals name="duration_minutes">
+    <item quantity="one">%d minuto</item>
+    <item quantity="other">%d minuti</item>
+  </plurals>
+  <plurals name="duration_hours">
+    <item quantity="one">%d ora</item>
+    <item quantity="other">%d ore</item>
+  </plurals>
+  <plurals name="duration_days">
+    <item quantity="one">%d giorno</item>
+    <item quantity="other">%d giorni</item>
+  </plurals>
   <!--The first placeholder will show a contact's name. The second placeholder at the end will add "Tap to learn more."-->
+  <string name="auto_delete_msg_contact_disabled">I messaggi di %1$s non spariranno. %2$s</string>
+  <string name="tap_to_learn_more">Tocca per saperne di più.</string>
+  <string name="auto_delete_changed_warning_title">Messaggi dissolventi cambiati</string>
+  <string name="auto_delete_changed_warning_message_enabled">Dato che hai iniziato a comporre il messaggio, i messaggi dissolventi sono stati attivati.</string>
+  <string name="auto_delete_changed_warning_message_disabled">Dato che hai iniziato a comporre il messaggio, i messaggi dissolventi sono stati disattivati.</string>
+  <string name="auto_delete_changed_warning_send">Invia comunque</string>
   <string name="delete_all_messages">Elimina tutti i messaggi</string>
   <string name="dialog_title_delete_all_messages">Conferma l\'eliminazione dei messaggi</string>
   <string name="dialog_message_delete_all_messages">Sei sicuro di voler eliminare tutti i messaggi?</string>
@@ -277,6 +311,7 @@
   <string name="introduction_response_accepted_sent">Hai accettato l\'introduzione a %1$s.</string>
   <string name="introduction_response_accepted_sent_info">Prima che %1$s venga aggiunto ai tuoi contatti, dovranno anche loro accettare l\'introduzione. Questo potrebbe richiedere un po\' di tempo.</string>
   <string name="introduction_response_declined_sent">Hai declinato l\'introduzione a %1$s.</string>
+  <string name="introduction_response_declined_auto">L\'introduzione a %1$s è stata rifiutata automaticamente.</string>
   <string name="introduction_response_accepted_received">%1$s ha accettato l\'introduzione a %2$s.</string>
   <string name="introduction_response_declined_received">%1$s ha declinato l\'introduzione a %2$s.</string>
   <string name="introduction_response_declined_received_by_introducee">%1$s dice che %2$s ha declinato l\'introduzione.</string>
@@ -323,6 +358,7 @@
   </plurals>
   <string name="groups_invitations_response_accepted_sent">Hai accettato l\'invito al gruppo da %s.</string>
   <string name="groups_invitations_response_declined_sent">Hai rifiutato l\'invito al gruppo da %s.</string>
+  <string name="groups_invitations_response_declined_auto">L\'invito di %s al gruppo è stato rifiutato automaticamente.</string>
   <string name="groups_invitations_response_accepted_received">%s ha accettato l\'invito al gruppo.</string>
   <string name="groups_invitations_response_declined_received">%s ha rifiutato l\'invito al gruppo.</string>
   <string name="sharing_status_groups">Solo il creatore può invitare nuovi membri nel gruppo. Sotto ci sono i membri correnti del gruppo.</string>
@@ -373,6 +409,7 @@
   <string name="forum_invitation_already_sharing">Già in condivisione</string>
   <string name="forum_invitation_response_accepted_sent">Hai accettato l\'invito al forum da %s</string>
   <string name="forum_invitation_response_declined_sent">Hai declinato l\'invito al forum da %s</string>
+  <string name="forum_invitation_response_declined_auto">L\'invito di %s al forum è stato rifiutato automaticamente.</string>
   <string name="forum_invitation_response_accepted_received">%s ha accettato il tuo invito al forum.</string>
   <string name="forum_invitation_response_declined_received">%s ha declinato il tuo invito al forum.</string>
   <string name="sharing_status">Stato Condivisione</string>
@@ -407,6 +444,7 @@
   <string name="blogs_sharing_snackbar">Blog condiviso con i contatti selezionati</string>
   <string name="blogs_sharing_response_accepted_sent">Hai accettato l\'invito al blog da %s.</string>
   <string name="blogs_sharing_response_declined_sent">Hai declinato l\'invito al blog da %s.</string>
+  <string name="blogs_sharing_response_declined_auto">L\'invito di %s al blog è stato rifiutato automaticamente.</string>
   <string name="blogs_sharing_response_accepted_received">%s ha accettato l\'invito al blog.</string>
   <string name="blogs_sharing_response_declined_received">%s ha declinato l\'invito al blog.</string>
   <string name="blogs_sharing_invitation_received">%1$s ha condiviso il blog \"%2$s\" con te.</string>
@@ -521,7 +559,18 @@
   <string name="choose_ringtone_title">Scegli suoneria</string>
   <string name="cannot_load_ringtone">Impossibile caricare la suoneria</string>
   <!--Conversation Settings-->
+  <string name="disappearing_messages_title">Messaggi dissolventi</string>
+  <string name="disappearing_messages_explanation_long">L\'attivazione di questa impostazione farà sparire
+		automaticamente i nuovi messaggi di questa conversazione dopo 7\u00A0giorni.
+		\n\nIl conto alla rovescia per la copia del messaggio del mittente  inizia dopo la sua consegna.
+		Il conto alla rovescia per il destinatario inizia dopo la lettura del messaggio.
+		\n\nI messaggi che spariranno sono contrassegnati da un\'icona di una bomba.
+		\n\nTieni presente che i destinatari possono comunque fare copie dei messaggi che invii.
+		\n\nSe cambi questa impostazione, verrà applicata ai tuoi nuovi messaggi immediatamente e ai messaggi
+		del tuo contatto una volta che riceve il tuo prossimo messaggio.
+		Anche il tuo contatto può cambiare questa impostazioni per entrambe le parti.</string>
   <string name="learn_more">Per saperne di più</string>
+  <string name="disappearing_messages_summary">Fai sparire automaticamente i messaggi futuri di questa conversazione dopo 7\u00A0giorni.</string>
   <!--Settings Feedback-->
   <string name="send_feedback">Invia feedback</string>
   <!--Link Warning-->
@@ -575,6 +624,9 @@
   <string name="permission_camera_location_request_body">Per scansionare il codice QR, Briar ha bisogno di accedere alla fotocamera.\n\nPer trovare dispositivi Bluetooth, Briar ha bisogno di accedere alla tua posizione.\n\nBriar non memorizza la tua posizione, nè la condivide con terzi.</string>
   <string name="permission_camera_denied_body">Hai negato l\'accesso alla fotocamera, ma questa serve per aggiungere i contatti.\n\nConsidera la possibilità di concedere l\'accesso.</string>
   <string name="permission_location_denied_body">Hai negato l\'accesso alla tua posizione, ma Briar ha bisogno di questa autorizzazione per trovare i dispositivi Bluetooth.\n\nConsidera la possibilità di concedere l\'accesso.</string>
+  <string name="permission_location_setting_title">Impostazioni di posizione</string>
+  <string name="permission_location_setting_body">La geolocalizzazione del tuo dispositivo deve essere attiva per trovare altri dispositivi via Bluetooth. Attivala per continuare. Puoi disattivarla di nuovo in seguito.</string>
+  <string name="permission_location_setting_button">Attiva geolocalizzazione</string>
   <string name="qr_code">Codice QR</string>
   <string name="show_qr_code_fullscreen">Mostra codice QR a tutto schermo</string>
   <!--App Locking-->

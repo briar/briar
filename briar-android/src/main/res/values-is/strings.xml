@@ -22,6 +22,9 @@
   <string name="setup_huawei_text">Ýttu á hnappinn hér fyrir neðan og gakktu úr skugga um að Briar sé varið á skjánum \"Varin forrit\".</string>
   <string name="setup_huawei_button">Verja Briar</string>
   <string name="setup_huawei_help">Ef Briar er ekki bætt á listann yfir varin forrit, getur það ekki keyrt í bakgrunni.</string>
+  <string name="setup_huawei_app_launch_text">Ýttu á hnappinn hér fyrir neðan, opnaðu \"Ræsing forrits\" skjáinn og gakktu úr skugga um að Briar sé stillt á \"Stýra handvirkt\".</string>
+  <string name="setup_huawei_app_launch_button">Opna rafhlöðustillingar</string>
+  <string name="setup_huawei_app_launch_help">Ef Briar er ekki stillt á \"Stýra handvirkt\" í \"Ræsing forrits\" skjánum, mun það ekki geta keyrt í bakgrunni.</string>
   <string name="warning_dozed">%s gat ekki keyrt í bakgrunni</string>
   <!--Login-->
   <string name="enter_password">Lykilorð</string>
@@ -159,6 +162,7 @@
   <string name="menu_item_connect_via_bluetooth">Tengjast í gegnum Bluetooth</string>
   <string name="dialog_title_connect_via_bluetooth">Tengjast í gegnum Bluetooth</string>
   <string name="dialog_message_connect_via_bluetooth">Tengiliðurinn þinn þarf að vera nálægt til að þetta virki.\n\nÞú og tengiliðurinn ættuð bæði að ýta á \"Byrja\" á sama tíma.</string>
+  <string name="toast_connect_via_bluetooth_already_discovering">Þegar að reyna að tengjast í gegnum Bluetooth</string>
   <string name="toast_connect_via_bluetooth_not_discoverable">Get ekki haldið áfram án Bluetooth</string>
   <string name="toast_connect_via_bluetooth_no_location_permission">Get ekki haldið áfram án heimildar til að nota staðsetningu</string>
   <string name="toast_connect_via_bluetooth_start">Tengist í gegnum Bluetooth…</string>

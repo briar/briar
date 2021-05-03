@@ -162,6 +162,7 @@
   <string name="menu_item_connect_via_bluetooth">Lidhu përmes Bluetooth-i</string>
   <string name="dialog_title_connect_via_bluetooth">Lidhu përmes Bluetooth-i</string>
   <string name="dialog_message_connect_via_bluetooth">Është e nevojshme që kontakti juaj të jetë atypari, që kjo të funksionojë.\n\nJu dhe kontakti juaj duhet që të shtypin “Fillo” në të njëjtën kohë.</string>
+  <string name="toast_connect_via_bluetooth_already_discovering">Po provohet tashmë të lidhet përmes Bluetooth-i</string>
   <string name="toast_connect_via_bluetooth_not_discoverable">S’mund të vazhdohet pa Bluetooth</string>
   <string name="toast_connect_via_bluetooth_no_location_permission">S’mund të vazhdohet pa leje vendore</string>
   <string name="toast_connect_via_bluetooth_start">Po lidhet me Bluetooth…</string>

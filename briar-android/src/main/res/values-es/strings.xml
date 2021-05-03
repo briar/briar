@@ -162,6 +162,7 @@
   <string name="menu_item_connect_via_bluetooth">Conectar mediante Bluetooth</string>
   <string name="dialog_title_connect_via_bluetooth">Conectar mediante Bluetooth</string>
   <string name="dialog_message_connect_via_bluetooth">Tu contacto necesita estar cerca para que esto funcione.\n\nTú y tu contacto deberían presionar \"Iniciar\" ambos al mismo tiempo.</string>
+  <string name="toast_connect_via_bluetooth_already_discovering">Ya se está intentando conectar mediante Bluetooth</string>
   <string name="toast_connect_via_bluetooth_not_discoverable">No se puede continuar sin Bluetooth</string>
   <string name="toast_connect_via_bluetooth_no_location_permission">No se puede continuar sin permiso de ubicación</string>
   <string name="toast_connect_via_bluetooth_start">Conectar mediante Bluetooth...</string>

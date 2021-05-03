@@ -157,6 +157,7 @@
   <string name="menu_item_connect_via_bluetooth">通过蓝牙连接</string>
   <string name="dialog_title_connect_via_bluetooth">通过蓝牙连接</string>
   <string name="dialog_message_connect_via_bluetooth">你的联络人必须在附近才能起作用。\n\n你和你的联系人应该同时按“开始”。</string>
+  <string name="toast_connect_via_bluetooth_already_discovering">已在尝试通过蓝牙进行连接</string>
   <string name="toast_connect_via_bluetooth_not_discoverable">没有蓝牙无法继续 </string>
   <string name="toast_connect_via_bluetooth_no_location_permission">没有位置权限不能继续 </string>
   <string name="toast_connect_via_bluetooth_start">正通过蓝牙连接 …</string>

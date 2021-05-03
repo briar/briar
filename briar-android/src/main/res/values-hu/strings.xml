@@ -22,6 +22,9 @@
   <string name="setup_huawei_text">Kérjük érintse meg a gombot alább és ellenőrizze, hogy a Briar védett, a \"Védett alkalmazások\" képernyőn.</string>
   <string name="setup_huawei_button">A Briar védelme</string>
   <string name="setup_huawei_help">Ha Briar nincs hozzáadva a védett alkalmazások listájához, akkor nem képes futni a háttérben.</string>
+  <string name="setup_huawei_app_launch_text">Kérjük érintsd meg a gombot alább, hogy megnyitsd az \"App indítás\" képernyőt és ellenőrizd, hogy a Briar beállított  \"Kézi kezelés\"-re.</string>
+  <string name="setup_huawei_app_launch_button">Az akkumulátor beállítások megnyitása</string>
+  <string name="setup_huawei_app_launch_help">Ha a Briar nincs beállítva \"Kézi kezelés\"-re az \"App indítás\" képernyőn, nem fog tudni futni a háttérben.</string>
   <string name="warning_dozed">%s nem tud futni a háttérben</string>
   <!--Login-->
   <string name="enter_password">Jelszó</string>
@@ -159,6 +162,7 @@
   <string name="menu_item_connect_via_bluetooth">Csatlakozás bluetooth-on keresztül</string>
   <string name="dialog_title_connect_via_bluetooth">Csatlakozás bluetooth-on keresztül</string>
   <string name="dialog_message_connect_via_bluetooth">A kapcsolatai közel kell legyenek, hogy ez működjön.\n\n Ön és a kapcsolata egyaránt meg kell nyomja a \"Start\" gombot egyidőben.</string>
+  <string name="toast_connect_via_bluetooth_already_discovering">Már próbálkozik csatlakozni Bluetooth-on</string>
   <string name="toast_connect_via_bluetooth_not_discoverable">Nem folytatható Bluetooth nélkül</string>
   <string name="toast_connect_via_bluetooth_no_location_permission">Nem folytatható hely engedélyek nélkül</string>
   <string name="toast_connect_via_bluetooth_start">Csatlakozás Bluetooth-on...</string>

@@ -22,6 +22,9 @@
   <string name="setup_huawei_text">Lütfen aşağıdaki düğmeye dokunun ve Briar\'ın \"Korunan Uygulamalar\" ekranında korunduğundan emin olun.</string>
   <string name="setup_huawei_button">Briar\'ı Koru</string>
   <string name="setup_huawei_help">Briar korunan uygulamalar listesine eklenmezse, arka planda çalışamaz.</string>
+  <string name="setup_huawei_app_launch_text">Lütfen aşağıdaki düğmeye dokunun, \"Uygulama başlatma\" ekranını açın ve Briar için \"Manuel olarak yönet\" şeklinde ayarlanmış olduğundan emin olun.</string>
+  <string name="setup_huawei_app_launch_button">Pil Ayarlarını Aç</string>
+  <string name="setup_huawei_app_launch_help">Eğer Briar, \"Uygulama Başlatma\" ekranında \"Manuel olarak yönet\" olarak ayarlanmamışsa, arka planda çalışmayabilir.</string>
   <string name="warning_dozed">%s arka planda çalışamadı</string>
   <!--Login-->
   <string name="enter_password">Parola</string>
@@ -159,6 +162,7 @@
   <string name="menu_item_connect_via_bluetooth">Bluetooth ile Bağlan</string>
   <string name="dialog_title_connect_via_bluetooth">Bluetooth ile Bağlan</string>
   <string name="dialog_message_connect_via_bluetooth">Bunun çalışması için kişinin yakınlarda olması gerekiyor.\n\nSizin ve kişinin \"Başlat\" düğmesine aynı anda basması gerekiyor.</string>
+  <string name="toast_connect_via_bluetooth_already_discovering">Zaten Bluetooth\'a bağlanmaya çalışıyor</string>
   <string name="toast_connect_via_bluetooth_not_discoverable">Bluetooth olmadan devam edilemez</string>
   <string name="toast_connect_via_bluetooth_no_location_permission">Konum izni olmadan devam edilemez</string>
   <string name="toast_connect_via_bluetooth_start">Bluetooth ile bağlanılıyor…</string>
