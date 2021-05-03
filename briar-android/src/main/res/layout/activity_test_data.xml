@@ -192,6 +192,19 @@
 			app:layout_constraintTop_toBottomOf="@+id/textViewForumMessages" />
 
 		<Button
+			android:id="@+id/buttonZeroValues"
+			style="@style/BriarButton"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_marginTop="15dp"
+			android:textSize="@dimen/text_size_tiny"
+			android:text="Zero values"
+			app:layout_constraintEnd_toEndOf="parent"
+			app:layout_constraintStart_toStartOf="parent"
+			app:layout_constraintTop_toBottomOf="@+id/seekBarForumMessages"
+			app:layout_constraintVertical_bias="1.0" />
+
+		<Button
 			android:id="@+id/buttonCreateTestData"
 			style="@style/BriarButton"
 			android:layout_width="wrap_content"
@@ -201,7 +214,7 @@
 			app:layout_constraintBottom_toBottomOf="parent"
 			app:layout_constraintEnd_toEndOf="parent"
 			app:layout_constraintStart_toStartOf="parent"
-			app:layout_constraintTop_toBottomOf="@+id/seekBarForumMessages"
+			app:layout_constraintTop_toBottomOf="@+id/buttonZeroValues"
 			app:layout_constraintVertical_bias="1.0" />
 	</androidx.constraintlayout.widget.ConstraintLayout>
 
