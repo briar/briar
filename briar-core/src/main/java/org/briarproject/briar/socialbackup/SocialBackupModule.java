@@ -8,7 +8,6 @@ import org.briarproject.bramble.api.sync.validation.ValidationManager;
 import org.briarproject.bramble.api.system.Clock;
 import org.briarproject.bramble.api.versioning.ClientVersioningManager;
 import org.briarproject.briar.api.conversation.ConversationManager;
-import org.briarproject.briar.api.socialbackup.SocialBackupExchangeManager;
 import org.briarproject.briar.api.socialbackup.SocialBackupManager;
 import org.briarproject.briar.api.socialbackup.recovery.CustodianTask;
 import org.briarproject.briar.api.socialbackup.recovery.RestoreAccount;
@@ -104,12 +103,6 @@ public class SocialBackupModule {
 	org.briarproject.briar.api.socialbackup.MessageParser messageParser(
 			MessageParserImpl messageParser) {
 		return messageParser;
-	}
-
-	@Provides
-	SocialBackupExchangeManager socialBackupExchangeManager(
-			SocialBackupExchangeManagerImpl socialBackupExchangeManager) {
-		return socialBackupExchangeManager;
 	}
 
 	@Provides
