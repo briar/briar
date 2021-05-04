@@ -81,7 +81,10 @@ public class OwnerReturnShardActivity extends BaseActivity
 			if (success) onSuccessDismissed();
 		});
 		viewModel.getErrorTryAgain().observeEvent(this, tryAgain -> {
-			if (tryAgain) showNextFragment(new OwnerRecoveryModeMainFragment());
+			if (tryAgain) {
+				viewModel.startListening();
+				showQrCodeFragment();
+			}
 		});
 		viewModel.getState()
 				.observe(this, this::onReturnShardStateChanged);
