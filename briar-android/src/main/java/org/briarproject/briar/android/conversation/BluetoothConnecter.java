@@ -176,6 +176,7 @@ class BluetoothConnecter implements EventListener {
 		connect();
 	}
 
+	@UiThread
 	@Override
 	public void eventOccurred(@NonNull Event e) {
 		if (e instanceof ConnectionOpenedEvent) {
@@ -192,43 +193,52 @@ class BluetoothConnecter implements EventListener {
 	}
 
 	private void connect() {
+		bluetoothPlugin.disablePolling();
 		pluginManager.setPluginEnabled(ID, true);
 
 		ioExecutor.execute(() -> {
-			if (!waitForBluetoothActive()) {
-				showToast(R.string.bt_plugin_status_inactive);
-				LOG.warning("Bluetooth plugin didn't become active");
-				return;
-			}
-			showToast(R.string.toast_connect_via_bluetooth_start);
-			eventBus.addListener(this);
 			try {
-				String uuid = null;
+				if (!waitForBluetoothActive()) {
+					showToast(R.string.bt_plugin_status_inactive);
+					LOG.warning("Bluetooth plugin didn't become active");
+					return;
+				}
+				showToast(R.string.toast_connect_via_bluetooth_start);
+				eventBus.addListener(this);
 				try {
-					uuid = transportPropertyManager
-							.getRemoteProperties(contactId, ID).get(PROP_UUID);
-				} catch (DbException e) {
-					logException(LOG, WARNING, e);
-				}
-				if (isNullOrEmpty(uuid)) {
-					LOG.warning("PROP_UUID missing for contact");
-					return;
-				}
-				DuplexTransportConnection conn = bluetoothPlugin
-						.discoverAndConnectForSetup(uuid);
-				if (conn == null) {
-					if (!isConnectedViaBluetooth(contactId)) {
-						LOG.warning("Failed to connect");
-						showToast(R.string.toast_connect_via_bluetooth_error);
-					} else {
-						LOG.info("Failed to connect, but contact connected");
+					String uuid = null;
+					try {
+						uuid = transportPropertyManager
+								.getRemoteProperties(contactId, ID)
+								.get(PROP_UUID);
+					} catch (DbException e) {
+						logException(LOG, WARNING, e);
 					}
-					return;
+					if (isNullOrEmpty(uuid)) {
+						LOG.warning("PROP_UUID missing for contact");
+						return;
+					}
+					DuplexTransportConnection conn = bluetoothPlugin
+							.discoverAndConnectForSetup(uuid);
+					if (conn == null) {
+						if (!isConnectedViaBluetooth(contactId)) {
+							LOG.warning("Failed to connect");
+							showToast(
+									R.string.toast_connect_via_bluetooth_error);
+						} else {
+							LOG.info(
+									"Failed to connect, but contact connected");
+						}
+						return;
+					}
+					connectionManager
+							.manageOutgoingConnection(contactId, ID, conn);
+					showToast(R.string.toast_connect_via_bluetooth_success);
+				} finally {
+					eventBus.removeListener(this);
 				}
-				connectionManager.manageOutgoingConnection(contactId, ID, conn);
-				showToast(R.string.toast_connect_via_bluetooth_success);
 			} finally {
-				eventBus.removeListener(this);
+				bluetoothPlugin.enablePolling();
 			}
 		});
 	}

@@ -7,14 +7,15 @@ import org.briarproject.bramble.api.plugin.duplex.DuplexTransportConnection;
 interface BluetoothConnectionLimiter {
 
 	/**
-	 * Informs the limiter that key agreement has started.
+	 * Tells the limiter to not allow regular polling connections (because we
+	 * are about to do key agreement, or connect via BT for setup).
 	 */
-	void keyAgreementStarted();
+	void startLimiting();
 
 	/**
-	 * Informs the limiter that key agreement has ended.
+	 * Tells the limiter to no longer limit regular polling connections.
 	 */
-	void keyAgreementEnded();
+	void endLimiting();
 
 	/**
 	 * Returns true if a contact connection can be opened. This method does not
