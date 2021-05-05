@@ -2,6 +2,7 @@ package org.briarproject.briar.android.util;
 
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
+import android.app.Activity;
 import android.app.KeyguardManager;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
@@ -90,6 +91,9 @@ import static android.text.format.DateUtils.WEEK_IN_MILLIS;
 import static android.text.format.DateUtils.YEAR_IN_MILLIS;
 import static android.view.KeyEvent.ACTION_DOWN;
 import static android.view.KeyEvent.KEYCODE_ENTER;
+import static android.view.WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE;
+import static android.view.WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE;
+import static android.view.WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN;
 import static android.view.inputmethod.EditorInfo.IME_NULL;
 import static android.view.inputmethod.InputMethodManager.SHOW_IMPLICIT;
 import static android.widget.Toast.LENGTH_LONG;
@@ -536,5 +540,15 @@ public class UiUtils {
 			}
 			Toast.makeText(context, msg, LENGTH_LONG).show();
 		});
+	}
+
+	public static void setInputStateAlwaysVisible(Activity activity) {
+		activity.getWindow().setSoftInputMode(SOFT_INPUT_ADJUST_RESIZE |
+				SOFT_INPUT_STATE_ALWAYS_VISIBLE);
+	}
+
+	public static void setInputStateHidden(Activity activity) {
+		activity.getWindow().setSoftInputMode(SOFT_INPUT_ADJUST_RESIZE |
+				SOFT_INPUT_STATE_HIDDEN);
 	}
 }

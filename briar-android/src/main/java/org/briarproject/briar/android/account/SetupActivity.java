@@ -20,15 +20,14 @@ import static android.content.Intent.FLAG_ACTIVITY_CLEAR_TASK;
 import static android.content.Intent.FLAG_ACTIVITY_CLEAR_TOP;
 import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
 import static android.content.Intent.FLAG_ACTIVITY_TASK_ON_HOME;
-import static android.view.WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE;
-import static android.view.WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE;
-import static android.view.WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN;
 import static org.briarproject.briar.android.BriarApplication.ENTRY_ACTIVITY;
 import static org.briarproject.briar.android.account.SetupViewModel.State.AUTHOR_NAME;
 import static org.briarproject.briar.android.account.SetupViewModel.State.CREATED;
 import static org.briarproject.briar.android.account.SetupViewModel.State.DOZE;
 import static org.briarproject.briar.android.account.SetupViewModel.State.FAILED;
 import static org.briarproject.briar.android.account.SetupViewModel.State.SET_PASSWORD;
+import static org.briarproject.briar.android.util.UiUtils.setInputStateAlwaysVisible;
+import static org.briarproject.briar.android.util.UiUtils.setInputStateHidden;
 
 @MethodsNotNullByDefault
 @ParametersNotNullByDefault
@@ -58,13 +57,13 @@ public class SetupActivity extends BaseActivity
 
 	private void onStateChanged(SetupViewModel.State state) {
 		if (state == AUTHOR_NAME) {
-			showKeyboard();
+			setInputStateAlwaysVisible(this);
 			showInitialFragment(AuthorNameFragment.newInstance());
 		} else if (state == SET_PASSWORD) {
-			showKeyboard();
+			setInputStateAlwaysVisible(this);
 			showPasswordFragment();
 		} else if (state == DOZE) {
-			hideKeyboard();
+			setInputStateHidden(this);
 			showDozeFragment();
 		} else if (state == CREATED || state == FAILED) {
 			// TODO: Show an error if failed
@@ -88,16 +87,6 @@ public class SetupActivity extends BaseActivity
 		startActivity(i);
 		supportFinishAfterTransition();
 		overridePendingTransition(R.anim.screen_new_in, R.anim.screen_old_out);
-	}
-
-	private void showKeyboard() {
-		getWindow().setSoftInputMode(SOFT_INPUT_ADJUST_RESIZE |
-				SOFT_INPUT_STATE_ALWAYS_VISIBLE);
-	}
-
-	private void hideKeyboard() {
-		getWindow().setSoftInputMode(SOFT_INPUT_ADJUST_RESIZE |
-				SOFT_INPUT_STATE_HIDDEN);
 	}
 
 	@Override
