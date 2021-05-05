@@ -32,6 +32,7 @@ public class DozeFragment extends SetupFragment
 	private DozeView dozeView;
 	private HuaweiProtectedAppsView huaweiProtectedAppsView;
 	private HuaweiAppLaunchView huaweiAppLaunchView;
+	private XiaomiView xiaomiView;
 	private Button next;
 	private boolean secondAttempt = false;
 
@@ -53,6 +54,8 @@ public class DozeFragment extends SetupFragment
 		huaweiProtectedAppsView.setOnCheckedChangedListener(this);
 		huaweiAppLaunchView = v.findViewById(R.id.huaweiAppLaunchView);
 		huaweiAppLaunchView.setOnCheckedChangedListener(this);
+		xiaomiView = v.findViewById(R.id.xiaomiView);
+		xiaomiView.setOnCheckedChangedListener(this);
 		next = v.findViewById(R.id.next);
 		ProgressBar progressBar = v.findViewById(R.id.progress);
 
@@ -98,7 +101,8 @@ public class DozeFragment extends SetupFragment
 	public void onCheckedChanged() {
 		next.setEnabled(dozeView.isChecked() &&
 				huaweiProtectedAppsView.isChecked() &&
-				huaweiAppLaunchView.isChecked());
+				huaweiAppLaunchView.isChecked() &&
+				xiaomiView.isChecked());
 	}
 
 	@SuppressLint("BatteryLife")

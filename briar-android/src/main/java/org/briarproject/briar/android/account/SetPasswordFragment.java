@@ -118,7 +118,7 @@ public class SetPasswordFragment extends SetupFragment {
 	@Override
 	public void onClick(View view) {
 		IBinder token = passwordEntry.getWindowToken();
-		Object o = getContext().getSystemService(INPUT_METHOD_SERVICE);
+		Object o = requireContext().getSystemService(INPUT_METHOD_SERVICE);
 		((InputMethodManager) o).hideSoftInputFromWindow(token, 0);
 		viewModel.setPassword(passwordEntry.getText().toString());
 	}
