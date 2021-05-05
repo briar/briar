@@ -348,6 +348,16 @@ interface Database<T> {
 	Message getMessage(T txn, MessageId m) throws DbException;
 
 	/**
+	 * Returns the total length, including headers, of any messages that are
+	 * eligible to be sent to the given contact via a transport with the given
+	 * max latency.
+	 * <p/>
+	 * Read-only.
+	 */
+	long getMessageBytesToSend(T txn, ContactId c, int maxLatency)
+			throws DbException;
+
+	/**
 	 * Returns the IDs and states of all dependencies of the given message.
 	 * For missing dependencies and dependencies in other groups, the state
 	 * {@link MessageState UNKNOWN} is returned.
