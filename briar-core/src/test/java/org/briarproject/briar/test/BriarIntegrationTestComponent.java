@@ -27,6 +27,7 @@ import org.briarproject.briar.api.messaging.MessagingManager;
 import org.briarproject.briar.api.messaging.PrivateMessageFactory;
 import org.briarproject.briar.api.privategroup.PrivateGroupManager;
 import org.briarproject.briar.api.privategroup.invitation.GroupInvitationManager;
+import org.briarproject.briar.api.remotewipe.RemoteWipeManager;
 import org.briarproject.briar.api.socialbackup.SocialBackupManager;
 import org.briarproject.briar.avatar.AvatarModule;
 import org.briarproject.briar.blog.BlogModule;
@@ -36,6 +37,7 @@ import org.briarproject.briar.introduction.IntroductionModule;
 import org.briarproject.briar.messaging.MessagingModule;
 import org.briarproject.briar.privategroup.PrivateGroupModule;
 import org.briarproject.briar.privategroup.invitation.GroupInvitationModule;
+import org.briarproject.briar.remotewipe.RemoteWipeModule;
 import org.briarproject.briar.sharing.SharingModule;
 import org.briarproject.briar.socialbackup.DefaultDarkCrystalModule;
 import org.briarproject.briar.socialbackup.SocialBackupModule;
@@ -75,6 +77,8 @@ public interface BriarIntegrationTestComponent
 	void inject(SharingModule.EagerSingletons init);
 
 	void inject(SocialBackupModule.EagerSingletons init);
+
+	void inject(RemoteWipeModule.EagerSingletons init);
 
 	LifecycleManager getLifecycleManager();
 
@@ -124,6 +128,8 @@ public interface BriarIntegrationTestComponent
 
 	SocialBackupManager getSocialBackupManager();
 
+	RemoteWipeManager getRemoteWipeManager();
+
 	class Helper {
 
 		public static void injectEagerSingletons(
@@ -140,6 +146,7 @@ public interface BriarIntegrationTestComponent
 			c.inject(new PrivateGroupModule.EagerSingletons());
 			c.inject(new SharingModule.EagerSingletons());
 			c.inject(new SocialBackupModule.EagerSingletons());
+			c.inject(new RemoteWipeModule.EagerSingletons());
 		}
 	}
 }
