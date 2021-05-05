@@ -184,7 +184,6 @@ class SocialBackupManagerImpl extends ConversationClientImpl
 	protected boolean incomingMessage(Transaction txn, Message m, BdfList body,
 			BdfDictionary meta) throws DbException, FormatException {
 		MessageType type = MessageType.fromValue(body.getLong(0).intValue());
-		System.out.println("GOT INCOMING DC MESSAGE");
 		if (type == SHARD) {
 			// Only one shard should be received from each contact
 			if (findMessage(txn, m.getGroupId(), SHARD, false) != null) {
