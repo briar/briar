@@ -1759,6 +1759,37 @@ abstract class JdbcDatabase implements Database<Connection> {
 	}
 
 	@Override
+	public long getMessageBytesToSend(Connection txn, ContactId c,
+			int maxLatency) throws DbException {
+		long now = clock.currentTimeMillis();
+		long eta = now + maxLatency;
+		PreparedStatement ps = null;
+		ResultSet rs = null;
+		try {
+			String sql = "SELECT SUM(length) FROM statuses"
+					+ " WHERE contactId = ? AND state = ?"
+					+ " AND groupShared = TRUE AND messageShared = TRUE"
+					+ " AND deleted = FALSE AND seen = FALSE"
+					+ " AND (expiry <= ? OR eta > ?)";
+			ps = txn.prepareStatement(sql);
+			ps.setInt(1, c.getInt());
+			ps.setInt(2, DELIVERED.getValue());
+			ps.setLong(3, now);
+			ps.setLong(4, eta);
+			rs = ps.executeQuery();
+			rs.next();
+			long total = rs.getInt(1);
+			rs.close();
+			ps.close();
+			return total;
+		} catch (SQLException e) {
+			tryToClose(rs, LOG, WARNING);
+			tryToClose(ps, LOG, WARNING);
+			throw new DbException(e);
+		}
+	}
+
+	@Override
 	public Collection<MessageId> getMessageIds(Connection txn, GroupId g)
 			throws DbException {
 		PreparedStatement ps = null;

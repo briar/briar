@@ -298,11 +298,11 @@ public class DatabaseComponentImplTest extends BrambleMockTestCase {
 			throws Exception {
 		context.checking(new Expectations() {{
 			// Check whether the contact is in the DB (which it's not)
-			exactly(18).of(database).startTransaction();
+			exactly(19).of(database).startTransaction();
 			will(returnValue(txn));
-			exactly(18).of(database).containsContact(txn, contactId);
+			exactly(19).of(database).containsContact(txn, contactId);
 			will(returnValue(false));
-			exactly(18).of(database).abortTransaction(txn);
+			exactly(19).of(database).abortTransaction(txn);
 		}});
 		DatabaseComponent db = createDatabaseComponent(database, eventBus,
 				eventExecutor, shutdownManager);
@@ -349,7 +349,7 @@ public class DatabaseComponentImplTest extends BrambleMockTestCase {
 		}
 
 		try {
-			db.transaction(false, transaction ->
+			db.transaction(true, transaction ->
 					db.getContact(transaction, contactId));
 			fail();
 		} catch (NoSuchContactException expected) {
@@ -357,7 +357,15 @@ public class DatabaseComponentImplTest extends BrambleMockTestCase {
 		}
 
 		try {
-			db.transaction(false, transaction ->
+			db.transaction(true, transaction ->
+					db.getMessageBytesToSend(transaction, contactId, 123));
+			fail();
+		} catch (NoSuchContactException expected) {
+			// Expected
+		}
+
+		try {
+			db.transaction(true, transaction ->
 					db.getMessageStatus(transaction, contactId, groupId));
 			fail();
 		} catch (NoSuchContactException expected) {
@@ -365,7 +373,7 @@ public class DatabaseComponentImplTest extends BrambleMockTestCase {
 		}
 
 		try {
-			db.transaction(false, transaction ->
+			db.transaction(true, transaction ->
 					db.getMessageStatus(transaction, contactId, messageId));
 			fail();
 		} catch (NoSuchContactException expected) {
@@ -373,7 +381,7 @@ public class DatabaseComponentImplTest extends BrambleMockTestCase {
 		}
 
 		try {
-			db.transaction(false, transaction ->
+			db.transaction(true, transaction ->
 					db.getGroupVisibility(transaction, contactId, groupId));
 			fail();
 		} catch (NoSuchContactException expected) {
@@ -381,7 +389,7 @@ public class DatabaseComponentImplTest extends BrambleMockTestCase {
 		}
 
 		try {
-			db.transaction(false, transaction ->
+			db.transaction(true, transaction ->
 					db.getSyncVersions(transaction, contactId));
 			fail();
 		} catch (NoSuchContactException expected) {
