@@ -30,6 +30,11 @@
 	<string name="setup_huawei_app_launch_text">Please tap the button below, open the \"App launch\" screen and make sure Briar is set to \"Manage manually\".</string>
 	<string name="setup_huawei_app_launch_button">Open Battery Settings</string>
 	<string name="setup_huawei_app_launch_help">If Briar is not set to \"Manage manually\" in the \"App launch\" screen, it will not be able to run in the background.</string>
+	<string name="setup_xiaomi_text">To run in the background, Briar needs to be locked to the recent apps list</string>
+	<string name="setup_xiaomi_button">Protect Briar</string>
+	<string name="setup_xiaomi_help">If Briar is not locked to the recent apps list, it will be unable to run in the background.</string>
+	<string name="setup_xiaomi_dialog_body_old">1. Open the recent apps list (also called the app switcher)\n\n2. Swipe down on the image of Briar to show the padlock icon\n\n3. If the padlock is not locked, tap to lock it</string>
+	<string name="setup_xiaomi_dialog_body_new">1. Open the recent apps list (also called the app switcher)\n\n2. Press and hold the image of Briar until the padlock button appears\n\n3. If the padlock is not locked, tap to lock it</string>
 	<string name="warning_dozed">%s was unable to run in the background</string>
 
 	<!-- Login -->

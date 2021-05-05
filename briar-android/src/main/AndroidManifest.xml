@@ -104,8 +104,7 @@
 
 		<activity
 			android:name="org.briarproject.briar.android.account.SetupActivity"
-			android:label="@string/setup_title"
-			android:windowSoftInputMode="adjustResize|stateAlwaysVisible" />
+			android:label="@string/setup_title" />
 
 		<activity
 			android:name="org.briarproject.briar.android.splash.SplashScreenActivity"

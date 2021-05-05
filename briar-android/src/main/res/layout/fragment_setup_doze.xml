@@ -38,6 +38,15 @@
 			app:layout_constraintStart_toStartOf="parent"
 			app:layout_constraintTop_toBottomOf="@+id/huaweiProtectedAppsView" />
 
+		<org.briarproject.briar.android.account.XiaomiView
+			android:id="@+id/xiaomiView"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:paddingBottom="@dimen/margin_large"
+			app:layout_constraintEnd_toEndOf="parent"
+			app:layout_constraintStart_toStartOf="parent"
+			app:layout_constraintTop_toBottomOf="@+id/huaweiAppLaunchView" />
+
 		<Button
 			android:id="@+id/next"
 			style="@style/BriarButton"
@@ -48,7 +57,7 @@
 			app:layout_constraintBottom_toBottomOf="parent"
 			app:layout_constraintEnd_toEndOf="parent"
 			app:layout_constraintStart_toStartOf="parent"
-			app:layout_constraintTop_toBottomOf="@+id/huaweiAppLaunchView"
+			app:layout_constraintTop_toBottomOf="@+id/xiaomiView"
 			app:layout_constraintVertical_bias="1.0"
 			tools:enabled="true" />
 
