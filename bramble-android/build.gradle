@@ -45,15 +45,15 @@ dependencies {
 	tor 'org.briarproject:tor-android:0.3.5.14'
 	tor 'org.briarproject:obfs4proxy-android:0.0.12-dev-40245c4a@zip'
 
-	annotationProcessor 'com.google.dagger:dagger-compiler:2.24'
+	annotationProcessor "com.google.dagger:dagger-compiler:$dagger_version"
 
 	compileOnly 'javax.annotation:jsr250-api:1.0'
 
 	testImplementation project(path: ':bramble-api', configuration: 'testOutput')
-	testImplementation 'junit:junit:4.12'
-	testImplementation "org.jmock:jmock:2.8.2"
-	testImplementation "org.jmock:jmock-junit4:2.8.2"
-	testImplementation "org.jmock:jmock-legacy:2.8.2"
+	testImplementation "junit:junit:$junit_version"
+	testImplementation "org.jmock:jmock:$jmock_version"
+	testImplementation "org.jmock:jmock-junit4:$jmock_version"
+	testImplementation "org.jmock:jmock-legacy:$jmock_version"
 }
 
 def torBinariesDir = 'src/main/res/raw'
