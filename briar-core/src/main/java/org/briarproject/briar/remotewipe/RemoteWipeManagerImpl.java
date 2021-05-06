@@ -25,6 +25,8 @@ import org.briarproject.briar.api.attachment.AttachmentHeader;
 import org.briarproject.briar.api.client.MessageTracker;
 import org.briarproject.briar.api.conversation.ConversationMessageHeader;
 import org.briarproject.briar.api.conversation.DeletionResult;
+import org.briarproject.briar.api.remotewipe.MessageEncoder;
+import org.briarproject.briar.api.remotewipe.MessageParser;
 import org.briarproject.briar.api.remotewipe.RemoteWipeManager;
 import org.briarproject.briar.api.remotewipe.RemoteWipeMessageHeader;
 import org.briarproject.briar.client.ConversationClientImpl;
@@ -54,6 +56,8 @@ public class RemoteWipeManagerImpl extends ConversationClientImpl
 	private final Clock clock;
 	private final ContactGroupFactory contactGroupFactory;
 	private final ContactManager contactManager;
+	private final MessageEncoder messageEncoder;
+	private final MessageParser messageParser;
 
 	@Inject
 	protected RemoteWipeManagerImpl(
@@ -62,6 +66,8 @@ public class RemoteWipeManagerImpl extends ConversationClientImpl
 			MetadataParser metadataParser,
 			MessageTracker messageTracker,
 			Clock clock,
+			MessageEncoder messageEncoder,
+			MessageParser messageParser,
 			ContactManager contactManager,
 			ClientVersioningManager clientVersioningManager,
 			ContactGroupFactory contactGroupFactory) {
@@ -70,6 +76,8 @@ public class RemoteWipeManagerImpl extends ConversationClientImpl
 		this.contactGroupFactory = contactGroupFactory;
 		this.contactManager = contactManager;
 		this.clientVersioningManager = clientVersioningManager;
+		this.messageEncoder = messageEncoder;
+		this.messageParser = messageParser;
 		localGroup =
 				contactGroupFactory.createLocalGroup(CLIENT_ID, MAJOR_VERSION);
 	}
@@ -138,7 +146,7 @@ public class RemoteWipeManagerImpl extends ConversationClientImpl
 		if (!db.containsGroup(txn, g)) db.addGroup(txn, group);
 		long timestamp = clock.currentTimeMillis();
 
-		byte[] body = "setup message".getBytes(); // TODO
+		byte[] body = messageEncoder.encodeSetupMessage();
 
 		Message m = clientHelper.createMessage(g, timestamp, body);
 		// TODO remote-wipe versions of MESSAGE_KEY
@@ -160,7 +168,7 @@ public class RemoteWipeManagerImpl extends ConversationClientImpl
 		if (!db.containsGroup(txn, g)) db.addGroup(txn, group);
 		long timestamp = clock.currentTimeMillis();
 
-		byte[] body = "wipe message".getBytes(); // TODO
+		byte[] body = messageEncoder.encodeWipeMessage();
 
 		Message m = clientHelper.createMessage(g, timestamp, body);
 		// TODO remote-wipe versions of MESSAGE_KEY
