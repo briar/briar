@@ -690,6 +690,14 @@
 	<!-- Connections Screen -->
 	<string name="transports_help_text">Briar can connect to your contacts via the Internet, Wi-Fi or Bluetooth.\n\nAll Internet connections go through the Tor network for privacy.\n\nIf a contact can be reached by multiple methods, Briar uses them in parallel.</string>
 
+	<!-- Share app offline -->
+	<string name="hotspot_title">Share Briar offline</string>
+	<string name="hotspot_intro">Share this app with someone nearby without internet connection
+		by using your phone\'s Wi-Fi.
+		\n\nYour phone will open a local hotspot and provide a small website with a download of this app.</string>
+	<string name="hotspot_button_start_sharing">Start sharing</string>
+	<string name="hotspot_progress_text_start">Setting up hotspot…</string>
+
 
 	<!-- Transfer Data via Removable Drives -->
 

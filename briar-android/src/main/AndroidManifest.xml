@@ -456,6 +456,11 @@
 			android:label="@string/pending_contact_requests"
 			android:theme="@style/BriarTheme" />
 
+		<activity
+			android:name=".android.hotspot.HotspotActivity"
+			android:label="@string/hotspot_title"
+			android:theme="@style/BriarTheme" />
+
 	</application>
 
 	<queries>

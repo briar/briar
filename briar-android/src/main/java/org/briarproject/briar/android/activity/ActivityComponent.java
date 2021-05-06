@@ -38,6 +38,7 @@ import org.briarproject.briar.android.forum.CreateForumActivity;
 import org.briarproject.briar.android.forum.ForumActivity;
 import org.briarproject.briar.android.forum.ForumListFragment;
 import org.briarproject.briar.android.fragment.ScreenFilterDialogFragment;
+import org.briarproject.briar.android.hotspot.HotspotActivity;
 import org.briarproject.briar.android.introduction.ContactChooserFragment;
 import org.briarproject.briar.android.introduction.IntroductionActivity;
 import org.briarproject.briar.android.introduction.IntroductionMessageFragment;
@@ -176,6 +177,8 @@ public interface ActivityComponent {
 	void inject(PendingContactListActivity activity);
 
 	void inject(CrashReportActivity crashReportActivity);
+
+	void inject(HotspotActivity hotspotActivity);
 
 	void inject(RemovableDriveActivity activity);
 
