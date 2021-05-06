@@ -31,6 +31,7 @@ import org.briarproject.briar.api.messaging.PrivateMessageFactory
 import org.briarproject.briar.api.messaging.PrivateMessageHeader
 import org.briarproject.briar.api.privategroup.invitation.GroupInvitationRequest
 import org.briarproject.briar.api.privategroup.invitation.GroupInvitationResponse
+import org.briarproject.briar.api.remotewipe.RemoteWipeMessageHeader
 import org.briarproject.briar.api.socialbackup.ShardMessageHeader
 import org.briarproject.briar.headless.event.WebSocketController
 import org.briarproject.briar.headless.event.output
@@ -172,4 +173,6 @@ private class JsonVisitor(
     override fun visitIntroductionResponse(r: IntroductionResponse) = r.output(contactId)
 
     override fun visitShardMessage(r: ShardMessageHeader) = r.output(contactId)
+
+    override fun visitRemoteWipeMessage(r: RemoteWipeMessageHeader) = r.output(contactId)
 }
