@@ -89,6 +89,7 @@ public class RemoteWipeIntegrationTest extends BriarIntegrationTest<BriarIntegra
 		Collection<ConversationMessageHeader> messages0At1 =
 				getMessages0At1();
 		assertEquals(1, messages0At1.size());
+		System.out.println("mmmm" + messages0At1.size());
 		for (ConversationMessageHeader h : messages0At1) {
 			assertTrue(h instanceof RemoteWipeMessageHeader);
 			RemoteWipeMessageHeader r = (RemoteWipeMessageHeader) h;

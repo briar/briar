@@ -46,7 +46,8 @@ import static org.briarproject.briar.socialbackup.SocialBackupConstants.MSG_KEY_
 import static org.briarproject.briar.socialbackup.SocialBackupConstants.MSG_KEY_TIMESTAMP;
 
 public class RemoteWipeManagerImpl extends ConversationClientImpl
-		implements RemoteWipeManager, LifecycleManager.OpenDatabaseHook {
+		implements RemoteWipeManager, ContactManager.ContactHook,
+		ClientVersioningManager.ClientVersioningHook, LifecycleManager.OpenDatabaseHook {
 
 	private final ClientVersioningManager clientVersioningManager;
 	private final Group localGroup;
@@ -79,17 +80,7 @@ public class RemoteWipeManagerImpl extends ConversationClientImpl
 		if (db.containsGroup(txn, localGroup.getId())) return;
 		db.addGroup(txn, localGroup);
 		// Set things up for any pre-existing contacts
-		for (Contact c : db.getContacts(txn)) {
-			// Create a group to share with the contact
-			Group g = getContactGroup(c);
-			db.addGroup(txn, g);
-			// Apply the client's visibility to the contact group
-			Group.Visibility client = clientVersioningManager.getClientVisibility(txn,
-					c.getId(), CLIENT_ID, MAJOR_VERSION);
-			db.setGroupVisibility(txn, c.getId(), g.getId(), client);
-			// Attach the contact ID to the group
-			setContactId(txn, g.getId(), c.getId());
-		}
+		for (Contact c : db.getContacts(txn)) addingContact(txn, c);
 	}
 
 	private void setContactId(Transaction txn, GroupId g, ContactId c)
@@ -276,5 +267,31 @@ public class RemoteWipeManagerImpl extends ConversationClientImpl
 		} catch (FormatException e) {
 			throw new DbException(e);
 		}
+	}
+
+	@Override
+	public void onClientVisibilityChanging(Transaction txn, Contact c,
+			Group.Visibility v) throws DbException {
+		// Apply the client's visibility to the contact group
+		Group g = getContactGroup(c);
+		db.setGroupVisibility(txn, c.getId(), g.getId(), v);
+	}
+
+	@Override
+	public void addingContact(Transaction txn, Contact c) throws DbException {
+		// Create a group to share with the contact
+		Group g = getContactGroup(c);
+		db.addGroup(txn, g);
+		// Apply the client's visibility to the contact group
+		Group.Visibility client = clientVersioningManager.getClientVisibility(txn,
+				c.getId(), CLIENT_ID, MAJOR_VERSION);
+		db.setGroupVisibility(txn, c.getId(), g.getId(), client);
+		// Attach the contact ID to the group
+		setContactId(txn, g.getId(), c.getId());
+	}
+
+	@Override
+	public void removingContact(Transaction txn, Contact c) throws DbException {
+		db.removeGroup(txn, getContactGroup(c));
 	}
 }
