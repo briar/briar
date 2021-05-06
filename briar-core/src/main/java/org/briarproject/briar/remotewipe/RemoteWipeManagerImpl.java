@@ -20,12 +20,13 @@ import org.briarproject.bramble.api.sync.Message;
 import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.bramble.api.sync.MessageStatus;
 import org.briarproject.bramble.api.system.Clock;
+import org.briarproject.bramble.api.versioning.ClientVersioningManager;
 import org.briarproject.briar.api.attachment.AttachmentHeader;
 import org.briarproject.briar.api.client.MessageTracker;
 import org.briarproject.briar.api.conversation.ConversationMessageHeader;
 import org.briarproject.briar.api.conversation.DeletionResult;
 import org.briarproject.briar.api.remotewipe.RemoteWipeManager;
-import org.briarproject.briar.api.socialbackup.ShardMessageHeader;
+import org.briarproject.briar.api.remotewipe.RemoteWipeMessageHeader;
 import org.briarproject.briar.client.ConversationClientImpl;
 
 import java.util.ArrayList;
@@ -47,6 +48,7 @@ import static org.briarproject.briar.socialbackup.SocialBackupConstants.MSG_KEY_
 public class RemoteWipeManagerImpl extends ConversationClientImpl
 		implements RemoteWipeManager, LifecycleManager.OpenDatabaseHook {
 
+	private final ClientVersioningManager clientVersioningManager;
 	private final Group localGroup;
 	private final Clock clock;
 	private final ContactGroupFactory contactGroupFactory;
@@ -60,19 +62,51 @@ public class RemoteWipeManagerImpl extends ConversationClientImpl
 			MessageTracker messageTracker,
 			Clock clock,
 			ContactManager contactManager,
+			ClientVersioningManager clientVersioningManager,
 			ContactGroupFactory contactGroupFactory) {
 		super(db, clientHelper, metadataParser, messageTracker);
 		this.clock = clock;
 		this.contactGroupFactory = contactGroupFactory;
 		this.contactManager = contactManager;
+		this.clientVersioningManager = clientVersioningManager;
 		localGroup =
 				contactGroupFactory.createLocalGroup(CLIENT_ID, MAJOR_VERSION);
 	}
 
 	@Override
+	public void onDatabaseOpened(Transaction txn) throws DbException {
+		System.out.println("DATAbase opened");
+		if (db.containsGroup(txn, localGroup.getId())) return;
+		db.addGroup(txn, localGroup);
+		// Set things up for any pre-existing contacts
+		for (Contact c : db.getContacts(txn)) {
+			// Create a group to share with the contact
+			Group g = getContactGroup(c);
+			db.addGroup(txn, g);
+			// Apply the client's visibility to the contact group
+			Group.Visibility client = clientVersioningManager.getClientVisibility(txn,
+					c.getId(), CLIENT_ID, MAJOR_VERSION);
+			db.setGroupVisibility(txn, c.getId(), g.getId(), client);
+			// Attach the contact ID to the group
+			setContactId(txn, g.getId(), c.getId());
+		}
+	}
+
+	private void setContactId(Transaction txn, GroupId g, ContactId c)
+			throws DbException {
+		BdfDictionary d = new BdfDictionary();
+		d.put(GROUP_KEY_CONTACT_ID, c.getInt());
+		try {
+			clientHelper.mergeGroupMetadata(txn, g, d);
+		} catch (FormatException e) {
+			throw new AssertionError(e);
+		}
+	}
+
+	@Override
 	protected boolean incomingMessage(Transaction txn, Message m, BdfList body,
 			BdfDictionary meta) throws DbException, FormatException {
-
+		System.out.println("Incoming message called");
 		MessageType type = MessageType.fromValue(body.getLong(0).intValue());
 		if (type == SETUP) {
 
@@ -95,9 +129,13 @@ public class RemoteWipeManagerImpl extends ConversationClientImpl
         // TODO if (we already have a set of wipers?) do something
         if (wipers.size() < 2) throw new FormatException();
 		for (ContactId c : wipers) {
-			sendSetupMessage(txn, contactManager.getContact(c));
+			System.out.println("Sending a setup message...");
+			sendSetupMessage(txn, contactManager.getContact(txn, c));
 		}
 
+		System.out.println("All setup messages sent");
+		if (!db.containsGroup(txn, localGroup.getId()))
+			db.addGroup(txn, localGroup);
 		// TODO Make some sort of record of this
         // clientHelper.mergeGroupMetadata(txn, localGroup.getId(), meta)
 	}
@@ -144,10 +182,6 @@ public class RemoteWipeManagerImpl extends ConversationClientImpl
 		messageTracker.trackOutgoingMessage(txn, m);
 	}
 
-	@Override
-	public void onDatabaseOpened(Transaction txn) throws DbException {
-
-	}
 
 	@Override
 	public Group getContactGroup(Contact c) {
@@ -184,8 +218,7 @@ public class RemoteWipeManagerImpl extends ConversationClientImpl
 		}
 	}
 
-	// TODO create a SetupMessageHeader
-	private ShardMessageHeader createSetupMessageHeader(
+	private RemoteWipeMessageHeader createSetupMessageHeader(
 			Message message, BdfDictionary meta, MessageStatus status
 	)
 			throws FormatException {
@@ -200,7 +233,7 @@ public class RemoteWipeManagerImpl extends ConversationClientImpl
 		}
 		List<AttachmentHeader> attachmentHeaders =
 				new ArrayList<>();
-		return new ShardMessageHeader(
+		return new RemoteWipeMessageHeader(
 				message.getId(), message.getGroupId(), timestamp,
 				isLocal, read, status.isSent(), status.isSeen(),
 				attachmentHeaders);

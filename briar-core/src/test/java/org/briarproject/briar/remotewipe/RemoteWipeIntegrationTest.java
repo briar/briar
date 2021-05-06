@@ -1,13 +1,28 @@
 package org.briarproject.briar.remotewipe;
 
+import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.sync.Group;
+import org.briarproject.bramble.api.sync.GroupId;
 import org.briarproject.bramble.test.TestDatabaseConfigModule;
+import org.briarproject.briar.api.client.MessageTracker;
+import org.briarproject.briar.api.conversation.ConversationMessageHeader;
 import org.briarproject.briar.api.remotewipe.RemoteWipeManager;
+import org.briarproject.briar.api.remotewipe.RemoteWipeMessageHeader;
 import org.briarproject.briar.test.BriarIntegrationTest;
 import org.briarproject.briar.test.BriarIntegrationTestComponent;
 import org.briarproject.briar.test.DaggerBriarIntegrationTestComponent;
 import org.junit.Before;
 import org.junit.Test;
+
+import java.util.Collection;
+import java.util.List;
+
+import static java.util.Arrays.asList;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 public class RemoteWipeIntegrationTest extends BriarIntegrationTest<BriarIntegrationTestComponent> {
 
@@ -59,6 +74,59 @@ public class RemoteWipeIntegrationTest extends BriarIntegrationTest<BriarIntegra
 
 	@Test
 	public void testRemoteWipe() throws Exception {
+		db0.transaction(false, txn -> {
+			// TODO assert that we do not already have a wipe setup
+//			assertNull(socialBackupManager0.getBackupMetadata(txn));
+			remoteWipeManager0.setup(txn,
+					asList(contactId1From0, contactId2From0));
+			// TODO now check that we do have a wipe setup
+		});
+		// Sync the setup messages to the contacts
+		sync0To1(1, true);
+		sync0To2(1, true);
+        // TODO check for the headers
+		// The setup message from 0 should have arrived at 1
+		Collection<ConversationMessageHeader> messages0At1 =
+				getMessages0At1();
+		assertEquals(1, messages0At1.size());
+		for (ConversationMessageHeader h : messages0At1) {
+			assertTrue(h instanceof RemoteWipeMessageHeader);
+			RemoteWipeMessageHeader r = (RemoteWipeMessageHeader) h;
+			assertFalse(r.isLocal());
+		}
+//		db1.transaction(false, txn -> {
+//			assertTrue(socialBackupManager1.amCustodian(txn, contactId0From1));
+//		});
+	}
 
+	private Collection<ConversationMessageHeader> getMessages1At0()
+			throws DbException {
+		return db0.transactionWithResult(true, txn -> remoteWipeManager0
+				.getMessageHeaders(txn, contactId1From0));
+	}
+
+	private Collection<ConversationMessageHeader> getMessages2At0()
+			throws DbException {
+		return db0.transactionWithResult(true, txn -> remoteWipeManager0
+				.getMessageHeaders(txn, contactId2From0));
+	}
+
+	private Collection<ConversationMessageHeader> getMessages0At1()
+			throws DbException {
+		return db1.transactionWithResult(true, txn -> remoteWipeManager1
+				.getMessageHeaders(txn, contactId0From1));
+	}
+
+	private Collection<ConversationMessageHeader> getMessages0At2()
+			throws DbException {
+		return db1.transactionWithResult(true, txn -> remoteWipeManager2
+				.getMessageHeaders(txn, contactId0From2));
+	}
+
+	public static void assertGroupCount(MessageTracker tracker, GroupId g,
+			long msgCount, long unreadCount) throws DbException {
+		MessageTracker.GroupCount c1 = tracker.getGroupCount(g);
+		assertEquals(msgCount, c1.getMsgCount());
+		assertEquals(unreadCount, c1.getUnreadCount());
 	}
 }
