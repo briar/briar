@@ -30,6 +30,11 @@
 	<string name="setup_huawei_app_launch_text">Please tap the button below, open the \"App launch\" screen and make sure Briar is set to \"Manage manually\".</string>
 	<string name="setup_huawei_app_launch_button">Open Battery Settings</string>
 	<string name="setup_huawei_app_launch_help">If Briar is not set to \"Manage manually\" in the \"App launch\" screen, it will not be able to run in the background.</string>
+	<string name="setup_xiaomi_text">To run in the background, Briar needs to be locked to the recent apps list.</string>
+	<string name="setup_xiaomi_button">Protect Briar</string>
+	<string name="setup_xiaomi_help">If Briar is not locked to the recent apps list, it will be unable to run in the background.</string>
+	<string name="setup_xiaomi_dialog_body_old">1. Open the recent apps list (also called the app switcher)\n\n2. Swipe down on the image of Briar to show the padlock icon\n\n3. If the padlock is not locked, tap to lock it</string>
+	<string name="setup_xiaomi_dialog_body_new">1. Open the recent apps list (also called the app switcher)\n\n2. Press and hold the image of Briar until the padlock button appears\n\n3. If the padlock is not locked, tap to lock it</string>
 	<string name="warning_dozed">%s was unable to run in the background</string>
 
 	<!-- Login -->
@@ -486,14 +491,14 @@
 	<string name="blogs_rss_feeds_import_button">Import</string>
 	<string name="blogs_rss_feeds_import_hint">Enter the URL of the RSS feed</string>
 	<string name="blogs_rss_feeds_import_error">We are sorry! There was an error importing your feed.</string>
-	<string name="blogs_rss_feeds_manage">Manage RSS Feeds</string>
+	<string name="blogs_rss_feeds_import_exists">That feed is already imported.</string>
+	<string name="blogs_rss_feeds">RSS Feeds</string>
 	<string name="blogs_rss_feeds_manage_imported">Imported:</string>
 	<string name="blogs_rss_feeds_manage_author">Author:</string>
 	<string name="blogs_rss_feeds_manage_updated">Last Updated:</string>
 	<string name="blogs_rss_remove_feed">Remove Feed</string>
 	<string name="blogs_rss_remove_feed_dialog_message">Are you sure that you want to remove this feed?\n\nPosts will be removed from your device but not from other people\'s devices.\n\nAny contacts you\'ve shared this feed with might stop receiving updates.</string>
 	<string name="blogs_rss_remove_feed_ok">Remove</string>
-	<string name="blogs_rss_feeds_manage_delete_error">The feed could not be deleted!</string>
 	<string name="blogs_rss_feeds_manage_empty_state">No RSS feeds to show\n\nTap the + icon to import a feed</string>
 	<string name="blogs_rss_feeds_manage_error">There was a problem loading your feeds. Please try again later.</string>
 

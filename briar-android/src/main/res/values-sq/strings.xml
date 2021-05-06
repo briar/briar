@@ -162,6 +162,7 @@
   <string name="menu_item_connect_via_bluetooth">Lidhu përmes Bluetooth-i</string>
   <string name="dialog_title_connect_via_bluetooth">Lidhu përmes Bluetooth-i</string>
   <string name="dialog_message_connect_via_bluetooth">Është e nevojshme që kontakti juaj të jetë atypari, që kjo të funksionojë.\n\nJu dhe kontakti juaj duhet që të shtypin “Fillo” në të njëjtën kohë.</string>
+  <string name="toast_connect_via_bluetooth_already_discovering">Po provohet tashmë të lidhet përmes Bluetooth-i</string>
   <string name="toast_connect_via_bluetooth_not_discoverable">S’mund të vazhdohet pa Bluetooth</string>
   <string name="toast_connect_via_bluetooth_no_location_permission">S’mund të vazhdohet pa leje vendore</string>
   <string name="toast_connect_via_bluetooth_start">Po lidhet me Bluetooth…</string>
@@ -457,14 +458,12 @@
   <string name="blogs_rss_feeds_import_button">Importo</string>
   <string name="blogs_rss_feeds_import_hint">Jepni URL-në e prurjes RSS</string>
   <string name="blogs_rss_feeds_import_error">Na ndjeni! Pati një gabim me importimin e prurjes tuaj.</string>
-  <string name="blogs_rss_feeds_manage">Administroni Prurje RSS</string>
   <string name="blogs_rss_feeds_manage_imported">Të importuara:</string>
   <string name="blogs_rss_feeds_manage_author">Autor:</string>
   <string name="blogs_rss_feeds_manage_updated">Përditësuar Së Fundi:</string>
   <string name="blogs_rss_remove_feed">Hiqe Prurjen</string>
   <string name="blogs_rss_remove_feed_dialog_message">Jeni i sigurt se doni të hiqet kjo prurje?\n\nPostimet do të hiqen nga pajisja juaj, por jo nga pajisjet e personave të tjerë.\n\nÇfarëdo kontaktesh me të cilët e keni ndarë këtë prurje mund të reshtin së marri përditësime.</string>
   <string name="blogs_rss_remove_feed_ok">Hiqe</string>
-  <string name="blogs_rss_feeds_manage_delete_error">S\’u fshi dot prurja!</string>
   <string name="blogs_rss_feeds_manage_empty_state">S’ka prurje RSS për shfaqje\n\nPrekni ikonën + që të importohet një prurje</string>
   <string name="blogs_rss_feeds_manage_error">Pati një problem me ngarkimin e prurjeve tuaja. Ju lutemi, riprovoni më vonë.</string>
   <!--Settings Profile Picture-->

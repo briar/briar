@@ -22,6 +22,9 @@
   <string name="setup_huawei_text">Veuillez toucher le bouton ci-dessous et vous assurer que Briar est protégée dans l’écran « Applis protégées ».</string>
   <string name="setup_huawei_button">Protéger Briar</string>
   <string name="setup_huawei_help">Si Briar n’est pas ajoutée à la liste des applis protégées, elle ne pourra pas fonctionner en arrière-plan.</string>
+  <string name="setup_huawei_app_launch_text">Veuillez toucher le bouton ci-dessous, ouvrir l’écran « Lancement des applis » et vous assurer que « Gérer manuellement » est défini pour Briar.</string>
+  <string name="setup_huawei_app_launch_button">Ouvrez les paramètres de la pile</string>
+  <string name="setup_huawei_app_launch_help">Si « Gérer manuellement » n’est pas défini pour Briar dans l’écran « Lancement des applis », l’appli ne pourra pas fonctionner en arrière-plan.</string>
   <string name="warning_dozed">%s n’a pas pu fonctionner en arrière-plan</string>
   <!--Login-->
   <string name="enter_password">Mot de passe</string>
@@ -159,6 +162,7 @@
   <string name="menu_item_connect_via_bluetooth">Se connecter par Bluetooth</string>
   <string name="dialog_title_connect_via_bluetooth">Se connecter par Bluetooth</string>
   <string name="dialog_message_connect_via_bluetooth">Afin que cela fonctionne, votre contact doit être à proximité.\n\nVotre contact et vous devriez appuyer ensemble sur « Commencer ».</string>
+  <string name="toast_connect_via_bluetooth_already_discovering">Tentative de connexion par Bluetooth déjà en cours</string>
   <string name="toast_connect_via_bluetooth_not_discoverable">Impossible de poursuivre sans le Bluetooth</string>
   <string name="toast_connect_via_bluetooth_no_location_permission">Impossible de poursuivre sans la permission de position</string>
   <string name="toast_connect_via_bluetooth_start">Connexion par Bluetooth…</string>
@@ -169,6 +173,7 @@
   <!--The placeholder at the end will add "Tap to learn more."-->
   <string name="auto_delete_msg_you_disabled">Vos messages ne disparaîtront pas. %1$s</string>
   <!--The first placeholder will show a contact's name. The second placeholder will show a duration like "7 days". The third placeholder at the end will add "Tap to learn more."-->
+  <string name="auto_delete_msg_contact_enabled">Les messages de %1$s disparaîtront après %2$s. %3$s</string>
   <plurals name="duration_minutes">
     <item quantity="one">%d minute</item>
     <item quantity="other">%d minutes</item>
@@ -453,14 +458,12 @@
   <string name="blogs_rss_feeds_import_button">Importer</string>
   <string name="blogs_rss_feeds_import_hint">Saisir l’URL du fil RSS</string>
   <string name="blogs_rss_feeds_import_error">Nous sommes désolés ! Une erreur est survenue lors de l’importation de votre fil.</string>
-  <string name="blogs_rss_feeds_manage">Gérer les fils RSS</string>
   <string name="blogs_rss_feeds_manage_imported">Importés :</string>
   <string name="blogs_rss_feeds_manage_author">Auteur :</string>
   <string name="blogs_rss_feeds_manage_updated">Dernière mise à jour :</string>
   <string name="blogs_rss_remove_feed">Supprimer le fil</string>
   <string name="blogs_rss_remove_feed_dialog_message">Voulez-vous vraiment supprimer ce fil ?\nLes billets seront supprimés de votre appareil mais pas des appareils d’autrui.\n\nLes contacts avec qui vous avez partagé ce fil pourraient ne plus en recevoir les mises à jour.</string>
   <string name="blogs_rss_remove_feed_ok">Supprimer</string>
-  <string name="blogs_rss_feeds_manage_delete_error">Impossible de supprimer le fil !</string>
   <string name="blogs_rss_feeds_manage_empty_state">Aucun fil RSS à afficher\n\nTouchez l’icône + pour importer un fil</string>
   <string name="blogs_rss_feeds_manage_error">Un problème est survenu lors du chargement de vos fils. Veuillez réessayer plus tard.</string>
   <!--Settings Profile Picture-->
@@ -557,8 +560,17 @@
   <string name="cannot_load_ringtone">Impossible de charger la sonnerie</string>
   <!--Conversation Settings-->
   <string name="disappearing_messages_title">Messages éphémères</string>
-  <string name="disappearing_messages_explanation_long">dsvkjfjhgvfdkjhgv dfkjgh fkjhsgkjfdkj fhfgfhg
-</string>
+  <string name="disappearing_messages_explanation_long">L’activation de ce paramètre fera disparaître
+		les messages de cette conversation automatiquement après 7\u00A0jours.
+		\n\nPour l’exemplaire de l’expéditeur du message, le compte à rebours commence une fois qu’il a été remis.
+		Pour le destinataire, le compte à rebours commence une fois que le
+message a été lu.
+		\n\nLes messages éphémères sont marqués par une icône de bombe.
+		\n\nSoyez conscient que les destinataires peuvent toujours faire des
+copies des messages que vous envoyez.
+		\n\nSi vous changez ce paramètre, il sera appliqué à vos nouveaux messages immédiatement
+		et aux messages de votre contact une fois que ce contact recevra votre prochain message.
+		Votre contact peut aussi changer ce paramètre pour vous deux.</string>
   <string name="learn_more">En apprendre davantage</string>
   <string name="disappearing_messages_summary">Faire disparaître automatiquement les futurs messages de cette conversation après 7 jours.</string>
   <!--Settings Feedback-->

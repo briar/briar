@@ -420,14 +420,12 @@
   <string name="blogs_rss_feeds_import_button">Importeer</string>
   <string name="blogs_rss_feeds_import_hint">Voer de URL van de RSS-feed in</string>
   <string name="blogs_rss_feeds_import_error">Excuses! Er trad een fout op bij het importeren van je feed.</string>
-  <string name="blogs_rss_feeds_manage">Beheer RSS-feeds</string>
   <string name="blogs_rss_feeds_manage_imported">Geïmporteerd:</string>
   <string name="blogs_rss_feeds_manage_author">Auteur:</string>
   <string name="blogs_rss_feeds_manage_updated">Laatst bijgewerkt:</string>
   <string name="blogs_rss_remove_feed">Verwijder feed</string>
   <string name="blogs_rss_remove_feed_dialog_message">Weet je zeker dat je deze feed wil verwijderen?\n\nPosts zullen van je apparaat worden verwijderd maar niet van apparaten van andere mensen.\n\nContacten met wie je deze feed hebt gedeeld zullen geen updates meer ontvangen.</string>
   <string name="blogs_rss_remove_feed_ok">Verwijderen</string>
-  <string name="blogs_rss_feeds_manage_delete_error">De feed kon niet worden verwijderd.</string>
   <string name="blogs_rss_feeds_manage_empty_state">Geen RSS-feeds om te tonen\n\nTik op het +-icoon om een feed te importeren</string>
   <string name="blogs_rss_feeds_manage_error">Er was een probleem met het laden van je feeds. Probeer het alsjeblieft later nog een keer.</string>
   <!--Settings Profile Picture-->

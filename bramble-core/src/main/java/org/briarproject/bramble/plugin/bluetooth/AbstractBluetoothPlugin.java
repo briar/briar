@@ -474,6 +474,16 @@ abstract class AbstractBluetoothPlugin<S, SS> implements BluetoothPlugin,
 	}
 
 	@Override
+	public void disablePolling() {
+		connectionLimiter.startLimiting();
+	}
+
+	@Override
+	public void enablePolling() {
+		connectionLimiter.endLimiting();
+	}
+
+	@Override
 	public DuplexTransportConnection discoverAndConnectForSetup(String uuid) {
 		DuplexTransportConnection conn = discoverAndConnect(uuid);
 		if (conn != null) {
@@ -501,9 +511,9 @@ abstract class AbstractBluetoothPlugin<S, SS> implements BluetoothPlugin,
 			if (s.getNamespace().equals(ID.getString()))
 				ioExecutor.execute(() -> onSettingsUpdated(s.getSettings()));
 		} else if (e instanceof KeyAgreementListeningEvent) {
-			ioExecutor.execute(connectionLimiter::keyAgreementStarted);
+			connectionLimiter.startLimiting();
 		} else if (e instanceof KeyAgreementStoppedListeningEvent) {
-			ioExecutor.execute(connectionLimiter::keyAgreementEnded);
+			connectionLimiter.endLimiting();
 		} else if (e instanceof RemoteTransportPropertiesUpdatedEvent) {
 			RemoteTransportPropertiesUpdatedEvent r =
 					(RemoteTransportPropertiesUpdatedEvent) e;

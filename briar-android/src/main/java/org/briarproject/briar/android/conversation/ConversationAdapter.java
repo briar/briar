@@ -142,6 +142,7 @@ class ConversationAdapter
 		}
 		items.beginBatchedUpdates();
 		for (ConversationItem item : toRemove) items.remove(item);
+		updateTimersInBatch();
 		items.endBatchedUpdates();
 	}
 

@@ -104,8 +104,7 @@
 
 		<activity
 			android:name="org.briarproject.briar.android.account.SetupActivity"
-			android:label="@string/setup_title"
-			android:windowSoftInputMode="adjustResize|stateAlwaysVisible" />
+			android:label="@string/setup_title" />
 
 		<activity
 			android:name="org.briarproject.briar.android.splash.SplashScreenActivity"
@@ -323,25 +322,6 @@
 		</activity>
 
 		<activity
-			android:name="org.briarproject.briar.android.blog.RssFeedImportActivity"
-			android:label="@string/blogs_rss_feeds_import"
-			android:parentActivityName="org.briarproject.briar.android.navdrawer.NavDrawerActivity"
-			android:windowSoftInputMode="adjustResize|stateAlwaysVisible">
-			<meta-data
-				android:name="android.support.PARENT_ACTIVITY"
-				android:value="org.briarproject.briar.android.navdrawer.NavDrawerActivity" />
-		</activity>
-
-		<activity
-			android:name="org.briarproject.briar.android.blog.RssFeedManageActivity"
-			android:label="@string/blogs_rss_feeds_manage"
-			android:parentActivityName="org.briarproject.briar.android.navdrawer.NavDrawerActivity">
-			<meta-data
-				android:name="android.support.PARENT_ACTIVITY"
-				android:value="org.briarproject.briar.android.navdrawer.NavDrawerActivity" />
-		</activity>
-
-		<activity
 			android:name="org.briarproject.briar.android.contact.add.nearby.AddNearbyContactActivity"
 			android:label="@string/add_contact_title"
 			android:parentActivityName="org.briarproject.briar.android.navdrawer.NavDrawerActivity"
@@ -446,6 +426,15 @@
 			android:label="@string/add_contact_remotely_title_case"
 			android:theme="@style/BriarTheme"
 			android:windowSoftInputMode="adjustResize|stateHidden" />
+
+		<activity
+			android:name="org.briarproject.briar.android.blog.RssFeedActivity"
+			android:label="@string/blogs_rss_feeds"
+			android:parentActivityName="org.briarproject.briar.android.navdrawer.NavDrawerActivity">
+			<meta-data
+				android:name="android.support.PARENT_ACTIVITY"
+				android:value="org.briarproject.briar.android.navdrawer.NavDrawerActivity" />
+		</activity>
 
 		<activity
 			android:name=".android.contact.add.remote.PendingContactListActivity"

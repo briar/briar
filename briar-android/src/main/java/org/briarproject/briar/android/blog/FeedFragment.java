@@ -131,15 +131,8 @@ public class FeedFragment extends BaseFragment
 			i.putExtra(GROUP_ID, personalBlog.getId().getBytes());
 			startActivity(i);
 			return true;
-		} else if (itemId == R.id.action_rss_feeds_import) {
-			Intent i = new Intent(getActivity(), RssFeedImportActivity.class);
-			startActivity(i);
-			return true;
-		} else if (itemId == R.id.action_rss_feeds_manage) {
-			Blog personalBlog = viewModel.getPersonalBlog().getValue();
-			if (personalBlog == null) return false;
-			Intent i = new Intent(getActivity(), RssFeedManageActivity.class);
-			i.putExtra(GROUP_ID, personalBlog.getId().getBytes());
+		} else if (itemId == R.id.action_rss_feeds) {
+			Intent i = new Intent(getActivity(), RssFeedActivity.class);
 			startActivity(i);
 			return true;
 		}

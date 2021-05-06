@@ -392,7 +392,6 @@ Volètz suprimir vòstre compte e ne crear un nòu ?\n
   <string name="blogs_rss_feeds_import_button">Importar</string>
   <string name="blogs_rss_feeds_import_hint">Marcar l’URL del flux RSS</string>
   <string name="blogs_rss_feeds_import_error">Una error s’es produisida en importar lo flux</string>
-  <string name="blogs_rss_feeds_manage">Gerir lo flux RSS</string>
   <string name="blogs_rss_feeds_manage_imported">Importat :</string>
   <string name="blogs_rss_feeds_manage_author">Autor :</string>
   <string name="blogs_rss_feeds_manage_updated">Darrièra mesa a jorn :</string>
@@ -402,7 +401,6 @@ levadas de vòstre aparelh mas pas dels aparelhs del monde.\n\nTotes los
 contactes qu’avètz partejat aqueste flux quitaràn benlèu de recebre las mesas
  a jorn.</string>
   <string name="blogs_rss_remove_feed_ok">Suprimir</string>
-  <string name="blogs_rss_feeds_manage_delete_error">Impossible de suprimir lo flux !</string>
   <string name="blogs_rss_feeds_manage_empty_state">Cap de flux RSS de far veire.\n\nTocatz l’icòna + per n’importar un</string>
   <string name="blogs_rss_feeds_manage_error">Error en cargar vòstres fluxes. Ensajatz mai tard.</string>
   <!--Settings Profile Picture-->

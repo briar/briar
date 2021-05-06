@@ -400,7 +400,6 @@ Umepoteza nenosiri.</string>
   <string name="blogs_rss_feeds_import_button">Ingiza</string>
   <string name="blogs_rss_feeds_import_hint">Ingiza URL za RSS taarifa</string>
   <string name="blogs_rss_feeds_import_error">Samahani! Kulikuwa na hitilafu wakati wakuingiza taarifa </string>
-  <string name="blogs_rss_feeds_manage">Simamia taarifa za RSS</string>
   <string name="blogs_rss_feeds_manage_imported">Zilizoingizwa</string>
   <string name="blogs_rss_feeds_manage_author">Mwandishi:</string>
   <string name="blogs_rss_feeds_manage_updated">huwisho la mwisho
@@ -408,7 +407,6 @@ Umepoteza nenosiri.</string>
   <string name="blogs_rss_remove_feed">Ondoa taarifa</string>
   <string name="blogs_rss_remove_feed_dialog_message">Unauhakika unataka kutoa hii taarifa?\n\nChapisho lako litaondolewa kwenye kifaa chako ila sio kwenye vifaa vya watu wengine.\n\nMawasiliano yoyote utliokwisha kuyaunganisha wanaweza wasiendelea kupata taarifa. </string>
   <string name="blogs_rss_remove_feed_ok">Ondoa</string>
-  <string name="blogs_rss_feeds_manage_delete_error">Taharifa haziwezekani kuzifuta! </string>
   <string name="blogs_rss_feeds_manage_empty_state">Hakuna RSS taharifa zaku onyesha\n\nBonyeza + ikoni kuleta taharifa </string>
   <string name="blogs_rss_feeds_manage_error">Kulikuwa na tatizo la kufungua taharifa . Tafathali jaribu baadae kidogo.</string>
   <!--Settings Profile Picture-->

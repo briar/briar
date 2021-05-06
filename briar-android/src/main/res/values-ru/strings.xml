@@ -476,14 +476,12 @@
   <string name="blogs_rss_feeds_import_button">Импорт</string>
   <string name="blogs_rss_feeds_import_hint">Введите URL-адрес RSS-ленты</string>
   <string name="blogs_rss_feeds_import_error">Мы сожалеем! Произошла ошибка при импорте ленты.</string>
-  <string name="blogs_rss_feeds_manage">Управление RSS-лентами</string>
   <string name="blogs_rss_feeds_manage_imported">Импортирован:</string>
   <string name="blogs_rss_feeds_manage_author">Автор:</string>
   <string name="blogs_rss_feeds_manage_updated">Последнее обновление:</string>
   <string name="blogs_rss_remove_feed">Удалить RSS-ленту</string>
   <string name="blogs_rss_remove_feed_dialog_message">Вы уверены, что хотите удалить эту ленту?\n\nПосты будут удалены только с вашего устройства.\n\nВсе контакты, с которыми вы поделились этой лентой, могут перестать получать обновления.</string>
   <string name="blogs_rss_remove_feed_ok">Удалить</string>
-  <string name="blogs_rss_feeds_manage_delete_error">Не удалось удалить ленту!</string>
   <string name="blogs_rss_feeds_manage_empty_state">Нет RSS-лент для отображения\n\nКоснитесь значка + для импорта ленты</string>
   <string name="blogs_rss_feeds_manage_error">Ошибка при загрузке вашей ленты. Повторите попытку позже.</string>
   <!--Settings Profile Picture-->

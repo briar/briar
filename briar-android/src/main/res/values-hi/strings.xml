@@ -378,14 +378,12 @@
   <string name="blogs_rss_feeds_import_button">आयात</string>
   <string name="blogs_rss_feeds_import_hint">आरएसएस फ़ीड का यूआरएल दर्ज करें</string>
   <string name="blogs_rss_feeds_import_error">हमें खेद है! आपकी फ़ीड आयात करने में एक त्रुटि हुई</string>
-  <string name="blogs_rss_feeds_manage">आरएसएस फ़ीड प्रबंधित करें</string>
   <string name="blogs_rss_feeds_manage_imported">आयातित:</string>
   <string name="blogs_rss_feeds_manage_author">लेखक:</string>
   <string name="blogs_rss_feeds_manage_updated">आखरी अपडेट:</string>
   <string name="blogs_rss_remove_feed">फ़ीड निकालें</string>
   <string name="blogs_rss_remove_feed_dialog_message">क्या आप वाकई इस फीड को हटाना चाहते हैं? \ N \ n पोस्ट आपके डिवाइस से हटा दिए जाएंगे, लेकिन अन्य लोगों के डिवाइस से नहीं। \ N \ n आपके द्वारा इस फ़ीड को साझा करने वाले किसी भी संपर्क को अपडेट प्राप्त करना बंद हो सकता है।</string>
   <string name="blogs_rss_remove_feed_ok">हटाना</string>
-  <string name="blogs_rss_feeds_manage_delete_error">फीड हटाया नहीं जा सका!</string>
   <string name="blogs_rss_feeds_manage_empty_state">कोई आरएसएस फ़ीड दिखाने के लिए फ़ीड नहीं करता \ n \ n फ़ीड आयात करने के लिए + आइकन टैप करें</string>
   <string name="blogs_rss_feeds_manage_error">आपकी फ़ीड लोड करने में एक समस्या थी बाद में पुन: प्रयास करें।</string>
   <!--Settings Profile Picture-->

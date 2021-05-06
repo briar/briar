@@ -10,7 +10,7 @@ import javax.annotation.concurrent.Immutable;
 
 @Immutable
 @NotNullByDefault
-public class Feed {
+public class Feed implements Comparable<Feed> {
 
 	private final String url;
 	private final Blog blog;
@@ -92,6 +92,15 @@ public class Feed {
 			return blog.equals(f.blog);
 		}
 		return false;
+	}
+
+	@Override
+	public int compareTo(Feed o) {
+		if (this == o) return 0;
+		long aTime = getAdded(), bTime = o.getAdded();
+		if (aTime > bTime) return -1;
+		if (aTime < bTime) return 1;
+		return 0;
 	}
 
 }

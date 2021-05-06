@@ -141,7 +141,7 @@
   <string name="fix">Behoben</string>
   <string name="help">Hilfe</string>
   <string name="sorry">Entschuldigung</string>
-  <string name="error_start_activity">Nicht Verfügbar für dein System</string>
+  <string name="error_start_activity">Nicht verfügbar für dein System</string>
   <string name="status_heading">Status:</string>
   <!--Contacts and Private Conversations-->
   <string name="no_contacts">Keine Kontakte vorhanden</string>
@@ -162,6 +162,7 @@
   <string name="menu_item_connect_via_bluetooth">Über Bluetooth verbinden</string>
   <string name="dialog_title_connect_via_bluetooth">Über Bluetooth verbinden</string>
   <string name="dialog_message_connect_via_bluetooth">Dein Kontakt muss in der Nähe sein, damit dies funktioniert.\n\nDu und dein Kontakt sollten beide gleichzeitig \"Start\" drücken.</string>
+  <string name="toast_connect_via_bluetooth_already_discovering">Versucht bereits, eine Verbindung über Bluetooth herzustellen</string>
   <string name="toast_connect_via_bluetooth_not_discoverable">Kann ohne Bluetooth nicht fortgesetzt werden</string>
   <string name="toast_connect_via_bluetooth_no_location_permission">Kann ohne Standortberechtigung nicht fortgesetzt werden</string>
   <string name="toast_connect_via_bluetooth_start">Verbinde über Bluetooth…</string>
@@ -457,14 +458,12 @@
   <string name="blogs_rss_feeds_import_button">Importieren</string>
   <string name="blogs_rss_feeds_import_hint">URL des RSS-Feeds eingeben</string>
   <string name="blogs_rss_feeds_import_error">Es tut uns Leid! Es gab einen Fehler beim Importieren deines Feeds.</string>
-  <string name="blogs_rss_feeds_manage">RSS-Feeds verwalten</string>
   <string name="blogs_rss_feeds_manage_imported">Importiert:</string>
   <string name="blogs_rss_feeds_manage_author">Autor:</string>
   <string name="blogs_rss_feeds_manage_updated">Letzte Aktualisierung:</string>
   <string name="blogs_rss_remove_feed">Feed entfernen</string>
   <string name="blogs_rss_remove_feed_dialog_message">Bist du sicher, dass du diesen Feed löschen willst?\n\nBeiträge werden von deinem Gerät entfernt, aber nicht von den Geräten anderer Personen.\n\nAlle Kontakte, für die du diesen Feed freigegeben hast, können keine Updates mehr erhalten.</string>
   <string name="blogs_rss_remove_feed_ok">Aufheben</string>
-  <string name="blogs_rss_feeds_manage_delete_error">Der Feed konnte nicht gelöscht werden!</string>
   <string name="blogs_rss_feeds_manage_empty_state">Keine RSS-Feeds vorhanden\n\nTippe auf das + Symbol, um einen Feed zu importieren</string>
   <string name="blogs_rss_feeds_manage_error">Es gab ein Problem beim Laden deiner Feeds. Bitte versuche es später erneut.</string>
   <!--Settings Profile Picture-->

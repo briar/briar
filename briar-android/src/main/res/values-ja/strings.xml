@@ -369,14 +369,12 @@
   <string name="blogs_rss_feeds_import_button">インポート</string>
   <string name="blogs_rss_feeds_import_hint">RSSフィードのURLを入力してください</string>
   <string name="blogs_rss_feeds_import_error">申し訳ありません！ フィードのインポート中にエラーが発生しました。</string>
-  <string name="blogs_rss_feeds_manage">RSSフィードを管理</string>
   <string name="blogs_rss_feeds_manage_imported">インポート済み：</string>
   <string name="blogs_rss_feeds_manage_author">著者:</string>
   <string name="blogs_rss_feeds_manage_updated">最終更新:</string>
   <string name="blogs_rss_remove_feed">フィードを削除</string>
   <string name="blogs_rss_remove_feed_dialog_message">このフィードを削除してもよろしいですか？\n\n投稿はデバイスから削除されますが、他の人のデバイスからは削除されません。\n\nこのフィードを共有した人は更新の受信を停止されます。</string>
   <string name="blogs_rss_remove_feed_ok">解除</string>
-  <string name="blogs_rss_feeds_manage_delete_error">フィードを削除できませんでした！</string>
   <string name="blogs_rss_feeds_manage_empty_state">表示するRSSフィードはありません\n\n「＋」アイコンをタップしてフィードをインポートします</string>
   <string name="blogs_rss_feeds_manage_error">フィードの読み込み中に問題が発生しました。 後でもう一度やり直してください。</string>
   <!--Settings Profile Picture-->

@@ -400,14 +400,12 @@
   <string name="blogs_rss_feeds_import_button">Zaimportuj</string>
   <string name="blogs_rss_feeds_import_hint">Wprowadź adres URL do kanału RSS</string>
   <string name="blogs_rss_feeds_import_error">Przepraszamy! Wystąpił błąd podczas importowania twojego kanału RSS</string>
-  <string name="blogs_rss_feeds_manage">Zarządzaj kanałami RSS</string>
   <string name="blogs_rss_feeds_manage_imported">Zaimportowane:</string>
   <string name="blogs_rss_feeds_manage_author">Autor:</string>
   <string name="blogs_rss_feeds_manage_updated">Ostatnio Zaktualizowane:</string>
   <string name="blogs_rss_remove_feed">Usuń kanał RSS</string>
   <string name="blogs_rss_remove_feed_dialog_message">Jesteś pewny, że chcesz usunąć ten kanał RSS?\n\nPosty będą usunięte z Twojego urządzenia, ale nie z urządzeń innych ludzi.\n\nWszystkie kontakty którym udostępniłeś ten kanał mogą przestać otrzymywać jego uaktualnienia</string>
   <string name="blogs_rss_remove_feed_ok">Usuń</string>
-  <string name="blogs_rss_feeds_manage_delete_error">Kanał nie mógł zostać usunięty!</string>
   <string name="blogs_rss_feeds_manage_empty_state">Brak RSS do wyświetlenia\n\nDotknij ikonki + aby zaimportować kanał.</string>
   <string name="blogs_rss_feeds_manage_error">Wystąpił problem podczas ładowania twoich kanałów RSS. Proszę spróbować ponownie później.</string>
   <!--Settings Profile Picture-->

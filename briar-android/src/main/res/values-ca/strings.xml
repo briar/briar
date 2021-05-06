@@ -421,14 +421,12 @@ Així que l\'actualitzi li veureu una icona diferent .</string>
   <string name="blogs_rss_feeds_import_button">Subscriu-me</string>
   <string name="blogs_rss_feeds_import_hint">Escriviu l\'URL del canal de notícies RSS</string>
   <string name="blogs_rss_feeds_import_error">Ens sap greu! S\'ha produït un error en subscriure-us al vostre canal de notícies.</string>
-  <string name="blogs_rss_feeds_manage">Gestiona els canals de notícies RSS</string>
   <string name="blogs_rss_feeds_manage_imported">Importat:</string>
   <string name="blogs_rss_feeds_manage_author">Autor:</string>
   <string name="blogs_rss_feeds_manage_updated">Darrera actualització:</string>
   <string name="blogs_rss_remove_feed">Suprimeix la subscripció al canal de notícies</string>
   <string name="blogs_rss_remove_feed_dialog_message">Segur que voleu suprimir la subscripció a aquest canal de notícies?\n\nLes notícies d\'aquest canal s\'eliminaran del vostre dispositiu però no del d\'altres persones.\n\nEls contactes amb els que hàgeu compartit aquest canal poden deixar de rebre les actualitzacions.</string>
   <string name="blogs_rss_remove_feed_ok">Suprimeix la subscripció</string>
-  <string name="blogs_rss_feeds_manage_delete_error">La subscripció al canal de notícies no s\'ha pogut suprimir.</string>
   <string name="blogs_rss_feeds_manage_empty_state">No hi ha cap notícia per mostrar\n\nFeu un toc sobre la icona + per subscriure-us a un canal de notícies</string>
   <string name="blogs_rss_feeds_manage_error">S\'ha produït un problema en actualitzar els vostres canals de notícies. Torneu-ho a provar més endavant.</string>
   <!--Settings Profile Picture-->

@@ -332,14 +332,12 @@
   <string name="blogs_rss_feeds_import_button">Uvezi</string>
   <string name="blogs_rss_feeds_import_hint">Unesi URL od RSS kanala</string>
   <string name="blogs_rss_feeds_import_error">Žao nam je! Došlo je do greške pri unosu vašeg kanala.</string>
-  <string name="blogs_rss_feeds_manage">Upravljanje RSS kanalima</string>
   <string name="blogs_rss_feeds_manage_imported">Uvezeno:</string>
   <string name="blogs_rss_feeds_manage_author">Autor:</string>
   <string name="blogs_rss_feeds_manage_updated">Zadnje ažuriranje:</string>
   <string name="blogs_rss_remove_feed">Uklonite kanal</string>
   <string name="blogs_rss_remove_feed_dialog_message">Jeste li sigurni da želite da uklonite kanal?\n\nPostovi će biti uklonjeni sa vašeg uređaja ali ne is uređaja drugih ljudi.\n\nKontakti kojima ste podijelili ovaj blog će možda prestati da dobijaju novosti.</string>
   <string name="blogs_rss_remove_feed_ok">Ukloni</string>
-  <string name="blogs_rss_feeds_manage_delete_error">Kanal nije bilo moguće ukloniti!</string>
   <string name="blogs_rss_feeds_manage_empty_state">Nema RSS kanala za prikazivanje\n\nDotaknite + ikonu da uvezete kanal</string>
   <string name="blogs_rss_feeds_manage_error">Došlo je do problema pri učitavanju vaših kanala. Probajte opet kasnije.</string>
   <!--Settings Profile Picture-->

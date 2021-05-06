@@ -23,8 +23,10 @@ import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Executor;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Logger;
 
 import javax.inject.Inject;
@@ -45,15 +47,22 @@ import static org.junit.Assume.assumeTrue;
 public class BridgeTest extends BrambleTestCase {
 
 	@Parameters
-	public static Iterable<String> data() {
+	public static Iterable<Params> data() {
 		BrambleJavaIntegrationTestComponent component =
 				DaggerBrambleJavaIntegrationTestComponent.builder().build();
 		BrambleCoreIntegrationTestEagerSingletons.Helper
 				.injectEagerSingletons(component);
-		return component.getCircumventionProvider().getBridges(false);
+		// Share a failure counter among all the test instances
+		AtomicInteger failures = new AtomicInteger(0);
+		List<String> bridges =
+				component.getCircumventionProvider().getBridges(false);
+		List<Params> states = new ArrayList<>(bridges.size());
+		for (String bridge : bridges) states.add(new Params(bridge, failures));
+		return states;
 	}
 
 	private final static long TIMEOUT = SECONDS.toMillis(60);
+	private final static int NUM_FAILURES_ALLOWED = 1;
 
 	private final static Logger LOG = getLogger(BridgeTest.class.getName());
 
@@ -80,11 +89,13 @@ public class BridgeTest extends BrambleTestCase {
 
 	private final File torDir = getTestDirectory();
 	private final String bridge;
+	private final AtomicInteger failures;
 
 	private UnixTorPluginFactory factory;
 
-	public BridgeTest(String bridge) {
-		this.bridge = bridge;
+	public BridgeTest(Params params) {
+		bridge = params.bridge;
+		failures = params.failures;
 	}
 
 	@Before
@@ -152,10 +163,24 @@ public class BridgeTest extends BrambleTestCase {
 				clock.sleep(500);
 			}
 			if (plugin.getState() != ACTIVE) {
-				fail("Could not connect to Tor within timeout.");
+				LOG.warning("Could not connect to Tor within timeout");
+				if (failures.incrementAndGet() > NUM_FAILURES_ALLOWED) {
+					fail(failures.get() + " bridges are unreachable");
+				}
 			}
 		} finally {
 			plugin.stop();
+		}
+	}
+
+	private static class Params {
+
+		private final String bridge;
+		private final AtomicInteger failures;
+
+		private Params(String bridge, AtomicInteger failures) {
+			this.bridge = bridge;
+			this.failures = failures;
 		}
 	}
 }

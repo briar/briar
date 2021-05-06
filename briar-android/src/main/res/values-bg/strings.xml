@@ -238,13 +238,11 @@
   <string name="blogs_rss_feeds_import_button">Внасяне</string>
   <string name="blogs_rss_feeds_import_hint">Въведете URL адреса на RSS емисията</string>
   <string name="blogs_rss_feeds_import_error">Възникна грешка при внасянето на емисия.</string>
-  <string name="blogs_rss_feeds_manage">Управление на RSS емисии</string>
   <string name="blogs_rss_feeds_manage_imported">Внесена:</string>
   <string name="blogs_rss_feeds_manage_author">Автор:</string>
   <string name="blogs_rss_feeds_manage_updated">Последно актуализиране:</string>
   <string name="blogs_rss_remove_feed">Премахване на емисия</string>
   <string name="blogs_rss_remove_feed_ok">Премахване</string>
-  <string name="blogs_rss_feeds_manage_delete_error">Емисията не можа да бъде изтрита!</string>
   <string name="blogs_rss_feeds_manage_error">Възникна проблем при зареждането на емисиите ви. Моля, опитайте пак по-късно.</string>
   <!--Settings Display-->
   <!--Settings Network-->

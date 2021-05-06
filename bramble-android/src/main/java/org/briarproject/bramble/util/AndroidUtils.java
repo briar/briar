@@ -10,17 +10,20 @@ import org.briarproject.bramble.api.Pair;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 
 import java.io.File;
+import java.io.IOException;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Scanner;
 
 import javax.annotation.Nullable;
 
 import static android.content.Context.MODE_PRIVATE;
 import static android.os.Build.VERSION.SDK_INT;
+import static java.lang.Runtime.getRuntime;
 import static java.util.Arrays.asList;
 import static org.briarproject.bramble.api.nullsafety.NullSafety.requireNonNull;
 
@@ -117,5 +120,18 @@ public class AndroidUtils {
 	 */
 	public static String[] getSupportedImageContentTypes() {
 		return new String[] {"image/jpeg", "image/png", "image/gif"};
+	}
+
+	@Nullable
+	public static String getSystemProperty(String propName) {
+		try {
+			Process p = getRuntime().exec("getprop " + propName);
+			Scanner s = new Scanner(p.getInputStream());
+			String line = s.nextLine();
+			s.close();
+			return line;
+		} catch (SecurityException | IOException e) {
+			return null;
+		}
 	}
 }

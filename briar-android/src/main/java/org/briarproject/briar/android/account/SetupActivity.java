@@ -26,6 +26,8 @@ import static org.briarproject.briar.android.account.SetupViewModel.State.CREATE
 import static org.briarproject.briar.android.account.SetupViewModel.State.DOZE;
 import static org.briarproject.briar.android.account.SetupViewModel.State.FAILED;
 import static org.briarproject.briar.android.account.SetupViewModel.State.SET_PASSWORD;
+import static org.briarproject.briar.android.util.UiUtils.setInputStateAlwaysVisible;
+import static org.briarproject.briar.android.util.UiUtils.setInputStateHidden;
 
 @MethodsNotNullByDefault
 @ParametersNotNullByDefault
@@ -55,10 +57,13 @@ public class SetupActivity extends BaseActivity
 
 	private void onStateChanged(SetupViewModel.State state) {
 		if (state == AUTHOR_NAME) {
+			setInputStateAlwaysVisible(this);
 			showInitialFragment(AuthorNameFragment.newInstance());
 		} else if (state == SET_PASSWORD) {
+			setInputStateAlwaysVisible(this);
 			showPasswordFragment();
 		} else if (state == DOZE) {
+			setInputStateHidden(this);
 			showDozeFragment();
 		} else if (state == CREATED || state == FAILED) {
 			// TODO: Show an error if failed

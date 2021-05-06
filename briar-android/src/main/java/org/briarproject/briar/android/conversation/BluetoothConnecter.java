@@ -176,6 +176,7 @@ class BluetoothConnecter implements EventListener {
 		connect();
 	}
 
+	@UiThread
 	@Override
 	public void eventOccurred(@NonNull Event e) {
 		if (e instanceof ConnectionOpenedEvent) {
@@ -192,40 +193,49 @@ class BluetoothConnecter implements EventListener {
 	}
 
 	private void connect() {
+		bluetoothPlugin.disablePolling();
 		pluginManager.setPluginEnabled(ID, true);
 
 		ioExecutor.execute(() -> {
-			if (!waitForBluetoothActive()) {
-				showToast(R.string.bt_plugin_status_inactive);
-				LOG.warning("Bluetooth plugin didn't become active");
-				return;
-			}
-			showToast(R.string.toast_connect_via_bluetooth_start);
-			eventBus.addListener(this);
 			try {
-				String uuid = null;
-				try {
-					uuid = transportPropertyManager
-							.getRemoteProperties(contactId, ID).get(PROP_UUID);
-				} catch (DbException e) {
-					logException(LOG, WARNING, e);
-				}
-				if (isNullOrEmpty(uuid)) {
-					LOG.warning("PROP_UUID missing for contact");
+				if (!waitForBluetoothActive()) {
+					showToast(R.string.bt_plugin_status_inactive);
+					LOG.warning("Bluetooth plugin didn't become active");
 					return;
 				}
-				DuplexTransportConnection conn = bluetoothPlugin
-						.discoverAndConnectForSetup(uuid);
-				if (conn == null) {
-					waitAfterConnectionFailed();
-				} else {
-					LOG.info("Could connect, handling connection");
+				showToast(R.string.toast_connect_via_bluetooth_start);
+				eventBus.addListener(this);
+				try {
+					String uuid = null;
+					try {
+						uuid = transportPropertyManager
+								.getRemoteProperties(contactId, ID)
+								.get(PROP_UUID);
+					} catch (DbException e) {
+						logException(LOG, WARNING, e);
+					}
+					if (isNullOrEmpty(uuid)) {
+						LOG.warning("PROP_UUID missing for contact");
+						return;
+					}
+					DuplexTransportConnection conn = bluetoothPlugin
+							.discoverAndConnectForSetup(uuid);
+					if (conn == null) {
+						waitAfterConnectionFailed();
+					} else {
+						LOG.info("Could connect, handling connection");
+						connectionManager
+								.manageOutgoingConnection(contactId, ID, conn);
+						showToast(R.string.toast_connect_via_bluetooth_success);
+					}
 					connectionManager
 							.manageOutgoingConnection(contactId, ID, conn);
 					showToast(R.string.toast_connect_via_bluetooth_success);
+				} finally {
+					eventBus.removeListener(this);
 				}
 			} finally {
-				eventBus.removeListener(this);
+				bluetoothPlugin.enablePolling();
 			}
 		});
 	}

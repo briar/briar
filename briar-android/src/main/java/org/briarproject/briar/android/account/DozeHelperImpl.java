@@ -10,6 +10,7 @@ class DozeHelperImpl implements DozeHelper {
 		Context appContext = context.getApplicationContext();
 		return needsDozeWhitelisting(appContext) ||
 				HuaweiProtectedAppsView.needsToBeShown(appContext) ||
-				HuaweiAppLaunchView.needsToBeShown(appContext);
+				HuaweiAppLaunchView.needsToBeShown(appContext) ||
+				XiaomiView.isXiaomiOrRedmiDevice();
 	}
 }

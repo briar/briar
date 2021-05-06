@@ -162,6 +162,7 @@
   <string name="menu_item_connect_via_bluetooth">Conectar mediante Bluetooth</string>
   <string name="dialog_title_connect_via_bluetooth">Conectar mediante Bluetooth</string>
   <string name="dialog_message_connect_via_bluetooth">Tu contacto necesita estar cerca para que esto funcione.\n\nTú y tu contacto deberían presionar \"Iniciar\" ambos al mismo tiempo.</string>
+  <string name="toast_connect_via_bluetooth_already_discovering">Ya se está intentando conectar mediante Bluetooth</string>
   <string name="toast_connect_via_bluetooth_not_discoverable">No se puede continuar sin Bluetooth</string>
   <string name="toast_connect_via_bluetooth_no_location_permission">No se puede continuar sin permiso de ubicación</string>
   <string name="toast_connect_via_bluetooth_start">Conectar mediante Bluetooth...</string>
@@ -457,14 +458,12 @@
   <string name="blogs_rss_feeds_import_button">Importar</string>
   <string name="blogs_rss_feeds_import_hint">Introduce la URL del canal RSS</string>
   <string name="blogs_rss_feeds_import_error">¡Lo sentimos! Hubo un error importando tu canal.</string>
-  <string name="blogs_rss_feeds_manage">Administrar canales RSS</string>
   <string name="blogs_rss_feeds_manage_imported">Importado:</string>
   <string name="blogs_rss_feeds_manage_author">Autor:</string>
   <string name="blogs_rss_feeds_manage_updated">Última actualización:</string>
   <string name="blogs_rss_remove_feed">Eliminar canal RSS</string>
   <string name="blogs_rss_remove_feed_dialog_message">¿Estás seguro de que quieres quitar este canal RSS?\n\nLos mensajes se eliminarán de tu dispositivo, pero no de los dispositivos de otras personas.\n\nEs posible que los contactos con los que hayas compartido este canal dejen de recibir actualizaciones.</string>
   <string name="blogs_rss_remove_feed_ok">Eliminar</string>
-  <string name="blogs_rss_feeds_manage_delete_error">¡El canal no pudo ser eliminado!</string>
   <string name="blogs_rss_feeds_manage_empty_state">No hay canales RSS que mostrar\n\nGolpea el icono + para importar uno</string>
   <string name="blogs_rss_feeds_manage_error">Hubo un problema cargando tus canales RSS. Por favor, prueba más tarde.</string>
   <!--Settings Profile Picture-->

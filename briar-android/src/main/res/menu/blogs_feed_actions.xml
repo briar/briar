@@ -10,13 +10,8 @@
 		app:showAsAction="always"/>
 
 	<item
-		android:id="@+id/action_rss_feeds_import"
-		android:title="@string/blogs_rss_feeds_import"
-		app:showAsAction="never"/>
-
-	<item
-		android:id="@+id/action_rss_feeds_manage"
-		android:title="@string/blogs_rss_feeds_manage"
+		android:id="@+id/action_rss_feeds"
+		android:title="@string/blogs_rss_feeds"
 		app:showAsAction="never"/>
 
 </menu>

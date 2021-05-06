@@ -22,6 +22,9 @@
   <string name="setup_huawei_text">Ýttu á hnappinn hér fyrir neðan og gakktu úr skugga um að Briar sé varið á skjánum \"Varin forrit\".</string>
   <string name="setup_huawei_button">Verja Briar</string>
   <string name="setup_huawei_help">Ef Briar er ekki bætt á listann yfir varin forrit, getur það ekki keyrt í bakgrunni.</string>
+  <string name="setup_huawei_app_launch_text">Ýttu á hnappinn hér fyrir neðan, opnaðu \"Ræsing forrits\" skjáinn og gakktu úr skugga um að Briar sé stillt á \"Stýra handvirkt\".</string>
+  <string name="setup_huawei_app_launch_button">Opna rafhlöðustillingar</string>
+  <string name="setup_huawei_app_launch_help">Ef Briar er ekki stillt á \"Stýra handvirkt\" í \"Ræsing forrits\" skjánum, mun það ekki geta keyrt í bakgrunni.</string>
   <string name="warning_dozed">%s gat ekki keyrt í bakgrunni</string>
   <!--Login-->
   <string name="enter_password">Lykilorð</string>
@@ -159,6 +162,7 @@
   <string name="menu_item_connect_via_bluetooth">Tengjast í gegnum Bluetooth</string>
   <string name="dialog_title_connect_via_bluetooth">Tengjast í gegnum Bluetooth</string>
   <string name="dialog_message_connect_via_bluetooth">Tengiliðurinn þinn þarf að vera nálægt til að þetta virki.\n\nÞú og tengiliðurinn ættuð bæði að ýta á \"Byrja\" á sama tíma.</string>
+  <string name="toast_connect_via_bluetooth_already_discovering">Þegar að reyna að tengjast í gegnum Bluetooth</string>
   <string name="toast_connect_via_bluetooth_not_discoverable">Get ekki haldið áfram án Bluetooth</string>
   <string name="toast_connect_via_bluetooth_no_location_permission">Get ekki haldið áfram án heimildar til að nota staðsetningu</string>
   <string name="toast_connect_via_bluetooth_start">Tengist í gegnum Bluetooth…</string>
@@ -454,14 +458,12 @@
   <string name="blogs_rss_feeds_import_button">Flytja inn</string>
   <string name="blogs_rss_feeds_import_hint">Settu inn slóðina á RSS-streymið</string>
   <string name="blogs_rss_feeds_import_error">Því miður! Það kom upp villa við að flytja inn streymið.</string>
-  <string name="blogs_rss_feeds_manage">Sýsla með RSS-streymi</string>
   <string name="blogs_rss_feeds_manage_imported">Flutt inn:</string>
   <string name="blogs_rss_feeds_manage_author">Höfundur:</string>
   <string name="blogs_rss_feeds_manage_updated">Síðast uppfært:</string>
   <string name="blogs_rss_remove_feed">Fjarlægja streymi</string>
   <string name="blogs_rss_remove_feed_dialog_message">Ertu viss um að þú viljir fjarlægja þetta streymi?\n\nFærslur verða fjarlægðar af tækinu þínu en ekki tækjum annars fólks.\n\nAllir tengiliðir sem þú hefur deilt þessu streymi með gætu hætt að fá uppfærslur.</string>
   <string name="blogs_rss_remove_feed_ok">Fjarlægja</string>
-  <string name="blogs_rss_feeds_manage_delete_error">Ekki var hægt að eyða streyminu!</string>
   <string name="blogs_rss_feeds_manage_empty_state">Engin RSS-streymi til að birta\n\nÝttu á + táknið til að flytja inn streymi</string>
   <string name="blogs_rss_feeds_manage_error">Vandamál hefur komið upp með að hlaða inn streymunum þínum. Reyndu aftur síðar.</string>
   <!--Settings Profile Picture-->

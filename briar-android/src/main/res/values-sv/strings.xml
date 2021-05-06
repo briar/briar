@@ -420,14 +420,12 @@
   <string name="blogs_rss_feeds_import_button">Importera</string>
   <string name="blogs_rss_feeds_import_hint">Skriv URL till RSS-flödet</string>
   <string name="blogs_rss_feeds_import_error">Tyvärr! Något gick fel när flödet skulle importeras.</string>
-  <string name="blogs_rss_feeds_manage">Hantera RSS-flöden</string>
   <string name="blogs_rss_feeds_manage_imported">Importerade:</string>
   <string name="blogs_rss_feeds_manage_author">Författare:</string>
   <string name="blogs_rss_feeds_manage_updated">Senast uppdaterad:</string>
   <string name="blogs_rss_remove_feed">Ta bort flöde</string>
   <string name="blogs_rss_remove_feed_dialog_message">Är du säker på att du vill ta bort det här flödet?\n\nInlägg kommer att tas bort från din enhet, men inte från andras.\n\nKontakter som du har delat det här flödet med kommer kanske inte längre få uppdateringar från det.</string>
   <string name="blogs_rss_remove_feed_ok">&amp;Ta bort</string>
-  <string name="blogs_rss_feeds_manage_delete_error">Flödet kunde ej tas bort!</string>
   <string name="blogs_rss_feeds_manage_empty_state">Inga RSS-flöden\n\nTryck plus-ikonen (+) för att importera ett flöde</string>
   <string name="blogs_rss_feeds_manage_error">Något gick fel när dina flöden skulle laddas. Försök ingen senare.</string>
   <!--Settings Profile Picture-->
