@@ -11,6 +11,10 @@ public interface BluetoothPlugin extends DuplexPlugin {
 
 	boolean isDiscovering();
 
+	void disablePolling();
+
+	void enablePolling();
+
 	@Nullable
 	DuplexTransportConnection discoverAndConnectForSetup(String uuid);
 
