@@ -221,15 +221,12 @@ class BluetoothConnecter implements EventListener {
 					DuplexTransportConnection conn = bluetoothPlugin
 							.discoverAndConnectForSetup(uuid);
 					if (conn == null) {
-						if (!isConnectedViaBluetooth(contactId)) {
-							LOG.warning("Failed to connect");
-							showToast(
-									R.string.toast_connect_via_bluetooth_error);
-						} else {
-							LOG.info(
-									"Failed to connect, but contact connected");
-						}
-						return;
+						waitAfterConnectionFailed();
+					} else {
+						LOG.info("Could connect, handling connection");
+						connectionManager
+								.manageOutgoingConnection(contactId, ID, conn);
+						showToast(R.string.toast_connect_via_bluetooth_success);
 					}
 					connectionManager
 							.manageOutgoingConnection(contactId, ID, conn);
@@ -243,6 +240,7 @@ class BluetoothConnecter implements EventListener {
 		});
 	}
 
+	@IoExecutor
 	private boolean waitForBluetoothActive() {
 		long left = BT_ACTIVE_TIMEOUT;
 		final long sleep = 250;
@@ -258,6 +256,31 @@ class BluetoothConnecter implements EventListener {
 			Thread.currentThread().interrupt();
 		}
 		return (bluetoothPlugin.getState() == ACTIVE);
+	}
+
+	/**
+	 * Wait for an incoming connection before showing an error Toast.
+	 */
+	@IoExecutor
+	private void waitAfterConnectionFailed() {
+		long left = BT_ACTIVE_TIMEOUT;
+		final long sleep = 250;
+		try {
+			while (left > 0) {
+				if (isConnectedViaBluetooth(contactId)) {
+					LOG.info("Failed to connect, but contact connected");
+					// no Toast needed here, as it gets shown when
+					// ConnectionOpenedEvent is received
+					return;
+				}
+				Thread.sleep(sleep);
+				left -= sleep;
+			}
+		} catch (InterruptedException e) {
+			Thread.currentThread().interrupt();
+		}
+		LOG.warning("Failed to connect");
+		showToast(R.string.toast_connect_via_bluetooth_error);
 	}
 
 	private void showToast(@StringRes int res) {
