@@ -24,6 +24,7 @@ import org.briarproject.bramble.api.plugin.duplex.DuplexPluginFactory;
 import org.briarproject.bramble.api.plugin.simplex.SimplexPluginFactory;
 import org.briarproject.bramble.api.reporting.DevConfig;
 import org.briarproject.bramble.plugin.bluetooth.AndroidBluetoothPluginFactory;
+import org.briarproject.bramble.plugin.file.RemovableDrivePluginFactory;
 import org.briarproject.bramble.plugin.tcp.AndroidLanTcpPluginFactory;
 import org.briarproject.bramble.plugin.tor.AndroidTorPluginFactory;
 import org.briarproject.bramble.util.AndroidUtils;
@@ -67,7 +68,6 @@ import dagger.Provides;
 import static android.content.Context.MODE_PRIVATE;
 import static android.os.Build.VERSION.SDK_INT;
 import static java.util.Arrays.asList;
-import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
 import static java.util.Collections.singletonMap;
 import static org.briarproject.bramble.api.reporting.ReportingConstants.DEV_ONION_ADDRESS;
@@ -150,7 +150,8 @@ public class AppModule {
 
 	@Provides
 	PluginConfig providePluginConfig(AndroidBluetoothPluginFactory bluetooth,
-			AndroidTorPluginFactory tor, AndroidLanTcpPluginFactory lan) {
+			AndroidTorPluginFactory tor, AndroidLanTcpPluginFactory lan,
+			RemovableDrivePluginFactory drive) {
 		@NotNullByDefault
 		PluginConfig pluginConfig = new PluginConfig() {
 
@@ -161,7 +162,7 @@ public class AppModule {
 
 			@Override
 			public Collection<SimplexPluginFactory> getSimplexFactories() {
-				return emptyList();
+				return singletonList(drive);
 			}
 
 			@Override
