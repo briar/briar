@@ -729,4 +729,11 @@
 	<string name="activity_name_new_or_recover_account">Create new account or recover existing account</string>
 	<string name="activity_name_recovery">Recover Account</string>
 	<string name="activity_name_custodian_help_recovery">Help recover account</string>
+
+	<!-- Remote Wipe -->
+
+	<!-- conversation -->
+	<string name="remote_wipe_setup_received">You have been added a remote wiper.</string>
+	<string name="remote_wipe_setup_sent">You have added this contact as a remote wiper.</string>
+
 </resources>
