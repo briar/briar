@@ -8,6 +8,7 @@ import org.briarproject.bramble.api.plugin.simplex.SimplexPluginFactory;
 
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
+import javax.inject.Inject;
 
 import static java.util.concurrent.TimeUnit.DAYS;
 import static org.briarproject.bramble.api.plugin.RemovableDriveConstants.ID;
@@ -17,6 +18,10 @@ import static org.briarproject.bramble.api.plugin.RemovableDriveConstants.ID;
 public class RemovableDrivePluginFactory implements SimplexPluginFactory {
 
 	private final int MAX_LATENCY = (int) DAYS.toMillis(14);
+
+	@Inject
+	RemovableDrivePluginFactory() {
+	}
 
 	@Override
 	public TransportId getId() {
