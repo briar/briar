@@ -55,7 +55,7 @@ public class UnixTorPluginFactory implements DuplexPluginFactory {
 	private final File torDirectory;
 
 	@Inject
-	public UnixTorPluginFactory(@IoExecutor Executor ioExecutor,
+	UnixTorPluginFactory(@IoExecutor Executor ioExecutor,
 			@IoExecutor Executor wakefulIoExecutor,
 			NetworkManager networkManager,
 			LocationUtils locationUtils,

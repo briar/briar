@@ -149,6 +149,7 @@ public class AppModule {
 	}
 
 	@Provides
+	@Singleton
 	PluginConfig providePluginConfig(AndroidBluetoothPluginFactory bluetooth,
 			AndroidTorPluginFactory tor, AndroidLanTcpPluginFactory lan,
 			RemovableDrivePluginFactory drive) {
