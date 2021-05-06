@@ -64,6 +64,7 @@ internal class HeadlessTestModule(private val appDir: File) {
     }
 
     @Provides
+    @Singleton
     internal fun providePluginConfig(): PluginConfig {
         return object : PluginConfig {
             override fun getDuplexFactories(): Collection<DuplexPluginFactory> = emptyList()

@@ -37,7 +37,7 @@ public class AndroidLanTcpPluginFactory implements DuplexPluginFactory {
 	private final Application app;
 
 	@Inject
-	public AndroidLanTcpPluginFactory(@IoExecutor Executor ioExecutor,
+	AndroidLanTcpPluginFactory(@IoExecutor Executor ioExecutor,
 			@WakefulIoExecutor Executor wakefulIoExecutor,
 			EventBus eventBus,
 			BackoffFactory backoffFactory,

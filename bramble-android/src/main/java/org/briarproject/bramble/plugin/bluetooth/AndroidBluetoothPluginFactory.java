@@ -47,7 +47,7 @@ public class AndroidBluetoothPluginFactory implements DuplexPluginFactory {
 	private final BackoffFactory backoffFactory;
 
 	@Inject
-	public AndroidBluetoothPluginFactory(@IoExecutor Executor ioExecutor,
+	AndroidBluetoothPluginFactory(@IoExecutor Executor ioExecutor,
 			@WakefulIoExecutor Executor wakefulIoExecutor,
 			AndroidExecutor androidExecutor,
 			AndroidWakeLockManager wakeLockManager,

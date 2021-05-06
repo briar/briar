@@ -58,7 +58,7 @@ public class AndroidTorPluginFactory implements DuplexPluginFactory {
 	private final File torDirectory;
 
 	@Inject
-	public AndroidTorPluginFactory(@IoExecutor Executor ioExecutor,
+	AndroidTorPluginFactory(@IoExecutor Executor ioExecutor,
 			@WakefulIoExecutor Executor wakefulIoExecutor,
 			Application app,
 			NetworkManager networkManager,
