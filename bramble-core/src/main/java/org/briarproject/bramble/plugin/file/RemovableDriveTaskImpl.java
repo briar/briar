@@ -14,9 +14,11 @@ import java.io.File;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.Executor;
+import java.util.concurrent.atomic.AtomicLong;
 
 import javax.annotation.concurrent.ThreadSafe;
 
+import static java.lang.Math.min;
 import static org.briarproject.bramble.api.nullsafety.NullSafety.requireNonNull;
 import static org.briarproject.bramble.api.plugin.file.FileConstants.PROP_PATH;
 import static org.briarproject.bramble.api.plugin.file.RemovableDriveConstants.ID;
@@ -33,6 +35,8 @@ abstract class RemovableDriveTaskImpl implements RemovableDriveTask {
 	final ContactId contactId;
 	final File file;
 	private final List<Observer> observers = new CopyOnWriteArrayList<>();
+	final AtomicLong progressTotal = new AtomicLong(0);
+	private final AtomicLong progressDone = new AtomicLong(0);
 
 	RemovableDriveTaskImpl(
 			Executor eventExecutor,
@@ -80,5 +84,11 @@ abstract class RemovableDriveTaskImpl implements RemovableDriveTask {
 		TransportProperties p = new TransportProperties();
 		p.put(PROP_PATH, file.getAbsolutePath());
 		return p;
+	}
+
+	void updateProgress(long progress) {
+		long done = progressDone.addAndGet(progress);
+		long total = progressTotal.get();
+		visitObservers(o -> o.onProgress(min(done, total), total));
 	}
 }
