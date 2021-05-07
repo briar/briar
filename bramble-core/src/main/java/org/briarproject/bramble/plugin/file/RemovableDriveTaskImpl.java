@@ -14,7 +14,7 @@ import javax.annotation.concurrent.ThreadSafe;
 
 @ThreadSafe
 @NotNullByDefault
-abstract class RemovableDriveTaskImpl implements RemovableDriveTask, Runnable {
+abstract class RemovableDriveTaskImpl implements RemovableDriveTask {
 
 	private final Executor eventExecutor;
 	final RemovableDriveTaskRegistry registry;
