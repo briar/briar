@@ -11,7 +11,7 @@ import javax.annotation.concurrent.Immutable;
 import javax.inject.Inject;
 
 import static java.util.concurrent.TimeUnit.DAYS;
-import static org.briarproject.bramble.api.plugin.RemovableDriveConstants.ID;
+import static org.briarproject.bramble.api.plugin.file.RemovableDriveConstants.ID;
 
 @Immutable
 @NotNullByDefault

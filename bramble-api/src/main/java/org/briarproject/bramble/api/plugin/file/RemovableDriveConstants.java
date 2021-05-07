@@ -1,4 +1,6 @@
-package org.briarproject.bramble.api.plugin;
+package org.briarproject.bramble.api.plugin.file;
+
+import org.briarproject.bramble.api.plugin.TransportId;
 
 public interface RemovableDriveConstants {
 

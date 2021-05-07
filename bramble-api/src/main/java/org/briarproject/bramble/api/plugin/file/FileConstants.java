@@ -1,4 +1,4 @@
-package org.briarproject.bramble.api.plugin;
+package org.briarproject.bramble.api.plugin.file;
 
 public interface FileConstants {
 

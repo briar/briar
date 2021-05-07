@@ -28,6 +28,7 @@ import org.briarproject.bramble.api.system.AndroidExecutor;
 import org.briarproject.bramble.api.system.AndroidWakeLockManager;
 import org.briarproject.bramble.api.system.Clock;
 import org.briarproject.bramble.api.system.LocationUtils;
+import org.briarproject.bramble.plugin.file.RemovableDriveModule;
 import org.briarproject.bramble.plugin.tor.CircumventionProvider;
 import org.briarproject.bramble.system.ClockModule;
 import org.briarproject.briar.BriarCoreEagerSingletons;
@@ -83,7 +84,8 @@ import dagger.Component;
 		AppModule.class,
 		AttachmentModule.class,
 		ClockModule.class,
-		MediaModule.class
+		MediaModule.class,
+		RemovableDriveModule.class
 })
 public interface AndroidComponent
 		extends BrambleCoreEagerSingletons, BrambleAndroidEagerSingletons,
