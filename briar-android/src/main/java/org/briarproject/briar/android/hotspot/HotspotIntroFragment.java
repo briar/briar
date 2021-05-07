@@ -59,6 +59,18 @@ public class HotspotIntroFragment extends Fragment {
 			startButton.setVisibility(INVISIBLE);
 			progressBar.setVisibility(VISIBLE);
 			progressTextView.setVisibility(VISIBLE);
+			// TODO remove below, tell viewModel to start hotspot instead
+			v.postDelayed(() -> {
+				getParentFragmentManager().beginTransaction()
+						.setCustomAnimations(R.anim.step_next_in,
+								R.anim.step_previous_out,
+								R.anim.step_previous_in,
+								R.anim.step_next_out)
+						.replace(R.id.fragmentContainer, new HotspotFragment(),
+								HotspotFragment.TAG)
+						.addToBackStack(HotspotFragment.TAG)
+						.commit();
+			}, 1500);
 		});
 
 		return v;

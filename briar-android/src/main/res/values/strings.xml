@@ -696,7 +696,18 @@
 		by using your phone\'s Wi-Fi.
 		\n\nYour phone will open a local hotspot and provide a small website with a download of this app.</string>
 	<string name="hotspot_button_start_sharing">Start sharing</string>
+	<string name="hotspot_button_stop_sharing">Stop sharing</string>
 	<string name="hotspot_progress_text_start">Setting up hotspot…</string>
+	<string name="hotspot_button_connected">Confirm connection</string>
+	<string name="hotspot_tab_manual">Manual</string>
+	<string name="hotspot_manual_wifi">To download the app on another phone, please connect to this Wi-Fi network:</string>
+	<string name="hotspot_manual_wifi_ssid">Network name (SSID)</string>
+	<string name="hotspot_manual_wifi_alt">Instead of adding the network manually, you can also scan a QR code.</string>
+	<string name="hotspot_manual_site">After you are connected to the Wi-Fi, carefully enter this address in your browser.</string>
+	<string name="hotspot_manual_site_address">Address (URL)</string>
+	<string name="hotspot_manual_site_alt">Instead of typing the address manually, you can also scan a QR code.</string>
+	<string name="hotspot_qr_wifi">To download the app on another phone, please scan this QR code to connect to this Wi-Fi network:</string>
+	<string name="hotspot_qr_site">After you are connected to the Wi-Fi, scan this QR code to download the app.</string>
 
 
 	<!-- Transfer Data via Removable Drives -->
