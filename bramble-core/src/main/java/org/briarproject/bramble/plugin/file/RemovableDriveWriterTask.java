@@ -19,12 +19,12 @@ import static org.briarproject.bramble.util.IoUtils.tryToClose;
 import static org.briarproject.bramble.util.LogUtils.logException;
 
 @NotNullByDefault
-class RemovableDriverWriterTask extends RemovableDriveTaskImpl {
+class RemovableDriveWriterTask extends RemovableDriveTaskImpl {
 
 	private static final Logger LOG =
-			getLogger(RemovableDriverWriterTask.class.getName());
+			getLogger(RemovableDriveWriterTask.class.getName());
 
-	RemovableDriverWriterTask(
+	RemovableDriveWriterTask(
 			Executor eventExecutor,
 			PluginManager pluginManager,
 			ConnectionManager connectionManager,
