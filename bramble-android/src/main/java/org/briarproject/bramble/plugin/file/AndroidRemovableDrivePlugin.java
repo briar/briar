@@ -12,7 +12,7 @@ import java.io.OutputStream;
 
 import javax.annotation.concurrent.Immutable;
 
-import static org.briarproject.bramble.api.plugin.RemovableDriveConstants.PROP_URI;
+import static org.briarproject.bramble.api.plugin.file.RemovableDriveConstants.PROP_URI;
 import static org.briarproject.bramble.util.StringUtils.isNullOrEmpty;
 
 @Immutable
