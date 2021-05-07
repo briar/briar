@@ -1,7 +1,10 @@
 package org.briarproject.bramble.plugin.file;
 
+import org.briarproject.bramble.api.connection.ConnectionManager;
 import org.briarproject.bramble.api.contact.ContactId;
+import org.briarproject.bramble.api.event.EventBus;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
+import org.briarproject.bramble.api.plugin.PluginManager;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -21,10 +24,16 @@ class RemovableDriverWriterTask extends RemovableDriveTaskImpl {
 	private static final Logger LOG =
 			getLogger(RemovableDriverWriterTask.class.getName());
 
-	RemovableDriverWriterTask(Executor eventExecutor,
-			RemovableDriveTaskRegistry registry, ContactId contactId,
+	RemovableDriverWriterTask(
+			Executor eventExecutor,
+			PluginManager pluginManager,
+			ConnectionManager connectionManager,
+			EventBus eventBus,
+			RemovableDriveTaskRegistry registry,
+			ContactId contactId,
 			File file) {
-		super(eventExecutor, registry, contactId, file);
+		super(eventExecutor, pluginManager, connectionManager, eventBus,
+				registry, contactId, file);
 	}
 
 	@Override
