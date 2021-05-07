@@ -6,7 +6,7 @@ import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import java.io.File;
 
 @NotNullByDefault
-public interface RemovableDriveTask {
+public interface RemovableDriveTask extends Runnable {
 
 	/**
 	 * Returns the file that this task is reading from or writing to.

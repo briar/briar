@@ -16,4 +16,10 @@ public class RemovableDriveModule {
 			RemovableDriveManagerImpl removableDriveManager) {
 		return removableDriveManager;
 	}
+
+	@Provides
+	RemovableDriveTaskFactory provideTaskFactory(
+			RemovableDriveTaskFactoryImpl taskFactory) {
+		return taskFactory;
+	}
 }

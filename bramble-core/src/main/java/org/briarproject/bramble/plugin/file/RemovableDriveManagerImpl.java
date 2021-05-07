@@ -1,7 +1,6 @@
 package org.briarproject.bramble.plugin.file;
 
 import org.briarproject.bramble.api.contact.ContactId;
-import org.briarproject.bramble.api.event.EventExecutor;
 import org.briarproject.bramble.api.lifecycle.IoExecutor;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.plugin.file.RemovableDriveManager;
@@ -20,7 +19,8 @@ import javax.inject.Inject;
 class RemovableDriveManagerImpl
 		implements RemovableDriveManager, RemovableDriveTaskRegistry {
 
-	private final Executor ioExecutor, eventExecutor;
+	private final Executor ioExecutor;
+	private final RemovableDriveTaskFactory taskFactory;
 	private final ConcurrentHashMap<ContactId, RemovableDriveTask>
 			readers = new ConcurrentHashMap<>();
 	private final ConcurrentHashMap<ContactId, RemovableDriveTask>
@@ -28,9 +28,9 @@ class RemovableDriveManagerImpl
 
 	@Inject
 	RemovableDriveManagerImpl(@IoExecutor Executor ioExecutor,
-			@EventExecutor Executor eventExecutor) {
+			RemovableDriveTaskFactory taskFactory) {
 		this.ioExecutor = ioExecutor;
-		this.eventExecutor = eventExecutor;
+		this.taskFactory = taskFactory;
 	}
 
 	@Nullable
@@ -47,8 +47,7 @@ class RemovableDriveManagerImpl
 
 	@Override
 	public RemovableDriveTask startReaderTask(ContactId c, File f) {
-		RemovableDriverReaderTask task =
-				new RemovableDriverReaderTask(eventExecutor, this, c, f);
+		RemovableDriveTask task = taskFactory.createReader(this, c, f);
 		RemovableDriveTask old = readers.putIfAbsent(c, task);
 		if (old == null) {
 			ioExecutor.execute(task);
@@ -60,8 +59,7 @@ class RemovableDriveManagerImpl
 
 	@Override
 	public RemovableDriveTask startWriterTask(ContactId c, File f) {
-		RemovableDriverWriterTask task =
-				new RemovableDriverWriterTask(eventExecutor, this, c, f);
+		RemovableDriveTask task = taskFactory.createWriter(this, c, f);
 		RemovableDriveTask old = writers.putIfAbsent(c, task);
 		if (old == null) {
 			ioExecutor.execute(task);
