@@ -25,4 +25,6 @@ class HotspotViewModel extends DbViewModel {
 		super(application, dbExecutor, lifecycleManager, db, androidExecutor);
 	}
 
+	// TODO copy actual code from Offline Hotspot app
+
 }
