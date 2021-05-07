@@ -51,7 +51,7 @@ class RemovableDriveWriterTask extends RemovableDriveTaskImpl
 		if (w == null) {
 			LOG.warning("Failed to create writer");
 			registry.removeWriter(contactId, this);
-			visitObservers(o -> o.onCompletion(false));
+			setSuccess(false);
 			return;
 		}
 		// TODO: Get total bytes to send from DB
@@ -101,7 +101,7 @@ class RemovableDriveWriterTask extends RemovableDriveTaskImpl
 			delegate.dispose(exception);
 			registry.removeWriter(contactId, RemovableDriveWriterTask.this);
 			eventBus.removeListener(RemovableDriveWriterTask.this);
-			visitObservers(o -> o.onCompletion(!exception));
+			setSuccess(!exception);
 		}
 	}
 }
