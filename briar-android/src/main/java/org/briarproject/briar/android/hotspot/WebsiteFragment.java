@@ -10,7 +10,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
-import static android.view.View.INVISIBLE;
+import static android.view.View.GONE;
 
 @MethodsNotNullByDefault
 @ParametersNotNullByDefault
@@ -22,7 +22,7 @@ public class WebsiteFragment extends AbstractTabsFragment {
 	public void onViewCreated(@NonNull View view,
 			@Nullable Bundle savedInstanceState) {
 		super.onViewCreated(view, savedInstanceState);
-		connectedButton.setVisibility(INVISIBLE);
+		connectedButton.setVisibility(GONE);
 	}
 
 	@Override
