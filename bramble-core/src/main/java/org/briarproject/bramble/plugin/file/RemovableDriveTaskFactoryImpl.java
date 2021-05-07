@@ -2,6 +2,7 @@ package org.briarproject.bramble.plugin.file;
 
 import org.briarproject.bramble.api.connection.ConnectionManager;
 import org.briarproject.bramble.api.contact.ContactId;
+import org.briarproject.bramble.api.db.DatabaseComponent;
 import org.briarproject.bramble.api.event.EventBus;
 import org.briarproject.bramble.api.event.EventExecutor;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
@@ -18,6 +19,7 @@ import javax.inject.Inject;
 @NotNullByDefault
 class RemovableDriveTaskFactoryImpl implements RemovableDriveTaskFactory {
 
+	private final DatabaseComponent db;
 	private final Executor eventExecutor;
 	private final PluginManager pluginManager;
 	private final ConnectionManager connectionManager;
@@ -25,10 +27,12 @@ class RemovableDriveTaskFactoryImpl implements RemovableDriveTaskFactory {
 
 	@Inject
 	RemovableDriveTaskFactoryImpl(
+			DatabaseComponent db,
 			@EventExecutor Executor eventExecutor,
 			PluginManager pluginManager,
 			ConnectionManager connectionManager,
 			EventBus eventBus) {
+		this.db = db;
 		this.eventExecutor = eventExecutor;
 		this.pluginManager = pluginManager;
 		this.connectionManager = connectionManager;
@@ -45,7 +49,7 @@ class RemovableDriveTaskFactoryImpl implements RemovableDriveTaskFactory {
 	@Override
 	public RemovableDriveTask createWriter(RemovableDriveTaskRegistry registry,
 			ContactId c, File f) {
-		return new RemovableDriveWriterTask(eventExecutor, pluginManager,
+		return new RemovableDriveWriterTask(db, eventExecutor, pluginManager,
 				connectionManager, eventBus, registry, c, f);
 	}
 }
