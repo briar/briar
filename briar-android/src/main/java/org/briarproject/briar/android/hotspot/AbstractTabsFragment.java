@@ -65,7 +65,7 @@ public abstract class AbstractTabsFragment extends Fragment {
 		viewPager.setAdapter(tabAdapter);
 		TabLayout tabLayout = view.findViewById(R.id.tabLayout);
 		new TabLayoutMediator(tabLayout, viewPager, (tab, position) -> {
-			// tabs are set in XML, but just dummies that don't get not added
+			// tabs are set in XML, but are just dummies that don't get added
 			if (position == 0) {
 				tab.setText(R.string.hotspot_tab_manual);
 				tab.setIcon(R.drawable.forum_item_create_white);
