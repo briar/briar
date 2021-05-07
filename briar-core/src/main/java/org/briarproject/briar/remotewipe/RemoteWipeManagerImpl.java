@@ -51,6 +51,7 @@ import static org.briarproject.briar.remotewipe.RemoteWipeConstants.GROUP_KEY_WI
 import static org.briarproject.briar.remotewipe.RemoteWipeConstants.MSG_KEY_LOCAL;
 import static org.briarproject.briar.remotewipe.RemoteWipeConstants.MSG_KEY_MESSAGE_TYPE;
 import static org.briarproject.briar.remotewipe.RemoteWipeConstants.MSG_KEY_TIMESTAMP;
+import static org.briarproject.briar.remotewipe.RemoteWipeConstants.THRESHOLD;
 
 public class RemoteWipeManagerImpl extends ConversationClientImpl
 		implements RemoteWipeManager, ContactManager.ContactHook,
@@ -63,7 +64,6 @@ public class RemoteWipeManagerImpl extends ConversationClientImpl
 	private final ContactManager contactManager;
 	private final MessageEncoder messageEncoder;
 	private final MessageParser messageParser;
-	private static int THRESHOLD = 2; // TODO
 
 	@Inject
 	protected RemoteWipeManagerImpl(
