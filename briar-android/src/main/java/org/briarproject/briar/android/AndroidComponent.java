@@ -35,7 +35,10 @@ import org.briarproject.briar.BriarCoreModule;
 import org.briarproject.briar.android.attachment.AttachmentModule;
 import org.briarproject.briar.android.attachment.media.MediaModule;
 import org.briarproject.briar.android.conversation.glide.BriarModelLoader;
+import org.briarproject.briar.android.hotspot.AbstractTabsFragment;
 import org.briarproject.briar.android.hotspot.HotspotIntroFragment;
+import org.briarproject.briar.android.hotspot.HotspotManualFragment;
+import org.briarproject.briar.android.hotspot.HotspotQrFragment;
 import org.briarproject.briar.android.logging.CachingLogHandler;
 import org.briarproject.briar.android.login.SignInReminderReceiver;
 import org.briarproject.briar.android.settings.ConnectionsFragment;
@@ -213,4 +216,10 @@ public interface AndroidComponent
 	void inject(NotificationsFragment notificationsFragment);
 
 	void inject(HotspotIntroFragment hotspotIntroFragment);
+
+	void inject(AbstractTabsFragment abstractTabsFragment);
+
+	void inject(HotspotQrFragment hotspotQrFragment);
+
+	void inject(HotspotManualFragment hotspotManualFragment);
 }
