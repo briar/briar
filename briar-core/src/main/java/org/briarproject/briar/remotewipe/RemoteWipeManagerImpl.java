@@ -44,10 +44,13 @@ import javax.inject.Inject;
 import static org.briarproject.briar.client.MessageTrackerConstants.MSG_KEY_READ;
 import static org.briarproject.briar.remotewipe.MessageType.SETUP;
 import static org.briarproject.briar.remotewipe.MessageType.WIPE;
-import static org.briarproject.briar.socialbackup.SocialBackupConstants.GROUP_KEY_CONTACT_ID;
-import static org.briarproject.briar.socialbackup.SocialBackupConstants.MSG_KEY_LOCAL;
-import static org.briarproject.briar.socialbackup.SocialBackupConstants.MSG_KEY_MESSAGE_TYPE;
-import static org.briarproject.briar.socialbackup.SocialBackupConstants.MSG_KEY_TIMESTAMP;
+import static org.briarproject.briar.remotewipe.RemoteWipeConstants.GROUP_KEY_CONTACT_ID;
+import static org.briarproject.briar.remotewipe.RemoteWipeConstants.GROUP_KEY_RECEIVED_WIPE;
+import static org.briarproject.briar.remotewipe.RemoteWipeConstants.GROUP_KEY_WIPERS;
+
+import static org.briarproject.briar.remotewipe.RemoteWipeConstants.MSG_KEY_LOCAL;
+import static org.briarproject.briar.remotewipe.RemoteWipeConstants.MSG_KEY_MESSAGE_TYPE;
+import static org.briarproject.briar.remotewipe.RemoteWipeConstants.MSG_KEY_TIMESTAMP;
 
 public class RemoteWipeManagerImpl extends ConversationClientImpl
 		implements RemoteWipeManager, ContactManager.ContactHook,
@@ -60,6 +63,7 @@ public class RemoteWipeManagerImpl extends ConversationClientImpl
 	private final ContactManager contactManager;
 	private final MessageEncoder messageEncoder;
 	private final MessageParser messageParser;
+	private static int THRESHOLD = 2; // TODO
 
 	@Inject
 	protected RemoteWipeManagerImpl(
@@ -118,9 +122,25 @@ public class RemoteWipeManagerImpl extends ConversationClientImpl
 			// Check if contact is in list of wipers
 			if (findMessage(txn, m.getGroupId(), SETUP, true) != null) {
 			   System.out.println("Got a wipe message from a wiper");
+
+				BdfDictionary existingMeta = clientHelper.getGroupMetadataAsDictionary(txn,
+						localGroup.getId());
+				BdfList receivedWipeMessages = existingMeta.getOptionalList(GROUP_KEY_RECEIVED_WIPE);
+
+				if (receivedWipeMessages == null) receivedWipeMessages = new BdfList();
+				// TODO filter the messages for old ones
+
+			    if (receivedWipeMessages.size() + 1 == THRESHOLD) {
+			    	System.out.println("Threshold reached - panic!");
+			    	// we could here clear the metadata to allow us to send
+				    // the wipe messages several times when testing
+			    } else {
+			    	receivedWipeMessages.add(1); // TODO this should be the timestamp
+			    	BdfDictionary newMeta = new BdfDictionary();
+			    	newMeta.put(GROUP_KEY_RECEIVED_WIPE, receivedWipeMessages);
+				    clientHelper.mergeGroupMetadata(txn, localGroup.getId(), newMeta);
+			    }
 			}
-			// if so, increment counter
-			// check if counter = threshold
 		}
 		return false;
 	}
@@ -129,16 +149,28 @@ public class RemoteWipeManagerImpl extends ConversationClientImpl
 			throws DbException, FormatException {
         // TODO if (we already have a set of wipers?) do something
         if (wipers.size() < 2) throw new FormatException();
+
+		BdfList wipersMetadata = new BdfList();
+
 		for (ContactId c : wipers) {
+			Contact contact = contactManager.getContact(txn, c);
 			System.out.println("Sending a setup message...");
-			sendSetupMessage(txn, contactManager.getContact(txn, c));
+			sendSetupMessage(txn, contact);
+			wipersMetadata.add(clientHelper.toList(contact.getAuthor()));
 		}
 
 		System.out.println("All setup messages sent");
+
+		// Make a record of this locally
 		if (!db.containsGroup(txn, localGroup.getId()))
 			db.addGroup(txn, localGroup);
-		// TODO Make some sort of record of this
-        // clientHelper.mergeGroupMetadata(txn, localGroup.getId(), meta)
+
+		BdfDictionary meta = new BdfDictionary();
+		meta.put(GROUP_KEY_WIPERS, wipersMetadata);
+
+		if (!db.containsGroup(txn, localGroup.getId()))
+			db.addGroup(txn, localGroup);
+		clientHelper.mergeGroupMetadata(txn, localGroup.getId(), meta);
 	}
 
 	private void sendSetupMessage(Transaction txn, Contact contact)
