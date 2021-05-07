@@ -22,16 +22,16 @@ import static java.util.logging.Logger.getLogger;
 import static org.briarproject.bramble.api.plugin.file.RemovableDriveConstants.ID;
 
 @NotNullByDefault
-class RemovableDriverReaderTask extends RemovableDriveTaskImpl
+class RemovableDriveReaderTask extends RemovableDriveTaskImpl
 		implements EventListener {
 
 	private final static Logger LOG =
-			getLogger(RemovableDriverReaderTask.class.getName());
+			getLogger(RemovableDriveReaderTask.class.getName());
 
 	private final AtomicLong fileLength = new AtomicLong(0);
 	private final AtomicLong totalMessageLength = new AtomicLong(0);
 
-	RemovableDriverReaderTask(
+	RemovableDriveReaderTask(
 			Executor eventExecutor,
 			PluginManager pluginManager,
 			ConnectionManager connectionManager,
@@ -49,7 +49,7 @@ class RemovableDriverReaderTask extends RemovableDriveTaskImpl
 				getPlugin().createReader(createProperties());
 		if (r == null) {
 			LOG.warning("Failed to create reader");
-			registry.removeReader(contactId, RemovableDriverReaderTask.this);
+			registry.removeReader(contactId, RemovableDriveReaderTask.this);
 			visitObservers(o -> o.onCompletion(false));
 			return;
 		}
@@ -92,8 +92,8 @@ class RemovableDriverReaderTask extends RemovableDriveTaskImpl
 		public void dispose(boolean exception, boolean recognised)
 				throws IOException {
 			delegate.dispose(exception, recognised);
-			registry.removeReader(contactId, RemovableDriverReaderTask.this);
-			eventBus.removeListener(RemovableDriverReaderTask.this);
+			registry.removeReader(contactId, RemovableDriveReaderTask.this);
+			eventBus.removeListener(RemovableDriveReaderTask.this);
 			visitObservers(o -> o.onCompletion(!exception && recognised));
 		}
 	}

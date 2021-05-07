@@ -38,14 +38,14 @@ class RemovableDriveTaskFactoryImpl implements RemovableDriveTaskFactory {
 	@Override
 	public RemovableDriveTask createReader(RemovableDriveTaskRegistry registry,
 			ContactId c, File f) {
-		return new RemovableDriverReaderTask(eventExecutor, pluginManager,
+		return new RemovableDriveReaderTask(eventExecutor, pluginManager,
 				connectionManager, eventBus, registry, c, f);
 	}
 
 	@Override
 	public RemovableDriveTask createWriter(RemovableDriveTaskRegistry registry,
 			ContactId c, File f) {
-		return new RemovableDriverWriterTask(eventExecutor, pluginManager,
+		return new RemovableDriveWriterTask(eventExecutor, pluginManager,
 				connectionManager, eventBus, registry, c, f);
 	}
 }
