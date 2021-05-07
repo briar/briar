@@ -37,6 +37,8 @@ public interface RemoteWipeManager extends ConversationManager.ConversationClien
 	void wipe(Transaction txn, Contact contact)
 			throws DbException, FormatException;
 
+	boolean amWiper(Transaction txn, ContactId contactId);
+
 	@Override
 	Collection<ConversationMessageHeader> getMessageHeaders(
 			Transaction txn, ContactId contactId) throws DbException;
