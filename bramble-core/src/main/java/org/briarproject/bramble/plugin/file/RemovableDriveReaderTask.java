@@ -14,10 +14,8 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.concurrent.Executor;
-import java.util.concurrent.atomic.AtomicLong;
 import java.util.logging.Logger;
 
-import static java.lang.Math.min;
 import static java.util.logging.Logger.getLogger;
 import static org.briarproject.bramble.api.plugin.file.RemovableDriveConstants.ID;
 
@@ -27,9 +25,6 @@ class RemovableDriveReaderTask extends RemovableDriveTaskImpl
 
 	private final static Logger LOG =
 			getLogger(RemovableDriveReaderTask.class.getName());
-
-	private final AtomicLong fileLength = new AtomicLong(0);
-	private final AtomicLong totalMessageLength = new AtomicLong(0);
 
 	RemovableDriveReaderTask(
 			Executor eventExecutor,
@@ -49,11 +44,11 @@ class RemovableDriveReaderTask extends RemovableDriveTaskImpl
 				getPlugin().createReader(createProperties());
 		if (r == null) {
 			LOG.warning("Failed to create reader");
-			registry.removeReader(contactId, RemovableDriveReaderTask.this);
+			registry.removeReader(contactId, this);
 			visitObservers(o -> o.onCompletion(false));
 			return;
 		}
-		fileLength.set(file.length());
+		progressTotal.set(file.length());
 		eventBus.addListener(this);
 		connectionManager.manageIncomingConnection(ID, new DecoratedReader(r));
 	}
@@ -67,12 +62,6 @@ class RemovableDriveReaderTask extends RemovableDriveTaskImpl
 				updateProgress(m.getMessage().getRawLength());
 			}
 		}
-	}
-
-	private void updateProgress(int messageLength) {
-		long done = totalMessageLength.addAndGet(messageLength);
-		long total = fileLength.get();
-		visitObservers(o -> o.onProgress(min(done, total), total));
 	}
 
 	private class DecoratedReader implements TransportConnectionReader {
