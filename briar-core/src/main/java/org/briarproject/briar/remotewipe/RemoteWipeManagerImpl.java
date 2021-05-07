@@ -1,6 +1,7 @@
 package org.briarproject.briar.remotewipe;
 
 import org.briarproject.bramble.api.FormatException;
+import org.briarproject.bramble.api.Pair;
 import org.briarproject.bramble.api.client.ClientHelper;
 import org.briarproject.bramble.api.client.ContactGroupFactory;
 import org.briarproject.bramble.api.contact.Contact;
@@ -37,6 +38,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import javax.annotation.Nullable;
 import javax.inject.Inject;
 
 import static org.briarproject.briar.client.MessageTrackerConstants.MSG_KEY_READ;
@@ -108,15 +110,15 @@ public class RemoteWipeManagerImpl extends ConversationClientImpl
 		System.out.println("Incoming message called");
 		MessageType type = MessageType.fromValue(body.getLong(0).intValue());
 		if (type == SETUP) {
-
-
 			messageTracker.trackIncomingMessage(txn, m);
-//					message.getGroupId turn into contactid
-//		txn.attach event
+            // message.getGroupId turn into contactid
+            // txn.attach event
 		} else if (type == WIPE) {
-
 			ContactId contactId = getContactId(txn, m.getGroupId());
-			// check if contact is in list of wipers
+			// Check if contact is in list of wipers
+			if (findMessage(txn, m.getGroupId(), SETUP, true) != null) {
+			   System.out.println("Got a wipe message from a wiper");
+			}
 			// if so, increment counter
 			// check if counter = threshold
 		}
@@ -162,10 +164,13 @@ public class RemoteWipeManagerImpl extends ConversationClientImpl
 
 	public void wipe(Transaction txn, Contact contact)
 			throws DbException, FormatException {
-		// TODO check that we have a SETUP message from contact
+		// Check that we have a SETUP message from contact
+		if (!amWiper(txn, contact.getId())) throw new DbException();
+
 		Group group = getContactGroup(contact);
 		GroupId g = group.getId();
 		if (!db.containsGroup(txn, g)) db.addGroup(txn, group);
+
 		long timestamp = clock.currentTimeMillis();
 
 		byte[] body = messageEncoder.encodeWipeMessage();
@@ -181,6 +186,16 @@ public class RemoteWipeManagerImpl extends ConversationClientImpl
 		messageTracker.trackOutgoingMessage(txn, m);
 	}
 
+	public boolean amWiper(Transaction txn, ContactId contactId) {
+		try {
+			GroupId groupId = getContactGroup(db.getContact(txn, contactId)).getId();
+			return findMessage(txn, groupId, SETUP, false) != null;
+		} catch (DbException e) {
+			return false;
+		} catch (FormatException e) {
+			return false;
+		}
+	}
 
 	@Override
 	public Group getContactGroup(Contact c) {
@@ -301,5 +316,21 @@ public class RemoteWipeManagerImpl extends ConversationClientImpl
 	@Override
 	public void removingContact(Transaction txn, Contact c) throws DbException {
 		db.removeGroup(txn, getContactGroup(c));
+	}
+
+	@Nullable
+	private Pair<MessageId, BdfDictionary> findMessage(Transaction txn,
+			GroupId g, MessageType type, boolean local)
+			throws DbException, FormatException {
+		BdfDictionary query = BdfDictionary.of(
+				new BdfEntry(MSG_KEY_MESSAGE_TYPE, type.getValue()),
+				new BdfEntry(MSG_KEY_LOCAL, local));
+		Map<MessageId, BdfDictionary> results =
+				clientHelper.getMessageMetadataAsDictionary(txn, g, query);
+//		if (results.size() > 1) throw new DbException();
+		if (results.isEmpty()) return null;
+		Map.Entry<MessageId, BdfDictionary> e =
+				results.entrySet().iterator().next();
+		return new Pair<>(e.getKey(), e.getValue());
 	}
 }
