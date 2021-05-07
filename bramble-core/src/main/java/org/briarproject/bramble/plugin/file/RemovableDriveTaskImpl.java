@@ -11,11 +11,11 @@ import org.briarproject.bramble.api.plugin.simplex.SimplexPlugin;
 import org.briarproject.bramble.api.properties.TransportProperties;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.Executor;
-import java.util.concurrent.atomic.AtomicLong;
 
+import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;
 
 import static java.lang.Math.min;
@@ -34,9 +34,12 @@ abstract class RemovableDriveTaskImpl implements RemovableDriveTask {
 	final RemovableDriveTaskRegistry registry;
 	final ContactId contactId;
 	final File file;
-	private final List<Observer> observers = new CopyOnWriteArrayList<>();
-	final AtomicLong progressTotal = new AtomicLong(0);
-	private final AtomicLong progressDone = new AtomicLong(0);
+
+	private final Object lock = new Object();
+	@GuardedBy("lock")
+	private final List<Consumer<State>> observers = new ArrayList<>();
+	@GuardedBy("lock")
+	private State state = new State(0, 0, false, false);
 
 	RemovableDriveTaskImpl(
 			Executor eventExecutor,
@@ -61,19 +64,22 @@ abstract class RemovableDriveTaskImpl implements RemovableDriveTask {
 	}
 
 	@Override
-	public void addObserver(Observer o) {
-		observers.add(o);
+	public void addObserver(Consumer<State> o) {
+		State state;
+		synchronized (lock) {
+			observers.add(o);
+			state = this.state;
+		}
+		if (state.isFinished()) {
+			eventExecutor.execute(() -> o.accept(state));
+		}
 	}
 
 	@Override
-	public void removeObserver(Observer o) {
-		observers.remove(o);
-	}
-
-	void visitObservers(Consumer<Observer> visitor) {
-		eventExecutor.execute(() -> {
-			for (Observer o : observers) visitor.accept(o);
-		});
+	public void removeObserver(Consumer<State> o) {
+		synchronized (lock) {
+			observers.remove(o);
+		}
 	}
 
 	SimplexPlugin getPlugin() {
@@ -86,9 +92,37 @@ abstract class RemovableDriveTaskImpl implements RemovableDriveTask {
 		return p;
 	}
 
-	void updateProgress(long progress) {
-		long done = progressDone.addAndGet(progress);
-		long total = progressTotal.get();
-		visitObservers(o -> o.onProgress(min(done, total), total));
+	void setTotal(long total) {
+		synchronized (lock) {
+			state = new State(state.getDone(), total, state.isFinished(),
+					state.isSuccess());
+			notifyObservers();
+		}
+	}
+
+	void addDone(long done) {
+		synchronized (lock) {
+			// Done and total come from different sources; make them consistent
+			done = min(state.getDone() + done, state.getTotal());
+			state = new State(done, state.getTotal(), state.isFinished(),
+					state.isSuccess());
+		}
+		notifyObservers();
+	}
+
+	void setSuccess(boolean success) {
+		synchronized (lock) {
+			state = new State(state.getDone(), state.getTotal(), true, success);
+		}
+		notifyObservers();
+	}
+
+	@GuardedBy("lock")
+	private void notifyObservers() {
+		List<Consumer<State>> observers = new ArrayList<>(this.observers);
+		State state = this.state;
+		eventExecutor.execute(() -> {
+			for (Consumer<State> o : observers) o.accept(state);
+		});
 	}
 }

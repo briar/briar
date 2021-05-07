@@ -1,6 +1,6 @@
 package org.briarproject.bramble.api.plugin.file;
 
-import org.briarproject.bramble.api.event.EventExecutor;
+import org.briarproject.bramble.api.Consumer;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 
 import java.io.File;
@@ -14,21 +14,43 @@ public interface RemovableDriveTask extends Runnable {
 	File getFile();
 
 	/**
-	 * Adds an observer to the task.
+	 * Adds an observer to the task. The observer will be notified of state
+	 * changes on the event thread. If the task has already finished, the
+	 * observer will be notified of its final state.
 	 */
-	void addObserver(Observer o);
+	void addObserver(Consumer<State> observer);
 
 	/**
 	 * Removes an observer from the task.
 	 */
-	void removeObserver(Observer o);
+	void removeObserver(Consumer<State> observer);
 
-	interface Observer {
+	class State {
 
-		@EventExecutor
-		void onProgress(long done, long total);
+		private final long done, total;
+		private final boolean finished, success;
 
-		@EventExecutor
-		void onCompletion(boolean success);
+		public State(long done, long total, boolean finished, boolean success) {
+			this.done = done;
+			this.total = total;
+			this.finished = finished;
+			this.success = success;
+		}
+
+		public long getDone() {
+			return done;
+		}
+
+		public long getTotal() {
+			return total;
+		}
+
+		public boolean isFinished() {
+			return finished;
+		}
+
+		public boolean isSuccess() {
+			return success;
+		}
 	}
 }

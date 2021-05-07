@@ -11,7 +11,6 @@ import org.briarproject.bramble.api.identity.IdentityManager;
 import org.briarproject.bramble.api.lifecycle.LifecycleManager;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.plugin.file.RemovableDriveTask;
-import org.briarproject.bramble.api.plugin.file.RemovableDriveTask.Observer;
 import org.briarproject.bramble.api.sync.event.MessageStateChangedEvent;
 import org.briarproject.bramble.test.BrambleTestCase;
 import org.briarproject.bramble.test.TestDatabaseConfigModule;
@@ -100,15 +99,8 @@ public class RemovableDriveIntegrationTest extends BrambleTestCase {
 		RemovableDriveTask reader = device.getRemovableDriveManager()
 				.startReaderTask(contactId, file);
 		CountDownLatch disposedLatch = new CountDownLatch(1);
-		reader.addObserver(new Observer() {
-			@Override
-			public void onProgress(long done, long total) {
-			}
-
-			@Override
-			public void onCompletion(boolean success) {
-				disposedLatch.countDown();
-			}
+		reader.addObserver(state -> {
+			if (state.isFinished()) disposedLatch.countDown();
 		});
 		// Wait for the messages to be delivered
 		assertTrue(listener.delivered.await(TIMEOUT_MS, MILLISECONDS));
@@ -125,15 +117,8 @@ public class RemovableDriveIntegrationTest extends BrambleTestCase {
 		RemovableDriveTask writer = device.getRemovableDriveManager()
 				.startWriterTask(contactId, file);
 		CountDownLatch disposedLatch = new CountDownLatch(1);
-		writer.addObserver(new Observer() {
-			@Override
-			public void onProgress(long done, long total) {
-			}
-
-			@Override
-			public void onCompletion(boolean success) {
-				disposedLatch.countDown();
-			}
+		writer.addObserver(state -> {
+			if (state.isFinished()) disposedLatch.countDown();
 		});
 		// Wait for the writer to be disposed
 		disposedLatch.await(TIMEOUT_MS, MILLISECONDS);
