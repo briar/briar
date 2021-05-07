@@ -26,7 +26,7 @@ public interface RemovableDriveTask extends Runnable {
 	interface Observer {
 
 		@EventExecutor
-		void onProgress(long written, long total);
+		void onProgress(long done, long total);
 
 		@EventExecutor
 		void onCompletion(boolean success);
