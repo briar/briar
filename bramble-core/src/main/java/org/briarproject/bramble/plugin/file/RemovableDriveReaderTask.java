@@ -45,10 +45,10 @@ class RemovableDriveReaderTask extends RemovableDriveTaskImpl
 		if (r == null) {
 			LOG.warning("Failed to create reader");
 			registry.removeReader(contactId, this);
-			visitObservers(o -> o.onCompletion(false));
+			setSuccess(false);
 			return;
 		}
-		progressTotal.set(file.length());
+		setTotal(file.length());
 		eventBus.addListener(this);
 		connectionManager.manageIncomingConnection(ID, new DecoratedReader(r));
 	}
@@ -59,7 +59,7 @@ class RemovableDriveReaderTask extends RemovableDriveTaskImpl
 			MessageAddedEvent m = (MessageAddedEvent) e;
 			if (contactId.equals(m.getContactId())) {
 				LOG.info("Message received");
-				updateProgress(m.getMessage().getRawLength());
+				addDone(m.getMessage().getRawLength());
 			}
 		}
 	}
@@ -83,7 +83,7 @@ class RemovableDriveReaderTask extends RemovableDriveTaskImpl
 			delegate.dispose(exception, recognised);
 			registry.removeReader(contactId, RemovableDriveReaderTask.this);
 			eventBus.removeListener(RemovableDriveReaderTask.this);
-			visitObservers(o -> o.onCompletion(!exception && recognised));
+			setSuccess(!exception && recognised);
 		}
 	}
 }
