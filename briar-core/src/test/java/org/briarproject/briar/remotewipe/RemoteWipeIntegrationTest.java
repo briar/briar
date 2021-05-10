@@ -24,7 +24,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
-public class RemoteWipeIntegrationTest extends BriarIntegrationTest<BriarIntegrationTestComponent> {
+public class RemoteWipeIntegrationTest extends BriarIntegrationTest<BriarIntegrationTestComponent> implements RemoteWipeManager.Observer {
 
 	private RemoteWipeManager remoteWipeManager0;
 	private RemoteWipeManager remoteWipeManager1;
@@ -34,6 +34,8 @@ public class RemoteWipeIntegrationTest extends BriarIntegrationTest<BriarIntegra
 	private Group g0From1;
 	private Group g2From0;
 	private Group g0From2;
+
+	private boolean panicCalled = false;
 
 	@Before
 	@Override
@@ -72,8 +74,10 @@ public class RemoteWipeIntegrationTest extends BriarIntegrationTest<BriarIntegra
 		BriarIntegrationTestComponent.Helper.injectEagerSingletons(c2);
 	}
 
+
 	@Test
 	public void testRemoteWipe() throws Exception {
+		remoteWipeManager0.listenForPanic(this);
 		db0.transaction(false, txn -> {
 			// TODO assert that we do not already have a wipe setup
 //			assertNull(socialBackupManager0.getBackupMetadata(txn));
@@ -122,6 +126,8 @@ public class RemoteWipeIntegrationTest extends BriarIntegrationTest<BriarIntegra
 		Collection<ConversationMessageHeader> messages2At0 =
 				getMessages2At0();
 		assertEquals(1, messages2At0.size());
+
+		assertTrue(panicCalled);
 	}
 
 	private Collection<ConversationMessageHeader> getMessages1At0()
@@ -153,5 +159,10 @@ public class RemoteWipeIntegrationTest extends BriarIntegrationTest<BriarIntegra
 		MessageTracker.GroupCount c1 = tracker.getGroupCount(g);
 		assertEquals(msgCount, c1.getMsgCount());
 		assertEquals(unreadCount, c1.getUnreadCount());
+	}
+
+	@Override
+	public void onPanic() {
+		panicCalled = true;
 	}
 }

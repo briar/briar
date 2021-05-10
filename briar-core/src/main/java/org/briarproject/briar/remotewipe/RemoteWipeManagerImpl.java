@@ -64,6 +64,7 @@ public class RemoteWipeManagerImpl extends ConversationClientImpl
 	private final ContactManager contactManager;
 	private final MessageEncoder messageEncoder;
 	private final MessageParser messageParser;
+	private RemoteWipeManager.Observer observer;
 
 	@Inject
 	protected RemoteWipeManagerImpl(
@@ -86,6 +87,11 @@ public class RemoteWipeManagerImpl extends ConversationClientImpl
 		this.messageParser = messageParser;
 		localGroup =
 				contactGroupFactory.createLocalGroup(CLIENT_ID, MAJOR_VERSION);
+	}
+
+	@Override
+	public void listenForPanic(RemoteWipeManager.Observer observer) {
+		this.observer = observer;
 	}
 
 	@Override
@@ -128,14 +134,31 @@ public class RemoteWipeManagerImpl extends ConversationClientImpl
 				BdfList receivedWipeMessages = existingMeta.getOptionalList(GROUP_KEY_RECEIVED_WIPE);
 
 				if (receivedWipeMessages == null) receivedWipeMessages = new BdfList();
-				// TODO filter the messages for old ones
+
+				for (int i = 0; i < receivedWipeMessages.size(); i++) {
+					BdfList receivedWipeMessage = receivedWipeMessages.getList(i);
+					// If we already have one from this contact, ignore
+					if (receivedWipeMessage.getLong(0).intValue() == contactId.getInt()) return false;
+
+					// TODO filter the messages for old ones
+//					long timestamp = receivedWipeMessage.getLong(1);
+//					if (clock.currentTimeMillis() - timestamp > MAX_MESSAGE_AGE) {
+//						receivedWipeMessages.remove(i);
+//					}
+				}
 
 			    if (receivedWipeMessages.size() + 1 == THRESHOLD) {
 			    	System.out.println("Threshold reached - panic!");
+			    	if (observer != null) {
+			    		observer.onPanic();
+				    }
 			    	// we could here clear the metadata to allow us to send
 				    // the wipe messages several times when testing
 			    } else {
-			    	receivedWipeMessages.add(1); // TODO this should be the timestamp
+			    	BdfList newReceivedWipeMessage = new BdfList();
+			    	newReceivedWipeMessage.add(contactId.getInt());
+			    	newReceivedWipeMessage.add(1); // TODO this should be the timestamp
+			    	receivedWipeMessages.add(newReceivedWipeMessage);
 			    	BdfDictionary newMeta = new BdfDictionary();
 			    	newMeta.put(GROUP_KEY_RECEIVED_WIPE, receivedWipeMessages);
 				    clientHelper.mergeGroupMetadata(txn, localGroup.getId(), newMeta);
