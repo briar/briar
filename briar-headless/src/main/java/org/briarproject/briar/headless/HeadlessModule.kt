@@ -74,6 +74,7 @@ internal class HeadlessModule(private val appDir: File) {
     }
 
     @Provides
+    @Singleton
     internal fun providePluginConfig(tor: UnixTorPluginFactory): PluginConfig {
         val duplex: List<DuplexPluginFactory> =
             if (isLinux() || isMac()) listOf(tor) else emptyList()
