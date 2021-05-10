@@ -9,12 +9,17 @@ import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.sync.ClientId;
 import org.briarproject.briar.api.conversation.ConversationManager;
 import org.briarproject.briar.api.conversation.ConversationMessageHeader;
+import org.briarproject.briar.api.socialbackup.recovery.SecretOwnerTask;
 
 import java.util.Collection;
 import java.util.List;
 
 @NotNullByDefault
 public interface RemoteWipeManager extends ConversationManager.ConversationClient {
+
+	interface Observer {
+		void onPanic();
+	}
 
 	/**
 	 * The unique ID of the remote wipe client.
@@ -30,6 +35,8 @@ public interface RemoteWipeManager extends ConversationManager.ConversationClien
 	 * The current minor version of the remote wipe client.
 	 */
 	int MINOR_VERSION = 0;
+
+	void listenForPanic(Observer observer);
 
 	void setup(Transaction txn, List<ContactId> wipers)
 			throws DbException, FormatException;
