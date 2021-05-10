@@ -228,9 +228,6 @@ class BluetoothConnecter implements EventListener {
 								.manageOutgoingConnection(contactId, ID, conn);
 						showToast(R.string.toast_connect_via_bluetooth_success);
 					}
-					connectionManager
-							.manageOutgoingConnection(contactId, ID, conn);
-					showToast(R.string.toast_connect_via_bluetooth_success);
 				} finally {
 					eventBus.removeListener(this);
 				}
