@@ -576,6 +576,15 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 	}
 
 	@Override
+	public long getMessageBytesToSend(Transaction transaction, ContactId c,
+			int maxLatency) throws DbException {
+		T txn = unbox(transaction);
+		if (!db.containsContact(txn, c))
+			throw new NoSuchContactException();
+		return db.getMessageBytesToSend(txn, c, maxLatency);
+	}
+
+	@Override
 	public Collection<MessageId> getMessageIds(Transaction transaction,
 			GroupId g) throws DbException {
 		T txn = unbox(transaction);
