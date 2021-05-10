@@ -699,6 +699,8 @@
 	<string name="hotspot_button_start_sharing">Start sharing</string>
 	<string name="hotspot_button_stop_sharing">Stop sharing</string>
 	<string name="hotspot_progress_text_start">Setting up hotspot…</string>
+	<string name="hotspot_notification_channel_title">Wi-Fi hotspot</string>
+	<string name="hotspot_notification_title">Sharing Briar offline</string>
 	<string name="hotspot_button_connected">Confirm connection</string>
 	<string name="hotspot_tab_manual">Manual</string>
 	<string name="hotspot_manual_wifi">To download the app on another phone, please connect to this Wi-Fi network:</string>
