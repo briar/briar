@@ -96,6 +96,16 @@ public class TestDataActivity extends BriarActivity {
 		forumPostsSeekBar.setOnSeekBarChangeListener(
 				new OnSeekBarChangeUpdateProgress(forumPostsTextView));
 
+		findViewById(R.id.buttonZeroValues).setOnClickListener(
+				v -> {
+					contactsSeekBar.setProgress(0);
+					messagesSeekBar.setProgress(0);
+					avatarsSeekBar.setProgress(0);
+					blogPostsSeekBar.setProgress(0);
+					forumsSeekBar.setProgress(0);
+					forumPostsSeekBar.setProgress(0);
+				});
+
 		findViewById(R.id.buttonCreateTestData).setOnClickListener(
 				v -> createTestData());
 	}
