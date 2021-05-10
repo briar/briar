@@ -709,6 +709,14 @@
 	<string name="hotspot_manual_site_alt">Instead of typing the address manually, you can also scan a QR code.</string>
 	<string name="hotspot_qr_wifi">To download the app on another phone, please scan this QR code to connect to this Wi-Fi network:</string>
 	<string name="hotspot_qr_site">After you are connected to the Wi-Fi, scan this QR code to download the app.</string>
+	<string name="hotspot_help_wifi_title">Problems with connecting to Wi-Fi:</string>
+	<string name="hotspot_help_wifi_1">Try disabling and re-enabling Wi-Fi on both phones and try again.</string>
+	<string name="hotspot_help_wifi_2">If your phone complains that the Wi-Fi has no internet, tell it that you want to stay connected anyway.</string>
+	<string name="hotspot_help_site_title">Problems visiting the local website:</string>
+	<string name="hotspot_help_site_1">Double check that you entered the address exactly as shown. A small error can make it fail.</string>
+	<string name="hotspot_help_site_2">Ensure that your phone is still connected to the correct Wi-Fi (see above) when you try to access the site.</string>
+	<string name="hotspot_help_site_3">Check that you don\'t have any active firewall apps that may block the access.</string>
+	<string name="hotspot_help_site_4">If you can visit the site, but not download the Briar app, try it with a different web browser app.</string>
 
 
 	<!-- Transfer Data via Removable Drives -->

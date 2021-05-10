@@ -3,6 +3,9 @@ package org.briarproject.briar.android.hotspot;
 import android.content.Context;
 import android.os.Bundle;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -52,6 +55,7 @@ public abstract class AbstractTabsFragment extends Fragment {
 	public View onCreateView(LayoutInflater inflater,
 			@Nullable ViewGroup container,
 			@Nullable Bundle savedInstanceState) {
+		setHasOptionsMenu(true);
 		return inflater
 				.inflate(R.layout.fragment_hotspot_tabs, container, false);
 	}
@@ -81,6 +85,29 @@ public abstract class AbstractTabsFragment extends Fragment {
 					LENGTH_SHORT).show();
 		});
 		connectedButton = view.findViewById(R.id.connectedButton);
+	}
+
+	@Override
+	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+		inflater.inflate(R.menu.hotspot_help_action, menu);
+		super.onCreateOptionsMenu(menu, inflater);
+	}
+
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		if (item.getItemId() == R.id.action_help) {
+			getParentFragmentManager().beginTransaction()
+					.setCustomAnimations(R.anim.step_next_in,
+							R.anim.step_previous_out,
+							R.anim.step_previous_in,
+							R.anim.step_next_out)
+					.replace(R.id.fragmentContainer, new HotspotHelpFragment(),
+							HotspotHelpFragment.TAG)
+					.addToBackStack(HotspotHelpFragment.TAG)
+					.commit();
+			return true;
+		}
+		return super.onOptionsItemSelected(item);
 	}
 
 	protected abstract Fragment getFirstFragment();
