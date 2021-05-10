@@ -11,6 +11,7 @@ import org.briarproject.bramble.api.identity.IdentityManager;
 import org.briarproject.bramble.api.lifecycle.LifecycleManager;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.plugin.file.RemovableDriveTask;
+import org.briarproject.bramble.api.properties.TransportProperties;
 import org.briarproject.bramble.api.sync.event.MessageStateChangedEvent;
 import org.briarproject.bramble.test.BrambleTestCase;
 import org.briarproject.bramble.test.TestDatabaseConfigModule;
@@ -22,6 +23,7 @@ import java.io.File;
 import java.util.concurrent.CountDownLatch;
 
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
+import static org.briarproject.bramble.api.plugin.file.FileConstants.PROP_PATH;
 import static org.briarproject.bramble.api.sync.validation.MessageState.DELIVERED;
 import static org.briarproject.bramble.test.TestUtils.deleteTestDirectory;
 import static org.briarproject.bramble.test.TestUtils.getSecretKey;
@@ -96,8 +98,10 @@ public class RemovableDriveIntegrationTest extends BrambleTestCase {
 				new MessageDeliveryListener(deliveries);
 		device.getEventBus().addListener(listener);
 		// Read the incoming stream
+		TransportProperties p = new TransportProperties();
+		p.put(PROP_PATH, file.getAbsolutePath());
 		RemovableDriveTask reader = device.getRemovableDriveManager()
-				.startReaderTask(contactId, file);
+				.startReaderTask(contactId, p);
 		CountDownLatch disposedLatch = new CountDownLatch(1);
 		reader.addObserver(state -> {
 			if (state.isFinished()) disposedLatch.countDown();
@@ -114,8 +118,10 @@ public class RemovableDriveIntegrationTest extends BrambleTestCase {
 			ContactId contactId) throws Exception {
 		// Write the outgoing stream to a file
 		File file = File.createTempFile("sync", ".tmp", testDir);
+		TransportProperties p = new TransportProperties();
+		p.put(PROP_PATH, file.getAbsolutePath());
 		RemovableDriveTask writer = device.getRemovableDriveManager()
-				.startWriterTask(contactId, file);
+				.startWriterTask(contactId, p);
 		CountDownLatch disposedLatch = new CountDownLatch(1);
 		writer.addObserver(state -> {
 			if (state.isFinished()) disposedLatch.countDown();
