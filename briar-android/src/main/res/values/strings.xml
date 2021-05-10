@@ -615,7 +615,8 @@
 	<string name="learn_more">Learn more</string>
 	<string name="disappearing_messages_summary">Make future messages in this conversation automatically disappear after 7\u00A0days.</string>
 
-	<!-- Settings Feedback -->
+	<!-- Settings Actions -->
+	<string name="pref_category_actions">Actions</string>
 	<string name="send_feedback">Send feedback</string>
 
 	<!-- Link Warning -->
