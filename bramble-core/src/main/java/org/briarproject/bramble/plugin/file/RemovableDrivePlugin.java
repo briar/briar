@@ -11,7 +11,7 @@ import java.io.OutputStream;
 
 import javax.annotation.concurrent.Immutable;
 
-import static org.briarproject.bramble.api.plugin.FileConstants.PROP_PATH;
+import static org.briarproject.bramble.api.plugin.RemovableDriveConstants.PROP_PATH;
 import static org.briarproject.bramble.util.StringUtils.isNullOrEmpty;
 
 @Immutable
