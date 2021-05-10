@@ -74,16 +74,16 @@ public class RemoteWipeIntegrationTest extends BriarIntegrationTest<BriarIntegra
 		BriarIntegrationTestComponent.Helper.injectEagerSingletons(c2);
 	}
 
-
 	@Test
 	public void testRemoteWipe() throws Exception {
 		remoteWipeManager0.listenForPanic(this);
 		db0.transaction(false, txn -> {
-			// TODO assert that we do not already have a wipe setup
-//			assertNull(socialBackupManager0.getBackupMetadata(txn));
+			// Assert that we do not already have a wipe setup
+			assertFalse(remoteWipeManager0.remoteWipeIsSetup(txn));
 			remoteWipeManager0.setup(txn,
 					asList(contactId1From0, contactId2From0));
-			// TODO now check that we do have a wipe setup
+			// Now check that we do have a wipe setup
+			assertTrue(remoteWipeManager0.remoteWipeIsSetup(txn));
 		});
 		// Sync the setup messages to the contacts
 		sync0To1(1, true);

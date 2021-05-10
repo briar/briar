@@ -14,6 +14,7 @@ import org.briarproject.bramble.api.data.MetadataParser;
 import org.briarproject.bramble.api.db.DatabaseComponent;
 import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.db.Transaction;
+import org.briarproject.bramble.api.identity.Author;
 import org.briarproject.bramble.api.lifecycle.LifecycleManager;
 import org.briarproject.bramble.api.sync.Group;
 import org.briarproject.bramble.api.sync.GroupId;
@@ -124,6 +125,7 @@ public class RemoteWipeManagerImpl extends ConversationClientImpl
             // message.getGroupId turn into contactid
             // txn.attach event
 		} else if (type == WIPE) {
+			if (!remoteWipeIsSetup(txn)) return false;
 			ContactId contactId = getContactId(txn, m.getGroupId());
 			// Check if contact is in list of wipers
 			if (findMessage(txn, m.getGroupId(), SETUP, true) != null) {
@@ -170,7 +172,10 @@ public class RemoteWipeManagerImpl extends ConversationClientImpl
 
 	public void setup(Transaction txn, List<ContactId> wipers)
 			throws DbException, FormatException {
-        // TODO if (we already have a set of wipers?) do something
+        // If we already have a set of wipers do nothing
+		// TODO revoke existing wipers
+		if (remoteWipeIsSetup(txn)) throw new FormatException();
+
         if (wipers.size() < 2) throw new FormatException();
 
 		BdfList wipersMetadata = new BdfList();
@@ -387,5 +392,31 @@ public class RemoteWipeManagerImpl extends ConversationClientImpl
 		Map.Entry<MessageId, BdfDictionary> e =
 				results.entrySet().iterator().next();
 		return new Pair<>(e.getKey(), e.getValue());
+	}
+
+	@Override
+	public boolean remoteWipeIsSetup(Transaction txn) {
+		try {
+			return !db.getGroupMetadata(txn, localGroup.getId()).isEmpty();
+		} catch (DbException e) {
+			return false;
+		}
+	}
+
+	public List<Author> getWipers(Transaction txn) throws DbException {
+		try {
+			BdfDictionary meta = clientHelper.getGroupMetadataAsDictionary(txn,
+					localGroup.getId());
+			BdfList bdfWipers = meta.getList(GROUP_KEY_WIPERS);
+
+			List<Author> wipers = new ArrayList<>(bdfWipers.size());
+			for (int i = 0; i < bdfWipers.size(); i++) {
+				BdfList author = bdfWipers.getList(i);
+				wipers.add(clientHelper.parseAndValidateAuthor(author));
+			}
+			return wipers;
+		} catch (FormatException e) {
+			throw new DbException(e);
+		}
 	}
 }

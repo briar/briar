@@ -261,6 +261,7 @@ class SocialBackupManagerImpl extends ConversationClientImpl
 		try {
 			BdfDictionary meta = clientHelper.getGroupMetadataAsDictionary(txn,
 					localGroup.getId());
+
 			return backupMetadataParser.parseBackupMetadata(meta);
 		} catch (FormatException e) {
 			throw new DbException(e);
