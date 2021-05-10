@@ -415,14 +415,17 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 			throw new NoSuchContactException();
 		Collection<MessageId> ids =
 				db.getMessagesToSend(txn, c, maxLength, maxLatency);
+		long totalLength = 0;
 		List<Message> messages = new ArrayList<>(ids.size());
 		for (MessageId m : ids) {
-			messages.add(db.getMessage(txn, m));
+			Message message = db.getMessage(txn, m);
+			totalLength += message.getRawLength();
+			messages.add(message);
 			db.updateExpiryTimeAndEta(txn, c, m, maxLatency);
 		}
 		if (ids.isEmpty()) return null;
 		db.lowerRequestedFlag(txn, c, ids);
-		transaction.attach(new MessagesSentEvent(c, ids));
+		transaction.attach(new MessagesSentEvent(c, ids, totalLength));
 		return messages;
 	}
 
@@ -467,14 +470,17 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 			throw new NoSuchContactException();
 		Collection<MessageId> ids =
 				db.getRequestedMessagesToSend(txn, c, maxLength, maxLatency);
+		long totalLength = 0;
 		List<Message> messages = new ArrayList<>(ids.size());
 		for (MessageId m : ids) {
-			messages.add(db.getMessage(txn, m));
+			Message message = db.getMessage(txn, m);
+			totalLength += message.getRawLength();
+			messages.add(message);
 			db.updateExpiryTimeAndEta(txn, c, m, maxLatency);
 		}
 		if (ids.isEmpty()) return null;
 		db.lowerRequestedFlag(txn, c, ids);
-		transaction.attach(new MessagesSentEvent(c, ids));
+		transaction.attach(new MessagesSentEvent(c, ids, totalLength));
 		return messages;
 	}
 
