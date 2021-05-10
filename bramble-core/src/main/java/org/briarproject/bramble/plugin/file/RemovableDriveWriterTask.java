@@ -3,12 +3,14 @@ package org.briarproject.bramble.plugin.file;
 import org.briarproject.bramble.api.connection.ConnectionManager;
 import org.briarproject.bramble.api.contact.ContactId;
 import org.briarproject.bramble.api.db.DatabaseComponent;
+import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.event.Event;
 import org.briarproject.bramble.api.event.EventBus;
 import org.briarproject.bramble.api.event.EventListener;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.plugin.PluginManager;
 import org.briarproject.bramble.api.plugin.TransportConnectionWriter;
+import org.briarproject.bramble.api.plugin.simplex.SimplexPlugin;
 import org.briarproject.bramble.api.sync.event.MessagesSentEvent;
 
 import java.io.File;
@@ -18,8 +20,10 @@ import java.util.concurrent.Executor;
 import java.util.logging.Logger;
 
 import static java.util.logging.Level.INFO;
+import static java.util.logging.Level.WARNING;
 import static java.util.logging.Logger.getLogger;
 import static org.briarproject.bramble.api.plugin.file.RemovableDriveConstants.ID;
+import static org.briarproject.bramble.util.LogUtils.logException;
 
 @NotNullByDefault
 class RemovableDriveWriterTask extends RemovableDriveTaskImpl
@@ -46,15 +50,24 @@ class RemovableDriveWriterTask extends RemovableDriveTaskImpl
 
 	@Override
 	public void run() {
-		TransportConnectionWriter w =
-				getPlugin().createWriter(createProperties());
+		SimplexPlugin plugin = getPlugin();
+		TransportConnectionWriter w = plugin.createWriter(createProperties());
 		if (w == null) {
 			LOG.warning("Failed to create writer");
 			registry.removeWriter(contactId, this);
 			setSuccess(false);
 			return;
 		}
-		// TODO: Get total bytes to send from DB
+		int maxLatency = plugin.getMaxLatency();
+		try {
+			setTotal(db.transactionWithResult(true, txn ->
+					db.getMessageBytesToSend(txn, contactId, maxLatency)));
+		} catch (DbException e) {
+			logException(LOG, WARNING, e);
+			registry.removeWriter(contactId, this);
+			setSuccess(false);
+			return;
+		}
 		eventBus.addListener(this);
 		connectionManager.manageOutgoingConnection(contactId, ID,
 				new DecoratedWriter(w));
@@ -68,7 +81,7 @@ class RemovableDriveWriterTask extends RemovableDriveTaskImpl
 				if (LOG.isLoggable(INFO)) {
 					LOG.info(m.getMessageIds().size() + " messages sent");
 				}
-				// TODO: Update progress
+				addDone(m.getTotalLength());
 			}
 		}
 	}
