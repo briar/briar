@@ -8,9 +8,9 @@ import org.briarproject.bramble.api.event.EventListener;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.plugin.PluginManager;
 import org.briarproject.bramble.api.plugin.TransportConnectionReader;
+import org.briarproject.bramble.api.properties.TransportProperties;
 import org.briarproject.bramble.api.sync.event.MessageAddedEvent;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.concurrent.Executor;
@@ -33,22 +33,21 @@ class RemovableDriveReaderTask extends RemovableDriveTaskImpl
 			EventBus eventBus,
 			RemovableDriveTaskRegistry registry,
 			ContactId contactId,
-			File file) {
+			TransportProperties transportProperties) {
 		super(eventExecutor, pluginManager, connectionManager, eventBus,
-				registry, contactId, file);
+				registry, contactId, transportProperties);
 	}
 
 	@Override
 	public void run() {
 		TransportConnectionReader r =
-				getPlugin().createReader(createProperties());
+				getPlugin().createReader(transportProperties);
 		if (r == null) {
 			LOG.warning("Failed to create reader");
 			registry.removeReader(contactId, this);
 			setSuccess(false);
 			return;
 		}
-		setTotal(file.length());
 		eventBus.addListener(this);
 		connectionManager.manageIncomingConnection(ID, new DecoratedReader(r));
 	}

@@ -8,8 +8,8 @@ import org.briarproject.bramble.api.event.EventExecutor;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.plugin.PluginManager;
 import org.briarproject.bramble.api.plugin.file.RemovableDriveTask;
+import org.briarproject.bramble.api.properties.TransportProperties;
 
-import java.io.File;
 import java.util.concurrent.Executor;
 
 import javax.annotation.concurrent.Immutable;
@@ -41,15 +41,15 @@ class RemovableDriveTaskFactoryImpl implements RemovableDriveTaskFactory {
 
 	@Override
 	public RemovableDriveTask createReader(RemovableDriveTaskRegistry registry,
-			ContactId c, File f) {
+			ContactId c, TransportProperties p) {
 		return new RemovableDriveReaderTask(eventExecutor, pluginManager,
-				connectionManager, eventBus, registry, c, f);
+				connectionManager, eventBus, registry, c, p);
 	}
 
 	@Override
 	public RemovableDriveTask createWriter(RemovableDriveTaskRegistry registry,
-			ContactId c, File f) {
+			ContactId c, TransportProperties p) {
 		return new RemovableDriveWriterTask(db, eventExecutor, pluginManager,
-				connectionManager, eventBus, registry, c, f);
+				connectionManager, eventBus, registry, c, p);
 	}
 }

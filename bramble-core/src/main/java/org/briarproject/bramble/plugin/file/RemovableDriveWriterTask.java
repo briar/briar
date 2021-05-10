@@ -11,9 +11,9 @@ import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.plugin.PluginManager;
 import org.briarproject.bramble.api.plugin.TransportConnectionWriter;
 import org.briarproject.bramble.api.plugin.simplex.SimplexPlugin;
+import org.briarproject.bramble.api.properties.TransportProperties;
 import org.briarproject.bramble.api.sync.event.MessagesSentEvent;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.concurrent.Executor;
@@ -42,16 +42,16 @@ class RemovableDriveWriterTask extends RemovableDriveTaskImpl
 			EventBus eventBus,
 			RemovableDriveTaskRegistry registry,
 			ContactId contactId,
-			File file) {
+			TransportProperties transportProperties) {
 		super(eventExecutor, pluginManager, connectionManager, eventBus,
-				registry, contactId, file);
+				registry, contactId, transportProperties);
 		this.db = db;
 	}
 
 	@Override
 	public void run() {
 		SimplexPlugin plugin = getPlugin();
-		TransportConnectionWriter w = plugin.createWriter(createProperties());
+		TransportConnectionWriter w = plugin.createWriter(transportProperties);
 		if (w == null) {
 			LOG.warning("Failed to create writer");
 			registry.removeWriter(contactId, this);

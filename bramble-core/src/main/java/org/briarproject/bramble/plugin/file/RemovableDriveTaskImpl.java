@@ -10,7 +10,6 @@ import org.briarproject.bramble.api.plugin.file.RemovableDriveTask;
 import org.briarproject.bramble.api.plugin.simplex.SimplexPlugin;
 import org.briarproject.bramble.api.properties.TransportProperties;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Executor;
@@ -20,7 +19,6 @@ import javax.annotation.concurrent.ThreadSafe;
 
 import static java.lang.Math.min;
 import static org.briarproject.bramble.api.nullsafety.NullSafety.requireNonNull;
-import static org.briarproject.bramble.api.plugin.file.FileConstants.PROP_PATH;
 import static org.briarproject.bramble.api.plugin.file.RemovableDriveConstants.ID;
 
 @ThreadSafe
@@ -33,7 +31,7 @@ abstract class RemovableDriveTaskImpl implements RemovableDriveTask {
 	final EventBus eventBus;
 	final RemovableDriveTaskRegistry registry;
 	final ContactId contactId;
-	final File file;
+	final TransportProperties transportProperties;
 
 	private final Object lock = new Object();
 	@GuardedBy("lock")
@@ -48,19 +46,19 @@ abstract class RemovableDriveTaskImpl implements RemovableDriveTask {
 			EventBus eventBus,
 			RemovableDriveTaskRegistry registry,
 			ContactId contactId,
-			File file) {
+			TransportProperties transportProperties) {
 		this.eventExecutor = eventExecutor;
 		this.pluginManager = pluginManager;
 		this.connectionManager = connectionManager;
 		this.eventBus = eventBus;
 		this.registry = registry;
 		this.contactId = contactId;
-		this.file = file;
+		this.transportProperties = transportProperties;
 	}
 
 	@Override
-	public File getFile() {
-		return file;
+	public TransportProperties getTransportProperties() {
+		return transportProperties;
 	}
 
 	@Override
@@ -84,12 +82,6 @@ abstract class RemovableDriveTaskImpl implements RemovableDriveTask {
 
 	SimplexPlugin getPlugin() {
 		return (SimplexPlugin) requireNonNull(pluginManager.getPlugin(ID));
-	}
-
-	TransportProperties createProperties() {
-		TransportProperties p = new TransportProperties();
-		p.put(PROP_PATH, file.getAbsolutePath());
-		return p;
 	}
 
 	void setTotal(long total) {
