@@ -9,7 +9,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.Toast;
 
 import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.tabs.TabLayoutMediator;
@@ -28,7 +27,7 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.viewpager2.adapter.FragmentStateAdapter;
 import androidx.viewpager2.widget.ViewPager2;
 
-import static android.widget.Toast.LENGTH_SHORT;
+import static androidx.core.app.ActivityCompat.finishAfterTransition;
 import static org.briarproject.briar.android.AppModule.getAndroidComponent;
 
 @MethodsNotNullByDefault
@@ -81,8 +80,8 @@ public abstract class AbstractTabsFragment extends Fragment {
 
 		stopButton = view.findViewById(R.id.stopButton);
 		stopButton.setOnClickListener(v -> {
-			Toast.makeText(requireContext(), "Not yet implemented",
-					LENGTH_SHORT).show();
+			// also clears hotspot
+			finishAfterTransition(requireActivity());
 		});
 		connectedButton = view.findViewById(R.id.connectedButton);
 	}

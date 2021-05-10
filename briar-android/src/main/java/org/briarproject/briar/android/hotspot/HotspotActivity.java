@@ -1,5 +1,6 @@
 package org.briarproject.briar.android.hotspot;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.MenuItem;
 
@@ -15,6 +16,8 @@ import javax.inject.Inject;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBar;
 import androidx.lifecycle.ViewModelProvider;
+
+import static org.briarproject.briar.api.android.AndroidNotificationManager.ACTION_STOP_HOTSPOT;
 
 @MethodsNotNullByDefault
 @ParametersNotNullByDefault
@@ -59,6 +62,15 @@ public class HotspotActivity extends BriarActivity {
 			return true;
 		}
 		return super.onOptionsItemSelected(item);
+	}
+
+	@Override
+	protected void onNewIntent(Intent intent) {
+		super.onNewIntent(intent);
+		if (ACTION_STOP_HOTSPOT.equals(intent.getAction())) {
+			// also closes hotspot
+			supportFinishAfterTransition();
+		}
 	}
 
 }

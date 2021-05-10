@@ -61,6 +61,7 @@ public class HotspotIntroFragment extends Fragment {
 			progressTextView.setVisibility(VISIBLE);
 			// TODO remove below, tell viewModel to start hotspot instead
 			v.postDelayed(() -> {
+				viewModel.startHotspot();
 				getParentFragmentManager().beginTransaction()
 						.setCustomAnimations(R.anim.step_next_in,
 								R.anim.step_previous_out,
