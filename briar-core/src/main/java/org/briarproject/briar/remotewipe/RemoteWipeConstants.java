@@ -3,6 +3,7 @@ package org.briarproject.briar.remotewipe;
 public interface RemoteWipeConstants {
 
 	int THRESHOLD = 2;
+    long MAX_MESSAGE_AGE = 24 * 60 * 60 * 1000;
 
 	// Group metadata keys
 	String GROUP_KEY_CONTACT_ID = "contactId";

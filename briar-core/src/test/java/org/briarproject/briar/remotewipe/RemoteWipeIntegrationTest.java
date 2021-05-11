@@ -121,11 +121,11 @@ public class RemoteWipeIntegrationTest extends BriarIntegrationTest<BriarIntegra
 
 		Collection<ConversationMessageHeader> messages1At0 =
 				getMessages1At0();
-		assertEquals(1, messages1At0.size());
+		assertEquals(2, messages1At0.size());
 
 		Collection<ConversationMessageHeader> messages2At0 =
 				getMessages2At0();
-		assertEquals(1, messages2At0.size());
+		assertEquals(2, messages2At0.size());
 
 		assertTrue(panicCalled);
 	}
@@ -178,7 +178,7 @@ public class RemoteWipeIntegrationTest extends BriarIntegrationTest<BriarIntegra
 
 		Collection<ConversationMessageHeader> messages1At0 =
 				getMessages1At0();
-		assertEquals(1, messages1At0.size());
+		assertEquals(3, messages1At0.size());
 
 		Collection<ConversationMessageHeader> messages2At0 =
 				getMessages2At0();
@@ -186,6 +186,7 @@ public class RemoteWipeIntegrationTest extends BriarIntegrationTest<BriarIntegra
 
 		assertFalse(panicCalled);
 	}
+
 	private Collection<ConversationMessageHeader> getMessages1At0()
 			throws DbException {
 		return db0.transactionWithResult(true, txn -> remoteWipeManager0

@@ -35,6 +35,7 @@ import org.briarproject.briar.client.ConversationClientImpl;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -49,6 +50,7 @@ import static org.briarproject.briar.remotewipe.RemoteWipeConstants.GROUP_KEY_CO
 import static org.briarproject.briar.remotewipe.RemoteWipeConstants.GROUP_KEY_RECEIVED_WIPE;
 import static org.briarproject.briar.remotewipe.RemoteWipeConstants.GROUP_KEY_WIPERS;
 
+import static org.briarproject.briar.remotewipe.RemoteWipeConstants.MAX_MESSAGE_AGE;
 import static org.briarproject.briar.remotewipe.RemoteWipeConstants.MSG_KEY_LOCAL;
 import static org.briarproject.briar.remotewipe.RemoteWipeConstants.MSG_KEY_MESSAGE_TYPE;
 import static org.briarproject.briar.remotewipe.RemoteWipeConstants.MSG_KEY_TIMESTAMP;
@@ -117,7 +119,7 @@ public class RemoteWipeManagerImpl extends ConversationClientImpl
 	@Override
 	protected boolean incomingMessage(Transaction txn, Message m, BdfList body,
 			BdfDictionary meta) throws DbException, FormatException {
-		System.out.println("Incoming message called");
+		System.out.println("Incoming remote wipe message");
 		MessageType type = MessageType.fromValue(body.getLong(0).intValue());
 		if (type == SETUP) {
 			messageTracker.trackIncomingMessage(txn, m);
@@ -136,19 +138,21 @@ public class RemoteWipeManagerImpl extends ConversationClientImpl
 
 				if (receivedWipeMessages == null) receivedWipeMessages = new BdfList();
 
-				for (int i = 0; i < receivedWipeMessages.size(); i++) {
+				// Traverse the list backwards to avoid problems when removing items
+				for (int i = receivedWipeMessages.size() -1; i >= 0; --i) {
 					BdfList receivedWipeMessage = receivedWipeMessages.getList(i);
-					// If we already have one from this contact, ignore
-					if (receivedWipeMessage.getLong(0).intValue() == contactId.getInt()) {
+
+					long timestamp = receivedWipeMessage.getLong(1);
+					System.out.println("Message age: " + (clock.currentTimeMillis() - timestamp));
+					// Filter the messages for old ones
+					if (clock.currentTimeMillis() - timestamp > MAX_MESSAGE_AGE) {
+						System.out.println("Removing outdated wipe message");
+						receivedWipeMessages.remove(i);
+					} else if (receivedWipeMessage.getLong(0).intValue() == contactId.getInt()) {
+						// If we already have one from this contact, ignore
 						System.out.println("Duplicate wipe message received - ignoring");
 						return false;
 					}
-
-					// TODO filter the messages for old ones
-//					long timestamp = receivedWipeMessage.getLong(1);
-//					if (clock.currentTimeMillis() - timestamp > MAX_MESSAGE_AGE) {
-//						receivedWipeMessages.remove(i);
-//					}
 				}
 
 			    if (receivedWipeMessages.size() + 1 == THRESHOLD) {
@@ -161,7 +165,8 @@ public class RemoteWipeManagerImpl extends ConversationClientImpl
 			    } else {
 			    	BdfList newReceivedWipeMessage = new BdfList();
 			    	newReceivedWipeMessage.add(contactId.getInt());
-			    	newReceivedWipeMessage.add(1); // TODO this should be the timestamp
+			    	long timestamp = m.getTimestamp();
+			    	newReceivedWipeMessage.add(timestamp);
 			    	receivedWipeMessages.add(newReceivedWipeMessage);
 			    	BdfDictionary newMeta = new BdfDictionary();
 			    	newMeta.put(GROUP_KEY_RECEIVED_WIPE, receivedWipeMessages);
@@ -175,7 +180,7 @@ public class RemoteWipeManagerImpl extends ConversationClientImpl
 	public void setup(Transaction txn, List<ContactId> wipers)
 			throws DbException, FormatException {
         // If we already have a set of wipers do nothing
-		// TODO revoke existing wipers
+		// TODO revoke existing wipers who are not present in the new list
 		if (remoteWipeIsSetup(txn)) throw new FormatException();
 
         if (wipers.size() < 2) throw new FormatException();
@@ -213,7 +218,6 @@ public class RemoteWipeManagerImpl extends ConversationClientImpl
 		byte[] body = messageEncoder.encodeSetupMessage();
 
 		Message m = clientHelper.createMessage(g, timestamp, body);
-		// TODO remote-wipe versions of MESSAGE_KEY
 		BdfDictionary meta = BdfDictionary.of(
 				new BdfEntry(MSG_KEY_MESSAGE_TYPE, SETUP.getValue()),
 				new BdfEntry(MSG_KEY_LOCAL, true),
@@ -238,11 +242,10 @@ public class RemoteWipeManagerImpl extends ConversationClientImpl
 		byte[] body = messageEncoder.encodeWipeMessage();
 
 		Message m = clientHelper.createMessage(g, timestamp, body);
-		// TODO remote-wipe versions of MESSAGE_KEY
 		BdfDictionary meta = BdfDictionary.of(
-				new BdfEntry(MSG_KEY_MESSAGE_TYPE, SETUP.getValue()),
-				new BdfEntry(MSG_KEY_LOCAL, true),
-				new BdfEntry(MSG_KEY_TIMESTAMP, timestamp)
+				new BdfEntry(MSG_KEY_TIMESTAMP, timestamp),
+				new BdfEntry(MSG_KEY_MESSAGE_TYPE, WIPE.getValue()),
+				new BdfEntry(MSG_KEY_LOCAL, true)
 		);
 		clientHelper.addLocalMessage(txn, m, meta, true, false);
 		messageTracker.trackOutgoingMessage(txn, m);
@@ -285,7 +288,15 @@ public class RemoteWipeManagerImpl extends ConversationClientImpl
 					MessageStatus status = db.getMessageStatus(txn, contactId,
 							messageEntry.getKey());
 					headers.add(
-							createSetupMessageHeader(message, meta, status));
+							createMessageHeader(message, meta, status));
+				} else if (meta.getLong(MSG_KEY_MESSAGE_TYPE).intValue() ==
+						WIPE.getValue()) {
+					Message message = clientHelper
+							.getMessage(txn, messageEntry.getKey());
+					MessageStatus status = db.getMessageStatus(txn, contactId,
+							messageEntry.getKey());
+					headers.add(
+							createMessageHeader(message, meta, status));
 				}
 			}
 			return headers;
@@ -294,7 +305,7 @@ public class RemoteWipeManagerImpl extends ConversationClientImpl
 		}
 	}
 
-	private RemoteWipeMessageHeader createSetupMessageHeader(
+	private RemoteWipeMessageHeader createMessageHeader(
 			Message message, BdfDictionary meta, MessageStatus status
 	)
 			throws FormatException {
