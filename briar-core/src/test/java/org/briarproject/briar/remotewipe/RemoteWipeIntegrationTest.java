@@ -130,6 +130,62 @@ public class RemoteWipeIntegrationTest extends BriarIntegrationTest<BriarIntegra
 		assertTrue(panicCalled);
 	}
 
+	@Test
+	public void testRemoteWipeFailsOnDuplicateMessage() throws Exception {
+		remoteWipeManager0.listenForPanic(this);
+		db0.transaction(false, txn -> {
+			// Assert that we do not already have a wipe setup
+			assertFalse(remoteWipeManager0.remoteWipeIsSetup(txn));
+			remoteWipeManager0.setup(txn,
+					asList(contactId1From0, contactId2From0));
+			// Now check that we do have a wipe setup
+			assertTrue(remoteWipeManager0.remoteWipeIsSetup(txn));
+		});
+		// Sync the setup messages to the contacts
+		sync0To1(1, true);
+		sync0To2(1, true);
+
+		// The setup message from 0 should have arrived at 1
+		Collection<ConversationMessageHeader> messages0At1 =
+				getMessages0At1();
+		assertEquals(1, messages0At1.size());
+
+		Collection<ConversationMessageHeader> messages0At2 =
+				getMessages0At2();
+		assertEquals(1, messages0At2.size());
+
+		for (ConversationMessageHeader h : messages0At1) {
+			assertTrue(h instanceof RemoteWipeMessageHeader);
+			RemoteWipeMessageHeader r = (RemoteWipeMessageHeader) h;
+			assertFalse(r.isLocal());
+		}
+
+		// The wipers check that they are now wipers
+		db1.transaction(false, txn -> {
+			assertTrue(remoteWipeManager1.amWiper(txn, contactId0From1));
+			remoteWipeManager1.wipe(txn, contact0From1);
+			remoteWipeManager1.wipe(txn, contact0From1);
+		});
+
+		db2.transaction(false, txn -> {
+			assertTrue(remoteWipeManager2.amWiper(txn, contactId0From2));
+//			remoteWipeManager2.wipe(txn, contact0From2);
+		});
+
+		// Sync the wipe messages to the wipee
+		sync1To0(2, true);
+//		sync2To0(1, true);
+
+		Collection<ConversationMessageHeader> messages1At0 =
+				getMessages1At0();
+		assertEquals(1, messages1At0.size());
+
+		Collection<ConversationMessageHeader> messages2At0 =
+				getMessages2At0();
+		assertEquals(1, messages2At0.size());
+
+		assertFalse(panicCalled);
+	}
 	private Collection<ConversationMessageHeader> getMessages1At0()
 			throws DbException {
 		return db0.transactionWithResult(true, txn -> remoteWipeManager0

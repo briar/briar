@@ -97,7 +97,6 @@ public class RemoteWipeManagerImpl extends ConversationClientImpl
 
 	@Override
 	public void onDatabaseOpened(Transaction txn) throws DbException {
-		System.out.println("DATAbase opened");
 		if (db.containsGroup(txn, localGroup.getId())) return;
 		db.addGroup(txn, localGroup);
 		// Set things up for any pre-existing contacts
@@ -140,7 +139,10 @@ public class RemoteWipeManagerImpl extends ConversationClientImpl
 				for (int i = 0; i < receivedWipeMessages.size(); i++) {
 					BdfList receivedWipeMessage = receivedWipeMessages.getList(i);
 					// If we already have one from this contact, ignore
-					if (receivedWipeMessage.getLong(0).intValue() == contactId.getInt()) return false;
+					if (receivedWipeMessage.getLong(0).intValue() == contactId.getInt()) {
+						System.out.println("Duplicate wipe message received - ignoring");
+						return false;
+					}
 
 					// TODO filter the messages for old ones
 //					long timestamp = receivedWipeMessage.getLong(1);
