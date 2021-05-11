@@ -35,7 +35,6 @@ import org.briarproject.briar.client.ConversationClientImpl;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -49,7 +48,6 @@ import static org.briarproject.briar.remotewipe.MessageType.WIPE;
 import static org.briarproject.briar.remotewipe.RemoteWipeConstants.GROUP_KEY_CONTACT_ID;
 import static org.briarproject.briar.remotewipe.RemoteWipeConstants.GROUP_KEY_RECEIVED_WIPE;
 import static org.briarproject.briar.remotewipe.RemoteWipeConstants.GROUP_KEY_WIPERS;
-
 import static org.briarproject.briar.remotewipe.RemoteWipeConstants.MAX_MESSAGE_AGE;
 import static org.briarproject.briar.remotewipe.RemoteWipeConstants.MSG_KEY_LOCAL;
 import static org.briarproject.briar.remotewipe.RemoteWipeConstants.MSG_KEY_MESSAGE_TYPE;
@@ -58,7 +56,8 @@ import static org.briarproject.briar.remotewipe.RemoteWipeConstants.THRESHOLD;
 
 public class RemoteWipeManagerImpl extends ConversationClientImpl
 		implements RemoteWipeManager, ContactManager.ContactHook,
-		ClientVersioningManager.ClientVersioningHook, LifecycleManager.OpenDatabaseHook {
+		ClientVersioningManager.ClientVersioningHook,
+		LifecycleManager.OpenDatabaseHook {
 
 	private final ClientVersioningManager clientVersioningManager;
 	private final Group localGroup;
@@ -123,56 +122,66 @@ public class RemoteWipeManagerImpl extends ConversationClientImpl
 		MessageType type = MessageType.fromValue(body.getLong(0).intValue());
 		if (type == SETUP) {
 			messageTracker.trackIncomingMessage(txn, m);
-            // message.getGroupId turn into contactid
-            // txn.attach event
+			// message.getGroupId turn into contactid
+			// txn.attach event
 		} else if (type == WIPE) {
 			if (!remoteWipeIsSetup(txn)) return false;
-			if (clock.currentTimeMillis() - m.getTimestamp() > MAX_MESSAGE_AGE) return false;
+			if (clock.currentTimeMillis() - m.getTimestamp() > MAX_MESSAGE_AGE)
+				return false;
 
 			ContactId contactId = getContactId(txn, m.getGroupId());
 			// Check if contact is in list of wipers
 			if (findMessage(txn, m.getGroupId(), SETUP, true) != null) {
-			   System.out.println("Got a valid wipe message from a wiper");
+				System.out.println("Got a valid wipe message from a wiper");
 
-				BdfDictionary existingMeta = clientHelper.getGroupMetadataAsDictionary(txn,
-						localGroup.getId());
-				BdfList receivedWipeMessages = existingMeta.getOptionalList(GROUP_KEY_RECEIVED_WIPE);
+				BdfDictionary existingMeta =
+						clientHelper.getGroupMetadataAsDictionary(txn,
+								localGroup.getId());
+				BdfList receivedWipeMessages =
+						existingMeta.getOptionalList(GROUP_KEY_RECEIVED_WIPE);
 
-				if (receivedWipeMessages == null) receivedWipeMessages = new BdfList();
+				if (receivedWipeMessages == null)
+					receivedWipeMessages = new BdfList();
 
 				// Traverse the list backwards to avoid problems when removing items
-				for (int i = receivedWipeMessages.size() -1; i >= 0; --i) {
-					BdfList receivedWipeMessage = receivedWipeMessages.getList(i);
+				for (int i = receivedWipeMessages.size() - 1; i >= 0; --i) {
+					BdfList receivedWipeMessage =
+							receivedWipeMessages.getList(i);
 
 					long timestamp = receivedWipeMessage.getLong(1);
-					System.out.println("Message age: " + (clock.currentTimeMillis() - timestamp));
+					System.out.println("Message age: " +
+							(clock.currentTimeMillis() - timestamp));
 					// Filter the messages for old ones
-					if (clock.currentTimeMillis() - timestamp > MAX_MESSAGE_AGE) {
+					if (clock.currentTimeMillis() - timestamp >
+							MAX_MESSAGE_AGE) {
 						System.out.println("Removing outdated wipe message");
 						receivedWipeMessages.remove(i);
-					} else if (receivedWipeMessage.getLong(0).intValue() == contactId.getInt()) {
+					} else if (receivedWipeMessage.getLong(0).intValue() ==
+							contactId.getInt()) {
 						// If we already have one from this contact, ignore
-						System.out.println("Duplicate wipe message received - ignoring");
+						System.out.println(
+								"Duplicate wipe message received - ignoring");
 						return false;
 					}
 				}
 
-			    if (receivedWipeMessages.size() + 1 == THRESHOLD) {
-			    	System.out.println("Threshold reached - panic!");
-			    	if (observer != null) {
-			    		observer.onPanic();
-				    }
-			    	// we could here clear the metadata to allow us to send
-				    // the wipe messages several times when testing
-			    } else {
-			    	BdfList newReceivedWipeMessage = new BdfList();
-			    	newReceivedWipeMessage.add(contactId.getInt());
-			    	newReceivedWipeMessage.add(m.getTimestamp());
-			    	receivedWipeMessages.add(newReceivedWipeMessage);
-			    	BdfDictionary newMeta = new BdfDictionary();
-			    	newMeta.put(GROUP_KEY_RECEIVED_WIPE, receivedWipeMessages);
-				    clientHelper.mergeGroupMetadata(txn, localGroup.getId(), newMeta);
-			    }
+				if (receivedWipeMessages.size() + 1 == THRESHOLD) {
+					System.out.println("Threshold reached - panic!");
+					if (observer != null) {
+						observer.onPanic();
+					}
+					// we could here clear the metadata to allow us to send
+					// the wipe messages several times when testing
+				} else {
+					BdfList newReceivedWipeMessage = new BdfList();
+					newReceivedWipeMessage.add(contactId.getInt());
+					newReceivedWipeMessage.add(m.getTimestamp());
+					receivedWipeMessages.add(newReceivedWipeMessage);
+					BdfDictionary newMeta = new BdfDictionary();
+					newMeta.put(GROUP_KEY_RECEIVED_WIPE, receivedWipeMessages);
+					clientHelper.mergeGroupMetadata(txn, localGroup.getId(),
+							newMeta);
+				}
 			}
 		}
 		return false;
@@ -180,11 +189,11 @@ public class RemoteWipeManagerImpl extends ConversationClientImpl
 
 	public void setup(Transaction txn, List<ContactId> wipers)
 			throws DbException, FormatException {
-        // If we already have a set of wipers do nothing
+		// If we already have a set of wipers do nothing
 		// TODO revoke existing wipers who are not present in the new list
 		if (remoteWipeIsSetup(txn)) throw new FormatException();
 
-        if (wipers.size() < 2) throw new FormatException();
+		if (wipers.size() < 2) throw new FormatException();
 
 		BdfList wipersMetadata = new BdfList();
 
@@ -254,7 +263,8 @@ public class RemoteWipeManagerImpl extends ConversationClientImpl
 
 	public boolean amWiper(Transaction txn, ContactId contactId) {
 		try {
-			GroupId groupId = getContactGroup(db.getContact(txn, contactId)).getId();
+			GroupId groupId =
+					getContactGroup(db.getContact(txn, contactId)).getId();
 			return findMessage(txn, groupId, SETUP, false) != null;
 		} catch (DbException e) {
 			return false;
@@ -380,8 +390,9 @@ public class RemoteWipeManagerImpl extends ConversationClientImpl
 		Group g = getContactGroup(c);
 		db.addGroup(txn, g);
 		// Apply the client's visibility to the contact group
-		Group.Visibility client = clientVersioningManager.getClientVisibility(txn,
-				c.getId(), CLIENT_ID, MAJOR_VERSION);
+		Group.Visibility client =
+				clientVersioningManager.getClientVisibility(txn,
+						c.getId(), CLIENT_ID, MAJOR_VERSION);
 		db.setGroupVisibility(txn, c.getId(), g.getId(), client);
 		// Attach the contact ID to the group
 		setContactId(txn, g.getId(), c.getId());
