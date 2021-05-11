@@ -164,6 +164,7 @@ public class RemoteWipeIntegrationTest extends BriarIntegrationTest<BriarIntegra
 		db1.transaction(false, txn -> {
 			assertTrue(remoteWipeManager1.amWiper(txn, contactId0From1));
 			remoteWipeManager1.wipe(txn, contact0From1);
+			Thread.sleep(100);
 			remoteWipeManager1.wipe(txn, contact0From1);
 		});
 
