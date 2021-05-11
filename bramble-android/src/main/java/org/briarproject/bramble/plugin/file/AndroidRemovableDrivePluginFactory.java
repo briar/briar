@@ -1,5 +1,7 @@
 package org.briarproject.bramble.plugin.file;
 
+import android.app.Application;
+
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.plugin.PluginCallback;
 import org.briarproject.bramble.api.plugin.TransportId;
@@ -15,12 +17,16 @@ import static org.briarproject.bramble.api.plugin.RemovableDriveConstants.ID;
 
 @Immutable
 @NotNullByDefault
-public class RemovableDrivePluginFactory implements SimplexPluginFactory {
+public class AndroidRemovableDrivePluginFactory implements
+		SimplexPluginFactory {
 
 	private static final int MAX_LATENCY = (int) DAYS.toMillis(14);
 
+	private final Application app;
+
 	@Inject
-	RemovableDrivePluginFactory() {
+	AndroidRemovableDrivePluginFactory(Application app) {
+		this.app = app;
 	}
 
 	@Override
@@ -36,6 +42,6 @@ public class RemovableDrivePluginFactory implements SimplexPluginFactory {
 	@Nullable
 	@Override
 	public SimplexPlugin createPlugin(PluginCallback callback) {
-		return new RemovableDrivePlugin(MAX_LATENCY);
+		return new AndroidRemovableDrivePlugin(app, MAX_LATENCY);
 	}
 }
