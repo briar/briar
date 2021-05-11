@@ -31,6 +31,8 @@ import org.briarproject.briar.api.remotewipe.MessageEncoder;
 import org.briarproject.briar.api.remotewipe.MessageParser;
 import org.briarproject.briar.api.remotewipe.RemoteWipeManager;
 import org.briarproject.briar.api.remotewipe.RemoteWipeMessageHeader;
+import org.briarproject.briar.api.remotewipe.RemoteWipeReceivedEvent;
+import org.briarproject.briar.api.socialbackup.ShardReceivedEvent;
 import org.briarproject.briar.client.ConversationClientImpl;
 
 import java.util.ArrayList;
@@ -122,8 +124,12 @@ public class RemoteWipeManagerImpl extends ConversationClientImpl
 		MessageType type = MessageType.fromValue(body.getLong(0).intValue());
 		if (type == SETUP) {
 			messageTracker.trackIncomingMessage(txn, m);
-			// message.getGroupId turn into contactid
-			// txn.attach event
+			ContactId contactId = getContactId(txn, m.getGroupId());
+
+			MessageStatus status = db.getMessageStatus(txn, contactId,
+					m.getId());
+			txn.attach(new RemoteWipeReceivedEvent(
+					createMessageHeader(m, meta, status), contactId));
 		} else if (type == WIPE) {
 			if (!remoteWipeIsSetup(txn)) return false;
 			if (clock.currentTimeMillis() - m.getTimestamp() > MAX_MESSAGE_AGE)
