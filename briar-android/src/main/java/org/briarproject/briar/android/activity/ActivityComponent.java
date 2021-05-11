@@ -34,6 +34,7 @@ import org.briarproject.briar.android.conversation.ConversationActivity;
 import org.briarproject.briar.android.conversation.ConversationSettingsDialog;
 import org.briarproject.briar.android.conversation.ImageActivity;
 import org.briarproject.briar.android.conversation.ImageFragment;
+import org.briarproject.briar.android.conversation.RemovableDriveActivity;
 import org.briarproject.briar.android.forum.CreateForumActivity;
 import org.briarproject.briar.android.forum.ForumActivity;
 import org.briarproject.briar.android.forum.ForumListFragment;
@@ -175,6 +176,8 @@ public interface ActivityComponent {
 	void inject(PendingContactListActivity activity);
 
 	void inject(CrashReportActivity crashReportActivity);
+
+	void inject(RemovableDriveActivity activity);
 
 	// Fragments
 

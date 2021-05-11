@@ -40,4 +40,9 @@
 		android:title="@string/delete_contact"
 		app:showAsAction="never" />
 
+	<item
+		android:id="@+id/action_removable_drive_write"
+		android:title="Transfer via removable drive"
+		app:showAsAction="never" />
+
 </menu>
