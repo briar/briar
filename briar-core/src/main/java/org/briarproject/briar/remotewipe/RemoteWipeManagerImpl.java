@@ -127,10 +127,12 @@ public class RemoteWipeManagerImpl extends ConversationClientImpl
             // txn.attach event
 		} else if (type == WIPE) {
 			if (!remoteWipeIsSetup(txn)) return false;
+			if (clock.currentTimeMillis() - m.getTimestamp() > MAX_MESSAGE_AGE) return false;
+
 			ContactId contactId = getContactId(txn, m.getGroupId());
 			// Check if contact is in list of wipers
 			if (findMessage(txn, m.getGroupId(), SETUP, true) != null) {
-			   System.out.println("Got a wipe message from a wiper");
+			   System.out.println("Got a valid wipe message from a wiper");
 
 				BdfDictionary existingMeta = clientHelper.getGroupMetadataAsDictionary(txn,
 						localGroup.getId());
@@ -165,8 +167,7 @@ public class RemoteWipeManagerImpl extends ConversationClientImpl
 			    } else {
 			    	BdfList newReceivedWipeMessage = new BdfList();
 			    	newReceivedWipeMessage.add(contactId.getInt());
-			    	long timestamp = m.getTimestamp();
-			    	newReceivedWipeMessage.add(timestamp);
+			    	newReceivedWipeMessage.add(m.getTimestamp());
 			    	receivedWipeMessages.add(newReceivedWipeMessage);
 			    	BdfDictionary newMeta = new BdfDictionary();
 			    	newMeta.put(GROUP_KEY_RECEIVED_WIPE, receivedWipeMessages);
