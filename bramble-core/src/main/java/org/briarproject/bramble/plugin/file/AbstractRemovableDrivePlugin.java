@@ -20,7 +20,7 @@ import javax.annotation.concurrent.Immutable;
 import static java.util.logging.Level.WARNING;
 import static java.util.logging.Logger.getLogger;
 import static org.briarproject.bramble.api.plugin.Plugin.State.ACTIVE;
-import static org.briarproject.bramble.api.plugin.RemovableDriveConstants.ID;
+import static org.briarproject.bramble.api.plugin.file.RemovableDriveConstants.ID;
 import static org.briarproject.bramble.util.LogUtils.logException;
 
 @Immutable
