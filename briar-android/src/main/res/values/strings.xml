@@ -732,6 +732,9 @@
 
 	<!-- Remote Wipe -->
 
+	<!-- titles for the app bar -->
+	<string name="title_select_wipers">Select Trusted Contacts</string>
+
 	<!-- conversation -->
 	<string name="remote_wipe_setup_received">You have been added a remote wiper.</string>
 	<string name="remote_wipe_setup_sent">You have added this contact as a remote wiper.</string>
