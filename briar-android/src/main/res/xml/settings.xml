@@ -101,6 +101,17 @@
 
 		</Preference>
 
+		<Preference
+			android:summary="@string/pref_remote_wipe_summary"
+			android:title="@string/pref_remote_wipe_title"
+			app:iconSpaceReserved="false">
+
+			<intent
+				android:targetClass="org.briarproject.briar.android.remotewipe.RemoteWipeSetupActivity"
+				android:targetPackage="@string/app_package" />
+
+		</Preference>
+
 		<SwitchPreference
 			android:enabled="false"
 			android:key="pref_key_lock"

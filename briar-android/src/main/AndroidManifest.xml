@@ -473,6 +473,15 @@
 		</activity>
 
 		<activity
+			android:name="org.briarproject.briar.android.remotewipe.RemoteWipeSetupActivity"
+			android:label="@string/activity_name_remote_wipe"
+			android:parentActivityName="org.briarproject.briar.android.settings.SettingsActivity">
+			<meta-data
+				android:name="android.support.PARENT_ACTIVITY"
+				android:value="org.briarproject.briar.android.settings.SettingsActivity" />
+		</activity>
+
+		<activity
 			android:name="org.briarproject.briar.android.logout.ExitActivity"
 			android:theme="@android:style/Theme.NoDisplay" />
 
