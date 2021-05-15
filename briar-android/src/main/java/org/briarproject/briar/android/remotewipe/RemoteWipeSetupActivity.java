@@ -31,7 +31,7 @@ public class RemoteWipeSetupActivity extends BriarActivity implements
 		viewModel = new ViewModelProvider(this, viewModelFactory)
 				.get(RemoteWipeSetupViewModel.class);
 
-//		viewModel.getState().observeEvent(this, this::onStateChanged);
+		viewModel.getState().observe(this, this::onStateChanged);
 	}
 
 	@Override
@@ -43,6 +43,7 @@ public class RemoteWipeSetupActivity extends BriarActivity implements
         } else {
 	        showInitialFragment(WiperSelectorFragment.newInstance());
         }
+
 	}
 
 	@Override
@@ -57,4 +58,15 @@ public class RemoteWipeSetupActivity extends BriarActivity implements
 		}
 	}
 
+	private void onStateChanged(RemoteWipeSetupState state) {
+		if (state.equals(RemoteWipeSetupState.SUCCESS)) {
+			Toast.makeText(this,
+					"Success",
+					Toast.LENGTH_SHORT).show();
+		} else if (state.equals(RemoteWipeSetupState.FAILED)) {
+			Toast.makeText(this,
+					"Failed",
+					Toast.LENGTH_SHORT).show();
+		}
+	}
 }

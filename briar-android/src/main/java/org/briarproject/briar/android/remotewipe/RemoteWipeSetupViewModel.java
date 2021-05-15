@@ -16,10 +16,12 @@ import javax.inject.Inject;
 
 import androidx.annotation.NonNull;
 import androidx.lifecycle.AndroidViewModel;
+import androidx.lifecycle.MutableLiveData;
 
 public class RemoteWipeSetupViewModel extends AndroidViewModel {
 	private final RemoteWipeManager remoteWipeManager;
 	private final DatabaseComponent db;
+	private final MutableLiveData<RemoteWipeSetupState> state = new MutableLiveData<>();
 
 	@Inject
 	RemoteWipeSetupViewModel(
@@ -44,7 +46,12 @@ public class RemoteWipeSetupViewModel extends AndroidViewModel {
 			throws DbException, FormatException {
 		db.transaction(false, txn -> {
 			remoteWipeManager.setup(txn, (List<ContactId>) wipers);
+			state.postValue(RemoteWipeSetupState.SUCCESS);
 		});
+	}
+
+	public MutableLiveData<RemoteWipeSetupState> getState() {
+		return state;
 	}
 }
 
