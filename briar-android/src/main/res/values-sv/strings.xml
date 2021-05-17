@@ -22,6 +22,7 @@
   <string name="setup_huawei_text">Tryck på knappen längre ner för att lägga till Briar till listan över \"skyddade appar\".</string>
   <string name="setup_huawei_button">Skydda Briar</string>
   <string name="setup_huawei_help">Om Briar inte läggs till listan över skyddade appar kan det inte köras i bakgrunden.</string>
+  <string name="setup_xiaomi_button">Skydda Briar</string>
   <string name="warning_dozed">%s kunde inte köras i bakgrunden</string>
   <!--Login-->
   <string name="enter_password">Lösenord</string>
@@ -420,6 +421,7 @@
   <string name="blogs_rss_feeds_import_button">Importera</string>
   <string name="blogs_rss_feeds_import_hint">Skriv URL till RSS-flödet</string>
   <string name="blogs_rss_feeds_import_error">Tyvärr! Något gick fel när flödet skulle importeras.</string>
+  <string name="blogs_rss_feeds">RSS-flöden</string>
   <string name="blogs_rss_feeds_manage_imported">Importerade:</string>
   <string name="blogs_rss_feeds_manage_author">Författare:</string>
   <string name="blogs_rss_feeds_manage_updated">Senast uppdaterad:</string>

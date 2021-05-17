@@ -25,6 +25,11 @@
   <string name="setup_huawei_app_launch_text">Bitte tippe auf die Schaltfläche unten, öffne den Bereich \"App-Start\" und stelle sicher, dass Briar auf \"Manuell verwalten\" eingestellt ist.</string>
   <string name="setup_huawei_app_launch_button">Akkueinstellungen öffnen</string>
   <string name="setup_huawei_app_launch_help">Wenn Briar im Bereich \"App-Start\" nicht auf \"Manuell verwalten\" eingestellt ist, kann es nicht im Hintergrund ausgeführt werden.</string>
+  <string name="setup_xiaomi_text">Um im Hintergrund zu laufen, muss Briar in der Liste der zuletzt verwendeten Apps gesperrt werden.</string>
+  <string name="setup_xiaomi_button">Briar schützen</string>
+  <string name="setup_xiaomi_help">Wenn Briar nicht in der Liste der zuletzt verwendeten Apps gesperrt ist, kann es nicht im Hintergrund ausgeführt werden.</string>
+  <string name="setup_xiaomi_dialog_body_old">1. Öffne die Liste der zuletzt verwendeten Apps (auch \'App Switcher\' genannt)\n\n2. Wische auf dem Bild von Briar nach unten, um das Vorhängeschlosssymbol anzuzeigen\n\n3. Wenn das Vorhängeschloss nicht gesperrt ist, tippe darauf, um es zu sperren</string>
+  <string name="setup_xiaomi_dialog_body_new">1. Öffne die Liste der zuletzt verwendeten Apps (auch \'App Switcher\' genannt)\n\n2. Halte das Bild von Briar gedrückt, bis die Schaltfläche für das Vorhängeschloss angezeigt wird\n\n3. Wenn das Vorhängeschloss nicht gesperrt ist, tippe darauf, um es zu sperren</string>
   <string name="warning_dozed">%s konnte nicht im Hintergrund ausgeführt werden</string>
   <!--Login-->
   <string name="enter_password">Passwort</string>
@@ -348,8 +353,8 @@
   <string name="groups_dissolved_dialog_message">Der Ersteller dieser Gruppe hat diese aufgelöst.\n\nEs können keine weiteren Nachrichten mehr in dieser Gruppe geschrieben werden und möglicherweise wurden noch nicht alle Nachrichten empfangen.</string>
   <!--Private Group Invitations-->
   <string name="groups_invitations_title">Gruppeneinladungen</string>
-  <string name="groups_invitations_invitation_sent">%1$s wurde in die Gruppe \"%2$s\" eingeladen.</string>
-  <string name="groups_invitations_invitation_received">%1$s hat dich eingeladen der Gruppe \"%2$s\" beizutreten.</string>
+  <string name="groups_invitations_invitation_sent">Du hast %1$s eingeladen, der Gruppe \"%2$s\" beizutreten.</string>
+  <string name="groups_invitations_invitation_received">%1$s hat dich eingeladen, der Gruppe \"%2$s\" beizutreten.</string>
   <string name="groups_invitations_joined">Gruppe beigetreten</string>
   <string name="groups_invitations_declined">Gruppeneinladung abgelehnt</string>
   <plurals name="groups_invitations_open">
@@ -458,6 +463,8 @@
   <string name="blogs_rss_feeds_import_button">Importieren</string>
   <string name="blogs_rss_feeds_import_hint">URL des RSS-Feeds eingeben</string>
   <string name="blogs_rss_feeds_import_error">Es tut uns Leid! Es gab einen Fehler beim Importieren deines Feeds.</string>
+  <string name="blogs_rss_feeds_import_exists">Dieser Feed ist bereits importiert.</string>
+  <string name="blogs_rss_feeds">RSS-Feeds</string>
   <string name="blogs_rss_feeds_manage_imported">Importiert:</string>
   <string name="blogs_rss_feeds_manage_author">Autor:</string>
   <string name="blogs_rss_feeds_manage_updated">Letzte Aktualisierung:</string>

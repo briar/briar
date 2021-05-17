@@ -22,6 +22,7 @@
   <string name="setup_huawei_text">Mercé de tocar lo boton çai-jos per vos assegurar que Briar es protegit dins l’ecran « Aplicacions protegidas ».</string>
   <string name="setup_huawei_button">Projècte Briar</string>
   <string name="setup_huawei_help">Se Briar es pas ajustat a la lista de las aplicacion protegidas poirà pas s’executar en rèire plan.</string>
+  <string name="setup_xiaomi_button">Projècte Briar</string>
   <string name="warning_dozed">%s a pas pogut s’executar en rèire plan</string>
   <!--Login-->
   <string name="enter_password">Senhal</string>

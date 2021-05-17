@@ -22,6 +22,7 @@
   <string name="setup_huawei_text">الرجاء الضغط على الزر في الأسفل والتأكد من أن Briar (براير) محمى في شاشة \"التطبيقات المحمية\".</string>
   <string name="setup_huawei_button">حماية Briar (براير)</string>
   <string name="setup_huawei_help">إذا لم يتم إضافة Briar (براير) في قائمة التطبيقات المحمية، فلن يتمكن من العمل في الخلفية.</string>
+  <string name="setup_xiaomi_button">حماية Briar (براير)</string>
   <string name="warning_dozed">%s لم يتمكن من الاشتغال في الخلفية</string>
   <!--Login-->
   <string name="enter_password">‮كلمة السّر</string>

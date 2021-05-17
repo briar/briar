@@ -25,6 +25,11 @@
   <string name="setup_huawei_app_launch_text">Bakstelėkite mygtuką žemiau, atverkite langą „Programų paleidimas (angl. App launch)“ ir įsitikinkite, kad Briar yra nustatyta į „Tvarkyti rankiniu būdu (angl. Manage manually)“.</string>
   <string name="setup_huawei_app_launch_button">Atverti akumuliatoriaus nustatymus</string>
   <string name="setup_huawei_app_launch_help">Jeigu „Programų paleidimo (angl. App launch)“ lange Briar nėra nustatyta į „Tvarkyti rankiniu būdu (angl. Manage manually)“, tuomet programėlė negalės veikti fone.</string>
+  <string name="setup_xiaomi_text">Tam, kad galėtų veikti fone, Briar turi būti prirakinta prie paskiausiųjų programėlių sąrašo.</string>
+  <string name="setup_xiaomi_button">Apsaugoti Briar</string>
+  <string name="setup_xiaomi_help">Jei Briar nebus prirakinta prie paskiausiųjų programėlių sąrašo, ji negalės veikti fone.</string>
+  <string name="setup_xiaomi_dialog_body_old">1. Atverkite paskiausiųjų programėlių sąrašą (dar vadinamą programėlių perjungikliu)\n\n2. Ant Briar paveiksliuko perbraukite žemyn, kad būtų rodoma pakabinamos spynos piktograma\n\n3. Jei pakabinama spyna neužrakinta, bakstelėkite, kad ją užrakintumėte</string>
+  <string name="setup_xiaomi_dialog_body_new">1. 1. Atverkite paskiausiųjų programėlių sąrašą (dar vadinamą programėlių perjungikliu)\n\n2. Paspauskite ir laikykite ant Briar paveiksliuko tol, kol atsiras pakabinamos spynos mygtukas\n\n3. Jei pakabinama spyna neužrakinta, bakstelėkite, kad ją užrakintumėte</string>
   <string name="warning_dozed">%s nepavyko pasileisti fone</string>
   <!--Login-->
   <string name="enter_password">Slaptažodis</string>
@@ -484,6 +489,8 @@
   <string name="blogs_rss_feeds_import_button">Importuoti</string>
   <string name="blogs_rss_feeds_import_hint">Įveskite RSS kanalo URL</string>
   <string name="blogs_rss_feeds_import_error">Atleiskite! Importuojant jūsų kanalą, įvyko klaida.</string>
+  <string name="blogs_rss_feeds_import_exists">Tas kanalas jau yra importuotas.</string>
+  <string name="blogs_rss_feeds">RSS kanalai</string>
   <string name="blogs_rss_feeds_manage_imported">Importuota:</string>
   <string name="blogs_rss_feeds_manage_author">Autorius:</string>
   <string name="blogs_rss_feeds_manage_updated">Paskutinį kartą atnaujinta:</string>

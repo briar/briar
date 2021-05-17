@@ -22,6 +22,14 @@
   <string name="setup_huawei_text">Нажмите кнопку ниже и убедитесь, что Briar отображается на экране защищенных приложений.</string>
   <string name="setup_huawei_button">Защитить Briar</string>
   <string name="setup_huawei_help">Если Briar не будет добавлен в список защищенных приложений, он не сможет работать в фоновом режиме.</string>
+  <string name="setup_huawei_app_launch_text">Пожалуйста, нажмите кнопку ниже, откройте экран \"Запуск приложения\" и убедитесь, что для Briar установлено значение \"Управлять вручную\".</string>
+  <string name="setup_huawei_app_launch_button">Открыть настройки батареи</string>
+  <string name="setup_huawei_app_launch_help">Если для Briar не установлено значение \"Управлять вручную\" на экране \"Запуск приложения\", он не сможет работать в фоновом режиме.</string>
+  <string name="setup_xiaomi_text">Для работы в фоновом режиме Briar должен быть заблокирован в списке недавних приложений.</string>
+  <string name="setup_xiaomi_button">Защитить Briar</string>
+  <string name="setup_xiaomi_help">Если Briar не заблокирован в списке последних приложений, он не сможет работать в фоновом режиме.</string>
+  <string name="setup_xiaomi_dialog_body_old">1. Откройте список недавних приложений (также называемый переключателем приложений)\n\n2. Смахните вниз изображение Briar, чтобы появился значок замка\n\n3. Если замок не заблокирован, нажмите на него для блокировки.</string>
+  <string name="setup_xiaomi_dialog_body_new">1. Откройте список недавних приложений (также называемый переключателем приложений)\n\n2. Нажмите и удерживайте изображение Briar, пока не появится кнопка с замком\n\n3. Если замок не заблокирован, нажмите на него для блокировки.</string>
   <string name="warning_dozed">%s не удалось выполнить в фоновом режиме</string>
   <!--Login-->
   <string name="enter_password">Пароль</string>
@@ -170,6 +178,13 @@
   <string name="menu_item_disappearing_messages">Исчезающие сообщения</string>
   <string name="menu_item_connect_via_bluetooth">Подключение через Bluetooth</string>
   <string name="dialog_title_connect_via_bluetooth">Подключение через Bluetooth</string>
+  <string name="dialog_message_connect_via_bluetooth">Чтобы это сработало, ваш контакт должен находиться поблизости.\n\nВы и ваш собеседник должны одновременно нажать кнопку \"Начать\".</string>
+  <string name="toast_connect_via_bluetooth_already_discovering">Пробуем подключиться через Bluetooth</string>
+  <string name="toast_connect_via_bluetooth_not_discoverable">Невозможно продолжить без Bluetooth</string>
+  <string name="toast_connect_via_bluetooth_no_location_permission">Невозможно продолжить без доступа к местоположению</string>
+  <string name="toast_connect_via_bluetooth_start">Подключение через Bluetooth...</string>
+  <string name="toast_connect_via_bluetooth_success">Успешное подключение через Bluetooth</string>
+  <string name="toast_connect_via_bluetooth_error">Не удалось подключиться через Bluetooth</string>
   <!--The first placeholder will show a duration like "7 days". The second placeholder at the end will add "Tap to learn more."-->
   <string name="auto_delete_msg_you_enabled">Ваши сообщения исчезнут спустя %1$s. %2$s</string>
   <!--The placeholder at the end will add "Tap to learn more."-->
@@ -476,6 +491,8 @@
   <string name="blogs_rss_feeds_import_button">Импорт</string>
   <string name="blogs_rss_feeds_import_hint">Введите URL-адрес RSS-ленты</string>
   <string name="blogs_rss_feeds_import_error">Мы сожалеем! Произошла ошибка при импорте ленты.</string>
+  <string name="blogs_rss_feeds_import_exists">Эта лента уже импортирована.</string>
+  <string name="blogs_rss_feeds">RSS-ленты</string>
   <string name="blogs_rss_feeds_manage_imported">Импортирован:</string>
   <string name="blogs_rss_feeds_manage_author">Автор:</string>
   <string name="blogs_rss_feeds_manage_updated">Последнее обновление:</string>

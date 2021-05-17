@@ -25,6 +25,7 @@
   <string name="setup_huawei_app_launch_text">Ýttu á hnappinn hér fyrir neðan, opnaðu \"Ræsing forrits\" skjáinn og gakktu úr skugga um að Briar sé stillt á \"Stýra handvirkt\".</string>
   <string name="setup_huawei_app_launch_button">Opna rafhlöðustillingar</string>
   <string name="setup_huawei_app_launch_help">Ef Briar er ekki stillt á \"Stýra handvirkt\" í \"Ræsing forrits\" skjánum, mun það ekki geta keyrt í bakgrunni.</string>
+  <string name="setup_xiaomi_button">Verja Briar</string>
   <string name="warning_dozed">%s gat ekki keyrt í bakgrunni</string>
   <!--Login-->
   <string name="enter_password">Lykilorð</string>
@@ -458,6 +459,8 @@
   <string name="blogs_rss_feeds_import_button">Flytja inn</string>
   <string name="blogs_rss_feeds_import_hint">Settu inn slóðina á RSS-streymið</string>
   <string name="blogs_rss_feeds_import_error">Því miður! Það kom upp villa við að flytja inn streymið.</string>
+  <string name="blogs_rss_feeds_import_exists">Þegar er búið að flytja inn þetta streymi.</string>
+  <string name="blogs_rss_feeds">RSS-fréttastreymi</string>
   <string name="blogs_rss_feeds_manage_imported">Flutt inn:</string>
   <string name="blogs_rss_feeds_manage_author">Höfundur:</string>
   <string name="blogs_rss_feeds_manage_updated">Síðast uppfært:</string>

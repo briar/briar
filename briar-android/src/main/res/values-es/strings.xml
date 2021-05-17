@@ -25,6 +25,11 @@
   <string name="setup_huawei_app_launch_text">Por favor, pulsa el botón de abajo, abre la pantalla \"lanzamiento de aplicación\" y asegúrate de que Briar esté configurado como \"Gestionar manualmente\".</string>
   <string name="setup_huawei_app_launch_button">Abrir Ajustes de Batería</string>
   <string name="setup_huawei_app_launch_help">Si Briar no está configurado como \"Gestionar manualmente\" en la pantalla \"lanzamiento de aplicación\", no será capaz de ejecutarse en segundo plano.</string>
+  <string name="setup_xiaomi_text">Para ejecutarse en segundo plano, Briar necesita estar bloqueado en la lista de aplicaciones recientes.</string>
+  <string name="setup_xiaomi_button">Proteger Briar</string>
+  <string name="setup_xiaomi_help">Si Briar no está bloqueado en la lista de aplicaciones recientes, no podrá ejecutarse en segundo plano.</string>
+  <string name="setup_xiaomi_dialog_body_old">1. Abre la lista de aplicaciones recientes (también llamada selectora de aplicaciones)\n\n2. Desliza hacia abajo sobre la imagen de Briar para mostrar el ícono de un candado\n\n3. Si el candado no está bloqueado, púlsalo para hacerlo</string>
+  <string name="setup_xiaomi_dialog_body_new">1. Abre la lista de aplicaciones recientes (también llamada selectora de aplicaciones)\n\n2. Presiona y mantén la imagen de Briar hasta que aparezca el botón de un candado\n\n3. Si el candado no está bloqueado, púlsalo para hacerlo</string>
   <string name="warning_dozed">%s no pudo ejecutarse en segundo plano</string>
   <!--Login-->
   <string name="enter_password">Contraseña</string>
@@ -458,6 +463,8 @@
   <string name="blogs_rss_feeds_import_button">Importar</string>
   <string name="blogs_rss_feeds_import_hint">Introduce la URL del canal RSS</string>
   <string name="blogs_rss_feeds_import_error">¡Lo sentimos! Hubo un error importando tu canal.</string>
+  <string name="blogs_rss_feeds_import_exists">Ese canal ya está importado.</string>
+  <string name="blogs_rss_feeds">Canales RSS</string>
   <string name="blogs_rss_feeds_manage_imported">Importado:</string>
   <string name="blogs_rss_feeds_manage_author">Autor:</string>
   <string name="blogs_rss_feeds_manage_updated">Última actualización:</string>

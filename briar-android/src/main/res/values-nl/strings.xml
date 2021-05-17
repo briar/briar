@@ -22,6 +22,7 @@
   <string name="setup_huawei_text">Tik alsjeblieft op de knop hieronder en ga nadat Briar is beschermd naar het scherm \"Beveiligde apps\".</string>
   <string name="setup_huawei_button">Bescherm Briar</string>
   <string name="setup_huawei_help">Als Briar niet is toegevoegd aan de beschermde apps, is het niet mogelijk om het in de achtergrond uit te voeren.</string>
+  <string name="setup_xiaomi_button">Bescherm Briar</string>
   <string name="warning_dozed">%s kon niet in de achtergrond worden uitgevoerd</string>
   <!--Login-->
   <string name="enter_password">Wachtwoord</string>
@@ -420,6 +421,7 @@
   <string name="blogs_rss_feeds_import_button">Importeer</string>
   <string name="blogs_rss_feeds_import_hint">Voer de URL van de RSS-feed in</string>
   <string name="blogs_rss_feeds_import_error">Excuses! Er trad een fout op bij het importeren van je feed.</string>
+  <string name="blogs_rss_feeds">RSS-feeds</string>
   <string name="blogs_rss_feeds_manage_imported">Geïmporteerd:</string>
   <string name="blogs_rss_feeds_manage_author">Auteur:</string>
   <string name="blogs_rss_feeds_manage_updated">Laatst bijgewerkt:</string>

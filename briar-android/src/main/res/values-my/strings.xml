@@ -25,6 +25,8 @@
   <string name="setup_huawei_app_launch_text">အောက်က ခလုတ်ကို နှိပ်၍ \"အပ္ပလီကေးရှင်း ဖွင့်ရန်\" စကင်ရင်ကို ဖွင့်ပါ၊ ပြီးလျှင် Briar ကို \"ကိုယ်တိုင်စီမံမယ်\" လို့ သတ်မှတ်ပါ။</string>
   <string name="setup_huawei_app_launch_button">ဘက်ထရီအပြင်အဆင်များကို ဖွင့်ပါ</string>
   <string name="setup_huawei_app_launch_help">Briar ကို \"အပ္ပလီကေးရှင်း ဖွင့်ရန်\" စကင်ရင်ပေါ်တွင် \"ကိုယ်တိုင်စီမံမယ်\" လို့မသတ်မှတ်ထားလျှင် နောက်ခံတွင် ၎င်းကို လည်ပတ်၍ မရနိုင်ပါ။</string>
+  <string name="setup_xiaomi_text">နောက်ခံတွင်အလုပ်လုပ်စေရန် လတ်တလောအက်ပလီကေးရှင်းများစာရင်းတွင် Briar အား သော့ခတ်ထားရန် လိုအပ်သည်။</string>
+  <string name="setup_xiaomi_button">Briar ကို ကာကွယ်မည်</string>
   <string name="warning_dozed">%s ကို နောက်ကွယ်တွင် မဖွင့်ထားနိုင်ပါ</string>
   <!--Login-->
   <string name="enter_password">စကားဝှက်</string>
@@ -360,7 +362,7 @@
   <string name="groups_reveal_invisible">အဆက်အသွယ်နှင့် ဆက်သွယ်မှုကို အဖွဲ့မှ မတွေ့မြင်နိုင်ပါ</string>
   <!--Forums-->
   <string name="no_forums">ပြသစရာဖိုရမ် မရှိပါ</string>
-  <string name="no_forums_action">+ (အပေါင်းအိုင်ကွန်) အား နှိပ်၍ ဆွေးနွေးမှုဖိုရမ် ဖန်တီးပါ သို့မဟုတ် သင့် အဆက်အသွယ်များကို ဆွေးနွေးမှုဖိုရမ်များကို သင့်စီသို့ ဝေမျှရန် တောင်းဆိုပါ</string>
+  <string name="no_forums_action">+ (အပေါင်းအိုင်ကွန်) အား နှိပ်၍ ဆွေးနွေးမှုဖိုရမ် ဖန်တီးပါ သို့မဟုတ် သင့် အဆက်အသွယ်များကို ဆွေးနွေးမှုဖိုရမ်များကို သင့်ဆီသို့ ဝေမျှရန် တောင်းဆိုပါ </string>
   <string name="create_forum_title">ဖိုရမ် ဖန်တီးမယ်</string>
   <string name="choose_forum_hint">သင့် ဆွေးနွေးမှုဖိုရမ်အတွက် အမည်ရွေးပါ</string>
   <string name="create_forum_button">ဖိုရမ်ဖန်တီးရန်</string>
@@ -445,14 +447,13 @@
   <string name="blogs_rss_feeds_import_button">တင်သွင်းမယ်</string>
   <string name="blogs_rss_feeds_import_hint">RSS သတင်းပို့စ်အလွှာ၏ URL ရိုက်ထည့်ပေးပါ</string>
   <string name="blogs_rss_feeds_import_error">ဝမ်းနည်းပါသည်! သင့် သတင်းပို့စ်အလွှာအား တင်သွင်းရာတွင် ပျက်ကွက်မှု ဖြစ်ခဲ့ပါသည်။</string>
-  <string name="blogs_rss_feeds_manage">RSS သတင်းပို့စ်အလွှာများကို စီမံမယ်</string>
+  <string name="blogs_rss_feeds">RSS သတင်းလွှာများ</string>
   <string name="blogs_rss_feeds_manage_imported">တင်သွင်းထားသော</string>
   <string name="blogs_rss_feeds_manage_author">စာရေးဆရာ -</string>
   <string name="blogs_rss_feeds_manage_updated">နောက်ဆုံးအပ်ဒိတ်လုပ်ခဲ့ခြင်း -</string>
   <string name="blogs_rss_remove_feed">သတင်းပို့စ်အလွှာ ဖယ်ရှားမယ်</string>
   <string name="blogs_rss_remove_feed_dialog_message">ဤသတင်းပို့စ်အလွှာကို ဖယ်ရှားချင်တာ သေချာပါသလား? \n\n ပို့စ်များကို သင့်ကိရိယာမှ ဖယ်ရှားလိုက်မည်ဖြစ်သော်လည်း အခြားသူများ၏ကိရိယာများမှမူ ဖယ်ရှားလိုက်မည်မဟုတ်ပါ။ \n\n သင်မှ ဤသတင်းပို့စ်အလွှာကို မျှဝေထားသည့် သင့်အဆက်အသွယ်များအနေဖြင့် သတင်းအသစ်များရရှိမှု ရပ်တန့်သွားနိုင်ပါသည်။</string>
   <string name="blogs_rss_remove_feed_ok">ဖယ်ရှားမယ်</string>
-  <string name="blogs_rss_feeds_manage_delete_error">သတင်းပို့စ်အလွှာကို ဖယ်ရှား၍မရပါ!</string>
   <string name="blogs_rss_feeds_manage_empty_state">RSS သတင်းပို့စ်အလွှာများပြရန် မရှိပါ \n\n + (အပေါင်းအိုင်ကွန်) အားနှိပ်၍ သတင်းအလွှာ တင်သွင်းပါ</string>
   <string name="blogs_rss_feeds_manage_error">သင့် သတင်းပို့စ်အလွှာကို တင်သွင်းရာတွင် အခက်အခဲတွေ့ကြုံခဲ့ပါသည်။ နောင်မှ ပြန်စမ်းကြည့်ပေးပါ။</string>
   <!--Settings Profile Picture-->

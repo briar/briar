@@ -25,6 +25,11 @@
   <string name="setup_huawei_app_launch_text">Lütfen aşağıdaki düğmeye dokunun, \"Uygulama başlatma\" ekranını açın ve Briar için \"Manuel olarak yönet\" şeklinde ayarlanmış olduğundan emin olun.</string>
   <string name="setup_huawei_app_launch_button">Pil Ayarlarını Aç</string>
   <string name="setup_huawei_app_launch_help">Eğer Briar, \"Uygulama Başlatma\" ekranında \"Manuel olarak yönet\" olarak ayarlanmamışsa, arka planda çalışmayabilir.</string>
+  <string name="setup_xiaomi_text">Briar\'ın arka planda çalışması için korunan uygulamalar listesine listesine eklenmesi gerekiyor.</string>
+  <string name="setup_xiaomi_button">Briar\'ı Koru</string>
+  <string name="setup_xiaomi_help">Briar korunan uygulamalar listesine eklenmezse, arka planda çalışamaz.</string>
+  <string name="setup_xiaomi_dialog_body_old">1. Geçmiş uygulamalar listesini açın (uygulama değiştirici de deniyor)\n\n2. Briar resmini kilit simgesini görene kadar aşağı kaydırın\n\n3. Eğer kilit simgesi seçili değilse, kilitlemek için dokunun</string>
+  <string name="setup_xiaomi_dialog_body_new">1. Geçmiş uygulamalar listesini açın (uygulama değiştirici de deniyor)\n\n2. Kilit simgesini görene kadar Briar resmine tıklayın ve tutun\n\n3. Eğer kilit simgesi seçili değilse, kilitlemek için dokunun</string>
   <string name="warning_dozed">%s arka planda çalışamadı</string>
   <!--Login-->
   <string name="enter_password">Parola</string>
@@ -458,6 +463,8 @@
   <string name="blogs_rss_feeds_import_button">İçe Aktar</string>
   <string name="blogs_rss_feeds_import_hint">RSS beslemesi URL\'sini girin</string>
   <string name="blogs_rss_feeds_import_error">Üzgünüz! RSS beslemeniz içe aktarılırken bir hata oluştu.</string>
+  <string name="blogs_rss_feeds_import_exists">Bu besleme zaten içe aktarılmış.</string>
+  <string name="blogs_rss_feeds">RSS beslemeleri</string>
   <string name="blogs_rss_feeds_manage_imported">İçe Aktarıldı:</string>
   <string name="blogs_rss_feeds_manage_author">Yazar:</string>
   <string name="blogs_rss_feeds_manage_updated">Son Güncelleme:</string>

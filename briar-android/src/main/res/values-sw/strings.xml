@@ -26,6 +26,7 @@ Nenosiri zako haziendani </string>
   <string name="setup_huawei_button">Linda Briar </string>
   <string name="setup_huawei_help">
 Kama Briar haija wekwa kwenye orotha programu ulizi, haitaweza kufanya kazi kwenye nyuma ya mkongo</string>
+  <string name="setup_xiaomi_button">Linda Briar </string>
   <string name="warning_dozed">%shaijawezekana kujiendesha kwa nyuma ya mkongo</string>
   <!--Login-->
   <string name="enter_password">Nywila

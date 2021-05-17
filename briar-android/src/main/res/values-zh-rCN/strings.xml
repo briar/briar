@@ -25,6 +25,11 @@
   <string name="setup_huawei_app_launch_text">轻按下方按钮，打开“App launch”界面，确保 Briar 被设置为“手动管理”。</string>
   <string name="setup_huawei_app_launch_button">打开电池设置</string>
   <string name="setup_huawei_app_launch_help">如果“App 启动”界面中 Briar 没有被设置为“手动管理”，则其将无法在后台运行。</string>
+  <string name="setup_xiaomi_text">要在后台运行，需将 Briar 锁定在最近的应用列表中。</string>
+  <string name="setup_xiaomi_button">保护 Briar</string>
+  <string name="setup_xiaomi_help">如果未将 Briar 锁定到最近的应用列表，它将无法在后台运行。</string>
+  <string name="setup_xiaomi_dialog_body_old">1. 打开最近的应用列表(也称为应用切换器)\n\n2. 向下滑动Briar的图像，显示挂锁图标\n\n3.如果挂锁没有被锁上，轻敲以锁定它</string>
+  <string name="setup_xiaomi_dialog_body_new">1. 打开最近的应用列表(也称为应用切换器)\n\n2.  按住Briar的图像，直到挂锁按钮出现\n\n3. 如果挂锁没有被锁上，轻敲以锁定它</string>
   <string name="warning_dozed">%s 无法在后台运行</string>
   <!--Login-->
   <string name="enter_password">密码</string>
@@ -445,6 +450,8 @@
   <string name="blogs_rss_feeds_import_button">导入</string>
   <string name="blogs_rss_feeds_import_hint">输入 RSS 订阅源链接</string>
   <string name="blogs_rss_feeds_import_error">抱歉！导入订阅源时发生错误。</string>
+  <string name="blogs_rss_feeds_import_exists">已经导入那个源</string>
+  <string name="blogs_rss_feeds">RSS源 </string>
   <string name="blogs_rss_feeds_manage_imported">已导入：</string>
   <string name="blogs_rss_feeds_manage_author">作者：</string>
   <string name="blogs_rss_feeds_manage_updated">最后更新于：</string>

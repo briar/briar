@@ -22,6 +22,7 @@
   <string name="setup_huawei_text">נא להקיש על הכפתור למטה וולוודא כי Briar מוגן במסך \"יישומים מוגנים\".</string>
   <string name="setup_huawei_button">הגן על Briar</string>
   <string name="setup_huawei_help">אם Briar אינו מוסף אל רשימת היישומים המוגנים, הוא לא יוכל לרוץ ברקע.</string>
+  <string name="setup_xiaomi_button">הגן על Briar</string>
   <string name="warning_dozed">%s לא היה יכול לרוץ ברקע</string>
   <!--Login-->
   <string name="enter_password">סיסמה</string>
@@ -444,6 +445,7 @@
   <string name="blogs_rss_feeds_import_button">ייבא</string>
   <string name="blogs_rss_feeds_import_hint">הכנס את כתובת האתר של הזנת ה־RSS</string>
   <string name="blogs_rss_feeds_import_error">אנחנו מצטערים! הייתה שגיאה ביבוא ההזנה שלך.</string>
+  <string name="blogs_rss_feeds">הזנות RSS</string>
   <string name="blogs_rss_feeds_manage_imported">מיובא:</string>
   <string name="blogs_rss_feeds_manage_author">מחבר:</string>
   <string name="blogs_rss_feeds_manage_updated">עודכן לאחרונה:</string>

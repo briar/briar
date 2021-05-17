@@ -25,6 +25,12 @@
   <string name="setup_huawei_app_launch_text">Ju lutemi, prekni butonin më poshtë, hapni skenën “Nisje aplikacioni” dhe sigurohuni se për Briar-in është zgjedhur “Administrojeni dorazi”.</string>
   <string name="setup_huawei_app_launch_button">Hapni Rregullime Baterie</string>
   <string name="setup_huawei_app_launch_help">Nëse për Briar-in s’është zgjedhur “Administroje Dorazi” te skena “Nisje Aplikacioni”, s’do të jetë në gjendje të xhirojë në prapaskenë.</string>
+  <string name="setup_xiaomi_text">Për të xhiruar në prapaskenë, Briar-i lyp të jetë i kyçur te lista e aplikacioneve të përdorur së fundi.</string>
+  <string name="setup_xiaomi_button">Mbroje Briar-in</string>
+  <string name="setup_xiaomi_help">Nëse Briar-i s’është i kyçur te lista e aplikacioneve të përdorur së fundi, s’do të jetë në gjendje të xhirojë në prapaskenë.</string>
+  <string name="setup_xiaomi_dialog_body_old">1. Hapni listën e aplikacioneve përdorur së fundi (e quajtur edhe këmbyes aplikacionesh)\n\n2. Fërkojeni për poshtë te figura për Briar-in, që të shfaqet ikona e drynit\n\n3. Nëse dryni s’është o kyçur, prekeni që të kyçet</string>
+  <string name="setup_xiaomi_dialog_body_new">1. Hapni listën e aplikacioneve përdorur së fundi (e quajtur edhe 
+këmbyes aplikacionesh)\n\n2. Shtypni dhe mbajeni të shtypur figurën e Briar-it, deri sa të shfaqet butoni i drynit\n\n3. Nëse dryni s’është o kyçur, prekeni që të kyçet</string>
   <string name="warning_dozed">%s s\’qe në gjendje të xhirojë në prapaskenë</string>
   <!--Login-->
   <string name="enter_password">Fjalëkalim</string>
@@ -458,6 +464,8 @@
   <string name="blogs_rss_feeds_import_button">Importo</string>
   <string name="blogs_rss_feeds_import_hint">Jepni URL-në e prurjes RSS</string>
   <string name="blogs_rss_feeds_import_error">Na ndjeni! Pati një gabim me importimin e prurjes tuaj.</string>
+  <string name="blogs_rss_feeds_import_exists">Ajo prurje është importuar tashmë.</string>
+  <string name="blogs_rss_feeds">Prurje RSS</string>
   <string name="blogs_rss_feeds_manage_imported">Të importuara:</string>
   <string name="blogs_rss_feeds_manage_author">Autor:</string>
   <string name="blogs_rss_feeds_manage_updated">Përditësuar Së Fundi:</string>

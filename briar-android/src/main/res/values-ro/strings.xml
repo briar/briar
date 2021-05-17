@@ -22,6 +22,8 @@
   <string name="setup_huawei_text">Vă rugăm să apăsați butonul de mai jos și să vă asigurați că Briar este marcat ca protejat în fereastra de \"Aplicații protejate\".</string>
   <string name="setup_huawei_button">Protejează Briar</string>
   <string name="setup_huawei_help">Dacă Briar nu este adăugat în lista de aplicații protejate, nu va fi capabil să ruleze în fundal.</string>
+  <string name="setup_huawei_app_launch_button">Deschide setările de baterie</string>
+  <string name="setup_xiaomi_button">Protejează Briar</string>
   <string name="warning_dozed">%s nu poate rula în fundal</string>
   <!--Login-->
   <string name="enter_password">Parola</string>
@@ -158,6 +160,7 @@
   <string name="image_attach_error_invalid_mime_type">Format de imagine incompatibil: %s</string>
   <string name="set_contact_alias">Schimbă nume contact</string>
   <string name="set_contact_alias_hint">Nume contact</string>
+  <string name="menu_item_disappearing_messages">Mesaje ce dispar</string>
   <string name="menu_item_connect_via_bluetooth">Conectare prin Bluetooth</string>
   <string name="dialog_title_connect_via_bluetooth">Conectare prin Bluetooth</string>
   <!--The first placeholder will show a duration like "7 days". The second placeholder at the end will add "Tap to learn more."-->
@@ -179,6 +182,8 @@
     <item quantity="other">%d de zile</item>
   </plurals>
   <!--The first placeholder will show a contact's name. The second placeholder at the end will add "Tap to learn more."-->
+  <string name="tap_to_learn_more">Atingeți pentru mai mult.</string>
+  <string name="auto_delete_changed_warning_send">Trimite oricum</string>
   <string name="delete_all_messages">Șterge toate mesajele</string>
   <string name="dialog_title_delete_all_messages">Confirmare ștergere mesaj</string>
   <string name="dialog_message_delete_all_messages">Sigur doriți să ștergeți toate mesajele?</string>
@@ -445,6 +450,8 @@
   <string name="blogs_rss_feeds_import_button">Importă</string>
   <string name="blogs_rss_feeds_import_hint">Introduceți URL-ul fluxului RSS</string>
   <string name="blogs_rss_feeds_import_error">Ne pare rău! A apărut o eroare la importul fluxului dumneavoastră.</string>
+  <string name="blogs_rss_feeds_import_exists">Acest flux este deja importat.</string>
+  <string name="blogs_rss_feeds">Fluxuri RSS</string>
   <string name="blogs_rss_feeds_manage_imported">Importat:</string>
   <string name="blogs_rss_feeds_manage_author">Autor:</string>
   <string name="blogs_rss_feeds_manage_updated">Actualizat ultima dată:</string>
@@ -546,6 +553,7 @@
   <string name="choose_ringtone_title">Alegeți sunetul</string>
   <string name="cannot_load_ringtone">Nu se poate încărca sunetul</string>
   <!--Conversation Settings-->
+  <string name="disappearing_messages_title">Mesaje ce dispar</string>
   <string name="learn_more">Află mai mult</string>
   <!--Settings Feedback-->
   <string name="send_feedback">Trimiteți feed-back</string>

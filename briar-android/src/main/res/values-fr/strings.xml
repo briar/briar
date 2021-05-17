@@ -25,6 +25,11 @@
   <string name="setup_huawei_app_launch_text">Veuillez toucher le bouton ci-dessous, ouvrir l’écran « Lancement des applis » et vous assurer que « Gérer manuellement » est défini pour Briar.</string>
   <string name="setup_huawei_app_launch_button">Ouvrez les paramètres de la pile</string>
   <string name="setup_huawei_app_launch_help">Si « Gérer manuellement » n’est pas défini pour Briar dans l’écran « Lancement des applis », l’appli ne pourra pas fonctionner en arrière-plan.</string>
+  <string name="setup_xiaomi_text">Pour fonctionner en arrière-plan, Briar doit être verrouillée à la liste des applis récentes.</string>
+  <string name="setup_xiaomi_button">Protéger Briar</string>
+  <string name="setup_xiaomi_help">Si Briar n’est pas verrouillée à la liste des applis récentes, elle ne pourra pas fonctionner en arrière-plan.</string>
+  <string name="setup_xiaomi_dialog_body_old">1. Ouvrez la liste des applis récentes (aussi appelé sélecteur d’appli)\n\n2. Balayez l’image de Briar vers le bas pour afficher l’icône de verrou\n\n3. Si le verrou n’est pas verrouillé, touchez pour le verrouiller</string>
+  <string name="setup_xiaomi_dialog_body_new">1. Ouvrez la liste des applis récentes (aussi appelé sélecteur d’appli)\n\n2. Touchez et maintenez l’image de Briar jusqu’à l’apparition du verrou\n\n3. Si le verrou n’est pas verrouillé, touchez pour le verrouiller</string>
   <string name="warning_dozed">%s n’a pas pu fonctionner en arrière-plan</string>
   <!--Login-->
   <string name="enter_password">Mot de passe</string>
@@ -458,6 +463,8 @@
   <string name="blogs_rss_feeds_import_button">Importer</string>
   <string name="blogs_rss_feeds_import_hint">Saisir l’URL du fil RSS</string>
   <string name="blogs_rss_feeds_import_error">Nous sommes désolés ! Une erreur est survenue lors de l’importation de votre fil.</string>
+  <string name="blogs_rss_feeds_import_exists">Ce fil est déjà importé.</string>
+  <string name="blogs_rss_feeds">Fils RSS</string>
   <string name="blogs_rss_feeds_manage_imported">Importés :</string>
   <string name="blogs_rss_feeds_manage_author">Auteur :</string>
   <string name="blogs_rss_feeds_manage_updated">Dernière mise à jour :</string>

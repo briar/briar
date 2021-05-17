@@ -22,6 +22,7 @@
   <string name="setup_huawei_text">Допрете го копчето подолу и осигурајте се дека Briar е заштитен во \"Protected Apps\" / мак. \"Заштитени апликации\" екранот.</string>
   <string name="setup_huawei_button">Заштити го Briar</string>
   <string name="setup_huawei_help">Ако Briar не е додаден на листата со заштитени апликации, ќе биде оневозможен да работи во позадина.</string>
+  <string name="setup_xiaomi_button">Заштити го Briar</string>
   <string name="warning_dozed">%s беше оневозможен да работи во позадина</string>
   <!--Login-->
   <string name="enter_password">Лозинка</string>

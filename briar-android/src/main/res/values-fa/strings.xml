@@ -27,6 +27,7 @@
   <string name="setup_huawei_app_launch_text">لطفا روی دکمه زیر زده، صفحه‌ی \"راه اندازی برنامه\" را باز کرده و از این که برایر (Briar) بر روی \"مدیریت دستی\" تنظیم شده باشد، اطمینان حاصل کنید.</string>
   <string name="setup_huawei_app_launch_button">باز کردن تنظیمات باتری</string>
   <string name="setup_huawei_app_launch_help">اگر در صفحه \"راه اندازی برنامه\"، برایر (Briar) بر روی گزینه \"مدیریت دستی\" تنظیم نشده باشد، برنامه قادر به فعالیت در پس‌زمینه نخواهد بود.</string>
+  <string name="setup_xiaomi_button">حفاظت از Briar (برایر)</string>
   <string name="warning_dozed">ناتوانی %s برای اجراء در پس زمینه</string>
   <!--Login-->
   <string name="enter_password">گذرواژه</string>
@@ -492,6 +493,7 @@
   <string name="blogs_rss_feeds_import_button">وارد کردن</string>
   <string name="blogs_rss_feeds_import_hint">آدرس خوراک RSS را وارد کنید</string>
   <string name="blogs_rss_feeds_import_error">متاسفیم!  وارد کردن خوراک شما با خطا مواجه شده است.</string>
+  <string name="blogs_rss_feeds">خوراک های RSS</string>
   <string name="blogs_rss_feeds_manage_imported">وارد شده:</string>
   <string name="blogs_rss_feeds_manage_author">نویسنده:</string>
   <string name="blogs_rss_feeds_manage_updated">آخرین به روز رسانی:</string>

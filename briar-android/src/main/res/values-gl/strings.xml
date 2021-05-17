@@ -22,6 +22,7 @@
   <string name="setup_huawei_text">Por favor toca o botón inferior e asegúrate de que Briar está protexida na pantalla \"Apps Protexidas\"</string>
   <string name="setup_huawei_button">Protexer Briar</string>
   <string name="setup_huawei_help">Se Briar non se engade ao listado de apps protexidas, non poderá funcionar en segundo plano.</string>
+  <string name="setup_xiaomi_button">Protexer Briar</string>
   <string name="warning_dozed">%s non foi quen de funcionar en segundo plano</string>
   <!--Login-->
   <string name="enter_password">Contrasinal</string>
@@ -454,6 +455,7 @@
   <string name="blogs_rss_feeds_import_button">Importar</string>
   <string name="blogs_rss_feeds_import_hint">Escribe o URL da fonte RSS</string>
   <string name="blogs_rss_feeds_import_error">Lamentámolo! Algo fallou ao importar a fonte.</string>
+  <string name="blogs_rss_feeds">Fontes RSS</string>
   <string name="blogs_rss_feeds_manage_imported">Importado:</string>
   <string name="blogs_rss_feeds_manage_author">Autor/a:</string>
   <string name="blogs_rss_feeds_manage_updated">Última actualización:</string>

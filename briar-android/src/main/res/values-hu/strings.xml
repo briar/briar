@@ -25,6 +25,11 @@
   <string name="setup_huawei_app_launch_text">Kérjük érintsd meg a gombot alább, hogy megnyitsd az \"App indítás\" képernyőt és ellenőrizd, hogy a Briar beállított  \"Kézi kezelés\"-re.</string>
   <string name="setup_huawei_app_launch_button">Az akkumulátor beállítások megnyitása</string>
   <string name="setup_huawei_app_launch_help">Ha a Briar nincs beállítva \"Kézi kezelés\"-re az \"App indítás\" képernyőn, nem fog tudni futni a háttérben.</string>
+  <string name="setup_xiaomi_text">Ahhoz, hogy a háttérben fusson, a Briar-t rögzíteni kell a legutóbbi appok listáján.</string>
+  <string name="setup_xiaomi_button">A Briar védelme</string>
+  <string name="setup_xiaomi_help">Ha Briar nincs rögzítve a legutóbbi appok listájában, akkor nem képes futni a háttérben.</string>
+  <string name="setup_xiaomi_dialog_body_old">1. Nyissa meg a legutolsó appok listáját (másnéven az app váltót)\n\n2. Görgessen le a Briar képén, hogy megjelenjen a lakat ikon\n\n3. Ha a lakat nem zárt, érintse meg a lezárásához</string>
+  <string name="setup_xiaomi_dialog_body_new">1. Nyissa meg a legutolsó appok listáját (másnéven az app váltót)\n\n2. Nyomja meg és tartsa nyomva a Briar képét, hogy megjelenjen a lakat ikon\n\n3. Ha a lakat nem zárt, érintse meg a lezárásához</string>
   <string name="warning_dozed">%s nem tud futni a háttérben</string>
   <!--Login-->
   <string name="enter_password">Jelszó</string>
@@ -465,6 +470,8 @@ Kapcsolatai, akivel megosztotta ezt a blogot, lehet nem kapnak többé frissít�
   <string name="blogs_rss_feeds_import_button">Importálás</string>
   <string name="blogs_rss_feeds_import_hint">Adja meg az RSS feed URL címét</string>
   <string name="blogs_rss_feeds_import_error">Elnézését kérjük! Probléma akadt a feed-je importálásával.</string>
+  <string name="blogs_rss_feeds_import_exists">Ez a feed már importálva van.</string>
+  <string name="blogs_rss_feeds">RSS Feed-ek</string>
   <string name="blogs_rss_feeds_manage_imported">Importálva:</string>
   <string name="blogs_rss_feeds_manage_author">Szerző:</string>
   <string name="blogs_rss_feeds_manage_updated">Utolsó frissítés:</string>

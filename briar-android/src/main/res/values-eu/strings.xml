@@ -22,6 +22,7 @@
   <string name="setup_huawei_text">Sakatu beheko botoia eta ziurtatu Briar babestuta dagoela \"Babestutako aplikazioak\" pantailan.</string>
   <string name="setup_huawei_button">Babestu Briar</string>
   <string name="setup_huawei_help">Briar ez bada babestutako aplikazioen zerrendara gehitzen, ezin izango du bigarren planoan ibili.</string>
+  <string name="setup_xiaomi_button">Babestu Briar</string>
   <string name="warning_dozed">%s ezin izan da bigarren planoan exekutatu</string>
   <!--Login-->
   <string name="enter_password">Pasahitza</string>
@@ -395,6 +396,7 @@
   <string name="blogs_rss_feeds_import_button">Inportatu</string>
   <string name="blogs_rss_feeds_import_hint">Sartu RSS jarioaren URLa</string>
   <string name="blogs_rss_feeds_import_error">Sentitzen dugu! Zure jarioa inportatzean errore bat gertatu da.</string>
+  <string name="blogs_rss_feeds">RSS iturriak</string>
   <string name="blogs_rss_feeds_manage_imported">Inportatuta:</string>
   <string name="blogs_rss_feeds_manage_author">Egilea:</string>
   <string name="blogs_rss_feeds_manage_updated">Azken eguneratzea:</string>

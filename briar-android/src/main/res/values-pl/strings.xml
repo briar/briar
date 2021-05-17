@@ -22,6 +22,7 @@
   <string name="setup_huawei_text">Proszę dotknąć przycisku poniżej i upewnić się, że Briar jest na liście chronionych aplikacji.</string>
   <string name="setup_huawei_button">Chroń Briar</string>
   <string name="setup_huawei_help">Jeśli Briar nie będzie na liście chronionych aplikacji, nie będzie miał możliwości aby działać w tle.</string>
+  <string name="setup_xiaomi_button">Chroń Briar</string>
   <string name="warning_dozed">%s nie był wstanie działać w tle</string>
   <!--Login-->
   <string name="enter_password">Hasło</string>

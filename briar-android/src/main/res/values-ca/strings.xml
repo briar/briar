@@ -22,6 +22,7 @@
   <string name="setup_huawei_text">Feu un toc sobre el botó següent i assegureu-vos de que Briar consta com a protegit a la pantalla «Aplicacions protegides».</string>
   <string name="setup_huawei_button">Protegeix Briar</string>
   <string name="setup_huawei_help">Si no afegiu Briar a la llista d\'aplicacions protegides, s\'evitarà que Briar s\'executi en segon pla.</string>
+  <string name="setup_xiaomi_button">Protegeix Briar</string>
   <string name="warning_dozed">%s no s\'ha pogut executar en segon pla</string>
   <!--Login-->
   <string name="enter_password">Contrasenya</string>

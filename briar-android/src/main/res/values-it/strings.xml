@@ -25,6 +25,11 @@
   <string name="setup_huawei_app_launch_text">Tocca il pulsante sotto, apri la schermata \"Esecuzione app\" e assicurati che Briar sia su \"Gestisci manualmente\".</string>
   <string name="setup_huawei_app_launch_button">Apri impostazioni batteria</string>
   <string name="setup_huawei_app_launch_help">Se Briar non è su \"Gestisci manualmente\" nella schermata \"Esecuzione app\", non potrà funzionare in secondo piano.</string>
+  <string name="setup_xiaomi_text">Per funzionare in secondo piano, Briar deve essere fissato nella lista di app recenti.</string>
+  <string name="setup_xiaomi_button">Proteggi Briar</string>
+  <string name="setup_xiaomi_help">Se Briar non è fissato nella lista di app recenti, non potrà funzionare in secondo piano.</string>
+  <string name="setup_xiaomi_dialog_body_old">1. Apri la lista di app recenti (chiamata anche app switcher)\n\n2. Scorri fino alla schermata di Briar per mostrare l\'icona del lucchetto\n\n3. Se il lucchetto non è chiuso, toccalo per chiuderlo</string>
+  <string name="setup_xiaomi_dialog_body_new">1. Apri la lista di app recenti (chiamata anche app switcher)\n\n2. Tieni premuta la schermata di Briar finché non compare l\'icona del lucchetto\n\n3. Se il lucchetto non è chiuso, toccalo per chiuderlo</string>
   <string name="warning_dozed">%s non ha potuto funzionare in background</string>
   <!--Login-->
   <string name="enter_password">Password</string>
@@ -458,6 +463,8 @@
   <string name="blogs_rss_feeds_import_button">Importa</string>
   <string name="blogs_rss_feeds_import_hint">Inserire l\'URL dell\'RSS feed</string>
   <string name="blogs_rss_feeds_import_error">Ci dispiace! C\'è stato un errore nell\'importazione del tuo feed.</string>
+  <string name="blogs_rss_feeds_import_exists">Quel flusso è già importato.</string>
+  <string name="blogs_rss_feeds">Flussi RSS</string>
   <string name="blogs_rss_feeds_manage_imported">Importato:</string>
   <string name="blogs_rss_feeds_manage_author">Autore:</string>
   <string name="blogs_rss_feeds_manage_updated">Ultimo Aggiornamento:</string>
