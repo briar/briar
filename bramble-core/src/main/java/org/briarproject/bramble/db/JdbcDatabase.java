@@ -2606,6 +2606,38 @@ abstract class JdbcDatabase implements Database<Connection> {
 	}
 
 	@Override
+	public Map<ContactId, Collection<TransportId>> getTransportsWithKeys(
+			Connection txn) throws DbException {
+		Statement s = null;
+		ResultSet rs = null;
+		try {
+			String sql = "SELECT DISTINCT contactId, transportId"
+					+ " FROM outgoingKeys";
+			s = txn.createStatement();
+			rs = s.executeQuery(sql);
+			Map<ContactId, Collection<TransportId>> ids = new HashMap<>();
+			while (rs.next()) {
+				ContactId c = new ContactId(rs.getInt(1));
+				TransportId t = new TransportId(rs.getString(2));
+				Collection<TransportId> transportIds = ids.get(c);
+				if (transportIds == null) {
+					transportIds = new ArrayList<>();
+					ids.put(c, transportIds);
+				}
+				transportIds.add(t);
+			}
+			rs.close();
+			s.close();
+			return ids;
+		} catch (SQLException e) {
+			tryToClose(rs, LOG, WARNING);
+			tryToClose(s, LOG, WARNING);
+			tryToClose(s, LOG, WARNING);
+			throw new DbException(e);
+		}
+	}
+
+	@Override
 	public void incrementStreamCounter(Connection txn, TransportId t,
 			KeySetId k) throws DbException {
 		PreparedStatement ps = null;

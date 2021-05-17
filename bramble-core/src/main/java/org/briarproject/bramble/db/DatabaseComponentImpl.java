@@ -781,6 +781,13 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 	}
 
 	@Override
+	public Map<ContactId, Collection<TransportId>> getTransportsWithKeys(
+			Transaction transaction) throws DbException {
+		T txn = unbox(transaction);
+		return db.getTransportsWithKeys(txn);
+	}
+
+	@Override
 	public void incrementStreamCounter(Transaction transaction, TransportId t,
 			KeySetId k) throws DbException {
 		if (transaction.isReadOnly()) throw new IllegalArgumentException();

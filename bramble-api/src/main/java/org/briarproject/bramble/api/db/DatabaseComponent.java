@@ -494,6 +494,16 @@ public interface DatabaseComponent extends TransactionManager {
 			throws DbException;
 
 	/**
+	 * Returns the contact IDs and transport IDs for which the DB contains
+	 * at least one set of transport keys. Handshake mode and rotation mode
+	 * keys are included, whether activated or not.
+	 * <p/>
+	 * Read-only.
+	 */
+	Map<ContactId, Collection<TransportId>> getTransportsWithKeys(
+			Transaction txn) throws DbException;
+
+	/**
 	 * Increments the outgoing stream counter for the given transport keys.
 	 */
 	void incrementStreamCounter(Transaction txn, TransportId t, KeySetId k)
