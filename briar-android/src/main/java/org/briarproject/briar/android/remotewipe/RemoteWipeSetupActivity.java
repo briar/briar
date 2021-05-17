@@ -39,7 +39,7 @@ public class RemoteWipeSetupActivity extends BriarActivity implements
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_distributed_backup);
         if (viewModel.remoteWipeIsSetup()) {
-//        	showInitialFragment();
+        	showInitialFragment(new RemoteWipeDisplayFragment());
         } else {
 	        showInitialFragment(WiperSelectorFragment.newInstance());
         }

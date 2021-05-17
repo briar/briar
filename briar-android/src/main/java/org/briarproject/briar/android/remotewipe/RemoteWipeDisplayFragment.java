@@ -43,12 +43,15 @@ public class RemoteWipeDisplayFragment extends
 		View view = inflater.inflate(R.layout.fragment_display_remote_wipe,
 				container, false);
         List<String> wiperNames = viewModel.getWiperNames();
-		String custodianNamesString = "";
+		StringBuilder custodianNamesString = new StringBuilder();
 		for (String custodianName : wiperNames) {
-			custodianNamesString += custodianName + ", ";
+			custodianNamesString
+					.append("• ")
+					.append(custodianName)
+					.append("\n");
 		}
 		TextView textViewThreshold = view.findViewById(R.id.textViewWipers);
-		textViewThreshold.setText(custodianNamesString);
+		textViewThreshold.setText(custodianNamesString.toString());
 //		Button button = view.findViewById(R.id.button);
 //		button.setOnClickListener(e -> viewModel.onErrorTryAgain());
 		return view;
