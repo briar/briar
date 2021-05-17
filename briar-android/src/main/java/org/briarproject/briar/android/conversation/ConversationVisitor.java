@@ -310,11 +310,11 @@ class ConversationVisitor implements
 	@Override
 	public ConversationItem visitRemoteWipeMessage(RemoteWipeMessageHeader r) {
 		if (r.isLocal()) {
-			String text = ctx.getString(R.string.remote_wipe_setup_sent);
+			String text = ctx.getString(R.string.remote_wipe_setup_sent, contactName.getValue());
 			return new ConversationNoticeItem(
 					R.layout.list_item_conversation_notice_out, text, r);
 		} else {
-			String text = ctx.getString(R.string.remote_wipe_setup_received);
+			String text = ctx.getString(R.string.remote_wipe_setup_received, contactName.getValue());
 			return new ConversationNoticeItem(
 					R.layout.list_item_conversation_notice_in, text, r);
 		}
