@@ -39,7 +39,7 @@ import org.briarproject.briar.android.login.LoginModule;
 import org.briarproject.briar.android.navdrawer.NavDrawerModule;
 import org.briarproject.briar.android.privategroup.conversation.GroupConversationModule;
 import org.briarproject.briar.android.privategroup.list.GroupListModule;
-import org.briarproject.briar.android.remotewipe.RemoteWipeSetupModule;
+import org.briarproject.briar.android.remotewipe.RemoteWipeModule;
 import org.briarproject.briar.android.reporting.DevReportModule;
 import org.briarproject.briar.android.settings.SettingsModule;
 import org.briarproject.briar.android.sharing.SharingModule;
@@ -96,7 +96,7 @@ import static org.briarproject.briar.android.TestingConstants.IS_DEBUG_BUILD;
 		SharingModule.class,
 		OwnerReturnShardModule.class,
 		CustodianReturnShardModule.class,
-		RemoteWipeSetupModule.class
+		RemoteWipeModule.class
 })
 public class AppModule {
 

@@ -32,4 +32,10 @@
 		android:icon="@drawable/introduction_white"
 		android:title="@string/help_recover_account"
 		app:showAsAction="never"/>
+
+	<item
+		android:id="@+id/action_remote_wipe"
+		android:icon="@drawable/action_delete_white"
+		android:title="@string/activate_remote_wipe"
+		app:showAsAction="never"/>
 </menu>
