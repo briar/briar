@@ -614,7 +614,8 @@
 	<string name="learn_more">Learn more</string>
 	<string name="disappearing_messages_summary">Make future messages in this conversation automatically disappear after 7\u00A0days.</string>
 
-	<!-- Settings Feedback -->
+	<!-- Settings Actions -->
+	<string name="pref_category_actions">Actions</string>
 	<string name="send_feedback">Send feedback</string>
 
 	<!-- Link Warning -->
@@ -688,6 +689,35 @@
 
 	<!-- Connections Screen -->
 	<string name="transports_help_text">Briar can connect to your contacts via the Internet, Wi-Fi or Bluetooth.\n\nAll Internet connections go through the Tor network for privacy.\n\nIf a contact can be reached by multiple methods, Briar uses them in parallel.</string>
+
+	<!-- Share app offline -->
+	<string name="hotspot_title">Share Briar offline</string>
+	<string name="hotspot_intro">Share this app with someone nearby without internet connection
+		by using your phone\'s Wi-Fi.
+		\n\nYour phone will open a local hotspot and provide a small website with a download of this app.</string>
+	<string name="hotspot_button_start_sharing">Start sharing</string>
+	<string name="hotspot_button_stop_sharing">Stop sharing</string>
+	<string name="hotspot_progress_text_start">Setting up hotspot…</string>
+	<string name="hotspot_notification_channel_title">Wi-Fi hotspot</string>
+	<string name="hotspot_notification_title">Sharing Briar offline</string>
+	<string name="hotspot_button_connected">Confirm connection</string>
+	<string name="hotspot_tab_manual">Manual</string>
+	<string name="hotspot_manual_wifi">To download the app on another phone, please connect to this Wi-Fi network:</string>
+	<string name="hotspot_manual_wifi_ssid">Network name (SSID)</string>
+	<string name="hotspot_manual_wifi_alt">Instead of adding the network manually, you can also scan a QR code.</string>
+	<string name="hotspot_manual_site">After you are connected to the Wi-Fi, carefully enter this address in your browser.</string>
+	<string name="hotspot_manual_site_address">Address (URL)</string>
+	<string name="hotspot_manual_site_alt">Instead of typing the address manually, you can also scan a QR code.</string>
+	<string name="hotspot_qr_wifi">To download the app on another phone, please scan this QR code to connect to this Wi-Fi network:</string>
+	<string name="hotspot_qr_site">After you are connected to the Wi-Fi, scan this QR code to download the app.</string>
+	<string name="hotspot_help_wifi_title">Problems with connecting to Wi-Fi:</string>
+	<string name="hotspot_help_wifi_1">Try disabling and re-enabling Wi-Fi on both phones and try again.</string>
+	<string name="hotspot_help_wifi_2">If your phone complains that the Wi-Fi has no internet, tell it that you want to stay connected anyway.</string>
+	<string name="hotspot_help_site_title">Problems visiting the local website:</string>
+	<string name="hotspot_help_site_1">Double check that you entered the address exactly as shown. A small error can make it fail.</string>
+	<string name="hotspot_help_site_2">Ensure that your phone is still connected to the correct Wi-Fi (see above) when you try to access the site.</string>
+	<string name="hotspot_help_site_3">Check that you don\'t have any active firewall apps that may block the access.</string>
+	<string name="hotspot_help_site_4">If you can visit the site, but not download the Briar app, try it with a different web browser app.</string>
 
 	<!-- Screenshots -->
 
