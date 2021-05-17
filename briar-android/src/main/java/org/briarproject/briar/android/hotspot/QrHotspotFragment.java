@@ -11,10 +11,12 @@ import android.widget.TextView;
 import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
 import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
 import org.briarproject.briar.R;
+import org.briarproject.briar.android.hotspot.HotspotState.HotspotStarted;
 
 import javax.inject.Inject;
 
 import androidx.annotation.Nullable;
+import androidx.core.util.Consumer;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 
@@ -58,13 +60,21 @@ public class QrHotspotFragment extends Fragment {
 		TextView qrIntroView = v.findViewById(R.id.qrIntroView);
 		ImageView qrCodeView = v.findViewById(R.id.qrCodeView);
 
+		Consumer<HotspotStarted> consumer;
 		if (requireArguments().getBoolean(ARG_FOR_WIFI_CONNECT)) {
 			qrIntroView.setText(R.string.hotspot_qr_wifi);
-			// TODO observe state in ViewModel and get QR code from there
+			consumer = state ->
+					qrCodeView.setImageBitmap(state.getNetworkConfig().qrCode);
 		} else {
 			qrIntroView.setText(R.string.hotspot_qr_site);
-			// TODO observe state in ViewModel and get QR code from there
+			consumer = state ->
+					qrCodeView.setImageBitmap(state.getWebsiteConfig().qrCode);
 		}
+		viewModel.getState().observe(getViewLifecycleOwner(), state -> {
+			if (state instanceof HotspotStarted) {
+				consumer.accept((HotspotStarted) state);
+			}
+		});
 		return v;
 	}
 

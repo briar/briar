@@ -3,19 +3,25 @@ package org.briarproject.briar.android.hotspot;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.MenuItem;
+import android.widget.Toast;
 
 import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
 import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.activity.ActivityComponent;
 import org.briarproject.briar.android.activity.BriarActivity;
+import org.briarproject.briar.android.hotspot.HotspotState.HotspotError;
+import org.briarproject.briar.android.hotspot.HotspotState.HotspotStarted;
 
 import javax.annotation.Nullable;
 import javax.inject.Inject;
 
 import androidx.appcompat.app.ActionBar;
+import androidx.fragment.app.FragmentManager;
 import androidx.lifecycle.ViewModelProvider;
 
+import static android.widget.Toast.LENGTH_LONG;
+import static org.briarproject.briar.android.util.UiUtils.showFragment;
 import static org.briarproject.briar.api.android.AndroidNotificationManager.ACTION_STOP_HOTSPOT;
 
 @MethodsNotNullByDefault
@@ -44,7 +50,21 @@ public class HotspotActivity extends BriarActivity {
 			ab.setDisplayHomeAsUpEnabled(true);
 		}
 
-		// TODO observe viewmodel state and show error or HotspotFragment
+		viewModel.getState().observe(this, hotspotState -> {
+			if (hotspotState instanceof HotspotStarted) {
+				FragmentManager fm = getSupportFragmentManager();
+				String tag = HotspotFragment.TAG;
+				// check if fragment is already added
+				// to not lose state on configuration changes
+				if (fm.findFragmentByTag(tag) == null) {
+					showFragment(fm, new HotspotFragment(), tag);
+				}
+			} else if (hotspotState instanceof HotspotError) {
+				// TODO ErrorFragment
+				String error = ((HotspotError) hotspotState).getError();
+				Toast.makeText(this, error, LENGTH_LONG).show();
+			}
+		});
 
 		if (state == null) {
 			getSupportFragmentManager().beginTransaction()
