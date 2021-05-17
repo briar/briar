@@ -5,10 +5,11 @@ import android.view.View;
 
 import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
 import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
-import org.briarproject.briar.R;
 
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+
+import static org.briarproject.briar.android.util.UiUtils.showFragment;
 
 @MethodsNotNullByDefault
 @ParametersNotNullByDefault
@@ -21,14 +22,9 @@ public class HotspotFragment extends AbstractTabsFragment {
 		super.onViewCreated(view, savedInstanceState);
 		// no need to call into the ViewModel here
 		connectedButton.setOnClickListener(v -> {
-			getParentFragmentManager().beginTransaction()
-					.setCustomAnimations(R.anim.step_next_in,
-							R.anim.step_previous_out, R.anim.step_previous_in,
-							R.anim.step_next_out)
-					.replace(R.id.fragmentContainer, new WebsiteFragment(),
-							WebsiteFragment.TAG)
-					.addToBackStack(WebsiteFragment.TAG)
-					.commit();
+			Fragment f = new WebsiteFragment();
+			String tag = WebsiteFragment.TAG;
+			showFragment(getParentFragmentManager(), f, tag);
 		});
 	}
 

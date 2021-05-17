@@ -14,12 +14,14 @@ import org.briarproject.briar.R;
 import javax.inject.Inject;
 
 import androidx.annotation.Nullable;
+import androidx.core.util.Consumer;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 
 import static android.view.View.GONE;
 import static org.briarproject.briar.android.AppModule.getAndroidComponent;
 import static org.briarproject.briar.android.hotspot.AbstractTabsFragment.ARG_FOR_WIFI_CONNECT;
+import static org.briarproject.briar.android.hotspot.HotspotState.HotspotStarted;
 
 @MethodsNotNullByDefault
 @ParametersNotNullByDefault
@@ -66,21 +68,28 @@ public class ManualHotspotFragment extends Fragment {
 		TextView passwordView = v.findViewById(R.id.passwordView);
 		TextView altView = v.findViewById(R.id.altView);
 
+		Consumer<HotspotStarted> consumer;
 		if (requireArguments().getBoolean(ARG_FOR_WIFI_CONNECT)) {
 			manualIntroView.setText(R.string.hotspot_manual_wifi);
 			ssidLabelView.setText(R.string.hotspot_manual_wifi_ssid);
-			// TODO observe state in ViewModel and get info from there instead
-			ssidView.setText("DIRECT-42-dfzsgf34ef");
-			passwordView.setText("sdf78shfd8");
+			consumer = state -> {
+				ssidView.setText(state.getNetworkConfig().ssid);
+				passwordView.setText(state.getNetworkConfig().password);
+			};
 			altView.setText(R.string.hotspot_manual_wifi_alt);
 		} else {
 			manualIntroView.setText(R.string.hotspot_manual_site);
 			ssidLabelView.setText(R.string.hotspot_manual_site_address);
-			// TODO observe state in ViewModel and get info from there instead
-			ssidView.setText("http://192.168.49.1:9999");
+			consumer = state -> ssidView.setText(state.getWebsiteConfig().url);
 			altView.setText(R.string.hotspot_manual_site_alt);
 			v.findViewById(R.id.passwordLabelView).setVisibility(GONE);
 			passwordView.setVisibility(GONE);
 		}
+		viewModel.getState().observe(getViewLifecycleOwner(), state -> {
+			// we only expect to be in this state here
+			if (state instanceof HotspotStarted) {
+				consumer.accept((HotspotStarted) state);
+			}
+		});
 	}
 }
