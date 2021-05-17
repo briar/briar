@@ -19,22 +19,23 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 
 import static org.briarproject.briar.android.AppModule.getAndroidComponent;
+import static org.briarproject.briar.android.hotspot.AbstractTabsFragment.ARG_FOR_WIFI_CONNECT;
 
 @MethodsNotNullByDefault
 @ParametersNotNullByDefault
-public class HotspotQrFragment extends Fragment {
+public class QrHotspotFragment extends Fragment {
 
-	public final static String TAG = HotspotQrFragment.class.getName();
+	public final static String TAG = QrHotspotFragment.class.getName();
 
 	@Inject
 	ViewModelProvider.Factory viewModelFactory;
 
 	private HotspotViewModel viewModel;
 
-	static HotspotQrFragment newInstance(boolean forWifiConnect) {
-		HotspotQrFragment f = new HotspotQrFragment();
+	static QrHotspotFragment newInstance(boolean forWifiConnect) {
+		QrHotspotFragment f = new QrHotspotFragment();
 		Bundle bundle = new Bundle();
-		bundle.putBoolean("forWifiConnect", forWifiConnect);
+		bundle.putBoolean(ARG_FOR_WIFI_CONNECT, forWifiConnect);
 		f.setArguments(bundle);
 		return f;
 	}
@@ -57,7 +58,7 @@ public class HotspotQrFragment extends Fragment {
 		TextView qrIntroView = v.findViewById(R.id.qrIntroView);
 		ImageView qrCodeView = v.findViewById(R.id.qrCodeView);
 
-		if (requireArguments().getBoolean("forWifiConnect")) {
+		if (requireArguments().getBoolean(ARG_FOR_WIFI_CONNECT)) {
 			qrIntroView.setText(R.string.hotspot_qr_wifi);
 			// TODO observe state in ViewModel and get QR code from there
 		} else {

@@ -7,7 +7,6 @@ import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
 import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
 import org.briarproject.briar.R;
 
-import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
@@ -18,8 +17,7 @@ public class HotspotFragment extends AbstractTabsFragment {
 	public final static String TAG = HotspotFragment.class.getName();
 
 	@Override
-	public void onViewCreated(@NonNull View view,
-			@Nullable Bundle savedInstanceState) {
+	public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
 		super.onViewCreated(view, savedInstanceState);
 		// no need to call into the ViewModel here
 		connectedButton.setOnClickListener(v -> {
@@ -36,12 +34,12 @@ public class HotspotFragment extends AbstractTabsFragment {
 
 	@Override
 	protected Fragment getFirstFragment() {
-		return HotspotManualFragment.newInstance(true);
+		return ManualHotspotFragment.newInstance(true);
 	}
 
 	@Override
 	protected Fragment getSecondFragment() {
-		return HotspotQrFragment.newInstance(true);
+		return QrHotspotFragment.newInstance(true);
 	}
 
 }
