@@ -7,8 +7,10 @@ import org.briarproject.bramble.api.FormatException;
 import org.briarproject.bramble.api.contact.ContactId;
 import org.briarproject.bramble.api.db.DatabaseComponent;
 import org.briarproject.bramble.api.db.DbException;
+import org.briarproject.bramble.api.identity.Author;
 import org.briarproject.briar.api.remotewipe.RemoteWipeManager;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
@@ -41,6 +43,23 @@ public class RemoteWipeSetupViewModel extends AndroidViewModel {
 			return false;
 		}
 	}
+
+	public List<String> getWiperNames() {
+		ArrayList wiperNames = new ArrayList();
+		try {
+			List<Author> wipers = db.transactionWithResult(true,
+					txn -> remoteWipeManager.getWipers(txn));
+			for (Author wiper : wipers) {
+				wiperNames.add(wiper.getName());
+			}
+			return wiperNames;
+		} catch (DbException ignored) {
+			// Will return an empty list
+		}
+		return wiperNames;
+	}
+
+
 
 	public void setupRemoteWipe(Collection<ContactId> wipers)
 			throws DbException, FormatException {

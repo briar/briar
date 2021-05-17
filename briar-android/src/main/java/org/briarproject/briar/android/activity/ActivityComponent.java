@@ -65,6 +65,7 @@ import org.briarproject.briar.android.privategroup.memberlist.GroupMemberModule;
 import org.briarproject.briar.android.privategroup.reveal.GroupRevealModule;
 import org.briarproject.briar.android.privategroup.reveal.RevealContactsActivity;
 import org.briarproject.briar.android.privategroup.reveal.RevealContactsFragment;
+import org.briarproject.briar.android.remotewipe.RemoteWipeDisplayFragment;
 import org.briarproject.briar.android.remotewipe.RemoteWipeSetupActivity;
 import org.briarproject.briar.android.remotewipe.WiperSelectorFragment;
 import org.briarproject.briar.android.reporting.CrashFragment;
@@ -312,4 +313,6 @@ public interface ActivityComponent {
 	void inject(CustodianReturnShardErrorFragment custodianReturnShardErrorFragment);
 
 	void inject(WiperSelectorFragment wiperSelectorFragment);
+
+	void inject(RemoteWipeDisplayFragment remoteWipeDisplayFragment);
 }
