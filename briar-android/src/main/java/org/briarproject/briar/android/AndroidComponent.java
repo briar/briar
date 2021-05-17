@@ -38,8 +38,8 @@ import org.briarproject.briar.android.attachment.media.MediaModule;
 import org.briarproject.briar.android.conversation.glide.BriarModelLoader;
 import org.briarproject.briar.android.hotspot.AbstractTabsFragment;
 import org.briarproject.briar.android.hotspot.HotspotIntroFragment;
-import org.briarproject.briar.android.hotspot.HotspotManualFragment;
-import org.briarproject.briar.android.hotspot.HotspotQrFragment;
+import org.briarproject.briar.android.hotspot.ManualHotspotFragment;
+import org.briarproject.briar.android.hotspot.QrHotspotFragment;
 import org.briarproject.briar.android.logging.CachingLogHandler;
 import org.briarproject.briar.android.login.SignInReminderReceiver;
 import org.briarproject.briar.android.removabledrive.ChooserFragment;
@@ -224,9 +224,9 @@ public interface AndroidComponent
 
 	void inject(AbstractTabsFragment abstractTabsFragment);
 
-	void inject(HotspotQrFragment hotspotQrFragment);
+	void inject(QrHotspotFragment qrHotspotFragment);
 
-	void inject(HotspotManualFragment hotspotManualFragment);
+	void inject(ManualHotspotFragment manualHotspotFragment);
 
 	void inject(ChooserFragment chooserFragment);
 
