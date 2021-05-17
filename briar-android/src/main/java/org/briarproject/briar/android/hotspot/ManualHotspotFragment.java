@@ -19,22 +19,23 @@ import androidx.lifecycle.ViewModelProvider;
 
 import static android.view.View.GONE;
 import static org.briarproject.briar.android.AppModule.getAndroidComponent;
+import static org.briarproject.briar.android.hotspot.AbstractTabsFragment.ARG_FOR_WIFI_CONNECT;
 
 @MethodsNotNullByDefault
 @ParametersNotNullByDefault
-public class HotspotManualFragment extends Fragment {
+public class ManualHotspotFragment extends Fragment {
 
-	public final static String TAG = HotspotManualFragment.class.getName();
+	public final static String TAG = ManualHotspotFragment.class.getName();
 
 	@Inject
 	ViewModelProvider.Factory viewModelFactory;
 
 	private HotspotViewModel viewModel;
 
-	static HotspotManualFragment newInstance(boolean forWifiConnect) {
-		HotspotManualFragment f = new HotspotManualFragment();
+	static ManualHotspotFragment newInstance(boolean forWifiConnect) {
+		ManualHotspotFragment f = new ManualHotspotFragment();
 		Bundle bundle = new Bundle();
-		bundle.putBoolean("forWifiConnect", forWifiConnect);
+		bundle.putBoolean(ARG_FOR_WIFI_CONNECT, forWifiConnect);
 		f.setArguments(bundle);
 		return f;
 	}
@@ -65,7 +66,7 @@ public class HotspotManualFragment extends Fragment {
 		TextView passwordView = v.findViewById(R.id.passwordView);
 		TextView altView = v.findViewById(R.id.altView);
 
-		if (requireArguments().getBoolean("forWifiConnect")) {
+		if (requireArguments().getBoolean(ARG_FOR_WIFI_CONNECT)) {
 			manualIntroView.setText(R.string.hotspot_manual_wifi);
 			ssidLabelView.setText(R.string.hotspot_manual_wifi_ssid);
 			// TODO observe state in ViewModel and get info from there instead

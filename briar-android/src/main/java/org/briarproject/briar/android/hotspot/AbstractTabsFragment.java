@@ -20,7 +20,6 @@ import org.briarproject.briar.R;
 import javax.inject.Inject;
 
 import androidx.annotation.CallSuper;
-import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
@@ -33,6 +32,8 @@ import static org.briarproject.briar.android.AppModule.getAndroidComponent;
 @MethodsNotNullByDefault
 @ParametersNotNullByDefault
 public abstract class AbstractTabsFragment extends Fragment {
+
+	static String ARG_FOR_WIFI_CONNECT = "forWifiConnect";
 
 	@Inject
 	ViewModelProvider.Factory viewModelFactory;
@@ -61,8 +62,7 @@ public abstract class AbstractTabsFragment extends Fragment {
 
 	@Override
 	@CallSuper
-	public void onViewCreated(@NonNull View view,
-			@Nullable Bundle savedInstanceState) {
+	public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
 		TabAdapter tabAdapter = new TabAdapter(this);
 		ViewPager2 viewPager = view.findViewById(R.id.pager);
 		viewPager.setAdapter(tabAdapter);
@@ -118,7 +118,6 @@ public abstract class AbstractTabsFragment extends Fragment {
 			super(fragment);
 		}
 
-		@NonNull
 		@Override
 		public Fragment createFragment(int position) {
 			if (position == 0) return getFirstFragment();

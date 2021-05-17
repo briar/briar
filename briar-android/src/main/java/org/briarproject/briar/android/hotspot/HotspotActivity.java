@@ -13,7 +13,6 @@ import org.briarproject.briar.android.activity.BriarActivity;
 import javax.annotation.Nullable;
 import javax.inject.Inject;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBar;
 import androidx.lifecycle.ViewModelProvider;
 
@@ -56,7 +55,7 @@ public class HotspotActivity extends BriarActivity {
 	}
 
 	@Override
-	public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+	public boolean onOptionsItemSelected(MenuItem item) {
 		if (item.getItemId() == android.R.id.home) {
 			onBackPressed();
 			return true;
