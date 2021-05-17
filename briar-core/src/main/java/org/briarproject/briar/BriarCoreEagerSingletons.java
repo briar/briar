@@ -9,6 +9,7 @@ import org.briarproject.briar.introduction.IntroductionModule;
 import org.briarproject.briar.messaging.MessagingModule;
 import org.briarproject.briar.privategroup.PrivateGroupModule;
 import org.briarproject.briar.privategroup.invitation.GroupInvitationModule;
+import org.briarproject.briar.remotewipe.RemoteWipeModule;
 import org.briarproject.briar.sharing.SharingModule;
 import org.briarproject.briar.socialbackup.SocialBackupModule;
 //import org.briarproject.briar.socialbackup.DefaultSocialBackupModule;
@@ -37,6 +38,8 @@ public interface BriarCoreEagerSingletons {
 
 	void inject(SocialBackupModule.EagerSingletons init);
 
+	void inject(RemoteWipeModule.EagerSingletons init);
+
 	class Helper {
 
 		public static void injectEagerSingletons(BriarCoreEagerSingletons c) {
@@ -51,6 +54,7 @@ public interface BriarCoreEagerSingletons {
 			c.inject(new IdentityModule.EagerSingletons());
 			c.inject(new IntroductionModule.EagerSingletons());
 			c.inject(new SocialBackupModule.EagerSingletons());
+			c.inject(new RemoteWipeModule.EagerSingletons());
 		}
 	}
 }

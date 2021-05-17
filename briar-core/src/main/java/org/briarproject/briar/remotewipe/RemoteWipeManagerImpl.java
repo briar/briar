@@ -32,7 +32,6 @@ import org.briarproject.briar.api.remotewipe.MessageParser;
 import org.briarproject.briar.api.remotewipe.RemoteWipeManager;
 import org.briarproject.briar.api.remotewipe.RemoteWipeMessageHeader;
 import org.briarproject.briar.api.remotewipe.RemoteWipeReceivedEvent;
-import org.briarproject.briar.api.socialbackup.ShardReceivedEvent;
 import org.briarproject.briar.client.ConversationClientImpl;
 
 import java.util.ArrayList;
