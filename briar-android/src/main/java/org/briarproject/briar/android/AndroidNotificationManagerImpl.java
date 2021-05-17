@@ -734,7 +734,7 @@ class AndroidNotificationManagerImpl implements AndroidNotificationManager,
 		}
 		BriarNotificationBuilder b =
 				new BriarNotificationBuilder(appContext, HOTSPOT_CHANNEL_ID);
-		b.setSmallIcon(R.drawable.ic_wifi_tethering);
+		b.setSmallIcon(R.drawable.notification_hotspot);
 		b.setColorRes(R.color.briar_brand_green);
 		b.setContentTitle(
 				appContext.getText(R.string.hotspot_notification_title));
@@ -748,7 +748,8 @@ class AndroidNotificationManagerImpl implements AndroidNotificationManager,
 		i.addFlags(FLAG_ACTIVITY_SINGLE_TOP);
 		i.setAction(ACTION_STOP_HOTSPOT);
 		PendingIntent actionIntent = getActivity(appContext, 0, i, 0);
-		b.addAction(R.drawable.ic_portable_wifi_off, actionTitle, actionIntent);
+		int icon = SDK_INT >= 21 ? R.drawable.ic_portable_wifi_off : 0;
+		b.addAction(icon, actionTitle, actionIntent);
 		notificationManager.notify(HOTSPOT_NOTIFICATION_ID, b.build());
 	}
 
