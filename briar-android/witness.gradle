@@ -216,6 +216,7 @@ dependencyVerification {
         'org.jmock:jmock:2.8.2:jmock-2.8.2.jar:6c73cb4a2e6dbfb61fd99c9a768539c170ab6568e57846bd60dbf19596b65b16',
         'org.jvnet.staxex:stax-ex:1.8:stax-ex-1.8.jar:95b05d9590af4154c6513b9c5dc1fb2e55b539972ba0a9ef28e9a0c01d83ad77',
         'org.mockito:mockito-core:3.1.0:mockito-core-3.1.0.jar:89b09e518e04f5c35f5ccf7abe45e72f594070a53d95cc2579001bd392c5afa6',
+        'org.nanohttpd:nanohttpd:2.3.1:nanohttpd-2.3.1.jar:de864c47818157141a24c9acb36df0c47d7bf15b7ff48c90610f3eb4e5df0e58',
         'org.objenesis:objenesis:2.6:objenesis-2.6.jar:5e168368fbc250af3c79aa5fef0c3467a2d64e5a7bd74005f25d8399aeb0708d',
         'org.ow2.asm:asm-analysis:7.0:asm-analysis-7.0.jar:e981f8f650c4d900bb033650b18e122fa6b161eadd5f88978d08751f72ee8474',
         'org.ow2.asm:asm-commons:7.0:asm-commons-7.0.jar:fed348ef05958e3e846a3ac074a12af5f7936ef3d21ce44a62c4fa08a771927d',

@@ -58,7 +58,9 @@ import androidx.core.content.ContextCompat;
 import androidx.core.hardware.fingerprint.FingerprintManagerCompat;
 import androidx.core.text.HtmlCompat;
 import androidx.core.util.Consumer;
+import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
+import androidx.fragment.app.FragmentManager;
 import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.Observer;
@@ -137,6 +139,17 @@ public class UiUtils {
 		InputMethodManager imm = requireNonNull(
 				getSystemService(view.getContext(), InputMethodManager.class));
 		imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+	}
+
+	public static void showFragment(FragmentManager fm, Fragment f,
+			@Nullable String tag) {
+		fm.beginTransaction()
+				.setCustomAnimations(R.anim.step_next_in,
+						R.anim.step_previous_out, R.anim.step_previous_in,
+						R.anim.step_next_out)
+				.replace(R.id.fragmentContainer, f, tag)
+				.addToBackStack(tag)
+				.commit();
 	}
 
 	public static String getContactDisplayName(Author author,

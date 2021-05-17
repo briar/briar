@@ -46,6 +46,7 @@ import static java.util.logging.Level.INFO;
 import static java.util.logging.Logger.getLogger;
 import static org.briarproject.briar.android.TestingConstants.PREVENT_SCREENSHOTS;
 import static org.briarproject.briar.android.util.UiUtils.hideSoftKeyboard;
+import static org.briarproject.briar.android.util.UiUtils.showFragment;
 
 /**
  * Warning: Some activities don't extend {@link BaseActivity}.
@@ -177,13 +178,7 @@ public abstract class BaseActivity extends AppCompatActivity
 
 	public void showNextFragment(BaseFragment f) {
 		if (!getLifecycle().getCurrentState().isAtLeast(STARTED)) return;
-		getSupportFragmentManager().beginTransaction()
-				.setCustomAnimations(R.anim.step_next_in,
-						R.anim.step_previous_out, R.anim.step_previous_in,
-						R.anim.step_next_out)
-				.replace(R.id.fragmentContainer, f, f.getUniqueTag())
-				.addToBackStack(f.getUniqueTag())
-				.commit();
+		showFragment(getSupportFragmentManager(), f, f.getUniqueTag());
 	}
 
 	protected boolean isFragmentAdded(String fragmentTag) {

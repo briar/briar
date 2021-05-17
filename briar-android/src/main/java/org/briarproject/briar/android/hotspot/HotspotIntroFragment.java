@@ -1,6 +1,9 @@
 package org.briarproject.briar.android.hotspot;
 
 import android.content.Context;
+import android.content.Intent;
+import android.content.pm.ApplicationInfo;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -9,19 +12,27 @@ import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import com.google.android.material.snackbar.Snackbar;
+
 import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
 import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
 import org.briarproject.briar.R;
 
 import javax.inject.Inject;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts.RequestPermission;
+import androidx.activity.result.contract.ActivityResultContracts.StartActivityForResult;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentActivity;
 import androidx.lifecycle.ViewModelProvider;
 
+import static android.content.pm.ApplicationInfo.FLAG_TEST_ONLY;
 import static android.view.View.INVISIBLE;
 import static android.view.View.VISIBLE;
 import static androidx.transition.TransitionManager.beginDelayedTransition;
+import static com.google.android.material.snackbar.BaseTransientBottomBar.LENGTH_LONG;
 import static org.briarproject.briar.android.AppModule.getAndroidComponent;
 
 @MethodsNotNullByDefault
@@ -34,13 +45,32 @@ public class HotspotIntroFragment extends Fragment {
 	ViewModelProvider.Factory viewModelFactory;
 
 	private HotspotViewModel viewModel;
+	private ConditionManager conditionManager;
+
+	private Button startButton;
+	private ProgressBar progressBar;
+	private TextView progressTextView;
+
+	private final ActivityResultLauncher<String> locationRequest =
+			registerForActivityResult(new RequestPermission(), granted -> {
+				conditionManager.onRequestPermissionResult(granted);
+				startHotspot();
+			});
+	private final ActivityResultLauncher<Intent> wifiRequest =
+			registerForActivityResult(new StartActivityForResult(), result -> {
+				conditionManager.onRequestWifiEnabledResult();
+				startHotspot();
+			});
 
 	@Override
 	public void onAttach(Context context) {
 		super.onAttach(context);
-		getAndroidComponent(requireContext()).inject(this);
-		viewModel = new ViewModelProvider(requireActivity(), viewModelFactory)
+		FragmentActivity activity = requireActivity();
+		getAndroidComponent(activity).inject(this);
+		viewModel = new ViewModelProvider(activity, viewModelFactory)
 				.get(HotspotViewModel.class);
+		conditionManager =
+				new ConditionManager(activity, locationRequest, wifiRequest);
 	}
 
 	@Override
@@ -50,31 +80,48 @@ public class HotspotIntroFragment extends Fragment {
 		View v = inflater
 				.inflate(R.layout.fragment_hotspot_intro, container, false);
 
-		Button startButton = v.findViewById(R.id.startButton);
-		ProgressBar progressBar = v.findViewById(R.id.progressBar);
-		TextView progressTextView = v.findViewById(R.id.progressTextView);
+		startButton = v.findViewById(R.id.startButton);
+		progressBar = v.findViewById(R.id.progressBar);
+		progressTextView = v.findViewById(R.id.progressTextView);
 
-		startButton.setOnClickListener(button -> {
-			beginDelayedTransition((ViewGroup) v);
+		startButton.setOnClickListener(
+				button -> conditionManager.startConditionChecks());
+
+		return v;
+	}
+
+	@Override
+	public void onStart() {
+		super.onStart();
+		conditionManager.resetPermissions();
+	}
+
+	private void startHotspot() {
+		if (conditionManager.checkAndRequestConditions()) {
+			showInstallWarningIfNeeded();
+			beginDelayedTransition((ViewGroup) requireView());
 			startButton.setVisibility(INVISIBLE);
 			progressBar.setVisibility(VISIBLE);
 			progressTextView.setVisibility(VISIBLE);
-			// TODO remove below, tell viewModel to start hotspot instead
-			v.postDelayed(() -> {
-				viewModel.startHotspot();
-				getParentFragmentManager().beginTransaction()
-						.setCustomAnimations(R.anim.step_next_in,
-								R.anim.step_previous_out,
-								R.anim.step_previous_in,
-								R.anim.step_next_out)
-						.replace(R.id.fragmentContainer, new HotspotFragment(),
-								HotspotFragment.TAG)
-						.addToBackStack(HotspotFragment.TAG)
-						.commit();
-			}, 1500);
-		});
+			viewModel.startHotspot();
+		}
+	}
 
-		return v;
+	private void showInstallWarningIfNeeded() {
+		Context ctx = requireContext();
+		ApplicationInfo applicationInfo;
+		try {
+			applicationInfo = ctx.getPackageManager()
+					.getApplicationInfo(ctx.getPackageName(), 0);
+		} catch (PackageManager.NameNotFoundException e) {
+			throw new AssertionError(e);
+		}
+		// test only apps can not be installed
+		if ((applicationInfo.flags & FLAG_TEST_ONLY) == FLAG_TEST_ONLY) {
+			int color = getResources().getColor(R.color.briar_red_500);
+			Snackbar.make(requireView(), R.string.hotspot_flag_test,
+					LENGTH_LONG).setBackgroundTint(color).show();
+		}
 	}
 
 }
