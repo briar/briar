@@ -1,5 +1,6 @@
 package org.briarproject.briar.api.remotewipe;
 
+import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.sync.GroupId;
 import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.briar.api.attachment.AttachmentHeader;
@@ -8,6 +9,10 @@ import org.briarproject.briar.api.conversation.ConversationMessageVisitor;
 
 import java.util.List;
 
+import javax.annotation.concurrent.Immutable;
+
+@Immutable
+@NotNullByDefault
 public class RemoteWipeMessageHeader extends ConversationMessageHeader {
 
 	private final List<AttachmentHeader> attachmentHeaders;
