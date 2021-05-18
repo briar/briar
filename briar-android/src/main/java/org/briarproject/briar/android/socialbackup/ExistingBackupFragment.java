@@ -54,10 +54,15 @@ public class ExistingBackupFragment extends BaseFragment {
 				container, false);
 		Bundle args = requireArguments();
         ArrayList<String> custodianNames = args.getStringArrayList(CUSTODIANS);
-        String custodianNamesString = "";
-        for (String custodianName : custodianNames) {
-          	custodianNamesString += custodianName + ", ";
-        }
+
+		StringBuilder custodianNamesString = new StringBuilder();
+		for (String custodianName : custodianNames) {
+			custodianNamesString
+					.append("• ")
+					.append(custodianName)
+					.append("\n");
+		}
+
         TextView textViewThreshold = view.findViewById(R.id.textViewThreshold);
         textViewThreshold.setText(String.format("%d of %d contacts needed to restore account", args.getInt(THRESHOLD), custodianNames.size()));
         TextView textViewCustodians = view.findViewById(R.id.textViewCustodians);
