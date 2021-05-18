@@ -30,15 +30,16 @@ public class ExistingBackupFragment extends BaseFragment {
 		Bundle bundle = new Bundle();
 		List<Author> custodians = backupMetadata.getCustodians();
 		ArrayList custodianNames = new ArrayList();
-	    for (Author custodian : custodians) {
-	    	custodianNames.add(custodian.getName());
-	    }
-	    bundle.putStringArrayList(CUSTODIANS, custodianNames);
+		for (Author custodian : custodians) {
+			custodianNames.add(custodian.getName());
+		}
+		bundle.putStringArrayList(CUSTODIANS, custodianNames);
 		bundle.putInt(THRESHOLD, backupMetadata.getThreshold());
 		ExistingBackupFragment fragment = new ExistingBackupFragment();
 		fragment.setArguments(bundle);
 		return fragment;
 	}
+
 	@Override
 	public void onCreate(@Nullable Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -53,7 +54,7 @@ public class ExistingBackupFragment extends BaseFragment {
 		View view = inflater.inflate(R.layout.fragment_existing_backup,
 				container, false);
 		Bundle args = requireArguments();
-        ArrayList<String> custodianNames = args.getStringArrayList(CUSTODIANS);
+		ArrayList<String> custodianNames = args.getStringArrayList(CUSTODIANS);
 
 		StringBuilder custodianNamesString = new StringBuilder();
 		for (String custodianName : custodianNames) {
@@ -63,10 +64,12 @@ public class ExistingBackupFragment extends BaseFragment {
 					.append("\n");
 		}
 
-        TextView textViewThreshold = view.findViewById(R.id.textViewThreshold);
-        textViewThreshold.setText(String.format("%d of %d contacts needed to restore account", args.getInt(THRESHOLD), custodianNames.size()));
-        TextView textViewCustodians = view.findViewById(R.id.textViewCustodians);
-        textViewCustodians.setText(custodianNamesString);
+		TextView textViewThreshold = view.findViewById(R.id.textViewThreshold);
+		textViewThreshold.setText(getString(R.string.existing_backup_explain,
+				args.getInt(THRESHOLD)));
+		TextView textViewCustodians =
+				view.findViewById(R.id.textViewCustodians);
+		textViewCustodians.setText(custodianNamesString);
 		return view;
 	}
 

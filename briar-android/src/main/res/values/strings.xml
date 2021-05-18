@@ -729,4 +729,5 @@
 	<string name="activity_name_new_or_recover_account">Create new account or recover existing account</string>
 	<string name="activity_name_recovery">Recover Account</string>
 	<string name="activity_name_custodian_help_recovery">Help recover account</string>
+	<string name="existing_backup_explain">%d of the following contacts are needed to restore your account:</string>
 </resources>
