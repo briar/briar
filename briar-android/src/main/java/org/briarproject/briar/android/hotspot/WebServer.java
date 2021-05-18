@@ -65,7 +65,7 @@ public class WebServer extends NanoHTTPD {
 		} catch (Exception e) {
 			logException(LOG, WARNING, e);
 			res = newFixedLengthResponse(INTERNAL_ERROR, MIME_PLAINTEXT,
-					INTERNAL_ERROR.getDescription());
+					ctx.getString(R.string.hotspot_error_web_server_serve));
 		}
 		return res;
 	}
@@ -123,7 +123,7 @@ public class WebServer extends NanoHTTPD {
 		} catch (FileNotFoundException e) {
 			logException(LOG, WARNING, e);
 			res = newFixedLengthResponse(NOT_FOUND, MIME_PLAINTEXT,
-					"Error 404, file not found.");
+					ctx.getString(R.string.hotspot_error_web_server_serve));
 		}
 		return res;
 	}

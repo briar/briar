@@ -72,8 +72,15 @@ class HotspotViewModel extends DbViewModel
 
 	@UiThread
 	void startHotspot() {
-		hotspotManager.startWifiP2pHotspot();
-		notificationManager.showHotspotNotification();
+		HotspotState s = state.getValue();
+		if (s instanceof HotspotStarted) {
+			// Don't try to start again, if already started, just re-set value.
+			// This can happen if the user navigates back to intro fragment.
+			state.setValue(s);
+		} else {
+			hotspotManager.startWifiP2pHotspot();
+			notificationManager.showHotspotNotification();
+		}
 	}
 
 	@UiThread
