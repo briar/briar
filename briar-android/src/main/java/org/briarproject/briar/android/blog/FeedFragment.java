@@ -106,9 +106,11 @@ public class FeedFragment extends BaseFragment
 		adapter.submitList(update.getItems(), () -> {
 			Boolean wasLocal = update.getPostAddedWasLocal();
 			if (wasLocal != null && wasLocal) {
-				showSnackBar(R.string.blogs_blog_post_created);
+				showSnackBar(R.string.blogs_blog_post_created, true);
+				// automatically scroll to our new post
+				list.smoothScrollToPosition(0);
 			} else if (wasLocal != null) {
-				showSnackBar(R.string.blogs_blog_post_received);
+				showSnackBar(R.string.blogs_blog_post_received, false);
 			}
 			viewModel.resetLocalUpdate();
 			list.showData();
@@ -170,12 +172,12 @@ public class FeedFragment extends BaseFragment
 		return i;
 	}
 
-	private void showSnackBar(int stringRes) {
+	private void showSnackBar(int stringRes, boolean isLocal) {
 		int firstVisible =
 				layoutManager.findFirstCompletelyVisibleItemPosition();
 		int lastVisible = layoutManager.findLastCompletelyVisibleItemPosition();
 		int count = adapter.getItemCount();
-		boolean scroll = count > (lastVisible - firstVisible + 1);
+		boolean scroll = !isLocal && count > (lastVisible - firstVisible + 1);
 
 		BriarSnackbarBuilder sb = new BriarSnackbarBuilder();
 		if (scroll) {
