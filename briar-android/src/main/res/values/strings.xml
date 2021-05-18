@@ -714,7 +714,8 @@
 	<string name="hotspot_error_start_callback_failed_unknown">Hotspot failed to start with an unknown error, reason %d</string>
 	<string name="hotspot_error_start_callback_no_group_info">Hotspot failed to start: no group info</string>
 	<string name="hotspot_error_web_server_start">Error starting web server!</string>
-	<string name="hotspot_flag_test">Warning: This is a debug app that can NOT be installed on another device</string>
+	<string name="hotspot_error_web_server_serve">Error presenting website.\n\nPlease send feedback (with anonymous data) via the Briar app if the issue persists.</string>
+	<string name="hotspot_flag_test">Warning: This app was installed with Android Studio and can NOT be installed on another device.</string>
 
 	<string name="hotspot_tab_manual">Manual</string>
 	<string name="hotspot_manual_wifi">To download the app on another phone, please connect to this Wi-Fi network:</string>

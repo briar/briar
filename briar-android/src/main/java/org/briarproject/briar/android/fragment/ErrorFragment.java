@@ -17,7 +17,7 @@ import androidx.annotation.Nullable;
 @ParametersNotNullByDefault
 public class ErrorFragment extends BaseFragment {
 
-	private static final String TAG = ErrorFragment.class.getName();
+	public static final String TAG = ErrorFragment.class.getName();
 
 	private static final String ERROR_MSG = "errorMessage";
 
