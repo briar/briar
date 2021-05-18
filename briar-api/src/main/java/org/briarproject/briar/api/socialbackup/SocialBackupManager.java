@@ -1,6 +1,5 @@
 package org.briarproject.briar.api.socialbackup;
 
-import org.briarproject.bramble.api.contact.Contact;
 import org.briarproject.bramble.api.contact.ContactId;
 import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.db.Transaction;
@@ -50,15 +49,33 @@ public interface SocialBackupManager extends
 	void createBackup(Transaction txn, List<ContactId> custodianIds,
 			int threshold) throws DbException;
 
+	/**
+	 * Returns a collection of social backup message headers
+	 */
 	@Override
 	Collection<ConversationMessageHeader> getMessageHeaders(
 			Transaction txn, ContactId contactId) throws DbException;
 
+	/**
+	 * Determines whether you hold a shard belonging to a given contact
+	 */
 	boolean amCustodian(Transaction txn, ContactId contactId);
 
-	ReturnShardPayload getReturnShardPayload(Transaction txn, ContactId contactId)
+	/**
+	 * Retrieves the shard and encrypted backup you hold for a given contact
+	 *
+	 * @throws DbException if you are not a custodian for the given contact
+	 */
+	ReturnShardPayload getReturnShardPayload(Transaction txn,
+			ContactId contactId)
 			throws DbException;
 
+	/**
+	 * Retrieves the shard and encrypted backup you hold for a given contact
+	 * encoded with BDF
+	 *
+	 * @throws DbException if you are not a custodian for the given contact
+	 */
 	byte[] getReturnShardPayloadBytes(Transaction txn, ContactId contactId)
 			throws DbException;
 }
