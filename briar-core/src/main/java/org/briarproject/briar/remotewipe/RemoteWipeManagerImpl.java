@@ -29,6 +29,7 @@ import org.briarproject.briar.api.conversation.ConversationMessageHeader;
 import org.briarproject.briar.api.conversation.DeletionResult;
 import org.briarproject.briar.api.remotewipe.MessageEncoder;
 import org.briarproject.briar.api.remotewipe.MessageParser;
+import org.briarproject.briar.api.remotewipe.RemoteWipeActivatedEvent;
 import org.briarproject.briar.api.remotewipe.RemoteWipeManager;
 import org.briarproject.briar.api.remotewipe.RemoteWipeMessageHeader;
 import org.briarproject.briar.api.remotewipe.RemoteWipeReceivedEvent;
@@ -163,6 +164,7 @@ public class RemoteWipeManagerImpl extends ConversationClientImpl
 						receivedWipeMessages.remove(i);
 					} else if (receivedWipeMessage.getLong(0).intValue() ==
 							contactId.getInt()) {
+
 						// If we already have one from this contact, ignore
 						System.out.println(
 								"Duplicate wipe message received - ignoring");
@@ -175,6 +177,8 @@ public class RemoteWipeManagerImpl extends ConversationClientImpl
 					if (observer != null) {
 						observer.onPanic();
 					}
+					txn.attach(new RemoteWipeActivatedEvent());
+
 					// we could here clear the metadata to allow us to send
 					// the wipe messages several times when testing
 				} else {
