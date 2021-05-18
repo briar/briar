@@ -278,7 +278,7 @@ class SocialBackupManagerImpl extends ConversationClientImpl
 		}
 		// Create the encrypted backup payload
 		SecretKey secret = crypto.generateSecretKey();
-		List<org.briarproject.briar.api.socialbackup.ContactData> contactData = loadContactData(txn);
+		List<ContactData> contactData = loadContactData(txn);
 		BackupPayload payload =
 				createBackupPayload(txn, secret, contactData, 0);
 		// Create the shards
@@ -422,7 +422,7 @@ class SocialBackupManagerImpl extends ConversationClientImpl
 				contactData, version);
 	}
 
-	private List<org.briarproject.briar.api.socialbackup.ContactData> loadContactData(Transaction txn)
+	private List<ContactData> loadContactData(Transaction txn)
 			throws DbException {
 		Collection<Contact> contacts = contactManager.getContacts(txn);
 		List<org.briarproject.briar.api.socialbackup.ContactData> contactData = new ArrayList<>();
