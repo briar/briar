@@ -45,6 +45,9 @@ class HotspotManager implements ActionListener {
 		@IoExecutor
 		void onHotspotStarted(NetworkConfig networkConfig);
 
+		@UiThread
+		void onDeviceConnected();
+
 		void onHotspotStopped();
 
 		void onHotspotError(String error);
@@ -216,6 +219,7 @@ class HotspotManager implements ActionListener {
 			}
 		};
 		try {
+			if (channel == null) return;
 			wifiP2pManager.requestGroupInfo(channel, groupListener);
 		} catch (SecurityException e) {
 			// this should never happen, because we request permissions before
@@ -223,6 +227,7 @@ class HotspotManager implements ActionListener {
 		}
 	}
 
+	@UiThread
 	private void onHotspotStarted(WifiP2pGroup group) {
 		DisplayMetrics dm = ctx.getResources().getDisplayMetrics();
 		ioExecutor.execute(() -> {
@@ -233,6 +238,7 @@ class HotspotManager implements ActionListener {
 					group.getPassphrase(), qrCode);
 			listener.onHotspotStarted(config);
 		});
+		requestGroupInfoForConnection();
 	}
 
 	private boolean isGroupValid(@Nullable WifiP2pGroup group) {
@@ -265,6 +271,30 @@ class HotspotManager implements ActionListener {
 		} else {
 			releaseHotspotWithError(ctx.getString(
 					R.string.hotspot_error_start_callback_no_group_info));
+		}
+	}
+
+	@UiThread
+	private void requestGroupInfoForConnection() {
+		if (LOG.isLoggable(INFO)) {
+			LOG.info("requestGroupInfo for connection");
+		}
+		GroupInfoListener groupListener = group -> {
+			if (group == null || group.getClientList().isEmpty()) {
+				handler.postDelayed(this::requestGroupInfoForConnection,
+						RETRY_DELAY_MILLIS);
+			} else {
+				if (LOG.isLoggable(INFO)) {
+					LOG.info("client list " + group.getClientList());
+				}
+				listener.onDeviceConnected();
+			}
+		};
+		try {
+			if (channel == null) return;
+			wifiP2pManager.requestGroupInfo(channel, groupListener);
+		} catch (SecurityException e) {
+			throw new AssertionError(e);
 		}
 	}
 
