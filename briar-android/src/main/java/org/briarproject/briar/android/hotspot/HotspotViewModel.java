@@ -17,6 +17,8 @@ import org.briarproject.briar.android.hotspot.HotspotState.StartingHotspot;
 import org.briarproject.briar.android.hotspot.HotspotState.WebsiteConfig;
 import org.briarproject.briar.android.hotspot.WebServerManager.WebServerListener;
 import org.briarproject.briar.android.viewmodel.DbViewModel;
+import org.briarproject.briar.android.viewmodel.LiveEvent;
+import org.briarproject.briar.android.viewmodel.MutableLiveEvent;
 import org.briarproject.briar.api.android.AndroidNotificationManager;
 
 import java.security.SecureRandom;
@@ -47,6 +49,8 @@ class HotspotViewModel extends DbViewModel
 
 	private final MutableLiveData<HotspotState> state =
 			new MutableLiveData<>();
+	private final MutableLiveEvent<Boolean> peerConnected =
+			new MutableLiveEvent<>();
 
 	@Nullable
 	// Field to temporarily store the network config received via onHotspotStarted()
@@ -109,6 +113,12 @@ class HotspotViewModel extends DbViewModel
 		webServerManager.startWebServer();
 	}
 
+	@UiThread
+	@Override
+	public void onDeviceConnected() {
+		peerConnected.setEvent(true);
+	}
+
 	@Override
 	public void onHotspotStopped() {
 		LOG.info("stopping webserver");
@@ -139,6 +149,10 @@ class HotspotViewModel extends DbViewModel
 
 	LiveData<HotspotState> getState() {
 		return state;
+	}
+
+	LiveEvent<Boolean> getPeerConnectedEvent() {
+		return peerConnected;
 	}
 
 }
