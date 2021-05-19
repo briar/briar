@@ -698,6 +698,7 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 		Connection txn = db.startTransaction();
 
 		// Initially there should be no transport keys in the database
+		assertFalse(db.containsTransportKeys(txn, contactId, transportId));
 		assertEquals(emptyList(), db.getTransportKeys(txn, transportId));
 		assertTrue(db.getTransportsWithKeys(txn).isEmpty());
 
@@ -710,6 +711,7 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 		assertEquals(keySetId1, db.addTransportKeys(txn, contactId, keys1));
 
 		// Retrieve the transport keys
+		assertTrue(db.containsTransportKeys(txn, contactId, transportId));
 		Collection<TransportKeySet> allKeys =
 				db.getTransportKeys(txn, transportId);
 		assertEquals(2, allKeys.size());
@@ -735,6 +737,7 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 				null, updated1));
 
 		// Retrieve the transport keys again
+		assertTrue(db.containsTransportKeys(txn, contactId, transportId));
 		allKeys = db.getTransportKeys(txn, transportId);
 		assertEquals(2, allKeys.size());
 		for (TransportKeySet ks : allKeys) {
@@ -751,6 +754,7 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 
 		// Removing the contact should remove the transport keys
 		db.removeContact(txn, contactId);
+		assertFalse(db.containsTransportKeys(txn, contactId, transportId));
 		assertEquals(emptyList(), db.getTransportKeys(txn, transportId));
 		assertTrue(db.getTransportsWithKeys(txn).isEmpty());
 
