@@ -721,6 +721,8 @@
 	<string name="hotspot_manual_wifi">To download the app on another phone, please connect to this Wi-Fi network:</string>
 	<string name="hotspot_manual_wifi_ssid">Network name (SSID)</string>
 	<string name="hotspot_manual_wifi_alt">Instead of adding the network manually, you can also scan a QR code.</string>
+	<string name="hotspot_peer_connected">Successfully connected</string>
+	<string name="hotspot_peer_connected_action">Show download info</string>
 	<string name="hotspot_manual_site">After you are connected to the Wi-Fi, carefully enter this address in your browser.</string>
 	<string name="hotspot_manual_site_address">Address (URL)</string>
 	<string name="hotspot_manual_site_alt">Instead of typing the address manually, you can also scan a QR code.</string>
