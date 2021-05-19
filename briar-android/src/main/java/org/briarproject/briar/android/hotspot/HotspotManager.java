@@ -21,8 +21,8 @@ import java.util.concurrent.Executor;
 import java.util.logging.Logger;
 
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import androidx.annotation.UiThread;
+import androidx.lifecycle.LiveData;
 
 import static android.content.Context.WIFI_P2P_SERVICE;
 import static android.content.Context.WIFI_SERVICE;
@@ -34,8 +34,10 @@ import static android.net.wifi.p2p.WifiP2pManager.ERROR;
 import static android.net.wifi.p2p.WifiP2pManager.NO_SERVICE_REQUESTS;
 import static android.net.wifi.p2p.WifiP2pManager.P2P_UNSUPPORTED;
 import static android.os.Build.VERSION.SDK_INT;
+import static java.util.Objects.requireNonNull;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Logger.getLogger;
+import static org.briarproject.briar.android.util.UiUtils.observeForeverOnce;
 
 class HotspotManager implements ActionListener {
 
@@ -61,25 +63,22 @@ class HotspotManager implements ActionListener {
 	private final Context ctx;
 	@IoExecutor
 	private final Executor ioExecutor;
-	private final SecureRandom random;
+	private final LiveData<NetworkConfig> savedNetworkConfig;
 	private final HotspotListener listener;
 	private final WifiManager wifiManager;
 	private final WifiP2pManager wifiP2pManager;
 	private final Handler handler;
 	private final String lockTag;
 
-	@Nullable
-	// on API < 29 this is null because we cannot request a custom network name
-	private String networkName = null;
-
 	private WifiManager.WifiLock wifiLock;
 	private WifiP2pManager.Channel channel;
 
 	HotspotManager(Context ctx, @IoExecutor Executor ioExecutor,
-			SecureRandom random, HotspotListener listener) {
+			LiveData<NetworkConfig> savedNetworkConfig,
+			HotspotListener listener) {
 		this.ctx = ctx;
 		this.ioExecutor = ioExecutor;
-		this.random = random;
+		this.savedNetworkConfig = savedNetworkConfig;
 		this.listener = listener;
 		wifiManager = (WifiManager) ctx.getApplicationContext()
 				.getSystemService(WIFI_SERVICE);
@@ -106,14 +105,14 @@ class HotspotManager implements ActionListener {
 		acquireLock();
 		try {
 			if (SDK_INT >= 29) {
-				networkName = getNetworkName();
-				String passphrase = getPassphrase();
-				WifiP2pConfig config = new WifiP2pConfig.Builder()
-						.setGroupOperatingBand(GROUP_OWNER_BAND_2GHZ)
-						.setNetworkName(networkName)
-						.setPassphrase(passphrase)
-						.build();
-				wifiP2pManager.createGroup(channel, config, this);
+				observeForeverOnce(savedNetworkConfig, c -> {
+					WifiP2pConfig config = new WifiP2pConfig.Builder()
+							.setGroupOperatingBand(GROUP_OWNER_BAND_2GHZ)
+							.setNetworkName(c.ssid)
+							.setPassphrase(c.password)
+							.build();
+					wifiP2pManager.createGroup(channel, config, this);
+				});
 			} else {
 				wifiP2pManager.createGroup(channel, this);
 			}
@@ -152,16 +151,6 @@ class HotspotManager implements ActionListener {
 					R.string.hotspot_error_start_callback_failed_unknown,
 					reason));
 		}
-	}
-
-	@RequiresApi(29)
-	private String getNetworkName() {
-		return "DIRECT-" + getRandomString(2) + "-" +
-				getRandomString(10);
-	}
-
-	private String getPassphrase() {
-		return getRandomString(8);
 	}
 
 	void stopWifiP2pHotspot() {
@@ -251,13 +240,17 @@ class HotspotManager implements ActionListener {
 						group.getNetworkName());
 			}
 			return false;
-		} else if (networkName != null &&
-				!networkName.equals(group.getNetworkName())) {
-			if (LOG.isLoggable(INFO)) {
-				LOG.info("expected networkName: " + networkName);
-				LOG.info("received networkName: " + group.getNetworkName());
+		} else if (SDK_INT >= 29) {
+			// if we get here, the savedNetworkConfig must have a value
+			String networkName =
+					requireNonNull(savedNetworkConfig.getValue()).ssid;
+			if (!networkName.equals(group.getNetworkName())) {
+				if (LOG.isLoggable(INFO)) {
+					LOG.info("expected networkName: " + networkName);
+					LOG.info("received networkName: " + group.getNetworkName());
+				}
+				return false;
 			}
-			return false;
 		}
 		return true;
 	}
@@ -304,26 +297,31 @@ class HotspotManager implements ActionListener {
 		return "WIFI:S:" + ssid + ";T:WPA;P:" + password + ";;";
 	}
 
+	static String getSsid(SecureRandom random) {
+		return "DIRECT-" + getRandomString(random, 2) + "-" +
+				getRandomString(random, 10);
+	}
+
+	static String getPassword(SecureRandom random) {
+		return getRandomString(random, 8);
+	}
+
 	private static final String digits = "123456789"; // avoid 0
 	private static final String letters = "abcdefghijkmnopqrstuvwxyz"; // no l
 	private static final String LETTERS = "ABCDEFGHJKLMNPQRSTUVWXYZ"; // no I, O
 
-	private String getRandomString(int length) {
+	private static String getRandomString(SecureRandom random, int length) {
 		char[] c = new char[length];
 		for (int i = 0; i < length; i++) {
 			if (random.nextBoolean()) {
-				c[i] = random(digits);
+				c[i] = digits.charAt(random.nextInt(digits.length()));
 			} else if (random.nextBoolean()) {
-				c[i] = random(letters);
+				c[i] = letters.charAt(random.nextInt(letters.length()));
 			} else {
-				c[i] = random(LETTERS);
+				c[i] = LETTERS.charAt(random.nextInt(LETTERS.length()));
 			}
 		}
 		return new String(c);
-	}
-
-	private char random(String universe) {
-		return universe.charAt(random.nextInt(universe.length()));
 	}
 
 }

@@ -22,4 +22,11 @@ public interface SettingsManager {
 	 * namespace.
 	 */
 	void mergeSettings(Settings s, String namespace) throws DbException;
+
+	/**
+	 * Merges the given settings with any existing settings in the given
+	 * namespace.
+	 */
+	void mergeSettings(Transaction txn, Settings s, String namespace)
+			throws DbException;
 }
