@@ -26,7 +26,10 @@
   <string name="setup_huawei_app_launch_button">ဘက်ထရီအပြင်အဆင်များကို ဖွင့်ပါ</string>
   <string name="setup_huawei_app_launch_help">Briar ကို \"အပ္ပလီကေးရှင်း ဖွင့်ရန်\" စကင်ရင်ပေါ်တွင် \"ကိုယ်တိုင်စီမံမယ်\" လို့မသတ်မှတ်ထားလျှင် နောက်ခံတွင် ၎င်းကို လည်ပတ်၍ မရနိုင်ပါ။</string>
   <string name="setup_xiaomi_text">နောက်ခံတွင်အလုပ်လုပ်စေရန် လတ်တလောအက်ပလီကေးရှင်းများစာရင်းတွင် Briar အား သော့ခတ်ထားရန် လိုအပ်သည်။</string>
-  <string name="setup_xiaomi_button">Briar ကို ကာကွယ်မည်</string>
+  <string name="setup_xiaomi_button">Briar ကို ကာကွယ်ပါ</string>
+  <string name="setup_xiaomi_help">အကယ်၍ Briar ကို သော့မခတ်ထားပါက၊ ထိုအက်ပလီကေးရှင်းသည် နောက်ခံတွင် အလုပ်လုပ်နေနိုင်မည် မဟုတ်ပါ။</string>
+  <string name="setup_xiaomi_dialog_body_old">၁။ လတ်တလောအက်ပ်များစာရင်းကိုဖွင့်ပါ (ဒါ့အပြင် app switcher လို့လည်းခေါ်ပါသည်) \n\n2. သော့ခလောက်အိုင်ကွန်ကို \n\n3. ပြသရန် Briar ၏ပုံကို အောက်ကိုတွန်းပါ။ </string>
+  <string name="setup_xiaomi_dialog_body_new">၁။ လတ်တလော အက်ပလီကေးရှင်းများစာရင်း (ဒါ့အပြင် အက်ပလီကေးရှင်းခလုတ်ဟုလည်းခေါ်သည်) ကိုလည်းဖွင့်ပါ \n\n2 ။ အဆိုပါသော့ခလောက်ခလုတ်မှ \n\n3 ပေါ်လာသည်အထိ Briar ၏ ပုံကို နှိပ်၍ ဖိထားပါ။ အကယ်၍ သော့ခလောက်သည် သော့ခတ်ထားခြင်းမရှိပါက ၎င်းကိုသော့ခတ်ရန် ပွတ်ဆွဲပါ။ </string>
   <string name="warning_dozed">%s ကို နောက်ကွယ်တွင် မဖွင့်ထားနိုင်ပါ</string>
   <!--Login-->
   <string name="enter_password">စကားဝှက်</string>
@@ -447,6 +450,7 @@
   <string name="blogs_rss_feeds_import_button">တင်သွင်းမယ်</string>
   <string name="blogs_rss_feeds_import_hint">RSS သတင်းပို့စ်အလွှာ၏ URL ရိုက်ထည့်ပေးပါ</string>
   <string name="blogs_rss_feeds_import_error">ဝမ်းနည်းပါသည်! သင့် သတင်းပို့စ်အလွှာအား တင်သွင်းရာတွင် ပျက်ကွက်မှု ဖြစ်ခဲ့ပါသည်။</string>
+  <string name="blogs_rss_feeds_import_exists">Feed ကို တင်ပို့ပြီး ဖြစ်သည်။</string>
   <string name="blogs_rss_feeds">RSS သတင်းလွှာများ</string>
   <string name="blogs_rss_feeds_manage_imported">တင်သွင်းထားသော</string>
   <string name="blogs_rss_feeds_manage_author">စာရေးဆရာ -</string>
