@@ -53,6 +53,7 @@ import org.briarproject.briar.android.contact.add.nearby.AddContactState.Contact
 import org.briarproject.briar.android.contact.add.nearby.AddContactState.KeyAgreementListening;
 import org.briarproject.briar.android.contact.add.nearby.AddContactState.KeyAgreementStarted;
 import org.briarproject.briar.android.contact.add.nearby.AddContactState.KeyAgreementWaiting;
+import org.briarproject.briar.android.util.QrCodeUtils;
 import org.briarproject.briar.android.viewmodel.LiveEvent;
 import org.briarproject.briar.android.viewmodel.MutableLiveEvent;
 

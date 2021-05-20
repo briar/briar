@@ -28,6 +28,7 @@ import androidx.viewpager2.widget.ViewPager2;
 
 import static androidx.core.app.ActivityCompat.finishAfterTransition;
 import static org.briarproject.briar.android.AppModule.getAndroidComponent;
+import static org.briarproject.briar.android.util.UiUtils.showFragment;
 
 @MethodsNotNullByDefault
 @ParametersNotNullByDefault
@@ -95,15 +96,9 @@ public abstract class AbstractTabsFragment extends Fragment {
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		if (item.getItemId() == R.id.action_help) {
-			getParentFragmentManager().beginTransaction()
-					.setCustomAnimations(R.anim.step_next_in,
-							R.anim.step_previous_out,
-							R.anim.step_previous_in,
-							R.anim.step_next_out)
-					.replace(R.id.fragmentContainer, new HotspotHelpFragment(),
-							HotspotHelpFragment.TAG)
-					.addToBackStack(HotspotHelpFragment.TAG)
-					.commit();
+			Fragment f = new HotspotHelpFragment();
+			String tag = HotspotHelpFragment.TAG;
+			showFragment(getParentFragmentManager(), f, tag);
 			return true;
 		}
 		return super.onOptionsItemSelected(item);
