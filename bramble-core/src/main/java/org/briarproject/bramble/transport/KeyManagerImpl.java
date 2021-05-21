@@ -51,7 +51,6 @@ class KeyManagerImpl implements KeyManager, Service, EventListener {
 	private final DatabaseComponent db;
 	private final Executor dbExecutor;
 	private final PluginConfig pluginConfig;
-	private final TransportKeyManagerFactory transportKeyManagerFactory;
 	private final TransportCrypto transportCrypto;
 
 	private final ConcurrentHashMap<TransportId, TransportKeyManager> managers;
@@ -61,34 +60,39 @@ class KeyManagerImpl implements KeyManager, Service, EventListener {
 	KeyManagerImpl(DatabaseComponent db,
 			@DatabaseExecutor Executor dbExecutor,
 			PluginConfig pluginConfig,
-			TransportKeyManagerFactory transportKeyManagerFactory,
-			TransportCrypto transportCrypto) {
+			TransportCrypto transportCrypto,
+			TransportKeyManagerFactory transportKeyManagerFactory) {
 		this.db = db;
 		this.dbExecutor = dbExecutor;
 		this.pluginConfig = pluginConfig;
-		this.transportKeyManagerFactory = transportKeyManagerFactory;
 		this.transportCrypto = transportCrypto;
 		managers = new ConcurrentHashMap<>();
+		for (SimplexPluginFactory f : pluginConfig.getSimplexFactories()) {
+			TransportKeyManager m = transportKeyManagerFactory.
+					createTransportKeyManager(f.getId(), f.getMaxLatency());
+			managers.put(f.getId(), m);
+		}
+		for (DuplexPluginFactory f : pluginConfig.getDuplexFactories()) {
+			TransportKeyManager m = transportKeyManagerFactory.
+					createTransportKeyManager(f.getId(), f.getMaxLatency());
+			managers.put(f.getId(), m);
+		}
 	}
 
 	@Override
 	public void startService() throws ServiceException {
 		if (used.getAndSet(true)) throw new IllegalStateException();
-		Map<TransportId, Integer> transports = new HashMap<>();
-		for (SimplexPluginFactory f : pluginConfig.getSimplexFactories())
-			transports.put(f.getId(), f.getMaxLatency());
-		for (DuplexPluginFactory f : pluginConfig.getDuplexFactories())
-			transports.put(f.getId(), f.getMaxLatency());
 		try {
 			db.transaction(false, txn -> {
-				for (Entry<TransportId, Integer> e : transports.entrySet())
-					db.addTransport(txn, e.getKey(), e.getValue());
-				for (Entry<TransportId, Integer> e : transports.entrySet()) {
-					TransportKeyManager m = transportKeyManagerFactory
-							.createTransportKeyManager(e.getKey(),
-									e.getValue());
-					managers.put(e.getKey(), m);
-					m.start(txn);
+				for (SimplexPluginFactory f :
+						pluginConfig.getSimplexFactories()) {
+					db.addTransport(txn, f.getId(), f.getMaxLatency());
+					managers.get(f.getId()).start(txn);
+				}
+				for (DuplexPluginFactory f :
+						pluginConfig.getDuplexFactories()) {
+					db.addTransport(txn, f.getId(), f.getMaxLatency());
+					managers.get(f.getId()).start(txn);
 				}
 			});
 		} catch (DbException e) {
