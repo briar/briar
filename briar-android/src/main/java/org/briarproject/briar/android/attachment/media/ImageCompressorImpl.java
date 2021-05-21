@@ -12,7 +12,7 @@ import java.util.logging.Logger;
 
 import javax.inject.Inject;
 
-import static android.graphics.Bitmap.CompressFormat.JPEG;
+import static android.graphics.Bitmap.CompressFormat.WEBP;
 import static android.graphics.BitmapFactory.decodeStream;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
@@ -50,7 +50,7 @@ class ImageCompressorImpl implements ImageCompressor {
 	public InputStream compressImage(Bitmap bitmap) throws IOException {
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 		for (int quality = 100; quality >= 0; quality -= 10) {
-			if (!bitmap.compress(JPEG, quality, out))
+			if (!bitmap.compress(WEBP, quality, out))
 				throw new IOException();
 			if (out.size() <= MAX_IMAGE_SIZE) {
 				if (LOG.isLoggable(INFO)) {

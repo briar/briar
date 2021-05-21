@@ -102,12 +102,10 @@ class AttachmentCreationTask {
 		}
 		InputStream is = contentResolver.openInputStream(uri);
 		if (is == null) throw new IOException();
-		is = imageCompressor
-				.compressImage(is, contentType);
+		is = imageCompressor.compressImage(is, contentType);
 		long timestamp = System.currentTimeMillis();
-		AttachmentHeader h = messagingManager
-				.addLocalAttachment(groupId, timestamp,
-						ImageCompressor.MIME_TYPE, is);
+		AttachmentHeader h = messagingManager.addLocalAttachment(groupId,
+				timestamp, ImageCompressor.MIME_TYPE, is);
 		tryToClose(is, LOG, WARNING);
 		logDuration(LOG, "Storing attachment", start);
 		return h;

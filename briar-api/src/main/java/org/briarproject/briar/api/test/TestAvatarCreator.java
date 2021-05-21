@@ -6,6 +6,9 @@ import java.io.InputStream;
 import javax.annotation.Nullable;
 
 public interface TestAvatarCreator {
+
+	String MIME_TYPE = "image/webp";
+
 	@Nullable
 	InputStream getAvatarInputStream() throws IOException;
 }

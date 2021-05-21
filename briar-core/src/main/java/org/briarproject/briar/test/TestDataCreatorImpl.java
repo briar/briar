@@ -316,7 +316,7 @@ public class TestDataCreatorImpl implements TestDataCreator {
 		Message m;
 		try {
 			m = avatarMessageEncoder.encodeUpdateMessage(groupId, 0,
-					"image/jpeg", is).getFirst();
+					TestAvatarCreator.MIME_TYPE, is).getFirst();
 		} catch (IOException e) {
 			throw new DbException(e);
 		}

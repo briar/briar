@@ -11,7 +11,7 @@ public interface ImageCompressor {
 	/**
 	 * The MIME type of compressed images
 	 */
-	String MIME_TYPE = "image/jpeg";
+	String MIME_TYPE = "image/webp";
 
 	/**
 	 * Load an image from {@code is}, compress it and return an InputStream
