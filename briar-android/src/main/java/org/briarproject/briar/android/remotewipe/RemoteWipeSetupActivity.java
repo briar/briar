@@ -63,8 +63,9 @@ public class RemoteWipeSetupActivity extends BriarActivity implements
 			showNextFragment(new RemoteWipeSuccessFragment());
 		} else if (state.equals(RemoteWipeSetupState.FAILED)) {
 			Toast.makeText(this,
-					"Failed",
-					Toast.LENGTH_SHORT).show();
+					R.string.remote_wipe_setup_failed,
+					Toast.LENGTH_LONG).show();
+			finish();
 		} else if (state.equals(RemoteWipeSetupState.FINISHED)) {
 			finish();
 		}

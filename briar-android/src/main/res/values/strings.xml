@@ -734,6 +734,7 @@
 
 	<!-- setup -->
 	<string name="remote_wipe_setup_success">Remote wipe is set up</string>
+	<string name="remote_wipe_setup_failed">Failed to set up remote wipe</string>
 
 	<!-- settings menu -->
 	<string name="pref_remote_wipe_summary">Allow trusted contacts to activate an account wipe remotely</string>
