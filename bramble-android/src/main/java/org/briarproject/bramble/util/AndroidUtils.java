@@ -119,7 +119,12 @@ public class AndroidUtils {
 	 * Returns an array of supported content types for image attachments.
 	 */
 	public static String[] getSupportedImageContentTypes() {
-		return new String[] {"image/jpeg", "image/png", "image/gif"};
+		return new String[] {
+				"image/jpeg",
+				"image/png",
+				"image/gif",
+				"image/webp"
+		};
 	}
 
 	@Nullable
