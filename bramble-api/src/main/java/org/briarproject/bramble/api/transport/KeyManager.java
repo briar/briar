@@ -23,7 +23,7 @@ public interface KeyManager {
 	/**
 	 * Derives and stores a set of rotation mode transport keys for
 	 * communicating with the given contact over the given transport and
-	 * returns the key set ID.
+	 * returns the key set ID, or null if the transport is not supported.
 	 * <p/>
 	 * {@link StreamContext StreamContexts} for the contact can be created
 	 * after this method has returned.
@@ -31,6 +31,7 @@ public interface KeyManager {
 	 * @param alice True if the local party is Alice
 	 * @param active Whether the derived keys can be used for outgoing streams
 	 */
+	@Nullable
 	KeySetId addRotationKeys(Transaction txn, ContactId c, TransportId t,
 			SecretKey rootKey, long timestamp, boolean alice,
 			boolean active) throws DbException;

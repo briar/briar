@@ -25,6 +25,7 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.Random;
 
+import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
 import static java.util.Collections.singletonMap;
 import static org.briarproject.bramble.api.transport.TransportConstants.TAG_LENGTH;
@@ -71,8 +72,7 @@ public class KeyManagerImplTest extends BrambleMockTestCase {
 	private final SecretKey rootKey = getSecretKey();
 	private final Random random = new Random();
 
-	private final KeyManagerImpl keyManager = new KeyManagerImpl(db, executor,
-			pluginConfig, transportKeyManagerFactory, transportCrypto);
+	private KeyManagerImpl keyManager;
 
 	@Before
 	public void testStartService() throws Exception {
@@ -83,18 +83,25 @@ public class KeyManagerImplTest extends BrambleMockTestCase {
 				singletonList(pluginFactory);
 		int maxLatency = 1337;
 
-		context.checking(new DbExpectations() {{
-			oneOf(pluginConfig).getSimplexFactories();
+		context.checking(new Expectations() {{
+			allowing(pluginConfig).getSimplexFactories();
 			will(returnValue(factories));
-			oneOf(pluginFactory).getId();
+			allowing(pluginFactory).getId();
 			will(returnValue(transportId));
-			oneOf(pluginFactory).getMaxLatency();
+			allowing(pluginFactory).getMaxLatency();
 			will(returnValue(maxLatency));
-			oneOf(db).addTransport(txn, transportId, maxLatency);
+			allowing(pluginConfig).getDuplexFactories();
+			will(returnValue(emptyList()));
 			oneOf(transportKeyManagerFactory)
 					.createTransportKeyManager(transportId, maxLatency);
 			will(returnValue(transportKeyManager));
-			oneOf(pluginConfig).getDuplexFactories();
+		}});
+
+		keyManager = new KeyManagerImpl(db, executor,
+				pluginConfig, transportCrypto, transportKeyManagerFactory);
+
+		context.checking(new DbExpectations() {{
+			oneOf(db).addTransport(txn, transportId, maxLatency);
 			oneOf(db).transaction(with(false), withDbRunnable(txn));
 			oneOf(transportKeyManager).start(txn);
 		}});
