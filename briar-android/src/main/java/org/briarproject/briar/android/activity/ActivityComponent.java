@@ -67,6 +67,7 @@ import org.briarproject.briar.android.privategroup.reveal.RevealContactsActivity
 import org.briarproject.briar.android.privategroup.reveal.RevealContactsFragment;
 import org.briarproject.briar.android.remotewipe.RemoteWipeDisplayFragment;
 import org.briarproject.briar.android.remotewipe.RemoteWipeSetupActivity;
+import org.briarproject.briar.android.remotewipe.RemoteWipeSuccessFragment;
 import org.briarproject.briar.android.remotewipe.WiperSelectorFragment;
 import org.briarproject.briar.android.reporting.CrashFragment;
 import org.briarproject.briar.android.reporting.CrashReportActivity;
@@ -315,4 +316,6 @@ public interface ActivityComponent {
 	void inject(WiperSelectorFragment wiperSelectorFragment);
 
 	void inject(RemoteWipeDisplayFragment remoteWipeDisplayFragment);
+
+	void inject(RemoteWipeSuccessFragment remoteWipeSuccessFragment);
 }

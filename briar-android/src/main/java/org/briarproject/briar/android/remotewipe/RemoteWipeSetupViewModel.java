@@ -17,6 +17,7 @@ import java.util.List;
 import javax.inject.Inject;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.UiThread;
 import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.MutableLiveData;
 
@@ -59,7 +60,10 @@ public class RemoteWipeSetupViewModel extends AndroidViewModel {
 		return wiperNames;
 	}
 
-
+	@UiThread
+	public void onSuccessDismissed() {
+		state.postValue(RemoteWipeSetupState.FINISHED);
+	}
 
 	public void setupRemoteWipe(Collection<ContactId> wipers)
 			throws DbException, FormatException {
