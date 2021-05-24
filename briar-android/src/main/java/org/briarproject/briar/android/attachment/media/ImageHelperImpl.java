@@ -3,6 +3,8 @@ package org.briarproject.briar.android.attachment.media;
 import android.graphics.BitmapFactory;
 import android.webkit.MimeTypeMap;
 
+import com.bumptech.glide.integration.webp.WebpBitmapFactory;
+
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 
 import java.io.InputStream;
@@ -25,6 +27,10 @@ class ImageHelperImpl implements ImageHelper {
 		BitmapFactory.Options options = new BitmapFactory.Options();
 		options.inJustDecodeBounds = true;
 		BitmapFactory.decodeStream(is, null, options);
+		if (options.outWidth < 1 || options.outHeight < 1) {
+			// BitmapFactory doesn't fully support WebP on API < 17
+			WebpBitmapFactory.decodeStream(is, null, options);
+		}
 		String mimeType = options.outMimeType;
 		if (mimeType == null) mimeType = "";
 		return new DecodeResult(options.outWidth, options.outHeight,

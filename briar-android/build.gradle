@@ -121,6 +121,7 @@ dependencies {
 		exclude group: 'com.android.support'
 		exclude module: 'disklrucache' // when there's no disk cache, we can't accidentally use it
 	}
+	implementation "com.github.zjupure:webpdecoder:2.0.$glideVersion"
 
 	annotationProcessor 'com.google.dagger:dagger-compiler:2.24'
 	annotationProcessor "com.github.bumptech.glide:compiler:$glideVersion"

@@ -4,6 +4,8 @@ import android.graphics.Bitmap;
 import android.view.View;
 import android.widget.ImageView;
 
+import com.bumptech.glide.integration.webp.decoder.WebpDrawable;
+import com.bumptech.glide.integration.webp.decoder.WebpDrawableTransformation;
 import com.bumptech.glide.load.Transformation;
 
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
@@ -80,7 +82,9 @@ class ImageViewHolder extends ViewHolder {
 				.load(a.getHeader())
 				.diskCacheStrategy(NONE)
 				.error(ERROR_RES)
-				.transform(transformation)
+				.optionalTransform(transformation)
+				.optionalTransform(WebpDrawable.class,
+						new WebpDrawableTransformation(transformation))
 				.transition(withCrossFade())
 				.into(imageView)
 				.waitForLayout();
