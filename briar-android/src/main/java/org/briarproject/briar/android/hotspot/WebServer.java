@@ -2,6 +2,7 @@ package org.briarproject.briar.android.hotspot;
 
 import android.content.Context;
 
+import org.briarproject.briar.BuildConfig;
 import org.briarproject.briar.R;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -77,10 +78,13 @@ public class WebServer extends NanoHTTPD {
 		}
 		String app = ctx.getString(R.string.app_name);
 		String appV = app + " " + VERSION_NAME;
+		String filename = "briar" + (BuildConfig.DEBUG ? "-debug-" : "-") +
+				VERSION_NAME + ".apk";
 		doc.select("#download_title").first()
 				.text(ctx.getString(R.string.website_download_title, appV));
 		doc.select("#download_intro").first()
 				.text(ctx.getString(R.string.website_download_intro, app));
+		doc.select(".button").first().attr("href", filename);
 		doc.select("#download_button").first()
 				.text(ctx.getString(R.string.website_download_title, app));
 		doc.select("#download_outro").first()
