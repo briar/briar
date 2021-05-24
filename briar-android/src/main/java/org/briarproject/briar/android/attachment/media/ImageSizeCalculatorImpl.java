@@ -21,6 +21,7 @@ import static androidx.exifinterface.media.ExifInterface.TAG_ORIENTATION;
 import static java.util.logging.Level.WARNING;
 import static java.util.logging.Logger.getLogger;
 import static org.briarproject.bramble.util.LogUtils.logException;
+import static org.briarproject.bramble.util.StringUtils.isNullOrEmpty;
 
 @NotNullByDefault
 class ImageSizeCalculatorImpl implements ImageSizeCalculator {
@@ -60,6 +61,10 @@ class ImageSizeCalculatorImpl implements ImageSizeCalculator {
 			} catch (IOException e) {
 				logException(LOG, WARNING, e);
 			}
+		}
+		if (!size.hasError() && isNullOrEmpty(size.getMimeType())) {
+			LOG.info("Could not determine content type, using supplied type");
+			size = new Size(size.getWidth(), size.getHeight(), contentType);
 		}
 		return size;
 	}

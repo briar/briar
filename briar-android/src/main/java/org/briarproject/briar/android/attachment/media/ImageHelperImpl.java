@@ -34,6 +34,7 @@ class ImageHelperImpl implements ImageHelper {
 	@Nullable
 	@Override
 	public String getExtensionFromMimeType(String mimeType) {
+		if ("image/webp".equals(mimeType)) return "webp";
 		MimeTypeMap mimeTypeMap = MimeTypeMap.getSingleton();
 		return mimeTypeMap.getExtensionFromMimeType(mimeType);
 	}
