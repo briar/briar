@@ -3,7 +3,6 @@ package org.briarproject.briar.android.hotspot;
 import android.content.Context;
 
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
-import org.briarproject.briar.BuildConfig;
 import org.briarproject.briar.R;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -29,6 +28,7 @@ import static java.util.logging.Level.WARNING;
 import static java.util.logging.Logger.getLogger;
 import static org.briarproject.bramble.util.LogUtils.logException;
 import static org.briarproject.briar.BuildConfig.VERSION_NAME;
+import static org.briarproject.briar.android.hotspot.HotspotViewModel.getApkFileName;
 
 @NotNullByDefault
 class WebServer extends NanoHTTPD {
@@ -80,8 +80,7 @@ class WebServer extends NanoHTTPD {
 		}
 		String app = ctx.getString(R.string.app_name);
 		String appV = app + " " + VERSION_NAME;
-		String filename = "briar" + (BuildConfig.DEBUG ? "-debug-" : "-") +
-				VERSION_NAME + ".apk";
+		String filename = getApkFileName();
 		doc.select("#download_title").first()
 				.text(ctx.getString(R.string.website_download_title, appV));
 		doc.select("#download_intro").first()
