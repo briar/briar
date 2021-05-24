@@ -108,6 +108,49 @@
 			app:layout_constraintStart_toStartOf="parent"
 			app:layout_constraintTop_toBottomOf="@+id/site3View" />
 
+		<TextView
+			android:id="@+id/fallbackTitleView"
+			android:layout_width="0dp"
+			android:layout_height="wrap_content"
+			android:layout_marginTop="32dp"
+			android:text="@string/hotspot_help_fallback_title"
+			android:textSize="16sp"
+			app:layout_constraintEnd_toEndOf="parent"
+			app:layout_constraintStart_toStartOf="parent"
+			app:layout_constraintTop_toBottomOf="@+id/site4View" />
+
+		<TextView
+			android:id="@+id/fallbackIntroView"
+			android:layout_width="0dp"
+			android:layout_height="wrap_content"
+			android:layout_marginTop="6dp"
+			android:text="@string/hotspot_help_fallback_intro"
+			app:layout_constraintEnd_toEndOf="parent"
+			app:layout_constraintStart_toStartOf="parent"
+			app:layout_constraintTop_toBottomOf="@+id/fallbackTitleView" />
+
+		<Button
+			android:id="@+id/fallbackButton"
+			style="@style/BriarButton"
+			android:layout_width="0dp"
+			android:layout_height="wrap_content"
+			android:layout_margin="16dp"
+			android:text="@string/hotspot_help_fallback_button"
+			app:layout_constraintEnd_toEndOf="parent"
+			app:layout_constraintStart_toStartOf="parent"
+			app:layout_constraintTop_toBottomOf="@+id/fallbackIntroView" />
+
+		<ProgressBar
+			android:id="@+id/progressBar"
+			style="?android:progressBarStyle"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:visibility="invisible"
+			app:layout_constraintBottom_toBottomOf="@+id/fallbackButton"
+			app:layout_constraintEnd_toEndOf="parent"
+			app:layout_constraintStart_toStartOf="parent"
+			app:layout_constraintTop_toTopOf="@+id/fallbackButton" />
+
 	</androidx.constraintlayout.widget.ConstraintLayout>
 
 </ScrollView>

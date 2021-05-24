@@ -37,6 +37,7 @@ import org.briarproject.briar.android.attachment.AttachmentModule;
 import org.briarproject.briar.android.attachment.media.MediaModule;
 import org.briarproject.briar.android.conversation.glide.BriarModelLoader;
 import org.briarproject.briar.android.hotspot.AbstractTabsFragment;
+import org.briarproject.briar.android.hotspot.HotspotHelpFragment;
 import org.briarproject.briar.android.hotspot.HotspotIntroFragment;
 import org.briarproject.briar.android.hotspot.ManualHotspotFragment;
 import org.briarproject.briar.android.hotspot.QrHotspotFragment;
@@ -227,6 +228,8 @@ public interface AndroidComponent
 	void inject(QrHotspotFragment qrHotspotFragment);
 
 	void inject(ManualHotspotFragment manualHotspotFragment);
+
+	void inject(HotspotHelpFragment hotspotHelpFragment);
 
 	void inject(ChooserFragment chooserFragment);
 

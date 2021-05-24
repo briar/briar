@@ -746,6 +746,10 @@
 	<string name="hotspot_help_site_2">Ensure that your phone is still connected to the correct Wi-Fi (see above) when you try to access the site.</string>
 	<string name="hotspot_help_site_3">Check that you don\'t have any active firewall apps that may block the access.</string>
 	<string name="hotspot_help_site_4">If you can visit the site, but not download the Briar app, try it with a different web browser app.</string>
+	<string name="hotspot_help_fallback_title">Nothing works?</string>
+	<string name="hotspot_help_fallback_intro">You can try to save the app as an .apk file to share in some other way. Once on the other device, it can be used to install Briar.
+		\n\nTip: For sharing via Bluetooth, you might need to rename the file to end with .zip first.</string>
+	<string name="hotspot_help_fallback_button">Save app install file</string>
 
 
 	<!-- Transfer Data via Removable Drives -->
