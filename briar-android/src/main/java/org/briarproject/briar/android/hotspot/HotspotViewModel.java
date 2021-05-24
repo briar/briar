@@ -1,6 +1,7 @@
 package org.briarproject.briar.android.hotspot;
 
 import android.app.Application;
+import android.net.Uri;
 
 import org.briarproject.bramble.api.db.DatabaseExecutor;
 import org.briarproject.bramble.api.db.TransactionManager;
@@ -21,6 +22,12 @@ import org.briarproject.briar.android.viewmodel.LiveEvent;
 import org.briarproject.briar.android.viewmodel.MutableLiveEvent;
 import org.briarproject.briar.api.android.AndroidNotificationManager;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
 import java.util.concurrent.Executor;
 import java.util.logging.Logger;
 
@@ -31,8 +38,14 @@ import androidx.annotation.UiThread;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
+import static android.os.Build.VERSION.SDK_INT;
+import static android.os.Environment.DIRECTORY_DOWNLOADS;
+import static android.os.Environment.getExternalStoragePublicDirectory;
 import static java.util.Objects.requireNonNull;
 import static java.util.logging.Logger.getLogger;
+import static org.briarproject.bramble.util.IoUtils.copyAndClose;
+import static org.briarproject.briar.BuildConfig.DEBUG;
+import static org.briarproject.briar.BuildConfig.VERSION_NAME;
 
 @NotNullByDefault
 class HotspotViewModel extends DbViewModel
@@ -50,6 +63,8 @@ class HotspotViewModel extends DbViewModel
 	private final MutableLiveData<HotspotState> state =
 			new MutableLiveData<>();
 	private final MutableLiveEvent<Boolean> peerConnected =
+			new MutableLiveEvent<>();
+	private final MutableLiveEvent<Uri> savedApkToUri =
 			new MutableLiveEvent<>();
 
 	@Nullable
@@ -150,12 +165,58 @@ class HotspotViewModel extends DbViewModel
 		hotspotManager.stopWifiP2pHotspot();
 	}
 
+	void exportApk(Uri uri) {
+		if (SDK_INT < 19) throw new IllegalStateException();
+		try {
+			OutputStream out = getApplication().getContentResolver()
+					.openOutputStream(uri, "wt");
+			writeApk(out, uri);
+		} catch (FileNotFoundException e) {
+			handleException(e);
+		}
+	}
+
+	void exportApk() {
+		if (SDK_INT >= 19) throw new IllegalStateException();
+		File path = getExternalStoragePublicDirectory(DIRECTORY_DOWNLOADS);
+		//noinspection ResultOfMethodCallIgnored
+		path.mkdirs();
+		File file = new File(path, getApkFileName());
+		try {
+			OutputStream out = new FileOutputStream(file);
+			writeApk(out, Uri.fromFile(file));
+		} catch (FileNotFoundException e) {
+			handleException(e);
+		}
+	}
+
+	static String getApkFileName() {
+		return "briar" + (DEBUG ? "-debug-" : "-") + VERSION_NAME + ".apk";
+	}
+
+	private void writeApk(OutputStream out, Uri uriToShare) {
+		File apk = new File(getApplication().getPackageCodePath());
+		ioExecutor.execute(() -> {
+			try {
+				FileInputStream in = new FileInputStream(apk);
+				copyAndClose(in, out);
+				savedApkToUri.postEvent(uriToShare);
+			} catch (IOException e) {
+				handleException(e);
+			}
+		});
+	}
+
 	LiveData<HotspotState> getState() {
 		return state;
 	}
 
 	LiveEvent<Boolean> getPeerConnectedEvent() {
 		return peerConnected;
+	}
+
+	LiveEvent<Uri> getSavedApkToUri() {
+		return savedApkToUri;
 	}
 
 }
