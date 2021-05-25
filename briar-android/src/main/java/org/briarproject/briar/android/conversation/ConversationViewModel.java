@@ -40,6 +40,7 @@ import org.briarproject.briar.api.messaging.PrivateMessage;
 import org.briarproject.briar.api.messaging.PrivateMessageFactory;
 import org.briarproject.briar.api.messaging.PrivateMessageHeader;
 import org.briarproject.briar.api.messaging.event.AttachmentReceivedEvent;
+import org.briarproject.briar.api.remotewipe.RemoteWipeManager;
 
 import java.util.Collection;
 import java.util.List;
@@ -84,6 +85,7 @@ public class ConversationViewModel extends DbViewModel
 	private final PrivateMessageFactory privateMessageFactory;
 	private final AttachmentRetriever attachmentRetriever;
 	private final AttachmentCreator attachmentCreator;
+	private final RemoteWipeManager remoteWipeManager;
 
 	@Nullable
 	private ContactId contactId = null;
@@ -104,6 +106,7 @@ public class ConversationViewModel extends DbViewModel
 			new MutableLiveData<>();
 	private final MutableLiveEvent<PrivateMessageHeader> addedHeader =
 			new MutableLiveEvent<>();
+	private final MutableLiveData<Boolean> amRemoteWiper = new MutableLiveData<>();
 
 	@Inject
 	ConversationViewModel(Application application,
@@ -118,6 +121,7 @@ public class ConversationViewModel extends DbViewModel
 			SettingsManager settingsManager,
 			PrivateMessageFactory privateMessageFactory,
 			AttachmentRetriever attachmentRetriever,
+			RemoteWipeManager remoteWipeManager,
 			AttachmentCreator attachmentCreator) {
 		super(application, dbExecutor, lifecycleManager, db, androidExecutor);
 		this.db = db;
@@ -129,6 +133,7 @@ public class ConversationViewModel extends DbViewModel
 		this.privateMessageFactory = privateMessageFactory;
 		this.attachmentRetriever = attachmentRetriever;
 		this.attachmentCreator = attachmentCreator;
+		this.remoteWipeManager = remoteWipeManager;
 		messagingGroupId = map(contactItem, c ->
 				messagingManager.getContactGroup(c.getContact()).getId());
 		contactDeleted.setValue(false);
@@ -296,6 +301,11 @@ public class ConversationViewModel extends DbViewModel
 			onOnboardingShown(SHOW_ONBOARDING_INTRODUCTION);
 			showIntroductionOnboarding.postEvent(true);
 		}
+
+		// Check if we are a remote wiper for this contact
+		boolean amWiper = db.transactionWithResult(true,
+				txn -> remoteWipeManager.amWiper(txn, c));
+		amRemoteWiper.postValue(amWiper);
 	}
 
 	@DatabaseExecutor
@@ -379,6 +389,10 @@ public class ConversationViewModel extends DbViewModel
 
 	LiveEvent<PrivateMessageHeader> getAddedPrivateMessage() {
 		return addedHeader;
+	}
+
+	LiveData<Boolean> amRemoteWiper() {
+		return amRemoteWiper;
 	}
 
 	@UiThread

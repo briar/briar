@@ -372,6 +372,13 @@ public class ConversationActivity extends BriarActivity
 		observeOnce(viewModel.getContactItem(), this, contact ->
 				menu.findItem(R.id.action_set_alias).setEnabled(true));
 
+		// enable remote wipe action if available
+		observeOnce(viewModel.amRemoteWiper(), this, amWiper -> {
+			if (amWiper != null && amWiper) {
+				menu.findItem(R.id.action_remote_wipe).setEnabled(true);
+			}
+		});
+
 		return super.onCreateOptionsMenu(menu);
 	}
 
