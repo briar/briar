@@ -8,6 +8,7 @@ import org.briarproject.bramble.api.contact.ContactId;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.activity.ActivityComponent;
 import org.briarproject.briar.android.activity.BriarActivity;
+import org.briarproject.briar.android.fragment.BaseFragment;
 
 import javax.inject.Inject;
 
@@ -15,7 +16,8 @@ import androidx.lifecycle.ViewModelProvider;
 
 import static org.briarproject.briar.android.conversation.ConversationActivity.CONTACT_ID;
 
-public class ActivateRemoteWipeActivity extends BriarActivity {
+public class ActivateRemoteWipeActivity extends BriarActivity implements
+		BaseFragment.BaseFragmentListener {
 
 	@Inject
 	ViewModelProvider.Factory viewModelFactory;
@@ -34,6 +36,7 @@ public class ActivateRemoteWipeActivity extends BriarActivity {
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		setContentView(R.layout.activity_distributed_backup);
 
 		if (savedInstanceState == null) {
 			Intent intent = getIntent();
