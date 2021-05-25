@@ -7,8 +7,8 @@ import org.briarproject.briar.api.remotewipe.MessageEncoder;
 
 import javax.inject.Inject;
 
-import static org.briarproject.briar.remotewipe.MessageType.SETUP;
-import static org.briarproject.briar.remotewipe.MessageType.WIPE;
+import static org.briarproject.briar.api.remotewipe.MessageType.SETUP;
+import static org.briarproject.briar.api.remotewipe.MessageType.WIPE;
 
 public class MessageEncoderImpl implements MessageEncoder {
 

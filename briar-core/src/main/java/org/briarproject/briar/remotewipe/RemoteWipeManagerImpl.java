@@ -34,6 +34,7 @@ import org.briarproject.briar.api.remotewipe.RemoteWipeManager;
 import org.briarproject.briar.api.remotewipe.RemoteWipeMessageHeader;
 import org.briarproject.briar.api.remotewipe.RemoteWipeReceivedEvent;
 import org.briarproject.briar.client.ConversationClientImpl;
+import org.briarproject.briar.api.remotewipe.MessageType;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -45,8 +46,8 @@ import javax.annotation.Nullable;
 import javax.inject.Inject;
 
 import static org.briarproject.briar.client.MessageTrackerConstants.MSG_KEY_READ;
-import static org.briarproject.briar.remotewipe.MessageType.SETUP;
-import static org.briarproject.briar.remotewipe.MessageType.WIPE;
+import static org.briarproject.briar.api.remotewipe.MessageType.SETUP;
+import static org.briarproject.briar.api.remotewipe.MessageType.WIPE;
 import static org.briarproject.briar.remotewipe.RemoteWipeConstants.GROUP_KEY_CONTACT_ID;
 import static org.briarproject.briar.remotewipe.RemoteWipeConstants.GROUP_KEY_RECEIVED_WIPE;
 import static org.briarproject.briar.remotewipe.RemoteWipeConstants.GROUP_KEY_WIPERS;
@@ -121,7 +122,8 @@ public class RemoteWipeManagerImpl extends ConversationClientImpl
 	protected boolean incomingMessage(Transaction txn, Message m, BdfList body,
 			BdfDictionary meta) throws DbException, FormatException {
 		System.out.println("Incoming remote wipe message");
-		MessageType type = MessageType.fromValue(body.getLong(0).intValue());
+		MessageType type = MessageType
+				.fromValue(body.getLong(0).intValue());
 		if (type == SETUP) {
 			messageTracker.trackIncomingMessage(txn, m);
 			ContactId contactId = getContactId(txn, m.getGroupId());
@@ -129,7 +131,7 @@ public class RemoteWipeManagerImpl extends ConversationClientImpl
 			MessageStatus status = db.getMessageStatus(txn, contactId,
 					m.getId());
 			txn.attach(new RemoteWipeReceivedEvent(
-					createMessageHeader(m, meta, status), contactId));
+					createMessageHeader(m, meta, status, type), contactId));
 		} else if (type == WIPE) {
 			if (!remoteWipeIsSetup(txn)) return false;
 			if (clock.currentTimeMillis() - m.getTimestamp() > MAX_MESSAGE_AGE)
@@ -308,7 +310,7 @@ public class RemoteWipeManagerImpl extends ConversationClientImpl
 					MessageStatus status = db.getMessageStatus(txn, contactId,
 							messageEntry.getKey());
 					headers.add(
-							createMessageHeader(message, meta, status));
+							createMessageHeader(message, meta, status, SETUP));
 				} else if (meta.getLong(MSG_KEY_MESSAGE_TYPE).intValue() ==
 						WIPE.getValue()) {
 					Message message = clientHelper
@@ -316,7 +318,7 @@ public class RemoteWipeManagerImpl extends ConversationClientImpl
 					MessageStatus status = db.getMessageStatus(txn, contactId,
 							messageEntry.getKey());
 					headers.add(
-							createMessageHeader(message, meta, status));
+							createMessageHeader(message, meta, status, WIPE));
 				}
 			}
 			return headers;
@@ -326,7 +328,7 @@ public class RemoteWipeManagerImpl extends ConversationClientImpl
 	}
 
 	private RemoteWipeMessageHeader createMessageHeader(
-			Message message, BdfDictionary meta, MessageStatus status
+			Message message, BdfDictionary meta, MessageStatus status, MessageType type
 	)
 			throws FormatException {
 
@@ -343,7 +345,7 @@ public class RemoteWipeManagerImpl extends ConversationClientImpl
 		return new RemoteWipeMessageHeader(
 				message.getId(), message.getGroupId(), timestamp,
 				isLocal, read, status.isSent(), status.isSeen(),
-				attachmentHeaders);
+				attachmentHeaders, type);
 	}
 
 	@Override
@@ -414,7 +416,7 @@ public class RemoteWipeManagerImpl extends ConversationClientImpl
 
 	@Nullable
 	private Pair<MessageId, BdfDictionary> findMessage(Transaction txn,
-			GroupId g, MessageType type, boolean local)
+			GroupId g, org.briarproject.briar.api.remotewipe.MessageType type, boolean local)
 			throws DbException, FormatException {
 		BdfDictionary query = BdfDictionary.of(
 				new BdfEntry(MSG_KEY_MESSAGE_TYPE, type.getValue()),

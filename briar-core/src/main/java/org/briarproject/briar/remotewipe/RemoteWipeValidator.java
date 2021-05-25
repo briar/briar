@@ -17,8 +17,8 @@ import javax.annotation.concurrent.Immutable;
 import javax.inject.Inject;
 
 import static org.briarproject.bramble.util.ValidationUtils.checkSize;
-import static org.briarproject.briar.remotewipe.MessageType.SETUP;
-import static org.briarproject.briar.remotewipe.MessageType.WIPE;
+import static org.briarproject.briar.api.remotewipe.MessageType.SETUP;
+import static org.briarproject.briar.api.remotewipe.MessageType.WIPE;
 import static org.briarproject.briar.socialbackup.SocialBackupConstants.MSG_KEY_LOCAL;
 import static org.briarproject.briar.socialbackup.SocialBackupConstants.MSG_KEY_MESSAGE_TYPE;
 
@@ -35,7 +35,8 @@ class RemoteWipeValidator extends BdfMessageValidator {
 	@Override
 	protected BdfMessageContext validateMessage(Message m, Group g,
 			BdfList body) throws FormatException {
-		MessageType type = MessageType
+		org.briarproject.briar.api.remotewipe.MessageType
+				type = org.briarproject.briar.api.remotewipe.MessageType
 				.fromValue(body.getLong(0).intValue());
 		if (type == SETUP) return validateSetupMessage(body);
 		else if (type == WIPE) return validateWipeMessage(body);
