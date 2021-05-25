@@ -16,6 +16,7 @@ import org.briarproject.briar.api.introduction.IntroductionResponse;
 import org.briarproject.briar.api.messaging.PrivateMessageHeader;
 import org.briarproject.briar.api.privategroup.invitation.GroupInvitationRequest;
 import org.briarproject.briar.api.privategroup.invitation.GroupInvitationResponse;
+import org.briarproject.briar.api.remotewipe.MessageType;
 import org.briarproject.briar.api.remotewipe.RemoteWipeMessageHeader;
 import org.briarproject.briar.api.socialbackup.ShardMessageHeader;
 
@@ -309,14 +310,28 @@ class ConversationVisitor implements
 
 	@Override
 	public ConversationItem visitRemoteWipeMessage(RemoteWipeMessageHeader r) {
-		if (r.isLocal()) {
-			String text = ctx.getString(R.string.remote_wipe_setup_sent, contactName.getValue());
-			return new ConversationNoticeItem(
-					R.layout.list_item_conversation_notice_out, text, r);
-		} else {
-			String text = ctx.getString(R.string.remote_wipe_setup_received, contactName.getValue());
-			return new ConversationNoticeItem(
-					R.layout.list_item_conversation_notice_in, text, r);
+		switch (r.getMessageType()) {
+			case SETUP:
+				if (r.isLocal()) {
+					String text = ctx.getString(R.string.remote_wipe_setup_sent, contactName.getValue());
+					return new ConversationNoticeItem(
+							R.layout.list_item_conversation_notice_out, text, r);
+				} else {
+					String text = ctx.getString(R.string.remote_wipe_setup_received, contactName.getValue());
+					return new ConversationNoticeItem(
+							R.layout.list_item_conversation_notice_in, text, r);
+				}
+			default: // WIPE
+				if (r.isLocal()) {
+					String text = ctx.getString(R.string.remote_wipe_wipe_sent, contactName.getValue());
+					return new ConversationNoticeItem(
+							R.layout.list_item_conversation_notice_out, text, r);
+				} else {
+					// TODO this is only for testing - will be removed in production
+					String text = "GOT REMOTE WIPE SIGNAL";
+					return new ConversationNoticeItem(
+							R.layout.list_item_conversation_notice_in, text, r);
+				}
 		}
 	}
 
