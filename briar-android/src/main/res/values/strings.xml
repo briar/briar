@@ -751,6 +751,7 @@
 	<string name="activate_remote_wipe">Activate remote wipe</string>
 
 	<!-- activate -->
+	<string name="activity_name_activate_remote_wipe">Activate Remote Wipe</string>
 	<string name="remote_wipe_activate_success">Remote wipe signal sent</string>
 	<string name="remote_wipe_activate_failure">Failed to send remote wipe signal</string>
 	<string name="remote_wipe_activate_button_confirm">Activate remote wipe</string>
