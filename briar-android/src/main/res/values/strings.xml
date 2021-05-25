@@ -750,4 +750,12 @@
 	<string name="assigned_wipers">Your assigned trusted wipers</string>
 	<string name="activate_remote_wipe">Activate remote wipe</string>
 
+	<!-- activate -->
+	<string name="remote_wipe_activate_success">Remote wipe signal sent</string>
+	<string name="remote_wipe_activate_failure">Failed to send remote wipe signal</string>
+	<string name="remote_wipe_activate_button_confirm">Activate remote wipe</string>
+	<string name="remote_wipe_activate_button_cancel">Cancel</string>
+	<string name="remote_wipe_activate_explain_short">Activate a remote wipe of this contact\'s device</string>
+	<string name="remote_wipe_activate_explain_long">If confirmed by a second contact, sending this signal will remove all briar contacts and messages from this contact\s device.\n\nAre you sure you want to do this?</string>
+
 </resources>
