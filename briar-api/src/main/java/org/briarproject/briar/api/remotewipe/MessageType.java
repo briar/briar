@@ -1,4 +1,4 @@
-package org.briarproject.briar.remotewipe;
+package org.briarproject.briar.api.remotewipe;
 
 import org.briarproject.bramble.api.FormatException;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
@@ -7,7 +7,7 @@ import javax.annotation.concurrent.Immutable;
 
 @Immutable
 @NotNullByDefault
-enum MessageType {
+public enum MessageType {
 
 	SETUP(0), WIPE(1);
 
@@ -17,11 +17,11 @@ enum MessageType {
 		this.value = value;
 	}
 
-	int getValue() {
+	public int getValue() {
 		return value;
 	}
 
-	static MessageType fromValue(int value) throws
+	public static MessageType fromValue(int value) throws
 			FormatException {
 		for (MessageType m : values()) if (m.value == value) return m;
 		throw new FormatException();

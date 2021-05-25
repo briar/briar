@@ -16,16 +16,22 @@ import javax.annotation.concurrent.Immutable;
 public class RemoteWipeMessageHeader extends ConversationMessageHeader {
 
 	private final List<AttachmentHeader> attachmentHeaders;
+	private final MessageType type;
 
 	public RemoteWipeMessageHeader(MessageId id, GroupId groupId, long timestamp,
 			boolean local, boolean read, boolean sent, boolean seen,
-			List<AttachmentHeader> headers) {
+			List<AttachmentHeader> headers, MessageType type) {
 		super(id, groupId, timestamp, local, read, sent, seen);
 		this.attachmentHeaders = headers;
+		this.type = type;
 	}
 
 	public List<AttachmentHeader> getAttachmentHeaders() {
 		return attachmentHeaders;
+	}
+
+	public MessageType getMessageType() {
+		return type;
 	}
 
 	@Override
