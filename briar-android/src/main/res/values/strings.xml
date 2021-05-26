@@ -701,7 +701,7 @@
 	<string name="hotspot_progress_text_start">Setting up hotspot…</string>
 	<string name="hotspot_notification_channel_title">Wi-Fi hotspot</string>
 	<string name="hotspot_notification_title">Sharing Briar offline</string>
-	<string name="hotspot_button_connected">Confirm connection</string>
+	<string name="hotspot_button_connected">Start app sharing</string>
 
 	<string name="permission_hotspot_location_request_body">To create a Wi-Fi hotspot, Briar needs permission to access your location.\n\nBriar does not store your location or share it with anyone.</string>
 	<string name="permission_hotspot_location_denied_body">You have denied access to your location, but Briar needs this permission to create a Wi-Fi hotspot.\n\nPlease consider granting access.</string>
