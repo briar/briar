@@ -2,8 +2,11 @@ package org.briarproject.briar.android.hotspot;
 
 import android.graphics.Bitmap;
 
+import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
+
 import androidx.annotation.Nullable;
 
+@NotNullByDefault
 abstract class HotspotState {
 
 	static class StartingHotspot extends HotspotState {
