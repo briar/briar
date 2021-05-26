@@ -10,6 +10,7 @@ import org.briarproject.briar.R;
 
 import androidx.activity.result.ActivityResult;
 import androidx.activity.result.ActivityResultLauncher;
+import androidx.annotation.Nullable;
 import androidx.annotation.StringRes;
 import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.FragmentActivity;
@@ -106,7 +107,7 @@ class ConditionManager {
 		return false;
 	}
 
-	void onRequestPermissionResult(Boolean granted) {
+	void onRequestPermissionResult(@Nullable Boolean granted) {
 		if (granted != null && granted) {
 			locationPermission = Permission.GRANTED;
 		} else if (shouldShowRequestPermissionRationale(ctx,
