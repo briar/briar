@@ -31,6 +31,7 @@ import androidx.annotation.UiThread;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
+import static java.util.Objects.requireNonNull;
 import static java.util.logging.Logger.getLogger;
 
 @NotNullByDefault
@@ -136,7 +137,8 @@ class HotspotViewModel extends DbViewModel
 	@Override
 	@IoExecutor
 	public void onWebServerStarted(WebsiteConfig websiteConfig) {
-		state.postValue(new HotspotStarted(networkConfig, websiteConfig));
+		NetworkConfig nc = requireNonNull(networkConfig);
+		state.postValue(new HotspotStarted(nc, websiteConfig));
 		networkConfig = null;
 	}
 
