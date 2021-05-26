@@ -63,6 +63,10 @@ public class ActivateRemoteWipeViewModel extends AndroidViewModel {
         state.postValue(ActivateRemoteWipeState.CANCELLED);
 	}
 
+	public void onSuccessDismissed() {
+		state.postValue(ActivateRemoteWipeState.FINISHED);
+	}
+
 	public void onConfirmClicked() {
 		activateWipe();
 	}

@@ -56,16 +56,9 @@ public class ActivateRemoteWipeActivity extends BriarActivity implements
 					   Toast.LENGTH_LONG).show();
 			   break;
 		   case SUCCESS:
-//			   showNextFragment(new ActivateRemoteWipeSuccessFragment());
-			   Toast.makeText(this,
-					   R.string.remote_wipe_activate_success,
-					   Toast.LENGTH_LONG).show();
-			   finish();
+			   showNextFragment(new ActivateRemoteWipeSuccessFragment());
 			   break;
-		   case FINISHED:
-			   finish();
-			   break;
-		   case CANCELLED:
+		   default: // FINISHED or CANCELLED
 			   finish();
 			   break;
 	   }
