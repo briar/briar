@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.net.wifi.WifiManager;
 import android.provider.Settings;
 
+import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.briar.R;
 
 import androidx.activity.result.ActivityResult;
@@ -29,6 +30,7 @@ import static org.briarproject.briar.android.util.UiUtils.getGoToSettingsListene
  * As soon as {@link #checkAndRequestConditions()} returns true,
  * all conditions are fulfilled.
  */
+@NotNullByDefault
 class ConditionManager {
 
 	private enum Permission {
