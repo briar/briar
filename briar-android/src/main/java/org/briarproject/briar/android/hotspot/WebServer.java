@@ -2,6 +2,7 @@ package org.briarproject.briar.android.hotspot;
 
 import android.content.Context;
 
+import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.briar.BuildConfig;
 import org.briarproject.briar.R;
 import org.jsoup.Jsoup;
@@ -29,7 +30,8 @@ import static java.util.logging.Logger.getLogger;
 import static org.briarproject.bramble.util.LogUtils.logException;
 import static org.briarproject.briar.BuildConfig.VERSION_NAME;
 
-public class WebServer extends NanoHTTPD {
+@NotNullByDefault
+class WebServer extends NanoHTTPD {
 
 	final static int PORT = 9999;
 
@@ -98,7 +100,7 @@ public class WebServer extends NanoHTTPD {
 		return doc.outerHtml();
 	}
 
-	private String getUnknownSourcesString(String userAgent) {
+	private String getUnknownSourcesString(@Nullable String userAgent) {
 		boolean is8OrHigher = false;
 		if (userAgent != null) {
 			Matcher matcher = REGEX_AGENT.matcher(userAgent);
