@@ -21,7 +21,6 @@ import org.briarproject.briar.android.viewmodel.LiveEvent;
 import org.briarproject.briar.android.viewmodel.MutableLiveEvent;
 import org.briarproject.briar.api.android.AndroidNotificationManager;
 
-import java.security.SecureRandom;
 import java.util.concurrent.Executor;
 import java.util.logging.Logger;
 
@@ -32,6 +31,7 @@ import androidx.annotation.UiThread;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
+import static java.util.Objects.requireNonNull;
 import static java.util.logging.Logger.getLogger;
 
 @NotNullByDefault
@@ -64,14 +64,16 @@ class HotspotViewModel extends DbViewModel
 			TransactionManager db,
 			AndroidExecutor androidExecutor,
 			@IoExecutor Executor ioExecutor,
-			SecureRandom secureRandom,
+			HotspotManager hotspotManager,
+			WebServerManager webServerManager,
 			AndroidNotificationManager notificationManager) {
 		super(app, dbExecutor, lifecycleManager, db, androidExecutor);
 		this.ioExecutor = ioExecutor;
 		this.notificationManager = notificationManager;
-		hotspotManager =
-				new HotspotManager(app, ioExecutor, secureRandom, this);
-		webServerManager = new WebServerManager(app, this);
+		this.hotspotManager = hotspotManager;
+		this.hotspotManager.setHotspotListener(this);
+		this.webServerManager = webServerManager;
+		this.webServerManager.setListener(this);
 	}
 
 	@UiThread
@@ -135,7 +137,8 @@ class HotspotViewModel extends DbViewModel
 	@Override
 	@IoExecutor
 	public void onWebServerStarted(WebsiteConfig websiteConfig) {
-		state.postValue(new HotspotStarted(networkConfig, websiteConfig));
+		NetworkConfig nc = requireNonNull(networkConfig);
+		state.postValue(new HotspotStarted(nc, websiteConfig));
 		networkConfig = null;
 	}
 

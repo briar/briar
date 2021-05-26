@@ -1,10 +1,12 @@
 package org.briarproject.briar.android.hotspot;
 
-import android.content.Context;
+import android.app.Application;
 import android.graphics.Bitmap;
 import android.util.DisplayMetrics;
 
 import org.briarproject.bramble.api.lifecycle.IoExecutor;
+import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
+import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
 import org.briarproject.briar.android.hotspot.HotspotState.WebsiteConfig;
 import org.briarproject.briar.android.util.QrCodeUtils;
 
@@ -17,6 +19,8 @@ import java.util.Enumeration;
 import java.util.List;
 import java.util.logging.Logger;
 
+import javax.inject.Inject;
+
 import androidx.annotation.Nullable;
 
 import static java.util.Collections.emptyList;
@@ -27,6 +31,8 @@ import static java.util.logging.Logger.getLogger;
 import static org.briarproject.bramble.util.LogUtils.logException;
 import static org.briarproject.briar.android.hotspot.WebServer.PORT;
 
+@MethodsNotNullByDefault
+@ParametersNotNullByDefault
 class WebServerManager {
 
 	interface WebServerListener {
@@ -41,13 +47,18 @@ class WebServerManager {
 			getLogger(WebServerManager.class.getName());
 
 	private final WebServer webServer;
-	private final WebServerListener listener;
 	private final DisplayMetrics dm;
 
-	WebServerManager(Context ctx, WebServerListener listener) {
-		this.listener = listener;
+	private WebServerListener listener;
+
+	@Inject
+	WebServerManager(Application ctx) {
 		webServer = new WebServer(ctx);
 		dm = ctx.getResources().getDisplayMetrics();
+	}
+
+	void setListener(WebServerListener listener) {
+		this.listener = listener;
 	}
 
 	@IoExecutor
