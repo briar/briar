@@ -48,9 +48,10 @@ public class HotspotHelpFragment extends Fragment {
 
 	private HotspotViewModel viewModel;
 	private final ActivityResultLauncher<String> launcher =
-			registerForActivityResult(new CreateDocument(), uri ->
-					viewModel.exportApk(uri)
-			);
+			registerForActivityResult(new CreateDocument(), uri -> {
+				showButton();
+				if (uri != null) viewModel.exportApk(uri);
+			});
 	private Button button;
 	private ProgressBar progressBar;
 
@@ -77,7 +78,7 @@ public class HotspotHelpFragment extends Fragment {
 		button = v.findViewById(R.id.fallbackButton);
 		progressBar = v.findViewById(R.id.progressBar);
 		button.setOnClickListener(view -> {
-			beginDelayedTransition((ViewGroup) requireView());
+			beginDelayedTransition((ViewGroup) v);
 			button.setVisibility(INVISIBLE);
 			progressBar.setVisibility(VISIBLE);
 
@@ -88,13 +89,9 @@ public class HotspotHelpFragment extends Fragment {
 	}
 
 	private void shareUri(Uri uri) {
-		beginDelayedTransition((ViewGroup) requireView());
-		button.setVisibility(VISIBLE);
-		progressBar.setVisibility(INVISIBLE);
-
 		Intent i = new Intent(ACTION_SEND);
 		i.putExtra(EXTRA_STREAM, uri);
-		i.setType("application/zip");
+		i.setType("*/*"); // gives us all sharing options
 		i.addFlags(FLAG_GRANT_READ_URI_PERMISSION);
 		Context ctx = requireContext();
 		if (SDK_INT <= 19) {
@@ -109,6 +106,12 @@ public class HotspotHelpFragment extends Fragment {
 			}
 		}
 		startActivity(Intent.createChooser(i, null));
+	}
+
+	private void showButton() {
+		beginDelayedTransition((ViewGroup) requireView());
+		button.setVisibility(VISIBLE);
+		progressBar.setVisibility(INVISIBLE);
 	}
 
 }
