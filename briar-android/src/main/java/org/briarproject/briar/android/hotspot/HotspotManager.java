@@ -1,5 +1,6 @@
 package org.briarproject.briar.android.hotspot;
 
+import android.app.Application;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.net.wifi.WifiManager;
@@ -11,7 +12,14 @@ import android.net.wifi.p2p.WifiP2pManager.GroupInfoListener;
 import android.os.Handler;
 import android.util.DisplayMetrics;
 
+import org.briarproject.bramble.api.db.DatabaseExecutor;
+import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.lifecycle.IoExecutor;
+import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
+import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
+import org.briarproject.bramble.api.settings.Settings;
+import org.briarproject.bramble.api.settings.SettingsManager;
+import org.briarproject.bramble.api.system.AndroidExecutor;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.hotspot.HotspotState.NetworkConfig;
 import org.briarproject.briar.android.util.QrCodeUtils;
@@ -20,9 +28,11 @@ import java.security.SecureRandom;
 import java.util.concurrent.Executor;
 import java.util.logging.Logger;
 
+import javax.inject.Inject;
+
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.annotation.UiThread;
-import androidx.lifecycle.LiveData;
 
 import static android.content.Context.WIFI_P2P_SERVICE;
 import static android.content.Context.WIFI_SERVICE;
@@ -34,11 +44,12 @@ import static android.net.wifi.p2p.WifiP2pManager.ERROR;
 import static android.net.wifi.p2p.WifiP2pManager.NO_SERVICE_REQUESTS;
 import static android.net.wifi.p2p.WifiP2pManager.P2P_UNSUPPORTED;
 import static android.os.Build.VERSION.SDK_INT;
-import static java.util.Objects.requireNonNull;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Logger.getLogger;
-import static org.briarproject.briar.android.util.UiUtils.observeForeverOnce;
+import static org.briarproject.briar.android.util.UiUtils.handleException;
 
+@MethodsNotNullByDefault
+@ParametersNotNullByDefault
 class HotspotManager implements ActionListener {
 
 	interface HotspotListener {
@@ -59,33 +70,52 @@ class HotspotManager implements ActionListener {
 
 	private static final int MAX_GROUP_INFO_ATTEMPTS = 5;
 	private static final int RETRY_DELAY_MILLIS = 1000;
+	private static final String HOTSPOT_NAMESPACE = "hotspot";
+	private static final String HOTSPOT_KEY_SSID = "ssid";
+	private static final String HOTSPOT_KEY_PASS = "pass";
 
 	private final Context ctx;
+	@DatabaseExecutor
+	private final Executor dbExecutor;
 	@IoExecutor
 	private final Executor ioExecutor;
-	private final LiveData<NetworkConfig> savedNetworkConfig;
-	private final HotspotListener listener;
+	private final AndroidExecutor androidExecutor;
+	private final SettingsManager settingsManager;
+	private final SecureRandom random;
 	private final WifiManager wifiManager;
 	private final WifiP2pManager wifiP2pManager;
 	private final Handler handler;
 	private final String lockTag;
 
+	private HotspotListener listener;
 	private WifiManager.WifiLock wifiLock;
 	private WifiP2pManager.Channel channel;
+	@RequiresApi(29)
+	private volatile NetworkConfig savedNetworkConfig;
 
-	HotspotManager(Context ctx, @IoExecutor Executor ioExecutor,
-			LiveData<NetworkConfig> savedNetworkConfig,
-			HotspotListener listener) {
-		this.ctx = ctx;
+	@Inject
+	HotspotManager(Application ctx,
+			@DatabaseExecutor Executor dbExecutor,
+			@IoExecutor Executor ioExecutor,
+			AndroidExecutor androidExecutor,
+			SettingsManager settingsManager,
+			SecureRandom random) {
+		this.ctx = ctx.getApplicationContext();
+		this.dbExecutor = dbExecutor;
 		this.ioExecutor = ioExecutor;
-		this.savedNetworkConfig = savedNetworkConfig;
-		this.listener = listener;
+		this.androidExecutor = androidExecutor;
+		this.settingsManager = settingsManager;
+		this.random = random;
 		wifiManager = (WifiManager) ctx.getApplicationContext()
 				.getSystemService(WIFI_SERVICE);
 		wifiP2pManager =
 				(WifiP2pManager) ctx.getSystemService(WIFI_P2P_SERVICE);
 		handler = new Handler(ctx.getMainLooper());
 		lockTag = ctx.getPackageName() + ":app-sharing-hotspot";
+	}
+
+	void setHotspotListener(HotspotListener listener) {
+		this.listener = listener;
 	}
 
 	@UiThread
@@ -102,18 +132,23 @@ class HotspotManager implements ActionListener {
 					ctx.getString(R.string.hotspot_error_no_wifi_direct));
 			return;
 		}
-		acquireLock();
 		try {
 			if (SDK_INT >= 29) {
-				observeForeverOnce(savedNetworkConfig, c -> {
-					WifiP2pConfig config = new WifiP2pConfig.Builder()
-							.setGroupOperatingBand(GROUP_OWNER_BAND_2GHZ)
-							.setNetworkName(c.ssid)
-							.setPassphrase(c.password)
-							.build();
-					wifiP2pManager.createGroup(channel, config, this);
+				dbExecutor.execute(() -> {
+					// load savedNetworkConfig before starting hotspot
+					loadSavedNetworkConfig();
+					androidExecutor.runOnUiThread(() -> {
+						WifiP2pConfig config = new WifiP2pConfig.Builder()
+								.setGroupOperatingBand(GROUP_OWNER_BAND_2GHZ)
+								.setNetworkName(savedNetworkConfig.ssid)
+								.setPassphrase(savedNetworkConfig.password)
+								.build();
+						acquireLock();
+						wifiP2pManager.createGroup(channel, config, this);
+					});
 				});
 			} else {
+				acquireLock();
 				wifiP2pManager.createGroup(channel, this);
 			}
 		} catch (SecurityException e) {
@@ -242,8 +277,7 @@ class HotspotManager implements ActionListener {
 			return false;
 		} else if (SDK_INT >= 29) {
 			// if we get here, the savedNetworkConfig must have a value
-			String networkName =
-					requireNonNull(savedNetworkConfig.getValue()).ssid;
+			String networkName = savedNetworkConfig.ssid;
 			if (!networkName.equals(group.getNetworkName())) {
 				if (LOG.isLoggable(INFO)) {
 					LOG.info("expected networkName: " + networkName);
@@ -291,37 +325,72 @@ class HotspotManager implements ActionListener {
 		}
 	}
 
+	/**
+	 * Store persistent Wi-Fi SSID and passphrase in Settings to improve UX
+	 * so that users don't have to change them when attempting to connect.
+	 * Works only on API 29 and above.
+	 */
+	@RequiresApi(29)
+	@DatabaseExecutor
+	private void loadSavedNetworkConfig() {
+		try {
+			Settings settings = settingsManager.getSettings(HOTSPOT_NAMESPACE);
+			String ssid = settings.get(HOTSPOT_KEY_SSID);
+			String pass = settings.get(HOTSPOT_KEY_PASS);
+			if (ssid == null || pass == null) {
+				ssid = getSsid();
+				pass = getPassword();
+				settings.put(HOTSPOT_KEY_SSID, ssid);
+				settings.put(HOTSPOT_KEY_PASS, pass);
+				settingsManager.mergeSettings(settings, HOTSPOT_NAMESPACE);
+			}
+			savedNetworkConfig = new NetworkConfig(ssid, pass, null);
+		} catch (DbException e) {
+			handleException(ctx, androidExecutor, LOG, e);
+			// probably never happens, but if lets use non-persistent data
+			String ssid = getSsid();
+			String pass = getPassword();
+			savedNetworkConfig = new NetworkConfig(ssid, pass, null);
+		}
+	}
+
+	@RequiresApi(29)
+	private String getSsid() {
+		return "DIRECT-" + getRandomString(2) + "-" +
+				getRandomString(10);
+	}
+
+	@RequiresApi(29)
+	private String getPassword() {
+		return getRandomString(8);
+	}
+
 	private static String createWifiLoginString(String ssid, String password) {
 		// https://en.wikipedia.org/wiki/QR_code#WiFi_network_login
 		// do not remove the dangling ';', it can cause problems to omit it
 		return "WIFI:S:" + ssid + ";T:WPA;P:" + password + ";;";
 	}
 
-	static String getSsid(SecureRandom random) {
-		return "DIRECT-" + getRandomString(random, 2) + "-" +
-				getRandomString(random, 10);
-	}
-
-	static String getPassword(SecureRandom random) {
-		return getRandomString(random, 8);
-	}
-
 	private static final String digits = "123456789"; // avoid 0
 	private static final String letters = "abcdefghijkmnopqrstuvwxyz"; // no l
 	private static final String LETTERS = "ABCDEFGHJKLMNPQRSTUVWXYZ"; // no I, O
 
-	private static String getRandomString(SecureRandom random, int length) {
+	private String getRandomString(int length) {
 		char[] c = new char[length];
 		for (int i = 0; i < length; i++) {
 			if (random.nextBoolean()) {
-				c[i] = digits.charAt(random.nextInt(digits.length()));
+				c[i] = random(digits);
 			} else if (random.nextBoolean()) {
-				c[i] = letters.charAt(random.nextInt(letters.length()));
+				c[i] = random(letters);
 			} else {
-				c[i] = LETTERS.charAt(random.nextInt(LETTERS.length()));
+				c[i] = random(LETTERS);
 			}
 		}
 		return new String(c);
+	}
+
+	private char random(String universe) {
+		return universe.charAt(random.nextInt(universe.length()));
 	}
 
 }

@@ -7,8 +7,6 @@ import org.briarproject.bramble.api.db.TransactionManager;
 import org.briarproject.bramble.api.lifecycle.IoExecutor;
 import org.briarproject.bramble.api.lifecycle.LifecycleManager;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
-import org.briarproject.bramble.api.settings.Settings;
-import org.briarproject.bramble.api.settings.SettingsManager;
 import org.briarproject.bramble.api.system.AndroidExecutor;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.hotspot.HotspotManager.HotspotListener;
@@ -23,19 +21,16 @@ import org.briarproject.briar.android.viewmodel.LiveEvent;
 import org.briarproject.briar.android.viewmodel.MutableLiveEvent;
 import org.briarproject.briar.api.android.AndroidNotificationManager;
 
-import java.security.SecureRandom;
 import java.util.concurrent.Executor;
 import java.util.logging.Logger;
 
 import javax.inject.Inject;
 
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import androidx.annotation.UiThread;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
-import static android.os.Build.VERSION.SDK_INT;
 import static java.util.logging.Logger.getLogger;
 
 @NotNullByDefault
@@ -44,14 +39,9 @@ class HotspotViewModel extends DbViewModel
 
 	private static final Logger LOG =
 			getLogger(HotspotViewModel.class.getName());
-	private static final String HOTSPOT_NAMESPACE = "hotspot";
-	private static final String HOTSPOT_KEY_SSID = "ssid";
-	private static final String HOTSPOT_KEY_PASS = "pass";
 
 	@IoExecutor
 	private final Executor ioExecutor;
-	private final SettingsManager settingsManager;
-	private final SecureRandom random;
 	private final AndroidNotificationManager notificationManager;
 	private final HotspotManager hotspotManager;
 	private final WebServerManager webServerManager;
@@ -60,8 +50,6 @@ class HotspotViewModel extends DbViewModel
 			new MutableLiveData<>();
 	private final MutableLiveEvent<Boolean> peerConnected =
 			new MutableLiveEvent<>();
-	private final MutableLiveData<NetworkConfig> savedNetworkConfig =
-			new MutableLiveData<>();
 
 	@Nullable
 	// Field to temporarily store the network config received via onHotspotStarted()
@@ -75,48 +63,16 @@ class HotspotViewModel extends DbViewModel
 			TransactionManager db,
 			AndroidExecutor androidExecutor,
 			@IoExecutor Executor ioExecutor,
-			SettingsManager settingsManager,
-			SecureRandom secureRandom,
+			HotspotManager hotspotManager,
+			WebServerManager webServerManager,
 			AndroidNotificationManager notificationManager) {
 		super(app, dbExecutor, lifecycleManager, db, androidExecutor);
 		this.ioExecutor = ioExecutor;
-		this.settingsManager = settingsManager;
-		this.random = secureRandom;
 		this.notificationManager = notificationManager;
-		hotspotManager =
-				new HotspotManager(app, ioExecutor, savedNetworkConfig, this);
-		webServerManager = new WebServerManager(app, this);
-		// get or set persistent SSID and password
-		if (SDK_INT >= 29) getOrSetNetworkConfig();
-	}
-
-	/**
-	 * Store persistent Wi-Fi SSID and passphrase in Settings to improve UX
-	 * so that users don't have to change them when attempting to connect.
-	 * Works only on API 29 and above.
-	 */
-	@RequiresApi(29)
-	private void getOrSetNetworkConfig() {
-		runOnDbThread(false, txn -> {
-			Settings settings =
-					settingsManager.getSettings(txn, HOTSPOT_NAMESPACE);
-			String ssid = settings.get(HOTSPOT_KEY_SSID);
-			String pass = settings.get(HOTSPOT_KEY_PASS);
-			if (ssid == null || pass == null) {
-				ssid = HotspotManager.getSsid(random);
-				pass = HotspotManager.getPassword(random);
-				settings.put(HOTSPOT_KEY_SSID, ssid);
-				settings.put(HOTSPOT_KEY_PASS, pass);
-				settingsManager.mergeSettings(txn, settings, HOTSPOT_NAMESPACE);
-			}
-			savedNetworkConfig.postValue(new NetworkConfig(ssid, pass, null));
-		}, error -> {
-			handleException(error);
-			// probably never happens, but if lets use non-persistent data
-			String ssid = HotspotManager.getSsid(random);
-			String pass = HotspotManager.getPassword(random);
-			savedNetworkConfig.postValue(new NetworkConfig(ssid, pass, null));
-		});
+		this.hotspotManager = hotspotManager;
+		this.hotspotManager.setHotspotListener(this);
+		this.webServerManager = webServerManager;
+		this.webServerManager.setListener(this);
 	}
 
 	@UiThread
