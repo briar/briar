@@ -15,6 +15,7 @@
 			android:layout_height="wrap_content"
 			android:text="@string/hotspot_help_wifi_title"
 			android:textSize="16sp"
+			android:textStyle="bold"
 			app:layout_constraintEnd_toEndOf="parent"
 			app:layout_constraintStart_toStartOf="parent"
 			app:layout_constraintTop_toTopOf="parent" />
@@ -52,6 +53,7 @@
 			android:layout_marginTop="16dp"
 			android:text="@string/hotspot_help_site_title"
 			android:textSize="16sp"
+			android:textStyle="bold"
 			app:layout_constraintEnd_toEndOf="parent"
 			app:layout_constraintStart_toStartOf="parent"
 			app:layout_constraintTop_toBottomOf="@+id/wifi2View" />
@@ -115,6 +117,7 @@
 			android:layout_marginTop="32dp"
 			android:text="@string/hotspot_help_fallback_title"
 			android:textSize="16sp"
+			android:textStyle="bold"
 			app:layout_constraintEnd_toEndOf="parent"
 			app:layout_constraintStart_toStartOf="parent"
 			app:layout_constraintTop_toBottomOf="@+id/site4View" />
