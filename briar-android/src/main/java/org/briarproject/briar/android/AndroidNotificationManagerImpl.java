@@ -33,6 +33,7 @@ import org.briarproject.briar.android.forum.ForumActivity;
 import org.briarproject.briar.android.login.SignInReminderReceiver;
 import org.briarproject.briar.android.navdrawer.NavDrawerActivity;
 import org.briarproject.briar.android.privategroup.conversation.GroupActivity;
+import org.briarproject.briar.android.remotewipe.RemoteWipeActivatedActivity;
 import org.briarproject.briar.android.splash.SplashScreenActivity;
 import org.briarproject.briar.android.util.BriarNotificationBuilder;
 import org.briarproject.briar.api.android.AndroidNotificationManager;
@@ -40,6 +41,7 @@ import org.briarproject.briar.api.blog.event.BlogPostAddedEvent;
 import org.briarproject.briar.api.conversation.event.ConversationMessageReceivedEvent;
 import org.briarproject.briar.api.forum.event.ForumPostReceivedEvent;
 import org.briarproject.briar.api.privategroup.event.GroupMessageAddedEvent;
+import org.briarproject.briar.api.remotewipe.RemoteWipeActivatedEvent;
 
 import java.util.Set;
 import java.util.concurrent.Callable;
@@ -240,6 +242,10 @@ class AndroidNotificationManagerImpl implements AndroidNotificationManager,
 			ContactAddedEvent c = (ContactAddedEvent) e;
 			// Don't show notifications for contacts added in person
 			if (!c.isVerified()) showContactAddedNotification();
+		} else if (e instanceof RemoteWipeActivatedEvent) {
+			Intent i = new Intent(appContext, RemoteWipeActivatedActivity.class);
+			i.addFlags(FLAG_ACTIVITY_NEW_TASK);
+			appContext.startActivity(i);
 		}
 	}
 
