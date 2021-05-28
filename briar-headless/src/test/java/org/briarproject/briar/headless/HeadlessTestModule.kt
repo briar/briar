@@ -83,6 +83,7 @@ internal class HeadlessTestModule(private val appDir: File) {
         override fun shouldEnableProfilePictures() = false
         override fun shouldEnableDisappearingMessages() = false
         override fun shouldEnableConnectViaBluetooth() = false
+        override fun shouldEnableShareAppViaOfflineHotspot() = false
     }
 
     @Provides

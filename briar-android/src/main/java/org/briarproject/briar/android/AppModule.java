@@ -305,6 +305,11 @@ public class AppModule {
 			public boolean shouldEnableConnectViaBluetooth() {
 				return IS_DEBUG_BUILD;
 			}
+
+			@Override
+			public boolean shouldEnableShareAppViaOfflineHotspot() {
+				return IS_DEBUG_BUILD;
+			}
 		};
 	}
 }

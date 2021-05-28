@@ -38,6 +38,7 @@ public class SettingsFragment extends PreferenceFragmentCompat {
 	private static final String PREF_KEY_FEEDBACK = "pref_key_send_feedback";
 	private static final String PREF_KEY_DEV = "pref_key_dev";
 	private static final String PREF_KEY_EXPLODE = "pref_key_explode";
+	private static final String PREF_KEY_SHARE_APP = "pref_key_share_app";
 
 	@Inject
 	ViewModelProvider.Factory viewModelFactory;
@@ -83,6 +84,12 @@ public class SettingsFragment extends PreferenceFragmentCompat {
 		} else {
 			PreferenceGroup dev = requireNonNull(findPreference(PREF_KEY_DEV));
 			dev.setVisible(false);
+		}
+
+		if (!viewModel.shouldEnableShareAppViaOfflineHotspot()) {
+			Preference shareApp =
+					requireNonNull(findPreference(PREF_KEY_SHARE_APP));
+			shareApp.setVisible(false);
 		}
 	}
 
