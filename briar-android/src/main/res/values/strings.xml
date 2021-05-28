@@ -735,8 +735,8 @@
 	<string name="website_download_outro">After the download is complete, open the downloaded file and install it.</string>
 	<string name="website_troubleshooting_title">Troubleshooting</string>
 	<string name="website_troubleshooting_1">If you cannot download the app, try it with a different web browser app.</string>
-	<string name="website_troubleshooting_2_old">To install the downloaded app, you might need to allow installation of apps from \"Unknown sources\" in system settings. Afterwards, you may need to download the app again.</string>
-	<string name="website_troubleshooting_2_new">To install the downloaded app, you might need to allow your browser to install unknown apps.</string>
+	<string name="website_troubleshooting_2_old">To install the downloaded app, you might need to allow installation of apps from \"Unknown sources\" in system settings. Afterwards, you may need to download the app again. We recommend to undo that after successful installation.</string>
+	<string name="website_troubleshooting_2_new">To install the downloaded app, you might need to allow your browser to install unknown apps. We recommend to undo that after successful installation.</string>
 
 	<string name="hotspot_help_wifi_title">Problems with connecting to Wi-Fi:</string>
 	<string name="hotspot_help_wifi_1">Try disabling and re-enabling Wi-Fi on both phones and try again.</string>
