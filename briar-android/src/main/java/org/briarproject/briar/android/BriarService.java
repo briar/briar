@@ -18,14 +18,19 @@ import com.bumptech.glide.Glide;
 
 import org.briarproject.bramble.api.account.AccountManager;
 import org.briarproject.bramble.api.crypto.SecretKey;
+import org.briarproject.bramble.api.event.Event;
+import org.briarproject.bramble.api.event.EventBus;
+import org.briarproject.bramble.api.event.EventListener;
 import org.briarproject.bramble.api.lifecycle.LifecycleManager;
 import org.briarproject.bramble.api.lifecycle.LifecycleManager.StartResult;
 import org.briarproject.bramble.api.system.AndroidExecutor;
 import org.briarproject.bramble.api.system.AndroidWakeLockManager;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.logout.HideUiActivity;
+import org.briarproject.briar.android.remotewipe.RemoteWipeActivatedActivity;
 import org.briarproject.briar.api.android.AndroidNotificationManager;
 import org.briarproject.briar.api.android.LockManager;
+import org.briarproject.briar.api.remotewipe.RemoteWipeActivatedEvent;
 
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -62,7 +67,7 @@ import static org.briarproject.briar.api.android.AndroidNotificationManager.ONGO
 import static org.briarproject.briar.api.android.LockManager.ACTION_LOCK;
 import static org.briarproject.briar.api.android.LockManager.EXTRA_PID;
 
-public class BriarService extends Service {
+public class BriarService extends Service implements EventListener {
 
 	public static String EXTRA_START_RESULT =
 			"org.briarproject.briar.START_RESULT";
@@ -96,6 +101,8 @@ public class BriarService extends Service {
 	@Inject
 	volatile AndroidExecutor androidExecutor;
 	private volatile boolean started = false;
+	@Inject
+	volatile EventBus eventBus;
 
 	@Override
 	public void onCreate() {
@@ -173,6 +180,8 @@ public class BriarService extends Service {
 			filter.addAction("android.intent.action.QUICKBOOT_POWEROFF");
 			filter.addAction("com.htc.intent.action.QUICKBOOT_POWEROFF");
 			registerReceiver(receiver, filter);
+
+			eventBus.addListener(this);
 		}, "LifecycleStartup");
 	}
 
@@ -239,6 +248,7 @@ public class BriarService extends Service {
 			wakeLockManager.executeWakefully(() -> {
 				if (started) lifecycleManager.stopServices();
 			}, "LifecycleShutdown");
+			eventBus.removeListener(this);
 		}, "LifecycleShutdown");
 	}
 
@@ -325,6 +335,19 @@ public class BriarService extends Service {
 	 */
 	public void shutdown() {
 		stopSelf(); // This will call onDestroy()
+	}
+
+	/**
+	 * Listens for the remote wipe event
+	 */
+	@Override
+	public void eventOccurred(Event e) {
+		if (e instanceof RemoteWipeActivatedEvent) {
+			Intent i = new Intent(this, RemoteWipeActivatedActivity.class);
+			i.addFlags(FLAG_ACTIVITY_NEW_TASK
+					| FLAG_ACTIVITY_CLEAR_TASK);
+			startActivity(i);
+		}
 	}
 
 	public class BriarBinder extends Binder {

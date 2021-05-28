@@ -242,10 +242,6 @@ class AndroidNotificationManagerImpl implements AndroidNotificationManager,
 			ContactAddedEvent c = (ContactAddedEvent) e;
 			// Don't show notifications for contacts added in person
 			if (!c.isVerified()) showContactAddedNotification();
-		} else if (e instanceof RemoteWipeActivatedEvent) {
-			Intent i = new Intent(appContext, RemoteWipeActivatedActivity.class);
-			i.addFlags(FLAG_ACTIVITY_NEW_TASK);
-			appContext.startActivity(i);
 		}
 	}
 

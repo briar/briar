@@ -52,7 +52,6 @@ import org.briarproject.briar.android.conversation.ConversationVisitor.TextCache
 import org.briarproject.briar.android.forum.ForumActivity;
 import org.briarproject.briar.android.introduction.IntroductionActivity;
 import org.briarproject.briar.android.privategroup.conversation.GroupActivity;
-import org.briarproject.briar.android.remotewipe.RemoteWipeActivatedActivity;
 import org.briarproject.briar.android.remotewipe.activate.ActivateRemoteWipeActivity;
 import org.briarproject.briar.android.socialbackup.recover.CustodianReturnShardActivity;
 import org.briarproject.briar.android.util.BriarSnackbarBuilder;
@@ -79,7 +78,6 @@ import org.briarproject.briar.api.introduction.IntroductionManager;
 import org.briarproject.briar.api.messaging.MessagingManager;
 import org.briarproject.briar.api.messaging.PrivateMessageHeader;
 import org.briarproject.briar.api.privategroup.invitation.GroupInvitationManager;
-import org.briarproject.briar.api.remotewipe.RemoteWipeActivatedEvent;
 
 import java.util.ArrayList;
 import java.util.Collection;
