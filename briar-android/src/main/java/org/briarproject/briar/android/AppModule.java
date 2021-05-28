@@ -320,6 +320,11 @@ public class AppModule {
 			public boolean shouldEnableTransferData() {
 				return IS_DEBUG_BUILD;
 			}
+
+			@Override
+			public boolean shouldEnableShareAppViaOfflineHotspot() {
+				return IS_DEBUG_BUILD;
+			}
 		};
 	}
 }

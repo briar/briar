@@ -34,6 +34,11 @@ public class TestFeatureFlagModule {
 			public boolean shouldEnableTransferData() {
 				return true;
 			}
+
+			@Override
+			public boolean shouldEnableShareAppViaOfflineHotspot() {
+				return true;
+			}
 		};
 	}
 }
