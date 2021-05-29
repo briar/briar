@@ -9,6 +9,7 @@ import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.activity.ActivityComponent;
 import org.briarproject.briar.android.activity.BriarActivity;
+import org.briarproject.briar.android.fragment.BaseFragment.BaseFragmentListener;
 import org.briarproject.briar.android.fragment.ErrorFragment;
 import org.briarproject.briar.android.hotspot.HotspotState.HotspotError;
 import org.briarproject.briar.android.hotspot.HotspotState.HotspotStarted;
@@ -26,7 +27,8 @@ import static org.briarproject.briar.api.android.AndroidNotificationManager.ACTI
 
 @MethodsNotNullByDefault
 @ParametersNotNullByDefault
-public class HotspotActivity extends BriarActivity {
+public class HotspotActivity extends BriarActivity
+		implements BaseFragmentListener {
 
 	@Inject
 	ViewModelProvider.Factory viewModelFactory;
