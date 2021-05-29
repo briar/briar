@@ -4,6 +4,7 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.TextView;
 
 import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
@@ -12,6 +13,8 @@ import org.briarproject.briar.R;
 import org.briarproject.briar.android.fragment.BaseFragment;
 
 import androidx.annotation.Nullable;
+
+import static org.briarproject.briar.android.util.UiUtils.triggerFeedback;
 
 
 @MethodsNotNullByDefault
@@ -55,6 +58,14 @@ public class HotspotErrorFragment extends BaseFragment {
 				.inflate(R.layout.fragment_hotspot_error, container, false);
 		TextView msg = v.findViewById(R.id.errorMessageDetail);
 		msg.setText(errorMessage);
+
+		Button feedbackButton = v.findViewById(R.id.feedbackButton);
+		feedbackButton.setOnClickListener(
+				button -> triggerFeedback(requireContext()));
+
+		Button fallbackButton = v.findViewById(R.id.fallbackButton);
+		// TODO: export apk
+
 		return v;
 	}
 
