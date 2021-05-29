@@ -10,7 +10,6 @@ import org.briarproject.briar.R;
 import org.briarproject.briar.android.activity.ActivityComponent;
 import org.briarproject.briar.android.activity.BriarActivity;
 import org.briarproject.briar.android.fragment.BaseFragment.BaseFragmentListener;
-import org.briarproject.briar.android.fragment.ErrorFragment;
 import org.briarproject.briar.android.hotspot.HotspotState.HotspotError;
 import org.briarproject.briar.android.hotspot.HotspotState.HotspotStarted;
 
@@ -62,9 +61,14 @@ public class HotspotActivity extends BriarActivity
 					showFragment(fm, new HotspotFragment(), tag);
 				}
 			} else if (hotspotState instanceof HotspotError) {
+				// TODO: handle rotation gracefully. If we just use
+				//  fm.findFragmentByTag(HotspotErrorFragment.TAG) == null)
+				//  we might hide multiple errors. Maybe we could update the
+				//  error message of the existing fragment in that case
 				String error = ((HotspotError) hotspotState).getError();
-				Fragment f = ErrorFragment.newInstance(error);
-				showFragment(getSupportFragmentManager(), f, ErrorFragment.TAG);
+				Fragment f = HotspotErrorFragment.newInstance(error);
+				showFragment(getSupportFragmentManager(), f,
+						HotspotErrorFragment.TAG);
 			}
 		});
 
