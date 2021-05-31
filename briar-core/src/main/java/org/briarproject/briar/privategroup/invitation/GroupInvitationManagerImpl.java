@@ -54,6 +54,7 @@ import javax.annotation.concurrent.Immutable;
 import javax.inject.Inject;
 
 import static org.briarproject.bramble.api.sync.Group.Visibility.SHARED;
+import static org.briarproject.bramble.api.sync.validation.IncomingMessageHook.DeliveryAction.ACCEPT_DO_NOT_SHARE;
 import static org.briarproject.briar.api.autodelete.AutoDeleteConstants.NO_AUTO_DELETE_TIMER;
 import static org.briarproject.briar.privategroup.invitation.CreatorState.START;
 import static org.briarproject.briar.privategroup.invitation.MessageType.ABORT;
@@ -147,8 +148,9 @@ class GroupInvitationManagerImpl extends ConversationClientImpl
 	}
 
 	@Override
-	protected boolean incomingMessage(Transaction txn, Message m, BdfList body,
-			BdfDictionary bdfMeta) throws DbException, FormatException {
+	protected DeliveryAction incomingMessage(Transaction txn, Message m,
+			BdfList body, BdfDictionary bdfMeta)
+			throws DbException, FormatException {
 		// Parse the metadata
 		MessageMetadata meta = messageParser.parseMetadata(bdfMeta);
 		// set the clean-up timer that will be started when message gets read
@@ -171,7 +173,7 @@ class GroupInvitationManagerImpl extends ConversationClientImpl
 		}
 		// Store the updated session
 		storeSession(txn, storageId, session);
-		return false;
+		return ACCEPT_DO_NOT_SHARE;
 	}
 
 	private SessionId getSessionId(GroupId privateGroupId) {

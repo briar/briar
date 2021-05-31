@@ -63,6 +63,7 @@ import static java.util.Collections.emptyList;
 import static java.util.logging.Logger.getLogger;
 import static org.briarproject.bramble.api.client.ContactGroupConstants.GROUP_KEY_CONTACT_ID;
 import static org.briarproject.bramble.api.sync.SyncConstants.MAX_MESSAGE_BODY_LENGTH;
+import static org.briarproject.bramble.api.sync.validation.IncomingMessageHook.DeliveryAction.ACCEPT_DO_NOT_SHARE;
 import static org.briarproject.bramble.util.IoUtils.copyAndClose;
 import static org.briarproject.bramble.util.LogUtils.logDuration;
 import static org.briarproject.bramble.util.LogUtils.now;
@@ -172,8 +173,8 @@ class MessagingManagerImpl implements MessagingManager, IncomingMessageHook,
 	}
 
 	@Override
-	public boolean incomingMessage(Transaction txn, Message m, Metadata meta)
-			throws DbException, InvalidMessageException {
+	public DeliveryAction incomingMessage(Transaction txn, Message m,
+			Metadata meta) throws DbException, InvalidMessageException {
 		try {
 			BdfDictionary metaDict = metadataParser.parse(meta);
 			// Message type is null for version 0.0 private messages
@@ -193,8 +194,7 @@ class MessagingManagerImpl implements MessagingManager, IncomingMessageHook,
 		} catch (FormatException e) {
 			throw new InvalidMessageException(e);
 		}
-		// Don't share message
-		return false;
+		return ACCEPT_DO_NOT_SHARE;
 	}
 
 	private void incomingPrivateMessage(Transaction txn, Message m,

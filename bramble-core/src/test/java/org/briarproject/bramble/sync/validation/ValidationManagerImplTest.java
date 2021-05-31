@@ -31,6 +31,8 @@ import static java.util.Arrays.asList;
 import static java.util.Collections.emptyMap;
 import static java.util.Collections.singletonList;
 import static java.util.Collections.singletonMap;
+import static org.briarproject.bramble.api.sync.validation.IncomingMessageHook.DeliveryAction.ACCEPT_DO_NOT_SHARE;
+import static org.briarproject.bramble.api.sync.validation.IncomingMessageHook.DeliveryAction.ACCEPT_SHARE;
 import static org.briarproject.bramble.api.sync.validation.MessageState.DELIVERED;
 import static org.briarproject.bramble.api.sync.validation.MessageState.INVALID;
 import static org.briarproject.bramble.api.sync.validation.MessageState.PENDING;
@@ -111,7 +113,7 @@ public class ValidationManagerImplTest extends BrambleMockTestCase {
 			oneOf(db).mergeMessageMetadata(txn1, messageId, metadata);
 			// Deliver the first message
 			oneOf(hook).incomingMessage(txn1, message, metadata);
-			will(returnValue(false));
+			will(returnValue(ACCEPT_DO_NOT_SHARE));
 			oneOf(db).setMessageState(txn1, messageId, DELIVERED);
 			// Get any pending dependents
 			oneOf(db).getMessageDependents(txn1, messageId);
@@ -167,7 +169,7 @@ public class ValidationManagerImplTest extends BrambleMockTestCase {
 			will(returnValue(new Metadata()));
 			// Deliver the message
 			oneOf(hook).incomingMessage(txn, message, metadata);
-			will(returnValue(false));
+			will(returnValue(ACCEPT_DO_NOT_SHARE));
 			oneOf(db).setMessageState(txn, messageId, DELIVERED);
 			// Get any pending dependents
 			oneOf(db).getMessageDependents(txn, messageId);
@@ -187,7 +189,7 @@ public class ValidationManagerImplTest extends BrambleMockTestCase {
 			will(returnValue(metadata));
 			// Deliver the dependent
 			oneOf(hook).incomingMessage(txn1, message2, metadata);
-			will(returnValue(false));
+			will(returnValue(ACCEPT_DO_NOT_SHARE));
 			oneOf(db).setMessageState(txn1, messageId2, DELIVERED);
 			// Get any pending dependents
 			oneOf(db).getMessageDependents(txn1, messageId2);
@@ -247,7 +249,7 @@ public class ValidationManagerImplTest extends BrambleMockTestCase {
 			oneOf(db).mergeMessageMetadata(txn1, messageId, metadata);
 			// Deliver the message
 			oneOf(hook).incomingMessage(txn1, message, metadata);
-			will(returnValue(true));
+			will(returnValue(ACCEPT_SHARE));
 			oneOf(db).setMessageState(txn1, messageId, DELIVERED);
 			// Get any pending dependents
 			oneOf(db).getMessageDependents(txn1, messageId);
@@ -367,7 +369,7 @@ public class ValidationManagerImplTest extends BrambleMockTestCase {
 			oneOf(db).mergeMessageMetadata(txn1, messageId, metadata);
 			// Deliver the message
 			oneOf(hook).incomingMessage(txn1, message, metadata);
-			will(returnValue(false));
+			will(returnValue(ACCEPT_DO_NOT_SHARE));
 			oneOf(db).setMessageState(txn1, messageId, DELIVERED);
 			// Get any pending dependents
 			oneOf(db).getMessageDependents(txn1, messageId);
@@ -432,7 +434,7 @@ public class ValidationManagerImplTest extends BrambleMockTestCase {
 			oneOf(db).mergeMessageMetadata(txn1, messageId, metadata);
 			// Deliver the message
 			oneOf(hook).incomingMessage(txn1, message, metadata);
-			will(returnValue(false));
+			will(returnValue(ACCEPT_DO_NOT_SHARE));
 			oneOf(db).setMessageState(txn1, messageId, DELIVERED);
 			// Get any pending dependents
 			oneOf(db).getMessageDependents(txn1, messageId);
@@ -602,7 +604,7 @@ public class ValidationManagerImplTest extends BrambleMockTestCase {
 			oneOf(db).mergeMessageMetadata(txn1, messageId, metadata);
 			// Deliver the message
 			oneOf(hook).incomingMessage(txn1, message, metadata);
-			will(returnValue(false));
+			will(returnValue(ACCEPT_DO_NOT_SHARE));
 			oneOf(db).setMessageState(txn1, messageId, DELIVERED);
 			// The message has two pending dependents: 1 and 2
 			oneOf(db).getMessageDependents(txn1, messageId);
@@ -622,7 +624,7 @@ public class ValidationManagerImplTest extends BrambleMockTestCase {
 			will(returnValue(metadata));
 			// Deliver message 1
 			oneOf(hook).incomingMessage(txn2, message1, metadata);
-			will(returnValue(false));
+			will(returnValue(ACCEPT_DO_NOT_SHARE));
 			oneOf(db).setMessageState(txn2, messageId1, DELIVERED);
 			// Message 1 has one pending dependent: 3
 			oneOf(db).getMessageDependents(txn2, messageId1);
@@ -642,7 +644,7 @@ public class ValidationManagerImplTest extends BrambleMockTestCase {
 			will(returnValue(metadata));
 			// Deliver message 2
 			oneOf(hook).incomingMessage(txn3, message2, metadata);
-			will(returnValue(false));
+			will(returnValue(ACCEPT_DO_NOT_SHARE));
 			oneOf(db).setMessageState(txn3, messageId2, DELIVERED);
 			// Message 2 has one pending dependent: 3 (same dependent as 1)
 			oneOf(db).getMessageDependents(txn3, messageId2);
@@ -662,6 +664,7 @@ public class ValidationManagerImplTest extends BrambleMockTestCase {
 			will(returnValue(metadata));
 			// Deliver message 3
 			oneOf(hook).incomingMessage(txn4, message3, metadata);
+			will(returnValue(ACCEPT_DO_NOT_SHARE));
 			oneOf(db).setMessageState(txn4, messageId3, DELIVERED);
 			// Message 3 has one pending dependent: 4
 			oneOf(db).getMessageDependents(txn4, messageId3);
@@ -685,7 +688,7 @@ public class ValidationManagerImplTest extends BrambleMockTestCase {
 			will(returnValue(metadata));
 			// Deliver message 4
 			oneOf(hook).incomingMessage(txn6, message4, metadata);
-			will(returnValue(false));
+			will(returnValue(ACCEPT_DO_NOT_SHARE));
 			oneOf(db).setMessageState(txn6, messageId4, DELIVERED);
 			// Message 4 has no pending dependents
 			oneOf(db).getMessageDependents(txn6, messageId4);
@@ -717,7 +720,7 @@ public class ValidationManagerImplTest extends BrambleMockTestCase {
 			oneOf(db).mergeMessageMetadata(txn1, messageId, metadata);
 			// Deliver the message
 			oneOf(hook).incomingMessage(txn1, message, metadata);
-			will(returnValue(false));
+			will(returnValue(ACCEPT_DO_NOT_SHARE));
 			oneOf(db).setMessageState(txn1, messageId, DELIVERED);
 			// Get any pending dependents
 			oneOf(db).getMessageDependents(txn1, messageId);

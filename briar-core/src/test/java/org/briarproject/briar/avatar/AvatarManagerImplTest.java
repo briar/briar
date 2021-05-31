@@ -44,6 +44,7 @@ import javax.annotation.Nullable;
 import static org.briarproject.bramble.api.sync.Group.Visibility.INVISIBLE;
 import static org.briarproject.bramble.api.sync.Group.Visibility.SHARED;
 import static org.briarproject.bramble.api.sync.Group.Visibility.VISIBLE;
+import static org.briarproject.bramble.api.sync.validation.IncomingMessageHook.DeliveryAction.ACCEPT_DO_NOT_SHARE;
 import static org.briarproject.bramble.test.TestUtils.getContact;
 import static org.briarproject.bramble.test.TestUtils.getGroup;
 import static org.briarproject.bramble.test.TestUtils.getLocalAuthor;
@@ -59,7 +60,6 @@ import static org.briarproject.briar.api.avatar.AvatarManager.MAJOR_VERSION;
 import static org.briarproject.briar.avatar.AvatarConstants.GROUP_KEY_CONTACT_ID;
 import static org.briarproject.briar.avatar.AvatarConstants.MSG_KEY_VERSION;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
 
 public class AvatarManagerImplTest extends BrambleMockTestCase {
 
@@ -196,7 +196,8 @@ public class AvatarManagerImplTest extends BrambleMockTestCase {
 				null);
 		expectGetContactId(txn, contactGroupId, contact.getId());
 
-		assertFalse(avatarManager.incomingMessage(txn, contactMsg, meta));
+		assertEquals(ACCEPT_DO_NOT_SHARE,
+				avatarManager.incomingMessage(txn, contactMsg, meta));
 		assertEquals(1, txn.getActions().size());
 		Event event = ((EventAction) txn.getActions().get(0)).getEvent();
 		AvatarUpdatedEvent avatarUpdatedEvent = (AvatarUpdatedEvent) event;
@@ -230,7 +231,8 @@ public class AvatarManagerImplTest extends BrambleMockTestCase {
 		expectFindLatest(txn, contactGroupId, latestMsgId, latest);
 		expectGetContactId(txn, contactGroupId, contact.getId());
 
-		assertFalse(avatarManager.incomingMessage(txn, contactMsg, meta));
+		assertEquals(ACCEPT_DO_NOT_SHARE,
+				avatarManager.incomingMessage(txn, contactMsg, meta));
 
 		// event to broadcast
 		assertEquals(1, txn.getActions().size());
@@ -260,7 +262,8 @@ public class AvatarManagerImplTest extends BrambleMockTestCase {
 		}});
 		expectFindLatest(txn, contactGroupId, latestMsgId, latest);
 
-		assertFalse(avatarManager.incomingMessage(txn, contactMsg, meta));
+		assertEquals(ACCEPT_DO_NOT_SHARE,
+				avatarManager.incomingMessage(txn, contactMsg, meta));
 
 		// no event to broadcast
 		assertEquals(0, txn.getActions().size());
@@ -271,7 +274,8 @@ public class AvatarManagerImplTest extends BrambleMockTestCase {
 			throws DbException, InvalidMessageException {
 		Transaction txn = new Transaction(null, false);
 		expectGetOurGroup(txn);
-		avatarManager.incomingMessage(txn, ourMsg, meta);
+		assertEquals(ACCEPT_DO_NOT_SHARE,
+				avatarManager.incomingMessage(txn, ourMsg, meta));
 	}
 
 	@Test
