@@ -55,6 +55,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import javax.annotation.concurrent.ThreadSafe;
 import javax.inject.Inject;
 
+import static org.briarproject.bramble.api.sync.validation.IncomingMessageHook.DeliveryAction.ACCEPT_SHARE;
 import static org.briarproject.briar.api.identity.AuthorInfo.Status.UNVERIFIED;
 import static org.briarproject.briar.api.identity.AuthorInfo.Status.VERIFIED;
 import static org.briarproject.briar.api.privategroup.MessageType.JOIN;
@@ -518,18 +519,19 @@ class PrivateGroupManagerImpl extends BdfIncomingMessageHook
 	}
 
 	@Override
-	protected boolean incomingMessage(Transaction txn, Message m, BdfList body,
-			BdfDictionary meta) throws DbException, FormatException {
+	protected DeliveryAction incomingMessage(Transaction txn, Message m,
+			BdfList body, BdfDictionary meta)
+			throws DbException, FormatException {
 
 		MessageType type =
 				MessageType.valueOf(meta.getLong(KEY_TYPE).intValue());
 		switch (type) {
 			case JOIN:
 				handleJoinMessage(txn, m, meta);
-				return true;
+				return ACCEPT_SHARE;
 			case POST:
 				handleGroupMessage(txn, m, meta);
-				return true;
+				return ACCEPT_SHARE;
 			default:
 				// the validator should only let valid types pass
 				throw new RuntimeException("Unknown MessageType");

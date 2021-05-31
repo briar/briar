@@ -47,6 +47,7 @@ import javax.annotation.Nullable;
 import static java.util.Arrays.asList;
 import static junit.framework.TestCase.fail;
 import static org.briarproject.bramble.api.sync.Group.Visibility.SHARED;
+import static org.briarproject.bramble.api.sync.validation.IncomingMessageHook.DeliveryAction.ACCEPT_DO_NOT_SHARE;
 import static org.briarproject.bramble.test.TestUtils.getAuthor;
 import static org.briarproject.bramble.test.TestUtils.getContact;
 import static org.briarproject.bramble.test.TestUtils.getGroup;
@@ -275,43 +276,50 @@ public class GroupInvitationManagerImplTest extends BrambleMockTestCase {
 	@Test
 	public void testIncomingFirstInviteMessage() throws Exception {
 		expectFirstIncomingMessage(Role.INVITEE, INVITE);
-		groupInvitationManager.incomingMessage(txn, message, body, meta);
+		assertEquals(ACCEPT_DO_NOT_SHARE, groupInvitationManager
+				.incomingMessage(txn, message, body, meta));
 	}
 
 	@Test
 	public void testIncomingFirstJoinMessage() throws Exception {
 		expectFirstIncomingMessage(Role.PEER, JOIN);
-		groupInvitationManager.incomingMessage(txn, message, body, meta);
+		assertEquals(ACCEPT_DO_NOT_SHARE, groupInvitationManager
+				.incomingMessage(txn, message, body, meta));
 	}
 
 	@Test
 	public void testIncomingInviteMessage() throws Exception {
 		expectIncomingMessage(Role.INVITEE, INVITE);
-		groupInvitationManager.incomingMessage(txn, message, body, meta);
+		assertEquals(ACCEPT_DO_NOT_SHARE, groupInvitationManager
+				.incomingMessage(txn, message, body, meta));
 	}
 
 	@Test
 	public void testIncomingJoinMessage() throws Exception {
 		expectIncomingMessage(Role.INVITEE, JOIN);
-		groupInvitationManager.incomingMessage(txn, message, body, meta);
+		assertEquals(ACCEPT_DO_NOT_SHARE, groupInvitationManager
+				.incomingMessage(txn, message, body, meta));
 	}
 
 	@Test
 	public void testIncomingJoinMessageForCreator() throws Exception {
 		expectIncomingMessage(Role.CREATOR, JOIN);
-		groupInvitationManager.incomingMessage(txn, message, body, meta);
+		assertEquals(ACCEPT_DO_NOT_SHARE, groupInvitationManager
+				.incomingMessage(txn, message, body, meta));
 	}
 
 	@Test
 	public void testIncomingLeaveMessage() throws Exception {
 		expectIncomingMessage(Role.INVITEE, LEAVE);
-		groupInvitationManager.incomingMessage(txn, message, body, meta);
+		assertEquals(ACCEPT_DO_NOT_SHARE, groupInvitationManager
+				.incomingMessage(txn, message, body, meta));
 	}
 
 	@Test
 	public void testIncomingAbortMessage() throws Exception {
 		expectIncomingMessage(Role.INVITEE, ABORT);
-		groupInvitationManager.incomingMessage(txn, message, body, meta);
+		assertEquals(ACCEPT_DO_NOT_SHARE, groupInvitationManager
+				.incomingMessage(txn, message, body, meta));
 	}
 
 	private void expectFirstIncomingMessage(Role role, MessageType type)
