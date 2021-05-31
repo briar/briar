@@ -324,11 +324,9 @@ class ConversationVisitor implements
 							R.layout.list_item_conversation_notice_in, text, r);
 				}
 			default: // WIPE
-				if (r.isLocal()) {
-					String text = ctx.getString(R.string.remote_wipe_wipe_sent, contactName.getValue());
-					return new ConversationNoticeItem(
-							R.layout.list_item_conversation_notice_out, text, r);
-				} else { return; }
+				String text = ctx.getString(R.string.remote_wipe_wipe_sent, contactName.getValue());
+				return new ConversationNoticeItem(
+						R.layout.list_item_conversation_notice_out, text, r);
 		}
 	}
 
