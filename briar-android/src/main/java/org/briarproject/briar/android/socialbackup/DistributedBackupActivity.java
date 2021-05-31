@@ -80,7 +80,10 @@ public class DistributedBackupActivity extends BriarActivity implements
 				showNextFragment(fragment);
 			});
 		} catch (DbException e) {
-			e.printStackTrace();
+			Toast.makeText(this,
+					"There was an error when creating the backup",
+					Toast.LENGTH_LONG).show();
+			finish();
 		}
 	}
 

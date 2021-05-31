@@ -67,4 +67,8 @@ public class ShardsSentFragment extends BaseFragment {
 		component.inject(this);
 	}
 
+    public void onBackPressed() {
+	    listener.shardsSentDismissed();
+    }
+
 }

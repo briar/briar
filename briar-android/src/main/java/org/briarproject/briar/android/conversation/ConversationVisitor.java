@@ -298,11 +298,13 @@ class ConversationVisitor implements
 	@Override
 	public ConversationItem visitShardMessage(ShardMessageHeader r) {
 		if (r.isLocal()) {
-			String text = ctx.getString(R.string.social_backup_shard_sent);
+			String text = ctx.getString(R.string.social_backup_shard_sent,
+					contactName.getValue());
 			return new ConversationNoticeItem(
 					R.layout.list_item_conversation_notice_out, text, r);
 		} else {
-			String text = ctx.getString(R.string.social_backup_shard_received);
+			String text = ctx.getString(R.string.social_backup_shard_received,
+					contactName.getValue());
 			return new ConversationNoticeItem(
 					R.layout.list_item_conversation_notice_in, text, r);
 		}
