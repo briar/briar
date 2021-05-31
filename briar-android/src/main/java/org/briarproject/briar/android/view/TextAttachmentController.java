@@ -21,6 +21,7 @@ import org.briarproject.briar.android.view.ImagePreview.ImagePreviewListener;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.logging.Logger;
 
 import androidx.annotation.Nullable;
 import androidx.annotation.UiThread;
@@ -37,6 +38,8 @@ import static android.widget.Toast.LENGTH_LONG;
 import static androidx.core.content.ContextCompat.getColor;
 import static androidx.customview.view.AbsSavedState.EMPTY_STATE;
 import static androidx.lifecycle.Lifecycle.State.DESTROYED;
+import static java.util.logging.Level.INFO;
+import static java.util.logging.Logger.getLogger;
 import static org.briarproject.briar.android.util.UiUtils.resolveColorAttribute;
 import static org.briarproject.briar.android.view.TextSendController.SendState.SENT;
 import static org.briarproject.briar.api.messaging.MessagingConstants.MAX_ATTACHMENTS_PER_MESSAGE;
@@ -45,6 +48,9 @@ import static org.briarproject.briar.api.messaging.MessagingConstants.MAX_ATTACH
 @NotNullByDefault
 public class TextAttachmentController extends TextSendController
 		implements ImagePreviewListener {
+
+	private static final Logger LOG =
+			getLogger(TextAttachmentController.class.getName());
 
 	private final ImagePreview imagePreview;
 	private final AttachmentListener attachmentListener;
@@ -67,6 +73,7 @@ public class TextAttachmentController extends TextSendController
 		sendButton.setOnImageClickListener(view -> onImageButtonClicked());
 	}
 
+	@UiThread
 	@Override
 	protected void updateViewState() {
 		super.updateViewState();
@@ -160,10 +167,13 @@ public class TextAttachmentController extends TextSendController
 	 * at most once per call to
 	 * {@link Activity#startActivityForResult(Intent, int)}.
 	 */
+	@UiThread
 	@SuppressWarnings("JavadocReference")
 	public void onImageReceived(@Nullable Intent resultData) {
+		if (LOG.isLoggable(INFO)) LOG.info("onImageReceived: " + resultData);
 		if (resultData == null) return;
-		if (loadingUris || !imageUris.isEmpty()) throw new AssertionError();
+		if (loadingUris) throw new AssertionError("still loading URIs");
+		if (!imageUris.isEmpty()) throw new AssertionError("uris " + imageUris);
 		List<Uri> newUris = new ArrayList<>();
 		if (resultData.getData() != null) {
 			newUris.add(resultData.getData());
@@ -177,6 +187,7 @@ public class TextAttachmentController extends TextSendController
 		}
 	}
 
+	@UiThread
 	private void onNewUris(boolean restart, List<Uri> newUris) {
 		if (newUris.isEmpty()) return;
 		if (loadingUris) throw new AssertionError();
@@ -197,8 +208,9 @@ public class TextAttachmentController extends TextSendController
 			@Override
 			public void onChanged(@Nullable AttachmentResult attachmentResult) {
 				if (attachmentResult == null) {
-					// The fresh LiveData was deliberately set to null.
-					// This means that we can stop observing it.
+					// The fresh LiveData was deliberately set to null
+					// when the AttachmentCreator reset its state.
+					// This means that we can simply stop observing it.
 					result.removeObserver(this);
 				} else {
 					boolean noError = onNewAttachmentItemResults(
@@ -270,6 +282,7 @@ public class TextAttachmentController extends TextSendController
 		onCancel();
 	}
 
+	@UiThread
 	@Override
 	public void onCancel() {
 		textInput.clearText();
