@@ -317,8 +317,11 @@ public class RemoteWipeManagerImpl extends ConversationClientImpl
 							.getMessage(txn, messageEntry.getKey());
 					MessageStatus status = db.getMessageStatus(txn, contactId,
 							messageEntry.getKey());
-					headers.add(
-							createMessageHeader(message, meta, status, WIPE));
+					if (meta.getBoolean(MSG_KEY_LOCAL)) {
+						headers.add(
+								createMessageHeader(message, meta, status,
+										WIPE));
+					}
 				}
 			}
 			return headers;
