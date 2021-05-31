@@ -61,14 +61,8 @@ public class HotspotActivity extends BriarActivity
 					showFragment(fm, new HotspotFragment(), tag);
 				}
 			} else if (hotspotState instanceof HotspotError) {
-				// TODO: handle rotation gracefully. If we just use
-				//  fm.findFragmentByTag(HotspotErrorFragment.TAG) == null)
-				//  we might hide multiple errors. Maybe we could update the
-				//  error message of the existing fragment in that case
-				String error = ((HotspotError) hotspotState).getError();
-				Fragment f = HotspotErrorFragment.newInstance(error);
-				showFragment(getSupportFragmentManager(), f,
-						HotspotErrorFragment.TAG);
+				HotspotError error = ((HotspotError) hotspotState);
+				showErrorFragment(error.getError());
 			}
 		});
 
@@ -77,6 +71,15 @@ public class HotspotActivity extends BriarActivity
 					.replace(R.id.fragmentContainer, new HotspotIntroFragment(),
 							HotspotIntroFragment.TAG)
 					.commit();
+		}
+	}
+
+	private void showErrorFragment(String error) {
+		FragmentManager fm = getSupportFragmentManager();
+		String tag = HotspotErrorFragment.TAG;
+		if (fm.findFragmentByTag(tag) == null) {
+			Fragment f = HotspotErrorFragment.newInstance(error);
+			showFragment(fm, f, tag, false);
 		}
 	}
 

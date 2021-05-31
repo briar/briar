@@ -7,18 +7,16 @@
 
 	<androidx.constraintlayout.widget.ConstraintLayout
 		android:layout_width="match_parent"
-		android:layout_height="wrap_content">
+		android:layout_height="wrap_content"
+		android:padding="16dp">
 
 		<androidx.appcompat.widget.AppCompatImageView
 			android:id="@+id/errorIcon"
-			android:layout_width="128dp"
-			android:layout_height="128dp"
-			android:layout_marginStart="8dp"
-			android:layout_marginLeft="8dp"
-			android:layout_marginTop="8dp"
-			android:layout_marginEnd="8dp"
-			android:layout_marginRight="8dp"
-			app:layout_constraintEnd_toEndOf="parent"
+			android:layout_width="32dp"
+			android:layout_height="32dp"
+			android:layout_marginVertical="8dp"
+			app:layout_constraintBottom_toBottomOf="@id/errorMessageIntro"
+			app:layout_constraintEnd_toStartOf="@id/errorMessageIntro"
 			app:layout_constraintStart_toStartOf="parent"
 			app:layout_constraintTop_toTopOf="parent"
 			app:srcCompat="@drawable/alerts_and_states_error"
@@ -26,44 +24,27 @@
 			tools:ignore="ContentDescription" />
 
 		<TextView
-			android:id="@+id/errorTitle"
-			android:layout_width="wrap_content"
-			android:layout_height="wrap_content"
-			android:layout_marginStart="8dp"
-			android:layout_marginLeft="8dp"
-			android:layout_marginTop="8dp"
-			android:layout_marginEnd="8dp"
-			android:layout_marginRight="8dp"
-			android:text="@string/sorry"
-			android:textSize="@dimen/text_size_xlarge"
-			app:layout_constraintEnd_toEndOf="parent"
-			app:layout_constraintStart_toStartOf="parent"
-			app:layout_constraintTop_toBottomOf="@+id/errorIcon" />
-
-		<TextView
 			android:id="@+id/errorMessageIntro"
 			android:layout_width="0dp"
 			android:layout_height="wrap_content"
 			android:layout_marginStart="16dp"
 			android:layout_marginLeft="16dp"
-			android:layout_marginTop="8dp"
 			android:layout_marginEnd="16dp"
 			android:layout_marginRight="16dp"
 			android:text="@string/hotspot_error_intro"
 			android:textSize="@dimen/text_size_medium"
 			app:layout_constraintEnd_toEndOf="parent"
-			app:layout_constraintStart_toStartOf="parent"
-			app:layout_constraintTop_toBottomOf="@+id/errorTitle" />
+			app:layout_constraintStart_toEndOf="@+id/errorIcon"
+			app:layout_constraintTop_toTopOf="parent" />
 
 		<TextView
 			android:id="@+id/errorMessageDetail"
 			android:layout_width="0dp"
 			android:layout_height="wrap_content"
-			android:layout_marginStart="16dp"
-			android:layout_marginLeft="16dp"
-			android:layout_marginTop="16dp"
-			android:layout_marginEnd="16dp"
-			android:layout_marginRight="16dp"
+			android:layout_marginVertical="16dp"
+			android:background="@color/briar_warning_background"
+			android:padding="8dp"
+			android:textColor="@color/briar_text_primary_inverse"
 			android:textSize="@dimen/text_size_medium"
 			app:layout_constraintEnd_toEndOf="parent"
 			app:layout_constraintHorizontal_bias="0.0"
@@ -82,31 +63,13 @@
 			app:layout_constraintStart_toStartOf="parent"
 			app:layout_constraintTop_toBottomOf="@+id/errorMessageDetail" />
 
-		<TextView
-			android:id="@+id/fallbackIntro"
-			android:layout_width="0dp"
+		<FrameLayout
+			android:id="@+id/fallbackPlaceholder"
+			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
-			android:layout_marginStart="16dp"
-			android:layout_marginLeft="16dp"
-			android:layout_marginTop="16dp"
-			android:layout_marginEnd="16dp"
-			android:layout_marginRight="16dp"
-			android:text="@string/hotspot_help_fallback_intro"
-			android:textSize="@dimen/text_size_medium"
 			app:layout_constraintEnd_toEndOf="parent"
 			app:layout_constraintStart_toStartOf="parent"
 			app:layout_constraintTop_toBottomOf="@+id/feedbackButton" />
-
-		<Button
-			android:id="@+id/fallbackButton"
-			style="@style/BriarButtonFlat.Positive"
-			android:layout_width="wrap_content"
-			android:layout_height="wrap_content"
-			android:layout_marginTop="16dp"
-			android:text="@string/hotspot_help_fallback_button"
-			app:layout_constraintEnd_toEndOf="parent"
-			app:layout_constraintStart_toStartOf="parent"
-			app:layout_constraintTop_toBottomOf="@+id/fallbackIntro" />
 
 	</androidx.constraintlayout.widget.ConstraintLayout>
 

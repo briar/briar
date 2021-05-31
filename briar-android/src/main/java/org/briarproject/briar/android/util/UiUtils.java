@@ -61,6 +61,7 @@ import androidx.core.util.Consumer;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
 import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.Observer;
@@ -137,13 +138,18 @@ public class UiUtils {
 
 	public static void showFragment(FragmentManager fm, Fragment f,
 			@Nullable String tag) {
-		fm.beginTransaction()
+		showFragment(fm, f, tag, true);
+	}
+
+	public static void showFragment(FragmentManager fm, Fragment f,
+			@Nullable String tag, boolean addToBackStack) {
+		FragmentTransaction ta = fm.beginTransaction()
 				.setCustomAnimations(R.anim.step_next_in,
 						R.anim.step_previous_out, R.anim.step_previous_in,
 						R.anim.step_next_out)
-				.replace(R.id.fragmentContainer, f, tag)
-				.addToBackStack(tag)
-				.commit();
+				.replace(R.id.fragmentContainer, f, tag);
+		if (addToBackStack) ta.addToBackStack(tag);
+		ta.commit();
 	}
 
 	public static String getContactDisplayName(Author author,

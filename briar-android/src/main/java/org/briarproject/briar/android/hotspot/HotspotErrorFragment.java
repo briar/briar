@@ -12,7 +12,11 @@ import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.fragment.BaseFragment;
 
+import javax.inject.Inject;
+
 import androidx.annotation.Nullable;
+import androidx.fragment.app.FragmentTransaction;
+import androidx.lifecycle.ViewModelProvider;
 
 import static org.briarproject.briar.android.util.UiUtils.triggerFeedback;
 
@@ -22,6 +26,9 @@ import static org.briarproject.briar.android.util.UiUtils.triggerFeedback;
 public class HotspotErrorFragment extends BaseFragment {
 
 	public static final String TAG = HotspotErrorFragment.class.getName();
+
+	@Inject
+	ViewModelProvider.Factory viewModelFactory;
 
 	private static final String ERROR_MSG = "errorMessage";
 
@@ -44,8 +51,7 @@ public class HotspotErrorFragment extends BaseFragment {
 	public void onCreate(@Nullable Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
-		Bundle args = getArguments();
-		if (args == null) throw new AssertionError();
+		Bundle args = requireArguments();
 		errorMessage = args.getString(ERROR_MSG);
 	}
 
@@ -54,8 +60,13 @@ public class HotspotErrorFragment extends BaseFragment {
 	public View onCreateView(LayoutInflater inflater,
 			@Nullable ViewGroup container,
 			@Nullable Bundle savedInstanceState) {
-		View v = inflater
+		return inflater
 				.inflate(R.layout.fragment_hotspot_error, container, false);
+	}
+
+	@Override
+	public void onViewCreated(View v, @Nullable Bundle savedInstanceState) {
+		super.onViewCreated(v, savedInstanceState);
 		TextView msg = v.findViewById(R.id.errorMessageDetail);
 		msg.setText(errorMessage);
 
@@ -63,10 +74,9 @@ public class HotspotErrorFragment extends BaseFragment {
 		feedbackButton.setOnClickListener(
 				button -> triggerFeedback(requireContext()));
 
-		Button fallbackButton = v.findViewById(R.id.fallbackButton);
-		// TODO: export apk
-
-		return v;
+		FallbackFragment fallbackFragment = new FallbackFragment();
+		FragmentTransaction ta = getChildFragmentManager().beginTransaction();
+		ta.replace(R.id.fallbackPlaceholder, fallbackFragment).commit();
 	}
 
 }
