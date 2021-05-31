@@ -145,7 +145,7 @@ class HotspotViewModel extends DbViewModel
 	@Override
 	public void onHotspotError(String error) {
 		LOG.warning("Hotspot error: " + error);
-		state.setValue(new HotspotError(error));
+		state.postValue(new HotspotError(error));
 		ioExecutor.execute(webServerManager::stopWebServer);
 		notificationManager.clearHotspotNotification();
 	}
