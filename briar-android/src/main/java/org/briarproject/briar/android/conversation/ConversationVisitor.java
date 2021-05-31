@@ -326,12 +326,7 @@ class ConversationVisitor implements
 					String text = ctx.getString(R.string.remote_wipe_wipe_sent, contactName.getValue());
 					return new ConversationNoticeItem(
 							R.layout.list_item_conversation_notice_out, text, r);
-				} else {
-					// TODO this is only for testing - will be removed in production
-					String text = "GOT REMOTE WIPE SIGNAL";
-					return new ConversationNoticeItem(
-							R.layout.list_item_conversation_notice_in, text, r);
-				}
+				} else { return; }
 		}
 	}
 
