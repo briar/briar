@@ -16,7 +16,6 @@ interface TransportKeyAgreementConstants {
 	String SESSION_KEY_LOCAL_PUBLIC_KEY = "localPublicKey";
 	String SESSION_KEY_LOCAL_PRIVATE_KEY = "localPrivateKey";
 	String SESSION_KEY_LOCAL_TIMESTAMP = "localTimestamp";
-	String SESSION_KEY_REMOTE_TIMESTAMP = "remoteTimestamp";
 	String SESSION_KEY_KEY_SET_ID = "keySetId";
 
 	/**

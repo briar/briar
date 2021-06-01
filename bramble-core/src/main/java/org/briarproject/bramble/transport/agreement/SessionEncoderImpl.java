@@ -19,7 +19,6 @@ import static org.briarproject.bramble.transport.agreement.TransportKeyAgreement
 import static org.briarproject.bramble.transport.agreement.TransportKeyAgreementConstants.SESSION_KEY_LOCAL_PRIVATE_KEY;
 import static org.briarproject.bramble.transport.agreement.TransportKeyAgreementConstants.SESSION_KEY_LOCAL_PUBLIC_KEY;
 import static org.briarproject.bramble.transport.agreement.TransportKeyAgreementConstants.SESSION_KEY_LOCAL_TIMESTAMP;
-import static org.briarproject.bramble.transport.agreement.TransportKeyAgreementConstants.SESSION_KEY_REMOTE_TIMESTAMP;
 import static org.briarproject.bramble.transport.agreement.TransportKeyAgreementConstants.SESSION_KEY_STATE;
 
 @Immutable
@@ -49,7 +48,6 @@ class SessionEncoderImpl implements SessionEncoder {
 					localKeyPair.getPrivate().getEncoded());
 		}
 		putNullable(meta, SESSION_KEY_LOCAL_TIMESTAMP, s.getLocalTimestamp());
-		putNullable(meta, SESSION_KEY_REMOTE_TIMESTAMP, s.getRemoteTimestamp());
 		KeySetId keySetId = s.getKeySetId();
 		if (keySetId == null) meta.put(SESSION_KEY_KEY_SET_ID, NULL_VALUE);
 		else meta.put(SESSION_KEY_KEY_SET_ID, keySetId.getInt());

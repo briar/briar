@@ -236,7 +236,7 @@ class TransportKeyAgreementManagerImpl extends BdfIncomingMessageHook
 			KeySetId keySetId = requireNonNull(ss.session.getKeySetId());
 			keyManager.activateKeys(txn, singletonMap(t, keySetId));
 			Session session = new Session(ACTIVATED,
-					ss.session.getLastLocalMessageId(), null, null, null, null);
+					ss.session.getLastLocalMessageId(), null, null, null);
 			saveSession(txn, t, ss.storageId, session);
 			return ACCEPT_DO_NOT_SHARE;
 		} else {
@@ -266,7 +266,7 @@ class TransportKeyAgreementManagerImpl extends BdfIncomingMessageHook
 		Message activateMessage =
 				sendActivateMessage(txn, m.getGroupId(), t, keyMessage.getId());
 		Session session = new Session(AWAIT_ACTIVATE, activateMessage.getId(),
-				null, null, null, keySetId);
+				null, null, keySetId);
 		saveNewSession(txn, m.getGroupId(), t, session);
 		return ACCEPT_DO_NOT_SHARE;
 	}
@@ -294,7 +294,7 @@ class TransportKeyAgreementManagerImpl extends BdfIncomingMessageHook
 		Message activateMessage =
 				sendActivateMessage(txn, m.getGroupId(), t, previousMessageId);
 		Session session = new Session(AWAIT_ACTIVATE, activateMessage.getId(),
-				null, null, null, keySetId);
+				null, null, keySetId);
 		saveSession(txn, t, ss.storageId, session);
 		return ACCEPT_DO_NOT_SHARE;
 	}
@@ -305,7 +305,7 @@ class TransportKeyAgreementManagerImpl extends BdfIncomingMessageHook
 		Message keyMessage = sendKeyMessage(txn, contactGroupId, t,
 				localKeyPair.getPublic());
 		Session session = new Session(AWAIT_KEY, keyMessage.getId(),
-				localKeyPair, keyMessage.getTimestamp(), null, null);
+				localKeyPair, keyMessage.getTimestamp(), null);
 		saveNewSession(txn, contactGroupId, t, session);
 	}
 

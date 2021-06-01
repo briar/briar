@@ -18,19 +18,17 @@ class Session {
 	@Nullable
 	private final KeyPair localKeyPair;
 	@Nullable
-	private final Long localTimestamp, remoteTimestamp;
+	private final Long localTimestamp;
 	@Nullable
 	private final KeySetId keySetId;
 
 	Session(State state, @Nullable MessageId lastLocalMessageId,
-			@Nullable KeyPair localKeyPair,
-			@Nullable Long localTimestamp, @Nullable Long remoteTimestamp,
+			@Nullable KeyPair localKeyPair, @Nullable Long localTimestamp,
 			@Nullable KeySetId keySetId) {
 		this.state = state;
 		this.lastLocalMessageId = lastLocalMessageId;
 		this.localKeyPair = localKeyPair;
 		this.localTimestamp = localTimestamp;
-		this.remoteTimestamp = remoteTimestamp;
 		this.keySetId = keySetId;
 	}
 
@@ -51,11 +49,6 @@ class Session {
 	@Nullable
 	Long getLocalTimestamp() {
 		return localTimestamp;
-	}
-
-	@Nullable
-	Long getRemoteTimestamp() {
-		return remoteTimestamp;
 	}
 
 	@Nullable
