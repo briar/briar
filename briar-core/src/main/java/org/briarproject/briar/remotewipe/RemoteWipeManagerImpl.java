@@ -29,25 +29,27 @@ import org.briarproject.briar.api.conversation.ConversationMessageHeader;
 import org.briarproject.briar.api.conversation.DeletionResult;
 import org.briarproject.briar.api.remotewipe.MessageEncoder;
 import org.briarproject.briar.api.remotewipe.MessageParser;
+import org.briarproject.briar.api.remotewipe.MessageType;
 import org.briarproject.briar.api.remotewipe.RemoteWipeActivatedEvent;
 import org.briarproject.briar.api.remotewipe.RemoteWipeManager;
 import org.briarproject.briar.api.remotewipe.RemoteWipeMessageHeader;
 import org.briarproject.briar.api.remotewipe.RemoteWipeReceivedEvent;
 import org.briarproject.briar.client.ConversationClientImpl;
-import org.briarproject.briar.api.remotewipe.MessageType;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.logging.Logger;
 
 import javax.annotation.Nullable;
 import javax.inject.Inject;
 
-import static org.briarproject.briar.client.MessageTrackerConstants.MSG_KEY_READ;
+import static java.util.logging.Logger.getLogger;
 import static org.briarproject.briar.api.remotewipe.MessageType.SETUP;
 import static org.briarproject.briar.api.remotewipe.MessageType.WIPE;
+import static org.briarproject.briar.client.MessageTrackerConstants.MSG_KEY_READ;
 import static org.briarproject.briar.remotewipe.RemoteWipeConstants.GROUP_KEY_CONTACT_ID;
 import static org.briarproject.briar.remotewipe.RemoteWipeConstants.GROUP_KEY_RECEIVED_WIPE;
 import static org.briarproject.briar.remotewipe.RemoteWipeConstants.GROUP_KEY_WIPERS;
@@ -70,6 +72,9 @@ public class RemoteWipeManagerImpl extends ConversationClientImpl
 	private final MessageEncoder messageEncoder;
 	private final MessageParser messageParser;
 	private RemoteWipeManager.Observer observer;
+
+	private static final Logger LOG =
+			getLogger(RemoteWipeManager.class.getName());
 
 	@Inject
 	protected RemoteWipeManagerImpl(
@@ -121,7 +126,7 @@ public class RemoteWipeManagerImpl extends ConversationClientImpl
 	@Override
 	protected boolean incomingMessage(Transaction txn, Message m, BdfList body,
 			BdfDictionary meta) throws DbException, FormatException {
-		System.out.println("Incoming remote wipe message");
+		LOG.info("Incoming remote wipe message");
 		MessageType type = MessageType
 				.fromValue(body.getLong(0).intValue());
 		if (type == SETUP) {
@@ -140,7 +145,7 @@ public class RemoteWipeManagerImpl extends ConversationClientImpl
 			ContactId contactId = getContactId(txn, m.getGroupId());
 			// Check if contact is in list of wipers
 			if (findMessage(txn, m.getGroupId(), SETUP, true) != null) {
-				System.out.println("Got a valid wipe message from a wiper");
+				LOG.info("Got a valid wipe message from a wiper");
 
 				BdfDictionary existingMeta =
 						clientHelper.getGroupMetadataAsDictionary(txn,
@@ -157,25 +162,25 @@ public class RemoteWipeManagerImpl extends ConversationClientImpl
 							receivedWipeMessages.getList(i);
 
 					long timestamp = receivedWipeMessage.getLong(1);
-					System.out.println("Message age: " +
+					LOG.info("Message age: " +
 							(clock.currentTimeMillis() - timestamp));
 					// Filter the messages for old ones
 					if (clock.currentTimeMillis() - timestamp >
 							MAX_MESSAGE_AGE) {
-						System.out.println("Removing outdated wipe message");
+						LOG.info("Removing outdated wipe message");
 						receivedWipeMessages.remove(i);
 					} else if (receivedWipeMessage.getLong(0).intValue() ==
 							contactId.getInt()) {
 
 						// If we already have one from this contact, ignore
-						System.out.println(
+						LOG.info(
 								"Duplicate wipe message received - ignoring");
 						return false;
 					}
 				}
 
 				if (receivedWipeMessages.size() + 1 == THRESHOLD) {
-					System.out.println("Threshold reached - panic!");
+					LOG.warning("Threshold reached - panic!");
 					if (observer != null) {
 						observer.onPanic();
 					}
@@ -210,12 +215,11 @@ public class RemoteWipeManagerImpl extends ConversationClientImpl
 
 		for (ContactId c : wipers) {
 			Contact contact = contactManager.getContact(txn, c);
-			System.out.println("Sending a setup message...");
 			sendSetupMessage(txn, contact);
 			wipersMetadata.add(clientHelper.toList(contact.getAuthor()));
 		}
 
-		System.out.println("All setup messages sent");
+		LOG.info("All remote wipe setup messages sent");
 
 		// Make a record of this locally
 		if (!db.containsGroup(txn, localGroup.getId()))
@@ -331,7 +335,8 @@ public class RemoteWipeManagerImpl extends ConversationClientImpl
 	}
 
 	private RemoteWipeMessageHeader createMessageHeader(
-			Message message, BdfDictionary meta, MessageStatus status, MessageType type
+			Message message, BdfDictionary meta, MessageStatus status,
+			MessageType type
 	)
 			throws FormatException {
 
@@ -419,7 +424,8 @@ public class RemoteWipeManagerImpl extends ConversationClientImpl
 
 	@Nullable
 	private Pair<MessageId, BdfDictionary> findMessage(Transaction txn,
-			GroupId g, org.briarproject.briar.api.remotewipe.MessageType type, boolean local)
+			GroupId g, org.briarproject.briar.api.remotewipe.MessageType type,
+			boolean local)
 			throws DbException, FormatException {
 		BdfDictionary query = BdfDictionary.of(
 				new BdfEntry(MSG_KEY_MESSAGE_TYPE, type.getValue()),
