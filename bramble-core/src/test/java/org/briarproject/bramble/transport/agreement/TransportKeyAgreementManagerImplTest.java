@@ -270,7 +270,6 @@ public class TransportKeyAgreementManagerImplTest extends BrambleMockTestCase {
 		assertEquals(localKeyPair, savedSession.get().getLocalKeyPair());
 		assertEquals(Long.valueOf(localTimestamp),
 				savedSession.get().getLocalTimestamp());
-		assertNull(savedSession.get().getRemoteTimestamp());
 		assertNull(savedSession.get().getKeySetId());
 	}
 
@@ -289,8 +288,7 @@ public class TransportKeyAgreementManagerImplTest extends BrambleMockTestCase {
 	public void testAcceptsKeyMessageInAwaitKeyState() throws Exception {
 		Transaction txn = new Transaction(null, false);
 		Session loadedSession = new Session(AWAIT_KEY,
-				localKeyMessage.getId(), localKeyPair, localTimestamp,
-				null, null);
+				localKeyMessage.getId(), localKeyPair, localTimestamp, null);
 		AtomicReference<Session> savedSession = new AtomicReference<>();
 
 		context.checking(new Expectations() {{
@@ -355,7 +353,6 @@ public class TransportKeyAgreementManagerImplTest extends BrambleMockTestCase {
 				savedSession.get().getLastLocalMessageId());
 		assertNull(savedSession.get().getLocalKeyPair());
 		assertNull(savedSession.get().getLocalTimestamp());
-		assertNull(savedSession.get().getRemoteTimestamp());
 		assertEquals(keySetId, savedSession.get().getKeySetId());
 	}
 
@@ -438,21 +435,20 @@ public class TransportKeyAgreementManagerImplTest extends BrambleMockTestCase {
 				savedSession.get().getLastLocalMessageId());
 		assertNull(savedSession.get().getLocalKeyPair());
 		assertNull(savedSession.get().getLocalTimestamp());
-		assertNull(savedSession.get().getRemoteTimestamp());
 		assertEquals(keySetId, savedSession.get().getKeySetId());
 	}
 
 	@Test
 	public void testRejectsKeyMessageInAwaitActivateState() throws Exception {
 		Session loadedSession = new Session(AWAIT_ACTIVATE,
-				localActivateMessage.getId(), null, null, null, keySetId);
+				localActivateMessage.getId(), null, null, keySetId);
 		testRejectsKeyMessageWithExistingSession(loadedSession);
 	}
 
 	@Test
 	public void testRejectsKeyMessageInActivatedState() throws Exception {
 		Session loadedSession = new Session(ACTIVATED,
-				localActivateMessage.getId(), null, null, null, null);
+				localActivateMessage.getId(), null, null, null);
 		testRejectsKeyMessageWithExistingSession(loadedSession);
 	}
 
@@ -491,7 +487,7 @@ public class TransportKeyAgreementManagerImplTest extends BrambleMockTestCase {
 			throws Exception {
 		Transaction txn = new Transaction(null, false);
 		Session loadedSession = new Session(AWAIT_ACTIVATE,
-				localActivateMessage.getId(), null, null, null, keySetId);
+				localActivateMessage.getId(), null, null, keySetId);
 		AtomicReference<Session> savedSession = new AtomicReference<>();
 
 		context.checking(new Expectations() {{
@@ -528,7 +524,6 @@ public class TransportKeyAgreementManagerImplTest extends BrambleMockTestCase {
 				savedSession.get().getLastLocalMessageId());
 		assertNull(savedSession.get().getLocalKeyPair());
 		assertNull(savedSession.get().getLocalTimestamp());
-		assertNull(savedSession.get().getRemoteTimestamp());
 		assertNull(savedSession.get().getKeySetId());
 	}
 
@@ -552,15 +547,14 @@ public class TransportKeyAgreementManagerImplTest extends BrambleMockTestCase {
 	@Test
 	public void testRejectsActivateMessageInAwaitKeyState() throws Exception {
 		Session loadedSession = new Session(AWAIT_KEY,
-				localActivateMessage.getId(), localKeyPair, localTimestamp,
-				null, null);
+				localKeyMessage.getId(), localKeyPair, localTimestamp, null);
 		testRejectsActivateMessageWithExistingSession(loadedSession);
 	}
 
 	@Test
 	public void testRejectsActivateMessageInActivatedState() throws Exception {
 		Session loadedSession = new Session(ACTIVATED,
-				localActivateMessage.getId(), null, null, null, null);
+				localActivateMessage.getId(), null, null, null);
 		testRejectsActivateMessageWithExistingSession(loadedSession);
 	}
 

@@ -17,7 +17,6 @@ import static org.briarproject.bramble.transport.agreement.TransportKeyAgreement
 import static org.briarproject.bramble.transport.agreement.TransportKeyAgreementConstants.SESSION_KEY_LOCAL_PRIVATE_KEY;
 import static org.briarproject.bramble.transport.agreement.TransportKeyAgreementConstants.SESSION_KEY_LOCAL_PUBLIC_KEY;
 import static org.briarproject.bramble.transport.agreement.TransportKeyAgreementConstants.SESSION_KEY_LOCAL_TIMESTAMP;
-import static org.briarproject.bramble.transport.agreement.TransportKeyAgreementConstants.SESSION_KEY_REMOTE_TIMESTAMP;
 import static org.briarproject.bramble.transport.agreement.TransportKeyAgreementConstants.SESSION_KEY_STATE;
 
 @Immutable
@@ -55,8 +54,6 @@ class SessionParserImpl implements SessionParser {
 		}
 
 		Long localTimestamp = meta.getOptionalLong(SESSION_KEY_LOCAL_TIMESTAMP);
-		Long remoteTimestamp =
-				meta.getOptionalLong(SESSION_KEY_REMOTE_TIMESTAMP);
 
 		KeySetId keySetId = null;
 		Long keySetIdLong = meta.getOptionalLong(SESSION_KEY_KEY_SET_ID);
@@ -65,6 +62,6 @@ class SessionParserImpl implements SessionParser {
 		}
 
 		return new Session(state, lastLocalMessageId, localKeyPair,
-				localTimestamp, remoteTimestamp, keySetId);
+				localTimestamp, keySetId);
 	}
 }
