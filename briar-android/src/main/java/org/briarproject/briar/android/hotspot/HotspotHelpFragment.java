@@ -48,10 +48,8 @@ public class HotspotHelpFragment extends Fragment {
 
 	private HotspotViewModel viewModel;
 	private final ActivityResultLauncher<String> launcher =
-			registerForActivityResult(new CreateDocument(), uri -> {
-				showButton();
-				if (uri != null) viewModel.exportApk(uri);
-			});
+			registerForActivityResult(new CreateDocument(),
+					this::onDocumentCreated);
 	private Button button;
 	private ProgressBar progressBar;
 
@@ -86,6 +84,11 @@ public class HotspotHelpFragment extends Fragment {
 			else viewModel.exportApk();
 		});
 		viewModel.getSavedApkToUri().observeEvent(this, this::shareUri);
+	}
+
+	private void onDocumentCreated(@Nullable Uri uri) {
+		showButton();
+		if (uri != null) viewModel.exportApk(uri);
 	}
 
 	private void shareUri(Uri uri) {
