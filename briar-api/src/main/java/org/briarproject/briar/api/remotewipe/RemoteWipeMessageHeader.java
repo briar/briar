@@ -34,6 +34,10 @@ public class RemoteWipeMessageHeader extends ConversationMessageHeader {
 		return type;
 	}
 
+	public long getMessageExpiry() {
+		return (getTimestamp() + RemoteWipeConstants.MAX_MESSAGE_AGE);
+	}
+
 	@Override
 	public <T> T accept(ConversationMessageVisitor<T> v) {
 		return v.visitRemoteWipeMessage(this);

@@ -50,14 +50,14 @@ import static java.util.logging.Logger.getLogger;
 import static org.briarproject.briar.api.remotewipe.MessageType.SETUP;
 import static org.briarproject.briar.api.remotewipe.MessageType.WIPE;
 import static org.briarproject.briar.client.MessageTrackerConstants.MSG_KEY_READ;
-import static org.briarproject.briar.remotewipe.RemoteWipeConstants.GROUP_KEY_CONTACT_ID;
-import static org.briarproject.briar.remotewipe.RemoteWipeConstants.GROUP_KEY_RECEIVED_WIPE;
-import static org.briarproject.briar.remotewipe.RemoteWipeConstants.GROUP_KEY_WIPERS;
-import static org.briarproject.briar.remotewipe.RemoteWipeConstants.MAX_MESSAGE_AGE;
-import static org.briarproject.briar.remotewipe.RemoteWipeConstants.MSG_KEY_LOCAL;
-import static org.briarproject.briar.remotewipe.RemoteWipeConstants.MSG_KEY_MESSAGE_TYPE;
-import static org.briarproject.briar.remotewipe.RemoteWipeConstants.MSG_KEY_TIMESTAMP;
-import static org.briarproject.briar.remotewipe.RemoteWipeConstants.THRESHOLD;
+import static org.briarproject.briar.api.remotewipe.RemoteWipeConstants.GROUP_KEY_CONTACT_ID;
+import static org.briarproject.briar.api.remotewipe.RemoteWipeConstants.GROUP_KEY_RECEIVED_WIPE;
+import static org.briarproject.briar.api.remotewipe.RemoteWipeConstants.GROUP_KEY_WIPERS;
+import static org.briarproject.briar.api.remotewipe.RemoteWipeConstants.MAX_MESSAGE_AGE;
+import static org.briarproject.briar.api.remotewipe.RemoteWipeConstants.MSG_KEY_LOCAL;
+import static org.briarproject.briar.api.remotewipe.RemoteWipeConstants.MSG_KEY_MESSAGE_TYPE;
+import static org.briarproject.briar.api.remotewipe.RemoteWipeConstants.MSG_KEY_TIMESTAMP;
+import static org.briarproject.briar.api.remotewipe.RemoteWipeConstants.THRESHOLD;
 
 public class RemoteWipeManagerImpl extends ConversationClientImpl
 		implements RemoteWipeManager, ContactManager.ContactHook,

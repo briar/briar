@@ -6,6 +6,7 @@ import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.attachment.AttachmentItem;
+import org.briarproject.briar.android.util.UiUtils;
 import org.briarproject.briar.api.blog.BlogInvitationRequest;
 import org.briarproject.briar.api.blog.BlogInvitationResponse;
 import org.briarproject.briar.api.conversation.ConversationMessageVisitor;
@@ -16,7 +17,6 @@ import org.briarproject.briar.api.introduction.IntroductionResponse;
 import org.briarproject.briar.api.messaging.PrivateMessageHeader;
 import org.briarproject.briar.api.privategroup.invitation.GroupInvitationRequest;
 import org.briarproject.briar.api.privategroup.invitation.GroupInvitationResponse;
-import org.briarproject.briar.api.remotewipe.MessageType;
 import org.briarproject.briar.api.remotewipe.RemoteWipeMessageHeader;
 import org.briarproject.briar.api.socialbackup.ShardMessageHeader;
 
@@ -315,16 +315,22 @@ class ConversationVisitor implements
 		switch (r.getMessageType()) {
 			case SETUP:
 				if (r.isLocal()) {
-					String text = ctx.getString(R.string.remote_wipe_setup_sent, contactName.getValue());
+					String text = ctx.getString(R.string.remote_wipe_setup_sent,
+							contactName.getValue());
 					return new ConversationNoticeItem(
-							R.layout.list_item_conversation_notice_out, text, r);
+							R.layout.list_item_conversation_notice_out, text,
+							r);
 				} else {
-					String text = ctx.getString(R.string.remote_wipe_setup_received, contactName.getValue());
+					String text =
+							ctx.getString(R.string.remote_wipe_setup_received,
+									contactName.getValue());
 					return new ConversationNoticeItem(
 							R.layout.list_item_conversation_notice_in, text, r);
 				}
 			default: // WIPE
-				String text = ctx.getString(R.string.remote_wipe_wipe_sent, contactName.getValue());
+				String text = ctx.getString(R.string.remote_wipe_wipe_sent,
+						contactName.getValue()) + " " + UiUtils
+						.formatDateAbsolute(ctx, r.getMessageExpiry());
 				return new ConversationNoticeItem(
 						R.layout.list_item_conversation_notice_out, text, r);
 		}

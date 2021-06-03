@@ -1,4 +1,4 @@
-package org.briarproject.briar.remotewipe;
+package org.briarproject.briar.api.remotewipe;
 
 public interface RemoteWipeConstants {
 

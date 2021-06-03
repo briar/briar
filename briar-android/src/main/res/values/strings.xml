@@ -747,7 +747,7 @@
 	<!-- conversation -->
 	<string name="remote_wipe_setup_received">%1$s has added you as a remote wiper.</string>
 	<string name="remote_wipe_setup_sent">You have added %1$s as a remote wiper.</string>
-	<string name="remote_wipe_wipe_sent">You have sent an activate remote wipe signal to %1$s.</string>
+	<string name="remote_wipe_wipe_sent">You have sent an activate remote wipe signal to %1$s. It expires </string>
 	<string name="activity_name_remote_wipe">Remote Wipe</string>
 	<string name="assigned_wipers">Your assigned trusted wipers</string>
 	<string name="activate_remote_wipe">Activate remote wipe</string>
