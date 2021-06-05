@@ -7,7 +7,7 @@ apply plugin: 'witness'
 apply from: 'witness.gradle'
 
 dependencies {
-	implementation project(path: ':bramble-api', configuration: 'default')
+	implementation project(path: ':briar:bramble-api', configuration: 'default')
 
 	signature 'org.codehaus.mojo.signature:java16:1.1@signature'
 }

@@ -12,7 +12,7 @@ configurations {
 }
 
 dependencies {
-	implementation project(path: ':bramble-core', configuration: 'default')
+	implementation project(path: ':briar:bramble-core', configuration: 'default')
 	implementation fileTree(dir: 'libs', include: '*.jar')
 	implementation 'net.java.dev.jna:jna:4.5.2'
 	implementation 'net.java.dev.jna:jna-platform:4.5.2'
@@ -21,8 +21,8 @@ dependencies {
 
 	annotationProcessor 'com.google.dagger:dagger-compiler:2.24'
 
-	testImplementation project(path: ':bramble-api', configuration: 'testOutput')
-	testImplementation project(path: ':bramble-core', configuration: 'testOutput')
+	testImplementation project(path: ':briar:bramble-api', configuration: 'testOutput')
+	testImplementation project(path: ':briar:bramble-core', configuration: 'testOutput')
 	testImplementation 'junit:junit:4.12'
 	testImplementation "org.jmock:jmock:2.8.2"
 	testImplementation "org.jmock:jmock-junit4:2.8.2"

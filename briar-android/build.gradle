@@ -89,9 +89,9 @@ android {
 }
 
 dependencies {
-	implementation project(path: ':briar-core', configuration: 'default')
-	implementation project(path: ':bramble-core', configuration: 'default')
-	implementation project(':bramble-android')
+	implementation project(path: ':briar:briar-core', configuration: 'default')
+	implementation project(path: ':briar:bramble-core', configuration: 'default')
+	implementation project(':briar:bramble-android')
 
 	implementation 'androidx.preference:preference:1.1.0'
 	implementation 'androidx.exifinterface:exifinterface:1.0.0'
@@ -122,8 +122,8 @@ dependencies {
 
 	def espressoVersion = '3.2.0'
 	def jmockVersion = '2.8.2'
-	testImplementation project(path: ':bramble-api', configuration: 'testOutput')
-	testImplementation project(path: ':bramble-core', configuration: 'testOutput')
+	testImplementation project(path: ':briar:bramble-api', configuration: 'testOutput')
+	testImplementation project(path: ':briar:bramble-core', configuration: 'testOutput')
 	testImplementation 'androidx.test:runner:1.2.0'
 	testImplementation 'androidx.test.ext:junit:1.1.1'
 	testImplementation 'androidx.fragment:fragment-testing:1.1.0'
@@ -135,7 +135,7 @@ dependencies {
 	testImplementation "org.jmock:jmock-junit4:$jmockVersion"
 	testImplementation "org.jmock:jmock-legacy:$jmockVersion"
 
-	androidTestImplementation project(path: ':bramble-api', configuration: 'testOutput')
+	androidTestImplementation project(path: ':briar:bramble-api', configuration: 'testOutput')
 	androidTestImplementation 'androidx.test.ext:junit:1.1.1'
 	androidTestImplementation "androidx.test.espresso:espresso-core:$espressoVersion"
 	androidTestImplementation "androidx.test.espresso:espresso-contrib:$espressoVersion"
