@@ -437,6 +437,15 @@
 		</activity>
 
 		<activity
+			android:name="org.briarproject.briar.android.removabledrive.RemovableDriveActivity"
+			android:label="TODO Removable Drive"
+			android:parentActivityName="org.briarproject.briar.android.conversation.ConversationActivity">
+			<meta-data
+				android:name="android.support.PARENT_ACTIVITY"
+				android:value="org.briarproject.briar.android.conversation.ConversationActivity" />
+		</activity>
+
+		<activity
 			android:name=".android.contact.add.remote.PendingContactListActivity"
 			android:label="@string/pending_contact_requests"
 			android:theme="@style/BriarTheme" />

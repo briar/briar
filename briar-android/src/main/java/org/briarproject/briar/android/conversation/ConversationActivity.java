@@ -34,7 +34,6 @@ import org.briarproject.bramble.api.event.EventBus;
 import org.briarproject.bramble.api.event.EventListener;
 import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
 import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
-import org.briarproject.bramble.api.plugin.BluetoothConstants;
 import org.briarproject.bramble.api.plugin.event.ContactConnectedEvent;
 import org.briarproject.bramble.api.plugin.event.ContactDisconnectedEvent;
 import org.briarproject.bramble.api.sync.ClientId;
@@ -54,6 +53,7 @@ import org.briarproject.briar.android.forum.ForumActivity;
 import org.briarproject.briar.android.fragment.BaseFragment.BaseFragmentListener;
 import org.briarproject.briar.android.introduction.IntroductionActivity;
 import org.briarproject.briar.android.privategroup.conversation.GroupActivity;
+import org.briarproject.briar.android.removabledrive.RemovableDriveActivity;
 import org.briarproject.briar.android.util.BriarSnackbarBuilder;
 import org.briarproject.briar.android.view.BriarRecyclerView;
 import org.briarproject.briar.android.view.ImagePreview;
@@ -420,6 +420,11 @@ public class ConversationActivity extends BriarActivity
 			return true;
 		} else if (itemId == R.id.action_social_remove_person) {
 			askToRemoveContact();
+			return true;
+		} else if (itemId == R.id.action_removable_drive_write) {
+			Intent intent = new Intent(this, RemovableDriveActivity.class);
+			intent.putExtra(CONTACT_ID, contactId.getInt());
+			startActivity(intent);
 			return true;
 		}
 		return super.onOptionsItemSelected(item);
