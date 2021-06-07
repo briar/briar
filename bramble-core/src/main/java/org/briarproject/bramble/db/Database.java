@@ -496,10 +496,27 @@ interface Database<T> {
 	 * Returns the IDs of some messages that are eligible to be sent to the
 	 * given contact, up to the given total length.
 	 * <p/>
+	 * Unlike {@link #getUnackedMessagesToSend(Object, ContactId)} this method
+	 * does not return messages that have already been sent unless they are
+	 * due for retransmission.
+	 * <p/>
 	 * Read-only.
 	 */
 	Collection<MessageId> getMessagesToSend(T txn, ContactId c, int maxLength,
 			int maxLatency) throws DbException;
+
+	/**
+	 * Returns the IDs of all messages that are eligible to be sent to the
+	 * given contact, together with their raw lengths.
+	 * <p/>
+	 * Unlike {@link #getMessagesToSend(Object, ContactId, int, int)} this
+	 * method may return messages that have already been sent and are not yet
+	 * due for retransmission.
+	 * <p/>
+	 * Read-only.
+	 */
+	Map<MessageId, Integer> getUnackedMessagesToSend(T txn, ContactId c)
+			throws DbException;
 
 	/**
 	 * Returns the IDs of any messages that need to be validated.
