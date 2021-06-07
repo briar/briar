@@ -436,6 +436,32 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 		return messages;
 	}
 
+	@Override
+	public Collection<Message> generateBatch(Transaction transaction,
+			ContactId c, Collection<MessageId> ids, int maxLatency)
+			throws DbException {
+		if (transaction.isReadOnly()) throw new IllegalArgumentException();
+		T txn = unbox(transaction);
+		if (!db.containsContact(txn, c))
+			throw new NoSuchContactException();
+		long totalLength = 0;
+		List<Message> messages = new ArrayList<>(ids.size());
+		List<MessageId> sentIds = new ArrayList<>(ids.size());
+		for (MessageId m : ids) {
+			if (db.containsVisibleMessage(txn, c, m)) {
+				Message message = db.getMessage(txn, m);
+				totalLength += message.getRawLength();
+				messages.add(message);
+				sentIds.add(m);
+				db.updateExpiryTimeAndEta(txn, c, m, maxLatency);
+			}
+		}
+		if (messages.isEmpty()) return messages;
+		db.lowerRequestedFlag(txn, c, sentIds);
+		transaction.attach(new MessagesSentEvent(c, sentIds, totalLength));
+		return messages;
+	}
+
 	@Nullable
 	@Override
 	public Offer generateOffer(Transaction transaction, ContactId c,
@@ -712,6 +738,16 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 		MessageStatus status = db.getMessageStatus(txn, c, m);
 		if (status == null) return new MessageStatus(m, c, false, false);
 		return status;
+	}
+
+	@Override
+	public Map<MessageId, Integer> getUnackedMessagesToSend(
+			Transaction transaction,
+			ContactId c) throws DbException {
+		T txn = unbox(transaction);
+		if (!db.containsContact(txn, c))
+			throw new NoSuchContactException();
+		return db.getUnackedMessagesToSend(txn, c);
 	}
 
 	@Override

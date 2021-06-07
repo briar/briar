@@ -191,6 +191,18 @@ public interface DatabaseComponent extends TransactionManager {
 			int maxLength, int maxLatency) throws DbException;
 
 	/**
+	 * Returns a batch of messages for the given contact containing the
+	 * messages with the given IDs, for transmission over a transport with
+	 * the given maximum latency.
+	 * <p/>
+	 * If any of the given messages are not in the database or are not visible
+	 * to the contact, they are omitted from the batch without throwing an
+	 * exception.
+	 */
+	Collection<Message> generateBatch(Transaction txn, ContactId c,
+			Collection<MessageId> ids, int maxLatency) throws DbException;
+
+	/**
 	 * Returns an offer for the given contact for transmission over a
 	 * transport with the given maximum latency, or null if there are no
 	 * messages to offer.
@@ -445,6 +457,17 @@ public interface DatabaseComponent extends TransactionManager {
 	 */
 	MessageStatus getMessageStatus(Transaction txn, ContactId c, MessageId m)
 			throws DbException;
+
+	/**
+	 * Returns the IDs of all messages that are eligible to be sent to the
+	 * given contact, together with their raw lengths. This may include
+	 * messages that have already been sent and are not yet due for
+	 * retransmission.
+	 * <p/>
+	 * Read-only.
+	 */
+	Map<MessageId, Integer> getUnackedMessagesToSend(Transaction txn,
+			ContactId c) throws DbException;
 
 	/**
 	 * Returns the next time (in milliseconds since the Unix epoch) when a
