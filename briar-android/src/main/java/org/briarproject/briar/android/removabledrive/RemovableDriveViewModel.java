@@ -29,7 +29,7 @@ import static java.util.logging.Logger.getLogger;
 import static org.briarproject.bramble.api.plugin.file.RemovableDriveConstants.PROP_URI;
 
 @NotNullByDefault
-public class RemovableDriveViewModel extends AndroidViewModel {
+class RemovableDriveViewModel extends AndroidViewModel {
 
 	private static final Logger LOG =
 			getLogger(RemovableDriveViewModel.class.getName());
