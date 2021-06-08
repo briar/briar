@@ -13,7 +13,6 @@ import org.briarproject.bramble.api.properties.TransportProperties;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Logger;
@@ -25,6 +24,7 @@ import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
+import static java.util.Locale.US;
 import static java.util.logging.Logger.getLogger;
 import static org.briarproject.bramble.api.plugin.file.RemovableDriveConstants.PROP_URI;
 
@@ -48,8 +48,7 @@ public class RemovableDriveViewModel extends AndroidViewModel {
 	}
 
 	String getFileName() {
-		SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd_HHmmss_SSS",
-				Locale.getDefault());
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd_HHmmss_SSS", US);
 		return sdf.format(new Date());
 	}
 
