@@ -4,7 +4,6 @@ import org.briarproject.briar.android.contact.add.remote.AddContactViewModel;
 import org.briarproject.briar.android.contact.add.remote.PendingContactListViewModel;
 import org.briarproject.briar.android.conversation.ConversationViewModel;
 import org.briarproject.briar.android.conversation.ImageViewModel;
-import org.briarproject.briar.android.removabledrive.RemovableDriveViewModel;
 
 import javax.inject.Singleton;
 
