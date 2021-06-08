@@ -1,4 +1,4 @@
-package org.briarproject.briar.android.conversation;
+package org.briarproject.briar.android.removabledrive;
 
 import android.app.Application;
 import android.net.Uri;

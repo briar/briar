@@ -4,7 +4,7 @@ import org.briarproject.briar.android.contact.add.remote.AddContactViewModel;
 import org.briarproject.briar.android.contact.add.remote.PendingContactListViewModel;
 import org.briarproject.briar.android.conversation.ConversationViewModel;
 import org.briarproject.briar.android.conversation.ImageViewModel;
-import org.briarproject.briar.android.conversation.RemovableDriveViewModel;
+import org.briarproject.briar.android.removabledrive.RemovableDriveViewModel;
 
 import javax.inject.Singleton;
 
@@ -40,12 +40,6 @@ public abstract class ViewModelModule {
 	@ViewModelKey(PendingContactListViewModel.class)
 	abstract ViewModel bindPendingRequestsViewModel(
 			PendingContactListViewModel pendingContactListViewModel);
-
-	@Binds
-	@IntoMap
-	@ViewModelKey(RemovableDriveViewModel.class)
-	abstract ViewModel bindRemovableDriveViewModel(
-			RemovableDriveViewModel removableDriveViewModel);
 
 	@Binds
 	@Singleton
