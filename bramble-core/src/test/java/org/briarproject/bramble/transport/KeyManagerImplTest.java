@@ -242,4 +242,37 @@ public class KeyManagerImplTest extends BrambleMockTestCase {
 		keyManager.eventOccurred(event);
 		executor.runUntilIdle();
 	}
+
+	@Test
+	public void testAddMultipleRotationKeySets() throws Exception {
+		long timestamp = System.currentTimeMillis();
+		boolean alice = random.nextBoolean();
+		boolean active = random.nextBoolean();
+
+		context.checking(new Expectations() {{
+			oneOf(transportKeyManager).addRotationKeys(txn, contactId,
+					rootKey, timestamp, alice, active);
+			will(returnValue(keySetId));
+		}});
+
+		assertEquals(singletonMap(transportId, keySetId),
+				keyManager.addRotationKeys(txn, contactId, rootKey, timestamp,
+						alice, active));
+	}
+
+	@Test
+	public void testAddSingleRotationKeySet() throws Exception {
+		long timestamp = System.currentTimeMillis();
+		boolean alice = random.nextBoolean();
+		boolean active = random.nextBoolean();
+
+		context.checking(new Expectations() {{
+			oneOf(transportKeyManager).addRotationKeys(txn, contactId,
+					rootKey, timestamp, alice, active);
+			will(returnValue(keySetId));
+		}});
+
+		assertEquals(keySetId, keyManager.addRotationKeys(txn, contactId,
+				transportId, rootKey, timestamp, alice, active));
+	}
 }
