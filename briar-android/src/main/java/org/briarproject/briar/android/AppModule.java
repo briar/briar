@@ -25,6 +25,7 @@ import org.briarproject.bramble.api.plugin.simplex.SimplexPluginFactory;
 import org.briarproject.bramble.api.reporting.DevConfig;
 import org.briarproject.bramble.plugin.bluetooth.AndroidBluetoothPluginFactory;
 import org.briarproject.bramble.plugin.file.AndroidRemovableDrivePluginFactory;
+import org.briarproject.bramble.plugin.file.RemovableDriveModule;
 import org.briarproject.bramble.plugin.tcp.AndroidLanTcpPluginFactory;
 import org.briarproject.bramble.plugin.tor.AndroidTorPluginFactory;
 import org.briarproject.bramble.util.AndroidUtils;
@@ -92,6 +93,7 @@ import static org.briarproject.briar.android.TestingConstants.IS_DEBUG_BUILD;
 		GroupListModule.class,
 		GroupConversationModule.class,
 		SharingModule.class,
+		RemovableDriveModule.class
 })
 public class AppModule {
 
