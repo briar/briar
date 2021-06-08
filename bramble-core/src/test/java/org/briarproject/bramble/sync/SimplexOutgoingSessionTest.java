@@ -46,7 +46,7 @@ public class SimplexOutgoingSessionTest extends BrambleMockTestCase {
 	public void testNothingToSend() throws Exception {
 		SimplexOutgoingSession session = new SimplexOutgoingSession(db,
 				dbExecutor, eventBus, contactId, transportId, MAX_LATENCY,
-				streamWriter, recordWriter);
+				false, streamWriter, recordWriter);
 		Transaction noAckTxn = new Transaction(null, false);
 		Transaction noMsgTxn = new Transaction(null, false);
 
@@ -80,7 +80,7 @@ public class SimplexOutgoingSessionTest extends BrambleMockTestCase {
 		Ack ack = new Ack(singletonList(messageId));
 		SimplexOutgoingSession session = new SimplexOutgoingSession(db,
 				dbExecutor, eventBus, contactId, transportId, MAX_LATENCY,
-				streamWriter, recordWriter);
+				false, streamWriter, recordWriter);
 		Transaction ackTxn = new Transaction(null, false);
 		Transaction noAckTxn = new Transaction(null, false);
 		Transaction msgTxn = new Transaction(null, false);
