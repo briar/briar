@@ -65,7 +65,7 @@ class SyncSessionFactoryImpl implements SyncSessionFactory {
 		SyncRecordWriter recordWriter =
 				recordWriterFactory.createRecordWriter(out);
 		return new SimplexOutgoingSession(db, dbExecutor, eventBus, c, t,
-				maxLatency, streamWriter, recordWriter);
+				maxLatency, false, streamWriter, recordWriter);
 	}
 
 	@Override
