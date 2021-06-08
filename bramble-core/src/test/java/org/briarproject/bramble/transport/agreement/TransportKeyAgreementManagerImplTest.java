@@ -215,7 +215,6 @@ public class TransportKeyAgreementManagerImplTest extends BrambleMockTestCase {
 	@Test
 	public void testStartsSessionAtStartup() throws Exception {
 		Transaction txn = new Transaction(null, false);
-		AtomicReference<Session> savedSession = new AtomicReference<>();
 
 		context.checking(new Expectations() {{
 			oneOf(db).getContacts(txn);
@@ -227,40 +226,21 @@ public class TransportKeyAgreementManagerImplTest extends BrambleMockTestCase {
 			oneOf(db).getTransportsWithKeys(txn);
 			will(returnValue(singletonMap(contact.getId(),
 					singletonList(duplexTransportId))));
-			// Check whether a session exists - it doesn't
+			// Get the contact group ID
 			oneOf(contactGroupFactory)
 					.createContactGroup(CLIENT_ID, MAJOR_VERSION, contact);
 			will(returnValue(contactGroup));
-			oneOf(sessionEncoder).getSessionQuery(simplexTransportId);
-			will(returnValue(sessionQuery));
-			oneOf(clientHelper)
-					.getMessageIds(txn, contactGroup.getId(), sessionQuery);
-			will(returnValue(emptyList()));
-			// Send a key message
-			oneOf(crypto).generateKeyPair();
-			will(returnValue(localKeyPair));
-			oneOf(messageEncoder).encodeKeyMessage(contactGroup.getId(),
-					simplexTransportId, localKeyPair.getPublic());
-			will(returnValue(localKeyMessage));
-			oneOf(messageEncoder)
-					.encodeMessageMetadata(simplexTransportId, KEY, true);
-			will(returnValue(localKeyMeta));
-			oneOf(clientHelper).addLocalMessage(txn, localKeyMessage,
-					localKeyMeta, true, false);
-			// Save the session
-			oneOf(clientHelper)
-					.createMessageForStoringMetadata(contactGroup.getId());
-			will(returnValue(storageMessage));
-			oneOf(db).addLocalMessage(txn, storageMessage, new Metadata(),
-					false, false);
-			oneOf(sessionEncoder).encodeSession(with(any(Session.class)),
-					with(simplexTransportId));
-			will(doAll(
-					new CaptureArgumentAction<>(savedSession, Session.class, 0),
-					returnValue(sessionMeta)));
-			oneOf(clientHelper).mergeMessageMetadata(txn,
-					storageMessage.getId(), sessionMeta);
 		}});
+
+		// Check whether a session exists - it doesn't
+		expectSessionDoesNotExist(txn);
+		// Generate the local key pair
+		expectGenerateLocalKeyPair();
+		// Send a key message
+		expectSendKeyMessage(txn);
+		// Save the session
+		expectCreateStorageMessage(txn);
+		AtomicReference<Session> savedSession = expectSaveSession(txn);
 
 		manager.onDatabaseOpened(txn);
 
@@ -289,61 +269,21 @@ public class TransportKeyAgreementManagerImplTest extends BrambleMockTestCase {
 		Transaction txn = new Transaction(null, false);
 		Session loadedSession = new Session(AWAIT_KEY,
 				localKeyMessage.getId(), localKeyPair, localTimestamp, null);
-		AtomicReference<Session> savedSession = new AtomicReference<>();
 
-		context.checking(new Expectations() {{
-			// Check whether a session exists - it does
-			oneOf(sessionEncoder).getSessionQuery(simplexTransportId);
-			will(returnValue(sessionQuery));
-			oneOf(clientHelper)
-					.getMessageIds(txn, contactGroup.getId(), sessionQuery);
-			will(returnValue(singletonList(storageMessage.getId())));
-			// Load the session
-			oneOf(clientHelper).getMessageMetadataAsDictionary(txn,
-					storageMessage.getId());
-			will(returnValue(sessionMeta));
-			oneOf(sessionParser).parseSession(sessionMeta);
-			will(returnValue(loadedSession));
-			// Load the contact ID
-			oneOf(clientHelper).getContactId(txn, contactGroup.getId());
-			will(returnValue(contact.getId()));
-			// Check whether we already have keys - we don't
-			oneOf(db).containsTransportKeys(txn, contact.getId(),
-					simplexTransportId);
-			will(returnValue(false));
-			// Parse the remote public key
-			oneOf(crypto).parsePublicKey(remotePublicKey.getEncoded());
-			will(returnValue(remotePublicKey));
-			// Derive and store the transport keys
-			oneOf(crypto).deriveRootKey(localKeyPair, remotePublicKey,
-					min(localTimestamp, remoteTimestamp));
-			will(returnValue(rootKey));
-			oneOf(db).getContact(txn, contact.getId());
-			will(returnValue(contact));
-			oneOf(identityManager).getLocalAuthor(txn);
-			will(returnValue(localAuthor));
-			oneOf(keyManager).addRotationKeys(txn, contact.getId(),
-					simplexTransportId, rootKey,
-					min(localTimestamp, remoteTimestamp), alice, false);
-			will(returnValue(keySetId));
-			// Send an activate message
-			oneOf(messageEncoder).encodeActivateMessage(contactGroup.getId(),
-					simplexTransportId, localKeyMessage.getId());
-			will(returnValue(localActivateMessage));
-			oneOf(messageEncoder)
-					.encodeMessageMetadata(simplexTransportId, ACTIVATE, true);
-			will(returnValue(localActivateMeta));
-			oneOf(clientHelper).addLocalMessage(txn, localActivateMessage,
-					localActivateMeta, true, false);
-			// Save the session
-			oneOf(sessionEncoder).encodeSession(with(any(Session.class)),
-					with(simplexTransportId));
-			will(doAll(
-					new CaptureArgumentAction<>(savedSession, Session.class, 0),
-					returnValue(sessionMeta)));
-			oneOf(clientHelper).mergeMessageMetadata(txn,
-					storageMessage.getId(), sessionMeta);
-		}});
+		// Check whether a session exists - it does
+		expectLoadSession(txn, loadedSession);
+		// Load the contact ID
+		expectLoadContactId(txn);
+		// Check whether we already have keys - we don't
+		expectKeysExist(txn, false);
+		// Parse the remote public key
+		expectParseRemotePublicKey();
+		// Derive and store the transport keys
+		expectDeriveAndStoreTransportKeys(txn);
+		// Send an activate message
+		expectSendActivateMessage(txn);
+		// Save the session
+		AtomicReference<Session> savedSession = expectSaveSession(txn);
 
 		assertEquals(ACCEPT_DO_NOT_SHARE, manager.incomingMessage(txn,
 				remoteKeyMessage, remoteMessageBody, remoteKeyMeta));
@@ -360,72 +300,26 @@ public class TransportKeyAgreementManagerImplTest extends BrambleMockTestCase {
 	public void testAcceptsKeyMessageIfWeHaveTransportKeysButNoSession()
 			throws Exception {
 		Transaction txn = new Transaction(null, false);
-		AtomicReference<Session> savedSession = new AtomicReference<>();
 
-		context.checking(new Expectations() {{
-			// Check whether a session exists - it doesn't
-			oneOf(sessionEncoder).getSessionQuery(simplexTransportId);
-			will(returnValue(sessionQuery));
-			oneOf(clientHelper)
-					.getMessageIds(txn, contactGroup.getId(), sessionQuery);
-			will(returnValue(emptyList()));
-			// Load the contact ID
-			oneOf(clientHelper).getContactId(txn, contactGroup.getId());
-			will(returnValue(contact.getId()));
-			// Check whether we already have keys - we do
-			oneOf(db).containsTransportKeys(txn, contact.getId(),
-					simplexTransportId);
-			will(returnValue(true));
-			// Generate the local key pair
-			oneOf(crypto).generateKeyPair();
-			will(returnValue(localKeyPair));
-			// Parse the remote public key
-			oneOf(crypto).parsePublicKey(remotePublicKey.getEncoded());
-			will(returnValue(remotePublicKey));
-			// Send a key message
-			oneOf(messageEncoder).encodeKeyMessage(contactGroup.getId(),
-					simplexTransportId, localKeyPair.getPublic());
-			will(returnValue(localKeyMessage));
-			oneOf(messageEncoder)
-					.encodeMessageMetadata(simplexTransportId, KEY, true);
-			will(returnValue(localKeyMeta));
-			oneOf(clientHelper).addLocalMessage(txn, localKeyMessage,
-					localKeyMeta, true, false);
-			// Derive and store the transport keys
-			oneOf(crypto).deriveRootKey(localKeyPair, remotePublicKey,
-					min(localTimestamp, remoteTimestamp));
-			will(returnValue(rootKey));
-			oneOf(db).getContact(txn, contact.getId());
-			will(returnValue(contact));
-			oneOf(identityManager).getLocalAuthor(txn);
-			will(returnValue(localAuthor));
-			oneOf(keyManager).addRotationKeys(txn, contact.getId(),
-					simplexTransportId, rootKey,
-					min(localTimestamp, remoteTimestamp), alice, false);
-			will(returnValue(keySetId));
-			// Send an activate message
-			oneOf(messageEncoder).encodeActivateMessage(contactGroup.getId(),
-					simplexTransportId, localKeyMessage.getId());
-			will(returnValue(localActivateMessage));
-			oneOf(messageEncoder)
-					.encodeMessageMetadata(simplexTransportId, ACTIVATE, true);
-			will(returnValue(localActivateMeta));
-			oneOf(clientHelper).addLocalMessage(txn, localActivateMessage,
-					localActivateMeta, true, false);
-			// Save the session
-			oneOf(clientHelper)
-					.createMessageForStoringMetadata(contactGroup.getId());
-			will(returnValue(storageMessage));
-			oneOf(db).addLocalMessage(txn, storageMessage, new Metadata(),
-					false, false);
-			oneOf(sessionEncoder).encodeSession(with(any(Session.class)),
-					with(simplexTransportId));
-			will(doAll(
-					new CaptureArgumentAction<>(savedSession, Session.class, 0),
-					returnValue(sessionMeta)));
-			oneOf(clientHelper).mergeMessageMetadata(txn,
-					storageMessage.getId(), sessionMeta);
-		}});
+		// Check whether a session exists - it doesn't
+		expectSessionDoesNotExist(txn);
+		// Load the contact ID
+		expectLoadContactId(txn);
+		// Check whether we already have keys - we do
+		expectKeysExist(txn, true);
+		// Generate the local key pair
+		expectGenerateLocalKeyPair();
+		// Parse the remote public key
+		expectParseRemotePublicKey();
+		// Send a key message
+		expectSendKeyMessage(txn);
+		// Derive and store the transport keys
+		expectDeriveAndStoreTransportKeys(txn);
+		// Send an activate message
+		expectSendActivateMessage(txn);
+		// Save the session
+		expectCreateStorageMessage(txn);
+		AtomicReference<Session> savedSession = expectSaveSession(txn);
 
 		assertEquals(ACCEPT_DO_NOT_SHARE, manager.incomingMessage(txn,
 				remoteKeyMessage, remoteMessageBody, remoteKeyMeta));
@@ -456,27 +350,12 @@ public class TransportKeyAgreementManagerImplTest extends BrambleMockTestCase {
 			throws Exception {
 		Transaction txn = new Transaction(null, false);
 
-		context.checking(new Expectations() {{
-			// Check whether a session exists - it does
-			oneOf(sessionEncoder).getSessionQuery(simplexTransportId);
-			will(returnValue(sessionQuery));
-			oneOf(clientHelper)
-					.getMessageIds(txn, contactGroup.getId(), sessionQuery);
-			will(returnValue(singletonList(storageMessage.getId())));
-			// Load the session
-			oneOf(clientHelper).getMessageMetadataAsDictionary(txn,
-					storageMessage.getId());
-			will(returnValue(sessionMeta));
-			oneOf(sessionParser).parseSession(sessionMeta);
-			will(returnValue(loadedSession));
-			// Load the contact ID
-			oneOf(clientHelper).getContactId(txn, contactGroup.getId());
-			will(returnValue(contact.getId()));
-			// Check whether we already have keys - we don't
-			oneOf(db).containsTransportKeys(txn, contact.getId(),
-					simplexTransportId);
-			will(returnValue(false));
-		}});
+		// Check whether a session exists - it does
+		expectLoadSession(txn, loadedSession);
+		// Load the contact ID
+		expectLoadContactId(txn);
+		// Check whether we already have keys - we don't
+		expectKeysExist(txn, false);
 
 		assertEquals(REJECT, manager.incomingMessage(txn,
 				remoteKeyMessage, remoteMessageBody, remoteKeyMeta));
@@ -488,33 +367,18 @@ public class TransportKeyAgreementManagerImplTest extends BrambleMockTestCase {
 		Transaction txn = new Transaction(null, false);
 		Session loadedSession = new Session(AWAIT_ACTIVATE,
 				localActivateMessage.getId(), null, null, keySetId);
-		AtomicReference<Session> savedSession = new AtomicReference<>();
 
+		// Check whether a session exists - it does
+		expectLoadSession(txn, loadedSession);
+
+		// Activate the transport keys
 		context.checking(new Expectations() {{
-			// Check whether a session exists - it does
-			oneOf(sessionEncoder).getSessionQuery(simplexTransportId);
-			will(returnValue(sessionQuery));
-			oneOf(clientHelper)
-					.getMessageIds(txn, contactGroup.getId(), sessionQuery);
-			will(returnValue(singletonList(storageMessage.getId())));
-			// Load the session
-			oneOf(clientHelper).getMessageMetadataAsDictionary(txn,
-					storageMessage.getId());
-			will(returnValue(sessionMeta));
-			oneOf(sessionParser).parseSession(sessionMeta);
-			will(returnValue(loadedSession));
-			// Activate the transport keys
 			oneOf(keyManager).activateKeys(txn,
 					singletonMap(simplexTransportId, keySetId));
-			// Save the session
-			oneOf(sessionEncoder).encodeSession(with(any(Session.class)),
-					with(simplexTransportId));
-			will(doAll(
-					new CaptureArgumentAction<>(savedSession, Session.class, 0),
-					returnValue(sessionMeta)));
-			oneOf(clientHelper).mergeMessageMetadata(txn,
-					storageMessage.getId(), sessionMeta);
 		}});
+
+		// Save the session
+		AtomicReference<Session> savedSession = expectSaveSession(txn);
 
 		assertEquals(ACCEPT_DO_NOT_SHARE, manager.incomingMessage(txn,
 				remoteActivateMessage, remoteMessageBody, remoteActivateMeta));
@@ -531,14 +395,8 @@ public class TransportKeyAgreementManagerImplTest extends BrambleMockTestCase {
 	public void testRejectsActivateMessageWithNoSession() throws Exception {
 		Transaction txn = new Transaction(null, false);
 
-		context.checking(new Expectations() {{
-			// Check whether a session exists - it doesn't
-			oneOf(sessionEncoder).getSessionQuery(simplexTransportId);
-			will(returnValue(sessionQuery));
-			oneOf(clientHelper)
-					.getMessageIds(txn, contactGroup.getId(), sessionQuery);
-			will(returnValue(emptyList()));
-		}});
+		// Check whether a session exists - it doesn't
+		expectSessionDoesNotExist(txn);
 
 		assertEquals(REJECT, manager.incomingMessage(txn,
 				remoteActivateMessage, remoteMessageBody, remoteActivateMeta));
@@ -562,22 +420,136 @@ public class TransportKeyAgreementManagerImplTest extends BrambleMockTestCase {
 			Session loadedSession) throws Exception {
 		Transaction txn = new Transaction(null, false);
 
+		// Check whether a session exists - it does
+		expectLoadSession(txn, loadedSession);
+
+		assertEquals(REJECT, manager.incomingMessage(txn,
+				remoteActivateMessage, remoteMessageBody, remoteActivateMeta));
+	}
+
+	private void expectSessionDoesNotExist(Transaction txn) throws Exception {
 		context.checking(new Expectations() {{
-			// Check whether a session exists - it does
+			oneOf(sessionEncoder).getSessionQuery(simplexTransportId);
+			will(returnValue(sessionQuery));
+			oneOf(clientHelper)
+					.getMessageIds(txn, contactGroup.getId(), sessionQuery);
+			will(returnValue(emptyList()));
+		}});
+	}
+
+	private void expectLoadSession(Transaction txn, Session loadedSession)
+			throws Exception {
+		context.checking(new Expectations() {{
 			oneOf(sessionEncoder).getSessionQuery(simplexTransportId);
 			will(returnValue(sessionQuery));
 			oneOf(clientHelper)
 					.getMessageIds(txn, contactGroup.getId(), sessionQuery);
 			will(returnValue(singletonList(storageMessage.getId())));
-			// Load the session
 			oneOf(clientHelper).getMessageMetadataAsDictionary(txn,
 					storageMessage.getId());
 			will(returnValue(sessionMeta));
 			oneOf(sessionParser).parseSession(sessionMeta);
 			will(returnValue(loadedSession));
 		}});
+	}
 
-		assertEquals(REJECT, manager.incomingMessage(txn,
-				remoteActivateMessage, remoteMessageBody, remoteActivateMeta));
+	private void expectSendKeyMessage(Transaction txn) throws Exception {
+		context.checking(new Expectations() {{
+			oneOf(messageEncoder).encodeKeyMessage(contactGroup.getId(),
+					simplexTransportId, localKeyPair.getPublic());
+			will(returnValue(localKeyMessage));
+			oneOf(messageEncoder)
+					.encodeMessageMetadata(simplexTransportId, KEY, true);
+			will(returnValue(localKeyMeta));
+			oneOf(clientHelper).addLocalMessage(txn, localKeyMessage,
+					localKeyMeta, true, false);
+		}});
+	}
+
+	private void expectSendActivateMessage(Transaction txn) throws Exception {
+		context.checking(new Expectations() {{
+			oneOf(messageEncoder).encodeActivateMessage(contactGroup.getId(),
+					simplexTransportId, localKeyMessage.getId());
+			will(returnValue(localActivateMessage));
+			oneOf(messageEncoder)
+					.encodeMessageMetadata(simplexTransportId, ACTIVATE, true);
+			will(returnValue(localActivateMeta));
+			oneOf(clientHelper).addLocalMessage(txn, localActivateMessage,
+					localActivateMeta, true, false);
+		}});
+	}
+
+	private void expectCreateStorageMessage(Transaction txn) throws Exception {
+		context.checking(new Expectations() {{
+			oneOf(clientHelper)
+					.createMessageForStoringMetadata(contactGroup.getId());
+			will(returnValue(storageMessage));
+			oneOf(db).addLocalMessage(txn, storageMessage, new Metadata(),
+					false, false);
+		}});
+	}
+
+	private AtomicReference<Session> expectSaveSession(Transaction txn)
+			throws Exception {
+		AtomicReference<Session> savedSession = new AtomicReference<>();
+
+		context.checking(new Expectations() {{
+			oneOf(sessionEncoder).encodeSession(with(any(Session.class)),
+					with(simplexTransportId));
+			will(doAll(
+					new CaptureArgumentAction<>(savedSession, Session.class, 0),
+					returnValue(sessionMeta)));
+			oneOf(clientHelper).mergeMessageMetadata(txn,
+					storageMessage.getId(), sessionMeta);
+		}});
+
+		return savedSession;
+	}
+
+	private void expectLoadContactId(Transaction txn) throws Exception {
+		context.checking(new Expectations() {{
+			oneOf(clientHelper).getContactId(txn, contactGroup.getId());
+			will(returnValue(contact.getId()));
+		}});
+	}
+
+	private void expectGenerateLocalKeyPair() {
+		context.checking(new Expectations() {{
+			oneOf(crypto).generateKeyPair();
+			will(returnValue(localKeyPair));
+		}});
+	}
+
+	private void expectParseRemotePublicKey() throws Exception {
+		context.checking(new Expectations() {{
+			oneOf(crypto).parsePublicKey(remotePublicKey.getEncoded());
+			will(returnValue(remotePublicKey));
+		}});
+	}
+
+	private void expectDeriveAndStoreTransportKeys(Transaction txn)
+			throws Exception {
+		context.checking(new Expectations() {{
+			oneOf(crypto).deriveRootKey(localKeyPair, remotePublicKey,
+					min(localTimestamp, remoteTimestamp));
+			will(returnValue(rootKey));
+			oneOf(db).getContact(txn, contact.getId());
+			will(returnValue(contact));
+			oneOf(identityManager).getLocalAuthor(txn);
+			will(returnValue(localAuthor));
+			oneOf(keyManager).addRotationKeys(txn, contact.getId(),
+					simplexTransportId, rootKey,
+					min(localTimestamp, remoteTimestamp), alice, false);
+			will(returnValue(keySetId));
+		}});
+	}
+
+	private void expectKeysExist(Transaction txn, boolean exist)
+			throws Exception {
+		context.checking(new Expectations() {{
+			oneOf(db).containsTransportKeys(txn, contact.getId(),
+					simplexTransportId);
+			will(returnValue(exist));
+		}});
 	}
 }
