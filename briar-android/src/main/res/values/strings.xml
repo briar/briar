@@ -160,6 +160,7 @@
 	<string name="sorry">Sorry</string>
 	<string name="error_start_activity">Unavailable on your system</string>
 	<string name="status_heading">Status:</string>
+	<string name="error">Error</string>
 
 	<!-- Contacts and Private Conversations-->
 	<string name="no_contacts">No contacts to show</string>

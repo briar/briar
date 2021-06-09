@@ -60,6 +60,7 @@ public class HotspotErrorFragment extends BaseFragment {
 	public View onCreateView(LayoutInflater inflater,
 			@Nullable ViewGroup container,
 			@Nullable Bundle savedInstanceState) {
+		requireActivity().setTitle(R.string.error);
 		return inflater
 				.inflate(R.layout.fragment_hotspot_error, container, false);
 	}
