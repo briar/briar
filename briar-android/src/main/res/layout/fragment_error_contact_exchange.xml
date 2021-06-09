@@ -12,7 +12,7 @@
 
 		<TextView
 			android:id="@+id/errorTitle"
-			android:layout_width="wrap_content"
+			android:layout_width="0dp"
 			android:layout_height="wrap_content"
 			android:layout_margin="16dp"
 			android:text="@string/connection_error_title"
@@ -54,7 +54,7 @@
 			app:layout_constraintTop_toBottomOf="@+id/errorIcon"
 			app:layout_constraintVertical_bias="0"
 			app:layout_constraintVertical_chainStyle="packed"
-			tools:text="@string/connection_error_explanation" />
+			tools:text="error explanation" />
 
 		<TextView
 			android:id="@+id/sendFeedback"
