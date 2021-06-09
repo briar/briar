@@ -530,8 +530,7 @@ public class TransportKeyAgreementManagerImplTest extends BrambleMockTestCase {
 	private void expectDeriveAndStoreTransportKeys(Transaction txn)
 			throws Exception {
 		context.checking(new Expectations() {{
-			oneOf(crypto).deriveRootKey(localKeyPair, remotePublicKey,
-					min(localTimestamp, remoteTimestamp));
+			oneOf(crypto).deriveRootKey(localKeyPair, remotePublicKey);
 			will(returnValue(rootKey));
 			oneOf(db).getContact(txn, contact.getId());
 			will(returnValue(contact));
