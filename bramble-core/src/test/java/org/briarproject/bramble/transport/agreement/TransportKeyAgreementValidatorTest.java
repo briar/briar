@@ -19,6 +19,7 @@ import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
 import static org.briarproject.bramble.api.crypto.CryptoConstants.MAX_AGREEMENT_PUBLIC_KEY_BYTES;
 import static org.briarproject.bramble.api.plugin.TransportId.MAX_TRANSPORT_ID_LENGTH;
+import static org.briarproject.bramble.api.system.Clock.MIN_REASONABLE_TIME_MS;
 import static org.briarproject.bramble.api.versioning.ClientVersioningManager.CLIENT_ID;
 import static org.briarproject.bramble.api.versioning.ClientVersioningManager.MAJOR_VERSION;
 import static org.briarproject.bramble.test.TestUtils.getGroup;
@@ -109,6 +110,27 @@ public class TransportKeyAgreementValidatorTest extends BrambleMockTestCase {
 		assertArrayEquals(publicKey, d.getRaw(MSG_KEY_PUBLIC_KEY));
 	}
 
+	@Test
+	public void testAcceptsMinTimestampKeyMsg() throws Exception {
+		Message message =
+				getMessage(group.getId(), 1234, MIN_REASONABLE_TIME_MS);
+		TransportId transportId = new TransportId(getRandomString(1));
+		context.checking(new Expectations() {{
+			oneOf(messageEncoder)
+					.encodeMessageMetadata(transportId, KEY, false);
+			will(returnValue(new BdfDictionary()));
+		}});
+
+		byte[] publicKey = getRandomBytes(1);
+		BdfList body =
+				BdfList.of(KEY.getValue(), transportId.getString(), publicKey);
+		BdfMessageContext msgCtx =
+				validator.validateMessage(message, group, body);
+		assertEquals(emptyList(), msgCtx.getDependencies());
+		BdfDictionary d = msgCtx.getDictionary();
+		assertArrayEquals(publicKey, d.getRaw(MSG_KEY_PUBLIC_KEY));
+	}
+
 	@Test(expected = FormatException.class)
 	public void testRejectsTooLongKeyMsg() throws Exception {
 		BdfList body = BdfList.of(KEY.getValue(), getRandomString(1),
@@ -165,6 +187,15 @@ public class TransportKeyAgreementValidatorTest extends BrambleMockTestCase {
 		BdfList body = BdfList.of(KEY.getValue(),
 				getRandomString(1),
 				getRandomString(MAX_AGREEMENT_PUBLIC_KEY_BYTES));
+		validator.validateMessage(message, group, body);
+	}
+
+	@Test(expected = FormatException.class)
+	public void testRejectsTooOldTimestampKeyMsg() throws Exception {
+		Message message =
+				getMessage(group.getId(), 1234, MIN_REASONABLE_TIME_MS - 1);
+		BdfList body = BdfList.of(KEY.getValue(), getRandomString(1),
+				getRandomBytes(1));
 		validator.validateMessage(message, group, body);
 	}
 

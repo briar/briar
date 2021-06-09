@@ -4,6 +4,7 @@ import org.briarproject.bramble.api.FormatException;
 import org.briarproject.bramble.api.client.ClientHelper;
 import org.briarproject.bramble.api.client.ContactGroupFactory;
 import org.briarproject.bramble.api.contact.Contact;
+import org.briarproject.bramble.api.contact.ContactId;
 import org.briarproject.bramble.api.contact.ContactManager;
 import org.briarproject.bramble.api.crypto.KeyPair;
 import org.briarproject.bramble.api.crypto.PrivateKey;
@@ -48,6 +49,7 @@ import javax.inject.Inject;
 
 import static java.lang.Math.max;
 import static java.util.logging.Level.WARNING;
+import static org.briarproject.bramble.api.system.Clock.MIN_REASONABLE_TIME_MS;
 import static org.briarproject.bramble.util.LogUtils.logException;
 import static org.briarproject.briar.introduction.IntroduceeState.AWAIT_AUTH;
 import static org.briarproject.briar.introduction.IntroduceeState.AWAIT_RESPONSES;
@@ -453,30 +455,30 @@ class IntroduceeProtocolEngine
 		long timestamp = Math.min(s.getLocal().acceptTimestamp,
 				s.getRemote().acceptTimestamp);
 		if (timestamp == -1) throw new AssertionError();
+		if (timestamp < MIN_REASONABLE_TIME_MS) {
+			LOG.warning("Timestamp is too old");
+			return abort(txn, s, m.getMessageId());
+		}
 
 		Map<TransportId, KeySetId> keys = null;
 		try {
-			contactManager.addContact(txn, s.getRemote().author,
-					localAuthor.getId(), false);
+			ContactId contactId = contactManager.addContact(txn,
+					s.getRemote().author, localAuthor.getId(), false);
 
 			// Only add transport properties and keys when the contact was added
 			// This will be changed once we have a way to reset state for peers
 			// that were contacts already at some point in the past.
-			Contact c = contactManager.getContact(txn,
-					s.getRemote().author.getId(), localAuthor.getId());
 
 			// add the keys to the new contact
-			keys = keyManager.addRotationKeys(txn, c.getId(),
+			keys = keyManager.addRotationKeys(txn, contactId,
 					new SecretKey(s.getMasterKey()), timestamp,
 					s.getLocal().alice, false);
 
 			// add signed transport properties for the contact
-			transportPropertyManager.addRemoteProperties(txn, c.getId(),
+			transportPropertyManager.addRemoteProperties(txn, contactId,
 					s.getRemote().transportProperties);
 		} catch (ContactExistsException e) {
-			// Ignore this, because the other introducee might have deleted us.
-			// So we still want updated transport properties
-			// and new transport keys.
+			// Ignore this, because the other introducee might have deleted us
 		}
 
 		// send ACTIVATE message with a MAC
