@@ -5,6 +5,7 @@ import org.briarproject.bramble.api.db.DatabaseComponent;
 import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.db.Transaction;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
+import org.briarproject.bramble.api.system.Clock;
 import org.briarproject.bramble.api.system.Wakeful;
 
 import java.util.concurrent.ExecutorService;
@@ -29,26 +30,6 @@ public interface LifecycleManager {
 		SERVICE_ERROR,
 		SUCCESS
 	}
-
-	/**
-	 * The minimum reasonable value for the system clock, in milliseconds
-	 * since the Unix epoch. {@link #startServices(SecretKey)} will return
-	 * {@link StartResult#CLOCK_ERROR} if the system clock reports an earlier
-	 * time.
-	 * <p/>
-	 * 1 Jan 2021, 00:00:00 UTC
-	 */
-	long MIN_REASONABLE_TIME_MS = 1_609_459_200_000L;
-
-	/**
-	 * The maximum reasonable value for the system clock, in milliseconds
-	 * since the Unix epoch. {@link #startServices(SecretKey)} will return
-	 * {@link StartResult#CLOCK_ERROR} if the system clock reports a later
-	 * time.
-	 * <p/>
-	 * 1 Jan 2121, 00:00:00 UTC
-	 */
-	long MAX_REASONABLE_TIME_MS = 4_765_132_800_000L;
 
 	/**
 	 * The state the lifecycle can be in.
@@ -86,6 +67,10 @@ public interface LifecycleManager {
 	/**
 	 * Opens the {@link DatabaseComponent} using the given key and starts any
 	 * registered {@link Service Services}.
+	 *
+	 * @return {@link StartResult#CLOCK_ERROR} if the system clock is earlier
+	 * than {@link Clock#MIN_REASONABLE_TIME_MS} or later than
+	 * {@link Clock#MAX_REASONABLE_TIME_MS}.
 	 */
 	@Wakeful
 	StartResult startServices(SecretKey dbKey);

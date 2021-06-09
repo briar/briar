@@ -19,6 +19,7 @@ import javax.annotation.concurrent.Immutable;
 import static java.util.Collections.singletonList;
 import static org.briarproject.bramble.api.crypto.CryptoConstants.MAX_AGREEMENT_PUBLIC_KEY_BYTES;
 import static org.briarproject.bramble.api.plugin.TransportId.MAX_TRANSPORT_ID_LENGTH;
+import static org.briarproject.bramble.api.system.Clock.MIN_REASONABLE_TIME_MS;
 import static org.briarproject.bramble.transport.agreement.MessageType.ACTIVATE;
 import static org.briarproject.bramble.transport.agreement.MessageType.KEY;
 import static org.briarproject.bramble.transport.agreement.TransportKeyAgreementConstants.MSG_KEY_PUBLIC_KEY;
@@ -42,13 +43,14 @@ class TransportKeyAgreementValidator extends BdfMessageValidator {
 	protected BdfMessageContext validateMessage(Message m, Group g,
 			BdfList body) throws FormatException {
 		MessageType type = MessageType.fromValue(body.getLong(0).intValue());
-		if (type == KEY) return validateKeyMessage(body);
+		if (type == KEY) return validateKeyMessage(m.getTimestamp(), body);
 		else if (type == ACTIVATE) return validateActivateMessage(body);
 		else throw new AssertionError();
 	}
 
-	private BdfMessageContext validateKeyMessage(BdfList body)
+	private BdfMessageContext validateKeyMessage(long timestamp, BdfList body)
 			throws FormatException {
+		if (timestamp < MIN_REASONABLE_TIME_MS) throw new FormatException();
 		// Message type, transport ID, public key
 		checkSize(body, 3);
 		String transportId = body.getString(1);
