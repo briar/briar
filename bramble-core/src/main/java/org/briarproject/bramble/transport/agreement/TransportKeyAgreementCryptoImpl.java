@@ -34,8 +34,7 @@ class TransportKeyAgreementCryptoImpl implements TransportKeyAgreementCrypto {
 
 	@Override
 	public SecretKey deriveRootKey(KeyPair localKeyPair,
-			PublicKey remotePublicKey, long timestamp)
-			throws GeneralSecurityException {
+			PublicKey remotePublicKey) throws GeneralSecurityException {
 		byte[] theirPublic = remotePublicKey.getEncoded();
 		byte[] ourPublic = localKeyPair.getPublic().getEncoded();
 		boolean alice = compare(ourPublic, theirPublic) < 0;

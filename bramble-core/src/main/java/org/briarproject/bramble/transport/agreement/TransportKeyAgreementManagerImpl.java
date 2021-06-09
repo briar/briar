@@ -255,8 +255,7 @@ class TransportKeyAgreementManagerImpl extends BdfIncomingMessageHook
 		long minTimestamp = min(keyMessage.getTimestamp(), m.getTimestamp());
 		SecretKey rootKey;
 		try {
-			rootKey = crypto.deriveRootKey(localKeyPair, remotePublicKey,
-					minTimestamp);
+			rootKey = crypto.deriveRootKey(localKeyPair, remotePublicKey);
 		} catch (GeneralSecurityException e) {
 			return REJECT; // Invalid public key
 		}
@@ -281,8 +280,7 @@ class TransportKeyAgreementManagerImpl extends BdfIncomingMessageHook
 		long minTimestamp = min(localTimestamp, m.getTimestamp());
 		SecretKey rootKey;
 		try {
-			rootKey = crypto.deriveRootKey(localKeyPair, remotePublicKey,
-					minTimestamp);
+			rootKey = crypto.deriveRootKey(localKeyPair, remotePublicKey);
 		} catch (GeneralSecurityException e) {
 			return REJECT; // Invalid public key
 		}

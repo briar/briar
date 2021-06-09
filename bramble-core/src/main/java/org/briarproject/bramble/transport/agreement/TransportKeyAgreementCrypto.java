@@ -14,8 +14,8 @@ interface TransportKeyAgreementCrypto {
 
 	KeyPair generateKeyPair();
 
-	SecretKey deriveRootKey(KeyPair localKeyPair, PublicKey remotePublicKey,
-			long timestamp) throws GeneralSecurityException;
+	SecretKey deriveRootKey(KeyPair localKeyPair, PublicKey remotePublicKey)
+			throws GeneralSecurityException;
 
 	PublicKey parsePublicKey(byte[] encoded) throws FormatException;
 
