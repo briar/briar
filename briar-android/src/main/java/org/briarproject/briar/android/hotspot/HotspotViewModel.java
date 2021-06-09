@@ -42,6 +42,7 @@ import static android.os.Build.VERSION.SDK_INT;
 import static android.os.Environment.DIRECTORY_DOWNLOADS;
 import static android.os.Environment.getExternalStoragePublicDirectory;
 import static java.util.Objects.requireNonNull;
+import static java.util.logging.Level.WARNING;
 import static java.util.logging.Logger.getLogger;
 import static org.briarproject.bramble.util.IoUtils.copyAndClose;
 import static org.briarproject.briar.BuildConfig.DEBUG;
@@ -144,7 +145,9 @@ class HotspotViewModel extends DbViewModel
 
 	@Override
 	public void onHotspotError(String error) {
-		LOG.warning("Hotspot error: " + error);
+		if (LOG.isLoggable(WARNING)) {
+			LOG.warning("Hotspot error: " + error);
+		}
 		state.postValue(new HotspotError(error));
 		ioExecutor.execute(webServerManager::stopWebServer);
 		notificationManager.clearHotspotNotification();

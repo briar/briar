@@ -9,21 +9,15 @@ import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
 import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
 import org.briarproject.briar.R;
 
-import javax.inject.Inject;
-
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
-import androidx.lifecycle.ViewModelProvider;
 
 @MethodsNotNullByDefault
 @ParametersNotNullByDefault
 public class HotspotHelpFragment extends Fragment {
 
 	public final static String TAG = HotspotHelpFragment.class.getName();
-
-	@Inject
-	ViewModelProvider.Factory viewModelFactory;
 
 	@Override
 	public View onCreateView(LayoutInflater inflater,
