@@ -10,92 +10,159 @@ import org.briarproject.bramble.api.plugin.file.RemovableDriveManager;
 import org.briarproject.bramble.api.plugin.file.RemovableDriveTask;
 import org.briarproject.bramble.api.plugin.file.RemovableDriveTask.State;
 import org.briarproject.bramble.api.properties.TransportProperties;
+import org.briarproject.briar.android.viewmodel.LiveEvent;
+import org.briarproject.briar.android.viewmodel.MutableLiveEvent;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Logger;
 
 import javax.annotation.Nullable;
 import javax.inject.Inject;
 
+import androidx.annotation.UiThread;
 import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
 import static java.util.Locale.US;
+import static java.util.Objects.requireNonNull;
 import static java.util.logging.Logger.getLogger;
 import static org.briarproject.bramble.api.plugin.file.RemovableDriveConstants.PROP_URI;
 
+@UiThread
 @NotNullByDefault
 class RemovableDriveViewModel extends AndroidViewModel {
 
 	private static final Logger LOG =
 			getLogger(RemovableDriveViewModel.class.getName());
 
+	enum Action {SEND, RECEIVE}
+
 	private final RemovableDriveManager manager;
 
-	private final ConcurrentHashMap<Consumer<State>, RemovableDriveTask>
-			observers = new ConcurrentHashMap<>();
+	private final MutableLiveEvent<Action> action = new MutableLiveEvent<>();
+	private final MutableLiveData<TransferDataState> state =
+			new MutableLiveData<>();
+	private final State initialState = new State(0, 0, false, false);
+	@Nullable
+	private ContactId contactId = null;
+	@Nullable
+	private RemovableDriveTask task = null;
+	@Nullable
+	private Consumer<State> taskObserver = null;
 
 	@Inject
 	RemovableDriveViewModel(Application app,
 			RemovableDriveManager removableDriveManager) {
 		super(app);
-
 		this.manager = removableDriveManager;
-	}
-
-	String getFileName() {
-		SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd_HHmmss_SSS", US);
-		return sdf.format(new Date());
-	}
-
-
-	LiveData<State> write(ContactId contactId, Uri uri) {
-		TransportProperties p = new TransportProperties();
-		p.put(PROP_URI, uri.toString());
-		return observe(manager.startWriterTask(contactId, p));
-	}
-
-	LiveData<State> read(Uri uri) {
-		TransportProperties p = new TransportProperties();
-		p.put(PROP_URI, uri.toString());
-		return observe(manager.startReaderTask(p));
-	}
-
-	@Nullable
-	LiveData<State> ongoingWrite() {
-		RemovableDriveTask task = manager.getCurrentWriterTask();
-		if (task == null) {
-			return null;
-		}
-		return observe(task);
-	}
-
-	@Nullable
-	LiveData<State> ongoingRead() {
-		RemovableDriveTask task = manager.getCurrentReaderTask();
-		if (task == null) {
-			return null;
-		}
-		return observe(task);
-	}
-
-	private LiveData<State> observe(RemovableDriveTask task) {
-		MutableLiveData<State> state = new MutableLiveData<>();
-		Consumer<State> observer = state::postValue;
-		task.addObserver(observer);
-		observers.put(observer, task);
-		return state;
 	}
 
 	@Override
 	protected void onCleared() {
-		for (Map.Entry<Consumer<State>, RemovableDriveTask> entry
-				: observers.entrySet()) {
-			entry.getValue().removeObserver(entry.getKey());
+		if (task != null) {
+			// when we have a task, we must have an observer for it
+			Consumer<State> observer = requireNonNull(taskObserver);
+			task.removeObserver(observer);
 		}
 	}
+
+	/**
+	 * Set this as soon as it becomes available.
+	 */
+	void setContactId(ContactId contactId) {
+		this.contactId = contactId;
+	}
+
+	@UiThread
+	void startSendData() {
+		action.setEvent(Action.SEND);
+
+		// check if there is already a send/write task
+		task = manager.getCurrentWriterTask();
+		if (task == null) {
+			// TODO check if there is data to export now
+			//  and only allow to continue if there is.
+			state.setValue(new TransferDataState.Ready());
+		} else {
+			// observe old task and start with initial state
+			taskObserver = s -> observeTask(s, true);
+			taskObserver.accept(initialState);
+			task.addObserver(taskObserver);
+		}
+	}
+
+	@UiThread
+	void startReceiveData() {
+		action.setEvent(Action.RECEIVE);
+
+		// check if there is already a receive/read task
+		task = manager.getCurrentReaderTask();
+		if (task == null) {
+			state.setValue(new TransferDataState.Ready());
+		} else {
+			// observe old task and start with initial state
+			taskObserver = s -> observeTask(s, true);
+			taskObserver.accept(initialState);
+			task.addObserver(taskObserver);
+		}
+	}
+
+	@UiThread
+	private void observeTask(RemovableDriveTask.State s, boolean isOldTask) {
+		state.setValue(new TransferDataState.TaskAvailable(s, isOldTask));
+	}
+
+	String getFileName() {
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd_HHmmss", US);
+		return sdf.format(new Date()) + ".zip";
+	}
+
+	/**
+	 * Call this only when in {@link TransferDataState.Ready}.
+	 */
+	@UiThread
+	void exportData(Uri uri) {
+		// starting an action more than once is not supported for simplicity
+		if (task != null) throw new IllegalStateException();
+
+		// from now on, we are not re-usable
+		taskObserver = s -> observeTask(s, false);
+		taskObserver.accept(initialState);
+
+		// start the writer task for this contact and observe it
+		TransportProperties p = new TransportProperties();
+		p.put(PROP_URI, uri.toString());
+		ContactId c = requireNonNull(contactId);
+		task = manager.startWriterTask(c, p);
+		task.addObserver(taskObserver);
+	}
+
+	/**
+	 * Call this only when in {@link TransferDataState.Ready}.
+	 */
+	@UiThread
+	void importData(Uri uri) {
+		// starting an action more than once is not supported for simplicity
+		if (task != null) throw new IllegalStateException();
+
+		// from now on, we are not re-usable
+		taskObserver = s -> observeTask(s, false);
+		taskObserver.accept(initialState);
+
+		TransportProperties p = new TransportProperties();
+		p.put(PROP_URI, uri.toString());
+		task = manager.startReaderTask(p);
+		task.addObserver(taskObserver);
+	}
+
+	LiveEvent<Action> getActionEvent() {
+		return action;
+	}
+
+	LiveData<TransferDataState> getState() {
+		return state;
+	}
+
 }

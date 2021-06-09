@@ -38,6 +38,9 @@ import org.briarproject.briar.android.attachment.media.MediaModule;
 import org.briarproject.briar.android.conversation.glide.BriarModelLoader;
 import org.briarproject.briar.android.logging.CachingLogHandler;
 import org.briarproject.briar.android.login.SignInReminderReceiver;
+import org.briarproject.briar.android.removabledrive.ChooserFragment;
+import org.briarproject.briar.android.removabledrive.ReceiveFragment;
+import org.briarproject.briar.android.removabledrive.SendFragment;
 import org.briarproject.briar.android.settings.ConnectionsFragment;
 import org.briarproject.briar.android.settings.NotificationsFragment;
 import org.briarproject.briar.android.settings.SecurityFragment;
@@ -212,4 +215,10 @@ public interface AndroidComponent
 	void inject(SecurityFragment securityFragment);
 
 	void inject(NotificationsFragment notificationsFragment);
+
+	void inject(ChooserFragment chooserFragment);
+
+	void inject(SendFragment sendFragment);
+
+	void inject(ReceiveFragment receiveFragment);
 }

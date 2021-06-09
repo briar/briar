@@ -438,7 +438,7 @@
 
 		<activity
 			android:name="org.briarproject.briar.android.removabledrive.RemovableDriveActivity"
-			android:label="TODO Removable Drive"
+			android:label="@string/removable_drive_menu_title"
 			android:parentActivityName="org.briarproject.briar.android.conversation.ConversationActivity">
 			<meta-data
 				android:name="android.support.PARENT_ACTIVITY"

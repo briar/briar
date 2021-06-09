@@ -375,6 +375,10 @@ public class ConversationActivity extends BriarActivity
 		if (!featureFlags.shouldEnableConnectViaBluetooth()) {
 			menu.findItem(R.id.action_connect_via_bluetooth).setVisible(false);
 		}
+		// Transfer Data feature only supported on API 19+
+		if (SDK_INT >= 19) { // TODO also hide behind feature flag
+			menu.findItem(R.id.action_transfer_data).setVisible(true);
+		}
 		// enable alias and bluetooth action once available
 		observeOnce(viewModel.getContactItem(), this, contact -> {
 			menu.findItem(R.id.action_set_alias).setEnabled(true);
@@ -415,16 +419,16 @@ public class ConversationActivity extends BriarActivity
 			new BluetoothConnecterDialogFragment().show(fm,
 					BluetoothConnecterDialogFragment.TAG);
 			return true;
+		} else if (itemId == R.id.action_transfer_data) {
+			Intent intent = new Intent(this, RemovableDriveActivity.class);
+			intent.putExtra(CONTACT_ID, contactId.getInt());
+			startActivity(intent);
+			return true;
 		} else if (itemId == R.id.action_delete_all_messages) {
 			askToDeleteAllMessages();
 			return true;
 		} else if (itemId == R.id.action_social_remove_person) {
 			askToRemoveContact();
-			return true;
-		} else if (itemId == R.id.action_removable_drive_write) {
-			Intent intent = new Intent(this, RemovableDriveActivity.class);
-			intent.putExtra(CONTACT_ID, contactId.getInt());
-			startActivity(intent);
 			return true;
 		}
 		return super.onOptionsItemSelected(item);
