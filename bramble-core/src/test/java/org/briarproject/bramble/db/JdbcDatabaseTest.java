@@ -698,7 +698,9 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 		Connection txn = db.startTransaction();
 
 		// Initially there should be no transport keys in the database
+		assertFalse(db.containsTransportKeys(txn, contactId, transportId));
 		assertEquals(emptyList(), db.getTransportKeys(txn, transportId));
+		assertTrue(db.getTransportsWithKeys(txn).isEmpty());
 
 		// Add the contact, the transport and the transport keys
 		db.addIdentity(txn, identity);
@@ -709,6 +711,7 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 		assertEquals(keySetId1, db.addTransportKeys(txn, contactId, keys1));
 
 		// Retrieve the transport keys
+		assertTrue(db.containsTransportKeys(txn, contactId, transportId));
 		Collection<TransportKeySet> allKeys =
 				db.getTransportKeys(txn, transportId);
 		assertEquals(2, allKeys.size());
@@ -721,6 +724,8 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 				assertKeysEquals(keys1, ks.getKeys());
 			}
 		}
+		assertEquals(singletonMap(contactId, singletonList(transportId)),
+				db.getTransportsWithKeys(txn));
 
 		// Update the transport keys
 		TransportKeys updated = createTransportKeys(timePeriod + 1, active);
@@ -732,6 +737,7 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 				null, updated1));
 
 		// Retrieve the transport keys again
+		assertTrue(db.containsTransportKeys(txn, contactId, transportId));
 		allKeys = db.getTransportKeys(txn, transportId);
 		assertEquals(2, allKeys.size());
 		for (TransportKeySet ks : allKeys) {
@@ -743,10 +749,14 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 				assertKeysEquals(updated1, ks.getKeys());
 			}
 		}
+		assertEquals(singletonMap(contactId, singletonList(transportId)),
+				db.getTransportsWithKeys(txn));
 
 		// Removing the contact should remove the transport keys
 		db.removeContact(txn, contactId);
+		assertFalse(db.containsTransportKeys(txn, contactId, transportId));
 		assertEquals(emptyList(), db.getTransportKeys(txn, transportId));
+		assertTrue(db.getTransportsWithKeys(txn).isEmpty());
 
 		db.commitTransaction(txn);
 		db.close();

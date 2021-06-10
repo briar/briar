@@ -1278,6 +1278,29 @@ abstract class JdbcDatabase implements Database<Connection> {
 	}
 
 	@Override
+	public boolean containsTransportKeys(Connection txn, ContactId c,
+			TransportId t) throws DbException {
+		PreparedStatement ps = null;
+		ResultSet rs = null;
+		try {
+			String sql = "SELECT NULL FROM outgoingKeys"
+					+ " WHERE contactId = ? AND transportId = ?";
+			ps = txn.prepareStatement(sql);
+			ps.setInt(1, c.getInt());
+			ps.setString(2, t.getString());
+			rs = ps.executeQuery();
+			boolean found = rs.next();
+			rs.close();
+			ps.close();
+			return found;
+		} catch (SQLException e) {
+			tryToClose(rs, LOG, WARNING);
+			tryToClose(ps, LOG, WARNING);
+			throw new DbException(e);
+		}
+	}
+
+	@Override
 	public boolean containsVisibleMessage(Connection txn, ContactId c,
 			MessageId m) throws DbException {
 		PreparedStatement ps = null;
@@ -2601,6 +2624,38 @@ abstract class JdbcDatabase implements Database<Connection> {
 		} catch (SQLException e) {
 			tryToClose(rs, LOG, WARNING);
 			tryToClose(ps, LOG, WARNING);
+			throw new DbException(e);
+		}
+	}
+
+	@Override
+	public Map<ContactId, Collection<TransportId>> getTransportsWithKeys(
+			Connection txn) throws DbException {
+		Statement s = null;
+		ResultSet rs = null;
+		try {
+			String sql = "SELECT DISTINCT contactId, transportId"
+					+ " FROM outgoingKeys";
+			s = txn.createStatement();
+			rs = s.executeQuery(sql);
+			Map<ContactId, Collection<TransportId>> ids = new HashMap<>();
+			while (rs.next()) {
+				ContactId c = new ContactId(rs.getInt(1));
+				TransportId t = new TransportId(rs.getString(2));
+				Collection<TransportId> transportIds = ids.get(c);
+				if (transportIds == null) {
+					transportIds = new ArrayList<>();
+					ids.put(c, transportIds);
+				}
+				transportIds.add(t);
+			}
+			rs.close();
+			s.close();
+			return ids;
+		} catch (SQLException e) {
+			tryToClose(rs, LOG, WARNING);
+			tryToClose(s, LOG, WARNING);
+			tryToClose(s, LOG, WARNING);
 			throw new DbException(e);
 		}
 	}

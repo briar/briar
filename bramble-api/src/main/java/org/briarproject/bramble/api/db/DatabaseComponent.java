@@ -151,6 +151,16 @@ public interface DatabaseComponent extends TransactionManager {
 			throws DbException;
 
 	/**
+	 * Returns true if the database contains keys for communicating with the
+	 * given contact over the given transport. Handshake mode and rotation mode
+	 * keys are included, whether activated or not.
+	 * <p/>
+	 * Read-only.
+	 */
+	boolean containsTransportKeys(Transaction txn, ContactId c, TransportId t)
+			throws DbException;
+
+	/**
 	 * Deletes the message with the given ID. Unlike
 	 * {@link #removeMessage(Transaction, MessageId)}, the message ID,
 	 * dependencies, metadata, and any other associated state are not deleted.
@@ -492,6 +502,16 @@ public interface DatabaseComponent extends TransactionManager {
 	 */
 	Collection<TransportKeySet> getTransportKeys(Transaction txn, TransportId t)
 			throws DbException;
+
+	/**
+	 * Returns the contact IDs and transport IDs for which the DB contains
+	 * at least one set of transport keys. Handshake mode and rotation mode
+	 * keys are included, whether activated or not.
+	 * <p/>
+	 * Read-only.
+	 */
+	Map<ContactId, Collection<TransportId>> getTransportsWithKeys(
+			Transaction txn) throws DbException;
 
 	/**
 	 * Increments the outgoing stream counter for the given transport keys.

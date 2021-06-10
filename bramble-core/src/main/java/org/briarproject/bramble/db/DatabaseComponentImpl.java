@@ -372,6 +372,13 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 	}
 
 	@Override
+	public boolean containsTransportKeys(Transaction transaction, ContactId c,
+			TransportId t) throws DbException {
+		T txn = unbox(transaction);
+		return db.containsTransportKeys(txn, c, t);
+	}
+
+	@Override
 	public void deleteMessage(Transaction transaction, MessageId m)
 			throws DbException {
 		if (transaction.isReadOnly()) throw new IllegalArgumentException();
@@ -778,6 +785,13 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 		if (!db.containsTransport(txn, t))
 			throw new NoSuchTransportException();
 		return db.getTransportKeys(txn, t);
+	}
+
+	@Override
+	public Map<ContactId, Collection<TransportId>> getTransportsWithKeys(
+			Transaction transaction) throws DbException {
+		T txn = unbox(transaction);
+		return db.getTransportsWithKeys(txn);
 	}
 
 	@Override
