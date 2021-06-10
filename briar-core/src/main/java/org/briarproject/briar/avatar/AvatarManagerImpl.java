@@ -40,6 +40,7 @@ import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 import javax.inject.Inject;
 
+import static org.briarproject.bramble.api.sync.validation.IncomingMessageHook.DeliveryAction.ACCEPT_DO_NOT_SHARE;
 import static org.briarproject.briar.api.attachment.MediaConstants.MSG_KEY_CONTENT_TYPE;
 import static org.briarproject.briar.avatar.AvatarConstants.GROUP_KEY_CONTACT_ID;
 import static org.briarproject.briar.avatar.AvatarConstants.MSG_KEY_VERSION;
@@ -124,8 +125,8 @@ class AvatarManagerImpl implements AvatarManager, OpenDatabaseHook, ContactHook,
 	}
 
 	@Override
-	public boolean incomingMessage(Transaction txn, Message m, Metadata meta)
-			throws DbException, InvalidMessageException {
+	public DeliveryAction incomingMessage(Transaction txn, Message m,
+			Metadata meta) throws DbException, InvalidMessageException {
 		Group ourGroup = getOurGroup(txn);
 		if (m.getGroupId().equals(ourGroup.getId())) {
 			throw new InvalidMessageException(
@@ -144,7 +145,7 @@ class AvatarManagerImpl implements AvatarManager, OpenDatabaseHook, ContactHook,
 					// We've already received a newer update - delete this one
 					db.deleteMessage(txn, m.getId());
 					db.deleteMessageMetadata(txn, m.getId());
-					return false; // don't broadcast update
+					return ACCEPT_DO_NOT_SHARE;
 				}
 			}
 			ContactId contactId = getContactId(txn, m.getGroupId());
@@ -155,7 +156,7 @@ class AvatarManagerImpl implements AvatarManager, OpenDatabaseHook, ContactHook,
 		} catch (FormatException e) {
 			throw new InvalidMessageException(e);
 		}
-		return false;
+		return ACCEPT_DO_NOT_SHARE;
 	}
 
 	@Override

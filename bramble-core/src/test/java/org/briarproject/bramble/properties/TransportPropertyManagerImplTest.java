@@ -43,6 +43,7 @@ import static org.briarproject.bramble.api.properties.TransportPropertyConstants
 import static org.briarproject.bramble.api.properties.TransportPropertyManager.CLIENT_ID;
 import static org.briarproject.bramble.api.properties.TransportPropertyManager.MAJOR_VERSION;
 import static org.briarproject.bramble.api.sync.Group.Visibility.SHARED;
+import static org.briarproject.bramble.api.sync.validation.IncomingMessageHook.DeliveryAction.ACCEPT_DO_NOT_SHARE;
 import static org.briarproject.bramble.test.TestUtils.getContact;
 import static org.briarproject.bramble.test.TestUtils.getGroup;
 import static org.briarproject.bramble.test.TestUtils.getMessage;
@@ -230,7 +231,8 @@ public class TransportPropertyManagerImplTest extends BrambleMockTestCase {
 		}});
 
 		TransportPropertyManagerImpl t = createInstance();
-		assertFalse(t.incomingMessage(txn, message, meta));
+		assertEquals(ACCEPT_DO_NOT_SHARE,
+				t.incomingMessage(txn, message, meta));
 		assertTrue(hasEvent(txn, RemoteTransportPropertiesUpdatedEvent.class));
 	}
 
@@ -269,7 +271,8 @@ public class TransportPropertyManagerImplTest extends BrambleMockTestCase {
 		}});
 
 		TransportPropertyManagerImpl t = createInstance();
-		assertFalse(t.incomingMessage(txn, message, meta));
+		assertEquals(ACCEPT_DO_NOT_SHARE,
+				t.incomingMessage(txn, message, meta));
 		assertTrue(hasEvent(txn, RemoteTransportPropertiesUpdatedEvent.class));
 	}
 
@@ -308,7 +311,8 @@ public class TransportPropertyManagerImplTest extends BrambleMockTestCase {
 		}});
 
 		TransportPropertyManagerImpl t = createInstance();
-		assertFalse(t.incomingMessage(txn, message, meta));
+		assertEquals(ACCEPT_DO_NOT_SHARE,
+				t.incomingMessage(txn, message, meta));
 		assertFalse(hasEvent(txn, RemoteTransportPropertiesUpdatedEvent.class));
 	}
 

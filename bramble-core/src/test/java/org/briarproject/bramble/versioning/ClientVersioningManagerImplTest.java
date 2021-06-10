@@ -31,6 +31,7 @@ import static java.util.Collections.singletonMap;
 import static org.briarproject.bramble.api.sync.Group.Visibility.INVISIBLE;
 import static org.briarproject.bramble.api.sync.Group.Visibility.SHARED;
 import static org.briarproject.bramble.api.sync.Group.Visibility.VISIBLE;
+import static org.briarproject.bramble.api.sync.validation.IncomingMessageHook.DeliveryAction.ACCEPT_DO_NOT_SHARE;
 import static org.briarproject.bramble.api.versioning.ClientVersioningManager.CLIENT_ID;
 import static org.briarproject.bramble.api.versioning.ClientVersioningManager.MAJOR_VERSION;
 import static org.briarproject.bramble.test.TestUtils.getClientId;
@@ -41,7 +42,6 @@ import static org.briarproject.bramble.test.TestUtils.getRandomId;
 import static org.briarproject.bramble.versioning.ClientVersioningConstants.MSG_KEY_LOCAL;
 import static org.briarproject.bramble.versioning.ClientVersioningConstants.MSG_KEY_UPDATE_VERSION;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
 
 public class ClientVersioningManagerImplTest extends BrambleMockTestCase {
 
@@ -419,7 +419,8 @@ public class ClientVersioningManagerImplTest extends BrambleMockTestCase {
 
 		ClientVersioningManagerImpl c = createInstance();
 		c.registerClient(clientId, 123, 234, hook);
-		assertFalse(c.incomingMessage(txn, newRemoteUpdate, new Metadata()));
+		assertEquals(ACCEPT_DO_NOT_SHARE,
+				c.incomingMessage(txn, newRemoteUpdate, new Metadata()));
 	}
 
 	@Test
@@ -464,7 +465,8 @@ public class ClientVersioningManagerImplTest extends BrambleMockTestCase {
 
 		ClientVersioningManagerImpl c = createInstance();
 		c.registerClient(clientId, 123, 234, hook);
-		assertFalse(c.incomingMessage(txn, newRemoteUpdate, new Metadata()));
+		assertEquals(ACCEPT_DO_NOT_SHARE,
+				c.incomingMessage(txn, newRemoteUpdate, new Metadata()));
 	}
 
 	@Test
@@ -496,7 +498,8 @@ public class ClientVersioningManagerImplTest extends BrambleMockTestCase {
 
 		ClientVersioningManagerImpl c = createInstance();
 		c.registerClient(clientId, 123, 234, hook);
-		assertFalse(c.incomingMessage(txn, newRemoteUpdate, new Metadata()));
+		assertEquals(ACCEPT_DO_NOT_SHARE,
+				c.incomingMessage(txn, newRemoteUpdate, new Metadata()));
 	}
 
 	@Test
@@ -579,7 +582,8 @@ public class ClientVersioningManagerImplTest extends BrambleMockTestCase {
 
 		ClientVersioningManagerImpl c = createInstance();
 		c.registerClient(clientId, 123, 234, hook);
-		assertFalse(c.incomingMessage(txn, newRemoteUpdate, new Metadata()));
+		assertEquals(ACCEPT_DO_NOT_SHARE,
+				c.incomingMessage(txn, newRemoteUpdate, new Metadata()));
 	}
 
 	@Test
@@ -649,7 +653,8 @@ public class ClientVersioningManagerImplTest extends BrambleMockTestCase {
 
 		ClientVersioningManagerImpl c = createInstance();
 		c.registerClient(clientId, 123, 234, hook);
-		assertFalse(c.incomingMessage(txn, newRemoteUpdate, new Metadata()));
+		assertEquals(ACCEPT_DO_NOT_SHARE,
+				c.incomingMessage(txn, newRemoteUpdate, new Metadata()));
 	}
 
 	@Test
