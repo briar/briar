@@ -23,6 +23,11 @@ public interface TransportConnectionWriter {
 	int getMaxIdleTime();
 
 	/**
+	 * Returns true if the transport is lossy and cheap.
+	 */
+	boolean isLossyAndCheap();
+
+	/**
 	 * Returns an output stream for writing to the transport connection.
 	 */
 	OutputStream getOutputStream() throws IOException;
