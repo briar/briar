@@ -80,6 +80,11 @@ public abstract class AbstractDuplexTransportConnection
 		}
 
 		@Override
+		public boolean isLossyAndCheap() {
+			return false;
+		}
+
+		@Override
 		public OutputStream getOutputStream() throws IOException {
 			return AbstractDuplexTransportConnection.this.getOutputStream();
 		}

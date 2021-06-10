@@ -60,12 +60,12 @@ class SyncSessionFactoryImpl implements SyncSessionFactory {
 
 	@Override
 	public SyncSession createSimplexOutgoingSession(ContactId c, TransportId t,
-			int maxLatency, StreamWriter streamWriter) {
+			int maxLatency, boolean eager, StreamWriter streamWriter) {
 		OutputStream out = streamWriter.getOutputStream();
 		SyncRecordWriter recordWriter =
 				recordWriterFactory.createRecordWriter(out);
 		return new SimplexOutgoingSession(db, dbExecutor, eventBus, c, t,
-				maxLatency, false, streamWriter, recordWriter);
+				maxLatency, eager, streamWriter, recordWriter);
 	}
 
 	@Override

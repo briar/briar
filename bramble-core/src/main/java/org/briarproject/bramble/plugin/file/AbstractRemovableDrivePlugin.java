@@ -93,6 +93,11 @@ abstract class AbstractRemovableDrivePlugin implements SimplexPlugin {
 	}
 
 	@Override
+	public boolean isLossyAndCheap() {
+		return true;
+	}
+
+	@Override
 	public TransportConnectionReader createReader(TransportProperties p) {
 		try {
 			return new TransportInputStreamReader(openInputStream(p));

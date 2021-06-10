@@ -36,6 +36,11 @@ public class TestTransportConnectionWriter
 	}
 
 	@Override
+	public boolean isLossyAndCheap() {
+		return false;
+	}
+
+	@Override
 	public OutputStream getOutputStream() {
 		return out;
 	}

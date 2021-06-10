@@ -107,6 +107,11 @@ class RemovableDriveWriterTask extends RemovableDriveTaskImpl
 		}
 
 		@Override
+		public boolean isLossyAndCheap() {
+			return delegate.isLossyAndCheap();
+		}
+
+		@Override
 		public OutputStream getOutputStream() throws IOException {
 			return delegate.getOutputStream();
 		}
