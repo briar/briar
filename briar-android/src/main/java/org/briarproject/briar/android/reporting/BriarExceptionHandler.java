@@ -34,7 +34,7 @@ class BriarExceptionHandler implements UncaughtExceptionHandler {
 
 		// activity runs in its own process, so we can kill the old one
 		startDevReportActivity(app.getApplicationContext(),
-				CrashReportActivity.class, e, appStartTime, logKey);
+				CrashReportActivity.class, e, appStartTime, logKey, null);
 		Process.killProcess(Process.myPid());
 		System.exit(10);
 	}
