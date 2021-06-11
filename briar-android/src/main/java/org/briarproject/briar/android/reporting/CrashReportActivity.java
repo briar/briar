@@ -33,6 +33,7 @@ import static java.util.Objects.requireNonNull;
 public class CrashReportActivity extends BaseActivity
 		implements BaseFragmentListener {
 
+	public static final String EXTRA_INITIAL_COMMENT = "initialComment";
 	public static final String EXTRA_THROWABLE = "throwable";
 	public static final String EXTRA_APP_START_TIME = "appStartTime";
 	public static final String EXTRA_APP_LOGCAT = "logcat";
@@ -55,10 +56,11 @@ public class CrashReportActivity extends BaseActivity
 		setContentView(R.layout.activity_dev_report);
 
 		Intent intent = getIntent();
+		String initialComment = intent.getStringExtra(EXTRA_INITIAL_COMMENT);
 		Throwable t = (Throwable) intent.getSerializableExtra(EXTRA_THROWABLE);
 		long appStartTime = intent.getLongExtra(EXTRA_APP_START_TIME, -1);
 		byte[] logKey = intent.getByteArrayExtra(EXTRA_APP_LOGCAT);
-		viewModel.init(t, appStartTime, logKey);
+		viewModel.init(t, appStartTime, logKey, initialComment);
 		viewModel.getShowReport().observeEvent(this, show -> {
 			if (show) displayFragment(true);
 		});

@@ -72,7 +72,7 @@ public class HotspotErrorFragment extends BaseFragment {
 
 		Button feedbackButton = v.findViewById(R.id.feedbackButton);
 		feedbackButton.setOnClickListener(
-				button -> triggerFeedback(requireContext()));
+				button -> triggerFeedback(requireContext(), errorMessage));
 
 		FallbackFragment fallbackFragment = new FallbackFragment();
 		FragmentTransaction ta = getChildFragmentManager().beginTransaction();

@@ -64,6 +64,8 @@ class ReportViewModel extends AndroidViewModel {
 	private final MutableLiveEvent<Integer> closeReport =
 			new MutableLiveEvent<>();
 	private boolean isFeedback;
+	@Nullable
+	private String initialComment;
 
 	@Inject
 	ReportViewModel(@NonNull Application application,
@@ -80,7 +82,8 @@ class ReportViewModel extends AndroidViewModel {
 	}
 
 	void init(@Nullable Throwable t, long appStartTime,
-			@Nullable byte[] logKey) {
+			@Nullable byte[] logKey, @Nullable String initialComment) {
+		this.initialComment = initialComment;
 		isFeedback = t == null;
 		if (reportData.getValue() == null) new SingleShotAndroidExecutor(() -> {
 			String decryptedLogs;
@@ -101,6 +104,11 @@ class ReportViewModel extends AndroidViewModel {
 					collector.collectReportData(t, appStartTime, decryptedLogs);
 			reportData.postValue(data);
 		}).start();
+	}
+
+	@Nullable
+	String getInitialComment() {
+		return initialComment;
 	}
 
 	boolean isFeedback() {
@@ -140,7 +148,7 @@ class ReportViewModel extends AndroidViewModel {
 
 	/**
 	 * The content of the report that will be loaded after
-	 * {@link #init(Throwable, long, byte[])} was called.
+	 * {@link #init(Throwable, long, byte[], String)} was called.
 	 */
 	LiveData<ReportData> getReportData() {
 		return reportData;

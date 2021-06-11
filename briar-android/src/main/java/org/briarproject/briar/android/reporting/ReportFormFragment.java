@@ -78,6 +78,9 @@ public class ReportFormFragment extends BaseFragment {
 		list = v.findViewById(R.id.list);
 		progress = v.findViewById(R.id.progress_wheel);
 
+		if (viewModel.getInitialComment() != null)
+			userCommentView.setText(viewModel.getInitialComment());
+
 		if (viewModel.isFeedback()) {
 			includeDebugReport
 					.setText(getString(R.string.include_debug_report_feedback));
