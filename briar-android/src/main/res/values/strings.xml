@@ -160,6 +160,7 @@
 	<string name="sorry">Sorry</string>
 	<string name="error_start_activity">Unavailable on your system</string>
 	<string name="status_heading">Status:</string>
+	<string name="error">Error</string>
 
 	<!-- Contacts and Private Conversations-->
 	<string name="no_contacts">No contacts to show</string>
@@ -708,6 +709,7 @@
 	<string name="wifi_settings_request_enable_body">To create a Wi-Fi hotspot, Briar needs to use Wi-Fi. Please enable it.</string>
 	<string name="wifi_settings_request_denied_body">You have denied to enable Wi-Fi, but Briar needs to use Wi-Fi.\n\nPlease consider enabling it.</string>
 
+	<string name="hotspot_error_intro">Something went wrong while trying to share the app via Wi-Fi:</string>
 	<string name="hotspot_error_no_wifi_direct">Device does not support Wi-Fi Direct</string>
 	<string name="hotspot_error_start_callback_failed">Hotspot failed to start: error %s</string>
 	<string name="hotspot_error_start_callback_failed_unknown">Hotspot failed to start with an unknown error, reason %d</string>

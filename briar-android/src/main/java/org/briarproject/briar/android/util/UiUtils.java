@@ -61,6 +61,7 @@ import androidx.core.util.Consumer;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
 import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.Observer;
@@ -117,6 +118,7 @@ import static org.briarproject.briar.BuildConfig.APPLICATION_ID;
 import static org.briarproject.briar.android.TestingConstants.EXPIRY_DATE;
 import static org.briarproject.briar.android.reporting.CrashReportActivity.EXTRA_APP_LOGCAT;
 import static org.briarproject.briar.android.reporting.CrashReportActivity.EXTRA_APP_START_TIME;
+import static org.briarproject.briar.android.reporting.CrashReportActivity.EXTRA_INITIAL_COMMENT;
 import static org.briarproject.briar.android.reporting.CrashReportActivity.EXTRA_THROWABLE;
 
 @MethodsNotNullByDefault
@@ -143,13 +145,18 @@ public class UiUtils {
 
 	public static void showFragment(FragmentManager fm, Fragment f,
 			@Nullable String tag) {
-		fm.beginTransaction()
+		showFragment(fm, f, tag, true);
+	}
+
+	public static void showFragment(FragmentManager fm, Fragment f,
+			@Nullable String tag, boolean addToBackStack) {
+		FragmentTransaction ta = fm.beginTransaction()
 				.setCustomAnimations(R.anim.step_next_in,
 						R.anim.step_previous_out, R.anim.step_previous_in,
 						R.anim.step_next_out)
-				.replace(R.id.fragmentContainer, f, tag)
-				.addToBackStack(tag)
-				.commit();
+				.replace(R.id.fragmentContainer, f, tag);
+		if (addToBackStack) ta.addToBackStack(tag);
+		ta.commit();
 	}
 
 	public static String getContactDisplayName(Author author,
@@ -428,17 +435,25 @@ public class UiUtils {
 	}
 
 	public static void triggerFeedback(Context ctx) {
-		startDevReportActivity(ctx, FeedbackActivity.class, null, null, null);
+		triggerFeedback(ctx, null);
+	}
+
+	public static void triggerFeedback(Context ctx,
+			@Nullable String initialComment) {
+		startDevReportActivity(ctx, FeedbackActivity.class, null, null, null,
+				initialComment);
 	}
 
 	public static void startDevReportActivity(Context ctx,
 			Class<? extends FragmentActivity> activity, @Nullable Throwable t,
-			@Nullable Long appStartTime, @Nullable byte[] logKey) {
+			@Nullable Long appStartTime, @Nullable byte[] logKey, @Nullable
+			String initialComment) {
 		final Intent dialogIntent = new Intent(ctx, activity);
 		dialogIntent.setFlags(FLAG_ACTIVITY_NEW_TASK);
 		dialogIntent.putExtra(EXTRA_THROWABLE, t);
 		dialogIntent.putExtra(EXTRA_APP_START_TIME, appStartTime);
 		dialogIntent.putExtra(EXTRA_APP_LOGCAT, logKey);
+		dialogIntent.putExtra(EXTRA_INITIAL_COMMENT, initialComment);
 		ctx.startActivity(dialogIntent);
 	}
 

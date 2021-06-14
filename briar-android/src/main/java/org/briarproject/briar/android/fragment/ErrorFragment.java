@@ -40,8 +40,7 @@ public class ErrorFragment extends BaseFragment {
 	public void onCreate(@Nullable Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
-		Bundle args = getArguments();
-		if (args == null) throw new AssertionError();
+		Bundle args = requireArguments();
 		errorMessage = args.getString(ERROR_MSG);
 	}
 

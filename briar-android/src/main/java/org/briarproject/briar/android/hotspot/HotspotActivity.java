@@ -9,7 +9,7 @@ import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.activity.ActivityComponent;
 import org.briarproject.briar.android.activity.BriarActivity;
-import org.briarproject.briar.android.fragment.ErrorFragment;
+import org.briarproject.briar.android.fragment.BaseFragment.BaseFragmentListener;
 import org.briarproject.briar.android.hotspot.HotspotState.HotspotError;
 import org.briarproject.briar.android.hotspot.HotspotState.HotspotStarted;
 
@@ -26,7 +26,8 @@ import static org.briarproject.briar.api.android.AndroidNotificationManager.ACTI
 
 @MethodsNotNullByDefault
 @ParametersNotNullByDefault
-public class HotspotActivity extends BriarActivity {
+public class HotspotActivity extends BriarActivity
+		implements BaseFragmentListener {
 
 	@Inject
 	ViewModelProvider.Factory viewModelFactory;
@@ -60,9 +61,8 @@ public class HotspotActivity extends BriarActivity {
 					showFragment(fm, new HotspotFragment(), tag);
 				}
 			} else if (hotspotState instanceof HotspotError) {
-				String error = ((HotspotError) hotspotState).getError();
-				Fragment f = ErrorFragment.newInstance(error);
-				showFragment(getSupportFragmentManager(), f, ErrorFragment.TAG);
+				HotspotError error = ((HotspotError) hotspotState);
+				showErrorFragment(error.getError());
 			}
 		});
 
@@ -71,6 +71,15 @@ public class HotspotActivity extends BriarActivity {
 					.replace(R.id.fragmentContainer, new HotspotIntroFragment(),
 							HotspotIntroFragment.TAG)
 					.commit();
+		}
+	}
+
+	private void showErrorFragment(String error) {
+		FragmentManager fm = getSupportFragmentManager();
+		String tag = HotspotErrorFragment.TAG;
+		if (fm.findFragmentByTag(tag) == null) {
+			Fragment f = HotspotErrorFragment.newInstance(error);
+			showFragment(fm, f, tag, false);
 		}
 	}
 
