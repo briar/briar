@@ -15,7 +15,6 @@ import org.briarproject.briar.android.fragment.BaseFragment;
 import javax.inject.Inject;
 
 import androidx.annotation.Nullable;
-import androidx.fragment.app.FragmentTransaction;
 import androidx.lifecycle.ViewModelProvider;
 
 import static org.briarproject.briar.android.util.UiUtils.triggerFeedback;
@@ -74,10 +73,6 @@ public class HotspotErrorFragment extends BaseFragment {
 		Button feedbackButton = v.findViewById(R.id.feedbackButton);
 		feedbackButton.setOnClickListener(
 				button -> triggerFeedback(requireContext(), errorMessage));
-
-		FallbackFragment fallbackFragment = new FallbackFragment();
-		FragmentTransaction ta = getChildFragmentManager().beginTransaction();
-		ta.replace(R.id.fallbackPlaceholder, fallbackFragment).commit();
 	}
 
 }
