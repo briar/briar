@@ -5,6 +5,7 @@ import android.app.Application;
 import org.briarproject.bramble.api.crypto.CryptoExecutor;
 import org.briarproject.bramble.api.db.DatabaseExecutor;
 import org.briarproject.bramble.api.db.DbException;
+import org.briarproject.bramble.api.db.NoSuchGroupException;
 import org.briarproject.bramble.api.db.TransactionManager;
 import org.briarproject.bramble.api.event.Event;
 import org.briarproject.bramble.api.event.EventBus;
@@ -215,11 +216,15 @@ public abstract class ThreadListViewModel<I extends ThreadItem>
 		return replyId;
 	}
 
+	@UiThread
 	void storeMessageId(@Nullable MessageId messageId) {
 		if (messageId != null) {
 			runOnDbThread(() -> {
 				try {
 					messageTracker.storeMessageId(groupId, messageId);
+				} catch (NoSuchGroupException e) {
+					// This can happen when the activity is closed
+					// after deleting the group. So just ignore this case.
 				} catch (DbException e) {
 					handleException(e);
 				}
