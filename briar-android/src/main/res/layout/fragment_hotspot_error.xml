@@ -65,13 +65,15 @@
 			app:layout_constraintStart_toStartOf="parent"
 			app:layout_constraintTop_toBottomOf="@+id/errorMessageDetail" />
 
-		<FrameLayout
-			android:id="@+id/fallbackPlaceholder"
+		<androidx.fragment.app.FragmentContainerView
+			android:id="@+id/fallbackFragment"
+			android:name="org.briarproject.briar.android.hotspot.FallbackFragment"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
 			app:layout_constraintEnd_toEndOf="parent"
 			app:layout_constraintStart_toStartOf="parent"
-			app:layout_constraintTop_toBottomOf="@+id/feedbackButton" />
+			app:layout_constraintTop_toBottomOf="@+id/feedbackButton"
+			tools:layout="@layout/fragment_hotspot_save_apk" />
 
 	</androidx.constraintlayout.widget.ConstraintLayout>
 

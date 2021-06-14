@@ -11,7 +11,6 @@ import org.briarproject.briar.R;
 
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentTransaction;
 
 @MethodsNotNullByDefault
 @ParametersNotNullByDefault
@@ -25,15 +24,6 @@ public class HotspotHelpFragment extends Fragment {
 			@Nullable Bundle savedInstanceState) {
 		return inflater
 				.inflate(R.layout.fragment_hotspot_help, container, false);
-	}
-
-	@Override
-	public void onViewCreated(View v, @Nullable Bundle savedInstanceState) {
-		super.onViewCreated(v, savedInstanceState);
-
-		FallbackFragment fallbackFragment = new FallbackFragment();
-		FragmentTransaction ta = getChildFragmentManager().beginTransaction();
-		ta.replace(R.id.fallbackPlaceholder, fallbackFragment).commit();
 	}
 
 }
