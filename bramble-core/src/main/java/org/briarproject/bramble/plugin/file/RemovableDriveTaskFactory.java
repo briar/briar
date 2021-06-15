@@ -9,7 +9,7 @@ import org.briarproject.bramble.api.properties.TransportProperties;
 interface RemovableDriveTaskFactory {
 
 	RemovableDriveTask createReader(RemovableDriveTaskRegistry registry,
-			ContactId c, TransportProperties p);
+			TransportProperties p);
 
 	RemovableDriveTask createWriter(RemovableDriveTaskRegistry registry,
 			ContactId c, TransportProperties p);

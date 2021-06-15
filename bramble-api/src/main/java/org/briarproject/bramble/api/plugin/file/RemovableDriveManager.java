@@ -10,32 +10,31 @@ import javax.annotation.Nullable;
 public interface RemovableDriveManager {
 
 	/**
-	 * Returns the currently running reader task for the given contact,
-	 * or null if no task is running.
+	 * Returns the currently running reader task, or null if no reader task
+	 * is running.
 	 */
 	@Nullable
-	RemovableDriveTask getCurrentReaderTask(ContactId c);
+	RemovableDriveTask getCurrentReaderTask();
 
 	/**
-	 * Returns the currently running writer task for the given contact,
-	 * or null if no task is running.
+	 * Returns the currently running writer task,  or null if no writer task
+	 * is running.
 	 */
 	@Nullable
-	RemovableDriveTask getCurrentWriterTask(ContactId c);
+	RemovableDriveTask getCurrentWriterTask();
 
 	/**
-	 * Starts and returns a reader task for the given contact, reading from
-	 * a stream described by the given transport properties. If a reader task
-	 * for the contact is already running, it will be returned and the
-	 * transport properties will be ignored.
+	 * Starts and returns a reader task, reading from a stream described by
+	 * the given transport properties. If a reader task is already running,
+	 * it will be returned and the argument will be ignored.
 	 */
-	RemovableDriveTask startReaderTask(ContactId c, TransportProperties p);
+	RemovableDriveTask startReaderTask(TransportProperties p);
 
 	/**
 	 * Starts and returns a writer task for the given contact, writing to
 	 * a stream described by the given transport properties. If a writer task
-	 * for the contact is already running, it will be returned and the
-	 * transport properties will be ignored.
+	 * is already running, it will be returned and the arguments will be
+	 * ignored.
 	 */
 	RemovableDriveTask startWriterTask(ContactId c, TransportProperties p);
 }
