@@ -239,6 +239,7 @@
 	<string name="dialog_title_image_support">You can now send images to this contact</string>
 	<string name="dialog_message_image_support">Tap this icon to attach images.</string>
 	<string name="messaging_too_many_attachments_toast">Only the first %d images will be sent</string>
+	<string name="menu_contact">Contact</string>
 
 	<!-- Adding Contacts -->
 
