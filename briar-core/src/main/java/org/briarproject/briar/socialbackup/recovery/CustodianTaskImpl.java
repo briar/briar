@@ -19,6 +19,7 @@ import java.security.GeneralSecurityException;
 import java.util.logging.Logger;
 
 import javax.inject.Inject;
+import javax.inject.Provider;
 
 import static java.util.logging.Logger.getLogger;
 
@@ -29,7 +30,6 @@ public class CustodianTaskImpl extends ReturnShardTaskImpl
 	private final ClientHelper clientHelper;
 	private InetSocketAddress remoteSocketAddress;
 	private Socket socket;
-	private final AuthenticatedCipher cipher;
 	private byte[] payload;
 
 	private static final Logger LOG =
@@ -37,11 +37,10 @@ public class CustodianTaskImpl extends ReturnShardTaskImpl
 
 	@Inject
 	CustodianTaskImpl(CryptoComponent crypto, ClientHelper clientHelper,
-			AuthenticatedCipher cipher) {
-		super(cipher, crypto);
+			Provider<AuthenticatedCipher> cipherProvider) {
+		super(cipherProvider, crypto);
 		this.clientHelper = clientHelper;
 
-		this.cipher = cipher;
 	}
 
 	@Override
@@ -141,7 +140,7 @@ public class CustodianTaskImpl extends ReturnShardTaskImpl
 			DataInputStream inputStream = new DataInputStream(socket.getInputStream());
 			byte[] ackNonce = read(inputStream, NONCE_LENGTH);
 			byte[] ackMessageEncrypted =
-					read(inputStream, 3 + cipher.getMacBytes());
+					read(inputStream, 3 + AUTH_TAG_BYTES);
 			byte[] ackMessage = decrypt(ackMessageEncrypted, ackNonce);
 			String ackMessageString = new String(ackMessage);
 			LOG.info("Received ack message: " + new String(ackMessage));
