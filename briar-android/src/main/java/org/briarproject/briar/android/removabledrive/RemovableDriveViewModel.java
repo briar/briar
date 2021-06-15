@@ -59,15 +59,15 @@ class RemovableDriveViewModel extends AndroidViewModel {
 		return observe(manager.startWriterTask(contactId, p));
 	}
 
-	LiveData<State> read(ContactId contactId, Uri uri) {
+	LiveData<State> read(Uri uri) {
 		TransportProperties p = new TransportProperties();
 		p.put(PROP_URI, uri.toString());
-		return observe(manager.startReaderTask(contactId, p));
+		return observe(manager.startReaderTask(p));
 	}
 
 	@Nullable
-	LiveData<State> ongoingWrite(ContactId contactId) {
-		RemovableDriveTask task = manager.getCurrentWriterTask(contactId);
+	LiveData<State> ongoingWrite() {
+		RemovableDriveTask task = manager.getCurrentWriterTask();
 		if (task == null) {
 			return null;
 		}
@@ -75,8 +75,8 @@ class RemovableDriveViewModel extends AndroidViewModel {
 	}
 
 	@Nullable
-	LiveData<State> ongoingRead(ContactId contactId) {
-		RemovableDriveTask task = manager.getCurrentReaderTask(contactId);
+	LiveData<State> ongoingRead() {
+		RemovableDriveTask task = manager.getCurrentReaderTask();
 		if (task == null) {
 			return null;
 		}

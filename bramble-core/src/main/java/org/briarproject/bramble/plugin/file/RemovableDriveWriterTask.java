@@ -33,6 +33,7 @@ class RemovableDriveWriterTask extends RemovableDriveTaskImpl
 			getLogger(RemovableDriveWriterTask.class.getName());
 
 	private final DatabaseComponent db;
+	private final ContactId contactId;
 
 	RemovableDriveWriterTask(
 			DatabaseComponent db,
@@ -44,8 +45,9 @@ class RemovableDriveWriterTask extends RemovableDriveTaskImpl
 			ContactId contactId,
 			TransportProperties transportProperties) {
 		super(eventExecutor, pluginManager, connectionManager, eventBus,
-				registry, contactId, transportProperties);
+				registry, transportProperties);
 		this.db = db;
+		this.contactId = contactId;
 	}
 
 	@Override
@@ -54,7 +56,7 @@ class RemovableDriveWriterTask extends RemovableDriveTaskImpl
 		TransportConnectionWriter w = plugin.createWriter(transportProperties);
 		if (w == null) {
 			LOG.warning("Failed to create writer");
-			registry.removeWriter(contactId, this);
+			registry.removeWriter(this);
 			setSuccess(false);
 			return;
 		}
@@ -64,7 +66,7 @@ class RemovableDriveWriterTask extends RemovableDriveTaskImpl
 					db.getMessageBytesToSend(txn, contactId, maxLatency)));
 		} catch (DbException e) {
 			logException(LOG, WARNING, e);
-			registry.removeWriter(contactId, this);
+			registry.removeWriter(this);
 			setSuccess(false);
 			return;
 		}
@@ -112,7 +114,7 @@ class RemovableDriveWriterTask extends RemovableDriveTaskImpl
 		@Override
 		public void dispose(boolean exception) throws IOException {
 			delegate.dispose(exception);
-			registry.removeWriter(contactId, RemovableDriveWriterTask.this);
+			registry.removeWriter(RemovableDriveWriterTask.this);
 			eventBus.removeListener(RemovableDriveWriterTask.this);
 			setSuccess(!exception);
 		}

@@ -7,10 +7,10 @@ import org.briarproject.bramble.api.plugin.file.RemovableDriveManager;
 import org.briarproject.bramble.api.plugin.file.RemovableDriveTask;
 import org.briarproject.bramble.api.properties.TransportProperties;
 
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executor;
 
 import javax.annotation.Nullable;
+import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;
 import javax.inject.Inject;
 
@@ -21,10 +21,12 @@ class RemovableDriveManagerImpl
 
 	private final Executor ioExecutor;
 	private final RemovableDriveTaskFactory taskFactory;
-	private final ConcurrentHashMap<ContactId, RemovableDriveTask>
-			readers = new ConcurrentHashMap<>();
-	private final ConcurrentHashMap<ContactId, RemovableDriveTask>
-			writers = new ConcurrentHashMap<>();
+	private final Object lock = new Object();
+
+	@GuardedBy("lock")
+	private RemovableDriveTask reader = null;
+	@GuardedBy("lock")
+	private RemovableDriveTask writer = null;
 
 	@Inject
 	RemovableDriveManagerImpl(@IoExecutor Executor ioExecutor,
@@ -35,49 +37,54 @@ class RemovableDriveManagerImpl
 
 	@Nullable
 	@Override
-	public RemovableDriveTask getCurrentReaderTask(ContactId c) {
-		return readers.get(c);
+	public RemovableDriveTask getCurrentReaderTask() {
+		synchronized (lock) {
+			return reader;
+		}
 	}
 
 	@Nullable
 	@Override
-	public RemovableDriveTask getCurrentWriterTask(ContactId c) {
-		return writers.get(c);
+	public RemovableDriveTask getCurrentWriterTask() {
+		synchronized (lock) {
+			return writer;
+		}
 	}
 
 	@Override
-	public RemovableDriveTask startReaderTask(ContactId c,
-			TransportProperties p) {
-		RemovableDriveTask task = taskFactory.createReader(this, c, p);
-		RemovableDriveTask old = readers.putIfAbsent(c, task);
-		if (old == null) {
-			ioExecutor.execute(task);
-			return task;
-		} else {
-			return old;
+	public RemovableDriveTask startReaderTask(TransportProperties p) {
+		RemovableDriveTask created;
+		synchronized (lock) {
+			if (reader != null) return reader;
+			reader = created = taskFactory.createReader(this, p);
 		}
+		ioExecutor.execute(created);
+		return created;
 	}
 
 	@Override
 	public RemovableDriveTask startWriterTask(ContactId c,
 			TransportProperties p) {
-		RemovableDriveTask task = taskFactory.createWriter(this, c, p);
-		RemovableDriveTask old = writers.putIfAbsent(c, task);
-		if (old == null) {
-			ioExecutor.execute(task);
-			return task;
-		} else {
-			return old;
+		RemovableDriveTask created;
+		synchronized (lock) {
+			if (writer != null) return writer;
+			writer = created = taskFactory.createWriter(this, c, p);
+		}
+		ioExecutor.execute(created);
+		return created;
+	}
+
+	@Override
+	public void removeReader(RemovableDriveTask task) {
+		synchronized (lock) {
+			if (reader == task) reader = null;
 		}
 	}
 
 	@Override
-	public void removeReader(ContactId c, RemovableDriveTask task) {
-		readers.remove(c, task);
-	}
-
-	@Override
-	public void removeWriter(ContactId c, RemovableDriveTask task) {
-		writers.remove(c, task);
+	public void removeWriter(RemovableDriveTask task) {
+		synchronized (lock) {
+			if (writer == task) writer = null;
+		}
 	}
 }
