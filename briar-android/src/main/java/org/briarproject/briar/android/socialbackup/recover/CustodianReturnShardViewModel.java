@@ -127,6 +127,7 @@ public class CustodianReturnShardViewModel extends AndroidViewModel
 	public void onQrCodeDecoded(Result result) {
 		LOG.info("Got result from decoder");
 		if (qrCodeRead) return;
+		qrCodeRead = true;
 		try {
 			byte[] payloadBytes = result.getText().getBytes(ISO_8859_1);
 			if (LOG.isLoggable(INFO))
@@ -197,9 +198,6 @@ public class CustodianReturnShardViewModel extends AndroidViewModel
 	public void onStateChanged(CustodianTask.State state) {
 		this.state.postValue(state);
 		// Connecting, SendingShard, ReceivingAck, Success, Failure
-		if (state instanceof CustodianTask.State.SendingShard) {
-			qrCodeRead = true;
-		}
 	}
 
 	public MutableLiveEvent<Boolean> getErrorTryAgain() {

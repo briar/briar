@@ -25,7 +25,6 @@ import static java.util.logging.Logger.getLogger;
 public class CustodianTaskImpl extends ReturnShardTaskImpl
 		implements CustodianTask {
 
-	private boolean cancelled = false;
 	private Observer observer;
 	private final ClientHelper clientHelper;
 	private InetSocketAddress remoteSocketAddress;
@@ -54,7 +53,6 @@ public class CustodianTaskImpl extends ReturnShardTaskImpl
 
 	@Override
 	public void cancel() {
-		cancelled = true;
 		if (socket != null && !socket.isClosed()) {
 			try {
 				socket.close();
