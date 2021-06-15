@@ -70,9 +70,9 @@ public class RemovableDriveIntegrationTest extends BrambleTestCase {
 		ContactId aliceId = setUp(bob, bobIdentity,
 				aliceIdentity.getLocalAuthor(), false);
 		// Sync Alice's client versions and transport properties
-		read(bob, aliceId, write(alice, bobId), 2);
+		read(bob, write(alice, bobId), 2);
 		// Sync Bob's client versions and transport properties
-		read(alice, bobId, write(bob, aliceId), 2);
+		read(alice, write(bob, aliceId), 2);
 	}
 
 	private ContactId setUp(RemovableDriveIntegrationTestComponent device,
@@ -92,7 +92,7 @@ public class RemovableDriveIntegrationTest extends BrambleTestCase {
 
 	@SuppressWarnings("SameParameterValue")
 	private void read(RemovableDriveIntegrationTestComponent device,
-			ContactId contactId, File file, int deliveries) throws Exception {
+			File file, int deliveries) throws Exception {
 		// Listen for message deliveries
 		MessageDeliveryListener listener =
 				new MessageDeliveryListener(deliveries);
@@ -100,8 +100,8 @@ public class RemovableDriveIntegrationTest extends BrambleTestCase {
 		// Read the incoming stream
 		TransportProperties p = new TransportProperties();
 		p.put(PROP_PATH, file.getAbsolutePath());
-		RemovableDriveTask reader = device.getRemovableDriveManager()
-				.startReaderTask(contactId, p);
+		RemovableDriveTask reader =
+				device.getRemovableDriveManager().startReaderTask(p);
 		CountDownLatch disposedLatch = new CountDownLatch(1);
 		reader.addObserver(state -> {
 			if (state.isFinished()) disposedLatch.countDown();

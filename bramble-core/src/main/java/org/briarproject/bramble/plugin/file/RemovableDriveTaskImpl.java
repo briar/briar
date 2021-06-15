@@ -2,7 +2,6 @@ package org.briarproject.bramble.plugin.file;
 
 import org.briarproject.bramble.api.Consumer;
 import org.briarproject.bramble.api.connection.ConnectionManager;
-import org.briarproject.bramble.api.contact.ContactId;
 import org.briarproject.bramble.api.event.EventBus;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.plugin.PluginManager;
@@ -30,7 +29,6 @@ abstract class RemovableDriveTaskImpl implements RemovableDriveTask {
 	final ConnectionManager connectionManager;
 	final EventBus eventBus;
 	final RemovableDriveTaskRegistry registry;
-	final ContactId contactId;
 	final TransportProperties transportProperties;
 
 	private final Object lock = new Object();
@@ -45,14 +43,12 @@ abstract class RemovableDriveTaskImpl implements RemovableDriveTask {
 			ConnectionManager connectionManager,
 			EventBus eventBus,
 			RemovableDriveTaskRegistry registry,
-			ContactId contactId,
 			TransportProperties transportProperties) {
 		this.eventExecutor = eventExecutor;
 		this.pluginManager = pluginManager;
 		this.connectionManager = connectionManager;
 		this.eventBus = eventBus;
 		this.registry = registry;
-		this.contactId = contactId;
 		this.transportProperties = transportProperties;
 	}
 

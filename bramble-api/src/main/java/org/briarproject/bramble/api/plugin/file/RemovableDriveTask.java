@@ -39,7 +39,7 @@ public interface RemovableDriveTask extends Runnable {
 
 		/**
 		 * Returns the total length in bytes of the messages read or written
-		 * so far.
+		 * so far, or zero if the total is unknown.
 		 */
 		public long getDone() {
 			return done;
