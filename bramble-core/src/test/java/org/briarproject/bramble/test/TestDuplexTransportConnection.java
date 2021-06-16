@@ -25,7 +25,7 @@ public class TestDuplexTransportConnection
 	@SuppressWarnings("WeakerAccess")
 	public TestDuplexTransportConnection(InputStream in, OutputStream out) {
 		reader = new TestTransportConnectionReader(in);
-		writer = new TestTransportConnectionWriter(out);
+		writer = new TestTransportConnectionWriter(out, false);
 	}
 
 	@Override
