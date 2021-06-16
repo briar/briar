@@ -315,16 +315,6 @@ public interface DatabaseComponent extends TransactionManager {
 	Message getMessage(Transaction txn, MessageId m) throws DbException;
 
 	/**
-	 * Returns the total length, including headers, of any messages that are
-	 * eligible to be sent to the given contact via a transport with the given
-	 * max latency.
-	 * <p/>
-	 * Read-only.
-	 */
-	long getMessageBytesToSend(Transaction txn, ContactId c, int maxLatency)
-			throws DbException;
-
-	/**
 	 * Returns the IDs of all delivered messages in the given group.
 	 * <p/>
 	 * Read-only.
@@ -468,6 +458,16 @@ public interface DatabaseComponent extends TransactionManager {
 	 */
 	Map<MessageId, Integer> getUnackedMessagesToSend(Transaction txn,
 			ContactId c) throws DbException;
+
+	/**
+	 * Returns the total length, including headers, of all messages that are
+	 * eligible to be sent to the given contact. This may include messages
+	 * that have already been sent and are not yet due for retransmission.
+	 * <p/>
+	 * Read-only.
+	 */
+	long getUnackedMessageBytesToSend(Transaction txn, ContactId c)
+			throws DbException;
 
 	/**
 	 * Returns the next time (in milliseconds since the Unix epoch) when a
