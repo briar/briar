@@ -12,5 +12,5 @@ dependencies {
 	signature 'org.codehaus.mojo.signature:java16:1.1@signature'
 
 	testImplementation project(path: ':bramble-api', configuration: 'testOutput')
-	testImplementation 'junit:junit:4.13.1'
+	testImplementation "junit:junit:$junit_version"
 }

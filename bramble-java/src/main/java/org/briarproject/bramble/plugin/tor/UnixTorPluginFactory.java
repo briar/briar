@@ -16,6 +16,7 @@ import org.briarproject.bramble.api.plugin.duplex.DuplexPluginFactory;
 import org.briarproject.bramble.api.system.Clock;
 import org.briarproject.bramble.api.system.LocationUtils;
 import org.briarproject.bramble.api.system.ResourceProvider;
+import org.briarproject.bramble.api.system.WakefulIoExecutor;
 
 import java.io.File;
 import java.util.concurrent.Executor;
@@ -56,7 +57,7 @@ public class UnixTorPluginFactory implements DuplexPluginFactory {
 
 	@Inject
 	public UnixTorPluginFactory(@IoExecutor Executor ioExecutor,
-			@IoExecutor Executor wakefulIoExecutor,
+			@WakefulIoExecutor Executor wakefulIoExecutor,
 			NetworkManager networkManager,
 			LocationUtils locationUtils,
 			EventBus eventBus,
