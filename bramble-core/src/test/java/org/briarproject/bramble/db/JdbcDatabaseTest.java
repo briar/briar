@@ -228,7 +228,7 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 		ids = db.getMessagesToOffer(txn, contactId, 100, MAX_LATENCY);
 		assertEquals(singletonList(messageId), ids);
 		assertEquals(message.getRawLength(),
-				db.getMessageBytesToSend(txn, contactId, MAX_LATENCY));
+				db.getUnackedMessageBytesToSend(txn, contactId));
 
 		// Changing the status to seen = true should make the message unsendable
 		db.raiseSeenFlag(txn, contactId, messageId);
@@ -236,7 +236,7 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 		assertTrue(ids.isEmpty());
 		ids = db.getMessagesToOffer(txn, contactId, 100, MAX_LATENCY);
 		assertTrue(ids.isEmpty());
-		assertEquals(0, db.getMessageBytesToSend(txn, contactId, MAX_LATENCY));
+		assertEquals(0, db.getUnackedMessageBytesToSend(txn, contactId));
 
 		db.commitTransaction(txn);
 		db.close();
@@ -261,7 +261,7 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 		assertTrue(ids.isEmpty());
 		ids = db.getMessagesToOffer(txn, contactId, 100, MAX_LATENCY);
 		assertTrue(ids.isEmpty());
-		assertEquals(0, db.getMessageBytesToSend(txn, contactId, MAX_LATENCY));
+		assertEquals(0, db.getUnackedMessageBytesToSend(txn, contactId));
 
 		// Marking the message delivered should make it sendable
 		db.setMessageState(txn, messageId, DELIVERED);
@@ -270,7 +270,7 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 		ids = db.getMessagesToOffer(txn, contactId, 100, MAX_LATENCY);
 		assertEquals(singletonList(messageId), ids);
 		assertEquals(message.getRawLength(),
-				db.getMessageBytesToSend(txn, contactId, MAX_LATENCY));
+				db.getUnackedMessageBytesToSend(txn, contactId));
 
 		// Marking the message invalid should make it unsendable
 		db.setMessageState(txn, messageId, INVALID);
@@ -278,7 +278,7 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 		assertTrue(ids.isEmpty());
 		ids = db.getMessagesToOffer(txn, contactId, 100, MAX_LATENCY);
 		assertTrue(ids.isEmpty());
-		assertEquals(0, db.getMessageBytesToSend(txn, contactId, MAX_LATENCY));
+		assertEquals(0, db.getUnackedMessageBytesToSend(txn, contactId));
 
 		// Marking the message pending should make it unsendable
 		db.setMessageState(txn, messageId, PENDING);
@@ -286,7 +286,7 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 		assertTrue(ids.isEmpty());
 		ids = db.getMessagesToOffer(txn, contactId, 100, MAX_LATENCY);
 		assertTrue(ids.isEmpty());
-		assertEquals(0, db.getMessageBytesToSend(txn, contactId, MAX_LATENCY));
+		assertEquals(0, db.getUnackedMessageBytesToSend(txn, contactId));
 
 		db.commitTransaction(txn);
 		db.close();
@@ -310,7 +310,7 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 		assertTrue(ids.isEmpty());
 		ids = db.getMessagesToOffer(txn, contactId, 100, MAX_LATENCY);
 		assertTrue(ids.isEmpty());
-		assertEquals(0, db.getMessageBytesToSend(txn, contactId, MAX_LATENCY));
+		assertEquals(0, db.getUnackedMessageBytesToSend(txn, contactId));
 
 		// Making the group visible should not make the message sendable
 		db.addGroupVisibility(txn, contactId, groupId, false);
@@ -318,7 +318,7 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 		assertTrue(ids.isEmpty());
 		ids = db.getMessagesToOffer(txn, contactId, 100, MAX_LATENCY);
 		assertTrue(ids.isEmpty());
-		assertEquals(0, db.getMessageBytesToSend(txn, contactId, MAX_LATENCY));
+		assertEquals(0, db.getUnackedMessageBytesToSend(txn, contactId));
 
 		// Sharing the group should make the message sendable
 		db.setGroupVisibility(txn, contactId, groupId, true);
@@ -327,7 +327,7 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 		ids = db.getMessagesToOffer(txn, contactId, 100, MAX_LATENCY);
 		assertEquals(singletonList(messageId), ids);
 		assertEquals(message.getRawLength(),
-				db.getMessageBytesToSend(txn, contactId, MAX_LATENCY));
+				db.getUnackedMessageBytesToSend(txn, contactId));
 
 		// Unsharing the group should make the message unsendable
 		db.setGroupVisibility(txn, contactId, groupId, false);
@@ -335,7 +335,7 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 		assertTrue(ids.isEmpty());
 		ids = db.getMessagesToOffer(txn, contactId, 100, MAX_LATENCY);
 		assertTrue(ids.isEmpty());
-		assertEquals(0, db.getMessageBytesToSend(txn, contactId, MAX_LATENCY));
+		assertEquals(0, db.getUnackedMessageBytesToSend(txn, contactId));
 
 		// Making the group invisible should make the message unsendable
 		db.removeGroupVisibility(txn, contactId, groupId);
@@ -343,7 +343,7 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 		assertTrue(ids.isEmpty());
 		ids = db.getMessagesToOffer(txn, contactId, 100, MAX_LATENCY);
 		assertTrue(ids.isEmpty());
-		assertEquals(0, db.getMessageBytesToSend(txn, contactId, MAX_LATENCY));
+		assertEquals(0, db.getUnackedMessageBytesToSend(txn, contactId));
 
 		db.commitTransaction(txn);
 		db.close();
@@ -368,7 +368,7 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 		assertTrue(ids.isEmpty());
 		ids = db.getMessagesToOffer(txn, contactId, 100, MAX_LATENCY);
 		assertTrue(ids.isEmpty());
-		assertEquals(0, db.getMessageBytesToSend(txn, contactId, MAX_LATENCY));
+		assertEquals(0, db.getUnackedMessageBytesToSend(txn, contactId));
 
 		// Sharing the message should make it sendable
 		db.setMessageShared(txn, messageId, true);
@@ -377,7 +377,7 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 		ids = db.getMessagesToOffer(txn, contactId, 100, MAX_LATENCY);
 		assertEquals(singletonList(messageId), ids);
 		assertEquals(message.getRawLength(),
-				db.getMessageBytesToSend(txn, contactId, MAX_LATENCY));
+				db.getUnackedMessageBytesToSend(txn, contactId));
 
 		db.commitTransaction(txn);
 		db.close();
@@ -402,14 +402,14 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 						MAX_LATENCY);
 		assertTrue(ids.isEmpty());
 		assertEquals(message.getRawLength(),
-				db.getMessageBytesToSend(txn, contactId, MAX_LATENCY));
+				db.getUnackedMessageBytesToSend(txn, contactId));
 
 		// The message is just the right size to send
 		ids = db.getMessagesToSend(txn, contactId, message.getRawLength(),
 				MAX_LATENCY);
 		assertEquals(singletonList(messageId), ids);
 		assertEquals(message.getRawLength(),
-				db.getMessageBytesToSend(txn, contactId, MAX_LATENCY));
+				db.getUnackedMessageBytesToSend(txn, contactId));
 
 		db.commitTransaction(txn);
 		db.close();
