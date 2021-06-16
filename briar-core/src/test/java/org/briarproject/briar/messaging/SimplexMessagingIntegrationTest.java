@@ -101,7 +101,8 @@ public class SimplexMessagingIntegrationTest extends BriarTestCase {
 		read(bob, write(alice, bobId, eager, 1), 1);
 		// Sync Bob's client versions
 		read(alice, write(bob, aliceId, eager, 1), 1);
-		// Sync Alice's client versions, the private message and the attachment
+		// Sync Alice's second client versioning update (with the active flag
+		// raised), the private message and the attachment
 		read(bob, write(alice, bobId, eager, 3), 3);
 		// Bob should have received the private message
 		assertTrue(listener.messageAdded);
