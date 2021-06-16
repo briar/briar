@@ -33,10 +33,9 @@ import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AlertDialog.Builder;
 import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentManager;
-import androidx.fragment.app.FragmentStatePagerAdapter;
 import androidx.lifecycle.ViewModelProvider;
-import androidx.viewpager.widget.ViewPager;
+import androidx.viewpager2.adapter.FragmentStateAdapter;
+import androidx.viewpager2.widget.ViewPager2;
 
 import static android.content.Intent.ACTION_CREATE_DOCUMENT;
 import static android.content.Intent.CATEGORY_OPENABLE;
@@ -76,7 +75,7 @@ public class ImageActivity extends BriarActivity
 	private ImageViewModel viewModel;
 	private PullDownLayout layout;
 	private AppBarLayout appBarLayout;
-	private ViewPager viewPager;
+	private ViewPager2 viewPager;
 	private List<AttachmentItem> attachments;
 	private MessageId conversationMessageId;
 
@@ -142,8 +141,7 @@ public class ImageActivity extends BriarActivity
 
 		// Set up image ViewPager
 		viewPager = findViewById(R.id.viewPager);
-		ImagePagerAdapter pagerAdapter =
-				new ImagePagerAdapter(getSupportFragmentManager());
+		ImagePagerAdapter pagerAdapter = new ImagePagerAdapter();
 		viewPager.setAdapter(pagerAdapter);
 		viewPager.setCurrentItem(position);
 
@@ -310,16 +308,16 @@ public class ImageActivity extends BriarActivity
 		return attachments.get(viewPager.getCurrentItem());
 	}
 
-	private class ImagePagerAdapter extends FragmentStatePagerAdapter {
+	private class ImagePagerAdapter extends FragmentStateAdapter {
 
 		private boolean isFirst = true;
 
-		private ImagePagerAdapter(FragmentManager fm) {
-			super(fm);
+		private ImagePagerAdapter() {
+			super(ImageActivity.this);
 		}
 
 		@Override
-		public Fragment getItem(int position) {
+		public Fragment createFragment(int position) {
 			Fragment f = ImageFragment.newInstance(
 					attachments.get(position), conversationMessageId, isFirst);
 			isFirst = false;
@@ -327,10 +325,9 @@ public class ImageActivity extends BriarActivity
 		}
 
 		@Override
-		public int getCount() {
+		public int getItemCount() {
 			return attachments.size();
 		}
-
 	}
 
 }
