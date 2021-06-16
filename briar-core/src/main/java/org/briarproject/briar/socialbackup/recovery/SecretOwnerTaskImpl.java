@@ -21,6 +21,7 @@ import java.security.GeneralSecurityException;
 import java.util.logging.Logger;
 
 import javax.inject.Inject;
+import javax.inject.Provider;
 
 import static java.util.logging.Logger.getLogger;
 
@@ -38,9 +39,9 @@ public class SecretOwnerTaskImpl extends ReturnShardTaskImpl
 			getLogger(SecretOwnerTaskImpl.class.getName());
 
 	@Inject
-	SecretOwnerTaskImpl(AuthenticatedCipher cipher, CryptoComponent crypto,
+	SecretOwnerTaskImpl(Provider<AuthenticatedCipher> cipherProvider, CryptoComponent crypto,
 			ClientHelper clientHelper) {
-		super(cipher, crypto);
+		super(cipherProvider, crypto);
 		this.clientHelper = clientHelper;
 	}
 
