@@ -1128,6 +1128,55 @@ abstract class JdbcDatabase implements Database<Connection> {
 	}
 
 	@Override
+	public boolean containsAnythingToSend(Connection txn, ContactId c,
+			int maxLatency, boolean eager) throws DbException {
+		PreparedStatement ps = null;
+		ResultSet rs = null;
+		try {
+			String sql = "SELECT NULL FROM statuses"
+					+ " WHERE contactId = ? AND ack = TRUE";
+			ps = txn.prepareStatement(sql);
+			ps.setInt(1, c.getInt());
+			rs = ps.executeQuery();
+			boolean acksToSend = rs.next();
+			rs.close();
+			ps.close();
+			if (acksToSend) return true;
+			if (eager) {
+				sql = "SELECT NULL from statuses"
+						+ " WHERE contactId = ? AND state = ?"
+						+ " AND groupShared = TRUE AND messageShared = TRUE"
+						+ " AND deleted = FALSE AND seen = FALSE";
+				ps = txn.prepareStatement(sql);
+				ps.setInt(1, c.getInt());
+				ps.setInt(2, DELIVERED.getValue());
+			} else {
+				long now = clock.currentTimeMillis();
+				long eta = now + maxLatency;
+				sql = "SELECT NULL FROM statuses"
+						+ " WHERE contactId = ? AND state = ?"
+						+ " AND groupShared = TRUE AND messageShared = TRUE"
+						+ " AND deleted = FALSE AND seen = FALSE"
+						+ " AND (expiry <= ? OR eta > ?)";
+				ps = txn.prepareStatement(sql);
+				ps.setInt(1, c.getInt());
+				ps.setInt(2, DELIVERED.getValue());
+				ps.setLong(3, now);
+				ps.setLong(4, eta);
+			}
+			rs = ps.executeQuery();
+			boolean messagesToSend = rs.next();
+			rs.close();
+			ps.close();
+			return messagesToSend;
+		} catch (SQLException e) {
+			tryToClose(rs, LOG, WARNING);
+			tryToClose(ps, LOG, WARNING);
+			throw new DbException(e);
+		}
+	}
+
+	@Override
 	public boolean containsContact(Connection txn, AuthorId remote,
 			AuthorId local) throws DbException {
 		PreparedStatement ps = null;

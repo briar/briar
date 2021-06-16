@@ -163,6 +163,18 @@ interface Database<T> {
 			throws DbException;
 
 	/**
+	 * Returns true if there are any acks or messages to send to the given
+	 * contact over a transport with the given maximum latency.
+	 * <p/>
+	 * Read-only.
+	 *
+	 * @param eager True if messages that are not yet due for retransmission
+	 * should be included
+	 */
+	boolean containsAnythingToSend(T txn, ContactId c, int maxLatency,
+			boolean eager) throws DbException;
+
+	/**
 	 * Returns true if the database contains the given contact for the given
 	 * local pseudonym.
 	 * <p/>
