@@ -71,8 +71,10 @@ class OutgoingSimplexSyncConnection extends SyncConnection implements Runnable {
 		StreamWriter streamWriter = streamWriterFactory.createStreamWriter(
 				w.getOutputStream(), ctx);
 		ContactId c = requireNonNull(ctx.getContactId());
+		// Use eager retransmission if the transport is lossy and cheap
 		return syncSessionFactory.createSimplexOutgoingSession(c,
-				ctx.getTransportId(), w.getMaxLatency(), streamWriter);
+				ctx.getTransportId(), w.getMaxLatency(), w.isLossyAndCheap(),
+				streamWriter);
 	}
 }
 

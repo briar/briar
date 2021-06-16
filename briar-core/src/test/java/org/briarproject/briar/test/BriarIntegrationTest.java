@@ -429,7 +429,7 @@ public abstract class BriarIntegrationTest<C extends BriarIntegrationTestCompone
 		// Write the messages to a transport stream
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 		TestTransportConnectionWriter writer =
-				new TestTransportConnectionWriter(out);
+				new TestTransportConnectionWriter(out, false);
 		fromComponent.getConnectionManager().manageOutgoingConnection(toId,
 				SIMPLEX_TRANSPORT_ID, writer);
 		writer.getDisposedLatch().await(TIMEOUT, MILLISECONDS);
@@ -487,7 +487,7 @@ public abstract class BriarIntegrationTest<C extends BriarIntegrationTestCompone
 		// start outgoing connection
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 		TestTransportConnectionWriter writer =
-				new TestTransportConnectionWriter(out);
+				new TestTransportConnectionWriter(out, false);
 		fromComponent.getConnectionManager().manageOutgoingConnection(toId,
 				SIMPLEX_TRANSPORT_ID, writer);
 		writer.getDisposedLatch().await(TIMEOUT, MILLISECONDS);

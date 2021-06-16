@@ -37,6 +37,11 @@ class FileTransportWriter implements TransportConnectionWriter {
 	}
 
 	@Override
+	public boolean isLossyAndCheap() {
+		return plugin.isLossyAndCheap();
+	}
+
+	@Override
 	public OutputStream getOutputStream() {
 		return out;
 	}

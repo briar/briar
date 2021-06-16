@@ -11,7 +11,9 @@ import org.briarproject.bramble.api.identity.IdentityManager;
 import org.briarproject.bramble.api.lifecycle.LifecycleManager;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.sync.GroupId;
+import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.bramble.api.sync.event.MessageStateChangedEvent;
+import org.briarproject.bramble.api.sync.event.MessagesSentEvent;
 import org.briarproject.bramble.test.TestDatabaseConfigModule;
 import org.briarproject.bramble.test.TestTransportConnectionReader;
 import org.briarproject.bramble.test.TestTransportConnectionWriter;
@@ -71,7 +73,16 @@ public class SimplexMessagingIntegrationTest extends BriarTestCase {
 	}
 
 	@Test
-	public void testWriteAndRead() throws Exception {
+	public void testWriteAndReadWithLazyRetransmission() throws Exception {
+		testWriteAndRead(false);
+	}
+
+	@Test
+	public void testWriteAndReadWithEagerRetransmission() throws Exception {
+		testWriteAndRead(true);
+	}
+
+	private void testWriteAndRead(boolean eager) throws Exception {
 		// Create the identities
 		Identity aliceIdentity =
 				alice.getIdentityManager().createIdentity("Alice");
@@ -86,16 +97,21 @@ public class SimplexMessagingIntegrationTest extends BriarTestCase {
 		bob.getEventBus().addListener(listener);
 		// Alice sends a private message to Bob
 		sendMessage(alice, bobId);
-		// Sync Alice's client versions and transport properties
-		read(bob, write(alice, bobId), 2);
-		// Sync Bob's client versions and transport properties
-		read(alice, write(bob, aliceId), 2);
-		// Sync the private message and the attachment
-		read(bob, write(alice, bobId), 2);
+		// Sync Alice's client versions
+		read(bob, write(alice, bobId, eager, 1), 1);
+		// Sync Bob's client versions
+		read(alice, write(bob, aliceId, eager, 1), 1);
+		// Sync Alice's second client versioning update (with the active flag
+		// raised), the private message and the attachment
+		read(bob, write(alice, bobId, eager, 3), 3);
 		// Bob should have received the private message
 		assertTrue(listener.messageAdded);
 		// Bob should have received the attachment
 		assertTrue(listener.attachmentAdded);
+		// Sync messages from Alice to Bob again. If using eager
+		// retransmission, the three unacked messages should be sent again.
+		// They're all duplicates, so no further deliveries should occur
+		read(bob, write(alice, bobId, eager, eager ? 3 : 0), 0);
 	}
 
 	private ContactId setUp(SimplexMessagingIntegrationTestComponent device,
@@ -149,15 +165,24 @@ public class SimplexMessagingIntegrationTest extends BriarTestCase {
 	}
 
 	private byte[] write(SimplexMessagingIntegrationTestComponent device,
-			ContactId contactId) throws Exception {
+			ContactId contactId, boolean eager, int transmissions)
+			throws Exception {
+		// Listen for message transmissions
+		MessageTransmissionListener listener =
+				new MessageTransmissionListener(transmissions);
+		device.getEventBus().addListener(listener);
 		// Write the outgoing stream
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 		TestTransportConnectionWriter writer =
-				new TestTransportConnectionWriter(out);
+				new TestTransportConnectionWriter(out, eager);
 		device.getConnectionManager().manageOutgoingConnection(contactId,
 				SIMPLEX_TRANSPORT_ID, writer);
 		// Wait for the writer to be disposed
 		writer.getDisposedLatch().await(TIMEOUT_MS, MILLISECONDS);
+		// Check that the expected number of messages were sent
+		assertTrue(listener.sent.await(TIMEOUT_MS, MILLISECONDS));
+		// Clean up the listener
+		device.getEventBus().removeListener(listener);
 		// Return the contents of the stream
 		return out.toByteArray();
 	}
@@ -179,6 +204,24 @@ public class SimplexMessagingIntegrationTest extends BriarTestCase {
 	}
 
 	@NotNullByDefault
+	private static class MessageTransmissionListener implements EventListener {
+
+		private final CountDownLatch sent;
+
+		private MessageTransmissionListener(int transmissions) {
+			sent = new CountDownLatch(transmissions);
+		}
+
+		@Override
+		public void eventOccurred(Event e) {
+			if (e instanceof MessagesSentEvent) {
+				MessagesSentEvent m = (MessagesSentEvent) e;
+				for (MessageId ignored : m.getMessageIds()) sent.countDown();
+			}
+		}
+	}
+
+	@NotNullByDefault
 	private static class MessageDeliveryListener implements EventListener {
 
 		private final CountDownLatch delivered;
@@ -191,7 +234,9 @@ public class SimplexMessagingIntegrationTest extends BriarTestCase {
 		public void eventOccurred(Event e) {
 			if (e instanceof MessageStateChangedEvent) {
 				MessageStateChangedEvent m = (MessageStateChangedEvent) e;
-				if (m.getState().equals(DELIVERED)) delivered.countDown();
+				if (!m.isLocal() && m.getState().equals(DELIVERED)) {
+					delivered.countDown();
+				}
 			}
 		}
 	}

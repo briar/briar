@@ -60,10 +60,9 @@ class RemovableDriveWriterTask extends RemovableDriveTaskImpl
 			setSuccess(false);
 			return;
 		}
-		int maxLatency = plugin.getMaxLatency();
 		try {
 			setTotal(db.transactionWithResult(true, txn ->
-					db.getMessageBytesToSend(txn, contactId, maxLatency)));
+					db.getUnackedMessageBytesToSend(txn, contactId)));
 		} catch (DbException e) {
 			logException(LOG, WARNING, e);
 			registry.removeWriter(this);
@@ -104,6 +103,11 @@ class RemovableDriveWriterTask extends RemovableDriveTaskImpl
 		@Override
 		public int getMaxIdleTime() {
 			return delegate.getMaxIdleTime();
+		}
+
+		@Override
+		public boolean isLossyAndCheap() {
+			return delegate.isLossyAndCheap();
 		}
 
 		@Override

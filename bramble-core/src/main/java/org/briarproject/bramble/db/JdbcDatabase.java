@@ -51,6 +51,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -344,6 +345,11 @@ abstract class JdbcDatabase implements Database<Connection> {
 			"CREATE INDEX IF NOT EXISTS statusesByContactIdTimestamp"
 					+ " ON statuses (contactId, timestamp)";
 
+	private static final String
+			INDEX_STATUSES_BY_CONTACT_ID_TX_COUNT_TIMESTAMP =
+			"CREATE INDEX IF NOT EXISTS statusesByContactIdTxCountTimestamp"
+					+ " ON statuses (contactId, txCount, timestamp)";
+
 	private static final String INDEX_MESSAGES_BY_CLEANUP_DEADLINE =
 			"CREATE INDEX IF NOT EXISTS messagesByCleanupDeadline"
 					+ " ON messages (cleanupDeadline)";
@@ -570,6 +576,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 			s.executeUpdate(INDEX_MESSAGE_DEPENDENCIES_BY_DEPENDENCY_ID);
 			s.executeUpdate(INDEX_STATUSES_BY_CONTACT_ID_GROUP_ID);
 			s.executeUpdate(INDEX_STATUSES_BY_CONTACT_ID_TIMESTAMP);
+			s.executeUpdate(INDEX_STATUSES_BY_CONTACT_ID_TX_COUNT_TIMESTAMP);
 			s.executeUpdate(INDEX_MESSAGES_BY_CLEANUP_DEADLINE);
 			s.close();
 		} catch (SQLException e) {
@@ -1782,37 +1789,6 @@ abstract class JdbcDatabase implements Database<Connection> {
 	}
 
 	@Override
-	public long getMessageBytesToSend(Connection txn, ContactId c,
-			int maxLatency) throws DbException {
-		long now = clock.currentTimeMillis();
-		long eta = now + maxLatency;
-		PreparedStatement ps = null;
-		ResultSet rs = null;
-		try {
-			String sql = "SELECT SUM(length) FROM statuses"
-					+ " WHERE contactId = ? AND state = ?"
-					+ " AND groupShared = TRUE AND messageShared = TRUE"
-					+ " AND deleted = FALSE AND seen = FALSE"
-					+ " AND (expiry <= ? OR eta > ?)";
-			ps = txn.prepareStatement(sql);
-			ps.setInt(1, c.getInt());
-			ps.setInt(2, DELIVERED.getValue());
-			ps.setLong(3, now);
-			ps.setLong(4, eta);
-			rs = ps.executeQuery();
-			rs.next();
-			long total = rs.getInt(1);
-			rs.close();
-			ps.close();
-			return total;
-		} catch (SQLException e) {
-			tryToClose(rs, LOG, WARNING);
-			tryToClose(ps, LOG, WARNING);
-			throw new DbException(e);
-		}
-	}
-
-	@Override
 	public Collection<MessageId> getMessageIds(Connection txn, GroupId g)
 			throws DbException {
 		PreparedStatement ps = null;
@@ -2252,6 +2228,63 @@ abstract class JdbcDatabase implements Database<Connection> {
 			rs.close();
 			ps.close();
 			return ids;
+		} catch (SQLException e) {
+			tryToClose(rs, LOG, WARNING);
+			tryToClose(ps, LOG, WARNING);
+			throw new DbException(e);
+		}
+	}
+
+	@Override
+	public Map<MessageId, Integer> getUnackedMessagesToSend(Connection txn,
+			ContactId c) throws DbException {
+		PreparedStatement ps = null;
+		ResultSet rs = null;
+		try {
+			String sql = "SELECT length, messageId FROM statuses"
+					+ " WHERE contactId = ? AND state = ?"
+					+ " AND groupShared = TRUE AND messageShared = TRUE"
+					+ " AND deleted = FALSE AND seen = FALSE"
+					+ " ORDER BY txCount, timestamp";
+			ps = txn.prepareStatement(sql);
+			ps.setInt(1, c.getInt());
+			ps.setInt(2, DELIVERED.getValue());
+			rs = ps.executeQuery();
+			Map<MessageId, Integer> results = new LinkedHashMap<>();
+			while (rs.next()) {
+				int length = rs.getInt(1);
+				MessageId id = new MessageId(rs.getBytes(2));
+				results.put(id, length);
+			}
+			rs.close();
+			ps.close();
+			return results;
+		} catch (SQLException e) {
+			tryToClose(rs, LOG, WARNING);
+			tryToClose(ps, LOG, WARNING);
+			throw new DbException(e);
+		}
+	}
+
+	@Override
+	public long getUnackedMessageBytesToSend(Connection txn, ContactId c)
+			throws DbException {
+		PreparedStatement ps = null;
+		ResultSet rs = null;
+		try {
+			String sql = "SELECT SUM(length) FROM statuses"
+					+ " WHERE contactId = ? AND state = ?"
+					+ " AND groupShared = TRUE AND messageShared = TRUE"
+					+ " AND deleted = FALSE AND seen = FALSE";
+			ps = txn.prepareStatement(sql);
+			ps.setInt(1, c.getInt());
+			ps.setInt(2, DELIVERED.getValue());
+			rs = ps.executeQuery();
+			rs.next();
+			long total = rs.getInt(1);
+			rs.close();
+			ps.close();
+			return total;
 		} catch (SQLException e) {
 			tryToClose(rs, LOG, WARNING);
 			tryToClose(ps, LOG, WARNING);

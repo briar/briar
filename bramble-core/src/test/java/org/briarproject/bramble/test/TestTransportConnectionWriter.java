@@ -15,10 +15,13 @@ public class TestTransportConnectionWriter
 		implements TransportConnectionWriter {
 
 	private final OutputStream out;
+	private final boolean lossyAndCheap;
 	private final CountDownLatch disposed = new CountDownLatch(1);
 
-	public TestTransportConnectionWriter(OutputStream out) {
+	public TestTransportConnectionWriter(OutputStream out,
+			boolean lossyAndCheap) {
 		this.out = out;
+		this.lossyAndCheap = lossyAndCheap;
 	}
 
 	public CountDownLatch getDisposedLatch() {
@@ -33,6 +36,11 @@ public class TestTransportConnectionWriter
 	@Override
 	public int getMaxIdleTime() {
 		return 60_000;
+	}
+
+	@Override
+	public boolean isLossyAndCheap() {
+		return lossyAndCheap;
 	}
 
 	@Override
