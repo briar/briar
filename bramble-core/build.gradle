@@ -17,16 +17,16 @@ dependencies {
 	implementation 'org.whispersystems:curve25519-java:0.5.0'
 	implementation 'org.briarproject:jtorctl:0.3'
 
-	annotationProcessor 'com.google.dagger:dagger-compiler:2.24'
+	annotationProcessor "com.google.dagger:dagger-compiler:$dagger_version"
 
 	testImplementation project(path: ':bramble-api', configuration: 'testOutput')
 	testImplementation 'org.hsqldb:hsqldb:2.3.5' // The last version that supports Java 1.6
-	testImplementation 'junit:junit:4.12'
-	testImplementation "org.jmock:jmock:2.8.2"
-	testImplementation "org.jmock:jmock-junit4:2.8.2"
-	testImplementation "org.jmock:jmock-legacy:2.8.2"
+	testImplementation "junit:junit:$junit_version"
+	testImplementation "org.jmock:jmock:$jmock_version"
+	testImplementation "org.jmock:jmock-junit4:$jmock_version"
+	testImplementation "org.jmock:jmock-legacy:$jmock_version"
 
-	testAnnotationProcessor 'com.google.dagger:dagger-compiler:2.24'
+	testAnnotationProcessor "com.google.dagger:dagger-compiler:$dagger_version"
 
 	signature 'org.codehaus.mojo.signature:java16:1.1@signature'
 }
