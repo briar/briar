@@ -77,7 +77,7 @@ dependencyVerification {
         'org.bouncycastle:bcpkix-jdk15on:1.56:bcpkix-jdk15on-1.56.jar:7043dee4e9e7175e93e0b36f45b1ec1ecb893c5f755667e8b916eb8dd201c6ca',
         'org.bouncycastle:bcprov-jdk15on:1.56:bcprov-jdk15on-1.56.jar:963e1ee14f808ffb99897d848ddcdb28fa91ddda867eb18d303e82728f878349',
         'org.briarproject:obfs4proxy-android:0.0.12-dev-40245c4a:obfs4proxy-android-0.0.12-dev-40245c4a.zip:8ab05a8f8391be2cb5ab2b665c281a06d9e3a756bd0f95a40a36ca927866ea82',
-        'org.briarproject:tor-android:0.3.5.14:tor-android-0.3.5.14.jar:92bdb9890de8f14e9e90d1e3aff49a7a4b9262f19904410ae0a3baf94ed6be33',
+        'org.briarproject:tor-android:0.3.5.15:tor-android-0.3.5.15.jar:560c5070166300b396cb2f28d82d9f639ee1fb5479096a3cef67da56d39937ad',
         'org.checkerframework:checker-compat-qual:2.5.3:checker-compat-qual-2.5.3.jar:d76b9afea61c7c082908023f0cbc1427fab9abd2df915c8b8a3e7a509bccbc6d',
         'org.checkerframework:checker-qual:2.5.2:checker-qual-2.5.2.jar:64b02691c8b9d4e7700f8ee2e742dce7ea2c6e81e662b7522c9ee3bf568c040a',
         'org.checkerframework:checker-qual:2.8.1:checker-qual-2.8.1.jar:9103499008bcecd4e948da29b17864abb64304e15706444ae209d17ebe0575df',
