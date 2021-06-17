@@ -1,6 +1,8 @@
 package org.briarproject.bramble.plugin.file;
 
 import org.briarproject.bramble.api.contact.ContactId;
+import org.briarproject.bramble.api.db.DatabaseComponent;
+import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.lifecycle.IoExecutor;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.plugin.file.RemovableDriveManager;
@@ -14,12 +16,15 @@ import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;
 import javax.inject.Inject;
 
+import static org.briarproject.bramble.plugin.file.RemovableDrivePluginFactory.MAX_LATENCY;
+
 @ThreadSafe
 @NotNullByDefault
 class RemovableDriveManagerImpl
 		implements RemovableDriveManager, RemovableDriveTaskRegistry {
 
 	private final Executor ioExecutor;
+	private final DatabaseComponent db;
 	private final RemovableDriveTaskFactory taskFactory;
 	private final Object lock = new Object();
 
@@ -30,8 +35,9 @@ class RemovableDriveManagerImpl
 
 	@Inject
 	RemovableDriveManagerImpl(@IoExecutor Executor ioExecutor,
-			RemovableDriveTaskFactory taskFactory) {
+			DatabaseComponent db, RemovableDriveTaskFactory taskFactory) {
 		this.ioExecutor = ioExecutor;
+		this.db = db;
 		this.taskFactory = taskFactory;
 	}
 
@@ -72,6 +78,12 @@ class RemovableDriveManagerImpl
 		}
 		ioExecutor.execute(created);
 		return created;
+	}
+
+	@Override
+	public boolean isWriterTaskNeeded(ContactId c) throws DbException {
+		return db.transactionWithResult(true, txn ->
+				db.containsAnythingToSend(txn, c, MAX_LATENCY, true));
 	}
 
 	@Override
