@@ -87,7 +87,7 @@ public class ReceiveFragment extends Fragment {
 		if (state instanceof TransferDataState.NoDataToSend) {
 			throw new IllegalStateException();
 		} else if (state instanceof TransferDataState.Ready) {
-			button.setVisibility(VISIBLE);
+			button.setEnabled(true);
 		} else if (state instanceof TransferDataState.TaskAvailable) {
 			button.setEnabled(false);
 			if (((TransferDataState.TaskAvailable) state).isOldTask) {
