@@ -5,37 +5,38 @@ import android.net.Uri;
 
 import org.briarproject.bramble.api.Consumer;
 import org.briarproject.bramble.api.contact.ContactId;
+import org.briarproject.bramble.api.db.DatabaseExecutor;
+import org.briarproject.bramble.api.db.DbException;
+import org.briarproject.bramble.api.db.TransactionManager;
+import org.briarproject.bramble.api.lifecycle.LifecycleManager;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.plugin.file.RemovableDriveManager;
 import org.briarproject.bramble.api.plugin.file.RemovableDriveTask;
 import org.briarproject.bramble.api.plugin.file.RemovableDriveTask.State;
 import org.briarproject.bramble.api.properties.TransportProperties;
+import org.briarproject.bramble.api.system.AndroidExecutor;
+import org.briarproject.briar.android.viewmodel.DbViewModel;
 import org.briarproject.briar.android.viewmodel.LiveEvent;
 import org.briarproject.briar.android.viewmodel.MutableLiveEvent;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.logging.Logger;
+import java.util.concurrent.Executor;
 
 import javax.annotation.Nullable;
 import javax.inject.Inject;
 
 import androidx.annotation.UiThread;
-import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
 import static java.util.Locale.US;
 import static java.util.Objects.requireNonNull;
-import static java.util.logging.Logger.getLogger;
 import static org.briarproject.bramble.api.plugin.file.RemovableDriveConstants.PROP_URI;
 
 @UiThread
 @NotNullByDefault
-class RemovableDriveViewModel extends AndroidViewModel {
-
-	private static final Logger LOG =
-			getLogger(RemovableDriveViewModel.class.getName());
+class RemovableDriveViewModel extends DbViewModel {
 
 	enum Action {SEND, RECEIVE}
 
@@ -53,9 +54,14 @@ class RemovableDriveViewModel extends AndroidViewModel {
 	private Consumer<State> taskObserver = null;
 
 	@Inject
-	RemovableDriveViewModel(Application app,
+	RemovableDriveViewModel(
+			Application app,
+			@DatabaseExecutor Executor dbExecutor,
+			LifecycleManager lifecycleManager,
+			TransactionManager db,
+			AndroidExecutor androidExecutor,
 			RemovableDriveManager removableDriveManager) {
-		super(app);
+		super(app, dbExecutor, lifecycleManager, db, androidExecutor);
 		this.manager = removableDriveManager;
 	}
 
@@ -82,9 +88,19 @@ class RemovableDriveViewModel extends AndroidViewModel {
 		// check if there is already a send/write task
 		task = manager.getCurrentWriterTask();
 		if (task == null) {
-			// TODO check if there is data to export now
-			//  and only allow to continue if there is.
-			state.setValue(new TransferDataState.Ready());
+			// check if there's even something to send
+			ContactId c = requireNonNull(contactId);
+			runOnDbThread(() -> {
+				try {
+					if (manager.isWriterTaskNeeded(c)) {
+						state.postValue(new TransferDataState.Ready());
+					} else {
+						state.postValue(new TransferDataState.NoDataToSend());
+					}
+				} catch (DbException e) {
+					handleException(e);
+				}
+			});
 		} else {
 			// observe old task and start with initial state
 			taskObserver = s -> observeTask(s, true);

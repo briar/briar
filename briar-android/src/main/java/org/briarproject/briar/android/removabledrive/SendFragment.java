@@ -25,7 +25,7 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 import androidx.lifecycle.ViewModelProvider;
 
-import static android.view.View.GONE;
+import static android.os.Build.VERSION.SDK_INT;
 import static android.view.View.VISIBLE;
 import static android.widget.Toast.LENGTH_LONG;
 import static org.briarproject.briar.android.AppModule.getAndroidComponent;
@@ -47,6 +47,7 @@ public class SendFragment extends Fragment {
 	TextView introTextView;
 	Button button;
 	ProgressBar progressBar;
+	boolean hasShownOldTaskToast = false;
 
 	@Override
 	public void onAttach(Context context) {
@@ -86,14 +87,16 @@ public class SendFragment extends Fragment {
 	private void onStateChanged(TransferDataState state) {
 		if (state instanceof TransferDataState.NoDataToSend) {
 			introTextView.setText(R.string.removable_drive_send_no_data);
-			button.setVisibility(GONE);
+			button.setEnabled(false);
 		} else if (state instanceof TransferDataState.Ready) {
-			button.setVisibility(VISIBLE);
+			button.setEnabled(true);
 		} else if (state instanceof TransferDataState.TaskAvailable) {
 			button.setEnabled(false);
-			if (((TransferDataState.TaskAvailable) state).isOldTask) {
+			if (!hasShownOldTaskToast &&
+					((TransferDataState.TaskAvailable) state).isOldTask) {
 				Toast.makeText(requireContext(),
 						R.string.removable_drive_ongoing, LENGTH_LONG).show();
+				hasShownOldTaskToast = true;
 			}
 			RemovableDriveTask.State s =
 					((TransferDataState.TaskAvailable) state).state;
@@ -102,7 +105,11 @@ public class SendFragment extends Fragment {
 				// FIXME if we ever export more than 2 GB, this won't work
 				progressBar.setMax((int) s.getTotal());
 			}
-			progressBar.setProgress((int) s.getDone());
+			if (SDK_INT >= 24) {
+				progressBar.setProgress((int) s.getDone(), true);
+			} else {
+				progressBar.setProgress((int) s.getDone());
+			}
 		}
 	}
 

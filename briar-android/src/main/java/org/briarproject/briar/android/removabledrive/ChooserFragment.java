@@ -60,8 +60,9 @@ public class ChooserFragment extends Fragment {
 	public void onStart() {
 		super.onStart();
 		requireActivity().setTitle(R.string.removable_drive_menu_title);
-		if (viewModel.getState().getValue() != null) {
-			// we can't come back here now to start another action
+		TransferDataState state = viewModel.getState().getValue();
+		if (state instanceof TransferDataState.TaskAvailable) {
+			// we can't come back here now to start another task
 			// as we only support one per ViewModel instance
 			requireActivity().supportFinishAfterTransition();
 		}
