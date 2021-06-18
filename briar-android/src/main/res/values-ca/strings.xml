@@ -22,7 +22,14 @@
   <string name="setup_huawei_text">Feu un toc sobre el botó següent i assegureu-vos de que Briar consta com a protegit a la pantalla «Aplicacions protegides».</string>
   <string name="setup_huawei_button">Protegeix Briar</string>
   <string name="setup_huawei_help">Si no afegiu Briar a la llista d\'aplicacions protegides, s\'evitarà que Briar s\'executi en segon pla.</string>
+  <string name="setup_huawei_app_launch_text">Premeu el botó, obriu la pantalla «Llença app» i assegureu-vos que Briar està configurat com «Gestiona a ma».</string>
+  <string name="setup_huawei_app_launch_button">Obriu la configuració de la bateria</string>
+  <string name="setup_huawei_app_launch_help">Si Briar no està configurat com a «Gestiona manualment» a la pantalla «Llença app», no podrà executar-se en segon pla.</string>
+  <string name="setup_xiaomi_text">Per executar-se en segon pla, Briar necessita ser blocat en la llista d\'aplicacions recents.</string>
   <string name="setup_xiaomi_button">Protegeix Briar</string>
+  <string name="setup_xiaomi_help">Si Briar no està blocat a la llista d\'aplicacions recents, no podrà executar-se en segon pla.</string>
+  <string name="setup_xiaomi_dialog_body_old">1. Obriu la llista d\'aplicacions recents (de canvi d\'aplicació)\n\n2. Desplaceu avall  la icona de Briar  per mostrar la icona del cadenat\n\n3. Si el cadenat és obert, premeu per tancar-lo.</string>
+  <string name="setup_xiaomi_dialog_body_new">1. Obriu la llista d\'aplicacions recents (canvi d\'aplicació)\n\n2. Premeu la icona de Briar fins que es mostra la icona del cadenat\n\n3. Si el cadenat és obert, premeu per tancar-lo.</string>
   <string name="warning_dozed">%s no s\'ha pogut executar en segon pla</string>
   <!--Login-->
   <string name="enter_password">Contrasenya</string>
@@ -147,6 +154,8 @@
   <string name="date_no_private_messages">Sense missatges.</string>
   <string name="no_private_messages">No hi ha cap missatge</string>
   <string name="message_hint">Nou missatge</string>
+  <string name="message_hint_auto_delete">Missatge fonedís nou</string>
+  <string name="message_error">Error a l\'enviar missatge</string>
   <string name="image_caption_hint">Afegiu una nota (opcional)</string>
   <string name="image_attach">Afegeix una imatge</string>
   <string name="image_attach_error">La imatge(s) no s\'ha pogut afegir </string>
@@ -154,12 +163,41 @@
   <string name="image_attach_error_invalid_mime_type">El format de la imatge no s\'admet: %s</string>
   <string name="set_contact_alias">Canvia el nom del contacte</string>
   <string name="set_contact_alias_hint">Nom del contacte</string>
+  <string name="menu_item_disappearing_messages">Missatges fonedissos</string>
   <string name="menu_item_connect_via_bluetooth">Connecta via bluetooth</string>
   <string name="dialog_title_connect_via_bluetooth">Connecta via bluetooth</string>
+  <string name="dialog_message_connect_via_bluetooth">El vostre contacte ha de ser a prop per a que vagi bé.\n\nVós i el vostre contacte heu de prémer «Engega» simultàniament.</string>
+  <string name="toast_connect_via_bluetooth_already_discovering">Ja està mirant de connectar-se amb Bluetooth.</string>
+  <string name="toast_connect_via_bluetooth_not_discoverable">No es pot continuar sense Bluetooth.</string>
+  <string name="toast_connect_via_bluetooth_no_location_permission">No es pot continuar sense permís per obtenir la posició.</string>
+  <string name="toast_connect_via_bluetooth_start">Connectant-se via Bluetooth...</string>
+  <string name="toast_connect_via_bluetooth_success">S\'ha connectat via Bluetooth.</string>
+  <string name="toast_connect_via_bluetooth_error">No ha pogut connectar-se amb Bluetooth.</string>
   <!--The first placeholder will show a duration like "7 days". The second placeholder at the end will add "Tap to learn more."-->
+  <string name="auto_delete_msg_you_enabled">Els vostres missatges es faran fonedissos en %1$s. %2$s</string>
   <!--The placeholder at the end will add "Tap to learn more."-->
+  <string name="auto_delete_msg_you_disabled">Els vostres missatges no desapariexeran. %1$s</string>
   <!--The first placeholder will show a contact's name. The second placeholder will show a duration like "7 days". The third placeholder at the end will add "Tap to learn more."-->
+  <string name="auto_delete_msg_contact_enabled">Els missatges de %1$s desapareixeran d\'aquí %2$s. %3$s</string>
+  <plurals name="duration_minutes">
+    <item quantity="one">%d minut</item>
+    <item quantity="other">%d minuts</item>
+  </plurals>
+  <plurals name="duration_hours">
+    <item quantity="one">%d hora</item>
+    <item quantity="other">%d hores</item>
+  </plurals>
+  <plurals name="duration_days">
+    <item quantity="one">%d dia</item>
+    <item quantity="other">%d dies</item>
+  </plurals>
   <!--The first placeholder will show a contact's name. The second placeholder at the end will add "Tap to learn more."-->
+  <string name="auto_delete_msg_contact_disabled">Els missatges de %1$s no despareixeran. %2$s</string>
+  <string name="tap_to_learn_more">Premeu per saber-ne més.</string>
+  <string name="auto_delete_changed_warning_title">Els missatges fonedissos han canviat.</string>
+  <string name="auto_delete_changed_warning_message_enabled">Mentre escrivieu aquest missatge, s\'han activat els missatges fonedissos.</string>
+  <string name="auto_delete_changed_warning_message_disabled">Mentre escrivíeu aquest missatge, s\'han desactivat els missatges fonedissos.</string>
+  <string name="auto_delete_changed_warning_send">Envia\'l igualment.</string>
   <string name="delete_all_messages">Esborra tots els missatges</string>
   <string name="dialog_title_delete_all_messages">Confirmeu l\'esborrat dels missatges</string>
   <string name="dialog_message_delete_all_messages">Segur que voleu esborrar tots els missatges?</string>
@@ -279,6 +317,7 @@ Així que l\'actualitzi li veureu una icona diferent .</string>
   <string name="introduction_response_accepted_sent">Heu acceptat conèixer a %1$s.</string>
   <string name="introduction_response_accepted_sent_info">Quan %1$s també hagi acceptat la presentació, s\'afegirà als vostres contactes. Això pot trigar un temps.</string>
   <string name="introduction_response_declined_sent">Heu refusat conèixer a %1$s.</string>
+  <string name="introduction_response_declined_auto">La presentació a %1$s s\'ha declinat automàticament.</string>
   <string name="introduction_response_accepted_received">%1$s ha acceptat conèixer a %2$s.</string>
   <string name="introduction_response_declined_received">%1$s ha refusat conèixer a %2$s.</string>
   <string name="introduction_response_declined_received_by_introducee">%1$s diu que %2$s ha refusat conèixer-lo.</string>
@@ -325,6 +364,7 @@ Així que l\'actualitzi li veureu una icona diferent .</string>
   </plurals>
   <string name="groups_invitations_response_accepted_sent">Heu acceptat afegir-vos al grup per invitació de %s.</string>
   <string name="groups_invitations_response_declined_sent">Heu refusat afegir-vos al grup per invitació de %s.</string>
+  <string name="groups_invitations_response_declined_auto">La invitació al grup de %s s\'ha declinat automàticament.</string>
   <string name="groups_invitations_response_accepted_received">%s ha decidit afegir-se al grup.</string>
   <string name="groups_invitations_response_declined_received">%s ha refusat afegir-se al grup.</string>
   <string name="sharing_status_groups">Només el creador del grup pot convidar a nous membres. Tot seguit hi ha la llista dels membres del grup.</string>
@@ -375,6 +415,7 @@ Així que l\'actualitzi li veureu una icona diferent .</string>
   <string name="forum_invitation_already_sharing">Ja l\'esteu compartint</string>
   <string name="forum_invitation_response_accepted_sent">Heu acceptat la invitació al fòrum enviada per %s.</string>
   <string name="forum_invitation_response_declined_sent">Heu refusat la invitació al fòrum enviada per %s.</string>
+  <string name="forum_invitation_response_declined_auto">La invitació al blog de %s s\'ha declinat automàticament.</string>
   <string name="forum_invitation_response_accepted_received">%s ha acceptat la invitació al fòrum.</string>
   <string name="forum_invitation_response_declined_received">%s ha rebutjat la invitació al fòrum.</string>
   <string name="sharing_status">Estat de la compartició</string>
@@ -409,6 +450,7 @@ Així que l\'actualitzi li veureu una icona diferent .</string>
   <string name="blogs_sharing_snackbar">S\'ha compartit el blog amb els contactes seleccionats</string>
   <string name="blogs_sharing_response_accepted_sent">Heu acceptat la invitació al blog de %s.</string>
   <string name="blogs_sharing_response_declined_sent">Heu refusat la invitació al blog de %s.</string>
+  <string name="blogs_sharing_response_declined_auto">La invitació al blog de %s s\'ha declinat automàticament.</string>
   <string name="blogs_sharing_response_accepted_received">%s ha acceptat la invitació al blog.</string>
   <string name="blogs_sharing_response_declined_received">%s ha refusat la invitació al blog.</string>
   <string name="blogs_sharing_invitation_received">%1$s ha compartit el blog «%2$s» amb vós.</string>
@@ -422,6 +464,8 @@ Així que l\'actualitzi li veureu una icona diferent .</string>
   <string name="blogs_rss_feeds_import_button">Subscriu-me</string>
   <string name="blogs_rss_feeds_import_hint">Escriviu l\'URL del canal de notícies RSS</string>
   <string name="blogs_rss_feeds_import_error">Ens sap greu! S\'ha produït un error en subscriure-us al vostre canal de notícies.</string>
+  <string name="blogs_rss_feeds_import_exists">Aquest canal ja s\'ha importat.</string>
+  <string name="blogs_rss_feeds">Canals RSS</string>
   <string name="blogs_rss_feeds_manage_imported">Importat:</string>
   <string name="blogs_rss_feeds_manage_author">Autor:</string>
   <string name="blogs_rss_feeds_manage_updated">Darrera actualització:</string>
@@ -431,6 +475,10 @@ Així que l\'actualitzi li veureu una icona diferent .</string>
   <string name="blogs_rss_feeds_manage_empty_state">No hi ha cap notícia per mostrar\n\nFeu un toc sobre la icona + per subscriure-us a un canal de notícies</string>
   <string name="blogs_rss_feeds_manage_error">S\'ha produït un problema en actualitzar els vostres canals de notícies. Torneu-ho a provar més endavant.</string>
   <!--Settings Profile Picture-->
+  <string name="change_profile_picture">Feu un toc per modificar la foto del vostre perfil</string>
+  <string name="dialog_confirm_profile_picture_title">Modifica la foto de perfil</string>
+  <string name="dialog_confirm_profile_picture_remark">Només veuran la foto els vostres contactes</string>
+  <string name="change_profile_picture_failed_message">Alguna cosa ha fallat a l\'actualitzar la vostra foto de perfil</string>
   <!--Settings Display-->
   <string name="pref_language_title">Llengua i regió</string>
   <string name="pref_language_changed">L\'efecte d\'aquest canvi només l\'apreciareu després de reiniciar Briar. Si us plau, tanqueu la sessió i reinicieu Briar.</string>
@@ -519,6 +567,7 @@ Així que l\'actualitzi li veureu una icona diferent .</string>
   <string name="choose_ringtone_title">Trieu el so d\'avís</string>
   <string name="cannot_load_ringtone">No s\'ha pogut carregar el so d\'avís</string>
   <!--Conversation Settings-->
+  <string name="disappearing_messages_title">Missatges fonedissos</string>
   <string name="learn_more">Més informació</string>
   <!--Settings Feedback-->
   <string name="send_feedback">Envieu comentaris</string>

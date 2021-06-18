@@ -18,7 +18,7 @@
   <string name="passwords_do_not_match">パスワードが一致しません。</string>
   <string name="create_account_button">アカウントを作成</string>
   <string name="more_info">詳細情報</string>
-  <string name="don_t_ask_again">次からはたずねない</string>
+  <string name="don_t_ask_again">次からは尋ねない</string>
   <string name="setup_huawei_text">下のボタンをタップして、「保護されたアプリ」画面でBriarが保護されていることを確認してください。</string>
   <string name="setup_huawei_button">Briarを保護</string>
   <string name="setup_huawei_help">Briarが保護されたアプリのリストに追加されていない場合、Briarはバックグラウンドで実行することができません。</string>
