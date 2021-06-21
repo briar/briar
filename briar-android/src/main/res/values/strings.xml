@@ -669,7 +669,6 @@
 	<string name="threshold_m_of_n">%d of %d contacts needed to recover your account</string>
 
 	<string name="backup_done_info">Backup pieces sent to trusted contacts</string>
-	<string name="backup_done_dismiss">Got it</string>
 
 	<string name="backup_created">Backup created 1/6/2020</string>
 
