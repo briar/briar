@@ -146,6 +146,11 @@ public class SocialBackupIntegrationTest
 		socialBackupManager1.setReadFlag(g0From1.getId(),
 				messages0At1.iterator().next().getId(), true);
 		assertGroupCount(messageTracker1, g0From1.getId(), 1, 0);
+
+		db1.transaction(false, txn -> {
+			socialBackupManager1.deleteAllMessages(txn, contactId0From1);
+		});
+		assertGroupCount(messageTracker1, g0From1.getId(), 0, 0);
 	}
 
 	private Collection<ConversationMessageHeader> getMessages1At0()

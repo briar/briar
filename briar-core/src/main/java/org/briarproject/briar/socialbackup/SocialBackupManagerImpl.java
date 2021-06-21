@@ -17,6 +17,7 @@ import org.briarproject.bramble.api.data.MetadataParser;
 import org.briarproject.bramble.api.db.DatabaseComponent;
 import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.db.NoSuchContactException;
+import org.briarproject.bramble.api.db.NoSuchGroupException;
 import org.briarproject.bramble.api.db.Transaction;
 import org.briarproject.bramble.api.identity.Author;
 import org.briarproject.bramble.api.identity.Identity;
@@ -44,15 +45,15 @@ import org.briarproject.briar.api.conversation.ConversationMessageHeader;
 import org.briarproject.briar.api.conversation.DeletionResult;
 import org.briarproject.briar.api.socialbackup.BackupExistsException;
 import org.briarproject.briar.api.socialbackup.BackupMetadata;
+import org.briarproject.briar.api.socialbackup.BackupPayload;
+import org.briarproject.briar.api.socialbackup.ContactData;
 import org.briarproject.briar.api.socialbackup.DarkCrystal;
 import org.briarproject.briar.api.socialbackup.ReturnShardPayload;
 import org.briarproject.briar.api.socialbackup.Shard;
-import org.briarproject.briar.api.socialbackup.BackupPayload;
 import org.briarproject.briar.api.socialbackup.ShardMessageHeader;
 import org.briarproject.briar.api.socialbackup.ShardReceivedEvent;
 import org.briarproject.briar.api.socialbackup.SocialBackupManager;
 import org.briarproject.briar.client.ConversationClientImpl;
-import org.briarproject.briar.api.socialbackup.ContactData;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -234,18 +235,24 @@ class SocialBackupManagerImpl extends ConversationClientImpl
 		return false;
 	}
 
-	public ReturnShardPayload getReturnShardPayload(Transaction txn, ContactId contactId) throws DbException {
-		GroupId groupId = getContactGroup(db.getContact(txn, contactId)).getId();
-		return new ReturnShardPayload(getRemoteShard(txn, groupId), getRemoteBackup(txn, groupId));
+	public ReturnShardPayload getReturnShardPayload(Transaction txn,
+			ContactId contactId) throws DbException {
+		GroupId groupId =
+				getContactGroup(db.getContact(txn, contactId)).getId();
+		return new ReturnShardPayload(getRemoteShard(txn, groupId),
+				getRemoteBackup(txn, groupId));
 	}
 
-	public byte[] getReturnShardPayloadBytes(Transaction txn, ContactId contactId) throws DbException {
-		return messageEncoder.encodeReturnShardPayload(getReturnShardPayload(txn, contactId));
+	public byte[] getReturnShardPayloadBytes(Transaction txn,
+			ContactId contactId) throws DbException {
+		return messageEncoder.encodeReturnShardPayload(
+				getReturnShardPayload(txn, contactId));
 	}
 
 	public boolean amCustodian(Transaction txn, ContactId contactId) {
 		try {
-			GroupId groupId = getContactGroup(db.getContact(txn, contactId)).getId();
+			GroupId groupId =
+					getContactGroup(db.getContact(txn, contactId)).getId();
 			return findMessage(txn, groupId, SHARD, false) != null;
 		} catch (DbException e) {
 			return false;
@@ -357,7 +364,8 @@ class SocialBackupManagerImpl extends ConversationClientImpl
 							.getMessage(txn, messageEntry.getKey());
 					MessageStatus status = db.getMessageStatus(txn, contactId,
 							messageEntry.getKey());
-					headers.add(createShardMessageHeader(message, meta, status));
+					headers.add(
+							createShardMessageHeader(message, meta, status));
 				}
 			}
 			return headers;
@@ -383,13 +391,24 @@ class SocialBackupManagerImpl extends ConversationClientImpl
 	@Override
 	public DeletionResult deleteAllMessages(Transaction txn, ContactId c)
 			throws DbException {
-		return null;
+		GroupId g = getContactGroup(db.getContact(txn, c)).getId();
+		for (MessageId messageId : db.getMessageIds(txn, g)) {
+			db.deleteMessage(txn, messageId);
+			db.deleteMessageMetadata(txn, messageId);
+		}
+		messageTracker.initializeGroupCount(txn, g);
+		return new DeletionResult();
 	}
 
 	@Override
 	public DeletionResult deleteMessages(Transaction txn, ContactId c,
 			Set<MessageId> messageIds) throws DbException {
 		DeletionResult result = new DeletionResult();
+		GroupId g = getContactGroup(db.getContact(txn, c)).getId();
+		for (MessageId m : messageIds) {
+			db.deleteMessage(txn, m);
+			db.deleteMessageMetadata(txn, m);
+		}
 		return result;
 	}
 
@@ -416,7 +435,9 @@ class SocialBackupManagerImpl extends ConversationClientImpl
 	}
 
 	private BackupPayload createBackupPayload(Transaction txn,
-			SecretKey secret, List<org.briarproject.briar.api.socialbackup.ContactData> contactData, int version)
+			SecretKey secret,
+			List<org.briarproject.briar.api.socialbackup.ContactData> contactData,
+			int version)
 			throws DbException {
 		Identity identity = identityManager.getIdentity(txn);
 		return backupPayloadEncoder.encodeBackupPayload(secret, identity,
@@ -426,7 +447,8 @@ class SocialBackupManagerImpl extends ConversationClientImpl
 	private List<ContactData> loadContactData(Transaction txn)
 			throws DbException {
 		Collection<Contact> contacts = contactManager.getContacts(txn);
-		List<org.briarproject.briar.api.socialbackup.ContactData> contactData = new ArrayList<>();
+		List<org.briarproject.briar.api.socialbackup.ContactData> contactData =
+				new ArrayList<>();
 		for (Contact c : contacts) {
 			// Skip contacts that are in the process of being removed
 			Group contactGroup = getContactGroup(c);
@@ -434,7 +456,9 @@ class SocialBackupManagerImpl extends ConversationClientImpl
 			Map<TransportId, TransportProperties> props =
 					getTransportProperties(txn, c.getId());
 			Shard shard = getRemoteShard(txn, contactGroup.getId());
-			contactData.add(new org.briarproject.briar.api.socialbackup.ContactData(c, props, shard));
+			contactData
+					.add(new org.briarproject.briar.api.socialbackup.ContactData(
+							c, props, shard));
 		}
 		return contactData;
 	}
@@ -514,7 +538,9 @@ class SocialBackupManagerImpl extends ConversationClientImpl
 			throw new DbException(e);
 		}
 	}
-	private void updateBackup(Transaction txn, List<org.briarproject.briar.api.socialbackup.ContactData> contactData)
+
+	private void updateBackup(Transaction txn,
+			List<org.briarproject.briar.api.socialbackup.ContactData> contactData)
 			throws DbException {
 		BackupMetadata backupMetadata = requireNonNull(getBackupMetadata(txn));
 		int newVersion = backupMetadata.getVersion() + 1;
@@ -536,7 +562,7 @@ class SocialBackupManagerImpl extends ConversationClientImpl
 						db.deleteMessageMetadata(txn, prevId);
 					}
 					sendBackupMessage(txn, custodian, newVersion, payload);
-				} catch (NoSuchContactException e) {
+				} catch (NoSuchContactException|NoSuchGroupException e){
 					// The custodian is no longer a contact - continue
 				}
 			}
