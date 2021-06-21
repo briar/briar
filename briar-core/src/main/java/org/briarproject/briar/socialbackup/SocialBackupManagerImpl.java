@@ -382,7 +382,13 @@ class SocialBackupManagerImpl extends ConversationClientImpl
 	@Override
 	public DeletionResult deleteAllMessages(Transaction txn, ContactId c)
 			throws DbException {
-		return null;
+		GroupId g = getContactGroup(db.getContact(txn, c)).getId();
+		for (MessageId messageId : db.getMessageIds(txn, g)) {
+			db.deleteMessage(txn, messageId);
+			db.deleteMessageMetadata(txn, messageId);
+		}
+		messageTracker.initializeGroupCount(txn, g);
+		return new DeletionResult();
 	}
 
 	@Override
