@@ -72,6 +72,8 @@ public class ReceiveFragment extends Fragment {
 		button.setOnClickListener(view ->
 				launcher.launch("*/*")
 		);
+		viewModel.getOldTaskResumedEvent()
+				.observeEvent(getViewLifecycleOwner(), this::onOldTaskResumed);
 		viewModel.getState()
 				.observe(getViewLifecycleOwner(), this::onStateChanged);
 		return v;
@@ -83,6 +85,13 @@ public class ReceiveFragment extends Fragment {
 		requireActivity().setTitle(R.string.removable_drive_title_receive);
 	}
 
+	private void onOldTaskResumed(boolean resumed) {
+		if (resumed) {
+			Toast.makeText(requireContext(),
+					R.string.removable_drive_ongoing, LENGTH_LONG).show();
+		}
+	}
+
 	private void onStateChanged(TransferDataState state) {
 		if (state instanceof TransferDataState.NoDataToSend) {
 			throw new IllegalStateException();
@@ -90,10 +99,6 @@ public class ReceiveFragment extends Fragment {
 			button.setEnabled(true);
 		} else if (state instanceof TransferDataState.TaskAvailable) {
 			button.setEnabled(false);
-			if (((TransferDataState.TaskAvailable) state).isOldTask) {
-				Toast.makeText(requireContext(),
-						R.string.removable_drive_ongoing, LENGTH_LONG).show();
-			}
 			progressBar.setVisibility(VISIBLE);
 		}
 	}
