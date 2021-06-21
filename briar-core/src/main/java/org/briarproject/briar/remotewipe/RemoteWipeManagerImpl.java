@@ -373,15 +373,23 @@ public class RemoteWipeManagerImpl extends ConversationClientImpl
 	@Override
 	public DeletionResult deleteAllMessages(Transaction txn, ContactId c)
 			throws DbException {
-		DeletionResult result = new DeletionResult();
-		return result;
+		GroupId g = getContactGroup(db.getContact(txn, c)).getId();
+		for (MessageId messageId : db.getMessageIds(txn, g)) {
+			db.deleteMessage(txn, messageId);
+			db.deleteMessageMetadata(txn, messageId);
+		}
+		messageTracker.initializeGroupCount(txn, g);
+		return new DeletionResult();
 	}
 
 	@Override
 	public DeletionResult deleteMessages(Transaction txn, ContactId c,
 			Set<MessageId> messageIds) throws DbException {
-		DeletionResult result = new DeletionResult();
-		return result;
+		for (MessageId m : messageIds) {
+			db.deleteMessage(txn, m);
+			db.deleteMessageMetadata(txn, m);
+		}
+		return new DeletionResult();
 	}
 
 	private ContactId getContactId(Transaction txn, GroupId g)
