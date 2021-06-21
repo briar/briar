@@ -47,7 +47,6 @@ public class SendFragment extends Fragment {
 	TextView introTextView;
 	Button button;
 	ProgressBar progressBar;
-	boolean hasShownOldTaskToast = false;
 
 	@Override
 	public void onAttach(Context context) {
@@ -72,6 +71,8 @@ public class SendFragment extends Fragment {
 				launcher.launch(viewModel.getFileName())
 		);
 
+		viewModel.getOldTaskResumedEvent()
+				.observeEvent(getViewLifecycleOwner(), this::onOldTaskResumed);
 		viewModel.getState()
 				.observe(getViewLifecycleOwner(), this::onStateChanged);
 
@@ -84,6 +85,13 @@ public class SendFragment extends Fragment {
 		requireActivity().setTitle(R.string.removable_drive_title_send);
 	}
 
+	private void onOldTaskResumed(boolean resumed) {
+		if (resumed) {
+			Toast.makeText(requireContext(),
+					R.string.removable_drive_ongoing, LENGTH_LONG).show();
+		}
+	}
+
 	private void onStateChanged(TransferDataState state) {
 		if (state instanceof TransferDataState.NoDataToSend) {
 			introTextView.setText(R.string.removable_drive_send_no_data);
@@ -92,12 +100,6 @@ public class SendFragment extends Fragment {
 			button.setEnabled(true);
 		} else if (state instanceof TransferDataState.TaskAvailable) {
 			button.setEnabled(false);
-			if (!hasShownOldTaskToast &&
-					((TransferDataState.TaskAvailable) state).isOldTask) {
-				Toast.makeText(requireContext(),
-						R.string.removable_drive_ongoing, LENGTH_LONG).show();
-				hasShownOldTaskToast = true;
-			}
 			RemovableDriveTask.State s =
 					((TransferDataState.TaskAvailable) state).state;
 			if (s.getTotal() > 0L && progressBar.getVisibility() != VISIBLE) {

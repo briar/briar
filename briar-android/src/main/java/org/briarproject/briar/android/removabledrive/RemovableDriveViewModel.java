@@ -43,9 +43,10 @@ class RemovableDriveViewModel extends DbViewModel {
 	private final RemovableDriveManager manager;
 
 	private final MutableLiveEvent<Action> action = new MutableLiveEvent<>();
+	private final MutableLiveEvent<Boolean> oldTaskResumed =
+			new MutableLiveEvent<>();
 	private final MutableLiveData<TransferDataState> state =
 			new MutableLiveData<>();
-	private final State initialState = new State(0, 0, false, false);
 	@Nullable
 	private ContactId contactId = null;
 	@Nullable
@@ -102,10 +103,11 @@ class RemovableDriveViewModel extends DbViewModel {
 				}
 			});
 		} else {
-			// observe old task and start with initial state
-			taskObserver = s -> observeTask(s, true);
-			taskObserver.accept(initialState);
+			// observe old task
+			taskObserver =
+					s -> state.setValue(new TransferDataState.TaskAvailable(s));
 			task.addObserver(taskObserver);
+			oldTaskResumed.setEvent(true);
 		}
 	}
 
@@ -118,16 +120,12 @@ class RemovableDriveViewModel extends DbViewModel {
 		if (task == null) {
 			state.setValue(new TransferDataState.Ready());
 		} else {
-			// observe old task and start with initial state
-			taskObserver = s -> observeTask(s, true);
-			taskObserver.accept(initialState);
+			// observe old task
+			taskObserver =
+					s -> state.setValue(new TransferDataState.TaskAvailable(s));
 			task.addObserver(taskObserver);
+			oldTaskResumed.setEvent(true);
 		}
-	}
-
-	@UiThread
-	private void observeTask(RemovableDriveTask.State s, boolean isOldTask) {
-		state.setValue(new TransferDataState.TaskAvailable(s, isOldTask));
 	}
 
 	String getFileName() {
@@ -144,8 +142,9 @@ class RemovableDriveViewModel extends DbViewModel {
 		if (task != null) throw new IllegalStateException();
 
 		// from now on, we are not re-usable
-		taskObserver = s -> observeTask(s, false);
-		taskObserver.accept(initialState);
+		// (because gets a state update right away on the UiThread)
+		taskObserver =
+				s -> state.setValue(new TransferDataState.TaskAvailable(s));
 
 		// start the writer task for this contact and observe it
 		TransportProperties p = new TransportProperties();
@@ -164,8 +163,9 @@ class RemovableDriveViewModel extends DbViewModel {
 		if (task != null) throw new IllegalStateException();
 
 		// from now on, we are not re-usable
-		taskObserver = s -> observeTask(s, false);
-		taskObserver.accept(initialState);
+		// (because gets a state update right away on the UiThread)
+		taskObserver =
+				s -> state.setValue(new TransferDataState.TaskAvailable(s));
 
 		TransportProperties p = new TransportProperties();
 		p.put(PROP_URI, uri.toString());
@@ -175,6 +175,10 @@ class RemovableDriveViewModel extends DbViewModel {
 
 	LiveEvent<Action> getActionEvent() {
 		return action;
+	}
+
+	LiveEvent<Boolean> getOldTaskResumedEvent() {
+		return oldTaskResumed;
 	}
 
 	LiveData<TransferDataState> getState() {
