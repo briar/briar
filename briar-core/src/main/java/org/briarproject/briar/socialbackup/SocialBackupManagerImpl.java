@@ -17,6 +17,7 @@ import org.briarproject.bramble.api.data.MetadataParser;
 import org.briarproject.bramble.api.db.DatabaseComponent;
 import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.db.NoSuchContactException;
+import org.briarproject.bramble.api.db.NoSuchGroupException;
 import org.briarproject.bramble.api.db.Transaction;
 import org.briarproject.bramble.api.identity.Author;
 import org.briarproject.bramble.api.identity.Identity;
@@ -560,7 +561,7 @@ class SocialBackupManagerImpl extends ConversationClientImpl
 						db.deleteMessageMetadata(txn, prevId);
 					}
 					sendBackupMessage(txn, custodian, newVersion, payload);
-				} catch (NoSuchContactException e) {
+				} catch (NoSuchContactException|NoSuchGroupException e){
 					// The custodian is no longer a contact - continue
 				}
 			}
