@@ -4,6 +4,7 @@ import org.briarproject.bramble.api.FormatException;
 import org.briarproject.bramble.api.client.ClientHelper;
 import org.briarproject.bramble.api.client.ContactGroupFactory;
 import org.briarproject.bramble.api.contact.Contact;
+import org.briarproject.bramble.api.contact.ContactId;
 import org.briarproject.bramble.api.contact.ContactManager;
 import org.briarproject.bramble.api.crypto.KeyPair;
 import org.briarproject.bramble.api.crypto.PrivateKey;
@@ -449,30 +450,25 @@ class IntroduceeProtocolEngine
 				s.getRemote().acceptTimestamp);
 		if (timestamp == -1) throw new AssertionError();
 
-		Map<TransportId, KeySetId> keys = null;
+		ContactId contactId;
 		try {
-			contactManager.addContact(txn, s.getRemote().author,
+			contactId = contactManager.addContact(txn, s.getRemote().author,
 					localAuthor.getId(), false);
-
-			// Only add transport properties and keys when the contact was added
-			// This will be changed once we have a way to reset state for peers
-			// that were contacts already at some point in the past.
-			Contact c = contactManager.getContact(txn,
-					s.getRemote().author.getId(), localAuthor.getId());
-
-			// add the keys to the new contact
-			keys = keyManager.addRotationKeys(txn, c.getId(),
-					new SecretKey(s.getMasterKey()), timestamp,
-					s.getLocal().alice, false);
-
 			// add signed transport properties for the contact
-			transportPropertyManager.addRemoteProperties(txn, c.getId(),
+			transportPropertyManager.addRemoteProperties(txn, contactId,
 					s.getRemote().transportProperties);
 		} catch (ContactExistsException e) {
-			// Ignore this, because the other introducee might have deleted us.
-			// So we still want updated transport properties
-			// and new transport keys.
+			// The other introducee might have deleted us and been
+			// reintroduced. In that case we can ignore the transport
+			// properties, but we still want the new transport keys as the
+			// contact will no longer have the old keys
+			contactId = contactManager.getContact(txn,
+					s.getRemote().author.getId(), localAuthor.getId()).getId();
 		}
+
+		Map<TransportId, KeySetId> keys = keyManager.addRotationKeys(txn,
+				contactId, new SecretKey(s.getMasterKey()), timestamp,
+				s.getLocal().alice, false);
 
 		// send ACTIVATE message with a MAC
 		byte[] mac = crypto.activateMac(s);

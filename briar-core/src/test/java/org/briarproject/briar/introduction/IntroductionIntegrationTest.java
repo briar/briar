@@ -1667,6 +1667,126 @@ public class IntroductionIntegrationTest
 		assertTrue(deleteMessages0From1(emptySet()).allDeleted());
 	}
 
+	@Test
+	public void testReintroductionAfterBothIntroduceesDeleteEachOther()
+			throws Exception {
+		addListeners(true, true);
+
+		// Introduce 1 to 2
+		makeIntroduction(true);
+		updateContactIdsFor1And2();
+
+		// Sync client versions and transport properties - this shows that
+		// 1 and 2 share a set of transport keys
+		sync1To2(1, true);
+		sync2To1(1, true);
+		sync1To2(2, true);
+		sync2To1(1, true);
+		ack1To2(1);
+
+		// Both introducees delete each other
+		contactManager1.removeContact(contactId2From1);
+		contactManager2.removeContact(contactId1From2);
+
+		// Introduce 1 to 2 again
+		makeIntroduction(true);
+		updateContactIdsFor1And2();
+
+		// Sync client versions and transport properties again
+		sync1To2(1, true);
+		sync2To1(1, true);
+		sync1To2(2, true);
+		sync2To1(1, true);
+		ack1To2(1);
+	}
+
+	@Test
+	public void testReintroductionAfterOneIntroduceeDeletesTheOther()
+			throws Exception {
+		addListeners(true, true);
+
+		// Introduce 1 to 2
+		makeIntroduction(true);
+		updateContactIdsFor1And2();
+
+		// Sync client versions and transport properties - this shows that
+		// 1 and 2 share a set of transport keys
+		sync1To2(1, true);
+		sync2To1(1, true);
+		sync1To2(2, true);
+		sync2To1(1, true);
+		ack1To2(1);
+
+		// 1 deletes 2, but not vice versa
+		contactManager1.removeContact(contactId2From1);
+
+		// Introduce 1 to 2 again
+		makeIntroduction(false);
+		updateContactIdsFor1And2();
+
+		// Sync client versioning update from 1 to 2 only - this shows that
+		// although 1 and 2 share transport keys, the connection won't be
+		// fully functional until we have a way for 1 to reset the state it's
+		// holding about 2
+		sync1To2(1, true);
+		ack2To1(1);
+	}
+
+	private void makeIntroduction(boolean expectAddContact2From1)
+			throws Exception {
+		// Make introduction
+		Contact introducee1 = contact1From0;
+		Contact introducee2 = contact2From0;
+		introductionManager0.makeIntroduction(introducee1, introducee2, "Hi!");
+
+		// Request to 1
+		sync0To1(1, true);
+		eventWaiter.await(TIMEOUT, 1);
+		assertTrue(listener1.requestReceived);
+
+		// Request to 2
+		sync0To2(1, true);
+		eventWaiter.await(TIMEOUT, 1);
+		assertTrue(listener2.requestReceived);
+
+		// Response from 1, forwarded
+		sync1To0(1, true);
+		eventWaiter.await(TIMEOUT, 1);
+		assertTrue(listener0.response1Received);
+		sync0To2(1, true);
+
+		// Response and auth from 2, forwarded
+		sync2To0(2, true);
+		eventWaiter.await(TIMEOUT, 1);
+		assertTrue(listener0.response2Received);
+		sync0To1(2, true);
+		if (expectAddContact2From1) {
+			eventWaiter.await(TIMEOUT, 1);
+			assertTrue(listener1.succeeded);
+		}
+		assertTrue(contactManager1
+				.contactExists(author2.getId(), author1.getId()));
+
+		// Auth and activate from 1, forwarded
+		sync1To0(2, true);
+		sync0To2(2, true);
+		eventWaiter.await(TIMEOUT, 1);
+		assertTrue(listener2.succeeded);
+		assertTrue(contactManager2
+				.contactExists(author1.getId(), author2.getId()));
+
+		// Activate from 2, forwarded
+		sync2To0(1, true);
+		sync0To1(1, true);
+	}
+
+	private void updateContactIdsFor1And2() throws Exception {
+		contactId2From1 = contactManager1.getContact(author2.getId(),
+				author1.getId()).getId();
+		contactId1From2 = contactManager2.getContact(author1.getId(),
+				author2.getId()).getId();
+	}
+
 	private DeletionResult deleteAllMessages1From0() throws DbException {
 		return db0.transactionWithResult(false, txn -> introductionManager0
 				.deleteAllMessages(txn, contactId1From0));
