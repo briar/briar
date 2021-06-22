@@ -9,10 +9,15 @@ import java.security.GeneralSecurityException;
 
 public interface RestoreAccount {
 
+	enum AddReturnShardPayloadResult {
+		DUPLICATE,
+		MISMATCH,
+		OK
+	}
 
 	int getNumberOfShards();
 
-	boolean addReturnShardPayload(ReturnShardPayload toAdd);
+	AddReturnShardPayloadResult addReturnShardPayload(ReturnShardPayload toAdd);
 
 	boolean canRecover();
 

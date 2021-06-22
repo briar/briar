@@ -13,6 +13,7 @@ import org.briarproject.briar.android.activity.ActivityComponent;
 import org.briarproject.briar.android.activity.BaseActivity;
 import org.briarproject.briar.android.fragment.BaseFragment;
 import org.briarproject.briar.api.socialbackup.ReturnShardPayload;
+import org.briarproject.briar.api.socialbackup.recovery.RestoreAccount;
 import org.briarproject.briar.api.socialbackup.recovery.SecretOwnerTask;
 
 import java.security.GeneralSecurityException;
@@ -146,9 +147,16 @@ public class OwnerReturnShardActivity extends BaseActivity
 		if (state instanceof SecretOwnerTask.State.Success) {
 			ReturnShardPayload shardPayload =
 					((SecretOwnerTask.State.Success) state).getRemotePayload();
-			boolean added = viewModel.addToShardSet(shardPayload);
+			RestoreAccount.AddReturnShardPayloadResult result = viewModel.addToShardSet(shardPayload);
+			if (result == RestoreAccount.AddReturnShardPayloadResult.MISMATCH) {
+				// TODO improve this
+				Toast.makeText(this,
+						"WARNING: Mismatched backup piece!",
+						Toast.LENGTH_LONG).show();
+			}
+			boolean added = (result != RestoreAccount.AddReturnShardPayloadResult.DUPLICATE) ? true : false;
 			Toast.makeText(this,
-					"Success - got shard" + (added ? "" : " duplicate"),
+					"Success - got backup piece" + (added ? "" : " duplicate"),
 					Toast.LENGTH_SHORT).show();
 			if (added && viewModel.canRecover()) {
 				LOG.info("Secret key recovered");
@@ -173,18 +181,9 @@ public class OwnerReturnShardActivity extends BaseActivity
 			}
 			onBackPressed();
 		} else if (state instanceof SecretOwnerTask.State.Failure) {
-//			Toast.makeText(this,
-//					"Shard return failed!",
-//					Toast.LENGTH_SHORT).show();
-//			onBackPressed();
 			showNextFragment(new OwnerRecoveryModeErrorFragment());
 		}
 	}
-
-//	private void showErrorFragment() {
-//		// TODO change this for an appropriate error message fragment
-//		showNextFragment(new AddNearbyContactErrorFragment());
-//	}
 
 	@Override
 	@Deprecated
