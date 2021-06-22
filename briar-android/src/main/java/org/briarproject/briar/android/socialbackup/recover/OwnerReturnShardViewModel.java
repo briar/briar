@@ -226,8 +226,7 @@ class OwnerReturnShardViewModel extends AndroidViewModel
 		}
 	}
 
-	// TODO figure out how to actually use a hash set for these objects
-	public boolean addToShardSet(ReturnShardPayload toAdd) {
+	public RestoreAccount.AddReturnShardPayloadResult addToShardSet(ReturnShardPayload toAdd) {
 		return restoreAccount.addReturnShardPayload(toAdd);
 	}
 

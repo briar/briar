@@ -20,6 +20,7 @@ import org.briarproject.briar.socialbackup.BackupPayloadDecoder;
 
 import java.security.GeneralSecurityException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.concurrent.Executor;
 import java.util.logging.Logger;
 
@@ -37,6 +38,7 @@ public class RestoreAccountImpl implements RestoreAccount {
 	private SecretKey secretKey;
 	private final BackupPayloadDecoder backupPayloadDecoder;
 	private SocialBackup socialBackup;
+	private byte[] secretId;
 
 	private static final Logger LOG =
 			getLogger(RestoreAccountImpl.class.getName());
@@ -59,24 +61,30 @@ public class RestoreAccountImpl implements RestoreAccount {
 		return recoveredShards.size();
 	}
 
-	// TODO figure out how to actually use a hash set for these objects
-	public boolean addReturnShardPayload(ReturnShardPayload toAdd) {
-		boolean found = false;
+	public AddReturnShardPayloadResult addReturnShardPayload(ReturnShardPayload toAdd) {
+		AddReturnShardPayloadResult result = AddReturnShardPayloadResult.OK;
+		// TODO figure out how to actually use a hash set for these objects
 		for (ReturnShardPayload returnShardPayload : recoveredShards) {
 			if (toAdd.equals(returnShardPayload)) {
-				found = true;
-				break;
+				return AddReturnShardPayloadResult.DUPLICATE;
 			}
 		}
-		if (!found) recoveredShards.add(toAdd);
-		return !found;
+
+		if (secretId == null) secretId = toAdd.getShard().getSecretId();
+		if (!Arrays.equals(secretId, toAdd.getShard().getSecretId())) {
+			return AddReturnShardPayloadResult.MISMATCH;
+		}
+		recoveredShards.add(toAdd);
+		return AddReturnShardPayloadResult.OK;
 	}
 
 	public boolean canRecover() {
 		ArrayList<Shard> shards = new ArrayList<>();
 		for (ReturnShardPayload returnShardPayload : recoveredShards) {
 			// TODO check shards all have same secret id
-			shards.add(returnShardPayload.getShard());
+			Shard shard = returnShardPayload.getShard();
+//			shard.getSecretId();
+			shards.add(shard);
 		}
 		try {
 			secretKey = darkCrystal.combineShards(shards);
