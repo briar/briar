@@ -722,8 +722,8 @@
 	<string name="activity_name_restore_account">Restore Account</string>
 
 	<!-- conversation -->
-	<string name="social_backup_shard_received">%1$s has sent you a social backup shard.</string>
-	<string name="social_backup_shard_sent">You have sent a social backup shard to %1$s.</string>
+	<string name="social_backup_shard_received">%1$s has sent you a social backup piece.</string>
+	<string name="social_backup_shard_sent">You have sent a social backup piece to %1$s.</string>
 
 	<string name="activity_name_new_or_recover_account">Create new account or recover existing account</string>
 	<string name="activity_name_recovery">Recover Account</string>
