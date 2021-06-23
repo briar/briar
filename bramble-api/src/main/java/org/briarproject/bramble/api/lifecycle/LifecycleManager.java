@@ -22,12 +22,33 @@ public interface LifecycleManager {
 	 */
 	enum StartResult {
 		ALREADY_RUNNING,
+		CLOCK_ERROR,
 		DB_ERROR,
 		DATA_TOO_OLD_ERROR,
 		DATA_TOO_NEW_ERROR,
 		SERVICE_ERROR,
 		SUCCESS
 	}
+
+	/**
+	 * The minimum reasonable value for the system clock, in milliseconds
+	 * since the Unix epoch. {@link #startServices(SecretKey)} will return
+	 * {@link StartResult#CLOCK_ERROR} if the system clock reports an earlier
+	 * time.
+	 * <p/>
+	 * 1 Jan 2021, 00:00:00 UTC
+	 */
+	long MIN_REASONABLE_TIME_MS = 1_609_459_200_000L;
+
+	/**
+	 * The maximum reasonable value for the system clock, in milliseconds
+	 * since the Unix epoch. {@link #startServices(SecretKey)} will return
+	 * {@link StartResult#CLOCK_ERROR} if the system clock reports a later
+	 * time.
+	 * <p/>
+	 * 1 Jan 2121, 00:00:00 UTC
+	 */
+	long MAX_REASONABLE_TIME_MS = 4_765_132_800_000L;
 
 	/**
 	 * The state the lifecycle can be in.

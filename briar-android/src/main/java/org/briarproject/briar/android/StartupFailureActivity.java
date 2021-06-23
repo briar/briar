@@ -51,26 +51,27 @@ public class StartupFailureActivity extends BaseActivity implements
 		}
 
 		// show proper error message
-		String errorMsg;
+		int errorRes;
 		switch (result) {
+			case CLOCK_ERROR:
+				errorRes = R.string.startup_failed_clock_error;
+				break;
 			case DATA_TOO_OLD_ERROR:
-				errorMsg =
-						getString(R.string.startup_failed_data_too_old_error);
+				errorRes = R.string.startup_failed_data_too_old_error;
 				break;
 			case DATA_TOO_NEW_ERROR:
-				errorMsg =
-						getString(R.string.startup_failed_data_too_new_error);
+				errorRes = R.string.startup_failed_data_too_new_error;
 				break;
 			case DB_ERROR:
-				errorMsg = getString(R.string.startup_failed_db_error);
+				errorRes = R.string.startup_failed_db_error;
 				break;
 			case SERVICE_ERROR:
-				errorMsg = getString(R.string.startup_failed_service_error);
+				errorRes = R.string.startup_failed_service_error;
 				break;
 			default:
 				throw new IllegalArgumentException();
 		}
-		showInitialFragment(ErrorFragment.newInstance(errorMsg));
+		showInitialFragment(ErrorFragment.newInstance(getString(errorRes)));
 	}
 
 	@Override
