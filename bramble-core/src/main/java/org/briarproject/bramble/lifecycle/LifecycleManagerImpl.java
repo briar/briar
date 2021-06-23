@@ -12,6 +12,7 @@ import org.briarproject.bramble.api.lifecycle.Service;
 import org.briarproject.bramble.api.lifecycle.ServiceException;
 import org.briarproject.bramble.api.lifecycle.event.LifecycleEvent;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
+import org.briarproject.bramble.api.system.Clock;
 
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -34,6 +35,7 @@ import static org.briarproject.bramble.api.lifecycle.LifecycleManager.LifecycleS
 import static org.briarproject.bramble.api.lifecycle.LifecycleManager.LifecycleState.STARTING_SERVICES;
 import static org.briarproject.bramble.api.lifecycle.LifecycleManager.LifecycleState.STOPPING;
 import static org.briarproject.bramble.api.lifecycle.LifecycleManager.StartResult.ALREADY_RUNNING;
+import static org.briarproject.bramble.api.lifecycle.LifecycleManager.StartResult.CLOCK_ERROR;
 import static org.briarproject.bramble.api.lifecycle.LifecycleManager.StartResult.DATA_TOO_NEW_ERROR;
 import static org.briarproject.bramble.api.lifecycle.LifecycleManager.StartResult.DATA_TOO_OLD_ERROR;
 import static org.briarproject.bramble.api.lifecycle.LifecycleManager.StartResult.DB_ERROR;
@@ -52,6 +54,7 @@ class LifecycleManagerImpl implements LifecycleManager, MigrationListener {
 
 	private final DatabaseComponent db;
 	private final EventBus eventBus;
+	private final Clock clock;
 	private final List<Service> services;
 	private final List<OpenDatabaseHook> openDatabaseHooks;
 	private final List<ExecutorService> executors;
@@ -63,9 +66,11 @@ class LifecycleManagerImpl implements LifecycleManager, MigrationListener {
 	private volatile LifecycleState state = STARTING;
 
 	@Inject
-	LifecycleManagerImpl(DatabaseComponent db, EventBus eventBus) {
+	LifecycleManagerImpl(DatabaseComponent db, EventBus eventBus,
+			Clock clock) {
 		this.db = db;
 		this.eventBus = eventBus;
+		this.clock = clock;
 		services = new CopyOnWriteArrayList<>();
 		openDatabaseHooks = new CopyOnWriteArrayList<>();
 		executors = new CopyOnWriteArrayList<>();
@@ -98,6 +103,13 @@ class LifecycleManagerImpl implements LifecycleManager, MigrationListener {
 		if (!startStopSemaphore.tryAcquire()) {
 			LOG.info("Already starting or stopping");
 			return ALREADY_RUNNING;
+		}
+		long now = clock.currentTimeMillis();
+		if (now < MIN_REASONABLE_TIME_MS || now > MAX_REASONABLE_TIME_MS) {
+			if (LOG.isLoggable(WARNING)) {
+				LOG.warning("System clock is unreasonable: " + now);
+			}
+			return CLOCK_ERROR;
 		}
 		try {
 			LOG.info("Opening database");
