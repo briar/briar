@@ -49,6 +49,7 @@
 	<string name="startup_failed_notification_title">Briar could not start</string>
 	<string name="startup_failed_notification_text">Tap for more information.</string>
 	<string name="startup_failed_activity_title">Briar Startup Failure</string>
+	<string name="startup_failed_clock_error">Briar was unable to start because your device\'s clock is wrong. Please set your device\'s clock to the right time and try again.</string>
 	<string name="startup_failed_db_error">For some reason, your Briar database is corrupted beyond repair. Your account, your data and all your contacts are lost. Unfortunately, you need to reinstall Briar or set up a new account by choosing \'I have forgotten my password\' at the password prompt.</string>
 	<string name="startup_failed_data_too_old_error">Your account was created with an old version of this app and cannot be opened with this version. You must either reinstall the old version or set up a new account by choosing \'I have forgotten my password\' at the password prompt.</string>
 	<string name="startup_failed_data_too_new_error">This version of the app is too old. Please upgrade to the latest version and try again.</string>
