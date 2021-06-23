@@ -28,6 +28,7 @@ import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Semaphore;
+import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Logger;
 
@@ -210,6 +211,20 @@ public abstract class BrambleIntegrationTest<C extends BrambleIntegrationTestCom
 
 		try {
 			messageSemaphore.tryAcquire(numNew, TIMEOUT, MILLISECONDS);
+		} catch (InterruptedException e) {
+			LOG.info("Interrupted while waiting for messages");
+			Thread.currentThread().interrupt();
+			fail();
+		}
+	}
+
+	protected void awaitPendingMessageDelivery(int num)
+			throws TimeoutException {
+		deliveryWaiter.await(TIMEOUT, num);
+		assertEquals("Messages delivered", num, deliveryCounter.getAndSet(0));
+
+		try {
+			messageSemaphore.tryAcquire(num, TIMEOUT, MILLISECONDS);
 		} catch (InterruptedException e) {
 			LOG.info("Interrupted while waiting for messages");
 			Thread.currentThread().interrupt();
