@@ -1,6 +1,5 @@
 package org.briarproject.bramble.plugin.file;
 
-import org.briarproject.bramble.api.FeatureFlags;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.plugin.PluginConfig;
 import org.briarproject.bramble.api.plugin.TransportId;
@@ -51,31 +50,5 @@ class RemovableDriveIntegrationTestModule {
 
 		};
 		return pluginConfig;
-	}
-
-	@Provides
-	FeatureFlags provideFeatureFlags() {
-		return new FeatureFlags() {
-
-			@Override
-			public boolean shouldEnableImageAttachments() {
-				return true;
-			}
-
-			@Override
-			public boolean shouldEnableProfilePictures() {
-				return true;
-			}
-
-			@Override
-			public boolean shouldEnableDisappearingMessages() {
-				return true;
-			}
-
-			@Override
-			public boolean shouldEnableConnectViaBluetooth() {
-				return true;
-			}
-		};
 	}
 }
