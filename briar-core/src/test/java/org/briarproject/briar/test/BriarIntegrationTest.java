@@ -1,8 +1,5 @@
 package org.briarproject.briar.test;
 
-import net.jodah.concurrentunit.Waiter;
-
-import org.briarproject.bramble.api.FormatException;
 import org.briarproject.bramble.api.client.ClientHelper;
 import org.briarproject.bramble.api.client.ContactGroupFactory;
 import org.briarproject.bramble.api.contact.Contact;
@@ -10,13 +7,8 @@ import org.briarproject.bramble.api.contact.ContactId;
 import org.briarproject.bramble.api.contact.ContactManager;
 import org.briarproject.bramble.api.crypto.CryptoComponent;
 import org.briarproject.bramble.api.crypto.SecretKey;
-import org.briarproject.bramble.api.data.BdfList;
-import org.briarproject.bramble.api.data.BdfStringUtils;
 import org.briarproject.bramble.api.db.DatabaseComponent;
 import org.briarproject.bramble.api.db.DbException;
-import org.briarproject.bramble.api.event.Event;
-import org.briarproject.bramble.api.event.EventBus;
-import org.briarproject.bramble.api.event.EventListener;
 import org.briarproject.bramble.api.identity.Identity;
 import org.briarproject.bramble.api.identity.IdentityManager;
 import org.briarproject.bramble.api.identity.LocalAuthor;
@@ -25,11 +17,7 @@ import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
 import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
 import org.briarproject.bramble.api.sync.MessageFactory;
 import org.briarproject.bramble.api.sync.MessageId;
-import org.briarproject.bramble.api.sync.event.MessageStateChangedEvent;
-import org.briarproject.bramble.api.sync.event.MessagesAckedEvent;
-import org.briarproject.bramble.api.sync.event.MessagesSentEvent;
-import org.briarproject.bramble.test.TestTransportConnectionReader;
-import org.briarproject.bramble.test.TestTransportConnectionWriter;
+import org.briarproject.bramble.test.BrambleIntegrationTest;
 import org.briarproject.bramble.test.TestUtils;
 import org.briarproject.briar.api.autodelete.AutoDeleteManager;
 import org.briarproject.briar.api.blog.BlogFactory;
@@ -43,48 +31,19 @@ import org.briarproject.briar.api.privategroup.invitation.GroupInvitationFactory
 import org.junit.After;
 import org.junit.Before;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.Executor;
-import java.util.concurrent.Semaphore;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.logging.Logger;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.inject.Inject;
 
-import static java.util.concurrent.Executors.newSingleThreadExecutor;
-import static java.util.concurrent.TimeUnit.MILLISECONDS;
-import static java.util.concurrent.TimeUnit.MINUTES;
-import static java.util.logging.Level.WARNING;
-import static java.util.logging.Logger.getLogger;
 import static junit.framework.Assert.assertNotNull;
-import static org.briarproject.bramble.api.sync.validation.MessageState.DELIVERED;
-import static org.briarproject.bramble.api.sync.validation.MessageState.INVALID;
-import static org.briarproject.bramble.api.sync.validation.MessageState.PENDING;
-import static org.briarproject.bramble.test.TestPluginConfigModule.SIMPLEX_TRANSPORT_ID;
 import static org.briarproject.bramble.test.TestUtils.getSecretKey;
-import static org.briarproject.bramble.util.LogUtils.logException;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 
 @MethodsNotNullByDefault
 @ParametersNotNullByDefault
 public abstract class BriarIntegrationTest<C extends BriarIntegrationTestComponent>
-		extends BriarTestCase {
-
-	private static final Logger LOG =
-			getLogger(BriarIntegrationTest.class.getName());
-
-	private static final boolean DEBUG = false;
-
-	protected final static int TIMEOUT = 15000;
+		extends BrambleIntegrationTest<C> {
 
 	@Nullable
 	protected ContactId contactId1From2, contactId2From1;
@@ -94,7 +53,7 @@ public abstract class BriarIntegrationTest<C extends BriarIntegrationTestCompone
 			contact2From0;
 	protected LocalAuthor author0, author1, author2;
 	protected ContactManager contactManager0, contactManager1, contactManager2;
-	protected IdentityManager identityManager0, identityManager1,
+	private IdentityManager identityManager0, identityManager1,
 			identityManager2;
 	protected DatabaseComponent db0, db1, db2;
 	protected MessageTracker messageTracker0, messageTracker1, messageTracker2;
@@ -123,18 +82,8 @@ public abstract class BriarIntegrationTest<C extends BriarIntegrationTestCompone
 	@Inject
 	protected ForumPostFactory forumPostFactory;
 
-	// objects accessed from background threads need to be volatile
-	private volatile Waiter validationWaiter;
-	private volatile Waiter deliveryWaiter;
-	private volatile Waiter ackWaiter;
-	private volatile boolean expectAck = false;
-
 	protected C c0, c1, c2;
 
-	private final Semaphore messageSemaphore = new Semaphore(0);
-	private final AtomicInteger deliveryCounter = new AtomicInteger(0);
-	private final AtomicInteger validationCounter = new AtomicInteger(0);
-	private final AtomicInteger ackCounter = new AtomicInteger(0);
 	private final File testDir = TestUtils.getTestDirectory();
 	private final String AUTHOR0 = "Author 0";
 	private final String AUTHOR1 = "Author 1";
@@ -148,8 +97,9 @@ public abstract class BriarIntegrationTest<C extends BriarIntegrationTestCompone
 	protected final File t2Dir = new File(testDir, AUTHOR2);
 
 	@Before
+	@Override
 	public void setUp() throws Exception {
-		assertTrue(testDir.mkdirs());
+		super.setUp();
 		createComponents();
 
 		identityManager0 = c0.getIdentityManager();
@@ -164,14 +114,6 @@ public abstract class BriarIntegrationTest<C extends BriarIntegrationTestCompone
 		db0 = c0.getDatabaseComponent();
 		db1 = c1.getDatabaseComponent();
 		db2 = c2.getDatabaseComponent();
-
-		// initialize waiters fresh for each test
-		validationWaiter = new Waiter();
-		deliveryWaiter = new Waiter();
-		ackWaiter = new Waiter();
-		deliveryCounter.set(0);
-		validationCounter.set(0);
-		ackCounter.set(0);
 
 		createAndRegisterIdentities();
 		startLifecycles();
@@ -195,68 +137,9 @@ public abstract class BriarIntegrationTest<C extends BriarIntegrationTestCompone
 	}
 
 	private void listenToEvents() {
-		Listener listener0 = new Listener(c0);
-		c0.getEventBus().addListener(listener0);
-		Listener listener1 = new Listener(c1);
-		c1.getEventBus().addListener(listener1);
-		Listener listener2 = new Listener(c2);
-		c2.getEventBus().addListener(listener2);
-	}
-
-	private class Listener implements EventListener {
-
-		private final ClientHelper clientHelper;
-		private final Executor executor;
-
-		private Listener(C c) {
-			clientHelper = c.getClientHelper();
-			executor = newSingleThreadExecutor();
-		}
-
-		@Override
-		public void eventOccurred(Event e) {
-			if (e instanceof MessageStateChangedEvent) {
-				MessageStateChangedEvent event = (MessageStateChangedEvent) e;
-				if (!event.isLocal()) {
-					if (event.getState() == DELIVERED) {
-						LOG.info("Delivered new message "
-								+ event.getMessageId());
-						deliveryCounter.addAndGet(1);
-						loadAndLogMessage(event.getMessageId());
-						deliveryWaiter.resume();
-					} else if (event.getState() == INVALID ||
-							event.getState() == PENDING) {
-						LOG.info("Validated new " + event.getState().name() +
-								" message " + event.getMessageId());
-						validationCounter.addAndGet(1);
-						loadAndLogMessage(event.getMessageId());
-						validationWaiter.resume();
-					}
-				}
-			} else if (e instanceof MessagesAckedEvent && expectAck) {
-				MessagesAckedEvent event = (MessagesAckedEvent) e;
-				ackCounter.addAndGet(event.getMessageIds().size());
-				for (MessageId m : event.getMessageIds()) {
-					loadAndLogMessage(m);
-					ackWaiter.resume();
-				}
-			}
-		}
-
-		private void loadAndLogMessage(MessageId id) {
-			executor.execute(() -> {
-				if (DEBUG) {
-					try {
-						BdfList body = clientHelper.getMessageAsList(id);
-						LOG.info("Contents of " + id + ":\n"
-								+ BdfStringUtils.toString(body));
-					} catch (DbException | FormatException e) {
-						logException(LOG, WARNING, e);
-					}
-				}
-				messageSemaphore.release();
-			});
-		}
+		addEventListener(c0);
+		addEventListener(c1);
+		addEventListener(c2);
 	}
 
 	private void createAndRegisterIdentities() {
@@ -335,9 +218,10 @@ public abstract class BriarIntegrationTest<C extends BriarIntegrationTestCompone
 	}
 
 	@After
+	@Override
 	public void tearDown() throws Exception {
 		stopLifecycles();
-		TestUtils.deleteTestDirectory(testDir);
+		super.tearDown();
 	}
 
 	private void stopLifecycles() throws InterruptedException {
@@ -402,122 +286,6 @@ public abstract class BriarIntegrationTest<C extends BriarIntegrationTestCompone
 		sendAcks(c1, c2, contactId2From1, num);
 	}
 
-	protected void syncMessage(BriarIntegrationTestComponent fromComponent,
-			BriarIntegrationTestComponent toComponent, ContactId toId, int num,
-			boolean valid) throws Exception {
-		syncMessage(fromComponent, toComponent, toId, num, 0, valid ? 0 : num,
-				valid ? num : 0);
-	}
-
-	protected void syncMessage(BriarIntegrationTestComponent fromComponent,
-			BriarIntegrationTestComponent toComponent, ContactId toId,
-			int numNew, int numDupes, int numPendingOrInvalid, int numDelivered)
-			throws Exception {
-
-		// Debug output
-		String from =
-				fromComponent.getIdentityManager().getLocalAuthor().getName();
-		String to = toComponent.getIdentityManager().getLocalAuthor().getName();
-		LOG.info("TEST: Sending " + (numNew + numDupes) + " message(s) from "
-				+ from + " to " + to);
-
-		// Listen for messages being sent
-		waitForEvents(fromComponent);
-		SendListener sendListener = new SendListener();
-		fromComponent.getEventBus().addListener(sendListener);
-
-		// Write the messages to a transport stream
-		ByteArrayOutputStream out = new ByteArrayOutputStream();
-		TestTransportConnectionWriter writer =
-				new TestTransportConnectionWriter(out, false);
-		fromComponent.getConnectionManager().manageOutgoingConnection(toId,
-				SIMPLEX_TRANSPORT_ID, writer);
-		writer.getDisposedLatch().await(TIMEOUT, MILLISECONDS);
-
-		// Check that the expected number of messages were sent
-		waitForEvents(fromComponent);
-		fromComponent.getEventBus().removeListener(sendListener);
-		assertEquals("Messages sent", numNew + numDupes,
-				sendListener.sent.size());
-
-		// Read the messages from the transport stream
-		ByteArrayInputStream in = new ByteArrayInputStream(out.toByteArray());
-		TestTransportConnectionReader reader =
-				new TestTransportConnectionReader(in);
-		toComponent.getConnectionManager().manageIncomingConnection(
-				SIMPLEX_TRANSPORT_ID, reader);
-
-		if (numPendingOrInvalid > 0) {
-			validationWaiter.await(TIMEOUT, numPendingOrInvalid);
-		}
-		assertEquals("Messages validated", numPendingOrInvalid,
-				validationCounter.getAndSet(0));
-
-		if (numDelivered > 0) {
-			deliveryWaiter.await(TIMEOUT, numDelivered);
-		}
-		assertEquals("Messages delivered", numDelivered,
-				deliveryCounter.getAndSet(0));
-
-		try {
-			messageSemaphore.tryAcquire(numNew, TIMEOUT, MILLISECONDS);
-		} catch (InterruptedException e) {
-			LOG.info("Interrupted while waiting for messages");
-			Thread.currentThread().interrupt();
-			fail();
-		}
-	}
-
-	protected void sendAcks(BriarIntegrationTestComponent fromComponent,
-			BriarIntegrationTestComponent toComponent, ContactId toId, int num)
-			throws Exception {
-		// Debug output
-		String from =
-				fromComponent.getIdentityManager().getLocalAuthor().getName();
-		String to = toComponent.getIdentityManager().getLocalAuthor().getName();
-		LOG.info("TEST: Sending " + num + " ACKs from " + from + " to " + to);
-
-		expectAck = true;
-
-		// Listen for messages being sent (none should be sent)
-		waitForEvents(fromComponent);
-		SendListener sendListener = new SendListener();
-		fromComponent.getEventBus().addListener(sendListener);
-
-		// start outgoing connection
-		ByteArrayOutputStream out = new ByteArrayOutputStream();
-		TestTransportConnectionWriter writer =
-				new TestTransportConnectionWriter(out, false);
-		fromComponent.getConnectionManager().manageOutgoingConnection(toId,
-				SIMPLEX_TRANSPORT_ID, writer);
-		writer.getDisposedLatch().await(TIMEOUT, MILLISECONDS);
-
-		// Check that no messages were sent
-		waitForEvents(fromComponent);
-		fromComponent.getEventBus().removeListener(sendListener);
-		assertEquals("Messages sent", 0, sendListener.sent.size());
-
-		// handle incoming connection
-		ByteArrayInputStream in = new ByteArrayInputStream(out.toByteArray());
-		TestTransportConnectionReader reader =
-				new TestTransportConnectionReader(in);
-		toComponent.getConnectionManager().manageIncomingConnection(
-				SIMPLEX_TRANSPORT_ID, reader);
-
-		ackWaiter.await(TIMEOUT, num);
-		assertEquals("ACKs delivered", num, ackCounter.getAndSet(0));
-		assertEquals("No messages delivered", 0, deliveryCounter.get());
-		try {
-			messageSemaphore.tryAcquire(num, TIMEOUT, MILLISECONDS);
-		} catch (InterruptedException e) {
-			LOG.info("Interrupted while waiting for messages");
-			Thread.currentThread().interrupt();
-			fail();
-		} finally {
-			expectAck = false;
-		}
-	}
-
 	protected void removeAllContacts() throws DbException {
 		contactManager0.removeContact(contactId1From0);
 		contactManager0.removeContact(contactId2From0);
@@ -562,40 +330,4 @@ public abstract class BriarIntegrationTest<C extends BriarIntegrationTestCompone
 		db.transaction(false, txn -> db.setMessageShared(txn, messageId));
 	}
 
-	/**
-	 * Broadcasts a marker event and waits for it to be delivered, which
-	 * indicates that all previously broadcast events have been delivered.
-	 */
-	public static void waitForEvents(BriarIntegrationTestComponent component)
-			throws Exception {
-		CountDownLatch latch = new CountDownLatch(1);
-		MarkerEvent marker = new MarkerEvent();
-		EventBus eventBus = component.getEventBus();
-		eventBus.addListener(new EventListener() {
-			@Override
-			public void eventOccurred(@Nonnull Event e) {
-				if (e == marker) {
-					latch.countDown();
-					eventBus.removeListener(this);
-				}
-			}
-		});
-		eventBus.broadcast(marker);
-		if (!latch.await(1, MINUTES)) fail();
-	}
-
-	private static class MarkerEvent extends Event {
-	}
-
-	private static class SendListener implements EventListener {
-
-		private final Set<MessageId> sent = new HashSet<>();
-
-		@Override
-		public void eventOccurred(Event e) {
-			if (e instanceof MessagesSentEvent) {
-				sent.addAll(((MessagesSentEvent) e).getMessageIds());
-			}
-		}
-	}
 }
