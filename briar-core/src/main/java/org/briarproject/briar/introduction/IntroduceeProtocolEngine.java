@@ -154,7 +154,8 @@ class IntroduceeProtocolEngine
 			case REMOTE_ACCEPTED:
 			case AWAIT_AUTH:
 			case AWAIT_ACTIVATE:
-				return abort(txn, session); // Invalid in these states
+				// Invalid in these states
+				return abort(txn, session, m.getMessageId());
 			default:
 				throw new AssertionError();
 		}
@@ -174,7 +175,8 @@ class IntroduceeProtocolEngine
 			case REMOTE_ACCEPTED:
 			case AWAIT_AUTH:
 			case AWAIT_ACTIVATE:
-				return abort(txn, session); // Invalid in these states
+				// Invalid in these states
+				return abort(txn, session, m.getMessageId());
 			default:
 				throw new AssertionError();
 		}
@@ -194,7 +196,8 @@ class IntroduceeProtocolEngine
 			case REMOTE_ACCEPTED:
 			case AWAIT_AUTH:
 			case AWAIT_ACTIVATE:
-				return abort(txn, session); // Invalid in these states
+				// Invalid in these states
+				return abort(txn, session, m.getMessageId());
 			default:
 				throw new AssertionError();
 		}
@@ -213,7 +216,8 @@ class IntroduceeProtocolEngine
 			case LOCAL_ACCEPTED:
 			case REMOTE_ACCEPTED:
 			case AWAIT_ACTIVATE:
-				return abort(txn, session); // Invalid in these states
+				// Invalid in these states
+				return abort(txn, session, m.getMessageId());
 			default:
 				throw new AssertionError();
 		}
@@ -232,7 +236,8 @@ class IntroduceeProtocolEngine
 			case LOCAL_ACCEPTED:
 			case REMOTE_ACCEPTED:
 			case AWAIT_AUTH:
-				return abort(txn, session); // Invalid in these states
+				// Invalid in these states
+				return abort(txn, session, m.getMessageId());
 			default:
 				throw new AssertionError();
 		}
@@ -248,7 +253,7 @@ class IntroduceeProtocolEngine
 			IntroduceeSession s, RequestMessage m) throws DbException {
 		// The dependency, if any, must be the last remote message
 		if (isInvalidDependency(s, m.getPreviousMessageId()))
-			return abort(txn, s);
+			return abort(txn, s, m.getMessageId());
 
 		// Mark the request visible in the UI and available to answer
 		markMessageVisibleInUi(txn, m.getMessageId());
@@ -343,10 +348,10 @@ class IntroduceeProtocolEngine
 			IntroduceeSession s, AcceptMessage m) throws DbException {
 		// The timestamp must be higher than the last request message
 		if (m.getTimestamp() <= s.getRequestTimestamp())
-			return abort(txn, s);
+			return abort(txn, s, m.getMessageId());
 		// The dependency, if any, must be the last remote message
 		if (isInvalidDependency(s, m.getPreviousMessageId()))
-			return abort(txn, s);
+			return abort(txn, s, m.getMessageId());
 
 		// Determine next state
 		IntroduceeState state =
@@ -365,10 +370,10 @@ class IntroduceeProtocolEngine
 			IntroduceeSession s, DeclineMessage m) throws DbException {
 		// The timestamp must be higher than the last request message
 		if (m.getTimestamp() <= s.getRequestTimestamp())
-			return abort(txn, s);
+			return abort(txn, s, m.getMessageId());
 		// The dependency, if any, must be the last remote message
 		if (isInvalidDependency(s, m.getPreviousMessageId()))
-			return abort(txn, s);
+			return abort(txn, s, m.getMessageId());
 
 		// Mark the response visible in the UI
 		markMessageVisibleInUi(txn, m.getMessageId());
@@ -398,10 +403,10 @@ class IntroduceeProtocolEngine
 			throws DbException {
 		// The timestamp must be higher than the last request message
 		if (m.getTimestamp() <= s.getRequestTimestamp())
-			return abort(txn, s);
+			return abort(txn, s, m.getMessageId());
 		// The dependency, if any, must be the last remote message
 		if (isInvalidDependency(s, m.getPreviousMessageId()))
-			return abort(txn, s);
+			return abort(txn, s, m.getMessageId());
 
 		// Move to START state
 		return IntroduceeSession.clear(s, START, s.getLastLocalMessageId(),
@@ -423,7 +428,7 @@ class IntroduceeProtocolEngine
 			signature = crypto.sign(ourMacKey, localAuthor.getPrivateKey());
 		} catch (GeneralSecurityException e) {
 			logException(LOG, WARNING, e);
-			return abort(txn, s);
+			return abort(txn, s, s.getLastRemoteMessageId());
 		}
 		if (s.getState() != AWAIT_AUTH) throw new AssertionError();
 		long localTimestamp = getTimestampForInvisibleMessage(s);
@@ -436,14 +441,14 @@ class IntroduceeProtocolEngine
 			IntroduceeSession s, AuthMessage m) throws DbException {
 		// The dependency, if any, must be the last remote message
 		if (isInvalidDependency(s, m.getPreviousMessageId()))
-			return abort(txn, s);
+			return abort(txn, s, m.getMessageId());
 
 		LocalAuthor localAuthor = identityManager.getLocalAuthor(txn);
 		try {
 			crypto.verifyAuthMac(m.getMac(), s, localAuthor.getId());
 			crypto.verifySignature(m.getSignature(), s);
 		} catch (GeneralSecurityException e) {
-			return abort(txn, s);
+			return abort(txn, s, m.getMessageId());
 		}
 		long timestamp = Math.min(s.getLocal().acceptTimestamp,
 				s.getRemote().acceptTimestamp);
@@ -487,13 +492,13 @@ class IntroduceeProtocolEngine
 			IntroduceeSession s, ActivateMessage m) throws DbException {
 		// The dependency, if any, must be the last remote message
 		if (isInvalidDependency(s, m.getPreviousMessageId()))
-			return abort(txn, s);
+			return abort(txn, s, m.getMessageId());
 
 		// Validate MAC
 		try {
 			crypto.verifyActivateMac(m.getMac(), s);
 		} catch (GeneralSecurityException e) {
-			return abort(txn, s);
+			return abort(txn, s, m.getMessageId());
 		}
 
 		// We might not have added transport keys
@@ -522,8 +527,8 @@ class IntroduceeProtocolEngine
 				s.getLocalTimestamp(), m.getMessageId());
 	}
 
-	private IntroduceeSession abort(Transaction txn, IntroduceeSession s)
-			throws DbException {
+	private IntroduceeSession abort(Transaction txn, IntroduceeSession s,
+			@Nullable MessageId lastRemoteMessageId) throws DbException {
 		// Mark the request message unavailable to answer
 		markRequestsUnavailableToAnswer(txn, s);
 
@@ -536,7 +541,7 @@ class IntroduceeProtocolEngine
 
 		// Reset the session back to initial state
 		return IntroduceeSession.clear(s, START, sent.getId(),
-				sent.getTimestamp(), s.getLastRemoteMessageId());
+				sent.getTimestamp(), lastRemoteMessageId);
 	}
 
 	private boolean isInvalidDependency(IntroduceeSession s,

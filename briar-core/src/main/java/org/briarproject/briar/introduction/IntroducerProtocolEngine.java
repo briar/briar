@@ -115,7 +115,7 @@ class IntroducerProtocolEngine
 	@Override
 	public IntroducerSession onRequestMessage(Transaction txn,
 			IntroducerSession s, RequestMessage m) throws DbException {
-		return abort(txn, s); // Invalid in this role
+		return abort(txn, s, m); // Invalid in this role
 	}
 
 	@Override
@@ -136,7 +136,7 @@ class IntroducerProtocolEngine
 			case AWAIT_ACTIVATES:
 			case AWAIT_ACTIVATE_A:
 			case AWAIT_ACTIVATE_B:
-				return abort(txn, s); // Invalid in these states
+				return abort(txn, s, m); // Invalid in these states
 			default:
 				throw new AssertionError();
 		}
@@ -160,7 +160,7 @@ class IntroducerProtocolEngine
 			case AWAIT_ACTIVATES:
 			case AWAIT_ACTIVATE_A:
 			case AWAIT_ACTIVATE_B:
-				return abort(txn, s); // Invalid in these states
+				return abort(txn, s, m); // Invalid in these states
 			default:
 				throw new AssertionError();
 		}
@@ -183,7 +183,7 @@ class IntroducerProtocolEngine
 			case AWAIT_ACTIVATES:
 			case AWAIT_ACTIVATE_A:
 			case AWAIT_ACTIVATE_B:
-				return abort(txn, s); // Invalid in these states
+				return abort(txn, s, m); // Invalid in these states
 			default:
 				throw new AssertionError();
 		}
@@ -206,7 +206,7 @@ class IntroducerProtocolEngine
 			case AWAIT_AUTHS:
 			case AWAIT_AUTH_A:
 			case AWAIT_AUTH_B:
-				return abort(txn, s); // Invalid in these states
+				return abort(txn, s, m); // Invalid in these states
 			default:
 				throw new AssertionError();
 		}
@@ -244,17 +244,17 @@ class IntroducerProtocolEngine
 			IntroducerSession s, AcceptMessage m) throws DbException {
 		// The timestamp must be higher than the last request message
 		if (m.getTimestamp() <= s.getRequestTimestamp())
-			return abort(txn, s);
+			return abort(txn, s, m);
 		// The dependency, if any, must be the last remote message
 		if (isInvalidDependency(s, m.getGroupId(), m.getPreviousMessageId()))
-			return abort(txn, s);
+			return abort(txn, s, m);
 		// The message must be expected in the current state
 		boolean senderIsAlice = senderIsAlice(s, m);
 		if (s.getState() != AWAIT_RESPONSES) {
 			if (senderIsAlice && s.getState() != AWAIT_RESPONSE_A)
-				return abort(txn, s);
+				return abort(txn, s, m);
 			else if (!senderIsAlice && s.getState() != AWAIT_RESPONSE_B)
-				return abort(txn, s);
+				return abort(txn, s, m);
 		}
 
 		// Mark the response visible in the UI
@@ -309,16 +309,16 @@ class IntroducerProtocolEngine
 			IntroducerSession s, AcceptMessage m) throws DbException {
 		// The timestamp must be higher than the last request message
 		if (m.getTimestamp() <= s.getRequestTimestamp())
-			return abort(txn, s);
+			return abort(txn, s, m);
 		// The dependency, if any, must be the last remote message
 		if (isInvalidDependency(s, m.getGroupId(), m.getPreviousMessageId()))
-			return abort(txn, s);
+			return abort(txn, s, m);
 		// The message must be expected in the current state
 		boolean senderIsAlice = senderIsAlice(s, m);
 		if (senderIsAlice && s.getState() != B_DECLINED)
-			return abort(txn, s);
+			return abort(txn, s, m);
 		else if (!senderIsAlice && s.getState() != A_DECLINED)
-			return abort(txn, s);
+			return abort(txn, s, m);
 
 		// Mark the response visible in the UI
 		markMessageVisibleInUi(txn, m.getMessageId());
@@ -362,17 +362,17 @@ class IntroducerProtocolEngine
 			IntroducerSession s, DeclineMessage m) throws DbException {
 		// The timestamp must be higher than the last request message
 		if (m.getTimestamp() <= s.getRequestTimestamp())
-			return abort(txn, s);
+			return abort(txn, s, m);
 		// The dependency, if any, must be the last remote message
 		if (isInvalidDependency(s, m.getGroupId(), m.getPreviousMessageId()))
-			return abort(txn, s);
+			return abort(txn, s, m);
 		// The message must be expected in the current state
 		boolean senderIsAlice = senderIsAlice(s, m);
 		if (s.getState() != AWAIT_RESPONSES) {
 			if (senderIsAlice && s.getState() != AWAIT_RESPONSE_A)
-				return abort(txn, s);
+				return abort(txn, s, m);
 			else if (!senderIsAlice && s.getState() != AWAIT_RESPONSE_B)
-				return abort(txn, s);
+				return abort(txn, s, m);
 		}
 
 		// Mark the response visible in the UI
@@ -419,16 +419,16 @@ class IntroducerProtocolEngine
 			IntroducerSession s, DeclineMessage m) throws DbException {
 		// The timestamp must be higher than the last request message
 		if (m.getTimestamp() <= s.getRequestTimestamp())
-			return abort(txn, s);
+			return abort(txn, s, m);
 		// The dependency, if any, must be the last remote message
 		if (isInvalidDependency(s, m.getGroupId(), m.getPreviousMessageId()))
-			return abort(txn, s);
+			return abort(txn, s, m);
 		// The message must be expected in the current state
 		boolean senderIsAlice = senderIsAlice(s, m);
 		if (senderIsAlice && s.getState() != B_DECLINED)
-			return abort(txn, s);
+			return abort(txn, s, m);
 		else if (!senderIsAlice && s.getState() != A_DECLINED)
-			return abort(txn, s);
+			return abort(txn, s, m);
 
 		// Mark the response visible in the UI
 		markMessageVisibleInUi(txn, m.getMessageId());
@@ -470,14 +470,14 @@ class IntroducerProtocolEngine
 			IntroducerSession s, AuthMessage m) throws DbException {
 		// The dependency, if any, must be the last remote message
 		if (isInvalidDependency(s, m.getGroupId(), m.getPreviousMessageId()))
-			return abort(txn, s);
+			return abort(txn, s, m);
 		// The message must be expected in the current state
 		boolean senderIsAlice = senderIsAlice(s, m);
 		if (s.getState() != AWAIT_AUTHS) {
 			if (senderIsAlice && s.getState() != AWAIT_AUTH_A)
-				return abort(txn, s);
+				return abort(txn, s, m);
 			else if (!senderIsAlice && s.getState() != AWAIT_AUTH_B)
-				return abort(txn, s);
+				return abort(txn, s, m);
 		}
 
 		// Forward AUTH message
@@ -506,14 +506,14 @@ class IntroducerProtocolEngine
 			IntroducerSession s, ActivateMessage m) throws DbException {
 		// The dependency, if any, must be the last remote message
 		if (isInvalidDependency(s, m.getGroupId(), m.getPreviousMessageId()))
-			return abort(txn, s);
+			return abort(txn, s, m);
 		// The message must be expected in the current state
 		boolean senderIsAlice = senderIsAlice(s, m);
 		if (s.getState() != AWAIT_ACTIVATES) {
 			if (senderIsAlice && s.getState() != AWAIT_ACTIVATE_A)
-				return abort(txn, s);
+				return abort(txn, s, m);
 			else if (!senderIsAlice && s.getState() != AWAIT_ACTIVATE_B)
-				return abort(txn, s);
+				return abort(txn, s, m);
 		}
 
 		// Forward ACTIVATE message
@@ -588,21 +588,31 @@ class IntroducerProtocolEngine
 				s.getRequestTimestamp(), introduceeA, introduceeB);
 	}
 
-	private IntroducerSession abort(Transaction txn, IntroducerSession s)
-			throws DbException {
+	private IntroducerSession abort(Transaction txn, IntroducerSession s,
+			AbstractIntroductionMessage lastRemoteMessage) throws DbException {
 		// Broadcast abort event for testing
 		txn.attach(new IntroductionAbortedEvent(s.getSessionId()));
 
+		// Record the message that triggered the abort
+		Introducee introduceeA = s.getIntroduceeA();
+		Introducee introduceeB = s.getIntroduceeB();
+		if (senderIsAlice(s, lastRemoteMessage)) {
+			introduceeA = new Introducee(introduceeA,
+					lastRemoteMessage.getMessageId());
+		} else {
+			introduceeB = new Introducee(introduceeB,
+					lastRemoteMessage.getMessageId());
+		}
+
 		// Send an ABORT message to both introducees
-		long timestampA =
-				getTimestampForInvisibleMessage(s, s.getIntroduceeA());
-		Message sentA = sendAbortMessage(txn, s.getIntroduceeA(), timestampA);
-		long timestampB =
-				getTimestampForInvisibleMessage(s, s.getIntroduceeB());
-		Message sentB = sendAbortMessage(txn, s.getIntroduceeB(), timestampB);
+		long timestampA = getTimestampForInvisibleMessage(s, introduceeA);
+		Message sentA = sendAbortMessage(txn, introduceeA, timestampA);
+		long timestampB = getTimestampForInvisibleMessage(s, introduceeB);
+		Message sentB = sendAbortMessage(txn, introduceeB, timestampB);
+
 		// Reset the session back to initial state
-		Introducee introduceeA = new Introducee(s.getIntroduceeA(), sentA);
-		Introducee introduceeB = new Introducee(s.getIntroduceeB(), sentB);
+		introduceeA = new Introducee(introduceeA, sentA);
+		introduceeB = new Introducee(introduceeB, sentB);
 		return new IntroducerSession(s.getSessionId(), START,
 				s.getRequestTimestamp(), introduceeA, introduceeB);
 	}
