@@ -109,9 +109,57 @@ public class TransportKeyAgreementIntegrationTest
 	}
 
 	@Test
+	public void testBothAddTransportAtTheSameTime() throws Exception {
+		// Alice and Bob add each other.
+		Pair<ContactId, ContactId> contactIds = addContacts(true);
+		ContactId aliceId = contactIds.getFirst();
+		ContactId bobId = contactIds.getSecond();
+
+		// Alice and Bob restart and come back with the new transport.
+		alice = restartWithNewTransport(alice, aliceDir, "Alice");
+		bob = restartWithNewTransport(bob, bobDir, "Bob");
+
+		// They can still send via the old simplex,
+		// but not via the new duplex transport
+		assertTrue(alice.getKeyManager()
+				.canSendOutgoingStreams(bobId, SIMPLEX_TRANSPORT_ID));
+		assertFalse(alice.getKeyManager()
+				.canSendOutgoingStreams(bobId, newTransportId));
+		assertTrue(bob.getKeyManager()
+				.canSendOutgoingStreams(aliceId, SIMPLEX_TRANSPORT_ID));
+		assertFalse(bob.getKeyManager()
+				.canSendOutgoingStreams(aliceId, newTransportId));
+
+		// Bobs has started a session and sends KEY message to Alice
+		syncMessage(bob, alice, aliceId, 1, true);
+
+		// Alice now and sends her own KEY as well as her ACTIVATE message.
+		syncMessage(alice, bob, bobId, 2, true);
+
+		// Bob can already send over the new transport while Alice still can't.
+		assertFalse(alice.getKeyManager()
+				.canSendOutgoingStreams(bobId, newTransportId));
+		assertTrue(bob.getKeyManager()
+				.canSendOutgoingStreams(aliceId, newTransportId));
+
+		// Now Bob sends his ACTIVATE message to Alice.
+		syncMessage(bob, alice, aliceId, 1, true);
+
+		// Now Alice can also send over the new transport.
+		assertTrue(alice.getKeyManager()
+				.canSendOutgoingStreams(bobId, newTransportId));
+		assertTrue(bob.getKeyManager()
+				.canSendOutgoingStreams(aliceId, newTransportId));
+
+		// Ensure that private key is not stored anymore.
+		assertLocalKeyPairIsNull(alice, bobId);
+		assertLocalKeyPairIsNull(bob, aliceId);
+	}
+
+	@Test
 	public void testAliceAddsTransportBeforeBob() throws Exception {
 		// Alice and Bob add each other.
-		Pair<ContactId, ContactId> contactIds = addContacts();
+		Pair<ContactId, ContactId> contactIds = addContacts(true);
 		ContactId aliceId = contactIds.getFirst();
 		ContactId bobId = contactIds.getSecond();
 
@@ -135,7 +183,7 @@ public class TransportKeyAgreementIntegrationTest
 		// Alice's pending KEY message now gets delivered async, so wait for it
 		awaitPendingMessageDelivery(1);
 
-		// Bobs now and sends his own KEY as well as his ACTIVATE message.
+		// Bob now sends his own KEY as well as his ACTIVATE message.
 		syncMessage(bob, alice, aliceId, 2, true);
 
 		// Alice can already send over the new transport while Bob still can't.
@@ -158,19 +206,66 @@ public class TransportKeyAgreementIntegrationTest
 		assertLocalKeyPairIsNull(bob, aliceId);
 	}
 
-	private Pair<ContactId, ContactId> addContacts() throws Exception {
+	@Test
+	public void testAliceAlreadyHasTransportWhenAddingBob() throws Exception {
+		// Alice restarts and comes back with the new transport.
+		alice = restartWithNewTransport(alice, aliceDir, "Alice");
+
+		// Alice and Bob add each other.
+		Pair<ContactId, ContactId> contactIds = addContacts(false);
+		ContactId aliceId = contactIds.getFirst();
+		ContactId bobId = contactIds.getSecond();
+
+		// Alice can still send via the old simplex,
+		// but not via the new duplex transport
+		assertTrue(alice.getKeyManager()
+				.canSendOutgoingStreams(bobId, SIMPLEX_TRANSPORT_ID));
+		// FIXME normally Alice should not be able to already send streams
+//		assertFalse(alice.getKeyManager()
+//				.canSendOutgoingStreams(bobId, newTransportId));
+
+		// Bob restarts and comes back with the new transport.
+		bob = restartWithNewTransport(bob, bobDir, "Bob");
+
+		// Bob sends his own KEY message.
+		syncMessage(bob, alice, aliceId, 1, true);
+
+		// Alice can already send over the new transport while Bob still can't.
+		assertTrue(alice.getKeyManager()
+				.canSendOutgoingStreams(bobId, newTransportId));
+		assertFalse(bob.getKeyManager()
+				.canSendOutgoingStreams(aliceId, newTransportId));
+
+		// Now Alice sends her KEY and her ACTIVATE message to Bob.
+		syncMessage(alice, bob, bobId, 2, true);
+
+		// Now Bob can also send over the new transport.
+		assertTrue(alice.getKeyManager()
+				.canSendOutgoingStreams(bobId, newTransportId));
+		assertTrue(bob.getKeyManager()
+				.canSendOutgoingStreams(aliceId, newTransportId));
+
+		// Ensure that private key is not stored anymore.
+		assertLocalKeyPairIsNull(alice, bobId);
+		assertLocalKeyPairIsNull(bob, aliceId);
+	}
+
+	private Pair<ContactId, ContactId> addContacts(
+			boolean assertOldDuplexSending) throws Exception {
 		ContactId bobId = addContact(alice, bob, true);
 		ContactId aliceId = addContact(bob, alice, false);
 
 		// Alice and Bob can send messages via the default test transports
-		assertTrue(alice.getKeyManager()
-				.canSendOutgoingStreams(bobId, SIMPLEX_TRANSPORT_ID));
-		assertTrue(alice.getKeyManager()
-				.canSendOutgoingStreams(bobId, DUPLEX_TRANSPORT_ID));
-		assertTrue(bob.getKeyManager()
-				.canSendOutgoingStreams(aliceId, SIMPLEX_TRANSPORT_ID));
-		assertTrue(bob.getKeyManager()
-				.canSendOutgoingStreams(aliceId, DUPLEX_TRANSPORT_ID));
+		if (assertOldDuplexSending) {
+			assertTrue(alice.getKeyManager()
+					.canSendOutgoingStreams(bobId, SIMPLEX_TRANSPORT_ID));
+			assertTrue(alice.getKeyManager()
+					.canSendOutgoingStreams(bobId, DUPLEX_TRANSPORT_ID));
+			assertTrue(bob.getKeyManager()
+					.canSendOutgoingStreams(aliceId, SIMPLEX_TRANSPORT_ID));
+			assertTrue(bob.getKeyManager()
+					.canSendOutgoingStreams(aliceId, DUPLEX_TRANSPORT_ID));
+		}
 
 		// Sync initial client versioning updates
 		syncMessage(alice, bob, bobId, 1, true);
