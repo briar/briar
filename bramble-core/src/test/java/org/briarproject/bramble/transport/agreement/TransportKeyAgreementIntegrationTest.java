@@ -2,15 +2,19 @@ package org.briarproject.bramble.transport.agreement;
 
 import org.briarproject.bramble.BrambleCoreIntegrationTestEagerSingletons;
 import org.briarproject.bramble.api.Pair;
+import org.briarproject.bramble.api.contact.Contact;
 import org.briarproject.bramble.api.contact.ContactId;
 import org.briarproject.bramble.api.contact.ContactManager;
 import org.briarproject.bramble.api.crypto.SecretKey;
+import org.briarproject.bramble.api.data.BdfDictionary;
 import org.briarproject.bramble.api.identity.Author;
 import org.briarproject.bramble.api.identity.AuthorId;
 import org.briarproject.bramble.api.identity.Identity;
 import org.briarproject.bramble.api.identity.IdentityManager;
 import org.briarproject.bramble.api.lifecycle.LifecycleManager;
 import org.briarproject.bramble.api.plugin.TransportId;
+import org.briarproject.bramble.api.sync.Group;
+import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.bramble.test.BrambleIntegrationTest;
 import org.briarproject.bramble.test.TestDatabaseConfigModule;
 import org.briarproject.bramble.test.TestPluginConfigModule;
@@ -19,12 +23,17 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.io.File;
+import java.util.Map;
 
+import static org.briarproject.bramble.api.transport.agreement.TransportKeyAgreementManager.CLIENT_ID;
+import static org.briarproject.bramble.api.transport.agreement.TransportKeyAgreementManager.MAJOR_VERSION;
 import static org.briarproject.bramble.test.TestPluginConfigModule.DUPLEX_TRANSPORT_ID;
 import static org.briarproject.bramble.test.TestPluginConfigModule.SIMPLEX_TRANSPORT_ID;
 import static org.briarproject.bramble.test.TestUtils.getSecretKey;
+import static org.briarproject.bramble.transport.agreement.TransportKeyAgreementConstants.MSG_KEY_IS_SESSION;
 import static org.briarproject.bramble.util.StringUtils.getRandomString;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 public class TransportKeyAgreementIntegrationTest
@@ -143,6 +152,10 @@ public class TransportKeyAgreementIntegrationTest
 				.canSendOutgoingStreams(bobId, newTransportId));
 		assertTrue(bob.getKeyManager()
 				.canSendOutgoingStreams(aliceId, newTransportId));
+
+		// Ensure that private key is not stored anymore.
+		assertLocalKeyPairIsNull(alice, bobId);
+		assertLocalKeyPairIsNull(bob, aliceId);
 	}
 
 	private Pair<ContactId, ContactId> addContacts() throws Exception {
@@ -191,6 +204,32 @@ public class TransportKeyAgreementIntegrationTest
 				createComponent(dir, true);
 		startLifecycle(newDevice, name);
 		return newDevice;
+	}
+
+	/**
+	 * Asserts that the local key pair (specifically the private key) is removed
+	 * from the session as intended when leaving the AWAIT_KEY state.
+	 * If it remained on disk after the keys had been activated
+	 * then we'd lose forward secrecy.
+	 */
+	private void assertLocalKeyPairIsNull(
+			TransportKeyAgreementTestComponent device, ContactId contactId)
+			throws Exception {
+		Contact contact = device.getContactManager().getContact(contactId);
+		Group group = getContactGroup(device, contact);
+		Map<MessageId, BdfDictionary> map = bob.getClientHelper()
+				.getMessageMetadataAsDictionary(group.getId());
+		for (Map.Entry<MessageId, BdfDictionary> e : map.entrySet()) {
+			if (!e.getValue().getBoolean(MSG_KEY_IS_SESSION)) continue;
+			Session s = device.getSessionParser().parseSession(e.getValue());
+			assertNull(s.getLocalKeyPair());
+		}
+	}
+
+	private Group getContactGroup(TransportKeyAgreementTestComponent device,
+			Contact c) {
+		return device.getContactGroupFactory().createContactGroup(CLIENT_ID,
+				MAJOR_VERSION, c);
 	}
 
 }
