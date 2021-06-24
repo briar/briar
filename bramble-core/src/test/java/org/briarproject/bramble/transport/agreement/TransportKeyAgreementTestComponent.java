@@ -1,6 +1,7 @@
 package org.briarproject.bramble.transport.agreement;
 
 import org.briarproject.bramble.BrambleCoreModule;
+import org.briarproject.bramble.api.client.ContactGroupFactory;
 import org.briarproject.bramble.api.contact.ContactManager;
 import org.briarproject.bramble.api.lifecycle.LifecycleManager;
 import org.briarproject.bramble.api.transport.KeyManager;
@@ -26,4 +27,8 @@ interface TransportKeyAgreementTestComponent
 	ContactManager getContactManager();
 
 	LifecycleManager getLifecycleManager();
+
+	ContactGroupFactory getContactGroupFactory();
+
+	SessionParser getSessionParser();
 }
