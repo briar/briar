@@ -104,13 +104,14 @@ public class SendFragment extends Fragment {
 					((TransferDataState.TaskAvailable) state).state;
 			if (s.getTotal() > 0L && progressBar.getVisibility() != VISIBLE) {
 				progressBar.setVisibility(VISIBLE);
-				// FIXME if we ever export more than 2 GB, this won't work
-				progressBar.setMax((int) s.getTotal());
+				progressBar.setMax(100);
 			}
+			int progress = s.getTotal() == 0 ? 0 : // no div by null
+					(int) (s.getDone() / s.getTotal()) * 100;
 			if (SDK_INT >= 24) {
-				progressBar.setProgress((int) s.getDone(), true);
+				progressBar.setProgress(progress, true);
 			} else {
-				progressBar.setProgress((int) s.getDone());
+				progressBar.setProgress(progress);
 			}
 		}
 	}
