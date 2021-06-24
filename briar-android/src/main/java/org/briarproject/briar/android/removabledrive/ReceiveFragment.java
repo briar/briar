@@ -1,6 +1,7 @@
 package org.briarproject.briar.android.removabledrive;
 
 import android.content.Context;
+import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -27,6 +28,7 @@ import androidx.lifecycle.ViewModelProvider;
 import static android.view.View.VISIBLE;
 import static android.widget.Toast.LENGTH_LONG;
 import static org.briarproject.briar.android.AppModule.getAndroidComponent;
+import static org.briarproject.briar.android.util.UiUtils.putShowAdvancedExtra;
 
 @MethodsNotNullByDefault
 @ParametersNotNullByDefault
@@ -34,13 +36,22 @@ public class ReceiveFragment extends Fragment {
 
 	final static String TAG = ReceiveFragment.class.getName();
 
+	private static class GetFile extends GetContent {
+		@Override
+		public Intent createIntent(Context context, String input) {
+			Intent i = super.createIntent(context, input);
+			putShowAdvancedExtra(i);
+			return i;
+		}
+	}
+
 	// TODO we can pass an extra named DocumentsContract.EXTRA_INITIAL_URI
 	//  to have the file-picker start on the usb-stick -- if get hold of URI
 	//  of the same. USB manager API?
 	//  Overall, passing this extra requires extending the ready-made
 	//  contracts and overriding createIntent.
 	private final ActivityResultLauncher<String> launcher =
-			registerForActivityResult(new GetContent(), this::onDocumentChosen);
+			registerForActivityResult(new GetFile(), this::onDocumentChosen);
 
 	@Inject
 	ViewModelProvider.Factory viewModelFactory;

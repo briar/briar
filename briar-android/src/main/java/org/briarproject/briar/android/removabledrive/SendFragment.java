@@ -1,6 +1,7 @@
 package org.briarproject.briar.android.removabledrive;
 
 import android.content.Context;
+import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -29,6 +30,7 @@ import static android.os.Build.VERSION.SDK_INT;
 import static android.view.View.VISIBLE;
 import static android.widget.Toast.LENGTH_LONG;
 import static org.briarproject.briar.android.AppModule.getAndroidComponent;
+import static org.briarproject.briar.android.util.UiUtils.putShowAdvancedExtra;
 
 @MethodsNotNullByDefault
 @ParametersNotNullByDefault
@@ -36,8 +38,17 @@ public class SendFragment extends Fragment {
 
 	final static String TAG = SendFragment.class.getName();
 
+	private static class CreateDocumentAdvanced extends CreateDocument {
+		@Override
+		public Intent createIntent(Context context, String input) {
+			Intent i = super.createIntent(context, input);
+			putShowAdvancedExtra(i);
+			return i;
+		}
+	}
+
 	private final ActivityResultLauncher<String> launcher =
-			registerForActivityResult(new CreateDocument(),
+			registerForActivityResult(new CreateDocumentAdvanced(),
 					this::onDocumentCreated);
 
 	@Inject
