@@ -7,12 +7,14 @@ import org.briarproject.bramble.api.contact.ContactId;
 import org.briarproject.bramble.api.contact.ContactManager;
 import org.briarproject.bramble.api.crypto.SecretKey;
 import org.briarproject.bramble.api.data.BdfDictionary;
+import org.briarproject.bramble.api.db.DatabaseComponent;
 import org.briarproject.bramble.api.identity.Author;
 import org.briarproject.bramble.api.identity.AuthorId;
 import org.briarproject.bramble.api.identity.Identity;
 import org.briarproject.bramble.api.identity.IdentityManager;
 import org.briarproject.bramble.api.lifecycle.LifecycleManager;
 import org.briarproject.bramble.api.plugin.TransportId;
+import org.briarproject.bramble.api.properties.TransportProperties;
 import org.briarproject.bramble.api.sync.Group;
 import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.bramble.test.BrambleIntegrationTest;
@@ -47,6 +49,7 @@ public class TransportKeyAgreementIntegrationTest
 			new TransportId(getRandomString(8));
 
 	private TransportKeyAgreementTestComponent alice, bob;
+	private Identity aliceIdentity, bobIdentity;
 
 	@Before
 	@Override
@@ -56,9 +59,13 @@ public class TransportKeyAgreementIntegrationTest
 		alice = createComponent(aliceDir, false);
 		bob = createComponent(bobDir, false);
 
+		// Create identities
+		aliceIdentity = alice.getIdentityManager().createIdentity("Alice");
+		bobIdentity = bob.getIdentityManager().createIdentity("Bob");
+
 		// Start both lifecycles
-		startLifecycle(alice, "Alice");
-		startLifecycle(bob, "Bob");
+		startLifecycle(alice, aliceIdentity);
+		startLifecycle(bob, bobIdentity);
 	}
 
 	private TransportKeyAgreementTestComponent createComponent(
@@ -79,13 +86,11 @@ public class TransportKeyAgreementIntegrationTest
 
 	private void startLifecycle(
 			TransportKeyAgreementTestComponent device,
-			String identityName) throws Exception {
+			Identity identity) throws Exception {
 		// Listen to message related events first to not miss early ones
 		addEventListener(device);
-		// Add an identity for the user
-		IdentityManager identityManager = device.getIdentityManager();
-		Identity identity = identityManager.createIdentity(identityName);
-		identityManager.registerIdentity(identity);
+		// Register identity before starting lifecycle
+		device.getIdentityManager().registerIdentity(identity);
 		// Start the lifecycle manager
 		LifecycleManager lifecycleManager = device.getLifecycleManager();
 		lifecycleManager.startServices(masterKey); // re-using masterKey here
@@ -116,8 +121,8 @@ public class TransportKeyAgreementIntegrationTest
 		ContactId bobId = contactIds.getSecond();
 
 		// Alice and Bob restart and come back with the new transport.
-		alice = restartWithNewTransport(alice, aliceDir, "Alice");
-		bob = restartWithNewTransport(bob, bobDir, "Bob");
+		alice = restartWithNewTransport(alice, aliceDir, aliceIdentity);
+		bob = restartWithNewTransport(bob, bobDir, bobIdentity);
 
 		// They can still send via the old simplex,
 		// but not via the new duplex transport
@@ -154,6 +159,10 @@ public class TransportKeyAgreementIntegrationTest
 		// Ensure that private key is not stored anymore.
 		assertLocalKeyPairIsNull(alice, bobId);
 		assertLocalKeyPairIsNull(bob, aliceId);
+
+		// Messages can be send over the new transport in both directions.
+		assertTransportMessageArrives(alice, bob, bobId, newTransportId);
+		assertTransportMessageArrives(bob, alice, aliceId, newTransportId);
 	}
 
 	@Test
@@ -164,7 +173,7 @@ public class TransportKeyAgreementIntegrationTest
 		ContactId bobId = contactIds.getSecond();
 
 		// Alice restarts and comes back with the new transport.
-		alice = restartWithNewTransport(alice, aliceDir, "Alice");
+		alice = restartWithNewTransport(alice, aliceDir, aliceIdentity);
 
 		// Alice can still send via the old simplex,
 		// but not via the new duplex transport
@@ -178,7 +187,7 @@ public class TransportKeyAgreementIntegrationTest
 		syncMessage(alice, bob, bobId, 1, false);
 
 		// Bob restarts and comes back with the new transport.
-		bob = restartWithNewTransport(bob, bobDir, "Bob");
+		bob = restartWithNewTransport(bob, bobDir, bobIdentity);
 
 		// Alice's pending KEY message now gets delivered async, so wait for it
 		awaitPendingMessageDelivery(1);
@@ -204,12 +213,16 @@ public class TransportKeyAgreementIntegrationTest
 		// Ensure that private key is not stored anymore.
 		assertLocalKeyPairIsNull(alice, bobId);
 		assertLocalKeyPairIsNull(bob, aliceId);
+
+		// Messages can be send over the new transport in both directions.
+		assertTransportMessageArrives(alice, bob, bobId, newTransportId);
+		assertTransportMessageArrives(bob, alice, aliceId, newTransportId);
 	}
 
 	@Test
 	public void testAliceAlreadyHasTransportWhenAddingBob() throws Exception {
 		// Alice restarts and comes back with the new transport.
-		alice = restartWithNewTransport(alice, aliceDir, "Alice");
+		alice = restartWithNewTransport(alice, aliceDir, aliceIdentity);
 
 		// Alice and Bob add each other.
 		Pair<ContactId, ContactId> contactIds = addContacts(false);
@@ -225,7 +238,7 @@ public class TransportKeyAgreementIntegrationTest
 //				.canSendOutgoingStreams(bobId, newTransportId));
 
 		// Bob restarts and comes back with the new transport.
-		bob = restartWithNewTransport(bob, bobDir, "Bob");
+		bob = restartWithNewTransport(bob, bobDir, bobIdentity);
 
 		// Bob sends his own KEY message.
 		syncMessage(bob, alice, aliceId, 1, true);
@@ -248,6 +261,68 @@ public class TransportKeyAgreementIntegrationTest
 		// Ensure that private key is not stored anymore.
 		assertLocalKeyPairIsNull(alice, bobId);
 		assertLocalKeyPairIsNull(bob, aliceId);
+
+		// Bobs still sends his ACTIVATE message.
+		syncMessage(bob, alice, aliceId, 1, true);
+
+		// Messages can be send over the new transport in both directions.
+		assertTransportMessageArrives(alice, bob, bobId, newTransportId);
+		assertTransportMessageArrives(bob, alice, aliceId, newTransportId);
+	}
+
+	@Test
+	public void testAliceActivatesKeysByIncomingMessage() throws Exception {
+		// Alice and Bob add each other.
+		Pair<ContactId, ContactId> contactIds = addContacts(true);
+		ContactId aliceId = contactIds.getFirst();
+		ContactId bobId = contactIds.getSecond();
+
+		// Alice and Bob restart and come back with the new transport.
+		alice = restartWithNewTransport(alice, aliceDir, aliceIdentity);
+		bob = restartWithNewTransport(bob, bobDir, bobIdentity);
+
+		// They can still send via the old simplex,
+		// but not via the new duplex transport
+		assertTrue(alice.getKeyManager()
+				.canSendOutgoingStreams(bobId, SIMPLEX_TRANSPORT_ID));
+		assertFalse(alice.getKeyManager()
+				.canSendOutgoingStreams(bobId, newTransportId));
+		assertTrue(bob.getKeyManager()
+				.canSendOutgoingStreams(aliceId, SIMPLEX_TRANSPORT_ID));
+		assertFalse(bob.getKeyManager()
+				.canSendOutgoingStreams(aliceId, newTransportId));
+
+		// Bobs has started a session and sends KEY message to Alice
+		syncMessage(bob, alice, aliceId, 1, true);
+
+		// Alice now and sends her own KEY as well as her ACTIVATE message.
+		syncMessage(alice, bob, bobId, 2, true);
+
+		// Bob can already send over the new transport while Alice still can't.
+		assertFalse(alice.getKeyManager()
+				.canSendOutgoingStreams(bobId, newTransportId));
+		assertTrue(bob.getKeyManager()
+				.canSendOutgoingStreams(aliceId, newTransportId));
+
+		// Bob's database mysteriously loses the ACTIVATE message,
+		// so it won't be send to Alice.
+		Contact contact = bob.getContactManager().getContact(aliceId);
+		Group group = getContactGroup(bob, contact);
+		Map<MessageId, BdfDictionary> map = bob.getClientHelper()
+				.getMessageMetadataAsDictionary(group.getId());
+		DatabaseComponent db = bob.getDatabaseComponent();
+		for (Map.Entry<MessageId, BdfDictionary> e : map.entrySet()) {
+			if (e.getValue().getBoolean(MSG_KEY_IS_SESSION)) continue;
+			db.transaction(false, txn -> db.removeMessage(txn, e.getKey()));
+		}
+
+		// Bob sends a message to Alice
+		assertTransportMessageArrives(bob, alice, aliceId, newTransportId);
+
+		// Now without receiving the ACTIVATE, Alice can already send to Bob
+		assertTrue(alice.getKeyManager()
+				.canSendOutgoingStreams(bobId, newTransportId));
+		assertTransportMessageArrives(alice, bob, bobId, newTransportId);
 	}
 
 	private Pair<ContactId, ContactId> addContacts(
@@ -292,12 +367,12 @@ public class TransportKeyAgreementIntegrationTest
 	}
 
 	private TransportKeyAgreementTestComponent restartWithNewTransport(
-			TransportKeyAgreementTestComponent device, File dir, String name)
-			throws Exception {
+			TransportKeyAgreementTestComponent device, File dir,
+			Identity identity) throws Exception {
 		tearDown(device);
 		TransportKeyAgreementTestComponent newDevice =
 				createComponent(dir, true);
-		startLifecycle(newDevice, name);
+		startLifecycle(newDevice, identity);
 		return newDevice;
 	}
 
@@ -312,7 +387,7 @@ public class TransportKeyAgreementIntegrationTest
 			throws Exception {
 		Contact contact = device.getContactManager().getContact(contactId);
 		Group group = getContactGroup(device, contact);
-		Map<MessageId, BdfDictionary> map = bob.getClientHelper()
+		Map<MessageId, BdfDictionary> map = device.getClientHelper()
 				.getMessageMetadataAsDictionary(group.getId());
 		for (Map.Entry<MessageId, BdfDictionary> e : map.entrySet()) {
 			if (!e.getValue().getBoolean(MSG_KEY_IS_SESSION)) continue;
@@ -325,6 +400,16 @@ public class TransportKeyAgreementIntegrationTest
 			Contact c) {
 		return device.getContactGroupFactory().createContactGroup(CLIENT_ID,
 				MAJOR_VERSION, c);
+	}
+
+	private void assertTransportMessageArrives(
+			TransportKeyAgreementTestComponent from,
+			TransportKeyAgreementTestComponent to, ContactId toId,
+			TransportId transportId) throws Exception {
+		TransportProperties p = new TransportProperties();
+		p.putBoolean("foo", true);
+		from.getTransportPropertyManager().mergeLocalProperties(transportId, p);
+		syncMessage(from, to, toId, transportId, 1, true);
 	}
 
 }
