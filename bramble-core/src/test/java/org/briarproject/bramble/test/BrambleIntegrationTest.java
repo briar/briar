@@ -13,6 +13,7 @@ import org.briarproject.bramble.api.event.EventBus;
 import org.briarproject.bramble.api.event.EventListener;
 import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
 import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
+import org.briarproject.bramble.api.plugin.TransportId;
 import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.bramble.api.sync.event.MessageStateChangedEvent;
 import org.briarproject.bramble.api.sync.event.MessagesAckedEvent;
@@ -154,6 +155,13 @@ public abstract class BrambleIntegrationTest<C extends BrambleIntegrationTestCom
 
 	protected void syncMessage(BrambleIntegrationTestComponent fromComponent,
 			BrambleIntegrationTestComponent toComponent, ContactId toId,
+			TransportId transportId, int num, boolean valid) throws Exception {
+		syncMessage(fromComponent, toComponent, toId, transportId, num, 0,
+				valid ? 0 : num, valid ? num : 0);
+	}
+
+	protected void syncMessage(BrambleIntegrationTestComponent fromComponent,
+			BrambleIntegrationTestComponent toComponent, ContactId toId,
 			int num, boolean valid) throws Exception {
 		syncMessage(fromComponent, toComponent, toId, num, 0, valid ? 0 : num,
 				valid ? num : 0);
@@ -163,7 +171,14 @@ public abstract class BrambleIntegrationTest<C extends BrambleIntegrationTestCom
 			BrambleIntegrationTestComponent toComponent, ContactId toId,
 			int numNew, int numDupes, int numPendingOrInvalid, int numDelivered)
 			throws Exception {
+		syncMessage(fromComponent, toComponent, toId, SIMPLEX_TRANSPORT_ID,
+				numNew, numDupes, numPendingOrInvalid, numDelivered);
+	}
 
+	protected void syncMessage(BrambleIntegrationTestComponent fromComponent,
+			BrambleIntegrationTestComponent toComponent, ContactId toId,
+			TransportId transportId, int numNew, int numDupes,
+			int numPendingOrInvalid, int numDelivered) throws Exception {
 		// Debug output
 		String from =
 				fromComponent.getIdentityManager().getLocalAuthor().getName();
@@ -181,7 +196,7 @@ public abstract class BrambleIntegrationTest<C extends BrambleIntegrationTestCom
 		TestTransportConnectionWriter writer =
 				new TestTransportConnectionWriter(out, false);
 		fromComponent.getConnectionManager().manageOutgoingConnection(toId,
-				SIMPLEX_TRANSPORT_ID, writer);
+				transportId, writer);
 		writer.getDisposedLatch().await(TIMEOUT, MILLISECONDS);
 
 		// Check that the expected number of messages were sent
@@ -195,7 +210,7 @@ public abstract class BrambleIntegrationTest<C extends BrambleIntegrationTestCom
 		TestTransportConnectionReader reader =
 				new TestTransportConnectionReader(in);
 		toComponent.getConnectionManager().manageIncomingConnection(
-				SIMPLEX_TRANSPORT_ID, reader);
+				transportId, reader);
 
 		if (numPendingOrInvalid > 0) {
 			validationWaiter.await(TIMEOUT, numPendingOrInvalid);
