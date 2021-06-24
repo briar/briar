@@ -2,6 +2,7 @@ package org.briarproject.briar.socialbackup.recovery;
 
 import org.briarproject.bramble.api.FormatException;
 import org.briarproject.bramble.api.contact.Contact;
+import org.briarproject.bramble.api.contact.ContactId;
 import org.briarproject.bramble.api.contact.ContactManager;
 import org.briarproject.bramble.api.crypto.SecretKey;
 import org.briarproject.bramble.api.db.DatabaseComponent;
@@ -9,6 +10,7 @@ import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.identity.AuthorId;
 import org.briarproject.bramble.api.lifecycle.IoExecutor;
 import org.briarproject.bramble.api.lifecycle.LifecycleManager;
+import org.briarproject.bramble.api.properties.TransportPropertyManager;
 import org.briarproject.briar.api.socialbackup.BackupPayload;
 import org.briarproject.briar.api.socialbackup.ContactData;
 import org.briarproject.briar.api.socialbackup.DarkCrystal;
@@ -34,6 +36,7 @@ public class RestoreAccountImpl implements RestoreAccount {
 	private final Executor ioExecutor;
 	private final DatabaseComponent db;
 	private final ContactManager contactManager;
+	private final TransportPropertyManager transportPropertyManager;
 	private final LifecycleManager lifecycleManager;
 	private SecretKey secretKey;
 	private final BackupPayloadDecoder backupPayloadDecoder;
@@ -48,13 +51,15 @@ public class RestoreAccountImpl implements RestoreAccount {
 			BackupPayloadDecoder backupPayloadDecoder, DatabaseComponent db,
 			@IoExecutor Executor ioExecutor,
 			ContactManager contactManager,
-			LifecycleManager lifecycleManager) {
+			LifecycleManager lifecycleManager,
+			TransportPropertyManager transportPropertyManager) {
 		this.darkCrystal = darkCrystal;
 		this.backupPayloadDecoder = backupPayloadDecoder;
 		this.db = db;
 		this.ioExecutor = ioExecutor;
 		this.lifecycleManager = lifecycleManager;
 		this.contactManager = contactManager;
+		this.transportPropertyManager = transportPropertyManager;
 	}
 
 	public int getNumberOfShards() {
@@ -130,8 +135,10 @@ public class RestoreAccountImpl implements RestoreAccount {
 					for (ContactData contactData : socialBackup.getContacts()) {
 						Contact c = contactData.getContact();
 						LOG.info("Adding contact " + c.getAuthor().getName() + " " + c.getAlias());
-						contactManager.addContact(txn, c.getAuthor(), localAuthorId,
+						ContactId contactId = contactManager.addContact(txn, c.getAuthor(), localAuthorId,
 								c.getHandshakePublicKey(), c.isVerified());
+						transportPropertyManager.addRemoteProperties(txn, contactId,
+								contactData.getProperties());
 					}
 				});
 			} catch (DbException e) {

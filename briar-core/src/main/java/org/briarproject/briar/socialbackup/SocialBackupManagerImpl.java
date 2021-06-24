@@ -25,8 +25,11 @@ import org.briarproject.bramble.api.identity.IdentityManager;
 import org.briarproject.bramble.api.identity.LocalAuthor;
 import org.briarproject.bramble.api.lifecycle.LifecycleManager.OpenDatabaseHook;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
+import org.briarproject.bramble.api.plugin.BluetoothConstants;
+import org.briarproject.bramble.api.plugin.LanTcpConstants;
 import org.briarproject.bramble.api.plugin.TorConstants;
 import org.briarproject.bramble.api.plugin.TransportId;
+import org.briarproject.bramble.api.plugin.WanTcpConstants;
 import org.briarproject.bramble.api.properties.TransportProperties;
 import org.briarproject.bramble.api.properties.TransportPropertyManager;
 import org.briarproject.bramble.api.sync.Group;
@@ -57,6 +60,7 @@ import org.briarproject.briar.client.ConversationClientImpl;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
@@ -66,7 +70,6 @@ import java.util.Set;
 import javax.annotation.Nullable;
 import javax.inject.Inject;
 
-import static java.util.Collections.singletonMap;
 import static org.briarproject.bramble.api.nullsafety.NullSafety.requireNonNull;
 import static org.briarproject.briar.client.MessageTrackerConstants.MSG_KEY_READ;
 import static org.briarproject.briar.socialbackup.MessageType.BACKUP;
@@ -465,9 +468,13 @@ class SocialBackupManagerImpl extends ConversationClientImpl
 	private Map<TransportId, TransportProperties> getTransportProperties(
 			Transaction txn, ContactId c) throws DbException {
 		// TODO: Include filtered properties for other transports
-		TransportProperties p = transportPropertyManager
-				.getRemoteProperties(txn, c, TorConstants.ID);
-		return singletonMap(TorConstants.ID, p);
+		TransportId ids[] = { TorConstants.ID, LanTcpConstants.ID, BluetoothConstants.ID };
+		Map<TransportId, TransportProperties> props = new HashMap();
+		for (TransportId id : ids) {
+			props.put(id, transportPropertyManager
+					.getRemoteProperties(txn, c, id));
+		}
+		return props;
 	}
 
 	private void sendShardMessage(Transaction txn, Contact custodian,
@@ -561,7 +568,7 @@ class SocialBackupManagerImpl extends ConversationClientImpl
 						db.deleteMessageMetadata(txn, prevId);
 					}
 					sendBackupMessage(txn, custodian, newVersion, payload);
-				} catch (NoSuchContactException|NoSuchGroupException e){
+				} catch (NoSuchContactException | NoSuchGroupException e) {
 					// The custodian is no longer a contact - continue
 				}
 			}
