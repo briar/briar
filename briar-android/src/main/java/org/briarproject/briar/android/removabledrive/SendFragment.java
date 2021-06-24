@@ -107,7 +107,7 @@ public class SendFragment extends Fragment {
 				progressBar.setMax(100);
 			}
 			int progress = s.getTotal() == 0 ? 0 : // no div by null
-					(int) (s.getDone() / s.getTotal()) * 100;
+					(int) ((double) s.getDone() / s.getTotal() * 100);
 			if (SDK_INT >= 24) {
 				progressBar.setProgress(progress, true);
 			} else {
