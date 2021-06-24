@@ -22,6 +22,7 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.StringRes;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
 import androidx.lifecycle.ViewModelProvider;
 
 import static java.util.Objects.requireNonNull;
@@ -95,8 +96,18 @@ public class RemovableDriveActivity extends BriarActivity {
 		if (!(state instanceof TaskAvailable)) return;
 		RemovableDriveTask.State s = ((TaskAvailable) state).state;
 		if (s.isFinished()) {
-			Action action =
-					requireNonNull(viewModel.getActionEvent().getLastValue());
+			FragmentManager fm = getSupportFragmentManager();
+			Action action;
+			// We can't simply rely on viewModel.getActionEvent()
+			// as that might have been destroyed in the meantime.
+			if (fm.findFragmentByTag(SendFragment.TAG) != null) {
+				action = Action.SEND;
+			} else if (fm.findFragmentByTag(ReceiveFragment.TAG) != null) {
+				action = Action.RECEIVE;
+			} else {
+				action = requireNonNull(
+						viewModel.getActionEvent().getLastValue());
+			}
 			Fragment f;
 			if (s.isSuccess()) f = getSuccessFragment(action);
 			else f = getErrorFragment(action);

@@ -130,7 +130,7 @@ class RemovableDriveViewModel extends DbViewModel {
 
 	String getFileName() {
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd_HHmmss", US);
-		return sdf.format(new Date()) + ".zip";
+		return sdf.format(new Date());
 	}
 
 	/**

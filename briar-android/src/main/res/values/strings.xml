@@ -696,23 +696,23 @@
 	<!-- Transfer Data via Removable Drives -->
 
 	<string name="removable_drive_menu_title">Transfer data</string>
-	<string name="removable_drive_intro">You can send messages (and other data) using removable storage such as USB flash drives or SD cards.\n\nTransport the removable storage medium to your contact and they can receive the encrypted messages by importing them into Briar by using the receive button below.</string>
+	<string name="removable_drive_intro">You can send encrypted messages to your contact using removable storage such as USB flash drives or SD cards.\n\nIf your contact has sent you a removable drive containing encrypted messages, you can import the messages into Briar by using the receive button below.</string>
 	<string name="removable_drive_title_send">Send data</string>
 	<string name="removable_drive_title_receive">Receive data</string>
-	<string name="removable_drive_send_intro">Press the button below to create a new file that will contain the encrypted Briar messages.\n\nAfter inserting a storage medium, you should be able to find it with your phone\'s file manager and create a new file there.</string>
-	<string name="removable_drive_send_no_data">There are currently no messages waiting to be send to this contact.\n\nWrite at least one message and try again.</string>
+	<string name="removable_drive_send_intro">Tap the button below to create a new file containing the encrypted messages. You can choose where the file will be saved.\n\nIf you want to save the file on a removable drive, insert the drive now.</string>
+	<string name="removable_drive_send_no_data">There are currently no messages waiting to be sent to this contact.</string>
 	<string name="removable_drive_send_button">Choose file for export</string>
 	<string name="removable_drive_ongoing">Please wait for ongoing task to complete</string>
-	<string name="removable_drive_receive_intro">Plug in the storage medium containing encrypted Briar data for you and select the correct file in the file manager by pressing the button below.</string>
+	<string name="removable_drive_receive_intro">Tap the button below to choose the file that your contact sent you.\n\nIf the file is on a removable drive, insert the drive now.</string>
 	<string name="removable_drive_receive_button">Choose file for import</string>
 	<string name="removable_drive_success_send_title">Export successful</string>
-	<string name="removable_drive_success_send_text">Data exported successfully to file. You now have 14 days to transport the storage medium to your contact.\n\nRemember to eject the medium from the notification before unplugging it to prevent data loss.</string>
+	<string name="removable_drive_success_send_text">Data exported successfully. You now have 14 days to transport the file to your contact.\n\nIf the file is on a removable drive, use the notification in the status bar to eject the drive before unplugging it.</string>
 	<string name="removable_drive_success_receive_title">Import successful</string>
-	<string name="removable_drive_success_receive_text">All messages contained in this file have arrived.</string>
+	<string name="removable_drive_success_receive_text">All encrypted messages contained in this file have been received.</string>
 	<string name="removable_drive_error_send_title">Error exporting data</string>
-	<string name="removable_drive_error_send_text">There was an error writing data to the file.\n\nEnsure that the storage medium is properly plugged in and try again.\n\nIf the error persists, you can send feedback to inform about the issue.</string>
+	<string name="removable_drive_error_send_text">There was an error writing data to the file.\n\nIf you are using a removable drive, ensure that it is properly inserted and try again.\n\nIf the error persists, please send feedback to let the Briar team know about the issue.</string>
 	<string name="removable_drive_error_receive_title">Error importing data</string>
-	<string name="removable_drive_error_receive_text">The selected file did not contain anything that Briar could recognize.\n\nEnsure that you chose the correct file and that it was not created more than 14 days ago.</string>
+	<string name="removable_drive_error_receive_text">The selected file did not contain anything that Briar could recognize.\n\nPlease check that you chose the right file.\n\nIf your contact created the file more than 14 days ago, Briar will not be able to recognize it.</string>
 
 
 	<!-- Screenshots -->
