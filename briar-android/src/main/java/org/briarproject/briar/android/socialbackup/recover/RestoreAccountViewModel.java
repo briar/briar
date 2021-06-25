@@ -114,16 +114,19 @@ class RestoreAccountViewModel extends AndroidViewModel {
 		if (socialBackup == null) {
 			LOG.warning("Cannot retrieve social backup");
 			state.postEvent(State.FAILED);
+			return;
 		}
 		Identity identity = socialBackup.getIdentity();
 		ioExecutor.execute(() -> {
 			if (accountManager.restoreAccount(identity, password)) {
 				LOG.info("Restored account");
 				try {
-					restoreAccount.addContactsToDb();
+					restoreAccount.restoreAccountWhenDatabaseReady();
 				} catch (DbException e) {
-					LOG.warning("Cannot retrieve social backup");
+					LOG.warning("Failure processing social backup");
+					e.printStackTrace();
 					state.postEvent(State.FAILED);
+					return;
 				}
 
 				// Remove partial recovery from shared preferences

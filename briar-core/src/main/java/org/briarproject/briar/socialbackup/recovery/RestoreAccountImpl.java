@@ -11,6 +11,8 @@ import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.identity.AuthorId;
 import org.briarproject.bramble.api.lifecycle.IoExecutor;
 import org.briarproject.bramble.api.lifecycle.LifecycleManager;
+import org.briarproject.bramble.api.plugin.TransportId;
+import org.briarproject.bramble.api.properties.TransportProperties;
 import org.briarproject.bramble.api.properties.TransportPropertyManager;
 import org.briarproject.briar.api.socialbackup.BackupPayload;
 import org.briarproject.briar.api.socialbackup.ContactData;
@@ -27,6 +29,7 @@ import java.security.GeneralSecurityException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.Executor;
 import java.util.logging.Logger;
@@ -80,7 +83,8 @@ public class RestoreAccountImpl implements RestoreAccount {
 		return recoveredShards.size();
 	}
 
-	public AddReturnShardPayloadResult addReturnShardPayload(ReturnShardPayload toAdd) {
+	public AddReturnShardPayloadResult addReturnShardPayload(
+			ReturnShardPayload toAdd) {
 		AddReturnShardPayloadResult result = AddReturnShardPayloadResult.OK;
 		// TODO figure out how to actually use a hash set for these objects
 		for (ReturnShardPayload returnShardPayload : recoveredShards) {
@@ -94,7 +98,8 @@ public class RestoreAccountImpl implements RestoreAccount {
 			return AddReturnShardPayloadResult.MISMATCH;
 		}
 		recoveredShards.add(toAdd);
-		return canRecover() ? AddReturnShardPayloadResult.RECOVERED : AddReturnShardPayloadResult.OK;
+		return canRecover() ? AddReturnShardPayloadResult.RECOVERED :
+				AddReturnShardPayloadResult.OK;
 	}
 
 	public boolean canRecover() {
@@ -134,10 +139,7 @@ public class RestoreAccountImpl implements RestoreAccount {
 		return socialBackup;
 	}
 
-	public void addContactsToDb() throws DbException {
-		if (socialBackup == null) throw new DbException();
-		AuthorId localAuthorId = socialBackup.getIdentity().getId();
-
+	public void restoreAccountWhenDatabaseReady() throws DbException {
 		ioExecutor.execute(() -> {
 			try {
 				lifecycleManager.waitForDatabase();
@@ -145,22 +147,56 @@ public class RestoreAccountImpl implements RestoreAccount {
 				LOG.warning("Interrupted when waiting for database");
 			}
 			try {
-				db.transaction(false, txn -> {
-					for (ContactData contactData : socialBackup.getContacts()) {
-						Contact c = contactData.getContact();
-						LOG.info("Adding contact " + c.getAuthor().getName() + " " + c.getAlias());
-						ContactId contactId = contactManager.addContact(txn, c.getAuthor(), localAuthorId,
-								c.getHandshakePublicKey(), c.isVerified());
-						transportPropertyManager.addRemoteProperties(txn, contactId,
-								contactData.getProperties());
-					}
-				});
+				addLocalTransportProperties();
+				addContactsToDb();
 			} catch (DbException e) {
-				LOG.warning("Error adding contacts to database");
-				LOG.warning(e.getMessage());
+				LOG.warning("Error when processing backup");
+				e.printStackTrace();
 			}
-			LOG.info("Added all contacts");
 		});
+	}
+
+
+	private void addContactsToDb() throws DbException {
+		if (socialBackup == null) throw new DbException();
+		AuthorId localAuthorId = socialBackup.getIdentity().getId();
+
+		try {
+			db.transaction(false, txn -> {
+				for (ContactData contactData : socialBackup.getContacts()) {
+					Contact c = contactData.getContact();
+					LOG.info("Adding contact " + c.getAuthor().getName() +
+							" " + c.getAlias());
+					if (c.getHandshakePublicKey() == null) {
+						LOG.warning("Warning: contact has no handshake public key");
+					}
+					ContactId contactId = contactManager
+							.addContact(txn, c.getAuthor(), localAuthorId,
+									c.getHandshakePublicKey(),
+									c.isVerified());
+					transportPropertyManager
+							.addRemoteProperties(txn, contactId,
+									contactData.getProperties());
+				}
+			});
+		} catch (DbException e) {
+			LOG.warning("Error adding contacts to database");
+			LOG.warning(e.getMessage());
+		}
+		LOG.info("Added all contacts");
+	}
+
+	private void addLocalTransportProperties()
+			throws DbException {
+		LOG.info("Adding local transport properties");
+		for (Map.Entry<TransportId, TransportProperties> propertiesEntry : socialBackup
+				.getLocalTransportProperties().entrySet()) {
+			LOG.info("Adding transport property " +
+					propertiesEntry.getKey().getString());
+			transportPropertyManager
+					.mergeLocalProperties(propertiesEntry.getKey(),
+							propertiesEntry.getValue());
+		}
 	}
 
 	public Set<String> getEncodedShards() {
@@ -174,7 +210,8 @@ public class RestoreAccountImpl implements RestoreAccount {
 	public void restoreFromPrevious(Set<String> previousShards) {
 		for (String s : previousShards) {
 			try {
-				addReturnShardPayload(messageParser.parseReturnShardPayload(clientHelper.toList(s.getBytes())));
+				addReturnShardPayload(messageParser.parseReturnShardPayload(
+						clientHelper.toList(s.getBytes())));
 			} catch (FormatException e) {
 				e.printStackTrace();
 			}

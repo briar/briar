@@ -29,7 +29,6 @@ import org.briarproject.bramble.api.plugin.BluetoothConstants;
 import org.briarproject.bramble.api.plugin.LanTcpConstants;
 import org.briarproject.bramble.api.plugin.TorConstants;
 import org.briarproject.bramble.api.plugin.TransportId;
-import org.briarproject.bramble.api.plugin.WanTcpConstants;
 import org.briarproject.bramble.api.properties.TransportProperties;
 import org.briarproject.bramble.api.properties.TransportPropertyManager;
 import org.briarproject.bramble.api.sync.Group;
@@ -442,14 +441,23 @@ class SocialBackupManagerImpl extends ConversationClientImpl
 			int version)
 			throws DbException {
 		Identity identity = identityManager.getIdentity(txn);
+
+		// Add local transport properties
+		Map<TransportId, TransportProperties> localProps =
+				transportPropertyManager.getLocalProperties(txn);
+		Map<TransportId, TransportProperties> filteredLocalProps =
+				new HashMap<>();
+		filteredLocalProps
+				.put(TorConstants.ID, localProps.get(TorConstants.ID));
+
 		return backupPayloadEncoder.encodeBackupPayload(secret, identity,
-				contactData, version);
+				contactData, version, filteredLocalProps);
 	}
 
 	private List<ContactData> loadContactData(Transaction txn)
 			throws DbException {
 		Collection<Contact> contacts = contactManager.getContacts(txn);
-		List<org.briarproject.briar.api.socialbackup.ContactData> contactData =
+		List<ContactData> contactData =
 				new ArrayList<>();
 		for (Contact c : contacts) {
 			// Skip contacts that are in the process of being removed
@@ -458,6 +466,10 @@ class SocialBackupManagerImpl extends ConversationClientImpl
 			Map<TransportId, TransportProperties> props =
 					getTransportProperties(txn, c.getId());
 			Shard shard = getRemoteShard(txn, contactGroup.getId());
+			if (c.getHandshakePublicKey() == null) {
+				System.out.println(
+						"Warning - adding contact with no handshake public key");
+			}
 			contactData
 					.add(new org.briarproject.briar.api.socialbackup.ContactData(
 							c, props, shard));
@@ -468,7 +480,8 @@ class SocialBackupManagerImpl extends ConversationClientImpl
 	private Map<TransportId, TransportProperties> getTransportProperties(
 			Transaction txn, ContactId c) throws DbException {
 		// TODO: Include filtered properties for other transports
-		TransportId ids[] = { TorConstants.ID, LanTcpConstants.ID, BluetoothConstants.ID };
+		TransportId ids[] =
+				{TorConstants.ID, LanTcpConstants.ID, BluetoothConstants.ID};
 		Map<TransportId, TransportProperties> props = new HashMap();
 		for (TransportId id : ids) {
 			props.put(id, transportPropertyManager

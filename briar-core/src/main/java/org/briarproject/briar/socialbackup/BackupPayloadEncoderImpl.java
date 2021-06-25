@@ -10,11 +10,15 @@ import org.briarproject.bramble.api.data.BdfList;
 import org.briarproject.bramble.api.identity.Identity;
 import org.briarproject.bramble.api.identity.LocalAuthor;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
+import org.briarproject.bramble.api.plugin.TransportId;
+import org.briarproject.bramble.api.properties.TransportProperties;
+import org.briarproject.briar.api.socialbackup.BackupPayload;
 import org.briarproject.briar.api.socialbackup.Shard;
 
 import java.security.GeneralSecurityException;
 import java.security.SecureRandom;
 import java.util.List;
+import java.util.Map;
 
 import javax.annotation.concurrent.Immutable;
 import javax.inject.Inject;
@@ -45,15 +49,26 @@ class BackupPayloadEncoderImpl implements BackupPayloadEncoder {
 	}
 
 	@Override
-	public org.briarproject.briar.api.socialbackup.BackupPayload encodeBackupPayload(SecretKey secret,
-			Identity identity, List<org.briarproject.briar.api.socialbackup.ContactData> contactData, int version) {
+	public BackupPayload encodeBackupPayload(SecretKey secret,
+			Identity identity,
+			List<org.briarproject.briar.api.socialbackup.ContactData> contactData,
+			int version,
+			Map<TransportId, TransportProperties> localTransportProperties) {
 		// Encode the local identity
 		BdfList bdfIdentity = new BdfList();
 		LocalAuthor localAuthor = identity.getLocalAuthor();
 		bdfIdentity.add(clientHelper.toList(localAuthor));
 		bdfIdentity.add(localAuthor.getPrivateKey().getEncoded());
+
+		// Add handshake keypair
+		assert identity.getHandshakePublicKey() != null;
 		bdfIdentity.add(identity.getHandshakePublicKey().getEncoded());
+		assert identity.getHandshakePrivateKey() != null;
 		bdfIdentity.add(identity.getHandshakePrivateKey().getEncoded());
+
+		// Add local transport properties
+	    bdfIdentity.add(clientHelper.toDictionary(localTransportProperties));
+
 		// Encode the contact data
 		BdfList bdfContactData = new BdfList();
 		for (org.briarproject.briar.api.socialbackup.ContactData cd : contactData) {
@@ -84,10 +99,13 @@ class BackupPayloadEncoderImpl implements BackupPayloadEncoder {
 			int encrypted = cipher.process(plaintext, 0, plaintext.length,
 					ciphertext, 0);
 			if (encrypted != ciphertext.length) throw new AssertionError();
-			byte[] ciphertextWithNonce = new byte[ciphertext.length + nonce.length];
+			byte[] ciphertextWithNonce =
+					new byte[ciphertext.length + nonce.length];
 			System.arraycopy(nonce, 0, ciphertextWithNonce, 0, nonce.length);
-			System.arraycopy(ciphertext, 0, ciphertextWithNonce, nonce.length, ciphertext.length);
-			return new org.briarproject.briar.api.socialbackup.BackupPayload(ciphertextWithNonce);
+			System.arraycopy(ciphertext, 0, ciphertextWithNonce, nonce.length,
+					ciphertext.length);
+			return new org.briarproject.briar.api.socialbackup.BackupPayload(
+					ciphertextWithNonce);
 		} catch (FormatException | GeneralSecurityException e) {
 			throw new AssertionError(e);
 		}

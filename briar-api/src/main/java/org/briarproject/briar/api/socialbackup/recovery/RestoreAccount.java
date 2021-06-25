@@ -29,7 +29,11 @@ public interface RestoreAccount {
 
 	SocialBackup getSocialBackup();
 
-	void addContactsToDb() throws DbException;
+//	void addContactsToDb() throws DbException;
 
 	void restoreFromPrevious(Set<String> previousShards);
+
+	void restoreAccountWhenDatabaseReady() throws DbException;
+
+//	void addLocalTransportProperties() throws DbException;
 }

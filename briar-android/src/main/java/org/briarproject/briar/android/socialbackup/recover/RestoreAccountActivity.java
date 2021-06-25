@@ -52,9 +52,11 @@ public class RestoreAccountActivity extends BaseActivity
 			showInitialFragment(RestoreAccountSetPasswordFragment.newInstance());
 		} else if (state == State.DOZE) {
 			showDozeFragment();
-		} else if (state == State.CREATED || state == State.FAILED) {
-			// TODO: Show an error if failed
+		} else if (state == State.CREATED) {
 			showApp();
+		} else { // FAILED
+			// TODO: Show an error if failed
+			finish();
 		}
 	}
 
