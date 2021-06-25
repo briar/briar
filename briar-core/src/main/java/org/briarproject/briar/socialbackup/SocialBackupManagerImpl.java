@@ -447,8 +447,10 @@ class SocialBackupManagerImpl extends ConversationClientImpl
 				transportPropertyManager.getLocalProperties(txn);
 		Map<TransportId, TransportProperties> filteredLocalProps =
 				new HashMap<>();
-		filteredLocalProps
-				.put(TorConstants.ID, localProps.get(TorConstants.ID));
+		if (localProps.get(TorConstants.ID) != null) {
+			filteredLocalProps
+					.put(TorConstants.ID, localProps.get(TorConstants.ID));
+		}
 
 		return backupPayloadEncoder.encodeBackupPayload(secret, identity,
 				contactData, version, filteredLocalProps);
