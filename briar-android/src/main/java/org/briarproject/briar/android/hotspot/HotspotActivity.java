@@ -42,8 +42,8 @@ public class HotspotActivity extends BriarActivity
 	}
 
 	@Override
-	public void onCreate(@Nullable Bundle state) {
-		super.onCreate(state);
+	public void onCreate(@Nullable Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_fragment_container);
 
 		ActionBar ab = getSupportActionBar();
@@ -51,9 +51,9 @@ public class HotspotActivity extends BriarActivity
 			ab.setDisplayHomeAsUpEnabled(true);
 		}
 
+		FragmentManager fm = getSupportFragmentManager();
 		viewModel.getState().observe(this, hotspotState -> {
 			if (hotspotState instanceof HotspotStarted) {
-				FragmentManager fm = getSupportFragmentManager();
 				String tag = HotspotFragment.TAG;
 				// check if fragment is already added
 				// to not lose state on configuration changes
@@ -66,8 +66,43 @@ public class HotspotActivity extends BriarActivity
 			}
 		});
 
-		if (state == null) {
-			getSupportFragmentManager().beginTransaction()
+		if (savedInstanceState == null) {
+			// If there is no saved instance state, just start with the intro fragment.
+			fm.beginTransaction()
+					.replace(R.id.fragmentContainer, new HotspotIntroFragment(),
+							HotspotIntroFragment.TAG)
+					.commit();
+		} else if (viewModel.getState().getValue() == null) {
+			// If there is saved instance state, then there's either been an
+			// configuration change like rotated device or the activity has been
+			// destroyed and is now being re-created.
+			// In the latter case, the view model will have been destroyed, too.
+			// The activity can only have been destroyed if the user navigated
+			// away from the HotspotActivity which is nothing we
+			// intend to support, so we want to detect that and start from scratch
+			// in this case. We need to clean up existing fragments in order not
+			// to stack new fragments on top of old ones.
+
+			// If it is a configuration change and we moved past the intro
+			// fragment already, then the view model state will be != null,
+			// hence we can use this check for null to determine the destroyed
+			// activity. It can also be null if the user has not pressed
+			// "start sharing" yet, but in that case it won't harm to start from
+			// scratch.
+
+			Fragment current = fm.findFragmentById(R.id.fragmentContainer);
+			if (current instanceof HotspotIntroFragment) {
+				// If the currently displayed fragment is the intro fragment,
+				// there's nothing we need to do.
+				return;
+			}
+
+			// Remove everything from the back stack.
+			fm.popBackStackImmediate(null,
+					FragmentManager.POP_BACK_STACK_INCLUSIVE);
+
+			// Start fresh with the intro fragment.
+			fm.beginTransaction()
 					.replace(R.id.fragmentContainer, new HotspotIntroFragment(),
 							HotspotIntroFragment.TAG)
 					.commit();
