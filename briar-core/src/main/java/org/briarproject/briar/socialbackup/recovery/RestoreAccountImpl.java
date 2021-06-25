@@ -14,6 +14,7 @@ import org.briarproject.bramble.api.lifecycle.LifecycleManager;
 import org.briarproject.bramble.api.plugin.TransportId;
 import org.briarproject.bramble.api.properties.TransportProperties;
 import org.briarproject.bramble.api.properties.TransportPropertyManager;
+import org.briarproject.bramble.util.StringUtils;
 import org.briarproject.briar.api.socialbackup.BackupPayload;
 import org.briarproject.briar.api.socialbackup.ContactData;
 import org.briarproject.briar.api.socialbackup.DarkCrystal;
@@ -168,7 +169,8 @@ public class RestoreAccountImpl implements RestoreAccount {
 					LOG.info("Adding contact " + c.getAuthor().getName() +
 							" " + c.getAlias());
 					if (c.getHandshakePublicKey() == null) {
-						LOG.warning("Warning: contact has no handshake public key");
+						LOG.warning(
+								"Warning: contact has no handshake public key");
 					}
 					ContactId contactId = contactManager
 							.addContact(txn, c.getAuthor(), localAuthorId,
@@ -202,7 +204,8 @@ public class RestoreAccountImpl implements RestoreAccount {
 	public Set<String> getEncodedShards() {
 		Set<String> s = new HashSet();
 		for (ReturnShardPayload r : recoveredShards) {
-			s.add(new String(messageEncoder.encodeReturnShardPayload(r)));
+			s.add(StringUtils
+					.toHexString(messageEncoder.encodeReturnShardPayload(r)));
 		}
 		return s;
 	}
@@ -211,8 +214,9 @@ public class RestoreAccountImpl implements RestoreAccount {
 		for (String s : previousShards) {
 			try {
 				addReturnShardPayload(messageParser.parseReturnShardPayload(
-						clientHelper.toList(s.getBytes())));
+						clientHelper.toList(StringUtils.fromHexString(s))));
 			} catch (FormatException e) {
+				LOG.warning("Error parsing shard from previous session");
 				e.printStackTrace();
 			}
 		}
