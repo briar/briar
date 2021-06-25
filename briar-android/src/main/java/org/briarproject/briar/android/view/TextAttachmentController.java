@@ -1,7 +1,6 @@
 package org.briarproject.briar.android.view;
 
 import android.app.Activity;
-import android.content.ClipData;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
@@ -15,13 +14,13 @@ import org.briarproject.briar.R;
 import org.briarproject.briar.android.attachment.AttachmentItemResult;
 import org.briarproject.briar.android.attachment.AttachmentManager;
 import org.briarproject.briar.android.attachment.AttachmentResult;
-import org.briarproject.briar.android.util.UiUtils;
 import org.briarproject.briar.android.view.ImagePreview.ImagePreviewListener;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import androidx.activity.result.ActivityResultLauncher;
 import androidx.annotation.Nullable;
 import androidx.annotation.UiThread;
 import androidx.appcompat.app.AlertDialog.Builder;
@@ -31,7 +30,6 @@ import androidx.lifecycle.Observer;
 import androidx.vectordrawable.graphics.drawable.VectorDrawableCompat;
 import uk.co.samuelwall.materialtaptargetprompt.MaterialTapTargetPrompt;
 
-import static android.os.Build.VERSION.SDK_INT;
 import static android.view.View.GONE;
 import static android.widget.Toast.LENGTH_LONG;
 import static androidx.core.content.ContextCompat.getColor;
@@ -143,38 +141,23 @@ public class TextAttachmentController extends TextSendController
 			builder.show();
 			return;
 		}
-		Intent intent = UiUtils.createSelectImageIntent(true);
 		if (attachmentListener.getLifecycle().getCurrentState() != DESTROYED) {
-			attachmentListener.onAttachImage(intent);
+			attachmentListener.onAttachImageClicked();
 		}
 	}
 
 	/**
-	 * This is called with the result Intent returned by the Activity started
-	 * with {@link UiUtils#createSelectImageIntent(boolean)}.
-	 * <p>
 	 * This method must be called at most once per call to
-	 * {@link AttachmentListener#onAttachImage(Intent)}.
-	 * Normally, this is true if called from
+	 * {@link AttachmentListener#onAttachImageClicked()}.
+	 * Normally, this is true if called from the launcher equivalent of
 	 * {@link Activity#onActivityResult(int, int, Intent)} since this is called
-	 * at most once per call to
-	 * {@link Activity#startActivityForResult(Intent, int)}.
+	 * at most once per call to	{@link ActivityResultLauncher#launch(Object)}.
 	 */
 	@SuppressWarnings("JavadocReference")
-	public void onImageReceived(@Nullable Intent resultData) {
-		if (resultData == null) return;
+	public void onImageReceived(@Nullable List<Uri> newUris) {
+		if (newUris == null) return;
 		if (loadingUris || !imageUris.isEmpty()) throw new AssertionError();
-		List<Uri> newUris = new ArrayList<>();
-		if (resultData.getData() != null) {
-			newUris.add(resultData.getData());
-			onNewUris(false, newUris);
-		} else if (SDK_INT >= 18 && resultData.getClipData() != null) {
-			ClipData clipData = resultData.getClipData();
-			for (int i = 0; i < clipData.getItemCount(); i++) {
-				newUris.add(clipData.getItemAt(i).getUri());
-			}
-			onNewUris(false, newUris);
-		}
+		onNewUris(false, newUris);
 	}
 
 	private void onNewUris(boolean restart, List<Uri> newUris) {
@@ -329,7 +312,7 @@ public class TextAttachmentController extends TextSendController
 	@UiThread
 	public interface AttachmentListener extends SendListener {
 
-		void onAttachImage(Intent intent);
+		void onAttachImageClicked();
 
 		void onTooManyAttachments();
 	}
