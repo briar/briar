@@ -1,7 +1,6 @@
 package org.briarproject.briar.android.removabledrive;
 
 import android.content.Context;
-import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -16,11 +15,11 @@ import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
 import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
 import org.briarproject.bramble.api.plugin.file.RemovableDriveTask;
 import org.briarproject.briar.R;
+import org.briarproject.briar.android.util.ActivityLaunchers.CreateDocumentAdvanced;
 
 import javax.inject.Inject;
 
 import androidx.activity.result.ActivityResultLauncher;
-import androidx.activity.result.contract.ActivityResultContracts.CreateDocument;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
@@ -30,22 +29,12 @@ import static android.os.Build.VERSION.SDK_INT;
 import static android.view.View.VISIBLE;
 import static android.widget.Toast.LENGTH_LONG;
 import static org.briarproject.briar.android.AppModule.getAndroidComponent;
-import static org.briarproject.briar.android.util.UiUtils.putShowAdvancedExtra;
 
 @MethodsNotNullByDefault
 @ParametersNotNullByDefault
 public class SendFragment extends Fragment {
 
 	final static String TAG = SendFragment.class.getName();
-
-	private static class CreateDocumentAdvanced extends CreateDocument {
-		@Override
-		public Intent createIntent(Context context, String input) {
-			Intent i = super.createIntent(context, input);
-			putShowAdvancedExtra(i);
-			return i;
-		}
-	}
 
 	private final ActivityResultLauncher<String> launcher =
 			registerForActivityResult(new CreateDocumentAdvanced(),
