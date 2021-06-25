@@ -1,6 +1,8 @@
 package org.briarproject.briar.android.socialbackup.recover;
 
 import android.app.Application;
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
@@ -14,6 +16,7 @@ import org.briarproject.bramble.api.system.AndroidExecutor;
 import org.briarproject.briar.android.contact.add.nearby.QrCodeUtils;
 import org.briarproject.briar.android.viewmodel.LiveEvent;
 import org.briarproject.briar.android.viewmodel.MutableLiveEvent;
+import org.briarproject.briar.api.socialbackup.MessageEncoder;
 import org.briarproject.briar.api.socialbackup.ReturnShardPayload;
 import org.briarproject.briar.api.socialbackup.recovery.RestoreAccount;
 import org.briarproject.briar.api.socialbackup.recovery.SecretOwnerTask;
@@ -22,6 +25,7 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.nio.charset.Charset;
 import java.security.GeneralSecurityException;
+import java.util.HashSet;
 import java.util.concurrent.Executor;
 import java.util.logging.Logger;
 
@@ -50,6 +54,7 @@ class OwnerReturnShardViewModel extends AndroidViewModel
 	private final Executor ioExecutor;
 	private final SecretOwnerTask task;
 	private final RestoreAccount restoreAccount;
+	private final SharedPreferences prefs;
 
 	private final MutableLiveEvent<Boolean> errorTryAgain =
 			new MutableLiveEvent<>();
@@ -65,18 +70,25 @@ class OwnerReturnShardViewModel extends AndroidViewModel
 	private Bitmap qrCodeBitmap;
 	private WifiManager wifiManager;
 	private SecretKey secretKey;
+	private final MessageEncoder messageEncoder;
 
 	@Inject
 	OwnerReturnShardViewModel(Application app,
 			AndroidExecutor androidExecutor,
 			SecretOwnerTask task,
 			RestoreAccount restoreAccount,
-			@IoExecutor Executor ioExecutor) {
+			@IoExecutor Executor ioExecutor,
+			MessageEncoder messageEncoder) {
 		super(app);
 		this.androidExecutor = androidExecutor;
 		this.ioExecutor = ioExecutor;
 		this.restoreAccount = restoreAccount;
+		this.messageEncoder = messageEncoder;
 		this.task = task;
+		this.prefs = app.getSharedPreferences("account-recovery",
+				Context.MODE_PRIVATE);
+		restoreAccount.restoreFromPrevious(prefs.getStringSet("Recover", new HashSet<>()));
+
 		wifiManager = (WifiManager) app.getSystemService(WIFI_SERVICE);
 
 //		IntentFilter filter = new IntentFilter(ACTION_SCAN_MODE_CHANGED);
@@ -227,7 +239,11 @@ class OwnerReturnShardViewModel extends AndroidViewModel
 	}
 
 	public RestoreAccount.AddReturnShardPayloadResult addToShardSet(ReturnShardPayload toAdd) {
-		return restoreAccount.addReturnShardPayload(toAdd);
+		RestoreAccount.AddReturnShardPayloadResult result = restoreAccount.addReturnShardPayload(toAdd);
+		if (result == RestoreAccount.AddReturnShardPayloadResult.OK) {
+			prefs.edit().putStringSet("recovered", restoreAccount.getEncodedShards()).apply();
+		}
+		return result;
 	}
 
 	public boolean canRecover() {

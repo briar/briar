@@ -1,6 +1,7 @@
 package org.briarproject.briar.socialbackup.recovery;
 
 import org.briarproject.bramble.api.FormatException;
+import org.briarproject.bramble.api.client.ClientHelper;
 import org.briarproject.bramble.api.contact.Contact;
 import org.briarproject.bramble.api.contact.ContactId;
 import org.briarproject.bramble.api.contact.ContactManager;
@@ -14,6 +15,8 @@ import org.briarproject.bramble.api.properties.TransportPropertyManager;
 import org.briarproject.briar.api.socialbackup.BackupPayload;
 import org.briarproject.briar.api.socialbackup.ContactData;
 import org.briarproject.briar.api.socialbackup.DarkCrystal;
+import org.briarproject.briar.api.socialbackup.MessageEncoder;
+import org.briarproject.briar.api.socialbackup.MessageParser;
 import org.briarproject.briar.api.socialbackup.ReturnShardPayload;
 import org.briarproject.briar.api.socialbackup.Shard;
 import org.briarproject.briar.api.socialbackup.SocialBackup;
@@ -23,6 +26,8 @@ import org.briarproject.briar.socialbackup.BackupPayloadDecoder;
 import java.security.GeneralSecurityException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.concurrent.Executor;
 import java.util.logging.Logger;
 
@@ -31,15 +36,18 @@ import javax.inject.Inject;
 import static java.util.logging.Logger.getLogger;
 
 public class RestoreAccountImpl implements RestoreAccount {
-	private final ArrayList<ReturnShardPayload> recoveredShards = new ArrayList<>();
+	private final Set<ReturnShardPayload> recoveredShards = new HashSet<>();
 	private final DarkCrystal darkCrystal;
 	private final Executor ioExecutor;
 	private final DatabaseComponent db;
 	private final ContactManager contactManager;
+	private final MessageEncoder messageEncoder;
+	private final MessageParser messageParser;
 	private final TransportPropertyManager transportPropertyManager;
 	private final LifecycleManager lifecycleManager;
 	private SecretKey secretKey;
 	private final BackupPayloadDecoder backupPayloadDecoder;
+	private final ClientHelper clientHelper;
 	private SocialBackup socialBackup;
 	private byte[] secretId;
 
@@ -52,7 +60,10 @@ public class RestoreAccountImpl implements RestoreAccount {
 			@IoExecutor Executor ioExecutor,
 			ContactManager contactManager,
 			LifecycleManager lifecycleManager,
-			TransportPropertyManager transportPropertyManager) {
+			TransportPropertyManager transportPropertyManager,
+			MessageEncoder messageEncoder,
+			MessageParser messageParser,
+			ClientHelper clientHelper) {
 		this.darkCrystal = darkCrystal;
 		this.backupPayloadDecoder = backupPayloadDecoder;
 		this.db = db;
@@ -60,6 +71,9 @@ public class RestoreAccountImpl implements RestoreAccount {
 		this.lifecycleManager = lifecycleManager;
 		this.contactManager = contactManager;
 		this.transportPropertyManager = transportPropertyManager;
+		this.messageEncoder = messageEncoder;
+		this.messageParser = messageParser;
+		this.clientHelper = clientHelper;
 	}
 
 	public int getNumberOfShards() {
@@ -80,7 +94,7 @@ public class RestoreAccountImpl implements RestoreAccount {
 			return AddReturnShardPayloadResult.MISMATCH;
 		}
 		recoveredShards.add(toAdd);
-		return AddReturnShardPayloadResult.OK;
+		return canRecover() ? AddReturnShardPayloadResult.RECOVERED : AddReturnShardPayloadResult.OK;
 	}
 
 	public boolean canRecover() {
@@ -147,5 +161,23 @@ public class RestoreAccountImpl implements RestoreAccount {
 			}
 			LOG.info("Added all contacts");
 		});
+	}
+
+	public Set<String> getEncodedShards() {
+		Set<String> s = new HashSet();
+		for (ReturnShardPayload r : recoveredShards) {
+			s.add(new String(messageEncoder.encodeReturnShardPayload(r)));
+		}
+		return s;
+	}
+
+	public void restoreFromPrevious(Set<String> previousShards) {
+		for (String s : previousShards) {
+			try {
+				addReturnShardPayload(messageParser.parseReturnShardPayload(clientHelper.toList(s.getBytes())));
+			} catch (FormatException e) {
+				e.printStackTrace();
+			}
+		}
 	}
 }

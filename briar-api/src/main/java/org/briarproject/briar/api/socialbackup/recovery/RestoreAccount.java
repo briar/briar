@@ -6,16 +6,20 @@ import org.briarproject.briar.api.socialbackup.ReturnShardPayload;
 import org.briarproject.briar.api.socialbackup.SocialBackup;
 
 import java.security.GeneralSecurityException;
+import java.util.Set;
 
 public interface RestoreAccount {
 
 	enum AddReturnShardPayloadResult {
 		DUPLICATE,
 		MISMATCH,
-		OK
+		OK,
+		RECOVERED
 	}
 
 	int getNumberOfShards();
+
+	Set<String> getEncodedShards();
 
 	AddReturnShardPayloadResult addReturnShardPayload(ReturnShardPayload toAdd);
 
@@ -26,4 +30,6 @@ public interface RestoreAccount {
 	SocialBackup getSocialBackup();
 
 	void addContactsToDb() throws DbException;
+
+	void restoreFromPrevious(Set<String> previousShards);
 }
