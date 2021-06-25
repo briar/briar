@@ -87,7 +87,8 @@ class OwnerReturnShardViewModel extends AndroidViewModel
 		this.task = task;
 		this.prefs = app.getSharedPreferences("account-recovery",
 				Context.MODE_PRIVATE);
-		restoreAccount.restoreFromPrevious(prefs.getStringSet("Recover", new HashSet<>()));
+		restoreAccount.restoreFromPrevious(prefs.getStringSet("recovered", new HashSet<>()));
+
 
 		wifiManager = (WifiManager) app.getSystemService(WIFI_SERVICE);
 
