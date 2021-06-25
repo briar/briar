@@ -1,6 +1,8 @@
 package org.briarproject.briar.android.socialbackup.recover;
 
 import android.app.Application;
+import android.content.Context;
+import android.content.SharedPreferences;
 
 import org.briarproject.bramble.api.account.AccountManager;
 import org.briarproject.bramble.api.contact.ContactManager;
@@ -45,27 +47,27 @@ class RestoreAccountViewModel extends AndroidViewModel {
 			new MutableLiveData<>(false);
 
 	private final AccountManager accountManager;
-	private final ContactManager contactManager;
 	private final Executor ioExecutor;
 	private final PasswordStrengthEstimator strengthEstimator;
 	private final DozeHelper dozeHelper;
 	private final RestoreAccount restoreAccount;
+	private final SharedPreferences prefs;
 
 	@Inject
 	RestoreAccountViewModel(Application app,
 			AccountManager accountManager,
-			ContactManager contactManager,
 			RestoreAccount restoreAccount,
 			@IoExecutor Executor ioExecutor,
 			PasswordStrengthEstimator strengthEstimator,
 			DozeHelper dozeHelper) {
 		super(app);
 		this.accountManager = accountManager;
-		this.contactManager = contactManager;
 		this.ioExecutor = ioExecutor;
 		this.strengthEstimator = strengthEstimator;
 		this.dozeHelper = dozeHelper;
 		this.restoreAccount = restoreAccount;
+		this.prefs = app.getSharedPreferences("account-recovery",
+				Context.MODE_PRIVATE);
 
 		ioExecutor.execute(() -> {
 			if (accountManager.accountExists()) {
@@ -123,6 +125,10 @@ class RestoreAccountViewModel extends AndroidViewModel {
 					LOG.warning("Cannot retrieve social backup");
 					state.postEvent(State.FAILED);
 				}
+
+				// Remove partial recovery from shared preferences
+				prefs.edit().clear().apply();
+
 				state.postEvent(State.CREATED);
 			} else {
 				LOG.warning("Failed to create account");

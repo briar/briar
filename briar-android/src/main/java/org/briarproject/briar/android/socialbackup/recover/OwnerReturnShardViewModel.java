@@ -156,13 +156,6 @@ class OwnerReturnShardViewModel extends AndroidViewModel
 		ioExecutor.execute(() -> {
 			task.start(this, getWifiIpv4Address());
 		});
-//		KeyAgreementTask oldTask = task;
-//		KeyAgreementTask newTask = keyAgreementTaskProvider.get();
-//		task = newTask;
-//		ioExecutor.execute(() -> {
-//			if (oldTask != null) oldTask.stopListening();
-//			newTask.listen();
-//		});
 	}
 
 	@UiThread
@@ -230,9 +223,7 @@ class OwnerReturnShardViewModel extends AndroidViewModel
 				this.state.postValue(state);
 			});
 		} else if (state instanceof SecretOwnerTask.State.Success) {
-//			startClicked.setEvent(true);
 			this.state.postValue(state);
-			// TODO do same for failure
 		}  else {
 			this.state.postValue(state);
 		}
