@@ -7,6 +7,7 @@ import org.briarproject.briar.client.BriarClientModule;
 import org.briarproject.briar.feed.DnsModule;
 import org.briarproject.briar.feed.FeedModule;
 import org.briarproject.briar.forum.ForumModule;
+import org.briarproject.briar.handshakekeyexchange.HandshakeKeyExchangeModule;
 import org.briarproject.briar.identity.IdentityModule;
 import org.briarproject.briar.introduction.IntroductionModule;
 import org.briarproject.briar.messaging.MessagingModule;
@@ -33,6 +34,7 @@ import dagger.Module;
 		PrivateGroupModule.class,
 		SharingModule.class,
 		SocialBackupModule.class,
+		HandshakeKeyExchangeModule.class,
 		TestModule.class
 })
 public class BriarCoreModule {

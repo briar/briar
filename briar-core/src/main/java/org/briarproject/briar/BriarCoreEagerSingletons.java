@@ -4,6 +4,7 @@ import org.briarproject.briar.avatar.AvatarModule;
 import org.briarproject.briar.blog.BlogModule;
 import org.briarproject.briar.feed.FeedModule;
 import org.briarproject.briar.forum.ForumModule;
+import org.briarproject.briar.handshakekeyexchange.HandshakeKeyExchangeModule;
 import org.briarproject.briar.identity.IdentityModule;
 import org.briarproject.briar.introduction.IntroductionModule;
 import org.briarproject.briar.messaging.MessagingModule;
@@ -37,6 +38,8 @@ public interface BriarCoreEagerSingletons {
 
 	void inject(SocialBackupModule.EagerSingletons init);
 
+	void inject(HandshakeKeyExchangeModule.EagerSingletons init);
+
 	class Helper {
 
 		public static void injectEagerSingletons(BriarCoreEagerSingletons c) {
@@ -51,6 +54,7 @@ public interface BriarCoreEagerSingletons {
 			c.inject(new IdentityModule.EagerSingletons());
 			c.inject(new IntroductionModule.EagerSingletons());
 			c.inject(new SocialBackupModule.EagerSingletons());
+			c.inject(new HandshakeKeyExchangeModule.EagerSingletons());
 		}
 	}
 }
