@@ -44,7 +44,7 @@ import static org.briarproject.briar.handshakekeyexchange.HandshakeKeyExchangeCo
 public class HandshakeKeyExchangeManagerImpl extends ConversationClientImpl
 		implements
 		HandshakeKeyExchangeManager, LifecycleManager.OpenDatabaseHook,
-		ContactManager.ContactHook {
+		ContactManager.ContactHook, ClientVersioningManager.ClientVersioningHook {
 
 	private final ClientVersioningManager clientVersioningManager;
 	private final ContactGroupFactory contactGroupFactory;
@@ -229,5 +229,13 @@ public class HandshakeKeyExchangeManagerImpl extends ConversationClientImpl
 		} catch (FormatException e) {
 			throw new AssertionError(e);
 		}
+	}
+
+	@Override
+	public void onClientVisibilityChanging(Transaction txn, Contact c,
+			Group.Visibility v) throws DbException {
+		// Apply the client's visibility to the contact group
+		Group g = getContactGroup(c);
+		db.setGroupVisibility(txn, c.getId(), g.getId(), v);
 	}
 }
