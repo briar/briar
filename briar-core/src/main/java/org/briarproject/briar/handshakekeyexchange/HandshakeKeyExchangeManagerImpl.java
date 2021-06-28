@@ -29,6 +29,7 @@ import org.briarproject.briar.api.conversation.DeletionResult;
 import org.briarproject.briar.api.handshakekeyexchange.HandshakeKeyExchangeManager;
 import org.briarproject.briar.client.ConversationClientImpl;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
@@ -44,7 +45,8 @@ import static org.briarproject.briar.handshakekeyexchange.HandshakeKeyExchangeCo
 public class HandshakeKeyExchangeManagerImpl extends ConversationClientImpl
 		implements
 		HandshakeKeyExchangeManager, LifecycleManager.OpenDatabaseHook,
-		ContactManager.ContactHook, ClientVersioningManager.ClientVersioningHook {
+		ContactManager.ContactHook,
+		ClientVersioningManager.ClientVersioningHook {
 
 	private final ClientVersioningManager clientVersioningManager;
 	private final ContactGroupFactory contactGroupFactory;
@@ -100,7 +102,7 @@ public class HandshakeKeyExchangeManagerImpl extends ConversationClientImpl
 	@Override
 	public Collection<ConversationMessageHeader> getMessageHeaders(
 			Transaction txn, ContactId contactId) throws DbException {
-		return null;
+		return new ArrayList<>();
 	}
 
 	@Override
