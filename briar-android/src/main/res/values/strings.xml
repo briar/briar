@@ -694,15 +694,14 @@
 
 	<!-- Share app offline -->
 	<string name="hotspot_title">Share Briar offline</string>
-	<string name="hotspot_intro">Share this app with someone nearby without internet connection
-		by using your phone\'s Wi-Fi.
-		\n\nYour phone will open a local hotspot and provide a small website with a download of this app.</string>
-	<string name="hotspot_button_start_sharing">Start sharing</string>
-	<string name="hotspot_button_stop_sharing">Stop sharing</string>
+	<string name="hotspot_intro">Share this app with someone nearby without internet connection by using your phone\'s Wi-Fi.
+		\n\nYour phone will start a Wi-Fi hotspot. People nearby can connect to the hotspot and download the Briar app from your phone.</string>
+	<string name="hotspot_button_start_sharing">Start hotspot</string>
+	<string name="hotspot_button_stop_sharing">Stop hotspot</string>
 	<string name="hotspot_progress_text_start">Setting up hotspot…</string>
 	<string name="hotspot_notification_channel_title">Wi-Fi hotspot</string>
 	<string name="hotspot_notification_title">Sharing Briar offline</string>
-	<string name="hotspot_button_connected">Start app sharing</string>
+	<string name="hotspot_button_connected">Next</string>
 
 	<string name="permission_hotspot_location_request_body">To create a Wi-Fi hotspot, Briar needs permission to access your location.\n\nBriar does not store your location or share it with anyone.</string>
 	<string name="permission_hotspot_location_denied_body">You have denied access to your location, but Briar needs this permission to create a Wi-Fi hotspot.\n\nPlease consider granting access.</string>
@@ -710,26 +709,22 @@
 	<string name="wifi_settings_request_enable_body">To create a Wi-Fi hotspot, Briar needs to use Wi-Fi. Please enable it.</string>
 	<string name="wifi_settings_request_denied_body">You have denied to enable Wi-Fi, but Briar needs to use Wi-Fi.\n\nPlease consider enabling it.</string>
 
-	<string name="hotspot_error_intro">Something went wrong while trying to share the app via Wi-Fi:</string>
-	<string name="hotspot_error_no_wifi_direct">Device does not support Wi-Fi Direct</string>
-	<string name="hotspot_error_start_callback_failed">Hotspot failed to start: error %s</string>
-	<string name="hotspot_error_start_callback_failed_unknown">Hotspot failed to start with an unknown error, reason %d</string>
-	<string name="hotspot_error_start_callback_no_group_info">Hotspot failed to start: no group info</string>
-	<string name="hotspot_error_web_server_start">Error starting web server!</string>
-	<string name="hotspot_error_web_server_serve">Error presenting website.\n\nPlease send feedback (with anonymous data) via the Briar app if the issue persists.</string>
-	<string name="hotspot_flag_test">Warning: This app was installed with Android Studio and can NOT be installed on another device.</string>
-
 	<string name="hotspot_tab_manual">Manual</string>
-	<string name="hotspot_manual_wifi">To download the app on another phone, please connect to this Wi-Fi network:</string>
+	<string name="hotspot_scanning_a_qr_code">scanning a QR code</string>
+
+	<!-- Wi-Fi setup -->
+	<!-- The %s placeholder will be replaced with the translation of 'hotspot_scanning_a_qr_code' -->
+	<string name="hotspot_manual_wifi">Your phone is providing a Wi-Fi hotspot. People who want to download Briar can connect to the hotspot by entering the details below or %s. When they have connected to the hotspot, press \'Next\'.</string>
 	<string name="hotspot_manual_wifi_ssid">Network name (SSID)</string>
-	<string name="hotspot_manual_wifi_alt">Instead of adding the network manually, you can also scan a QR code.</string>
+	<string name="hotspot_qr_wifi">Your phone is providing a Wi-Fi hotspot. People who want to download Briar can connect to the hotspot by scanning this QR code. When they have connected to the hotspot, press \'Next\'.</string>
 	<string name="hotspot_peer_connected">Successfully connected</string>
 	<string name="hotspot_peer_connected_action">Show download info</string>
-	<string name="hotspot_manual_site">After you are connected to the Wi-Fi, carefully enter this address in your browser.</string>
+
+	<!-- Download link -->
+	<!-- The %s placeholder will be replaced with the translation of 'hotspot_scanning_a_qr_code' -->
+	<string name="hotspot_manual_site">Your phone is providing a Wi-Fi hotspot. People who are connected to the hotspot can download Briar by typing the following link in a web browser or %s.</string>
 	<string name="hotspot_manual_site_address">Address (URL)</string>
-	<string name="hotspot_manual_site_alt">Instead of typing the address manually, you can also scan a QR code.</string>
-	<string name="hotspot_qr_wifi">To download the app on another phone, please scan this QR code to connect to this Wi-Fi network:</string>
-	<string name="hotspot_qr_site">After you are connected to the Wi-Fi, scan this QR code to download the app.</string>
+	<string name="hotspot_qr_site">Your phone is providing a Wi-Fi hotspot. People who are connected to the hotspot can download Briar by scanning this QR code.</string>
 
 	<!-- e.g. Download Briar 1.2.20 -->
 	<string name="website_download_title">Download %s</string>
@@ -752,6 +747,16 @@
 	<string name="hotspot_help_fallback_intro">You can try to save the app as an .apk file to share in some other way. Once on the other device, it can be used to install Briar.
 		\n\nTip: For sharing via Bluetooth, you might need to rename the file to end with .zip first.</string>
 	<string name="hotspot_help_fallback_button">Save app install file</string>
+
+	<!-- error handling -->
+	<string name="hotspot_error_intro">Something went wrong while trying to share the app via Wi-Fi:</string>
+	<string name="hotspot_error_no_wifi_direct">Device does not support Wi-Fi Direct</string>
+	<string name="hotspot_error_start_callback_failed">Hotspot failed to start: error %s</string>
+	<string name="hotspot_error_start_callback_failed_unknown">Hotspot failed to start with an unknown error, reason %d</string>
+	<string name="hotspot_error_start_callback_no_group_info">Hotspot failed to start: no group info</string>
+	<string name="hotspot_error_web_server_start">Error starting web server!</string>
+	<string name="hotspot_error_web_server_serve">Error presenting website.\n\nPlease send feedback (with anonymous data) via the Briar app if the issue persists.</string>
+	<string name="hotspot_flag_test">Warning: This app was installed with Android Studio and can NOT be installed on another device.</string>
 
 
 	<!-- Transfer Data via Removable Drives -->
