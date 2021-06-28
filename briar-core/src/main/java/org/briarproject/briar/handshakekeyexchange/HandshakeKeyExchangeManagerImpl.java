@@ -89,7 +89,6 @@ public class HandshakeKeyExchangeManagerImpl extends ConversationClientImpl
 
 		// Set things up for any pre-existing contacts
 		for (Contact c : db.getContacts(txn)) addingContact(txn, c);
-		LOG.info("HelloFromHandshake");
 	}
 
 	@Override
