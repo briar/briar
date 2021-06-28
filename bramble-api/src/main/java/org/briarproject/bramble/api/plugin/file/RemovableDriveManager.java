@@ -40,6 +40,12 @@ public interface RemovableDriveManager {
 	RemovableDriveTask startWriterTask(ContactId c, TransportProperties p);
 
 	/**
+	 * Returns true if the given contact has indicated support for the
+	 * removable drive transport.
+	 */
+	boolean isTransportSupportedByContact(ContactId c) throws DbException;
+
+	/**
 	 * Returns true if there is anything to send to the given contact.
 	 */
 	boolean isWriterTaskNeeded(ContactId c) throws DbException;
