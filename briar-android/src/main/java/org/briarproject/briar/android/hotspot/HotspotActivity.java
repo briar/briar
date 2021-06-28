@@ -54,11 +54,14 @@ public class HotspotActivity extends BriarActivity
 		FragmentManager fm = getSupportFragmentManager();
 		viewModel.getState().observe(this, hotspotState -> {
 			if (hotspotState instanceof HotspotStarted) {
+				HotspotStarted started = (HotspotStarted) hotspotState;
 				String tag = HotspotFragment.TAG;
 				// check if fragment is already added
 				// to not lose state on configuration changes
 				if (fm.findFragmentByTag(tag) == null) {
-					showFragment(fm, new HotspotFragment(), tag);
+					if (!started.consume()) {
+						showFragment(fm, new HotspotFragment(), tag);
+					}
 				}
 			} else if (hotspotState instanceof HotspotError) {
 				HotspotError error = ((HotspotError) hotspotState);
