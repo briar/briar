@@ -547,6 +547,11 @@ public interface DatabaseComponent extends TransactionManager {
 			throws DbException;
 
 	/**
+	 * Sets the remote handshake public key for a given contact
+	 */
+	void setHandshakePublicKey(Transaction txn, ContactId c, PublicKey handshakePublicKey) throws DbException;
+
+	/**
 	 * Sets the given group's visibility to the given contact.
 	 */
 	void setGroupVisibility(Transaction txn, ContactId c, GroupId g,

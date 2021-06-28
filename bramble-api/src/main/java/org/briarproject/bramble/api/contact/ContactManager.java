@@ -210,6 +210,16 @@ public interface ContactManager {
 			throws DbException;
 
 	/**
+	 * Sets the contact's handshake public key
+	 */
+	void setHandshakePublicKey(Transaction txn, ContactId c, PublicKey handshakePublicKey) throws DbException;
+
+	/**
+	 * Sets the contact's handshake public key
+	 */
+	void setHandshakePublicKey(ContactId c, PublicKey handshakePublicKey) throws DbException;
+
+	/**
 	 * Returns true if a contact with this {@code remoteAuthorId} belongs to
 	 * the local pseudonym with this {@code localAuthorId}.
 	 */

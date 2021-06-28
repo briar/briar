@@ -9,6 +9,7 @@ import org.briarproject.bramble.api.contact.PendingContact;
 import org.briarproject.bramble.api.contact.PendingContactId;
 import org.briarproject.bramble.api.contact.PendingContactState;
 import org.briarproject.bramble.api.contact.event.PendingContactStateChangedEvent;
+import org.briarproject.bramble.api.crypto.CryptoConstants;
 import org.briarproject.bramble.api.crypto.KeyPair;
 import org.briarproject.bramble.api.crypto.PublicKey;
 import org.briarproject.bramble.api.crypto.SecretKey;
@@ -241,6 +242,23 @@ class ContactManagerImpl implements ContactManager, EventListener {
 	public void setContactAlias(ContactId c, @Nullable String alias)
 			throws DbException {
 		db.transaction(false, txn -> setContactAlias(txn, c, alias));
+	}
+
+	@Override
+	public void setHandshakePublicKey(Transaction txn, ContactId c,
+			PublicKey handshakePublicKey) throws DbException {
+		if (handshakePublicKey.getKeyType() !=
+				CryptoConstants.KEY_TYPE_AGREEMENT) {
+			throw new IllegalArgumentException();
+		}
+		db.setHandshakePublicKey(txn, c, handshakePublicKey);
+	}
+
+	@Override
+	public void setHandshakePublicKey(ContactId c, PublicKey handshakePublicKey)
+			throws DbException {
+		db.transaction(false,
+				txn -> setHandshakePublicKey(txn, c, handshakePublicKey));
 	}
 
 	@Override
