@@ -15,7 +15,6 @@ import org.briarproject.bramble.api.data.MetadataParser;
 import org.briarproject.bramble.api.db.DatabaseComponent;
 import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.db.Transaction;
-import org.briarproject.bramble.api.identity.Identity;
 import org.briarproject.bramble.api.identity.IdentityManager;
 import org.briarproject.bramble.api.lifecycle.LifecycleManager;
 import org.briarproject.bramble.api.sync.Group;
@@ -23,10 +22,8 @@ import org.briarproject.bramble.api.sync.GroupId;
 import org.briarproject.bramble.api.sync.Message;
 import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.bramble.api.system.Clock;
-import org.briarproject.bramble.api.versioning.ClientVersion;
 import org.briarproject.bramble.api.versioning.ClientVersioningManager;
 import org.briarproject.briar.api.client.MessageTracker;
-import org.briarproject.briar.api.conversation.ConversationManager;
 import org.briarproject.briar.api.conversation.ConversationMessageHeader;
 import org.briarproject.briar.api.conversation.DeletionResult;
 import org.briarproject.briar.api.handshakekeyexchange.HandshakeKeyExchangeManager;
@@ -61,7 +58,7 @@ public class HandshakeKeyExchangeManagerImpl extends ConversationClientImpl
 
 
 	@Inject
-	protected HandshakeKeyExchangeManagerImpl (
+	protected HandshakeKeyExchangeManagerImpl(
 			DatabaseComponent db,
 			ClientHelper clientHelper,
 			MetadataParser metadataParser,
@@ -78,7 +75,8 @@ public class HandshakeKeyExchangeManagerImpl extends ConversationClientImpl
 		this.contactManager = contactManager;
 		this.identityManager = identityManager;
 		this.clock = clock;
-		localGroup = contactGroupFactory.createLocalGroup(CLIENT_ID, MAJOR_VERSION);
+		localGroup =
+				contactGroupFactory.createLocalGroup(CLIENT_ID, MAJOR_VERSION);
 	}
 
 	@Override
@@ -91,6 +89,7 @@ public class HandshakeKeyExchangeManagerImpl extends ConversationClientImpl
 
 		// Set things up for any pre-existing contacts
 		for (Contact c : db.getContacts(txn)) addingContact(txn, c);
+		LOG.info("HelloFromHandshake");
 	}
 
 	@Override
@@ -117,12 +116,6 @@ public class HandshakeKeyExchangeManagerImpl extends ConversationClientImpl
 		} catch (FormatException e) {
 			throw new DbException(e);
 		}
-	}
-
-	@Override
-	public void setReadFlag(GroupId g, MessageId m, boolean read)
-			throws DbException {
-
 	}
 
 	@Override
@@ -153,13 +146,15 @@ public class HandshakeKeyExchangeManagerImpl extends ConversationClientImpl
 			BdfDictionary meta) throws DbException, FormatException {
 		LOG.info("Incoming HandshakeKeyExchange message");
 		ContactId contactId = getContactId(txn, m.getGroupId());
-        Contact c = contactManager.getContact(txn, contactId);
+		Contact c = contactManager.getContact(txn, contactId);
 		if (c.getHandshakePublicKey() != null) {
 			LOG.info("Already have public key - ignoring message");
 			return false;
 		}
+		LOG.info("Adding contact's handshake public key");
 		PublicKey handshakePublicKey = new AgreementPublicKey(body.getRaw(0));
-		contactManager.setHandshakePublicKey(txn, contactId, handshakePublicKey);
+		contactManager
+				.setHandshakePublicKey(txn, contactId, handshakePublicKey);
 		return false;
 	}
 
@@ -169,7 +164,8 @@ public class HandshakeKeyExchangeManagerImpl extends ConversationClientImpl
 			BdfDictionary meta =
 					clientHelper.getGroupMetadataAsDictionary(txn, g);
 			return new ContactId(meta.getLong(
-					HandshakeKeyExchangeConstants.GROUP_KEY_CONTACT_ID).intValue());
+					HandshakeKeyExchangeConstants.GROUP_KEY_CONTACT_ID)
+					.intValue());
 		} catch (FormatException e) {
 			throw new DbException(e);
 		}
@@ -189,7 +185,7 @@ public class HandshakeKeyExchangeManagerImpl extends ConversationClientImpl
 		setContactId(txn, g.getId(), c.getId());
 
 		if (c.getHandshakePublicKey() == null) {
-		   sendHandshakePublicKey(txn, c);
+			sendHandshakePublicKey(txn, c);
 		}
 	}
 
