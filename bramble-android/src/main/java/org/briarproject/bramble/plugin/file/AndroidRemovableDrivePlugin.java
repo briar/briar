@@ -4,6 +4,7 @@ import android.app.Application;
 import android.net.Uri;
 
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
+import org.briarproject.bramble.api.plugin.PluginCallback;
 import org.briarproject.bramble.api.properties.TransportProperties;
 
 import java.io.IOException;
@@ -21,8 +22,9 @@ class AndroidRemovableDrivePlugin extends RemovableDrivePlugin {
 
 	private final Application app;
 
-	AndroidRemovableDrivePlugin(Application app, int maxLatency) {
-		super(maxLatency);
+	AndroidRemovableDrivePlugin(Application app, PluginCallback callback,
+			int maxLatency) {
+		super(callback, maxLatency);
 		this.app = app;
 	}
 

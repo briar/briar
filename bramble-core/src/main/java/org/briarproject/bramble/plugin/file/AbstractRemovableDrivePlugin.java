@@ -3,6 +3,7 @@ package org.briarproject.bramble.plugin.file;
 import org.briarproject.bramble.api.Pair;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.plugin.ConnectionHandler;
+import org.briarproject.bramble.api.plugin.PluginCallback;
 import org.briarproject.bramble.api.plugin.TransportConnectionReader;
 import org.briarproject.bramble.api.plugin.TransportConnectionWriter;
 import org.briarproject.bramble.api.plugin.TransportId;
@@ -17,10 +18,12 @@ import java.util.logging.Logger;
 
 import javax.annotation.concurrent.Immutable;
 
+import static java.util.Collections.singletonMap;
 import static java.util.logging.Level.WARNING;
 import static java.util.logging.Logger.getLogger;
 import static org.briarproject.bramble.api.plugin.Plugin.State.ACTIVE;
 import static org.briarproject.bramble.api.plugin.file.RemovableDriveConstants.ID;
+import static org.briarproject.bramble.api.plugin.file.RemovableDriveConstants.PROP_SUPPORTED;
 import static org.briarproject.bramble.util.LogUtils.logException;
 
 @Immutable
@@ -31,6 +34,7 @@ abstract class AbstractRemovableDrivePlugin implements SimplexPlugin {
 			getLogger(AbstractRemovableDrivePlugin.class.getName());
 
 	private final int maxLatency;
+	private final PluginCallback callback;
 
 	abstract InputStream openInputStream(TransportProperties p)
 			throws IOException;
@@ -38,7 +42,8 @@ abstract class AbstractRemovableDrivePlugin implements SimplexPlugin {
 	abstract OutputStream openOutputStream(TransportProperties p)
 			throws IOException;
 
-	AbstractRemovableDrivePlugin(int maxLatency) {
+	AbstractRemovableDrivePlugin(PluginCallback callback, int maxLatency) {
+		this.callback = callback;
 		this.maxLatency = maxLatency;
 	}
 
@@ -60,6 +65,8 @@ abstract class AbstractRemovableDrivePlugin implements SimplexPlugin {
 
 	@Override
 	public void start() {
+		callback.mergeLocalProperties(
+				new TransportProperties(singletonMap(PROP_SUPPORTED, "true")));
 	}
 
 	@Override

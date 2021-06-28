@@ -1,6 +1,7 @@
 package org.briarproject.bramble.plugin.file;
 
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
+import org.briarproject.bramble.api.plugin.PluginCallback;
 import org.briarproject.bramble.api.properties.TransportProperties;
 
 import java.io.FileInputStream;
@@ -18,8 +19,8 @@ import static org.briarproject.bramble.util.StringUtils.isNullOrEmpty;
 @NotNullByDefault
 class RemovableDrivePlugin extends AbstractRemovableDrivePlugin {
 
-	RemovableDrivePlugin(int maxLatency) {
-		super(maxLatency);
+	RemovableDrivePlugin(PluginCallback callback, int maxLatency) {
+		super(callback, maxLatency);
 	}
 
 	@Override
