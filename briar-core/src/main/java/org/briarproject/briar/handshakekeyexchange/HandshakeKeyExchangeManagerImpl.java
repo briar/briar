@@ -159,6 +159,7 @@ public class HandshakeKeyExchangeManagerImpl extends ConversationClientImpl
 			return false;
 		}
 		PublicKey handshakePublicKey = new AgreementPublicKey(body.getRaw(0));
+		contactManager.setHandshakePublicKey(txn, contactId, handshakePublicKey);
 		return false;
 	}
 
@@ -194,6 +195,7 @@ public class HandshakeKeyExchangeManagerImpl extends ConversationClientImpl
 
 	private void sendHandshakePublicKey(Transaction txn, Contact c)
 			throws DbException {
+		LOG.info("Sending our handshake public key to " + c.getAlias());
 		Group group = getContactGroup(c);
 		GroupId g = group.getId();
 		if (!db.containsGroup(txn, g)) db.addGroup(txn, group);
