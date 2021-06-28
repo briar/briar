@@ -8,4 +8,5 @@ public interface RemovableDriveConstants {
 
 	String PROP_PATH = "path";
 	String PROP_URI = "uri";
+	String PROP_SUPPORTED = "supported";
 }
