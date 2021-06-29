@@ -25,8 +25,6 @@ import org.briarproject.bramble.api.identity.IdentityManager;
 import org.briarproject.bramble.api.identity.LocalAuthor;
 import org.briarproject.bramble.api.lifecycle.LifecycleManager.OpenDatabaseHook;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
-import org.briarproject.bramble.api.plugin.BluetoothConstants;
-import org.briarproject.bramble.api.plugin.LanTcpConstants;
 import org.briarproject.bramble.api.plugin.TorConstants;
 import org.briarproject.bramble.api.plugin.TransportId;
 import org.briarproject.bramble.api.properties.TransportProperties;
@@ -482,8 +480,8 @@ class SocialBackupManagerImpl extends ConversationClientImpl
 	private Map<TransportId, TransportProperties> getTransportProperties(
 			Transaction txn, ContactId c) throws DbException {
 		// TODO: Include filtered properties for other transports
-		TransportId ids[] =
-				{TorConstants.ID, LanTcpConstants.ID, BluetoothConstants.ID};
+		TransportId ids[] = {TorConstants.ID};
+//		{TorConstants.ID, LanTcpConstants.ID, BluetoothConstants.ID};
 		Map<TransportId, TransportProperties> props = new HashMap();
 		for (TransportId id : ids) {
 			props.put(id, transportPropertyManager
