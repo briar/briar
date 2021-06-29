@@ -1,102 +1,72 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
 	xmlns:app="http://schemas.android.com/apk/res-auto"
 	xmlns:tools="http://schemas.android.com/tools"
 	android:layout_width="match_parent"
-	android:layout_height="match_parent">
+	android:layout_height="match_parent"
+	android:fillViewport="true">
 
-	<androidx.constraintlayout.widget.Guideline
-		android:id="@+id/guideline"
-		android:layout_width="wrap_content"
-		android:layout_height="wrap_content"
-		android:orientation="vertical"
-		app:layout_constraintGuide_percent="0.5" />
+	<androidx.constraintlayout.widget.ConstraintLayout
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content">
 
-	<ImageView
-		android:id="@+id/driveImageView"
-		android:layout_width="0dp"
-		android:layout_height="0dp"
-		android:layout_marginStart="32dp"
-		android:layout_marginLeft="32dp"
-		android:padding="24dp"
-		app:layout_constraintBottom_toBottomOf="@+id/phoneImageView"
-		app:layout_constraintDimensionRatio="1:1"
-		app:layout_constraintEnd_toStartOf="@+id/arrowImageView"
-		app:layout_constraintStart_toStartOf="parent"
-		app:layout_constraintTop_toTopOf="@+id/phoneImageView"
-		app:layout_constraintWidth_max="150dp"
-		app:srcCompat="@drawable/ic_flash_drive"
-		tools:ignore="ContentDescription" />
+		<ImageView
+			android:id="@+id/imageView"
+			android:layout_width="0dp"
+			android:layout_height="0dp"
+			android:layout_marginStart="32dp"
+			android:layout_marginTop="32dp"
+			android:layout_marginEnd="32dp"
+			app:layout_constraintWidth_max="300dp"
+			app:layout_constraintBottom_toTopOf="@+id/progressBar"
+			app:layout_constraintDimensionRatio="1,2"
+			app:layout_constraintEnd_toEndOf="parent"
+			app:layout_constraintStart_toStartOf="parent"
+			app:layout_constraintTop_toTopOf="parent"
+			app:layout_constraintVertical_chainStyle="spread"
+			app:srcCompat="@drawable/ic_transfer_data_send"
+			tools:ignore="ContentDescription" />
 
-	<ImageView
-		android:id="@+id/arrowImageView"
-		android:layout_width="0dp"
-		android:layout_height="0dp"
-		app:layout_constraintBottom_toBottomOf="@+id/driveImageView"
-		app:layout_constraintDimensionRatio="1:1"
-		app:layout_constraintEnd_toStartOf="@+id/guideline"
-		app:layout_constraintStart_toStartOf="@+id/guideline"
-		app:layout_constraintTop_toTopOf="@+id/driveImageView"
-		app:layout_constraintWidth_max="64dp"
-		app:srcCompat="@drawable/ic_arrow_forward"
-		app:tint="@color/briar_brand_green"
-		tools:ignore="ContentDescription" />
+		<ProgressBar
+			android:id="@+id/progressBar"
+			style="?android:attr/progressBarStyleHorizontal"
+			android:layout_width="0dp"
+			android:layout_height="wrap_content"
+			android:layout_margin="32dp"
+			android:indeterminate="true"
+			android:visibility="invisible"
+			app:layout_constraintBottom_toTopOf="@+id/introTextView"
+			app:layout_constraintEnd_toEndOf="parent"
+			app:layout_constraintStart_toStartOf="parent"
+			app:layout_constraintTop_toBottomOf="@+id/imageView"
+			tools:visibility="visible" />
 
-	<ProgressBar
-		android:id="@+id/progressBar"
-		style="?android:attr/progressBarStyleHorizontal"
-		android:layout_width="0dp"
-		android:layout_height="wrap_content"
-		android:layout_margin="32dp"
-		android:indeterminate="true"
-		android:visibility="invisible"
-		app:layout_constraintBottom_toTopOf="@+id/introTextView"
-		app:layout_constraintEnd_toEndOf="parent"
-		app:layout_constraintStart_toStartOf="parent"
-		app:layout_constraintTop_toBottomOf="@+id/phoneImageView"
-		tools:visibility="visible" />
+		<TextView
+			android:id="@+id/introTextView"
+			android:layout_width="0dp"
+			android:layout_height="wrap_content"
+			android:layout_marginStart="32dp"
+			android:layout_marginEnd="32dp"
+			android:layout_marginBottom="16dp"
+			android:text="@string/removable_drive_receive_intro"
+			android:textSize="16sp"
+			app:layout_constraintBottom_toTopOf="@+id/fileButton"
+			app:layout_constraintEnd_toEndOf="parent"
+			app:layout_constraintStart_toStartOf="parent"
+			app:layout_constraintTop_toBottomOf="@+id/progressBar" />
 
-	<ImageView
-		android:id="@+id/phoneImageView"
-		android:layout_width="0dp"
-		android:layout_height="0dp"
-		android:layout_marginTop="32dp"
-		android:layout_marginEnd="32dp"
-		android:layout_marginRight="32dp"
-		app:layout_constraintBottom_toTopOf="@+id/progressBar"
-		app:layout_constraintDimensionRatio="1:1"
-		app:layout_constraintEnd_toEndOf="parent"
-		app:layout_constraintStart_toEndOf="@+id/arrowImageView"
-		app:layout_constraintTop_toTopOf="parent"
-		app:layout_constraintVertical_chainStyle="spread"
-		app:layout_constraintWidth_max="150dp"
-		app:srcCompat="@drawable/ic_phone_android"
-		tools:ignore="ContentDescription" />
+		<Button
+			android:id="@+id/fileButton"
+			style="@style/BriarButton"
+			android:layout_width="0dp"
+			android:layout_height="wrap_content"
+			android:layout_margin="16dp"
+			android:enabled="false"
+			android:text="@string/removable_drive_receive_button"
+			app:layout_constraintBottom_toBottomOf="parent"
+			app:layout_constraintEnd_toEndOf="parent"
+			app:layout_constraintStart_toStartOf="parent" />
 
-	<TextView
-		android:id="@+id/introTextView"
-		android:layout_width="0dp"
-		android:layout_height="wrap_content"
-		android:layout_marginStart="32dp"
-		android:layout_marginEnd="32dp"
-		android:layout_marginBottom="8dp"
-		android:text="@string/removable_drive_receive_intro"
-		android:textSize="16sp"
-		app:layout_constraintBottom_toTopOf="@+id/fileButton"
-		app:layout_constraintEnd_toEndOf="parent"
-		app:layout_constraintStart_toStartOf="parent"
-		app:layout_constraintTop_toBottomOf="@+id/progressBar" />
+	</androidx.constraintlayout.widget.ConstraintLayout>
 
-	<Button
-		android:id="@+id/fileButton"
-		style="@style/BriarButton"
-		android:layout_width="0dp"
-		android:layout_height="wrap_content"
-		android:layout_margin="16dp"
-		android:enabled="false"
-		android:text="@string/removable_drive_receive_button"
-		app:layout_constraintBottom_toBottomOf="parent"
-		app:layout_constraintEnd_toEndOf="parent"
-		app:layout_constraintStart_toStartOf="parent" />
-
-</androidx.constraintlayout.widget.ConstraintLayout>
+</ScrollView>

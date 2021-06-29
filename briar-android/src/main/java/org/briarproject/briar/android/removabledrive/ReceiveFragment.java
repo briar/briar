@@ -8,7 +8,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ProgressBar;
-import android.widget.TextView;
+import android.widget.ScrollView;
 import android.widget.Toast;
 
 import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
@@ -24,6 +24,7 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 import androidx.lifecycle.ViewModelProvider;
 
+import static android.view.View.FOCUS_DOWN;
 import static android.view.View.VISIBLE;
 import static android.widget.Toast.LENGTH_LONG;
 import static org.briarproject.briar.android.AppModule.getAndroidComponent;
@@ -41,10 +42,10 @@ public class ReceiveFragment extends Fragment {
 	@Inject
 	ViewModelProvider.Factory viewModelFactory;
 
-	RemovableDriveViewModel viewModel;
-	TextView introTextView;
-	Button button;
-	ProgressBar progressBar;
+	private RemovableDriveViewModel viewModel;
+	private ScrollView scrollView;
+	private Button button;
+	private ProgressBar progressBar;
 
 	@Override
 	public void onAttach(Context context) {
@@ -62,7 +63,7 @@ public class ReceiveFragment extends Fragment {
 		View v = inflater.inflate(R.layout.fragment_transfer_data_receive,
 				container, false);
 
-		introTextView = v.findViewById(R.id.introTextView);
+		scrollView = (ScrollView) v;
 		progressBar = v.findViewById(R.id.progressBar);
 		button = v.findViewById(R.id.fileButton);
 		button.setOnClickListener(view ->
@@ -79,6 +80,8 @@ public class ReceiveFragment extends Fragment {
 	public void onStart() {
 		super.onStart();
 		requireActivity().setTitle(R.string.removable_drive_title_receive);
+		// Scroll down in case the screen is small, so the button is visible
+		scrollView.post(() -> scrollView.fullScroll(FOCUS_DOWN));
 	}
 
 	private void onOldTaskResumed(boolean resumed) {

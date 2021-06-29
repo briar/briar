@@ -6,6 +6,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ScrollView;
 
 import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
 import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
@@ -18,6 +19,7 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 import androidx.lifecycle.ViewModelProvider;
 
+import static android.view.View.FOCUS_DOWN;
 import static org.briarproject.briar.android.AppModule.getAndroidComponent;
 
 @MethodsNotNullByDefault
@@ -30,6 +32,7 @@ public class ChooserFragment extends Fragment {
 	ViewModelProvider.Factory viewModelFactory;
 
 	private RemovableDriveViewModel viewModel;
+	private ScrollView scrollView;
 
 	@Override
 	public void onAttach(Context context) {
@@ -47,6 +50,7 @@ public class ChooserFragment extends Fragment {
 		View v = inflater.inflate(R.layout.fragment_transfer_data_chooser,
 				container, false);
 
+		scrollView = (ScrollView) v;
 		Button sendButton = v.findViewById(R.id.sendButton);
 		sendButton.setOnClickListener(i -> viewModel.startSendData());
 
@@ -65,6 +69,9 @@ public class ChooserFragment extends Fragment {
 			// we can't come back here now to start another task
 			// as we only support one per ViewModel instance
 			requireActivity().supportFinishAfterTransition();
+		} else {
+			// Scroll down in case the screen is small, so the button is visible
+			scrollView.post(() -> scrollView.fullScroll(FOCUS_DOWN));
 		}
 	}
 
