@@ -50,7 +50,8 @@ public interface ContactManager {
 			boolean active) throws DbException;
 
 	ContactId addContact(Transaction txn, Author remote, AuthorId local,
-			PublicKey handshake, boolean verified) throws DbException;
+			PublicKey handshake, boolean verified)
+			throws DbException, GeneralSecurityException;
 
 	/**
 	 * Stores a contact associated with the given local and remote pseudonyms,
@@ -212,12 +213,14 @@ public interface ContactManager {
 	/**
 	 * Sets the contact's handshake public key
 	 */
-	void setHandshakePublicKey(Transaction txn, ContactId c, PublicKey handshakePublicKey) throws DbException;
+	void setHandshakePublicKey(Transaction txn, ContactId c,
+			PublicKey handshakePublicKey) throws DbException;
 
 	/**
 	 * Sets the contact's handshake public key
 	 */
-	void setHandshakePublicKey(ContactId c, PublicKey handshakePublicKey) throws DbException;
+	void setHandshakePublicKey(ContactId c, PublicKey handshakePublicKey)
+			throws DbException;
 
 	/**
 	 * Returns true if a contact with this {@code remoteAuthorId} belongs to

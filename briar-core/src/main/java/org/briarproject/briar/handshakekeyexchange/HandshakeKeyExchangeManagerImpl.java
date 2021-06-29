@@ -95,6 +95,8 @@ public class HandshakeKeyExchangeManagerImpl extends ConversationClientImpl
 			for (Contact c : db.getContacts(txn)) {
 				if (c.getHandshakePublicKey() == null) {
 					sendHandshakePublicKey(txn, c);
+				} else {
+					LOG.info("Have pk for contact " + c.getAuthor().getName());
 				}
 			}
 		}
@@ -194,6 +196,8 @@ public class HandshakeKeyExchangeManagerImpl extends ConversationClientImpl
 
 		if (c.getHandshakePublicKey() == null) {
 			sendHandshakePublicKey(txn, c);
+		} else {
+			LOG.info("Have pk for contact " + c.getAuthor().getName());
 		}
 	}
 

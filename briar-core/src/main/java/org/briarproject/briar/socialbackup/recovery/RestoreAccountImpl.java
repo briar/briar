@@ -184,6 +184,9 @@ public class RestoreAccountImpl implements RestoreAccount {
 		} catch (DbException e) {
 			LOG.warning("Error adding contacts to database");
 			LOG.warning(e.getMessage());
+		} catch (GeneralSecurityException e) {
+			LOG.warning("Error adding handshake key");
+			LOG.warning(e.getMessage());
 		}
 		LOG.info("Added all contacts");
 	}
