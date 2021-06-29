@@ -7,6 +7,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.ScrollView;
 import android.widget.TextView;
 
 import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
@@ -22,6 +23,8 @@ import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.widget.ImageViewCompat;
 import androidx.fragment.app.Fragment;
+
+import static android.view.View.FOCUS_DOWN;
 
 /**
  * A fragment to be used at the end of a user flow
@@ -55,6 +58,7 @@ public class FinalFragment extends Fragment {
 		return f;
 	}
 
+	private ScrollView scrollView;
 	protected Button buttonView;
 
 	@Nullable
@@ -65,6 +69,7 @@ public class FinalFragment extends Fragment {
 		View v = inflater
 				.inflate(R.layout.fragment_final, container, false);
 
+		scrollView = (ScrollView) v;
 		ImageView iconView = v.findViewById(R.id.iconView);
 		TextView titleView = v.findViewById(R.id.titleView);
 		TextView textView = v.findViewById(R.id.textView);
@@ -95,6 +100,13 @@ public class FinalFragment extends Fragment {
 					}
 				});
 		return v;
+	}
+
+	@Override
+	public void onStart() {
+		super.onStart();
+		// Scroll down in case the screen is small, so the button is visible
+		scrollView.post(() -> scrollView.fullScroll(FOCUS_DOWN));
 	}
 
 	/**
