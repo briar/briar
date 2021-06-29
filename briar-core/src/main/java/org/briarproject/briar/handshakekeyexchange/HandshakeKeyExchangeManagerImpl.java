@@ -83,14 +83,21 @@ public class HandshakeKeyExchangeManagerImpl extends ConversationClientImpl
 
 	@Override
 	public void onDatabaseOpened(Transaction txn) throws DbException {
-		if (db.containsGroup(txn, localGroup.getId())) return;
-		db.addGroup(txn, localGroup);
-
 		// Get our own handshake public key
 		handshakePublicKey = identityManager.getHandshakeKeys(txn).getPublic();
 
-		// Set things up for any pre-existing contacts
-		for (Contact c : db.getContacts(txn)) addingContact(txn, c);
+		if (!db.containsGroup(txn, localGroup.getId())) {
+			db.addGroup(txn, localGroup);
+
+			// Set things up for any pre-existing contacts
+			for (Contact c : db.getContacts(txn)) addingContact(txn, c);
+		} else {
+			for (Contact c : db.getContacts(txn)) {
+				if (c.getHandshakePublicKey() == null) {
+					sendHandshakePublicKey(txn, c);
+				}
+			}
+		}
 	}
 
 	@Override
@@ -192,7 +199,7 @@ public class HandshakeKeyExchangeManagerImpl extends ConversationClientImpl
 
 	private void sendHandshakePublicKey(Transaction txn, Contact c)
 			throws DbException {
-		LOG.info("Sending our handshake public key to " + c.getAlias());
+		LOG.info("Sending our handshake public key to " + c.getAuthor().getName());
 		Group group = getContactGroup(c);
 		GroupId g = group.getId();
 		if (!db.containsGroup(txn, g)) db.addGroup(txn, group);
