@@ -61,7 +61,8 @@ class OutgoingDuplexSyncConnection extends DuplexSyncConnection
 
 	@Override
 	public void run() {
-		LOG.info("Running OutgoingDuplexSyncConnection");
+		LOG.info("Running OutgoingDuplexSyncConnection on transport " +
+				transportId.getString());
 		// Allocate a stream context
 		StreamContext ctx = allocateStreamContext(contactId, transportId);
 		if (ctx == null) {

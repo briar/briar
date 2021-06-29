@@ -3,7 +3,6 @@ package org.briarproject.bramble.connection;
 import org.briarproject.bramble.api.connection.ConnectionRegistry;
 import org.briarproject.bramble.api.contact.ContactId;
 import org.briarproject.bramble.api.contact.HandshakeManager;
-import org.briarproject.bramble.api.contact.PendingContactId;
 import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.plugin.TransportId;
@@ -50,7 +49,8 @@ class IncomingDuplexSyncConnection extends DuplexSyncConnection
 
 	@Override
 	public void run() {
-		LOG.info("Running IncomingDuplexSyncConnection");
+		LOG.info("Running IncomingDuplexSyncConnection on transport " +
+				transportId.getString());
 		// Read and recognise the tag
 		StreamContext ctx = recogniseTag(reader, transportId);
 		if (ctx == null) {
@@ -65,10 +65,10 @@ class IncomingDuplexSyncConnection extends DuplexSyncConnection
 			return;
 		}
 		if (ctx.isHandshakeMode()) {
-            if (!performHandshake(ctx, contactId)) {
-               LOG.warning("Handshake failed");
-               return;
-            }
+			if (!performHandshake(ctx, contactId)) {
+				LOG.warning("Handshake failed");
+				return;
+			}
 			// Allocate a rotation mode stream context
 			ctx = allocateStreamContext(contactId, transportId);
 			if (ctx == null) {
