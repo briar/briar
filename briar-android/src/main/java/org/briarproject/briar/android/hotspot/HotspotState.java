@@ -5,6 +5,7 @@ import android.graphics.Bitmap;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 
 import androidx.annotation.Nullable;
+import androidx.annotation.UiThread;
 
 @NotNullByDefault
 abstract class HotspotState {
@@ -38,6 +39,9 @@ abstract class HotspotState {
 	static class HotspotStarted extends HotspotState {
 		private final NetworkConfig networkConfig;
 		private final WebsiteConfig websiteConfig;
+		// 'consumed' is set to true once this state triggered a UI change, i.e.
+		// moving to the next fragment.
+		private boolean consumed = false;
 
 		HotspotStarted(NetworkConfig networkConfig,
 				WebsiteConfig websiteConfig) {
@@ -51,6 +55,18 @@ abstract class HotspotState {
 
 		WebsiteConfig getWebsiteConfig() {
 			return websiteConfig;
+		}
+
+		/**
+		 * Mark this state as consumed, i.e. the UI has already done something
+		 * as a result of the state changing to this. This can be used in order
+		 * to not repeat actions such as showing fragments on rotation changes.
+		 */
+		@UiThread
+		boolean consume() {
+			boolean old = consumed;
+			consumed = true;
+			return old;
 		}
 	}
 

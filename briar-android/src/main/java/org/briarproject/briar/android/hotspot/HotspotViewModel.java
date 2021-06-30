@@ -96,9 +96,13 @@ class HotspotViewModel extends DbViewModel
 	void startHotspot() {
 		HotspotState s = state.getValue();
 		if (s instanceof HotspotStarted) {
-			// Don't try to start again, if already started, just re-set value.
-			// This can happen if the user navigates back to intro fragment.
-			state.setValue(s);
+			// This can happen if the user navigates back to intro fragment and
+			// taps 'start sharing' again. In this case, don't try to start the
+			// hotspot again. Instead, just create a new, unconsumed HotspotStarted
+			// event with the same config.
+			HotspotStarted old = (HotspotStarted) s;
+			state.setValue(new HotspotStarted(old.getNetworkConfig(),
+					old.getWebsiteConfig()));
 		} else {
 			hotspotManager.startWifiP2pHotspot();
 			notificationManager.showHotspotNotification();
