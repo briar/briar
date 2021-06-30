@@ -102,6 +102,9 @@ public class SendFragment extends Fragment {
 		if (state instanceof TransferDataState.NoDataToSend) {
 			introTextView.setText(R.string.removable_drive_send_no_data);
 			button.setEnabled(false);
+		} else if (state instanceof TransferDataState.NotSupported) {
+			introTextView.setText(R.string.removable_drive_send_not_supported);
+			button.setEnabled(false);
 		} else if (state instanceof TransferDataState.Ready) {
 			button.setEnabled(true);
 		} else if (state instanceof TransferDataState.TaskAvailable) {

@@ -14,6 +14,13 @@ abstract class TransferDataState {
 	}
 
 	/**
+	 * The chosen contact does not support the transport, yet.
+	 * So we can't send them data this way.
+	 */
+	static class NotSupported extends TransferDataState {
+	}
+
+	/**
 	 * We are ready to let the user select a file for sending or receiving data.
 	 */
 	static class Ready extends TransferDataState {

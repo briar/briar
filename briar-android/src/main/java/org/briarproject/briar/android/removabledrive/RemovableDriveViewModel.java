@@ -93,7 +93,9 @@ class RemovableDriveViewModel extends DbViewModel {
 			ContactId c = requireNonNull(contactId);
 			runOnDbThread(() -> {
 				try {
-					if (manager.isWriterTaskNeeded(c)) {
+					if (!manager.isTransportSupportedByContact(c)) {
+						state.postValue(new TransferDataState.NotSupported());
+					} else if (manager.isWriterTaskNeeded(c)) {
 						state.postValue(new TransferDataState.Ready());
 					} else {
 						state.postValue(new TransferDataState.NoDataToSend());
