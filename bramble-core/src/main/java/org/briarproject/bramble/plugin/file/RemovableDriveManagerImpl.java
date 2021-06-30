@@ -8,6 +8,7 @@ import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.plugin.file.RemovableDriveManager;
 import org.briarproject.bramble.api.plugin.file.RemovableDriveTask;
 import org.briarproject.bramble.api.properties.TransportProperties;
+import org.briarproject.bramble.api.properties.TransportPropertyManager;
 
 import java.util.concurrent.Executor;
 
@@ -16,6 +17,8 @@ import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;
 import javax.inject.Inject;
 
+import static org.briarproject.bramble.api.plugin.file.RemovableDriveConstants.ID;
+import static org.briarproject.bramble.api.plugin.file.RemovableDriveConstants.PROP_SUPPORTED;
 import static org.briarproject.bramble.plugin.file.RemovableDrivePluginFactory.MAX_LATENCY;
 
 @ThreadSafe
@@ -25,6 +28,7 @@ class RemovableDriveManagerImpl
 
 	private final Executor ioExecutor;
 	private final DatabaseComponent db;
+	private final TransportPropertyManager transportPropertyManager;
 	private final RemovableDriveTaskFactory taskFactory;
 	private final Object lock = new Object();
 
@@ -34,10 +38,14 @@ class RemovableDriveManagerImpl
 	private RemovableDriveTask writer = null;
 
 	@Inject
-	RemovableDriveManagerImpl(@IoExecutor Executor ioExecutor,
-			DatabaseComponent db, RemovableDriveTaskFactory taskFactory) {
+	RemovableDriveManagerImpl(
+			@IoExecutor Executor ioExecutor,
+			DatabaseComponent db,
+			TransportPropertyManager transportPropertyManager,
+			RemovableDriveTaskFactory taskFactory) {
 		this.ioExecutor = ioExecutor;
 		this.db = db;
+		this.transportPropertyManager = transportPropertyManager;
 		this.taskFactory = taskFactory;
 	}
 
@@ -78,6 +86,14 @@ class RemovableDriveManagerImpl
 		}
 		ioExecutor.execute(created);
 		return created;
+	}
+
+	@Override
+	public boolean isTransportSupportedByContact(ContactId c)
+			throws DbException {
+		TransportProperties p =
+				transportPropertyManager.getRemoteProperties(c, ID);
+		return "true".equals(p.get(PROP_SUPPORTED));
 	}
 
 	@Override

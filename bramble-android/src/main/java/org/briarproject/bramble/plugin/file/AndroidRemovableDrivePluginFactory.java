@@ -42,6 +42,6 @@ public class AndroidRemovableDrivePluginFactory implements
 	@Nullable
 	@Override
 	public SimplexPlugin createPlugin(PluginCallback callback) {
-		return new AndroidRemovableDrivePlugin(app, MAX_LATENCY);
+		return new AndroidRemovableDrivePlugin(app, callback, MAX_LATENCY);
 	}
 }

@@ -36,6 +36,6 @@ public class RemovableDrivePluginFactory implements SimplexPluginFactory {
 	@Nullable
 	@Override
 	public SimplexPlugin createPlugin(PluginCallback callback) {
-		return new RemovableDrivePlugin(MAX_LATENCY);
+		return new RemovableDrivePlugin(callback, MAX_LATENCY);
 	}
 }
