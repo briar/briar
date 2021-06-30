@@ -233,9 +233,12 @@ public class TransportKeyAgreementIntegrationTest
 		// but not via the new duplex transport
 		assertTrue(alice.getKeyManager()
 				.canSendOutgoingStreams(bobId, SIMPLEX_TRANSPORT_ID));
-		// FIXME normally Alice should not be able to already send streams
-//		assertFalse(alice.getKeyManager()
-//				.canSendOutgoingStreams(bobId, newTransportId));
+		// Normally, Alice should not be able to send streams already.
+		// However, she does already derive keys for the transport.
+		// The UI checks RemovableDriveManager#isTransportSupportedByContact()
+		// in practice to prevent sending streams that Bob can't decrypt.
+		assertTrue(alice.getKeyManager()
+				.canSendOutgoingStreams(bobId, newTransportId));
 
 		// Bob restarts and comes back with the new transport.
 		bob = restartWithNewTransport(bob, bobDir, bobIdentity);
