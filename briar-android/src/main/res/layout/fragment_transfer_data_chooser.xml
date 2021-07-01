@@ -10,20 +10,6 @@
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content">
 
-		<androidx.constraintlayout.widget.Guideline
-			android:id="@+id/imageLeftGuideline"
-			android:layout_width="wrap_content"
-			android:layout_height="wrap_content"
-			android:orientation="vertical"
-			app:layout_constraintGuide_percent=".3" />
-
-		<androidx.constraintlayout.widget.Guideline
-			android:id="@+id/imageRightGuideline"
-			android:layout_width="wrap_content"
-			android:layout_height="wrap_content"
-			android:orientation="vertical"
-			app:layout_constraintGuide_percent=".7" />
-
 		<ImageView
 			android:id="@+id/imageView"
 			android:layout_width="0dp"
@@ -31,10 +17,11 @@
 			android:layout_marginTop="32dp"
 			app:layout_constraintBottom_toTopOf="@+id/introView"
 			app:layout_constraintDimensionRatio="1,1"
-			app:layout_constraintEnd_toEndOf="@+id/imageRightGuideline"
-			app:layout_constraintStart_toStartOf="@+id/imageLeftGuideline"
+			app:layout_constraintEnd_toEndOf="parent"
+			app:layout_constraintStart_toStartOf="parent"
 			app:layout_constraintTop_toTopOf="parent"
 			app:layout_constraintVertical_chainStyle="spread"
+			app:layout_constraintWidth_percent="0.4"
 			app:srcCompat="@drawable/ic_transfer_data"
 			tools:ignore="ContentDescription" />
 
