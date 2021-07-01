@@ -10,16 +10,29 @@
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content">
 
+		<androidx.constraintlayout.widget.Guideline
+			android:id="@+id/imageLeftGuideline"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:orientation="vertical"
+			app:layout_constraintGuide_percent=".3" />
+
+		<androidx.constraintlayout.widget.Guideline
+			android:id="@+id/imageRightGuideline"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:orientation="vertical"
+			app:layout_constraintGuide_percent=".7" />
+
 		<ImageView
 			android:id="@+id/iconView"
 			android:layout_width="0dp"
 			android:layout_height="0dp"
-			android:layout_margin="32dp"
+			android:layout_marginTop="32dp"
 			app:layout_constraintBottom_toTopOf="@+id/titleView"
 			app:layout_constraintDimensionRatio="1:1"
-			app:layout_constraintEnd_toEndOf="parent"
-			app:layout_constraintHeight_max="200dp"
-			app:layout_constraintStart_toStartOf="parent"
+			app:layout_constraintEnd_toEndOf="@+id/imageRightGuideline"
+			app:layout_constraintStart_toStartOf="@+id/imageLeftGuideline"
 			app:layout_constraintTop_toTopOf="parent"
 			app:layout_constraintVertical_bias="0.25"
 			app:layout_constraintVertical_chainStyle="packed"
@@ -49,7 +62,10 @@
 			android:id="@+id/textView"
 			android:layout_width="0dp"
 			android:layout_height="wrap_content"
-			android:layout_margin="32dp"
+			android:layout_marginStart="32dp"
+			android:layout_marginTop="32dp"
+			android:layout_marginEnd="32dp"
+			android:layout_marginBottom="16dp"
 			android:textAppearance="@style/TextAppearance.MaterialComponents.Body1"
 			app:layout_constraintBottom_toTopOf="@+id/button"
 			app:layout_constraintEnd_toEndOf="parent"
