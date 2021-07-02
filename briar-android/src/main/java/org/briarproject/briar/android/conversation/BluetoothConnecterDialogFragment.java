@@ -14,7 +14,7 @@ import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.activity.BaseActivity;
 import org.briarproject.briar.android.contact.ContactItem;
-import org.briarproject.briar.android.util.RequestBluetoothDiscoverable;
+import org.briarproject.briar.android.util.ActivityLaunchers.RequestBluetoothDiscoverable;
 
 import javax.inject.Inject;
 

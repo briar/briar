@@ -8,11 +8,12 @@ import dagger.Module;
 import dagger.multibindings.IntoMap;
 
 @Module
-public interface RemovableDriveModule {
+public interface TransferDataModule {
 
 	@Binds
 	@IntoMap
 	@ViewModelKey(RemovableDriveViewModel.class)
-	ViewModel bindRemovableDriveViewModel(RemovableDriveViewModel removableDriveViewModel);
+	ViewModel bindRemovableDriveViewModel(
+			RemovableDriveViewModel removableDriveViewModel);
 
 }

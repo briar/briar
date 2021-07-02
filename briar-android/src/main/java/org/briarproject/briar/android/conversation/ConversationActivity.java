@@ -4,6 +4,7 @@ import android.annotation.SuppressLint;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.transition.Slide;
@@ -34,7 +35,6 @@ import org.briarproject.bramble.api.event.EventBus;
 import org.briarproject.bramble.api.event.EventListener;
 import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
 import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
-import org.briarproject.bramble.api.plugin.BluetoothConstants;
 import org.briarproject.bramble.api.plugin.event.ContactConnectedEvent;
 import org.briarproject.bramble.api.plugin.event.ContactDisconnectedEvent;
 import org.briarproject.bramble.api.sync.ClientId;
@@ -54,6 +54,9 @@ import org.briarproject.briar.android.forum.ForumActivity;
 import org.briarproject.briar.android.fragment.BaseFragment.BaseFragmentListener;
 import org.briarproject.briar.android.introduction.IntroductionActivity;
 import org.briarproject.briar.android.privategroup.conversation.GroupActivity;
+import org.briarproject.briar.android.removabledrive.RemovableDriveActivity;
+import org.briarproject.briar.android.util.ActivityLaunchers.GetImageAdvanced;
+import org.briarproject.briar.android.util.ActivityLaunchers.GetMultipleImagesAdvanced;
 import org.briarproject.briar.android.util.BriarSnackbarBuilder;
 import org.briarproject.briar.android.view.BriarRecyclerView;
 import org.briarproject.briar.android.view.ImagePreview;
@@ -92,6 +95,7 @@ import java.util.logging.Logger;
 
 import javax.inject.Inject;
 
+import androidx.activity.result.ActivityResultLauncher;
 import androidx.annotation.Nullable;
 import androidx.annotation.UiThread;
 import androidx.appcompat.app.AlertDialog;
@@ -121,6 +125,7 @@ import static android.widget.Toast.LENGTH_SHORT;
 import static androidx.core.app.ActivityOptionsCompat.makeSceneTransitionAnimation;
 import static androidx.lifecycle.Lifecycle.State.STARTED;
 import static androidx.recyclerview.widget.SortedList.INVALID_POSITION;
+import static java.util.Collections.singletonList;
 import static java.util.Collections.sort;
 import static java.util.Objects.requireNonNull;
 import static java.util.logging.Level.INFO;
@@ -132,7 +137,6 @@ import static org.briarproject.bramble.util.LogUtils.now;
 import static org.briarproject.bramble.util.StringUtils.fromHexString;
 import static org.briarproject.bramble.util.StringUtils.isNullOrEmpty;
 import static org.briarproject.bramble.util.StringUtils.join;
-import static org.briarproject.briar.android.activity.RequestCodes.REQUEST_ATTACH_IMAGE;
 import static org.briarproject.briar.android.activity.RequestCodes.REQUEST_INTRODUCTION;
 import static org.briarproject.briar.android.conversation.ImageActivity.ATTACHMENTS;
 import static org.briarproject.briar.android.conversation.ImageActivity.ATTACHMENT_POSITION;
@@ -192,6 +196,12 @@ public class ConversationActivity extends BriarActivity
 		requireNonNull(name);
 		loadMessages();
 	};
+	private final ActivityResultLauncher<String> launcher = SDK_INT >= 18 ?
+			registerForActivityResult(new GetMultipleImagesAdvanced(),
+					this::onImagesChosen) :
+			registerForActivityResult(new GetImageAdvanced(), uri -> {
+				if (uri != null) onImagesChosen(singletonList(uri));
+			});
 
 	private AttachmentRetriever attachmentRetriever;
 	private ConversationViewModel viewModel;
@@ -314,9 +324,6 @@ public class ConversationActivity extends BriarActivity
 					.make(list, R.string.introduction_sent,
 							Snackbar.LENGTH_SHORT)
 					.show();
-		} else if (request == REQUEST_ATTACH_IMAGE && result == RESULT_OK) {
-			// TODO: remove cast when removing feature flag
-			((TextAttachmentController) sendController).onImageReceived(data);
 		}
 	}
 
@@ -375,6 +382,10 @@ public class ConversationActivity extends BriarActivity
 		if (!featureFlags.shouldEnableConnectViaBluetooth()) {
 			menu.findItem(R.id.action_connect_via_bluetooth).setVisible(false);
 		}
+		// Transfer Data feature only supported on API 19+
+		if (SDK_INT >= 19 && featureFlags.shouldEnableTransferData()) {
+			menu.findItem(R.id.action_transfer_data).setVisible(true);
+		}
 		// enable alias and bluetooth action once available
 		observeOnce(viewModel.getContactItem(), this, contact -> {
 			menu.findItem(R.id.action_set_alias).setEnabled(true);
@@ -414,6 +425,11 @@ public class ConversationActivity extends BriarActivity
 			FragmentManager fm = getSupportFragmentManager();
 			new BluetoothConnecterDialogFragment().show(fm,
 					BluetoothConnecterDialogFragment.TAG);
+			return true;
+		} else if (itemId == R.id.action_transfer_data) {
+			Intent intent = new Intent(this, RemovableDriveActivity.class);
+			intent.putExtra(CONTACT_ID, contactId.getInt());
+			startActivity(intent);
 			return true;
 		} else if (itemId == R.id.action_delete_all_messages) {
 			askToDeleteAllMessages();
@@ -760,8 +776,13 @@ public class ConversationActivity extends BriarActivity
 	}
 
 	@Override
-	public void onAttachImage(Intent intent) {
-		startActivityForResult(intent, REQUEST_ATTACH_IMAGE);
+	public void onAttachImageClicked() {
+		launcher.launch("image/*");
+	}
+
+	private void onImagesChosen(@Nullable List<Uri> uris) {
+		// TODO: remove cast when removing feature flag
+		((TextAttachmentController) sendController).onImageReceived(uris);
 	}
 
 	@Override

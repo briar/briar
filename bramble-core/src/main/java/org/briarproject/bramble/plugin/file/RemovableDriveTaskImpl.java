@@ -63,8 +63,6 @@ abstract class RemovableDriveTaskImpl implements RemovableDriveTask {
 		synchronized (lock) {
 			observers.add(o);
 			state = this.state;
-		}
-		if (state.isFinished()) {
 			eventExecutor.execute(() -> o.accept(state));
 		}
 	}

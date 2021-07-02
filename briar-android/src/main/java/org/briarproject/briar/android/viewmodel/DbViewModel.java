@@ -23,7 +23,6 @@ import java.util.logging.Logger;
 import javax.annotation.concurrent.Immutable;
 
 import androidx.annotation.AnyThread;
-import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.UiThread;
 import androidx.arch.core.util.Function;
@@ -50,7 +49,7 @@ public abstract class DbViewModel extends AndroidViewModel {
 	protected final AndroidExecutor androidExecutor;
 
 	public DbViewModel(
-			@NonNull Application application,
+			Application application,
 			@DatabaseExecutor Executor dbExecutor,
 			LifecycleManager lifecycleManager,
 			TransactionManager db,

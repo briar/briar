@@ -11,12 +11,6 @@
 		app:showAsAction="never" />
 
 	<item
-		android:id="@+id/action_set_alias"
-		android:enabled="false"
-		android:title="@string/set_contact_alias"
-		app:showAsAction="never" />
-
-	<item
 		android:id="@+id/action_conversation_settings"
 		android:title="@string/menu_item_disappearing_messages"
 		android:visible="false"
@@ -24,20 +18,42 @@
 		tools:visible="true" />
 
 	<item
-		android:id="@+id/action_connect_via_bluetooth"
-		android:enabled="false"
-		android:title="@string/menu_item_connect_via_bluetooth"
-		app:showAsAction="never" />
-
-	<item
 		android:id="@+id/action_delete_all_messages"
 		android:title="@string/delete_all_messages"
 		app:showAsAction="never" />
 
 	<item
-		android:id="@+id/action_social_remove_person"
-		android:icon="@drawable/action_delete_white"
-		android:title="@string/delete_contact"
-		app:showAsAction="never" />
+		android:title="@string/network_settings_title"
+		app:showAsAction="never">
+		<menu>
+			<item
+				android:id="@+id/action_connect_via_bluetooth"
+				android:enabled="false"
+				android:title="@string/menu_item_connect_via_bluetooth"
+				app:showAsAction="never" />
+
+			<item
+				android:id="@+id/action_transfer_data"
+				android:title="@string/removable_drive_menu_title"
+				android:visible="false"
+				app:showAsAction="never" />
+		</menu>
+	</item>
+
+	<item
+		android:title="@string/menu_contact"
+		app:showAsAction="never">
+		<menu>
+			<item
+				android:id="@+id/action_set_alias"
+				android:enabled="false"
+				android:title="@string/set_contact_alias"
+				app:showAsAction="never" />
+			<item
+				android:id="@+id/action_social_remove_person"
+				android:title="@string/delete_contact"
+				app:showAsAction="never" />
+		</menu>
+	</item>
 
 </menu>

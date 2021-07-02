@@ -33,7 +33,6 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Locale;
 import java.util.concurrent.Executor;
 import java.util.logging.Logger;
 
@@ -45,6 +44,7 @@ import androidx.annotation.UiThread;
 import static android.media.MediaScannerConnection.scanFile;
 import static android.os.Environment.DIRECTORY_PICTURES;
 import static android.os.Environment.getExternalStoragePublicDirectory;
+import static java.util.Locale.US;
 import static java.util.Objects.requireNonNull;
 import static java.util.logging.Level.WARNING;
 import static java.util.logging.Logger.getLogger;
@@ -111,7 +111,7 @@ public class ImageViewModel extends DbViewModel implements EventListener {
 	}
 
 	@UiThread
-	public void expectAttachments(List<AttachmentItem> attachments) {
+	void expectAttachments(List<AttachmentItem> attachments) {
 		for (AttachmentItem item : attachments) {
 			// no need to track items that are in a final state already
 			if (item.getState().isFinal()) continue;
@@ -226,8 +226,7 @@ public class ImageViewModel extends DbViewModel implements EventListener {
 	}
 
 	String getFileName() {
-		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd",
-				Locale.getDefault());
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd_HHmmss", US);
 		return sdf.format(new Date());
 	}
 
