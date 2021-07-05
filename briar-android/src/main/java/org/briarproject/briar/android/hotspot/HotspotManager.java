@@ -239,7 +239,7 @@ class HotspotManager implements ActionListener {
 			if (valid || attempt >= MAX_GROUP_INFO_ATTEMPTS) {
 				onHotspotStarted(group);
 			} else {
-				retryRequestingGroupInfo(attempt + 1);
+				retryRequestingGroupInfo(attempt);
 			}
 		};
 		try {
