@@ -84,8 +84,10 @@ public class HotspotIntroFragment extends Fragment {
 		progressBar = v.findViewById(R.id.progressBar);
 		progressTextView = v.findViewById(R.id.progressTextView);
 
-		startButton.setOnClickListener(
-				button -> conditionManager.startConditionChecks());
+		startButton.setOnClickListener(button -> {
+			startButton.setEnabled(false);
+			conditionManager.startConditionChecks();
+		});
 
 		return v;
 	}
@@ -97,6 +99,7 @@ public class HotspotIntroFragment extends Fragment {
 	}
 
 	private void startHotspot() {
+		startButton.setEnabled(true);
 		if (conditionManager.checkAndRequestConditions()) {
 			showInstallWarningIfNeeded();
 			beginDelayedTransition((ViewGroup) requireView());
