@@ -49,6 +49,7 @@ import javax.inject.Inject;
 
 import static java.lang.Math.max;
 import static java.util.logging.Level.WARNING;
+import static org.briarproject.bramble.api.nullsafety.NullSafety.requireNonNull;
 import static org.briarproject.bramble.api.system.Clock.MIN_REASONABLE_TIME_MS;
 import static org.briarproject.bramble.util.LogUtils.logException;
 import static org.briarproject.briar.introduction.IntroduceeState.AWAIT_AUTH;
@@ -476,7 +477,7 @@ class IntroduceeProtocolEngine
 
 			// add signed transport properties for the contact
 			transportPropertyManager.addRemoteProperties(txn, contactId,
-					s.getRemote().transportProperties);
+					requireNonNull(s.getRemote().transportProperties));
 		} catch (ContactExistsException e) {
 			// Ignore this, because the other introducee might have deleted us
 		}
