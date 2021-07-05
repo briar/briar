@@ -244,6 +244,6 @@ dependencyVerification {
         'org.robolectric:utils-reflector:4.3.1:utils-reflector-4.3.1.jar:9d7bf2557947d44d6f3ed76ec5231e8b72e33eb61c65ac9e149ad307b0eb936c',
         'org.robolectric:utils:4.3.1:utils-4.3.1.jar:6f9e406cd667019a5450e473c4e2d372bff9c9ab6ef55aafcbc9843109cb1519',
         'tools.fastlane:screengrab:2.0.0:screengrab-2.0.0.aar:15ac15eb7c371db05e721be8d466567c2b7274b767d91478e781b6d89ee5d3d0',
-        'uk.co.samuelwall:material-tap-target-prompt:3.0.0:material-tap-target-prompt-3.0.0.aar:e4d3c472b2d378e39a6535b7788e6c790fc9dde2d7659974e006ed8c7260911d',
+        'uk.co.samuelwall:material-tap-target-prompt:3.3.0:material-tap-target-prompt-3.3.0.aar:00f16e8d7e55d01e3b41cf66e09eee8588870ca7285ba3c72267ca0482f1606e',
     ]
 }
