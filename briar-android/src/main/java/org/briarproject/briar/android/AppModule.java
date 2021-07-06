@@ -69,6 +69,7 @@ import dagger.Provides;
 import static android.content.Context.MODE_PRIVATE;
 import static android.os.Build.VERSION.SDK_INT;
 import static java.util.Arrays.asList;
+import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
 import static java.util.Collections.singletonMap;
 import static org.briarproject.bramble.api.reporting.ReportingConstants.DEV_ONION_ADDRESS;
@@ -165,7 +166,7 @@ public class AppModule {
 
 			@Override
 			public Collection<SimplexPluginFactory> getSimplexFactories() {
-				return singletonList(drive);
+				return SDK_INT >= 19 ? singletonList(drive) : emptyList();
 			}
 
 			@Override
