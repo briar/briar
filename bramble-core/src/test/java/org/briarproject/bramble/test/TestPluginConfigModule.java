@@ -50,7 +50,7 @@ public class TestPluginConfigModule {
 		}
 
 		@Override
-		public int getMaxLatency() {
+		public long getMaxLatency() {
 			return MAX_LATENCY;
 		}
 
@@ -70,7 +70,7 @@ public class TestPluginConfigModule {
 		}
 
 		@Override
-		public int getMaxLatency() {
+		public long getMaxLatency() {
 			return MAX_LATENCY;
 		}
 

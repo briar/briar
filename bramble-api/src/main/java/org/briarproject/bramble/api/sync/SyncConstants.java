@@ -5,6 +5,7 @@ import org.briarproject.bramble.api.UniqueId;
 import java.util.List;
 
 import static java.util.Collections.singletonList;
+import static java.util.concurrent.TimeUnit.DAYS;
 import static org.briarproject.bramble.api.record.Record.MAX_RECORD_PAYLOAD_BYTES;
 
 public interface SyncConstants {
@@ -55,4 +56,9 @@ public interface SyncConstants {
 	 * connections.
 	 */
 	int PRIORITY_NONCE_BYTES = 16;
+
+	/**
+	 * The maximum allowed latency for any transport, in milliseconds.
+	 */
+	long MAX_TRANSPORT_LATENCY = DAYS.toMillis(365);
 }

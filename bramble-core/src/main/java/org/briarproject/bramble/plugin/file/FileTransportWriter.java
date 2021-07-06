@@ -27,7 +27,7 @@ class FileTransportWriter implements TransportConnectionWriter {
 	}
 
 	@Override
-	public int getMaxLatency() {
+	public long getMaxLatency() {
 		return plugin.getMaxLatency();
 	}
 

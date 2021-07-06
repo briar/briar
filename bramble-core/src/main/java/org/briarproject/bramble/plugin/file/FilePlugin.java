@@ -27,20 +27,20 @@ abstract class FilePlugin implements SimplexPlugin {
 			getLogger(FilePlugin.class.getName());
 
 	protected final PluginCallback callback;
-	protected final int maxLatency;
+	protected final long maxLatency;
 
 	protected abstract void writerFinished(File f, boolean exception);
 
 	protected abstract void readerFinished(File f, boolean exception,
 			boolean recognised);
 
-	FilePlugin(PluginCallback callback, int maxLatency) {
+	FilePlugin(PluginCallback callback, long maxLatency) {
 		this.callback = callback;
 		this.maxLatency = maxLatency;
 	}
 
 	@Override
-	public int getMaxLatency() {
+	public long getMaxLatency() {
 		return maxLatency;
 	}
 

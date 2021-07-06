@@ -145,7 +145,7 @@ interface Database<T> {
 	/**
 	 * Stores a transport.
 	 */
-	void addTransport(T txn, TransportId t, int maxLatency)
+	void addTransport(T txn, TransportId t, long maxLatency)
 			throws DbException;
 
 	/**
@@ -171,7 +171,7 @@ interface Database<T> {
 	 * @param eager True if messages that are not yet due for retransmission
 	 * should be included
 	 */
-	boolean containsAnythingToSend(T txn, ContactId c, int maxLatency,
+	boolean containsAnythingToSend(T txn, ContactId c, long maxLatency,
 			boolean eager) throws DbException;
 
 	/**
@@ -483,7 +483,7 @@ interface Database<T> {
 	 * Read-only.
 	 */
 	Collection<MessageId> getMessagesToOffer(T txn, ContactId c,
-			int maxMessages, int maxLatency) throws DbException;
+			int maxMessages, long maxLatency) throws DbException;
 
 	/**
 	 * Returns the IDs of some messages that are eligible to be requested from
@@ -505,13 +505,13 @@ interface Database<T> {
 	 * Read-only.
 	 */
 	Collection<MessageId> getMessagesToSend(T txn, ContactId c, int maxLength,
-			int maxLatency) throws DbException;
+			long maxLatency) throws DbException;
 
 	/**
 	 * Returns the IDs of all messages that are eligible to be sent to the
 	 * given contact, together with their raw lengths.
 	 * <p/>
-	 * Unlike {@link #getMessagesToSend(Object, ContactId, int, int)} this
+	 * Unlike {@link #getMessagesToSend(Object, ContactId, int, long)} this
 	 * method may return messages that have already been sent and are not yet
 	 * due for retransmission.
 	 * <p/>
@@ -604,7 +604,7 @@ interface Database<T> {
 	 * Read-only.
 	 */
 	Collection<MessageId> getRequestedMessagesToSend(T txn, ContactId c,
-			int maxLength, int maxLatency) throws DbException;
+			int maxLength, long maxLatency) throws DbException;
 
 	/**
 	 * Returns all settings in the given namespace.
@@ -845,7 +845,7 @@ interface Database<T> {
 	 * of the given message with respect to the given contact, using the latency
 	 * of the transport over which it was sent.
 	 */
-	void updateExpiryTimeAndEta(T txn, ContactId c, MessageId m, int maxLatency)
+	void updateExpiryTimeAndEta(T txn, ContactId c, MessageId m, long maxLatency)
 			throws DbException;
 
 	/**

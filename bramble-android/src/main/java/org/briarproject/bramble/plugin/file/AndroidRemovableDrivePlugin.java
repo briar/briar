@@ -23,7 +23,7 @@ class AndroidRemovableDrivePlugin extends RemovableDrivePlugin {
 	private final Application app;
 
 	AndroidRemovableDrivePlugin(Application app, PluginCallback callback,
-			int maxLatency) {
+			long maxLatency) {
 		super(callback, maxLatency);
 		this.app = app;
 	}

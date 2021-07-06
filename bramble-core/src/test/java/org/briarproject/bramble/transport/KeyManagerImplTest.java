@@ -81,7 +81,7 @@ public class KeyManagerImplTest extends BrambleMockTestCase {
 				context.mock(SimplexPluginFactory.class);
 		Collection<SimplexPluginFactory> factories =
 				singletonList(pluginFactory);
-		int maxLatency = 1337;
+		long maxLatency = 1337;
 
 		context.checking(new Expectations() {{
 			allowing(pluginConfig).getSimplexFactories();

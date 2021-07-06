@@ -19,9 +19,8 @@ import org.briarproject.bramble.api.lifecycle.Service;
 import org.briarproject.bramble.api.lifecycle.ServiceException;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.plugin.PluginConfig;
+import org.briarproject.bramble.api.plugin.PluginFactory;
 import org.briarproject.bramble.api.plugin.TransportId;
-import org.briarproject.bramble.api.plugin.duplex.DuplexPluginFactory;
-import org.briarproject.bramble.api.plugin.simplex.SimplexPluginFactory;
 import org.briarproject.bramble.api.transport.KeyManager;
 import org.briarproject.bramble.api.transport.KeySetId;
 import org.briarproject.bramble.api.transport.StreamContext;
@@ -40,6 +39,7 @@ import javax.annotation.concurrent.ThreadSafe;
 import javax.inject.Inject;
 
 import static java.util.logging.Level.INFO;
+import static org.briarproject.bramble.api.sync.SyncConstants.MAX_TRANSPORT_LATENCY;
 
 @ThreadSafe
 @NotNullByDefault
@@ -67,12 +67,12 @@ class KeyManagerImpl implements KeyManager, Service, EventListener {
 		this.pluginConfig = pluginConfig;
 		this.transportCrypto = transportCrypto;
 		managers = new ConcurrentHashMap<>();
-		for (SimplexPluginFactory f : pluginConfig.getSimplexFactories()) {
+		for (PluginFactory<?> f : pluginConfig.getSimplexFactories()) {
 			TransportKeyManager m = transportKeyManagerFactory.
 					createTransportKeyManager(f.getId(), f.getMaxLatency());
 			managers.put(f.getId(), m);
 		}
-		for (DuplexPluginFactory f : pluginConfig.getDuplexFactories()) {
+		for (PluginFactory<?> f : pluginConfig.getDuplexFactories()) {
 			TransportKeyManager m = transportKeyManagerFactory.
 					createTransportKeyManager(f.getId(), f.getMaxLatency());
 			managers.put(f.getId(), m);
@@ -84,20 +84,26 @@ class KeyManagerImpl implements KeyManager, Service, EventListener {
 		if (used.getAndSet(true)) throw new IllegalStateException();
 		try {
 			db.transaction(false, txn -> {
-				for (SimplexPluginFactory f :
-						pluginConfig.getSimplexFactories()) {
-					db.addTransport(txn, f.getId(), f.getMaxLatency());
-					managers.get(f.getId()).start(txn);
+				for (PluginFactory<?> f : pluginConfig.getSimplexFactories()) {
+					addTransport(txn, f);
 				}
-				for (DuplexPluginFactory f :
-						pluginConfig.getDuplexFactories()) {
-					db.addTransport(txn, f.getId(), f.getMaxLatency());
-					managers.get(f.getId()).start(txn);
+				for (PluginFactory<?> f : pluginConfig.getDuplexFactories()) {
+					addTransport(txn, f);
 				}
 			});
 		} catch (DbException e) {
 			throw new ServiceException(e);
 		}
+	}
+
+	private void addTransport(Transaction txn, PluginFactory<?> f)
+			throws DbException {
+		long maxLatency = f.getMaxLatency();
+		if (maxLatency > MAX_TRANSPORT_LATENCY) {
+			throw new IllegalStateException();
+		}
+		db.addTransport(txn, f.getId(), maxLatency);
+		managers.get(f.getId()).start(txn);
 	}
 
 	@Override
