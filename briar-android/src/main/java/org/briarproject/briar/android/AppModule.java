@@ -35,6 +35,7 @@ import org.briarproject.briar.android.blog.BlogModule;
 import org.briarproject.briar.android.contact.ContactListModule;
 import org.briarproject.briar.android.contact.add.nearby.AddNearbyContactModule;
 import org.briarproject.briar.android.forum.ForumModule;
+import org.briarproject.briar.android.hotspot.HotspotModule;
 import org.briarproject.briar.android.introduction.IntroductionModule;
 import org.briarproject.briar.android.logging.LoggingModule;
 import org.briarproject.briar.android.login.LoginModule;
@@ -92,6 +93,7 @@ import static org.briarproject.briar.android.TestingConstants.IS_DEBUG_BUILD;
 		GroupListModule.class,
 		GroupConversationModule.class,
 		SharingModule.class,
+		HotspotModule.class
 })
 public class AppModule {
 
@@ -301,6 +303,11 @@ public class AppModule {
 
 			@Override
 			public boolean shouldEnableConnectViaBluetooth() {
+				return IS_DEBUG_BUILD;
+			}
+
+			@Override
+			public boolean shouldEnableShareAppViaOfflineHotspot() {
 				return IS_DEBUG_BUILD;
 			}
 		};

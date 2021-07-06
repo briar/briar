@@ -43,6 +43,11 @@ public class BrambleCoreIntegrationTestModule {
 			public boolean shouldEnableConnectViaBluetooth() {
 				return true;
 			}
+
+			@Override
+			public boolean shouldEnableShareAppViaOfflineHotspot() {
+				return true;
+			}
 		};
 	}
 }
