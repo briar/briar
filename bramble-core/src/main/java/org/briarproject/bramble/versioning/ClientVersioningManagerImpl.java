@@ -50,6 +50,7 @@ import static java.util.Collections.emptyList;
 import static org.briarproject.bramble.api.sync.Group.Visibility.INVISIBLE;
 import static org.briarproject.bramble.api.sync.Group.Visibility.SHARED;
 import static org.briarproject.bramble.api.sync.Group.Visibility.VISIBLE;
+import static org.briarproject.bramble.api.sync.validation.IncomingMessageHook.DeliveryAction.ACCEPT_DO_NOT_SHARE;
 import static org.briarproject.bramble.versioning.ClientVersioningConstants.MSG_KEY_LOCAL;
 import static org.briarproject.bramble.versioning.ClientVersioningConstants.MSG_KEY_UPDATE_VERSION;
 
@@ -173,8 +174,8 @@ class ClientVersioningManagerImpl implements ClientVersioningManager,
 	}
 
 	@Override
-	public boolean incomingMessage(Transaction txn, Message m, Metadata meta)
-			throws DbException, InvalidMessageException {
+	public DeliveryAction incomingMessage(Transaction txn, Message m,
+			Metadata meta) throws DbException, InvalidMessageException {
 		try {
 			// Parse the new remote update
 			Update newRemoteUpdate = parseUpdate(clientHelper.toList(m));
@@ -187,7 +188,7 @@ class ClientVersioningManagerImpl implements ClientVersioningManager,
 					&& latest.remote.updateVersion > newRemoteUpdateVersion) {
 				db.deleteMessage(txn, m.getId());
 				db.deleteMessageMetadata(txn, m.getId());
-				return false;
+				return ACCEPT_DO_NOT_SHARE;
 			}
 			// Load and parse the latest local update
 			if (latest.local == null) throw new DbException();
@@ -241,7 +242,7 @@ class ClientVersioningManagerImpl implements ClientVersioningManager,
 		} catch (FormatException e) {
 			throw new InvalidMessageException(e);
 		}
-		return false;
+		return ACCEPT_DO_NOT_SHARE;
 	}
 
 	private void storeClientVersions(Transaction txn,

@@ -67,7 +67,7 @@ class AndroidLanTcpPlugin extends LanTcpPlugin {
 			Application app,
 			Backoff backoff,
 			PluginCallback callback,
-			int maxLatency,
+			long maxLatency,
 			int maxIdleTime,
 			int connectionTimeout) {
 		super(ioExecutor, wakefulIoExecutor, backoff, callback, maxLatency,

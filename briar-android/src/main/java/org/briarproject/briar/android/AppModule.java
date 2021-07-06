@@ -24,6 +24,7 @@ import org.briarproject.bramble.api.plugin.duplex.DuplexPluginFactory;
 import org.briarproject.bramble.api.plugin.simplex.SimplexPluginFactory;
 import org.briarproject.bramble.api.reporting.DevConfig;
 import org.briarproject.bramble.plugin.bluetooth.AndroidBluetoothPluginFactory;
+import org.briarproject.bramble.plugin.file.AndroidRemovableDrivePluginFactory;
 import org.briarproject.bramble.plugin.tcp.AndroidLanTcpPluginFactory;
 import org.briarproject.bramble.plugin.tor.AndroidTorPluginFactory;
 import org.briarproject.bramble.util.AndroidUtils;
@@ -42,6 +43,7 @@ import org.briarproject.briar.android.login.LoginModule;
 import org.briarproject.briar.android.navdrawer.NavDrawerModule;
 import org.briarproject.briar.android.privategroup.conversation.GroupConversationModule;
 import org.briarproject.briar.android.privategroup.list.GroupListModule;
+import org.briarproject.briar.android.removabledrive.TransferDataModule;
 import org.briarproject.briar.android.reporting.DevReportModule;
 import org.briarproject.briar.android.settings.SettingsModule;
 import org.briarproject.briar.android.sharing.SharingModule;
@@ -93,7 +95,8 @@ import static org.briarproject.briar.android.TestingConstants.IS_DEBUG_BUILD;
 		GroupListModule.class,
 		GroupConversationModule.class,
 		SharingModule.class,
-		HotspotModule.class
+		HotspotModule.class,
+		TransferDataModule.class,
 })
 public class AppModule {
 
@@ -151,8 +154,10 @@ public class AppModule {
 	}
 
 	@Provides
+	@Singleton
 	PluginConfig providePluginConfig(AndroidBluetoothPluginFactory bluetooth,
-			AndroidTorPluginFactory tor, AndroidLanTcpPluginFactory lan) {
+			AndroidTorPluginFactory tor, AndroidLanTcpPluginFactory lan,
+			AndroidRemovableDrivePluginFactory drive) {
 		@NotNullByDefault
 		PluginConfig pluginConfig = new PluginConfig() {
 
@@ -163,7 +168,7 @@ public class AppModule {
 
 			@Override
 			public Collection<SimplexPluginFactory> getSimplexFactories() {
-				return emptyList();
+				return SDK_INT >= 19 ? singletonList(drive) : emptyList();
 			}
 
 			@Override
@@ -303,6 +308,11 @@ public class AppModule {
 
 			@Override
 			public boolean shouldEnableConnectViaBluetooth() {
+				return IS_DEBUG_BUILD;
+			}
+
+			@Override
+			public boolean shouldEnableTransferData() {
 				return IS_DEBUG_BUILD;
 			}
 

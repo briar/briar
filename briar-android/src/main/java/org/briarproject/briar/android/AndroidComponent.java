@@ -28,6 +28,7 @@ import org.briarproject.bramble.api.system.AndroidExecutor;
 import org.briarproject.bramble.api.system.AndroidWakeLockManager;
 import org.briarproject.bramble.api.system.Clock;
 import org.briarproject.bramble.api.system.LocationUtils;
+import org.briarproject.bramble.plugin.file.RemovableDriveModule;
 import org.briarproject.bramble.plugin.tor.CircumventionProvider;
 import org.briarproject.bramble.system.ClockModule;
 import org.briarproject.briar.BriarCoreEagerSingletons;
@@ -42,6 +43,9 @@ import org.briarproject.briar.android.hotspot.ManualHotspotFragment;
 import org.briarproject.briar.android.hotspot.QrHotspotFragment;
 import org.briarproject.briar.android.logging.CachingLogHandler;
 import org.briarproject.briar.android.login.SignInReminderReceiver;
+import org.briarproject.briar.android.removabledrive.ChooserFragment;
+import org.briarproject.briar.android.removabledrive.ReceiveFragment;
+import org.briarproject.briar.android.removabledrive.SendFragment;
 import org.briarproject.briar.android.settings.ConnectionsFragment;
 import org.briarproject.briar.android.settings.NotificationsFragment;
 import org.briarproject.briar.android.settings.SecurityFragment;
@@ -88,7 +92,8 @@ import dagger.Component;
 		AppModule.class,
 		AttachmentModule.class,
 		ClockModule.class,
-		MediaModule.class
+		MediaModule.class,
+		RemovableDriveModule.class
 })
 public interface AndroidComponent
 		extends BrambleCoreEagerSingletons, BrambleAndroidEagerSingletons,
@@ -225,4 +230,10 @@ public interface AndroidComponent
 	void inject(ManualHotspotFragment manualHotspotFragment);
 
 	void inject(FallbackFragment fallbackFragment);
+
+	void inject(ChooserFragment chooserFragment);
+
+	void inject(SendFragment sendFragment);
+
+	void inject(ReceiveFragment receiveFragment);
 }

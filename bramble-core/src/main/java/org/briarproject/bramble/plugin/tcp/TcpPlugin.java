@@ -69,8 +69,8 @@ abstract class TcpPlugin implements DuplexPlugin, EventListener {
 	protected final Executor ioExecutor, wakefulIoExecutor, bindExecutor;
 	protected final Backoff backoff;
 	protected final PluginCallback callback;
-	protected final int maxLatency, maxIdleTime;
-	protected final int connectionTimeout, socketTimeout;
+	protected final long maxLatency;
+	protected final int maxIdleTime, connectionTimeout, socketTimeout;
 	protected final AtomicBoolean used = new AtomicBoolean(false);
 	protected final PluginState state = new PluginState();
 
@@ -111,7 +111,7 @@ abstract class TcpPlugin implements DuplexPlugin, EventListener {
 			Executor wakefulIoExecutor,
 			Backoff backoff,
 			PluginCallback callback,
-			int maxLatency,
+			long maxLatency,
 			int maxIdleTime,
 			int connectionTimeout) {
 		this.ioExecutor = ioExecutor;
@@ -129,7 +129,7 @@ abstract class TcpPlugin implements DuplexPlugin, EventListener {
 	}
 
 	@Override
-	public int getMaxLatency() {
+	public long getMaxLatency() {
 		return maxLatency;
 	}
 

@@ -61,7 +61,7 @@ public interface Plugin {
 	/**
 	 * Returns the transport's maximum latency in milliseconds.
 	 */
-	int getMaxLatency();
+	long getMaxLatency();
 
 	/**
 	 * Returns the transport's maximum idle time in milliseconds.

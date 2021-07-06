@@ -17,7 +17,7 @@ import org.briarproject.briar.android.contact.add.nearby.AddContactState.Failed;
 import org.briarproject.briar.android.contact.add.nearby.AddNearbyContactViewModel.BluetoothDecision;
 import org.briarproject.briar.android.fragment.BaseFragment;
 import org.briarproject.briar.android.fragment.BaseFragment.BaseFragmentListener;
-import org.briarproject.briar.android.util.RequestBluetoothDiscoverable;
+import org.briarproject.briar.android.util.ActivityLaunchers.RequestBluetoothDiscoverable;
 
 import java.util.logging.Logger;
 

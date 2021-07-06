@@ -74,6 +74,7 @@ internal class HeadlessModule(private val appDir: File) {
     }
 
     @Provides
+    @Singleton
     internal fun providePluginConfig(tor: UnixTorPluginFactory): PluginConfig {
         val duplex: List<DuplexPluginFactory> =
             if (isLinux() || isMac()) listOf(tor) else emptyList()
@@ -95,6 +96,7 @@ internal class HeadlessModule(private val appDir: File) {
         override fun shouldEnableProfilePictures() = false
         override fun shouldEnableDisappearingMessages() = false
         override fun shouldEnableConnectViaBluetooth() = false
+        override fun shouldEnableTransferData() = false
         override fun shouldEnableShareAppViaOfflineHotspot() = false
     }
 }

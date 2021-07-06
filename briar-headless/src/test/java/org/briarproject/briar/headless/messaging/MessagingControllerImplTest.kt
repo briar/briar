@@ -136,7 +136,7 @@ internal class MessagingControllerImplTest : ControllerTest() {
         val messageId1 = MessageId(getRandomId())
         val messageId2 = MessageId(getRandomId())
         val messageIds = listOf(messageId1, messageId2)
-        val event = MessagesSentEvent(contact.id, messageIds)
+        val event = MessagesSentEvent(contact.id, messageIds, 1234)
 
         every {
             webSocketController.sendEvent(
@@ -274,7 +274,7 @@ internal class MessagingControllerImplTest : ControllerTest() {
         val messageId1 = MessageId(getRandomId())
         val messageId2 = MessageId(getRandomId())
         val messageIds = listOf(messageId1, messageId2)
-        val event = MessagesSentEvent(contact.id, messageIds)
+        val event = MessagesSentEvent(contact.id, messageIds, 1234)
 
         val json = """
             {

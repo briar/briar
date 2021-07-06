@@ -79,7 +79,8 @@ abstract class AbstractBluetoothPlugin<S, SS> implements BluetoothPlugin,
 	private final SecureRandom secureRandom;
 	private final Backoff backoff;
 	private final PluginCallback callback;
-	private final int maxLatency, maxIdleTime;
+	private final long maxLatency;
+	private final int maxIdleTime;
 	private final AtomicBoolean used = new AtomicBoolean(false);
 	private final AtomicBoolean everConnected = new AtomicBoolean(false);
 
@@ -121,7 +122,7 @@ abstract class AbstractBluetoothPlugin<S, SS> implements BluetoothPlugin,
 			SecureRandom secureRandom,
 			Backoff backoff,
 			PluginCallback callback,
-			int maxLatency,
+			long maxLatency,
 			int maxIdleTime) {
 		this.connectionLimiter = connectionLimiter;
 		this.connectionFactory = connectionFactory;
@@ -158,7 +159,7 @@ abstract class AbstractBluetoothPlugin<S, SS> implements BluetoothPlugin,
 	}
 
 	@Override
-	public int getMaxLatency() {
+	public long getMaxLatency() {
 		return maxLatency;
 	}
 

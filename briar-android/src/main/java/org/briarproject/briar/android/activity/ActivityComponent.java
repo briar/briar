@@ -64,6 +64,7 @@ import org.briarproject.briar.android.privategroup.memberlist.GroupMemberModule;
 import org.briarproject.briar.android.privategroup.reveal.GroupRevealModule;
 import org.briarproject.briar.android.privategroup.reveal.RevealContactsActivity;
 import org.briarproject.briar.android.privategroup.reveal.RevealContactsFragment;
+import org.briarproject.briar.android.removabledrive.RemovableDriveActivity;
 import org.briarproject.briar.android.reporting.CrashFragment;
 import org.briarproject.briar.android.reporting.CrashReportActivity;
 import org.briarproject.briar.android.reporting.ReportFormFragment;
@@ -178,6 +179,8 @@ public interface ActivityComponent {
 	void inject(CrashReportActivity crashReportActivity);
 
 	void inject(HotspotActivity hotspotActivity);
+
+	void inject(RemovableDriveActivity activity);
 
 	// Fragments
 
