@@ -54,6 +54,7 @@ import static org.briarproject.briar.introduction.IntroduceeState.AWAIT_AUTH;
 import static org.briarproject.briar.introduction.IntroduceeState.START;
 import static org.briarproject.briar.introduction.MessageType.ABORT;
 import static org.briarproject.briar.introduction.MessageType.ACTIVATE;
+import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 
@@ -176,9 +177,14 @@ public class IntroduceeProtocolEngineTest extends BrambleMockTestCase {
 		IntroduceeSession.Local afterLocal = after.getLocal();
 		assertEquals(activateMessage.getId(), afterLocal.lastMessageId);
 		assertEquals(now, afterLocal.lastMessageTimestamp);
+		assertNull(afterLocal.ephemeralPublicKey);
+		assertNull(afterLocal.ephemeralPrivateKey);
+		assertArrayEquals(localMacKey.getBytes(), afterLocal.macKey);
 
 		IntroduceeSession.Remote afterRemote = after.getRemote();
 		assertEquals(authMessage.getMessageId(), afterRemote.lastMessageId);
+		assertNull(afterRemote.ephemeralPublicKey);
+		assertArrayEquals(remoteMacKey.getBytes(), afterRemote.macKey);
 	}
 
 	@Test
