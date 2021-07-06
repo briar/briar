@@ -707,13 +707,13 @@
 	<string name="removable_drive_receive_intro">Tap the button below to choose the file that your contact sent you.\n\nIf the file is on a removable drive, insert the drive now.</string>
 	<string name="removable_drive_receive_button">Choose file for import</string>
 	<string name="removable_drive_success_send_title">Export successful</string>
-	<string name="removable_drive_success_send_text">Data exported successfully. You now have 14 days to transport the file to your contact.\n\nIf the file is on a removable drive, use the notification in the status bar to eject the drive before unplugging it.</string>
+	<string name="removable_drive_success_send_text">Data exported successfully. You now have 28 days to transport the file to your contact.\n\nIf the file is on a removable drive, use the notification in the status bar to eject the drive before unplugging it.</string>
 	<string name="removable_drive_success_receive_title">Import successful</string>
 	<string name="removable_drive_success_receive_text">All encrypted messages contained in this file have been received.</string>
 	<string name="removable_drive_error_send_title">Error exporting data</string>
 	<string name="removable_drive_error_send_text">There was an error writing data to the file.\n\nIf you are using a removable drive, ensure that it is properly inserted and try again.\n\nIf the error persists, please send feedback to let the Briar team know about the issue.</string>
 	<string name="removable_drive_error_receive_title">Error importing data</string>
-	<string name="removable_drive_error_receive_text">The selected file did not contain anything that Briar could recognize.\n\nPlease check that you chose the right file.\n\nIf your contact created the file more than 14 days ago, Briar will not be able to recognize it.</string>
+	<string name="removable_drive_error_receive_text">The selected file did not contain anything that Briar could recognize.\n\nPlease check that you chose the right file.\n\nIf your contact created the file more than 28 days ago, Briar will not be able to recognize it.</string>
 
 
 	<!-- Screenshots -->

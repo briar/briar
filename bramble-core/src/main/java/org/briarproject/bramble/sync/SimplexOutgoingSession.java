@@ -65,7 +65,7 @@ class SimplexOutgoingSession implements SyncSession, EventListener {
 	private final EventBus eventBus;
 	private final ContactId contactId;
 	private final TransportId transportId;
-	private final int maxLatency;
+	private final long maxLatency;
 	private final boolean eager;
 	private final StreamWriter streamWriter;
 	private final SyncRecordWriter recordWriter;
@@ -76,7 +76,7 @@ class SimplexOutgoingSession implements SyncSession, EventListener {
 
 	SimplexOutgoingSession(DatabaseComponent db, Executor dbExecutor,
 			EventBus eventBus, ContactId contactId, TransportId transportId,
-			int maxLatency, boolean eager, StreamWriter streamWriter,
+			long maxLatency, boolean eager, StreamWriter streamWriter,
 			SyncRecordWriter recordWriter) {
 		this.db = db;
 		this.dbExecutor = dbExecutor;

@@ -22,9 +22,8 @@ import org.briarproject.bramble.api.identity.IdentityManager;
 import org.briarproject.bramble.api.lifecycle.LifecycleManager.OpenDatabaseHook;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.plugin.PluginConfig;
+import org.briarproject.bramble.api.plugin.PluginFactory;
 import org.briarproject.bramble.api.plugin.TransportId;
-import org.briarproject.bramble.api.plugin.duplex.DuplexPluginFactory;
-import org.briarproject.bramble.api.plugin.simplex.SimplexPluginFactory;
 import org.briarproject.bramble.api.sync.Group;
 import org.briarproject.bramble.api.sync.Group.Visibility;
 import org.briarproject.bramble.api.sync.GroupId;
@@ -110,11 +109,11 @@ class TransportKeyAgreementManagerImpl extends BdfIncomingMessageHook
 		this.sessionParser = sessionParser;
 		this.crypto = crypto;
 		transports = new ArrayList<>();
-		for (DuplexPluginFactory duplex : config.getDuplexFactories()) {
-			transports.add(duplex.getId());
+		for (PluginFactory<?> f : config.getDuplexFactories()) {
+			transports.add(f.getId());
 		}
-		for (SimplexPluginFactory simplex : config.getSimplexFactories()) {
-			transports.add(simplex.getId());
+		for (PluginFactory<?> f : config.getSimplexFactories()) {
+			transports.add(f.getId());
 		}
 		localGroup = contactGroupFactory.createLocalGroup(CLIENT_ID,
 				MAJOR_VERSION);

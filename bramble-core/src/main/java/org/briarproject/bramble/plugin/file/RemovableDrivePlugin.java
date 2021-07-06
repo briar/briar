@@ -19,7 +19,7 @@ import static org.briarproject.bramble.util.StringUtils.isNullOrEmpty;
 @NotNullByDefault
 class RemovableDrivePlugin extends AbstractRemovableDrivePlugin {
 
-	RemovableDrivePlugin(PluginCallback callback, int maxLatency) {
+	RemovableDrivePlugin(PluginCallback callback, long maxLatency) {
 		super(callback, maxLatency);
 	}
 

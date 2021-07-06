@@ -102,7 +102,7 @@ import static org.briarproject.bramble.util.LogUtils.now;
 abstract class JdbcDatabase implements Database<Connection> {
 
 	// Package access for testing
-	static final int CODE_SCHEMA_VERSION = 48;
+	static final int CODE_SCHEMA_VERSION = 49;
 
 	// Time period offsets for incoming transport keys
 	private static final int OFFSET_PREV = -1;
@@ -267,7 +267,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 	private static final String CREATE_TRANSPORTS =
 			"CREATE TABLE transports"
 					+ " (transportId _STRING NOT NULL,"
-					+ " maxLatency INT NOT NULL,"
+					+ " maxLatency BIGINT NOT NULL,"
 					+ " PRIMARY KEY (transportId))";
 
 	private static final String CREATE_PENDING_CONTACTS =
@@ -498,7 +498,8 @@ abstract class JdbcDatabase implements Database<Connection> {
 				new Migration44_45(),
 				new Migration45_46(),
 				new Migration46_47(dbTypes),
-				new Migration47_48()
+				new Migration47_48(),
+				new Migration48_49()
 		);
 	}
 
@@ -1006,7 +1007,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 	}
 
 	@Override
-	public void addTransport(Connection txn, TransportId t, int maxLatency)
+	public void addTransport(Connection txn, TransportId t, long maxLatency)
 			throws DbException {
 		PreparedStatement ps = null;
 		try {
@@ -1129,7 +1130,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 
 	@Override
 	public boolean containsAnythingToSend(Connection txn, ContactId c,
-			int maxLatency, boolean eager) throws DbException {
+			long maxLatency, boolean eager) throws DbException {
 		PreparedStatement ps = null;
 		ResultSet rs = null;
 		try {
@@ -2188,7 +2189,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 
 	@Override
 	public Collection<MessageId> getMessagesToOffer(Connection txn,
-			ContactId c, int maxMessages, int maxLatency) throws DbException {
+			ContactId c, int maxMessages, long maxLatency) throws DbException {
 		long now = clock.currentTimeMillis();
 		long eta = now + maxLatency;
 		PreparedStatement ps = null;
@@ -2247,7 +2248,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 
 	@Override
 	public Collection<MessageId> getMessagesToSend(Connection txn, ContactId c,
-			int maxLength, int maxLatency) throws DbException {
+			int maxLength, long maxLatency) throws DbException {
 		long now = clock.currentTimeMillis();
 		long eta = now + maxLatency;
 		PreparedStatement ps = null;
@@ -2546,7 +2547,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 
 	@Override
 	public Collection<MessageId> getRequestedMessagesToSend(Connection txn,
-			ContactId c, int maxLength, int maxLatency) throws DbException {
+			ContactId c, int maxLength, long maxLatency) throws DbException {
 		long now = clock.currentTimeMillis();
 		long eta = now + maxLatency;
 		PreparedStatement ps = null;
@@ -3617,7 +3618,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 
 	@Override
 	public void updateExpiryTimeAndEta(Connection txn, ContactId c, MessageId m,
-			int maxLatency) throws DbException {
+			long maxLatency) throws DbException {
 		PreparedStatement ps = null;
 		ResultSet rs = null;
 		try {

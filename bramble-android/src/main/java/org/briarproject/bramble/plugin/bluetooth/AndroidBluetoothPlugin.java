@@ -87,7 +87,7 @@ class AndroidBluetoothPlugin extends
 			Clock clock,
 			Backoff backoff,
 			PluginCallback callback,
-			int maxLatency,
+			long maxLatency,
 			int maxIdleTime) {
 		super(connectionLimiter, connectionFactory, ioExecutor,
 				wakefulIoExecutor, secureRandom, backoff, callback,

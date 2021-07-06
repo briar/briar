@@ -77,7 +77,7 @@ class DuplexOutgoingSession implements SyncSession, EventListener {
 	private final Clock clock;
 	private final ContactId contactId;
 	private final TransportId transportId;
-	private final int maxLatency, maxIdleTime;
+	private final long maxLatency, maxIdleTime;
 	private final StreamWriter streamWriter;
 	private final SyncRecordWriter recordWriter;
 	@Nullable
@@ -95,7 +95,7 @@ class DuplexOutgoingSession implements SyncSession, EventListener {
 
 	DuplexOutgoingSession(DatabaseComponent db, Executor dbExecutor,
 			EventBus eventBus, Clock clock, ContactId contactId,
-			TransportId transportId, int maxLatency, int maxIdleTime,
+			TransportId transportId, long maxLatency, int maxIdleTime,
 			StreamWriter streamWriter, SyncRecordWriter recordWriter,
 			@Nullable Priority priority) {
 		this.db = db;

@@ -70,7 +70,7 @@ public abstract class AbstractDuplexTransportConnection
 	private class Writer implements TransportConnectionWriter {
 
 		@Override
-		public int getMaxLatency() {
+		public long getMaxLatency() {
 			return plugin.getMaxLatency();
 		}
 

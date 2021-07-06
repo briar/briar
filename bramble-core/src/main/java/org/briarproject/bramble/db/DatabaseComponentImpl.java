@@ -310,7 +310,7 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 
 	@Override
 	public void addTransport(Transaction transaction, TransportId t,
-			int maxLatency) throws DbException {
+			long maxLatency) throws DbException {
 		if (transaction.isReadOnly()) throw new IllegalArgumentException();
 		T txn = unbox(transaction);
 		if (!db.containsTransport(txn, t))
@@ -343,7 +343,7 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 
 	@Override
 	public boolean containsAnythingToSend(Transaction transaction, ContactId c,
-			int maxLatency, boolean eager) throws DbException {
+			long maxLatency, boolean eager) throws DbException {
 		T txn = unbox(transaction);
 		if (!db.containsContact(txn, c))
 			throw new NoSuchContactException();
@@ -424,7 +424,7 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 	@Nullable
 	@Override
 	public Collection<Message> generateBatch(Transaction transaction,
-			ContactId c, int maxLength, int maxLatency) throws DbException {
+			ContactId c, int maxLength, long maxLatency) throws DbException {
 		if (transaction.isReadOnly()) throw new IllegalArgumentException();
 		T txn = unbox(transaction);
 		if (!db.containsContact(txn, c))
@@ -447,7 +447,7 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 
 	@Override
 	public Collection<Message> generateBatch(Transaction transaction,
-			ContactId c, Collection<MessageId> ids, int maxLatency)
+			ContactId c, Collection<MessageId> ids, long maxLatency)
 			throws DbException {
 		if (transaction.isReadOnly()) throw new IllegalArgumentException();
 		T txn = unbox(transaction);
@@ -474,7 +474,7 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 	@Nullable
 	@Override
 	public Offer generateOffer(Transaction transaction, ContactId c,
-			int maxMessages, int maxLatency) throws DbException {
+			int maxMessages, long maxLatency) throws DbException {
 		if (transaction.isReadOnly()) throw new IllegalArgumentException();
 		T txn = unbox(transaction);
 		if (!db.containsContact(txn, c))
@@ -505,7 +505,7 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 	@Nullable
 	@Override
 	public Collection<Message> generateRequestedBatch(Transaction transaction,
-			ContactId c, int maxLength, int maxLatency) throws DbException {
+			ContactId c, int maxLength, long maxLatency) throws DbException {
 		if (transaction.isReadOnly()) throw new IllegalArgumentException();
 		T txn = unbox(transaction);
 		if (!db.containsContact(txn, c))
