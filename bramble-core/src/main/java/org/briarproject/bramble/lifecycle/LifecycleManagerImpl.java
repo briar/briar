@@ -41,6 +41,8 @@ import static org.briarproject.bramble.api.lifecycle.LifecycleManager.StartResul
 import static org.briarproject.bramble.api.lifecycle.LifecycleManager.StartResult.DB_ERROR;
 import static org.briarproject.bramble.api.lifecycle.LifecycleManager.StartResult.SERVICE_ERROR;
 import static org.briarproject.bramble.api.lifecycle.LifecycleManager.StartResult.SUCCESS;
+import static org.briarproject.bramble.api.system.Clock.MAX_REASONABLE_TIME_MS;
+import static org.briarproject.bramble.api.system.Clock.MIN_REASONABLE_TIME_MS;
 import static org.briarproject.bramble.util.LogUtils.logDuration;
 import static org.briarproject.bramble.util.LogUtils.logException;
 import static org.briarproject.bramble.util.LogUtils.now;

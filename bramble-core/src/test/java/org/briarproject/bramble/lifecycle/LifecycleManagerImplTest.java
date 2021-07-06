@@ -15,10 +15,10 @@ import org.junit.Test;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import static junit.framework.TestCase.assertTrue;
-import static org.briarproject.bramble.api.lifecycle.LifecycleManager.MAX_REASONABLE_TIME_MS;
-import static org.briarproject.bramble.api.lifecycle.LifecycleManager.MIN_REASONABLE_TIME_MS;
 import static org.briarproject.bramble.api.lifecycle.LifecycleManager.StartResult.CLOCK_ERROR;
 import static org.briarproject.bramble.api.lifecycle.LifecycleManager.StartResult.SUCCESS;
+import static org.briarproject.bramble.api.system.Clock.MAX_REASONABLE_TIME_MS;
+import static org.briarproject.bramble.api.system.Clock.MIN_REASONABLE_TIME_MS;
 import static org.briarproject.bramble.test.TestUtils.getSecretKey;
 import static org.junit.Assert.assertEquals;
 
