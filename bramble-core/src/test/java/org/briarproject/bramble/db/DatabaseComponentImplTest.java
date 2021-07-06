@@ -120,7 +120,7 @@ public class DatabaseComponentImplTest extends BrambleMockTestCase {
 	private final MessageId messageId, messageId1;
 	private final Metadata metadata;
 	private final TransportId transportId;
-	private final int maxLatency;
+	private final long maxLatency;
 	private final ContactId contactId;
 	private final Contact contact;
 	private final KeySetId keySetId;

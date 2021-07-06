@@ -131,7 +131,8 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 	private final String architecture;
 	private final CircumventionProvider circumventionProvider;
 	private final ResourceProvider resourceProvider;
-	private final int maxLatency, maxIdleTime, socketTimeout;
+	private final long maxLatency;
+	private final int maxIdleTime, socketTimeout;
 	private final File torDirectory, geoIpFile, configFile;
 	private final File doneFile, cookieFile;
 	private final AtomicBoolean used = new AtomicBoolean(false);
@@ -159,7 +160,7 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 			TorRendezvousCrypto torRendezvousCrypto,
 			PluginCallback callback,
 			String architecture,
-			int maxLatency,
+			long maxLatency,
 			int maxIdleTime,
 			File torDirectory) {
 		this.ioExecutor = ioExecutor;
@@ -204,7 +205,7 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 	}
 
 	@Override
-	public int getMaxLatency() {
+	public long getMaxLatency() {
 		return maxLatency;
 	}
 

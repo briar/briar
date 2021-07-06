@@ -75,7 +75,7 @@ public class AndroidBluetoothPluginFactory implements DuplexPluginFactory {
 	}
 
 	@Override
-	public int getMaxLatency() {
+	public long getMaxLatency() {
 		return MAX_LATENCY;
 	}
 

@@ -35,7 +35,7 @@ public class AndroidRemovableDrivePluginFactory implements
 	}
 
 	@Override
-	public int getMaxLatency() {
+	public long getMaxLatency() {
 		return MAX_LATENCY;
 	}
 

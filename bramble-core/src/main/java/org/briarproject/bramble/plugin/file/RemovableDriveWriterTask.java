@@ -96,7 +96,7 @@ class RemovableDriveWriterTask extends RemovableDriveTaskImpl
 		}
 
 		@Override
-		public int getMaxLatency() {
+		public long getMaxLatency() {
 			return delegate.getMaxLatency();
 		}
 

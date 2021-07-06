@@ -33,7 +33,7 @@ abstract class AbstractRemovableDrivePlugin implements SimplexPlugin {
 	private static final Logger LOG =
 			getLogger(AbstractRemovableDrivePlugin.class.getName());
 
-	private final int maxLatency;
+	private final long maxLatency;
 	private final PluginCallback callback;
 
 	abstract InputStream openInputStream(TransportProperties p)
@@ -42,7 +42,7 @@ abstract class AbstractRemovableDrivePlugin implements SimplexPlugin {
 	abstract OutputStream openOutputStream(TransportProperties p)
 			throws IOException;
 
-	AbstractRemovableDrivePlugin(PluginCallback callback, int maxLatency) {
+	AbstractRemovableDrivePlugin(PluginCallback callback, long maxLatency) {
 		this.callback = callback;
 		this.maxLatency = maxLatency;
 	}
@@ -53,7 +53,7 @@ abstract class AbstractRemovableDrivePlugin implements SimplexPlugin {
 	}
 
 	@Override
-	public int getMaxLatency() {
+	public long getMaxLatency() {
 		return maxLatency;
 	}
 

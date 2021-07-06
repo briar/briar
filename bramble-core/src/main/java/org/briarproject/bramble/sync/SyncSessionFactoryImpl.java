@@ -60,7 +60,7 @@ class SyncSessionFactoryImpl implements SyncSessionFactory {
 
 	@Override
 	public SyncSession createSimplexOutgoingSession(ContactId c, TransportId t,
-			int maxLatency, boolean eager, StreamWriter streamWriter) {
+			long maxLatency, boolean eager, StreamWriter streamWriter) {
 		OutputStream out = streamWriter.getOutputStream();
 		SyncRecordWriter recordWriter =
 				recordWriterFactory.createRecordWriter(out);
@@ -70,7 +70,7 @@ class SyncSessionFactoryImpl implements SyncSessionFactory {
 
 	@Override
 	public SyncSession createDuplexOutgoingSession(ContactId c, TransportId t,
-			int maxLatency, int maxIdleTime, StreamWriter streamWriter,
+			long maxLatency, int maxIdleTime, StreamWriter streamWriter,
 			@Nullable Priority priority) {
 		OutputStream out = streamWriter.getOutputStream();
 		SyncRecordWriter recordWriter =

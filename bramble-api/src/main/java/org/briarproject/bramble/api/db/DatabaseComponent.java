@@ -101,7 +101,7 @@ public interface DatabaseComponent extends TransactionManager {
 	/**
 	 * Stores a transport.
 	 */
-	void addTransport(Transaction txn, TransportId t, int maxLatency)
+	void addTransport(Transaction txn, TransportId t, long maxLatency)
 			throws DbException;
 
 	/**
@@ -128,7 +128,7 @@ public interface DatabaseComponent extends TransactionManager {
 	 * should be included
 	 */
 	boolean containsAnythingToSend(Transaction txn, ContactId c,
-			int maxLatency, boolean eager) throws DbException;
+			long maxLatency, boolean eager) throws DbException;
 
 	/**
 	 * Returns true if the database contains the given contact for the given
@@ -200,7 +200,7 @@ public interface DatabaseComponent extends TransactionManager {
 	 */
 	@Nullable
 	Collection<Message> generateBatch(Transaction txn, ContactId c,
-			int maxLength, int maxLatency) throws DbException;
+			int maxLength, long maxLatency) throws DbException;
 
 	/**
 	 * Returns a batch of messages for the given contact containing the
@@ -212,7 +212,7 @@ public interface DatabaseComponent extends TransactionManager {
 	 * exception.
 	 */
 	Collection<Message> generateBatch(Transaction txn, ContactId c,
-			Collection<MessageId> ids, int maxLatency) throws DbException;
+			Collection<MessageId> ids, long maxLatency) throws DbException;
 
 	/**
 	 * Returns an offer for the given contact for transmission over a
@@ -221,7 +221,7 @@ public interface DatabaseComponent extends TransactionManager {
 	 */
 	@Nullable
 	Offer generateOffer(Transaction txn, ContactId c, int maxMessages,
-			int maxLatency) throws DbException;
+			long maxLatency) throws DbException;
 
 	/**
 	 * Returns a request for the given contact, or null if there are no
@@ -240,7 +240,7 @@ public interface DatabaseComponent extends TransactionManager {
 	 */
 	@Nullable
 	Collection<Message> generateRequestedBatch(Transaction txn, ContactId c,
-			int maxLength, int maxLatency) throws DbException;
+			int maxLength, long maxLatency) throws DbException;
 
 	/**
 	 * Returns the contact with the given ID.

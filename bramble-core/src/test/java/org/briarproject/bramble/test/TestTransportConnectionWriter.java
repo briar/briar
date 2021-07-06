@@ -29,7 +29,7 @@ public class TestTransportConnectionWriter
 	}
 
 	@Override
-	public int getMaxLatency() {
+	public long getMaxLatency() {
 		return 30_000;
 	}
 

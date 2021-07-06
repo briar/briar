@@ -15,7 +15,7 @@ public interface TransportConnectionWriter {
 	/**
 	 * Returns the maximum latency of the transport in milliseconds.
 	 */
-	int getMaxLatency();
+	long getMaxLatency();
 
 	/**
 	 * Returns the maximum idle time of the transport in milliseconds.

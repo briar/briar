@@ -41,7 +41,7 @@ class JavaBluetoothPlugin extends
 			SecureRandom secureRandom,
 			Backoff backoff,
 			PluginCallback callback,
-			int maxLatency,
+			long maxLatency,
 			int maxIdleTime) {
 		super(connectionManager, connectionFactory, ioExecutor,
 				wakefulIoExecutor, secureRandom, backoff, callback,

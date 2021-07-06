@@ -17,7 +17,7 @@ import static org.briarproject.bramble.api.plugin.file.RemovableDriveConstants.I
 @NotNullByDefault
 public class RemovableDrivePluginFactory implements SimplexPluginFactory {
 
-	static final int MAX_LATENCY = (int) DAYS.toMillis(14);
+	static final long MAX_LATENCY = DAYS.toMillis(28);
 
 	@Inject
 	RemovableDrivePluginFactory() {
@@ -29,7 +29,7 @@ public class RemovableDrivePluginFactory implements SimplexPluginFactory {
 	}
 
 	@Override
-	public int getMaxLatency() {
+	public long getMaxLatency() {
 		return MAX_LATENCY;
 	}
 

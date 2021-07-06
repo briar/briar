@@ -33,7 +33,7 @@ class UnixTorPlugin extends JavaTorPlugin {
 			TorRendezvousCrypto torRendezvousCrypto,
 			PluginCallback callback,
 			String architecture,
-			int maxLatency,
+			long maxLatency,
 			int maxIdleTime,
 			File torDirectory) {
 		super(ioExecutor, wakefulIoExecutor, networkManager, locationUtils,

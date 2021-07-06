@@ -26,7 +26,7 @@ class TransportOutputStreamWriter implements TransportConnectionWriter {
 	}
 
 	@Override
-	public int getMaxLatency() {
+	public long getMaxLatency() {
 		return plugin.getMaxLatency();
 	}
 

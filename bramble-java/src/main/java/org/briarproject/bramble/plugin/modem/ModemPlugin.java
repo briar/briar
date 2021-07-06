@@ -50,14 +50,14 @@ class ModemPlugin implements DuplexPlugin, Modem.Callback {
 	private final ModemFactory modemFactory;
 	private final SerialPortList serialPortList;
 	private final PluginCallback callback;
-	private final int maxLatency;
+	private final long maxLatency;
 	private final AtomicBoolean used = new AtomicBoolean(false);
 	private final PluginState state = new PluginState();
 
 	private volatile Modem modem = null;
 
 	ModemPlugin(ModemFactory modemFactory, SerialPortList serialPortList,
-			PluginCallback callback, int maxLatency) {
+			PluginCallback callback, long maxLatency) {
 		this.modemFactory = modemFactory;
 		this.serialPortList = serialPortList;
 		this.callback = callback;
@@ -70,7 +70,7 @@ class ModemPlugin implements DuplexPlugin, Modem.Callback {
 	}
 
 	@Override
-	public int getMaxLatency() {
+	public long getMaxLatency() {
 		return maxLatency;
 	}
 
