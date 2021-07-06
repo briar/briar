@@ -9,6 +9,7 @@ import org.briarproject.bramble.api.plugin.file.RemovableDriveManager;
 import org.briarproject.bramble.api.plugin.file.RemovableDriveTask;
 import org.briarproject.bramble.api.properties.TransportProperties;
 import org.briarproject.bramble.api.properties.TransportPropertyManager;
+import org.briarproject.bramble.api.transport.KeyManager;
 
 import java.util.concurrent.Executor;
 
@@ -28,23 +29,28 @@ class RemovableDriveManagerImpl
 
 	private final Executor ioExecutor;
 	private final DatabaseComponent db;
+	private final KeyManager keyManager;
 	private final TransportPropertyManager transportPropertyManager;
 	private final RemovableDriveTaskFactory taskFactory;
 	private final Object lock = new Object();
 
 	@GuardedBy("lock")
+	@Nullable
 	private RemovableDriveTask reader = null;
 	@GuardedBy("lock")
+	@Nullable
 	private RemovableDriveTask writer = null;
 
 	@Inject
 	RemovableDriveManagerImpl(
 			@IoExecutor Executor ioExecutor,
 			DatabaseComponent db,
+			KeyManager keyManager,
 			TransportPropertyManager transportPropertyManager,
 			RemovableDriveTaskFactory taskFactory) {
 		this.ioExecutor = ioExecutor;
 		this.db = db;
+		this.keyManager = keyManager;
 		this.transportPropertyManager = transportPropertyManager;
 		this.taskFactory = taskFactory;
 	}
@@ -91,6 +97,7 @@ class RemovableDriveManagerImpl
 	@Override
 	public boolean isTransportSupportedByContact(ContactId c)
 			throws DbException {
+		if (!keyManager.canSendOutgoingStreams(c, ID)) return false;
 		TransportProperties p =
 				transportPropertyManager.getRemoteProperties(c, ID);
 		return "true".equals(p.get(PROP_SUPPORTED));
