@@ -2,6 +2,9 @@ package org.briarproject.briar.android.hotspot;
 
 import android.content.Context;
 import android.os.Bundle;
+import android.text.SpannableString;
+import android.text.method.LinkMovementMethod;
+import android.text.style.ClickableSpan;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,7 +20,9 @@ import androidx.annotation.Nullable;
 import androidx.core.util.Consumer;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.viewpager2.widget.ViewPager2;
 
+import static android.text.Spanned.SPAN_EXCLUSIVE_EXCLUSIVE;
 import static android.view.View.GONE;
 import static org.briarproject.briar.android.AppModule.getAndroidComponent;
 import static org.briarproject.briar.android.hotspot.AbstractTabsFragment.ARG_FOR_WIFI_CONNECT;
@@ -66,22 +71,19 @@ public class ManualHotspotFragment extends Fragment {
 		TextView ssidLabelView = v.findViewById(R.id.ssidLabelView);
 		TextView ssidView = v.findViewById(R.id.ssidView);
 		TextView passwordView = v.findViewById(R.id.passwordView);
-		TextView altView = v.findViewById(R.id.altView);
 
 		Consumer<HotspotStarted> consumer;
 		if (requireArguments().getBoolean(ARG_FOR_WIFI_CONNECT)) {
-			manualIntroView.setText(R.string.hotspot_manual_wifi);
+			linkify(manualIntroView, R.string.hotspot_manual_wifi);
 			ssidLabelView.setText(R.string.hotspot_manual_wifi_ssid);
 			consumer = state -> {
 				ssidView.setText(state.getNetworkConfig().ssid);
 				passwordView.setText(state.getNetworkConfig().password);
 			};
-			altView.setText(R.string.hotspot_manual_wifi_alt);
 		} else {
-			manualIntroView.setText(R.string.hotspot_manual_site);
+			linkify(manualIntroView, R.string.hotspot_manual_site);
 			ssidLabelView.setText(R.string.hotspot_manual_site_address);
 			consumer = state -> ssidView.setText(state.getWebsiteConfig().url);
-			altView.setText(R.string.hotspot_manual_site_alt);
 			v.findViewById(R.id.passwordLabelView).setVisibility(GONE);
 			passwordView.setVisibility(GONE);
 		}
@@ -91,5 +93,27 @@ public class ManualHotspotFragment extends Fragment {
 				consumer.accept((HotspotStarted) state);
 			}
 		});
+	}
+
+	private void linkify(TextView textView, int resPattern) {
+		String pattern = getString(resPattern);
+		String replacement = getString(R.string.hotspot_scanning_a_qr_code);
+		String text = String.format(pattern, replacement);
+		int start = pattern.indexOf("%s");
+		int end = start + replacement.length();
+		SpannableString spannable = new SpannableString(text);
+		ClickableSpan clickable = new ClickableSpan() {
+
+			@Override
+			public void onClick(View textView) {
+				ViewPager2 pager = requireActivity().findViewById(R.id.pager);
+				pager.setCurrentItem(1);
+			}
+
+		};
+		spannable.setSpan(clickable, start, end, SPAN_EXCLUSIVE_EXCLUSIVE);
+
+		textView.setText(spannable);
+		textView.setMovementMethod(LinkMovementMethod.getInstance());
 	}
 }
