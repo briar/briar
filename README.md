@@ -13,7 +13,7 @@ If the Internet's down, Briar can sync via Bluetooth or Wi-Fi, keeping informati
 You can also [download the APK file](https://briarproject.org/apk) directly from
 our site.
 
-## Usefull links
+## Useful links
 [briarproject.org](https://briarproject.org/)
 
 [Source code](https://code.briarproject.org/briar/briar/tree/master)
