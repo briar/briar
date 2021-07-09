@@ -46,8 +46,6 @@
 	<string name="forgotten_password">I have forgotten my password</string>
 	<string name="dialog_title_lost_password">Lost Password</string>
 	<string name="dialog_message_lost_password">Your Briar account is stored encrypted on your device, not in the cloud, so we can\'t reset your password. Would you like to delete your account and start again?\n\nCaution: Your identities, contacts and messages will be permanently lost.</string>
-	<string name="startup_failed_notification_title">Briar could not start</string>
-	<string name="startup_failed_notification_text">Tap for more information.</string>
 	<string name="startup_failed_activity_title">Briar Startup Failure</string>
 	<string name="startup_failed_clock_error">Briar was unable to start because your device\'s clock is wrong.\n\nPlease set your device\'s clock to the right time and try again.</string>
 	<string name="startup_failed_db_error">Briar was unable to open the database containing your account, your contacts and your messages.\n\nPlease upgrade to the latest version of the app and try again, or set up a new account by choosing \'I have forgotten my password\' at the password prompt.</string>
