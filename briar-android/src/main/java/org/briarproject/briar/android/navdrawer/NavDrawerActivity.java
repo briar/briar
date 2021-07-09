@@ -29,6 +29,7 @@ import org.briarproject.bramble.api.plugin.TorConstants;
 import org.briarproject.bramble.api.plugin.TransportId;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.BriarApplication;
+import org.briarproject.briar.android.StartupFailureActivity;
 import org.briarproject.briar.android.activity.ActivityComponent;
 import org.briarproject.briar.android.activity.BriarActivity;
 import org.briarproject.briar.android.blog.FeedFragment;
@@ -73,6 +74,7 @@ import static org.briarproject.bramble.api.plugin.Plugin.State.ACTIVE;
 import static org.briarproject.bramble.api.plugin.Plugin.State.ENABLING;
 import static org.briarproject.bramble.api.plugin.Plugin.State.STARTING_STOPPING;
 import static org.briarproject.briar.android.BriarService.EXTRA_STARTUP_FAILED;
+import static org.briarproject.briar.android.BriarService.EXTRA_START_RESULT;
 import static org.briarproject.briar.android.TestingConstants.IS_DEBUG_BUILD;
 import static org.briarproject.briar.android.activity.RequestCodes.REQUEST_PASSWORD;
 import static org.briarproject.briar.android.navdrawer.IntentRouter.handleExternalIntent;
@@ -250,6 +252,11 @@ public class NavDrawerActivity extends BriarActivity implements
 
 	private void exitIfStartupFailed(Intent intent) {
 		if (intent.getBooleanExtra(EXTRA_STARTUP_FAILED, false)) {
+			// Launch StartupFailureActivity in its own process, then exit
+			Intent i = new Intent(this, StartupFailureActivity.class);
+			i.putExtra(EXTRA_START_RESULT,
+					intent.getSerializableExtra(EXTRA_START_RESULT));
+			startActivity(i);
 			finish();
 			LOG.info("Exiting");
 			System.exit(0);

@@ -41,8 +41,10 @@ public interface AndroidNotificationManager {
 	// that will sort below the main channels such as contacts
 	String ONGOING_CHANNEL_OLD_ID = "zForegroundService";
 	String ONGOING_CHANNEL_ID = "zForegroundService2";
-	String FAILURE_CHANNEL_ID = "zStartupFailure";
 	String REMINDER_CHANNEL_ID = "zSignInReminder";
+	// This channel is no longer used - keep the ID so we can remove the
+	// channel from existing installations
+	String FAILURE_CHANNEL_ID = "zStartupFailure";
 
 	// Actions for pending intents
 	String ACTION_DISMISS_REMINDER = "dismissReminder";
