@@ -701,7 +701,7 @@
 	<string name="removable_drive_title_receive">Receive data</string>
 	<string name="removable_drive_send_intro">Tap the button below to create a new file containing the encrypted messages. You can choose where the file will be saved.\n\nIf you want to save the file on a removable drive, insert the drive now.</string>
 	<string name="removable_drive_send_no_data">There are currently no messages waiting to be sent to this contact.</string>
-	<string name="removable_drive_send_not_supported">This contact is using an old version of Briar which does not yet support this feature.</string>
+	<string name="removable_drive_send_not_supported">This contact is using an old version of Briar or an old device which does not support this feature.</string>
 	<string name="removable_drive_send_button">Choose file for export</string>
 	<string name="removable_drive_ongoing">Please wait for ongoing task to complete</string>
 	<string name="removable_drive_receive_intro">Tap the button below to choose the file that your contact sent you.\n\nIf the file is on a removable drive, insert the drive now.</string>
