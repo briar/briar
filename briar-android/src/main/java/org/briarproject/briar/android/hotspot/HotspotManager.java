@@ -1,5 +1,6 @@
 package org.briarproject.briar.android.hotspot;
 
+import android.annotation.SuppressLint;
 import android.app.Application;
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -10,6 +11,7 @@ import android.net.wifi.p2p.WifiP2pManager;
 import android.net.wifi.p2p.WifiP2pManager.ActionListener;
 import android.net.wifi.p2p.WifiP2pManager.GroupInfoListener;
 import android.os.Handler;
+import android.os.PowerManager;
 import android.util.DisplayMetrics;
 
 import org.briarproject.bramble.api.db.DatabaseExecutor;
@@ -34,6 +36,7 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.UiThread;
 
+import static android.content.Context.POWER_SERVICE;
 import static android.content.Context.WIFI_P2P_SERVICE;
 import static android.content.Context.WIFI_SERVICE;
 import static android.net.wifi.WifiManager.WIFI_MODE_FULL;
@@ -44,6 +47,7 @@ import static android.net.wifi.p2p.WifiP2pManager.ERROR;
 import static android.net.wifi.p2p.WifiP2pManager.NO_SERVICE_REQUESTS;
 import static android.net.wifi.p2p.WifiP2pManager.P2P_UNSUPPORTED;
 import static android.os.Build.VERSION.SDK_INT;
+import static android.os.PowerManager.FULL_WAKE_LOCK;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Logger.getLogger;
 import static org.briarproject.briar.android.util.UiUtils.handleException;
@@ -84,11 +88,13 @@ class HotspotManager implements ActionListener {
 	private final SecureRandom random;
 	private final WifiManager wifiManager;
 	private final WifiP2pManager wifiP2pManager;
+	private final PowerManager powerManager;
 	private final Handler handler;
 	private final String lockTag;
 
 	private HotspotListener listener;
 	private WifiManager.WifiLock wifiLock;
+	private PowerManager.WakeLock wakeLock;
 	private WifiP2pManager.Channel channel;
 	@RequiresApi(29)
 	private volatile NetworkConfig savedNetworkConfig;
@@ -110,6 +116,7 @@ class HotspotManager implements ActionListener {
 				.getSystemService(WIFI_SERVICE);
 		wifiP2pManager =
 				(WifiP2pManager) ctx.getSystemService(WIFI_P2P_SERVICE);
+		powerManager = (PowerManager) ctx.getSystemService(POWER_SERVICE);
 		handler = new Handler(ctx.getMainLooper());
 		lockTag = ctx.getPackageName() + ":app-sharing-hotspot";
 	}
@@ -143,12 +150,12 @@ class HotspotManager implements ActionListener {
 								.setNetworkName(savedNetworkConfig.ssid)
 								.setPassphrase(savedNetworkConfig.password)
 								.build();
-						acquireLock();
+						acquireLocks();
 						wifiP2pManager.createGroup(channel, config, this);
 					});
 				});
 			} else {
-				acquireLock();
+				acquireLocks();
 				wifiP2pManager.createGroup(channel, this);
 			}
 		} catch (SecurityException e) {
@@ -204,7 +211,10 @@ class HotspotManager implements ActionListener {
 		});
 	}
 
-	private void acquireLock() {
+	@SuppressLint("WakelockTimeout")
+	private void acquireLocks() {
+		wakeLock = powerManager.newWakeLock(FULL_WAKE_LOCK, lockTag);
+		wakeLock.acquire();
 		// WIFI_MODE_FULL has no effect on API >= 29
 		int lockType =
 				SDK_INT >= 29 ? WIFI_MODE_FULL_HIGH_PERF : WIFI_MODE_FULL;
@@ -214,17 +224,18 @@ class HotspotManager implements ActionListener {
 
 	private void releaseHotspot() {
 		listener.onHotspotStopped();
-		closeChannelAndReleaseLock();
+		closeChannelAndReleaseLocks();
 	}
 
 	private void releaseHotspotWithError(String error) {
 		listener.onHotspotError(error);
-		closeChannelAndReleaseLock();
+		closeChannelAndReleaseLocks();
 	}
 
-	private void closeChannelAndReleaseLock() {
+	private void closeChannelAndReleaseLocks() {
 		if (SDK_INT >= 27) channel.close();
 		channel = null;
+		wakeLock.release();
 		wifiLock.release();
 	}
 
