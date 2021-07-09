@@ -343,7 +343,13 @@
 
 		<activity
 			android:name="org.briarproject.briar.android.StartupFailureActivity"
-			android:label="@string/startup_failed_activity_title" />
+			android:excludeFromRecents="true"
+			android:exported="false"
+			android:finishOnTaskLaunch="true"
+			android:label="@string/startup_failed_activity_title"
+			android:launchMode="singleInstance"
+			android:process=":briar_startup_failure"
+			android:windowSoftInputMode="adjustResize|stateHidden" />
 
 		<activity
 			android:name="org.briarproject.briar.android.settings.SettingsActivity"

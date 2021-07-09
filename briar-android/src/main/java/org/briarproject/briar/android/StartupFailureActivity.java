@@ -1,6 +1,5 @@
 package org.briarproject.briar.android;
 
-import android.app.NotificationManager;
 import android.content.Intent;
 import android.os.Bundle;
 
@@ -15,9 +14,7 @@ import org.briarproject.briar.android.fragment.ErrorFragment;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import static java.util.Objects.requireNonNull;
 import static org.briarproject.bramble.api.lifecycle.LifecycleManager.StartResult;
-import static org.briarproject.briar.android.BriarService.EXTRA_NOTIFICATION_ID;
 import static org.briarproject.briar.android.BriarService.EXTRA_START_RESULT;
 
 @MethodsNotNullByDefault
@@ -41,14 +38,6 @@ public class StartupFailureActivity extends BaseActivity implements
 	private void handleIntent(Intent i) {
 		StartResult result =
 				(StartResult) i.getSerializableExtra(EXTRA_START_RESULT);
-		int notificationId = i.getIntExtra(EXTRA_NOTIFICATION_ID, -1);
-
-		// cancel notification
-		if (notificationId > -1) {
-			Object o = getSystemService(NOTIFICATION_SERVICE);
-			NotificationManager nm = (NotificationManager) requireNonNull(o);
-			nm.cancel(notificationId);
-		}
 
 		// show proper error message
 		int errorRes;
@@ -78,5 +67,4 @@ public class StartupFailureActivity extends BaseActivity implements
 	public void runOnDbThread(@NonNull Runnable runnable) {
 		throw new UnsupportedOperationException();
 	}
-
 }

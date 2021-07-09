@@ -3,7 +3,6 @@ package org.briarproject.briar.android;
 import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
-import android.app.PendingIntent;
 import android.app.Service;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
@@ -34,11 +33,7 @@ import java.util.logging.Logger;
 import javax.annotation.Nullable;
 import javax.inject.Inject;
 
-import androidx.core.app.NotificationCompat;
-
-import static android.app.NotificationManager.IMPORTANCE_DEFAULT;
 import static android.app.NotificationManager.IMPORTANCE_LOW;
-import static android.app.PendingIntent.FLAG_UPDATE_CURRENT;
 import static android.content.Intent.ACTION_SHUTDOWN;
 import static android.content.Intent.FLAG_ACTIVITY_CLEAR_TASK;
 import static android.content.Intent.FLAG_ACTIVITY_CLEAR_TOP;
@@ -55,7 +50,6 @@ import static org.briarproject.bramble.api.lifecycle.LifecycleManager.StartResul
 import static org.briarproject.bramble.api.nullsafety.NullSafety.requireNonNull;
 import static org.briarproject.briar.android.BriarApplication.ENTRY_ACTIVITY;
 import static org.briarproject.briar.api.android.AndroidNotificationManager.FAILURE_CHANNEL_ID;
-import static org.briarproject.briar.api.android.AndroidNotificationManager.FAILURE_NOTIFICATION_ID;
 import static org.briarproject.briar.api.android.AndroidNotificationManager.ONGOING_CHANNEL_ID;
 import static org.briarproject.briar.api.android.AndroidNotificationManager.ONGOING_CHANNEL_OLD_ID;
 import static org.briarproject.briar.api.android.AndroidNotificationManager.ONGOING_NOTIFICATION_ID;
@@ -66,8 +60,6 @@ public class BriarService extends Service {
 
 	public static String EXTRA_START_RESULT =
 			"org.briarproject.briar.START_RESULT";
-	public static String EXTRA_NOTIFICATION_ID =
-			"org.briarproject.briar.FAILURE_NOTIFICATION_ID";
 	public static String EXTRA_STARTUP_FAILED =
 			"org.briarproject.briar.STARTUP_FAILED";
 
@@ -135,12 +127,9 @@ public class BriarService extends Service {
 				ongoingChannel.setLockscreenVisibility(VISIBILITY_SECRET);
 				ongoingChannel.setShowBadge(false);
 				nm.createNotificationChannel(ongoingChannel);
-				NotificationChannel failureChannel = new NotificationChannel(
-						FAILURE_CHANNEL_ID,
-						getString(R.string.startup_failed_notification_title),
-						IMPORTANCE_DEFAULT);
-				failureChannel.setLockscreenVisibility(VISIBILITY_SECRET);
-				nm.createNotificationChannel(failureChannel);
+				// Delete the unused channel previously used for startup
+				// failure notifications
+				nm.deleteNotificationChannel(FAILURE_CHANNEL_ID);
 			}
 			Notification foregroundNotification =
 					notificationManager.getForegroundNotification();
@@ -184,27 +173,11 @@ public class BriarService extends Service {
 
 	private void showStartupFailureNotification(StartResult result) {
 		androidExecutor.runOnUiThread(() -> {
-			NotificationCompat.Builder b = new NotificationCompat.Builder(
-					BriarService.this, FAILURE_CHANNEL_ID);
-			b.setSmallIcon(android.R.drawable.stat_notify_error);
-			b.setContentTitle(getText(
-					R.string.startup_failed_notification_title));
-			b.setContentText(getText(
-					R.string.startup_failed_notification_text));
-			Intent i = new Intent(BriarService.this,
-					StartupFailureActivity.class);
-			i.setFlags(FLAG_ACTIVITY_NEW_TASK);
-			i.putExtra(EXTRA_START_RESULT, result);
-			i.putExtra(EXTRA_NOTIFICATION_ID, FAILURE_NOTIFICATION_ID);
-			b.setContentIntent(PendingIntent.getActivity(BriarService.this,
-					0, i, FLAG_UPDATE_CURRENT));
-			NotificationManager nm = (NotificationManager)
-					requireNonNull(getSystemService(NOTIFICATION_SERVICE));
-			nm.notify(FAILURE_NOTIFICATION_ID, b.build());
-			// Bring the dashboard to the front to clear the back stack
-			i = new Intent(BriarService.this, ENTRY_ACTIVITY);
+			// Bring the entry activity to the front to clear the back stack
+			Intent i = new Intent(BriarService.this, ENTRY_ACTIVITY);
 			i.setFlags(FLAG_ACTIVITY_NEW_TASK | FLAG_ACTIVITY_CLEAR_TOP);
 			i.putExtra(EXTRA_STARTUP_FAILED, true);
+			i.putExtra(EXTRA_START_RESULT, result);
 			startActivity(i);
 		});
 	}
