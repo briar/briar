@@ -15,7 +15,7 @@
   <string name="confirm_password">Potwierdź hasło</string>
   <string name="name_too_long">Nazwa użytkownika jest zbyt długa</string>
   <string name="password_too_weak">Hasło jest zbyt długie</string>
-  <string name="passwords_do_not_match">Hasła się nie zgadzają</string>
+  <string name="passwords_do_not_match">Hasła różnią się</string>
   <string name="create_account_button">Utwórz Konto</string>
   <string name="more_info">Więcej Informacji</string>
   <string name="don_t_ask_again">Nie pytaj ponownie</string>
@@ -27,10 +27,11 @@
   <!--Login-->
   <string name="enter_password">Hasło</string>
   <string name="try_again">Złe hasło, spróbuj ponownie</string>
+  <string name="dialog_title_cannot_check_password">Nie można zweryfikować hasła</string>
   <string name="sign_in_button">Zaloguj Się</string>
   <string name="forgotten_password">Zapomniałem hasło</string>
   <string name="dialog_title_lost_password">Nie pamiętam hasła</string>
-  <string name="dialog_message_lost_password">Twoje konto Briar jest zaszyfrowane na Twoim urządzeniu nie w chmurze, więc nie będzie można zresetować Twojego hasła. Czy chcesz usunąć swoje konto i stworzyć nowe?\n\nUwaga: Twoje hasła, kontakty i wiadomości będą utracone.</string>
+  <string name="dialog_message_lost_password">Twoje konto Briar jest zaszyfrowane na Twoim urządzeniu, nie w chmurze, więc nie będzie można zresetować Twojego hasła. Czy chcesz usunąć swoje konto i stworzyć nowe?\n\nUwaga: Twoje hasła, kontakty i wiadomości będą utracone.</string>
   <string name="startup_failed_notification_title">Briar nie mógł się uruchomić</string>
   <string name="startup_failed_notification_text">Naciśnij, aby uzyskać więcej informacji</string>
   <string name="startup_failed_activity_title">Briar nie mógł się uruchomić</string>
@@ -45,7 +46,9 @@
     <item quantity="other">To jest testowa wersja Briar. Twoje konto wygaśnie za %d dni i nie będzie odnowione.</item>
   </plurals>
   <string name="expiry_date_reached">Ten program wygasł.\nDziękujemy za testy!</string>
+  <string name="download_briar">Aby móc nadal korzystać z Briar, pobierz najnowszą wersję.</string>
   <string name="create_new_account">Musisz utworzyć nowe konto, ale możesz użyć takiej samej nazwy użytkownika.</string>
+  <string name="download_briar_button">Pobierz najnowszą wersję</string>
   <string name="startup_open_database">Deszyfruję Bazę Danych...</string>
   <string name="startup_migrate_database">Aktualizuję Bazę Danych...</string>
   <string name="startup_compact_database">Kompaktowanie Bazy Danych…</string>
@@ -60,12 +63,16 @@
   <string name="lock_button">Zablokuj Aplikację</string>
   <string name="settings_button">Ustawienia</string>
   <string name="sign_out_button">Wyloguj się</string>
+  <string name="transports_onboarding_text">Dotknij tutaj aby zmienić w jaki sposób Briar łączy się z twoimi kontaktami.</string>
   <!--Transports: Tor-->
   <string name="transport_tor">Internet</string>
+  <string name="tor_plugin_status_inactive">Briar nie może połączyć się z Internetem</string>
   <!--Transports: Wi-Fi-->
   <string name="transport_lan">Wi-Fi</string>
   <!--Transports: Bluetooth-->
   <string name="transport_bt">Bluetooth</string>
+  <string name="bt_device_status_on">Bluetooth jest włączony</string>
+  <string name="bt_device_status_off">Bluetooth jest wyłączony</string>
   <!--Notifications-->
   <string name="reminder_notification_title">Wylogowano z Briar</string>
   <string name="reminder_notification_text">Dotknij, aby zalogować się ponownie</string>
@@ -128,6 +135,7 @@
   <string name="date_no_private_messages">Brak wiadomości.</string>
   <string name="no_private_messages">Brak wiadomości do pokazania</string>
   <string name="message_hint">Nowa wiadomość</string>
+  <string name="message_hint_auto_delete">Nowa znikająca wiadomość</string>
   <string name="image_caption_hint">Dodaj podpis (opcjonalne)</string>
   <string name="image_attach">Załącz obraz</string>
   <string name="image_attach_error">Nie udało się dołączyć obrazu(ów)</string>
@@ -135,12 +143,18 @@
   <string name="image_attach_error_invalid_mime_type">Format obrazu jest nieobsługiwany: %s</string>
   <string name="set_contact_alias">Zmień nazwę kontaktu</string>
   <string name="set_contact_alias_hint">Nazwa kontaktu</string>
+  <string name="menu_item_disappearing_messages">Znikające wiadomości</string>
   <string name="menu_item_connect_via_bluetooth">Połącz przez Bluetooth</string>
   <string name="dialog_title_connect_via_bluetooth">Połącz przez Bluetooth</string>
   <!--The first placeholder will show a duration like "7 days". The second placeholder at the end will add "Tap to learn more."-->
   <!--The placeholder at the end will add "Tap to learn more."-->
   <!--The first placeholder will show a contact's name. The second placeholder will show a duration like "7 days". The third placeholder at the end will add "Tap to learn more."-->
   <!--The first placeholder will show a contact's name. The second placeholder at the end will add "Tap to learn more."-->
+  <string name="tap_to_learn_more">Dotknij tutaj aby dowiedzieć się więcej.</string>
+  <string name="auto_delete_changed_warning_send">Wyślij mimo to</string>
+  <string name="delete_all_messages">Usuń wszystkie wiadomości</string>
+  <string name="dialog_title_delete_all_messages">Potwierdź usunięcie wiadomości</string>
+  <string name="dialog_message_delete_all_messages">Na pewno chcesz usunąć wszystkie wiadomości?</string>
   <string name="dialog_title_not_all_messages_deleted">Nie mogłem usunąć wszystkich wiadomości</string>
   <string name="delete_contact">Usuń kontakt</string>
   <string name="dialog_title_delete_contact">Potwierdź usunięcie kontaktu</string>
@@ -173,7 +187,7 @@
   <string name="connecting_to_device">Łączenie z urządzeniem\u2026</string>
   <string name="authenticating_with_device">Autoryzowanie z urządzeniem\u2026</string>
   <string name="connection_error_title">Nie udało się połączyć z kontaktem</string>
-  <string name="connection_error_feedback">Jeśli problem będzie występować dalej, proszę <a href="feedback">wysłać zgłoszenie</a> aby pomóc nam ulepszyć aplikację.</string>
+  <string name="connection_error_feedback">Jeśli problem będzie występować dalej, proszę <a href="feedback">wysłać opinię</a> aby pomóc nam ulepszyć aplikację.</string>
   <!--Adding Contacts Remotely-->
   <string name="add_contact_remotely_title_case">Dodaj Kontakt na odległość</string>
   <string name="add_contact_nearby_title">Dodaj kontakt w pobliżu</string>
@@ -401,6 +415,8 @@
   <string name="blogs_rss_feeds_import_button">Zaimportuj</string>
   <string name="blogs_rss_feeds_import_hint">Wprowadź adres URL do kanału RSS</string>
   <string name="blogs_rss_feeds_import_error">Przepraszamy! Wystąpił błąd podczas importowania twojego kanału RSS</string>
+  <string name="blogs_rss_feeds_import_exists">Ten feed został już zaimportowany.</string>
+  <string name="blogs_rss_feeds">Feedy RSS</string>
   <string name="blogs_rss_feeds_manage_imported">Zaimportowane:</string>
   <string name="blogs_rss_feeds_manage_author">Autor:</string>
   <string name="blogs_rss_feeds_manage_updated">Ostatnio Zaktualizowane:</string>
@@ -410,6 +426,7 @@
   <string name="blogs_rss_feeds_manage_empty_state">Brak RSS do wyświetlenia\n\nDotknij ikonki + aby zaimportować kanał.</string>
   <string name="blogs_rss_feeds_manage_error">Wystąpił problem podczas ładowania twoich kanałów RSS. Proszę spróbować ponownie później.</string>
   <!--Settings Profile Picture-->
+  <string name="dialog_confirm_profile_picture_title">Zmień zdjęcie profilowe</string>
   <!--Settings Display-->
   <string name="pref_language_title">Język &amp; region</string>
   <string name="pref_language_changed">Te ustawienia zostaną zastosowane gdy zrestartujesz Briar. Proszę się wylogować i zrestartować Briar.</string>
@@ -422,6 +439,7 @@
   <string name="pref_theme_system">Domyślny systemu</string>
   <!--Settings Connections-->
   <string name="network_settings_title">Połączenia</string>
+  <string name="tor_enable_summary">Dla zapewnienia prywatności, wszystkie połączenia przechodzą przez sieć Tor</string>
   <string name="tor_network_setting_automatic">Automatycznie bazując na lokalizacji</string>
   <!--How and when Briar will connect to Tor: E.g. "Don't connect to the Internet (in China)" or "Use Tor network with bridges (in Belarus)"-->
   <string name="tor_network_setting_summary">Automatycznie: %1$s (za %2$s)</string>
@@ -489,6 +507,7 @@
   <string name="choose_ringtone_title">Wybierz dzwonek</string>
   <string name="cannot_load_ringtone">Nie mogę załadować dzwonka</string>
   <!--Conversation Settings-->
+  <string name="disappearing_messages_title">Znikające wiadomości</string>
   <string name="learn_more">Dowiedz się więcej</string>
   <!--Settings Feedback-->
   <string name="send_feedback">Wyślij opinię</string>
@@ -505,7 +524,7 @@
   <string name="report_is_encrypted">Obiecujemy, że raport z awarii jest zaszyfrowany i wysyłany bezpiecznie.</string>
   <string name="feedback_title">Twoja opinia</string>
   <string name="describe_crash">Opisz co się stało (opcjonalne)</string>
-  <string name="enter_feedback">Wprowadź swoje uwagi</string>
+  <string name="enter_feedback">Napisz swoją opinię</string>
   <string name="optional_contact_email">Twój adres email (opcjonalne)</string>
   <string name="include_debug_report_crash">Załącz anonimowe dane na temat awarii</string>
   <string name="include_debug_report_feedback">Załącz anonimowe dane o tym urządzeniu</string>
@@ -515,6 +534,8 @@
   <string name="dev_report_connectivity">Łączenie</string>
   <string name="send_report">Wyślij raport</string>
   <string name="close">Zamknij</string>
+  <string name="dev_report_sending">Wysyłanie opinii...</string>
+  <string name="dev_report_sent">Wysłano opinię</string>
   <string name="dev_report_saved">Raport zapisany. Zostanie wysłany następnym razem kiedy zalogujesz się do Briar.</string>
   <!--Sign Out-->
   <string name="progress_title_logout">Wylogowywanie z Briar...</string>
