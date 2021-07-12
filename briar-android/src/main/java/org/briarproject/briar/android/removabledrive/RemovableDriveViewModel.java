@@ -75,6 +75,12 @@ class RemovableDriveViewModel extends DbViewModel {
 		}
 	}
 
+	@UiThread
+	boolean hasNoState() {
+		return action.getLastValue() == null && state.getValue() == null &&
+				task == null;
+	}
+
 	/**
 	 * Set this as soon as it becomes available.
 	 */
