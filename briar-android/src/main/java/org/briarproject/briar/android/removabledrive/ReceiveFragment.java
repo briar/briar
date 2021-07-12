@@ -47,6 +47,8 @@ public class ReceiveFragment extends Fragment {
 	private Button button;
 	private ProgressBar progressBar;
 
+	private boolean checkForStateLoss = false;
+
 	@Override
 	public void onAttach(Context context) {
 		super.onAttach(context);
@@ -73,6 +75,10 @@ public class ReceiveFragment extends Fragment {
 				.observeEvent(getViewLifecycleOwner(), this::onOldTaskResumed);
 		viewModel.getState()
 				.observe(getViewLifecycleOwner(), this::onStateChanged);
+
+		// need to check for lost ViewModel state when creating with prior state
+		if (savedInstanceState != null) checkForStateLoss = true;
+
 		return v;
 	}
 
@@ -82,6 +88,23 @@ public class ReceiveFragment extends Fragment {
 		requireActivity().setTitle(R.string.removable_drive_title_receive);
 		// Scroll down in case the screen is small, so the button is visible
 		scrollView.post(() -> scrollView.fullScroll(FOCUS_DOWN));
+	}
+
+	@Override
+	public void onResume() {
+		super.onResume();
+		// This code gets called *after* launcher had a chance
+		// to return the activity result.
+		if (checkForStateLoss && viewModel.hasNoState()) {
+			// We were recreated, but have lost the ViewModel state,
+			// because our activity was destroyed.
+			//
+			// Remove the current fragment from the stack
+			// to prevent duplicates on the back stack.
+			getParentFragmentManager().popBackStack();
+			// Start again (picks up existing task or allows to start a new one)
+			viewModel.startReceiveData();
+		}
 	}
 
 	private void onOldTaskResumed(boolean resumed) {
@@ -104,6 +127,8 @@ public class ReceiveFragment extends Fragment {
 
 	private void onDocumentChosen(@Nullable Uri uri) {
 		if (uri == null) return;
+		// we just got our document, so don't treat this as a state loss
+		checkForStateLoss = false;
 		viewModel.importData(uri);
 	}
 
