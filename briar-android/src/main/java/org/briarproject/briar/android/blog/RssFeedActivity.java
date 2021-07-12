@@ -57,8 +57,12 @@ public class RssFeedActivity extends BriarActivity
 				onBackPressed();
 			}
 		} else if (result == FAILED) {
+			String url = viewModel.getUrlFailedImport();
+			if (url == null) {
+				throw new AssertionError();
+			}
 			RssFeedImportFailedDialogFragment dialog =
-					RssFeedImportFailedDialogFragment.newInstance();
+					RssFeedImportFailedDialogFragment.newInstance(url);
 			dialog.show(getSupportFragmentManager(),
 					RssFeedImportFailedDialogFragment.TAG);
 		} else if (result == EXISTS) {

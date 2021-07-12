@@ -20,7 +20,6 @@ import org.briarproject.briar.api.feed.Feed;
 import javax.annotation.Nullable;
 import javax.inject.Inject;
 
-import androidx.annotation.NonNull;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
