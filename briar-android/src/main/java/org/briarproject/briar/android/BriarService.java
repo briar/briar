@@ -129,6 +129,8 @@ public class BriarService extends Service {
 				nm.createNotificationChannel(ongoingChannel);
 				// Delete the unused channel previously used for startup
 				// failure notifications
+				// TODO: Remove this ID after a reasonable upgrade period
+				//  (added 2021-07-12)
 				nm.deleteNotificationChannel(FAILURE_CHANNEL_ID);
 			}
 			Notification foregroundNotification =
