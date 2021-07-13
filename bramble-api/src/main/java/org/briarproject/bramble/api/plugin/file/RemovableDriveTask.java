@@ -14,9 +14,9 @@ public interface RemovableDriveTask extends Runnable {
 	TransportProperties getTransportProperties();
 
 	/**
-	 * Adds an observer to the task. The observer will be notified of state
-	 * changes on the event thread. If the task has already finished, the
-	 * observer will be notified of its final state.
+	 * Adds an observer to the task. The observer will be notified on the
+	 * event thread of the current state of the task and any subsequent state
+	 * changes.
 	 */
 	void addObserver(Consumer<State> observer);
 
