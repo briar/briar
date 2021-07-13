@@ -2331,7 +2331,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 			ps.setInt(2, DELIVERED.getValue());
 			rs = ps.executeQuery();
 			rs.next();
-			long total = rs.getInt(1);
+			long total = rs.getLong(1);
 			rs.close();
 			ps.close();
 			return total;
