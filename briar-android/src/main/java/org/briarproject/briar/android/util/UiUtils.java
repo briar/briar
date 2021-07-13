@@ -333,11 +333,6 @@ public class UiUtils {
 		return i;
 	}
 
-	public static void putShowAdvancedExtra(Intent i) {
-		i.putExtra(SDK_INT <= 28 ? "android.content.extra.SHOW_ADVANCED" :
-				"android.provider.extra.SHOW_ADVANCED", true);
-	}
-
 	/**
 	 * @return true if location is enabled,
 	 * or it isn't required due to this being a SDK < 28 device.
