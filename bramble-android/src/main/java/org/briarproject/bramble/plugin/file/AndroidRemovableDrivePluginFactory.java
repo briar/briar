@@ -20,7 +20,7 @@ import static org.briarproject.bramble.api.plugin.file.RemovableDriveConstants.I
 public class AndroidRemovableDrivePluginFactory implements
 		SimplexPluginFactory {
 
-	private static final int MAX_LATENCY = (int) DAYS.toMillis(14);
+	private static final long MAX_LATENCY = DAYS.toMillis(28);
 
 	private final Application app;
 
