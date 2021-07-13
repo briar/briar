@@ -147,7 +147,7 @@ public class BriarService extends Service {
 				} else {
 					if (LOG.isLoggable(WARNING))
 						LOG.warning("Startup failed: " + result);
-					showStartupFailureNotification(result);
+					showStartupFailure(result);
 					stopSelf();
 				}
 			}, "LifecycleStartup");
@@ -173,7 +173,7 @@ public class BriarService extends Service {
 		Localizer.getInstance().setLocale(this);
 	}
 
-	private void showStartupFailureNotification(StartResult result) {
+	private void showStartupFailure(StartResult result) {
 		androidExecutor.runOnUiThread(() -> {
 			// Bring the entry activity to the front to clear the back stack
 			Intent i = new Intent(BriarService.this, ENTRY_ACTIVITY);
