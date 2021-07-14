@@ -33,6 +33,7 @@ import org.jmock.Expectations;
 import org.jmock.Mockery;
 import org.junit.Test;
 
+import static org.briarproject.bramble.api.sync.validation.IncomingMessageHook.DeliveryAction.ACCEPT_SHARE;
 import static org.briarproject.bramble.test.TestUtils.getContact;
 import static org.briarproject.bramble.test.TestUtils.getGroup;
 import static org.briarproject.bramble.test.TestUtils.getLocalAuthor;
@@ -184,7 +185,8 @@ public class BlogManagerImplTest extends BriarTestCase {
 			will(returnValue(verifiedInfo));
 		}});
 
-		blogManager.incomingMessage(txn, message, body, meta);
+		assertEquals(ACCEPT_SHARE,
+				blogManager.incomingMessage(txn, message, body, meta));
 		context.assertIsSatisfied();
 
 		assertEquals(1, txn.getActions().size());
@@ -225,7 +227,8 @@ public class BlogManagerImplTest extends BriarTestCase {
 			will(returnValue(rssLocalAuthor));
 		}});
 
-		blogManager.incomingMessage(txn, rssMessage, body, meta);
+		assertEquals(ACCEPT_SHARE,
+				blogManager.incomingMessage(txn, rssMessage, body, meta));
 		context.assertIsSatisfied();
 
 		assertEquals(1, txn.getActions().size());

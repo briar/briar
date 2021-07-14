@@ -23,6 +23,7 @@ import org.briarproject.bramble.settings.SettingsModule;
 import org.briarproject.bramble.sync.SyncModule;
 import org.briarproject.bramble.sync.validation.ValidationModule;
 import org.briarproject.bramble.transport.TransportModule;
+import org.briarproject.bramble.transport.agreement.TransportKeyAgreementModule;
 import org.briarproject.bramble.versioning.VersioningModule;
 
 import dagger.Module;
@@ -49,6 +50,7 @@ import dagger.Module;
 		RendezvousModule.class,
 		SettingsModule.class,
 		SyncModule.class,
+		TransportKeyAgreementModule.class,
 		TransportModule.class,
 		ValidationModule.class,
 		VersioningModule.class

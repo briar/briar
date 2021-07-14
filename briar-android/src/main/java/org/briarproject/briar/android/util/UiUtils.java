@@ -58,7 +58,9 @@ import androidx.core.content.ContextCompat;
 import androidx.core.hardware.fingerprint.FingerprintManagerCompat;
 import androidx.core.text.HtmlCompat;
 import androidx.core.util.Consumer;
+import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
+import androidx.fragment.app.FragmentManager;
 import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.Observer;
@@ -66,12 +68,7 @@ import androidx.vectordrawable.graphics.drawable.VectorDrawableCompat;
 
 import static android.content.Context.KEYGUARD_SERVICE;
 import static android.content.Context.POWER_SERVICE;
-import static android.content.Intent.ACTION_GET_CONTENT;
-import static android.content.Intent.ACTION_OPEN_DOCUMENT;
 import static android.content.Intent.CATEGORY_DEFAULT;
-import static android.content.Intent.CATEGORY_OPENABLE;
-import static android.content.Intent.EXTRA_ALLOW_MULTIPLE;
-import static android.content.Intent.EXTRA_MIME_TYPES;
 import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
 import static android.os.Build.MANUFACTURER;
 import static android.os.Build.VERSION.SDK_INT;
@@ -109,7 +106,6 @@ import static androidx.core.view.ViewCompat.LAYOUT_DIRECTION_RTL;
 import static java.util.Objects.requireNonNull;
 import static java.util.concurrent.TimeUnit.DAYS;
 import static java.util.logging.Level.WARNING;
-import static org.briarproject.bramble.util.AndroidUtils.getSupportedImageContentTypes;
 import static org.briarproject.bramble.util.LogUtils.logException;
 import static org.briarproject.briar.BuildConfig.APPLICATION_ID;
 import static org.briarproject.briar.android.TestingConstants.EXPIRY_DATE;
@@ -137,6 +133,17 @@ public class UiUtils {
 		InputMethodManager imm = requireNonNull(
 				getSystemService(view.getContext(), InputMethodManager.class));
 		imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+	}
+
+	public static void showFragment(FragmentManager fm, Fragment f,
+			@Nullable String tag) {
+		fm.beginTransaction()
+				.setCustomAnimations(R.anim.step_next_in,
+						R.anim.step_previous_out, R.anim.step_previous_in,
+						R.anim.step_next_out)
+				.replace(R.id.fragmentContainer, f, tag)
+				.addToBackStack(tag)
+				.commit();
 	}
 
 	public static String getContactDisplayName(Author author,
@@ -299,18 +306,6 @@ public class UiUtils {
 			i.addFlags(FLAG_ACTIVITY_NEW_TASK);
 			context.startActivity(i);
 		};
-	}
-
-	public static Intent createSelectImageIntent(boolean allowMultiple) {
-		Intent intent = new Intent(SDK_INT >= 19 ?
-				ACTION_OPEN_DOCUMENT : ACTION_GET_CONTENT);
-		intent.setType("image/*");
-		intent.addCategory(CATEGORY_OPENABLE);
-		if (SDK_INT >= 19)
-			intent.putExtra(EXTRA_MIME_TYPES, getSupportedImageContentTypes());
-		if (allowMultiple && SDK_INT >= 18)
-			intent.putExtra(EXTRA_ALLOW_MULTIPLE, true);
-		return intent;
 	}
 
 	public static void showOnboardingDialog(Context ctx, String text) {

@@ -27,18 +27,30 @@ public class TestPluginConfigModule {
 
 	public static final TransportId SIMPLEX_TRANSPORT_ID = getTransportId();
 	public static final TransportId DUPLEX_TRANSPORT_ID = getTransportId();
-	public static final int MAX_LATENCY = 30_000; // 30 seconds
+	private static final int MAX_LATENCY = 30_000; // 30 seconds
+
+	private final TransportId simplexTransportId, duplexTransportId;
+
+	public TestPluginConfigModule() {
+		this(SIMPLEX_TRANSPORT_ID, DUPLEX_TRANSPORT_ID);
+	}
+
+	public TestPluginConfigModule(TransportId simplexTransportId,
+			TransportId duplexTransportId) {
+		this.simplexTransportId = simplexTransportId;
+		this.duplexTransportId = duplexTransportId;
+	}
 
 	@NotNullByDefault
 	private final SimplexPluginFactory simplex = new SimplexPluginFactory() {
 
 		@Override
 		public TransportId getId() {
-			return SIMPLEX_TRANSPORT_ID;
+			return simplexTransportId;
 		}
 
 		@Override
-		public int getMaxLatency() {
+		public long getMaxLatency() {
 			return MAX_LATENCY;
 		}
 
@@ -54,11 +66,11 @@ public class TestPluginConfigModule {
 
 		@Override
 		public TransportId getId() {
-			return DUPLEX_TRANSPORT_ID;
+			return duplexTransportId;
 		}
 
 		@Override
-		public int getMaxLatency() {
+		public long getMaxLatency() {
 			return MAX_LATENCY;
 		}
 
@@ -70,7 +82,7 @@ public class TestPluginConfigModule {
 	};
 
 	@Provides
-	PluginConfig providePluginConfig() {
+	public PluginConfig providePluginConfig() {
 		@NotNullByDefault
 		PluginConfig pluginConfig = new PluginConfig() {
 

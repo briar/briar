@@ -46,13 +46,12 @@
 	<string name="forgotten_password">I have forgotten my password</string>
 	<string name="dialog_title_lost_password">Lost Password</string>
 	<string name="dialog_message_lost_password">Your Briar account is stored encrypted on your device, not in the cloud, so we can\'t reset your password. Would you like to delete your account and start again?\n\nCaution: Your identities, contacts and messages will be permanently lost.</string>
-	<string name="startup_failed_notification_title">Briar could not start</string>
-	<string name="startup_failed_notification_text">Tap for more information.</string>
 	<string name="startup_failed_activity_title">Briar Startup Failure</string>
-	<string name="startup_failed_db_error">For some reason, your Briar database is corrupted beyond repair. Your account, your data and all your contacts are lost. Unfortunately, you need to reinstall Briar or set up a new account by choosing \'I have forgotten my password\' at the password prompt.</string>
-	<string name="startup_failed_data_too_old_error">Your account was created with an old version of this app and cannot be opened with this version. You must either reinstall the old version or set up a new account by choosing \'I have forgotten my password\' at the password prompt.</string>
-	<string name="startup_failed_data_too_new_error">This version of the app is too old. Please upgrade to the latest version and try again.</string>
-	<string name="startup_failed_service_error">Briar was unable to start a required plugin. Reinstalling Briar usually solves this problem. However, please note that you will then lose your account and all data associated with it since Briar is not using central servers to store your data on.</string>
+	<string name="startup_failed_clock_error">Briar was unable to start because your device\'s clock is wrong.\n\nPlease set your device\'s clock to the right time and try again.</string>
+	<string name="startup_failed_db_error">Briar was unable to open the database containing your account, your contacts and your messages.\n\nPlease upgrade to the latest version of the app and try again, or set up a new account by choosing \'I have forgotten my password\' at the password prompt.</string>
+	<string name="startup_failed_data_too_old_error">Your account was created with an old version of this app and cannot be opened with this version.\n\nYou must either reinstall the old version or set up a new account by choosing \'I have forgotten my password\' at the password prompt.</string>
+	<string name="startup_failed_data_too_new_error">Your account was created with a newer version of this app and cannot be opened with this version.\n\nPlease upgrade to the latest version and try again.</string>
+	<string name="startup_failed_service_error">Briar was unable to start a required component.\n\nPlease upgrade to the latest version of the app and try again.</string>
 	<plurals name="expiry_warning">
 		<item quantity="one">This is a test version of Briar. Your account will expire in %d day and cannot be renewed.</item>
 		<item quantity="other">This is a test version of Briar. Your account will expire in %d days and cannot be renewed.</item>
@@ -151,6 +150,7 @@
 	<string name="open">Open</string>
 	<string name="change">Change</string>
 	<string name="start">Start</string>
+	<string name="finish">Finish</string>
 	<string name="no_data">No data</string>
 	<string name="ellipsis">…</string>
 	<string name="text_too_long">The entered text is too long</string>
@@ -237,6 +237,7 @@
 	<string name="dialog_title_image_support">You can now send images to this contact</string>
 	<string name="dialog_message_image_support">Tap this icon to attach images.</string>
 	<string name="messaging_too_many_attachments_toast">Only the first %d images will be sent</string>
+	<string name="menu_contact">Contact</string>
 
 	<!-- Adding Contacts -->
 
@@ -688,6 +689,30 @@
 
 	<!-- Connections Screen -->
 	<string name="transports_help_text">Briar can connect to your contacts via the Internet, Wi-Fi or Bluetooth.\n\nAll Internet connections go through the Tor network for privacy.\n\nIf a contact can be reached by multiple methods, Briar uses them in parallel.</string>
+
+
+	<!-- Transfer Data via Removable Drives -->
+
+	<string name="removable_drive_menu_title">Transfer data</string>
+	<string name="removable_drive_intro">You can send encrypted messages to your contact using removable storage such as USB flash drives or SD cards.\n\nIf your contact has sent you a removable drive containing encrypted messages, you can import the messages into Briar by using the receive button below.</string>
+	<string name="removable_drive_title_send">Send data</string>
+	<string name="removable_drive_title_receive">Receive data</string>
+	<string name="removable_drive_send_intro">Tap the button below to create a new file containing the encrypted messages. You can choose where the file will be saved.\n\nIf you want to save the file on a removable drive, insert the drive now.</string>
+	<string name="removable_drive_send_no_data">There are currently no messages waiting to be sent to this contact.</string>
+	<string name="removable_drive_send_not_supported">This contact is using an old version of Briar or an old device which does not support this feature.</string>
+	<string name="removable_drive_send_button">Choose file for export</string>
+	<string name="removable_drive_ongoing">Please wait for ongoing task to complete</string>
+	<string name="removable_drive_receive_intro">Tap the button below to choose the file that your contact sent you.\n\nIf the file is on a removable drive, insert the drive now.</string>
+	<string name="removable_drive_receive_button">Choose file for import</string>
+	<string name="removable_drive_success_send_title">Export successful</string>
+	<string name="removable_drive_success_send_text">Data exported successfully. You now have 28 days to transport the file to your contact.\n\nIf the file is on a removable drive, use the notification in the status bar to eject the drive before unplugging it.</string>
+	<string name="removable_drive_success_receive_title">Import successful</string>
+	<string name="removable_drive_success_receive_text">All encrypted messages contained in this file have been received.</string>
+	<string name="removable_drive_error_send_title">Error exporting data</string>
+	<string name="removable_drive_error_send_text">There was an error writing data to the file.\n\nIf you are using a removable drive, ensure that it is properly inserted and try again.\n\nIf the error persists, please send feedback to let the Briar team know about the issue.</string>
+	<string name="removable_drive_error_receive_title">Error importing data</string>
+	<string name="removable_drive_error_receive_text">The selected file did not contain anything that Briar could recognize.\n\nPlease check that you chose the right file.\n\nIf your contact created the file more than 28 days ago, Briar will not be able to recognize it.</string>
+
 
 	<!-- Screenshots -->
 

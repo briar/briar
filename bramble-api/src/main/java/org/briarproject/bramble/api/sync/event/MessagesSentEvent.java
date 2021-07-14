@@ -18,11 +18,13 @@ public class MessagesSentEvent extends Event {
 
 	private final ContactId contactId;
 	private final Collection<MessageId> messageIds;
+	private final long totalLength;
 
 	public MessagesSentEvent(ContactId contactId,
-			Collection<MessageId> messageIds) {
+			Collection<MessageId> messageIds, long totalLength) {
 		this.contactId = contactId;
 		this.messageIds = messageIds;
+		this.totalLength = totalLength;
 	}
 
 	public ContactId getContactId() {
@@ -31,5 +33,9 @@ public class MessagesSentEvent extends Event {
 
 	public Collection<MessageId> getMessageIds() {
 		return messageIds;
+	}
+
+	public long getTotalLength() {
+		return totalLength;
 	}
 }

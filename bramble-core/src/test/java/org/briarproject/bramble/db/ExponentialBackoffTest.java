@@ -3,6 +3,7 @@ package org.briarproject.bramble.db;
 import org.briarproject.bramble.test.BrambleTestCase;
 import org.junit.Test;
 
+import static org.briarproject.bramble.api.sync.SyncConstants.MAX_TRANSPORT_LATENCY;
 import static org.junit.Assert.assertEquals;
 
 public class ExponentialBackoffTest extends BrambleTestCase {
@@ -36,28 +37,28 @@ public class ExponentialBackoffTest extends BrambleTestCase {
 
 	@Test
 	public void testTransmissionCountOverflow() {
-		int maxLatency = Integer.MAX_VALUE; // RTT will not overflow
+		long maxLatency = MAX_TRANSPORT_LATENCY; // RTT will not overflow
 		long expiry = ExponentialBackoff.calculateExpiry(0, maxLatency, 0);
-		assertEquals(Integer.MAX_VALUE * 2L, expiry); // No overflow
-		expiry = ExponentialBackoff.calculateExpiry(0, maxLatency, 31);
-		assertEquals(Integer.MAX_VALUE * (2L << 31), expiry); // No overflow
-		expiry = ExponentialBackoff.calculateExpiry(0, maxLatency, 32);
+		assertEquals(MAX_TRANSPORT_LATENCY * 2L, expiry); // No overflow
+		expiry = ExponentialBackoff.calculateExpiry(0, maxLatency, 27);
+		assertEquals(MAX_TRANSPORT_LATENCY * (2L << 27), expiry); // No overflow
+		expiry = ExponentialBackoff.calculateExpiry(0, maxLatency, 28);
 		assertEquals(Long.MAX_VALUE, expiry); // Overflow caught
-		expiry = ExponentialBackoff.calculateExpiry(0, maxLatency, 33);
+		expiry = ExponentialBackoff.calculateExpiry(0, maxLatency, 29);
 		assertEquals(Long.MAX_VALUE, expiry); // Overflow caught
 	}
 
 	@Test
 	public void testCurrentTimeOverflow() {
-		int maxLatency = Integer.MAX_VALUE; // RTT will not overflow
-		long now = Long.MAX_VALUE - (Integer.MAX_VALUE * (2L << 31));
+		long maxLatency = MAX_TRANSPORT_LATENCY; // RTT will not overflow
+		long now = Long.MAX_VALUE - (MAX_TRANSPORT_LATENCY * (2L << 27));
 		long expiry = ExponentialBackoff.calculateExpiry(now, maxLatency, 0);
-		assertEquals(now + Integer.MAX_VALUE * 2L, expiry); // No overflow
-		expiry = ExponentialBackoff.calculateExpiry(now - 1, maxLatency, 31);
+		assertEquals(now + MAX_TRANSPORT_LATENCY * 2L, expiry); // No overflow
+		expiry = ExponentialBackoff.calculateExpiry(now - 1, maxLatency, 27);
 		assertEquals(Long.MAX_VALUE - 1, expiry); // No overflow
-		expiry = ExponentialBackoff.calculateExpiry(now, maxLatency, 31);
+		expiry = ExponentialBackoff.calculateExpiry(now, maxLatency, 27);
 		assertEquals(Long.MAX_VALUE, expiry); // No overflow
-		expiry = ExponentialBackoff.calculateExpiry(now + 1, maxLatency, 32);
+		expiry = ExponentialBackoff.calculateExpiry(now + 1, maxLatency, 27);
 		assertEquals(Long.MAX_VALUE, expiry); // Overflow caught
 	}
 }

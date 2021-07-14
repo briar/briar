@@ -50,6 +50,8 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import javax.annotation.Nullable;
 import javax.inject.Inject;
 
+import static org.briarproject.bramble.api.sync.validation.IncomingMessageHook.DeliveryAction.ACCEPT_DO_NOT_SHARE;
+import static org.briarproject.bramble.api.sync.validation.IncomingMessageHook.DeliveryAction.ACCEPT_SHARE;
 import static org.briarproject.briar.api.blog.BlogConstants.KEY_AUTHOR;
 import static org.briarproject.briar.api.blog.BlogConstants.KEY_COMMENT;
 import static org.briarproject.briar.api.blog.BlogConstants.KEY_ORIGINAL_MSG_ID;
@@ -109,8 +111,9 @@ class BlogManagerImpl extends BdfIncomingMessageHook implements BlogManager,
 	}
 
 	@Override
-	protected boolean incomingMessage(Transaction txn, Message m, BdfList list,
-			BdfDictionary meta) throws DbException, FormatException {
+	protected DeliveryAction incomingMessage(Transaction txn, Message m,
+			BdfList list, BdfDictionary meta)
+			throws DbException, FormatException {
 
 		GroupId groupId = m.getGroupId();
 		MessageType type = getMessageType(meta);
@@ -138,7 +141,7 @@ class BlogManagerImpl extends BdfIncomingMessageHook implements BlogManager,
 			txn.attach(event);
 
 			// shares message and its dependencies
-			return true;
+			return ACCEPT_SHARE;
 		} else if (type == WRAPPED_COMMENT) {
 			// Check that the original message ID in the dependency's metadata
 			// matches the original parent ID of the wrapped comment
@@ -153,7 +156,7 @@ class BlogManagerImpl extends BdfIncomingMessageHook implements BlogManager,
 			}
 		}
 		// don't share message until parent arrives
-		return false;
+		return ACCEPT_DO_NOT_SHARE;
 	}
 
 	@Override

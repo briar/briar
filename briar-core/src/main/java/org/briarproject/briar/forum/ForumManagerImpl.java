@@ -45,6 +45,7 @@ import javax.annotation.Nullable;
 import javax.annotation.concurrent.ThreadSafe;
 import javax.inject.Inject;
 
+import static org.briarproject.bramble.api.sync.validation.IncomingMessageHook.DeliveryAction.ACCEPT_SHARE;
 import static org.briarproject.briar.api.forum.ForumConstants.KEY_AUTHOR;
 import static org.briarproject.briar.api.forum.ForumConstants.KEY_LOCAL;
 import static org.briarproject.briar.api.forum.ForumConstants.KEY_PARENT;
@@ -75,8 +76,9 @@ class ForumManagerImpl extends BdfIncomingMessageHook implements ForumManager {
 	}
 
 	@Override
-	protected boolean incomingMessage(Transaction txn, Message m, BdfList body,
-			BdfDictionary meta) throws DbException, FormatException {
+	protected DeliveryAction incomingMessage(Transaction txn, Message m,
+			BdfList body, BdfDictionary meta)
+			throws DbException, FormatException {
 
 		messageTracker.trackIncomingMessage(txn, m);
 
@@ -86,8 +88,7 @@ class ForumManagerImpl extends BdfIncomingMessageHook implements ForumManager {
 				new ForumPostReceivedEvent(m.getGroupId(), header, text);
 		txn.attach(event);
 
-		// share message
-		return true;
+		return ACCEPT_SHARE;
 	}
 
 	@Override

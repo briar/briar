@@ -16,6 +16,12 @@ import javax.annotation.Nullable;
 public interface SimplexPlugin extends Plugin {
 
 	/**
+	 * Returns true if the transport is likely to lose streams and the cost of
+	 * transmitting redundant copies of data is cheap.
+	 */
+	boolean isLossyAndCheap();
+
+	/**
 	 * Attempts to create and return a reader for the given transport
 	 * properties. Returns null if a reader cannot be created.
 	 */

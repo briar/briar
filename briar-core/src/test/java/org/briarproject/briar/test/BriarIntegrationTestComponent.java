@@ -2,17 +2,14 @@ package org.briarproject.briar.test;
 
 import org.briarproject.bramble.BrambleCoreIntegrationTestEagerSingletons;
 import org.briarproject.bramble.BrambleCoreModule;
-import org.briarproject.bramble.api.client.ClientHelper;
-import org.briarproject.bramble.api.connection.ConnectionManager;
 import org.briarproject.bramble.api.contact.ContactManager;
 import org.briarproject.bramble.api.db.DatabaseComponent;
-import org.briarproject.bramble.api.event.EventBus;
 import org.briarproject.bramble.api.identity.AuthorFactory;
-import org.briarproject.bramble.api.identity.IdentityManager;
 import org.briarproject.bramble.api.lifecycle.LifecycleManager;
 import org.briarproject.bramble.api.properties.TransportPropertyManager;
 import org.briarproject.bramble.api.system.Clock;
 import org.briarproject.bramble.test.BrambleCoreIntegrationTestModule;
+import org.briarproject.bramble.test.BrambleIntegrationTestComponent;
 import org.briarproject.bramble.test.TimeTravel;
 import org.briarproject.briar.api.attachment.AttachmentReader;
 import org.briarproject.briar.api.autodelete.AutoDeleteManager;
@@ -67,7 +64,7 @@ import dagger.Component;
 		SharingModule.class
 })
 public interface BriarIntegrationTestComponent
-		extends BrambleCoreIntegrationTestEagerSingletons {
+		extends BrambleIntegrationTestComponent {
 
 	void inject(BriarIntegrationTest<BriarIntegrationTestComponent> init);
 
@@ -95,15 +92,9 @@ public interface BriarIntegrationTestComponent
 
 	LifecycleManager getLifecycleManager();
 
-	EventBus getEventBus();
-
-	IdentityManager getIdentityManager();
-
 	AttachmentReader getAttachmentReader();
 
 	AvatarManager getAvatarManager();
-
-	ClientHelper getClientHelper();
 
 	ContactManager getContactManager();
 
@@ -138,8 +129,6 @@ public interface BriarIntegrationTestComponent
 	AuthorFactory getAuthorFactory();
 
 	BlogFactory getBlogFactory();
-
-	ConnectionManager getConnectionManager();
 
 	AutoDeleteManager getAutoDeleteManager();
 

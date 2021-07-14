@@ -343,7 +343,13 @@
 
 		<activity
 			android:name="org.briarproject.briar.android.StartupFailureActivity"
-			android:label="@string/startup_failed_activity_title" />
+			android:excludeFromRecents="true"
+			android:exported="false"
+			android:finishOnTaskLaunch="true"
+			android:label="@string/startup_failed_activity_title"
+			android:launchMode="singleInstance"
+			android:process=":briar_startup_failure"
+			android:windowSoftInputMode="adjustResize|stateHidden" />
 
 		<activity
 			android:name="org.briarproject.briar.android.settings.SettingsActivity"
@@ -434,6 +440,15 @@
 			<meta-data
 				android:name="android.support.PARENT_ACTIVITY"
 				android:value="org.briarproject.briar.android.navdrawer.NavDrawerActivity" />
+		</activity>
+
+		<activity
+			android:name="org.briarproject.briar.android.removabledrive.RemovableDriveActivity"
+			android:label="@string/removable_drive_menu_title"
+			android:parentActivityName="org.briarproject.briar.android.conversation.ConversationActivity">
+			<meta-data
+				android:name="android.support.PARENT_ACTIVITY"
+				android:value="org.briarproject.briar.android.conversation.ConversationActivity" />
 		</activity>
 
 		<activity

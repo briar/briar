@@ -47,7 +47,7 @@ public class AndroidBluetoothPluginFactory implements DuplexPluginFactory {
 	private final BackoffFactory backoffFactory;
 
 	@Inject
-	public AndroidBluetoothPluginFactory(@IoExecutor Executor ioExecutor,
+	AndroidBluetoothPluginFactory(@IoExecutor Executor ioExecutor,
 			@WakefulIoExecutor Executor wakefulIoExecutor,
 			AndroidExecutor androidExecutor,
 			AndroidWakeLockManager wakeLockManager,
@@ -75,7 +75,7 @@ public class AndroidBluetoothPluginFactory implements DuplexPluginFactory {
 	}
 
 	@Override
-	public int getMaxLatency() {
+	public long getMaxLatency() {
 		return MAX_LATENCY;
 	}
 

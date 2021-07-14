@@ -20,6 +20,7 @@ import org.briarproject.bramble.api.sync.MessageContext;
 import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.bramble.api.sync.event.MessageAddedEvent;
 import org.briarproject.bramble.api.sync.validation.IncomingMessageHook;
+import org.briarproject.bramble.api.sync.validation.IncomingMessageHook.DeliveryAction;
 import org.briarproject.bramble.api.sync.validation.MessageState;
 import org.briarproject.bramble.api.sync.validation.MessageValidator;
 import org.briarproject.bramble.api.sync.validation.ValidationManager;
@@ -40,6 +41,10 @@ import javax.inject.Inject;
 
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
+import static org.briarproject.bramble.api.sync.validation.IncomingMessageHook.DeliveryAction.ACCEPT_DO_NOT_SHARE;
+import static org.briarproject.bramble.api.sync.validation.IncomingMessageHook.DeliveryAction.ACCEPT_SHARE;
+import static org.briarproject.bramble.api.sync.validation.IncomingMessageHook.DeliveryAction.DEFER;
+import static org.briarproject.bramble.api.sync.validation.IncomingMessageHook.DeliveryAction.REJECT;
 import static org.briarproject.bramble.api.sync.validation.MessageState.DELIVERED;
 import static org.briarproject.bramble.api.sync.validation.MessageState.INVALID;
 import static org.briarproject.bramble.api.sync.validation.MessageState.PENDING;
@@ -185,16 +190,19 @@ class ValidationManagerImpl implements ValidationManager, Service,
 						int majorVersion = g.getMajorVersion();
 						Metadata meta =
 								db.getMessageMetadataForValidator(txn, id);
-						DeliveryResult result =
+						DeliveryAction action =
 								deliverMessage(txn, m, c, majorVersion, meta);
-						if (result.valid) {
-							addPendingDependents(txn, id, pending);
-							if (result.share) {
-								db.setMessageShared(txn, id);
-								toShare.addAll(states.keySet());
-							}
-						} else {
+						if (action == REJECT) {
+							invalidateMessage(txn, id);
 							addDependentsToInvalidate(txn, id, invalidate);
+						} else if (action == ACCEPT_SHARE) {
+							db.setMessageState(txn, m.getId(), DELIVERED);
+							addPendingDependents(txn, id, pending);
+							db.setMessageShared(txn, id);
+							toShare.addAll(states.keySet());
+						} else if (action == ACCEPT_DO_NOT_SHARE) {
+							db.setMessageState(txn, m.getId(), DELIVERED);
+							addPendingDependents(txn, id, pending);
 						}
 					}
 				}
@@ -275,16 +283,21 @@ class ValidationManagerImpl implements ValidationManager, Service,
 					Metadata meta = context.getMetadata();
 					db.mergeMessageMetadata(txn, id, meta);
 					if (allDelivered) {
-						DeliveryResult result =
+						DeliveryAction action =
 								deliverMessage(txn, m, c, majorVersion, meta);
-						if (result.valid) {
-							addPendingDependents(txn, id, pending);
-							if (result.share) {
-								db.setMessageShared(txn, id);
-								toShare.addAll(dependencies);
-							}
-						} else {
+						if (action == REJECT) {
+							invalidateMessage(txn, id);
 							addDependentsToInvalidate(txn, id, invalidate);
+						} else if (action == DEFER) {
+							db.setMessageState(txn, id, PENDING);
+						} else if (action == ACCEPT_SHARE) {
+							db.setMessageState(txn, id, DELIVERED);
+							addPendingDependents(txn, id, pending);
+							db.setMessageShared(txn, id);
+							toShare.addAll(dependencies);
+						} else if (action == ACCEPT_DO_NOT_SHARE) {
+							db.setMessageState(txn, id, DELIVERED);
+							addPendingDependents(txn, id, pending);
 						}
 					} else {
 						db.setMessageState(txn, id, PENDING);
@@ -304,23 +317,21 @@ class ValidationManagerImpl implements ValidationManager, Service,
 	}
 
 	@DatabaseExecutor
-	private DeliveryResult deliverMessage(Transaction txn, Message m,
-			ClientId c, int majorVersion, Metadata meta) throws DbException {
-		// Deliver the message to the client if it's registered a hook
-		boolean shareMsg = false;
+	private DeliveryAction deliverMessage(Transaction txn, Message m,
+			ClientId c, int majorVersion, Metadata meta) {
+		// Deliver the message to the client if it has registered a hook
 		ClientMajorVersion cv = new ClientMajorVersion(c, majorVersion);
 		IncomingMessageHook hook = hooks.get(cv);
-		if (hook != null) {
-			try {
-				shareMsg = hook.incomingMessage(txn, m, meta);
-			} catch (InvalidMessageException e) {
-				logException(LOG, INFO, e);
-				invalidateMessage(txn, m.getId());
-				return new DeliveryResult(false, false);
-			}
+		if (hook == null) return ACCEPT_DO_NOT_SHARE;
+		try {
+			return hook.incomingMessage(txn, m, meta);
+		} catch (DbException e) {
+			logException(LOG, INFO, e);
+			return DEFER;
+		} catch (InvalidMessageException e) {
+			logException(LOG, INFO, e);
+			return REJECT;
 		}
-		db.setMessageState(txn, m.getId(), DELIVERED);
-		return new DeliveryResult(true, shareMsg);
 	}
 
 	@DatabaseExecutor
@@ -445,16 +456,6 @@ class ValidationManagerImpl implements ValidationManager, Service,
 			LOG.info("Group removed before validation");
 		} catch (DbException e) {
 			logException(LOG, WARNING, e);
-		}
-	}
-
-	private static class DeliveryResult {
-
-		private final boolean valid, share;
-
-		private DeliveryResult(boolean valid, boolean share) {
-			this.valid = valid;
-			this.share = share;
 		}
 	}
 }

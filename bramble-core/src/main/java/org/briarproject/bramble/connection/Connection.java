@@ -45,7 +45,6 @@ abstract class Connection {
 	@Nullable
 	StreamContext recogniseTag(TransportConnectionReader reader,
 			TransportId transportId) {
-		StreamContext ctx;
 		try {
 			byte[] tag = readTag(reader.getInputStream());
 			return keyManager.getStreamContext(transportId, tag);

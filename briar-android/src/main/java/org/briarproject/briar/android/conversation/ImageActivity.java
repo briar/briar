@@ -2,6 +2,7 @@ package org.briarproject.briar.android.conversation;
 
 import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.transition.Fade;
 import android.transition.Transition;
@@ -21,6 +22,7 @@ import org.briarproject.briar.R;
 import org.briarproject.briar.android.activity.ActivityComponent;
 import org.briarproject.briar.android.activity.BriarActivity;
 import org.briarproject.briar.android.attachment.AttachmentItem;
+import org.briarproject.briar.android.util.ActivityLaunchers.CreateDocumentAdvanced;
 import org.briarproject.briar.android.util.BriarSnackbarBuilder;
 import org.briarproject.briar.android.view.PullDownLayout;
 
@@ -28,6 +30,7 @@ import java.util.List;
 
 import javax.inject.Inject;
 
+import androidx.activity.result.ActivityResultLauncher;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AlertDialog.Builder;
@@ -37,9 +40,6 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.viewpager2.adapter.FragmentStateAdapter;
 import androidx.viewpager2.widget.ViewPager2;
 
-import static android.content.Intent.ACTION_CREATE_DOCUMENT;
-import static android.content.Intent.CATEGORY_OPENABLE;
-import static android.content.Intent.EXTRA_TITLE;
 import static android.graphics.Color.TRANSPARENT;
 import static android.os.Build.VERSION.SDK_INT;
 import static android.view.View.GONE;
@@ -50,7 +50,6 @@ import static android.view.View.VISIBLE;
 import static android.view.WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS;
 import static com.google.android.material.snackbar.Snackbar.LENGTH_LONG;
 import static java.util.Objects.requireNonNull;
-import static org.briarproject.briar.android.activity.RequestCodes.REQUEST_SAVE_ATTACHMENT;
 import static org.briarproject.briar.android.util.UiUtils.formatDateAbsolute;
 import static org.briarproject.briar.android.util.UiUtils.getDialogIcon;
 
@@ -78,6 +77,10 @@ public class ImageActivity extends BriarActivity
 	private ViewPager2 viewPager;
 	private List<AttachmentItem> attachments;
 	private MessageId conversationMessageId;
+
+	private final ActivityResultLauncher<String> launcher =
+			registerForActivityResult(new CreateDocumentAdvanced(),
+					this::onImageUriSelected);
 
 	@Override
 	public void injectActivity(ActivityComponent component) {
@@ -176,16 +179,6 @@ public class ImageActivity extends BriarActivity
 	}
 
 	@Override
-	protected void onActivityResult(int request, int result,
-			@Nullable Intent data) {
-		super.onActivityResult(request, result, data);
-		if (request == REQUEST_SAVE_ATTACHMENT && result == RESULT_OK &&
-				data != null) {
-			viewModel.saveImage(getVisibleAttachment(), data.getData());
-		}
-	}
-
-	@Override
 	public void onPullStart() {
 		appBarLayout.animate()
 				.alpha(0f)
@@ -268,8 +261,9 @@ public class ImageActivity extends BriarActivity
 	private void showSaveImageDialog() {
 		OnClickListener okListener = (dialog, which) -> {
 			if (SDK_INT >= 19) {
-				Intent intent = getCreationIntent();
-				startActivityForResult(intent, REQUEST_SAVE_ATTACHMENT);
+				String name = viewModel.getFileName() + "." +
+						getVisibleAttachment().getExtension();
+				launcher.launch(name);
 			} else {
 				viewModel.saveImage(getVisibleAttachment());
 			}
@@ -283,13 +277,9 @@ public class ImageActivity extends BriarActivity
 		builder.show();
 	}
 
-	@RequiresApi(api = 19)
-	private Intent getCreationIntent() {
-		Intent intent = new Intent(ACTION_CREATE_DOCUMENT);
-		intent.addCategory(CATEGORY_OPENABLE);
-		intent.setType(getVisibleAttachment().getMimeType());
-		intent.putExtra(EXTRA_TITLE, viewModel.getFileName());
-		return intent;
+	private void onImageUriSelected(@Nullable Uri uri) {
+		if (uri == null) return;
+		viewModel.saveImage(getVisibleAttachment(), uri);
 	}
 
 	private void onImageSaveStateChanged(@Nullable Boolean error) {
