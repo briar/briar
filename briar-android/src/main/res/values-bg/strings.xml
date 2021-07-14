@@ -44,12 +44,12 @@
   <string name="startup_failed_notification_text">Докоснете за повече информация.</string>
   <string name="startup_failed_activity_title">Неуспешно стартиране</string>
   <string name="startup_failed_db_error">По някаква причина банката от данни на Briar е непоправимо повредена. Вашият профил, данни и всичките ви контакти са загубени. За жалост, се налага да преинсталирате Briar или да създадете нов профил, избирайки „Забравена парола“ от екрана за вход.</string>
-  <string name="startup_failed_data_too_old_error">Вашия профил е създаден със по-ранно издание на приложението и не може да бъде отворен. Трябва или да инсталирате старата версия или да създадете нов профил, избирайки „Забравена парола“ от екрана за вход.</string>
+  <string name="startup_failed_data_too_old_error">Вашия профил е създаден със по-ранно издание на приложението и не може да бъде отворен. Трябва или да инсталирате по-ранното издание или да създадете нов профил, избирайки „Забравена парола“ от екрана за вход.</string>
   <string name="startup_failed_data_too_new_error">Тава издание на приложението е твърде старо. Обновете до последно издание и опитайте отново.</string>
   <string name="startup_failed_service_error">Briar не може да стартира задължителна приставка. Обикновено преинсталирането на Briar решава този проблем. Имайте предвид, че ще изгубите профила си и всички свързани с него данни, тъй като Briar не ги съхранява в централни сървъри.</string>
   <plurals name="expiry_warning">
-    <item quantity="one">Това е тестова версия на Briar. Вашият акаунт ще бъде изтече след 1%d дни и не може да бъде подновен.</item>
-    <item quantity="other">Това е изпитателно издание на Briar. Валидността на профила ще изтече след %d дена и не може да бъде подновен.</item>
+    <item quantity="one">Това е тестова версия на Briar. Вашият акаунт ще бъде изтече след %d ден и не може да бъде подновена.</item>
+    <item quantity="other">Това е изпитателно издание на Briar. Валидността на профила ще изтече след %d дена и не може да бъде подновена.</item>
   </plurals>
   <string name="expiry_date_reached">Софтуерът е с изтекъл срок.\nБлагодарим за изпитването!</string>
   <string name="download_briar">За да продължите да използвате Briar изтеглете последното издание.</string>
@@ -69,7 +69,7 @@
   <string name="lock_button">Заключване</string>
   <string name="settings_button">Настройки</string>
   <string name="sign_out_button">Отписване</string>
-  <string name="transports_onboarding_text">Докоснете, за да определите как Briar да се свързва с контактите.</string>
+  <string name="transports_onboarding_text">Докоснете, за да изберете как Briar да се свързва с контактите ви.</string>
   <!--Transports: Tor-->
   <string name="transport_tor">Интернет</string>
   <string name="tor_device_status_online_wifi">Устройството има достъп до интернет през Wi-Fi</string>
@@ -105,7 +105,7 @@
   <string name="reminder_notification_channel_title">Напомняне за вход в Briar</string>
   <string name="reminder_notification_dismiss">Отказ</string>
   <string name="ongoing_notification_title">Вписани в Briar</string>
-  <string name="ongoing_notification_text">Докоснете, за да отворите Briar.</string>
+  <string name="ongoing_notification_text">Докоснете за отваряне на Briar.</string>
   <plurals name="private_message_notification_text">
     <item quantity="one">Ново лично съобщение.</item>
     <item quantity="other">%d нови лични съобщения.</item>
@@ -174,9 +174,9 @@
   <string name="toast_connect_via_bluetooth_success">Успешно свързване чрез Bluetooth</string>
   <string name="toast_connect_via_bluetooth_error">Не може да се установи връзка чрез Bluetooth</string>
   <!--The first placeholder will show a duration like "7 days". The second placeholder at the end will add "Tap to learn more."-->
-  <string name="auto_delete_msg_you_enabled">Съобщението ви ще изчезне след %1$s. %2$s</string>
+  <string name="auto_delete_msg_you_enabled">Съобщението ще изчезне след %1$s. %2$s</string>
   <!--The placeholder at the end will add "Tap to learn more."-->
-  <string name="auto_delete_msg_you_disabled">Съобщението ви ще изчезне след %1$s</string>
+  <string name="auto_delete_msg_you_disabled">Съобщенията ви няма да изчезнат. %1$s</string>
   <!--The first placeholder will show a contact's name. The second placeholder will show a duration like "7 days". The third placeholder at the end will add "Tap to learn more."-->
   <string name="auto_delete_msg_contact_enabled">Съобщението от %1$s ще изчезне след %2$s. %3$s</string>
   <plurals name="duration_minutes">
@@ -220,7 +220,7 @@
   <string name="save_image_success">Изображението е запазено</string>
   <string name="save_image_error">Грешка при запазване на изображение</string>
   <string name="dialog_title_no_image_support">Недостъпни изображения</string>
-  <string name="dialog_message_no_image_support">Приложението Briar на вашия контакт все още не поддържа прикачени изображения. След като обновят ще виждате различна икона.</string>
+  <string name="dialog_message_no_image_support">Приложението на вашия контакт все още не поддържа изпращане на изображения. След като го обновят тази икона ще се промени.</string>
   <string name="dialog_title_image_support">Вече можете да изпращате изображения на този контакт</string>
   <string name="dialog_message_image_support">Докоснете иконата за да изпратите изображение</string>
   <string name="messaging_too_many_attachments_toast">Само първите %dизображения ще бъдат изпратени</string>
@@ -254,8 +254,8 @@
   <string name="send_link_title">Размяна на препратки</string>
   <string name="add_contact_choose_nickname">Избиране на прякор</string>
   <string name="add_contact_choose_a_nickname">Прякор</string>
-  <string name="nickname_intro">Изберете прякор на контакта. Само вие ще го виждате.</string>
-  <string name="your_link">Дайте тази препратка на контакта, когото добавяте</string>
+  <string name="nickname_intro">Изберете прякор на контакта. Той е видим само за вас.</string>
+  <string name="your_link">Споделете тази препратка с контакта, когото добавяте</string>
   <string name="link_clip_label">Препратка на Briar</string>
   <string name="link_copied_toast">Препратката е копирана</string>
   <string name="adding_contact_error">Грешка при добавяне на контакт.</string>
@@ -322,7 +322,7 @@
   <string name="introduction_response_declined_received_by_introducee">%1$s казва, че %2$s отказва запознанство.</string>
   <!--Private Groups-->
   <string name="groups_list_empty">Няма групи</string>
-  <string name="groups_list_empty_action">Докоснете иконата с +, за да създадете или поискайте от контактите си да споделят група с вас</string>
+  <string name="groups_list_empty_action">Докоснете иконата с +, за да създадете своя или поискайте от контактите си да споделят група с вас</string>
   <string name="groups_created_by">Основател %s</string>
   <plurals name="messages">
     <item quantity="one">%d съобщение</item>
@@ -376,7 +376,7 @@
   <string name="groups_reveal_invisible">Отношенията ви с контакта не са видими за групата</string>
   <!--Forums-->
   <string name="no_forums">Няма форуми</string>
-  <string name="no_forums_action">Докоснете иконата с +, за да създадете или поискайте от контактите си да споделят форум с вас</string>
+  <string name="no_forums_action">Докоснете иконата с +, за да създадете свой или поискайте от контактите си да споделят форум с вас</string>
   <string name="create_forum_title">Създаване на форум</string>
   <string name="choose_forum_hint">Име на форума</string>
   <string name="create_forum_button">Създаване на форум</string>
@@ -387,12 +387,12 @@
     <item quantity="one">%d публикация</item>
     <item quantity="other">%d публикации</item>
   </plurals>
-  <string name="forum_new_message_hint">Нова публикация</string>
-  <string name="forum_message_reply_hint">Нов отговор</string>
+  <string name="forum_new_message_hint">Публикация</string>
+  <string name="forum_message_reply_hint">Отговор</string>
   <string name="btn_reply">Отговаряне</string>
   <string name="forum_leave">Напускане на форума</string>
   <string name="dialog_title_leave_forum">Потвърждение на напускане на форум</string>
-  <string name="dialog_message_leave_forum">Сигурни ли сте, че искате да напуснете тази група?\n\nКонтактите, с които сте го споделили може да спрат да получават публикации.</string>
+  <string name="dialog_message_leave_forum">Сигурни ли сте, че искате да напуснете този форум?\n\nКонтактите, с които сте го споделили може да спрат да получават публикации.</string>
   <string name="dialog_button_leave">Напускане</string>
   <string name="forum_left_toast">Напуснахте форума</string>
   <!--Forum Sharing-->
@@ -417,7 +417,7 @@
   <string name="forum_invitation_response_declined_auto">Поканата от %s за членство във форум е отказана автоматично.</string>
   <string name="forum_invitation_response_accepted_received">%s прие поканата във форум.</string>
   <string name="forum_invitation_response_declined_received">%s отказа поканата във форум.</string>
-  <string name="sharing_status">Състояние на споделеното</string>
+  <string name="sharing_status">Състояние на споделяне</string>
   <string name="sharing_status_forum">Всеки участник във форума може да го сподели с контактите си. Споделяте този форум със следните контакти. Възможно е да има и други, които не можете да видите.</string>
   <string name="shared_with">Споделен %1$d (на линия %2$d)</string>
   <plurals name="forums_shared">
@@ -427,7 +427,7 @@
   <string name="nobody">Никого</string>
   <!--Blogs-->
   <string name="blogs_other_blog_empty_state">Няма публикации</string>
-  <string name="read_more">прочети още</string>
+  <string name="read_more">повече</string>
   <string name="blogs_write_blog_post">Нова публикация в блога</string>
   <string name="blogs_write_blog_post_body_hint">Въведете своята публикация</string>
   <string name="blogs_publish_blog_post">Публикуване</string>
@@ -461,7 +461,7 @@
   <!--RSS Feeds-->
   <string name="blogs_rss_feeds_import">Внасяне на емисия на RSS</string>
   <string name="blogs_rss_feeds_import_button">Внасяне</string>
-  <string name="blogs_rss_feeds_import_hint">Въведете адреса на емисията</string>
+  <string name="blogs_rss_feeds_import_hint">Aдрес на емисия</string>
   <string name="blogs_rss_feeds_import_error">Грешка при внасяне на емисията.</string>
   <string name="blogs_rss_feeds_import_exists">Емисията вече е внесена.</string>
   <string name="blogs_rss_feeds">Емисии на RSS</string>
@@ -493,7 +493,7 @@
   <string name="bluetooth_setting">Свързване с контактите чрез Bluetooth</string>
   <string name="wifi_setting">Свързване с контактите в същата безжична мрежа</string>
   <string name="tor_enable_title">Свързване с контактите през интернет</string>
-  <string name="tor_enable_summary">Всички връзки минават през мрежата на Tor за по-добра поверителност</string>
+  <string name="tor_enable_summary">За повече поверителност цялата връзка към интернет се пренасочва през мрежата на Tor</string>
   <string name="tor_network_setting">Начин на свързване към мрежата на Tor</string>
   <string name="tor_network_setting_automatic">Автоматично, на база местоположение</string>
   <string name="tor_network_setting_without_bridges">Използване на мрежата на Tor без мостове</string>
@@ -503,15 +503,15 @@
   <string name="tor_network_setting_summary">Автоматично: %1$s (в/ъв %2$s)</string>
   <string name="tor_mobile_data_title">Използване на мобилни данни</string>
   <string name="tor_only_when_charging_title">Свързване към интернет само на зарядно</string>
-  <string name="tor_only_when_charging_summary">Изключва връзката с интернет, когато устройството е на батерия</string>
+  <string name="tor_only_when_charging_summary">Изключва се връзката с интернет, когато устройството се използва на батерия</string>
   <!--Settings Security and Panic-->
   <string name="security_settings_title">Сигурност</string>
   <string name="pref_lock_title">Заключване на приложението</string>
-  <string name="pref_lock_summary">Заключва екрана, за да предпази Briar докато сте вписани</string>
+  <string name="pref_lock_summary">Заключва се екрана, за да предпази Briar докато сте вписани</string>
   <string name="pref_lock_disabled_summary">За да се възползвате от тази възможност, настройте заключване на екрана</string>
   <string name="pref_lock_timeout_title">Заключване при бездействие</string>
   <!--The %s placeholder is replaced with the following time spans, e.g. 5 Minutes, 1 Hour-->
-  <string name="pref_lock_timeout_summary">Ако Briar не се използва, да се заключи автоматично след %s</string>
+  <string name="pref_lock_timeout_summary">Briar се изключва автоматично при неактивност от %s</string>
   <!--Will be shown in a list of lock times. Should fit into the %s of "automatically lock it after %s"-->
   <string name="pref_lock_timeout_1">1 минута</string>
   <!--Will be shown in a list of lock times. Should fit into the %s of "automatically lock it after %s"-->
@@ -523,7 +523,7 @@
   <!--Will be shown in a list of lock times. Should fit into the %s of "automatically lock it after %s"-->
   <string name="pref_lock_timeout_60">1 час</string>
   <string name="pref_lock_timeout_never">Никога</string>
-  <string name="pref_lock_timeout_never_summary">Briar никога да не бъде заключван автоматично</string>
+  <string name="pref_lock_timeout_never_summary">Briar никога да не се заключва автоматично</string>
   <string name="change_password">Промяна на парола</string>
   <string name="current_password">Текуща парола</string>
   <string name="choose_new_password">Нова парола</string>
@@ -531,7 +531,7 @@
   <string name="password_changed">Паролата е променена.</string>
   <string name="panic_setting">Настройка на бутон за паника</string>
   <string name="panic_setting_title">Бутон за паника</string>
-  <string name="panic_setting_hint">Настройте как Briar да реагира при използване на приложение за бутон за паника</string>
+  <string name="panic_setting_hint">Настройва се реакцията на Briar при използване на приложение за бутон за паника</string>
   <string name="panic_app_setting_title">Приложение бутон за паника</string>
   <string name="unknown_app">непознато приложение</string>
   <string name="panic_app_setting_summary">Няма зададено приложение</string>
@@ -542,7 +542,7 @@
   <string name="panic_setting_signout_title">Отписване</string>
   <string name="panic_setting_signout_summary">Отписване от Briar при натиснат бутон за паника</string>
   <string name="purge_setting_title">Изтриване на профил</string>
-  <string name="purge_setting_summary">Изтрива профила на Briar при натиснат бутон за паника. Внимание: Изтрива безвъзвратно профила, контактите и съобщенията</string>
+  <string name="purge_setting_summary">Профила на Briar се изтрива при натиснат бутон за паника. Внимание: Изтрива безвъзвратно профила, контактите и съобщенията</string>
   <!--Settings Notifications-->
   <string name="notification_settings_title">Известия</string>
   <string name="notify_sign_in_title">Напомняне за вписване</string>
@@ -573,7 +573,7 @@
 \n\nИмайте предвид, че получателите могат да правят копия на получените от вас съобщения.
 \n\nАко вие промените настройката промяната ще влезе в действие веднага, още върху следващото ви съобщение, а при вашите контакти след получаването му. Контактите ви също могат да правят промяна на тази настройка, което ще се отрази и на двама ви.</string>
   <string name="learn_more">Научете повече</string>
-  <string name="disappearing_messages_summary">Прави бъдещите съобщения в този разговор да изчезват след 7\u00A0дни.</string>
+  <string name="disappearing_messages_summary">Бъдещите съобщения в разговора изчезват след 7\u00A0дни</string>
   <!--Settings Feedback-->
   <string name="send_feedback">Изпращане на отзив</string>
   <!--Link Warning-->
@@ -640,7 +640,7 @@
   <string name="lock_is_locked">Briar е заключен</string>
   <string name="lock_tap_to_unlock">Докоснете за отключване</string>
   <!--Connections Screen-->
-  <string name="transports_help_text">Briar може да се свърже с контактите ви през интернет, Wi-Fi или Bluetooth.\n\nЗа по-добра поверителност връзката през интернет минава през мрежата на Tor.\n\nАко даден контакт може да бъде достъпен чрез няколко метода Briar ги използва успоредно.</string>
+  <string name="transports_help_text">Briar може да се свърже с контактите ви през интернет, Wi-Fi или Bluetooth.\n\nЗа повече поверителност цялата връзка към интернет се пренасочва през мрежата на Tor.\n\nАко даден контакт може да бъде достъпен чрез няколко метода Briar ги използва успоредно.</string>
   <!--Screenshots-->
   <!--This is a name to be used in screenshots. Feel free to change it to a local name.-->
   <string name="screenshot_alice">Ани</string>
