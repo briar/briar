@@ -155,7 +155,8 @@ public class AppModule {
 	@Singleton
 	PluginConfig providePluginConfig(AndroidBluetoothPluginFactory bluetooth,
 			AndroidTorPluginFactory tor, AndroidLanTcpPluginFactory lan,
-			AndroidRemovableDrivePluginFactory drive) {
+			AndroidRemovableDrivePluginFactory drive,
+			FeatureFlags featureFlags) {
 		@NotNullByDefault
 		PluginConfig pluginConfig = new PluginConfig() {
 
@@ -166,7 +167,11 @@ public class AppModule {
 
 			@Override
 			public Collection<SimplexPluginFactory> getSimplexFactories() {
-				return SDK_INT >= 19 ? singletonList(drive) : emptyList();
+				if (SDK_INT >= 19 && featureFlags.shouldEnableTransferData()) {
+					return singletonList(drive);
+				} else {
+					return emptyList();
+				}
 			}
 
 			@Override
