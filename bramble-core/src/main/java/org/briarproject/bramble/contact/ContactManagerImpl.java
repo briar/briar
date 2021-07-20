@@ -1,7 +1,5 @@
 package org.briarproject.bramble.contact;
 
-import com.sun.tools.javac.jvm.Gen;
-
 import org.briarproject.bramble.api.FormatException;
 import org.briarproject.bramble.api.Pair;
 import org.briarproject.bramble.api.contact.Contact;
