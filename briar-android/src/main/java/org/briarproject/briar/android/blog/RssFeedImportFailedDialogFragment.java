@@ -25,8 +25,15 @@ public class RssFeedImportFailedDialogFragment extends DialogFragment {
 	ViewModelProvider.Factory viewModelFactory;
 	private RssFeedViewModel viewModel;
 
-	static RssFeedImportFailedDialogFragment newInstance() {
-		return new RssFeedImportFailedDialogFragment();
+	private static final String ARG_URL = "url";
+
+	static RssFeedImportFailedDialogFragment newInstance(String retryUrl) {
+		Bundle args = new Bundle();
+		args.putString(ARG_URL, retryUrl);
+		RssFeedImportFailedDialogFragment f =
+				new RssFeedImportFailedDialogFragment();
+		f.setArguments(args);
+		return f;
 	}
 
 	@Override
@@ -45,8 +52,8 @@ public class RssFeedImportFailedDialogFragment extends DialogFragment {
 						R.style.BriarDialogTheme);
 		builder.setMessage(R.string.blogs_rss_feeds_import_error);
 		builder.setNegativeButton(R.string.cancel, null);
-		builder.setPositiveButton(R.string.try_again_button,
-				(dialog, which) -> viewModel.retryImportFeed());
+		builder.setPositiveButton(R.string.try_again_button, (dialog, which) ->
+				viewModel.importFeed(requireArguments().getString(ARG_URL)));
 
 		return builder.create();
 	}

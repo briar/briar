@@ -159,11 +159,9 @@ class RssFeedViewModel extends DbViewModel {
 		});
 	}
 
-	void retryImportFeed() {
-		if (urlFailedImport == null) {
-			throw new AssertionError();
-		}
-		importFeed(urlFailedImport);
+	@Nullable
+	String getUrlFailedImport() {
+		return urlFailedImport;
 	}
 
 	private boolean exists(String url) {
