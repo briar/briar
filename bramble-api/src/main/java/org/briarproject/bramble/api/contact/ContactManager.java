@@ -214,13 +214,14 @@ public interface ContactManager {
 	 * Sets the contact's handshake public key
 	 */
 	void setHandshakePublicKey(Transaction txn, ContactId c,
-			PublicKey handshakePublicKey) throws DbException;
+			PublicKey handshakePublicKey) throws DbException,
+			GeneralSecurityException;
 
 	/**
 	 * Sets the contact's handshake public key
 	 */
 	void setHandshakePublicKey(ContactId c, PublicKey handshakePublicKey)
-			throws DbException;
+			throws DbException, GeneralSecurityException;
 
 	/**
 	 * Returns true if a contact with this {@code remoteAuthorId} belongs to
