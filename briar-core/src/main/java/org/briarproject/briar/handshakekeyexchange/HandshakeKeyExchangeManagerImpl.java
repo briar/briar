@@ -29,6 +29,7 @@ import org.briarproject.briar.api.conversation.DeletionResult;
 import org.briarproject.briar.api.handshakekeyexchange.HandshakeKeyExchangeManager;
 import org.briarproject.briar.client.ConversationClientImpl;
 
+import java.security.GeneralSecurityException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Map;
@@ -163,8 +164,14 @@ public class HandshakeKeyExchangeManagerImpl extends ConversationClientImpl
 		}
 		LOG.info("Adding contact's handshake public key");
 		PublicKey handshakePublicKey = new AgreementPublicKey(body.getRaw(0));
-		contactManager
-				.setHandshakePublicKey(txn, contactId, handshakePublicKey);
+
+		try {
+			contactManager
+					.setHandshakePublicKey(txn, contactId, handshakePublicKey);
+		} catch (GeneralSecurityException e) {
+			LOG.warning("Security exception when adding remote handshake public key");
+			e.printStackTrace();
+		}
 		return false;
 	}
 
