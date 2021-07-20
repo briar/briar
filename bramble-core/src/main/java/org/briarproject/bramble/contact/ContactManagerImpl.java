@@ -1,5 +1,7 @@
 package org.briarproject.bramble.contact;
 
+import com.sun.tools.javac.jvm.Gen;
+
 import org.briarproject.bramble.api.FormatException;
 import org.briarproject.bramble.api.Pair;
 import org.briarproject.bramble.api.contact.Contact;
@@ -249,17 +251,19 @@ class ContactManagerImpl implements ContactManager, EventListener {
 
 	@Override
 	public void setHandshakePublicKey(Transaction txn, ContactId c,
-			PublicKey handshakePublicKey) throws DbException {
+			PublicKey handshakePublicKey) throws DbException, GeneralSecurityException {
 		if (handshakePublicKey.getKeyType() !=
 				CryptoConstants.KEY_TYPE_AGREEMENT) {
 			throw new IllegalArgumentException();
 		}
 		db.setHandshakePublicKey(txn, c, handshakePublicKey);
+		KeyPair ourKeyPair = identityManager.getHandshakeKeys(txn);
+		keyManager.addContact(txn, c, handshakePublicKey, ourKeyPair);
 	}
 
 	@Override
 	public void setHandshakePublicKey(ContactId c, PublicKey handshakePublicKey)
-			throws DbException {
+			throws DbException, GeneralSecurityException {
 		db.transaction(false,
 				txn -> setHandshakePublicKey(txn, c, handshakePublicKey));
 	}
