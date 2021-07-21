@@ -110,7 +110,7 @@ class HotspotViewModel extends DbViewModel
 	}
 
 	@UiThread
-	private void stopHotspot() {
+	void stopHotspot() {
 		ioExecutor.execute(webServerManager::stopWebServer);
 		hotspotManager.stopWifiP2pHotspot();
 		notificationManager.clearHotspotNotification();

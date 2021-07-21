@@ -1,7 +1,6 @@
 package org.briarproject.briar.android.hotspot;
 
 import android.content.Context;
-import android.content.Intent;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
@@ -20,15 +19,13 @@ import org.briarproject.briar.R;
 
 import javax.inject.Inject;
 
-import androidx.activity.result.ActivityResultLauncher;
-import androidx.activity.result.contract.ActivityResultContracts.RequestPermission;
-import androidx.activity.result.contract.ActivityResultContracts.StartActivityForResult;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 import androidx.lifecycle.ViewModelProvider;
 
 import static android.content.pm.ApplicationInfo.FLAG_TEST_ONLY;
+import static android.os.Build.VERSION.SDK_INT;
 import static android.view.View.INVISIBLE;
 import static android.view.View.VISIBLE;
 import static androidx.transition.TransitionManager.beginDelayedTransition;
@@ -45,22 +42,14 @@ public class HotspotIntroFragment extends Fragment {
 	ViewModelProvider.Factory viewModelFactory;
 
 	private HotspotViewModel viewModel;
-	private ConditionManager conditionManager;
 
 	private Button startButton;
 	private ProgressBar progressBar;
 	private TextView progressTextView;
 
-	private final ActivityResultLauncher<String> locationRequest =
-			registerForActivityResult(new RequestPermission(), granted -> {
-				conditionManager.onRequestPermissionResult(granted);
-				startHotspot();
-			});
-	private final ActivityResultLauncher<Intent> wifiRequest =
-			registerForActivityResult(new StartActivityForResult(), result -> {
-				conditionManager.onRequestWifiEnabledResult();
-				startHotspot();
-			});
+	private final ConditionManager conditionManager = SDK_INT < 29 ?
+			new ConditionManagerImpl(this, this::onPermissionUpdate) :
+			new ConditionManager29Impl(this, this::onPermissionUpdate);
 
 	@Override
 	public void onAttach(Context context) {
@@ -69,8 +58,6 @@ public class HotspotIntroFragment extends Fragment {
 		getAndroidComponent(activity).inject(this);
 		viewModel = new ViewModelProvider(activity, viewModelFactory)
 				.get(HotspotViewModel.class);
-		conditionManager =
-				new ConditionManager(activity, locationRequest, wifiRequest);
 	}
 
 	@Override
@@ -84,10 +71,9 @@ public class HotspotIntroFragment extends Fragment {
 		progressBar = v.findViewById(R.id.progressBar);
 		progressTextView = v.findViewById(R.id.progressTextView);
 
-		startButton.setOnClickListener(button -> {
-			startButton.setEnabled(false);
-			conditionManager.startConditionChecks();
-		});
+		startButton.setOnClickListener(this::onButtonClick);
+
+		conditionManager.init(requireActivity());
 
 		return v;
 	}
@@ -95,11 +81,15 @@ public class HotspotIntroFragment extends Fragment {
 	@Override
 	public void onStart() {
 		super.onStart();
-		conditionManager.resetPermissions();
+		conditionManager.onStart();
+	}
+
+	private void onButtonClick(View view) {
+		startButton.setEnabled(false);
+		startHotspot();
 	}
 
 	private void startHotspot() {
-		startButton.setEnabled(true);
 		if (conditionManager.checkAndRequestConditions()) {
 			showInstallWarningIfNeeded();
 			beginDelayedTransition((ViewGroup) requireView());
@@ -107,6 +97,13 @@ public class HotspotIntroFragment extends Fragment {
 			progressBar.setVisibility(VISIBLE);
 			progressTextView.setVisibility(VISIBLE);
 			viewModel.startHotspot();
+		}
+	}
+
+	private void onPermissionUpdate(boolean recheckPermissions) {
+		startButton.setEnabled(true);
+		if (recheckPermissions) {
+			startHotspot();
 		}
 	}
 
