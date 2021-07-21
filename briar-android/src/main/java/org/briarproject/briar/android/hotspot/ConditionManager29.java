@@ -30,17 +30,17 @@ import static org.briarproject.briar.android.util.UiUtils.getGoToSettingsListene
  * all conditions are fulfilled.
  */
 @RequiresApi(29)
-class ConditionManager29Impl extends ConditionManager {
+class ConditionManager29 extends AbstractConditionManager {
 
 	private static final Logger LOG =
-			getLogger(ConditionManager29Impl.class.getName());
+			getLogger(ConditionManager29.class.getName());
 
 	private Permission locationPermission = Permission.UNKNOWN;
 
 	private final ActivityResultLauncher<String> locationRequest;
 	private final ActivityResultLauncher<Intent> wifiRequest;
 
-	ConditionManager29Impl(ActivityResultCaller arc,
+	ConditionManager29(ActivityResultCaller arc,
 			Consumer<Boolean> permissionUpdateCallback) {
 		super(permissionUpdateCallback);
 		locationRequest = arc.registerForActivityResult(

@@ -1,84 +1,83 @@
 package org.briarproject.briar.android.hotspot;
 
-import android.content.Context;
-import android.content.DialogInterface;
-import android.net.wifi.WifiManager;
+import android.content.Intent;
+import android.provider.Settings;
 
 import org.briarproject.briar.R;
 
-import androidx.annotation.StringRes;
-import androidx.appcompat.app.AlertDialog;
-import androidx.core.util.Consumer;
-import androidx.fragment.app.FragmentActivity;
+import java.util.logging.Logger;
 
-import static android.content.Context.WIFI_SERVICE;
+import androidx.activity.result.ActivityResultCaller;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts.StartActivityForResult;
+import androidx.core.util.Consumer;
+
+import static java.util.logging.Level.INFO;
+import static java.util.logging.Logger.getLogger;
 
 /**
- * Abstract base class for the ConditionManagers that ensure that the conditions
- * to open a hotspot are fulfilled. There are different extensions of this for
- * API levels lower than 29 and 29+.
+ * This class ensures that the conditions to open a hotspot are fulfilled on
+ * API levels < 29.
+ * <p>
+ * As soon as {@link #checkAndRequestConditions()} returns true,
+ * all conditions are fulfilled.
  */
-abstract class ConditionManager {
+class ConditionManager extends AbstractConditionManager {
 
-	enum Permission {
-		UNKNOWN, GRANTED, SHOW_RATIONALE, PERMANENTLY_DENIED
+	private static final Logger LOG =
+			getLogger(ConditionManager.class.getName());
+
+	private final ActivityResultLauncher<Intent> wifiRequest;
+
+	ConditionManager(ActivityResultCaller arc,
+			Consumer<Boolean> permissionUpdateCallback) {
+		super(permissionUpdateCallback);
+		wifiRequest = arc.registerForActivityResult(
+				new StartActivityForResult(),
+				result -> permissionUpdateCallback
+						.accept(wifiManager.isWifiEnabled()));
 	}
 
-	protected final Consumer<Boolean> permissionUpdateCallback;
-	protected FragmentActivity ctx;
-	WifiManager wifiManager;
-
-	ConditionManager(Consumer<Boolean> permissionUpdateCallback) {
-		this.permissionUpdateCallback = permissionUpdateCallback;
+	@Override
+	void onStart() {
+		// nothing to do here
 	}
 
-	/**
-	 * Pass a FragmentActivity context here during `onCreateView()`.
-	 */
-	void init(FragmentActivity ctx) {
-		this.ctx = ctx;
-		this.wifiManager = (WifiManager) ctx.getApplicationContext()
-				.getSystemService(WIFI_SERVICE);
+	private boolean areEssentialPermissionsGranted() {
+		if (LOG.isLoggable(INFO)) {
+			LOG.info(String.format("areEssentialPermissionsGranted(): " +
+							"wifiManager.isWifiEnabled()? %b",
+					wifiManager.isWifiEnabled()));
+		}
+		return wifiManager.isWifiEnabled();
 	}
 
-	/**
-	 * Call this during onStart() in the fragment where the ConditionManager
-	 * is used.
-	 */
-	abstract void onStart();
+	@Override
+	boolean checkAndRequestConditions() {
+		if (areEssentialPermissionsGranted()) return true;
 
-	/**
-	 * Check if all required conditions are met such that the hotspot can be
-	 * started. If any precondition is not met yet, bring up relevant dialogs
-	 * asking the user to grant relevant permissions or take relevant actions.
-	 *
-	 * @return true if conditions are fulfilled and flow can continue.
-	 */
-	abstract boolean checkAndRequestConditions();
+		if (!wifiManager.isWifiEnabled()) {
+			// Try enabling the Wifi and return true if that seems to have been
+			// successful, i.e. "Wifi is either already in the requested state, or
+			// in progress toward the requested state".
+			if (wifiManager.setWifiEnabled(true)) {
+				LOG.info("Enabled wifi");
+				return true;
+			}
 
-	void showDenialDialog(FragmentActivity ctx,
-			@StringRes int title, @StringRes int body,
-			DialogInterface.OnClickListener onOkClicked, Runnable onDismiss) {
-		AlertDialog.Builder builder = new AlertDialog.Builder(ctx);
-		builder.setTitle(title);
-		builder.setMessage(body);
-		builder.setPositiveButton(R.string.ok, onOkClicked);
-		builder.setNegativeButton(R.string.cancel,
-				(dialog, which) -> ctx.supportFinishAfterTransition());
-		builder.setOnDismissListener(dialog -> onDismiss.run());
-		builder.show();
+			// Wifi is not enabled and we can't seem to enable it, so ask the user
+			// to enable it for us.
+			showRationale(ctx, R.string.wifi_settings_title,
+					R.string.wifi_settings_request_enable_body,
+					this::requestEnableWiFi,
+					() -> permissionUpdateCallback.accept(false));
+		}
+
+		return false;
 	}
 
-	void showRationale(Context ctx, @StringRes int title,
-			@StringRes int body, Runnable onContinueClicked,
-			Runnable onDismiss) {
-		AlertDialog.Builder builder = new AlertDialog.Builder(ctx);
-		builder.setTitle(title);
-		builder.setMessage(body);
-		builder.setNeutralButton(R.string.continue_button,
-				(dialog, which) -> onContinueClicked.run());
-		builder.setOnDismissListener(dialog -> onDismiss.run());
-		builder.show();
+	private void requestEnableWiFi() {
+		wifiRequest.launch(new Intent(Settings.ACTION_WIFI_SETTINGS));
 	}
 
 }
