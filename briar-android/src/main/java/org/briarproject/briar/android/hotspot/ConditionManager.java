@@ -20,7 +20,7 @@ abstract class ConditionManager {
 
 	protected final Consumer<Boolean> permissionUpdateCallback;
 	protected FragmentActivity ctx;
-	protected WifiManager wifiManager;
+	WifiManager wifiManager;
 
 	ConditionManager(Consumer<Boolean> permissionUpdateCallback) {
 		this.permissionUpdateCallback = permissionUpdateCallback;

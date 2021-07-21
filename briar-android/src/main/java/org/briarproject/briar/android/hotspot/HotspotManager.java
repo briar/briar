@@ -157,7 +157,7 @@ class HotspotManager {
 	 * We'll realize that the framework is busy when the ActionListener passed
 	 * to {@link WifiP2pManager#createGroup} is called with onFailure(BUSY)
 	 */
-	void startWifiP2pFramework(int attempt) {
+	private void startWifiP2pFramework(int attempt) {
 		if (LOG.isLoggable(INFO))
 			LOG.info("startWifiP2pFramework attempt: " + attempt);
 		/*
