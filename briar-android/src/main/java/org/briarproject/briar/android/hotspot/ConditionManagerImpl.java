@@ -14,7 +14,6 @@ import androidx.core.util.Consumer;
 
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Logger.getLogger;
-import static org.briarproject.briar.android.util.UiUtils.showRationale;
 
 /**
  * This class ensures that the conditions to open a hotspot are fulfilled on
@@ -35,7 +34,8 @@ class ConditionManagerImpl extends ConditionManager {
 		super(permissionUpdateCallback);
 		wifiRequest = arc.registerForActivityResult(
 				new StartActivityForResult(),
-				result -> permissionUpdateCallback.accept(true));
+				result -> permissionUpdateCallback
+						.accept(wifiManager.isWifiEnabled()));
 	}
 
 	@Override

@@ -17,11 +17,10 @@ import androidx.core.util.Consumer;
 
 import static android.Manifest.permission.ACCESS_FINE_LOCATION;
 import static androidx.core.app.ActivityCompat.shouldShowRequestPermissionRationale;
+import static java.lang.Boolean.TRUE;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Logger.getLogger;
 import static org.briarproject.briar.android.util.UiUtils.getGoToSettingsListener;
-import static org.briarproject.briar.android.util.UiUtils.showDenialDialog;
-import static org.briarproject.briar.android.util.UiUtils.showRationale;
 
 /**
  * This class ensures that the conditions to open a hotspot are fulfilled on
@@ -47,11 +46,13 @@ class ConditionManager29Impl extends ConditionManager {
 		locationRequest = arc.registerForActivityResult(
 				new RequestPermission(), granted -> {
 					onRequestPermissionResult(granted);
-					permissionUpdateCallback.accept(true);
+					permissionUpdateCallback.accept(TRUE.equals(granted));
 				});
 		wifiRequest = arc.registerForActivityResult(
 				new StartActivityForResult(),
-				result -> permissionUpdateCallback.accept(true));
+				result -> permissionUpdateCallback
+						.accept(wifiManager.isWifiEnabled())
+		);
 	}
 
 	@Override

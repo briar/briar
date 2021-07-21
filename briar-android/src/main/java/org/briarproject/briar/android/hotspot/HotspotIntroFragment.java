@@ -86,10 +86,10 @@ public class HotspotIntroFragment extends Fragment {
 
 	private void onButtonClick(View view) {
 		startButton.setEnabled(false);
-		startHotspot();
+		startHotspotIfConditionsFulfilled();
 	}
 
-	private void startHotspot() {
+	private void startHotspotIfConditionsFulfilled() {
 		if (conditionManager.checkAndRequestConditions()) {
 			showInstallWarningIfNeeded();
 			beginDelayedTransition((ViewGroup) requireView());
@@ -103,7 +103,7 @@ public class HotspotIntroFragment extends Fragment {
 	private void onPermissionUpdate(boolean recheckPermissions) {
 		startButton.setEnabled(true);
 		if (recheckPermissions) {
-			startHotspot();
+			startHotspotIfConditionsFulfilled();
 		}
 	}
 

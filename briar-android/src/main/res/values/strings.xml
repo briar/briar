@@ -757,7 +757,7 @@
 	<string name="hotspot_error_web_server_start">Error starting web server!</string>
 	<string name="hotspot_error_web_server_serve">Error presenting website.\n\nPlease send feedback (with anonymous data) via the Briar app if the issue persists.</string>
 	<string name="hotspot_flag_test">Warning: This app was installed with Android Studio and can NOT be installed on another device.</string>
-	<string name="hotspot_error_framework_busy">Unable to start the hotspot. If you have another hotspot running or are sharing your internet connection via Wifi, try stopping that and try again afterwards.</string>
+	<string name="hotspot_error_framework_busy">Unable to start the hotspot.\n\nIf you have another hotspot running or are sharing your internet connection via Wi-Fi, try stopping that and try again afterwards.</string>
 
 
 	<!-- Transfer Data via Removable Drives -->

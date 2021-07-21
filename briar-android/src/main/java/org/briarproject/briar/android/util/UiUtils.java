@@ -6,7 +6,6 @@ import android.app.Activity;
 import android.app.KeyguardManager;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
 import android.content.res.Resources;
@@ -53,7 +52,6 @@ import androidx.annotation.ColorRes;
 import androidx.annotation.DrawableRes;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
-import androidx.annotation.StringRes;
 import androidx.annotation.UiThread;
 import androidx.appcompat.app.AlertDialog;
 import androidx.core.content.ContextCompat;
@@ -562,32 +560,6 @@ public class UiUtils {
 	public static void setInputStateHidden(Activity activity) {
 		activity.getWindow().setSoftInputMode(SOFT_INPUT_ADJUST_RESIZE |
 				SOFT_INPUT_STATE_HIDDEN);
-	}
-
-	public static void showDenialDialog(FragmentActivity ctx,
-			@StringRes int title,
-			@StringRes int body, DialogInterface.OnClickListener onOkClicked,
-			Runnable onDismiss) {
-		AlertDialog.Builder builder = new AlertDialog.Builder(ctx);
-		builder.setTitle(title);
-		builder.setMessage(body);
-		builder.setPositiveButton(R.string.ok, onOkClicked);
-		builder.setNegativeButton(R.string.cancel,
-				(dialog, which) -> ctx.supportFinishAfterTransition());
-		builder.setOnDismissListener(dialog -> onDismiss.run());
-		builder.show();
-	}
-
-	public static void showRationale(Context ctx, @StringRes int title,
-			@StringRes int body,
-			Runnable onContinueClicked, Runnable onDismiss) {
-		AlertDialog.Builder builder = new AlertDialog.Builder(ctx);
-		builder.setTitle(title);
-		builder.setMessage(body);
-		builder.setNeutralButton(R.string.continue_button,
-				(dialog, which) -> onContinueClicked.run());
-		builder.setOnDismissListener(dialog -> onDismiss.run());
-		builder.show();
 	}
 
 }
