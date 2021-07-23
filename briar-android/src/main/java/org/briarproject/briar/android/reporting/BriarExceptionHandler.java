@@ -2,6 +2,7 @@ package org.briarproject.briar.android.reporting;
 
 import android.app.Application;
 import android.os.Process;
+import android.util.Log;
 
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.briar.android.logging.LogEncrypter;
@@ -10,6 +11,7 @@ import java.lang.Thread.UncaughtExceptionHandler;
 
 import javax.inject.Inject;
 
+import static org.briarproject.briar.android.TestingConstants.IS_DEBUG_BUILD;
 import static org.briarproject.briar.android.util.UiUtils.startDevReportActivity;
 
 @NotNullByDefault
@@ -28,6 +30,8 @@ class BriarExceptionHandler implements UncaughtExceptionHandler {
 
 	@Override
 	public void uncaughtException(Thread t, Throwable e) {
+		if (IS_DEBUG_BUILD) Log.w("Uncaught exception", e);
+
 		// encrypt logs to disk before handing over to new process
 		// the intent has limited space, so we can't reliably store them there.
 		byte[] logKey = logEncrypter.encryptLogs();
