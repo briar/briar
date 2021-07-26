@@ -54,7 +54,7 @@ import static org.briarproject.briar.android.util.UiUtils.handleException;
 
 @MethodsNotNullByDefault
 @ParametersNotNullByDefault
-class HotspotManager implements ActionListener {
+class HotspotManager {
 
 	interface HotspotListener {
 		void onStartingHotspot();
@@ -72,6 +72,7 @@ class HotspotManager implements ActionListener {
 
 	private static final Logger LOG = getLogger(HotspotManager.class.getName());
 
+	private static final int MAX_FRAMEWORK_ATTEMPTS = 5;
 	private static final int MAX_GROUP_INFO_ATTEMPTS = 5;
 	private static final int RETRY_DELAY_MILLIS = 1000;
 	private static final String HOTSPOT_NAMESPACE = "hotspot";
@@ -133,12 +134,80 @@ class HotspotManager implements ActionListener {
 			return;
 		}
 		listener.onStartingHotspot();
+		acquireLocks();
+		startWifiP2pFramework(1);
+	}
+
+	/**
+	 * As soon as Wifi is enabled, we try starting the WifiP2p framework.
+	 * If Wifi has just been enabled, it is possible that will fail. If that
+	 * happens we try again for MAX_FRAMEWORK_ATTEMPTS times after a delay of
+	 * RETRY_DELAY_MILLIS after each attempt.
+	 * <p>
+	 * Rationale: it can take a few milliseconds for WifiP2p to become available
+	 * after enabling Wifi. Depending on the API level it is possible to check this
+	 * using {@link WifiP2pManager#requestP2pState} or register a BroadcastReceiver
+	 * on the WIFI_P2P_STATE_CHANGED_ACTION to get notified when WifiP2p is really
+	 * available. Trying to implement a solution that works reliably using these
+	 * checks turned out to be a long rabbit-hole with lots of corner cases and
+	 * workarounds for specific situations.
+	 * Instead we now rely on this trial-and-error approach of just starting
+	 * the framework and retrying if it fails.
+	 * <p>
+	 * We'll realize that the framework is busy when the ActionListener passed
+	 * to {@link WifiP2pManager#createGroup} is called with onFailure(BUSY)
+	 */
+	private void startWifiP2pFramework(int attempt) {
+		if (LOG.isLoggable(INFO))
+			LOG.info("startWifiP2pFramework attempt: " + attempt);
+		/*
+		 * It is important that we call WifiP2pManager#initialize again
+		 * for every attempt to starting the framework because otherwise,
+		 * createGroup() will continue to fail with a BUSY state.
+		 */
 		channel = wifiP2pManager.initialize(ctx, ctx.getMainLooper(), null);
 		if (channel == null) {
 			listener.onHotspotError(
 					ctx.getString(R.string.hotspot_error_no_wifi_direct));
 			return;
 		}
+
+		ActionListener listener = new ActionListener() {
+
+			@Override
+			// Callback for wifiP2pManager#createGroup() during startWifiP2pHotspot()
+			public void onSuccess() {
+				requestGroupInfo(1);
+			}
+
+			@Override
+			// Callback for wifiP2pManager#createGroup() during startWifiP2pHotspot()
+			public void onFailure(int reason) {
+				LOG.info("onFailure: " + reason);
+				if (reason == BUSY) {
+					// WifiP2p not ready yet or hotspot already running
+					restartWifiP2pFramework(attempt);
+				} else if (reason == P2P_UNSUPPORTED) {
+					releaseHotspotWithError(ctx.getString(
+							R.string.hotspot_error_start_callback_failed,
+							"p2p unsupported"));
+				} else if (reason == ERROR) {
+					releaseHotspotWithError(ctx.getString(
+							R.string.hotspot_error_start_callback_failed,
+							"p2p error"));
+				} else if (reason == NO_SERVICE_REQUESTS) {
+					releaseHotspotWithError(ctx.getString(
+							R.string.hotspot_error_start_callback_failed,
+							"no service requests"));
+				} else {
+					// all cases covered, in doubt set to error
+					releaseHotspotWithError(ctx.getString(
+							R.string.hotspot_error_start_callback_failed_unknown,
+							reason));
+				}
+			}
+		};
+
 		try {
 			if (SDK_INT >= 29) {
 				dbExecutor.execute(() -> {
@@ -151,12 +220,12 @@ class HotspotManager implements ActionListener {
 								.setPassphrase(savedNetworkConfig.password)
 								.build();
 						acquireLocks();
-						wifiP2pManager.createGroup(channel, config, this);
+						wifiP2pManager.createGroup(channel, config, listener);
 					});
 				});
 			} else {
 				acquireLocks();
-				wifiP2pManager.createGroup(channel, this);
+				wifiP2pManager.createGroup(channel, listener);
 			}
 		} catch (SecurityException e) {
 			// this should never happen, because we request permissions before
@@ -164,37 +233,18 @@ class HotspotManager implements ActionListener {
 		}
 	}
 
-	@Override
-	// Callback for wifiP2pManager#createGroup() during startWifiP2pHotspot()
-	public void onSuccess() {
-		requestGroupInfo(1);
-	}
-
-	@Override
-	// Callback for wifiP2pManager#createGroup() during startWifiP2pHotspot()
-	public void onFailure(int reason) {
-		if (reason == BUSY) {
-			// Hotspot already running
-			requestGroupInfo(1);
-		} else if (reason == P2P_UNSUPPORTED) {
-			releaseHotspotWithError(ctx.getString(
-					R.string.hotspot_error_start_callback_failed,
-					"p2p unsupported"));
-		} else if (reason == ERROR) {
-			releaseHotspotWithError(ctx.getString(
-					R.string.hotspot_error_start_callback_failed, "p2p error"));
-		} else if (reason == NO_SERVICE_REQUESTS) {
-			releaseHotspotWithError(ctx.getString(
-					R.string.hotspot_error_start_callback_failed,
-					"no service requests"));
+	private void restartWifiP2pFramework(int attempt) {
+		LOG.info("retrying to start WifiP2p framework");
+		if (attempt < MAX_FRAMEWORK_ATTEMPTS) {
+			handler.postDelayed(() -> startWifiP2pFramework(attempt + 1),
+					RETRY_DELAY_MILLIS);
 		} else {
-			// all cases covered, in doubt set to error
-			releaseHotspotWithError(ctx.getString(
-					R.string.hotspot_error_start_callback_failed_unknown,
-					reason));
+			releaseHotspotWithError(
+					ctx.getString(R.string.hotspot_error_framework_busy));
 		}
 	}
 
+	@UiThread
 	void stopWifiP2pHotspot() {
 		if (channel == null) return;
 		wifiP2pManager.removeGroup(channel, new ActionListener() {
@@ -301,7 +351,7 @@ class HotspotManager implements ActionListener {
 	}
 
 	private void retryRequestingGroupInfo(int attempt) {
-		LOG.info("retrying");
+		LOG.info("retrying to request group info");
 		// On some devices we need to wait for the group info to become available
 		if (attempt < MAX_GROUP_INFO_ATTEMPTS) {
 			handler.postDelayed(() -> requestGroupInfo(attempt + 1),

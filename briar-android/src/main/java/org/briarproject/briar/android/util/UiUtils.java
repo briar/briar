@@ -561,4 +561,5 @@ public class UiUtils {
 		activity.getWindow().setSoftInputMode(SOFT_INPUT_ADJUST_RESIZE |
 				SOFT_INPUT_STATE_HIDDEN);
 	}
+
 }
