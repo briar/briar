@@ -33,7 +33,7 @@ test:
   stage: test
   script:
     - ./gradlew --no-daemon -Djava.security.egd=file:/dev/urandom animalSnifferMain animalSnifferTest
-    - ./gradlew --no-daemon -Djava.security.egd=file:/dev/urandom check
+    - ./gradlew --no-daemon -Djava.security.egd=file:/dev/urandom compileOfficialDebugAndroidTestSources compileScreenshotDebugAndroidTestSources check
   rules:
     - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
       when: always
