@@ -432,9 +432,10 @@ class HotspotManager {
 		return "WIFI:S:" + ssid + ";T:WPA;P:" + password + ";;";
 	}
 
-	private static final String digits = "123456789"; // avoid 0
-	private static final String letters = "abcdefghijkmnopqrstuvwxyz"; // no l
-	private static final String LETTERS = "ABCDEFGHJKLMNPQRSTUVWXYZ"; // no I, O
+	// exclude chars that are easy to confuse: 0 O, 5 S, 1 l I
+	private static final String digits = "2346789";
+	private static final String letters = "abcdefghijkmnopqrstuvwxyz";
+	private static final String LETTERS = "ABCDEFGHJKLMNPQRTUVWXYZ";
 
 	private String getRandomString(int length) {
 		char[] c = new char[length];
