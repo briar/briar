@@ -2,13 +2,11 @@ package org.briarproject.briar.android.hotspot;
 
 import android.os.Bundle;
 import android.view.View;
-
-import com.google.android.material.snackbar.Snackbar;
+import android.widget.Toast;
 
 import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
 import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
 import org.briarproject.briar.R;
-import org.briarproject.briar.android.util.BriarSnackbarBuilder;
 
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
@@ -41,13 +39,8 @@ public class HotspotFragment extends AbstractTabsFragment {
 
 	private void onPeerConnected(boolean connected) {
 		if (!connected) return;
-		new BriarSnackbarBuilder()
-				.setAction(R.string.hotspot_peer_connected_action, v ->
-						showNextFragment())
-				.make(connectedButton, R.string.hotspot_peer_connected,
-						Snackbar.LENGTH_LONG)
-				.setAnchorView(connectedButton)
-				.show();
+		Toast.makeText(requireContext(), R.string.hotspot_peer_connected,
+				Toast.LENGTH_LONG).show();
 	}
 
 	private void showNextFragment() {

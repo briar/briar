@@ -61,15 +61,14 @@ class ConditionManager29 extends AbstractConditionManager {
 	}
 
 	private boolean areEssentialPermissionsGranted() {
+		boolean isWifiEnabled = wifiManager.isWifiEnabled();
 		if (LOG.isLoggable(INFO)) {
 			LOG.info(String.format("areEssentialPermissionsGranted(): " +
 							"locationPermission? %s, " +
 							"wifiManager.isWifiEnabled()? %b",
-					locationPermission,
-					wifiManager.isWifiEnabled()));
+					locationPermission, isWifiEnabled));
 		}
-		return locationPermission == Permission.GRANTED &&
-				wifiManager.isWifiEnabled();
+		return locationPermission == Permission.GRANTED && isWifiEnabled;
 	}
 
 	@Override

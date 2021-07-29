@@ -48,7 +48,9 @@ import static android.net.wifi.p2p.WifiP2pManager.NO_SERVICE_REQUESTS;
 import static android.net.wifi.p2p.WifiP2pManager.P2P_UNSUPPORTED;
 import static android.os.Build.VERSION.SDK_INT;
 import static android.os.PowerManager.FULL_WAKE_LOCK;
+import static java.util.Objects.requireNonNull;
 import static java.util.logging.Level.INFO;
+import static java.util.logging.Level.WARNING;
 import static java.util.logging.Logger.getLogger;
 import static org.briarproject.briar.android.util.UiUtils.handleException;
 
@@ -57,6 +59,7 @@ import static org.briarproject.briar.android.util.UiUtils.handleException;
 class HotspotManager {
 
 	interface HotspotListener {
+		@UiThread
 		void onStartingHotspot();
 
 		@IoExecutor
@@ -65,8 +68,7 @@ class HotspotManager {
 		@UiThread
 		void onDeviceConnected();
 
-		void onHotspotStopped();
-
+		@UiThread
 		void onHotspotError(String error);
 	}
 
@@ -97,8 +99,9 @@ class HotspotManager {
 	private WifiManager.WifiLock wifiLock;
 	private PowerManager.WakeLock wakeLock;
 	private WifiP2pManager.Channel channel;
+	@Nullable
 	@RequiresApi(29)
-	private volatile NetworkConfig savedNetworkConfig;
+	private volatile NetworkConfig savedNetworkConfig = null;
 
 	@Inject
 	HotspotManager(Application ctx,
@@ -157,9 +160,11 @@ class HotspotManager {
 	 * We'll realize that the framework is busy when the ActionListener passed
 	 * to {@link WifiP2pManager#createGroup} is called with onFailure(BUSY)
 	 */
+	@UiThread
 	private void startWifiP2pFramework(int attempt) {
-		if (LOG.isLoggable(INFO))
+		if (LOG.isLoggable(INFO)) {
 			LOG.info("startWifiP2pFramework attempt: " + attempt);
+		}
 		/*
 		 * It is important that we call WifiP2pManager#initialize again
 		 * for every attempt to starting the framework because otherwise,
@@ -167,13 +172,12 @@ class HotspotManager {
 		 */
 		channel = wifiP2pManager.initialize(ctx, ctx.getMainLooper(), null);
 		if (channel == null) {
-			listener.onHotspotError(
+			releaseHotspotWithError(
 					ctx.getString(R.string.hotspot_error_no_wifi_direct));
 			return;
 		}
 
 		ActionListener listener = new ActionListener() {
-
 			@Override
 			// Callback for wifiP2pManager#createGroup() during startWifiP2pHotspot()
 			public void onSuccess() {
@@ -183,7 +187,9 @@ class HotspotManager {
 			@Override
 			// Callback for wifiP2pManager#createGroup() during startWifiP2pHotspot()
 			public void onFailure(int reason) {
-				LOG.info("onFailure: " + reason);
+				if (LOG.isLoggable(INFO)) {
+					LOG.info("onFailure: " + reason);
+				}
 				if (reason == BUSY) {
 					// WifiP2p not ready yet or hotspot already running
 					restartWifiP2pFramework(attempt);
@@ -210,21 +216,26 @@ class HotspotManager {
 
 		try {
 			if (SDK_INT >= 29) {
-				dbExecutor.execute(() -> {
+				Runnable createGroup = () -> {
+					NetworkConfig c = requireNonNull(savedNetworkConfig);
+					WifiP2pConfig config = new WifiP2pConfig.Builder()
+							.setGroupOperatingBand(GROUP_OWNER_BAND_2GHZ)
+							.setNetworkName(c.ssid)
+							.setPassphrase(c.password)
+							.build();
+					wifiP2pManager.createGroup(channel, config, listener);
+				};
+				if (savedNetworkConfig == null) {
 					// load savedNetworkConfig before starting hotspot
-					loadSavedNetworkConfig();
-					androidExecutor.runOnUiThread(() -> {
-						WifiP2pConfig config = new WifiP2pConfig.Builder()
-								.setGroupOperatingBand(GROUP_OWNER_BAND_2GHZ)
-								.setNetworkName(savedNetworkConfig.ssid)
-								.setPassphrase(savedNetworkConfig.password)
-								.build();
-						acquireLocks();
-						wifiP2pManager.createGroup(channel, config, listener);
+					dbExecutor.execute(() -> {
+						loadSavedNetworkConfig();
+						androidExecutor.runOnUiThread(createGroup);
 					});
-				});
+				} else {
+					// savedNetworkConfig was already loaded, create group now
+					createGroup.run();
+				}
 			} else {
-				acquireLocks();
 				wifiP2pManager.createGroup(channel, listener);
 			}
 		} catch (SecurityException e) {
@@ -233,9 +244,11 @@ class HotspotManager {
 		}
 	}
 
+	@UiThread
 	private void restartWifiP2pFramework(int attempt) {
 		LOG.info("retrying to start WifiP2p framework");
 		if (attempt < MAX_FRAMEWORK_ATTEMPTS) {
+			if (SDK_INT >= 27 && channel != null) channel.close();
 			handler.postDelayed(() -> startWifiP2pFramework(attempt + 1),
 					RETRY_DELAY_MILLIS);
 		} else {
@@ -250,19 +263,23 @@ class HotspotManager {
 		wifiP2pManager.removeGroup(channel, new ActionListener() {
 			@Override
 			public void onSuccess() {
-				releaseHotspot();
+				closeChannelAndReleaseLocks();
 			}
 
 			@Override
 			public void onFailure(int reason) {
 				// not propagating back error
-				releaseHotspot();
+				if (LOG.isLoggable(WARNING)) {
+					LOG.warning("Error removing Wifi P2P group: " + reason);
+				}
+				closeChannelAndReleaseLocks();
 			}
 		});
 	}
 
 	@SuppressLint("WakelockTimeout")
 	private void acquireLocks() {
+		// FLAG_KEEP_SCREEN_ON is not respected on some Huawei devices.
 		wakeLock = powerManager.newWakeLock(FULL_WAKE_LOCK, lockTag);
 		wakeLock.acquire();
 		// WIFI_MODE_FULL has no effect on API >= 29
@@ -272,23 +289,21 @@ class HotspotManager {
 		wifiLock.acquire();
 	}
 
-	private void releaseHotspot() {
-		listener.onHotspotStopped();
-		closeChannelAndReleaseLocks();
-	}
-
+	@UiThread
 	private void releaseHotspotWithError(String error) {
 		listener.onHotspotError(error);
 		closeChannelAndReleaseLocks();
 	}
 
+	@UiThread
 	private void closeChannelAndReleaseLocks() {
-		if (SDK_INT >= 27) channel.close();
+		if (SDK_INT >= 27 && channel != null) channel.close();
 		channel = null;
-		wakeLock.release();
-		wifiLock.release();
+		if (wakeLock.isHeld()) wakeLock.release();
+		if (wifiLock.isHeld()) wifiLock.release();
 	}
 
+	@UiThread
 	private void requestGroupInfo(int attempt) {
 		if (LOG.isLoggable(INFO)) {
 			LOG.info("requestGroupInfo attempt: " + attempt);
@@ -331,25 +346,20 @@ class HotspotManager {
 			LOG.info("group is null");
 			return false;
 		} else if (!group.getNetworkName().startsWith("DIRECT-")) {
-			if (LOG.isLoggable(INFO)) {
-				LOG.info("received networkName without prefix 'DIRECT-': " +
-						group.getNetworkName());
-			}
+			LOG.info("received networkName without prefix 'DIRECT-'");
 			return false;
 		} else if (SDK_INT >= 29) {
 			// if we get here, the savedNetworkConfig must have a value
-			String networkName = savedNetworkConfig.ssid;
+			String networkName = requireNonNull(savedNetworkConfig).ssid;
 			if (!networkName.equals(group.getNetworkName())) {
-				if (LOG.isLoggable(INFO)) {
-					LOG.info("expected networkName: " + networkName);
-					LOG.info("received networkName: " + group.getNetworkName());
-				}
+				LOG.info("expected networkName does not match received one");
 				return false;
 			}
 		}
 		return true;
 	}
 
+	@UiThread
 	private void retryRequestingGroupInfo(int attempt) {
 		LOG.info("retrying to request group info");
 		// On some devices we need to wait for the group info to become available
@@ -364,17 +374,12 @@ class HotspotManager {
 
 	@UiThread
 	private void requestGroupInfoForConnection() {
-		if (LOG.isLoggable(INFO)) {
-			LOG.info("requestGroupInfo for connection");
-		}
+		LOG.info("requestGroupInfo for connection");
 		GroupInfoListener groupListener = group -> {
 			if (group == null || group.getClientList().isEmpty()) {
 				handler.postDelayed(this::requestGroupInfoForConnection,
 						RETRY_DELAY_MILLIS);
 			} else {
-				if (LOG.isLoggable(INFO)) {
-					LOG.info("client list " + group.getClientList());
-				}
 				listener.onDeviceConnected();
 			}
 		};
@@ -433,26 +438,15 @@ class HotspotManager {
 	}
 
 	// exclude chars that are easy to confuse: 0 O, 5 S, 1 l I
-	private static final String digits = "2346789";
-	private static final String letters = "abcdefghijkmnopqrstuvwxyz";
-	private static final String LETTERS = "ABCDEFGHJKLMNPQRTUVWXYZ";
+	private static final String chars =
+			"2346789ABCDEFGHJKLMNPQRTUVWXYZabcdefghijkmnopqrstuvwxyz";
 
 	private String getRandomString(int length) {
 		char[] c = new char[length];
 		for (int i = 0; i < length; i++) {
-			if (random.nextBoolean()) {
-				c[i] = random(digits);
-			} else if (random.nextBoolean()) {
-				c[i] = random(letters);
-			} else {
-				c[i] = random(LETTERS);
-			}
+			c[i] = chars.charAt(random.nextInt(chars.length()));
 		}
 		return new String(c);
-	}
-
-	private char random(String universe) {
-		return universe.charAt(random.nextInt(universe.length()));
 	}
 
 }

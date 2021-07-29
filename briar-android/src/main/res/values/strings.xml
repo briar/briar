@@ -694,7 +694,7 @@
 
 	<!-- Share app offline -->
 	<string name="hotspot_title">Share Briar offline</string>
-	<string name="hotspot_intro">Share this app with someone nearby without internet connection by using your phone\'s Wi-Fi.
+	<string name="hotspot_intro">Share this app with someone nearby without Internet connection by using your phone\'s Wi-Fi.
 		\n\nYour phone will start a Wi-Fi hotspot. People nearby can connect to the hotspot and download the Briar app from your phone.</string>
 	<string name="hotspot_button_start_sharing">Start hotspot</string>
 	<string name="hotspot_button_stop_sharing">Stop hotspot</string>
@@ -707,9 +707,10 @@
 	<string name="permission_hotspot_location_denied_body">You have denied access to your location, but Briar needs this permission to create a Wi-Fi hotspot.\n\nPlease consider granting access.</string>
 	<string name="wifi_settings_title">Wi-Fi setting</string>
 	<string name="wifi_settings_request_enable_body">To create a Wi-Fi hotspot, Briar needs to use Wi-Fi. Please enable it.</string>
-	<string name="wifi_settings_request_denied_body">You have denied to enable Wi-Fi, but Briar needs to use Wi-Fi.\n\nPlease consider enabling it.</string>
+	<string name="wifi_settings_request_denied_body">You have denied permission to enable Wi-Fi, but Briar needs to use Wi-Fi.\n\nPlease consider enabling it.</string>
 
 	<string name="hotspot_tab_manual">Manual</string>
+	<!-- The placeholder to be inserted into the string 'hotspot_manual_wifi': People can connect by %s -->
 	<string name="hotspot_scanning_a_qr_code">scanning a QR code</string>
 
 	<!-- Wi-Fi setup -->
@@ -718,7 +719,6 @@
 	<string name="hotspot_manual_wifi_ssid">Network name (SSID)</string>
 	<string name="hotspot_qr_wifi">Your phone is providing a Wi-Fi hotspot. People who want to download Briar can connect to the hotspot by scanning this QR code. When they have connected to the hotspot, press \'Next\'.</string>
 	<string name="hotspot_peer_connected">Successfully connected</string>
-	<string name="hotspot_peer_connected_action">Show download info</string>
 
 	<!-- Download link -->
 	<!-- The %s placeholder will be replaced with the translation of 'hotspot_scanning_a_qr_code' -->
@@ -732,21 +732,21 @@
 	<string name="website_download_outro">After the download is complete, open the downloaded file and install it.</string>
 	<string name="website_troubleshooting_title">Troubleshooting</string>
 	<string name="website_troubleshooting_1">If you cannot download the app, try it with a different web browser app.</string>
-	<string name="website_troubleshooting_2_old">To install the downloaded app, you might need to allow installation of apps from \"Unknown sources\" in system settings. Afterwards, you may need to download the app again. We recommend to undo that after successful installation.</string>
-	<string name="website_troubleshooting_2_new">To install the downloaded app, you might need to allow your browser to install unknown apps. We recommend to undo that after successful installation.</string>
+	<string name="website_troubleshooting_2_old">To install the downloaded app, you might need to allow installation of apps from \"Unknown sources\" in system settings. Afterwards, you may need to download the app again. We recommend disabling the \"Unknown sources\" setting after installing the app.</string>
+	<string name="website_troubleshooting_2_new">To install the downloaded app, you might need to allow your browser to install unknown apps. After installing the app, we recommend removing the browser\'s permission to install unknown apps.</string>
 
 	<string name="hotspot_help_wifi_title">Problems with connecting to Wi-Fi:</string>
 	<string name="hotspot_help_wifi_1">Try disabling and re-enabling Wi-Fi on both phones and try again.</string>
-	<string name="hotspot_help_wifi_2">If your phone complains that the Wi-Fi has no internet, tell it that you want to stay connected anyway.</string>
+	<string name="hotspot_help_wifi_2">If your phone complains that the Wi-Fi has no Internet, tell it that you want to stay connected anyway.</string>
 	<string name="hotspot_help_site_title">Problems visiting the local website:</string>
 	<string name="hotspot_help_site_1">Double check that you entered the address exactly as shown. A small error can make it fail.</string>
 	<string name="hotspot_help_site_2">Ensure that your phone is still connected to the correct Wi-Fi (see above) when you try to access the site.</string>
-	<string name="hotspot_help_site_3">Check that you don\'t have any active firewall apps that may block the access.</string>
+	<string name="hotspot_help_site_3">If you have a firewall app, check that it isn\'t blocking access.</string>
 	<string name="hotspot_help_site_4">If you can visit the site, but not download the Briar app, try it with a different web browser app.</string>
 	<string name="hotspot_help_fallback_title">Nothing works?</string>
-	<string name="hotspot_help_fallback_intro">You can try to save the app as an .apk file to share in some other way. Once on the other device, it can be used to install Briar.
+	<string name="hotspot_help_fallback_intro">You can try to save the app as an .apk file to share in some other way. Once the file has been transferred to the other device, it can be used to install Briar.
 		\n\nTip: For sharing via Bluetooth, you might need to rename the file to end with .zip first.</string>
-	<string name="hotspot_help_fallback_button">Save app install file</string>
+	<string name="hotspot_help_fallback_button">Save app</string>
 
 	<!-- error handling -->
 	<string name="hotspot_error_intro">Something went wrong while trying to share the app via Wi-Fi:</string>
@@ -754,10 +754,10 @@
 	<string name="hotspot_error_start_callback_failed">Hotspot failed to start: error %s</string>
 	<string name="hotspot_error_start_callback_failed_unknown">Hotspot failed to start with an unknown error, reason %d</string>
 	<string name="hotspot_error_start_callback_no_group_info">Hotspot failed to start: no group info</string>
-	<string name="hotspot_error_web_server_start">Error starting web server!</string>
+	<string name="hotspot_error_web_server_start">Error starting web server</string>
 	<string name="hotspot_error_web_server_serve">Error presenting website.\n\nPlease send feedback (with anonymous data) via the Briar app if the issue persists.</string>
 	<string name="hotspot_flag_test">Warning: This app was installed with Android Studio and can NOT be installed on another device.</string>
-	<string name="hotspot_error_framework_busy">Unable to start the hotspot.\n\nIf you have another hotspot running or are sharing your internet connection via Wi-Fi, try stopping that and try again afterwards.</string>
+	<string name="hotspot_error_framework_busy">Unable to start the hotspot.\n\nIf you have another hotspot running or are sharing your Internet connection via Wi-Fi, try stopping that and try again afterwards.</string>
 
 
 	<!-- Transfer Data via Removable Drives -->

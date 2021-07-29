@@ -22,6 +22,7 @@ import java.util.logging.Logger;
 import javax.inject.Inject;
 
 import androidx.annotation.Nullable;
+import androidx.annotation.UiThread;
 
 import static java.util.Collections.emptyList;
 import static java.util.Collections.list;
@@ -49,7 +50,7 @@ class WebServerManager {
 	private final WebServer webServer;
 	private final DisplayMetrics dm;
 
-	private WebServerListener listener;
+	private volatile WebServerListener listener;
 
 	@Inject
 	WebServerManager(Application ctx) {
@@ -57,6 +58,7 @@ class WebServerManager {
 		dm = ctx.getResources().getDisplayMetrics();
 	}
 
+	@UiThread
 	void setListener(WebServerListener listener) {
 		this.listener = listener;
 	}

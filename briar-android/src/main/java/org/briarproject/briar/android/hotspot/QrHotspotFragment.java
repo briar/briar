@@ -1,12 +1,14 @@
 package org.briarproject.briar.android.hotspot;
 
 import android.content.Context;
+import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
 import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
@@ -16,7 +18,6 @@ import org.briarproject.briar.android.hotspot.HotspotState.HotspotStarted;
 import javax.inject.Inject;
 
 import androidx.annotation.Nullable;
-import androidx.core.util.Consumer;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 
@@ -60,19 +61,23 @@ public class QrHotspotFragment extends Fragment {
 		TextView qrIntroView = v.findViewById(R.id.qrIntroView);
 		ImageView qrCodeView = v.findViewById(R.id.qrCodeView);
 
-		Consumer<HotspotStarted> consumer;
-		if (requireArguments().getBoolean(ARG_FOR_WIFI_CONNECT)) {
-			qrIntroView.setText(R.string.hotspot_qr_wifi);
-			consumer = state ->
-					qrCodeView.setImageBitmap(state.getNetworkConfig().qrCode);
-		} else {
-			qrIntroView.setText(R.string.hotspot_qr_site);
-			consumer = state ->
-					qrCodeView.setImageBitmap(state.getWebsiteConfig().qrCode);
-		}
+		boolean forWifi = requireArguments().getBoolean(ARG_FOR_WIFI_CONNECT);
+
+		qrIntroView.setText(forWifi ? R.string.hotspot_qr_wifi :
+				R.string.hotspot_qr_site);
+
 		viewModel.getState().observe(getViewLifecycleOwner(), state -> {
 			if (state instanceof HotspotStarted) {
-				consumer.accept((HotspotStarted) state);
+				HotspotStarted s = (HotspotStarted) state;
+				Bitmap qrCode = forWifi ? s.getNetworkConfig().qrCode :
+						s.getWebsiteConfig().qrCode;
+				if (qrCode == null) {
+					Toast.makeText(requireContext(), R.string.error,
+							Toast.LENGTH_SHORT).show();
+					qrCodeView.setImageResource(R.drawable.ic_image_broken);
+				} else {
+					qrCodeView.setImageBitmap(qrCode);
+				}
 			}
 		});
 		return v;

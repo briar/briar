@@ -8,7 +8,7 @@
 		android:id="@id/fallbackTitleView"
 		android:layout_width="0dp"
 		android:layout_height="wrap_content"
-		android:layout_marginTop="32dp"
+		android:layout_marginTop="16dp"
 		android:text="@string/hotspot_help_fallback_title"
 		android:textSize="16sp"
 		android:textStyle="bold"

@@ -142,12 +142,6 @@ class HotspotViewModel extends DbViewModel
 	}
 
 	@Override
-	public void onHotspotStopped() {
-		LOG.info("stopping webserver");
-		ioExecutor.execute(webServerManager::stopWebServer);
-	}
-
-	@Override
 	public void onHotspotError(String error) {
 		if (LOG.isLoggable(WARNING)) {
 			LOG.warning("Hotspot error: " + error);
@@ -170,7 +164,7 @@ class HotspotViewModel extends DbViewModel
 	public void onWebServerError() {
 		state.postValue(new HotspotError(getApplication()
 				.getString(R.string.hotspot_error_web_server_start)));
-		hotspotManager.stopWifiP2pHotspot();
+		stopHotspot();
 	}
 
 	void exportApk(Uri uri) {

@@ -22,7 +22,7 @@
 		app:layout_constraintStart_toStartOf="parent"
 		app:layout_constraintTop_toTopOf="parent"
 		app:layout_constraintVertical_chainStyle="spread_inside"
-		app:srcCompat="@drawable/ic_nickname"
+		app:srcCompat="@drawable/ic_wifi_tethering"
 		tools:ignore="ContentDescription" />
 
 	<TextView

@@ -63,10 +63,10 @@ abstract class HotspotState {
 		 * to not repeat actions such as showing fragments on rotation changes.
 		 */
 		@UiThread
-		boolean consume() {
+		boolean wasNotYetConsumed() {
 			boolean old = consumed;
 			consumed = true;
-			return old;
+			return !old;
 		}
 	}
 

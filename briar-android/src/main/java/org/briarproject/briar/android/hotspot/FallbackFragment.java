@@ -15,6 +15,7 @@ import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
 import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.fragment.BaseFragment;
+import org.briarproject.briar.android.util.ActivityLaunchers.CreateDocumentAdvanced;
 
 import java.util.List;
 
@@ -22,7 +23,6 @@ import javax.inject.Inject;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.annotation.Nullable;
-import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 import androidx.lifecycle.ViewModelProvider;
 
@@ -33,11 +33,9 @@ import static android.content.pm.PackageManager.MATCH_DEFAULT_ONLY;
 import static android.os.Build.VERSION.SDK_INT;
 import static android.view.View.INVISIBLE;
 import static android.view.View.VISIBLE;
-import static androidx.activity.result.contract.ActivityResultContracts.CreateDocument;
 import static androidx.transition.TransitionManager.beginDelayedTransition;
 import static org.briarproject.briar.android.AppModule.getAndroidComponent;
 import static org.briarproject.briar.android.hotspot.HotspotViewModel.getApkFileName;
-
 
 @MethodsNotNullByDefault
 @ParametersNotNullByDefault
@@ -50,7 +48,7 @@ public class FallbackFragment extends BaseFragment {
 
 	private HotspotViewModel viewModel;
 	private final ActivityResultLauncher<String> launcher =
-			registerForActivityResult(new CreateDocument(),
+			registerForActivityResult(new CreateDocumentAdvanced(),
 					this::onDocumentCreated);
 	private Button fallbackButton;
 	private ProgressBar progressBar;
@@ -75,7 +73,7 @@ public class FallbackFragment extends BaseFragment {
 			@Nullable ViewGroup container,
 			@Nullable Bundle savedInstanceState) {
 		return inflater
-				.inflate(R.layout.fragment_hotspot_save_apk, container, false);
+				.inflate(R.layout.fragment_hotspot_fallback, container, false);
 	}
 
 	@Override
@@ -92,8 +90,7 @@ public class FallbackFragment extends BaseFragment {
 			if (SDK_INT >= 19) launcher.launch(getApkFileName());
 			else viewModel.exportApk();
 		});
-		viewModel.getSavedApkToUri()
-				.observeEvent(this, uri -> shareUri(this, uri));
+		viewModel.getSavedApkToUri().observeEvent(this, this::shareUri);
 	}
 
 	private void onDocumentCreated(@Nullable Uri uri) {
@@ -107,12 +104,12 @@ public class FallbackFragment extends BaseFragment {
 		progressBar.setVisibility(INVISIBLE);
 	}
 
-	static void shareUri(Fragment fragment, Uri uri) {
+	void shareUri(Uri uri) {
 		Intent i = new Intent(ACTION_SEND);
 		i.putExtra(EXTRA_STREAM, uri);
 		i.setType("*/*"); // gives us all sharing options
 		i.addFlags(FLAG_GRANT_READ_URI_PERMISSION);
-		Context ctx = fragment.requireContext();
+		Context ctx = requireContext();
 		if (SDK_INT <= 19) {
 			// Workaround for Android bug:
 			// ctx.grantUriPermission also needed for Android 4
@@ -124,7 +121,7 @@ public class FallbackFragment extends BaseFragment {
 						FLAG_GRANT_READ_URI_PERMISSION);
 			}
 		}
-		fragment.startActivity(Intent.createChooser(i, null));
+		startActivity(Intent.createChooser(i, null));
 	}
 
 }
