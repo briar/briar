@@ -249,6 +249,7 @@ class HotspotManager {
 		LOG.info("retrying to start WifiP2p framework");
 		if (attempt < MAX_FRAMEWORK_ATTEMPTS) {
 			if (SDK_INT >= 27 && channel != null) channel.close();
+			channel = null;
 			handler.postDelayed(() -> startWifiP2pFramework(attempt + 1),
 					RETRY_DELAY_MILLIS);
 		} else {
