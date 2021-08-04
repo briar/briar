@@ -24,10 +24,24 @@
 		app:fragment="org.briarproject.briar.android.settings.NotificationsFragment"
 		app:icon="@drawable/ic_notifications" />
 
-	<Preference
-		android:key="pref_key_send_feedback"
-		android:title="@string/send_feedback"
-		app:icon="@drawable/ic_feedback" />
+	<PreferenceCategory
+		android:key="pref_key_actions"
+		android:layout="@layout/preferences_category"
+		android:title="@string/pref_category_actions"
+		app:allowDividerAbove="true">
+		<Preference
+			android:key="pref_key_share_app"
+			android:title="@string/hotspot_title"
+			app:icon="@drawable/ic_settings_share">
+			<intent
+				android:targetClass="org.briarproject.briar.android.hotspot.HotspotActivity"
+				android:targetPackage="@string/app_package" />
+		</Preference>
+		<Preference
+			android:key="pref_key_send_feedback"
+			android:title="@string/send_feedback"
+			app:icon="@drawable/ic_feedback" />
+	</PreferenceCategory>
 
 	<PreferenceCategory
 		android:key="pref_key_dev"

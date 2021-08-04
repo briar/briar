@@ -31,6 +31,7 @@ public interface AndroidNotificationManager {
 	int FORUM_POST_NOTIFICATION_ID = 6;
 	int BLOG_POST_NOTIFICATION_ID = 7;
 	int CONTACT_ADDED_NOTIFICATION_ID = 8;
+	int HOTSPOT_NOTIFICATION_ID = 9;
 
 	// Channel IDs
 	String CONTACT_CHANNEL_ID = "contacts";
@@ -42,12 +43,15 @@ public interface AndroidNotificationManager {
 	String ONGOING_CHANNEL_OLD_ID = "zForegroundService";
 	String ONGOING_CHANNEL_ID = "zForegroundService2";
 	String REMINDER_CHANNEL_ID = "zSignInReminder";
+	String HOTSPOT_CHANNEL_ID = "zHotspot";
+
 	// This channel is no longer used - keep the ID so we can remove the
 	// channel from existing installations
 	String FAILURE_CHANNEL_ID = "zStartupFailure";
 
 	// Actions for pending intents
 	String ACTION_DISMISS_REMINDER = "dismissReminder";
+	String ACTION_STOP_HOTSPOT = "stopHotspot";
 
 	Notification getForegroundNotification();
 
@@ -96,4 +100,8 @@ public interface AndroidNotificationManager {
 	void blockAllBlogPostNotifications();
 
 	void unblockAllBlogPostNotifications();
+
+	void showHotspotNotification();
+
+	void clearHotspotNotification();
 }

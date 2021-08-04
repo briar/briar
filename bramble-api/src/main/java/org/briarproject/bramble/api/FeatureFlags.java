@@ -14,4 +14,6 @@ public interface FeatureFlags {
 	boolean shouldEnableConnectViaBluetooth();
 
 	boolean shouldEnableTransferData();
+
+	boolean shouldEnableShareAppViaOfflineHotspot();
 }

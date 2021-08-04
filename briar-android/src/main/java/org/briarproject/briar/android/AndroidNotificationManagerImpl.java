@@ -30,6 +30,7 @@ import org.briarproject.bramble.util.StringUtils;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.conversation.ConversationActivity;
 import org.briarproject.briar.android.forum.ForumActivity;
+import org.briarproject.briar.android.hotspot.HotspotActivity;
 import org.briarproject.briar.android.login.SignInReminderReceiver;
 import org.briarproject.briar.android.navdrawer.NavDrawerActivity;
 import org.briarproject.briar.android.privategroup.conversation.GroupActivity;
@@ -63,9 +64,11 @@ import static android.app.Notification.DEFAULT_SOUND;
 import static android.app.Notification.DEFAULT_VIBRATE;
 import static android.app.NotificationManager.IMPORTANCE_DEFAULT;
 import static android.app.NotificationManager.IMPORTANCE_LOW;
+import static android.app.PendingIntent.getActivity;
 import static android.content.Context.NOTIFICATION_SERVICE;
 import static android.content.Intent.FLAG_ACTIVITY_CLEAR_TOP;
 import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
+import static android.content.Intent.FLAG_ACTIVITY_SINGLE_TOP;
 import static android.os.Build.VERSION.SDK_INT;
 import static androidx.core.app.NotificationCompat.CATEGORY_MESSAGE;
 import static androidx.core.app.NotificationCompat.CATEGORY_SERVICE;
@@ -274,7 +277,7 @@ class AndroidNotificationManagerImpl implements AndroidNotificationManager,
 		b.setWhen(0); // Don't show the time
 		b.setOngoing(true);
 		Intent i = new Intent(appContext, SplashScreenActivity.class);
-		b.setContentIntent(PendingIntent.getActivity(appContext, 0, i, 0));
+		b.setContentIntent(getActivity(appContext, 0, i, 0));
 		if (SDK_INT >= 21) {
 			b.setCategory(CATEGORY_SERVICE);
 			b.setVisibility(VISIBILITY_SECRET);
@@ -619,13 +622,11 @@ class AndroidNotificationManagerImpl implements AndroidNotificationManager,
 	public void showSignInNotification() {
 		if (blockSignInReminder) return;
 		if (SDK_INT >= 26) {
-			NotificationChannel channel =
-					new NotificationChannel(REMINDER_CHANNEL_ID, appContext
-							.getString(
-									R.string.reminder_notification_channel_title),
-							IMPORTANCE_LOW);
-			channel.setLockscreenVisibility(
-					NotificationCompat.VISIBILITY_SECRET);
+			NotificationChannel channel = new NotificationChannel(
+					REMINDER_CHANNEL_ID, appContext
+					.getString(R.string.reminder_notification_channel_title),
+					IMPORTANCE_LOW);
+			channel.setLockscreenVisibility(VISIBILITY_SECRET);
 			notificationManager.createNotificationChannel(channel);
 		}
 
@@ -652,7 +653,7 @@ class AndroidNotificationManagerImpl implements AndroidNotificationManager,
 
 		Intent i = new Intent(appContext, SplashScreenActivity.class);
 		i.setFlags(FLAG_ACTIVITY_NEW_TASK | FLAG_ACTIVITY_CLEAR_TOP);
-		b.setContentIntent(PendingIntent.getActivity(appContext, 0, i, 0));
+		b.setContentIntent(getActivity(appContext, 0, i, 0));
 
 		notificationManager.notify(REMINDER_NOTIFICATION_ID, b.build());
 	}
@@ -719,5 +720,41 @@ class AndroidNotificationManagerImpl implements AndroidNotificationManager,
 	@Override
 	public void unblockAllBlogPostNotifications() {
 		androidExecutor.runOnUiThread((Runnable) () -> blockBlogs = false);
+	}
+
+	@Override
+	public void showHotspotNotification() {
+		if (SDK_INT >= 26) {
+			String channelTitle = appContext
+					.getString(R.string.hotspot_notification_channel_title);
+			NotificationChannel channel = new NotificationChannel(
+					HOTSPOT_CHANNEL_ID, channelTitle, IMPORTANCE_LOW);
+			channel.setLockscreenVisibility(VISIBILITY_SECRET);
+			notificationManager.createNotificationChannel(channel);
+		}
+		BriarNotificationBuilder b =
+				new BriarNotificationBuilder(appContext, HOTSPOT_CHANNEL_ID);
+		b.setSmallIcon(R.drawable.notification_hotspot);
+		b.setColorRes(R.color.briar_brand_green);
+		b.setContentTitle(
+				appContext.getText(R.string.hotspot_notification_title));
+		b.setNotificationCategory(CATEGORY_SERVICE);
+		b.setOngoing(true);
+		b.setShowWhen(true);
+
+		String actionTitle =
+				appContext.getString(R.string.hotspot_button_stop_sharing);
+		Intent i = new Intent(appContext, HotspotActivity.class);
+		i.addFlags(FLAG_ACTIVITY_SINGLE_TOP);
+		i.setAction(ACTION_STOP_HOTSPOT);
+		PendingIntent actionIntent = getActivity(appContext, 0, i, 0);
+		int icon = SDK_INT >= 21 ? R.drawable.ic_portable_wifi_off : 0;
+		b.addAction(icon, actionTitle, actionIntent);
+		notificationManager.notify(HOTSPOT_NOTIFICATION_ID, b.build());
+	}
+
+	@Override
+	public void clearHotspotNotification() {
+		notificationManager.cancel(HOTSPOT_NOTIFICATION_ID);
 	}
 }
