@@ -60,6 +60,7 @@ public class HotspotActivity extends BriarActivity
 				// to not lose state on configuration changes
 				if (fm.findFragmentByTag(tag) == null) {
 					if (started.wasNotYetConsumed()) {
+						started.consume();
 						showFragment(fm, new HotspotFragment(), tag);
 					}
 				}

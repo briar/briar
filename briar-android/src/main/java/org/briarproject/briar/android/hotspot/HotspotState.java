@@ -57,16 +57,19 @@ abstract class HotspotState {
 			return websiteConfig;
 		}
 
+		@UiThread
+		boolean wasNotYetConsumed() {
+			return !consumed;
+		}
+
 		/**
 		 * Mark this state as consumed, i.e. the UI has already done something
 		 * as a result of the state changing to this. This can be used in order
 		 * to not repeat actions such as showing fragments on rotation changes.
 		 */
 		@UiThread
-		boolean wasNotYetConsumed() {
-			boolean old = consumed;
+		void consume() {
 			consumed = true;
-			return !old;
 		}
 	}
 
