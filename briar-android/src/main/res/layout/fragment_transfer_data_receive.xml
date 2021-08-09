@@ -21,9 +21,10 @@
 			app:layout_constraintStart_toStartOf="parent"
 			app:layout_constraintTop_toTopOf="parent"
 			app:layout_constraintVertical_chainStyle="spread"
-			app:layout_constraintWidth_max="300dp"
+			app:layout_constraintWidth_default="percent"
+			app:layout_constraintWidth_max="400dp"
 			app:layout_constraintWidth_percent="0.6"
-			app:srcCompat="@drawable/ic_transfer_data_send"
+			app:srcCompat="@drawable/ic_transfer_data_receive"
 			tools:ignore="ContentDescription" />
 
 		<ProgressBar
