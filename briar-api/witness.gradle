@@ -2,9 +2,9 @@ dependencyVerification {
     verify = [
         'junit:junit:4.13.2:junit-4.13.2.jar:8e495b634469d64fb8acfa3495a065cbacc8a0fff55ce1e31007be4c16dc57d3',
         'org.codehaus.mojo.signature:java16:1.1:java16-1.1.signature:53799223a2c98dba2d0add810bed76315460df285c69e4f397ae6098f87dd619',
-        'org.codehaus.mojo:animal-sniffer-ant-tasks:1.16:animal-sniffer-ant-tasks-1.16.jar:890040976fbe2d584619a6a61b1fd2e925b3b5eb342a85eb2762c467c0d64e90',
-        'org.codehaus.mojo:animal-sniffer:1.16:animal-sniffer-1.16.jar:72be8bcc226ba43b937c722a08a07852bfa1b11400089265d5df0ee7b38b1d52',
+        'org.codehaus.mojo:animal-sniffer-ant-tasks:1.20:animal-sniffer-ant-tasks-1.20.jar:bb7d2498144118311d968bb08ff6fae3fc535fb1cb9cca8b8e9ea65b189422ac',
+        'org.codehaus.mojo:animal-sniffer:1.20:animal-sniffer-1.20.jar:80c422523c38db91260c6d78e5ee4b012862ab61cc55020c9e243dd7b5c62249',
         'org.hamcrest:hamcrest-core:1.3:hamcrest-core-1.3.jar:66fdef91e9739348df7a096aa384a5685f4e875584cce89386a7a47251c4d8e9',
-        'org.ow2.asm:asm-all:5.2:asm-all-5.2.jar:7fbffbc1db3422e2101689fd88df8384b15817b52b9b2b267b9f6d2511dc198d',
+        'org.ow2.asm:asm:9.1:asm-9.1.jar:cda4de455fab48ff0bcb7c48b4639447d4de859a7afc30a094a986f0936beba2',
     ]
 }
