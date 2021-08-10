@@ -59,7 +59,7 @@ public class LinkExchangeFragment extends BaseFragment
 	@Override
 	public void injectFragment(ActivityComponent component) {
 		component.inject(this);
-		viewModel = new ViewModelProvider(getActivity(), viewModelFactory)
+		viewModel = new ViewModelProvider(requireActivity(), viewModelFactory)
 				.get(AddContactViewModel.class);
 	}
 
