@@ -6,9 +6,10 @@
 	android:layout_height="match_parent">
 
 	<androidx.coordinatorlayout.widget.CoordinatorLayout
+		android:id="@+id/coordinatorLayout"
 		android:layout_width="match_parent"
 		android:layout_height="0dp"
-		app:layout_constraintBottom_toTopOf="@+id/connectedButton"
+		app:layout_constraintBottom_toTopOf="@+id/connectedView"
 		app:layout_constraintEnd_toEndOf="parent"
 		app:layout_constraintStart_toStartOf="parent"
 		app:layout_constraintTop_toTopOf="parent">
@@ -51,13 +52,21 @@
 			android:id="@+id/pager"
 			android:layout_width="match_parent"
 			android:layout_height="match_parent"
-			app:layout_behavior="@string/appbar_scrolling_view_behavior"
-			app:layout_constraintBottom_toTopOf="@+id/connectedButton"
-			app:layout_constraintEnd_toEndOf="parent"
-			app:layout_constraintStart_toStartOf="parent"
-			app:layout_constraintTop_toBottomOf="@+id/tabLayout" />
+			app:layout_behavior="@string/appbar_scrolling_view_behavior" />
 
 	</androidx.coordinatorlayout.widget.CoordinatorLayout>
+
+	<TextView
+		android:id="@+id/connectedView"
+		android:layout_width="0dp"
+		android:layout_height="wrap_content"
+		android:layout_margin="8dp"
+		android:gravity="center"
+		android:text="@string/hotspot_no_peers_connected"
+		app:layout_constraintTop_toBottomOf="@+id/coordinatorLayout"
+		app:layout_constraintBottom_toTopOf="@+id/connectedButton"
+		app:layout_constraintEnd_toEndOf="parent"
+		app:layout_constraintStart_toStartOf="parent" />
 
 	<Button
 		android:id="@+id/connectedButton"

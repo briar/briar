@@ -693,7 +693,7 @@
 	<string name="transports_help_text">Briar can connect to your contacts via the Internet, Wi-Fi or Bluetooth.\n\nAll Internet connections go through the Tor network for privacy.\n\nIf a contact can be reached by multiple methods, Briar uses them in parallel.</string>
 
 	<!-- Share app offline -->
-	<string name="hotspot_title">Share Briar offline</string>
+	<string name="hotspot_title">Share this app offline</string>
 	<string name="hotspot_intro">Share this app with someone nearby without Internet connection by using your phone\'s Wi-Fi.
 		\n\nYour phone will start a Wi-Fi hotspot. People nearby can connect to the hotspot and download the Briar app from your phone.</string>
 	<string name="hotspot_button_start_sharing">Start hotspot</string>
@@ -715,10 +715,14 @@
 
 	<!-- Wi-Fi setup -->
 	<!-- The %s placeholder will be replaced with the translation of 'hotspot_scanning_a_qr_code' -->
-	<string name="hotspot_manual_wifi">Your phone is providing a Wi-Fi hotspot. People who want to download Briar can connect to the hotspot by entering the details below or %s. When they have connected to the hotspot, press \'Next\'.</string>
-	<string name="hotspot_manual_wifi_ssid">Network name (SSID)</string>
+	<string name="hotspot_manual_wifi">Your phone is providing a Wi-Fi hotspot. People who want to download Briar can connect to the hotspot by adding it in their device\'s Wi-Fi settings using the details below or by %s. When they have connected to the hotspot, press \'Next\'.</string>
+	<string name="hotspot_manual_wifi_ssid">Network name</string>
 	<string name="hotspot_qr_wifi">Your phone is providing a Wi-Fi hotspot. People who want to download Briar can connect to the hotspot by scanning this QR code. When they have connected to the hotspot, press \'Next\'.</string>
-	<string name="hotspot_peer_connected">Successfully connected</string>
+	<string name="hotspot_no_peers_connected">No devices connected</string>
+	<plurals name="hotspot_peers_connected">
+		<item quantity="one">%s device connected</item>
+		<item quantity="other">%s devices connected</item>
+	</plurals>
 
 	<!-- Download link -->
 	<!-- The %s placeholder will be replaced with the translation of 'hotspot_scanning_a_qr_code' -->

@@ -63,8 +63,8 @@ class HotspotViewModel extends DbViewModel
 
 	private final MutableLiveData<HotspotState> state =
 			new MutableLiveData<>();
-	private final MutableLiveEvent<Boolean> peerConnected =
-			new MutableLiveEvent<>();
+	private final MutableLiveData<Integer> peersConnected =
+			new MutableLiveData<>();
 	private final MutableLiveEvent<Uri> savedApkToUri =
 			new MutableLiveEvent<>();
 
@@ -137,8 +137,8 @@ class HotspotViewModel extends DbViewModel
 
 	@UiThread
 	@Override
-	public void onDeviceConnected() {
-		peerConnected.setEvent(true);
+	public void onPeersUpdated(int peers) {
+		peersConnected.setValue(peers);
 	}
 
 	@Override
@@ -213,8 +213,8 @@ class HotspotViewModel extends DbViewModel
 		return state;
 	}
 
-	LiveEvent<Boolean> getPeerConnectedEvent() {
-		return peerConnected;
+	LiveData<Integer> getPeersConnectedEvent() {
+		return peersConnected;
 	}
 
 	LiveEvent<Uri> getSavedApkToUri() {

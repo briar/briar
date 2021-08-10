@@ -9,6 +9,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.TextView;
 
 import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.tabs.TabLayoutMediator;
@@ -43,6 +44,7 @@ public abstract class AbstractTabsFragment extends Fragment {
 
 	protected Button stopButton;
 	protected Button connectedButton;
+	protected TextView connectedView;
 
 	@Override
 	public void onAttach(Context context) {
@@ -85,6 +87,9 @@ public abstract class AbstractTabsFragment extends Fragment {
 			finishAfterTransition(requireActivity());
 		});
 		connectedButton = view.findViewById(R.id.connectedButton);
+		connectedView = view.findViewById(R.id.connectedView);
+		viewModel.getPeersConnectedEvent()
+				.observe(getViewLifecycleOwner(), this::onPeerConnected);
 	}
 
 	@Override
@@ -123,6 +128,15 @@ public abstract class AbstractTabsFragment extends Fragment {
 		@Override
 		public int getItemCount() {
 			return 2;
+		}
+	}
+
+	private void onPeerConnected(int peers) {
+		if (peers == 0) {
+			connectedView.setText(R.string.hotspot_no_peers_connected);
+		} else {
+			connectedView.setText(getResources().getQuantityString(
+					R.plurals.hotspot_peers_connected, peers, peers));
 		}
 	}
 
