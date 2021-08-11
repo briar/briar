@@ -66,7 +66,7 @@ class HotspotManager {
 		void onHotspotStarted(NetworkConfig networkConfig);
 
 		@UiThread
-		void onDeviceConnected();
+		void onPeersUpdated(int peers);
 
 		@UiThread
 		void onHotspotError(String error);
@@ -377,12 +377,11 @@ class HotspotManager {
 	private void requestGroupInfoForConnection() {
 		LOG.info("requestGroupInfo for connection");
 		GroupInfoListener groupListener = group -> {
-			if (group == null || group.getClientList().isEmpty()) {
-				handler.postDelayed(this::requestGroupInfoForConnection,
-						RETRY_DELAY_MILLIS);
-			} else {
-				listener.onDeviceConnected();
+			if (group != null) {
+				listener.onPeersUpdated(group.getClientList().size());
 			}
+			handler.postDelayed(this::requestGroupInfoForConnection,
+					RETRY_DELAY_MILLIS);
 		};
 		try {
 			if (channel == null) return;

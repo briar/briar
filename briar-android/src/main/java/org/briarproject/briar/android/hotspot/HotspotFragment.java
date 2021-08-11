@@ -2,11 +2,9 @@ package org.briarproject.briar.android.hotspot;
 
 import android.os.Bundle;
 import android.view.View;
-import android.widget.Toast;
 
 import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
 import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
-import org.briarproject.briar.R;
 
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
@@ -23,8 +21,6 @@ public class HotspotFragment extends AbstractTabsFragment {
 	public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
 		super.onViewCreated(view, savedInstanceState);
 		connectedButton.setOnClickListener(v -> showNextFragment());
-		viewModel.getPeerConnectedEvent().observeEvent(getViewLifecycleOwner(),
-				this::onPeerConnected);
 	}
 
 	@Override
@@ -35,12 +31,6 @@ public class HotspotFragment extends AbstractTabsFragment {
 	@Override
 	protected Fragment getSecondFragment() {
 		return QrHotspotFragment.newInstance(true);
-	}
-
-	private void onPeerConnected(boolean connected) {
-		if (!connected) return;
-		Toast.makeText(requireContext(), R.string.hotspot_peer_connected,
-				Toast.LENGTH_LONG).show();
 	}
 
 	private void showNextFragment() {
