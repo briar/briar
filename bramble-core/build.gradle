@@ -32,6 +32,14 @@ dependencies {
 	signature 'org.codehaus.mojo.signature:java16:1.1@signature'
 }
 
+animalsniffer {
+	// Allow requireNonNull: Android desugaring rewrites it (so it's safe for us to use),
+	// and it gets used when passing method references instead of lambdas with Java 11.
+	// Note that this line allows *all* methods from java.util.Objects.
+	// That's the best that we can do with the configuration options that Animal Sniffer offers.
+	ignore 'java.util.Objects'
+}
+
 // needed to make test output available to bramble-java
 configurations {
 	testOutput.extendsFrom(testCompile)

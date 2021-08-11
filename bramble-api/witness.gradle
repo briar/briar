@@ -10,8 +10,8 @@ dependencyVerification {
         'net.jcip:jcip-annotations:1.0:jcip-annotations-1.0.jar:be5805392060c71474bf6c9a67a099471274d30b83eef84bfc4e0889a4f1dcc0',
         'org.apache-extras.beanshell:bsh:2.0b6:bsh-2.0b6.jar:a17955976070c0573235ee662f2794a78082758b61accffce8d3f8aedcd91047',
         'org.codehaus.mojo.signature:java16:1.1:java16-1.1.signature:53799223a2c98dba2d0add810bed76315460df285c69e4f397ae6098f87dd619',
-        'org.codehaus.mojo:animal-sniffer-ant-tasks:1.16:animal-sniffer-ant-tasks-1.16.jar:890040976fbe2d584619a6a61b1fd2e925b3b5eb342a85eb2762c467c0d64e90',
-        'org.codehaus.mojo:animal-sniffer:1.16:animal-sniffer-1.16.jar:72be8bcc226ba43b937c722a08a07852bfa1b11400089265d5df0ee7b38b1d52',
+        'org.codehaus.mojo:animal-sniffer-ant-tasks:1.20:animal-sniffer-ant-tasks-1.20.jar:bb7d2498144118311d968bb08ff6fae3fc535fb1cb9cca8b8e9ea65b189422ac',
+        'org.codehaus.mojo:animal-sniffer:1.20:animal-sniffer-1.20.jar:80c422523c38db91260c6d78e5ee4b012862ab61cc55020c9e243dd7b5c62249',
         'org.hamcrest:hamcrest-core:2.1:hamcrest-core-2.1.jar:e09109e54a289d88506b9bfec987ddd199f4217c9464132668351b9a4f00bee9',
         'org.hamcrest:hamcrest-library:2.1:hamcrest-library-2.1.jar:b7e2b6895b3b679f0e47b6380fda391b225e9b78505db9d8bdde8d3cc8d52a21',
         'org.hamcrest:hamcrest:2.1:hamcrest-2.1.jar:ba93b2e3a562322ba432f0a1b53addcc55cb188253319a020ed77f824e692050',
@@ -21,7 +21,7 @@ dependencyVerification {
         'org.jmock:jmock-testjar:2.12.0:jmock-testjar-2.12.0.jar:efefbcf6cd294d0e29f0c46eb2a3380d4ca4e1763ff719c69e2f2ac62f564a04',
         'org.jmock:jmock:2.12.0:jmock-2.12.0.jar:266d07314c0cd343c46ff8a55601272de8cf406807caf55e6f313295f83d10be',
         'org.objenesis:objenesis:3.0.1:objenesis-3.0.1.jar:7a8ff780b9ff48415d7c705f60030b0acaa616e7f823c98eede3b63508d4e984',
-        'org.ow2.asm:asm-all:5.2:asm-all-5.2.jar:7fbffbc1db3422e2101689fd88df8384b15817b52b9b2b267b9f6d2511dc198d',
         'org.ow2.asm:asm:7.1:asm-7.1.jar:4ab2fa2b6d2cc9ccb1eaa05ea329c407b47b13ed2915f62f8c4b8cc96258d4de',
+        'org.ow2.asm:asm:9.1:asm-9.1.jar:cda4de455fab48ff0bcb7c48b4639447d4de859a7afc30a094a986f0936beba2',
     ]
 }
