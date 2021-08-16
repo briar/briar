@@ -4,6 +4,8 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import io.javalin.http.BadRequestResponse
 import io.javalin.http.Context
 import io.javalin.http.NotFoundResponse
+import org.bouncycastle.util.encoders.Base64
+import org.bouncycastle.util.encoders.DecoderException
 import org.briarproject.bramble.api.contact.Contact
 import org.briarproject.bramble.api.contact.ContactId
 import org.briarproject.bramble.api.contact.ContactManager
@@ -36,8 +38,6 @@ import org.briarproject.briar.headless.event.output
 import org.briarproject.briar.headless.getContactIdFromPathParam
 import org.briarproject.briar.headless.getFromJson
 import org.briarproject.briar.headless.json.JsonDict
-import org.spongycastle.util.encoders.Base64
-import org.spongycastle.util.encoders.DecoderException
 import java.util.concurrent.Executor
 import javax.annotation.concurrent.Immutable
 import javax.inject.Inject

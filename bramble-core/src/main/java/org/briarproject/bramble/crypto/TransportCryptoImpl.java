@@ -1,5 +1,7 @@
 package org.briarproject.bramble.crypto;
 
+import org.bouncycastle.crypto.Digest;
+import org.bouncycastle.crypto.digests.Blake2bDigest;
 import org.briarproject.bramble.api.crypto.CryptoComponent;
 import org.briarproject.bramble.api.crypto.KeyPair;
 import org.briarproject.bramble.api.crypto.PublicKey;
@@ -9,8 +11,6 @@ import org.briarproject.bramble.api.plugin.TransportId;
 import org.briarproject.bramble.api.transport.IncomingKeys;
 import org.briarproject.bramble.api.transport.OutgoingKeys;
 import org.briarproject.bramble.api.transport.TransportKeys;
-import org.spongycastle.crypto.Digest;
-import org.spongycastle.crypto.digests.Blake2bDigest;
 
 import java.security.GeneralSecurityException;
 

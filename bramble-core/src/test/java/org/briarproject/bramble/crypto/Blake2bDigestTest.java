@@ -1,9 +1,9 @@
 package org.briarproject.bramble.crypto;
 
+import org.bouncycastle.crypto.digests.Blake2bDigest;
 import org.briarproject.bramble.test.BrambleTestCase;
 import org.briarproject.bramble.util.StringUtils;
 import org.junit.Test;
-import org.spongycastle.crypto.digests.Blake2bDigest;
 
 import java.util.Random;
 

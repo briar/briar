@@ -1,11 +1,11 @@
 package org.briarproject.bramble.crypto;
 
+import org.bouncycastle.crypto.Digest;
+import org.bouncycastle.crypto.digests.Blake2bDigest;
+import org.bouncycastle.crypto.engines.Salsa20Engine;
+import org.bouncycastle.crypto.params.KeyParameter;
+import org.bouncycastle.crypto.params.ParametersWithIV;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
-import org.spongycastle.crypto.Digest;
-import org.spongycastle.crypto.digests.Blake2bDigest;
-import org.spongycastle.crypto.engines.Salsa20Engine;
-import org.spongycastle.crypto.params.KeyParameter;
-import org.spongycastle.crypto.params.ParametersWithIV;
 
 import javax.annotation.concurrent.NotThreadSafe;
 

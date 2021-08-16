@@ -1,11 +1,11 @@
 package org.briarproject.bramble.rendezvous;
 
+import org.bouncycastle.crypto.engines.Salsa20Engine;
+import org.bouncycastle.crypto.params.KeyParameter;
+import org.bouncycastle.crypto.params.ParametersWithIV;
 import org.briarproject.bramble.api.crypto.SecretKey;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.rendezvous.KeyMaterialSource;
-import org.spongycastle.crypto.engines.Salsa20Engine;
-import org.spongycastle.crypto.params.KeyParameter;
-import org.spongycastle.crypto.params.ParametersWithIV;
 
 import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;

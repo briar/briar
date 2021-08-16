@@ -1,13 +1,13 @@
 package org.briarproject.bramble.crypto;
 
+import org.bouncycastle.crypto.DataLengthException;
+import org.bouncycastle.crypto.engines.XSalsa20Engine;
+import org.bouncycastle.crypto.generators.Poly1305KeyGenerator;
+import org.bouncycastle.crypto.macs.Poly1305;
+import org.bouncycastle.crypto.params.KeyParameter;
+import org.bouncycastle.crypto.params.ParametersWithIV;
 import org.briarproject.bramble.api.crypto.SecretKey;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
-import org.spongycastle.crypto.DataLengthException;
-import org.spongycastle.crypto.engines.XSalsa20Engine;
-import org.spongycastle.crypto.generators.Poly1305KeyGenerator;
-import org.spongycastle.crypto.macs.Poly1305;
-import org.spongycastle.crypto.params.KeyParameter;
-import org.spongycastle.crypto.params.ParametersWithIV;
 
 import java.security.GeneralSecurityException;
 
