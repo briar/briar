@@ -20,13 +20,9 @@ import org.bouncycastle.crypto.signers.DSADigestSigner;
 import org.bouncycastle.crypto.signers.DSAKCalculator;
 import org.bouncycastle.crypto.signers.ECDSASigner;
 import org.bouncycastle.crypto.signers.HMacDSAKCalculator;
-import org.bouncycastle.math.ec.ECCurve;
-import org.bouncycastle.math.ec.ECPoint;
-import org.bouncycastle.math.ec.MontgomeryLadderMultiplier;
 import org.whispersystems.curve25519.Curve25519;
 import org.whispersystems.curve25519.Curve25519KeyPair;
 
-import java.math.BigInteger;
 import java.security.GeneralSecurityException;
 import java.security.KeyPair;
 import java.security.Provider;
@@ -55,14 +51,12 @@ public class EllipticCurvePerformanceTest {
 		for (String name : SEC_NAMES) {
 			ECDomainParameters params =
 					convertParams(SECNamedCurves.getByName(name));
-			runTest(name + " default", params);
-			runTest(name + " constant", constantTime(params));
+			runTest(name, params);
 		}
 		for (String name : BRAINPOOL_NAMES) {
 			ECDomainParameters params =
 					convertParams(TeleTrusTNamedCurves.getByName(name));
-			runTest(name + " default", params);
-			runTest(name + " constant", constantTime(params));
+			runTest(name, params);
 		}
 		runCurve25519Test();
 		runEd25519Test();
@@ -192,14 +186,5 @@ public class EllipticCurvePerformanceTest {
 	private static ECDomainParameters convertParams(X9ECParameters in) {
 		return new ECDomainParameters(in.getCurve(), in.getG(), in.getN(),
 				in.getH());
-	}
-
-	private static ECDomainParameters constantTime(ECDomainParameters in) {
-		ECCurve curve = in.getCurve().configure().setMultiplier(
-				new MontgomeryLadderMultiplier()).create();
-		BigInteger x = in.getG().getAffineXCoord().toBigInteger();
-		BigInteger y = in.getG().getAffineYCoord().toBigInteger();
-		ECPoint g = curve.createPoint(x, y);
-		return new ECDomainParameters(curve, g, in.getN(), in.getH());
 	}
 }

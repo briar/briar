@@ -10,7 +10,7 @@ apply from: '../dagger.gradle'
 
 dependencies {
 	implementation project(path: ':bramble-api', configuration: 'default')
-	implementation 'org.bouncycastle:bcprov-jdk15on:1.58'
+	implementation 'org.bouncycastle:bcprov-jdk15on:1.69'
 	implementation 'com.h2database:h2:1.4.192' // The last version that supports Java 1.6
 	implementation 'org.bitlet:weupnp:0.1.4'
 	implementation 'net.i2p.crypto:eddsa:0.2.0'

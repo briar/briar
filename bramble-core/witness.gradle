@@ -26,7 +26,7 @@ dependencyVerification {
         'net.ltgt.gradle.incap:incap:0.2:incap-0.2.jar:b625b9806b0f1e4bc7a2e3457119488de3cd57ea20feedd513db070a573a4ffd',
         'org.apache-extras.beanshell:bsh:2.0b6:bsh-2.0b6.jar:a17955976070c0573235ee662f2794a78082758b61accffce8d3f8aedcd91047',
         'org.bitlet:weupnp:0.1.4:weupnp-0.1.4.jar:88df7e6504929d00bdb832863761385c68ab92af945b04f0770b126270a444fb',
-        'org.bouncycastle:bcprov-jdk15on:1.58:bcprov-jdk15on-1.58.jar:eb61ab61065ed96f9f2d5cde94d326233c09fdec9333c1185f2fa65ee88a4236',
+        'org.bouncycastle:bcprov-jdk15on:1.69:bcprov-jdk15on-1.69.jar:e469bd39f936999f256002631003ff022a22951da9d5bd9789c7abfa9763a292',
         'org.briarproject:jtorctl:0.3:jtorctl-0.3.jar:f2939238a097898998432effe93b0334d97a787972ab3a91a8973a1d309fc864',
         'org.checkerframework:checker-compat-qual:2.5.3:checker-compat-qual-2.5.3.jar:d76b9afea61c7c082908023f0cbc1427fab9abd2df915c8b8a3e7a509bccbc6d',
         'org.checkerframework:checker-qual:2.5.2:checker-qual-2.5.2.jar:64b02691c8b9d4e7700f8ee2e742dce7ea2c6e81e662b7522c9ee3bf568c040a',
