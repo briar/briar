@@ -29,6 +29,7 @@ import java.net.UnknownHostException;
 import java.util.List;
 import java.util.concurrent.Executor;
 import java.util.logging.Logger;
+import java.util.regex.Pattern;
 
 import javax.annotation.Nullable;
 import javax.net.SocketFactory;
@@ -54,6 +55,13 @@ class AndroidLanTcpPlugin extends LanTcpPlugin {
 
 	private static final Logger LOG =
 			getLogger(AndroidLanTcpPlugin.class.getName());
+
+	/**
+	 * The interface name is used as a heuristic for deciding whether the
+	 * device is providing a wifi access point.
+	 */
+	private static final Pattern AP_INTERFACE_NAME =
+			Pattern.compile("^(wlan|ap|p2p)[-0-9]");
 
 	private final Executor connectionStatusExecutor;
 	private final ConnectivityManager connectivityManager;
@@ -130,17 +138,14 @@ class AndroidLanTcpPlugin extends LanTcpPlugin {
 		if (info != null && info.getIpAddress() != 0) {
 			return new Pair<>(intToInetAddress(info.getIpAddress()), false);
 		}
-		List<InterfaceAddress> ifAddrs = getLocalInterfaceAddresses();
-		// If we're providing a normal access point, return its address
-		for (InterfaceAddress ifAddr : ifAddrs) {
-			if (isAndroidWifiApAddress(ifAddr)) {
-				return new Pair<>(ifAddr.getAddress(), true);
-			}
-		}
-		// If we're providing a wifi direct access point, return its address
-		for (InterfaceAddress ifAddr : ifAddrs) {
-			if (isAndroidWifiDirectApAddress(ifAddr)) {
-				return new Pair<>(ifAddr.getAddress(), true);
+		// If we're providing an access point, return its address
+		for (NetworkInterface iface : getNetworkInterfaces()) {
+			if (AP_INTERFACE_NAME.matcher(iface.getName()).find()) {
+				for (InterfaceAddress ifAddr : iface.getInterfaceAddresses()) {
+					if (isPossibleWifiApInterface(ifAddr)) {
+						return new Pair<>(ifAddr.getAddress(), true);
+					}
+				}
 			}
 		}
 		// Not connected to wifi
@@ -148,33 +153,18 @@ class AndroidLanTcpPlugin extends LanTcpPlugin {
 	}
 
 	/**
-	 * Returns true if the given address belongs to a network provided by an
-	 * Android access point (including the access point's own address).
+	 * Returns true if the given address may belong to an interface providing
+	 * a wifi access point (including wifi direct legacy mode access points).
 	 * <p>
-	 * The access point's address is usually 192.168.43.1, but at least one
-	 * device (Honor 8A) may use other addresses in the range 192.168.43.0/24.
+	 * This method may return true for wifi client interfaces as well, but
+	 * we've already checked for a wifi client connection above.
 	 */
-	private boolean isAndroidWifiApAddress(InterfaceAddress ifAddr) {
+	private boolean isPossibleWifiApInterface(InterfaceAddress ifAddr) {
 		if (ifAddr.getNetworkPrefixLength() != 24) return false;
 		byte[] ip = ifAddr.getAddress().getAddress();
 		return ip.length == 4
 				&& ip[0] == (byte) 192
-				&& ip[1] == (byte) 168
-				&& ip[2] == (byte) 43;
-	}
-
-	/**
-	 * Returns true if the given address belongs to a network provided by an
-	 * Android wifi direct legacy mode access point (including the access
-	 * point's own address).
-	 */
-	private boolean isAndroidWifiDirectApAddress(InterfaceAddress ifAddr) {
-		if (ifAddr.getNetworkPrefixLength() != 24) return false;
-		byte[] ip = ifAddr.getAddress().getAddress();
-		return ip.length == 4
-				&& ip[0] == (byte) 192
-				&& ip[1] == (byte) 168
-				&& ip[2] == (byte) 49;
+				&& ip[1] == (byte) 168;
 	}
 
 	/**

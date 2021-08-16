@@ -98,7 +98,6 @@ abstract class TcpPlugin implements DuplexPlugin, EventListener {
 	/**
 	 * Returns true if connections to the given address can be attempted.
 	 */
-	@SuppressWarnings("BooleanMethodIsAlwaysInverted")
 	protected abstract boolean isConnectable(InterfaceAddress local,
 			InetSocketAddress remote);
 
@@ -398,10 +397,12 @@ abstract class TcpPlugin implements DuplexPlugin, EventListener {
 		return addrs;
 	}
 
-	private List<NetworkInterface> getNetworkInterfaces() {
+	List<NetworkInterface> getNetworkInterfaces() {
 		try {
 			Enumeration<NetworkInterface> ifaces =
 					NetworkInterface.getNetworkInterfaces();
+			// Despite what the docs say, the return value can be null
+			//noinspection ConstantConditions
 			return ifaces == null ? emptyList() : list(ifaces);
 		} catch (SocketException e) {
 			logException(LOG, WARNING, e);
