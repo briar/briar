@@ -49,6 +49,7 @@ import static org.briarproject.bramble.api.plugin.Plugin.State.ACTIVE;
 import static org.briarproject.bramble.api.plugin.Plugin.State.INACTIVE;
 import static org.briarproject.bramble.util.IoUtils.tryToClose;
 import static org.briarproject.bramble.util.LogUtils.logException;
+import static org.briarproject.bramble.util.NetworkUtils.getNetworkInterfaces;
 
 @NotNullByDefault
 class AndroidLanTcpPlugin extends LanTcpPlugin {
