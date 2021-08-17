@@ -1,5 +1,5 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<resources xmlns:tools="http://schemas.android.com/tools">
+<resources>
   <!--Setup-->
   <string name="setup_title">Briar में आपका स्वागत है</string>
   <string name="setup_name_explanation">आपके उपनाम आप पोस्ट किसी भी सामग्री के बगल में दिखाया जाएगा। आप अपना खाता बनाने के बाद इसे बदल नहीं सकते</string>
@@ -124,7 +124,7 @@
   <string name="set_contact_alias">संपर्क नाम बदलें</string>
   <string name="set_contact_alias_hint">संपर्क नाम</string>
   <string name="menu_item_connect_via_bluetooth">ब्लूटूथ के माध्यम से कनेक्ट करें</string>
-  <string name="dialog_title_connect_via_bluetooth">ब्लूटूथ के माध्यम से कनेक्ट करें</string>
+  <string name="connect_via_bluetooth_title">ब्लूटूथ के माध्यम से कनेक्ट करें</string>
   <!--The first placeholder will show a duration like "7 days". The second placeholder at the end will add "Tap to learn more."-->
   <!--The placeholder at the end will add "Tap to learn more."-->
   <!--The first placeholder will show a contact's name. The second placeholder will show a duration like "7 days". The third placeholder at the end will add "Tap to learn more."-->

@@ -1,19 +1,20 @@
-package org.briarproject.briar.android.conversation;
+package org.briarproject.briar.android.contact.connect;
 
-import android.app.Activity;
 import android.app.Application;
 import android.bluetooth.BluetoothAdapter;
-import android.content.Context;
-import android.widget.Toast;
 
 import org.briarproject.bramble.api.connection.ConnectionManager;
 import org.briarproject.bramble.api.connection.ConnectionRegistry;
 import org.briarproject.bramble.api.contact.ContactId;
+import org.briarproject.bramble.api.db.DatabaseExecutor;
 import org.briarproject.bramble.api.db.DbException;
+import org.briarproject.bramble.api.db.TransactionManager;
 import org.briarproject.bramble.api.event.Event;
 import org.briarproject.bramble.api.event.EventBus;
 import org.briarproject.bramble.api.event.EventListener;
 import org.briarproject.bramble.api.lifecycle.IoExecutor;
+import org.briarproject.bramble.api.lifecycle.LifecycleManager;
+import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.plugin.PluginManager;
 import org.briarproject.bramble.api.plugin.duplex.DuplexTransportConnection;
 import org.briarproject.bramble.api.plugin.event.ConnectionOpenedEvent;
@@ -21,23 +22,22 @@ import org.briarproject.bramble.api.properties.TransportPropertyManager;
 import org.briarproject.bramble.api.system.AndroidExecutor;
 import org.briarproject.bramble.plugin.bluetooth.BluetoothPlugin;
 import org.briarproject.briar.R;
-import org.briarproject.briar.android.contact.ContactItem;
+import org.briarproject.briar.android.contact.connect.ConnectViaBluetoothState.Connecting;
+import org.briarproject.briar.android.contact.connect.ConnectViaBluetoothState.Success;
+import org.briarproject.briar.android.viewmodel.DbViewModel;
+import org.briarproject.briar.android.viewmodel.LiveEvent;
+import org.briarproject.briar.android.viewmodel.MutableLiveEvent;
 
 import java.util.concurrent.Executor;
 import java.util.logging.Logger;
 
+import javax.annotation.Nullable;
 import javax.inject.Inject;
 
-import androidx.activity.result.ActivityResultLauncher;
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.annotation.StringRes;
 import androidx.annotation.UiThread;
-import androidx.appcompat.app.AlertDialog;
 
-import static android.Manifest.permission.ACCESS_FINE_LOCATION;
-import static android.os.Build.VERSION.SDK_INT;
-import static androidx.core.app.ActivityCompat.shouldShowRequestPermissionRationale;
+import static java.util.Objects.requireNonNull;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static java.util.logging.Level.WARNING;
 import static java.util.logging.Logger.getLogger;
@@ -46,48 +46,50 @@ import static org.briarproject.bramble.api.plugin.BluetoothConstants.PROP_UUID;
 import static org.briarproject.bramble.api.plugin.Plugin.State.ACTIVE;
 import static org.briarproject.bramble.util.LogUtils.logException;
 import static org.briarproject.bramble.util.StringUtils.isNullOrEmpty;
-import static org.briarproject.briar.android.util.UiUtils.getGoToSettingsListener;
-import static org.briarproject.briar.android.util.UiUtils.isLocationEnabled;
-import static org.briarproject.briar.android.util.UiUtils.showLocationDialog;
 
-class BluetoothConnecter implements EventListener {
+@UiThread
+@NotNullByDefault
+class ConnectViaBluetoothViewModel extends DbViewModel implements
+		EventListener {
 
-	private final Logger LOG = getLogger(BluetoothConnecter.class.getName());
+	private final Logger LOG =
+			getLogger(ConnectViaBluetoothViewModel.class.getName());
 
 	private final long BT_ACTIVE_TIMEOUT = SECONDS.toMillis(5);
 
-	private enum Permission {
-		UNKNOWN, GRANTED, SHOW_RATIONALE, PERMANENTLY_DENIED
-	}
-
-	private final Application app;
 	private final PluginManager pluginManager;
 	private final Executor ioExecutor;
-	private final AndroidExecutor androidExecutor;
 	private final ConnectionRegistry connectionRegistry;
+	@Nullable
 	private final BluetoothAdapter bt = BluetoothAdapter.getDefaultAdapter();
 	private final EventBus eventBus;
 	private final TransportPropertyManager transportPropertyManager;
 	private final ConnectionManager connectionManager;
 
+	@Nullable
 	private volatile BluetoothPlugin bluetoothPlugin;
-
-	private Permission locationPermission = Permission.UNKNOWN;
+	@Nullable
 	private ContactId contactId = null;
 
+	private final MutableLiveEvent<ConnectViaBluetoothState> state =
+			new MutableLiveEvent<>();
+
 	@Inject
-	BluetoothConnecter(Application app,
+	ConnectViaBluetoothViewModel(
+			Application app,
+			@DatabaseExecutor Executor dbExecutor,
+			LifecycleManager lifecycleManager,
+			TransactionManager db,
+			AndroidExecutor androidExecutor,
 			PluginManager pluginManager,
 			@IoExecutor Executor ioExecutor,
-			AndroidExecutor androidExecutor,
 			ConnectionRegistry connectionRegistry,
 			EventBus eventBus,
 			TransportPropertyManager transportPropertyManager,
 			ConnectionManager connectionManager) {
-		this.app = app;
+		super(app, dbExecutor, lifecycleManager, db, androidExecutor);
 		this.pluginManager = pluginManager;
 		this.ioExecutor = ioExecutor;
-		this.androidExecutor = androidExecutor;
 		this.bluetoothPlugin = (BluetoothPlugin) pluginManager.getPlugin(ID);
 		this.connectionRegistry = connectionRegistry;
 		this.eventBus = eventBus;
@@ -95,20 +97,22 @@ class BluetoothConnecter implements EventListener {
 		this.connectionManager = connectionManager;
 	}
 
-	boolean isConnectedViaBluetooth(ContactId contactId) {
-		return connectionRegistry.isConnected(contactId, ID);
-	}
-
-	boolean isDiscovering() {
-		return bluetoothPlugin.isDiscovering();
+	@Override
+	protected void onCleared() {
+		stopConnecting();
 	}
 
 	/**
-	 * Call this when the using activity or fragment starts,
-	 * because permissions might have changed while it was stopped.
+	 * Set this as soon as it becomes available.
+	 */
+	void setContactId(ContactId contactId) {
+		this.contactId = contactId;
+	}
+
+	/**
+	 * Call this when the using activity or fragment starts.
 	 */
 	void reset() {
-		locationPermission = Permission.UNKNOWN;
 		// When this class is instantiated before we are logged in
 		// (like when returning to a killed activity), bluetoothPlugin would be
 		// null and we consider bluetooth not supported. So reset here.
@@ -116,94 +120,52 @@ class BluetoothConnecter implements EventListener {
 	}
 
 	@UiThread
-	void onLocationPermissionResult(Activity activity,
-			@Nullable Boolean result) {
-		if (result != null && result) {
-			locationPermission = Permission.GRANTED;
-		} else if (shouldShowRequestPermissionRationale(activity,
-				ACCESS_FINE_LOCATION)) {
-			locationPermission = Permission.SHOW_RATIONALE;
-		} else {
-			locationPermission = Permission.PERMANENTLY_DENIED;
+	boolean shouldStartFlow() {
+		if (isBluetoothNotSupported()) {
+			state.setEvent(new ConnectViaBluetoothState.Error(
+					R.string.bt_plugin_status_inactive));
+			return false;
+		} else if (isConnectedViaBluetooth()) {
+			state.setEvent(new Success());
+			return false;
+		} else if (isDiscovering()) {
+			state.setEvent(new ConnectViaBluetoothState.Error(
+					R.string.connect_via_bluetooth_already_discovering));
+			return false;
 		}
+		return true;
 	}
 
-	boolean isBluetoothNotSupported() {
+	private boolean isBluetoothNotSupported() {
 		return bt == null || bluetoothPlugin == null;
 	}
 
-	boolean areRequirementsFulfilled(Context ctx,
-			ActivityResultLauncher<String> permissionRequest,
-			Runnable onLocationDenied) {
-		boolean permissionGranted =
-				SDK_INT < 23 || locationPermission == Permission.GRANTED;
-		boolean locationEnabled = isLocationEnabled(ctx);
-		if (permissionGranted && locationEnabled) return true;
-
-		if (locationPermission == Permission.PERMANENTLY_DENIED) {
-			showDenialDialog(ctx, onLocationDenied);
-		} else if (locationPermission == Permission.SHOW_RATIONALE) {
-			showRationale(ctx, permissionRequest);
-		} else if (!locationEnabled) {
-			showLocationDialog(ctx);
-		}
-		return false;
+	private boolean isDiscovering() {
+		// we should not be calling this if isBluetoothNotSupported() is true
+		return requireNonNull(bluetoothPlugin).isDiscovering();
 	}
 
-	private void showDenialDialog(Context ctx, Runnable onLocationDenied) {
-		new AlertDialog.Builder(ctx, R.style.BriarDialogTheme)
-				.setTitle(R.string.permission_location_title)
-				.setMessage(R.string.permission_location_denied_body)
-				.setPositiveButton(R.string.ok, getGoToSettingsListener(ctx))
-				.setNegativeButton(R.string.cancel, (v, d) ->
-						onLocationDenied.run())
-				.show();
-	}
-
-	private void showRationale(Context ctx,
-			ActivityResultLauncher<String> permissionRequest) {
-		new AlertDialog.Builder(ctx, R.style.BriarDialogTheme)
-				.setTitle(R.string.permission_location_title)
-				.setMessage(R.string.permission_location_request_body)
-				.setPositiveButton(R.string.ok, (dialog, which) ->
-						permissionRequest.launch(ACCESS_FINE_LOCATION))
-				.show();
+	private boolean isConnectedViaBluetooth() {
+		return connectionRegistry.isConnected(requireNonNull(contactId), ID);
 	}
 
 	@UiThread
-	void onBluetoothDiscoverable(ContactItem contact) {
-		contactId = contact.getContact().getId();
-		connect();
-	}
+	void onBluetoothDiscoverable() {
+		ContactId contactId = requireNonNull(this.contactId);
+		BluetoothPlugin bluetoothPlugin = requireNonNull(this.bluetoothPlugin);
 
-	@UiThread
-	@Override
-	public void eventOccurred(@NonNull Event e) {
-		if (e instanceof ConnectionOpenedEvent) {
-			ConnectionOpenedEvent c = (ConnectionOpenedEvent) e;
-			if (c.getContactId().equals(contactId) && c.isIncoming() &&
-					c.getTransportId() == ID) {
-				if (bluetoothPlugin != null) {
-					bluetoothPlugin.stopDiscoverAndConnect();
-				}
-				LOG.info("Contact connected to us");
-				showToast(R.string.toast_connect_via_bluetooth_success);
-			}
-		}
-	}
+		state.setEvent(new Connecting());
 
-	private void connect() {
 		bluetoothPlugin.disablePolling();
 		pluginManager.setPluginEnabled(ID, true);
-
 		ioExecutor.execute(() -> {
 			try {
 				if (!waitForBluetoothActive()) {
-					showToast(R.string.bt_plugin_status_inactive);
+					state.postEvent(new ConnectViaBluetoothState.Error(
+							R.string.bt_plugin_status_inactive));
 					LOG.warning("Bluetooth plugin didn't become active");
 					return;
 				}
-				showToast(R.string.toast_connect_via_bluetooth_start);
 				eventBus.addListener(this);
 				try {
 					String uuid = null;
@@ -226,7 +188,7 @@ class BluetoothConnecter implements EventListener {
 						LOG.info("Could connect, handling connection");
 						connectionManager
 								.manageOutgoingConnection(contactId, ID, conn);
-						showToast(R.string.toast_connect_via_bluetooth_success);
+						state.postEvent(new Success());
 					}
 				} finally {
 					eventBus.removeListener(this);
@@ -237,8 +199,23 @@ class BluetoothConnecter implements EventListener {
 		});
 	}
 
+	@UiThread
+	@Override
+	public void eventOccurred(@NonNull Event e) {
+		if (e instanceof ConnectionOpenedEvent) {
+			ConnectionOpenedEvent c = (ConnectionOpenedEvent) e;
+			if (c.getContactId().equals(contactId) && c.isIncoming() &&
+					c.getTransportId() == ID) {
+				stopConnecting();
+				LOG.info("Contact connected to us");
+				state.postEvent(new Success());
+			}
+		}
+	}
+
 	@IoExecutor
 	private boolean waitForBluetoothActive() {
+		BluetoothPlugin bluetoothPlugin = requireNonNull(this.bluetoothPlugin);
 		long left = BT_ACTIVE_TIMEOUT;
 		final long sleep = 250;
 		try {
@@ -264,9 +241,9 @@ class BluetoothConnecter implements EventListener {
 		final long sleep = 250;
 		try {
 			while (left > 0) {
-				if (isConnectedViaBluetooth(contactId)) {
+				if (isConnectedViaBluetooth()) {
 					LOG.info("Failed to connect, but contact connected");
-					// no Toast needed here, as it gets shown when
+					// no success state needed here, as it gets shown when
 					// ConnectionOpenedEvent is received
 					return;
 				}
@@ -277,13 +254,19 @@ class BluetoothConnecter implements EventListener {
 			Thread.currentThread().interrupt();
 		}
 		LOG.warning("Failed to connect");
-		showToast(R.string.toast_connect_via_bluetooth_error);
+		state.postEvent(new ConnectViaBluetoothState.Error(
+				R.string.connect_via_bluetooth_error));
 	}
 
-	private void showToast(@StringRes int res) {
-		androidExecutor.runOnUiThread(() ->
-				Toast.makeText(app, res, Toast.LENGTH_LONG).show()
-		);
+	private void stopConnecting() {
+		BluetoothPlugin bluetoothPlugin = this.bluetoothPlugin;
+		if (bluetoothPlugin != null) {
+			bluetoothPlugin.stopDiscoverAndConnect();
+		}
+	}
+
+	LiveEvent<ConnectViaBluetoothState> getState() {
+		return state;
 	}
 
 }

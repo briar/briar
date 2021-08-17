@@ -1,5 +1,5 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<resources xmlns:tools="http://schemas.android.com/tools">
+<resources>
   <!--Setup-->
   <string name="setup_title">Добредојде во Briar</string>
   <string name="setup_name_explanation">Вашето корисничко име ќе се појави до секоја содржина која ќе ја објавите. Истото не можете да го промените откога ќе ја креирате вашата сметка.</string>
@@ -154,7 +154,7 @@
   <string name="set_contact_alias">Промена на име на контакт</string>
   <string name="set_contact_alias_hint">Име на контакт</string>
   <string name="menu_item_connect_via_bluetooth">Поврзи се преку Bluetooth</string>
-  <string name="dialog_title_connect_via_bluetooth">Поврзи се преку Bluetooth</string>
+  <string name="connect_via_bluetooth_title">Поврзи се преку Bluetooth</string>
   <!--The first placeholder will show a duration like "7 days". The second placeholder at the end will add "Tap to learn more."-->
   <!--The placeholder at the end will add "Tap to learn more."-->
   <!--The first placeholder will show a contact's name. The second placeholder will show a duration like "7 days". The third placeholder at the end will add "Tap to learn more."-->

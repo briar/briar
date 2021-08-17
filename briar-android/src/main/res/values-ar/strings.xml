@@ -1,5 +1,5 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<resources xmlns:tools="http://schemas.android.com/tools">
+<resources>
   <!--Setup-->
   <string name="setup_title">مرحبًا بك في Briar (براير)</string>
   <string name="setup_name_explanation">سيتم إظهار اسمك المستعار بجانب كل ما تنشره من محتوى. لا يمكنك تغيير الاسم بعد إنشاء حسابك.</string>
@@ -175,7 +175,7 @@
   <string name="set_contact_alias">تعديل إسم جهة الاتصال</string>
   <string name="set_contact_alias_hint">اسم جهة الاتصال</string>
   <string name="menu_item_connect_via_bluetooth">الإتصال عبر بلوتوث</string>
-  <string name="dialog_title_connect_via_bluetooth">الإتصال عبر بلوتوث</string>
+  <string name="connect_via_bluetooth_title">الإتصال عبر بلوتوث</string>
   <!--The first placeholder will show a duration like "7 days". The second placeholder at the end will add "Tap to learn more."-->
   <!--The placeholder at the end will add "Tap to learn more."-->
   <!--The first placeholder will show a contact's name. The second placeholder will show a duration like "7 days". The third placeholder at the end will add "Tap to learn more."-->

@@ -28,8 +28,8 @@ import org.briarproject.briar.android.contact.add.remote.AddContactActivity;
 import org.briarproject.briar.android.contact.add.remote.LinkExchangeFragment;
 import org.briarproject.briar.android.contact.add.remote.NicknameFragment;
 import org.briarproject.briar.android.contact.add.remote.PendingContactListActivity;
+import org.briarproject.briar.android.contact.connect.ConnectViaBluetoothActivity;
 import org.briarproject.briar.android.conversation.AliasDialogFragment;
-import org.briarproject.briar.android.conversation.BluetoothConnecterDialogFragment;
 import org.briarproject.briar.android.conversation.ConversationActivity;
 import org.briarproject.briar.android.conversation.ConversationSettingsDialog;
 import org.briarproject.briar.android.conversation.ImageActivity;
@@ -238,9 +238,6 @@ public interface ActivityComponent {
 
 	void inject(ConversationSettingsDialog dialog);
 
-	void inject(
-			BluetoothConnecterDialogFragment bluetoothConnecterDialogFragment);
-
 	void inject(RssFeedImportFragment fragment);
 
 	void inject(RssFeedManageFragment fragment);
@@ -248,4 +245,6 @@ public interface ActivityComponent {
 	void inject(RssFeedImportFailedDialogFragment fragment);
 
 	void inject(RssFeedDeleteFeedDialogFragment fragment);
+
+	void inject(ConnectViaBluetoothActivity connectViaBluetoothActivity);
 }

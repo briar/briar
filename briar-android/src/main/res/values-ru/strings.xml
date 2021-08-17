@@ -1,5 +1,5 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<resources xmlns:tools="http://schemas.android.com/tools">
+<resources>
   <!--Setup-->
   <string name="setup_title">Добро пожаловать в Briar</string>
   <string name="setup_name_explanation">Ваш псевдоним будет отображаться рядом с любым размещаемым вами контентом. Его нельзя изменить после создания аккаунта.</string>
@@ -177,14 +177,14 @@
   <string name="set_contact_alias_hint">Имя контакта</string>
   <string name="menu_item_disappearing_messages">Исчезающие сообщения</string>
   <string name="menu_item_connect_via_bluetooth">Подключение через Bluetooth</string>
-  <string name="dialog_title_connect_via_bluetooth">Подключение через Bluetooth</string>
-  <string name="dialog_message_connect_via_bluetooth">Чтобы это сработало, ваш контакт должен находиться поблизости.\n\nВы и ваш собеседник должны одновременно нажать кнопку \"Начать\".</string>
-  <string name="toast_connect_via_bluetooth_already_discovering">Пробуем подключиться через Bluetooth</string>
-  <string name="toast_connect_via_bluetooth_not_discoverable">Невозможно продолжить без Bluetooth</string>
-  <string name="toast_connect_via_bluetooth_no_location_permission">Невозможно продолжить без доступа к местоположению</string>
-  <string name="toast_connect_via_bluetooth_start">Подключение через Bluetooth...</string>
-  <string name="toast_connect_via_bluetooth_success">Успешное подключение через Bluetooth</string>
-  <string name="toast_connect_via_bluetooth_error">Не удалось подключиться через Bluetooth</string>
+  <string name="connect_via_bluetooth_title">Подключение через Bluetooth</string>
+  <string name="connect_via_bluetooth_intro">Чтобы это сработало, ваш контакт должен находиться поблизости.\n\nВы и ваш собеседник должны одновременно нажать кнопку \"Начать\".</string>
+  <string name="connect_via_bluetooth_already_discovering">Пробуем подключиться через Bluetooth</string>
+  <string name="connect_via_bluetooth_not_discoverable">Невозможно продолжить без Bluetooth</string>
+  <string name="connect_via_bluetooth_no_location_permission">Невозможно продолжить без доступа к местоположению</string>
+  <string name="connect_via_bluetooth_start">Подключение через Bluetooth...</string>
+  <string name="connect_via_bluetooth_success">Успешное подключение через Bluetooth</string>
+  <string name="connect_via_bluetooth_error">Не удалось подключиться через Bluetooth</string>
   <!--The first placeholder will show a duration like "7 days". The second placeholder at the end will add "Tap to learn more."-->
   <string name="auto_delete_msg_you_enabled">Ваши сообщения исчезнут спустя %1$s. %2$s</string>
   <!--The placeholder at the end will add "Tap to learn more."-->

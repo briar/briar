@@ -1,5 +1,5 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<resources xmlns:tools="http://schemas.android.com/tools">
+<resources>
   <!--Setup-->
   <string name="setup_title">Briarへようこそ</string>
   <string name="setup_name_explanation">あなたのニックネームは、常に、あなたが投稿するコンテンツとともに表示されます。プロフィール作成後、編集はできません。</string>
@@ -154,14 +154,14 @@
   <string name="set_contact_alias_hint">連絡先名</string>
   <string name="menu_item_disappearing_messages">消えたメッセージ</string>
   <string name="menu_item_connect_via_bluetooth">Bluetooth経由で接続する</string>
-  <string name="dialog_title_connect_via_bluetooth">Bluetooth経由で接続する</string>
-  <string name="dialog_message_connect_via_bluetooth">この機能を利用するには、あなたの連絡先が近くにある必要があります。\n\nあなたとあなたの連絡先が同時に\"開始\"を押してください。</string>
-  <string name="toast_connect_via_bluetooth_already_discovering">Bluetooth経由の接続を既に試行中です</string>
-  <string name="toast_connect_via_bluetooth_not_discoverable">Bluetoothなくして続行不可能</string>
-  <string name="toast_connect_via_bluetooth_no_location_permission">位置情報の権限なくして続行不可能</string>
-  <string name="toast_connect_via_bluetooth_start">Bluetooth経由で接続中…</string>
-  <string name="toast_connect_via_bluetooth_success">Bluetooth経由で接続に成功</string>
-  <string name="toast_connect_via_bluetooth_error">Bluetooth経由で接続不可能</string>
+  <string name="connect_via_bluetooth_title">Bluetooth経由で接続する</string>
+  <string name="connect_via_bluetooth_intro">この機能を利用するには、あなたの連絡先が近くにある必要があります。\n\nあなたとあなたの連絡先が同時に\"開始\"を押してください。</string>
+  <string name="connect_via_bluetooth_already_discovering">Bluetooth経由の接続を既に試行中です</string>
+  <string name="connect_via_bluetooth_not_discoverable">Bluetoothなくして続行不可能</string>
+  <string name="connect_via_bluetooth_no_location_permission">位置情報の権限なくして続行不可能</string>
+  <string name="connect_via_bluetooth_start">Bluetooth経由で接続中…</string>
+  <string name="connect_via_bluetooth_success">Bluetooth経由で接続に成功</string>
+  <string name="connect_via_bluetooth_error">Bluetooth経由で接続不可能</string>
   <!--The first placeholder will show a duration like "7 days". The second placeholder at the end will add "Tap to learn more."-->
   <!--The placeholder at the end will add "Tap to learn more."-->
   <!--The first placeholder will show a contact's name. The second placeholder will show a duration like "7 days". The third placeholder at the end will add "Tap to learn more."-->

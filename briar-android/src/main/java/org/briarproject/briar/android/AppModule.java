@@ -35,6 +35,7 @@ import org.briarproject.briar.android.account.SetupModule;
 import org.briarproject.briar.android.blog.BlogModule;
 import org.briarproject.briar.android.contact.ContactListModule;
 import org.briarproject.briar.android.contact.add.nearby.AddNearbyContactModule;
+import org.briarproject.briar.android.contact.connect.ConnectViaBluetoothModule;
 import org.briarproject.briar.android.forum.ForumModule;
 import org.briarproject.briar.android.hotspot.HotspotModule;
 import org.briarproject.briar.android.introduction.IntroductionModule;
@@ -89,6 +90,7 @@ import static org.briarproject.briar.android.TestingConstants.IS_DEBUG_BUILD;
 		DevReportModule.class,
 		ContactListModule.class,
 		IntroductionModule.class,
+		ConnectViaBluetoothModule.class,
 		// below need to be within same scope as ViewModelProvider.Factory
 		BlogModule.class,
 		ForumModule.class,

@@ -1,5 +1,5 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<resources xmlns:tools="http://schemas.android.com/tools">
+<resources>
   <!--Setup-->
   <string name="setup_title">Bine ați venit la Briar</string>
   <string name="setup_name_explanation">Numele dumneavoastră va fi afișat lângă orice conținut trimis. Nu îl veți putea schimba după crearea contului.</string>
@@ -162,7 +162,7 @@
   <string name="set_contact_alias_hint">Nume contact</string>
   <string name="menu_item_disappearing_messages">Mesaje ce dispar</string>
   <string name="menu_item_connect_via_bluetooth">Conectare prin Bluetooth</string>
-  <string name="dialog_title_connect_via_bluetooth">Conectare prin Bluetooth</string>
+  <string name="connect_via_bluetooth_title">Conectare prin Bluetooth</string>
   <!--The first placeholder will show a duration like "7 days". The second placeholder at the end will add "Tap to learn more."-->
   <!--The placeholder at the end will add "Tap to learn more."-->
   <!--The first placeholder will show a contact's name. The second placeholder will show a duration like "7 days". The third placeholder at the end will add "Tap to learn more."-->

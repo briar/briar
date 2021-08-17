@@ -1,5 +1,5 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<resources xmlns:tools="http://schemas.android.com/tools">
+<resources>
   <!--Setup-->
   <string name="setup_title">Briar에 오신 것을 환영합니다</string>
   <string name="setup_name_explanation">별명은 게시한 모든 컨텐츠 옆에 보여지게 됩니다. 별명은 계정을 만든 후에는 바꿀 수 없습니다.</string>
@@ -150,7 +150,7 @@
   <string name="set_contact_alias">연락처 이름 바꾸기</string>
   <string name="set_contact_alias_hint">연락처 이름</string>
   <string name="menu_item_connect_via_bluetooth">블루투스로 연결하기</string>
-  <string name="dialog_title_connect_via_bluetooth">블루투스로 연결하기</string>
+  <string name="connect_via_bluetooth_title">블루투스로 연결하기</string>
   <!--The first placeholder will show a duration like "7 days". The second placeholder at the end will add "Tap to learn more."-->
   <!--The placeholder at the end will add "Tap to learn more."-->
   <!--The first placeholder will show a contact's name. The second placeholder will show a duration like "7 days". The third placeholder at the end will add "Tap to learn more."-->

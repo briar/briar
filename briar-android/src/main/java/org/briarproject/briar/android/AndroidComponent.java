@@ -35,6 +35,7 @@ import org.briarproject.briar.BriarCoreEagerSingletons;
 import org.briarproject.briar.BriarCoreModule;
 import org.briarproject.briar.android.attachment.AttachmentModule;
 import org.briarproject.briar.android.attachment.media.MediaModule;
+import org.briarproject.briar.android.contact.connect.BluetoothIntroFragment;
 import org.briarproject.briar.android.conversation.glide.BriarModelLoader;
 import org.briarproject.briar.android.hotspot.AbstractTabsFragment;
 import org.briarproject.briar.android.hotspot.FallbackFragment;
@@ -236,4 +237,6 @@ public interface AndroidComponent
 	void inject(SendFragment sendFragment);
 
 	void inject(ReceiveFragment receiveFragment);
+
+	void inject(BluetoothIntroFragment bluetoothIntroFragment);
 }

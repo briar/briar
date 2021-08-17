@@ -25,6 +25,7 @@ import androidx.core.widget.ImageViewCompat;
 import androidx.fragment.app.Fragment;
 
 import static android.view.View.FOCUS_DOWN;
+import static android.view.View.GONE;
 
 /**
  * A fragment to be used at the end of a user flow
@@ -81,7 +82,12 @@ public class FinalFragment extends Fragment {
 		int color = getResources().getColor(args.getInt(ARG_ICON_TINT));
 		ColorStateList tint = ColorStateList.valueOf(color);
 		ImageViewCompat.setImageTintList(iconView, tint);
-		textView.setText(args.getInt(ARG_TEXT));
+		int textRes = args.getInt(ARG_TEXT);
+		if (textRes == 0) {
+			textView.setVisibility(GONE);
+		} else {
+			textView.setText(textRes);
+		}
 
 		buttonView.setOnClickListener(view -> onBackButtonPressed());
 

@@ -1,5 +1,5 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<resources xmlns:tools="http://schemas.android.com/tools">
+<resources>
   <!--Setup-->
   <string name="setup_title">Benvida a Briar</string>
   <string name="setup_name_explanation">O teu alcume mostrarase xunto a todas as mensaxes que publiques. Podes cambialo tras crear a túa conta.</string>
@@ -158,13 +158,13 @@
   <string name="set_contact_alias_hint">Nome do contacto</string>
   <string name="menu_item_disappearing_messages">Mensaxes efémeras</string>
   <string name="menu_item_connect_via_bluetooth">Conectar vía Bluetooth</string>
-  <string name="dialog_title_connect_via_bluetooth">Conectar vía Bluetooth</string>
-  <string name="dialog_message_connect_via_bluetooth">O teu contacto ten que estar preto para que isto funcione.\n\nTi e o teu contacto tedes que premer en \"Iniciar\" ao mesmo tempo.</string>
-  <string name="toast_connect_via_bluetooth_not_discoverable">Non se pode continuar sen o Bluetooth</string>
-  <string name="toast_connect_via_bluetooth_no_location_permission">Non se pode continuar sen o permiso de localización</string>
-  <string name="toast_connect_via_bluetooth_start">Conectando vía Bluetooth...</string>
-  <string name="toast_connect_via_bluetooth_success">Conectouse correctamente vía Bluetooth</string>
-  <string name="toast_connect_via_bluetooth_error">Non se puido conectar vía Bluetooth</string>
+  <string name="connect_via_bluetooth_title">Conectar vía Bluetooth</string>
+  <string name="connect_via_bluetooth_intro">O teu contacto ten que estar preto para que isto funcione.\n\nTi e o teu contacto tedes que premer en \"Iniciar\" ao mesmo tempo.</string>
+  <string name="connect_via_bluetooth_not_discoverable">Non se pode continuar sen o Bluetooth</string>
+  <string name="connect_via_bluetooth_no_location_permission">Non se pode continuar sen o permiso de localización</string>
+  <string name="connect_via_bluetooth_start">Conectando vía Bluetooth...</string>
+  <string name="connect_via_bluetooth_success">Conectouse correctamente vía Bluetooth</string>
+  <string name="connect_via_bluetooth_error">Non se puido conectar vía Bluetooth</string>
   <!--The first placeholder will show a duration like "7 days". The second placeholder at the end will add "Tap to learn more."-->
   <string name="auto_delete_msg_you_enabled">As túas mensaxes desaparecerán após %1$s . %2$s</string>
   <!--The placeholder at the end will add "Tap to learn more."-->

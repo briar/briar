@@ -1,5 +1,5 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<resources xmlns:tools="http://schemas.android.com/tools">
+<resources>
   <!--Setup-->
   <string name="setup_title">La benvenguda a Briar</string>
   <string name="setup_name_explanation">Vòstre escais-nom serà mostrat al costat de cada de vòstra publicacion. Poiretz pas lo cambiar aprèp la creacion del compte.</string>
@@ -130,7 +130,7 @@ Volètz suprimir vòstre compte e ne crear un nòu ?\n
   <string name="set_contact_alias">Cambiar lo nom del contacte</string>
   <string name="set_contact_alias_hint">Nom del contacte</string>
   <string name="menu_item_connect_via_bluetooth">Se connectar per Bluetooth</string>
-  <string name="dialog_title_connect_via_bluetooth">Se connectar per Bluetooth</string>
+  <string name="connect_via_bluetooth_title">Se connectar per Bluetooth</string>
   <!--The first placeholder will show a duration like "7 days". The second placeholder at the end will add "Tap to learn more."-->
   <!--The placeholder at the end will add "Tap to learn more."-->
   <!--The first placeholder will show a contact's name. The second placeholder will show a duration like "7 days". The third placeholder at the end will add "Tap to learn more."-->

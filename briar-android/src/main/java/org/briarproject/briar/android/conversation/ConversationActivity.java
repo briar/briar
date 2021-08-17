@@ -48,6 +48,7 @@ import org.briarproject.briar.android.activity.BriarActivity;
 import org.briarproject.briar.android.attachment.AttachmentItem;
 import org.briarproject.briar.android.attachment.AttachmentRetriever;
 import org.briarproject.briar.android.blog.BlogActivity;
+import org.briarproject.briar.android.contact.connect.ConnectViaBluetoothActivity;
 import org.briarproject.briar.android.conversation.ConversationVisitor.AttachmentCache;
 import org.briarproject.briar.android.conversation.ConversationVisitor.TextCache;
 import org.briarproject.briar.android.forum.ForumActivity;
@@ -104,7 +105,6 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
 import androidx.core.app.ActivityOptionsCompat;
 import androidx.core.content.ContextCompat;
-import androidx.fragment.app.FragmentManager;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
@@ -422,9 +422,9 @@ public class ConversationActivity extends BriarActivity
 			onAutoDeleteTimerNoticeClicked();
 			return true;
 		} else if (itemId == R.id.action_connect_via_bluetooth) {
-			FragmentManager fm = getSupportFragmentManager();
-			new BluetoothConnecterDialogFragment().show(fm,
-					BluetoothConnecterDialogFragment.TAG);
+			Intent intent = new Intent(this, ConnectViaBluetoothActivity.class);
+			intent.putExtra(CONTACT_ID, contactId.getInt());
+			startActivity(intent);
 			return true;
 		} else if (itemId == R.id.action_transfer_data) {
 			Intent intent = new Intent(this, RemovableDriveActivity.class);

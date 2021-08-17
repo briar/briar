@@ -1,5 +1,5 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<resources xmlns:tools="http://schemas.android.com/tools">
+<resources>
   <!--Setup-->
   <string name="setup_title">Briar\'a Hoşgeldiniz</string>
   <string name="setup_name_explanation">Takma adınız, gönderdiğiniz herhangi bir içeriğin yanında gösterilecek. Hesabınızı oluşturduktan sonra onu değiştiremezsiniz.</string>
@@ -165,14 +165,14 @@
   <string name="set_contact_alias_hint">Ad</string>
   <string name="menu_item_disappearing_messages">Kaybolan iletiler</string>
   <string name="menu_item_connect_via_bluetooth">Bluetooth ile Bağlan</string>
-  <string name="dialog_title_connect_via_bluetooth">Bluetooth ile Bağlan</string>
-  <string name="dialog_message_connect_via_bluetooth">Bunun çalışması için kişinin yakınlarda olması gerekiyor.\n\nSizin ve kişinin \"Başlat\" düğmesine aynı anda basması gerekiyor.</string>
-  <string name="toast_connect_via_bluetooth_already_discovering">Zaten Bluetooth\'a bağlanmaya çalışıyor</string>
-  <string name="toast_connect_via_bluetooth_not_discoverable">Bluetooth olmadan devam edilemez</string>
-  <string name="toast_connect_via_bluetooth_no_location_permission">Konum izni olmadan devam edilemez</string>
-  <string name="toast_connect_via_bluetooth_start">Bluetooth ile bağlanılıyor…</string>
-  <string name="toast_connect_via_bluetooth_success">Bluetooth ile başarılı bir şekilde bağlandı</string>
-  <string name="toast_connect_via_bluetooth_error">Bluetooth ile bağlanamıyor</string>
+  <string name="connect_via_bluetooth_title">Bluetooth ile Bağlan</string>
+  <string name="connect_via_bluetooth_intro">Bunun çalışması için kişinin yakınlarda olması gerekiyor.\n\nSizin ve kişinin \"Başlat\" düğmesine aynı anda basması gerekiyor.</string>
+  <string name="connect_via_bluetooth_already_discovering">Zaten Bluetooth\'a bağlanmaya çalışıyor</string>
+  <string name="connect_via_bluetooth_not_discoverable">Bluetooth olmadan devam edilemez</string>
+  <string name="connect_via_bluetooth_no_location_permission">Konum izni olmadan devam edilemez</string>
+  <string name="connect_via_bluetooth_start">Bluetooth ile bağlanılıyor…</string>
+  <string name="connect_via_bluetooth_success">Bluetooth ile başarılı bir şekilde bağlandı</string>
+  <string name="connect_via_bluetooth_error">Bluetooth ile bağlanamıyor</string>
   <!--The first placeholder will show a duration like "7 days". The second placeholder at the end will add "Tap to learn more."-->
   <string name="auto_delete_msg_you_enabled">İletileriniz %1$s sonra kaybolacak. %2$s</string>
   <!--The placeholder at the end will add "Tap to learn more."-->

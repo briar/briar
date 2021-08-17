@@ -1,5 +1,5 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<resources xmlns:tools="http://schemas.android.com/tools">
+<resources>
   <!--Setup-->
   <string name="setup_title">Karibu kwenye Briar</string>
   <string name="setup_name_explanation">lakabu lako litaonekana kwenye kila chapisho lako . Na hutaweza badilisha baada ya kuteneneza akaunti yako .</string>
@@ -146,7 +146,7 @@ Umepoteza nenosiri.</string>
   <string name="set_contact_alias">Badilisha jina lako la mawasiliano </string>
   <string name="set_contact_alias_hint">Jina la mawasiliano </string>
   <string name="menu_item_connect_via_bluetooth">Unganisha kwa Bluetooth</string>
-  <string name="dialog_title_connect_via_bluetooth">Unganisha kwa Bluetooth</string>
+  <string name="connect_via_bluetooth_title">Unganisha kwa Bluetooth</string>
   <!--The first placeholder will show a duration like "7 days". The second placeholder at the end will add "Tap to learn more."-->
   <!--The placeholder at the end will add "Tap to learn more."-->
   <!--The first placeholder will show a contact's name. The second placeholder will show a duration like "7 days". The third placeholder at the end will add "Tap to learn more."-->
