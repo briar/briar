@@ -12,18 +12,14 @@
 
 		<ImageView
 			android:id="@+id/imageView"
-			android:layout_width="0dp"
-			android:layout_height="0dp"
+			android:layout_width="192dp"
+			android:layout_height="96dp"
 			android:layout_marginTop="32dp"
 			app:layout_constraintBottom_toTopOf="@+id/progressBar"
-			app:layout_constraintDimensionRatio="1,2"
 			app:layout_constraintEnd_toEndOf="parent"
 			app:layout_constraintStart_toStartOf="parent"
 			app:layout_constraintTop_toTopOf="parent"
 			app:layout_constraintVertical_chainStyle="spread"
-			app:layout_constraintWidth_default="percent"
-			app:layout_constraintWidth_max="400dp"
-			app:layout_constraintWidth_percent="0.6"
 			app:srcCompat="@drawable/ic_transfer_data_receive"
 			tools:ignore="ContentDescription" />
 
