@@ -3,6 +3,7 @@ package org.briarproject.briar.android.view;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Typeface;
+import android.graphics.drawable.Drawable;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.widget.ImageView;
@@ -29,6 +30,7 @@ import im.delight.android.identicons.IdenticonDrawable;
 import static android.content.Context.LAYOUT_INFLATER_SERVICE;
 import static android.graphics.Typeface.BOLD;
 import static android.util.TypedValue.COMPLEX_UNIT_PX;
+import static androidx.appcompat.content.res.AppCompatResources.getDrawable;
 import static org.briarproject.briar.android.util.UiUtils.getContactDisplayName;
 import static org.briarproject.briar.android.util.UiUtils.resolveAttribute;
 import static org.briarproject.briar.api.identity.AuthorInfo.Status.NONE;
@@ -177,14 +179,14 @@ public class AuthorView extends ConstraintLayout {
 			case RSS_FEED:
 				avatarIcon.setVisibility(INVISIBLE);
 				date.setVisibility(VISIBLE);
-				avatar.setImageResource(R.drawable.ic_rss_feed);
+				setRssVectorAvatar();
 				setAvatarSize(R.dimen.blogs_avatar_normal_size);
 				setTextSize(authorName, R.dimen.text_size_small);
 				break;
 			case RSS_FEED_REBLOGGED:
 				avatarIcon.setVisibility(INVISIBLE);
 				date.setVisibility(VISIBLE);
-				avatar.setImageResource(R.drawable.ic_rss_feed);
+				setRssVectorAvatar();
 				setAvatarSize(R.dimen.blogs_avatar_comment_size);
 				setTextSize(authorName, R.dimen.text_size_tiny);
 				break;
@@ -202,6 +204,18 @@ public class AuthorView extends ConstraintLayout {
 	private void setTextSize(TextView v, @DimenRes int res) {
 		float textSize = getResources().getDimensionPixelSize(res);
 		v.setTextSize(COMPLEX_UNIT_PX, textSize);
+	}
+
+	/**
+	 * Applies special hack to use AppCompat vector drawable support
+	 * when setting the RSS vector drawable to the avatar view.
+	 * {@link ImageView#setImageResource(int)} is not working as
+	 * {@link CircleImageView} is not using
+	 * {@link androidx.appcompat.widget.AppCompatImageView}.
+	 */
+	private void setRssVectorAvatar() {
+		Drawable d = getDrawable(getContext(), R.drawable.ic_rss_feed);
+		avatar.setImageDrawable(d);
 	}
 
 }

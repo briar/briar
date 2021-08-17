@@ -20,6 +20,7 @@ import androidx.annotation.UiThread;
 import androidx.core.view.ViewCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
+import static android.os.Build.VERSION.SDK_INT;
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
 import static org.briarproject.briar.android.activity.BriarActivity.GROUP_ID;
@@ -44,6 +45,7 @@ class BlogPostViewHolder extends RecyclerView.ViewHolder {
 	private final TextView text;
 	private final ViewGroup commentContainer;
 	private final boolean fullText, authorClickable;
+	private final int padding;
 
 	private final OnBlogPostClickListener listener;
 
@@ -61,6 +63,8 @@ class BlogPostViewHolder extends RecyclerView.ViewHolder {
 		reblogButton = v.findViewById(R.id.commentView);
 		text = v.findViewById(R.id.textView);
 		commentContainer = v.findViewById(R.id.commentContainer);
+		padding = ctx.getResources()
+				.getDimensionPixelSize(R.dimen.listitem_vertical_margin);
 	}
 
 	void hideReblogButton() {
@@ -128,6 +132,12 @@ class BlogPostViewHolder extends RecyclerView.ViewHolder {
 			onBindComment((BlogCommentItem) item, authorClickable);
 		} else {
 			reblogger.setVisibility(GONE);
+		}
+
+		// Apply Android 4 padding fix after setting up author/reblogger views
+		if (SDK_INT < 21) {
+			reblogger.setPadding(padding, padding, padding, padding);
+			author.setPadding(padding, padding, padding, padding);
 		}
 	}
 
