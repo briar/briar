@@ -4,10 +4,10 @@ import net.i2p.crypto.eddsa.spec.EdDSANamedCurveSpec;
 import net.i2p.crypto.eddsa.spec.EdDSANamedCurveTable;
 import net.i2p.crypto.eddsa.spec.EdDSAPrivateKeySpec;
 
+import org.bouncycastle.crypto.Digest;
+import org.bouncycastle.crypto.digests.SHA3Digest;
+import org.bouncycastle.util.encoders.Base64;
 import org.briarproject.bramble.util.Base32;
-import org.spongycastle.crypto.Digest;
-import org.spongycastle.crypto.digests.SHA3Digest;
-import org.spongycastle.util.encoders.Base64;
 
 import java.nio.charset.Charset;
 

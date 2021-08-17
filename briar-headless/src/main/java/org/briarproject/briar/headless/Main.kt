@@ -6,10 +6,10 @@ import com.github.ajalt.clikt.parameters.options.default
 import com.github.ajalt.clikt.parameters.options.flag
 import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.types.int
+import org.bouncycastle.util.encoders.Base64.toBase64String
 import org.briarproject.bramble.BrambleCoreEagerSingletons
 import org.briarproject.briar.BriarCoreEagerSingletons
 import org.slf4j.impl.SimpleLogger.DEFAULT_LOG_LEVEL_KEY
-import org.spongycastle.util.encoders.Base64.toBase64String
 import java.io.File
 import java.io.File.separator
 import java.io.IOException

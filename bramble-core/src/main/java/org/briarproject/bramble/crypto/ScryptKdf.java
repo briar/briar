@@ -1,9 +1,9 @@
 package org.briarproject.bramble.crypto;
 
+import org.bouncycastle.crypto.generators.SCrypt;
 import org.briarproject.bramble.api.crypto.SecretKey;
 import org.briarproject.bramble.api.system.Clock;
 import org.briarproject.bramble.util.StringUtils;
-import org.spongycastle.crypto.generators.SCrypt;
 
 import java.util.logging.Logger;
 

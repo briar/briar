@@ -1,11 +1,11 @@
 package org.briarproject.bramble.crypto;
 
+import org.bouncycastle.crypto.CryptoException;
 import org.briarproject.bramble.api.crypto.KeyPair;
 import org.briarproject.bramble.api.crypto.PrivateKey;
 import org.briarproject.bramble.api.crypto.PublicKey;
 import org.briarproject.bramble.test.BrambleTestCase;
 import org.junit.Test;
-import org.spongycastle.crypto.CryptoException;
 
 import java.security.SecureRandom;
 

@@ -1,8 +1,8 @@
 package org.briarproject.bramble.crypto;
 
+import org.bouncycastle.crypto.params.ECPublicKeyParameters;
 import org.briarproject.bramble.api.crypto.PublicKey;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
-import org.spongycastle.crypto.params.ECPublicKeyParameters;
 
 import javax.annotation.concurrent.Immutable;
 

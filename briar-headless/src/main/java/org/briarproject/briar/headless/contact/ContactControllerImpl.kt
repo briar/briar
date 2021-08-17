@@ -3,9 +3,9 @@ package org.briarproject.briar.headless.contact
 import com.fasterxml.jackson.databind.ObjectMapper
 import io.javalin.http.BadRequestResponse
 import io.javalin.http.Context
-import io.javalin.http.ForbiddenResponse
-import io.javalin.http.HttpResponseException
 import io.javalin.http.NotFoundResponse
+import org.bouncycastle.util.encoders.Base64
+import org.bouncycastle.util.encoders.DecoderException
 import org.briarproject.bramble.api.connection.ConnectionRegistry
 import org.briarproject.bramble.api.contact.ContactManager
 import org.briarproject.bramble.api.contact.HandshakeLinkConstants.LINK_REGEX
@@ -31,8 +31,6 @@ import org.briarproject.briar.headless.getFromJson
 import org.briarproject.briar.headless.json.JsonDict
 import org.eclipse.jetty.http.HttpStatus.BAD_REQUEST_400
 import org.eclipse.jetty.http.HttpStatus.FORBIDDEN_403
-import org.spongycastle.util.encoders.Base64
-import org.spongycastle.util.encoders.DecoderException
 import java.security.GeneralSecurityException
 import javax.annotation.concurrent.Immutable
 import javax.inject.Inject

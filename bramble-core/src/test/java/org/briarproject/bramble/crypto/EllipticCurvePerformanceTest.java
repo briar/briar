@@ -3,30 +3,26 @@ package org.briarproject.bramble.crypto;
 import net.i2p.crypto.eddsa.EdDSASecurityProvider;
 import net.i2p.crypto.eddsa.KeyPairGenerator;
 
-import org.spongycastle.asn1.sec.SECNamedCurves;
-import org.spongycastle.asn1.teletrust.TeleTrusTNamedCurves;
-import org.spongycastle.asn1.x9.X9ECParameters;
-import org.spongycastle.crypto.AsymmetricCipherKeyPair;
-import org.spongycastle.crypto.BasicAgreement;
-import org.spongycastle.crypto.Digest;
-import org.spongycastle.crypto.agreement.ECDHBasicAgreement;
-import org.spongycastle.crypto.agreement.ECDHCBasicAgreement;
-import org.spongycastle.crypto.digests.Blake2bDigest;
-import org.spongycastle.crypto.generators.ECKeyPairGenerator;
-import org.spongycastle.crypto.params.ECDomainParameters;
-import org.spongycastle.crypto.params.ECKeyGenerationParameters;
-import org.spongycastle.crypto.params.ParametersWithRandom;
-import org.spongycastle.crypto.signers.DSADigestSigner;
-import org.spongycastle.crypto.signers.DSAKCalculator;
-import org.spongycastle.crypto.signers.ECDSASigner;
-import org.spongycastle.crypto.signers.HMacDSAKCalculator;
-import org.spongycastle.math.ec.ECCurve;
-import org.spongycastle.math.ec.ECPoint;
-import org.spongycastle.math.ec.MontgomeryLadderMultiplier;
+import org.bouncycastle.asn1.sec.SECNamedCurves;
+import org.bouncycastle.asn1.teletrust.TeleTrusTNamedCurves;
+import org.bouncycastle.asn1.x9.X9ECParameters;
+import org.bouncycastle.crypto.AsymmetricCipherKeyPair;
+import org.bouncycastle.crypto.BasicAgreement;
+import org.bouncycastle.crypto.Digest;
+import org.bouncycastle.crypto.agreement.ECDHBasicAgreement;
+import org.bouncycastle.crypto.agreement.ECDHCBasicAgreement;
+import org.bouncycastle.crypto.digests.Blake2bDigest;
+import org.bouncycastle.crypto.generators.ECKeyPairGenerator;
+import org.bouncycastle.crypto.params.ECDomainParameters;
+import org.bouncycastle.crypto.params.ECKeyGenerationParameters;
+import org.bouncycastle.crypto.params.ParametersWithRandom;
+import org.bouncycastle.crypto.signers.DSADigestSigner;
+import org.bouncycastle.crypto.signers.DSAKCalculator;
+import org.bouncycastle.crypto.signers.ECDSASigner;
+import org.bouncycastle.crypto.signers.HMacDSAKCalculator;
 import org.whispersystems.curve25519.Curve25519;
 import org.whispersystems.curve25519.Curve25519KeyPair;
 
-import java.math.BigInteger;
 import java.security.GeneralSecurityException;
 import java.security.KeyPair;
 import java.security.Provider;
@@ -55,14 +51,12 @@ public class EllipticCurvePerformanceTest {
 		for (String name : SEC_NAMES) {
 			ECDomainParameters params =
 					convertParams(SECNamedCurves.getByName(name));
-			runTest(name + " default", params);
-			runTest(name + " constant", constantTime(params));
+			runTest(name, params);
 		}
 		for (String name : BRAINPOOL_NAMES) {
 			ECDomainParameters params =
 					convertParams(TeleTrusTNamedCurves.getByName(name));
-			runTest(name + " default", params);
-			runTest(name + " constant", constantTime(params));
+			runTest(name, params);
 		}
 		runCurve25519Test();
 		runEd25519Test();
@@ -192,14 +186,5 @@ public class EllipticCurvePerformanceTest {
 	private static ECDomainParameters convertParams(X9ECParameters in) {
 		return new ECDomainParameters(in.getCurve(), in.getG(), in.getN(),
 				in.getH());
-	}
-
-	private static ECDomainParameters constantTime(ECDomainParameters in) {
-		ECCurve curve = in.getCurve().configure().setMultiplier(
-				new MontgomeryLadderMultiplier()).create();
-		BigInteger x = in.getG().getAffineXCoord().toBigInteger();
-		BigInteger y = in.getG().getAffineYCoord().toBigInteger();
-		ECPoint g = curve.createPoint(x, y);
-		return new ECDomainParameters(curve, g, in.getN(), in.getH());
 	}
 }

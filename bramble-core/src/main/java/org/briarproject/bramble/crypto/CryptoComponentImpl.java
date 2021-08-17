@@ -4,6 +4,9 @@ import net.i2p.crypto.eddsa.EdDSAPrivateKey;
 import net.i2p.crypto.eddsa.EdDSAPublicKey;
 import net.i2p.crypto.eddsa.KeyPairGenerator;
 
+import org.bouncycastle.crypto.CryptoException;
+import org.bouncycastle.crypto.Digest;
+import org.bouncycastle.crypto.digests.Blake2bDigest;
 import org.briarproject.bramble.api.crypto.AgreementPrivateKey;
 import org.briarproject.bramble.api.crypto.AgreementPublicKey;
 import org.briarproject.bramble.api.crypto.CryptoComponent;
@@ -20,9 +23,6 @@ import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.system.SecureRandomProvider;
 import org.briarproject.bramble.util.ByteUtils;
 import org.briarproject.bramble.util.StringUtils;
-import org.spongycastle.crypto.CryptoException;
-import org.spongycastle.crypto.Digest;
-import org.spongycastle.crypto.digests.Blake2bDigest;
 import org.whispersystems.curve25519.Curve25519;
 import org.whispersystems.curve25519.Curve25519KeyPair;
 
