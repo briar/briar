@@ -147,7 +147,7 @@ dependencyVerification {
         'com.vanniktech:emoji:0.6.0:emoji-0.6.0.aar:a5fcde58902305c004f03c6dc2241e718400ac4162226079791d87fac83ef639',
         'commons-codec:commons-codec:1.10:commons-codec-1.10.jar:4241dfa94e711d435f29a4604a3e2de5c4aa3c165e23bd066be6fc1fc4309569',
         'commons-logging:commons-logging:1.2:commons-logging-1.2.jar:daddea1ea0be0f56978ab3006b8ac92834afeefbd9b7e4e6316fca57df0fa636',
-        'de.hdodenhof:circleimageview:3.0.1:circleimageview-3.0.1.aar:7b0f088436ad4dcbb36d779fd09bf2192d9cc1e1a734bb6337904a7648f97617',
+        'de.hdodenhof:circleimageview:3.1.0:circleimageview-3.1.0.aar:8e9965b54072ee159074a55df216e17d5a622c94ce915ef311b1a1f32660c7fb',
         'info.guardianproject.panic:panic:1.0:panic-1.0.jar:35116ab95212e67f94577faf67b88c11a6b21cbf9178b3f5b51d3dff45203ffd',
         'info.guardianproject.trustedintents:trustedintents:0.2:trustedintents-0.2.jar:6221456d8821a8d974c2acf86306900237cf6afaaa94a4c9c44e161350f80f3e',
         'it.unimi.dsi:fastutil:7.2.0:fastutil-7.2.0.jar:74fa208043740642f7e6eb09faba15965218ad2f50ce3020efb100136e4b591c',
