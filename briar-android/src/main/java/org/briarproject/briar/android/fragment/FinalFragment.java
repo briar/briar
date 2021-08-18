@@ -7,7 +7,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
-import android.widget.ScrollView;
 import android.widget.TextView;
 
 import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
@@ -22,6 +21,7 @@ import androidx.annotation.StringRes;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.widget.ImageViewCompat;
+import androidx.core.widget.NestedScrollView;
 import androidx.fragment.app.Fragment;
 
 import static android.view.View.FOCUS_DOWN;
@@ -58,7 +58,7 @@ public class FinalFragment extends Fragment {
 		return f;
 	}
 
-	private ScrollView scrollView;
+	private NestedScrollView scrollView;
 	protected Button buttonView;
 
 	@Nullable
@@ -69,7 +69,7 @@ public class FinalFragment extends Fragment {
 		View v = inflater
 				.inflate(R.layout.fragment_final, container, false);
 
-		scrollView = (ScrollView) v;
+		scrollView = (NestedScrollView) v;
 		ImageView iconView = v.findViewById(R.id.iconView);
 		TextView titleView = v.findViewById(R.id.titleView);
 		TextView textView = v.findViewById(R.id.textView);

@@ -4,6 +4,7 @@
 	xmlns:tools="http://schemas.android.com/tools"
 	android:layout_width="match_parent"
 	android:layout_height="match_parent"
+	android:background="@color/briar_primary"
 	android:orientation="vertical">
 
 	<androidx.appcompat.widget.Toolbar
@@ -12,30 +13,30 @@
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
 		android:elevation="4dp"
-		app:layout_constraintEnd_toEndOf="parent"
-		app:layout_constraintStart_toStartOf="parent"
-		app:layout_constraintTop_toTopOf="parent"
 		app:navigationIcon="@drawable/abc_ic_ab_back_material"
 		tools:title="Onboarding Fullscreen Dialog" />
 
-	<ScrollView
+	<androidx.core.widget.NestedScrollView
 		android:layout_width="match_parent"
-		android:layout_height="match_parent"
-		android:background="@color/briar_primary"
+		android:layout_height="0dp"
+		android:layout_weight="1"
 		android:fillViewport="true">
 
 		<androidx.constraintlayout.widget.ConstraintLayout
 			android:layout_width="match_parent"
-			android:layout_height="wrap_content">
+			android:layout_height="wrap_content"
+			android:layout_margin="@dimen/margin_xlarge">
 
 			<ImageView
 				android:id="@+id/imageView"
-				android:layout_width="64dp"
-				android:layout_height="64dp"
-				android:layout_margin="16dp"
+				android:layout_width="@dimen/hero_square"
+				android:layout_height="@dimen/hero_square"
+				app:layout_constraintBottom_toTopOf="@+id/contentView"
 				app:layout_constraintEnd_toEndOf="parent"
 				app:layout_constraintStart_toStartOf="parent"
 				app:layout_constraintTop_toTopOf="parent"
+				app:layout_constraintVertical_bias="0.25"
+				app:layout_constraintVertical_chainStyle="packed"
 				app:srcCompat="@drawable/ic_info_white"
 				app:tint="@color/briar_text_secondary_inverse"
 				tools:ignore="ContentDescription" />
@@ -44,26 +45,25 @@
 				android:id="@+id/contentView"
 				android:layout_width="0dp"
 				android:layout_height="wrap_content"
-				android:layout_margin="16dp"
+				android:layout_marginTop="@dimen/margin_xlarge"
+				android:textAppearance="@style/TextAppearance.MaterialComponents.Body1"
 				android:textColor="@color/briar_text_secondary_inverse"
-				app:layout_constraintBottom_toTopOf="@+id/button"
+				app:layout_constraintBottom_toBottomOf="parent"
 				app:layout_constraintEnd_toEndOf="parent"
 				app:layout_constraintStart_toStartOf="parent"
 				app:layout_constraintTop_toBottomOf="@+id/imageView"
-				app:layout_constraintVertical_bias="0.0"
 				tools:text="@tools:sample/lorem/random" />
-
-			<Button
-				android:id="@+id/button"
-				style="@style/BriarButtonFlat.Positive"
-				android:layout_width="wrap_content"
-				android:layout_height="wrap_content"
-				android:text="@string/got_it"
-				app:layout_constraintBottom_toBottomOf="parent"
-				app:layout_constraintEnd_toEndOf="parent" />
 
 		</androidx.constraintlayout.widget.ConstraintLayout>
 
-	</ScrollView>
+	</androidx.core.widget.NestedScrollView>
+
+	<Button
+		android:id="@+id/button"
+		style="@style/BriarButtonFlat.Positive"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:layout_gravity="end"
+		android:text="@string/got_it" />
 
 </LinearLayout>

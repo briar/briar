@@ -5,31 +5,30 @@
 	android:layout_width="match_parent"
 	android:layout_height="match_parent">
 
-	<ScrollView
+	<androidx.core.widget.NestedScrollView
 		android:id="@+id/scrollView"
-		android:layout_width="match_parent"
+		android:layout_width="0dp"
 		android:layout_height="0dp"
 		android:fillViewport="true"
 		app:layout_constraintBottom_toTopOf="@+id/acceptButton"
+		app:layout_constraintEnd_toEndOf="parent"
 		app:layout_constraintStart_toStartOf="parent"
 		app:layout_constraintTop_toTopOf="parent">
 
 		<androidx.constraintlayout.widget.ConstraintLayout
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
-			android:padding="@dimen/margin_large">
+			android:layout_margin="@dimen/margin_xlarge">
 
 			<androidx.appcompat.widget.AppCompatImageView
 				android:id="@+id/errorIcon"
-				android:layout_width="0dp"
-				android:layout_height="0dp"
-				android:padding="8dp"
+				android:layout_width="@dimen/hero_square"
+				android:layout_height="@dimen/hero_square"
 				app:layout_constraintBottom_toTopOf="@+id/crashed"
-				app:layout_constraintDimensionRatio="1:1"
 				app:layout_constraintEnd_toEndOf="parent"
-				app:layout_constraintHeight_max="128dp"
 				app:layout_constraintStart_toStartOf="parent"
 				app:layout_constraintTop_toTopOf="parent"
+				app:layout_constraintVertical_bias="0.25"
 				app:layout_constraintVertical_chainStyle="packed"
 				app:srcCompat="@drawable/ic_crash"
 				app:tint="?attr/colorControlNormal"
@@ -39,25 +38,23 @@
 				android:id="@+id/crashed"
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
+				android:layout_marginTop="@dimen/margin_xlarge"
 				android:gravity="center"
 				android:text="@string/briar_crashed"
-				android:textColor="?android:attr/textColorSecondary"
-				android:textSize="@dimen/text_size_large"
+				android:textAppearance="@style/TextAppearance.MaterialComponents.Headline5"
 				app:layout_constraintBottom_toTopOf="@+id/fault"
 				app:layout_constraintEnd_toEndOf="parent"
 				app:layout_constraintStart_toStartOf="parent"
-				app:layout_constraintTop_toBottomOf="@+id/errorIcon"
-				tools:layout_editor_absoluteY="8dp" />
+				app:layout_constraintTop_toBottomOf="@+id/errorIcon" />
 
 			<TextView
 				android:id="@+id/fault"
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
-				android:layout_marginTop="@dimen/margin_large"
+				android:layout_marginTop="@dimen/margin_xlarge"
 				android:gravity="center"
 				android:text="@string/not_your_fault"
-				android:textColor="?android:attr/textColorSecondary"
-				android:textSize="@dimen/text_size_large"
+				android:textAppearance="@style/TextAppearance.MaterialComponents.Body1"
 				app:layout_constraintBottom_toTopOf="@+id/pleaseSend"
 				app:layout_constraintEnd_toEndOf="parent"
 				app:layout_constraintStart_toStartOf="parent"
@@ -70,8 +67,7 @@
 				android:layout_marginTop="@dimen/margin_large"
 				android:gravity="center"
 				android:text="@string/please_send_report"
-				android:textColor="?android:attr/textColorSecondary"
-				android:textSize="@dimen/text_size_large"
+				android:textAppearance="@style/TextAppearance.MaterialComponents.Body1"
 				app:layout_constraintBottom_toTopOf="@+id/encrypted"
 				app:layout_constraintEnd_toEndOf="parent"
 				app:layout_constraintStart_toStartOf="parent"
@@ -84,8 +80,7 @@
 				android:layout_marginTop="@dimen/margin_large"
 				android:gravity="center"
 				android:text="@string/report_is_encrypted"
-				android:textColor="?android:attr/textColorSecondary"
-				android:textSize="@dimen/text_size_large"
+				android:textAppearance="@style/TextAppearance.MaterialComponents.Body1"
 				app:layout_constraintBottom_toBottomOf="parent"
 				app:layout_constraintEnd_toEndOf="parent"
 				app:layout_constraintStart_toStartOf="parent"
@@ -93,7 +88,7 @@
 
 		</androidx.constraintlayout.widget.ConstraintLayout>
 
-	</ScrollView>
+	</androidx.core.widget.NestedScrollView>
 
 	<Button
 		android:id="@+id/declineButton"
@@ -101,7 +96,7 @@
 		android:layout_width="0dp"
 		android:layout_height="wrap_content"
 		android:text="@string/close"
-		app:layout_constraintBottom_toBottomOf="@+id/acceptButton"
+		app:layout_constraintBottom_toBottomOf="parent"
 		app:layout_constraintEnd_toStartOf="@+id/acceptButton"
 		app:layout_constraintHorizontal_weight="1"
 		app:layout_constraintStart_toStartOf="parent"
