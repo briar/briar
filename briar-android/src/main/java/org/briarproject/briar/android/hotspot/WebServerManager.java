@@ -14,9 +14,6 @@ import java.io.IOException;
 import java.net.InetAddress;
 import java.net.InterfaceAddress;
 import java.net.NetworkInterface;
-import java.net.SocketException;
-import java.util.Enumeration;
-import java.util.List;
 import java.util.logging.Logger;
 
 import javax.inject.Inject;
@@ -24,12 +21,11 @@ import javax.inject.Inject;
 import androidx.annotation.Nullable;
 import androidx.annotation.UiThread;
 
-import static java.util.Collections.emptyList;
-import static java.util.Collections.list;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
 import static java.util.logging.Logger.getLogger;
 import static org.briarproject.bramble.util.LogUtils.logException;
+import static org.briarproject.bramble.util.NetworkUtils.getNetworkInterfaces;
 import static org.briarproject.briar.android.hotspot.WebServer.PORT;
 
 @MethodsNotNullByDefault
@@ -112,16 +108,4 @@ class WebServerManager {
 		}
 		return null;
 	}
-
-	private static List<NetworkInterface> getNetworkInterfaces() {
-		try {
-			Enumeration<NetworkInterface> ifaces =
-					NetworkInterface.getNetworkInterfaces();
-			return ifaces == null ? emptyList() : list(ifaces);
-		} catch (SocketException e) {
-			logException(LOG, WARNING, e);
-			return emptyList();
-		}
-	}
-
 }

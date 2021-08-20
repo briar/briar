@@ -9,16 +9,15 @@ import java.net.Inet4Address;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.SocketException;
-import java.util.Enumeration;
 import java.util.logging.Logger;
 
 import javax.inject.Inject;
 
-import static java.net.NetworkInterface.getNetworkInterfaces;
 import static java.util.Collections.list;
 import static java.util.logging.Level.WARNING;
 import static java.util.logging.Logger.getLogger;
 import static org.briarproject.bramble.util.LogUtils.logException;
+import static org.briarproject.bramble.util.NetworkUtils.getNetworkInterfaces;
 
 @MethodsNotNullByDefault
 @ParametersNotNullByDefault
@@ -35,19 +34,14 @@ class JavaNetworkManager implements NetworkManager {
 	public NetworkStatus getNetworkStatus() {
 		boolean connected = false, hasIpv4 = false, hasIpv6Unicast = false;
 		try {
-			Enumeration<NetworkInterface> interfaces = getNetworkInterfaces();
-			if (interfaces == null) {
-				LOG.info("No network interfaces");
-			} else {
-				for (NetworkInterface i : list(interfaces)) {
-					if (i.isLoopback() || !i.isUp()) continue;
-					for (InetAddress addr : list(i.getInetAddresses())) {
-						connected = true;
-						if (addr instanceof Inet4Address) {
-							hasIpv4 = true;
-						} else if (!addr.isMulticastAddress()) {
-							hasIpv6Unicast = true;
-						}
+			for (NetworkInterface i : getNetworkInterfaces()) {
+				if (i.isLoopback() || !i.isUp()) continue;
+				for (InetAddress addr : list(i.getInetAddresses())) {
+					connected = true;
+					if (addr instanceof Inet4Address) {
+						hasIpv4 = true;
+					} else if (!addr.isMulticastAddress()) {
+						hasIpv6Unicast = true;
 					}
 				}
 			}

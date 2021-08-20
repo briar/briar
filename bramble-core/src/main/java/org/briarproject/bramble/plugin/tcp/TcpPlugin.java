@@ -28,11 +28,9 @@ import java.net.InterfaceAddress;
 import java.net.NetworkInterface;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.net.SocketException;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Enumeration;
 import java.util.List;
 import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -53,7 +51,7 @@ import static org.briarproject.bramble.api.plugin.Plugin.State.DISABLED;
 import static org.briarproject.bramble.api.plugin.Plugin.State.INACTIVE;
 import static org.briarproject.bramble.api.plugin.Plugin.State.STARTING_STOPPING;
 import static org.briarproject.bramble.util.IoUtils.tryToClose;
-import static org.briarproject.bramble.util.LogUtils.logException;
+import static org.briarproject.bramble.util.NetworkUtils.getNetworkInterfaces;
 import static org.briarproject.bramble.util.PrivacyUtils.scrubSocketAddress;
 import static org.briarproject.bramble.util.StringUtils.isNullOrEmpty;
 
@@ -98,7 +96,6 @@ abstract class TcpPlugin implements DuplexPlugin, EventListener {
 	/**
 	 * Returns true if connections to the given address can be attempted.
 	 */
-	@SuppressWarnings("BooleanMethodIsAlwaysInverted")
 	protected abstract boolean isConnectable(InterfaceAddress local,
 			InetSocketAddress remote);
 
@@ -396,17 +393,6 @@ abstract class TcpPlugin implements DuplexPlugin, EventListener {
 			addrs.addAll(list(iface.getInetAddresses()));
 		}
 		return addrs;
-	}
-
-	private List<NetworkInterface> getNetworkInterfaces() {
-		try {
-			Enumeration<NetworkInterface> ifaces =
-					NetworkInterface.getNetworkInterfaces();
-			return ifaces == null ? emptyList() : list(ifaces);
-		} catch (SocketException e) {
-			logException(LOG, WARNING, e);
-			return emptyList();
-		}
 	}
 
 	@Override
