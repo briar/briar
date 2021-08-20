@@ -628,7 +628,7 @@
 
 	<!-- Crash Reporter -->
 	<string name="crash_report_title">Briar Crash Report</string>
-	<string name="briar_crashed">Sorry, Briar has crashed.</string>
+	<string name="briar_crashed">Sorry, Briar has crashed</string>
 	<string name="not_your_fault">This is not your fault.</string>
 	<string name="please_send_report">Please help us build a better Briar by sending us a crash report.</string>
 	<string name="report_is_encrypted">We promise that the report is encrypted and sent securely.</string>

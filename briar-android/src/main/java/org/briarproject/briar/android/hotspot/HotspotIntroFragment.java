@@ -9,6 +9,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ProgressBar;
+import android.widget.ScrollView;
 import android.widget.TextView;
 
 import com.google.android.material.snackbar.Snackbar;
@@ -26,6 +27,7 @@ import androidx.lifecycle.ViewModelProvider;
 
 import static android.content.pm.ApplicationInfo.FLAG_TEST_ONLY;
 import static android.os.Build.VERSION.SDK_INT;
+import static android.view.View.FOCUS_DOWN;
 import static android.view.View.INVISIBLE;
 import static android.view.View.VISIBLE;
 import static androidx.transition.TransitionManager.beginDelayedTransition;
@@ -46,6 +48,7 @@ public class HotspotIntroFragment extends Fragment {
 	private Button startButton;
 	private ProgressBar progressBar;
 	private TextView progressTextView;
+	private ScrollView scrollView;
 
 	private final AbstractConditionManager conditionManager = SDK_INT < 29 ?
 			new ConditionManager(this, this::onPermissionUpdate) :
@@ -70,6 +73,7 @@ public class HotspotIntroFragment extends Fragment {
 		startButton = v.findViewById(R.id.startButton);
 		progressBar = v.findViewById(R.id.progressBar);
 		progressTextView = v.findViewById(R.id.progressTextView);
+		scrollView = v.findViewById(R.id.scrollView);
 
 		startButton.setOnClickListener(this::onButtonClick);
 
@@ -82,6 +86,8 @@ public class HotspotIntroFragment extends Fragment {
 	public void onStart() {
 		super.onStart();
 		conditionManager.onStart();
+		// Scroll down in case the screen is small, so the button is visible
+		scrollView.post(() -> scrollView.fullScroll(FOCUS_DOWN));
 	}
 
 	private void onButtonClick(View view) {

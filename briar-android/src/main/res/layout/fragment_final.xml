@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
 	xmlns:app="http://schemas.android.com/apk/res-auto"
 	xmlns:tools="http://schemas.android.com/tools"
 	android:layout_width="match_parent"
@@ -12,18 +12,16 @@
 
 		<ImageView
 			android:id="@+id/iconView"
-			android:layout_width="0dp"
-			android:layout_height="0dp"
-			android:layout_marginTop="32dp"
+			android:layout_width="@dimen/hero_square"
+			android:layout_height="@dimen/hero_square"
+			android:layout_marginHorizontal="@dimen/margin_xlarge"
+			android:layout_marginTop="@dimen/margin_xlarge"
 			app:layout_constraintBottom_toTopOf="@+id/titleView"
-			app:layout_constraintDimensionRatio="1:1"
 			app:layout_constraintEnd_toEndOf="parent"
 			app:layout_constraintStart_toStartOf="parent"
 			app:layout_constraintTop_toTopOf="parent"
 			app:layout_constraintVertical_bias="0.25"
 			app:layout_constraintVertical_chainStyle="packed"
-			app:layout_constraintWidth_max="200dp"
-			app:layout_constraintWidth_percent="0.4"
 			tools:ignore="ContentDescription"
 			tools:srcCompat="@drawable/alerts_and_states_error"
 			tools:tint="@color/briar_red_500" />
@@ -32,11 +30,8 @@
 			android:id="@+id/titleView"
 			android:layout_width="0dp"
 			android:layout_height="wrap_content"
-			android:layout_marginStart="32dp"
-			android:layout_marginLeft="32dp"
-			android:layout_marginTop="32dp"
-			android:layout_marginEnd="32dp"
-			android:layout_marginRight="32dp"
+			android:layout_marginHorizontal="@dimen/margin_xlarge"
+			android:layout_marginTop="@dimen/margin_xlarge"
 			android:gravity="center"
 			android:textAppearance="@style/TextAppearance.MaterialComponents.Headline5"
 			app:layout_constraintBottom_toTopOf="@+id/textView"
@@ -49,10 +44,9 @@
 			android:id="@+id/textView"
 			android:layout_width="0dp"
 			android:layout_height="wrap_content"
-			android:layout_marginStart="32dp"
-			android:layout_marginTop="32dp"
-			android:layout_marginEnd="32dp"
-			android:layout_marginBottom="16dp"
+			android:layout_marginHorizontal="@dimen/margin_xlarge"
+			android:layout_marginTop="@dimen/margin_xlarge"
+			android:layout_marginBottom="@dimen/margin_large"
 			android:textAppearance="@style/TextAppearance.MaterialComponents.Body1"
 			app:layout_constraintBottom_toTopOf="@+id/button"
 			app:layout_constraintEnd_toEndOf="parent"
@@ -65,7 +59,7 @@
 			style="@style/BriarButton"
 			android:layout_width="0dp"
 			android:layout_height="wrap_content"
-			android:layout_margin="16dp"
+			android:layout_margin="@dimen/margin_large"
 			android:text="@string/finish"
 			app:layout_constraintBottom_toBottomOf="parent"
 			app:layout_constraintEnd_toEndOf="parent"
@@ -73,4 +67,4 @@
 
 	</androidx.constraintlayout.widget.ConstraintLayout>
 
-</ScrollView>
+</androidx.core.widget.NestedScrollView>
