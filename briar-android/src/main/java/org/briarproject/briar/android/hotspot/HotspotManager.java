@@ -52,6 +52,7 @@ import static java.util.Objects.requireNonNull;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
 import static java.util.logging.Logger.getLogger;
+import static org.briarproject.briar.android.util.QrCodeUtils.HOTSPOT_QRCODE_FACTOR;
 import static org.briarproject.briar.android.util.UiUtils.handleException;
 
 @MethodsNotNullByDefault
@@ -334,7 +335,8 @@ class HotspotManager {
 		ioExecutor.execute(() -> {
 			String content = createWifiLoginString(group.getNetworkName(),
 					group.getPassphrase());
-			Bitmap qrCode = QrCodeUtils.createQrCode(dm, content);
+			Bitmap qrCode = QrCodeUtils.createQrCode(
+					(int) (dm.heightPixels * HOTSPOT_QRCODE_FACTOR), content);
 			NetworkConfig config = new NetworkConfig(group.getNetworkName(),
 					group.getPassphrase(), qrCode);
 			listener.onHotspotStarted(config);
