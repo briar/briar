@@ -4,7 +4,7 @@
 
 # Steps to reproduce 
 
-(List the steps you performed when you encountered the bug)
+(PLease list the steps you performed when you encountered the bug)
 
 -  
 - 
