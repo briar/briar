@@ -155,7 +155,8 @@ class OutgoingDuplexSyncConnection extends DuplexSyncConnection
 	}
 
 	private boolean performHandshake(StreamContext ctxOut) {
-		LOG.info("Performing handshake (Outgoing)");
+		LOG.info("Performing handshake (Outgoing) for transport " +
+				ctxOut.getTransportId().getString());
 		// Flush the output stream to send the outgoing stream header
 		StreamWriter out;
 		try {
