@@ -47,7 +47,9 @@ abstract class Connection {
 			TransportId transportId) {
 		StreamContext ctx;
 		try {
+			LOG.info("Reading tag...");
 			byte[] tag = readTag(reader.getInputStream());
+			LOG.info("Read tag!");
 			return keyManager.getStreamContext(transportId, tag);
 		} catch (IOException | DbException e) {
 			logException(LOG, WARNING, e);
