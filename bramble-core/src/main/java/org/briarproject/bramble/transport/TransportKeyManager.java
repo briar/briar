@@ -48,4 +48,7 @@ interface TransportKeyManager {
 	StreamContext getStreamContext(Transaction txn, byte[] tag)
 			throws DbException;
 
+	@Nullable
+	StreamContext getStreamContextInHandshakeMode(Transaction txn, ContactId c)
+			throws DbException;
 }
