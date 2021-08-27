@@ -130,13 +130,17 @@ class IncomingDuplexSyncConnection extends DuplexSyncConnection
 	private boolean performHandshake(StreamContext ctxIn, ContactId contactId) {
 		LOG.info("Performing handshake (Incoming)");
 		// Allocate the outgoing stream context
-		StreamContext ctxOut =
-				allocateStreamContext(contactId, transportId);
-		if (ctxOut == null) {
+		StreamContext ctxOut;
+
+		try {
+			ctxOut = keyManager.getStreamContextInHandshakeMode(contactId, transportId);
+		} catch (DbException e) {
+			logException(LOG, WARNING, e);
 			LOG.warning("Could not allocate stream context");
 			onReadError(true);
 			return false;
 		}
+
 		try {
 			InputStream in = streamReaderFactory.createStreamReader(
 					reader.getInputStream(), ctxIn);
