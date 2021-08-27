@@ -201,6 +201,9 @@ public class RestoreAccountImpl implements RestoreAccount {
 			transportPropertyManager
 					.mergeLocalProperties(propertiesEntry.getKey(),
 							propertiesEntry.getValue());
+//			for (Map.Entry<String, String> entry : propertiesEntry.getValue().entrySet()) {
+//			  LOG.info(String.format("%s : %s", entry.getKey(), entry.getValue()));
+//			}
 		}
 	}
 
