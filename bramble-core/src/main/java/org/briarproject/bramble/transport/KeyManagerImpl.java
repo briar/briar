@@ -128,6 +128,7 @@ class KeyManagerImpl implements KeyManager, Service, EventListener {
 			throws DbException, GeneralSecurityException {
 		SecretKey staticMasterKey = transportCrypto
 				.deriveStaticMasterKey(theirPublicKey, ourKeyPair);
+		LOG.info("Deriving root handshake key " + c.toString() + " " + ourKeyPair.getPublic().toString() + " them: " + theirPublicKey.toString());
 		SecretKey rootKey =
 				transportCrypto.deriveHandshakeRootKey(staticMasterKey, false);
 		boolean alice = transportCrypto.isAlice(theirPublicKey, ourKeyPair);
@@ -135,6 +136,7 @@ class KeyManagerImpl implements KeyManager, Service, EventListener {
 		for (Entry<TransportId, TransportKeyManager> e : managers.entrySet()) {
 			TransportId t = e.getKey();
 			TransportKeyManager m = e.getValue();
+			LOG.info("Adding handshake keys for transport " + t.getString());
 			ids.put(t, m.addHandshakeKeys(txn, c, rootKey, alice));
 		}
 		return ids;
@@ -203,6 +205,14 @@ class KeyManagerImpl implements KeyManager, Service, EventListener {
 		return withManager(t, m ->
 				db.transactionWithNullableResult(false, txn ->
 						m.getStreamContext(txn, tag)));
+	}
+
+	@Override
+	public StreamContext getStreamContextInHandshakeMode(ContactId c, TransportId t)
+			throws DbException {
+		return withManager(t, m ->
+				db.transactionWithNullableResult(false, txn ->
+						m.getStreamContextInHandshakeMode(txn, c)));
 	}
 
 	@Override
