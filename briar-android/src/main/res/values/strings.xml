@@ -729,4 +729,7 @@
 	<string name="activity_name_recovery">Recover Account</string>
 	<string name="activity_name_custodian_help_recovery">Help recover account</string>
 	<string name="existing_backup_explain">%d of the following contacts are needed to restore your account:</string>
+
+	<string name="social_backup_not_enough_contacts">To make a social backup, you need at least 2 contacts in your contacts list</string>
+	<string name="reading_contacts_error">There was an error reading your contacts list</string>
 </resources>
