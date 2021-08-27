@@ -116,4 +116,8 @@ public interface KeyManager {
 	@Nullable
 	StreamContext getStreamContext(TransportId t, byte[] tag)
 			throws DbException;
+
+	@Nullable
+	StreamContext getStreamContextInHandshakeMode(ContactId c, TransportId t)
+			throws DbException;
 }
