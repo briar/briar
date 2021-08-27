@@ -470,6 +470,10 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 			if (now - then >= V3_MIGRATION_PERIOD_MS) retireV2HiddenService();
 			else publishV2HiddenService(port, privKey2);
 		}
+		if (isNullOrEmpty(privKey3)) {
+			TransportProperties p = callback.getLocalProperties();
+			privKey3 = p.get(HS_PRIVATE_KEY_V3);
+		}
 		publishV3HiddenService(port, privKey3);
 	}
 
@@ -511,9 +515,11 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 		try {
 			// Use the control connection to set up the hidden service
 			if (privKey == null) {
+				LOG.info("Private key is null");
 				response = controlConnection.addOnion("NEW:ED25519-V3",
 						portLines, null);
 			} else {
+				LOG.info("Private key is not null");
 				response = controlConnection.addOnion(privKey, portLines);
 			}
 		} catch (IOException e) {
@@ -535,12 +541,15 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 		if (privKey == null) {
 			// Publish the hidden service's onion hostname in transport props
 			TransportProperties p = new TransportProperties();
+			String now = String.valueOf(clock.currentTimeMillis());
 			p.put(PROP_ONION_V3, onion3);
+			p.put(HS_PRIVATE_KEY_V3, response.get(HS_PRIVKEY));
+			p.put(HS_V3_CREATED, now);
 			callback.mergeLocalProperties(p);
 			// Save the hidden service's private key for next time
 			Settings s = new Settings();
 			s.put(HS_PRIVATE_KEY_V3, response.get(HS_PRIVKEY));
-			s.put(HS_V3_CREATED, String.valueOf(clock.currentTimeMillis()));
+			s.put(HS_V3_CREATED, now);
 			callback.mergeSettings(s);
 		}
 	}
