@@ -19,19 +19,19 @@
   <string name="create_account_button">Konto anlegen</string>
   <string name="more_info">Weitere Informationen</string>
   <string name="don_t_ask_again">Nicht erneut nachfragen</string>
-  <string name="setup_huawei_text">Bitte tippe auf die Schaltfläche unten und stelle sicher, dass Briar unter \"Geschützte Apps\" angezeigt wird.</string>
+  <string name="setup_huawei_text">Bitte tippe auf die Taste unten und stelle sicher, dass Briar unter \"Geschützte Apps\" angezeigt wird.</string>
   <string name="setup_huawei_button">Briar schützen</string>
   <string name="setup_huawei_help">Wenn Briar nicht zur Liste der geschützten Apps hinzugefügt wird, kann es nicht im Hintergrund ausgeführt werden.</string>
-  <string name="setup_huawei_app_launch_text">Bitte tippe auf die Schaltfläche unten, öffne den Bereich \"App-Start\" und stelle sicher, dass Briar auf \"Manuell verwalten\" eingestellt ist.</string>
+  <string name="setup_huawei_app_launch_text">Bitte tippe auf die Taste unten, öffne den Bereich \"App-Start\" und stelle sicher, dass Briar auf \"Manuell verwalten\" eingestellt ist.</string>
   <string name="setup_huawei_app_launch_button">Akkueinstellungen öffnen</string>
   <string name="setup_huawei_app_launch_help">Wenn Briar im Bereich \"App-Start\" nicht auf \"Manuell verwalten\" eingestellt ist, kann es nicht im Hintergrund ausgeführt werden.</string>
   <string name="setup_xiaomi_text">Um im Hintergrund zu laufen, muss Briar in der Liste der zuletzt verwendeten Apps gesperrt werden.</string>
   <string name="setup_xiaomi_button">Briar schützen</string>
   <string name="setup_xiaomi_help">Wenn Briar nicht in der Liste der zuletzt verwendeten Apps gesperrt ist, kann es nicht im Hintergrund ausgeführt werden.</string>
   <string name="setup_xiaomi_dialog_body_old">1. Öffne die Liste der zuletzt verwendeten Apps (auch \'App Switcher\' genannt)\n\n2. Wische auf dem Bild von Briar nach unten, um das Vorhängeschlosssymbol anzuzeigen\n\n3. Wenn das Vorhängeschloss nicht gesperrt ist, tippe darauf, um es zu sperren</string>
-  <string name="setup_xiaomi_dialog_body_new">1. Öffne die Liste der zuletzt verwendeten Apps (auch \'App Switcher\' genannt)\n\n2. Halte das Bild von Briar gedrückt, bis die Schaltfläche für das Vorhängeschloss angezeigt wird\n\n3. Wenn das Vorhängeschloss nicht gesperrt ist, tippe darauf, um es zu sperren</string>
+  <string name="setup_xiaomi_dialog_body_new">1. Öffne die Liste der zuletzt verwendeten Apps (auch \'App Switcher\' genannt)\n\n2. Halte das Bild von Briar gedrückt, bis die Taste für das Vorhängeschloss angezeigt wird\n\n3. Wenn das Vorhängeschloss nicht gesperrt ist, tippe darauf, um es zu sperren</string>
   <string name="warning_dozed">%s konnte nicht im Hintergrund ausgeführt werden</string>
-  <!--Login-->
+  <!-- Login -->
   <string name="enter_password">Passwort</string>
   <string name="try_again">Passwort falsch, bitte erneut versuchen</string>
   <string name="dialog_title_cannot_check_password">Passwort kann nicht überprüft werden</string>
@@ -45,6 +45,7 @@
   <string name="startup_failed_activity_title">Fehler beim Starten von Briar</string>
   <string name="startup_failed_db_error">Aus irgendeinem Grund ist deine Briar-Datenbank irreparabel beschädigt. Dein Konto, deine Daten und alle deinen Kontakte sind verloren. Leider musst du Briar neu installieren oder ein neues Konto einrichten, indem du \'Ich habe mein Passwort vergessen\' auswählst, wenn du zur Eingabe deines Passworts aufgefordert wirst. </string>
   <string name="startup_failed_data_too_old_error">Dein Konto wurde mit einer alten Version dieser App erstellt und kann mit dieser Version nicht geöffnet werden. Installiere entweder die alte Version oder richte ein neues Konto ein, indem du \'Ich habe mein Passwort vergessen\' auswählst, wenn du zur Eingabe deines Passworts aufgefordert wirst.</string>
+  <string name="startup_failed_data_too_new_error">Dein Konto wurde mit einer neueren Version dieser App erstellt und kann mit dieser Version nicht geöffnet werden.\n\nBitte aktualisiere auf die neueste Version und versuche es erneut.</string>
   <string name="startup_failed_data_too_new_error">Diese Version der App ist zu alt. Bitte führe eine Aktualisierung auf die aktuelle Version der App durch und versuche es dann nochmal.</string>
   <string name="startup_failed_service_error">Briar konnte ein benötigtes Plugin nicht starten. Normalerweise kann das Problem durch eine Neuinstallation von Briar gelöst werden. Eine Neuinstallation führt jedoch zum Verlust deines Kontos und aller dazugehörigen Daten, da Briar deine Daten nicht auf zentralen Servern speichert.</string>
   <plurals name="expiry_warning">
@@ -55,17 +56,17 @@
   <string name="download_briar">Bitte lade die aktuelle Version von Briar herunter, um es weiter zu benutzen.</string>
   <string name="create_new_account">Du wirst ein neues Konto erstellen müssen, wobei du jedoch wieder denselben Benutzernamen verwenden kannst.</string>
   <string name="download_briar_button">Aktuelle Version herunterladen</string>
-  <string name="startup_open_database">Datenbank wird entschlüsselt...</string>
-  <string name="startup_migrate_database">Datenbank wird aktualisiert...</string>
-  <string name="startup_compact_database">Datenbank wird komprimiert ...</string>
-  <!--Navigation Drawer-->
+  <string name="startup_open_database">Datenbank entschlüsseln…</string>
+  <string name="startup_migrate_database">Datenbank aktualisieren…</string>
+  <string name="startup_compact_database">Datenbank komprimieren…</string>
+  <!-- Navigation Drawer -->
   <string name="nav_drawer_open_description">Navigationsleiste öffnen</string>
   <string name="nav_drawer_close_description">Navigationsleiste schliessen</string>
   <string name="contact_list_button">Kontakte</string>
   <string name="groups_button">Private Gruppen</string>
   <string name="forums_button">Foren</string>
   <string name="blogs_button">Blogs</string>
-  <!--This is part of the main menu. The app will be locked when this is tapped.-->
+  <!--Dies ist ein Teil des Hauptmenüs. Die App wird gesperrt, wenn dies angetippt wird.-->
   <string name="lock_button">App sperren</string>
   <string name="settings_button">Einstellungen</string>
   <string name="sign_out_button">Abmelden</string>
@@ -262,9 +263,9 @@
   <string name="pending_contact_requests_snackbar">Es gibt ausstehende Kontaktanfragen</string>
   <string name="pending_contact_requests">Ausstehende Kontaktanfragen</string>
   <string name="no_pending_contacts">Keine ausstehenden Kontakte</string>
-  <string name="waiting_for_contact_to_come_online">Warte auf Online-Aktivität des Kontakts ...</string>
-  <string name="connecting">Verbinde…</string>
-  <string name="adding_contact">Kontakt hinzufügen...</string>
+  <string name="waiting_for_contact_to_come_online">Warte auf Online-Aktivität des Kontakts…</string>
+  <string name="connecting">Verbinden…</string>
+  <string name="adding_contact">Kontakt hinzufügen…</string>
   <string name="adding_contact_failed">Hinzufügen von Kontakt ist fehlgeschlagen</string>
   <string name="dialog_title_remove_pending_contact">Entfernung bestätigen</string>
   <string name="dialog_message_remove_pending_contact">Dieser Kontakt befindet sich noch beim Hinzufügen. Wenn er jetzt entfernt wird, wird das Hinzufügen abgebrochen.</string>
@@ -610,12 +611,12 @@
   <string name="dev_report_device_features">Geräteeigenschaften</string>
   <string name="send_report">Bericht senden</string>
   <string name="close">Schließen</string>
-  <string name="dev_report_sending">Rückmeldung wird gesendet…</string>
+  <string name="dev_report_sending">Rückmeldung senden…</string>
   <string name="dev_report_sent">Feedback senden</string>
   <string name="dev_report_saved">Der Bericht wurde gespeichert. Er wird verschickt, wenn du dich das nächste Mal bei Briar anmeldest.</string>
   <string name="dev_report_error">Fehler: Senden des Reports fehlgeschlagen</string>
   <!--Sign Out-->
-  <string name="progress_title_logout">Von Briar abmelden...</string>
+  <string name="progress_title_logout">Von Briar abmelden…</string>
   <!--Screen Filters & Tapjacking-->
   <string name="screen_filter_title">Bildschirmüberlagerung erkannt</string>
   <string name="screen_filter_body">Eine andere App überlagert Briar. Um deine Sicherheit zu gewährleisten, reagiert Briar in diesem Fall nicht auf deine Eingaben.\n\nDie folgenden Apps könnten überlagern:\n\n%1$s</string>
@@ -636,16 +637,111 @@
   <string name="permission_location_setting_button">Standort aktivieren</string>
   <string name="qr_code">QR-Code</string>
   <string name="show_qr_code_fullscreen">QR-Code im Vollbildmodus anzeigen</string>
-  <!--App Locking-->
+  <!-- App Locking -->
   <string name="lock_unlock">Briar entsperren</string>
   <string name="lock_unlock_verbose">Um Briar zu entsperren, gib deine System-PIN, Muster oder Passwort ein</string>
   <string name="lock_unlock_fingerprint_description">Um fortzufahren berühre den Fingerabdrucksensor mit einem registrierten Finger</string>
   <string name="lock_unlock_password">Passwort benutzen</string>
   <string name="lock_is_locked">Briar ist gesperrt</string>
   <string name="lock_tap_to_unlock">Zum Entsperren antippen</string>
-  <!--Connections Screen-->
-  <string name="transports_help_text">Briar kann sich über das Internet, WLAN oder Bluetooth mit deinen Kontakten verbinden.\n\nAlle Internetverbindungen laufen über das Tor-Netzwerk, um den Datenschutz zu gewährleisten.\n\nWenn ein Kontakt auf mehreren Wegen erreichbar ist, nutzt Briar diese parallel.</string>
-  <!--Screenshots-->
+	<!-- Connections Screen -->
+	<string name="transports_help_text">Briar can connect to your contacts via the Internet, Wi-Fi or Bluetooth.\n\nAll Internet connections go through the Tor network for privacy.\n\nIf a contact can be reached by multiple methods, Briar uses them in parallel.</string>
+	<!-- Share app offline -->
+	<string name="hotspot_title">Share this app offline</string>
+	<string name="hotspot_intro">Share this app with someone nearby without Internet connection by using your phone\'s Wi-Fi.
+		\n\nYour phone will start a Wi-Fi hotspot. People nearby can connect to the hotspot and download the Briar app from your phone.</string>
+	<string name="hotspot_button_start_sharing">Start hotspot</string>
+	<string name="hotspot_button_stop_sharing">Stop hotspot</string>
+	<string name="hotspot_progress_text_start">Setting up hotspot…</string>
+	<string name="hotspot_notification_channel_title">Wi-Fi hotspot</string>
+	<string name="hotspot_notification_title">Sharing Briar offline</string>
+	<string name="hotspot_button_connected">Next</string>
+	<string name="permission_hotspot_location_request_body">To create a Wi-Fi hotspot, Briar needs permission to access your location.\n\nBriar does not store your location or share it with anyone.</string>
+	<string name="permission_hotspot_location_denied_body">You have denied access to your location, but Briar needs this permission to create a Wi-Fi hotspot.\n\nPlease consider granting access.</string>
+	<string name="wifi_settings_title">Wi-Fi setting</string>
+	<string name="wifi_settings_request_enable_body">To create a Wi-Fi hotspot, Briar needs to use Wi-Fi. Please enable it.</string>
+	<string name="wifi_settings_request_denied_body">You have denied permission to enable Wi-Fi, but Briar needs to use Wi-Fi.\n\nPlease consider enabling it.</string>
+
+	<string name="hotspot_tab_manual">Manual</string>
+	<!-- The placeholder to be inserted into the string 'hotspot_manual_wifi': People can connect by %s -->
+	<string name="hotspot_scanning_a_qr_code">scanning a QR code</string>
+
+	<!-- Wi-Fi setup -->
+	<!-- The %s placeholder will be replaced with the translation of 'hotspot_scanning_a_qr_code' -->
+	<string name="hotspot_manual_wifi">Your phone is providing a Wi-Fi hotspot. People who want to download Briar can connect to the hotspot by adding it in their device\'s Wi-Fi settings using the details below or by %s. When they have connected to the hotspot, press \'Next\'.</string>
+	<string name="hotspot_manual_wifi_ssid">Network name</string>
+	<string name="hotspot_qr_wifi">Your phone is providing a Wi-Fi hotspot. People who want to download Briar can connect to the hotspot by scanning this QR code. When they have connected to the hotspot, press \'Next\'.</string>
+	<string name="hotspot_no_peers_connected">No devices connected</string>
+	<plurals name="hotspot_peers_connected">
+		<item quantity="one">%s device connected</item>
+		<item quantity="other">%s devices connected</item>
+	</plurals>
+
+	<!-- Download link -->
+	<!-- The %s placeholder will be replaced with the translation of 'hotspot_scanning_a_qr_code' -->
+	<string name="hotspot_manual_site">Your phone is providing a Wi-Fi hotspot. People who are connected to the hotspot can download Briar by typing the following link in a web browser or %s.</string>
+	<string name="hotspot_manual_site_address">Address (URL)</string>
+	<string name="hotspot_qr_site">Your phone is providing a Wi-Fi hotspot. People who are connected to the hotspot can download Briar by scanning this QR code.</string>
+
+	<!-- e.g. Download Briar 1.2.20 -->
+	<string name="website_download_title">Download %s</string>
+	<string name="website_download_intro">Someone nearby shared %s with you.</string>
+	<string name="website_download_outro">After the download is complete, open the downloaded file and install it.</string>
+	<string name="website_troubleshooting_title">Troubleshooting</string>
+	<string name="website_troubleshooting_1">If you cannot download the app, try it with a different web browser app.</string>
+	<string name="website_troubleshooting_2_old">To install the downloaded app, you might need to allow installation of apps from \"Unknown sources\" in system settings. Afterwards, you may need to download the app again. We recommend disabling the \"Unknown sources\" setting after installing the app.</string>
+	<string name="website_troubleshooting_2_new">To install the downloaded app, you might need to allow your browser to install unknown apps. After installing the app, we recommend removing the browser\'s permission to install unknown apps.</string>
+
+	<string name="hotspot_help_wifi_title">Problems with connecting to Wi-Fi:</string>
+	<string name="hotspot_help_wifi_1">Try disabling and re-enabling Wi-Fi on both phones and try again.</string>
+	<string name="hotspot_help_wifi_2">If your phone complains that the Wi-Fi has no Internet, tell it that you want to stay connected anyway.</string>
+	<string name="hotspot_help_site_title">Problems visiting the local website:</string>
+	<string name="hotspot_help_site_1">Double check that you entered the address exactly as shown. A small error can make it fail.</string>
+	<string name="hotspot_help_site_2">Ensure that your phone is still connected to the correct Wi-Fi (see above) when you try to access the site.</string>
+	<string name="hotspot_help_site_3">If you have a firewall app, check that it isn\'t blocking access.</string>
+	<string name="hotspot_help_site_4">If you can visit the site, but not download the Briar app, try it with a different web browser app.</string>
+	<string name="hotspot_help_fallback_title">Nothing works?</string>
+	<string name="hotspot_help_fallback_intro">You can try to save the app as an .apk file to share in some other way. Once the file has been transferred to the other device, it can be used to install Briar.
+		\n\nTip: For sharing via Bluetooth, you might need to rename the file to end with .zip first.</string>
+	<string name="hotspot_help_fallback_button">Save app</string>
+
+	<!-- error handling -->
+	<string name="hotspot_error_intro">Beim Versuch, die App über Wi-Fi freizugeben, ist etwas schiefgegangen:</string>
+	<string name="hotspot_error_no_wifi_direct">Gerät unterstützt kein Wi-Fi Direct</string>
+	<string name="hotspot_error_start_callback_failed">Hotspot starten fehlgeschlagen: Fehler %s</string>
+	<string name="hotspot_error_start_callback_failed_unknown">Hotspot mit unbekannten Fehler starten nicht möglich, Grund %d</string>
+	<string name="hotspot_error_start_callback_no_group_info">Hotspot starten fehlgeschlagen: keine Gruppeninformation</string>
+	<string name="hotspot_error_web_server_start">Fehler beim Webserver starten</string>
+	<string name="hotspot_error_web_server_serve">Fehler bei Webseitendarstellung.\n\nBitte sende eine Rückmeldung (mit anonymen Daten) über die Briar-App, wenn das Problem weiterhin besteht.</string>
+	<string name="hotspot_flag_test">Warnung: Diese App wurde mit Android Studio installiert und kann NICHT auf einem anderen Gerät installiert werden.</string>
+	<string name="hotspot_error_framework_busy">Hotspot starten nicht möglich.\n\nWenn du einen anderen Hotspot betreibst oder deine Internetverbindung über Wi-Fi freigibst, versuche diesen zu beenden. Danach erneut versuchen.</string>
+
+
+	<!-- Transfer Data via Removable Drives -->
+
+	<string name="removable_drive_menu_title">Daten übertragen</string>
+	<string name="removable_drive_intro">Du kannst deinem Kontakt verschlüsselte Nachrichten über Wechseldatenträger wie USB-Flash-Laufwerke oder SD-Karten schicken.\n\nWenn dein Kontakt dir einen Wechseldatenträger mit verschlüsselten Nachrichten geschickt hat, kannst du die Nachrichten in Briar importieren, indem du die Taste Empfangen unten verwendest.</string>
+	<string name="removable_drive_title_send">Daten senden</string>
+	<string name="removable_drive_title_receive">Daten empfangen</string>
+	<string name="removable_drive_send_intro">Auf die Taste unten tippen, um eine neue Datei mit den verschlüsselten Nachrichten zu erstellen. Du kannst wählen, wo die Datei gespeichert werden soll.\n\nWenn du die Datei auf einem Wechsellaufwerk speichern möchtest, lege das Laufwerk jetzt ein.</string>
+	<string name="removable_drive_send_no_data">Es gibt derzeit keine Nachrichten, die an diesen Kontakt gesendet werden sollen.</string>
+	<string name="removable_drive_send_not_supported">Dieser Kontakt verwendet eine alte Version von Briar oder ein altes Gerät, das diese Funktion nicht unterstützt.</string>
+	<string name="removable_drive_send_button">Datei zum Exportieren wählen</string>
+	<string name="removable_drive_ongoing">Bitte auf den Abschluss der laufenden Aufgabe warten</string>
+	<string name="removable_drive_receive_intro">Auf die Taste unten tippen, um die Datei auszuwählen, die dir dein Kontakt geschickt hat.\n\nWenn sich die Datei auf einem Wechsellaufwerk befindet, lege das Laufwerk jetzt ein.</string>
+	<string name="removable_drive_receive_button">Datei zum Importieren wählen</string>
+	<string name="removable_drive_success_send_title">Export erfolgreich</string>
+	<string name="removable_drive_success_send_text">Die Daten wurden erfolgreich exportiert. Du hast nun 28 Tage Zeit, um die Datei zu deinem Kontakt zu transportieren.\n\n Befindet sich die Datei auf einem Wechsellaufwerk, verwende die Benachrichtigung in der Statusleiste, um das Laufwerk auszuwerfen, bevor du es entfernst.</string>
+	<string name="removable_drive_success_receive_title">Import erfolgreich</string>
+	<string name="removable_drive_success_receive_text">Alle verschlüsselten Nachrichten, die in dieser Datei enthalten sind, wurden empfangen.</string>
+	<string name="removable_drive_error_send_title">Fehler beim Daten exportieren</string>
+	<string name="removable_drive_error_send_text">Es ist ein Fehler beim Schreiben von Daten in die Datei aufgetreten.\n\nWenn du ein Wechsellaufwerk verwendest, vergewissere dich, dass es richtig eingelegt ist, und versuche es erneut.\n\nWenn der Fehler weiterhin besteht, sende bitte eine Rückmeldung, um das Briar-Team über das Problem zu informieren.</string>
+	<string name="removable_drive_error_receive_title">Fehler beim Daten importieren</string>
+	<string name="removable_drive_error_receive_text">Die ausgewählte Datei enthält nichts, was Briar erkennen könnte.\n\nBitte überprüfe, ob du die richtige Datei ausgewählt hast.\n\nWenn dein Kontakt die Datei vor mehr als 28 Tagen erstellt hat, kann Briar sie nicht erkennen.</string>
+
+
+	<!-- Screenshots -->
+
   <!--This is a name to be used in screenshots. Feel free to change it to a local name.-->
   <string name="screenshot_alice">Alice</string>
   <!--This is a name to be used in screenshots. Feel free to change it to a local name.-->
