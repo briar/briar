@@ -1,5 +1,5 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
   <!--Setup-->
   <string name="setup_title">欢迎来到 Briar</string>
   <string name="setup_name_explanation">您的昵称将被显示在您发布的任何内容旁边。昵称在创建帐户后无法更改。</string>
@@ -40,13 +40,12 @@
   <string name="forgotten_password">我忘记了密码</string>
   <string name="dialog_title_lost_password">密码遗失</string>
   <string name="dialog_message_lost_password">您的 Briar 帐户被加密储存在您的设备上，而非云端，因此我们无法重置您的密码。您是否希望删除帐户，重新开始？\n\n注意：删除帐户将导致您的身份信息、联系人和消息永久丢失。</string>
-  <string name="startup_failed_notification_title">Briar 无法启动</string>
-  <string name="startup_failed_notification_text">轻按查看更多信息。</string>
   <string name="startup_failed_activity_title">Briar 启动失败</string>
-  <string name="startup_failed_db_error">由于某些原因，Briar 数据库已损坏并且无法修复。您的帐户、数据和所有联系人已经丢失。很不幸，您需要重新安装 Briar 或者在提示输入密码时选择“我忘记了密码”来重新创建一个 Briar 帐户。</string>
-  <string name="startup_failed_data_too_old_error">您的帐户由旧版本应用创建，无法在该版本中打开。您需要重新安装旧版本应用或在提示输入密码时选择“我忘记了密码”以创建新的帐户。</string>
-  <string name="startup_failed_data_too_new_error">该应用版本过旧。请升级至最新版本并重试。</string>
-  <string name="startup_failed_service_error">Briar 无法开启一个必需插件。通常情况下，重新安装 Briar 可以解决该问题。但是由于 Briar 不使用中央服务器来储存您的数据，该操作将导致您的帐户和与您帐户相关的一切数据丢失。</string>
+  <string name="startup_failed_clock_error">无法启动 Briar，因为你设备的时间错误。\n\n请设置您的设备时钟到正确的时间，然后再试一次。</string>
+  <string name="startup_failed_db_error">Bria r无法打开包含您的帐户、联系人和信息的数据库。\n\n请升级到最新版本再试一次，或者在密码提示时选择“我忘记密码”建立新账号。</string>
+  <string name="startup_failed_data_too_old_error">您的帐户是用这个应用程序的旧版本创建的，不能用这个版本打开。\n\n你必须重新安装旧版本，或者在密码提示时选择“我忘记密码”，建立一个新帐户。</string>
+  <string name="startup_failed_data_too_new_error">您的帐户是用这个应用程序的较新版本创建的，不能用这个版本打开。\n\n请升级到最新版本，然后重试。</string>
+  <string name="startup_failed_service_error">Briar 无法启动必需的组件。\n\n请升级到最新版并重新尝试。</string>
   <plurals name="expiry_warning">
     <item quantity="other">这是 Briar 的一个测试版本。您的帐户将在 %d 天后到期，且无法延期。</item>
   </plurals>
@@ -134,6 +133,7 @@
   <string name="open">打开</string>
   <string name="change">更改</string>
   <string name="start">开始</string>
+  <string name="finish">完成</string>
   <string name="no_data">没有数据</string>
   <string name="ellipsis">……</string>
   <string name="text_too_long">输入的文本过长</string>
@@ -143,6 +143,7 @@
   <string name="sorry">抱歉</string>
   <string name="error_start_activity">在您的系统上不可用</string>
   <string name="status_heading">状态：</string>
+  <string name="error">错误</string>
   <!--Contacts and Private Conversations-->
   <string name="no_contacts">尚无联系人可供显示</string>
   <string name="no_contacts_action">轻按 + 号即可添加联系人</string>
@@ -160,14 +161,14 @@
   <string name="set_contact_alias_hint">联系人姓名</string>
   <string name="menu_item_disappearing_messages">让消息自动消失 </string>
   <string name="menu_item_connect_via_bluetooth">通过蓝牙连接</string>
-  <string name="connect_via_bluetooth_title">通过蓝牙连接</string>
-  <string name="connect_via_bluetooth_intro">你的联络人必须在附近才能起作用。\n\n你和你的联系人应该同时按“开始”。</string>
-  <string name="connect_via_bluetooth_already_discovering">已在尝试通过蓝牙进行连接</string>
-  <string name="connect_via_bluetooth_not_discoverable">没有蓝牙无法继续 </string>
-  <string name="connect_via_bluetooth_no_location_permission">没有位置权限不能继续 </string>
-  <string name="connect_via_bluetooth_start">正通过蓝牙连接 …</string>
-  <string name="connect_via_bluetooth_success">通过蓝牙连接成功</string>
-  <string name="connect_via_bluetooth_error">无法通过蓝牙连接 </string>
+  <string name="dialog_title_connect_via_bluetooth">通过蓝牙连接</string>
+  <string name="dialog_message_connect_via_bluetooth">你的联络人必须在附近才能起作用。\n\n你和你的联系人应该同时按“开始”。</string>
+  <string name="toast_connect_via_bluetooth_already_discovering">已在尝试通过蓝牙进行连接</string>
+  <string name="toast_connect_via_bluetooth_not_discoverable">没有蓝牙无法继续 </string>
+  <string name="toast_connect_via_bluetooth_no_location_permission">没有位置权限不能继续 </string>
+  <string name="toast_connect_via_bluetooth_start">正通过蓝牙连接 …</string>
+  <string name="toast_connect_via_bluetooth_success">通过蓝牙连接成功</string>
+  <string name="toast_connect_via_bluetooth_error">无法通过蓝牙连接 </string>
   <!--The first placeholder will show a duration like "7 days". The second placeholder at the end will add "Tap to learn more."-->
   <string name="auto_delete_msg_you_enabled">你的消息将在 %1$s 后消失。%2$s</string>
   <!--The placeholder at the end will add "Tap to learn more."-->
@@ -216,6 +217,7 @@
   <string name="dialog_title_image_support">你现在可以向此联系人发送图片</string>
   <string name="dialog_message_image_support">轻按此图标即可附加图片。</string>
   <string name="messaging_too_many_attachments_toast">只有前 %d 个图片将被发送</string>
+  <string name="menu_contact">联系人</string>
   <!--Adding Contacts-->
   <string name="add_contact_title">添加附近的联系人</string>
   <string name="face_to_face">您必须面对面添加联系人。\n\n这样将防止未来他人冒充您的身份并查看您的信息。</string>
@@ -565,7 +567,8 @@
 		你的联系人也可以为双方更改此设置。</string>
   <string name="learn_more">了解更多</string>
   <string name="disappearing_messages_summary">在7\u00A0天之后，使此对话中的后续消息自动消失。</string>
-  <!--Settings Feedback-->
+  <!--Settings Actions-->
+  <string name="pref_category_actions">操作</string>
   <string name="send_feedback">提交反馈</string>
   <!--Link Warning-->
   <string name="link_warning_title">链接警告</string>
@@ -574,7 +577,7 @@
   <string name="link_warning_open_link">打开链接</string>
   <!--Crash Reporter-->
   <string name="crash_report_title">Briar 崩溃报告</string>
-  <string name="briar_crashed">抱歉，Briar 已崩溃。</string>
+  <string name="briar_crashed">抱歉，Briar 已崩溃</string>
   <string name="not_your_fault">这并非您的错误所致。</string>
   <string name="please_send_report">请发送崩溃报告，以帮助我们优化 Briar 。</string>
   <string name="report_is_encrypted">我们保证报告将会加密并被安全地发送。</string>
@@ -632,6 +635,90 @@
   <string name="lock_tap_to_unlock">轻按以解锁</string>
   <!--Connections Screen-->
   <string name="transports_help_text">Briar 可以通过互联网、Wi-Fi 或蓝牙来连接到您的联系人。\n\n为了保护隐私，本应用会通过 Tor 网络进行所有的互联网连接。\n\n如果一个联系人可以通过多种方法联系到，Briar 会并行地使用它们。</string>
+  <!--Share app offline-->
+  <string name="hotspot_title">离线分享此应用</string>
+  <string name="hotspot_intro">使用手机的Wi-Fi与附近没有网络的人分享这款应用。
+		\n\n你的手机会启动一个 Wi-Fi 热点。附近的人可以连接热点，从你的手机下载 Briar 应用。</string>
+  <string name="hotspot_button_start_sharing">启动热点</string>
+  <string name="hotspot_button_stop_sharing">停止热点</string>
+  <string name="hotspot_progress_text_start">设置热点中…</string>
+  <string name="hotspot_notification_channel_title">Wi-Fi 热点</string>
+  <string name="hotspot_notification_title">正离线分享 Briar</string>
+  <string name="hotspot_button_connected">下一步</string>
+  <string name="permission_hotspot_location_request_body">为了创建一个Wi-Fi热点，Briar 需要访问你位置的权限。\n\n Briar 不会储存你的位置也不会和任何人分享它。</string>
+  <string name="permission_hotspot_location_denied_body">你拒绝了访问你的位置，但 Briar 需要这个权限才能创建 Wi-Fi 热点。\n\n请考虑授予访问权限。</string>
+  <string name="wifi_settings_title">Wi-Fi 设置</string>
+  <string name="wifi_settings_request_enable_body">要创建 Wi-Fi 热点，Briar 需要使用 Wi-Fi。请允许它。</string>
+  <string name="wifi_settings_request_denied_body">您拒绝了启用 Wi-Fi 的权限，但 Briar 需要使用Wi-Fi。\n\n请考虑允许 Brair 使用它。</string>
+  <string name="hotspot_tab_manual">手动</string>
+  <!--The placeholder to be inserted into the string 'hotspot_manual_wifi': People can connect by %s-->
+  <string name="hotspot_scanning_a_qr_code">扫描一个二维码</string>
+  <!--Wi-Fi setup-->
+  <!--The %s placeholder will be replaced with the translation of 'hotspot_scanning_a_qr_code'-->
+  <string name="hotspot_manual_wifi">你的手机正提供 Wi-Fi 热点。想下载 Briar 的人可以连接到此热点，方法是使用以下详细信息在设备的 Wi-Fi 设置中进行添加或通过 %s。当他们连接到热点，按 “下一步”。</string>
+  <string name="hotspot_manual_wifi_ssid">网络名称</string>
+  <string name="hotspot_qr_wifi">你的手机提供了 Wi-Fi 热点。想下载 Briar 的人可以通过扫描这个二维码连接到热点。当他们连接到热点，按“下一步”。</string>
+  <string name="hotspot_no_peers_connected">没有设备连接
+</string>
+  <plurals name="hotspot_peers_connected">
+    <item quantity="other">已连接%s 台设备</item>
+  </plurals>
+  <!--Download link-->
+  <!--The %s placeholder will be replaced with the translation of 'hotspot_scanning_a_qr_code'-->
+  <string name="hotspot_manual_site">你的手机提供了Wi-Fi热点。连接到该热点的用户可以下载 Briar，方法是在浏览器中输入以下链接或 %s</string>
+  <string name="hotspot_manual_site_address">地址 (URL)</string>
+  <string name="hotspot_qr_site">你的手机正提供 Wi-Fi 热点。连接到这个热点的人可以通过扫描这个二维码下载 Briar。</string>
+  <!--e.g. Download Briar 1.2.20-->
+  <string name="website_download_title">下载 %s</string>
+  <string name="website_download_intro">附近的某人和你分享了 %s</string>
+  <string name="website_download_outro">下载完成后，打开下载的文件并进行安装。 </string>
+  <string name="website_troubleshooting_title">故障排除</string>
+  <string name="website_troubleshooting_1">如果您无法下载该应用程序，请尝试使用不同的网络浏览器应用。</string>
+  <string name="website_troubleshooting_2_old">要安装下载的应用程序，你可能需要在系统设置中允许安装来自“未知来源”的应用程序。之后，你可能需要重新下载应用程序。我们建议在安装后禁用“未知来源”设置  
+</string>
+  <string name="website_troubleshooting_2_new">要安装下载的应用程序，您可能需要允许浏览器安装未知的应用程序。安装应用程序后，我们建议删除浏览器安装未知应用程序的权限。</string>
+  <string name="hotspot_help_wifi_title">连接 Wi-Fi 出现问题:</string>
+  <string name="hotspot_help_wifi_1">尝试禁用和重新启用这两部手机的 Wi-Fi，然后再试一次。</string>
+  <string name="hotspot_help_wifi_2">如果你的手机抱怨 Wi-Fi 没有网络，告诉它无论如何你都想保持连接。</string>
+  <string name="hotspot_help_site_title">访问本地网站出现问题：</string>
+  <string name="hotspot_help_site_1">再次检查您输入的地址是否完全和所显示的一样。一个小的错误就可能导致失败。</string>
+  <string name="hotspot_help_site_2">当你尝试访问网站时，确保你的手机仍然连接到正确的 Wi-Fi (见上文)。</string>
+  <string name="hotspot_help_site_3">如果你有一个防火墙应用，检查它没有阻止访问。</string>
+  <string name="hotspot_help_site_4">如果你可以访问该网站，但不能下载Briar应用程序，可以尝试使用其他网页浏览器应用。</string>
+  <string name="hotspot_help_fallback_title">什么都没效果？</string>
+  <string name="hotspot_help_fallback_intro">你可以尝试将应用程序保存为 .apk文件，以其他方式共享。一旦文件被转移到其他设备，它就可以被用来安装 Briar。
+		\n\n提示：要通过蓝牙共享，您可能需要先重命名文件以 .zip 结尾。</string>
+  <string name="hotspot_help_fallback_button">保存应用</string>
+  <!--error handling-->
+  <string name="hotspot_error_intro">尝试通过 Wi-Fi 分享应用程序时，出了问题：</string>
+  <string name="hotspot_error_no_wifi_direct">设备不支持 Wi-Fi Direct</string>
+  <string name="hotspot_error_start_callback_failed">热点启动失败：错误 %s</string>
+  <string name="hotspot_error_start_callback_failed_unknown">热点启动失败，出现未知错误，原因 %d</string>
+  <string name="hotspot_error_start_callback_no_group_info">热点启动失败：没有组信息</string>
+  <string name="hotspot_error_web_server_start">启动 web 服务器出错</string>
+  <string name="hotspot_error_web_server_serve">显示网站出错。.\n\n如果问题持续存在，请通过 Briar 应用发送反馈 (匿名数据)。</string>
+  <string name="hotspot_flag_test">警告：此应用程序通过 Android Studio 安装，不能安装在其他设备上</string>
+  <string name="hotspot_error_framework_busy">无法启动热点。\n\n如果您有另一个热点正在运行或通过 Wi-Fi 共享您的互联网连接，尝试停止它稍后再试一次。</string>
+  <!--Transfer Data via Removable Drives-->
+  <string name="removable_drive_menu_title">传输数据</string>
+  <string name="removable_drive_intro">您可以使用USB闪存驱动器或SD卡等可移动存储设备向您的联系人发送加密信息。\n\n如果您的联系人发送给您一个包含加密信息的可移动驱动器，您可以使用下面的接收按钮将这些信息导入到Briar中。</string>
+  <string name="removable_drive_title_send">发送数据</string>
+  <string name="removable_drive_title_receive">接收数据</string>
+  <string name="removable_drive_send_intro">轻按下面的按钮创建一个包含加密消息的新文件。您可以选择将文件保存在哪里。\n\n如果您想将文件保存在可移动驱动器上，请立即插入驱动器。</string>
+  <string name="removable_drive_send_no_data">目前没有等待发送到此联系人的消息。</string>
+  <string name="removable_drive_send_not_supported">此联系人正在使用旧版本的 Briar 或不支持此功能的旧设备。</string>
+  <string name="removable_drive_send_button">选择要导出的文件 </string>
+  <string name="removable_drive_ongoing">请等待正在进行的任务完成 </string>
+  <string name="removable_drive_receive_intro">轻按下面的按钮选择您的联系人发送给您的文件。\n\n如果文件在可移动驱动器上，现在插入驱动器。</string>
+  <string name="removable_drive_receive_button">选择导入文件</string>
+  <string name="removable_drive_success_send_title">成功导出</string>
+  <string name="removable_drive_success_send_text">数据导出成功。你现在有28天的时间把文件传送给你的联系人。\n\n如果文件在可移动驱动器上，请使用状态栏中的通知弹出驱动器，然后再拔下驱动器。</string>
+  <string name="removable_drive_success_receive_title">成功导入</string>
+  <string name="removable_drive_success_receive_text">此文件中包含的所有加密消息都已收到。</string>
+  <string name="removable_drive_error_send_title">导出数据时出错</string>
+  <string name="removable_drive_error_send_text">向文件写入数据时出错。\n\n如果您使用的是可移动驱动器，请确保它已正确插入并重试。\n\n如果错误仍然存在，请发送反馈，让Briar团队知道这个问题。</string>
+  <string name="removable_drive_error_receive_title">导入数据时出错</string>
+  <string name="removable_drive_error_receive_text">所选文件不包含任何Briar可以识别的内容。\n\n请检查您选择的文件是否正确。\n\n如果你的联系人在大于28天前创建了这个文件，Briar 将无法识别它。</string>
   <!--Screenshots-->
   <!--This is a name to be used in screenshots. Feel free to change it to a local name.-->
   <string name="screenshot_alice">韩梅梅</string>

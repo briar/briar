@@ -1,5 +1,5 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
   <!--Setup-->
   <string name="setup_title">به Briar (برایر) خوش آمدید</string>
   <string name="setup_name_explanation">نام مستعار شما کنار هر مطلبی که پست کنید قرار خواهد گرفت. بعد از ایجاد حساب کاربری امکان تغییر آن وجود ندارد.</string>
@@ -44,13 +44,7 @@
   <string name="dialog_message_lost_password">حساب کاربری Briar (برایر) شما به صورت رمزنگاری شده روی سیستم شما به جای حافظه ابری ذخیره شده است برای همین ما نمی توانیم گذرواژه شما را به صورت مجدد تنظیم کنیم. آیا مایل هستید تا حساب کاربری شما را پاک کنیم و دوباره از ابتدا شروع کنیم؟
 
 اخطار: هویت های شما، مخاطبان شما و پیام های شما برای همیشه از بین خواهند رفت.</string>
-  <string name="startup_failed_notification_title">Briar (برایر) نمی تواند شروع به کار کند.</string>
-  <string name="startup_failed_notification_text">برای اطلاعات بیشتر کلیک کنید</string>
   <string name="startup_failed_activity_title">خطا در شروع Briar (برایر)</string>
-  <string name="startup_failed_db_error">به دلایلی، پایگاه داده Briar (برایر) شما خراب شده و قابل اصلاح نیست. حساب کاربری شما، داده های شما و تمام مخاطبان شما از بین رفته اند. متاسفانه، شما یا باید Briar (برایر) را دوباره نصب کنید یا یک حساب کاربری جدید در هنگام خواست گذرواژه با انتخاب گذرواژه خود را فراموش کرده ام\' ایجاد کنید.</string>
-  <string name="startup_failed_data_too_old_error">حساب کاربری شما با یک نسخه قدیمی از این برنامه ایجاد شده است و به همین خاطر با این نسخه نمی تواند باز شود. شما باید نسخه قدیمی را دوباره نصب کنید یا یک حساب کاربری جدید با \"گذرواژه خود را فراموش کرده ام\" در صفحه ی گذرواژه ایجاد کنید.</string>
-  <string name="startup_failed_data_too_new_error">این نسخه از برنامه قدیمی می باشد. لطفا به آخرین نسخه از برنامه ارتقاء داده و دوباره سعی کنید.</string>
-  <string name="startup_failed_service_error">Briar (برایر) نمی تواند یک افزونه ضروری را اجراء کند. نصب دوباره Briar (برایر) معمولا این مشکل را حل میکند. هرچند، توجه داشته باشید که حساب کاربری و تمام داده های مرتبط با آن را از دست خواهید داد از آنجایی که Briar (برایر) از هیچ سرور مرکزی برای ذخیره داده های شما استفاده نمی کند.</string>
   <plurals name="expiry_warning">
     <item quantity="one">این یک نسخه آزمایشی از Briar (برایر) می باشد. حساب کاربری شما در %d روز آینده به پایان می رسد و امکان تمدید آن وجود نخواهد داشت.</item>
     <item quantity="other">این یک نسخه آزمایشی از Briar (برایر) می باشد. حساب کاربری شما در %d روز آینده به پایان می رسد و امکان تمدید آن وجود نخواهد داشت.</item>
@@ -145,6 +139,7 @@
   <string name="open">باز کردن</string>
   <string name="change">تغییر</string>
   <string name="start">آغاز</string>
+  <string name="finish">پایان</string>
   <string name="no_data">داده ای موجود نمی باشد</string>
   <string name="ellipsis">…</string>
   <string name="text_too_long">متن وارد شده بیش از حد طولانی می باشد</string>
@@ -154,6 +149,7 @@
   <string name="sorry">پوزش</string>
   <string name="error_start_activity">برای سیستم شما موجود نمی باشد</string>
   <string name="status_heading">وضعیت:</string>
+  <string name="error">خطا</string>
   <!--Contacts and Private Conversations-->
   <string name="no_contacts">هیچ مخاطبی برای نمایش وجود ندارد</string>
   <string name="no_contacts_action">برای افزودن مخاطب روی + کلیک کنید</string>
@@ -171,14 +167,14 @@
   <string name="set_contact_alias_hint">نام مخاطب</string>
   <string name="menu_item_disappearing_messages">پیام‌های ناپدید شونده</string>
   <string name="menu_item_connect_via_bluetooth">اتصال از طریق بلوتوث</string>
-  <string name="connect_via_bluetooth_title">اتصال از طریق بلوتوث</string>
-  <string name="connect_via_bluetooth_intro">برای امکان این عملکرد، مخاطب شما باید نزدیک باشد. \n\n شما و مخاطبتان باید همزمان گزینه‌ی \"شروع\" را بفشارید.</string>
-  <string name="connect_via_bluetooth_already_discovering">در حال تلاش برای اتصال از طریق بلوتوث</string>
-  <string name="connect_via_bluetooth_not_discoverable">امکان ادامه بدون بلوتوث وجود ندارد</string>
-  <string name="connect_via_bluetooth_no_location_permission">امکان ادامه بدون اجازه مکان‌یابی وجود ندارد</string>
-  <string name="connect_via_bluetooth_start">در حال اتصال از طریق بلوتوث</string>
-  <string name="connect_via_bluetooth_success">ارتباط از طریق بلوتوث با موفقیت انجام شد</string>
-  <string name="connect_via_bluetooth_error">اتصال از طریق بلوتوث برقرار نشد</string>
+  <string name="dialog_title_connect_via_bluetooth">اتصال از طریق بلوتوث</string>
+  <string name="dialog_message_connect_via_bluetooth">برای امکان این عملکرد، مخاطب شما باید نزدیک باشد. \n\n شما و مخاطبتان باید همزمان گزینه‌ی \"شروع\" را بفشارید.</string>
+  <string name="toast_connect_via_bluetooth_already_discovering">در حال تلاش برای اتصال از طریق بلوتوث</string>
+  <string name="toast_connect_via_bluetooth_not_discoverable">امکان ادامه بدون بلوتوث وجود ندارد</string>
+  <string name="toast_connect_via_bluetooth_no_location_permission">امکان ادامه بدون اجازه مکان‌یابی وجود ندارد</string>
+  <string name="toast_connect_via_bluetooth_start">در حال اتصال از طریق بلوتوث</string>
+  <string name="toast_connect_via_bluetooth_success">ارتباط از طریق بلوتوث با موفقیت انجام شد</string>
+  <string name="toast_connect_via_bluetooth_error">اتصال از طریق بلوتوث برقرار نشد</string>
   <!--The first placeholder will show a duration like "7 days". The second placeholder at the end will add "Tap to learn more."-->
   <string name="auto_delete_msg_you_enabled">پیام شما پس از %1$s ناپدید خواهد شد. %2$s</string>
   <!--The placeholder at the end will add "Tap to learn more."-->
@@ -232,6 +228,7 @@
   <string name="dialog_title_image_support">شما هم اکنون می‌توانید به این مخاطب تصاویر ارسال کنید</string>
   <string name="dialog_message_image_support">برای پیوست کردن تصاویر به روی آیکون ضربه بزنید.</string>
   <string name="messaging_too_many_attachments_toast">فقط %d تصویر آغازین ارسال خواهند شد</string>
+  <string name="menu_contact">تماس</string>
   <!--Adding Contacts-->
   <string name="add_contact_title">افزودن مخاطب از نزدیک</string>
   <string name="face_to_face">برای اضافه کردن فرد به عنوان مخاطب باید با او به صورت حضوری ملاقات کنید.
@@ -618,7 +615,8 @@
 		 همچنین مخاطب شما می‌تواند این تنظیمات را برای شما تغییر دهد.</string>
   <string name="learn_more">اطلاعات بیشتر</string>
   <string name="disappearing_messages_summary">پس از این پیام‌های این گفتگو را بعد از 7\u00A0 روز ناپدید کن.</string>
-  <!--Settings Feedback-->
+  <!--Settings Actions-->
+  <string name="pref_category_actions">فعالیتها </string>
   <string name="send_feedback">ارسال بازخورد</string>
   <!--Link Warning-->
   <string name="link_warning_title">هشدار پیوند</string>
@@ -627,7 +625,6 @@
   <string name="link_warning_open_link">باز کردن پیوند</string>
   <!--Crash Reporter-->
   <string name="crash_report_title">گزارش خطای Briar (برایر)</string>
-  <string name="briar_crashed">متاسفیم، Briar (برایر) از کار افتاده است.</string>
   <string name="not_your_fault">این تقصیر شما نیست.</string>
   <string name="please_send_report">لطفا با فرستادن گزارش خطا به ما کمک کنید تا Briar (برایر) را بهتر کنیم.</string>
   <string name="report_is_encrypted">به شما اطمینان می دهیم که گزارش شما رمزنگاری شده و به صورت امن فرستاده می شود.</string>
@@ -697,6 +694,19 @@ Briar (برایر) موقعیت شما را ذخیره نمی‌کند و آن �
   <string name="lock_tap_to_unlock">برای آنلاک کردن کلیک کنید</string>
   <!--Connections Screen-->
   <string name="transports_help_text">Briar (برایر) می‌تواند از طریق اینترنت، Wi-Fi و یا بلوتوث به مخاطبین شما متصل گردد.\n\nارتباط با اینترنت از طریق شبکه‌ی تور صورت می‌پذیرد.\n\nاگر دسترسی به مخاطب شما از روش‌های مختلفی ممکن باشد، Briar (برایر) به صورت موازی از آن‌ها استفاده خواهد کرد.</string>
+  <!--Share app offline-->
+  <string name="hotspot_button_connected">بعد</string>
+  <string name="hotspot_tab_manual">دستی</string>
+  <!--The placeholder to be inserted into the string 'hotspot_manual_wifi': People can connect by %s-->
+  <!--Wi-Fi setup-->
+  <!--The %s placeholder will be replaced with the translation of 'hotspot_scanning_a_qr_code'-->
+  <!--Download link-->
+  <!--The %s placeholder will be replaced with the translation of 'hotspot_scanning_a_qr_code'-->
+  <!--e.g. Download Briar 1.2.20-->
+  <string name="website_troubleshooting_title">◾️ عیب یابی</string>
+  <!--error handling-->
+  <!--Transfer Data via Removable Drives-->
+  <string name="removable_drive_success_receive_title">درون برد موفق بود</string>
   <!--Screenshots-->
   <!--This is a name to be used in screenshots. Feel free to change it to a local name.-->
   <string name="screenshot_alice">آلیس</string>

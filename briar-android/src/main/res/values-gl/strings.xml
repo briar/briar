@@ -1,5 +1,5 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
   <!--Setup-->
   <string name="setup_title">Benvida a Briar</string>
   <string name="setup_name_explanation">O teu alcume mostrarase xunto a todas as mensaxes que publiques. Podes cambialo tras crear a túa conta.</string>
@@ -33,13 +33,7 @@
   <string name="forgotten_password">Esquecín a miña clave</string>
   <string name="dialog_title_lost_password">Contrasinal perdido</string>
   <string name="dialog_message_lost_password">Briar almacena a túa configuración cifrada no dispositivo, non na nube, así que non podemos restabelecer o teu contrasinal. Quererías borrar a túa conta e empezar de novo?\n\nPrecaución: As túas identidades, contactos e mensaxes serán eliminadas de forma permanente.</string>
-  <string name="startup_failed_notification_title">Briar non puido iniciarse</string>
-  <string name="startup_failed_notification_text">Toca para máis información.</string>
   <string name="startup_failed_activity_title">Fallo de Inicio de Briar</string>
-  <string name="startup_failed_db_error">Por algún motivo, a túa base de datos de Briar está defectuosa sen remedio. A túa conta, os teus datos e contactos perdéronse. Desgraciadamente, debes reinstalar Briar ou crear unha nova conta escollendo \'Esquecín o meu contrasinal\' cando se che solicite o contrasinal.</string>
-  <string name="startup_failed_data_too_old_error">A túa conta foi creada cunha versión anterior da aplicación e non se pode abrir con esta versión. Deberás reinstalar a versión anterior ou ben crear unha nova conta escollendo \'Esquecín o meu contrasinal\' cando se che solicite o contrasinal.</string>
-  <string name="startup_failed_data_too_new_error">Esta versión da app é moi antiga. Actualiza por favor á última versión e inténtao de novo.</string>
-  <string name="startup_failed_service_error">Briar non puido iniciar un complemento necesario. Normalmente ao reinstalar Briar solucionase este problema. Ten en conta que entón perderás a túa conta e todos os datos asociados a esta pois Briar non está a utilizar servidores centrais para almacenar os teus datos.</string>
   <plurals name="expiry_warning">
     <item quantity="one">Esta versión de Briar é para probas. A conta caducará en %d día e non se pode anovar.</item>
     <item quantity="other">Esta é unha versión de proba de Briar. A conta caducará en %d días e non se pode anovar.</item>
@@ -132,6 +126,7 @@
   <string name="open">Abrir</string>
   <string name="change">Cambiar</string>
   <string name="start">Comezar</string>
+  <string name="finish">Rematar</string>
   <string name="no_data">Sen datos</string>
   <string name="ellipsis">...</string>
   <string name="text_too_long">O texto inserido e demasiado longo</string>
@@ -141,6 +136,7 @@
   <string name="sorry">Desculpa</string>
   <string name="error_start_activity">Non dispoñible para o teu sistema</string>
   <string name="status_heading">Estado:</string>
+  <string name="error">Erro</string>
   <!--Contacts and Private Conversations-->
   <string name="no_contacts">Sen contactos que amosar</string>
   <string name="no_contacts_action">Toca na icona + para engadir un contacto</string>
@@ -158,13 +154,13 @@
   <string name="set_contact_alias_hint">Nome do contacto</string>
   <string name="menu_item_disappearing_messages">Mensaxes efémeras</string>
   <string name="menu_item_connect_via_bluetooth">Conectar vía Bluetooth</string>
-  <string name="connect_via_bluetooth_title">Conectar vía Bluetooth</string>
-  <string name="connect_via_bluetooth_intro">O teu contacto ten que estar preto para que isto funcione.\n\nTi e o teu contacto tedes que premer en \"Iniciar\" ao mesmo tempo.</string>
-  <string name="connect_via_bluetooth_not_discoverable">Non se pode continuar sen o Bluetooth</string>
-  <string name="connect_via_bluetooth_no_location_permission">Non se pode continuar sen o permiso de localización</string>
-  <string name="connect_via_bluetooth_start">Conectando vía Bluetooth...</string>
-  <string name="connect_via_bluetooth_success">Conectouse correctamente vía Bluetooth</string>
-  <string name="connect_via_bluetooth_error">Non se puido conectar vía Bluetooth</string>
+  <string name="dialog_title_connect_via_bluetooth">Conectar vía Bluetooth</string>
+  <string name="dialog_message_connect_via_bluetooth">O teu contacto ten que estar preto para que isto funcione.\n\nTi e o teu contacto tedes que premer en \"Iniciar\" ao mesmo tempo.</string>
+  <string name="toast_connect_via_bluetooth_not_discoverable">Non se pode continuar sen o Bluetooth</string>
+  <string name="toast_connect_via_bluetooth_no_location_permission">Non se pode continuar sen o permiso de localización</string>
+  <string name="toast_connect_via_bluetooth_start">Conectando vía Bluetooth...</string>
+  <string name="toast_connect_via_bluetooth_success">Conectouse correctamente vía Bluetooth</string>
+  <string name="toast_connect_via_bluetooth_error">Non se puido conectar vía Bluetooth</string>
   <!--The first placeholder will show a duration like "7 days". The second placeholder at the end will add "Tap to learn more."-->
   <string name="auto_delete_msg_you_enabled">As túas mensaxes desaparecerán após %1$s . %2$s</string>
   <!--The placeholder at the end will add "Tap to learn more."-->
@@ -216,6 +212,7 @@
   <string name="dialog_title_image_support">Xa podes enviar imaxes a este contacto</string>
   <string name="dialog_message_image_support">Toque nesta icona para anexar imaxes.</string>
   <string name="messaging_too_many_attachments_toast">Só se enviarán as primeiras %d imaxes</string>
+  <string name="menu_contact">Contacto</string>
   <!--Adding Contacts-->
   <string name="add_contact_title">Engadir contacto próximo</string>
   <string name="face_to_face">Debes verte coa persoa que queres engadir como contacto.\n\Isto evitará que calquera poida suplantarte ou ler as túas mensaxes no futuro.</string>
@@ -569,7 +566,8 @@
 		O teu contacto tamén pode cambiar este axuste para ambas.</string>
   <string name="learn_more">Aprender máis</string>
   <string name="disappearing_messages_summary">Facer que as futuras mensaxes da conversa desaparecerán automáticamente após 7\u00A0días.</string>
-  <!--Settings Feedback-->
+  <!--Settings Actions-->
+  <string name="pref_category_actions">Accións</string>
   <string name="send_feedback">Envía a avaliación</string>
   <!--Link Warning-->
   <string name="link_warning_title">Aviso de ligazón</string>
@@ -578,7 +576,6 @@
   <string name="link_warning_open_link">Abrir ligazón</string>
   <!--Crash Reporter-->
   <string name="crash_report_title">Informe de fallo de Briar</string>
-  <string name="briar_crashed">Lamentámolo, Briar fallou.</string>
   <string name="not_your_fault">Non é culpa túa.</string>
   <string name="please_send_report">Axúdanos por favor a mellorar Briar enviándonos un informe do fallo.</string>
   <string name="report_is_encrypted">Prometemos que o informe está cifrado e enviado con seguridade.</string>
@@ -636,6 +633,19 @@
   <string name="lock_tap_to_unlock">Toca para desbloquear</string>
   <!--Connections Screen-->
   <string name="transports_help_text">Briar pode conectar cos teus contactos a través de Internet, Wi-Fi ou Bluetooth.\n\nTodas as conexións a internet pasan a través da rede Tor para máis privacidade.\n\nSe un contacto é accesible de múltiples xeitos, Briar usaráos en paralelo.</string>
+  <!--Share app offline-->
+  <string name="hotspot_notification_channel_title">Punto de acceso Wi-Fi</string>
+  <string name="hotspot_button_connected">Seguinte</string>
+  <!--The placeholder to be inserted into the string 'hotspot_manual_wifi': People can connect by %s-->
+  <!--Wi-Fi setup-->
+  <!--The %s placeholder will be replaced with the translation of 'hotspot_scanning_a_qr_code'-->
+  <!--Download link-->
+  <!--The %s placeholder will be replaced with the translation of 'hotspot_scanning_a_qr_code'-->
+  <!--e.g. Download Briar 1.2.20-->
+  <string name="website_troubleshooting_title">Solución de problemas</string>
+  <!--error handling-->
+  <!--Transfer Data via Removable Drives-->
+  <string name="removable_drive_success_receive_title">Importación exitosa</string>
   <!--Screenshots-->
   <!--This is a name to be used in screenshots. Feel free to change it to a local name.-->
   <string name="screenshot_alice">Alice</string>

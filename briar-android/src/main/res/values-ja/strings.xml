@@ -1,5 +1,5 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
   <!--Setup-->
   <string name="setup_title">Briarへようこそ</string>
   <string name="setup_name_explanation">あなたのニックネームは、常に、あなたが投稿するコンテンツとともに表示されます。プロフィール作成後、編集はできません。</string>
@@ -34,13 +34,7 @@
   <string name="forgotten_password">パスワードを忘れました。</string>
   <string name="dialog_title_lost_password">パスワードを紛失</string>
   <string name="dialog_message_lost_password">あなたのBriarアカウントはクラウド上ではなく、暗号化さた上であなたのデバイスに保存さています。したがってBriarはパスワードをリセットできません。アカウントを削除しはじめからやりなおしますか？\n\n注意：あなたのID、連絡先、メッセージは永久に復元できません。</string>
-  <string name="startup_failed_notification_title">Briarを起動できません。</string>
-  <string name="startup_failed_notification_text">「詳細情報」をタップしてください。</string>
   <string name="startup_failed_activity_title">起動に失敗しました</string>
-  <string name="startup_failed_db_error">何らかの理由で、Briarデータベースが修復できないほど破損しています。 アカウント、データ、およびすべての連絡先が失われています。 残念ながら、パスワードプロンプトで「パスワードを忘れましました。」を選択して、Briarを再インストールするか、新しいアカウントを設定する必要があります。</string>
-  <string name="startup_failed_data_too_old_error">アカウントはこのアプリの古いバージョンで作成されたため、このバージョンで開くことはできません。 パスワードプロンプトで「パスワードを紛失しました。」を選択して、古いバージョンを再インストールするか、新しいアカウントを設定する必要があります。</string>
-  <string name="startup_failed_data_too_new_error">このバージョンのアプリは古すぎます。 最新バージョンにアップグレードして、もう一度試してみてください。</string>
-  <string name="startup_failed_service_error">プラグインの起動に失敗しました。Briarを再インストールすることで通常は直ります。Briarは中央サーバにデータを保存していないため、アカウントとそれに関連する情報は全て失われることに注意してください。</string>
   <plurals name="expiry_warning">
     <item quantity="other">これは、Briarのテストバージョンです。 アカウントは%d日で期限切れになり、更新できません。</item>
   </plurals>
@@ -65,9 +59,9 @@
   <string name="transports_onboarding_text">ここにタップすると、Briarがあなたの連絡先に接続する方法を制御できます。</string>
   <!--Transports: Tor-->
   <string name="transport_tor">インターネット</string>
-  <string name="tor_device_status_online_wifi">携帯電話はWi-Fiでインターネットにアクセスできます</string>
-  <string name="tor_device_status_online_mobile">携帯電話はモバイル データでインターネットにアクセスできます</string>
-  <string name="tor_device_status_offline">携帯電話がインターネットに接続できない</string>
+  <string name="tor_device_status_online_wifi">電話機はWi-Fiでインターネットにアクセスできます</string>
+  <string name="tor_device_status_online_mobile">電話機はモバイル データでインターネットにアクセスできます</string>
+  <string name="tor_device_status_offline">電話機がインターネットに接続できない</string>
   <string name="tor_plugin_status_enabling">Briarはインターネットに接続中</string>
   <string name="tor_plugin_status_active">Briarはインターネットに接続しました</string>
   <string name="tor_plugin_status_inactive">Briarはインターネットに接続不可能</string>
@@ -78,16 +72,16 @@
   <!--Transports: Wi-Fi-->
   <string name="transport_lan">Wi-Fi</string>
   <string name="transport_lan_long">同じWi-Fiネットワーク</string>
-  <string name="lan_device_status_on">携帯電話はWi-Fiに接続されました</string>
-  <string name="lan_device_status_off">携帯電話はWi-Fiに接続されていません</string>
+  <string name="lan_device_status_on">電話機はWi-Fiに接続されました</string>
+  <string name="lan_device_status_off">電話機はWi-Fiに接続されていません</string>
   <string name="lan_plugin_status_enabling">BriarはWi-Fiネットワークに接続中</string>
   <string name="lan_plugin_status_active">BriarはWi-Fiネットワークに接続されました</string>
   <string name="lan_plugin_status_inactive">BriarはWi-Fiネットワークに接続不可能</string>
   <string name="lan_plugin_status_disabled">BriarはWi-Fiネットワークを使用しないように設定されました</string>
   <!--Transports: Bluetooth-->
   <string name="transport_bt">Bluetooth</string>
-  <string name="bt_device_status_on">携帯電話のBluetoothはオンにされました</string>
-  <string name="bt_device_status_off">携帯電話のBluetoothはオフにされました</string>
+  <string name="bt_device_status_on">電話機のBluetoothはオンにされました</string>
+  <string name="bt_device_status_off">電話機のBluetoothはオフにされました</string>
   <string name="bt_plugin_status_enabling">BriarはBluetoothに接続中</string>
   <string name="bt_plugin_status_active">BriarはBluetoothに接続しました</string>
   <string name="bt_plugin_status_inactive">BriarはBluetoothに接続不可能</string>
@@ -128,6 +122,7 @@
   <string name="open">開く</string>
   <string name="change">変更</string>
   <string name="start">開始</string>
+  <string name="finish">終了</string>
   <string name="no_data">データなし</string>
   <string name="ellipsis">...</string>
   <string name="text_too_long">入力された文章が長すぎます。</string>
@@ -137,6 +132,7 @@
   <string name="sorry">申し訳ありません</string>
   <string name="error_start_activity">あなたのシステム上で利用不可能</string>
   <string name="status_heading">状態</string>
+  <string name="error">エラー</string>
   <!--Contacts and Private Conversations-->
   <string name="no_contacts">表示する連絡先がありません</string>
   <string name="no_contacts_action">「＋」アイコンをタップして連絡先を追加</string>
@@ -154,14 +150,14 @@
   <string name="set_contact_alias_hint">連絡先名</string>
   <string name="menu_item_disappearing_messages">消えたメッセージ</string>
   <string name="menu_item_connect_via_bluetooth">Bluetooth経由で接続する</string>
-  <string name="connect_via_bluetooth_title">Bluetooth経由で接続する</string>
-  <string name="connect_via_bluetooth_intro">この機能を利用するには、あなたの連絡先が近くにある必要があります。\n\nあなたとあなたの連絡先が同時に\"開始\"を押してください。</string>
-  <string name="connect_via_bluetooth_already_discovering">Bluetooth経由の接続を既に試行中です</string>
-  <string name="connect_via_bluetooth_not_discoverable">Bluetoothなくして続行不可能</string>
-  <string name="connect_via_bluetooth_no_location_permission">位置情報の権限なくして続行不可能</string>
-  <string name="connect_via_bluetooth_start">Bluetooth経由で接続中…</string>
-  <string name="connect_via_bluetooth_success">Bluetooth経由で接続に成功</string>
-  <string name="connect_via_bluetooth_error">Bluetooth経由で接続不可能</string>
+  <string name="dialog_title_connect_via_bluetooth">Bluetooth経由で接続する</string>
+  <string name="dialog_message_connect_via_bluetooth">この機能を利用するには、あなたの連絡先が近くにある必要があります。\n\nあなたとあなたの連絡先が同時に\"開始\"を押してください。</string>
+  <string name="toast_connect_via_bluetooth_already_discovering">Bluetooth経由の接続を既に試行中です</string>
+  <string name="toast_connect_via_bluetooth_not_discoverable">Bluetoothなくして続行不可能</string>
+  <string name="toast_connect_via_bluetooth_no_location_permission">位置情報の権限なくして続行不可能</string>
+  <string name="toast_connect_via_bluetooth_start">Bluetooth経由で接続中…</string>
+  <string name="toast_connect_via_bluetooth_success">Bluetooth経由で接続に成功</string>
+  <string name="toast_connect_via_bluetooth_error">Bluetooth経由で接続不可能</string>
   <!--The first placeholder will show a duration like "7 days". The second placeholder at the end will add "Tap to learn more."-->
   <!--The placeholder at the end will add "Tap to learn more."-->
   <!--The first placeholder will show a contact's name. The second placeholder will show a duration like "7 days". The third placeholder at the end will add "Tap to learn more."-->
@@ -203,6 +199,7 @@
   <string name="dialog_title_image_support">この連絡先に画像を送信できるようになりました</string>
   <string name="dialog_message_image_support">このアイコンをタップして画像を添付します。</string>
   <string name="messaging_too_many_attachments_toast">最初の%d個の画像のみが送信されます。</string>
+  <string name="menu_contact">連絡先</string>
   <!--Adding Contacts-->
   <string name="add_contact_title">近くの人を連絡先に追加する</string>
   <string name="face_to_face">連絡先として追加したい人と会う必要があります。\n\nこれにより、だれかがあなたになりすましたり、メッセージを読んだりするのを防ぐことができます。</string>
@@ -238,8 +235,8 @@
   <string name="link_clip_label">Briarリンク</string>
   <string name="link_copied_toast">リンクをコピーしました</string>
   <string name="adding_contact_error">連絡先への追加中にエラーが発生しました。</string>
-  <string name="pending_contact_requests_snackbar">保留中の連絡先への追加リクエストがあります</string>
-  <string name="pending_contact_requests">連絡先追加リクエスト</string>
+  <string name="pending_contact_requests_snackbar">保留中の連絡先への追加要求があります</string>
+  <string name="pending_contact_requests">連絡先追加要求</string>
   <string name="no_pending_contacts">保留中の連絡先追加リクエストはありません</string>
   <string name="waiting_for_contact_to_come_online">連絡相手がオンラインになるのを待っています…</string>
   <string name="connecting">接続中…</string>
@@ -310,7 +307,7 @@
   <string name="groups_remove">削除</string>
   <string name="groups_create_group_title">プライベートグループ作成</string>
   <string name="groups_create_group_button">グループ作成</string>
-  <string name="groups_create_group_invitation_button">招待する</string>
+  <string name="groups_create_group_invitation_button">招待を送信</string>
   <string name="groups_create_group_hint">プライベートグループに名前をつける</string>
   <string name="groups_invitation_sent">グループ招待状が送信されました</string>
   <string name="groups_member_list">メンバー一覧</string>
@@ -437,6 +434,8 @@
   <string name="blogs_rss_feeds_import_button">インポート</string>
   <string name="blogs_rss_feeds_import_hint">RSSフィードのURLを入力してください</string>
   <string name="blogs_rss_feeds_import_error">申し訳ありません！ フィードのインポート中にエラーが発生しました。</string>
+  <string name="blogs_rss_feeds_import_exists">そのフィードは既にインポートされています。</string>
+  <string name="blogs_rss_feeds">RSSフィード</string>
   <string name="blogs_rss_feeds_manage_imported">インポート済み：</string>
   <string name="blogs_rss_feeds_manage_author">著者:</string>
   <string name="blogs_rss_feeds_manage_updated">最終更新:</string>
@@ -467,7 +466,7 @@
   <string name="tor_enable_title">インターネット経由で連絡先に接続</string>
   <string name="tor_enable_summary">全接続をプライバシーのためにTorネットワークを通す</string>
   <string name="tor_network_setting">Torネットワークの接続方法</string>
-  <string name="tor_network_setting_automatic">場所に基づいて自動的に接続する</string>
+  <string name="tor_network_setting_automatic">位置情報に基づいて自動的に接続する</string>
   <string name="tor_network_setting_without_bridges">ブリッジなしでTorネットワークを使用する</string>
   <string name="tor_network_setting_with_bridges">ブリッジを通してTorネットワークを使用する</string>
   <string name="tor_network_setting_never">インターネットに接続しない</string>
@@ -518,7 +517,7 @@
   <!--Settings Notifications-->
   <string name="notification_settings_title">通知</string>
   <string name="notify_sign_in_title">サインインするように通知する</string>
-  <string name="notify_sign_in_summary">電話の起動時またはアプリの更新時にリマインダーを表示する</string>
+  <string name="notify_sign_in_summary">電話機の起動時またはアプリの更新時にリマインダーを表示する</string>
   <string name="notify_private_messages_setting_title">プライベート・メッセージ</string>
   <string name="notify_private_messages_setting_summary">プライベートメッセージのアラートを表示する</string>
   <string name="notify_private_messages_setting_summary_26">プライベートメッセージのアラートを設定する</string>
@@ -538,9 +537,9 @@
   <string name="choose_ringtone_title">着信音を選択</string>
   <string name="cannot_load_ringtone">着信音を読み込めません</string>
   <!--Conversation Settings-->
-  <string name="disappearing_messages_title">消えたメッセージ</string>
   <string name="learn_more">詳細情報</string>
-  <!--Settings Feedback-->
+  <!--Settings Actions-->
+  <string name="pref_category_actions">操作</string>
   <string name="send_feedback">フィードバックを送信</string>
   <!--Link Warning-->
   <string name="link_warning_title">リンクの警告</string>
@@ -549,7 +548,7 @@
   <string name="link_warning_open_link">リンクを開く</string>
   <!--Crash Reporter-->
   <string name="crash_report_title">Briarのクラッシュレポート</string>
-  <string name="briar_crashed">申し訳ありませんが、Briarはクラッシュしました。</string>
+  <string name="briar_crashed">申し訳ありませんが、Briarはクラッシュしました</string>
   <string name="not_your_fault">これはあなたのせいではありません。</string>
   <string name="please_send_report">クラッシュレポートを送信して、より良いBriarの開発にご協力ください。</string>
   <string name="report_is_encrypted">レポートは暗号化され、安全に送信されることをお約束します。</string>
@@ -574,6 +573,7 @@
   <string name="dev_report_sending">フィードバックを送信中…</string>
   <string name="dev_report_sent">フィードバックを送信しました</string>
   <string name="dev_report_saved">レポートを保存しました。 次回、Briarにログインしたときに送信されます。</string>
+  <string name="dev_report_error">エラー：レポート送信に失敗</string>
   <!--Sign Out-->
   <string name="progress_title_logout">Briarからサインアウト中…</string>
   <!--Screen Filters & Tapjacking-->
@@ -589,6 +589,10 @@
   <string name="permission_camera_location_title">カメラと位置情報</string>
   <string name="permission_camera_location_request_body">QRコードをスキャンするには、Briarはカメラにアクセスする必要があります。\n\nBluetoothデバイスを検出するには、Briarは現在地情報にアクセスする許可が必要です。\n\nBriarは現在地を保存したり、誰とも共有したりしません。</string>
   <string name="permission_camera_denied_body">カメラへのアクセスをが拒否されましたが、連絡先を追加するにはカメラを使用する必要があります。\n\nカメラへのアクセスの許可を考えてください。</string>
+  <string name="permission_location_denied_body">あなたの位置情報にアクセスすることを拒否しましたが、BriarはBluetoothデバイスを発見するのに、この権限が必要です。\n\nアクセス権を付与することを考慮願います。</string>
+  <string name="permission_location_setting_title">位置情報設定</string>
+  <string name="permission_location_setting_body">デバイスの位置情報設定は、Bluetoothを介して他のデバイスを見つけるために、オンにする必要があります。続けるには位置情報を有効にしてください。その後、位置情報を無効にできます。</string>
+  <string name="permission_location_setting_button">位置情報を有効化</string>
   <string name="qr_code">QRコード</string>
   <string name="show_qr_code_fullscreen">QRコードを全画面表示する</string>
   <!--App Locking-->
@@ -600,6 +604,46 @@
   <string name="lock_tap_to_unlock">タップしてロック解除</string>
   <!--Connections Screen-->
   <string name="transports_help_text">Briarは、インターネット、Wi-Fi、Bluetoothを介して連絡先に接続することができます。\n\nすべてのインターネット接続は、プライバシー保護のためにTorネットワークを経由します。\n\n複数の方法で連絡が取れる場合、Briarはそれらを並行して使用します。</string>
+  <!--Share app offline-->
+  <string name="hotspot_title">このアプリをオフラインで共有</string>
+  <string name="hotspot_intro">あなたの電話機のWi-Fiを使用して、インターネット接続なしで、近くの誰かとこのアプリを共有します。
+		\n\nあなたの電話機はWi-Fiホットスポットになります。近くの人はホットスポットへ接続し、あなたの電話機からBriarアプリをダウンロードできます。</string>
+  <string name="hotspot_button_start_sharing">ホットスポットを開始</string>
+  <string name="hotspot_button_stop_sharing">ホットスポットを停止</string>
+  <string name="hotspot_progress_text_start">ホットスポットを設定する…</string>
+  <string name="hotspot_notification_channel_title">Wi-Fiホットスポット</string>
+  <string name="hotspot_notification_title">Briarをオフラインで共有</string>
+  <string name="hotspot_button_connected">次へ</string>
+  <string name="permission_hotspot_location_request_body">Wi-Fiホットスポットを作るには、Briarはあなたの位置情報にアクセスする権限が必要です。\n\nBriarはあなたの位置情報を保存せず、誰かに共有することもありません。</string>
+  <string name="permission_hotspot_location_denied_body">あなたの位置情報にアクセスすることを拒否しましたが、BriarはWi-Fiホットスポットを作るのに、この権限が必要です。\n\nアクセス権を付与することを考慮願います。</string>
+  <string name="wifi_settings_title">Wi-Fi設定</string>
+  <string name="wifi_settings_request_enable_body">Wi-Fiホットスポットを作るには、BriarWi-Fiの使用が必要です。有効にしてください。</string>
+  <string name="wifi_settings_request_denied_body">Wi-Fiを有効化する権限を拒否しましたが、BriarはWi-Fiの使用が必要です。\n\n有効にすることを考慮願います。</string>
+  <string name="hotspot_tab_manual">手動</string>
+  <!--The placeholder to be inserted into the string 'hotspot_manual_wifi': People can connect by %s-->
+  <string name="hotspot_scanning_a_qr_code">QRコードをスキャン</string>
+  <!--Wi-Fi setup-->
+  <!--The %s placeholder will be replaced with the translation of 'hotspot_scanning_a_qr_code'-->
+  <string name="hotspot_manual_wifi">あなたの電話機はWi-Fiホットスポットを提供しています。Briarのダウンロードを希望する人は、以下の方法で端末のWi-Fi設定に追加するか、または %s によるホットスポットに接続してください。そのホットスポットに接続されたら、\'Next\'を押してください。</string>
+  <string name="hotspot_manual_wifi_ssid">ネットワーク名</string>
+  <string name="hotspot_qr_wifi">あなたの電話機はWi-Fiホットスポットを提供しています。Briarのダウンロードを希望する人は、このQRコードをスキャンしてホットスポットに接続してください。そのホットスポットに接続されたら、\'Next\'を押してください。</string>
+  <string name="hotspot_no_peers_connected">接続されたデバイスなし</string>
+  <plurals name="hotspot_peers_connected">
+    <item quantity="other">%s機の接続されたデバイス</item>
+  </plurals>
+  <!--Download link-->
+  <!--The %s placeholder will be replaced with the translation of 'hotspot_scanning_a_qr_code'-->
+  <string name="hotspot_manual_site">あなたの電話機はWi-Fiホットスポットを提供しています。ホットスポットに接続された人は、ウェブブラウザまたは %s 内で以下のリンクを入力して、Briarをダウンロードできます。</string>
+  <string name="hotspot_manual_site_address">アドレス（URL）</string>
+  <string name="hotspot_qr_site">あなたの電話機はWi-Fiホットスポットを提供しています。ホットスポットに接続された人は、このQRコードをスキャンして、Briarをダウンロードできます。</string>
+  <!--e.g. Download Briar 1.2.20-->
+  <string name="website_download_title">%s をダウンロードする</string>
+  <string name="website_download_intro">近くの誰かが、あなたと %s を共有しました。</string>
+  <string name="website_download_outro">ダウンロードが完了した後に、ダウンロードしたファイルを開いて、インストールしてください。</string>
+  <string name="website_troubleshooting_title">トラブルシューティング</string>
+  <!--error handling-->
+  <!--Transfer Data via Removable Drives-->
+  <string name="removable_drive_success_receive_title">インポート成功</string>
   <!--Screenshots-->
   <!--This is a name to be used in screenshots. Feel free to change it to a local name.-->
   <string name="screenshot_alice">アリス</string>

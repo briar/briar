@@ -1,5 +1,5 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
   <!--Setup-->
   <string name="setup_title">Welkom bij Briar</string>
   <string name="setup_name_explanation">Je bijnaam wordt getoond bij alle content die je post. Nadat je account is aangemaakt is het niet mogelijk je bijnaam te wijzigen.</string>
@@ -33,13 +33,7 @@
   <string name="forgotten_password">Ik ben mijn wachtwoord vergeten</string>
   <string name="dialog_title_lost_password">Wachtwoord vergeten</string>
   <string name="dialog_message_lost_password">Je Briar-account is versleuteld opgeslagen op je apparaat, niet in de cloud, dus kunnen we je wachtwoord niet herstellen. Wil je je account verwijderen en opnieuw beginnen?\n\nLet op: Je identiteiten, contacten en berichten zullen permanent verloren gaan.</string>
-  <string name="startup_failed_notification_title">Briar kon niet opstarten</string>
-  <string name="startup_failed_notification_text">Tik voor meer informatie.</string>
   <string name="startup_failed_activity_title">Opstarten Briar mislukt</string>
-  <string name="startup_failed_db_error">Om de een of andere reden is je Briar-database corrupt geraakt en niet meer te repareren. Je account, je gegevens en al je contacten zijn verloren. Helaas zul je Briar moeten herinstalleren en een nieuw account aan moeten maken met \'Ik ben mijn wachtwoord vergeten\' als om je wachtwoord wordt gevraagd.</string>
-  <string name="startup_failed_data_too_old_error">Je account was aangemaakt met een oude versie van deze app en kan met deze versie niet worden geopend. Je moet de oude versie installeren of een nieuw account aanmaken door \'Ik ben mijn wachtwoord vergeten\' te kiezen als om je wachtwoord wordt gevraagd.</string>
-  <string name="startup_failed_data_too_new_error">Deze versie van de is app is te oud. Upgrade alsjeblieft naar de laatste versie en probeer het nog een keer.</string>
-  <string name="startup_failed_service_error">Briar kon de vereiste plug-in niet starten. Herinstalleren van Briar lost dit probleem meestal op. Let alsjeblieft op dat je je account en alle gegevens die daaraan vast zitten zal verliezen omdat Briar geen centrale servers gebruikt om gegevens op te slaan.</string>
   <plurals name="expiry_warning">
     <item quantity="one">Dit is een testversie van Briar. Je account verloopt binnen %d dag en kan niet worden vernieuwd.</item>
     <item quantity="other">Dit is een testversie van Briar. Je account verloopt binnen %d dagen en kan niet worden vernieuwd.</item>
@@ -132,6 +126,7 @@
   <string name="open">Open</string>
   <string name="change">Wijzigen</string>
   <string name="start">Beginnen</string>
+  <string name="finish">Einde</string>
   <string name="no_data">Geen gegevens</string>
   <string name="ellipsis">…</string>
   <string name="text_too_long">De ingevoerde tekst is te lang</string>
@@ -141,6 +136,7 @@
   <string name="sorry">Excuses</string>
   <string name="error_start_activity">Onbeschikbaar op jouw systeem</string>
   <string name="status_heading">Status:</string>
+  <string name="error">Fout</string>
   <!--Contacts and Private Conversations-->
   <string name="no_contacts">Er zijn geen contacten om te tonen</string>
   <string name="no_contacts_action">Tik op het +-icoon om een contact toe te voegen</string>
@@ -155,7 +151,7 @@
   <string name="set_contact_alias">Verander naam van contact</string>
   <string name="set_contact_alias_hint">Contactnaam</string>
   <string name="menu_item_connect_via_bluetooth">Verbind via Bluetooth</string>
-  <string name="connect_via_bluetooth_title">Verbind via Bluetooth</string>
+  <string name="dialog_title_connect_via_bluetooth">Verbind via Bluetooth</string>
   <!--The first placeholder will show a duration like "7 days". The second placeholder at the end will add "Tap to learn more."-->
   <!--The placeholder at the end will add "Tap to learn more."-->
   <!--The first placeholder will show a contact's name. The second placeholder will show a duration like "7 days". The third placeholder at the end will add "Tap to learn more."-->
@@ -186,6 +182,7 @@
   <string name="dialog_title_image_support">Je kan nu afbeeldingen naar dit contact sturen</string>
   <string name="dialog_message_image_support">Tik op dit icoon om afbeelding bij te sluiten.</string>
   <string name="messaging_too_many_attachments_toast">Alleen de eerste %d afbeeldingen worden verstuurd</string>
+  <string name="menu_contact">Contact</string>
   <!--Adding Contacts-->
   <string name="add_contact_title">Voeg contact in de buurt toe</string>
   <string name="face_to_face">Je moet een persoon in levenden lijve ontmoeten om die als contact toe te voegen.\n\nDit voortkomt dat anderen zich als jou voor kunnen doen of in de toekomst je berichten kunnen lezen.</string>
@@ -524,7 +521,8 @@
   <string name="cannot_load_ringtone">Kan meldingsgeluid niet laden</string>
   <!--Conversation Settings-->
   <string name="learn_more">Meer info</string>
-  <!--Settings Feedback-->
+  <!--Settings Actions-->
+  <string name="pref_category_actions">Acties</string>
   <string name="send_feedback">Verstuur feedback</string>
   <!--Link Warning-->
   <string name="link_warning_title">Linkwaarschuwing</string>
@@ -533,7 +531,6 @@
   <string name="link_warning_open_link">Open link</string>
   <!--Crash Reporter-->
   <string name="crash_report_title">Briar Crashrapport</string>
-  <string name="briar_crashed">Excuses, Briar is gecrasht.</string>
   <string name="not_your_fault">Dit is niet jouw schuld</string>
   <string name="please_send_report">Help ons alsjeblieft om Briar te verbeteren door crashrapporten naar ons te sturen.</string>
   <string name="report_is_encrypted">We beloven dat het rapport is versleuteld en veilig wordt verzonden.</string>
@@ -587,6 +584,20 @@
   <string name="lock_tap_to_unlock">Tik om te ontgrendelen</string>
   <!--Connections Screen-->
   <string name="transports_help_text">Briar kan met je contacten verbinden via het internet, wifi of bluetooth.\n\nAlle internetverbindingen gaan voor privacy door het Tornetwerk.\n\nAls een contact via meerdere methoden te bereiken is, zal Briar die parallel gebruiken.</string>
+  <!--Share app offline-->
+  <string name="hotspot_notification_channel_title">Wifi-hotspot</string>
+  <string name="hotspot_button_connected">Volgende</string>
+  <string name="hotspot_tab_manual">Handmatig</string>
+  <!--The placeholder to be inserted into the string 'hotspot_manual_wifi': People can connect by %s-->
+  <!--Wi-Fi setup-->
+  <!--The %s placeholder will be replaced with the translation of 'hotspot_scanning_a_qr_code'-->
+  <!--Download link-->
+  <!--The %s placeholder will be replaced with the translation of 'hotspot_scanning_a_qr_code'-->
+  <!--e.g. Download Briar 1.2.20-->
+  <string name="website_troubleshooting_title">Probleem oplossen</string>
+  <!--error handling-->
+  <!--Transfer Data via Removable Drives-->
+  <string name="removable_drive_success_receive_title">Importeren geslaagd</string>
   <!--Screenshots-->
   <!--This is a name to be used in screenshots. Feel free to change it to a local name.-->
   <string name="screenshot_alice">Veerle</string>

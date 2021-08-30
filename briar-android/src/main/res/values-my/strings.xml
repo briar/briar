@@ -1,5 +1,5 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
   <!--Setup-->
   <string name="setup_title">Briar မှ ကြိုဆိုပါသည်</string>
   <string name="setup_name_explanation">သင့်နာမည်ပြောင်သည် သင်တင်ထားသမျှအရာ၏ဘေးတွင် ပေါ်နေပါလိမ့်မည်။ သို့ပါ၍ သင့်နာမည်ပြောင်အား အကောင့်ဖွင့်ပြီးနောက် ပြောင်း၍မရတော့ပါ။</string>
@@ -40,13 +40,7 @@
   <string name="forgotten_password">ကျွန်ုပ်၏စကားဝှက်ကို မေ့သွားပါသည်</string>
   <string name="dialog_title_lost_password">စကားဝှက်ပျောက်ဆုံး</string>
   <string name="dialog_message_lost_password">သင့် Briar အကောင့်ကို ကလောက်တွင်မဟုတ်ဘဲ သင့်ကိရိယာတွင်သာ လျှို့ဝှက်ကုဒ်ပြောင်းသိမ်းဆည်းထားသောကြောင့် သင့်စကားဝှက်ကို ပြန်လည်သတ်မှတ်မပေးနိုင်ပါ။ သင့်အကောင့်ကို ဖျက်ပစ်ပြီး အသစ်ပြန်ဖွင့်ချင်ပါသလား။\n\nသတိ - သင့်ကိုယ်ပိုင်အချက်အလက်များ၊ အဆက်အသွယ်များနှင့် မက်ဆေ့ချ်များအားလုံး အပြီးပျက်သွားပါလိမ့်မည်။</string>
-  <string name="startup_failed_notification_title">Briar မစတင်နိုင်ပါ</string>
-  <string name="startup_failed_notification_text">အချက်အလက်များကို ပိုမိုကြည့်ရှုရန် နှိပ်ပါ။</string>
   <string name="startup_failed_activity_title">Briar မစတင်နိုင်ပါ</string>
-  <string name="startup_failed_db_error">အကြောင်းကြောင်းကြောင့် သင့် Briar အချက်အလက်အစုတစ်ခုလုံး လုံးဝပျက်စီးသွားပါသည်။ သင့်အကောင့်၊ သင့်အချက်အလက်နှင့် သင့်အဆက်အသွယ်အကုန်လုံး ပျောက်ဆုံးသွားပါသည်။ ကံမကောင်းစွာဘဲ သင့်အနေဖြင့် Briar ကို ပြန်လည်ထည့်သွင်းရပါမည် (သို့) စကားဝှက်တောင်းသည့်နေရာတွင် \'ကျွန်ုပ်၏စကားဝှက်ကို မေ့သွားပါသည်\' ကို ရွေးချယ်ပြီး အကောင့်အသစ်တစ်ခု ဖွင့်နိုင်ပါသည်။</string>
-  <string name="startup_failed_data_too_old_error">သင့်အကောင့်ကို ဤအက်ပ်၏ဗားရှင်းအဟောင်းတစ်ခုဖြင့် ဖွင့်ခဲ့သောကြောင့် ယခုဗားရှင်းဖြင့် ဖွင့်၍မရပါ။ ဗားရှင်းအဟောင်းကို ပြန်ထည့်သွင်းရပါမည် (သို့) စကားဝှက်တောင်းသည့်နေရာတွင် \'ကျွန်ုပ်၏စကားဝှက်ကို မေ့သွားပါသည်\' ကို ရွေးချယ်ပြီး အကောင့်အသစ်တစ်ခု ဖွင့်နိုင်ပါသည်။</string>
-  <string name="startup_failed_data_too_new_error">ဤအက်ပ်ဗားရှင်းသည် အလွန်ဟောင်းနေသောကြောင့် နောက်ဆုံးဗားရှင်းမြှင့်ပြီး ထပ်စမ်းကြည့်ပါ။</string>
-  <string name="startup_failed_service_error">Briar သည် လိုအပ်သည့် ချိတ်ဆက်ပရိုဂရမ်တစ်ခုကို မဖွင့်နိုင်ပါ။ Briar ကို ပြန်ထည့်သွင်းခြင်းက ဤပြဿနာကို ပြေလည်စေလေ့ရှိပါသည်။ သို့သော်လည်း Briar သည် သင့်အချက်အလက်များသိမ်းဆည်းရန် ဗဟိုပြုဆာဗာများကို အသုံးပြုမနေသောကြောင့် သင့်အကောင့်နှင့် ဆက်စပ်အချက်အလက်အားလုံးကို ဆုံးရှုံးသွားပါလိမ့်မည်။</string>
   <plurals name="expiry_warning">
     <item quantity="other">ဤအရာသည် Briar ၏ စမ်းသပ်ဆဲဗားရှင်းဖြစ်ပါသည်။ သင့်အကောင့်သည် %d ရက်နေ့တွင် သက်တမ်းကုန်ဆုံးမည်ဖြစ်ပြီး သက်တမ်းတိုး၍မရနိုင်ပါ။</item>
   </plurals>
@@ -143,6 +137,7 @@
   <string name="sorry">ဝမ်းနည်းပါတယ်</string>
   <string name="error_start_activity">သင်၏စနစ်တွင် မရရှိနိုင်ပါ</string>
   <string name="status_heading">အခြေအနေ -</string>
+  <string name="error">ချို့ယွင်းချက်</string>
   <!--Contacts and Private Conversations-->
   <string name="no_contacts">ပြသစရာအဆက်အသွယ် မရှိပါ</string>
   <string name="no_contacts_action">+ (အပေါင်းအိုင်ကွန်) အား နှိပ်၍ အဆက်အသွယ်ကို ထည့်သွင်းပါ</string>
@@ -160,14 +155,14 @@
   <string name="set_contact_alias_hint">အဆက်အသွယ်အမည်</string>
   <string name="menu_item_disappearing_messages">ပျောက်ကွယ် မက်ဆေ့ချ်များ</string>
   <string name="menu_item_connect_via_bluetooth">ဘလူးတုသ် နှင့် ချိတ်မယ်</string>
-  <string name="connect_via_bluetooth_title">ဘလူးတုသ် နှင့် ချိတ်မယ်</string>
-  <string name="connect_via_bluetooth_intro">လုပ်ဆောင်ချက် အောင်မြင်နိုင်ရန် သင်၏ အဆက်အသွယ်သည် အနီးအနားတွင်ရှိရပါမည်။ \n\n သင် နှင့် သင်၏ အဆက်အသွယ် နှစ်ဦးစလုံးသည် \"စတင်ရန်\" ကို တစ်ပြိုင်တည်း နှိပ်ရပါမည်။</string>
-  <string name="connect_via_bluetooth_already_discovering">ဘလူးတုသ် နှင့် ချိတ်ဆက်ရန် ကြိုးစားနေပါသည်</string>
-  <string name="connect_via_bluetooth_not_discoverable">ဘလူးတုသ် မပါဘဲ ဆက်လက်မလုပ်ဆောင်နိုင်ပါ</string>
-  <string name="connect_via_bluetooth_no_location_permission">တည်နေရာသုံးခွင့် မပါဘဲ ဆက်လက်မလုပ်ဆောင်နိုင်ပါ</string>
-  <string name="connect_via_bluetooth_start">ဘလူးတုသ် နှင့် ချိတ်ဆက်နေသည်...</string>
-  <string name="connect_via_bluetooth_success">ဘလူးတုသ် နှင့် အောင်မြင်စွာ ချိတ်ဆက်ပြီး</string>
-  <string name="connect_via_bluetooth_error">ဘလူးတုသ် နှင့် ချိတ်ဆက်၍မရပါ</string>
+  <string name="dialog_title_connect_via_bluetooth">ဘလူးတုသ် နှင့် ချိတ်မယ်</string>
+  <string name="dialog_message_connect_via_bluetooth">လုပ်ဆောင်ချက် အောင်မြင်နိုင်ရန် သင်၏ အဆက်အသွယ်သည် အနီးအနားတွင်ရှိရပါမည်။ \n\n သင် နှင့် သင်၏ အဆက်အသွယ် နှစ်ဦးစလုံးသည် \"စတင်ရန်\" ကို တစ်ပြိုင်တည်း နှိပ်ရပါမည်။</string>
+  <string name="toast_connect_via_bluetooth_already_discovering">ဘလူးတုသ် နှင့် ချိတ်ဆက်ရန် ကြိုးစားနေပါသည်</string>
+  <string name="toast_connect_via_bluetooth_not_discoverable">ဘလူးတုသ် မပါဘဲ ဆက်လက်မလုပ်ဆောင်နိုင်ပါ</string>
+  <string name="toast_connect_via_bluetooth_no_location_permission">တည်နေရာသုံးခွင့် မပါဘဲ ဆက်လက်မလုပ်ဆောင်နိုင်ပါ</string>
+  <string name="toast_connect_via_bluetooth_start">ဘလူးတုသ် နှင့် ချိတ်ဆက်နေသည်...</string>
+  <string name="toast_connect_via_bluetooth_success">ဘလူးတုသ် နှင့် အောင်မြင်စွာ ချိတ်ဆက်ပြီး</string>
+  <string name="toast_connect_via_bluetooth_error">ဘလူးတုသ် နှင့် ချိတ်ဆက်၍မရပါ</string>
   <!--The first placeholder will show a duration like "7 days". The second placeholder at the end will add "Tap to learn more."-->
   <string name="auto_delete_msg_you_enabled">သင်၏မက်ဆေ့ချ်များသည် %1$s အကြာတွင် ပျောက်ကွယ်သွားပါမည်။ %2$s</string>
   <!--The placeholder at the end will add "Tap to learn more."-->
@@ -216,6 +211,7 @@
   <string name="dialog_title_image_support">ရုပ်ပုံများကို ဤအဆက်အသွယ်လိပ်စာသို့ ပို့လို့ရပါပြီ</string>
   <string name="dialog_message_image_support">ဤအိုင်ကွန်ကို နှိပ်ပြီး ရုပ်ပုံများကို ပူးတွဲပါ</string>
   <string name="messaging_too_many_attachments_toast">ပထမဆုံး %d ရုပ်ပုံများသာလျှင် ပို့ပါမည်</string>
+  <string name="menu_contact">အဆက်အသွယ်</string>
   <!--Adding Contacts-->
   <string name="add_contact_title">အနီးနားရှိ အဆက်အသွယ်အား ထည့်သွင်းမယ်</string>
   <string name="face_to_face">သင်သည် ဤလူပုဂ္ဂိုလ်အား အပြင်မှာတွေ့ရှိမှသာလျှင် ၎င်း၏အဆက်အသွယ်ကို ပေါင်းထည့်လို့ရပါမည်။ \n\n ဒါမှသာလျှင် နောင်တွင် အခြားလူများ သင့်အား အယောင်ဆောင်ခြင်း သို့မဟုတ် သင့်မက်ဆေ့ချ်များဖတ်ရှုခြင်း တို့ကို တားဆီးနိုင်ပါမည်။</string>
@@ -565,7 +561,8 @@
 		 သင်၏အဆက်အသွယ်လည်း ၎င်းအပြင်အဆင်ကို ၎င်းတို့ နှစ်ဦးစလုံးအတွက် ပြောင်းလဲနိုင်ပါသည်။</string>
   <string name="learn_more">ထပ်မံလေ့လာမယ်</string>
   <string name="disappearing_messages_summary">၎င်းစကားပြောဆိုမှုထဲရှိ နောင်မက်ဆေ့ချ်များကို 7\u00A0 ရက်အကြာတွင် အလိုအလျောက် ဖျောက်ကွယ်မယ်။</string>
-  <!--Settings Feedback-->
+  <!--Settings Actions-->
+  <string name="pref_category_actions">ဆောင်ရွက်ချက်များ</string>
   <string name="send_feedback">တုံ့ပြန်ချက် ပေးပို့မယ်</string>
   <!--Link Warning-->
   <string name="link_warning_title">လင့်ခ် သတိပေးချက်</string>
@@ -574,7 +571,6 @@
   <string name="link_warning_open_link">လင့်ခ်ဖွင့်မယ်</string>
   <!--Crash Reporter-->
   <string name="crash_report_title">Briar ပျက်ယွင်းမှုတိုင်ကြားခြင်း</string>
-  <string name="briar_crashed">ဝမ်းနည်းပါတယ်၊ Briar ပျက်သွားပါသည်။</string>
   <string name="not_your_fault">သင့်အမှားမဟုတ်ပါ။</string>
   <string name="please_send_report">ပျက်ကွက်မှု တိုင်ကြားစာ ပေးပို့၍ ကျွန်ုပ်တို့်အား Briar အပ္ပလီကေးရှင်း တိုးတက်ရန် ကူညီပေးပါ။</string>
   <string name="report_is_encrypted">သင်၏တိုင်ကြားမှုကို လျှို့ဝှက်ကုဒ်ပြောင်း၍ လုံခြုံစွာပို့ကြောင်း ကတိပြုပါသည်။</string>
@@ -632,6 +628,18 @@
   <string name="lock_tap_to_unlock">နှိပ်၍ သော့ဖွင့်မယ်</string>
   <!--Connections Screen-->
   <string name="transports_help_text">Briar သည် သင့်အဆက်အသွယ်များကို အင်တာနက်၊ ဝိုင်ဖိုင်၊ သို့မဟုတ် ဘလူးတုသ် မှတစ်ဆင့် ချိတ်ဆက်နိုင်ပါသည်။ \n\n အင်တာနက်ချိတ်ဆက်မှုအားလုံးသည် လုံခြုံရေးအတွက် Tor ကွန်ယက်မှတစ်ဆင့် ဖြတ်သန်းပါသည်။ \n\n အဆက်အသွယ်တစ်ဦးကို နည်းမျိုးစုံနှင့် ဆက်သွယ်နိုင်ခဲ့လျှင် Briar သည် နည်းမျိုးစုံအား တစ်ပြိုင်နက်တည်း အသုံးပြုနေပါသည်။</string>
+  <!--Share app offline-->
+  <string name="hotspot_notification_channel_title">ဝိုင်ဖိုင် ဟော့စပေါ့</string>
+  <string name="hotspot_button_connected">ရှေ့သို့</string>
+  <!--The placeholder to be inserted into the string 'hotspot_manual_wifi': People can connect by %s-->
+  <!--Wi-Fi setup-->
+  <!--The %s placeholder will be replaced with the translation of 'hotspot_scanning_a_qr_code'-->
+  <!--Download link-->
+  <!--The %s placeholder will be replaced with the translation of 'hotspot_scanning_a_qr_code'-->
+  <!--e.g. Download Briar 1.2.20-->
+  <string name="website_troubleshooting_title">အကူအညီ</string>
+  <!--error handling-->
+  <!--Transfer Data via Removable Drives-->
   <!--Screenshots-->
   <!--This is a name to be used in screenshots. Feel free to change it to a local name.-->
   <string name="screenshot_alice">Alice</string>

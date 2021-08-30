@@ -1,5 +1,5 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
   <!--Setup-->
   <string name="setup_title">Добро пожаловать в Briar</string>
   <string name="setup_name_explanation">Ваш псевдоним будет отображаться рядом с любым размещаемым вами контентом. Его нельзя изменить после создания аккаунта.</string>
@@ -40,15 +40,12 @@
   <string name="forgotten_password">Я забыл свой пароль</string>
   <string name="dialog_title_lost_password">Пароль утерян</string>
   <string name="dialog_message_lost_password">Ваш аккаунт Briar хранится в зашифрованном виде только на устройстве, поэтому мы не можем сбросить пароль. Удалить учетную запись и начать заново?\n\nВнимание: ваши идентификаторы, контакты и сообщения будут потеряны навсегда.</string>
-  <string name="startup_failed_notification_title">Не удалось запустить Briar</string>
-  <string name="startup_failed_notification_text">Нажмите для получения дополнительной информации.</string>
   <string name="startup_failed_activity_title">Сбой при запуске Briar</string>
-  <string name="startup_failed_db_error">По неясным причинам, база данных Briar повреждена без возможности восстановления. Ваша учетная запись, ваши данные и все ваши контакты потеряны. К сожалению, вам придется переустановить Briar или создать новый аккаунт, выбрав \'я забыл свой пароль\' на этапе входа в аккаунт.</string>
-  <string name="startup_failed_data_too_old_error">Ваша учетная запись была создана в старой версии Briar, поэтому открыть ее в этой версии приложения не удастся. Вам необходимо либо установить старую версию, либо создать новый аккаунт, выбрав \'я забыл свой пароль\' на этапе авторизации в приложении.</string>
-  <string name="startup_failed_data_too_new_error">Эта версия приложения слишком старая. Обновите до последней версии и повторите попытку.</string>
-  <string name="startup_failed_service_error">Briar не смог запустить требуемый плагин. Переустановка Briar обычно решает эту проблему. Однако учтите, что вы потеряете свою учетную запись и все связанные с 
-ней данные, поскольку Briar не использует серверную инфраструктуру для 
-хранения ваших данных.</string>
+  <string name="startup_failed_clock_error">Briar не удалось запустить, поскольку время на устройстве выставлено некорректно.\n\nПожалуйста, установите правильное время на часах вашего устройства и повторите попытку.</string>
+  <string name="startup_failed_db_error">Briar не смог открыть базу данных, содержащую вашу учетную запись, контакты и сообщения.\n\nПожалуйста, обновите приложение до последней версии и повторите попытку, или создайте новую учетную запись, выбрав \'Я забыл пароль\' в подсказке пароля.</string>
+  <string name="startup_failed_data_too_old_error">Ваша учетная запись была создана в старой версии этого приложения и не может быть открыта в текущей версии.\n\nНеобходимо либо повторно установить старую версию, либо создать новую учетную запись, выбрав \'Я забыл пароль\' в подсказке пароля.</string>
+  <string name="startup_failed_data_too_new_error">Ваш счет был создан в более новой версии этого приложения и не может быть открыт в текущей версии.\n\nПожалуйста, обновите версию до последней и повторите попытку.</string>
+  <string name="startup_failed_service_error">Briar не смог запустить необходимый компонент.\n\nПожалуйста, обновите приложение до последней версии и повторите попытку.</string>
   <plurals name="expiry_warning">
     <item quantity="one">Это бета-версия Briar. Срок действия вашего аккаунта закончится через %d день и не может быть возобновлен.</item>
     <item quantity="few">Это бета-версия Briar. Срок действия вашего аккаунта закончится через %d дня и не может быть возобновлен.</item>
@@ -151,6 +148,7 @@
   <string name="open">Открыть</string>
   <string name="change">Изменить</string>
   <string name="start">Начать</string>
+  <string name="finish">Завершить</string>
   <string name="no_data">Нет данных</string>
   <string name="ellipsis">…</string>
   <string name="text_too_long">Введенный текст слишком длинный</string>
@@ -160,6 +158,7 @@
   <string name="sorry">Сожалеем</string>
   <string name="error_start_activity">Недоступно для вашей системы</string>
   <string name="status_heading">Статус:</string>
+  <string name="error">Ошибка</string>
   <!--Contacts and Private Conversations-->
   <string name="no_contacts">Нет контактов для отображения</string>
   <string name="no_contacts_action">Для добавления контакта нажмите значок +</string>
@@ -177,14 +176,14 @@
   <string name="set_contact_alias_hint">Имя контакта</string>
   <string name="menu_item_disappearing_messages">Исчезающие сообщения</string>
   <string name="menu_item_connect_via_bluetooth">Подключение через Bluetooth</string>
-  <string name="connect_via_bluetooth_title">Подключение через Bluetooth</string>
-  <string name="connect_via_bluetooth_intro">Чтобы это сработало, ваш контакт должен находиться поблизости.\n\nВы и ваш собеседник должны одновременно нажать кнопку \"Начать\".</string>
-  <string name="connect_via_bluetooth_already_discovering">Пробуем подключиться через Bluetooth</string>
-  <string name="connect_via_bluetooth_not_discoverable">Невозможно продолжить без Bluetooth</string>
-  <string name="connect_via_bluetooth_no_location_permission">Невозможно продолжить без доступа к местоположению</string>
-  <string name="connect_via_bluetooth_start">Подключение через Bluetooth...</string>
-  <string name="connect_via_bluetooth_success">Успешное подключение через Bluetooth</string>
-  <string name="connect_via_bluetooth_error">Не удалось подключиться через Bluetooth</string>
+  <string name="dialog_title_connect_via_bluetooth">Подключение через Bluetooth</string>
+  <string name="dialog_message_connect_via_bluetooth">Чтобы это сработало, ваш контакт должен находиться поблизости.\n\nВы и ваш собеседник должны одновременно нажать кнопку \"Начать\".</string>
+  <string name="toast_connect_via_bluetooth_already_discovering">Пробуем подключиться через Bluetooth</string>
+  <string name="toast_connect_via_bluetooth_not_discoverable">Невозможно продолжить без Bluetooth</string>
+  <string name="toast_connect_via_bluetooth_no_location_permission">Невозможно продолжить без доступа к местоположению</string>
+  <string name="toast_connect_via_bluetooth_start">Подключение через Bluetooth...</string>
+  <string name="toast_connect_via_bluetooth_success">Успешное подключение через Bluetooth</string>
+  <string name="toast_connect_via_bluetooth_error">Не удалось подключиться через Bluetooth</string>
   <!--The first placeholder will show a duration like "7 days". The second placeholder at the end will add "Tap to learn more."-->
   <string name="auto_delete_msg_you_enabled">Ваши сообщения исчезнут спустя %1$s. %2$s</string>
   <!--The placeholder at the end will add "Tap to learn more."-->
@@ -242,6 +241,7 @@
   <string name="dialog_title_image_support">Теперь вы можете отправлять изображения этому контакту</string>
   <string name="dialog_message_image_support">Нажмите на этот значок, чтобы прикрепить изображения.</string>
   <string name="messaging_too_many_attachments_toast">Будут отправлены только %d первых изображений</string>
+  <string name="menu_contact">Контакт</string>
   <!--Adding Contacts-->
   <string name="add_contact_title">Добавление контакта поблизости</string>
   <string name="face_to_face">Вы должны встретиться с человеком, которого хотите добавить в контакты.\n\nЭто не позволит кому-либо выдать себя за вас или читать ваши сообщения.</string>
@@ -606,7 +606,8 @@
 		Ваш контакт также может изменить эту настройку для вас обоих.</string>
   <string name="learn_more">Узнать больше</string>
   <string name="disappearing_messages_summary">Сделайте так, чтобы будущие сообщения в этом разговоре автоматически исчезали спустя 7\u00A0дней.</string>
-  <!--Settings Feedback-->
+  <!--Settings Actions-->
+  <string name="pref_category_actions">Действия</string>
   <string name="send_feedback">Отправить отзыв</string>
   <!--Link Warning-->
   <string name="link_warning_title">Предупреждение о ссылке</string>
@@ -673,6 +674,91 @@
   <string name="lock_tap_to_unlock">Нажмите для разблокировки</string>
   <!--Connections Screen-->
   <string name="transports_help_text">Briar может подключаться к контактам через интернет, Wi-Fi или Bluetooth.\n\nДля обеспечения конфиденциальности все интернет-подключения проходят через сеть Tor.\n\nЕсли с контактом можно связаться несколькими способами, Briar использует их параллельно.</string>
+  <!--Share app offline-->
+  <string name="hotspot_title">Поделиться этим приложением офлайн</string>
+  <string name="hotspot_intro">Поделитесь этим приложением с кем-то поблизости без подключения к интернету, используя Wi-Fi вашего телефона.
+		\n\nВаш телефон запустит точку доступа Wi-Fi. Пользователи, находящиеся поблизости, могут подключиться к точке доступа и загрузить приложение Briar с вашего телефона.</string>
+  <string name="hotspot_button_start_sharing">Запустить точку доступа</string>
+  <string name="hotspot_button_stop_sharing">Остановить точку доступа</string>
+  <string name="hotspot_progress_text_start">Настройка точки доступа...</string>
+  <string name="hotspot_notification_channel_title">Точка доступа Wi-Fi</string>
+  <string name="hotspot_notification_title">Поделиться Briar оффлайн</string>
+  <string name="hotspot_button_connected">Далее</string>
+  <string name="permission_hotspot_location_request_body">Для создания точки доступа Wi-Fi Briar необходимо разрешение на доступ к вашему местоположению.\n\nBriar не хранит ваше местоположение и не передает его кому-либо.</string>
+  <string name="permission_hotspot_location_denied_body">Доступ к местоположению запрещен, но Briar необходимо это разрешение для создания точки доступа Wi-Fi.\n\nРассмотрите возможность предоставления доступа.</string>
+  <string name="wifi_settings_title">Настройка Wi-Fi</string>
+  <string name="wifi_settings_request_enable_body">Чтобы создать точку доступа Wi-Fi, Briar должен использовать Wi-Fi. Пожалуйста, включите его.</string>
+  <string name="wifi_settings_request_denied_body">Вы не дали разрешения на включение Wi-Fi, но Briar нуждается в использовании Wi-Fi.\n\nПожалуйста, рассмотрите возможность его включения.</string>
+  <string name="hotspot_tab_manual">Вручную</string>
+  <!--The placeholder to be inserted into the string 'hotspot_manual_wifi': People can connect by %s-->
+  <string name="hotspot_scanning_a_qr_code">сканировать QR-код</string>
+  <!--Wi-Fi setup-->
+  <!--The %s placeholder will be replaced with the translation of 'hotspot_scanning_a_qr_code'-->
+  <string name="hotspot_manual_wifi">Ваш телефон работает в режиме точки доступа Wi-Fi. Пользователи, которые хотят загрузить Briar, могут подключиться к ней, добавив ее в настройках Wi-Fi своего устройства, используя данные ниже или %s. После подключения к точке доступа нажмите \"Далее\".</string>
+  <string name="hotspot_manual_wifi_ssid">Имя сети</string>
+  <string name="hotspot_qr_wifi">Ваш телефон работает в режиме точки доступа Wi-Fi. Пользователи, которые хотят загрузить Briar, могут подключиться к ней, просканировав этот QR-код. Когда они подключатся к точке доступа, нажмите \'Далее\'.</string>
+  <string name="hotspot_no_peers_connected">Нет подключенных устройств</string>
+  <plurals name="hotspot_peers_connected">
+    <item quantity="one">Подключено %s устройство</item>
+    <item quantity="few">Подключено %s устройства</item>
+    <item quantity="many">Подключено %s устройств</item>
+    <item quantity="other">Подключено %s устройств</item>
+  </plurals>
+  <!--Download link-->
+  <!--The %s placeholder will be replaced with the translation of 'hotspot_scanning_a_qr_code'-->
+  <string name="hotspot_manual_site">Ваш телефон работает в режиме точки доступа Wi-Fi. Пользователи, подключенные к ней, могут загрузить Briar, набрав следующую ссылку в веб-браузере или %s.</string>
+  <string name="hotspot_manual_site_address">Адрес (URL)</string>
+  <string name="hotspot_qr_site">Ваш телефон работает в режиме точки доступа Wi-Fi. Пользователи, подключенные к ней, могут загрузить Briar, просканировав этот QR-код.</string>
+  <!--e.g. Download Briar 1.2.20-->
+  <string name="website_download_title">Скачать %s</string>
+  <string name="website_download_intro">Кто-то рядом поделился %s с вами.</string>
+  <string name="website_download_outro">После завершения загрузки откройте загруженный файл и установите его.</string>
+  <string name="website_troubleshooting_title">Устранение неполадок</string>
+  <string name="website_troubleshooting_1">Если вы не можете загрузить приложение, попробуйте сделать это с помощью другого веб-браузера.</string>
+  <string name="website_troubleshooting_2_old">Чтобы установить загруженное приложение, вам может понадобиться разрешить установку приложений из \"Неизвестных источников\" в настройках системы. После этого может потребоваться повторная загрузка приложения. Мы рекомендуем отключить настройку \"Неизвестные источники\" после установки приложения.</string>
+  <string name="website_troubleshooting_2_new">Чтобы установить загруженное приложение, вам может потребоваться разрешить браузеру устанавливать неизвестные приложения. После установки приложения рекомендуется удалить разрешение браузера на установку неизвестных приложений.</string>
+  <string name="hotspot_help_wifi_title">Проблемы с подключением к Wi-Fi:</string>
+  <string name="hotspot_help_wifi_1">Попробуйте отключить и снова включить Wi-Fi на обоих телефонах и повторить попытку.</string>
+  <string name="hotspot_help_wifi_2">Если ваш телефон сообщит, что в сети Wi-Fi нет доступа к интернету, подтвердите, что вы все равно хотите подключиться к этой сети.</string>
+  <string name="hotspot_help_site_title">Проблемы с доступом к локальному веб-сайту:</string>
+  <string name="hotspot_help_site_1">Дважды убедитесь, что вы ввели адрес точно так, как показано. Небольшая ошибка может привести к сбою.</string>
+  <string name="hotspot_help_site_2">Убедитесь, что ваш телефон все еще подключен к правильной сети Wi-Fi (см. выше), прежде чем попытаться зайти на этот сайт.</string>
+  <string name="hotspot_help_site_3">Если у вас есть приложение брандмауэра, проверьте, не блокирует ли оно доступ.</string>
+  <string name="hotspot_help_site_4">Если вы можете посетить сайт, но не можете загрузить приложение Briar, попробуйте сделать это с помощью другого веб-браузера.</string>
+  <string name="hotspot_help_fallback_title">Ничего не работает?</string>
+  <string name="hotspot_help_fallback_intro">Вы можете попытаться сохранить приложение в виде файла .apk, чтобы поделиться им другим способом. Как только файл будет передан на другое устройство, его можно будет использовать для установки Briar.
+		\n\nСовет: Для передачи через Bluetooth может потребоваться сначала переименовать файл, чтобы он заканчивался .zip.</string>
+  <string name="hotspot_help_fallback_button">Сохранить приложение</string>
+  <!--error handling-->
+  <string name="hotspot_error_intro">Что-то пошло не так при попытке поделиться приложением через Wi-Fi:</string>
+  <string name="hotspot_error_no_wifi_direct">Устройство не поддерживает Wi-Fi Direct</string>
+  <string name="hotspot_error_start_callback_failed">Не удалось запустить точку доступа: ошибка %s</string>
+  <string name="hotspot_error_start_callback_failed_unknown">Не удалось запустить точку доступа из-за неизвестной ошибки, причина %d</string>
+  <string name="hotspot_error_start_callback_no_group_info">Не удалось запустить точку доступа: нет информации о группе</string>
+  <string name="hotspot_error_web_server_start">Ошибка запуска веб-сервера</string>
+  <string name="hotspot_error_web_server_serve">Ошибка представления сайта.\n\nЕсли проблема сохраняется, пожалуйста, отправьте отзыв (с анонимными данными) через приложение Briar.</string>
+  <string name="hotspot_flag_test">Предупреждение: Это приложение было установлено с помощью Android Studio и НЕ может быть установлено на другое устройство.</string>
+  <string name="hotspot_error_framework_busy">Невозможно запустить точку доступа.\n\nЕсли у вас запущена другая точка доступа или вы используете подключение к интернету через Wi-Fi, попробуйте отключить его, а затем повторить попытку.</string>
+  <!--Transfer Data via Removable Drives-->
+  <string name="removable_drive_menu_title">Передача данных</string>
+  <string name="removable_drive_intro">Вы можете отправлять зашифрованные сообщения своему контакту, используя съемные носители, такие как USB-накопители или SD-карты.\n\nЕсли ваш контакт отправил вам съемный носитель с зашифрованными сообщениями, вы можете импортировать эти сообщения в Briar, используя кнопку получения ниже.</string>
+  <string name="removable_drive_title_send">Отправить данные</string>
+  <string name="removable_drive_title_receive">Принять данные</string>
+  <string name="removable_drive_send_intro">Нажмите кнопку ниже, чтобы создать новый файл, содержащий зашифрованные сообщения. Вы сможете выбрать, где будет сохранен этот файл.\n\nЕсли вы хотите сохранить файл на съемном диске, вставьте диск сейчас.</string>
+  <string name="removable_drive_send_no_data">На данный момент нет сообщений, ожидающих отправки этому контакту.</string>
+  <string name="removable_drive_send_not_supported">Этот контакт использует старую версию Briar или старое устройство, не поддерживающее эту функцию.</string>
+  <string name="removable_drive_send_button">Выберите файл для экспорта</string>
+  <string name="removable_drive_ongoing">Пожалуйста, дождитесь завершения текущей задачи</string>
+  <string name="removable_drive_receive_intro">Нажмите кнопку ниже, чтобы выбрать файл, который прислал ваш собеседник.\n\nЕсли файл находится на съемном диске, вставьте диск сейчас.</string>
+  <string name="removable_drive_receive_button">Выберите файл для импорта</string>
+  <string name="removable_drive_success_send_title">Экспорт успешен</string>
+  <string name="removable_drive_success_send_text">Данные экспортированы успешно. Теперь у вас есть 28 дней для передачи файла вашему контакту.\n\nЕсли файл находится на съемном диске, используйте уведомление в строке состояния, чтобы извлечь диск, прежде чем отсоединять его.</string>
+  <string name="removable_drive_success_receive_title">Импорт успешен</string>
+  <string name="removable_drive_success_receive_text">Все зашифрованные сообщения, содержащиеся в этом файле, были получены.</string>
+  <string name="removable_drive_error_send_title">Ошибка при экспорте данных</string>
+  <string name="removable_drive_error_send_text">Произошла ошибка записи данных в файл.\n\nЕсли вы используете съемный диск, убедитесь, что он правильно вставлен, и повторите попытку.\n\nЕсли ошибка сохраняется, пожалуйста, отправьте отзыв, чтобы сообщить команде Briar о проблеме.</string>
+  <string name="removable_drive_error_receive_title">Ошибка при импорте данных</string>
+  <string name="removable_drive_error_receive_text">Выбранный файл не содержит ничего, что мог бы распознать Briar.\n\nПожалуйста, проверьте правильность выбора файла.\n\nЕсли ваш контакт создал файл более 28 дней назад, Briar не сможет его распознать.</string>
   <!--Screenshots-->
   <!--This is a name to be used in screenshots. Feel free to change it to a local name.-->
   <string name="screenshot_alice">Бузова</string>

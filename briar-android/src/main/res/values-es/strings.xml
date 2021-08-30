@@ -1,5 +1,5 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
   <!--Setup-->
   <string name="setup_title">Bienvenido a Briar</string>
   <string name="setup_name_explanation">Tu nombre de usuario aparecerá junto a cualquier contenido que publiques. No puedes cambiarlo después de crear tu cuenta.</string>
@@ -40,13 +40,12 @@
   <string name="forgotten_password">He olvidado mi contraseña</string>
   <string name="dialog_title_lost_password">Contraseña perdida</string>
   <string name="dialog_message_lost_password">Tu cuenta de Briar se almacena cifrada en tu dispositivo, no en la nube, así que no podemos restablecer tu contraseña. ¿Deseas eliminar tu cuenta y empezar de nuevo?\n\nAdvertencia: tus identidades, contactos y mensajes se perderán para siempre.</string>
-  <string name="startup_failed_notification_title">Briar no pudo iniciarse</string>
-  <string name="startup_failed_notification_text">Pulsa para más información.</string>
   <string name="startup_failed_activity_title">Fallo al iniciar Briar</string>
-  <string name="startup_failed_db_error">Por alguna razón, la base de datos de Briar está dañada irreparablemente. Tu cuenta, datos y todos tus contactos están perdidos. Desafortunadamente, necesitas reinstalar Briar o configurar una nueva cuenta seleccionando \"He olvidado mi contraseña\" en la solicitud de contraseña.</string>
-  <string name="startup_failed_data_too_old_error">Tu cuenta fue creada con una versión antigua de esta apli y no se puede abrir con esta versión. Debes reinstalar la versión antigua o configurar una nueva cuenta seleccionando \"He olvidado mi contraseña\" en la solicitud de contraseña.</string>
-  <string name="startup_failed_data_too_new_error">La versión de esta apli es demasiado antigua. Por favor, actualiza a la última versión y prueba de nuevo.</string>
-  <string name="startup_failed_service_error">Briar no pudo arrancar un complemento necesario. Reinstalando Briar se suele solucionar este problema. Sin embargo, por favor nota que perderás tu cuenta y todos los datos asociados, ya que Briar no almacena esta información en ningún servidor central.</string>
+  <string name="startup_failed_clock_error">Briar no pudo arrancar porque el reloj de tu dispositivo no está bien.\n\nPor favor, ajusta el reloj del mismo con la fecha y hora correctas e inténtalo de nuevo.</string>
+  <string name="startup_failed_db_error">Briar no fue capaz de abrir la base de datos conteniendo tu cuenta, contactos y mensajes.\n\nPor favor, actualiza a la última versión de la aplicación e inténtalo de nuevo, o dá de alta una nueva cuenta eligiendo \'He olvidado mi contraseña\', donde se solicita la misma.</string>
+  <string name="startup_failed_data_too_old_error">Tu cuenta fue creada con una versión antigua de esta aplicación y no se puede abrir con esta versión.\n\nDebes reinstalar la versión antigua o configurar una nueva cuenta seleccionando \"He olvidado mi contraseña\" donde se solicita la misma.</string>
+  <string name="startup_failed_data_too_new_error">Tu cuenta fue creada con una versión más nueva de esta aplicación y no se puede abrir con esta.\n\nPor favor, actualiza a la última versión e inténtalo de nuevo.</string>
+  <string name="startup_failed_service_error">Briar no fue capaz de iniciar un componente requerido.\n\nPor favor, actualiza a la última versión de la aplicación e inténtalo de nuevo.</string>
   <plurals name="expiry_warning">
     <item quantity="one">Esta es una versión de prueba de Briar. Su cuenta expirará en %d día y no podrá ser renovada.</item>
     <item quantity="other">Esta es una versión de prueba de Briar. Tu cuenta expirará en %d días y no podrá ser renovada.</item>
@@ -139,6 +138,7 @@
   <string name="open">Abrir</string>
   <string name="change">Cambiar</string>
   <string name="start">Iniciar</string>
+  <string name="finish">Finalizar</string>
   <string name="no_data">Sin datos</string>
   <string name="ellipsis">…</string>
   <string name="text_too_long">El texto ingresado es demasiado largo</string>
@@ -148,6 +148,7 @@
   <string name="sorry">Disculpa</string>
   <string name="error_start_activity">No disponible en tu sistema</string>
   <string name="status_heading">Estado:</string>
+  <string name="error">Error</string>
   <!--Contacts and Private Conversations-->
   <string name="no_contacts">No hay contactos para mostrar</string>
   <string name="no_contacts_action">Golpear el icono + para añadir un contacto</string>
@@ -165,14 +166,14 @@
   <string name="set_contact_alias_hint">Nombre del contacto</string>
   <string name="menu_item_disappearing_messages">Mensajes con caducidad</string>
   <string name="menu_item_connect_via_bluetooth">Conectar mediante Bluetooth</string>
-  <string name="connect_via_bluetooth_title">Conectar mediante Bluetooth</string>
-  <string name="connect_via_bluetooth_intro">Tu contacto necesita estar cerca para que esto funcione.\n\nTú y tu contacto deberían presionar \"Iniciar\" ambos al mismo tiempo.</string>
-  <string name="connect_via_bluetooth_already_discovering">Ya se está intentando conectar mediante Bluetooth</string>
-  <string name="connect_via_bluetooth_not_discoverable">No se puede continuar sin Bluetooth</string>
-  <string name="connect_via_bluetooth_no_location_permission">No se puede continuar sin permiso de ubicación</string>
-  <string name="connect_via_bluetooth_start">Conectar mediante Bluetooth...</string>
-  <string name="connect_via_bluetooth_success">Conectado exitosamente mediante Bluetooth</string>
-  <string name="connect_via_bluetooth_error">No se pudo conectar mediante Bluetooth</string>
+  <string name="dialog_title_connect_via_bluetooth">Conectar mediante Bluetooth</string>
+  <string name="dialog_message_connect_via_bluetooth">Tu contacto necesita estar cerca para que esto funcione.\n\nTú y tu contacto deberían presionar \"Iniciar\" ambos al mismo tiempo.</string>
+  <string name="toast_connect_via_bluetooth_already_discovering">Ya se está intentando conectar mediante Bluetooth</string>
+  <string name="toast_connect_via_bluetooth_not_discoverable">No se puede continuar sin Bluetooth</string>
+  <string name="toast_connect_via_bluetooth_no_location_permission">No se puede continuar sin permiso de ubicación</string>
+  <string name="toast_connect_via_bluetooth_start">Conectar mediante Bluetooth...</string>
+  <string name="toast_connect_via_bluetooth_success">Conectado exitosamente mediante Bluetooth</string>
+  <string name="toast_connect_via_bluetooth_error">No se pudo conectar mediante Bluetooth</string>
   <!--The first placeholder will show a duration like "7 days". The second placeholder at the end will add "Tap to learn more."-->
   <string name="auto_delete_msg_you_enabled">Tus mensajes desaparecerán después de %1$s. %2$s</string>
   <!--The placeholder at the end will add "Tap to learn more."-->
@@ -224,6 +225,7 @@
   <string name="dialog_title_image_support">Ahora puedes enviar imágenes a este contacto.</string>
   <string name="dialog_message_image_support">Pulsa este ícono para adjuntar imágenes.</string>
   <string name="messaging_too_many_attachments_toast">Solo se enviarán las primeras %d  imágenes</string>
+  <string name="menu_contact">Contacto</string>
   <!--Adding Contacts-->
   <string name="add_contact_title">Agregar contacto cercano</string>
   <string name="face_to_face">Debes reunirte con la persona a la que quieras añadir como contacto.\n\nHaciéndolo así prevendrás que nadie te suplante o pueda leer tus mensajes en el futuro.</string>
@@ -578,7 +580,8 @@
 		Tu contacto también puede cambiar este ajuste para ambos.</string>
   <string name="learn_more">Aprende más</string>
   <string name="disappearing_messages_summary">Haz que futuros mensajes en esta conversación desaparezcan automáticamente después de 7\u00A0days.</string>
-  <!--Settings Feedback-->
+  <!--Settings Actions-->
+  <string name="pref_category_actions">Acciones</string>
   <string name="send_feedback">Enviar comentario</string>
   <!--Link Warning-->
   <string name="link_warning_title">Advertencia sobre el enlace</string>
@@ -587,7 +590,7 @@
   <string name="link_warning_open_link">Abrir enlace</string>
   <!--Crash Reporter-->
   <string name="crash_report_title">Informe de falla de Briar</string>
-  <string name="briar_crashed">Lo sentimos, Briar ha fallado.</string>
+  <string name="briar_crashed">Lo sentimos, Briar se colgó.</string>
   <string name="not_your_fault">No es tu culpa.</string>
   <string name="please_send_report">Por favor, ayúdanos a mejorar Briar enviándonos un informe de falla.</string>
   <string name="report_is_encrypted">Prometemos que el informe se cifrará y se enviará de forma segura.</string>
@@ -645,6 +648,32 @@
   <string name="lock_tap_to_unlock">Golpear para desbloquear</string>
   <!--Connections Screen-->
   <string name="transports_help_text">Briar puede conectar a tus contactos vía Internet, Wi-Fi o Bluetooth.\n\nTodas las conexiones a Internet van a través de la red Tor por privacidad.\n\nSi un contacto puede ser alcanzado por múltiples métodos, Briar los usa en paralelo.</string>
+  <!--Share app offline-->
+  <string name="hotspot_title">Comparte esta aplicación fuera de línea</string>
+  <string name="hotspot_intro">Comparte esta aplicación con alguien que esté cerca tuyo sin conexión a Internet, usando el Wi-Fi de tu teléfono.
+		\n\nTu teléfono iniciará un punto de acceso Wi-Fi. Las personas cercanas a tí pueden conectarse al punto de acceso y descargar la aplicación Briar desde tu teléfono.</string>
+  <string name="hotspot_button_start_sharing">Iniciar punto de acceso</string>
+  <string name="hotspot_button_stop_sharing">Detener punto de acceso</string>
+  <string name="hotspot_progress_text_start">Estableciendo punto de acceso...</string>
+  <string name="hotspot_notification_channel_title">Punto de acceso Wi-fi</string>
+  <string name="hotspot_notification_title">Compartiendo Briar sin conexión</string>
+  <string name="hotspot_button_connected">Siguiente</string>
+  <string name="permission_hotspot_location_request_body">Para crear un punto de acceso Wi-Fi, Briar necesita permiso para acceder tu ubicación.\n\nBriar no la almacena o la comparte con nadie.</string>
+  <string name="permission_hotspot_location_denied_body">Has denegado el acceso a tu ubicación, pero Briar necesita este permiso para crear un punto de acceso Wi-Fi.\n\nPor favor considera la posibilidad de conceder el acceso.</string>
+  <string name="wifi_settings_title">Configuración de Wi-Fi</string>
+  <string name="hotspot_tab_manual">Manual</string>
+  <!--The placeholder to be inserted into the string 'hotspot_manual_wifi': People can connect by %s-->
+  <!--Wi-Fi setup-->
+  <!--The %s placeholder will be replaced with the translation of 'hotspot_scanning_a_qr_code'-->
+  <string name="hotspot_manual_wifi_ssid">Nombre de red</string>
+  <string name="hotspot_no_peers_connected">No hay dispositivos conectados</string>
+  <!--Download link-->
+  <!--The %s placeholder will be replaced with the translation of 'hotspot_scanning_a_qr_code'-->
+  <!--e.g. Download Briar 1.2.20-->
+  <string name="website_troubleshooting_title">Resolución de problemas</string>
+  <!--error handling-->
+  <!--Transfer Data via Removable Drives-->
+  <string name="removable_drive_success_receive_title">Importado con éxito</string>
   <!--Screenshots-->
   <!--This is a name to be used in screenshots. Feel free to change it to a local name.-->
   <string name="screenshot_alice">Alicia</string>

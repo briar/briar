@@ -1,5 +1,5 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
   <!--Setup-->
   <string name="setup_title">Bienvenue à Briar</string>
   <string name="setup_name_explanation">Votre pseudonyme sera affiché à côté de tout contenu que vous publierez. Vous pourrez le modifier après avoir créé votre compte.</string>
@@ -40,13 +40,7 @@
   <string name="forgotten_password">J’ai oublié mon mot de passe</string>
   <string name="dialog_title_lost_password">Mot de passe oublié</string>
   <string name="dialog_message_lost_password">Votre compte Briar est enregistré chiffré sur votre appareil, pas dans le nuage, et nous ne pouvons donc pas réinitialiser votre mot de passe. Voulez-vous supprimer votre compte et recommencer ?\n\nAttention : vos identités, contacts et messages seront perdus irrémédiablement.</string>
-  <string name="startup_failed_notification_title">Impossible de démarrer Briar</string>
-  <string name="startup_failed_notification_text">Toucher pour plus d’informations.</string>
   <string name="startup_failed_activity_title">Échec de démarrage de Briar</string>
-  <string name="startup_failed_db_error">Pour quelque raison, votre base de données Briar est corrompue sans espoir de réparation. Votre compte, vos données et tous vos contacts sont perdus. Malheureusement, vous devez réinstaller Briar et créer un nouveau compte en choisissant « J’ai oublié mon mot de passe » dans l’invite de mot de passe.</string>
-  <string name="startup_failed_data_too_old_error">Votre compte a été créé avec une ancienne version de cette appli et ne peut pas être ouvert avec cette version. Vous devez soit réinstaller l’ancienne version, soit créer un nouveau compte en choisissant « J’ai oublié mon mot de passe » dans l’invite de mot de passe.</string>
-  <string name="startup_failed_data_too_new_error">Cette version de l’appli est trop ancienne. Veuillez passer à la version la plus récente et réessayer.</string>
-  <string name="startup_failed_service_error">Briar n’a pas pu démarrer un greffon exigé. Réinstaller Briar résout généralement ce problème. Veuillez cependant noter que vous perdrez votre compte et toutes données relatives puisque Briar n’utilise pas de serveurs centralisés sur lesquels enregistrer vos données.</string>
   <plurals name="expiry_warning">
     <item quantity="one">Ceci est une version de test de Briar. Votre compte arrivera à expiration dans %d jour et ne peut pas être renouvelé.</item>
     <item quantity="other">Ceci est une version de test de Briar. Votre compte arrivera à expiration dans %d jours et ne pourra pas être renouvelé.</item>
@@ -139,6 +133,7 @@
   <string name="open">Ouvrir</string>
   <string name="change">Changer</string>
   <string name="start">Commencer</string>
+  <string name="finish">Terminer</string>
   <string name="no_data">Aucune donnée</string>
   <string name="ellipsis">...</string>
   <string name="text_too_long">Le texte saisi est trop long</string>
@@ -148,6 +143,7 @@
   <string name="sorry">Désolé</string>
   <string name="error_start_activity">N’est pas proposée sur votre système.</string>
   <string name="status_heading">État :</string>
+  <string name="error">Erreur</string>
   <!--Contacts and Private Conversations-->
   <string name="no_contacts">Aucun contact à afficher</string>
   <string name="no_contacts_action">Touchez l’icône + pour ajouter un contact</string>
@@ -165,14 +161,14 @@
   <string name="set_contact_alias_hint">Nom du contact</string>
   <string name="menu_item_disappearing_messages">Messages éphémères</string>
   <string name="menu_item_connect_via_bluetooth">Se connecter par Bluetooth</string>
-  <string name="connect_via_bluetooth_title">Se connecter par Bluetooth</string>
-  <string name="connect_via_bluetooth_intro">Afin que cela fonctionne, votre contact doit être à proximité.\n\nVotre contact et vous devriez appuyer ensemble sur « Commencer ».</string>
-  <string name="connect_via_bluetooth_already_discovering">Tentative de connexion par Bluetooth déjà en cours</string>
-  <string name="connect_via_bluetooth_not_discoverable">Impossible de poursuivre sans le Bluetooth</string>
-  <string name="connect_via_bluetooth_no_location_permission">Impossible de poursuivre sans la permission de position</string>
-  <string name="connect_via_bluetooth_start">Connexion par Bluetooth…</string>
-  <string name="connect_via_bluetooth_success">Connectée par Bluetooth avec succès</string>
-  <string name="connect_via_bluetooth_error">Impossible de se connecter par Bluetooth</string>
+  <string name="dialog_title_connect_via_bluetooth">Se connecter par Bluetooth</string>
+  <string name="dialog_message_connect_via_bluetooth">Afin que cela fonctionne, votre contact doit être à proximité.\n\nVotre contact et vous devriez appuyer ensemble sur « Commencer ».</string>
+  <string name="toast_connect_via_bluetooth_already_discovering">Tentative de connexion par Bluetooth déjà en cours</string>
+  <string name="toast_connect_via_bluetooth_not_discoverable">Impossible de poursuivre sans le Bluetooth</string>
+  <string name="toast_connect_via_bluetooth_no_location_permission">Impossible de poursuivre sans la permission de position</string>
+  <string name="toast_connect_via_bluetooth_start">Connexion par Bluetooth…</string>
+  <string name="toast_connect_via_bluetooth_success">Connectée par Bluetooth avec succès</string>
+  <string name="toast_connect_via_bluetooth_error">Impossible de se connecter par Bluetooth</string>
   <!--The first placeholder will show a duration like "7 days". The second placeholder at the end will add "Tap to learn more."-->
   <string name="auto_delete_msg_you_enabled">Vos messages disparaîtront après %1$s. %2$s</string>
   <!--The placeholder at the end will add "Tap to learn more."-->
@@ -224,6 +220,7 @@
   <string name="dialog_title_image_support">Vous pouvez désormais envoyer des images à ce contact</string>
   <string name="dialog_message_image_support">Touchez cette icône pour joindre des images.</string>
   <string name="messaging_too_many_attachments_toast">Seules les %d premières images seront envoyées</string>
+  <string name="menu_contact">Contact</string>
   <!--Adding Contacts-->
   <string name="add_contact_title">Ajouter un contact à proximité</string>
   <string name="face_to_face">Vous devez rencontrer la personne que vous voulez ajouter comme contact, afin d’éviter que quelqu’un se fasse passer pour vous et puisse lire vos messages à l’avenir.</string>
@@ -580,7 +577,8 @@ copies des messages que vous envoyez.
 		Votre contact peut aussi changer ce paramètre pour vous deux.</string>
   <string name="learn_more">En apprendre davantage</string>
   <string name="disappearing_messages_summary">Faire disparaître automatiquement les futurs messages de cette conversation après 7 jours.</string>
-  <!--Settings Feedback-->
+  <!--Settings Actions-->
+  <string name="pref_category_actions">Actions</string>
   <string name="send_feedback">Envoyer une rétroaction</string>
   <!--Link Warning-->
   <string name="link_warning_title">Avertissement de lien</string>
@@ -589,7 +587,6 @@ copies des messages que vous envoyez.
   <string name="link_warning_open_link">Ouvrir le lien</string>
   <!--Crash Reporter-->
   <string name="crash_report_title">Rapport de plantage de Briar</string>
-  <string name="briar_crashed">Désolé, Briar a planté.</string>
   <string name="not_your_fault">Vous n’y êtes pour rien.</string>
   <string name="please_send_report">Veuillez nous aider à améliorer Briar en nous envoyant un rapport de plantage.</string>
   <string name="report_is_encrypted">Nous promettons que le rapport est chiffré et envoyé en toute sécurité. </string>
@@ -647,6 +644,20 @@ copies des messages que vous envoyez.
   <string name="lock_tap_to_unlock">Toucher pour déverrouiller</string>
   <!--Connections Screen-->
   <string name="transports_help_text">Briar peut se connecter à vos contacts par Internet, Wi-Fi ou Bluetooth.\n\nToutes les connections Internet passent par le réseau Tor afin de protéger les données.\n\nSi un contact peut être joint par plusieurs moyens, Briar les utilisera simultanément.</string>
+  <!--Share app offline-->
+  <string name="hotspot_notification_channel_title">Point d’accès Wi-Fi</string>
+  <string name="hotspot_button_connected">Suivant</string>
+  <string name="hotspot_tab_manual">Manuel</string>
+  <!--The placeholder to be inserted into the string 'hotspot_manual_wifi': People can connect by %s-->
+  <!--Wi-Fi setup-->
+  <!--The %s placeholder will be replaced with the translation of 'hotspot_scanning_a_qr_code'-->
+  <!--Download link-->
+  <!--The %s placeholder will be replaced with the translation of 'hotspot_scanning_a_qr_code'-->
+  <!--e.g. Download Briar 1.2.20-->
+  <string name="website_troubleshooting_title">Dépannage</string>
+  <!--error handling-->
+  <!--Transfer Data via Removable Drives-->
+  <string name="removable_drive_success_receive_title">L’importation est réussie</string>
   <!--Screenshots-->
   <!--This is a name to be used in screenshots. Feel free to change it to a local name.-->
   <string name="screenshot_alice">Laurence</string>

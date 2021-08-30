@@ -1,5 +1,5 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
   <!--Setup-->
   <string name="setup_title">Velkomin í Briar</string>
   <string name="setup_name_explanation">Stuttnefnið þitt birtist við hlið alls þess efnis sem þú sendir inn. Þú getur ekki breytt því eftir að þú hefur skráð notandaaðganginn þinn.</string>
@@ -36,13 +36,7 @@
   <string name="forgotten_password">Ég hef gleymt lykilorðinu mínu</string>
   <string name="dialog_title_lost_password">Týnt lykilorð</string>
   <string name="dialog_message_lost_password">Notandaaðgangur þinn í Briar er geymdur dulritaður á tækinu þínu, ekki í tölvuskýi, þannig að við getum ekki endurstillt lykilorðið þitt. Myndirðu vilja eyða notandaaðgangnum þínum og byrja aftur?\n\nVarúð: Auðkennin þín, tengiliðir og skilaboð munu tapast óendurkræft.</string>
-  <string name="startup_failed_notification_title">Gat ekki ræst Briar.</string>
-  <string name="startup_failed_notification_text">Ýttu til að sjá meiri upplýsingar.</string>
   <string name="startup_failed_activity_title">Bilun í ræsingu Briar</string>
-  <string name="startup_failed_db_error">Af einhverjum ástæðum er Briar-gagnagrunnurinn svo skemmdur að ekki er hægt að laga hann. Notandaaðgangurinn þinn, gögnin þín og allir tengiliðir hafa tapast. Því miður þarft þú að setja Briar upp aftur, eða setja upp nýjan notandaaðgang með því að velja \'Ég hef gleymt lykilorðinu mínu\' þegar beðið er um lykilorð.</string>
-  <string name="startup_failed_data_too_old_error">Notandaaðgangurinn þinn var útbúinn með eldri útgáfu forritsins og er ekki hægt að opna hann með þessari útgáfu. Þú þarft annað hvort að setja gömlu útgáfuna aftur, eða setja upp nýjan notandaaðgang með því að velja \'Ég hef gleymt lykilorðinu mínu\' þegar beðið er um lykilorð.</string>
-  <string name="startup_failed_data_too_new_error">Þessi útgáfa forritsins er of gömul. Uppfærðu í nýjustu útgáfuna og prófaðu síðan aftur.</string>
-  <string name="startup_failed_service_error">Briar tókst ekki að ræsa nauðsynlega forritsviðbót. Venjulega er nóg að setja Briar upp aftur til að leysa þetta vandamál. Hinsvegar, athugaðu að þá munt þú missa notandaaðganginn þinn ásamt öllum gögnum honum tengdum, því Briar notar ekki miðlæga þjóna til að geyma gögnin þín.</string>
   <plurals name="expiry_warning">
     <item quantity="one">Þetta er prufuútgáfa af Briar. Notandaaðgangurinn þinn mun renna út eftir %d dag og er ekki hægt að endurnýja hann.</item>
     <item quantity="other">Þetta er prufuútgáfa af Briar. Notandaaðgangurinn þinn mun renna út eftir %d daga og er ekki hægt að endurnýja hann.</item>
@@ -135,6 +129,7 @@
   <string name="open">Opna</string>
   <string name="change">Breyta</string>
   <string name="start">Byrja</string>
+  <string name="finish">Enda</string>
   <string name="no_data">Engin gögn</string>
   <string name="ellipsis">…</string>
   <string name="text_too_long">Textinn sem var settur inn er of langur</string>
@@ -144,6 +139,7 @@
   <string name="sorry">Því miður</string>
   <string name="error_start_activity">Er ekki tiltækt fyrir kerfið þitt</string>
   <string name="status_heading">Staða</string>
+  <string name="error">Villa</string>
   <!--Contacts and Private Conversations-->
   <string name="no_contacts">Engir tengiliðir til að birta</string>
   <string name="no_contacts_action">Ýttu á + táknið til að bæta við tengilið</string>
@@ -161,14 +157,14 @@
   <string name="set_contact_alias_hint">Nafn tengiliðar</string>
   <string name="menu_item_disappearing_messages">Sjálfeyðandi skilaboð</string>
   <string name="menu_item_connect_via_bluetooth">Tengjast í gegnum Bluetooth</string>
-  <string name="connect_via_bluetooth_title">Tengjast í gegnum Bluetooth</string>
-  <string name="connect_via_bluetooth_intro">Tengiliðurinn þinn þarf að vera nálægt til að þetta virki.\n\nÞú og tengiliðurinn ættuð bæði að ýta á \"Byrja\" á sama tíma.</string>
-  <string name="connect_via_bluetooth_already_discovering">Þegar að reyna að tengjast í gegnum Bluetooth</string>
-  <string name="connect_via_bluetooth_not_discoverable">Get ekki haldið áfram án Bluetooth</string>
-  <string name="connect_via_bluetooth_no_location_permission">Get ekki haldið áfram án heimildar til að nota staðsetningu</string>
-  <string name="connect_via_bluetooth_start">Tengist í gegnum Bluetooth…</string>
-  <string name="connect_via_bluetooth_success">Tókst að tengjast í gegnum Bluetooth</string>
-  <string name="connect_via_bluetooth_error">Gat ekki tengst í gegnum Bluetooth</string>
+  <string name="dialog_title_connect_via_bluetooth">Tengjast í gegnum Bluetooth</string>
+  <string name="dialog_message_connect_via_bluetooth">Tengiliðurinn þinn þarf að vera nálægt til að þetta virki.\n\nÞú og tengiliðurinn ættuð bæði að ýta á \"Byrja\" á sama tíma.</string>
+  <string name="toast_connect_via_bluetooth_already_discovering">Þegar að reyna að tengjast í gegnum Bluetooth</string>
+  <string name="toast_connect_via_bluetooth_not_discoverable">Get ekki haldið áfram án Bluetooth</string>
+  <string name="toast_connect_via_bluetooth_no_location_permission">Get ekki haldið áfram án heimildar til að nota staðsetningu</string>
+  <string name="toast_connect_via_bluetooth_start">Tengist í gegnum Bluetooth…</string>
+  <string name="toast_connect_via_bluetooth_success">Tókst að tengjast í gegnum Bluetooth</string>
+  <string name="toast_connect_via_bluetooth_error">Gat ekki tengst í gegnum Bluetooth</string>
   <!--The first placeholder will show a duration like "7 days". The second placeholder at the end will add "Tap to learn more."-->
   <string name="auto_delete_msg_you_enabled">Skilaboðin þín munu hverfa eftir %1$s. %2$s</string>
   <!--The placeholder at the end will add "Tap to learn more."-->
@@ -220,6 +216,7 @@
   <string name="dialog_title_image_support">Þú getur núna sent myndir til þessa tengiliðar</string>
   <string name="dialog_message_image_support">Ýttu á þessa táknmynd til að hengja við myndir.</string>
   <string name="messaging_too_many_attachments_toast">Einungis fyrstu %d myndirnar verða sendar</string>
+  <string name="menu_contact">Hafa samband</string>
   <!--Adding Contacts-->
   <string name="add_contact_title">Bæta við nálægum tengilið</string>
   <string name="face_to_face">Þú verður að hitta persónuna sem þú vilt bæta við sem tengilið.\n\nÞetta kemur í veg fyrir að nokkur geti látist vera þú eða nokkur geti framvegis lesið skilaboðin þín.</string>
@@ -574,7 +571,7 @@
 		Tengiliðurinn þinn getur líka breytt þessari stillingu fyrir ykkur báða.</string>
   <string name="learn_more">Fræðast frekar</string>
   <string name="disappearing_messages_summary">Láta öll frekari skilaboð í þessu samtali hverfa sjálfkrafa eftir 7\u00A0daga.</string>
-  <!--Settings Feedback-->
+  <!--Settings Actions-->
   <string name="send_feedback">Senda umsögn</string>
   <!--Link Warning-->
   <string name="link_warning_title">Aðvörun vegna tengils</string>
@@ -583,7 +580,6 @@
   <string name="link_warning_open_link">Opna tengil</string>
   <!--Crash Reporter-->
   <string name="crash_report_title">Hrunskýrsla fyrir Briar</string>
-  <string name="briar_crashed">Því miður, Briar hefur hrunið.</string>
   <string name="not_your_fault">Það er ekki þér að kenna.</string>
   <string name="please_send_report">Hjálpaðu okkur við að bæta Briar með því að senda okkur hrunskýrslu.</string>
   <string name="report_is_encrypted">Við lofum að skýrslan sé dulrituð og send á öruggan máta.</string>
@@ -641,6 +637,17 @@
   <string name="lock_tap_to_unlock">Ýttu til að aflæsa</string>
   <!--Connections Screen-->
   <string name="transports_help_text">Briar getur tengst við tengiliðina þína í gegnum internet, Wi-Fi eða Bluetooth.\n\nAllar internettengingar fara í gegnum Tor-netkerfið til að gæta gagnaleyndar.\n\nEf hægt er að nálgast tengilið með mörgum leiðum, notar Briar þær samhliða.</string>
+  <!--Share app offline-->
+  <string name="hotspot_button_connected">Næsta</string>
+  <!--The placeholder to be inserted into the string 'hotspot_manual_wifi': People can connect by %s-->
+  <!--Wi-Fi setup-->
+  <!--The %s placeholder will be replaced with the translation of 'hotspot_scanning_a_qr_code'-->
+  <!--Download link-->
+  <!--The %s placeholder will be replaced with the translation of 'hotspot_scanning_a_qr_code'-->
+  <!--e.g. Download Briar 1.2.20-->
+  <string name="website_troubleshooting_title">Lausn á vandamálum</string>
+  <!--error handling-->
+  <!--Transfer Data via Removable Drives-->
   <!--Screenshots-->
   <!--This is a name to be used in screenshots. Feel free to change it to a local name.-->
   <string name="screenshot_alice">Lísa</string>

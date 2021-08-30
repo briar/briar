@@ -1,5 +1,5 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
   <!--Setup-->
   <string name="setup_title">ברוך בואך אל Briar</string>
   <string name="setup_name_explanation">כינויך יוראה ליד תוכן כלשהו שתכתוב. אינך יכול לשנות אותו לאחר יצירת חשבונך.</string>
@@ -33,13 +33,7 @@
   <string name="forgotten_password">שכחתי את הסיסמה שלי</string>
   <string name="dialog_title_lost_password">סיסמה אבודה</string>
   <string name="dialog_message_lost_password">חשבון Briar שלך מאוחסן באופן מוצפן על המכשיר שלך, לא בענן, כך שאנחנו לא יכולים לאפס את הסיסמה שלך. האם תרצה למחוק את החשבון שלך ולהתחיל מחדש?\n\nזהירות: הזהויות, אנשי הקשר וההודעות שלך יאבדו לצמיתות.</string>
-  <string name="startup_failed_notification_title">Briar לא היה ניתן להתחיל</string>
-  <string name="startup_failed_notification_text">יש להקיש למידע נוסף.</string>
   <string name="startup_failed_activity_title">כישלון הזנק Briar</string>
-  <string name="startup_failed_db_error">מסיבה כלשהי, מסד נתונים Briar שלך פגום ללא יכולת תיקון. החשבון שלך, הנתונים שלך וכל אנשי הקשר שלך אבדו. למרבה הצער, אתה צריך להתקין מחדש את Briar או להגדיר חשבון חדש ע״י בחירה באפשרות \'שכחתי את הסיסמה שלי\' בתזכיר הסיסמה.</string>
-  <string name="startup_failed_data_too_old_error">החשבון שלך נוצר עם גרסה ישנה של יישום זה ואינו יכול להיפתח עם גרסה זו. אתה חייב להתקין מחדש את הגרסה הישנה או להגדיר חשבון חדש ע״י בחירה באפשרות \'שכחתי את הסיסמה שלי\' בתזכיר הסיסמה.</string>
-  <string name="startup_failed_data_too_new_error">גרסה זו של היישום ישנה מדי. אנא שדרג אל הגרסה האחרונה ונסה שוב.</string>
-  <string name="startup_failed_service_error">Briar לא הצליח להתחיל מתקע דרוש. התקנה מחדש של Briar פותרת בדרך כלל בעיה זו. עם זאת, שים לב שתאבד את חשבונך ואת כל הנתונים המשויכים אליו כי Briar אינו משתמש בשרתים מרכזיים כדי לאחסן עליהם את נתוניך.</string>
   <plurals name="expiry_warning">
     <item quantity="one">זאת גרסת בחינה של Briar. חשבונך יפוג תוך יום %d ואינו יכול להתחדש.</item>
     <item quantity="two">זאת גרסת בחינה של Briar. חשבונך יפוג תוך %d ימים ואינו יכול להתחדש.</item>
@@ -142,6 +136,7 @@
   <string name="open">פתיחה</string>
   <string name="change">שינוי</string>
   <string name="start">התחל</string>
+  <string name="finish">סיים</string>
   <string name="no_data">אין נתונים</string>
   <string name="ellipsis">…</string>
   <string name="text_too_long">הטקסט המוכנס ארוך מדי</string>
@@ -151,6 +146,7 @@
   <string name="sorry">עמך הסליחה</string>
   <string name="error_start_activity">בלתי זמין במערכת שלך</string>
   <string name="status_heading">מצב</string>
+  <string name="error">שגיאה</string>
   <!--Contacts and Private Conversations-->
   <string name="no_contacts">אין אנשי קשר להראות</string>
   <string name="no_contacts_action">הקש על הצלמית + כדי להוסיף איש קשר</string>
@@ -165,7 +161,7 @@
   <string name="set_contact_alias">שַׁנֵּה שם איש קשר</string>
   <string name="set_contact_alias_hint">שם איש הקשר</string>
   <string name="menu_item_connect_via_bluetooth">התחבר באמצעות שן כחולה</string>
-  <string name="connect_via_bluetooth_title">התחבר באמצעות שן כחולה</string>
+  <string name="dialog_title_connect_via_bluetooth">התחבר באמצעות שן כחולה</string>
   <!--The first placeholder will show a duration like "7 days". The second placeholder at the end will add "Tap to learn more."-->
   <!--The placeholder at the end will add "Tap to learn more."-->
   <!--The first placeholder will show a contact's name. The second placeholder will show a duration like "7 days". The third placeholder at the end will add "Tap to learn more."-->
@@ -196,6 +192,7 @@
   <string name="dialog_title_image_support">כעת אפשר לשלוח תמונות אל איש קשר זה</string>
   <string name="dialog_message_image_support">הקש על צלמית זו כדי לצרף תמונות.</string>
   <string name="messaging_too_many_attachments_toast">רק %d התמונות הראשונות יישלחו</string>
+  <string name="menu_contact">צרו קשר</string>
   <!--Adding Contacts-->
   <string name="add_contact_title">הוסף איש קשר בקרבה</string>
   <string name="face_to_face">אתה חייב להיפגש עם האדם שאותו אתה רוצה להוסיף כאיש קשר.\n\nזה ימנע מכל אחד להתחזות אליך או לקרוא את ההודעות שלך בעתיד.</string>
@@ -548,7 +545,8 @@
   <string name="cannot_load_ringtone">לא ניתן לטעון צלצול</string>
   <!--Conversation Settings-->
   <string name="learn_more">למד עוד</string>
-  <!--Settings Feedback-->
+  <!--Settings Actions-->
+  <string name="pref_category_actions">פעולות</string>
   <string name="send_feedback">שלח משוב</string>
   <!--Link Warning-->
   <string name="link_warning_title">אזהרת קישור</string>
@@ -557,7 +555,6 @@
   <string name="link_warning_open_link">פתח קישור</string>
   <!--Crash Reporter-->
   <string name="crash_report_title">דוח קריסת Briar</string>
-  <string name="briar_crashed">Briar התרסק, עמך הסליחה.</string>
   <string name="not_your_fault">זאת לא אשמתך.</string>
   <string name="please_send_report">אנא עזור לנו לבנות Briar טוב יותר ע״י שליחת דוח קריסה אלינו.</string>
   <string name="report_is_encrypted">אנו מבטיחים שהדוח הזה מוצפן ונשלח באופן מאובטח.</string>
@@ -611,6 +608,18 @@
   <string name="lock_tap_to_unlock">הקשה תבטל את הנעילה</string>
   <!--Connections Screen-->
   <string name="transports_help_text">Briar יכול להתחבר אל אנשי הקשר שלך באמצעות האינטרנט, הרשת האלחוטית או Bluetooth.\n\nכל חיבורי האינטרנט עוברים דרך רשת Tor למען פרטיות.\n\nאם איש קשר ניתן להשגה באמצעות שיטות רבות, Briar משתמש בהן במקביל.</string>
+  <!--Share app offline-->
+  <string name="hotspot_notification_channel_title">נקודה חמה של Wi-Fi</string>
+  <string name="hotspot_button_connected">הבא</string>
+  <!--The placeholder to be inserted into the string 'hotspot_manual_wifi': People can connect by %s-->
+  <!--Wi-Fi setup-->
+  <!--The %s placeholder will be replaced with the translation of 'hotspot_scanning_a_qr_code'-->
+  <!--Download link-->
+  <!--The %s placeholder will be replaced with the translation of 'hotspot_scanning_a_qr_code'-->
+  <!--e.g. Download Briar 1.2.20-->
+  <string name="website_troubleshooting_title">פתרון תקלות</string>
+  <!--error handling-->
+  <!--Transfer Data via Removable Drives-->
   <!--Screenshots-->
   <!--This is a name to be used in screenshots. Feel free to change it to a local name.-->
   <string name="screenshot_alice">נועה</string>

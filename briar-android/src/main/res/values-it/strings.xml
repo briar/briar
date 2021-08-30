@@ -1,5 +1,5 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
   <!--Setup-->
   <string name="setup_title">Benvenuto su Briar</string>
   <string name="setup_name_explanation">Il tuo nickname sarà accanto ad ogni contenuto pubblicato. Non potrai cambiarlo dopo aver creato l\'account.</string>
@@ -40,13 +40,12 @@
   <string name="forgotten_password">Ho dimenticato la password</string>
   <string name="dialog_title_lost_password">Password persa</string>
   <string name="dialog_message_lost_password">Il tuo account Briar si trova cifrato sul tuo dispositivo e non nel cloud, quindi non possiamo resettarti la tua password. Vorresti cancellare il tuo account e partire di nuovo?\n\nAttenzione: Le tue identità, contatti e messaggi verranno persi permanentemente.</string>
-  <string name="startup_failed_notification_title">Briar non è riuscito ad avviarsi</string>
-  <string name="startup_failed_notification_text">Tocca per maggiori informazioni.</string>
   <string name="startup_failed_activity_title">Fallimento Avvio Briar</string>
-  <string name="startup_failed_db_error">Per qualche motivo, il tuo database di Briar è danneggiato in modo irreparabile. Il tuo account, i tuoi dati e tutti i tuoi contatti sono perduti. Sfortunatamente devi reinstallare Briar o registrare un nuovo account scegliendo \'Ho dimenticato la password\'.</string>
-  <string name="startup_failed_data_too_old_error">Il tuo account è stato creato con una vecchia versione dell\'app e non può essere aperto in questa versione. Devi reinstallare la vecchia versione oppure impostare un nuovo account scegliendo \'Ho dimenticato la password\' alla richiesta di password.</string>
-  <string name="startup_failed_data_too_new_error">Questa versione dell\'app è troppo vecchia. Aggiornala alla versione più recente e riprova.</string>
-  <string name="startup_failed_service_error">Briar non è stato in grado di caricare un plugin richiesto. Reinstallare Briar di solito sistema questo problema. Però ricorda che perderai il tuo account e tutti i dati ad esso associati poichè Briar non usa server centralizzati per mantenere i tuoi dati.</string>
+  <string name="startup_failed_clock_error">Briar non ha potuto avviarsi perchè l\'orologio del tuo dispositivo è sbagliato.\n\nRegola correttamente l\'orologio e riprova.</string>
+  <string name="startup_failed_db_error">Briar non ha potuto aprire il database contenente il tuo account, i contatti e i messaggi.\n\nAggiorna all\'ultima versione dell\'app e riprova, o configura un nuovo account scegliendo \'Ho dimenticato la password\' quando richiesto.</string>
+  <string name="startup_failed_data_too_old_error">Il tuo account è stato creato con una vecchia versione dell\'app e non può essere aperto in questa versione.\n\nDevi reinstallare la vecchia versione oppure configurare un nuovo account scegliendo \'Ho dimenticato la password\' quando richiesto.</string>
+  <string name="startup_failed_data_too_new_error">Il tuo account è stato creato con una versione più recente dell\'app e non può esere aperto in questa versione.\n\nAggiorna all\'ultima versione e riprova.</string>
+  <string name="startup_failed_service_error">Briar non ha potuto avviare un componente necessario.\n\nAggiorna all\'ultima versione dell\'app e riprova.</string>
   <plurals name="expiry_warning">
     <item quantity="one">Questa è una versione di prova di Briar. Il tuo account scadrà fra %d giorno e non può essere rinnovato.</item>
     <item quantity="other">Questa è una versione di prova di Briar. Il tuo account scadrà fra %d giorni e non può essere rinnovato.</item>
@@ -139,6 +138,7 @@
   <string name="open">Apri</string>
   <string name="change">Cambia</string>
   <string name="start">Inizia</string>
+  <string name="finish">Fine</string>
   <string name="no_data">Nessun dato</string>
   <string name="ellipsis">...</string>
   <string name="text_too_long">Il testo inserito è troppo lungo</string>
@@ -148,6 +148,7 @@
   <string name="sorry">Scusa</string>
   <string name="error_start_activity">Non disponibile sul tuo sistema</string>
   <string name="status_heading">Stato</string>
+  <string name="error">Errore</string>
   <!--Contacts and Private Conversations-->
   <string name="no_contacts">Nessun contatto da mostrare</string>
   <string name="no_contacts_action">Tocca l\'icona + per aggiungere un contatto</string>
@@ -165,14 +166,14 @@
   <string name="set_contact_alias_hint">Nome contatto</string>
   <string name="menu_item_disappearing_messages">Messaggi dissolventi</string>
   <string name="menu_item_connect_via_bluetooth">Connessione attraverso Bluetooth</string>
-  <string name="connect_via_bluetooth_title">Connessione attraverso Bluetooth</string>
-  <string name="connect_via_bluetooth_intro">Per funzionare, il tuo contatto deve essere nelle vicinanze.\n\nDovreste entrambi premere \"Inizia\" nello stesso momento.</string>
-  <string name="connect_via_bluetooth_already_discovering">Si sta già tentanto di connettersi via Bluetooth</string>
-  <string name="connect_via_bluetooth_not_discoverable">Impossibile continuare senza Bluetooth</string>
-  <string name="connect_via_bluetooth_no_location_permission">Impossibile continuare senza l\'autorizzazione per la geolocalizzazione</string>
-  <string name="connect_via_bluetooth_start">Connessione via Bluetooth…</string>
-  <string name="connect_via_bluetooth_success">Connessione via Bluetooth riuscita</string>
-  <string name="connect_via_bluetooth_error">Connessione via Bluetooth fallita</string>
+  <string name="dialog_title_connect_via_bluetooth">Connessione attraverso Bluetooth</string>
+  <string name="dialog_message_connect_via_bluetooth">Per funzionare, il tuo contatto deve essere nelle vicinanze.\n\nDovreste entrambi premere \"Inizia\" nello stesso momento.</string>
+  <string name="toast_connect_via_bluetooth_already_discovering">Si sta già tentanto di connettersi via Bluetooth</string>
+  <string name="toast_connect_via_bluetooth_not_discoverable">Impossibile continuare senza Bluetooth</string>
+  <string name="toast_connect_via_bluetooth_no_location_permission">Impossibile continuare senza l\'autorizzazione per la geolocalizzazione</string>
+  <string name="toast_connect_via_bluetooth_start">Connessione via Bluetooth…</string>
+  <string name="toast_connect_via_bluetooth_success">Connessione via Bluetooth riuscita</string>
+  <string name="toast_connect_via_bluetooth_error">Connessione via Bluetooth fallita</string>
   <!--The first placeholder will show a duration like "7 days". The second placeholder at the end will add "Tap to learn more."-->
   <string name="auto_delete_msg_you_enabled">I tuoi messaggi spariranno dopo %1$s. %2$s</string>
   <!--The placeholder at the end will add "Tap to learn more."-->
@@ -224,6 +225,7 @@
   <string name="dialog_title_image_support">Ora puoi inviare immagini a questo contatto</string>
   <string name="dialog_message_image_support">Tocca questa icona per allegare immagini.</string>
   <string name="messaging_too_many_attachments_toast">Verranno inviate solo le prime %d immagini</string>
+  <string name="menu_contact">Contatti</string>
   <!--Adding Contacts-->
   <string name="add_contact_title">Aggiungi contatti vicino</string>
   <string name="face_to_face">Devi incontrarti con la persona che vuoi aggiungere come contatto.\n\nQuesto evita che qualcuno ti impersoni o legga i tuoi messaggi in futuro.</string>
@@ -578,7 +580,8 @@
 		Anche il tuo contatto può cambiare questa impostazioni per entrambe le parti.</string>
   <string name="learn_more">Per saperne di più</string>
   <string name="disappearing_messages_summary">Fai sparire automaticamente i messaggi futuri di questa conversazione dopo 7\u00A0giorni.</string>
-  <!--Settings Feedback-->
+  <!--Settings Actions-->
+  <string name="pref_category_actions">Azioni</string>
   <string name="send_feedback">Invia feedback</string>
   <!--Link Warning-->
   <string name="link_warning_title">Attenzione Link</string>
@@ -645,6 +648,89 @@
   <string name="lock_tap_to_unlock">Tocca per sbloccare</string>
   <!--Connections Screen-->
   <string name="transports_help_text">Briar può connettersi ai tuoi contatti tramite internet, Wi-Fi o Bluetooth.\n\nTutte le connessioni internet passano attraverso la rete Tor per privacy.\n\nSe un contatto può essere raggiunto con più metodi, Briar li usa in parallelo.</string>
+  <!--Share app offline-->
+  <string name="hotspot_title">Condividi questa app offline</string>
+  <string name="hotspot_intro">Condividi questa app con qualcuno accanto senza connessione internet usando il Wi-Fi del tuo telefono.
+		\n\nIl tuo telefono avvierà un hotspot Wi-Fi. Le persone vicine possono connettersi all\'hotspot e scaricare l\'app Briar dal tuo telefono.</string>
+  <string name="hotspot_button_start_sharing">Avvia hotspot</string>
+  <string name="hotspot_button_stop_sharing">Ferma hotspot</string>
+  <string name="hotspot_progress_text_start">Impostazione hotspot…</string>
+  <string name="hotspot_notification_channel_title">Hotspot Wi-Fi</string>
+  <string name="hotspot_notification_title">Condivisione di Briar offline</string>
+  <string name="hotspot_button_connected">Avanti</string>
+  <string name="permission_hotspot_location_request_body">Per creare un hotspot Wi-Fi, Briar ha bisogno dell\'autorizzazione per accedere alla tua posizione.\n\nBriar non memorizza la tua posizione e non la condivide con nessuno.</string>
+  <string name="permission_hotspot_location_denied_body">Hai negato l\'accesso alla tua posizione, ma Briar ha bisogno di questa autorizzazione per creare un hotspot Wi-Fi.\n\nPrendi in considerazione di consentirla.</string>
+  <string name="wifi_settings_title">Impostazione Wi-Fi</string>
+  <string name="wifi_settings_request_enable_body">Per creare un hotspot Wi-Fi, Briar deve usare il Wi-Fi. Prima attivalo.</string>
+  <string name="wifi_settings_request_denied_body">Hai negato l\'autorizzazione per attivare il Wi-Fi, ma Briar deve usarlo.\n\nPrendi in considerazione di attivarlo.</string>
+  <string name="hotspot_tab_manual">Manuale</string>
+  <!--The placeholder to be inserted into the string 'hotspot_manual_wifi': People can connect by %s-->
+  <string name="hotspot_scanning_a_qr_code">scansionando un codice QR</string>
+  <!--Wi-Fi setup-->
+  <!--The %s placeholder will be replaced with the translation of 'hotspot_scanning_a_qr_code'-->
+  <string name="hotspot_manual_wifi">Il tuo telefono sta fornendo un hotspot Wi-Fi. Le persone che vogliono scaricare Briar possono connettersi all\'hotspot aggiungendolo nelle impostazioni Wi-Fi del loro dispositivo con i dettagli sottostanti o %s. Quando sono connessi all\'hotspot, premi \'Avanti\'.</string>
+  <string name="hotspot_manual_wifi_ssid">Nome della rete</string>
+  <string name="hotspot_qr_wifi">Il tuo telefono sta fornendo un hotspot Wi-Fi. Le persone che vogliono scaricare Briar possono connettersi all\'hotspot scaricando questo codice QR. Quando sono connessi all\'hotspot, premi \'Avanti\'.</string>
+  <string name="hotspot_no_peers_connected">Nessun dispositivo connesso</string>
+  <plurals name="hotspot_peers_connected">
+    <item quantity="one">%s dispositivo connesso</item>
+    <item quantity="other">%s dispositivi connessi</item>
+  </plurals>
+  <!--Download link-->
+  <!--The %s placeholder will be replaced with the translation of 'hotspot_scanning_a_qr_code'-->
+  <string name="hotspot_manual_site">Il tuo telefono sta fornendo un hotspot Wi-Fi. Le persone connesse all\'hotspot possono scaricare Briar digitando il seguente collegamento in un browser web o %s.</string>
+  <string name="hotspot_manual_site_address">Indirizzo (URL)</string>
+  <string name="hotspot_qr_site">Il tuo telefono sta fornendo un hotspot Wi-Fi. Le persone connesse all\'hotspot possono scaricare Briar scansionando questo codice QR.</string>
+  <!--e.g. Download Briar 1.2.20-->
+  <string name="website_download_title">Scarica %s</string>
+  <string name="website_download_intro">Qualcuno nelle vicinanze ha condiviso %s con te.</string>
+  <string name="website_download_outro">Dopo il completamento del download, apri il file scaricato e installalo.</string>
+  <string name="website_troubleshooting_title">Risoluzione dei problemi</string>
+  <string name="website_troubleshooting_1">Se non puoi scaricare l\'app, prova con un browser web diverso.</string>
+  <string name="website_troubleshooting_2_old">Per installare l\'app scaricata, potresti dover concedere l\'installazione di app da \"Fonti sconosciute\" nelle impostazioni di sistema. Successivamente, potresti dover riscaricare l\'app. Consigliamo di disattivare l\'impostazione \"Fonti sconosciute\" dopo l\'installazione.</string>
+  <string name="website_troubleshooting_2_new">Per installare l\'app scaricata, potresti dover concedere l\'installazione di app sconosciute al tuo browser. Dopo avere installato l\'app, consigliamo di rimuovere quell\'autorizzazione al browser.</string>
+  <string name="hotspot_help_wifi_title">Problemi di connessione al Wi-Fi:</string>
+  <string name="hotspot_help_wifi_1">Prova a disattivare e riattivare il Wi-Fi su entrambi i telefoni e riprova.</string>
+  <string name="hotspot_help_wifi_2">Se il telefono ti segnala che il Wi-Fi non ha internet, digli che vuoi restare comunque connesso.</string>
+  <string name="hotspot_help_site_title">Problemi visitando il sito web locale:</string>
+  <string name="hotspot_help_site_1">Controlla di avere inserito l\'indirizzo esattamente come mostrato. Un piccolo errore può impedire il funzionamento.</string>
+  <string name="hotspot_help_site_2">Assicurati che il telefono sia ancora connesso al Wi-Fi giusto (vedi sopra) quando provi ad accedere al sito.</string>
+  <string name="hotspot_help_site_3">Se hai un\'app firewall, controlla che non stia bloccando l\'accesso.</string>
+  <string name="hotspot_help_site_4">Se puoi visitare il sito, ma non scaricare l\'app Briar, riprova con un browser web diverso.</string>
+  <string name="hotspot_help_fallback_title">Non funziona niente?</string>
+  <string name="hotspot_help_fallback_intro">Puoi provare a salvare l\'app come file .apk per condividerla in altri modi. Una volta trasferito il file sull\'altro dispositivo, può essere usato per installare Briar.
+		\n\nNota: per condividere via Bluetooth, potresti dover prima rinominare l\'estensione del file in .zip.</string>
+  <string name="hotspot_help_fallback_button">Salva app</string>
+  <!--error handling-->
+  <string name="hotspot_error_intro">Qualcosa è andato storto tentando di condividere l\'app via Wi-Fi:</string>
+  <string name="hotspot_error_no_wifi_direct">Il dispositivo non supporta il Wi-Fi Direct</string>
+  <string name="hotspot_error_start_callback_failed">Avvio dell\'hotspot fallito: errore %s</string>
+  <string name="hotspot_error_start_callback_failed_unknown">Avvio dell\'hotspot fallito con un errore sconosciuto, motivo %d</string>
+  <string name="hotspot_error_start_callback_no_group_info">Avvio dell\'hotspot fallito: nessuna info di gruppo</string>
+  <string name="hotspot_error_web_server_start">Errore di avvio del server web</string>
+  <string name="hotspot_error_web_server_serve">Errore di presentazione del sito.\n\nInvia una segnalazione (con dati anonimi) attraverso Briar se il problema persiste.</string>
+  <string name="hotspot_flag_test">Attenzione: questa app è stata installata con Android Studio e NON può essere installata su un altro dispositivo.</string>
+  <string name="hotspot_error_framework_busy">Impossibile avviare l\'hotspot.\n\nSe ne hai un altro in esecuzione o se stai condividendo la connessione internet via Wi-Fi, fermalo e poi riprova.</string>
+  <!--Transfer Data via Removable Drives-->
+  <string name="removable_drive_menu_title">Trasferisci dati</string>
+  <string name="removable_drive_intro">Puoi inviare messaggi cifrati al tuo contatto usando supporti rimovibili come chiavette USB o schede SD.\n\nSe il contatto ti ha inviato un supporto rimovibile contenente messaggi cifrati, puoi importarli in Briar usando il pulsante di ricezione sottostante.</string>
+  <string name="removable_drive_title_send">Invia dati</string>
+  <string name="removable_drive_title_receive">Ricevi dati</string>
+  <string name="removable_drive_send_intro">Tocca il pulsante sottostante per creare un nuovo file contenente i messaggi cifrati. Puoi scegliere dove verrà salvato il file.\n\nSe vuoi salvarlo in un supporto rimovibile, inseriscilo ora.</string>
+  <string name="removable_drive_send_no_data">Attualmente non ci sono messaggi in attesa di essere inviati a questo contatto.</string>
+  <string name="removable_drive_send_not_supported">Questo contatto sta usando una vecchia versione di Briar o un dispositivo obsoleto che non supporta questa funzionalità.</string>
+  <string name="removable_drive_send_button">Scegli file per esportare</string>
+  <string name="removable_drive_ongoing">Attendi il completamento del processo in corso</string>
+  <string name="removable_drive_receive_intro">Tocca il pulsante sottostante per scegliere il file che ti ha inviato il tuo contatto.\n\nSe si trova in un supporto rimovibile, inseriscilo ora.</string>
+  <string name="removable_drive_receive_button">Scegli file per importare</string>
+  <string name="removable_drive_success_send_title">Esportazione completata</string>
+  <string name="removable_drive_success_send_text">Dati esportati correttamente. Ora hai 28 giorni per trasportare il file al tuo contatto.\n\nSe il file si trova in un supporto rimovibile, usa la notifica nella barra di stato per rimuovere il supporto prima di scollegarlo.</string>
+  <string name="removable_drive_success_receive_title">Importazione riuscita</string>
+  <string name="removable_drive_success_receive_text">Tutti i messaggi cifrati contenuti in questo file sono stati ricevuti.</string>
+  <string name="removable_drive_error_send_title">Errore di esportazione dati</string>
+  <string name="removable_drive_error_send_text">Si è verificato un errore scrivendo i dati nel file.\n\nSe stai usando un supporto rimovibile, assicurati che sia inserito correttamente e riprova.\n\nSe l\'errore persiste, invia una segnalazione del problema al team di Briar.</string>
+  <string name="removable_drive_error_receive_title">Errore di importazione dati</string>
+  <string name="removable_drive_error_receive_text">Il file selezionato non contiene nulla che Briar possa riconoscere.\n\nControlla di avere scelto il file giusto.\n\nSe il tuo contatto aveva creato il file più di 28 giorni fa, Briar non sarà in grado di riconoscerlo.</string>
   <!--Screenshots-->
   <!--This is a name to be used in screenshots. Feel free to change it to a local name.-->
   <string name="screenshot_alice">Alice</string>

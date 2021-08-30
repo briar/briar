@@ -1,5 +1,5 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
   <!--Setup-->
   <string name="setup_title">Välkommen till Briar</string>
   <string name="setup_name_explanation">Ditt användarnamn kommer att visas bredvid allt innehåll som du lägger upp. Du kan inte ändra ditt användarnamn efter att ditt konto skapats.</string>
@@ -33,13 +33,7 @@
   <string name="forgotten_password">Jag har glömt mitt lösenord </string>
   <string name="dialog_title_lost_password">Glömt lösenord?</string>
   <string name="dialog_message_lost_password">Eftersom ditt Briar-konto lagras krypterat på din mobil eller läsplatta och inte hos en molntjänst kan vi inte återställa ditt lösenord. Vill du radera ditt konto och skapa ett nytt?\n\nCaution: Du kommer att förlora din profil, dina kontakter och dina meddelanden.</string>
-  <string name="startup_failed_notification_title">Briar kunde inte startas </string>
-  <string name="startup_failed_notification_text">Tryck för mer information.</string>
   <string name="startup_failed_activity_title">Briar kunde inte starta</string>
-  <string name="startup_failed_db_error">Av någon anledning så har Briars databas skadads och går ej att reparera. Ditt konto, din data och alla dina kontakter har gått förlorade. Tyvärr måste du installera om Briar, eller skapa ett nytt konto genom att välja \'Jag har glömt mitt lösenord\' när lösenord efterfrågas.</string>
-  <string name="startup_failed_data_too_old_error">Ditt konto skapades med en gammal version av den här appen och kan ej öppnas med den här versionen. Du måste antingen installera den gamla versionen, eller skapa ett nytt konto genom att välja \'Jag har glömt mitt lösenord\' när lösenord efterfrågas.</string>
-  <string name="startup_failed_data_too_new_error">Du har en för gammal version av appen. Vänligen uppgradera till nyaste versionen och försök igen.</string>
-  <string name="startup_failed_service_error">Briar kunde inte starta ett nödvändigt insticksprogram. Att återinstallera Briar brukar lösa problemet, men eftersom dina data inte lagras på en central server innebär detta att du kommer att förlora ditt konto och alla dess tillhörande data.</string>
   <plurals name="expiry_warning">
     <item quantity="one">Det här är en test-version av Briar. Ditt konto kommer att upphöra om %d dagar och kan ej förnyas.</item>
     <item quantity="other">Det här är en test-version av Briar. Ditt konto kommer att upphöra om %d dag och kan ej förnyas.</item>
@@ -132,6 +126,7 @@
   <string name="open">Öppen</string>
   <string name="change">Ändra</string>
   <string name="start">Kör</string>
+  <string name="finish">Slutför</string>
   <string name="no_data">Ingen data</string>
   <string name="ellipsis">…</string>
   <string name="text_too_long">Texten innehåller för många tecken</string>
@@ -141,6 +136,7 @@
   <string name="sorry">Tyvärr</string>
   <string name="error_start_activity">Otillgänglig på ditt system</string>
   <string name="status_heading">Status</string>
+  <string name="error">Fel</string>
   <!--Contacts and Private Conversations-->
   <string name="no_contacts">Inga kontakter</string>
   <string name="no_contacts_action">Tryck på plus-ikonen (+) för att lägga till en kontakt</string>
@@ -155,7 +151,7 @@
   <string name="set_contact_alias">Ändra namn på kontakt</string>
   <string name="set_contact_alias_hint">Kontaktnamn</string>
   <string name="menu_item_connect_via_bluetooth">Anslut via Bluetooth</string>
-  <string name="connect_via_bluetooth_title">Anslut via Bluetooth</string>
+  <string name="dialog_title_connect_via_bluetooth">Anslut via Bluetooth</string>
   <!--The first placeholder will show a duration like "7 days". The second placeholder at the end will add "Tap to learn more."-->
   <!--The placeholder at the end will add "Tap to learn more."-->
   <!--The first placeholder will show a contact's name. The second placeholder will show a duration like "7 days". The third placeholder at the end will add "Tap to learn more."-->
@@ -186,6 +182,7 @@
   <string name="dialog_title_image_support">Du kan nu skicka bilder till den här kontakten</string>
   <string name="dialog_message_image_support">Tryck på denna ikon för att bifoga bilder.</string>
   <string name="messaging_too_many_attachments_toast">Endast de första %d bilder kommer att skickas</string>
+  <string name="menu_contact">Kontakt</string>
   <!--Adding Contacts-->
   <string name="add_contact_title">Lägg till en närvarande kontakt</string>
   <string name="face_to_face">Du måste personligen träffa den som du vill lägga till som kontakt.\n\nDetta för att undvika att någon senare låtsas vara du eller läser dina meddelanden.</string>
@@ -524,7 +521,8 @@
   <string name="cannot_load_ringtone">Kan ej ladda ringsignal</string>
   <!--Conversation Settings-->
   <string name="learn_more">Läs mer</string>
-  <!--Settings Feedback-->
+  <!--Settings Actions-->
+  <string name="pref_category_actions">Åtgärder</string>
   <string name="send_feedback">Lämna synpunkter</string>
   <!--Link Warning-->
   <string name="link_warning_title">Länkvarning</string>
@@ -533,7 +531,6 @@
   <string name="link_warning_open_link">Öppna länk</string>
   <!--Crash Reporter-->
   <string name="crash_report_title">Briar-felrapport</string>
-  <string name="briar_crashed">Tyvärr, Briar kraschade.</string>
   <string name="not_your_fault">Detta är inte ditt fel.</string>
   <string name="please_send_report">Hjälp oss att förbättra Briar genom att skicka en felrapport.</string>
   <string name="report_is_encrypted">Vi lovar att felrapporten är krypterad och skickas säkert.</string>
@@ -587,6 +584,17 @@
   <string name="lock_tap_to_unlock">Tryck för att låsa upp</string>
   <!--Connections Screen-->
   <string name="transports_help_text">Briar kan ansluta till dina kontakter via internet, Wi-Fi eller Bluetooth.\n\nAlla internetanslutningar går via Tor-nätverket av integritetsskäl.\n\nOm en kontakt kan nås via flera metoder kommer Briar att använda dem parallellt.</string>
+  <!--Share app offline-->
+  <string name="hotspot_button_connected">Nästa</string>
+  <!--The placeholder to be inserted into the string 'hotspot_manual_wifi': People can connect by %s-->
+  <!--Wi-Fi setup-->
+  <!--The %s placeholder will be replaced with the translation of 'hotspot_scanning_a_qr_code'-->
+  <!--Download link-->
+  <!--The %s placeholder will be replaced with the translation of 'hotspot_scanning_a_qr_code'-->
+  <!--e.g. Download Briar 1.2.20-->
+  <string name="website_troubleshooting_title">Felsökning</string>
+  <!--error handling-->
+  <!--Transfer Data via Removable Drives-->
   <!--Screenshots-->
   <!--This is a name to be used in screenshots. Feel free to change it to a local name.-->
   <string name="screenshot_alice">Alice</string>

@@ -1,8 +1,8 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
   <!--Setup-->
   <string name="setup_title">Добре дошли в Briar</string>
-  <string name="setup_name_explanation">Прякорът ви ще бъде видим до всяка ваша публикация. Няма да можете да го промените след като създадете профил.</string>
+  <string name="setup_name_explanation">Прякорът ще бъде видим до всяка ваша публикация. Няма да можете да го промените след като създадете профила си.</string>
   <string name="setup_next">Напред</string>
   <string name="setup_password_intro">Изберете парола</string>
   <string name="setup_password_explanation">Профилът в Briar се съхранява шифриран на устройството ви, а не в облака. Ако забравите паролата си или премахнете Briar, няма начин да го възстановите.\n\nИзберете дълга, трудна за отгатване парола, например: четири случайни думи или десет случайни букви, числа и знаци.</string>
@@ -40,13 +40,12 @@
   <string name="forgotten_password">Забравена парола</string>
   <string name="dialog_title_lost_password">Забравена парола</string>
   <string name="dialog_message_lost_password">Профилът в Briar се съхранява шифриран на вашето устройство, а не в облака и за това паролата не може да бъде сменена. Желаете ли да профилът да бъде премахнат и да бъде направен нов?\n\nВнимание: Профилът, контактите и съобщенията ще бъдат безвъзвратно загубени.</string>
-  <string name="startup_failed_notification_title">Briar не можа да стартира</string>
-  <string name="startup_failed_notification_text">Докоснете за повече информация.</string>
   <string name="startup_failed_activity_title">Неуспешно стартиране</string>
-  <string name="startup_failed_db_error">По някаква причина банката от данни на Briar е непоправимо повредена. Вашият профил, данни и всичките ви контакти са загубени. За жалост, се налага да преинсталирате Briar или да създадете нов профил, избирайки „Забравена парола“ от екрана за вход.</string>
-  <string name="startup_failed_data_too_old_error">Вашия профил е създаден със по-ранно издание на приложението и не може да бъде отворен. Трябва или да инсталирате по-ранното издание или да създадете нов профил, избирайки „Забравена парола“ от екрана за вход.</string>
-  <string name="startup_failed_data_too_new_error">Тава издание на приложението е твърде старо. Обновете до последно издание и опитайте отново.</string>
-  <string name="startup_failed_service_error">Briar не може да стартира задължителна приставка. Обикновено преинсталирането на Briar решава този проблем. Имайте предвид, че ще изгубите профила си и всички свързани с него данни, тъй като Briar не ги съхранява в централни сървъри.</string>
+  <string name="startup_failed_clock_error">Briar не може да стартира, защото часовника на устройството не е верен.\n\nСверете часовника и пробвайте отново.</string>
+  <string name="startup_failed_db_error">Briar не може да отвори банката от данни с вашия профил, контакти и всички съобщения.\n\nИнсталирайте последното издание и пробвайте отново или създайте нов профил, избирайки „Забравена парола“ от екрана за вход.</string>
+  <string name="startup_failed_data_too_old_error">Профилът е създаден с по-ранно издание на приложението и не може да бъде отворен с текущото издание. Или инсталирайте по-ранното издание, или създайте нов профил, избирайки „Забравена парола“ от екрана за вход.</string>
+  <string name="startup_failed_data_too_new_error">Профилът е създаден с по-ново издание на приложението и не може да бъде отворен с текущото издание.\n\nОбновете до последно издание и опитайте отново.</string>
+  <string name="startup_failed_service_error">Briar не може да стартира задължителна приставка.\n\nОбновете до последно издание и опитайте отново.</string>
   <plurals name="expiry_warning">
     <item quantity="one">Това е тестова версия на Briar. Вашият акаунт ще бъде изтече след %d ден и не може да бъде подновена.</item>
     <item quantity="other">Това е изпитателно издание на Briar. Валидността на профила ще изтече след %d дена и не може да бъде подновена.</item>
@@ -139,6 +138,7 @@
   <string name="open">Отваряне</string>
   <string name="change">Променяне</string>
   <string name="start">Старт</string>
+  <string name="finish">Край</string>
   <string name="no_data">Няма данни</string>
   <string name="ellipsis">...</string>
   <string name="text_too_long">Въведеният текст е твърде дълъг</string>
@@ -148,6 +148,7 @@
   <string name="sorry">Съжаляваме</string>
   <string name="error_start_activity">Недостъпно на вашата система</string>
   <string name="status_heading">Състояние</string>
+  <string name="error">Грешка</string>
   <!--Contacts and Private Conversations-->
   <string name="no_contacts">Няма контакти</string>
   <string name="no_contacts_action">Докоснете иконата с +, за да добавите контакти</string>
@@ -161,18 +162,18 @@
   <string name="image_attach_error">Грешка при прикачване на изображения</string>
   <string name="image_attach_error_too_big">Изображението е твърде голямо. Има ограничение от %dМБ.</string>
   <string name="image_attach_error_invalid_mime_type">Неподдържан формат на изображение: %s</string>
-  <string name="set_contact_alias">Преименуване на контакт</string>
+  <string name="set_contact_alias">Преименуване</string>
   <string name="set_contact_alias_hint">Име на контакта</string>
   <string name="menu_item_disappearing_messages">Изчезващи съобщения</string>
   <string name="menu_item_connect_via_bluetooth">Свързване чрез Bluetooth</string>
-  <string name="connect_via_bluetooth_title">Свързване чрез Bluetooth</string>
-  <string name="connect_via_bluetooth_intro">За да сработи този метод, контактът трябва да бъде близо до вас.\n\nДвамата трябва да натиснете „Start“ едновременно.</string>
-  <string name="connect_via_bluetooth_already_discovering">Има започнат опит за връзка чрез Bluetooth</string>
-  <string name="connect_via_bluetooth_not_discoverable">Не може да продължи без Bluetooth</string>
-  <string name="connect_via_bluetooth_no_location_permission">Не може да продължи без разрешение за местоположение</string>
-  <string name="connect_via_bluetooth_start">Свързване чрез Bluetooth…</string>
-  <string name="connect_via_bluetooth_success">Успешно свързване чрез Bluetooth</string>
-  <string name="connect_via_bluetooth_error">Не може да се установи връзка чрез Bluetooth</string>
+  <string name="dialog_title_connect_via_bluetooth">Свързване чрез Bluetooth</string>
+  <string name="dialog_message_connect_via_bluetooth">За да сработи този метод, контактът трябва да бъде близо до вас.\n\nДвамата трябва да натиснете „Старт“ едновременно.</string>
+  <string name="toast_connect_via_bluetooth_already_discovering">Има започнат опит за връзка чрез Bluetooth</string>
+  <string name="toast_connect_via_bluetooth_not_discoverable">Не може да продължи без Bluetooth</string>
+  <string name="toast_connect_via_bluetooth_no_location_permission">Не може да продължи без разрешение за местоположение</string>
+  <string name="toast_connect_via_bluetooth_start">Свързване чрез Bluetooth…</string>
+  <string name="toast_connect_via_bluetooth_success">Успешно свързване чрез Bluetooth</string>
+  <string name="toast_connect_via_bluetooth_error">Не може да се установи връзка чрез Bluetooth</string>
   <!--The first placeholder will show a duration like "7 days". The second placeholder at the end will add "Tap to learn more."-->
   <string name="auto_delete_msg_you_enabled">Съобщението ще изчезне след %1$s. %2$s</string>
   <!--The placeholder at the end will add "Tap to learn more."-->
@@ -208,9 +209,9 @@
   <string name="dialog_message_not_deleted_not_all_selected_both">За да премахнете покана или запознанство трябва да изберете заявката и отговора.</string>
   <string name="dialog_message_not_deleted_not_all_selected_introductions">За да премахнете запознанство трябва да изберете заявката и отговора.</string>
   <string name="dialog_message_not_deleted_not_all_selected_invitations">За да премахнете покана трябва да изберете заявката и отговора.</string>
-  <string name="delete_contact">Премахване на контакт</string>
+  <string name="delete_contact">Премахване</string>
   <string name="dialog_title_delete_contact">Потвърждение на премахване на контакт</string>
-  <string name="dialog_message_delete_contact">Сигурни ли сте, че желаете да изтриете контакта и всички обменени с него съобщения?</string>
+  <string name="dialog_message_delete_contact">Сигурни ли сте, че желаете да бъде премахнат този контакт и всички обменени с него съобщения?</string>
   <string name="contact_deleted_toast">Контактът е премахнат</string>
   <!--This is shown in the action bar when opening an image in fullscreen that the user sent-->
   <string name="you">Вие</string>
@@ -224,6 +225,7 @@
   <string name="dialog_title_image_support">Вече можете да изпращате изображения на този контакт</string>
   <string name="dialog_message_image_support">Докоснете иконата за да изпратите изображение</string>
   <string name="messaging_too_many_attachments_toast">Само първите %dизображения ще бъдат изпратени</string>
+  <string name="menu_contact">Контакт</string>
   <!--Adding Contacts-->
   <string name="add_contact_title">Добавяне на контакт на живо</string>
   <string name="face_to_face">Трябва да се срещнете лично с човека, чиито контакт искате да добавите.\n\nТака никой не може да се представи за вас или да чете съобщенията ви в бъдеще.</string>
@@ -300,7 +302,7 @@
   <string name="pending_contact_updated_toast">Обновена чакаща заявка за контакт</string>
   <!--Introductions-->
   <string name="introduction_onboarding_title">Запознаване на контакти</string>
-  <string name="introduction_onboarding_text">Можете да запознавате контакти помежду им. Така няма да им се наложи да се срещат лично, за да се свържат в Briar.</string>
+  <string name="introduction_onboarding_text">Можете да запознавате контактите си един с друг. Така няма да им се налага да се срещат лично, за да се свържат в Briar.</string>
   <string name="introduction_menu_item">Запознаване</string>
   <string name="introduction_activity_title">Избор на контакт</string>
   <string name="introduction_not_possible">С тези контакти вече имате запознанство в процес. Нека първо завърши. Ако вие или контактите ви сте рядко на линия може да отнеме известно време.</string>
@@ -344,10 +346,10 @@
   <string name="groups_member_joined">%s се включи в групата</string>
   <string name="groups_leave">Напускане на групата</string>
   <string name="groups_leave_dialog_title">Потвърждение на напускане</string>
-  <string name="groups_leave_dialog_message">Сигурни ли сте, че искате да напуснете тази група?</string>
+  <string name="groups_leave_dialog_message">Сигурни ли сте, че желаете да напуснете тази група?</string>
   <string name="groups_dissolve">Разпускане на група</string>
   <string name="groups_dissolve_dialog_title">Потвърждение на разпускане на група</string>
-  <string name="groups_dissolve_dialog_message">Сигурни ли сте, че искате да разпуснете групата?\n\nОстаналите членове няма да могат да продължат разговорите си и може да не получат последните съобщения.</string>
+  <string name="groups_dissolve_dialog_message">Сигурни ли сте, че желаете да разпуснете групата?\n\nОстаналите членове няма да могат да продължат разговорите си и може да не получат последните съобщения.</string>
   <string name="groups_dissolve_button">Разпускане</string>
   <string name="groups_dissolved_dialog_title">Разпусната група</string>
   <string name="groups_dissolved_dialog_message">Групата е разпусната от нейния основател.\n\nНе можете да изпращате съобщения и може да не сте получили всички изпратени до групата съобщения.</string>
@@ -419,10 +421,10 @@
   <string name="forum_invitation_response_declined_received">%s отказа поканата във форум.</string>
   <string name="sharing_status">Състояние на споделяне</string>
   <string name="sharing_status_forum">Всеки участник във форума може да го сподели с контактите си. Споделяте този форум със следните контакти. Възможно е да има и други, които не можете да видите.</string>
-  <string name="shared_with">Споделен %1$d (на линия %2$d)</string>
+  <string name="shared_with">Споделено с %1$d (на линия %2$d)</string>
   <plurals name="forums_shared">
     <item quantity="one">%d форум, споделен от контакти</item>
-    <item quantity="other">%d форума, споделени от контакти</item>
+    <item quantity="other">%d форума споделени от контакти</item>
   </plurals>
   <string name="nobody">Никого</string>
   <!--Blogs-->
@@ -437,7 +439,7 @@
   <string name="blogs_feed_empty_state">Няма публикации</string>
   <string name="blogs_feed_empty_state_action">Публикации от вашите контакти и абонираните блогове се показват тук.\n\nДокоснете иконата на писалка, за да направите публикация.</string>
   <string name="blogs_remove_blog">Премахване на блог</string>
-  <string name="blogs_remove_blog_dialog_message">Сигурни ли сте, че желаете да изтриете блога?\n\nПубликациите ще бъдат премахнати от устройството ви, но не и от устройствата на другите членове.\n\nКонтактите, с които сте споделили този блог може да спрат да получават обновявания.</string>
+  <string name="blogs_remove_blog_dialog_message">Сигурни ли сте, че желаете да премахнете блога?\n\nПубликациите ще бъдат премахнати от устройството ви, но не и от устройствата на другите хора.\n\nКонтактите, с които сте споделили този блог може да спрат да получават обновявания.</string>
   <string name="blogs_remove_blog_ok">Премахване</string>
   <string name="blogs_blog_removed">Блогът е премахнат</string>
   <string name="blogs_reblog_comment_hint">Добавете съобщение (незадължително)</string>
@@ -469,7 +471,7 @@
   <string name="blogs_rss_feeds_manage_author">Автор:</string>
   <string name="blogs_rss_feeds_manage_updated">Последно обновяване:</string>
   <string name="blogs_rss_remove_feed">Премахване на емисия</string>
-  <string name="blogs_rss_remove_feed_dialog_message">Сигурни ли сте, че желаете да изтриете емисията?\n\nПубликациите ще бъдат премахнати от устройството ви, но не и от устройствата на другите членове.\n\nКонтактите, с които сте споделили тази емисия може да спрат да получават обновявания.</string>
+  <string name="blogs_rss_remove_feed_dialog_message">Сигурни ли сте, че желаете да премахнете емисията?\n\nПубликациите ще бъдат премахнати от устройството ви, но не и от устройствата на другите хора.\n\nКонтактите, с които сте споделили тази емисия може да спрат да получават обновявания.</string>
   <string name="blogs_rss_remove_feed_ok">Премахване</string>
   <string name="blogs_rss_feeds_manage_empty_state">Няма емисии на RSS\n\nДокоснете иконата с +, за да внесете емисия</string>
   <string name="blogs_rss_feeds_manage_error">Възникна проблем при зареждането на емисиите ви. Моля, опитайте пак по-късно.</string>
@@ -574,7 +576,8 @@
 \n\nАко вие промените настройката промяната ще влезе в действие веднага, още върху следващото ви съобщение, а при вашите контакти след получаването му. Контактите ви също могат да правят промяна на тази настройка, което ще се отрази и на двама ви.</string>
   <string name="learn_more">Научете повече</string>
   <string name="disappearing_messages_summary">Бъдещите съобщения в разговора изчезват след 7\u00A0дни</string>
-  <!--Settings Feedback-->
+  <!--Settings Actions-->
+  <string name="pref_category_actions">Действия</string>
   <string name="send_feedback">Изпращане на отзив</string>
   <!--Link Warning-->
   <string name="link_warning_title">Предупреждение за препратка</string>
@@ -583,10 +586,9 @@
   <string name="link_warning_open_link">Отваряне</string>
   <!--Crash Reporter-->
   <string name="crash_report_title">Доклад на срив</string>
-  <string name="briar_crashed">Извинете, Briar се срина.</string>
   <string name="not_your_fault">Не е по ваша вина.</string>
   <string name="please_send_report">Помогнете да направим Briar по-добър като ни изпратите доклад.</string>
-  <string name="report_is_encrypted">Даваме обещание, че докладът е шифрован и е изпратен добре защитен.</string>
+  <string name="report_is_encrypted">Обещаваме, че докладът е ще бъде изпратен шифрован и добре защитен.</string>
   <string name="feedback_title">Обратна връзка</string>
   <string name="describe_crash">Опишете случилото се (незадължително)</string>
   <string name="enter_feedback">Въведете обратна връзка</string>
@@ -641,6 +643,38 @@
   <string name="lock_tap_to_unlock">Докоснете за отключване</string>
   <!--Connections Screen-->
   <string name="transports_help_text">Briar може да се свърже с контактите ви през интернет, Wi-Fi или Bluetooth.\n\nЗа повече поверителност цялата връзка към интернет се пренасочва през мрежата на Tor.\n\nАко даден контакт може да бъде достъпен чрез няколко метода Briar ги използва успоредно.</string>
+  <!--Share app offline-->
+  <string name="hotspot_button_connected">Напред</string>
+  <string name="hotspot_tab_manual">Ръчно</string>
+  <!--The placeholder to be inserted into the string 'hotspot_manual_wifi': People can connect by %s-->
+  <!--Wi-Fi setup-->
+  <!--The %s placeholder will be replaced with the translation of 'hotspot_scanning_a_qr_code'-->
+  <string name="hotspot_manual_wifi_ssid">Наименование на мрежата</string>
+  <!--Download link-->
+  <!--The %s placeholder will be replaced with the translation of 'hotspot_scanning_a_qr_code'-->
+  <!--e.g. Download Briar 1.2.20-->
+  <string name="website_troubleshooting_title">Отстраняване на неизправности</string>
+  <!--error handling-->
+  <!--Transfer Data via Removable Drives-->
+  <string name="removable_drive_menu_title">Прехвърляне на данни</string>
+  <string name="removable_drive_intro">Можете да изпращате шифровани съобщения до контактите си посредством преносима памет или карти на SD.\n\nАко контакт ви изпрати преносима памет с криптирани съобщения можете да ги внесете в Briar, посредством бутона за получаване по-долу.</string>
+  <string name="removable_drive_title_send">Изпращане на сведения</string>
+  <string name="removable_drive_title_receive">Получаване на сведения</string>
+  <string name="removable_drive_send_intro">Докоснете бутона по-долу, за да бъде създаден файл, който ще съдържа шифрованите съобщения. Можете да изберете къде да бъде запазен този файл.\n\nАко желаете да го запазите на преносим диск го включете сега.</string>
+  <string name="removable_drive_send_no_data">В момента няма съобщения, чакащи за изпращане до този контакт.</string>
+  <string name="removable_drive_send_not_supported">Контактът използва по-ранно издание на Briar или устройство, което не поддържа тази възможност.</string>
+  <string name="removable_drive_send_button">Избиране на файл</string>
+  <string name="removable_drive_ongoing">Изчакайте текущата задача да завърши</string>
+  <string name="removable_drive_receive_intro">Докоснете бутона по-долу, за да изберете файла, който вашия контакт ви е изпратил.\n\nАко файлът се намира на преносим диск го включете сега.</string>
+  <string name="removable_drive_receive_button">Избиране на файл</string>
+  <string name="removable_drive_success_send_title">Успешно изнасяне</string>
+  <string name="removable_drive_success_send_text">Информацията е изнесена успешно. От сега имате 28 дена, за да предадете файла на вашия контакт.\n\nАко той се намира на преносим диск, използвайте известието в лентата за състоянието, за да освободите диска преди да го изключите.</string>
+  <string name="removable_drive_success_receive_title">Успешно внасяне</string>
+  <string name="removable_drive_success_receive_text">Всички шифровани съобщения от файла са получени.</string>
+  <string name="removable_drive_error_send_title">Грешка при изнасяне</string>
+  <string name="removable_drive_error_send_text">Информацията не може да бъде записана във файла.\n\nАко използвате преносим диск се уверете, че е включен правилно и опитайте отново.\n\nАко грешката продължава да се проявява изпратете обратна връзка до екипа на Briar, за да ги уведомите за проблема.</string>
+  <string name="removable_drive_error_receive_title">Грешка при внасяне</string>
+  <string name="removable_drive_error_receive_text">Избраният файл не съдържа нищо, което Briar разпознава.\n\nУверете се, че сте избрали правилния файл.\n\nАко вашият контакт го е създал преди повече от 28 дена Briar няма да го разпознае.</string>
   <!--Screenshots-->
   <!--This is a name to be used in screenshots. Feel free to change it to a local name.-->
   <string name="screenshot_alice">Ани</string>

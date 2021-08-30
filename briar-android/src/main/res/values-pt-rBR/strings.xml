@@ -1,5 +1,5 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
   <!--Setup-->
   <string name="setup_title">Boas-vindas ao Briar</string>
   <string name="setup_name_explanation">Seu nome de usuária será mostrado próximo a qualquer conteúdo que você publicar. Você não pode mudá-lo depois que criar sua conta,</string>
@@ -33,13 +33,7 @@
   <string name="forgotten_password">Esqueci minha senha</string>
   <string name="dialog_title_lost_password">Perdeu a senha</string>
   <string name="dialog_message_lost_password">Sua conta Briar é armazenada em seu dispositivo e criptografada, não na Nuvem, assim não podemos recuperar a senha. Você quer deletar sua conta e começar de novo?\n\nAtenção: Isso irá apagar permanentemente suas identidades, contatos e mensagens</string>
-  <string name="startup_failed_notification_title">Briar não pode iniciar</string>
-  <string name="startup_failed_notification_text">Pressione para mais informações.</string>
   <string name="startup_failed_activity_title">Inicialização do Briar falhou</string>
-  <string name="startup_failed_db_error">Por algum motivo, o banco de dados do seu Briar está corrompido e não é possível repará-lo. Sua conta, seus dados e seus contatos foram perdidos. Infelizmente, você precisará reinstalar o Briar ou criar uma nova conta escolhendo a opção \'Esqueci minha senha\'.</string>
-  <string name="startup_failed_data_too_old_error">Sua conta foi criada numa versão mais antiga do aplicativo e não pode ser aberta nesta versão. Você pode reinstalar a versão antiga ou criar uma conta nova escolhendo a opção \"Esqueci minha senha\".</string>
-  <string name="startup_failed_data_too_new_error">A versão deste aplicativo é muito antiga. Por favor, atualize para a versão mais nova e tente novamente.</string>
-  <string name="startup_failed_service_error">O Briar não pode iniciar devido a um plugin. Reinstalar o Briar geralmente resolve esse problema. Porém, note que ao fazer isso você perderá sua conta e todos os dados associados a ela,  já que o Briar não usa um servidor central para armazenar seus dados.</string>
   <plurals name="expiry_warning">
     <item quantity="one">Esta é uma versão de teste do Briar. Sua conta irá expirar em %d dia e não poderá ser renovada.</item>
     <item quantity="other">Esta é uma versão de teste do Briar. Sua conta irá expirar em %d dias e não poderá ser renovada.</item>
@@ -132,6 +126,7 @@
   <string name="open">Abrir</string>
   <string name="change">Alterar</string>
   <string name="start">Início</string>
+  <string name="finish">Terminar</string>
   <string name="no_data">Nenhum dado</string>
   <string name="ellipsis">…</string>
   <string name="text_too_long">O texto entrado é muito grande</string>
@@ -141,6 +136,7 @@
   <string name="sorry">Sentimos muito</string>
   <string name="error_start_activity">Indisponível no seu sistema</string>
   <string name="status_heading">Status:</string>
+  <string name="error">Erro</string>
   <!--Contacts and Private Conversations-->
   <string name="no_contacts">Sem contatos para exibir</string>
   <string name="no_contacts_action">Toque no ícone + para adicionar um contato</string>
@@ -155,7 +151,7 @@
   <string name="set_contact_alias">Alterar nome do contato</string>
   <string name="set_contact_alias_hint">Nome de contato</string>
   <string name="menu_item_connect_via_bluetooth">Conectar via Bluetooth</string>
-  <string name="connect_via_bluetooth_title">Conectar via Bluetooth</string>
+  <string name="dialog_title_connect_via_bluetooth">Conectar via Bluetooth</string>
   <!--The first placeholder will show a duration like "7 days". The second placeholder at the end will add "Tap to learn more."-->
   <!--The placeholder at the end will add "Tap to learn more."-->
   <!--The first placeholder will show a contact's name. The second placeholder will show a duration like "7 days". The third placeholder at the end will add "Tap to learn more."-->
@@ -186,6 +182,7 @@
   <string name="dialog_title_image_support">Você agora pode enviar imagens para esse contato</string>
   <string name="dialog_message_image_support">Toque nesse ícone para anexar imagens.</string>
   <string name="messaging_too_many_attachments_toast">Apenas as primeiras %d imagens serão enviadas</string>
+  <string name="menu_contact">Contato</string>
   <!--Adding Contacts-->
   <string name="add_contact_title">Adicionar contato que está próximo</string>
   <string name="face_to_face">Você deve estar frente-a-frente com a pessoa que deseja adicionar como contato.\n\nIsso evita que alguém se passe por você ou leia suas mensagens no futuro.</string>
@@ -520,7 +517,8 @@
   <string name="cannot_load_ringtone">Não foi possível carregar o toque</string>
   <!--Conversation Settings-->
   <string name="learn_more">Saiba Mais</string>
-  <!--Settings Feedback-->
+  <!--Settings Actions-->
+  <string name="pref_category_actions">Ações</string>
   <string name="send_feedback">Enviar feedback</string>
   <!--Link Warning-->
   <string name="link_warning_title">Aviso sobre Link</string>
@@ -529,7 +527,6 @@
   <string name="link_warning_open_link">Abrir Link</string>
   <!--Crash Reporter-->
   <string name="crash_report_title">Relatório de falhas do Briar</string>
-  <string name="briar_crashed">Briar encerrou de maneira inesperada</string>
   <string name="not_your_fault">Isso não é sua culpa.</string>
   <string name="please_send_report">Nós ajude a construir um Briar melhor enviando um relatório de falhas.</string>
   <string name="report_is_encrypted">Nós prometemos que o relatório é criptografado e enviado de forma segura.</string>
@@ -583,6 +580,19 @@
   <string name="lock_tap_to_unlock">Toque para desbloquear</string>
   <!--Connections Screen-->
   <string name="transports_help_text">Briar pode se conectar aos seus contatos via Internet, Wi-Fi ou Bluetooth.\n\nTodas as conexões com a Internet acontecem via rede do Tor, por privacidade.\n\nSe um contato pode ser alcançado de várias formas, Briar as utilizará em paralelo.</string>
+  <!--Share app offline-->
+  <string name="hotspot_button_connected">Próximo</string>
+  <string name="hotspot_tab_manual">Manual</string>
+  <!--The placeholder to be inserted into the string 'hotspot_manual_wifi': People can connect by %s-->
+  <!--Wi-Fi setup-->
+  <!--The %s placeholder will be replaced with the translation of 'hotspot_scanning_a_qr_code'-->
+  <!--Download link-->
+  <!--The %s placeholder will be replaced with the translation of 'hotspot_scanning_a_qr_code'-->
+  <!--e.g. Download Briar 1.2.20-->
+  <string name="website_troubleshooting_title">Solução de Problemas</string>
+  <!--error handling-->
+  <!--Transfer Data via Removable Drives-->
+  <string name="removable_drive_success_receive_title">Importação bem sucedida</string>
   <!--Screenshots-->
   <!--This is a name to be used in screenshots. Feel free to change it to a local name.-->
   <string name="screenshot_alice">Alice</string>

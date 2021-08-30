@@ -1,5 +1,5 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
   <!--Setup-->
   <string name="setup_title">Benvingut a Briar</string>
   <string name="setup_name_explanation">El vostre sobrenom etiquetarà tot el que publiqueu. Després de crear el compte ja no podreu canviar el sobrenom.</string>
@@ -40,13 +40,7 @@
   <string name="forgotten_password">No recordo la contrasenya</string>
   <string name="dialog_title_lost_password">Contrasenya perduda</string>
   <string name="dialog_message_lost_password">El vostre compte de Briar s\'emmagatzema només en el vostre dispositiu i xifrat. La contrasenya, doncs, no es pot restablir. Voleu esborrar el compte i crear-ne un de nou?\n\nAtenció! Si esborreu el compte la vostra identitat, els contactes i els missatges antics es perdran per sempre.</string>
-  <string name="startup_failed_notification_title">Briar no s\'ha pogut iniciar</string>
-  <string name="startup_failed_notification_text">Feu un toc per obtenir més informació.</string>
   <string name="startup_failed_activity_title">Error iniciant Briar</string>
-  <string name="startup_failed_db_error">Per alguna raó, la base de dades de Briar s\'ha corromput i no es pot adobar. El vostre compte, les dades i els contactes s\'han perdut. Malauradament, heu de reinstal·lar Briar o bé crear un nou compte triant l\'opció «No recordo la contrasenya» quan se us demani la contrasenya.</string>
-  <string name="startup_failed_data_too_old_error">El vostre compte fou creat amb una versió antiga de Briar i no es pot obrir amb la versió actual. O bé reinstal·leu la versió antiga o bé creeu un nou compte triant l\'opció «No recordo la contrasenya» quan se us demani la contrasenya.</string>
-  <string name="startup_failed_data_too_new_error">Aquesta versió de Briar és massa antiga. Actualitzeu Briar a la darrera versió i torneu a provar-ho.</string>
-  <string name="startup_failed_service_error">Briar no ha pogut engegar un connector imprescindible. La reinstal·lació de Briar acostuma a resoldre aquest problema. Tingueu en compte que si reinstal·leu, perdreu el vostre compte i les dades associades doncs Briar no usa servidors centrals per desar-les.</string>
   <plurals name="expiry_warning">
     <item quantity="one">Aquesta és una versió de prova de Briar. El vostre compte expira en %d dia i no es pot renovar.</item>
     <item quantity="other">Aquesta és una versió de prova de Briar. El vostre compte caducarà en %d dies i no es podrà renovar.</item>
@@ -139,6 +133,7 @@
   <string name="open">Obre</string>
   <string name="change">Canvia</string>
   <string name="start">Inicia</string>
+  <string name="finish">Fi</string>
   <string name="no_data">Sense dades</string>
   <string name="ellipsis">...</string>
   <string name="text_too_long">El text és massa llarg</string>
@@ -148,6 +143,7 @@
   <string name="sorry">Ens sap greu</string>
   <string name="error_start_activity">No està disponible en el vostre sistema</string>
   <string name="status_heading">Estat</string>
+  <string name="error">Error</string>
   <!--Contacts and Private Conversations-->
   <string name="no_contacts">No hi ha cap contacte per mostrar</string>
   <string name="no_contacts_action">Toqueu la icona + per afegir un contacte</string>
@@ -165,14 +161,14 @@
   <string name="set_contact_alias_hint">Nom del contacte</string>
   <string name="menu_item_disappearing_messages">Missatges fonedissos</string>
   <string name="menu_item_connect_via_bluetooth">Connecta via bluetooth</string>
-  <string name="connect_via_bluetooth_title">Connecta via bluetooth</string>
-  <string name="connect_via_bluetooth_intro">El vostre contacte ha de ser a prop per a que vagi bé.\n\nVós i el vostre contacte heu de prémer «Engega» simultàniament.</string>
-  <string name="connect_via_bluetooth_already_discovering">Ja està mirant de connectar-se amb Bluetooth.</string>
-  <string name="connect_via_bluetooth_not_discoverable">No es pot continuar sense Bluetooth.</string>
-  <string name="connect_via_bluetooth_no_location_permission">No es pot continuar sense permís per obtenir la posició.</string>
-  <string name="connect_via_bluetooth_start">Connectant-se via Bluetooth...</string>
-  <string name="connect_via_bluetooth_success">S\'ha connectat via Bluetooth.</string>
-  <string name="connect_via_bluetooth_error">No ha pogut connectar-se amb Bluetooth.</string>
+  <string name="dialog_title_connect_via_bluetooth">Connecta via bluetooth</string>
+  <string name="dialog_message_connect_via_bluetooth">El vostre contacte ha de ser a prop per a que vagi bé.\n\nVós i el vostre contacte heu de prémer «Engega» simultàniament.</string>
+  <string name="toast_connect_via_bluetooth_already_discovering">Ja està mirant de connectar-se amb Bluetooth.</string>
+  <string name="toast_connect_via_bluetooth_not_discoverable">No es pot continuar sense Bluetooth.</string>
+  <string name="toast_connect_via_bluetooth_no_location_permission">No es pot continuar sense permís per obtenir la posició.</string>
+  <string name="toast_connect_via_bluetooth_start">Connectant-se via Bluetooth...</string>
+  <string name="toast_connect_via_bluetooth_success">S\'ha connectat via Bluetooth.</string>
+  <string name="toast_connect_via_bluetooth_error">No ha pogut connectar-se amb Bluetooth.</string>
   <!--The first placeholder will show a duration like "7 days". The second placeholder at the end will add "Tap to learn more."-->
   <string name="auto_delete_msg_you_enabled">Els vostres missatges es faran fonedissos en %1$s. %2$s</string>
   <!--The placeholder at the end will add "Tap to learn more."-->
@@ -225,6 +221,7 @@ Així que l\'actualitzi li veureu una icona diferent .</string>
   <string name="dialog_title_image_support">Ara ja podeu enviar imatges a aquest contacte</string>
   <string name="dialog_message_image_support">Premeu aquesta icona per afegir imatges.</string>
   <string name="messaging_too_many_attachments_toast">Només s\'enviaran les %d primeres imatges</string>
+  <string name="menu_contact">Contacte</string>
   <!--Adding Contacts-->
   <string name="add_contact_title">Afegeix un contacte proper</string>
   <string name="face_to_face">Heu de coincidir en el mateix lloc amb la persona que voleu afegir com a contacte.\n\nD\'aquesta manera evitareu que algú suplanti les vostres identitats o pugui llegir els vostres missatges en el futur.</string>
@@ -569,7 +566,8 @@ Així que l\'actualitzi li veureu una icona diferent .</string>
   <!--Conversation Settings-->
   <string name="disappearing_messages_title">Missatges fonedissos</string>
   <string name="learn_more">Més informació</string>
-  <!--Settings Feedback-->
+  <!--Settings Actions-->
+  <string name="pref_category_actions">Accions</string>
   <string name="send_feedback">Envieu comentaris</string>
   <!--Link Warning-->
   <string name="link_warning_title">Avís d\'enllaç</string>
@@ -578,7 +576,6 @@ Així que l\'actualitzi li veureu una icona diferent .</string>
   <string name="link_warning_open_link">Obre l\'enllaç</string>
   <!--Crash Reporter-->
   <string name="crash_report_title">Informe de fallida de Briar</string>
-  <string name="briar_crashed">Ens sap greu, Briar s\'ha tancat inesperadament.</string>
   <string name="not_your_fault">Això no és culpa vostra.</string>
   <string name="please_send_report">Ajudi\'ns a construir un Briar millor enviant-nos un informe de fallida.</string>
   <string name="report_is_encrypted">Us garantim que l\'informe es xifra i s\'envia de manera segura.</string>
@@ -618,6 +615,18 @@ Així que l\'actualitzi li veureu una icona diferent .</string>
   <string name="lock_tap_to_unlock">Toqueu per desbloquejar-lo</string>
   <!--Connections Screen-->
   <string name="transports_help_text">Briar pot contactar els vostres contactes via Internet, WiFi o Bluetooth.\n\nTotes les connexions d\'Internet van via la xarxa Tor per privacitat.\n\nSi es pot arribar a un contacte per diversos mètodes, Briar els usa tots simultàniament.</string>
+  <!--Share app offline-->
+  <string name="hotspot_notification_channel_title">Punt d\'accés Wi-Fi</string>
+  <string name="hotspot_button_connected">Endavant</string>
+  <!--The placeholder to be inserted into the string 'hotspot_manual_wifi': People can connect by %s-->
+  <!--Wi-Fi setup-->
+  <!--The %s placeholder will be replaced with the translation of 'hotspot_scanning_a_qr_code'-->
+  <!--Download link-->
+  <!--The %s placeholder will be replaced with the translation of 'hotspot_scanning_a_qr_code'-->
+  <!--e.g. Download Briar 1.2.20-->
+  <string name="website_troubleshooting_title">Detecció d\'errors</string>
+  <!--error handling-->
+  <!--Transfer Data via Removable Drives-->
   <!--Screenshots-->
   <!--This is a name to be used in screenshots. Feel free to change it to a local name.-->
   <string name="screenshot_alice">Alba</string>
