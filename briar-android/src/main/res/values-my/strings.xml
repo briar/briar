@@ -1,5 +1,5 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<resources xmlns:tools="http://schemas.android.com/tools">
+<resources>
   <!--Setup-->
   <string name="setup_title">Briar မှ ကြိုဆိုပါသည်</string>
   <string name="setup_name_explanation">သင့်နာမည်ပြောင်သည် သင်တင်ထားသမျှအရာ၏ဘေးတွင် ပေါ်နေပါလိမ့်မည်။ သို့ပါ၍ သင့်နာမည်ပြောင်အား အကောင့်ဖွင့်ပြီးနောက် ပြောင်း၍မရတော့ပါ။</string>
@@ -160,14 +160,14 @@
   <string name="set_contact_alias_hint">အဆက်အသွယ်အမည်</string>
   <string name="menu_item_disappearing_messages">ပျောက်ကွယ် မက်ဆေ့ချ်များ</string>
   <string name="menu_item_connect_via_bluetooth">ဘလူးတုသ် နှင့် ချိတ်မယ်</string>
-  <string name="dialog_title_connect_via_bluetooth">ဘလူးတုသ် နှင့် ချိတ်မယ်</string>
-  <string name="dialog_message_connect_via_bluetooth">လုပ်ဆောင်ချက် အောင်မြင်နိုင်ရန် သင်၏ အဆက်အသွယ်သည် အနီးအနားတွင်ရှိရပါမည်။ \n\n သင် နှင့် သင်၏ အဆက်အသွယ် နှစ်ဦးစလုံးသည် \"စတင်ရန်\" ကို တစ်ပြိုင်တည်း နှိပ်ရပါမည်။</string>
-  <string name="toast_connect_via_bluetooth_already_discovering">ဘလူးတုသ် နှင့် ချိတ်ဆက်ရန် ကြိုးစားနေပါသည်</string>
-  <string name="toast_connect_via_bluetooth_not_discoverable">ဘလူးတုသ် မပါဘဲ ဆက်လက်မလုပ်ဆောင်နိုင်ပါ</string>
-  <string name="toast_connect_via_bluetooth_no_location_permission">တည်နေရာသုံးခွင့် မပါဘဲ ဆက်လက်မလုပ်ဆောင်နိုင်ပါ</string>
-  <string name="toast_connect_via_bluetooth_start">ဘလူးတုသ် နှင့် ချိတ်ဆက်နေသည်...</string>
-  <string name="toast_connect_via_bluetooth_success">ဘလူးတုသ် နှင့် အောင်မြင်စွာ ချိတ်ဆက်ပြီး</string>
-  <string name="toast_connect_via_bluetooth_error">ဘလူးတုသ် နှင့် ချိတ်ဆက်၍မရပါ</string>
+  <string name="connect_via_bluetooth_title">ဘလူးတုသ် နှင့် ချိတ်မယ်</string>
+  <string name="connect_via_bluetooth_intro">လုပ်ဆောင်ချက် အောင်မြင်နိုင်ရန် သင်၏ အဆက်အသွယ်သည် အနီးအနားတွင်ရှိရပါမည်။ \n\n သင် နှင့် သင်၏ အဆက်အသွယ် နှစ်ဦးစလုံးသည် \"စတင်ရန်\" ကို တစ်ပြိုင်တည်း နှိပ်ရပါမည်။</string>
+  <string name="connect_via_bluetooth_already_discovering">ဘလူးတုသ် နှင့် ချိတ်ဆက်ရန် ကြိုးစားနေပါသည်</string>
+  <string name="connect_via_bluetooth_not_discoverable">ဘလူးတုသ် မပါဘဲ ဆက်လက်မလုပ်ဆောင်နိုင်ပါ</string>
+  <string name="connect_via_bluetooth_no_location_permission">တည်နေရာသုံးခွင့် မပါဘဲ ဆက်လက်မလုပ်ဆောင်နိုင်ပါ</string>
+  <string name="connect_via_bluetooth_start">ဘလူးတုသ် နှင့် ချိတ်ဆက်နေသည်...</string>
+  <string name="connect_via_bluetooth_success">ဘလူးတုသ် နှင့် အောင်မြင်စွာ ချိတ်ဆက်ပြီး</string>
+  <string name="connect_via_bluetooth_error">ဘလူးတုသ် နှင့် ချိတ်ဆက်၍မရပါ</string>
   <!--The first placeholder will show a duration like "7 days". The second placeholder at the end will add "Tap to learn more."-->
   <string name="auto_delete_msg_you_enabled">သင်၏မက်ဆေ့ချ်များသည် %1$s အကြာတွင် ပျောက်ကွယ်သွားပါမည်။ %2$s</string>
   <!--The placeholder at the end will add "Tap to learn more."-->

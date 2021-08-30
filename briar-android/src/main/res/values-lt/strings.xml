@@ -1,5 +1,5 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<resources xmlns:tools="http://schemas.android.com/tools">
+<resources>
   <!--Setup-->
   <string name="setup_title">Sveiki atvykę į Briar</string>
   <string name="setup_name_explanation">Jūsų slapyvardis bus rodomas šalia bet kokio jūsų skelbiamo turinio. Sukūrę paskyrą, slapyvardžio pakeisti nebegalėsite.</string>
@@ -175,14 +175,14 @@
   <string name="set_contact_alias_hint">Adresato vardas</string>
   <string name="menu_item_disappearing_messages">Išnykstančios žinutės</string>
   <string name="menu_item_connect_via_bluetooth">Prisijungti per Bluetooth</string>
-  <string name="dialog_title_connect_via_bluetooth">Prisijungti per Bluetooth</string>
-  <string name="dialog_message_connect_via_bluetooth">Norint, kad tai suveiktų, jūsų adresatas privalo būti šalia jūsų.\n\nJūs ir jūsų adresatas abu vienu metu turėtumėte paspausti „Pradėti“.</string>
-  <string name="toast_connect_via_bluetooth_already_discovering">Jau bandoma prisijungti per Bluetooth</string>
-  <string name="toast_connect_via_bluetooth_not_discoverable">Nepavyksta tęsti be Bluetooth</string>
-  <string name="toast_connect_via_bluetooth_no_location_permission">Nepavyksta tęsti be įrenginio vietovės leidimo</string>
-  <string name="toast_connect_via_bluetooth_start">Jungiamasi per Bluetooth…</string>
-  <string name="toast_connect_via_bluetooth_success">Sėkmingai prisijungta per Bluetooth</string>
-  <string name="toast_connect_via_bluetooth_error">Nepavyko prisijungti per Bluetooth</string>
+  <string name="connect_via_bluetooth_title">Prisijungti per Bluetooth</string>
+  <string name="connect_via_bluetooth_intro">Norint, kad tai suveiktų, jūsų adresatas privalo būti šalia jūsų.\n\nJūs ir jūsų adresatas abu vienu metu turėtumėte paspausti „Pradėti“.</string>
+  <string name="connect_via_bluetooth_already_discovering">Jau bandoma prisijungti per Bluetooth</string>
+  <string name="connect_via_bluetooth_not_discoverable">Nepavyksta tęsti be Bluetooth</string>
+  <string name="connect_via_bluetooth_no_location_permission">Nepavyksta tęsti be įrenginio vietovės leidimo</string>
+  <string name="connect_via_bluetooth_start">Jungiamasi per Bluetooth…</string>
+  <string name="connect_via_bluetooth_success">Sėkmingai prisijungta per Bluetooth</string>
+  <string name="connect_via_bluetooth_error">Nepavyko prisijungti per Bluetooth</string>
   <!--The first placeholder will show a duration like "7 days". The second placeholder at the end will add "Tap to learn more."-->
   <string name="auto_delete_msg_you_enabled">Jūsų žinutės išnyks po %1$s. %2$s</string>
   <!--The placeholder at the end will add "Tap to learn more."-->

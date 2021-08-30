@@ -101,7 +101,6 @@ public class ConversationViewModel extends DbViewModel
 	private final AttachmentCreator attachmentCreator;
 	private final AutoDeleteManager autoDeleteManager;
 	private final ConversationManager conversationManager;
-	private final BluetoothConnecter bluetoothConnecter;
 
 	@Nullable
 	private ContactId contactId = null;
@@ -140,8 +139,7 @@ public class ConversationViewModel extends DbViewModel
 			AttachmentRetriever attachmentRetriever,
 			AttachmentCreator attachmentCreator,
 			AutoDeleteManager autoDeleteManager,
-			ConversationManager conversationManager,
-			BluetoothConnecter bluetoothConnecter) {
+			ConversationManager conversationManager) {
 		super(application, dbExecutor, lifecycleManager, db, androidExecutor);
 		this.db = db;
 		this.eventBus = eventBus;
@@ -154,7 +152,6 @@ public class ConversationViewModel extends DbViewModel
 		this.attachmentCreator = attachmentCreator;
 		this.autoDeleteManager = autoDeleteManager;
 		this.conversationManager = conversationManager;
-		this.bluetoothConnecter = bluetoothConnecter;
 		messagingGroupId = map(contactItem, c ->
 				messagingManager.getContactGroup(c.getContact()).getId());
 		eventBus.addListener(this);
@@ -412,10 +409,6 @@ public class ConversationViewModel extends DbViewModel
 
 	AttachmentRetriever getAttachmentRetriever() {
 		return attachmentRetriever;
-	}
-
-	BluetoothConnecter getBluetoothConnecter() {
-		return bluetoothConnecter;
 	}
 
 	LiveData<ContactItem> getContactItem() {

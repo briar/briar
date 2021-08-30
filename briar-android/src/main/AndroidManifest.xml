@@ -462,6 +462,17 @@
 			android:label="@string/hotspot_title"
 			android:theme="@style/BriarTheme" />
 
+		<activity
+			android:name=".android.contact.connect.ConnectViaBluetoothActivity"
+			android:exported="false"
+			android:label="@string/connect_via_bluetooth_title"
+			android:parentActivityName="org.briarproject.briar.android.conversation.ConversationActivity"
+			android:theme="@style/BriarTheme">
+			<meta-data
+				android:name="android.support.PARENT_ACTIVITY"
+				android:value="org.briarproject.briar.android.conversation.ConversationActivity" />
+		</activity>
+
 	</application>
 
 	<queries>

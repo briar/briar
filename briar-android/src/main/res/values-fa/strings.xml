@@ -1,5 +1,5 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<resources xmlns:tools="http://schemas.android.com/tools">
+<resources>
   <!--Setup-->
   <string name="setup_title">به Briar (برایر) خوش آمدید</string>
   <string name="setup_name_explanation">نام مستعار شما کنار هر مطلبی که پست کنید قرار خواهد گرفت. بعد از ایجاد حساب کاربری امکان تغییر آن وجود ندارد.</string>
@@ -171,14 +171,14 @@
   <string name="set_contact_alias_hint">نام مخاطب</string>
   <string name="menu_item_disappearing_messages">پیام‌های ناپدید شونده</string>
   <string name="menu_item_connect_via_bluetooth">اتصال از طریق بلوتوث</string>
-  <string name="dialog_title_connect_via_bluetooth">اتصال از طریق بلوتوث</string>
-  <string name="dialog_message_connect_via_bluetooth">برای امکان این عملکرد، مخاطب شما باید نزدیک باشد. \n\n شما و مخاطبتان باید همزمان گزینه‌ی \"شروع\" را بفشارید.</string>
-  <string name="toast_connect_via_bluetooth_already_discovering">در حال تلاش برای اتصال از طریق بلوتوث</string>
-  <string name="toast_connect_via_bluetooth_not_discoverable">امکان ادامه بدون بلوتوث وجود ندارد</string>
-  <string name="toast_connect_via_bluetooth_no_location_permission">امکان ادامه بدون اجازه مکان‌یابی وجود ندارد</string>
-  <string name="toast_connect_via_bluetooth_start">در حال اتصال از طریق بلوتوث</string>
-  <string name="toast_connect_via_bluetooth_success">ارتباط از طریق بلوتوث با موفقیت انجام شد</string>
-  <string name="toast_connect_via_bluetooth_error">اتصال از طریق بلوتوث برقرار نشد</string>
+  <string name="connect_via_bluetooth_title">اتصال از طریق بلوتوث</string>
+  <string name="connect_via_bluetooth_intro">برای امکان این عملکرد، مخاطب شما باید نزدیک باشد. \n\n شما و مخاطبتان باید همزمان گزینه‌ی \"شروع\" را بفشارید.</string>
+  <string name="connect_via_bluetooth_already_discovering">در حال تلاش برای اتصال از طریق بلوتوث</string>
+  <string name="connect_via_bluetooth_not_discoverable">امکان ادامه بدون بلوتوث وجود ندارد</string>
+  <string name="connect_via_bluetooth_no_location_permission">امکان ادامه بدون اجازه مکان‌یابی وجود ندارد</string>
+  <string name="connect_via_bluetooth_start">در حال اتصال از طریق بلوتوث</string>
+  <string name="connect_via_bluetooth_success">ارتباط از طریق بلوتوث با موفقیت انجام شد</string>
+  <string name="connect_via_bluetooth_error">اتصال از طریق بلوتوث برقرار نشد</string>
   <!--The first placeholder will show a duration like "7 days". The second placeholder at the end will add "Tap to learn more."-->
   <string name="auto_delete_msg_you_enabled">پیام شما پس از %1$s ناپدید خواهد شد. %2$s</string>
   <!--The placeholder at the end will add "Tap to learn more."-->

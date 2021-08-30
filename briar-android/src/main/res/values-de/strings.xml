@@ -1,5 +1,5 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<resources xmlns:tools="http://schemas.android.com/tools">
+<resources>
   <!--Setup-->
   <string name="setup_title">Willkommen bei Briar</string>
   <string name="setup_name_explanation">Dein Benutzername wird neben deinem geposteten Inhalt angezeigt. Du kannst diesen nicht mehr ändern, nachdem du dein Konto erstellt hast.</string>
@@ -165,14 +165,14 @@
   <string name="set_contact_alias_hint">Name des Kontakts</string>
   <string name="menu_item_disappearing_messages">Selbstlöschende Nachrichten</string>
   <string name="menu_item_connect_via_bluetooth">Über Bluetooth verbinden</string>
-  <string name="dialog_title_connect_via_bluetooth">Über Bluetooth verbinden</string>
-  <string name="dialog_message_connect_via_bluetooth">Dein Kontakt muss in der Nähe sein, damit dies funktioniert.\n\nDu und dein Kontakt sollten beide gleichzeitig \"Start\" drücken.</string>
-  <string name="toast_connect_via_bluetooth_already_discovering">Versucht bereits, eine Verbindung über Bluetooth herzustellen</string>
-  <string name="toast_connect_via_bluetooth_not_discoverable">Kann ohne Bluetooth nicht fortgesetzt werden</string>
-  <string name="toast_connect_via_bluetooth_no_location_permission">Kann ohne Standortberechtigung nicht fortgesetzt werden</string>
-  <string name="toast_connect_via_bluetooth_start">Verbinde über Bluetooth…</string>
-  <string name="toast_connect_via_bluetooth_success">Erfolgsreich über Bluetooth verbunden</string>
-  <string name="toast_connect_via_bluetooth_error">Konnte keine Verbindung über Bluetooth herstellen</string>
+  <string name="connect_via_bluetooth_title">Über Bluetooth verbinden</string>
+  <string name="connect_via_bluetooth_intro">Dein Kontakt muss in der Nähe sein, damit dies funktioniert.\n\nDu und dein Kontakt sollten beide gleichzeitig \"Start\" drücken.</string>
+  <string name="connect_via_bluetooth_already_discovering">Versucht bereits, eine Verbindung über Bluetooth herzustellen</string>
+  <string name="connect_via_bluetooth_not_discoverable">Kann ohne Bluetooth nicht fortgesetzt werden</string>
+  <string name="connect_via_bluetooth_no_location_permission">Kann ohne Standortberechtigung nicht fortgesetzt werden</string>
+  <string name="connect_via_bluetooth_start">Verbinde über Bluetooth…</string>
+  <string name="connect_via_bluetooth_success">Erfolgsreich über Bluetooth verbunden</string>
+  <string name="connect_via_bluetooth_error">Konnte keine Verbindung über Bluetooth herstellen</string>
   <!--The first placeholder will show a duration like "7 days". The second placeholder at the end will add "Tap to learn more."-->
   <string name="auto_delete_msg_you_enabled">Deine Nachrichten werden nach %1$sgelöscht. %2$s</string>
   <!--The placeholder at the end will add "Tap to learn more."-->

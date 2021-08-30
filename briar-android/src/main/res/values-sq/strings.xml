@@ -1,5 +1,5 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<resources xmlns:tools="http://schemas.android.com/tools">
+<resources>
   <!--Setup-->
   <string name="setup_title">Mirë se vini në Briar</string>
   <string name="setup_name_explanation">Nofka juaj do të shfaqet në krah të çfarëdo gjëje që postoni. S\’mund ta ndryshoni më, pas krijimit të llogarisë tuaj.</string>
@@ -166,14 +166,14 @@ këmbyes aplikacionesh)\n\n2. Shtypni dhe mbajeni të shtypur figurën e Briar-i
   <string name="set_contact_alias_hint">Emër kontakti</string>
   <string name="menu_item_disappearing_messages">Mesazhe që treten</string>
   <string name="menu_item_connect_via_bluetooth">Lidhu përmes Bluetooth-i</string>
-  <string name="dialog_title_connect_via_bluetooth">Lidhu përmes Bluetooth-i</string>
-  <string name="dialog_message_connect_via_bluetooth">Është e nevojshme që kontakti juaj të jetë atypari, që kjo të funksionojë.\n\nJu dhe kontakti juaj duhet që të shtypin “Fillo” në të njëjtën kohë.</string>
-  <string name="toast_connect_via_bluetooth_already_discovering">Po provohet tashmë të lidhet përmes Bluetooth-i</string>
-  <string name="toast_connect_via_bluetooth_not_discoverable">S’mund të vazhdohet pa Bluetooth</string>
-  <string name="toast_connect_via_bluetooth_no_location_permission">S’mund të vazhdohet pa leje vendore</string>
-  <string name="toast_connect_via_bluetooth_start">Po lidhet me Bluetooth…</string>
-  <string name="toast_connect_via_bluetooth_success">U lidh me sukses përmes Bluetooth-i</string>
-  <string name="toast_connect_via_bluetooth_error">S’u lidh dot përmes Bluetooth-i</string>
+  <string name="connect_via_bluetooth_title">Lidhu përmes Bluetooth-i</string>
+  <string name="connect_via_bluetooth_intro">Është e nevojshme që kontakti juaj të jetë atypari, që kjo të funksionojë.\n\nJu dhe kontakti juaj duhet që të shtypin “Fillo” në të njëjtën kohë.</string>
+  <string name="connect_via_bluetooth_already_discovering">Po provohet tashmë të lidhet përmes Bluetooth-i</string>
+  <string name="connect_via_bluetooth_not_discoverable">S’mund të vazhdohet pa Bluetooth</string>
+  <string name="connect_via_bluetooth_no_location_permission">S’mund të vazhdohet pa leje vendore</string>
+  <string name="connect_via_bluetooth_start">Po lidhet me Bluetooth…</string>
+  <string name="connect_via_bluetooth_success">U lidh me sukses përmes Bluetooth-i</string>
+  <string name="connect_via_bluetooth_error">S’u lidh dot përmes Bluetooth-i</string>
   <!--The first placeholder will show a duration like "7 days". The second placeholder at the end will add "Tap to learn more."-->
   <string name="auto_delete_msg_you_enabled">Mesazhet tuaja do të treten pas %1$s. %2$s</string>
   <!--The placeholder at the end will add "Tap to learn more."-->

@@ -1,5 +1,5 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<resources xmlns:tools="http://schemas.android.com/tools">
+<resources>
   <!--Setup-->
   <string name="setup_title">欢迎来到 Briar</string>
   <string name="setup_name_explanation">您的昵称将被显示在您发布的任何内容旁边。昵称在创建帐户后无法更改。</string>
@@ -160,14 +160,14 @@
   <string name="set_contact_alias_hint">联系人姓名</string>
   <string name="menu_item_disappearing_messages">让消息自动消失 </string>
   <string name="menu_item_connect_via_bluetooth">通过蓝牙连接</string>
-  <string name="dialog_title_connect_via_bluetooth">通过蓝牙连接</string>
-  <string name="dialog_message_connect_via_bluetooth">你的联络人必须在附近才能起作用。\n\n你和你的联系人应该同时按“开始”。</string>
-  <string name="toast_connect_via_bluetooth_already_discovering">已在尝试通过蓝牙进行连接</string>
-  <string name="toast_connect_via_bluetooth_not_discoverable">没有蓝牙无法继续 </string>
-  <string name="toast_connect_via_bluetooth_no_location_permission">没有位置权限不能继续 </string>
-  <string name="toast_connect_via_bluetooth_start">正通过蓝牙连接 …</string>
-  <string name="toast_connect_via_bluetooth_success">通过蓝牙连接成功</string>
-  <string name="toast_connect_via_bluetooth_error">无法通过蓝牙连接 </string>
+  <string name="connect_via_bluetooth_title">通过蓝牙连接</string>
+  <string name="connect_via_bluetooth_intro">你的联络人必须在附近才能起作用。\n\n你和你的联系人应该同时按“开始”。</string>
+  <string name="connect_via_bluetooth_already_discovering">已在尝试通过蓝牙进行连接</string>
+  <string name="connect_via_bluetooth_not_discoverable">没有蓝牙无法继续 </string>
+  <string name="connect_via_bluetooth_no_location_permission">没有位置权限不能继续 </string>
+  <string name="connect_via_bluetooth_start">正通过蓝牙连接 …</string>
+  <string name="connect_via_bluetooth_success">通过蓝牙连接成功</string>
+  <string name="connect_via_bluetooth_error">无法通过蓝牙连接 </string>
   <!--The first placeholder will show a duration like "7 days". The second placeholder at the end will add "Tap to learn more."-->
   <string name="auto_delete_msg_you_enabled">你的消息将在 %1$s 后消失。%2$s</string>
   <!--The placeholder at the end will add "Tap to learn more."-->

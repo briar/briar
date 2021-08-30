@@ -1,5 +1,5 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<resources xmlns:tools="http://schemas.android.com/tools">
+<resources>
   <!--Setup-->
   <string name="setup_title">Benvingut a Briar</string>
   <string name="setup_name_explanation">El vostre sobrenom etiquetarà tot el que publiqueu. Després de crear el compte ja no podreu canviar el sobrenom.</string>
@@ -165,14 +165,14 @@
   <string name="set_contact_alias_hint">Nom del contacte</string>
   <string name="menu_item_disappearing_messages">Missatges fonedissos</string>
   <string name="menu_item_connect_via_bluetooth">Connecta via bluetooth</string>
-  <string name="dialog_title_connect_via_bluetooth">Connecta via bluetooth</string>
-  <string name="dialog_message_connect_via_bluetooth">El vostre contacte ha de ser a prop per a que vagi bé.\n\nVós i el vostre contacte heu de prémer «Engega» simultàniament.</string>
-  <string name="toast_connect_via_bluetooth_already_discovering">Ja està mirant de connectar-se amb Bluetooth.</string>
-  <string name="toast_connect_via_bluetooth_not_discoverable">No es pot continuar sense Bluetooth.</string>
-  <string name="toast_connect_via_bluetooth_no_location_permission">No es pot continuar sense permís per obtenir la posició.</string>
-  <string name="toast_connect_via_bluetooth_start">Connectant-se via Bluetooth...</string>
-  <string name="toast_connect_via_bluetooth_success">S\'ha connectat via Bluetooth.</string>
-  <string name="toast_connect_via_bluetooth_error">No ha pogut connectar-se amb Bluetooth.</string>
+  <string name="connect_via_bluetooth_title">Connecta via bluetooth</string>
+  <string name="connect_via_bluetooth_intro">El vostre contacte ha de ser a prop per a que vagi bé.\n\nVós i el vostre contacte heu de prémer «Engega» simultàniament.</string>
+  <string name="connect_via_bluetooth_already_discovering">Ja està mirant de connectar-se amb Bluetooth.</string>
+  <string name="connect_via_bluetooth_not_discoverable">No es pot continuar sense Bluetooth.</string>
+  <string name="connect_via_bluetooth_no_location_permission">No es pot continuar sense permís per obtenir la posició.</string>
+  <string name="connect_via_bluetooth_start">Connectant-se via Bluetooth...</string>
+  <string name="connect_via_bluetooth_success">S\'ha connectat via Bluetooth.</string>
+  <string name="connect_via_bluetooth_error">No ha pogut connectar-se amb Bluetooth.</string>
   <!--The first placeholder will show a duration like "7 days". The second placeholder at the end will add "Tap to learn more."-->
   <string name="auto_delete_msg_you_enabled">Els vostres missatges es faran fonedissos en %1$s. %2$s</string>
   <!--The placeholder at the end will add "Tap to learn more."-->
