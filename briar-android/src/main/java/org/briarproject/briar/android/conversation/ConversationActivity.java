@@ -379,9 +379,6 @@ public class ConversationActivity extends BriarActivity
 						this::showIntroductionOnboarding);
 			}
 		});
-		if (!featureFlags.shouldEnableConnectViaBluetooth()) {
-			menu.findItem(R.id.action_connect_via_bluetooth).setVisible(false);
-		}
 		// Transfer Data feature only supported on API 19+
 		if (SDK_INT >= 19 && featureFlags.shouldEnableTransferData()) {
 			menu.findItem(R.id.action_transfer_data).setVisible(true);

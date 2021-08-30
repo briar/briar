@@ -314,11 +314,6 @@ public class AppModule {
 			}
 
 			@Override
-			public boolean shouldEnableConnectViaBluetooth() {
-				return IS_DEBUG_BUILD;
-			}
-
-			@Override
 			public boolean shouldEnableTransferData() {
 				return IS_DEBUG_BUILD;
 			}
