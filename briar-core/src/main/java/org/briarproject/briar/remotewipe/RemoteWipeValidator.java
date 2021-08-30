@@ -17,6 +17,7 @@ import javax.annotation.concurrent.Immutable;
 import javax.inject.Inject;
 
 import static org.briarproject.bramble.util.ValidationUtils.checkSize;
+import static org.briarproject.briar.api.remotewipe.MessageType.REVOKE;
 import static org.briarproject.briar.api.remotewipe.MessageType.SETUP;
 import static org.briarproject.briar.api.remotewipe.MessageType.WIPE;
 import static org.briarproject.briar.socialbackup.SocialBackupConstants.MSG_KEY_LOCAL;
@@ -40,6 +41,7 @@ class RemoteWipeValidator extends BdfMessageValidator {
 				.fromValue(body.getLong(0).intValue());
 		if (type == SETUP) return validateSetupMessage(body);
 		else if (type == WIPE) return validateWipeMessage(body);
+		else if (type == REVOKE) return validateRevokeMessage(body);
 		else throw new AssertionError();
 	}
 
@@ -57,6 +59,15 @@ class RemoteWipeValidator extends BdfMessageValidator {
 		checkSize(body, 1);
 		BdfDictionary meta = BdfDictionary.of(
 				new BdfEntry(MSG_KEY_MESSAGE_TYPE, WIPE.getValue()),
+				new BdfEntry(MSG_KEY_LOCAL, false));
+		return new BdfMessageContext(meta);
+	}
+
+	private BdfMessageContext validateRevokeMessage(BdfList body)
+			throws FormatException {
+		checkSize(body, 1);
+		BdfDictionary meta = BdfDictionary.of(
+				new BdfEntry(MSG_KEY_MESSAGE_TYPE, REVOKE.getValue()),
 				new BdfEntry(MSG_KEY_LOCAL, false));
 		return new BdfMessageContext(meta);
 	}

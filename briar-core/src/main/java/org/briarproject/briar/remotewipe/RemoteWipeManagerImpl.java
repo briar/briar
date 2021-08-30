@@ -297,7 +297,7 @@ public class RemoteWipeManagerImpl extends ConversationClientImpl
 
 	public void wipe(Transaction txn, Contact contact)
 			throws DbException, FormatException {
-		// Check that we have a SETUP message from contact
+		// Check that we have wiper status
 		if (!amWiper(txn, contact.getId())) throw new DbException();
 
 		Group group = getContactGroup(contact);
