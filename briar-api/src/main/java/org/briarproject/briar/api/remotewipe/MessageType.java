@@ -9,7 +9,7 @@ import javax.annotation.concurrent.Immutable;
 @NotNullByDefault
 public enum MessageType {
 
-	SETUP(0), WIPE(1);
+	SETUP(0), WIPE(1), REVOKE(2);
 
 	private final int value;
 

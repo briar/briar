@@ -9,6 +9,7 @@ public interface RemoteWipeConstants {
 	String GROUP_KEY_CONTACT_ID = "contactId";
 	String GROUP_KEY_WIPERS = "wipers";
 	String GROUP_KEY_RECEIVED_WIPE = "receivedWipe";
+	String GROUP_KEY_AM_WIPER = "amWiper";
 
 	// Message metadata keys
 	String MSG_KEY_TIMESTAMP = "timestamp";
