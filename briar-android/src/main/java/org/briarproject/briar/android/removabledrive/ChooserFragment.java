@@ -11,6 +11,7 @@ import android.widget.ScrollView;
 import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
 import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
 import org.briarproject.briar.R;
+import org.briarproject.briar.android.widget.OnboardingFullDialogFragment;
 
 import javax.inject.Inject;
 
@@ -51,6 +52,10 @@ public class ChooserFragment extends Fragment {
 				container, false);
 
 		scrollView = (ScrollView) v;
+
+		Button buttonLearnMore = v.findViewById(R.id.buttonLearnMore);
+		buttonLearnMore.setOnClickListener(e -> showLearnMoreDialog());
+
 		Button sendButton = v.findViewById(R.id.sendButton);
 		sendButton.setOnClickListener(i -> viewModel.startSendData());
 
@@ -75,4 +80,10 @@ public class ChooserFragment extends Fragment {
 		}
 	}
 
+	private void showLearnMoreDialog() {
+		OnboardingFullDialogFragment.newInstance(
+				R.string.removable_drive_menu_title,
+				R.string.removable_drive_explanation
+		).show(getChildFragmentManager(), OnboardingFullDialogFragment.TAG);
+	}
 }
