@@ -768,7 +768,7 @@
 
 	<!-- Transfer Data via Removable Drives -->
 
-	<string name="removable_drive_menu_title">Transfer data</string>
+	<string name="removable_drive_menu_title">Connect via Removable Drive</string>
 	<string name="removable_drive_intro">If you can\'t connect to your contact via the Internet, Wi-Fi or Bluetooth, Briar can also transfer messages on a removable drive such as a USB stick or an SD card.</string>
 	<string name="removable_drive_explanation">If you can\'t connect to your contact via the Internet, Wi-Fi or Bluetooth, Briar can also transfer messages on a removable drive such as a USB stick or an SD card.\n\nWhen you use the \"Send Data\" button, any data that\'s waiting to be sent to the contact will be written to the removable drive. This includes private messages, attachments, blogs, forums and private groups.\n\nEverything will be encrypted before it is written to the removable drive.\n\nWhen your contact receives the removable drive, they can use the \"Receive Data\" button to import the messages into Briar.</string>
 	<string name="removable_drive_title_send">Send data</string>
