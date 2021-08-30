@@ -187,6 +187,63 @@ public class RemoteWipeIntegrationTest extends BriarIntegrationTest<BriarIntegra
 		assertFalse(panicCalled);
 	}
 
+	@Test
+	public void testRemoteWipeWithRevoke() throws Exception {
+		remoteWipeManager0.listenForPanic(this);
+		db0.transaction(false, txn -> {
+			// Assert that we do not already have a wipe setup
+			assertFalse(remoteWipeManager0.remoteWipeIsSetup(txn));
+			remoteWipeManager0.setup(txn,
+					asList(contactId1From0, contactId2From0));
+			// Now check that we do have a wipe setup
+			assertTrue(remoteWipeManager0.remoteWipeIsSetup(txn));
+			// Check we have 2 wipers
+			assertEquals(remoteWipeManager0.getWipers(txn).size(), 2);
+		});
+		// Sync the setup messages to the contacts
+		sync0To1(1, true);
+		sync0To2(1, true);
+
+		// The setup message from 0 should have arrived at 1
+		Collection<ConversationMessageHeader> messages0At1 =
+				getMessages0At1();
+		assertEquals(1, messages0At1.size());
+
+		Collection<ConversationMessageHeader> messages0At2 =
+				getMessages0At2();
+		assertEquals(1, messages0At2.size());
+
+		for (ConversationMessageHeader h : messages0At1) {
+			assertTrue(h instanceof RemoteWipeMessageHeader);
+			RemoteWipeMessageHeader r = (RemoteWipeMessageHeader) h;
+			assertFalse(r.isLocal());
+		}
+
+		// Revoke contact 1's wiper status
+		db0.transaction(false, txn -> {
+			remoteWipeManager0.revoke(txn, contactId1From0);
+			// Check we now only have one wiper
+			assertEquals(remoteWipeManager0.getWipers(txn).size(), 1);
+		});
+
+
+		// Sync the revoke message
+		sync0To1(1, true);
+
+		// The wipers check if they are now wipers
+		db1.transaction(false, txn -> {
+			assertFalse(remoteWipeManager1.amWiper(txn, contactId0From1));
+			boolean cannotWipe = false;
+			try {
+				remoteWipeManager1.wipe(txn, contact0From1);
+			} catch(DbException e) {
+			   cannotWipe = true;
+			} finally {
+				assertTrue(cannotWipe);
+			}
+		});
+
+	}
 	private Collection<ConversationMessageHeader> getMessages1At0()
 			throws DbException {
 		return db0.transactionWithResult(true, txn -> remoteWipeManager0
