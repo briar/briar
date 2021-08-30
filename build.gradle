@@ -29,7 +29,7 @@ buildscript {
 	}
 
 	dependencies {
-		classpath 'com.android.tools.build:gradle:4.1.1'
+		classpath 'com.android.tools.build:gradle:4.2.2'
 		classpath 'ru.vyarus:gradle-animalsniffer-plugin:1.5.0'
 		classpath files('libs/gradle-witness.jar')
 	}
