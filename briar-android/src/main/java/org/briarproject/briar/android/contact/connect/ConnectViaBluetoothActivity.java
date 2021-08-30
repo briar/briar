@@ -3,6 +3,7 @@ package org.briarproject.briar.android.contact.connect;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.MenuItem;
+import android.widget.Toast;
 
 import org.briarproject.bramble.api.contact.ContactId;
 import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
@@ -10,7 +11,6 @@ import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.activity.ActivityComponent;
 import org.briarproject.briar.android.activity.BriarActivity;
-import org.briarproject.briar.android.fragment.FinalFragment;
 
 import javax.inject.Inject;
 
@@ -19,6 +19,7 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 
+import static android.widget.Toast.LENGTH_LONG;
 import static java.util.Objects.requireNonNull;
 import static org.briarproject.briar.android.conversation.ConversationActivity.CONTACT_ID;
 import static org.briarproject.briar.android.util.UiUtils.showFragment;
@@ -78,27 +79,20 @@ public class ConnectViaBluetoothActivity extends BriarActivity {
 	}
 
 	private void onStateChanged(ConnectViaBluetoothState state) {
-		Fragment f;
-		String tag = FinalFragment.TAG;
 		if (state instanceof ConnectViaBluetoothState.Connecting) {
-			f = new BluetoothProgressFragment();
-			tag = BluetoothProgressFragment.TAG;
+			Fragment f = new BluetoothProgressFragment();
+			String tag = BluetoothProgressFragment.TAG;
+			showFragment(getSupportFragmentManager(), f, tag, false);
 		} else if (state instanceof ConnectViaBluetoothState.Success) {
-			f = FinalFragment.newInstance(
-					R.string.connect_via_bluetooth_success,
-					R.drawable.ic_check_circle_outline,
-					R.color.briar_brand_green,
-					0
-			);
+			Toast.makeText(this, R.string.connect_via_bluetooth_success,
+					LENGTH_LONG).show();
+			supportFinishAfterTransition();
 		} else if (state instanceof ConnectViaBluetoothState.Error) {
-			f = FinalFragment.newInstance(
-					R.string.error,
-					R.drawable.alerts_and_states_error,
-					R.color.briar_red_500,
-					((ConnectViaBluetoothState.Error) state).errorRes
-			);
+			Toast.makeText(this,
+					((ConnectViaBluetoothState.Error) state).errorRes,
+					LENGTH_LONG).show();
+			supportFinishAfterTransition();
 		} else throw new AssertionError();
-		showFragment(getSupportFragmentManager(), f, tag, false);
 	}
 
 }
