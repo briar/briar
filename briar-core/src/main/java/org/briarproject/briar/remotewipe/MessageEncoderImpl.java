@@ -9,6 +9,7 @@ import javax.inject.Inject;
 
 import static org.briarproject.briar.api.remotewipe.MessageType.SETUP;
 import static org.briarproject.briar.api.remotewipe.MessageType.WIPE;
+import static org.briarproject.briar.api.remotewipe.MessageType.REVOKE;
 
 public class MessageEncoderImpl implements MessageEncoder {
 
@@ -23,6 +24,14 @@ public class MessageEncoderImpl implements MessageEncoder {
 	public byte[] encodeSetupMessage() {
 		BdfList body = BdfList.of(
 				SETUP.getValue()
+		);
+		return encodeBody(body);
+	}
+
+	@Override
+	public byte[] encodeRevokeMessage() {
+		BdfList body = BdfList.of(
+				REVOKE.getValue()
 		);
 		return encodeBody(body);
 	}

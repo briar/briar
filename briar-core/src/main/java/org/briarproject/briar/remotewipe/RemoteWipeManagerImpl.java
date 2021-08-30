@@ -47,8 +47,10 @@ import javax.annotation.Nullable;
 import javax.inject.Inject;
 
 import static java.util.logging.Logger.getLogger;
+import static org.briarproject.briar.api.remotewipe.MessageType.REVOKE;
 import static org.briarproject.briar.api.remotewipe.MessageType.SETUP;
 import static org.briarproject.briar.api.remotewipe.MessageType.WIPE;
+import static org.briarproject.briar.api.remotewipe.RemoteWipeConstants.GROUP_KEY_AM_WIPER;
 import static org.briarproject.briar.client.MessageTrackerConstants.MSG_KEY_READ;
 import static org.briarproject.briar.api.remotewipe.RemoteWipeConstants.GROUP_KEY_CONTACT_ID;
 import static org.briarproject.briar.api.remotewipe.RemoteWipeConstants.GROUP_KEY_RECEIVED_WIPE;
@@ -137,6 +139,14 @@ public class RemoteWipeManagerImpl extends ConversationClientImpl
 					m.getId());
 			txn.attach(new RemoteWipeReceivedEvent(
 					createMessageHeader(m, meta, status, type), contactId));
+
+			// Update our local record
+			BdfDictionary localRecord = new BdfDictionary();
+			localRecord.put(GROUP_KEY_AM_WIPER, true);
+
+			if (!db.containsGroup(txn, localGroup.getId()))
+				db.addGroup(txn, localGroup);
+			clientHelper.mergeGroupMetadata(txn, localGroup.getId(), localRecord);
 		} else if (type == WIPE) {
 			if (!remoteWipeIsSetup(txn)) return false;
 			if (clock.currentTimeMillis() - m.getTimestamp() > MAX_MESSAGE_AGE)
@@ -144,7 +154,7 @@ public class RemoteWipeManagerImpl extends ConversationClientImpl
 
 			ContactId contactId = getContactId(txn, m.getGroupId());
 			// Check if contact is in list of wipers
-			if (findMessage(txn, m.getGroupId(), SETUP, true) != null) {
+			if (isWiper(txn, contactId)) {
 				LOG.info("Got a valid wipe message from a wiper");
 
 				BdfDictionary existingMeta =
@@ -199,7 +209,24 @@ public class RemoteWipeManagerImpl extends ConversationClientImpl
 							newMeta);
 				}
 			}
+		} else if (type == REVOKE) {
+			messageTracker.trackIncomingMessage(txn, m);
+			ContactId contactId = getContactId(txn, m.getGroupId());
+
+			MessageStatus status = db.getMessageStatus(txn, contactId,
+					m.getId());
+			txn.attach(new RemoteWipeReceivedEvent(
+					createMessageHeader(m, meta, status, type), contactId));
+
+			// Update our local record
+			BdfDictionary localRecord = new BdfDictionary();
+			localRecord.put(GROUP_KEY_AM_WIPER, false);
+
+			if (!db.containsGroup(txn, localGroup.getId()))
+				db.addGroup(txn, localGroup);
+			clientHelper.mergeGroupMetadata(txn, localGroup.getId(), localRecord);
 		}
+
 		return false;
 	}
 
@@ -222,9 +249,6 @@ public class RemoteWipeManagerImpl extends ConversationClientImpl
 		LOG.info("All remote wipe setup messages sent");
 
 		// Make a record of this locally
-		if (!db.containsGroup(txn, localGroup.getId()))
-			db.addGroup(txn, localGroup);
-
 		BdfDictionary meta = new BdfDictionary();
 		meta.put(GROUP_KEY_WIPERS, wipersMetadata);
 
@@ -252,6 +276,24 @@ public class RemoteWipeManagerImpl extends ConversationClientImpl
 		messageTracker.trackOutgoingMessage(txn, m);
 	}
 
+	private void sendRevokeMessage(Transaction txn, Contact contact)
+			throws DbException, FormatException {
+		Group group = getContactGroup(contact);
+		GroupId g = group.getId();
+		if (!db.containsGroup(txn, g)) db.addGroup(txn, group);
+		long timestamp = clock.currentTimeMillis();
+
+		byte[] body = messageEncoder.encodeRevokeMessage();
+
+		Message m = clientHelper.createMessage(g, timestamp, body);
+		BdfDictionary meta = BdfDictionary.of(
+				new BdfEntry(MSG_KEY_MESSAGE_TYPE, SETUP.getValue()),
+				new BdfEntry(MSG_KEY_LOCAL, true),
+				new BdfEntry(MSG_KEY_TIMESTAMP, timestamp)
+		);
+		clientHelper.addLocalMessage(txn, m, meta, true, false);
+		messageTracker.trackOutgoingMessage(txn, m);
+	}
 
 	public void wipe(Transaction txn, Contact contact)
 			throws DbException, FormatException {
@@ -276,15 +318,54 @@ public class RemoteWipeManagerImpl extends ConversationClientImpl
 		messageTracker.trackOutgoingMessage(txn, m);
 	}
 
+	private boolean isWiper(Transaction txn, ContactId contactId)
+			throws DbException {
+		Author author = contactManager.getContact(txn, contactId).getAuthor();
+		List<Author> currentWipers = getWipers(txn);
+		for (Author a : currentWipers) {
+			if (a.getId().equals(author.getId())) {
+				return true;
+			}
+		}
+		return false;
+	}
+
 	public boolean amWiper(Transaction txn, ContactId contactId) {
 		try {
-			GroupId groupId =
-					getContactGroup(db.getContact(txn, contactId)).getId();
-			return findMessage(txn, groupId, SETUP, false) != null;
+			BdfDictionary meta = clientHelper.getGroupMetadataAsDictionary(txn,
+					localGroup.getId());
+			return meta.getBoolean(GROUP_KEY_AM_WIPER, false);
 		} catch (DbException e) {
 			return false;
 		} catch (FormatException e) {
 			return false;
+		}
+	}
+
+	public void revoke(Transaction txn, ContactId contactId)
+			throws DbException, FormatException {
+		// Revoke a contact's wiper status
+		Contact contactToRevoke = contactManager.getContact(txn, contactId);
+	    Author authorToRevoke = contactToRevoke.getAuthor();
+
+		List<Author> currentWipers = getWipers(txn);
+		BdfList newWipers = new BdfList();
+
+		for (Author a : currentWipers) {
+			if (a.getId().equals(authorToRevoke.getId())) {
+				sendRevokeMessage(txn, contactToRevoke);
+			} else {
+				newWipers.add(clientHelper.toList(a));
+			}
+		}
+		// If we revoked someone, update our list
+		if (newWipers.size() < currentWipers.size()) {
+			BdfDictionary meta = new BdfDictionary();
+			meta.put(GROUP_KEY_WIPERS, newWipers);
+
+			if (!db.containsGroup(txn, localGroup.getId()))
+				db.addGroup(txn, localGroup);
+			clientHelper.mergeGroupMetadata(txn, localGroup.getId(), meta);
 		}
 	}
 
