@@ -26,11 +26,6 @@ public class TestFeatureFlagModule {
 			}
 
 			@Override
-			public boolean shouldEnableConnectViaBluetooth() {
-				return true;
-			}
-
-			@Override
 			public boolean shouldEnableTransferData() {
 				return true;
 			}
