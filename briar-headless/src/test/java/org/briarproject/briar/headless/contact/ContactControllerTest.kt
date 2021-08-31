@@ -1,8 +1,6 @@
 package org.briarproject.briar.headless.contact
 
 import io.javalin.http.BadRequestResponse
-import io.javalin.http.ForbiddenResponse
-import io.javalin.http.HttpResponseException
 import io.javalin.http.NotFoundResponse
 import io.javalin.plugin.json.JavalinJson.toJson
 import io.mockk.Runs
@@ -35,7 +33,6 @@ import org.briarproject.bramble.util.StringUtils.getRandomString
 import org.briarproject.briar.headless.ControllerTest
 import org.briarproject.briar.headless.getFromJson
 import org.briarproject.briar.headless.json.JsonDict
-import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Assertions.assertThrows
 import org.junit.jupiter.api.Test
@@ -316,7 +313,9 @@ internal class ContactControllerTest : ControllerTest() {
     fun testSetContactAliasInvalid() {
         mockkStatic("org.briarproject.briar.headless.RouterKt")
         every { ctx.pathParam("contactId") } returns "1"
-        every { ctx.getFromJson(objectMapper, "alias") } returns getRandomString(MAX_AUTHOR_NAME_LENGTH + 1)
+        every {
+            ctx.getFromJson(objectMapper, "alias")
+        } returns getRandomString(MAX_AUTHOR_NAME_LENGTH + 1)
         assertThrows(BadRequestResponse::class.java) {
             controller.setContactAlias(ctx)
         }

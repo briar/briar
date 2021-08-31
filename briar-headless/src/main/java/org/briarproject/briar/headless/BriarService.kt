@@ -37,7 +37,7 @@ constructor(
                 ?: throw UsageError("Could not get password. Is STDIN connected?")
             try {
                 accountManager.signIn(password)
-            } catch (e : DecryptionException) {
+            } catch (e: DecryptionException) {
                 echo("Error: Password invalid")
                 exitProcess(1)
             }
