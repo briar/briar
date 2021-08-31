@@ -27,6 +27,7 @@ import static java.util.logging.Logger.getLogger;
 import static org.briarproject.bramble.util.LogUtils.logException;
 import static org.briarproject.bramble.util.NetworkUtils.getNetworkInterfaces;
 import static org.briarproject.briar.android.hotspot.WebServer.PORT;
+import static org.briarproject.briar.android.util.QrCodeUtils.HOTSPOT_QRCODE_FACTOR;
 
 @MethodsNotNullByDefault
 @ParametersNotNullByDefault
@@ -83,7 +84,8 @@ class WebServerManager {
 			}
 			url = "http://" + address.getHostAddress() + ":" + PORT;
 		}
-		Bitmap qrCode = QrCodeUtils.createQrCode(dm, url);
+		Bitmap qrCode = QrCodeUtils.createQrCode(
+				(int) (dm.heightPixels * HOTSPOT_QRCODE_FACTOR), url);
 		listener.onWebServerStarted(new WebsiteConfig(url, qrCode));
 	}
 

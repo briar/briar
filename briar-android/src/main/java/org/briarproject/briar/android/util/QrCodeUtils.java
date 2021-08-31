@@ -26,13 +26,19 @@ public class QrCodeUtils {
 
 	private static final Logger LOG = getLogger(QrCodeUtils.class.getName());
 
+	public static final double HOTSPOT_QRCODE_FACTOR = 0.35;
+
 	@Nullable
 	public static Bitmap createQrCode(DisplayMetrics dm, String input) {
-		int smallestDimen = Math.min(dm.widthPixels, dm.heightPixels);
+		return createQrCode(Math.min(dm.widthPixels, dm.heightPixels), input);
+	}
+
+	@Nullable
+	public static Bitmap createQrCode(int edgeLen, String input) {
 		try {
 			// Generate QR code
 			BitMatrix encoded = new QRCodeWriter().encode(input, QR_CODE,
-					smallestDimen, smallestDimen);
+					edgeLen, edgeLen);
 			return renderQrCode(encoded);
 		} catch (WriterException e) {
 			logException(LOG, WARNING, e);
