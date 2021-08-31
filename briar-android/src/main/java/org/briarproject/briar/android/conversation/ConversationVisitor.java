@@ -327,12 +327,18 @@ class ConversationVisitor implements
 					return new ConversationNoticeItem(
 							R.layout.list_item_conversation_notice_in, text, r);
 				}
-			default: // WIPE
+			case WIPE:
 				String text = ctx.getString(R.string.remote_wipe_wipe_sent,
 						contactName.getValue()) + " " + UiUtils
 						.formatDateAbsolute(ctx, r.getMessageExpiry());
 				return new ConversationNoticeItem(
 						R.layout.list_item_conversation_notice_out, text, r);
+			default: // REVOKE
+				String revokeText = ctx.getString(R.string.remote_wipe_revoke_sent,
+						contactName.getValue()) + " " + UiUtils
+						.formatDateAbsolute(ctx, r.getMessageExpiry());
+				return new ConversationNoticeItem(
+						R.layout.list_item_conversation_notice_out, revokeText, r);
 		}
 	}
 

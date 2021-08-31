@@ -40,7 +40,7 @@ public class RevokeRemoteWipeSuccessFragment extends BaseFragment {
 	public View onCreateView(@NonNull LayoutInflater inflater,
 			@Nullable ViewGroup container,
 			@Nullable Bundle savedInstanceState) {
-		View view = inflater.inflate(R.layout.fragment_activate_remote_wipe_success,
+		View view = inflater.inflate(R.layout.fragment_revoke_remote_wipe_success,
 				container, false);
 
 		Button button = view.findViewById(R.id.button);
