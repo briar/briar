@@ -26,13 +26,13 @@ public class RevokeRemoteWipeSuccessFragment extends BaseFragment {
 	@Inject
 	ViewModelProvider.Factory viewModelFactory;
 
-	private ActivateRemoteWipeViewModel viewModel;
+	private RevokeRemoteWipeViewModel viewModel;
 
 	@Override
 	public void injectFragment(ActivityComponent component) {
 		component.inject(this);
 		viewModel = new ViewModelProvider(requireActivity(), viewModelFactory)
-				.get(ActivateRemoteWipeViewModel.class);
+				.get(RevokeRemoteWipeViewModel.class);
 	}
 
 	@Nullable
