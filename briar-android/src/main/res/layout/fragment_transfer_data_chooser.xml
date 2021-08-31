@@ -31,13 +31,27 @@
 			android:layout_height="wrap_content"
 			android:layout_marginHorizontal="@dimen/margin_xlarge"
 			android:layout_marginTop="@dimen/margin_xlarge"
-			android:layout_marginBottom="@dimen/margin_large"
 			android:text="@string/removable_drive_intro"
 			android:textAppearance="@style/TextAppearance.MaterialComponents.Body1"
-			app:layout_constraintBottom_toTopOf="@+id/sendButton"
+			app:layout_constraintBottom_toTopOf="@+id/buttonLearnMore"
 			app:layout_constraintEnd_toEndOf="parent"
 			app:layout_constraintStart_toStartOf="parent"
 			app:layout_constraintTop_toBottomOf="@+id/imageView" />
+
+		<Button
+			android:id="@+id/buttonLearnMore"
+			style="@style/BriarButtonFlat.Positive"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_marginBottom="@dimen/margin_large"
+			android:padding="16dp"
+			android:text="@string/learn_more"
+			android:textAllCaps="false"
+			android:textSize="14sp"
+			app:layout_constraintBottom_toTopOf="@id/sendButton"
+			app:layout_constraintEnd_toEndOf="parent"
+			app:layout_constraintStart_toStartOf="parent"
+			app:layout_constraintTop_toBottomOf="@+id/introView" />
 
 		<Button
 			android:id="@+id/sendButton"

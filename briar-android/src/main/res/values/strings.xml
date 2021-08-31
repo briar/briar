@@ -768,8 +768,9 @@
 
 	<!-- Transfer Data via Removable Drives -->
 
-	<string name="removable_drive_menu_title">Transfer data</string>
-	<string name="removable_drive_intro">You can send encrypted messages to your contact using removable storage such as USB flash drives or SD cards.\n\nIf your contact has sent you a removable drive containing encrypted messages, you can import the messages into Briar by using the receive button below.</string>
+	<string name="removable_drive_menu_title">Connect via Removable Drive</string>
+	<string name="removable_drive_intro">If you can\'t connect to your contact via the Internet, Wi-Fi or Bluetooth, Briar can also transfer messages on a removable drive such as a USB stick or an SD card.</string>
+	<string name="removable_drive_explanation">If you can\'t connect to your contact via the Internet, Wi-Fi or Bluetooth, Briar can also transfer messages on a removable drive such as a USB stick or an SD card.\n\nWhen you use the \"Send Data\" button, any data that\'s waiting to be sent to the contact will be written to the removable drive. This includes private messages, attachments, blogs, forums and private groups.\n\nEverything will be encrypted before it is written to the removable drive.\n\nWhen your contact receives the removable drive, they can use the \"Receive Data\" button to import the messages into Briar.</string>
 	<string name="removable_drive_title_send">Send data</string>
 	<string name="removable_drive_title_receive">Receive data</string>
 	<string name="removable_drive_send_intro">Tap the button below to create a new file containing the encrypted messages. You can choose where the file will be saved.\n\nIf you want to save the file on a removable drive, insert the drive now.</string>
