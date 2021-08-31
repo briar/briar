@@ -53,6 +53,7 @@ import org.briarproject.briar.android.forum.ForumActivity;
 import org.briarproject.briar.android.introduction.IntroductionActivity;
 import org.briarproject.briar.android.privategroup.conversation.GroupActivity;
 import org.briarproject.briar.android.remotewipe.activate.ActivateRemoteWipeActivity;
+import org.briarproject.briar.android.remotewipe.revoke.RevokeRemoteWipeActivity;
 import org.briarproject.briar.android.socialbackup.recover.CustodianReturnShardActivity;
 import org.briarproject.briar.android.util.BriarSnackbarBuilder;
 import org.briarproject.briar.android.view.BriarRecyclerView;
@@ -379,6 +380,13 @@ public class ConversationActivity extends BriarActivity
 			}
 		});
 
+		// enable revoke remote wipe action if available
+		observeOnce(viewModel.isRemoteWiper(), this, isWiper -> {
+			if (isWiper != null && isWiper) {
+				menu.findItem(R.id.action_revoke_remote_wipe).setEnabled(true);
+			}
+		});
+
 		return super.onCreateOptionsMenu(menu);
 	}
 
@@ -416,6 +424,12 @@ public class ConversationActivity extends BriarActivity
 				Intent r = new Intent(this, ActivateRemoteWipeActivity.class);
 				r.putExtra(CONTACT_ID, contactId.getInt());
 				startActivity(r);
+				return true;
+			case R.id.action_revoke_remote_wipe:
+				if (contactId == null) return false;
+				Intent s = new Intent(this, RevokeRemoteWipeActivity.class);
+				s.putExtra(CONTACT_ID, contactId.getInt());
+				startActivity(s);
 				return true;
 			default:
 				return super.onOptionsItemSelected(item);

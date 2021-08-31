@@ -1,4 +1,4 @@
-package org.briarproject.briar.android.remotewipe.activate;
+package org.briarproject.briar.android.remotewipe.revoke;
 
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -9,7 +9,8 @@ import android.widget.Button;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.activity.ActivityComponent;
 import org.briarproject.briar.android.fragment.BaseFragment;
-import org.briarproject.briar.android.remotewipe.revoke.RevokeRemoteWipeViewModel;
+import org.briarproject.briar.android.remotewipe.activate.ActivateRemoteWipeSuccessFragment;
+import org.briarproject.briar.android.remotewipe.activate.ActivateRemoteWipeViewModel;
 
 import javax.inject.Inject;
 
@@ -17,7 +18,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.lifecycle.ViewModelProvider;
 
-public class ActivateRemoteWipeSuccessFragment extends BaseFragment {
+public class RevokeRemoteWipeSuccessFragment extends BaseFragment {
 
 	public static final String TAG =
 			ActivateRemoteWipeSuccessFragment.class.getName();
@@ -25,13 +26,13 @@ public class ActivateRemoteWipeSuccessFragment extends BaseFragment {
 	@Inject
 	ViewModelProvider.Factory viewModelFactory;
 
-	private RevokeRemoteWipeViewModel viewModel;
+	private ActivateRemoteWipeViewModel viewModel;
 
 	@Override
 	public void injectFragment(ActivityComponent component) {
 		component.inject(this);
 		viewModel = new ViewModelProvider(requireActivity(), viewModelFactory)
-				.get(RevokeRemoteWipeViewModel.class);
+				.get(ActivateRemoteWipeViewModel.class);
 	}
 
 	@Nullable
@@ -39,7 +40,6 @@ public class ActivateRemoteWipeSuccessFragment extends BaseFragment {
 	public View onCreateView(@NonNull LayoutInflater inflater,
 			@Nullable ViewGroup container,
 			@Nullable Bundle savedInstanceState) {
-		// TODO change layout
 		View view = inflater.inflate(R.layout.fragment_activate_remote_wipe_success,
 				container, false);
 

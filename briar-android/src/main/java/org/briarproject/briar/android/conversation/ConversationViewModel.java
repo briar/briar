@@ -107,6 +107,7 @@ public class ConversationViewModel extends DbViewModel
 	private final MutableLiveEvent<PrivateMessageHeader> addedHeader =
 			new MutableLiveEvent<>();
 	private final MutableLiveData<Boolean> amRemoteWiper = new MutableLiveData<>();
+	private final MutableLiveData<Boolean> isRemoteWiper = new MutableLiveData<>();
 
 	@Inject
 	ConversationViewModel(Application application,
@@ -306,6 +307,10 @@ public class ConversationViewModel extends DbViewModel
 		boolean amWiper = db.transactionWithResult(true,
 				txn -> remoteWipeManager.amWiper(txn, c));
 		amRemoteWiper.postValue(amWiper);
+
+		boolean isWiper = db.transactionWithResult(true,
+				txn -> remoteWipeManager.isWiper(txn, c));
+		isRemoteWiper.postValue(isWiper);
 	}
 
 	@DatabaseExecutor
@@ -393,6 +398,10 @@ public class ConversationViewModel extends DbViewModel
 
 	LiveData<Boolean> amRemoteWiper() {
 		return amRemoteWiper;
+	}
+
+	LiveData<Boolean> isRemoteWiper() {
+		return isRemoteWiper;
 	}
 
 	@UiThread

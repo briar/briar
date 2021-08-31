@@ -760,5 +760,9 @@
 	<string name="remote_wipe_activate_explain_short">Activate a remote wipe of this contact\'s device</string>
 	<string name="remote_wipe_activate_explain_long">If confirmed by a second contact, sending this signal will remove all briar contacts and messages from this contact\s device.</string>
 
+	<!-- revoke -->
+	<string name="activity_name_revoke_remote_wipe">Revoke Remote Wipe</string>
+	<string name="revoke_remote_wipe">Revoke remote wipe status</string>
+
 	<string name="button_confirm">Ok</string>
 </resources>
