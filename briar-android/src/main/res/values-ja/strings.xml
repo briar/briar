@@ -149,15 +149,6 @@
   <string name="set_contact_alias">連絡先を変更</string>
   <string name="set_contact_alias_hint">連絡先名</string>
   <string name="menu_item_disappearing_messages">消えたメッセージ</string>
-  <string name="menu_item_connect_via_bluetooth">Bluetooth経由で接続する</string>
-  <string name="dialog_title_connect_via_bluetooth">Bluetooth経由で接続する</string>
-  <string name="dialog_message_connect_via_bluetooth">この機能を利用するには、あなたの連絡先が近くにある必要があります。\n\nあなたとあなたの連絡先が同時に\"開始\"を押してください。</string>
-  <string name="toast_connect_via_bluetooth_already_discovering">Bluetooth経由の接続を既に試行中です</string>
-  <string name="toast_connect_via_bluetooth_not_discoverable">Bluetoothなくして続行不可能</string>
-  <string name="toast_connect_via_bluetooth_no_location_permission">位置情報の権限なくして続行不可能</string>
-  <string name="toast_connect_via_bluetooth_start">Bluetooth経由で接続中…</string>
-  <string name="toast_connect_via_bluetooth_success">Bluetooth経由で接続に成功</string>
-  <string name="toast_connect_via_bluetooth_error">Bluetooth経由で接続不可能</string>
   <!--The first placeholder will show a duration like "7 days". The second placeholder at the end will add "Tap to learn more."-->
   <!--The placeholder at the end will add "Tap to learn more."-->
   <!--The first placeholder will show a contact's name. The second placeholder will show a duration like "7 days". The third placeholder at the end will add "Tap to learn more."-->
@@ -295,6 +286,12 @@
   <string name="introduction_response_accepted_received">%1$sは%2$sの紹介を受け入れました。</string>
   <string name="introduction_response_declined_received">%1$sは%2$sへの紹介を辞退しました。</string>
   <string name="introduction_response_declined_received_by_introducee">%1$sによると、%2$sが紹介を辞退しました。</string>
+  <!--Connect via Bluetooth-->
+  <string name="menu_item_connect_via_bluetooth">Bluetooth経由で接続する</string>
+  <string name="connect_via_bluetooth_title">Bluetooth経由で接続する</string>
+  <string name="connect_via_bluetooth_no_location_permission">位置情報の権限なくして続行不可能</string>
+  <string name="connect_via_bluetooth_start">Bluetooth経由で接続中…</string>
+  <string name="connect_via_bluetooth_success">Bluetooth経由で接続に成功</string>
   <!--Private Groups-->
   <string name="groups_list_empty">表示するグループがありません</string>
   <string name="groups_list_empty_action">「＋」アイコンをタップしてグループを作成するか、連絡先に登録している誰かにグループを共有してもらう</string>
@@ -618,7 +615,6 @@
   <string name="permission_hotspot_location_denied_body">あなたの位置情報にアクセスすることを拒否しましたが、BriarはWi-Fiホットスポットを作るのに、この権限が必要です。\n\nアクセス権を付与することを考慮願います。</string>
   <string name="wifi_settings_title">Wi-Fi設定</string>
   <string name="wifi_settings_request_enable_body">Wi-Fiホットスポットを作るには、BriarWi-Fiの使用が必要です。有効にしてください。</string>
-  <string name="wifi_settings_request_denied_body">Wi-Fiを有効化する権限を拒否しましたが、BriarはWi-Fiの使用が必要です。\n\n有効にすることを考慮願います。</string>
   <string name="hotspot_tab_manual">手動</string>
   <!--The placeholder to be inserted into the string 'hotspot_manual_wifi': People can connect by %s-->
   <string name="hotspot_scanning_a_qr_code">QRコードをスキャン</string>

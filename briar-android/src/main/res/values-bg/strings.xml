@@ -165,15 +165,6 @@
   <string name="set_contact_alias">Преименуване</string>
   <string name="set_contact_alias_hint">Име на контакта</string>
   <string name="menu_item_disappearing_messages">Изчезващи съобщения</string>
-  <string name="menu_item_connect_via_bluetooth">Свързване чрез Bluetooth</string>
-  <string name="dialog_title_connect_via_bluetooth">Свързване чрез Bluetooth</string>
-  <string name="dialog_message_connect_via_bluetooth">За да сработи този метод, контактът трябва да бъде близо до вас.\n\nДвамата трябва да натиснете „Старт“ едновременно.</string>
-  <string name="toast_connect_via_bluetooth_already_discovering">Има започнат опит за връзка чрез Bluetooth</string>
-  <string name="toast_connect_via_bluetooth_not_discoverable">Не може да продължи без Bluetooth</string>
-  <string name="toast_connect_via_bluetooth_no_location_permission">Не може да продължи без разрешение за местоположение</string>
-  <string name="toast_connect_via_bluetooth_start">Свързване чрез Bluetooth…</string>
-  <string name="toast_connect_via_bluetooth_success">Успешно свързване чрез Bluetooth</string>
-  <string name="toast_connect_via_bluetooth_error">Не може да се установи връзка чрез Bluetooth</string>
   <!--The first placeholder will show a duration like "7 days". The second placeholder at the end will add "Tap to learn more."-->
   <string name="auto_delete_msg_you_enabled">Съобщението ще изчезне след %1$s. %2$s</string>
   <!--The placeholder at the end will add "Tap to learn more."-->
@@ -322,6 +313,12 @@
   <string name="introduction_response_accepted_received">%1$s приема запознанство с/ъс %2$s.</string>
   <string name="introduction_response_declined_received">%1$s отказа запознанство с/ъс %2$s.</string>
   <string name="introduction_response_declined_received_by_introducee">%1$s казва, че %2$s отказва запознанство.</string>
+  <!--Connect via Bluetooth-->
+  <string name="menu_item_connect_via_bluetooth">Свързване чрез Bluetooth</string>
+  <string name="connect_via_bluetooth_title">Свързване чрез Bluetooth</string>
+  <string name="connect_via_bluetooth_no_location_permission">Не може да продължи без разрешение за местоположение</string>
+  <string name="connect_via_bluetooth_start">Свързване чрез Bluetooth…</string>
+  <string name="connect_via_bluetooth_success">Успешно свързване чрез Bluetooth</string>
   <!--Private Groups-->
   <string name="groups_list_empty">Няма групи</string>
   <string name="groups_list_empty_action">Докоснете иконата с +, за да създадете своя или поискайте от контактите си да споделят група с вас</string>
@@ -656,8 +653,6 @@
   <string name="website_troubleshooting_title">Отстраняване на неизправности</string>
   <!--error handling-->
   <!--Transfer Data via Removable Drives-->
-  <string name="removable_drive_menu_title">Прехвърляне на данни</string>
-  <string name="removable_drive_intro">Можете да изпращате шифровани съобщения до контактите си посредством преносима памет или карти на SD.\n\nАко контакт ви изпрати преносима памет с криптирани съобщения можете да ги внесете в Briar, посредством бутона за получаване по-долу.</string>
   <string name="removable_drive_title_send">Изпращане на сведения</string>
   <string name="removable_drive_title_receive">Получаване на сведения</string>
   <string name="removable_drive_send_intro">Докоснете бутона по-долу, за да бъде създаден файл, който ще съдържа шифрованите съобщения. Можете да изберете къде да бъде запазен този файл.\n\nАко желаете да го запазите на преносим диск го включете сега.</string>

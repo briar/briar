@@ -175,15 +175,6 @@
   <string name="set_contact_alias">Изменить имя контакта</string>
   <string name="set_contact_alias_hint">Имя контакта</string>
   <string name="menu_item_disappearing_messages">Исчезающие сообщения</string>
-  <string name="menu_item_connect_via_bluetooth">Подключение через Bluetooth</string>
-  <string name="dialog_title_connect_via_bluetooth">Подключение через Bluetooth</string>
-  <string name="dialog_message_connect_via_bluetooth">Чтобы это сработало, ваш контакт должен находиться поблизости.\n\nВы и ваш собеседник должны одновременно нажать кнопку \"Начать\".</string>
-  <string name="toast_connect_via_bluetooth_already_discovering">Пробуем подключиться через Bluetooth</string>
-  <string name="toast_connect_via_bluetooth_not_discoverable">Невозможно продолжить без Bluetooth</string>
-  <string name="toast_connect_via_bluetooth_no_location_permission">Невозможно продолжить без доступа к местоположению</string>
-  <string name="toast_connect_via_bluetooth_start">Подключение через Bluetooth...</string>
-  <string name="toast_connect_via_bluetooth_success">Успешное подключение через Bluetooth</string>
-  <string name="toast_connect_via_bluetooth_error">Не удалось подключиться через Bluetooth</string>
   <!--The first placeholder will show a duration like "7 days". The second placeholder at the end will add "Tap to learn more."-->
   <string name="auto_delete_msg_you_enabled">Ваши сообщения исчезнут спустя %1$s. %2$s</string>
   <!--The placeholder at the end will add "Tap to learn more."-->
@@ -340,6 +331,12 @@
   <string name="introduction_response_accepted_received">%1$s принял(-а) знакомство с %2$s.</string>
   <string name="introduction_response_declined_received">%1$s отказался от знакомства с %2$s.</string>
   <string name="introduction_response_declined_received_by_introducee">%1$s сообщает, что %2$s отказался от знакомства.</string>
+  <!--Connect via Bluetooth-->
+  <string name="menu_item_connect_via_bluetooth">Подключение через Bluetooth</string>
+  <string name="connect_via_bluetooth_title">Подключение через Bluetooth</string>
+  <string name="connect_via_bluetooth_no_location_permission">Невозможно продолжить без доступа к местоположению</string>
+  <string name="connect_via_bluetooth_start">Подключение через Bluetooth...</string>
+  <string name="connect_via_bluetooth_success">Успешное подключение через Bluetooth</string>
   <!--Private Groups-->
   <string name="groups_list_empty">Нет групп для отображения</string>
   <string name="groups_list_empty_action">Для создания группы нажмите значок + или попросите ваши контакты поделиться с вами группами</string>
@@ -688,7 +685,6 @@
   <string name="permission_hotspot_location_denied_body">Доступ к местоположению запрещен, но Briar необходимо это разрешение для создания точки доступа Wi-Fi.\n\nРассмотрите возможность предоставления доступа.</string>
   <string name="wifi_settings_title">Настройка Wi-Fi</string>
   <string name="wifi_settings_request_enable_body">Чтобы создать точку доступа Wi-Fi, Briar должен использовать Wi-Fi. Пожалуйста, включите его.</string>
-  <string name="wifi_settings_request_denied_body">Вы не дали разрешения на включение Wi-Fi, но Briar нуждается в использовании Wi-Fi.\n\nПожалуйста, рассмотрите возможность его включения.</string>
   <string name="hotspot_tab_manual">Вручную</string>
   <!--The placeholder to be inserted into the string 'hotspot_manual_wifi': People can connect by %s-->
   <string name="hotspot_scanning_a_qr_code">сканировать QR-код</string>
@@ -740,8 +736,6 @@
   <string name="hotspot_flag_test">Предупреждение: Это приложение было установлено с помощью Android Studio и НЕ может быть установлено на другое устройство.</string>
   <string name="hotspot_error_framework_busy">Невозможно запустить точку доступа.\n\nЕсли у вас запущена другая точка доступа или вы используете подключение к интернету через Wi-Fi, попробуйте отключить его, а затем повторить попытку.</string>
   <!--Transfer Data via Removable Drives-->
-  <string name="removable_drive_menu_title">Передача данных</string>
-  <string name="removable_drive_intro">Вы можете отправлять зашифрованные сообщения своему контакту, используя съемные носители, такие как USB-накопители или SD-карты.\n\nЕсли ваш контакт отправил вам съемный носитель с зашифрованными сообщениями, вы можете импортировать эти сообщения в Briar, используя кнопку получения ниже.</string>
   <string name="removable_drive_title_send">Отправить данные</string>
   <string name="removable_drive_title_receive">Принять данные</string>
   <string name="removable_drive_send_intro">Нажмите кнопку ниже, чтобы создать новый файл, содержащий зашифрованные сообщения. Вы сможете выбрать, где будет сохранен этот файл.\n\nЕсли вы хотите сохранить файл на съемном диске, вставьте диск сейчас.</string>

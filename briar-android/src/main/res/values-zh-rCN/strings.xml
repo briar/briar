@@ -160,15 +160,6 @@
   <string name="set_contact_alias">更改联系人姓名</string>
   <string name="set_contact_alias_hint">联系人姓名</string>
   <string name="menu_item_disappearing_messages">让消息自动消失 </string>
-  <string name="menu_item_connect_via_bluetooth">通过蓝牙连接</string>
-  <string name="dialog_title_connect_via_bluetooth">通过蓝牙连接</string>
-  <string name="dialog_message_connect_via_bluetooth">你的联络人必须在附近才能起作用。\n\n你和你的联系人应该同时按“开始”。</string>
-  <string name="toast_connect_via_bluetooth_already_discovering">已在尝试通过蓝牙进行连接</string>
-  <string name="toast_connect_via_bluetooth_not_discoverable">没有蓝牙无法继续 </string>
-  <string name="toast_connect_via_bluetooth_no_location_permission">没有位置权限不能继续 </string>
-  <string name="toast_connect_via_bluetooth_start">正通过蓝牙连接 …</string>
-  <string name="toast_connect_via_bluetooth_success">通过蓝牙连接成功</string>
-  <string name="toast_connect_via_bluetooth_error">无法通过蓝牙连接 </string>
   <!--The first placeholder will show a duration like "7 days". The second placeholder at the end will add "Tap to learn more."-->
   <string name="auto_delete_msg_you_enabled">你的消息将在 %1$s 后消失。%2$s</string>
   <!--The placeholder at the end will add "Tap to learn more."-->
@@ -313,6 +304,16 @@
   <string name="introduction_response_accepted_received">%1$s 已接受与 %2$s 建立联系。</string>
   <string name="introduction_response_declined_received">%1$s 已谢绝与 %2$s 建立联系。</string>
   <string name="introduction_response_declined_received_by_introducee">%1$s 表示 %2$s 谢绝了介绍。</string>
+  <!--Connect via Bluetooth-->
+  <string name="menu_item_connect_via_bluetooth">通过蓝牙连接</string>
+  <string name="connect_via_bluetooth_title">通过蓝牙连接</string>
+  <string name="connect_via_bluetooth_intro">如果蓝牙无法自动连接，您可以使用此界面进行手动连接。\n\n你的联系人需要在附近，这样才能工作。\n\n你和你的联系人应该同时按“开始。</string>
+  <string name="connect_via_bluetooth_already_discovering">已经在尝试通过蓝牙连接。请稍后再试</string>
+  <string name="connect_via_bluetooth_no_location_permission">没有位置权限不能继续 </string>
+  <string name="connect_via_bluetooth_start">正通过蓝牙连接 …</string>
+  <string name="connect_via_bluetooth_success">通过蓝牙连接成功</string>
+  <string name="connect_via_bluetooth_error">无法通过蓝牙连接。</string>
+  <string name="connect_via_bluetooth_error_not_supported">设备不支持蓝牙</string>
   <!--Private Groups-->
   <string name="groups_list_empty">尚无群聊可供展示</string>
   <string name="groups_list_empty_action">轻按 + 号创建群聊，或让您的联系人分享群聊给您</string>
@@ -649,7 +650,6 @@
   <string name="permission_hotspot_location_denied_body">你拒绝了访问你的位置，但 Briar 需要这个权限才能创建 Wi-Fi 热点。\n\n请考虑授予访问权限。</string>
   <string name="wifi_settings_title">Wi-Fi 设置</string>
   <string name="wifi_settings_request_enable_body">要创建 Wi-Fi 热点，Briar 需要使用 Wi-Fi。请允许它。</string>
-  <string name="wifi_settings_request_denied_body">您拒绝了启用 Wi-Fi 的权限，但 Briar 需要使用Wi-Fi。\n\n请考虑允许 Brair 使用它。</string>
   <string name="hotspot_tab_manual">手动</string>
   <!--The placeholder to be inserted into the string 'hotspot_manual_wifi': People can connect by %s-->
   <string name="hotspot_scanning_a_qr_code">扫描一个二维码</string>
@@ -700,8 +700,6 @@
   <string name="hotspot_flag_test">警告：此应用程序通过 Android Studio 安装，不能安装在其他设备上</string>
   <string name="hotspot_error_framework_busy">无法启动热点。\n\n如果您有另一个热点正在运行或通过 Wi-Fi 共享您的互联网连接，尝试停止它稍后再试一次。</string>
   <!--Transfer Data via Removable Drives-->
-  <string name="removable_drive_menu_title">传输数据</string>
-  <string name="removable_drive_intro">您可以使用USB闪存驱动器或SD卡等可移动存储设备向您的联系人发送加密信息。\n\n如果您的联系人发送给您一个包含加密信息的可移动驱动器，您可以使用下面的接收按钮将这些信息导入到Briar中。</string>
   <string name="removable_drive_title_send">发送数据</string>
   <string name="removable_drive_title_receive">接收数据</string>
   <string name="removable_drive_send_intro">轻按下面的按钮创建一个包含加密消息的新文件。您可以选择将文件保存在哪里。\n\n如果您想将文件保存在可移动驱动器上，请立即插入驱动器。</string>

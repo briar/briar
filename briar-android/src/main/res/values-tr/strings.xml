@@ -165,15 +165,6 @@
   <string name="set_contact_alias">Kişi adını değiştir</string>
   <string name="set_contact_alias_hint">Ad</string>
   <string name="menu_item_disappearing_messages">Kaybolan iletiler</string>
-  <string name="menu_item_connect_via_bluetooth">Bluetooth ile Bağlan</string>
-  <string name="dialog_title_connect_via_bluetooth">Bluetooth ile Bağlan</string>
-  <string name="dialog_message_connect_via_bluetooth">Bunun çalışması için kişinin yakınlarda olması gerekiyor.\n\nSizin ve kişinin \"Başlat\" düğmesine aynı anda basması gerekiyor.</string>
-  <string name="toast_connect_via_bluetooth_already_discovering">Zaten Bluetooth\'a bağlanmaya çalışıyor</string>
-  <string name="toast_connect_via_bluetooth_not_discoverable">Bluetooth olmadan devam edilemez</string>
-  <string name="toast_connect_via_bluetooth_no_location_permission">Konum izni olmadan devam edilemez</string>
-  <string name="toast_connect_via_bluetooth_start">Bluetooth ile bağlanılıyor…</string>
-  <string name="toast_connect_via_bluetooth_success">Bluetooth ile başarılı bir şekilde bağlandı</string>
-  <string name="toast_connect_via_bluetooth_error">Bluetooth ile bağlanamıyor</string>
   <!--The first placeholder will show a duration like "7 days". The second placeholder at the end will add "Tap to learn more."-->
   <string name="auto_delete_msg_you_enabled">İletileriniz %1$s sonra kaybolacak. %2$s</string>
   <!--The placeholder at the end will add "Tap to learn more."-->
@@ -322,6 +313,12 @@
   <string name="introduction_response_accepted_received">%1$s, %2$s ile tanışmayı kabul etti.</string>
   <string name="introduction_response_declined_received">%1$s, %2$s ile tanışmayı reddetti.</string>
   <string name="introduction_response_declined_received_by_introducee">%1$s, %2$s kişisinin tanışmayı reddettiğini söyledi.</string>
+  <!--Connect via Bluetooth-->
+  <string name="menu_item_connect_via_bluetooth">Bluetooth ile Bağlan</string>
+  <string name="connect_via_bluetooth_title">Bluetooth ile Bağlan</string>
+  <string name="connect_via_bluetooth_no_location_permission">Konum izni olmadan devam edilemez</string>
+  <string name="connect_via_bluetooth_start">Bluetooth ile bağlanılıyor…</string>
+  <string name="connect_via_bluetooth_success">Bluetooth ile başarılı bir şekilde bağlandı</string>
   <!--Private Groups-->
   <string name="groups_list_empty">Gösterilecek grup yok</string>
   <string name="groups_list_empty_action">Bir grup oluşturmak için + simgesine dokunun veya kişilerinizden grupları sizinle paylaşmasını isteyin</string>
@@ -662,7 +659,6 @@
   <string name="permission_hotspot_location_denied_body">Konuma erişimi engellediniz, ancak Briar\'ın Wi-Fi erişim noktası oluşturmak için bu izne ihtiyacı var.\n\nLütfen erişim izni vermeyi düşünün.</string>
   <string name="wifi_settings_title">Kablosuz ağ ayarları</string>
   <string name="wifi_settings_request_enable_body">Bir kablosuz erişim noktası oluşturmak için Briar\'ın kablosuz ağı kullanması gerekiyor. Lütfen kablosuz ağı etkinleştirin.</string>
-  <string name="wifi_settings_request_denied_body">Kablosuz ağı etkinleştirmeyi engellediniz, ancak Briar\'ın kablosuz ağı kullanması gerekiyor.\n\nLütfen etkinleştirmeyi düşünün. </string>
   <string name="hotspot_tab_manual">El ile</string>
   <!--The placeholder to be inserted into the string 'hotspot_manual_wifi': People can connect by %s-->
   <string name="hotspot_scanning_a_qr_code">QR kodu tarayarak</string>
@@ -712,8 +708,6 @@
   <string name="hotspot_flag_test">Uyarı: Bu uygulama Android Studio ile kurulduğu için başka bir aygıta kurulamaz.</string>
   <string name="hotspot_error_framework_busy">Erişim noktası başlatılamıyor.\n\nEğer başka bir erişim noktası çalışıyorsa veya İnternet bağlantınızı kablosuz üzerinden paylaşıyorsanız, lütfen önce onu durdurun ve sonra yeniden deneyin.</string>
   <!--Transfer Data via Removable Drives-->
-  <string name="removable_drive_menu_title">Veri aktar</string>
-  <string name="removable_drive_intro">Kişilerinize USB flash bellek veya SD kart gibi taşınabilir diskler yardımıyla şifreli ileti gönderebilirsiniz.\n\nEğer bir kişi size taşınabilir bir sürücüde şifreli iletiler gönderdiyse, aşağıdaki al düğmesini kullanarak iletileri Briar\'a yükleyebilirsiniz.</string>
   <string name="removable_drive_title_send">Veri gönder</string>
   <string name="removable_drive_title_receive">Veri al</string>
   <string name="removable_drive_send_intro">Şifreli iletileri içeren yeni bir dosya oluşturmak için aşağıdaki düğmeye dokunun. Dosyanın kaydedileceği yeri seçebilirsiniz.\n\nEğer dosyayı taşınabilir bir sürücüye saklamak istiyorsanız, sürücüyü şimdi takın.</string>

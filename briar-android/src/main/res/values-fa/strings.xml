@@ -166,15 +166,6 @@
   <string name="set_contact_alias">تغییر نام مخاطب</string>
   <string name="set_contact_alias_hint">نام مخاطب</string>
   <string name="menu_item_disappearing_messages">پیام‌های ناپدید شونده</string>
-  <string name="menu_item_connect_via_bluetooth">اتصال از طریق بلوتوث</string>
-  <string name="dialog_title_connect_via_bluetooth">اتصال از طریق بلوتوث</string>
-  <string name="dialog_message_connect_via_bluetooth">برای امکان این عملکرد، مخاطب شما باید نزدیک باشد. \n\n شما و مخاطبتان باید همزمان گزینه‌ی \"شروع\" را بفشارید.</string>
-  <string name="toast_connect_via_bluetooth_already_discovering">در حال تلاش برای اتصال از طریق بلوتوث</string>
-  <string name="toast_connect_via_bluetooth_not_discoverable">امکان ادامه بدون بلوتوث وجود ندارد</string>
-  <string name="toast_connect_via_bluetooth_no_location_permission">امکان ادامه بدون اجازه مکان‌یابی وجود ندارد</string>
-  <string name="toast_connect_via_bluetooth_start">در حال اتصال از طریق بلوتوث</string>
-  <string name="toast_connect_via_bluetooth_success">ارتباط از طریق بلوتوث با موفقیت انجام شد</string>
-  <string name="toast_connect_via_bluetooth_error">اتصال از طریق بلوتوث برقرار نشد</string>
   <!--The first placeholder will show a duration like "7 days". The second placeholder at the end will add "Tap to learn more."-->
   <string name="auto_delete_msg_you_enabled">پیام شما پس از %1$s ناپدید خواهد شد. %2$s</string>
   <!--The placeholder at the end will add "Tap to learn more."-->
@@ -335,6 +326,12 @@
   <string name="introduction_response_accepted_received">%1$s معرفی به %2$s را پذیرفت.</string>
   <string name="introduction_response_declined_received">%1$s معرفی به %2$s را رد کرد.</string>
   <string name="introduction_response_declined_received_by_introducee">%1$s می گوید که %2$s دعوت نامه  را رد کرد.</string>
+  <!--Connect via Bluetooth-->
+  <string name="menu_item_connect_via_bluetooth">اتصال از طریق بلوتوث</string>
+  <string name="connect_via_bluetooth_title">اتصال از طریق بلوتوث</string>
+  <string name="connect_via_bluetooth_no_location_permission">امکان ادامه بدون اجازه مکان‌یابی وجود ندارد</string>
+  <string name="connect_via_bluetooth_start">در حال اتصال از طریق بلوتوث</string>
+  <string name="connect_via_bluetooth_success">ارتباط از طریق بلوتوث با موفقیت انجام شد</string>
   <!--Private Groups-->
   <string name="groups_list_empty">هیچ گروهی برای نمایش وجود ندارد</string>
   <string name="groups_list_empty_action">برای ایجاد یک گروه روی آیکون + کلیک کنید، یا از مخاطبان خود بخواهید تا گروه های خود را با شما به اشتراک بگذارند</string>

@@ -156,15 +156,6 @@
   <string name="set_contact_alias">Breyta nafni tengiliðar</string>
   <string name="set_contact_alias_hint">Nafn tengiliðar</string>
   <string name="menu_item_disappearing_messages">Sjálfeyðandi skilaboð</string>
-  <string name="menu_item_connect_via_bluetooth">Tengjast í gegnum Bluetooth</string>
-  <string name="dialog_title_connect_via_bluetooth">Tengjast í gegnum Bluetooth</string>
-  <string name="dialog_message_connect_via_bluetooth">Tengiliðurinn þinn þarf að vera nálægt til að þetta virki.\n\nÞú og tengiliðurinn ættuð bæði að ýta á \"Byrja\" á sama tíma.</string>
-  <string name="toast_connect_via_bluetooth_already_discovering">Þegar að reyna að tengjast í gegnum Bluetooth</string>
-  <string name="toast_connect_via_bluetooth_not_discoverable">Get ekki haldið áfram án Bluetooth</string>
-  <string name="toast_connect_via_bluetooth_no_location_permission">Get ekki haldið áfram án heimildar til að nota staðsetningu</string>
-  <string name="toast_connect_via_bluetooth_start">Tengist í gegnum Bluetooth…</string>
-  <string name="toast_connect_via_bluetooth_success">Tókst að tengjast í gegnum Bluetooth</string>
-  <string name="toast_connect_via_bluetooth_error">Gat ekki tengst í gegnum Bluetooth</string>
   <!--The first placeholder will show a duration like "7 days". The second placeholder at the end will add "Tap to learn more."-->
   <string name="auto_delete_msg_you_enabled">Skilaboðin þín munu hverfa eftir %1$s. %2$s</string>
   <!--The placeholder at the end will add "Tap to learn more."-->
@@ -313,6 +304,12 @@
   <string name="introduction_response_accepted_received">%1$s samþykkti kynningu við %2$s.</string>
   <string name="introduction_response_declined_received">%1$s hafnaði kynningu við %2$s.</string>
   <string name="introduction_response_declined_received_by_introducee">%1$s segir að %2$s hafi hafnað kynningunni.</string>
+  <!--Connect via Bluetooth-->
+  <string name="menu_item_connect_via_bluetooth">Tengjast í gegnum Bluetooth</string>
+  <string name="connect_via_bluetooth_title">Tengjast í gegnum Bluetooth</string>
+  <string name="connect_via_bluetooth_no_location_permission">Get ekki haldið áfram án heimildar til að nota staðsetningu</string>
+  <string name="connect_via_bluetooth_start">Tengist í gegnum Bluetooth…</string>
+  <string name="connect_via_bluetooth_success">Tókst að tengjast í gegnum Bluetooth</string>
   <!--Private Groups-->
   <string name="groups_list_empty">Engir hópar sem hægt er að birta</string>
   <string name="groups_list_empty_action">Ýttu á + táknið til að útbúa hóp, eða biddu tengiliðina þína um að deila hópi með þér</string>

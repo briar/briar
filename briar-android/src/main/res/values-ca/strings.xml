@@ -160,15 +160,6 @@
   <string name="set_contact_alias">Canvia el nom del contacte</string>
   <string name="set_contact_alias_hint">Nom del contacte</string>
   <string name="menu_item_disappearing_messages">Missatges fonedissos</string>
-  <string name="menu_item_connect_via_bluetooth">Connecta via bluetooth</string>
-  <string name="dialog_title_connect_via_bluetooth">Connecta via bluetooth</string>
-  <string name="dialog_message_connect_via_bluetooth">El vostre contacte ha de ser a prop per a que vagi bé.\n\nVós i el vostre contacte heu de prémer «Engega» simultàniament.</string>
-  <string name="toast_connect_via_bluetooth_already_discovering">Ja està mirant de connectar-se amb Bluetooth.</string>
-  <string name="toast_connect_via_bluetooth_not_discoverable">No es pot continuar sense Bluetooth.</string>
-  <string name="toast_connect_via_bluetooth_no_location_permission">No es pot continuar sense permís per obtenir la posició.</string>
-  <string name="toast_connect_via_bluetooth_start">Connectant-se via Bluetooth...</string>
-  <string name="toast_connect_via_bluetooth_success">S\'ha connectat via Bluetooth.</string>
-  <string name="toast_connect_via_bluetooth_error">No ha pogut connectar-se amb Bluetooth.</string>
   <!--The first placeholder will show a duration like "7 days". The second placeholder at the end will add "Tap to learn more."-->
   <string name="auto_delete_msg_you_enabled">Els vostres missatges es faran fonedissos en %1$s. %2$s</string>
   <!--The placeholder at the end will add "Tap to learn more."-->
@@ -318,6 +309,12 @@ Així que l\'actualitzi li veureu una icona diferent .</string>
   <string name="introduction_response_accepted_received">%1$s ha acceptat conèixer a %2$s.</string>
   <string name="introduction_response_declined_received">%1$s ha refusat conèixer a %2$s.</string>
   <string name="introduction_response_declined_received_by_introducee">%1$s diu que %2$s ha refusat conèixer-lo.</string>
+  <!--Connect via Bluetooth-->
+  <string name="menu_item_connect_via_bluetooth">Connecta via bluetooth</string>
+  <string name="connect_via_bluetooth_title">Connecta via bluetooth</string>
+  <string name="connect_via_bluetooth_no_location_permission">No es pot continuar sense permís per obtenir la posició.</string>
+  <string name="connect_via_bluetooth_start">Connectant-se via Bluetooth...</string>
+  <string name="connect_via_bluetooth_success">S\'ha connectat via Bluetooth.</string>
   <!--Private Groups-->
   <string name="groups_list_empty">No hi ha cap grup per mostrar</string>
   <string name="groups_list_empty_action">Toqueu la icona + per crear un grup o demaneu als vostres contactes que us afegeixin als seus grups</string>

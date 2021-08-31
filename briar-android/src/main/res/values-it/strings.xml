@@ -165,15 +165,6 @@
   <string name="set_contact_alias">Cambia il nome del contatto</string>
   <string name="set_contact_alias_hint">Nome contatto</string>
   <string name="menu_item_disappearing_messages">Messaggi dissolventi</string>
-  <string name="menu_item_connect_via_bluetooth">Connessione attraverso Bluetooth</string>
-  <string name="dialog_title_connect_via_bluetooth">Connessione attraverso Bluetooth</string>
-  <string name="dialog_message_connect_via_bluetooth">Per funzionare, il tuo contatto deve essere nelle vicinanze.\n\nDovreste entrambi premere \"Inizia\" nello stesso momento.</string>
-  <string name="toast_connect_via_bluetooth_already_discovering">Si sta già tentanto di connettersi via Bluetooth</string>
-  <string name="toast_connect_via_bluetooth_not_discoverable">Impossibile continuare senza Bluetooth</string>
-  <string name="toast_connect_via_bluetooth_no_location_permission">Impossibile continuare senza l\'autorizzazione per la geolocalizzazione</string>
-  <string name="toast_connect_via_bluetooth_start">Connessione via Bluetooth…</string>
-  <string name="toast_connect_via_bluetooth_success">Connessione via Bluetooth riuscita</string>
-  <string name="toast_connect_via_bluetooth_error">Connessione via Bluetooth fallita</string>
   <!--The first placeholder will show a duration like "7 days". The second placeholder at the end will add "Tap to learn more."-->
   <string name="auto_delete_msg_you_enabled">I tuoi messaggi spariranno dopo %1$s. %2$s</string>
   <!--The placeholder at the end will add "Tap to learn more."-->
@@ -322,6 +313,16 @@
   <string name="introduction_response_accepted_received">%1$s ha accettato l\'introduzione a %2$s.</string>
   <string name="introduction_response_declined_received">%1$s ha declinato l\'introduzione a %2$s.</string>
   <string name="introduction_response_declined_received_by_introducee">%1$s dice che %2$s ha declinato l\'introduzione.</string>
+  <!--Connect via Bluetooth-->
+  <string name="menu_item_connect_via_bluetooth">Connessione attraverso Bluetooth</string>
+  <string name="connect_via_bluetooth_title">Connessione attraverso Bluetooth</string>
+  <string name="connect_via_bluetooth_intro">Nel caso le connessioni Bluetooth non funzionino automaticamente, puoi usare questa schermata per connetterti a mano.\n\nIl tuo contatto deve essere nelle vicinanze affinché funzioni.\n\nDovete premere entrambi \"Avvia\" nello stesso momento.</string>
+  <string name="connect_via_bluetooth_already_discovering">Si sta già tentando di connettersi via Bluetooth. Riprova fra poco.</string>
+  <string name="connect_via_bluetooth_no_location_permission">Impossibile continuare senza l\'autorizzazione per la geolocalizzazione</string>
+  <string name="connect_via_bluetooth_start">Connessione via Bluetooth…</string>
+  <string name="connect_via_bluetooth_success">Connessione via Bluetooth riuscita</string>
+  <string name="connect_via_bluetooth_error">Connessione via Bluetooth fallita.</string>
+  <string name="connect_via_bluetooth_error_not_supported">Il Bluetooth non è supportato dal dispositivo.</string>
   <!--Private Groups-->
   <string name="groups_list_empty">Nessun gruppo da mostrare</string>
   <string name="groups_list_empty_action">Tocca l\'icona + per creare un gruppo, o chiedi ai tuoi contatti di condividerne con te</string>
@@ -662,7 +663,6 @@
   <string name="permission_hotspot_location_denied_body">Hai negato l\'accesso alla tua posizione, ma Briar ha bisogno di questa autorizzazione per creare un hotspot Wi-Fi.\n\nPrendi in considerazione di consentirla.</string>
   <string name="wifi_settings_title">Impostazione Wi-Fi</string>
   <string name="wifi_settings_request_enable_body">Per creare un hotspot Wi-Fi, Briar deve usare il Wi-Fi. Prima attivalo.</string>
-  <string name="wifi_settings_request_denied_body">Hai negato l\'autorizzazione per attivare il Wi-Fi, ma Briar deve usarlo.\n\nPrendi in considerazione di attivarlo.</string>
   <string name="hotspot_tab_manual">Manuale</string>
   <!--The placeholder to be inserted into the string 'hotspot_manual_wifi': People can connect by %s-->
   <string name="hotspot_scanning_a_qr_code">scansionando un codice QR</string>
@@ -712,8 +712,6 @@
   <string name="hotspot_flag_test">Attenzione: questa app è stata installata con Android Studio e NON può essere installata su un altro dispositivo.</string>
   <string name="hotspot_error_framework_busy">Impossibile avviare l\'hotspot.\n\nSe ne hai un altro in esecuzione o se stai condividendo la connessione internet via Wi-Fi, fermalo e poi riprova.</string>
   <!--Transfer Data via Removable Drives-->
-  <string name="removable_drive_menu_title">Trasferisci dati</string>
-  <string name="removable_drive_intro">Puoi inviare messaggi cifrati al tuo contatto usando supporti rimovibili come chiavette USB o schede SD.\n\nSe il contatto ti ha inviato un supporto rimovibile contenente messaggi cifrati, puoi importarli in Briar usando il pulsante di ricezione sottostante.</string>
   <string name="removable_drive_title_send">Invia dati</string>
   <string name="removable_drive_title_receive">Ricevi dati</string>
   <string name="removable_drive_send_intro">Tocca il pulsante sottostante per creare un nuovo file contenente i messaggi cifrati. Puoi scegliere dove verrà salvato il file.\n\nSe vuoi salvarlo in un supporto rimovibile, inseriscilo ora.</string>

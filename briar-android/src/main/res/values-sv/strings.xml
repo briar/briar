@@ -150,8 +150,6 @@
   <string name="image_attach_error_invalid_mime_type">Bildformatet stöds ej: %s</string>
   <string name="set_contact_alias">Ändra namn på kontakt</string>
   <string name="set_contact_alias_hint">Kontaktnamn</string>
-  <string name="menu_item_connect_via_bluetooth">Anslut via Bluetooth</string>
-  <string name="dialog_title_connect_via_bluetooth">Anslut via Bluetooth</string>
   <!--The first placeholder will show a duration like "7 days". The second placeholder at the end will add "Tap to learn more."-->
   <!--The placeholder at the end will add "Tap to learn more."-->
   <!--The first placeholder will show a contact's name. The second placeholder will show a duration like "7 days". The third placeholder at the end will add "Tap to learn more."-->
@@ -278,6 +276,9 @@
   <string name="introduction_response_accepted_received">%1$s godkände att bli presenterad för %2$s.</string>
   <string name="introduction_response_declined_received">%1$s avvisade presentation för %2$s.</string>
   <string name="introduction_response_declined_received_by_introducee">%1$s säger att %2$s avvisade presentation.</string>
+  <!--Connect via Bluetooth-->
+  <string name="menu_item_connect_via_bluetooth">Anslut via Bluetooth</string>
+  <string name="connect_via_bluetooth_title">Anslut via Bluetooth</string>
   <!--Private Groups-->
   <string name="groups_list_empty">Inga grupper</string>
   <string name="groups_list_empty_action">Tryck på plus-ikonen (+) för att skapa en grupp. Du kan också fråga en kontakt om att bli inbjuden till en grupp.</string>

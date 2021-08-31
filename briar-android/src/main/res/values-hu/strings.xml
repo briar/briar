@@ -160,15 +160,6 @@
   <string name="set_contact_alias">Kapcsolat nevének megváltoztatása</string>
   <string name="set_contact_alias_hint">Kapcsolat neve</string>
   <string name="menu_item_disappearing_messages">Eltűnő üzenetek</string>
-  <string name="menu_item_connect_via_bluetooth">Csatlakozás bluetooth-on keresztül</string>
-  <string name="dialog_title_connect_via_bluetooth">Csatlakozás bluetooth-on keresztül</string>
-  <string name="dialog_message_connect_via_bluetooth">A kapcsolatai közel kell legyenek, hogy ez működjön.\n\n Ön és a kapcsolata egyaránt meg kell nyomja a \"Start\" gombot egyidőben.</string>
-  <string name="toast_connect_via_bluetooth_already_discovering">Már próbálkozik csatlakozni Bluetooth-on</string>
-  <string name="toast_connect_via_bluetooth_not_discoverable">Nem folytatható Bluetooth nélkül</string>
-  <string name="toast_connect_via_bluetooth_no_location_permission">Nem folytatható hely engedélyek nélkül</string>
-  <string name="toast_connect_via_bluetooth_start">Csatlakozás Bluetooth-on...</string>
-  <string name="toast_connect_via_bluetooth_success">Sikeres csatlakozás Bluetooth-on.</string>
-  <string name="toast_connect_via_bluetooth_error">Nem sikerült csatlakozni Bluetooth-on</string>
   <!--The first placeholder will show a duration like "7 days". The second placeholder at the end will add "Tap to learn more."-->
   <string name="auto_delete_msg_you_enabled">Az üzenetei eltűnnek %1$s. %2$s múlva</string>
   <!--The placeholder at the end will add "Tap to learn more."-->
@@ -320,6 +311,12 @@ Kérjük frissítsen a legutolsó verzióra és próbálja újra.</string>
   <string name="introduction_response_accepted_received">%1$s elfogadta a bemutatkozást %2$s számára.</string>
   <string name="introduction_response_declined_received">%1$s elutasította a bemutatkozást %2$s számára.</string>
   <string name="introduction_response_declined_received_by_introducee">%1$s alapján %2$s elutasította a bemutatkozást.</string>
+  <!--Connect via Bluetooth-->
+  <string name="menu_item_connect_via_bluetooth">Csatlakozás bluetooth-on keresztül</string>
+  <string name="connect_via_bluetooth_title">Csatlakozás bluetooth-on keresztül</string>
+  <string name="connect_via_bluetooth_no_location_permission">Nem folytatható hely engedélyek nélkül</string>
+  <string name="connect_via_bluetooth_start">Csatlakozás Bluetooth-on...</string>
+  <string name="connect_via_bluetooth_success">Sikeres csatlakozás Bluetooth-on.</string>
   <!--Private Groups-->
   <string name="groups_list_empty">Nincs megjeleníthető csoport</string>
   <string name="groups_list_empty_action">Koppintson a + ikonra csoport létrehozásához, vagy kérje meg kapcsolatait, hogy osszanak meg csoportokat Önnel</string>

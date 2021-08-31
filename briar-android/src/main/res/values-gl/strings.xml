@@ -153,14 +153,6 @@
   <string name="set_contact_alias">Cambiar o nome do contacto</string>
   <string name="set_contact_alias_hint">Nome do contacto</string>
   <string name="menu_item_disappearing_messages">Mensaxes efémeras</string>
-  <string name="menu_item_connect_via_bluetooth">Conectar vía Bluetooth</string>
-  <string name="dialog_title_connect_via_bluetooth">Conectar vía Bluetooth</string>
-  <string name="dialog_message_connect_via_bluetooth">O teu contacto ten que estar preto para que isto funcione.\n\nTi e o teu contacto tedes que premer en \"Iniciar\" ao mesmo tempo.</string>
-  <string name="toast_connect_via_bluetooth_not_discoverable">Non se pode continuar sen o Bluetooth</string>
-  <string name="toast_connect_via_bluetooth_no_location_permission">Non se pode continuar sen o permiso de localización</string>
-  <string name="toast_connect_via_bluetooth_start">Conectando vía Bluetooth...</string>
-  <string name="toast_connect_via_bluetooth_success">Conectouse correctamente vía Bluetooth</string>
-  <string name="toast_connect_via_bluetooth_error">Non se puido conectar vía Bluetooth</string>
   <!--The first placeholder will show a duration like "7 days". The second placeholder at the end will add "Tap to learn more."-->
   <string name="auto_delete_msg_you_enabled">As túas mensaxes desaparecerán após %1$s . %2$s</string>
   <!--The placeholder at the end will add "Tap to learn more."-->
@@ -309,6 +301,12 @@
   <string name="introduction_response_accepted_received">%1$s aceptou a presentación a %2$s.</string>
   <string name="introduction_response_declined_received">%1$s rexeitou a presentación a %2$s.</string>
   <string name="introduction_response_declined_received_by_introducee">%1$s di que %2$srexeitou a presentación.</string>
+  <!--Connect via Bluetooth-->
+  <string name="menu_item_connect_via_bluetooth">Conectar vía Bluetooth</string>
+  <string name="connect_via_bluetooth_title">Conectar vía Bluetooth</string>
+  <string name="connect_via_bluetooth_no_location_permission">Non se pode continuar sen o permiso de localización</string>
+  <string name="connect_via_bluetooth_start">Conectando vía Bluetooth...</string>
+  <string name="connect_via_bluetooth_success">Conectouse correctamente vía Bluetooth</string>
   <!--Private Groups-->
   <string name="groups_list_empty">Sen grupos que amosar</string>
   <string name="groups_list_empty_action">Toca a icona + para crear un grupo, ou solicita aos contactos que compartan grupos contigo</string>

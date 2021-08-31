@@ -165,15 +165,6 @@
   <string name="set_contact_alias">Kontaktnamen ändern</string>
   <string name="set_contact_alias_hint">Name des Kontakts</string>
   <string name="menu_item_disappearing_messages">Selbstlöschende Nachrichten</string>
-  <string name="menu_item_connect_via_bluetooth">Über Bluetooth verbinden</string>
-  <string name="dialog_title_connect_via_bluetooth">Über Bluetooth verbinden</string>
-  <string name="dialog_message_connect_via_bluetooth">Dein Kontakt muss in der Nähe sein, damit dies funktioniert.\n\nDu und dein Kontakt sollten beide gleichzeitig \"Start\" drücken.</string>
-  <string name="toast_connect_via_bluetooth_already_discovering">Versucht bereits, eine Verbindung über Bluetooth herzustellen</string>
-  <string name="toast_connect_via_bluetooth_not_discoverable">Kann ohne Bluetooth nicht fortgesetzt werden</string>
-  <string name="toast_connect_via_bluetooth_no_location_permission">Kann ohne Standortberechtigung nicht fortgesetzt werden</string>
-  <string name="toast_connect_via_bluetooth_start">Verbinde über Bluetooth…</string>
-  <string name="toast_connect_via_bluetooth_success">Erfolgsreich über Bluetooth verbunden</string>
-  <string name="toast_connect_via_bluetooth_error">Konnte keine Verbindung über Bluetooth herstellen</string>
   <!--The first placeholder will show a duration like "7 days". The second placeholder at the end will add "Tap to learn more."-->
   <string name="auto_delete_msg_you_enabled">Deine Nachrichten werden nach %1$sgelöscht. %2$s</string>
   <!--The placeholder at the end will add "Tap to learn more."-->
@@ -322,6 +313,16 @@
   <string name="introduction_response_accepted_received">%1$s hat die Kontaktempfehlung für %2$s angenommen.</string>
   <string name="introduction_response_declined_received">%1$s hat die Kontaktempfehlung von %2$s abgelehnt.</string>
   <string name="introduction_response_declined_received_by_introducee">%1$s meldet, dass %2$s die Kontaktempfehlung abgelehnt hat.</string>
+  <!--Connect via Bluetooth-->
+  <string name="menu_item_connect_via_bluetooth">Über Bluetooth verbinden</string>
+  <string name="connect_via_bluetooth_title">Über Bluetooth verbinden</string>
+  <string name="connect_via_bluetooth_intro">Falls Verbindungen über Bluetooth nicht automatisch funktionieren, kannst du über diesen Bildschirm eine manuelle Verbindung herstellen.\n\nDein Kontakt muss sich in der Nähe befinden, damit dies funktioniert. Du und dein Kontakt sollten gleichzeitig auf \"Start\" drücken.</string>
+  <string name="connect_via_bluetooth_already_discovering">Es wird bereits versucht, eine Verbindung über Bluetooth herzustellen. Bitte probiere es in Kürze erneut.</string>
+  <string name="connect_via_bluetooth_no_location_permission">Kann ohne Standortberechtigung nicht fortgesetzt werden</string>
+  <string name="connect_via_bluetooth_start">Verbinde über Bluetooth…</string>
+  <string name="connect_via_bluetooth_success">Erfolgsreich über Bluetooth verbunden</string>
+  <string name="connect_via_bluetooth_error">Konnte keine Verbindung über Bluetooth herstellen.</string>
+  <string name="connect_via_bluetooth_error_not_supported">Bluetooth wird vom Gerät nicht unterstützt.</string>
   <!--Private Groups-->
   <string name="groups_list_empty">Keine Gruppen vorhanden</string>
   <string name="groups_list_empty_action">Tippe auf das + Symbol, um eine Gruppe anzulegen oder frage deine Kontakte, Gruppen mit dir zu teilen</string>
@@ -662,7 +663,6 @@
   <string name="permission_hotspot_location_denied_body">Du hast den Zugriff auf deinen Standort verweigert, aber Briar benötigt diese Berechtigung, um einen WLAN-Hotspot zu erstellen.\n\nBitte gewähre den Zugriff.</string>
   <string name="wifi_settings_title">WLAN-Einstellungen</string>
   <string name="wifi_settings_request_enable_body">Um einen WLAN-Hotspot zu erstellen, benötigt Briar das WLAN. Bitte aktiviere es.</string>
-  <string name="wifi_settings_request_denied_body">Du hast die Erlaubnis zur WLAN-Aktivierung verweigert, aber Briar benötigt das WLAN.\n\nBitte gewähre den Zugriff.</string>
   <string name="hotspot_tab_manual">Manuell</string>
   <!--The placeholder to be inserted into the string 'hotspot_manual_wifi': People can connect by %s-->
   <string name="hotspot_scanning_a_qr_code">Scannen eines QR-Codes</string>
@@ -712,8 +712,6 @@
   <string name="hotspot_flag_test">Warnung: Diese App wurde mit Android Studio installiert und kann NICHT auf einem anderen Gerät installiert werden.</string>
   <string name="hotspot_error_framework_busy">Hotspot kann nicht gestartet werden.\n\nWenn du einen anderen Hotspot betreibst oder deine Internetverbindung über WLAN teilst, beende dies und versuche es danach erneut.</string>
   <!--Transfer Data via Removable Drives-->
-  <string name="removable_drive_menu_title">Daten übertragen</string>
-  <string name="removable_drive_intro">Du kannst deinem Kontakt verschlüsselte Nachrichten über Wechseldatenträger wie USB-Sticks oder SD-Karten schicken.\n\nWenn dein Kontakt dir einen Wechseldatenträger mit verschlüsselten Nachrichten geschickt hat, kannst du die Nachrichten in Briar importieren, indem du die Empfangsschaltfläche unten benutzt.</string>
   <string name="removable_drive_title_send">Daten senden</string>
   <string name="removable_drive_title_receive">Daten empfangen</string>
   <string name="removable_drive_send_intro">Tippe auf die Schaltfläche unten, um eine neue Datei mit den verschlüsselten Nachrichten zu erstellen. Du kannst wählen, wo die Datei gespeichert werden soll.\n\nWenn du die Datei auf einem Wechsellaufwerk speichern möchtest, lege das Laufwerk jetzt ein.</string>

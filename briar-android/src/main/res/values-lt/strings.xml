@@ -175,15 +175,6 @@
   <string name="set_contact_alias">Pakeisti adresato vardą</string>
   <string name="set_contact_alias_hint">Adresato vardas</string>
   <string name="menu_item_disappearing_messages">Išnykstančios žinutės</string>
-  <string name="menu_item_connect_via_bluetooth">Prisijungti per Bluetooth</string>
-  <string name="dialog_title_connect_via_bluetooth">Prisijungti per Bluetooth</string>
-  <string name="dialog_message_connect_via_bluetooth">Norint, kad tai suveiktų, jūsų adresatas privalo būti šalia jūsų.\n\nJūs ir jūsų adresatas abu vienu metu turėtumėte paspausti „Pradėti“.</string>
-  <string name="toast_connect_via_bluetooth_already_discovering">Jau bandoma prisijungti per Bluetooth</string>
-  <string name="toast_connect_via_bluetooth_not_discoverable">Nepavyksta tęsti be Bluetooth</string>
-  <string name="toast_connect_via_bluetooth_no_location_permission">Nepavyksta tęsti be įrenginio vietovės leidimo</string>
-  <string name="toast_connect_via_bluetooth_start">Jungiamasi per Bluetooth…</string>
-  <string name="toast_connect_via_bluetooth_success">Sėkmingai prisijungta per Bluetooth</string>
-  <string name="toast_connect_via_bluetooth_error">Nepavyko prisijungti per Bluetooth</string>
   <!--The first placeholder will show a duration like "7 days". The second placeholder at the end will add "Tap to learn more."-->
   <string name="auto_delete_msg_you_enabled">Jūsų žinutės išnyks po %1$s. %2$s</string>
   <!--The placeholder at the end will add "Tap to learn more."-->
@@ -340,6 +331,12 @@
   <string name="introduction_response_accepted_received">%1$s priėmė supažindinimą su %2$s.</string>
   <string name="introduction_response_declined_received">%1$s atmetė supažindinimą su %2$s.</string>
   <string name="introduction_response_declined_received_by_introducee">%1$s sako, kad %2$s atmetė supažindinimą.</string>
+  <!--Connect via Bluetooth-->
+  <string name="menu_item_connect_via_bluetooth">Prisijungti per Bluetooth</string>
+  <string name="connect_via_bluetooth_title">Prisijungti per Bluetooth</string>
+  <string name="connect_via_bluetooth_no_location_permission">Nepavyksta tęsti be įrenginio vietovės leidimo</string>
+  <string name="connect_via_bluetooth_start">Jungiamasi per Bluetooth…</string>
+  <string name="connect_via_bluetooth_success">Sėkmingai prisijungta per Bluetooth</string>
   <!--Private Groups-->
   <string name="groups_list_empty">Nėra rodytinų grupių</string>
   <string name="groups_list_empty_action">Norėdami sukurti grupę ar paprašyti savo adresatų pradėti su jumis bendrinti grupes, bakstelėkite + piktogramą</string>
@@ -688,7 +685,6 @@
   <string name="permission_hotspot_location_denied_body">Jūs uždraudėte prieigą prie įrenginio vietovės, tačiau norint sukurti belaidį (Wi-Fi) prieigos tašką, Briar reikia šio leidimo.\n\nApsvarstykite galimybę sutekti prieigą prie įrenginio vietovės.</string>
   <string name="wifi_settings_title">Belaidžio (Wi-Fi) nustatymas</string>
   <string name="wifi_settings_request_enable_body">Tam, kad sukurtų belaidį (Wi-Fi) prieigos tašką, Briar turi naudoti belaidį (Wi-Fi) ryšį. Įjunkite jį.</string>
-  <string name="wifi_settings_request_denied_body">Jūs uždraudėte leidimą įjungti belaidį (Wi-Fi) ryšį, tačiau norint naudotis belaidžiu (Wi-Fi), Briar reikia šio leidimo.\n\nApsvarstykite galimybę įjungti belaidį ryšį.</string>
   <string name="hotspot_tab_manual">Rankinis</string>
   <!--The placeholder to be inserted into the string 'hotspot_manual_wifi': People can connect by %s-->
   <string name="hotspot_scanning_a_qr_code">skenuodami QR kodą</string>
@@ -740,8 +736,6 @@
   <string name="hotspot_flag_test">Įspėjimas: Ši programėlė buvo įdiegta naudojant „Android Studio“ ir NEGALI būti įdiegta kitame įrenginyje.</string>
   <string name="hotspot_error_framework_busy">Nepavyko įjungti prieigos taško.\n\nJei turite veikiantį kitą prieigos tašką arba, jei bendrinate interneto ryšį per belaidį (Wi-Fi) ryšį, pabandykite to nebedaryti ir po to, bandykite dar kartą.</string>
   <!--Transfer Data via Removable Drives-->
-  <string name="removable_drive_menu_title">Perkelti duomenis</string>
-  <string name="removable_drive_intro">Jūs galite siųsti savo adresatams šifruotas žinutes naudodami keičiamuosius atminties įtaisus, tokius kaip USB atmintukai ar SD kortelės.\n\nJeigu jūsų adresatas atsiuntė jums keičiamąjį diską su šifruotomis žinutėmis, tuomet naudodamiesi žemiau esančiu gavimo mygtuku, galite importuoti žinutes į Briar.</string>
   <string name="removable_drive_title_send">Siųsti duomenis</string>
   <string name="removable_drive_title_receive">Gauti duomenis</string>
   <string name="removable_drive_send_intro">Bakstelėkite mygtuką žemiau, kad sukurtumėte naują failą su šifruotomis žinutėmis. Galite pasirinkti, kur failą įrašyti.\n\nJei norite įrašyti failą į keičiamąjį diską, tuomet įdėkite diską dabar.</string>

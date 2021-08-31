@@ -150,8 +150,6 @@
   <string name="image_attach_error_invalid_mime_type">Formato da imagem não suportado: %s</string>
   <string name="set_contact_alias">Alterar nome do contato</string>
   <string name="set_contact_alias_hint">Nome de contato</string>
-  <string name="menu_item_connect_via_bluetooth">Conectar via Bluetooth</string>
-  <string name="dialog_title_connect_via_bluetooth">Conectar via Bluetooth</string>
   <!--The first placeholder will show a duration like "7 days". The second placeholder at the end will add "Tap to learn more."-->
   <!--The placeholder at the end will add "Tap to learn more."-->
   <!--The first placeholder will show a contact's name. The second placeholder will show a duration like "7 days". The third placeholder at the end will add "Tap to learn more."-->
@@ -278,6 +276,9 @@
   <string name="introduction_response_accepted_received">%1$s aceitou ser apresentado a %2$s.</string>
   <string name="introduction_response_declined_received">%1$s recusou ser apresentado a %2$s.</string>
   <string name="introduction_response_declined_received_by_introducee">%1$s disse que %2$s recusou a apresentação.</string>
+  <!--Connect via Bluetooth-->
+  <string name="menu_item_connect_via_bluetooth">Conectar via Bluetooth</string>
+  <string name="connect_via_bluetooth_title">Conectar via Bluetooth</string>
   <!--Private Groups-->
   <string name="groups_list_empty">Sem grupos para exibir</string>
   <string name="groups_list_empty_action">Toque no ícone + para criar um grupo, ou peça a seus contatos para compartilhar grupos com você</string>

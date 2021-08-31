@@ -160,8 +160,6 @@
   <string name="image_attach_error_invalid_mime_type">תסדיר תמונה בלתי נתמך: %s</string>
   <string name="set_contact_alias">שַׁנֵּה שם איש קשר</string>
   <string name="set_contact_alias_hint">שם איש הקשר</string>
-  <string name="menu_item_connect_via_bluetooth">התחבר באמצעות שן כחולה</string>
-  <string name="dialog_title_connect_via_bluetooth">התחבר באמצעות שן כחולה</string>
   <!--The first placeholder will show a duration like "7 days". The second placeholder at the end will add "Tap to learn more."-->
   <!--The placeholder at the end will add "Tap to learn more."-->
   <!--The first placeholder will show a contact's name. The second placeholder will show a duration like "7 days". The third placeholder at the end will add "Tap to learn more."-->
@@ -290,6 +288,9 @@
   <string name="introduction_response_accepted_received">%1$s הסכים אל ההיכרות בפני %2$s.</string>
   <string name="introduction_response_declined_received">%1$s סירב אל ההיכרות בפני %2$s.</string>
   <string name="introduction_response_declined_received_by_introducee">%1$s אומר כי %2$s סירב אל ההיכרות.</string>
+  <!--Connect via Bluetooth-->
+  <string name="menu_item_connect_via_bluetooth">התחבר באמצעות שן כחולה</string>
+  <string name="connect_via_bluetooth_title">התחבר באמצעות שן כחולה</string>
   <!--Private Groups-->
   <string name="groups_list_empty">אין קבוצות להראות</string>
   <string name="groups_list_empty_action">הקש על הצלמית + כדי ליצור קבוצה, או בקש מאנשי הקשר שלך לשתף איתך קבוצות</string>

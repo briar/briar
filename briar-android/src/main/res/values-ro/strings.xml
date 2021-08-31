@@ -170,15 +170,6 @@
   <string name="set_contact_alias">Schimbă nume contact</string>
   <string name="set_contact_alias_hint">Nume contact</string>
   <string name="menu_item_disappearing_messages">Mesaje ce dispar</string>
-  <string name="menu_item_connect_via_bluetooth">Conectare prin Bluetooth</string>
-  <string name="dialog_title_connect_via_bluetooth">Conectare prin Bluetooth</string>
-  <string name="dialog_message_connect_via_bluetooth">Persoana de contact trebuie să fie în apropiere pentru ca acest lucru să funcționeze.\n\nVoi și persoana de contact trebuie să apăsați amândoi \"Start\" în același timp.</string>
-  <string name="toast_connect_via_bluetooth_already_discovering">Încercați deja să vă conectați prin Bluetooth</string>
-  <string name="toast_connect_via_bluetooth_not_discoverable">Nu se poate continua fără Bluetooth</string>
-  <string name="toast_connect_via_bluetooth_no_location_permission">Nu se poate continua fără permisiunea locației</string>
-  <string name="toast_connect_via_bluetooth_start">Conectarea prin Bluetooth...</string>
-  <string name="toast_connect_via_bluetooth_success">Conectat cu succes prin Bluetooth</string>
-  <string name="toast_connect_via_bluetooth_error">Nu s-a putut conecta prin Bluetooth</string>
   <!--The first placeholder will show a duration like "7 days". The second placeholder at the end will add "Tap to learn more."-->
   <string name="auto_delete_msg_you_enabled">Mesajele dvs. vor dispărea după %1$s. %2$s</string>
   <!--The placeholder at the end will add "Tap to learn more."-->
@@ -331,6 +322,12 @@
   <string name="introduction_response_accepted_received">%1$s a acceptat recomandarea pentru %2$s.</string>
   <string name="introduction_response_declined_received">%1$s a refuzat recomandarea pentru %2$s.</string>
   <string name="introduction_response_declined_received_by_introducee">%1$s spune că %2$s a refuzat recomandarea.</string>
+  <!--Connect via Bluetooth-->
+  <string name="menu_item_connect_via_bluetooth">Conectare prin Bluetooth</string>
+  <string name="connect_via_bluetooth_title">Conectare prin Bluetooth</string>
+  <string name="connect_via_bluetooth_no_location_permission">Nu se poate continua fără permisiunea locației</string>
+  <string name="connect_via_bluetooth_start">Conectarea prin Bluetooth...</string>
+  <string name="connect_via_bluetooth_success">Conectat cu succes prin Bluetooth</string>
   <!--Private Groups-->
   <string name="groups_list_empty">Nici un grup de arătat</string>
   <string name="groups_list_empty_action">Atingeți iconița + pentru a crea un grup sau rugați-vă contactele să partajele grupuri cu dumneavoastră</string>
@@ -675,7 +672,6 @@ De asemenea, contactul dvs. poate modifica această setare pentru amândoi.</str
   <string name="permission_hotspot_location_denied_body">Ați refuzat accesul la locație, dar Briar are nevoie de această permisiune pentru a creat un hotspot Wi-Fi.\n\nVă rugăm să luați în considerare acordarea accesului.</string>
   <string name="wifi_settings_title">Setări Wi-Fi</string>
   <string name="wifi_settings_request_enable_body">Pentru a crea un hotspot Wi-Fi, Briar are nevoie să folosească Wi-Fi. Vă rugăm să-l activați.</string>
-  <string name="wifi_settings_request_denied_body">Ați refuzat permisiunea de a activa Wi-Fi, dar Briar are nevoie să folosească Wi-Fi.\n\nVă rugăm să luați în considerare acordarea permisiunii.</string>
   <string name="hotspot_tab_manual">Manual</string>
   <!--The placeholder to be inserted into the string 'hotspot_manual_wifi': People can connect by %s-->
   <string name="hotspot_scanning_a_qr_code">scanează cod QR</string>
@@ -726,8 +722,6 @@ De asemenea, contactul dvs. poate modifica această setare pentru amândoi.</str
   <string name="hotspot_flag_test">Atenție: Această aplicație a fost instalată din Android Studio și NU poate fi instalată pe un alt dispozitiv.</string>
   <string name="hotspot_error_framework_busy">Nu s-a putut porni hotspotul.\n\nDacă aveți alt hotspot pornit sau dacă partajați conexiunea la Internet prin Wi-Fi, încercați să opriți asta și să reîncercați apoi.</string>
   <!--Transfer Data via Removable Drives-->
-  <string name="removable_drive_menu_title">Transfer de date</string>
-  <string name="removable_drive_intro">Puteți trimite mesaje criptate contactului dvs. folosind un dispozitiv de stocare detașabil, cum ar fi unitățile flash USB sau cardurile SD.\n\nDacă contactul dvs. v-a trimis o unitate detașabilă care conține mesaje criptate, puteți importa mesajele în Briar folosind butonul de primire de mai jos.</string>
   <string name="removable_drive_title_send">Trimiteți date</string>
   <string name="removable_drive_title_receive">Primiți date</string>
   <string name="removable_drive_send_intro">Atingeți butonul de mai jos pentru a crea un nou fișier care conține mesajele criptate. Puteți alege unde va fi salvat fișierul.\n\nDacă doriți să salvați fișierul pe o unitate detașabilă, introduceți unitatea acum.</string>

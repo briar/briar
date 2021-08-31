@@ -167,15 +167,6 @@ dhe s’mund të hapet me këtë version.\n\nJu lutemi, përmirësojeni me versi
   <string name="set_contact_alias">Ndryshoni emër kontakti</string>
   <string name="set_contact_alias_hint">Emër kontakti</string>
   <string name="menu_item_disappearing_messages">Mesazhe që treten</string>
-  <string name="menu_item_connect_via_bluetooth">Lidhu përmes Bluetooth-i</string>
-  <string name="dialog_title_connect_via_bluetooth">Lidhu përmes Bluetooth-i</string>
-  <string name="dialog_message_connect_via_bluetooth">Është e nevojshme që kontakti juaj të jetë atypari, që kjo të funksionojë.\n\nJu dhe kontakti juaj duhet që të shtypin “Fillo” në të njëjtën kohë.</string>
-  <string name="toast_connect_via_bluetooth_already_discovering">Po provohet tashmë të lidhet përmes Bluetooth-i</string>
-  <string name="toast_connect_via_bluetooth_not_discoverable">S’mund të vazhdohet pa Bluetooth</string>
-  <string name="toast_connect_via_bluetooth_no_location_permission">S’mund të vazhdohet pa leje vendore</string>
-  <string name="toast_connect_via_bluetooth_start">Po lidhet me Bluetooth…</string>
-  <string name="toast_connect_via_bluetooth_success">U lidh me sukses përmes Bluetooth-i</string>
-  <string name="toast_connect_via_bluetooth_error">S’u lidh dot përmes Bluetooth-i</string>
   <!--The first placeholder will show a duration like "7 days". The second placeholder at the end will add "Tap to learn more."-->
   <string name="auto_delete_msg_you_enabled">Mesazhet tuaja do të treten pas %1$s. %2$s</string>
   <!--The placeholder at the end will add "Tap to learn more."-->
@@ -324,6 +315,16 @@ dhe s’mund të hapet me këtë version.\n\nJu lutemi, përmirësojeni me versi
   <string name="introduction_response_accepted_received">%1$s pranoi prezantimin te %2$s.</string>
   <string name="introduction_response_declined_received">%1$s hodhi poshtë prezantimin te %2$s.</string>
   <string name="introduction_response_declined_received_by_introducee">%1$s thotë se %2$s hodhi poshtë prezantimin.</string>
+  <!--Connect via Bluetooth-->
+  <string name="menu_item_connect_via_bluetooth">Lidhu përmes Bluetooth-i</string>
+  <string name="connect_via_bluetooth_title">Lidhu përmes Bluetooth-i</string>
+  <string name="connect_via_bluetooth_intro">Në rast se lidhjet me Bluetooth s’funksionojnë automatikisht, mund të përdorni këtë skenë që të bëni lidhjen dorazi.\n\nQë kjo të funksionojë, kontakti juaj duhet të jetë atypari.\n\nJu dhe kontakti juaj duhet të shtypni që të dy “Fillo” në të njëjtën kohë.</string>
+  <string name="connect_via_bluetooth_already_discovering">Po provohet tashmë të bëhet lidhje përmes Bluetooth-i. Ju lutemi, riprovoni pas pak.</string>
+  <string name="connect_via_bluetooth_no_location_permission">S’mund të vazhdohet pa leje vendore</string>
+  <string name="connect_via_bluetooth_start">Po lidhet me Bluetooth…</string>
+  <string name="connect_via_bluetooth_success">U lidh me sukses përmes Bluetooth-i</string>
+  <string name="connect_via_bluetooth_error">S’u bë dot lidhja me Bluetooth.</string>
+  <string name="connect_via_bluetooth_error_not_supported">Bluetooth-i nuk mbulohet nga pajisja.</string>
   <!--Private Groups-->
   <string name="groups_list_empty">S’ka grupe për shfaqje</string>
   <string name="groups_list_empty_action">Prekni ikonën + që të krijoni një grup, ose kërkojuni kontakteve tuaj të ndajnë grupe me ju</string>
@@ -666,7 +667,6 @@ Briar-i i përdor ato paralelisht.</string>
   <string name="permission_hotspot_location_denied_body">Keni mohuar njohjen e vendndodhjes tuaj, ndërkohë që Briar-it i duhet kjo leje për të krijuar një hotspot Wi-Fi.\n\nJu lutemi, shihni mundësinë e akordimit të kësaj lejeje.</string>
   <string name="wifi_settings_title">Rregullim Wi-Fi-i</string>
   <string name="wifi_settings_request_enable_body">Që të krijohet një hotspot Wi-Fi, Briar-it i duhet të përdorë Wi-Fi-n. Ju lutemi, aktivizojeni.</string>
-  <string name="wifi_settings_request_denied_body">Keni mohuar lejen për aktivizim të Wi-Fi-t, por Briar-it i duhet të përdorë Wi-Fi-n.\n\nJu lutemi, shihni mundësinë e aktivizimit të tij.</string>
   <string name="hotspot_tab_manual">Dorazi</string>
   <!--The placeholder to be inserted into the string 'hotspot_manual_wifi': People can connect by %s-->
   <string name="hotspot_scanning_a_qr_code">duke skanuar një kod QR</string>
@@ -716,8 +716,6 @@ Briar-i i përdor ato paralelisht.</string>
   <string name="hotspot_flag_test">Kujdes: Ky aplikacion qe instaluar me Android Studio dhe NUK mund të instalohet në një pajisje tjetër.</string>
   <string name="hotspot_error_framework_busy">S’arrihet të niset hotspot-i.\n\nNëse keni një tjetër hotspot në punë, ose e jepni lidhjen tuaj Internet përmes Wi-Fi, provoni ta ndalni dhe të riprovoni pas kësaj.</string>
   <!--Transfer Data via Removable Drives-->
-  <string name="removable_drive_menu_title">Shpërngulni të dhëna</string>
-  <string name="removable_drive_intro">Mundeni të dërgoni mesazhe të fshehtëzuar te kontakti juaj duke përdorur depozitë të heqshme, bie fjala disqthe USB, ose karta SD.\n\nNëse kontakti juaj ju ka dërguar një disk të heqshëm që përmban mesazhe të fshehtëzuar, mund t’i importoni mesazhet në Briar duke përdorur butonin e marrjes më poshtë.</string>
   <string name="removable_drive_title_send">Dërgoni të dhëna</string>
   <string name="removable_drive_title_receive">Merrni të dhëna</string>
   <string name="removable_drive_send_intro">Prekni butonin më poshtë që të krijoni një kartelë të re që përmban mesazhe të fshehtëzuar. Mund të zgjidhni ku të ruhen kartelat.\n\nNëse doni të ruhet kartela në një disk të heqshëm, futeni diskun tani.</string>
