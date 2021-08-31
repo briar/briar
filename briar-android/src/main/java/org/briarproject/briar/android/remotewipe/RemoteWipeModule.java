@@ -1,6 +1,7 @@
 package org.briarproject.briar.android.remotewipe;
 
 import org.briarproject.briar.android.remotewipe.activate.ActivateRemoteWipeViewModel;
+import org.briarproject.briar.android.remotewipe.revoke.RevokeRemoteWipeViewModel;
 import org.briarproject.briar.android.viewmodel.ViewModelKey;
 
 import androidx.lifecycle.ViewModel;
@@ -22,4 +23,10 @@ public abstract class RemoteWipeModule {
 	@ViewModelKey(ActivateRemoteWipeViewModel.class)
 	abstract ViewModel bindActivateRemoteWipeViewModel(
 			ActivateRemoteWipeViewModel activateRemoteWipeViewModel);
+
+	@Binds
+	@IntoMap
+	@ViewModelKey(RevokeRemoteWipeViewModel.class)
+	abstract ViewModel bindRevokeRemoteWipeViewModel(
+			RevokeRemoteWipeViewModel RevokeRemoteWipeViewModel);
 }
