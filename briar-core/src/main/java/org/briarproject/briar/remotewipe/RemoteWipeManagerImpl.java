@@ -287,7 +287,7 @@ public class RemoteWipeManagerImpl extends ConversationClientImpl
 
 		Message m = clientHelper.createMessage(g, timestamp, body);
 		BdfDictionary meta = BdfDictionary.of(
-				new BdfEntry(MSG_KEY_MESSAGE_TYPE, SETUP.getValue()),
+				new BdfEntry(MSG_KEY_MESSAGE_TYPE, REVOKE.getValue()),
 				new BdfEntry(MSG_KEY_LOCAL, true),
 				new BdfEntry(MSG_KEY_TIMESTAMP, timestamp)
 		);
