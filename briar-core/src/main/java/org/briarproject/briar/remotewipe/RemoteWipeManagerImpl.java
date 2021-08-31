@@ -318,16 +318,20 @@ public class RemoteWipeManagerImpl extends ConversationClientImpl
 		messageTracker.trackOutgoingMessage(txn, m);
 	}
 
-	private boolean isWiper(Transaction txn, ContactId contactId)
-			throws DbException {
-		Author author = contactManager.getContact(txn, contactId).getAuthor();
-		List<Author> currentWipers = getWipers(txn);
-		for (Author a : currentWipers) {
-			if (a.getId().equals(author.getId())) {
-				return true;
+	public boolean isWiper(Transaction txn, ContactId contactId) {
+		try {
+			Author author =
+					contactManager.getContact(txn, contactId).getAuthor();
+			List<Author> currentWipers = getWipers(txn);
+			for (Author a : currentWipers) {
+				if (a.getId().equals(author.getId())) {
+					return true;
+				}
 			}
+			return false;
+		} catch (DbException e) {
+			return false;
 		}
-		return false;
 	}
 
 	public boolean amWiper(Transaction txn, ContactId contactId) {
