@@ -65,6 +65,7 @@ void jarFactory(Jar jarTask, jarArchitecture) {
 						exclude "tor_" + arch + ".zip"
 					}
 				}
+				exclude 'META-INF/*.SF', 'META-INF/*.DSA', 'META-INF/*.RSA'
 			}
 	jarTask.with jar
 	jarTask.doLast {
