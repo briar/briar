@@ -411,6 +411,14 @@ public class RemoteWipeManagerImpl extends ConversationClientImpl
 								createMessageHeader(message, meta, status,
 										WIPE));
 					}
+				} else if (meta.getLong(MSG_KEY_MESSAGE_TYPE).intValue() ==
+						REVOKE.getValue()) {
+					Message message = clientHelper
+							.getMessage(txn, messageEntry.getKey());
+					MessageStatus status = db.getMessageStatus(txn, contactId,
+							messageEntry.getKey());
+					headers.add(
+							createMessageHeader(message, meta, status, REVOKE));
 				}
 			}
 			return headers;

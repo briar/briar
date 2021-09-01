@@ -21,4 +21,9 @@ public class MessageParserImpl implements MessageParser {
 	public void parseWipeMessage(BdfList body) throws FormatException {
 
 	}
+
+	@Override
+	public void parseRevokeMessage(BdfList body) throws FormatException {
+
+	}
 }

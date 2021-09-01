@@ -7,4 +7,6 @@ public interface MessageParser {
 	void parseSetupMessage(BdfList body) throws FormatException;
 
 	void parseWipeMessage(BdfList body) throws FormatException;
+
+	void parseRevokeMessage(BdfList body) throws FormatException;
 }

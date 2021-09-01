@@ -750,7 +750,7 @@
 	<string name="activity_name_remote_wipe">Remote Wipe</string>
 	<string name="assigned_wipers">Your assigned trusted wipers</string>
 	<string name="activate_remote_wipe">Activate remote wipe</string>
-	<string name="remote_wipe_revoke_sent">%1$s may no longer activate a remote wipe.</string>
+	<string name="remote_wipe_revoke_sent">You have removed %1$s as a remote wiper.</string>
 	<string name="remote_wipe_revoke_received">You can no longer activate a remote wipe for %1$s.</string>
 
 	<!-- activate -->
