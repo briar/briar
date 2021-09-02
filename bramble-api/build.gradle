@@ -13,7 +13,6 @@ dependencies {
 	testImplementation "junit:junit:$junit_version"
 	testImplementation "org.jmock:jmock:$jmock_version"
 	testImplementation "org.jmock:jmock-junit4:$jmock_version"
-	testImplementation "org.jmock:jmock-legacy:$jmock_version"
 
 	signature 'org.codehaus.mojo.signature:java16:1.1@signature'
 }

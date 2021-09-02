@@ -6,7 +6,7 @@ import android.content.res.Resources;
 import org.briarproject.bramble.test.BrambleMockTestCase;
 import org.briarproject.briar.R;
 import org.jmock.Expectations;
-import org.jmock.lib.legacy.ClassImposteriser;
+import org.jmock.imposters.ByteBuddyClassImposteriser;
 import org.junit.Test;
 
 import static java.util.concurrent.TimeUnit.DAYS;
@@ -24,7 +24,7 @@ public class UiUtilsFormatDurationTest extends BrambleMockTestCase {
 	private final int strDays = R.plurals.duration_days;
 
 	public UiUtilsFormatDurationTest() {
-		context.setImposteriser(ClassImposteriser.INSTANCE);
+		context.setImposteriser(ByteBuddyClassImposteriser.INSTANCE);
 		ctx = context.mock(Context.class);
 		r = context.mock(Resources.class);
 	}
