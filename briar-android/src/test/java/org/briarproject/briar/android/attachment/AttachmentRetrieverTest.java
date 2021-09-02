@@ -11,7 +11,7 @@ import org.briarproject.briar.api.attachment.Attachment;
 import org.briarproject.briar.api.attachment.AttachmentHeader;
 import org.briarproject.briar.api.attachment.AttachmentReader;
 import org.jmock.Expectations;
-import org.jmock.lib.legacy.ClassImposteriser;
+import org.jmock.imposters.ByteBuddyClassImposteriser;
 import org.junit.Test;
 
 import java.io.ByteArrayInputStream;
@@ -36,7 +36,7 @@ public class AttachmentRetrieverTest extends BrambleMockTestCase {
 	private final AttachmentRetriever retriever;
 
 	public AttachmentRetrieverTest() {
-		context.setImposteriser(ClassImposteriser.INSTANCE);
+		context.setImposteriser(ByteBuddyClassImposteriser.INSTANCE);
 		AttachmentReader attachmentReader =
 				context.mock(AttachmentReader.class);
 		imageSizeCalculator = context.mock(ImageSizeCalculator.class);

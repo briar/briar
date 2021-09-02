@@ -33,4 +33,7 @@ buildscript {
 		classpath 'ru.vyarus:gradle-animalsniffer-plugin:1.5.0'
 		classpath files('libs/gradle-witness.jar')
 	}
+
+	ext.junit_version = "4.12"
+	ext.jmock_version = '2.12.0'
 }
