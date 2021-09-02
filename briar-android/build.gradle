@@ -137,11 +137,12 @@ dependencies {
 	testImplementation "androidx.arch.core:core-testing:2.1.0"
 	testImplementation "androidx.test.espresso:espresso-core:$espressoVersion"
 	testImplementation 'org.robolectric:robolectric:4.3.1'
-	testImplementation 'org.mockito:mockito-core:3.1.0'
-	testImplementation 'junit:junit:4.13.1'
-	testImplementation "org.jmock:jmock:$jmockVersion"
-	testImplementation "org.jmock:jmock-junit4:$jmockVersion"
-	testImplementation "org.jmock:jmock-legacy:$jmockVersion"
+
+	testImplementation 'org.mockito:mockito-core:3.9.0'
+	testImplementation "junit:junit:$junit_version"
+	testImplementation "org.jmock:jmock:$jmock_version"
+	testImplementation "org.jmock:jmock-junit4:$jmock_version"
+	testImplementation "org.jmock:jmock-imposters:$jmock_version"
 	testAnnotationProcessor "com.google.dagger:dagger-compiler:2.24"
 
 	androidTestImplementation project(path: ':bramble-api', configuration: 'testOutput')
