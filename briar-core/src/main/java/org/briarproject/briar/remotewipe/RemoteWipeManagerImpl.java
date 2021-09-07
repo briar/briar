@@ -51,7 +51,6 @@ import static org.briarproject.briar.api.remotewipe.MessageType.REVOKE;
 import static org.briarproject.briar.api.remotewipe.MessageType.SETUP;
 import static org.briarproject.briar.api.remotewipe.MessageType.WIPE;
 import static org.briarproject.briar.api.remotewipe.RemoteWipeConstants.GROUP_KEY_AM_WIPER;
-import static org.briarproject.briar.client.MessageTrackerConstants.MSG_KEY_READ;
 import static org.briarproject.briar.api.remotewipe.RemoteWipeConstants.GROUP_KEY_CONTACT_ID;
 import static org.briarproject.briar.api.remotewipe.RemoteWipeConstants.GROUP_KEY_RECEIVED_WIPE;
 import static org.briarproject.briar.api.remotewipe.RemoteWipeConstants.GROUP_KEY_WIPERS;
@@ -60,6 +59,7 @@ import static org.briarproject.briar.api.remotewipe.RemoteWipeConstants.MSG_KEY_
 import static org.briarproject.briar.api.remotewipe.RemoteWipeConstants.MSG_KEY_MESSAGE_TYPE;
 import static org.briarproject.briar.api.remotewipe.RemoteWipeConstants.MSG_KEY_TIMESTAMP;
 import static org.briarproject.briar.api.remotewipe.RemoteWipeConstants.THRESHOLD;
+import static org.briarproject.briar.client.MessageTrackerConstants.MSG_KEY_READ;
 
 public class RemoteWipeManagerImpl extends ConversationClientImpl
 		implements RemoteWipeManager, ContactManager.ContactHook,
@@ -146,7 +146,8 @@ public class RemoteWipeManagerImpl extends ConversationClientImpl
 
 			if (!db.containsGroup(txn, localGroup.getId()))
 				db.addGroup(txn, localGroup);
-			clientHelper.mergeGroupMetadata(txn, localGroup.getId(), localRecord);
+			clientHelper
+					.mergeGroupMetadata(txn, localGroup.getId(), localRecord);
 		} else if (type == WIPE) {
 			if (!remoteWipeIsSetup(txn)) return false;
 			if (clock.currentTimeMillis() - m.getTimestamp() > MAX_MESSAGE_AGE)
@@ -224,17 +225,35 @@ public class RemoteWipeManagerImpl extends ConversationClientImpl
 
 			if (!db.containsGroup(txn, localGroup.getId()))
 				db.addGroup(txn, localGroup);
-			clientHelper.mergeGroupMetadata(txn, localGroup.getId(), localRecord);
+			clientHelper
+					.mergeGroupMetadata(txn, localGroup.getId(), localRecord);
 		}
 
 		return false;
 	}
 
+	private boolean isInList(Transaction txn, Author a, List<ContactId> wipers)
+			throws DbException {
+		for (ContactId c : wipers) {
+			if (contactManager.getContact(txn, c).getAuthor().equals(a))
+				return true;
+		}
+		return false;
+	}
+
 	public void setup(Transaction txn, List<ContactId> wipers)
 			throws DbException, FormatException {
-		// If we already have a set of wipers do nothing
-		// TODO revoke existing wipers who are not present in the new list
-		if (remoteWipeIsSetup(txn)) throw new FormatException();
+		if (remoteWipeIsSetup(txn)) {
+			// Revoke existing wipers who are not present in the new list
+			List<Author> existingWipers = getWipers(txn);
+			for (Author existingWiper : existingWipers) {
+				if (!isInList(txn, existingWiper, wipers)) {
+					LOG.info("Revoking an existing wiper");
+					sendRevokeMessage(txn, contactManager.getContact(txn,
+							authorToContactId(txn, existingWiper)));
+				}
+			}
+		}
 
 		if (wipers.size() < 2) throw new FormatException();
 
@@ -350,7 +369,7 @@ public class RemoteWipeManagerImpl extends ConversationClientImpl
 			throws DbException, FormatException {
 		// Revoke a contact's wiper status
 		Contact contactToRevoke = contactManager.getContact(txn, contactId);
-	    Author authorToRevoke = contactToRevoke.getAuthor();
+		Author authorToRevoke = contactToRevoke.getAuthor();
 
 		List<Author> currentWipers = getWipers(txn);
 		BdfList newWipers = new BdfList();
