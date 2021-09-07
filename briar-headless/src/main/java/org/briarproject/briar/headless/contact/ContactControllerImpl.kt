@@ -31,8 +31,8 @@ import org.briarproject.briar.headless.getFromJson
 import org.briarproject.briar.headless.json.JsonDict
 import org.eclipse.jetty.http.HttpStatus.BAD_REQUEST_400
 import org.eclipse.jetty.http.HttpStatus.FORBIDDEN_403
-import org.spongycastle.util.encoders.Base64
-import org.spongycastle.util.encoders.DecoderException
+import org.bouncycastle.util.encoders.Base64
+import org.bouncycastle.util.encoders.DecoderException
 import java.security.GeneralSecurityException
 import javax.annotation.concurrent.Immutable
 import javax.inject.Inject

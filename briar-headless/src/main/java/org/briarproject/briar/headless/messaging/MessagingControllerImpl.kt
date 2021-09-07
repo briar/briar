@@ -38,8 +38,8 @@ import org.briarproject.briar.headless.event.output
 import org.briarproject.briar.headless.getContactIdFromPathParam
 import org.briarproject.briar.headless.getFromJson
 import org.briarproject.briar.headless.json.JsonDict
-import org.spongycastle.util.encoders.Base64
-import org.spongycastle.util.encoders.DecoderException
+import org.bouncycastle.util.encoders.Base64
+import org.bouncycastle.util.encoders.DecoderException
 import java.util.concurrent.Executor
 import javax.annotation.concurrent.Immutable
 import javax.inject.Inject

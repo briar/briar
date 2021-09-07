@@ -32,7 +32,7 @@ import org.briarproject.briar.headless.json.JsonDict
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertThrows
 import org.junit.jupiter.api.Test
-import org.spongycastle.util.encoders.Base64
+import org.bouncycastle.util.encoders.Base64
 import kotlin.random.Random
 
 internal class MessagingControllerImplTest : ControllerTest() {
@@ -205,7 +205,7 @@ internal class MessagingControllerImplTest : ControllerTest() {
     @Test
     fun markMessageRead() {
         mockkStatic("org.briarproject.briar.headless.RouterKt")
-        mockkStatic("org.spongycastle.util.encoders.Base64")
+        mockkStatic("org.bouncycastle.util.encoders.Base64")
         expectGetContact()
 
         val messageIdString = message.id.bytes.toString()

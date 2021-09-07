@@ -9,7 +9,7 @@ import com.github.ajalt.clikt.parameters.types.int
 import org.briarproject.bramble.BrambleCoreEagerSingletons
 import org.briarproject.briar.BriarCoreEagerSingletons
 import org.slf4j.impl.SimpleLogger.DEFAULT_LOG_LEVEL_KEY
-import org.spongycastle.util.encoders.Base64.toBase64String
+import org.bouncycastle.util.encoders.Base64.toBase64String
 import java.io.File
 import java.io.File.separator
 import java.io.IOException
