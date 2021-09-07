@@ -4,6 +4,7 @@ import android.os.Bundle;
 import android.view.MenuItem;
 import android.widget.Toast;
 
+import org.briarproject.bramble.api.contact.ContactId;
 import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
 import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
 import org.briarproject.briar.R;
@@ -14,15 +15,24 @@ import org.briarproject.briar.android.contactselection.ContactSelectorFragment;
 import org.briarproject.briar.android.contactselection.SelectableContactItem;
 import org.briarproject.briar.android.socialbackup.creation.CreateBackupController;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import javax.inject.Inject;
 
 import androidx.annotation.Nullable;
+import androidx.lifecycle.ViewModelProvider;
 
 @MethodsNotNullByDefault
 @ParametersNotNullByDefault
 public class WiperSelectorFragment extends ContactSelectorFragment {
 
 	public static final String TAG = WiperSelectorFragment.class.getName();
+
+	@Inject
+	ViewModelProvider.Factory viewModelFactory;
+
+	private RemoteWipeSetupViewModel viewModel;
 
 	@Inject
 	CreateBackupController controller;
@@ -40,12 +50,14 @@ public class WiperSelectorFragment extends ContactSelectorFragment {
 	@Override
 	public void injectFragment(ActivityComponent component) {
 		component.inject(this);
+		viewModel = new ViewModelProvider(requireActivity(), viewModelFactory)
+				.get(RemoteWipeSetupViewModel.class);
 	}
 
 	@Override
 	public void onCreate(@Nullable Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-
+		selectedContacts.addAll(viewModel.getWiperContactIds());
 		requireActivity().setTitle(R.string.title_select_wipers);
 	}
 

@@ -45,11 +45,20 @@ public class RemoteWipeSetupViewModel extends AndroidViewModel {
 		}
 	}
 
+	public List<ContactId> getWiperContactIds() {
+		try {
+			return db.transactionWithResult(true,
+					remoteWipeManager::getWiperContactIds);
+		} catch (DbException ignored) {
+			return new ArrayList<ContactId>();
+		}
+	}
+
 	public List<String> getWiperNames() {
 		ArrayList wiperNames = new ArrayList();
 		try {
 			List<Author> wipers = db.transactionWithResult(true,
-					txn -> remoteWipeManager.getWipers(txn));
+					remoteWipeManager::getWipers);
 			for (Author wiper : wipers) {
 				wiperNames.add(wiper.getName());
 			}

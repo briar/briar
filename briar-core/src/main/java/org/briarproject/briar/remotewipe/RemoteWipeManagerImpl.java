@@ -565,4 +565,27 @@ public class RemoteWipeManagerImpl extends ConversationClientImpl
 			throw new DbException(e);
 		}
 	}
+
+	public List<ContactId> getWiperContactIds(Transaction txn) {
+		ArrayList<ContactId> wiperContactIds = new ArrayList<>();
+		try {
+			List<Author> wipers = getWipers(txn);
+			for (Author wiper : wipers) {
+				wiperContactIds.add(authorToContactId(txn, wiper));
+			}
+		} catch (DbException ignored) {
+			// Will return an empty list
+		}
+		return wiperContactIds;
+	}
+
+	private ContactId authorToContactId(Transaction txn, Author author)
+			throws DbException {
+		ArrayList<Contact> contacts =
+				(ArrayList<Contact>) contactManager.getContacts(txn);
+		for (Contact c : contacts) {
+			if (c.getAuthor().equals(author)) return c.getId();
+		}
+		throw new DbException();
+	}
 }

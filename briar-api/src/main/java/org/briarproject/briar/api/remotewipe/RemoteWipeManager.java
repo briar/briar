@@ -56,6 +56,8 @@ public interface RemoteWipeManager extends ConversationManager.ConversationClien
 
 	List<Author> getWipers(Transaction txn) throws DbException;
 
+	List<ContactId> getWiperContactIds(Transaction txn);
+
 	@Override
 	Collection<ConversationMessageHeader> getMessageHeaders(
 			Transaction txn, ContactId contactId) throws DbException;
