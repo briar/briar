@@ -74,6 +74,11 @@ public class RemoteWipeSetupViewModel extends AndroidViewModel {
 		state.postValue(RemoteWipeSetupState.FINISHED);
 	}
 
+	@UiThread
+	public void onModifyWipers() {
+        state.postValue(RemoteWipeSetupState.MODIFY);
+	}
+
 	public void setupRemoteWipe(Collection<ContactId> wipers)
 			throws DbException, FormatException {
 		db.transaction(false, txn -> {

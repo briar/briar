@@ -38,11 +38,11 @@ public class RemoteWipeSetupActivity extends BriarActivity implements
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_distributed_backup);
-//        if (viewModel.remoteWipeIsSetup()) {
-//        	showInitialFragment(new RemoteWipeDisplayFragment());
-//        } else {
+        if (viewModel.remoteWipeIsSetup()) {
+        	showInitialFragment(new RemoteWipeDisplayFragment());
+        } else {
 	        showInitialFragment(WiperSelectorFragment.newInstance());
-//        }
+        }
 
 	}
 
@@ -68,6 +68,8 @@ public class RemoteWipeSetupActivity extends BriarActivity implements
 			finish();
 		} else if (state.equals(RemoteWipeSetupState.FINISHED)) {
 			finish();
+		} else if (state.equals(RemoteWipeSetupState.MODIFY)) {
+			showNextFragment(WiperSelectorFragment.newInstance());
 		}
 	}
 }

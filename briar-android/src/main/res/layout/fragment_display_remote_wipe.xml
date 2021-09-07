@@ -31,4 +31,15 @@ android:layout_height="match_parent">
 	app:layout_constraintEnd_toEndOf="parent"
 	app:layout_constraintStart_toStartOf="parent"
 	app:layout_constraintTop_toBottomOf="@+id/textViewThreshold" />
+
+	<Button
+		android:id="@+id/button"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:layout_marginTop="32dp"
+		android:text="@string/remote_wipe_modify_contacts"
+		android:textSize="24sp"
+		app:layout_constraintEnd_toEndOf="parent"
+		app:layout_constraintStart_toStartOf="parent"
+		app:layout_constraintTop_toBottomOf="@+id/textViewWipers" />
 </androidx.constraintlayout.widget.ConstraintLayout>

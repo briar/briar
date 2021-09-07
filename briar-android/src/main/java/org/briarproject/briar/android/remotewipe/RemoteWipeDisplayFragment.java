@@ -4,6 +4,7 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.TextView;
 
 import org.briarproject.briar.R;
@@ -52,8 +53,9 @@ public class RemoteWipeDisplayFragment extends
 		}
 		TextView textViewThreshold = view.findViewById(R.id.textViewWipers);
 		textViewThreshold.setText(custodianNamesString.toString());
-//		Button button = view.findViewById(R.id.button);
-//		button.setOnClickListener(e -> viewModel.onErrorTryAgain());
+
+		Button button = view.findViewById(R.id.button);
+		button.setOnClickListener(e -> viewModel.onModifyWipers());
 		return view;
 	}
 	@Override
