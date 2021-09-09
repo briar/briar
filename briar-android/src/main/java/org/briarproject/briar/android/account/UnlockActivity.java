@@ -51,6 +51,7 @@ public class UnlockActivity extends BaseActivity {
 		component.inject(this);
 	}
 
+	@Override
 	public void onCreate(@Nullable Bundle state) {
 		super.onCreate(state);
 		overridePendingTransition(0, 0);
@@ -77,7 +78,7 @@ public class UnlockActivity extends BaseActivity {
 
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode,
-			Intent data) {
+			@Nullable Intent data) {
 		super.onActivityResult(requestCode, resultCode, data);
 		if (requestCode == REQUEST_KEYGUARD_UNLOCK) {
 			if (resultCode == RESULT_OK) unlock();

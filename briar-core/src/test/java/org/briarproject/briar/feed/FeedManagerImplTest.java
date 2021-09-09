@@ -17,6 +17,7 @@ import org.briarproject.bramble.api.sync.Message;
 import org.briarproject.bramble.api.system.Clock;
 import org.briarproject.bramble.api.system.TaskScheduler;
 import org.briarproject.bramble.test.BrambleMockTestCase;
+import org.briarproject.bramble.test.DbExpectations;
 import org.briarproject.bramble.test.ImmediateExecutor;
 import org.briarproject.briar.api.blog.Blog;
 import org.briarproject.briar.api.blog.BlogManager;
@@ -145,17 +146,14 @@ public class FeedManagerImplTest extends BrambleMockTestCase {
 		BdfDictionary feedsDict =
 				BdfDictionary.of(new BdfEntry(KEY_FEEDS, feedList));
 		expectGetLocalGroup();
-		context.checking(new Expectations() {{
-			oneOf(db).startTransaction(true);
-			will(returnValue(txn));
+		context.checking(new DbExpectations() {{
+			oneOf(db).transactionWithResult(with(true), withDbCallable(txn));
 			oneOf(clientHelper).getGroupMetadataAsDictionary(txn, localGroupId);
 			will(returnValue(feedsDict));
 			if (feedList.size() == 1) {
 				oneOf(feedFactory).createFeed(feedDict);
 				will(returnValue(feed));
 			}
-			oneOf(db).commitTransaction(txn);
-			oneOf(db).endTransaction(txn);
 		}});
 	}
 

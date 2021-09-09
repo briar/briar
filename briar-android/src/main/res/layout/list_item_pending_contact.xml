@@ -41,10 +41,10 @@
 		android:layout_height="@dimen/button_size"
 		android:background="?attr/selectableItemBackgroundBorderless"
 		android:contentDescription="@string/groups_remove"
-		android:src="@drawable/action_delete_black"
 		app:layout_constraintEnd_toEndOf="parent"
 		app:layout_constraintStart_toEndOf="@+id/name"
 		app:layout_constraintTop_toTopOf="parent"
+		app:srcCompat="@drawable/action_delete_black"
 		app:tint="?attr/colorControlNormal" />
 
 	<TextView

@@ -30,7 +30,7 @@
 	<dimen name="listitem_selectable_picture_size">40dp</dimen>
 	<dimen name="listitem_group_member_indentation">40dp</dimen>
 	<dimen name="avatar_forum_size">48dp</dimen>
-	<dimen name="avatar_border_width">2dp</dimen>
+	<dimen name="avatar_border_width">1dp</dimen>
 	<dimen name="avatar_text_size">30sp</dimen>
 	<dimen name="button_size">48dp</dimen>
 

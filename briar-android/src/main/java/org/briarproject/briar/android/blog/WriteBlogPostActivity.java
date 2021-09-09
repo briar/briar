@@ -19,10 +19,10 @@ import org.briarproject.briar.android.view.TextInputView;
 import org.briarproject.briar.android.view.TextSendController;
 import org.briarproject.briar.android.view.TextSendController.SendListener;
 import org.briarproject.briar.api.android.AndroidNotificationManager;
+import org.briarproject.briar.api.attachment.AttachmentHeader;
 import org.briarproject.briar.api.blog.BlogManager;
 import org.briarproject.briar.api.blog.BlogPost;
 import org.briarproject.briar.api.blog.BlogPostFactory;
-import org.briarproject.briar.api.messaging.AttachmentHeader;
 
 import java.security.GeneralSecurityException;
 import java.util.List;
@@ -31,12 +31,16 @@ import java.util.logging.Logger;
 import javax.inject.Inject;
 
 import androidx.annotation.Nullable;
+import androidx.lifecycle.LiveData;
+import androidx.lifecycle.MutableLiveData;
 
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
 import static java.util.logging.Level.WARNING;
 import static org.briarproject.bramble.util.LogUtils.logException;
 import static org.briarproject.bramble.util.StringUtils.isNullOrEmpty;
+import static org.briarproject.briar.android.view.TextSendController.SendState;
+import static org.briarproject.briar.android.view.TextSendController.SendState.SENT;
 import static org.briarproject.briar.api.blog.BlogConstants.MAX_BLOG_POST_TEXT_LENGTH;
 
 @MethodsNotNullByDefault
@@ -97,13 +101,11 @@ public class WriteBlogPostActivity extends BriarActivity
 
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
-		switch (item.getItemId()) {
-			case android.R.id.home:
-				onBackPressed();
-				return true;
-			default:
-				return super.onOptionsItemSelected(item);
+		if (item.getItemId() == android.R.id.home) {
+			onBackPressed();
+			return true;
 		}
+		return super.onOptionsItemSelected(item);
 	}
 
 	@Override
@@ -112,8 +114,8 @@ public class WriteBlogPostActivity extends BriarActivity
 	}
 
 	@Override
-	public void onSendClick(@Nullable String text,
-			List<AttachmentHeader> headers) {
+	public LiveData<SendState> onSendClick(@Nullable String text,
+			List<AttachmentHeader> headers, long expectedAutoDeleteTimer) {
 		if (isNullOrEmpty(text)) throw new AssertionError();
 
 		// hide publish button, show progress bar
@@ -122,6 +124,7 @@ public class WriteBlogPostActivity extends BriarActivity
 		progressBar.setVisibility(VISIBLE);
 
 		storePost(text);
+		return new MutableLiveData<>(SENT);
 	}
 
 	private void storePost(String text) {

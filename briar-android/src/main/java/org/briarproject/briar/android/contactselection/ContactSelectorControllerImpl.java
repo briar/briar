@@ -10,6 +10,8 @@ import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.sync.GroupId;
 import org.briarproject.briar.android.controller.DbControllerImpl;
 import org.briarproject.briar.android.controller.handler.ResultExceptionHandler;
+import org.briarproject.briar.api.identity.AuthorInfo;
+import org.briarproject.briar.api.identity.AuthorManager;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -31,11 +33,14 @@ public abstract class ContactSelectorControllerImpl
 			Logger.getLogger(ContactSelectorControllerImpl.class.getName());
 
 	private final ContactManager contactManager;
+	private final AuthorManager authorManager;
 
 	public ContactSelectorControllerImpl(@DatabaseExecutor Executor dbExecutor,
-			LifecycleManager lifecycleManager, ContactManager contactManager) {
+			LifecycleManager lifecycleManager, ContactManager contactManager,
+			AuthorManager authorManager) {
 		super(dbExecutor, lifecycleManager);
 		this.contactManager = contactManager;
+		this.authorManager = authorManager;
 	}
 
 	@Override
@@ -45,12 +50,13 @@ public abstract class ContactSelectorControllerImpl
 			try {
 				Collection<SelectableContactItem> contacts = new ArrayList<>();
 				for (Contact c : contactManager.getContacts()) {
+					AuthorInfo authorInfo = authorManager.getAuthorInfo(c);
 					// was this contact already selected?
 					boolean selected = selection.contains(c.getId());
 					// can this contact be selected?
 					boolean disabled = isDisabled(g, c);
-					contacts.add(new SelectableContactItem(c, selected,
-							disabled));
+					contacts.add(new SelectableContactItem(c, authorInfo,
+							selected, disabled));
 				}
 				handler.onResult(contacts);
 			} catch (DbException e) {

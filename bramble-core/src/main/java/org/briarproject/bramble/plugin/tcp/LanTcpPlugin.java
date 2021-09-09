@@ -92,7 +92,7 @@ class LanTcpPlugin extends TcpPlugin {
 			Executor wakefulIoExecutor,
 			Backoff backoff,
 			PluginCallback callback,
-			int maxLatency,
+			long maxLatency,
 			int maxIdleTime,
 			int connectionTimeout) {
 		super(ioExecutor, wakefulIoExecutor, backoff, callback, maxLatency,

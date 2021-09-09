@@ -2,7 +2,6 @@ package org.briarproject.briar.android.blog;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.Parcelable;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -10,54 +9,43 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
-import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
 import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
+import org.briarproject.bramble.api.sync.GroupId;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.activity.ActivityComponent;
-import org.briarproject.briar.android.blog.FeedController.FeedListener;
-import org.briarproject.briar.android.controller.handler.UiResultExceptionHandler;
+import org.briarproject.briar.android.blog.BaseViewModel.ListUpdate;
 import org.briarproject.briar.android.fragment.BaseFragment;
 import org.briarproject.briar.android.util.BriarSnackbarBuilder;
 import org.briarproject.briar.android.view.BriarRecyclerView;
+import org.briarproject.briar.android.widget.LinkDialogFragment;
 import org.briarproject.briar.api.blog.Blog;
-import org.briarproject.briar.api.blog.BlogPostHeader;
-
-import java.util.Collection;
-import java.util.logging.Logger;
 
 import javax.inject.Inject;
 
 import androidx.annotation.Nullable;
-import androidx.annotation.UiThread;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
-import static android.app.Activity.RESULT_OK;
 import static android.content.Intent.FLAG_ACTIVITY_CLEAR_TOP;
 import static com.google.android.material.snackbar.Snackbar.LENGTH_LONG;
-import static java.util.Objects.requireNonNull;
 import static org.briarproject.briar.android.activity.BriarActivity.GROUP_ID;
-import static org.briarproject.briar.android.activity.RequestCodes.REQUEST_WRITE_BLOG_POST;
+import static org.briarproject.briar.android.blog.BlogPostFragment.POST_ID;
 
-@UiThread
 @MethodsNotNullByDefault
 @ParametersNotNullByDefault
-public class FeedFragment extends BaseFragment implements
-		OnBlogPostClickListener, FeedListener {
+public class FeedFragment extends BaseFragment
+		implements OnBlogPostClickListener {
 
 	public final static String TAG = FeedFragment.class.getName();
-	private static final Logger LOG = Logger.getLogger(TAG);
 
 	@Inject
-	FeedController feedController;
+	ViewModelProvider.Factory viewModelFactory;
 
-	private BlogPostAdapter adapter;
+	private FeedViewModel viewModel;
+	private final BlogPostAdapter adapter = new BlogPostAdapter(true, this);
 	private LinearLayoutManager layoutManager;
 	private BriarRecyclerView list;
-	@Nullable
-	private Blog personalBlog;
-	@Nullable
-	private Parcelable layoutManagerState;
 
 	public static FeedFragment newInstance() {
 		FeedFragment f = new FeedFragment();
@@ -71,7 +59,8 @@ public class FeedFragment extends BaseFragment implements
 	@Override
 	public void injectFragment(ActivityComponent component) {
 		component.inject(this);
-		feedController.setFeedListener(this);
+		viewModel = new ViewModelProvider(this, viewModelFactory)
+				.get(FeedViewModel.class);
 	}
 
 	@Nullable
@@ -79,12 +68,9 @@ public class FeedFragment extends BaseFragment implements
 	public View onCreateView(LayoutInflater inflater,
 			@Nullable ViewGroup container,
 			@Nullable Bundle savedInstanceState) {
-		requireNonNull(getActivity()).setTitle(R.string.blogs_button);
+		requireActivity().setTitle(R.string.blogs_button);
 
 		View v = inflater.inflate(R.layout.fragment_blog, container, false);
-
-		adapter =
-				new BlogPostAdapter(getActivity(), this, getFragmentManager());
 
 		layoutManager = new LinearLayoutManager(getActivity());
 		list = v.findViewById(R.id.postList);
@@ -94,102 +80,41 @@ public class FeedFragment extends BaseFragment implements
 		list.setEmptyText(R.string.blogs_feed_empty_state);
 		list.setEmptyAction(R.string.blogs_feed_empty_state_action);
 
-		if (savedInstanceState != null) {
-			layoutManagerState =
-					savedInstanceState.getParcelable("layoutManager");
-		}
+		viewModel.getBlogPosts().observe(getViewLifecycleOwner(), result ->
+				result.onError(this::handleException)
+						.onSuccess(this::onBlogPostsLoaded)
+		);
 
 		return v;
 	}
 
 	@Override
-	public void onActivityResult(int requestCode, int resultCode, Intent data) {
-		super.onActivityResult(requestCode, resultCode, data);
-
-		// The BlogPostAddedEvent arrives when the controller is not listening
-		if (requestCode == REQUEST_WRITE_BLOG_POST && resultCode == RESULT_OK) {
-			showSnackBar(R.string.blogs_blog_post_created);
-		}
-	}
-
-	@Override
 	public void onStart() {
 		super.onStart();
-		feedController.onStart();
+		viewModel.blockAndClearAllBlogPostNotifications();
 		list.startPeriodicUpdate();
-		loadPersonalBlog();
-		loadBlogPosts(false);
 	}
 
 	@Override
 	public void onStop() {
 		super.onStop();
-		feedController.onStop();
-		adapter.clear();
-		list.showProgressBar();
+		viewModel.unblockAllBlogPostNotifications();
 		list.stopPeriodicUpdate();
-		// TODO save list position in database/preferences?
 	}
 
-	@Override
-	public void onDestroy() {
-		super.onDestroy();
-		feedController.unsetFeedListener(this);
-	}
-
-	@Override
-	public void onSaveInstanceState(Bundle outState) {
-		super.onSaveInstanceState(outState);
-		if (layoutManager != null) {
-			layoutManagerState = layoutManager.onSaveInstanceState();
-			outState.putParcelable("layoutManager", layoutManagerState);
-		}
-	}
-
-	private void loadPersonalBlog() {
-		feedController.loadPersonalBlog(
-				new UiResultExceptionHandler<Blog, DbException>(this) {
-					@Override
-					public void onResultUi(Blog b) {
-						personalBlog = b;
-					}
-
-					@Override
-					public void onExceptionUi(DbException exception) {
-						handleDbException(exception);
-					}
-				});
-	}
-
-	private void loadBlogPosts(boolean clear) {
-		int revision = adapter.getRevision();
-		feedController.loadBlogPosts(
-				new UiResultExceptionHandler<Collection<BlogPostItem>, DbException>(
-						this) {
-					@Override
-					public void onResultUi(Collection<BlogPostItem> posts) {
-						if (revision == adapter.getRevision()) {
-							adapter.incrementRevision();
-							if (clear) adapter.setItems(posts);
-							else adapter.addAll(posts);
-							if (posts.isEmpty()) list.showData();
-							if (layoutManagerState == null) {
-								list.scrollToPosition(0);  // Scroll to the top
-							} else {
-								layoutManager.onRestoreInstanceState(
-										layoutManagerState);
-							}
-						} else {
-							LOG.info("Concurrent update, reloading");
-							loadBlogPosts(clear);
-						}
-					}
-
-					@Override
-					public void onExceptionUi(DbException exception) {
-						handleDbException(exception);
-					}
-				});
+	private void onBlogPostsLoaded(ListUpdate update) {
+		adapter.submitList(update.getItems(), () -> {
+			Boolean wasLocal = update.getPostAddedWasLocal();
+			if (wasLocal != null && wasLocal) {
+				showSnackBar(R.string.blogs_blog_post_created, true);
+				// automatically scroll to our new post
+				list.smoothScrollToPosition(0);
+			} else if (wasLocal != null) {
+				showSnackBar(R.string.blogs_blog_post_received, false);
+			}
+			viewModel.resetLocalUpdate();
+			list.showData();
+		});
 	}
 
 	@Override
@@ -200,67 +125,39 @@ public class FeedFragment extends BaseFragment implements
 
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
-		if (personalBlog == null) return false;
-		switch (item.getItemId()) {
-			case R.id.action_write_blog_post:
-				Intent i1 =
-						new Intent(getActivity(), WriteBlogPostActivity.class);
-				i1.putExtra(GROUP_ID, personalBlog.getId().getBytes());
-				startActivityForResult(i1, REQUEST_WRITE_BLOG_POST);
-				return true;
-			case R.id.action_rss_feeds_import:
-				Intent i2 =
-						new Intent(getActivity(), RssFeedImportActivity.class);
-				startActivity(i2);
-				return true;
-			case R.id.action_rss_feeds_manage:
-				Intent i3 =
-						new Intent(getActivity(), RssFeedManageActivity.class);
-				i3.putExtra(GROUP_ID, personalBlog.getId().getBytes());
-				startActivity(i3);
-				return true;
-			default:
-				return super.onOptionsItemSelected(item);
+		int itemId = item.getItemId();
+		if (itemId == R.id.action_write_blog_post) {
+			Blog personalBlog = viewModel.getPersonalBlog().getValue();
+			if (personalBlog == null) return false;
+			Intent i = new Intent(getActivity(), WriteBlogPostActivity.class);
+			i.putExtra(GROUP_ID, personalBlog.getId().getBytes());
+			startActivity(i);
+			return true;
+		} else if (itemId == R.id.action_rss_feeds) {
+			Intent i = new Intent(getActivity(), RssFeedActivity.class);
+			startActivity(i);
+			return true;
 		}
-	}
-
-	@Override
-	public void onBlogPostAdded(BlogPostHeader header, boolean local) {
-		feedController.loadBlogPost(header,
-				new UiResultExceptionHandler<BlogPostItem, DbException>(
-						this) {
-					@Override
-					public void onResultUi(BlogPostItem post) {
-						adapter.incrementRevision();
-						adapter.add(post);
-						if (local) {
-							showSnackBar(R.string.blogs_blog_post_created);
-						} else {
-							showSnackBar(R.string.blogs_blog_post_received);
-						}
-					}
-
-					@Override
-					public void onExceptionUi(DbException exception) {
-						handleDbException(exception);
-					}
-				}
-		);
+		return super.onOptionsItemSelected(item);
 	}
 
 	@Override
 	public void onBlogPostClick(BlogPostItem post) {
-		FeedPostFragment f =
-				FeedPostFragment.newInstance(post.getGroupId(), post.getId());
-		showNextFragment(f);
+		Intent i = getBlogActivityIntent(post.getGroupId());
+		i.putExtra(POST_ID, post.getId().getBytes());
+		requireContext().startActivity(i);
 	}
 
 	@Override
 	public void onAuthorClick(BlogPostItem post) {
-		Intent i = new Intent(getContext(), BlogActivity.class);
-		i.putExtra(GROUP_ID, post.getGroupId().getBytes());
-		i.setFlags(FLAG_ACTIVITY_CLEAR_TOP);
-		getContext().startActivity(i);
+		Intent i = getBlogActivityIntent(post.getGroupId());
+		requireContext().startActivity(i);
+	}
+
+	@Override
+	public void onLinkClick(String url) {
+		LinkDialogFragment f = LinkDialogFragment.newInstance(url);
+		f.show(getParentFragmentManager(), f.getUniqueTag());
 	}
 
 	@Override
@@ -268,12 +165,19 @@ public class FeedFragment extends BaseFragment implements
 		return TAG;
 	}
 
-	private void showSnackBar(int stringRes) {
+	private Intent getBlogActivityIntent(GroupId groupId) {
+		Intent i = new Intent(requireContext(), BlogActivity.class);
+		i.putExtra(GROUP_ID, groupId.getBytes());
+		i.setFlags(FLAG_ACTIVITY_CLEAR_TOP);
+		return i;
+	}
+
+	private void showSnackBar(int stringRes, boolean isLocal) {
 		int firstVisible =
 				layoutManager.findFirstCompletelyVisibleItemPosition();
 		int lastVisible = layoutManager.findLastCompletelyVisibleItemPosition();
 		int count = adapter.getItemCount();
-		boolean scroll = count > (lastVisible - firstVisible + 1);
+		boolean scroll = !isLocal && count > (lastVisible - firstVisible + 1);
 
 		BriarSnackbarBuilder sb = new BriarSnackbarBuilder();
 		if (scroll) {
@@ -281,16 +185,6 @@ public class FeedFragment extends BaseFragment implements
 					v -> list.smoothScrollToPosition(0));
 		}
 		sb.make(list, stringRes, LENGTH_LONG).show();
-	}
-
-	@Override
-	public void onBlogAdded() {
-		loadBlogPosts(false);
-	}
-
-	@Override
-	public void onBlogRemoved() {
-		loadBlogPosts(true);
 	}
 
 }

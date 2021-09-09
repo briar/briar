@@ -43,7 +43,6 @@ abstract class PowerView extends ConstraintLayout {
 		this(context, attrs, 0);
 	}
 
-	@SuppressWarnings("ConstantConditions")
 	public PowerView(Context context, @Nullable AttributeSet attrs,
 			int defStyleAttr) {
 		super(context, attrs, defStyleAttr);
@@ -85,6 +84,7 @@ abstract class PowerView extends ConstraintLayout {
 		setChecked(ss.value[0]);  // also calls listener
 	}
 
+	@SuppressWarnings("BooleanMethodIsAlwaysInverted")
 	public abstract boolean needsToBeShown();
 
 	public void setChecked(boolean checked) {
@@ -146,10 +146,12 @@ abstract class PowerView extends ConstraintLayout {
 
 		static final Parcelable.Creator<SavedState> CREATOR
 				= new Parcelable.Creator<SavedState>() {
+			@Override
 			public SavedState createFromParcel(Parcel in) {
 				return new SavedState(in);
 			}
 
+			@Override
 			public SavedState[] newArray(int size) {
 				return new SavedState[size];
 			}

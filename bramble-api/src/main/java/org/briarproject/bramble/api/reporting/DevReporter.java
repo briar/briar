@@ -23,6 +23,8 @@ public interface DevReporter {
 
 	/**
 	 * Sends any reports previously stored on disk.
+	 *
+	 * @return The number of reports that were sent.
 	 */
-	void sendReports();
+	int sendReports();
 }

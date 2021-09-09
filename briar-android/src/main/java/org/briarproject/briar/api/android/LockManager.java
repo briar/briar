@@ -8,6 +8,7 @@ import androidx.lifecycle.LiveData;
 public interface LockManager {
 
 	String ACTION_LOCK = "lock";
+	String EXTRA_PID = "PID";
 
 	/**
 	 * Stops the inactivity timer when the user interacts with the app.

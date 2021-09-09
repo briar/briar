@@ -9,6 +9,7 @@ import javax.annotation.Nullable;
 import javax.annotation.concurrent.NotThreadSafe;
 
 import androidx.annotation.LayoutRes;
+import androidx.lifecycle.LiveData;
 
 import static org.briarproject.bramble.util.StringUtils.toHexString;
 
@@ -22,20 +23,25 @@ abstract class ConversationItem {
 	protected String text;
 	private final MessageId id;
 	private final GroupId groupId;
-	private final long time;
+	private final long time, autoDeleteTimer;
 	private final boolean isIncoming;
-	private boolean read, sent, seen;
+	private final LiveData<String> contactName;
+	private boolean read, sent, seen, showTimerNotice;
 
-	ConversationItem(@LayoutRes int layoutRes, ConversationMessageHeader h) {
+	ConversationItem(@LayoutRes int layoutRes, ConversationMessageHeader h,
+			LiveData<String> contactName) {
 		this.layoutRes = layoutRes;
 		this.text = null;
 		this.id = h.getId();
 		this.groupId = h.getGroupId();
 		this.time = h.getTimestamp();
+		this.autoDeleteTimer = h.getAutoDeleteTimer();
 		this.read = h.isRead();
 		this.sent = h.isSent();
 		this.seen = h.isSeen();
 		this.isIncoming = !h.isLocal();
+		this.contactName = contactName;
+		this.showTimerNotice = false;
 	}
 
 	@LayoutRes
@@ -66,6 +72,10 @@ abstract class ConversationItem {
 
 	long getTime() {
 		return time;
+	}
+
+	public long getAutoDeleteTimer() {
+		return autoDeleteTimer;
 	}
 
 	/**
@@ -111,4 +121,25 @@ abstract class ConversationItem {
 		return isIncoming;
 	}
 
+	public LiveData<String> getContactName() {
+		return contactName;
+	}
+
+	/**
+	 * Set this to true when {@link #getAutoDeleteTimer()} has changed
+	 * since the last message from the same peer.
+	 *
+	 * @return true if the value was set, false if it was already set.
+	 */
+	boolean setTimerNoticeVisible(boolean visible) {
+		if (this.showTimerNotice != visible) {
+			this.showTimerNotice = visible;
+			return true;
+		}
+		return false;
+	}
+
+	boolean isTimerNoticeVisible() {
+		return showTimerNotice;
+	}
 }

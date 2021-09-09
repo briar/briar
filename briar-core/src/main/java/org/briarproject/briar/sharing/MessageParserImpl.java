@@ -15,9 +15,12 @@ import org.briarproject.briar.api.sharing.Shareable;
 
 import javax.annotation.concurrent.Immutable;
 
+import static org.briarproject.briar.api.autodelete.AutoDeleteConstants.NO_AUTO_DELETE_TIMER;
 import static org.briarproject.briar.sharing.MessageType.INVITE;
+import static org.briarproject.briar.sharing.SharingConstants.MSG_KEY_AUTO_DELETE_TIMER;
 import static org.briarproject.briar.sharing.SharingConstants.MSG_KEY_AVAILABLE_TO_ANSWER;
 import static org.briarproject.briar.sharing.SharingConstants.MSG_KEY_INVITATION_ACCEPTED;
+import static org.briarproject.briar.sharing.SharingConstants.MSG_KEY_IS_AUTO_DECLINE;
 import static org.briarproject.briar.sharing.SharingConstants.MSG_KEY_LOCAL;
 import static org.briarproject.briar.sharing.SharingConstants.MSG_KEY_MESSAGE_TYPE;
 import static org.briarproject.briar.sharing.SharingConstants.MSG_KEY_READ;
@@ -70,8 +73,11 @@ abstract class MessageParserImpl<S extends Shareable>
 		boolean visible = meta.getBoolean(MSG_KEY_VISIBLE_IN_UI, false);
 		boolean available = meta.getBoolean(MSG_KEY_AVAILABLE_TO_ANSWER, false);
 		boolean accepted = meta.getBoolean(MSG_KEY_INVITATION_ACCEPTED, false);
+		long timer = meta.getLong(MSG_KEY_AUTO_DELETE_TIMER,
+				NO_AUTO_DELETE_TIMER);
+		boolean isAutoDecline = meta.getBoolean(MSG_KEY_IS_AUTO_DECLINE, false);
 		return new MessageMetadata(type, shareableId, timestamp, local, read,
-				visible, available, accepted);
+				visible, available, accepted, timer, isAutoDecline);
 	}
 
 	@Override
@@ -90,8 +96,10 @@ abstract class MessageParserImpl<S extends Shareable>
 		BdfList descriptor = body.getList(2);
 		S shareable = createShareable(descriptor);
 		String text = body.getOptionalString(3);
+		long timer = NO_AUTO_DELETE_TIMER;
+		if (body.size() == 5) timer = body.getLong(4, NO_AUTO_DELETE_TIMER);
 		return new InviteMessage<>(m.getId(), previousMessageId,
-				m.getGroupId(), shareable, text, m.getTimestamp());
+				m.getGroupId(), shareable, text, m.getTimestamp(), timer);
 	}
 
 	@Override
@@ -100,8 +108,10 @@ abstract class MessageParserImpl<S extends Shareable>
 		GroupId shareableId = new GroupId(body.getRaw(1));
 		byte[] b = body.getOptionalRaw(2);
 		MessageId previousMessageId = (b == null ? null : new MessageId(b));
+		long timer = NO_AUTO_DELETE_TIMER;
+		if (body.size() == 4) timer = body.getLong(3, NO_AUTO_DELETE_TIMER);
 		return new AcceptMessage(m.getId(), previousMessageId, m.getGroupId(),
-				shareableId, m.getTimestamp());
+				shareableId, m.getTimestamp(), timer);
 	}
 
 	@Override
@@ -110,8 +120,10 @@ abstract class MessageParserImpl<S extends Shareable>
 		GroupId shareableId = new GroupId(body.getRaw(1));
 		byte[] b = body.getOptionalRaw(2);
 		MessageId previousMessageId = (b == null ? null : new MessageId(b));
+		long timer = NO_AUTO_DELETE_TIMER;
+		if (body.size() == 4) timer = body.getLong(3, NO_AUTO_DELETE_TIMER);
 		return new DeclineMessage(m.getId(), m.getGroupId(), shareableId,
-				m.getTimestamp(), previousMessageId);
+				m.getTimestamp(), previousMessageId, timer);
 	}
 
 	@Override

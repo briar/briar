@@ -16,6 +16,7 @@ import org.briarproject.bramble.api.plugin.duplex.DuplexPluginFactory;
 import org.briarproject.bramble.api.system.Clock;
 import org.briarproject.bramble.api.system.LocationUtils;
 import org.briarproject.bramble.api.system.ResourceProvider;
+import org.briarproject.bramble.api.system.WakefulIoExecutor;
 
 import java.io.File;
 import java.util.concurrent.Executor;
@@ -25,6 +26,7 @@ import javax.annotation.concurrent.Immutable;
 import javax.inject.Inject;
 import javax.net.SocketFactory;
 
+import static java.util.logging.Level.INFO;
 import static java.util.logging.Logger.getLogger;
 import static org.briarproject.bramble.util.OsUtils.isLinux;
 
@@ -54,8 +56,8 @@ public class UnixTorPluginFactory implements DuplexPluginFactory {
 	private final File torDirectory;
 
 	@Inject
-	public UnixTorPluginFactory(@IoExecutor Executor ioExecutor,
-			@IoExecutor Executor wakefulIoExecutor,
+	UnixTorPluginFactory(@IoExecutor Executor ioExecutor,
+			@WakefulIoExecutor Executor wakefulIoExecutor,
 			NetworkManager networkManager,
 			LocationUtils locationUtils,
 			EventBus eventBus,
@@ -86,7 +88,7 @@ public class UnixTorPluginFactory implements DuplexPluginFactory {
 	}
 
 	@Override
-	public int getMaxLatency() {
+	public long getMaxLatency() {
 		return MAX_LATENCY;
 	}
 
@@ -96,13 +98,24 @@ public class UnixTorPluginFactory implements DuplexPluginFactory {
 		String architecture = null;
 		if (isLinux()) {
 			String arch = System.getProperty("os.arch");
+			if (LOG.isLoggable(INFO)) {
+				LOG.info("System's os.arch is " + arch);
+			}
 			if (arch.equals("amd64")) {
 				architecture = "linux-x86_64";
+			} else if (arch.equals("aarch64")) {
+				architecture = "linux-aarch64";
+			} else if (arch.equals("arm")) {
+				architecture = "linux-armhf";
 			}
 		}
 		if (architecture == null) {
 			LOG.info("Tor is not supported on this architecture");
 			return null;
+		}
+
+		if (LOG.isLoggable(INFO)) {
+			LOG.info("The selected architecture for Tor is " + architecture);
 		}
 
 		Backoff backoff = backoffFactory.createBackoff(MIN_POLLING_INTERVAL,

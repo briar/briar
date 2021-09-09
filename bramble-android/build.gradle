@@ -5,14 +5,18 @@ apply plugin: 'witness'
 apply from: 'witness.gradle'
 
 android {
-	compileSdkVersion 29
-	buildToolsVersion '29.0.2'
+	compileSdkVersion 30
+	buildToolsVersion '30.0.3'
+
+	packagingOptions {
+		doNotStrip '**/*.so'
+	}
 
 	defaultConfig {
 		minSdkVersion 16
-		targetSdkVersion 28
-		versionCode 10209
-		versionName "1.2.9"
+		targetSdkVersion 30
+		versionCode 10306
+		versionName "1.3.6"
 		consumerProguardFiles 'proguard-rules.txt'
 
 		testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
@@ -37,26 +41,28 @@ configurations {
 }
 
 dependencies {
-	implementation project(path: ':briar:bramble-core', configuration: 'default')
-	tor 'org.briarproject:tor-android:0.3.5.10@zip'
-	tor 'org.briarproject:obfs4proxy-android:0.0.11-2@zip'
+	implementation project(path: ':bramble-core', configuration: 'default')
+	tor 'org.briarproject:tor-android:0.3.5.15'
+	tor 'org.briarproject:obfs4proxy-android:0.0.12-dev-40245c4a@zip'
 
-	annotationProcessor 'com.google.dagger:dagger-compiler:2.24'
+	annotationProcessor "com.google.dagger:dagger-compiler:$dagger_version"
 
 	compileOnly 'javax.annotation:jsr250-api:1.0'
 
-	testImplementation project(path: ':briar:bramble-api', configuration: 'testOutput')
-	testImplementation 'junit:junit:4.12'
-	testImplementation "org.jmock:jmock:2.8.2"
-	testImplementation "org.jmock:jmock-junit4:2.8.2"
-	testImplementation "org.jmock:jmock-legacy:2.8.2"
+	testImplementation project(path: ':bramble-api', configuration: 'testOutput')
+	testImplementation "junit:junit:$junit_version"
+	testImplementation "org.jmock:jmock:$jmock_version"
+	testImplementation "org.jmock:jmock-junit4:$jmock_version"
+	testImplementation "org.jmock:jmock-legacy:$jmock_version"
 }
 
 def torBinariesDir = 'src/main/res/raw'
+def torLibsDir = 'src/main/jniLibs'
 
 task cleanTorBinaries {
 	doLast {
 		delete fileTree(torBinariesDir) { include '*.zip' }
+		delete fileTree(torLibsDir) { include '**/*.so' }
 	}
 }
 
@@ -67,8 +73,36 @@ task unpackTorBinaries {
 		copy {
 			from configurations.tor.collect { zipTree(it) }
 			into torBinariesDir
-			// TODO: Remove after next Tor upgrade, which won't include non-PIE binaries
-			include 'geoip.zip', '*_pie.zip'
+			include 'geoip.zip'
+		}
+		configurations.tor.each { outer ->
+			zipTree(outer).each { inner ->
+				if (inner.name.endsWith('_arm_pie.zip')) {
+					copy {
+						from zipTree(inner)
+						into torLibsDir
+						rename '(.*)', 'armeabi-v7a/lib$1.so'
+					}
+				} else if (inner.name.endsWith('_arm64_pie.zip')) {
+					copy {
+						from zipTree(inner)
+						into torLibsDir
+						rename '(.*)', 'arm64-v8a/lib$1.so'
+					}
+				} else if (inner.name.endsWith('_x86_pie.zip')) {
+					copy {
+						from zipTree(inner)
+						into torLibsDir
+						rename '(.*)', 'x86/lib$1.so'
+					}
+				} else if (inner.name.endsWith('_x86_64_pie.zip')) {
+					copy {
+						from zipTree(inner)
+						into torLibsDir
+						rename '(.*)', 'x86_64/lib$1.so'
+					}
+				}
+			}
 		}
 	}
 	dependsOn cleanTorBinaries
@@ -76,5 +110,6 @@ task unpackTorBinaries {
 
 tasks.withType(MergeResources) {
 	inputs.dir torBinariesDir
+	inputs.dir torLibsDir
 	dependsOn unpackTorBinaries
 }

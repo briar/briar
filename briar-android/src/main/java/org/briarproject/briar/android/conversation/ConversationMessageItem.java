@@ -9,16 +9,18 @@ import java.util.List;
 import javax.annotation.concurrent.NotThreadSafe;
 
 import androidx.annotation.LayoutRes;
+import androidx.annotation.UiThread;
+import androidx.lifecycle.LiveData;
 
 @NotThreadSafe
 @NotNullByDefault
 class ConversationMessageItem extends ConversationItem {
 
-	private List<AttachmentItem> attachments;
+	private final List<AttachmentItem> attachments;
 
 	ConversationMessageItem(@LayoutRes int layoutRes, PrivateMessageHeader h,
-			List<AttachmentItem> attachments) {
-		super(layoutRes, h);
+			LiveData<String> contactName, List<AttachmentItem> attachments) {
+		super(layoutRes, h, contactName);
 		this.attachments = attachments;
 	}
 
@@ -26,8 +28,14 @@ class ConversationMessageItem extends ConversationItem {
 		return attachments;
 	}
 
-	void setAttachments(List<AttachmentItem> attachments) {
-		this.attachments = attachments;
+	@UiThread
+	boolean updateAttachments(AttachmentItem item) {
+		int pos = attachments.indexOf(item);
+		if (pos != -1 && attachments.get(pos).getState() != item.getState()) {
+			attachments.set(pos, item);
+			return true;
+		}
+		return false;
 	}
 
 }

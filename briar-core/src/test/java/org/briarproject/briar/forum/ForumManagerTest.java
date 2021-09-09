@@ -45,8 +45,7 @@ public class ForumManagerTest
 		forum0 = forumManager0.addForum("Test Forum");
 		groupId0 = forum0.getId();
 		// share forum
-		forumSharingManager0.sendInvitation(groupId0, contactId1From0, null,
-				clock.currentTimeMillis());
+		forumSharingManager0.sendInvitation(groupId0, contactId1From0, null);
 		sync0To1(1, true);
 		forumSharingManager1.respondToInvitation(forum0, contact0From1, true);
 		sync1To0(1, true);
@@ -85,9 +84,9 @@ public class ForumManagerTest
 	@Test
 	public void testForumPost() throws Exception {
 		assertEquals(1, forumManager0.getForums().size());
-		long ms1 = clock.currentTimeMillis() - 1000L;
+		long ms1 = c0.getClock().currentTimeMillis() - 1000L;
 		String text1 = "some forum text";
-		long ms2 = clock.currentTimeMillis();
+		long ms2 = c0.getClock().currentTimeMillis();
 		String text2 = "some other forum text";
 		ForumPost post1 =
 				createForumPost(forum0.getGroup().getId(), null, text1, ms1);
@@ -137,7 +136,7 @@ public class ForumManagerTest
 	@Test
 	public void testForumPostDelivery() throws Exception {
 		// add one forum post
-		long time = clock.currentTimeMillis();
+		long time = c0.getClock().currentTimeMillis();
 		ForumPost post1 = createForumPost(groupId0, null, "a", time);
 		forumManager0.addLocalPost(post1);
 		assertEquals(1, forumManager0.getPostHeaders(groupId0).size());
@@ -151,7 +150,7 @@ public class ForumManagerTest
 		assertGroupCount(messageTracker1, groupId0, 1, 1, time);
 
 		// add another forum post
-		long time2 = clock.currentTimeMillis();
+		long time2 = c0.getClock().currentTimeMillis();
 		ForumPost post2 = createForumPost(groupId0, null, "b", time2);
 		forumManager1.addLocalPost(post2);
 		assertEquals(1, forumManager0.getPostHeaders(groupId0).size());
@@ -167,25 +166,27 @@ public class ForumManagerTest
 
 	@Test
 	public void testForumPostDeliveredAfterParent() throws Exception {
-		// add one forum post without the parent
-		long time = clock.currentTimeMillis();
+		// Add a parent post and a child post
+		long time = c0.getClock().currentTimeMillis();
 		ForumPost post1 = createForumPost(groupId0, null, "a", time);
 		ForumPost post2 = createForumPost(groupId0, post1, "a", time);
-		forumManager0.addLocalPost(post2);
-		assertEquals(1, forumManager0.getPostHeaders(groupId0).size());
-		assertEquals(0, forumManager1.getPostHeaders(groupId0).size());
-
-		// send post to 1 without waiting for message delivery
-		sync0To1(1, false);
-		assertEquals(0, forumManager1.getPostHeaders(groupId0).size());
-
-		// now add the parent post as well
 		forumManager0.addLocalPost(post1);
+		forumManager0.addLocalPost(post2);
 		assertEquals(2, forumManager0.getPostHeaders(groupId0).size());
 		assertEquals(0, forumManager1.getPostHeaders(groupId0).size());
 
-		// and send it over to 1 and wait for a second message to be delivered
-		sync0To1(2, true);
+		// Unshare the parent so it won't be sent yet
+		setMessageNotShared(c0, post1.getMessage().getId());
+
+		// Send the child post to 1 - it should be validated but not delivered
+		// yet, as the parent is missing, and no headers should be returned yet
+		syncMessage(c0, c1, contactId1From0, 1, 0, 1, 0);
+		assertEquals(0, forumManager1.getPostHeaders(groupId0).size());
+
+		// Now send the parent post to 1 - it should be validated, both
+		// posts should be delivered, and both headers should be returned
+		setMessageShared(c0, post1.getMessage().getId());
+		syncMessage(c0, c1, contactId1From0, 1, 0, 0, 2);
 		assertEquals(2, forumManager1.getPostHeaders(groupId0).size());
 	}
 
@@ -194,14 +195,13 @@ public class ForumManagerTest
 		// share a second forum
 		Forum forum1 = forumManager0.addForum("Test Forum1");
 		GroupId g1 = forum1.getId();
-		forumSharingManager0.sendInvitation(g1, contactId1From0, null,
-				clock.currentTimeMillis());
+		forumSharingManager0.sendInvitation(g1, contactId1From0, null);
 		sync0To1(1, true);
 		forumSharingManager1.respondToInvitation(forum1, contact0From1, true);
 		sync1To0(1, true);
 
 		// add one forum post with a parent in another forum
-		long time = clock.currentTimeMillis();
+		long time = c0.getClock().currentTimeMillis();
 		ForumPost post1 = createForumPost(g1, null, "a", time);
 		ForumPost post = createForumPost(groupId0, post1, "b", time);
 		forumManager0.addLocalPost(post);

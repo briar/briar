@@ -37,7 +37,6 @@ import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.widget.SwitchCompat;
 import androidx.core.content.ContextCompat;
 import androidx.lifecycle.ViewModelProvider;
-import androidx.lifecycle.ViewModelProviders;
 
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
@@ -63,6 +62,13 @@ public class TransportsActivity extends BriarActivity {
 	private BaseAdapter transportsAdapter;
 
 	@Override
+	public void injectActivity(ActivityComponent component) {
+		component.inject(this);
+		viewModel = new ViewModelProvider(this, viewModelFactory)
+				.get(PluginViewModel.class);
+	}
+
+	@Override
 	public void onCreate(@Nullable Bundle state) {
 		super.onCreate(state);
 
@@ -74,18 +80,9 @@ public class TransportsActivity extends BriarActivity {
 
 		setContentView(R.layout.activity_transports);
 
-		ViewModelProvider provider =
-				ViewModelProviders.of(this, viewModelFactory);
-		viewModel = provider.get(PluginViewModel.class);
-
 		GridView grid = findViewById(R.id.grid);
 		initializeCards();
 		grid.setAdapter(transportsAdapter);
-	}
-
-	@Override
-	public void injectActivity(ActivityComponent component) {
-		component.inject(this);
 	}
 
 	@Override
@@ -141,8 +138,7 @@ public class TransportsActivity extends BriarActivity {
 				Transport t = getItem(position);
 
 				ImageView icon = view.findViewById(R.id.icon);
-				icon.setImageDrawable(ContextCompat.getDrawable(
-						TransportsActivity.this, t.iconDrawable));
+				icon.setImageResource(t.iconDrawable);
 				icon.setColorFilter(ContextCompat.getColor(
 						TransportsActivity.this, t.iconColor));
 

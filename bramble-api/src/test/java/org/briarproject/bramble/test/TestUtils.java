@@ -163,10 +163,15 @@ public class TestUtils {
 
 	public static Message getMessage(GroupId groupId) {
 		int bodyLength = 1 + random.nextInt(MAX_MESSAGE_BODY_LENGTH);
-		return getMessage(groupId, bodyLength);
+		return getMessage(groupId, bodyLength, timestamp);
 	}
 
 	public static Message getMessage(GroupId groupId, int bodyLength) {
+		return getMessage(groupId, bodyLength, timestamp);
+	}
+
+	public static Message getMessage(GroupId groupId, int bodyLength,
+			long timestamp) {
 		MessageId id = new MessageId(getRandomId());
 		byte[] body = getRandomBytes(bodyLength);
 		return new Message(id, groupId, timestamp, body);

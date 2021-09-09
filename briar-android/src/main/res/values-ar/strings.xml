@@ -22,11 +22,13 @@
   <string name="setup_huawei_text">الرجاء الضغط على الزر في الأسفل والتأكد من أن Briar (براير) محمى في شاشة \"التطبيقات المحمية\".</string>
   <string name="setup_huawei_button">حماية Briar (براير)</string>
   <string name="setup_huawei_help">إذا لم يتم إضافة Briar (براير) في قائمة التطبيقات المحمية، فلن يتمكن من العمل في الخلفية.</string>
+  <string name="setup_xiaomi_button">حماية Briar (براير)</string>
   <string name="warning_dozed">%s لم يتمكن من الاشتغال في الخلفية</string>
   <!--Login-->
   <string name="enter_password">‮كلمة السّر</string>
   <string name="try_again">كلمة السرّ خاطئة, الرجاء المحاولة مجدّدا</string>
   <string name="dialog_title_cannot_check_password">لا يمكن التحقق من كلمة السر</string>
+  <string name="dialog_message_cannot_check_password">Briar لم يتمكن من التحقق من كلمة المرور. الرجاء إعادة تشغيل جهازك من أجل جل المشكلة</string>
   <string name="sign_in_button">تسجيل الدخول</string>
   <string name="forgotten_password">نسيتُ كلمة السر</string>
   <string name="dialog_title_lost_password">فقدت كلمة السر</string>
@@ -64,12 +66,36 @@
   <string name="lock_button">قفل التطبيق</string>
   <string name="settings_button">الإعدادات</string>
   <string name="sign_out_button">تسجيل الخروج</string>
+  <string name="transports_onboarding_text">إلمس هنا من أجل التحكم بطريقةالربط مع جهات الاتصال.</string>
   <!--Transports: Tor-->
   <string name="transport_tor">إنترنت</string>
+  <string name="tor_device_status_online_wifi">جهازك لديه ولوج لشبكة الانترنت عبر ال Wi-Fi </string>
+  <string name="tor_device_status_online_mobile">جهازك لديه ولوج لشبكة الانترنت عبر بيانات الهاتف</string>
+  <string name="tor_device_status_offline">جهازك ليس متصل بالانترنت</string>
+  <string name="tor_plugin_status_enabling">جاري اتصال Briar  بالانترنت</string>
+  <string name="tor_plugin_status_active">Briar متصل بالانترنت</string>
+  <string name="tor_plugin_status_inactive">Briar لم يتمكن من  الاتصال بالانترنت </string>
+  <string name="tor_plugin_status_disabled">إعدادات Briar لاتسمح بالاتصال بالانترنت</string>
+  <string name="tor_plugin_status_disabled_mobile_data">إعدادات Briar لاتسمح بالاتصال عن طريق بيانات الهاتف</string>
+  <string name="tor_plugin_status_disabled_battery">إعدادات Briar لاتسمح بالاتصال بالانترنت عند استخدام بطارية الهاتف</string>
+  <string name="tor_plugin_status_disabled_country_blocked">لايمكن استخدام Briar في هذا البلد</string>
   <!--Transports: Wi-Fi-->
   <string name="transport_lan">واي-فاي</string>
+  <string name="transport_lan_long">نفس شبكة الWi-Fi </string>
+  <string name="lan_device_status_on">جهازك متصل بشبكة الWi-Fi</string>
+  <string name="lan_device_status_off">جهازك ليس متصل بشبكة الWi-Fi</string>
+  <string name="lan_plugin_status_enabling">جاري ايصال Briar بشبكة الWi-Fi</string>
+  <string name="lan_plugin_status_active"> Briar متصل بشبكة الWi-Fi</string>
+  <string name="lan_plugin_status_inactive">لم يتمكن Briar من الاتصال بشبكة ال Wi-Fi</string>
+  <string name="lan_plugin_status_disabled">إعدادات Briar لاتسمح بالاتصال بشبكة ال Wi-Fi</string>
   <!--Transports: Bluetooth-->
   <string name="transport_bt">بلوتوث</string>
+  <string name="bt_device_status_on"> البلوتوث مفعّل  </string>
+  <string name="bt_device_status_off">البلوتوث مفعّل</string>
+  <string name="bt_plugin_status_enabling">جاري اتصال Briar بالبلوتوث</string>
+  <string name="bt_plugin_status_active">Briar متصل بالبلوتوث</string>
+  <string name="bt_plugin_status_inactive">لم يتمكن Briar من الاتصال بالانترنت</string>
+  <string name="bt_plugin_status_disabled">إعدادات Briar لاتسمح بالاتصال بالبلوتوث</string>
   <!--Notifications-->
   <string name="reminder_notification_title">تم تسجيل الخروج من Briar (براير)</string>
   <string name="reminder_notification_text">الرجاء اللمس لإعادة الدخول</string>
@@ -124,6 +150,8 @@
   <string name="send">ارسال</string>
   <string name="allow">السماح</string>
   <string name="open">فتح</string>
+  <string name="change">تعديل</string>
+  <string name="start">ابدأ</string>
   <string name="no_data">لا يوجد بيانات</string>
   <string name="ellipsis">...</string>
   <string name="text_too_long">النص المُدخل طويل جدًا</string>
@@ -138,7 +166,7 @@
   <string name="no_contacts_action">لمس علامة + لإضافة جهة إتصال</string>
   <string name="date_no_private_messages">لا رسائل.</string>
   <string name="no_private_messages">لا رسائل للعرض.</string>
-  <string name="message_hint">كتابة رسالة</string>
+  <string name="message_hint">رسالة جديدة</string>
   <string name="image_caption_hint">إضافة تعليق (اختياري) </string>
   <string name="image_attach">إرفاق صورة</string>
   <string name="image_attach_error">لم نتمكّن من إرفاق الصّور(ة)</string>
@@ -146,7 +174,12 @@
   <string name="image_attach_error_invalid_mime_type">نوع ملف الصورة غير مدعوم : %s</string>
   <string name="set_contact_alias">تعديل إسم جهة الاتصال</string>
   <string name="set_contact_alias_hint">اسم جهة الاتصال</string>
-  <string name="set_alias_button">تعديل</string>
+  <string name="menu_item_connect_via_bluetooth">الإتصال عبر بلوتوث</string>
+  <string name="dialog_title_connect_via_bluetooth">الإتصال عبر بلوتوث</string>
+  <!--The first placeholder will show a duration like "7 days". The second placeholder at the end will add "Tap to learn more."-->
+  <!--The placeholder at the end will add "Tap to learn more."-->
+  <!--The first placeholder will show a contact's name. The second placeholder will show a duration like "7 days". The third placeholder at the end will add "Tap to learn more."-->
+  <!--The first placeholder will show a contact's name. The second placeholder at the end will add "Tap to learn more."-->
   <string name="delete_all_messages">حذف جميع الرّسائل </string>
   <string name="dialog_title_delete_all_messages">تأكيد حذف الرّسالة</string>
   <string name="dialog_message_delete_all_messages">هل أنتم متأكّدون من حذف جميع الرّسائل؟ </string>
@@ -154,7 +187,6 @@
   <string name="dialog_message_not_deleted_ongoing_both">لا يمكن حذف الرّسائل القائمة والمتعلّقة بالدعوات وطلبات التعارف حتى حسمها.</string>
   <string name="dialog_message_not_deleted_ongoing_introductions">لا يمكن حذف الرّسائل المتعلّقة بطلبات التعارف القائمة حتى حسمها.</string>
   <string name="dialog_message_not_deleted_ongoing_invitations">لا يمكن حذف الرّسائل القائمة والمتعلّقة بالدعوات حتى حسمها.</string>
-  <string name="dialog_message_not_deleted_partly_downloaded">لا يمكن حذف الرّسائل المُحمّلة جزئيّاً قبل الانتهاء من تحميلها بشكل كامل. </string>
   <string name="dialog_message_not_deleted_not_all_selected_both">لحذف دعوة أو طلب تعارف، عليكم اختيار الطّلب والرّد. </string>
   <string name="dialog_message_not_deleted_not_all_selected_introductions">لحذف طلب تعارف، عليكم اختيار الطّلب والرّد.</string>
   <string name="dialog_message_not_deleted_not_all_selected_invitations">لحذف دعوة، عليكم اختيار الطّلب والرّد. </string>
@@ -190,7 +222,6 @@
   <string name="connecting_to_device">يتم الإتصال بالجهاز\u2026</string>
   <string name="authenticating_with_device">يتم التوثيق مع الجهاز\u2026</string>
   <string name="connection_error_title">لم يمكن الإتصال بجهة إتصالك</string>
-  <string name="connection_error_explanation">رجاءًا التأكد أن كليكما متصل بنفس شبكة الواي فاي.</string>
   <string name="connection_error_feedback">إذا إستمرت المشكلة، رجاءًا <a href="feedback">أرسل تقرير </a> لمساعدتنا على تحسين التطبيق.</string>
   <!--Adding Contacts Remotely-->
   <string name="add_contact_remotely_title_case">إضافة جهة اتصال عن بعد </string>
@@ -431,16 +462,15 @@
   <string name="blogs_rss_feeds_import_button">إستيراد</string>
   <string name="blogs_rss_feeds_import_hint">ادخال رابط تحديثات RSS</string>
   <string name="blogs_rss_feeds_import_error">معذرة! حدث خطأ في استيراد التحديثات.</string>
-  <string name="blogs_rss_feeds_manage">إدارة تحديثات RSS</string>
   <string name="blogs_rss_feeds_manage_imported">تم استيراد:</string>
   <string name="blogs_rss_feeds_manage_author">المؤلف/ة:</string>
   <string name="blogs_rss_feeds_manage_updated">آخر تحديث:</string>
   <string name="blogs_rss_remove_feed">ازالة الخلاصة</string>
   <string name="blogs_rss_remove_feed_dialog_message">هل أنت متأكد/ة من رغبتك في حذف هذه الخلاصة؟\n\nالمنشورات ستحذف من جهازك وليس من أجهزة الآخرين.\n\nأي جهة اتصال قمت/ي بمشاركة هذه الخلاصة معها قد لا تتمكن من استلام التحديثات.</string>
   <string name="blogs_rss_remove_feed_ok">حذف</string>
-  <string name="blogs_rss_feeds_manage_delete_error">لا يمكن حذف الخلاصة!</string>
   <string name="blogs_rss_feeds_manage_empty_state">لا خلاصات RSS للعرض\n\nالرجاء لمس علامة + لإستيراد خلاصة.</string>
   <string name="blogs_rss_feeds_manage_error">حدث خطأ في جلب خلاصاتك. الرجاء المحاولة لاحقًا.</string>
+  <!--Settings Profile Picture-->
   <!--Settings Display-->
   <string name="pref_language_title">اللغة &amp; المنطقة</string>
   <string name="pref_language_changed">هذا الإعداد سيتفعل بعد إعادة تشغيل Briar (براير). الرجاء تسجيل الخروج ثم اعادة تشغيل Briar (براير).</string>
@@ -450,7 +480,7 @@
   <string name="pref_theme_light">نهاري</string>
   <string name="pref_theme_dark">ليلي</string>
   <string name="pref_theme_auto">تلقائي (توقيت النهار)</string>
-  <string name="pref_theme_system">النظام الافتراضي</string>
+  <string name="pref_theme_system">الافتراضي بالنظام</string>
   <!--Settings Connections-->
   <string name="network_settings_title">شبكات الاتصال</string>
   <string name="bluetooth_setting">ربط جهات الاتصال عن طريق بلوتوث</string>
@@ -459,6 +489,8 @@
   <string name="tor_enable_summary">كل جهات الاتصال تمر عبر شبكة تور من أجل الخصوصية</string>
   <string name="tor_network_setting">وسيلة الاتصال لشبكة تور</string>
   <string name="tor_network_setting_automatic">تلقائيًا حسب الموقع</string>
+  <string name="tor_network_setting_without_bridges">استخدام شبكة تور من دون جسور</string>
+  <string name="tor_network_setting_with_bridges">استخدام شبكة تور مع جسور</string>
   <string name="tor_network_setting_never">لا يمكن الاتصال بالإنترنت</string>
   <!--How and when Briar will connect to Tor: E.g. "Don't connect to the Internet (in China)" or "Use Tor network with bridges (in Belarus)"-->
   <string name="tor_network_setting_summary">تلقائيا: %1$s (في %2$s)</string>
@@ -526,8 +558,9 @@
   <string name="notify_sound_setting_disabled">لا شيء</string>
   <string name="choose_ringtone_title">اختر نغمة</string>
   <string name="cannot_load_ringtone">لا يمكن تشغيل النغمة</string>
+  <!--Conversation Settings-->
+  <string name="learn_more">تعرف على المزيد</string>
   <!--Settings Feedback-->
-  <string name="feedback_settings_title">الإفادة حول التطبيق</string>
   <string name="send_feedback">أرسل ملاحظاتك</string>
   <!--Link Warning-->
   <string name="link_warning_title">تنبيه بوجود رابط</string>
@@ -546,9 +579,12 @@
   <string name="optional_contact_email">بريدك الالكتروني (إختياري)</string>
   <string name="include_debug_report_crash">تضمين بيانات مجهولة عن الإنهيار</string>
   <string name="include_debug_report_feedback">تضمين بيانات مجهولة عن هذا الجهاز</string>
-  <string name="could_not_load_report_data">لم يمكن تحميل بيانات التقرير.</string>
+  <string name="dev_report_basic_info">المعلومات الأساسية</string>
+  <string name="dev_report_storage">تخزين</string>
+  <string name="dev_report_connectivity">الاتصال</string>
   <string name="send_report">ارسال التقرير</string>
   <string name="close">إغلاق</string>
+  <string name="dev_report_sending">ارسال التعليقات</string>
   <string name="dev_report_saved">تم حفظ التقرير. سيتم إرساله عند تسجيل الدخول إلى Briar (براير) في المرة القادمة.</string>
   <!--Sign Out-->
   <string name="progress_title_logout">تسجيل الخروج من Briar (براير)...</string>
@@ -574,6 +610,7 @@
   <string name="lock_is_locked">Briar (براير) مقفل</string>
   <string name="lock_tap_to_unlock">الرجاء اللمس لفك القفل</string>
   <!--Connections Screen-->
+  <string name="transports_help_text">يمكن ل Briar التواصل مع جهات الاتصال عن طريق الانترنت, شكبة ال Wi-Fi أو البلوتوث.n\n\كل وسائل الاتصال عن طريق الانترنت تمر عبر شبكة تور من أجل الخصوصية.n\n\إذا كان من الممكن الوصول إلى شبكة إتصال بعدة طرق فإن Briar سوف يستعملهم جميعاً بالتوازي.</string>
   <!--Screenshots-->
   <!--This is a name to be used in screenshots. Feel free to change it to a local name.-->
   <string name="screenshot_alice">آليس</string>

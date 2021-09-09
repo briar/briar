@@ -27,6 +27,14 @@
 	<string name="setup_huawei_text">Please tap the button below and make sure Briar is protected in the \"Protected Apps\" screen.</string>
 	<string name="setup_huawei_button">Protect Briar</string>
 	<string name="setup_huawei_help">If Briar is not added to the protected apps list, it will be unable to run in the background.</string>
+	<string name="setup_huawei_app_launch_text">Please tap the button below, open the \"App launch\" screen and make sure Briar is set to \"Manage manually\".</string>
+	<string name="setup_huawei_app_launch_button">Open Battery Settings</string>
+	<string name="setup_huawei_app_launch_help">If Briar is not set to \"Manage manually\" in the \"App launch\" screen, it will not be able to run in the background.</string>
+	<string name="setup_xiaomi_text">To run in the background, Briar needs to be locked to the recent apps list.</string>
+	<string name="setup_xiaomi_button">Protect Briar</string>
+	<string name="setup_xiaomi_help">If Briar is not locked to the recent apps list, it will be unable to run in the background.</string>
+	<string name="setup_xiaomi_dialog_body_old">1. Open the recent apps list (also called the app switcher)\n\n2. Swipe down on the image of Briar to show the padlock icon\n\n3. If the padlock is not locked, tap to lock it</string>
+	<string name="setup_xiaomi_dialog_body_new">1. Open the recent apps list (also called the app switcher)\n\n2. Press and hold the image of Briar until the padlock button appears\n\n3. If the padlock is not locked, tap to lock it</string>
 	<string name="warning_dozed">%s was unable to run in the background</string>
 
 	<!-- Login -->
@@ -38,13 +46,12 @@
 	<string name="forgotten_password">I have forgotten my password</string>
 	<string name="dialog_title_lost_password">Lost Password</string>
 	<string name="dialog_message_lost_password">Your Briar account is stored encrypted on your device, not in the cloud, so we can\'t reset your password. Would you like to delete your account and start again?\n\nCaution: Your identities, contacts and messages will be permanently lost.</string>
-	<string name="startup_failed_notification_title">Briar could not start</string>
-	<string name="startup_failed_notification_text">Tap for more information.</string>
 	<string name="startup_failed_activity_title">Briar Startup Failure</string>
-	<string name="startup_failed_db_error">For some reason, your Briar database is corrupted beyond repair. Your account, your data and all your contacts are lost. Unfortunately, you need to reinstall Briar or set up a new account by choosing \'I have forgotten my password\' at the password prompt.</string>
-	<string name="startup_failed_data_too_old_error">Your account was created with an old version of this app and cannot be opened with this version. You must either reinstall the old version or set up a new account by choosing \'I have forgotten my password\' at the password prompt.</string>
-	<string name="startup_failed_data_too_new_error">This version of the app is too old. Please upgrade to the latest version and try again.</string>
-	<string name="startup_failed_service_error">Briar was unable to start a required plugin. Reinstalling Briar usually solves this problem. However, please note that you will then lose your account and all data associated with it since Briar is not using central servers to store your data on.</string>
+	<string name="startup_failed_clock_error">Briar was unable to start because your device\'s clock is wrong.\n\nPlease set your device\'s clock to the right time and try again.</string>
+	<string name="startup_failed_db_error">Briar was unable to open the database containing your account, your contacts and your messages.\n\nPlease upgrade to the latest version of the app and try again, or set up a new account by choosing \'I have forgotten my password\' at the password prompt.</string>
+	<string name="startup_failed_data_too_old_error">Your account was created with an old version of this app and cannot be opened with this version.\n\nYou must either reinstall the old version or set up a new account by choosing \'I have forgotten my password\' at the password prompt.</string>
+	<string name="startup_failed_data_too_new_error">Your account was created with a newer version of this app and cannot be opened with this version.\n\nPlease upgrade to the latest version and try again.</string>
+	<string name="startup_failed_service_error">Briar was unable to start a required component.\n\nPlease upgrade to the latest version of the app and try again.</string>
 	<plurals name="expiry_warning">
 		<item quantity="one">This is a test version of Briar. Your account will expire in %d day and cannot be renewed.</item>
 		<item quantity="other">This is a test version of Briar. Your account will expire in %d days and cannot be renewed.</item>
@@ -141,6 +148,9 @@
 	<string name="send">Send</string>
 	<string name="allow">Allow</string>
 	<string name="open">Open</string>
+	<string name="change">Change</string>
+	<string name="start">Start</string>
+	<string name="finish">Finish</string>
 	<string name="no_data">No data</string>
 	<string name="ellipsis">…</string>
 	<string name="text_too_long">The entered text is too long</string>
@@ -156,7 +166,9 @@
 	<string name="no_contacts_action">Tap the + icon to add a contact</string>
 	<string name="date_no_private_messages">No messages.</string>
 	<string name="no_private_messages">No messages to show</string>
-	<string name="message_hint">Type message</string>
+	<string name="message_hint">New message</string>
+	<string name="message_hint_auto_delete">New disappearing message</string>
+	<string name="message_error">Error sending message</string>
 	<string name="image_caption_hint">Add a caption (optional)</string>
 	<string name="image_attach">Attach image</string>
 	<string name="image_attach_error">Could not attach image(s)</string>
@@ -164,7 +176,41 @@
 	<string name="image_attach_error_invalid_mime_type">Image format unsupported: %s</string>
 	<string name="set_contact_alias">Change contact name</string>
 	<string name="set_contact_alias_hint">Contact name</string>
-	<string name="set_alias_button">Change</string>
+	<string name="menu_item_disappearing_messages">Disappearing messages</string>
+	<string name="menu_item_connect_via_bluetooth">Connect via Bluetooth</string>
+	<string name="dialog_title_connect_via_bluetooth">Connect via Bluetooth</string>
+	<string name="dialog_message_connect_via_bluetooth">Your contact needs to be nearby for this to work.\n\nYou and your contact should both press \"Start\" at the same time.</string>
+	<string name="toast_connect_via_bluetooth_already_discovering">Already trying to connect via Bluetooth</string>
+	<string name="toast_connect_via_bluetooth_not_discoverable">Cannot continue without Bluetooth</string>
+	<string name="toast_connect_via_bluetooth_no_location_permission">Cannot continue without location permission</string>
+	<string name="toast_connect_via_bluetooth_start">Connecting via Bluetooth…</string>
+	<string name="toast_connect_via_bluetooth_success">Successfully connected via Bluetooth</string>
+	<string name="toast_connect_via_bluetooth_error">Could not connect via Bluetooth</string>
+	<!-- The first placeholder will show a duration like "7 days". The second placeholder at the end will add "Tap to learn more." -->
+	<string name="auto_delete_msg_you_enabled">Your messages will disappear after %1$s. %2$s</string>
+	<!-- The placeholder at the end will add "Tap to learn more." -->
+	<string name="auto_delete_msg_you_disabled">Your messages will not disappear. %1$s</string>
+	<!-- The first placeholder will show a contact's name. The second placeholder will show a duration like "7 days". The third placeholder at the end will add "Tap to learn more." -->
+	<string name="auto_delete_msg_contact_enabled">%1$s\'s messages will disappear after %2$s. %3$s</string>
+	<plurals name="duration_minutes">
+		<item quantity="one">%d minute</item>
+		<item quantity="other">%d minutes</item>
+	</plurals>
+	<plurals name="duration_hours">
+		<item quantity="one">%d hour</item>
+		<item quantity="other">%d hours</item>
+	</plurals>
+	<plurals name="duration_days">
+		<item quantity="one">%d day</item>
+		<item quantity="other">%d days</item>
+	</plurals>
+	<!-- The first placeholder will show a contact's name. The second placeholder at the end will add "Tap to learn more." -->
+	<string name="auto_delete_msg_contact_disabled">%1$s\'s messages will not disappear. %2$s</string>
+	<string name="tap_to_learn_more">Tap to learn more.</string>
+	<string name="auto_delete_changed_warning_title">Disappearing messages changed</string>
+	<string name="auto_delete_changed_warning_message_enabled">Since you started composing your message, disappearing messages have been enabled.</string>
+	<string name="auto_delete_changed_warning_message_disabled">Since you started composing your message, disappearing messages have been disabled.</string>
+	<string name="auto_delete_changed_warning_send">Send anyway</string>
 	<string name="delete_all_messages">Delete all messages</string>
 	<string name="dialog_title_delete_all_messages">Confirm Message Deletion</string>
 	<string name="dialog_message_delete_all_messages">Are you sure that you want to delete all messages?</string>
@@ -172,7 +218,6 @@
 	<string name="dialog_message_not_deleted_ongoing_both">Messages related to ongoing invitations and introductions cannot be deleted until they conclude.</string>
 	<string name="dialog_message_not_deleted_ongoing_introductions">Messages related to ongoing introductions cannot be deleted until they conclude.</string>
 	<string name="dialog_message_not_deleted_ongoing_invitations">Messages related to ongoing invitations cannot be deleted until they conclude.</string>
-	<string name="dialog_message_not_deleted_partly_downloaded">Partly downloaded messages cannot be deleted until they have finished downloading.</string>
 	<string name="dialog_message_not_deleted_not_all_selected_both">To delete an invitation or introduction, you need to select the request and the response.</string>
 	<string name="dialog_message_not_deleted_not_all_selected_introductions">To delete an introduction, you need to select the request and the response.</string>
 	<string name="dialog_message_not_deleted_not_all_selected_invitations">To delete an invitation, you need to select the request and the response.</string>
@@ -192,6 +237,7 @@
 	<string name="dialog_title_image_support">You can now send images to this contact</string>
 	<string name="dialog_message_image_support">Tap this icon to attach images.</string>
 	<string name="messaging_too_many_attachments_toast">Only the first %d images will be sent</string>
+	<string name="menu_contact">Contact</string>
 
 	<!-- Adding Contacts -->
 
@@ -210,7 +256,6 @@
 	<string name="connecting_to_device">Connecting to device\u2026</string>
 	<string name="authenticating_with_device">Authenticating with device\u2026</string>
 	<string name="connection_error_title">Could not connect to your contact</string>
-	<string name="connection_error_explanation">Please check that you\'re both connected to the same Wi-Fi network.</string>
 	<string name="connection_error_feedback">If this problem persists, please <a href="feedback">send feedback</a> to help us improve the app.</string>
 
 	<!-- Adding Contacts Remotely -->
@@ -291,6 +336,7 @@
 	<string name="introduction_response_accepted_sent">You accepted the introduction to %1$s.</string>
 	<string name="introduction_response_accepted_sent_info">Before %1$s gets added to your contacts, they need to accept the introduction as well. This might take some time.</string>
 	<string name="introduction_response_declined_sent">You declined the introduction to %1$s.</string>
+	<string name="introduction_response_declined_auto">The introduction to %1$s was automatically declined.</string>
 	<string name="introduction_response_accepted_received">%1$s accepted the introduction to %2$s.</string>
 	<string name="introduction_response_declined_received">%1$s declined the introduction to %2$s.</string>
 	<string name="introduction_response_declined_received_by_introducee">%1$s says that %2$s declined the introduction.</string>
@@ -339,6 +385,7 @@
 	</plurals>
 	<string name="groups_invitations_response_accepted_sent">You accepted the group invitation from %s.</string>
 	<string name="groups_invitations_response_declined_sent">You declined the group invitation from %s.</string>
+	<string name="groups_invitations_response_declined_auto">The group invitation from %s was automatically declined.</string>
 	<string name="groups_invitations_response_accepted_received">%s accepted the group invitation.</string>
 	<string name="groups_invitations_response_declined_received">%s declined the group invitation.</string>
 	<string name="sharing_status_groups">Only the creator can invite new members to the group. Below are all current members of the group.</string>
@@ -392,6 +439,7 @@
 	<string name="forum_invitation_already_sharing">Already sharing</string>
 	<string name="forum_invitation_response_accepted_sent">You accepted the forum invitation from %s.</string>
 	<string name="forum_invitation_response_declined_sent">You declined the forum invitation from %s.</string>
+	<string name="forum_invitation_response_declined_auto">The forum invitation from %s was automatically declined.</string>
 	<string name="forum_invitation_response_accepted_received">%s accepted the forum invitation.</string>
 	<string name="forum_invitation_response_declined_received">%s declined the forum invitation.</string>
 
@@ -429,6 +477,7 @@
 	<string name="blogs_sharing_snackbar">Blog shared with chosen contacts</string>
 	<string name="blogs_sharing_response_accepted_sent">You accepted the blog invitation from %s.</string>
 	<string name="blogs_sharing_response_declined_sent">You declined the blog invitation from %s.</string>
+	<string name="blogs_sharing_response_declined_auto">The blog invitation from %s was automatically declined.</string>
 	<string name="blogs_sharing_response_accepted_received">%s accepted the blog invitation.</string>
 	<string name="blogs_sharing_response_declined_received">%s declined the blog invitation.</string>
 	<string name="blogs_sharing_invitation_received">%1$s has shared the blog \"%2$s\" with you.</string>
@@ -443,16 +492,22 @@
 	<string name="blogs_rss_feeds_import_button">Import</string>
 	<string name="blogs_rss_feeds_import_hint">Enter the URL of the RSS feed</string>
 	<string name="blogs_rss_feeds_import_error">We are sorry! There was an error importing your feed.</string>
-	<string name="blogs_rss_feeds_manage">Manage RSS Feeds</string>
+	<string name="blogs_rss_feeds_import_exists">That feed is already imported.</string>
+	<string name="blogs_rss_feeds">RSS Feeds</string>
 	<string name="blogs_rss_feeds_manage_imported">Imported:</string>
 	<string name="blogs_rss_feeds_manage_author">Author:</string>
 	<string name="blogs_rss_feeds_manage_updated">Last Updated:</string>
 	<string name="blogs_rss_remove_feed">Remove Feed</string>
 	<string name="blogs_rss_remove_feed_dialog_message">Are you sure that you want to remove this feed?\n\nPosts will be removed from your device but not from other people\'s devices.\n\nAny contacts you\'ve shared this feed with might stop receiving updates.</string>
 	<string name="blogs_rss_remove_feed_ok">Remove</string>
-	<string name="blogs_rss_feeds_manage_delete_error">The feed could not be deleted!</string>
 	<string name="blogs_rss_feeds_manage_empty_state">No RSS feeds to show\n\nTap the + icon to import a feed</string>
 	<string name="blogs_rss_feeds_manage_error">There was a problem loading your feeds. Please try again later.</string>
+
+	<!-- Settings Profile Picture -->
+	<string name="change_profile_picture">Tap to change your profile picture</string>
+	<string name="dialog_confirm_profile_picture_title">Change profile picture</string>
+	<string name="dialog_confirm_profile_picture_remark">Only your contacts can see this picture</string>
+	<string name="change_profile_picture_failed_message">We\'re sorry, but something went wrong while updating your profile picture</string>
 
 	<!-- Settings Display -->
 	<string name="pref_language_title">Language &amp; region</string>
@@ -463,7 +518,7 @@
 	<string name="pref_theme_light">Light</string>
 	<string name="pref_theme_dark">Dark</string>
 	<string name="pref_theme_auto">Automatic (Daytime)</string>
-	<string name="pref_theme_system">System Default</string>
+	<string name="pref_theme_system">System default</string>
 
 	<!-- Settings Connections -->
 	<string name="network_settings_title">Connections</string>
@@ -546,8 +601,21 @@
 	<string name="choose_ringtone_title">Choose ringtone</string>
 	<string name="cannot_load_ringtone">Cannot load ringtone</string>
 
+	<!-- Conversation Settings -->
+	<string name="disappearing_messages_title">Disappearing messages</string>
+	<string name="disappearing_messages_explanation_long">Turning on this setting will make new
+		messages in this conversation automatically disappear after 7\u00A0days.
+		\n\nThe countdown for the sender\'s copy of the message starts after it has been delivered.
+		The countdown starts for the recipient after they have read the message.
+		\n\nMessages that will disappear are marked with a bomb icon.
+		\n\nKeep in mind that recipients can still make copies of the messages you send.
+		\n\nIf you change this setting, it will apply to your new messages immediately and to your
+		contact\'s messages once they receive your next message.
+		Your contact can also change this setting for the both of you.</string>
+	<string name="learn_more">Learn more</string>
+	<string name="disappearing_messages_summary">Make future messages in this conversation automatically disappear after 7\u00A0days.</string>
+
 	<!-- Settings Feedback -->
-	<string name="feedback_settings_title">Feedback</string>
 	<string name="send_feedback">Send feedback</string>
 
 	<!-- Link Warning -->
@@ -568,10 +636,23 @@
 	<string name="optional_contact_email">Your email address (optional)</string>
 	<string name="include_debug_report_crash">Include anonymous data about the crash</string>
 	<string name="include_debug_report_feedback">Include anonymous data about this device</string>
-	<string name="could_not_load_report_data">Could not load report data.</string>
+	<string name="dev_report_user_info">User information</string>
+	<string name="dev_report_basic_info">Basic information</string>
+	<string name="dev_report_device_info">Device information</string>
+	<string name="dev_report_stacktrace">Stacktrace</string>
+	<string name="dev_report_time_info">Time information</string>
+	<string name="dev_report_memory">Memory</string>
+	<string name="dev_report_storage">Storage</string>
+	<string name="dev_report_connectivity">Connectivity</string>
+	<string name="dev_report_build_config">Build configuration</string>
+	<string name="dev_report_logcat">App log</string>
+	<string name="dev_report_device_features">Device Features</string>
 	<string name="send_report">Send report</string>
 	<string name="close">Close</string>
+	<string name="dev_report_sending">Sending feedback…</string>
+	<string name="dev_report_sent">Feedback sent</string>
 	<string name="dev_report_saved">Report saved. It will be sent the next time you log into Briar.</string>
+	<string name="dev_report_error">Error: Sending report failed</string>
 
 	<!-- Sign Out -->
 	<string name="progress_title_logout">Signing out of Briar…</string>
@@ -579,7 +660,9 @@
 	<!-- Screen Filters & Tapjacking -->
 	<string name="screen_filter_title">Screen overlay detected</string>
 	<string name="screen_filter_body">Another app is drawing on top of Briar. To protect your security, Briar will not respond to touches when another app is drawing on top.\n\nThe following apps might be drawing on top:\n\n%1$s</string>
+	<string name="screen_filter_body_api_30">Another app is drawing on top of Briar. To protect your security, Briar will not respond to touches when another app is drawing on top.\n\nReview apps below to find the responsible app.</string>
 	<string name="screen_filter_allow">Allow these apps to draw on top</string>
+	<string name="screen_filter_review_apps">Review apps</string>
 
 	<!-- Permission Requests -->
 	<string name="permission_camera_title">Camera permission</string>
@@ -589,6 +672,10 @@
 	<string name="permission_camera_location_title">Camera and location</string>
 	<string name="permission_camera_location_request_body">To scan the QR code, Briar needs access to the camera.\n\nTo discover Bluetooth devices, Briar needs permission to access your location.\n\nBriar does not store your location or share it with anyone.</string>
 	<string name="permission_camera_denied_body">You have denied access to the camera, but adding contacts requires using the camera.\n\nPlease consider granting access.</string>
+	<string name="permission_location_denied_body">You have denied access to your location, but Briar needs this permission to discover Bluetooth devices.\n\nPlease consider granting access.</string>
+	<string name="permission_location_setting_title">Location setting</string>
+	<string name="permission_location_setting_body">Your device\'s location setting must be turned on to find other devices via Bluetooth. Please enable location to continue. You can disable it again afterwards.</string>
+	<string name="permission_location_setting_button">Enable location</string>
 	<string name="qr_code">QR code</string>
 	<string name="show_qr_code_fullscreen">Show QR code fullscreen</string>
 
@@ -602,6 +689,30 @@
 
 	<!-- Connections Screen -->
 	<string name="transports_help_text">Briar can connect to your contacts via the Internet, Wi-Fi or Bluetooth.\n\nAll Internet connections go through the Tor network for privacy.\n\nIf a contact can be reached by multiple methods, Briar uses them in parallel.</string>
+
+
+	<!-- Transfer Data via Removable Drives -->
+
+	<string name="removable_drive_menu_title">Transfer data</string>
+	<string name="removable_drive_intro">You can send encrypted messages to your contact using removable storage such as USB flash drives or SD cards.\n\nIf your contact has sent you a removable drive containing encrypted messages, you can import the messages into Briar by using the receive button below.</string>
+	<string name="removable_drive_title_send">Send data</string>
+	<string name="removable_drive_title_receive">Receive data</string>
+	<string name="removable_drive_send_intro">Tap the button below to create a new file containing the encrypted messages. You can choose where the file will be saved.\n\nIf you want to save the file on a removable drive, insert the drive now.</string>
+	<string name="removable_drive_send_no_data">There are currently no messages waiting to be sent to this contact.</string>
+	<string name="removable_drive_send_not_supported">This contact is using an old version of Briar or an old device which does not support this feature.</string>
+	<string name="removable_drive_send_button">Choose file for export</string>
+	<string name="removable_drive_ongoing">Please wait for ongoing task to complete</string>
+	<string name="removable_drive_receive_intro">Tap the button below to choose the file that your contact sent you.\n\nIf the file is on a removable drive, insert the drive now.</string>
+	<string name="removable_drive_receive_button">Choose file for import</string>
+	<string name="removable_drive_success_send_title">Export successful</string>
+	<string name="removable_drive_success_send_text">Data exported successfully. You now have 28 days to transport the file to your contact.\n\nIf the file is on a removable drive, use the notification in the status bar to eject the drive before unplugging it.</string>
+	<string name="removable_drive_success_receive_title">Import successful</string>
+	<string name="removable_drive_success_receive_text">All encrypted messages contained in this file have been received.</string>
+	<string name="removable_drive_error_send_title">Error exporting data</string>
+	<string name="removable_drive_error_send_text">There was an error writing data to the file.\n\nIf you are using a removable drive, ensure that it is properly inserted and try again.\n\nIf the error persists, please send feedback to let the Briar team know about the issue.</string>
+	<string name="removable_drive_error_receive_title">Error importing data</string>
+	<string name="removable_drive_error_receive_text">The selected file did not contain anything that Briar could recognize.\n\nPlease check that you chose the right file.\n\nIf your contact created the file more than 28 days ago, Briar will not be able to recognize it.</string>
+
 
 	<!-- Screenshots -->
 

@@ -7,6 +7,7 @@ import io.mockk.mockk
 import org.briarproject.bramble.api.connection.ConnectionRegistry
 import org.briarproject.bramble.api.contact.Contact
 import org.briarproject.bramble.api.contact.ContactManager
+import org.briarproject.bramble.api.db.TransactionManager
 import org.briarproject.bramble.api.identity.Author
 import org.briarproject.bramble.api.identity.IdentityManager
 import org.briarproject.bramble.api.identity.LocalAuthor
@@ -24,6 +25,7 @@ import javax.servlet.http.HttpServletResponse
 
 abstract class ControllerTest {
 
+    protected val db = mockk<TransactionManager>()
     protected val contactManager = mockk<ContactManager>()
     protected val conversationManager = mockk<ConversationManager>()
     protected val identityManager = mockk<IdentityManager>()
@@ -46,6 +48,7 @@ abstract class ControllerTest {
     protected val message: Message = getMessage(group.id)
     protected val text: String = getRandomString(5)
     protected val timestamp = 42L
+    protected val unreadCount = 42
 
     protected fun assertJsonEquals(json: String, obj: Any) {
         assertEquals(json, outputCtx.json(obj).resultString(), STRICT)

@@ -81,6 +81,7 @@
   <string name="send">Pošalji</string>
   <string name="allow">Dozvoli</string>
   <string name="open">Otvori</string>
+  <string name="change">Promijeni</string>
   <string name="no_data">Nema podataka</string>
   <string name="ellipsis">...</string>
   <string name="text_too_long">Tekst koji ste unijeli je predugačak</string>
@@ -102,7 +103,6 @@
   <string name="image_attach_error_invalid_mime_type">Fromat fotografije nije podržan: %s</string>
   <string name="set_contact_alias">Promijeni ime kontakta</string>
   <string name="set_contact_alias_hint">Ime kontakta</string>
-  <string name="set_alias_button">Promijeni</string>
   <string name="delete_contact">Izbrišite kontakt</string>
   <string name="dialog_title_delete_contact">Potvrdite brisanje kontakta</string>
   <string name="dialog_message_delete_contact">Jeste li sigurni da želite da uklonite ovaj kontakt i sve poruke koje ste razmijenili?</string>
@@ -134,7 +134,6 @@
   <string name="connecting_to_device">Povezujem se sa uređajem\u2026</string>
   <string name="authenticating_with_device">Autentikacija sa uređajem\u2026</string>
   <string name="connection_error_title">Nije moguće povezivanje sa vašim kontaktom</string>
-  <string name="connection_error_explanation">Provjerite jeste li oboje povezani na ist Wi-Fi mrežu.</string>
   <string name="connection_error_feedback">Ako se problem ponavlja, Molimo vas <a href="feedback">pošaljite povratne informacije</a> kako bi pomogli poboljšanju aplikacije.</string>
   <!--Adding Contacts Remotely-->
   <string name="add_contact_remotely_title_case">Dodaj udaljeni konktakt</string>
@@ -333,16 +332,15 @@
   <string name="blogs_rss_feeds_import_button">Uvezi</string>
   <string name="blogs_rss_feeds_import_hint">Unesi URL od RSS kanala</string>
   <string name="blogs_rss_feeds_import_error">Žao nam je! Došlo je do greške pri unosu vašeg kanala.</string>
-  <string name="blogs_rss_feeds_manage">Upravljanje RSS kanalima</string>
   <string name="blogs_rss_feeds_manage_imported">Uvezeno:</string>
   <string name="blogs_rss_feeds_manage_author">Autor:</string>
   <string name="blogs_rss_feeds_manage_updated">Zadnje ažuriranje:</string>
   <string name="blogs_rss_remove_feed">Uklonite kanal</string>
   <string name="blogs_rss_remove_feed_dialog_message">Jeste li sigurni da želite da uklonite kanal?\n\nPostovi će biti uklonjeni sa vašeg uređaja ali ne is uređaja drugih ljudi.\n\nKontakti kojima ste podijelili ovaj blog će možda prestati da dobijaju novosti.</string>
   <string name="blogs_rss_remove_feed_ok">Ukloni</string>
-  <string name="blogs_rss_feeds_manage_delete_error">Kanal nije bilo moguće ukloniti!</string>
   <string name="blogs_rss_feeds_manage_empty_state">Nema RSS kanala za prikazivanje\n\nDotaknite + ikonu da uvezete kanal</string>
   <string name="blogs_rss_feeds_manage_error">Došlo je do problema pri učitavanju vaših kanala. Probajte opet kasnije.</string>
+  <!--Settings Profile Picture-->
   <!--Settings Display-->
   <string name="pref_language_title">Jezik i regija</string>
   <string name="pref_language_changed">Ovo podešavanje će stupiti na snagu kada restartujete Briar. Molim vas da se odjavite i restartujete Briar.</string>
@@ -440,7 +438,6 @@
   <string name="optional_contact_email">Vaša email adresa (opciono)</string>
   <string name="include_debug_report_crash">Uključite anonimne podatke o rušenju</string>
   <string name="include_debug_report_feedback">Uključite anonimne podatke o ovom uređaju</string>
-  <string name="could_not_load_report_data">Nije bilo moguće učitati podatke izvještaja</string>
   <string name="send_report">Pošalji izvještaj</string>
   <string name="close">Zatvori</string>
   <string name="dev_report_saved">Izvještaj je sačuvan. Biće poslat slijedeći put kada se ulogujete u Briar.</string>

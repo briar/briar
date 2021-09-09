@@ -12,8 +12,10 @@ import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.sync.Message;
 import org.briarproject.bramble.api.system.Clock;
 import org.briarproject.bramble.api.versioning.ClientVersioningManager;
+import org.briarproject.briar.api.autodelete.AutoDeleteManager;
 import org.briarproject.briar.api.client.MessageTracker;
 import org.briarproject.briar.api.client.ProtocolStateException;
+import org.briarproject.briar.api.conversation.ConversationManager;
 import org.briarproject.briar.api.privategroup.GroupMessageFactory;
 import org.briarproject.briar.api.privategroup.PrivateGroupFactory;
 import org.briarproject.briar.api.privategroup.PrivateGroupManager;
@@ -36,22 +38,30 @@ import static org.briarproject.briar.privategroup.invitation.PeerState.START;
 @NotNullByDefault
 class PeerProtocolEngine extends AbstractProtocolEngine<PeerSession> {
 
-	PeerProtocolEngine(DatabaseComponent db, ClientHelper clientHelper,
+	PeerProtocolEngine(
+			DatabaseComponent db,
+			ClientHelper clientHelper,
 			ClientVersioningManager clientVersioningManager,
 			PrivateGroupManager privateGroupManager,
 			PrivateGroupFactory privateGroupFactory,
 			GroupMessageFactory groupMessageFactory,
-			IdentityManager identityManager, MessageParser messageParser,
-			MessageEncoder messageEncoder, MessageTracker messageTracker,
+			IdentityManager identityManager,
+			MessageParser messageParser,
+			MessageEncoder messageEncoder,
+			MessageTracker messageTracker,
+			AutoDeleteManager autoDeleteManager,
+			ConversationManager conversationManager,
 			Clock clock) {
 		super(db, clientHelper, clientVersioningManager, privateGroupManager,
 				privateGroupFactory, groupMessageFactory, identityManager,
-				messageParser, messageEncoder, messageTracker, clock);
+				messageParser, messageEncoder, messageTracker,
+				autoDeleteManager, conversationManager, clock);
 	}
 
 	@Override
 	public PeerSession onInviteAction(Transaction txn, PeerSession s,
-			@Nullable String text, long timestamp, byte[] signature) {
+			@Nullable String text, long timestamp, byte[] signature,
+			long autoDeleteTimer) {
 		throw new UnsupportedOperationException(); // Invalid in this role
 	}
 
@@ -75,8 +85,8 @@ class PeerProtocolEngine extends AbstractProtocolEngine<PeerSession> {
 	}
 
 	@Override
-	public PeerSession onLeaveAction(Transaction txn, PeerSession s)
-			throws DbException {
+	public PeerSession onLeaveAction(Transaction txn, PeerSession s,
+			boolean isAutoDecline) throws DbException {
 		switch (s.getState()) {
 			case START:
 			case AWAIT_MEMBER:
@@ -203,7 +213,7 @@ class PeerProtocolEngine extends AbstractProtocolEngine<PeerSession> {
 	private PeerSession onLocalLeaveFromBothJoined(Transaction txn,
 			PeerSession s) throws DbException {
 		// Send a LEAVE message
-		Message sent = sendLeaveMessage(txn, s, false);
+		Message sent = sendLeaveMessage(txn, s);
 		try {
 			// Make the private group invisible to the contact
 			setPrivateGroupVisibility(txn, s, INVISIBLE);
@@ -219,7 +229,7 @@ class PeerProtocolEngine extends AbstractProtocolEngine<PeerSession> {
 	private PeerSession onLocalLeaveFromLocalJoined(Transaction txn,
 			PeerSession s) throws DbException {
 		// Send a LEAVE message
-		Message sent = sendLeaveMessage(txn, s, false);
+		Message sent = sendLeaveMessage(txn, s);
 		try {
 			// Make the private group invisible to the contact
 			setPrivateGroupVisibility(txn, s, INVISIBLE);
@@ -355,7 +365,8 @@ class PeerProtocolEngine extends AbstractProtocolEngine<PeerSession> {
 
 	private void relationshipRevealed(Transaction txn, PeerSession s,
 			boolean byContact) throws DbException, FormatException {
-		ContactId contactId = getContactId(txn, s.getContactGroupId());
+		ContactId contactId =
+				clientHelper.getContactId(txn, s.getContactGroupId());
 		Contact contact = db.getContact(txn, contactId);
 		privateGroupManager.relationshipRevealed(txn, s.getPrivateGroupId(),
 				contact.getAuthor().getId(), byContact);

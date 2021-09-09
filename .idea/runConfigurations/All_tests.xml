@@ -1,6 +1,6 @@
 <component name="ProjectRunConfigurationManager">
   <configuration default="false" name="All tests" type="AndroidJUnit" factoryName="Android JUnit">
-    <module name="briar-android" />
+    <module name="briar.briar-android" />
     <option name="PACKAGE_NAME" value="" />
     <option name="MAIN_CLASS_NAME" value="" />
     <option name="METHOD_NAME" value="" />
@@ -13,6 +13,7 @@
       <option name="RunConfigurationTask" enabled="true" run_configuration_name="All tests in bramble-core" run_configuration_type="AndroidJUnit" />
       <option name="RunConfigurationTask" enabled="true" run_configuration_name="All tests in bramble-android" run_configuration_type="AndroidJUnit" />
       <option name="RunConfigurationTask" enabled="true" run_configuration_name="All tests in bramble-java" run_configuration_type="AndroidJUnit" />
+      <option name="RunConfigurationTask" enabled="true" run_configuration_name="All tests in briar-api" run_configuration_type="AndroidJUnit" />
       <option name="RunConfigurationTask" enabled="true" run_configuration_name="All tests in briar-core" run_configuration_type="AndroidJUnit" />
       <option name="RunConfigurationTask" enabled="true" run_configuration_name="All tests in briar-headless" run_configuration_type="AndroidJUnit" />
     </method>

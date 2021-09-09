@@ -16,9 +16,9 @@ public interface SyncSessionFactory {
 			PriorityHandler handler);
 
 	SyncSession createSimplexOutgoingSession(ContactId c, TransportId t,
-			int maxLatency, StreamWriter streamWriter);
+			long maxLatency, boolean eager, StreamWriter streamWriter);
 
 	SyncSession createDuplexOutgoingSession(ContactId c, TransportId t,
-			int maxLatency, int maxIdleTime, StreamWriter streamWriter,
+			long maxLatency, int maxIdleTime, StreamWriter streamWriter,
 			@Nullable Priority priority);
 }

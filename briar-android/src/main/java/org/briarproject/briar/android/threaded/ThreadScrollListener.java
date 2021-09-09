@@ -20,15 +20,15 @@ class ThreadScrollListener<I extends ThreadItem>
 	private static final Logger LOG =
 			getLogger(ThreadScrollListener.class.getName());
 
-	private final ThreadListController<?, I> controller;
+	private final ThreadListViewModel<I> viewModel;
 	private final UnreadMessageButton upButton, downButton;
 
 	ThreadScrollListener(ThreadItemAdapter<I> adapter,
-			ThreadListController<?, I> controller,
+			ThreadListViewModel<I> viewModel,
 			UnreadMessageButton upButton,
 			UnreadMessageButton downButton) {
 		super(adapter);
-		this.controller = controller;
+		this.viewModel = viewModel;
 		this.upButton = upButton;
 		this.downButton = downButton;
 	}
@@ -44,7 +44,7 @@ class ThreadScrollListener<I extends ThreadItem>
 	protected void onItemVisible(I item) {
 		if (!item.isRead()) {
 			item.setRead(true);
-			controller.markItemRead(item);
+			viewModel.markItemRead(item);
 		}
 	}
 

@@ -9,9 +9,11 @@ import android.content.IntentFilter;
 
 import org.briarproject.bramble.api.db.DatabaseExecutor;
 import org.briarproject.bramble.api.db.DbException;
+import org.briarproject.bramble.api.db.TransactionManager;
 import org.briarproject.bramble.api.event.Event;
 import org.briarproject.bramble.api.event.EventBus;
 import org.briarproject.bramble.api.event.EventListener;
+import org.briarproject.bramble.api.lifecycle.LifecycleManager;
 import org.briarproject.bramble.api.network.NetworkManager;
 import org.briarproject.bramble.api.network.NetworkStatus;
 import org.briarproject.bramble.api.network.event.NetworkStatusEvent;
@@ -27,6 +29,8 @@ import org.briarproject.bramble.api.plugin.event.TransportStateEvent;
 import org.briarproject.bramble.api.settings.Settings;
 import org.briarproject.bramble.api.settings.SettingsManager;
 import org.briarproject.bramble.api.settings.event.SettingsUpdatedEvent;
+import org.briarproject.bramble.api.system.AndroidExecutor;
+import org.briarproject.briar.android.viewmodel.DbViewModel;
 
 import java.util.concurrent.Executor;
 import java.util.logging.Logger;
@@ -34,7 +38,6 @@ import java.util.logging.Logger;
 import javax.inject.Inject;
 
 import androidx.annotation.Nullable;
-import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
@@ -42,22 +45,19 @@ import static android.bluetooth.BluetoothAdapter.ACTION_STATE_CHANGED;
 import static android.bluetooth.BluetoothAdapter.EXTRA_STATE;
 import static android.bluetooth.BluetoothAdapter.STATE_ON;
 import static java.util.logging.Level.INFO;
-import static java.util.logging.Level.WARNING;
 import static java.util.logging.Logger.getLogger;
 import static org.briarproject.bramble.api.plugin.Plugin.PREF_PLUGIN_ENABLE;
 import static org.briarproject.bramble.api.plugin.Plugin.State.STARTING_STOPPING;
 import static org.briarproject.bramble.util.LogUtils.logDuration;
-import static org.briarproject.bramble.util.LogUtils.logException;
 import static org.briarproject.bramble.util.LogUtils.now;
 
 @NotNullByDefault
-public class PluginViewModel extends AndroidViewModel implements EventListener {
+public class PluginViewModel extends DbViewModel implements EventListener {
 
 	private static final Logger LOG =
 			getLogger(PluginViewModel.class.getName());
 
 	private final Application app;
-	private final Executor dbExecutor;
 	private final SettingsManager settingsManager;
 	private final PluginManager pluginManager;
 	private final EventBus eventBus;
@@ -85,11 +85,12 @@ public class PluginViewModel extends AndroidViewModel implements EventListener {
 
 	@Inject
 	PluginViewModel(Application app, @DatabaseExecutor Executor dbExecutor,
-			SettingsManager settingsManager, PluginManager pluginManager,
-			EventBus eventBus, NetworkManager networkManager) {
-		super(app);
+			LifecycleManager lifecycleManager, TransactionManager db,
+			AndroidExecutor androidExecutor, SettingsManager settingsManager,
+			PluginManager pluginManager, EventBus eventBus,
+			NetworkManager networkManager) {
+		super(app, dbExecutor, lifecycleManager, db, androidExecutor);
 		this.app = app;
-		this.dbExecutor = dbExecutor;
 		this.settingsManager = settingsManager;
 		this.pluginManager = pluginManager;
 		this.eventBus = eventBus;
@@ -182,7 +183,7 @@ public class PluginViewModel extends AndroidViewModel implements EventListener {
 	}
 
 	private void loadSettings() {
-		dbExecutor.execute(() -> {
+		runOnDbThread(() -> {
 			try {
 				boolean tor = isPluginEnabled(TorConstants.ID,
 						TorConstants.DEFAULT_PREF_PLUGIN_ENABLE);
@@ -194,7 +195,7 @@ public class PluginViewModel extends AndroidViewModel implements EventListener {
 						BluetoothConstants.DEFAULT_PREF_PLUGIN_ENABLE);
 				btEnabledSetting.postValue(bt);
 			} catch (DbException e) {
-				logException(LOG, WARNING, e);
+				handleException(e);
 			}
 		});
 	}
@@ -219,13 +220,13 @@ public class PluginViewModel extends AndroidViewModel implements EventListener {
 	}
 
 	private void mergeSettings(Settings s, String namespace) {
-		dbExecutor.execute(() -> {
+		runOnDbThread(() -> {
 			try {
 				long start = now();
 				settingsManager.mergeSettings(s, namespace);
 				logDuration(LOG, "Merging settings", start);
 			} catch (DbException e) {
-				logException(LOG, WARNING, e);
+				handleException(e);
 			}
 		});
 	}
@@ -235,8 +236,7 @@ public class PluginViewModel extends AndroidViewModel implements EventListener {
 		@Override
 		public void onReceive(Context context, Intent intent) {
 			int state = intent.getIntExtra(EXTRA_STATE, 0);
-			if (state == STATE_ON) bluetoothTurnedOn.postValue(true);
-			else bluetoothTurnedOn.postValue(false);
+			bluetoothTurnedOn.postValue(state == STATE_ON);
 		}
 	}
 }

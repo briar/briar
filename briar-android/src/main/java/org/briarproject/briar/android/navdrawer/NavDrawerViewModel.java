@@ -4,9 +4,14 @@ import android.app.Application;
 
 import org.briarproject.bramble.api.db.DatabaseExecutor;
 import org.briarproject.bramble.api.db.DbException;
+import org.briarproject.bramble.api.db.TransactionManager;
+import org.briarproject.bramble.api.lifecycle.LifecycleManager;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.settings.Settings;
 import org.briarproject.bramble.api.settings.SettingsManager;
+import org.briarproject.bramble.api.system.AndroidExecutor;
+import org.briarproject.briar.android.BriarApplication;
+import org.briarproject.briar.android.viewmodel.DbViewModel;
 
 import java.util.concurrent.Executor;
 import java.util.logging.Logger;
@@ -14,7 +19,6 @@ import java.util.logging.Logger;
 import javax.inject.Inject;
 
 import androidx.annotation.UiThread;
-import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
@@ -28,7 +32,7 @@ import static org.briarproject.briar.android.settings.SettingsFragment.SETTINGS_
 import static org.briarproject.briar.android.util.UiUtils.needsDozeWhitelisting;
 
 @NotNullByDefault
-public class NavDrawerViewModel extends AndroidViewModel {
+public class NavDrawerViewModel extends DbViewModel {
 
 	private static final Logger LOG =
 			getLogger(NavDrawerViewModel.class.getName());
@@ -37,8 +41,6 @@ public class NavDrawerViewModel extends AndroidViewModel {
 	private static final String SHOW_TRANSPORTS_ONBOARDING =
 			"showTransportsOnboarding";
 
-	@DatabaseExecutor
-	private final Executor dbExecutor;
 	private final SettingsManager settingsManager;
 
 	private final MutableLiveData<Boolean> showExpiryWarning =
@@ -49,10 +51,13 @@ public class NavDrawerViewModel extends AndroidViewModel {
 			new MutableLiveData<>();
 
 	@Inject
-	NavDrawerViewModel(Application app, @DatabaseExecutor Executor dbExecutor,
+	NavDrawerViewModel(Application app,
+			@DatabaseExecutor Executor dbExecutor,
+			LifecycleManager lifecycleManager,
+			TransactionManager db,
+			AndroidExecutor androidExecutor,
 			SettingsManager settingsManager) {
-		super(app);
-		this.dbExecutor = dbExecutor;
+		super(app, dbExecutor, lifecycleManager, db, androidExecutor);
 		this.settingsManager = settingsManager;
 	}
 
@@ -62,7 +67,7 @@ public class NavDrawerViewModel extends AndroidViewModel {
 
 	@UiThread
 	void checkExpiryWarning() {
-		dbExecutor.execute(() -> {
+		runOnDbThread(() -> {
 			try {
 				Settings settings =
 						settingsManager.getSettings(SETTINGS_NAMESPACE);
@@ -89,7 +94,7 @@ public class NavDrawerViewModel extends AndroidViewModel {
 					}
 				}
 			} catch (DbException e) {
-				logException(LOG, WARNING, e);
+				handleException(e);
 			}
 		});
 	}
@@ -97,14 +102,14 @@ public class NavDrawerViewModel extends AndroidViewModel {
 	@UiThread
 	void expiryWarningDismissed() {
 		showExpiryWarning.setValue(false);
-		dbExecutor.execute(() -> {
+		runOnDbThread(() -> {
 			try {
 				Settings settings = new Settings();
 				int date = (int) (System.currentTimeMillis() / 1000L);
 				settings.putInt(EXPIRY_DATE_WARNING, date);
 				settingsManager.mergeSettings(settings, SETTINGS_NAMESPACE);
 			} catch (DbException e) {
-				logException(LOG, WARNING, e);
+				handleException(e);
 			}
 		});
 	}
@@ -116,11 +121,13 @@ public class NavDrawerViewModel extends AndroidViewModel {
 	@UiThread
 	void checkDozeWhitelisting() {
 		// check this first, to hit the DbThread only when really necessary
-		if (!needsDozeWhitelisting(getApplication())) {
+		BriarApplication app = getApplication();
+		if (app.isInstrumentationTest() ||
+				!needsDozeWhitelisting(getApplication())) {
 			shouldAskForDozeWhitelisting.setValue(false);
 			return;
 		}
-		dbExecutor.execute(() -> {
+		runOnDbThread(() -> {
 			try {
 				Settings settings =
 						settingsManager.getSettings(SETTINGS_NAMESPACE);
@@ -141,7 +148,7 @@ public class NavDrawerViewModel extends AndroidViewModel {
 	@UiThread
 	void checkTransportsOnboarding() {
 		if (showTransportsOnboarding.getValue() != null) return;
-		dbExecutor.execute(() -> {
+		runOnDbThread(() -> {
 			try {
 				Settings settings =
 						settingsManager.getSettings(SETTINGS_NAMESPACE);
@@ -149,7 +156,7 @@ public class NavDrawerViewModel extends AndroidViewModel {
 						settings.getBoolean(SHOW_TRANSPORTS_ONBOARDING, true);
 				showTransportsOnboarding.postValue(show);
 			} catch (DbException e) {
-				logException(LOG, WARNING, e);
+				handleException(e);
 			}
 		});
 	}
@@ -157,13 +164,13 @@ public class NavDrawerViewModel extends AndroidViewModel {
 	@UiThread
 	void transportsOnboardingShown() {
 		showTransportsOnboarding.setValue(false);
-		dbExecutor.execute(() -> {
+		runOnDbThread(() -> {
 			try {
 				Settings settings = new Settings();
 				settings.putBoolean(SHOW_TRANSPORTS_ONBOARDING, false);
 				settingsManager.mergeSettings(settings, SETTINGS_NAMESPACE);
 			} catch (DbException e) {
-				logException(LOG, WARNING, e);
+				handleException(e);
 			}
 		});
 	}

@@ -2,7 +2,7 @@ package org.briarproject.briar.api.privategroup;
 
 import org.briarproject.bramble.api.contact.ContactId;
 import org.briarproject.bramble.api.identity.Author;
-import org.briarproject.bramble.api.identity.AuthorInfo;
+import org.briarproject.briar.api.identity.AuthorInfo;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 
 import javax.annotation.Nullable;

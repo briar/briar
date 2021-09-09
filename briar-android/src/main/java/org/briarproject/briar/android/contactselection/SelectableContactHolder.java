@@ -3,7 +3,7 @@ package org.briarproject.briar.android.contactselection;
 import android.view.View;
 
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
-import org.briarproject.briar.android.contact.BaseContactListAdapter.OnContactClickListener;
+import org.briarproject.briar.android.contact.OnContactClickListener;
 
 import javax.annotation.Nullable;
 

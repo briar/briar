@@ -1,7 +1,7 @@
 package org.briarproject.briar.android.blog;
 
 import org.briarproject.bramble.api.identity.Author;
-import org.briarproject.bramble.api.identity.AuthorInfo;
+import org.briarproject.briar.api.identity.AuthorInfo;
 import org.briarproject.bramble.api.sync.GroupId;
 import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.briar.api.blog.BlogPostHeader;
@@ -17,7 +17,7 @@ public class BlogPostItem implements Comparable<BlogPostItem> {
 	private final BlogPostHeader header;
 	@Nullable
 	protected String text;
-	private boolean read;
+	private final boolean read;
 
 	BlogPostItem(BlogPostHeader header, @Nullable String text) {
 		this.header = header;
@@ -74,9 +74,6 @@ public class BlogPostItem implements Comparable<BlogPostItem> {
 
 	protected static int compare(BlogPostHeader h1, BlogPostHeader h2) {
 		// The newest post comes first
-		long aTime = h1.getTimeReceived(), bTime = h2.getTimeReceived();
-		if (aTime > bTime) return -1;
-		if (aTime < bTime) return 1;
-		return 0;
+		return Long.compare(h2.getTimeReceived(), h1.getTimeReceived());
 	}
 }

@@ -19,4 +19,9 @@ public class BriarTestComponentApplication extends BriarApplicationImpl {
 		return component;
 	}
 
+	@Override
+	public boolean isInstrumentationTest() {
+		return true;
+	}
+
 }

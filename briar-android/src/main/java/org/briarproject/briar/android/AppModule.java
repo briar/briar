@@ -1,6 +1,7 @@
 package org.briarproject.briar.android;
 
 import android.app.Application;
+import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.StrictMode;
 
@@ -23,19 +24,35 @@ import org.briarproject.bramble.api.plugin.duplex.DuplexPluginFactory;
 import org.briarproject.bramble.api.plugin.simplex.SimplexPluginFactory;
 import org.briarproject.bramble.api.reporting.DevConfig;
 import org.briarproject.bramble.plugin.bluetooth.AndroidBluetoothPluginFactory;
+import org.briarproject.bramble.plugin.file.AndroidRemovableDrivePluginFactory;
 import org.briarproject.bramble.plugin.tcp.AndroidLanTcpPluginFactory;
 import org.briarproject.bramble.plugin.tor.AndroidTorPluginFactory;
 import org.briarproject.bramble.util.AndroidUtils;
 import org.briarproject.bramble.util.StringUtils;
+import org.briarproject.briar.android.account.DozeHelperModule;
 import org.briarproject.briar.android.account.LockManagerImpl;
-import org.briarproject.briar.android.keyagreement.ContactExchangeModule;
+import org.briarproject.briar.android.account.SetupModule;
+import org.briarproject.briar.android.blog.BlogModule;
+import org.briarproject.briar.android.contact.ContactListModule;
+import org.briarproject.briar.android.contact.add.nearby.AddNearbyContactModule;
+import org.briarproject.briar.android.forum.ForumModule;
+import org.briarproject.briar.android.introduction.IntroductionModule;
+import org.briarproject.briar.android.logging.LoggingModule;
 import org.briarproject.briar.android.login.LoginModule;
 import org.briarproject.briar.android.navdrawer.NavDrawerModule;
+import org.briarproject.briar.android.privategroup.conversation.GroupConversationModule;
+import org.briarproject.briar.android.privategroup.list.GroupListModule;
+import org.briarproject.briar.android.removabledrive.TransferDataModule;
+import org.briarproject.briar.android.reporting.DevReportModule;
+import org.briarproject.briar.android.settings.SettingsModule;
+import org.briarproject.briar.android.sharing.SharingModule;
+import org.briarproject.briar.android.test.TestAvatarCreatorImpl;
 import org.briarproject.briar.android.viewmodel.ViewModelModule;
 import org.briarproject.briar.api.android.AndroidNotificationManager;
 import org.briarproject.briar.api.android.DozeWatchdog;
 import org.briarproject.briar.api.android.LockManager;
 import org.briarproject.briar.api.android.ScreenFilterMonitor;
+import org.briarproject.briar.api.test.TestAvatarCreator;
 
 import java.io.File;
 import java.security.GeneralSecurityException;
@@ -60,10 +77,24 @@ import static org.briarproject.bramble.api.reporting.ReportingConstants.DEV_PUBL
 import static org.briarproject.briar.android.TestingConstants.IS_DEBUG_BUILD;
 
 @Module(includes = {
-		ContactExchangeModule.class,
+		SetupModule.class,
+		DozeHelperModule.class,
+		AddNearbyContactModule.class,
+		LoggingModule.class,
 		LoginModule.class,
 		NavDrawerModule.class,
-		ViewModelModule.class
+		ViewModelModule.class,
+		SettingsModule.class,
+		DevReportModule.class,
+		ContactListModule.class,
+		IntroductionModule.class,
+		// below need to be within same scope as ViewModelProvider.Factory
+		BlogModule.class,
+		ForumModule.class,
+		GroupListModule.class,
+		GroupConversationModule.class,
+		SharingModule.class,
+		TransferDataModule.class,
 })
 public class AppModule {
 
@@ -86,6 +117,11 @@ public class AppModule {
 
 	public AppModule(Application application) {
 		this.application = application;
+	}
+
+	public static AndroidComponent getAndroidComponent(Context ctx) {
+		BriarApplication app = (BriarApplication) ctx.getApplicationContext();
+		return app.getApplicationComponent();
 	}
 
 	@Provides
@@ -116,8 +152,11 @@ public class AppModule {
 	}
 
 	@Provides
+	@Singleton
 	PluginConfig providePluginConfig(AndroidBluetoothPluginFactory bluetooth,
-			AndroidTorPluginFactory tor, AndroidLanTcpPluginFactory lan) {
+			AndroidTorPluginFactory tor, AndroidLanTcpPluginFactory lan,
+			AndroidRemovableDrivePluginFactory drive,
+			FeatureFlags featureFlags) {
 		@NotNullByDefault
 		PluginConfig pluginConfig = new PluginConfig() {
 
@@ -128,7 +167,11 @@ public class AppModule {
 
 			@Override
 			public Collection<SimplexPluginFactory> getSimplexFactories() {
-				return emptyList();
+				if (SDK_INT >= 19 && featureFlags.shouldEnableTransferData()) {
+					return singletonList(drive);
+				} else {
+					return emptyList();
+				}
 			}
 
 			@Override
@@ -171,8 +214,19 @@ public class AppModule {
 			public File getReportDir() {
 				return AndroidUtils.getReportDir(app.getApplicationContext());
 			}
+
+			@Override
+			public File getLogcatFile() {
+				return AndroidUtils.getLogcatFile(app.getApplicationContext());
+			}
 		};
 		return devConfig;
+	}
+
+	@Provides
+	TestAvatarCreator provideTestAvatarCreator(
+			TestAvatarCreatorImpl testAvatarCreator) {
+		return testAvatarCreator;
 	}
 
 	@Provides
@@ -196,7 +250,10 @@ public class AppModule {
 	ScreenFilterMonitor provideScreenFilterMonitor(
 			LifecycleManager lifecycleManager,
 			ScreenFilterMonitorImpl screenFilterMonitor) {
-		lifecycleManager.registerService(screenFilterMonitor);
+		if (SDK_INT <= 29) {
+			// this keeps track of installed apps and does not work on API 30+
+			lifecycleManager.registerService(screenFilterMonitor);
+		}
 		return screenFilterMonitor;
 	}
 
@@ -235,6 +292,32 @@ public class AppModule {
 
 	@Provides
 	FeatureFlags provideFeatureFlags() {
-		return () -> IS_DEBUG_BUILD;
+		return new FeatureFlags() {
+
+			@Override
+			public boolean shouldEnableImageAttachments() {
+				return true;
+			}
+
+			@Override
+			public boolean shouldEnableProfilePictures() {
+				return true;
+			}
+
+			@Override
+			public boolean shouldEnableDisappearingMessages() {
+				return true;
+			}
+
+			@Override
+			public boolean shouldEnableConnectViaBluetooth() {
+				return IS_DEBUG_BUILD;
+			}
+
+			@Override
+			public boolean shouldEnableTransferData() {
+				return IS_DEBUG_BUILD;
+			}
+		};
 	}
 }

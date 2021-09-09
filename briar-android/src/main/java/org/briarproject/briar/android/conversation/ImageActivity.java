@@ -2,6 +2,7 @@ package org.briarproject.briar.android.conversation;
 
 import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.transition.Fade;
 import android.transition.Transition;
@@ -16,34 +17,29 @@ import com.google.android.material.appbar.AppBarLayout;
 
 import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
 import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
+import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.activity.ActivityComponent;
 import org.briarproject.briar.android.activity.BriarActivity;
 import org.briarproject.briar.android.attachment.AttachmentItem;
+import org.briarproject.briar.android.util.ActivityLaunchers.CreateDocumentAdvanced;
 import org.briarproject.briar.android.util.BriarSnackbarBuilder;
 import org.briarproject.briar.android.view.PullDownLayout;
 
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.List;
-import java.util.Locale;
 
 import javax.inject.Inject;
 
+import androidx.activity.result.ActivityResultLauncher;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AlertDialog.Builder;
 import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentManager;
-import androidx.fragment.app.FragmentStatePagerAdapter;
 import androidx.lifecycle.ViewModelProvider;
-import androidx.lifecycle.ViewModelProviders;
-import androidx.viewpager.widget.ViewPager;
+import androidx.viewpager2.adapter.FragmentStateAdapter;
+import androidx.viewpager2.widget.ViewPager2;
 
-import static android.content.Intent.ACTION_CREATE_DOCUMENT;
-import static android.content.Intent.CATEGORY_OPENABLE;
-import static android.content.Intent.EXTRA_TITLE;
 import static android.graphics.Color.TRANSPARENT;
 import static android.os.Build.VERSION.SDK_INT;
 import static android.view.View.GONE;
@@ -54,7 +50,6 @@ import static android.view.View.VISIBLE;
 import static android.view.WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS;
 import static com.google.android.material.snackbar.Snackbar.LENGTH_LONG;
 import static java.util.Objects.requireNonNull;
-import static org.briarproject.briar.android.activity.RequestCodes.REQUEST_SAVE_ATTACHMENT;
 import static org.briarproject.briar.android.util.UiUtils.formatDateAbsolute;
 import static org.briarproject.briar.android.util.UiUtils.getDialogIcon;
 
@@ -67,6 +62,7 @@ public class ImageActivity extends BriarActivity
 	final static String ATTACHMENT_POSITION = "position";
 	final static String NAME = "name";
 	final static String DATE = "date";
+	final static String ITEM_ID = "itemId";
 
 	@RequiresApi(api = 16)
 	private final static int UI_FLAGS_DEFAULT =
@@ -78,12 +74,19 @@ public class ImageActivity extends BriarActivity
 	private ImageViewModel viewModel;
 	private PullDownLayout layout;
 	private AppBarLayout appBarLayout;
-	private ViewPager viewPager;
+	private ViewPager2 viewPager;
 	private List<AttachmentItem> attachments;
+	private MessageId conversationMessageId;
+
+	private final ActivityResultLauncher<String> launcher =
+			registerForActivityResult(new CreateDocumentAdvanced(),
+					this::onImageUriSelected);
 
 	@Override
 	public void injectActivity(ActivityComponent component) {
 		component.inject(this);
+		viewModel = new ViewModelProvider(this, viewModelFactory)
+				.get(ImageViewModel.class);
 	}
 
 	@Override
@@ -98,9 +101,18 @@ public class ImageActivity extends BriarActivity
 			setSceneTransitionAnimation(transition, null, transition);
 		}
 
-		// get View Model
-		viewModel = ViewModelProviders.of(this, viewModelFactory)
-				.get(ImageViewModel.class);
+		// Intent Extras
+		Intent i = getIntent();
+		attachments =
+				requireNonNull(i.getParcelableArrayListExtra(ATTACHMENTS));
+		int position = i.getIntExtra(ATTACHMENT_POSITION, -1);
+		if (position == -1) throw new IllegalStateException();
+		String name = i.getStringExtra(NAME);
+		long time = i.getLongExtra(DATE, 0);
+		byte[] messageIdBytes = requireNonNull(i.getByteArrayExtra(ITEM_ID));
+
+		// connect to View Model
+		viewModel.expectAttachments(attachments);
 		viewModel.getSaveState().observeEvent(this,
 				this::onImageSaveStateChanged);
 
@@ -124,21 +136,15 @@ public class ImageActivity extends BriarActivity
 		TextView contactName = toolbar.findViewById(R.id.contactName);
 		TextView dateView = toolbar.findViewById(R.id.dateView);
 
-		// Intent Extras
-		Intent i = getIntent();
-		attachments = i.getParcelableArrayListExtra(ATTACHMENTS);
-		int position = i.getIntExtra(ATTACHMENT_POSITION, -1);
-		if (position == -1) throw new IllegalStateException();
-		String name = i.getStringExtra(NAME);
-		long time = i.getLongExtra(DATE, 0);
+		// Set contact name and message time
 		String date = formatDateAbsolute(this, time);
 		contactName.setText(name);
 		dateView.setText(date);
+		conversationMessageId = new MessageId(messageIdBytes);
 
 		// Set up image ViewPager
 		viewPager = findViewById(R.id.viewPager);
-		ImagePagerAdapter pagerAdapter =
-				new ImagePagerAdapter(getSupportFragmentManager());
+		ImagePagerAdapter pagerAdapter = new ImagePagerAdapter();
 		viewPager.setAdapter(pagerAdapter);
 		viewPager.setCurrentItem(position);
 
@@ -154,16 +160,14 @@ public class ImageActivity extends BriarActivity
 
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
-		switch (item.getItemId()) {
-			case android.R.id.home:
-				onBackPressed();
-				return true;
-			case R.id.action_save_image:
-				showSaveImageDialog();
-				return true;
-			default:
-				return super.onOptionsItemSelected(item);
+		if (item.getItemId() == android.R.id.home) {
+			onBackPressed();
+			return true;
+		} else if (item.getItemId() == R.id.action_save_image) {
+			showSaveImageDialog();
+			return true;
 		}
+		return super.onOptionsItemSelected(item);
 	}
 
 	@Override
@@ -172,16 +176,6 @@ public class ImageActivity extends BriarActivity
 				appBarLayout.getTop(), appBarLayout.getBottom()
 		);
 		layout.getViewTreeObserver().removeOnGlobalLayoutListener(this);
-	}
-
-	@Override
-	protected void onActivityResult(int request, int result,
-			@Nullable Intent data) {
-		super.onActivityResult(request, result, data);
-		if (request == REQUEST_SAVE_ATTACHMENT && result == RESULT_OK &&
-				data != null) {
-			viewModel.saveImage(getVisibleAttachment(), data.getData());
-		}
 	}
 
 	@Override
@@ -267,8 +261,9 @@ public class ImageActivity extends BriarActivity
 	private void showSaveImageDialog() {
 		OnClickListener okListener = (dialog, which) -> {
 			if (SDK_INT >= 19) {
-				Intent intent = getCreationIntent();
-				startActivityForResult(intent, REQUEST_SAVE_ATTACHMENT);
+				String name = viewModel.getFileName() + "." +
+						getVisibleAttachment().getExtension();
+				launcher.launch(name);
 			} else {
 				viewModel.saveImage(getVisibleAttachment());
 			}
@@ -282,16 +277,9 @@ public class ImageActivity extends BriarActivity
 		builder.show();
 	}
 
-	@RequiresApi(api = 19)
-	private Intent getCreationIntent() {
-		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss",
-				Locale.getDefault());
-		String fileName = sdf.format(new Date());
-		Intent intent = new Intent(ACTION_CREATE_DOCUMENT);
-		intent.addCategory(CATEGORY_OPENABLE);
-		intent.setType(getVisibleAttachment().getMimeType());
-		intent.putExtra(EXTRA_TITLE, fileName);
-		return intent;
+	private void onImageUriSelected(@Nullable Uri uri) {
+		if (uri == null) return;
+		viewModel.saveImage(getVisibleAttachment(), uri);
 	}
 
 	private void onImageSaveStateChanged(@Nullable Boolean error) {
@@ -310,27 +298,26 @@ public class ImageActivity extends BriarActivity
 		return attachments.get(viewPager.getCurrentItem());
 	}
 
-	private class ImagePagerAdapter extends FragmentStatePagerAdapter {
+	private class ImagePagerAdapter extends FragmentStateAdapter {
 
 		private boolean isFirst = true;
 
-		private ImagePagerAdapter(FragmentManager fm) {
-			super(fm);
+		private ImagePagerAdapter() {
+			super(ImageActivity.this);
 		}
 
 		@Override
-		public Fragment getItem(int position) {
-			Fragment f = ImageFragment
-					.newInstance(attachments.get(position), isFirst);
+		public Fragment createFragment(int position) {
+			Fragment f = ImageFragment.newInstance(
+					attachments.get(position), conversationMessageId, isFirst);
 			isFirst = false;
 			return f;
 		}
 
 		@Override
-		public int getCount() {
+		public int getItemCount() {
 			return attachments.size();
 		}
-
 	}
 
 }

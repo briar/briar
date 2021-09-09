@@ -4,7 +4,7 @@
 
 	<!-- slide in from right -->
 	<translate
-		android:duration="@android:integer/config_mediumAnimTime"
+		android:duration="@integer/animationSpeed"
 		android:fromXDelta="100%p"
 		android:interpolator="@android:interpolator/decelerate_quad"
 		android:toXDelta="0"/>

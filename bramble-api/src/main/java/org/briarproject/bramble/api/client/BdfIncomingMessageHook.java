@@ -32,28 +32,31 @@ public abstract class BdfIncomingMessageHook implements IncomingMessageHook {
 
 	/**
 	 * Called once for each incoming message that passes validation.
+	 * <p>
+	 * If an unexpected exception occurs while handling data that is assumed
+	 * to be valid (e.g. locally created metadata), it may be sensible to
+	 * rethrow the unexpected exception as a DbException so that delivery is
+	 * attempted again at next startup. This will allow delivery to succeed if
+	 * the unexpected exception was caused by a bug that has subsequently been
+	 * fixed.
 	 *
 	 * @param txn A read-write transaction
-	 * @return Whether or not this message should be shared
-	 * @throws DbException Should only be used for real database errors.
-	 * If this is thrown, delivery will be attempted again at next startup,
-	 * whereas if a FormatException is thrown, the message will be permanently
-	 * invalidated.
-	 * @throws FormatException Use this for any non-database error
-	 * that occurs while handling remotely created data.
-	 * This includes errors that occur while handling locally created data
-	 * in a context controlled by remotely created data
-	 * (for example, parsing the metadata of a dependency
-	 * of an incoming message).
-	 * Never rethrow DbException as FormatException!
+	 * @throws DbException if a database error occurs while delivering the
+	 * message. Delivery will be attempted again at next startup. Throwing
+	 * this exception has the same effect as returning
+	 * {@link DeliveryAction#DEFER}.
+	 * @throws FormatException if the message is invalid in the context of its
+	 * dependencies. The message and any dependents will be marked as invalid
+	 * and deleted along with their metadata. Throwing this exception has the
+	 * same effect as returning {@link DeliveryAction#REJECT}.
 	 */
-	protected abstract boolean incomingMessage(Transaction txn, Message m,
-			BdfList body, BdfDictionary meta) throws DbException,
-			FormatException;
+	protected abstract DeliveryAction incomingMessage(Transaction txn,
+			Message m, BdfList body, BdfDictionary meta)
+			throws DbException, FormatException;
 
 	@Override
-	public boolean incomingMessage(Transaction txn, Message m, Metadata meta)
-			throws DbException, InvalidMessageException {
+	public DeliveryAction incomingMessage(Transaction txn, Message m,
+			Metadata meta) throws DbException, InvalidMessageException {
 		try {
 			BdfList body = clientHelper.toList(m);
 			BdfDictionary metaDictionary = metadataParser.parse(meta);

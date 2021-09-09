@@ -7,25 +7,28 @@ import android.view.ViewGroup;
 import android.widget.ProgressBar;
 import android.widget.ScrollView;
 
-import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
 import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
 import org.briarproject.bramble.api.sync.GroupId;
 import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.activity.ActivityComponent;
-import org.briarproject.briar.android.controller.handler.UiExceptionHandler;
-import org.briarproject.briar.android.controller.handler.UiResultExceptionHandler;
 import org.briarproject.briar.android.fragment.BaseFragment;
 import org.briarproject.briar.android.view.TextInputView;
 import org.briarproject.briar.android.view.TextSendController;
 import org.briarproject.briar.android.view.TextSendController.SendListener;
-import org.briarproject.briar.api.messaging.AttachmentHeader;
+import org.briarproject.briar.android.view.TextSendController.SendState;
+import org.briarproject.briar.android.widget.LinkDialogFragment;
+import org.briarproject.briar.api.attachment.AttachmentHeader;
 
 import java.util.List;
 
 import javax.annotation.Nullable;
 import javax.inject.Inject;
+
+import androidx.lifecycle.LiveData;
+import androidx.lifecycle.MutableLiveData;
+import androidx.lifecycle.ViewModelProvider;
 
 import static android.view.View.FOCUS_DOWN;
 import static android.view.View.GONE;
@@ -33,7 +36,8 @@ import static android.view.View.INVISIBLE;
 import static android.view.View.VISIBLE;
 import static java.util.Objects.requireNonNull;
 import static org.briarproject.briar.android.activity.BriarActivity.GROUP_ID;
-import static org.briarproject.briar.android.blog.BasePostFragment.POST_ID;
+import static org.briarproject.briar.android.blog.BlogPostFragment.POST_ID;
+import static org.briarproject.briar.android.view.TextSendController.SendState.SENT;
 import static org.briarproject.briar.api.blog.BlogConstants.MAX_BLOG_POST_TEXT_LENGTH;
 
 @MethodsNotNullByDefault
@@ -42,11 +46,12 @@ public class ReblogFragment extends BaseFragment implements SendListener {
 
 	public static final String TAG = ReblogFragment.class.getName();
 
+	@Inject
+	ViewModelProvider.Factory viewModelFactory;
+
+	private BlogViewModel viewModel;
 	private ViewHolder ui;
 	private BlogPostItem item;
-
-	@Inject
-	FeedController feedController;
 
 	static ReblogFragment newInstance(GroupId groupId, MessageId messageId) {
 		ReblogFragment f = new ReblogFragment();
@@ -67,6 +72,8 @@ public class ReblogFragment extends BaseFragment implements SendListener {
 	@Override
 	public void injectFragment(ActivityComponent component) {
 		component.inject(this);
+		viewModel = new ViewModelProvider(requireActivity(), viewModelFactory)
+				.get(BlogViewModel.class);
 	}
 
 	@Override
@@ -74,7 +81,7 @@ public class ReblogFragment extends BaseFragment implements SendListener {
 			@Nullable ViewGroup container,
 			@Nullable Bundle savedInstanceState) {
 
-		Bundle args = requireNonNull(getArguments());
+		Bundle args = requireArguments();
 		GroupId blogId =
 				new GroupId(requireNonNull(args.getByteArray(GROUP_ID)));
 		MessageId postId =
@@ -90,30 +97,20 @@ public class ReblogFragment extends BaseFragment implements SendListener {
 		ui.input.setMaxTextLength(MAX_BLOG_POST_TEXT_LENGTH);
 		showProgressBar();
 
-		feedController.loadBlogPost(blogId, postId,
-				new UiResultExceptionHandler<BlogPostItem, DbException>(
-						this) {
-					@Override
-					public void onResultUi(BlogPostItem result) {
-						item = result;
-						bindViewHolder();
-					}
-
-					@Override
-					public void onExceptionUi(DbException exception) {
-						handleDbException(exception);
-					}
-				});
+		viewModel.loadBlogPost(blogId, postId).observe(getViewLifecycleOwner(),
+				result -> result.onError(this::handleException)
+						.onSuccess(this::bindViewHolder)
+		);
 
 		return v;
 	}
 
-	private void bindViewHolder() {
-		if (item == null) return;
+	private void bindViewHolder(BlogPostItem item) {
+		this.item = item;
 
 		hideProgressBar();
 
-		ui.post.bindItem(item);
+		ui.post.bindItem(this.item);
 		ui.post.hideReblogButton();
 
 		ui.input.setReady(true);
@@ -121,17 +118,12 @@ public class ReblogFragment extends BaseFragment implements SendListener {
 	}
 
 	@Override
-	public void onSendClick(@Nullable String text,
-			List<AttachmentHeader> headers) {
+	public LiveData<SendState> onSendClick(@Nullable String text,
+			List<AttachmentHeader> headers, long expectedAutoDeleteTimer) {
 		ui.input.hideSoftKeyboard();
-		feedController.repeatPost(item, text,
-				new UiExceptionHandler<DbException>(this) {
-					@Override
-					public void onExceptionUi(DbException exception) {
-						handleDbException(exception);
-					}
-				});
+		viewModel.repeatPost(item, text);
 		finish();
+		return new MutableLiveData<>(SENT);
 	}
 
 	private void showProgressBar() {
@@ -144,7 +136,7 @@ public class ReblogFragment extends BaseFragment implements SendListener {
 		ui.input.setVisibility(VISIBLE);
 	}
 
-	private class ViewHolder {
+	private class ViewHolder implements OnBlogPostClickListener {
 
 		private final ScrollView scrollView;
 		private final ProgressBar progressBar;
@@ -155,18 +147,25 @@ public class ReblogFragment extends BaseFragment implements SendListener {
 			scrollView = v.findViewById(R.id.scrollView);
 			progressBar = v.findViewById(R.id.progressBar);
 			post = new BlogPostViewHolder(v.findViewById(R.id.postLayout),
-					true, new OnBlogPostClickListener() {
-						@Override
-						public void onBlogPostClick(BlogPostItem post) {
-							// do nothing
-						}
-
-						@Override
-						public void onAuthorClick(BlogPostItem post) {
-							// probably don't want to allow author clicks here
-						}
-					}, getFragmentManager());
+					true, this, false);
 			input = v.findViewById(R.id.inputText);
 		}
+
+		@Override
+		public void onBlogPostClick(BlogPostItem post) {
+			// do nothing
+		}
+
+		@Override
+		public void onAuthorClick(BlogPostItem post) {
+			// probably don't want to allow author clicks here
+		}
+
+		@Override
+		public void onLinkClick(String url) {
+			LinkDialogFragment f = LinkDialogFragment.newInstance(url);
+			f.show(getParentFragmentManager(), f.getUniqueTag());
+		}
 	}
+
 }

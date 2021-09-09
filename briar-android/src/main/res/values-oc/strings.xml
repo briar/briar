@@ -22,6 +22,7 @@
   <string name="setup_huawei_text">Mercé de tocar lo boton çai-jos per vos assegurar que Briar es protegit dins l’ecran « Aplicacions protegidas ».</string>
   <string name="setup_huawei_button">Projècte Briar</string>
   <string name="setup_huawei_help">Se Briar es pas ajustat a la lista de las aplicacion protegidas poirà pas s’executar en rèire plan.</string>
+  <string name="setup_xiaomi_button">Projècte Briar</string>
   <string name="warning_dozed">%s a pas pogut s’executar en rèire plan</string>
   <!--Login-->
   <string name="enter_password">Senhal</string>
@@ -107,6 +108,7 @@ Volètz suprimir vòstre compte e ne crear un nòu ?\n
   <string name="send">Mandar</string>
   <string name="allow">Autorizar</string>
   <string name="open">Dobrir</string>
+  <string name="change">Cambiar</string>
   <string name="no_data">Pas donada</string>
   <string name="ellipsis">...</string>
   <string name="text_too_long">Lo tèxte picat es tròp long</string>
@@ -120,7 +122,6 @@ Volètz suprimir vòstre compte e ne crear un nòu ?\n
   <string name="no_contacts_action">Tocatz l’icòna + per ajustar un contacte</string>
   <string name="date_no_private_messages">Cap messatge</string>
   <string name="no_private_messages">Cap de messatge de mostrar</string>
-  <string name="message_hint">Picatz lo messatge</string>
   <string name="image_caption_hint">Ajustar una legenda (optionala)</string>
   <string name="image_attach">Juntar un imatge</string>
   <string name="image_attach_error">Impossible de juntar d’imatges</string>
@@ -128,12 +129,16 @@ Volètz suprimir vòstre compte e ne crear un nòu ?\n
   <string name="image_attach_error_invalid_mime_type">Format d’imatge pas compatible : %s</string>
   <string name="set_contact_alias">Cambiar lo nom del contacte</string>
   <string name="set_contact_alias_hint">Nom del contacte</string>
-  <string name="set_alias_button">Cambiar</string>
+  <string name="menu_item_connect_via_bluetooth">Se connectar per Bluetooth</string>
+  <string name="dialog_title_connect_via_bluetooth">Se connectar per Bluetooth</string>
+  <!--The first placeholder will show a duration like "7 days". The second placeholder at the end will add "Tap to learn more."-->
+  <!--The placeholder at the end will add "Tap to learn more."-->
+  <!--The first placeholder will show a contact's name. The second placeholder will show a duration like "7 days". The third placeholder at the end will add "Tap to learn more."-->
+  <!--The first placeholder will show a contact's name. The second placeholder at the end will add "Tap to learn more."-->
   <string name="delete_all_messages">Suprimir totes los messatges</string>
   <string name="dialog_title_delete_all_messages">Confirmatz la supression dels messatges</string>
   <string name="dialog_message_delete_all_messages">Volètz vertadièrament suprimir totes los messatges ?</string>
   <string name="dialog_title_not_all_messages_deleted">Supression de totes los messatges impossibla</string>
-  <string name="dialog_message_not_deleted_partly_downloaded">Los messatges pas complètament telecargats pòdon pas èsser suprimits fins que lo telecargament siá acabat.</string>
   <string name="dialog_message_not_deleted_not_all_selected_both">Per suprimir una invitacion o una presentacion, vos cal seleccionar la demanda e la responsa.</string>
   <string name="dialog_message_not_deleted_not_all_selected_introductions">Per suprimir una presentacion, vos cal seleccionar la demanda e la responsa.</string>
   <string name="dialog_message_not_deleted_not_all_selected_invitations">Per suprimir una invitacion, vos cal seleccionar la demanda e la responsa.</string>
@@ -169,7 +174,6 @@ Volètz suprimir vòstre compte e ne crear un nòu ?\n
   <string name="connecting_to_device">Connexion a l’aparelh\u2026</string>
   <string name="authenticating_with_device">Autentificacion amb l’aparelh\u2026</string>
   <string name="connection_error_title">Connexion impossibla al contacte</string>
-  <string name="connection_error_explanation">Verificatz que sètz los dos connectats al meteis ret wifi.</string>
   <string name="connection_error_feedback">S’aqueste problèma dura, mercés <a href="feedback"> d’enviar un comentari</a> per nos ajudar a melhorar l’aplicacion.</string>
   <!--Adding Contacts Remotely-->
   <string name="add_contact_remotely_title_case">Ajustar un contacte a distància</string>
@@ -389,7 +393,6 @@ Volètz suprimir vòstre compte e ne crear un nòu ?\n
   <string name="blogs_rss_feeds_import_button">Importar</string>
   <string name="blogs_rss_feeds_import_hint">Marcar l’URL del flux RSS</string>
   <string name="blogs_rss_feeds_import_error">Una error s’es produisida en importar lo flux</string>
-  <string name="blogs_rss_feeds_manage">Gerir lo flux RSS</string>
   <string name="blogs_rss_feeds_manage_imported">Importat :</string>
   <string name="blogs_rss_feeds_manage_author">Autor :</string>
   <string name="blogs_rss_feeds_manage_updated">Darrièra mesa a jorn :</string>
@@ -399,9 +402,9 @@ levadas de vòstre aparelh mas pas dels aparelhs del monde.\n\nTotes los
 contactes qu’avètz partejat aqueste flux quitaràn benlèu de recebre las mesas
  a jorn.</string>
   <string name="blogs_rss_remove_feed_ok">Suprimir</string>
-  <string name="blogs_rss_feeds_manage_delete_error">Impossible de suprimir lo flux !</string>
   <string name="blogs_rss_feeds_manage_empty_state">Cap de flux RSS de far veire.\n\nTocatz l’icòna + per n’importar un</string>
   <string name="blogs_rss_feeds_manage_error">Error en cargar vòstres fluxes. Ensajatz mai tard.</string>
+  <!--Settings Profile Picture-->
   <!--Settings Display-->
   <string name="pref_language_title">Lenga &amp; region</string>
   <string name="pref_language_changed">Aquel paramètre serà pres en compte aprèp una reaviada de Briar. Desconnectatz-vos e reaviatz Briar.</string>
@@ -411,7 +414,7 @@ contactes qu’avètz partejat aqueste flux quitaràn benlèu de recebre las mes
   <string name="pref_theme_light">Clar</string>
   <string name="pref_theme_dark">Escur</string>
   <string name="pref_theme_auto">Automatic (Segon l’ora)</string>
-  <string name="pref_theme_system">Per defaut sistèma</string>
+  <string name="pref_theme_system">Sistèma per defaut</string>
   <!--Settings Connections-->
   <string name="tor_network_setting_automatic">Automaticament basat sus l’emplaçament</string>
   <!--How and when Briar will connect to Tor: E.g. "Don't connect to the Internet (in China)" or "Use Tor network with bridges (in Belarus)"-->
@@ -479,8 +482,8 @@ contactes qu’avètz partejat aqueste flux quitaràn benlèu de recebre las mes
   <string name="notify_sound_setting_disabled">Cap</string>
   <string name="choose_ringtone_title">Causir la sonariá</string>
   <string name="cannot_load_ringtone">Cargament impossible de las sonariás</string>
+  <!--Conversation Settings-->
   <!--Settings Feedback-->
-  <string name="feedback_settings_title">Comentaris</string>
   <string name="send_feedback">Enviar vòstres comentaris</string>
   <!--Link Warning-->
   <string name="link_warning_title">Avertiment de ligam</string>
@@ -499,7 +502,6 @@ contactes qu’avètz partejat aqueste flux quitaràn benlèu de recebre las mes
   <string name="optional_contact_email">Vòstre corrièl (opcional)</string>
   <string name="include_debug_report_crash">Ajustar de donas anonimas tocant lo fracàs</string>
   <string name="include_debug_report_feedback">Ajustar de donas anonimas tocant aqueste periferic</string>
-  <string name="could_not_load_report_data">Impossible de cargar las donadas del rapòrt.</string>
   <string name="send_report">Enviar lo rapòrt</string>
   <string name="close">Tampar</string>
   <string name="dev_report_saved">Rapòrt salvat. Serà enviat a vòstra connexion venenta a Briar.</string>

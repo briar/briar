@@ -69,7 +69,7 @@ public class GroupInviteActivity extends ContactSelectorActivity
 					@Override
 					public void onExceptionUi(DbException exception) {
 						setResult(RESULT_CANCELED);
-						handleDbException(exception);
+						handleException(exception);
 					}
 				});
 	}

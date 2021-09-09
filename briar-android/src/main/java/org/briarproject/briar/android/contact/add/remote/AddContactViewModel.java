@@ -9,7 +9,11 @@ import org.briarproject.bramble.api.contact.PendingContact;
 import org.briarproject.bramble.api.db.DatabaseExecutor;
 import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.db.NoSuchPendingContactException;
+import org.briarproject.bramble.api.db.TransactionManager;
+import org.briarproject.bramble.api.lifecycle.LifecycleManager;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
+import org.briarproject.bramble.api.system.AndroidExecutor;
+import org.briarproject.briar.android.viewmodel.DbViewModel;
 import org.briarproject.briar.android.viewmodel.LiveEvent;
 import org.briarproject.briar.android.viewmodel.LiveResult;
 import org.briarproject.briar.android.viewmodel.MutableLiveEvent;
@@ -21,7 +25,6 @@ import java.util.logging.Logger;
 import javax.inject.Inject;
 
 import androidx.annotation.Nullable;
-import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
@@ -31,14 +34,12 @@ import static org.briarproject.bramble.api.contact.HandshakeLinkConstants.LINK_R
 import static org.briarproject.bramble.util.LogUtils.logException;
 
 @NotNullByDefault
-public class AddContactViewModel extends AndroidViewModel {
+public class AddContactViewModel extends DbViewModel {
 
 	private final static Logger LOG =
 			getLogger(AddContactViewModel.class.getName());
 
 	private final ContactManager contactManager;
-	@DatabaseExecutor
-	private final Executor dbExecutor;
 
 	private final MutableLiveData<String> handshakeLink =
 			new MutableLiveData<>();
@@ -52,10 +53,12 @@ public class AddContactViewModel extends AndroidViewModel {
 	@Inject
 	AddContactViewModel(Application application,
 			ContactManager contactManager,
-			@DatabaseExecutor Executor dbExecutor) {
-		super(application);
+			@DatabaseExecutor Executor dbExecutor,
+			LifecycleManager lifecycleManager,
+			TransactionManager db,
+			AndroidExecutor androidExecutor) {
+		super(application, dbExecutor, lifecycleManager, db, androidExecutor);
 		this.contactManager = contactManager;
-		this.dbExecutor = dbExecutor;
 	}
 
 	void onCreate() {
@@ -63,11 +66,11 @@ public class AddContactViewModel extends AndroidViewModel {
 	}
 
 	private void loadHandshakeLink() {
-		dbExecutor.execute(() -> {
+		runOnDbThread(() -> {
 			try {
 				handshakeLink.postValue(contactManager.getHandshakeLink());
 			} catch (DbException e) {
-				logException(LOG, WARNING, e);
+				handleException(e);
 				// the UI should stay disabled in this case,
 				// leaving the user unable to proceed
 			}
@@ -102,7 +105,7 @@ public class AddContactViewModel extends AndroidViewModel {
 
 	void addContact(String nickname) {
 		if (remoteHandshakeLink == null) throw new IllegalStateException();
-		dbExecutor.execute(() -> {
+		runOnDbThread(() -> {
 			try {
 				contactManager.addPendingContact(remoteHandshakeLink, nickname);
 				addContactResult.postValue(new LiveResult<>(true));
@@ -121,12 +124,12 @@ public class AddContactViewModel extends AndroidViewModel {
 		return addContactResult;
 	}
 
-	public void updatePendingContact(String name, PendingContact p) {
-		dbExecutor.execute(() -> {
+	void updatePendingContact(String name, PendingContact p) {
+		runOnDbThread(() -> {
 			try {
 				contactManager.removePendingContact(p.getId());
 				addContact(name);
-			} catch(NoSuchPendingContactException e) {
+			} catch (NoSuchPendingContactException e) {
 				logException(LOG, WARNING, e);
 				// no error in UI as pending contact was converted into contact
 			} catch (DbException e) {

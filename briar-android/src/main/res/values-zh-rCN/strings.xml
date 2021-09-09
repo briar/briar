@@ -22,12 +22,20 @@
   <string name="setup_huawei_text">轻按下方的按钮将 Briar 加入“受保护的应用”列表。</string>
   <string name="setup_huawei_button">保护 Briar</string>
   <string name="setup_huawei_help">如果 Briar 未被加入受保护应用列表，它将无法在后台运行。</string>
+  <string name="setup_huawei_app_launch_text">轻按下方按钮，打开“App launch”界面，确保 Briar 被设置为“手动管理”。</string>
+  <string name="setup_huawei_app_launch_button">打开电池设置</string>
+  <string name="setup_huawei_app_launch_help">如果“App 启动”界面中 Briar 没有被设置为“手动管理”，则其将无法在后台运行。</string>
+  <string name="setup_xiaomi_text">要在后台运行，需将 Briar 锁定在最近的应用列表中。</string>
+  <string name="setup_xiaomi_button">保护 Briar</string>
+  <string name="setup_xiaomi_help">如果未将 Briar 锁定到最近的应用列表，它将无法在后台运行。</string>
+  <string name="setup_xiaomi_dialog_body_old">1. 打开最近的应用列表(也称为应用切换器)\n\n2. 向下滑动Briar的图像，显示挂锁图标\n\n3.如果挂锁没有被锁上，轻敲以锁定它</string>
+  <string name="setup_xiaomi_dialog_body_new">1. 打开最近的应用列表(也称为应用切换器)\n\n2.  按住Briar的图像，直到挂锁按钮出现\n\n3. 如果挂锁没有被锁上，轻敲以锁定它</string>
   <string name="warning_dozed">%s 无法在后台运行</string>
   <!--Login-->
   <string name="enter_password">密码</string>
   <string name="try_again">密码错误，请重试</string>
   <string name="dialog_title_cannot_check_password">无法检查密码</string>
-  <string name="dialog_message_cannot_check_password">Briar无法检查您的密码。请尝试重新启动您的设备以解决此问题。</string>
+  <string name="dialog_message_cannot_check_password">Briar 无法检查您的密码。请尝试重新启动您的设备以解决此问题。</string>
   <string name="sign_in_button">登录</string>
   <string name="forgotten_password">我忘记了密码</string>
   <string name="dialog_title_lost_password">密码遗失</string>
@@ -60,12 +68,36 @@
   <string name="lock_button">锁定应用</string>
   <string name="settings_button">设置</string>
   <string name="sign_out_button">登出</string>
+  <string name="transports_onboarding_text">点击这里来控制 Briar 如何与您的联系人连接。</string>
   <!--Transports: Tor-->
   <string name="transport_tor">互联网</string>
+  <string name="tor_device_status_online_wifi">您的手机通过 Wi-Fi 访问互联网</string>
+  <string name="tor_device_status_online_mobile">您的手机通过移动数据访问互联网</string>
+  <string name="tor_device_status_offline">您的手机无法访问互联网</string>
+  <string name="tor_plugin_status_enabling">Briar 正在连接互联网</string>
+  <string name="tor_plugin_status_active">Briar 已连接到互联网</string>
+  <string name="tor_plugin_status_inactive">Briar 无法连接到互联网</string>
+  <string name="tor_plugin_status_disabled">Briar 被配置为不使用互联网</string>
+  <string name="tor_plugin_status_disabled_mobile_data">Briar 被配置为不使用移动数据</string>
+  <string name="tor_plugin_status_disabled_battery">Briar 被配置为在用电池运行时不使用互联网</string>
+  <string name="tor_plugin_status_disabled_country_blocked">Briar 被配置为在这个国家不使用互联网</string>
   <!--Transports: Wi-Fi-->
   <string name="transport_lan">无线局域网</string>
+  <string name="transport_lan_long">同一 Wi-Fi 网络</string>
+  <string name="lan_device_status_on">您的手机已连接到 Wi-Fi</string>
+  <string name="lan_device_status_off">您的手机未连接到 Wi-Fi</string>
+  <string name="lan_plugin_status_enabling">Briar 正在连接 Wi-Fi 网络</string>
+  <string name="lan_plugin_status_active">Briar 已连接到 Wi-Fi 网络</string>
+  <string name="lan_plugin_status_inactive">Briar 无法连接到此 Wi-Fi 网络</string>
+  <string name="lan_plugin_status_disabled">Briar 被配置为不使用 Wi-Fi 网络</string>
   <!--Transports: Bluetooth-->
   <string name="transport_bt">蓝牙</string>
+  <string name="bt_device_status_on">您手机的蓝牙已开启</string>
+  <string name="bt_device_status_off">您手机的蓝牙已关闭</string>
+  <string name="bt_plugin_status_enabling">Briar 正连接蓝牙</string>
+  <string name="bt_plugin_status_active">Briar 已连接蓝牙</string>
+  <string name="bt_plugin_status_inactive">Briar 无法连接蓝牙</string>
+  <string name="bt_plugin_status_disabled">Briar 被配置为不使用蓝牙</string>
   <!--Notifications-->
   <string name="reminder_notification_title">已登出 Briar</string>
   <string name="reminder_notification_text">轻按以重新登录。</string>
@@ -100,6 +132,8 @@
   <string name="send">发送</string>
   <string name="allow">允许</string>
   <string name="open">打开</string>
+  <string name="change">更改</string>
+  <string name="start">开始</string>
   <string name="no_data">没有数据</string>
   <string name="ellipsis">……</string>
   <string name="text_too_long">输入的文本过长</string>
@@ -108,12 +142,15 @@
   <string name="help">帮助</string>
   <string name="sorry">抱歉</string>
   <string name="error_start_activity">在您的系统上不可用</string>
+  <string name="status_heading">状态：</string>
   <!--Contacts and Private Conversations-->
   <string name="no_contacts">尚无联系人可供显示</string>
   <string name="no_contacts_action">轻按 + 号即可添加联系人</string>
   <string name="date_no_private_messages">没有消息。</string>
   <string name="no_private_messages">尚无消息可供显示</string>
-  <string name="message_hint">输入信息</string>
+  <string name="message_hint">新消息</string>
+  <string name="message_hint_auto_delete">新的自动消失的消息</string>
+  <string name="message_error">发送消息出错</string>
   <string name="image_caption_hint">添加一段描述（可选）</string>
   <string name="image_attach">附加图片</string>
   <string name="image_attach_error">无法附加图片</string>
@@ -121,7 +158,38 @@
   <string name="image_attach_error_invalid_mime_type">不支持的图片格式：%s</string>
   <string name="set_contact_alias">更改联系人姓名</string>
   <string name="set_contact_alias_hint">联系人姓名</string>
-  <string name="set_alias_button">更改</string>
+  <string name="menu_item_disappearing_messages">让消息自动消失 </string>
+  <string name="menu_item_connect_via_bluetooth">通过蓝牙连接</string>
+  <string name="dialog_title_connect_via_bluetooth">通过蓝牙连接</string>
+  <string name="dialog_message_connect_via_bluetooth">你的联络人必须在附近才能起作用。\n\n你和你的联系人应该同时按“开始”。</string>
+  <string name="toast_connect_via_bluetooth_already_discovering">已在尝试通过蓝牙进行连接</string>
+  <string name="toast_connect_via_bluetooth_not_discoverable">没有蓝牙无法继续 </string>
+  <string name="toast_connect_via_bluetooth_no_location_permission">没有位置权限不能继续 </string>
+  <string name="toast_connect_via_bluetooth_start">正通过蓝牙连接 …</string>
+  <string name="toast_connect_via_bluetooth_success">通过蓝牙连接成功</string>
+  <string name="toast_connect_via_bluetooth_error">无法通过蓝牙连接 </string>
+  <!--The first placeholder will show a duration like "7 days". The second placeholder at the end will add "Tap to learn more."-->
+  <string name="auto_delete_msg_you_enabled">你的消息将在 %1$s 后消失。%2$s</string>
+  <!--The placeholder at the end will add "Tap to learn more."-->
+  <string name="auto_delete_msg_you_disabled">你的消息不会消失。%1$s</string>
+  <!--The first placeholder will show a contact's name. The second placeholder will show a duration like "7 days". The third placeholder at the end will add "Tap to learn more."-->
+  <string name="auto_delete_msg_contact_enabled">%1$s的消息将在%2$s后消失。%3$s</string>
+  <plurals name="duration_minutes">
+    <item quantity="other">%d分钟</item>
+  </plurals>
+  <plurals name="duration_hours">
+    <item quantity="other">%d小时消</item>
+  </plurals>
+  <plurals name="duration_days">
+    <item quantity="other">%d天</item>
+  </plurals>
+  <!--The first placeholder will show a contact's name. The second placeholder at the end will add "Tap to learn more."-->
+  <string name="auto_delete_msg_contact_disabled">%1$s的消息不会消失。%2$s</string>
+  <string name="tap_to_learn_more">轻按了解更多</string>
+  <string name="auto_delete_changed_warning_title">更改了让消息自动消失的设置</string>
+  <string name="auto_delete_changed_warning_message_enabled">自你开始编辑你的消息，使消息消失的设置已经启用。</string>
+  <string name="auto_delete_changed_warning_message_disabled">自你开始编辑你的消息，使消息消失的设置已经启用。 </string>
+  <string name="auto_delete_changed_warning_send">不论如何都要发送</string>
   <string name="delete_all_messages">删除全部消息</string>
   <string name="dialog_title_delete_all_messages">确认删除消息</string>
   <string name="dialog_message_delete_all_messages">您确定要删除所有消息吗？</string>
@@ -129,7 +197,6 @@
   <string name="dialog_message_not_deleted_ongoing_both">与正在进行的邀请和介绍有关的消息在结束之前无法被删除。</string>
   <string name="dialog_message_not_deleted_ongoing_introductions">与正在进行的介绍有关的消息在结束之前无法被删除。</string>
   <string name="dialog_message_not_deleted_ongoing_invitations">与正在进行的邀请有关的消息在结束之前无法被删除。</string>
-  <string name="dialog_message_not_deleted_partly_downloaded">部分下载的消息只有在完成下载后才能被删除。</string>
   <string name="dialog_message_not_deleted_not_all_selected_both">如要删除邀请或介绍，您需要选择该请求和回应。</string>
   <string name="dialog_message_not_deleted_not_all_selected_introductions">如要删除介绍，您需要选择该请求和回应。</string>
   <string name="dialog_message_not_deleted_not_all_selected_invitations">如要删除邀请，您需要选择该请求和回应。</string>
@@ -165,7 +232,6 @@
   <string name="connecting_to_device">正在连接至设备\u2026</string>
   <string name="authenticating_with_device">正在验证设备\u2026</string>
   <string name="connection_error_title">无法连接到您的联系人</string>
-  <string name="connection_error_explanation">请确保你们连接到了同一个无线局域网中。</string>
   <string name="connection_error_feedback">如果该问题仍存在，请 <a href="feedback">发送反馈</a> 帮助我们改善应用。</string>
   <!--Adding Contacts Remotely-->
   <string name="add_contact_remotely_title_case">添加远处的联系人</string>
@@ -241,6 +307,7 @@
   <string name="introduction_response_accepted_sent">您已接受与 %1$s 建立联系。</string>
   <string name="introduction_response_accepted_sent_info">在 %1$s 被添加为您的联系人之前，他/她还需要接受介绍。这可能需要一些时间。</string>
   <string name="introduction_response_declined_sent">您已谢绝与 %1$s 建立联系。</string>
+  <string name="introduction_response_declined_auto">向 %1$s 的介绍被自动拒绝了</string>
   <string name="introduction_response_accepted_received">%1$s 已接受与 %2$s 建立联系。</string>
   <string name="introduction_response_declined_received">%1$s 已谢绝与 %2$s 建立联系。</string>
   <string name="introduction_response_declined_received_by_introducee">%1$s 表示 %2$s 谢绝了介绍。</string>
@@ -285,6 +352,7 @@
   </plurals>
   <string name="groups_invitations_response_accepted_sent">您接受了来自 %s 的群聊邀请。</string>
   <string name="groups_invitations_response_declined_sent">您谢绝了来自 %s 的群聊邀请。</string>
+  <string name="groups_invitations_response_declined_auto">来自 %s 的小组邀请被自动拒绝了</string>
   <string name="groups_invitations_response_accepted_received">%s 接受了群聊邀请。</string>
   <string name="groups_invitations_response_declined_received">%s 谢绝了群聊邀请。</string>
   <string name="sharing_status_groups">只有创建者可以邀请新成员加入群聊。下面是目前的群成员。</string>
@@ -334,6 +402,7 @@
   <string name="forum_invitation_already_sharing">已在分享</string>
   <string name="forum_invitation_response_accepted_sent">您接受了来自 %s的论坛邀请</string>
   <string name="forum_invitation_response_declined_sent">您谢绝了来自 %s的论坛邀请</string>
+  <string name="forum_invitation_response_declined_auto">来自 %s 的论坛邀请被自动拒绝了</string>
   <string name="forum_invitation_response_accepted_received">%s 接受了论坛邀请。</string>
   <string name="forum_invitation_response_declined_received">%s 谢绝了论坛邀请。</string>
   <string name="sharing_status">分享状态</string>
@@ -367,6 +436,7 @@
   <string name="blogs_sharing_snackbar">博客已分享给选中的联系人</string>
   <string name="blogs_sharing_response_accepted_sent">您接受了来自 %s 的博客邀请。</string>
   <string name="blogs_sharing_response_declined_sent">您谢绝了来自 %s 的博客邀请。</string>
+  <string name="blogs_sharing_response_declined_auto">来自 %s 的博客邀请被自动拒绝了</string>
   <string name="blogs_sharing_response_accepted_received">%s 接受了博客邀请。</string>
   <string name="blogs_sharing_response_declined_received">%s 谢绝了博客邀请。</string>
   <string name="blogs_sharing_invitation_received">%1$s 向您分享博客 “%2$s”。</string>
@@ -380,16 +450,21 @@
   <string name="blogs_rss_feeds_import_button">导入</string>
   <string name="blogs_rss_feeds_import_hint">输入 RSS 订阅源链接</string>
   <string name="blogs_rss_feeds_import_error">抱歉！导入订阅源时发生错误。</string>
-  <string name="blogs_rss_feeds_manage">管理 RSS 订阅源</string>
+  <string name="blogs_rss_feeds_import_exists">已经导入那个源</string>
+  <string name="blogs_rss_feeds">RSS源 </string>
   <string name="blogs_rss_feeds_manage_imported">已导入：</string>
   <string name="blogs_rss_feeds_manage_author">作者：</string>
   <string name="blogs_rss_feeds_manage_updated">最后更新于：</string>
   <string name="blogs_rss_remove_feed">删除订阅源</string>
   <string name="blogs_rss_remove_feed_dialog_message">确认要删除该订阅源吗？\n\n博文将从您的设备上移除，但仍将存在于其他人的设备。\n\n那些经过您的分享而订阅该源的联系人可能不会再收到更新。</string>
   <string name="blogs_rss_remove_feed_ok">删除</string>
-  <string name="blogs_rss_feeds_manage_delete_error">该订阅源无法被删除！</string>
   <string name="blogs_rss_feeds_manage_empty_state">尚无订阅源可供显示\n\n轻按 + 号导入一个订阅源</string>
   <string name="blogs_rss_feeds_manage_error">加载订阅源时出错。请稍候再试。</string>
+  <!--Settings Profile Picture-->
+  <string name="change_profile_picture">轻按以更改你的个人资料图片</string>
+  <string name="dialog_confirm_profile_picture_title">更改个人资料图片</string>
+  <string name="dialog_confirm_profile_picture_remark">只有你的联系人能看到这张图</string>
+  <string name="change_profile_picture_failed_message">抱歉，更新你的个人资料图片时出了问题</string>
   <!--Settings Display-->
   <string name="pref_language_title">语言 &amp; 区域</string>
   <string name="pref_language_changed">该设置将会在 Briar 重启后生效。请登出并重启 Briar。</string>
@@ -403,10 +478,10 @@
   <!--Settings Connections-->
   <string name="network_settings_title">连接</string>
   <string name="bluetooth_setting">通过蓝牙连接联系人</string>
-  <string name="wifi_setting">通过同一Wi-Fi和联系人连接</string>
+  <string name="wifi_setting">通过同一个 Wi-Fi 网络和联系人连接</string>
   <string name="tor_enable_title">通过互联网和联系人连接</string>
-  <string name="tor_enable_summary">为了保护隐私，所有连接都通过Tor网络</string>
-  <string name="tor_network_setting">Tor网络连接方式</string>
+  <string name="tor_enable_summary">为了保护隐私，所有连接都通过 Tor 网络</string>
+  <string name="tor_network_setting">Tor 网络连接方式</string>
   <string name="tor_network_setting_automatic">基于位置自动选择</string>
   <string name="tor_network_setting_without_bridges">不通过网桥连接到 Tor</string>
   <string name="tor_network_setting_with_bridges">通过网桥连接到 Tor</string>
@@ -414,6 +489,7 @@
   <!--How and when Briar will connect to Tor: E.g. "Don't connect to the Internet (in China)" or "Use Tor network with bridges (in Belarus)"-->
   <string name="tor_network_setting_summary">自动选择：%1$s（在 %2$s）</string>
   <string name="tor_mobile_data_title">使用移动数据</string>
+  <string name="tor_only_when_charging_title">仅在充电时联网</string>
   <string name="tor_only_when_charging_summary">当设备使用电池电量时关闭网络连接</string>
   <!--Settings Security and Panic-->
   <string name="security_settings_title">安全</string>
@@ -476,8 +552,20 @@
   <string name="notify_sound_setting_disabled">无</string>
   <string name="choose_ringtone_title">选择铃声</string>
   <string name="cannot_load_ringtone">无法加载铃声</string>
+  <!--Conversation Settings-->
+  <string name="disappearing_messages_title">让消息自动消失</string>
+  <string name="disappearing_messages_explanation_long">打开此设置将使
+		此会话中的新消息在7\u00A0天后自动消失。
+		\n\n发送方的消息副本的倒计时在消息交付后开始。
+		对于接收方，倒计时在她们读取了消息后开始
+		\n\n将消失的消息会被标记有炸弹图标。
+		\n\n记住，收件人仍然可以复制你发送的消息。
+		\n\n如果您更改了此设置，它将立即应用于您的新消息
+		对于你的联系人的消息，新设置将在联系人收到你的下条消息后生效
+		你的联系人也可以为双方更改此设置。</string>
+  <string name="learn_more">了解更多</string>
+  <string name="disappearing_messages_summary">在7\u00A0天之后，使此对话中的后续消息自动消失。</string>
   <!--Settings Feedback-->
-  <string name="feedback_settings_title">反馈</string>
   <string name="send_feedback">提交反馈</string>
   <!--Link Warning-->
   <string name="link_warning_title">链接警告</string>
@@ -496,16 +584,31 @@
   <string name="optional_contact_email">您的邮箱地址（选填）</string>
   <string name="include_debug_report_crash">包含关于本次崩溃的匿名数据</string>
   <string name="include_debug_report_feedback">包含关于本设备的匿名数据</string>
-  <string name="could_not_load_report_data">无法加载报告数据。</string>
+  <string name="dev_report_user_info">用户信息</string>
+  <string name="dev_report_basic_info">基础信息</string>
+  <string name="dev_report_device_info">设备信息</string>
+  <string name="dev_report_stacktrace">堆栈追踪</string>
+  <string name="dev_report_time_info">时间信息</string>
+  <string name="dev_report_memory">内存</string>
+  <string name="dev_report_storage">存储</string>
+  <string name="dev_report_connectivity">连通性</string>
+  <string name="dev_report_build_config">编译配置</string>
+  <string name="dev_report_logcat">应用程序日志</string>
+  <string name="dev_report_device_features">设备特性</string>
   <string name="send_report">发送报告</string>
   <string name="close">关闭</string>
+  <string name="dev_report_sending">发送反馈中……</string>
+  <string name="dev_report_sent">反馈已发送</string>
   <string name="dev_report_saved">报告已保存，将于您下次登录时发送。</string>
+  <string name="dev_report_error">错误：报告发送失败</string>
   <!--Sign Out-->
   <string name="progress_title_logout">正在登出 Briar……</string>
   <!--Screen Filters & Tapjacking-->
   <string name="screen_filter_title">检测到屏幕覆盖</string>
   <string name="screen_filter_body">另一个应用覆盖在了 Briar 上。为了保护您的安全，在有其他应用覆盖的情况下， Briar 将不会对触控做出反应。\n\n如下应用可能覆盖在上方：\n\n%1$s</string>
+  <string name="screen_filter_body_api_30">另一款应用程序正显示在 Briar 的上层。为了保护您的安全，Briar 在另一个应用程序显示在其上层时不会响应屏幕触摸。\n\n请查看下面的应用程序，寻找是哪个应用导致了此问题。</string>
   <string name="screen_filter_allow">允许这些应用覆盖在上方</string>
+  <string name="screen_filter_review_apps">查看应用程序</string>
   <!--Permission Requests-->
   <string name="permission_camera_title">相机权限</string>
   <string name="permission_camera_request_body">Briar 需要获得相机权限以扫描二维码。</string>
@@ -514,6 +617,10 @@
   <string name="permission_camera_location_title">相机和位置</string>
   <string name="permission_camera_location_request_body"> Briar 需要相机权限以扫描二维码。\n\nBriar 需要位置信息权限以发现蓝牙设备。\n\nBriar 不会存储您的位置或将它分享给任何人。</string>
   <string name="permission_camera_denied_body">您已拒绝相机权限，而添加联系人需要使用相机。\n\n请考虑授予相机权限。</string>
+  <string name="permission_location_denied_body">您已拒绝访问您的位置信息，但 Briar 需要此权限才能发现蓝牙设备。\n\n请考虑授予访问权限。</string>
+  <string name="permission_location_setting_title">位置设定</string>
+  <string name="permission_location_setting_body">必须打开你设备的位置设置，才能通过蓝牙找到其他设备。请启用位置以继续。您可以在之后再次禁用它。</string>
+  <string name="permission_location_setting_button">启用位置</string>
   <string name="qr_code">二维码</string>
   <string name="show_qr_code_fullscreen">全屏显示二维码</string>
   <!--App Locking-->
@@ -524,6 +631,7 @@
   <string name="lock_is_locked">Briar 已锁定</string>
   <string name="lock_tap_to_unlock">轻按以解锁</string>
   <!--Connections Screen-->
+  <string name="transports_help_text">Briar 可以通过互联网、Wi-Fi 或蓝牙来连接到您的联系人。\n\n为了保护隐私，本应用会通过 Tor 网络进行所有的互联网连接。\n\n如果一个联系人可以通过多种方法联系到，Briar 会并行地使用它们。</string>
   <!--Screenshots-->
   <!--This is a name to be used in screenshots. Feel free to change it to a local name.-->
   <string name="screenshot_alice">韩梅梅</string>

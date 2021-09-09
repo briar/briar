@@ -24,6 +24,14 @@
   <string name="setup_huawei_text">لطفا روی دکمه زیر کلیک کنید و مطمئن شوید که از Briar (برایر) در صفحه \"برنامه های محافظت شده\" محافظت می شود.</string>
   <string name="setup_huawei_button">حفاظت از Briar (برایر)</string>
   <string name="setup_huawei_help">اگر Briar (برایر) به فهرست برنامه های محافظت شده اضافه نشده، نمی تواند در پس زمینه مشغول به کار باشد.</string>
+  <string name="setup_huawei_app_launch_text">لطفا روی دکمه زیر زده، صفحه‌ی \"راه اندازی برنامه\" را باز کرده و از این که برایر (Briar) بر روی \"مدیریت دستی\" تنظیم شده باشد، اطمینان حاصل کنید.</string>
+  <string name="setup_huawei_app_launch_button">باز کردن تنظیمات باتری</string>
+  <string name="setup_huawei_app_launch_help">اگر در صفحه \"راه اندازی برنامه\"، برایر (Briar) بر روی گزینه \"مدیریت دستی\" تنظیم نشده باشد، برنامه قادر به فعالیت در پس‌زمینه نخواهد بود.</string>
+  <string name="setup_xiaomi_text">برای اجرا در پس‌زمینه، لازم است برایر (Briar) در لیست اپ‌های اخیر قفل شود.</string>
+  <string name="setup_xiaomi_button">حفاظت از Briar (برایر)</string>
+  <string name="setup_xiaomi_help">اگر برایر (Briar) در لیست اپ‌های اخیر قفل نشود، قادر با اجرا در پس‌زمینه نخواهد بود.</string>
+  <string name="setup_xiaomi_dialog_body_old">1. لیست اپ‌های اخیر (یا app switcher) را باز کنید\n\n2. عکس اپ برایر (Briar) را پایین کشیده تا آیکون قفل نمایش یابد\n\n3. اگر قفل بسته نیست، روی آن بزنید تا قفل شود</string>
+  <string name="setup_xiaomi_dialog_body_new">1. لیست اپ‌های اخیر (یا app switcher) را باز کنید\n\n2. اروی عکس اپ برایر (Briar) نگه داشته تا آیکون قفل نمایش یابد\n\n3. اگر قفل بسته نیست، روی آن بزنید تا قفل شود</string>
   <string name="warning_dozed">ناتوانی %s برای اجراء در پس زمینه</string>
   <!--Login-->
   <string name="enter_password">گذرواژه</string>
@@ -67,12 +75,36 @@
   <string name="lock_button">قفل کردن برنامه</string>
   <string name="settings_button">تنظیمات</string>
   <string name="sign_out_button">خروج</string>
+  <string name="transports_onboarding_text">برای کنترل چگونگی اتصال Briar (برایر) به مخاطبین خود، اینجا را لمس کنید.</string>
   <!--Transports: Tor-->
   <string name="transport_tor">اینترنت</string>
+  <string name="tor_device_status_online_wifi">تلفن شما از طریق Wi-Fi به اینترنت دسترسی دارد.</string>
+  <string name="tor_device_status_online_mobile">تلفن شما از طریق دیتا سیمکارت به اینترنت دسترسی دارد.</string>
+  <string name="tor_device_status_offline">تلفن شما دارای دسترسی اینترنتی نیست</string>
+  <string name="tor_plugin_status_enabling">Briar در حال اتصال به اینترنت می باشد</string>
+  <string name="tor_plugin_status_active">Briar به اینترنت متصل شد</string>
+  <string name="tor_plugin_status_inactive">Briar نمی تواند به اینترنت متصل شود</string>
+  <string name="tor_plugin_status_disabled">Briar طوری پیکربندی شده تا از اینترنت استفاده نکند</string>
+  <string name="tor_plugin_status_disabled_mobile_data">Briar طوری پیکربندی شده تا از داده موبایل استفاده نکند</string>
+  <string name="tor_plugin_status_disabled_battery">Briar طوری پیکربندی شده تا از اینترنت در هنگام مصرف باتری استفاده نکند</string>
+  <string name="tor_plugin_status_disabled_country_blocked">Briar طوری پیکربندی شده تا از اینترنت در این کشور استفاده نکند</string>
   <!--Transports: Wi-Fi-->
   <string name="transport_lan">وای فای</string>
+  <string name="transport_lan_long">همان شبکه وای-فای</string>
+  <string name="lan_device_status_on">موبایل شما به وای-فای وصل می باشد</string>
+  <string name="lan_device_status_off">موبایل شما به وای-فای وصل نیست</string>
+  <string name="lan_plugin_status_enabling">Briar در حال اتصال به شبکه وای-فای می باشد</string>
+  <string name="lan_plugin_status_active">Briar به شبکه وای-فای متصل می باشد</string>
+  <string name="lan_plugin_status_inactive">Briar نمی‌تواند به شبکه وای-فای وصل شود</string>
+  <string name="lan_plugin_status_disabled">Briar طوری پیکربندی شده تا از شبکه وای-فای استفاده نکند</string>
   <!--Transports: Bluetooth-->
   <string name="transport_bt">بلوتوث</string>
+  <string name="bt_device_status_on">بلوتوث موبایل شما روشن می باشد</string>
+  <string name="bt_device_status_off">بلوتوث موبایل شما خاموش می باشد</string>
+  <string name="bt_plugin_status_enabling">Briar در حال اتصال به بلوتوث می باشد</string>
+  <string name="bt_plugin_status_active">Briar به بلوتوث وصل می باشد</string>
+  <string name="bt_plugin_status_inactive">Briar نمی تواند به بلوتوث وصل شود</string>
+  <string name="bt_plugin_status_disabled">Briar طوری پیکربندی شده که از بلوتوث استفاده نکند</string>
   <!--Notifications-->
   <string name="reminder_notification_title">از Briar (برایر) خارج شد</string>
   <string name="reminder_notification_text">برای وارد شدن دوباره ضربه بزنید.</string>
@@ -111,6 +143,8 @@
   <string name="send">ارسال</string>
   <string name="allow">اجازه دادن</string>
   <string name="open">باز کردن</string>
+  <string name="change">تغییر</string>
+  <string name="start">آغاز</string>
   <string name="no_data">داده ای موجود نمی باشد</string>
   <string name="ellipsis">…</string>
   <string name="text_too_long">متن وارد شده بیش از حد طولانی می باشد</string>
@@ -125,7 +159,9 @@
   <string name="no_contacts_action">برای افزودن مخاطب روی + کلیک کنید</string>
   <string name="date_no_private_messages">هیچ پیامی موجود نیست</string>
   <string name="no_private_messages">هیچ پیامی برای نشان دادن وجود ندارد</string>
-  <string name="message_hint">نوشتن پیام</string>
+  <string name="message_hint">پیام جدید</string>
+  <string name="message_hint_auto_delete">پیام ناپدید شونده جدید</string>
+  <string name="message_error">خطا در ارسال پیام</string>
   <string name="image_caption_hint">افزودن یک شرح (اختیاری)</string>
   <string name="image_attach">پیوست کردن تصویر</string>
   <string name="image_attach_error">پیوست کردن تصویر(ها) ممکن نمی باشد</string>
@@ -133,7 +169,41 @@
   <string name="image_attach_error_invalid_mime_type">فرمت تصویر پشتیبانی نمی‌شود: %s</string>
   <string name="set_contact_alias">تغییر نام مخاطب</string>
   <string name="set_contact_alias_hint">نام مخاطب</string>
-  <string name="set_alias_button">تغییر</string>
+  <string name="menu_item_disappearing_messages">پیام‌های ناپدید شونده</string>
+  <string name="menu_item_connect_via_bluetooth">اتصال از طریق بلوتوث</string>
+  <string name="dialog_title_connect_via_bluetooth">اتصال از طریق بلوتوث</string>
+  <string name="dialog_message_connect_via_bluetooth">برای امکان این عملکرد، مخاطب شما باید نزدیک باشد. \n\n شما و مخاطبتان باید همزمان گزینه‌ی \"شروع\" را بفشارید.</string>
+  <string name="toast_connect_via_bluetooth_already_discovering">در حال تلاش برای اتصال از طریق بلوتوث</string>
+  <string name="toast_connect_via_bluetooth_not_discoverable">امکان ادامه بدون بلوتوث وجود ندارد</string>
+  <string name="toast_connect_via_bluetooth_no_location_permission">امکان ادامه بدون اجازه مکان‌یابی وجود ندارد</string>
+  <string name="toast_connect_via_bluetooth_start">در حال اتصال از طریق بلوتوث</string>
+  <string name="toast_connect_via_bluetooth_success">ارتباط از طریق بلوتوث با موفقیت انجام شد</string>
+  <string name="toast_connect_via_bluetooth_error">اتصال از طریق بلوتوث برقرار نشد</string>
+  <!--The first placeholder will show a duration like "7 days". The second placeholder at the end will add "Tap to learn more."-->
+  <string name="auto_delete_msg_you_enabled">پیام شما پس از %1$s ناپدید خواهد شد. %2$s</string>
+  <!--The placeholder at the end will add "Tap to learn more."-->
+  <string name="auto_delete_msg_you_disabled">پیام شما ناپدید نخواهد شد. %1$s</string>
+  <!--The first placeholder will show a contact's name. The second placeholder will show a duration like "7 days". The third placeholder at the end will add "Tap to learn more."-->
+  <string name="auto_delete_msg_contact_enabled">پیام %1$s پس از %2$s ناپدید خواهد شد. %3$s</string>
+  <plurals name="duration_minutes">
+    <item quantity="one">%d دقیقه</item>
+    <item quantity="other">%d دقیقه</item>
+  </plurals>
+  <plurals name="duration_hours">
+    <item quantity="one">%d ساعت</item>
+    <item quantity="other">%d ساعت</item>
+  </plurals>
+  <plurals name="duration_days">
+    <item quantity="one">%d روز</item>
+    <item quantity="other">%d روز</item>
+  </plurals>
+  <!--The first placeholder will show a contact's name. The second placeholder at the end will add "Tap to learn more."-->
+  <string name="auto_delete_msg_contact_disabled">پیام %1$s ناپدید نخواهد شد. %2$s</string>
+  <string name="tap_to_learn_more">برای اطلاعات بیشتر اینجا را بفشارید.</string>
+  <string name="auto_delete_changed_warning_title">پیام‌های ناپدید شونده تغییر یافت</string>
+  <string name="auto_delete_changed_warning_message_enabled">از زمانی که شروع به نوشتن پیام خود کرده‌اید، پیام‌های ناپدید شونده فعال شده است.</string>
+  <string name="auto_delete_changed_warning_message_disabled">از زمانی که شروع به نوشتن پیام خود کرده‌اید، پیام‌های ناپدید شونده غیرفعال شده است.</string>
+  <string name="auto_delete_changed_warning_send">به هر حال ارسال کن</string>
   <string name="delete_all_messages">حذف تمام پیام ها</string>
   <string name="dialog_title_delete_all_messages">تایید حذف پیام</string>
   <string name="dialog_message_delete_all_messages">آیا از حذف تمام پیام‌ ها اطمینان دارید؟</string>
@@ -141,7 +211,6 @@
   <string name="dialog_message_not_deleted_ongoing_both">پیام های مرتبط با دعوت ها و معرفی های جاری نمی توانند حذف شوند تا زمانی که به نتیجه برسند.</string>
   <string name="dialog_message_not_deleted_ongoing_introductions">پیام های مرتبط با معرفی های جاری نمی توانند حذف شوند تا زمانی که به نتیجه برسند.</string>
   <string name="dialog_message_not_deleted_ongoing_invitations">پیام های مرتبط با دعوت نامه های جاری نمی توانند حذف شوند تا زمانی که به نتیجه برسند.</string>
-  <string name="dialog_message_not_deleted_partly_downloaded">پیام‌های نیمه دانلود شده تا زمانی که دانلود آن ها پایان نیافته است قابل حذف نیستند.</string>
   <string name="dialog_message_not_deleted_not_all_selected_both">برای حذف یک دعوت نامه یا معرفی، باید درخواست و پاسخ را انتخاب کنید.</string>
   <string name="dialog_message_not_deleted_not_all_selected_introductions">برای حذف یک معرفی، باید درخواست و پاسخ را انتخاب کنید.</string>
   <string name="dialog_message_not_deleted_not_all_selected_invitations">برای حذف یک دعوت نامه، باید درخواست و پاسخ آن را انتخاب کنید.</string>
@@ -185,7 +254,6 @@
   <string name="connecting_to_device">اتصال به دستگاهu2026\</string>
   <string name="authenticating_with_device">تصدیق سازی با دستگاه u2026\</string>
   <string name="connection_error_title">اتصال به مخاطب شما برقرار نشد</string>
-  <string name="connection_error_explanation">لطفا مطمئن شوید که هر دو شما به شبکه وای فای یکسان متصل هستید.</string>
   <string name="connection_error_feedback">اگر این مشکل ادامه پیدا کرد، لطفا <a href="feedback">بازخورد ارسال کنید</a> تا به ما در بهبود برنامه کمک کنید.</string>
   <!--Adding Contacts Remotely-->
   <string name="add_contact_remotely_title_case">افزودن مخاطب از دور</string>
@@ -266,6 +334,7 @@
   <string name="introduction_response_accepted_sent">شما معرفی به %1$sرا پذیرفتید.</string>
   <string name="introduction_response_accepted_sent_info">قبل از اضافه شدن %1$s به مخاطبان شما، آن ها باید معرفی را بپذیرند. این شاید کمی زمان ببرد.</string>
   <string name="introduction_response_declined_sent">شما معرفی به %1$sرا رد کردید.</string>
+  <string name="introduction_response_declined_auto">معرفی به %1$s به صورت خودکار رد شد.</string>
   <string name="introduction_response_accepted_received">%1$s معرفی به %2$s را پذیرفت.</string>
   <string name="introduction_response_declined_received">%1$s معرفی به %2$s را رد کرد.</string>
   <string name="introduction_response_declined_received_by_introducee">%1$s می گوید که %2$s دعوت نامه  را رد کرد.</string>
@@ -316,6 +385,7 @@
   </plurals>
   <string name="groups_invitations_response_accepted_sent">شما دعوت نامه گروه از %s را پذیرفتید.</string>
   <string name="groups_invitations_response_declined_sent">شما دعوت نامه گروه از %s را رد کردید.</string>
+  <string name="groups_invitations_response_declined_auto">دعوت به گروه از %s به صورت خودکار رد شد.</string>
   <string name="groups_invitations_response_accepted_received">%sدعوت نامه گروه را پذیرفت.</string>
   <string name="groups_invitations_response_declined_received">%s دعوت نامه گروه را رد کرد.</string>
   <string name="sharing_status_groups">فقط سازنده گروه می تواند اعضای جدید را به گروه دعوت کند. در پایین تمام اعضای فعلی گروه آمده است.</string>
@@ -372,6 +442,7 @@
   <string name="forum_invitation_already_sharing">در حال به اشتراک گذاری</string>
   <string name="forum_invitation_response_accepted_sent">شما دعوت نامه فروم از %s را پذیرفتید.</string>
   <string name="forum_invitation_response_declined_sent">شما دعوت نامه فروم از %s را رد کردید.</string>
+  <string name="forum_invitation_response_declined_auto">دعوت به تالار از %s به صورت خودکار رد شد.</string>
   <string name="forum_invitation_response_accepted_received">%s دعوت نامه فروم را پذیرفت.</string>
   <string name="forum_invitation_response_declined_received">%s دعوت نامه فروم را رد کرد.</string>
   <string name="sharing_status">به اشتراک گذاری وضعیت</string>
@@ -412,6 +483,7 @@
   <string name="blogs_sharing_snackbar">بلاگ با مخاطبان انتخاب شده به اشتراک گذاشته شد</string>
   <string name="blogs_sharing_response_accepted_sent">شما دعوت نامه بلاگ از طرف %s را پذیرفتید.</string>
   <string name="blogs_sharing_response_declined_sent">شما دعوت نامه بلاگ از %s را رد کردید.</string>
+  <string name="blogs_sharing_response_declined_auto">دعوت به وبلاگ از %s به صورت خودکار رد شد.</string>
   <string name="blogs_sharing_response_accepted_received">%sدعوت نامه بلاگ را پذیرفت.</string>
   <string name="blogs_sharing_response_declined_received">%s دعوت نامه بلاگ را رد کرد.</string>
   <string name="blogs_sharing_invitation_received">%1$s بلاگ \"%2$s\" را با شما به اشتراک گذاشت.</string>
@@ -425,7 +497,8 @@
   <string name="blogs_rss_feeds_import_button">وارد کردن</string>
   <string name="blogs_rss_feeds_import_hint">آدرس خوراک RSS را وارد کنید</string>
   <string name="blogs_rss_feeds_import_error">متاسفیم!  وارد کردن خوراک شما با خطا مواجه شده است.</string>
-  <string name="blogs_rss_feeds_manage">مدیریت خوراک های RSS</string>
+  <string name="blogs_rss_feeds_import_exists">این خوراک وارد شده است.</string>
+  <string name="blogs_rss_feeds">خوراک های RSS</string>
   <string name="blogs_rss_feeds_manage_imported">وارد شده:</string>
   <string name="blogs_rss_feeds_manage_author">نویسنده:</string>
   <string name="blogs_rss_feeds_manage_updated">آخرین به روز رسانی:</string>
@@ -436,11 +509,15 @@
 
 هر مخاطبی که با آن این خوراک را به اشتراک گذاشته اید ممکن است دیگر آپدیت دریافت نکند.</string>
   <string name="blogs_rss_remove_feed_ok">حذف</string>
-  <string name="blogs_rss_feeds_manage_delete_error">خوراک نمی تواند پاک شود!</string>
   <string name="blogs_rss_feeds_manage_empty_state">هیچ خوراک RSS برای نمایش وجود ندارد
 
 برای وارد کردن خوراک روی آیکون + ضربه بزنید</string>
   <string name="blogs_rss_feeds_manage_error">مشکلی با بارگذاری فیدهای شما وجود داشت. لطفا بعدا امتحان کنید.</string>
+  <!--Settings Profile Picture-->
+  <string name="change_profile_picture">برای تغییر تصویر نمایه خود اینجا را لمس کنید.</string>
+  <string name="dialog_confirm_profile_picture_title">تغییر تصویر نمایه</string>
+  <string name="dialog_confirm_profile_picture_remark">تنها مخاطبین شما می‌توانند این تصویر را مشاهده کنند.</string>
+  <string name="change_profile_picture_failed_message">تاسفیم اما هنگام بروزرسانی تصویر نمایه شما مشکلی رخ داد.</string>
   <!--Settings Display-->
   <string name="pref_language_title">زبان و منطقه</string>
   <string name="pref_language_changed">این تنظیمات زمانی که Briar (برایر) را ری استارت کنید تاثیر خود را می گذارند. لطفا خارج شوید و Briar (برایر) را دوباره راه اندازی کنید.</string>
@@ -528,8 +605,20 @@
   <string name="notify_sound_setting_disabled">هیچکدام</string>
   <string name="choose_ringtone_title">انتخاب رینگتون</string>
   <string name="cannot_load_ringtone">ناتوانی در بارگذاری رینگتون</string>
+  <!--Conversation Settings-->
+  <string name="disappearing_messages_title">پیام‌های ناپدید شونده</string>
+  <string name="disappearing_messages_explanation_long">روشن کردن این تنظیمات موجب خواهد شد تا پیام‌های جدید
+		در این گفتگو به صورت خودکار پس از 7\u00A0 روز ناپدید شوند.
+		\n\n شمارش معکوس برای نسخه‌ی ارسال کننده پیام از زمانی آغاز می‌شود که پیام رسیده باشد.
+		شماره معکوس برای گیرنده از زمانی آغاز می‌شود که پیام خوانده شده باشد.
+		\n\n پیام‌های ناپدید شونده با علامت بمب نشانه‌گذاری شده‌اند.
+		\n\n توجه داشته باشید که گیرنده کماکان می‌تواند پیام شما را کپی کند.
+		\n\n اگر این تنظیمات را تغییر دهید، تنظیمات جدید بلافاصله بر روی پیام‌های جدید شما و
+		 مخاطب شما به محض دریافت پیام اعمال خواهند شد.
+		 همچنین مخاطب شما می‌تواند این تنظیمات را برای شما تغییر دهد.</string>
+  <string name="learn_more">اطلاعات بیشتر</string>
+  <string name="disappearing_messages_summary">پس از این پیام‌های این گفتگو را بعد از 7\u00A0 روز ناپدید کن.</string>
   <!--Settings Feedback-->
-  <string name="feedback_settings_title">بازخورد</string>
   <string name="send_feedback">ارسال بازخورد</string>
   <!--Link Warning-->
   <string name="link_warning_title">هشدار پیوند</string>
@@ -548,10 +637,23 @@
   <string name="optional_contact_email">آدرس ایمیل شما (اختیاری)</string>
   <string name="include_debug_report_crash">قرار دادن داده های ناشناس مربوط به خرابی</string>
   <string name="include_debug_report_feedback">قرار دادن داده های ناشناس درباره این دستگاه</string>
-  <string name="could_not_load_report_data">امکان بارگذاری داده های گزارش وجود ندارد.</string>
+  <string name="dev_report_user_info">اطلاعات کاربر</string>
+  <string name="dev_report_basic_info">اطلاعات پایه</string>
+  <string name="dev_report_device_info">اطلاعات دستگاه</string>
+  <string name="dev_report_stacktrace">Stacktrace</string>
+  <string name="dev_report_time_info">اطلاعات زمانی</string>
+  <string name="dev_report_memory">حافظه</string>
+  <string name="dev_report_storage">حافظه</string>
+  <string name="dev_report_connectivity">اتصال</string>
+  <string name="dev_report_build_config">پیکربندی ساخت</string>
+  <string name="dev_report_logcat">لاگ برنامه</string>
+  <string name="dev_report_device_features">ویژگی‌های دستگاه</string>
   <string name="send_report">ارسال گزارش</string>
   <string name="close">بستن</string>
+  <string name="dev_report_sending">در حال فرستادن نظر...</string>
+  <string name="dev_report_sent">بازخورد ارسال شد</string>
   <string name="dev_report_saved">گزارش ذخیره شد. دفعه بعدی که وارد Briar (برایر) شدید فرستاده خواهد شد.</string>
+  <string name="dev_report_error">خطا در ارسال گزارش</string>
   <!--Sign Out-->
   <string name="progress_title_logout">خروج از Briar (برایر)...</string>
   <!--Screen Filters & Tapjacking-->
@@ -561,7 +663,9 @@
 این برنامه ها ممکن است روی Briar (برایر) قرار گرفته باشند:
 
 %1$s</string>
+  <string name="screen_filter_body_api_30">برنامه دیگری بر روی برنامه Briar (برایر) قرار دارد. برای محافظت از امنیت شما، Briar (برایر) هنگامی که برنامه دیگری روی آن باز است، به لمس پاسخ نخواهد داد. \n\nبرای یافتن برنامه مذکور، برنامه‌های زیر را بررسی کنید.</string>
   <string name="screen_filter_allow">به این برنامه ها اجازه بده تا روی Briar (برایر) قرار بگیرند</string>
+  <string name="screen_filter_review_apps">بررسی برنامه‌ها</string>
   <!--Permission Requests-->
   <string name="permission_camera_title">دسترسی به دوربین</string>
   <string name="permission_camera_request_body">برای اسکن کردن کد کیوآر دسترسی به دوربین لازم است.</string>
@@ -578,6 +682,10 @@ Briar (برایر) موقعیت شما را ذخیره نمی‌کند و آن �
   <string name="permission_camera_denied_body">شما دسترسی به دوربین را رد کرده اید، اما افزودن مخاطب نیاز به دوربین دارد.
 
 لطفا اجازه دسترسی را بدهید.</string>
+  <string name="permission_location_denied_body">شما دسترسی به موقعیت خود را نداده‌اید اما Briar (برایر) برای یافتن دستگاه‌های بلوتوث نیاز به این دسترسی دارد.\n\nلطفا این دسترسی را فراهم کنید.</string>
+  <string name="permission_location_setting_title">تنظیمات مکان‌یابی</string>
+  <string name="permission_location_setting_body">تنظیمات مکانی دستگاه شما باید روشن شود تا بتوانید سایر دستگاه‌ها را از طریق بلوتوث بیابید. برای ادامه لطفا مکان‌یابی خود را فعال کنید. شما می‌توانید بعدا آن رو دوباره غیرفعال کنید.</string>
+  <string name="permission_location_setting_button">فعالسازی مکان‌یابی</string>
   <string name="qr_code">کد کیوآر</string>
   <string name="show_qr_code_fullscreen">نمایش کد کیوآر به صورت فول اسکرین</string>
   <!--App Locking-->
@@ -588,6 +696,7 @@ Briar (برایر) موقعیت شما را ذخیره نمی‌کند و آن �
   <string name="lock_is_locked">Briar (برایر) قفل می باشد</string>
   <string name="lock_tap_to_unlock">برای آنلاک کردن کلیک کنید</string>
   <!--Connections Screen-->
+  <string name="transports_help_text">Briar (برایر) می‌تواند از طریق اینترنت، Wi-Fi و یا بلوتوث به مخاطبین شما متصل گردد.\n\nارتباط با اینترنت از طریق شبکه‌ی تور صورت می‌پذیرد.\n\nاگر دسترسی به مخاطب شما از روش‌های مختلفی ممکن باشد، Briar (برایر) به صورت موازی از آن‌ها استفاده خواهد کرد.</string>
   <!--Screenshots-->
   <!--This is a name to be used in screenshots. Feel free to change it to a local name.-->
   <string name="screenshot_alice">آلیس</string>

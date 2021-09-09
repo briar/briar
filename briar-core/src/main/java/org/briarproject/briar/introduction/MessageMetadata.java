@@ -13,12 +13,12 @@ class MessageMetadata {
 	private final MessageType type;
 	@Nullable
 	private final SessionId sessionId;
-	private final long timestamp;
-	private final boolean local, read, visible, available;
+	private final long timestamp, autoDeleteTimer;
+	private final boolean local, read, visible, available, isAutoDecline;
 
 	MessageMetadata(MessageType type, @Nullable SessionId sessionId,
 			long timestamp, boolean local, boolean read, boolean visible,
-			boolean available) {
+			boolean available, long autoDeleteTimer, boolean isAutoDecline) {
 		this.type = type;
 		this.sessionId = sessionId;
 		this.timestamp = timestamp;
@@ -26,6 +26,8 @@ class MessageMetadata {
 		this.read = read;
 		this.visible = visible;
 		this.available = available;
+		this.autoDeleteTimer = autoDeleteTimer;
+		this.isAutoDecline = isAutoDecline;
 	}
 
 	MessageType getMessageType() {
@@ -57,4 +59,11 @@ class MessageMetadata {
 		return available;
 	}
 
+	public long getAutoDeleteTimer() {
+		return autoDeleteTimer;
+	}
+
+	public boolean isAutoDecline() {
+		return isAutoDecline;
+	}
 }

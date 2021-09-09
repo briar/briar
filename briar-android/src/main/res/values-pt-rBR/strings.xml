@@ -22,6 +22,7 @@
   <string name="setup_huawei_text">Toque no botão abaixo e verifique se o Briar está protegido na tela \"Aplicativos Protegidos\"</string>
   <string name="setup_huawei_button">Proteger o Briar</string>
   <string name="setup_huawei_help">Se o Briar não for adicionado à lista de aplicativos protegidos ele não poderá ser executado em segundo plano.</string>
+  <string name="setup_xiaomi_button">Proteger o Briar</string>
   <string name="warning_dozed">%s não pôde ser executado em segundo plano</string>
   <!--Login-->
   <string name="enter_password">Senha</string>
@@ -61,12 +62,36 @@
   <string name="lock_button">Bloquear Aplicativo</string>
   <string name="settings_button">Configurações</string>
   <string name="sign_out_button">Sair</string>
+  <string name="transports_onboarding_text">Clique aqui para controlar como o Briar se conecta aos seus contatos.</string>
   <!--Transports: Tor-->
   <string name="transport_tor">Internet</string>
+  <string name="tor_device_status_online_wifi">Seu celular possui acesso à Internet via Wi-Fi</string>
+  <string name="tor_device_status_online_mobile">Seu celular possui acesso à Internet via dados móveis</string>
+  <string name="tor_device_status_offline">Seu celular não possui acesso à Internet</string>
+  <string name="tor_plugin_status_enabling">Briar está se conectando à Internet</string>
+  <string name="tor_plugin_status_active">Briar está conectado à Internet</string>
+  <string name="tor_plugin_status_inactive">Briar não pode conectar-se à Internet</string>
+  <string name="tor_plugin_status_disabled">Briar está configurado para não usar a Internet</string>
+  <string name="tor_plugin_status_disabled_mobile_data">Briar está configurado para não usar dados móveis</string>
+  <string name="tor_plugin_status_disabled_battery">Briar está configurado para não usar a Internet quando depender apenas da bateria</string>
+  <string name="tor_plugin_status_disabled_country_blocked">Briar está configurado para não usar a Internet neste país</string>
   <!--Transports: Wi-Fi-->
   <string name="transport_lan">Wi-fi</string>
+  <string name="transport_lan_long">Mesma rede de Wi-Fi</string>
+  <string name="lan_device_status_on">Seu celular está conectado ao Wi-Fi</string>
+  <string name="lan_device_status_off">Seu celular não está conectado ao Wi-Fi</string>
+  <string name="lan_plugin_status_enabling">Briar está se conectando à rede Wi-Fi</string>
+  <string name="lan_plugin_status_active">Briar está conectado à rede Wi-Fi</string>
+  <string name="lan_plugin_status_inactive">Briar não pode se conectar à rede Wi-Fi</string>
+  <string name="lan_plugin_status_disabled">Briar está configurado para não usar a rede Wi-Fi</string>
   <!--Transports: Bluetooth-->
   <string name="transport_bt">Bluetooth</string>
+  <string name="bt_device_status_on">O Bluetooth do seu celular está habilitado</string>
+  <string name="bt_device_status_off">O Bluetooth do seu celular está desabilitado</string>
+  <string name="bt_plugin_status_enabling">Briar está se conectando ao Bluetooth</string>
+  <string name="bt_plugin_status_active">Briar está conectado ao Bluetooth</string>
+  <string name="bt_plugin_status_inactive">Briar não conseguiu se conectar ao Bluetooth</string>
+  <string name="bt_plugin_status_disabled">Briar está configurado para não usar Bluetooth</string>
   <!--Notifications-->
   <string name="reminder_notification_title">Saiu do Briar</string>
   <string name="reminder_notification_text">Toque para fazer login novamente.</string>
@@ -105,6 +130,8 @@
   <string name="send">Enviar</string>
   <string name="allow">Permitir</string>
   <string name="open">Abrir</string>
+  <string name="change">Alterar</string>
+  <string name="start">Início</string>
   <string name="no_data">Nenhum dado</string>
   <string name="ellipsis">…</string>
   <string name="text_too_long">O texto entrado é muito grande</string>
@@ -119,7 +146,7 @@
   <string name="no_contacts_action">Toque no ícone + para adicionar um contato</string>
   <string name="date_no_private_messages">Sem Mensagens</string>
   <string name="no_private_messages">Nenhuma mensagem para ser exibida</string>
-  <string name="message_hint">Digite a mensagem</string>
+  <string name="message_hint">Nova mensagem</string>
   <string name="image_caption_hint">Adicione uma legenda (opcional)</string>
   <string name="image_attach">Anexar imagem</string>
   <string name="image_attach_error">Não foi possível anexar imagem(s)</string>
@@ -127,7 +154,12 @@
   <string name="image_attach_error_invalid_mime_type">Formato da imagem não suportado: %s</string>
   <string name="set_contact_alias">Alterar nome do contato</string>
   <string name="set_contact_alias_hint">Nome de contato</string>
-  <string name="set_alias_button">Trocar</string>
+  <string name="menu_item_connect_via_bluetooth">Conectar via Bluetooth</string>
+  <string name="dialog_title_connect_via_bluetooth">Conectar via Bluetooth</string>
+  <!--The first placeholder will show a duration like "7 days". The second placeholder at the end will add "Tap to learn more."-->
+  <!--The placeholder at the end will add "Tap to learn more."-->
+  <!--The first placeholder will show a contact's name. The second placeholder will show a duration like "7 days". The third placeholder at the end will add "Tap to learn more."-->
+  <!--The first placeholder will show a contact's name. The second placeholder at the end will add "Tap to learn more."-->
   <string name="delete_all_messages">Deletar todas as mensagens</string>
   <string name="dialog_title_delete_all_messages">Confirmar exclusão de mensagem</string>
   <string name="dialog_message_delete_all_messages">Você tem certeza que deseja excluir todas as mensagens?</string>
@@ -135,7 +167,6 @@
   <string name="dialog_message_not_deleted_ongoing_both">Mensagens relacionadas a convites e apresentações em andamento não podem ser deletadas até que o convite ou apresentação seja concluído. </string>
   <string name="dialog_message_not_deleted_ongoing_introductions">Mensagens relacionadas a apresentações em andamento não podem ser deletadas até que a apresentação seja concluída.</string>
   <string name="dialog_message_not_deleted_ongoing_invitations">Mensagens relacionadas a apresentações em andamento não podem ser deletadas até que a apresentação seja concluída.</string>
-  <string name="dialog_message_not_deleted_partly_downloaded">Mensagens baixadas parcialmente não podem ser deletas até que o download seja concluído.</string>
   <string name="dialog_message_not_deleted_not_all_selected_both">Para deletar um convite ou apresentação, você precisa selecionar a solicitação e a resposta.</string>
   <string name="dialog_message_not_deleted_not_all_selected_introductions">Para deletar uma apresentação, você precisa selecionar a solicitação e a resposta.</string>
   <string name="dialog_message_not_deleted_not_all_selected_invitations">Para deletar um convite, você precisa selecionar a solicitação e a resposta.</string>
@@ -171,7 +202,6 @@
   <string name="connecting_to_device">Conectando a device\u2026</string>
   <string name="authenticating_with_device">Autenticando com o dispositivo\u2026</string>
   <string name="connection_error_title">Não foi possível conectar-se ao seu contato</string>
-  <string name="connection_error_explanation">Por favor, certifique se ambos estão conectados na mesma rede Wi-Fi.</string>
   <string name="connection_error_feedback">Se o problema persistir, por favor <a href="feedback">envie um feedback</a> para nos ajudar a melhorar o app.</string>
   <!--Adding Contacts Remotely-->
   <string name="add_contact_remotely_title_case">Adicionar contato à distância</string>
@@ -391,16 +421,16 @@
   <string name="blogs_rss_feeds_import_button">Importar</string>
   <string name="blogs_rss_feeds_import_hint">Entre a URL do feed RSS</string>
   <string name="blogs_rss_feeds_import_error">Nós lamentamos! Houve um erro ao importar seu Feed.</string>
-  <string name="blogs_rss_feeds_manage">Gerenciar Feeds RSS</string>
+  <string name="blogs_rss_feeds">Feeds RSS</string>
   <string name="blogs_rss_feeds_manage_imported">Importado:</string>
   <string name="blogs_rss_feeds_manage_author">Autor:</string>
   <string name="blogs_rss_feeds_manage_updated">Última Atualização:</string>
   <string name="blogs_rss_remove_feed">Remover Feed</string>
   <string name="blogs_rss_remove_feed_dialog_message">Você tem certeza que deseja remover este feed?\n\nOs posts serão removidos do seus dispositivo mas não dos dispositivos de outras pessoas.\n\nContatos com quem você tenha compartilhado este feed vão parar de receber atualizações dele.</string>
   <string name="blogs_rss_remove_feed_ok">Remover</string>
-  <string name="blogs_rss_feeds_manage_delete_error">O Feed não pode ser deletado!</string>
   <string name="blogs_rss_feeds_manage_empty_state">Nenhum feed RSS para ser exibido\n\nPressione o ícone + para importar um feed</string>
   <string name="blogs_rss_feeds_manage_error">Houve um problema ao carregar seus Feeds. Por favor tente novamente.</string>
+  <!--Settings Profile Picture-->
   <!--Settings Display-->
   <string name="pref_language_title">Linguagem &amp; região</string>
   <string name="pref_language_changed">Essa configuração vai tomar efeito quando você reiniciar o Briar. Por favor saia e reinicie o Briar.</string>
@@ -410,13 +440,22 @@
   <string name="pref_theme_light">Claro</string>
   <string name="pref_theme_dark">Escuro</string>
   <string name="pref_theme_auto">Automático (dia)</string>
-  <string name="pref_theme_system">Padrão do Sistema</string>
+  <string name="pref_theme_system">Padrão do sistema</string>
   <!--Settings Connections-->
   <string name="network_settings_title">Conexões</string>
+  <string name="bluetooth_setting">Acessar contatos via Bluetooth</string>
+  <string name="wifi_setting">Acessar contatos usando a mesma rede Wi-Fi</string>
+  <string name="tor_enable_title">Acessar contatos via Internet</string>
+  <string name="tor_enable_summary">Por privacidade, todas as conexões passam pela rede Tor</string>
+  <string name="tor_network_setting">Método de conexão para a rede Tor</string>
   <string name="tor_network_setting_automatic">Automático baseado na localização </string>
+  <string name="tor_network_setting_without_bridges">Use a rede Tor sem pontes</string>
+  <string name="tor_network_setting_with_bridges">Use a rede Tor com pontes</string>
+  <string name="tor_network_setting_never">Não se conectar à Internet</string>
   <!--How and when Briar will connect to Tor: E.g. "Don't connect to the Internet (in China)" or "Use Tor network with bridges (in Belarus)"-->
   <string name="tor_network_setting_summary">Automático: %1$s (em %2$s) </string>
   <string name="tor_mobile_data_title">Usar dados moveis</string>
+  <string name="tor_only_when_charging_title">Conectar à Internet somente durante carregamento de bateria</string>
   <string name="tor_only_when_charging_summary">Desabilita conexão à Internet quando seu dispositivo estiver somente na bateria</string>
   <!--Settings Security and Panic-->
   <string name="security_settings_title">Segurança</string>
@@ -479,8 +518,9 @@
   <string name="notify_sound_setting_disabled">Nenhum</string>
   <string name="choose_ringtone_title">Escolher toque</string>
   <string name="cannot_load_ringtone">Não foi possível carregar o toque</string>
+  <!--Conversation Settings-->
+  <string name="learn_more">Saiba Mais</string>
   <!--Settings Feedback-->
-  <string name="feedback_settings_title">Feedback</string>
   <string name="send_feedback">Enviar feedback</string>
   <!--Link Warning-->
   <string name="link_warning_title">Aviso sobre Link</string>
@@ -499,16 +539,30 @@
   <string name="optional_contact_email">E-mail de contato (opcional)</string>
   <string name="include_debug_report_crash">Incluir informações anonimas sobre o </string>
   <string name="include_debug_report_feedback">Incluir dados anônimos sobre esse dispositivo </string>
-  <string name="could_not_load_report_data">Não foi possível carregar os dados do relatório.</string>
+  <string name="dev_report_basic_info">Informação Básica</string>
+  <string name="dev_report_device_info">Informações do dispositivo</string>
+  <string name="dev_report_stacktrace">Rastreamento de pilha</string>
+  <string name="dev_report_time_info">Informação de tempo</string>
+  <string name="dev_report_memory">Memória</string>
+  <string name="dev_report_storage">Armazenamento</string>
+  <string name="dev_report_connectivity">Conectividade</string>
+  <string name="dev_report_build_config">Configuração de execução</string>
+  <string name="dev_report_logcat">Log do App</string>
+  <string name="dev_report_device_features">Características do dispositivo</string>
   <string name="send_report">Enviar relatório </string>
   <string name="close">Fechar</string>
+  <string name="dev_report_sending">Enviando feedback...</string>
+  <string name="dev_report_sent">Feedback enviado</string>
   <string name="dev_report_saved">Relatório salvo. Ele será enviado na próxima vez em que você entrar no Briar.</string>
+  <string name="dev_report_error">Erro: falha no envio do relatório</string>
   <!--Sign Out-->
   <string name="progress_title_logout">Saindo do Briar…</string>
   <!--Screen Filters & Tapjacking-->
   <string name="screen_filter_title">Sobreposição de tela detectada</string>
   <string name="screen_filter_body">Outro aplicativo está se sobrepondo sobre o Briar. Para proteger sua segurança, Briar não responderá a seus toques enquanto estiver sobreposto.\n\nOs seguintes aplicativos podem estar se sobrepondo:\n\n%1$s</string>
+  <string name="screen_filter_body_api_30">Outro app está sendo executado sobre o Briar. Para garantir sua segurança, Briar não responderá aos toques quando outro app estiver em execução.\n\nRevise os apps abaixo para encontrar o responsável.</string>
   <string name="screen_filter_allow">Permitir que estes aplicativos se sobreponham</string>
+  <string name="screen_filter_review_apps">Revise os apps</string>
   <!--Permission Requests-->
   <string name="permission_camera_title">Permissão da câmera</string>
   <string name="permission_camera_request_body">O Briar precisa acessar a câmera para pode escanear o código QR.</string>
@@ -517,6 +571,7 @@
   <string name="permission_camera_location_title">Câmera e localização</string>
   <string name="permission_camera_location_request_body">Para escanear o código QR, O Briar precisa de acesso à câmera.\n\nPara encontrar dispositivos Bluetooth, O Briar precisa de permissão para acessar a localização.\n\nO Briar não armazena seu localização ou a compartilhar com qualquer pessoa.</string>
   <string name="permission_camera_denied_body">Você negou acesso à câmera, mas para adicionar contatos você precisa da câmera.\n\nPor favor, pense em liberar o acesso a ela.</string>
+  <string name="permission_location_denied_body">Você desabilitou o acesso à sua localização, no entanto o Briar precisa da permissão para saber se há dispositivos Bluetooth.\n\nPor favor, considere liberar o acesso.</string>
   <string name="qr_code">Código QR</string>
   <string name="show_qr_code_fullscreen">Mostrar o código QR na tela cheia</string>
   <!--App Locking-->
@@ -527,6 +582,7 @@
   <string name="lock_is_locked">O Briar está desbloqueado</string>
   <string name="lock_tap_to_unlock">Toque para desbloquear</string>
   <!--Connections Screen-->
+  <string name="transports_help_text">Briar pode se conectar aos seus contatos via Internet, Wi-Fi ou Bluetooth.\n\nTodas as conexões com a Internet acontecem via rede do Tor, por privacidade.\n\nSe um contato pode ser alcançado de várias formas, Briar as utilizará em paralelo.</string>
   <!--Screenshots-->
   <!--This is a name to be used in screenshots. Feel free to change it to a local name.-->
   <string name="screenshot_alice">Alice</string>

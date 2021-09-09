@@ -1,0 +1,24 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="BridgeTest" type="AndroidJUnit" factoryName="Android JUnit" nameIsGenerated="true">
+    <module name="briar.bramble-java" />
+    <useClassPathOnly />
+    <extension name="coverage">
+      <pattern>
+        <option name="PATTERN" value="org.briarproject.bramble.plugin.tor.*" />
+        <option name="ENABLED" value="true" />
+      </pattern>
+    </extension>
+    <option name="PACKAGE_NAME" value="org.briarproject.bramble.plugin.tor" />
+    <option name="MAIN_CLASS_NAME" value="org.briarproject.bramble.plugin.tor.BridgeTest" />
+    <option name="METHOD_NAME" value="" />
+    <option name="TEST_OBJECT" value="class" />
+    <option name="PARAMETERS" value="" />
+    <option name="WORKING_DIRECTORY" value="$MODULE_DIR$" />
+    <envs>
+      <env name="OPTIONAL_TESTS" value="org.briarproject.bramble.plugin.tor.BridgeTest" />
+    </envs>
+    <method v="2">
+      <option name="Android.Gradle.BeforeRunTask" enabled="true" />
+    </method>
+  </configuration>
+</component>

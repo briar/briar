@@ -27,7 +27,10 @@
 	<uses-permission android:name="android.permission.USE_FINGERPRINT" />
 	<uses-permission android:name="android.permission.VIBRATE" />
 	<uses-permission android:name="android.permission.WAKE_LOCK" />
-	<uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+	<uses-permission
+		android:name="android.permission.WRITE_EXTERNAL_STORAGE"
+		android:maxSdkVersion="18"
+		tools:ignore="ScopedStorage" />
 
 	<uses-permission-sdk-23 android:name="android.permission.ACCESS_FINE_LOCATION" />
 	<uses-permission-sdk-23 android:name="android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS" />
@@ -38,6 +41,7 @@
 		android:name="org.briarproject.briar.android.BriarApplicationImpl"
 		android:allowBackup="false"
 		android:banner="@mipmap/tv_banner"
+		android:fullBackupContent="@xml/backup_rules"
 		android:icon="@mipmap/ic_launcher_round"
 		android:label="@string/app_name"
 		android:logo="@mipmap/ic_launcher_round"
@@ -65,30 +69,42 @@
 
 		<service
 			android:name="org.briarproject.briar.android.NotificationCleanupService"
-			android:exported="false"></service>
+			android:exported="false" />
 
 		<activity
-			android:name="org.briarproject.briar.android.reporting.DevReportActivity"
+			android:name="org.briarproject.briar.android.reporting.CrashReportActivity"
 			android:excludeFromRecents="true"
 			android:exported="false"
 			android:finishOnTaskLaunch="true"
 			android:label="@string/crash_report_title"
 			android:launchMode="singleInstance"
+			android:process=":briar_error_handler"
 			android:theme="@style/BriarTheme.NoActionBar"
-			android:windowSoftInputMode="adjustResize|stateHidden"></activity>
+			android:windowSoftInputMode="adjustResize|stateHidden" />
+
+		<activity
+			android:name="org.briarproject.briar.android.reporting.FeedbackActivity"
+			android:exported="false"
+			android:label="@string/feedback_title"
+			android:parentActivityName="org.briarproject.briar.android.settings.SettingsActivity"
+			android:theme="@style/BriarTheme.NoActionBar"
+			android:windowSoftInputMode="adjustResize|stateHidden">
+			<meta-data
+				android:name="android.support.PARENT_ACTIVITY"
+				android:value="org.briarproject.briar.android.settings.SettingsActivity" />
+		</activity>
 
 		<activity
 			android:name="org.briarproject.briar.android.splash.ExpiredActivity"
-			android:label="@string/app_name"></activity>
+			android:label="@string/app_name" />
 
 		<activity
 			android:name="org.briarproject.briar.android.login.StartupActivity"
-			android:label="@string/app_name"></activity>
+			android:label="@string/app_name" />
 
 		<activity
 			android:name="org.briarproject.briar.android.account.SetupActivity"
-			android:label="@string/setup_title"
-			android:windowSoftInputMode="adjustResize|stateAlwaysVisible"></activity>
+			android:label="@string/setup_title" />
 
 		<activity
 			android:name="org.briarproject.briar.android.splash.SplashScreenActivity"
@@ -306,26 +322,7 @@
 		</activity>
 
 		<activity
-			android:name="org.briarproject.briar.android.blog.RssFeedImportActivity"
-			android:label="@string/blogs_rss_feeds_import"
-			android:parentActivityName="org.briarproject.briar.android.navdrawer.NavDrawerActivity"
-			android:windowSoftInputMode="adjustResize|stateAlwaysVisible">
-			<meta-data
-				android:name="android.support.PARENT_ACTIVITY"
-				android:value="org.briarproject.briar.android.navdrawer.NavDrawerActivity" />
-		</activity>
-
-		<activity
-			android:name="org.briarproject.briar.android.blog.RssFeedManageActivity"
-			android:label="@string/blogs_rss_feeds_manage"
-			android:parentActivityName="org.briarproject.briar.android.navdrawer.NavDrawerActivity">
-			<meta-data
-				android:name="android.support.PARENT_ACTIVITY"
-				android:value="org.briarproject.briar.android.navdrawer.NavDrawerActivity" />
-		</activity>
-
-		<activity
-			android:name="org.briarproject.briar.android.keyagreement.ContactExchangeActivity"
+			android:name="org.briarproject.briar.android.contact.add.nearby.AddNearbyContactActivity"
 			android:label="@string/add_contact_title"
 			android:parentActivityName="org.briarproject.briar.android.navdrawer.NavDrawerActivity"
 			android:theme="@style/BriarTheme.NoActionBar">
@@ -346,7 +343,13 @@
 
 		<activity
 			android:name="org.briarproject.briar.android.StartupFailureActivity"
-			android:label="@string/startup_failed_activity_title"></activity>
+			android:excludeFromRecents="true"
+			android:exported="false"
+			android:finishOnTaskLaunch="true"
+			android:label="@string/startup_failed_activity_title"
+			android:launchMode="singleInstance"
+			android:process=":briar_startup_failure"
+			android:windowSoftInputMode="adjustResize|stateHidden" />
 
 		<activity
 			android:name="org.briarproject.briar.android.settings.SettingsActivity"
@@ -412,11 +415,11 @@
 
 		<activity
 			android:name="org.briarproject.briar.android.logout.ExitActivity"
-			android:theme="@android:style/Theme.NoDisplay"></activity>
+			android:theme="@android:style/Theme.NoDisplay" />
 
 		<activity
 			android:name=".android.logout.HideUiActivity"
-			android:theme="@android:style/Theme.NoDisplay"></activity>
+			android:theme="@android:style/Theme.NoDisplay" />
 
 		<activity
 			android:name=".android.account.UnlockActivity"
@@ -431,9 +434,52 @@
 			android:windowSoftInputMode="adjustResize|stateHidden" />
 
 		<activity
+			android:name="org.briarproject.briar.android.blog.RssFeedActivity"
+			android:label="@string/blogs_rss_feeds"
+			android:parentActivityName="org.briarproject.briar.android.navdrawer.NavDrawerActivity">
+			<meta-data
+				android:name="android.support.PARENT_ACTIVITY"
+				android:value="org.briarproject.briar.android.navdrawer.NavDrawerActivity" />
+		</activity>
+
+		<activity
+			android:name="org.briarproject.briar.android.removabledrive.RemovableDriveActivity"
+			android:label="@string/removable_drive_menu_title"
+			android:parentActivityName="org.briarproject.briar.android.conversation.ConversationActivity">
+			<meta-data
+				android:name="android.support.PARENT_ACTIVITY"
+				android:value="org.briarproject.briar.android.conversation.ConversationActivity" />
+		</activity>
+
+		<activity
 			android:name=".android.contact.add.remote.PendingContactListActivity"
 			android:label="@string/pending_contact_requests"
 			android:theme="@style/BriarTheme" />
 
 	</application>
+
+	<queries>
+		<package android:name="info.guardianproject.ripple" />
+		<package android:name="com.huawei.systemmanager" />
+		<package android:name="com.huawei.powergenie" />
+		<package android:name="com.evenwell.PowerMonitor" />
+
+		<intent>
+			<action android:name="android.intent.action.VIEW" />
+			<data android:scheme="https" />
+		</intent>
+		<intent>
+			<action android:name="android.intent.action.VIEW" />
+			<data android:scheme="http" />
+		</intent>
+		<!-- white-listing the intents below does not seem necessary,
+		but they are still included in case modified Android versions require it -->
+		<intent>
+			<action android:name="android.bluetooth.adapter.action.REQUEST_DISCOVERABLE" />
+		</intent>
+		<intent>
+			<action android:name="android.settings.CHANNEL_NOTIFICATION_SETTINGS" />
+		</intent>
+	</queries>
+
 </manifest>

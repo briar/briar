@@ -10,6 +10,7 @@ import org.briarproject.bramble.api.sync.GroupId;
 import org.briarproject.bramble.api.sync.MessageId;
 
 import java.util.Collection;
+import java.util.List;
 
 import javax.annotation.Nullable;
 
@@ -99,9 +100,15 @@ public interface BlogManager {
 	Collection<Blog> getBlogs() throws DbException;
 
 	/**
+	 * Returns the group IDs of all blogs to which the user subscribes.
+	 */
+	Collection<GroupId> getBlogIds(Transaction txn) throws DbException;
+
+	/**
 	 * Returns the header of the blog post with the given ID.
 	 */
-	BlogPostHeader getPostHeader(GroupId g, MessageId m) throws DbException;
+	BlogPostHeader getPostHeader(Transaction txn, GroupId g, MessageId m)
+			throws DbException;
 
 	/**
 	 * Returns the text of the blog post with the given ID.
@@ -109,9 +116,20 @@ public interface BlogManager {
 	String getPostText(MessageId m) throws DbException;
 
 	/**
+	 * Returns the text of the blog post with the given ID.
+	 */
+	String getPostText(Transaction txn, MessageId m) throws DbException;
+
+	/**
 	 * Returns the headers of all posts in the given blog.
 	 */
 	Collection<BlogPostHeader> getPostHeaders(GroupId g) throws DbException;
+
+	/**
+	 * Returns the headers of all posts in the given blog.
+	 */
+	List<BlogPostHeader> getPostHeaders(Transaction txn, GroupId g)
+			throws DbException;
 
 	/**
 	 * Marks a blog post as read or unread.

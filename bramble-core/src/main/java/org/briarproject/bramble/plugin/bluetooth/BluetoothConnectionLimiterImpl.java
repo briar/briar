@@ -30,34 +30,37 @@ class BluetoothConnectionLimiterImpl implements BluetoothConnectionLimiter {
 	private final List<DuplexTransportConnection> connections =
 			new LinkedList<>();
 	@GuardedBy("lock")
-	private boolean keyAgreementInProgress = false;
+	private int limitingInProgress = 0;
 
 	BluetoothConnectionLimiterImpl(EventBus eventBus) {
 		this.eventBus = eventBus;
 	}
 
 	@Override
-	public void keyAgreementStarted() {
+	public void startLimiting() {
 		synchronized (lock) {
-			keyAgreementInProgress = true;
+			limitingInProgress++;
 		}
-		LOG.info("Key agreement started");
+		LOG.info("Limiting started");
 		eventBus.broadcast(new CloseSyncConnectionsEvent(ID));
 	}
 
 	@Override
-	public void keyAgreementEnded() {
+	public void endLimiting() {
 		synchronized (lock) {
-			keyAgreementInProgress = false;
+			limitingInProgress--;
+			if (limitingInProgress < 0) {
+				throw new IllegalStateException();
+			}
 		}
-		LOG.info("Key agreement ended");
+		LOG.info("Limiting ended");
 	}
 
 	@Override
 	public boolean canOpenContactConnection() {
 		synchronized (lock) {
-			if (keyAgreementInProgress) {
-				LOG.info("Can't open contact connection during key agreement");
+			if (limitingInProgress > 0) {
+				LOG.info("Can't open contact connection while limiting");
 				return false;
 			} else {
 				LOG.info("Can open contact connection");

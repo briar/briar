@@ -20,7 +20,7 @@ import javax.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.preference.ListPreference;
 import androidx.preference.PreferenceFragmentCompat;
-import androidx.preference.SwitchPreference;
+import androidx.preference.SwitchPreferenceCompat;
 import info.guardianproject.panic.PanicResponder;
 
 import static android.app.Activity.RESULT_CANCELED;
@@ -40,7 +40,7 @@ public class PanicPreferencesFragment extends PreferenceFragmentCompat
 			Logger.getLogger(PanicPreferencesFragment.class.getName());
 
 	private PackageManager pm;
-	private SwitchPreference lockPref, purgePref;
+	private SwitchPreferenceCompat lockPref, purgePref;
 	private ListPreference panicAppPref;
 
 	@Override
@@ -51,9 +51,9 @@ public class PanicPreferencesFragment extends PreferenceFragmentCompat
 	private void updatePreferences() {
 		pm = getActivity().getPackageManager();
 
-		lockPref = (SwitchPreference) findPreference(KEY_LOCK);
-		panicAppPref = (ListPreference) findPreference(KEY_PANIC_APP);
-		purgePref = (SwitchPreference) findPreference(KEY_PURGE);
+		lockPref = findPreference(KEY_LOCK);
+		panicAppPref = findPreference(KEY_PANIC_APP);
+		purgePref = findPreference(KEY_PURGE);
 
 		// check for connect/disconnect intents from panic trigger apps
 		if (PanicResponder.checkForDisconnectIntent(getActivity())) {
@@ -82,6 +82,7 @@ public class PanicPreferencesFragment extends PreferenceFragmentCompat
 		entries.add(0, getString(R.string.panic_app_setting_none));
 		entryValues.add(0, PACKAGE_NAME_NONE);
 
+		// only info.guardianproject.ripple is whitelisted in manifest
 		for (ResolveInfo resolveInfo : PanicResponder.resolveTriggerApps(pm)) {
 			if (resolveInfo.activityInfo == null)
 				continue;

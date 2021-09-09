@@ -58,7 +58,7 @@ class ScreenFilterMonitorImpl implements ScreenFilterMonitor, Service {
 			Logger.getLogger(ScreenFilterMonitorImpl.class.getName());
 
 	/*
- 	 * Ignore Play Services if it uses this package name and public key - it's
+	 * Ignore Play Services if it uses this package name and public key - it's
 	 * effectively a system app, but not flagged as such on older systems
 	 */
 	private static final String PLAY_SERVICES_PACKAGE =
@@ -108,7 +108,7 @@ class ScreenFilterMonitorImpl implements ScreenFilterMonitor, Service {
 		Set<String> allowed = prefs.getStringSet(PREF_KEY_ALLOWED,
 				Collections.emptySet());
 		List<AppDetails> apps = new ArrayList<>();
-		List<PackageInfo> packageInfos =
+		@SuppressLint("QueryPermissionsNeeded") List<PackageInfo> packageInfos =
 				pm.getInstalledPackages(GET_PERMISSIONS);
 		for (PackageInfo packageInfo : packageInfos) {
 			if (!allowed.contains(packageInfo.packageName)

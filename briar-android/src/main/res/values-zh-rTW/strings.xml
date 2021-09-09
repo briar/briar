@@ -96,6 +96,7 @@
   <string name="send">發送</string>
   <string name="allow">允許</string>
   <string name="open">打開</string>
+  <string name="change">變動</string>
   <string name="no_data">沒有數據</string>
   <string name="ellipsis">……</string>
   <string name="text_too_long">輸入的文本過長</string>
@@ -117,7 +118,6 @@
   <string name="image_attach_error_invalid_mime_type">圖片格式不支援: %s</string>
   <string name="set_contact_alias">更改聯絡人姓名</string>
   <string name="set_contact_alias_hint">聯絡人姓名</string>
-  <string name="set_alias_button">更改</string>
   <string name="delete_contact">刪除聯絡人</string>
   <string name="dialog_title_delete_contact">確認刪除聯絡人</string>
   <string name="dialog_message_delete_contact">確認要刪除該聯絡人和與其交流訊息嗎？</string>
@@ -149,7 +149,6 @@
   <string name="connecting_to_device">正在連接至裝置\u2026</string>
   <string name="authenticating_with_device">正在驗證裝置\u2026</string>
   <string name="connection_error_title">無法連接到您的聯絡人</string>
-  <string name="connection_error_explanation">請確保您們連接到了同一個 Wi-Fi中。</string>
   <string name="connection_error_feedback">如果該問題仍存在，請 <a href="feedback">發送反饋</a> 幫助我們改善程式。</string>
   <!--Adding Contacts Remotely-->
   <string name="add_contact_remotely_title_case">添加遠處的聯絡人</string>
@@ -363,16 +362,15 @@
   <string name="blogs_rss_feeds_import_button">導入</string>
   <string name="blogs_rss_feeds_import_hint">輸入 RSS 訂閱源鏈接</string>
   <string name="blogs_rss_feeds_import_error">抱歉！導入訂閱源時發生錯誤。</string>
-  <string name="blogs_rss_feeds_manage">管理 RSS 訂閱源</string>
   <string name="blogs_rss_feeds_manage_imported">已導入：</string>
   <string name="blogs_rss_feeds_manage_author">作者：</string>
   <string name="blogs_rss_feeds_manage_updated">最後更新於：</string>
   <string name="blogs_rss_remove_feed">刪除訂閱源</string>
   <string name="blogs_rss_remove_feed_dialog_message">確認要刪除該訂閱源嗎？\n\n博文將從您的裝置上移除，但仍將存在於其他人的裝置。\n\n那些經過您的分享而訂閱該源的聯絡人可能不會再收到更新。</string>
   <string name="blogs_rss_remove_feed_ok">刪除</string>
-  <string name="blogs_rss_feeds_manage_delete_error">無法刪除這訂閱源！</string>
   <string name="blogs_rss_feeds_manage_empty_state">尚無訂閱源可供顯示\n\n輕按 + 號導入訂閱源</string>
   <string name="blogs_rss_feeds_manage_error">加載訂閱源時出錯。請稍候再試。</string>
+  <!--Settings Profile Picture-->
   <!--Settings Display-->
   <string name="pref_language_title">語言 &amp; 區域</string>
   <string name="pref_language_changed">該設置將會在 Briar 重啓後生效。請登出並重啓 Briar。</string>
@@ -470,7 +468,6 @@
   <string name="optional_contact_email">您的郵箱地址（選填）</string>
   <string name="include_debug_report_crash">包含關於本次崩潰的匿名數據</string>
   <string name="include_debug_report_feedback">包含關於本裝置的匿名數據</string>
-  <string name="could_not_load_report_data">無法加載報告數據。</string>
   <string name="send_report">發送報告</string>
   <string name="close">關閉</string>
   <string name="dev_report_saved">報告已保存，將於您下次登錄時發送。</string>

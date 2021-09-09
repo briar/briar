@@ -12,10 +12,42 @@ import androidx.lifecycle.Observer;
 @NotNullByDefault
 public class LiveEvent<T> extends LiveData<LiveEvent.ConsumableEvent<T>> {
 
+	/**
+	 * Creates a LiveEvent initialized with the given {@code value}.
+	 *
+	 * @param value initial value
+	 */
+	public LiveEvent(T value) {
+		super(new ConsumableEvent<>(value));
+	}
+
+	/**
+	 * Creates a LiveEvent with no value assigned to it.
+	 */
+	public LiveEvent() {
+		super();
+	}
+
 	public void observeEvent(LifecycleOwner owner,
 			LiveEventHandler<T> handler) {
 		LiveEventObserver<T> observer = new LiveEventObserver<>(handler);
 		super.observe(owner, observer);
+	}
+
+	public void observeEventForever(LiveEventHandler<T> handler) {
+		LiveEventObserver<T> observer = new LiveEventObserver<>(handler);
+		super.observeForever(observer);
+	}
+
+	/**
+	 * Returns the last value of the event (even if already consumed)
+	 * or null if there hasn't been any value so far.
+	 */
+	@Nullable
+	public T getLastValue() {
+		ConsumableEvent<T> event = getValue();
+		if (event == null) return null;
+		return event.content;
 	}
 
 	static class ConsumableEvent<T> {

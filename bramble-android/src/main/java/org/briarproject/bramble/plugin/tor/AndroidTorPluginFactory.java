@@ -58,7 +58,7 @@ public class AndroidTorPluginFactory implements DuplexPluginFactory {
 	private final File torDirectory;
 
 	@Inject
-	public AndroidTorPluginFactory(@IoExecutor Executor ioExecutor,
+	AndroidTorPluginFactory(@IoExecutor Executor ioExecutor,
 			@WakefulIoExecutor Executor wakefulIoExecutor,
 			Application app,
 			NetworkManager networkManager,
@@ -94,7 +94,7 @@ public class AndroidTorPluginFactory implements DuplexPluginFactory {
 	}
 
 	@Override
-	public int getMaxLatency() {
+	public long getMaxLatency() {
 		return MAX_LATENCY;
 	}
 

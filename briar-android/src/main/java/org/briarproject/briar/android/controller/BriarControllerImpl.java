@@ -12,6 +12,7 @@ import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.settings.Settings;
 import org.briarproject.bramble.api.settings.SettingsManager;
 import org.briarproject.bramble.api.system.AndroidWakeLockManager;
+import org.briarproject.briar.android.BriarApplication;
 import org.briarproject.briar.android.BriarService;
 import org.briarproject.briar.android.BriarService.BriarServiceConnection;
 import org.briarproject.briar.android.controller.handler.ResultHandler;
@@ -104,7 +105,8 @@ public class BriarControllerImpl implements BriarController {
 
 	@Override
 	public void hasDozed(ResultHandler<Boolean> handler) {
-		if (!dozeWatchdog.getAndResetDozeFlag()
+		BriarApplication app = (BriarApplication) activity.getApplication();
+		if (app.isInstrumentationTest() || !dozeWatchdog.getAndResetDozeFlag()
 				|| !needsDozeWhitelisting(activity)) {
 			handler.onResult(false);
 			return;

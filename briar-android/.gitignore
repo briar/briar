@@ -11,3 +11,5 @@ src/main/res/values-iw
 /fastlane/metadata/android/*/images
 /fastlane/report.xml
 /fastlane/README.md
+
+/fastlane/metadata/android/*/changelogs

@@ -13,10 +13,10 @@
 		android:layout_marginStart="8dp"
 		android:layout_marginLeft="8dp"
 		android:elevation="@dimen/margin_tiny"
-		android:src="@drawable/ic_info_white"
 		app:layout_constraintBottom_toTopOf="@+id/divider"
 		app:layout_constraintStart_toStartOf="parent"
 		app:layout_constraintTop_toTopOf="parent"
+		app:srcCompat="@drawable/ic_info_white"
 		app:tint="?attr/colorControlNormal" />
 
 	<TextView

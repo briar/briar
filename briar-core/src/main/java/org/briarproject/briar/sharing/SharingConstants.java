@@ -4,9 +4,6 @@ import org.briarproject.briar.client.MessageTrackerConstants;
 
 interface SharingConstants {
 
-	// Group metadata keys
-	String GROUP_KEY_CONTACT_ID = "contactId";
-
 	// Message metadata keys
 	String MSG_KEY_MESSAGE_TYPE = "messageType";
 	String MSG_KEY_SHAREABLE_ID = "shareableId";
@@ -16,6 +13,8 @@ interface SharingConstants {
 	String MSG_KEY_VISIBLE_IN_UI = "visibleInUi";
 	String MSG_KEY_AVAILABLE_TO_ANSWER = "availableToAnswer";
 	String MSG_KEY_INVITATION_ACCEPTED = "invitationAccepted";
+	String MSG_KEY_AUTO_DELETE_TIMER = "autoDeleteTimer";
+	String MSG_KEY_IS_AUTO_DECLINE = "isAutoDecline";
 
 	// Session keys
 	String SESSION_KEY_IS_SESSION = "isSession";

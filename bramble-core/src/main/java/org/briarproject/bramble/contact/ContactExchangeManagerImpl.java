@@ -47,6 +47,7 @@ import javax.inject.Inject;
 
 import static java.util.logging.Logger.getLogger;
 import static org.briarproject.bramble.api.identity.AuthorConstants.MAX_SIGNATURE_LENGTH;
+import static org.briarproject.bramble.api.system.Clock.MIN_REASONABLE_TIME_MS;
 import static org.briarproject.bramble.contact.ContactExchangeConstants.PROTOCOL_VERSION;
 import static org.briarproject.bramble.contact.ContactExchangeRecordTypes.CONTACT_INFO;
 import static org.briarproject.bramble.util.ValidationUtils.checkLength;
@@ -184,6 +185,10 @@ class ContactExchangeManagerImpl implements ContactExchangeManager {
 
 		// The agreed timestamp is the minimum of the peers' timestamps
 		long timestamp = Math.min(localTimestamp, remoteInfo.timestamp);
+		if (timestamp < MIN_REASONABLE_TIME_MS) {
+			LOG.warning("Timestamp is too old");
+			throw new FormatException();
+		}
 
 		// Add the contact
 		Contact contact = addContact(p, remoteInfo.author, localAuthor,

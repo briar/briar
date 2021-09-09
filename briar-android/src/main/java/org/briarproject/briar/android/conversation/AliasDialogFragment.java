@@ -14,6 +14,7 @@ import org.briarproject.bramble.api.contact.Contact;
 import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
 import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
 import org.briarproject.briar.R;
+import org.briarproject.briar.android.activity.ActivityComponent;
 import org.briarproject.briar.android.activity.BaseActivity;
 
 import javax.inject.Inject;
@@ -21,7 +22,6 @@ import javax.inject.Inject;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatDialogFragment;
 import androidx.lifecycle.ViewModelProvider;
-import androidx.lifecycle.ViewModelProviders;
 
 import static android.view.WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE;
 import static java.util.Objects.requireNonNull;
@@ -32,6 +32,8 @@ import static org.briarproject.briar.android.util.UiUtils.showSoftKeyboard;
 
 @MethodsNotNullByDefault
 @ParametersNotNullByDefault
+// TODO: we can probably switch to androidx DialogFragment here but need to
+//  test this properly
 public class AliasDialogFragment extends AppCompatDialogFragment {
 
 	final static String TAG = AliasDialogFragment.class.getName();
@@ -50,7 +52,14 @@ public class AliasDialogFragment extends AppCompatDialogFragment {
 	@Override
 	public void onAttach(Context ctx) {
 		super.onAttach(ctx);
-		((BaseActivity) requireActivity()).getActivityComponent().inject(this);
+		injectFragment(
+				((BaseActivity) requireActivity()).getActivityComponent());
+	}
+
+	public void injectFragment(ActivityComponent component) {
+		component.inject(this);
+		viewModel = new ViewModelProvider(requireActivity(), viewModelFactory)
+				.get(ConversationViewModel.class);
 	}
 
 	@Override
@@ -58,9 +67,6 @@ public class AliasDialogFragment extends AppCompatDialogFragment {
 		super.onCreate(savedInstanceState);
 
 		setStyle(STYLE_NO_TITLE, R.style.BriarDialogTheme);
-
-		viewModel = ViewModelProviders.of(requireActivity(), viewModelFactory)
-				.get(ConversationViewModel.class);
 	}
 
 	@Override
@@ -72,7 +78,8 @@ public class AliasDialogFragment extends AppCompatDialogFragment {
 
 		aliasEditLayout = v.findViewById(R.id.aliasEditLayout);
 		aliasEditText = v.findViewById(R.id.aliasEditText);
-		Contact contact = requireNonNull(viewModel.getContact().getValue());
+		Contact contact = requireNonNull(viewModel.getContactItem().getValue())
+				.getContact();
 		String alias = contact.getAlias();
 		aliasEditText.setText(alias);
 		if (alias != null) aliasEditText.setSelection(alias.length());

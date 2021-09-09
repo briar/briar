@@ -32,7 +32,7 @@ public interface GroupInvitationManager extends ConversationClient {
 	/**
 	 * The current minor version of the private group invitation client.
 	 */
-	int MINOR_VERSION = 0;
+	int MINOR_VERSION = 1;
 
 	/**
 	 * Sends an invitation to share the given private group with the given
@@ -43,7 +43,8 @@ public interface GroupInvitationManager extends ConversationClient {
 	 * pending.
 	 */
 	void sendInvitation(GroupId g, ContactId c, @Nullable String text,
-			long timestamp, byte[] signature) throws DbException;
+			long timestamp, byte[] signature, long autoDeleteTimer)
+			throws DbException;
 
 	/**
 	 * Responds to a pending private group invitation from the given contact.

@@ -7,6 +7,8 @@ import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.sync.ClientId;
 import org.briarproject.bramble.api.sync.GroupId;
 import org.briarproject.bramble.api.sync.MessageId;
+import org.briarproject.briar.api.attachment.AttachmentHeader;
+import org.briarproject.briar.api.attachment.FileTooBigException;
 import org.briarproject.briar.api.conversation.ConversationManager.ConversationClient;
 
 import java.io.IOException;
@@ -30,12 +32,17 @@ public interface MessagingManager extends ConversationClient {
 	/**
 	 * The current minor version of the messaging client.
 	 */
-	int MINOR_VERSION = 2;
+	int MINOR_VERSION = 3;
 
 	/**
 	 * Stores a local private message.
 	 */
 	void addLocalMessage(PrivateMessage m) throws DbException;
+
+	/**
+	 * Stores a local private message.
+	 */
+	void addLocalMessage(Transaction txn, PrivateMessage m) throws DbException;
 
 	/**
 	 * Stores a local attachment message.
@@ -68,21 +75,8 @@ public interface MessagingManager extends ConversationClient {
 	String getMessageText(MessageId m) throws DbException;
 
 	/**
-	 * Returns the attachment with the given message ID and content type.
-	 *
-	 * @throws InvalidAttachmentException If the header refers to a message
-	 * that is not an attachment, or to an attachment that does not have the
-	 * expected content type
+	 * Returns the private message format supported by the given contact.
 	 */
-	Attachment getAttachment(AttachmentHeader h) throws DbException;
-
-	/**
-	 * Returns true if the contact with the given {@link ContactId} does support
-	 * image attachments.
-	 *
-	 * Added: 2019-01-01
-	 */
-	boolean contactSupportsImages(Transaction txn, ContactId c)
+	PrivateMessageFormat getContactMessageFormat(Transaction txn, ContactId c)
 			throws DbException;
-
 }

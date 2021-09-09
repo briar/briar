@@ -4,7 +4,7 @@ import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.sync.MessageId;
 
 import java.util.Collection;
-import java.util.Comparator;
+import java.util.List;
 
 import javax.annotation.Nullable;
 
@@ -15,11 +15,9 @@ public interface MessageTree<T extends MessageTree.MessageNode> {
 
 	void add(T node);
 
-	void setComparator(Comparator<T> comparator);
-
 	void clear();
 
-	Collection<T> depthFirstOrder();
+	List<T> depthFirstOrder();
 
 	boolean contains(MessageId m);
 

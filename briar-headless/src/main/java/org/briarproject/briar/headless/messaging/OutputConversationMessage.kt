@@ -1,7 +1,11 @@
 package org.briarproject.briar.headless.messaging
 
 import org.briarproject.bramble.api.contact.ContactId
+import org.briarproject.bramble.api.sync.MessageId
+import org.briarproject.bramble.api.sync.event.MessagesAckedEvent
+import org.briarproject.bramble.api.sync.event.MessagesSentEvent
 import org.briarproject.briar.api.conversation.ConversationMessageHeader
+import org.briarproject.briar.api.conversation.DeletionResult
 import org.briarproject.briar.api.messaging.PrivateMessage
 import org.briarproject.briar.api.messaging.PrivateMessageHeader
 import org.briarproject.briar.headless.json.JsonDict
@@ -43,3 +47,23 @@ internal fun PrivateMessage.output(contactId: ContactId, text: String) = JsonDic
     "groupId" to message.groupId.bytes,
     "text" to text
 )
+
+internal fun DeletionResult.output() = JsonDict(
+    "allDeleted" to allDeleted(),
+    "hasIntroductionSessionInProgress" to hasIntroductionSessionInProgress(),
+    "hasInvitationSessionInProgress" to hasInvitationSessionInProgress(),
+    "hasNotAllIntroductionSelected" to hasNotAllIntroductionSelected(),
+    "hasNotAllInvitationSelected" to hasNotAllInvitationSelected()
+)
+
+internal fun MessagesAckedEvent.output() = JsonDict(
+    "contactId" to contactId.int,
+    "messageIds" to messageIds.toJson()
+)
+
+internal fun MessagesSentEvent.output() = JsonDict(
+    "contactId" to contactId.int,
+    "messageIds" to messageIds.toJson()
+)
+
+internal fun Collection<MessageId>.toJson() = map { it.bytes }

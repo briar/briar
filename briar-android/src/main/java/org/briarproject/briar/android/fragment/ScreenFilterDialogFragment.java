@@ -5,6 +5,7 @@ import android.app.Activity;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
@@ -28,6 +29,10 @@ import javax.inject.Inject;
 import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.DialogFragment;
 
+import static android.os.Build.VERSION.SDK_INT;
+import static android.provider.Settings.ACTION_MANAGE_OVERLAY_PERMISSION;
+import static android.view.View.GONE;
+
 @MethodsNotNullByDefault
 @ParametersNotNullByDefault
 public class ScreenFilterDialogFragment extends DialogFragment {
@@ -37,7 +42,7 @@ public class ScreenFilterDialogFragment extends DialogFragment {
 	@Inject
 	ScreenFilterMonitor screenFilterMonitor;
 
-	DismissListener dismissListener = null;
+	private DismissListener dismissListener = null;
 
 	public static ScreenFilterDialogFragment newInstance(
 			Collection<AppDetails> apps) {
@@ -83,10 +88,20 @@ public class ScreenFilterDialogFragment extends DialogFragment {
 		View dialogView = inflater.inflate(R.layout.dialog_screen_filter, null);
 		builder.setView(dialogView);
 		TextView message = dialogView.findViewById(R.id.screen_filter_message);
-		message.setText(getString(R.string.screen_filter_body,
-				TextUtils.join("\n", appNames)));
 		CheckBox allow = dialogView.findViewById(R.id.screen_filter_checkbox);
-		builder.setNeutralButton(R.string.continue_button, (dialog, which) -> {
+		if (SDK_INT <= 29) {
+			message.setText(getString(R.string.screen_filter_body,
+					TextUtils.join("\n", appNames)));
+		} else {
+			message.setText(R.string.screen_filter_body_api_30);
+			allow.setVisibility(GONE);
+			builder.setNeutralButton(R.string.screen_filter_review_apps,
+					(dialog, which) -> {
+						Intent i = new Intent(ACTION_MANAGE_OVERLAY_PERMISSION);
+						startActivity(i);
+					});
+		}
+		builder.setPositiveButton(R.string.continue_button, (dialog, which) -> {
 			if (allow.isChecked()) screenFilterMonitor.allowApps(packageNames);
 			dialog.dismiss();
 		});

@@ -111,6 +111,8 @@
   <string name="send">Відправити</string>
   <string name="allow">Дозволити</string>
   <string name="open">Відкрити</string>
+  <string name="change">Змінити</string>
+  <string name="start">Почати</string>
   <string name="no_data">Немає даних</string>
   <string name="ellipsis">…</string>
   <string name="text_too_long">Цей текст занадто довгий</string>
@@ -124,7 +126,7 @@
   <string name="no_contacts_action">Натисніть на символ \"+\" для того, щоб додати контакт</string>
   <string name="date_no_private_messages">Немає повідомлень.</string>
   <string name="no_private_messages">Немає повідомлень для відображення</string>
-  <string name="message_hint">Введіть повідомлення</string>
+  <string name="message_hint">Нове Повідомлення</string>
   <string name="image_caption_hint">Додати заголовок (за бажанням)</string>
   <string name="image_attach">Прикріпити зображення</string>
   <string name="image_attach_error">Неможливо приєднати зображення</string>
@@ -132,7 +134,12 @@
   <string name="image_attach_error_invalid_mime_type">Формат зображення непідтримуваний: %s</string>
   <string name="set_contact_alias">Змінити ім\'я контакту</string>
   <string name="set_contact_alias_hint">Назва контакту</string>
-  <string name="set_alias_button">Змінити</string>
+  <string name="menu_item_connect_via_bluetooth">З\'єднатися через Bluetooth</string>
+  <string name="dialog_title_connect_via_bluetooth">З\'єднатися через Bluetooth</string>
+  <!--The first placeholder will show a duration like "7 days". The second placeholder at the end will add "Tap to learn more."-->
+  <!--The placeholder at the end will add "Tap to learn more."-->
+  <!--The first placeholder will show a contact's name. The second placeholder will show a duration like "7 days". The third placeholder at the end will add "Tap to learn more."-->
+  <!--The first placeholder will show a contact's name. The second placeholder at the end will add "Tap to learn more."-->
   <string name="dialog_title_not_all_messages_deleted">Не вдалося видалити всі повідомлення</string>
   <string name="delete_contact">Вилучити контакт</string>
   <string name="dialog_title_delete_contact">Підтвердити вилучення контакту</string>
@@ -165,7 +172,6 @@
   <string name="connecting_to_device">З\'єднання з пристроєм\u2026</string>
   <string name="authenticating_with_device">Автентифікація з пристроєм\u2026</string>
   <string name="connection_error_title">Неможливо з\'єднатися з вашим контактом</string>
-  <string name="connection_error_explanation">Будь ласка, впевніться, що ви обоє під\'єднані до однієї Wi-Fi-мережі.</string>
   <string name="connection_error_feedback">Якщо ця проблема збережеться, будь ласка, <a href="feedback">надішліть відгук</a>, щоб допомогти нам вдосконалити цей додаток.</string>
   <!--Adding Contacts Remotely-->
   <string name="add_contact_remotely_title_case">Додати контакт віддалено</string>
@@ -394,16 +400,15 @@
   <string name="blogs_rss_feeds_import_button">Імпортувати</string>
   <string name="blogs_rss_feeds_import_hint">Введіть URL-посилання RSS-стрічки</string>
   <string name="blogs_rss_feeds_import_error">Нам шкода! Виникла помилка під час імпорту вашої стрічки.</string>
-  <string name="blogs_rss_feeds_manage">Kерувати RSS-стрічками</string>
   <string name="blogs_rss_feeds_manage_imported">Імпортовано:</string>
   <string name="blogs_rss_feeds_manage_author">Автор:</string>
   <string name="blogs_rss_feeds_manage_updated">Востаннє оновлювалося:</string>
   <string name="blogs_rss_remove_feed">Видалити стрічку</string>
   <string name="blogs_rss_remove_feed_dialog_message">Ви впевнені, що хочете видалити цю стрічку?\n\nДописи буде видалено з вашого пристрою, але не з пристроїв інших осіб.\n\nБудь-хто з контактів, з якими ви поділилися цією стрічкою, можуть припинити отримувати оноволення.</string>
   <string name="blogs_rss_remove_feed_ok">Вилучити</string>
-  <string name="blogs_rss_feeds_manage_delete_error">Ця стрічка не може бути видалена!</string>
   <string name="blogs_rss_feeds_manage_empty_state">Немає RSS-стрічок до відображення\n\nНатисніть на символ \"+\", щоб імпортувати стрічку</string>
   <string name="blogs_rss_feeds_manage_error">Під час завантаження ваших стрічок виникла проблема. Будь ласка, спробуйте пізніше.</string>
+  <!--Settings Profile Picture-->
   <!--Settings Display-->
   <string name="pref_language_title">Мова &amp; регіон</string>
   <string name="pref_language_changed">Ці налаштування набувають чинності після того, як ви перезапустите Briar. Будь ласка, вийдіть з Briar та перезапустіть його.</string>
@@ -481,8 +486,9 @@
   <string name="notify_sound_setting_disabled">Немає</string>
   <string name="choose_ringtone_title">Обрати мелодію</string>
   <string name="cannot_load_ringtone">Неможливо завантажити мелодію</string>
+  <!--Conversation Settings-->
+  <string name="learn_more">Дізнатися більше</string>
   <!--Settings Feedback-->
-  <string name="feedback_settings_title">Відгук</string>
   <string name="send_feedback">Надіслати відгук</string>
   <!--Link Warning-->
   <string name="link_warning_title">Попередження про посилання</string>
@@ -501,7 +507,6 @@
   <string name="optional_contact_email">Ваша електронна адреса (необов\'язково)</string>
   <string name="include_debug_report_crash">Додати анонімну інформацію про аварійний збій</string>
   <string name="include_debug_report_feedback">Додати анонімну інформацію про цей пристрій</string>
-  <string name="could_not_load_report_data">Не вдалося завантажити дані звіту.</string>
   <string name="send_report">Надіслати звіт</string>
   <string name="close">Закрити</string>
   <string name="dev_report_saved">Звіт збережено. Його буде надіслано наступного разу, як ви увійдете до Briar.</string>

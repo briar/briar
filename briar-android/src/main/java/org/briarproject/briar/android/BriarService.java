@@ -3,7 +3,6 @@ package org.briarproject.briar.android;
 import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
-import android.app.PendingIntent;
 import android.app.Service;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
@@ -13,6 +12,8 @@ import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.os.Binder;
 import android.os.IBinder;
+
+import com.bumptech.glide.Glide;
 
 import org.briarproject.bramble.api.account.AccountManager;
 import org.briarproject.bramble.api.crypto.SecretKey;
@@ -32,11 +33,7 @@ import java.util.logging.Logger;
 import javax.annotation.Nullable;
 import javax.inject.Inject;
 
-import androidx.core.app.NotificationCompat;
-
-import static android.app.NotificationManager.IMPORTANCE_DEFAULT;
-import static android.app.NotificationManager.IMPORTANCE_NONE;
-import static android.app.PendingIntent.FLAG_UPDATE_CURRENT;
+import static android.app.NotificationManager.IMPORTANCE_LOW;
 import static android.content.Intent.ACTION_SHUTDOWN;
 import static android.content.Intent.FLAG_ACTIVITY_CLEAR_TASK;
 import static android.content.Intent.FLAG_ACTIVITY_CLEAR_TOP;
@@ -44,6 +41,7 @@ import static android.content.Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS;
 import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
 import static android.content.Intent.FLAG_ACTIVITY_NO_ANIMATION;
 import static android.os.Build.VERSION.SDK_INT;
+import static android.os.Process.myPid;
 import static androidx.core.app.NotificationCompat.VISIBILITY_SECRET;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
@@ -52,17 +50,16 @@ import static org.briarproject.bramble.api.lifecycle.LifecycleManager.StartResul
 import static org.briarproject.bramble.api.nullsafety.NullSafety.requireNonNull;
 import static org.briarproject.briar.android.BriarApplication.ENTRY_ACTIVITY;
 import static org.briarproject.briar.api.android.AndroidNotificationManager.FAILURE_CHANNEL_ID;
-import static org.briarproject.briar.api.android.AndroidNotificationManager.FAILURE_NOTIFICATION_ID;
 import static org.briarproject.briar.api.android.AndroidNotificationManager.ONGOING_CHANNEL_ID;
+import static org.briarproject.briar.api.android.AndroidNotificationManager.ONGOING_CHANNEL_OLD_ID;
 import static org.briarproject.briar.api.android.AndroidNotificationManager.ONGOING_NOTIFICATION_ID;
 import static org.briarproject.briar.api.android.LockManager.ACTION_LOCK;
+import static org.briarproject.briar.api.android.LockManager.EXTRA_PID;
 
 public class BriarService extends Service {
 
 	public static String EXTRA_START_RESULT =
 			"org.briarproject.briar.START_RESULT";
-	public static String EXTRA_NOTIFICATION_ID =
-			"org.briarproject.briar.FAILURE_NOTIFICATION_ID";
 	public static String EXTRA_STARTUP_FAILED =
 			"org.briarproject.briar.STARTUP_FAILED";
 
@@ -118,18 +115,23 @@ public class BriarService extends Service {
 			if (SDK_INT >= 26) {
 				NotificationManager nm = (NotificationManager)
 						requireNonNull(getSystemService(NOTIFICATION_SERVICE));
+				// Delete the old notification channel, which had
+				// IMPORTANCE_NONE and showed a badge
+				nm.deleteNotificationChannel(ONGOING_CHANNEL_OLD_ID);
+				// Use IMPORTANCE_LOW so the system doesn't show its own
+				// notification on API 26-27
 				NotificationChannel ongoingChannel = new NotificationChannel(
 						ONGOING_CHANNEL_ID,
 						getString(R.string.ongoing_notification_title),
-						IMPORTANCE_NONE);
+						IMPORTANCE_LOW);
 				ongoingChannel.setLockscreenVisibility(VISIBILITY_SECRET);
+				ongoingChannel.setShowBadge(false);
 				nm.createNotificationChannel(ongoingChannel);
-				NotificationChannel failureChannel = new NotificationChannel(
-						FAILURE_CHANNEL_ID,
-						getString(R.string.startup_failed_notification_title),
-						IMPORTANCE_DEFAULT);
-				failureChannel.setLockscreenVisibility(VISIBILITY_SECRET);
-				nm.createNotificationChannel(failureChannel);
+				// Delete the unused channel previously used for startup
+				// failure notifications
+				// TODO: Remove this ID after a reasonable upgrade period
+				//  (added 2021-07-12)
+				nm.deleteNotificationChannel(FAILURE_CHANNEL_ID);
 			}
 			Notification foregroundNotification =
 					notificationManager.getForegroundNotification();
@@ -145,7 +147,7 @@ public class BriarService extends Service {
 				} else {
 					if (LOG.isLoggable(WARNING))
 						LOG.warning("Startup failed: " + result);
-					showStartupFailureNotification(result);
+					showStartupFailure(result);
 					stopSelf();
 				}
 			}, "LifecycleStartup");
@@ -168,31 +170,16 @@ public class BriarService extends Service {
 	@Override
 	protected void attachBaseContext(Context base) {
 		super.attachBaseContext(Localizer.getInstance().setLocale(base));
+		Localizer.getInstance().setLocale(this);
 	}
 
-	private void showStartupFailureNotification(StartResult result) {
+	private void showStartupFailure(StartResult result) {
 		androidExecutor.runOnUiThread(() -> {
-			NotificationCompat.Builder b = new NotificationCompat.Builder(
-					BriarService.this, FAILURE_CHANNEL_ID);
-			b.setSmallIcon(android.R.drawable.stat_notify_error);
-			b.setContentTitle(getText(
-					R.string.startup_failed_notification_title));
-			b.setContentText(getText(
-					R.string.startup_failed_notification_text));
-			Intent i = new Intent(BriarService.this,
-					StartupFailureActivity.class);
-			i.setFlags(FLAG_ACTIVITY_NEW_TASK);
-			i.putExtra(EXTRA_START_RESULT, result);
-			i.putExtra(EXTRA_NOTIFICATION_ID, FAILURE_NOTIFICATION_ID);
-			b.setContentIntent(PendingIntent.getActivity(BriarService.this,
-					0, i, FLAG_UPDATE_CURRENT));
-			NotificationManager nm = (NotificationManager)
-					requireNonNull(getSystemService(NOTIFICATION_SERVICE));
-			nm.notify(FAILURE_NOTIFICATION_ID, b.build());
-			// Bring the dashboard to the front to clear the back stack
-			i = new Intent(BriarService.this, ENTRY_ACTIVITY);
+			// Bring the entry activity to the front to clear the back stack
+			Intent i = new Intent(BriarService.this, ENTRY_ACTIVITY);
 			i.setFlags(FLAG_ACTIVITY_NEW_TASK | FLAG_ACTIVITY_CLEAR_TOP);
 			i.putExtra(EXTRA_STARTUP_FAILED, true);
+			i.putExtra(EXTRA_START_RESULT, result);
 			startActivity(i);
 		});
 	}
@@ -200,7 +187,12 @@ public class BriarService extends Service {
 	@Override
 	public int onStartCommand(Intent intent, int flags, int startId) {
 		if (ACTION_LOCK.equals(intent.getAction())) {
-			lockManager.setLocked(true);
+			int pid = intent.getIntExtra(EXTRA_PID, -1);
+			if (pid == myPid()) lockManager.setLocked(true);
+			else if (LOG.isLoggable(WARNING)) {
+				LOG.warning("Tried to lock process " + pid + " but this is " +
+						myPid());
+			}
 		}
 		return START_NOT_STICKY; // Don't restart automatically if killed
 	}
@@ -246,10 +238,13 @@ public class BriarService extends Service {
 			LOG.info("Trim memory: near end of LRU list");
 		} else if (level == TRIM_MEMORY_RUNNING_MODERATE) {
 			LOG.info("Trim memory: running moderately low");
+			Glide.get(getApplicationContext()).clearMemory();
 		} else if (level == TRIM_MEMORY_RUNNING_LOW) {
 			LOG.info("Trim memory: running low");
+			// TODO investigate if we can clear Glide cache here as well
 		} else if (level == TRIM_MEMORY_RUNNING_CRITICAL) {
 			LOG.warning("Trim memory: running critically low");
+			// TODO investigate if we can clear Glide cache here as well
 			// If we're not in the foreground, clear the UI to save memory
 			if (app.isRunningInBackground()) hideUi();
 		} else if (LOG.isLoggable(INFO)) {
@@ -281,7 +276,9 @@ public class BriarService extends Service {
 					LOG.info("Interrupted while waiting for shutdown");
 				}
 				LOG.info("Exiting");
-				System.exit(0);
+				if (!app.isInstrumentationTest()) {
+					System.exit(0);
+				}
 			}, "BackgroundShutdown");
 		}, "BackgroundShutdown");
 	}

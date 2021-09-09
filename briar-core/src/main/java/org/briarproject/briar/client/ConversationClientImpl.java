@@ -10,7 +10,6 @@ import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.db.Transaction;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.sync.GroupId;
-import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.briar.api.client.MessageTracker;
 import org.briarproject.briar.api.client.MessageTracker.GroupCount;
 import org.briarproject.briar.api.conversation.ConversationManager.ConversationClient;
@@ -39,9 +38,4 @@ public abstract class ConversationClientImpl extends BdfIncomingMessageHook
 		return messageTracker.getGroupCount(txn, groupId);
 	}
 
-	@Override
-	public void setReadFlag(GroupId g, MessageId m, boolean read)
-			throws DbException {
-		messageTracker.setReadFlag(g, m, read);
-	}
 }

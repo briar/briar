@@ -17,7 +17,6 @@ import javax.inject.Inject;
 
 import androidx.annotation.Nullable;
 import androidx.lifecycle.ViewModelProvider;
-import androidx.lifecycle.ViewModelProviders;
 
 import static android.content.Intent.FLAG_ACTIVITY_CLEAR_TASK;
 import static android.content.Intent.FLAG_ACTIVITY_CLEAR_TOP;
@@ -41,6 +40,8 @@ public class StartupActivity extends BaseActivity implements
 	@Override
 	public void injectActivity(ActivityComponent component) {
 		component.inject(this);
+		viewModel = new ViewModelProvider(this, viewModelFactory)
+				.get(StartupViewModel.class);
 	}
 
 	@Override
@@ -51,8 +52,6 @@ public class StartupActivity extends BaseActivity implements
 
 		setContentView(R.layout.activity_fragment_container);
 
-		viewModel = ViewModelProviders.of(this, viewModelFactory)
-				.get(StartupViewModel.class);
 		if (!viewModel.accountExists()) {
 			// TODO ideally we would not have to delete the account again
 			// The account needs to deleted again to remove the database folder,

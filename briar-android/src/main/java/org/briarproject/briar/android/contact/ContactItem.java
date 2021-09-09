@@ -2,22 +2,26 @@ package org.briarproject.briar.android.contact;
 
 import org.briarproject.bramble.api.contact.Contact;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
+import org.briarproject.briar.api.identity.AuthorInfo;
 
-import javax.annotation.concurrent.NotThreadSafe;
+import javax.annotation.concurrent.Immutable;
 
-@NotThreadSafe
+@Immutable
 @NotNullByDefault
 public class ContactItem {
 
 	private final Contact contact;
-	private boolean connected;
+	private final AuthorInfo authorInfo;
+	private final boolean connected;
 
-	public ContactItem(Contact contact) {
-		this(contact, false);
+	public ContactItem(Contact contact, AuthorInfo authorInfo) {
+		this(contact, authorInfo, false);
 	}
 
-	public ContactItem(Contact contact, boolean connected) {
+	public ContactItem(Contact contact, AuthorInfo authorInfo,
+			boolean connected) {
 		this.contact = contact;
+		this.authorInfo = authorInfo;
 		this.connected = connected;
 	}
 
@@ -25,12 +29,12 @@ public class ContactItem {
 		return contact;
 	}
 
-	boolean isConnected() {
-		return connected;
+	public AuthorInfo getAuthorInfo() {
+		return authorInfo;
 	}
 
-	void setConnected(boolean connected) {
-		this.connected = connected;
+	boolean isConnected() {
+		return connected;
 	}
 
 }

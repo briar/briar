@@ -25,7 +25,7 @@ class ContactControllerIntegrationTest: IntegrationTest() {
 
         // add one test contact
         val testContactName= "testContactName"
-        testDataCreator.addContact(testContactName)
+        testDataCreator.addContact(testContactName, true, false)
 
         // retrieve list with one test contact
         response = get("$url/contacts")
@@ -96,6 +96,49 @@ class ContactControllerIntegrationTest: IntegrationTest() {
     fun `adding a pending contact needs authentication token`() {
         val response = postWithWrongToken("$url/contacts/add/pending")
         assertEquals(401, response.statusCode)
+    }
+
+    @Test
+    fun `adding a pending contact with invalid link`() {
+        val alias = "AliasFoo"
+        val json = """{
+            "link": "briar://invalid",
+            "alias": "$alias"
+        }"""
+        val response = post("$url/contacts/add/pending", json)
+        assertEquals(400, response.statusCode)
+        assertEquals("INVALID_LINK", response.jsonObject.getString("error"))
+    }
+
+    @Test
+    fun `adding a pending contact with invalid public key`() {
+        val alias = "AliasFoo"
+        val json = """{
+            "link": "briar://aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "alias": "$alias"
+        }"""
+        val response = post("$url/contacts/add/pending", json)
+        assertEquals(400, response.statusCode)
+        assertEquals("INVALID_PUBLIC_KEY", response.jsonObject.getString("error"))
+    }
+
+    @Test
+    fun `adding a pending contact that already exists as pending contact`() {
+        val alias = "AliasFoo"
+        val json = """{
+            "link": "${getRealHandshakeLink(crypto)}",
+            "alias": "$alias"
+        }"""
+        var response = post("$url/contacts/add/pending", json)
+        assertEquals(200, response.statusCode)
+
+        val pendingContactId = response.jsonObject.getString("pendingContactId")
+
+        response = post("$url/contacts/add/pending", json)
+        assertEquals(403, response.statusCode)
+        assertEquals("PENDING_EXISTS", response.jsonObject.getString("error"))
+        assertEquals(pendingContactId, response.jsonObject.getString("pendingContactId"))
+        assertEquals(alias, response.jsonObject.getString("pendingContactAlias"))
     }
 
     @Test

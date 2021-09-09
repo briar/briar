@@ -4,6 +4,7 @@ import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.KeyEvent;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
@@ -24,7 +25,6 @@ import javax.inject.Inject;
 
 import androidx.annotation.VisibleForTesting;
 import androidx.lifecycle.ViewModelProvider;
-import androidx.lifecycle.ViewModelProviders;
 
 import static android.view.View.INVISIBLE;
 import static android.view.View.VISIBLE;
@@ -57,12 +57,16 @@ public class ChangePasswordActivity extends BriarActivity
 	ChangePasswordViewModel viewModel;
 
 	@Override
+	public void injectActivity(ActivityComponent component) {
+		component.inject(this);
+		viewModel = new ViewModelProvider(this, viewModelFactory)
+				.get(ChangePasswordViewModel.class);
+	}
+
+	@Override
 	public void onCreate(Bundle state) {
 		super.onCreate(state);
 		setContentView(R.layout.activity_change_password);
-
-		viewModel = ViewModelProviders.of(this, viewModelFactory)
-				.get(ChangePasswordViewModel.class);
 
 		currentPasswordEntryWrapper =
 				findViewById(R.id.current_password_entry_wrapper);
@@ -77,7 +81,6 @@ public class ChangePasswordActivity extends BriarActivity
 		progress = findViewById(R.id.progress_wheel);
 
 		TextWatcher tw = new TextWatcher() {
-
 			@Override
 			public void beforeTextChanged(CharSequence s, int start, int count,
 					int after) {
@@ -102,8 +105,12 @@ public class ChangePasswordActivity extends BriarActivity
 	}
 
 	@Override
-	public void injectActivity(ActivityComponent component) {
-		component.inject(this);
+	public boolean onOptionsItemSelected(MenuItem item) {
+		if (item.getItemId() == android.R.id.home) {
+			onBackPressed();
+			return true;
+		}
+		return super.onOptionsItemSelected(item);
 	}
 
 	private void enableOrDisableContinueButton() {

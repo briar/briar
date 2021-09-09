@@ -1,5 +1,7 @@
 package org.briarproject.bramble.db;
 
+import static org.briarproject.bramble.api.sync.SyncConstants.MAX_TRANSPORT_LATENCY;
+
 class ExponentialBackoff {
 
 	/**
@@ -11,9 +13,11 @@ class ExponentialBackoff {
 	 * transmissions increases exponentially. If the expiry time would
 	 * be greater than Long.MAX_VALUE, Long.MAX_VALUE is returned.
 	 */
-	static long calculateExpiry(long now, int maxLatency, int txCount) {
+	static long calculateExpiry(long now, long maxLatency, int txCount) {
 		if (now < 0) throw new IllegalArgumentException();
-		if (maxLatency <= 0) throw new IllegalArgumentException();
+		if (maxLatency <= 0 || maxLatency > MAX_TRANSPORT_LATENCY) {
+			throw new IllegalArgumentException();
+		}
 		if (txCount < 0) throw new IllegalArgumentException();
 		// The maximum round-trip time is twice the maximum latency
 		long roundTrip = maxLatency * 2L;

@@ -69,6 +69,13 @@ interface Database<T> {
 	void close() throws DbException;
 
 	/**
+	 * Returns true if the dirty flag was set while opening the database,
+	 * indicating that the database has not been shut down properly the last
+	 * time it was closed and some data could be lost.
+	 */
+	boolean wasDirtyOnInitialisation();
+
+	/**
 	 * Starts a new transaction and returns an object representing it.
 	 */
 	T startTransaction() throws DbException;
@@ -138,7 +145,7 @@ interface Database<T> {
 	/**
 	 * Stores a transport.
 	 */
-	void addTransport(T txn, TransportId t, int maxLatency)
+	void addTransport(T txn, TransportId t, long maxLatency)
 			throws DbException;
 
 	/**
@@ -154,6 +161,18 @@ interface Database<T> {
 	 */
 	KeySetId addTransportKeys(T txn, PendingContactId p, TransportKeys k)
 			throws DbException;
+
+	/**
+	 * Returns true if there are any acks or messages to send to the given
+	 * contact over a transport with the given maximum latency.
+	 * <p/>
+	 * Read-only.
+	 *
+	 * @param eager True if messages that are not yet due for retransmission
+	 * should be included
+	 */
+	boolean containsAnythingToSend(T txn, ContactId c, long maxLatency,
+			boolean eager) throws DbException;
 
 	/**
 	 * Returns true if the database contains the given contact for the given
@@ -207,6 +226,16 @@ interface Database<T> {
 	 * Read-only.
 	 */
 	boolean containsTransport(T txn, TransportId t) throws DbException;
+
+	/**
+	 * Returns true if the database contains keys for communicating with the
+	 * given contact over the given transport. Handshake mode and rotation mode
+	 * keys are included, whether activated or not.
+	 * <p/>
+	 * Read-only.
+	 */
+	boolean containsTransportKeys(T txn, ContactId c, TransportId t)
+			throws DbException;
 
 	/**
 	 * Returns true if the database contains the given message, the message is
@@ -454,7 +483,7 @@ interface Database<T> {
 	 * Read-only.
 	 */
 	Collection<MessageId> getMessagesToOffer(T txn, ContactId c,
-			int maxMessages, int maxLatency) throws DbException;
+			int maxMessages, long maxLatency) throws DbException;
 
 	/**
 	 * Returns the IDs of some messages that are eligible to be requested from
@@ -469,10 +498,36 @@ interface Database<T> {
 	 * Returns the IDs of some messages that are eligible to be sent to the
 	 * given contact, up to the given total length.
 	 * <p/>
+	 * Unlike {@link #getUnackedMessagesToSend(Object, ContactId)} this method
+	 * does not return messages that have already been sent unless they are
+	 * due for retransmission.
+	 * <p/>
 	 * Read-only.
 	 */
 	Collection<MessageId> getMessagesToSend(T txn, ContactId c, int maxLength,
-			int maxLatency) throws DbException;
+			long maxLatency) throws DbException;
+
+	/**
+	 * Returns the IDs of all messages that are eligible to be sent to the
+	 * given contact, together with their raw lengths.
+	 * <p/>
+	 * Unlike {@link #getMessagesToSend(Object, ContactId, int, long)} this
+	 * method may return messages that have already been sent and are not yet
+	 * due for retransmission.
+	 * <p/>
+	 * Read-only.
+	 */
+	Map<MessageId, Integer> getUnackedMessagesToSend(T txn, ContactId c)
+			throws DbException;
+
+	/**
+	 * Returns the total length, including headers, of all messages that are
+	 * eligible to be sent to the given contact. This may include messages
+	 * that have already been sent and are not yet due for retransmission.
+	 * <p/>
+	 * Read-only.
+	 */
+	long getUnackedMessageBytesToSend(T txn, ContactId c) throws DbException;
 
 	/**
 	 * Returns the IDs of any messages that need to be validated.
@@ -496,6 +551,25 @@ interface Database<T> {
 	 * Read-only.
 	 */
 	Collection<MessageId> getMessagesToShare(T txn) throws DbException;
+
+	/**
+	 * Returns the IDs of any messages of any messages that are due for
+	 * deletion, along with their group IDs.
+	 * <p/>
+	 * Read-only.
+	 */
+	Map<GroupId, Collection<MessageId>> getMessagesToDelete(T txn)
+			throws DbException;
+
+	/**
+	 * Returns the next time (in milliseconds since the Unix epoch) when a
+	 * message is due to be deleted, or
+	 * {@link DatabaseComponent#NO_CLEANUP_DEADLINE} if no messages are
+	 * scheduled to be deleted.
+	 * <p/>
+	 * Read-only.
+	 */
+	long getNextCleanupDeadline(T txn) throws DbException;
 
 	/**
 	 * Returns the next time (in milliseconds since the Unix epoch) when a
@@ -530,7 +604,7 @@ interface Database<T> {
 	 * Read-only.
 	 */
 	Collection<MessageId> getRequestedMessagesToSend(T txn, ContactId c,
-			int maxLength, int maxLatency) throws DbException;
+			int maxLength, long maxLatency) throws DbException;
 
 	/**
 	 * Returns all settings in the given namespace.
@@ -552,6 +626,16 @@ interface Database<T> {
 	 * Read-only.
 	 */
 	Collection<TransportKeySet> getTransportKeys(T txn, TransportId t)
+			throws DbException;
+
+	/**
+	 * Returns the contact IDs and transport IDs for which the DB contains
+	 * at least one set of transport keys. Handshake mode and rotation mode
+	 * keys are included, whether activated or not.
+	 * <p/>
+	 * Read-only.
+	 */
+	Map<ContactId, Collection<TransportId>> getTransportsWithKeys(T txn)
 			throws DbException;
 
 	/**
@@ -606,8 +690,10 @@ interface Database<T> {
 
 	/**
 	 * Marks a message as having been seen by the given contact.
+	 *
+	 * @return True if the message was not already marked as seen.
 	 */
-	void raiseSeenFlag(T txn, ContactId c, MessageId m) throws DbException;
+	boolean raiseSeenFlag(T txn, ContactId c, MessageId m) throws DbException;
 
 	/**
 	 * Removes a contact from the database.
@@ -672,6 +758,13 @@ interface Database<T> {
 	void resetExpiryTime(T txn, ContactId c, MessageId m) throws DbException;
 
 	/**
+	 * Sets the cleanup timer duration for the given message. This does not
+	 * start the message's cleanup timer.
+	 */
+	void setCleanupTimerDuration(T txn, MessageId m, long duration)
+			throws DbException;
+
+	/**
 	 * Marks the given contact as verified.
 	 */
 	void setContactVerified(T txn, ContactId c) throws DbException;
@@ -701,9 +794,10 @@ interface Database<T> {
 	void setMessagePermanent(T txn, MessageId m) throws DbException;
 
 	/**
-	 * Marks the given message as shared.
+	 * Marks the given message as shared or not.
 	 */
-	void setMessageShared(T txn, MessageId m) throws DbException;
+	void setMessageShared(T txn, MessageId m, boolean shared)
+			throws DbException;
 
 	/**
 	 * Sets the validation and delivery state of the given message.
@@ -731,11 +825,27 @@ interface Database<T> {
 			throws DbException;
 
 	/**
+	 * Starts the cleanup timer for the given message, if a timer duration
+	 * has been set and the timer has not already been started.
+	 *
+	 * @return The cleanup deadline, or
+	 * {@link DatabaseComponent#TIMER_NOT_STARTED} if no timer duration has
+	 * been set for this message or its timer has already been started.
+	 */
+	long startCleanupTimer(T txn, MessageId m) throws DbException;
+
+	/**
+	 * Stops the cleanup timer for the given message, if the timer has been
+	 * started.
+	 */
+	void stopCleanupTimer(T txn, MessageId m) throws DbException;
+
+	/**
 	 * Updates the transmission count, expiry time and estimated time of arrival
 	 * of the given message with respect to the given contact, using the latency
 	 * of the transport over which it was sent.
 	 */
-	void updateExpiryTimeAndEta(T txn, ContactId c, MessageId m, int maxLatency)
+	void updateExpiryTimeAndEta(T txn, ContactId c, MessageId m, long maxLatency)
 			throws DbException;
 
 	/**

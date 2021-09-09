@@ -14,77 +14,31 @@ import android.preference.PreferenceManager;
 import com.vanniktech.emoji.EmojiManager;
 import com.vanniktech.emoji.google.GoogleEmojiProvider;
 
-import org.acra.ACRA;
-import org.acra.ReportingInteractionMode;
-import org.acra.annotation.ReportsCrashes;
 import org.briarproject.bramble.BrambleAndroidEagerSingletons;
 import org.briarproject.bramble.BrambleAppComponent;
 import org.briarproject.bramble.BrambleCoreEagerSingletons;
 import org.briarproject.briar.BriarCoreEagerSingletons;
-import org.briarproject.briar.BuildConfig;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.logging.CachingLogHandler;
-import org.briarproject.briar.android.reporting.BriarReportPrimer;
-import org.briarproject.briar.android.reporting.BriarReportSenderFactory;
-import org.briarproject.briar.android.reporting.DevReportActivity;
 import org.briarproject.briar.android.util.UiUtils;
 
-import java.util.Collection;
+import java.lang.Thread.UncaughtExceptionHandler;
 import java.util.logging.Handler;
-import java.util.logging.LogRecord;
 import java.util.logging.Logger;
+
+import androidx.annotation.NonNull;
 
 import static android.app.ActivityManager.RunningAppProcessInfo.IMPORTANCE_FOREGROUND;
 import static java.util.logging.Level.FINE;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Logger.getLogger;
-import static org.acra.ReportField.ANDROID_VERSION;
-import static org.acra.ReportField.APP_VERSION_CODE;
-import static org.acra.ReportField.APP_VERSION_NAME;
-import static org.acra.ReportField.BRAND;
-import static org.acra.ReportField.BUILD_CONFIG;
-import static org.acra.ReportField.CRASH_CONFIGURATION;
-import static org.acra.ReportField.CUSTOM_DATA;
-import static org.acra.ReportField.DEVICE_FEATURES;
-import static org.acra.ReportField.DISPLAY;
-import static org.acra.ReportField.INITIAL_CONFIGURATION;
-import static org.acra.ReportField.PACKAGE_NAME;
-import static org.acra.ReportField.PHONE_MODEL;
-import static org.acra.ReportField.PRODUCT;
-import static org.acra.ReportField.REPORT_ID;
-import static org.acra.ReportField.STACK_TRACE;
-import static org.acra.ReportField.USER_APP_START_DATE;
-import static org.acra.ReportField.USER_CRASH_DATE;
 import static org.briarproject.briar.android.TestingConstants.IS_DEBUG_BUILD;
 
-@ReportsCrashes(
-		reportPrimerClass = BriarReportPrimer.class,
-		logcatArguments = {"-d", "-v", "time", "*:I"},
-		reportSenderFactoryClasses = {BriarReportSenderFactory.class},
-		mode = ReportingInteractionMode.DIALOG,
-		reportDialogClass = DevReportActivity.class,
-		resDialogOkToast = R.string.dev_report_saved,
-		deleteOldUnsentReportsOnApplicationStart = false,
-		buildConfigClass = BuildConfig.class,
-		customReportContent = {
-				REPORT_ID,
-				APP_VERSION_CODE, APP_VERSION_NAME, PACKAGE_NAME,
-				PHONE_MODEL, ANDROID_VERSION, BRAND, PRODUCT,
-				BUILD_CONFIG,
-				CUSTOM_DATA,
-				STACK_TRACE,
-				INITIAL_CONFIGURATION, CRASH_CONFIGURATION,
-				DISPLAY, DEVICE_FEATURES,
-				USER_APP_START_DATE, USER_CRASH_DATE
-		}
-)
 public class BriarApplicationImpl extends Application
 		implements BriarApplication {
 
 	private static final Logger LOG =
 			getLogger(BriarApplicationImpl.class.getName());
-
-	private final CachingLogHandler logHandler = new CachingLogHandler();
 
 	private AndroidComponent applicationComponent;
 	private volatile SharedPreferences prefs;
@@ -97,8 +51,8 @@ public class BriarApplicationImpl extends Application
 		Localizer.initialize(prefs);
 		super.attachBaseContext(
 				Localizer.getInstance().setLocale(base));
+		Localizer.getInstance().setLocale(this);
 		setTheme(base, prefs);
-		ACRA.init(this);
 	}
 
 	@Override
@@ -106,6 +60,11 @@ public class BriarApplicationImpl extends Application
 		super.onCreate();
 
 		if (IS_DEBUG_BUILD) enableStrictMode();
+
+		applicationComponent = createApplicationComponent();
+		UncaughtExceptionHandler exceptionHandler =
+				applicationComponent.exceptionHandler();
+		Thread.setDefaultUncaughtExceptionHandler(exceptionHandler);
 
 		Logger rootLogger = getLogger("");
 		Handler[] handlers = rootLogger.getHandlers();
@@ -118,12 +77,12 @@ public class BriarApplicationImpl extends Application
 			// Restore the default handlers after the level raising handler
 			for (Handler handler : handlers) rootLogger.addHandler(handler);
 		}
+		CachingLogHandler logHandler = applicationComponent.logHandler();
 		rootLogger.addHandler(logHandler);
 		rootLogger.setLevel(IS_DEBUG_BUILD ? FINE : INFO);
 
 		LOG.info("Created");
 
-		applicationComponent = createApplicationComponent();
 		EmojiManager.install(new GoogleEmojiProvider());
 	}
 
@@ -144,7 +103,7 @@ public class BriarApplicationImpl extends Application
 	}
 
 	@Override
-	public void onConfigurationChanged(Configuration newConfig) {
+	public void onConfigurationChanged(@NonNull Configuration newConfig) {
 		super.onConfigurationChanged(newConfig);
 		Localizer.getInstance().setLocale(this);
 	}
@@ -177,11 +136,6 @@ public class BriarApplicationImpl extends Application
 	}
 
 	@Override
-	public Collection<LogRecord> getRecentLogRecords() {
-		return logHandler.getRecentLogRecords();
-	}
-
-	@Override
 	public AndroidComponent getApplicationComponent() {
 		return applicationComponent;
 	}
@@ -196,5 +150,10 @@ public class BriarApplicationImpl extends Application
 		RunningAppProcessInfo info = new RunningAppProcessInfo();
 		ActivityManager.getMyMemoryState(info);
 		return (info.importance != IMPORTANCE_FOREGROUND);
+	}
+
+	@Override
+	public boolean isInstrumentationTest() {
+		return false;
 	}
 }

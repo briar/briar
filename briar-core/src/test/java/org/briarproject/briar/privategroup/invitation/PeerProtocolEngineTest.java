@@ -9,6 +9,7 @@ import static org.briarproject.bramble.api.sync.Group.Visibility.INVISIBLE;
 import static org.briarproject.bramble.api.sync.Group.Visibility.SHARED;
 import static org.briarproject.bramble.api.sync.Group.Visibility.VISIBLE;
 import static org.briarproject.bramble.test.TestUtils.getRandomId;
+import static org.briarproject.briar.api.autodelete.AutoDeleteConstants.NO_AUTO_DELETE_TIMER;
 import static org.briarproject.briar.privategroup.invitation.PeerState.AWAIT_MEMBER;
 import static org.briarproject.briar.privategroup.invitation.PeerState.BOTH_JOINED;
 import static org.briarproject.briar.privategroup.invitation.PeerState.ERROR;
@@ -17,9 +18,8 @@ import static org.briarproject.briar.privategroup.invitation.PeerState.LOCAL_LEF
 import static org.briarproject.briar.privategroup.invitation.PeerState.NEITHER_JOINED;
 import static org.briarproject.briar.privategroup.invitation.PeerState.START;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
 
 public class PeerProtocolEngineTest extends AbstractProtocolEngineTest {
 
@@ -27,7 +27,8 @@ public class PeerProtocolEngineTest extends AbstractProtocolEngineTest {
 			new PeerProtocolEngine(db, clientHelper, clientVersioningManager,
 					privateGroupManager, privateGroupFactory,
 					groupMessageFactory, identityManager, messageParser,
-					messageEncoder, messageTracker, clock);
+					messageEncoder, messageTracker, autoDeleteManager,
+					conversationManager, clock);
 
 	private PeerSession getDefaultSession(PeerState state) {
 		return new PeerSession(contactGroupId, privateGroupId,
@@ -37,45 +38,45 @@ public class PeerProtocolEngineTest extends AbstractProtocolEngineTest {
 	// onInviteAction
 
 	@Test(expected = UnsupportedOperationException.class)
-	public void testOnInviteActionFromStart() throws Exception {
+	public void testOnInviteActionFromStart() {
 		engine.onInviteAction(txn, getDefaultSession(START), null,
-				messageTimestamp, signature);
+				messageTimestamp, signature, NO_AUTO_DELETE_TIMER);
 	}
 
 	@Test(expected = UnsupportedOperationException.class)
-	public void testOnInviteActionFromAwaitMember() throws Exception {
+	public void testOnInviteActionFromAwaitMember() {
 		engine.onInviteAction(txn, getDefaultSession(AWAIT_MEMBER), null,
-				messageTimestamp, signature);
+				messageTimestamp, signature, NO_AUTO_DELETE_TIMER);
 	}
 
 	@Test(expected = UnsupportedOperationException.class)
-	public void testOnInviteActionFromNeitherJoined() throws Exception {
+	public void testOnInviteActionFromNeitherJoined() {
 		engine.onInviteAction(txn, getDefaultSession(NEITHER_JOINED), null,
-				messageTimestamp, signature);
+				messageTimestamp, signature, NO_AUTO_DELETE_TIMER);
 	}
 
 	@Test(expected = UnsupportedOperationException.class)
-	public void testOnInviteActionFromLocalJoined() throws Exception {
+	public void testOnInviteActionFromLocalJoined() {
 		engine.onInviteAction(txn, getDefaultSession(LOCAL_JOINED), null,
-				messageTimestamp, signature);
+				messageTimestamp, signature, NO_AUTO_DELETE_TIMER);
 	}
 
 	@Test(expected = UnsupportedOperationException.class)
-	public void testOnInviteActionFromBothJoined() throws Exception {
+	public void testOnInviteActionFromBothJoined() {
 		engine.onInviteAction(txn, getDefaultSession(BOTH_JOINED), null,
-				messageTimestamp, signature);
+				messageTimestamp, signature, NO_AUTO_DELETE_TIMER);
 	}
 
 	@Test(expected = UnsupportedOperationException.class)
-	public void testOnInviteActionFromLocalLeft() throws Exception {
+	public void testOnInviteActionFromLocalLeft() {
 		engine.onInviteAction(txn, getDefaultSession(LOCAL_LEFT), null,
-				messageTimestamp, signature);
+				messageTimestamp, signature, NO_AUTO_DELETE_TIMER);
 	}
 
 	@Test(expected = UnsupportedOperationException.class)
-	public void testOnInviteActionFromError() throws Exception {
+	public void testOnInviteActionFromError() {
 		engine.onInviteAction(txn, getDefaultSession(ERROR), null,
-				messageTimestamp, signature);
+				messageTimestamp, signature, NO_AUTO_DELETE_TIMER);
 	}
 
 	// onJoinAction
@@ -109,7 +110,8 @@ public class PeerProtocolEngineTest extends AbstractProtocolEngineTest {
 	public void testOnJoinActionFromNeitherJoined() throws Exception {
 		JoinMessage joinMessage =
 				new JoinMessage(messageId, contactGroupId,
-						privateGroupId, messageTimestamp, lastRemoteMessageId);
+						privateGroupId, messageTimestamp, lastRemoteMessageId,
+						NO_AUTO_DELETE_TIMER);
 		PeerSession session = getDefaultSession(NEITHER_JOINED);
 
 		expectSendJoinMessage(joinMessage, false);
@@ -125,7 +127,8 @@ public class PeerProtocolEngineTest extends AbstractProtocolEngineTest {
 	public void testOnJoinActionFromLocalLeft() throws Exception {
 		JoinMessage joinMessage =
 				new JoinMessage(messageId, contactGroupId,
-						privateGroupId, messageTimestamp, lastRemoteMessageId);
+						privateGroupId, messageTimestamp, lastRemoteMessageId,
+						NO_AUTO_DELETE_TIMER);
 		PeerSession session = getDefaultSession(LOCAL_LEFT);
 
 		expectSendJoinMessage(joinMessage, false);
@@ -142,31 +145,31 @@ public class PeerProtocolEngineTest extends AbstractProtocolEngineTest {
 	@Test
 	public void testOnLeaveActionFromStart() throws Exception {
 		PeerSession session = getDefaultSession(START);
-		assertEquals(session, engine.onLeaveAction(txn, session));
+		assertEquals(session, engine.onLeaveAction(txn, session, false));
 	}
 
 	@Test
 	public void testOnLeaveActionFromAwaitMember() throws Exception {
 		PeerSession session = getDefaultSession(AWAIT_MEMBER);
-		assertEquals(session, engine.onLeaveAction(txn, session));
+		assertEquals(session, engine.onLeaveAction(txn, session, false));
 	}
 
 	@Test
 	public void testOnLeaveActionFromNeitherJoined() throws Exception {
 		PeerSession session = getDefaultSession(NEITHER_JOINED);
-		assertEquals(session, engine.onLeaveAction(txn, session));
+		assertEquals(session, engine.onLeaveAction(txn, session, false));
 	}
 
 	@Test
 	public void testOnLeaveActionFromLocalLeft() throws Exception {
 		PeerSession session = getDefaultSession(LOCAL_LEFT);
-		assertEquals(session, engine.onLeaveAction(txn, session));
+		assertEquals(session, engine.onLeaveAction(txn, session, false));
 	}
 
 	@Test
 	public void testOnLeaveActionFromError() throws Exception {
 		PeerSession session = getDefaultSession(ERROR);
-		assertEquals(session, engine.onLeaveAction(txn, session));
+		assertEquals(session, engine.onLeaveAction(txn, session, false));
 	}
 
 	@Test
@@ -175,7 +178,7 @@ public class PeerProtocolEngineTest extends AbstractProtocolEngineTest {
 
 		expectSendLeaveMessage(false);
 		expectSetPrivateGroupVisibility(INVISIBLE);
-		PeerSession newSession = engine.onLeaveAction(txn, session);
+		PeerSession newSession = engine.onLeaveAction(txn, session, false);
 
 		assertEquals(NEITHER_JOINED, newSession.getState());
 		assertSessionRecordedSentMessage(newSession);
@@ -188,7 +191,7 @@ public class PeerProtocolEngineTest extends AbstractProtocolEngineTest {
 
 		expectSendLeaveMessage(false);
 		expectSetPrivateGroupVisibility(INVISIBLE);
-		PeerSession newSession = engine.onLeaveAction(txn, session);
+		PeerSession newSession = engine.onLeaveAction(txn, session, false);
 
 		assertEquals(LOCAL_LEFT, newSession.getState());
 		assertSessionRecordedSentMessage(newSession);
@@ -216,7 +219,8 @@ public class PeerProtocolEngineTest extends AbstractProtocolEngineTest {
 	public void testOnMemberAddedFromAwaitMember() throws Exception {
 		JoinMessage joinMessage =
 				new JoinMessage(messageId, contactGroupId,
-						privateGroupId, messageTimestamp, lastRemoteMessageId);
+						privateGroupId, messageTimestamp, lastRemoteMessageId,
+						NO_AUTO_DELETE_TIMER);
 		PeerSession session = getDefaultSession(AWAIT_MEMBER);
 
 		expectSendJoinMessage(joinMessage, false);
@@ -361,12 +365,13 @@ public class PeerProtocolEngineTest extends AbstractProtocolEngineTest {
 			throws Exception {
 		JoinMessage invalidJoinMessage =
 				new JoinMessage(new MessageId(getRandomId()), contactGroupId,
-						privateGroupId, 0L, lastLocalMessageId);
+						privateGroupId, 0L, lastLocalMessageId,
+						NO_AUTO_DELETE_TIMER);
 		PeerSession session = getDefaultSession(START);
 		assertNotNull(invalidJoinMessage.getPreviousMessageId());
 		assertNotNull(session.getLastRemoteMessageId());
-		assertFalse(invalidJoinMessage.getPreviousMessageId()
-				.equals(session.getLastRemoteMessageId()));
+		assertNotEquals(invalidJoinMessage.getPreviousMessageId(),
+				session.getLastRemoteMessageId());
 
 		expectAbortWhenNotSubscribedToGroup();
 		PeerSession newSession =
@@ -379,8 +384,8 @@ public class PeerProtocolEngineTest extends AbstractProtocolEngineTest {
 		PeerSession session = getDefaultSession(START);
 		assertNotNull(joinMessage.getPreviousMessageId());
 		assertNotNull(session.getLastRemoteMessageId());
-		assertTrue(joinMessage.getPreviousMessageId()
-				.equals(session.getLastRemoteMessageId()));
+		assertEquals(joinMessage.getPreviousMessageId(),
+				session.getLastRemoteMessageId());
 
 		PeerSession newSession =
 				engine.onJoinMessage(txn, session, joinMessage);
@@ -399,12 +404,13 @@ public class PeerProtocolEngineTest extends AbstractProtocolEngineTest {
 			throws Exception {
 		JoinMessage invalidJoinMessage =
 				new JoinMessage(new MessageId(getRandomId()), contactGroupId,
-						privateGroupId, 0L, lastLocalMessageId);
+						privateGroupId, 0L, lastLocalMessageId,
+						NO_AUTO_DELETE_TIMER);
 		PeerSession session = getDefaultSession(NEITHER_JOINED);
 		assertNotNull(invalidJoinMessage.getPreviousMessageId());
 		assertNotNull(session.getLastRemoteMessageId());
-		assertFalse(invalidJoinMessage.getPreviousMessageId()
-				.equals(session.getLastRemoteMessageId()));
+		assertNotEquals(invalidJoinMessage.getPreviousMessageId(),
+				session.getLastRemoteMessageId());
 
 		expectAbortWhenNotSubscribedToGroup();
 		PeerSession newSession =
@@ -417,10 +423,11 @@ public class PeerProtocolEngineTest extends AbstractProtocolEngineTest {
 		PeerSession session = getDefaultSession(NEITHER_JOINED);
 		assertNotNull(joinMessage.getPreviousMessageId());
 		assertNotNull(session.getLastRemoteMessageId());
-		assertTrue(joinMessage.getPreviousMessageId()
-				.equals(session.getLastRemoteMessageId()));
+		assertEquals(joinMessage.getPreviousMessageId(),
+				session.getLastRemoteMessageId());
 		JoinMessage myJoinMessage = new JoinMessage(messageId, contactGroupId,
-				privateGroupId, messageTimestamp, lastRemoteMessageId);
+				privateGroupId, messageTimestamp, lastRemoteMessageId,
+				NO_AUTO_DELETE_TIMER);
 
 		expectSendJoinMessage(myJoinMessage, false);
 		expectSetPrivateGroupVisibility(SHARED);
@@ -441,12 +448,13 @@ public class PeerProtocolEngineTest extends AbstractProtocolEngineTest {
 			throws Exception {
 		JoinMessage invalidJoinMessage =
 				new JoinMessage(new MessageId(getRandomId()), contactGroupId,
-						privateGroupId, 0L, lastLocalMessageId);
+						privateGroupId, 0L, lastLocalMessageId,
+						NO_AUTO_DELETE_TIMER);
 		PeerSession session = getDefaultSession(LOCAL_JOINED);
 		assertNotNull(invalidJoinMessage.getPreviousMessageId());
 		assertNotNull(session.getLastRemoteMessageId());
-		assertFalse(invalidJoinMessage.getPreviousMessageId()
-				.equals(session.getLastRemoteMessageId()));
+		assertNotEquals(invalidJoinMessage.getPreviousMessageId(),
+				session.getLastRemoteMessageId());
 
 		expectAbortWhenNotSubscribedToGroup();
 		PeerSession newSession =
@@ -459,8 +467,8 @@ public class PeerProtocolEngineTest extends AbstractProtocolEngineTest {
 		PeerSession session = getDefaultSession(LOCAL_JOINED);
 		assertNotNull(joinMessage.getPreviousMessageId());
 		assertNotNull(session.getLastRemoteMessageId());
-		assertTrue(joinMessage.getPreviousMessageId()
-				.equals(session.getLastRemoteMessageId()));
+		assertEquals(joinMessage.getPreviousMessageId(),
+				session.getLastRemoteMessageId());
 
 		expectSetPrivateGroupVisibility(SHARED);
 		expectRelationshipRevealed(false);
@@ -520,12 +528,13 @@ public class PeerProtocolEngineTest extends AbstractProtocolEngineTest {
 			throws Exception {
 		LeaveMessage invalidLeaveMessage =
 				new LeaveMessage(new MessageId(getRandomId()), contactGroupId,
-						privateGroupId, 0L, lastLocalMessageId);
+						privateGroupId, 0L, lastLocalMessageId,
+						NO_AUTO_DELETE_TIMER);
 		PeerSession session = getDefaultSession(AWAIT_MEMBER);
 		assertNotNull(invalidLeaveMessage.getPreviousMessageId());
 		assertNotNull(session.getLastRemoteMessageId());
-		assertFalse(invalidLeaveMessage.getPreviousMessageId()
-				.equals(session.getLastRemoteMessageId()));
+		assertNotEquals(invalidLeaveMessage.getPreviousMessageId(),
+				session.getLastRemoteMessageId());
 
 		expectAbortWhenSubscribedToGroup();
 		PeerSession newSession =
@@ -538,8 +547,8 @@ public class PeerProtocolEngineTest extends AbstractProtocolEngineTest {
 		PeerSession session = getDefaultSession(AWAIT_MEMBER);
 		assertNotNull(leaveMessage.getPreviousMessageId());
 		assertNotNull(session.getLastRemoteMessageId());
-		assertTrue(leaveMessage.getPreviousMessageId()
-				.equals(session.getLastRemoteMessageId()));
+		assertEquals(leaveMessage.getPreviousMessageId(),
+				session.getLastRemoteMessageId());
 
 		PeerSession newSession =
 				engine.onLeaveMessage(txn, session, leaveMessage);
@@ -558,12 +567,13 @@ public class PeerProtocolEngineTest extends AbstractProtocolEngineTest {
 			throws Exception {
 		LeaveMessage invalidLeaveMessage =
 				new LeaveMessage(new MessageId(getRandomId()), contactGroupId,
-						privateGroupId, 0L, lastLocalMessageId);
+						privateGroupId, 0L, lastLocalMessageId,
+						NO_AUTO_DELETE_TIMER);
 		PeerSession session = getDefaultSession(LOCAL_LEFT);
 		assertNotNull(invalidLeaveMessage.getPreviousMessageId());
 		assertNotNull(session.getLastRemoteMessageId());
-		assertFalse(invalidLeaveMessage.getPreviousMessageId()
-				.equals(session.getLastRemoteMessageId()));
+		assertNotEquals(invalidLeaveMessage.getPreviousMessageId(),
+				session.getLastRemoteMessageId());
 
 		expectAbortWhenSubscribedToGroup();
 		PeerSession newSession =
@@ -576,8 +586,8 @@ public class PeerProtocolEngineTest extends AbstractProtocolEngineTest {
 		PeerSession session = getDefaultSession(LOCAL_LEFT);
 		assertNotNull(leaveMessage.getPreviousMessageId());
 		assertNotNull(session.getLastRemoteMessageId());
-		assertTrue(leaveMessage.getPreviousMessageId()
-				.equals(session.getLastRemoteMessageId()));
+		assertEquals(leaveMessage.getPreviousMessageId(),
+				session.getLastRemoteMessageId());
 
 		PeerSession newSession =
 				engine.onLeaveMessage(txn, session, leaveMessage);
@@ -596,12 +606,13 @@ public class PeerProtocolEngineTest extends AbstractProtocolEngineTest {
 			throws Exception {
 		LeaveMessage invalidLeaveMessage =
 				new LeaveMessage(new MessageId(getRandomId()), contactGroupId,
-						privateGroupId, 0L, lastLocalMessageId);
+						privateGroupId, 0L, lastLocalMessageId,
+						NO_AUTO_DELETE_TIMER);
 		PeerSession session = getDefaultSession(BOTH_JOINED);
 		assertNotNull(invalidLeaveMessage.getPreviousMessageId());
 		assertNotNull(session.getLastRemoteMessageId());
-		assertFalse(invalidLeaveMessage.getPreviousMessageId()
-				.equals(session.getLastRemoteMessageId()));
+		assertNotEquals(invalidLeaveMessage.getPreviousMessageId(),
+				session.getLastRemoteMessageId());
 
 		expectAbortWhenSubscribedToGroup();
 		PeerSession newSession =
@@ -614,8 +625,8 @@ public class PeerProtocolEngineTest extends AbstractProtocolEngineTest {
 		PeerSession session = getDefaultSession(BOTH_JOINED);
 		assertNotNull(leaveMessage.getPreviousMessageId());
 		assertNotNull(session.getLastRemoteMessageId());
-		assertTrue(leaveMessage.getPreviousMessageId()
-				.equals(session.getLastRemoteMessageId()));
+		assertEquals(leaveMessage.getPreviousMessageId(),
+				session.getLastRemoteMessageId());
 
 		expectSetPrivateGroupVisibility(VISIBLE); // FIXME correct?
 		PeerSession newSession =
@@ -685,14 +696,14 @@ public class PeerProtocolEngineTest extends AbstractProtocolEngineTest {
 	}
 
 	private void assertSessionAborted(PeerSession oldSession,
-			PeerSession newSession) throws Exception {
+			PeerSession newSession) {
 		assertEquals(ERROR, newSession.getState());
 		assertSessionRecordedSentMessage(newSession);
 		assertSessionConstantsUnchanged(oldSession, newSession);
 	}
 
 	@Override
-	protected void assertSessionRecordedSentMessage(Session s) {
+	protected void assertSessionRecordedSentMessage(Session<?> s) {
 		assertEquals(messageId, s.getLastLocalMessageId());
 		assertEquals(lastRemoteMessageId, s.getLastRemoteMessageId());
 		assertEquals(messageTimestamp, s.getLocalTimestamp());

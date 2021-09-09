@@ -29,4 +29,12 @@ public class NullSafety {
 	public static void requireNull(@Nullable Object o) {
 		if (o != null) throw new AssertionError();
 	}
+
+	/**
+	 * Stand-in for {@code Objects.equals()}.
+	 */
+	public static boolean equals(@Nullable Object a, @Nullable Object b) {
+		return (a == b) || (a != null && a.equals(b));
+	}
+
 }

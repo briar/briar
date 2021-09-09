@@ -14,6 +14,8 @@ import org.briarproject.briar.android.controller.DbControllerImpl;
 import org.briarproject.briar.android.controller.handler.ExceptionHandler;
 import org.briarproject.briar.android.controller.handler.ResultExceptionHandler;
 import org.briarproject.briar.api.client.ProtocolStateException;
+import org.briarproject.briar.api.identity.AuthorInfo;
+import org.briarproject.briar.api.identity.AuthorManager;
 import org.briarproject.briar.api.privategroup.GroupMember;
 import org.briarproject.briar.api.privategroup.PrivateGroupManager;
 import org.briarproject.briar.api.privategroup.invitation.GroupInvitationManager;
@@ -45,17 +47,20 @@ class RevealContactsControllerImpl extends DbControllerImpl
 	private final PrivateGroupManager groupManager;
 	private final GroupInvitationManager groupInvitationManager;
 	private final ContactManager contactManager;
+	private final AuthorManager authorManager;
 	private final SettingsManager settingsManager;
 
 	@Inject
 	RevealContactsControllerImpl(@DatabaseExecutor Executor dbExecutor,
 			LifecycleManager lifecycleManager, PrivateGroupManager groupManager,
 			GroupInvitationManager groupInvitationManager,
-			ContactManager contactManager, SettingsManager settingsManager) {
+			ContactManager contactManager, AuthorManager authorManager,
+			SettingsManager settingsManager) {
 		super(dbExecutor, lifecycleManager);
 		this.groupManager = groupManager;
 		this.groupInvitationManager = groupInvitationManager;
 		this.contactManager = contactManager;
+		this.authorManager = authorManager;
 		this.settingsManager = settingsManager;
 	}
 
@@ -82,11 +87,12 @@ class RevealContactsControllerImpl extends DbControllerImpl
 		for (GroupMember m : members) {
 			for (Contact c : contacts) {
 				if (m.getAuthor().equals(c.getAuthor())) {
+					AuthorInfo authorInfo = authorManager.getAuthorInfo(c);
 					boolean disabled = m.getVisibility() != INVISIBLE;
 					boolean selected =
 							disabled || selection.contains(c.getId());
-					items.add(new RevealableContactItem(c, selected, disabled,
-							m.getVisibility()));
+					items.add(new RevealableContactItem(c, authorInfo, selected,
+							disabled, m.getVisibility()));
 				}
 
 			}

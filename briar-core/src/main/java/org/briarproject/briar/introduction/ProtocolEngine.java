@@ -8,15 +8,20 @@ import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import javax.annotation.Nullable;
 
 @NotNullByDefault
-interface ProtocolEngine<S extends Session> {
+interface ProtocolEngine<S extends Session<?>> {
 
-	S onRequestAction(Transaction txn, S session, @Nullable String text,
-			long timestamp) throws DbException;
-
-	S onAcceptAction(Transaction txn, S session, long timestamp)
+	S onRequestAction(Transaction txn, S session, @Nullable String text)
 			throws DbException;
 
-	S onDeclineAction(Transaction txn, S session, long timestamp)
+	S onAcceptAction(Transaction txn, S session) throws DbException;
+
+	/**
+	 * Declines an introduction.
+	 *
+	 * @param isAutoDecline true if automatically declined due to deletion
+	 * and false if initiated by the user.
+	 */
+	S onDeclineAction(Transaction txn, S session, boolean isAutoDecline)
 			throws DbException;
 
 	S onRequestMessage(Transaction txn, S session, RequestMessage m)

@@ -15,13 +15,18 @@ import org.briarproject.briar.android.fragment.BaseFragment;
 import org.briarproject.briar.android.view.LargeTextInputView;
 import org.briarproject.briar.android.view.TextSendController;
 import org.briarproject.briar.android.view.TextSendController.SendListener;
-import org.briarproject.briar.api.messaging.AttachmentHeader;
+import org.briarproject.briar.android.view.TextSendController.SendState;
+import org.briarproject.briar.api.attachment.AttachmentHeader;
 
 import java.util.List;
 
 import androidx.annotation.Nullable;
 import androidx.annotation.StringRes;
 import androidx.annotation.UiThread;
+import androidx.lifecycle.LiveData;
+import androidx.lifecycle.MutableLiveData;
+
+import static org.briarproject.briar.android.view.TextSendController.SendState.SENT;
 
 @MethodsNotNullByDefault
 @ParametersNotNullByDefault
@@ -62,29 +67,29 @@ public abstract class BaseMessageFragment extends BaseFragment
 
 	@StringRes
 	protected abstract int getButtonText();
+
 	@StringRes
 	protected abstract int getHintText();
 
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
-		switch (item.getItemId()) {
-			case android.R.id.home:
-				if (message.isKeyboardOpen()) message.hideSoftKeyboard();
-				listener.onBackPressed();
-				return true;
-			default:
-				return super.onOptionsItemSelected(item);
+		if (item.getItemId() == android.R.id.home) {
+			if (message.isKeyboardOpen()) message.hideSoftKeyboard();
+			listener.onBackPressed();
+			return true;
 		}
+		return super.onOptionsItemSelected(item);
 	}
 
 	@Override
-	public void onSendClick(@Nullable String text,
-			List<AttachmentHeader> headers) {
+	public LiveData<SendState> onSendClick(@Nullable String text,
+			List<AttachmentHeader> headers, long expectedAutoDeleteTimer) {
 		// disable button to prevent accidental double actions
 		sendController.setReady(false);
 		message.hideSoftKeyboard();
 
 		listener.onButtonClick(text);
+		return new MutableLiveData<>(SENT);
 	}
 
 	@UiThread

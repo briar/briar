@@ -81,10 +81,19 @@ constructor(
                     path("/:contactId") {
                         delete { ctx -> contactController.delete(ctx) }
                     }
+                    path("/:contactId/alias") {
+                        put { ctx -> contactController.setContactAlias(ctx) }
+                    }
                 }
                 path("/messages/:contactId") {
                     get { ctx -> messagingController.list(ctx) }
                     post { ctx -> messagingController.write(ctx) }
+                }
+                path("/messages/:contactId/read") {
+                    post { ctx -> messagingController.markMessageRead(ctx) }
+                }
+                path("/messages/:contactId/all") {
+                    delete { ctx -> messagingController.deleteAllMessages(ctx) }
                 }
                 path("/forums") {
                     get { ctx -> forumController.list(ctx) }

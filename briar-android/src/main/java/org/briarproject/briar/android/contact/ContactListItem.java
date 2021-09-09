@@ -2,31 +2,71 @@ package org.briarproject.briar.android.contact;
 
 import org.briarproject.bramble.api.contact.Contact;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
+import org.briarproject.briar.api.attachment.AttachmentHeader;
 import org.briarproject.briar.api.client.MessageTracker.GroupCount;
 import org.briarproject.briar.api.conversation.ConversationMessageHeader;
+import org.briarproject.briar.api.identity.AuthorInfo;
 
-import javax.annotation.concurrent.NotThreadSafe;
+import javax.annotation.Nullable;
+import javax.annotation.concurrent.Immutable;
 
-@NotThreadSafe
+@Immutable
 @NotNullByDefault
-public class ContactListItem extends ContactItem {
+public class ContactListItem extends ContactItem
+		implements Comparable<ContactListItem> {
 
-	private boolean empty;
-	private long timestamp;
-	private int unread;
+	private final boolean empty;
+	private final long timestamp;
+	private final int unread;
 
-	public ContactListItem(Contact contact, boolean connected,
-			GroupCount count) {
-		super(contact, connected);
+	public ContactListItem(Contact contact, AuthorInfo authorInfo,
+			boolean connected, GroupCount count) {
+		super(contact, authorInfo, connected);
 		this.empty = count.getMsgCount() == 0;
 		this.unread = count.getUnreadCount();
 		this.timestamp = count.getLatestMsgTime();
 	}
 
-	void addMessage(ConversationMessageHeader h) {
-		empty = false;
-		if (h.getTimestamp() > timestamp) timestamp = h.getTimestamp();
-		if (!h.isRead()) unread++;
+	private ContactListItem(Contact contact, AuthorInfo authorInfo,
+			boolean connected, boolean empty, int unread, long timestamp) {
+		super(contact, authorInfo, connected);
+		this.empty = empty;
+		this.timestamp = timestamp;
+		this.unread = unread;
+	}
+
+	ContactListItem(ContactListItem item, boolean connected) {
+		this(item.getContact(), item.getAuthorInfo(), connected, item.empty,
+				item.unread, item.timestamp);
+	}
+
+	ContactListItem(ContactListItem item, ConversationMessageHeader h) {
+		this(item.getContact(), item.getAuthorInfo(), item.isConnected(), false,
+				h.isRead() ? item.unread : item.unread + 1,
+				Math.max(h.getTimestamp(), item.timestamp));
+	}
+
+	/**
+	 * Creates a new copy of the given item with a new alias set.
+	 */
+	ContactListItem(ContactListItem item, @Nullable String alias) {
+		this(update(item.getContact(), alias), item.getAuthorInfo(),
+				item.isConnected(), item.empty, item.unread, item.timestamp);
+	}
+
+	private static Contact update(Contact c, @Nullable String alias) {
+		return new Contact(c.getId(), c.getAuthor(), c.getLocalAuthorId(),
+				alias, c.getHandshakePublicKey(), c.isVerified());
+	}
+
+	/**
+	 * Creates a new copy of the given item with a new avatar
+	 * referenced by the given attachment header.
+	 */
+	ContactListItem(ContactListItem item, AttachmentHeader attachmentHeader) {
+		this(item.getContact(), new AuthorInfo(item.getAuthorInfo().getStatus(),
+						item.getAuthorInfo().getAlias(), attachmentHeader),
+				item.isConnected(), item.empty, item.unread, item.timestamp);
 	}
 
 	boolean isEmpty() {
@@ -41,4 +81,8 @@ public class ContactListItem extends ContactItem {
 		return unread;
 	}
 
+	@Override
+	public int compareTo(ContactListItem o) {
+		return Long.compare(o.getTimestamp(), timestamp);
+	}
 }

@@ -26,6 +26,7 @@ Nenosiri zako haziendani </string>
   <string name="setup_huawei_button">Linda Briar </string>
   <string name="setup_huawei_help">
 Kama Briar haija wekwa kwenye orotha programu ulizi, haitaweza kufanya kazi kwenye nyuma ya mkongo</string>
+  <string name="setup_xiaomi_button">Linda Briar </string>
   <string name="warning_dozed">%shaijawezekana kujiendesha kwa nyuma ya mkongo</string>
   <!--Login-->
   <string name="enter_password">Nywila
@@ -121,6 +122,8 @@ Umepoteza nenosiri.</string>
   <string name="send">Tuma</string>
   <string name="allow">Ruhusu</string>
   <string name="open">Fungua</string>
+  <string name="change">Badili</string>
+  <string name="start">Anza</string>
   <string name="no_data">Hakuna data</string>
   <string name="ellipsis">...</string>
   <string name="text_too_long">Maneno ulio yainguza nimarefu sana </string>
@@ -135,7 +138,6 @@ Umepoteza nenosiri.</string>
   <string name="no_contacts_action">Bonyeza ikoni + kuongeza mawasiliano </string>
   <string name="date_no_private_messages">Hakuna ujumbe </string>
   <string name="no_private_messages">Hakuna ujumbe wakuonyesha </string>
-  <string name="message_hint">Andika ujumbe </string>
   <string name="image_caption_hint">Ongeza maelezo mafupi (sio ya hiari)</string>
   <string name="image_attach">Ambatanisha taswira</string>
   <string name="image_attach_error">Imeshidikana kuambatanisha taswira</string>
@@ -143,7 +145,12 @@ Umepoteza nenosiri.</string>
   <string name="image_attach_error_invalid_mime_type">Mfumo wa taswira hauendani: %s</string>
   <string name="set_contact_alias">Badilisha jina lako la mawasiliano </string>
   <string name="set_contact_alias_hint">Jina la mawasiliano </string>
-  <string name="set_alias_button">Badili</string>
+  <string name="menu_item_connect_via_bluetooth">Unganisha kwa Bluetooth</string>
+  <string name="dialog_title_connect_via_bluetooth">Unganisha kwa Bluetooth</string>
+  <!--The first placeholder will show a duration like "7 days". The second placeholder at the end will add "Tap to learn more."-->
+  <!--The placeholder at the end will add "Tap to learn more."-->
+  <!--The first placeholder will show a contact's name. The second placeholder will show a duration like "7 days". The third placeholder at the end will add "Tap to learn more."-->
+  <!--The first placeholder will show a contact's name. The second placeholder at the end will add "Tap to learn more."-->
   <string name="delete_all_messages">Futa jumbe zote</string>
   <string name="dialog_title_delete_all_messages">Hakiki ufutaji  wa ujumbe</string>
   <string name="dialog_message_delete_all_messages">Je, unauhakika wa kufuta jumbe zote?</string>
@@ -151,7 +158,6 @@ Umepoteza nenosiri.</string>
   <string name="dialog_message_not_deleted_ongoing_both">Jumbe unaohusiana na mialiko inayoendelea na utangulizi haziwezi kufutwa hadi amalize.</string>
   <string name="dialog_message_not_deleted_ongoing_introductions">Jumbe zinazohusiana na utangulizi unaoendelea haziwezi kufutwa hadi amalize.</string>
   <string name="dialog_message_not_deleted_ongoing_invitations">Jumbe zinazohusiana na mialiko inayoendelea haziwezi kufutwa hadi itakapomalizika.</string>
-  <string name="dialog_message_not_deleted_partly_downloaded">Jumbe zilizopakuliwa kwa sehemu haziwezi kufutwa hadi amalize kupakua.</string>
   <string name="dialog_message_not_deleted_not_all_selected_both"> Kufuta mwaliko au utangulizi, unahitaji kuchagua ombi na jibu.</string>
   <string name="dialog_message_not_deleted_not_all_selected_introductions">Ili kufuta utangulizi, unahitaji kuchagua ombi na jibu. </string>
   <string name="dialog_message_not_deleted_not_all_selected_invitations">Ili kufuta mwaliko, unahitaji kuchagua ombi na jibu.</string>
@@ -187,7 +193,6 @@ Umepoteza nenosiri.</string>
   <string name="connecting_to_device">Unganisha kwenye kifaa\u2026</string>
   <string name="authenticating_with_device">Uhalisishaji wa kifaa\u2026</string>
   <string name="connection_error_title">Imeshindwa unganishwa kwenye mawasiliano </string>
-  <string name="connection_error_explanation">Tafathali Angalia kama wote Mmeunganishwa kwenye Mtandao wa WI-FI mmoja .</string>
   <string name="connection_error_feedback">Kama hilo tatizo linaendela , Tafathali <a href="feedback"> tutumie maoni</a>ilituboreshe Programu .</string>
   <!--Adding Contacts Remotely-->
   <string name="add_contact_remotely_title_case">Ongeza mawasiliano kwambali </string>
@@ -396,7 +401,6 @@ Umepoteza nenosiri.</string>
   <string name="blogs_rss_feeds_import_button">Ingiza</string>
   <string name="blogs_rss_feeds_import_hint">Ingiza URL za RSS taarifa</string>
   <string name="blogs_rss_feeds_import_error">Samahani! Kulikuwa na hitilafu wakati wakuingiza taarifa </string>
-  <string name="blogs_rss_feeds_manage">Simamia taarifa za RSS</string>
   <string name="blogs_rss_feeds_manage_imported">Zilizoingizwa</string>
   <string name="blogs_rss_feeds_manage_author">Mwandishi:</string>
   <string name="blogs_rss_feeds_manage_updated">huwisho la mwisho
@@ -404,9 +408,9 @@ Umepoteza nenosiri.</string>
   <string name="blogs_rss_remove_feed">Ondoa taarifa</string>
   <string name="blogs_rss_remove_feed_dialog_message">Unauhakika unataka kutoa hii taarifa?\n\nChapisho lako litaondolewa kwenye kifaa chako ila sio kwenye vifaa vya watu wengine.\n\nMawasiliano yoyote utliokwisha kuyaunganisha wanaweza wasiendelea kupata taarifa. </string>
   <string name="blogs_rss_remove_feed_ok">Ondoa</string>
-  <string name="blogs_rss_feeds_manage_delete_error">Taharifa haziwezekani kuzifuta! </string>
   <string name="blogs_rss_feeds_manage_empty_state">Hakuna RSS taharifa zaku onyesha\n\nBonyeza + ikoni kuleta taharifa </string>
   <string name="blogs_rss_feeds_manage_error">Kulikuwa na tatizo la kufungua taharifa . Tafathali jaribu baadae kidogo.</string>
+  <!--Settings Profile Picture-->
   <!--Settings Display-->
   <string name="pref_language_title">Lugha &amp;mkoa</string>
   <string name="pref_language_changed">Huu mpango utafanya kazi utakapo anzisha tena Briar. Tafathali toka na kuanzisha tena Briar.</string>
@@ -416,7 +420,7 @@ Umepoteza nenosiri.</string>
   <string name="pref_theme_light">mwanga</string>
   <string name="pref_theme_dark">Giza</string>
   <string name="pref_theme_auto">kiotomatiki (Mchana)</string>
-  <string name="pref_theme_system">Mfumo Msingi </string>
+  <string name="pref_theme_system">Mfumo msingi </string>
   <!--Settings Connections-->
   <string name="network_settings_title">Viunganishi</string>
   <string name="bluetooth_setting">Unganisha kwa anwani kupitia Bluetooth</string>
@@ -494,8 +498,9 @@ Umepoteza nenosiri.</string>
   <string name="notify_sound_setting_disabled">Hakuna</string>
   <string name="choose_ringtone_title">Chagua mwiito </string>
   <string name="cannot_load_ringtone">Ina shindikana kufungua mwiito </string>
+  <!--Conversation Settings-->
+  <string name="learn_more">Kujifunza zaidi</string>
   <!--Settings Feedback-->
-  <string name="feedback_settings_title">Maoni</string>
   <string name="send_feedback">Tuma Maoni </string>
   <!--Link Warning-->
   <string name="link_warning_title">kiungo  onyo</string>
@@ -514,9 +519,9 @@ Umepoteza nenosiri.</string>
   <string name="optional_contact_email">Barua pepe yako (hiari)</string>
   <string name="include_debug_report_crash">Jumuisha data isiyojulikana kuhusu ajali</string>
   <string name="include_debug_report_feedback">Jumuisha data isiyojulikana kuhusu kifaa hiki</string>
-  <string name="could_not_load_report_data">Haikuweza kupakia data ya ripoti.</string>
   <string name="send_report">Tuma repoti </string>
   <string name="close">Funga</string>
+  <string name="dev_report_sending">Kutuma mrejesho...</string>
   <string name="dev_report_saved">Ripoti imehifadhiwa. Itatumwa wakati ujao ukiingia kwenye Briar.</string>
   <!--Sign Out-->
   <string name="progress_title_logout">Kuondoka Kwenye Briar...</string>

@@ -59,8 +59,8 @@ import static org.briarproject.bramble.util.PrivacyUtils.scrubMacAddress;
 
 @MethodsNotNullByDefault
 @ParametersNotNullByDefault
-class AndroidBluetoothPlugin
-		extends BluetoothPlugin<BluetoothSocket, BluetoothServerSocket> {
+class AndroidBluetoothPlugin extends
+		AbstractBluetoothPlugin<BluetoothSocket, BluetoothServerSocket> {
 
 	private static final Logger LOG =
 			getLogger(AndroidBluetoothPlugin.class.getName());
@@ -75,6 +75,7 @@ class AndroidBluetoothPlugin
 
 	// Non-null if the plugin started successfully
 	private volatile BluetoothAdapter adapter = null;
+	private volatile boolean stopDiscoverAndConnect;
 
 	AndroidBluetoothPlugin(BluetoothConnectionLimiter connectionLimiter,
 			BluetoothConnectionFactory<BluetoothSocket> connectionFactory,
@@ -86,7 +87,7 @@ class AndroidBluetoothPlugin
 			Clock clock,
 			Backoff backoff,
 			PluginCallback callback,
-			int maxLatency,
+			long maxLatency,
 			int maxIdleTime) {
 		super(connectionLimiter, connectionFactory, ioExecutor,
 				wakefulIoExecutor, secureRandom, backoff, callback,
@@ -135,6 +136,7 @@ class AndroidBluetoothPlugin
 	@Override
 	@Nullable
 	String getBluetoothAddress() {
+		if (adapter == null) return null;
 		String address = AndroidUtils.getBluetoothAddress(app, adapter);
 		return address.isEmpty() ? null : address;
 	}
@@ -174,6 +176,11 @@ class AndroidBluetoothPlugin
 		} catch (IOException e) {
 			IoUtils.tryToClose(s, LOG, WARNING);
 			throw e;
+		} catch (NullPointerException e) {
+			// BluetoothSocket#connect() may throw an NPE under unknown
+			// circumstances
+			IoUtils.tryToClose(s, LOG, WARNING);
+			throw new IOException(e);
 		}
 	}
 
@@ -181,20 +188,38 @@ class AndroidBluetoothPlugin
 	@Nullable
 	DuplexTransportConnection discoverAndConnect(String uuid) {
 		if (adapter == null) return null;
-		for (String address : discoverDevices()) {
-			try {
-				if (LOG.isLoggable(INFO))
-					LOG.info("Connecting to " + scrubMacAddress(address));
-				return connectTo(address, uuid);
-			} catch (IOException e) {
-				if (LOG.isLoggable(INFO)) {
-					LOG.info("Could not connect to "
-							+ scrubMacAddress(address));
+		if (!discoverSemaphore.tryAcquire()) {
+			LOG.info("Discover already running");
+			return null;
+		}
+		try {
+			stopDiscoverAndConnect = false;
+			for (String address : discoverDevices()) {
+				if (stopDiscoverAndConnect) {
+					break;
+				}
+				try {
+					if (LOG.isLoggable(INFO))
+						LOG.info("Connecting to " + scrubMacAddress(address));
+					return connectTo(address, uuid);
+				} catch (IOException e) {
+					if (LOG.isLoggable(INFO)) {
+						LOG.info("Could not connect to "
+								+ scrubMacAddress(address));
+					}
 				}
 			}
+		} finally {
+			discoverSemaphore.release();
 		}
 		LOG.info("Could not connect to any devices");
 		return null;
+	}
+
+	@Override
+	public void stopDiscoverAndConnect() {
+		stopDiscoverAndConnect = true;
+		adapter.cancelDiscovery();
 	}
 
 	private Collection<String> discoverDevices() {

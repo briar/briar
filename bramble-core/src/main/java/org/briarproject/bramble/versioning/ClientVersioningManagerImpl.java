@@ -50,7 +50,7 @@ import static java.util.Collections.emptyList;
 import static org.briarproject.bramble.api.sync.Group.Visibility.INVISIBLE;
 import static org.briarproject.bramble.api.sync.Group.Visibility.SHARED;
 import static org.briarproject.bramble.api.sync.Group.Visibility.VISIBLE;
-import static org.briarproject.bramble.versioning.ClientVersioningConstants.GROUP_KEY_CONTACT_ID;
+import static org.briarproject.bramble.api.sync.validation.IncomingMessageHook.DeliveryAction.ACCEPT_DO_NOT_SHARE;
 import static org.briarproject.bramble.versioning.ClientVersioningConstants.MSG_KEY_LOCAL;
 import static org.briarproject.bramble.versioning.ClientVersioningConstants.MSG_KEY_UPDATE_VERSION;
 
@@ -161,13 +161,7 @@ class ClientVersioningManagerImpl implements ClientVersioningManager,
 		db.addGroup(txn, g);
 		db.setGroupVisibility(txn, c.getId(), g.getId(), SHARED);
 		// Attach the contact ID to the group
-		BdfDictionary meta = new BdfDictionary();
-		meta.put(GROUP_KEY_CONTACT_ID, c.getId().getInt());
-		try {
-			clientHelper.mergeGroupMetadata(txn, g.getId(), meta);
-		} catch (FormatException e) {
-			throw new AssertionError(e);
-		}
+		clientHelper.setContactId(txn, g.getId(), c.getId());
 		// Create and store the first local update
 		List<ClientVersion> versions = new ArrayList<>(clients);
 		Collections.sort(versions);
@@ -180,8 +174,8 @@ class ClientVersioningManagerImpl implements ClientVersioningManager,
 	}
 
 	@Override
-	public boolean incomingMessage(Transaction txn, Message m, Metadata meta)
-			throws DbException, InvalidMessageException {
+	public DeliveryAction incomingMessage(Transaction txn, Message m,
+			Metadata meta) throws DbException, InvalidMessageException {
 		try {
 			// Parse the new remote update
 			Update newRemoteUpdate = parseUpdate(clientHelper.toList(m));
@@ -194,7 +188,7 @@ class ClientVersioningManagerImpl implements ClientVersioningManager,
 					&& latest.remote.updateVersion > newRemoteUpdateVersion) {
 				db.deleteMessage(txn, m.getId());
 				db.deleteMessageMetadata(txn, m.getId());
-				return false;
+				return ACCEPT_DO_NOT_SHARE;
 			}
 			// Load and parse the latest local update
 			if (latest.local == null) throw new DbException();
@@ -229,7 +223,7 @@ class ClientVersioningManagerImpl implements ClientVersioningManager,
 			Map<ClientMajorVersion, Visibility> after =
 					getVisibilities(newLocalStates, newRemoteStates);
 			// Call hooks for any visibilities that have changed
-			ContactId c = getContactId(txn, m.getGroupId());
+			ContactId c = clientHelper.getContactId(txn, m.getGroupId());
 			if (!before.equals(after)) {
 				Contact contact = db.getContact(txn, c);
 				callVisibilityHooks(txn, contact, before, after);
@@ -248,7 +242,7 @@ class ClientVersioningManagerImpl implements ClientVersioningManager,
 		} catch (FormatException e) {
 			throw new InvalidMessageException(e);
 		}
-		return false;
+		return ACCEPT_DO_NOT_SHARE;
 	}
 
 	private void storeClientVersions(Transaction txn,
@@ -519,17 +513,6 @@ class ClientVersioningManagerImpl implements ClientVersioningManager,
 			states.add(new ClientState(cv, false));
 		}
 		storeUpdate(txn, g, states, 1);
-	}
-
-	private ContactId getContactId(Transaction txn, GroupId g)
-			throws DbException {
-		try {
-			BdfDictionary meta =
-					clientHelper.getGroupMetadataAsDictionary(txn, g);
-			return new ContactId(meta.getLong(GROUP_KEY_CONTACT_ID).intValue());
-		} catch (FormatException e) {
-			throw new DbException(e);
-		}
 	}
 
 	private List<ClientState> updateStatesFromRemoteStates(

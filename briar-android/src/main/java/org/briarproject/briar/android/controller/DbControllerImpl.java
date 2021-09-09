@@ -11,6 +11,7 @@ import javax.annotation.concurrent.Immutable;
 import javax.inject.Inject;
 
 @Immutable
+@Deprecated
 @NotNullByDefault
 public class DbControllerImpl implements DbController {
 

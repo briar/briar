@@ -11,9 +11,11 @@ The REST API peer comes as a `jar` file
 and needs a Java Runtime Environment (JRE) that supports at least Java 8.
 It currently works only on GNU/Linux operating systems.
 
-To build the `jar` file, you can do this:
+To build the `jar` file, you need to specify the combination of architecture and platform:
 
-    $ ./gradlew --configure-on-demand briar-headless:jar
+    $ ./gradlew --configure-on-demand briar-headless:x86LinuxJar
+    $ ./gradlew --configure-on-demand briar-headless:aarch64LinuxJar
+    $ ./gradlew --configure-on-demand briar-headless:armhfLinuxJar
 
 You can start the peer (and its API server) like this:
 
@@ -69,7 +71,8 @@ Returns a JSON array of contacts:
     "handshakePublicKey": "XnYRd7a7E4CTqgAvh4hCxh/YZ0EPscxknB9ZcEOpSzY=",
     "verified": true,
     "lastChatActivity": 1557838312175,
-    "connected": false
+    "connected": false,
+    "unreadCount": 7
 }
 ```
 
@@ -104,7 +107,7 @@ The link and the alias should be posted as a JSON object:
 }
 ```
 
-This starts the process of adding the contact.
+Adding a pending contact starts the process of adding the contact.
 Until it is completed, a pending contact is returned as JSON:
 
 ```json
@@ -114,6 +117,71 @@ Until it is completed, a pending contact is returned as JSON:
     "timestamp": 1557838312175
 }
 ```
+
+Possible errors when adding a pending contact are:
+
+#### 400: Pending contact's link is invalid
+
+```json
+{
+    "error": "INVALID_LINK"
+}
+```
+
+#### 400: Pending contact's handshake public key is invalid
+
+```json
+{
+    "error": "INVALID_PUBLIC_KEY"
+}
+```
+
+#### 403: A contact with the same handshake public key already exists
+
+This error may be caused by someone attacking the user with the goal
+of discovering the contacts of the user.
+
+In the Android client, upon encountering this issue a message dialog
+is shown that asks whether the contact and the just added pending contact
+are the same person. If that's the case, a message is shown that the
+contact already exists and the pending contact isn't added.
+If that's not the case and they are two different persons, the Android
+client
+[shows the following message](https://code.briarproject.org/briar/briar/-/blob/beta-1.2.14/briar-android/src/main/res/values/strings.xml#L271)
+when this happens:
+> [Alice] and [Bob] sent you the same link.
+>
+> One of them may be trying to discover who your contacts are.
+>
+> Don't tell them you received the same link from someone else.
+
+```json
+{
+    "error": "CONTACT_EXISTS",
+    "remoteAuthorName": "Bob"
+}
+```
+
+#### 403: A pending contact with the same handshake public key already exists
+
+This error, too, may be caused by someone attacking the user with the goal
+of discovering the contacts of the user.
+
+Just like above, upon encountering this issue a message dialog is shown in
+the Android client that asks whether the contact and the just added pending
+contact are the same person. If that's the case, the pending contact gets
+updated. If that's not the case and they are two different persons, the
+Android client shows the same message as above, warning the user about the
+possible attack.
+
+```json
+{
+    "error": "PENDING_EXISTS",
+    "pendingContactId": "jsTgWcsEQ2g9rnomeK1g/hmO8M1Ix6ZIGWAjgBtlS9U=",
+    "pendingContactAlias": "Alice"
+}
+```
+-----------
 
 Before users can send messages to contacts, they become pending contacts.
 In this state Briar still needs to do some work in the background (e.g.
@@ -182,6 +250,18 @@ Note that it's also possible to add contacts nearby via Bluetooth/Wifi or
 introductions. In these cases contacts omit the `pendingContact` state and
 directly become `contact`s.
 
+### Changing alias of a contact
+
+`PUT /v1/contacts/{contactId}/alias`
+
+The alias should be posted as a JSON object:
+
+```json
+{
+    "alias": "A nickname for the new contact"
+}
+```
+
 ### Removing a contact
 
 `DELETE /v1/contacts/{contactId}`
@@ -232,6 +312,25 @@ The text of the message should be posted as JSON:
   "text": "Hello World!"
 }
 ```
+
+### Marking private messages as read
+
+`POST /v1/messages/{contactId}/read`
+
+The `messageId` of the message to be marked as read
+needs to be provided in the request body as follows:
+
+```json
+{
+    "messageId": "+AIMMgOCPFF8HDEhiEHYjbfKrg7v0G94inKxjvjYzA8="
+}
+```
+
+### Deleting all private messages
+
+`DELETE /v1/messages/{contactId}/all`
+
+It returns with a status code `200`, if removal was successful.
 
 ### Listing blog posts
 
@@ -406,6 +505,42 @@ When the last connection is lost (the contact goes offline), it sends a `Contact
         "contactId": 1
     },
     "name": "ContactConnectedEvent",
+    "type": "event"
+}
+```
+
+### A message was sent
+
+When Briar sent a message to a contact, it sends a `MessagesSentEvent`. This is indicated in Briar
+by showing one tick next to the message.
+
+```json
+{
+    "data": {
+        "contactId": 1,
+        "messageIds": [
+            "+AIMMgOCPFF8HDEhiEHYjbfKrg7v0G94inKxjvjYzA8="
+        ]
+    },
+    "name": "MessagesSentEvent",
+    "type": "event"
+}
+```
+
+### A message was acknowledged
+
+When a contact acknowledges that they received a message, Briar sends a `MessagesAckedEvent`.
+This is indicated in Briar by showing two ticks next to the message.
+
+```json
+{
+    "data": {
+        "contactId": 1,
+        "messageIds": [
+            "+AIMMgOCPFF8HDEhiEHYjbfKrg7v0G94inKxjvjYzA8="
+        ]
+    },
+    "name": "MessagesAckedEvent",
     "type": "event"
 }
 ```

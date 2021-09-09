@@ -84,6 +84,7 @@ class IntroducerSession extends Session<IntroducerState> {
 			this(sessionId, groupId, author, -1, null, null);
 		}
 
+		@Override
 		public SessionId getSessionId() {
 			return sessionId;
 		}

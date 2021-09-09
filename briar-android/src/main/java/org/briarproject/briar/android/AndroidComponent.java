@@ -14,6 +14,7 @@ import org.briarproject.bramble.api.contact.ContactManager;
 import org.briarproject.bramble.api.crypto.CryptoExecutor;
 import org.briarproject.bramble.api.crypto.PasswordStrengthEstimator;
 import org.briarproject.bramble.api.db.DatabaseExecutor;
+import org.briarproject.bramble.api.db.TransactionManager;
 import org.briarproject.bramble.api.event.EventBus;
 import org.briarproject.bramble.api.identity.IdentityManager;
 import org.briarproject.bramble.api.keyagreement.KeyAgreementTask;
@@ -27,18 +28,30 @@ import org.briarproject.bramble.api.system.AndroidExecutor;
 import org.briarproject.bramble.api.system.AndroidWakeLockManager;
 import org.briarproject.bramble.api.system.Clock;
 import org.briarproject.bramble.api.system.LocationUtils;
+import org.briarproject.bramble.plugin.file.RemovableDriveModule;
 import org.briarproject.bramble.plugin.tor.CircumventionProvider;
+import org.briarproject.bramble.system.ClockModule;
 import org.briarproject.briar.BriarCoreEagerSingletons;
 import org.briarproject.briar.BriarCoreModule;
 import org.briarproject.briar.android.attachment.AttachmentModule;
+import org.briarproject.briar.android.attachment.media.MediaModule;
 import org.briarproject.briar.android.conversation.glide.BriarModelLoader;
+import org.briarproject.briar.android.logging.CachingLogHandler;
 import org.briarproject.briar.android.login.SignInReminderReceiver;
-import org.briarproject.briar.android.reporting.BriarReportSender;
+import org.briarproject.briar.android.removabledrive.ChooserFragment;
+import org.briarproject.briar.android.removabledrive.ReceiveFragment;
+import org.briarproject.briar.android.removabledrive.SendFragment;
+import org.briarproject.briar.android.settings.ConnectionsFragment;
+import org.briarproject.briar.android.settings.NotificationsFragment;
+import org.briarproject.briar.android.settings.SecurityFragment;
+import org.briarproject.briar.android.settings.SettingsFragment;
 import org.briarproject.briar.android.view.EmojiTextInputView;
 import org.briarproject.briar.api.android.AndroidNotificationManager;
 import org.briarproject.briar.api.android.DozeWatchdog;
 import org.briarproject.briar.api.android.LockManager;
 import org.briarproject.briar.api.android.ScreenFilterMonitor;
+import org.briarproject.briar.api.attachment.AttachmentReader;
+import org.briarproject.briar.api.autodelete.AutoDeleteManager;
 import org.briarproject.briar.api.blog.BlogManager;
 import org.briarproject.briar.api.blog.BlogPostFactory;
 import org.briarproject.briar.api.blog.BlogSharingManager;
@@ -47,6 +60,7 @@ import org.briarproject.briar.api.conversation.ConversationManager;
 import org.briarproject.briar.api.feed.FeedManager;
 import org.briarproject.briar.api.forum.ForumManager;
 import org.briarproject.briar.api.forum.ForumSharingManager;
+import org.briarproject.briar.api.identity.AuthorManager;
 import org.briarproject.briar.api.introduction.IntroductionManager;
 import org.briarproject.briar.api.messaging.MessagingManager;
 import org.briarproject.briar.api.messaging.PrivateMessageFactory;
@@ -71,7 +85,10 @@ import dagger.Component;
 		BrambleAndroidModule.class,
 		BriarAccountModule.class,
 		AppModule.class,
-		AttachmentModule.class
+		AttachmentModule.class,
+		ClockModule.class,
+		MediaModule.class,
+		RemovableDriveModule.class
 })
 public interface AndroidComponent
 		extends BrambleCoreEagerSingletons, BrambleAndroidEagerSingletons,
@@ -86,11 +103,17 @@ public interface AndroidComponent
 	@DatabaseExecutor
 	Executor databaseExecutor();
 
+	TransactionManager transactionManager();
+
 	MessageTracker messageTracker();
 
 	LifecycleManager lifecycleManager();
 
 	IdentityManager identityManager();
+
+	AttachmentReader attachmentReader();
+
+	AuthorManager authorManager();
 
 	PluginManager pluginManager();
 
@@ -169,15 +192,33 @@ public interface AndroidComponent
 
 	AndroidWakeLockManager wakeLockManager();
 
+	CachingLogHandler logHandler();
+
+	Thread.UncaughtExceptionHandler exceptionHandler();
+
+	AutoDeleteManager autoDeleteManager();
+
 	void inject(SignInReminderReceiver briarService);
 
 	void inject(BriarService briarService);
-
-	void inject(BriarReportSender briarReportSender);
 
 	void inject(NotificationCleanupService notificationCleanupService);
 
 	void inject(EmojiTextInputView textInputView);
 
 	void inject(BriarModelLoader briarModelLoader);
+
+	void inject(SettingsFragment settingsFragment);
+
+	void inject(ConnectionsFragment connectionsFragment);
+
+	void inject(SecurityFragment securityFragment);
+
+	void inject(NotificationsFragment notificationsFragment);
+
+	void inject(ChooserFragment chooserFragment);
+
+	void inject(SendFragment sendFragment);
+
+	void inject(ReceiveFragment receiveFragment);
 }

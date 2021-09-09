@@ -10,11 +10,11 @@ import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.sync.GroupId;
 import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.briar.R;
-import org.briarproject.briar.api.messaging.Attachment;
-import org.briarproject.briar.api.messaging.AttachmentHeader;
-import org.briarproject.briar.api.messaging.FileTooBigException;
+import org.briarproject.briar.android.attachment.media.ImageCompressor;
+import org.briarproject.briar.api.attachment.Attachment;
+import org.briarproject.briar.api.attachment.AttachmentHeader;
+import org.briarproject.briar.api.attachment.FileTooBigException;
 import org.briarproject.briar.api.messaging.MessagingManager;
-import org.jsoup.UnsupportedMimeTypeException;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -34,13 +34,14 @@ import androidx.lifecycle.MutableLiveData;
 import static java.util.logging.Level.WARNING;
 import static java.util.logging.Logger.getLogger;
 import static org.briarproject.bramble.util.LogUtils.logException;
+import static org.briarproject.briar.android.attachment.AttachmentItem.State.ERROR;
 import static org.briarproject.briar.android.util.UiUtils.observeForeverOnce;
-import static org.briarproject.briar.api.messaging.MessagingConstants.MAX_IMAGE_SIZE;
+import static org.briarproject.briar.api.attachment.MediaConstants.MAX_IMAGE_SIZE;
 
 @NotNullByDefault
 class AttachmentCreatorImpl implements AttachmentCreator {
 
-	private static Logger LOG =
+	private static final Logger LOG =
 			getLogger(AttachmentCreatorImpl.class.getName());
 
 	private final Application app;
@@ -48,7 +49,7 @@ class AttachmentCreatorImpl implements AttachmentCreator {
 	private final Executor ioExecutor;
 	private final MessagingManager messagingManager;
 	private final AttachmentRetriever retriever;
-	private final ImageSizeCalculator imageSizeCalculator;
+	private final ImageCompressor imageCompressor;
 
 	private final CopyOnWriteArrayList<Uri> uris = new CopyOnWriteArrayList<>();
 	private final CopyOnWriteArrayList<AttachmentItemResult> itemResults =
@@ -63,20 +64,24 @@ class AttachmentCreatorImpl implements AttachmentCreator {
 	@Inject
 	AttachmentCreatorImpl(Application app, @IoExecutor Executor ioExecutor,
 			MessagingManager messagingManager, AttachmentRetriever retriever,
-			ImageSizeCalculator imageSizeCalculator) {
+			ImageCompressor imageCompressor) {
 		this.app = app;
 		this.ioExecutor = ioExecutor;
 		this.messagingManager = messagingManager;
 		this.retriever = retriever;
-		this.imageSizeCalculator = imageSizeCalculator;
+		this.imageCompressor = imageCompressor;
 	}
 
 	@Override
 	@UiThread
 	public LiveData<AttachmentResult> storeAttachments(
 			LiveData<GroupId> groupId, Collection<Uri> newUris) {
-		if (task != null || result != null || !uris.isEmpty())
+		if (task != null || result != null || !uris.isEmpty()) {
+			if (task != null) LOG.warning("Task already exists!");
+			if (result != null) LOG.warning("Result already exists!");
+			if (!uris.isEmpty()) LOG.warning("Uris available: " + uris);
 			throw new IllegalStateException();
+		}
 		MutableLiveData<AttachmentResult> result = new MutableLiveData<>();
 		this.result = result;
 		uris.addAll(newUris);
@@ -84,7 +89,7 @@ class AttachmentCreatorImpl implements AttachmentCreator {
 			if (id == null) throw new IllegalStateException();
 			boolean needsSize = uris.size() == 1;
 			task = new AttachmentCreationTask(messagingManager,
-					app.getContentResolver(), this, imageSizeCalculator, id,
+					app.getContentResolver(), this, imageCompressor, id,
 					uris, needsSize);
 			ioExecutor.execute(() -> task.storeAttachments());
 		});
@@ -95,8 +100,12 @@ class AttachmentCreatorImpl implements AttachmentCreator {
 	@UiThread
 	public LiveData<AttachmentResult> getLiveAttachments() {
 		MutableLiveData<AttachmentResult> result = this.result;
-		if (task == null || result == null || uris.isEmpty())
+		if (task == null || result == null || uris.isEmpty()) {
+			if (task == null) LOG.warning("No Task!");
+			if (result == null) LOG.warning("No Result!");
+			if (uris.isEmpty()) LOG.warning("Uris empty!");
 			throw new IllegalStateException();
+		}
 		// A task is already running. It will update the result LiveData.
 		// So nothing more to do here.
 		return result;
@@ -109,8 +118,8 @@ class AttachmentCreatorImpl implements AttachmentCreator {
 		// get and cache AttachmentItem for ImagePreview
 		try {
 			Attachment a = retriever.getMessageAttachment(h);
-			AttachmentItem item = retriever.getAttachmentItem(a, needsSize);
-			if (item.hasError()) throw new IOException();
+			AttachmentItem item = retriever.createAttachmentItem(a, needsSize);
+			if (item.getState() == ERROR) throw new IOException();
 			AttachmentItemResult itemResult =
 					new AttachmentItemResult(uri, item);
 			itemResults.add(itemResult);
@@ -167,21 +176,13 @@ class AttachmentCreatorImpl implements AttachmentCreator {
 	@Override
 	@UiThread
 	public void onAttachmentsSent(MessageId id) {
-		List<AttachmentItem> items = new ArrayList<>(itemResults.size());
-		for (AttachmentItemResult itemResult : itemResults) {
-			// check if we are trying to send attachment items with errors
-			if (itemResult.getItem() == null) throw new IllegalStateException();
-			items.add(itemResult.getItem());
-		}
-		retriever.cachePut(id, items);
 		resetState();
 	}
 
 	@Override
 	@UiThread
 	public void cancel() {
-		if (task == null) throw new AssertionError();
-		task.cancel();
+		if (task != null) task.cancel();
 		deleteUnsentAttachments();
 		resetState();
 	}

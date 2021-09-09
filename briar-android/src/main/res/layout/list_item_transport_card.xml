@@ -44,7 +44,6 @@
 			android:layout_height="wrap_content"
 			android:textColor="?android:attr/textColorPrimary"
 			android:textSize="@dimen/text_size_medium"
-			android:widgetLayout="@layout/preference_switch_compat"
 			tools:checked="true"
 			tools:text="@string/tor_enable_title" />
 

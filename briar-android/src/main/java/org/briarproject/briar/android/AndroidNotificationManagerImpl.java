@@ -37,6 +37,7 @@ import org.briarproject.briar.android.splash.SplashScreenActivity;
 import org.briarproject.briar.android.util.BriarNotificationBuilder;
 import org.briarproject.briar.api.android.AndroidNotificationManager;
 import org.briarproject.briar.api.blog.event.BlogPostAddedEvent;
+import org.briarproject.briar.api.conversation.ConversationResponse;
 import org.briarproject.briar.api.conversation.event.ConversationMessageReceivedEvent;
 import org.briarproject.briar.api.forum.event.ForumPostReceivedEvent;
 import org.briarproject.briar.api.privategroup.event.GroupMessageAddedEvent;
@@ -109,7 +110,8 @@ class AndroidNotificationManagerImpl implements AndroidNotificationManager,
 	@Nullable
 	private GroupId blockedGroup = null;
 	private boolean blockSignInReminder = false;
-	private boolean blockBlogs = false;
+	private boolean blockForums = false, blockGroups = false,
+			blockBlogs = false;
 	private long lastSound = 0;
 
 	private volatile Settings settings = new Settings();
@@ -223,8 +225,14 @@ class AndroidNotificationManagerImpl implements AndroidNotificationManager,
 			if (s.getNamespace().equals(SETTINGS_NAMESPACE))
 				settings = s.getSettings();
 		} else if (e instanceof ConversationMessageReceivedEvent) {
-			ConversationMessageReceivedEvent p =
-					(ConversationMessageReceivedEvent) e;
+			ConversationMessageReceivedEvent<?> p =
+					(ConversationMessageReceivedEvent<?>) e;
+			if (p.getMessageHeader() instanceof ConversationResponse) {
+				ConversationResponse r =
+						(ConversationResponse) p.getMessageHeader();
+				// don't show notification for own auto-decline responses
+				if (r.isAutoDecline()) return;
+			}
 			showContactNotification(p.getContactId());
 		} else if (e instanceof GroupMessageAddedEvent) {
 			GroupMessageAddedEvent g = (GroupMessageAddedEvent) e;
@@ -254,7 +262,7 @@ class AndroidNotificationManagerImpl implements AndroidNotificationManager,
 				R.string.ongoing_notification_title;
 		int text = locked ? R.string.lock_tap_to_unlock :
 				R.string.ongoing_notification_text;
-		int icon = locked ? R.drawable.startup_lock :
+		int icon = locked ? R.drawable.notification_lock :
 				R.drawable.notification_ongoing;
 		// Ongoing foreground notification that shows BriarService is running
 		NotificationCompat.Builder b =
@@ -385,6 +393,7 @@ class AndroidNotificationManagerImpl implements AndroidNotificationManager,
 
 	@UiThread
 	private void showGroupMessageNotification(GroupId g) {
+		if (blockGroups) return;
 		if (g.equals(blockedGroup)) return;
 		groupCounts.add(g);
 		updateGroupMessageNotification(true);
@@ -452,6 +461,7 @@ class AndroidNotificationManagerImpl implements AndroidNotificationManager,
 
 	@UiThread
 	private void showForumPostNotification(GroupId g) {
+		if (blockForums) return;
 		if (g.equals(blockedGroup)) return;
 		forumCounts.add(g);
 		updateForumPostNotification(true);
@@ -621,7 +631,7 @@ class AndroidNotificationManagerImpl implements AndroidNotificationManager,
 
 		NotificationCompat.Builder b =
 				new NotificationCompat.Builder(appContext, REMINDER_CHANNEL_ID);
-		b.setSmallIcon(R.drawable.ic_signout);
+		b.setSmallIcon(R.drawable.notification_signout);
 		b.setColor(getColor(appContext, R.color.briar_primary));
 		b.setContentTitle(
 				appContext.getText(R.string.reminder_notification_title));
@@ -679,6 +689,26 @@ class AndroidNotificationManagerImpl implements AndroidNotificationManager,
 		androidExecutor.runOnUiThread(() -> {
 			if (c.equals(blockedContact)) blockedContact = null;
 		});
+	}
+
+	@Override
+	public void blockAllForumPostNotifications() {
+		androidExecutor.runOnUiThread((Runnable) () -> blockForums = true);
+	}
+
+	@Override
+	public void unblockAllForumPostNotifications() {
+		androidExecutor.runOnUiThread((Runnable) () -> blockForums = false);
+	}
+
+	@Override
+	public void blockAllGroupMessageNotifications() {
+		androidExecutor.runOnUiThread((Runnable) () -> blockGroups = true);
+	}
+
+	@Override
+	public void unblockAllGroupMessageNotifications() {
+		androidExecutor.runOnUiThread((Runnable) () -> blockGroups = false);
 	}
 
 	@Override

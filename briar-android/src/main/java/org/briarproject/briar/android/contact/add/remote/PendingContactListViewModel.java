@@ -11,39 +11,33 @@ import org.briarproject.bramble.api.contact.event.PendingContactRemovedEvent;
 import org.briarproject.bramble.api.contact.event.PendingContactStateChangedEvent;
 import org.briarproject.bramble.api.db.DatabaseExecutor;
 import org.briarproject.bramble.api.db.DbException;
+import org.briarproject.bramble.api.db.TransactionManager;
 import org.briarproject.bramble.api.event.Event;
 import org.briarproject.bramble.api.event.EventBus;
 import org.briarproject.bramble.api.event.EventListener;
+import org.briarproject.bramble.api.lifecycle.LifecycleManager;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.rendezvous.RendezvousPoller;
 import org.briarproject.bramble.api.rendezvous.event.RendezvousPollEvent;
+import org.briarproject.bramble.api.system.AndroidExecutor;
+import org.briarproject.briar.android.viewmodel.DbViewModel;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.Executor;
-import java.util.logging.Logger;
 
 import javax.inject.Inject;
 
-import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
-import static java.util.logging.Level.WARNING;
-import static java.util.logging.Logger.getLogger;
 import static org.briarproject.bramble.api.contact.PendingContactState.OFFLINE;
-import static org.briarproject.bramble.util.LogUtils.logException;
 
 @NotNullByDefault
-public class PendingContactListViewModel extends AndroidViewModel
+public class PendingContactListViewModel extends DbViewModel
 		implements EventListener {
 
-	private final Logger LOG =
-			getLogger(PendingContactListViewModel.class.getName());
-
-	@DatabaseExecutor
-	private final Executor dbExecutor;
 	private final ContactManager contactManager;
 	private final RendezvousPoller rendezvousPoller;
 	private final EventBus eventBus;
@@ -56,11 +50,13 @@ public class PendingContactListViewModel extends AndroidViewModel
 	@Inject
 	PendingContactListViewModel(Application application,
 			@DatabaseExecutor Executor dbExecutor,
+			LifecycleManager lifecycleManager,
+			TransactionManager db,
+			AndroidExecutor androidExecutor,
 			ContactManager contactManager,
 			RendezvousPoller rendezvousPoller,
 			EventBus eventBus) {
-		super(application);
-		this.dbExecutor = dbExecutor;
+		super(application, dbExecutor, lifecycleManager, db, androidExecutor);
 		this.contactManager = contactManager;
 		this.rendezvousPoller = rendezvousPoller;
 		this.eventBus = eventBus;
@@ -87,7 +83,7 @@ public class PendingContactListViewModel extends AndroidViewModel
 	}
 
 	private void loadPendingContacts() {
-		dbExecutor.execute(() -> {
+		runOnDbThread(() -> {
 			try {
 				Collection<Pair<PendingContact, PendingContactState>> pairs =
 						contactManager.getPendingContacts();
@@ -103,7 +99,7 @@ public class PendingContactListViewModel extends AndroidViewModel
 				pendingContacts.postValue(items);
 				hasInternetConnection.postValue(online);
 			} catch (DbException e) {
-				logException(LOG, WARNING, e);
+				handleException(e);
 			}
 		});
 	}
@@ -113,11 +109,11 @@ public class PendingContactListViewModel extends AndroidViewModel
 	}
 
 	void removePendingContact(PendingContactId id) {
-		dbExecutor.execute(() -> {
+		runOnDbThread(() -> {
 			try {
 				contactManager.removePendingContact(id);
 			} catch (DbException e) {
-				logException(LOG, WARNING, e);
+				handleException(e);
 			}
 		});
 	}

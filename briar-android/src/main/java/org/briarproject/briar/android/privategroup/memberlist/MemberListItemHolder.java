@@ -13,7 +13,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
-import static org.briarproject.bramble.api.identity.AuthorInfo.Status.OURSELVES;
+import static org.briarproject.briar.api.identity.AuthorInfo.Status.OURSELVES;
 import static org.briarproject.briar.android.util.UiUtils.getContactDisplayName;
 
 @UiThread

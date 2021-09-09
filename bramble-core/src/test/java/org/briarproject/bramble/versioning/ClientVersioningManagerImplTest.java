@@ -31,6 +31,7 @@ import static java.util.Collections.singletonMap;
 import static org.briarproject.bramble.api.sync.Group.Visibility.INVISIBLE;
 import static org.briarproject.bramble.api.sync.Group.Visibility.SHARED;
 import static org.briarproject.bramble.api.sync.Group.Visibility.VISIBLE;
+import static org.briarproject.bramble.api.sync.validation.IncomingMessageHook.DeliveryAction.ACCEPT_DO_NOT_SHARE;
 import static org.briarproject.bramble.api.versioning.ClientVersioningManager.CLIENT_ID;
 import static org.briarproject.bramble.api.versioning.ClientVersioningManager.MAJOR_VERSION;
 import static org.briarproject.bramble.test.TestUtils.getClientId;
@@ -38,11 +39,9 @@ import static org.briarproject.bramble.test.TestUtils.getContact;
 import static org.briarproject.bramble.test.TestUtils.getGroup;
 import static org.briarproject.bramble.test.TestUtils.getMessage;
 import static org.briarproject.bramble.test.TestUtils.getRandomId;
-import static org.briarproject.bramble.versioning.ClientVersioningConstants.GROUP_KEY_CONTACT_ID;
 import static org.briarproject.bramble.versioning.ClientVersioningConstants.MSG_KEY_LOCAL;
 import static org.briarproject.bramble.versioning.ClientVersioningConstants.MSG_KEY_UPDATE_VERSION;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
 
 public class ClientVersioningManagerImplTest extends BrambleMockTestCase {
 
@@ -60,8 +59,6 @@ public class ClientVersioningManagerImplTest extends BrambleMockTestCase {
 	private final ClientId clientId = getClientId();
 	private final long now = System.currentTimeMillis();
 	private final Transaction txn = new Transaction(null, false);
-	private final BdfDictionary groupMeta = BdfDictionary.of(
-			new BdfEntry(GROUP_KEY_CONTACT_ID, contact.getId().getInt()));
 
 	private ClientVersioningManagerImpl createInstance() {
 		context.checking(new Expectations() {{
@@ -123,8 +120,8 @@ public class ClientVersioningManagerImplTest extends BrambleMockTestCase {
 			oneOf(db).addGroup(txn, contactGroup);
 			oneOf(db).setGroupVisibility(txn, contact.getId(),
 					contactGroup.getId(), SHARED);
-			oneOf(clientHelper).mergeGroupMetadata(txn, contactGroup.getId(),
-					groupMeta);
+			oneOf(clientHelper).setContactId(txn, contactGroup.getId(),
+					contact.getId());
 			oneOf(clock).currentTimeMillis();
 			will(returnValue(now));
 			oneOf(clientHelper).createMessage(contactGroup.getId(), now,
@@ -422,7 +419,8 @@ public class ClientVersioningManagerImplTest extends BrambleMockTestCase {
 
 		ClientVersioningManagerImpl c = createInstance();
 		c.registerClient(clientId, 123, 234, hook);
-		assertFalse(c.incomingMessage(txn, newRemoteUpdate, new Metadata()));
+		assertEquals(ACCEPT_DO_NOT_SHARE,
+				c.incomingMessage(txn, newRemoteUpdate, new Metadata()));
 	}
 
 	@Test
@@ -460,15 +458,15 @@ public class ClientVersioningManagerImplTest extends BrambleMockTestCase {
 			oneOf(db).deleteMessage(txn, oldRemoteUpdateId);
 			oneOf(db).deleteMessageMetadata(txn, oldRemoteUpdateId);
 			// Get contact ID
-			oneOf(clientHelper).getGroupMetadataAsDictionary(txn,
-					contactGroup.getId());
-			will(returnValue(groupMeta));
+			oneOf(clientHelper).getContactId(txn, contactGroup.getId());
+			will(returnValue(contact.getId()));
 			// No states or visibilities have changed
 		}});
 
 		ClientVersioningManagerImpl c = createInstance();
 		c.registerClient(clientId, 123, 234, hook);
-		assertFalse(c.incomingMessage(txn, newRemoteUpdate, new Metadata()));
+		assertEquals(ACCEPT_DO_NOT_SHARE,
+				c.incomingMessage(txn, newRemoteUpdate, new Metadata()));
 	}
 
 	@Test
@@ -492,16 +490,16 @@ public class ClientVersioningManagerImplTest extends BrambleMockTestCase {
 			// Load the latest local update
 			oneOf(clientHelper).getMessageAsList(txn, oldLocalUpdateId);
 			will(returnValue(oldLocalUpdateBody));
-			// Get client ID
-			oneOf(clientHelper).getGroupMetadataAsDictionary(txn,
-					contactGroup.getId());
-			will(returnValue(groupMeta));
+			// Get contact ID
+			oneOf(clientHelper).getContactId(txn, contactGroup.getId());
+			will(returnValue(contact.getId()));
 			// No states or visibilities have changed
 		}});
 
 		ClientVersioningManagerImpl c = createInstance();
 		c.registerClient(clientId, 123, 234, hook);
-		assertFalse(c.incomingMessage(txn, newRemoteUpdate, new Metadata()));
+		assertEquals(ACCEPT_DO_NOT_SHARE,
+				c.incomingMessage(txn, newRemoteUpdate, new Metadata()));
 	}
 
 	@Test
@@ -546,8 +544,6 @@ public class ClientVersioningManagerImplTest extends BrambleMockTestCase {
 		BdfDictionary newLocalUpdateMeta = BdfDictionary.of(
 				new BdfEntry(MSG_KEY_UPDATE_VERSION, 2L),
 				new BdfEntry(MSG_KEY_LOCAL, true));
-		BdfDictionary groupMeta = BdfDictionary.of(
-				new BdfEntry(GROUP_KEY_CONTACT_ID, contact.getId().getInt()));
 
 		context.checking(new Expectations() {{
 			oneOf(clientHelper).toList(newRemoteUpdate);
@@ -577,9 +573,8 @@ public class ClientVersioningManagerImplTest extends BrambleMockTestCase {
 			oneOf(clientHelper).addLocalMessage(txn, newLocalUpdate,
 					newLocalUpdateMeta, true, false);
 			// The client's visibility has changed
-			oneOf(clientHelper).getGroupMetadataAsDictionary(txn,
-					contactGroup.getId());
-			will(returnValue(groupMeta));
+			oneOf(clientHelper).getContactId(txn, contactGroup.getId());
+			will(returnValue(contact.getId()));
 			oneOf(db).getContact(txn, contact.getId());
 			will(returnValue(contact));
 			oneOf(hook).onClientVisibilityChanging(txn, contact, visibility);
@@ -587,7 +582,8 @@ public class ClientVersioningManagerImplTest extends BrambleMockTestCase {
 
 		ClientVersioningManagerImpl c = createInstance();
 		c.registerClient(clientId, 123, 234, hook);
-		assertFalse(c.incomingMessage(txn, newRemoteUpdate, new Metadata()));
+		assertEquals(ACCEPT_DO_NOT_SHARE,
+				c.incomingMessage(txn, newRemoteUpdate, new Metadata()));
 	}
 
 	@Test
@@ -619,8 +615,6 @@ public class ClientVersioningManagerImplTest extends BrambleMockTestCase {
 		BdfDictionary newLocalUpdateMeta = BdfDictionary.of(
 				new BdfEntry(MSG_KEY_UPDATE_VERSION, 2L),
 				new BdfEntry(MSG_KEY_LOCAL, true));
-		BdfDictionary groupMeta = BdfDictionary.of(
-				new BdfEntry(GROUP_KEY_CONTACT_ID, contact.getId().getInt()));
 
 		context.checking(new Expectations() {{
 			oneOf(clientHelper).toList(newRemoteUpdate);
@@ -650,9 +644,8 @@ public class ClientVersioningManagerImplTest extends BrambleMockTestCase {
 			oneOf(clientHelper).addLocalMessage(txn, newLocalUpdate,
 					newLocalUpdateMeta, true, false);
 			// The client's visibility has changed
-			oneOf(clientHelper).getGroupMetadataAsDictionary(txn,
-					contactGroup.getId());
-			will(returnValue(groupMeta));
+			oneOf(clientHelper).getContactId(txn, contactGroup.getId());
+			will(returnValue(contact.getId()));
 			oneOf(db).getContact(txn, contact.getId());
 			will(returnValue(contact));
 			oneOf(hook).onClientVisibilityChanging(txn, contact, INVISIBLE);
@@ -660,7 +653,8 @@ public class ClientVersioningManagerImplTest extends BrambleMockTestCase {
 
 		ClientVersioningManagerImpl c = createInstance();
 		c.registerClient(clientId, 123, 234, hook);
-		assertFalse(c.incomingMessage(txn, newRemoteUpdate, new Metadata()));
+		assertEquals(ACCEPT_DO_NOT_SHARE,
+				c.incomingMessage(txn, newRemoteUpdate, new Metadata()));
 	}
 
 	@Test

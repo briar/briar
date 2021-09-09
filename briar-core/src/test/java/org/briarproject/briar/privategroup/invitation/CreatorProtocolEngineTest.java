@@ -8,6 +8,7 @@ import org.junit.Test;
 import static org.briarproject.bramble.api.sync.Group.Visibility.INVISIBLE;
 import static org.briarproject.bramble.api.sync.Group.Visibility.SHARED;
 import static org.briarproject.bramble.test.TestUtils.getRandomId;
+import static org.briarproject.briar.api.autodelete.AutoDeleteConstants.NO_AUTO_DELETE_TIMER;
 import static org.briarproject.briar.privategroup.invitation.CreatorState.DISSOLVED;
 import static org.briarproject.briar.privategroup.invitation.CreatorState.ERROR;
 import static org.briarproject.briar.privategroup.invitation.CreatorState.INVITED;
@@ -23,7 +24,8 @@ public class CreatorProtocolEngineTest extends AbstractProtocolEngineTest {
 			new CreatorProtocolEngine(db, clientHelper, clientVersioningManager,
 					privateGroupManager, privateGroupFactory,
 					groupMessageFactory, identityManager, messageParser,
-					messageEncoder, messageTracker, clock);
+					messageEncoder, messageTracker, autoDeleteManager,
+					conversationManager, clock);
 
 	private CreatorSession getDefaultSession(CreatorState state) {
 		return new CreatorSession(contactGroupId, privateGroupId,
@@ -42,7 +44,7 @@ public class CreatorProtocolEngineTest extends AbstractProtocolEngineTest {
 		expectOnLocalInvite(text);
 		CreatorSession newSession =
 				engine.onInviteAction(txn, session, text, inviteTimestamp,
-						signature);
+						signature, NO_AUTO_DELETE_TIMER);
 		assertEquals(INVITED, newSession.getState());
 		assertEquals(messageId, newSession.getLastLocalMessageId());
 		assertNull(newSession.getLastRemoteMessageId());
@@ -59,7 +61,7 @@ public class CreatorProtocolEngineTest extends AbstractProtocolEngineTest {
 		expectOnLocalInvite(null);
 		CreatorSession newSession =
 				engine.onInviteAction(txn, session, null, inviteTimestamp,
-						signature);
+						signature, NO_AUTO_DELETE_TIMER);
 		assertEquals(INVITED, newSession.getState());
 		assertEquals(messageId, newSession.getLastLocalMessageId());
 		assertNull(newSession.getLastRemoteMessageId());
@@ -77,37 +79,36 @@ public class CreatorProtocolEngineTest extends AbstractProtocolEngineTest {
 			oneOf(messageTracker).trackOutgoingMessage(txn, message);
 		}});
 		expectSendInviteMessage(text);
-		expectGetLocalTimestamp(messageTimestamp);
 	}
 
 	@Test(expected = ProtocolStateException.class)
 	public void testOnInviteActionFromInvited() throws Exception {
 		engine.onInviteAction(txn, getDefaultSession(INVITED), null,
-				inviteTimestamp, signature);
+				inviteTimestamp, signature, NO_AUTO_DELETE_TIMER);
 	}
 
 	@Test(expected = ProtocolStateException.class)
 	public void testOnInviteActionFromJoined() throws Exception {
 		engine.onInviteAction(txn, getDefaultSession(JOINED), null,
-				inviteTimestamp, signature);
+				inviteTimestamp, signature, NO_AUTO_DELETE_TIMER);
 	}
 
 	@Test(expected = ProtocolStateException.class)
 	public void testOnInviteActionFromLeft() throws Exception {
 		engine.onInviteAction(txn, getDefaultSession(LEFT), null,
-				inviteTimestamp, signature);
+				inviteTimestamp, signature, NO_AUTO_DELETE_TIMER);
 	}
 
 	@Test(expected = ProtocolStateException.class)
 	public void testOnInviteActionFromDissolved() throws Exception {
 		engine.onInviteAction(txn, getDefaultSession(DISSOLVED), null,
-				inviteTimestamp, signature);
+				inviteTimestamp, signature, NO_AUTO_DELETE_TIMER);
 	}
 
 	@Test(expected = ProtocolStateException.class)
 	public void testOnInviteActionFromError() throws Exception {
 		engine.onInviteAction(txn, getDefaultSession(ERROR), null,
-				inviteTimestamp, signature);
+				inviteTimestamp, signature, NO_AUTO_DELETE_TIMER);
 	}
 
 	// onJoinAction
@@ -122,19 +123,19 @@ public class CreatorProtocolEngineTest extends AbstractProtocolEngineTest {
 	@Test
 	public void testOnLeaveActionFromStart() throws Exception {
 		CreatorSession session = getDefaultSession(START);
-		assertEquals(session, engine.onLeaveAction(txn, session));
+		assertEquals(session, engine.onLeaveAction(txn, session, false));
 	}
 
 	@Test
 	public void testOnLeaveActionFromDissolved() throws Exception {
 		CreatorSession session = getDefaultSession(DISSOLVED);
-		assertEquals(session, engine.onLeaveAction(txn, session));
+		assertEquals(session, engine.onLeaveAction(txn, session, false));
 	}
 
 	@Test
 	public void testOnLeaveActionFromError() throws Exception {
 		CreatorSession session = getDefaultSession(ERROR);
-		assertEquals(session, engine.onLeaveAction(txn, session));
+		assertEquals(session, engine.onLeaveAction(txn, session, false));
 	}
 
 	@Test
@@ -142,7 +143,7 @@ public class CreatorProtocolEngineTest extends AbstractProtocolEngineTest {
 		CreatorSession session = getDefaultSession(INVITED);
 
 		expectOnLocalLeave();
-		CreatorSession newSession = engine.onLeaveAction(txn, session);
+		CreatorSession newSession = engine.onLeaveAction(txn, session, false);
 		assertEquals(DISSOLVED, newSession.getState());
 		assertEquals(messageId, newSession.getLastLocalMessageId());
 		assertEquals(lastRemoteMessageId, newSession.getLastRemoteMessageId());
@@ -156,7 +157,7 @@ public class CreatorProtocolEngineTest extends AbstractProtocolEngineTest {
 		CreatorSession session = getDefaultSession(JOINED);
 
 		expectOnLocalLeave();
-		CreatorSession newSession = engine.onLeaveAction(txn, session);
+		CreatorSession newSession = engine.onLeaveAction(txn, session, false);
 		assertEquals(DISSOLVED, newSession.getState());
 		assertEquals(messageId, newSession.getLastLocalMessageId());
 		assertEquals(lastRemoteMessageId, newSession.getLastRemoteMessageId());
@@ -170,7 +171,7 @@ public class CreatorProtocolEngineTest extends AbstractProtocolEngineTest {
 		CreatorSession session = getDefaultSession(LEFT);
 
 		expectOnLocalLeave();
-		CreatorSession newSession = engine.onLeaveAction(txn, session);
+		CreatorSession newSession = engine.onLeaveAction(txn, session, false);
 		assertEquals(DISSOLVED, newSession.getState());
 		assertEquals(messageId, newSession.getLastLocalMessageId());
 		assertEquals(lastRemoteMessageId, newSession.getLastRemoteMessageId());
@@ -289,7 +290,7 @@ public class CreatorProtocolEngineTest extends AbstractProtocolEngineTest {
 		CreatorSession session = getDefaultSession(INVITED);
 		JoinMessage invalidJoinMessage =
 				new JoinMessage(messageId, contactGroupId, privateGroupId,
-						inviteTimestamp + 1, messageId);
+						inviteTimestamp + 1, messageId, NO_AUTO_DELETE_TIMER);
 
 		expectAbortWhenSubscribedToGroup();
 		CreatorSession newSession =
@@ -303,15 +304,12 @@ public class CreatorProtocolEngineTest extends AbstractProtocolEngineTest {
 		JoinMessage properJoinMessage =
 				new JoinMessage(new MessageId(getRandomId()), contactGroupId,
 						privateGroupId, inviteTimestamp + 1,
-						lastRemoteMessageId);
+						lastRemoteMessageId, NO_AUTO_DELETE_TIMER);
 
 		expectSendJoinMessage(properJoinMessage, false);
 		expectMarkMessageVisibleInUi(properJoinMessage.getId());
-		context.checking(new Expectations() {{
-			oneOf(messageTracker)
-					.trackMessage(txn, contactGroupId, inviteTimestamp + 1,
-							false);
-		}});
+		expectTrackUnreadMessage(properJoinMessage.getTimestamp());
+		expectReceiveAutoDeleteTimer(properJoinMessage);
 		expectGetContactId();
 		expectSetPrivateGroupVisibility(SHARED);
 		CreatorSession newSession =
@@ -343,7 +341,8 @@ public class CreatorProtocolEngineTest extends AbstractProtocolEngineTest {
 	public void testOnLeaveMessageFromStart() throws Exception {
 		LeaveMessage leaveMessage =
 				new LeaveMessage(messageId, contactGroupId, privateGroupId,
-						inviteTimestamp, lastLocalMessageId);
+						inviteTimestamp, lastLocalMessageId,
+						NO_AUTO_DELETE_TIMER);
 		CreatorSession session = getDefaultSession(START);
 
 		expectAbortWhenSubscribedToGroup();
@@ -377,7 +376,8 @@ public class CreatorProtocolEngineTest extends AbstractProtocolEngineTest {
 			throws Exception {
 		LeaveMessage invalidLeaveMessage =
 				new LeaveMessage(messageId, contactGroupId, privateGroupId,
-						inviteTimestamp + 1, lastLocalMessageId);
+						inviteTimestamp + 1, lastLocalMessageId,
+						NO_AUTO_DELETE_TIMER);
 		CreatorSession session = getDefaultSession(INVITED);
 
 		expectAbortWhenSubscribedToGroup();
@@ -392,15 +392,12 @@ public class CreatorProtocolEngineTest extends AbstractProtocolEngineTest {
 		LeaveMessage properLeaveMessage =
 				new LeaveMessage(new MessageId(getRandomId()), contactGroupId,
 						privateGroupId, inviteTimestamp + 1,
-						lastRemoteMessageId);
+						lastRemoteMessageId, NO_AUTO_DELETE_TIMER);
 		CreatorSession session = getDefaultSession(INVITED);
 
 		expectMarkMessageVisibleInUi(properLeaveMessage.getId());
-		context.checking(new Expectations() {{
-			oneOf(messageTracker)
-					.trackMessage(txn, contactGroupId, inviteTimestamp + 1,
-							false);
-		}});
+		expectTrackUnreadMessage(properLeaveMessage.getTimestamp());
+		expectReceiveAutoDeleteTimer(properLeaveMessage);
 		expectGetContactId();
 		CreatorSession newSession =
 				engine.onLeaveMessage(txn, session, properLeaveMessage);

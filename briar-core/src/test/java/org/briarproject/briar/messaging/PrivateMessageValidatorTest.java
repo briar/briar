@@ -27,15 +27,18 @@ import static org.briarproject.bramble.test.TestUtils.getMessage;
 import static org.briarproject.bramble.test.TestUtils.getRandomBytes;
 import static org.briarproject.bramble.test.TestUtils.getRandomId;
 import static org.briarproject.bramble.util.StringUtils.getRandomString;
+import static org.briarproject.briar.api.attachment.MediaConstants.MAX_CONTENT_TYPE_BYTES;
+import static org.briarproject.briar.api.attachment.MediaConstants.MSG_KEY_CONTENT_TYPE;
+import static org.briarproject.briar.api.attachment.MediaConstants.MSG_KEY_DESCRIPTOR_LENGTH;
+import static org.briarproject.briar.api.autodelete.AutoDeleteConstants.MAX_AUTO_DELETE_TIMER_MS;
+import static org.briarproject.briar.api.autodelete.AutoDeleteConstants.MIN_AUTO_DELETE_TIMER_MS;
 import static org.briarproject.briar.api.messaging.MessagingConstants.MAX_ATTACHMENTS_PER_MESSAGE;
-import static org.briarproject.briar.api.messaging.MessagingConstants.MAX_CONTENT_TYPE_BYTES;
-import static org.briarproject.briar.api.messaging.MessagingConstants.MAX_PRIVATE_MESSAGE_TEXT_LENGTH;
+import static org.briarproject.briar.api.messaging.MessagingConstants.MAX_PRIVATE_MESSAGE_INCOMING_TEXT_LENGTH;
 import static org.briarproject.briar.client.MessageTrackerConstants.MSG_KEY_READ;
 import static org.briarproject.briar.messaging.MessageTypes.ATTACHMENT;
 import static org.briarproject.briar.messaging.MessageTypes.PRIVATE_MESSAGE;
 import static org.briarproject.briar.messaging.MessagingConstants.MSG_KEY_ATTACHMENT_HEADERS;
-import static org.briarproject.briar.messaging.MessagingConstants.MSG_KEY_CONTENT_TYPE;
-import static org.briarproject.briar.messaging.MessagingConstants.MSG_KEY_DESCRIPTOR_LENGTH;
+import static org.briarproject.briar.messaging.MessagingConstants.MSG_KEY_AUTO_DELETE_TIMER;
 import static org.briarproject.briar.messaging.MessagingConstants.MSG_KEY_HAS_TEXT;
 import static org.briarproject.briar.messaging.MessagingConstants.MSG_KEY_LOCAL;
 import static org.briarproject.briar.messaging.MessagingConstants.MSG_KEY_MSG_TYPE;
@@ -55,7 +58,7 @@ public class PrivateMessageValidatorTest extends BrambleMockTestCase {
 	private final Message message = getMessage(group.getId());
 	private final long now = message.getTimestamp() + 1000;
 	private final String text =
-			getRandomString(MAX_PRIVATE_MESSAGE_TEXT_LENGTH);
+			getRandomString(MAX_PRIVATE_MESSAGE_INCOMING_TEXT_LENGTH);
 	private final BdfList attachmentHeader = getAttachmentHeader();
 	private final MessageId attachmentId = new MessageId(getRandomId());
 	private final String contentType = getRandomString(MAX_CONTENT_TYPE_BYTES);
@@ -132,7 +135,7 @@ public class PrivateMessageValidatorTest extends BrambleMockTestCase {
 	@Test(expected = InvalidMessageException.class)
 	public void testRejectsTooLongTextForLegacyMessage() throws Exception {
 		String invalidText =
-				getRandomString(MAX_PRIVATE_MESSAGE_TEXT_LENGTH + 1);
+				getRandomString(MAX_PRIVATE_MESSAGE_INCOMING_TEXT_LENGTH + 1);
 
 		testRejectsLegacyMessage(BdfList.of(invalidText));
 	}
@@ -190,7 +193,7 @@ public class PrivateMessageValidatorTest extends BrambleMockTestCase {
 	@Test(expected = InvalidMessageException.class)
 	public void testRejectsTooLongTextForPrivateMessage() throws Exception {
 		String invalidText =
-				getRandomString(MAX_PRIVATE_MESSAGE_TEXT_LENGTH + 1);
+				getRandomString(MAX_PRIVATE_MESSAGE_INCOMING_TEXT_LENGTH + 1);
 
 		testRejectsPrivateMessage(
 				BdfList.of(PRIVATE_MESSAGE, invalidText, new BdfList()));
@@ -389,6 +392,48 @@ public class PrivateMessageValidatorTest extends BrambleMockTestCase {
 		expectParseList(BdfList.of(ATTACHMENT + 1, contentType));
 
 		validator.validateMessage(message, group);
+	}
+
+	@Test
+	public void testAcceptsNullTimerForPrivateMessage() throws Exception {
+		testAcceptsPrivateMessage(BdfList.of(PRIVATE_MESSAGE, text,
+				new BdfList(), null), noAttachmentsMeta);
+	}
+
+	@Test(expected = InvalidMessageException.class)
+	public void testRejectsNonLongTimerForPrivateMessage() throws Exception {
+		testRejectsPrivateMessage(BdfList.of(PRIVATE_MESSAGE, text,
+				new BdfList(), "foo"));
+	}
+
+	@Test(expected = InvalidMessageException.class)
+	public void testRejectsTooSmallTimerForPrivateMessage() throws Exception {
+		testRejectsPrivateMessage(BdfList.of(PRIVATE_MESSAGE, text,
+				new BdfList(), MIN_AUTO_DELETE_TIMER_MS - 1));
+	}
+
+	@Test(expected = InvalidMessageException.class)
+	public void testRejectsTooBigTimerForPrivateMessage() throws Exception {
+		testRejectsPrivateMessage(BdfList.of(PRIVATE_MESSAGE, text,
+				new BdfList(), MAX_AUTO_DELETE_TIMER_MS + 1));
+	}
+
+	@Test
+	public void testAcceptsMinTimerForPrivateMessage() throws Exception {
+		BdfDictionary minTimerMeta = new BdfDictionary(noAttachmentsMeta);
+		minTimerMeta.put(MSG_KEY_AUTO_DELETE_TIMER, MIN_AUTO_DELETE_TIMER_MS);
+
+		testAcceptsPrivateMessage(BdfList.of(PRIVATE_MESSAGE, text,
+				new BdfList(), MIN_AUTO_DELETE_TIMER_MS), minTimerMeta);
+	}
+
+	@Test
+	public void testAcceptsMaxTimerForPrivateMessage() throws Exception {
+		BdfDictionary maxTimerMeta = new BdfDictionary(noAttachmentsMeta);
+		maxTimerMeta.put(MSG_KEY_AUTO_DELETE_TIMER, MAX_AUTO_DELETE_TIMER_MS);
+
+		testAcceptsPrivateMessage(BdfList.of(PRIVATE_MESSAGE, text,
+				new BdfList(), MAX_AUTO_DELETE_TIMER_MS), maxTimerMeta);
 	}
 
 	private void testRejectsLegacyMessage(BdfList body) throws Exception {

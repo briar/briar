@@ -13,14 +13,12 @@ import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
 import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.account.PowerView.OnCheckedChangedListener;
-import org.briarproject.briar.android.activity.ActivityComponent;
 import org.briarproject.briar.android.util.UiUtils;
 
 import androidx.annotation.Nullable;
 
 import static android.view.View.INVISIBLE;
 import static android.view.View.VISIBLE;
-import static java.util.Objects.requireNonNull;
 import static org.briarproject.briar.android.activity.RequestCodes.REQUEST_DOZE_WHITELISTING;
 import static org.briarproject.briar.android.util.UiUtils.showOnboardingDialog;
 
@@ -32,9 +30,10 @@ public class DozeFragment extends SetupFragment
 	private final static String TAG = DozeFragment.class.getName();
 
 	private DozeView dozeView;
-	private HuaweiView huaweiView;
+	private HuaweiProtectedAppsView huaweiProtectedAppsView;
+	private HuaweiAppLaunchView huaweiAppLaunchView;
+	private XiaomiView xiaomiView;
 	private Button next;
-	private ProgressBar progressBar;
 	private boolean secondAttempt = false;
 
 	public static DozeFragment newInstance() {
@@ -42,27 +41,34 @@ public class DozeFragment extends SetupFragment
 	}
 
 	@Override
-	public void injectFragment(ActivityComponent component) {
-		component.inject(this);
-	}
-
-	@Override
 	public View onCreateView(LayoutInflater inflater,
 			@Nullable ViewGroup container,
 			@Nullable Bundle savedInstanceState) {
-		requireNonNull(getActivity()).setTitle(getString(R.string.setup_doze_title));
+		requireActivity().setTitle(getString(R.string.setup_doze_title));
 		setHasOptionsMenu(false);
 		View v = inflater.inflate(R.layout.fragment_setup_doze, container,
-						false);
+				false);
 		dozeView = v.findViewById(R.id.dozeView);
 		dozeView.setOnCheckedChangedListener(this);
-		huaweiView = v.findViewById(R.id.huaweiView);
-		huaweiView.setOnCheckedChangedListener(this);
+		huaweiProtectedAppsView = v.findViewById(R.id.huaweiProtectedAppsView);
+		huaweiProtectedAppsView.setOnCheckedChangedListener(this);
+		huaweiAppLaunchView = v.findViewById(R.id.huaweiAppLaunchView);
+		huaweiAppLaunchView.setOnCheckedChangedListener(this);
+		xiaomiView = v.findViewById(R.id.xiaomiView);
+		xiaomiView.setOnCheckedChangedListener(this);
 		next = v.findViewById(R.id.next);
-		progressBar = v.findViewById(R.id.progress);
+		ProgressBar progressBar = v.findViewById(R.id.progress);
 
 		dozeView.setOnButtonClickListener(this::askForDozeWhitelisting);
 		next.setOnClickListener(this);
+
+		viewModel.getIsCreatingAccount()
+				.observe(getViewLifecycleOwner(), isCreatingAccount -> {
+					if (isCreatingAccount) {
+						next.setVisibility(INVISIBLE);
+						progressBar.setVisibility(VISIBLE);
+					}
+				});
 
 		return v;
 	}
@@ -78,7 +84,8 @@ public class DozeFragment extends SetupFragment
 	}
 
 	@Override
-	public void onActivityResult(int request, int result, Intent data) {
+	public void onActivityResult(int request, int result,
+			@Nullable Intent data) {
 		super.onActivityResult(request, result, data);
 		if (request == REQUEST_DOZE_WHITELISTING) {
 			if (!dozeView.needsToBeShown() || secondAttempt) {
@@ -92,11 +99,10 @@ public class DozeFragment extends SetupFragment
 
 	@Override
 	public void onCheckedChanged() {
-		if (dozeView.isChecked() && huaweiView.isChecked()) {
-			next.setEnabled(true);
-		} else {
-			next.setEnabled(false);
-		}
+		next.setEnabled(dozeView.isChecked() &&
+				huaweiProtectedAppsView.isChecked() &&
+				huaweiAppLaunchView.isChecked() &&
+				xiaomiView.isChecked());
 	}
 
 	@SuppressLint("BatteryLife")
@@ -108,9 +114,6 @@ public class DozeFragment extends SetupFragment
 
 	@Override
 	public void onClick(View view) {
-		next.setVisibility(INVISIBLE);
-		progressBar.setVisibility(VISIBLE);
-		setupController.createAccount();
+		viewModel.dozeExceptionConfirmed();
 	}
-
 }

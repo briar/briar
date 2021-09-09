@@ -17,6 +17,7 @@ import org.briarproject.bramble.network.JavaNetworkModule
 import org.briarproject.bramble.plugin.tor.CircumventionModule
 import org.briarproject.bramble.plugin.tor.UnixTorPluginFactory
 import org.briarproject.bramble.socks.SocksModule
+import org.briarproject.bramble.system.ClockModule
 import org.briarproject.bramble.system.DefaultTaskSchedulerModule
 import org.briarproject.bramble.system.DefaultWakefulIoExecutorModule
 import org.briarproject.bramble.system.DesktopSecureRandomModule
@@ -36,6 +37,7 @@ import javax.inject.Singleton
     includes = [
         AccountModule::class,
         CircumventionModule::class,
+        ClockModule::class,
         DefaultBatteryManagerModule::class,
         DefaultEventExecutorModule::class,
         DefaultTaskSchedulerModule::class,
@@ -72,6 +74,7 @@ internal class HeadlessModule(private val appDir: File) {
     }
 
     @Provides
+    @Singleton
     internal fun providePluginConfig(tor: UnixTorPluginFactory): PluginConfig {
         val duplex: List<DuplexPluginFactory> =
             if (isLinux() || isMac()) listOf(tor) else emptyList()
@@ -88,5 +91,11 @@ internal class HeadlessModule(private val appDir: File) {
     internal fun provideObjectMapper() = ObjectMapper()
 
     @Provides
-    internal fun provideFeatureFlags() = FeatureFlags { false }
+    internal fun provideFeatureFlags() = object : FeatureFlags {
+        override fun shouldEnableImageAttachments() = false
+        override fun shouldEnableProfilePictures() = false
+        override fun shouldEnableDisappearingMessages() = false
+        override fun shouldEnableConnectViaBluetooth() = false
+        override fun shouldEnableTransferData() = false
+    }
 }

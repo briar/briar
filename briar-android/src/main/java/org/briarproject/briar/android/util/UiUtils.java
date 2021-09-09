@@ -2,11 +2,15 @@ package org.briarproject.briar.android.util;
 
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
+import android.app.Activity;
 import android.app.KeyguardManager;
+import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
+import android.content.res.Resources;
 import android.graphics.drawable.Drawable;
+import android.location.LocationManager;
 import android.net.Uri;
 import android.os.PowerManager;
 import android.text.Spannable;
@@ -24,22 +28,24 @@ import android.view.KeyEvent;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.android.material.textfield.TextInputLayout;
 
-import org.acra.ACRA;
 import org.briarproject.bramble.api.contact.Contact;
-import org.briarproject.bramble.api.contact.ContactId;
 import org.briarproject.bramble.api.identity.Author;
 import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
 import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
 import org.briarproject.bramble.api.system.AndroidExecutor;
+import org.briarproject.bramble.util.StringUtils;
 import org.briarproject.briar.R;
+import org.briarproject.briar.android.reporting.FeedbackActivity;
 import org.briarproject.briar.android.view.ArticleMovementMethod;
-import org.briarproject.briar.android.widget.LinkDialogFragment;
 
 import java.util.Locale;
+import java.util.logging.Logger;
 
+import androidx.annotation.AnyThread;
 import androidx.annotation.AttrRes;
 import androidx.annotation.ColorInt;
 import androidx.annotation.ColorRes;
@@ -51,10 +57,14 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.core.content.ContextCompat;
 import androidx.core.hardware.fingerprint.FingerprintManagerCompat;
 import androidx.core.text.HtmlCompat;
+import androidx.core.util.Consumer;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentActivity;
 import androidx.fragment.app.FragmentManager;
 import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.Observer;
+import androidx.vectordrawable.graphics.drawable.VectorDrawableCompat;
 
 import static android.content.Context.KEYGUARD_SERVICE;
 import static android.content.Context.POWER_SERVICE;
@@ -62,6 +72,7 @@ import static android.content.Intent.CATEGORY_DEFAULT;
 import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
 import static android.os.Build.MANUFACTURER;
 import static android.os.Build.VERSION.SDK_INT;
+import static android.provider.Settings.ACTION_LOCATION_SOURCE_SETTINGS;
 import static android.provider.Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS;
 import static android.text.format.DateUtils.DAY_IN_MILLIS;
 import static android.text.format.DateUtils.FORMAT_ABBREV_ALL;
@@ -71,27 +82,36 @@ import static android.text.format.DateUtils.FORMAT_ABBREV_TIME;
 import static android.text.format.DateUtils.FORMAT_SHOW_DATE;
 import static android.text.format.DateUtils.FORMAT_SHOW_TIME;
 import static android.text.format.DateUtils.FORMAT_SHOW_YEAR;
+import static android.text.format.DateUtils.HOUR_IN_MILLIS;
 import static android.text.format.DateUtils.MINUTE_IN_MILLIS;
 import static android.text.format.DateUtils.WEEK_IN_MILLIS;
 import static android.text.format.DateUtils.YEAR_IN_MILLIS;
 import static android.view.KeyEvent.ACTION_DOWN;
 import static android.view.KeyEvent.KEYCODE_ENTER;
+import static android.view.WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE;
+import static android.view.WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE;
+import static android.view.WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN;
 import static android.view.inputmethod.EditorInfo.IME_NULL;
 import static android.view.inputmethod.InputMethodManager.SHOW_IMPLICIT;
+import static android.widget.Toast.LENGTH_LONG;
 import static androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_AUTO_TIME;
 import static androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM;
 import static androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_NO;
 import static androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_YES;
 import static androidx.appcompat.app.AppCompatDelegate.setDefaultNightMode;
 import static androidx.core.content.ContextCompat.getColor;
-import static androidx.core.content.ContextCompat.getDrawable;
 import static androidx.core.content.ContextCompat.getSystemService;
 import static androidx.core.graphics.drawable.DrawableCompat.setTint;
 import static androidx.core.view.ViewCompat.LAYOUT_DIRECTION_RTL;
 import static java.util.Objects.requireNonNull;
 import static java.util.concurrent.TimeUnit.DAYS;
+import static java.util.logging.Level.WARNING;
+import static org.briarproject.bramble.util.LogUtils.logException;
 import static org.briarproject.briar.BuildConfig.APPLICATION_ID;
 import static org.briarproject.briar.android.TestingConstants.EXPIRY_DATE;
+import static org.briarproject.briar.android.reporting.CrashReportActivity.EXTRA_APP_LOGCAT;
+import static org.briarproject.briar.android.reporting.CrashReportActivity.EXTRA_APP_START_TIME;
+import static org.briarproject.briar.android.reporting.CrashReportActivity.EXTRA_THROWABLE;
 
 @MethodsNotNullByDefault
 @ParametersNotNullByDefault
@@ -113,6 +133,17 @@ public class UiUtils {
 		InputMethodManager imm = requireNonNull(
 				getSystemService(view.getContext(), InputMethodManager.class));
 		imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+	}
+
+	public static void showFragment(FragmentManager fm, Fragment f,
+			@Nullable String tag) {
+		fm.beginTransaction()
+				.setCustomAnimations(R.anim.step_next_in,
+						R.anim.step_previous_out, R.anim.step_previous_in,
+						R.anim.step_next_out)
+				.replace(R.id.fragmentContainer, f, tag)
+				.addToBackStack(tag)
+				.commit();
 	}
 
 	public static String getContactDisplayName(Author author,
@@ -159,6 +190,36 @@ public class UiUtils {
 		return DateUtils.formatDateTime(ctx, time, flags);
 	}
 
+	/**
+	 * Returns the given duration in a human-friendly format. For example,
+	 * "7 days" or "1 hour 3 minutes".
+	 */
+	public static String formatDuration(Context ctx, long millis) {
+		Resources r = ctx.getResources();
+		if (millis >= DAY_IN_MILLIS) {
+			int days = (int) (millis / DAY_IN_MILLIS);
+			int rest = (int) (millis % DAY_IN_MILLIS);
+			String dayStr =
+					r.getQuantityString(R.plurals.duration_days, days, days);
+			if (rest < HOUR_IN_MILLIS / 2) return dayStr;
+			else return dayStr + " " + formatDuration(ctx, rest);
+		} else if (millis >= HOUR_IN_MILLIS) {
+			int hours = (int) (millis / HOUR_IN_MILLIS);
+			int rest = (int) (millis % HOUR_IN_MILLIS);
+			String hourStr =
+					r.getQuantityString(R.plurals.duration_hours, hours, hours);
+			if (rest < MINUTE_IN_MILLIS / 2) return hourStr;
+			else return hourStr + " " + formatDuration(ctx, rest);
+		} else {
+			int minutes =
+					(int) ((millis + MINUTE_IN_MILLIS / 2) / MINUTE_IN_MILLIS);
+			// anything less than one minute is shown as one minute
+			if (minutes < 1) minutes = 1;
+			return r.getQuantityString(R.plurals.duration_minutes, minutes,
+					minutes);
+		}
+	}
+
 	public static long getDaysUntilExpiry() {
 		long now = System.currentTimeMillis();
 		return (EXPIRY_DATE - now) / DAYS.toMillis(1);
@@ -190,8 +251,7 @@ public class UiUtils {
 	}
 
 	public static void makeLinksClickable(TextView v,
-			@Nullable FragmentManager fm) {
-		if (fm == null) return;
+			Consumer<String> onLinkClicked) {
 		SpannableStringBuilder ssb = new SpannableStringBuilder(v.getText());
 		URLSpan[] spans = ssb.getSpans(0, ssb.length(), URLSpan.class);
 		for (URLSpan span : spans) {
@@ -202,8 +262,7 @@ public class UiUtils {
 			ClickableSpan cSpan = new ClickableSpan() {
 				@Override
 				public void onClick(View v2) {
-					LinkDialogFragment f = LinkDialogFragment.newInstance(url);
-					f.show(fm, f.getUniqueTag());
+					onLinkClicked.accept(url);
 				}
 			};
 			ssb.setSpan(cSpan, start, end, 0);
@@ -236,14 +295,6 @@ public class UiUtils {
 		ssb.setSpan(cSpan, start, end, 0);
 		textView.setText(ssb);
 		textView.setMovementMethod(new LinkMovementMethod());
-	}
-
-	public static String getAvatarTransitionName(ContactId c) {
-		return "avatar" + c.getInt();
-	}
-
-	public static String getBulbTransitionName(ContactId c) {
-		return "bulb" + c.getInt();
 	}
 
 	public static OnClickListener getGoToSettingsListener(Context context) {
@@ -280,6 +331,19 @@ public class UiUtils {
 		i.setAction(ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS);
 		i.setData(Uri.parse("package:" + ctx.getPackageName()));
 		return i;
+	}
+
+	/**
+	 * @return true if location is enabled,
+	 * or it isn't required due to this being a SDK < 28 device.
+	 */
+	public static boolean isLocationEnabled(Context ctx) {
+		if (SDK_INT >= 28) {
+			LocationManager lm = ctx.getSystemService(LocationManager.class);
+			return lm.isLocationEnabled();
+		} else {
+			return true;
+		}
 	}
 
 	public static boolean isSamsung7() {
@@ -345,10 +409,19 @@ public class UiUtils {
 		return fm.hasEnrolledFingerprints() && fm.isHardwareDetected();
 	}
 
-	public static void triggerFeedback(AndroidExecutor androidExecutor) {
-		androidExecutor.runOnBackgroundThread(
-				() -> ACRA.getErrorReporter()
-						.handleException(new UserFeedback(), false));
+	public static void triggerFeedback(Context ctx) {
+		startDevReportActivity(ctx, FeedbackActivity.class, null, null, null);
+	}
+
+	public static void startDevReportActivity(Context ctx,
+			Class<? extends FragmentActivity> activity, @Nullable Throwable t,
+			@Nullable Long appStartTime, @Nullable byte[] logKey) {
+		final Intent dialogIntent = new Intent(ctx, activity);
+		dialogIntent.setFlags(FLAG_ACTIVITY_NEW_TASK);
+		dialogIntent.putExtra(EXTRA_THROWABLE, t);
+		dialogIntent.putExtra(EXTRA_APP_START_TIME, appStartTime);
+		dialogIntent.putExtra(EXTRA_APP_LOGCAT, logKey);
+		ctx.startActivity(dialogIntent);
 	}
 
 	public static boolean enterPressed(int actionId,
@@ -416,9 +489,61 @@ public class UiUtils {
 		return isoCode;
 	}
 
+	public static void showLocationDialog(Context ctx) {
+		AlertDialog.Builder builder =
+				new AlertDialog.Builder(ctx, R.style.BriarDialogTheme);
+		builder.setTitle(R.string.permission_location_setting_title);
+		builder.setMessage(R.string.permission_location_setting_body);
+		builder.setNegativeButton(R.string.cancel, null);
+		builder.setPositiveButton(R.string.permission_location_setting_button,
+				(dialog, which) -> {
+					Intent i = new Intent(ACTION_LOCATION_SOURCE_SETTINGS);
+					try {
+						ctx.startActivity(i);
+					} catch (ActivityNotFoundException e) {
+						Toast.makeText(ctx, R.string.error_start_activity,
+								LENGTH_LONG).show();
+					}
+				});
+		builder.show();
+	}
+
 	public static Drawable getDialogIcon(Context ctx, @DrawableRes int resId) {
-		Drawable icon = getDrawable(ctx, resId);
+		Drawable icon =
+				VectorDrawableCompat.create(ctx.getResources(), resId, null);
 		setTint(requireNonNull(icon), getColor(ctx, R.color.color_primary));
 		return icon;
+	}
+
+	/**
+	 * Logs the exception and shows a Toast to the user.
+	 * <p>
+	 * Errors that are likely or expected to happen should not use this method
+	 * and show proper error states in UI.
+	 */
+	@AnyThread
+	public static void handleException(Context context,
+			AndroidExecutor androidExecutor, Logger logger, Exception e) {
+		logException(logger, WARNING, e);
+		androidExecutor.runOnUiThread(() -> {
+			String msg = "Error: " + e.getClass().getSimpleName();
+			if (!StringUtils.isNullOrEmpty(e.getMessage())) {
+				msg += " " + e.getMessage();
+			}
+			if (e.getCause() != null) {
+				msg += " caused by " + e.getCause().getClass().getSimpleName();
+			}
+			Toast.makeText(context, msg, LENGTH_LONG).show();
+		});
+	}
+
+	public static void setInputStateAlwaysVisible(Activity activity) {
+		activity.getWindow().setSoftInputMode(SOFT_INPUT_ADJUST_RESIZE |
+				SOFT_INPUT_STATE_ALWAYS_VISIBLE);
+	}
+
+	public static void setInputStateHidden(Activity activity) {
+		activity.getWindow().setSoftInputMode(SOFT_INPUT_ADJUST_RESIZE |
+				SOFT_INPUT_STATE_HIDDEN);
 	}
 }

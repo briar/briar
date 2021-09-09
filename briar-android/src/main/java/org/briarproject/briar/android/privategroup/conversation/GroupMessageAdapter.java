@@ -4,19 +4,14 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import org.briarproject.bramble.api.identity.AuthorId;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.threaded.BaseThreadItemViewHolder;
 import org.briarproject.briar.android.threaded.ThreadItemAdapter;
 import org.briarproject.briar.android.threaded.ThreadPostViewHolder;
-import org.briarproject.briar.api.privategroup.Visibility;
 
 import androidx.annotation.LayoutRes;
 import androidx.annotation.UiThread;
-import androidx.recyclerview.widget.LinearLayoutManager;
-
-import static androidx.recyclerview.widget.RecyclerView.NO_POSITION;
 
 @UiThread
 @NotNullByDefault
@@ -24,15 +19,14 @@ class GroupMessageAdapter extends ThreadItemAdapter<GroupMessageItem> {
 
 	private boolean isCreator = false;
 
-	GroupMessageAdapter(ThreadItemListener<GroupMessageItem> listener,
-			LinearLayoutManager layoutManager) {
-		super(listener, layoutManager);
+	GroupMessageAdapter(ThreadItemListener<GroupMessageItem> listener) {
+		super(listener);
 	}
 
 	@LayoutRes
 	@Override
 	public int getItemViewType(int position) {
-		GroupMessageItem item = items.get(position);
+		GroupMessageItem item = getItem(position);
 		return item.getLayout();
 	}
 
@@ -47,30 +41,9 @@ class GroupMessageAdapter extends ThreadItemAdapter<GroupMessageItem> {
 		return new ThreadPostViewHolder<>(v);
 	}
 
-	void setPerspective(boolean isCreator) {
+	void setIsCreator(boolean isCreator) {
 		this.isCreator = isCreator;
 		notifyDataSetChanged();
-	}
-
-	void updateVisibility(AuthorId memberId, Visibility v) {
-		int position = findItemPosition(memberId);
-		if (position != NO_POSITION) {
-			GroupMessageItem item = items.get(position);
-			if (item instanceof JoinMessageItem) {
-				((JoinMessageItem) item).setVisibility(v);
-				notifyItemChanged(findItemPosition(item), item);
-			}
-		}
-	}
-
-	private int findItemPosition(AuthorId a) {
-		int count = items.size();
-		for (int i = 0; i < count; i++) {
-			GroupMessageItem item = items.get(i);
-			if (item.getAuthor().getId().equals(a))
-				return i;
-		}
-		return NO_POSITION; // Not found
 	}
 
 }

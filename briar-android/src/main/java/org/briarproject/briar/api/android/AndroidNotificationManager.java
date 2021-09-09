@@ -39,9 +39,12 @@ public interface AndroidNotificationManager {
 	String BLOG_CHANNEL_ID = "blogs";
 	// Channels are sorted by channel ID in the Settings app, so use IDs
 	// that will sort below the main channels such as contacts
-	String ONGOING_CHANNEL_ID = "zForegroundService";
-	String FAILURE_CHANNEL_ID = "zStartupFailure";
+	String ONGOING_CHANNEL_OLD_ID = "zForegroundService";
+	String ONGOING_CHANNEL_ID = "zForegroundService2";
 	String REMINDER_CHANNEL_ID = "zSignInReminder";
+	// This channel is no longer used - keep the ID so we can remove the
+	// channel from existing installations
+	String FAILURE_CHANNEL_ID = "zStartupFailure";
 
 	// Actions for pending intents
 	String ACTION_DISMISS_REMINDER = "dismissReminder";
@@ -81,6 +84,14 @@ public interface AndroidNotificationManager {
 	void blockNotification(GroupId g);
 
 	void unblockNotification(GroupId g);
+
+	void blockAllForumPostNotifications();
+
+	void unblockAllForumPostNotifications();
+
+	void blockAllGroupMessageNotifications();
+
+	void unblockAllGroupMessageNotifications();
 
 	void blockAllBlogPostNotifications();
 

@@ -2,12 +2,14 @@ package org.briarproject.briar.android.navdrawer;
 
 import android.content.Intent;
 import android.content.res.Configuration;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewTreeObserver.OnGlobalLayoutListener;
 import android.widget.BaseAdapter;
 import android.widget.GridView;
 import android.widget.ImageView;
@@ -17,7 +19,6 @@ import android.widget.TextView;
 import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.navigation.NavigationView.OnNavigationItemSelectedListener;
 
-import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.lifecycle.LifecycleManager;
 import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
 import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
@@ -27,6 +28,8 @@ import org.briarproject.bramble.api.plugin.Plugin.State;
 import org.briarproject.bramble.api.plugin.TorConstants;
 import org.briarproject.bramble.api.plugin.TransportId;
 import org.briarproject.briar.R;
+import org.briarproject.briar.android.BriarApplication;
+import org.briarproject.briar.android.StartupFailureActivity;
 import org.briarproject.briar.android.activity.ActivityComponent;
 import org.briarproject.briar.android.activity.BriarActivity;
 import org.briarproject.briar.android.blog.FeedFragment;
@@ -49,31 +52,29 @@ import androidx.annotation.DrawableRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.StringRes;
-import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.FragmentManager;
-import androidx.fragment.app.FragmentTransaction;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModelProvider;
-import androidx.lifecycle.ViewModelProviders;
+import androidx.vectordrawable.graphics.drawable.VectorDrawableCompat;
 import uk.co.samuelwall.materialtaptargetprompt.MaterialTapTargetPrompt;
 
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
 import static androidx.core.view.GravityCompat.START;
 import static androidx.drawerlayout.widget.DrawerLayout.LOCK_MODE_LOCKED_CLOSED;
-import static androidx.fragment.app.FragmentManager.POP_BACK_STACK_INCLUSIVE;
-import static java.util.Objects.requireNonNull;
+import static androidx.lifecycle.Lifecycle.State.STARTED;
 import static java.util.logging.Logger.getLogger;
 import static org.briarproject.bramble.api.lifecycle.LifecycleManager.LifecycleState.RUNNING;
 import static org.briarproject.bramble.api.plugin.Plugin.State.ACTIVE;
 import static org.briarproject.bramble.api.plugin.Plugin.State.ENABLING;
 import static org.briarproject.bramble.api.plugin.Plugin.State.STARTING_STOPPING;
 import static org.briarproject.briar.android.BriarService.EXTRA_STARTUP_FAILED;
+import static org.briarproject.briar.android.BriarService.EXTRA_START_RESULT;
 import static org.briarproject.briar.android.TestingConstants.IS_DEBUG_BUILD;
 import static org.briarproject.briar.android.activity.RequestCodes.REQUEST_PASSWORD;
 import static org.briarproject.briar.android.navdrawer.IntentRouter.handleExternalIntent;
@@ -123,6 +124,10 @@ public class NavDrawerActivity extends BriarActivity implements
 	@Override
 	public void injectActivity(ActivityComponent component) {
 		component.inject(this);
+		ViewModelProvider provider =
+				new ViewModelProvider(this, viewModelFactory);
+		navDrawerViewModel = provider.get(NavDrawerViewModel.class);
+		pluginViewModel = provider.get(PluginViewModel.class);
 	}
 
 	@Override
@@ -131,12 +136,8 @@ public class NavDrawerActivity extends BriarActivity implements
 		exitIfStartupFailed(getIntent());
 		setContentView(R.layout.activity_nav_drawer);
 
-		ViewModelProvider provider =
-				ViewModelProviders.of(this, viewModelFactory);
-		navDrawerViewModel = provider.get(NavDrawerViewModel.class);
-		pluginViewModel = provider.get(PluginViewModel.class);
-
-		if (IS_DEBUG_BUILD) {
+		BriarApplication app = (BriarApplication) getApplication();
+		if (IS_DEBUG_BUILD && !app.isInstrumentationTest()) {
 			navDrawerViewModel.showExpiryWarning()
 					.observe(this, this::showExpiryWarning);
 		}
@@ -144,7 +145,7 @@ public class NavDrawerActivity extends BriarActivity implements
 			if (ask) showDozeDialog(getString(R.string.setup_doze_intro));
 		});
 
-		Toolbar toolbar = findViewById(R.id.toolbar);
+		Toolbar toolbar = setUpCustomToolbar(false);
 		drawerLayout = findViewById(R.id.drawer_layout);
 		navigation = findViewById(R.id.navigation);
 		GridView transportsView = findViewById(R.id.transportsView);
@@ -153,11 +154,6 @@ public class NavDrawerActivity extends BriarActivity implements
 			LOG.info("Starting transports activity");
 			startActivity(new Intent(this, TransportsActivity.class));
 		});
-
-		setSupportActionBar(toolbar);
-		ActionBar actionBar = requireNonNull(getSupportActionBar());
-		actionBar.setDisplayHomeAsUpEnabled(true);
-		actionBar.setHomeButtonEnabled(true);
 
 		drawerToggle = new ActionBarDrawerToggle(this, drawerLayout, toolbar,
 				R.string.nav_drawer_open_description,
@@ -171,25 +167,40 @@ public class NavDrawerActivity extends BriarActivity implements
 		drawerLayout.addDrawerListener(drawerToggle);
 		navigation.setNavigationItemSelectedListener(this);
 
+		// Wait for the drawer to be laid out before trying to position the
+		// onboarding tap target
+		drawerLayout.getViewTreeObserver().addOnGlobalLayoutListener(
+				new OnGlobalLayoutListener() {
+					@Override
+					public void onGlobalLayout() {
+						drawerLayout.getViewTreeObserver()
+								.removeOnGlobalLayoutListener(this);
+						observeTransportsOnboarding();
+					}
+				});
+
 		initializeTransports();
 		transportsView.setAdapter(transportsAdapter);
-
-		observeOnce(navDrawerViewModel.showTransportsOnboarding(), this, show ->
-				observeOnce(torIcon, this, imageView ->
-						showTransportsOnboarding(show, imageView)));
 
 		lockManager.isLockable().observe(this, this::setLockVisible);
 
 		if (lifecycleManager.getLifecycleState().isAfter(RUNNING)) {
 			showSignOutFragment();
-		} else if (state == null) {
-			startFragment(ContactListFragment.newInstance(),
-					R.id.nav_btn_contacts);
 		}
 		if (state == null) {
 			// do not call this again when there's existing state
 			onNewIntent(getIntent());
 		}
+	}
+
+	private void observeTransportsOnboarding() {
+		observeOnce(navDrawerViewModel.showTransportsOnboarding(), this,
+				show -> {
+					if (show) {
+						observeOnce(torIcon, this,
+								this::showTransportsOnboarding);
+					}
+				});
 	}
 
 	@Override
@@ -241,6 +252,11 @@ public class NavDrawerActivity extends BriarActivity implements
 
 	private void exitIfStartupFailed(Intent intent) {
 		if (intent.getBooleanExtra(EXTRA_STARTUP_FAILED, false)) {
+			// Launch StartupFailureActivity in its own process, then exit
+			Intent i = new Intent(this, StartupFailureActivity.class);
+			i.putExtra(EXTRA_START_RESULT,
+					intent.getSerializableExtra(EXTRA_START_RESULT));
+			startActivity(i);
 			finish();
 			LOG.info("Exiting");
 			System.exit(0);
@@ -249,32 +265,24 @@ public class NavDrawerActivity extends BriarActivity implements
 
 	private void loadFragment(int fragmentId) {
 		// TODO re-use fragments from the manager when possible (#606)
-		switch (fragmentId) {
-			case R.id.nav_btn_contacts:
-				startFragment(ContactListFragment.newInstance());
-				break;
-			case R.id.nav_btn_groups:
-				startFragment(GroupListFragment.newInstance());
-				break;
-			case R.id.nav_btn_forums:
-				startFragment(ForumListFragment.newInstance());
-				break;
-			case R.id.nav_btn_blogs:
-				startFragment(FeedFragment.newInstance());
-				break;
-			case R.id.nav_btn_settings:
-				startActivity(new Intent(this, SettingsActivity.class));
-				break;
-			case R.id.nav_btn_signout:
-				signOut();
-				break;
+		if (fragmentId == R.id.nav_btn_contacts) {
+			startFragment(ContactListFragment.newInstance());
+		} else if (fragmentId == R.id.nav_btn_groups) {
+			startFragment(GroupListFragment.newInstance());
+		} else if (fragmentId == R.id.nav_btn_forums) {
+			startFragment(ForumListFragment.newInstance());
+		} else if (fragmentId == R.id.nav_btn_blogs) {
+			startFragment(FeedFragment.newInstance());
+		} else if (fragmentId == R.id.nav_btn_settings) {
+			startActivity(new Intent(this, SettingsActivity.class));
+		} else if (fragmentId == R.id.nav_btn_signout) {
+			signOut();
 		}
 	}
 
 	@Override
 	public boolean onNavigationItemSelected(@NonNull MenuItem item) {
 		drawerLayout.closeDrawer(START);
-		clearBackStack();
 		if (item.getItemId() == R.id.nav_btn_lock) {
 			lockManager.setLocked(true);
 			ActivityCompat.finishAfterTransition(this);
@@ -294,8 +302,14 @@ public class NavDrawerActivity extends BriarActivity implements
 			FragmentManager fm = getSupportFragmentManager();
 			if (fm.findFragmentByTag(SignOutFragment.TAG) != null) {
 				finish();
-			} else if (fm.getBackStackEntryCount() == 0
-					&& fm.findFragmentByTag(ContactListFragment.TAG) == null) {
+			} else if (fm.getBackStackEntryCount() == 0 &&
+					fm.findFragmentByTag(ContactListFragment.TAG) == null) {
+				// don't start fragments in the wrong part of lifecycle (#1904)
+				if (!getLifecycle().getCurrentState().isAtLeast(STARTED)) {
+					LOG.warning("Tried to start contacts fragment in state " +
+							getLifecycle().getCurrentState().name());
+					return;
+				}
 				/*
 				 * This makes sure that the first fragment (ContactListFragment) the
 				 * user sees is the same as the last fragment the user sees before
@@ -338,34 +352,16 @@ public class NavDrawerActivity extends BriarActivity implements
 		startFragment(fragment);
 	}
 
-	private void startFragment(BaseFragment fragment) {
-		if (getSupportFragmentManager().getBackStackEntryCount() == 0)
-			startFragment(fragment, false);
-		else startFragment(fragment, true);
-	}
-
-	private void startFragment(BaseFragment fragment,
-			boolean isAddedToBackStack) {
-		FragmentTransaction trans =
-				getSupportFragmentManager().beginTransaction()
-						.setCustomAnimations(R.anim.fade_in,
-								R.anim.fade_out, R.anim.fade_in,
-								R.anim.fade_out)
-						.replace(R.id.fragmentContainer, fragment,
-								fragment.getUniqueTag());
-		if (isAddedToBackStack) {
-			trans.addToBackStack(fragment.getUniqueTag());
-		}
-		trans.commit();
-	}
-
-	private void clearBackStack() {
-		getSupportFragmentManager().popBackStackImmediate(null,
-				POP_BACK_STACK_INCLUSIVE);
+	private void startFragment(BaseFragment f) {
+		getSupportFragmentManager().beginTransaction()
+				.setCustomAnimations(R.anim.fade_in, R.anim.fade_out,
+						R.anim.fade_in, R.anim.fade_out)
+				.replace(R.id.fragmentContainer, f, f.getUniqueTag())
+				.commit();
 	}
 
 	@Override
-	public void handleDbException(DbException e) {
+	public void handleException(Exception e) {
 		// Do nothing for now
 	}
 
@@ -434,8 +430,7 @@ public class NavDrawerActivity extends BriarActivity implements
 				Transport t = getItem(position);
 
 				ImageView icon = view.findViewById(R.id.imageView);
-				icon.setImageDrawable(ContextCompat.getDrawable(
-						NavDrawerActivity.this, t.iconDrawable));
+				icon.setImageResource(t.iconDrawable);
 				icon.setColorFilter(ContextCompat.getColor(
 						NavDrawerActivity.this, t.iconColor));
 
@@ -474,20 +469,20 @@ public class NavDrawerActivity extends BriarActivity implements
 		return transport;
 	}
 
-	private void showTransportsOnboarding(boolean show, ImageView imageView) {
-		if (show) {
-			int color = resolveColorAttribute(this, R.attr.colorControlNormal);
-			new MaterialTapTargetPrompt.Builder(NavDrawerActivity.this,
-					R.style.OnboardingDialogTheme).setTarget(imageView)
-					.setPrimaryText(R.string.network_settings_title)
-					.setSecondaryText(R.string.transports_onboarding_text)
-					.setIcon(R.drawable.transport_tor)
-					.setIconDrawableColourFilter(color)
-					.setBackgroundColour(
-							ContextCompat.getColor(this, R.color.briar_primary))
-					.show();
-			navDrawerViewModel.transportsOnboardingShown();
-		}
+	private void showTransportsOnboarding(ImageView imageView) {
+		int color = resolveColorAttribute(this, R.attr.colorControlNormal);
+		Drawable drawable = VectorDrawableCompat
+				.create(getResources(), R.drawable.transport_tor, null);
+		new MaterialTapTargetPrompt.Builder(NavDrawerActivity.this,
+				R.style.OnboardingDialogTheme).setTarget(imageView)
+				.setPrimaryText(R.string.network_settings_title)
+				.setSecondaryText(R.string.transports_onboarding_text)
+				.setIconDrawable(drawable)
+				.setIconDrawableColourFilter(color)
+				.setBackgroundColour(
+						ContextCompat.getColor(this, R.color.briar_primary))
+				.show();
+		navDrawerViewModel.transportsOnboardingShown();
 	}
 
 	private static class Transport {

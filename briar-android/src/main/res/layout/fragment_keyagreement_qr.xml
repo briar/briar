@@ -5,7 +5,7 @@
 	android:layout_height="match_parent"
 	android:keepScreenOn="true">
 
-	<org.briarproject.briar.android.keyagreement.CameraView
+	<org.briarproject.briar.android.contact.add.nearby.CameraView
 		android:id="@+id/camera_view"
 		android:layout_width="match_parent"
 		android:layout_height="match_parent" />

@@ -3,7 +3,6 @@ package org.briarproject.briar.forum;
 import org.briarproject.bramble.api.FormatException;
 import org.briarproject.bramble.api.client.BdfIncomingMessageHook;
 import org.briarproject.bramble.api.client.ClientHelper;
-import org.briarproject.bramble.api.contact.ContactManager;
 import org.briarproject.bramble.api.data.BdfDictionary;
 import org.briarproject.bramble.api.data.BdfList;
 import org.briarproject.bramble.api.data.MetadataParser;
@@ -12,7 +11,6 @@ import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.db.Transaction;
 import org.briarproject.bramble.api.identity.Author;
 import org.briarproject.bramble.api.identity.AuthorId;
-import org.briarproject.bramble.api.identity.AuthorInfo;
 import org.briarproject.bramble.api.identity.LocalAuthor;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.sync.Group;
@@ -28,6 +26,8 @@ import org.briarproject.briar.api.forum.ForumPost;
 import org.briarproject.briar.api.forum.ForumPostFactory;
 import org.briarproject.briar.api.forum.ForumPostHeader;
 import org.briarproject.briar.api.forum.event.ForumPostReceivedEvent;
+import org.briarproject.briar.api.identity.AuthorInfo;
+import org.briarproject.briar.api.identity.AuthorManager;
 
 import java.security.GeneralSecurityException;
 import java.util.ArrayList;
@@ -45,7 +45,7 @@ import javax.annotation.Nullable;
 import javax.annotation.concurrent.ThreadSafe;
 import javax.inject.Inject;
 
-import static org.briarproject.bramble.api.identity.AuthorInfo.Status.OURSELVES;
+import static org.briarproject.bramble.api.sync.validation.IncomingMessageHook.DeliveryAction.ACCEPT_SHARE;
 import static org.briarproject.briar.api.forum.ForumConstants.KEY_AUTHOR;
 import static org.briarproject.briar.api.forum.ForumConstants.KEY_LOCAL;
 import static org.briarproject.briar.api.forum.ForumConstants.KEY_PARENT;
@@ -56,19 +56,19 @@ import static org.briarproject.briar.client.MessageTrackerConstants.MSG_KEY_READ
 @NotNullByDefault
 class ForumManagerImpl extends BdfIncomingMessageHook implements ForumManager {
 
-	private final ContactManager contactManager;
+	private final AuthorManager authorManager;
 	private final ForumFactory forumFactory;
 	private final ForumPostFactory forumPostFactory;
 	private final MessageTracker messageTracker;
 	private final List<RemoveForumHook> removeHooks;
 
 	@Inject
-	ForumManagerImpl(DatabaseComponent db, ContactManager contactManager,
-			ClientHelper clientHelper, MetadataParser metadataParser,
+	ForumManagerImpl(DatabaseComponent db, ClientHelper clientHelper,
+			MetadataParser metadataParser, AuthorManager authorManager,
 			ForumFactory forumFactory, ForumPostFactory forumPostFactory,
 			MessageTracker messageTracker) {
 		super(db, clientHelper, metadataParser);
-		this.contactManager = contactManager;
+		this.authorManager = authorManager;
 		this.forumFactory = forumFactory;
 		this.forumPostFactory = forumPostFactory;
 		this.messageTracker = messageTracker;
@@ -76,8 +76,9 @@ class ForumManagerImpl extends BdfIncomingMessageHook implements ForumManager {
 	}
 
 	@Override
-	protected boolean incomingMessage(Transaction txn, Message m, BdfList body,
-			BdfDictionary meta) throws DbException, FormatException {
+	protected DeliveryAction incomingMessage(Transaction txn, Message m,
+			BdfList body, BdfDictionary meta)
+			throws DbException, FormatException {
 
 		messageTracker.trackIncomingMessage(txn, m);
 
@@ -87,8 +88,7 @@ class ForumManagerImpl extends BdfIncomingMessageHook implements ForumManager {
 				new ForumPostReceivedEvent(m.getGroupId(), header, text);
 		txn.attach(event);
 
-		// share message
-		return true;
+		return ACCEPT_SHARE;
 	}
 
 	@Override
@@ -127,25 +127,30 @@ class ForumManagerImpl extends BdfIncomingMessageHook implements ForumManager {
 
 	@Override
 	public ForumPostHeader addLocalPost(ForumPost p) throws DbException {
-		db.transaction(false, txn -> {
-			try {
-				BdfDictionary meta = new BdfDictionary();
-				meta.put(KEY_TIMESTAMP, p.getMessage().getTimestamp());
-				if (p.getParent() != null) meta.put(KEY_PARENT, p.getParent());
-				Author a = p.getAuthor();
-				meta.put(KEY_AUTHOR, clientHelper.toList(a));
-				meta.put(KEY_LOCAL, true);
-				meta.put(MSG_KEY_READ, true);
-				clientHelper.addLocalMessage(txn, p.getMessage(), meta, true,
-						false);
-				messageTracker.trackOutgoingMessage(txn, p.getMessage());
-			} catch (FormatException e) {
-				throw new AssertionError(e);
-			}
-		});
-		AuthorInfo authorInfo = new AuthorInfo(OURSELVES);
-		return new ForumPostHeader(p.getMessage().getId(), p.getParent(),
-				p.getMessage().getTimestamp(), p.getAuthor(), authorInfo, true);
+		return db.transactionWithResult(false, txn -> addLocalPost(txn, p));
+	}
+
+	@Override
+	public ForumPostHeader addLocalPost(Transaction txn, ForumPost p)
+			throws DbException {
+		try {
+			BdfDictionary meta = new BdfDictionary();
+			meta.put(KEY_TIMESTAMP, p.getMessage().getTimestamp());
+			if (p.getParent() != null) meta.put(KEY_PARENT, p.getParent());
+			Author a = p.getAuthor();
+			meta.put(KEY_AUTHOR, clientHelper.toList(a));
+			meta.put(KEY_LOCAL, true);
+			meta.put(MSG_KEY_READ, true);
+			clientHelper
+					.addLocalMessage(txn, p.getMessage(), meta, true, false);
+			messageTracker.trackOutgoingMessage(txn, p.getMessage());
+			AuthorInfo authorInfo = authorManager.getMyAuthorInfo(txn);
+			return new ForumPostHeader(p.getMessage().getId(), p.getParent(),
+					p.getMessage().getTimestamp(), p.getAuthor(), authorInfo,
+					true);
+		} catch (FormatException e) {
+			throw new AssertionError(e);
+		}
 	}
 
 	@Override
@@ -165,8 +170,12 @@ class ForumManagerImpl extends BdfIncomingMessageHook implements ForumManager {
 
 	@Override
 	public Collection<Forum> getForums() throws DbException {
-		Collection<Group> groups = db.transactionWithResult(true, txn ->
-				db.getGroups(txn, CLIENT_ID, MAJOR_VERSION));
+		return db.transactionWithResult(true, this::getForums);
+	}
+
+	@Override
+	public Collection<Forum> getForums(Transaction txn) throws DbException {
+		Collection<Group> groups = db.getGroups(txn, CLIENT_ID, MAJOR_VERSION);
 		try {
 			List<Forum> forums = new ArrayList<>();
 			for (Group g : groups) forums.add(parseForum(g));
@@ -185,6 +194,15 @@ class ForumManagerImpl extends BdfIncomingMessageHook implements ForumManager {
 		}
 	}
 
+	@Override
+	public String getPostText(Transaction txn, MessageId m) throws DbException {
+		try {
+			return getPostText(clientHelper.getMessageAsList(txn, m));
+		} catch (FormatException e) {
+			throw new DbException(e);
+		}
+	}
+
 	private String getPostText(BdfList body) throws FormatException {
 		// Parent ID, author, text, signature
 		return body.getString(2);
@@ -193,33 +211,35 @@ class ForumManagerImpl extends BdfIncomingMessageHook implements ForumManager {
 	@Override
 	public Collection<ForumPostHeader> getPostHeaders(GroupId g)
 			throws DbException {
+		return db.transactionWithResult(true, txn -> getPostHeaders(txn, g));
+	}
+
+	@Override
+	public List<ForumPostHeader> getPostHeaders(Transaction txn, GroupId g)
+			throws DbException {
 		try {
-			return db.transactionWithResult(true, txn -> {
-				Collection<ForumPostHeader> headers = new ArrayList<>();
-				Map<MessageId, BdfDictionary> metadata =
-						clientHelper.getMessageMetadataAsDictionary(txn, g);
-				// get all authors we need to get the info for
-				Set<AuthorId> authors = new HashSet<>();
-				for (Entry<MessageId, BdfDictionary> entry :
-						metadata.entrySet()) {
-					BdfList authorList = entry.getValue().getList(KEY_AUTHOR);
-					Author a = clientHelper.parseAndValidateAuthor(authorList);
-					authors.add(a.getId());
-				}
-				// get information for all authors
-				Map<AuthorId, AuthorInfo> authorInfos = new HashMap<>();
-				for (AuthorId id : authors) {
-					authorInfos.put(id, contactManager.getAuthorInfo(txn, id));
-				}
-				// Parse the metadata
-				for (Entry<MessageId, BdfDictionary> entry :
-						metadata.entrySet()) {
-					BdfDictionary meta = entry.getValue();
-					headers.add(getForumPostHeader(txn, entry.getKey(), meta,
-							authorInfos));
-				}
-				return headers;
-			});
+			List<ForumPostHeader> headers = new ArrayList<>();
+			Map<MessageId, BdfDictionary> metadata =
+					clientHelper.getMessageMetadataAsDictionary(txn, g);
+			// get all authors we need to get the info for
+			Set<AuthorId> authors = new HashSet<>();
+			for (Entry<MessageId, BdfDictionary> entry : metadata.entrySet()) {
+				BdfList authorList = entry.getValue().getList(KEY_AUTHOR);
+				Author a = clientHelper.parseAndValidateAuthor(authorList);
+				authors.add(a.getId());
+			}
+			// get information for all authors
+			Map<AuthorId, AuthorInfo> authorInfos = new HashMap<>();
+			for (AuthorId id : authors) {
+				authorInfos.put(id, authorManager.getAuthorInfo(txn, id));
+			}
+			// Parse the metadata
+			for (Entry<MessageId, BdfDictionary> entry : metadata.entrySet()) {
+				BdfDictionary meta = entry.getValue();
+				headers.add(getForumPostHeader(txn, entry.getKey(), meta,
+						authorInfos));
+			}
+			return headers;
 		} catch (FormatException e) {
 			throw new DbException(e);
 		}
@@ -236,9 +256,16 @@ class ForumManagerImpl extends BdfIncomingMessageHook implements ForumManager {
 	}
 
 	@Override
+	public GroupCount getGroupCount(Transaction txn, GroupId g)
+			throws DbException {
+		return messageTracker.getGroupCount(txn, g);
+	}
+
+	@Override
 	public void setReadFlag(GroupId g, MessageId m, boolean read)
 			throws DbException {
-		messageTracker.setReadFlag(g, m, read);
+		db.transaction(false, txn ->
+				messageTracker.setReadFlag(txn, g, m, read));
 	}
 
 	private Forum parseForum(Group g) throws FormatException {
@@ -265,7 +292,7 @@ class ForumManagerImpl extends BdfIncomingMessageHook implements ForumManager {
 		Author author = clientHelper.parseAndValidateAuthor(authorList);
 		AuthorInfo authorInfo = authorInfos.get(author.getId());
 		if (authorInfo == null)
-			authorInfo = contactManager.getAuthorInfo(txn, author.getId());
+			authorInfo = authorManager.getAuthorInfo(txn, author.getId());
 		boolean read = meta.getBoolean(MSG_KEY_READ);
 
 		return new ForumPostHeader(id, parentId, timestamp, author, authorInfo,

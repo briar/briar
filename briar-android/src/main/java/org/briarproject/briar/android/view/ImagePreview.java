@@ -79,7 +79,7 @@ public class ImagePreview extends ConstraintLayout {
 				((ImagePreviewAdapter) imageList.getAdapter());
 		int pos = requireNonNull(adapter).loadItemPreview(result);
 		if (pos != NO_POSITION) {
-			imageList.smoothScrollToPosition(pos);
+			imageList.scrollToPosition(pos);
 		}
 	}
 

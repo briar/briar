@@ -10,17 +10,20 @@ import org.briarproject.bramble.api.Pair;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 
 import java.io.File;
+import java.io.IOException;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Scanner;
 
 import javax.annotation.Nullable;
 
 import static android.content.Context.MODE_PRIVATE;
 import static android.os.Build.VERSION.SDK_INT;
+import static java.lang.Runtime.getRuntime;
 import static java.util.Arrays.asList;
 import static org.briarproject.bramble.api.nullsafety.NullSafety.requireNonNull;
 
@@ -31,6 +34,7 @@ public class AndroidUtils {
 	private static final String FAKE_BLUETOOTH_ADDRESS = "02:00:00:00:00:00";
 
 	private static final String STORED_REPORTS = "dev-reports";
+	private static final String STORED_LOGCAT = "dev-logcat";
 
 	public static Collection<String> getSupportedArchitectures() {
 		List<String> abis = new ArrayList<>();
@@ -107,14 +111,27 @@ public class AndroidUtils {
 		return ctx.getDir(STORED_REPORTS, MODE_PRIVATE);
 	}
 
+	public static File getLogcatFile(Context ctx) {
+		return new File(ctx.getFilesDir(), STORED_LOGCAT);
+	}
+
 	/**
 	 * Returns an array of supported content types for image attachments.
-	 * GIFs can't be compressed on API < 24 so they're not supported.
-	 * <p>
-	 * TODO: Remove this restriction when large message support is added
 	 */
 	public static String[] getSupportedImageContentTypes() {
-		if (SDK_INT < 24) return new String[] {"image/jpeg", "image/png"};
-		else return new String[] {"image/jpeg", "image/png", "image/gif"};
+		return new String[] {"image/jpeg", "image/png", "image/gif"};
+	}
+
+	@Nullable
+	public static String getSystemProperty(String propName) {
+		try {
+			Process p = getRuntime().exec("getprop " + propName);
+			Scanner s = new Scanner(p.getInputStream());
+			String line = s.nextLine();
+			s.close();
+			return line;
+		} catch (SecurityException | IOException e) {
+			return null;
+		}
 	}
 }

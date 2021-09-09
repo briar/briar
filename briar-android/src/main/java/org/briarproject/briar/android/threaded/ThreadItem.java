@@ -1,7 +1,7 @@
 package org.briarproject.briar.android.threaded;
 
 import org.briarproject.bramble.api.identity.Author;
-import org.briarproject.bramble.api.identity.AuthorInfo;
+import org.briarproject.briar.api.identity.AuthorInfo;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.briar.api.client.MessageTree.MessageNode;
@@ -99,4 +99,14 @@ public abstract class ThreadItem implements MessageNode {
 		return highlighted;
 	}
 
+	@Override
+	public int hashCode() {
+		return messageId.hashCode();
+	}
+
+	@Override
+	public boolean equals(@Nullable Object o) {
+		return o instanceof ThreadItem &&
+				messageId.equals(((ThreadItem) o).messageId);
+	}
 }

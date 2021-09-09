@@ -15,6 +15,7 @@ import org.briarproject.bramble.api.plugin.TransportId;
 import org.briarproject.bramble.api.plugin.event.TransportInactiveEvent;
 import org.briarproject.bramble.api.sync.Ack;
 import org.briarproject.bramble.api.sync.Message;
+import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.bramble.api.sync.SyncRecordWriter;
 import org.briarproject.bramble.api.sync.SyncSession;
 import org.briarproject.bramble.api.sync.Versions;
@@ -22,7 +23,11 @@ import org.briarproject.bramble.api.sync.event.CloseSyncConnectionsEvent;
 import org.briarproject.bramble.api.transport.StreamWriter;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.Executor;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -60,7 +65,8 @@ class SimplexOutgoingSession implements SyncSession, EventListener {
 	private final EventBus eventBus;
 	private final ContactId contactId;
 	private final TransportId transportId;
-	private final int maxLatency;
+	private final long maxLatency;
+	private final boolean eager;
 	private final StreamWriter streamWriter;
 	private final SyncRecordWriter recordWriter;
 	private final AtomicInteger outstandingQueries;
@@ -70,7 +76,7 @@ class SimplexOutgoingSession implements SyncSession, EventListener {
 
 	SimplexOutgoingSession(DatabaseComponent db, Executor dbExecutor,
 			EventBus eventBus, ContactId contactId, TransportId transportId,
-			int maxLatency, StreamWriter streamWriter,
+			long maxLatency, boolean eager, StreamWriter streamWriter,
 			SyncRecordWriter recordWriter) {
 		this.db = db;
 		this.dbExecutor = dbExecutor;
@@ -78,6 +84,7 @@ class SimplexOutgoingSession implements SyncSession, EventListener {
 		this.contactId = contactId;
 		this.transportId = transportId;
 		this.maxLatency = maxLatency;
+		this.eager = eager;
 		this.streamWriter = streamWriter;
 		this.recordWriter = recordWriter;
 		outstandingQueries = new AtomicInteger(2); // One per type of record
@@ -92,8 +99,9 @@ class SimplexOutgoingSession implements SyncSession, EventListener {
 			// Send our supported protocol versions
 			recordWriter.writeVersions(new Versions(SUPPORTED_VERSIONS));
 			// Start a query for each type of record
-			dbExecutor.execute(new GenerateAck());
-			dbExecutor.execute(new GenerateBatch());
+			dbExecutor.execute(this::generateAck);
+			if (eager) dbExecutor.execute(this::loadUnackedMessageIds);
+			else dbExecutor.execute(this::generateBatch);
 			// Write records until interrupted or no more records to write
 			try {
 				while (!interrupted) {
@@ -138,81 +146,110 @@ class SimplexOutgoingSession implements SyncSession, EventListener {
 		}
 	}
 
-	private class GenerateAck implements Runnable {
-
-		@DatabaseExecutor
-		@Override
-		public void run() {
-			if (interrupted) return;
-			try {
-				Ack a = db.transactionWithNullableResult(false, txn ->
-						db.generateAck(txn, contactId, MAX_MESSAGE_IDS));
-				if (LOG.isLoggable(INFO))
-					LOG.info("Generated ack: " + (a != null));
-				if (a == null) decrementOutstandingQueries();
-				else writerTasks.add(new WriteAck(a));
-			} catch (DbException e) {
-				logException(LOG, WARNING, e);
-				interrupt();
+	@DatabaseExecutor
+	private void loadUnackedMessageIds() {
+		if (interrupted) return;
+		try {
+			Map<MessageId, Integer> ids = db.transactionWithResult(true, txn ->
+					db.getUnackedMessagesToSend(txn, contactId));
+			if (LOG.isLoggable(INFO)) {
+				LOG.info(ids.size() + " unacked messages to send");
 			}
+			if (ids.isEmpty()) decrementOutstandingQueries();
+			else dbExecutor.execute(() -> generateEagerBatch(ids));
+		} catch (DbException e) {
+			logException(LOG, WARNING, e);
+			interrupt();
 		}
 	}
 
-	private class WriteAck implements ThrowingRunnable<IOException> {
-
-		private final Ack ack;
-
-		private WriteAck(Ack ack) {
-			this.ack = ack;
+	@DatabaseExecutor
+	private void generateEagerBatch(Map<MessageId, Integer> ids) {
+		if (interrupted) return;
+		// Take some message IDs from `ids` to form a batch
+		Collection<MessageId> batchIds = new ArrayList<>();
+		long totalLength = 0;
+		Iterator<Entry<MessageId, Integer>> it = ids.entrySet().iterator();
+		while (it.hasNext()) {
+			// Check whether the next message will fit in the batch
+			Entry<MessageId, Integer> e = it.next();
+			int length = e.getValue();
+			if (totalLength + length > MAX_RECORD_PAYLOAD_BYTES) break;
+			// Add the message to the batch
+			it.remove();
+			batchIds.add(e.getKey());
+			totalLength += length;
 		}
-
-		@IoExecutor
-		@Override
-		public void run() throws IOException {
-			if (interrupted) return;
-			recordWriter.writeAck(ack);
-			LOG.info("Sent ack");
-			dbExecutor.execute(new GenerateAck());
-		}
-	}
-
-	private class GenerateBatch implements Runnable {
-
-		@DatabaseExecutor
-		@Override
-		public void run() {
-			if (interrupted) return;
-			try {
-				Collection<Message> b =
-						db.transactionWithNullableResult(false, txn ->
-								db.generateBatch(txn, contactId,
-										MAX_RECORD_PAYLOAD_BYTES, maxLatency));
-				if (LOG.isLoggable(INFO))
-					LOG.info("Generated batch: " + (b != null));
-				if (b == null) decrementOutstandingQueries();
-				else writerTasks.add(new WriteBatch(b));
-			} catch (DbException e) {
-				logException(LOG, WARNING, e);
-				interrupt();
-			}
+		if (batchIds.isEmpty()) throw new AssertionError();
+		try {
+			Collection<Message> batch =
+					db.transactionWithResult(false, txn ->
+							db.generateBatch(txn, contactId, batchIds,
+									maxLatency));
+			writerTasks.add(() -> writeEagerBatch(batch, ids));
+		} catch (DbException e) {
+			logException(LOG, WARNING, e);
+			interrupt();
 		}
 	}
 
-	private class WriteBatch implements ThrowingRunnable<IOException> {
+	@IoExecutor
+	private void writeEagerBatch(Collection<Message> batch,
+			Map<MessageId, Integer> ids) throws IOException {
+		if (interrupted) return;
+		for (Message m : batch) recordWriter.writeMessage(m);
+		LOG.info("Sent eager batch");
+		if (ids.isEmpty()) decrementOutstandingQueries();
+		else dbExecutor.execute(() -> generateEagerBatch(ids));
+	}
 
-		private final Collection<Message> batch;
-
-		private WriteBatch(Collection<Message> batch) {
-			this.batch = batch;
+	@DatabaseExecutor
+	private void generateAck() {
+		if (interrupted) return;
+		try {
+			Ack a = db.transactionWithNullableResult(false, txn ->
+					db.generateAck(txn, contactId, MAX_MESSAGE_IDS));
+			if (LOG.isLoggable(INFO))
+				LOG.info("Generated ack: " + (a != null));
+			if (a == null) decrementOutstandingQueries();
+			else writerTasks.add(() -> writeAck(a));
+		} catch (DbException e) {
+			logException(LOG, WARNING, e);
+			interrupt();
 		}
+	}
 
-		@IoExecutor
-		@Override
-		public void run() throws IOException {
-			if (interrupted) return;
-			for (Message m : batch) recordWriter.writeMessage(m);
-			LOG.info("Sent batch");
-			dbExecutor.execute(new GenerateBatch());
+	@IoExecutor
+	private void writeAck(Ack ack) throws IOException {
+		if (interrupted) return;
+		recordWriter.writeAck(ack);
+		LOG.info("Sent ack");
+		dbExecutor.execute(this::generateAck);
+	}
+
+	@DatabaseExecutor
+	private void generateBatch() {
+		if (interrupted) return;
+		try {
+			Collection<Message> b =
+					db.transactionWithNullableResult(false, txn ->
+							db.generateBatch(txn, contactId,
+									MAX_RECORD_PAYLOAD_BYTES, maxLatency));
+			if (LOG.isLoggable(INFO))
+				LOG.info("Generated batch: " + (b != null));
+			if (b == null) decrementOutstandingQueries();
+			else writerTasks.add(() -> writeBatch(b));
+		} catch (DbException e) {
+			logException(LOG, WARNING, e);
+			interrupt();
 		}
+	}
+
+	@IoExecutor
+	private void writeBatch(Collection<Message> batch) throws IOException {
+		if (interrupted) return;
+		for (Message m : batch) recordWriter.writeMessage(m);
+		LOG.info("Sent batch");
+		dbExecutor.execute(this::generateBatch);
 	}
 }

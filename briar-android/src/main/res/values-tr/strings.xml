@@ -22,6 +22,14 @@
   <string name="setup_huawei_text">Lütfen aşağıdaki düğmeye dokunun ve Briar\'ın \"Korunan Uygulamalar\" ekranında korunduğundan emin olun.</string>
   <string name="setup_huawei_button">Briar\'ı Koru</string>
   <string name="setup_huawei_help">Briar korunan uygulamalar listesine eklenmezse, arka planda çalışamaz.</string>
+  <string name="setup_huawei_app_launch_text">Lütfen aşağıdaki düğmeye dokunun, \"Uygulama başlatma\" ekranını açın ve Briar için \"Manuel olarak yönet\" şeklinde ayarlanmış olduğundan emin olun.</string>
+  <string name="setup_huawei_app_launch_button">Pil Ayarlarını Aç</string>
+  <string name="setup_huawei_app_launch_help">Eğer Briar, \"Uygulama Başlatma\" ekranında \"Manuel olarak yönet\" olarak ayarlanmamışsa, arka planda çalışmayabilir.</string>
+  <string name="setup_xiaomi_text">Briar\'ın arka planda çalışması için korunan uygulamalar listesine listesine eklenmesi gerekiyor.</string>
+  <string name="setup_xiaomi_button">Briar\'ı Koru</string>
+  <string name="setup_xiaomi_help">Briar korunan uygulamalar listesine eklenmezse, arka planda çalışamaz.</string>
+  <string name="setup_xiaomi_dialog_body_old">1. Geçmiş uygulamalar listesini açın (uygulama değiştirici de deniyor)\n\n2. Briar resmini kilit simgesini görene kadar aşağı kaydırın\n\n3. Eğer kilit simgesi seçili değilse, kilitlemek için dokunun</string>
+  <string name="setup_xiaomi_dialog_body_new">1. Geçmiş uygulamalar listesini açın (uygulama değiştirici de deniyor)\n\n2. Kilit simgesini görene kadar Briar resmine tıklayın ve tutun\n\n3. Eğer kilit simgesi seçili değilse, kilitlemek için dokunun</string>
   <string name="warning_dozed">%s arka planda çalışamadı</string>
   <!--Login-->
   <string name="enter_password">Parola</string>
@@ -61,12 +69,36 @@
   <string name="lock_button">Uygulamayı Kilitle</string>
   <string name="settings_button">Ayarlar</string>
   <string name="sign_out_button">Oturumu Kapat</string>
+  <string name="transports_onboarding_text">Briar\'ın kişilerinizle nasıl bağlanacağını kontrol etmek için buraya tıklayın</string>
   <!--Transports: Tor-->
   <string name="transport_tor">İnternet</string>
+  <string name="tor_device_status_online_wifi">Telefonunuzun Wi-Fi aracılığıyla İnternet erişimi var</string>
+  <string name="tor_device_status_online_mobile">Telefonunuzun mobil veri aracılığıyla İnternet erişimi var</string>
+  <string name="tor_device_status_offline">Telefonunuzun İnternet erişimi yok</string>
+  <string name="tor_plugin_status_enabling">Briar İnternet\'e bağlanıyor</string>
+  <string name="tor_plugin_status_active">Briar İnternet\'e bağlandı</string>
+  <string name="tor_plugin_status_inactive">Briar İnternet\'e bağlanamıyor</string>
+  <string name="tor_plugin_status_disabled">Briar İnternet kullanmamak üzere yapılandırılmış</string>
+  <string name="tor_plugin_status_disabled_mobile_data">Briar mobil veri kullanmamak üzere yapılandırılmış</string>
+  <string name="tor_plugin_status_disabled_battery">Briar pille çalışırken İnternet kullanmamak üzere yapılandırılmış</string>
+  <string name="tor_plugin_status_disabled_country_blocked">Briar bu ülkede İnternet kullanmamak üzere yapılandırılmış</string>
   <!--Transports: Wi-Fi-->
   <string name="transport_lan">Wi-Fi</string>
+  <string name="transport_lan_long">Aynı Wi-Fi Ağı</string>
+  <string name="lan_device_status_on">Telefonunuz Wi-Fi\'ye bağlı</string>
+  <string name="lan_device_status_off">Telefonunuz Wi-Fi\'ye bağlı değil</string>
+  <string name="lan_plugin_status_enabling">Briar Wi-Fi ağına bağlanıyor</string>
+  <string name="lan_plugin_status_active">Briar Wi-Fi ağına bağlandı</string>
+  <string name="lan_plugin_status_inactive">Briar Wi-Fi ağına bağlanamıyor</string>
+  <string name="lan_plugin_status_disabled">Briar Wi-Fi ağını kullanmamak üzere yapılandırılmış</string>
   <!--Transports: Bluetooth-->
   <string name="transport_bt">Bluetooth</string>
+  <string name="bt_device_status_on">Telefonunuzun Bluetooth\'u açık</string>
+  <string name="bt_device_status_off">Telefonunuzun Bluetooth\'u kapalı</string>
+  <string name="bt_plugin_status_enabling">Briar Bluetooth\'a bağlanıyor</string>
+  <string name="bt_plugin_status_active">Briar Bluetooth\'a bağlandı</string>
+  <string name="bt_plugin_status_inactive">Briar Bluetooth\'a bağlanamıyor</string>
+  <string name="bt_plugin_status_disabled">Briar Bluetooth kullanmamak üzere yapılandırılmış</string>
   <!--Notifications-->
   <string name="reminder_notification_title">Briar oturumu kapatıldı</string>
   <string name="reminder_notification_text">Tekrar oturum açmak için dokunun</string>
@@ -105,6 +137,8 @@
   <string name="send">Gönder</string>
   <string name="allow">İzin ver</string>
   <string name="open">Aç</string>
+  <string name="change">Değişiklik</string>
+  <string name="start">Başlat</string>
   <string name="no_data">Bilgi yok</string>
   <string name="ellipsis">…</string>
   <string name="text_too_long">Girilen metin çok uzun</string>
@@ -119,7 +153,9 @@
   <string name="no_contacts_action">kişi eklemek için + simgesine dokunun</string>
   <string name="date_no_private_messages">Hiç ileti yok.</string>
   <string name="no_private_messages">Gösterilecek ileti yok</string>
-  <string name="message_hint">İleti yazın</string>
+  <string name="message_hint">Yeni mesaj</string>
+  <string name="message_hint_auto_delete">Yeni kaybolan ileti</string>
+  <string name="message_error">İleti gönderme hatası</string>
   <string name="image_caption_hint">Başlık ekle (isteğe bağlı)</string>
   <string name="image_attach">Resim ekle</string>
   <string name="image_attach_error">Resim(ler) eklenemedi</string>
@@ -127,7 +163,41 @@
   <string name="image_attach_error_invalid_mime_type">Resim biçimi desteklenmiyor: %s</string>
   <string name="set_contact_alias">Kişi adını değiştir</string>
   <string name="set_contact_alias_hint">Ad</string>
-  <string name="set_alias_button">Değiştir</string>
+  <string name="menu_item_disappearing_messages">Kaybolan iletiler</string>
+  <string name="menu_item_connect_via_bluetooth">Bluetooth ile Bağlan</string>
+  <string name="dialog_title_connect_via_bluetooth">Bluetooth ile Bağlan</string>
+  <string name="dialog_message_connect_via_bluetooth">Bunun çalışması için kişinin yakınlarda olması gerekiyor.\n\nSizin ve kişinin \"Başlat\" düğmesine aynı anda basması gerekiyor.</string>
+  <string name="toast_connect_via_bluetooth_already_discovering">Zaten Bluetooth\'a bağlanmaya çalışıyor</string>
+  <string name="toast_connect_via_bluetooth_not_discoverable">Bluetooth olmadan devam edilemez</string>
+  <string name="toast_connect_via_bluetooth_no_location_permission">Konum izni olmadan devam edilemez</string>
+  <string name="toast_connect_via_bluetooth_start">Bluetooth ile bağlanılıyor…</string>
+  <string name="toast_connect_via_bluetooth_success">Bluetooth ile başarılı bir şekilde bağlandı</string>
+  <string name="toast_connect_via_bluetooth_error">Bluetooth ile bağlanamıyor</string>
+  <!--The first placeholder will show a duration like "7 days". The second placeholder at the end will add "Tap to learn more."-->
+  <string name="auto_delete_msg_you_enabled">İletileriniz %1$s sonra kaybolacak. %2$s</string>
+  <!--The placeholder at the end will add "Tap to learn more."-->
+  <string name="auto_delete_msg_you_disabled">İletileriniz kaybolmayacak. %1$s</string>
+  <!--The first placeholder will show a contact's name. The second placeholder will show a duration like "7 days". The third placeholder at the end will add "Tap to learn more."-->
+  <string name="auto_delete_msg_contact_enabled">%1$s kişisinin iletileri %2$s sonra kaybolacak. %3$s</string>
+  <plurals name="duration_minutes">
+    <item quantity="one">%d dakika</item>
+    <item quantity="other">%d dakika</item>
+  </plurals>
+  <plurals name="duration_hours">
+    <item quantity="one">%d saat</item>
+    <item quantity="other">%d saat</item>
+  </plurals>
+  <plurals name="duration_days">
+    <item quantity="one">%d gün</item>
+    <item quantity="other">%d gün</item>
+  </plurals>
+  <!--The first placeholder will show a contact's name. The second placeholder at the end will add "Tap to learn more."-->
+  <string name="auto_delete_msg_contact_disabled">%1$s kişisinin iletileri kaybolmayacak. %2$s</string>
+  <string name="tap_to_learn_more">Daha fazlasını öğrenmek için dokunun.</string>
+  <string name="auto_delete_changed_warning_title">Kaybolan iletiler değişti</string>
+  <string name="auto_delete_changed_warning_message_enabled">İletinizi yazmaya başladığınızdan sonra kaybolan iletiler etkinleştirildi.</string>
+  <string name="auto_delete_changed_warning_message_disabled">İletinizi yazmaya başladığınızdan sonra kaybolan iletiler etkisizleştirildi.</string>
+  <string name="auto_delete_changed_warning_send">Yine de gönder</string>
   <string name="delete_all_messages">Tüm iletileri sil</string>
   <string name="dialog_title_delete_all_messages">İleti Silmeyi Onayla</string>
   <string name="dialog_message_delete_all_messages">Tüm iletileri silmek istediğinizden emin misiniz?</string>
@@ -135,7 +205,6 @@
   <string name="dialog_message_not_deleted_ongoing_both">Devam eden davetler ve tanıştırmalarla ilgili iletiler, sonuçlandırılana kadar silinemez.</string>
   <string name="dialog_message_not_deleted_ongoing_introductions">Devam eden tanıştırmalarla ilgili iletiler, sonuçlandırılana kadar silinemez.</string>
   <string name="dialog_message_not_deleted_ongoing_invitations">Devam eden davetlerle ilgili iletiler, sonuçlandırılana kadar silinemez.</string>
-  <string name="dialog_message_not_deleted_partly_downloaded">Kısmen indirilen iletiler indirme bitirilene kadar silinemez.</string>
   <string name="dialog_message_not_deleted_not_all_selected_both">Bir daveti veya tanıştırmayı silmek için isteği ve yanıtı seçmeniz gerekir.</string>
   <string name="dialog_message_not_deleted_not_all_selected_introductions">Bir tanıştırmayı silmek için isteği ve yanıtı seçmeniz gerekir.</string>
   <string name="dialog_message_not_deleted_not_all_selected_invitations">Bir daveti silmek için isteği ve yanıtı seçmeniz gerekir.</string>
@@ -171,7 +240,6 @@
   <string name="connecting_to_device">Aygıta bağlanıyor\u2026</string>
   <string name="authenticating_with_device">Aygıtla kimlik doğrulama\u2026</string>
   <string name="connection_error_title">Kişinizle bağlantı kurulamadı</string>
-  <string name="connection_error_explanation">Lütfen her ikinizin de aynı Wi-Fi ağına bağlı olup olmadığınızı kontrol edin.</string>
   <string name="connection_error_feedback">Sorun devam ederse, uygulamayı geliştirmemize yardımcı olmak için <a href="feedback">geri bildirim gönderin</a>.</string>
   <!--Adding Contacts Remotely-->
   <string name="add_contact_remotely_title_case">Uzaktaki Kişiyi Ekle</string>
@@ -248,6 +316,7 @@
   <string name="introduction_response_accepted_sent">%1$s kişisinin tanıştırma isteğini kabul ettiniz.</string>
   <string name="introduction_response_accepted_sent_info">%1$s kişilerinize eklenmeden önce, tanıştırmayı kabul etmeleri de gerekiyor. Bu biraz zaman alabilir.</string>
   <string name="introduction_response_declined_sent">%1$s kişisinin tanıştırma isteğini reddettiniz.</string>
+  <string name="introduction_response_declined_auto">%1$s kişisine tanıtım otomatik olarak reddedildi.</string>
   <string name="introduction_response_accepted_received">%1$s, %2$s ile tanışmayı kabul etti.</string>
   <string name="introduction_response_declined_received">%1$s, %2$s ile tanışmayı reddetti.</string>
   <string name="introduction_response_declined_received_by_introducee">%1$s, %2$s kişisinin tanışmayı reddettiğini söyledi.</string>
@@ -294,6 +363,7 @@
   </plurals>
   <string name="groups_invitations_response_accepted_sent">%s kişisinden gelen grup davetini kabul ettiniz.</string>
   <string name="groups_invitations_response_declined_sent">%s kişisinden gelen grup davetini reddettiniz.</string>
+  <string name="groups_invitations_response_declined_auto">%s kişisinin grup daveti otomatik olarak reddedildi.</string>
   <string name="groups_invitations_response_accepted_received">%s grup davetini kabul etti.</string>
   <string name="groups_invitations_response_declined_received">%s grup davetini reddetti.</string>
   <string name="sharing_status_groups">Sadece grubu oluşturan kişi gruba yeni üyeler davet edebilir. Aşağıda, grubun şimdiki üyeleri bulunmaktadır.</string>
@@ -344,6 +414,7 @@
   <string name="forum_invitation_already_sharing">Zaten paylaşılıyor</string>
   <string name="forum_invitation_response_accepted_sent">%s tarafından yapılan forum davetini kabul ettiniz.</string>
   <string name="forum_invitation_response_declined_sent">%s tarafından yapılan forum davetini reddettiniz.</string>
+  <string name="forum_invitation_response_declined_auto">%s kişisinin forum daveti otomatik olarak reddedildi.</string>
   <string name="forum_invitation_response_accepted_received">%s forum davetini kabul etti.</string>
   <string name="forum_invitation_response_declined_received">%s forum davetini reddetti.</string>
   <string name="sharing_status">Paylaşım Durumu</string>
@@ -378,6 +449,7 @@
   <string name="blogs_sharing_snackbar">Blog seçilen kişilerle paylaşıldı</string>
   <string name="blogs_sharing_response_accepted_sent">%s kişisinden gelen blog davetini kabul ettiniz.</string>
   <string name="blogs_sharing_response_declined_sent">%s kişisinden gelen blog davetini reddettiniz.</string>
+  <string name="blogs_sharing_response_declined_auto">%s kişisinin blog daveti otomatik olarak reddedildi.</string>
   <string name="blogs_sharing_response_accepted_received">%s blog davetini kabul etti.</string>
   <string name="blogs_sharing_response_declined_received">%s blog davetini reddetti.</string>
   <string name="blogs_sharing_invitation_received">%1$s sizinle %2$s blogunu paylaştı.</string>
@@ -391,16 +463,21 @@
   <string name="blogs_rss_feeds_import_button">İçe Aktar</string>
   <string name="blogs_rss_feeds_import_hint">RSS beslemesi URL\'sini girin</string>
   <string name="blogs_rss_feeds_import_error">Üzgünüz! RSS beslemeniz içe aktarılırken bir hata oluştu.</string>
-  <string name="blogs_rss_feeds_manage">RSS Beslemelerini Yönet</string>
+  <string name="blogs_rss_feeds_import_exists">Bu besleme zaten içe aktarılmış.</string>
+  <string name="blogs_rss_feeds">RSS beslemeleri</string>
   <string name="blogs_rss_feeds_manage_imported">İçe Aktarıldı:</string>
   <string name="blogs_rss_feeds_manage_author">Yazar:</string>
   <string name="blogs_rss_feeds_manage_updated">Son Güncelleme:</string>
   <string name="blogs_rss_remove_feed">Beslemeyi Kaldır</string>
   <string name="blogs_rss_remove_feed_dialog_message">Bu beslemeyi kaldırmak istediğinizden emin misiniz?\n\nGönderiler sizin aygıtınızdan değil, diğer insanların aygıtlarından kaldırılacaktır.\n\nBu beslemeyi paylaştığınız kişiler güncellemeleri alması durabilir.</string>
   <string name="blogs_rss_remove_feed_ok">Kaldır</string>
-  <string name="blogs_rss_feeds_manage_delete_error">Besleme silinemedi!</string>
   <string name="blogs_rss_feeds_manage_empty_state">Gösterilecek RSS beslemesi yok\n\nBir beslemeyi içe aktarmak için + simgesine dokunun</string>
   <string name="blogs_rss_feeds_manage_error">Beslemeleriniz yüklenirken bir hata oluştu. Lütfen daha sonra tekrar deneyin.</string>
+  <!--Settings Profile Picture-->
+  <string name="change_profile_picture">Profil resminizi değiştirmek için dokunun</string>
+  <string name="dialog_confirm_profile_picture_title">Profil resminizi değiştirin</string>
+  <string name="dialog_confirm_profile_picture_remark">Sadece bağlantılarınız bu resmi görebilir</string>
+  <string name="change_profile_picture_failed_message">Özür dileriz, profil resminizi güncellerken bir şeyler ters gitti</string>
   <!--Settings Display-->
   <string name="pref_language_title">Dil ve Bölge</string>
   <string name="pref_language_changed">Briar\'ı yeniden başlattığınızda bu ayar geçerli olacaktır. Lütfen çıkış yapın ve Briar\'ı yeniden başlatın.</string>
@@ -488,8 +565,20 @@
   <string name="notify_sound_setting_disabled">Yok</string>
   <string name="choose_ringtone_title">Zil sesi seçin</string>
   <string name="cannot_load_ringtone">Zil sesi yüklenemiyor</string>
+  <!--Conversation Settings-->
+  <string name="disappearing_messages_title">Kaybolan iletiler</string>
+  <string name="disappearing_messages_explanation_long">Bu ayarı etkinleştirmeniz durumunda
+ 		bu konuşmadaki yeni iletiler 7\u00A0gün sonra otomatik olarak kaybolacak.
+		\n\nGönderenin iletisinin kopyasının geriye sayımı, ileti teslim edildiğinde başlar.
+		Alıcının geriye sayımı iletiyi okuduklarında başlar.
+		\n\nKaybolacak olan iletiler bir bomba simgesiyle işaretleniyor.
+		\n\nUnutmayın ki alıcılar gönderdiğiniz iletinin kopyasını oluşturabilirler.
+		\n\nEğer bu ayarı değiştirirseniz, yeni iletileriniz için hemen etkinleşecek, kişinin
+		iletileri için ise sonraki iletinizi aldığında etkinleşecek.
+		Kişiniz bu ayarı her ikiniz için değiştirebilir.</string>
+  <string name="learn_more">Ayrıntılı bilgi alın</string>
+  <string name="disappearing_messages_summary">Bu konuşmadaki gelecekteki iletileri 7\u00A0gün içinde otomatik olarak kaybolacak şekilde ayarla.</string>
   <!--Settings Feedback-->
-  <string name="feedback_settings_title">Geri bildirim</string>
   <string name="send_feedback">Geri bildirim gönder</string>
   <!--Link Warning-->
   <string name="link_warning_title">Uyarı Bağlantısı</string>
@@ -508,16 +597,31 @@
   <string name="optional_contact_email">E-posta adresiniz (isteğe bağlı)</string>
   <string name="include_debug_report_crash">Çökme ile  ilgili anonim verileri ekle</string>
   <string name="include_debug_report_feedback">Bu aygıtla ilgili anonim verileri ekle</string>
-  <string name="could_not_load_report_data">Rapor verileri yüklenemedi.</string>
+  <string name="dev_report_user_info">Kullanıcı bilgisi</string>
+  <string name="dev_report_basic_info">Temel bilgi</string>
+  <string name="dev_report_device_info">Aygıt bilgisi</string>
+  <string name="dev_report_stacktrace">Yığın izleme</string>
+  <string name="dev_report_time_info">Zaman bilgisi</string>
+  <string name="dev_report_memory">Bellek</string>
+  <string name="dev_report_storage">Depo</string>
+  <string name="dev_report_connectivity">Bağlanabilirlik</string>
+  <string name="dev_report_build_config">Derleme yapılandırması</string>
+  <string name="dev_report_logcat">Uygulama günlüğü</string>
+  <string name="dev_report_device_features">Aygıt Seçenekleri</string>
   <string name="send_report">Raporu gönder</string>
   <string name="close">Kapat</string>
+  <string name="dev_report_sending">Geri bildirim gönderiliyor…</string>
+  <string name="dev_report_sent">Geri bildirim gönderildi</string>
   <string name="dev_report_saved">Rapor kaydedildi. Briar\'a bir sonraki girişinizde gönderilecektir.</string>
+  <string name="dev_report_error">Hata: bildirim gönderimi başarısız</string>
   <!--Sign Out-->
   <string name="progress_title_logout">Briar\'dan çıkılıyor...</string>
   <!--Screen Filters & Tapjacking-->
   <string name="screen_filter_title">Ekran bindirme algılandı</string>
   <string name="screen_filter_body">Başka bir uygulama Briar\'ın üstünde görüntüleniyor. Bir başka uygulama Briar üstünde görüntülendiğinde, güvenliğinizi korumak için Briar dokunmalara tepki vermeyecektir.\n\nÜstte görüntülenen aşağıdaki uygulamalar olabilir:\n\n%1$s </string>
+  <string name="screen_filter_body_api_30">Başka bir uygulama Briar\'ın üstünde görüntüleniyor. Güvenliğinizi korumak için, başka bir uygulama Briar üstünde görüntülendiğinde, Briar dokunmalara tepki vermeyecektir.\n\nSorumlu uygulamayı bulmak için aşağıdaki uygulamaları gözden geçirin. </string>
   <string name="screen_filter_allow">Bu uygulamaların üstte görüntülenmesine izin ver</string>
+  <string name="screen_filter_review_apps">Uygulamaları değerlendirin</string>
   <!--Permission Requests-->
   <string name="permission_camera_title">Kamera izinleri</string>
   <string name="permission_camera_request_body">QR kodunu taramak için Briar\'ın kameraya erişmesi gerekiyor.</string>
@@ -526,6 +630,10 @@
   <string name="permission_camera_location_title">Kamera ve konum</string>
   <string name="permission_camera_location_request_body">QR kodunu taramak için, Briar\'ın kameranıza erişmesi gerekiyor.\n\nBluetooth aygıtlarını keşfetmek için Briar\'ın konumunuza erişmesi gerekiyor.\n\nBriar konumunuzu saklamaz ve hiç kimseyle paylaşmaz.</string>
   <string name="permission_camera_denied_body">Kameraya erişimi engellediniz, ancak kişi eklemek için kamerayı kullanmanız gerekiyor.\n\nLütfen erişim izni vermeyi düşünün.</string>
+  <string name="permission_location_denied_body">Konuma erişimi engellediniz, ancak Briar\'ın Bluetooth aygıtlarını bulabilmek için bu izne ihtiyacı var.\n\nLütfen erişim izni vermeyi düşünün.</string>
+  <string name="permission_location_setting_title">Konum ayarı</string>
+  <string name="permission_location_setting_body">Diğer aygıtları Bluetooth aracılığıyla bulmak için aygıtınızın konum ayarını açmanız gerekiyor. Devam etmek için lütfen konumu etkinleştirin. Daha sonra tekrar etkisizleştirebilirsiniz. </string>
+  <string name="permission_location_setting_button">Konumu etkinleştir</string>
   <string name="qr_code">QR kodu</string>
   <string name="show_qr_code_fullscreen">QR kodunu tam ekran göster</string>
   <!--App Locking-->
@@ -536,6 +644,7 @@
   <string name="lock_is_locked">Briar kilitli</string>
   <string name="lock_tap_to_unlock">Kilidi açmak için dokunun</string>
   <!--Connections Screen-->
+  <string name="transports_help_text">Briar kişilerinizle İnternet, Wi-Fi veya Bluetooth ile bağlanabilir.\n\nBütün İnternet bağlantıları gizliliğiniz için Tor Ağı üzerinden yapılıyor.\n\nEğer bir kişiniz birçok yöntemle erişilebiliyorsa, Briar bu yöntemleri paralel olarak kullanır.</string>
   <!--Screenshots-->
   <!--This is a name to be used in screenshots. Feel free to change it to a local name.-->
   <string name="screenshot_alice">Alice</string>

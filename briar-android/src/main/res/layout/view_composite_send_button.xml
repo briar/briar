@@ -19,8 +19,8 @@
 		android:focusable="true"
 		android:padding="4dp"
 		android:scaleType="center"
-		android:src="@drawable/ic_image_off"
 		android:visibility="invisible"
+		app:srcCompat="@drawable/ic_image_off"
 		app:tint="?attr/colorControlNormal" />
 
 	<androidx.appcompat.widget.AppCompatImageButton
@@ -34,8 +34,20 @@
 		android:focusable="true"
 		android:padding="4dp"
 		android:scaleType="center"
-		android:src="@drawable/social_send_now_white"
+		app:srcCompat="@drawable/social_send_now_white"
 		app:tint="@color/briar_accent" />
+
+	<ImageView
+		android:id="@+id/bombBadge"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:layout_gravity="end|bottom"
+		android:layout_margin="3dp"
+		android:contentDescription="@string/auto_delete_msg_contact_enabled"
+		android:visibility="invisible"
+		app:srcCompat="@drawable/ic_bomb"
+		app:tint="@color/briar_accent"
+		tools:visibility="visible" />
 
 	<ProgressBar
 		android:id="@+id/progressBar"

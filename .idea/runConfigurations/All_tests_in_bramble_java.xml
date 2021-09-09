@@ -1,8 +1,6 @@
 <component name="ProjectRunConfigurationManager">
   <configuration default="false" name="All tests in bramble-java" type="AndroidJUnit" factoryName="Android JUnit">
-    <module name="bramble-java" />
-    <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
-    <option name="ALTERNATIVE_JRE_PATH" />
+    <module name="briar.bramble-java" />
     <option name="PACKAGE_NAME" value="" />
     <option name="MAIN_CLASS_NAME" value="" />
     <option name="METHOD_NAME" value="" />
@@ -10,11 +8,8 @@
     <option name="VM_PARAMETERS" value="-ea -Djava.library.path=libs" />
     <option name="PARAMETERS" value="" />
     <option name="WORKING_DIRECTORY" value="file://$PROJECT_DIR$/bramble-java" />
-    <option name="PASS_PARENT_ENVS" value="true" />
-    <option name="TEST_SEARCH_SCOPE">
-      <value defaultName="singleModule" />
-    </option>
-    <patterns />
-    <method />
+    <method v="2">
+      <option name="Android.Gradle.BeforeRunTask" enabled="true" />
+    </method>
   </configuration>
 </component>

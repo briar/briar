@@ -8,19 +8,12 @@ import javax.annotation.concurrent.Immutable;
 @NotNullByDefault
 public class JoinMessageHeader extends GroupMessageHeader {
 
-	private final Visibility visibility;
 	private final boolean isInitial;
 
-	public JoinMessageHeader(GroupMessageHeader h, Visibility visibility,
-			boolean isInitial) {
+	public JoinMessageHeader(GroupMessageHeader h, boolean isInitial) {
 		super(h.getGroupId(), h.getId(), h.getParentId(), h.getTimestamp(),
 				h.getAuthor(), h.getAuthorInfo(), h.isRead());
-		this.visibility = visibility;
 		this.isInitial = isInitial;
-	}
-
-	public Visibility getVisibility() {
-		return visibility;
 	}
 
 	public boolean isInitial() {

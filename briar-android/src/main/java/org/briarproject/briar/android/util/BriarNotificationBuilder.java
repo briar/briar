@@ -11,11 +11,13 @@ import androidx.core.content.ContextCompat;
 import static android.os.Build.VERSION.SDK_INT;
 import static androidx.core.app.NotificationCompat.VISIBILITY_PRIVATE;
 
-
 public class BriarNotificationBuilder extends NotificationCompat.Builder {
+
+	private final Context context;
 
 	public BriarNotificationBuilder(Context context, String channelId) {
 		super(context, channelId);
+		this.context = context;
 		// Auto-cancel does not fire the delete intent, see
 		// https://issuetracker.google.com/issues/36961721
 		setAutoCancel(true);
@@ -26,7 +28,7 @@ public class BriarNotificationBuilder extends NotificationCompat.Builder {
 	}
 
 	public BriarNotificationBuilder setColorRes(@ColorRes int res) {
-		setColor(ContextCompat.getColor(mContext, res));
+		setColor(ContextCompat.getColor(context, res));
 		return this;
 	}
 

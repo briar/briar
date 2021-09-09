@@ -13,11 +13,14 @@ import android.widget.TextView.OnEditorActionListener;
 import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
 import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
 import org.briarproject.briar.R;
+import org.briarproject.briar.android.activity.ActivityComponent;
 import org.briarproject.briar.android.fragment.BaseFragment;
 
 import javax.inject.Inject;
 
+import androidx.annotation.CallSuper;
 import androidx.annotation.Nullable;
+import androidx.lifecycle.ViewModelProvider;
 
 import static android.view.inputmethod.EditorInfo.IME_ACTION_DONE;
 import static android.view.inputmethod.EditorInfo.IME_ACTION_NEXT;
@@ -26,11 +29,20 @@ import static org.briarproject.briar.android.util.UiUtils.showOnboardingDialog;
 
 @MethodsNotNullByDefault
 @ParametersNotNullByDefault
-abstract class SetupFragment extends BaseFragment implements TextWatcher,
+public abstract class SetupFragment extends BaseFragment implements TextWatcher,
 		OnEditorActionListener, OnClickListener {
 
 	@Inject
-	SetupController setupController;
+	ViewModelProvider.Factory viewModelFactory;
+	SetupViewModel viewModel;
+
+	@Override
+	@CallSuper
+	public void injectFragment(ActivityComponent component) {
+		component.inject(this);
+		viewModel = new ViewModelProvider(requireActivity())
+				.get(SetupViewModel.class);
+	}
 
 	@Override
 	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
@@ -77,5 +89,4 @@ abstract class SetupFragment extends BaseFragment implements TextWatcher,
 	public void afterTextChanged(Editable editable) {
 		// noop
 	}
-
 }

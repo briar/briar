@@ -101,6 +101,8 @@
   <string name="send">भेजना</string>
   <string name="allow">अनुमति दें</string>
   <string name="open">खोलें </string>
+  <string name="change">परिवर्तन</string>
+  <string name="start">प्रारंभ</string>
   <string name="no_data">नो डाटा </string>
   <string name="ellipsis">…</string>
   <string name="text_too_long">प्रवेश किया हुआ पाठ बहुत लंबा है</string>
@@ -114,7 +116,6 @@
   <string name="no_contacts_action">संपर्क जोड़ने के लिए + आइकन टैप करें</string>
   <string name="date_no_private_messages">कोई संदेश नहीं।</string>
   <string name="no_private_messages">दिखाने के लिए कोई संदेश नहीं</string>
-  <string name="message_hint">संदेश लिखें</string>
   <string name="image_caption_hint">एक कैप्शन जोड़ें (वैकल्पिक)</string>
   <string name="image_attach">छवि संलग्न करें</string>
   <string name="image_attach_error">छवि संलग्न नहीं कर सका</string>
@@ -122,7 +123,12 @@
   <string name="image_attach_error_invalid_mime_type">छवि प्रारूप असमर्थित: %s</string>
   <string name="set_contact_alias">संपर्क नाम बदलें</string>
   <string name="set_contact_alias_hint">संपर्क नाम</string>
-  <string name="set_alias_button">परिवर्तन</string>
+  <string name="menu_item_connect_via_bluetooth">ब्लूटूथ के माध्यम से कनेक्ट करें</string>
+  <string name="dialog_title_connect_via_bluetooth">ब्लूटूथ के माध्यम से कनेक्ट करें</string>
+  <!--The first placeholder will show a duration like "7 days". The second placeholder at the end will add "Tap to learn more."-->
+  <!--The placeholder at the end will add "Tap to learn more."-->
+  <!--The first placeholder will show a contact's name. The second placeholder will show a duration like "7 days". The third placeholder at the end will add "Tap to learn more."-->
+  <!--The first placeholder will show a contact's name. The second placeholder at the end will add "Tap to learn more."-->
   <string name="delete_contact">संपर्क मिटा दें</string>
   <string name="dialog_title_delete_contact">संपर्क हटाने की पुष्टि करें</string>
   <string name="dialog_message_delete_contact">क्या आप निश्चित हैं कि आप इस संपर्क और सभी संदेशों को इस संपर्क से निकाला जाना चाहते हैं?</string>
@@ -154,7 +160,6 @@
   <string name="connecting_to_device">उपकरण \ u2026 से कनेक्ट हो रहा है</string>
   <string name="authenticating_with_device">डिवाइस के साथ प्रमाणीकरण \ u2026</string>
   <string name="connection_error_title">आपके संपर्क से कनेक्ट नहीं हो सका</string>
-  <string name="connection_error_explanation">कृपया जांचें कि आप दोनों एक ही वाई-फाई नेटवर्क से जुड़े हुए हैं।</string>
   <string name="connection_error_feedback">यदि यह समस्या बनी रहती है, तो कृपया ऐप को बेहतर बनाने में हमारी सहायता के लिए <a href="feedback">फ़ीडबैक भेजें</a>।</string>
   <!--Adding Contacts Remotely-->
   <string name="add_contact_remotely_title_case">दूरी वाले संपर्क जोड़ें</string>
@@ -373,16 +378,15 @@
   <string name="blogs_rss_feeds_import_button">आयात</string>
   <string name="blogs_rss_feeds_import_hint">आरएसएस फ़ीड का यूआरएल दर्ज करें</string>
   <string name="blogs_rss_feeds_import_error">हमें खेद है! आपकी फ़ीड आयात करने में एक त्रुटि हुई</string>
-  <string name="blogs_rss_feeds_manage">आरएसएस फ़ीड प्रबंधित करें</string>
   <string name="blogs_rss_feeds_manage_imported">आयातित:</string>
   <string name="blogs_rss_feeds_manage_author">लेखक:</string>
   <string name="blogs_rss_feeds_manage_updated">आखरी अपडेट:</string>
   <string name="blogs_rss_remove_feed">फ़ीड निकालें</string>
   <string name="blogs_rss_remove_feed_dialog_message">क्या आप वाकई इस फीड को हटाना चाहते हैं? \ N \ n पोस्ट आपके डिवाइस से हटा दिए जाएंगे, लेकिन अन्य लोगों के डिवाइस से नहीं। \ N \ n आपके द्वारा इस फ़ीड को साझा करने वाले किसी भी संपर्क को अपडेट प्राप्त करना बंद हो सकता है।</string>
   <string name="blogs_rss_remove_feed_ok">हटाना</string>
-  <string name="blogs_rss_feeds_manage_delete_error">फीड हटाया नहीं जा सका!</string>
   <string name="blogs_rss_feeds_manage_empty_state">कोई आरएसएस फ़ीड दिखाने के लिए फ़ीड नहीं करता \ n \ n फ़ीड आयात करने के लिए + आइकन टैप करें</string>
   <string name="blogs_rss_feeds_manage_error">आपकी फ़ीड लोड करने में एक समस्या थी बाद में पुन: प्रयास करें।</string>
+  <!--Settings Profile Picture-->
   <!--Settings Display-->
   <string name="pref_language_title">भाषा और amp; क्षेत्र</string>
   <string name="pref_language_changed">जब आप Briar को पुनरारंभ करते हैं तो यह सेटिंग प्रभावी होगी। कृपया साइन आउट करें और Briar को पुनरारंभ करें।</string>
@@ -460,8 +464,9 @@
   <string name="notify_sound_setting_disabled">कोई नहीं</string>
   <string name="choose_ringtone_title">रिंगटोन चुनें</string>
   <string name="cannot_load_ringtone">रिंगटोन लोड नहीं कर सकता</string>
+  <!--Conversation Settings-->
+  <string name="learn_more">और अधिक जानें</string>
   <!--Settings Feedback-->
-  <string name="feedback_settings_title">प्रतिक्रिया</string>
   <string name="send_feedback">प्रतिक्रिया भेजें</string>
   <!--Link Warning-->
   <string name="link_warning_title">लिंक चेतावनी</string>
@@ -480,7 +485,6 @@
   <string name="optional_contact_email">आपका ईमेल पता (वैकल्पिक)</string>
   <string name="include_debug_report_crash">दुर्घटना के बारे में अनाम डेटा शामिल करें</string>
   <string name="include_debug_report_feedback">इस डिवाइस के बारे में अनाम डेटा शामिल करें</string>
-  <string name="could_not_load_report_data">रिपोर्ट डेटा लोड नहीं किया जा सका</string>
   <string name="send_report">रिपोर्ट भेजो</string>
   <string name="close">बंद करे</string>
   <string name="dev_report_saved">रिपोर्ट सहेजी गई अगली बार जब आप Briar  में प्रवेश करेंगे तो उसे भेजा जाएगा।</string>

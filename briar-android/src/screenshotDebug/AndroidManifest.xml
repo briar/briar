@@ -16,4 +16,7 @@
 	<uses-permission
 		android:name="android.permission.CHANGE_CONFIGURATION"
 		tools:ignore="ProtectedPermissions" />
+
+	<!-- For drawing on top of the app -->
+	<uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
 </manifest>

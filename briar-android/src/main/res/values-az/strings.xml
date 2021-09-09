@@ -103,6 +103,7 @@
   <string name="send">Göndər</string>
   <string name="allow">Izn vermək</string>
   <string name="open">Aç</string>
+  <string name="change">Dəyiş</string>
   <string name="no_data">Məlumat yoxdur</string>
   <string name="ellipsis">...</string>
   <string name="text_too_long">Daxil olunmuş mətn çox uzundur</string>
@@ -125,7 +126,6 @@
   <string name="image_attach_error_invalid_mime_type">Şəkil formatı dəstəklənmir: %s</string>
   <string name="set_contact_alias">Kontakt adı dəyişdirin</string>
   <string name="set_contact_alias_hint">Əlaqə adı</string>
-  <string name="set_alias_button">Dəyiş</string>
   <string name="delete_all_messages">Bütün mesajları sil</string>
   <string name="dialog_title_delete_all_messages">Silməyi təsdiq et</string>
   <string name="dialog_message_delete_all_messages">Bütün mesajları silmək istədiyinizə əminsinizmi? </string>
@@ -162,7 +162,6 @@
   <string name="connecting_to_device">Cihaza qoşulma /2026</string>
   <string name="authenticating_with_device">Cihazla təsdiqlənir \u2026</string>
   <string name="connection_error_title">Kontaktınıza qoşula bilmədi</string>
-  <string name="connection_error_explanation">Həmin Wi-Fi şəbəkəsinə qoşulduğunuzu yoxlayın.</string>
   <string name="connection_error_feedback"><a href="feedback">Bu problem davam edərsə, tətbiqin təkmilləşdirilməsinə kömək etmək üçün rəy göndərin.</a></string>
   <!--Adding Contacts Remotely-->
   <string name="add_contact_remotely_title_case">Məsafədə kontakt əlavə etmək </string>
@@ -349,15 +348,14 @@
   <string name="blogs_rss_feeds_import_button">İdxal</string>
   <string name="blogs_rss_feeds_import_hint">RSS kanalın linkini daxil edin</string>
   <string name="blogs_rss_feeds_import_error">Üzr istəyirik! Feed-inizdə idxal bir xəta baş verdi.</string>
-  <string name="blogs_rss_feeds_manage">RSS Feeds idarəetmə</string>
   <string name="blogs_rss_feeds_manage_imported">İdxal olundu:</string>
   <string name="blogs_rss_feeds_manage_author">Müəllif:</string>
   <string name="blogs_rss_feeds_manage_updated">Son yeniləmə:</string>
   <string name="blogs_rss_remove_feed">Feed\'i sil</string>
   <string name="blogs_rss_remove_feed_ok">Sil</string>
-  <string name="blogs_rss_feeds_manage_delete_error">Feed silinmədi</string>
   <string name="blogs_rss_feeds_manage_empty_state">Xeyr RSS əks etdirmir\n\nİdxal etmək üçün + düyməsinə toxunun</string>
   <string name="blogs_rss_feeds_manage_error">Kanal yükləmədə bir problem var. Zəhmət olmasa bir az sonra yenə cəhd edin.</string>
+  <!--Settings Profile Picture-->
   <!--Settings Display-->
   <string name="pref_language_title">Dil və region</string>
   <string name="pref_language_changed">Briar-ı yenidən başlatdığınızda bu parametr qüvvəyə minir. Lütfən çıxın və Briar-ı yenidən başladın.</string>
@@ -452,7 +450,6 @@
   <string name="optional_contact_email">Sizim elektron ünvanınız (istəyinizə bağlıdır)</string>
   <string name="include_debug_report_crash">Cədvəl haqqında anonim məlumatları əlavə edin</string>
   <string name="include_debug_report_feedback">Bu cihaz haqqında anonim məlumatları əlavə edin</string>
-  <string name="could_not_load_report_data">Hesabat yüklənə bilmədi.</string>
   <string name="send_report">Hesabat göndər</string>
   <string name="close">Bağla</string>
   <string name="dev_report_saved">Hesabat saxlandı. Briar-a növbəti dəfə daxil olduqda göndəriləcək.</string>

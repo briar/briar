@@ -5,6 +5,7 @@ import org.briarproject.bramble.api.sync.Group;
 import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.bramble.test.TestDatabaseConfigModule;
 import org.briarproject.briar.api.client.ProtocolStateException;
+import org.briarproject.briar.api.conversation.ConversationManager;
 import org.briarproject.briar.api.conversation.ConversationMessageHeader;
 import org.briarproject.briar.api.conversation.DeletionResult;
 import org.briarproject.briar.api.privategroup.GroupMessage;
@@ -27,6 +28,7 @@ import java.util.Set;
 import javax.annotation.Nullable;
 
 import static java.util.Collections.emptySet;
+import static org.briarproject.briar.api.autodelete.AutoDeleteConstants.MIN_AUTO_DELETE_TIMER_MS;
 import static org.briarproject.briar.test.BriarTestUtils.assertGroupCount;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -40,6 +42,7 @@ public class GroupInvitationIntegrationTest
 	private PrivateGroupManager groupManager0, groupManager1;
 	private GroupInvitationManager groupInvitationManager0,
 			groupInvitationManager1;
+	private ConversationManager conversationManager1;
 	private Group g1From0, g0From1;
 
 	@Before
@@ -51,12 +54,13 @@ public class GroupInvitationIntegrationTest
 		groupManager1 = c1.getPrivateGroupManager();
 		groupInvitationManager0 = c0.getGroupInvitationManager();
 		groupInvitationManager1 = c1.getGroupInvitationManager();
+		conversationManager1 = c1.getConversationManager();
 		g1From0 = groupInvitationManager0.getContactGroup(contact1From0);
 		g0From1 = groupInvitationManager1.getContactGroup(contact0From1);
 
 		privateGroup =
 				privateGroupFactory.createPrivateGroup("Testgroup", author0);
-		long joinTime = clock.currentTimeMillis();
+		long joinTime = c0.getClock().currentTimeMillis();
 		GroupMessage joinMsg0 = groupMessageFactory
 				.createJoinMessage(privateGroup.getId(), joinTime, author0);
 		groupManager0.addPrivateGroup(privateGroup, joinMsg0, true);
@@ -87,7 +91,7 @@ public class GroupInvitationIntegrationTest
 
 	@Test
 	public void testSendInvitation() throws Exception {
-		long timestamp = clock.currentTimeMillis();
+		long timestamp = c0.getClock().currentTimeMillis();
 		String text = "Hi!";
 		sendInvitation(timestamp, text);
 
@@ -119,7 +123,7 @@ public class GroupInvitationIntegrationTest
 
 	@Test
 	public void testInvitationDecline() throws Exception {
-		long timestamp = clock.currentTimeMillis();
+		long timestamp = c0.getClock().currentTimeMillis();
 		sendInvitation(timestamp, null);
 
 		sync0To1(1, true);
@@ -165,8 +169,35 @@ public class GroupInvitationIntegrationTest
 	}
 
 	@Test
+	public void testInvitationDeclineWithAutoDelete() throws Exception {
+		// 0 and 1 set an auto-delete timer for their conversation
+		setAutoDeleteTimer(c0, contactId1From0, MIN_AUTO_DELETE_TIMER_MS);
+		setAutoDeleteTimer(c1, contactId0From1, MIN_AUTO_DELETE_TIMER_MS);
+
+		// Send invitation
+		sendInvitation(c0.getClock().currentTimeMillis(), null);
+		sync0To1(1, true);
+
+		// Decline invitation
+		groupInvitationManager1
+				.respondToInvitation(contactId0From1, privateGroup, false);
+		sync1To0(1, true);
+
+		// Group was not added
+		assertTrue(groupManager1.getPrivateGroups().isEmpty());
+
+		// All visible messages between 0 and 1 should have auto-delete timers
+		for (ConversationMessageHeader h : getMessages1From0()) {
+			assertEquals(MIN_AUTO_DELETE_TIMER_MS, h.getAutoDeleteTimer());
+		}
+		for (ConversationMessageHeader h : getMessages0From1()) {
+			assertEquals(MIN_AUTO_DELETE_TIMER_MS, h.getAutoDeleteTimer());
+		}
+	}
+
+	@Test
 	public void testInvitationAccept() throws Exception {
-		long timestamp = clock.currentTimeMillis();
+		long timestamp = c0.getClock().currentTimeMillis();
 		sendInvitation(timestamp, null);
 
 		// check that invitation message state is correct
@@ -223,8 +254,37 @@ public class GroupInvitationIntegrationTest
 	}
 
 	@Test
+	public void testInvitationAcceptWithAutoDelete() throws Exception {
+		// 0 and 1 set an auto-delete timer for their conversation
+		setAutoDeleteTimer(c0, contactId1From0, MIN_AUTO_DELETE_TIMER_MS);
+		setAutoDeleteTimer(c1, contactId0From1, MIN_AUTO_DELETE_TIMER_MS);
+
+		// Send invitation
+		sendInvitation(c0.getClock().currentTimeMillis(), null);
+		sync0To1(1, true);
+
+		// Accept invitation
+		groupInvitationManager1
+				.respondToInvitation(contactId0From1, privateGroup, true);
+		sync1To0(1, true);
+
+		// Group was added
+		Collection<PrivateGroup> groups = groupManager1.getPrivateGroups();
+		assertEquals(1, groups.size());
+		assertEquals(privateGroup, groups.iterator().next());
+
+		// All visible messages between 0 and 1 should have auto-delete timers
+		for (ConversationMessageHeader h : getMessages1From0()) {
+			assertEquals(MIN_AUTO_DELETE_TIMER_MS, h.getAutoDeleteTimer());
+		}
+		for (ConversationMessageHeader h : getMessages0From1()) {
+			assertEquals(MIN_AUTO_DELETE_TIMER_MS, h.getAutoDeleteTimer());
+		}
+	}
+
+	@Test
 	public void testGroupCount() throws Exception {
-		long timestamp = clock.currentTimeMillis();
+		long timestamp = c0.getClock().currentTimeMillis();
 		sendInvitation(timestamp, null);
 
 		// 0 has one read outgoing message
@@ -245,7 +305,7 @@ public class GroupInvitationIntegrationTest
 		assertGroupCount(messageTracker1, g0.getId(), 2, 1);
 
 		// now all messages should be read
-		groupInvitationManager1.setReadFlag(g0.getId(), m.getId(), true);
+		conversationManager1.setReadFlag(g0.getId(), m.getId(), true);
 		assertGroupCount(messageTracker1, g0.getId(), 2, 0);
 
 		sync1To0(1, true);
@@ -256,7 +316,7 @@ public class GroupInvitationIntegrationTest
 
 	@Test
 	public void testMultipleInvitations() throws Exception {
-		sendInvitation(clock.currentTimeMillis(), null);
+		sendInvitation(c0.getClock().currentTimeMillis(), null);
 
 		// invitation is not allowed before the first hasn't been answered
 		assertFalse(groupInvitationManager0
@@ -273,7 +333,7 @@ public class GroupInvitationIntegrationTest
 				.isInvitationAllowed(contact1From0, privateGroup.getId()));
 
 		// send and accept the second invitation
-		sendInvitation(clock.currentTimeMillis(), "Second Invitation");
+		sendInvitation(c0.getClock().currentTimeMillis(), "Second Invitation");
 		sync0To1(1, true);
 		groupInvitationManager1
 				.respondToInvitation(contactId0From1, privateGroup, true);
@@ -285,7 +345,8 @@ public class GroupInvitationIntegrationTest
 
 		// don't allow another invitation request
 		try {
-			sendInvitation(clock.currentTimeMillis(), "Third Invitation");
+			sendInvitation(c0.getClock().currentTimeMillis(),
+					"Third Invitation");
 			fail();
 		} catch (ProtocolStateException e) {
 			// expected
@@ -294,7 +355,7 @@ public class GroupInvitationIntegrationTest
 
 	@Test(expected = ProtocolStateException.class)
 	public void testInvitationsWithSameTimestamp() throws Exception {
-		long timestamp = clock.currentTimeMillis();
+		long timestamp = c0.getClock().currentTimeMillis();
 		sendInvitation(timestamp, null);
 		sync0To1(1, true);
 
@@ -312,7 +373,7 @@ public class GroupInvitationIntegrationTest
 	@Test(expected = ProtocolStateException.class)
 	public void testCreatorLeavesBeforeInvitationAccepted() throws Exception {
 		// Creator invites invitee to join group
-		sendInvitation(clock.currentTimeMillis(), null);
+		sendInvitation(c0.getClock().currentTimeMillis(), null);
 
 		// Creator's invite message is delivered to invitee
 		sync0To1(1, true);
@@ -335,7 +396,7 @@ public class GroupInvitationIntegrationTest
 	@Test
 	public void testCreatorLeavesBeforeInvitationDeclined() throws Exception {
 		// Creator invites invitee to join group
-		sendInvitation(clock.currentTimeMillis(), null);
+		sendInvitation(c0.getClock().currentTimeMillis(), null);
 
 		// Creator's invite message is delivered to invitee
 		sync0To1(1, true);
@@ -362,7 +423,7 @@ public class GroupInvitationIntegrationTest
 	public void testCreatorLeavesConcurrentlyWithInvitationAccepted()
 			throws Exception {
 		// Creator invites invitee to join group
-		sendInvitation(clock.currentTimeMillis(), null);
+		sendInvitation(c0.getClock().currentTimeMillis(), null);
 
 		// Creator's invite message is delivered to invitee
 		sync0To1(1, true);
@@ -393,7 +454,7 @@ public class GroupInvitationIntegrationTest
 	public void testCreatorLeavesConcurrentlyWithInvitationDeclined()
 			throws Exception {
 		// Creator invites invitee to join group
-		sendInvitation(clock.currentTimeMillis(), null);
+		sendInvitation(c0.getClock().currentTimeMillis(), null);
 
 		// Creator's invite message is delivered to invitee
 		sync0To1(1, true);
@@ -420,7 +481,7 @@ public class GroupInvitationIntegrationTest
 	public void testCreatorLeavesConcurrentlyWithMemberLeaving()
 			throws Exception {
 		// Creator invites invitee to join group
-		sendInvitation(clock.currentTimeMillis(), null);
+		sendInvitation(c0.getClock().currentTimeMillis(), null);
 
 		// Creator's invite message is delivered to invitee
 		sync0To1(1, true);
@@ -460,7 +521,7 @@ public class GroupInvitationIntegrationTest
 	public void testDeletingAllMessagesWhenCompletingSession()
 			throws Exception {
 		// send invitation
-		sendInvitation(clock.currentTimeMillis(), null);
+		sendInvitation(c0.getClock().currentTimeMillis(), null);
 		sync0To1(1, true);
 
 		// messages can not be deleted
@@ -515,7 +576,7 @@ public class GroupInvitationIntegrationTest
 	@Test
 	public void testDeletingAllMessagesWhenDeclining() throws Exception {
 		// send invitation
-		sendInvitation(clock.currentTimeMillis(), null);
+		sendInvitation(c0.getClock().currentTimeMillis(), null);
 		sync0To1(1, true);
 
 		// respond
@@ -541,7 +602,7 @@ public class GroupInvitationIntegrationTest
 		assertEquals(2, getMessages0From1().size());
 
 		// creator sends ACK
-		sendAcks(c0, c1, contactId1From0, 1);
+		ack0To1(1);
 
 		// now invitee can also delete messages
 		assertTrue(deleteAllMessages0From1().allDeleted());
@@ -551,7 +612,7 @@ public class GroupInvitationIntegrationTest
 		assertGroupCount(messageTracker1, g0From1.getId(), 0, 0);
 
 		// creator can re-invite
-		sendInvitation(clock.currentTimeMillis(), null);
+		sendInvitation(c0.getClock().currentTimeMillis(), null);
 		sync0To1(1, true);
 
 		// now new messages can not be deleted anymore
@@ -566,7 +627,7 @@ public class GroupInvitationIntegrationTest
 		sync1To0(1, true);
 
 		// creator sends ACK
-		sendAcks(c0, c1, contactId1From0, 1);
+		ack0To1(1);
 
 		// asserting group counts
 		assertGroupCount(messageTracker1, g0From1.getId(), 2, 1);
@@ -582,7 +643,7 @@ public class GroupInvitationIntegrationTest
 	@Test
 	public void testDeletingSomeMessages() throws Exception {
 		// send invitation
-		sendInvitation(clock.currentTimeMillis(), null);
+		sendInvitation(c0.getClock().currentTimeMillis(), null);
 		sync0To1(1, true);
 
 		// deleting the invitation will fail for both
@@ -633,7 +694,7 @@ public class GroupInvitationIntegrationTest
 		assertGroupCount(messageTracker1, g0From1.getId(), 2, 1);
 
 		// 0 sends an ACK to their last message
-		sendAcks(c0, c1, contactId1From0, 1);
+		ack0To1(1);
 
 		// 1 can now delete all messages, as last one has been ACKed
 		assertTrue(deleteMessages0From1(toDelete).allDeleted());
@@ -686,8 +747,9 @@ public class GroupInvitationIntegrationTest
 			throws DbException {
 		byte[] signature = groupInvitationFactory.signInvitation(contact1From0,
 				privateGroup.getId(), timestamp, author0.getPrivateKey());
+		long timer = getAutoDeleteTimer(c0, contactId1From0, timestamp);
 		groupInvitationManager0.sendInvitation(privateGroup.getId(),
-				contactId1From0, text, timestamp, signature);
+				contactId1From0, text, timestamp, signature, timer);
 	}
 
 }

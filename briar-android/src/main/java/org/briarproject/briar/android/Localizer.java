@@ -12,7 +12,7 @@ import java.util.Locale;
 import javax.annotation.Nullable;
 
 import static android.os.Build.VERSION.SDK_INT;
-import static org.briarproject.briar.android.settings.SettingsFragment.LANGUAGE;
+import static org.briarproject.briar.android.settings.DisplayFragment.PREF_LANGUAGE;
 
 @NotNullByDefault
 public class Localizer {
@@ -25,7 +25,7 @@ public class Localizer {
 
 	private Localizer(SharedPreferences sharedPreferences) {
 		this(Locale.getDefault(), getLocaleFromTag(
-				sharedPreferences.getString(LANGUAGE, "default")));
+				sharedPreferences.getString(PREF_LANGUAGE, "default")));
 	}
 
 	private Localizer(Locale systemLocale, @Nullable Locale userLocale) {
@@ -68,7 +68,21 @@ public class Localizer {
 			return new Locale(tag);
 	}
 
-	// Returns the localized version of context
+	/*
+	 * Apply localization to the specified context.
+	 *
+	 * It updates the configuration of the context's resources object but can
+	 * also return a new context derived from the context parameter. Hence
+	 * make sure to work with the return value of this method instead of
+	 * the context you passed as a parameter.
+	 *
+	 * This method also has side-effects as it calls Locale#setDefault().
+	 *
+	 * When using this in attachBaseContext() of Application, Service or
+	 * Activity subclasses, it is important to not only apply this method to the
+	 * base Context parameter received in that method, but also apply it on the
+	 * class itself which also extends Context.
+	 */
 	public Context setLocale(Context context) {
 		Resources res = context.getResources();
 		Configuration conf = res.getConfiguration();
@@ -82,7 +96,7 @@ public class Localizer {
 		Locale.setDefault(locale);
 		if (SDK_INT >= 17) {
 			conf.setLocale(locale);
-			context.createConfigurationContext(conf);
+			context = context.createConfigurationContext(conf);
 		} else
 			conf.locale = locale;
 		//noinspection deprecation

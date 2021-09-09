@@ -16,21 +16,26 @@ import org.junit.Test;
 
 import java.security.GeneralSecurityException;
 
+import static java.util.Collections.emptyList;
+import static java.util.Collections.singletonList;
 import static org.briarproject.bramble.api.identity.AuthorConstants.MAX_SIGNATURE_LENGTH;
 import static org.briarproject.bramble.test.TestUtils.getAuthor;
 import static org.briarproject.bramble.test.TestUtils.getRandomBytes;
 import static org.briarproject.bramble.test.TestUtils.getRandomId;
 import static org.briarproject.bramble.util.StringUtils.getRandomString;
+import static org.briarproject.briar.api.autodelete.AutoDeleteConstants.MAX_AUTO_DELETE_TIMER_MS;
+import static org.briarproject.briar.api.autodelete.AutoDeleteConstants.MIN_AUTO_DELETE_TIMER_MS;
+import static org.briarproject.briar.api.autodelete.AutoDeleteConstants.NO_AUTO_DELETE_TIMER;
 import static org.briarproject.briar.api.privategroup.PrivateGroupConstants.GROUP_SALT_LENGTH;
 import static org.briarproject.briar.api.privategroup.PrivateGroupConstants.MAX_GROUP_INVITATION_TEXT_LENGTH;
 import static org.briarproject.briar.api.privategroup.PrivateGroupConstants.MAX_GROUP_NAME_LENGTH;
 import static org.briarproject.briar.api.privategroup.invitation.GroupInvitationFactory.SIGNING_LABEL_INVITE;
+import static org.briarproject.briar.privategroup.invitation.GroupInvitationConstants.MSG_KEY_AUTO_DELETE_TIMER;
 import static org.briarproject.briar.privategroup.invitation.MessageType.ABORT;
 import static org.briarproject.briar.privategroup.invitation.MessageType.INVITE;
 import static org.briarproject.briar.privategroup.invitation.MessageType.JOIN;
 import static org.briarproject.briar.privategroup.invitation.MessageType.LEAVE;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 
 public class GroupInvitationValidatorTest extends ValidatorTestCase {
 
@@ -71,7 +76,7 @@ public class GroupInvitationValidatorTest extends ValidatorTestCase {
 	@Test(expected = FormatException.class)
 	public void testRejectsTooLongInviteMessage() throws Exception {
 		BdfList body = BdfList.of(INVITE.getValue(), creatorList, groupName,
-				salt, text, signature, "");
+				salt, text, signature, NO_AUTO_DELETE_TIMER, null);
 		validator.validateMessage(message, group, body);
 	}
 
@@ -182,8 +187,7 @@ public class GroupInvitationValidatorTest extends ValidatorTestCase {
 	public void testAcceptsInviteMessageWithNullText() throws Exception {
 		BdfList body = BdfList.of(INVITE.getValue(), creatorList, groupName,
 				salt, null, signature);
-		expectInviteMessage(false);
-		validator.validateMessage(message, group, body);
+		testAcceptsInviteMessage(body, NO_AUTO_DELETE_TIMER, meta);
 	}
 
 	@Test(expected = FormatException.class)
@@ -233,15 +237,73 @@ public class GroupInvitationValidatorTest extends ValidatorTestCase {
 		validator.validateMessage(message, group, body);
 	}
 
+	@Test(expected = FormatException.class)
+	public void testRejectsInviteMessageWithTooBigAutoDeleteTimer()
+			throws Exception {
+		BdfList body = BdfList.of(INVITE.getValue(), creatorList, groupName,
+				salt, text, signature, MAX_AUTO_DELETE_TIMER_MS + 1);
+		validator.validateMessage(message, group, body);
+	}
+
+	@Test(expected = FormatException.class)
+	public void testRejectsInviteMessageWithTooSmallAutoDeleteTimer()
+			throws Exception {
+		BdfList body = BdfList.of(INVITE.getValue(), creatorList, groupName,
+				salt, text, signature, MIN_AUTO_DELETE_TIMER_MS - 1);
+		validator.validateMessage(message, group, body);
+	}
+
+	@Test(expected = FormatException.class)
+	public void testRejectsInviteMessageWithNonLongAutoDeleteTimer()
+			throws Exception {
+		BdfList body = BdfList.of(INVITE.getValue(), creatorList, groupName,
+				salt, text, signature, "foo");
+		validator.validateMessage(message, group, body);
+	}
+
 	@Test
 	public void testAcceptsValidInviteMessage() throws Exception {
 		BdfList body = BdfList.of(INVITE.getValue(), creatorList, groupName,
 				salt, text, signature);
+		testAcceptsInviteMessage(body, NO_AUTO_DELETE_TIMER, meta);
+	}
+
+	@Test
+	public void testAcceptsInviteMessageWithNullAutoDeleteTimer()
+			throws Exception {
+		BdfList body = BdfList.of(INVITE.getValue(), creatorList, groupName,
+				salt, text, signature, null);
+		testAcceptsInviteMessage(body, NO_AUTO_DELETE_TIMER, meta);
+	}
+
+	@Test
+	public void testAcceptsInviteMessageWithMinAutoDeleteTimer()
+			throws Exception {
+		BdfList body = BdfList.of(INVITE.getValue(), creatorList, groupName,
+				salt, text, signature, MIN_AUTO_DELETE_TIMER_MS);
+		BdfDictionary metadata = new BdfDictionary(meta);
+		metadata.put(MSG_KEY_AUTO_DELETE_TIMER, MIN_AUTO_DELETE_TIMER_MS);
+		testAcceptsInviteMessage(body, MIN_AUTO_DELETE_TIMER_MS, metadata);
+	}
+
+	@Test
+	public void testAcceptsInviteMessageWithMaxAutoDeleteTimer()
+			throws Exception {
+		BdfList body = BdfList.of(INVITE.getValue(), creatorList, groupName,
+				salt, text, signature, MAX_AUTO_DELETE_TIMER_MS);
+		BdfDictionary metadata = new BdfDictionary(meta);
+		metadata.put(MSG_KEY_AUTO_DELETE_TIMER, MAX_AUTO_DELETE_TIMER_MS);
+		testAcceptsInviteMessage(body, MAX_AUTO_DELETE_TIMER_MS, metadata);
+	}
+
+	private void testAcceptsInviteMessage(BdfList body, long autoDeleteTimer,
+			BdfDictionary metadata) throws Exception {
 		expectInviteMessage(false);
+		expectEncodeMetadata(INVITE, autoDeleteTimer, metadata);
 		BdfMessageContext messageContext =
 				validator.validateMessage(message, group, body);
-		assertTrue(messageContext.getDependencies().isEmpty());
-		assertEquals(meta, messageContext.getDictionary());
+		assertEquals(emptyList(), messageContext.getDependencies());
+		assertEquals(metadata, messageContext.getDictionary());
 	}
 
 	private void expectInviteMessage(boolean exception) throws Exception {
@@ -260,11 +322,6 @@ public class GroupInvitationValidatorTest extends ValidatorTestCase {
 					signed, creator.getPublicKey());
 			if (exception) {
 				will(throwException(new GeneralSecurityException()));
-			} else {
-				oneOf(messageEncoder).encodeMetadata(INVITE,
-						message.getGroupId(), message.getTimestamp(), false,
-						false, false, false, false);
-				will(returnValue(meta));
 			}
 		}});
 	}
@@ -280,7 +337,7 @@ public class GroupInvitationValidatorTest extends ValidatorTestCase {
 	@Test(expected = FormatException.class)
 	public void testRejectsTooLongJoinMessage() throws Exception {
 		BdfList body = BdfList.of(JOIN.getValue(), privateGroup.getId(),
-				previousMessageId, "");
+				previousMessageId, NO_AUTO_DELETE_TIMER, null);
 		validator.validateMessage(message, group, body);
 	}
 
@@ -339,14 +396,10 @@ public class GroupInvitationValidatorTest extends ValidatorTestCase {
 	public void testAcceptsJoinMessageWithNullPreviousMessageId()
 			throws Exception {
 		BdfList body = BdfList.of(JOIN.getValue(), privateGroup.getId(), null);
-		context.checking(new Expectations() {{
-			oneOf(messageEncoder).encodeMetadata(JOIN, message.getGroupId(),
-					message.getTimestamp(), false, false, false, false, false);
-			will(returnValue(meta));
-		}});
+		expectEncodeMetadata(JOIN, NO_AUTO_DELETE_TIMER, meta);
 		BdfMessageContext messageContext =
 				validator.validateMessage(message, group, body);
-		assertEquals(0, messageContext.getDependencies().size());
+		assertEquals(emptyList(), messageContext.getDependencies());
 		assertEquals(meta, messageContext.getDictionary());
 	}
 
@@ -354,17 +407,45 @@ public class GroupInvitationValidatorTest extends ValidatorTestCase {
 	public void testAcceptsValidJoinMessage() throws Exception {
 		BdfList body = BdfList.of(JOIN.getValue(), privateGroup.getId(),
 				previousMessageId);
-		context.checking(new Expectations() {{
-			oneOf(messageEncoder).encodeMetadata(JOIN, message.getGroupId(),
-					message.getTimestamp(), false, false, false, false, false);
-			will(returnValue(meta));
-		}});
+		testAcceptsJoinMessage(body, NO_AUTO_DELETE_TIMER, meta);
+	}
+
+	@Test
+	public void testAcceptsJoinMessageWithNullAutoDeleteTimer()
+			throws Exception {
+		BdfList body = BdfList.of(JOIN.getValue(), privateGroup.getId(),
+				previousMessageId, null);
+		testAcceptsJoinMessage(body, NO_AUTO_DELETE_TIMER, meta);
+	}
+
+	@Test
+	public void testAcceptsJoinMessageWitMinAutoDeleteTimer()
+			throws Exception {
+		BdfList body = BdfList.of(JOIN.getValue(), privateGroup.getId(),
+				previousMessageId, MIN_AUTO_DELETE_TIMER_MS);
+		BdfDictionary metadata = new BdfDictionary(meta);
+		metadata.put(MSG_KEY_AUTO_DELETE_TIMER, MIN_AUTO_DELETE_TIMER_MS);
+		testAcceptsJoinMessage(body, MIN_AUTO_DELETE_TIMER_MS, metadata);
+	}
+
+	@Test
+	public void testAcceptsJoinMessageWitMaxAutoDeleteTimer()
+			throws Exception {
+		BdfList body = BdfList.of(JOIN.getValue(), privateGroup.getId(),
+				previousMessageId, MAX_AUTO_DELETE_TIMER_MS);
+		BdfDictionary metadata = new BdfDictionary(meta);
+		metadata.put(MSG_KEY_AUTO_DELETE_TIMER, MAX_AUTO_DELETE_TIMER_MS);
+		testAcceptsJoinMessage(body, MAX_AUTO_DELETE_TIMER_MS, metadata);
+	}
+
+	private void testAcceptsJoinMessage(BdfList body, long autoDeleteTimer,
+			BdfDictionary metadata) throws Exception {
+		expectEncodeMetadata(JOIN, autoDeleteTimer, metadata);
 		BdfMessageContext messageContext =
 				validator.validateMessage(message, group, body);
-		assertEquals(1, messageContext.getDependencies().size());
-		assertEquals(previousMessageId,
-				messageContext.getDependencies().iterator().next());
-		assertEquals(meta, messageContext.getDictionary());
+		assertEquals(singletonList(previousMessageId),
+				messageContext.getDependencies());
+		assertEquals(metadata, messageContext.getDictionary());
 	}
 
 	// LEAVE message
@@ -437,32 +518,56 @@ public class GroupInvitationValidatorTest extends ValidatorTestCase {
 	public void testAcceptsLeaveMessageWithNullPreviousMessageId()
 			throws Exception {
 		BdfList body = BdfList.of(LEAVE.getValue(), privateGroup.getId(), null);
-		context.checking(new Expectations() {{
-			oneOf(messageEncoder).encodeMetadata(LEAVE, message.getGroupId(),
-					message.getTimestamp(), false, false, false, false, false);
-			will(returnValue(meta));
-		}});
+		expectEncodeMetadata(LEAVE, NO_AUTO_DELETE_TIMER, meta);
 		BdfMessageContext messageContext =
 				validator.validateMessage(message, group, body);
-		assertEquals(0, messageContext.getDependencies().size());
+		assertEquals(emptyList(), messageContext.getDependencies());
 		assertEquals(meta, messageContext.getDictionary());
 	}
 
 	@Test
 	public void testAcceptsValidLeaveMessage() throws Exception {
-		context.checking(new Expectations() {{
-			oneOf(messageEncoder).encodeMetadata(LEAVE, message.getGroupId(),
-					message.getTimestamp(), false, false, false, false, false);
-			will(returnValue(meta));
-		}});
 		BdfList body = BdfList.of(LEAVE.getValue(), privateGroup.getId(),
 				previousMessageId);
+		testAcceptsLeaveMessage(body, NO_AUTO_DELETE_TIMER, meta);
+	}
+
+	@Test
+	public void testAcceptsLeaveMessageWithNullAutoDeleteTimer()
+			throws Exception {
+		BdfList body = BdfList.of(LEAVE.getValue(), privateGroup.getId(),
+				previousMessageId, null);
+		testAcceptsLeaveMessage(body, NO_AUTO_DELETE_TIMER, meta);
+	}
+
+	@Test
+	public void testAcceptsLeaveMessageWithMinAutoDeleteTimer()
+			throws Exception {
+		BdfList body = BdfList.of(LEAVE.getValue(), privateGroup.getId(),
+				previousMessageId, MIN_AUTO_DELETE_TIMER_MS);
+		BdfDictionary metadata = new BdfDictionary(meta);
+		metadata.put(MSG_KEY_AUTO_DELETE_TIMER, MIN_AUTO_DELETE_TIMER_MS);
+		testAcceptsLeaveMessage(body, MIN_AUTO_DELETE_TIMER_MS, metadata);
+	}
+
+	@Test
+	public void testAcceptsLeaveMessageWithMaxAutoDeleteTimer()
+			throws Exception {
+		BdfList body = BdfList.of(LEAVE.getValue(), privateGroup.getId(),
+				previousMessageId, MAX_AUTO_DELETE_TIMER_MS);
+		BdfDictionary metadata = new BdfDictionary(meta);
+		metadata.put(MSG_KEY_AUTO_DELETE_TIMER, MAX_AUTO_DELETE_TIMER_MS);
+		testAcceptsLeaveMessage(body, MAX_AUTO_DELETE_TIMER_MS, metadata);
+	}
+
+	private void testAcceptsLeaveMessage(BdfList body, long autoDeleteTimer,
+			BdfDictionary metadata) throws Exception {
+		expectEncodeMetadata(LEAVE, autoDeleteTimer, metadata);
 		BdfMessageContext messageContext =
 				validator.validateMessage(message, group, body);
-		assertEquals(1, messageContext.getDependencies().size());
-		assertEquals(previousMessageId,
-				messageContext.getDependencies().iterator().next());
-		assertEquals(meta, messageContext.getDictionary());
+		assertEquals(singletonList(previousMessageId),
+				messageContext.getDependencies());
+		assertEquals(metadata, messageContext.getDictionary());
 	}
 
 	// ABORT message
@@ -507,15 +612,11 @@ public class GroupInvitationValidatorTest extends ValidatorTestCase {
 
 	@Test
 	public void testAcceptsValidAbortMessage() throws Exception {
-		context.checking(new Expectations() {{
-			oneOf(messageEncoder).encodeMetadata(ABORT, message.getGroupId(),
-					message.getTimestamp(), false, false, false, false, false);
-			will(returnValue(meta));
-		}});
 		BdfList body = BdfList.of(ABORT.getValue(), privateGroup.getId());
+		expectEncodeMetadata(ABORT, NO_AUTO_DELETE_TIMER, meta);
 		BdfMessageContext messageContext =
 				validator.validateMessage(message, group, body);
-		assertEquals(0, messageContext.getDependencies().size());
+		assertEquals(emptyList(), messageContext.getDependencies());
 		assertEquals(meta, messageContext.getDictionary());
 	}
 
@@ -531,4 +632,12 @@ public class GroupInvitationValidatorTest extends ValidatorTestCase {
 		validator.validateMessage(message, group, body);
 	}
 
+	private void expectEncodeMetadata(MessageType type,
+			long autoDeleteTimer, BdfDictionary metadata) {
+		context.checking(new Expectations() {{
+			oneOf(messageEncoder).encodeMetadata(type, message.getGroupId(),
+					message.getTimestamp(), autoDeleteTimer);
+			will(returnValue(metadata));
+		}});
+	}
 }

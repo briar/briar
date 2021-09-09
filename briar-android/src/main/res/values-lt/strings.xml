@@ -22,6 +22,14 @@
   <string name="setup_huawei_text">Bakstelėkite žemiau esantį mygtuką ir įsitikinkite, kad \"Apsaugotų programėlių\" rodinyje Briar yra apsaugota.</string>
   <string name="setup_huawei_button">Apsaugoti Briar</string>
   <string name="setup_huawei_help">Jei Briar nebus pridėta į apsaugotų programėlių sąrašą, ji negalės veikti fone.</string>
+  <string name="setup_huawei_app_launch_text">Bakstelėkite mygtuką žemiau, atverkite langą „Programų paleidimas (angl. App launch)“ ir įsitikinkite, kad Briar yra nustatyta į „Tvarkyti rankiniu būdu (angl. Manage manually)“.</string>
+  <string name="setup_huawei_app_launch_button">Atverti akumuliatoriaus nustatymus</string>
+  <string name="setup_huawei_app_launch_help">Jeigu „Programų paleidimo (angl. App launch)“ lange Briar nėra nustatyta į „Tvarkyti rankiniu būdu (angl. Manage manually)“, tuomet programėlė negalės veikti fone.</string>
+  <string name="setup_xiaomi_text">Tam, kad galėtų veikti fone, Briar turi būti prirakinta prie paskiausiųjų programėlių sąrašo.</string>
+  <string name="setup_xiaomi_button">Apsaugoti Briar</string>
+  <string name="setup_xiaomi_help">Jei Briar nebus prirakinta prie paskiausiųjų programėlių sąrašo, ji negalės veikti fone.</string>
+  <string name="setup_xiaomi_dialog_body_old">1. Atverkite paskiausiųjų programėlių sąrašą (dar vadinamą programėlių perjungikliu)\n\n2. Ant Briar paveiksliuko perbraukite žemyn, kad būtų rodoma pakabinamos spynos piktograma\n\n3. Jei pakabinama spyna neužrakinta, bakstelėkite, kad ją užrakintumėte</string>
+  <string name="setup_xiaomi_dialog_body_new">1. 1. Atverkite paskiausiųjų programėlių sąrašą (dar vadinamą programėlių perjungikliu)\n\n2. Paspauskite ir laikykite ant Briar paveiksliuko tol, kol atsiras pakabinamos spynos mygtukas\n\n3. Jei pakabinama spyna neužrakinta, bakstelėkite, kad ją užrakintumėte</string>
   <string name="warning_dozed">%s nepavyko pasileisti fone</string>
   <!--Login-->
   <string name="enter_password">Slaptažodis</string>
@@ -31,7 +39,7 @@
   <string name="sign_in_button">Prisijungti</string>
   <string name="forgotten_password">Aš pamiršau savo slaptažodį</string>
   <string name="dialog_title_lost_password">Prarastas slaptažodis</string>
-  <string name="dialog_message_lost_password">Jūsų Briar paskyra yra saugoma šifruotu pavidalu jūsų įrenginyje, o ne debesijoje, taigi, negalime atstatyti jūsų slaptažodžio Ar norėtumėte ištrinti savo paskyrą ir pradėti iš naujo?\n\nDėmesio: Jūsų tapatybės, žinutės ir adresatai bus prarasti visiems laikams.</string>
+  <string name="dialog_message_lost_password">Jūsų Briar paskyra yra saugoma šifruotu pavidalu jūsų įrenginyje, o ne debesijoje, taigi, negalime atstatyti jūsų slaptažodžio. Ar norėtumėte ištrinti savo paskyrą ir pradėti iš naujo?\n\nDėmesio: Jūsų tapatybės, žinutės ir adresatai bus prarasti visiems laikams.</string>
   <string name="startup_failed_notification_title">Nepavyko paleisti Briar</string>
   <string name="startup_failed_notification_text">Bakstelėkite išsamesnei informacijai.</string>
   <string name="startup_failed_activity_title">Briar paleidimo nesėkmė</string>
@@ -139,6 +147,8 @@
   <string name="send">Siųsti</string>
   <string name="allow">Leisti</string>
   <string name="open">Atverti</string>
+  <string name="change">Pakeisti</string>
+  <string name="start">Pradėti</string>
   <string name="no_data">Nėra duomenų</string>
   <string name="ellipsis">…</string>
   <string name="text_too_long">Įvestas tekstas yra per ilgas</string>
@@ -153,7 +163,9 @@
   <string name="no_contacts_action">Norėdami pridėti adresatą, bakstelėkite + piktogramą</string>
   <string name="date_no_private_messages">Žinučių nėra.</string>
   <string name="no_private_messages">Nėra rodytinų žinučių</string>
-  <string name="message_hint">Rašykite žinutę</string>
+  <string name="message_hint">Nauja žinutė</string>
+  <string name="message_hint_auto_delete">Nauja išnykstanti žinutė</string>
+  <string name="message_error">Klaida, siunčiant žinutę</string>
   <string name="image_caption_hint">Pridėkite paaiškinimą (nebūtina)</string>
   <string name="image_attach">Pridėti paveikslą</string>
   <string name="image_attach_error">Nepavyko pridėti paveikslo(-ų)</string>
@@ -161,7 +173,47 @@
   <string name="image_attach_error_invalid_mime_type">Nepalaikomas paveikslo formatas: %s</string>
   <string name="set_contact_alias">Pakeisti adresato vardą</string>
   <string name="set_contact_alias_hint">Adresato vardas</string>
-  <string name="set_alias_button">Pakeisti</string>
+  <string name="menu_item_disappearing_messages">Išnykstančios žinutės</string>
+  <string name="menu_item_connect_via_bluetooth">Prisijungti per Bluetooth</string>
+  <string name="dialog_title_connect_via_bluetooth">Prisijungti per Bluetooth</string>
+  <string name="dialog_message_connect_via_bluetooth">Norint, kad tai suveiktų, jūsų adresatas privalo būti šalia jūsų.\n\nJūs ir jūsų adresatas abu vienu metu turėtumėte paspausti „Pradėti“.</string>
+  <string name="toast_connect_via_bluetooth_already_discovering">Jau bandoma prisijungti per Bluetooth</string>
+  <string name="toast_connect_via_bluetooth_not_discoverable">Nepavyksta tęsti be Bluetooth</string>
+  <string name="toast_connect_via_bluetooth_no_location_permission">Nepavyksta tęsti be įrenginio vietovės leidimo</string>
+  <string name="toast_connect_via_bluetooth_start">Jungiamasi per Bluetooth…</string>
+  <string name="toast_connect_via_bluetooth_success">Sėkmingai prisijungta per Bluetooth</string>
+  <string name="toast_connect_via_bluetooth_error">Nepavyko prisijungti per Bluetooth</string>
+  <!--The first placeholder will show a duration like "7 days". The second placeholder at the end will add "Tap to learn more."-->
+  <string name="auto_delete_msg_you_enabled">Jūsų žinutės išnyks po %1$s. %2$s</string>
+  <!--The placeholder at the end will add "Tap to learn more."-->
+  <string name="auto_delete_msg_you_disabled">Jūsų žinutės neišnyks. %1$s</string>
+  <!--The first placeholder will show a contact's name. The second placeholder will show a duration like "7 days". The third placeholder at the end will add "Tap to learn more."-->
+  <string name="auto_delete_msg_contact_enabled">Adresato %1$s žinutės išnyks po %2$s. %3$s</string>
+  <plurals name="duration_minutes">
+    <item quantity="one">%d minutės</item>
+    <item quantity="few">%d minučių</item>
+    <item quantity="many">%d minučių</item>
+    <item quantity="other">%d minutės</item>
+  </plurals>
+  <plurals name="duration_hours">
+    <item quantity="one">%d valandos</item>
+    <item quantity="few">%d valandų</item>
+    <item quantity="many">%d valandų</item>
+    <item quantity="other">%d valandos</item>
+  </plurals>
+  <plurals name="duration_days">
+    <item quantity="one">%d dienos</item>
+    <item quantity="few">%d dienų</item>
+    <item quantity="many">%d dienų</item>
+    <item quantity="other">%d dienos</item>
+  </plurals>
+  <!--The first placeholder will show a contact's name. The second placeholder at the end will add "Tap to learn more."-->
+  <string name="auto_delete_msg_contact_disabled">Adresato %1$s žinutės neišnyks. %2$s</string>
+  <string name="tap_to_learn_more">Bakstelėkite, norėdami sužinoti daugiau.</string>
+  <string name="auto_delete_changed_warning_title">Išnykstančios žinutės pasikeitė</string>
+  <string name="auto_delete_changed_warning_message_enabled">Nuo to laiko, kai pradėjote rašyti žinutę, išnykstančios žinutės tapo įjungtos.</string>
+  <string name="auto_delete_changed_warning_message_disabled">Nuo to laiko, kai pradėjote rašyti žinutę, išnykstančios žinutės tapo išjungtos.</string>
+  <string name="auto_delete_changed_warning_send">Vis tiek siųsti</string>
   <string name="delete_all_messages">Ištrinti visas žinutes</string>
   <string name="dialog_title_delete_all_messages">Patvirtinkite žinutės ištrynimą</string>
   <string name="dialog_message_delete_all_messages">Ar tikrai norite ištrinti visas žinutes?</string>
@@ -169,7 +221,6 @@
   <string name="dialog_message_not_deleted_ongoing_both">Žinutės, susijusios su vykstančiais pakvietimais ir supažindinimais, negali būti ištrintos, kol nebus išspręstos.</string>
   <string name="dialog_message_not_deleted_ongoing_introductions">Žinutės, susijusios su vykstančiais supažindinimais, negali būti ištrintos, kol nebus išspręstos.</string>
   <string name="dialog_message_not_deleted_ongoing_invitations">Žinutės, susijusios su vykstančiais pakvietimais, negali būti ištrintos, kol nebus išspręstos.</string>
-  <string name="dialog_message_not_deleted_partly_downloaded">Dalinai atsisiųstos žinutės negali būti ištrintos tol, kol nebus užbaigtas jų atsisiuntimas.</string>
   <string name="dialog_message_not_deleted_not_all_selected_both">Norėdami ištrinti pakvietimą ar supažindinimą, turite pasirinkti užklausą ir atsakymą.</string>
   <string name="dialog_message_not_deleted_not_all_selected_introductions">Norėdami ištrinti supažindinimą, turite pasirinkti užklausą ir atsakymą.</string>
   <string name="dialog_message_not_deleted_not_all_selected_invitations">Norėdami ištrinti pakvietimą, turite pasirinkti užklausą ir atsakymą.</string>
@@ -191,7 +242,7 @@
   <string name="messaging_too_many_attachments_toast">Bus išsiųsti tik %d pirmi paveikslai</string>
   <!--Adding Contacts-->
   <string name="add_contact_title">Pridėti šalia esantį adresatą</string>
-  <string name="face_to_face">Jūs privalote susitikti gyvai su asmeniu, kurį norite pridėti kaip adresatą.\n\nTai neleis bet kam apsimetinėti jumis ar ateityje skaityti jūsų žinutes.</string>
+  <string name="face_to_face">Jūs privalote susitikti gyvai su asmeniu, kurį norite pridėti kaip adresatą.\n\nTai neleis bet kam apsimetinėti jumis ar ateityje skaityti jūsų žinučių.</string>
   <string name="continue_button">Tęsti</string>
   <string name="try_again_button">Bandyti dar kartą</string>
   <string name="waiting_for_contact_to_scan">Laukiama, kol adresatas nuskenuos ir prisijungs\u2026</string>
@@ -205,7 +256,6 @@
   <string name="connecting_to_device">Jungiamasi prie įrenginio\u2026</string>
   <string name="authenticating_with_device">Tapatybės nustatymas su įrenginiu\u2026</string>
   <string name="connection_error_title">Nepavyko prisijungti prie jūsų adresato</string>
-  <string name="connection_error_explanation">Įsitikinkite, kad abu esate prisijungę prie to paties belaidžio (Wi-Fi) tinklo.</string>
   <string name="connection_error_feedback">Jei ši problema išlieka, <a href="feedback">atsiųskite mums atsiliepimą</a>, kad padėtumėte mums patobulinti programėlę.</string>
   <!--Adding Contacts Remotely-->
   <string name="add_contact_remotely_title_case">Pridėti adresatą per atstumą</string>
@@ -284,6 +334,7 @@
   <string name="introduction_response_accepted_sent">Jūs priėmėte supažindinimą su %1$s.</string>
   <string name="introduction_response_accepted_sent_info">Prieš tai, kai naudotojas %1$s bus pridėtas į jūsų adresatus, jis taip pat turi priimti supažindinimą. Tai gali šiek tiek užtrukti.</string>
   <string name="introduction_response_declined_sent">Jūs atmetėte supažindinimą su %1$s.</string>
+  <string name="introduction_response_declined_auto">Supažindinimas su %1$s buvo automatiškai atmestas.</string>
   <string name="introduction_response_accepted_received">%1$s priėmė supažindinimą su %2$s.</string>
   <string name="introduction_response_declined_received">%1$s atmetė supažindinimą su %2$s.</string>
   <string name="introduction_response_declined_received_by_introducee">%1$s sako, kad %2$s atmetė supažindinimą.</string>
@@ -332,8 +383,9 @@
     <item quantity="many">%d atvirų pakvietimų į grupę</item>
     <item quantity="other">%d atviras pakvietimas į grupę</item>
   </plurals>
-  <string name="groups_invitations_response_accepted_sent">Jūs priėmėte pakvietimą į grupę iš %s.</string>
-  <string name="groups_invitations_response_declined_sent">Jūs atmetėte pakvietimą į grupę iš %s.</string>
+  <string name="groups_invitations_response_accepted_sent">Jūs priėmėte iš %s pakvietimą į grupę.</string>
+  <string name="groups_invitations_response_declined_sent">Jūs atmetėte iš %s pakvietimą į grupę.</string>
+  <string name="groups_invitations_response_declined_auto">Pakvietimas į grupę nuo %s buvo automatiškai atmestas.</string>
   <string name="groups_invitations_response_accepted_received">%s priėmė pakvietimą į grupę.</string>
   <string name="groups_invitations_response_declined_received">%s atmetė pakvietimą į grupę.</string>
   <string name="sharing_status_groups">Tik įkūrėjas gali kviesti naujus narius į grupę. Žemiau yra visi esami grupės nariai.</string>
@@ -386,6 +438,7 @@
   <string name="forum_invitation_already_sharing">Jau bendrinamas</string>
   <string name="forum_invitation_response_accepted_sent">Jūs priėmėte pakvietimą į forumą iš %s.</string>
   <string name="forum_invitation_response_declined_sent">Jūs atmetėte pakvietimą į forumą iš %s.</string>
+  <string name="forum_invitation_response_declined_auto">Pakvietimas į forumą nuo %s buvo automatiškai atmestas.</string>
   <string name="forum_invitation_response_accepted_received">%s priėmė pakvietimą į forumą.</string>
   <string name="forum_invitation_response_declined_received">%s atmetė pakvietimą į forumą.</string>
   <string name="sharing_status">Bendrinimo būsena</string>
@@ -422,6 +475,7 @@
   <string name="blogs_sharing_snackbar">Tinklaraštis bendrinamas su pasirinktais adresatais</string>
   <string name="blogs_sharing_response_accepted_sent">Jūs priėmėte pakvietimą į tinklaraštį iš %s.</string>
   <string name="blogs_sharing_response_declined_sent">Jūs atmetėte pakvietimą į tinklaraštį iš %s.</string>
+  <string name="blogs_sharing_response_declined_auto">Pakvietimas į tinklaraštį nuo %s buvo automatiškai atmestas.</string>
   <string name="blogs_sharing_response_accepted_received">%s priėmė pakvietimą į tinklaraštį.</string>
   <string name="blogs_sharing_response_declined_received">%s atmetė pakvietimą į tinklaraštį.</string>
   <string name="blogs_sharing_invitation_received">%1$s pradėjo bendrinti su jumis tinklaraštį \"%2$s\".</string>
@@ -435,16 +489,21 @@
   <string name="blogs_rss_feeds_import_button">Importuoti</string>
   <string name="blogs_rss_feeds_import_hint">Įveskite RSS kanalo URL</string>
   <string name="blogs_rss_feeds_import_error">Atleiskite! Importuojant jūsų kanalą, įvyko klaida.</string>
-  <string name="blogs_rss_feeds_manage">Tvarkyti RSS kanalus</string>
+  <string name="blogs_rss_feeds_import_exists">Tas kanalas jau yra importuotas.</string>
+  <string name="blogs_rss_feeds">RSS kanalai</string>
   <string name="blogs_rss_feeds_manage_imported">Importuota:</string>
   <string name="blogs_rss_feeds_manage_author">Autorius:</string>
   <string name="blogs_rss_feeds_manage_updated">Paskutinį kartą atnaujinta:</string>
   <string name="blogs_rss_remove_feed">Šalinti kanalą</string>
   <string name="blogs_rss_remove_feed_dialog_message">Ar tikrai norite pašalinti šį kanalą?\n\nĮrašai bus pašalinti iš jūsų įrenginio, tačiau liks kitų žmonių įrenginiuose.\n\nBet kokie adresatai, su kuriais bendrinote šį kanalą, gali nustoti gauti atnaujinimus.</string>
   <string name="blogs_rss_remove_feed_ok">Šalinti</string>
-  <string name="blogs_rss_feeds_manage_delete_error">Nepavyko ištrinti kanalo!</string>
   <string name="blogs_rss_feeds_manage_empty_state">Nėra rodytinų RSS kanalų\n\nNorėdami importuoti kanalą, bakstelėkite + piktogramą</string>
   <string name="blogs_rss_feeds_manage_error">Įkeliant jūsų kanalus, atsirado problemų. Vėliau bandykite dar kartą.</string>
+  <!--Settings Profile Picture-->
+  <string name="change_profile_picture">Bakstelėkite norėdami pasikeisti profilio paveikslą</string>
+  <string name="dialog_confirm_profile_picture_title">Keisti profilio paveikslą</string>
+  <string name="dialog_confirm_profile_picture_remark">Šį paveikslą gali matyti tik jūsų adresatai</string>
+  <string name="change_profile_picture_failed_message">Atleiskite, bet atnaujinant jūsų profilio paveikslą kažkas nutiko</string>
   <!--Settings Display-->
   <string name="pref_language_title">Kalba ir regionas</string>
   <string name="pref_language_changed">Šis nustatymas įsigalios, kai paleisite Briar iš naujo. Atsijunkite ir paleiskite Briar iš naujo.</string>
@@ -532,8 +591,20 @@
   <string name="notify_sound_setting_disabled">Nėra</string>
   <string name="choose_ringtone_title">Pasirinkite skambėjimo melodiją</string>
   <string name="cannot_load_ringtone">Nepavyksta įkelti skambučio melodijos</string>
+  <!--Conversation Settings-->
+  <string name="disappearing_messages_title">Išnykstančios žinutės</string>
+  <string name="disappearing_messages_explanation_long">Įjungus šį nustatymą, naujos žinutės
+		šiame pokalbyje automatiškai išnyks po 7\u00A0dienų.
+		\n\nAtvirkštinis laikmatis siuntėjo žinutės egzemplioriui pradedamas skaičiuoti, pristačius žinutę.
+		Atvirkštinis laikmatis gavėjui pradedamas skaičiuoti jam perskaičius žinutę.
+		\n\nŽinutės, kurios išnyks, yra pažymėtos bombos piktograma.
+		\n\nTurėkite omenyje, kad gavėjai vis tiek gali nusikopijuoti jūsų siunčiamas žinutes.
+		\n\nJei pakeisite šį nustatymą, jis nedelsiant bus taikomas jūsų naujoms žinutėms ir
+		jūsų adresato žinutėms po to, kai jis gaus jūsų kitą žinutę.
+		Jūsų adresatas taip pat gali keisti šį nustatymą jums abiems.</string>
+  <string name="learn_more">Sužinoti daugiau</string>
+  <string name="disappearing_messages_summary">Padaryti, kad būsimos žinutės šiame pokalbyje automatiškai išnyktų po 7\u00A0dienų.</string>
   <!--Settings Feedback-->
-  <string name="feedback_settings_title">Atsiliepimai</string>
   <string name="send_feedback">Siųsti atsiliepimą</string>
   <!--Link Warning-->
   <string name="link_warning_title">Įspėjimas apie nuorodą</string>
@@ -552,16 +623,31 @@
   <string name="optional_contact_email">Jūsų el. pašto adresas (nebūtina)</string>
   <string name="include_debug_report_crash">Įtraukti anoniminius duomenis apie strigtį</string>
   <string name="include_debug_report_feedback">Įtraukti anoniminius duomenis apie šį įrenginį</string>
-  <string name="could_not_load_report_data">Nepavyko įkelti ataskaitos duomenų.</string>
+  <string name="dev_report_user_info">Naudotojo informacija</string>
+  <string name="dev_report_basic_info">Pagrindinė informacija</string>
+  <string name="dev_report_device_info">Įrenginio informacija</string>
+  <string name="dev_report_stacktrace">Dėklo pėdsakas</string>
+  <string name="dev_report_time_info">Laiko informacija</string>
+  <string name="dev_report_memory">Atmintis</string>
+  <string name="dev_report_storage">Saugykla</string>
+  <string name="dev_report_connectivity">Jungiamumas</string>
+  <string name="dev_report_build_config">Darinio konfigūracija</string>
+  <string name="dev_report_logcat">Programėlės žurnalas</string>
+  <string name="dev_report_device_features">Įrenginio ypatybės</string>
   <string name="send_report">Siųsti ataskaitą</string>
   <string name="close">Užverti</string>
+  <string name="dev_report_sending">Siunčiamas atsiliepimas…</string>
+  <string name="dev_report_sent">Atsiliepimas išsiųstas</string>
   <string name="dev_report_saved">Ataskaita įrašyta. Ji bus išsiųsta, kai kitą kartą prisijungsite prie Briar.</string>
+  <string name="dev_report_error">Klaida: Nepavyko išsiųsti ataskaitos</string>
   <!--Sign Out-->
   <string name="progress_title_logout">Atsijungiama iš Briar…</string>
   <!--Screen Filters & Tapjacking-->
   <string name="screen_filter_title">Aptikta ekrano perdanga</string>
   <string name="screen_filter_body">Aptikta kitos programėlės perdanga virš Briar. Tam, kad būtų apsaugotas jūsų saugumas, Briar nereaguos į prilietimus tol, kol kita programėlė yra atvaizduojama ant viršaus. Gali būti, kad šios programėlės perdengia Briar:\n\n%1$s</string>
+  <string name="screen_filter_body_api_30">Aptikta kitos programėlės perdanga virš Briar. Siekdama apsaugoti jūsų saugumą, Briar nereaguos į prilietimus tol, kol kita programėlė yra atvaizduojama ant viršaus.\n\nPeržiūrėkite žemiau esančias programėles, kad rastumėte atsakingą programėlę.</string>
   <string name="screen_filter_allow">Leisti šioms programėlėms perdengti ant viršaus</string>
+  <string name="screen_filter_review_apps">Peržiūrėti programėles</string>
   <!--Permission Requests-->
   <string name="permission_camera_title">Kameros leidimas</string>
   <string name="permission_camera_request_body">Norint nuskenuoti QR kodą, Briar reikia prieigos prie kameros.</string>
@@ -570,6 +656,10 @@
   <string name="permission_camera_location_title">Kamera ir įrenginio vietovė</string>
   <string name="permission_camera_location_request_body">Tam, kad galėtų nuskenuoti QR kodą, Briar reikia gauti prieigą prie jūsų kameros.\n\nTam, kad galėtų atrasti Bluetooth įrenginius, Briar reikia gauti prieigą prie jūsų įrenginio vietovės.\n\nBriar nesaugo jūsų įrenginio vietovės ir su niekuo jos nebendrina.</string>
   <string name="permission_camera_denied_body">Jūs uždraudėte prieigą prie kameros, tačiau norint pridėti adresatus, reikia naudoti kamerą.\n\nApsvarstykite galimybę sutekti prieigą prie kameros.</string>
+  <string name="permission_location_denied_body">Jūs uždraudėte prieigą prie įrenginio vietovės, tačiau norint atrasti Bluetooth įrenginius, Briar reikia šio leidimo.\n\nApsvarstykite galimybę sutekti prieigą prie įrenginio vietovės.</string>
+  <string name="permission_location_setting_title">Įrenginio vietovės nustatymas</string>
+  <string name="permission_location_setting_body">Norint rasti kitus įrenginius per Bluetooth, privalo būti įjungtas jūsų įrenginio vietovės nustatymas. Norėdami tęsti, įjunkite įrenginio vietovę. Po to, galėsite ir vėl ją išjungti.</string>
+  <string name="permission_location_setting_button">Įjungti įrenginio vietovę</string>
   <string name="qr_code">QR kodas</string>
   <string name="show_qr_code_fullscreen">Rodyti QR kodą visame ekrane</string>
   <!--App Locking-->

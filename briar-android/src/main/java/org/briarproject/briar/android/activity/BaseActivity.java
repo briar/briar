@@ -6,7 +6,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewGroup.LayoutParams;
 
-import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
 import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
 import org.briarproject.briar.R;
@@ -15,10 +14,8 @@ import org.briarproject.briar.android.BriarApplication;
 import org.briarproject.briar.android.DestroyableContext;
 import org.briarproject.briar.android.Localizer;
 import org.briarproject.briar.android.controller.ActivityLifecycleController;
-import org.briarproject.briar.android.forum.ForumModule;
 import org.briarproject.briar.android.fragment.BaseFragment;
 import org.briarproject.briar.android.fragment.ScreenFilterDialogFragment;
-import org.briarproject.briar.android.reporting.DevReportActivity;
 import org.briarproject.briar.android.util.UiUtils;
 import org.briarproject.briar.android.widget.TapSafeFrameLayout;
 import org.briarproject.briar.android.widget.TapSafeFrameLayout.OnTapFilteredListener;
@@ -40,9 +37,11 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 
+import static android.os.Build.VERSION.SDK_INT;
 import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
 import static android.view.WindowManager.LayoutParams.FLAG_SECURE;
 import static androidx.lifecycle.Lifecycle.State.STARTED;
+import static java.util.Collections.emptyList;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Logger.getLogger;
 import static org.briarproject.briar.android.TestingConstants.PREVENT_SCREENSHOTS;
@@ -50,7 +49,6 @@ import static org.briarproject.briar.android.util.UiUtils.hideSoftKeyboard;
 
 /**
  * Warning: Some activities don't extend {@link BaseActivity}.
- *          E.g. {@link DevReportActivity}
  */
 @MethodsNotNullByDefault
 @ParametersNotNullByDefault
@@ -88,7 +86,6 @@ public abstract class BaseActivity extends AppCompatActivity
 		activityComponent = DaggerActivityComponent.builder()
 				.androidComponent(applicationComponent)
 				.activityModule(getActivityModule())
-				.forumModule(getForumModule())
 				.build();
 		injectActivity(activityComponent);
 		super.onCreate(state);
@@ -112,6 +109,7 @@ public abstract class BaseActivity extends AppCompatActivity
 	protected void attachBaseContext(Context base) {
 		super.attachBaseContext(
 				Localizer.getInstance().setLocale(base));
+		Localizer.getInstance().setLocale(this);
 	}
 
 	public ActivityComponent getActivityComponent() {
@@ -121,10 +119,6 @@ public abstract class BaseActivity extends AppCompatActivity
 	// This exists to make test overrides easier
 	protected ActivityModule getActivityModule() {
 		return new ActivityModule(this);
-	}
-
-	protected ForumModule getForumModule() {
-		return new ForumModule();
 	}
 
 	@Override
@@ -199,12 +193,21 @@ public abstract class BaseActivity extends AppCompatActivity
 	}
 
 	private boolean showScreenFilterWarning() {
+		if (((BriarApplication) getApplication()).isInstrumentationTest()) {
+			return false;
+		}
 		// If the dialog is already visible, filter the tap
 		ScreenFilterDialogFragment f = findDialogFragment();
 		if (f != null && f.isVisible()) return false;
-		Collection<AppDetails> apps = screenFilterMonitor.getApps();
-		// If all overlay apps have been allowed, allow the tap
-		if (apps.isEmpty()) return true;
+		Collection<AppDetails> apps;
+		// querying all apps is only possible at API 29 and below
+		if (SDK_INT <= 29) {
+			apps = screenFilterMonitor.getApps();
+			// If all overlay apps have been allowed, allow the tap
+			if (apps.isEmpty()) return true;
+		} else {
+			apps = emptyList();
+		}
 		// Show dialog unless onSaveInstanceState() has been called, see #1112
 		FragmentManager fm = getSupportFragmentManager();
 		if (!fm.isStateSaved()) {
@@ -241,7 +244,7 @@ public abstract class BaseActivity extends AppCompatActivity
 	}
 
 	@UiThread
-	public void handleDbException(DbException e) {
+	public void handleException(Exception e) {
 		supportFinishAfterTransition();
 	}
 
@@ -266,7 +269,12 @@ public abstract class BaseActivity extends AppCompatActivity
 	private void protectToolbar() {
 		findToolbar();
 		if (toolbar != null) {
-			boolean filter = !screenFilterMonitor.getApps().isEmpty();
+			boolean filter;
+			if (SDK_INT <= 29) {
+				filter = !screenFilterMonitor.getApps().isEmpty();
+			} else {
+				filter = true;
+			}
 			UiUtils.setFilterTouchesWhenObscured(toolbar, filter);
 		}
 	}

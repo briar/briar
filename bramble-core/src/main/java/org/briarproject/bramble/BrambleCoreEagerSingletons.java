@@ -1,5 +1,6 @@
 package org.briarproject.bramble;
 
+import org.briarproject.bramble.cleanup.CleanupModule;
 import org.briarproject.bramble.contact.ContactModule;
 import org.briarproject.bramble.crypto.CryptoExecutorModule;
 import org.briarproject.bramble.db.DatabaseExecutorModule;
@@ -10,9 +11,12 @@ import org.briarproject.bramble.properties.PropertiesModule;
 import org.briarproject.bramble.rendezvous.RendezvousModule;
 import org.briarproject.bramble.sync.validation.ValidationModule;
 import org.briarproject.bramble.transport.TransportModule;
+import org.briarproject.bramble.transport.agreement.TransportKeyAgreementModule;
 import org.briarproject.bramble.versioning.VersioningModule;
 
 public interface BrambleCoreEagerSingletons {
+
+	void inject(CleanupModule.EagerSingletons init);
 
 	void inject(ContactModule.EagerSingletons init);
 
@@ -30,6 +34,8 @@ public interface BrambleCoreEagerSingletons {
 
 	void inject(RendezvousModule.EagerSingletons init);
 
+	void inject(TransportKeyAgreementModule.EagerSingletons init);
+
 	void inject(TransportModule.EagerSingletons init);
 
 	void inject(ValidationModule.EagerSingletons init);
@@ -39,6 +45,7 @@ public interface BrambleCoreEagerSingletons {
 	class Helper {
 
 		public static void injectEagerSingletons(BrambleCoreEagerSingletons c) {
+			c.inject(new CleanupModule.EagerSingletons());
 			c.inject(new ContactModule.EagerSingletons());
 			c.inject(new CryptoExecutorModule.EagerSingletons());
 			c.inject(new DatabaseExecutorModule.EagerSingletons());
@@ -47,6 +54,7 @@ public interface BrambleCoreEagerSingletons {
 			c.inject(new RendezvousModule.EagerSingletons());
 			c.inject(new PluginModule.EagerSingletons());
 			c.inject(new PropertiesModule.EagerSingletons());
+			c.inject(new TransportKeyAgreementModule.EagerSingletons());
 			c.inject(new TransportModule.EagerSingletons());
 			c.inject(new ValidationModule.EagerSingletons());
 			c.inject(new VersioningModule.EagerSingletons());

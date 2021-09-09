@@ -141,7 +141,7 @@
 	<style name="StepBubble.Completed">
 		<item name="android:background">@drawable/bubble_completed</item>
 		<item name="android:scaleType">center</item>
-		<item name="android:src">@drawable/ic_check_white</item>
+		<item name="srcCompat">@drawable/ic_check_white</item>
 	</style>
 
 </resources>

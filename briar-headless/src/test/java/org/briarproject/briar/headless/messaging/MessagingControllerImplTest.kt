@@ -4,17 +4,27 @@ import io.javalin.http.BadRequestResponse
 import io.javalin.http.Context
 import io.javalin.http.NotFoundResponse
 import io.javalin.plugin.json.JavalinJson.toJson
-import io.mockk.*
+import io.mockk.CapturingSlot
+import io.mockk.Runs
+import io.mockk.every
+import io.mockk.just
+import io.mockk.mockk
+import io.mockk.mockkStatic
+import io.mockk.runs
 import org.briarproject.bramble.api.contact.ContactId
 import org.briarproject.bramble.api.db.NoSuchContactException
-import org.briarproject.bramble.api.identity.AuthorInfo
-import org.briarproject.bramble.api.identity.AuthorInfo.Status.UNVERIFIED
-import org.briarproject.bramble.api.identity.AuthorInfo.Status.VERIFIED
+import org.briarproject.bramble.api.sync.MessageId
+import org.briarproject.bramble.api.sync.event.MessagesAckedEvent
+import org.briarproject.bramble.api.sync.event.MessagesSentEvent
 import org.briarproject.bramble.test.ImmediateExecutor
 import org.briarproject.bramble.test.TestUtils.getRandomId
 import org.briarproject.bramble.util.StringUtils.getRandomString
+import org.briarproject.briar.api.autodelete.AutoDeleteConstants.NO_AUTO_DELETE_TIMER
 import org.briarproject.briar.api.client.SessionId
-import org.briarproject.briar.api.conversation.ConversationManager
+import org.briarproject.briar.api.conversation.DeletionResult
+import org.briarproject.briar.api.identity.AuthorInfo
+import org.briarproject.briar.api.identity.AuthorInfo.Status.UNVERIFIED
+import org.briarproject.briar.api.identity.AuthorInfo.Status.VERIFIED
 import org.briarproject.briar.api.introduction.IntroductionRequest
 import org.briarproject.briar.api.messaging.MessagingConstants.MAX_PRIVATE_MESSAGE_TEXT_LENGTH
 import org.briarproject.briar.api.messaging.MessagingManager
@@ -24,10 +34,13 @@ import org.briarproject.briar.api.messaging.PrivateMessageHeader
 import org.briarproject.briar.api.messaging.event.PrivateMessageReceivedEvent
 import org.briarproject.briar.headless.ControllerTest
 import org.briarproject.briar.headless.event.output
+import org.briarproject.briar.headless.getFromJson
 import org.briarproject.briar.headless.json.JsonDict
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertThrows
 import org.junit.jupiter.api.Test
+import org.spongycastle.util.encoders.Base64
+import kotlin.random.Random
 
 internal class MessagingControllerImplTest : ControllerTest() {
 
@@ -56,7 +69,8 @@ internal class MessagingControllerImplTest : ControllerTest() {
             true,
             true,
             true,
-            emptyList()
+            emptyList(),
+            NO_AUTO_DELETE_TIMER
         )
     private val sessionId = SessionId(getRandomId())
     private val privateMessage = PrivateMessage(message)
@@ -75,7 +89,7 @@ internal class MessagingControllerImplTest : ControllerTest() {
     fun listIntroductionRequest() {
         val request = IntroductionRequest(
             message.id, group.id, timestamp, true, true, true, false, sessionId, author, text,
-            false, AuthorInfo(UNVERIFIED)
+            false, AuthorInfo(UNVERIFIED), NO_AUTO_DELETE_TIMER
         )
 
         expectGetContact()
@@ -98,6 +112,40 @@ internal class MessagingControllerImplTest : ControllerTest() {
     @Test
     fun listInvalidContactId() {
         testInvalidContactId { controller.list(ctx) }
+    }
+
+    @Test
+    fun testMessagesAckedEvent() {
+        val messageId1 = MessageId(getRandomId())
+        val messageId2 = MessageId(getRandomId())
+        val messageIds = listOf(messageId1, messageId2)
+        val event = MessagesAckedEvent(contact.id, messageIds)
+
+        every {
+            webSocketController.sendEvent(
+                EVENT_MESSAGES_ACKED,
+                event.output()
+            )
+        } just runs
+
+        controller.eventOccurred(event)
+    }
+
+    @Test
+    fun testMessagesSentEvent() {
+        val messageId1 = MessageId(getRandomId())
+        val messageId2 = MessageId(getRandomId())
+        val messageIds = listOf(messageId1, messageId2)
+        val event = MessagesSentEvent(contact.id, messageIds, 1234)
+
+        every {
+            webSocketController.sendEvent(
+                EVENT_MESSAGES_SENT,
+                event.output()
+            )
+        } just runs
+
+        controller.eventOccurred(event)
     }
 
     @Test
@@ -163,6 +211,32 @@ internal class MessagingControllerImplTest : ControllerTest() {
     }
 
     @Test
+    fun markMessageRead() {
+        mockkStatic("org.briarproject.briar.headless.RouterKt")
+        mockkStatic("org.spongycastle.util.encoders.Base64")
+        expectGetContact()
+
+        val messageIdString = message.id.bytes.toString()
+        every { messagingManager.getContactGroup(contact).id } returns group.id
+        every { ctx.getFromJson(objectMapper, "messageId") } returns messageIdString
+        every { Base64.decode(messageIdString) } returns message.id.bytes
+        every { conversationManager.setReadFlag(group.id, message.id, true) } just Runs
+        every { ctx.json(messageIdString) } returns ctx
+
+        controller.markMessageRead(ctx)
+    }
+
+    @Test
+    fun markMessageReadInvalidContactId() {
+        testInvalidContactId { controller.markMessageRead(ctx) }
+    }
+
+    @Test
+    fun markMessageReadNonexistentId() {
+        testNonexistentContactId { controller.markMessageRead(ctx) }
+    }
+
+    @Test
     fun privateMessageEvent() {
         val event = PrivateMessageReceivedEvent(header, contact.id)
 
@@ -175,6 +249,43 @@ internal class MessagingControllerImplTest : ControllerTest() {
         } just runs
 
         controller.eventOccurred(event)
+    }
+
+    @Test
+    fun testOutputMessagesAckedEvent() {
+        val messageId1 = MessageId(getRandomId())
+        val messageId2 = MessageId(getRandomId())
+        val messageIds = listOf(messageId1, messageId2)
+        val event = MessagesAckedEvent(contact.id, messageIds)
+        val json = """
+            {
+                "contactId": ${contact.id.int},
+                "messageIds": [
+                    ${toJson(messageId1.bytes)},
+                    ${toJson(messageId2.bytes)}
+                ]
+            }
+        """
+        assertJsonEquals(json, event.output())
+    }
+
+    @Test
+    fun testOutputMessagesSentEvent() {
+        val messageId1 = MessageId(getRandomId())
+        val messageId2 = MessageId(getRandomId())
+        val messageIds = listOf(messageId1, messageId2)
+        val event = MessagesSentEvent(contact.id, messageIds, 1234)
+
+        val json = """
+            {
+                "contactId": ${contact.id.int},
+                "messageIds": [
+                    ${toJson(messageId1.bytes)},
+                    ${toJson(messageId2.bytes)}
+                ]
+            }
+        """
+        assertJsonEquals(json, event.output())
     }
 
     @Test
@@ -219,7 +330,7 @@ internal class MessagingControllerImplTest : ControllerTest() {
     fun testIntroductionRequestWithNullText() {
         val request = IntroductionRequest(
             message.id, group.id, timestamp, true, true, true, false, sessionId, author, null,
-            false, AuthorInfo(VERIFIED)
+            false, AuthorInfo(VERIFIED), NO_AUTO_DELETE_TIMER
         )
         val json = """
             {
@@ -240,6 +351,51 @@ internal class MessagingControllerImplTest : ControllerTest() {
             }
         """
         assertJsonEquals(json, request.output(contact.id))
+    }
+
+    @Test
+    fun testDeleteAllMessages() {
+        val result = DeletionResult()
+        every { ctx.pathParam("contactId") } returns "1"
+        every { conversationManager.deleteAllMessages(ContactId(1)) } returns result
+        every { ctx.json(result.output()) } returns ctx
+        controller.deleteAllMessages(ctx)
+    }
+
+    @Test
+    fun testDeleteAllMessagesInvalidContactId() {
+        every { ctx.pathParam("contactId") } returns "foo"
+        assertThrows(NotFoundResponse::class.java) {
+            controller.deleteAllMessages(ctx)
+        }
+    }
+
+    @Test
+    fun testDeleteAllMessagesNonexistentContactId() {
+        every { ctx.pathParam("contactId") } returns "1"
+        every { conversationManager.deleteAllMessages(ContactId(1)) } throws NoSuchContactException()
+        assertThrows(NotFoundResponse::class.java) {
+            controller.deleteAllMessages(ctx)
+        }
+    }
+
+    @Test
+    fun testOutputDeletionResult() {
+        val result = DeletionResult()
+        if (Random.nextBoolean()) result.addInvitationNotAllSelected()
+        if (Random.nextBoolean()) result.addInvitationSessionInProgress()
+        if (Random.nextBoolean()) result.addIntroductionNotAllSelected()
+        if (Random.nextBoolean()) result.addIntroductionSessionInProgress()
+        val json = """
+            {
+                "allDeleted": ${result.allDeleted()},
+                "hasIntroductionSessionInProgress": ${result.hasIntroductionSessionInProgress()},
+                "hasInvitationSessionInProgress": ${result.hasInvitationSessionInProgress()},
+                "hasNotAllIntroductionSelected": ${result.hasNotAllIntroductionSelected()},
+                "hasNotAllInvitationSelected": ${result.hasNotAllInvitationSelected()}
+            }
+        """
+        assertJsonEquals(json, result.output())
     }
 
     private fun expectGetContact() {

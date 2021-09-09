@@ -6,8 +6,6 @@ import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.content.ContentResolver;
 import android.content.Context;
-import android.net.wifi.WifiConfiguration;
-import android.net.wifi.WifiManager;
 import android.os.Build;
 import android.os.Parcel;
 import android.os.StrictMode;
@@ -17,12 +15,10 @@ import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 
 import java.io.DataOutputStream;
 import java.io.IOException;
-import java.util.List;
 
 import javax.annotation.concurrent.Immutable;
 import javax.inject.Inject;
 
-import static android.content.Context.WIFI_SERVICE;
 import static android.os.Build.VERSION.SDK_INT;
 import static android.provider.Settings.Secure.ANDROID_ID;
 
@@ -52,15 +48,6 @@ class AndroidSecureRandomProvider extends UnixSecureRandomProvider {
 		String id = Settings.Secure.getString(contentResolver, ANDROID_ID);
 		if (id != null) out.writeUTF(id);
 		Parcel parcel = Parcel.obtain();
-		WifiManager wm = (WifiManager) appContext.getApplicationContext()
-				.getSystemService(WIFI_SERVICE);
-		if (wm != null) {
-			List<WifiConfiguration> configs = wm.getConfiguredNetworks();
-			if (configs != null) {
-				for (WifiConfiguration config : configs)
-					parcel.writeParcelable(config, 0);
-			}
-		}
 		BluetoothAdapter bt = BluetoothAdapter.getDefaultAdapter();
 		if (bt != null) {
 			for (BluetoothDevice device : bt.getBondedDevices())

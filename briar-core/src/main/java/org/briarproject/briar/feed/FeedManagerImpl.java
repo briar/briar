@@ -166,7 +166,7 @@ class FeedManagerImpl implements FeedManager, EventListener, OpenDatabaseHook,
 	}
 
 	@Override
-	public void addFeed(String url) throws DbException, IOException {
+	public Feed addFeed(String url) throws DbException, IOException {
 		// fetch syndication feed to get its metadata
 		SyndFeed f = fetchSyndFeed(url);
 
@@ -198,6 +198,8 @@ class FeedManagerImpl implements FeedManager, EventListener, OpenDatabaseHook,
 		} finally {
 			db.endTransaction(txn);
 		}
+
+		return updatedFeed;
 	}
 
 	@Override
@@ -232,18 +234,11 @@ class FeedManagerImpl implements FeedManager, EventListener, OpenDatabaseHook,
 
 	@Override
 	public List<Feed> getFeeds() throws DbException {
-		List<Feed> feeds;
-		Transaction txn = db.startTransaction(true);
-		try {
-			feeds = getFeeds(txn);
-			db.commitTransaction(txn);
-		} finally {
-			db.endTransaction(txn);
-		}
-		return feeds;
+		return db.transactionWithResult(true, this::getFeeds);
 	}
 
-	private List<Feed> getFeeds(Transaction txn) throws DbException {
+	@Override
+	public List<Feed> getFeeds(Transaction txn) throws DbException {
 		List<Feed> feeds = new ArrayList<>();
 		Group g = getLocalGroup();
 		try {

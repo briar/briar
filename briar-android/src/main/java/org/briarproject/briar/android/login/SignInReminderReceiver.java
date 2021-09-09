@@ -14,7 +14,7 @@ import javax.inject.Inject;
 
 import static android.content.Intent.ACTION_BOOT_COMPLETED;
 import static android.content.Intent.ACTION_MY_PACKAGE_REPLACED;
-import static org.briarproject.briar.android.settings.SettingsFragment.NOTIFY_SIGN_IN;
+import static org.briarproject.briar.android.settings.NotificationsFragment.PREF_NOTIFY_SIGN_IN;
 import static org.briarproject.briar.api.android.AndroidNotificationManager.ACTION_DISMISS_REMINDER;
 
 public class SignInReminderReceiver extends BroadcastReceiver {
@@ -37,7 +37,7 @@ public class SignInReminderReceiver extends BroadcastReceiver {
 			if (accountManager.accountExists() &&
 					!accountManager.hasDatabaseKey()) {
 				SharedPreferences prefs = app.getDefaultSharedPreferences();
-				if (prefs.getBoolean(NOTIFY_SIGN_IN, true)) {
+				if (prefs.getBoolean(PREF_NOTIFY_SIGN_IN, true)) {
 					notificationManager.showSignInNotification();
 				}
 			}

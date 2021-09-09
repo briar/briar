@@ -12,12 +12,12 @@ import javax.annotation.Nullable;
 interface ProtocolEngine<S extends Shareable> {
 
 	Session onInviteAction(Transaction txn, Session session,
-			@Nullable String text, long timestamp) throws DbException;
+			@Nullable String text) throws DbException;
 
 	Session onAcceptAction(Transaction txn, Session session) throws DbException;
 
-	Session onDeclineAction(Transaction txn, Session session)
-			throws DbException;
+	Session onDeclineAction(Transaction txn, Session session,
+			boolean isAutoDecline) throws DbException;
 
 	Session onLeaveAction(Transaction txn, Session session) throws DbException;
 

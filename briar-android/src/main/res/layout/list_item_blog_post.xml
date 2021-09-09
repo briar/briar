@@ -16,27 +16,18 @@
 			android:id="@+id/rebloggerView"
 			android:layout_width="0dp"
 			android:layout_height="wrap_content"
-			android:layout_marginStart="@dimen/listitem_vertical_margin"
-			android:layout_marginLeft="@dimen/listitem_vertical_margin"
-			android:layout_marginTop="@dimen/listitem_vertical_margin"
-			android:layout_marginEnd="@dimen/listitem_vertical_margin"
-			android:layout_marginRight="@dimen/listitem_vertical_margin"
-			android:layout_marginBottom="@dimen/listitem_horizontal_margin"
+			android:padding="@dimen/listitem_vertical_margin"
 			app:layout_constraintEnd_toStartOf="@+id/commentView"
 			app:layout_constraintStart_toStartOf="parent"
 			app:layout_constraintTop_toTopOf="parent"
-			app:persona="reblogger" />
+			app:persona="reblogger"
+			tools:visibility="visible" />
 
 		<org.briarproject.briar.android.view.AuthorView
 			android:id="@+id/authorView"
 			android:layout_width="0dp"
 			android:layout_height="wrap_content"
-			android:layout_marginStart="@dimen/listitem_vertical_margin"
-			android:layout_marginLeft="@dimen/listitem_vertical_margin"
-			android:layout_marginTop="@dimen/listitem_vertical_margin"
-			android:layout_marginEnd="@dimen/listitem_vertical_margin"
-			android:layout_marginRight="@dimen/listitem_vertical_margin"
-			android:layout_marginBottom="@dimen/listitem_horizontal_margin"
+			android:padding="@dimen/listitem_vertical_margin"
 			app:layout_constraintEnd_toStartOf="@+id/commentView"
 			app:layout_constraintStart_toStartOf="parent"
 			app:layout_constraintTop_toBottomOf="@+id/rebloggerView" />
@@ -47,9 +38,9 @@
 			android:layout_height="@dimen/button_size"
 			android:background="?attr/selectableItemBackgroundBorderless"
 			android:contentDescription="@string/blogs_reblog_comment_hint"
-			android:src="@drawable/ic_repeat"
 			app:layout_constraintEnd_toEndOf="parent"
 			app:layout_constraintTop_toTopOf="parent"
+			app:srcCompat="@drawable/ic_repeat"
 			app:tint="?attr/colorControlNormal" />
 
 		<com.vanniktech.emoji.EmojiTextView

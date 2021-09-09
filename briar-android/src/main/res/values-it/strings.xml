@@ -22,6 +22,14 @@
   <string name="setup_huawei_text">Premi il pulsante qua sotto e assicurati che Briar sia protetto nella schermata \"App protette\"</string>
   <string name="setup_huawei_button">Proteggi Briar</string>
   <string name="setup_huawei_help">Se Briar non viene aggiunto nell\'elenco di app protette, non potrà funzionare in background.</string>
+  <string name="setup_huawei_app_launch_text">Tocca il pulsante sotto, apri la schermata \"Esecuzione app\" e assicurati che Briar sia su \"Gestisci manualmente\".</string>
+  <string name="setup_huawei_app_launch_button">Apri impostazioni batteria</string>
+  <string name="setup_huawei_app_launch_help">Se Briar non è su \"Gestisci manualmente\" nella schermata \"Esecuzione app\", non potrà funzionare in secondo piano.</string>
+  <string name="setup_xiaomi_text">Per funzionare in secondo piano, Briar deve essere fissato nella lista di app recenti.</string>
+  <string name="setup_xiaomi_button">Proteggi Briar</string>
+  <string name="setup_xiaomi_help">Se Briar non è fissato nella lista di app recenti, non potrà funzionare in secondo piano.</string>
+  <string name="setup_xiaomi_dialog_body_old">1. Apri la lista di app recenti (chiamata anche app switcher)\n\n2. Scorri fino alla schermata di Briar per mostrare l\'icona del lucchetto\n\n3. Se il lucchetto non è chiuso, toccalo per chiuderlo</string>
+  <string name="setup_xiaomi_dialog_body_new">1. Apri la lista di app recenti (chiamata anche app switcher)\n\n2. Tieni premuta la schermata di Briar finché non compare l\'icona del lucchetto\n\n3. Se il lucchetto non è chiuso, toccalo per chiuderlo</string>
   <string name="warning_dozed">%s non ha potuto funzionare in background</string>
   <!--Login-->
   <string name="enter_password">Password</string>
@@ -129,6 +137,8 @@
   <string name="send">Invia</string>
   <string name="allow">Abilita</string>
   <string name="open">Apri</string>
+  <string name="change">Cambia</string>
+  <string name="start">Inizia</string>
   <string name="no_data">Nessun dato</string>
   <string name="ellipsis">...</string>
   <string name="text_too_long">Il testo inserito è troppo lungo</string>
@@ -143,7 +153,9 @@
   <string name="no_contacts_action">Tocca l\'icona + per aggiungere un contatto</string>
   <string name="date_no_private_messages">Nessun messaggio.</string>
   <string name="no_private_messages">Nessun messaggio da mostrare</string>
-  <string name="message_hint">Scrivi un messaggio</string>
+  <string name="message_hint">Nuovo messaggio</string>
+  <string name="message_hint_auto_delete">Nuovo messaggio dissolvente</string>
+  <string name="message_error">Errore nell\'invio del messaggio</string>
   <string name="image_caption_hint">Aggiungi una didascalia (facoltativo)</string>
   <string name="image_attach">Allega immagine</string>
   <string name="image_attach_error">Impossibile allegare l\'immagine/i</string>
@@ -151,7 +163,41 @@
   <string name="image_attach_error_invalid_mime_type">Formato immagine non supportato: %s</string>
   <string name="set_contact_alias">Cambia il nome del contatto</string>
   <string name="set_contact_alias_hint">Nome contatto</string>
-  <string name="set_alias_button">Cambia</string>
+  <string name="menu_item_disappearing_messages">Messaggi dissolventi</string>
+  <string name="menu_item_connect_via_bluetooth">Connessione attraverso Bluetooth</string>
+  <string name="dialog_title_connect_via_bluetooth">Connessione attraverso Bluetooth</string>
+  <string name="dialog_message_connect_via_bluetooth">Per funzionare, il tuo contatto deve essere nelle vicinanze.\n\nDovreste entrambi premere \"Inizia\" nello stesso momento.</string>
+  <string name="toast_connect_via_bluetooth_already_discovering">Si sta già tentanto di connettersi via Bluetooth</string>
+  <string name="toast_connect_via_bluetooth_not_discoverable">Impossibile continuare senza Bluetooth</string>
+  <string name="toast_connect_via_bluetooth_no_location_permission">Impossibile continuare senza l\'autorizzazione per la geolocalizzazione</string>
+  <string name="toast_connect_via_bluetooth_start">Connessione via Bluetooth…</string>
+  <string name="toast_connect_via_bluetooth_success">Connessione via Bluetooth riuscita</string>
+  <string name="toast_connect_via_bluetooth_error">Connessione via Bluetooth fallita</string>
+  <!--The first placeholder will show a duration like "7 days". The second placeholder at the end will add "Tap to learn more."-->
+  <string name="auto_delete_msg_you_enabled">I tuoi messaggi spariranno dopo %1$s. %2$s</string>
+  <!--The placeholder at the end will add "Tap to learn more."-->
+  <string name="auto_delete_msg_you_disabled">I tuoi messaggi non spariranno. %1$s</string>
+  <!--The first placeholder will show a contact's name. The second placeholder will show a duration like "7 days". The third placeholder at the end will add "Tap to learn more."-->
+  <string name="auto_delete_msg_contact_enabled">I messaggi di %1$s spariranno dopo %2$s. %3$s</string>
+  <plurals name="duration_minutes">
+    <item quantity="one">%d minuto</item>
+    <item quantity="other">%d minuti</item>
+  </plurals>
+  <plurals name="duration_hours">
+    <item quantity="one">%d ora</item>
+    <item quantity="other">%d ore</item>
+  </plurals>
+  <plurals name="duration_days">
+    <item quantity="one">%d giorno</item>
+    <item quantity="other">%d giorni</item>
+  </plurals>
+  <!--The first placeholder will show a contact's name. The second placeholder at the end will add "Tap to learn more."-->
+  <string name="auto_delete_msg_contact_disabled">I messaggi di %1$s non spariranno. %2$s</string>
+  <string name="tap_to_learn_more">Tocca per saperne di più.</string>
+  <string name="auto_delete_changed_warning_title">Messaggi dissolventi cambiati</string>
+  <string name="auto_delete_changed_warning_message_enabled">Dato che hai iniziato a comporre il messaggio, i messaggi dissolventi sono stati attivati.</string>
+  <string name="auto_delete_changed_warning_message_disabled">Dato che hai iniziato a comporre il messaggio, i messaggi dissolventi sono stati disattivati.</string>
+  <string name="auto_delete_changed_warning_send">Invia comunque</string>
   <string name="delete_all_messages">Elimina tutti i messaggi</string>
   <string name="dialog_title_delete_all_messages">Conferma l\'eliminazione dei messaggi</string>
   <string name="dialog_message_delete_all_messages">Sei sicuro di voler eliminare tutti i messaggi?</string>
@@ -159,7 +205,6 @@
   <string name="dialog_message_not_deleted_ongoing_both">I messaggi relativi a presentazioni o inviti in corso non possono essere eliminati fino alla loro conclusione.</string>
   <string name="dialog_message_not_deleted_ongoing_introductions">I messaggi relativi a presentazioni in corso non posssono essere eliminati fino alla loro conclusione.</string>
   <string name="dialog_message_not_deleted_ongoing_invitations">I messaggi relativi a inviti in corso non posssono essere eliminati fino alla loro conclusione.</string>
-  <string name="dialog_message_not_deleted_partly_downloaded">I messaggi parzialmente scaricati non possono essere eliminati fino al termine del download.</string>
   <string name="dialog_message_not_deleted_not_all_selected_both">Per eliminare un invito o presentazione, devi selezionare la richiesta e la risposta.</string>
   <string name="dialog_message_not_deleted_not_all_selected_introductions">Per eliminare una presentazione, devi selezionare la richiesta e la risposta.</string>
   <string name="dialog_message_not_deleted_not_all_selected_invitations">Per eliminare un invito, devi selezionare la richiesta e la risposta.</string>
@@ -195,7 +240,6 @@
   <string name="connecting_to_device">Connessione al dispositivo\u2026</string>
   <string name="authenticating_with_device">Autenticazione con il dispositivo\u2026</string>
   <string name="connection_error_title">Impossibile connettersi al tuo contatto</string>
-  <string name="connection_error_explanation">Verifica di essere entrambi connessi alla stessa rete Wi-Fi.</string>
   <string name="connection_error_feedback">Se il problema persiste, <a href="feedback">invia un feedback</a> per aiutarci a migliorare l\'app.</string>
   <!--Adding Contacts Remotely-->
   <string name="add_contact_remotely_title_case">Aggiungi contatto distante</string>
@@ -272,6 +316,7 @@
   <string name="introduction_response_accepted_sent">Hai accettato l\'introduzione a %1$s.</string>
   <string name="introduction_response_accepted_sent_info">Prima che %1$s venga aggiunto ai tuoi contatti, dovranno anche loro accettare l\'introduzione. Questo potrebbe richiedere un po\' di tempo.</string>
   <string name="introduction_response_declined_sent">Hai declinato l\'introduzione a %1$s.</string>
+  <string name="introduction_response_declined_auto">L\'introduzione a %1$s è stata rifiutata automaticamente.</string>
   <string name="introduction_response_accepted_received">%1$s ha accettato l\'introduzione a %2$s.</string>
   <string name="introduction_response_declined_received">%1$s ha declinato l\'introduzione a %2$s.</string>
   <string name="introduction_response_declined_received_by_introducee">%1$s dice che %2$s ha declinato l\'introduzione.</string>
@@ -318,6 +363,7 @@
   </plurals>
   <string name="groups_invitations_response_accepted_sent">Hai accettato l\'invito al gruppo da %s.</string>
   <string name="groups_invitations_response_declined_sent">Hai rifiutato l\'invito al gruppo da %s.</string>
+  <string name="groups_invitations_response_declined_auto">L\'invito di %s al gruppo è stato rifiutato automaticamente.</string>
   <string name="groups_invitations_response_accepted_received">%s ha accettato l\'invito al gruppo.</string>
   <string name="groups_invitations_response_declined_received">%s ha rifiutato l\'invito al gruppo.</string>
   <string name="sharing_status_groups">Solo il creatore può invitare nuovi membri nel gruppo. Sotto ci sono i membri correnti del gruppo.</string>
@@ -368,6 +414,7 @@
   <string name="forum_invitation_already_sharing">Già in condivisione</string>
   <string name="forum_invitation_response_accepted_sent">Hai accettato l\'invito al forum da %s</string>
   <string name="forum_invitation_response_declined_sent">Hai declinato l\'invito al forum da %s</string>
+  <string name="forum_invitation_response_declined_auto">L\'invito di %s al forum è stato rifiutato automaticamente.</string>
   <string name="forum_invitation_response_accepted_received">%s ha accettato il tuo invito al forum.</string>
   <string name="forum_invitation_response_declined_received">%s ha declinato il tuo invito al forum.</string>
   <string name="sharing_status">Stato Condivisione</string>
@@ -402,6 +449,7 @@
   <string name="blogs_sharing_snackbar">Blog condiviso con i contatti selezionati</string>
   <string name="blogs_sharing_response_accepted_sent">Hai accettato l\'invito al blog da %s.</string>
   <string name="blogs_sharing_response_declined_sent">Hai declinato l\'invito al blog da %s.</string>
+  <string name="blogs_sharing_response_declined_auto">L\'invito di %s al blog è stato rifiutato automaticamente.</string>
   <string name="blogs_sharing_response_accepted_received">%s ha accettato l\'invito al blog.</string>
   <string name="blogs_sharing_response_declined_received">%s ha declinato l\'invito al blog.</string>
   <string name="blogs_sharing_invitation_received">%1$s ha condiviso il blog \"%2$s\" con te.</string>
@@ -415,16 +463,21 @@
   <string name="blogs_rss_feeds_import_button">Importa</string>
   <string name="blogs_rss_feeds_import_hint">Inserire l\'URL dell\'RSS feed</string>
   <string name="blogs_rss_feeds_import_error">Ci dispiace! C\'è stato un errore nell\'importazione del tuo feed.</string>
-  <string name="blogs_rss_feeds_manage">Gestisci gli RSS Feed</string>
+  <string name="blogs_rss_feeds_import_exists">Quel flusso è già importato.</string>
+  <string name="blogs_rss_feeds">Flussi RSS</string>
   <string name="blogs_rss_feeds_manage_imported">Importato:</string>
   <string name="blogs_rss_feeds_manage_author">Autore:</string>
   <string name="blogs_rss_feeds_manage_updated">Ultimo Aggiornamento:</string>
   <string name="blogs_rss_remove_feed">Rimuovi feed</string>
   <string name="blogs_rss_remove_feed_dialog_message">Sei sicuro di voler rimuovere questo feed?\n\nI post saranno rimossi dal tuo dispositivo ma non dai dispositivi delle altre persone.\n\nTutti i contatti con cui hai condiviso questo feed potrebbero smettere di ricevere aggiornamenti.</string>
   <string name="blogs_rss_remove_feed_ok">Rimuovi</string>
-  <string name="blogs_rss_feeds_manage_delete_error">Non è stato possibile cancellare il feed!</string>
   <string name="blogs_rss_feeds_manage_empty_state">Nessun feed RSS da mostrare\n\nClicca l\'icona + per importare un feed</string>
   <string name="blogs_rss_feeds_manage_error">C\'è stato un problema nel caricare i tuoi feeds. Per favore riprova fra poco.</string>
+  <!--Settings Profile Picture-->
+  <string name="change_profile_picture">Tocca per cambiare l\'immagine del profilo</string>
+  <string name="dialog_confirm_profile_picture_title">Cambia immagine profilo</string>
+  <string name="dialog_confirm_profile_picture_remark">Solo i tuoi contatti possono vedere questa immagine</string>
+  <string name="change_profile_picture_failed_message">Spiacenti, qualcosa è andato storto aggiornando la tua foto del profilo.</string>
   <!--Settings Display-->
   <string name="pref_language_title">Lingua &amp; regione</string>
   <string name="pref_language_changed">Questa impostazione avrà effetto quando riavvierai Briar. Per favore, esci e riavvia Briar.</string>
@@ -434,7 +487,7 @@
   <string name="pref_theme_light">Chiaro</string>
   <string name="pref_theme_dark">Scuro</string>
   <string name="pref_theme_auto">Automatico ( Dì )</string>
-  <string name="pref_theme_system">Predefinito di sistema</string>
+  <string name="pref_theme_system">Default del sistema</string>
   <!--Settings Connections-->
   <string name="network_settings_title">Connessioni</string>
   <string name="bluetooth_setting">Connetti ai contatti attraverso Bluetooth</string>
@@ -512,8 +565,20 @@
   <string name="notify_sound_setting_disabled">Nessuno</string>
   <string name="choose_ringtone_title">Scegli suoneria</string>
   <string name="cannot_load_ringtone">Impossibile caricare la suoneria</string>
+  <!--Conversation Settings-->
+  <string name="disappearing_messages_title">Messaggi dissolventi</string>
+  <string name="disappearing_messages_explanation_long">L\'attivazione di questa impostazione farà sparire
+		automaticamente i nuovi messaggi di questa conversazione dopo 7\u00A0giorni.
+		\n\nIl conto alla rovescia per la copia del messaggio del mittente  inizia dopo la sua consegna.
+		Il conto alla rovescia per il destinatario inizia dopo la lettura del messaggio.
+		\n\nI messaggi che spariranno sono contrassegnati da un\'icona di una bomba.
+		\n\nTieni presente che i destinatari possono comunque fare copie dei messaggi che invii.
+		\n\nSe cambi questa impostazione, verrà applicata ai tuoi nuovi messaggi immediatamente e ai messaggi
+		del tuo contatto una volta che riceve il tuo prossimo messaggio.
+		Anche il tuo contatto può cambiare questa impostazioni per entrambe le parti.</string>
+  <string name="learn_more">Per saperne di più</string>
+  <string name="disappearing_messages_summary">Fai sparire automaticamente i messaggi futuri di questa conversazione dopo 7\u00A0giorni.</string>
   <!--Settings Feedback-->
-  <string name="feedback_settings_title">Feedback</string>
   <string name="send_feedback">Invia feedback</string>
   <!--Link Warning-->
   <string name="link_warning_title">Attenzione Link</string>
@@ -532,16 +597,31 @@
   <string name="optional_contact_email">Il tuo indirizzo email (facoltativo)</string>
   <string name="include_debug_report_crash">Includere dati anonimi riguardo al crash</string>
   <string name="include_debug_report_feedback">Includere dati anonimi riguardo al tuo dispositivo</string>
-  <string name="could_not_load_report_data">Non è stato possibile caricare i dati del report.</string>
+  <string name="dev_report_user_info">Informazioni utente</string>
+  <string name="dev_report_basic_info">Informazioni di base</string>
+  <string name="dev_report_device_info">Informazioni dispositivo</string>
+  <string name="dev_report_stacktrace">Stack trace</string>
+  <string name="dev_report_time_info">Informazioni orario</string>
+  <string name="dev_report_memory">Memoria</string>
+  <string name="dev_report_storage">Spazio</string>
+  <string name="dev_report_connectivity">Connettività</string>
+  <string name="dev_report_build_config">Configurazione build</string>
+  <string name="dev_report_logcat">Registro app</string>
+  <string name="dev_report_device_features">Caratteristiche dispositivo</string>
   <string name="send_report">Invia report</string>
   <string name="close">Chiudi</string>
+  <string name="dev_report_sending">Trasmissione feedback...</string>
+  <string name="dev_report_sent">Commenti inviati</string>
   <string name="dev_report_saved">Report salvato. Verrà spedito la prossima volta che loggherai in Briar.</string>
+  <string name="dev_report_error">Errore: invio segnalazione fallita</string>
   <!--Sign Out-->
   <string name="progress_title_logout">Uscire da Briar ...</string>
   <!--Screen Filters & Tapjacking-->
   <string name="screen_filter_title">È stata rilevata un\'overlay sullo schermo</string>
   <string name="screen_filter_body">Un\'altra app si sta sovrapponendo a Briar. Per proteggere la tua sicurezza, Briar non risponderà ai tocchi quando un\'app si sovrappone.\n\nLe seguenti app potrebbero sovrapporsi:\n\n%1$s</string>
+  <string name="screen_filter_body_api_30">Un\'altra app si sta sovrapponendo a Briar. Per proteggere la tua sicurezza, Briar non risponderà ai tocchi quando un\'app si sovrappone.\n\nTrova l\'app responsabile tra le seguenti.</string>
   <string name="screen_filter_allow">Permetti a queste app di sovrapporsi</string>
+  <string name="screen_filter_review_apps">Controlla le app</string>
   <!--Permission Requests-->
   <string name="permission_camera_title">Autorizzazione fotocamera</string>
   <string name="permission_camera_request_body">Per scansionare il codice QR, Briar deve accedere alla fotocamera.</string>
@@ -550,6 +630,10 @@
   <string name="permission_camera_location_title">Fotocamera e geolocalizzazione</string>
   <string name="permission_camera_location_request_body">Per scansionare il codice QR, Briar ha bisogno di accedere alla fotocamera.\n\nPer trovare dispositivi Bluetooth, Briar ha bisogno di accedere alla tua posizione.\n\nBriar non memorizza la tua posizione, nè la condivide con terzi.</string>
   <string name="permission_camera_denied_body">Hai negato l\'accesso alla fotocamera, ma questa serve per aggiungere i contatti.\n\nConsidera la possibilità di concedere l\'accesso.</string>
+  <string name="permission_location_denied_body">Hai negato l\'accesso alla tua posizione, ma Briar ha bisogno di questa autorizzazione per trovare i dispositivi Bluetooth.\n\nConsidera la possibilità di concedere l\'accesso.</string>
+  <string name="permission_location_setting_title">Impostazioni di posizione</string>
+  <string name="permission_location_setting_body">La geolocalizzazione del tuo dispositivo deve essere attiva per trovare altri dispositivi via Bluetooth. Attivala per continuare. Puoi disattivarla di nuovo in seguito.</string>
+  <string name="permission_location_setting_button">Attiva geolocalizzazione</string>
   <string name="qr_code">Codice QR</string>
   <string name="show_qr_code_fullscreen">Mostra codice QR a tutto schermo</string>
   <!--App Locking-->

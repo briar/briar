@@ -6,7 +6,9 @@ import org.briarproject.bramble.api.data.BdfList;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 
 import javax.annotation.Nullable;
+import javax.annotation.concurrent.Immutable;
 
+@Immutable
 @NotNullByDefault
 public class ValidationUtils {
 
@@ -63,5 +65,10 @@ public class ValidationUtils {
 			throws FormatException {
 		if (dictionary != null && dictionary.size() != size)
 			throw new FormatException();
+	}
+
+	public static void checkRange(@Nullable Long l, long min, long max)
+			throws FormatException {
+		if (l != null && (l < min || l > max)) throw new FormatException();
 	}
 }
