@@ -9,7 +9,7 @@ apply from: 'witness.gradle'
 apply from: '../dagger.gradle'
 
 dependencies {
-	implementation project(path: ':briar-api', configuration: 'default')
+	implementation project(path: ':briar:briar-api', configuration: 'default')
 	implementation 'com.rometools:rome:1.15.0'
 	implementation 'org.jdom:jdom2:2.0.6'
 	// okhttp 3.12.x is supported until end of 2020, newer versions need minSdk 21
@@ -18,9 +18,9 @@ dependencies {
 
 	annotationProcessor "com.google.dagger:dagger-compiler:$dagger_version"
 
-	testImplementation project(path: ':bramble-core', configuration: 'default')
-	testImplementation project(path: ':bramble-core', configuration: 'testOutput')
-	testImplementation project(path: ':bramble-api', configuration: 'testOutput')
+	testImplementation project(path: ':briar:bramble-core', configuration: 'default')
+	testImplementation project(path: ':briar:bramble-core', configuration: 'testOutput')
+	testImplementation project(path: ':briar:bramble-api', configuration: 'testOutput')
 	testImplementation 'net.jodah:concurrentunit:0.4.2'
 	testImplementation "junit:junit:$junit_version"
 	testImplementation "org.jmock:jmock:$jmock_version"
