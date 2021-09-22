@@ -41,7 +41,7 @@ class LogDecrypterImpl implements LogDecrypter {
 	public String decryptLogs(@Nullable byte[] logKey) {
 		if (logKey == null) return null;
 		SecretKey key = new SecretKey(logKey);
-		File logFile = devConfig.getLogcatFile();
+		File logFile = devConfig.getTemporaryLogFile();
 		try (InputStream in = new FileInputStream(logFile)) {
 			InputStream reader =
 					streamReaderFactory.createLogStreamReader(in, key);

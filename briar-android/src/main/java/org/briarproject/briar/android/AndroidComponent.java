@@ -22,6 +22,7 @@ import org.briarproject.bramble.api.keyagreement.PayloadEncoder;
 import org.briarproject.bramble.api.keyagreement.PayloadParser;
 import org.briarproject.bramble.api.lifecycle.IoExecutor;
 import org.briarproject.bramble.api.lifecycle.LifecycleManager;
+import org.briarproject.bramble.api.logging.PersistentLogManager;
 import org.briarproject.bramble.api.plugin.PluginManager;
 import org.briarproject.bramble.api.settings.SettingsManager;
 import org.briarproject.bramble.api.system.AndroidExecutor;
@@ -78,6 +79,7 @@ import org.briarproject.briar.api.privategroup.invitation.GroupInvitationManager
 import org.briarproject.briar.api.test.TestDataCreator;
 
 import java.util.concurrent.Executor;
+import java.util.logging.Formatter;
 
 import javax.inject.Singleton;
 
@@ -203,6 +205,10 @@ public interface AndroidComponent
 	Thread.UncaughtExceptionHandler exceptionHandler();
 
 	AutoDeleteManager autoDeleteManager();
+
+	PersistentLogManager persistentLogManager();
+
+	Formatter formatter();
 
 	void inject(SignInReminderReceiver briarService);
 

@@ -4,6 +4,8 @@ import android.app.Application;
 import android.os.Handler;
 import android.os.Looper;
 
+import org.briarproject.bramble.api.FeatureFlags;
+import org.briarproject.bramble.api.logging.PersistentLogManager;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.plugin.Plugin;
 import org.briarproject.bramble.api.plugin.PluginManager;
@@ -11,7 +13,6 @@ import org.briarproject.bramble.api.plugin.TorConstants;
 import org.briarproject.bramble.api.reporting.DevReporter;
 import org.briarproject.bramble.util.AndroidUtils;
 import org.briarproject.briar.R;
-import org.briarproject.briar.android.logging.BriefLogFormatter;
 import org.briarproject.briar.android.logging.CachingLogHandler;
 import org.briarproject.briar.android.logging.LogDecrypter;
 import org.briarproject.briar.android.reporting.ReportData.MultiReportInfo;
@@ -22,6 +23,9 @@ import org.json.JSONException;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.util.LinkedList;
+import java.util.Scanner;
 import java.util.UUID;
 import java.util.logging.Formatter;
 import java.util.logging.Logger;
@@ -39,18 +43,24 @@ import static java.util.Objects.requireNonNull;
 import static java.util.logging.Level.WARNING;
 import static java.util.logging.Logger.getLogger;
 import static org.briarproject.bramble.api.plugin.Plugin.State.ACTIVE;
+import static org.briarproject.bramble.util.AndroidUtils.getPersistentLogDir;
+import static org.briarproject.bramble.util.LogUtils.formatLog;
 import static org.briarproject.bramble.util.LogUtils.logException;
 import static org.briarproject.bramble.util.StringUtils.isNullOrEmpty;
-import static org.briarproject.briar.android.logging.BriefLogFormatter.formatLog;
 
 @NotNullByDefault
 class ReportViewModel extends AndroidViewModel {
+
+	private static final int MAX_PERSISTENT_LOG_LINES = 1000;
 
 	private static final Logger LOG =
 			getLogger(ReportViewModel.class.getName());
 
 	private final CachingLogHandler logHandler;
 	private final LogDecrypter logDecrypter;
+	private final Formatter formatter;
+	private final PersistentLogManager logManager;
+	private final FeatureFlags featureFlags;
 	private final BriarReportCollector collector;
 	private final DevReporter reporter;
 	private final PluginManager pluginManager;
@@ -71,12 +81,18 @@ class ReportViewModel extends AndroidViewModel {
 	ReportViewModel(@NonNull Application application,
 			CachingLogHandler logHandler,
 			LogDecrypter logDecrypter,
+			Formatter formatter,
+			PersistentLogManager logManager,
+			FeatureFlags featureFlags,
 			DevReporter reporter,
 			PluginManager pluginManager) {
 		super(application);
 		collector = new BriarReportCollector(application);
 		this.logHandler = logHandler;
 		this.logDecrypter = logDecrypter;
+		this.formatter = formatter;
+		this.logManager = logManager;
+		this.featureFlags = featureFlags;
 		this.reporter = reporter;
 		this.pluginManager = pluginManager;
 	}
@@ -86,22 +102,30 @@ class ReportViewModel extends AndroidViewModel {
 		this.initialComment = initialComment;
 		isFeedback = t == null;
 		if (reportData.getValue() == null) new SingleShotAndroidExecutor(() -> {
-			String decryptedLogs;
+			String currentLog;
 			if (isFeedback) {
-				Formatter formatter = new BriefLogFormatter();
-				decryptedLogs =
-						formatLog(formatter, logHandler.getRecentLogRecords());
+				// We're in the main process, so get the log for this process
+				currentLog = formatLog(formatter,
+						logHandler.getRecentLogRecords());
 			} else {
-				decryptedLogs = logDecrypter.decryptLogs(logKey);
-				if (decryptedLogs == null) {
+				// We're in the crash reporter process, so try to load
+				// the encrypted log that was saved by the main process
+				currentLog = logDecrypter.decryptLogs(logKey);
+				if (currentLog == null) {
 					// error decrypting logs, get logs from this process
-					Formatter formatter = new BriefLogFormatter();
-					decryptedLogs = formatLog(formatter,
+					currentLog = formatLog(formatter,
 							logHandler.getRecentLogRecords());
 				}
 			}
+			MultiReportInfo logs = new MultiReportInfo();
+			logs.add("Current", currentLog);
+			if (isFeedback && featureFlags.shouldEnablePersistentLogs()) {
+				// Add persistent logs for the current and previous processes
+				logs.add("Persistent", getPersistentLog(false));
+				logs.add("PersistentOld", getPersistentLog(true));
+			}
 			ReportData data =
-					collector.collectReportData(t, appStartTime, decryptedLogs);
+					collector.collectReportData(t, appStartTime, logs);
 			reportData.postValue(data);
 		}).start();
 	}
@@ -224,6 +248,27 @@ class ReportViewModel extends AndroidViewModel {
 	 */
 	LiveEvent<Integer> getCloseReport() {
 		return closeReport;
+	}
+
+	private String getPersistentLog(boolean old) {
+		File logDir = getPersistentLogDir(getApplication());
+		StringBuilder sb = new StringBuilder();
+		try {
+			Scanner scanner = logManager.getPersistentLog(logDir, old);
+			LinkedList<String> lines = new LinkedList<>();
+			int numLines = 0;
+			while (scanner.hasNextLine()) {
+				lines.add(scanner.nextLine());
+				// If there are too many lines, return the most recent ones
+				if (numLines == MAX_PERSISTENT_LOG_LINES) lines.pollFirst();
+				else numLines++;
+			}
+			scanner.close();
+			for (String line : lines) sb.append(line).append('\n');
+		} catch (IOException e) {
+			sb.append("Could not recover persistent log: ").append(e);
+		}
+		return sb.toString();
 	}
 
 	// Used for a new thread as the Android executor thread may have died

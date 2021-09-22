@@ -16,6 +16,7 @@ import org.briarproject.bramble.api.identity.IdentityManager;
 import org.briarproject.bramble.api.identity.LocalAuthor;
 import org.briarproject.bramble.api.lifecycle.IoExecutor;
 import org.briarproject.bramble.api.lifecycle.LifecycleManager;
+import org.briarproject.bramble.api.logging.PersistentLogManager;
 import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
 import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
 import org.briarproject.bramble.api.plugin.BluetoothConstants;
@@ -35,8 +36,12 @@ import org.briarproject.briar.api.avatar.AvatarManager;
 import org.briarproject.briar.api.identity.AuthorInfo;
 import org.briarproject.briar.api.identity.AuthorManager;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.PrintWriter;
+import java.util.Scanner;
 import java.util.concurrent.Executor;
 import java.util.logging.Logger;
 
@@ -50,6 +55,7 @@ import static android.widget.Toast.LENGTH_LONG;
 import static java.util.Arrays.asList;
 import static java.util.logging.Level.WARNING;
 import static java.util.logging.Logger.getLogger;
+import static org.briarproject.bramble.util.AndroidUtils.getPersistentLogDir;
 import static org.briarproject.bramble.util.AndroidUtils.getSupportedImageContentTypes;
 import static org.briarproject.bramble.util.LogUtils.logDuration;
 import static org.briarproject.bramble.util.LogUtils.logException;
@@ -78,6 +84,7 @@ class SettingsViewModel extends DbViewModel implements EventListener {
 	private final ImageCompressor imageCompressor;
 	private final Executor ioExecutor;
 	private final FeatureFlags featureFlags;
+	private final PersistentLogManager logManager;
 
 	final SettingsStore settingsStore;
 	final TorSummaryProvider torSummaryProvider;
@@ -108,7 +115,8 @@ class SettingsViewModel extends DbViewModel implements EventListener {
 			LocationUtils locationUtils,
 			CircumventionProvider circumventionProvider,
 			@IoExecutor Executor ioExecutor,
-			FeatureFlags featureFlags) {
+			FeatureFlags featureFlags,
+			PersistentLogManager logManager) {
 		super(application, dbExecutor, lifecycleManager, db, androidExecutor);
 		this.settingsManager = settingsManager;
 		this.identityManager = identityManager;
@@ -118,6 +126,7 @@ class SettingsViewModel extends DbViewModel implements EventListener {
 		this.authorManager = authorManager;
 		this.ioExecutor = ioExecutor;
 		this.featureFlags = featureFlags;
+		this.logManager = logManager;
 		settingsStore = new SettingsStore(settingsManager, dbExecutor,
 				SETTINGS_NAMESPACE);
 		torSummaryProvider = new TorSummaryProvider(getApplication(),
@@ -262,4 +271,38 @@ class SettingsViewModel extends DbViewModel implements EventListener {
 		return screenLockTimeout;
 	}
 
+	void exportPersistentLog(boolean old, Uri uri) {
+		// We can use untranslated strings here, as this method is only called
+		// in debug builds
+		ioExecutor.execute(() -> {
+			Application app = getApplication();
+			try {
+				OutputStream os =
+						app.getContentResolver().openOutputStream(uri);
+				if (os == null) throw new IOException();
+				File logDir = getPersistentLogDir(app);
+				Scanner scanner = logManager.getPersistentLog(logDir, old);
+				if (!scanner.hasNextLine()) {
+					scanner.close();
+					androidExecutor.runOnUiThread(() ->
+							Toast.makeText(app, "Log is empty",
+									LENGTH_LONG).show());
+					return;
+				}
+				PrintWriter w = new PrintWriter(os);
+				while (scanner.hasNextLine()) w.println(scanner.nextLine());
+				w.flush();
+				w.close();
+				scanner.close();
+				androidExecutor.runOnUiThread(() ->
+						Toast.makeText(app, "Log exported",
+								LENGTH_LONG).show());
+			} catch (IOException e) {
+				logException(LOG, WARNING, e);
+				androidExecutor.runOnUiThread(() ->
+						Toast.makeText(app, "Failed to export log",
+								LENGTH_LONG).show());
+			}
+		});
+	}
 }

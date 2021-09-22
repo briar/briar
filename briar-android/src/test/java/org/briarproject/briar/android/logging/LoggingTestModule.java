@@ -42,7 +42,7 @@ class LoggingTestModule {
 			}
 
 			@Override
-			public File getLogcatFile() {
+			public File getTemporaryLogFile() {
 				return logFile;
 			}
 		};

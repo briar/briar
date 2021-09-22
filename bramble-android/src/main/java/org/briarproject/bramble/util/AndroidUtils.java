@@ -111,8 +111,12 @@ public class AndroidUtils {
 		return ctx.getDir(STORED_REPORTS, MODE_PRIVATE);
 	}
 
-	public static File getLogcatFile(Context ctx) {
+	public static File getTemporaryLogFile(Context ctx) {
 		return new File(ctx.getFilesDir(), STORED_LOGCAT);
+	}
+
+	public static File getPersistentLogDir(Context ctx) {
+		return ctx.getDir("log", MODE_PRIVATE);
 	}
 
 	/**

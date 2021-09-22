@@ -8,7 +8,7 @@ import androidx.annotation.Nullable;
 @NotNullByDefault
 public interface LogEncrypter {
 	/**
-	 * Writes encrypted log records to {@link AndroidUtils#getLogcatFile}
+	 * Writes encrypted log records to {@link AndroidUtils#getTemporaryLogFile}
 	 * and returns the encryption key if everything went fine.
 	 */
 	@Nullable

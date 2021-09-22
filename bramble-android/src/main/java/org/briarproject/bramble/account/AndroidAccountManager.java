@@ -5,12 +5,15 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 
+import org.briarproject.bramble.api.FeatureFlags;
 import org.briarproject.bramble.api.account.AccountManager;
 import org.briarproject.bramble.api.crypto.CryptoComponent;
 import org.briarproject.bramble.api.db.DatabaseConfig;
 import org.briarproject.bramble.api.identity.IdentityManager;
+import org.briarproject.bramble.api.logging.PersistentLogManager;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -23,14 +26,18 @@ import javax.inject.Inject;
 import static android.os.Build.VERSION.SDK_INT;
 import static java.util.Arrays.asList;
 import static java.util.logging.Level.INFO;
+import static java.util.logging.Level.WARNING;
+import static java.util.logging.Logger.getLogger;
+import static org.briarproject.bramble.util.AndroidUtils.getPersistentLogDir;
 import static org.briarproject.bramble.util.IoUtils.deleteFileOrDir;
+import static org.briarproject.bramble.util.LogUtils.logException;
 import static org.briarproject.bramble.util.LogUtils.logFileOrDir;
 
 class AndroidAccountManager extends AccountManagerImpl
 		implements AccountManager {
 
 	private static final Logger LOG =
-			Logger.getLogger(AndroidAccountManager.class.getName());
+			getLogger(AndroidAccountManager.class.getName());
 
 	/**
 	 * Directories that shouldn't be deleted when deleting the user's account.
@@ -40,13 +47,22 @@ class AndroidAccountManager extends AccountManagerImpl
 
 	protected final Context appContext;
 	private final SharedPreferences prefs;
+	private final PersistentLogManager logManager;
+	private final FeatureFlags featureFlags;
 
 	@Inject
-	AndroidAccountManager(DatabaseConfig databaseConfig,
-			CryptoComponent crypto, IdentityManager identityManager,
-			SharedPreferences prefs, Application app) {
+	AndroidAccountManager(
+			DatabaseConfig databaseConfig,
+			CryptoComponent crypto,
+			IdentityManager identityManager,
+			SharedPreferences prefs,
+			PersistentLogManager logManager,
+			FeatureFlags featureFlags,
+			Application app) {
 		super(databaseConfig, crypto, identityManager);
 		this.prefs = prefs;
+		this.logManager = logManager;
+		this.featureFlags = featureFlags;
 		appContext = app.getApplicationContext();
 	}
 
@@ -73,6 +89,9 @@ class AndroidAccountManager extends AccountManagerImpl
 			if (LOG.isLoggable(INFO)) {
 				LOG.info("Contents of account directory after deleting:");
 				logFileOrDir(LOG, INFO, getDataDir());
+			}
+			if (featureFlags.shouldEnablePersistentLogs()) {
+				replacePersistentLogger();
 			}
 		}
 	}
@@ -133,5 +152,14 @@ class AndroidAccountManager extends AccountManagerImpl
 
 	private void addIfNotNull(Set<File> files, @Nullable File file) {
 		if (file != null) files.add(file);
+	}
+
+	private void replacePersistentLogger() {
+		File logDir = getPersistentLogDir(appContext);
+		try {
+			logManager.addLogHandler(logDir, getLogger(""));
+		} catch (IOException e) {
+			logException(LOG, WARNING, e);
+		}
 	}
 }

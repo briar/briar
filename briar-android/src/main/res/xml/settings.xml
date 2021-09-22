@@ -59,6 +59,14 @@
 		</Preference>
 
 		<Preference
+			android:key="pref_key_export_log"
+			android:title="Export current log to SD card" />
+
+		<Preference
+			android:key="pref_key_export_old_log"
+			android:title="Export previous log to SD card" />
+
+		<Preference
 			android:key="pref_key_explode"
 			android:title="Crash" />
 

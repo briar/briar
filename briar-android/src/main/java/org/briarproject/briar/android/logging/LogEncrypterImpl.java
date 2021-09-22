@@ -33,16 +33,19 @@ class LogEncrypterImpl implements LogEncrypter {
 
 	private final DevConfig devConfig;
 	private final CachingLogHandler logHandler;
+	private final Formatter formatter;
 	private final CryptoComponent crypto;
 	private final StreamWriterFactory streamWriterFactory;
 
 	@Inject
 	LogEncrypterImpl(DevConfig devConfig,
 			CachingLogHandler logHandler,
+			Formatter formatter,
 			CryptoComponent crypto,
 			StreamWriterFactory streamWriterFactory) {
 		this.devConfig = devConfig;
 		this.logHandler = logHandler;
+		this.formatter = formatter;
 		this.crypto = crypto;
 		this.streamWriterFactory = streamWriterFactory;
 	}
@@ -51,7 +54,7 @@ class LogEncrypterImpl implements LogEncrypter {
 	@Override
 	public byte[] encryptLogs() {
 		SecretKey logKey = crypto.generateSecretKey();
-		File logFile = devConfig.getLogcatFile();
+		File logFile = devConfig.getTemporaryLogFile();
 		try (OutputStream out = new FileOutputStream(logFile)) {
 			StreamWriter streamWriter =
 					streamWriterFactory.createLogStreamWriter(out, logKey);
@@ -67,10 +70,8 @@ class LogEncrypterImpl implements LogEncrypter {
 	}
 
 	private void writeLogString(Writer writer) throws IOException {
-		Formatter formatter = new BriefLogFormatter();
 		for (LogRecord record : logHandler.getRecentLogRecords()) {
-			String formatted = formatter.format(record);
-			writer.append(formatted).append('\n');
+			writer.append(formatter.format(record)).append('\n');
 		}
 	}
 

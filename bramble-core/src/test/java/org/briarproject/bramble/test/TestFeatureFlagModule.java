@@ -24,6 +24,11 @@ public class TestFeatureFlagModule {
 			public boolean shouldEnableDisappearingMessages() {
 				return true;
 			}
+
+			@Override
+			public boolean shouldEnablePersistentLogs() {
+				return true;
+			}
 		};
 	}
 }

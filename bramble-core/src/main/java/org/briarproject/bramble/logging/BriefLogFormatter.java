@@ -1,10 +1,9 @@
-package org.briarproject.briar.android.logging;
+package org.briarproject.bramble.logging;
 
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.Collection;
 import java.util.Date;
 import java.util.TimeZone;
 import java.util.logging.Formatter;
@@ -17,16 +16,6 @@ import static java.util.Locale.US;
 @ThreadSafe
 @NotNullByDefault
 public class BriefLogFormatter extends Formatter {
-
-	public static String formatLog(Formatter formatter,
-			Collection<LogRecord> logRecords) {
-		StringBuilder sb = new StringBuilder();
-		for (LogRecord record : logRecords) {
-			String formatted = formatter.format(record);
-			sb.append(formatted).append('\n');
-		}
-		return sb.toString();
-	}
 
 	private final Object lock = new Object();
 	private final DateFormat dateFormat; // Locking: lock

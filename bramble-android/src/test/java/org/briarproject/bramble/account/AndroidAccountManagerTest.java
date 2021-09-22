@@ -4,9 +4,11 @@ import android.app.Application;
 import android.content.SharedPreferences;
 import android.content.pm.ApplicationInfo;
 
+import org.briarproject.bramble.api.FeatureFlags;
 import org.briarproject.bramble.api.crypto.CryptoComponent;
 import org.briarproject.bramble.api.db.DatabaseConfig;
 import org.briarproject.bramble.api.identity.IdentityManager;
+import org.briarproject.bramble.api.logging.PersistentLogManager;
 import org.briarproject.bramble.test.BrambleMockTestCase;
 import org.jmock.Expectations;
 import org.jmock.lib.legacy.ClassImposteriser;
@@ -15,7 +17,9 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.io.File;
+import java.util.logging.Logger;
 
+import static android.content.Context.MODE_PRIVATE;
 import static junit.framework.Assert.assertFalse;
 import static junit.framework.Assert.assertTrue;
 import static org.briarproject.bramble.test.TestUtils.deleteTestDirectory;
@@ -27,6 +31,10 @@ public class AndroidAccountManagerTest extends BrambleMockTestCase {
 			context.mock(SharedPreferences.class, "prefs");
 	private final SharedPreferences defaultPrefs =
 			context.mock(SharedPreferences.class, "defaultPrefs");
+	private final PersistentLogManager logManager =
+			context.mock(PersistentLogManager.class);
+	private final FeatureFlags featureFlags =
+			context.mock(FeatureFlags.class);
 	private final DatabaseConfig databaseConfig =
 			context.mock(DatabaseConfig.class);
 	private final CryptoComponent crypto = context.mock(CryptoComponent.class);
@@ -40,6 +48,7 @@ public class AndroidAccountManagerTest extends BrambleMockTestCase {
 	private final File testDir = getTestDirectory();
 	private final File keyDir = new File(testDir, "key");
 	private final File dbDir = new File(testDir, "db");
+	private final File logDir = new File(testDir, "log");
 
 	private AndroidAccountManager accountManager;
 
@@ -61,7 +70,7 @@ public class AndroidAccountManagerTest extends BrambleMockTestCase {
 			will(returnValue(app));
 		}});
 		accountManager = new AndroidAccountManager(databaseConfig, crypto,
-				identityManager, prefs, app) {
+				identityManager, prefs, logManager, featureFlags, app) {
 			@Override
 			SharedPreferences getDefaultSharedPreferences() {
 				return defaultPrefs;
@@ -109,10 +118,17 @@ public class AndroidAccountManagerTest extends BrambleMockTestCase {
 			will(returnValue(cacheDir));
 			oneOf(app).getExternalCacheDir();
 			will(returnValue(externalCacheDir));
+			oneOf(featureFlags).shouldEnablePersistentLogs();
+			will(returnValue(true));
+			oneOf(app).getDir("log", MODE_PRIVATE);
+			will(returnValue(logDir));
+			oneOf(logManager).addLogHandler(with(logDir),
+					with(any(Logger.class)));
 		}});
 
 		assertTrue(dbDir.mkdirs());
 		assertTrue(keyDir.mkdirs());
+		assertTrue(logDir.mkdirs());
 		assertTrue(codeCacheDir.mkdirs());
 		assertTrue(codeCacheFile.createNewFile());
 		assertTrue(libDir.mkdirs());
@@ -130,6 +146,7 @@ public class AndroidAccountManagerTest extends BrambleMockTestCase {
 
 		assertFalse(dbDir.exists());
 		assertFalse(keyDir.exists());
+		assertFalse(logDir.exists());
 		assertTrue(codeCacheDir.exists());
 		assertTrue(codeCacheFile.exists());
 		assertTrue(libDir.exists());

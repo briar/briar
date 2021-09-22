@@ -14,6 +14,7 @@ import org.briarproject.bramble.identity.IdentityModule;
 import org.briarproject.bramble.io.IoModule;
 import org.briarproject.bramble.keyagreement.KeyAgreementModule;
 import org.briarproject.bramble.lifecycle.LifecycleModule;
+import org.briarproject.bramble.logging.LoggingModule;
 import org.briarproject.bramble.mailbox.MailboxModule;
 import org.briarproject.bramble.plugin.PluginModule;
 import org.briarproject.bramble.properties.PropertiesModule;
@@ -44,6 +45,7 @@ import dagger.Module;
 		IoModule.class,
 		KeyAgreementModule.class,
 		LifecycleModule.class,
+		LoggingModule.class,
 		MailboxModule.class,
 		PluginModule.class,
 		PropertiesModule.class,

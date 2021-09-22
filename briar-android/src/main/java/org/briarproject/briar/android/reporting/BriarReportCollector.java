@@ -26,6 +26,7 @@ import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.briar.BuildConfig;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.reporting.ReportData.MultiReportInfo;
+import org.briarproject.briar.android.reporting.ReportData.ReportInfo;
 import org.briarproject.briar.android.reporting.ReportData.ReportItem;
 import org.briarproject.briar.android.reporting.ReportData.SingleReportInfo;
 
@@ -71,7 +72,7 @@ class BriarReportCollector {
 	}
 
 	ReportData collectReportData(@Nullable Throwable t, long appStartTime,
-			String logs) {
+			ReportInfo logs) {
 		ReportData reportData = new ReportData()
 				.add(getBasicInfo(t))
 				.add(getDeviceInfo());
@@ -82,7 +83,7 @@ class BriarReportCollector {
 				.add(getStorage())
 				.add(getConnectivity())
 				.add(getBuildConfig())
-				.add(getLogcat(logs))
+				.add(getLogs(logs))
 				.add(getDeviceFeatures());
 	}
 
@@ -309,8 +310,8 @@ class BriarReportCollector {
 				buildConfig);
 	}
 
-	private ReportItem getLogcat(String logs) {
-		return new ReportItem("Logcat", R.string.dev_report_logcat, logs);
+	private ReportItem getLogs(ReportInfo logs) {
+		return new ReportItem("Logs", R.string.dev_report_logcat, logs);
 	}
 
 	private ReportItem getDeviceFeatures() {

@@ -8,6 +8,7 @@ import android.view.View;
 import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
 import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
 import org.briarproject.briar.R;
+import org.briarproject.briar.android.util.ActivityLaunchers.CreateDocumentAdvanced;
 import org.briarproject.briar.android.util.ActivityLaunchers.GetImageAdvanced;
 
 import javax.inject.Inject;
@@ -37,6 +38,10 @@ public class SettingsFragment extends PreferenceFragmentCompat {
 	private static final String PREF_KEY_DEV = "pref_key_dev";
 	private static final String PREF_KEY_EXPLODE = "pref_key_explode";
 	private static final String PREF_KEY_SHARE_APP = "pref_key_share_app";
+	private static final String PREF_KEY_EXPORT_LOG = "pref_key_export_log";
+	private static final String PREF_EXPORT_OLD_LOG = "pref_key_export_old_log";
+
+	private static final String LOG_EXPORT_FILENAME = "briar-log.txt";
 
 	@Inject
 	ViewModelProvider.Factory viewModelFactory;
@@ -44,9 +49,17 @@ public class SettingsFragment extends PreferenceFragmentCompat {
 	private SettingsViewModel viewModel;
 	private AvatarPreference prefAvatar;
 
-	private final ActivityResultLauncher<String> launcher =
+	private final ActivityResultLauncher<String> imageLauncher =
 			registerForActivityResult(new GetImageAdvanced(),
 					this::onImageSelected);
+
+	private final ActivityResultLauncher<String> logLauncher =
+			registerForActivityResult(new CreateDocumentAdvanced(),
+					uri -> onLogFileSelected(false, uri));
+
+	private final ActivityResultLauncher<String> oldLogLauncher =
+			registerForActivityResult(new CreateDocumentAdvanced(),
+					uri -> onLogFileSelected(true, uri));
 
 	@Override
 	public void onAttach(@NonNull Context context) {
@@ -63,7 +76,7 @@ public class SettingsFragment extends PreferenceFragmentCompat {
 		prefAvatar = requireNonNull(findPreference(PREF_KEY_AVATAR));
 		if (viewModel.shouldEnableProfilePictures()) {
 			prefAvatar.setOnPreferenceClickListener(preference -> {
-				launcher.launch("image/*");
+				imageLauncher.launch("image/*");
 				return true;
 			});
 		} else {
@@ -77,10 +90,23 @@ public class SettingsFragment extends PreferenceFragmentCompat {
 			return true;
 		});
 
-		Preference explode = requireNonNull(findPreference(PREF_KEY_EXPLODE));
 		if (IS_DEBUG_BUILD) {
+			Preference explode =
+					requireNonNull(findPreference(PREF_KEY_EXPLODE));
 			explode.setOnPreferenceClickListener(preference -> {
 				throw new RuntimeException("Boom!");
+			});
+			Preference exportLog =
+					requireNonNull(findPreference(PREF_KEY_EXPORT_LOG));
+			exportLog.setOnPreferenceClickListener(preference -> {
+				logLauncher.launch(LOG_EXPORT_FILENAME);
+				return true;
+			});
+			Preference exportOldLog =
+					requireNonNull(findPreference(PREF_EXPORT_OLD_LOG));
+			exportOldLog.setOnPreferenceClickListener(preference -> {
+				oldLogLauncher.launch(LOG_EXPORT_FILENAME);
+				return true;
 			});
 		} else {
 			PreferenceGroup dev = requireNonNull(findPreference(PREF_KEY_DEV));
@@ -111,4 +137,7 @@ public class SettingsFragment extends PreferenceFragmentCompat {
 				ConfirmAvatarDialogFragment.TAG);
 	}
 
+	private void onLogFileSelected(boolean old, @Nullable Uri uri) {
+		if (uri != null) viewModel.exportPersistentLog(old, uri);
+	}
 }

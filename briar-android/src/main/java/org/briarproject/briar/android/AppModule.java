@@ -245,8 +245,9 @@ public class AppModule {
 			}
 
 			@Override
-			public File getLogcatFile() {
-				return AndroidUtils.getLogcatFile(app.getApplicationContext());
+			public File getTemporaryLogFile() {
+				return AndroidUtils
+						.getTemporaryLogFile(app.getApplicationContext());
 			}
 		};
 		return devConfig;
@@ -336,6 +337,11 @@ public class AppModule {
 			@Override
 			public boolean shouldEnableDisappearingMessages() {
 				return true;
+			}
+
+			@Override
+			public boolean shouldEnablePersistentLogs() {
+				return IS_DEBUG_BUILD;
 			}
 		};
 	}

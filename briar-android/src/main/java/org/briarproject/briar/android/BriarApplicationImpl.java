@@ -17,11 +17,14 @@ import com.vanniktech.emoji.google.GoogleEmojiProvider;
 import org.briarproject.bramble.BrambleAndroidEagerSingletons;
 import org.briarproject.bramble.BrambleAppComponent;
 import org.briarproject.bramble.BrambleCoreEagerSingletons;
+import org.briarproject.bramble.api.logging.PersistentLogManager;
 import org.briarproject.briar.BriarCoreEagerSingletons;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.logging.CachingLogHandler;
 import org.briarproject.briar.android.util.UiUtils;
 
+import java.io.File;
+import java.io.IOException;
 import java.lang.Thread.UncaughtExceptionHandler;
 import java.util.logging.Handler;
 import java.util.logging.Logger;
@@ -31,7 +34,10 @@ import androidx.annotation.NonNull;
 import static android.app.ActivityManager.RunningAppProcessInfo.IMPORTANCE_FOREGROUND;
 import static java.util.logging.Level.FINE;
 import static java.util.logging.Level.INFO;
+import static java.util.logging.Level.WARNING;
 import static java.util.logging.Logger.getLogger;
+import static org.briarproject.bramble.util.AndroidUtils.getPersistentLogDir;
+import static org.briarproject.bramble.util.LogUtils.logException;
 import static org.briarproject.briar.android.TestingConstants.IS_DEBUG_BUILD;
 
 public class BriarApplicationImpl extends Application
@@ -80,6 +86,17 @@ public class BriarApplicationImpl extends Application
 		CachingLogHandler logHandler = applicationComponent.logHandler();
 		rootLogger.addHandler(logHandler);
 		rootLogger.setLevel(IS_DEBUG_BUILD ? FINE : INFO);
+
+		if (applicationComponent.featureFlags().shouldEnablePersistentLogs()) {
+			PersistentLogManager logManager =
+					applicationComponent.persistentLogManager();
+			File logDir = getPersistentLogDir(this);
+			try {
+				rootLogger.addHandler(logManager.createLogHandler(logDir));
+			} catch (IOException e) {
+				logException(LOG, WARNING, e);
+			}
+		}
 
 		LOG.info("Created");
 

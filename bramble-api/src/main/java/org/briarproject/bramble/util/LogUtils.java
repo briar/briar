@@ -1,7 +1,10 @@
 package org.briarproject.bramble.util;
 
 import java.io.File;
+import java.util.Collection;
+import java.util.logging.Formatter;
 import java.util.logging.Level;
+import java.util.logging.LogRecord;
 import java.util.logging.Logger;
 
 import static java.util.logging.Level.FINE;
@@ -56,5 +59,14 @@ public class LogUtils {
 	private static void logWithType(Logger logger, Level level, File f,
 			String type) {
 		logger.log(level, type + " " + f.getAbsolutePath() + " " + f.length());
+	}
+
+	public static String formatLog(Formatter formatter,
+			Collection<LogRecord> logRecords) {
+		StringBuilder sb = new StringBuilder();
+		for (LogRecord record : logRecords) {
+			sb.append(formatter.format(record)).append('\n');
+		}
+		return sb.toString();
 	}
 }
