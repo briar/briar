@@ -22,6 +22,7 @@ import androidx.preference.Preference;
 import androidx.preference.PreferenceFragmentCompat;
 import androidx.preference.PreferenceGroup;
 
+import static android.os.Build.VERSION.SDK_INT;
 import static java.util.Objects.requireNonNull;
 import static org.briarproject.briar.android.AppModule.getAndroidComponent;
 import static org.briarproject.briar.android.TestingConstants.IS_DEBUG_BUILD;
@@ -98,16 +99,24 @@ public class SettingsFragment extends PreferenceFragmentCompat {
 			});
 			Preference exportLog =
 					requireNonNull(findPreference(PREF_KEY_EXPORT_LOG));
-			exportLog.setOnPreferenceClickListener(preference -> {
-				logLauncher.launch(LOG_EXPORT_FILENAME);
-				return true;
-			});
+			if (SDK_INT >= 19) {
+				exportLog.setOnPreferenceClickListener(preference -> {
+					logLauncher.launch(LOG_EXPORT_FILENAME);
+					return true;
+				});
+			} else {
+				exportLog.setVisible(false);
+			}
 			Preference exportOldLog =
 					requireNonNull(findPreference(PREF_EXPORT_OLD_LOG));
-			exportOldLog.setOnPreferenceClickListener(preference -> {
-				oldLogLauncher.launch(LOG_EXPORT_FILENAME);
-				return true;
-			});
+			if (SDK_INT >= 19) {
+				exportOldLog.setOnPreferenceClickListener(preference -> {
+					oldLogLauncher.launch(LOG_EXPORT_FILENAME);
+					return true;
+				});
+			} else {
+				exportOldLog.setVisible(false);
+			}
 		} else {
 			PreferenceGroup dev = requireNonNull(findPreference(PREF_KEY_DEV));
 			dev.setVisible(false);
