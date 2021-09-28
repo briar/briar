@@ -474,7 +474,7 @@ class TransportKeyManagerImpl implements TransportKeyManager {
 
 			for (MutableTransportKeySet keySet : this.keys.values()) {
 				MutableTransportKeys keys = keySet.getKeys();
-				if (keys.isHandshakeMode()) continue;
+				if (!keys.isHandshakeMode()) continue;
 				LOG.info("Found handshake mode keys");
 				MutableOutgoingKeys outKeys = keys.getCurrentOutgoingKeys();
 //				if (!outKeys.isActive()) throw new AssertionError();
