@@ -19,6 +19,7 @@ import org.briarproject.bramble.api.transport.StreamContext;
 import org.briarproject.bramble.api.transport.TransportKeySet;
 import org.briarproject.bramble.api.transport.TransportKeys;
 import org.briarproject.bramble.transport.ReorderingWindow.Change;
+import org.briarproject.bramble.util.StringUtils;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -373,7 +374,8 @@ class TransportKeyManagerImpl implements TransportKeyManager {
 			if (ks == null) return null;
 			MutableTransportKeys keys = ks.getKeys();
 
-			LOG.info("Using keys for outgoing connection - handshake mode: " + keys.isHandshakeMode());
+			LOG.info("Using keys for outgoing connection - handshake mode: " +
+					keys.isHandshakeMode());
 			MutableOutgoingKeys outKeys = keys.getCurrentOutgoingKeys();
 			if (!outKeys.isActive()) throw new AssertionError();
 			if (outKeys.getStreamCounter() > MAX_32_BIT_UNSIGNED) return null;
@@ -398,11 +400,15 @@ class TransportKeyManagerImpl implements TransportKeyManager {
 			// Look up the incoming keys for the tag
 			TagContext tagCtx = inContexts.remove(new Bytes(tag));
 			if (tagCtx == null) {
-			    LOG.info("Cannot find tag!");
-			    for (MutableTransportKeySet t : keys.values()) {
-                    LOG.info("Header key: " + t.getKeys().getCurrentIncomingKeys().getHeaderKey().getBytes().toString());
-				    LOG.info("Tag key: " + t.getKeys().getCurrentIncomingKeys().getTagKey().getBytes().toString());
-			    }
+				LOG.info("Cannot find tag!");
+				for (MutableTransportKeySet t : keys.values()) {
+					LOG.info("Header key: " + StringUtils
+							.toHexString(t.getKeys().getCurrentIncomingKeys()
+									.getHeaderKey().getBytes()));
+					LOG.info("Tag key: " + StringUtils.toHexString(
+							t.getKeys().getCurrentIncomingKeys().getTagKey()
+									.getBytes()));
+				}
 				return null;
 			}
 			MutableIncomingKeys inKeys = tagCtx.inKeys;
@@ -453,33 +459,40 @@ class TransportKeyManagerImpl implements TransportKeyManager {
 	}
 
 	@Override
-	public StreamContext getStreamContextInHandshakeMode(Transaction txn, ContactId c)
+	public StreamContext getStreamContextInHandshakeMode(Transaction txn,
+			ContactId c)
 			throws DbException {
 		lock.lock();
 		try {
 			MutableTransportKeySet ks = getOutgoingKeySet(c, null);
 			if (ks == null) return null;
 			MutableTransportKeys currentKeys = ks.getKeys();
-			LOG.info("Current keys handshake mode? " + currentKeys.isHandshakeMode());
-			if (currentKeys.isHandshakeMode()) return getStreamContext(txn, c, null);
+			LOG.info("Current keys handshake mode? " +
+					currentKeys.isHandshakeMode());
+			if (currentKeys.isHandshakeMode())
+				return getStreamContext(txn, c, null);
 
 			for (MutableTransportKeySet keySet : this.keys.values()) {
-			    MutableTransportKeys keys = keySet.getKeys();
+				MutableTransportKeys keys = keySet.getKeys();
 				if (keys.isHandshakeMode()) continue;
 				LOG.info("Found handshake mode keys");
 				MutableOutgoingKeys outKeys = keys.getCurrentOutgoingKeys();
 //				if (!outKeys.isActive()) throw new AssertionError();
-				if (outKeys.getStreamCounter() > MAX_32_BIT_UNSIGNED) return null;
+				if (outKeys.getStreamCounter() > MAX_32_BIT_UNSIGNED)
+					return null;
 				// Create a stream context
 				LOG.info("Creating handshake mode stream context");
 				StreamContext ctx = new StreamContext(c, null, transportId,
 						outKeys.getTagKey(), outKeys.getHeaderKey(),
 						outKeys.getStreamCounter(), keys.isHandshakeMode());
-				LOG.info("Tag key: " + outKeys.getTagKey().getBytes().toString());
-				LOG.info("Header key: " + outKeys.getHeaderKey().getBytes().toString());
+				LOG.info("Tag key: " +
+						outKeys.getTagKey().getBytes().toString());
+				LOG.info("Header key: " +
+						outKeys.getHeaderKey().getBytes().toString());
 				// Increment the stream counter and write it back to the DB
 				outKeys.incrementStreamCounter();
-				db.incrementStreamCounter(txn, transportId, keySet.getKeySetId());
+				db.incrementStreamCounter(txn, transportId,
+						keySet.getKeySetId());
 				LOG.info("Returning");
 				return ctx;
 			}
