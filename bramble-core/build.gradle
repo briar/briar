@@ -21,14 +21,23 @@ dependencies {
 
 	testImplementation project(path: ':bramble-api', configuration: 'testOutput')
 	testImplementation 'org.hsqldb:hsqldb:2.3.5' // The last version that supports Java 1.6
-	testImplementation 'junit:junit:4.12'
-	testImplementation "org.jmock:jmock:2.8.2"
-	testImplementation "org.jmock:jmock-junit4:2.8.2"
-	testImplementation "org.jmock:jmock-legacy:2.8.2"
+	testImplementation 'net.jodah:concurrentunit:0.4.2'
+	testImplementation "junit:junit:$junit_version"
+	testImplementation "org.jmock:jmock:$jmock_version"
+	testImplementation "org.jmock:jmock-junit4:$jmock_version"
+	testImplementation "org.jmock:jmock-imposters:$jmock_version"
 
 	testAnnotationProcessor 'com.google.dagger:dagger-compiler:2.24'
 
 	signature 'org.codehaus.mojo.signature:java16:1.1@signature'
+}
+
+animalsniffer {
+	// Allow requireNonNull: Android desugaring rewrites it (so it's safe for us to use),
+	// and it gets used when passing method references instead of lambdas with Java 11.
+	// Note that this line allows *all* methods from java.util.Objects.
+	// That's the best that we can do with the configuration options that Animal Sniffer offers.
+	ignore 'java.util.Objects'
 }
 
 // needed to make test output available to bramble-java

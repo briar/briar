@@ -371,6 +371,13 @@ public class ConversationActivity extends BriarActivity
 		observeOnce(viewModel.getContactItem(), this, contact ->
 				menu.findItem(R.id.action_set_alias).setEnabled(true));
 
+		// enable help recover account action if available
+		observeOnce(viewModel.amCustodian(), this, enable -> {
+			if (enable) {
+				menu.findItem(R.id.action_help_recover_account).setEnabled(true);
+			}
+		});
+
 		return super.onCreateOptionsMenu(menu);
 	}
 

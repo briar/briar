@@ -13,7 +13,7 @@ import org.briarproject.bramble.api.sync.Message;
 import org.briarproject.bramble.api.sync.MessageContext;
 import org.briarproject.bramble.test.ValidatorTestCase;
 import org.jmock.Expectations;
-import org.jmock.lib.legacy.ClassImposteriser;
+import org.jmock.imposters.ByteBuddyClassImposteriser;
 import org.junit.Test;
 
 import static org.briarproject.bramble.api.transport.TransportConstants.MAX_CLOCK_DIFFERENCE;
@@ -38,7 +38,7 @@ public class BdfMessageValidatorTest extends ValidatorTestCase {
 	private final Metadata meta = new Metadata();
 
 	public BdfMessageValidatorTest() {
-		context.setImposteriser(ClassImposteriser.INSTANCE);
+		context.setImposteriser(ByteBuddyClassImposteriser.INSTANCE);
 	}
 
 	@Test(expected = InvalidMessageException.class)

@@ -9,7 +9,7 @@ import org.briarproject.bramble.api.db.DatabaseConfig;
 import org.briarproject.bramble.api.identity.IdentityManager;
 import org.briarproject.bramble.test.BrambleMockTestCase;
 import org.jmock.Expectations;
-import org.jmock.lib.legacy.ClassImposteriser;
+import org.jmock.imposters.ByteBuddyClassImposteriser;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -44,7 +44,7 @@ public class AndroidAccountManagerTest extends BrambleMockTestCase {
 	private AndroidAccountManager accountManager;
 
 	public AndroidAccountManagerTest() {
-		context.setImposteriser(ClassImposteriser.INSTANCE);
+		context.setImposteriser(ByteBuddyClassImposteriser.INSTANCE);
 		app = context.mock(Application.class);
 		applicationInfo = new ApplicationInfo();
 		applicationInfo.dataDir = testDir.getAbsolutePath();

@@ -9,7 +9,7 @@ import org.briarproject.bramble.test.BrambleMockTestCase;
 import org.briarproject.bramble.test.ImmediateExecutor;
 import org.briarproject.briar.android.account.SetupViewModel.State;
 import org.jmock.Expectations;
-import org.jmock.lib.legacy.ClassImposteriser;
+import org.jmock.imposters.ByteBuddyClassImposteriser;
 import org.junit.Rule;
 import org.junit.Test;
 
@@ -36,7 +36,7 @@ public class SetupViewModelTest extends BrambleMockTestCase {
 	private final DozeHelper dozeHelper;
 
 	public SetupViewModelTest() {
-		context.setImposteriser(ClassImposteriser.INSTANCE);
+		context.setImposteriser(ByteBuddyClassImposteriser.INSTANCE);
 		app = context.mock(Application.class);
 		appContext = context.mock(Context.class);
 		accountManager = context.mock(AccountManager.class);
