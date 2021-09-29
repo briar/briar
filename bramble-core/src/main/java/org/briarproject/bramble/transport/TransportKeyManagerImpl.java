@@ -486,9 +486,9 @@ class TransportKeyManagerImpl implements TransportKeyManager {
 						outKeys.getTagKey(), outKeys.getHeaderKey(),
 						outKeys.getStreamCounter(), keys.isHandshakeMode());
 				LOG.info("Tag key: " +
-						outKeys.getTagKey().getBytes().toString());
+						StringUtils.toHexString(outKeys.getTagKey().getBytes()));
 				LOG.info("Header key: " +
-						outKeys.getHeaderKey().getBytes().toString());
+						StringUtils.toHexString(outKeys.getHeaderKey().getBytes()));
 				// Increment the stream counter and write it back to the DB
 				outKeys.incrementStreamCounter();
 				db.incrementStreamCounter(txn, transportId,
