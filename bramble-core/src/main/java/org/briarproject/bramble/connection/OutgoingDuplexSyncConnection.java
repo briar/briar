@@ -64,6 +64,7 @@ class OutgoingDuplexSyncConnection extends DuplexSyncConnection
 		LOG.info("Running OutgoingDuplexSyncConnection on transport " +
 				transportId.getString());
 		// Allocate a stream context
+
 		StreamContext ctx = allocateStreamContext(contactId, transportId);
 		if (ctx == null) {
 			LOG.warning("Could not allocate stream context");
@@ -71,6 +72,7 @@ class OutgoingDuplexSyncConnection extends DuplexSyncConnection
 			return;
 		}
 		if (ctx.isHandshakeMode()) {
+			LOG.info("OutgoingDuplexSyncConnection - context is in handshake mode, performing handshake");
 			if (!performHandshake(ctx)) {
 				LOG.warning("Handshake failed");
 				return;
@@ -178,7 +180,7 @@ class OutgoingDuplexSyncConnection extends DuplexSyncConnection
 		}
 		// Check that the stream comes from the expected contact
 		ContactId inContactId = ctxIn.getContactId();
-		if (contactId == null) {
+		if (inContactId == null) {
 			LOG.warning("Expected contact tag, got rendezvous tag");
 			onReadError();
 			return false;
@@ -197,7 +199,7 @@ class OutgoingDuplexSyncConnection extends DuplexSyncConnection
 					handshakeManager.handshake(contactId, in, out);
 			keyManager.addRotationKeys(contactId, result.getMasterKey(),
 					TIMESTAMP, result.isAlice(), true);
-			LOG.info("Rotation keys added");
+			LOG.info("Rotation keys added - OutgoingDuplexSyncConnection");
 			return true;
 		} catch (IOException | DbException e) {
 			logException(LOG, WARNING, e);

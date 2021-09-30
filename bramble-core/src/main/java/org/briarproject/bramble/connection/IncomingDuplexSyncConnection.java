@@ -152,7 +152,7 @@ class IncomingDuplexSyncConnection extends DuplexSyncConnection
 					handshakeManager.handshake(contactId, in, out);
 			keyManager.addRotationKeys(contactId, result.getMasterKey(),
 					TIMESTAMP, result.isAlice(), true);
-			LOG.info("Rotation keys added");
+			LOG.info("Rotation keys added - IncomingDuplexSyncConnection");
 			return true;
 		} catch (IOException | DbException e) {
 			logException(LOG, WARNING, e);
