@@ -93,9 +93,8 @@ class FeedManagerImpl implements FeedManager, EventListener, OpenDatabaseHook,
 	private final BlogManager blogManager;
 	private final BlogPostFactory blogPostFactory;
 	private final FeedFactory feedFactory;
-	private final SocketFactory torSocketFactory;
 	private final Clock clock;
-	private final Dns noDnsLookups;
+	private final OkHttpClient client;
 	private final AtomicBoolean fetcherStarted = new AtomicBoolean(false);
 
 	private volatile boolean torActive = false;
@@ -120,9 +119,14 @@ class FeedManagerImpl implements FeedManager, EventListener, OpenDatabaseHook,
 		this.blogManager = blogManager;
 		this.blogPostFactory = blogPostFactory;
 		this.feedFactory = feedFactory;
-		this.torSocketFactory = torSocketFactory;
 		this.clock = clock;
-		this.noDnsLookups = noDnsLookups;
+		// Share an HTTP client instance between all requests - see
+		// https://medium.com/@leandromazzuquini/if-you-are-using-okhttp-you-should-know-this-61d68e065a2b
+		client = new OkHttpClient.Builder()
+				.socketFactory(torSocketFactory)
+				.dns(noDnsLookups) // Don't make local DNS lookups
+				.connectTimeout(CONNECT_TIMEOUT, MILLISECONDS)
+				.build();
 	}
 
 	@Override
@@ -364,13 +368,6 @@ class FeedManagerImpl implements FeedManager, EventListener, OpenDatabaseHook,
 	}
 
 	private InputStream getFeedInputStream(String url) throws IOException {
-		// Build HTTP Client
-		OkHttpClient client = new OkHttpClient.Builder()
-				.socketFactory(torSocketFactory)
-				.dns(noDnsLookups) // Don't make local DNS lookups
-				.connectTimeout(CONNECT_TIMEOUT, MILLISECONDS)
-				.build();
-
 		// Build Request
 		Request request = new Request.Builder()
 				.url(url)
