@@ -183,9 +183,12 @@ class TransportKeyManagerImpl implements TransportKeyManager {
 			if (old == null || (old.getKeys().isHandshakeMode() &&
 					!ks.getKeys().isHandshakeMode()) ||
 					old.getKeySetId().getInt() < ks.getKeySetId().getInt()) {
+				LOG.info("Replacing Outgoing keys!");
 				if (ks.getContactId() == null)
 					pendingContactOutContexts.put(ks.getPendingContactId(), ks);
 				else contactOutContexts.put(ks.getContactId(), ks);
+			} else {
+				LOG.info("Not replacing Outgoing keys!");
 			}
 		}
 	}
