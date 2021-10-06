@@ -664,7 +664,6 @@
 	<string name="threshold_recommended">Secure - recommended threshold</string>
 	<string name="threshold_low_insecure">Insecure – higher threshold recommended</string>
 	<string name="threshold_high_insecure">Danger of loss – lower threshold recommended</string>
-	<string name="threshold_too_few_custodians">Danger of loss - more contacts recommended</string>
 	<string name="threshold_defined">Choose Threshold</string>
 	<string name="threshold_m_of_n">%d of %d contacts needed to recover your account</string>
 

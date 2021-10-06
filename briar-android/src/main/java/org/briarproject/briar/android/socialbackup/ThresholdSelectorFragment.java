@@ -64,9 +64,6 @@ public class ThresholdSelectorFragment extends BaseFragment {
 		message = view.findViewById(R.id.textViewMessage);
 		mOfn = view.findViewById(R.id.textViewmOfn);
 
-		if (numberOfCustodians == 2) {
-			message.setText(R.string.threshold_too_few_custodians);
-		}
 		if (numberOfCustodians > 3) {
 			seekBar.setMax(numberOfCustodians -3);
 			seekBar.setProgress(threshold - 2);
