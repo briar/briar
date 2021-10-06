@@ -41,6 +41,7 @@ import org.briarproject.briar.api.messaging.PrivateMessageFactory;
 import org.briarproject.briar.api.messaging.PrivateMessageHeader;
 import org.briarproject.briar.api.messaging.event.AttachmentReceivedEvent;
 import org.briarproject.briar.api.remotewipe.RemoteWipeManager;
+import org.briarproject.briar.api.socialbackup.SocialBackupManager;
 
 import java.util.Collection;
 import java.util.List;
@@ -86,6 +87,7 @@ public class ConversationViewModel extends DbViewModel
 	private final AttachmentRetriever attachmentRetriever;
 	private final AttachmentCreator attachmentCreator;
 	private final RemoteWipeManager remoteWipeManager;
+	private final SocialBackupManager socialBackupManager;
 
 	@Nullable
 	private ContactId contactId = null;
@@ -108,6 +110,7 @@ public class ConversationViewModel extends DbViewModel
 			new MutableLiveEvent<>();
 	private final MutableLiveData<Boolean> amRemoteWiper = new MutableLiveData<>();
 	private final MutableLiveData<Boolean> isRemoteWiper = new MutableLiveData<>();
+    private final MutableLiveData<Boolean> amCustodian = new MutableLiveData<>();
 
 	@Inject
 	ConversationViewModel(Application application,
@@ -123,7 +126,8 @@ public class ConversationViewModel extends DbViewModel
 			PrivateMessageFactory privateMessageFactory,
 			AttachmentRetriever attachmentRetriever,
 			RemoteWipeManager remoteWipeManager,
-			AttachmentCreator attachmentCreator) {
+			AttachmentCreator attachmentCreator,
+			SocialBackupManager socialBackupManager) {
 		super(application, dbExecutor, lifecycleManager, db, androidExecutor);
 		this.db = db;
 		this.eventBus = eventBus;
@@ -135,6 +139,7 @@ public class ConversationViewModel extends DbViewModel
 		this.attachmentRetriever = attachmentRetriever;
 		this.attachmentCreator = attachmentCreator;
 		this.remoteWipeManager = remoteWipeManager;
+		this.socialBackupManager = socialBackupManager;
 		messagingGroupId = map(contactItem, c ->
 				messagingManager.getContactGroup(c.getContact()).getId());
 		contactDeleted.setValue(false);
@@ -311,6 +316,10 @@ public class ConversationViewModel extends DbViewModel
 		boolean isWiper = db.transactionWithResult(true,
 				txn -> remoteWipeManager.isWiper(txn, c));
 		isRemoteWiper.postValue(isWiper);
+		// Check if we are a social backup custodian for this contact
+		boolean amCustodianBool = db.transactionWithResult(true,
+				txn -> socialBackupManager.amCustodian(txn, c));
+		amCustodian.postValue(amCustodianBool);
 	}
 
 	@DatabaseExecutor
@@ -402,6 +411,10 @@ public class ConversationViewModel extends DbViewModel
 
 	LiveData<Boolean> isRemoteWiper() {
 		return isRemoteWiper;
+	}
+
+	LiveData<Boolean> amCustodian() {
+		return amCustodian;
 	}
 
 	@UiThread

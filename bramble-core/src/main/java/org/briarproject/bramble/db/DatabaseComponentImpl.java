@@ -1041,6 +1041,15 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 	}
 
 	@Override
+	public void setHandshakePublicKey(Transaction transaction, ContactId c, PublicKey handshakePublicKey) throws DbException {
+		if (transaction.isReadOnly()) throw new IllegalArgumentException();
+		T txn = unbox(transaction);
+		if (!db.containsContact(txn, c))
+			throw new NoSuchContactException();
+		db.setHandshakePublicKey(txn, c, handshakePublicKey);
+	}
+
+	@Override
 	public void setHandshakeKeyPair(Transaction transaction, AuthorId local,
 			PublicKey publicKey, PrivateKey privateKey) throws DbException {
 		if (transaction.isReadOnly()) throw new IllegalArgumentException();

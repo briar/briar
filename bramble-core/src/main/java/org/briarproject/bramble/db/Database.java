@@ -32,6 +32,7 @@ import org.briarproject.bramble.api.transport.KeySetId;
 import org.briarproject.bramble.api.transport.TransportKeySet;
 import org.briarproject.bramble.api.transport.TransportKeys;
 
+import java.sql.Connection;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -694,6 +695,11 @@ interface Database<T> {
 	 */
 	void setHandshakeKeyPair(T txn, AuthorId local, PublicKey publicKey,
 			PrivateKey privateKey) throws DbException;
+
+	/**
+	 * Sets the handshake public key for a given contact
+	 */
+	void setHandshakePublicKey(T txn, ContactId c, PublicKey handshakePublicKey) throws DbException;
 
 	/**
 	 * Marks the given message as permanent, i.e. not temporary.

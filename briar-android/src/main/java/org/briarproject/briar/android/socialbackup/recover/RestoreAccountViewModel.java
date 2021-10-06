@@ -1,6 +1,8 @@
 package org.briarproject.briar.android.socialbackup.recover;
 
 import android.app.Application;
+import android.content.Context;
+import android.content.SharedPreferences;
 
 import org.briarproject.bramble.api.account.AccountManager;
 import org.briarproject.bramble.api.contact.ContactManager;
@@ -45,27 +47,27 @@ class RestoreAccountViewModel extends AndroidViewModel {
 			new MutableLiveData<>(false);
 
 	private final AccountManager accountManager;
-	private final ContactManager contactManager;
 	private final Executor ioExecutor;
 	private final PasswordStrengthEstimator strengthEstimator;
 	private final DozeHelper dozeHelper;
 	private final RestoreAccount restoreAccount;
+	private final SharedPreferences prefs;
 
 	@Inject
 	RestoreAccountViewModel(Application app,
 			AccountManager accountManager,
-			ContactManager contactManager,
 			RestoreAccount restoreAccount,
 			@IoExecutor Executor ioExecutor,
 			PasswordStrengthEstimator strengthEstimator,
 			DozeHelper dozeHelper) {
 		super(app);
 		this.accountManager = accountManager;
-		this.contactManager = contactManager;
 		this.ioExecutor = ioExecutor;
 		this.strengthEstimator = strengthEstimator;
 		this.dozeHelper = dozeHelper;
 		this.restoreAccount = restoreAccount;
+		this.prefs = app.getSharedPreferences("account-recovery",
+				Context.MODE_PRIVATE);
 
 		ioExecutor.execute(() -> {
 			if (accountManager.accountExists()) {
@@ -112,17 +114,24 @@ class RestoreAccountViewModel extends AndroidViewModel {
 		if (socialBackup == null) {
 			LOG.warning("Cannot retrieve social backup");
 			state.postEvent(State.FAILED);
+			return;
 		}
 		Identity identity = socialBackup.getIdentity();
 		ioExecutor.execute(() -> {
 			if (accountManager.restoreAccount(identity, password)) {
 				LOG.info("Restored account");
 				try {
-					restoreAccount.addContactsToDb();
+					restoreAccount.restoreAccountWhenDatabaseReady();
 				} catch (DbException e) {
-					LOG.warning("Cannot retrieve social backup");
+					LOG.warning("Failure processing social backup");
+					e.printStackTrace();
 					state.postEvent(State.FAILED);
+					return;
 				}
+
+				// Remove partial recovery from shared preferences
+				prefs.edit().clear().apply();
+
 				state.postEvent(State.CREATED);
 			} else {
 				LOG.warning("Failed to create account");

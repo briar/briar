@@ -15,9 +15,11 @@ import org.briarproject.bramble.api.data.BdfList;
 import org.briarproject.bramble.api.identity.Author;
 import org.briarproject.bramble.api.identity.Identity;
 import org.briarproject.bramble.api.identity.LocalAuthor;
+import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.plugin.TransportId;
 import org.briarproject.bramble.api.properties.TransportProperties;
 import org.briarproject.briar.api.socialbackup.BackupPayload;
+import org.briarproject.briar.api.socialbackup.ContactData;
 import org.briarproject.briar.api.socialbackup.MessageParser;
 import org.briarproject.briar.api.socialbackup.Shard;
 import org.briarproject.briar.api.socialbackup.SocialBackup;
@@ -55,7 +57,7 @@ public class BackupPayloadDecoderImpl implements BackupPayloadDecoder {
 		this.messageParser = messageParser;
 	}
 
-	public org.briarproject.briar.api.socialbackup.SocialBackup decodeBackupPayload(
+	public SocialBackup decodeBackupPayload(
 			SecretKey secret,
 			BackupPayload backupPayload)
 			throws FormatException, GeneralSecurityException {
@@ -98,13 +100,17 @@ public class BackupPayloadDecoderImpl implements BackupPayloadDecoder {
 		PrivateKey handShakePrivateKey =
 				new AgreementPrivateKey(bdfIdentity.getRaw(3));
 
+		Map<TransportId, TransportProperties> localProperties = clientHelper
+				.parseAndValidateTransportPropertiesMap(
+						bdfIdentity.getDictionary(4));
+		LOG.info("Local transport properties parsed");
+
 		Long created = System.currentTimeMillis();
 
 		Identity identity = new Identity(localAuthor, handshakePublicKey,
 				handShakePrivateKey, created);
-		LOG.info("New identity created");
 
-		List<org.briarproject.briar.api.socialbackup.ContactData> contactDataList = new ArrayList();
+		List<ContactData> contactDataList = new ArrayList();
 
 		for (int i = 0; i < bdfContactData.size(); i++) {
 			BdfList bdfData = bdfContactData.getList(i);
@@ -143,9 +149,9 @@ public class BackupPayloadDecoderImpl implements BackupPayloadDecoder {
 			org.briarproject.briar.api.socialbackup.ContactData contactData =
 					new org.briarproject.briar.api.socialbackup.ContactData(contact, properties, shard);
 			contactDataList.add(contactData);
-			LOG.info("Contact added");
+			LOG.info("Contact fully parsed");
 		}
-		LOG.info("All contacts added");
-		return new SocialBackup(identity, contactDataList, version);
+		LOG.info("All contacts fully parsed");
+		return new SocialBackup(identity, contactDataList, localProperties, version);
 	}
 }

@@ -34,6 +34,7 @@ buildscript {
 		classpath files('libs/gradle-witness.jar')
 	}
 
+//	ext.dagger_version = "2.33"
 	ext.junit_version = "4.12"
 	ext.jmock_version = '2.12.0'
 }

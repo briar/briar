@@ -31,6 +31,7 @@
 		android:id="@+id/action_help_recover_account"
 		android:icon="@drawable/introduction_white"
 		android:title="@string/help_recover_account"
+		android:enabled="false"
 		app:showAsAction="never"/>
 
 	<item

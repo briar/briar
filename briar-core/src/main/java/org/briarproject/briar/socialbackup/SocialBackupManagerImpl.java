@@ -57,6 +57,7 @@ import org.briarproject.briar.client.ConversationClientImpl;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
@@ -66,7 +67,6 @@ import java.util.Set;
 import javax.annotation.Nullable;
 import javax.inject.Inject;
 
-import static java.util.Collections.singletonMap;
 import static org.briarproject.bramble.api.nullsafety.NullSafety.requireNonNull;
 import static org.briarproject.briar.client.MessageTrackerConstants.MSG_KEY_READ;
 import static org.briarproject.briar.socialbackup.MessageType.BACKUP;
@@ -440,14 +440,25 @@ class SocialBackupManagerImpl extends ConversationClientImpl
 			int version)
 			throws DbException {
 		Identity identity = identityManager.getIdentity(txn);
+
+		// Add local transport properties
+		Map<TransportId, TransportProperties> localProps =
+				transportPropertyManager.getLocalProperties(txn);
+		Map<TransportId, TransportProperties> filteredLocalProps =
+				new HashMap<>();
+		if (localProps.get(TorConstants.ID) != null) {
+			filteredLocalProps
+					.put(TorConstants.ID, localProps.get(TorConstants.ID));
+		}
+
 		return backupPayloadEncoder.encodeBackupPayload(secret, identity,
-				contactData, version);
+				contactData, version, filteredLocalProps);
 	}
 
 	private List<ContactData> loadContactData(Transaction txn)
 			throws DbException {
 		Collection<Contact> contacts = contactManager.getContacts(txn);
-		List<org.briarproject.briar.api.socialbackup.ContactData> contactData =
+		List<ContactData> contactData =
 				new ArrayList<>();
 		for (Contact c : contacts) {
 			// Skip contacts that are in the process of being removed
@@ -456,6 +467,10 @@ class SocialBackupManagerImpl extends ConversationClientImpl
 			Map<TransportId, TransportProperties> props =
 					getTransportProperties(txn, c.getId());
 			Shard shard = getRemoteShard(txn, contactGroup.getId());
+			if (c.getHandshakePublicKey() == null) {
+				System.out.println(
+						"Warning - adding contact with no handshake public key");
+			}
 			contactData
 					.add(new org.briarproject.briar.api.socialbackup.ContactData(
 							c, props, shard));
@@ -466,9 +481,14 @@ class SocialBackupManagerImpl extends ConversationClientImpl
 	private Map<TransportId, TransportProperties> getTransportProperties(
 			Transaction txn, ContactId c) throws DbException {
 		// TODO: Include filtered properties for other transports
-		TransportProperties p = transportPropertyManager
-				.getRemoteProperties(txn, c, TorConstants.ID);
-		return singletonMap(TorConstants.ID, p);
+		TransportId ids[] = {TorConstants.ID};
+//		{TorConstants.ID, LanTcpConstants.ID, BluetoothConstants.ID};
+		Map<TransportId, TransportProperties> props = new HashMap();
+		for (TransportId id : ids) {
+			props.put(id, transportPropertyManager
+					.getRemoteProperties(txn, c, id));
+		}
+		return props;
 	}
 
 	private void sendShardMessage(Transaction txn, Contact custodian,
@@ -562,7 +582,7 @@ class SocialBackupManagerImpl extends ConversationClientImpl
 						db.deleteMessageMetadata(txn, prevId);
 					}
 					sendBackupMessage(txn, custodian, newVersion, payload);
-				} catch (NoSuchContactException|NoSuchGroupException e){
+				} catch (NoSuchContactException | NoSuchGroupException e) {
 					// The custodian is no longer a contact - continue
 				}
 			}

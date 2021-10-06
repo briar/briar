@@ -64,17 +64,13 @@ public class ThresholdSelectorFragment extends BaseFragment {
 		message = view.findViewById(R.id.textViewMessage);
 		mOfn = view.findViewById(R.id.textViewmOfn);
 
-		if (numberOfCustodians == 2) {
-			message.setText(R.string.threshold_too_few_custodians);
-		}
 		if (numberOfCustodians > 3) {
 			seekBar.setMax(numberOfCustodians -3);
-			seekBar.setProgress(threshold - 2);
 			seekBar.setOnSeekBarChangeListener(new SeekBarListener());
 			recommendedThreshold =
 					SecretSharingWrapper.defaultThreshold(numberOfCustodians);
 			threshold = recommendedThreshold;
-
+			seekBar.setProgress(threshold - 2);
 		} else {
 			seekBar.setEnabled(false);
 			threshold = 2;

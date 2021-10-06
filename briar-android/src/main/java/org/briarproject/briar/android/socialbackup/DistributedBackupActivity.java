@@ -4,6 +4,7 @@ import android.os.Bundle;
 import android.widget.Toast;
 
 import org.briarproject.bramble.api.contact.ContactId;
+import org.briarproject.bramble.api.contact.ContactManager;
 import org.briarproject.bramble.api.db.DatabaseComponent;
 import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.briar.R;
@@ -30,6 +31,9 @@ public class DistributedBackupActivity extends BriarActivity implements
 	public SocialBackupManager socialBackupManager;
 
 	@Inject
+	public ContactManager contactManager;
+
+	@Inject
 	public DatabaseComponent db;
 
 	@Override
@@ -52,6 +56,20 @@ public class DistributedBackupActivity extends BriarActivity implements
 				showInitialFragment(fragment);
 			});
 		} catch (DbException e) {
+			// Check the number of contacts in the contacts list > 1
+			try {
+				if (contactManager.getContacts().size() < 2) {
+					Toast.makeText(this,
+							R.string.social_backup_not_enough_contacts,
+							Toast.LENGTH_LONG).show();
+					finish();
+				}
+			} catch (DbException dbException) {
+				Toast.makeText(this,
+						R.string.reading_contacts_error,
+						Toast.LENGTH_LONG).show();
+				finish();
+			}
 			CustodianSelectorFragment fragment =
 					CustodianSelectorFragment.newInstance();
 			showInitialFragment(fragment);

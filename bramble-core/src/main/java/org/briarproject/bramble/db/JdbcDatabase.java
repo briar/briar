@@ -3059,6 +3059,23 @@ abstract class JdbcDatabase implements Database<Connection> {
 	}
 
 	@Override
+	public void setHandshakePublicKey(Connection txn, ContactId c, PublicKey handshakePublicKey) throws DbException {
+		PreparedStatement ps = null;
+		try {
+			String sql = "UPDATE contacts SET handshakePublicKey = ? WHERE contactId = ?";
+			ps = txn.prepareStatement(sql);
+			ps.setBytes(1, handshakePublicKey.getEncoded());
+			ps.setInt(2, c.getInt());
+			int affected = ps.executeUpdate();
+			if (affected < 0 || affected > 1) throw new DbStateException();
+			ps.close();
+		} catch (SQLException e) {
+			tryToClose(ps, LOG, WARNING);
+			throw new DbException(e);
+		}
+	}
+
+	@Override
 	public void setGroupVisibility(Connection txn, ContactId c, GroupId g,
 			boolean shared) throws DbException {
 		PreparedStatement ps = null;
