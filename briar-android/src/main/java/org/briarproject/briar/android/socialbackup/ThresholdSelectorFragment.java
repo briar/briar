@@ -66,12 +66,11 @@ public class ThresholdSelectorFragment extends BaseFragment {
 
 		if (numberOfCustodians > 3) {
 			seekBar.setMax(numberOfCustodians -3);
-			seekBar.setProgress(threshold - 2);
 			seekBar.setOnSeekBarChangeListener(new SeekBarListener());
 			recommendedThreshold =
 					SecretSharingWrapper.defaultThreshold(numberOfCustodians);
 			threshold = recommendedThreshold;
-
+			seekBar.setProgress(threshold - 2);
 		} else {
 			seekBar.setEnabled(false);
 			threshold = 2;
