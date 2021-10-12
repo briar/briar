@@ -641,23 +641,18 @@
 	<!-- This is a message to be used in screenshots. -->
 	<string name="screenshot_message_3">No problem, hope you like it 😀</string>
 
-	<!-- social backup -->
+	<!-- Social Backup Feature -->
 
-	<!-- settings -->
-
+	<!-- Settings -->
 	<string name="pref_distributed_backup_title">Social backup</string>
 	<string name="pref_distributed_backup_summary">Backup your account using trusted contacts</string>
-
 	<string name="pref_distributed_old_backup_title">Existing Social backup</string>
 	<string name="pref_distributed_old_backup_summary">Information about your most recent social backup</string>
 
-	<!-- social backup procedure -->
-
+	<!-- Social backup setup -->
 	<string name="select_custodians">Select Trusted Contacts:</string>
-
 	<string name="select_at_least_n_contacts">Please select at least %d contacts</string>
 	<string name="select_at_least_n_more_contacts">Please select at least %d more contacts</string>
-
 	<string name="threshold">Choose the minimum number of trusted contacts needed to restore your account</string>
 	<string name="threshold_disabled">Two trusted contacts will be needed to restore your account</string>
 	<string name="threshold_secure">Secure</string>
@@ -666,13 +661,9 @@
 	<string name="threshold_high_insecure">Danger of loss – lower threshold recommended</string>
 	<string name="threshold_defined">Choose Threshold</string>
 	<string name="threshold_m_of_n">%d of %d contacts needed to recover your account</string>
-
 	<string name="backup_done_info">Backup pieces sent to trusted contacts</string>
 
-	<string name="backup_created">Backup created 1/6/2020</string>
-
-	<!-- recovery from the secret owner's POV -->
-
+	<!-- Recovery from the secret owner's POV -->
 	<string name="recovery_explainer">You need to meet your trusted contacts in-person to receive pieces</string>
 	<string name="recovery_explainer_extra">Your trusted contact must scan a QR code to initiate the transfer.\n\nYou must both be connected to the same wifi network</string>
 	<string name="recovery_begin">Begin</string>
@@ -687,28 +678,24 @@
 	<string name="recovery_account_recovered_explain">You must now set a new password for your account</string>
 	<string name="recovery_sending_ack">Sending acknowledgement</string>
 
-	<!-- recovery from the custodian's POV -->
-
+	<!-- Recovery from the custodian's POV -->
 	<string name="custodian_recovery_explainer">You need to meet in-person to transfer backup piece</string>
 	<string name="custodian_recovery_explainer_extra">Make sure you are both connected to the same wifi network, and scan the QR code on your contact\'s device to begin transferring the backup piece</string>
 	<string name="custodian_recovery_failed_to_send">Failed to send backup piece</string>
 	<string name="custodian_scan_code">Scan code</string>
 	<string name="custodian_shard_sent">Account backup piece transmitted</string>
 
-	<!-- titles for the app bar -->
-
+	<!-- Titles for the app bar -->
 	<string name="title_distributed_backup">Social Backup</string>
 	<string name="title_select_custodians">Select Trusted Contacts</string>
 	<string name="title_define_threshold">Threshold</string>
 	<string name="title_recovery_mode">Recovery Mode</string>
 	<string name="title_help_recover">Help recover account</string>
 
-	<!-- conversation action for custodian -->
-
+	<!-- Conversation action for custodian -->
 	<string name="help_recover_account">Help recover account</string>
 
-	<!-- setup screen -->
-
+	<!-- Setup screen -->
 	<string name="setup_new_account">Create new account</string>
 	<string name="setup_restore_account">Restore account from backup</string>
 
@@ -716,11 +703,11 @@
 	<string name="filled_bullet">\u25CF</string>
 	<string name="linear_bullet">\u25CB</string>
 
-	<!-- activity names -->
+	<!-- Activity names -->
 	<string name="activity_name_distributed_backup">Social Backup</string>
 	<string name="activity_name_restore_account">Restore Account</string>
 
-	<!-- conversation -->
+	<!-- Conversation -->
 	<string name="social_backup_shard_received">%1$s has sent you a social backup piece.</string>
 	<string name="social_backup_shard_sent">You have sent a social backup piece to %1$s.</string>
 
@@ -732,20 +719,22 @@
 	<string name="social_backup_not_enough_contacts">To make a social backup, you need at least 2 contacts in your contacts list</string>
 	<string name="reading_contacts_error">There was an error reading your contacts list</string>
 
-	<!-- Remote Wipe -->
+	<!-- Remote Wipe Feature -->
 
-	<!-- setup -->
+	<!-- Setup -->
 	<string name="remote_wipe_setup_success">Remote wipe is set up</string>
 	<string name="remote_wipe_setup_failed">Failed to set up remote wipe</string>
+	<string name="remote_wipe_setup_explain_title">Setup remote wipe function</string>
+	<string name="remote_wipe_setup_explain_long">You can choose a set of trusted contacts who are able to activate a remote wipe of all Briar data.\nThe wipe may be activated by any two contacts from the set.</string>
 
-	<!-- settings menu -->
+	<!-- Settings menu -->
 	<string name="pref_remote_wipe_summary">Allow trusted contacts to activate an account wipe remotely</string>
 	<string name="pref_remote_wipe_title">Remote Wipe</string>
 
-	<!-- titles for the app bar -->
+	<!-- Titles for the app bar -->
 	<string name="title_select_wipers">Select Trusted Contacts</string>
 
-	<!-- conversation -->
+	<!-- Conversation -->
 	<string name="remote_wipe_setup_received">%1$s has added you as a remote wiper.</string>
 	<string name="remote_wipe_setup_sent">You have added %1$s as a remote wiper.</string>
 	<string name="remote_wipe_wipe_sent">You have sent an activate remote wipe signal to %1$s. It expires </string>
@@ -755,7 +744,7 @@
 	<string name="remote_wipe_revoke_sent">You have removed %1$s as a remote wiper.</string>
 	<string name="remote_wipe_revoke_received">You can no longer activate a remote wipe for %1$s.</string>
 
-	<!-- activate -->
+	<!-- Activate -->
 	<string name="activity_name_activate_remote_wipe">Activate Remote Wipe</string>
 	<string name="remote_wipe_activate_success">Remote wipe signal sent</string>
 	<string name="remote_wipe_activate_failure">Failed to send remote wipe signal</string>
@@ -764,7 +753,7 @@
 	<string name="remote_wipe_activate_explain_short">Activate a remote wipe of this contact\'s device</string>
 	<string name="remote_wipe_activate_explain_long">If confirmed by a second contact, sending this signal will remove all briar contacts and messages from this contact\s device.</string>
 
-	<!-- revoke -->
+	<!-- Revoke -->
 	<string name="activity_name_revoke_remote_wipe">Revoke Remote Wipe</string>
 	<string name="revoke_remote_wipe">Revoke remote wipe status</string>
 	<string name="remote_wipe_revoke_success">Remote wipe status revoked</string>

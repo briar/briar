@@ -70,6 +70,16 @@ public class RemoteWipeSetupViewModel extends AndroidViewModel {
 	}
 
 	@UiThread
+	public void onExplainerConfirmed() {
+		state.postValue(RemoteWipeSetupState.SELECTING);
+	}
+
+	@UiThread
+	public void onExplainerCancelled() {
+		state.postValue(RemoteWipeSetupState.FINISHED);
+	}
+
+	@UiThread
 	public void onSuccessDismissed() {
 		state.postValue(RemoteWipeSetupState.FINISHED);
 	}

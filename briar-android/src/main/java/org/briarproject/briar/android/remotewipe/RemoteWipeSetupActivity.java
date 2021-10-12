@@ -41,7 +41,7 @@ public class RemoteWipeSetupActivity extends BriarActivity implements
         if (viewModel.remoteWipeIsSetup()) {
         	showInitialFragment(new RemoteWipeDisplayFragment());
         } else {
-	        showInitialFragment(WiperSelectorFragment.newInstance());
+	        showInitialFragment(new RemoteWipeSetupExplainerFragment());
         }
 
 	}
@@ -66,6 +66,8 @@ public class RemoteWipeSetupActivity extends BriarActivity implements
 					R.string.remote_wipe_setup_failed,
 					Toast.LENGTH_LONG).show();
 			finish();
+		} else if (state.equals(RemoteWipeSetupState.SELECTING)) {
+			showNextFragment(WiperSelectorFragment.newInstance());
 		} else if (state.equals(RemoteWipeSetupState.FINISHED)) {
 			finish();
 		} else if (state.equals(RemoteWipeSetupState.MODIFY)) {
