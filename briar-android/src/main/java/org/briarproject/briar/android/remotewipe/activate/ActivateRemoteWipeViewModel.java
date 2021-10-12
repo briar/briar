@@ -4,9 +4,11 @@ import android.app.Application;
 
 import org.briarproject.bramble.api.FormatException;
 import org.briarproject.bramble.api.contact.ContactId;
+import org.briarproject.bramble.api.contact.ContactManager;
 import org.briarproject.bramble.api.db.DatabaseComponent;
 import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.briar.android.remotewipe.RemoteWipeSetupState;
+import org.briarproject.briar.android.util.UiUtils;
 import org.briarproject.briar.api.remotewipe.RemoteWipeManager;
 
 import java.text.Normalizer;
@@ -20,17 +22,21 @@ import androidx.lifecycle.MutableLiveData;
 public class ActivateRemoteWipeViewModel extends AndroidViewModel {
 
 	private final RemoteWipeManager remoteWipeManager;
+	private final ContactManager contactManager;
 	private final DatabaseComponent db;
 	private final MutableLiveData<ActivateRemoteWipeState> state = new MutableLiveData<>();
 	private ContactId contactId;
+	private String contactName;
 
 	@Inject
 	public ActivateRemoteWipeViewModel(
 			@NonNull Application application,
 			RemoteWipeManager remoteWipeManager,
+			ContactManager contactManager,
 			DatabaseComponent db) {
 		super(application);
 		this.remoteWipeManager = remoteWipeManager;
+		this.contactManager = contactManager;
 		this.db = db;
 	}
 
@@ -57,6 +63,16 @@ public class ActivateRemoteWipeViewModel extends AndroidViewModel {
 
 	public void setContactId(ContactId c) {
 		contactId = c;
+
+		try {
+			contactName = UiUtils.getContactDisplayName(contactManager.getContact(c));
+		} catch (DbException e) {
+			e.printStackTrace();
+		}
+	}
+
+	public String getContactName() {
+		return contactName;
 	}
 
 	public void onCancelClicked() {

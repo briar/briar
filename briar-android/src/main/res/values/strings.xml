@@ -750,8 +750,8 @@
 	<string name="remote_wipe_activate_failure">Failed to send remote wipe signal</string>
 	<string name="remote_wipe_activate_button_confirm">Activate remote wipe</string>
 	<string name="remote_wipe_activate_button_cancel">Cancel</string>
-	<string name="remote_wipe_activate_explain_short">Activate a remote wipe of this contact\'s device</string>
-	<string name="remote_wipe_activate_explain_long">If confirmed by a second contact, sending this signal will remove all briar contacts and messages from this contact\s device.</string>
+	<string name="remote_wipe_activate_explain_short">Activate a remote wipe for %1$s</string>
+	<string name="remote_wipe_activate_explain_long">If confirmed by a second contact, sending this signal will remove all Briar data from %1$s\'s device.</string>
 
 	<!-- Revoke -->
 	<string name="activity_name_revoke_remote_wipe">Revoke Remote Wipe</string>

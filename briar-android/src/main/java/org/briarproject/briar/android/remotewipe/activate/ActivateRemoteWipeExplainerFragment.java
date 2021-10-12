@@ -5,6 +5,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.TextView;
 
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.activity.ActivityComponent;
@@ -41,6 +42,13 @@ public class ActivateRemoteWipeExplainerFragment extends
 			@Nullable Bundle savedInstanceState) {
 		View view = inflater.inflate(R.layout.fragment_activate_remote_wipe_explainer,
 				container, false);
+
+		TextView titleText = view.findViewById(R.id.textView);
+	    titleText.setText(String.format(getString(R.string.remote_wipe_activate_explain_short), viewModel.getContactName()));
+
+		TextView explainText = view.findViewById(R.id.textViewExplain);
+		explainText.setText(String.format(getString(R.string.remote_wipe_activate_explain_long), viewModel.getContactName()));
+
 		Button cancelButton = view.findViewById(R.id.button_cancel);
 		cancelButton.setOnClickListener(e -> viewModel.onCancelClicked());
 
