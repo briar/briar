@@ -9,7 +9,7 @@ apply from: 'witness.gradle'
 apply from: '../dagger.gradle'
 
 dependencies {
-	implementation project(path: ':bramble-api', configuration: 'default')
+	implementation project(path: ':briar:bramble-api', configuration: 'default')
 	implementation 'org.bouncycastle:bcprov-jdk15on:1.69'
 	implementation 'com.h2database:h2:1.4.192' // The last version that supports Java 1.6
 	implementation 'org.bitlet:weupnp:0.1.4'
@@ -19,7 +19,7 @@ dependencies {
 
 	annotationProcessor "com.google.dagger:dagger-compiler:$dagger_version"
 
-	testImplementation project(path: ':bramble-api', configuration: 'testOutput')
+	testImplementation project(path: ':briar:bramble-api', configuration: 'testOutput')
 	testImplementation 'org.hsqldb:hsqldb:2.3.5' // The last version that supports Java 1.6
 	testImplementation 'net.jodah:concurrentunit:0.4.2'
 	testImplementation "junit:junit:$junit_version"
