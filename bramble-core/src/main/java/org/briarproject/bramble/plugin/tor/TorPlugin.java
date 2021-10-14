@@ -33,7 +33,9 @@ import org.briarproject.bramble.api.settings.event.SettingsUpdatedEvent;
 import org.briarproject.bramble.api.system.Clock;
 import org.briarproject.bramble.api.system.LocationUtils;
 import org.briarproject.bramble.api.system.ResourceProvider;
+import org.briarproject.bramble.plugin.TorPorts;
 
+import java.io.ByteArrayInputStream;
 import java.io.EOFException;
 import java.io.File;
 import java.io.FileInputStream;
@@ -74,7 +76,6 @@ import static org.briarproject.bramble.api.plugin.Plugin.State.DISABLED;
 import static org.briarproject.bramble.api.plugin.Plugin.State.ENABLING;
 import static org.briarproject.bramble.api.plugin.Plugin.State.INACTIVE;
 import static org.briarproject.bramble.api.plugin.Plugin.State.STARTING_STOPPING;
-import static org.briarproject.bramble.api.plugin.TorConstants.CONTROL_PORT;
 import static org.briarproject.bramble.api.plugin.TorConstants.DEFAULT_PREF_PLUGIN_ENABLE;
 import static org.briarproject.bramble.api.plugin.TorConstants.DEFAULT_PREF_TOR_MOBILE;
 import static org.briarproject.bramble.api.plugin.TorConstants.DEFAULT_PREF_TOR_NETWORK;
@@ -123,6 +124,7 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 	private final NetworkManager networkManager;
 	private final LocationUtils locationUtils;
 	private final SocketFactory torSocketFactory;
+	private final TorPorts torPorts;
 	private final Clock clock;
 	private final BatteryManager batteryManager;
 	private final Backoff backoff;
@@ -152,6 +154,7 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 			NetworkManager networkManager,
 			LocationUtils locationUtils,
 			SocketFactory torSocketFactory,
+			TorPorts torPorts,
 			Clock clock,
 			ResourceProvider resourceProvider,
 			CircumventionProvider circumventionProvider,
@@ -168,6 +171,7 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 		this.networkManager = networkManager;
 		this.locationUtils = locationUtils;
 		this.torSocketFactory = torSocketFactory;
+		this.torPorts = torPorts;
 		this.clock = clock;
 		this.resourceProvider = resourceProvider;
 		this.circumventionProvider = circumventionProvider;
@@ -287,7 +291,7 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 		}
 		try {
 			// Open a control connection and authenticate using the cookie file
-			controlSocket = new Socket("127.0.0.1", CONTROL_PORT);
+			controlSocket = new Socket("127.0.0.1", torPorts.getControlPort());
 			controlConnection = new TorControlConnection(controlSocket);
 			controlConnection.authenticate(read(cookieFile));
 			// Tell Tor to exit when the control connection is closed
@@ -390,9 +394,27 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 		return zin;
 	}
 
+	private InputStream getTorrc() {
+		StringBuilder strb = new StringBuilder();
+		append(strb, "ControlPort", torPorts.getControlPort());
+		append(strb, "CookieAuthentication", 1);
+		append(strb, "DisableNetwork", 1);
+		append(strb, "RunAsDaemon", 1);
+		append(strb, "SafeSocks", 1);
+		append(strb, "SocksPort", torPorts.getSocksPort());
+
+		return new ByteArrayInputStream(strb.toString().getBytes());
+	}
+
+	private static void append(StringBuilder strb, String name, int value) {
+		strb.append(name);
+		strb.append(" ");
+		strb.append(value);
+		strb.append("\n");
+	}
+
 	private InputStream getConfigInputStream() {
-		ClassLoader cl = getClass().getClassLoader();
-		return requireNonNull(cl.getResourceAsStream("torrc"));
+		return requireNonNull(getTorrc());
 	}
 
 	private void listFiles(File f) {

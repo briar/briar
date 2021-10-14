@@ -1,6 +1,0 @@
-ControlPort 59051
-CookieAuthentication 1
-DisableNetwork 1
-RunAsDaemon 1
-SafeSocks 1
-SocksPort 59050

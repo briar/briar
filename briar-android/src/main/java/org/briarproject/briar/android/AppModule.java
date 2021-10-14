@@ -23,6 +23,8 @@ import org.briarproject.bramble.api.plugin.TransportId;
 import org.briarproject.bramble.api.plugin.duplex.DuplexPluginFactory;
 import org.briarproject.bramble.api.plugin.simplex.SimplexPluginFactory;
 import org.briarproject.bramble.api.reporting.DevConfig;
+import org.briarproject.bramble.plugin.TorPorts;
+import org.briarproject.bramble.plugin.TorPortsImpl;
 import org.briarproject.bramble.plugin.bluetooth.AndroidBluetoothPluginFactory;
 import org.briarproject.bramble.plugin.file.AndroidRemovableDrivePluginFactory;
 import org.briarproject.bramble.plugin.tcp.AndroidLanTcpPluginFactory;
@@ -74,6 +76,8 @@ import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
 import static java.util.Collections.singletonMap;
+import static org.briarproject.bramble.api.plugin.TorConstants.DEFAULT_CONTROL_PORT;
+import static org.briarproject.bramble.api.plugin.TorConstants.DEFAULT_SOCKS_PORT;
 import static org.briarproject.bramble.api.reporting.ReportingConstants.DEV_ONION_ADDRESS;
 import static org.briarproject.bramble.api.reporting.ReportingConstants.DEV_PUBLIC_KEY_HEX;
 import static org.briarproject.briar.android.TestingConstants.IS_DEBUG_BUILD;
@@ -146,6 +150,12 @@ public class AppModule {
 		KeyStrengthener keyStrengthener = SDK_INT >= 23
 				? new AndroidKeyStrengthener() : null;
 		return new AndroidDatabaseConfig(dbDir, keyDir, keyStrengthener);
+	}
+
+	@Provides
+	@Singleton
+	TorPorts provideTorPorts() {
+		return new TorPortsImpl(DEFAULT_SOCKS_PORT, DEFAULT_CONTROL_PORT);
 	}
 
 	@Provides

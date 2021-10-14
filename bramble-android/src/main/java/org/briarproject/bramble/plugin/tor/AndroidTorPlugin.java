@@ -16,6 +16,7 @@ import org.briarproject.bramble.api.system.AndroidWakeLockManager;
 import org.briarproject.bramble.api.system.Clock;
 import org.briarproject.bramble.api.system.LocationUtils;
 import org.briarproject.bramble.api.system.ResourceProvider;
+import org.briarproject.bramble.plugin.TorPorts;
 import org.briarproject.bramble.util.AndroidUtils;
 
 import java.io.File;
@@ -59,6 +60,7 @@ class AndroidTorPlugin extends TorPlugin {
 			NetworkManager networkManager,
 			LocationUtils locationUtils,
 			SocketFactory torSocketFactory,
+			TorPorts torPorts,
 			Clock clock,
 			ResourceProvider resourceProvider,
 			CircumventionProvider circumventionProvider,
@@ -72,7 +74,7 @@ class AndroidTorPlugin extends TorPlugin {
 			int maxIdleTime,
 			File torDirectory) {
 		super(ioExecutor, wakefulIoExecutor, networkManager, locationUtils,
-				torSocketFactory, clock, resourceProvider,
+				torSocketFactory, torPorts, clock, resourceProvider,
 				circumventionProvider, batteryManager, backoff,
 				torRendezvousCrypto, callback, architecture, maxLatency,
 				maxIdleTime, torDirectory);
