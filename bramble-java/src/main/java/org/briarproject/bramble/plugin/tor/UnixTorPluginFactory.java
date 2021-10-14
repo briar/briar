@@ -17,6 +17,7 @@ import org.briarproject.bramble.api.system.Clock;
 import org.briarproject.bramble.api.system.LocationUtils;
 import org.briarproject.bramble.api.system.ResourceProvider;
 import org.briarproject.bramble.api.system.WakefulIoExecutor;
+import org.briarproject.bramble.plugin.TorPorts;
 
 import java.io.File;
 import java.util.concurrent.Executor;
@@ -48,6 +49,7 @@ public class UnixTorPluginFactory implements DuplexPluginFactory {
 	private final LocationUtils locationUtils;
 	private final EventBus eventBus;
 	private final SocketFactory torSocketFactory;
+	private final TorPorts torPorts;
 	private final BackoffFactory backoffFactory;
 	private final ResourceProvider resourceProvider;
 	private final CircumventionProvider circumventionProvider;
@@ -62,6 +64,7 @@ public class UnixTorPluginFactory implements DuplexPluginFactory {
 			LocationUtils locationUtils,
 			EventBus eventBus,
 			SocketFactory torSocketFactory,
+			TorPorts torPorts,
 			BackoffFactory backoffFactory,
 			ResourceProvider resourceProvider,
 			CircumventionProvider circumventionProvider,
@@ -74,6 +77,7 @@ public class UnixTorPluginFactory implements DuplexPluginFactory {
 		this.locationUtils = locationUtils;
 		this.eventBus = eventBus;
 		this.torSocketFactory = torSocketFactory;
+		this.torPorts = torPorts;
 		this.backoffFactory = backoffFactory;
 		this.resourceProvider = resourceProvider;
 		this.circumventionProvider = circumventionProvider;
@@ -122,8 +126,8 @@ public class UnixTorPluginFactory implements DuplexPluginFactory {
 				MAX_POLLING_INTERVAL, BACKOFF_BASE);
 		TorRendezvousCrypto torRendezvousCrypto = new TorRendezvousCryptoImpl();
 		UnixTorPlugin plugin = new UnixTorPlugin(ioExecutor, wakefulIoExecutor,
-				networkManager, locationUtils, torSocketFactory, clock,
-				resourceProvider, circumventionProvider, batteryManager,
+				networkManager, locationUtils, torSocketFactory, torPorts,
+				clock, resourceProvider, circumventionProvider, batteryManager,
 				backoff, torRendezvousCrypto, callback, architecture,
 				MAX_LATENCY, MAX_IDLE_TIME, torDirectory);
 		eventBus.addListener(plugin);

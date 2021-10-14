@@ -42,4 +42,10 @@ public class PluginModule {
 		if (config.shouldPoll()) eventBus.addListener(poller);
 		return poller;
 	}
+
+	@Provides
+	@Singleton
+	TorPorts provideTorPorts() {
+		return new TorPortsImpl();
+	}
 }

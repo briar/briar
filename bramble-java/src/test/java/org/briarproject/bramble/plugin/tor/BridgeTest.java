@@ -11,6 +11,7 @@ import org.briarproject.bramble.api.system.Clock;
 import org.briarproject.bramble.api.system.LocationUtils;
 import org.briarproject.bramble.api.system.ResourceProvider;
 import org.briarproject.bramble.api.system.WakefulIoExecutor;
+import org.briarproject.bramble.plugin.TorPorts;
 import org.briarproject.bramble.test.BrambleJavaIntegrationTestComponent;
 import org.briarproject.bramble.test.BrambleTestCase;
 import org.briarproject.bramble.test.DaggerBrambleJavaIntegrationTestComponent;
@@ -86,6 +87,8 @@ public class BridgeTest extends BrambleTestCase {
 	BackoffFactory backoffFactory;
 	@Inject
 	Clock clock;
+	@Inject
+	TorPorts torPorts;
 
 	private final File torDir = getTestDirectory();
 	private final String bridge;
@@ -138,7 +141,7 @@ public class BridgeTest extends BrambleTestCase {
 		};
 		factory = new UnixTorPluginFactory(ioExecutor, wakefulIoExecutor,
 				networkManager, locationUtils, eventBus, torSocketFactory,
-				backoffFactory, resourceProvider, bridgeProvider,
+				torPorts, backoffFactory, resourceProvider, bridgeProvider,
 				batteryManager, clock, torDir);
 	}
 

@@ -10,9 +10,6 @@ public interface TorConstants {
 	String PROP_ONION_V2 = "onion";
 	String PROP_ONION_V3 = "onion3";
 
-	int SOCKS_PORT = 59050;
-	int CONTROL_PORT = 59051;
-
 	int CONNECT_TO_PROXY_TIMEOUT = 5000; // Milliseconds
 	int EXTRA_SOCKET_TIMEOUT = 30000; // Milliseconds
 
