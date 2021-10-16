@@ -155,7 +155,12 @@ public class AppModule {
 	@Provides
 	@Singleton
 	TorPorts provideTorPorts() {
-		return new TorPortsImpl(DEFAULT_SOCKS_PORT, DEFAULT_CONTROL_PORT);
+		if (!IS_DEBUG_BUILD) {
+			return new TorPortsImpl(DEFAULT_SOCKS_PORT, DEFAULT_CONTROL_PORT);
+		} else {
+			return new TorPortsImpl(DEFAULT_SOCKS_PORT + 2,
+					DEFAULT_CONTROL_PORT + 2);
+		}
 	}
 
 	@Provides
