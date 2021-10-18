@@ -1,15 +1,23 @@
 <component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="All tests in briar-headless" type="AndroidJUnit" factoryName="Android JUnit">
-    <module name="briar.briar-headless" />
-    <option name="PACKAGE_NAME" value="org.briarproject.briar.headless" />
-    <option name="MAIN_CLASS_NAME" value="" />
-    <option name="METHOD_NAME" value="" />
-    <option name="TEST_OBJECT" value="package" />
-    <option name="VM_PARAMETERS" />
-    <option name="PARAMETERS" value="" />
-    <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/briar-headless" />
-    <method v="2">
-      <option name="Android.Gradle.BeforeRunTask" enabled="true" />
-    </method>
+  <configuration default="false" name="All tests in briar-headless" type="GradleRunConfiguration" factoryName="Gradle">
+    <ExternalSystemSettings>
+      <option name="executionName" />
+      <option name="externalProjectPath" value="$PROJECT_DIR$" />
+      <option name="externalSystemIdString" value="GRADLE" />
+      <option name="scriptParameters" value="" />
+      <option name="taskDescriptions">
+        <list />
+      </option>
+      <option name="taskNames">
+        <list>
+          <option value=":briar-headless:test" />
+        </list>
+      </option>
+      <option name="vmOptions" value="" />
+    </ExternalSystemSettings>
+    <ExternalSystemDebugServerProcess>false</ExternalSystemDebugServerProcess>
+    <ExternalSystemReattachDebugProcess>true</ExternalSystemReattachDebugProcess>
+    <DebugAllEnabled>false</DebugAllEnabled>
+    <method v="2" />
   </configuration>
 </component>

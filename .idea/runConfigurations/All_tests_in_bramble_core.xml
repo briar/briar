@@ -1,14 +1,25 @@
 <component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="All tests in bramble-core" type="AndroidJUnit" factoryName="Android JUnit">
-    <module name="briar.bramble-core" />
-    <option name="PACKAGE_NAME" value="" />
-    <option name="MAIN_CLASS_NAME" value="" />
-    <option name="METHOD_NAME" value="" />
-    <option name="TEST_OBJECT" value="package" />
-    <option name="PARAMETERS" value="" />
-    <option name="WORKING_DIRECTORY" value="file://$PROJECT_DIR$/bramble-core" />
-    <method v="2">
-      <option name="Android.Gradle.BeforeRunTask" enabled="true" />
-    </method>
+  <configuration default="false" name="All tests in bramble-core" type="GradleRunConfiguration" factoryName="Gradle">
+    <ExternalSystemSettings>
+      <option name="executionName" />
+      <option name="externalProjectPath" value="$PROJECT_DIR$" />
+      <option name="externalSystemIdString" value="GRADLE" />
+      <option name="scriptParameters" value="" />
+      <option name="taskDescriptions">
+        <list />
+      </option>
+      <option name="taskNames">
+        <list>
+          <option value=":bramble-core:animalSnifferMain" />
+          <option value=":bramble-core:animalSnifferTest" />
+          <option value=":bramble-core:test" />
+        </list>
+      </option>
+      <option name="vmOptions" value="" />
+    </ExternalSystemSettings>
+    <ExternalSystemDebugServerProcess>false</ExternalSystemDebugServerProcess>
+    <ExternalSystemReattachDebugProcess>true</ExternalSystemReattachDebugProcess>
+    <DebugAllEnabled>false</DebugAllEnabled>
+    <method v="2" />
   </configuration>
 </component>
