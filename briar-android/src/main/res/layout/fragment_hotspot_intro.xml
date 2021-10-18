@@ -14,8 +14,8 @@
 
 		<ImageView
 			android:id="@+id/imageView"
-			android:layout_width="@dimen/hero_square"
-			android:layout_height="@dimen/hero_square"
+			android:layout_width="@dimen/hero_rect_width"
+			android:layout_height="@dimen/hero_rect_width"
 			android:layout_marginHorizontal="@dimen/margin_xlarge"
 			android:layout_marginTop="@dimen/margin_xlarge"
 			app:layout_constraintBottom_toTopOf="@+id/introView"
@@ -24,7 +24,7 @@
 			app:layout_constraintTop_toTopOf="parent"
 			app:layout_constraintVertical_bias="0.25"
 			app:layout_constraintVertical_chainStyle="packed"
-			app:srcCompat="@drawable/ic_wifi_tethering"
+			app:srcCompat="@drawable/ic_share_app"
 			tools:ignore="ContentDescription" />
 
 		<TextView
