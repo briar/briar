@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="MissingTranslation">
+
+	<!--
+	WARNING: These strings typically get overwritten by library consumers.
+	         If adding/removing strings here, consumers need to adapt.
+	-->
+
+	<string name="setup_doze_title">Background Connections</string>
+	<string name="setup_doze_intro">To work properly, this app needs to run in the background.</string>
+	<string name="setup_doze_explanation">Please disable battery optimizations so this app can run in the background.</string>
+	<string name="setup_doze_button">Allow Connections</string>
+	<string name="create_account_button">Continue</string>
+
+	<string name="setup_huawei_text">Please tap the button below and make sure this app is protected in the \"Protected Apps\" screen.</string>
+	<string name="setup_huawei_button">Protect this app</string>
+	<string name="setup_huawei_help">If this app is not added to the protected apps list, it will be unable to run in the background.</string>
+	<string name="setup_huawei_app_launch_text">Please tap the button below, open the \"App launch\" screen and make sure this app is set to \"Manage manually\".</string>
+	<string name="setup_huawei_app_launch_button">Open Battery Settings</string>
+	<string name="setup_huawei_app_launch_help">If this app is not set to \"Manage manually\" in the \"App launch\" screen, it will not be able to run in the background.</string>
+	<string name="setup_xiaomi_text">To run in the background, this app needs to be locked to the recent apps list.</string>
+	<string name="setup_xiaomi_button">Protect this app</string>
+	<string name="setup_xiaomi_help">If this app is not locked to the recent apps list, it will be unable to run in the background.</string>
+	<string name="setup_xiaomi_dialog_body_old">1. Open the recent apps list (also called the app switcher)\n\n2. Swipe down on the image of this app to show the padlock icon\n\n3. If the padlock is not locked, tap to lock it</string>
+	<string name="setup_xiaomi_dialog_body_new">1. Open the recent apps list (also called the app switcher)\n\n2. Press and hold the image of this app until the padlock button appears\n\n3. If the padlock is not locked, tap to lock it</string>
+
+	<string name="got_it">Got it</string>
+	<string name="help">Help</string>
+</resources>

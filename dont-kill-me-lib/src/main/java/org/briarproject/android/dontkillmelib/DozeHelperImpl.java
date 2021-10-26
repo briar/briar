@@ -1,12 +1,12 @@
-package org.briarproject.briar.android.account;
+package org.briarproject.android.dontkillmelib;
 
 import android.content.Context;
 
-import static org.briarproject.briar.android.util.UiUtils.needsDozeWhitelisting;
+import static org.briarproject.android.dontkillmelib.PowerUtils.needsDozeWhitelisting;
 
-class DozeHelperImpl implements DozeHelper {
+public class DozeHelperImpl implements DozeHelper {
 	@Override
-	public boolean needToShowDozeFragment(Context context) {
+	public boolean needToShowDoNotKillMeFragment(Context context) {
 		Context appContext = context.getApplicationContext();
 		return needsDozeWhitelisting(appContext) ||
 				HuaweiProtectedAppsView.needsToBeShown(appContext) ||

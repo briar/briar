@@ -65,6 +65,12 @@
 		<item name="android:minWidth">@dimen/button_size</item>
 	</style>
 
+	<style name="HelpButton" parent="BriarButtonFlat.Positive">
+		<item name="android:tint">@color/briar_button_text_positive</item>
+	</style>
+
+	<style name="DoNotKillMeButton" parent="BriarButton" />
+
 	<style name="Divider">
 		<item name="android:background">@color/divider</item>
 	</style>

@@ -1,4 +1,4 @@
-package org.briarproject.briar.android.account;
+package org.briarproject.android.dontkillmelib;
 
 import android.content.Context;
 import android.os.Parcel;
@@ -11,19 +11,15 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
-import org.briarproject.briar.R;
-
 import androidx.annotation.Nullable;
 import androidx.annotation.StringRes;
 import androidx.annotation.UiThread;
 import androidx.constraintlayout.widget.ConstraintLayout;
 
 import static android.content.Context.LAYOUT_INFLATER_SERVICE;
-import static org.briarproject.briar.android.util.UiUtils.showOnboardingDialog;
+import static org.briarproject.android.dontkillmelib.PowerUtils.showOnboardingDialog;
 
 @UiThread
-@NotNullByDefault
 abstract class PowerView extends ConstraintLayout {
 
 	private final TextView textView;

@@ -14,12 +14,14 @@ import org.briarproject.briar.android.fragment.BaseFragment.BaseFragmentListener
 import javax.annotation.Nullable;
 import javax.inject.Inject;
 
+import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 
 import static android.content.Intent.FLAG_ACTIVITY_CLEAR_TASK;
 import static android.content.Intent.FLAG_ACTIVITY_CLEAR_TOP;
 import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
 import static android.content.Intent.FLAG_ACTIVITY_TASK_ON_HOME;
+import static androidx.lifecycle.Lifecycle.State.STARTED;
 import static org.briarproject.briar.android.BriarApplication.ENTRY_ACTIVITY;
 import static org.briarproject.briar.android.account.SetupViewModel.State.AUTHOR_NAME;
 import static org.briarproject.briar.android.account.SetupViewModel.State.CREATED;
@@ -28,6 +30,7 @@ import static org.briarproject.briar.android.account.SetupViewModel.State.FAILED
 import static org.briarproject.briar.android.account.SetupViewModel.State.SET_PASSWORD;
 import static org.briarproject.briar.android.util.UiUtils.setInputStateAlwaysVisible;
 import static org.briarproject.briar.android.util.UiUtils.setInputStateHidden;
+import static org.briarproject.briar.android.util.UiUtils.showFragment;
 
 @MethodsNotNullByDefault
 @ParametersNotNullByDefault
@@ -77,7 +80,10 @@ public class SetupActivity extends BaseActivity
 
 	@TargetApi(23)
 	void showDozeFragment() {
-		showNextFragment(DozeFragment.newInstance());
+		Fragment f = new DoNotKillMeFragment();
+		String tag = DoNotKillMeFragment.TAG;
+		if (!getLifecycle().getCurrentState().isAtLeast(STARTED)) return;
+		showFragment(getSupportFragmentManager(), f, tag);
 	}
 
 	void showApp() {

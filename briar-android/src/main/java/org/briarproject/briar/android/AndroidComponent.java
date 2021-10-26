@@ -33,6 +33,7 @@ import org.briarproject.bramble.plugin.tor.CircumventionProvider;
 import org.briarproject.bramble.system.ClockModule;
 import org.briarproject.briar.BriarCoreEagerSingletons;
 import org.briarproject.briar.BriarCoreModule;
+import org.briarproject.briar.android.account.DoNotKillMeFragment;
 import org.briarproject.briar.android.attachment.AttachmentModule;
 import org.briarproject.briar.android.attachment.media.MediaModule;
 import org.briarproject.briar.android.contact.connect.BluetoothIntroFragment;
@@ -239,4 +240,6 @@ public interface AndroidComponent
 	void inject(ReceiveFragment receiveFragment);
 
 	void inject(BluetoothIntroFragment bluetoothIntroFragment);
+
+	void inject(DoNotKillMeFragment dozeFragment);
 }

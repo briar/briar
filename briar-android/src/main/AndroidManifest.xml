@@ -34,7 +34,6 @@
 		tools:ignore="ScopedStorage" />
 
 	<uses-permission-sdk-23 android:name="android.permission.ACCESS_FINE_LOCATION" />
-	<uses-permission-sdk-23 android:name="android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS" />
 	<uses-permission-sdk-23 android:name="android.permission.USE_BIOMETRIC" />
 	<uses-permission-sdk-23 android:name="android.permission.FOREGROUND_SERVICE" />
 
@@ -477,9 +476,6 @@
 
 	<queries>
 		<package android:name="info.guardianproject.ripple" />
-		<package android:name="com.huawei.systemmanager" />
-		<package android:name="com.huawei.powergenie" />
-		<package android:name="com.evenwell.PowerMonitor" />
 
 		<intent>
 			<action android:name="android.intent.action.VIEW" />

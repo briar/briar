@@ -99,13 +99,14 @@ dependencies {
 	implementation project(path: ':briar-core', configuration: 'default')
 	implementation project(path: ':bramble-core', configuration: 'default')
 	implementation project(':bramble-android')
+	implementation project(':dont-kill-me-lib')
 
-	implementation 'androidx.fragment:fragment:1.3.4'
+	implementation "androidx.fragment:fragment:$androidx_fragment_version"
 	implementation 'androidx.preference:preference:1.1.1'
 	implementation 'androidx.exifinterface:exifinterface:1.3.2'
 	implementation 'androidx.lifecycle:lifecycle-extensions:2.2.0'
-	implementation 'androidx.constraintlayout:constraintlayout:2.0.4'
-	implementation 'com.google.android.material:material:1.3.0'
+	implementation "androidx.constraintlayout:constraintlayout:$androidx_constraintlayout_version"
+	implementation "com.google.android.material:material:$google_material_version"
 	implementation 'androidx.recyclerview:recyclerview-selection:1.1.0'
 
 	implementation 'info.guardianproject.panic:panic:1.0'

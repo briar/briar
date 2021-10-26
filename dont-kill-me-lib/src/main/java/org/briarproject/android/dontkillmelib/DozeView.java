@@ -1,19 +1,15 @@
-package org.briarproject.briar.android.account;
+package org.briarproject.android.dontkillmelib;
 
 
 import android.content.Context;
 import android.util.AttributeSet;
 
-import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
-import org.briarproject.briar.R;
-
 import androidx.annotation.Nullable;
 import androidx.annotation.UiThread;
 
-import static org.briarproject.briar.android.util.UiUtils.needsDozeWhitelisting;
+import static org.briarproject.android.dontkillmelib.PowerUtils.needsDozeWhitelisting;
 
 @UiThread
-@NotNullByDefault
 class DozeView extends PowerView {
 
 	@Nullable

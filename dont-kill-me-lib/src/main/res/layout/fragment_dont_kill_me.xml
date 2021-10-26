@@ -9,47 +9,47 @@
 	<androidx.constraintlayout.widget.ConstraintLayout
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
-		android:padding="@dimen/margin_activity_vertical">
+		android:padding="16dp">
 
-		<org.briarproject.briar.android.account.DozeView
+		<org.briarproject.android.dontkillmelib.DozeView
 			android:id="@+id/dozeView"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
-			android:paddingBottom="@dimen/margin_large"
+			android:paddingBottom="16dp"
 			app:layout_constraintEnd_toEndOf="parent"
 			app:layout_constraintStart_toStartOf="parent"
 			app:layout_constraintTop_toTopOf="parent" />
 
-		<org.briarproject.briar.android.account.HuaweiProtectedAppsView
+		<org.briarproject.android.dontkillmelib.HuaweiProtectedAppsView
 			android:id="@+id/huaweiProtectedAppsView"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
-			android:paddingBottom="@dimen/margin_large"
+			android:paddingBottom="16dp"
 			app:layout_constraintEnd_toEndOf="parent"
 			app:layout_constraintStart_toStartOf="parent"
 			app:layout_constraintTop_toBottomOf="@+id/dozeView" />
 
-		<org.briarproject.briar.android.account.HuaweiAppLaunchView
+		<org.briarproject.android.dontkillmelib.HuaweiAppLaunchView
 			android:id="@+id/huaweiAppLaunchView"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
-			android:paddingBottom="@dimen/margin_large"
+			android:paddingBottom="16dp"
 			app:layout_constraintEnd_toEndOf="parent"
 			app:layout_constraintStart_toStartOf="parent"
 			app:layout_constraintTop_toBottomOf="@+id/huaweiProtectedAppsView" />
 
-		<org.briarproject.briar.android.account.XiaomiView
+		<org.briarproject.android.dontkillmelib.XiaomiView
 			android:id="@+id/xiaomiView"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
-			android:paddingBottom="@dimen/margin_large"
+			android:paddingBottom="16dp"
 			app:layout_constraintEnd_toEndOf="parent"
 			app:layout_constraintStart_toStartOf="parent"
 			app:layout_constraintTop_toBottomOf="@+id/huaweiAppLaunchView" />
 
 		<Button
 			android:id="@+id/next"
-			style="@style/BriarButton"
+			style="@style/DoNotKillMeButton"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
 			android:enabled="false"

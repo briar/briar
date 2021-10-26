@@ -1,24 +1,18 @@
-package org.briarproject.briar.android.account;
+package org.briarproject.android.dontkillmelib;
 
 
 import android.content.Context;
 import android.util.AttributeSet;
 
-import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
-import org.briarproject.briar.R;
-
-import javax.annotation.Nullable;
-
+import androidx.annotation.Nullable;
 import androidx.annotation.StringRes;
 import androidx.annotation.UiThread;
 
 import static android.os.Build.BRAND;
-import static org.briarproject.bramble.util.AndroidUtils.getSystemProperty;
-import static org.briarproject.bramble.util.StringUtils.isNullOrEmpty;
-import static org.briarproject.briar.android.util.UiUtils.showOnboardingDialog;
+import static org.briarproject.android.dontkillmelib.PowerUtils.getSystemProperty;
+import static org.briarproject.android.dontkillmelib.PowerUtils.showOnboardingDialog;
 
 @UiThread
-@NotNullByDefault
 class XiaomiView extends PowerView {
 
 	public XiaomiView(Context context) {
@@ -63,7 +57,7 @@ class XiaomiView extends PowerView {
 
 	private boolean isMiuiTenOrLater() {
 		String version = getSystemProperty("ro.miui.ui.version.name");
-		if (isNullOrEmpty(version)) return false;
+		if (version == null || version.equals("")) return false;
 		version = version.replaceAll("[^\\d]", "");
 		try {
 			return Integer.parseInt(version) >= 10;

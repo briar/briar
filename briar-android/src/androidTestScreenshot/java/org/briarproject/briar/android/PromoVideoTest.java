@@ -39,11 +39,11 @@ import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
 import static androidx.test.platform.app.InstrumentationRegistry.getInstrumentation;
 import static java.lang.Thread.sleep;
+import static org.briarproject.android.dontkillmelib.PowerUtils.needsDozeWhitelisting;
 import static org.briarproject.bramble.api.plugin.LanTcpConstants.ID;
 import static org.briarproject.briar.android.OverlayTapViewAction.visualClick;
 import static org.briarproject.briar.android.ViewActions.waitFor;
 import static org.briarproject.briar.android.ViewActions.waitUntilMatches;
-import static org.briarproject.briar.android.util.UiUtils.needsDozeWhitelisting;
 import static org.hamcrest.CoreMatchers.allOf;
 import static org.junit.Assert.assertTrue;
 
