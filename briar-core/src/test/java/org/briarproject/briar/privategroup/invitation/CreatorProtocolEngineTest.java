@@ -24,7 +24,7 @@ public class CreatorProtocolEngineTest extends AbstractProtocolEngineTest {
 			new CreatorProtocolEngine(db, clientHelper, clientVersioningManager,
 					privateGroupManager, privateGroupFactory,
 					groupMessageFactory, identityManager, messageParser,
-					messageEncoder, messageTracker, autoDeleteManager,
+					messageEncoder, autoDeleteManager,
 					conversationManager, clock);
 
 	private CreatorSession getDefaultSession(CreatorState state) {
@@ -76,7 +76,7 @@ public class CreatorProtocolEngineTest extends AbstractProtocolEngineTest {
 			will(returnValue(privateGroupGroup));
 			oneOf(privateGroupFactory).parsePrivateGroup(privateGroupGroup);
 			will(returnValue(privateGroup));
-			oneOf(messageTracker).trackOutgoingMessage(txn, message);
+			oneOf(conversationManager).trackOutgoingMessage(txn, message);
 		}});
 		expectSendInviteMessage(text);
 	}

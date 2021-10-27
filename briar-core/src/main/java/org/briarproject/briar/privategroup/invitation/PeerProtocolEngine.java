@@ -13,7 +13,6 @@ import org.briarproject.bramble.api.sync.Message;
 import org.briarproject.bramble.api.system.Clock;
 import org.briarproject.bramble.api.versioning.ClientVersioningManager;
 import org.briarproject.briar.api.autodelete.AutoDeleteManager;
-import org.briarproject.briar.api.client.MessageTracker;
 import org.briarproject.briar.api.client.ProtocolStateException;
 import org.briarproject.briar.api.conversation.ConversationManager;
 import org.briarproject.briar.api.privategroup.GroupMessageFactory;
@@ -48,13 +47,12 @@ class PeerProtocolEngine extends AbstractProtocolEngine<PeerSession> {
 			IdentityManager identityManager,
 			MessageParser messageParser,
 			MessageEncoder messageEncoder,
-			MessageTracker messageTracker,
 			AutoDeleteManager autoDeleteManager,
 			ConversationManager conversationManager,
 			Clock clock) {
 		super(db, clientHelper, clientVersioningManager, privateGroupManager,
 				privateGroupFactory, groupMessageFactory, identityManager,
-				messageParser, messageEncoder, messageTracker,
+				messageParser, messageEncoder,
 				autoDeleteManager, conversationManager, clock);
 	}
 

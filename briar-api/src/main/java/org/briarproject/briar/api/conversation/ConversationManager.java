@@ -7,6 +7,7 @@ import org.briarproject.bramble.api.db.Transaction;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.sync.Group;
 import org.briarproject.bramble.api.sync.GroupId;
+import org.briarproject.bramble.api.sync.Message;
 import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.briar.api.client.MessageTracker.GroupCount;
 import org.briarproject.briar.api.messaging.MessagingManager;
@@ -46,6 +47,27 @@ public interface ConversationManager {
 	 * Returns the unified group count for all private conversation messages.
 	 */
 	GroupCount getGroupCount(Transaction txn, ContactId c) throws DbException;
+
+	/**
+	 * Updates the group count for the given incoming private conversation message
+	 * and broadcasts a corresponding event.
+	 */
+	void trackIncomingMessage(Transaction txn, Message m)
+			throws DbException;
+
+	/**
+	 * Updates the group count for the given outgoing private conversation message
+	 * and broadcasts a corresponding event.
+	 */
+	void trackOutgoingMessage(Transaction txn, Message m)
+			throws DbException;
+
+	/**
+	 * Updates the group count for the given private conversation message
+	 * and broadcasts a corresponding event.
+	 */
+	void trackMessage(Transaction txn, GroupId g, long timestamp, boolean read)
+			throws DbException;
 
 	void setReadFlag(GroupId g, MessageId m, boolean read)
 			throws DbException;

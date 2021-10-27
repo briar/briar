@@ -100,7 +100,7 @@ abstract class AbstractProtocolEngine<S extends Session<?>>
 			long timestamp, Author author, @Nullable String text)
 			throws DbException {
 		Message m;
-		ContactId c = getContactId(txn, s.getContactGroupId());
+		ContactId c = clientHelper.getContactId(txn, s.getContactGroupId());
 		if (contactSupportsAutoDeletion(txn, c)) {
 			long timer = autoDeleteManager.getAutoDeleteTimer(txn, c,
 					timestamp);
@@ -125,7 +125,7 @@ abstract class AbstractProtocolEngine<S extends Session<?>>
 			Map<TransportId, TransportProperties> transportProperties,
 			boolean visible) throws DbException {
 		Message m;
-		ContactId c = getContactId(txn, s.getContactGroupId());
+		ContactId c = clientHelper.getContactId(txn, s.getContactGroupId());
 		if (contactSupportsAutoDeletion(txn, c)) {
 			long timer = autoDeleteManager.getAutoDeleteTimer(txn, c,
 					timestamp);
@@ -152,7 +152,7 @@ abstract class AbstractProtocolEngine<S extends Session<?>>
 			boolean visible, boolean isAutoDecline) throws DbException {
 		if (!visible && isAutoDecline) throw new IllegalArgumentException();
 		Message m;
-		ContactId c = getContactId(txn, s.getContactGroupId());
+		ContactId c = clientHelper.getContactId(txn, s.getContactGroupId());
 		if (contactSupportsAutoDeletion(txn, c)) {
 			long timer = autoDeleteManager.getAutoDeleteTimer(txn, c,
 					timestamp);
@@ -276,24 +276,15 @@ abstract class AbstractProtocolEngine<S extends Session<?>>
 
 	long getTimestampForOutgoingMessage(Transaction txn, GroupId contactGroupId)
 			throws DbException {
-		ContactId c = getContactId(txn, contactGroupId);
+		ContactId c = clientHelper.getContactId(txn, contactGroupId);
 		return conversationManager.getTimestampForOutgoingMessage(txn, c);
 	}
 
 	void receiveAutoDeleteTimer(Transaction txn, AbstractIntroductionMessage m)
 			throws DbException {
-		ContactId c = getContactId(txn, m.getGroupId());
+		ContactId c = clientHelper.getContactId(txn, m.getGroupId());
 		autoDeleteManager.receiveAutoDeleteTimer(txn, c, m.getAutoDeleteTimer(),
 				m.getTimestamp());
-	}
-
-	private ContactId getContactId(Transaction txn, GroupId contactGroupId)
-			throws DbException {
-		try {
-			return clientHelper.getContactId(txn, contactGroupId);
-		} catch (FormatException e) {
-			throw new DbException(e);
-		}
 	}
 
 	private boolean contactSupportsAutoDeletion(Transaction txn, ContactId c)

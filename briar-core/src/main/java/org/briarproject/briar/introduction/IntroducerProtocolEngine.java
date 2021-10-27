@@ -40,6 +40,7 @@ import static org.briarproject.briar.introduction.IntroducerState.A_DECLINED;
 import static org.briarproject.briar.introduction.IntroducerState.B_DECLINED;
 import static org.briarproject.briar.introduction.IntroducerState.START;
 
+
 @Immutable
 @NotNullByDefault
 class IntroducerProtocolEngine
@@ -231,8 +232,8 @@ class IntroducerProtocolEngine
 		Message sentB = sendRequestMessage(txn, s.getIntroduceeB(),
 				localTimestamp, s.getIntroduceeA().author, text);
 		// Track the messages
-		messageTracker.trackOutgoingMessage(txn, sentA);
-		messageTracker.trackOutgoingMessage(txn, sentB);
+		conversationManager.trackOutgoingMessage(txn, sentA);
+		conversationManager.trackOutgoingMessage(txn, sentB);
 		// Move to the AWAIT_RESPONSES state
 		Introducee introduceeA = new Introducee(s.getIntroduceeA(), sentA);
 		Introducee introduceeB = new Introducee(s.getIntroduceeB(), sentB);
@@ -260,7 +261,7 @@ class IntroducerProtocolEngine
 		// Mark the response visible in the UI
 		markMessageVisibleInUi(txn, m.getMessageId());
 		// Track the incoming message
-		messageTracker
+		conversationManager
 				.trackMessage(txn, m.getGroupId(), m.getTimestamp(), false);
 		// Receive the auto-delete timer
 		receiveAutoDeleteTimer(txn, m);
@@ -323,7 +324,7 @@ class IntroducerProtocolEngine
 		// Mark the response visible in the UI
 		markMessageVisibleInUi(txn, m.getMessageId());
 		// Track the incoming message
-		messageTracker
+		conversationManager
 				.trackMessage(txn, m.getGroupId(), m.getTimestamp(), false);
 		// Receive the auto-delete timer
 		receiveAutoDeleteTimer(txn, m);
@@ -378,7 +379,7 @@ class IntroducerProtocolEngine
 		// Mark the response visible in the UI
 		markMessageVisibleInUi(txn, m.getMessageId());
 		// Track the incoming message
-		messageTracker
+		conversationManager
 				.trackMessage(txn, m.getGroupId(), m.getTimestamp(), false);
 		// Receive the auto-delete timer
 		receiveAutoDeleteTimer(txn, m);
@@ -433,7 +434,7 @@ class IntroducerProtocolEngine
 		// Mark the response visible in the UI
 		markMessageVisibleInUi(txn, m.getMessageId());
 		// Track the incoming message
-		messageTracker
+		conversationManager
 				.trackMessage(txn, m.getGroupId(), m.getTimestamp(), false);
 		// Receive the auto-delete timer
 		receiveAutoDeleteTimer(txn, m);

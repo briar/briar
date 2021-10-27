@@ -43,7 +43,7 @@ public class InviteeProtocolEngineTest extends AbstractProtocolEngineTest {
 			new InviteeProtocolEngine(db, clientHelper, clientVersioningManager,
 					privateGroupManager, privateGroupFactory,
 					groupMessageFactory, identityManager, messageParser,
-					messageEncoder, messageTracker, autoDeleteManager,
+					messageEncoder, autoDeleteManager,
 					conversationManager, clock);
 	private final LocalAuthor localAuthor = getLocalAuthor();
 
@@ -148,7 +148,7 @@ public class InviteeProtocolEngineTest extends AbstractProtocolEngineTest {
 		}});
 		expectSendJoinMessage(properJoinMessage, true);
 		context.checking(new Expectations() {{
-			oneOf(messageTracker).trackOutgoingMessage(txn, message);
+			oneOf(conversationManager).trackOutgoingMessage(txn, message);
 			oneOf(messageParser).getInviteMessage(txn, lastRemoteMessageId);
 			will(returnValue(inviteMessage));
 			oneOf(privateGroupFactory)
@@ -219,7 +219,7 @@ public class InviteeProtocolEngineTest extends AbstractProtocolEngineTest {
 		expectMarkMessageAvailableToAnswer(lastRemoteMessageId, false);
 		expectSendLeaveMessage(true);
 		context.checking(new Expectations() {{
-			oneOf(messageTracker).trackOutgoingMessage(txn, message);
+			oneOf(conversationManager).trackOutgoingMessage(txn, message);
 		}});
 
 		InviteeSession session = getDefaultSession(INVITED);

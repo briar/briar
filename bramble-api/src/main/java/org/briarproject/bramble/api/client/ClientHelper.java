@@ -128,7 +128,7 @@ public interface ClientHelper {
 	 * group.
 	 */
 	ContactId getContactId(Transaction txn, GroupId contactGroupId)
-			throws DbException, FormatException;
+			throws DbException;
 
 	/**
 	 * Stores the given contact ID in the group metadata of the given contact

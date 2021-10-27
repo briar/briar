@@ -14,7 +14,6 @@ import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.bramble.api.system.Clock;
 import org.briarproject.bramble.api.versioning.ClientVersioningManager;
 import org.briarproject.briar.api.autodelete.AutoDeleteManager;
-import org.briarproject.briar.api.client.MessageTracker;
 import org.briarproject.briar.api.client.ProtocolStateException;
 import org.briarproject.briar.api.client.SessionId;
 import org.briarproject.briar.api.conversation.ConversationManager;
@@ -53,13 +52,12 @@ class InviteeProtocolEngine extends AbstractProtocolEngine<InviteeSession> {
 			IdentityManager identityManager,
 			MessageParser messageParser,
 			MessageEncoder messageEncoder,
-			MessageTracker messageTracker,
 			AutoDeleteManager autoDeleteManager,
 			ConversationManager conversationManager,
 			Clock clock) {
 		super(db, clientHelper, clientVersioningManager, privateGroupManager,
 				privateGroupFactory, groupMessageFactory, identityManager,
-				messageParser, messageEncoder, messageTracker,
+				messageParser, messageEncoder,
 				autoDeleteManager, conversationManager, clock);
 	}
 
@@ -188,7 +186,7 @@ class InviteeProtocolEngine extends AbstractProtocolEngine<InviteeSession> {
 		// Send a JOIN message
 		Message sent = sendJoinMessage(txn, s, true);
 		// Track the message
-		messageTracker.trackOutgoingMessage(txn, sent);
+		conversationManager.trackOutgoingMessage(txn, sent);
 		try {
 			// Subscribe to the private group
 			subscribeToPrivateGroup(txn, inviteId);
@@ -212,7 +210,7 @@ class InviteeProtocolEngine extends AbstractProtocolEngine<InviteeSession> {
 		// Send a LEAVE message
 		Message sent = sendLeaveMessage(txn, s, true, isAutoDecline);
 		// Track the message
-		messageTracker.trackOutgoingMessage(txn, sent);
+		conversationManager.trackOutgoingMessage(txn, sent);
 		// Move to the START state
 		return new InviteeSession(s.getContactGroupId(), s.getPrivateGroupId(),
 				sent.getId(), s.getLastRemoteMessageId(), sent.getTimestamp(),
@@ -249,7 +247,7 @@ class InviteeProtocolEngine extends AbstractProtocolEngine<InviteeSession> {
 		markMessageVisibleInUi(txn, m.getId());
 		markMessageAvailableToAnswer(txn, m.getId(), true);
 		// Track the message
-		messageTracker.trackMessage(txn, m.getContactGroupId(),
+		conversationManager.trackMessage(txn, m.getContactGroupId(),
 				m.getTimestamp(), false);
 		// Receive the auto-delete timer
 		receiveAutoDeleteTimer(txn, m);
