@@ -744,6 +744,7 @@
 	<string name="hotspot_help_wifi_title">Problems with connecting to Wi-Fi:</string>
 	<string name="hotspot_help_wifi_1">Try disabling and re-enabling Wi-Fi on both phones and try again.</string>
 	<string name="hotspot_help_wifi_2">If your phone complains that the Wi-Fi has no Internet, tell it that you want to stay connected anyway.</string>
+	<string name="hotspot_help_wifi_3">Restart the phone which is running the Wi-Fi hotspot, then start Briar and try sharing again.</string>
 	<string name="hotspot_help_site_title">Problems visiting the local website:</string>
 	<string name="hotspot_help_site_1">Double check that you entered the address exactly as shown. A small error can make it fail.</string>
 	<string name="hotspot_help_site_2">Ensure that your phone is still connected to the correct Wi-Fi (see above) when you try to access the site.</string>
