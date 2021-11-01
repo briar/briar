@@ -76,7 +76,6 @@ import static java.util.Collections.singletonList;
 import static java.util.Collections.singletonMap;
 import static org.briarproject.bramble.api.reporting.ReportingConstants.DEV_ONION_ADDRESS;
 import static org.briarproject.bramble.api.reporting.ReportingConstants.DEV_PUBLIC_KEY_HEX;
-import static org.briarproject.briar.android.TestingConstants.IS_DEBUG_BUILD;
 
 @Module(includes = {
 		SetupModule.class,
@@ -171,11 +170,8 @@ public class AppModule {
 
 			@Override
 			public Collection<SimplexPluginFactory> getSimplexFactories() {
-				if (SDK_INT >= 19 && featureFlags.shouldEnableTransferData()) {
-					return singletonList(drive);
-				} else {
-					return emptyList();
-				}
+				if (SDK_INT >= 19) return singletonList(drive);
+				else return emptyList();
 			}
 
 			@Override
@@ -311,16 +307,6 @@ public class AppModule {
 			@Override
 			public boolean shouldEnableDisappearingMessages() {
 				return true;
-			}
-
-			@Override
-			public boolean shouldEnableTransferData() {
-				return IS_DEBUG_BUILD;
-			}
-
-			@Override
-			public boolean shouldEnableShareAppViaOfflineHotspot() {
-				return IS_DEBUG_BUILD;
 			}
 		};
 	}

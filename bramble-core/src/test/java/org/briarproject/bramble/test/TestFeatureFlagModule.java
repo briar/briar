@@ -24,16 +24,6 @@ public class TestFeatureFlagModule {
 			public boolean shouldEnableDisappearingMessages() {
 				return true;
 			}
-
-			@Override
-			public boolean shouldEnableTransferData() {
-				return true;
-			}
-
-			@Override
-			public boolean shouldEnableShareAppViaOfflineHotspot() {
-				return true;
-			}
 		};
 	}
 }

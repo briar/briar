@@ -10,8 +10,4 @@ public interface FeatureFlags {
 	boolean shouldEnableProfilePictures();
 
 	boolean shouldEnableDisappearingMessages();
-
-	boolean shouldEnableTransferData();
-
-	boolean shouldEnableShareAppViaOfflineHotspot();
 }

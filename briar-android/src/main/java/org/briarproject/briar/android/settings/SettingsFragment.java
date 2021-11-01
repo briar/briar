@@ -86,12 +86,6 @@ public class SettingsFragment extends PreferenceFragmentCompat {
 			PreferenceGroup dev = requireNonNull(findPreference(PREF_KEY_DEV));
 			dev.setVisible(false);
 		}
-
-		if (!viewModel.shouldEnableShareAppViaOfflineHotspot()) {
-			Preference shareApp =
-					requireNonNull(findPreference(PREF_KEY_SHARE_APP));
-			shareApp.setVisible(false);
-		}
 	}
 
 	@Override
