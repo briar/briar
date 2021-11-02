@@ -380,7 +380,7 @@ public class ConversationActivity extends BriarActivity
 			}
 		});
 		// Transfer Data feature only supported on API 19+
-		if (SDK_INT >= 19 && featureFlags.shouldEnableTransferData()) {
+		if (SDK_INT >= 19) {
 			menu.findItem(R.id.action_transfer_data).setVisible(true);
 		}
 		// enable alias and bluetooth action once available

@@ -262,8 +262,4 @@ class SettingsViewModel extends DbViewModel implements EventListener {
 		return screenLockTimeout;
 	}
 
-	boolean shouldEnableShareAppViaOfflineHotspot() {
-		return featureFlags.shouldEnableShareAppViaOfflineHotspot();
-	}
-
 }
