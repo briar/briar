@@ -38,6 +38,7 @@ import org.briarproject.briar.android.forum.ForumListFragment;
 import org.briarproject.briar.android.fragment.BaseFragment;
 import org.briarproject.briar.android.fragment.BaseFragment.BaseFragmentListener;
 import org.briarproject.briar.android.logout.SignOutFragment;
+import org.briarproject.briar.android.mailbox.MailboxActivity;
 import org.briarproject.briar.android.privategroup.list.GroupListFragment;
 import org.briarproject.briar.android.settings.SettingsActivity;
 
@@ -277,6 +278,8 @@ public class NavDrawerActivity extends BriarActivity implements
 			startActivity(new Intent(this, SettingsActivity.class));
 		} else if (fragmentId == R.id.nav_btn_signout) {
 			signOut();
+		} else if (fragmentId == R.id.nav_btn_mailbox) {
+			startActivity(new Intent(this, MailboxActivity.class));
 		}
 	}
 

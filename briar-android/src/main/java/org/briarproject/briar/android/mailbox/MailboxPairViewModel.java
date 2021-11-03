@@ -14,6 +14,8 @@ import org.briarproject.bramble.api.system.AndroidExecutor;
 import org.briarproject.bramble.util.StringUtils;
 import org.briarproject.briar.android.qrcode.QrCodeDecoder;
 import org.briarproject.briar.android.viewmodel.DbViewModel;
+import org.briarproject.briar.android.viewmodel.LiveEvent;
+import org.briarproject.briar.android.viewmodel.MutableLiveEvent;
 
 import java.nio.charset.Charset;
 import java.util.Arrays;
@@ -32,6 +34,8 @@ import static java.util.logging.Logger.getLogger;
 @NotNullByDefault
 class MailboxPairViewModel extends DbViewModel
 		implements QrCodeDecoder.ResultCallback {
+	enum State {QRCODE_VALID, QRCODE_INVALID}
+
 	private static final Logger LOG =
 			getLogger(MailboxPairViewModel.class.getName());
 
@@ -41,6 +45,8 @@ class MailboxPairViewModel extends DbViewModel
 	private static final Charset ISO_8859_1 = Charset.forName("ISO-8859-1");
 
 	private final CryptoComponent crypto;
+
+	private final MutableLiveEvent<State> state = new MutableLiveEvent<>();
 	private final QrCodeDecoder qrCodeDecoder;
 
 	@Nullable
@@ -71,6 +77,7 @@ class MailboxPairViewModel extends DbViewModel
 			LOG.info("QR code length in bytes: " + bytes.length);
 		if (bytes.length != 65) {
 			LOG.info("QR code has wrong length");
+			state.postEvent(State.QRCODE_INVALID);
 			return;
 		}
 
@@ -78,6 +85,7 @@ class MailboxPairViewModel extends DbViewModel
 			LOG.info("QR code version: " + bytes[0]);
 		if (bytes[0] != VERSION_REQUIRED) {
 			LOG.info("QR code has wrong version");
+			state.postEvent(State.QRCODE_INVALID);
 			return;
 		}
 
@@ -86,10 +94,29 @@ class MailboxPairViewModel extends DbViewModel
 		setupToken = StringUtils.toHexString(Arrays.copyOfRange(bytes, 33, 65))
 				.toLowerCase();
 		LOG.info("QR code is valid");
+		state.postEvent(State.QRCODE_VALID);
+	}
+
+	LiveEvent<State> getState() {
+		return state;
 	}
 
 	QrCodeDecoder getQrCodeDecoder() {
 		return qrCodeDecoder;
+	}
+
+	String getOnionAddress() {
+		if (onionAddress == null) {
+			throw new IllegalStateException();
+		}
+		return onionAddress;
+	}
+
+	String getSetupToken() {
+		if (setupToken == null) {
+			throw new IllegalStateException();
+		}
+		return setupToken;
 	}
 
 }

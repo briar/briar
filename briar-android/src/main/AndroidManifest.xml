@@ -453,6 +453,15 @@
 		</activity>
 
 		<activity
+			android:name="org.briarproject.briar.android.mailbox.MailboxActivity"
+			android:label="@string/mailbox_menu_title"
+			android:parentActivityName="org.briarproject.briar.android.navdrawer.NavDrawerActivity">
+			<meta-data
+				android:name="android.support.PARENT_ACTIVITY"
+				android:value="org.briarproject.briar.android.navdrawer.NavDrawerActivity" />
+		</activity>
+
+		<activity
 			android:name=".android.contact.add.remote.PendingContactListActivity"
 			android:label="@string/pending_contact_requests"
 			android:theme="@style/BriarTheme" />

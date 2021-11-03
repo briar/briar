@@ -46,6 +46,8 @@ import org.briarproject.briar.android.login.ChangePasswordActivity;
 import org.briarproject.briar.android.login.OpenDatabaseFragment;
 import org.briarproject.briar.android.login.PasswordFragment;
 import org.briarproject.briar.android.login.StartupActivity;
+import org.briarproject.briar.android.mailbox.MailboxActivity;
+import org.briarproject.briar.android.mailbox.MailboxPairFragment;
 import org.briarproject.briar.android.navdrawer.NavDrawerActivity;
 import org.briarproject.briar.android.navdrawer.TransportsActivity;
 import org.briarproject.briar.android.panic.PanicPreferencesActivity;
@@ -182,6 +184,8 @@ public interface ActivityComponent {
 
 	void inject(RemovableDriveActivity activity);
 
+	void inject(MailboxActivity activity);
+
 	// Fragments
 
 	void inject(SetupFragment fragment);
@@ -247,4 +251,6 @@ public interface ActivityComponent {
 	void inject(RssFeedDeleteFeedDialogFragment fragment);
 
 	void inject(ConnectViaBluetoothActivity connectViaBluetoothActivity);
+
+	void inject(MailboxPairFragment fragment);
 }

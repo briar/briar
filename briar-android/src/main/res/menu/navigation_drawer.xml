@@ -37,6 +37,10 @@
 			android:id="@+id/nav_btn_signout"
 			android:icon="@drawable/ic_signout"
 			android:title="@string/sign_out_button" />
+		<item
+			android:id="@+id/nav_btn_mailbox"
+			android:icon="@drawable/ic_crash"
+			android:title="@string/mailbox_menu_title" />
 	</group>
 
 </menu>
