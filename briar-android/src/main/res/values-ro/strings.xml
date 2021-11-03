@@ -22,14 +22,14 @@
   <string name="setup_huawei_text">Vă rugăm să apăsați butonul de mai jos și să vă asigurați că Briar este marcat ca protejat în fereastra de \"Aplicații protejate\".</string>
   <string name="setup_huawei_button">Protejează Briar</string>
   <string name="setup_huawei_help">Dacă Briar nu este adăugat în lista de aplicații protejate, nu va fi capabil să ruleze în fundal.</string>
-  <string name="setup_huawei_app_launch_text">Vă rugăm să atingeți butonul de mai jos, să deschideți ecranul \"Lansare app\" și să vă asigurați că Briar este setat la \"Gestionare manuală\".</string>
+  <string name="setup_huawei_app_launch_text">Vă rugăm să atingeți butonul de mai jos, să deschideți ecranul \"Lansare aplicație\" și să vă asigurați că Briar este setat la \"Gestionare manuală\".</string>
   <string name="setup_huawei_app_launch_button">Deschide setările de baterie</string>
-  <string name="setup_huawei_app_launch_help">Dacă Briar nu este setat la \" Gestionare manuală\" în ecranul \"Lansare app\", nu va putea rula în fundal.</string>
+  <string name="setup_huawei_app_launch_help">Dacă Briar nu este setat la \" Gestionare manuală\" în ecranul \"Lansare aplicație\", nu va putea rula în fundal.</string>
   <string name="setup_xiaomi_text">Pentru a funcționa în fundal, Briar trebuie să fie blocat în lista de aplicații recente.</string>
   <string name="setup_xiaomi_button">Protejează Briar</string>
   <string name="setup_xiaomi_help">Dacă Briar nu este blocat în lista de aplicații recente, acesta nu va putea rula în fundal.</string>
-  <string name="setup_xiaomi_dialog_body_old">1. Deschideți lista de aplicații recente (denumită și comutatorul de app-uri)\n\n2. Trageți cu degetul în jos pe imaginea lui Briar pentru a afișa pictograma lacătului\n\n\n3. Dacă lacătul nu este blocat, atingeți pentru a-l bloca</string>
-  <string name="setup_xiaomi_dialog_body_new">1. Deschideți lista de aplicații recente (denumită și comutatorul de app-uri)\n\n2. Țineți apăsată imaginea lui Briar până când apare butonul cu lacăt\n\n3. Dacă lacătul nu este blocat, apăsați pentru a-l bloca</string>
+  <string name="setup_xiaomi_dialog_body_old">1. Deschideți lista de aplicații recente (denumită și comutatorul de aplicații)\n\n2. Trageți cu degetul în jos pe imaginea lui Briar pentru a afișa pictograma lacătului\n\n3. Dacă lacătul nu este blocat, atingeți pentru a-l bloca</string>
+  <string name="setup_xiaomi_dialog_body_new">1. Deschideți lista de aplicații recente (denumită și comutatorul de aplicatii)\n\n2. Țineți apăsată imaginea lui Briar până când apare butonul cu lacăt\n\n3. Dacă lacătul nu este blocat, apăsați pentru a-l bloca</string>
   <string name="warning_dozed">%s nu poate rula în fundal</string>
   <!--Login-->
   <string name="enter_password">Parola</string>
@@ -42,10 +42,10 @@
   <string name="dialog_message_lost_password">Contul dvs. Briar este stocat criptat pe dispozitiv, nu în cloud. Dacă vă uitați parola sau ștergeți Briar, nu veți putea să vă recuperați contul. Doriți să vă ștergeți contul și să începeți din nou?\n\nAtenție: identitățile, contactele și mesajele dvs. vor fi pierdute definitiv.</string>
   <string name="startup_failed_activity_title">Eroare de pornire Briar</string>
   <string name="startup_failed_clock_error">Briar nu a putut porni deoarece ceasul dispozitivului dvs. este greșit.\n\nVă rugăm să setați ceasul dispozitivului dvs. la ora corectă și să încercați din nou.</string>
-  <string name="startup_failed_db_error">Briar nu a reușit să deschidă baza de date care conține contul dvs., contactele și mesajele dvs.\n\nVă rugăm să faceți upgrade la cea mai recentă versiune a app-ului și să încercați din nou, sau să configurați un cont nou alegând \"Mi-am uitat parola\" la solicitarea parolei.</string>
-  <string name="startup_failed_data_too_old_error">Contul dvs. a fost creat cu o versiune veche a acestui app și nu poate fi deschis cu această versiune.\n\nTrebuie fie să reinstalați versiunea veche, fie să creați un cont nou alegând \"Mi-am uitat parola\" la solicitarea de parolă.</string>
-  <string name="startup_failed_data_too_new_error">Contul dvs. a fost creat cu o versiune mai nouă a acestui app și nu poate fi deschis cu această versiune.\n\nVă rugăm să faceți upgrade la cea mai recentă versiune și să încercați din nou.</string>
-  <string name="startup_failed_service_error">Briar nu a reușit să pornească o componentă necesară.\n\nVă rugăm să faceți upgrade la cea mai recentă versiune a acestui app și să încercați din nou.</string>
+  <string name="startup_failed_db_error">Briar nu a reușit să deschidă baza de date care conține contul dvs., contactele și mesajele dvs.\n\nVă rugăm să faceți upgrade la cea mai recentă versiune a aplicației și să încercați din nou, sau să configurați un cont nou alegând \"Mi-am uitat parola\" la solicitarea parolei.</string>
+  <string name="startup_failed_data_too_old_error">Contul dvs. a fost creat cu o versiune veche a acestei aplicații și nu poate fi deschis cu această versiune.\n\nTrebuie fie să reinstalați versiunea veche, fie să creați un cont nou alegând \"Mi-am uitat parola\" la solicitarea de parolă.</string>
+  <string name="startup_failed_data_too_new_error">Contul dvs. a fost creat cu o versiune mai nouă a acestei aplicații și nu poate fi deschis cu această versiune.\n\nVă rugăm să faceți upgrade la cea mai recentă versiune și să încercați din nou.</string>
+  <string name="startup_failed_service_error">Briar nu a reușit să pornească o componentă necesară.\n\nVă rugăm să faceți upgrade la cea mai recentă versiune a acestei aplicații și să încercați din nou.</string>
   <plurals name="expiry_warning">
     <item quantity="one">Aceasta este o versiune de test pentru Briar. Contul dumneavoastră va expira în %d zi și nu se poate reînnoi</item>
     <item quantity="few">Aceasta este o versiune de test pentru Briar. Contul dumneavoastră va expira în %d zile și nu se poate reînnoi.</item>
@@ -325,9 +325,13 @@
   <!--Connect via Bluetooth-->
   <string name="menu_item_connect_via_bluetooth">Conectare prin Bluetooth</string>
   <string name="connect_via_bluetooth_title">Conectare prin Bluetooth</string>
+  <string name="connect_via_bluetooth_intro">În cazul în care conexiunile Bluetooth nu funcționează automat, puteți utiliza acest ecran pentru a vă conecta manual.\n\nPersoana de contact trebuie să fie în apropiere pentru ca acest lucru să funcționeze.\n\nDumneavoastră și persoana de contact trebuie să apăsați \"Start\" în același timp.</string>
+  <string name="connect_via_bluetooth_already_discovering">Încercați deja să vă conectați prin Bluetooth. Vă rugăm să încercați din nou în scurt timp.</string>
   <string name="connect_via_bluetooth_no_location_permission">Nu se poate continua fără permisiunea locației</string>
   <string name="connect_via_bluetooth_start">Conectarea prin Bluetooth...</string>
   <string name="connect_via_bluetooth_success">Conectat cu succes prin Bluetooth</string>
+  <string name="connect_via_bluetooth_error">Nu s-a putut conecta prin Bluetooth.</string>
+  <string name="connect_via_bluetooth_error_not_supported">Dispozitivul nu suportă Bluetooth.</string>
   <!--Private Groups-->
   <string name="groups_list_empty">Nici un grup de arătat</string>
   <string name="groups_list_empty_action">Atingeți iconița + pentru a crea un grup sau rugați-vă contactele să partajele grupuri cu dumneavoastră</string>
@@ -702,6 +706,7 @@ De asemenea, contactul dvs. poate modifica această setare pentru amândoi.</str
   <string name="hotspot_help_wifi_title">Probleme la conectarea Wi-Fi:</string>
   <string name="hotspot_help_wifi_1">Încercați să dezactivați și să reactivați Wi-Fi pe ambele dispozitive și reîncercați.</string>
   <string name="hotspot_help_wifi_2">Dacă dispozitivul se plânge că nu este accesibil Internetul prin Wi-Fi, spuneți-i că doriți să rămână conectat oricum.</string>
+  <string name="hotspot_help_wifi_3">Reporniți telefonul pe care rulează hotspotul Wi-Fi, apoi porniți Briar și încercați din nou distribuirea.</string>
   <string name="hotspot_help_site_title">Problemă la vizitarea siteului local:</string>
   <string name="hotspot_help_site_1">Verificați că ați introdus adresa exact cum este afișată. O mică eroare poate să o facă să eșueze.</string>
   <string name="hotspot_help_site_2">Asigurați-vă că dispozitivul este încă conectat la Wi-Fi-ul corect (vedeți mai sus) când încercați să accesați siteul.</string>
@@ -722,6 +727,9 @@ De asemenea, contactul dvs. poate modifica această setare pentru amândoi.</str
   <string name="hotspot_flag_test">Atenție: Această aplicație a fost instalată din Android Studio și NU poate fi instalată pe un alt dispozitiv.</string>
   <string name="hotspot_error_framework_busy">Nu s-a putut porni hotspotul.\n\nDacă aveți alt hotspot pornit sau dacă partajați conexiunea la Internet prin Wi-Fi, încercați să opriți asta și să reîncercați apoi.</string>
   <!--Transfer Data via Removable Drives-->
+  <string name="removable_drive_menu_title">Conectare prin intermediul unei unități detașabile</string>
+  <string name="removable_drive_intro">Dacă nu vă puteți conecta la persoana de contact prin intermediul Internetului, Wi-Fi sau Bluetooth, Briar poate, de asemenea, transfera mesaje pe o unitate detașabilă, cum ar fi un stick USB sau un card SD.</string>
+  <string name="removable_drive_explanation">Dacă nu vă puteți conecta la persoana de contact prin Internet, Wi-Fi sau Bluetooth, Briar poate transfera mesaje și pe o unitate detașabilă, cum ar fi un stick USB sau un card SD.\n\nCând folosiți butonul \"Trimite date\", orice date care așteaptă să fie trimise contactului vor fi scrise pe unitatea detașabilă. Aceasta include mesaje private, atașamente, bloguri, forumuri și grupuri private.\n\nToate vor fi criptate înainte de a fi scrise pe unitatea detașabilă.\n\nCând persoana de contact primește unitatea detașabilă, poate folosi butonul \"Primește date\" pentru a importa mesajele în Briar.</string>
   <string name="removable_drive_title_send">Trimiteți date</string>
   <string name="removable_drive_title_receive">Primiți date</string>
   <string name="removable_drive_send_intro">Atingeți butonul de mai jos pentru a crea un nou fișier care conține mesajele criptate. Puteți alege unde va fi salvat fișierul.\n\nDacă doriți să salvați fișierul pe o unitate detașabilă, introduceți unitatea acum.</string>
@@ -736,7 +744,7 @@ De asemenea, contactul dvs. poate modifica această setare pentru amândoi.</str
   <string name="removable_drive_success_receive_title">Importat cu succes</string>
   <string name="removable_drive_success_receive_text">Toate mesajele criptate conținute în acest fișier au fost primite.</string>
   <string name="removable_drive_error_send_title">Eroare la exportul de date</string>
-  <string name="removable_drive_error_send_text">A avut loc o eroare de scriere a datelor în fișier.\n\nDacă utilizați o unitate detașabilă, asigurați-vă că aceasta este introdusă corect și încercați din nou.\n\n\nDacă eroarea persistă, vă rugăm să trimiteți feedback pentru a informa echipa Briar despre problemă.</string>
+  <string name="removable_drive_error_send_text">A avut loc o eroare de scriere a datelor în fișier.\n\nDacă utilizați o unitate detașabilă, asigurați-vă că aceasta este introdusă corect și încercați din nou.\n\nDacă eroarea persistă, vă rugăm să trimiteți feedback pentru a informa echipa Briar despre problemă.</string>
   <string name="removable_drive_error_receive_title">Eroare la importul de date</string>
   <string name="removable_drive_error_receive_text">Fișierul selectat nu conține nimic care să poată fi recunoscut de Briar.\n\nVă rugăm să verificați dacă ați ales fișierul corect.\n\nDacă persoana de contact a creat fișierul cu mai mult de 28 de zile în urmă, Briar nu îl va putea recunoaște.</string>
   <!--Screenshots-->

@@ -334,9 +334,13 @@
   <!--Connect via Bluetooth-->
   <string name="menu_item_connect_via_bluetooth">Prisijungti per Bluetooth</string>
   <string name="connect_via_bluetooth_title">Prisijungti per Bluetooth</string>
+  <string name="connect_via_bluetooth_intro">Tuo atveju, jei Bluetooth ryšiai neveikia automatiškai, galite naudoti šį langą, kad prisijungtumėte rankiniu būdu.\n\nTam, kad tai suveiktų, jūsų adresatas turi būti šalia jūsų.\n\nJūs ir jūsų adresatas vienu metu turėtumėte paspausti „Pradėti“.</string>
+  <string name="connect_via_bluetooth_already_discovering">Jau bandoma jungtis per Bluetooth. Netrukus bandykite dar kartą.</string>
   <string name="connect_via_bluetooth_no_location_permission">Nepavyksta tęsti be įrenginio vietovės leidimo</string>
   <string name="connect_via_bluetooth_start">Jungiamasi per Bluetooth…</string>
   <string name="connect_via_bluetooth_success">Sėkmingai prisijungta per Bluetooth</string>
+  <string name="connect_via_bluetooth_error">Nepavyko prisijungti per Bluetooth.</string>
+  <string name="connect_via_bluetooth_error_not_supported">Įrenginys nepalaiko Bluetooth.</string>
   <!--Private Groups-->
   <string name="groups_list_empty">Nėra rodytinų grupių</string>
   <string name="groups_list_empty_action">Norėdami sukurti grupę ar paprašyti savo adresatų pradėti su jumis bendrinti grupes, bakstelėkite + piktogramą</string>
@@ -716,6 +720,7 @@
   <string name="hotspot_help_wifi_title">Problemos jungiantis prie belaidžio (Wi-Fi):</string>
   <string name="hotspot_help_wifi_1">Pabandykite abiejuose telefonuose išjungti ir vėl įjungti belaidį (Wi-Fi) ryšį ir bandykite dar kartą.</string>
   <string name="hotspot_help_wifi_2">Jeigu jūsų telefonas skundžiasi, jog belaidžiame (Wi-Fi) tinkle nėra interneto ryšio, nurodykite jam, kad norite likti prisijungę.</string>
+  <string name="hotspot_help_wifi_3">Paleiskite telefoną, kuriame įjungtas belaidis (Wi-Fi) prieigos taškas, iš naujo, o tuomet paleiskite Briar ir bandykite bendrinti dar kartą.</string>
   <string name="hotspot_help_site_title">Iškilo problemų apsilankant vietinėje svetainėje:</string>
   <string name="hotspot_help_site_1">Dar kartą įsitikinkite, kad tiksliai įvedėte nurodytą adresą. Maža klaida gali sukelti nesėkmę.</string>
   <string name="hotspot_help_site_2">Bandydami pasiekti šią svetainę, įsitikinkite, kad jūsų telefonas vis dar yra prisijungęs prie teisingo belaidžio (Wi-Fi) ryšio (žiūrėkite aukščiau).</string>
@@ -736,6 +741,9 @@
   <string name="hotspot_flag_test">Įspėjimas: Ši programėlė buvo įdiegta naudojant „Android Studio“ ir NEGALI būti įdiegta kitame įrenginyje.</string>
   <string name="hotspot_error_framework_busy">Nepavyko įjungti prieigos taško.\n\nJei turite veikiantį kitą prieigos tašką arba, jei bendrinate interneto ryšį per belaidį (Wi-Fi) ryšį, pabandykite to nebedaryti ir po to, bandykite dar kartą.</string>
   <!--Transfer Data via Removable Drives-->
+  <string name="removable_drive_menu_title">Prisijungti per keičiamąjį diską</string>
+  <string name="removable_drive_intro">Jei negalite prisijungti prie savo adresato per internetą, belaidį (Wi-Fi) ar Bluetooth, Briar taip pat gali perkelti žinutes į keičiamąjį diską, pavyzdžiui, USB atmintuką ar SD kortelę.</string>
+  <string name="removable_drive_explanation">Jei negalite prisijungti prie savo adresato per internetą, belaidį (Wi-Fi) ar Bluetooth, Briar taip pat gali perkelti žinutes į keičiamąjį diską, pavyzdžiui, USB atmintuką ar SD kortelę.\n\nKai naudojate mygtuką „Siųsti duomenis“, bet kokie duomenys, laukiantys, kad būtų išsiųsti adresatui, bus įrašyti į keičiamąjį diską. Į juos įeina privačios žinutės, priedai, tinklaraščiai, forumai ir privačios grupės.\n\nVisa tai, prieš įrašant į keičiamąjį diską, bus užšifruota.\n\nJūsų adresatas, gavęs keičiamąjį diską, galės naudoti mygtuką „Gauti duomenis“, kad importuotų žinutes į Briar.</string>
   <string name="removable_drive_title_send">Siųsti duomenis</string>
   <string name="removable_drive_title_receive">Gauti duomenis</string>
   <string name="removable_drive_send_intro">Bakstelėkite mygtuką žemiau, kad sukurtumėte naują failą su šifruotomis žinutėmis. Galite pasirinkti, kur failą įrašyti.\n\nJei norite įrašyti failą į keičiamąjį diską, tuomet įdėkite diską dabar.</string>

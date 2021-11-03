@@ -316,9 +316,13 @@
   <!--Connect via Bluetooth-->
   <string name="menu_item_connect_via_bluetooth">Bluetooth ile Bağlan</string>
   <string name="connect_via_bluetooth_title">Bluetooth ile Bağlan</string>
+  <string name="connect_via_bluetooth_intro">Bluetooth bağlantıları otomatik olarak çalışmadığında, elle bağlanmak için bu ekranı kullanabilirsiniz.\n\nBunun çalışması için kişinin yakınınızda olması gerekiyor.\n\nSizin ve kişinin aynı anda \"Başlat\" seçeneğine basması gerekiyor.</string>
+  <string name="connect_via_bluetooth_already_discovering">Bluetooth ile zaten bağlanmaya çalışıyor. Lütfen daha sonra tekrar deneyin.</string>
   <string name="connect_via_bluetooth_no_location_permission">Konum izni olmadan devam edilemez</string>
   <string name="connect_via_bluetooth_start">Bluetooth ile bağlanılıyor…</string>
   <string name="connect_via_bluetooth_success">Bluetooth ile başarılı bir şekilde bağlandı</string>
+  <string name="connect_via_bluetooth_error">Bluetooth ile bağlanamıyor.</string>
+  <string name="connect_via_bluetooth_error_not_supported">Bluetooth aygıt tarafından desteklemiyor.</string>
   <!--Private Groups-->
   <string name="groups_list_empty">Gösterilecek grup yok</string>
   <string name="groups_list_empty_action">Bir grup oluşturmak için + simgesine dokunun veya kişilerinizden grupları sizinle paylaşmasını isteyin</string>
@@ -708,6 +712,9 @@
   <string name="hotspot_flag_test">Uyarı: Bu uygulama Android Studio ile kurulduğu için başka bir aygıta kurulamaz.</string>
   <string name="hotspot_error_framework_busy">Erişim noktası başlatılamıyor.\n\nEğer başka bir erişim noktası çalışıyorsa veya İnternet bağlantınızı kablosuz üzerinden paylaşıyorsanız, lütfen önce onu durdurun ve sonra yeniden deneyin.</string>
   <!--Transfer Data via Removable Drives-->
+  <string name="removable_drive_menu_title">Çıkarılabilir Sürücü ile Bağlan</string>
+  <string name="removable_drive_intro">Eğer İnternet, Wi-Fi veya Bluetooth ile bağlanamıyorsanız, Briar iletileri USB bellek veya hafıza kart gibi çıkarılabilir sürücüyle de aktarabilir.</string>
+  <string name="removable_drive_explanation">Eğer İnternet, Wi-Fi veya Bluetooth ile bağlanamıyorsanız, Briar iletileri USB bellek veya hafıza kart gibi çıkarılabilir sürücüyle de aktarabilir.\n\n\"Veri Gönder\" düğmesini kullandığınızda, kişilere gönderilmeyi bekleyen herhangi bir veri çıkarılabilir sürücüye yazılacaktır. Bu özel iletileri, ekleri, blogları, forumları ve özel grupları içerir.\n\nÇıkarılabilir sürücüye kaydedilmeden önce her şey şifrelenecektir.\n\nKişiler çıkarılabilir sürücüyü aldığında, \"Veri Al\" düğmesini kullanarak iletileri Briar\'a aktarabilir.</string>
   <string name="removable_drive_title_send">Veri gönder</string>
   <string name="removable_drive_title_receive">Veri al</string>
   <string name="removable_drive_send_intro">Şifreli iletileri içeren yeni bir dosya oluşturmak için aşağıdaki düğmeye dokunun. Dosyanın kaydedileceği yeri seçebilirsiniz.\n\nEğer dosyayı taşınabilir bir sürücüye saklamak istiyorsanız, sürücüyü şimdi takın.</string>

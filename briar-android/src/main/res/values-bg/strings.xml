@@ -128,7 +128,7 @@
   <string name="ok">Добре</string>
   <string name="cancel">Отказ</string>
   <string name="got_it">Разбрах</string>
-  <string name="delete">Изтриване</string>
+  <string name="delete">Премахване</string>
   <string name="accept">Приемане</string>
   <string name="decline">Отказване</string>
   <string name="online">На линия</string>
@@ -190,7 +190,7 @@
   <string name="auto_delete_changed_warning_message_enabled">Откакто съставяте съобщението е бил включен механизмът за изчезващи съобщения.</string>
   <string name="auto_delete_changed_warning_message_disabled">Откакто съставяте съобщението е бил изключен механизмът за изчезващи съобщения.</string>
   <string name="auto_delete_changed_warning_send">Изпращане въпреки това</string>
-  <string name="delete_all_messages">Изтриване на всички</string>
+  <string name="delete_all_messages">Премахване на всички</string>
   <string name="dialog_title_delete_all_messages">Потвърждение на премахване на съобщение</string>
   <string name="dialog_message_delete_all_messages">Сигурни ли сте, че желаете всички съобщения да бъдат премахнати?</string>
   <string name="dialog_title_not_all_messages_deleted">Не премахнати съобщения</string>
@@ -238,7 +238,7 @@
   <string name="add_contact_remotely_title_case">Добавяне на контакт отдалечено</string>
   <string name="add_contact_nearby_title">Добавяне на контакт на живо</string>
   <string name="add_contact_remotely_title">Добавяне на контакт отдалечено</string>
-  <string name="contact_link_intro">Въведете препратката от вашия контакт</string>
+  <string name="contact_link_intro">Въведете препратката на контакта, когото добавяте</string>
   <string name="contact_link_hint">Препратка от контакт</string>
   <string name="paste_button">Поставяне</string>
   <string name="add_contact_button">Добавяне на контакт</string>
@@ -277,8 +277,8 @@
   </plurals>
   <string name="offline_state">Няма връзка с интернет.</string>
   <string name="duplicate_link_dialog_title">Дублираща се препратка</string>
-  <string name="duplicate_link_dialog_text_1">Вече имате чакаща заявка за контакт с тази препратка: %s</string>
-  <string name="duplicate_link_dialog_text_1_contact">Вече имате контакт с тази препратка: %s</string>
+  <string name="duplicate_link_dialog_text_1">Вече има чакаща заявка за контакт с тази препратка: %s</string>
+  <string name="duplicate_link_dialog_text_1_contact">Вече има контакт с тази препратка: %s</string>
   <!--This is a question asking whether two nicknames refer to the same person-->
   <string name="duplicate_link_dialog_text_2">%s и %s един и същи човек ли са?</string>
   <!--This is a button for answering that two nicknames do indeed refer to the same person. This
@@ -316,9 +316,13 @@
   <!--Connect via Bluetooth-->
   <string name="menu_item_connect_via_bluetooth">Свързване чрез Bluetooth</string>
   <string name="connect_via_bluetooth_title">Свързване чрез Bluetooth</string>
+  <string name="connect_via_bluetooth_intro">В случай, че връзка чрез Bluetooth не се установява автоматично можете да използвате този екран, за да се свържете ръчно.\n\nВие и контакта трябва да бъдете близо един до друг.\n\nДвамата трябва да докоснете бутона „Старт“ едновременно.</string>
+  <string name="connect_via_bluetooth_already_discovering">Осъществява св връзка през Bluetooth. По-късно опитайте отново.</string>
   <string name="connect_via_bluetooth_no_location_permission">Не може да продължи без разрешение за местоположение</string>
   <string name="connect_via_bluetooth_start">Свързване чрез Bluetooth…</string>
-  <string name="connect_via_bluetooth_success">Успешно свързване чрез Bluetooth</string>
+  <string name="connect_via_bluetooth_success">Успешно е създaдена връзка чрез Bluetooth</string>
+  <string name="connect_via_bluetooth_error">Не може да бъде установена връзка чрез Bluetooth.</string>
+  <string name="connect_via_bluetooth_error_not_supported">Bluetooth не се поддържа от устройството.</string>
   <!--Private Groups-->
   <string name="groups_list_empty">Няма групи</string>
   <string name="groups_list_empty_action">Докоснете иконата с +, за да създадете своя или поискайте от контактите си да споделят група с вас</string>
@@ -434,7 +438,7 @@
   <string name="blogs_blog_post_received">Получена е нова публикация в блога</string>
   <string name="blogs_blog_post_scroll_to">Плъзване до нея</string>
   <string name="blogs_feed_empty_state">Няма публикации</string>
-  <string name="blogs_feed_empty_state_action">Публикации от вашите контакти и абонираните блогове се показват тук.\n\nДокоснете иконата на писалка, за да направите публикация.</string>
+  <string name="blogs_feed_empty_state_action">Тук се показват публикациите от вашите контакти и блоговете, за които имате абонамент.\n\nЗа да направите вие публикация, докоснете иконата на писалка.</string>
   <string name="blogs_remove_blog">Премахване на блог</string>
   <string name="blogs_remove_blog_dialog_message">Сигурни ли сте, че желаете да премахнете блога?\n\nПубликациите ще бъдат премахнати от устройството ви, но не и от устройствата на другите хора.\n\nКонтактите, с които сте споделили този блог може да спрат да получават обновявания.</string>
   <string name="blogs_remove_blog_ok">Премахване</string>
@@ -510,7 +514,7 @@
   <string name="pref_lock_disabled_summary">За да се възползвате от тази възможност, настройте заключване на екрана</string>
   <string name="pref_lock_timeout_title">Заключване при бездействие</string>
   <!--The %s placeholder is replaced with the following time spans, e.g. 5 Minutes, 1 Hour-->
-  <string name="pref_lock_timeout_summary">Briar се изключва автоматично при неактивност от %s</string>
+  <string name="pref_lock_timeout_summary">При неактивност Briar автоматично се заключав след %s</string>
   <!--Will be shown in a list of lock times. Should fit into the %s of "automatically lock it after %s"-->
   <string name="pref_lock_timeout_1">1 минута</string>
   <!--Will be shown in a list of lock times. Should fit into the %s of "automatically lock it after %s"-->
@@ -539,9 +543,9 @@
   <string name="dialog_message_connect_panic_app">Сигурни ли сте, че желаете да позволите на %1$s да задейства разрушителните действия на бутона за паника?</string>
   <string name="panic_setting_destructive_action">Разрушителни действия</string>
   <string name="panic_setting_signout_title">Отписване</string>
-  <string name="panic_setting_signout_summary">Отписване от Briar при натиснат бутон за паника</string>
-  <string name="purge_setting_title">Изтриване на профил</string>
-  <string name="purge_setting_summary">Профила на Briar се изтрива при натиснат бутон за паника. Внимание: Изтрива безвъзвратно профила, контактите и съобщенията</string>
+  <string name="panic_setting_signout_summary">Отписване от Briar при задействан бутон за паника</string>
+  <string name="purge_setting_title">Премахване на профил</string>
+  <string name="purge_setting_summary">Профилът на Briar се изтрива при задействане на бутона за паника. Внимание: Изтрива безвъзвратно профила, контактите и съобщенията</string>
   <!--Settings Notifications-->
   <string name="notification_settings_title">Известия</string>
   <string name="notify_sign_in_title">Напомняне за вписване</string>
@@ -555,8 +559,8 @@
   <string name="notify_forum_posts_setting_title">Публикации във форуми</string>
   <string name="notify_forum_posts_setting_summary">Известия за публикации във форуми</string>
   <string name="notify_forum_posts_setting_summary_26">Настройки на известия за публикации във форуми</string>
-  <string name="notify_blog_posts_setting_title">Публикации в блог</string>
-  <string name="notify_blog_posts_setting_summary">Известия за публикации в блог</string>
+  <string name="notify_blog_posts_setting_title">Публикации в блогове</string>
+  <string name="notify_blog_posts_setting_summary">Известия за публикации в блогове</string>
   <string name="notify_blog_posts_setting_summary_26">Настройки на известия за публикации в блог</string>
   <string name="notify_vibration_setting">Вибрация</string>
   <string name="notify_sound_setting">Звук</string>
@@ -575,7 +579,7 @@
   <string name="disappearing_messages_summary">Бъдещите съобщения в разговора изчезват след 7\u00A0дни</string>
   <!--Settings Actions-->
   <string name="pref_category_actions">Действия</string>
-  <string name="send_feedback">Изпращане на отзив</string>
+  <string name="send_feedback">Изпращане на обратна връзка</string>
   <!--Link Warning-->
   <string name="link_warning_title">Предупреждение за препратка</string>
   <string name="link_warning_intro">Препратката ще бъде отворена от външно приложение.</string>
@@ -583,6 +587,7 @@
   <string name="link_warning_open_link">Отваряне</string>
   <!--Crash Reporter-->
   <string name="crash_report_title">Доклад на срив</string>
+  <string name="briar_crashed">Съжаляваме, Briar се срина</string>
   <string name="not_your_fault">Не е по ваша вина.</string>
   <string name="please_send_report">Помогнете да направим Briar по-добър като ни изпратите доклад.</string>
   <string name="report_is_encrypted">Обещаваме, че докладът е ще бъде изпратен шифрован и добре защитен.</string>
@@ -641,16 +646,44 @@
   <!--Connections Screen-->
   <string name="transports_help_text">Briar може да се свърже с контактите ви през интернет, Wi-Fi или Bluetooth.\n\nЗа повече поверителност цялата връзка към интернет се пренасочва през мрежата на Tor.\n\nАко даден контакт може да бъде достъпен чрез няколко метода Briar ги използва успоредно.</string>
   <!--Share app offline-->
+  <string name="hotspot_title">Споделяне на приложението извън мрежа</string>
+  <string name="hotspot_intro">Споделете приложението с някого около вас без достъп до интернет с използване на Wi-Fi на устройствата.
+\n\nВашето устройство създава безжична точка за достъп. Хората около вас биха могли да се свържат към нея и да изтеглят Briar от вашето устройство.</string>
+  <string name="hotspot_button_start_sharing">Включване на безжична точка</string>
+  <string name="hotspot_button_stop_sharing">Спиране на безжична точка</string>
+  <string name="hotspot_progress_text_start">Настройване на безжична точка…</string>
+  <string name="hotspot_notification_channel_title">Безжична точка за достъп</string>
+  <string name="hotspot_notification_title">Споделяне на Briar извън мрежа</string>
   <string name="hotspot_button_connected">Напред</string>
+  <string name="permission_hotspot_location_request_body">За да създаде безжична точка за достъп, на Briar му е необходимо разрешение за достъп до местоположението.\n\nBriar не го пази и не го споделя с никого.</string>
+  <string name="permission_hotspot_location_denied_body">Отказахте достъп до местоположението, но то е необходимо за създаване на безжична точка за достъп.\n\nОбмислете дали да не дадете разрешение.</string>
+  <string name="wifi_settings_title">Настройки на Wi-Fi</string>
+  <string name="wifi_settings_request_enable_body">За създаване на безжична точка за достъп Briar се нуждае от Wi-Fi. Включете го.</string>
   <string name="hotspot_tab_manual">Ръчно</string>
   <!--The placeholder to be inserted into the string 'hotspot_manual_wifi': People can connect by %s-->
+  <string name="hotspot_scanning_a_qr_code">като сканират код за QR</string>
   <!--Wi-Fi setup-->
   <!--The %s placeholder will be replaced with the translation of 'hotspot_scanning_a_qr_code'-->
+  <string name="hotspot_manual_wifi">Устройството ви създава безжична точка за достъп. Хората, които желаят да изтеглят Briar могат да се свържат към нея като добавят в настройките за Wi-Fi на техните устройства параметрите по-долу или %s. Когато те се свържат към точката за достъп натиснете „Напред“.</string>
   <string name="hotspot_manual_wifi_ssid">Наименование на мрежата</string>
+  <string name="hotspot_qr_wifi">Устройството ви създава безжична точка за достъп. Хората, които желаят да изтеглят Briar могат да се свържат към нея като сканират този код за QR. Когато те се свържат към точката за достъп натиснете „Напред“.</string>
+  <string name="hotspot_no_peers_connected">Няма свързани устройства</string>
+  <plurals name="hotspot_peers_connected">
+    <item quantity="one">%s свързано устройства</item>
+    <item quantity="other">%s свързани устройства</item>
+  </plurals>
   <!--Download link-->
   <!--The %s placeholder will be replaced with the translation of 'hotspot_scanning_a_qr_code'-->
+  <string name="hotspot_manual_site">Устройството ви създава безжична точка за достъп. Хората, които са свързани към нея могат да изтеглят Briar от следния адрес или %s.</string>
+  <string name="hotspot_manual_site_address">Адрес (URL)</string>
+  <string name="hotspot_qr_site">Устройството ви създава безжична точка за достъп. Хората, които са свързани към нея могат да изтеглят Briar като сканират този код за QR.</string>
   <!--e.g. Download Briar 1.2.20-->
+  <string name="website_download_title">Изтеглете %s</string>
+  <string name="website_download_intro">Някой наблизо споделя с вас %s.</string>
+  <string name="website_download_outro">След като файлът се изтегли, отворете го и го инсталирайте.</string>
   <string name="website_troubleshooting_title">Отстраняване на неизправности</string>
+  <string name="website_troubleshooting_1">Ако не можете да изтеглите приложението пробвайте с друг мрежов четец.</string>
+  <string name="hotspot_help_fallback_title">Нищо не става?</string>
   <!--error handling-->
   <!--Transfer Data via Removable Drives-->
   <string name="removable_drive_title_send">Изпращане на сведения</string>

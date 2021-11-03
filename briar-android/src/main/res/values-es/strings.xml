@@ -316,9 +316,13 @@
   <!--Connect via Bluetooth-->
   <string name="menu_item_connect_via_bluetooth">Conectar mediante Bluetooth</string>
   <string name="connect_via_bluetooth_title">Conectar mediante Bluetooth</string>
+  <string name="connect_via_bluetooth_intro">En el caso que las conexiones Bluetooth no funcionen automáticamente, puedes usar esta pantalla para conectarte manualmente.\n\nTu contacto necesita estar cerca para que esto funcione.\n\nAmbos deberían presionar \"Inicio\" al mismo tiempo.</string>
+  <string name="connect_via_bluetooth_already_discovering">Ya se está intentando conectar vía Bluetooth. Por favor inténtalo de nuevo en unos segundos.</string>
   <string name="connect_via_bluetooth_no_location_permission">No se puede continuar sin permiso de ubicación</string>
   <string name="connect_via_bluetooth_start">Conectar mediante Bluetooth...</string>
   <string name="connect_via_bluetooth_success">Conectado exitosamente mediante Bluetooth</string>
+  <string name="connect_via_bluetooth_error">No se pudo conectar mediante Bluetooth.</string>
+  <string name="connect_via_bluetooth_error_not_supported">Este dispositivo no soporta Bluetooth.</string>
   <!--Private Groups-->
   <string name="groups_list_empty">No hay grupos para mostrar</string>
   <string name="groups_list_empty_action">Golpea el icono + para crear un grupo, o pregunta a tus contactos si quieren compartir grupos contigo</string>
@@ -658,19 +662,77 @@
   <string name="permission_hotspot_location_request_body">Para crear un punto de acceso Wi-Fi, Briar necesita permiso para acceder tu ubicación.\n\nBriar no la almacena o la comparte con nadie.</string>
   <string name="permission_hotspot_location_denied_body">Has denegado el acceso a tu ubicación, pero Briar necesita este permiso para crear un punto de acceso Wi-Fi.\n\nPor favor considera la posibilidad de conceder el acceso.</string>
   <string name="wifi_settings_title">Configuración de Wi-Fi</string>
+  <string name="wifi_settings_request_enable_body">Para crear un punto de acceso Wi-Fi, Briar necesita usar Wi-Fi. Por favor habilítalo.</string>
   <string name="hotspot_tab_manual">Manual</string>
   <!--The placeholder to be inserted into the string 'hotspot_manual_wifi': People can connect by %s-->
+  <string name="hotspot_scanning_a_qr_code">escaneando un código QR</string>
   <!--Wi-Fi setup-->
   <!--The %s placeholder will be replaced with the translation of 'hotspot_scanning_a_qr_code'-->
+  <string name="hotspot_manual_wifi">Tu teléfono está proporcionando un punto de acceso Wi-Fi. Las personas que quieran descargar Briar pueden conectarse al punto de acceso agregándolo en la configuración de Wi-Fi de sus dispositivos, usando los detalles de abajo o mediante %s. Una vez que se hayan conectado al punto de acceso, presiona \'Siguiente\'.</string>
   <string name="hotspot_manual_wifi_ssid">Nombre de red</string>
+  <string name="hotspot_qr_wifi">Tu teléfono está proporcionando un punto de acceso Wi-Fi. Las personas que quieran descargar Briar pueden conectarse al punto de acceso escaneando este código QR. Una vez que se hayan conectado al punto de acceso, presiona \'Siguiente\'.</string>
   <string name="hotspot_no_peers_connected">No hay dispositivos conectados</string>
+  <plurals name="hotspot_peers_connected">
+    <item quantity="one">%s dispositivo conectado</item>
+    <item quantity="other">%s dispositivos conectados</item>
+  </plurals>
   <!--Download link-->
   <!--The %s placeholder will be replaced with the translation of 'hotspot_scanning_a_qr_code'-->
+  <string name="hotspot_manual_site">Tu teléfono está proporcionando un punto de acceso Wi-Fi. Las personas que están conectadas al mismo pueden descargar Briar tipeando el siguiente vínculo en un navegador web o %s.</string>
+  <string name="hotspot_manual_site_address">Dirección (URL)</string>
+  <string name="hotspot_qr_site">Tu teléfono está proporcionando un punto de acceso Wi-Fi. Las personas que están conectadas al mismo pueden descargar Briar escaneando este código QR.</string>
   <!--e.g. Download Briar 1.2.20-->
+  <string name="website_download_title">Descargar %s</string>
+  <string name="website_download_intro">Alguien en las cercanías compartió %s contigo.</string>
+  <string name="website_download_outro">Luego de que la descarga se complete, abre el archivo descargado e instálalo.</string>
   <string name="website_troubleshooting_title">Resolución de problemas</string>
+  <string name="website_troubleshooting_1">Si no puedes descargar la aplicación, inténtalo con una aplicación de navegación web diferente.</string>
+  <string name="website_troubleshooting_2_old">Para instalar la aplicación descargada, podrías necesitar permitir la instalación de aplicaciones desde \"Fuentes desconocidas\" en la configuración del sistema. Con posterioridad, podrías necesitar descargar la aplicación de nuevo. Te recomendamos deshabilitar el ajuste \"Fuentes desconocidas\" después de instalar la aplicación.</string>
+  <string name="website_troubleshooting_2_new">Para instalar la aplicación descargada, podrías necesitar permitirle a tu navegador instalar aplicaciones desconocidas. Luego de instalar la aplicación, recomendamos remover el permiso del navegador para este tipo de instalaciones.</string>
+  <string name="hotspot_help_wifi_title">Problemas para conectar al Wi-Fi:</string>
+  <string name="hotspot_help_wifi_1">Intenta deshabilitar y rehabilitar el Wi-Fi en ambos teléfonos, e intenta de nuevo.</string>
+  <string name="hotspot_help_wifi_2">Si tu teléfono se queja de que el Wi-Fi no tiene Internet, dile que quieres permanecer conectado de todos modos.</string>
+  <string name="hotspot_help_wifi_3">Reinicia el teléfono que está ejecutando el punto de acceso Wi-Fi, luego inicia Briar e intenta compartir de nuevo.</string>
+  <string name="hotspot_help_site_title">Problemas visitando al sitio web local:</string>
+  <string name="hotspot_help_site_1">Comprueba doblemente que hayas entrado la dirección exactamente como se muestra. Un pequeño error puede hacer que falle.</string>
+  <string name="hotspot_help_site_2">Asegúrate de que tu teléfono aún esté conectado al Wi-Fi correcto (ver arriba) cuando intentes acceder al sitio.</string>
+  <string name="hotspot_help_site_3">Si tienes una aplicación de cortafuegos, comprueba que no esté bloqueando el acceso.</string>
+  <string name="hotspot_help_site_4">Si puedes visitar el sitio, pero no descargar la aplicación Briar, inténtalo con una aplicación de navegación web diferente.</string>
+  <string name="hotspot_help_fallback_title">¿Nada funciona?</string>
+  <string name="hotspot_help_fallback_intro">Puedes intentar guardar la aplicación como archivo .apk para compartir de cualquier otra manera. Una vez que el archivo ha sido transferido al otro dispositivo, puede ser usado para instalar Briar.
+		\n\nConsejo: Para compartir vía Bluetooth, primero podrías necesitar renombrar al archivo para que finalice con .zip.</string>
+  <string name="hotspot_help_fallback_button">Guardar aplicación</string>
   <!--error handling-->
+  <string name="hotspot_error_intro">Algo salió mal mientras se intentaba compartir la aplicación vía Wi-Fi:</string>
+  <string name="hotspot_error_no_wifi_direct">El dispositivo no soporta Wi-Fi Direct</string>
+  <string name="hotspot_error_start_callback_failed">Fallo al iniciar punto de acceso: error %s</string>
+  <string name="hotspot_error_start_callback_failed_unknown">El punto de acceso falló al iniciar con un error desconocido, la razón es %d</string>
+  <string name="hotspot_error_start_callback_no_group_info">Fallo al iniciar punto de acceso: no hay información de grupo</string>
+  <string name="hotspot_error_web_server_start">Error al iniciar el servidor web</string>
+  <string name="hotspot_error_web_server_serve">Error al presentar el sitio web.\n\nPor favor, envía tus comentarios (con datos anónimos) a través de la aplicación Briar si la dificultad persiste.</string>
+  <string name="hotspot_flag_test">Advertencia: Esta aplicación fue instalada con Android Studio, y NO puede ser instalada en otro dispositivo.</string>
+  <string name="hotspot_error_framework_busy">Incapaz de iniciar el punto de acceso.\n\nSi tienes otro punto de acceso ejecutándose o estás compartiendo tu conexión de Internet vía Wi-Fi, intenta detener eso e intentar de nuevo luego.</string>
   <!--Transfer Data via Removable Drives-->
+  <string name="removable_drive_menu_title">Conectar a través de Discos Removibles</string>
+  <string name="removable_drive_intro">Si no puedes conectarte con tu contacto vía Internet, Wi-Fi o Bluetooth, Briar también puede transferir mensajes en un disco removible, tal como una memoria USB o tarjeta SD.</string>
+  <string name="removable_drive_explanation">Si no puedes conectarte con tu contacto vía Internet, Wi-Fi o Bluetooth, Briar también puede transferir mensajes en un disco removible, tal como una memoria USB o tarjeta SD.\n\nCuando usas el botón \"Enviar Datos\", cualesquiera datos que estén esperando ser enviados al contacto serán escritos al disco removible. Esto incluye mensajes privados, adjuntos, blogs, foros y grupos privados.\n\nTodo será cifrado antes de que sea escrito al disco removible.\n\nCuando tu contacto reciba el disco removible, puede usar el botón \"Recibir Datos\" para importar los mensajes dentro de Briar.</string>
+  <string name="removable_drive_title_send">Enviar Datos</string>
+  <string name="removable_drive_title_receive">Recibir Datos</string>
+  <string name="removable_drive_send_intro">Pulsa el botón de abajo para crear un nuevo archivo conteniendo los mensajes cifrados. Puedes elegir dónde será guardado el archivo.\n\nSi quieres guardarlo en un disco removible, insértalo ahora.</string>
+  <string name="removable_drive_send_no_data">Actualmente no hay mensajes esperando ser enviados a este contacto.</string>
+  <string name="removable_drive_send_not_supported">Este contacto está usando una versión vieja de Briar, o un dispositivo viejo que no soporta esta característica.</string>
+  <string name="removable_drive_send_button">Selecciona el archivo a exportar</string>
+  <string name="removable_drive_ongoing">Por favor espera hasta que la tarea en curso se complete</string>
+  <string name="removable_drive_receive_intro">Pulsa el botón de abajo para elegir el archivo que envió tu contacto.\n\nSi el archivo está en un disco removible, insértalo ahora.</string>
+  <string name="removable_drive_receive_button">Selecciona el archivo a importar</string>
+  <string name="removable_drive_success_send_title">Exportado con éxito</string>
+  <string name="removable_drive_success_send_text">Datos exportados exitosamente. Ahora tienes 28 días para transportar el archivo hasta tu contacto.\n\nSi el archivo está en un disco removible, usa la notificación en la barra de estado para expulsar el disco antes de desconectarlo.</string>
   <string name="removable_drive_success_receive_title">Importado con éxito</string>
+  <string name="removable_drive_success_receive_text">Todos los mensajes cifrados contenidos en este archivo han sido recibidos.</string>
+  <string name="removable_drive_error_send_title">Error al exportar datos</string>
+  <string name="removable_drive_error_send_text">Hubo un error escribiendo los datos al archivo.\n\nSi estás usando un disco removible, asegúrate de que esté apropiadamente insertado e inténtalo de nuevo.\n\nSi el error persiste, por favor envía tus comentarios para que el equipo de Briar conozca acerca de esta dificultad.</string>
+  <string name="removable_drive_error_receive_title">Error al importar datos</string>
+  <string name="removable_drive_error_receive_text">El archivo seleccionado no contenía nada que Briar pudiera reconocer.\n\nPor favor comprueba que hayas elegido el archivo correcto.\n\nSi tu contacto creó el archivo más de 28 días atrás, Briar no será capaz de reconocerlo.</string>
   <!--Screenshots-->
   <!--This is a name to be used in screenshots. Feel free to change it to a local name.-->
   <string name="screenshot_alice">Alicia</string>

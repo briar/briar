@@ -31,10 +31,15 @@
   <string name="dialog_title_cannot_check_password">パスワードを確認できません</string>
   <string name="dialog_message_cannot_check_password">Briarはあなたのパスワードを確認できません。この問題を解決するため、デバイスの再起動を試してください。</string>
   <string name="sign_in_button">サインイン</string>
-  <string name="forgotten_password">パスワードを忘れました。</string>
+  <string name="forgotten_password">パスワードを忘れました</string>
   <string name="dialog_title_lost_password">パスワードを紛失</string>
   <string name="dialog_message_lost_password">あなたのBriarアカウントはクラウド上ではなく、暗号化さた上であなたのデバイスに保存さています。したがってBriarはパスワードをリセットできません。アカウントを削除しはじめからやりなおしますか？\n\n注意：あなたのID、連絡先、メッセージは永久に復元できません。</string>
   <string name="startup_failed_activity_title">起動に失敗しました</string>
+  <string name="startup_failed_clock_error">デバイスの時計が不正なので、Briarは起動できませんでした。\n\nデバイスの時計を正しい時刻に設定して、再試行してください。</string>
+  <string name="startup_failed_db_error">Briarは、あなたのアカウント、連絡先、メッセージを含むデータベースを開くことができませんでした。\n\nアプリを最新版にアップグレードして再度お試しいただくか、パスワード入力画面で\'パスワードを忘れました\'を選択して新しいアカウントを設定してください。</string>
+  <string name="startup_failed_data_too_old_error">あなたのアカウントは古いバージョンのアプリで作成されたもので、このバージョンでは開くことができません。\n\n古いバージョンを再インストールするか、パスワード入力画面で\'パスワードを忘れました\'を選択して新しいアカウントを設定する必要があります。</string>
+  <string name="startup_failed_data_too_new_error">あなたのアカウントは、このアプリの新しいバージョンで作成されたもので、このバージョンでは開くことができません。\n\n最新のバージョンにアップグレードしてから再度お試しください。</string>
+  <string name="startup_failed_service_error">Briarは、必要なコンポーネントを起動できませんでした。\n\n最新版のアプリにアップグレードしてから再度お試しください。</string>
   <plurals name="expiry_warning">
     <item quantity="other">これは、Briarのテストバージョンです。 アカウントは%d日で期限切れになり、更新できません。</item>
   </plurals>
@@ -289,9 +294,12 @@
   <!--Connect via Bluetooth-->
   <string name="menu_item_connect_via_bluetooth">Bluetooth経由で接続する</string>
   <string name="connect_via_bluetooth_title">Bluetooth経由で接続する</string>
+  <string name="connect_via_bluetooth_intro">Bluetooth接続が自動的に行われない場合は、この画面を使って手動で接続することができます。\n\nこの機能を利用するには、あなたの連絡先が近くにある必要があります。\n\nあなたと連絡先が同時に\"開始\"を押してください。</string>
   <string name="connect_via_bluetooth_no_location_permission">位置情報の権限なくして続行不可能</string>
   <string name="connect_via_bluetooth_start">Bluetooth経由で接続中…</string>
   <string name="connect_via_bluetooth_success">Bluetooth経由で接続に成功</string>
+  <string name="connect_via_bluetooth_error">Bluetooth経由で接続不可能。</string>
+  <string name="connect_via_bluetooth_error_not_supported">Bluetoothはデバイスによってサポートされていません。</string>
   <!--Private Groups-->
   <string name="groups_list_empty">表示するグループがありません</string>
   <string name="groups_list_empty_action">「＋」アイコンをタップしてグループを作成するか、連絡先に登録している誰かにグループを共有してもらう</string>
@@ -534,6 +542,7 @@
   <string name="choose_ringtone_title">着信音を選択</string>
   <string name="cannot_load_ringtone">着信音を読み込めません</string>
   <!--Conversation Settings-->
+  <string name="disappearing_messages_title">消えたメッセージ</string>
   <string name="learn_more">詳細情報</string>
   <!--Settings Actions-->
   <string name="pref_category_actions">操作</string>
@@ -578,6 +587,7 @@
   <string name="screen_filter_body">別のアプリがBriarの画面上に描画しています。 セキュリティを保護するために、Briarは、別のアプリがBriarの画面上に描画している場合、タッチに応答しません。\n\n次のアプリが上に描画されている可能性があります：\n\n%1$s</string>
   <string name="screen_filter_body_api_30">他のアプリがBriarの上に描画されています。セキュリティ保護のため、他のアプリが上に描画しているときは、Briarに触れても反応しません。\n\n以下のアプリを確認して、原因のアプリを見つけてください。</string>
   <string name="screen_filter_allow">これらのアプリがBriarの画面上に描画できるようにする</string>
+  <string name="screen_filter_review_apps">アプリを確認</string>
   <!--Permission Requests-->
   <string name="permission_camera_title">カメラへのアクセス許可</string>
   <string name="permission_camera_request_body">QRコードをスキャンするには、Briarはカメラにアクセスする必要があります。</string>
@@ -637,7 +647,30 @@
   <string name="website_download_intro">近くの誰かが、あなたと %s を共有しました。</string>
   <string name="website_download_outro">ダウンロードが完了した後に、ダウンロードしたファイルを開いて、インストールしてください。</string>
   <string name="website_troubleshooting_title">トラブルシューティング</string>
+  <string name="website_troubleshooting_1">アプリをインストールできない場合、別のブラウザアプリで試してください。</string>
+  <string name="website_troubleshooting_2_old">ダウンロードしたアプリをインストールするには、システム設定で\"提供元不明\"のアプリのインストールを許可する必要がある場合があります。その後、再度アプリのダウンロードが必要になる場合があります。アプリをインストールした後は、\"提供元不明\"の設定を解除することをお勧めします。</string>
+  <string name="website_troubleshooting_2_new">ダウンロードしたアプリをインストールするには、ブラウザに不明なアプリのインストールを許可する必要がある場合があります。アプリをインストールした後は、ブラウザの不明なアプリのインストール許可を解除することをお勧めします。</string>
+  <string name="hotspot_help_wifi_title">W-Fi接続の問題:</string>
+  <string name="hotspot_help_wifi_1">双方の電話機でWi-Fiを無効にして、再び有効にするのを試してください。</string>
+  <string name="hotspot_help_wifi_2">もし携帯電話が「Wi-Fiにはインターネットがない」と不満を訴えてきたら、「とにかく接続していたい」と伝えてください。</string>
+  <string name="hotspot_help_site_title">ローカルのウェブサイト訪問の問題:</string>
+  <string name="hotspot_help_site_1">表示されている通りにアドレスを入力したかどうかを再確認してください。小さなミスで失敗することがあります。</string>
+  <string name="hotspot_help_site_2">サイトにアクセスする際に、電話機が正しいWi-Fi（上記を参照）に接続されていることを確認してください。</string>
+  <string name="hotspot_help_site_3">ファイアウォールアプリを使用している場合は、それがアクセスをブロックしていないか確認してください。</string>
+  <string name="hotspot_help_site_4">サイトにはアクセスできるが、Briarアプリがダウンロードできない場合は、別のウェブブラウザアプリで試してみてください。</string>
+  <string name="hotspot_help_fallback_title">どれもうまくいきませんか?</string>
+  <string name="hotspot_help_fallback_intro">他の方法で共有するために、アプリを.apkファイルとして保存してみてください。そのファイルをもう一方のデバイスに転送すれば、Briarをインストールすることができます。
+		\n\nヒント: Bluetoothで共有する場合は、まずファイル名を.zipで終わるように名前変更する必要があるかもしれません。</string>
+  <string name="hotspot_help_fallback_button">アプリを保存する</string>
   <!--error handling-->
+  <string name="hotspot_error_intro">Wi-Fiでアプリを共有しようとしたときに、何か問題が発生しました。</string>
+  <string name="hotspot_error_no_wifi_direct">デバイスはWi-Fiダイレクトをサポートしていません</string>
+  <string name="hotspot_error_start_callback_failed">ホットスポットの開始に失敗しました: エラー %s</string>
+  <string name="hotspot_error_start_callback_no_group_info">ホットスポットの開始に失敗しました: グループ情報なし</string>
+  <string name="hotspot_error_web_server_start">ウェブサーバー起動エラー</string>
+  <string name="hotspot_error_web_server_serve">ウェブサイトの表示にエラーが発生しました。\n\n問題が解決しない場合は、Briarアプリから（匿名のデータで）フィードバックを送ってください。</string>
+  <string name="hotspot_flag_test">警告: このアプリはAndroid Studioでインストールされたものであり、他の端末にインストールすることはできません。</string>
+  <string name="hotspot_error_framework_busy">ホットスポットの起動ができません。\n\n他のホットスポットを起動している場合や、Wi-Fiでインターネット接続を共有している場合は、そのホットスポットを停止してから再度試してみてください。</string>
   <!--Transfer Data via Removable Drives-->
   <string name="removable_drive_success_receive_title">インポート成功</string>
   <!--Screenshots-->

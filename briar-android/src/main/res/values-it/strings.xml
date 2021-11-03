@@ -692,6 +692,7 @@
   <string name="hotspot_help_wifi_title">Problemi di connessione al Wi-Fi:</string>
   <string name="hotspot_help_wifi_1">Prova a disattivare e riattivare il Wi-Fi su entrambi i telefoni e riprova.</string>
   <string name="hotspot_help_wifi_2">Se il telefono ti segnala che il Wi-Fi non ha internet, digli che vuoi restare comunque connesso.</string>
+  <string name="hotspot_help_wifi_3">Riavvia il telefono su cui è in esecuzione l\'hotspot Wi-Fi, poi avvia Briar e riprova a condividere.</string>
   <string name="hotspot_help_site_title">Problemi visitando il sito web locale:</string>
   <string name="hotspot_help_site_1">Controlla di avere inserito l\'indirizzo esattamente come mostrato. Un piccolo errore può impedire il funzionamento.</string>
   <string name="hotspot_help_site_2">Assicurati che il telefono sia ancora connesso al Wi-Fi giusto (vedi sopra) quando provi ad accedere al sito.</string>
@@ -712,6 +713,9 @@
   <string name="hotspot_flag_test">Attenzione: questa app è stata installata con Android Studio e NON può essere installata su un altro dispositivo.</string>
   <string name="hotspot_error_framework_busy">Impossibile avviare l\'hotspot.\n\nSe ne hai un altro in esecuzione o se stai condividendo la connessione internet via Wi-Fi, fermalo e poi riprova.</string>
   <!--Transfer Data via Removable Drives-->
+  <string name="removable_drive_menu_title">Connessione tramite unità rimovibile</string>
+  <string name="removable_drive_intro">Se non riesci a connetterti al tuo contatto tramite Internet, Wi-Fi o Bluetooth, Briar può anche trasferire i messaggi su un\'unità rimovibile come una chiavetta USB o una scheda SD.</string>
+  <string name="removable_drive_explanation">Se non riesci a connetterti al tuo contatto tramite Internet, Wi-Fi o Bluetooth, Briar può anche trasferire i messaggi su un\'unità rimovibile come una chiavetta USB o una scheda SD.\n\nQuando usi il pulsante \"Invia dati\" , tutti i dati in attesa di essere inviati al contatto verranno scritti sull\'unità rimovibile. Ciò include messaggi privati, allegati, blog, forum e gruppi privati.\n\nTutto sarà crittografato prima di essere scritto sull\'unità rimovibile.\n\nQuando il tuo contatto riceve l\'unità rimovibile, può utilizzare il pulsante \"Ricevi dati\" per importare i messaggi in Briar.</string>
   <string name="removable_drive_title_send">Invia dati</string>
   <string name="removable_drive_title_receive">Ricevi dati</string>
   <string name="removable_drive_send_intro">Tocca il pulsante sottostante per creare un nuovo file contenente i messaggi cifrati. Puoi scegliere dove verrà salvato il file.\n\nSe vuoi salvarlo in un supporto rimovibile, inseriscilo ora.</string>

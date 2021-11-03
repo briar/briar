@@ -696,6 +696,7 @@ Briar-i i përdor ato paralelisht.</string>
   <string name="hotspot_help_wifi_title">Probleme me lidhjen me Wi-Fi:</string>
   <string name="hotspot_help_wifi_1">Provoni çaktivizimin dhe riaktivizimin e Wi-Fi-it në të dy telefonat dhe riprovoni.</string>
   <string name="hotspot_help_wifi_2">Nëse telefoni juaj ankohet se Wi-Fi s’ka internet, i thoni se dëshironi të jeni i lidhur sido qoftë.</string>
+  <string name="hotspot_help_wifi_3">Rinisni telefonin që xhiron hotspot-in Wi-Fi, mandej rinisni Briar-in dhe riprovoni ta jepni lidhjen.</string>
   <string name="hotspot_help_site_title">Probleme në vizita të sajtit vendor:</string>
   <string name="hotspot_help_site_1">Rikontrolloni se e keni dhënë adresën saktësisht siç shfaqet. Një gabim i vockël mund të bëjë të dështojë.</string>
   <string name="hotspot_help_site_2">Sigurohuni se telefoni juaj është ende i lidhur me Wi-Fi e duhur (shihni më sipër), kur provoni të hyni te sajti.</string>
@@ -716,6 +717,9 @@ Briar-i i përdor ato paralelisht.</string>
   <string name="hotspot_flag_test">Kujdes: Ky aplikacion qe instaluar me Android Studio dhe NUK mund të instalohet në një pajisje tjetër.</string>
   <string name="hotspot_error_framework_busy">S’arrihet të niset hotspot-i.\n\nNëse keni një tjetër hotspot në punë, ose e jepni lidhjen tuaj Internet përmes Wi-Fi, provoni ta ndalni dhe të riprovoni pas kësaj.</string>
   <!--Transfer Data via Removable Drives-->
+  <string name="removable_drive_menu_title">Lidhu përmes Disku të Heqshëm</string>
+  <string name="removable_drive_intro">Nëse s’lidheni dot me kontaktin tuaj përmes Interneti, Wi-Fi apo Bluetooth-i, Briar-i mund të shpërngulë mesazhe edhe përmes disqesh të heqshëm, bie fjala një diskth USB, ose një kartë SD.</string>
+  <string name="removable_drive_explanation">Nëse s’lidheni dot me kontaktin tuaj përmes Interneti, Wi-Fi apo Bluetooth-i, Briar-i mund të shpërngulë mesazhe edhe përmes disqesh të heqshëm, bie fjala një diskth USB, ose një kartë SD.\n\nKur përdorni butonin “Dërgo të Dhëna”, çfarëdo të dhënash që po presin të dërgohen te kontakti, do të shkruhen te disku i heqshëm. Kjo përfshin mesazhe privates, bashkëngjitje, blogje, forume dhe grupe private.\n\nPara se të shkruhet te disku i heqshëm, gjithçka do të fshehtëzohet.\n\nKur kontakti juaj merr diskun e heqshëm, ai mund të përdorë butonin “Merr të Dhëna” që të importoni mesazhet në Briar.</string>
   <string name="removable_drive_title_send">Dërgoni të dhëna</string>
   <string name="removable_drive_title_receive">Merrni të dhëna</string>
   <string name="removable_drive_send_intro">Prekni butonin më poshtë që të krijoni një kartelë të re që përmban mesazhe të fshehtëzuar. Mund të zgjidhni ku të ruhen kartelat.\n\nNëse doni të ruhet kartela në një disk të heqshëm, futeni diskun tani.</string>

@@ -20,12 +20,16 @@
   <string name="more_info">Nánari upplýsingar</string>
   <string name="don_t_ask_again">Ekki spyrja aftur</string>
   <string name="setup_huawei_text">Ýttu á hnappinn hér fyrir neðan og gakktu úr skugga um að Briar sé varið á skjánum \"Varin forrit\".</string>
-  <string name="setup_huawei_button">Verja Briar</string>
+  <string name="setup_huawei_button">Vernda Briar</string>
   <string name="setup_huawei_help">Ef Briar er ekki bætt á listann yfir varin forrit, getur það ekki keyrt í bakgrunni.</string>
   <string name="setup_huawei_app_launch_text">Ýttu á hnappinn hér fyrir neðan, opnaðu \"Ræsing forrits\" skjáinn og gakktu úr skugga um að Briar sé stillt á \"Stýra handvirkt\".</string>
   <string name="setup_huawei_app_launch_button">Opna rafhlöðustillingar</string>
   <string name="setup_huawei_app_launch_help">Ef Briar er ekki stillt á \"Stýra handvirkt\" í \"Ræsing forrits\" skjánum, mun það ekki geta keyrt í bakgrunni.</string>
-  <string name="setup_xiaomi_button">Verja Briar</string>
+  <string name="setup_xiaomi_text">Til að keyra í bakgrunni þarf Briar að vera læst við listann yfir nýleg forrit.</string>
+  <string name="setup_xiaomi_button">Vernda Briar</string>
+  <string name="setup_xiaomi_help">Ef Briar er ekki læst við listann yfir nýleg forrit, mun það ekki geta keyrt í bakgrunni.</string>
+  <string name="setup_xiaomi_dialog_body_old">1. Opnaðu listann yfir nýleg forrit (einnig kallað forritaskiptir)\n\n2. Strjúktu niður myndina af Briar til að birta hengilástáknið\n\n3. Ef hengilásinn er ekki læstur, ýttu á hann til að læsa</string>
+  <string name="setup_xiaomi_dialog_body_new">1. Opnaðu listann yfir nýleg forrit (einnig kallað forritaskiptir)\n\n2. Ýttu og haltu niðri á myndina af Briar til að birta hengiláshnappinn\n\n3. Ef hengilásinn er ekki læstur, ýttu á hann til að læsa</string>
   <string name="warning_dozed">%s gat ekki keyrt í bakgrunni</string>
   <!--Login-->
   <string name="enter_password">Lykilorð</string>
@@ -37,6 +41,9 @@
   <string name="dialog_title_lost_password">Týnt lykilorð</string>
   <string name="dialog_message_lost_password">Notandaaðgangur þinn í Briar er geymdur dulritaður á tækinu þínu, ekki í tölvuskýi, þannig að við getum ekki endurstillt lykilorðið þitt. Myndirðu vilja eyða notandaaðgangnum þínum og byrja aftur?\n\nVarúð: Auðkennin þín, tengiliðir og skilaboð munu tapast óendurkræft.</string>
   <string name="startup_failed_activity_title">Bilun í ræsingu Briar</string>
+  <string name="startup_failed_clock_error">Briar gat ekki farið af stað því klukka tækisins þíns er ekki rétt stillt.\n\nLeiðréttu klukku tækisins og prófaðu síðan aftur.</string>
+  <string name="startup_failed_data_too_old_error">Notandaaðgangurinn þinn var útbúinn með eldri útgáfu forritsins og er ekki hægt að opna hann með þessari útgáfu.\n\Þú þarft annað hvort að setja gömlu útgáfuna upp aftur, eða setja upp nýjan notandaaðgang með því að velja \'Ég hef gleymt lykilorðinu mínu\' þegar beðið er um lykilorð.</string>
+  <string name="startup_failed_data_too_new_error">Notandaaðgangurinn þinn var útbúinn með nýrri útgáfu forritsins og er ekki hægt að opna hann með þessari útgáfu.\n\Þú þarft að setja upp nýjustu útgáfuna og prófa svo aftur.</string>
   <plurals name="expiry_warning">
     <item quantity="one">Þetta er prufuútgáfa af Briar. Notandaaðgangurinn þinn mun renna út eftir %d dag og er ekki hægt að endurnýja hann.</item>
     <item quantity="other">Þetta er prufuútgáfa af Briar. Notandaaðgangurinn þinn mun renna út eftir %d daga og er ekki hægt að endurnýja hann.</item>
@@ -307,9 +314,12 @@
   <!--Connect via Bluetooth-->
   <string name="menu_item_connect_via_bluetooth">Tengjast í gegnum Bluetooth</string>
   <string name="connect_via_bluetooth_title">Tengjast í gegnum Bluetooth</string>
+  <string name="connect_via_bluetooth_already_discovering">Er þegar að reyna að tengjast með Bluetooth. Prófaðu aftur eftir dálitla stund.</string>
   <string name="connect_via_bluetooth_no_location_permission">Get ekki haldið áfram án heimildar til að nota staðsetningu</string>
   <string name="connect_via_bluetooth_start">Tengist í gegnum Bluetooth…</string>
   <string name="connect_via_bluetooth_success">Tókst að tengjast í gegnum Bluetooth</string>
+  <string name="connect_via_bluetooth_error">Gat ekki tengst í gegnum Bluetooth.</string>
+  <string name="connect_via_bluetooth_error_not_supported">Bluetooth er ekki stutt af tækinu.</string>
   <!--Private Groups-->
   <string name="groups_list_empty">Engir hópar sem hægt er að birta</string>
   <string name="groups_list_empty_action">Ýttu á + táknið til að útbúa hóp, eða biddu tengiliðina þína um að deila hópi með þér</string>
@@ -569,6 +579,7 @@
   <string name="learn_more">Fræðast frekar</string>
   <string name="disappearing_messages_summary">Láta öll frekari skilaboð í þessu samtali hverfa sjálfkrafa eftir 7\u00A0daga.</string>
   <!--Settings Actions-->
+  <string name="pref_category_actions">Aðgerðir</string>
   <string name="send_feedback">Senda umsögn</string>
   <!--Link Warning-->
   <string name="link_warning_title">Aðvörun vegna tengils</string>
@@ -577,6 +588,7 @@
   <string name="link_warning_open_link">Opna tengil</string>
   <!--Crash Reporter-->
   <string name="crash_report_title">Hrunskýrsla fyrir Briar</string>
+  <string name="briar_crashed">Því miður, Briar hefur hrunið</string>
   <string name="not_your_fault">Það er ekki þér að kenna.</string>
   <string name="please_send_report">Hjálpaðu okkur við að bæta Briar með því að senda okkur hrunskýrslu.</string>
   <string name="report_is_encrypted">Við lofum að skýrslan sé dulrituð og send á öruggan máta.</string>
@@ -635,16 +647,64 @@
   <!--Connections Screen-->
   <string name="transports_help_text">Briar getur tengst við tengiliðina þína í gegnum internet, Wi-Fi eða Bluetooth.\n\nAllar internettengingar fara í gegnum Tor-netkerfið til að gæta gagnaleyndar.\n\nEf hægt er að nálgast tengilið með mörgum leiðum, notar Briar þær samhliða.</string>
   <!--Share app offline-->
+  <string name="hotspot_title">Deila þessu forriti án nettengingar</string>
+  <string name="hotspot_button_start_sharing">Ræsa tengipunkt</string>
+  <string name="hotspot_button_stop_sharing">Stöðva tengipunkt</string>
+  <string name="hotspot_progress_text_start">Set upp tengipunkt…</string>
+  <string name="hotspot_notification_channel_title">Þráðlaus Wi-Fi tengipunktur</string>
+  <string name="hotspot_notification_title">Deiling Briar án nettengingar</string>
   <string name="hotspot_button_connected">Næsta</string>
+  <string name="permission_hotspot_location_request_body">Til að útbúa Wi-Fi-aðgangsstað, þarf Briar heimild til að nota staðsetningu þína.\n\nBriar geymir ekki staðsetningar eða deilir þeim með neinum.</string>
+  <string name="permission_hotspot_location_denied_body">Þú hefur hafnað aðgangi að staðsetningu, en Briar þarf þessa heimild til að geta útbúið Wi-Fi-aðgangsstað.\n\nÍhugaðu að veita þennan aðgang.</string>
+  <string name="wifi_settings_title">Wi-Fi-stillingar</string>
+  <string name="wifi_settings_request_enable_body">Til að útbúa Wi-Fi aðgangsstað þarf Briar að nota Wi-Fi. Virkjaðu það.</string>
+  <string name="hotspot_tab_manual">Handvirk</string>
   <!--The placeholder to be inserted into the string 'hotspot_manual_wifi': People can connect by %s-->
+  <string name="hotspot_scanning_a_qr_code">skönnun QR-kóða</string>
   <!--Wi-Fi setup-->
   <!--The %s placeholder will be replaced with the translation of 'hotspot_scanning_a_qr_code'-->
+  <string name="hotspot_manual_wifi_ssid">Heiti netkerfis</string>
+  <string name="hotspot_no_peers_connected">Engin tæki tengd</string>
+  <plurals name="hotspot_peers_connected">
+    <item quantity="one">%s tæki tengt</item>
+    <item quantity="other">%s tæki tengd</item>
+  </plurals>
   <!--Download link-->
   <!--The %s placeholder will be replaced with the translation of 'hotspot_scanning_a_qr_code'-->
+  <string name="hotspot_manual_site_address">Vistfang (URL)</string>
   <!--e.g. Download Briar 1.2.20-->
+  <string name="website_download_title">Sækja %s</string>
+  <string name="website_download_intro">Einhver í nágrenninu hefur deilt %s með þér.</string>
+  <string name="website_download_outro">Eftir að niðurhalinu er lokið, skaltu opna sóttu skrána og setja hana upp.</string>
   <string name="website_troubleshooting_title">Lausn á vandamálum</string>
+  <string name="website_troubleshooting_1">Ef þú getur ekki sótt forritið, ættirðu að prófa það með öðrum vafra.</string>
+  <string name="hotspot_help_wifi_title">Vandamál við að tengjast við Wi-Fi:</string>
+  <string name="hotspot_help_wifi_1">Prófaðu að gera Wi-Fi óvirkt og virkja það aftur á báðum símunum og reyndu svo aftur.</string>
+  <string name="hotspot_help_site_title">Vandamál við að skoða staðvært vefsvæði:</string>
+  <string name="hotspot_help_site_3">Ef þú ert með eldveggjarhugbúnað í gangi, skaltu vera viss um að það sé ekki að loka fyrir aðgang.</string>
+  <string name="hotspot_help_site_4">Ef þú getur skoðað vefsvæðið en ekki sótt Briar-forritið, ættirðu að prófa það með öðrum vafra.</string>
+  <string name="hotspot_help_fallback_title">Virkar ekkert?</string>
+  <string name="hotspot_help_fallback_button">Vista forrit</string>
   <!--error handling-->
+  <string name="hotspot_error_intro">Eitthvað fór úrskeiðis þegar reynt var að deila forritinu með Wi-Fi:</string>
+  <string name="hotspot_error_no_wifi_direct">Þetta tæki styður ekki beint Wi-Fi samband.</string>
+  <string name="hotspot_error_start_callback_failed">Tengipunktur ræstist ekki: villa %s</string>
+  <string name="hotspot_error_start_callback_failed_unknown">Tengipunktur ræstist ekki vegna óþekktrar villu, ástæðan er %s</string>
+  <string name="hotspot_error_start_callback_no_group_info">Tengipunktur ræstist ekki: engar hópupplýsingar</string>
+  <string name="hotspot_error_web_server_start">Villa við að ræsa vefþjón</string>
+  <string name="hotspot_flag_test">Aðvörun: Þetta forrit var sett upp með Android Studio og er EKKI hægt að setja upp á öðru tæki.</string>
   <!--Transfer Data via Removable Drives-->
+  <string name="removable_drive_menu_title">Tengjast í gegnum útskiptanlegt drif</string>
+  <string name="removable_drive_title_send">Senda gögn</string>
+  <string name="removable_drive_title_receive">Taka við gögnum</string>
+  <string name="removable_drive_send_button">Veldu skrá til að flytja út</string>
+  <string name="removable_drive_ongoing">Bíddu eftir að verk sem er í gangi klárist</string>
+  <string name="removable_drive_receive_intro">Ýttu á hnappinn hér fyrir neðan til að velja skrána sem tengiliðurinn sendi þér.\n\nEf skráin er á útskiptanlegu drifi, skaltu tengja það núna.</string>
+  <string name="removable_drive_receive_button">Veldu skrá til að flytja inn</string>
+  <string name="removable_drive_success_send_title">Útflutningur tókst</string>
+  <string name="removable_drive_success_receive_title">Innflutningur tókst</string>
+  <string name="removable_drive_error_send_title">Villa við útflutning gagna</string>
+  <string name="removable_drive_error_receive_title">Villa í innflutningi gagna</string>
   <!--Screenshots-->
   <!--This is a name to be used in screenshots. Feel free to change it to a local name.-->
   <string name="screenshot_alice">Lísa</string>

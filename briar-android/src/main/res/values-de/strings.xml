@@ -712,6 +712,9 @@
   <string name="hotspot_flag_test">Warnung: Diese App wurde mit Android Studio installiert und kann NICHT auf einem anderen Gerät installiert werden.</string>
   <string name="hotspot_error_framework_busy">Hotspot kann nicht gestartet werden.\n\nWenn du einen anderen Hotspot betreibst oder deine Internetverbindung über WLAN teilst, beende dies und versuche es danach erneut.</string>
   <!--Transfer Data via Removable Drives-->
+  <string name="removable_drive_menu_title">Über Wechseldatenträger verbinden</string>
+  <string name="removable_drive_intro">Wenn du keine Verbindung zu deinem Kontakt über das Internet, WLAN oder Bluetooth herstellen kannst, kann Briar auch Nachrichten auf einem Wechseldatenträger wie einem USB-Stick oder einer SD-Karte übertragen.</string>
+  <string name="removable_drive_explanation">Wenn du keine Verbindung zu deinem Kontakt über das Internet, WLAN oder Bluetooth herstellen kannst, kann Briar auch Nachrichten auf einem Wechseldatenträger wie einem USB-Stick oder einer SD-Karte übertragen.n\nWenn du die Schaltfläche \"Daten senden\" verwendest, werden alle Daten, die darauf warten, an den Kontakt gesendet zu werden, auf den Wechseldatenträger geschrieben. Dazu gehören private Nachrichten, Anhänge, Blogs, Foren und private Gruppen.\n\nAlles wird verschlüsselt, bevor es auf den Wechseldatenträger geschrieben wird.\n\nWenn dein Kontakt den Wechseldatenträger erhält, kann er die Schaltfläche \"Daten empfangen\" verwenden, um die Nachrichten in Briar zu importieren.</string>
   <string name="removable_drive_title_send">Daten senden</string>
   <string name="removable_drive_title_receive">Daten empfangen</string>
   <string name="removable_drive_send_intro">Tippe auf die Schaltfläche unten, um eine neue Datei mit den verschlüsselten Nachrichten zu erstellen. Du kannst wählen, wo die Datei gespeichert werden soll.\n\nWenn du die Datei auf einem Wechsellaufwerk speichern möchtest, lege das Laufwerk jetzt ein.</string>

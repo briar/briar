@@ -680,6 +680,7 @@
   <string name="hotspot_help_wifi_title">连接 Wi-Fi 出现问题:</string>
   <string name="hotspot_help_wifi_1">尝试禁用和重新启用这两部手机的 Wi-Fi，然后再试一次。</string>
   <string name="hotspot_help_wifi_2">如果你的手机抱怨 Wi-Fi 没有网络，告诉它无论如何你都想保持连接。</string>
+  <string name="hotspot_help_wifi_3">重启正在运行 Wi-Fi 热点的手机，然后启动 Briar 并再次尝试共享。</string>
   <string name="hotspot_help_site_title">访问本地网站出现问题：</string>
   <string name="hotspot_help_site_1">再次检查您输入的地址是否完全和所显示的一样。一个小的错误就可能导致失败。</string>
   <string name="hotspot_help_site_2">当你尝试访问网站时，确保你的手机仍然连接到正确的 Wi-Fi (见上文)。</string>
@@ -700,6 +701,9 @@
   <string name="hotspot_flag_test">警告：此应用程序通过 Android Studio 安装，不能安装在其他设备上</string>
   <string name="hotspot_error_framework_busy">无法启动热点。\n\n如果您有另一个热点正在运行或通过 Wi-Fi 共享您的互联网连接，尝试停止它稍后再试一次。</string>
   <!--Transfer Data via Removable Drives-->
+  <string name="removable_drive_menu_title">通过可移动驱动器连接</string>
+  <string name="removable_drive_intro">如果你无法通过互联网、Wi-Fi 或蓝牙连接到你的联系人，Briar 还可以通过U 盘或 SD 卡等可移动驱动器传输信息。</string>
+  <string name="removable_drive_explanation">如果你无法通过互联网、Wi-Fi 或蓝牙连接到你的联系人，Briar 还可以通过U 盘或 SD 卡等可移动驱动器传输信息。\n\n当您使用“发送数据”按钮时，任何等待发送到联系人的数据将被写入可移动驱动器。这包括私人消息、附件、博客、论坛和私人群组。\n\n在写入移动驱动器之前，所有内容都将被加密。\n\n当您的联系人收到可移动驱动器时，他们可以使用“接收数据”按钮将消息导入 Briar。</string>
   <string name="removable_drive_title_send">发送数据</string>
   <string name="removable_drive_title_receive">接收数据</string>
   <string name="removable_drive_send_intro">轻按下面的按钮创建一个包含加密消息的新文件。您可以选择将文件保存在哪里。\n\n如果您想将文件保存在可移动驱动器上，请立即插入驱动器。</string>

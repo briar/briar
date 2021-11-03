@@ -25,11 +25,11 @@
   <string name="setup_huawei_app_launch_text">Пожалуйста, нажмите кнопку ниже, откройте экран \"Запуск приложения\" и убедитесь, что для Briar установлено значение \"Управлять вручную\".</string>
   <string name="setup_huawei_app_launch_button">Открыть настройки батареи</string>
   <string name="setup_huawei_app_launch_help">Если для Briar не установлено значение \"Управлять вручную\" на экране \"Запуск приложения\", он не сможет работать в фоновом режиме.</string>
-  <string name="setup_xiaomi_text">Для работы в фоновом режиме Briar должен быть заблокирован в списке недавних приложений.</string>
+  <string name="setup_xiaomi_text">Для работы в фоновом режиме Briar должен быть закреплен в списке недавних приложений.</string>
   <string name="setup_xiaomi_button">Защитить Briar</string>
-  <string name="setup_xiaomi_help">Если Briar не заблокирован в списке последних приложений, он не сможет работать в фоновом режиме.</string>
-  <string name="setup_xiaomi_dialog_body_old">1. Откройте список недавних приложений (также называемый переключателем приложений)\n\n2. Смахните вниз изображение Briar, чтобы появился значок замка\n\n3. Если замок не заблокирован, нажмите на него для блокировки.</string>
-  <string name="setup_xiaomi_dialog_body_new">1. Откройте список недавних приложений (также называемый переключателем приложений)\n\n2. Нажмите и удерживайте изображение Briar, пока не появится кнопка с замком\n\n3. Если замок не заблокирован, нажмите на него для блокировки.</string>
+  <string name="setup_xiaomi_help">Если Briar не закреплен в списке последних приложений, он не сможет работать в фоновом режиме.</string>
+  <string name="setup_xiaomi_dialog_body_old">1. Откройте список недавних приложений (иначе называемый переключателем приложений)\n\n2. Смахните вниз изображение Briar, чтобы появился значок замка\n\n3. Если замок не закреплен, нажмите на него для закрепления.</string>
+  <string name="setup_xiaomi_dialog_body_new">1. Откройте список недавних приложений (иначе называемый переключателем приложений)\n\n2. Нажмите и удерживайте изображение Briar, пока не появится кнопка с замком\n\n3. Если замок не закреплен, нажмите на него для закрепления.</string>
   <string name="warning_dozed">%s не удалось выполнить в фоновом режиме</string>
   <!--Login-->
   <string name="enter_password">Пароль</string>
@@ -334,9 +334,13 @@
   <!--Connect via Bluetooth-->
   <string name="menu_item_connect_via_bluetooth">Подключение через Bluetooth</string>
   <string name="connect_via_bluetooth_title">Подключение через Bluetooth</string>
+  <string name="connect_via_bluetooth_intro">Если соединение Bluetooth не устанавливается автоматически, вы можете использовать этот экран для подключения вручную.\n\nДля этого ваш собеседник должен находиться рядом.\n\nВы и ваш собеседник должны одновременно нажать кнопку \'Начать\'.</string>
+  <string name="connect_via_bluetooth_already_discovering">Пытаемся подключиться через Bluetooth. Пожалуйста, повторите попытку в ближайшее время.</string>
   <string name="connect_via_bluetooth_no_location_permission">Невозможно продолжить без доступа к местоположению</string>
   <string name="connect_via_bluetooth_start">Подключение через Bluetooth...</string>
   <string name="connect_via_bluetooth_success">Успешное подключение через Bluetooth</string>
+  <string name="connect_via_bluetooth_error">Не удалось подключиться через Bluetooth.</string>
+  <string name="connect_via_bluetooth_error_not_supported">Bluetooth не поддерживается устройством.</string>
   <!--Private Groups-->
   <string name="groups_list_empty">Нет групп для отображения</string>
   <string name="groups_list_empty_action">Для создания группы нажмите значок + или попросите ваши контакты поделиться с вами группами</string>
@@ -736,6 +740,9 @@
   <string name="hotspot_flag_test">Предупреждение: Это приложение было установлено с помощью Android Studio и НЕ может быть установлено на другое устройство.</string>
   <string name="hotspot_error_framework_busy">Невозможно запустить точку доступа.\n\nЕсли у вас запущена другая точка доступа или вы используете подключение к интернету через Wi-Fi, попробуйте отключить его, а затем повторить попытку.</string>
   <!--Transfer Data via Removable Drives-->
+  <string name="removable_drive_menu_title">Подключиться через съемный носитель</string>
+  <string name="removable_drive_intro">Если вы не можете подключиться к контакту через интернет, Wi-Fi или Bluetooth, Briar также может передавать сообщения на съемном носителе, таком как USB-накопитель или SD-карта.</string>
+  <string name="removable_drive_explanation">Если вы не можете подключиться к контакту через интернет, Wi-Fi или Bluetooth, Briar также может передавать сообщения на съемном носителе, таком как USB-накопитель или SD-карта.\n\n\nКогда вы используете кнопку \"Отправить данные\", все данные, которые ожидают отправки контакту, будут записаны на съемный носитель. Сюда входят личные сообщения, вложения, блоги, форумы и личные группы.\n\n\nВсе данные будут зашифрованы перед записью.\n\n\nКогда ваш собеседник получит съемный носитель, он может воспользоваться кнопкой \"Получить данные\", чтобы импортировать сообщения в Briar.</string>
   <string name="removable_drive_title_send">Отправить данные</string>
   <string name="removable_drive_title_receive">Принять данные</string>
   <string name="removable_drive_send_intro">Нажмите кнопку ниже, чтобы создать новый файл, содержащий зашифрованные сообщения. Вы сможете выбрать, где будет сохранен этот файл.\n\nЕсли вы хотите сохранить файл на съемном диске, вставьте диск сейчас.</string>
