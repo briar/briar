@@ -697,7 +697,7 @@
 
 	<!-- Share app offline -->
 	<string name="hotspot_title">Share this app offline</string>
-	<string name="hotspot_intro">Share this app with someone nearby without Internet connection by using your phone\'s Wi-Fi.
+	<string name="hotspot_intro">Share this app with someone nearby without an Internet connection by using your phone\'s Wi-Fi.
 		\n\nYour phone will start a Wi-Fi hotspot. People nearby can connect to the hotspot and download the Briar app from your phone.</string>
 	<string name="hotspot_button_start_sharing">Start hotspot</string>
 	<string name="hotspot_button_stop_sharing">Stop hotspot</string>
