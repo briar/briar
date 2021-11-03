@@ -8,7 +8,6 @@ import org.briarproject.bramble.api.plugin.PluginCallback;
 import org.briarproject.bramble.api.system.Clock;
 import org.briarproject.bramble.api.system.LocationUtils;
 import org.briarproject.bramble.api.system.ResourceProvider;
-import org.briarproject.bramble.plugin.TorPorts;
 
 import java.io.File;
 import java.net.URI;
@@ -26,7 +25,6 @@ abstract class JavaTorPlugin extends TorPlugin {
 			NetworkManager networkManager,
 			LocationUtils locationUtils,
 			SocketFactory torSocketFactory,
-			TorPorts torPorts,
 			Clock clock,
 			ResourceProvider resourceProvider,
 			CircumventionProvider circumventionProvider,
@@ -37,12 +35,15 @@ abstract class JavaTorPlugin extends TorPlugin {
 			String architecture,
 			long maxLatency,
 			int maxIdleTime,
-			File torDirectory) {
+			File torDirectory,
+			int torSocksPort,
+			int torControlPort) {
 		super(ioExecutor, wakefulIoExecutor, networkManager, locationUtils,
-				torSocketFactory, torPorts, clock, resourceProvider,
+				torSocketFactory, clock, resourceProvider,
 				circumventionProvider, batteryManager, backoff,
 				torRendezvousCrypto, callback, architecture,
-				maxLatency, maxIdleTime, torDirectory);
+				maxLatency, maxIdleTime, torDirectory, torSocksPort,
+				torControlPort);
 	}
 
 	@Override

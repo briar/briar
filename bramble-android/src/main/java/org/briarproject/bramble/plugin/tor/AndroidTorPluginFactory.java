@@ -11,7 +11,9 @@ import org.briarproject.bramble.api.plugin.Backoff;
 import org.briarproject.bramble.api.plugin.BackoffFactory;
 import org.briarproject.bramble.api.plugin.PluginCallback;
 import org.briarproject.bramble.api.plugin.TorConstants;
+import org.briarproject.bramble.api.plugin.TorControlPort;
 import org.briarproject.bramble.api.plugin.TorDirectory;
+import org.briarproject.bramble.api.plugin.TorSocksPort;
 import org.briarproject.bramble.api.plugin.TransportId;
 import org.briarproject.bramble.api.plugin.duplex.DuplexPlugin;
 import org.briarproject.bramble.api.plugin.duplex.DuplexPluginFactory;
@@ -20,7 +22,6 @@ import org.briarproject.bramble.api.system.Clock;
 import org.briarproject.bramble.api.system.LocationUtils;
 import org.briarproject.bramble.api.system.ResourceProvider;
 import org.briarproject.bramble.api.system.WakefulIoExecutor;
-import org.briarproject.bramble.plugin.TorPorts;
 import org.briarproject.bramble.util.AndroidUtils;
 
 import java.io.File;
@@ -50,7 +51,6 @@ public class AndroidTorPluginFactory implements DuplexPluginFactory {
 	private final LocationUtils locationUtils;
 	private final EventBus eventBus;
 	private final SocketFactory torSocketFactory;
-	private final TorPorts torPorts;
 	private final BackoffFactory backoffFactory;
 	private final ResourceProvider resourceProvider;
 	private final CircumventionProvider circumventionProvider;
@@ -58,6 +58,8 @@ public class AndroidTorPluginFactory implements DuplexPluginFactory {
 	private final AndroidWakeLockManager wakeLockManager;
 	private final Clock clock;
 	private final File torDirectory;
+	private int torSocksPort;
+	private int torControlPort;
 
 	@Inject
 	AndroidTorPluginFactory(@IoExecutor Executor ioExecutor,
@@ -67,14 +69,15 @@ public class AndroidTorPluginFactory implements DuplexPluginFactory {
 			LocationUtils locationUtils,
 			EventBus eventBus,
 			SocketFactory torSocketFactory,
-			TorPorts torPorts,
 			BackoffFactory backoffFactory,
 			ResourceProvider resourceProvider,
 			CircumventionProvider circumventionProvider,
 			BatteryManager batteryManager,
 			AndroidWakeLockManager wakeLockManager,
 			Clock clock,
-			@TorDirectory File torDirectory) {
+			@TorDirectory File torDirectory,
+			@TorSocksPort int torSocksPort,
+			@TorControlPort int torControlPort) {
 		this.ioExecutor = ioExecutor;
 		this.wakefulIoExecutor = wakefulIoExecutor;
 		this.app = app;
@@ -82,7 +85,6 @@ public class AndroidTorPluginFactory implements DuplexPluginFactory {
 		this.locationUtils = locationUtils;
 		this.eventBus = eventBus;
 		this.torSocketFactory = torSocketFactory;
-		this.torPorts = torPorts;
 		this.backoffFactory = backoffFactory;
 		this.resourceProvider = resourceProvider;
 		this.circumventionProvider = circumventionProvider;
@@ -90,6 +92,8 @@ public class AndroidTorPluginFactory implements DuplexPluginFactory {
 		this.wakeLockManager = wakeLockManager;
 		this.clock = clock;
 		this.torDirectory = torDirectory;
+		this.torSocksPort = torSocksPort;
+		this.torControlPort = torControlPort;
 	}
 
 	@Override
@@ -134,10 +138,11 @@ public class AndroidTorPluginFactory implements DuplexPluginFactory {
 		TorRendezvousCrypto torRendezvousCrypto = new TorRendezvousCryptoImpl();
 		AndroidTorPlugin plugin = new AndroidTorPlugin(ioExecutor,
 				wakefulIoExecutor, app, networkManager, locationUtils,
-				torSocketFactory, torPorts, clock, resourceProvider,
+				torSocketFactory, clock, resourceProvider,
 				circumventionProvider, batteryManager, wakeLockManager,
 				backoff, torRendezvousCrypto, callback, architecture,
-				MAX_LATENCY, MAX_IDLE_TIME, torDirectory);
+				MAX_LATENCY, MAX_IDLE_TIME, torDirectory, torSocksPort,
+				torControlPort);
 		eventBus.addListener(plugin);
 		return plugin;
 	}

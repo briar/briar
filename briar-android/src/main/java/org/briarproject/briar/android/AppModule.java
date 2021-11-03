@@ -18,13 +18,13 @@ import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.plugin.BluetoothConstants;
 import org.briarproject.bramble.api.plugin.LanTcpConstants;
 import org.briarproject.bramble.api.plugin.PluginConfig;
+import org.briarproject.bramble.api.plugin.TorControlPort;
 import org.briarproject.bramble.api.plugin.TorDirectory;
+import org.briarproject.bramble.api.plugin.TorSocksPort;
 import org.briarproject.bramble.api.plugin.TransportId;
 import org.briarproject.bramble.api.plugin.duplex.DuplexPluginFactory;
 import org.briarproject.bramble.api.plugin.simplex.SimplexPluginFactory;
 import org.briarproject.bramble.api.reporting.DevConfig;
-import org.briarproject.bramble.plugin.TorPorts;
-import org.briarproject.bramble.plugin.TorPortsImpl;
 import org.briarproject.bramble.plugin.bluetooth.AndroidBluetoothPluginFactory;
 import org.briarproject.bramble.plugin.file.AndroidRemovableDrivePluginFactory;
 import org.briarproject.bramble.plugin.tcp.AndroidLanTcpPluginFactory;
@@ -154,20 +154,31 @@ public class AppModule {
 
 	@Provides
 	@Singleton
-	TorPorts provideTorPorts() {
+	@TorDirectory
+	File provideTorDirectory(Application app) {
+		return app.getDir("tor", MODE_PRIVATE);
+	}
+
+	@Provides
+	@Singleton
+	@TorSocksPort
+	int provideTorSocksPort() {
 		if (!IS_DEBUG_BUILD) {
-			return new TorPortsImpl(DEFAULT_SOCKS_PORT, DEFAULT_CONTROL_PORT);
+			return DEFAULT_SOCKS_PORT;
 		} else {
-			return new TorPortsImpl(DEFAULT_SOCKS_PORT + 2,
-					DEFAULT_CONTROL_PORT + 2);
+			return DEFAULT_SOCKS_PORT + 2;
 		}
 	}
 
 	@Provides
 	@Singleton
-	@TorDirectory
-	File provideTorDirectory(Application app) {
-		return app.getDir("tor", MODE_PRIVATE);
+	@TorControlPort
+	int provideTorControlPort() {
+		if (!IS_DEBUG_BUILD) {
+			return DEFAULT_CONTROL_PORT;
+		} else {
+			return DEFAULT_CONTROL_PORT + 2;
+		}
 	}
 
 	@Provides

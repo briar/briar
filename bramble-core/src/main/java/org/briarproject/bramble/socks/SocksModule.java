@@ -1,6 +1,6 @@
 package org.briarproject.bramble.socks;
 
-import org.briarproject.bramble.plugin.TorPorts;
+import org.briarproject.bramble.api.plugin.TorSocksPort;
 
 import java.net.InetSocketAddress;
 
@@ -16,9 +16,9 @@ import static org.briarproject.bramble.api.plugin.TorConstants.EXTRA_SOCKET_TIME
 public class SocksModule {
 
 	@Provides
-	SocketFactory provideTorSocketFactory(TorPorts torPorts) {
+	SocketFactory provideTorSocketFactory(@TorSocksPort int torSocksPort) {
 		InetSocketAddress proxy = new InetSocketAddress("127.0.0.1",
-				torPorts.getSocksPort());
+				torSocksPort);
 		return new SocksSocketFactory(proxy, CONNECT_TO_PROXY_TIMEOUT,
 				EXTRA_SOCKET_TIMEOUT);
 	}

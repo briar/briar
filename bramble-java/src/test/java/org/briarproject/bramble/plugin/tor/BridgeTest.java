@@ -11,8 +11,6 @@ import org.briarproject.bramble.api.system.Clock;
 import org.briarproject.bramble.api.system.LocationUtils;
 import org.briarproject.bramble.api.system.ResourceProvider;
 import org.briarproject.bramble.api.system.WakefulIoExecutor;
-import org.briarproject.bramble.plugin.TorPorts;
-import org.briarproject.bramble.plugin.TorPortsImpl;
 import org.briarproject.bramble.test.BrambleJavaIntegrationTestComponent;
 import org.briarproject.bramble.test.BrambleTestCase;
 import org.briarproject.bramble.test.DaggerBrambleJavaIntegrationTestComponent;
@@ -119,9 +117,6 @@ public class BridgeTest extends BrambleTestCase {
 		LocationUtils locationUtils = () -> "US";
 		SocketFactory torSocketFactory = SocketFactory.getDefault();
 
-		TorPorts torPorts =
-				new TorPortsImpl(DEFAULT_SOCKS_PORT, DEFAULT_CONTROL_PORT);
-
 		CircumventionProvider bridgeProvider = new CircumventionProvider() {
 			@Override
 			public boolean isTorProbablyBlocked(String countryCode) {
@@ -145,8 +140,9 @@ public class BridgeTest extends BrambleTestCase {
 		};
 		factory = new UnixTorPluginFactory(ioExecutor, wakefulIoExecutor,
 				networkManager, locationUtils, eventBus, torSocketFactory,
-				torPorts, backoffFactory, resourceProvider, bridgeProvider,
-				batteryManager, clock, torDir);
+				backoffFactory, resourceProvider, bridgeProvider,
+				batteryManager, clock, torDir, DEFAULT_SOCKS_PORT,
+				DEFAULT_CONTROL_PORT);
 	}
 
 	@After
