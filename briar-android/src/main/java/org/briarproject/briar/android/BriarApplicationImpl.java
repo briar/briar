@@ -6,6 +6,8 @@ import android.app.Application;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
+import android.os.Build;
+import android.os.Build.VERSION_CODES;
 import android.os.StrictMode;
 import android.os.StrictMode.ThreadPolicy;
 import android.os.StrictMode.VmPolicy;
@@ -120,12 +122,62 @@ public class BriarApplicationImpl extends Application
 	}
 
 	private void enableStrictMode() {
+		int targetSdk = Build.VERSION.SDK_INT;
+
 		ThreadPolicy.Builder threadPolicy = new ThreadPolicy.Builder();
-		threadPolicy.detectAll();
+
+		// pulled in from threadPolicy.detectAll();
+		threadPolicy.detectDiskReads();
+		threadPolicy.detectDiskWrites();
+		threadPolicy.detectNetwork();
+
+		if (targetSdk >= VERSION_CODES.HONEYCOMB) {
+			threadPolicy.detectCustomSlowCalls();
+		}
+		if (targetSdk >= VERSION_CODES.M) {
+			threadPolicy.detectResourceMismatches();
+		}
+		if (targetSdk >= VERSION_CODES.O) {
+			threadPolicy.detectUnbufferedIo();
+		}
+		// -- end detectAll()
+
 		threadPolicy.penaltyLog();
 		StrictMode.setThreadPolicy(threadPolicy.build());
+
 		VmPolicy.Builder vmPolicy = new VmPolicy.Builder();
-		vmPolicy.detectAll();
+
+		// pulled in from vmPolicy.detectAll();
+		vmPolicy.detectLeakedSqlLiteObjects();
+		if (targetSdk >= VERSION_CODES.HONEYCOMB) {
+			vmPolicy.detectActivityLeaks();
+			vmPolicy.detectLeakedClosableObjects();
+		}
+		if (targetSdk >= VERSION_CODES.JELLY_BEAN) {
+			vmPolicy.detectLeakedRegistrationObjects();
+		}
+		if (targetSdk >= VERSION_CODES.JELLY_BEAN_MR2) {
+			vmPolicy.detectFileUriExposure();
+		}
+		if (targetSdk >= VERSION_CODES.M) {
+			vmPolicy.detectCleartextNetwork();
+		}
+		if (targetSdk >= VERSION_CODES.O) {
+			vmPolicy.detectContentUriWithoutPermission();
+			// do not detect untagged sockets
+			// vmPolicy.detectUntaggedSockets();
+		}
+		if (targetSdk >= VERSION_CODES.Q) {
+			vmPolicy.detectCredentialProtectedWhileLocked();
+		}
+		if (targetSdk >= VERSION_CODES.R) {
+			// for some reason this won't compile
+			// vmPolicy.detectIncorrectContextUse();
+		}
+		// -- end detectAll()
+
+		// TODO: add detectUnsafeIntentLaunch() after upgrading to API level 31
+
 		vmPolicy.penaltyLog();
 		StrictMode.setVmPolicy(vmPolicy.build());
 	}
