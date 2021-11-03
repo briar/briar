@@ -1,4 +1,4 @@
-package org.briarproject.briar.android.contact.add.nearby;
+package org.briarproject.briar.android.qrcode;
 
 import android.content.Context;
 import android.hardware.Camera;

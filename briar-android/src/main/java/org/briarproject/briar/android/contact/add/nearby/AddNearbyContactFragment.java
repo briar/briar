@@ -20,6 +20,8 @@ import org.briarproject.briar.android.contact.add.nearby.AddContactState.KeyAgre
 import org.briarproject.briar.android.contact.add.nearby.AddContactState.KeyAgreementWaiting;
 import org.briarproject.briar.android.contact.add.nearby.AddContactState.QrCodeScanned;
 import org.briarproject.briar.android.fragment.BaseFragment;
+import org.briarproject.briar.android.qrcode.CameraException;
+import org.briarproject.briar.android.qrcode.CameraView;
 import org.briarproject.briar.android.view.QrCodeView;
 
 import java.util.logging.Logger;
