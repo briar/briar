@@ -130,8 +130,8 @@ public class UnixTorPluginFactory implements DuplexPluginFactory {
 				MAX_POLLING_INTERVAL, BACKOFF_BASE);
 		TorRendezvousCrypto torRendezvousCrypto = new TorRendezvousCryptoImpl();
 		UnixTorPlugin plugin = new UnixTorPlugin(ioExecutor, wakefulIoExecutor,
-				networkManager, locationUtils, torSocketFactory,
-				clock, resourceProvider, circumventionProvider, batteryManager,
+				networkManager, locationUtils, torSocketFactory, clock,
+				resourceProvider, circumventionProvider, batteryManager,
 				backoff, torRendezvousCrypto, callback, architecture,
 				MAX_LATENCY, MAX_IDLE_TIME, torDirectory, torSocksPort,
 				torControlPort);

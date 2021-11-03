@@ -45,6 +45,7 @@ import java.io.OutputStream;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -69,7 +70,6 @@ import static java.util.logging.Level.WARNING;
 import static java.util.logging.Logger.getLogger;
 import static net.freehaven.tor.control.TorControlCommands.HS_ADDRESS;
 import static net.freehaven.tor.control.TorControlCommands.HS_PRIVKEY;
-import static org.briarproject.bramble.api.nullsafety.NullSafety.requireNonNull;
 import static org.briarproject.bramble.api.plugin.Plugin.State.ACTIVE;
 import static org.briarproject.bramble.api.plugin.Plugin.State.DISABLED;
 import static org.briarproject.bramble.api.plugin.Plugin.State.ENABLING;
@@ -397,18 +397,6 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 		return zin;
 	}
 
-	private InputStream getTorrc() {
-		StringBuilder strb = new StringBuilder();
-		append(strb, "ControlPort", torControlPort);
-		append(strb, "CookieAuthentication", 1);
-		append(strb, "DisableNetwork", 1);
-		append(strb, "RunAsDaemon", 1);
-		append(strb, "SafeSocks", 1);
-		append(strb, "SocksPort", torSocksPort);
-
-		return new ByteArrayInputStream(strb.toString().getBytes());
-	}
-
 	private static void append(StringBuilder strb, String name, int value) {
 		strb.append(name);
 		strb.append(" ");
@@ -417,7 +405,15 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 	}
 
 	private InputStream getConfigInputStream() {
-		return requireNonNull(getTorrc());
+		StringBuilder strb = new StringBuilder();
+		append(strb, "ControlPort", torControlPort);
+		append(strb, "CookieAuthentication", 1);
+		append(strb, "DisableNetwork", 1);
+		append(strb, "RunAsDaemon", 1);
+		append(strb, "SafeSocks", 1);
+		append(strb, "SocksPort", torSocksPort);
+		return new ByteArrayInputStream(
+				strb.toString().getBytes(Charset.forName("UTF-8")));
 	}
 
 	private void listFiles(File f) {
