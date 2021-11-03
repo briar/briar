@@ -689,7 +689,7 @@
   <string name="hotspot_error_intro">Eitthvað fór úrskeiðis þegar reynt var að deila forritinu með Wi-Fi:</string>
   <string name="hotspot_error_no_wifi_direct">Þetta tæki styður ekki beint Wi-Fi samband.</string>
   <string name="hotspot_error_start_callback_failed">Tengipunktur ræstist ekki: villa %s</string>
-  <string name="hotspot_error_start_callback_failed_unknown">Tengipunktur ræstist ekki vegna óþekktrar villu, ástæðan er %s</string>
+  <string name="hotspot_error_start_callback_failed_unknown">Tengipunktur ræstist ekki vegna óþekktrar villu, ástæðan er %d</string>
   <string name="hotspot_error_start_callback_no_group_info">Tengipunktur ræstist ekki: engar hópupplýsingar</string>
   <string name="hotspot_error_web_server_start">Villa við að ræsa vefþjón</string>
   <string name="hotspot_flag_test">Aðvörun: Þetta forrit var sett upp með Android Studio og er EKKI hægt að setja upp á öðru tæki.</string>
