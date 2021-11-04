@@ -18,7 +18,9 @@ import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.plugin.BluetoothConstants;
 import org.briarproject.bramble.api.plugin.LanTcpConstants;
 import org.briarproject.bramble.api.plugin.PluginConfig;
+import org.briarproject.bramble.api.plugin.TorControlPort;
 import org.briarproject.bramble.api.plugin.TorDirectory;
+import org.briarproject.bramble.api.plugin.TorSocksPort;
 import org.briarproject.bramble.api.plugin.TransportId;
 import org.briarproject.bramble.api.plugin.duplex.DuplexPluginFactory;
 import org.briarproject.bramble.api.plugin.simplex.SimplexPluginFactory;
@@ -74,6 +76,8 @@ import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
 import static java.util.Collections.singletonMap;
+import static org.briarproject.bramble.api.plugin.TorConstants.DEFAULT_CONTROL_PORT;
+import static org.briarproject.bramble.api.plugin.TorConstants.DEFAULT_SOCKS_PORT;
 import static org.briarproject.bramble.api.reporting.ReportingConstants.DEV_ONION_ADDRESS;
 import static org.briarproject.bramble.api.reporting.ReportingConstants.DEV_PUBLIC_KEY_HEX;
 
@@ -152,6 +156,28 @@ public class AppModule {
 	@TorDirectory
 	File provideTorDirectory(Application app) {
 		return app.getDir("tor", MODE_PRIVATE);
+	}
+
+	@Provides
+	@Singleton
+	@TorSocksPort
+	int provideTorSocksPort() {
+		if (!IS_DEBUG_BUILD) {
+			return DEFAULT_SOCKS_PORT;
+		} else {
+			return DEFAULT_SOCKS_PORT + 2;
+		}
+	}
+
+	@Provides
+	@Singleton
+	@TorControlPort
+	int provideTorControlPort() {
+		if (!IS_DEBUG_BUILD) {
+			return DEFAULT_CONTROL_PORT;
+		} else {
+			return DEFAULT_CONTROL_PORT + 2;
+		}
 	}
 
 	@Provides

@@ -35,12 +35,15 @@ abstract class JavaTorPlugin extends TorPlugin {
 			String architecture,
 			long maxLatency,
 			int maxIdleTime,
-			File torDirectory) {
+			File torDirectory,
+			int torSocksPort,
+			int torControlPort) {
 		super(ioExecutor, wakefulIoExecutor, networkManager, locationUtils,
 				torSocketFactory, clock, resourceProvider,
 				circumventionProvider, batteryManager, backoff,
 				torRendezvousCrypto, callback, architecture,
-				maxLatency, maxIdleTime, torDirectory);
+				maxLatency, maxIdleTime, torDirectory, torSocksPort,
+				torControlPort);
 	}
 
 	@Override

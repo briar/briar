@@ -11,7 +11,9 @@ import org.briarproject.bramble.api.plugin.Backoff;
 import org.briarproject.bramble.api.plugin.BackoffFactory;
 import org.briarproject.bramble.api.plugin.PluginCallback;
 import org.briarproject.bramble.api.plugin.TorConstants;
+import org.briarproject.bramble.api.plugin.TorControlPort;
 import org.briarproject.bramble.api.plugin.TorDirectory;
+import org.briarproject.bramble.api.plugin.TorSocksPort;
 import org.briarproject.bramble.api.plugin.TransportId;
 import org.briarproject.bramble.api.plugin.duplex.DuplexPlugin;
 import org.briarproject.bramble.api.plugin.duplex.DuplexPluginFactory;
@@ -56,6 +58,8 @@ public class AndroidTorPluginFactory implements DuplexPluginFactory {
 	private final AndroidWakeLockManager wakeLockManager;
 	private final Clock clock;
 	private final File torDirectory;
+	private int torSocksPort;
+	private int torControlPort;
 
 	@Inject
 	AndroidTorPluginFactory(@IoExecutor Executor ioExecutor,
@@ -71,7 +75,9 @@ public class AndroidTorPluginFactory implements DuplexPluginFactory {
 			BatteryManager batteryManager,
 			AndroidWakeLockManager wakeLockManager,
 			Clock clock,
-			@TorDirectory File torDirectory) {
+			@TorDirectory File torDirectory,
+			@TorSocksPort int torSocksPort,
+			@TorControlPort int torControlPort) {
 		this.ioExecutor = ioExecutor;
 		this.wakefulIoExecutor = wakefulIoExecutor;
 		this.app = app;
@@ -86,6 +92,8 @@ public class AndroidTorPluginFactory implements DuplexPluginFactory {
 		this.wakeLockManager = wakeLockManager;
 		this.clock = clock;
 		this.torDirectory = torDirectory;
+		this.torSocksPort = torSocksPort;
+		this.torControlPort = torControlPort;
 	}
 
 	@Override
@@ -133,7 +141,8 @@ public class AndroidTorPluginFactory implements DuplexPluginFactory {
 				torSocketFactory, clock, resourceProvider,
 				circumventionProvider, batteryManager, wakeLockManager,
 				backoff, torRendezvousCrypto, callback, architecture,
-				MAX_LATENCY, MAX_IDLE_TIME, torDirectory);
+				MAX_LATENCY, MAX_IDLE_TIME, torDirectory, torSocksPort,
+				torControlPort);
 		eventBus.addListener(plugin);
 		return plugin;
 	}

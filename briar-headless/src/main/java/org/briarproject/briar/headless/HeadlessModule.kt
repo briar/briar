@@ -7,7 +7,11 @@ import org.briarproject.bramble.account.AccountModule
 import org.briarproject.bramble.api.FeatureFlags
 import org.briarproject.bramble.api.db.DatabaseConfig
 import org.briarproject.bramble.api.plugin.PluginConfig
+import org.briarproject.bramble.api.plugin.TorConstants.DEFAULT_CONTROL_PORT
+import org.briarproject.bramble.api.plugin.TorConstants.DEFAULT_SOCKS_PORT
+import org.briarproject.bramble.api.plugin.TorControlPort
 import org.briarproject.bramble.api.plugin.TorDirectory
+import org.briarproject.bramble.api.plugin.TorSocksPort
 import org.briarproject.bramble.api.plugin.TransportId
 import org.briarproject.bramble.api.plugin.duplex.DuplexPluginFactory
 import org.briarproject.bramble.api.plugin.simplex.SimplexPluginFactory
@@ -72,6 +76,14 @@ internal class HeadlessModule(private val appDir: File) {
     internal fun provideTorDirectory(): File {
         return File(appDir, "tor")
     }
+
+    @Provides
+    @TorSocksPort
+    internal fun provideTorSocksPort(): Int = DEFAULT_SOCKS_PORT
+
+    @Provides
+    @TorControlPort
+    internal fun provideTorControlPort(): Int = DEFAULT_CONTROL_PORT
 
     @Provides
     @Singleton

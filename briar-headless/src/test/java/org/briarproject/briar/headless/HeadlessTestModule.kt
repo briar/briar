@@ -6,6 +6,10 @@ import dagger.Provides
 import org.briarproject.bramble.account.AccountModule
 import org.briarproject.bramble.api.db.DatabaseConfig
 import org.briarproject.bramble.api.plugin.PluginConfig
+import org.briarproject.bramble.api.plugin.TorConstants.DEFAULT_CONTROL_PORT
+import org.briarproject.bramble.api.plugin.TorConstants.DEFAULT_SOCKS_PORT
+import org.briarproject.bramble.api.plugin.TorControlPort
+import org.briarproject.bramble.api.plugin.TorSocksPort
 import org.briarproject.bramble.api.plugin.TransportId
 import org.briarproject.bramble.api.plugin.duplex.DuplexPluginFactory
 import org.briarproject.bramble.api.plugin.simplex.SimplexPluginFactory
@@ -63,6 +67,14 @@ internal class HeadlessTestModule(private val appDir: File) {
         val keyDir = File(appDir, "key")
         return HeadlessDatabaseConfig(dbDir, keyDir)
     }
+
+    @Provides
+    @TorSocksPort
+    internal fun provideTorSocksPort(): Int = DEFAULT_SOCKS_PORT
+
+    @Provides
+    @TorControlPort
+    internal fun provideTorControlPort(): Int = DEFAULT_CONTROL_PORT
 
     @Provides
     @Singleton

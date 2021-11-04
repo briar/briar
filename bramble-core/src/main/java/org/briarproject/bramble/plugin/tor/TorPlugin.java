@@ -34,6 +34,7 @@ import org.briarproject.bramble.api.system.Clock;
 import org.briarproject.bramble.api.system.LocationUtils;
 import org.briarproject.bramble.api.system.ResourceProvider;
 
+import java.io.ByteArrayInputStream;
 import java.io.EOFException;
 import java.io.File;
 import java.io.FileInputStream;
@@ -44,6 +45,7 @@ import java.io.OutputStream;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -68,13 +70,11 @@ import static java.util.logging.Level.WARNING;
 import static java.util.logging.Logger.getLogger;
 import static net.freehaven.tor.control.TorControlCommands.HS_ADDRESS;
 import static net.freehaven.tor.control.TorControlCommands.HS_PRIVKEY;
-import static org.briarproject.bramble.api.nullsafety.NullSafety.requireNonNull;
 import static org.briarproject.bramble.api.plugin.Plugin.State.ACTIVE;
 import static org.briarproject.bramble.api.plugin.Plugin.State.DISABLED;
 import static org.briarproject.bramble.api.plugin.Plugin.State.ENABLING;
 import static org.briarproject.bramble.api.plugin.Plugin.State.INACTIVE;
 import static org.briarproject.bramble.api.plugin.Plugin.State.STARTING_STOPPING;
-import static org.briarproject.bramble.api.plugin.TorConstants.CONTROL_PORT;
 import static org.briarproject.bramble.api.plugin.TorConstants.DEFAULT_PREF_PLUGIN_ENABLE;
 import static org.briarproject.bramble.api.plugin.TorConstants.DEFAULT_PREF_TOR_MOBILE;
 import static org.briarproject.bramble.api.plugin.TorConstants.DEFAULT_PREF_TOR_NETWORK;
@@ -132,8 +132,11 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 	private final CircumventionProvider circumventionProvider;
 	private final ResourceProvider resourceProvider;
 	private final long maxLatency;
-	private final int maxIdleTime, socketTimeout;
+	private final int maxIdleTime;
+	private final int socketTimeout;
 	private final File torDirectory, geoIpFile, configFile;
+	private int torSocksPort;
+	private int torControlPort;
 	private final File doneFile, cookieFile;
 	private final AtomicBoolean used = new AtomicBoolean(false);
 
@@ -162,7 +165,9 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 			String architecture,
 			long maxLatency,
 			int maxIdleTime,
-			File torDirectory) {
+			File torDirectory,
+			int torSocksPort,
+			int torControlPort) {
 		this.ioExecutor = ioExecutor;
 		this.wakefulIoExecutor = wakefulIoExecutor;
 		this.networkManager = networkManager;
@@ -182,6 +187,8 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 			socketTimeout = Integer.MAX_VALUE;
 		else socketTimeout = maxIdleTime * 2;
 		this.torDirectory = torDirectory;
+		this.torSocksPort = torSocksPort;
+		this.torControlPort = torControlPort;
 		geoIpFile = new File(torDirectory, "geoip");
 		configFile = new File(torDirectory, "torrc");
 		doneFile = new File(torDirectory, "done");
@@ -287,7 +294,7 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 		}
 		try {
 			// Open a control connection and authenticate using the cookie file
-			controlSocket = new Socket("127.0.0.1", CONTROL_PORT);
+			controlSocket = new Socket("127.0.0.1", torControlPort);
 			controlConnection = new TorControlConnection(controlSocket);
 			controlConnection.authenticate(read(cookieFile));
 			// Tell Tor to exit when the control connection is closed
@@ -390,9 +397,23 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 		return zin;
 	}
 
+	private static void append(StringBuilder strb, String name, int value) {
+		strb.append(name);
+		strb.append(" ");
+		strb.append(value);
+		strb.append("\n");
+	}
+
 	private InputStream getConfigInputStream() {
-		ClassLoader cl = getClass().getClassLoader();
-		return requireNonNull(cl.getResourceAsStream("torrc"));
+		StringBuilder strb = new StringBuilder();
+		append(strb, "ControlPort", torControlPort);
+		append(strb, "CookieAuthentication", 1);
+		append(strb, "DisableNetwork", 1);
+		append(strb, "RunAsDaemon", 1);
+		append(strb, "SafeSocks", 1);
+		append(strb, "SocksPort", torSocksPort);
+		return new ByteArrayInputStream(
+				strb.toString().getBytes(Charset.forName("UTF-8")));
 	}
 
 	private void listFiles(File f) {

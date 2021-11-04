@@ -70,12 +70,14 @@ class AndroidTorPlugin extends TorPlugin {
 			String architecture,
 			long maxLatency,
 			int maxIdleTime,
-			File torDirectory) {
+			File torDirectory,
+			int torSocksPort,
+			int torControlPort) {
 		super(ioExecutor, wakefulIoExecutor, networkManager, locationUtils,
 				torSocketFactory, clock, resourceProvider,
 				circumventionProvider, batteryManager, backoff,
 				torRendezvousCrypto, callback, architecture, maxLatency,
-				maxIdleTime, torDirectory);
+				maxIdleTime, torDirectory, torSocksPort, torControlPort);
 		this.app = app;
 		wakeLock = wakeLockManager.createWakeLock("TorPlugin");
 		String nativeLibDir = app.getApplicationInfo().nativeLibraryDir;
