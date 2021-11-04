@@ -1,6 +1,7 @@
 import com.android.build.gradle.tasks.MergeResources
 
 apply plugin: 'com.android.library'
+apply plugin: 'checkstyle'
 apply plugin: 'witness'
 apply from: 'witness.gradle'
 

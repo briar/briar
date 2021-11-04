@@ -2,6 +2,7 @@ apply plugin: 'java-library'
 sourceCompatibility = 1.8
 targetCompatibility = 1.8
 
+apply plugin: 'checkstyle'
 apply plugin: 'idea'
 apply plugin: 'witness'
 apply from: 'witness.gradle'

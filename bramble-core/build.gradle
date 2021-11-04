@@ -3,6 +3,7 @@ sourceCompatibility = 1.8
 targetCompatibility = 1.8
 
 apply plugin: 'ru.vyarus.animalsniffer'
+apply plugin: 'checkstyle'
 apply plugin: 'idea'
 apply plugin: 'witness'
 apply from: 'witness.gradle'
