@@ -653,8 +653,8 @@ class IntroducerProtocolEngine
 
 	/**
 	 * Returns a timestamp for an invisible outgoing message. The timestamp is
-	 * later than the {@link #getSessionTimestamp(IntroducerSession, PeerSession)
-	 * session timestamp}.
+	 * later than the {@link #getSessionTimestamp(IntroducerSession,
+	 * PeerSession) session timestamp}.
 	 */
 	private long getTimestampForInvisibleMessage(IntroducerSession s,
 			PeerSession p) {

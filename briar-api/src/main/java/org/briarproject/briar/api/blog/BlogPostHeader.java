@@ -1,11 +1,11 @@
 package org.briarproject.briar.api.blog;
 
 import org.briarproject.bramble.api.identity.Author;
-import org.briarproject.briar.api.identity.AuthorInfo;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.sync.GroupId;
 import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.briar.api.client.PostHeader;
+import org.briarproject.briar.api.identity.AuthorInfo;
 
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
@@ -21,7 +21,8 @@ public class BlogPostHeader extends PostHeader {
 
 	public BlogPostHeader(MessageType type, GroupId groupId, MessageId id,
 			@Nullable MessageId parentId, long timestamp, long timeReceived,
-			Author author, AuthorInfo authorInfo, boolean rssFeed, boolean read) {
+			Author author, AuthorInfo authorInfo, boolean rssFeed,
+			boolean read) {
 		super(id, parentId, timestamp, author, authorInfo, read);
 		this.type = type;
 		this.groupId = groupId;

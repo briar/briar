@@ -18,8 +18,8 @@ import org.briarproject.bramble.api.sync.MessageId;
  * {@link CleanupTimerStartedEvent CleanupTimerStartedEvents} broadcast by the
  * {@link DatabaseComponent}.
  * <p>
- * See {@link DatabaseComponent#setCleanupTimerDuration(Transaction, MessageId, long)},
- * {@link DatabaseComponent#startCleanupTimer(Transaction, MessageId)},
+ * See {@link DatabaseComponent#setCleanupTimerDuration(Transaction, MessageId,
+ * long)}, {@link DatabaseComponent#startCleanupTimer(Transaction, MessageId)},
  * {@link DatabaseComponent#stopCleanupTimer(Transaction, MessageId)}.
  */
 @NotNullByDefault

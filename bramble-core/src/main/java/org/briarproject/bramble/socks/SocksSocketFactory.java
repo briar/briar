@@ -22,7 +22,8 @@ class SocksSocketFactory extends SocketFactory {
 
 	@Override
 	public Socket createSocket() {
-		return new SocksSocket(proxy, connectToProxyTimeout, extraSocketTimeout);
+		return new SocksSocket(proxy, connectToProxyTimeout,
+				extraSocketTimeout);
 	}
 
 	@Override

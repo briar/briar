@@ -35,8 +35,8 @@ public interface TaskScheduler {
 
 		/**
 		 * Cancels the task if it has not already started running. If the task
-		 * is {@link #scheduleWithFixedDelay(Runnable, Executor, long, long, TimeUnit) periodic},
-		 * all future executions of the task are cancelled.
+		 * is {@link #scheduleWithFixedDelay(Runnable, Executor, long, long,
+		 * TimeUnit) periodic}, all future executions of the task are cancelled.
 		 */
 		void cancel();
 	}

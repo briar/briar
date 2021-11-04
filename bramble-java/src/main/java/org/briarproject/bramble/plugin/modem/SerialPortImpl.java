@@ -28,7 +28,8 @@ class SerialPortImpl implements SerialPort {
 	@Override
 	public void closePort() throws IOException {
 		try {
-			if (!port.closePort()) throw new IOException("Failed to close port");
+			if (!port.closePort())
+				throw new IOException("Failed to close port");
 		} catch (SerialPortException e) {
 			throw new IOException(e);
 		}

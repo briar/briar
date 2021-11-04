@@ -21,8 +21,9 @@ public interface CleanupHook {
 	 * <p>
 	 * The callee is not required to delete the messages, but the hook won't be
 	 * called again for these messages unless another cleanup timer is set (see
-	 * {@link DatabaseComponent#setCleanupTimerDuration(Transaction, MessageId, long)}
-	 * and {@link DatabaseComponent#startCleanupTimer(Transaction, MessageId)}).
+	 * {@link DatabaseComponent#setCleanupTimerDuration(Transaction, MessageId,
+	 * long)} and {@link DatabaseComponent#startCleanupTimer(Transaction,
+	 * MessageId)}).
 	 */
 	void deleteMessages(Transaction txn, GroupId g,
 			Collection<MessageId> messageIds) throws DbException;

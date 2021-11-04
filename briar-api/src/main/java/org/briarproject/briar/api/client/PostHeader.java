@@ -1,10 +1,10 @@
 package org.briarproject.briar.api.client;
 
 import org.briarproject.bramble.api.identity.Author;
-import org.briarproject.briar.api.identity.AuthorInfo;
-import org.briarproject.briar.api.identity.AuthorInfo.Status;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.sync.MessageId;
+import org.briarproject.briar.api.identity.AuthorInfo;
+import org.briarproject.briar.api.identity.AuthorInfo.Status;
 
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
@@ -22,7 +22,8 @@ public abstract class PostHeader {
 	private final boolean read;
 
 	public PostHeader(MessageId id, @Nullable MessageId parentId,
-			long timestamp, Author author, AuthorInfo authorInfo, boolean read) {
+			long timestamp, Author author, AuthorInfo authorInfo,
+			boolean read) {
 		this.id = id;
 		this.parentId = parentId;
 		this.timestamp = timestamp;

@@ -51,8 +51,8 @@ public class PrivateMessage {
 
 	/**
 	 * Constructor for private messages in the
-	 * {@link PrivateMessageFormat#TEXT_IMAGES_AUTO_DELETE TEXT_IMAGES_AUTO_DELETE}
-	 * format.
+	 * {@link PrivateMessageFormat#TEXT_IMAGES_AUTO_DELETE
+	 * TEXT_IMAGES_AUTO_DELETE} format.
 	 */
 	public PrivateMessage(Message message, boolean hasText,
 			List<AttachmentHeader> headers, long autoDeleteTimer) {

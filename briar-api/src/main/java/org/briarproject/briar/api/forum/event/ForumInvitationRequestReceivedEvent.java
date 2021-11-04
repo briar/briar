@@ -13,8 +13,8 @@ import javax.annotation.concurrent.Immutable;
 public class ForumInvitationRequestReceivedEvent extends
 		ConversationMessageReceivedEvent<ConversationRequest<Forum>> {
 
-	public ForumInvitationRequestReceivedEvent(ConversationRequest<Forum> request,
-			ContactId contactId) {
+	public ForumInvitationRequestReceivedEvent(
+			ConversationRequest<Forum> request, ContactId contactId) {
 		super(request, contactId);
 	}
 

@@ -845,8 +845,8 @@ interface Database<T> {
 	 * of the given message with respect to the given contact, using the latency
 	 * of the transport over which it was sent.
 	 */
-	void updateExpiryTimeAndEta(T txn, ContactId c, MessageId m, long maxLatency)
-			throws DbException;
+	void updateExpiryTimeAndEta(T txn, ContactId c, MessageId m,
+			long maxLatency) throws DbException;
 
 	/**
 	 * Stores the given transport keys, deleting any keys they have replaced.
