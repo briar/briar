@@ -2,6 +2,7 @@ package org.briarproject.bramble.plugin.tor;
 
 import org.briarproject.bramble.BrambleCoreIntegrationTestEagerSingletons;
 import org.briarproject.bramble.api.battery.BatteryManager;
+import org.briarproject.bramble.api.crypto.CryptoComponent;
 import org.briarproject.bramble.api.event.EventBus;
 import org.briarproject.bramble.api.lifecycle.IoExecutor;
 import org.briarproject.bramble.api.network.NetworkManager;
@@ -88,6 +89,8 @@ public class BridgeTest extends BrambleTestCase {
 	BackoffFactory backoffFactory;
 	@Inject
 	Clock clock;
+	@Inject
+	CryptoComponent crypto;
 
 	private final File torDir = getTestDirectory();
 	private final String bridge;
@@ -142,7 +145,7 @@ public class BridgeTest extends BrambleTestCase {
 				networkManager, locationUtils, eventBus, torSocketFactory,
 				backoffFactory, resourceProvider, bridgeProvider,
 				batteryManager, clock, torDir, DEFAULT_SOCKS_PORT,
-				DEFAULT_CONTROL_PORT);
+				DEFAULT_CONTROL_PORT, crypto);
 	}
 
 	@After

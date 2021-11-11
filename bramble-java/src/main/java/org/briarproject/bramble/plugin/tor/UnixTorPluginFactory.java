@@ -1,6 +1,7 @@
 package org.briarproject.bramble.plugin.tor;
 
 import org.briarproject.bramble.api.battery.BatteryManager;
+import org.briarproject.bramble.api.crypto.CryptoComponent;
 import org.briarproject.bramble.api.event.EventBus;
 import org.briarproject.bramble.api.lifecycle.IoExecutor;
 import org.briarproject.bramble.api.network.NetworkManager;
@@ -58,6 +59,7 @@ public class UnixTorPluginFactory implements DuplexPluginFactory {
 	private final File torDirectory;
 	private int torSocksPort;
 	private int torControlPort;
+	private final CryptoComponent crypto;
 
 	@Inject
 	UnixTorPluginFactory(@IoExecutor Executor ioExecutor,
@@ -73,7 +75,8 @@ public class UnixTorPluginFactory implements DuplexPluginFactory {
 			Clock clock,
 			@TorDirectory File torDirectory,
 			@TorSocksPort int torSocksPort,
-			@TorControlPort int torControlPort) {
+			@TorControlPort int torControlPort,
+			CryptoComponent crypto) {
 		this.ioExecutor = ioExecutor;
 		this.wakefulIoExecutor = wakefulIoExecutor;
 		this.networkManager = networkManager;
@@ -88,6 +91,7 @@ public class UnixTorPluginFactory implements DuplexPluginFactory {
 		this.torDirectory = torDirectory;
 		this.torSocksPort = torSocksPort;
 		this.torControlPort = torControlPort;
+		this.crypto = crypto;
 	}
 
 	@Override
@@ -128,7 +132,8 @@ public class UnixTorPluginFactory implements DuplexPluginFactory {
 
 		Backoff backoff = backoffFactory.createBackoff(MIN_POLLING_INTERVAL,
 				MAX_POLLING_INTERVAL, BACKOFF_BASE);
-		TorRendezvousCrypto torRendezvousCrypto = new TorRendezvousCryptoImpl();
+		TorRendezvousCrypto torRendezvousCrypto =
+				new TorRendezvousCryptoImpl(crypto);
 		UnixTorPlugin plugin = new UnixTorPlugin(ioExecutor, wakefulIoExecutor,
 				networkManager, locationUtils, torSocketFactory, clock,
 				resourceProvider, circumventionProvider, batteryManager,

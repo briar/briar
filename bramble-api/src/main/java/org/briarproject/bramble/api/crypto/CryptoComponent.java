@@ -170,4 +170,11 @@ public interface CryptoComponent {
 	 * length. The line terminator is CRLF.
 	 */
 	String asciiArmour(byte[] b, int lineLength);
+
+	/**
+	 * Encode the onion/hidden service address given its public key. As
+	 * specified here: https://gitweb.torproject.org/torspec.git/tree/rend-spec-v3.txt?id=29245fd5#n2135
+	 */
+	String encodeOnionAddress(byte[] publicKey);
+
 }
