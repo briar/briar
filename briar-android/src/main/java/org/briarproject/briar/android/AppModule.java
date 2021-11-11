@@ -43,6 +43,7 @@ import org.briarproject.briar.android.hotspot.HotspotModule;
 import org.briarproject.briar.android.introduction.IntroductionModule;
 import org.briarproject.briar.android.logging.LoggingModule;
 import org.briarproject.briar.android.login.LoginModule;
+import org.briarproject.briar.android.mailbox.MailboxModule;
 import org.briarproject.briar.android.navdrawer.NavDrawerModule;
 import org.briarproject.briar.android.privategroup.conversation.GroupConversationModule;
 import org.briarproject.briar.android.privategroup.list.GroupListModule;
@@ -103,6 +104,7 @@ import static org.briarproject.briar.android.TestingConstants.IS_DEBUG_BUILD;
 		SharingModule.class,
 		HotspotModule.class,
 		TransferDataModule.class,
+		MailboxModule.class,
 })
 public class AppModule {
 
