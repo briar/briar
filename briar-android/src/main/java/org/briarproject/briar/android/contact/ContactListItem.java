@@ -40,10 +40,10 @@ public class ContactListItem extends ContactItem
 				item.unread, item.timestamp);
 	}
 
-	ContactListItem(ContactListItem item, ConversationMessageHeader h) {
+	ContactListItem(ContactListItem item, long timestamp, boolean read) {
 		this(item.getContact(), item.getAuthorInfo(), item.isConnected(), false,
-				h.isRead() ? item.unread : item.unread + 1,
-				Math.max(h.getTimestamp(), item.timestamp));
+				read ? item.unread : item.unread + 1,
+				Math.max(timestamp, item.timestamp));
 	}
 
 	/**

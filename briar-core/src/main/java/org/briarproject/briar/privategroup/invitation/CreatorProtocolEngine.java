@@ -12,7 +12,6 @@ import org.briarproject.bramble.api.sync.Message;
 import org.briarproject.bramble.api.system.Clock;
 import org.briarproject.bramble.api.versioning.ClientVersioningManager;
 import org.briarproject.briar.api.autodelete.AutoDeleteManager;
-import org.briarproject.briar.api.client.MessageTracker;
 import org.briarproject.briar.api.client.ProtocolStateException;
 import org.briarproject.briar.api.client.SessionId;
 import org.briarproject.briar.api.conversation.ConversationManager;
@@ -49,13 +48,12 @@ class CreatorProtocolEngine extends AbstractProtocolEngine<CreatorSession> {
 			IdentityManager identityManager,
 			MessageParser messageParser,
 			MessageEncoder messageEncoder,
-			MessageTracker messageTracker,
 			AutoDeleteManager autoDeleteManager,
 			ConversationManager conversationManager,
 			Clock clock) {
 		super(db, clientHelper, clientVersioningManager, privateGroupManager,
 				privateGroupFactory, groupMessageFactory, identityManager,
-				messageParser, messageEncoder, messageTracker,
+				messageParser, messageEncoder,
 				autoDeleteManager, conversationManager, clock);
 	}
 
@@ -162,7 +160,7 @@ class CreatorProtocolEngine extends AbstractProtocolEngine<CreatorSession> {
 		Message sent = sendInviteMessage(txn, s, text, timestamp, signature,
 				autoDeleteTimer);
 		// Track the message
-		messageTracker.trackOutgoingMessage(txn, sent);
+		conversationManager.trackOutgoingMessage(txn, sent);
 		// Move to the INVITED state
 		long localTimestamp =
 				max(timestamp, getTimestampForVisibleMessage(txn, s));
@@ -199,7 +197,7 @@ class CreatorProtocolEngine extends AbstractProtocolEngine<CreatorSession> {
 		// Mark the response visible in the UI
 		markMessageVisibleInUi(txn, m.getId());
 		// Track the message
-		messageTracker.trackMessage(txn, m.getContactGroupId(),
+		conversationManager.trackMessage(txn, m.getContactGroupId(),
 				m.getTimestamp(), false);
 		// Receive the auto-delete timer
 		receiveAutoDeleteTimer(txn, m);
@@ -226,7 +224,7 @@ class CreatorProtocolEngine extends AbstractProtocolEngine<CreatorSession> {
 		// Mark the response visible in the UI
 		markMessageVisibleInUi(txn, m.getId());
 		// Track the message
-		messageTracker.trackMessage(txn, m.getContactGroupId(),
+		conversationManager.trackMessage(txn, m.getContactGroupId(),
 				m.getTimestamp(), false);
 		// Receive the auto-delete timer
 		receiveAutoDeleteTimer(txn, m);

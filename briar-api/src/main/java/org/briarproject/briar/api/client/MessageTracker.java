@@ -6,6 +6,7 @@ import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.sync.GroupId;
 import org.briarproject.bramble.api.sync.Message;
 import org.briarproject.bramble.api.sync.MessageId;
+import org.briarproject.briar.api.conversation.ConversationManager;
 
 import javax.annotation.Nullable;
 
@@ -32,16 +33,28 @@ public interface MessageTracker {
 
 	/**
 	 * Updates the group count for the given incoming message.
+	 * <p>
+	 * For messages that are part of a conversation (private chat),
+	 * use the corresponding function inside
+	 * {@link ConversationManager} instead.
 	 */
 	void trackIncomingMessage(Transaction txn, Message m) throws DbException;
 
 	/**
 	 * Updates the group count for the given outgoing message.
+	 * <p>
+	 * For messages that are part of a conversation (private chat),
+	 * use the corresponding function inside
+	 * {@link ConversationManager} instead.
 	 */
 	void trackOutgoingMessage(Transaction txn, Message m) throws DbException;
 
 	/**
 	 * Updates the group count for the given message.
+	 * <p>
+	 * For messages that are part of a conversation (private chat),
+	 * use the corresponding function inside
+	 * {@link ConversationManager} instead.
 	 */
 	void trackMessage(Transaction txn, GroupId g, long timestamp, boolean read)
 			throws DbException;

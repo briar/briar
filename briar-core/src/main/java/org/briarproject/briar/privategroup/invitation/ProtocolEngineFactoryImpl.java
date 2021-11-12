@@ -7,7 +7,6 @@ import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.system.Clock;
 import org.briarproject.bramble.api.versioning.ClientVersioningManager;
 import org.briarproject.briar.api.autodelete.AutoDeleteManager;
-import org.briarproject.briar.api.client.MessageTracker;
 import org.briarproject.briar.api.conversation.ConversationManager;
 import org.briarproject.briar.api.privategroup.GroupMessageFactory;
 import org.briarproject.briar.api.privategroup.PrivateGroupFactory;
@@ -29,7 +28,6 @@ class ProtocolEngineFactoryImpl implements ProtocolEngineFactory {
 	private final IdentityManager identityManager;
 	private final MessageParser messageParser;
 	private final MessageEncoder messageEncoder;
-	private final MessageTracker messageTracker;
 	private final AutoDeleteManager autoDeleteManager;
 	private final ConversationManager conversationManager;
 	private final Clock clock;
@@ -45,7 +43,6 @@ class ProtocolEngineFactoryImpl implements ProtocolEngineFactory {
 			IdentityManager identityManager,
 			MessageParser messageParser,
 			MessageEncoder messageEncoder,
-			MessageTracker messageTracker,
 			AutoDeleteManager autoDeleteManager,
 			ConversationManager conversationManager,
 			Clock clock) {
@@ -58,7 +55,6 @@ class ProtocolEngineFactoryImpl implements ProtocolEngineFactory {
 		this.identityManager = identityManager;
 		this.messageParser = messageParser;
 		this.messageEncoder = messageEncoder;
-		this.messageTracker = messageTracker;
 		this.autoDeleteManager = autoDeleteManager;
 		this.conversationManager = conversationManager;
 		this.clock = clock;
@@ -69,7 +65,7 @@ class ProtocolEngineFactoryImpl implements ProtocolEngineFactory {
 		return new CreatorProtocolEngine(db, clientHelper,
 				clientVersioningManager, privateGroupManager,
 				privateGroupFactory, groupMessageFactory, identityManager,
-				messageParser, messageEncoder, messageTracker,
+				messageParser, messageEncoder,
 				autoDeleteManager, conversationManager, clock);
 	}
 
@@ -78,7 +74,7 @@ class ProtocolEngineFactoryImpl implements ProtocolEngineFactory {
 		return new InviteeProtocolEngine(db, clientHelper,
 				clientVersioningManager, privateGroupManager,
 				privateGroupFactory, groupMessageFactory, identityManager,
-				messageParser, messageEncoder, messageTracker,
+				messageParser, messageEncoder,
 				autoDeleteManager, conversationManager, clock);
 	}
 
@@ -87,7 +83,7 @@ class ProtocolEngineFactoryImpl implements ProtocolEngineFactory {
 		return new PeerProtocolEngine(db, clientHelper,
 				clientVersioningManager, privateGroupManager,
 				privateGroupFactory, groupMessageFactory, identityManager,
-				messageParser, messageEncoder, messageTracker,
+				messageParser, messageEncoder,
 				autoDeleteManager, conversationManager, clock);
 	}
 }

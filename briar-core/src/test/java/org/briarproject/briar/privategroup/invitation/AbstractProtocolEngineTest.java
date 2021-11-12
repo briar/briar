@@ -60,7 +60,6 @@ abstract class AbstractProtocolEngineTest extends BrambleMockTestCase {
 			context.mock(GroupMessageFactory.class);
 	final IdentityManager identityManager = context.mock(IdentityManager.class);
 	final MessageEncoder messageEncoder = context.mock(MessageEncoder.class);
-	final MessageTracker messageTracker = context.mock(MessageTracker.class);
 	final AutoDeleteManager autoDeleteManager =
 			context.mock(AutoDeleteManager.class);
 	final ConversationManager conversationManager =
@@ -264,7 +263,7 @@ abstract class AbstractProtocolEngineTest extends BrambleMockTestCase {
 
 	void expectTrackUnreadMessage(long timestamp) throws Exception {
 		context.checking(new Expectations() {{
-			oneOf(messageTracker).trackMessage(txn, contactGroupId, timestamp,
+			oneOf(conversationManager).trackMessage(txn, contactGroupId, timestamp,
 					false);
 		}});
 	}

@@ -19,7 +19,6 @@ import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.bramble.api.system.Clock;
 import org.briarproject.bramble.api.versioning.ClientVersioningManager;
 import org.briarproject.briar.api.autodelete.AutoDeleteManager;
-import org.briarproject.briar.api.client.MessageTracker;
 import org.briarproject.briar.api.client.SessionId;
 import org.briarproject.briar.api.conversation.ConversationManager;
 import org.briarproject.briar.api.privategroup.GroupMessage;
@@ -52,7 +51,7 @@ abstract class AbstractProtocolEngine<S extends Session<?>>
 	protected final ClientHelper clientHelper;
 	protected final PrivateGroupManager privateGroupManager;
 	protected final PrivateGroupFactory privateGroupFactory;
-	protected final MessageTracker messageTracker;
+	protected final ConversationManager conversationManager;
 
 	private final ClientVersioningManager clientVersioningManager;
 	private final GroupMessageFactory groupMessageFactory;
@@ -60,7 +59,6 @@ abstract class AbstractProtocolEngine<S extends Session<?>>
 	private final MessageParser messageParser;
 	private final MessageEncoder messageEncoder;
 	private final AutoDeleteManager autoDeleteManager;
-	private final ConversationManager conversationManager;
 	private final Clock clock;
 
 	AbstractProtocolEngine(
@@ -73,7 +71,6 @@ abstract class AbstractProtocolEngine<S extends Session<?>>
 			IdentityManager identityManager,
 			MessageParser messageParser,
 			MessageEncoder messageEncoder,
-			MessageTracker messageTracker,
 			AutoDeleteManager autoDeleteManager,
 			ConversationManager conversationManager,
 			Clock clock) {
@@ -86,7 +83,6 @@ abstract class AbstractProtocolEngine<S extends Session<?>>
 		this.identityManager = identityManager;
 		this.messageParser = messageParser;
 		this.messageEncoder = messageEncoder;
-		this.messageTracker = messageTracker;
 		this.autoDeleteManager = autoDeleteManager;
 		this.conversationManager = conversationManager;
 		this.clock = clock;
@@ -129,7 +125,7 @@ abstract class AbstractProtocolEngine<S extends Session<?>>
 			throw new DbException(e); // Invalid group descriptor
 		}
 		Message m;
-		ContactId c = getContactId(txn, s.getContactGroupId());
+		ContactId c = clientHelper.getContactId(txn, s.getContactGroupId());
 		if (contactSupportsAutoDeletion(txn, c)) {
 			m = messageEncoder.encodeInviteMessage(s.getContactGroupId(),
 					privateGroup.getId(), timestamp, privateGroup.getName(),
@@ -157,7 +153,7 @@ abstract class AbstractProtocolEngine<S extends Session<?>>
 		long localTimestamp = visibleInUi
 				? getTimestampForVisibleMessage(txn, s)
 				: getTimestampForInvisibleMessage(s);
-		ContactId c = getContactId(txn, s.getContactGroupId());
+		ContactId c = clientHelper.getContactId(txn, s.getContactGroupId());
 		if (contactSupportsAutoDeletion(txn, c)) {
 			// Set auto-delete timer if manually accepting an invitation
 			long timer = NO_AUTO_DELETE_TIMER;
@@ -195,7 +191,7 @@ abstract class AbstractProtocolEngine<S extends Session<?>>
 		long localTimestamp = visibleInUi
 				? getTimestampForVisibleMessage(txn, s)
 				: getTimestampForInvisibleMessage(s);
-		ContactId c = getContactId(txn, s.getContactGroupId());
+		ContactId c = clientHelper.getContactId(txn, s.getContactGroupId());
 		if (contactSupportsAutoDeletion(txn, c)) {
 			// Set auto-delete timer if declining an invitation
 			long timer = NO_AUTO_DELETE_TIMER;
@@ -309,7 +305,7 @@ abstract class AbstractProtocolEngine<S extends Session<?>>
 	 */
 	long getTimestampForVisibleMessage(Transaction txn, S s)
 			throws DbException {
-		ContactId c = getContactId(txn, s.getContactGroupId());
+		ContactId c = clientHelper.getContactId(txn, s.getContactGroupId());
 		long conversationTimestamp =
 				conversationManager.getTimestampForOutgoingMessage(txn, c);
 		return max(conversationTimestamp, getSessionTimestamp(s) + 1);
@@ -333,7 +329,7 @@ abstract class AbstractProtocolEngine<S extends Session<?>>
 
 	void receiveAutoDeleteTimer(Transaction txn,
 			DeletableGroupInvitationMessage m) throws DbException {
-		ContactId c = getContactId(txn, m.getContactGroupId());
+		ContactId c = clientHelper.getContactId(txn, m.getContactGroupId());
 		autoDeleteManager.receiveAutoDeleteTimer(txn, c, m.getAutoDeleteTimer(),
 				m.getTimestamp());
 	}
@@ -356,15 +352,6 @@ abstract class AbstractProtocolEngine<S extends Session<?>>
 			clientHelper.addLocalMessage(txn, m, meta, true, false);
 		} catch (FormatException e) {
 			throw new AssertionError(e);
-		}
-	}
-
-	private ContactId getContactId(Transaction txn, GroupId contactGroupId)
-			throws DbException {
-		try {
-			return clientHelper.getContactId(txn, contactGroupId);
-		} catch (FormatException e) {
-			throw new DbException(e);
 		}
 	}
 

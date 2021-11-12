@@ -34,6 +34,7 @@ import org.briarproject.briar.api.autodelete.AutoDeleteManager;
 import org.briarproject.briar.api.autodelete.event.ConversationMessagesDeletedEvent;
 import org.briarproject.briar.api.client.MessageTracker;
 import org.briarproject.briar.api.client.MessageTracker.GroupCount;
+import org.briarproject.briar.api.conversation.ConversationManager;
 import org.briarproject.briar.api.conversation.ConversationManager.ConversationClient;
 import org.briarproject.briar.api.conversation.ConversationMessageHeader;
 import org.briarproject.briar.api.conversation.DeletionResult;
@@ -96,6 +97,7 @@ class MessagingManagerImpl implements MessagingManager, IncomingMessageHook,
 	private final DatabaseComponent db;
 	private final ClientHelper clientHelper;
 	private final MetadataParser metadataParser;
+	private final ConversationManager conversationManager;
 	private final MessageTracker messageTracker;
 	private final ClientVersioningManager clientVersioningManager;
 	private final ContactGroupFactory contactGroupFactory;
@@ -107,12 +109,14 @@ class MessagingManagerImpl implements MessagingManager, IncomingMessageHook,
 			ClientHelper clientHelper,
 			ClientVersioningManager clientVersioningManager,
 			MetadataParser metadataParser,
+			ConversationManager conversationManager,
 			MessageTracker messageTracker,
 			ContactGroupFactory contactGroupFactory,
 			AutoDeleteManager autoDeleteManager) {
 		this.db = db;
 		this.clientHelper = clientHelper;
 		this.metadataParser = metadataParser;
+		this.conversationManager = conversationManager;
 		this.messageTracker = messageTracker;
 		this.clientVersioningManager = clientVersioningManager;
 		this.contactGroupFactory = contactGroupFactory;
@@ -214,7 +218,7 @@ class MessagingManagerImpl implements MessagingManager, IncomingMessageHook,
 		PrivateMessageReceivedEvent event =
 				new PrivateMessageReceivedEvent(header, contactId);
 		txn.attach(event);
-		messageTracker.trackIncomingMessage(txn, m);
+		conversationManager.trackIncomingMessage(txn, m);
 		if (timer != NO_AUTO_DELETE_TIMER) {
 			db.setCleanupTimerDuration(txn, m.getId(), timer);
 		}
@@ -324,7 +328,7 @@ class MessagingManagerImpl implements MessagingManager, IncomingMessageHook,
 			if (timer != NO_AUTO_DELETE_TIMER) {
 				db.setCleanupTimerDuration(txn, m.getMessage().getId(), timer);
 			}
-			messageTracker.trackOutgoingMessage(txn, m.getMessage());
+			conversationManager.trackOutgoingMessage(txn, m.getMessage());
 		} catch (FormatException e) {
 			throw new AssertionError(e);
 		}

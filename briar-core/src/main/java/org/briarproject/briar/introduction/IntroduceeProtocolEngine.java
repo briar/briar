@@ -266,7 +266,7 @@ class IntroduceeProtocolEngine
 		addSessionId(txn, m.getMessageId(), s.getSessionId());
 
 		// Track the incoming message
-		messageTracker
+		conversationManager
 				.trackMessage(txn, m.getGroupId(), m.getTimestamp(), false);
 
 		// Receive the auto-delete timer
@@ -307,7 +307,7 @@ class IntroduceeProtocolEngine
 		Message sent = sendAcceptMessage(txn, s, localTimestamp, publicKey,
 				localTimestamp, transportProperties, true);
 		// Track the message
-		messageTracker.trackOutgoingMessage(txn, sent);
+		conversationManager.trackOutgoingMessage(txn, sent);
 
 		// Determine the next state
 		switch (s.getState()) {
@@ -338,7 +338,7 @@ class IntroduceeProtocolEngine
 				sendDeclineMessage(txn, s, localTimestamp, true, isAutoDecline);
 
 		// Track the message
-		messageTracker.trackOutgoingMessage(txn, sent);
+		conversationManager.trackOutgoingMessage(txn, sent);
 
 		// Move to the START or LOCAL_DECLINED state, if still awaiting response
 		IntroduceeState state =
@@ -382,7 +382,7 @@ class IntroduceeProtocolEngine
 		markMessageVisibleInUi(txn, m.getMessageId());
 
 		// Track the incoming message
-		messageTracker
+		conversationManager
 				.trackMessage(txn, m.getGroupId(), m.getTimestamp(), false);
 
 		// Receive the auto-delete timer

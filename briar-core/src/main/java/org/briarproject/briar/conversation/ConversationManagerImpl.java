@@ -1,11 +1,14 @@
 package org.briarproject.briar.conversation;
 
+import org.briarproject.bramble.api.client.ClientHelper;
 import org.briarproject.bramble.api.contact.ContactId;
 import org.briarproject.bramble.api.db.DatabaseComponent;
 import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.db.Transaction;
+import org.briarproject.bramble.api.event.Event;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.sync.GroupId;
+import org.briarproject.bramble.api.sync.Message;
 import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.bramble.api.system.Clock;
 import org.briarproject.briar.api.client.MessageTracker;
@@ -13,6 +16,7 @@ import org.briarproject.briar.api.client.MessageTracker.GroupCount;
 import org.briarproject.briar.api.conversation.ConversationManager;
 import org.briarproject.briar.api.conversation.ConversationMessageHeader;
 import org.briarproject.briar.api.conversation.DeletionResult;
+import org.briarproject.briar.api.conversation.event.ConversationMessageTrackedEvent;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -32,14 +36,16 @@ class ConversationManagerImpl implements ConversationManager {
 	private final DatabaseComponent db;
 	private final MessageTracker messageTracker;
 	private final Clock clock;
+	private final ClientHelper clientHelper;
 	private final Set<ConversationClient> clients;
 
 	@Inject
 	ConversationManagerImpl(DatabaseComponent db, MessageTracker messageTracker,
-			Clock clock) {
+			Clock clock, ClientHelper clientHelper) {
 		this.db = db;
 		this.messageTracker = messageTracker;
 		this.clock = clock;
+		this.clientHelper = clientHelper;
 		clients = new CopyOnWriteArraySet<>();
 	}
 
@@ -84,6 +90,36 @@ class ConversationManagerImpl implements ConversationManager {
 				latestTime = count.getLatestMsgTime();
 		}
 		return new GroupCount(msgCount, unreadCount, latestTime);
+	}
+
+	@Override
+	public void trackIncomingMessage(Transaction txn, Message m)
+			throws DbException {
+		messageTracker.trackIncomingMessage(txn, m);
+		Event e = new ConversationMessageTrackedEvent(
+				m.getTimestamp(), false,
+				clientHelper.getContactId(txn, m.getGroupId()));
+		txn.attach(e);
+	}
+
+	@Override
+	public void trackOutgoingMessage(Transaction txn, Message m)
+			throws DbException {
+		messageTracker.trackOutgoingMessage(txn, m);
+		Event e = new ConversationMessageTrackedEvent(
+				m.getTimestamp(), true,
+				clientHelper.getContactId(txn, m.getGroupId()));
+		txn.attach(e);
+	}
+
+	@Override
+	public void trackMessage(Transaction txn, GroupId g, long timestamp,
+			boolean read)
+			throws DbException {
+		messageTracker.trackMessage(txn, g, timestamp, read);
+		Event e = new ConversationMessageTrackedEvent(
+				timestamp, read, clientHelper.getContactId(txn, g));
+		txn.attach(e);
 	}
 
 	@Override
