@@ -9,7 +9,7 @@ import org.briarproject.bramble.api.crypto.CryptoComponent;
 
 import java.nio.charset.Charset;
 
-public class TorRendezvousCryptoImpl implements TorRendezvousCrypto {
+class TorRendezvousCryptoImpl implements TorRendezvousCrypto {
 
 	private static final EdDSANamedCurveSpec CURVE_SPEC =
 			EdDSANamedCurveTable.getByName("Ed25519");
