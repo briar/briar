@@ -7,6 +7,7 @@ import net.i2p.crypto.eddsa.KeyPairGenerator;
 import org.bouncycastle.crypto.CryptoException;
 import org.bouncycastle.crypto.Digest;
 import org.bouncycastle.crypto.digests.Blake2bDigest;
+import org.bouncycastle.crypto.digests.SHA3Digest;
 import org.briarproject.bramble.api.crypto.AgreementPrivateKey;
 import org.briarproject.bramble.api.crypto.AgreementPublicKey;
 import org.briarproject.bramble.api.crypto.CryptoComponent;
@@ -21,11 +22,13 @@ import org.briarproject.bramble.api.crypto.SignaturePrivateKey;
 import org.briarproject.bramble.api.crypto.SignaturePublicKey;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.system.SecureRandomProvider;
+import org.briarproject.bramble.util.Base32;
 import org.briarproject.bramble.util.ByteUtils;
 import org.briarproject.bramble.util.StringUtils;
 import org.whispersystems.curve25519.Curve25519;
 import org.whispersystems.curve25519.Curve25519KeyPair;
 
+import java.nio.charset.Charset;
 import java.security.GeneralSecurityException;
 import java.security.NoSuchAlgorithmException;
 import java.security.Provider;
@@ -58,6 +61,8 @@ class CryptoComponentImpl implements CryptoComponent {
 	private static final int PBKDF_SALT_BYTES = 32; // 256 bits
 	private static final byte PBKDF_FORMAT_SCRYPT = 0;
 	private static final byte PBKDF_FORMAT_SCRYPT_STRENGTHENED = 1;
+	private static final byte ONION_HS_PROTOCOL_VERSION = 3;
+	private static final int ONION_CHECKSUM_BYTES = 2;
 
 	private final SecureRandom secureRandom;
 	private final PasswordBasedKdf passwordBasedKdf;
@@ -442,4 +447,21 @@ class CryptoComponentImpl implements CryptoComponent {
 	public String asciiArmour(byte[] b, int lineLength) {
 		return AsciiArmour.wrap(b, lineLength);
 	}
+
+	@Override
+	public String encodeOnionAddress(byte[] publicKey) {
+		Digest digest = new SHA3Digest(256);
+		byte[] label = ".onion checksum".getBytes(Charset.forName("US-ASCII"));
+		digest.update(label, 0, label.length);
+		digest.update(publicKey, 0, publicKey.length);
+		digest.update(ONION_HS_PROTOCOL_VERSION);
+		byte[] checksum = new byte[digest.getDigestSize()];
+		digest.doFinal(checksum, 0);
+		byte[] address = new byte[publicKey.length + ONION_CHECKSUM_BYTES + 1];
+		arraycopy(publicKey, 0, address, 0, publicKey.length);
+		arraycopy(checksum, 0, address, publicKey.length, ONION_CHECKSUM_BYTES);
+		address[address.length - 1] = ONION_HS_PROTOCOL_VERSION;
+		return Base32.encode(address).toLowerCase();
+	}
+
 }

@@ -1,4 +1,4 @@
-package org.briarproject.briar.android.contact.add.nearby;
+package org.briarproject.briar.android.qrcode;
 
 import android.hardware.Camera;
 
@@ -7,7 +7,7 @@ import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import androidx.annotation.UiThread;
 
 @NotNullByDefault
-interface PreviewConsumer {
+public interface PreviewConsumer {
 
 	@UiThread
 	void start(Camera camera, int cameraIndex);

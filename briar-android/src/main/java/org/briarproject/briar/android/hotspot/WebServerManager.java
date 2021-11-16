@@ -8,7 +8,7 @@ import org.briarproject.bramble.api.lifecycle.IoExecutor;
 import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
 import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
 import org.briarproject.briar.android.hotspot.HotspotState.WebsiteConfig;
-import org.briarproject.briar.android.util.QrCodeUtils;
+import org.briarproject.briar.android.qrcode.QrCodeUtils;
 
 import java.io.IOException;
 import java.net.InetAddress;
@@ -27,7 +27,7 @@ import static java.util.logging.Logger.getLogger;
 import static org.briarproject.bramble.util.LogUtils.logException;
 import static org.briarproject.bramble.util.NetworkUtils.getNetworkInterfaces;
 import static org.briarproject.briar.android.hotspot.WebServer.PORT;
-import static org.briarproject.briar.android.util.QrCodeUtils.HOTSPOT_QRCODE_FACTOR;
+import static org.briarproject.briar.android.qrcode.QrCodeUtils.HOTSPOT_QRCODE_FACTOR;
 
 @MethodsNotNullByDefault
 @ParametersNotNullByDefault

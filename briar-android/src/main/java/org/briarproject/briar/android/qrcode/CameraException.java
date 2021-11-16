@@ -1,8 +1,8 @@
-package org.briarproject.briar.android.contact.add.nearby;
+package org.briarproject.briar.android.qrcode;
 
 import java.io.IOException;
 
-class CameraException extends IOException {
+public class CameraException extends IOException {
 
 	CameraException(String message) {
 		super(message);

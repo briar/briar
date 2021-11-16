@@ -24,7 +24,7 @@ import org.briarproject.bramble.api.settings.SettingsManager;
 import org.briarproject.bramble.api.system.AndroidExecutor;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.hotspot.HotspotState.NetworkConfig;
-import org.briarproject.briar.android.util.QrCodeUtils;
+import org.briarproject.briar.android.qrcode.QrCodeUtils;
 
 import java.security.SecureRandom;
 import java.util.concurrent.Executor;
@@ -52,7 +52,7 @@ import static java.util.Objects.requireNonNull;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
 import static java.util.logging.Logger.getLogger;
-import static org.briarproject.briar.android.util.QrCodeUtils.HOTSPOT_QRCODE_FACTOR;
+import static org.briarproject.briar.android.qrcode.QrCodeUtils.HOTSPOT_QRCODE_FACTOR;
 import static org.briarproject.briar.android.util.UiUtils.handleException;
 
 @MethodsNotNullByDefault

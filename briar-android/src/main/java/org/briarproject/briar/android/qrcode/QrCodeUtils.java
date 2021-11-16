@@ -1,4 +1,4 @@
-package org.briarproject.briar.android.util;
+package org.briarproject.briar.android.qrcode;
 
 import android.graphics.Bitmap;
 import android.util.DisplayMetrics;
@@ -23,10 +23,9 @@ import static org.briarproject.bramble.util.LogUtils.logException;
 
 @NotNullByDefault
 public class QrCodeUtils {
+	public static final double HOTSPOT_QRCODE_FACTOR = 0.35;
 
 	private static final Logger LOG = getLogger(QrCodeUtils.class.getName());
-
-	public static final double HOTSPOT_QRCODE_FACTOR = 0.35;
 
 	@Nullable
 	public static Bitmap createQrCode(DisplayMetrics dm, String input) {

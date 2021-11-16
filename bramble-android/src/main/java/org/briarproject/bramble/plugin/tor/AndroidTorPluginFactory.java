@@ -3,6 +3,7 @@ package org.briarproject.bramble.plugin.tor;
 import android.app.Application;
 
 import org.briarproject.bramble.api.battery.BatteryManager;
+import org.briarproject.bramble.api.crypto.CryptoComponent;
 import org.briarproject.bramble.api.event.EventBus;
 import org.briarproject.bramble.api.lifecycle.IoExecutor;
 import org.briarproject.bramble.api.network.NetworkManager;
@@ -60,6 +61,7 @@ public class AndroidTorPluginFactory implements DuplexPluginFactory {
 	private final File torDirectory;
 	private int torSocksPort;
 	private int torControlPort;
+	private final CryptoComponent crypto;
 
 	@Inject
 	AndroidTorPluginFactory(@IoExecutor Executor ioExecutor,
@@ -77,7 +79,8 @@ public class AndroidTorPluginFactory implements DuplexPluginFactory {
 			Clock clock,
 			@TorDirectory File torDirectory,
 			@TorSocksPort int torSocksPort,
-			@TorControlPort int torControlPort) {
+			@TorControlPort int torControlPort,
+			CryptoComponent crypto) {
 		this.ioExecutor = ioExecutor;
 		this.wakefulIoExecutor = wakefulIoExecutor;
 		this.app = app;
@@ -94,6 +97,7 @@ public class AndroidTorPluginFactory implements DuplexPluginFactory {
 		this.torDirectory = torDirectory;
 		this.torSocksPort = torSocksPort;
 		this.torControlPort = torControlPort;
+		this.crypto = crypto;
 	}
 
 	@Override
@@ -135,7 +139,8 @@ public class AndroidTorPluginFactory implements DuplexPluginFactory {
 
 		Backoff backoff = backoffFactory.createBackoff(MIN_POLLING_INTERVAL,
 				MAX_POLLING_INTERVAL, BACKOFF_BASE);
-		TorRendezvousCrypto torRendezvousCrypto = new TorRendezvousCryptoImpl();
+		TorRendezvousCrypto torRendezvousCrypto =
+				new TorRendezvousCryptoImpl(crypto);
 		AndroidTorPlugin plugin = new AndroidTorPlugin(ioExecutor,
 				wakefulIoExecutor, app, networkManager, locationUtils,
 				torSocketFactory, clock, resourceProvider,
