@@ -25,7 +25,7 @@ dependencyVerification {
         'net.ltgt.gradle.incap:incap:0.2:incap-0.2.jar:b625b9806b0f1e4bc7a2e3457119488de3cd57ea20feedd513db070a573a4ffd',
         'org.apache-extras.beanshell:bsh:2.0b6:bsh-2.0b6.jar:a17955976070c0573235ee662f2794a78082758b61accffce8d3f8aedcd91047',
         'org.briarproject:obfs4proxy:0.0.12-dev-40245c4a:obfs4proxy-0.0.12-dev-40245c4a.zip:172029e7058b3a83ac93ac4991a44bf76e16ce8d46f558f5836d57da3cb3a766',
-        'org.briarproject:tor:0.3.5.15:tor-0.3.5.15.jar:2ff5b5a3b5eaa97d699629ad24ba9584b3199d0ffdb1ea7d8a02de3016b80e7a',
+        'org.briarproject:tor:0.3.5.17:tor-0.3.5.17.jar:ce0e1f4d8f14878e61b23a35a452bc0f2a8e3117ced5a74773cd78475fa7af39',
         'org.checkerframework:checker-compat-qual:2.5.3:checker-compat-qual-2.5.3.jar:d76b9afea61c7c082908023f0cbc1427fab9abd2df915c8b8a3e7a509bccbc6d',
         'org.checkerframework:checker-qual:2.5.2:checker-qual-2.5.2.jar:64b02691c8b9d4e7700f8ee2e742dce7ea2c6e81e662b7522c9ee3bf568c040a',
         'org.codehaus.mojo:animal-sniffer-annotations:1.17:animal-sniffer-annotations-1.17.jar:92654f493ecfec52082e76354f0ebf87648dc3d5cec2e3c3cdb947c016747a53',

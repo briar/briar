@@ -33,7 +33,11 @@ buildscript {
 		classpath 'ru.vyarus:gradle-animalsniffer-plugin:1.5.3'
 		classpath files('libs/gradle-witness.jar')
 	}
-	ext.dagger_version = "2.33"
-	ext.junit_version = "4.13.2"
-	ext.jmock_version = '2.12.0'
+	ext {
+		dagger_version = "2.33"
+		tor_version = "0.3.5.17"
+		obfs4proxy_version = "0.0.12-dev-40245c4a"
+		junit_version = "4.13.2"
+		jmock_version = '2.12.0'
+	}
 }
