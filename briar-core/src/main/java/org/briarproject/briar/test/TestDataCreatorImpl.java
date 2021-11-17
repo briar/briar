@@ -4,6 +4,7 @@ import org.briarproject.bramble.api.FormatException;
 import org.briarproject.bramble.api.contact.Contact;
 import org.briarproject.bramble.api.contact.ContactId;
 import org.briarproject.bramble.api.contact.ContactManager;
+import org.briarproject.bramble.api.crypto.CryptoComponent;
 import org.briarproject.bramble.api.crypto.SecretKey;
 import org.briarproject.bramble.api.db.DatabaseComponent;
 import org.briarproject.bramble.api.db.DbException;
@@ -81,6 +82,7 @@ public class TestDataCreatorImpl implements TestDataCreator {
 
 	private final DatabaseComponent db;
 	private final IdentityManager identityManager;
+	private final CryptoComponent crypto;
 	private final ContactManager contactManager;
 	private final TransportPropertyManager transportPropertyManager;
 	private final MessagingManager messagingManager;
@@ -100,7 +102,9 @@ public class TestDataCreatorImpl implements TestDataCreator {
 			GroupFactory groupFactory,
 			PrivateMessageFactory privateMessageFactory,
 			BlogPostFactory blogPostFactory, DatabaseComponent db,
-			IdentityManager identityManager, ContactManager contactManager,
+			IdentityManager identityManager,
+			CryptoComponent crypto,
+			ContactManager contactManager,
 			TransportPropertyManager transportPropertyManager,
 			MessagingManager messagingManager, BlogManager blogManager,
 			ForumManager forumManager,
@@ -114,6 +118,7 @@ public class TestDataCreatorImpl implements TestDataCreator {
 		this.blogPostFactory = blogPostFactory;
 		this.db = db;
 		this.identityManager = identityManager;
+		this.crypto = crypto;
 		this.contactManager = contactManager;
 		this.transportPropertyManager = transportPropertyManager;
 		this.messagingManager = messagingManager;
@@ -247,7 +252,7 @@ public class TestDataCreatorImpl implements TestDataCreator {
 		// Tor
 		TransportProperties tor = new TransportProperties();
 		String torAddress = getRandomTorAddress();
-		tor.put(TorConstants.PROP_ONION_V2, torAddress);
+		tor.put(TorConstants.PROP_ONION_V3, torAddress);
 		props.put(TorConstants.ID, tor);
 
 		return props;
@@ -292,13 +297,9 @@ public class TestDataCreatorImpl implements TestDataCreator {
 	}
 
 	private String getRandomTorAddress() {
-		StringBuilder sb = new StringBuilder();
-		// address
-		for (int i = 0; i < 16; i++) {
-			if (random.nextBoolean()) sb.append(2 + random.nextInt(6));
-			else sb.append((char) (random.nextInt(26) + 'a'));
-		}
-		return sb.toString();
+		byte[] pubkeyBytes =
+				crypto.generateSignatureKeyPair().getPublic().getEncoded();
+		return crypto.encodeOnionAddress(pubkeyBytes);
 	}
 
 	private void addAvatar(Contact c) throws DbException {
@@ -351,7 +352,7 @@ public class TestDataCreatorImpl implements TestDataCreator {
 
 	private void createRandomPrivateMessage(ContactId contactId,
 			GroupId groupId, int num) throws DbException {
-		long timestamp = clock.currentTimeMillis() - num * 60 * 1000;
+		long timestamp = clock.currentTimeMillis() - (long) num * 60 * 1000;
 		String text = getRandomText();
 		boolean local = random.nextBoolean();
 		boolean autoDelete = random.nextBoolean();
@@ -400,7 +401,7 @@ public class TestDataCreatorImpl implements TestDataCreator {
 	private void addBlogPost(ContactId contactId, LocalAuthor author, int num)
 			throws DbException {
 		Blog blog = blogManager.getPersonalBlog(author);
-		long timestamp = clock.currentTimeMillis() - num * 60 * 1000;
+		long timestamp = clock.currentTimeMillis() - (long) num * 60 * 1000;
 		String text = getRandomText();
 		try {
 			BlogPost blogPost = blogPostFactory.createBlogPost(blog.getId(),
@@ -438,7 +439,7 @@ public class TestDataCreatorImpl implements TestDataCreator {
 		for (int i = 0; i < numForumPosts; i++) {
 			Contact contact = contacts.get(random.nextInt(contacts.size()));
 			LocalAuthor author = localAuthors.get(contact);
-			long timestamp = clock.currentTimeMillis() - i * 60 * 1000;
+			long timestamp = clock.currentTimeMillis() - (long) i * 60 * 1000;
 			String text = getRandomText();
 			MessageId parent = null;
 			if (random.nextBoolean() && posts.size() > 0) {

@@ -79,9 +79,7 @@ import static org.briarproject.bramble.api.plugin.TorConstants.DEFAULT_PREF_PLUG
 import static org.briarproject.bramble.api.plugin.TorConstants.DEFAULT_PREF_TOR_MOBILE;
 import static org.briarproject.bramble.api.plugin.TorConstants.DEFAULT_PREF_TOR_NETWORK;
 import static org.briarproject.bramble.api.plugin.TorConstants.DEFAULT_PREF_TOR_ONLY_WHEN_CHARGING;
-import static org.briarproject.bramble.api.plugin.TorConstants.HS_PRIVATE_KEY_V2;
 import static org.briarproject.bramble.api.plugin.TorConstants.HS_PRIVATE_KEY_V3;
-import static org.briarproject.bramble.api.plugin.TorConstants.HS_V3_CREATED;
 import static org.briarproject.bramble.api.plugin.TorConstants.ID;
 import static org.briarproject.bramble.api.plugin.TorConstants.PREF_TOR_MOBILE;
 import static org.briarproject.bramble.api.plugin.TorConstants.PREF_TOR_NETWORK;
@@ -90,12 +88,10 @@ import static org.briarproject.bramble.api.plugin.TorConstants.PREF_TOR_NETWORK_
 import static org.briarproject.bramble.api.plugin.TorConstants.PREF_TOR_NETWORK_WITH_BRIDGES;
 import static org.briarproject.bramble.api.plugin.TorConstants.PREF_TOR_ONLY_WHEN_CHARGING;
 import static org.briarproject.bramble.api.plugin.TorConstants.PREF_TOR_PORT;
-import static org.briarproject.bramble.api.plugin.TorConstants.PROP_ONION_V2;
 import static org.briarproject.bramble.api.plugin.TorConstants.PROP_ONION_V3;
 import static org.briarproject.bramble.api.plugin.TorConstants.REASON_BATTERY;
 import static org.briarproject.bramble.api.plugin.TorConstants.REASON_COUNTRY_BLOCKED;
 import static org.briarproject.bramble.api.plugin.TorConstants.REASON_MOBILE_DATA;
-import static org.briarproject.bramble.api.plugin.TorConstants.V3_MIGRATION_PERIOD_MS;
 import static org.briarproject.bramble.plugin.tor.TorRendezvousCrypto.SEED_BYTES;
 import static org.briarproject.bramble.util.IoUtils.copyAndClose;
 import static org.briarproject.bramble.util.IoUtils.tryToClose;
@@ -115,7 +111,6 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 	private static final String OWNER = "__OwningControllerProcess";
 	private static final int COOKIE_TIMEOUT_MS = 3000;
 	private static final int COOKIE_POLLING_INTERVAL_MS = 200;
-	private static final Pattern ONION_V2 = Pattern.compile("[a-z2-7]{16}");
 	private static final Pattern ONION_V3 = Pattern.compile("[a-z2-7]{56}");
 
 	private final Executor ioExecutor, wakefulIoExecutor;
@@ -135,8 +130,8 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 	private final int maxIdleTime;
 	private final int socketTimeout;
 	private final File torDirectory, geoIpFile, configFile;
-	private int torSocksPort;
-	private int torControlPort;
+	private final int torSocksPort;
+	private final int torControlPort;
 	private final File doneFile, cookieFile;
 	private final AtomicBoolean used = new AtomicBoolean(false);
 
@@ -284,6 +279,7 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 					if (LOG.isLoggable(INFO)) listFiles(torDirectory);
 					throw new PluginException();
 				}
+				//noinspection BusyWait
 				Thread.sleep(COOKIE_POLLING_INTERVAL_MS);
 			}
 			LOG.info("Auth cookie created");
@@ -412,6 +408,7 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 		append(strb, "RunAsDaemon", 1);
 		append(strb, "SafeSocks", 1);
 		append(strb, "SocksPort", torSocksPort);
+		//noinspection CharsetObjectCanBeUsed
 		return new ByteArrayInputStream(
 				strb.toString().getBytes(Charset.forName("UTF-8")));
 	}
@@ -478,52 +475,8 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 
 	private void publishHiddenService(String port) {
 		if (!state.isTorRunning()) return;
-		// TODO: Remove support for v2 hidden services after a reasonable
-		// migration period (migration started 2020-06-30)
-		String privKey2 = settings.get(HS_PRIVATE_KEY_V2);
 		String privKey3 = settings.get(HS_PRIVATE_KEY_V3);
-		String v3Created = settings.get(HS_V3_CREATED);
-		// Publish a v2 hidden service if we've already created one, and
-		// either we've never published a v3 hidden service or we're still
-		// in the migration period since first publishing it
-		if (!isNullOrEmpty(privKey2)) {
-			long now = clock.currentTimeMillis();
-			long then = v3Created == null ? now : Long.parseLong(v3Created);
-			if (now - then >= V3_MIGRATION_PERIOD_MS) retireV2HiddenService();
-			else publishV2HiddenService(port, privKey2);
-		}
 		publishV3HiddenService(port, privKey3);
-	}
-
-	private void publishV2HiddenService(String port, String privKey) {
-		LOG.info("Creating v2 hidden service");
-		Map<Integer, String> portLines = singletonMap(80, "127.0.0.1:" + port);
-		Map<String, String> response;
-		try {
-			response = controlConnection.addOnion(privKey, portLines);
-		} catch (IOException e) {
-			logException(LOG, WARNING, e);
-			return;
-		}
-		if (!response.containsKey(HS_ADDRESS)) {
-			LOG.warning("Tor did not return a hidden service address");
-			return;
-		}
-		String onion2 = response.get(HS_ADDRESS);
-		if (LOG.isLoggable(INFO)) {
-			LOG.info("V2 hidden service " + scrubOnion(onion2));
-		}
-		// The hostname has already been published and the private key stored
-	}
-
-	private void retireV2HiddenService() {
-		LOG.info("Retiring v2 hidden service");
-		TransportProperties p = new TransportProperties();
-		p.put(PROP_ONION_V2, "");
-		callback.mergeLocalProperties(p);
-		Settings s = new Settings();
-		s.put(HS_PRIVATE_KEY_V2, "");
-		callback.mergeSettings(s);
 	}
 
 	private void publishV3HiddenService(String port, @Nullable String privKey) {
@@ -562,7 +515,6 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 			// Save the hidden service's private key for next time
 			Settings s = new Settings();
 			s.put(HS_PRIVATE_KEY_V3, response.get(HS_PRIVKEY));
-			s.put(HS_V3_CREATED, String.valueOf(clock.currentTimeMillis()));
 			callback.mergeSettings(s);
 		}
 	}
@@ -669,49 +621,30 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 	@Override
 	public DuplexTransportConnection createConnection(TransportProperties p) {
 		if (getState() != ACTIVE) return null;
-		// TODO: Remove support for v2 hidden services after a reasonable
-		// migration period (migration started 2020-06-30)
-		String bestOnion = null, version = null;
-		String onion2 = p.get(PROP_ONION_V2);
 		String onion3 = p.get(PROP_ONION_V3);
-		if (!isNullOrEmpty(onion2)) {
-			if (ONION_V2.matcher(onion2).matches()) {
-				bestOnion = onion2;
-				version = "v2";
-			} else {
-				// Don't scrub the address so we can find the problem
-				if (LOG.isLoggable(INFO))
-					LOG.info("Invalid v2 hostname: " + onion2);
+		if (onion3 != null && !ONION_V3.matcher(onion3).matches()) {
+			// Don't scrub the address so we can find the problem
+			if (LOG.isLoggable(INFO)) {
+				LOG.info("Invalid v3 hostname: " + onion3);
 			}
+			onion3 = null;
 		}
-		if (!isNullOrEmpty(onion3)) {
-			if (ONION_V3.matcher(onion3).matches()) {
-				bestOnion = onion3;
-				version = "v3";
-			} else {
-				// Don't scrub the address so we can find the problem
-				if (LOG.isLoggable(INFO))
-					LOG.info("Invalid v3 hostname: " + onion3);
-			}
-		}
-		if (bestOnion == null) return null;
+		if (onion3 == null) return null;
 		Socket s = null;
 		try {
 			if (LOG.isLoggable(INFO)) {
-				LOG.info("Connecting to " + version + " "
-						+ scrubOnion(bestOnion));
+				LOG.info("Connecting to v3 " + scrubOnion(onion3));
 			}
-			s = torSocketFactory.createSocket(bestOnion + ".onion", 80);
+			s = torSocketFactory.createSocket(onion3 + ".onion", 80);
 			s.setSoTimeout(socketTimeout);
 			if (LOG.isLoggable(INFO)) {
-				LOG.info("Connected to " + version + " "
-						+ scrubOnion(bestOnion));
+				LOG.info("Connected to v3 " + scrubOnion(onion3));
 			}
 			return new TorTransportConnection(this, s);
 		} catch (IOException e) {
 			if (LOG.isLoggable(INFO)) {
-				LOG.info("Could not connect to " + version + " "
-						+ scrubOnion(bestOnion) + ": " + e.toString());
+				LOG.info("Could not connect to v3 "
+						+ scrubOnion(onion3) + ": " + e.toString());
 			}
 			tryToClose(s, LOG, WARNING);
 			return null;
@@ -1005,17 +938,17 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 		@Nullable
 		private ServerSocket serverSocket = null;
 
-		synchronized void setStarted() {
+		private synchronized void setStarted() {
 			started = true;
 			callback.pluginStateChanged(getState());
 		}
 
-		synchronized boolean isTorRunning() {
+		private synchronized boolean isTorRunning() {
 			return started && !stopped;
 		}
 
 		@Nullable
-		synchronized ServerSocket setStopped() {
+		private synchronized ServerSocket setStopped() {
 			stopped = true;
 			ServerSocket ss = serverSocket;
 			serverSocket = null;
@@ -1023,44 +956,44 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 			return ss;
 		}
 
-		synchronized void setBootstrapped() {
+		private synchronized void setBootstrapped() {
 			bootstrapped = true;
 			callback.pluginStateChanged(getState());
 		}
 
-		synchronized boolean getAndSetCircuitBuilt() {
+		private synchronized boolean getAndSetCircuitBuilt() {
 			boolean firstCircuit = !circuitBuilt;
 			circuitBuilt = true;
 			callback.pluginStateChanged(getState());
 			return firstCircuit;
 		}
 
-		synchronized void enableNetwork(boolean enable) {
+		private synchronized void enableNetwork(boolean enable) {
 			networkInitialised = true;
 			networkEnabled = enable;
 			if (!enable) circuitBuilt = false;
 			callback.pluginStateChanged(getState());
 		}
 
-		synchronized void setReasonsDisabled(int reasonsDisabled) {
+		private synchronized void setReasonsDisabled(int reasonsDisabled) {
 			settingsChecked = true;
 			this.reasonsDisabled = reasonsDisabled;
 			callback.pluginStateChanged(getState());
 		}
 
 		// Doesn't affect getState()
-		synchronized boolean setServerSocket(ServerSocket ss) {
+		private synchronized boolean setServerSocket(ServerSocket ss) {
 			if (stopped || serverSocket != null) return false;
 			serverSocket = ss;
 			return true;
 		}
 
 		// Doesn't affect getState()
-		synchronized void clearServerSocket(ServerSocket ss) {
+		private synchronized void clearServerSocket(ServerSocket ss) {
 			if (serverSocket == ss) serverSocket = null;
 		}
 
-		synchronized State getState() {
+		private synchronized State getState() {
 			if (!started || stopped || !settingsChecked) {
 				return STARTING_STOPPING;
 			}
@@ -1070,7 +1003,7 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 			return bootstrapped && circuitBuilt ? ACTIVE : ENABLING;
 		}
 
-		synchronized int getReasonsDisabled() {
+		private synchronized int getReasonsDisabled() {
 			return getState() == DISABLED ? reasonsDisabled : 0;
 		}
 	}
