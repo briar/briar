@@ -190,6 +190,10 @@ class LifecycleManagerImpl implements LifecycleManager, MigrationListener {
 			return;
 		}
 		try {
+			if (state == STOPPING) {
+				LOG.info("Already stopped");
+				return;
+			}
 			LOG.info("Stopping services");
 			state = STOPPING;
 			eventBus.broadcast(new LifecycleEvent(STOPPING));
