@@ -429,8 +429,11 @@ abstract class JdbcDatabase implements Database<Connection> {
 			compactAndClose();
 			logDuration(LOG, "Compacting database", start);
 			// Allow the next transaction to reopen the DB
-			synchronized (connectionsLock) {
+			connectionsLock.lock();
+			try {
 				closed = false;
+			} finally {
+				connectionsLock.unlock();
 			}
 			txn = startTransaction();
 			try {
