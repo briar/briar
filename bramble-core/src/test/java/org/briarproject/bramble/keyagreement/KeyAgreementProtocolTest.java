@@ -12,6 +12,7 @@ import org.briarproject.bramble.test.BrambleTestCase;
 import org.jmock.Expectations;
 import org.jmock.auto.Mock;
 import org.jmock.integration.junit4.JUnitRuleMockery;
+import org.jmock.lib.concurrent.Synchroniser;
 import org.jmock.lib.legacy.ClassImposteriser;
 import org.junit.Rule;
 import org.junit.Test;
@@ -35,6 +36,7 @@ public class KeyAgreementProtocolTest extends BrambleTestCase {
 	public JUnitRuleMockery context = new JUnitRuleMockery() {{
 		// So we can mock concrete classes like KeyAgreementTransport
 		setImposteriser(ClassImposteriser.INSTANCE);
+		setThreadingPolicy(new Synchroniser());
 	}};
 
 	private final PublicKey alicePubKey = getAgreementPublicKey();
