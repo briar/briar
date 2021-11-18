@@ -24,11 +24,10 @@ import org.briarproject.bramble.api.sync.GroupId;
 import org.briarproject.bramble.api.sync.Message;
 import org.briarproject.bramble.api.sync.MessageFactory;
 import org.briarproject.bramble.api.sync.MessageId;
-import org.briarproject.bramble.test.BrambleTestCase;
+import org.briarproject.bramble.test.BrambleMockTestCase;
 import org.briarproject.bramble.test.DbExpectations;
 import org.briarproject.bramble.util.StringUtils;
 import org.jmock.Expectations;
-import org.jmock.Mockery;
 import org.junit.Test;
 
 import java.io.ByteArrayOutputStream;
@@ -53,9 +52,8 @@ import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
-public class ClientHelperImplTest extends BrambleTestCase {
+public class ClientHelperImplTest extends BrambleMockTestCase {
 
-	private final Mockery context = new Mockery();
 	private final DatabaseComponent db = context.mock(DatabaseComponent.class);
 	private final MessageFactory messageFactory =
 			context.mock(MessageFactory.class);
@@ -100,7 +98,6 @@ public class ClientHelperImplTest extends BrambleTestCase {
 		}});
 
 		clientHelper.addLocalMessage(message, dictionary, shared);
-		context.assertIsSatisfied();
 	}
 
 	@Test
@@ -112,7 +109,6 @@ public class ClientHelperImplTest extends BrambleTestCase {
 		}});
 
 		clientHelper.createMessage(groupId, timestamp, list);
-		context.assertIsSatisfied();
 	}
 
 	@Test
@@ -127,7 +123,6 @@ public class ClientHelperImplTest extends BrambleTestCase {
 		}});
 
 		clientHelper.getMessageAsList(messageId);
-		context.assertIsSatisfied();
 	}
 
 	@Test
@@ -144,7 +139,6 @@ public class ClientHelperImplTest extends BrambleTestCase {
 
 		assertEquals(dictionary,
 				clientHelper.getGroupMetadataAsDictionary(groupId));
-		context.assertIsSatisfied();
 	}
 
 	@Test
@@ -161,7 +155,6 @@ public class ClientHelperImplTest extends BrambleTestCase {
 
 		assertEquals(dictionary,
 				clientHelper.getMessageMetadataAsDictionary(messageId));
-		context.assertIsSatisfied();
 	}
 
 	@Test
@@ -179,7 +172,6 @@ public class ClientHelperImplTest extends BrambleTestCase {
 		}});
 
 		assertEquals(map, clientHelper.getMessageMetadataAsDictionary(groupId));
-		context.assertIsSatisfied();
 	}
 
 	@Test
@@ -204,7 +196,6 @@ public class ClientHelperImplTest extends BrambleTestCase {
 
 		assertEquals(map,
 				clientHelper.getMessageMetadataAsDictionary(groupId, query));
-		context.assertIsSatisfied();
 	}
 
 	@Test
@@ -219,7 +210,6 @@ public class ClientHelperImplTest extends BrambleTestCase {
 		}});
 
 		clientHelper.mergeGroupMetadata(groupId, dictionary);
-		context.assertIsSatisfied();
 	}
 
 	@Test
@@ -234,7 +224,6 @@ public class ClientHelperImplTest extends BrambleTestCase {
 		}});
 
 		clientHelper.mergeMessageMetadata(messageId, dictionary);
-		context.assertIsSatisfied();
 	}
 
 	@Test
@@ -242,7 +231,6 @@ public class ClientHelperImplTest extends BrambleTestCase {
 		byte[] bytes = expectToByteArray(list);
 
 		assertArrayEquals(bytes, clientHelper.toByteArray(list));
-		context.assertIsSatisfied();
 	}
 
 	@Test
@@ -250,7 +238,6 @@ public class ClientHelperImplTest extends BrambleTestCase {
 		expectToList(true);
 
 		assertEquals(list, clientHelper.toList(getRandomBytes(123)));
-		context.assertIsSatisfied();
 	}
 
 	@Test
@@ -262,7 +249,6 @@ public class ClientHelperImplTest extends BrambleTestCase {
 			fail();
 		} catch (FormatException e) {
 			// expected
-			context.assertIsSatisfied();
 		}
 	}
 
@@ -279,7 +265,6 @@ public class ClientHelperImplTest extends BrambleTestCase {
 
 		assertArrayEquals(signature,
 				clientHelper.sign(label, list, privateKey));
-		context.assertIsSatisfied();
 	}
 
 	@Test
@@ -295,7 +280,6 @@ public class ClientHelperImplTest extends BrambleTestCase {
 		}});
 
 		clientHelper.verifySignature(signature, label, list, publicKey);
-		context.assertIsSatisfied();
 	}
 
 	@Test
@@ -315,7 +299,6 @@ public class ClientHelperImplTest extends BrambleTestCase {
 			fail();
 		} catch (GeneralSecurityException e) {
 			// expected
-			context.assertIsSatisfied();
 		}
 	}
 

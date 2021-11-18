@@ -1,19 +1,17 @@
 package org.briarproject.bramble.transport;
 
 import org.briarproject.bramble.api.crypto.StreamEncrypter;
-import org.briarproject.bramble.test.BrambleTestCase;
+import org.briarproject.bramble.test.BrambleMockTestCase;
 import org.jmock.Expectations;
-import org.jmock.Mockery;
 import org.junit.Test;
 
 import static org.briarproject.bramble.api.transport.TransportConstants.MAX_PAYLOAD_LENGTH;
 import static org.junit.Assert.assertEquals;
 
-public class StreamWriterImplTest extends BrambleTestCase {
+public class StreamWriterImplTest extends BrambleMockTestCase {
 
 	@Test
 	public void testCloseWithoutWritingWritesFinalFrame() throws Exception {
-		Mockery context = new Mockery();
 		StreamEncrypter encrypter = context.mock(StreamEncrypter.class);
 		context.checking(new Expectations() {{
 			// Write an empty final frame
@@ -24,13 +22,11 @@ public class StreamWriterImplTest extends BrambleTestCase {
 		}});
 		StreamWriterImpl w = new StreamWriterImpl(encrypter);
 		w.close();
-		context.assertIsSatisfied();
 	}
 
 	@Test
 	public void testFlushWithoutBufferedDataWritesFrameAndFlushes()
 			throws Exception {
-		Mockery context = new Mockery();
 		StreamEncrypter encrypter = context.mock(StreamEncrypter.class);
 		StreamWriterImpl w = new StreamWriterImpl(encrypter);
 		context.checking(new Expectations() {{
@@ -51,13 +47,11 @@ public class StreamWriterImplTest extends BrambleTestCase {
 			oneOf(encrypter).flush();
 		}});
 		w.close();
-		context.assertIsSatisfied();
 	}
 
 	@Test
 	public void testFlushWithBufferedDataWritesFrameAndFlushes()
 			throws Exception {
-		Mockery context = new Mockery();
 		StreamEncrypter encrypter = context.mock(StreamEncrypter.class);
 		StreamWriterImpl w = new StreamWriterImpl(encrypter);
 		context.checking(new Expectations() {{
@@ -79,12 +73,10 @@ public class StreamWriterImplTest extends BrambleTestCase {
 			oneOf(encrypter).flush();
 		}});
 		w.close();
-		context.assertIsSatisfied();
 	}
 
 	@Test
 	public void testSingleByteWritesWriteFullFrame() throws Exception {
-		Mockery context = new Mockery();
 		StreamEncrypter encrypter = context.mock(StreamEncrypter.class);
 		StreamWriterImpl w = new StreamWriterImpl(encrypter);
 		context.checking(new Expectations() {{
@@ -103,12 +95,10 @@ public class StreamWriterImplTest extends BrambleTestCase {
 			oneOf(encrypter).flush();
 		}});
 		w.close();
-		context.assertIsSatisfied();
 	}
 
 	@Test
 	public void testMultiByteWritesWriteFullFrames() throws Exception {
-		Mockery context = new Mockery();
 		StreamEncrypter encrypter = context.mock(StreamEncrypter.class);
 		StreamWriterImpl w = new StreamWriterImpl(encrypter);
 		context.checking(new Expectations() {{
@@ -134,12 +124,10 @@ public class StreamWriterImplTest extends BrambleTestCase {
 			oneOf(encrypter).flush();
 		}});
 		w.close();
-		context.assertIsSatisfied();
 	}
 
 	@Test
 	public void testLargeMultiByteWriteWritesFullFrames() throws Exception {
-		Mockery context = new Mockery();
 		StreamEncrypter encrypter = context.mock(StreamEncrypter.class);
 		StreamWriterImpl w = new StreamWriterImpl(encrypter);
 		context.checking(new Expectations() {{
@@ -157,6 +145,5 @@ public class StreamWriterImplTest extends BrambleTestCase {
 		w.write(b);
 		// There should be one byte left in the buffer
 		w.close();
-		context.assertIsSatisfied();
 	}
 }

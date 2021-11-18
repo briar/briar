@@ -1,19 +1,17 @@
 package org.briarproject.bramble.transport;
 
 import org.briarproject.bramble.api.crypto.StreamDecrypter;
-import org.briarproject.bramble.test.BrambleTestCase;
+import org.briarproject.bramble.test.BrambleMockTestCase;
 import org.jmock.Expectations;
-import org.jmock.Mockery;
 import org.junit.Test;
 
 import static org.briarproject.bramble.api.transport.TransportConstants.MAX_PAYLOAD_LENGTH;
 import static org.junit.Assert.assertEquals;
 
-public class StreamReaderImplTest extends BrambleTestCase {
+public class StreamReaderImplTest extends BrambleMockTestCase {
 
 	@Test
 	public void testEmptyFramesAreSkipped() throws Exception {
-		Mockery context = new Mockery();
 		StreamDecrypter decrypter = context.mock(StreamDecrypter.class);
 		context.checking(new Expectations() {{
 			oneOf(decrypter).readFrame(with(any(byte[].class)));
@@ -30,13 +28,11 @@ public class StreamReaderImplTest extends BrambleTestCase {
 		assertEquals(0, r.read()); // Read another byte
 		assertEquals(-1, r.read()); // Skip the second empty frame, reach EOF
 		assertEquals(-1, r.read()); // Still at EOF
-		context.assertIsSatisfied();
 		r.close();
 	}
 
 	@Test
 	public void testEmptyFramesAreSkippedWithBuffer() throws Exception {
-		Mockery context = new Mockery();
 		StreamDecrypter decrypter = context.mock(StreamDecrypter.class);
 		context.checking(new Expectations() {{
 			oneOf(decrypter).readFrame(with(any(byte[].class)));
@@ -56,13 +52,11 @@ public class StreamReaderImplTest extends BrambleTestCase {
 		assertEquals(-1, r.read(buf));
 		// Still at EOF
 		assertEquals(-1, r.read(buf));
-		context.assertIsSatisfied();
 		r.close();
 	}
 
 	@Test
 	public void testMultipleReadsPerFrame() throws Exception {
-		Mockery context = new Mockery();
 		StreamDecrypter decrypter = context.mock(StreamDecrypter.class);
 		context.checking(new Expectations() {{
 			oneOf(decrypter).readFrame(with(any(byte[].class)));
@@ -78,13 +72,11 @@ public class StreamReaderImplTest extends BrambleTestCase {
 		assertEquals(MAX_PAYLOAD_LENGTH / 2, r.read(buf));
 		// Reach EOF
 		assertEquals(-1, r.read(buf, 0, buf.length));
-		context.assertIsSatisfied();
 		r.close();
 	}
 
 	@Test
 	public void testMultipleReadsPerFrameWithOffsets() throws Exception {
-		Mockery context = new Mockery();
 		StreamDecrypter decrypter = context.mock(StreamDecrypter.class);
 		context.checking(new Expectations() {{
 			oneOf(decrypter).readFrame(with(any(byte[].class)));
@@ -102,7 +94,6 @@ public class StreamReaderImplTest extends BrambleTestCase {
 				MAX_PAYLOAD_LENGTH / 2));
 		// Reach EOF
 		assertEquals(-1, r.read(buf, 0, buf.length));
-		context.assertIsSatisfied();
 		r.close();
 	}
 }

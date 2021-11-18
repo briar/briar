@@ -13,11 +13,10 @@ import org.briarproject.bramble.api.sync.MessageFactory;
 import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.bramble.api.system.Clock;
 import org.briarproject.bramble.system.SystemClock;
+import org.briarproject.bramble.test.BrambleMockTestCase;
 import org.briarproject.briar.api.blog.Blog;
 import org.briarproject.briar.api.blog.BlogFactory;
-import org.briarproject.briar.test.BriarTestCase;
 import org.jmock.Expectations;
-import org.jmock.Mockery;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -47,9 +46,8 @@ import static org.briarproject.briar.api.blog.MessageType.WRAPPED_POST;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 
-public class BlogPostValidatorTest extends BriarTestCase {
+public class BlogPostValidatorTest extends BrambleMockTestCase {
 
-	private final Mockery context = new Mockery();
 	private final Blog blog, rssBlog;
 	private final BdfList authorList;
 	private final byte[] descriptor;
