@@ -19,6 +19,7 @@ import org.briarproject.bramble.api.identity.LocalAuthor;
 import org.briarproject.bramble.api.sync.Group;
 import org.briarproject.bramble.api.sync.Message;
 import org.briarproject.bramble.api.sync.MessageId;
+import org.briarproject.bramble.test.BrambleMockTestCase;
 import org.briarproject.briar.api.blog.Blog;
 import org.briarproject.briar.api.blog.BlogCommentHeader;
 import org.briarproject.briar.api.blog.BlogFactory;
@@ -28,9 +29,7 @@ import org.briarproject.briar.api.blog.BlogPostHeader;
 import org.briarproject.briar.api.blog.event.BlogPostAddedEvent;
 import org.briarproject.briar.api.identity.AuthorInfo;
 import org.briarproject.briar.api.identity.AuthorManager;
-import org.briarproject.briar.test.BriarTestCase;
 import org.jmock.Expectations;
-import org.jmock.Mockery;
 import org.junit.Test;
 
 import static org.briarproject.bramble.api.sync.validation.IncomingMessageHook.DeliveryAction.ACCEPT_SHARE;
@@ -65,9 +64,8 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
-public class BlogManagerImplTest extends BriarTestCase {
+public class BlogManagerImplTest extends BrambleMockTestCase {
 
-	private final Mockery context = new Mockery();
 	private final BlogManagerImpl blogManager;
 	private final DatabaseComponent db = context.mock(DatabaseComponent.class);
 	private final AuthorManager authorManager =

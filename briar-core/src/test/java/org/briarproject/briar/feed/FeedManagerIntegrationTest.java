@@ -3,6 +3,7 @@ package org.briarproject.briar.feed;
 import org.briarproject.bramble.api.identity.Identity;
 import org.briarproject.bramble.api.identity.IdentityManager;
 import org.briarproject.bramble.api.lifecycle.LifecycleManager;
+import org.briarproject.bramble.test.BrambleTestCase;
 import org.briarproject.bramble.test.TestDatabaseConfigModule;
 import org.briarproject.bramble.test.TestUtils;
 import org.briarproject.briar.api.blog.Blog;
@@ -10,7 +11,6 @@ import org.briarproject.briar.api.blog.BlogManager;
 import org.briarproject.briar.api.blog.BlogPostHeader;
 import org.briarproject.briar.api.feed.Feed;
 import org.briarproject.briar.api.feed.FeedManager;
-import org.briarproject.briar.test.BriarTestCase;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -23,7 +23,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
-public class FeedManagerIntegrationTest extends BriarTestCase {
+public class FeedManagerIntegrationTest extends BrambleTestCase {
 
 	private LifecycleManager lifecycleManager;
 	private FeedManager feedManager;

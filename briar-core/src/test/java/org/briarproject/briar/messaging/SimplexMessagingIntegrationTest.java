@@ -14,6 +14,7 @@ import org.briarproject.bramble.api.sync.GroupId;
 import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.bramble.api.sync.event.MessageStateChangedEvent;
 import org.briarproject.bramble.api.sync.event.MessagesSentEvent;
+import org.briarproject.bramble.test.BrambleTestCase;
 import org.briarproject.bramble.test.TestDatabaseConfigModule;
 import org.briarproject.bramble.test.TestTransportConnectionReader;
 import org.briarproject.bramble.test.TestTransportConnectionWriter;
@@ -23,7 +24,6 @@ import org.briarproject.briar.api.messaging.PrivateMessage;
 import org.briarproject.briar.api.messaging.PrivateMessageFactory;
 import org.briarproject.briar.api.messaging.event.AttachmentReceivedEvent;
 import org.briarproject.briar.api.messaging.event.PrivateMessageReceivedEvent;
-import org.briarproject.briar.test.BriarTestCase;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -44,7 +44,7 @@ import static org.briarproject.bramble.test.TestUtils.getTestDirectory;
 import static org.briarproject.briar.api.autodelete.AutoDeleteConstants.MIN_AUTO_DELETE_TIMER_MS;
 import static org.junit.Assert.assertTrue;
 
-public class SimplexMessagingIntegrationTest extends BriarTestCase {
+public class SimplexMessagingIntegrationTest extends BrambleTestCase {
 
 	private static final int TIMEOUT_MS = 5_000;
 

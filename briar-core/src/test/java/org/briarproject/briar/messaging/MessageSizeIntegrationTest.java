@@ -10,12 +10,12 @@ import org.briarproject.bramble.api.sync.GroupId;
 import org.briarproject.bramble.api.sync.Message;
 import org.briarproject.bramble.api.sync.MessageFactory;
 import org.briarproject.bramble.api.sync.MessageId;
+import org.briarproject.bramble.test.BrambleTestCase;
 import org.briarproject.briar.api.attachment.AttachmentHeader;
 import org.briarproject.briar.api.forum.ForumPost;
 import org.briarproject.briar.api.forum.ForumPostFactory;
 import org.briarproject.briar.api.messaging.PrivateMessage;
 import org.briarproject.briar.api.messaging.PrivateMessageFactory;
-import org.briarproject.briar.test.BriarTestCase;
 import org.junit.Test;
 
 import java.io.ByteArrayInputStream;
@@ -41,7 +41,7 @@ import static org.briarproject.briar.api.messaging.MessagingConstants.MAX_PRIVAT
 import static org.briarproject.briar.messaging.MessageTypes.ATTACHMENT;
 import static org.junit.Assert.assertTrue;
 
-public class MessageSizeIntegrationTest extends BriarTestCase {
+public class MessageSizeIntegrationTest extends BrambleTestCase {
 
 	@Inject
 	CryptoComponent crypto;

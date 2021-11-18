@@ -12,10 +12,8 @@ import org.briarproject.bramble.api.plugin.simplex.SimplexPlugin;
 import org.briarproject.bramble.api.plugin.simplex.SimplexPluginFactory;
 import org.briarproject.bramble.api.properties.TransportPropertyManager;
 import org.briarproject.bramble.api.settings.SettingsManager;
-import org.briarproject.bramble.test.BrambleTestCase;
+import org.briarproject.bramble.test.BrambleMockTestCase;
 import org.jmock.Expectations;
-import org.jmock.Mockery;
-import org.jmock.lib.concurrent.Synchroniser;
 import org.junit.Test;
 
 import java.util.Arrays;
@@ -24,13 +22,10 @@ import java.util.concurrent.Executors;
 
 import static org.briarproject.bramble.test.TestUtils.getTransportId;
 
-public class PluginManagerImplTest extends BrambleTestCase {
+public class PluginManagerImplTest extends BrambleMockTestCase {
 
 	@Test
 	public void testStartAndStop() throws Exception {
-		Mockery context = new Mockery() {{
-			setThreadingPolicy(new Synchroniser());
-		}};
 		Executor ioExecutor = Executors.newSingleThreadExecutor();
 		EventBus eventBus = context.mock(EventBus.class);
 		PluginConfig pluginConfig = context.mock(PluginConfig.class);
@@ -116,7 +111,5 @@ public class PluginManagerImplTest extends BrambleTestCase {
 		// Two plugins should be started and stopped
 		p.startService();
 		p.stopService();
-
-		context.assertIsSatisfied();
 	}
 }
