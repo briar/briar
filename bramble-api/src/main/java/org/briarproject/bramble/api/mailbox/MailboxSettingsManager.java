@@ -15,4 +15,12 @@ public interface MailboxSettingsManager {
 
 	void setOwnMailboxProperties(Transaction txn, MailboxProperties p)
 			throws DbException;
+
+	MailboxStatus getOwnMailboxStatus(Transaction txn) throws DbException;
+
+	void recordSuccessfulConnection(Transaction txn, long now)
+			throws DbException;
+
+	void recordFailedConnectionAttempt(Transaction txn, long now)
+			throws DbException;
 }
