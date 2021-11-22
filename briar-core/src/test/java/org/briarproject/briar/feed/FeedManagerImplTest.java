@@ -33,10 +33,13 @@ import java.util.Date;
 import java.util.List;
 import java.util.concurrent.Executor;
 
+import javax.annotation.Nonnull;
 import javax.net.SocketFactory;
 
 import okhttp3.Dns;
+import okhttp3.OkHttpClient;
 
+import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static org.briarproject.bramble.test.TestUtils.getGroup;
 import static org.briarproject.bramble.test.TestUtils.getLocalAuthor;
 import static org.briarproject.bramble.test.TestUtils.getMessage;
@@ -59,6 +62,19 @@ public class FeedManagerImplTest extends BrambleMockTestCase {
 	private final Clock clock = context.mock(Clock.class);
 	private final Dns noDnsLookups = context.mock(Dns.class);
 
+	private final OkHttpClient client = new OkHttpClient.Builder()
+			.socketFactory(SocketFactory.getDefault())
+			.dns(noDnsLookups)
+			.connectTimeout(60_000, MILLISECONDS)
+			.build();
+	private final WeakSingletonProvider<OkHttpClient> httpClientProvider =
+			new WeakSingletonProvider<OkHttpClient>() {
+				@Override
+				@Nonnull
+				OkHttpClient createInstance() {
+					return client;
+				}
+			};
 	private final Group localGroup = getGroup(CLIENT_ID, MAJOR_VERSION);
 	private final GroupId localGroupId = localGroup.getId();
 	private final Group blogGroup =
@@ -73,7 +89,7 @@ public class FeedManagerImplTest extends BrambleMockTestCase {
 	private final FeedManagerImpl feedManager =
 			new FeedManagerImpl(scheduler, ioExecutor, db, contactGroupFactory,
 					clientHelper, blogManager, blogPostFactory, feedFactory,
-					SocketFactory.getDefault(), clock, noDnsLookups);
+					httpClientProvider, clock);
 
 	@Test
 	public void testFetchFeedsReturnsEarlyIfTorIsNotActive() {
