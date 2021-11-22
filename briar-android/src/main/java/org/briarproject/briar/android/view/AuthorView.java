@@ -93,7 +93,7 @@ public class AuthorView extends ConstraintLayout {
 		if (authorInfo.getStatus() == OURSELVES) {
 			authorName.setTypeface(authorNameTypeface, BOLD);
 		} else {
-			authorName.setTypeface(authorNameTypeface, NORMAL);
+			authorName.setTypeface(authorNameTypeface, Typeface.NORMAL);
 		}
 
 		invalidate();
