@@ -7,8 +7,8 @@ import static java.util.Collections.list
 plugins {
 	id 'java'
 	id 'idea'
-	id 'org.jetbrains.kotlin.jvm' version '1.4.32'
-	id 'org.jetbrains.kotlin.kapt' version '1.4.32'
+	id 'org.jetbrains.kotlin.jvm' version '1.6.0'
+	id 'org.jetbrains.kotlin.kapt' version '1.6.0'
 	id 'witness'
 }
 apply from: 'witness.gradle'
@@ -20,7 +20,7 @@ dependencies {
 	implementation project(path: ':briar-core', configuration: 'default')
 	implementation project(path: ':bramble-java', configuration: 'default')
 
-	implementation 'org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.4.32'
+	implementation 'org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.6.0'
 	implementation 'io.javalin:javalin:3.5.0'
 	implementation 'org.slf4j:slf4j-simple:1.7.30'
 	implementation 'com.fasterxml.jackson.core:jackson-databind:2.12.2'
@@ -36,7 +36,7 @@ dependencies {
 	def junitVersion = '5.5.2'
 	testImplementation "org.junit.jupiter:junit-jupiter-api:$junitVersion"
 	testImplementation "org.junit.jupiter:junit-jupiter-params:$junitVersion"
-	testRuntime "org.junit.jupiter:junit-jupiter-engine:$junitVersion"
+	testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:$junitVersion"
 	testImplementation 'io.mockk:mockk:1.10.4'
 	testImplementation 'org.skyscreamer:jsonassert:1.5.0'
 	testImplementation 'khttp:khttp:0.1.0'
@@ -126,4 +126,8 @@ test {
 	testLogging {
 		events "passed", "skipped", "failed"
 	}
+    // for problems in ContactControllerIntegrationTest
+    jvmArgs = [
+            '--add-opens', 'java.base/java.net=ALL-UNNAMED',
+    ]
 }

@@ -51,3 +51,10 @@ task jarTest(type: Jar, dependsOn: testClasses) {
 artifacts {
 	testOutput jarTest
 }
+
+test {
+    // for random = context.mock(SecureRandom.class); in PollerImplTest
+    jvmArgs = [
+            '--add-opens', 'java.base/java.security=ALL-UNNAMED',
+    ]
+}

@@ -41,7 +41,11 @@ import static org.briarproject.briar.android.login.StrengthMeter.YELLOW;
 import static org.hamcrest.Matchers.not;
 
 @RunWith(AndroidJUnit4.class)
-@Config(sdk = 21)
+@Config(sdk = 21,
+		instrumentedPackages = {
+				// required to access final members on androidx.loader.content.ModernAsyncTask
+				"androidx.loader.content"
+		})
 public class SetupActivityTest {
 
 	@Rule
