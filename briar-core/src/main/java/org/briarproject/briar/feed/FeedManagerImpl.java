@@ -44,7 +44,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.security.GeneralSecurityException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
@@ -55,15 +54,13 @@ import java.util.logging.Logger;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.ThreadSafe;
 import javax.inject.Inject;
-import javax.net.SocketFactory;
 
-import okhttp3.Dns;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
 import okhttp3.ResponseBody;
 
-import static java.util.concurrent.TimeUnit.MILLISECONDS;
+import static java.util.Collections.sort;
 import static java.util.logging.Level.WARNING;
 import static org.briarproject.bramble.util.LogUtils.logException;
 import static org.briarproject.briar.api.blog.BlogConstants.MAX_BLOG_POST_TEXT_LENGTH;
@@ -83,8 +80,6 @@ class FeedManagerImpl implements FeedManager, EventListener, OpenDatabaseHook,
 	private static final Logger LOG =
 			Logger.getLogger(FeedManagerImpl.class.getName());
 
-	private static final int CONNECT_TIMEOUT = 60 * 1000; // Milliseconds
-
 	private final TaskScheduler scheduler;
 	private final Executor ioExecutor;
 	private final DatabaseComponent db;
@@ -93,9 +88,8 @@ class FeedManagerImpl implements FeedManager, EventListener, OpenDatabaseHook,
 	private final BlogManager blogManager;
 	private final BlogPostFactory blogPostFactory;
 	private final FeedFactory feedFactory;
-	private final SocketFactory torSocketFactory;
 	private final Clock clock;
-	private final Dns noDnsLookups;
+	private final WeakSingletonProvider<OkHttpClient> httpClientProvider;
 	private final AtomicBoolean fetcherStarted = new AtomicBoolean(false);
 
 	private volatile boolean torActive = false;
@@ -109,9 +103,8 @@ class FeedManagerImpl implements FeedManager, EventListener, OpenDatabaseHook,
 			BlogManager blogManager,
 			BlogPostFactory blogPostFactory,
 			FeedFactory feedFactory,
-			SocketFactory torSocketFactory,
-			Clock clock,
-			Dns noDnsLookups) {
+			WeakSingletonProvider<OkHttpClient> httpClientProvider,
+			Clock clock) {
 		this.scheduler = scheduler;
 		this.ioExecutor = ioExecutor;
 		this.db = db;
@@ -120,9 +113,8 @@ class FeedManagerImpl implements FeedManager, EventListener, OpenDatabaseHook,
 		this.blogManager = blogManager;
 		this.blogPostFactory = blogPostFactory;
 		this.feedFactory = feedFactory;
-		this.torSocketFactory = torSocketFactory;
+		this.httpClientProvider = httpClientProvider;
 		this.clock = clock;
-		this.noDnsLookups = noDnsLookups;
 	}
 
 	@Override
@@ -364,19 +356,13 @@ class FeedManagerImpl implements FeedManager, EventListener, OpenDatabaseHook,
 	}
 
 	private InputStream getFeedInputStream(String url) throws IOException {
-		// Build HTTP Client
-		OkHttpClient client = new OkHttpClient.Builder()
-				.socketFactory(torSocketFactory)
-				.dns(noDnsLookups) // Don't make local DNS lookups
-				.connectTimeout(CONNECT_TIMEOUT, MILLISECONDS)
-				.build();
-
 		// Build Request
 		Request request = new Request.Builder()
 				.url(url)
 				.build();
 
 		// Execute Request
+		OkHttpClient client = httpClientProvider.get();
 		Response response = client.newCall(request).execute();
 		ResponseBody body = response.body();
 		if (body != null) return body.byteStream();
@@ -399,7 +385,8 @@ class FeedManagerImpl implements FeedManager, EventListener, OpenDatabaseHook,
 		long lastEntryTime = feed.getLastEntryTime();
 		Transaction txn = db.startTransaction(false);
 		try {
-			Collections.sort(entries, getEntryComparator());
+			//noinspection Java8ListSort
+			sort(entries, getEntryComparator());
 			for (SyndEntry entry : entries) {
 				long entryTime;
 				if (entry.getPublishedDate() != null) {
