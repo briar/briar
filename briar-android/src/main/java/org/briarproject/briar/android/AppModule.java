@@ -56,6 +56,7 @@ import org.briarproject.briar.android.viewmodel.ViewModelModule;
 import org.briarproject.briar.api.android.AndroidNotificationManager;
 import org.briarproject.briar.api.android.DozeWatchdog;
 import org.briarproject.briar.api.android.LockManager;
+import org.briarproject.briar.api.android.NetworkUsageMetrics;
 import org.briarproject.briar.api.android.ScreenFilterMonitor;
 import org.briarproject.briar.api.test.TestAvatarCreator;
 
@@ -114,7 +115,7 @@ public class AppModule {
 		@Inject
 		ScreenFilterMonitor screenFilterMonitor;
 		@Inject
-		NetworkUsageLogger networkUsageLogger;
+		NetworkUsageMetrics networkUsageMetrics;
 		@Inject
 		DozeWatchdog dozeWatchdog;
 		@Inject
@@ -287,11 +288,12 @@ public class AppModule {
 	}
 
 	@Provides
-	NetworkUsageLogger provideNetworkUsageLogger(
+	@Singleton
+	NetworkUsageMetrics provideNetworkUsageMetrics(
 			LifecycleManager lifecycleManager) {
-		NetworkUsageLogger networkUsageLogger = new NetworkUsageLogger();
-		lifecycleManager.registerService(networkUsageLogger);
-		return networkUsageLogger;
+		NetworkUsageMetrics networkUsageMetrics = new NetworkUsageMetricsImpl();
+		lifecycleManager.registerService(networkUsageMetrics);
+		return networkUsageMetrics;
 	}
 
 	@Provides
