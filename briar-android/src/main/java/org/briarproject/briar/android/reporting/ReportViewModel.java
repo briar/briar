@@ -18,6 +18,7 @@ import org.briarproject.briar.android.reporting.ReportData.MultiReportInfo;
 import org.briarproject.briar.android.reporting.ReportData.ReportItem;
 import org.briarproject.briar.android.viewmodel.LiveEvent;
 import org.briarproject.briar.android.viewmodel.MutableLiveEvent;
+import org.briarproject.briar.api.android.NetworkUsageMetrics;
 import org.json.JSONException;
 
 import java.io.File;
@@ -69,12 +70,13 @@ class ReportViewModel extends AndroidViewModel {
 
 	@Inject
 	ReportViewModel(@NonNull Application application,
+			NetworkUsageMetrics networkUsageMetrics,
 			CachingLogHandler logHandler,
 			LogDecrypter logDecrypter,
 			DevReporter reporter,
 			PluginManager pluginManager) {
 		super(application);
-		collector = new BriarReportCollector(application);
+		collector = new BriarReportCollector(application, networkUsageMetrics);
 		this.logHandler = logHandler;
 		this.logDecrypter = logDecrypter;
 		this.reporter = reporter;

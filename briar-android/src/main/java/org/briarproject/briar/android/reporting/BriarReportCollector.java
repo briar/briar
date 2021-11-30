@@ -28,6 +28,8 @@ import org.briarproject.briar.R;
 import org.briarproject.briar.android.reporting.ReportData.MultiReportInfo;
 import org.briarproject.briar.android.reporting.ReportData.ReportItem;
 import org.briarproject.briar.android.reporting.ReportData.SingleReportInfo;
+import org.briarproject.briar.api.android.NetworkUsageMetrics;
+import org.briarproject.briar.api.android.NetworkUsageMetrics.Metrics;
 
 import java.io.File;
 import java.io.PrintWriter;
@@ -65,9 +67,11 @@ import static org.briarproject.bramble.util.StringUtils.isNullOrEmpty;
 class BriarReportCollector {
 
 	private final Context ctx;
+	private final NetworkUsageMetrics networkUsageMetrics;
 
-	BriarReportCollector(Context ctx) {
+	BriarReportCollector(Context ctx, NetworkUsageMetrics networkUsageMetrics) {
 		this.ctx = ctx;
+		this.networkUsageMetrics = networkUsageMetrics;
 	}
 
 	ReportData collectReportData(@Nullable Throwable t, long appStartTime,
@@ -81,6 +85,7 @@ class BriarReportCollector {
 				.add(getMemory())
 				.add(getStorage())
 				.add(getConnectivity())
+				.add(getNetworkUsage())
 				.add(getBuildConfig())
 				.add(getLogcat(logs))
 				.add(getDeviceFeatures());
@@ -296,6 +301,16 @@ class BriarReportCollector {
 		}
 		return new ReportItem("Connectivity", R.string.dev_report_connectivity,
 				connectivityInfo);
+	}
+
+	private ReportItem getNetworkUsage() {
+		Metrics metrics = networkUsageMetrics.getMetrics();
+		MultiReportInfo networkUsage = new MultiReportInfo()
+				.add("SessionDuration", metrics.getSessionDurationMs())
+				.add("BytesReceived", metrics.getRxBytes())
+				.add("BytesSent", metrics.getTxBytes());
+		return new ReportItem("NetworkUsage", R.string.dev_report_network_usage,
+				networkUsage);
 	}
 
 	private ReportItem getBuildConfig() {

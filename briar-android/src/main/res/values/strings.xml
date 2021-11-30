@@ -649,6 +649,7 @@
 	<string name="dev_report_memory">Memory</string>
 	<string name="dev_report_storage">Storage</string>
 	<string name="dev_report_connectivity">Connectivity</string>
+	<string name="dev_report_network_usage">Network usage</string>
 	<string name="dev_report_build_config">Build configuration</string>
 	<string name="dev_report_logcat">App log</string>
 	<string name="dev_report_device_features">Device Features</string>
