@@ -75,6 +75,13 @@ public interface MessagingManager extends ConversationClient {
 	String getMessageText(MessageId m) throws DbException;
 
 	/**
+	 * Returns the text of the private message with the given ID, or null if
+	 * the private message has no text.
+	 */
+	@Nullable
+	String getMessageText(Transaction txn, MessageId m) throws DbException;
+
+	/**
 	 * Returns the private message format supported by the given contact.
 	 */
 	PrivateMessageFormat getContactMessageFormat(Transaction txn, ContactId c)

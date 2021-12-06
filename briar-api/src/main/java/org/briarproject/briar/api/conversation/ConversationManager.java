@@ -39,6 +39,15 @@ public interface ConversationManager {
 			throws DbException;
 
 	/**
+	 * Returns the headers of all messages in the given private conversation.
+	 * <p>
+	 * Only {@link MessagingManager} returns only headers.
+	 * The others also return the message text.
+	 */
+	Collection<ConversationMessageHeader> getMessageHeaders(Transaction txn, ContactId c)
+			throws DbException;
+
+	/**
 	 * Returns the unified group count for all private conversation messages.
 	 */
 	GroupCount getGroupCount(ContactId c) throws DbException;
@@ -70,6 +79,9 @@ public interface ConversationManager {
 			throws DbException;
 
 	void setReadFlag(GroupId g, MessageId m, boolean read)
+			throws DbException;
+
+	void setReadFlag(Transaction txn, GroupId g, MessageId m, boolean read)
 			throws DbException;
 
 	/**

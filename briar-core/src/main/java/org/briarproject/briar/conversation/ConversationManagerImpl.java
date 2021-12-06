@@ -58,15 +58,16 @@ class ConversationManagerImpl implements ConversationManager {
 	@Override
 	public Collection<ConversationMessageHeader> getMessageHeaders(ContactId c)
 			throws DbException {
+		return db.transactionWithResult(true,
+				txn -> getMessageHeaders(txn, c));
+	}
+
+	@Override
+	public Collection<ConversationMessageHeader> getMessageHeaders(Transaction txn, ContactId c)
+			throws DbException {
 		List<ConversationMessageHeader> messages = new ArrayList<>();
-		Transaction txn = db.startTransaction(true);
-		try {
-			for (ConversationClient client : clients) {
-				messages.addAll(client.getMessageHeaders(txn, c));
-			}
-			db.commitTransaction(txn);
-		} finally {
-			db.endTransaction(txn);
+		for (ConversationClient client : clients) {
+			messages.addAll(client.getMessageHeaders(txn, c));
 		}
 		return messages;
 	}
@@ -125,10 +126,14 @@ class ConversationManagerImpl implements ConversationManager {
 	@Override
 	public void setReadFlag(GroupId g, MessageId m, boolean read)
 			throws DbException {
-		db.transaction(false, txn -> {
-			boolean wasRead = messageTracker.setReadFlag(txn, g, m, read);
-			if (read && !wasRead) db.startCleanupTimer(txn, m);
-		});
+		db.transaction(false, txn -> setReadFlag(txn, g, m, read));
+	}
+
+	@Override
+	public void setReadFlag(Transaction txn, GroupId g, MessageId m, boolean read)
+			throws DbException {
+		boolean wasRead = messageTracker.setReadFlag(txn, g, m, read);
+		if (read && !wasRead) db.startCleanupTimer(txn, m);
 	}
 
 	@Override
