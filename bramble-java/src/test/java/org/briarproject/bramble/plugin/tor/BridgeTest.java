@@ -39,6 +39,8 @@ import static java.util.logging.Logger.getLogger;
 import static org.briarproject.bramble.api.plugin.Plugin.State.ACTIVE;
 import static org.briarproject.bramble.api.plugin.TorConstants.DEFAULT_CONTROL_PORT;
 import static org.briarproject.bramble.api.plugin.TorConstants.DEFAULT_SOCKS_PORT;
+import static org.briarproject.bramble.plugin.tor.CircumventionProvider.BridgeType.DEFAULT_OBFS4;
+import static org.briarproject.bramble.plugin.tor.CircumventionProvider.BridgeType.NON_DEFAULT_OBFS4;
 import static org.briarproject.bramble.test.TestUtils.deleteTestDirectory;
 import static org.briarproject.bramble.test.TestUtils.getTestDirectory;
 import static org.briarproject.bramble.test.TestUtils.isOptionalTestEnabled;
@@ -57,10 +59,14 @@ public class BridgeTest extends BrambleTestCase {
 				.injectEagerSingletons(component);
 		// Share a failure counter among all the test instances
 		AtomicInteger failures = new AtomicInteger(0);
-		List<String> bridges =
-				component.getCircumventionProvider().getBridges(false);
-		List<Params> states = new ArrayList<>(bridges.size());
-		for (String bridge : bridges) states.add(new Params(bridge, failures));
+		CircumventionProvider provider = component.getCircumventionProvider();
+		List<Params> states = new ArrayList<>();
+		for (String bridge : provider.getBridges(DEFAULT_OBFS4)) {
+			states.add(new Params(bridge, true, failures));
+		}
+		for (String bridge : provider.getBridges(NON_DEFAULT_OBFS4)) {
+			states.add(new Params(bridge, false, failures));
+		}
 		return states;
 	}
 
@@ -94,12 +100,14 @@ public class BridgeTest extends BrambleTestCase {
 
 	private final File torDir = getTestDirectory();
 	private final String bridge;
+	private final boolean isDefault;
 	private final AtomicInteger failures;
 
 	private UnixTorPluginFactory factory;
 
 	public BridgeTest(Params params) {
 		bridge = params.bridge;
+		isDefault = params.isDefault;
 		failures = params.failures;
 	}
 
@@ -132,12 +140,12 @@ public class BridgeTest extends BrambleTestCase {
 			}
 
 			@Override
-			public boolean needsMeek(String countryCode) {
-				return false;
+			public BridgeType getBestBridgeType(String countryCode) {
+				return isDefault ? DEFAULT_OBFS4 : NON_DEFAULT_OBFS4;
 			}
 
 			@Override
-			public List<String> getBridges(boolean useMeek) {
+			public List<String> getBridges(BridgeType bridgeType) {
 				return singletonList(bridge);
 			}
 		};
@@ -182,10 +190,13 @@ public class BridgeTest extends BrambleTestCase {
 	private static class Params {
 
 		private final String bridge;
+		private final boolean isDefault;
 		private final AtomicInteger failures;
 
-		private Params(String bridge, AtomicInteger failures) {
+		private Params(String bridge, boolean isDefault,
+				AtomicInteger failures) {
 			this.bridge = bridge;
+			this.isDefault = isDefault;
 			this.failures = failures;
 		}
 	}
