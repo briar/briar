@@ -312,12 +312,19 @@ class HotspotManager {
 		}
 		GroupInfoListener groupListener = group -> {
 			boolean valid = isGroupValid(group);
-			// If the group is valid, set the hotspot to started. If we don't
-			// have any attempts left, we try what we got
-			if (valid || attempt >= MAX_GROUP_INFO_ATTEMPTS) {
+			if (valid) {
+				// the group is valid, set the hotspot to started.
+				onHotspotStarted(group);
+			} else if (attempt < MAX_GROUP_INFO_ATTEMPTS) {
+				// we have attempts left, try again
+				retryRequestingGroupInfo(attempt);
+			} else if (group != null) {
+				// no attempts left, but group is not null, try what we got
 				onHotspotStarted(group);
 			} else {
-				retryRequestingGroupInfo(attempt);
+				// no attempts left and group is null, fail
+				releaseHotspotWithError(ctx.getString(
+						R.string.hotspot_error_start_callback_no_group_info));
 			}
 		};
 		try {
@@ -366,13 +373,8 @@ class HotspotManager {
 	private void retryRequestingGroupInfo(int attempt) {
 		LOG.info("retrying to request group info");
 		// On some devices we need to wait for the group info to become available
-		if (attempt < MAX_GROUP_INFO_ATTEMPTS) {
-			handler.postDelayed(() -> requestGroupInfo(attempt + 1),
-					RETRY_DELAY_MILLIS);
-		} else {
-			releaseHotspotWithError(ctx.getString(
-					R.string.hotspot_error_start_callback_no_group_info));
-		}
+		handler.postDelayed(() -> requestGroupInfo(attempt + 1),
+				RETRY_DELAY_MILLIS);
 	}
 
 	@UiThread
