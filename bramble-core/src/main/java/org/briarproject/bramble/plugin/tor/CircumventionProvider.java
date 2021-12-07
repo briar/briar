@@ -1,11 +1,11 @@
 package org.briarproject.bramble.plugin.tor;
 
 import org.briarproject.bramble.api.lifecycle.IoExecutor;
+import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 
 import java.util.List;
 
-// TODO: Create a module for this so it doesn't have to be public
-
+@NotNullByDefault
 public interface CircumventionProvider {
 
 	enum BridgeType {

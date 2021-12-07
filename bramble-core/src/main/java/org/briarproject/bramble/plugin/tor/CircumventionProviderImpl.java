@@ -1,6 +1,7 @@
 package org.briarproject.bramble.plugin.tor;
 
 import org.briarproject.bramble.api.lifecycle.IoExecutor;
+import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -9,6 +10,7 @@ import java.util.List;
 import java.util.Scanner;
 import java.util.Set;
 
+import javax.annotation.concurrent.Immutable;
 import javax.inject.Inject;
 
 import static java.util.Arrays.asList;
@@ -17,6 +19,8 @@ import static org.briarproject.bramble.plugin.tor.CircumventionProvider.BridgeTy
 import static org.briarproject.bramble.plugin.tor.CircumventionProvider.BridgeType.MEEK;
 import static org.briarproject.bramble.plugin.tor.CircumventionProvider.BridgeType.NON_DEFAULT_OBFS4;
 
+@Immutable
+@NotNullByDefault
 class CircumventionProviderImpl implements CircumventionProvider {
 
 	private final static String BRIDGE_FILE_NAME = "bridges";
