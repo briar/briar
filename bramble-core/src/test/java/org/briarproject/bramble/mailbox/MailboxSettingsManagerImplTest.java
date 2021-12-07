@@ -1,5 +1,6 @@
 package org.briarproject.bramble.mailbox;
 
+import org.briarproject.bramble.api.contact.ContactId;
 import org.briarproject.bramble.api.db.Transaction;
 import org.briarproject.bramble.api.mailbox.MailboxProperties;
 import org.briarproject.bramble.api.mailbox.MailboxSettingsManager;
@@ -10,12 +11,15 @@ import org.briarproject.bramble.test.BrambleMockTestCase;
 import org.jmock.Expectations;
 import org.junit.Test;
 
+import java.util.Random;
+
 import static org.briarproject.bramble.mailbox.MailboxSettingsManagerImpl.SETTINGS_KEY_ATTEMPTS;
 import static org.briarproject.bramble.mailbox.MailboxSettingsManagerImpl.SETTINGS_KEY_LAST_ATTEMPT;
 import static org.briarproject.bramble.mailbox.MailboxSettingsManagerImpl.SETTINGS_KEY_LAST_SUCCESS;
 import static org.briarproject.bramble.mailbox.MailboxSettingsManagerImpl.SETTINGS_KEY_ONION;
 import static org.briarproject.bramble.mailbox.MailboxSettingsManagerImpl.SETTINGS_KEY_TOKEN;
 import static org.briarproject.bramble.mailbox.MailboxSettingsManagerImpl.SETTINGS_NAMESPACE;
+import static org.briarproject.bramble.mailbox.MailboxSettingsManagerImpl.SETTINGS_UPLOADS_NAMESPACE;
 import static org.briarproject.bramble.util.StringUtils.getRandomString;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -29,8 +33,12 @@ public class MailboxSettingsManagerImplTest extends BrambleMockTestCase {
 
 	private final MailboxSettingsManager manager =
 			new MailboxSettingsManagerImpl(settingsManager);
+	private final Random random = new Random();
 	private final String onion = getRandomString(64);
 	private final String token = getRandomString(64);
+	private final ContactId contactId1 = new ContactId(random.nextInt());
+	private final ContactId contactId2 = new ContactId(random.nextInt());
+	private final ContactId contactId3 = new ContactId(random.nextInt());
 	private final long now = System.currentTimeMillis();
 	private final long lastAttempt = now - 1234;
 	private final long lastSuccess = now - 2345;
@@ -165,5 +173,53 @@ public class MailboxSettingsManagerImplTest extends BrambleMockTestCase {
 		}});
 
 		manager.recordFailedConnectionAttempt(txn, now);
+	}
+
+	@Test
+	public void testGettingPendingUploads() throws Exception {
+		Transaction txn = new Transaction(null, true);
+		Settings settings = new Settings();
+		settings.put(String.valueOf(contactId1.getInt()), onion);
+		settings.put(String.valueOf(contactId2.getInt()), token);
+		settings.put(String.valueOf(contactId3.getInt()), "");
+
+		context.checking(new Expectations() {{
+			exactly(4).of(settingsManager)
+					.getSettings(txn, SETTINGS_UPLOADS_NAMESPACE);
+			will(returnValue(settings));
+		}});
+
+		String filename1 = manager.getPendingUpload(txn, contactId1);
+		assertEquals(onion, filename1);
+		String filename2 = manager.getPendingUpload(txn, contactId2);
+		assertEquals(token, filename2);
+		String filename3 = manager.getPendingUpload(txn, contactId3);
+		assertNull(filename3);
+		String filename4 =
+				manager.getPendingUpload(txn, new ContactId(random.nextInt()));
+		assertNull(filename4);
+	}
+
+	@Test
+	public void testSettingPendingUploads() throws Exception {
+		Transaction txn = new Transaction(null, false);
+
+		// setting a pending upload stores expected settings
+		Settings expectedSettings1 = new Settings();
+		expectedSettings1.put(String.valueOf(contactId1.getInt()), onion);
+		context.checking(new Expectations() {{
+			oneOf(settingsManager).mergeSettings(txn, expectedSettings1,
+					SETTINGS_UPLOADS_NAMESPACE);
+		}});
+		manager.setPendingUpload(txn, contactId1, onion);
+
+		// nulling a pending upload empties stored settings
+		Settings expectedSettings2 = new Settings();
+		expectedSettings2.put(String.valueOf(contactId2.getInt()), "");
+		context.checking(new Expectations() {{
+			oneOf(settingsManager).mergeSettings(txn, expectedSettings2,
+					SETTINGS_UPLOADS_NAMESPACE);
+		}});
+		manager.setPendingUpload(txn, contactId2, null);
 	}
 }

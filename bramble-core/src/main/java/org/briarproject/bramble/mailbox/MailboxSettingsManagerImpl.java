@@ -1,5 +1,6 @@
 package org.briarproject.bramble.mailbox;
 
+import org.briarproject.bramble.api.contact.ContactId;
 import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.db.Transaction;
 import org.briarproject.bramble.api.mailbox.MailboxProperties;
@@ -9,6 +10,7 @@ import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.settings.Settings;
 import org.briarproject.bramble.api.settings.SettingsManager;
 
+import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 import javax.inject.Inject;
 
@@ -25,6 +27,7 @@ class MailboxSettingsManagerImpl implements MailboxSettingsManager {
 	static final String SETTINGS_KEY_LAST_ATTEMPT = "lastAttempt";
 	static final String SETTINGS_KEY_LAST_SUCCESS = "lastSuccess";
 	static final String SETTINGS_KEY_ATTEMPTS = "attempts";
+	static final String SETTINGS_UPLOADS_NAMESPACE = "mailbox-uploads";
 
 	private final SettingsManager settingsManager;
 
@@ -82,5 +85,25 @@ class MailboxSettingsManagerImpl implements MailboxSettingsManager {
 		newSettings.putLong(SETTINGS_KEY_LAST_ATTEMPT, now);
 		newSettings.putInt(SETTINGS_KEY_ATTEMPTS, attempts + 1);
 		settingsManager.mergeSettings(txn, newSettings, SETTINGS_NAMESPACE);
+	}
+
+	@Override
+	public void setPendingUpload(Transaction txn, ContactId id,
+			@Nullable String filename) throws DbException {
+		Settings s = new Settings();
+		String value = filename == null ? "" : filename;
+		s.put(String.valueOf(id.getInt()), value);
+		settingsManager.mergeSettings(txn, s, SETTINGS_UPLOADS_NAMESPACE);
+	}
+
+	@Nullable
+	@Override
+	public String getPendingUpload(Transaction txn, ContactId id)
+			throws DbException {
+		Settings s =
+				settingsManager.getSettings(txn, SETTINGS_UPLOADS_NAMESPACE);
+		String filename = s.get(String.valueOf(id.getInt()));
+		if (isNullOrEmpty(filename)) return null;
+		return filename;
 	}
 }
