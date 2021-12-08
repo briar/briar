@@ -121,8 +121,12 @@ class ContactManagerImpl implements ContactManager, EventListener {
 
 	@Override
 	public String getHandshakeLink() throws DbException {
-		KeyPair keyPair = db.transactionWithResult(true,
-				identityManager::getHandshakeKeys);
+		return db.transactionWithResult(true, this::getHandshakeLink);
+	}
+
+	@Override
+	public String getHandshakeLink(Transaction txn) throws DbException {
+		KeyPair keyPair = identityManager.getHandshakeKeys(txn);
 		return pendingContactFactory.createHandshakeLink(keyPair.getPublic());
 	}
 

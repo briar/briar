@@ -466,8 +466,14 @@ class MessagingManagerImpl implements MessagingManager, IncomingMessageHook,
 
 	@Override
 	public String getMessageText(MessageId m) throws DbException {
+		return db.transactionWithNullableResult(true, txn ->
+				getMessageText(txn, m));
+	}
+
+	@Override
+	public String getMessageText(Transaction txn, MessageId m) throws DbException {
 		try {
-			BdfList body = clientHelper.getMessageAsList(m);
+			BdfList body = clientHelper.getMessageAsList(txn, m);
 			if (body.size() == 1) return body.getString(0); // Legacy format
 			else return body.getOptionalString(1);
 		} catch (FormatException e) {

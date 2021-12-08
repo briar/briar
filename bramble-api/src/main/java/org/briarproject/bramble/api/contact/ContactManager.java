@@ -108,6 +108,12 @@ public interface ContactManager {
 	String getHandshakeLink() throws DbException;
 
 	/**
+	 * Returns the handshake link that needs to be sent to a contact we want
+	 * to add.
+	 */
+	String getHandshakeLink(Transaction txn) throws DbException;
+
+	/**
 	 * Creates a {@link PendingContact} from the given handshake link and
 	 * alias, adds it to the database and returns it.
 	 *
