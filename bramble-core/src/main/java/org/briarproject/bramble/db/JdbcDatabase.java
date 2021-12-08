@@ -3291,6 +3291,34 @@ abstract class JdbcDatabase implements Database<Connection> {
 	}
 
 	@Override
+	public void resetExpiryTimeAndEta(Connection txn, ContactId c,
+			Collection<MessageId> ids)
+			throws DbException {
+		PreparedStatement ps = null;
+		try {
+			String sql = "UPDATE statuses SET expiry = 0, txCount = 0, eta = 0"
+					+ " WHERE contactId = ? AND messageId = ?";
+			ps = txn.prepareStatement(sql);
+			ps.setInt(1, c.getInt());
+			for (MessageId m : ids) {
+				ps.setBytes(2, m.getBytes());
+				ps.addBatch();
+			}
+			int[] batchAffected = ps.executeBatch();
+			if (batchAffected.length != ids.size()) {
+				throw new DbStateException();
+			}
+			for (int rows : batchAffected) {
+				if (rows < 0 || rows > 1) throw new DbStateException();
+			}
+			ps.close();
+		} catch (SQLException e) {
+			tryToClose(ps, LOG, WARNING);
+			throw new DbException(e);
+		}
+	}
+
+	@Override
 	public void setCleanupTimerDuration(Connection txn, MessageId m,
 			long duration) throws DbException {
 		PreparedStatement ps = null;
