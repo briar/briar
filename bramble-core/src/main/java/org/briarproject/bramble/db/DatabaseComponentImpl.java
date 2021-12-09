@@ -751,6 +751,15 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 	}
 
 	@Override
+	public void resetUnackedMessagesToSend(Transaction transaction, ContactId c)
+			throws DbException {
+		T txn = unbox(transaction);
+		if (!db.containsContact(txn, c))
+			throw new NoSuchContactException();
+		db.resetUnackedMessagesToSend(txn, c);
+	}
+
+	@Override
 	public long getUnackedMessageBytesToSend(Transaction transaction,
 			ContactId c) throws DbException {
 		T txn = unbox(transaction);

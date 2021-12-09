@@ -3291,6 +3291,29 @@ abstract class JdbcDatabase implements Database<Connection> {
 	}
 
 	@Override
+	public void resetUnackedMessagesToSend(Connection txn, ContactId c)
+			throws DbException {
+		PreparedStatement ps = null;
+		try {
+			String sql = "UPDATE statuses SET expiry = 0, txCount = 0, eta = 0"
+					+ " WHERE contactId = ? AND state = ?"
+					+ " AND groupShared = TRUE AND messageShared = TRUE"
+					+ " AND deleted = FALSE AND seen = FALSE";
+			ps = txn.prepareStatement(sql);
+			ps.setInt(1, c.getInt());
+			ps.setInt(2, DELIVERED.getValue());
+			int affected = ps.executeUpdate();
+			if (affected < 0) {
+				throw new DbStateException();
+			}
+			ps.close();
+		} catch (SQLException e) {
+			tryToClose(ps, LOG, WARNING);
+			throw new DbException(e);
+		}
+	}
+
+	@Override
 	public void setCleanupTimerDuration(Connection txn, MessageId m,
 			long duration) throws DbException {
 		PreparedStatement ps = null;

@@ -2198,6 +2198,55 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 	}
 
 	@Test
+	public void testResetRetransmissionTimes() throws Exception {
+		long now = System.currentTimeMillis();
+		AtomicLong time = new AtomicLong(now);
+		Database<Connection> db =
+				open(false, new TestMessageFactory(), new SettableClock(time));
+		Connection txn = db.startTransaction();
+
+		// Add a contact, a shared group and a shared message
+		db.addIdentity(txn, identity);
+		assertEquals(contactId,
+				db.addContact(txn, author, localAuthor.getId(), null, true));
+		db.addGroup(txn, group);
+		db.addGroupVisibility(txn, contactId, groupId, true);
+		db.addMessage(txn, message, DELIVERED, true, false, null);
+
+		// Time: now
+		// Retrieve the message from the database
+		Collection<MessageId> ids = db.getMessagesToSend(txn, contactId,
+				ONE_MEGABYTE, MAX_LATENCY);
+		assertEquals(singletonList(messageId), ids);
+
+		// Time: now
+		// Mark the message as sent
+		db.updateExpiryTimeAndEta(txn, contactId, messageId, MAX_LATENCY);
+
+		// The message should expire after 2 * MAX_LATENCY
+		assertEquals(now + MAX_LATENCY * 2, db.getNextSendTime(txn, contactId));
+
+		// Time: now + MAX_LATENCY * 2 - 1
+		// The message should not yet be sendable
+		time.set(now + MAX_LATENCY * 2 - 1);
+		ids = db.getMessagesToSend(txn, contactId, ONE_MEGABYTE, MAX_LATENCY);
+		assertTrue(ids.isEmpty());
+
+		// Reset the retransmission times
+		db.resetUnackedMessagesToSend(txn, contactId);
+
+		// The message should have infinitely short expiry
+		assertEquals(0, db.getNextSendTime(txn, contactId));
+
+		// The message should be sendable
+		ids = db.getMessagesToSend(txn, contactId, ONE_MEGABYTE, MAX_LATENCY);
+		assertFalse(ids.isEmpty());
+
+		db.commitTransaction(txn);
+		db.close();
+	}
+
+	@Test
 	public void testCompactionTime() throws Exception {
 		MessageFactory messageFactory = new TestMessageFactory();
 		long now = System.currentTimeMillis();
