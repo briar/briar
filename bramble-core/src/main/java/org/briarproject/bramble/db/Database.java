@@ -758,11 +758,11 @@ interface Database<T> {
 	void resetExpiryTime(T txn, ContactId c, MessageId m) throws DbException;
 
 	/**
-	 * Resets the transmission count, expiry time and ETA of the given messages
-	 * with respect to the given contact.
+	 * Resets the transmission count, expiry time and ETA of all messages that
+	 * are eligible to be sent to the given contact. This includes messages that
+	 * have already been sent and are not yet due for retransmission.
 	 */
-	void resetExpiryTimeAndEta(T txn, ContactId c, Collection<MessageId> ids)
-			throws DbException;
+	void resetUnackedMessagesToSend(T txn, ContactId c) throws DbException;
 
 	/**
 	 * Sets the cleanup timer duration for the given message. This does not

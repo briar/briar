@@ -2233,7 +2233,7 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 		assertTrue(ids.isEmpty());
 
 		// Reset the retransmission times
-		db.resetExpiryTimeAndEta(txn, contactId, singletonList(messageId));
+		db.resetUnackedMessagesToSend(txn, contactId);
 
 		// The message should have infinitely short expiry
 		assertEquals(0, db.getNextSendTime(txn, contactId));

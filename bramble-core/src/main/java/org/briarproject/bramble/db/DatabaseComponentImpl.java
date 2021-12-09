@@ -756,10 +756,7 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 		T txn = unbox(transaction);
 		if (!db.containsContact(txn, c))
 			throw new NoSuchContactException();
-		Collection<MessageId> unackedToSend =
-				new ArrayList<>(db.getUnackedMessagesToSend(txn, c).keySet());
-		if (unackedToSend.isEmpty()) return;
-		db.resetExpiryTimeAndEta(txn, c, unackedToSend);
+		db.resetUnackedMessagesToSend(txn, c);
 	}
 
 	@Override

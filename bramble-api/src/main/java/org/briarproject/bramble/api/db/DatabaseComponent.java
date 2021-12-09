@@ -473,8 +473,8 @@ public interface DatabaseComponent extends TransactionManager {
 
 	/**
 	 * Reset the transmission count, expiry time and ETA of all messages that
-	 * are eligible to be sent to the given contact. Messages are selected in
-	 * the same way as {@link #getUnackedMessagesToSend(Transaction, ContactId)}
+	 * are eligible to be sent to the given contact. This includes messages that
+	 * have already been sent and are not yet due for retransmission.
 	 */
 	void resetUnackedMessagesToSend(Transaction txn, ContactId c)
 			throws DbException;

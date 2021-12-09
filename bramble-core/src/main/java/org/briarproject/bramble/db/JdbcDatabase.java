@@ -3291,25 +3291,20 @@ abstract class JdbcDatabase implements Database<Connection> {
 	}
 
 	@Override
-	public void resetExpiryTimeAndEta(Connection txn, ContactId c,
-			Collection<MessageId> ids)
+	public void resetUnackedMessagesToSend(Connection txn, ContactId c)
 			throws DbException {
 		PreparedStatement ps = null;
 		try {
 			String sql = "UPDATE statuses SET expiry = 0, txCount = 0, eta = 0"
-					+ " WHERE contactId = ? AND messageId = ?";
+					+ " WHERE contactId = ? AND state = ?"
+					+ " AND groupShared = TRUE AND messageShared = TRUE"
+					+ " AND deleted = FALSE AND seen = FALSE";
 			ps = txn.prepareStatement(sql);
 			ps.setInt(1, c.getInt());
-			for (MessageId m : ids) {
-				ps.setBytes(2, m.getBytes());
-				ps.addBatch();
-			}
-			int[] batchAffected = ps.executeBatch();
-			if (batchAffected.length != ids.size()) {
+			ps.setInt(2, DELIVERED.getValue());
+			int affected = ps.executeUpdate();
+			if (affected < 0) {
 				throw new DbStateException();
-			}
-			for (int rows : batchAffected) {
-				if (rows < 0 || rows > 1) throw new DbStateException();
 			}
 			ps.close();
 		} catch (SQLException e) {
