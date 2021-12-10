@@ -68,6 +68,11 @@ public interface MessagingManager extends ConversationClient {
 	GroupId getConversationId(ContactId c) throws DbException;
 
 	/**
+	 * Returns the ID of the private conversation with the given contact.
+	 */
+	GroupId getConversationId(Transaction txn, ContactId c) throws DbException;
+
+	/**
 	 * Returns the text of the private message with the given ID, or null if
 	 * the private message has no text.
 	 */

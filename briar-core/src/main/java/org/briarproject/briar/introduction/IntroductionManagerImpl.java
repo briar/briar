@@ -377,6 +377,12 @@ class IntroductionManagerImpl extends ConversationClientImpl
 		respondToIntroduction(contactId, sessionId, accept, false);
 	}
 
+	@Override
+	public void respondToIntroduction(Transaction txn, ContactId contactId,
+			SessionId sessionId, boolean accept) throws DbException {
+		respondToIntroduction(txn, contactId, sessionId, accept, false);
+	}
+
 	private void respondToIntroduction(ContactId contactId, SessionId sessionId,
 			boolean accept, boolean isAutoDecline) throws DbException {
 		db.transaction(false,
