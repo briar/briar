@@ -48,4 +48,9 @@ interface TransportKeyManager {
 	StreamContext getStreamContext(Transaction txn, byte[] tag)
 			throws DbException;
 
+	@Nullable
+	StreamContext getStreamContextOnly(Transaction txn, byte[] tag);
+
+	void markTagAsRecognised(Transaction txn, byte[] tag) throws DbException;
+
 }
