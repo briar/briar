@@ -113,9 +113,25 @@ public interface KeyManager {
 	/**
 	 * Looks up the given tag and returns a {@link StreamContext} for reading
 	 * from the corresponding stream, or null if an error occurs or the tag was
-	 * unexpected.
+	 * unexpected. Marks the tag as recognised and updates the reordering
+	 * window.
 	 */
 	@Nullable
 	StreamContext getStreamContext(TransportId t, byte[] tag)
 			throws DbException;
+
+	/**
+	 * Looks up the given tag and returns a {@link StreamContext} for reading
+	 * from the corresponding stream, or null if an error occurs or the tag was
+	 * unexpected. Only returns the StreamContext; does not mark the tag as
+	 * recognised.
+	 */
+	@Nullable
+	StreamContext getStreamContextOnly(TransportId t, byte[] tag)
+			throws DbException;
+
+	/**
+	 * Marks the tag as recognised and updates the reordering window.
+	 */
+	void markTagAsRecognised(TransportId t, byte[] tag) throws DbException;
 }

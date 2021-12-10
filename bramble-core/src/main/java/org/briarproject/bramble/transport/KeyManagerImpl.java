@@ -216,6 +216,23 @@ class KeyManagerImpl implements KeyManager, Service, EventListener {
 	}
 
 	@Override
+	public StreamContext getStreamContextOnly(TransportId t, byte[] tag)
+			throws DbException {
+		return withManager(t, m ->
+				db.transactionWithNullableResult(false, txn ->
+						m.getStreamContextOnly(txn, tag)));
+	}
+
+	@Override
+	public void markTagAsRecognised(TransportId t, byte[] tag)
+			throws DbException {
+		withManager(t, m -> {
+			db.transaction(false, txn -> m.markTagAsRecognised(txn, tag));
+			return null;
+		});
+	}
+
+	@Override
 	public void eventOccurred(Event e) {
 		if (e instanceof ContactRemovedEvent) {
 			removeContact(((ContactRemovedEvent) e).getContactId());
