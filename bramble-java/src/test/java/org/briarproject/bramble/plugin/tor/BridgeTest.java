@@ -13,6 +13,7 @@ import org.briarproject.bramble.api.system.Clock;
 import org.briarproject.bramble.api.system.LocationUtils;
 import org.briarproject.bramble.api.system.ResourceProvider;
 import org.briarproject.bramble.api.system.WakefulIoExecutor;
+import org.briarproject.bramble.plugin.tor.CircumventionProvider.BridgeType;
 import org.briarproject.bramble.test.BrambleJavaIntegrationTestComponent;
 import org.briarproject.bramble.test.BrambleTestCase;
 import org.briarproject.bramble.test.DaggerBrambleJavaIntegrationTestComponent;
@@ -41,6 +42,7 @@ import static org.briarproject.bramble.api.plugin.Plugin.State.ACTIVE;
 import static org.briarproject.bramble.api.plugin.TorConstants.DEFAULT_CONTROL_PORT;
 import static org.briarproject.bramble.api.plugin.TorConstants.DEFAULT_SOCKS_PORT;
 import static org.briarproject.bramble.plugin.tor.CircumventionProvider.BridgeType.DEFAULT_OBFS4;
+import static org.briarproject.bramble.plugin.tor.CircumventionProvider.BridgeType.MEEK;
 import static org.briarproject.bramble.plugin.tor.CircumventionProvider.BridgeType.NON_DEFAULT_OBFS4;
 import static org.briarproject.bramble.test.TestUtils.deleteTestDirectory;
 import static org.briarproject.bramble.test.TestUtils.getTestDirectory;
@@ -63,10 +65,13 @@ public class BridgeTest extends BrambleTestCase {
 		CircumventionProvider provider = component.getCircumventionProvider();
 		List<Params> states = new ArrayList<>();
 		for (String bridge : provider.getBridges(DEFAULT_OBFS4)) {
-			states.add(new Params(bridge, true, failures));
+			states.add(new Params(bridge, DEFAULT_OBFS4, failures, false));
 		}
 		for (String bridge : provider.getBridges(NON_DEFAULT_OBFS4)) {
-			states.add(new Params(bridge, false, failures));
+			states.add(new Params(bridge, NON_DEFAULT_OBFS4, failures, false));
+		}
+		for (String bridge : provider.getBridges(MEEK)) {
+			states.add(new Params(bridge, MEEK, failures, true));
 		}
 		return states;
 	}
@@ -100,16 +105,12 @@ public class BridgeTest extends BrambleTestCase {
 	CryptoComponent crypto;
 
 	private final File torDir = getTestDirectory();
-	private final String bridge;
-	private final boolean isDefault;
-	private final AtomicInteger failures;
+	private final Params params;
 
 	private UnixTorPluginFactory factory;
 
 	public BridgeTest(Params params) {
-		bridge = params.bridge;
-		isDefault = params.isDefault;
-		failures = params.failures;
+		this.params = params;
 	}
 
 	@Before
@@ -143,12 +144,12 @@ public class BridgeTest extends BrambleTestCase {
 
 			@Override
 			public BridgeType getBestBridgeType(String countryCode) {
-				return isDefault ? DEFAULT_OBFS4 : NON_DEFAULT_OBFS4;
+				return params.bridgeType;
 			}
 
 			@Override
 			public List<String> getBridges(BridgeType bridgeType) {
-				return singletonList(bridge);
+				return singletonList(params.bridge);
 			}
 		};
 		factory = new UnixTorPluginFactory(ioExecutor, wakefulIoExecutor,
@@ -170,7 +171,7 @@ public class BridgeTest extends BrambleTestCase {
 		assertNotNull(duplexPlugin);
 		UnixTorPlugin plugin = (UnixTorPlugin) duplexPlugin;
 
-		LOG.warning("Testing " + bridge);
+		LOG.warning("Testing " + params.bridge);
 		try {
 			plugin.start();
 			long start = clock.currentTimeMillis();
@@ -180,8 +181,11 @@ public class BridgeTest extends BrambleTestCase {
 			}
 			if (plugin.getState() != ACTIVE) {
 				LOG.warning("Could not connect to Tor within timeout");
-				if (failures.incrementAndGet() > NUM_FAILURES_ALLOWED) {
-					fail(failures.get() + " bridges are unreachable");
+				if (params.failures.incrementAndGet() > NUM_FAILURES_ALLOWED) {
+					fail(params.failures.get() + " bridges are unreachable");
+				}
+				if (params.mustSucceed) {
+					fail("essential bridge is unreachable");
 				}
 			}
 		} finally {
@@ -192,14 +196,16 @@ public class BridgeTest extends BrambleTestCase {
 	private static class Params {
 
 		private final String bridge;
-		private final boolean isDefault;
+		private final BridgeType bridgeType;
 		private final AtomicInteger failures;
+		private final boolean mustSucceed;
 
-		private Params(String bridge, boolean isDefault,
-				AtomicInteger failures) {
+		private Params(String bridge, BridgeType bridgeType,
+				AtomicInteger failures, boolean mustSucceed) {
 			this.bridge = bridge;
-			this.isDefault = isDefault;
+			this.bridgeType = bridgeType;
 			this.failures = failures;
+			this.mustSucceed = mustSucceed;
 		}
 	}
 }
