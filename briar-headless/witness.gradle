@@ -1,8 +1,8 @@
 dependencyVerification {
     verify = [
-        'com.fasterxml.jackson.core:jackson-annotations:2.12.2:jackson-annotations-2.12.2.jar:558561786c071af202e849b6ae3d39c87ed417ecc83d45e398c12eb3bffa557b',
-        'com.fasterxml.jackson.core:jackson-core:2.12.2:jackson-core-2.12.2.jar:7883331763729b72735fdd8a117f32eb7d22695babfb37cc99df8392c196efc3',
-        'com.fasterxml.jackson.core:jackson-databind:2.12.2:jackson-databind-2.12.2.jar:c4002f861d8d33f3202bf8effabb53acc320c5276cc50c1bfaae73c36ce8db32',
+        'com.fasterxml.jackson.core:jackson-annotations:2.13.0:jackson-annotations-2.13.0.jar:81f9724d8843e8b08f8f6c0609e7a2b030d00c34861c4ac7e2099a7235047d6f',
+        'com.fasterxml.jackson.core:jackson-core:2.13.0:jackson-core-2.13.0.jar:348bc59b348df2e807b356f1d62d2afb41a974073328abc773eb0932b855d2c8',
+        'com.fasterxml.jackson.core:jackson-databind:2.13.0:jackson-databind-2.13.0.jar:9c826d27176268777adcf97e1c6e2051c7e33a7aaa2c370c2e8c6077fd9da3f4',
         'com.github.ajalt:clikt:2.2.0:clikt-2.2.0.jar:beb3136d06764ec8ce0810a8fd6c8b7b49d04287d1deef3a07c016e43a458d33',
         'com.github.gundy:semver4j:0.16.4:semver4j-0.16.4.jar:def9b4225fa37219e18f81d01f0e52d73dca1257a38f5475be9dd58f87736510',
         'com.google.code.findbugs:jsr305:3.0.2:jsr305-3.0.2.jar:766ad2a0783f2687962c8ad74ceecc38a28b9f72a2d085ee438b7813e928d0c7',

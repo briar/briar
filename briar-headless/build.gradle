@@ -23,7 +23,7 @@ dependencies {
 	implementation 'org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.4.32'
 	implementation 'io.javalin:javalin:3.5.0'
 	implementation 'org.slf4j:slf4j-simple:1.7.30'
-	implementation 'com.fasterxml.jackson.core:jackson-databind:2.12.2'
+	implementation "com.fasterxml.jackson.core:jackson-databind:$jackson_version"
 	implementation 'com.github.ajalt:clikt:2.2.0'
 
 	def daggerVersion = '2.24'
