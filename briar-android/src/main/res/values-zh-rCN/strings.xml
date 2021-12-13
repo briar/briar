@@ -28,8 +28,8 @@
   <string name="setup_xiaomi_text">要在后台运行，需将 Briar 锁定在最近的应用列表中。</string>
   <string name="setup_xiaomi_button">保护 Briar</string>
   <string name="setup_xiaomi_help">如果未将 Briar 锁定到最近的应用列表，它将无法在后台运行。</string>
-  <string name="setup_xiaomi_dialog_body_old">1. 打开最近的应用列表(也称为应用切换器)\n\n2. 向下滑动Briar的图像，显示挂锁图标\n\n3.如果挂锁没有被锁上，轻敲以锁定它</string>
-  <string name="setup_xiaomi_dialog_body_new">1. 打开最近的应用列表(也称为应用切换器)\n\n2.  按住Briar的图像，直到挂锁按钮出现\n\n3. 如果挂锁没有被锁上，轻敲以锁定它</string>
+  <string name="setup_xiaomi_dialog_body_old">1. 打开最近的应用列表(也称为应用切换器)\n\n2. 向下滑动 Briar 的图像，显示挂锁图标\n\n3.如果挂锁没有被锁上，轻按锁定它</string>
+  <string name="setup_xiaomi_dialog_body_new">1. 打开最近的应用列表(也称为应用切换器)\n\n2.  按住 Briar 的图像，直到挂锁按钮出现\n\n3. 如果挂锁没有被锁上，轻按锁定它</string>
   <string name="warning_dozed">%s 无法在后台运行</string>
   <!--Login-->
   <string name="enter_password">密码</string>
@@ -170,7 +170,7 @@
     <item quantity="other">%d分钟</item>
   </plurals>
   <plurals name="duration_hours">
-    <item quantity="other">%d小时消</item>
+    <item quantity="other">%d小时</item>
   </plurals>
   <plurals name="duration_days">
     <item quantity="other">%d天</item>
@@ -596,6 +596,7 @@
   <string name="dev_report_memory">内存</string>
   <string name="dev_report_storage">存储</string>
   <string name="dev_report_connectivity">连通性</string>
+  <string name="dev_report_network_usage">网络使用</string>
   <string name="dev_report_build_config">编译配置</string>
   <string name="dev_report_logcat">应用程序日志</string>
   <string name="dev_report_device_features">设备特性</string>
@@ -638,8 +639,8 @@
   <string name="transports_help_text">Briar 可以通过互联网、Wi-Fi 或蓝牙来连接到您的联系人。\n\n为了保护隐私，本应用会通过 Tor 网络进行所有的互联网连接。\n\n如果一个联系人可以通过多种方法联系到，Briar 会并行地使用它们。</string>
   <!--Share app offline-->
   <string name="hotspot_title">离线分享此应用</string>
-  <string name="hotspot_intro">使用手机的Wi-Fi与附近没有网络的人分享这款应用。
-		\n\n你的手机会启动一个 Wi-Fi 热点。附近的人可以连接热点，从你的手机下载 Briar 应用。</string>
+  <string name="hotspot_intro">使用手机的 Wi-Fi 与附近没有网络的人分享这款应用。
+		\n\n你的手机将启动一个 Wi-Fi 热点。附近的人可以连接至这个热点，从你的手机下载 Briar 应用。</string>
   <string name="hotspot_button_start_sharing">启动热点</string>
   <string name="hotspot_button_stop_sharing">停止热点</string>
   <string name="hotspot_progress_text_start">设置热点中…</string>

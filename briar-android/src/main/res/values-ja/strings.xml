@@ -613,8 +613,6 @@
   <string name="transports_help_text">Briarは、インターネット、Wi-Fi、Bluetoothを介して連絡先に接続することができます。\n\nすべてのインターネット接続は、プライバシー保護のためにTorネットワークを経由します。\n\n複数の方法で連絡が取れる場合、Briarはそれらを並行して使用します。</string>
   <!--Share app offline-->
   <string name="hotspot_title">このアプリをオフラインで共有</string>
-  <string name="hotspot_intro">あなたの電話機のWi-Fiを使用して、インターネット接続なしで、近くの誰かとこのアプリを共有します。
-		\n\nあなたの電話機はWi-Fiホットスポットになります。近くの人はホットスポットへ接続し、あなたの電話機からBriarアプリをダウンロードできます。</string>
   <string name="hotspot_button_start_sharing">ホットスポットを開始</string>
   <string name="hotspot_button_stop_sharing">ホットスポットを停止</string>
   <string name="hotspot_progress_text_start">ホットスポットを設定する…</string>
@@ -652,7 +650,8 @@
   <string name="website_troubleshooting_2_new">ダウンロードしたアプリをインストールするには、ブラウザに不明なアプリのインストールを許可する必要がある場合があります。アプリをインストールした後は、ブラウザの不明なアプリのインストール許可を解除することをお勧めします。</string>
   <string name="hotspot_help_wifi_title">W-Fi接続の問題:</string>
   <string name="hotspot_help_wifi_1">双方の電話機でWi-Fiを無効にして、再び有効にするのを試してください。</string>
-  <string name="hotspot_help_wifi_2">もし携帯電話が「Wi-Fiにはインターネットがない」と不満を訴えてきたら、「とにかく接続していたい」と伝えてください。</string>
+  <string name="hotspot_help_wifi_2">もし電話機が「Wi-Fiにはインターネットがない」と不満を訴えてきたら、「とにかく接続していたい」と伝えてください。</string>
+  <string name="hotspot_help_wifi_3">Wi-Fiホットスポットが実行中の電話機を再起動して、Briarの起動と共有を再び試してください。</string>
   <string name="hotspot_help_site_title">ローカルのウェブサイト訪問の問題:</string>
   <string name="hotspot_help_site_1">表示されている通りにアドレスを入力したかどうかを再確認してください。小さなミスで失敗することがあります。</string>
   <string name="hotspot_help_site_2">サイトにアクセスする際に、電話機が正しいWi-Fi（上記を参照）に接続されていることを確認してください。</string>

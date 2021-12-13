@@ -610,6 +610,7 @@ Këtë rregullim mund ta ndryshojë edhe kontakti juaj, për të dy ju.</string>
   <string name="dev_report_memory">Kujtesë</string>
   <string name="dev_report_storage">Depozitim</string>
   <string name="dev_report_connectivity">Aftësi lidhjeje</string>
+  <string name="dev_report_network_usage">Përdorim rrjeti</string>
   <string name="dev_report_build_config">Formësim montimi</string>
   <string name="dev_report_logcat">Regjistër aplikacioni</string>
   <string name="dev_report_device_features">Veçori Pajisjeje</string>

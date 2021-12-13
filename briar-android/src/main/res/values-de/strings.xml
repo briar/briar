@@ -692,6 +692,7 @@
   <string name="hotspot_help_wifi_title">Probleme bei der WLAN-Verbindung:</string>
   <string name="hotspot_help_wifi_1">Versuche, WLAN auf beiden Telefonen zu deaktivieren und wieder zu aktivieren, und versuche es dann erneut.</string>
   <string name="hotspot_help_wifi_2">Wenn dein Telefon meldet, dass das WLAN kein Internet hat, sag ihm, dass du trotzdem verbunden bleiben willst.</string>
+  <string name="hotspot_help_wifi_3">Telefon neu starten, auf dem der WLAN-Hotspot läuft, danach Briar starten und erneut teilen.</string>
   <string name="hotspot_help_site_title">Probleme beim Besuch der lokalen Webseite:</string>
   <string name="hotspot_help_site_1">Überprüfe unbedingt, ob du die Adresse genau so wie angezeigt eingegeben hast. Ein kleiner Fehler kann dazu führen, dass der Versuch fehlschlägt.</string>
   <string name="hotspot_help_site_2">Vergewissere dich, dass dein Telefon immer noch mit dem richtigen WLAN verbunden ist (siehe oben), wenn du die Webseite aufrufen willst.</string>

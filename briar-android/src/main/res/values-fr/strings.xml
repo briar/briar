@@ -41,6 +41,11 @@
   <string name="dialog_title_lost_password">Mot de passe oublié</string>
   <string name="dialog_message_lost_password">Votre compte Briar est enregistré chiffré sur votre appareil, pas dans le nuage, et nous ne pouvons donc pas réinitialiser votre mot de passe. Voulez-vous supprimer votre compte et recommencer ?\n\nAttention : vos identités, contacts et messages seront perdus irrémédiablement.</string>
   <string name="startup_failed_activity_title">Échec de démarrage de Briar</string>
+  <string name="startup_failed_clock_error">Briar n’a pas pu démarrer, car l’horloge de votre appareil n’est pas à l’heure.\n\nVeuillez mettre l’horloge de votre appareil à l’heure et réessayer.</string>
+  <string name="startup_failed_db_error">Briar n’a pas pu ouvrir la base de données qui comprend votre compte, vos contacts et messages.\n\nVeuillez mettre l’appli à jour vers la version la plus récente et réessayer, ou créer un nouveau compte en choisissant « J’ai oublié mon mot de passe » à l’invite de mot de passe.</string>
+  <string name="startup_failed_data_too_old_error">Votre compte a été créé avec une ancienne version de cette appli et ne peut pas être ouvert avec cette version.\n\nVous devez soit réinstaller l’ancienne version, soit créer un nouveau compte en choisissant « J’ai oublié mon mot de passe » à l’invite de mot de passe.</string>
+  <string name="startup_failed_data_too_new_error">Votre compte a été créé avec une version plus récente de cette appli et ne peut être ouvert avec cette version.\n\nVeuillez mettre l’appli à jour vers la version la plus récente et réessayer.</string>
+  <string name="startup_failed_service_error">Briar n\'a pas pu lancer un composant essentiel.\n\nVeuillez mettre l’appli à jour vers la version la plus récente et réessayer.</string>
   <plurals name="expiry_warning">
     <item quantity="one">Ceci est une version de test de Briar. Votre compte arrivera à expiration dans %d jour et ne peut pas être renouvelé.</item>
     <item quantity="other">Ceci est une version de test de Briar. Votre compte arrivera à expiration dans %d jours et ne pourra pas être renouvelé.</item>
@@ -311,9 +316,13 @@
   <!--Connect via Bluetooth-->
   <string name="menu_item_connect_via_bluetooth">Se connecter par Bluetooth</string>
   <string name="connect_via_bluetooth_title">Se connecter par Bluetooth</string>
-  <string name="connect_via_bluetooth_no_location_permission">Impossible de poursuivre sans la permission de position</string>
+  <string name="connect_via_bluetooth_intro">Au cas où les connexions Bluetooth ne fonctionneraient pas automatiquement, vous pouvez utiliser cet écran pour vous connecter manuellement.\n\nPour que cela fonctionne, votre contact doit être à proximité.\n\nVotre contact et vous devriez appuyer sur « Commencer » en même temps.</string>
+  <string name="connect_via_bluetooth_already_discovering">Une tentative de connexion par Bluetooth est en cours. Veuillez réessayer dans un moment.</string>
+  <string name="connect_via_bluetooth_no_location_permission">Impossible de poursuivre sans autoriser la position.</string>
   <string name="connect_via_bluetooth_start">Connexion par Bluetooth…</string>
-  <string name="connect_via_bluetooth_success">Connectée par Bluetooth avec succès</string>
+  <string name="connect_via_bluetooth_success">La connexion par Bluetooth est réussie</string>
+  <string name="connect_via_bluetooth_error">Impossible de se connecter par Bluetooth.</string>
+  <string name="connect_via_bluetooth_error_not_supported">Bluetooth n’est pas pris en charge par l’appareil.</string>
   <!--Private Groups-->
   <string name="groups_list_empty">Aucun groupe à afficher</string>
   <string name="groups_list_empty_action">Touchez l’icône + pour créer un groupe ou pour demander à vos contacts de partager des groupes avec vous</string>
@@ -584,6 +593,7 @@ copies des messages que vous envoyez.
   <string name="link_warning_open_link">Ouvrir le lien</string>
   <!--Crash Reporter-->
   <string name="crash_report_title">Rapport de plantage de Briar</string>
+  <string name="briar_crashed">Désolé, Briar a planté</string>
   <string name="not_your_fault">Vous n’y êtes pour rien.</string>
   <string name="please_send_report">Veuillez nous aider à améliorer Briar en nous envoyant un rapport de plantage.</string>
   <string name="report_is_encrypted">Nous promettons que le rapport est chiffré et envoyé en toute sécurité. </string>
@@ -642,10 +652,22 @@ copies des messages que vous envoyez.
   <!--Connections Screen-->
   <string name="transports_help_text">Briar peut se connecter à vos contacts par Internet, Wi-Fi ou Bluetooth.\n\nToutes les connections Internet passent par le réseau Tor afin de protéger les données.\n\nSi un contact peut être joint par plusieurs moyens, Briar les utilisera simultanément.</string>
   <!--Share app offline-->
+  <string name="hotspot_title">Partager cette appli hors ligne.</string>
+  <string name="hotspot_intro">Partagez cette appli avec une personne à proximité sans connexion Internet en utilisant le Wi-Fi de votre téléphone.
+		\n\nVotre téléphone démarrera un point d’accès Wi-Fi. Les personnes à proximité peuvent se connecter au point d’accès sans fil et télécharger l’appli Briar de votre téléphone.</string>
+  <string name="hotspot_button_start_sharing">Démarrer le point d’accès sans fil</string>
+  <string name="hotspot_button_stop_sharing">Arrêter le point d’accès sans fil</string>
+  <string name="hotspot_progress_text_start">Configuration du point d’accès sans fil…</string>
   <string name="hotspot_notification_channel_title">Point d’accès Wi-Fi</string>
+  <string name="hotspot_notification_title">Partage hors ligne de Briar</string>
   <string name="hotspot_button_connected">Suivant</string>
+  <string name="permission_hotspot_location_request_body">Pour créer un point d’accès Wi-Fi, Briar a besoin de l’autorisation Position.\n\nBriar ne stocke pas votre position et ne la partage avec personne.</string>
+  <string name="permission_hotspot_location_denied_body">Vous avez refusé l’accès à votre position, mais Briar en a besoin pour créer un point d’accès Wi-Fi.\n\nNous vous invitons à y accorder l’accès.</string>
+  <string name="wifi_settings_title">Paramètre Wi-Fi</string>
+  <string name="wifi_settings_request_enable_body">Pour créer un point d’accès Wi-Fi, Briar a besoin d’utiliser le Wi-Fi. Veuillez l’activer.</string>
   <string name="hotspot_tab_manual">Manuel</string>
   <!--The placeholder to be inserted into the string 'hotspot_manual_wifi': People can connect by %s-->
+  <string name="hotspot_scanning_a_qr_code">balayant un code QR</string>
   <!--Wi-Fi setup-->
   <!--The %s placeholder will be replaced with the translation of 'hotspot_scanning_a_qr_code'-->
   <!--Download link-->

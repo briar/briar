@@ -664,8 +664,8 @@ De asemenea, contactul dvs. poate modifica această setare pentru amândoi.</str
   <string name="transports_help_text">Briar se poate conecta la contactele dumneavoastră prin Internet, Wi-Fi sau Bluetooth.\n\nToate conexiunile la internet trec prin rețeaua Tor din motive de confidențialitate.\n\nDacă un contact poate fi accesat prin metode multiple, Briar le va folosi în mod paralel.</string>
   <!--Share app offline-->
   <string name="hotspot_title">Partajează această aplicație fără Internet</string>
-  <string name="hotspot_intro">Partajați această aplicație cu cineva din apropiere fără Internet folosind conexiunea Wi-Fi a dispozitivului.
-		\n\nDispozitivul dumneavoastră va porni un hotspot Wi-Fi. Persoanele din apropiere se pot conecta la hotspot și pot descărca aplicația Briar de pe dispozitivul dumneavoastră.</string>
+  <string name="hotspot_intro">Împărtășiți acest app cu o persoană din apropiere fără conexiune la internet, utilizând Wi-Fi-ul telefonului dumneavoastră.
+\n\nTelefonul dumneavoastră va porni un hotspot Wi-Fi. Persoanele din apropiere se pot conecta la hotspot și pot descărca aplicația Briar de pe telefonul vostru.</string>
   <string name="hotspot_button_start_sharing">Pornește hotspot</string>
   <string name="hotspot_button_stop_sharing">Oprește hotspot</string>
   <string name="hotspot_progress_text_start">Configurare hotspot...</string>

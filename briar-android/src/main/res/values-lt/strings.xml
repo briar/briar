@@ -635,6 +635,7 @@
   <string name="dev_report_memory">Atmintis</string>
   <string name="dev_report_storage">Saugykla</string>
   <string name="dev_report_connectivity">Jungiamumas</string>
+  <string name="dev_report_network_usage">Tinklo naudojimas</string>
   <string name="dev_report_build_config">Darinio konfigūracija</string>
   <string name="dev_report_logcat">Programėlės žurnalas</string>
   <string name="dev_report_device_features">Įrenginio ypatybės</string>

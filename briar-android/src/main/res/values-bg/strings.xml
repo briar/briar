@@ -647,8 +647,6 @@
   <string name="transports_help_text">Briar може да се свърже с контактите ви през интернет, Wi-Fi или Bluetooth.\n\nЗа повече поверителност цялата връзка към интернет се пренасочва през мрежата на Tor.\n\nАко даден контакт може да бъде достъпен чрез няколко метода Briar ги използва успоредно.</string>
   <!--Share app offline-->
   <string name="hotspot_title">Споделяне на приложението извън мрежа</string>
-  <string name="hotspot_intro">Споделете приложението с някого около вас без достъп до интернет с използване на Wi-Fi на устройствата.
-\n\nВашето устройство създава безжична точка за достъп. Хората около вас биха могли да се свържат към нея и да изтеглят Briar от вашето устройство.</string>
   <string name="hotspot_button_start_sharing">Включване на безжична точка</string>
   <string name="hotspot_button_stop_sharing">Спиране на безжична точка</string>
   <string name="hotspot_progress_text_start">Настройване на безжична точка…</string>

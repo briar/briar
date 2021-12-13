@@ -609,6 +609,7 @@
   <string name="dev_report_memory">Memoria</string>
   <string name="dev_report_storage">Almacenamiento</string>
   <string name="dev_report_connectivity">Conectividad</string>
+  <string name="dev_report_network_usage">Uso de red</string>
   <string name="dev_report_build_config">Configuración de compilación</string>
   <string name="dev_report_logcat">Registro de la aplicación</string>
   <string name="dev_report_device_features">Características del dispositivo</string>
@@ -651,7 +652,7 @@
   <string name="transports_help_text">Briar puede conectar a tus contactos vía Internet, Wi-Fi o Bluetooth.\n\nTodas las conexiones a Internet van a través de la red Tor por privacidad.\n\nSi un contacto puede ser alcanzado por múltiples métodos, Briar los usa en paralelo.</string>
   <!--Share app offline-->
   <string name="hotspot_title">Comparte esta aplicación fuera de línea</string>
-  <string name="hotspot_intro">Comparte esta aplicación con alguien que esté cerca tuyo sin conexión a Internet, usando el Wi-Fi de tu teléfono.
+  <string name="hotspot_intro">Comparte esta aplicación con alguien que esté cerca tuyo sin una conexión a Internet, usando el Wi-Fi de tu teléfono.
 		\n\nTu teléfono iniciará un punto de acceso Wi-Fi. Las personas cercanas a tí pueden conectarse al punto de acceso y descargar la aplicación Briar desde tu teléfono.</string>
   <string name="hotspot_button_start_sharing">Iniciar punto de acceso</string>
   <string name="hotspot_button_stop_sharing">Detener punto de acceso</string>

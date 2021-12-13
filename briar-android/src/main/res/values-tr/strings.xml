@@ -609,6 +609,7 @@
   <string name="dev_report_memory">Bellek</string>
   <string name="dev_report_storage">Depo</string>
   <string name="dev_report_connectivity">Bağlanabilirlik</string>
+  <string name="dev_report_network_usage">Ağ Kullanımı</string>
   <string name="dev_report_build_config">Derleme yapılandırması</string>
   <string name="dev_report_logcat">Uygulama günlüğü</string>
   <string name="dev_report_device_features">Aygıt Seçenekleri</string>
@@ -692,6 +693,7 @@
   <string name="hotspot_help_wifi_title">Kablosuz ağa bağlanma sorunları:</string>
   <string name="hotspot_help_wifi_1">Her iki telefonda da kablosuz ağı devre dışı bırakıp tekrar etkinleştirin ve yeniden deneyin.</string>
   <string name="hotspot_help_wifi_2">Eğer telefonunuz kablosuz ağda İnternet olmadığını söylüyorsa yine de bağlı kalmasını söyleyin.</string>
+  <string name="hotspot_help_wifi_3">Wi-Fi bağlantı noktasını sağlayan telefonu yeniden başlatın, daha sonra Briar\'ı başlatın ve paylaşmayı yeniden deneyin.</string>
   <string name="hotspot_help_site_title">Yerel web sitesini ziyaret etme sorunları:</string>
   <string name="hotspot_help_site_1">Adresi tam gösterildiği şekilde girdiğinizden emin olun. Çok küçük bir hata sorun olabilir.</string>
   <string name="hotspot_help_site_2">Siteye erişmeye çalışırken telefonunuzun doğru kablosuz ağa bağlı olduğundan emin olun (Bkz. önceki kısım).</string>
