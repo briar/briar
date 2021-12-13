@@ -36,7 +36,7 @@ import javax.inject.Inject;
 import javax.net.SocketFactory;
 
 import static java.util.Collections.singletonList;
-import static java.util.concurrent.TimeUnit.SECONDS;
+import static java.util.concurrent.TimeUnit.MINUTES;
 import static java.util.logging.Logger.getLogger;
 import static org.briarproject.bramble.api.plugin.Plugin.State.ACTIVE;
 import static org.briarproject.bramble.api.plugin.TorConstants.DEFAULT_CONTROL_PORT;
@@ -76,7 +76,7 @@ public class BridgeTest extends BrambleTestCase {
 		return states;
 	}
 
-	private final static long TIMEOUT = SECONDS.toMillis(60);
+	private final static long TIMEOUT = MINUTES.toMillis(5);
 	private final static int NUM_FAILURES_ALLOWED = 1;
 
 	private final static Logger LOG = getLogger(BridgeTest.class.getName());
