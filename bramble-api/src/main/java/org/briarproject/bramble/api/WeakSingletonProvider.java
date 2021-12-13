@@ -1,4 +1,4 @@
-package org.briarproject.briar.feed;
+package org.briarproject.bramble.api;
 
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 
@@ -13,7 +13,7 @@ import javax.inject.Provider;
  * collected.
  */
 @NotNullByDefault
-abstract class WeakSingletonProvider<T> implements Provider<T> {
+public abstract class WeakSingletonProvider<T> implements Provider<T> {
 
 	private final Object lock = new Object();
 	@GuardedBy("lock")
@@ -31,5 +31,5 @@ abstract class WeakSingletonProvider<T> implements Provider<T> {
 		}
 	}
 
-	abstract T createInstance();
+	public abstract T createInstance();
 }

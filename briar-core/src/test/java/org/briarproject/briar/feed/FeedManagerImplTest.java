@@ -3,6 +3,7 @@ package org.briarproject.briar.feed;
 import com.rometools.rome.feed.synd.SyndEntry;
 import com.rometools.rome.feed.synd.SyndEntryImpl;
 
+import org.briarproject.bramble.api.WeakSingletonProvider;
 import org.briarproject.bramble.api.client.ClientHelper;
 import org.briarproject.bramble.api.client.ContactGroupFactory;
 import org.briarproject.bramble.api.data.BdfDictionary;
@@ -71,7 +72,7 @@ public class FeedManagerImplTest extends BrambleMockTestCase {
 			new WeakSingletonProvider<OkHttpClient>() {
 				@Override
 				@Nonnull
-				OkHttpClient createInstance() {
+				public OkHttpClient createInstance() {
 					return client;
 				}
 			};
