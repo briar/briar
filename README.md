@@ -22,6 +22,15 @@ our site.
 
 [Wiki](https://code.briarproject.org/briar/briar/-/wikis/home)
 
+## Reproducible builds
+
+We provide [docker images](https://code.briarproject.org/briar/briar-reproducer#briar-reproducer)
+to ease the task of verifying that the published APK binaries
+include nothing but our publicly available source code.
+
+You can either use those images or use them as a blueprint to build your own environment
+for reproduction.
+
 ## Donate
 
 [![Donate using Liberapay](https://briarproject.org/img/liberapay.svg)](https://liberapay.com/Briar/donate) [![Flattr this](https://briarproject.org/img/flattr-badge-large.png "Flattr this")](https://flattr.com/t/592836/)   
