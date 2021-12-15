@@ -12,12 +12,15 @@ import java.io.IOException;
 
 import javax.inject.Inject;
 
+import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
+import okhttp3.RequestBody;
 import okhttp3.Response;
 import okhttp3.ResponseBody;
 
 import static com.fasterxml.jackson.databind.MapperFeature.BLOCK_UNSAFE_POLYMORPHIC_BASE_TYPES;
+import static java.util.Objects.requireNonNull;
 import static okhttp3.internal.Util.EMPTY_REQUEST;
 import static org.briarproject.bramble.util.StringUtils.fromHexString;
 
@@ -28,6 +31,8 @@ class MailboxApiImpl implements MailboxApi {
 	private final JsonMapper mapper = JsonMapper.builder()
 			.enable(BLOCK_UNSAFE_POLYMORPHIC_BASE_TYPES)
 			.build();
+	private static final MediaType JSON =
+			requireNonNull(MediaType.parse("application/json; charset=utf-8"));
 
 	@Inject
 	MailboxApiImpl(WeakSingletonProvider<OkHttpClient> httpClientProvider) {
@@ -87,6 +92,23 @@ class MailboxApiImpl implements MailboxApi {
 		Response response = client.newCall(request).execute();
 		if (response.code() == 401) throw new PermanentFailureException();
 		return response.isSuccessful();
+	}
+
+	@Override
+	public void addContact(MailboxProperties properties, MailboxContact contact)
+			throws IOException, PermanentFailureException,
+			TolerableFailureException {
+		if (!properties.isOwner()) throw new IllegalArgumentException();
+		byte[] bodyBytes = mapper.writeValueAsBytes(contact);
+		RequestBody body = RequestBody.create(JSON, bodyBytes);
+		Request request = getRequestBuilder(properties.getAuthToken())
+				.url(properties.getOnionAddress() + "/contacts")
+				.post(body)
+				.build();
+		OkHttpClient client = httpClientProvider.get();
+		Response response = client.newCall(request).execute();
+		if (response.code() == 409) throw new TolerableFailureException();
+		if (!response.isSuccessful()) throw new IOException();
 	}
 
 	private Request.Builder getRequestBuilder(String token) {
