@@ -53,7 +53,7 @@ dependencies {
 	testImplementation "junit:junit:$junit_version"
 	testImplementation "org.jmock:jmock:$jmock_version"
 	testImplementation "org.jmock:jmock-junit4:$jmock_version"
-	testImplementation "org.jmock:jmock-legacy:$jmock_version"
+	testImplementation "org.jmock:jmock-imposters:$jmock_version"
 }
 
 def torBinariesDir = 'src/main/res/raw'

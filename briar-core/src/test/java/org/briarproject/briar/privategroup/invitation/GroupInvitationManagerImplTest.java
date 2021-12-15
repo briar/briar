@@ -34,7 +34,7 @@ import org.briarproject.briar.api.privategroup.invitation.GroupInvitationRequest
 import org.briarproject.briar.api.privategroup.invitation.GroupInvitationResponse;
 import org.jmock.AbstractExpectations;
 import org.jmock.Expectations;
-import org.jmock.lib.legacy.ClassImposteriser;
+import org.jmock.imposters.ByteBuddyClassImposteriser;
 import org.junit.Test;
 
 import java.util.Collection;
@@ -126,7 +126,7 @@ public class GroupInvitationManagerImplTest extends BrambleMockTestCase {
 
 
 	public GroupInvitationManagerImplTest() {
-		context.setImposteriser(ClassImposteriser.INSTANCE);
+		context.setImposteriser(ByteBuddyClassImposteriser.INSTANCE);
 		creatorEngine = context.mock(CreatorProtocolEngine.class);
 		inviteeEngine = context.mock(InviteeProtocolEngine.class);
 		peerEngine = context.mock(PeerProtocolEngine.class);

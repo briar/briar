@@ -14,7 +14,7 @@ import org.briarproject.bramble.api.record.RecordWriterFactory;
 import org.briarproject.bramble.test.BrambleMockTestCase;
 import org.briarproject.bramble.test.CaptureArgumentAction;
 import org.jmock.Expectations;
-import org.jmock.lib.legacy.ClassImposteriser;
+import org.jmock.imposters.ByteBuddyClassImposteriser;
 import org.junit.Test;
 
 import java.io.InputStream;
@@ -58,7 +58,7 @@ public class KeyAgreementTransportTest extends BrambleMockTestCase {
 	private KeyAgreementTransport kat;
 
 	public KeyAgreementTransportTest() {
-		context.setImposteriser(ClassImposteriser.INSTANCE);
+		context.setImposteriser(ByteBuddyClassImposteriser.INSTANCE);
 		inputStream = context.mock(InputStream.class);
 		outputStream = context.mock(OutputStream.class);
 	}

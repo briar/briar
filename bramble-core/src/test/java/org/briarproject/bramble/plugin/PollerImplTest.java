@@ -25,7 +25,7 @@ import org.briarproject.bramble.test.BrambleMockTestCase;
 import org.briarproject.bramble.test.ImmediateExecutor;
 import org.briarproject.bramble.test.RunAction;
 import org.jmock.Expectations;
-import org.jmock.lib.legacy.ClassImposteriser;
+import org.jmock.imposters.ByteBuddyClassImposteriser;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -69,7 +69,7 @@ public class PollerImplTest extends BrambleMockTestCase {
 	private PollerImpl poller;
 
 	public PollerImplTest() {
-		context.setImposteriser(ClassImposteriser.INSTANCE);
+		context.setImposteriser(ByteBuddyClassImposteriser.INSTANCE);
 		random = context.mock(SecureRandom.class);
 	}
 

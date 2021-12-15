@@ -11,9 +11,9 @@ import org.briarproject.bramble.api.keyagreement.PayloadEncoder;
 import org.briarproject.bramble.test.BrambleTestCase;
 import org.jmock.Expectations;
 import org.jmock.auto.Mock;
+import org.jmock.imposters.ByteBuddyClassImposteriser;
 import org.jmock.integration.junit4.JUnitRuleMockery;
 import org.jmock.lib.concurrent.Synchroniser;
-import org.jmock.lib.legacy.ClassImposteriser;
 import org.junit.Rule;
 import org.junit.Test;
 
@@ -35,7 +35,7 @@ public class KeyAgreementProtocolTest extends BrambleTestCase {
 	@Rule
 	public JUnitRuleMockery context = new JUnitRuleMockery() {{
 		// So we can mock concrete classes like KeyAgreementTransport
-		setImposteriser(ClassImposteriser.INSTANCE);
+		setImposteriser(ByteBuddyClassImposteriser.INSTANCE);
 		setThreadingPolicy(new Synchroniser());
 	}};
 
