@@ -709,6 +709,41 @@ public class GroupInvitationIntegrationTest
 		assertTrue(deleteMessages0From1(emptySet()).allDeleted());
 	}
 
+	@Test
+	public void testInvitationAfterReAddingContacts() throws Exception {
+		// sync invitation and response back
+		sendInvitation(c0.getClock().currentTimeMillis(), null);
+		sync0To1(1, true);
+		groupInvitationManager1
+				.respondToInvitation(contactId0From1, privateGroup, true);
+		sync1To0(1, true);
+
+		// sync group join messages
+		sync0To1(2, true); // + one invitation protocol join message
+		sync1To0(1, true);
+
+		// inviting again is not possible
+		assertFalse(groupInvitationManager0
+				.isInvitationAllowed(contact1From0, privateGroup.getId()));
+
+		// contacts remove each other
+		removeAllContacts();
+
+		// group gets dissolved for invitee automatically, but not creator
+		assertFalse(groupManager0.isDissolved(privateGroup.getId()));
+		assertTrue(groupManager1.isDissolved(privateGroup.getId()));
+
+		// contacts re-add each other
+		addDefaultContacts();
+
+		// creator can still not invite again
+		assertFalse(groupInvitationManager0
+				.isInvitationAllowed(contact1From0, privateGroup.getId()));
+
+		// finally invitee can remove group without issues
+		groupManager1.removePrivateGroup(privateGroup.getId());
+	}
+
 	private Collection<ConversationMessageHeader> getMessages1From0()
 			throws DbException {
 		return db0.transactionWithResult(true, txn -> groupInvitationManager0

@@ -110,6 +110,11 @@ public interface PrivateGroupManager {
 			throws DbException;
 
 	/**
+	 * Returns true if the given private group was created by us.
+	 */
+	boolean isOurPrivateGroup(Transaction txn, PrivateGroup g) throws DbException;
+
+	/**
 	 * Returns the text of the private group message with the given ID.
 	 */
 	String getMessageText(MessageId m) throws DbException;

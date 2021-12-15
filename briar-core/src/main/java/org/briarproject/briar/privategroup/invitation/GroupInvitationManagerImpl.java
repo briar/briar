@@ -128,15 +128,59 @@ class GroupInvitationManagerImpl extends ConversationClientImpl
 		// Attach the contact ID to the group
 		clientHelper.setContactId(txn, g.getId(), c.getId());
 		// If the contact belongs to any private groups, create a peer session
-		for (Group pg : db.getGroups(txn, PrivateGroupManager.CLIENT_ID,
+		// or sessions in LEFT state for creator/invitee.
+		for (Group group : db.getGroups(txn, PrivateGroupManager.CLIENT_ID,
 				PrivateGroupManager.MAJOR_VERSION)) {
-			if (privateGroupManager.isMember(txn, pg.getId(), c.getAuthor()))
-				addingMember(txn, pg.getId(), c);
+			if (privateGroupManager
+					.isMember(txn, group.getId(), c.getAuthor())) {
+				PrivateGroup pg =
+						privateGroupManager.getPrivateGroup(txn, group.getId());
+				recreateSession(txn, c, pg, g.getId());
+			}
+		}
+	}
+
+	private void recreateSession(Transaction txn, Contact c,
+			PrivateGroup pg, GroupId contactGroupId) throws DbException {
+		boolean isOur = privateGroupManager.isOurPrivateGroup(txn, pg);
+		boolean isTheirs =
+				c.getAuthor().getId().equals(pg.getCreator().getId());
+		if (isOur || isTheirs) {
+			// we are creator or invitee, create a left session for each role
+			MessageId storageId = createStorageId(txn, contactGroupId);
+			Session<?> session;
+			if (isOur) {
+				session = new CreatorSession(contactGroupId, pg.getId(), null,
+						null, 0, 0, CreatorState.LEFT);
+			} else {
+				session = new InviteeSession(contactGroupId, pg.getId(), null,
+						null, 0, 0, InviteeState.LEFT);
+			}
+			try {
+				storeSession(txn, storageId, session);
+			} catch (FormatException e) {
+				throw new DbException(e);
+			}
+		} else {
+			// we are neither creator nor invitee, create peer session
+			addingMember(txn, pg.getId(), c);
 		}
 	}
 
 	@Override
 	public void removingContact(Transaction txn, Contact c) throws DbException {
+		// mark private groups created by that contact as dissolved
+		for (Group g : db.getGroups(txn, PrivateGroupManager.CLIENT_ID,
+				PrivateGroupManager.MAJOR_VERSION)) {
+			if (privateGroupManager.isMember(txn, g.getId(), c.getAuthor())) {
+				PrivateGroup pg =
+						privateGroupManager.getPrivateGroup(txn, g.getId());
+				// check if contact to be removed is creator of the group
+				if (c.getAuthor().getId().equals(pg.getCreator().getId())) {
+					privateGroupManager.markGroupDissolved(txn, g.getId());
+				}
+			}
+		}
 		// Remove the contact group (all messages will be removed with it)
 		db.removeGroup(txn, getContactGroup(c));
 	}

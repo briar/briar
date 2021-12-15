@@ -288,6 +288,13 @@ class PrivateGroupManagerImpl extends BdfIncomingMessageHook
 	}
 
 	@Override
+	public boolean isOurPrivateGroup(Transaction txn, PrivateGroup g)
+			throws DbException {
+		LocalAuthor localAuthor = identityManager.getLocalAuthor(txn);
+		return localAuthor.getId().equals(g.getCreator().getId());
+	}
+
+	@Override
 	public Collection<PrivateGroup> getPrivateGroups() throws DbException {
 		return db.transactionWithResult(true, this::getPrivateGroups);
 	}
