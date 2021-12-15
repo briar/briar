@@ -42,25 +42,23 @@ class MailboxApiImpl implements MailboxApi {
 				.build();
 		OkHttpClient client = httpClientProvider.get();
 		Response response = client.newCall(request).execute();
-		if (response.code() == 401) {
-			throw new PermanentFailureException(true);
-		}
+		if (response.code() == 401) throw new PermanentFailureException();
 		if (!response.isSuccessful()) throw new IOException();
 		ResponseBody body = response.body();
-		if (body == null) throw new PermanentFailureException(false);
+		if (body == null) throw new PermanentFailureException();
 		try {
 			JsonNode node = mapper.readTree(body.string());
 			JsonNode tokenNode = node.get("token");
 			if (tokenNode == null) {
-				throw new PermanentFailureException(false);
+				throw new PermanentFailureException();
 			}
 			String ownerToken = tokenNode.textValue();
 			if (ownerToken == null) {
-				throw new PermanentFailureException(false);
+				throw new PermanentFailureException();
 			}
 			return ownerToken;
 		} catch (JacksonException e) {
-			throw new PermanentFailureException(false);
+			throw new PermanentFailureException();
 		}
 	}
 
@@ -73,9 +71,7 @@ class MailboxApiImpl implements MailboxApi {
 				.build();
 		OkHttpClient client = httpClientProvider.get();
 		Response response = client.newCall(request).execute();
-		if (response.code() == 401) {
-			throw new PermanentFailureException(true);
-		}
+		if (response.code() == 401) throw new PermanentFailureException();
 		return response.isSuccessful();
 	}
 

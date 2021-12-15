@@ -40,14 +40,5 @@ interface MailboxApi {
 
 	@Immutable
 	class PermanentFailureException extends Exception {
-		/**
-		 * If true, the failure is fatal and requires user attention.
-		 * The entire task queue will most likely need to stop.
-		 */
-		final boolean fatal;
-
-		PermanentFailureException(boolean fatal) {
-			this.fatal = fatal;
-		}
 	}
 }

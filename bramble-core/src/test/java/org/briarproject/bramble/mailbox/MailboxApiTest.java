@@ -65,27 +65,15 @@ public class MailboxApiTest extends BrambleTestCase {
 
 		assertEquals(token2, api.setup(properties));
 
-		PermanentFailureException e2 =
-				assertThrows(PermanentFailureException.class,
-						() -> api.setup(properties)
-				);
-
-		PermanentFailureException e3 =
-				assertThrows(PermanentFailureException.class,
-						() -> api.setup(properties)
-				);
-
-		PermanentFailureException e4 = assertThrows(
-				PermanentFailureException.class,
-				() -> api.setup(properties2)
-		);
-
+		assertThrows(PermanentFailureException.class,
+				() -> api.setup(properties));
+		assertThrows(PermanentFailureException.class,
+				() -> api.setup(properties));
+		assertThrows(PermanentFailureException.class,
+				() -> api.setup(properties2));
 		assertThrows(IOException.class,
-				() -> api.setup(properties)
-		);
-
-		PermanentFailureException e6 = assertThrows(
-				PermanentFailureException.class,
+				() -> api.setup(properties));
+		assertThrows(PermanentFailureException.class,
 				() -> api.setup(properties)
 		);
 
@@ -98,19 +86,16 @@ public class MailboxApiTest extends BrambleTestCase {
 		assertEquals("/setup", request2.getPath());
 		assertEquals("PUT", request2.getMethod());
 		assertToken(request2, token);
-		assertFalse(e2.fatal);
 
 		RecordedRequest request3 = server.takeRequest();
 		assertEquals("/setup", request3.getPath());
 		assertEquals("PUT", request3.getMethod());
 		assertToken(request3, token);
-		assertFalse(e3.fatal);
 
 		RecordedRequest request4 = server.takeRequest();
 		assertEquals("/setup", request4.getPath());
 		assertEquals("PUT", request4.getMethod());
 		assertToken(request4, token2);
-		assertTrue(e4.fatal);
 
 		RecordedRequest request5 = server.takeRequest();
 		assertEquals("/setup", request5.getPath());
@@ -121,7 +106,6 @@ public class MailboxApiTest extends BrambleTestCase {
 		assertEquals("/setup", request6.getPath());
 		assertEquals("PUT", request6.getMethod());
 		assertToken(request6, token);
-		assertFalse(e6.fatal);
 	}
 
 	@Test
@@ -149,9 +133,8 @@ public class MailboxApiTest extends BrambleTestCase {
 
 		assertTrue(api.checkStatus(properties));
 
-		PermanentFailureException e2 = assertThrows(
-				PermanentFailureException.class,
-				() -> api.checkStatus(properties2)
+		assertThrows(PermanentFailureException.class, () ->
+				api.checkStatus(properties2)
 		);
 
 		assertFalse(api.checkStatus(properties));
@@ -163,7 +146,6 @@ public class MailboxApiTest extends BrambleTestCase {
 		RecordedRequest request2 = server.takeRequest();
 		assertEquals("/status", request2.getPath());
 		assertToken(request2, token2);
-		assertTrue(e2.fatal);
 
 		RecordedRequest request3 = server.takeRequest();
 		assertEquals("/status", request3.getPath());
