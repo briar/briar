@@ -11,11 +11,15 @@ apply from: '../dagger.gradle'
 dependencies {
 	implementation project(path: ':bramble-api', configuration: 'default')
 	implementation 'org.bouncycastle:bcprov-jdk15to18:1.70'
+	//noinspection GradleDependency
 	implementation 'com.h2database:h2:1.4.192' // The last version that supports Java 1.6
 	implementation 'org.bitlet:weupnp:0.1.4'
 	implementation 'net.i2p.crypto:eddsa:0.2.0'
 	implementation 'org.whispersystems:curve25519-java:0.5.0'
 	implementation 'org.briarproject:jtorctl:0.3'
+
+	//noinspection GradleDependency
+	implementation "com.squareup.okhttp3:okhttp:$okhttp_version"
 
 	annotationProcessor "com.google.dagger:dagger-compiler:$dagger_version"
 

@@ -15,6 +15,8 @@ dependencyVerification {
         'com.google.guava:listenablefuture:9999.0-empty-to-avoid-conflict-with-guava:listenablefuture-9999.0-empty-to-avoid-conflict-with-guava.jar:b372a037d4230aa57fbeffdef30fd6123f9c0c2db85d0aced00c91b974f33f99',
         'com.google.j2objc:j2objc-annotations:1.1:j2objc-annotations-1.1.jar:2994a7eb78f2710bd3d3bfb639b2c94e219cedac0d4d084d516e78c16dddecf6',
         'com.h2database:h2:1.4.192:h2-1.4.192.jar:225b22e9857235c46c93861410b60b8c81c10dc8985f4faf188985ba5445126c',
+        'com.squareup.okhttp3:okhttp:3.12.13:okhttp-3.12.13.jar:508234e024ef7e270ab1a6d5b356f5b98e786511239ca986d684fd1e2cf7bc82',
+        'com.squareup.okio:okio:1.15.0:okio-1.15.0.jar:693fa319a7e8843300602b204023b7674f106ebcb577f2dd5807212b66118bd2',
         'com.squareup:javapoet:1.13.0:javapoet-1.13.0.jar:4c7517e848a71b36d069d12bb3bf46a70fd4cda3105d822b0ed2e19c00b69291',
         'javax.annotation:jsr250-api:1.0:jsr250-api-1.0.jar:a1a922d0d9b6d183ed3800dfac01d1e1eb159f0e8c6f94736931c1def54a941f',
         'javax.inject:javax.inject:1:javax.inject-1.jar:91c77044a50c481636c32d916fd89c9118a72195390452c81065080f957de7ff',
