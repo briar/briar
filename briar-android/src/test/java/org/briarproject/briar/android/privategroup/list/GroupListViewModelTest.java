@@ -36,8 +36,8 @@ import java.util.concurrent.Executor;
 
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule;
 
-import static edu.emory.mathcs.backport.java.util.Collections.emptyList;
-import static edu.emory.mathcs.backport.java.util.Collections.singletonList;
+import static java.util.Collections.emptyList;
+import static java.util.Collections.singletonList;
 import static org.briarproject.bramble.test.TestUtils.getAuthor;
 import static org.briarproject.bramble.test.TestUtils.getContact;
 import static org.briarproject.bramble.test.TestUtils.getGroup;
