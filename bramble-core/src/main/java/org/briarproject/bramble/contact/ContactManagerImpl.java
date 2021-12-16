@@ -131,22 +131,29 @@ class ContactManagerImpl implements ContactManager, EventListener {
 	}
 
 	@Override
-	public PendingContact addPendingContact(String link, String alias)
+	public PendingContact addPendingContact(Transaction txn, String link, String alias)
 			throws DbException, FormatException, GeneralSecurityException {
 		PendingContact p =
 				pendingContactFactory.createPendingContact(link, alias);
+		AuthorId local = identityManager.getLocalAuthor(txn).getId();
+		db.addPendingContact(txn, p, local);
+		KeyPair ourKeyPair = identityManager.getHandshakeKeys(txn);
+		keyManager.addPendingContact(txn, p.getId(), p.getPublicKey(),
+				ourKeyPair);
+		return p;
+	}
+
+	@Override
+	public PendingContact addPendingContact(String link, String alias)
+			throws DbException, FormatException, GeneralSecurityException {
 		Transaction txn = db.startTransaction(false);
 		try {
-			AuthorId local = identityManager.getLocalAuthor(txn).getId();
-			db.addPendingContact(txn, p, local);
-			KeyPair ourKeyPair = identityManager.getHandshakeKeys(txn);
-			keyManager.addPendingContact(txn, p.getId(), p.getPublicKey(),
-					ourKeyPair);
+			PendingContact p = addPendingContact(txn, link, alias);
 			db.commitTransaction(txn);
+			return p;
 		} finally {
 			db.endTransaction(txn);
 		}
-		return p;
 	}
 
 	@Override
@@ -158,8 +165,13 @@ class ContactManagerImpl implements ContactManager, EventListener {
 	@Override
 	public Collection<Pair<PendingContact, PendingContactState>> getPendingContacts()
 			throws DbException {
-		Collection<PendingContact> pendingContacts =
-				db.transactionWithResult(true, db::getPendingContacts);
+		return db.transactionWithResult(true, this::getPendingContacts);
+	}
+
+	@Override
+	public Collection<Pair<PendingContact, PendingContactState>> getPendingContacts(Transaction txn)
+			throws DbException {
+		Collection<PendingContact> pendingContacts = db.getPendingContacts(txn);
 		List<Pair<PendingContact, PendingContactState>> pairs =
 				new ArrayList<>(pendingContacts.size());
 		for (PendingContact p : pendingContacts) {

@@ -389,14 +389,13 @@ class MessagingManagerImpl implements MessagingManager, IncomingMessageHook,
 
 	@Override
 	public GroupId getConversationId(ContactId c) throws DbException {
-		Contact contact;
-		Transaction txn = db.startTransaction(true);
-		try {
-			contact = db.getContact(txn, c);
-			db.commitTransaction(txn);
-		} finally {
-			db.endTransaction(txn);
-		}
+		return db.transactionWithResult(true,
+				txn -> getConversationId(txn, c));
+	}
+
+	@Override
+	public GroupId getConversationId(Transaction txn, ContactId c) throws DbException {
+		Contact contact = db.getContact(txn, c);
 		return getContactGroup(contact).getId();
 	}
 

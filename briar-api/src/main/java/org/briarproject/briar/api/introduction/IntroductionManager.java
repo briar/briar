@@ -3,6 +3,7 @@ package org.briarproject.briar.api.introduction;
 import org.briarproject.bramble.api.contact.Contact;
 import org.briarproject.bramble.api.contact.ContactId;
 import org.briarproject.bramble.api.db.DbException;
+import org.briarproject.bramble.api.db.Transaction;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.sync.ClientId;
 import org.briarproject.briar.api.client.SessionId;
@@ -44,5 +45,11 @@ public interface IntroductionManager extends ConversationClient {
 	 */
 	void respondToIntroduction(ContactId contactId, SessionId sessionId,
 			boolean accept) throws DbException;
+
+	/**
+	 * Responds to an introduction.
+	 */
+	void respondToIntroduction(Transaction txn, ContactId contactId,
+			SessionId sessionId, boolean accept) throws DbException;
 
 }
