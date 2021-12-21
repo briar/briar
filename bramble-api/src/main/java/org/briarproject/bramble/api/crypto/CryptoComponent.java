@@ -1,5 +1,6 @@
 package org.briarproject.bramble.api.crypto;
 
+import org.briarproject.bramble.api.UniqueId;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 
 import java.security.GeneralSecurityException;
@@ -9,6 +10,8 @@ import javax.annotation.Nullable;
 
 @NotNullByDefault
 public interface CryptoComponent {
+
+	UniqueId generateUniqueId();
 
 	SecretKey generateSecretKey();
 

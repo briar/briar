@@ -27,9 +27,4 @@ public class MessageId extends UniqueId {
 	public MessageId(byte[] id) {
 		super(id);
 	}
-
-	@Override
-	public boolean equals(Object o) {
-		return o instanceof MessageId && super.equals(o);
-	}
 }

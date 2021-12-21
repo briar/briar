@@ -20,9 +20,4 @@ public class GroupId extends UniqueId {
 	public GroupId(byte[] id) {
 		super(id);
 	}
-
-	@Override
-	public boolean equals(Object o) {
-		return o instanceof GroupId && super.equals(o);
-	}
 }
