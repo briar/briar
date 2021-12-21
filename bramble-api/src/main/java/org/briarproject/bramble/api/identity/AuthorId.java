@@ -21,9 +21,4 @@ public class AuthorId extends UniqueId {
 	public AuthorId(byte[] id) {
 		super(id);
 	}
-
-	@Override
-	public boolean equals(Object o) {
-		return o instanceof AuthorId && super.equals(o);
-	}
 }
