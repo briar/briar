@@ -14,12 +14,10 @@ import org.briarproject.bramble.api.sync.Versions;
 import org.briarproject.bramble.api.transport.StreamWriter;
 import org.briarproject.bramble.test.BrambleMockTestCase;
 import org.briarproject.bramble.test.DbExpectations;
-import org.briarproject.bramble.test.ImmediateExecutor;
 import org.junit.Test;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.concurrent.Executor;
 
 import static java.util.Collections.emptyMap;
 import static java.util.Collections.singletonList;
@@ -41,7 +39,6 @@ public class SimplexOutgoingSessionTest extends BrambleMockTestCase {
 	private final SyncRecordWriter recordWriter =
 			context.mock(SyncRecordWriter.class);
 
-	private final Executor dbExecutor = new ImmediateExecutor();
 	private final ContactId contactId = getContactId();
 	private final TransportId transportId = getTransportId();
 	private final Ack ack =
@@ -54,7 +51,7 @@ public class SimplexOutgoingSessionTest extends BrambleMockTestCase {
 	@Test
 	public void testNothingToSend() throws Exception {
 		SimplexOutgoingSession session = new SimplexOutgoingSession(db,
-				dbExecutor, eventBus, contactId, transportId, MAX_LATENCY,
+				eventBus, contactId, transportId, MAX_LATENCY,
 				false, streamWriter, recordWriter);
 
 		Transaction noAckTxn = new Transaction(null, false);
@@ -88,7 +85,7 @@ public class SimplexOutgoingSessionTest extends BrambleMockTestCase {
 	@Test
 	public void testNothingToSendEagerly() throws Exception {
 		SimplexOutgoingSession session = new SimplexOutgoingSession(db,
-				dbExecutor, eventBus, contactId, transportId, MAX_LATENCY,
+				eventBus, contactId, transportId, MAX_LATENCY,
 				true, streamWriter, recordWriter);
 
 		Transaction noAckTxn = new Transaction(null, false);
@@ -121,7 +118,7 @@ public class SimplexOutgoingSessionTest extends BrambleMockTestCase {
 	@Test
 	public void testSomethingToSend() throws Exception {
 		SimplexOutgoingSession session = new SimplexOutgoingSession(db,
-				dbExecutor, eventBus, contactId, transportId, MAX_LATENCY,
+				eventBus, contactId, transportId, MAX_LATENCY,
 				false, streamWriter, recordWriter);
 
 		Transaction ackTxn = new Transaction(null, false);
@@ -140,6 +137,11 @@ public class SimplexOutgoingSessionTest extends BrambleMockTestCase {
 			oneOf(db).generateAck(ackTxn, contactId, MAX_MESSAGE_IDS);
 			will(returnValue(ack));
 			oneOf(recordWriter).writeAck(ack);
+			// No more acks
+			oneOf(db).transactionWithNullableResult(with(false),
+					withNullableDbCallable(noAckTxn));
+			oneOf(db).generateAck(noAckTxn, contactId, MAX_MESSAGE_IDS);
+			will(returnValue(null));
 			// One message to send
 			oneOf(db).transactionWithNullableResult(with(false),
 					withNullableDbCallable(msgTxn));
@@ -147,11 +149,6 @@ public class SimplexOutgoingSessionTest extends BrambleMockTestCase {
 					MAX_RECORD_PAYLOAD_BYTES, MAX_LATENCY);
 			will(returnValue(singletonList(message)));
 			oneOf(recordWriter).writeMessage(message);
-			// No more acks
-			oneOf(db).transactionWithNullableResult(with(false),
-					withNullableDbCallable(noAckTxn));
-			oneOf(db).generateAck(noAckTxn, contactId, MAX_MESSAGE_IDS);
-			will(returnValue(null));
 			// No more messages
 			oneOf(db).transactionWithNullableResult(with(false),
 					withNullableDbCallable(noMsgTxn));
@@ -170,7 +167,7 @@ public class SimplexOutgoingSessionTest extends BrambleMockTestCase {
 	@Test
 	public void testSomethingToSendEagerly() throws Exception {
 		SimplexOutgoingSession session = new SimplexOutgoingSession(db,
-				dbExecutor, eventBus, contactId, transportId, MAX_LATENCY,
+				eventBus, contactId, transportId, MAX_LATENCY,
 				true, streamWriter, recordWriter);
 
 		Map<MessageId, Integer> unacked = new LinkedHashMap<>();
