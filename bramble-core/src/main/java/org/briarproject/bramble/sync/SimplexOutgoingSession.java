@@ -17,6 +17,7 @@ import org.briarproject.bramble.api.sync.Message;
 import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.bramble.api.sync.SyncRecordWriter;
 import org.briarproject.bramble.api.sync.SyncSession;
+import org.briarproject.bramble.api.sync.SyncSessionId;
 import org.briarproject.bramble.api.sync.Versions;
 import org.briarproject.bramble.api.sync.event.CloseSyncConnectionsEvent;
 import org.briarproject.bramble.api.transport.StreamWriter;
@@ -29,6 +30,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.logging.Logger;
 
+import javax.annotation.Nullable;
 import javax.annotation.concurrent.ThreadSafe;
 
 import static java.util.logging.Level.INFO;
@@ -60,9 +62,17 @@ class SimplexOutgoingSession implements SyncSession, EventListener {
 	private final boolean eager;
 	private final StreamWriter streamWriter;
 	private final SyncRecordWriter recordWriter;
+	@Nullable
+	private final SyncSessionId syncSessionId;
 
 	private volatile boolean interrupted = false;
 
+	/**
+	 * @param syncSessionId A unique ID for recording the IDs of the messages
+	 * sent and acked in this session. The recorded IDs are deleted if the
+	 * session completes without throwing an {@link IOException}. If this
+	 * parameter is null the IDs will not be recorded.
+	 */
 	SimplexOutgoingSession(DatabaseComponent db,
 			EventBus eventBus,
 			ContactId contactId,
@@ -70,7 +80,8 @@ class SimplexOutgoingSession implements SyncSession, EventListener {
 			long maxLatency,
 			boolean eager,
 			StreamWriter streamWriter,
-			SyncRecordWriter recordWriter) {
+			SyncRecordWriter recordWriter,
+			@Nullable SyncSessionId syncSessionId) {
 		this.db = db;
 		this.eventBus = eventBus;
 		this.contactId = contactId;
@@ -79,6 +90,7 @@ class SimplexOutgoingSession implements SyncSession, EventListener {
 		this.eager = eager;
 		this.streamWriter = streamWriter;
 		this.recordWriter = recordWriter;
+		this.syncSessionId = syncSessionId;
 	}
 
 	@IoExecutor
@@ -104,6 +116,17 @@ class SimplexOutgoingSession implements SyncSession, EventListener {
 				logException(LOG, WARNING, e);
 			}
 			streamWriter.sendEndOfStream();
+			if (syncSessionId != null) {
+				// Now that the output stream has been flushed we can remove
+				// the acked and sent IDs from the database
+				try {
+					db.transaction(false, txn ->
+							db.setSyncSessionComplete(txn, contactId,
+									syncSessionId));
+				} catch (DbException e) {
+					logException(LOG, WARNING, e);
+				}
+			}
 		} finally {
 			eventBus.removeListener(this);
 		}
@@ -157,8 +180,15 @@ class SimplexOutgoingSession implements SyncSession, EventListener {
 			totalLength += length;
 		}
 		if (batchIds.isEmpty()) throw new AssertionError();
-		Collection<Message> b = db.transactionWithResult(false, txn ->
-				db.generateBatch(txn, contactId, batchIds, maxLatency));
+		Collection<Message> b = db.transactionWithResult(false, txn -> {
+			Collection<Message> batch = db.generateBatch(txn, contactId,
+					batchIds, maxLatency);
+			if (syncSessionId != null && !batch.isEmpty()) {
+				db.addSentMessageIds(txn, contactId, syncSessionId,
+						getIds(batch));
+			}
+			return batch;
+		});
 		// The batch may be empty if some of the messages are no longer shared
 		if (!b.isEmpty()) {
 			for (Message m : b) recordWriter.writeMessage(m);
@@ -167,8 +197,14 @@ class SimplexOutgoingSession implements SyncSession, EventListener {
 	}
 
 	private boolean generateAndWriteAck() throws DbException, IOException {
-		Ack a = db.transactionWithNullableResult(false, txn ->
-				db.generateAck(txn, contactId, MAX_MESSAGE_IDS));
+		Ack a = db.transactionWithNullableResult(false, txn -> {
+			Ack ack = db.generateAck(txn, contactId, MAX_MESSAGE_IDS);
+			if (syncSessionId != null && ack != null) {
+				db.addAckedMessageIds(txn, contactId, syncSessionId,
+						ack.getMessageIds());
+			}
+			return ack;
+		});
 		if (LOG.isLoggable(INFO))
 			LOG.info("Generated ack: " + (a != null));
 		if (a == null) return false;
@@ -178,14 +214,26 @@ class SimplexOutgoingSession implements SyncSession, EventListener {
 	}
 
 	private boolean generateAndWriteBatch() throws DbException, IOException {
-		Collection<Message> b = db.transactionWithNullableResult(false, txn ->
-				db.generateBatch(txn, contactId,
-						MAX_RECORD_PAYLOAD_BYTES, maxLatency));
+		Collection<Message> b = db.transactionWithNullableResult(false, txn -> {
+			Collection<Message> batch = db.generateBatch(txn, contactId,
+					MAX_RECORD_PAYLOAD_BYTES, maxLatency);
+			if (syncSessionId != null && batch != null) {
+				db.addSentMessageIds(txn, contactId, syncSessionId,
+						getIds(batch));
+			}
+			return batch;
+		});
 		if (LOG.isLoggable(INFO))
 			LOG.info("Generated batch: " + (b != null));
 		if (b == null) return false;
 		for (Message m : b) recordWriter.writeMessage(m);
 		LOG.info("Sent batch");
 		return true;
+	}
+
+	private Collection<MessageId> getIds(Collection<Message> batch) {
+		Collection<MessageId> ids = new ArrayList<>(batch.size());
+		for (Message m : batch) ids.add(m.getId());
+		return ids;
 	}
 }
