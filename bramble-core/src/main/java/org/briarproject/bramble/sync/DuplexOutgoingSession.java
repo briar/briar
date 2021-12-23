@@ -27,6 +27,7 @@ import org.briarproject.bramble.api.sync.event.MessageRequestedEvent;
 import org.briarproject.bramble.api.sync.event.MessageSharedEvent;
 import org.briarproject.bramble.api.sync.event.MessageToAckEvent;
 import org.briarproject.bramble.api.sync.event.MessageToRequestEvent;
+import org.briarproject.bramble.api.sync.event.RetransmissionTimeChangedEvent;
 import org.briarproject.bramble.api.system.Clock;
 import org.briarproject.bramble.api.transport.StreamWriter;
 
@@ -242,6 +243,10 @@ class DuplexOutgoingSession implements SyncSession, EventListener {
 		} else if (e instanceof TransportInactiveEvent) {
 			TransportInactiveEvent t = (TransportInactiveEvent) e;
 			if (t.getTransportId().equals(transportId)) interrupt();
+		} else if (e instanceof RetransmissionTimeChangedEvent) {
+			RetransmissionTimeChangedEvent r =
+					(RetransmissionTimeChangedEvent) e;
+			if (r.getContactId().equals(contactId)) generateOffer();
 		}
 	}
 

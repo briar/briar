@@ -322,12 +322,12 @@ abstract class JdbcDatabase implements Database<Connection> {
 					+ " REFERENCES outgoingKeys (keySetId)"
 					+ " ON DELETE CASCADE)";
 
-	private static final String CREATE_SYNC_SESSION_MESSAGES =
-			"CREATE TABLE syncSessionMessages"
+	private static final String CREATE_SYNC_SESSIONS =
+			"CREATE TABLE syncSessions"
 					+ " (contactId INT NOT NULL,"
 					+ " syncSessionId _HASH NOT NULL,"
-					+ " messageId _HASH NOT NULL,"
 					+ " acked BOOLEAN NOT NULL,"
+					+ " messageId _HASH NOT NULL,"
 					+ " FOREIGN KEY (contactId)"
 					+ " REFERENCES contacts (contactId)"
 					+ " ON DELETE CASCADE,"
@@ -369,10 +369,10 @@ abstract class JdbcDatabase implements Database<Connection> {
 					+ " ON messages (cleanupDeadline)";
 
 	private static final String
-			INDEX_SYNC_SESSION_MESSAGES_BY_CONTACT_ID_SYNC_SESSION_ID =
+			INDEX_SYNC_SESSIONS_BY_CONTACT_ID_SYNC_SESSION_ID_ACKED =
 			"CREATE INDEX IF NOT EXISTS"
-					+ " syncSessionMessagesByContactIdSyncSessionId"
-					+ " ON syncSessionMessages (contactId, syncSessionId)";
+					+ " syncSessionsByContactIdSyncSessionIdAcked"
+					+ " ON syncSessions (contactId, syncSessionId, acked)";
 
 	private static final Logger LOG =
 			getLogger(JdbcDatabase.class.getName());
@@ -584,7 +584,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 			s.executeUpdate(dbTypes.replaceTypes(CREATE_PENDING_CONTACTS));
 			s.executeUpdate(dbTypes.replaceTypes(CREATE_OUTGOING_KEYS));
 			s.executeUpdate(dbTypes.replaceTypes(CREATE_INCOMING_KEYS));
-			s.executeUpdate(dbTypes.replaceTypes(CREATE_SYNC_SESSION_MESSAGES));
+			s.executeUpdate(dbTypes.replaceTypes(CREATE_SYNC_SESSIONS));
 			s.close();
 		} catch (SQLException e) {
 			tryToClose(s, LOG, WARNING);
@@ -605,7 +605,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 			s.executeUpdate(INDEX_STATUSES_BY_CONTACT_ID_TX_COUNT_TIMESTAMP);
 			s.executeUpdate(INDEX_MESSAGES_BY_CLEANUP_DEADLINE);
 			s.executeUpdate(
-					INDEX_SYNC_SESSION_MESSAGES_BY_CONTACT_ID_SYNC_SESSION_ID);
+					INDEX_SYNC_SESSIONS_BY_CONTACT_ID_SYNC_SESSION_ID_ACKED);
 			s.close();
 		} catch (SQLException e) {
 			tryToClose(s, LOG, WARNING);
@@ -720,7 +720,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 			throws DbException {
 		PreparedStatement ps = null;
 		try {
-			String sql = "INSERT INTO syncSessionMessages"
+			String sql = "INSERT INTO syncSessions"
 					+ " (contactId, syncSessionId, messageId, acked)"
 					+ " VALUES (?, ?, ?, ?)";
 			ps = txn.prepareStatement(sql);
@@ -3362,51 +3362,38 @@ abstract class JdbcDatabase implements Database<Connection> {
 	}
 
 	@Override
-	public void resetIncompleteSyncSession(Connection txn, ContactId c,
-			SyncSessionId s) throws DbException {
+	public boolean resetAckStatus(Connection txn, ContactId c, SyncSessionId s)
+			throws DbException {
 		PreparedStatement ps = null;
 		try {
-			// Reset transmission count and expiry time for sent messages
-			String sql = "UPDATE statuses SET txCount = 0, expiry = 0"
+			// Raise ack flag for acked messages
+			String sql = "UPDATE statuses SET ack = TRUE"
 					+ " WHERE statuses.contactId = ?"
 					+ " AND EXISTS"
-					+ " (SELECT * FROM syncSessionMessages AS ssm"
-					+ " WHERE ssm.contactId = ? AND ssm.syncSessionId = ?"
-					+ " AND statuses.messageId = ssm.messageId"
-					+ " AND statuses.contactId = ssm.contactId"
-					+ " AND ssm.acked = FALSE)";
+					+ " (SELECT * FROM syncSessions AS ss"
+					+ " WHERE ss.contactId = ? AND ss.syncSessionId = ?"
+					+ " AND ss.acked = TRUE"
+					+ " AND statuses.messageId = ss.messageId"
+					+ " AND statuses.contactId = ss.contactId)";
 			ps = txn.prepareStatement(sql);
 			ps.setInt(1, c.getInt());
 			ps.setInt(2, c.getInt());
 			ps.setBytes(3, s.getBytes());
 			int affected = ps.executeUpdate();
 			if (affected < 0) throw new DbStateException();
+			boolean anyReset = affected > 0;
 			ps.close();
-			// Raise ack flag for acked messages
-			sql = "UPDATE statuses SET ack = TRUE"
-					+ " WHERE statuses.contactId = ?"
-					+ " AND EXISTS"
-					+ " (SELECT * FROM syncSessionMessages AS ssm"
-					+ " WHERE ssm.contactId = ? AND ssm.syncSessionId = ?"
-					+ " AND statuses.messageId = ssm.messageId"
-					+ " AND statuses.contactId = ssm.contactId"
-					+ " AND ssm.acked = TRUE)";
-			ps = txn.prepareStatement(sql);
-			ps.setInt(1, c.getInt());
-			ps.setInt(2, c.getInt());
-			ps.setBytes(3, s.getBytes());
-			affected = ps.executeUpdate();
-			if (affected < 0) throw new DbStateException();
-			ps.close();
-			// Delete state for incomplete session
-			sql = "DELETE FROM syncSessionMessages"
-					+ " WHERE contactId = ? AND syncSessionId = ?";
+			// Delete state for acked messages
+			sql = "DELETE FROM syncSessions"
+					+ " WHERE contactId = ? AND syncSessionId = ?"
+					+ " AND acked = TRUE";
 			ps = txn.prepareStatement(sql);
 			ps.setInt(1, c.getInt());
 			ps.setBytes(2, s.getBytes());
 			affected = ps.executeUpdate();
 			if (affected < 0) throw new DbStateException();
 			ps.close();
+			return anyReset;
 		} catch (SQLException e) {
 			tryToClose(ps, LOG, WARNING);
 			throw new DbException(e);
@@ -3414,41 +3401,126 @@ abstract class JdbcDatabase implements Database<Connection> {
 	}
 
 	@Override
-	public void resetIncompleteSyncSessions(Connection txn) throws DbException {
-		Statement s = null;
+	public boolean resetMessageStatus(Connection txn, ContactId c,
+			SyncSessionId s) throws DbException {
+		PreparedStatement ps = null;
 		try {
-			// Reset transmission count and expiry time for sent messages
-			String sql = "UPDATE statuses SET txCount = 0, expiry = 0"
-					+ " WHERE EXISTS"
-					+ " (SELECT * FROM syncSessionMessages AS ssm"
-					+ " WHERE statuses.messageId = ssm.messageId"
-					+ " AND statuses.contactId = ssm.contactId"
-					+ " AND ssm.acked = FALSE)";
-			s = txn.createStatement();
-			int affected = s.executeUpdate(sql);
+			// Reset transmission count, expiry time and ETA for sent messages
+			String sql = "UPDATE statuses SET txCount = 0, expiry = 0, eta = 0"
+					+ " WHERE statuses.contactId = ?"
+					+ " AND EXISTS"
+					+ " (SELECT * FROM syncSessions AS ss"
+					+ " WHERE ss.contactId = ? AND ss.syncSessionId = ?"
+					+ " AND ss.acked = FALSE"
+					+ " AND statuses.messageId = ss.messageId"
+					+ " AND statuses.contactId = ss.contactId)";
+			ps = txn.prepareStatement(sql);
+			ps.setInt(1, c.getInt());
+			ps.setInt(2, c.getInt());
+			ps.setBytes(3, s.getBytes());
+			int affected = ps.executeUpdate();
 			if (affected < 0) throw new DbStateException();
+			boolean anyReset = affected > 0;
+			ps.close();
+			// Delete state for sent messages
+			sql = "DELETE FROM syncSessions"
+					+ " WHERE contactId = ? AND syncSessionId = ?"
+					+ " AND acked = FALSE";
+			ps = txn.prepareStatement(sql);
+			ps.setInt(1, c.getInt());
+			ps.setBytes(2, s.getBytes());
+			affected = ps.executeUpdate();
+			if (affected < 0) throw new DbStateException();
+			ps.close();
+			return anyReset;
+		} catch (SQLException e) {
+			tryToClose(ps, LOG, WARNING);
+			throw new DbException(e);
+		}
+	}
+
+	@Override
+	public Collection<ContactId> resetAckStatus(Connection txn)
+			throws DbException {
+		Statement s = null;
+		ResultSet rs = null;
+		try {
+			// Get the IDs of any contacts that will be affected
+			String sql = "SELECT DISTINCT contactId FROM statuses"
+					+ " WHERE EXISTS"
+					+ " (SELECT * FROM syncSessions AS ss"
+					+ " WHERE statuses.messageId = ss.messageId"
+					+ " AND statuses.contactId = ss.contactId"
+					+ " AND ss.acked = TRUE)";
+			s = txn.createStatement();
+			rs = s.executeQuery(sql);
+			List<ContactId> contactIds = new ArrayList<>();
+			while (rs.next()) contactIds.add(new ContactId(rs.getInt(1)));
+			rs.close();
 			// Raise ack flag for acked messages
 			sql = "UPDATE statuses SET ack = TRUE"
 					+ " WHERE EXISTS"
-					+ " (SELECT * FROM syncSessionMessages AS ssm"
-					+ " WHERE statuses.messageId = ssm.messageId"
-					+ " AND statuses.contactId = ssm.contactId"
-					+ " AND ssm.acked = TRUE)";
-			affected = s.executeUpdate(sql);
+					+ " (SELECT * FROM syncSessions AS ss"
+					+ " WHERE statuses.messageId = ss.messageId"
+					+ " AND statuses.contactId = ss.contactId"
+					+ " AND ss.acked = TRUE)";
+			int affected = s.executeUpdate(sql);
 			if (affected < 0) throw new DbStateException();
-			// Delete state for incomplete sessions
-			sql = "DELETE FROM syncSessionMessages";
+			// Delete state for acked messages
+			sql = "DELETE FROM syncSessions WHERE acked = TRUE";
 			affected = s.executeUpdate(sql);
 			if (affected < 0) throw new DbStateException();
 			s.close();
+			return contactIds;
 		} catch (SQLException e) {
+			tryToClose(rs, LOG, WARNING);
 			tryToClose(s, LOG, WARNING);
 			throw new DbException(e);
 		}
 	}
 
 	@Override
-	public void resetUnackedMessagesToSend(Connection txn, ContactId c)
+	public Collection<ContactId> resetMessageStatus(Connection txn)
+			throws DbException {
+		Statement s = null;
+		ResultSet rs = null;
+		try {
+			// Get the IDs of any contacts that will be affected
+			String sql = "SELECT DISTINCT contactId FROM statuses"
+					+ " WHERE EXISTS"
+					+ " (SELECT * FROM syncSessions AS ss"
+					+ " WHERE statuses.messageId = ss.messageId"
+					+ " AND statuses.contactId = ss.contactId"
+					+ " AND ss.acked = FALSE)";
+			s = txn.createStatement();
+			rs = s.executeQuery(sql);
+			List<ContactId> contactIds = new ArrayList<>();
+			while (rs.next()) contactIds.add(new ContactId(rs.getInt(1)));
+			rs.close();
+			// Reset transmission count, expiry time and ETA for sent messages
+			sql = "UPDATE statuses SET txCount = 0, expiry = 0, eta = 0"
+					+ " WHERE EXISTS"
+					+ " (SELECT * FROM syncSessions AS ss"
+					+ " WHERE statuses.messageId = ss.messageId"
+					+ " AND statuses.contactId = ss.contactId"
+					+ " AND ss.acked = FALSE)";
+			int affected = s.executeUpdate(sql);
+			if (affected < 0) throw new DbStateException();
+			// Delete state for sent messages
+			sql = "DELETE FROM syncSessions WHERE acked = FALSE";
+			affected = s.executeUpdate(sql);
+			if (affected < 0) throw new DbStateException();
+			s.close();
+			return contactIds;
+		} catch (SQLException e) {
+			tryToClose(rs, LOG, WARNING);
+			tryToClose(s, LOG, WARNING);
+			throw new DbException(e);
+		}
+	}
+
+	@Override
+	public boolean resetUnackedMessagesToSend(Connection txn, ContactId c)
 			throws DbException {
 		PreparedStatement ps = null;
 		try {
@@ -3460,10 +3532,9 @@ abstract class JdbcDatabase implements Database<Connection> {
 			ps.setInt(1, c.getInt());
 			ps.setInt(2, DELIVERED.getValue());
 			int affected = ps.executeUpdate();
-			if (affected < 0) {
-				throw new DbStateException();
-			}
+			if (affected < 0) throw new DbStateException();
 			ps.close();
+			return affected > 0;
 		} catch (SQLException e) {
 			tryToClose(ps, LOG, WARNING);
 			throw new DbException(e);
@@ -3705,7 +3776,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 			SyncSessionId s) throws DbException {
 		PreparedStatement ps = null;
 		try {
-			String sql = "DELETE FROM syncSessionMessages"
+			String sql = "DELETE FROM syncSessions"
 					+ " WHERE contactId = ? AND syncSessionId = ?";
 			ps = txn.prepareStatement(sql);
 			ps.setInt(1, c.getInt());

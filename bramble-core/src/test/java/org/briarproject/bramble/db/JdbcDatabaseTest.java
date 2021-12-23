@@ -2605,7 +2605,8 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 					ONE_MEGABYTE, MAX_LATENCY));
 		} else if (!incompleteSessionsCrash) {
 			// Reset the incomplete first session
-			db.resetIncompleteSyncSession(txn, contactId, syncSessionId);
+			assertFalse(db.resetAckStatus(txn, contactId, syncSessionId));
+			assertTrue(db.resetMessageStatus(txn, contactId, syncSessionId));
 			// The first message should be sendable again
 			assertEquals(singletonList(messageId), db.getMessagesToSend(txn,
 					contactId, ONE_MEGABYTE, MAX_LATENCY));
@@ -2639,14 +2640,26 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 			assertEquals(emptyList(), db.getMessagesToAck(txn, contactId, 100));
 		} else if (!incompleteSessionsCrash) {
 			// Reset the incomplete second session
-			db.resetIncompleteSyncSession(txn, contactId, syncSessionId1);
+			assertTrue(db.resetAckStatus(txn, contactId, syncSessionId1));
+			assertFalse(db.resetMessageStatus(txn, contactId, syncSessionId1));
 			// The second message should need to be acked again
 			assertEquals(singletonList(messageId1),
 					db.getMessagesToAck(txn, contactId, 100));
 		}
 
 		// Next startup: reset any incomplete sessions
-		db.resetIncompleteSyncSessions(txn);
+		Collection<ContactId> affected = db.resetAckStatus(txn);
+		if (!secondSessionComplete && incompleteSessionsCrash) {
+			assertEquals(singletonList(contactId), affected);
+		} else {
+			assertEquals(emptyList(), affected);
+		}
+		affected = db.resetMessageStatus(txn);
+		if (!firstSessionComplete && incompleteSessionsCrash) {
+			assertEquals(singletonList(contactId), affected);
+		} else {
+			assertEquals(emptyList(), affected);
+		}
 
 		// If the first session was not marked as complete, the first message
 		// should be sendable again

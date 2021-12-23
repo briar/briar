@@ -773,42 +773,59 @@ interface Database<T> {
 	void resetExpiryTime(T txn, ContactId c, MessageId m) throws DbException;
 
 	/**
-	 * Resets the transmission counts and expiry times of any messages sent in
-	 * the given session (ie where the message IDs were recorded via
-	 * {@link #addSentMessageIds(T, ContactId, SyncSessionId, Collection)}
-	 * and not subsequently removed via
-	 * {@link #setSyncSessionComplete(T, ContactId, SyncSessionId)}).
-	 * <p>
-	 * Also raises the ack flags of any messages acked in the given session
+	 * Raises the ack flags of any messages acked in the given session
 	 * (ie where the message IDs were recorded via
 	 * {@link #addAckedMessageIds(T, ContactId, SyncSessionId, Collection)}
 	 * and not subsequently removed via
 	 * {@link #setSyncSessionComplete(T, ContactId, SyncSessionId)}).
+	 *
+	 * @return True if any messages were affected
 	 */
-	void resetIncompleteSyncSession(T txn, ContactId c, SyncSessionId s)
+	boolean resetAckStatus(T txn, ContactId c, SyncSessionId s)
 			throws DbException;
 
 	/**
-	 * Resets the transmission counts and expiry times of any messages sent in
-	 * incomplete sessions (ie where the message IDs were recorded via
-	 * {@link #addSentMessageIds(Object, ContactId, SyncSessionId, Collection)}
+	 * Resets the transmission counts, expiry times and ETA of any messages
+	 * sent in the given session (ie where the message IDs were recorded via
+	 * {@link #addSentMessageIds(T, ContactId, SyncSessionId, Collection)}
 	 * and not subsequently removed via
-	 * {@link #setSyncSessionComplete(Object, ContactId, SyncSessionId)}).
-	 * <p>
-	 * Also raises the ack flags of any messages acked in incomplete sessions
+	 * {@link #setSyncSessionComplete(T, ContactId, SyncSessionId)}).
+	 *
+	 * @return True if any messages were affected
+	 */
+	boolean resetMessageStatus(T txn, ContactId c, SyncSessionId s)
+			throws DbException;
+
+	/**
+	 * Raises the ack flags of any messages acked in incomplete sessions
 	 * (ie where the message IDs were recorded via
 	 * {@link #addAckedMessageIds(Object, ContactId, SyncSessionId, Collection)}
 	 * and not subsequently removed via
 	 * {@link #setSyncSessionComplete(Object, ContactId, SyncSessionId)}).
+	 *
+	 * @return The IDs of any affected contacts
 	 */
-	void resetIncompleteSyncSessions(T txn) throws DbException;
+	Collection<ContactId> resetAckStatus(T txn) throws DbException;
+
+	/**
+	 * Resets the transmission counts, expiry times and ETA of any messages
+	 * sent in incomplete sessions (ie where the message IDs were recorded via
+	 * {@link #addSentMessageIds(Object, ContactId, SyncSessionId, Collection)}
+	 * and not subsequently removed via
+	 * {@link #setSyncSessionComplete(Object, ContactId, SyncSessionId)}).
+	 *
+	 * @return The IDs of any affected contacts
+	 */
+	Collection<ContactId> resetMessageStatus(T txn) throws DbException;
 
 	/**
 	 * Resets the transmission count, expiry time and ETA of all messages that
 	 * are eligible to be sent to the given contact. This includes messages that
 	 * have already been sent and are not yet due for retransmission.
+	 *
+	 * @return True if any messages were affected
 	 */
-	void resetUnackedMessagesToSend(T txn, ContactId c) throws DbException;
+	boolean resetUnackedMessagesToSend(T txn, ContactId c) throws DbException;
 
 	/**
 	 * Sets the cleanup timer duration for the given message. This does not

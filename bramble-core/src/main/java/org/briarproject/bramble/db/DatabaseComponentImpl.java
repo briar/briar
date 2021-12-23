@@ -68,6 +68,7 @@ import org.briarproject.bramble.api.sync.event.MessageToAckEvent;
 import org.briarproject.bramble.api.sync.event.MessageToRequestEvent;
 import org.briarproject.bramble.api.sync.event.MessagesAckedEvent;
 import org.briarproject.bramble.api.sync.event.MessagesSentEvent;
+import org.briarproject.bramble.api.sync.event.RetransmissionTimeChangedEvent;
 import org.briarproject.bramble.api.sync.event.SyncVersionsUpdatedEvent;
 import org.briarproject.bramble.api.sync.validation.MessageState;
 import org.briarproject.bramble.api.transport.KeySetId;
@@ -785,7 +786,9 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 		T txn = unbox(transaction);
 		if (!db.containsContact(txn, c))
 			throw new NoSuchContactException();
-		db.resetUnackedMessagesToSend(txn, c);
+		if (db.resetUnackedMessagesToSend(txn, c)) {
+			eventBus.broadcast(new RetransmissionTimeChangedEvent(c));
+		}
 	}
 
 	@Override
@@ -1105,7 +1108,10 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 		T txn = unbox(transaction);
 		if (!db.containsContact(txn, c))
 			throw new NoSuchContactException();
-		db.resetIncompleteSyncSession(txn, c, s);
+		if (db.resetAckStatus(txn, c, s))
+			transaction.attach(new MessageToAckEvent(c));
+		if (db.resetMessageStatus(txn, c, s))
+			transaction.attach(new RetransmissionTimeChangedEvent(c));
 	}
 
 	@Override
@@ -1113,7 +1119,12 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 			throws DbException {
 		if (transaction.isReadOnly()) throw new IllegalArgumentException();
 		T txn = unbox(transaction);
-		db.resetIncompleteSyncSessions(txn);
+		for (ContactId affected : db.resetAckStatus(txn)) {
+			transaction.attach(new MessageToAckEvent(affected));
+		}
+		for (ContactId affected : db.resetMessageStatus(txn)) {
+			transaction.attach(new RetransmissionTimeChangedEvent(affected));
+		}
 	}
 
 	@Override

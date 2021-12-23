@@ -36,11 +36,11 @@ class Migration49_50 implements Migration<Connection> {
 		Statement s = null;
 		try {
 			s = txn.createStatement();
-			s.execute(dbTypes.replaceTypes("CREATE TABLE syncSessionMessages"
+			s.execute(dbTypes.replaceTypes("CREATE TABLE syncSessions"
 					+ " (contactId INT NOT NULL,"
 					+ " syncSessionId _HASH NOT NULL,"
-					+ " messageId _HASH NOT NULL,"
 					+ " acked BOOLEAN NOT NULL,"
+					+ " messageId _HASH NOT NULL,"
 					+ " FOREIGN KEY (contactId)"
 					+ " REFERENCES contacts (contactId)"
 					+ " ON DELETE CASCADE,"
@@ -48,8 +48,8 @@ class Migration49_50 implements Migration<Connection> {
 					+ " REFERENCES messages (messageId)"
 					+ " ON DELETE CASCADE)"));
 			s.execute(dbTypes.replaceTypes("CREATE INDEX"
-					+ " syncSessionMessagesByContactIdSyncSessionId"
-					+ " ON syncSessionMessages (contactId, syncSessionId)"));
+					+ " syncSessionsByContactIdSyncSessionIdAcked"
+					+ " ON syncSessions (contactId, syncSessionId, acked)"));
 		} catch (SQLException e) {
 			tryToClose(s, LOG, WARNING);
 			throw new DbException(e);
