@@ -774,6 +774,22 @@ interface Database<T> {
 
 	/**
 	 * Resets the transmission counts and expiry times of any messages sent in
+	 * the given session (ie where the message IDs were recorded via
+	 * {@link #addSentMessageIds(T, ContactId, SyncSessionId, Collection)}
+	 * and not subsequently removed via
+	 * {@link #setSyncSessionComplete(T, ContactId, SyncSessionId)}).
+	 * <p>
+	 * Also raises the ack flags of any messages acked in the given session
+	 * (ie where the message IDs were recorded via
+	 * {@link #addAckedMessageIds(T, ContactId, SyncSessionId, Collection)}
+	 * and not subsequently removed via
+	 * {@link #setSyncSessionComplete(T, ContactId, SyncSessionId)}).
+	 */
+	void resetIncompleteSyncSession(T txn, ContactId c, SyncSessionId s)
+			throws DbException;
+
+	/**
+	 * Resets the transmission counts and expiry times of any messages sent in
 	 * incomplete sessions (ie where the message IDs were recorded via
 	 * {@link #addSentMessageIds(Object, ContactId, SyncSessionId, Collection)}
 	 * and not subsequently removed via

@@ -3362,6 +3362,58 @@ abstract class JdbcDatabase implements Database<Connection> {
 	}
 
 	@Override
+	public void resetIncompleteSyncSession(Connection txn, ContactId c,
+			SyncSessionId s) throws DbException {
+		PreparedStatement ps = null;
+		try {
+			// Reset transmission count and expiry time for sent messages
+			String sql = "UPDATE statuses SET txCount = 0, expiry = 0"
+					+ " WHERE statuses.contactId = ?"
+					+ " AND EXISTS"
+					+ " (SELECT * FROM syncSessionMessages AS ssm"
+					+ " WHERE ssm.contactId = ? AND ssm.syncSessionId = ?"
+					+ " AND statuses.messageId = ssm.messageId"
+					+ " AND statuses.contactId = ssm.contactId"
+					+ " AND ssm.acked = FALSE)";
+			ps = txn.prepareStatement(sql);
+			ps.setInt(1, c.getInt());
+			ps.setInt(2, c.getInt());
+			ps.setBytes(3, s.getBytes());
+			int affected = ps.executeUpdate();
+			if (affected < 0) throw new DbStateException();
+			ps.close();
+			// Raise ack flag for acked messages
+			sql = "UPDATE statuses SET ack = TRUE"
+					+ " WHERE statuses.contactId = ?"
+					+ " AND EXISTS"
+					+ " (SELECT * FROM syncSessionMessages AS ssm"
+					+ " WHERE ssm.contactId = ? AND ssm.syncSessionId = ?"
+					+ " AND statuses.messageId = ssm.messageId"
+					+ " AND statuses.contactId = ssm.contactId"
+					+ " AND ssm.acked = TRUE)";
+			ps = txn.prepareStatement(sql);
+			ps.setInt(1, c.getInt());
+			ps.setInt(2, c.getInt());
+			ps.setBytes(3, s.getBytes());
+			affected = ps.executeUpdate();
+			if (affected < 0) throw new DbStateException();
+			ps.close();
+			// Delete state for incomplete session
+			sql = "DELETE FROM syncSessionMessages"
+					+ " WHERE contactId = ? AND syncSessionId = ?";
+			ps = txn.prepareStatement(sql);
+			ps.setInt(1, c.getInt());
+			ps.setBytes(2, s.getBytes());
+			affected = ps.executeUpdate();
+			if (affected < 0) throw new DbStateException();
+			ps.close();
+		} catch (SQLException e) {
+			tryToClose(ps, LOG, WARNING);
+			throw new DbException(e);
+		}
+	}
+
+	@Override
 	public void resetIncompleteSyncSessions(Connection txn) throws DbException {
 		Statement s = null;
 		try {

@@ -118,17 +118,12 @@ class SimplexOutgoingSession implements SyncSession, EventListener {
 			// Send the end of stream marker - if this succeeds we conclude
 			// that all acks/messages that were marked as sent have been sent
 			streamWriter.sendEndOfStream();
-			if (syncSessionId != null) {
-				// Now that the output stream has been flushed we can remove
-				// the acked and sent IDs from the database
-				try {
-					db.transaction(false, txn ->
-							db.setSyncSessionComplete(txn, contactId,
-									syncSessionId));
-				} catch (DbException e) {
-					logException(LOG, WARNING, e);
-				}
-			}
+			// Now that the output stream has been flushed we can remove
+			// the acked and sent IDs from the database
+			if (syncSessionId != null) setSyncSessionComplete(syncSessionId);
+		} catch (IOException e) {
+			if (syncSessionId != null) resetSyncSession(syncSessionId);
+			throw e;
 		} finally {
 			eventBus.removeListener(this);
 		}
@@ -231,6 +226,25 @@ class SimplexOutgoingSession implements SyncSession, EventListener {
 		for (Message m : b) recordWriter.writeMessage(m);
 		LOG.info("Sent batch");
 		return true;
+	}
+
+	private void setSyncSessionComplete(SyncSessionId syncSessionId) {
+		try {
+			db.transaction(false, txn ->
+					db.setSyncSessionComplete(txn, contactId, syncSessionId));
+		} catch (DbException e) {
+			logException(LOG, WARNING, e);
+		}
+	}
+
+	private void resetSyncSession(SyncSessionId syncSessionId) {
+		try {
+			db.transaction(false, txn ->
+					db.resetIncompleteSyncSession(txn, contactId,
+							syncSessionId));
+		} catch (DbException e) {
+			logException(LOG, WARNING, e);
+		}
 	}
 
 	private Collection<MessageId> getIds(Collection<Message> batch) {

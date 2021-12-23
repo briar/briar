@@ -665,6 +665,22 @@ public interface DatabaseComponent extends TransactionManager {
 
 	/**
 	 * Resets the transmission counts and expiry times of any messages sent in
+	 * the given session (ie where the message IDs were recorded via
+	 * {@link #addSentMessageIds(Transaction, ContactId, SyncSessionId,
+	 * Collection)} and not subsequently removed via
+	 * {@link #setSyncSessionComplete(Transaction, ContactId, SyncSessionId)}).
+	 * <p>
+	 * Also raises the ack flags of any messages acked in the given session
+	 * (ie where the message IDs were recorded via
+	 * {@link #addAckedMessageIds(Transaction, ContactId, SyncSessionId,
+	 * Collection)} and not subsequently removed via
+	 * {@link #setSyncSessionComplete(Transaction, ContactId, SyncSessionId)}).
+	 */
+	void resetIncompleteSyncSession(Transaction txn, ContactId c,
+			SyncSessionId s) throws DbException;
+
+	/**
+	 * Resets the transmission counts and expiry times of any messages sent in
 	 * incomplete sessions (ie where the message IDs were recorded via
 	 * {@link #addSentMessageIds(Transaction, ContactId, SyncSessionId,
 	 * Collection)} and not subsequently removed via

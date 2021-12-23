@@ -349,12 +349,12 @@ public class SimplexOutgoingSessionTest extends BrambleMockTestCase {
 	}
 
 	@Test
-	public void testSessionIsNotMarkedCompleteIfIoExceptionIsThrown()
-			throws Exception {
+	public void testSessionIsResetIfIoExceptionIsThrown() throws Exception {
 		SyncSessionId syncSessionId = new SyncSessionId(getRandomId());
 		SimplexOutgoingSession session = createSession(false, syncSessionId);
 
 		Transaction ackTxn = new Transaction(null, false);
+		Transaction resetTxn = new Transaction(null, false);
 
 		context.checking(new DbExpectations() {{
 			// Add listener
@@ -371,6 +371,10 @@ public class SimplexOutgoingSessionTest extends BrambleMockTestCase {
 			// Write throws exception
 			oneOf(recordWriter).writeAck(ack);
 			will(throwException(new IOException()));
+			// Reset the incomplete session
+			oneOf(db).transaction(with(false), withDbRunnable(resetTxn));
+			oneOf(db).resetIncompleteSyncSession(resetTxn, contactId,
+					syncSessionId);
 			// Remove listener
 			oneOf(eventBus).removeListener(session);
 		}});

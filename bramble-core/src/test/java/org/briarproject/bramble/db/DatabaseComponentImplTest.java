@@ -301,11 +301,11 @@ public class DatabaseComponentImplTest extends BrambleMockTestCase {
 			throws Exception {
 		context.checking(new Expectations() {{
 			// Check whether the contact is in the DB (which it's not)
-			exactly(22).of(database).startTransaction();
+			exactly(23).of(database).startTransaction();
 			will(returnValue(txn));
-			exactly(22).of(database).containsContact(txn, contactId);
+			exactly(23).of(database).containsContact(txn, contactId);
 			will(returnValue(false));
-			exactly(22).of(database).abortTransaction(txn);
+			exactly(23).of(database).abortTransaction(txn);
 		}});
 		DatabaseComponent db = createDatabaseComponent(database, eventBus,
 				eventExecutor, shutdownManager);
@@ -455,6 +455,15 @@ public class DatabaseComponentImplTest extends BrambleMockTestCase {
 		try {
 			db.transaction(false, transaction ->
 					db.removeContact(transaction, contactId));
+			fail();
+		} catch (NoSuchContactException expected) {
+			// Expected
+		}
+
+		try {
+			db.transaction(false, transaction ->
+					db.resetIncompleteSyncSession(transaction, contactId,
+							syncSessionId));
 			fail();
 		} catch (NoSuchContactException expected) {
 			// Expected

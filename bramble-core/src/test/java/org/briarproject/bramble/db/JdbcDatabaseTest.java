@@ -2544,14 +2544,19 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 
 	@Test
 	public void testIncompleteSessions() throws Exception {
-		testIncompleteSessions(false, false);
-		testIncompleteSessions(false, true);
-		testIncompleteSessions(true, false);
-		testIncompleteSessions(true, true);
+		testIncompleteSessions(false, false, false);
+		testIncompleteSessions(false, false, true);
+		testIncompleteSessions(false, true, false);
+		testIncompleteSessions(false, true, true);
+		testIncompleteSessions(true, false, false);
+		testIncompleteSessions(true, false, true);
+		testIncompleteSessions(true, true, false);
+		testIncompleteSessions(true, true, true);
 	}
 
 	private void testIncompleteSessions(boolean firstSessionComplete,
-			boolean secondSessionComplete) throws Exception {
+			boolean secondSessionComplete, boolean incompleteSessionsCrash)
+			throws Exception {
 		Message message1 = getMessage(groupId);
 		MessageId messageId1 = message1.getId();
 
@@ -2595,6 +2600,15 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 		if (firstSessionComplete) {
 			// Mark the first session as complete
 			db.setSyncSessionComplete(txn, contactId, syncSessionId);
+			// The first message should not be sendable
+			assertEquals(emptyList(), db.getMessagesToSend(txn, contactId,
+					ONE_MEGABYTE, MAX_LATENCY));
+		} else if (!incompleteSessionsCrash) {
+			// Reset the incomplete first session
+			db.resetIncompleteSyncSession(txn, contactId, syncSessionId);
+			// The first message should be sendable again
+			assertEquals(singletonList(messageId), db.getMessagesToSend(txn,
+					contactId, ONE_MEGABYTE, MAX_LATENCY));
 		}
 
 		// Second sync session
@@ -2621,9 +2635,17 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 		if (secondSessionComplete) {
 			// Mark the second session as complete
 			db.setSyncSessionComplete(txn, contactId, syncSessionId1);
+			// The second message should not need to be acked
+			assertEquals(emptyList(), db.getMessagesToAck(txn, contactId, 100));
+		} else if (!incompleteSessionsCrash) {
+			// Reset the incomplete second session
+			db.resetIncompleteSyncSession(txn, contactId, syncSessionId1);
+			// The second message should need to be acked again
+			assertEquals(singletonList(messageId1),
+					db.getMessagesToAck(txn, contactId, 100));
 		}
 
-		// Reset incomplete sessions
+		// Next startup: reset any incomplete sessions
 		db.resetIncompleteSyncSessions(txn);
 
 		// If the first session was not marked as complete, the first message

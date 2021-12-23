@@ -1099,6 +1099,16 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 	}
 
 	@Override
+	public void resetIncompleteSyncSession(Transaction transaction,
+			ContactId c, SyncSessionId s) throws DbException {
+		if (transaction.isReadOnly()) throw new IllegalArgumentException();
+		T txn = unbox(transaction);
+		if (!db.containsContact(txn, c))
+			throw new NoSuchContactException();
+		db.resetIncompleteSyncSession(txn, c, s);
+	}
+
+	@Override
 	public void resetIncompleteSyncSessions(Transaction transaction)
 			throws DbException {
 		if (transaction.isReadOnly()) throw new IllegalArgumentException();
