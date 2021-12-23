@@ -721,14 +721,14 @@ abstract class JdbcDatabase implements Database<Connection> {
 		PreparedStatement ps = null;
 		try {
 			String sql = "INSERT INTO syncSessions"
-					+ " (contactId, syncSessionId, messageId, acked)"
+					+ " (contactId, syncSessionId, acked, messageId)"
 					+ " VALUES (?, ?, ?, ?)";
 			ps = txn.prepareStatement(sql);
 			ps.setInt(1, c.getInt());
 			ps.setBytes(2, s.getBytes());
-			ps.setBoolean(4, acked);
+			ps.setBoolean(3, acked);
 			for (MessageId m : ids) {
-				ps.setBytes(3, m.getBytes());
+				ps.setBytes(4, m.getBytes());
 				ps.addBatch();
 			}
 			int[] batchAffected = ps.executeBatch();
