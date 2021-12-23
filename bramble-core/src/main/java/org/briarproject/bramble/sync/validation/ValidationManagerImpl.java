@@ -78,6 +78,7 @@ class ValidationManagerImpl implements ValidationManager, Service,
 	@Override
 	public void startService() {
 		if (used.getAndSet(true)) throw new IllegalStateException();
+		resetIncompleteSyncSessionsAsync();
 		validateOutstandingMessagesAsync();
 		deliverOutstandingMessagesAsync();
 		shareOutstandingMessagesAsync();
@@ -97,6 +98,19 @@ class ValidationManagerImpl implements ValidationManager, Service,
 	public void registerIncomingMessageHook(ClientId c, int majorVersion,
 			IncomingMessageHook hook) {
 		hooks.put(new ClientMajorVersion(c, majorVersion), hook);
+	}
+
+	private void resetIncompleteSyncSessionsAsync() {
+		dbExecutor.execute(this::resetIncompleteSyncSessions);
+	}
+
+	@DatabaseExecutor
+	private void resetIncompleteSyncSessions() {
+		try {
+			db.transaction(false, db::resetIncompleteSyncSessions);
+		} catch (DbException e) {
+			logException(LOG, WARNING, e);
+		}
 	}
 
 	private void validateOutstandingMessagesAsync() {

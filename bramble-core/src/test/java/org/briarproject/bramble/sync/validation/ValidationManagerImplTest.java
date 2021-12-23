@@ -81,6 +81,7 @@ public class ValidationManagerImplTest extends BrambleMockTestCase {
 
 	@Test
 	public void testStartAndStop() throws Exception {
+		expectResetIncompleteSyncSessions();
 		expectGetMessagesToValidate();
 		expectGetPendingMessages();
 		expectGetMessagesToShare();
@@ -96,6 +97,7 @@ public class ValidationManagerImplTest extends BrambleMockTestCase {
 		Transaction txn2 = new Transaction(null, true);
 		Transaction txn3 = new Transaction(null, false);
 
+		expectResetIncompleteSyncSessions();
 		expectGetMessagesToValidate(messageId, messageId1);
 
 		context.checking(new DbExpectations() {{
@@ -150,6 +152,7 @@ public class ValidationManagerImplTest extends BrambleMockTestCase {
 		Transaction txn = new Transaction(null, false);
 		Transaction txn1 = new Transaction(null, false);
 
+		expectResetIncompleteSyncSessions();
 		expectGetMessagesToValidate();
 		expectGetPendingMessages(messageId);
 
@@ -206,6 +209,7 @@ public class ValidationManagerImplTest extends BrambleMockTestCase {
 		Transaction txn = new Transaction(null, false);
 		Transaction txn1 = new Transaction(null, false);
 
+		expectResetIncompleteSyncSessions();
 		expectGetMessagesToValidate();
 		expectGetPendingMessages();
 		expectGetMessagesToShare(messageId);
@@ -273,6 +277,7 @@ public class ValidationManagerImplTest extends BrambleMockTestCase {
 		Transaction txn1 = new Transaction(null, true);
 		Transaction txn2 = new Transaction(null, false);
 
+		expectResetIncompleteSyncSessions();
 		expectGetMessagesToValidate(messageId, messageId1);
 
 		context.checking(new DbExpectations() {{
@@ -314,6 +319,7 @@ public class ValidationManagerImplTest extends BrambleMockTestCase {
 		Transaction txn1 = new Transaction(null, true);
 		Transaction txn2 = new Transaction(null, false);
 
+		expectResetIncompleteSyncSessions();
 		expectGetMessagesToValidate(messageId, messageId1);
 
 		context.checking(new DbExpectations() {{
@@ -734,6 +740,15 @@ public class ValidationManagerImplTest extends BrambleMockTestCase {
 		}});
 
 		vm.eventOccurred(new MessageAddedEvent(message, contactId));
+	}
+
+	private void expectResetIncompleteSyncSessions() throws Exception {
+		Transaction txn = new Transaction(null, false);
+
+		context.checking(new DbExpectations() {{
+			oneOf(db).transaction(with(false), withDbRunnable(txn));
+			oneOf(db).resetIncompleteSyncSessions(txn);
+		}});
 	}
 
 	private void expectGetMessagesToValidate(MessageId... ids)
