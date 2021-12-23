@@ -3,13 +3,16 @@ package org.briarproject.briar.attachment;
 import org.briarproject.bramble.api.client.ClientHelper;
 import org.briarproject.bramble.api.data.BdfDictionary;
 import org.briarproject.bramble.api.data.BdfEntry;
+import org.briarproject.bramble.api.db.DatabaseComponent;
 import org.briarproject.bramble.api.db.NoSuchMessageException;
+import org.briarproject.bramble.api.db.Transaction;
+import org.briarproject.bramble.api.db.TransactionManager;
 import org.briarproject.bramble.api.sync.GroupId;
 import org.briarproject.bramble.api.sync.Message;
 import org.briarproject.bramble.test.BrambleMockTestCase;
+import org.briarproject.bramble.test.DbExpectations;
 import org.briarproject.briar.api.attachment.Attachment;
 import org.briarproject.briar.api.attachment.AttachmentHeader;
-import org.jmock.Expectations;
 import org.junit.Test;
 
 import java.io.ByteArrayOutputStream;
@@ -25,6 +28,7 @@ import static org.junit.Assert.assertArrayEquals;
 
 public class AttachmentReaderImplTest extends BrambleMockTestCase {
 
+	private final TransactionManager db = context.mock(DatabaseComponent.class);
 	private final ClientHelper clientHelper = context.mock(ClientHelper.class);
 
 	private final GroupId groupId = new GroupId(getRandomId());
@@ -34,7 +38,7 @@ public class AttachmentReaderImplTest extends BrambleMockTestCase {
 			message.getId(), contentType);
 
 	private final AttachmentReaderImpl attachmentReader =
-			new AttachmentReaderImpl(clientHelper);
+			new AttachmentReaderImpl(db, clientHelper);
 
 	@Test(expected = NoSuchMessageException.class)
 	public void testWrongGroup() throws Exception {
@@ -42,8 +46,11 @@ public class AttachmentReaderImplTest extends BrambleMockTestCase {
 		AttachmentHeader wrongGroup = new AttachmentHeader(wrongGroupId,
 				message.getId(), contentType);
 
-		context.checking(new Expectations() {{
-			oneOf(clientHelper).getMessage(message.getId());
+		Transaction txn = new Transaction(null, true);
+
+		context.checking(new DbExpectations() {{
+			oneOf(db).transactionWithResult(with(true), withDbCallable(txn));
+			oneOf(clientHelper).getMessage(txn, message.getId());
 			will(returnValue(message));
 		}});
 
@@ -74,10 +81,14 @@ public class AttachmentReaderImplTest extends BrambleMockTestCase {
 	}
 
 	private void testInvalidMetadata(BdfDictionary meta) throws Exception {
-		context.checking(new Expectations() {{
-			oneOf(clientHelper).getMessage(message.getId());
+		Transaction txn = new Transaction(null, true);
+
+		context.checking(new DbExpectations() {{
+			oneOf(db).transactionWithResult(with(true), withDbCallable(txn));
+			oneOf(clientHelper).getMessage(txn, message.getId());
 			will(returnValue(message));
-			oneOf(clientHelper).getMessageMetadataAsDictionary(message.getId());
+			oneOf(clientHelper)
+					.getMessageMetadataAsDictionary(txn, message.getId());
 			will(returnValue(meta));
 		}});
 
@@ -95,10 +106,14 @@ public class AttachmentReaderImplTest extends BrambleMockTestCase {
 		byte[] expectedData = new byte[body.length - descriptorLength];
 		arraycopy(body, descriptorLength, expectedData, 0, expectedData.length);
 
-		context.checking(new Expectations() {{
-			oneOf(clientHelper).getMessage(message.getId());
+		Transaction txn = new Transaction(null, true);
+
+		context.checking(new DbExpectations() {{
+			oneOf(db).transactionWithResult(with(true), withDbCallable(txn));
+			oneOf(clientHelper).getMessage(txn, message.getId());
 			will(returnValue(message));
-			oneOf(clientHelper).getMessageMetadataAsDictionary(message.getId());
+			oneOf(clientHelper)
+					.getMessageMetadataAsDictionary(txn, message.getId());
 			will(returnValue(meta));
 		}});
 
