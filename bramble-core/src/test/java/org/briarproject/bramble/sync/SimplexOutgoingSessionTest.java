@@ -2,6 +2,7 @@ package org.briarproject.bramble.sync;
 
 import org.briarproject.bramble.api.contact.ContactId;
 import org.briarproject.bramble.api.db.DatabaseComponent;
+import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.db.Transaction;
 import org.briarproject.bramble.api.event.EventBus;
 import org.briarproject.bramble.api.plugin.TransportId;
@@ -17,6 +18,7 @@ import org.briarproject.bramble.test.BrambleMockTestCase;
 import org.briarproject.bramble.test.DbExpectations;
 import org.junit.Test;
 
+import java.io.IOException;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -31,6 +33,7 @@ import static org.briarproject.bramble.test.TestUtils.getContactId;
 import static org.briarproject.bramble.test.TestUtils.getMessage;
 import static org.briarproject.bramble.test.TestUtils.getRandomId;
 import static org.briarproject.bramble.test.TestUtils.getTransportId;
+import static org.junit.Assert.fail;
 
 public class SimplexOutgoingSessionTest extends BrambleMockTestCase {
 
@@ -143,8 +146,8 @@ public class SimplexOutgoingSessionTest extends BrambleMockTestCase {
 			oneOf(streamWriter).sendEndOfStream();
 			// Remove any acked/sent message IDs
 			oneOf(db).transaction(with(false), withDbRunnable(rmIdsTxn));
-			oneOf(db)
-					.setSyncSessionComplete(rmIdsTxn, contactId, syncSessionId);
+			oneOf(db).setSyncSessionComplete(rmIdsTxn, contactId,
+					syncSessionId);
 			// Remove listener
 			oneOf(eventBus).removeListener(session);
 		}});
@@ -304,13 +307,80 @@ public class SimplexOutgoingSessionTest extends BrambleMockTestCase {
 			oneOf(streamWriter).sendEndOfStream();
 			// Remove any acked/sent message IDs
 			oneOf(db).transaction(with(false), withDbRunnable(rmIdsTxn));
-			oneOf(db)
-					.setSyncSessionComplete(rmIdsTxn, contactId, syncSessionId);
+			oneOf(db).setSyncSessionComplete(rmIdsTxn, contactId,
+					syncSessionId);
 			// Remove listener
 			oneOf(eventBus).removeListener(session);
 		}});
 
 		session.run();
+	}
+
+	@Test
+	public void testSessionIsMarkedCompleteIfDbExceptionIsThrown()
+			throws Exception {
+		SyncSessionId syncSessionId = new SyncSessionId(getRandomId());
+		SimplexOutgoingSession session = createSession(false, syncSessionId);
+
+		Transaction ackTxn = new Transaction(null, false);
+		Transaction rmIdsTxn = new Transaction(null, false);
+
+		context.checking(new DbExpectations() {{
+			// Add listener
+			oneOf(eventBus).addListener(session);
+			// Send the protocol versions
+			oneOf(recordWriter).writeVersions(with(any(Versions.class)));
+			// DB transaction throws exception
+			oneOf(db).transactionWithNullableResult(with(false),
+					withNullableDbCallable(ackTxn));
+			oneOf(db).generateAck(ackTxn, contactId, MAX_MESSAGE_IDS);
+			will(throwException(new DbException()));
+			// Send the end of stream marker
+			oneOf(streamWriter).sendEndOfStream();
+			// Remove any acked/sent message IDs
+			oneOf(db).transaction(with(false), withDbRunnable(rmIdsTxn));
+			oneOf(db).setSyncSessionComplete(rmIdsTxn, contactId,
+					syncSessionId);
+			// Remove listener
+			oneOf(eventBus).removeListener(session);
+		}});
+
+		session.run();
+	}
+
+	@Test
+	public void testSessionIsNotMarkedCompleteIfIoExceptionIsThrown()
+			throws Exception {
+		SyncSessionId syncSessionId = new SyncSessionId(getRandomId());
+		SimplexOutgoingSession session = createSession(false, syncSessionId);
+
+		Transaction ackTxn = new Transaction(null, false);
+
+		context.checking(new DbExpectations() {{
+			// Add listener
+			oneOf(eventBus).addListener(session);
+			// Send the protocol versions
+			oneOf(recordWriter).writeVersions(with(any(Versions.class)));
+			// One ack to send
+			oneOf(db).transactionWithNullableResult(with(false),
+					withNullableDbCallable(ackTxn));
+			oneOf(db).generateAck(ackTxn, contactId, MAX_MESSAGE_IDS);
+			will(returnValue(ack));
+			oneOf(db).addAckedMessageIds(ackTxn, contactId, syncSessionId,
+					ack.getMessageIds());
+			// Write throws exception
+			oneOf(recordWriter).writeAck(ack);
+			will(throwException(new IOException()));
+			// Remove listener
+			oneOf(eventBus).removeListener(session);
+		}});
+
+		try {
+			session.run();
+			fail();
+		} catch (IOException expected) {
+			// Expected
+		}
 	}
 
 	private SimplexOutgoingSession createSession(boolean eager,

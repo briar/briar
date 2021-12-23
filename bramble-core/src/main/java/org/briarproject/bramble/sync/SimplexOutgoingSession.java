@@ -115,6 +115,8 @@ class SimplexOutgoingSession implements SyncSession, EventListener {
 			} catch (DbException e) {
 				logException(LOG, WARNING, e);
 			}
+			// Send the end of stream marker - if this succeeds we conclude
+			// that all acks/messages that were marked as sent have been sent
 			streamWriter.sendEndOfStream();
 			if (syncSessionId != null) {
 				// Now that the output stream has been flushed we can remove
