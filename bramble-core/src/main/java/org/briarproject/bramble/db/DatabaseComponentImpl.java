@@ -56,6 +56,7 @@ import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.bramble.api.sync.MessageStatus;
 import org.briarproject.bramble.api.sync.Offer;
 import org.briarproject.bramble.api.sync.Request;
+import org.briarproject.bramble.api.sync.SyncSessionId;
 import org.briarproject.bramble.api.sync.event.GroupAddedEvent;
 import org.briarproject.bramble.api.sync.event.GroupRemovedEvent;
 import org.briarproject.bramble.api.sync.event.GroupVisibilityUpdatedEvent;
@@ -237,6 +238,20 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 	}
 
 	@Override
+	public void addAckedMessageIds(Transaction transaction, ContactId c,
+			SyncSessionId s, Collection<MessageId> acked) throws DbException {
+		if (transaction.isReadOnly()) throw new IllegalArgumentException();
+		T txn = unbox(transaction);
+		if (!db.containsContact(txn, c))
+			throw new NoSuchContactException();
+		for (MessageId m : acked) {
+			if (!db.containsMessage(txn, m))
+				throw new NoSuchMessageException();
+		}
+		db.addAckedMessageIds(txn, c, s, acked);
+	}
+
+	@Override
 	public ContactId addContact(Transaction transaction, Author remote,
 			AuthorId local, @Nullable PublicKey handshake, boolean verified)
 			throws DbException {
@@ -306,6 +321,20 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 		}
 		db.addPendingContact(txn, p);
 		transaction.attach(new PendingContactAddedEvent(p));
+	}
+
+	@Override
+	public void addSentMessageIds(Transaction transaction, ContactId c,
+			SyncSessionId s, Collection<MessageId> sent) throws DbException {
+		if (transaction.isReadOnly()) throw new IllegalArgumentException();
+		T txn = unbox(transaction);
+		if (!db.containsContact(txn, c))
+			throw new NoSuchContactException();
+		for (MessageId m : sent) {
+			if (!db.containsMessage(txn, m))
+				throw new NoSuchMessageException();
+		}
+		db.addSentMessageIds(txn, c, s, sent);
 	}
 
 	@Override
@@ -1070,6 +1099,14 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 	}
 
 	@Override
+	public void resetIncompleteSyncSessions(Transaction transaction)
+			throws DbException {
+		if (transaction.isReadOnly()) throw new IllegalArgumentException();
+		T txn = unbox(transaction);
+		db.resetIncompleteSyncSessions(txn);
+	}
+
+	@Override
 	public void setCleanupTimerDuration(Transaction transaction, MessageId m,
 			long duration) throws DbException {
 		if (transaction.isReadOnly()) throw new IllegalArgumentException();
@@ -1197,6 +1234,16 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 		if (!db.containsTransport(txn, t))
 			throw new NoSuchTransportException();
 		db.setReorderingWindow(txn, k, t, timePeriod, base, bitmap);
+	}
+
+	@Override
+	public void setSyncSessionComplete(Transaction transaction, ContactId c,
+			SyncSessionId s) throws DbException {
+		if (transaction.isReadOnly()) throw new IllegalArgumentException();
+		T txn = unbox(transaction);
+		if (!db.containsContact(txn, c))
+			throw new NoSuchContactException();
+		db.setSyncSessionComplete(txn, c, s);
 	}
 
 	@Override

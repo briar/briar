@@ -22,6 +22,7 @@ import org.briarproject.bramble.api.sync.Message;
 import org.briarproject.bramble.api.sync.MessageFactory;
 import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.bramble.api.sync.MessageStatus;
+import org.briarproject.bramble.api.sync.SyncSessionId;
 import org.briarproject.bramble.api.sync.validation.MessageState;
 import org.briarproject.bramble.api.system.Clock;
 import org.briarproject.bramble.api.transport.IncomingKeys;
@@ -2539,6 +2540,107 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 		db.deleteMessage(txn, messageId);
 		assertTrue(db.getMessagesToDelete(txn).isEmpty());
 		assertEquals(NO_CLEANUP_DEADLINE, db.getNextCleanupDeadline(txn));
+	}
+
+	@Test
+	public void testIncompleteSessions() throws Exception {
+		testIncompleteSessions(false, false);
+		testIncompleteSessions(false, true);
+		testIncompleteSessions(true, false);
+		testIncompleteSessions(true, true);
+	}
+
+	private void testIncompleteSessions(boolean firstSessionComplete,
+			boolean secondSessionComplete) throws Exception {
+		Message message1 = getMessage(groupId);
+		MessageId messageId1 = message1.getId();
+
+		Database<Connection> db = open(false);
+		Connection txn = db.startTransaction();
+
+		// Add a contact, a shared group and a shared message
+		db.addIdentity(txn, identity);
+		assertEquals(contactId,
+				db.addContact(txn, author, localAuthor.getId(), null, true));
+		db.addGroup(txn, group);
+		db.addGroupVisibility(txn, contactId, groupId, true);
+		db.addMessage(txn, message, DELIVERED, true, false, null);
+
+		// Add another shared message that was received from the contact
+		db.addMessage(txn, message1, DELIVERED, true, false, contactId);
+		db.raiseAckFlag(txn, contactId, messageId1);
+
+		// First sync session
+		SyncSessionId syncSessionId = new SyncSessionId(getRandomId());
+
+		// The first message should be sendable to the contact
+		assertEquals(singletonList(messageId), db.getMessagesToSend(txn,
+				contactId, ONE_MEGABYTE, MAX_LATENCY));
+
+		// Mark the first message as sent to the contact
+		db.updateExpiryTimeAndEta(txn, contactId, messageId, MAX_LATENCY);
+
+		// The first message should no longer be sendable
+		assertEquals(emptyList(), db.getMessagesToSend(txn, contactId,
+				ONE_MEGABYTE, MAX_LATENCY));
+
+		// Record the first message as having been sent in the first session
+		db.addSentMessageIds(txn, contactId, syncSessionId,
+				singletonList(messageId));
+
+		// Record the same message ID again to test that duplicates are handled
+		db.addSentMessageIds(txn, contactId, syncSessionId,
+				singletonList(messageId));
+
+		if (firstSessionComplete) {
+			// Mark the first session as complete
+			db.setSyncSessionComplete(txn, contactId, syncSessionId);
+		}
+
+		// Second sync session
+		SyncSessionId syncSessionId1 = new SyncSessionId(getRandomId());
+
+		// The second message should need to be acked
+		assertEquals(singletonList(messageId1),
+				db.getMessagesToAck(txn, contactId, 100));
+
+		// Mark the ack as sent
+		db.lowerAckFlag(txn, contactId, singletonList(messageId1));
+
+		// The second message should no longer need to be acked
+		assertEquals(emptyList(), db.getMessagesToAck(txn, contactId, 100));
+
+		// Record the second message as having been acked in the second session
+		db.addAckedMessageIds(txn, contactId, syncSessionId1,
+				singletonList(messageId1));
+
+		// Record the same message ID again to test that duplicates are handled
+		db.addAckedMessageIds(txn, contactId, syncSessionId1,
+				singletonList(messageId1));
+
+		if (secondSessionComplete) {
+			// Mark the second session as complete
+			db.setSyncSessionComplete(txn, contactId, syncSessionId1);
+		}
+
+		// Reset incomplete sessions
+		db.resetIncompleteSyncSessions(txn);
+
+		// If the first session was not marked as complete, the first message
+		// should be sendable again
+		Collection<MessageId> ids =
+				db.getMessagesToSend(txn, contactId, ONE_MEGABYTE, MAX_LATENCY);
+		if (firstSessionComplete) assertEquals(emptyList(), ids);
+		else assertEquals(singletonList(messageId), ids);
+
+		// If the second session was not marked as complete, the second message
+		// should need to be acked again
+		ids = db.getMessagesToAck(txn, contactId, 100);
+		if (secondSessionComplete) assertEquals(emptyList(), ids);
+		else assertEquals(singletonList(messageId1), ids);
+
+		db.commitTransaction(txn);
+		db.close();
 	}
 
 	private Database<Connection> open(boolean resume) throws Exception {

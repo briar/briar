@@ -23,6 +23,7 @@ import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.bramble.api.sync.MessageStatus;
 import org.briarproject.bramble.api.sync.Offer;
 import org.briarproject.bramble.api.sync.Request;
+import org.briarproject.bramble.api.sync.SyncSessionId;
 import org.briarproject.bramble.api.sync.validation.MessageState;
 import org.briarproject.bramble.api.transport.KeySetId;
 import org.briarproject.bramble.api.transport.TransportKeySet;
@@ -70,6 +71,13 @@ public interface DatabaseComponent extends TransactionManager {
 	void close() throws DbException;
 
 	/**
+	 * Records acks for the given messages as having been sent to the given
+	 * contact in the given sync session.
+	 */
+	void addAckedMessageIds(Transaction txn, ContactId c, SyncSessionId s,
+			Collection<MessageId> acked) throws DbException;
+
+	/**
 	 * Stores a contact associated with the given local and remote pseudonyms,
 	 * and returns an ID for the contact.
 	 */
@@ -97,6 +105,13 @@ public interface DatabaseComponent extends TransactionManager {
 	 */
 	void addPendingContact(Transaction txn, PendingContact p, AuthorId local)
 			throws DbException;
+
+	/**
+	 * Records the given messages as having been sent to the given contact in
+	 * the given sync session.
+	 */
+	void addSentMessageIds(Transaction txn, ContactId c, SyncSessionId s,
+			Collection<MessageId> sent) throws DbException;
 
 	/**
 	 * Stores a transport.
@@ -649,6 +664,21 @@ public interface DatabaseComponent extends TransactionManager {
 			throws DbException;
 
 	/**
+	 * Resets the transmission counts and expiry times of any messages sent in
+	 * incomplete sessions (ie where the message IDs were recorded via
+	 * {@link #addSentMessageIds(Transaction, ContactId, SyncSessionId,
+	 * Collection)} and not subsequently removed via
+	 * {@link #setSyncSessionComplete(Transaction, ContactId, SyncSessionId)}).
+	 * <p>
+	 * Also raises the ack flags of any messages acked in incomplete sessions
+	 * (ie where the message IDs were recorded via
+	 * {@link #addAckedMessageIds(Transaction, ContactId, SyncSessionId,
+	 * Collection)} and not subsequently removed via
+	 * {@link #setSyncSessionComplete(Transaction, ContactId, SyncSessionId)}).
+	 */
+	void resetIncompleteSyncSessions(Transaction txn) throws DbException;
+
+	/**
 	 * Sets the cleanup timer duration for the given message. This does not
 	 * start the message's cleanup timer.
 	 */
@@ -712,6 +742,17 @@ public interface DatabaseComponent extends TransactionManager {
 	 */
 	void setReorderingWindow(Transaction txn, KeySetId k, TransportId t,
 			long timePeriod, long base, byte[] bitmap) throws DbException;
+
+	/**
+	 * Marks the given sync session as complete. This removes any message IDs
+	 * that were recorded for the session via
+	 * {@link #addAckedMessageIds(Transaction, ContactId, SyncSessionId,
+	 * Collection)}
+	 * or {@link #addSentMessageIds(Transaction, ContactId, SyncSessionId,
+	 * Collection)}.
+	 */
+	void setSyncSessionComplete(Transaction txn, ContactId c,
+			SyncSessionId s) throws DbException;
 
 	/**
 	 * Sets the versions of the sync protocol supported by the given contact.

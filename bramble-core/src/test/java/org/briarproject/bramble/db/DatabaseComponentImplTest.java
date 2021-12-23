@@ -38,6 +38,7 @@ import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.bramble.api.sync.MessageStatus;
 import org.briarproject.bramble.api.sync.Offer;
 import org.briarproject.bramble.api.sync.Request;
+import org.briarproject.bramble.api.sync.SyncSessionId;
 import org.briarproject.bramble.api.sync.event.GroupAddedEvent;
 import org.briarproject.bramble.api.sync.event.GroupRemovedEvent;
 import org.briarproject.bramble.api.sync.event.GroupVisibilityUpdatedEvent;
@@ -125,6 +126,7 @@ public class DatabaseComponentImplTest extends BrambleMockTestCase {
 	private final Contact contact;
 	private final KeySetId keySetId;
 	private final PendingContactId pendingContactId;
+	private final SyncSessionId syncSessionId;
 	private final Random random = new Random();
 	private final boolean shared = random.nextBoolean();
 	private final boolean temporary = random.nextBoolean();
@@ -150,6 +152,7 @@ public class DatabaseComponentImplTest extends BrambleMockTestCase {
 		alias = contact.getAlias();
 		keySetId = new KeySetId(345);
 		pendingContactId = new PendingContactId(getRandomId());
+		syncSessionId = new SyncSessionId(getRandomId());
 	}
 
 	private DatabaseComponent createDatabaseComponent(Database<Object> database,
@@ -298,14 +301,32 @@ public class DatabaseComponentImplTest extends BrambleMockTestCase {
 			throws Exception {
 		context.checking(new Expectations() {{
 			// Check whether the contact is in the DB (which it's not)
-			exactly(19).of(database).startTransaction();
+			exactly(22).of(database).startTransaction();
 			will(returnValue(txn));
-			exactly(19).of(database).containsContact(txn, contactId);
+			exactly(22).of(database).containsContact(txn, contactId);
 			will(returnValue(false));
-			exactly(19).of(database).abortTransaction(txn);
+			exactly(22).of(database).abortTransaction(txn);
 		}});
 		DatabaseComponent db = createDatabaseComponent(database, eventBus,
 				eventExecutor, shutdownManager);
+
+		try {
+			db.transaction(false, transaction ->
+					db.addAckedMessageIds(transaction, contactId,
+							syncSessionId, singletonList(messageId)));
+			fail();
+		} catch (NoSuchContactException expected) {
+			// Expected
+		}
+
+		try {
+			db.transaction(false, transaction ->
+					db.addSentMessageIds(transaction, contactId,
+							syncSessionId, singletonList(messageId)));
+			fail();
+		} catch (NoSuchContactException expected) {
+			// Expected
+		}
 
 		try {
 			db.transaction(false, transaction ->
@@ -451,6 +472,15 @@ public class DatabaseComponentImplTest extends BrambleMockTestCase {
 			db.transaction(false, transaction ->
 					db.setGroupVisibility(transaction, contactId, groupId,
 							SHARED));
+			fail();
+		} catch (NoSuchContactException expected) {
+			// Expected
+		}
+
+		try {
+			db.transaction(false, transaction ->
+					db.setSyncSessionComplete(transaction, contactId,
+							syncSessionId));
 			fail();
 		} catch (NoSuchContactException expected) {
 			// Expected
@@ -621,17 +651,35 @@ public class DatabaseComponentImplTest extends BrambleMockTestCase {
 			throws Exception {
 		context.checking(new Expectations() {{
 			// Check whether the message is in the DB (which it's not)
-			exactly(15).of(database).startTransaction();
+			exactly(17).of(database).startTransaction();
 			will(returnValue(txn));
-			exactly(15).of(database).containsMessage(txn, messageId);
+			exactly(17).of(database).containsMessage(txn, messageId);
 			will(returnValue(false));
-			exactly(15).of(database).abortTransaction(txn);
+			exactly(17).of(database).abortTransaction(txn);
 			// Allow other checks to pass
 			allowing(database).containsContact(txn, contactId);
 			will(returnValue(true));
 		}});
 		DatabaseComponent db = createDatabaseComponent(database, eventBus,
 				eventExecutor, shutdownManager);
+
+		try {
+			db.transaction(false, transaction ->
+					db.addAckedMessageIds(transaction, contactId,
+							syncSessionId, singletonList(messageId)));
+			fail();
+		} catch (NoSuchMessageException expected) {
+			// Expected
+		}
+
+		try {
+			db.transaction(false, transaction ->
+					db.addSentMessageIds(transaction, contactId,
+							syncSessionId, singletonList(messageId)));
+			fail();
+		} catch (NoSuchMessageException expected) {
+			// Expected
+		}
 
 		try {
 			db.transaction(false, transaction ->

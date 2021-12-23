@@ -27,6 +27,7 @@ import org.briarproject.bramble.api.sync.GroupId;
 import org.briarproject.bramble.api.sync.Message;
 import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.bramble.api.sync.MessageStatus;
+import org.briarproject.bramble.api.sync.SyncSessionId;
 import org.briarproject.bramble.api.sync.validation.MessageState;
 import org.briarproject.bramble.api.transport.KeySetId;
 import org.briarproject.bramble.api.transport.TransportKeySet;
@@ -93,6 +94,13 @@ interface Database<T> {
 	void commitTransaction(T txn) throws DbException;
 
 	/**
+	 * Records acks for the given messages as having been sent to the given
+	 * contact in the given sync session.
+	 */
+	void addAckedMessageIds(T txn, ContactId c, SyncSessionId s,
+			Collection<MessageId> acked) throws DbException;
+
+	/**
 	 * Stores a contact associated with the given local and remote pseudonyms,
 	 * and returns an ID for the contact.
 	 */
@@ -141,6 +149,13 @@ interface Database<T> {
 	 * Stores a pending contact.
 	 */
 	void addPendingContact(T txn, PendingContact p) throws DbException;
+
+	/**
+	 * Records the given messages as having been sent to the given contact in
+	 * the given sync session.
+	 */
+	void addSentMessageIds(T txn, ContactId c, SyncSessionId s,
+			Collection<MessageId> sent) throws DbException;
 
 	/**
 	 * Stores a transport.
@@ -758,6 +773,21 @@ interface Database<T> {
 	void resetExpiryTime(T txn, ContactId c, MessageId m) throws DbException;
 
 	/**
+	 * Resets the transmission counts and expiry times of any messages sent in
+	 * incomplete sessions (ie where the message IDs were recorded via
+	 * {@link #addSentMessageIds(Object, ContactId, SyncSessionId, Collection)}
+	 * and not subsequently removed via
+	 * {@link #setSyncSessionComplete(Object, ContactId, SyncSessionId)}).
+	 * <p>
+	 * Also raises the ack flags of any messages acked in incomplete sessions
+	 * (ie where the message IDs were recorded via
+	 * {@link #addAckedMessageIds(Object, ContactId, SyncSessionId, Collection)}
+	 * and not subsequently removed via
+	 * {@link #setSyncSessionComplete(Object, ContactId, SyncSessionId)}).
+	 */
+	void resetIncompleteSyncSessions(T txn) throws DbException;
+
+	/**
 	 * Resets the transmission count, expiry time and ETA of all messages that
 	 * are eligible to be sent to the given contact. This includes messages that
 	 * have already been sent and are not yet due for retransmission.
@@ -818,6 +848,15 @@ interface Database<T> {
 	 */
 	void setReorderingWindow(T txn, KeySetId k, TransportId t,
 			long timePeriod, long base, byte[] bitmap) throws DbException;
+
+	/**
+	 * Marks the given sync session as complete. This removes any message IDs
+	 * that were recorded for the session via
+	 * {@link #addAckedMessageIds(T, ContactId, SyncSessionId, Collection)}
+	 * or {@link #addSentMessageIds(T, ContactId, SyncSessionId, Collection)}.
+	 */
+	void setSyncSessionComplete(T txn, ContactId c, SyncSessionId s)
+			throws DbException;
 
 	/**
 	 * Sets the versions of the sync protocol supported by the given contact.

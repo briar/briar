@@ -33,6 +33,7 @@ import org.briarproject.bramble.api.sync.Message;
 import org.briarproject.bramble.api.sync.MessageFactory;
 import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.bramble.api.sync.MessageStatus;
+import org.briarproject.bramble.api.sync.SyncSessionId;
 import org.briarproject.bramble.api.sync.validation.MessageState;
 import org.briarproject.bramble.api.system.Clock;
 import org.briarproject.bramble.api.transport.IncomingKeys;
@@ -321,6 +322,19 @@ abstract class JdbcDatabase implements Database<Connection> {
 					+ " REFERENCES outgoingKeys (keySetId)"
 					+ " ON DELETE CASCADE)";
 
+	private static final String CREATE_SYNC_SESSION_MESSAGES =
+			"CREATE TABLE syncSessionMessages"
+					+ " (contactId INT NOT NULL,"
+					+ " syncSessionId _HASH NOT NULL,"
+					+ " messageId _HASH NOT NULL,"
+					+ " acked BOOLEAN NOT NULL,"
+					+ " FOREIGN KEY (contactId)"
+					+ " REFERENCES contacts (contactId)"
+					+ " ON DELETE CASCADE,"
+					+ " FOREIGN KEY (messageId)"
+					+ " REFERENCES messages (messageId)"
+					+ " ON DELETE CASCADE)";
+
 	private static final String INDEX_CONTACTS_BY_AUTHOR_ID =
 			"CREATE INDEX IF NOT EXISTS contactsByAuthorId"
 					+ " ON contacts (authorId)";
@@ -353,6 +367,12 @@ abstract class JdbcDatabase implements Database<Connection> {
 	private static final String INDEX_MESSAGES_BY_CLEANUP_DEADLINE =
 			"CREATE INDEX IF NOT EXISTS messagesByCleanupDeadline"
 					+ " ON messages (cleanupDeadline)";
+
+	private static final String
+			INDEX_SYNC_SESSION_MESSAGES_BY_CONTACT_ID_SYNC_SESSION_ID =
+			"CREATE INDEX IF NOT EXISTS"
+					+ " syncSessionMessagesByContactIdSyncSessionId"
+					+ " ON syncSessionMessages (contactId, syncSessionId)";
 
 	private static final Logger LOG =
 			getLogger(JdbcDatabase.class.getName());
@@ -502,7 +522,8 @@ abstract class JdbcDatabase implements Database<Connection> {
 				new Migration45_46(),
 				new Migration46_47(dbTypes),
 				new Migration47_48(),
-				new Migration48_49()
+				new Migration48_49(),
+				new Migration49_50(dbTypes)
 		);
 	}
 
@@ -563,6 +584,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 			s.executeUpdate(dbTypes.replaceTypes(CREATE_PENDING_CONTACTS));
 			s.executeUpdate(dbTypes.replaceTypes(CREATE_OUTGOING_KEYS));
 			s.executeUpdate(dbTypes.replaceTypes(CREATE_INCOMING_KEYS));
+			s.executeUpdate(dbTypes.replaceTypes(CREATE_SYNC_SESSION_MESSAGES));
 			s.close();
 		} catch (SQLException e) {
 			tryToClose(s, LOG, WARNING);
@@ -582,6 +604,8 @@ abstract class JdbcDatabase implements Database<Connection> {
 			s.executeUpdate(INDEX_STATUSES_BY_CONTACT_ID_TIMESTAMP);
 			s.executeUpdate(INDEX_STATUSES_BY_CONTACT_ID_TX_COUNT_TIMESTAMP);
 			s.executeUpdate(INDEX_MESSAGES_BY_CLEANUP_DEADLINE);
+			s.executeUpdate(
+					INDEX_SYNC_SESSION_MESSAGES_BY_CONTACT_ID_SYNC_SESSION_ID);
 			s.close();
 		} catch (SQLException e) {
 			tryToClose(s, LOG, WARNING);
@@ -683,6 +707,42 @@ abstract class JdbcDatabase implements Database<Connection> {
 		}
 
 		if (interrupted) Thread.currentThread().interrupt();
+	}
+
+	@Override
+	public void addAckedMessageIds(Connection txn, ContactId c, SyncSessionId s,
+			Collection<MessageId> acked) throws DbException {
+		addSyncSessionMessageIds(txn, c, s, acked, true);
+	}
+
+	private void addSyncSessionMessageIds(Connection txn, ContactId c,
+			SyncSessionId s, Collection<MessageId> ids, boolean acked)
+			throws DbException {
+		PreparedStatement ps = null;
+		try {
+			String sql = "INSERT INTO syncSessionMessages"
+					+ " (contactId, syncSessionId, messageId, acked)"
+					+ " VALUES (?, ?, ?, ?)";
+			ps = txn.prepareStatement(sql);
+			ps.setInt(1, c.getInt());
+			ps.setBytes(2, s.getBytes());
+			ps.setBoolean(4, acked);
+			for (MessageId m : ids) {
+				ps.setBytes(3, m.getBytes());
+				ps.addBatch();
+			}
+			int[] batchAffected = ps.executeBatch();
+			if (batchAffected.length != ids.size()) {
+				throw new DbStateException();
+			}
+			for (int rows : batchAffected) {
+				if (rows != 1) throw new DbStateException();
+			}
+			ps.close();
+		} catch (SQLException e) {
+			tryToClose(ps, LOG, WARNING);
+			throw new DbException(e);
+		}
 	}
 
 	@Override
@@ -1007,6 +1067,12 @@ abstract class JdbcDatabase implements Database<Connection> {
 			tryToClose(ps, LOG, WARNING);
 			throw new DbException(e);
 		}
+	}
+
+	@Override
+	public void addSentMessageIds(Connection txn, ContactId c, SyncSessionId s,
+			Collection<MessageId> sent) throws DbException {
+		addSyncSessionMessageIds(txn, c, s, sent, false);
 	}
 
 	@Override
@@ -2424,6 +2490,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 				MessageId m = new MessageId(rs.getBytes(1));
 				GroupId g = new GroupId(rs.getBytes(2));
 				Collection<MessageId> messageIds = ids.get(g);
+				//noinspection Java8MapApi
 				if (messageIds == null) {
 					messageIds = new ArrayList<>();
 					ids.put(g, messageIds);
@@ -2729,6 +2796,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 				ContactId c = new ContactId(rs.getInt(1));
 				TransportId t = new TransportId(rs.getString(2));
 				Collection<TransportId> transportIds = ids.get(c);
+				//noinspection Java8MapApi
 				if (transportIds == null) {
 					transportIds = new ArrayList<>();
 					ids.put(c, transportIds);
@@ -3294,6 +3362,40 @@ abstract class JdbcDatabase implements Database<Connection> {
 	}
 
 	@Override
+	public void resetIncompleteSyncSessions(Connection txn) throws DbException {
+		Statement s = null;
+		try {
+			// Reset transmission count and expiry time for sent messages
+			String sql = "UPDATE statuses SET txCount = 0, expiry = 0"
+					+ " WHERE EXISTS"
+					+ " (SELECT * FROM syncSessionMessages AS ssm"
+					+ " WHERE statuses.messageId = ssm.messageId"
+					+ " AND statuses.contactId = ssm.contactId"
+					+ " AND ssm.acked = FALSE)";
+			s = txn.createStatement();
+			int affected = s.executeUpdate(sql);
+			if (affected < 0) throw new DbStateException();
+			// Raise ack flag for acked messages
+			sql = "UPDATE statuses SET ack = TRUE"
+					+ " WHERE EXISTS"
+					+ " (SELECT * FROM syncSessionMessages AS ssm"
+					+ " WHERE statuses.messageId = ssm.messageId"
+					+ " AND statuses.contactId = ssm.contactId"
+					+ " AND ssm.acked = TRUE)";
+			affected = s.executeUpdate(sql);
+			if (affected < 0) throw new DbStateException();
+			// Delete state for incomplete sessions
+			sql = "DELETE FROM syncSessionMessages";
+			affected = s.executeUpdate(sql);
+			if (affected < 0) throw new DbStateException();
+			s.close();
+		} catch (SQLException e) {
+			tryToClose(s, LOG, WARNING);
+			throw new DbException(e);
+		}
+	}
+
+	@Override
 	public void resetUnackedMessagesToSend(Connection txn, ContactId c)
 			throws DbException {
 		PreparedStatement ps = null;
@@ -3539,6 +3641,25 @@ abstract class JdbcDatabase implements Database<Connection> {
 			ps.setLong(5, timePeriod);
 			int affected = ps.executeUpdate();
 			if (affected < 0 || affected > 1) throw new DbStateException();
+			ps.close();
+		} catch (SQLException e) {
+			tryToClose(ps, LOG, WARNING);
+			throw new DbException(e);
+		}
+	}
+
+	@Override
+	public void setSyncSessionComplete(Connection txn, ContactId c,
+			SyncSessionId s) throws DbException {
+		PreparedStatement ps = null;
+		try {
+			String sql = "DELETE FROM syncSessionMessages"
+					+ " WHERE contactId = ? AND syncSessionId = ?";
+			ps = txn.prepareStatement(sql);
+			ps.setInt(1, c.getInt());
+			ps.setBytes(2, s.getBytes());
+			int affected = ps.executeUpdate();
+			if (affected < 0) throw new DbStateException();
 			ps.close();
 		} catch (SQLException e) {
 			tryToClose(ps, LOG, WARNING);
