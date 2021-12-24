@@ -34,11 +34,18 @@ import java.util.List;
 import java.util.Map;
 
 import javax.annotation.Nullable;
+import javax.annotation.concurrent.ThreadSafe;
 
 /**
  * Encapsulates the database implementation and exposes high-level operations
  * to other components.
+ * <p>
+ * With the exception of the {@link #open(SecretKey, MigrationListener)} and
+ * {@link #close()} methods, which must not be called concurrently, the
+ * database can be accessed from any thread. See {@link TransactionManager}
+ * for locking behaviour.
  */
+@ThreadSafe
 @NotNullByDefault
 public interface DatabaseComponent extends TransactionManager {
 
