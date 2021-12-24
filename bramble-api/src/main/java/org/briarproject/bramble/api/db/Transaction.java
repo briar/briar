@@ -45,6 +45,9 @@ public class Transaction {
 	/**
 	 * Attaches an event to be broadcast when the transaction has been
 	 * committed. The event will be broadcast on the {@link EventExecutor}.
+	 * Events and {@link #attach(Runnable) tasks} are submitted to the
+	 * {@link EventExecutor} in the order they were attached to the
+	 * transaction.
 	 */
 	public void attach(Event e) {
 		if (actions == null) actions = new ArrayList<>();
@@ -54,6 +57,9 @@ public class Transaction {
 	/**
 	 * Attaches a task to be executed when the transaction has been
 	 * committed. The task will be run on the {@link EventExecutor}.
+	 * {@link #attach(Event) Events} and tasks are submitted to the
+	 * {@link EventExecutor} in the order they were attached to the
+	 * transaction.
 	 */
 	public void attach(Runnable r) {
 		if (actions == null) actions = new ArrayList<>();
