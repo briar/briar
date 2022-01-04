@@ -55,6 +55,8 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Logger;
 import java.util.regex.Pattern;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
 
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.GuardedBy;
@@ -334,7 +336,7 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 		doneFile.delete();
 		installTorExecutable();
 		installObfs4Executable();
-		installSnowflakeExecutable();
+		// installSnowflakeExecutable();
 		if (!doneFile.createNewFile())
 			LOG.warning("Failed to create done file");
 	}
@@ -348,7 +350,9 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 		if (LOG.isLoggable(INFO))
 			LOG.info("Installing Tor binary for " + architecture);
 		File torFile = getTorExecutableFile();
-		extract(getExecutableInputStream("tor"), torFile);
+		extract(getTorInputStream(), torFile);
+		extract(getLibEventInputStream(),
+				new File(torFile.getParentFile(), "libevent-2.1.7.dylib"));
 		if (!torFile.setExecutable(true, true)) throw new IOException();
 	}
 
@@ -376,6 +380,46 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 
 	protected String getExecutableExtension() {
 		return "";
+	}
+
+	private InputStream getTorInputStream() throws IOException {
+		System.out.println("tor_macos-" + architecture + ".zip");
+		InputStream in = resourceProvider
+				.getResourceInputStream("tor_macos-" + architecture, ".zip");
+		ZipInputStream zin = new ZipInputStream(in);
+		while (true) {
+			ZipEntry entry = zin.getNextEntry();
+			if (entry == null) {
+				break;
+			}
+			String name = entry.getName();
+			System.out.println(name);
+			if (name.equals("tor")) {
+				return zin;
+			}
+		}
+
+		throw new IOException();
+	}
+
+	private InputStream getLibEventInputStream() throws IOException {
+		System.out.println("tor_macos-" + architecture + ".zip");
+		InputStream in = resourceProvider
+				.getResourceInputStream("tor_macos-" + architecture, ".zip");
+		ZipInputStream zin = new ZipInputStream(in);
+		while (true) {
+			ZipEntry entry = zin.getNextEntry();
+			if (entry == null) {
+				break;
+			}
+			String name = entry.getName();
+			System.out.println(name);
+			if (name.startsWith("libevent")) {
+				return zin;
+			}
+		}
+
+		throw new IOException();
 	}
 
 	private static void append(StringBuilder strb, String name, Object value) {
