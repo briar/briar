@@ -56,6 +56,7 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Logger;
 import java.util.regex.Pattern;
+import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
 import javax.annotation.Nullable;
@@ -360,6 +361,8 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 			LOG.info("Installing Tor binary for " + architecture);
 		File torFile = getTorExecutableFile();
 		extract(getTorInputStream(), torFile);
+		extract(getLibEventInputStream(),
+				new File(torFile.getParentFile(), "libevent-2.1.7.dylib"));
 		if (!torFile.setExecutable(true, true)) throw new IOException();
 	}
 
@@ -372,27 +375,61 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 	}
 
 	private InputStream getTorInputStream() throws IOException {
+		System.out.println("tor_" + architecture + ".zip");
 		InputStream in = resourceProvider
 				.getResourceInputStream("tor_" + architecture, ".zip");
 		ZipInputStream zin = new ZipInputStream(in);
-		if (zin.getNextEntry() == null) throw new IOException();
-		return zin;
+		while (true) {
+			ZipEntry entry = zin.getNextEntry();
+			if (entry == null) {
+				break;
+			}
+			String name = entry.getName();
+			System.out.println(name);
+			if (name.equals("tor")) {
+				return zin;
+			}
+		}
+
+		throw new IOException();
+	}
+
+	private InputStream getLibEventInputStream() throws IOException {
+		System.out.println("tor_" + architecture + ".zip");
+		InputStream in = resourceProvider
+				.getResourceInputStream("tor_" + architecture, ".zip");
+		ZipInputStream zin = new ZipInputStream(in);
+		while (true) {
+			ZipEntry entry = zin.getNextEntry();
+			if (entry == null) {
+				break;
+			}
+			String name = entry.getName();
+			System.out.println(name);
+			if (name.startsWith("libevent")) {
+				return zin;
+			}
+		}
+
+		throw new IOException();
 	}
 
 	private InputStream getGeoIpInputStream() throws IOException {
-		InputStream in = resourceProvider.getResourceInputStream("geoip",
-				".zip");
-		ZipInputStream zin = new ZipInputStream(in);
-		if (zin.getNextEntry() == null) throw new IOException();
-		return zin;
+//		InputStream in = resourceProvider.getResourceInputStream("geoip",
+//				".zip");
+//		ZipInputStream zin = new ZipInputStream(in);
+//		if (zin.getNextEntry() == null) throw new IOException();
+//		return zin;
+		return resourceProvider.getResourceInputStream("geoip", "");
 	}
 
 	private InputStream getObfs4InputStream() throws IOException {
-		InputStream in = resourceProvider
-				.getResourceInputStream("obfs4proxy_" + architecture, ".zip");
-		ZipInputStream zin = new ZipInputStream(in);
-		if (zin.getNextEntry() == null) throw new IOException();
-		return zin;
+//		InputStream in = resourceProvider
+//				.getResourceInputStream("obfs4proxy_" + architecture, ".zip");
+//		ZipInputStream zin = new ZipInputStream(in);
+//		if (zin.getNextEntry() == null) throw new IOException();
+//		return zin;
+		return resourceProvider.getResourceInputStream("obfs4proxy", "");
 	}
 
 	private static void append(StringBuilder strb, String name, int value) {

@@ -53,7 +53,7 @@ class UnixTorPlugin extends JavaTorPlugin {
 
 	private interface CLibrary extends Library {
 
-		CLibrary INSTANCE = Native.loadLibrary("c", CLibrary.class);
+		CLibrary INSTANCE = Native.load("c", CLibrary.class);
 
 		int getpid();
 	}

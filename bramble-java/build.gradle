@@ -14,7 +14,7 @@ configurations {
 dependencies {
 	implementation project(path: ':bramble-core', configuration: 'default')
 	implementation fileTree(dir: 'libs', include: '*.jar')
-	def jna_version = '4.5.2'
+	def jna_version = '5.10.0'
 	implementation "net.java.dev.jna:jna:$jna_version"
 	implementation "net.java.dev.jna:jna-platform:$jna_version"
 	tor "org.briarproject:tor:$tor_version"
@@ -39,16 +39,16 @@ task cleanTorBinaries {
 	}
 }
 
-clean.dependsOn cleanTorBinaries
+//clean.dependsOn cleanTorBinaries
 
 task unpackTorBinaries {
 	doLast {
-		copy {
+		/*copy {
 			from configurations.tor.collect { zipTree(it) }
 			into torBinariesDir
-		}
+		}*/
 	}
-	dependsOn cleanTorBinaries
+	//dependsOn cleanTorBinaries
 }
 
 processResources {

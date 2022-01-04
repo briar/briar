@@ -32,6 +32,7 @@ import javax.net.SocketFactory;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Logger.getLogger;
 import static org.briarproject.bramble.util.OsUtils.isLinux;
+import static org.briarproject.bramble.util.OsUtils.isMac;
 
 @Immutable
 @NotNullByDefault
@@ -119,6 +120,14 @@ public class UnixTorPluginFactory implements DuplexPluginFactory {
 				architecture = "linux-aarch64";
 			} else if (arch.equals("arm")) {
 				architecture = "linux-armhf";
+			}
+		} else if (isMac()) {
+			String arch = System.getProperty("os.arch");
+			if (LOG.isLoggable(INFO)) {
+				LOG.info("System's os.arch is " + arch);
+			}
+			if (arch.equals("aarch64")) {
+				architecture = "macos-aarch64";
 			}
 		}
 		if (architecture == null) {
