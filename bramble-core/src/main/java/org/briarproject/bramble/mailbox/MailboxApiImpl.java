@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 
 import org.briarproject.bramble.api.WeakSingletonProvider;
+import org.briarproject.bramble.api.mailbox.MailboxProperties;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 
 import java.io.IOException;
@@ -18,6 +19,7 @@ import okhttp3.ResponseBody;
 
 import static com.fasterxml.jackson.databind.MapperFeature.BLOCK_UNSAFE_POLYMORPHIC_BASE_TYPES;
 import static okhttp3.internal.Util.EMPTY_REQUEST;
+import static org.briarproject.bramble.util.StringUtils.fromHexString;
 
 @NotNullByDefault
 class MailboxApiImpl implements MailboxApi {
@@ -35,15 +37,16 @@ class MailboxApiImpl implements MailboxApi {
 	@Override
 	public String setup(MailboxProperties properties)
 			throws IOException, PermanentFailureException {
-		if (!properties.isOwner) throw new IllegalArgumentException();
-		Request request = getRequestBuilder(properties.token)
-				.url(properties.baseUrl + "/setup")
+		if (!properties.isOwner()) throw new IllegalArgumentException();
+		Request request = getRequestBuilder(properties.getAuthToken())
+				.url(properties.getOnionAddress() + "/setup")
 				.put(EMPTY_REQUEST)
 				.build();
 		OkHttpClient client = httpClientProvider.get();
 		Response response = client.newCall(request).execute();
+		// TODO consider throwing a special exception for the 401 case
 		if (response.code() == 401) throw new PermanentFailureException();
-		if (!response.isSuccessful()) throw new IOException();
+		if (!response.isSuccessful()) throw new PermanentFailureException();
 		ResponseBody body = response.body();
 		if (body == null) throw new PermanentFailureException();
 		try {
@@ -53,7 +56,7 @@ class MailboxApiImpl implements MailboxApi {
 				throw new PermanentFailureException();
 			}
 			String ownerToken = tokenNode.textValue();
-			if (ownerToken == null) {
+			if (ownerToken == null || !isValidToken(ownerToken)) {
 				throw new PermanentFailureException();
 			}
 			return ownerToken;
@@ -62,12 +65,23 @@ class MailboxApiImpl implements MailboxApi {
 		}
 	}
 
+	private boolean isValidToken(String token) {
+		if (token.length() != 64) return false;
+		try {
+			// try to convert to bytes
+			fromHexString(token);
+			return true;
+		} catch (IllegalArgumentException e) {
+			return false;
+		}
+	}
+
 	@Override
 	public boolean checkStatus(MailboxProperties properties)
 			throws IOException, PermanentFailureException {
-		if (!properties.isOwner) throw new IllegalArgumentException();
-		Request request = getRequestBuilder(properties.token)
-				.url(properties.baseUrl + "/status")
+		if (!properties.isOwner()) throw new IllegalArgumentException();
+		Request request = getRequestBuilder(properties.getAuthToken())
+				.url(properties.getOnionAddress() + "/status")
 				.build();
 		OkHttpClient client = httpClientProvider.get();
 		Response response = client.newCall(request).execute();

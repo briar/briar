@@ -1,5 +1,7 @@
 package org.briarproject.bramble.mailbox;
 
+import org.briarproject.bramble.api.mailbox.MailboxProperties;
+
 import java.io.IOException;
 
 import javax.annotation.concurrent.Immutable;
@@ -24,19 +26,6 @@ interface MailboxApi {
 	 */
 	boolean checkStatus(MailboxProperties properties)
 			throws IOException, PermanentFailureException;
-
-	@Immutable
-	class MailboxProperties {
-		final String baseUrl;
-		final String token;
-		final boolean isOwner;
-
-		MailboxProperties(String baseUrl, String token, boolean isOwner) {
-			this.baseUrl = baseUrl;
-			this.token = token;
-			this.isOwner = isOwner;
-		}
-	}
 
 	@Immutable
 	class PermanentFailureException extends Exception {
