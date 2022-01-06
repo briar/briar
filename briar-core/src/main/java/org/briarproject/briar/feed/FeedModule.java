@@ -1,5 +1,6 @@
 package org.briarproject.briar.feed;
 
+import org.briarproject.bramble.api.FeatureFlags;
 import org.briarproject.bramble.api.event.EventBus;
 import org.briarproject.bramble.api.lifecycle.LifecycleManager;
 import org.briarproject.briar.api.blog.BlogManager;
@@ -23,7 +24,10 @@ public class FeedModule {
 	@Singleton
 	FeedManager provideFeedManager(FeedManagerImpl feedManager,
 			LifecycleManager lifecycleManager, EventBus eventBus,
-			BlogManager blogManager) {
+			BlogManager blogManager, FeatureFlags featureFlags) {
+		if (!featureFlags.shouldEnableBlogsInCore()) {
+			return feedManager;
+		}
 		lifecycleManager.registerOpenDatabaseHook(feedManager);
 		eventBus.addListener(feedManager);
 		blogManager.registerRemoveBlogHook(feedManager);

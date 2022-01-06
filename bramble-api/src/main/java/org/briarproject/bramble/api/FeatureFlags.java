@@ -10,4 +10,10 @@ public interface FeatureFlags {
 	boolean shouldEnableProfilePictures();
 
 	boolean shouldEnableDisappearingMessages();
+
+	boolean shouldEnablePrivateGroupsInCore();
+
+	boolean shouldEnableForumsInCore();
+
+	boolean shouldEnableBlogsInCore();
 }

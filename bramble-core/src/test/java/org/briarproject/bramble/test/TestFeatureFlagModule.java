@@ -24,6 +24,21 @@ public class TestFeatureFlagModule {
 			public boolean shouldEnableDisappearingMessages() {
 				return true;
 			}
+
+			@Override
+			public boolean shouldEnablePrivateGroupsInCore() {
+				return true;
+			}
+
+			@Override
+			public boolean shouldEnableForumsInCore() {
+				return true;
+			}
+
+			@Override
+			public boolean shouldEnableBlogsInCore() {
+				return true;
+			}
 		};
 	}
 }
