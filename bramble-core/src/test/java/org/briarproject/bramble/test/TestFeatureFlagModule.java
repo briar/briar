@@ -26,6 +26,11 @@ public class TestFeatureFlagModule {
 			}
 
 			@Override
+			public boolean shouldEnableIntroductionsInCore() {
+				return true;
+			}
+
+			@Override
 			public boolean shouldEnablePrivateGroupsInCore() {
 				return true;
 			}

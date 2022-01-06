@@ -1,5 +1,6 @@
 package org.briarproject.briar.introduction;
 
+import org.briarproject.bramble.api.FeatureFlags;
 import org.briarproject.bramble.api.cleanup.CleanupManager;
 import org.briarproject.bramble.api.client.ClientHelper;
 import org.briarproject.bramble.api.contact.ContactManager;
@@ -35,12 +36,14 @@ public class IntroductionModule {
 	@Singleton
 	IntroductionValidator provideValidator(ValidationManager validationManager,
 			MessageEncoder messageEncoder, MetadataEncoder metadataEncoder,
-			ClientHelper clientHelper, Clock clock) {
+			ClientHelper clientHelper, Clock clock, FeatureFlags featureFlags) {
 		IntroductionValidator introductionValidator =
 				new IntroductionValidator(messageEncoder, clientHelper,
 						metadataEncoder, clock);
-		validationManager.registerMessageValidator(CLIENT_ID, MAJOR_VERSION,
-				introductionValidator);
+		if (featureFlags.shouldEnableIntroductionsInCore()) {
+			validationManager.registerMessageValidator(CLIENT_ID, MAJOR_VERSION,
+					introductionValidator);
+		}
 		return introductionValidator;
 	}
 
@@ -52,7 +55,11 @@ public class IntroductionModule {
 			ConversationManager conversationManager,
 			ClientVersioningManager clientVersioningManager,
 			IntroductionManagerImpl introductionManager,
-			CleanupManager cleanupManager) {
+			CleanupManager cleanupManager,
+			FeatureFlags featureFlags) {
+		if (!featureFlags.shouldEnableIntroductionsInCore()) {
+			return introductionManager;
+		}
 		lifecycleManager.registerOpenDatabaseHook(introductionManager);
 		contactManager.registerContactHook(introductionManager);
 		validationManager.registerIncomingMessageHook(CLIENT_ID,

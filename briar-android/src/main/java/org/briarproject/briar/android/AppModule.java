@@ -341,6 +341,11 @@ public class AppModule {
 			}
 
 			@Override
+			public boolean shouldEnableIntroductionsInCore() {
+				return true;
+			}
+
+			@Override
 			public boolean shouldEnablePrivateGroupsInCore() {
 				return true;
 			}
