@@ -9,8 +9,6 @@ import org.briarproject.bramble.mailbox.MailboxApi.TolerableFailureException;
 import org.briarproject.bramble.test.BrambleTestCase;
 import org.junit.Test;
 
-import java.io.IOException;
-
 import javax.annotation.Nonnull;
 import javax.net.SocketFactory;
 
@@ -200,7 +198,7 @@ public class MailboxApiTest extends BrambleTestCase {
 		assertEquals(expected, request1.getBody().readUtf8());
 
 		// request is not successful
-		assertThrows(IOException.class, () ->
+		assertThrows(ApiException.class, () ->
 				api.addContact(properties, mailboxContact));
 		RecordedRequest request2 = server.takeRequest();
 		assertEquals("/contacts", request2.getPath());

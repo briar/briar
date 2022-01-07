@@ -108,7 +108,7 @@ class MailboxApiImpl implements MailboxApi {
 		OkHttpClient client = httpClientProvider.get();
 		Response response = client.newCall(request).execute();
 		if (response.code() == 409) throw new TolerableFailureException();
-		if (!response.isSuccessful()) throw new IOException();
+		if (!response.isSuccessful()) throw new ApiException();
 	}
 
 	private Request.Builder getRequestBuilder(String token) {
