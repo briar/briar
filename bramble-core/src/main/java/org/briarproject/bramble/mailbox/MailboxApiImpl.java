@@ -41,7 +41,7 @@ class MailboxApiImpl implements MailboxApi {
 
 	@Override
 	public String setup(MailboxProperties properties)
-			throws IOException, PermanentFailureException {
+			throws IOException, ApiException {
 		if (!properties.isOwner()) throw new IllegalArgumentException();
 		Request request = getRequestBuilder(properties.getAuthToken())
 				.url(properties.getOnionAddress() + "/setup")
@@ -50,23 +50,23 @@ class MailboxApiImpl implements MailboxApi {
 		OkHttpClient client = httpClientProvider.get();
 		Response response = client.newCall(request).execute();
 		// TODO consider throwing a special exception for the 401 case
-		if (response.code() == 401) throw new PermanentFailureException();
-		if (!response.isSuccessful()) throw new PermanentFailureException();
+		if (response.code() == 401) throw new ApiException();
+		if (!response.isSuccessful()) throw new ApiException();
 		ResponseBody body = response.body();
-		if (body == null) throw new PermanentFailureException();
+		if (body == null) throw new ApiException();
 		try {
 			JsonNode node = mapper.readTree(body.string());
 			JsonNode tokenNode = node.get("token");
 			if (tokenNode == null) {
-				throw new PermanentFailureException();
+				throw new ApiException();
 			}
 			String ownerToken = tokenNode.textValue();
 			if (ownerToken == null || !isValidToken(ownerToken)) {
-				throw new PermanentFailureException();
+				throw new ApiException();
 			}
 			return ownerToken;
 		} catch (JacksonException e) {
-			throw new PermanentFailureException();
+			throw new ApiException();
 		}
 	}
 
@@ -83,20 +83,20 @@ class MailboxApiImpl implements MailboxApi {
 
 	@Override
 	public boolean checkStatus(MailboxProperties properties)
-			throws IOException, PermanentFailureException {
+			throws IOException, ApiException {
 		if (!properties.isOwner()) throw new IllegalArgumentException();
 		Request request = getRequestBuilder(properties.getAuthToken())
 				.url(properties.getOnionAddress() + "/status")
 				.build();
 		OkHttpClient client = httpClientProvider.get();
 		Response response = client.newCall(request).execute();
-		if (response.code() == 401) throw new PermanentFailureException();
+		if (response.code() == 401) throw new ApiException();
 		return response.isSuccessful();
 	}
 
 	@Override
 	public void addContact(MailboxProperties properties, MailboxContact contact)
-			throws IOException, PermanentFailureException,
+			throws IOException, ApiException,
 			TolerableFailureException {
 		if (!properties.isOwner()) throw new IllegalArgumentException();
 		byte[] bodyBytes = mapper.writeValueAsBytes(contact);

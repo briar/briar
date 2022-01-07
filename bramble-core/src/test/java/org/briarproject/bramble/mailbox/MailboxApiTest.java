@@ -3,8 +3,8 @@ package org.briarproject.bramble.mailbox;
 import org.briarproject.bramble.api.WeakSingletonProvider;
 import org.briarproject.bramble.api.contact.ContactId;
 import org.briarproject.bramble.api.mailbox.MailboxProperties;
+import org.briarproject.bramble.mailbox.MailboxApi.ApiException;
 import org.briarproject.bramble.mailbox.MailboxApi.MailboxContact;
-import org.briarproject.bramble.mailbox.MailboxApi.PermanentFailureException;
 import org.briarproject.bramble.mailbox.MailboxApi.TolerableFailureException;
 import org.briarproject.bramble.test.BrambleTestCase;
 import org.junit.Test;
@@ -85,50 +85,42 @@ public class MailboxApiTest extends BrambleTestCase {
 		assertToken(request1, token);
 
 		// empty body
-		assertThrows(PermanentFailureException.class,
-				() -> api.setup(properties));
+		assertThrows(ApiException.class, () -> api.setup(properties));
 		RecordedRequest request2 = server.takeRequest();
 		assertEquals("/setup", request2.getPath());
 		assertEquals("PUT", request2.getMethod());
 		assertToken(request2, token);
 
 		// invalid response
-		assertThrows(PermanentFailureException.class,
-				() -> api.setup(properties));
+		assertThrows(ApiException.class, () -> api.setup(properties));
 		RecordedRequest request3 = server.takeRequest();
 		assertEquals("/setup", request3.getPath());
 		assertEquals("PUT", request3.getMethod());
 		assertToken(request3, token);
 
 		// 401 response
-		assertThrows(PermanentFailureException.class,
-				() -> api.setup(properties2));
+		assertThrows(ApiException.class, () -> api.setup(properties2));
 		RecordedRequest request4 = server.takeRequest();
 		assertEquals("/setup", request4.getPath());
 		assertEquals("PUT", request4.getMethod());
 		assertToken(request4, token2);
 
 		// 500 response
-		assertThrows(PermanentFailureException.class,
-				() -> api.setup(properties));
+		assertThrows(ApiException.class, () -> api.setup(properties));
 		RecordedRequest request5 = server.takeRequest();
 		assertEquals("/setup", request5.getPath());
 		assertEquals("PUT", request5.getMethod());
 		assertToken(request5, token);
 
 		// invalid json dict token response
-		assertThrows(PermanentFailureException.class,
-				() -> api.setup(properties)
-		);
+		assertThrows(ApiException.class, () -> api.setup(properties));
 		RecordedRequest request6 = server.takeRequest();
 		assertEquals("/setup", request6.getPath());
 		assertEquals("PUT", request6.getMethod());
 		assertToken(request6, token);
 
 		// invalid non-hex string token response
-		assertThrows(PermanentFailureException.class,
-				() -> api.setup(properties)
-		);
+		assertThrows(ApiException.class, () -> api.setup(properties));
 		RecordedRequest request7 = server.takeRequest();
 		assertEquals("/setup", request7.getPath());
 		assertEquals("PUT", request7.getMethod());
@@ -163,9 +155,7 @@ public class MailboxApiTest extends BrambleTestCase {
 		assertEquals("/status", request1.getPath());
 		assertToken(request1, token);
 
-		assertThrows(PermanentFailureException.class, () ->
-				api.checkStatus(properties2)
-		);
+		assertThrows(ApiException.class, () -> api.checkStatus(properties2));
 		RecordedRequest request2 = server.takeRequest();
 		assertEquals("/status", request2.getPath());
 		assertToken(request2, token2);

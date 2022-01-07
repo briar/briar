@@ -14,19 +14,19 @@ interface MailboxApi {
 	 *
 	 * @param properties MailboxProperties with the setup token
 	 * @return the owner token
-	 * @throws PermanentFailureException for 401 response.
+	 * @throws ApiException for 401 response.
 	 */
 	String setup(MailboxProperties properties)
-			throws IOException, PermanentFailureException;
+			throws IOException, ApiException;
 
 	/**
 	 * Checks the status of the mailbox.
 	 *
 	 * @return true if the status is OK, false otherwise.
-	 * @throws PermanentFailureException for 401 response.
+	 * @throws ApiException for 401 response.
 	 */
 	boolean checkStatus(MailboxProperties properties)
-			throws IOException, PermanentFailureException;
+			throws IOException, ApiException;
 
 	/**
 	 * Adds a new contact to the mailbox.
@@ -35,7 +35,7 @@ interface MailboxApi {
 	 * (contact was already added).
 	 */
 	void addContact(MailboxProperties properties, MailboxContact contact)
-			throws IOException, PermanentFailureException,
+			throws IOException, ApiException,
 			TolerableFailureException;
 
 	@Immutable
@@ -55,7 +55,7 @@ interface MailboxApi {
 	}
 
 	@Immutable
-	class PermanentFailureException extends Exception {
+	class ApiException extends Exception {
 	}
 
 	/**
