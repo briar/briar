@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 
 import org.briarproject.bramble.api.WeakSingletonProvider;
+import org.briarproject.bramble.api.contact.ContactId;
 import org.briarproject.bramble.api.mailbox.MailboxProperties;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 
@@ -109,6 +110,21 @@ class MailboxApiImpl implements MailboxApi {
 		Response response = client.newCall(request).execute();
 		if (response.code() == 409) throw new TolerableFailureException();
 		if (!response.isSuccessful()) throw new ApiException();
+	}
+
+	@Override
+	public void deleteContact(MailboxProperties properties, ContactId contactId)
+			throws IOException, ApiException {
+		if (!properties.isOwner()) throw new IllegalArgumentException();
+		String url = properties.getOnionAddress() + "/contacts/" +
+				contactId.getInt();
+		Request request = getRequestBuilder(properties.getAuthToken())
+				.delete()
+				.url(url)
+				.build();
+		OkHttpClient client = httpClientProvider.get();
+		Response response = client.newCall(request).execute();
+		if (response.code() != 200) throw new ApiException();
 	}
 
 	private Request.Builder getRequestBuilder(String token) {

@@ -1,5 +1,7 @@
 package org.briarproject.bramble.mailbox;
 
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+
 import org.briarproject.bramble.api.contact.ContactId;
 import org.briarproject.bramble.api.mailbox.MailboxProperties;
 
@@ -35,10 +37,17 @@ interface MailboxApi {
 	 * (contact was already added).
 	 */
 	void addContact(MailboxProperties properties, MailboxContact contact)
-			throws IOException, ApiException,
-			TolerableFailureException;
+			throws IOException, ApiException, TolerableFailureException;
+
+	/**
+	 * Deletes a contact from the mailbox.
+	 * This should get called after a contact was removed from Briar.
+	 */
+	void deleteContact(MailboxProperties properties, ContactId contactId)
+			throws IOException, ApiException;
 
 	@Immutable
+	@JsonSerialize
 	class MailboxContact {
 		public final int contactId;
 		public final String token, inboxId, outboxId;

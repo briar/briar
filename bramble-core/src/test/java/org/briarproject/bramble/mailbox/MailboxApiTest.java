@@ -220,6 +220,49 @@ public class MailboxApiTest extends BrambleTestCase {
 				api.addContact(properties, mailboxContact));
 	}
 
+	@Test
+	public void testDeleteContact() throws Exception {
+		MockWebServer server = new MockWebServer();
+		server.enqueue(new MockResponse());
+		server.enqueue(new MockResponse().setResponseCode(205));
+		server.enqueue(new MockResponse().setResponseCode(401));
+		server.start();
+		String baseUrl = getBaseUrl(server);
+		MailboxProperties properties =
+				new MailboxProperties(baseUrl, token, true);
+
+		// contact gets deleted as expected
+		api.deleteContact(properties, contactId);
+		RecordedRequest request1 = server.takeRequest();
+		assertEquals("DELETE", request1.getMethod());
+		assertEquals("/contacts/" + contactId.getInt(), request1.getPath());
+		assertToken(request1, token);
+
+		// request is not returning 200
+		assertThrows(ApiException.class, () ->
+				api.deleteContact(properties, contactId));
+		RecordedRequest request2 = server.takeRequest();
+		assertEquals("DELETE", request2.getMethod());
+		assertEquals("/contacts/" + contactId.getInt(), request2.getPath());
+		assertToken(request2, token);
+
+		// request is not authorized
+		assertThrows(ApiException.class, () ->
+				api.deleteContact(properties, contactId));
+		RecordedRequest request3 = server.takeRequest();
+		assertEquals("DELETE", request3.getMethod());
+		assertEquals("/contacts/" + contactId.getInt(), request3.getPath());
+		assertToken(request3, token);
+	}
+
+	@Test
+	public void testDeleteContactOnlyForOwner() {
+		MailboxProperties properties =
+				new MailboxProperties("", token, false);
+		assertThrows(IllegalArgumentException.class, () ->
+				api.deleteContact(properties, contactId));
+	}
+
 	private String getBaseUrl(MockWebServer server) {
 		String baseUrl = server.url("").toString();
 		return baseUrl.substring(0, baseUrl.length() - 1);
