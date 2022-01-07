@@ -12,12 +12,15 @@ import java.io.IOException;
 
 import javax.inject.Inject;
 
+import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
+import okhttp3.RequestBody;
 import okhttp3.Response;
 import okhttp3.ResponseBody;
 
 import static com.fasterxml.jackson.databind.MapperFeature.BLOCK_UNSAFE_POLYMORPHIC_BASE_TYPES;
+import static java.util.Objects.requireNonNull;
 import static okhttp3.internal.Util.EMPTY_REQUEST;
 import static org.briarproject.bramble.util.StringUtils.fromHexString;
 
@@ -28,6 +31,8 @@ class MailboxApiImpl implements MailboxApi {
 	private final JsonMapper mapper = JsonMapper.builder()
 			.enable(BLOCK_UNSAFE_POLYMORPHIC_BASE_TYPES)
 			.build();
+	private static final MediaType JSON =
+			requireNonNull(MediaType.parse("application/json; charset=utf-8"));
 
 	@Inject
 	MailboxApiImpl(WeakSingletonProvider<OkHttpClient> httpClientProvider) {
@@ -36,7 +41,7 @@ class MailboxApiImpl implements MailboxApi {
 
 	@Override
 	public String setup(MailboxProperties properties)
-			throws IOException, PermanentFailureException {
+			throws IOException, ApiException {
 		if (!properties.isOwner()) throw new IllegalArgumentException();
 		Request request = getRequestBuilder(properties.getAuthToken())
 				.url(properties.getOnionAddress() + "/setup")
@@ -45,23 +50,23 @@ class MailboxApiImpl implements MailboxApi {
 		OkHttpClient client = httpClientProvider.get();
 		Response response = client.newCall(request).execute();
 		// TODO consider throwing a special exception for the 401 case
-		if (response.code() == 401) throw new PermanentFailureException();
-		if (!response.isSuccessful()) throw new PermanentFailureException();
+		if (response.code() == 401) throw new ApiException();
+		if (!response.isSuccessful()) throw new ApiException();
 		ResponseBody body = response.body();
-		if (body == null) throw new PermanentFailureException();
+		if (body == null) throw new ApiException();
 		try {
 			JsonNode node = mapper.readTree(body.string());
 			JsonNode tokenNode = node.get("token");
 			if (tokenNode == null) {
-				throw new PermanentFailureException();
+				throw new ApiException();
 			}
 			String ownerToken = tokenNode.textValue();
 			if (ownerToken == null || !isValidToken(ownerToken)) {
-				throw new PermanentFailureException();
+				throw new ApiException();
 			}
 			return ownerToken;
 		} catch (JacksonException e) {
-			throw new PermanentFailureException();
+			throw new ApiException();
 		}
 	}
 
@@ -78,15 +83,32 @@ class MailboxApiImpl implements MailboxApi {
 
 	@Override
 	public boolean checkStatus(MailboxProperties properties)
-			throws IOException, PermanentFailureException {
+			throws IOException, ApiException {
 		if (!properties.isOwner()) throw new IllegalArgumentException();
 		Request request = getRequestBuilder(properties.getAuthToken())
 				.url(properties.getOnionAddress() + "/status")
 				.build();
 		OkHttpClient client = httpClientProvider.get();
 		Response response = client.newCall(request).execute();
-		if (response.code() == 401) throw new PermanentFailureException();
+		if (response.code() == 401) throw new ApiException();
 		return response.isSuccessful();
+	}
+
+	@Override
+	public void addContact(MailboxProperties properties, MailboxContact contact)
+			throws IOException, ApiException,
+			TolerableFailureException {
+		if (!properties.isOwner()) throw new IllegalArgumentException();
+		byte[] bodyBytes = mapper.writeValueAsBytes(contact);
+		RequestBody body = RequestBody.create(JSON, bodyBytes);
+		Request request = getRequestBuilder(properties.getAuthToken())
+				.url(properties.getOnionAddress() + "/contacts")
+				.post(body)
+				.build();
+		OkHttpClient client = httpClientProvider.get();
+		Response response = client.newCall(request).execute();
+		if (response.code() == 409) throw new TolerableFailureException();
+		if (!response.isSuccessful()) throw new ApiException();
 	}
 
 	private Request.Builder getRequestBuilder(String token) {

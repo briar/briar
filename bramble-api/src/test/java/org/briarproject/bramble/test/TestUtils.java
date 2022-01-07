@@ -31,6 +31,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Random;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -46,6 +47,7 @@ import static org.briarproject.bramble.api.sync.ClientId.MAX_CLIENT_ID_LENGTH;
 import static org.briarproject.bramble.api.sync.SyncConstants.MAX_GROUP_DESCRIPTOR_LENGTH;
 import static org.briarproject.bramble.api.sync.SyncConstants.MAX_MESSAGE_BODY_LENGTH;
 import static org.briarproject.bramble.util.StringUtils.getRandomString;
+import static org.briarproject.bramble.util.StringUtils.toHexString;
 
 public class TestUtils {
 
@@ -207,6 +209,10 @@ public class TestUtils {
 		return new Contact(c, remote, local,
 				getRandomString(MAX_AUTHOR_NAME_LENGTH),
 				getAgreementPublicKey(), verified);
+	}
+
+	public static String getMailboxSecret() {
+		return toHexString(getRandomBytes(32)).toLowerCase(Locale.US);
 	}
 
 	public static double getMedian(Collection<? extends Number> samples) {

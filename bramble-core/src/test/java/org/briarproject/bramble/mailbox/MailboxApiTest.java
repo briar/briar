@@ -1,8 +1,11 @@
 package org.briarproject.bramble.mailbox;
 
 import org.briarproject.bramble.api.WeakSingletonProvider;
+import org.briarproject.bramble.api.contact.ContactId;
 import org.briarproject.bramble.api.mailbox.MailboxProperties;
-import org.briarproject.bramble.mailbox.MailboxApi.PermanentFailureException;
+import org.briarproject.bramble.mailbox.MailboxApi.ApiException;
+import org.briarproject.bramble.mailbox.MailboxApi.MailboxContact;
+import org.briarproject.bramble.mailbox.MailboxApi.TolerableFailureException;
 import org.briarproject.bramble.test.BrambleTestCase;
 import org.junit.Test;
 
@@ -15,9 +18,9 @@ import okhttp3.mockwebserver.MockWebServer;
 import okhttp3.mockwebserver.RecordedRequest;
 
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
-import static org.briarproject.bramble.test.TestUtils.getRandomBytes;
+import static org.briarproject.bramble.test.TestUtils.getContactId;
+import static org.briarproject.bramble.test.TestUtils.getMailboxSecret;
 import static org.briarproject.bramble.util.StringUtils.getRandomString;
-import static org.briarproject.bramble.util.StringUtils.toHexString;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
@@ -40,8 +43,14 @@ public class MailboxApiTest extends BrambleTestCase {
 			};
 	private final MailboxApiImpl api = new MailboxApiImpl(httpClientProvider);
 
-	private final String token = toHexString(getRandomBytes(32));
-	private final String token2 = toHexString(getRandomBytes(32));
+	private final String token = getMailboxSecret();
+	private final String token2 = getMailboxSecret();
+	private final ContactId contactId = getContactId();
+	private final String contactToken = getMailboxSecret();
+	private final String contactInboxId = getMailboxSecret();
+	private final String contactOutboxId = getMailboxSecret();
+	private final MailboxContact mailboxContact = new MailboxContact(
+			contactId, contactToken, contactInboxId, contactOutboxId);
 
 	@Test
 	public void testSetup() throws Exception {
@@ -74,50 +83,42 @@ public class MailboxApiTest extends BrambleTestCase {
 		assertToken(request1, token);
 
 		// empty body
-		assertThrows(PermanentFailureException.class,
-				() -> api.setup(properties));
+		assertThrows(ApiException.class, () -> api.setup(properties));
 		RecordedRequest request2 = server.takeRequest();
 		assertEquals("/setup", request2.getPath());
 		assertEquals("PUT", request2.getMethod());
 		assertToken(request2, token);
 
 		// invalid response
-		assertThrows(PermanentFailureException.class,
-				() -> api.setup(properties));
+		assertThrows(ApiException.class, () -> api.setup(properties));
 		RecordedRequest request3 = server.takeRequest();
 		assertEquals("/setup", request3.getPath());
 		assertEquals("PUT", request3.getMethod());
 		assertToken(request3, token);
 
 		// 401 response
-		assertThrows(PermanentFailureException.class,
-				() -> api.setup(properties2));
+		assertThrows(ApiException.class, () -> api.setup(properties2));
 		RecordedRequest request4 = server.takeRequest();
 		assertEquals("/setup", request4.getPath());
 		assertEquals("PUT", request4.getMethod());
 		assertToken(request4, token2);
 
 		// 500 response
-		assertThrows(PermanentFailureException.class,
-				() -> api.setup(properties));
+		assertThrows(ApiException.class, () -> api.setup(properties));
 		RecordedRequest request5 = server.takeRequest();
 		assertEquals("/setup", request5.getPath());
 		assertEquals("PUT", request5.getMethod());
 		assertToken(request5, token);
 
 		// invalid json dict token response
-		assertThrows(PermanentFailureException.class,
-				() -> api.setup(properties)
-		);
+		assertThrows(ApiException.class, () -> api.setup(properties));
 		RecordedRequest request6 = server.takeRequest();
 		assertEquals("/setup", request6.getPath());
 		assertEquals("PUT", request6.getMethod());
 		assertToken(request6, token);
 
 		// invalid non-hex string token response
-		assertThrows(PermanentFailureException.class,
-				() -> api.setup(properties)
-		);
+		assertThrows(ApiException.class, () -> api.setup(properties));
 		RecordedRequest request7 = server.takeRequest();
 		assertEquals("/setup", request7.getPath());
 		assertEquals("PUT", request7.getMethod());
@@ -152,9 +153,7 @@ public class MailboxApiTest extends BrambleTestCase {
 		assertEquals("/status", request1.getPath());
 		assertToken(request1, token);
 
-		assertThrows(PermanentFailureException.class, () ->
-				api.checkStatus(properties2)
-		);
+		assertThrows(ApiException.class, () -> api.checkStatus(properties2));
 		RecordedRequest request2 = server.takeRequest();
 		assertEquals("/status", request2.getPath());
 		assertToken(request2, token2);
@@ -173,6 +172,52 @@ public class MailboxApiTest extends BrambleTestCase {
 				IllegalArgumentException.class,
 				() -> api.checkStatus(properties)
 		);
+	}
+
+	@Test
+	public void testAddContact() throws Exception {
+		MockWebServer server = new MockWebServer();
+		server.enqueue(new MockResponse());
+		server.enqueue(new MockResponse().setResponseCode(401));
+		server.enqueue(new MockResponse().setResponseCode(409));
+		server.start();
+		String baseUrl = getBaseUrl(server);
+		MailboxProperties properties =
+				new MailboxProperties(baseUrl, token, true);
+
+		// contact gets added as expected
+		api.addContact(properties, mailboxContact);
+		RecordedRequest request1 = server.takeRequest();
+		assertEquals("/contacts", request1.getPath());
+		assertToken(request1, token);
+		String expected = "{\"contactId\":" + contactId.getInt() +
+				",\"token\":\"" + contactToken +
+				"\",\"inboxId\":\"" + contactInboxId +
+				"\",\"outboxId\":\"" + contactOutboxId +
+				"\"}";
+		assertEquals(expected, request1.getBody().readUtf8());
+
+		// request is not successful
+		assertThrows(ApiException.class, () ->
+				api.addContact(properties, mailboxContact));
+		RecordedRequest request2 = server.takeRequest();
+		assertEquals("/contacts", request2.getPath());
+		assertToken(request2, token);
+
+		// contact already exists
+		assertThrows(TolerableFailureException.class, () ->
+				api.addContact(properties, mailboxContact));
+		RecordedRequest request3 = server.takeRequest();
+		assertEquals("/contacts", request3.getPath());
+		assertToken(request3, token);
+	}
+
+	@Test
+	public void testAddContactOnlyForOwner() {
+		MailboxProperties properties =
+				new MailboxProperties("", token, false);
+		assertThrows(IllegalArgumentException.class, () ->
+				api.addContact(properties, mailboxContact));
 	}
 
 	private String getBaseUrl(MockWebServer server) {
