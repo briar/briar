@@ -6,6 +6,7 @@ import org.briarproject.bramble.api.contact.ContactId;
 import org.briarproject.bramble.api.mailbox.MailboxProperties;
 
 import java.io.IOException;
+import java.util.Collection;
 
 import javax.annotation.concurrent.Immutable;
 
@@ -44,6 +45,13 @@ interface MailboxApi {
 	 * This should get called after a contact was removed from Briar.
 	 */
 	void deleteContact(MailboxProperties properties, ContactId contactId)
+			throws IOException, ApiException;
+
+	/**
+	 * Gets a list of {@link ContactId}s from the mailbox.
+	 * These are the contacts that the mailbox already knows about.
+	 */
+	Collection<ContactId> getContacts(MailboxProperties properties)
 			throws IOException, ApiException;
 
 	@Immutable

@@ -10,6 +10,9 @@ import org.briarproject.bramble.api.mailbox.MailboxProperties;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 
 import javax.inject.Inject;
 
@@ -125,6 +128,38 @@ class MailboxApiImpl implements MailboxApi {
 		OkHttpClient client = httpClientProvider.get();
 		Response response = client.newCall(request).execute();
 		if (response.code() != 200) throw new ApiException();
+	}
+
+	@Override
+	public Collection<ContactId> getContacts(MailboxProperties properties)
+			throws IOException, ApiException {
+		if (!properties.isOwner()) throw new IllegalArgumentException();
+		Request request = getRequestBuilder(properties.getAuthToken())
+				.url(properties.getOnionAddress() + "/contacts")
+				.build();
+		OkHttpClient client = httpClientProvider.get();
+		Response response = client.newCall(request).execute();
+		if (response.code() != 200) throw new ApiException();
+
+		ResponseBody body = response.body();
+		if (body == null) throw new ApiException();
+		try {
+			JsonNode node = mapper.readTree(body.string());
+			JsonNode contactsNode = node.get("contacts");
+			if (contactsNode == null || !contactsNode.isArray()) {
+				throw new ApiException();
+			}
+			List<ContactId> list = new ArrayList<>();
+			for (JsonNode contactNode : contactsNode) {
+				if (!contactNode.isNumber()) throw new ApiException();
+				int id = contactNode.intValue();
+				if (id < 1) throw new ApiException();
+				list.add(new ContactId(id));
+			}
+			return list;
+		} catch (JacksonException e) {
+			throw new ApiException();
+		}
 	}
 
 	private Request.Builder getRequestBuilder(String token) {
