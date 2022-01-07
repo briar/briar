@@ -20,6 +20,7 @@ dependencies {
 
 	//noinspection GradleDependency
 	implementation "com.squareup.okhttp3:okhttp:$okhttp_version"
+	implementation "com.fasterxml.jackson.core:jackson-databind:$jackson_version"
 
 	annotationProcessor "com.google.dagger:dagger-compiler:$dagger_version"
 
@@ -30,6 +31,7 @@ dependencies {
 	testImplementation "org.jmock:jmock:$jmock_version"
 	testImplementation "org.jmock:jmock-junit4:$jmock_version"
 	testImplementation "org.jmock:jmock-imposters:$jmock_version"
+	testImplementation "com.squareup.okhttp3:mockwebserver:4.9.3"
 
 	testAnnotationProcessor "com.google.dagger:dagger-compiler:$dagger_version"
 
