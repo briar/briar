@@ -89,11 +89,7 @@ class MailboxApiImpl implements MailboxApi {
 	public boolean checkStatus(MailboxProperties properties)
 			throws IOException, ApiException {
 		if (!properties.isOwner()) throw new IllegalArgumentException();
-		Request request = getRequestBuilder(properties.getAuthToken())
-				.url(properties.getOnionAddress() + "/status")
-				.build();
-		OkHttpClient client = httpClientProvider.get();
-		Response response = client.newCall(request).execute();
+		Response response = sendGetRequest(properties, "/status");
 		if (response.code() == 401) throw new ApiException();
 		return response.isSuccessful();
 	}
@@ -132,13 +128,10 @@ class MailboxApiImpl implements MailboxApi {
 
 	@Override
 	public Collection<ContactId> getContacts(MailboxProperties properties)
-			throws IOException, ApiException {
+			throws IOException, ApiException, TolerableFailureException {
 		if (!properties.isOwner()) throw new IllegalArgumentException();
-		Request request = getRequestBuilder(properties.getAuthToken())
-				.url(properties.getOnionAddress() + "/contacts")
-				.build();
-		OkHttpClient client = httpClientProvider.get();
-		Response response = client.newCall(request).execute();
+		Response response = sendGetRequest(properties, "/contacts");
+		if (response.code() == 404) throw new TolerableFailureException();
 		if (response.code() != 200) throw new ApiException();
 
 		ResponseBody body = response.body();
@@ -160,6 +153,15 @@ class MailboxApiImpl implements MailboxApi {
 		} catch (JacksonException e) {
 			throw new ApiException();
 		}
+	}
+
+	private Response sendGetRequest(MailboxProperties properties, String path)
+			throws IOException {
+		Request request = getRequestBuilder(properties.getAuthToken())
+				.url(properties.getOnionAddress() + path)
+				.build();
+		OkHttpClient client = httpClientProvider.get();
+		return client.newCall(request).execute();
 	}
 
 	private Request.Builder getRequestBuilder(String token) {

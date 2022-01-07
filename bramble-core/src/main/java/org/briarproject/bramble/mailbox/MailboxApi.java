@@ -50,9 +50,12 @@ interface MailboxApi {
 	/**
 	 * Gets a list of {@link ContactId}s from the mailbox.
 	 * These are the contacts that the mailbox already knows about.
+	 *
+	 * @throws TolerableFailureException if response code is 404
+	 * (contact probably was already deleted).
 	 */
 	Collection<ContactId> getContacts(MailboxProperties properties)
-			throws IOException, ApiException;
+			throws IOException, ApiException, TolerableFailureException;
 
 	@Immutable
 	@JsonSerialize
