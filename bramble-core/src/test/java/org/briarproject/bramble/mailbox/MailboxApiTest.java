@@ -9,6 +9,9 @@ import org.briarproject.bramble.mailbox.MailboxApi.TolerableFailureException;
 import org.briarproject.bramble.test.BrambleTestCase;
 import org.junit.Test;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import javax.annotation.Nonnull;
 import javax.net.SocketFactory;
 
@@ -17,6 +20,7 @@ import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
 import okhttp3.mockwebserver.RecordedRequest;
 
+import static java.util.Collections.singletonList;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static org.briarproject.bramble.test.TestUtils.getContactId;
 import static org.briarproject.bramble.test.TestUtils.getMailboxSecret;
@@ -218,6 +222,152 @@ public class MailboxApiTest extends BrambleTestCase {
 				new MailboxProperties("", token, false);
 		assertThrows(IllegalArgumentException.class, () ->
 				api.addContact(properties, mailboxContact));
+	}
+
+	@Test
+	public void testDeleteContact() throws Exception {
+		MockWebServer server = new MockWebServer();
+		server.enqueue(new MockResponse());
+		server.enqueue(new MockResponse().setResponseCode(205));
+		server.enqueue(new MockResponse().setResponseCode(401));
+		server.start();
+		String baseUrl = getBaseUrl(server);
+		MailboxProperties properties =
+				new MailboxProperties(baseUrl, token, true);
+
+		// contact gets deleted as expected
+		api.deleteContact(properties, contactId);
+		RecordedRequest request1 = server.takeRequest();
+		assertEquals("DELETE", request1.getMethod());
+		assertEquals("/contacts/" + contactId.getInt(), request1.getPath());
+		assertToken(request1, token);
+
+		// request is not returning 200
+		assertThrows(ApiException.class, () ->
+				api.deleteContact(properties, contactId));
+		RecordedRequest request2 = server.takeRequest();
+		assertEquals("DELETE", request2.getMethod());
+		assertEquals("/contacts/" + contactId.getInt(), request2.getPath());
+		assertToken(request2, token);
+
+		// request is not authorized
+		assertThrows(ApiException.class, () ->
+				api.deleteContact(properties, contactId));
+		RecordedRequest request3 = server.takeRequest();
+		assertEquals("DELETE", request3.getMethod());
+		assertEquals("/contacts/" + contactId.getInt(), request3.getPath());
+		assertToken(request3, token);
+	}
+
+	@Test
+	public void testDeleteContactOnlyForOwner() {
+		MailboxProperties properties =
+				new MailboxProperties("", token, false);
+		assertThrows(IllegalArgumentException.class, () ->
+				api.deleteContact(properties, contactId));
+	}
+
+	@Test
+	public void testGetContacts() throws Exception {
+		ContactId contactId2 = getContactId();
+		String validResponse1 = "{\"contacts\": [" + contactId.getInt() + "] }";
+		String validResponse2 = "{\"contacts\": [" + contactId.getInt() + ", " +
+				contactId2.getInt() + "] }";
+		String invalidResponse1 = "{\"foo\":\"bar\"}";
+		String invalidResponse2 = "{\"contacts\":{\"foo\":\"bar\"}}";
+		String invalidResponse3 = "{\"contacts\": [1, 2, \"foo\"] }";
+
+		MockWebServer server = new MockWebServer();
+		server.enqueue(new MockResponse().setBody(validResponse1));
+		server.enqueue(new MockResponse().setBody(validResponse2));
+		server.enqueue(new MockResponse());
+		server.enqueue(new MockResponse().setBody(invalidResponse1));
+		server.enqueue(new MockResponse().setBody(invalidResponse2));
+		server.enqueue(new MockResponse().setBody(invalidResponse3));
+		server.enqueue(new MockResponse().setResponseCode(401));
+		server.enqueue(new MockResponse().setResponseCode(500));
+		server.enqueue(new MockResponse().setResponseCode(404));
+		server.start();
+		String baseUrl = getBaseUrl(server);
+		MailboxProperties properties =
+				new MailboxProperties(baseUrl, token, true);
+
+		// valid response with two contacts
+		assertEquals(singletonList(contactId), api.getContacts(properties));
+		RecordedRequest request1 = server.takeRequest();
+		assertEquals("/contacts", request1.getPath());
+		assertEquals("GET", request1.getMethod());
+		assertToken(request1, token);
+
+		// valid response with two contacts
+		List<ContactId> contacts = new ArrayList<>();
+		contacts.add(contactId);
+		contacts.add(contactId2);
+		assertEquals(contacts, api.getContacts(properties));
+		RecordedRequest request2 = server.takeRequest();
+		assertEquals("/contacts", request2.getPath());
+		assertEquals("GET", request2.getMethod());
+		assertToken(request2, token);
+
+		// empty body
+		assertThrows(ApiException.class, () -> api.getContacts(properties));
+		RecordedRequest request3 = server.takeRequest();
+		assertEquals("/contacts", request3.getPath());
+		assertEquals("GET", request3.getMethod());
+		assertToken(request3, token);
+
+		// invalid response: no contacts key
+		assertThrows(ApiException.class, () -> api.getContacts(properties));
+		RecordedRequest request4 = server.takeRequest();
+		assertEquals("/contacts", request4.getPath());
+		assertEquals("GET", request4.getMethod());
+		assertToken(request4, token);
+
+		// invalid response: no list in contacts
+		assertThrows(ApiException.class, () -> api.getContacts(properties));
+		RecordedRequest request5 = server.takeRequest();
+		assertEquals("/contacts", request5.getPath());
+		assertEquals("GET", request5.getMethod());
+		assertToken(request5, token);
+
+		// invalid response: list with non-numbers
+		assertThrows(ApiException.class, () -> api.getContacts(properties));
+		RecordedRequest request6 = server.takeRequest();
+		assertEquals("/contacts", request6.getPath());
+		assertEquals("GET", request6.getMethod());
+		assertToken(request6, token);
+
+		// 401 not authorized
+		assertThrows(ApiException.class, () -> api.getContacts(properties));
+		RecordedRequest request7 = server.takeRequest();
+		assertEquals("/contacts", request7.getPath());
+		assertEquals("GET", request7.getMethod());
+		assertToken(request7, token);
+
+		// 500 internal server error
+		assertThrows(ApiException.class, () -> api.getContacts(properties));
+		RecordedRequest request8 = server.takeRequest();
+		assertEquals("/contacts", request8.getPath());
+		assertEquals("GET", request8.getMethod());
+		assertToken(request8, token);
+
+		// tolerable 404 not found error
+		assertThrows(TolerableFailureException.class,
+				() -> api.getContacts(properties));
+		RecordedRequest request9 = server.takeRequest();
+		assertEquals("/contacts", request9.getPath());
+		assertEquals("GET", request9.getMethod());
+		assertToken(request9, token);
+	}
+
+	@Test
+	public void testGetContactsOnlyForOwner() {
+		MailboxProperties properties =
+				new MailboxProperties("", token, false);
+		assertThrows(
+				IllegalArgumentException.class,
+				() -> api.getContacts(properties)
+		);
 	}
 
 	private String getBaseUrl(MockWebServer server) {

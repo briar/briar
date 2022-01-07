@@ -5,10 +5,14 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 
 import org.briarproject.bramble.api.WeakSingletonProvider;
+import org.briarproject.bramble.api.contact.ContactId;
 import org.briarproject.bramble.api.mailbox.MailboxProperties;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 
 import javax.inject.Inject;
 
@@ -85,11 +89,7 @@ class MailboxApiImpl implements MailboxApi {
 	public boolean checkStatus(MailboxProperties properties)
 			throws IOException, ApiException {
 		if (!properties.isOwner()) throw new IllegalArgumentException();
-		Request request = getRequestBuilder(properties.getAuthToken())
-				.url(properties.getOnionAddress() + "/status")
-				.build();
-		OkHttpClient client = httpClientProvider.get();
-		Response response = client.newCall(request).execute();
+		Response response = sendGetRequest(properties, "/status");
 		if (response.code() == 401) throw new ApiException();
 		return response.isSuccessful();
 	}
@@ -109,6 +109,59 @@ class MailboxApiImpl implements MailboxApi {
 		Response response = client.newCall(request).execute();
 		if (response.code() == 409) throw new TolerableFailureException();
 		if (!response.isSuccessful()) throw new ApiException();
+	}
+
+	@Override
+	public void deleteContact(MailboxProperties properties, ContactId contactId)
+			throws IOException, ApiException {
+		if (!properties.isOwner()) throw new IllegalArgumentException();
+		String url = properties.getOnionAddress() + "/contacts/" +
+				contactId.getInt();
+		Request request = getRequestBuilder(properties.getAuthToken())
+				.delete()
+				.url(url)
+				.build();
+		OkHttpClient client = httpClientProvider.get();
+		Response response = client.newCall(request).execute();
+		if (response.code() != 200) throw new ApiException();
+	}
+
+	@Override
+	public Collection<ContactId> getContacts(MailboxProperties properties)
+			throws IOException, ApiException, TolerableFailureException {
+		if (!properties.isOwner()) throw new IllegalArgumentException();
+		Response response = sendGetRequest(properties, "/contacts");
+		if (response.code() == 404) throw new TolerableFailureException();
+		if (response.code() != 200) throw new ApiException();
+
+		ResponseBody body = response.body();
+		if (body == null) throw new ApiException();
+		try {
+			JsonNode node = mapper.readTree(body.string());
+			JsonNode contactsNode = node.get("contacts");
+			if (contactsNode == null || !contactsNode.isArray()) {
+				throw new ApiException();
+			}
+			List<ContactId> list = new ArrayList<>();
+			for (JsonNode contactNode : contactsNode) {
+				if (!contactNode.isNumber()) throw new ApiException();
+				int id = contactNode.intValue();
+				if (id < 1) throw new ApiException();
+				list.add(new ContactId(id));
+			}
+			return list;
+		} catch (JacksonException e) {
+			throw new ApiException();
+		}
+	}
+
+	private Response sendGetRequest(MailboxProperties properties, String path)
+			throws IOException {
+		Request request = getRequestBuilder(properties.getAuthToken())
+				.url(properties.getOnionAddress() + path)
+				.build();
+		OkHttpClient client = httpClientProvider.get();
+		return client.newCall(request).execute();
 	}
 
 	private Request.Builder getRequestBuilder(String token) {

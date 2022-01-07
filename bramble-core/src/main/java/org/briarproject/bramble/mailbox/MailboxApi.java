@@ -1,9 +1,12 @@
 package org.briarproject.bramble.mailbox;
 
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+
 import org.briarproject.bramble.api.contact.ContactId;
 import org.briarproject.bramble.api.mailbox.MailboxProperties;
 
 import java.io.IOException;
+import java.util.Collection;
 
 import javax.annotation.concurrent.Immutable;
 
@@ -35,10 +38,27 @@ interface MailboxApi {
 	 * (contact was already added).
 	 */
 	void addContact(MailboxProperties properties, MailboxContact contact)
-			throws IOException, ApiException,
-			TolerableFailureException;
+			throws IOException, ApiException, TolerableFailureException;
+
+	/**
+	 * Deletes a contact from the mailbox.
+	 * This should get called after a contact was removed from Briar.
+	 */
+	void deleteContact(MailboxProperties properties, ContactId contactId)
+			throws IOException, ApiException;
+
+	/**
+	 * Gets a list of {@link ContactId}s from the mailbox.
+	 * These are the contacts that the mailbox already knows about.
+	 *
+	 * @throws TolerableFailureException if response code is 404
+	 * (contact probably was already deleted).
+	 */
+	Collection<ContactId> getContacts(MailboxProperties properties)
+			throws IOException, ApiException, TolerableFailureException;
 
 	@Immutable
+	@JsonSerialize
 	class MailboxContact {
 		public final int contactId;
 		public final String token, inboxId, outboxId;
