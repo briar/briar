@@ -1,0 +1,528 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="MissingTranslation">
+
+	<string name="app_name" translatable="false">Briar SB</string>
+	<string name="app_package" translatable="false">org.briarproject.briar.socialbackup</string>
+
+	<!-- Setup -->
+	<string name="setup_title">Selamat Datang di Briar</string>
+	<string name="setup_name_explanation">Nama panggilan Anda akan terlihat pada setiap materi yang Anda unggah. Anda tidak bisa mengubah setelah membuatnya.</string>
+	<string name="setup_next">Selanjutnya</string>
+	<string name="setup_password_intro">Pilih Kata Sandi</string>
+	<string name="setup_password_explanation">Akun Briar Anda tersimpan dalam perangkat terenkripsi, bukan di komputasi awan. Jika lupa kata sandi atau menghapus aplikasi Briar, Anda hanya bisa mengembalikan akun jika sudah membuat pencadangan sosial.\n\nBuatlah kata sandi panjang yang susah ditebak, misalnya empat kata acak atau sepuluh huruf, angka, dan simbol acak.</string>
+	<string name="setup_doze_title">Sambungan Belakang</string>
+	<string name="setup_doze_intro">Untuk menerima pesan, Briar perlu tetap terkoneksi dengan sambungan belakang.</string>
+	<string name="setup_doze_explanation">Untuk menerima pesan, Briar perlu tetap terkoneksi dengan sambungan belakang. Silakan nonaktifkan pengoptimalan baterai agar Briar tetap bisa terkoneksi.</string>
+	<string name="setup_doze_button">Izinkan Koneksi</string>
+	<string name="choose_nickname">Pilih nama panggilan Anda</string>
+	<string name="choose_password">Pilih kata sandi Anda</string>
+	<string name="confirm_password">Konfirmasi kata sandi Anda</string>
+	<string name="name_too_long">Nama terlalu panjang</string>
+	<string name="password_too_weak">Kata sandi terlalu lemah</string>
+	<string name="passwords_do_not_match">Kata sandi tidak cocok</string>
+	<string name="create_account_button">Buat Akun</string>
+	<string name="more_info">Informasi Selanjutnya</string>
+	<string name="don_t_ask_again">Jangan tanya lagi</string>
+
+	<string name="setup_huawei_text">Silakan ketuk tombol di bawah dan pastikan Briar terlindungi di layar \"Aplikasi Terlindungi\".</string>
+	<string name="setup_huawei_button">Lindungi Briar</string>
+	<string name="setup_huawei_help">Jika tidak dimasukkan dalam daftar aplikasi terlindungi, Briar tidak akan bisa berfungsi di sambungan belakang.</string>
+	<string name="warning_dozed">%tidak bisa berfungsi di sambungan belakang</string>
+
+	<!-- Login -->
+	<string name="enter_password">Kata Sandi</string>
+	<string name="try_again">Kata sandi salah, coba lagi</string>
+	<string name="dialog_title_cannot_check_password">Tidak Bisa Memeriksa Kata Sandi</string>
+	<string name="dialog_message_cannot_check_password">Briar tidak bisa memeriksa kata sandi Anda. Silakan booting ulang perangkat untuk memecahkan masalah Anda.</string>
+	<string name="sign_in_button">Masuk</string>
+	<string name="forgotten_password">Saya lupa kata sandi</string>
+	<string name="dialog_title_lost_password">Kata sandi hilang</string>
+	<string name="dialog_message_lost_password">Akun Briar Anda tersimpan dalam perangkat terenkripsi, bukan di komputasi awan, jadi kami tidak bisa membuat ulang kata sandi Anda. Jika Anda memiliki cadangan sosial, Anda bisa menghapus akun Anda dan membuat kata sandi baru ketika Anda mengembalikan. Apakah Anda mau menghapus akun dan memulai lagi?\n\nPerhatian: Identitas, kontak, dan pesan Anda akan sepenuhnya hilang jika Anda tidak punya cadangan.</string>
+	<string name="startup_failed_notification_title">Briar tidak bisa memulai</string>
+	<string name="startup_failed_notification_text">Ketuk untuk informasi selanjutnya.</string>
+	<string name="startup_failed_activity_title">Briar Gagal Memulai</string>
+	<string name="startup_failed_db_error">Karena beberapa alasan, pangkalan data Briar Anda rusak dan tidak bisa diperbaiki. Akun, data, dan semua kontak Anda hilang. Sayangnya, Anda perlu memasang ulang Briar atau membuat akun baru dengan memilih \'Saya lupa kata sandi\' pada bagian kata sandi.</string>
+	<string name="startup_failed_data_too_old_error">Akun Anda dibuat menggunakan versi lama aplikasi ini dan tidak bisa dibuka dengan versi sekarang. Anda harus memasang ulang versi lama atau membuat akun baru dengan memilih \'Saya lupa kata sandi\' pada bagian kata sandi.</string>
+	<string name="startup_failed_data_too_new_error">Versi aplikasi ini sudah usang. Silakan naikkan ke versi terbaru dan coba lagi.</string>
+	<string name="startup_failed_service_error">Briar tidak bisa memulai pengaya yang diperlukan. Memasang ulang Briar biasanya memecahkan masalah. Namun, harap diperhatikan bahwa Anda akan kehilangan semua data karena Briar tidak menggunakan peladen terpusat untuk menyimpan data Anda.</string>
+	<plurals name="expiry_warning">
+		<item quantity="one">Ini adalah Briar versi percobaan. Akun Anda akan kedaluwarsa pada % hari dan tidak bisa diperbarui.</item>
+		<item quantity="other">Ini adalah Briar versi percobaan. Akun Anda akan kedaluwarsa pada % hari dan tidak bisa diperbarui.</item>
+	</plurals>
+	<string name="expiry_date_reached">Perangkat lunak ini sudah kedaluwarsa.\nTerima kasih sudah mencoba!</string>
+	<string name="download_briar">Untuk lanjut menggunakan Briar, silakan unduh versi terbaru.</string>
+	<string name="create_new_account">Anda akan perlu membuat akun baru, tetapi bisa menggunakan nama sama.</string>
+	<string name="download_briar_button">Unduh Keluaran Terbaru</string>
+	<string name="startup_open_database">Mendekrip Pangkalan Data…</string>
+	<string name="startup_migrate_database">Meningkatkan Pangkalan Data…</string>
+	<string name="startup_compact_database">Meringkas Pangkalan Data…</string>
+
+	<!-- Navigation Drawer -->
+	<string name="nav_drawer_open_description">Buka penarik navigasi</string>
+	<string name="nav_drawer_close_description">Tutup penarik navigasi</string>
+	<string name="contact_list_button">Kontak</string>
+	<string name="groups_button">Group Pribadi</string>
+	<string name="forums_button">Forum</string>
+	<string name="blogs_button">Blog</string>
+	<!-- This is part of the main menu. The app will be locked when this is tapped. -->
+	<string name="lock_button">Kunci Aplikasi</string>
+	<string name="settings_button">Pengaturan</string>
+	<string name="sign_out_button">Keluar</string>
+	<string name="transports_onboarding_text">Ketuk di sini untuk mengontrol bagaimana Briar tersambung dengan kontak Anda.</string>
+
+	<!-- Transports: Tor -->
+	<string name="transport_tor">Internet</string>
+	<string name="tor_device_status_online_wifi">Ponsel Anda punya akses Internet lewat Wi-Fi</string>
+	<string name="tor_device_status_online_mobile">Ponsel Anda punya akses Internet lewat paket data</string>
+	<string name="tor_device_status_offline">Ponsel Anda tidak punya akses Internet</string>
+	<string name="tor_plugin_status_enabling">Briar menyambung ke Internet</string>
+	<string name="tor_plugin_status_active">Briar tersambung Internet</string>
+	<string name="tor_plugin_status_inactive">Briar tidak bisa menyambung ke Internet</string>
+	<string name="tor_plugin_status_disabled">Briar dikonfigurasi tidak menggunakan Internet</string>
+	<string name="tor_plugin_status_disabled_mobile_data">Briar dikonfigurasi tidak menggunakan paket data</string>
+	<string name="tor_plugin_status_disabled_battery">Briar dikonfigurasi tidak menggunakan Internet ketika menggunakan baterai</string>
+	<string name="tor_plugin_status_disabled_country_blocked">Briar dikonfigurasi tidak menggunakan Internet di negara ini</string>
+
+	<!-- Transports: Wi-Fi -->
+	<string name="transport_lan">Wi-Fi</string>
+	<string name="transport_lan_long">Jaringan Wi-Fi Sama</string>
+	<string name="lan_device_status_on">Ponsel Anda tersambung Wi-Fi</string>
+	<string name="lan_device_status_off">Ponsel Anda tidak tersambung Wi-Fi</string>
+	<string name="lan_plugin_status_enabling">Briar menyambung ke Wi-Fi</string>
+	<string name="lan_plugin_status_active">Briar tersambung Wi-Fi</string>
+	<string name="lan_plugin_status_inactive">Briar tidak tersambung Wi-Fi</string>
+	<string name="lan_plugin_status_disabled">Briar dikonfigutasi tidak menggunakan Wi-Fi</string>
+
+	<!-- Transports: Bluetooth -->
+	<string name="transport_bt">Bluetooth</string>
+	<string name="bt_device_status_on">Bluetooth ponsel Anda hidup</string>
+	<string name="bt_device_status_off">Bluetooth ponsel Anda mati</string>
+	<string name="bt_plugin_status_enabling">Briar menyambung ke Bluetooth</string>
+	<string name="bt_plugin_status_active">Briar tersambung Bluetooth</string>
+	<string name="bt_plugin_status_inactive">Briar tidak bisa tersambung Bluetooth</string>
+	<string name="bt_plugin_status_disabled">Briar dikonfigurasi tidak menggunakan Bluetooth</string>
+
+	<!-- Notifications -->
+	<string name="reminder_notification_title">Keluar Briar</string>
+	<string name="reminder_notification_text">Ketuk untuk masuk kembali.</string>
+	<string name="reminder_notification_channel_title">Pengingat Masuk Briar</string>
+	<string name="reminder_notification_dismiss">Singkirkan</string>
+	<string name="ongoing_notification_title">Masuk Briar</string>
+	<string name="ongoing_notification_text">Sentuh untuk membuka Briar.</string>
+	<plurals name="private_message_notification_text">
+		<item quantity="one">Pesan pribadi baru.</item>
+		<item quantity="other">%d Pesan-pesan pribadi baru.</item>
+	</plurals>
+
+	<!-- Misc -->
+	<string name="now">sekarang</string>
+	<string name="show">Tunjukkan</string>
+	<string name="hide">Sembunyikan</string>
+	<string name="ok">OK</string>
+	<string name="cancel">Batal</string>
+	<string name="got_it">Paham</string>
+	<string name="delete">Hapus</string>
+	<string name="accept">Terima</string>
+	<string name="decline">Tolak</string>
+	<string name="online">Daring</string>
+	<string name="offline">Luring</string>
+	<string name="send">Kirim</string>
+	<string name="allow">Izinkan</string>
+	<string name="open">Buka</string>
+	<string name="change">Ubah</string>
+	<string name="no_data">Tidak Ada Data</string>
+	<string name="ellipsis">…</string>
+	<string name="text_too_long">Teks yang dimasukkan terlalu panjang</string>
+	<string name="show_onboarding">Perlihatkan Dialog Bantuan</string>
+	<string name="fix">Bereskan</string>
+	<string name="help">Bantu</string>
+	<string name="sorry">Maaf</string>
+	<string name="error_start_activity">Tidak tersedia di sistem Anda</string>
+	<string name="status_heading">Status:</string>
+
+	<!-- Contacts and Private Conversations-->
+	<string name="no_contacts">Tidak ada kontak untuk diperlihatkan</string>
+	<string name="no_contacts_action">Ketuk ikon + untuk menambah kontak</string>
+	<string name="date_no_private_messages">Tidak ada pesan.</string>
+	<string name="no_private_messages">Tidak ada pesan untuk diperlihatkan</string>
+	<string name="message_hint">Tulisa pesan</string>
+	<string name="image_caption_hint">Tambahkan keterangan (pilihan)</string>
+	<string name="image_attach">Lampirkan gambar</string>
+	<string name="image_attach_error">Tidak bisa melampirkan gambar</string>
+	<string name="image_attach_error_too_big">Gambar terlalu besar. Batasnya %d MB.</string>
+	<string name="image_attach_error_invalid_mime_type">Format gambar tidak mendukung: %s</string>
+	<string name="set_contact_alias">Ubah nama kontak</string>
+	<string name="set_contact_alias_hint">Nama kontak</string>
+	<string name="delete_all_messages">Hapus semua pesan</string>
+	<string name="dialog_title_delete_all_messages">Konfirmasi Penghapusan Pesan</string>
+	<string name="dialog_message_delete_all_messages">Anda yakin untuk menghapus semua pesan?</string>
+	<string name="dialog_title_not_all_messages_deleted">Tidak bisa menghapus semua pesan</string>
+	<string name="delete_contact">Hapus kontak</string>
+	<string name="dialog_title_delete_contact">Konfirmasi Penghapusan Kontak</string>
+	<string name="dialog_message_delete_contact">Apakah Anda yakin akan menghapus kontak ini dan semua pesannya?</string>
+	<string name="contact_deleted_toast">Kontak Dihapus</string>
+	<!-- This is shown in the action bar when opening an image in fullscreen that the user sent -->
+	<string name="you">Anda</string>
+	<string name="save_image">Simpan gambar</string>
+	<string name="dialog_title_save_image">Simpan gambar?</string>
+	<string name="save_image_success">Gambar tersimpan</string>
+	<string name="save_image_error">Tidak bisa menghapus gambar</string>
+	<string name="dialog_title_no_image_support">Gambar tidak tersedia</string>
+
+	<!-- Adding Contacts -->
+
+	<string name="add_contact_title">Tambah Kontak Sekitar</string>
+	<string name="face_to_face">Anda harus bertemu dengan orang yang ingin Anda tambahkan sebagai kontak.\n\nHal ini ubtuk mencegah orang lain membuat akun tiruan atau membaca pesan Anda di kemudian hari.</string>
+	<string name="continue_button">Lanjut</string>
+	<string name="try_again_button">Coba Lagi</string>
+	<string name="waiting_for_contact_to_scan">Menunggu kontak untuk memindai dan menyambung\u2026</string>
+	<string name="exchanging_contact_details">Bertukar detail kontak\u2026</string>
+	<string name="contact_added_toast">Kontak ditambahkan: %s</string>
+	<string name="contact_already_exists">%s kontak sudah ada</string>
+	<string name="qr_code_invalid">Kode batang salah</string>
+	<string name="qr_code_too_old">Kode batang yang Anda pindai adalah versi lebih lama %s.\n\nSilakan minta kontak Anda untuk menaikkan ke versi terbaru dan coba lagi.</string>
+	<string name="qr_code_too_new">Kode batang yang Anda pindai adalah versi lebih mutakhir %s.\n\nSilakan naikkan ke versi terbaru dan coba lagi.</string>
+	<string name="camera_error">Kamera Rusak</string>
+	<string name="connecting_to_device">Menyambung ke perangkat\u2026</string>
+	<string name="authenticating_with_device">Mengautentikasi ke perangkat\u2026</string>
+	<string name="connection_error_title">Tidak bisa menyambung dengan kontak Anda</string>
+	<string name="connection_error_feedback">Jika masalah ini berulang, silakan <a href="feedback">kirim umpan balik</a> untuk memperbaiki aplikasi.</string>
+
+	<!-- Adding Contacts Remotely -->
+
+	<string name="add_contact_remotely_title_case">Tambahkan kontak jarak jauh</string>
+	<string name="add_contact_nearby_title">Tambahkan kontak di dekat Anda</string>
+	<string name="add_contact_remotely_title">Tambahkan kontak jarak jauh</string>
+	<string name="contact_link_intro">Masukkan tautan dari kontak Anda di sini</string>
+	<string name="contact_link_hint">Tautan kontak</string>
+	<string name="paste_button">Tempel</string>
+	<string name="add_contact_button">Tambahkan kontak</string>
+	<string name="copy_button">Salin</string>
+	<string name="share_button">Bagi</string>
+	<string name="send_link_title">Tukar tautan</string>
+	<string name="add_contact_choose_nickname">Pilih Nama Panggilan</string>
+	<string name="add_contact_choose_a_nickname">Masukkan Nama Panggilan</string>
+	<string name="nickname_intro">Berikan kontak Anda nama panggilan. Hanya Anda yang bisa melihat.</string>
+	<string name="your_link">Beri tautan ini pada kontak yang ingin Anda tambahkan</string>
+	<string name="link_clip_label">Tautan Briar</string>
+	<string name="link_copied_toast">Tautan Tersalin</string>
+	<string name="adding_contact_error">Ada masalah ketika menambah kontak.</string>
+	<string name="pending_contact_requests_snackbar">Ada permintaan kontak yang tertunda</string>
+	<string name="pending_contact_requests">Permintaan Kontak Tertunda</string>
+	<string name="no_pending_contacts">Tidak ada kontak tertunda</string>
+	<string name="waiting_for_contact_to_come_online">Menunggu kontak untuk daring…</string>
+	<string name="connecting">Menyambung…</string>
+	<string name="adding_contact">Menambah kontak…</string>
+	<string name="adding_contact_failed">Penambahan kontak gagal</string>
+	<string name="dialog_title_remove_pending_contact">Konfirmasi Penghapusan</string>
+	<string name="dialog_message_remove_pending_contact">Kontak ini masih sedang ditambahkan. Jika Anda menghapusnya, kontak tidak akan ditambahkan.</string>
+	<string name="own_link_error">Masukkan tautan kontak Anda, bukan tautan Anda sendiri</string>
+	<string name="nickname_missing">Masukkan nama panggilan</string>
+	<string name="invalid_link">Tautan Keliru</string>
+	<string name="unsupported_link">Tautan ini dari Briar versi lebih mutakhir. Silakan naikkan ke versi terbaru dan coba lagi.</string>
+	<string name="intent_own_link">Anda membuka tautan Anda sendiri. Gunakan dari kontak yang ingin Anda tambahkan!</string>
+	<string name="missing_link">Masukkan tautan</string>
+	<!-- This is a numeral indicating the first step in a series of screens -->
+	<string name="step_1">1</string>
+	<!-- This is a numeral indicating the second step in a series of screens -->
+	<string name="step_2">2</string>
+	<plurals name="contact_added_notification_text">
+		<item quantity="one">Kontak baru ditambahkan.</item>
+		<item quantity="other">%d kontak baru ditambahkan.</item>
+	</plurals>
+	<string name="offline_state">Tidak ada koneksi Internet</string>
+	<string name="duplicate_link_dialog_title">Gandakan Tautan</string>
+	<string name="duplicate_link_dialog_text_1">Anda memiliki kontak tertunda dengan tautan berikut: %s</string>
+	<string name="duplicate_link_dialog_text_1_contact">Anda sudah memiliki kontak dengan tautan berikut: %s</string>
+	<!-- This is a question asking whether two nicknames refer to the same person -->
+	<string name="duplicate_link_dialog_text_2">Apakah %s and %s adalah orang yang sama?</string>
+	<!-- This is a button for answering that two nicknames do indeed refer to the same person. This
+	string will be used in a dialog button, so if the translation of this string is longer than 20
+	characters, please use "Yes" instead, and use "No" for the "Different Person" button -->
+	<string name="same_person_button">Orang Sama</string>
+	<!-- This is a button for answering that two nicknames refer to different people. This string
+	will be used in a dialog button, so if the translation of this string longer than 20 characters,
+	please use "No" instead, and use "Yes" for the "Same Person" button -->
+	<string name="different_person_button">Orang Berbeda</string>
+	<string name="duplicate_link_dialog_text_3">%s dan %s mengirimkan tautan yang sama.\n\nSalah satu dari mereka mungkin sedang mencoba menemukan siapa kontak Anda.\n\nJangan beritahu bahwa Anda menerima tautan sama dari orang lain.</string>
+	<string name="pending_contact_updated_toast">Menunda pembaruan kontak</string>
+
+	<!-- Settings Profile Picture -->
+	<string name="change_profile_picture">Ketuk untuk mengubah gambar profil Anda</string>
+	<string name="dialog_confirm_profile_picture_title">Ubah gambar profil Anda</string>
+	<string name="dialog_confirm_profile_picture_remark">Hanya kontak Anda yang bisa melihat gambar ini</string>
+	<string name="change_profile_picture_failed_message">Mohon maaf, tetapi ada masalah ketika Anda memutakhirkan gambar profil Anda</string>
+
+	<!-- Settings Display -->
+	<string name="pref_language_title">Bahasa &amp; region</string>
+	<string name="pref_language_changed">Pengaturan ini akan mempengaruhi ketika Anda memulai ulang Briar. Silakan keluar dan mulai ulang Briar.</string>
+	<string name="pref_language_default">Bawaan sistem</string>
+	<string name="display_settings_title">Tampilan</string>
+	<string name="pref_theme_title">Tema</string>
+	<string name="pref_theme_light">Terang</string>
+	<string name="pref_theme_dark">Gelap</string>
+	<string name="pref_theme_auto">Otomatis (Siang)</string>
+	<string name="pref_theme_system">Bawaan sistem</string>
+
+	<!-- Settings Connections -->
+	<string name="network_settings_title">Koneksi</string>
+	<string name="bluetooth_setting">Menyambung kontak lewat Bluetooth</string>
+	<string name="wifi_setting">Menyambung kontak di Wi-Fi yang Sama</string>
+	<string name="tor_enable_title">Menyambung kontak lewat Internet</string>
+	<string name="tor_enable_summary">Semua koneksi melalui jaringan Tor untuk privasi</string>
+	<string name="tor_network_setting">Metode koneksi untuk jaringan Tor</string>
+	<string name="tor_network_setting_automatic">Otomatis sesuai lokasi</string>
+	<string name="tor_network_setting_without_bridges">Gunakan jaringan Tor tanpa jembatan</string>
+	<string name="tor_network_setting_with_bridges">Gunakan jaringan Tor dengan jembatan</string>
+	<string name="tor_network_setting_never">Jangan sambungkan ke Internet</string>
+	<!-- How and when Briar will connect to Tor: E.g. "Don't connect to the Internet (in China)" or "Use Tor network with bridges (in Belarus)" -->
+	<string name="tor_network_setting_summary">Otomatis: %1$s (di %2$s)</string>
+	<string name="tor_mobile_data_title">Gunakan paket data</string>
+	<string name="tor_only_when_charging_title">Sambungkan ke Internet hanya ketika mengisi daya</string>
+	<string name="tor_only_when_charging_summary">Nonaktifkan koneksi Internet ketika perangkat menggunakan baterai</string>
+
+	<!-- Settings Security and Panic -->
+	<string name="security_settings_title">Keamanan</string>
+	<string name="pref_lock_title">Kunci Aplikasi</string>
+	<string name="pref_lock_summary">Gunakan kunci layar perangkat untuk melindungi Briar ketika masuk</string>
+	<string name="pref_lock_disabled_summary">untuk menggunakan fitur ini, gunakan kunci layar untuk perangkat Anda</string>
+	<string name="pref_lock_timeout_title">Waktu ketidakaktifan kunci selesai</string>
+	<!-- The %s placeholder is replaced with the following time spans, e.g. 5 Minutes, 1 Hour -->
+	<string name="pref_lock_timeout_summary">Ketika tidak menggunakan Briar, otomatis akan mengunci setelah %s</string>
+	<!-- Will be shown in a list of lock times. Should fit into the %s of "automatically lock it after %s" -->
+	<string name="pref_lock_timeout_1">1 menit</string>
+	<!-- Will be shown in a list of lock times. Should fit into the %s of "automatically lock it after %s" -->
+	<string name="pref_lock_timeout_5">5 menit</string>
+	<!-- Will be shown in a list of lock times. Should fit into the %s of "automatically lock it after %s" -->
+	<string name="pref_lock_timeout_15">15 menit</string>
+	<!-- Will be shown in a list of lock times. Should fit into the %s of "automatically lock it after %s" -->
+	<string name="pref_lock_timeout_30">30 menit</string>
+	<!-- Will be shown in a list of lock times. Should fit into the %s of "automatically lock it after %s" -->
+	<string name="pref_lock_timeout_60">1 jama</string>
+	<string name="pref_lock_timeout_never">Tidak Usah</string>
+	<string name="pref_lock_timeout_never_summary">Jangan pernah kunci Briar secara otomatis</string>
+
+	<string name="change_password">Ubah kata sandi</string>
+	<string name="current_password">Kata sandi saat ini</string>
+	<string name="choose_new_password">Kata sandi baru</string>
+	<string name="confirm_new_password">Konfirmasi kata sandi baru</string>
+	<string name="password_changed">Kata sandi telah diubah.</string>
+	<string name="panic_setting">Pengaturan tombol darurat</string>
+	<string name="panic_setting_title">Tombol darurat</string>
+	<string name="panic_setting_hint">Konfigurasikan bagaimana Briar akan bereaksi ketika Anda menggunakan aplikasi tombol darurat</string>
+	<string name="panic_app_setting_title">Aplikasi Tombol Darurat</string>
+	<string name="unknown_app">aplikasi tidak dikenal</string>
+	<string name="panic_app_setting_summary">Tidak ada aplikasi yang diatur</string>
+	<string name="panic_app_setting_none">Tidak Ada</string>
+	<string name="dialog_title_connect_panic_app">Konfirmasi Aplikasi Darurat</string>
+	<string name="dialog_message_connect_panic_app">Apakah Anda yakin mengizinkan %1$s untuk memicu tindakan merusak tombol darurat?</string>
+	<string name="panic_setting_destructive_action">Tindak Merusak</string>
+	<string name="panic_setting_signout_title">Keluar</string>
+	<string name="panic_setting_signout_summary">Keluar dari Briar jika tombol darurat ditekan</string>
+	<string name="purge_setting_title">Hapus Akun</string>
+	<string name="purge_setting_summary">Hapus akun Briar Anda jika tombol darurat ditekan. Perhatian: Tindakan ini akan menghapus semua identitas, kontak, dan pesan Anda.</string>
+
+	<!-- Settings Notifications -->
+	<string name="notification_settings_title">Notifikasi</string>
+	<string name="notify_sign_in_title">Ingatkan saya untuk masuk</string>
+	<string name="notify_sign_in_summary">Tunjukkan pengingat ketika ponsel mulai atau aplikasi telah diperbarui</string>
+	<string name="notify_private_messages_setting_title">Pesan pribadi</string>
+	<string name="notify_private_messages_setting_summary">Tunjukkan peringatan pesan pribadi</string>
+	<string name="notify_private_messages_setting_summary_26">Konfigurasi peringatan pesan pribadi</string>
+	<string name="notify_group_messages_setting_title">Pesan grup</string>
+	<string name="notify_group_messages_setting_summary">Tunjukkan peringatan pesan grup</string>
+	<string name="notify_group_messages_setting_summary_26">Konfigurasi peringatan pesan grup</string>
+	<string name="notify_forum_posts_setting_title">Unggahan forum</string>
+	<string name="notify_forum_posts_setting_summary">Tunjukkan peringatan unggahan forum</string>
+	<string name="notify_forum_posts_setting_summary_26">Konfigurasi peringatan unggahan forum</string>
+	<string name="notify_blog_posts_setting_title">Unggahan blog</string>
+	<string name="notify_blog_posts_setting_summary">Tunjukkan peringatan unggahan blog</string>
+	<string name="notify_blog_posts_setting_summary_26">Konfigurasi peringatan unggahan blog</string>
+	<string name="notify_vibration_setting">Getar</string>
+	<string name="notify_sound_setting">Suara</string>
+	<string name="notify_sound_setting_default">Nada dering bawaan</string>
+	<string name="notify_sound_setting_disabled">Tidak ada</string>
+	<string name="choose_ringtone_title">Pilih nada dering</string>
+	<string name="cannot_load_ringtone">Tidak bisa memuat nada dering</string>
+
+	<!-- Settings Feedback -->
+	<string name="feedback_settings_title">Umpan balik</string>
+	<string name="send_feedback">Kirim umpan balik</string>
+
+	<!-- Crash Reporter -->
+	<string name="crash_report_title">Laporan Kerusakan Briar</string>
+	<string name="briar_crashed">Maaf, Briar Rusak.</string>
+	<string name="not_your_fault">Ini bukan kesalahan Anda.</string>
+	<string name="please_send_report">Silakan bantu kami untuk membuat Briar lebih baik dengan mengirimkan laporan kerusakan.</string>
+	<string name="report_is_encrypted">Kami berjanji laporan Anda terenkripsi dan dikirim dengan aman.</string>
+	<string name="feedback_title">Umpan balik</string>
+	<string name="describe_crash">Jelaskan apa yang terjadi (pilihan)</string>
+	<string name="enter_feedback">Masukkan masukan Anda</string>
+	<string name="optional_contact_email">Surel Anda (pilihan)</string>
+	<string name="include_debug_report_crash">Sertakan data anonimus kerusakan</string>
+	<string name="include_debug_report_feedback">Sertakan data anonimus perangkat</string>
+	<string name="dev_report_basic_info">Informasi dasar</string>
+	<string name="dev_report_device_info">Informasi perangkat</string>
+	<string name="dev_report_stacktrace">Jejak tumpukan</string>
+	<string name="dev_report_time_info">Informasi waktu</string>
+	<string name="dev_report_memory">Memori</string>
+	<string name="dev_report_storage">Penyimpanan</string>
+	<string name="dev_report_connectivity">Konektivitas</string>
+	<string name="dev_report_build_config">Bua konfigurasi</string>
+	<string name="dev_report_logcat">Catatan aplikasi</string>
+	<string name="dev_report_device_features">Fitur Perangkat</string>
+	<string name="send_report">Kirim laporan</string>
+	<string name="close">Tutup</string>
+	<string name="dev_report_sending">Mengirim umpan balik…</string>
+	<string name="dev_report_sent">Kirim balik terkirim</string>
+	<string name="dev_report_saved">Laporan tersimpan. Akan dikirim pada saat Anda masuk Briar.</string>
+	<string name="dev_report_error">Masalah: Pengiriman laporan gagal</string>
+
+	<!-- Sign Out -->
+	<string name="progress_title_logout">Keluar dari Briar…</string>
+
+	<!-- Permission Requests -->
+	<string name="permission_camera_title">Izin Kamera</string>
+	<string name="permission_camera_request_body">Untuk memindai kode batang, Briar memerlukan akses ke kamera.</string>
+	<string name="permission_location_title">Izin lokasi</string>
+	<string name="permission_location_request_body">Untuk menemukan Bluetooth perangkat, Briar memerlukan izin untuk mengakses lokasi Anda.\n\nBriar tidak menyimpan lokasi Anda atau membaginya kepada orang lain.</string>
+	<string name="permission_camera_location_title">Kamera dan lokasi</string>
+	<string name="permission_camera_location_request_body">Untuk memindai kode batang, Briar memerlukan akses ke kamera.\n\nUntuk menemukan Bluetooth perangkat, Briar memerlukan izin untuk mengakses lokasi Anda.\n\nBriar tidak menyimpan lokasi Anda atau membaginya kepada orang lain.</string>
+	<string name="permission_camera_denied_body">Anda sudah menolak akses ke kamera, tetapi menambahkan kontak memerlukan penggunaan kamera.\n\nHarap pertimbangkan memberikan akses.</string>
+	<string name="permission_location_denied_body">Anda sudah menolak akses ke lokasi, tetapi Briar memerlukan izin tersebut untuk menemukan Bluetooth perangkat. Harap pertimbangkan memberikan akses.</string>
+	<string name="permission_location_setting_title">Pengaturan Lokasi</string>
+	<string name="permission_location_setting_body">Pengaturan lokasi perangkat Anda harus diaktifkan untuk menemukan perangkat lain melalui Bluetooth. Harap hidupkan lokasi untuk melanjutkan. Anda bisa mematikan setelahnya.</string>
+	<string name="permission_location_setting_button">Aktifkan Lokasi</string>
+	<string name="qr_code">Kode Batang</string>
+	<string name="show_qr_code_fullscreen">Tunjukkan Kode Batang Tampilan Penuh</string>
+
+	<!-- App Locking -->
+	<string name="lock_unlock">Buka Biar</string>
+	<string name="lock_unlock_verbose">Masukkan PIN, pola, atau kata sandi untuk membuka perangkat Anda</string>
+	<string name="lock_unlock_password">Gunakan kata sandi</string>
+	<string name="lock_is_locked">Briar terkunci</string>
+	<string name="lock_tap_to_unlock">Ketuk untuk membuka</string>
+
+	<!-- Connections Screen -->
+	<string name="transports_help_text">Briar bisa tersambung dengan kontak Anda lewat Internet, Wi-Fi, Bluetooth.\n\nSemua akses Internet menggunakan jaringan Tor untuk privasi.\n\nJika salah satu kontak tidak bisa dijangkau melalui beberapa cara, Briar akan menggunakannya secara bersamaan.</string>
+
+	<!-- Social Backup Feature -->
+
+	<!-- Settings -->
+	<string name="pref_distributed_backup_title">Pencadangan Sosial</string>
+	<string name="pref_distributed_backup_summary">Cadangkan akun Anda menggunakan kontak tepercaya</string>
+	<string name="pref_distributed_old_backup_title">Cadangan Sosial yang Ada</string>
+	<string name="pref_distributed_old_backup_summary">Informasi tentang pencadangan sosial terbaru Anda</string>
+
+	<!-- Social backup setup -->
+	<string name="select_custodians">Pilih Kontak Tepercaya:</string>
+	<string name="select_at_least_n_contacts">Pilih setidaknya %d kontak</string>
+	<string name="select_at_least_n_more_contacts">Harap pilih setidaknya %d kontak lagi</string>
+	<string name="threshold">Pilih angka minimal kontak tepercaya yang diperlukan untuk mengembalikan akun Anda</string>
+	<string name="threshold_disabled">Dua kontak tepercaya diperlukan untuk mengembalikan akun Anda</string>
+	<string name="threshold_secure">Aman</string>
+	<string name="threshold_recommended">Aman - jejak tumpukan direkomendasikan</string>
+	<string name="threshold_low_insecure">Tidak Aman - jejak tumpukan lebih tinggi direkomendasikan</string>
+	<string name="threshold_high_insecure">Bahaya kehilangan – ambang lebih rendah direkomendasikan</string>
+	<string name="threshold_defined">Pilih Ambang</string>
+	<string name="threshold_m_of_n">%d dari %d kontak diperlukan untuk memulihkan akun Anda</string>
+	<string name="backup_done_info">Data cadangan dikirim ke kontak tepercaya</string>
+
+	<!-- Recovery from the secret owner's POV -->
+	<string name="recovery_explainer">Anda perlu bertemu langsung kontak tepercaya Anda untuk menerima data</string>
+	<string name="recovery_explainer_extra">Kontak tepercaya Anda harus memindai kode batang untuk memulai pemindahan.\n\nAnda berdua harus tersambung melalui Wi-Fi yang sama</string>
+	<string name="recovery_begin">Mulai</string>
+	<string name="recovery_failed_to_receive">Gagal menerima data cadangan</string>
+	<string name="recovery_helpful_suggestions">Pastikan Anda berdua tersambung Wi-Fi yang sama dan coba lagi</string>
+	<string name="recovery_retry">Ulangi</string>
+	<string name="recovery_recovered_shards">Data cadangan dikembalikan:</string>
+	<string name="recovery_scan_qr_code">Tunjukkan kode batang</string>
+	<string name="recovery_recovering_account">Memulihkan akun…</string>
+	<string name="recovery_shard_received">Data cadangan akun diterima</string>
+	<string name="recovery_account_recovered">Akun dipulihkan</string>
+	<string name="recovery_account_recovered_explain">Anda harus membuat kata sandi baru untuk akun Anda sekarang</string>
+	<string name="recovery_sending_ack">Mengirim pernyataan</string>
+
+	<!-- Recovery from the custodian's POV -->
+	<string name="custodian_recovery_explainer">Anda harus bertemu langsung untuk memindahkan data cadangan</string>
+	<string name="custodian_recovery_explainer_extra">Pastikan Anda berdua tersambung Wi-Fi yang sama, dan pindai ulang kode batang di perangkat kontak Anda untuk mulai memindahkan data cadangan</string>
+	<string name="custodian_recovery_failed_to_send">Gagal mengirim data cadangan</string>
+	<string name="custodian_scan_code">Memindai kode</string>
+	<string name="custodian_shard_sent">Data cadangan akun dipindahkan</string>
+
+	<!-- Titles for the app bar -->
+	<string name="title_distributed_backup">Pencadangan Sosial</string>
+	<string name="title_select_custodians">Pilih Kontak Tepercaya</string>
+	<string name="title_define_threshold">Ambang Batas</string>
+	<string name="title_recovery_mode">Model Pemulihan</string>
+	<string name="title_help_recover">Bantu memulihkan akun</string>
+
+	<!-- Conversation action for custodian -->
+	<string name="help_recover_account">Bantu mengembalikan akun</string>
+
+	<!-- Setup screen -->
+	<string name="setup_new_account">Buat akun baru</string>
+	<string name="setup_restore_account">Mengembalikan akun dari cadangan</string>
+
+	<!-- Symbols for visualising threshold values for social backup -->
+	<string name="filled_bullet">\u25CF</string>
+	<string name="linear_bullet">\u25CB</string>
+
+	<!-- Activity names -->
+	<string name="activity_name_distributed_backup">Pencadangan Sosial</string>
+	<string name="activity_name_restore_account">Mengembalikan Akun</string>
+
+	<!-- Conversation -->
+	<string name="social_backup_shard_received">%1$s mengirimi Anda data cadangan sosial.</string>
+	<string name="social_backup_shard_sent">Anda sudah mengirim data cadangan ke %1$s.</string>
+
+	<string name="activity_name_new_or_recover_account">Buat akun baru atau pulihkan akun yang ada</string>
+	<string name="activity_name_recovery">Memulihkan Akun</string>
+	<string name="activity_name_custodian_help_recovery">Bantu memulihkan akun</string>
+	<string name="existing_backup_explain">%d kontak berikut diperlukan untuk mengembalikan akun Anda:</string>
+
+	<string name="social_backup_not_enough_contacts">Untuk membuat pencadangan sosial, Anda harus memilih minimal 2 kontak dari daftar kontak Anda</string>
+	<string name="reading_contacts_error">Ada masalah ketika membaca daftar kontak Anda</string>
+
+	<!-- Remote Wipe Feature -->
+
+	<!-- Setup -->
+	<string name="remote_wipe_setup_success">Penghapusan jarak jauh diaktifkan</string>
+	<string name="remote_wipe_setup_failed">Gagal mengaktifkan penghapusan jarak jauh</string>
+	<string name="remote_wipe_setup_explain_title">Mengaktifkan fungsi penghapusan jarak jauh</string>
+	<string name="remote_wipe_setup_explain_long">Anda bisa memilih sejumlah kontak tepercaya yang akan bisa mengaktifkan penghapusan jarak jauh semua data Briar Anda.\nPengahpusan jarak jauh bisa diaktifkan oleh salah satu dari dua kontak.</string>
+
+	<!-- Settings menu -->
+	<string name="pref_remote_wipe_summary">Izinkan kontak tepercaya untuk mengaktifkan penghapusan akun jarak jauh</string>
+	<string name="pref_remote_wipe_title">Penghapusan Jarak Jauh</string>
+
+	<!-- Titles for the app bar -->
+	<string name="title_select_wipers">Pilih Kontak Tepercaya</string>
+
+	<!-- Conversation -->
+	<string name="remote_wipe_setup_received">%1$s telah ditambahkan sebagai penghapus jarak jauh Anda.</string>
+	<string name="remote_wipe_setup_sent">Anda sudah menambahkan %1$s sebagai penghapus jarak jauh.</string>
+	<string name="remote_wipe_wipe_sent">Anda sudah mengirim sinyal mengaktifkan penghapusan jarak jauh kepada %1$s. Sudah kedaluwarsa </string>
+	<string name="activity_name_remote_wipe">Penghapusan Jarak Jauh</string>
+	<string name="assigned_wipers">Kontak tepercaya yang ditentukan</string>
+	<string name="activate_remote_wipe">Mengaktifkan penghapusan jarak jauh</string>
+	<string name="remote_wipe_revoke_sent">Anda sudah menghapus %1$s sebagai penghapus jarak jauh.</string>
+	<string name="remote_wipe_revoke_received">Anda sudah tidak bisa mengaktifkan penghapusan jarak jauh kepada %1$s.</string>
+
+	<!-- Activate -->
+	<string name="activity_name_activate_remote_wipe">Aktifkan Penghapusan Jarak Jauh</string>
+	<string name="remote_wipe_activate_success">Sinyal penghapusan jarak terkirim</string>
+	<string name="remote_wipe_activate_failure">Gagal mengirimkan sinyal penghapusan jarak jauh</string>
+	<string name="remote_wipe_activate_button_confirm">Mengaktifkan penghapusan jarak jauh</string>
+	<string name="remote_wipe_activate_button_cancel">Batal</string>
+	<string name="remote_wipe_activate_explain_short">Mengaktifkan penghapusan jarak jauh kepada %1$s</string>
+	<string name="remote_wipe_activate_explain_long">Jika dikonfirmasi oleh kontak kedua, mengirim sinyal ini akan menghapus semua data Briar dari perangkat %1$s\.</string>
+
+	<!-- Revoke -->
+	<string name="activity_name_revoke_remote_wipe">Cabut Penghapusan Jarak Jauh</string>
+	<string name="revoke_remote_wipe">Cabut Penghapusan Status Jarak Jauh</string>
+	<string name="remote_wipe_revoke_success">Penghapusan Status Jarak Jauh Tercabut</string>
+	<string name="remote_wipe_modify_contacts">Ubah Penghapus Jarak Jauh</string>
+
+	<string name="button_confirm">Oke</string>
+</resources>
