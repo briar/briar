@@ -15,5 +15,4 @@
 -dontwarn sun.misc.Unsafe
 -dontnote com.google.common.**
 
-# UPnP library isn't used
--dontwarn org.bitlet.weupnp.**
+-dontwarn com.fasterxml.jackson.databind.ext.Java7SupportImpl
