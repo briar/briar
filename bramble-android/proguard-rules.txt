@@ -1,6 +1,8 @@
--keep,includedescriptorclasses class org.briarproject.** { *; }
-
--keep class org.h2.** { *; }
+# Keep the H2 classes that are loaded via reflection
+-keep class org.h2.Driver { *; }
+-keep class org.h2.engine.Engine { *; }
+-keep class org.h2.store.fs.** { *; }
+# Don't warn about unused dependencies of H2 classes
 -dontwarn org.h2.**
 -dontnote org.h2.**
 
