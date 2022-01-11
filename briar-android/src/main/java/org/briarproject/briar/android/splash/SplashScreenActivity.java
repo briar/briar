@@ -65,9 +65,14 @@ public class SplashScreenActivity extends BaseActivity {
 			int duration =
 					getResources().getInteger(R.integer.splashScreenDuration);
 			new Handler().postDelayed(() -> {
-				if (IS_DEBUG_BUILD && currentTimeMillis() >= EXPIRY_DATE) {
-					LOG.info("Expired");
-					startNextActivity(ExpiredActivity.class);
+				if (currentTimeMillis() >= EXPIRY_DATE) {
+					if (IS_DEBUG_BUILD) {
+						LOG.info("Expired: debug build");
+						startNextActivity(ExpiredActivity.class);
+					} else {
+						LOG.info("Expired: running on old Android");
+						startNextActivity(ExpiredOldAndroidActivity.class);
+					}
 				} else {
 					startNextActivity(ENTRY_ACTIVITY);
 				}

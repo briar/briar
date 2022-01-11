@@ -64,6 +64,10 @@
 	<string name="download_briar">To continue using Briar, please download the latest release.</string>
 	<string name="create_new_account">You will need to create a new account, but you can use the same nickname.</string>
 	<string name="download_briar_button">Download Latest Release</string>
+	<string name="old_android_expiry_date_reached">Briar no longer runs on Android 4.\nPlease install Briar on a newer device.</string>
+	<string name="old_android_create_new_account">You will need to create a new account, but you can use the same nickname.</string>
+	<string name="old_android_delete_account">You can tap the button below to delete your account from this device.</string>
+	<string name="delete_account_button">Delete Account</string>
 	<string name="startup_open_database">Decrypting Database…</string>
 	<string name="startup_migrate_database">Upgrading Database…</string>
 	<string name="startup_compact_database">Compacting Database…</string>
