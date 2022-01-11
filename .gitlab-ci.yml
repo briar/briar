@@ -32,9 +32,9 @@ test:
   extends: .base-test
   stage: test
   script:
-    - ./gradlew --no-daemon -Djava.security.egd=file:/dev/urandom animalSnifferMain animalSnifferTest
-    - ./gradlew --no-daemon -Djava.security.egd=file:/dev/urandom :briar-headless:linuxJars
-    - ./gradlew --no-daemon -Djava.security.egd=file:/dev/urandom compileOfficialDebugAndroidTestSources compileScreenshotDebugAndroidTestSources check
+    - ./gradlew -Djava.security.egd=file:/dev/urandom animalSnifferMain animalSnifferTest
+    - ./gradlew -Djava.security.egd=file:/dev/urandom assembleOfficialDebug :briar-headless:linuxJars
+    - ./gradlew -Djava.security.egd=file:/dev/urandom compileOfficialDebugAndroidTestSources compileScreenshotDebugAndroidTestSources check
   rules:
     - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
       when: always
