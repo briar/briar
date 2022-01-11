@@ -27,6 +27,7 @@ import static java.lang.System.currentTimeMillis;
 import static java.util.logging.Logger.getLogger;
 import static org.briarproject.briar.android.BriarApplication.ENTRY_ACTIVITY;
 import static org.briarproject.briar.android.TestingConstants.EXPIRY_DATE;
+import static org.briarproject.briar.android.TestingConstants.IS_DEBUG_BUILD;
 
 @MethodsNotNullByDefault
 @ParametersNotNullByDefault
@@ -64,7 +65,7 @@ public class SplashScreenActivity extends BaseActivity {
 			int duration =
 					getResources().getInteger(R.integer.splashScreenDuration);
 			new Handler().postDelayed(() -> {
-				if (currentTimeMillis() >= EXPIRY_DATE) {
+				if (IS_DEBUG_BUILD && currentTimeMillis() >= EXPIRY_DATE) {
 					LOG.info("Expired");
 					startNextActivity(ExpiredActivity.class);
 				} else {
