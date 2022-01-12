@@ -41,10 +41,15 @@
 	<string name="startup_failed_data_too_old_error">Akun Anda dibuat menggunakan versi lama aplikasi ini dan tidak bisa dibuka dengan versi sekarang. Anda harus memasang ulang versi lama atau membuat akun baru dengan memilih \'Saya lupa kata sandi\' pada bagian kata sandi.</string>
 	<string name="startup_failed_data_too_new_error">Versi aplikasi ini sudah usang. Silakan naikkan ke versi terbaru dan coba lagi.</string>
 	<string name="startup_failed_service_error">Briar tidak bisa memulai pengaya yang diperlukan. Memasang ulang Briar biasanya memecahkan masalah. Namun, harap diperhatikan bahwa Anda akan kehilangan semua data karena Briar tidak menggunakan peladen terpusat untuk menyimpan data Anda.</string>
+
+	<!-- commenting out because of pluralisation problem:
 	<plurals name="expiry_warning">
+
 		<item quantity="one">Ini adalah Briar versi percobaan. Akun Anda akan kedaluwarsa pada % hari dan tidak bisa diperbarui.</item>
 		<item quantity="other">Ini adalah Briar versi percobaan. Akun Anda akan kedaluwarsa pada % hari dan tidak bisa diperbarui.</item>
 	</plurals>
+	-->
+
 	<string name="expiry_date_reached">Perangkat lunak ini sudah kedaluwarsa.\nTerima kasih sudah mencoba!</string>
 	<string name="download_briar">Untuk lanjut menggunakan Briar, silakan unduh versi terbaru.</string>
 	<string name="create_new_account">Anda akan perlu membuat akun baru, tetapi bisa menggunakan nama sama.</string>
@@ -105,10 +110,13 @@
 	<string name="reminder_notification_dismiss">Singkirkan</string>
 	<string name="ongoing_notification_title">Masuk Briar</string>
 	<string name="ongoing_notification_text">Sentuh untuk membuka Briar.</string>
+
+	<!-- commenting out because of pluralisation problem
 	<plurals name="private_message_notification_text">
 		<item quantity="one">Pesan pribadi baru.</item>
 		<item quantity="other">%d Pesan-pesan pribadi baru.</item>
 	</plurals>
+	-->
 
 	<!-- Misc -->
 	<string name="now">sekarang</string>
@@ -222,10 +230,14 @@
 	<string name="step_1">1</string>
 	<!-- This is a numeral indicating the second step in a series of screens -->
 	<string name="step_2">2</string>
+
+	<!-- commenting out because of pluralisation problem
 	<plurals name="contact_added_notification_text">
 		<item quantity="one">Kontak baru ditambahkan.</item>
 		<item quantity="other">%d kontak baru ditambahkan.</item>
 	</plurals>
+	-->
+
 	<string name="offline_state">Tidak ada koneksi Internet</string>
 	<string name="duplicate_link_dialog_title">Gandakan Tautan</string>
 	<string name="duplicate_link_dialog_text_1">Anda memiliki kontak tertunda dengan tautan berikut: %s</string>
