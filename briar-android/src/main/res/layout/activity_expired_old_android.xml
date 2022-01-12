@@ -23,7 +23,7 @@
 			android:layout_height="wrap_content"
 			android:layout_margin="@dimen/margin_medium"
 			android:gravity="center"
-			android:text="@string/old_android_create_new_account"
+			android:text="@string/create_new_account"
 			android:textSize="@dimen/text_size_large" />
 
 		<TextView
