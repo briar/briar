@@ -1,3 +1,5 @@
+-keep,includedescriptorclasses class org.briarproject.briar.android.**,org.briarproject.briar.api.android.** { *; }
+
 # Keep the H2 classes that are loaded via reflection
 -keep class org.h2.Driver { *; }
 -keep class org.h2.engine.Engine { *; }
