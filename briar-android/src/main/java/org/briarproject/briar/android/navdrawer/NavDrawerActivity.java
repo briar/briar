@@ -134,11 +134,11 @@ public class NavDrawerActivity extends BriarActivity implements
 		navDrawerViewModel = provider.get(NavDrawerViewModel.class);
 		pluginViewModel = provider.get(PluginViewModel.class);
 
-		// Disable expiry warning due to i18n problem
-		//if (IS_DEBUG_BUILD) {
-			//navDrawerViewModel.showExpiryWarning()
-			//		.observe(this, this::showExpiryWarning);
-		//}
+		if (IS_DEBUG_BUILD) {
+			navDrawerViewModel.showExpiryWarning()
+					.observe(this, this::showExpiryWarning);
+		}
+
 		navDrawerViewModel.shouldAskForDozeWhitelisting().observe(this, ask -> {
 			if (ask) showDozeDialog(getString(R.string.setup_doze_intro));
 		});
