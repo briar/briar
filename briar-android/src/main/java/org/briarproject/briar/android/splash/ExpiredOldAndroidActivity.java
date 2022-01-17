@@ -6,7 +6,6 @@ import android.os.Bundle;
 import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
 import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
 import org.briarproject.bramble.api.system.AndroidWakeLockManager;
-import org.briarproject.bramble.api.system.Wakeful;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.activity.ActivityComponent;
 import org.briarproject.briar.android.activity.BaseActivity;
@@ -35,40 +34,24 @@ public class ExpiredOldAndroidActivity extends BaseActivity {
 		super.onCreate(state);
 
 		setContentView(R.layout.activity_expired_old_android);
-		findViewById(R.id.delete_account_button).setOnClickListener(v ->
-				signOutAndDeleteAccount());
+		findViewById(R.id.delete_account_button).setOnClickListener(v -> {
+			// Hold a wake lock to ensure we exit before the device goes to sleep
+			wakeLockManager.runWakefully(() -> {
+				// we're not signed in, just go ahead and delete
+				briarController.deleteAccount();
+				// remove from recent apps
+				Intent i = new Intent(this, ExitActivity.class);
+				i.addFlags(FLAG_ACTIVITY_NEW_TASK
+						| FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS
+						| FLAG_ACTIVITY_NO_ANIMATION
+						| FLAG_ACTIVITY_CLEAR_TASK);
+				startActivity(i);
+			}, "DeleteAccount");
+		});
 	}
 
 	@Override
 	public void injectActivity(ActivityComponent component) {
 		component.inject(this);
-	}
-
-	private void signOutAndDeleteAccount() {
-		// Hold a wake lock to ensure we exit before the device goes to sleep
-		wakeLockManager.runWakefully(() -> {
-			if (briarController.accountSignedIn()) {
-				// Don't use UiResultHandler because we want the result even if
-				// this activity has been destroyed
-				briarController.signOut(result -> {
-					Runnable exit = this::startExitActivity;
-					wakeLockManager.executeWakefully(exit,
-							this::runOnUiThread, "SignOut");
-				}, true);
-			} else {
-				briarController.deleteAccount();
-				startExitActivity();
-			}
-		}, "SignOut");
-	}
-
-	@Wakeful
-	private void startExitActivity() {
-		Intent i = new Intent(this, ExitActivity.class);
-		i.addFlags(FLAG_ACTIVITY_NEW_TASK
-				| FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS
-				| FLAG_ACTIVITY_NO_ANIMATION
-				| FLAG_ACTIVITY_CLEAR_TASK);
-		startActivity(i);
 	}
 }
