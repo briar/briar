@@ -114,13 +114,10 @@ mailbox integration test:
     - cd briar-mailbox
     - mkdir -p /root/.local/share # create directory that mailbox (currently) expects to exist
     - ./gradlew run --args="--debug --setup-token 54686973206973206120736574757020746f6b656e20666f722042726961722e" &
-    - export MAILBOX_PID=$!
     # run mailbox integration test once mailbox has started
     - cd "$CI_PROJECT_DIR"
     - ./wait-for-mailbox.sh
     - OPTIONAL_TESTS=org.briarproject.bramble.mailbox.MailboxIntegrationTest ./gradlew --info bramble-core:test --tests MailboxIntegrationTest
-    # kill mailbox in case there was an error before
-    - kill -9 $MAILBOX_PID || true
 
 pre_release_tests:
   extends: .optional_tests
