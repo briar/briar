@@ -1,5 +1,6 @@
 package org.briarproject.briar.blog;
 
+import org.briarproject.bramble.api.FeatureFlags;
 import org.briarproject.bramble.api.client.ClientHelper;
 import org.briarproject.bramble.api.contact.ContactManager;
 import org.briarproject.bramble.api.data.MetadataEncoder;
@@ -35,7 +36,10 @@ public class BlogModule {
 	@Singleton
 	BlogManager provideBlogManager(BlogManagerImpl blogManager,
 			LifecycleManager lifecycleManager, ContactManager contactManager,
-			ValidationManager validationManager) {
+			ValidationManager validationManager, FeatureFlags featureFlags) {
+		if (!featureFlags.shouldEnableBlogsInCore()) {
+			return blogManager;
+		}
 		lifecycleManager.registerOpenDatabaseHook(blogManager);
 		contactManager.registerContactHook(blogManager);
 		validationManager.registerIncomingMessageHook(CLIENT_ID, MAJOR_VERSION,
@@ -60,12 +64,14 @@ public class BlogModule {
 			ValidationManager validationManager, GroupFactory groupFactory,
 			MessageFactory messageFactory, BlogFactory blogFactory,
 			ClientHelper clientHelper, MetadataEncoder metadataEncoder,
-			Clock clock) {
+			Clock clock, FeatureFlags featureFlags) {
 		BlogPostValidator validator = new BlogPostValidator(groupFactory,
 				messageFactory, blogFactory, clientHelper, metadataEncoder,
 				clock);
-		validationManager.registerMessageValidator(CLIENT_ID, MAJOR_VERSION,
-				validator);
+		if (featureFlags.shouldEnableBlogsInCore()) {
+			validationManager.registerMessageValidator(CLIENT_ID, MAJOR_VERSION,
+					validator);
+		}
 		return validator;
 	}
 

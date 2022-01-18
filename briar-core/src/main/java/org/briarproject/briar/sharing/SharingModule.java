@@ -1,5 +1,6 @@
 package org.briarproject.briar.sharing;
 
+import org.briarproject.bramble.api.FeatureFlags;
 import org.briarproject.bramble.api.cleanup.CleanupManager;
 import org.briarproject.bramble.api.client.ClientHelper;
 import org.briarproject.bramble.api.contact.ContactManager;
@@ -60,12 +61,15 @@ public class SharingModule {
 	BlogSharingValidator provideBlogSharingValidator(
 			ValidationManager validationManager, MessageEncoder messageEncoder,
 			ClientHelper clientHelper, MetadataEncoder metadataEncoder,
-			Clock clock, BlogFactory blogFactory) {
+			Clock clock, BlogFactory blogFactory, FeatureFlags featureFlags) {
 		BlogSharingValidator validator = new BlogSharingValidator(
 				messageEncoder, clientHelper, metadataEncoder, clock,
 				blogFactory);
-		validationManager.registerMessageValidator(BlogSharingManager.CLIENT_ID,
-				BlogSharingManager.MAJOR_VERSION, validator);
+		if (featureFlags.shouldEnableBlogsInCore()) {
+			validationManager.registerMessageValidator(
+					BlogSharingManager.CLIENT_ID,
+					BlogSharingManager.MAJOR_VERSION, validator);
+		}
 		return validator;
 	}
 
@@ -77,7 +81,10 @@ public class SharingModule {
 			ConversationManager conversationManager, BlogManager blogManager,
 			ClientVersioningManager clientVersioningManager,
 			BlogSharingManagerImpl blogSharingManager,
-			CleanupManager cleanupManager) {
+			CleanupManager cleanupManager, FeatureFlags featureFlags) {
+		if (!featureFlags.shouldEnableBlogsInCore()) {
+			return blogSharingManager;
+		}
 		lifecycleManager.registerOpenDatabaseHook(blogSharingManager);
 		contactManager.registerContactHook(blogSharingManager);
 		validationManager.registerIncomingMessageHook(
@@ -122,13 +129,15 @@ public class SharingModule {
 	ForumSharingValidator provideForumSharingValidator(
 			ValidationManager validationManager, MessageEncoder messageEncoder,
 			ClientHelper clientHelper, MetadataEncoder metadataEncoder,
-			Clock clock, ForumFactory forumFactory) {
+			Clock clock, ForumFactory forumFactory, FeatureFlags featureFlags) {
 		ForumSharingValidator validator = new ForumSharingValidator(
 				messageEncoder, clientHelper, metadataEncoder, clock,
 				forumFactory);
-		validationManager.registerMessageValidator(
-				ForumSharingManager.CLIENT_ID,
-				ForumSharingManager.MAJOR_VERSION, validator);
+		if (featureFlags.shouldEnableForumsInCore()) {
+			validationManager.registerMessageValidator(
+					ForumSharingManager.CLIENT_ID,
+					ForumSharingManager.MAJOR_VERSION, validator);
+		}
 		return validator;
 	}
 
@@ -140,7 +149,10 @@ public class SharingModule {
 			ConversationManager conversationManager, ForumManager forumManager,
 			ClientVersioningManager clientVersioningManager,
 			ForumSharingManagerImpl forumSharingManager,
-			CleanupManager cleanupManager) {
+			CleanupManager cleanupManager, FeatureFlags featureFlags) {
+		if (!featureFlags.shouldEnableForumsInCore()) {
+			return forumSharingManager;
+		}
 		lifecycleManager.registerOpenDatabaseHook(forumSharingManager);
 		contactManager.registerContactHook(forumSharingManager);
 		validationManager.registerIncomingMessageHook(

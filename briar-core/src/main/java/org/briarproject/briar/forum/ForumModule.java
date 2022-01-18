@@ -1,5 +1,6 @@
 package org.briarproject.briar.forum;
 
+import org.briarproject.bramble.api.FeatureFlags;
 import org.briarproject.bramble.api.client.ClientHelper;
 import org.briarproject.bramble.api.data.MetadataEncoder;
 import org.briarproject.bramble.api.sync.validation.ValidationManager;
@@ -30,7 +31,11 @@ public class ForumModule {
 	@Provides
 	@Singleton
 	ForumManager provideForumManager(ForumManagerImpl forumManager,
-			ValidationManager validationManager) {
+			ValidationManager validationManager,
+			FeatureFlags featureFlags) {
+		if (!featureFlags.shouldEnableForumsInCore()) {
+			return forumManager;
+		}
 		validationManager.registerIncomingMessageHook(CLIENT_ID, MAJOR_VERSION,
 				forumManager);
 		return forumManager;
@@ -51,11 +56,14 @@ public class ForumModule {
 	@Singleton
 	ForumPostValidator provideForumPostValidator(
 			ValidationManager validationManager, ClientHelper clientHelper,
-			MetadataEncoder metadataEncoder, Clock clock) {
+			MetadataEncoder metadataEncoder, Clock clock,
+			FeatureFlags featureFlags) {
 		ForumPostValidator validator = new ForumPostValidator(clientHelper,
 				metadataEncoder, clock);
-		validationManager.registerMessageValidator(CLIENT_ID, MAJOR_VERSION,
-				validator);
+		if (featureFlags.shouldEnableForumsInCore()) {
+			validationManager.registerMessageValidator(CLIENT_ID, MAJOR_VERSION,
+					validator);
+		}
 		return validator;
 	}
 

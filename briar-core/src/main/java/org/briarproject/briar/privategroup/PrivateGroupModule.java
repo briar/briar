@@ -1,5 +1,6 @@
 package org.briarproject.briar.privategroup;
 
+import org.briarproject.bramble.api.FeatureFlags;
 import org.briarproject.bramble.api.client.ClientHelper;
 import org.briarproject.bramble.api.data.MetadataEncoder;
 import org.briarproject.bramble.api.sync.validation.ValidationManager;
@@ -32,7 +33,11 @@ public class PrivateGroupModule {
 	@Singleton
 	PrivateGroupManager provideGroupManager(
 			PrivateGroupManagerImpl groupManager,
-			ValidationManager validationManager) {
+			ValidationManager validationManager,
+			FeatureFlags featureFlags) {
+		if (!featureFlags.shouldEnablePrivateGroupsInCore()) {
+			return groupManager;
+		}
 		validationManager.registerIncomingMessageHook(CLIENT_ID, MAJOR_VERSION,
 				groupManager);
 		return groupManager;
@@ -56,12 +61,14 @@ public class PrivateGroupModule {
 			PrivateGroupFactory privateGroupFactory,
 			ClientHelper clientHelper, MetadataEncoder metadataEncoder,
 			Clock clock, GroupInvitationFactory groupInvitationFactory,
-			ValidationManager validationManager) {
+			ValidationManager validationManager, FeatureFlags featureFlags) {
 		GroupMessageValidator validator = new GroupMessageValidator(
 				privateGroupFactory, clientHelper, metadataEncoder, clock,
 				groupInvitationFactory);
-		validationManager.registerMessageValidator(CLIENT_ID, MAJOR_VERSION,
-				validator);
+		if (featureFlags.shouldEnablePrivateGroupsInCore()) {
+			validationManager.registerMessageValidator(CLIENT_ID, MAJOR_VERSION,
+					validator);
+		}
 		return validator;
 	}
 
