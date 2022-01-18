@@ -110,6 +110,8 @@ import static java.util.logging.Level.WARNING;
 import static org.briarproject.bramble.util.LogUtils.logException;
 import static org.briarproject.briar.BuildConfig.APPLICATION_ID;
 import static org.briarproject.briar.android.TestingConstants.EXPIRY_DATE;
+import static org.briarproject.briar.android.TestingConstants.IS_OLD_ANDROID;
+import static org.briarproject.briar.android.TestingConstants.OLD_ANDROID_WARN_DATE;
 import static org.briarproject.briar.android.reporting.CrashReportActivity.EXTRA_APP_LOGCAT;
 import static org.briarproject.briar.android.reporting.CrashReportActivity.EXTRA_APP_START_TIME;
 import static org.briarproject.briar.android.reporting.CrashReportActivity.EXTRA_INITIAL_COMMENT;
@@ -197,6 +199,11 @@ public class UiUtils {
 		return DateUtils.formatDateTime(ctx, time, flags);
 	}
 
+	public static String formatDateFull(Context ctx, long time) {
+		return DateUtils.formatDateTime(ctx, time,
+				FORMAT_SHOW_DATE | FORMAT_SHOW_YEAR | FORMAT_ABBREV_ALL);
+	}
+
 	/**
 	 * Returns the given duration in a human-friendly format. For example,
 	 * "7 days" or "1 hour 3 minutes".
@@ -230,6 +237,11 @@ public class UiUtils {
 	public static long getDaysUntilExpiry() {
 		long now = System.currentTimeMillis();
 		return (EXPIRY_DATE - now) / DAYS.toMillis(1);
+	}
+
+	public static boolean shouldWarnOldAndroidExpiry() {
+		return IS_OLD_ANDROID &&
+				System.currentTimeMillis() >= OLD_ANDROID_WARN_DATE;
 	}
 
 	public static SpannableStringBuilder getTeaser(Context ctx, Spanned text) {
