@@ -116,7 +116,7 @@ mailbox integration test:
     - ./gradlew run --args="--debug --setup-token 54686973206973206120736574757020746f6b656e20666f722042726961722e" &
     # run mailbox integration test once mailbox has started
     - cd "$CI_PROJECT_DIR"
-    - ./wait-for-mailbox.sh
+    - bramble-core/src/test/bash/wait-for-mailbox.sh
     - OPTIONAL_TESTS=org.briarproject.bramble.mailbox.MailboxIntegrationTest ./gradlew --info bramble-core:test --tests MailboxIntegrationTest
 
 pre_release_tests:
