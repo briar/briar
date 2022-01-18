@@ -62,7 +62,7 @@ android test:
     when: on_failure
   rules:
     - if: '$CI_PIPELINE_SOURCE == "schedule"'
-      when: on_success
+      when: manual
     - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
       changes:
         - briar-android/**/*
@@ -85,35 +85,43 @@ test_reproducible:
 
 .optional_tests:
   stage: optional_tests
-  before_script:
-    - set -e
-    - export GRADLE_USER_HOME=$PWD/.gradle
-
-  cache:
-    key: "$CI_COMMIT_REF_SLUG"
-    paths:
-      - .gradle/wrapper
-      - .gradle/caches
-
-  script:
-    - OPTIONAL_TESTS=org.briarproject.bramble.plugin.tor.BridgeTest ./gradlew --info bramble-java:test --tests BridgeTest
-
-  after_script:
-    # these file change every time but should not be cached
-    - rm -f $GRADLE_USER_HOME/caches/modules-2/modules-2.lock
-    - rm -fr $GRADLE_USER_HOME/caches/*/plugin-resolution/
+  extends: .base-test
 
 bridge test:
   extends: .optional_tests
   rules:
     - if: '$CI_PIPELINE_SOURCE == "schedule"'
       when: on_success
-      allow_failure: true
+      allow_failure: false
     - if: '$CI_COMMIT_TAG == null'
       when: manual
       allow_failure: true
+  script:
+    - OPTIONAL_TESTS=org.briarproject.bramble.plugin.tor.BridgeTest ./gradlew --info bramble-java:test --tests BridgeTest
+
+mailbox integration test:
+  extends: .optional_tests
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "schedule"'
+      when: on_success
+      allow_failure: false
+    - if: '$CI_COMMIT_TAG == null'
+      when: manual
+      allow_failure: false
+  script:
+    # start mailbox
+    - cd /opt && git clone --depth 1 https://code.briarproject.org/briar/briar-mailbox.git briar-mailbox
+    - cd briar-mailbox
+    - mkdir -p /root/.local/share # create directory that mailbox (currently) expects to exist
+    - ./gradlew run --args="--debug --setup-token 54686973206973206120736574757020746f6b656e20666f722042726961722e" &
+    # run mailbox integration test once mailbox has started
+    - cd "$CI_PROJECT_DIR"
+    - bramble-core/src/test/bash/wait-for-mailbox.sh
+    - OPTIONAL_TESTS=org.briarproject.bramble.mailbox.MailboxIntegrationTest ./gradlew --info bramble-core:test --tests MailboxIntegrationTest
 
 pre_release_tests:
   extends: .optional_tests
+  script:
+    - OPTIONAL_TESTS=org.briarproject.bramble.plugin.tor.BridgeTest ./gradlew --info bramble-java:test --tests BridgeTest
   only:
     - tags

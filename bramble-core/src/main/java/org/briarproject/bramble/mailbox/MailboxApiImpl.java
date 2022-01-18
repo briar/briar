@@ -113,7 +113,7 @@ class MailboxApiImpl implements MailboxApi {
 
 	@Override
 	public void deleteContact(MailboxProperties properties, ContactId contactId)
-			throws IOException, ApiException {
+			throws IOException, ApiException, TolerableFailureException {
 		if (!properties.isOwner()) throw new IllegalArgumentException();
 		String url = properties.getOnionAddress() + "/contacts/" +
 				contactId.getInt();
@@ -123,15 +123,15 @@ class MailboxApiImpl implements MailboxApi {
 				.build();
 		OkHttpClient client = httpClientProvider.get();
 		Response response = client.newCall(request).execute();
+		if (response.code() == 404) throw new TolerableFailureException();
 		if (response.code() != 200) throw new ApiException();
 	}
 
 	@Override
 	public Collection<ContactId> getContacts(MailboxProperties properties)
-			throws IOException, ApiException, TolerableFailureException {
+			throws IOException, ApiException {
 		if (!properties.isOwner()) throw new IllegalArgumentException();
 		Response response = sendGetRequest(properties, "/contacts");
-		if (response.code() == 404) throw new TolerableFailureException();
 		if (response.code() != 200) throw new ApiException();
 
 		ResponseBody body = response.body();

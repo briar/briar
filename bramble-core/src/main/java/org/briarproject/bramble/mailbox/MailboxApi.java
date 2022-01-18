@@ -43,19 +43,19 @@ interface MailboxApi {
 	/**
 	 * Deletes a contact from the mailbox.
 	 * This should get called after a contact was removed from Briar.
-	 */
-	void deleteContact(MailboxProperties properties, ContactId contactId)
-			throws IOException, ApiException;
-
-	/**
-	 * Gets a list of {@link ContactId}s from the mailbox.
-	 * These are the contacts that the mailbox already knows about.
 	 *
 	 * @throws TolerableFailureException if response code is 404
 	 * (contact probably was already deleted).
 	 */
-	Collection<ContactId> getContacts(MailboxProperties properties)
+	void deleteContact(MailboxProperties properties, ContactId contactId)
 			throws IOException, ApiException, TolerableFailureException;
+
+	/**
+	 * Gets a list of {@link ContactId}s from the mailbox.
+	 * These are the contacts that the mailbox already knows about.
+	 */
+	Collection<ContactId> getContacts(MailboxProperties properties)
+			throws IOException, ApiException;
 
 	@Immutable
 	@JsonSerialize

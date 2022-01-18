@@ -230,6 +230,7 @@ public class MailboxApiTest extends BrambleTestCase {
 		server.enqueue(new MockResponse());
 		server.enqueue(new MockResponse().setResponseCode(205));
 		server.enqueue(new MockResponse().setResponseCode(401));
+		server.enqueue(new MockResponse().setResponseCode(404));
 		server.start();
 		String baseUrl = getBaseUrl(server);
 		MailboxProperties properties =
@@ -257,6 +258,14 @@ public class MailboxApiTest extends BrambleTestCase {
 		assertEquals("DELETE", request3.getMethod());
 		assertEquals("/contacts/" + contactId.getInt(), request3.getPath());
 		assertToken(request3, token);
+
+		// tolerable 404 not found error
+		assertThrows(TolerableFailureException.class,
+				() -> api.deleteContact(properties, contactId));
+		RecordedRequest request4 = server.takeRequest();
+		assertEquals("/contacts/" + contactId.getInt(), request4.getPath());
+		assertEquals("DELETE", request4.getMethod());
+		assertToken(request4, token);
 	}
 
 	@Test
@@ -286,7 +295,6 @@ public class MailboxApiTest extends BrambleTestCase {
 		server.enqueue(new MockResponse().setBody(invalidResponse3));
 		server.enqueue(new MockResponse().setResponseCode(401));
 		server.enqueue(new MockResponse().setResponseCode(500));
-		server.enqueue(new MockResponse().setResponseCode(404));
 		server.start();
 		String baseUrl = getBaseUrl(server);
 		MailboxProperties properties =
@@ -350,14 +358,6 @@ public class MailboxApiTest extends BrambleTestCase {
 		assertEquals("/contacts", request8.getPath());
 		assertEquals("GET", request8.getMethod());
 		assertToken(request8, token);
-
-		// tolerable 404 not found error
-		assertThrows(TolerableFailureException.class,
-				() -> api.getContacts(properties));
-		RecordedRequest request9 = server.takeRequest();
-		assertEquals("/contacts", request9.getPath());
-		assertEquals("GET", request9.getMethod());
-		assertToken(request9, token);
 	}
 
 	@Test
