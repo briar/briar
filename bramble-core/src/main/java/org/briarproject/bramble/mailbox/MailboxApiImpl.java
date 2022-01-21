@@ -223,7 +223,8 @@ class MailboxApiImpl implements MailboxApi {
 
 	@Override
 	public void deleteFile(MailboxProperties properties, String folderId,
-			String fileId) throws IOException, ApiException {
+			String fileId)
+			throws IOException, ApiException, TolerableFailureException {
 		String path = "/files/" + folderId + "/" + fileId;
 		Request request = getRequestBuilder(properties.getAuthToken())
 				.delete()
@@ -231,6 +232,7 @@ class MailboxApiImpl implements MailboxApi {
 				.build();
 		OkHttpClient client = httpClientProvider.get();
 		Response response = client.newCall(request).execute();
+		if (response.code() == 404) throw new TolerableFailureException();
 		if (response.code() != 200) throw new ApiException();
 	}
 

@@ -225,6 +225,10 @@ public class MailboxIntegrationTest extends BrambleTestCase {
 				api.getFiles(ownerProperties, contact.outboxId));
 		assertEquals(emptyList(), api.getFolders(ownerProperties));
 
+		// deleting a non-existent file is tolerable
+		assertThrows(TolerableFailureException.class, () ->
+				api.deleteFile(ownerProperties, contact.outboxId, file3name));
+
 		// owner deletes contact again to leave clean state for other tests
 		api.deleteContact(ownerProperties, contactId);
 		assertEquals(emptyList(), api.getContacts(ownerProperties));

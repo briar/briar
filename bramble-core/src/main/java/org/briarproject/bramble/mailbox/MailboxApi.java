@@ -92,9 +92,13 @@ interface MailboxApi {
 	 * Used by owner and contacts to delete files.
 	 * <p>
 	 * Returns 200 OK (no exception) if deletion was successful.
+	 *
+	 * @throws TolerableFailureException on 404 response,
+	 * because file was most likely deleted already.
 	 */
 	void deleteFile(MailboxProperties properties, String folderId,
-			String fileId) throws IOException, ApiException;
+			String fileId)
+			throws IOException, ApiException, TolerableFailureException;
 
 	/**
 	 * Lists all contact outboxes that have files available

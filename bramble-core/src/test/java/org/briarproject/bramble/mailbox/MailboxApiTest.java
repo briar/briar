@@ -591,6 +591,7 @@ public class MailboxApiTest extends BrambleTestCase {
 		server.enqueue(new MockResponse());
 		server.enqueue(new MockResponse().setResponseCode(205));
 		server.enqueue(new MockResponse().setResponseCode(401));
+		server.enqueue(new MockResponse().setResponseCode(404));
 		server.start();
 		String baseUrl = getBaseUrl(server);
 		MailboxProperties properties =
@@ -621,6 +622,15 @@ public class MailboxApiTest extends BrambleTestCase {
 		assertEquals("/files/" + contactInboxId + "/" + name,
 				request3.getPath());
 		assertToken(request3, token);
+
+		// file not found is tolerable
+		assertThrows(TolerableFailureException.class, () ->
+				api.deleteFile(properties, contactInboxId, name));
+		RecordedRequest request4 = server.takeRequest();
+		assertEquals("DELETE", request4.getMethod());
+		assertEquals("/files/" + contactInboxId + "/" + name,
+				request4.getPath());
+		assertToken(request4, token);
 	}
 
 	@Test
