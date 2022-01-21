@@ -8,6 +8,7 @@ import org.briarproject.bramble.api.mailbox.MailboxProperties;
 import java.io.File;
 import java.io.IOException;
 import java.util.Collection;
+import java.util.List;
 
 import javax.annotation.concurrent.Immutable;
 
@@ -68,6 +69,14 @@ interface MailboxApi {
 	void addFile(MailboxProperties properties, String folderId,
 			File file) throws IOException, ApiException;
 
+	/**
+	 * Used by owner and contacts to list their files to retrieve.
+	 * <p>
+	 * Returns 200 OK with the list of files in JSON.
+	 */
+	List<MailboxFile> getFiles(MailboxProperties properties, String folderId)
+			throws IOException, ApiException;
+
 	@Immutable
 	@JsonSerialize
 	class MailboxContact {
@@ -82,6 +91,16 @@ interface MailboxApi {
 			this.token = token;
 			this.inboxId = inboxId;
 			this.outboxId = outboxId;
+		}
+	}
+
+	class MailboxFile {
+		public final String name;
+		public final long time;
+
+		public MailboxFile(String name, long time) {
+			this.name = name;
+			this.time = time;
 		}
 	}
 

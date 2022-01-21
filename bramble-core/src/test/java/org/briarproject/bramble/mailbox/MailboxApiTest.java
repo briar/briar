@@ -1,10 +1,13 @@
 package org.briarproject.bramble.mailbox;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import org.briarproject.bramble.api.WeakSingletonProvider;
 import org.briarproject.bramble.api.contact.ContactId;
 import org.briarproject.bramble.api.mailbox.MailboxProperties;
 import org.briarproject.bramble.mailbox.MailboxApi.ApiException;
 import org.briarproject.bramble.mailbox.MailboxApi.MailboxContact;
+import org.briarproject.bramble.mailbox.MailboxApi.MailboxFile;
 import org.briarproject.bramble.mailbox.MailboxApi.TolerableFailureException;
 import org.briarproject.bramble.test.BrambleTestCase;
 import org.junit.Rule;
@@ -417,6 +420,117 @@ public class MailboxApiTest extends BrambleTestCase {
 		assertEquals("/files/" + contactInboxId, request3.getPath());
 		assertEquals("POST", request1.getMethod());
 		assertToken(request3, token);
+	}
+
+	@Test
+	public void testGetFiles() throws Exception {
+		MailboxFile mailboxFile1 = new MailboxFile(getMailboxSecret(), 1337);
+		MailboxFile mailboxFile2 =
+				new MailboxFile(getMailboxSecret(), System.currentTimeMillis());
+		String fileResponse1 =
+				new ObjectMapper().writeValueAsString(mailboxFile1);
+		String fileResponse2 =
+				new ObjectMapper().writeValueAsString(mailboxFile2);
+		String validResponse1 = "{\"files\": [" + fileResponse1 + "] }";
+		String validResponse2 = "{\"files\": [" + fileResponse1 + ", " +
+				fileResponse2 + "] }";
+		String invalidResponse1 = "{\"files\":\"bar\"}";
+		String invalidResponse2 = "{\"files\":{\"foo\":\"bar\"}}";
+		String invalidResponse3 = "{\"files\": [" + fileResponse1 + ", 1] }";
+		String invalidResponse4 = "{\"contacts\": [ 1, 2 ] }";
+
+		MockWebServer server = new MockWebServer();
+		server.enqueue(new MockResponse().setBody(validResponse1));
+		server.enqueue(new MockResponse().setBody(validResponse2));
+		server.enqueue(new MockResponse());
+		server.enqueue(new MockResponse().setBody(invalidResponse1));
+		server.enqueue(new MockResponse().setBody(invalidResponse2));
+		server.enqueue(new MockResponse().setBody(invalidResponse3));
+		server.enqueue(new MockResponse().setBody(invalidResponse4));
+		server.enqueue(new MockResponse().setResponseCode(401));
+		server.enqueue(new MockResponse().setResponseCode(500));
+		server.start();
+		String baseUrl = getBaseUrl(server);
+		MailboxProperties properties =
+				new MailboxProperties(baseUrl, token, true);
+
+		// valid response with one file
+		List<MailboxFile> received1 = api.getFiles(properties, contactInboxId);
+		assertEquals(1, received1.size());
+		assertEquals(mailboxFile1.name, received1.get(0).name);
+		assertEquals(mailboxFile1.time, received1.get(0).time);
+		RecordedRequest request1 = server.takeRequest();
+		assertEquals("/files/" + contactInboxId, request1.getPath());
+		assertEquals("GET", request1.getMethod());
+		assertToken(request1, token);
+
+		// valid response with two files
+		List<MailboxFile> received2 = api.getFiles(properties, contactInboxId);
+		assertEquals(2, received2.size());
+		assertEquals(mailboxFile1.name, received2.get(0).name);
+		assertEquals(mailboxFile1.time, received2.get(0).time);
+		assertEquals(mailboxFile2.name, received2.get(1).name);
+		assertEquals(mailboxFile2.time, received2.get(1).time);
+		RecordedRequest request2 = server.takeRequest();
+		assertEquals("/files/" + contactInboxId, request1.getPath());
+		assertEquals("GET", request2.getMethod());
+		assertToken(request2, token);
+
+		// empty body
+		assertThrows(ApiException.class, () ->
+				api.getFiles(properties, contactInboxId));
+		RecordedRequest request3 = server.takeRequest();
+		assertEquals("/files/" + contactInboxId, request3.getPath());
+		assertEquals("GET", request3.getMethod());
+		assertToken(request3, token);
+
+		// invalid response: string instead of list
+		assertThrows(ApiException.class, () ->
+				api.getFiles(properties, contactInboxId));
+		RecordedRequest request4 = server.takeRequest();
+		assertEquals("/files/" + contactInboxId, request4.getPath());
+		assertEquals("GET", request4.getMethod());
+		assertToken(request4, token);
+
+		// invalid response: object instead of list
+		assertThrows(ApiException.class, () ->
+				api.getFiles(properties, contactInboxId));
+		RecordedRequest request5 = server.takeRequest();
+		assertEquals("/files/" + contactInboxId, request5.getPath());
+		assertEquals("GET", request5.getMethod());
+		assertToken(request5, token);
+
+		// invalid response: list with non-objects
+		assertThrows(ApiException.class, () ->
+				api.getFiles(properties, contactInboxId));
+		RecordedRequest request6 = server.takeRequest();
+		assertEquals("/files/" + contactInboxId, request6.getPath());
+		assertEquals("GET", request6.getMethod());
+		assertToken(request6, token);
+
+		// no files key in root object
+		assertThrows(ApiException.class, () ->
+				api.getFiles(properties, contactInboxId));
+		RecordedRequest request7 = server.takeRequest();
+		assertEquals("/files/" + contactInboxId, request7.getPath());
+		assertEquals("GET", request7.getMethod());
+		assertToken(request7, token);
+
+		// 401 not authorized
+		assertThrows(ApiException.class, () ->
+				api.getFiles(properties, contactInboxId));
+		RecordedRequest request8 = server.takeRequest();
+		assertEquals("/files/" + contactInboxId, request8.getPath());
+		assertEquals("GET", request8.getMethod());
+		assertToken(request8, token);
+
+		// 500 internal server error
+		assertThrows(ApiException.class,
+				() -> api.getFiles(properties, contactInboxId));
+		RecordedRequest request9 = server.takeRequest();
+		assertEquals("/files/" + contactInboxId, request9.getPath());
+		assertEquals("GET", request9.getMethod());
+		assertToken(request9, token);
 	}
 
 	private String getBaseUrl(MockWebServer server) {

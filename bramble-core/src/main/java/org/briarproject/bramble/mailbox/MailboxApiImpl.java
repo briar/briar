@@ -3,6 +3,7 @@ package org.briarproject.bramble.mailbox;
 import com.fasterxml.jackson.core.JacksonException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.json.JsonMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import org.briarproject.bramble.api.WeakSingletonProvider;
 import org.briarproject.bramble.api.contact.ContactId;
@@ -165,6 +166,46 @@ class MailboxApiImpl implements MailboxApi {
 		Response response = sendPostRequest(properties, path, body);
 		if (response.code() != 200) throw new ApiException();
 	}
+
+	@Override
+	public List<MailboxFile> getFiles(MailboxProperties properties,
+			String folderId) throws IOException, ApiException {
+		String path = "/files/" + folderId;
+		Response response = sendGetRequest(properties, path);
+		if (response.code() != 200) throw new ApiException();
+
+		ResponseBody body = response.body();
+		if (body == null) throw new ApiException();
+		try {
+			JsonNode node = mapper.readTree(body.string());
+			JsonNode filesNode = node.get("files");
+			if (filesNode == null || !filesNode.isArray()) {
+				throw new ApiException();
+			}
+			List<MailboxFile> list = new ArrayList<>();
+			for (JsonNode fileNode : filesNode) {
+				if (!fileNode.isObject()) throw new ApiException();
+				ObjectNode objectNode = (ObjectNode) fileNode;
+				JsonNode nameNode = objectNode.get("name");
+				JsonNode timeNode = objectNode.get("time");
+				if (nameNode == null || !nameNode.isTextual()) {
+					throw new ApiException();
+				}
+				if (timeNode == null || !timeNode.isNumber()) {
+					throw new ApiException();
+				}
+				String name = nameNode.asText();
+				long time = timeNode.asLong();
+				if (!isValidToken(name)) throw new ApiException();
+				if (time < 1) throw new ApiException();
+				list.add(new MailboxFile(name, time));
+			}
+			return list;
+		} catch (JacksonException e) {
+			throw new ApiException();
+		}
+	}
+
 	/* Helper Functions */
 
 	private Response sendGetRequest(MailboxProperties properties, String path)
