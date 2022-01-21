@@ -77,6 +77,17 @@ interface MailboxApi {
 	List<MailboxFile> getFiles(MailboxProperties properties, String folderId)
 			throws IOException, ApiException;
 
+	/**
+	 * Used by owner and contacts to retrieve a file.
+	 * <p>
+	 * Returns 200 OK if successful with the files' raw bytes
+	 * in the response body.
+	 *
+	 * @param file the empty file the response bytes will be written into.
+	 */
+	void getFile(MailboxProperties properties, String folderId,
+			String fileId, File file) throws IOException, ApiException;
+
 	@Immutable
 	@JsonSerialize
 	class MailboxContact {

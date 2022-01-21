@@ -11,6 +11,7 @@ import org.briarproject.bramble.api.mailbox.MailboxProperties;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -28,6 +29,7 @@ import okhttp3.ResponseBody;
 import static com.fasterxml.jackson.databind.MapperFeature.BLOCK_UNSAFE_POLYMORPHIC_BASE_TYPES;
 import static java.util.Objects.requireNonNull;
 import static okhttp3.internal.Util.EMPTY_REQUEST;
+import static org.briarproject.bramble.util.IoUtils.copyAndClose;
 import static org.briarproject.bramble.util.StringUtils.fromHexString;
 
 @NotNullByDefault
@@ -204,6 +206,19 @@ class MailboxApiImpl implements MailboxApi {
 		} catch (JacksonException e) {
 			throw new ApiException();
 		}
+	}
+
+	@Override
+	public void getFile(MailboxProperties properties, String folderId,
+			String fileId, File file) throws IOException, ApiException {
+		String path = "/files/" + folderId + "/" + fileId;
+		Response response = sendGetRequest(properties, path);
+		if (response.code() != 200) throw new ApiException();
+
+		ResponseBody body = response.body();
+		if (body == null) throw new ApiException();
+		FileOutputStream outputStream = new FileOutputStream(file);
+		copyAndClose(body.byteStream(), outputStream);
 	}
 
 	/* Helper Functions */

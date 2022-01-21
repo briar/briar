@@ -25,12 +25,14 @@ import okhttp3.OkHttpClient;
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
 import okhttp3.mockwebserver.RecordedRequest;
+import okio.Buffer;
 
 import static java.util.Collections.singletonList;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static org.briarproject.bramble.test.TestUtils.getContactId;
 import static org.briarproject.bramble.test.TestUtils.getMailboxSecret;
 import static org.briarproject.bramble.test.TestUtils.getRandomBytes;
+import static org.briarproject.bramble.test.TestUtils.readBytes;
 import static org.briarproject.bramble.test.TestUtils.writeBytes;
 import static org.briarproject.bramble.util.StringUtils.getRandomString;
 import static org.junit.Assert.assertArrayEquals;
@@ -531,6 +533,53 @@ public class MailboxApiTest extends BrambleTestCase {
 		assertEquals("/files/" + contactInboxId, request9.getPath());
 		assertEquals("GET", request9.getMethod());
 		assertToken(request9, token);
+	}
+
+	@Test
+	public void testGetFile() throws Exception {
+		String name = getMailboxSecret();
+		File file1 = folder.newFile();
+		File file2 = folder.newFile();
+		File file3 = folder.newFile();
+		byte[] bytes = getRandomBytes(1337);
+
+		MockWebServer server = new MockWebServer();
+		server.enqueue(new MockResponse().setBody(new Buffer().write(bytes)));
+		server.enqueue(new MockResponse().setResponseCode(401));
+		server.enqueue(new MockResponse().setResponseCode(500));
+		server.start();
+		String baseUrl = getBaseUrl(server);
+		MailboxProperties properties =
+				new MailboxProperties(baseUrl, token, true);
+
+		// file gets downloaded as expected
+		api.getFile(properties, contactOutboxId, name, file1);
+		RecordedRequest request1 = server.takeRequest();
+		assertEquals("/files/" + contactOutboxId + "/" + name,
+				request1.getPath());
+		assertEquals("GET", request1.getMethod());
+		assertToken(request1, token);
+		assertArrayEquals(bytes, readBytes(file1));
+
+		// request is not successful
+		assertThrows(ApiException.class, () ->
+				api.getFile(properties, contactOutboxId, name, file2));
+		RecordedRequest request2 = server.takeRequest();
+		assertEquals("/files/" + contactOutboxId + "/" + name,
+				request2.getPath());
+		assertEquals("GET", request1.getMethod());
+		assertToken(request2, token);
+		assertEquals(0, readBytes(file2).length);
+
+		// server error
+		assertThrows(ApiException.class, () ->
+				api.getFile(properties, contactOutboxId, name, file3));
+		RecordedRequest request3 = server.takeRequest();
+		assertEquals("/files/" + contactOutboxId + "/" + name,
+				request3.getPath());
+		assertEquals("GET", request1.getMethod());
+		assertToken(request3, token);
+		assertEquals(0, readBytes(file3).length);
 	}
 
 	private String getBaseUrl(MockWebServer server) {
