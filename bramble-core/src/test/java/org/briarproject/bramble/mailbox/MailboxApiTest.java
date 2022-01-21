@@ -16,6 +16,7 @@ import org.junit.rules.TemporaryFolder;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import javax.annotation.Nonnull;
@@ -620,6 +621,106 @@ public class MailboxApiTest extends BrambleTestCase {
 		assertEquals("/files/" + contactInboxId + "/" + name,
 				request3.getPath());
 		assertToken(request3, token);
+	}
+
+	@Test
+	public void testGetFolders() throws Exception {
+		String id1 = getMailboxSecret();
+		String id2 = getMailboxSecret();
+		String validResponse1 = "{\"folders\": [ {\"id\": \"" + id1 + "\"} ] }";
+		String validResponse2 = "{\"folders\": [ {\"id\": \"" + id1 + "\"}, " +
+				"{ \"id\": \"" + id2 + "\"} ] }";
+		String invalidResponse1 = "{\"folders\":\"bar\"}";
+		String invalidResponse2 = "{\"folders\":{\"foo\":\"bar\"}}";
+		String invalidResponse3 =
+				"{\"folders\": [ {\"id\": \"" + id1 + "\", 1] }";
+		String invalidResponse4 = "{\"files\": [ 1, 2 ] }";
+
+		MockWebServer server = new MockWebServer();
+		server.enqueue(new MockResponse().setBody(validResponse1));
+		server.enqueue(new MockResponse().setBody(validResponse2));
+		server.enqueue(new MockResponse());
+		server.enqueue(new MockResponse().setBody(invalidResponse1));
+		server.enqueue(new MockResponse().setBody(invalidResponse2));
+		server.enqueue(new MockResponse().setBody(invalidResponse3));
+		server.enqueue(new MockResponse().setBody(invalidResponse4));
+		server.enqueue(new MockResponse().setResponseCode(401));
+		server.enqueue(new MockResponse().setResponseCode(500));
+		server.start();
+		String baseUrl = getBaseUrl(server);
+		MailboxProperties properties =
+				new MailboxProperties(baseUrl, token, true);
+
+		// valid response with one folders
+		assertEquals(singletonList(id1), api.getFolders(properties));
+		RecordedRequest request1 = server.takeRequest();
+		assertEquals("/folders", request1.getPath());
+		assertEquals("GET", request1.getMethod());
+		assertToken(request1, token);
+
+		// valid response with two folders
+		assertEquals(Arrays.asList(id1, id2), api.getFolders(properties));
+		RecordedRequest request2 = server.takeRequest();
+		assertEquals("/folders", request1.getPath());
+		assertEquals("GET", request2.getMethod());
+		assertToken(request2, token);
+
+		// empty body
+		assertThrows(ApiException.class, () -> api.getFolders(properties));
+		RecordedRequest request3 = server.takeRequest();
+		assertEquals("/folders", request3.getPath());
+		assertEquals("GET", request3.getMethod());
+		assertToken(request3, token);
+
+		// invalid response: string instead of list
+		assertThrows(ApiException.class, () -> api.getFolders(properties));
+		RecordedRequest request4 = server.takeRequest();
+		assertEquals("/folders", request4.getPath());
+		assertEquals("GET", request4.getMethod());
+		assertToken(request4, token);
+
+		// invalid response: object instead of list
+		assertThrows(ApiException.class, () -> api.getFolders(properties));
+		RecordedRequest request5 = server.takeRequest();
+		assertEquals("/folders", request5.getPath());
+		assertEquals("GET", request5.getMethod());
+		assertToken(request5, token);
+
+		// invalid response: list with non-objects
+		assertThrows(ApiException.class, () -> api.getFolders(properties));
+		RecordedRequest request6 = server.takeRequest();
+		assertEquals("/folders", request6.getPath());
+		assertEquals("GET", request6.getMethod());
+		assertToken(request6, token);
+
+		// no folders key in root object
+		assertThrows(ApiException.class, () -> api.getFolders(properties));
+		RecordedRequest request7 = server.takeRequest();
+		assertEquals("/folders", request7.getPath());
+		assertEquals("GET", request7.getMethod());
+		assertToken(request7, token);
+
+		// 401 not authorized
+		assertThrows(ApiException.class, () -> api.getFolders(properties));
+		RecordedRequest request8 = server.takeRequest();
+		assertEquals("/folders", request8.getPath());
+		assertEquals("GET", request8.getMethod());
+		assertToken(request8, token);
+
+		// 500 internal server error
+		assertThrows(ApiException.class, () -> api.getFolders(properties));
+		RecordedRequest request9 = server.takeRequest();
+		assertEquals("/folders", request9.getPath());
+		assertEquals("GET", request9.getMethod());
+		assertToken(request9, token);
+	}
+
+	@Test
+	public void testGetFoldersOnlyForOwner() {
+		MailboxProperties properties =
+				new MailboxProperties("", token, false);
+		assertThrows(IllegalArgumentException.class, () ->
+				api.getFolders(properties));
 	}
 
 	private String getBaseUrl(MockWebServer server) {

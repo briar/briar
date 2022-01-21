@@ -96,6 +96,17 @@ interface MailboxApi {
 	void deleteFile(MailboxProperties properties, String folderId,
 			String fileId) throws IOException, ApiException;
 
+	/**
+	 * Lists all contact outboxes that have files available
+	 * for the owner to download.
+	 *
+	 * @return a list of folder names
+	 * to be used with {@link #getFiles(MailboxProperties, String)}.
+	 * @throws IllegalArgumentException if used by non-owner.
+	 */
+	List<String> getFolders(MailboxProperties properties)
+			throws IOException, ApiException;
+
 	@Immutable
 	@JsonSerialize
 	class MailboxContact {

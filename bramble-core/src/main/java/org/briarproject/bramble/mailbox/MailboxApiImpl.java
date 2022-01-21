@@ -234,6 +234,39 @@ class MailboxApiImpl implements MailboxApi {
 		if (response.code() != 200) throw new ApiException();
 	}
 
+	@Override
+	public List<String> getFolders(MailboxProperties properties)
+			throws IOException, ApiException {
+		if (!properties.isOwner()) throw new IllegalArgumentException();
+		Response response = sendGetRequest(properties, "/folders");
+		if (response.code() != 200) throw new ApiException();
+
+		ResponseBody body = response.body();
+		if (body == null) throw new ApiException();
+		try {
+			JsonNode node = mapper.readTree(body.string());
+			JsonNode filesNode = node.get("folders");
+			if (filesNode == null || !filesNode.isArray()) {
+				throw new ApiException();
+			}
+			List<String> list = new ArrayList<>();
+			for (JsonNode fileNode : filesNode) {
+				if (!fileNode.isObject()) throw new ApiException();
+				ObjectNode objectNode = (ObjectNode) fileNode;
+				JsonNode idNode = objectNode.get("id");
+				if (idNode == null || !idNode.isTextual()) {
+					throw new ApiException();
+				}
+				String id = idNode.asText();
+				if (!isValidToken(id)) throw new ApiException();
+				list.add(id);
+			}
+			return list;
+		} catch (JacksonException e) {
+			throw new ApiException();
+		}
+	}
+
 	/* Helper Functions */
 
 	private Response sendGetRequest(MailboxProperties properties, String path)
