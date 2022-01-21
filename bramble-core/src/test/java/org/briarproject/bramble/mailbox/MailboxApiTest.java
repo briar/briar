@@ -582,6 +582,46 @@ public class MailboxApiTest extends BrambleTestCase {
 		assertEquals(0, readBytes(file3).length);
 	}
 
+	@Test
+	public void testDeleteFile() throws Exception {
+		String name = getMailboxSecret();
+
+		MockWebServer server = new MockWebServer();
+		server.enqueue(new MockResponse());
+		server.enqueue(new MockResponse().setResponseCode(205));
+		server.enqueue(new MockResponse().setResponseCode(401));
+		server.start();
+		String baseUrl = getBaseUrl(server);
+		MailboxProperties properties =
+				new MailboxProperties(baseUrl, token, true);
+
+		// file gets deleted as expected
+		api.deleteFile(properties, contactInboxId, name);
+		RecordedRequest request1 = server.takeRequest();
+		assertEquals("DELETE", request1.getMethod());
+		assertEquals("/files/" + contactInboxId + "/" + name,
+				request1.getPath());
+		assertToken(request1, token);
+
+		// request is not returning 200
+		assertThrows(ApiException.class, () ->
+				api.deleteFile(properties, contactInboxId, name));
+		RecordedRequest request2 = server.takeRequest();
+		assertEquals("DELETE", request2.getMethod());
+		assertEquals("/files/" + contactInboxId + "/" + name,
+				request2.getPath());
+		assertToken(request2, token);
+
+		// request is not authorized
+		assertThrows(ApiException.class, () ->
+				api.deleteFile(properties, contactInboxId, name));
+		RecordedRequest request3 = server.takeRequest();
+		assertEquals("DELETE", request3.getMethod());
+		assertEquals("/files/" + contactInboxId + "/" + name,
+				request3.getPath());
+		assertToken(request3, token);
+	}
+
 	private String getBaseUrl(MockWebServer server) {
 		String baseUrl = server.url("").toString();
 		return baseUrl.substring(0, baseUrl.length() - 1);

@@ -88,6 +88,14 @@ interface MailboxApi {
 	void getFile(MailboxProperties properties, String folderId,
 			String fileId, File file) throws IOException, ApiException;
 
+	/**
+	 * Used by owner and contacts to delete files.
+	 * <p>
+	 * Returns 200 OK (no exception) if deletion was successful.
+	 */
+	void deleteFile(MailboxProperties properties, String folderId,
+			String fileId) throws IOException, ApiException;
+
 	@Immutable
 	@JsonSerialize
 	class MailboxContact {

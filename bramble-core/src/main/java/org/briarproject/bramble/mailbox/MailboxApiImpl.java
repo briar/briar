@@ -221,6 +221,19 @@ class MailboxApiImpl implements MailboxApi {
 		copyAndClose(body.byteStream(), outputStream);
 	}
 
+	@Override
+	public void deleteFile(MailboxProperties properties, String folderId,
+			String fileId) throws IOException, ApiException {
+		String path = "/files/" + folderId + "/" + fileId;
+		Request request = getRequestBuilder(properties.getAuthToken())
+				.delete()
+				.url(properties.getOnionAddress() + path)
+				.build();
+		OkHttpClient client = httpClientProvider.get();
+		Response response = client.newCall(request).execute();
+		if (response.code() != 200) throw new ApiException();
+	}
+
 	/* Helper Functions */
 
 	private Response sendGetRequest(MailboxProperties properties, String path)
