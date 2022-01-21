@@ -9,6 +9,7 @@ import org.briarproject.bramble.api.contact.ContactId;
 import org.briarproject.bramble.api.mailbox.MailboxProperties;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -37,6 +38,8 @@ class MailboxApiImpl implements MailboxApi {
 			.build();
 	private static final MediaType JSON =
 			requireNonNull(MediaType.parse("application/json; charset=utf-8"));
+	private static final MediaType FILE =
+			requireNonNull(MediaType.parse("application/octet-stream"));
 
 	@Inject
 	MailboxApiImpl(WeakSingletonProvider<OkHttpClient> httpClientProvider) {
@@ -94,6 +97,8 @@ class MailboxApiImpl implements MailboxApi {
 		return response.isSuccessful();
 	}
 
+	/* Contact Management API (owner only) */
+
 	@Override
 	public void addContact(MailboxProperties properties, MailboxContact contact)
 			throws IOException, ApiException,
@@ -101,12 +106,7 @@ class MailboxApiImpl implements MailboxApi {
 		if (!properties.isOwner()) throw new IllegalArgumentException();
 		byte[] bodyBytes = mapper.writeValueAsBytes(contact);
 		RequestBody body = RequestBody.create(JSON, bodyBytes);
-		Request request = getRequestBuilder(properties.getAuthToken())
-				.url(properties.getOnionAddress() + "/contacts")
-				.post(body)
-				.build();
-		OkHttpClient client = httpClientProvider.get();
-		Response response = client.newCall(request).execute();
+		Response response = sendPostRequest(properties, "/contacts", body);
 		if (response.code() == 409) throw new TolerableFailureException();
 		if (!response.isSuccessful()) throw new ApiException();
 	}
@@ -155,10 +155,32 @@ class MailboxApiImpl implements MailboxApi {
 		}
 	}
 
+	/* File Management (owner and contacts) */
+
+	@Override
+	public void addFile(MailboxProperties properties, String folderId,
+			File file) throws IOException, ApiException {
+		String path = "/files/" + folderId;
+		RequestBody body = RequestBody.create(FILE, file);
+		Response response = sendPostRequest(properties, path, body);
+		if (response.code() != 200) throw new ApiException();
+	}
+	/* Helper Functions */
+
 	private Response sendGetRequest(MailboxProperties properties, String path)
 			throws IOException {
 		Request request = getRequestBuilder(properties.getAuthToken())
 				.url(properties.getOnionAddress() + path)
+				.build();
+		OkHttpClient client = httpClientProvider.get();
+		return client.newCall(request).execute();
+	}
+
+	private Response sendPostRequest(MailboxProperties properties, String path,
+			RequestBody body) throws IOException {
+		Request request = getRequestBuilder(properties.getAuthToken())
+				.url(properties.getOnionAddress() + path)
+				.post(body)
 				.build();
 		OkHttpClient client = httpClientProvider.get();
 		return client.newCall(request).execute();

@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import org.briarproject.bramble.api.contact.ContactId;
 import org.briarproject.bramble.api.mailbox.MailboxProperties;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.Collection;
 
@@ -56,6 +57,16 @@ interface MailboxApi {
 	 */
 	Collection<ContactId> getContacts(MailboxProperties properties)
 			throws IOException, ApiException;
+
+	/**
+	 * Used by contacts to send files to the owner
+	 * and by the owner to send files to contacts.
+	 * <p>
+	 * The owner can add files to the contacts' inboxes
+	 * and the contacts can add files to their own outbox.
+	 */
+	void addFile(MailboxProperties properties, String folderId,
+			File file) throws IOException, ApiException;
 
 	@Immutable
 	@JsonSerialize

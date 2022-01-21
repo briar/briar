@@ -7,8 +7,11 @@ import org.briarproject.bramble.mailbox.MailboxApi.ApiException;
 import org.briarproject.bramble.mailbox.MailboxApi.MailboxContact;
 import org.briarproject.bramble.mailbox.MailboxApi.TolerableFailureException;
 import org.briarproject.bramble.test.BrambleTestCase;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -24,7 +27,10 @@ import static java.util.Collections.singletonList;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static org.briarproject.bramble.test.TestUtils.getContactId;
 import static org.briarproject.bramble.test.TestUtils.getMailboxSecret;
+import static org.briarproject.bramble.test.TestUtils.getRandomBytes;
+import static org.briarproject.bramble.test.TestUtils.writeBytes;
 import static org.briarproject.bramble.util.StringUtils.getRandomString;
+import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
@@ -32,6 +38,9 @@ import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.assertTrue;
 
 public class MailboxApiTest extends BrambleTestCase {
+
+	@Rule
+	public TemporaryFolder folder = new TemporaryFolder();
 
 	private final OkHttpClient client = new OkHttpClient.Builder()
 			.socketFactory(SocketFactory.getDefault())
@@ -368,6 +377,46 @@ public class MailboxApiTest extends BrambleTestCase {
 				IllegalArgumentException.class,
 				() -> api.getContacts(properties)
 		);
+	}
+
+	@Test
+	public void testAddFile() throws Exception {
+		File file = folder.newFile();
+		byte[] bytes = getRandomBytes(1337);
+		writeBytes(file, bytes);
+
+		MockWebServer server = new MockWebServer();
+		server.enqueue(new MockResponse());
+		server.enqueue(new MockResponse().setResponseCode(401));
+		server.enqueue(new MockResponse().setResponseCode(500));
+		server.start();
+		String baseUrl = getBaseUrl(server);
+		MailboxProperties properties =
+				new MailboxProperties(baseUrl, token, true);
+
+		// file gets uploaded as expected
+		api.addFile(properties, contactInboxId, file);
+		RecordedRequest request1 = server.takeRequest();
+		assertEquals("/files/" + contactInboxId, request1.getPath());
+		assertEquals("POST", request1.getMethod());
+		assertToken(request1, token);
+		assertArrayEquals(bytes, request1.getBody().readByteArray());
+
+		// request is not successful
+		assertThrows(ApiException.class, () ->
+				api.addFile(properties, contactInboxId, file));
+		RecordedRequest request2 = server.takeRequest();
+		assertEquals("/files/" + contactInboxId, request2.getPath());
+		assertEquals("POST", request1.getMethod());
+		assertToken(request2, token);
+
+		// server error
+		assertThrows(ApiException.class, () ->
+				api.addFile(properties, contactInboxId, file));
+		RecordedRequest request3 = server.takeRequest();
+		assertEquals("/files/" + contactInboxId, request3.getPath());
+		assertEquals("POST", request1.getMethod());
+		assertToken(request3, token);
 	}
 
 	private String getBaseUrl(MockWebServer server) {
