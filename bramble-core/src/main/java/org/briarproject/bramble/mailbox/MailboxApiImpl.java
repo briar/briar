@@ -7,6 +7,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import org.briarproject.bramble.api.WeakSingletonProvider;
 import org.briarproject.bramble.api.contact.ContactId;
+import org.briarproject.bramble.api.mailbox.MailboxId;
 import org.briarproject.bramble.api.mailbox.MailboxProperties;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 
@@ -50,7 +51,7 @@ class MailboxApiImpl implements MailboxApi {
 	}
 
 	@Override
-	public String setup(MailboxProperties properties)
+	public MailboxId setup(MailboxProperties properties)
 			throws IOException, ApiException {
 		if (!properties.isOwner()) throw new IllegalArgumentException();
 		Request request = getRequestBuilder(properties.getAuthToken())
@@ -74,12 +75,14 @@ class MailboxApiImpl implements MailboxApi {
 			if (ownerToken == null || !isValidToken(ownerToken)) {
 				throw new ApiException();
 			}
-			return ownerToken;
+			return MailboxId.fromString(ownerToken);
 		} catch (JacksonException e) {
 			throw new ApiException();
 		}
 	}
 
+	// TODO find a batter way to validate (regex?)
+	//  that doesn't do hex string conversion twice
 	private boolean isValidToken(String token) {
 		if (token.length() != 64) return false;
 		try {
@@ -161,7 +164,7 @@ class MailboxApiImpl implements MailboxApi {
 	/* File Management (owner and contacts) */
 
 	@Override
-	public void addFile(MailboxProperties properties, String folderId,
+	public void addFile(MailboxProperties properties, MailboxId folderId,
 			File file) throws IOException, ApiException {
 		String path = "/files/" + folderId;
 		RequestBody body = RequestBody.create(FILE, file);
@@ -171,7 +174,7 @@ class MailboxApiImpl implements MailboxApi {
 
 	@Override
 	public List<MailboxFile> getFiles(MailboxProperties properties,
-			String folderId) throws IOException, ApiException {
+			MailboxId folderId) throws IOException, ApiException {
 		String path = "/files/" + folderId;
 		Response response = sendGetRequest(properties, path);
 		if (response.code() != 200) throw new ApiException();
@@ -200,7 +203,7 @@ class MailboxApiImpl implements MailboxApi {
 				long time = timeNode.asLong();
 				if (!isValidToken(name)) throw new ApiException();
 				if (time < 1) throw new ApiException();
-				list.add(new MailboxFile(name, time));
+				list.add(new MailboxFile(MailboxId.fromString(name), time));
 			}
 			return list;
 		} catch (JacksonException e) {
@@ -209,8 +212,8 @@ class MailboxApiImpl implements MailboxApi {
 	}
 
 	@Override
-	public void getFile(MailboxProperties properties, String folderId,
-			String fileId, File file) throws IOException, ApiException {
+	public void getFile(MailboxProperties properties, MailboxId folderId,
+			MailboxId fileId, File file) throws IOException, ApiException {
 		String path = "/files/" + folderId + "/" + fileId;
 		Response response = sendGetRequest(properties, path);
 		if (response.code() != 200) throw new ApiException();
@@ -222,8 +225,8 @@ class MailboxApiImpl implements MailboxApi {
 	}
 
 	@Override
-	public void deleteFile(MailboxProperties properties, String folderId,
-			String fileId)
+	public void deleteFile(MailboxProperties properties, MailboxId folderId,
+			MailboxId fileId)
 			throws IOException, ApiException, TolerableFailureException {
 		String path = "/files/" + folderId + "/" + fileId;
 		Request request = getRequestBuilder(properties.getAuthToken())
@@ -237,7 +240,7 @@ class MailboxApiImpl implements MailboxApi {
 	}
 
 	@Override
-	public List<String> getFolders(MailboxProperties properties)
+	public List<MailboxId> getFolders(MailboxProperties properties)
 			throws IOException, ApiException {
 		if (!properties.isOwner()) throw new IllegalArgumentException();
 		Response response = sendGetRequest(properties, "/folders");
@@ -251,7 +254,7 @@ class MailboxApiImpl implements MailboxApi {
 			if (filesNode == null || !filesNode.isArray()) {
 				throw new ApiException();
 			}
-			List<String> list = new ArrayList<>();
+			List<MailboxId> list = new ArrayList<>();
 			for (JsonNode fileNode : filesNode) {
 				if (!fileNode.isObject()) throw new ApiException();
 				ObjectNode objectNode = (ObjectNode) fileNode;
@@ -261,7 +264,7 @@ class MailboxApiImpl implements MailboxApi {
 				}
 				String id = idNode.asText();
 				if (!isValidToken(id)) throw new ApiException();
-				list.add(id);
+				list.add(MailboxId.fromString(id));
 			}
 			return list;
 		} catch (JacksonException e) {
@@ -290,7 +293,7 @@ class MailboxApiImpl implements MailboxApi {
 		return client.newCall(request).execute();
 	}
 
-	private Request.Builder getRequestBuilder(String token) {
+	private Request.Builder getRequestBuilder(MailboxId token) {
 		return new Request.Builder()
 				.addHeader("Authorization", "Bearer " + token);
 	}

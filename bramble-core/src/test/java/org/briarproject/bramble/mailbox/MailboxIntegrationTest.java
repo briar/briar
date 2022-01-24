@@ -2,6 +2,7 @@ package org.briarproject.bramble.mailbox;
 
 import org.briarproject.bramble.api.WeakSingletonProvider;
 import org.briarproject.bramble.api.contact.ContactId;
+import org.briarproject.bramble.api.mailbox.MailboxId;
 import org.briarproject.bramble.api.mailbox.MailboxProperties;
 import org.briarproject.bramble.mailbox.MailboxApi.ApiException;
 import org.briarproject.bramble.mailbox.MailboxApi.MailboxContact;
@@ -27,7 +28,7 @@ import okhttp3.OkHttpClient;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
-import static org.briarproject.bramble.test.TestUtils.getMailboxSecret;
+import static org.briarproject.bramble.test.TestUtils.getMailboxId;
 import static org.briarproject.bramble.test.TestUtils.getRandomBytes;
 import static org.briarproject.bramble.test.TestUtils.isOptionalTestEnabled;
 import static org.briarproject.bramble.test.TestUtils.readBytes;
@@ -44,8 +45,8 @@ public class MailboxIntegrationTest extends BrambleTestCase {
 	public TemporaryFolder folder = new TemporaryFolder();
 
 	private final static String URL_BASE = "http://127.0.0.1:8000";
-	private final static String SETUP_TOKEN =
-			"54686973206973206120736574757020746f6b656e20666f722042726961722e";
+	private final static MailboxId SETUP_TOKEN = MailboxId.fromString(
+			"54686973206973206120736574757020746f6b656e20666f722042726961722e");
 
 	private final OkHttpClient client = new OkHttpClient.Builder()
 			.socketFactory(SocketFactory.getDefault())
@@ -76,7 +77,7 @@ public class MailboxIntegrationTest extends BrambleTestCase {
 		if (ownerProperties != null) return;
 		MailboxProperties setupProperties =
 				new MailboxProperties(URL_BASE, SETUP_TOKEN, true);
-		String ownerToken = api.setup(setupProperties);
+		MailboxId ownerToken = api.setup(setupProperties);
 		ownerProperties = new MailboxProperties(URL_BASE, ownerToken, true);
 	}
 
@@ -132,7 +133,7 @@ public class MailboxIntegrationTest extends BrambleTestCase {
 		List<MailboxFile> files1 =
 				api.getFiles(contactProperties, contact.inboxId);
 		assertEquals(1, files1.size());
-		String fileName1 = files1.get(0).name;
+		MailboxId fileName1 = files1.get(0).name;
 
 		// owner can't check files
 		assertThrows(ApiException.class, () ->
@@ -170,15 +171,15 @@ public class MailboxIntegrationTest extends BrambleTestCase {
 		api.addFile(contactProperties, contact.outboxId, file3);
 
 		// owner checks folders with available files
-		List<String> folders = api.getFolders(ownerProperties);
+		List<MailboxId> folders = api.getFolders(ownerProperties);
 		assertEquals(singletonList(contact.outboxId), folders);
 
 		// owner lists files in contact's outbox
 		List<MailboxFile> files2 =
 				api.getFiles(ownerProperties, contact.outboxId);
 		assertEquals(2, files2.size());
-		String file2name = files2.get(0).name;
-		String file3name = files2.get(1).name;
+		MailboxId file2name = files2.get(0).name;
+		MailboxId file3name = files2.get(1).name;
 
 		// contact can't list files in contact's outbox
 		assertThrows(ApiException.class, () ->
@@ -235,8 +236,8 @@ public class MailboxIntegrationTest extends BrambleTestCase {
 	}
 
 	private MailboxContact getMailboxContact(ContactId contactId) {
-		return new MailboxContact(contactId, getMailboxSecret(),
-				getMailboxSecret(), getMailboxSecret());
+		return new MailboxContact(contactId, getMailboxId(), getMailboxId(),
+				getMailboxId());
 	}
 
 }

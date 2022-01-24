@@ -2,6 +2,7 @@ package org.briarproject.bramble.mailbox;
 
 import org.briarproject.bramble.api.contact.ContactId;
 import org.briarproject.bramble.api.db.Transaction;
+import org.briarproject.bramble.api.mailbox.MailboxId;
 import org.briarproject.bramble.api.mailbox.MailboxProperties;
 import org.briarproject.bramble.api.mailbox.MailboxSettingsManager;
 import org.briarproject.bramble.api.mailbox.MailboxStatus;
@@ -20,6 +21,7 @@ import static org.briarproject.bramble.mailbox.MailboxSettingsManagerImpl.SETTIN
 import static org.briarproject.bramble.mailbox.MailboxSettingsManagerImpl.SETTINGS_KEY_TOKEN;
 import static org.briarproject.bramble.mailbox.MailboxSettingsManagerImpl.SETTINGS_NAMESPACE;
 import static org.briarproject.bramble.mailbox.MailboxSettingsManagerImpl.SETTINGS_UPLOADS_NAMESPACE;
+import static org.briarproject.bramble.test.TestUtils.getMailboxId;
 import static org.briarproject.bramble.util.StringUtils.getRandomString;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -35,7 +37,7 @@ public class MailboxSettingsManagerImplTest extends BrambleMockTestCase {
 			new MailboxSettingsManagerImpl(settingsManager);
 	private final Random random = new Random();
 	private final String onion = getRandomString(64);
-	private final String token = getRandomString(64);
+	private final MailboxId token = getMailboxId();
 	private final ContactId contactId1 = new ContactId(random.nextInt());
 	private final ContactId contactId2 = new ContactId(random.nextInt());
 	private final ContactId contactId3 = new ContactId(random.nextInt());
@@ -62,7 +64,7 @@ public class MailboxSettingsManagerImplTest extends BrambleMockTestCase {
 		Transaction txn = new Transaction(null, true);
 		Settings settings = new Settings();
 		settings.put(SETTINGS_KEY_ONION, onion);
-		settings.put(SETTINGS_KEY_TOKEN, token);
+		settings.put(SETTINGS_KEY_TOKEN, token.toString());
 
 		context.checking(new Expectations() {{
 			oneOf(settingsManager).getSettings(txn, SETTINGS_NAMESPACE);
@@ -81,7 +83,7 @@ public class MailboxSettingsManagerImplTest extends BrambleMockTestCase {
 		Transaction txn = new Transaction(null, false);
 		Settings expectedSettings = new Settings();
 		expectedSettings.put(SETTINGS_KEY_ONION, onion);
-		expectedSettings.put(SETTINGS_KEY_TOKEN, token);
+		expectedSettings.put(SETTINGS_KEY_TOKEN, token.toString());
 		MailboxProperties properties =
 				new MailboxProperties(onion, token, true);
 
@@ -180,7 +182,7 @@ public class MailboxSettingsManagerImplTest extends BrambleMockTestCase {
 		Transaction txn = new Transaction(null, true);
 		Settings settings = new Settings();
 		settings.put(String.valueOf(contactId1.getInt()), onion);
-		settings.put(String.valueOf(contactId2.getInt()), token);
+		settings.put(String.valueOf(contactId2.getInt()), token.toString());
 		settings.put(String.valueOf(contactId3.getInt()), "");
 
 		context.checking(new Expectations() {{
@@ -192,7 +194,8 @@ public class MailboxSettingsManagerImplTest extends BrambleMockTestCase {
 		String filename1 = manager.getPendingUpload(txn, contactId1);
 		assertEquals(onion, filename1);
 		String filename2 = manager.getPendingUpload(txn, contactId2);
-		assertEquals(token, filename2);
+		assertNotNull(filename2);
+		assertEquals(token, MailboxId.fromString(filename2));
 		String filename3 = manager.getPendingUpload(txn, contactId3);
 		assertNull(filename3);
 		String filename4 =

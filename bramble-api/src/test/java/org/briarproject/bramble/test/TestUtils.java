@@ -16,6 +16,7 @@ import org.briarproject.bramble.api.identity.Author;
 import org.briarproject.bramble.api.identity.AuthorId;
 import org.briarproject.bramble.api.identity.Identity;
 import org.briarproject.bramble.api.identity.LocalAuthor;
+import org.briarproject.bramble.api.mailbox.MailboxId;
 import org.briarproject.bramble.api.plugin.TransportId;
 import org.briarproject.bramble.api.properties.TransportProperties;
 import org.briarproject.bramble.api.sync.ClientId;
@@ -35,7 +36,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.Random;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -52,7 +52,6 @@ import static org.briarproject.bramble.api.sync.SyncConstants.MAX_GROUP_DESCRIPT
 import static org.briarproject.bramble.api.sync.SyncConstants.MAX_MESSAGE_BODY_LENGTH;
 import static org.briarproject.bramble.util.IoUtils.copyAndClose;
 import static org.briarproject.bramble.util.StringUtils.getRandomString;
-import static org.briarproject.bramble.util.StringUtils.toHexString;
 
 public class TestUtils {
 
@@ -216,8 +215,8 @@ public class TestUtils {
 				getAgreementPublicKey(), verified);
 	}
 
-	public static String getMailboxSecret() {
-		return toHexString(getRandomBytes(32)).toLowerCase(Locale.US);
+	public static MailboxId getMailboxId() {
+		return new MailboxId(getRandomId());
 	}
 
 	public static void writeBytes(File file, byte[] bytes)

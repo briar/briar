@@ -3,6 +3,7 @@ package org.briarproject.bramble.mailbox;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
 import org.briarproject.bramble.api.contact.ContactId;
+import org.briarproject.bramble.api.mailbox.MailboxId;
 import org.briarproject.bramble.api.mailbox.MailboxProperties;
 
 import java.io.File;
@@ -21,7 +22,7 @@ interface MailboxApi {
 	 * @return the owner token
 	 * @throws ApiException for 401 response.
 	 */
-	String setup(MailboxProperties properties)
+	MailboxId setup(MailboxProperties properties)
 			throws IOException, ApiException;
 
 	/**
@@ -66,7 +67,7 @@ interface MailboxApi {
 	 * The owner can add files to the contacts' inboxes
 	 * and the contacts can add files to their own outbox.
 	 */
-	void addFile(MailboxProperties properties, String folderId,
+	void addFile(MailboxProperties properties, MailboxId folderId,
 			File file) throws IOException, ApiException;
 
 	/**
@@ -74,7 +75,7 @@ interface MailboxApi {
 	 * <p>
 	 * Returns 200 OK with the list of files in JSON.
 	 */
-	List<MailboxFile> getFiles(MailboxProperties properties, String folderId)
+	List<MailboxFile> getFiles(MailboxProperties properties, MailboxId folderId)
 			throws IOException, ApiException;
 
 	/**
@@ -85,8 +86,8 @@ interface MailboxApi {
 	 *
 	 * @param file the empty file the response bytes will be written into.
 	 */
-	void getFile(MailboxProperties properties, String folderId,
-			String fileId, File file) throws IOException, ApiException;
+	void getFile(MailboxProperties properties, MailboxId folderId,
+			MailboxId fileId, File file) throws IOException, ApiException;
 
 	/**
 	 * Used by owner and contacts to delete files.
@@ -96,8 +97,8 @@ interface MailboxApi {
 	 * @throws TolerableFailureException on 404 response,
 	 * because file was most likely deleted already.
 	 */
-	void deleteFile(MailboxProperties properties, String folderId,
-			String fileId)
+	void deleteFile(MailboxProperties properties, MailboxId folderId,
+			MailboxId fileId)
 			throws IOException, ApiException, TolerableFailureException;
 
 	/**
@@ -105,22 +106,22 @@ interface MailboxApi {
 	 * for the owner to download.
 	 *
 	 * @return a list of folder names
-	 * to be used with {@link #getFiles(MailboxProperties, String)}.
+	 * to be used with {@link #getFiles(MailboxProperties, MailboxId)}.
 	 * @throws IllegalArgumentException if used by non-owner.
 	 */
-	List<String> getFolders(MailboxProperties properties)
+	List<MailboxId> getFolders(MailboxProperties properties)
 			throws IOException, ApiException;
 
 	@Immutable
 	@JsonSerialize
 	class MailboxContact {
 		public final int contactId;
-		public final String token, inboxId, outboxId;
+		public final MailboxId token, inboxId, outboxId;
 
 		MailboxContact(ContactId contactId,
-				String token,
-				String inboxId,
-				String outboxId) {
+				MailboxId token,
+				MailboxId inboxId,
+				MailboxId outboxId) {
 			this.contactId = contactId.getInt();
 			this.token = token;
 			this.inboxId = inboxId;
@@ -128,11 +129,12 @@ interface MailboxApi {
 		}
 	}
 
+	@JsonSerialize
 	class MailboxFile {
-		public final String name;
+		public final MailboxId name;
 		public final long time;
 
-		public MailboxFile(String name, long time) {
+		public MailboxFile(MailboxId name, long time) {
 			this.name = name;
 			this.time = time;
 		}
