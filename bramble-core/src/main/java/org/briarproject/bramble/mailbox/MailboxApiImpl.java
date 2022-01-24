@@ -3,6 +3,7 @@ package org.briarproject.bramble.mailbox;
 import com.fasterxml.jackson.core.JacksonException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.json.JsonMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import org.briarproject.bramble.api.WeakSingletonProvider;
@@ -144,10 +145,7 @@ class MailboxApiImpl implements MailboxApi {
 		if (body == null) throw new ApiException();
 		try {
 			JsonNode node = mapper.readTree(body.string());
-			JsonNode contactsNode = node.get("contacts");
-			if (contactsNode == null || !contactsNode.isArray()) {
-				throw new ApiException();
-			}
+			ArrayNode contactsNode = getArray(node, "contacts");
 			List<ContactId> list = new ArrayList<>();
 			for (JsonNode contactNode : contactsNode) {
 				if (!contactNode.isNumber()) throw new ApiException();
@@ -183,10 +181,7 @@ class MailboxApiImpl implements MailboxApi {
 		if (body == null) throw new ApiException();
 		try {
 			JsonNode node = mapper.readTree(body.string());
-			JsonNode filesNode = node.get("files");
-			if (filesNode == null || !filesNode.isArray()) {
-				throw new ApiException();
-			}
+			ArrayNode filesNode = getArray(node, "files");
 			List<MailboxFile> list = new ArrayList<>();
 			for (JsonNode fileNode : filesNode) {
 				if (!fileNode.isObject()) throw new ApiException();
@@ -250,10 +245,7 @@ class MailboxApiImpl implements MailboxApi {
 		if (body == null) throw new ApiException();
 		try {
 			JsonNode node = mapper.readTree(body.string());
-			JsonNode filesNode = node.get("folders");
-			if (filesNode == null || !filesNode.isArray()) {
-				throw new ApiException();
-			}
+			ArrayNode filesNode = getArray(node, "folders");
 			List<MailboxId> list = new ArrayList<>();
 			for (JsonNode fileNode : filesNode) {
 				if (!fileNode.isObject()) throw new ApiException();
@@ -296,6 +288,16 @@ class MailboxApiImpl implements MailboxApi {
 	private Request.Builder getRequestBuilder(MailboxId token) {
 		return new Request.Builder()
 				.addHeader("Authorization", "Bearer " + token);
+	}
+
+	/* JSON helpers */
+
+	private ArrayNode getArray(JsonNode node, String name) throws ApiException {
+		JsonNode arrayNode = node.get(name);
+		if (arrayNode == null || !arrayNode.isArray()) {
+			throw new ApiException();
+		}
+		return (ArrayNode) arrayNode;
 	}
 
 }
