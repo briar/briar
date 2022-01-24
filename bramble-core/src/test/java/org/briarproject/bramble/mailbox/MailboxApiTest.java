@@ -195,6 +195,53 @@ public class MailboxApiTest extends BrambleTestCase {
 	}
 
 	@Test
+	public void testWipe() throws Exception {
+		MockWebServer server = new MockWebServer();
+		server.enqueue(new MockResponse().setResponseCode(204));
+		server.enqueue(new MockResponse().setResponseCode(200));
+		server.enqueue(new MockResponse().setResponseCode(401));
+		server.enqueue(new MockResponse().setResponseCode(500));
+		server.start();
+		String baseUrl = getBaseUrl(server);
+		MailboxProperties properties =
+				new MailboxProperties(baseUrl, token, true);
+		MailboxProperties properties2 =
+				new MailboxProperties(baseUrl, token2, true);
+
+		api.wipeMailbox(properties);
+		RecordedRequest request1 = server.takeRequest();
+		assertEquals("/", request1.getPath());
+		assertEquals("DELETE", request1.getMethod());
+		assertToken(request1, token);
+
+		assertThrows(ApiException.class, () -> api.wipeMailbox(properties2));
+		RecordedRequest request2 = server.takeRequest();
+		assertEquals("/", request2.getPath());
+		assertEquals("DELETE", request2.getMethod());
+		assertToken(request2, token2);
+
+		assertThrows(ApiException.class, () -> api.wipeMailbox(properties));
+		RecordedRequest request3 = server.takeRequest();
+		assertEquals("/", request3.getPath());
+		assertEquals("DELETE", request3.getMethod());
+		assertToken(request3, token);
+
+		assertThrows(ApiException.class, () -> api.wipeMailbox(properties));
+		RecordedRequest request4 = server.takeRequest();
+		assertEquals("/", request4.getPath());
+		assertEquals("DELETE", request4.getMethod());
+		assertToken(request4, token);
+	}
+
+	@Test
+	public void testWipeOnlyForOwner() {
+		MailboxProperties properties =
+				new MailboxProperties("", token, false);
+		assertThrows(IllegalArgumentException.class, () ->
+				api.wipeMailbox(properties));
+	}
+
+	@Test
 	public void testAddContact() throws Exception {
 		MockWebServer server = new MockWebServer();
 		server.enqueue(new MockResponse());

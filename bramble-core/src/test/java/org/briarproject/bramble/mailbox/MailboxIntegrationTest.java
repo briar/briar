@@ -9,6 +9,7 @@ import org.briarproject.bramble.mailbox.MailboxApi.MailboxContact;
 import org.briarproject.bramble.mailbox.MailboxApi.MailboxFile;
 import org.briarproject.bramble.mailbox.MailboxApi.TolerableFailureException;
 import org.briarproject.bramble.test.BrambleTestCase;
+import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Rule;
@@ -48,11 +49,12 @@ public class MailboxIntegrationTest extends BrambleTestCase {
 	private final static MailboxId SETUP_TOKEN = MailboxId.fromString(
 			"54686973206973206120736574757020746f6b656e20666f722042726961722e");
 
-	private final OkHttpClient client = new OkHttpClient.Builder()
+	private static final OkHttpClient client = new OkHttpClient.Builder()
 			.socketFactory(SocketFactory.getDefault())
 			.connectTimeout(60_000, MILLISECONDS)
 			.build();
-	private final WeakSingletonProvider<OkHttpClient> httpClientProvider =
+	private static final WeakSingletonProvider<OkHttpClient>
+			httpClientProvider =
 			new WeakSingletonProvider<OkHttpClient>() {
 				@Override
 				@Nonnull
@@ -60,7 +62,8 @@ public class MailboxIntegrationTest extends BrambleTestCase {
 					return client;
 				}
 			};
-	private final MailboxApiImpl api = new MailboxApiImpl(httpClientProvider);
+	private final static MailboxApiImpl api =
+			new MailboxApiImpl(httpClientProvider);
 	// needs to be static to keep values across different tests
 	private static MailboxProperties ownerProperties;
 
@@ -79,6 +82,23 @@ public class MailboxIntegrationTest extends BrambleTestCase {
 				new MailboxProperties(URL_BASE, SETUP_TOKEN, true);
 		MailboxId ownerToken = api.setup(setupProperties);
 		ownerProperties = new MailboxProperties(URL_BASE, ownerToken, true);
+	}
+
+	@AfterClass
+	// we can't test wiping as a regular test as it stops the mailbox
+	public static void wipe() throws IOException, ApiException {
+		if (!isOptionalTestEnabled(MailboxIntegrationTest.class)) return;
+		
+		api.wipeMailbox(ownerProperties);
+
+		// check doesn't work anymore
+		assertThrows(ApiException.class, () ->
+				api.checkStatus(ownerProperties));
+
+		// new setup doesn't work as mailbox is stopping
+		MailboxProperties setupProperties =
+				new MailboxProperties(URL_BASE, SETUP_TOKEN, true);
+		assertThrows(ApiException.class, () -> api.setup(setupProperties));
 	}
 
 	@Test
