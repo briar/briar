@@ -10,12 +10,14 @@ import androidx.activity.result.contract.ActivityResultContract;
 import androidx.activity.result.contract.ActivityResultContracts.CreateDocument;
 import androidx.activity.result.contract.ActivityResultContracts.GetContent;
 import androidx.activity.result.contract.ActivityResultContracts.GetMultipleContents;
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import static android.app.Activity.RESULT_CANCELED;
 import static android.bluetooth.BluetoothAdapter.ACTION_REQUEST_DISCOVERABLE;
 import static android.bluetooth.BluetoothAdapter.EXTRA_DISCOVERABLE_DURATION;
 import static android.content.Intent.EXTRA_MIME_TYPES;
+import static android.content.Intent.FLAG_GRANT_READ_URI_PERMISSION;
 import static android.os.Build.VERSION.SDK_INT;
 import static org.briarproject.bramble.util.AndroidUtils.getSupportedImageContentTypes;
 
@@ -23,6 +25,7 @@ import static org.briarproject.bramble.util.AndroidUtils.getSupportedImageConten
 public class ActivityLaunchers {
 
 	public static class CreateDocumentAdvanced extends CreateDocument {
+		@NonNull
 		@Override
 		public Intent createIntent(Context context, String input) {
 			Intent i = super.createIntent(context, input);
@@ -32,20 +35,24 @@ public class ActivityLaunchers {
 	}
 
 	public static class GetContentAdvanced extends GetContent {
+		@NonNull
 		@Override
 		public Intent createIntent(Context context, String input) {
 			Intent i = super.createIntent(context, input);
 			putShowAdvancedExtra(i);
+			i.addFlags(FLAG_GRANT_READ_URI_PERMISSION);
 			return i;
 		}
 	}
 
 	public static class GetImageAdvanced extends GetContent {
+		@NonNull
 		@Override
 		public Intent createIntent(Context context, String input) {
 			Intent i = super.createIntent(context, input);
 			putShowAdvancedExtra(i);
 			i.setType("image/*");
+			i.addFlags(FLAG_GRANT_READ_URI_PERMISSION);
 			if (SDK_INT >= 19)
 				i.putExtra(EXTRA_MIME_TYPES, getSupportedImageContentTypes());
 			return i;
@@ -54,11 +61,13 @@ public class ActivityLaunchers {
 
 	@TargetApi(18)
 	public static class GetMultipleImagesAdvanced extends GetMultipleContents {
+		@NonNull
 		@Override
 		public Intent createIntent(Context context, String input) {
 			Intent i = super.createIntent(context, input);
 			putShowAdvancedExtra(i);
 			i.setType("image/*");
+			i.addFlags(FLAG_GRANT_READ_URI_PERMISSION);
 			if (SDK_INT >= 19)
 				i.putExtra(EXTRA_MIME_TYPES, getSupportedImageContentTypes());
 			return i;
@@ -67,6 +76,7 @@ public class ActivityLaunchers {
 
 	public static class RequestBluetoothDiscoverable
 			extends ActivityResultContract<Integer, Boolean> {
+		@NonNull
 		@Override
 		public Intent createIntent(Context context, Integer duration) {
 			Intent i = new Intent(ACTION_REQUEST_DISCOVERABLE);
