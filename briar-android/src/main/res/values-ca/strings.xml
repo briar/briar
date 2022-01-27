@@ -49,6 +49,7 @@
   <string name="download_briar">Per continuar utilitzant Briar, baixeu la darrera versió.</string>
   <string name="create_new_account">Haureu de crear un compte nou, però podeu utilitzar el mateix sobrenom.</string>
   <string name="download_briar_button">Descarrega la darrera versió</string>
+  <string name="delete_account_button">Esborreu el compte</string>
   <string name="startup_open_database">S\'està desxifrant la base de dades...</string>
   <string name="startup_migrate_database">S\'està actualitzant la base de dades...</string>
   <string name="startup_compact_database">S\'està compactant la base de dades...</string>
@@ -276,7 +277,6 @@ Així que l\'actualitzi li veureu una icona diferent .</string>
   <string name="duplicate_link_dialog_text_1">Teniu una sol·licitud de contacte pendent amb l\'enllaç %s</string>
   <string name="duplicate_link_dialog_text_1_contact">Ja teniu un contacte amb aquest enllaç: %s</string>
   <!--This is a question asking whether two nicknames refer to the same person-->
-  <string name="duplicate_link_dialog_text_2">%s i %s són la mateixa persona?</string>
   <!--This is a button for answering that two nicknames do indeed refer to the same person. This
 	string will be used in a dialog button, so if the translation of this string is longer than 20
 	characters, please use "Yes" instead, and use "No" for the "Different Person" button-->
@@ -285,7 +285,6 @@ Així que l\'actualitzi li veureu una icona diferent .</string>
 	will be used in a dialog button, so if the translation of this string longer than 20 characters,
 	please use "No" instead, and use "Yes" for the "Same Person" button-->
   <string name="different_person_button">Persones diferents</string>
-  <string name="duplicate_link_dialog_text_3">%s i %s us han enviat el mateix enllaç.\n\nUn d\'ells pot estar provant de descobrir quins són els vostres contactes.\n\nNo els hi digueu que heu rebut el mateix enllaç d\'algú altre.</string>
   <string name="pending_contact_updated_toast">S\'ha actualitzat la sol·licitud de contacte pendent</string>
   <!--Introductions-->
   <string name="introduction_onboarding_title">Presenteu als vostres contactes</string>

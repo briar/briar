@@ -42,6 +42,7 @@
   <string name="download_briar">Download de laatste versie om Briar te kunnen blijven gebruiken.</string>
   <string name="create_new_account">Je moet een nieuw account aanmaken. Je kan dezelfde bijnaam gebruiken.</string>
   <string name="download_briar_button">Download de laatste versie</string>
+  <string name="delete_account_button">Verwijder account</string>
   <string name="startup_open_database">Database aan het ontsleutelen…</string>
   <string name="startup_migrate_database">Database aan het upgraden…</string>
   <string name="startup_compact_database">Database comprimeren...</string>
@@ -244,7 +245,6 @@
   <string name="duplicate_link_dialog_text_1">Je hebt al en wachtend contact met deze link: %s</string>
   <string name="duplicate_link_dialog_text_1_contact">Je hebt al een contact met deze link: %s</string>
   <!--This is a question asking whether two nicknames refer to the same person-->
-  <string name="duplicate_link_dialog_text_2">Zijn %s en %s dezelfde persoon?</string>
   <!--This is a button for answering that two nicknames do indeed refer to the same person. This
 	string will be used in a dialog button, so if the translation of this string is longer than 20
 	characters, please use "Yes" instead, and use "No" for the "Different Person" button-->
@@ -253,7 +253,6 @@
 	will be used in a dialog button, so if the translation of this string longer than 20 characters,
 	please use "No" instead, and use "Yes" for the "Same Person" button-->
   <string name="different_person_button">Ander persoon</string>
-  <string name="duplicate_link_dialog_text_3">%s en %s hebben je dezelfde link gestuurd.\n\nEen van hen kan proberen te ontdekken wie jouw contacten zijn.\n\nVertel ze niet dat je dezelfde link al van een ander persoon hebt ontvangen.</string>
   <string name="pending_contact_updated_toast">Wachtend contact is bijgewerkt</string>
   <!--Introductions-->
   <string name="introduction_onboarding_title">Introduceer je contacten</string>

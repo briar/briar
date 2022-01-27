@@ -55,6 +55,7 @@
   <string name="download_briar">Pentru a putea să utilizați Briar în continuare, vă rugăm să descărcați ultima versiune.</string>
   <string name="create_new_account">Va trebui să creați un cont nou, dar puteți să folosiți același nume.</string>
   <string name="download_briar_button">Descarcă ultima versiune</string>
+  <string name="delete_account_button">Șterge cont</string>
   <string name="startup_open_database">Decriptare bază de date...</string>
   <string name="startup_migrate_database">Actualizare bază de date...</string>
   <string name="startup_compact_database">Compactare bază de date...</string>
@@ -289,7 +290,7 @@
   <string name="duplicate_link_dialog_text_1">Deja aveți un contact în așteptare cu această adresă: %s</string>
   <string name="duplicate_link_dialog_text_1_contact">Deja aveți un contact cu această adresă: %s</string>
   <!--This is a question asking whether two nicknames refer to the same person-->
-  <string name="duplicate_link_dialog_text_2">Sunt %s  și %s aceeași persoană?</string>
+  <string name="duplicate_link_dialog_text_2">Sunt %1$s și %2$s aceeași persoană?</string>
   <!--This is a button for answering that two nicknames do indeed refer to the same person. This
 	string will be used in a dialog button, so if the translation of this string is longer than 20
 	characters, please use "Yes" instead, and use "No" for the "Different Person" button-->
@@ -298,7 +299,7 @@
 	will be used in a dialog button, so if the translation of this string longer than 20 characters,
 	please use "No" instead, and use "Yes" for the "Same Person" button-->
   <string name="different_person_button">Persoană diferită</string>
-  <string name="duplicate_link_dialog_text_3">%s și %s v-au trimis aceeași adresă.\n\nUnii dintre ei s-ar putea să încerce să descopere care vă sunt contactele.\n\nNu le spuneți că ați primit aceeași adresă și de la altcineva.</string>
+  <string name="duplicate_link_dialog_text_3">%1$s și  %2$sv-au trimis același link.\n\nUnul dintre ei ar putea încerca să afle cine sunt contactele dumneavoastră.\n\nNu le spuneți că ați primit același link de la altcineva.</string>
   <string name="pending_contact_updated_toast">Listă solicitări de contact în așteptare actualizată</string>
   <!--Introductions-->
   <string name="introduction_onboarding_title">Recomandați-vă contactele</string>
@@ -622,6 +623,7 @@ De asemenea, contactul dvs. poate modifica această setare pentru amândoi.</str
   <string name="dev_report_memory">Memorie</string>
   <string name="dev_report_storage">Depozitare</string>
   <string name="dev_report_connectivity">Conectivitate</string>
+  <string name="dev_report_network_usage">Utilizarea rețelei</string>
   <string name="dev_report_build_config">Informații despre aplicație</string>
   <string name="dev_report_logcat">Jurnal aplicație</string>
   <string name="dev_report_device_features">Caracteristici dispozitiv</string>

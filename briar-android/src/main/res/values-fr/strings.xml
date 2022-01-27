@@ -54,6 +54,7 @@
   <string name="download_briar">Pour continuer à utiliser Briar, veuillez télécharger la dernière version.</string>
   <string name="create_new_account">Vous devrez créer un nouveau compte, mais vous pouvez utiliser le même pseudonyme.</string>
   <string name="download_briar_button">Télécharger la dernière version</string>
+  <string name="delete_account_button">Supprimer le compte</string>
   <string name="startup_open_database">Déchiffrement de la base de données…</string>
   <string name="startup_migrate_database">Mise à niveau de la base de données…</string>
   <string name="startup_compact_database">Compactage de la base de données…</string>
@@ -280,7 +281,6 @@
   <string name="duplicate_link_dialog_text_1">Vous avez déjà un contact en attente avec ce lien : %s</string>
   <string name="duplicate_link_dialog_text_1_contact">Vous avez déjà un contact avec ce lien : %s</string>
   <!--This is a question asking whether two nicknames refer to the same person-->
-  <string name="duplicate_link_dialog_text_2">%s et %s sont-elles la même personne ?</string>
   <!--This is a button for answering that two nicknames do indeed refer to the same person. This
 	string will be used in a dialog button, so if the translation of this string is longer than 20
 	characters, please use "Yes" instead, and use "No" for the "Different Person" button-->
@@ -289,7 +289,6 @@
 	will be used in a dialog button, so if the translation of this string longer than 20 characters,
 	please use "No" instead, and use "Yes" for the "Same Person" button-->
   <string name="different_person_button">Une personne différente</string>
-  <string name="duplicate_link_dialog_text_3">%s et %s vous ont envoyé le même lien.\n\nL\'une d’elle pourrait tenter de découvrir qui sont vos contacts.\n\nNe lui dites pas que vous avez reçu le même lien de quelqu’un d’autre.</string>
   <string name="pending_contact_updated_toast">Le contact en attente a été mis à jour</string>
   <!--Introductions-->
   <string name="introduction_onboarding_title">Présenter vos contacts</string>

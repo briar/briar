@@ -42,16 +42,25 @@
   <string name="dialog_message_lost_password">Notandaaðgangur þinn í Briar er geymdur dulritaður á tækinu þínu, ekki í tölvuskýi, þannig að við getum ekki endurstillt lykilorðið þitt. Myndirðu vilja eyða notandaaðgangnum þínum og byrja aftur?\n\nVarúð: Auðkennin þín, tengiliðir og skilaboð munu tapast óendurkræft.</string>
   <string name="startup_failed_activity_title">Bilun í ræsingu Briar</string>
   <string name="startup_failed_clock_error">Briar gat ekki farið af stað því klukka tækisins þíns er ekki rétt stillt.\n\nLeiðréttu klukku tækisins og prófaðu síðan aftur.</string>
+  <string name="startup_failed_db_error">Briar tókst ekki að opna gagnagrunninn sem inniheldur aðganginn þinn, tengiliðina þína og skilaboð.\n\nAthugaðu hvort Briar sé þegar keyrandi á þessu tæki. Annars skaltu uppfæra í nýjustu útgáfuna og prófa síðan aftur, eða setja upp nýjan aðgang með því að velja \'Ég hef gleymt lykilorðinu mínu\' þar sem spurt er um lykilorð.</string>
   <string name="startup_failed_data_too_old_error">Notandaaðgangurinn þinn var útbúinn með eldri útgáfu forritsins og er ekki hægt að opna hann með þessari útgáfu.\n\Þú þarft annað hvort að setja gömlu útgáfuna upp aftur, eða setja upp nýjan notandaaðgang með því að velja \'Ég hef gleymt lykilorðinu mínu\' þegar beðið er um lykilorð.</string>
   <string name="startup_failed_data_too_new_error">Notandaaðgangurinn þinn var útbúinn með nýrri útgáfu forritsins og er ekki hægt að opna hann með þessari útgáfu.\n\Þú þarft að setja upp nýjustu útgáfuna og prófa svo aftur.</string>
+  <string name="startup_failed_service_error">Briar tókst ekki að ræsa nauðsynlega einingu.\n\nUppfærðu í nýjustu útgáfuna og prófaðu síðan aftur.</string>
   <plurals name="expiry_warning">
     <item quantity="one">Þetta er prufuútgáfa af Briar. Notandaaðgangurinn þinn mun renna út eftir %d dag og er ekki hægt að endurnýja hann.</item>
     <item quantity="other">Þetta er prufuútgáfa af Briar. Notandaaðgangurinn þinn mun renna út eftir %d daga og er ekki hægt að endurnýja hann.</item>
+  </plurals>
+  <plurals name="old_android_expiry_warning">
+    <item quantity="one">Android 4 er ekki lengur stutt. Briar mun hætta að virka á %s (eftir %d dag). Settu Briar upp á nýrra tæki og útbúðu nýjan aðgang.</item>
+    <item quantity="other">Android 4 er ekki lengur stutt. Briar mun hætta að virka á %s (eftir %d daga). Settu Briar upp á nýrra tæki og útbúðu nýjan aðgang.</item>
   </plurals>
   <string name="expiry_date_reached">Þessi hugbúnaður er úreltur.\nTakk fyrir að hafa tekið þátt í prófunum!</string>
   <string name="download_briar">Til að halda áfram að nota Briar, ættirðu að sækja nýjustu útgáfuna.</string>
   <string name="create_new_account">Þú þarft að búa til nýjan notandaaðgang, en þú getur notað áfram sama stuttnefni.</string>
   <string name="download_briar_button">Ná í nýjustu útgáfu</string>
+  <string name="old_android_expiry_date_reached">Briar keyrir ekki lengur á Android 4.\nSettu Briar upp á nýrra tæki.</string>
+  <string name="old_android_delete_account">Þú getur ýtt á hnappinn hér fyrir neðan til að eyða aðgangnum þínum af þessu tæki.</string>
+  <string name="delete_account_button">Eyða notandaaðgangi</string>
   <string name="startup_open_database">Afkóða gagnagrunn…</string>
   <string name="startup_migrate_database">Uppfæri gagnagrunn…</string>
   <string name="startup_compact_database">Þjappa gagnagrunni…</string>
@@ -278,7 +287,7 @@
   <string name="duplicate_link_dialog_text_1">Þú ert þegar með tengilið í bið sem er með þessum tengli: %s</string>
   <string name="duplicate_link_dialog_text_1_contact">Þú ert þegar með tengilið með þessum tengli: %s</string>
   <!--This is a question asking whether two nicknames refer to the same person-->
-  <string name="duplicate_link_dialog_text_2">Eru %s og %s sami einstaklingurinn?</string>
+  <string name="duplicate_link_dialog_text_2">Eru %1$s og %2$s sami einstaklingurinn?</string>
   <!--This is a button for answering that two nicknames do indeed refer to the same person. This
 	string will be used in a dialog button, so if the translation of this string is longer than 20
 	characters, please use "Yes" instead, and use "No" for the "Different Person" button-->
@@ -287,7 +296,7 @@
 	will be used in a dialog button, so if the translation of this string longer than 20 characters,
 	please use "No" instead, and use "Yes" for the "Same Person" button-->
   <string name="different_person_button">Annar einstaklingur</string>
-  <string name="duplicate_link_dialog_text_3">%s og %s sendu þér sama tengilinn.\n\nAnnar þeirra gæti verið að reyna að finna út hverjir tengiliðirnir þínir eru.\n\nEkki segja þeim að þú hafir fengið sama tengil frá einhverjum öðrum.</string>
+  <string name="duplicate_link_dialog_text_3">%1$s og %2$s sendu þér sama tengilinn.\n\nAnnar þeirra gæti verið að reyna að finna út hverjir tengiliðirnir þínir eru.\n\nEkki segja þeim að þú hafir fengið sama tengil frá einhverjum öðrum.</string>
   <string name="pending_contact_updated_toast">Tengiliður í bið uppfærður</string>
   <!--Introductions-->
   <string name="introduction_onboarding_title">Kynntu tengiliðina þína</string>
@@ -314,6 +323,7 @@
   <!--Connect via Bluetooth-->
   <string name="menu_item_connect_via_bluetooth">Tengjast í gegnum Bluetooth</string>
   <string name="connect_via_bluetooth_title">Tengjast í gegnum Bluetooth</string>
+  <string name="connect_via_bluetooth_intro">Í þeim tilfellum þegar Bluetooth-tengingar virka ekki sjálfkrafa, geturðu notað þennan skjá til að tengjast handvirkt.\n\nTengiliðurinn þinn þarf að vera nálægt svo þetta virkri.\n\nÞið ættuð báðir/bæði að ýta á \"Byrja\" á sama tíma.</string>
   <string name="connect_via_bluetooth_already_discovering">Er þegar að reyna að tengjast með Bluetooth. Prófaðu aftur eftir dálitla stund.</string>
   <string name="connect_via_bluetooth_no_location_permission">Get ekki haldið áfram án heimildar til að nota staðsetningu</string>
   <string name="connect_via_bluetooth_start">Tengist í gegnum Bluetooth…</string>
@@ -606,6 +616,7 @@
   <string name="dev_report_memory">Minni</string>
   <string name="dev_report_storage">Geymslurými</string>
   <string name="dev_report_connectivity">Tengingar</string>
+  <string name="dev_report_network_usage">Notkun netkerfis</string>
   <string name="dev_report_build_config">Byggingaruppsetning</string>
   <string name="dev_report_logcat">Atvikaskrá forrits</string>
   <string name="dev_report_device_features">Eiginleikar tækis</string>
@@ -648,22 +659,26 @@
   <string name="transports_help_text">Briar getur tengst við tengiliðina þína í gegnum internet, Wi-Fi eða Bluetooth.\n\nAllar internettengingar fara í gegnum Tor-netkerfið til að gæta gagnaleyndar.\n\nEf hægt er að nálgast tengilið með mörgum leiðum, notar Briar þær samhliða.</string>
   <!--Share app offline-->
   <string name="hotspot_title">Deila þessu forriti án nettengingar</string>
-  <string name="hotspot_button_start_sharing">Ræsa tengipunkt</string>
-  <string name="hotspot_button_stop_sharing">Stöðva tengipunkt</string>
-  <string name="hotspot_progress_text_start">Set upp tengipunkt…</string>
-  <string name="hotspot_notification_channel_title">Þráðlaus Wi-Fi tengipunktur</string>
+  <string name="hotspot_intro">Deildu þessu forriti til einhvers í næsta nágrenni án internet-tengingar með því að nota Wi-Fi kerfi símans.
+		\n\nSnjallsíminn þinn mun setja í gang Wi-Fi aðgangsstað. Fólk í nágrenninu getur tengst aðgangsstaðnum og sótt Briar-forritið frá símanum þínum.</string>
+  <string name="hotspot_button_start_sharing">Ræsa aðgangsstað</string>
+  <string name="hotspot_button_stop_sharing">Stöðva aðgangsstað</string>
+  <string name="hotspot_progress_text_start">Set upp aðgangsstað…</string>
+  <string name="hotspot_notification_channel_title">Þráðlaus Wi-Fi aðgangsstaður</string>
   <string name="hotspot_notification_title">Deiling Briar án nettengingar</string>
   <string name="hotspot_button_connected">Næsta</string>
-  <string name="permission_hotspot_location_request_body">Til að útbúa Wi-Fi-aðgangsstað, þarf Briar heimild til að nota staðsetningu þína.\n\nBriar geymir ekki staðsetningar eða deilir þeim með neinum.</string>
+  <string name="permission_hotspot_location_request_body">Til að útbúa Wi-Fi aðgangsstað, þarf Briar heimild til að nota staðsetningu þína.\n\nBriar geymir ekki staðsetningar eða deilir þeim með neinum.</string>
   <string name="permission_hotspot_location_denied_body">Þú hefur hafnað aðgangi að staðsetningu, en Briar þarf þessa heimild til að geta útbúið Wi-Fi-aðgangsstað.\n\nÍhugaðu að veita þennan aðgang.</string>
   <string name="wifi_settings_title">Wi-Fi-stillingar</string>
   <string name="wifi_settings_request_enable_body">Til að útbúa Wi-Fi aðgangsstað þarf Briar að nota Wi-Fi. Virkjaðu það.</string>
-  <string name="hotspot_tab_manual">Handvirk</string>
+  <string name="hotspot_tab_manual">Handvirkt</string>
   <!--The placeholder to be inserted into the string 'hotspot_manual_wifi': People can connect by %s-->
-  <string name="hotspot_scanning_a_qr_code">skönnun QR-kóða</string>
+  <string name="hotspot_scanning_a_qr_code">skanna QR-kóða</string>
   <!--Wi-Fi setup-->
   <!--The %s placeholder will be replaced with the translation of 'hotspot_scanning_a_qr_code'-->
+  <string name="hotspot_manual_wifi">Síminn þinn er að reka Wi-Fi aðgangsstað. Fólk sem vill sækja Briar getur tengst aðgangsstaðnum með því að bæta honum við í Wi-Fi stillingum tækisins síns með upplýsingunum hér fyrir neðan eða með því að %s. Þegar þau hafa tengst aðgangsstaðnum er ýtt á \'Næsta\'.</string>
   <string name="hotspot_manual_wifi_ssid">Heiti netkerfis</string>
+  <string name="hotspot_qr_wifi">Síminn þinn er að reka Wi-Fi aðgangsstað. Fólk sem vill sækja Briar getur tengst aðgangsstaðnum með því að skanna þennan QR-kóða. Þegar þau hafa tengst aðgangsstaðnum er ýtt á \'Næsta\'.</string>
   <string name="hotspot_no_peers_connected">Engin tæki tengd</string>
   <plurals name="hotspot_peers_connected">
     <item quantity="one">%s tæki tengt</item>
@@ -671,40 +686,61 @@
   </plurals>
   <!--Download link-->
   <!--The %s placeholder will be replaced with the translation of 'hotspot_scanning_a_qr_code'-->
+  <string name="hotspot_manual_site">Síminn þinn er að reka Wi-Fi aðgangsstað. Fólk sem er tengt aðgangsstaðnum getur sótt Briar með því að skrifa eftirfarandi slóð inn í vafra eða %s.</string>
   <string name="hotspot_manual_site_address">Vistfang (URL)</string>
+  <string name="hotspot_qr_site">Síminn þinn er að reka Wi-Fi aðgangsstað. Fólk sem er tengt aðgangsstaðnum getur sótt Briar með því að skanna þennan QR-kóða.</string>
   <!--e.g. Download Briar 1.2.20-->
   <string name="website_download_title">Sækja %s</string>
   <string name="website_download_intro">Einhver í nágrenninu hefur deilt %s með þér.</string>
   <string name="website_download_outro">Eftir að niðurhalinu er lokið, skaltu opna sóttu skrána og setja hana upp.</string>
   <string name="website_troubleshooting_title">Lausn á vandamálum</string>
   <string name="website_troubleshooting_1">Ef þú getur ekki sótt forritið, ættirðu að prófa það með öðrum vafra.</string>
+  <string name="website_troubleshooting_2_old">Til að setja upp forritið sem þú sóttir, gætirðu þurft að leyfa uppsetningar á forritum af \"Óþekktum uppruna - Unknown sources\" í kerfisstillingunum. Síðan gætirðu þurft að ná aftur í forritið. Við mælum með að stillingin \"Óþekktur uppruni - Unknown sources\" sé gert óvirkt aftur eftir að forritið hefur verið sett upp.</string>
+  <string name="website_troubleshooting_2_new">Til að setja upp forritið sem þú sóttir, gætirðu þurft að leyfa vafranum uppsetningar á forritum af óþekktum uppruna. Við mælum með að heimild vafrans til uppsetningar frá óþekktum uppruna sé gert óvirk aftur eftir að forritið hefur verið sett upp.</string>
   <string name="hotspot_help_wifi_title">Vandamál við að tengjast við Wi-Fi:</string>
   <string name="hotspot_help_wifi_1">Prófaðu að gera Wi-Fi óvirkt og virkja það aftur á báðum símunum og reyndu svo aftur.</string>
+  <string name="hotspot_help_wifi_2">Ef síminn þinn kvartar yfir að Wi-Fi kerfið sé ekki með neina internettengingu, skaltu segjast vilja samt halda tengingunni.</string>
+  <string name="hotspot_help_wifi_3">Endurræstu símann sem er að keyra Wi-Fi aðgangsstaðinn, ræstu síðan Briar og prófaðu aftur að deila.</string>
   <string name="hotspot_help_site_title">Vandamál við að skoða staðvært vefsvæði:</string>
+  <string name="hotspot_help_site_1">Gakktu úr skugga um að þú hafir sett vistfangið inn nákvæmlega eins og sýnt er. Smávægileg frávik valta því að þetta virkar ekki.</string>
+  <string name="hotspot_help_site_2">Gakktu úr skugga um að síminn þinn sé ennþá tengdur við rétta Wi-Fi netið (sjá fyrir ofan) þegar þú reynir að tengjast vefsvæðinu.</string>
   <string name="hotspot_help_site_3">Ef þú ert með eldveggjarhugbúnað í gangi, skaltu vera viss um að það sé ekki að loka fyrir aðgang.</string>
   <string name="hotspot_help_site_4">Ef þú getur skoðað vefsvæðið en ekki sótt Briar-forritið, ættirðu að prófa það með öðrum vafra.</string>
   <string name="hotspot_help_fallback_title">Virkar ekkert?</string>
+  <string name="hotspot_help_fallback_intro">Þú getur reynt að vista forritið sem .apk skrá til að deila því á einhvern annan máta. Þegar skráin hefur verið færð yfir á hitt tækið, má nota hana til að setja upp Briar.
+		\n\nÁbending: Til að deila í gegnum Bluetooth, gætirðu fyrst þurft að endurnefna hana þannig að nafnið endi á .zip.</string>
   <string name="hotspot_help_fallback_button">Vista forrit</string>
   <!--error handling-->
   <string name="hotspot_error_intro">Eitthvað fór úrskeiðis þegar reynt var að deila forritinu með Wi-Fi:</string>
   <string name="hotspot_error_no_wifi_direct">Þetta tæki styður ekki beint Wi-Fi samband.</string>
-  <string name="hotspot_error_start_callback_failed">Tengipunktur ræstist ekki: villa %s</string>
-  <string name="hotspot_error_start_callback_failed_unknown">Tengipunktur ræstist ekki vegna óþekktrar villu, ástæðan er %d</string>
-  <string name="hotspot_error_start_callback_no_group_info">Tengipunktur ræstist ekki: engar hópupplýsingar</string>
+  <string name="hotspot_error_start_callback_failed">Aðgangsstaður ræstist ekki: villa %s</string>
+  <string name="hotspot_error_start_callback_failed_unknown">Aðgangsstaður ræstist ekki vegna óþekktrar villu, ástæðan er %d</string>
+  <string name="hotspot_error_start_callback_no_group_info">Aðgangsstaður ræstist ekki: engar hópupplýsingar</string>
   <string name="hotspot_error_web_server_start">Villa við að ræsa vefþjón</string>
+  <string name="hotspot_error_web_server_serve">Villa við að birta vefsvæði.\n\nSendu umsögn (með naflausum gögnum) í gegnum Briar forritið ef vandamálið er viðvarandi.</string>
   <string name="hotspot_flag_test">Aðvörun: Þetta forrit var sett upp með Android Studio og er EKKI hægt að setja upp á öðru tæki.</string>
+  <string name="hotspot_error_framework_busy">Tekst ekki að ræsa aðgangsstaðinn.\n\nEf þú ert að keyra annan aðgangsstað eða ert að deila internettengingunni þinni í gegnum Wi-Fi, skaltu slökkva á því og prófa síðan aftur.</string>
   <!--Transfer Data via Removable Drives-->
   <string name="removable_drive_menu_title">Tengjast í gegnum útskiptanlegt drif</string>
+  <string name="removable_drive_intro">Ef þú nærð ekki að tengjast tengiliðnum þínum í gegnum internet, Wi-Fi eða Bluetooth, getur Briar einnig flutt skilaboð á útskiptanleg drif á borð við USB-minnislykil eða SD-minniskort.</string>
+  <string name="removable_drive_explanation">Ef þú nærð ekki að tengjast tengiliðnum þínum í gegnum internet, Wi-Fi eða Bluetooth, getur Briar einnig flutt skilaboð á útskiptanleg drif á borð við USB-minnislykil eða SD-minniskort.\n\nÞegar þú sérð hnappinn \"Senda gögn\", verða öll gögn sem bíða eftir að verða send til tengiliðarins skrifuð á útskiptanlega drifið. Þar má telja einkaskilaboð, viðhengi, blogg, spjallsvæði og einkahópar.\n\nAlltsaman verður dulritað áður en það er skrifað á útskiptanlega drifið.\n\nÞegar tengiliðurinn fær svo útskiptanlega drifið í hendurnar, getur hann notað hnappinn \"Taka við gögnum\" til að flytja öll skilaboðin inn í Briar.</string>
   <string name="removable_drive_title_send">Senda gögn</string>
   <string name="removable_drive_title_receive">Taka við gögnum</string>
+  <string name="removable_drive_send_intro">Ýttu á hnappinn hér fyrir neðan til að útbúa nýja skrá sem inniheldur dulrituðu skilaboðin. Þú getur valið hvar skráin verður vistuð.\n\nEf þú ætlar að vista skrána á útskiptanlegt drif, skaltu setja það í samband núna.</string>
+  <string name="removable_drive_send_no_data">Það eru engin skilaboð sem bíða eftir að vera send til þessa tengiliðar.</string>
+  <string name="removable_drive_send_not_supported">Þessi tengiliður er að nota gamla útgáfu af Briar eða gamalt tæki sem styður ekki þennan eiginleika.</string>
   <string name="removable_drive_send_button">Veldu skrá til að flytja út</string>
   <string name="removable_drive_ongoing">Bíddu eftir að verk sem er í gangi klárist</string>
   <string name="removable_drive_receive_intro">Ýttu á hnappinn hér fyrir neðan til að velja skrána sem tengiliðurinn sendi þér.\n\nEf skráin er á útskiptanlegu drifi, skaltu tengja það núna.</string>
   <string name="removable_drive_receive_button">Veldu skrá til að flytja inn</string>
   <string name="removable_drive_success_send_title">Útflutningur tókst</string>
+  <string name="removable_drive_success_send_text">Tókst að flytja út gögn. Þú hefur núna 28 daga til að koma skránni til tengiliðarins þíns.\n\nEf skráin er á útskiptanlegu drifi, skaltu nota táknið í stöðustikunni til að spýta út drifinu áður en þú aftengir það.</string>
   <string name="removable_drive_success_receive_title">Innflutningur tókst</string>
+  <string name="removable_drive_success_receive_text">Öll dulrituð skilaboð inni í þessari skrá hafa verið móttekin.</string>
   <string name="removable_drive_error_send_title">Villa við útflutning gagna</string>
+  <string name="removable_drive_error_send_text">Villa kom upp við að skrifa gögn í skrána.\n\nEf þú ert að nota útskiptanlegt drif, gakkti þá úr skugga um að það sé rétt tengt og prófaðu svo aftur.\n\nEf villan heldur áfram að birtast, skaltu endilega senda Briar-teyminu línu og láta þau vita af vandamálinu.</string>
   <string name="removable_drive_error_receive_title">Villa í innflutningi gagna</string>
+  <string name="removable_drive_error_receive_text">Valda skráin innihélt ekkert sem Briar gat lagt kennsl á.\n\nVertu viss um að þú hafir valið rétta skrá.\n\nEf tengiliðurinn þinn útbjó skrána fyrir meira en 28 dögum síðan, mun Briar ekki geta þekkt hana.</string>
   <!--Screenshots-->
   <!--This is a name to be used in screenshots. Feel free to change it to a local name.-->
   <string name="screenshot_alice">Lísa</string>

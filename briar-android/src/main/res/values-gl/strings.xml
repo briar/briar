@@ -42,6 +42,7 @@
   <string name="download_briar">Para seguir utilizando Briar, descarga por favor a última versión.</string>
   <string name="create_new_account">Precisas crear unha nova conta, pero podes utilizar o mesmo alcume.</string>
   <string name="download_briar_button">Descargar Última Versión</string>
+  <string name="delete_account_button">Eliminar conta</string>
   <string name="startup_open_database">Descifrando a Base de datos...</string>
   <string name="startup_migrate_database">Actualizando a Base de datos...</string>
   <string name="startup_compact_database">Compactando a base de datos...</string>
@@ -268,7 +269,6 @@
   <string name="duplicate_link_dialog_text_1">Xa tes un contacto pendente con esta ligazón: %s</string>
   <string name="duplicate_link_dialog_text_1_contact">Xa tes un contacto con esta ligazón: %s</string>
   <!--This is a question asking whether two nicknames refer to the same person-->
-  <string name="duplicate_link_dialog_text_2">Son %s e %s a mesma persoa?</string>
   <!--This is a button for answering that two nicknames do indeed refer to the same person. This
 	string will be used in a dialog button, so if the translation of this string is longer than 20
 	characters, please use "Yes" instead, and use "No" for the "Different Person" button-->
@@ -277,7 +277,6 @@
 	will be used in a dialog button, so if the translation of this string longer than 20 characters,
 	please use "No" instead, and use "Yes" for the "Same Person" button-->
   <string name="different_person_button">Diferente Persoa</string>
-  <string name="duplicate_link_dialog_text_3">%s e %s enviáronche a mesma ligazón.\n\nUnha delas podería estar a intentar descubrir os teus contactos.\n\nNon lles digas que recibiches a mesma ligazón de alguén máis.</string>
   <string name="pending_contact_updated_toast">Contacto pendente actualizado</string>
   <!--Introductions-->
   <string name="introduction_onboarding_title">Presenta aos seus contactos</string>
@@ -643,6 +642,7 @@
   <string name="website_troubleshooting_title">Solución de problemas</string>
   <!--error handling-->
   <!--Transfer Data via Removable Drives-->
+  <string name="removable_drive_menu_title">Conectar vía Disco Extraíble</string>
   <string name="removable_drive_success_receive_title">Importación exitosa</string>
   <!--Screenshots-->
   <!--This is a name to be used in screenshots. Feel free to change it to a local name.-->

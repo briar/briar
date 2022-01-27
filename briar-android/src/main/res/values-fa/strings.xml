@@ -54,12 +54,19 @@
     <item quantity="one">این یک نسخه آزمایشی از Briar (برایر) می باشد. حساب کاربری شما در %d روز آینده به پایان می رسد و امکان تمدید آن وجود نخواهد داشت.</item>
     <item quantity="other">این یک نسخه آزمایشی از Briar (برایر) می باشد. حساب کاربری شما در %d روز آینده به پایان می رسد و امکان تمدید آن وجود نخواهد داشت.</item>
   </plurals>
+  <plurals name="old_android_expiry_warning">
+    <item quantity="one">اندروید 4 دیگر پشتیبانی نمی‌شود. Briar (در عرض %d روز) کار بر روی %s را متوقف خواهد کرد. لطفا Briar را در دستگاه جدیدتر نصب کنید و یک حساب کاربری جدید ایجاد کنید.</item>
+    <item quantity="other">اندروید 4 دیگر پشتیبانی نمی‌شود. Briar (در عرض %d روز) کار بر روی %s را متوقف خواهد کرد. لطفا Briar را در دستگاه جدیدتر نصب کنید و یک حساب کاربری جدید ایجاد کنید.</item>
+  </plurals>
   <string name="expiry_date_reached">این نرم افزار منقضی شده است.
 
 بابت تست از شما سپاسگزاریم.</string>
   <string name="download_briar">برای ادامه استفاده از Briar، لطفا آخرین نسخه را دانلود کنید.</string>
   <string name="create_new_account">لازم است تا یک حساب کاربری جدید ایجاد کنید، ولی می توانید از همان نام مستعار استفاده کنید.</string>
   <string name="download_briar_button">دانلود آخرین نسخه</string>
+  <string name="old_android_expiry_date_reached">Briar دیگر روی اندروید 4 اجرا نمی‌شود.\nلطفا Briar را روی دستگاه جدیدتر نصب کنید. </string>
+  <string name="old_android_delete_account">برای حذف حساب کاربری خود از این دستگاه می‌توانید روی دکمه زیر ضربه بزنید.</string>
+  <string name="delete_account_button">حذف حساب کاربری</string>
   <string name="startup_open_database">در حال رمزگشایی سیستم ...</string>
   <string name="startup_migrate_database">در حال ارتقا سیستم ...</string>
   <string name="startup_compact_database">درحال فشرده‌ سازی پایگاه داده...</string>
@@ -294,7 +301,7 @@
   <string name="duplicate_link_dialog_text_1">شما هم اکنون یک مخاطب معلق با این پیوند دارید: %s</string>
   <string name="duplicate_link_dialog_text_1_contact">شما هم اکنون یک مخاطب با این پیوند دارید: %s</string>
   <!--This is a question asking whether two nicknames refer to the same person-->
-  <string name="duplicate_link_dialog_text_2">آیا %s و %s یک شخص می باشند؟</string>
+  <string name="duplicate_link_dialog_text_2">آیا %1$s و %2$s یک شخص هستند؟</string>
   <!--This is a button for answering that two nicknames do indeed refer to the same person. This
 	string will be used in a dialog button, so if the translation of this string is longer than 20
 	characters, please use "Yes" instead, and use "No" for the "Different Person" button-->
@@ -303,11 +310,7 @@
 	will be used in a dialog button, so if the translation of this string longer than 20 characters,
 	please use "No" instead, and use "Yes" for the "Same Person" button-->
   <string name="different_person_button">شخص متفاوت</string>
-  <string name="duplicate_link_dialog_text_3">%s و %s پیوند یکسانی را به شما ارسال کردند.
-
-یکی از آن ها ممکن است سعی در شناسایی مخاطبان شما داشته باشد.
-
-به آن ها نگویید که همان لینک را از یک شخص دیگر دریافت کرده اید.</string>
+  <string name="duplicate_link_dialog_text_3">%1$s و %2$s یک پیوند یکسان را به شما ارسال کردند.\n\nشاید یکی از آن‌ها قصد شناسایی مخاطبین شما را دارد.\n\nبه آن‌ها نگویید که همان لینک را از فرد دیگری نیز دریافت کرده‌اید.</string>
   <string name="pending_contact_updated_toast">مخاطب معلق به روز رسانی شد</string>
   <!--Introductions-->
   <string name="introduction_onboarding_title">معرفی مخاطبان</string>

@@ -50,10 +50,17 @@
     <item quantity="one">Questa è una versione di prova di Briar. Il tuo account scadrà fra %d giorno e non può essere rinnovato.</item>
     <item quantity="other">Questa è una versione di prova di Briar. Il tuo account scadrà fra %d giorni e non può essere rinnovato.</item>
   </plurals>
+  <plurals name="old_android_expiry_warning">
+    <item quantity="one">Android 4 non è più supportato. Briar smetterà di funzionare il %s (tra %d giorno). Installa Briar in un dispositivo più recente e crea un nuovo account.</item>
+    <item quantity="other">Android 4 non è più supportato. Briar smetterà di funzionare il %s (tra %d giorni). Installa Briar in un dispositivo più recente e crea un nuovo account.</item>
+  </plurals>
   <string name="expiry_date_reached">Questo software è scaduto.\nGrazie per il test!</string>
   <string name="download_briar">Per continuare a utilizzare Briar, scarica l\'ultima versione.</string>
   <string name="create_new_account">Avrai bisogno di creare un nuovo account, ma puoi usare lo stesso nickname.</string>
   <string name="download_briar_button">Scarica l\'ultima versione</string>
+  <string name="old_android_expiry_date_reached">Briar non funziona più su Android 4.\nInstallalo in un dispositivo più recente.</string>
+  <string name="old_android_delete_account">Puoi toccare il pulsante sottostante per eliminare il tuo account da questo dispositivo.</string>
+  <string name="delete_account_button">Cancella Account</string>
   <string name="startup_open_database">Decrittazione del database...</string>
   <string name="startup_migrate_database">Aggiornamento del database...</string>
   <string name="startup_compact_database">Compattazione del database…</string>
@@ -280,7 +287,7 @@
   <string name="duplicate_link_dialog_text_1">Hai già un contatto in attesa con questo link: %s</string>
   <string name="duplicate_link_dialog_text_1_contact">Hai già un contatto con questo link: %s</string>
   <!--This is a question asking whether two nicknames refer to the same person-->
-  <string name="duplicate_link_dialog_text_2">%s e %s sono la stessa persona?</string>
+  <string name="duplicate_link_dialog_text_2">Sono %1$s e %2$s la stessa persona?</string>
   <!--This is a button for answering that two nicknames do indeed refer to the same person. This
 	string will be used in a dialog button, so if the translation of this string is longer than 20
 	characters, please use "Yes" instead, and use "No" for the "Different Person" button-->
@@ -289,30 +296,30 @@
 	will be used in a dialog button, so if the translation of this string longer than 20 characters,
 	please use "No" instead, and use "Yes" for the "Same Person" button-->
   <string name="different_person_button">Persone diverse</string>
-  <string name="duplicate_link_dialog_text_3">%s e %s ti hanno inviato lo stesso link.\n\nUno dei due potrebbe tentare di scoprire chi sono i tuoi contatti.\n\nNon dirgli che hai ricevuto lo stesso link da qualcun altro.</string>
+  <string name="duplicate_link_dialog_text_3">%1$s e %2$s ti hanno inviato lo stesso link.\n\nUno dei due potrebbe tentare di scoprire chi sono i tuoi contatti.\n\nNon dirgli che hai ricevuto lo stesso link da qualcun altro.</string>
   <string name="pending_contact_updated_toast">Contatto in attesa aggiornato</string>
   <!--Introductions-->
-  <string name="introduction_onboarding_title">Introduzione tuoi contatti</string>
+  <string name="introduction_onboarding_title">Presenta i tuoi contatti</string>
   <string name="introduction_onboarding_text">Puoi presentare i tuoi contatti fra di loro, così non hanno bisogno di incontrarsi di persona per connettersi a Briar.</string>
   <string name="introduction_menu_item">Crea l\'introduzione</string>
   <string name="introduction_activity_title">Seleziona Contatto</string>
-  <string name="introduction_not_possible">Hai già un introduzione in corso con questi contatti. Si prega di consentire che prima questo finisca. Se tu o i tuoi contatti sono raramente online, questo potrebbe richiedere un po\' di tempo.</string>
-  <string name="introduction_message_title">Introduzione Contatti</string>
+  <string name="introduction_not_possible">Ti stai già presentando con questi contatti. Prima attendi che finisca. Se tu o i tuoi contatti siete raramente online, potrebbe volerci un po\' di tempo.</string>
+  <string name="introduction_message_title">Presenta i contatti</string>
   <string name="introduction_message_hint">Aggiungi un messaggio (facoltativo)</string>
   <string name="introduction_button">Crea l\'introduzione</string>
-  <string name="introduction_sent">La tua introduzione è stata inviata.</string>
+  <string name="introduction_sent">La tua presentazione è stata inviata.</string>
   <string name="introduction_error">C\'è stato un errore nella creazione dell\'introduzione</string>
-  <string name="introduction_request_sent">Hai richiesto di introdurre %1$s a %2$s.</string>
-  <string name="introduction_request_received">%1$s ha chiesto di introdurti in %2$s. Vuoi aggiungere %2$s alla tua lista contatti?</string>
-  <string name="introduction_request_exists_received">%1$s ha chiesto di introdurti in %2$s, ma %2$s è già nella tua lista contatti. Dato che %1$s può non saperlo, puoi comunque rispondere:</string>
-  <string name="introduction_request_answered_received">%1$s ha richiesto di introdurti a %2$s.</string>
-  <string name="introduction_response_accepted_sent">Hai accettato l\'introduzione a %1$s.</string>
+  <string name="introduction_request_sent">Hai chiesto di presentare %1$s a %2$s.</string>
+  <string name="introduction_request_received">%1$s ha chiesto di presentarti a %2$s. Vuoi aggiungere %2$s alla tua lista contatti?</string>
+  <string name="introduction_request_exists_received">%1$s ha chiesto di presentarti a %2$s, ma %2$s è già nella tua lista contatti. Dato che %1$s potrebbe non saperlo, puoi comunque rispondere:</string>
+  <string name="introduction_request_answered_received">%1$s ha chiesto di presentarti a %2$s.</string>
+  <string name="introduction_response_accepted_sent">Hai accettato di presentarti a %1$s.</string>
   <string name="introduction_response_accepted_sent_info">Prima che %1$s venga aggiunto ai tuoi contatti, dovranno anche loro accettare l\'introduzione. Questo potrebbe richiedere un po\' di tempo.</string>
-  <string name="introduction_response_declined_sent">Hai declinato l\'introduzione a %1$s.</string>
+  <string name="introduction_response_declined_sent">Hai rifiutato di presentarti a %1$s.</string>
   <string name="introduction_response_declined_auto">L\'introduzione a %1$s è stata rifiutata automaticamente.</string>
-  <string name="introduction_response_accepted_received">%1$s ha accettato l\'introduzione a %2$s.</string>
-  <string name="introduction_response_declined_received">%1$s ha declinato l\'introduzione a %2$s.</string>
-  <string name="introduction_response_declined_received_by_introducee">%1$s dice che %2$s ha declinato l\'introduzione.</string>
+  <string name="introduction_response_accepted_received">%1$s ha accettato di presentarsi a %2$s.</string>
+  <string name="introduction_response_declined_received">%1$s ha rifiutato di presentarsi a %2$s.</string>
+  <string name="introduction_response_declined_received_by_introducee">%1$s dice che %2$s ha rifiutato di presentarsi.</string>
   <!--Connect via Bluetooth-->
   <string name="menu_item_connect_via_bluetooth">Connessione attraverso Bluetooth</string>
   <string name="connect_via_bluetooth_title">Connessione attraverso Bluetooth</string>

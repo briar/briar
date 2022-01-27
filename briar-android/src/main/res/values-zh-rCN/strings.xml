@@ -49,10 +49,16 @@
   <plurals name="expiry_warning">
     <item quantity="other">这是 Briar 的一个测试版本。您的帐户将在 %d 天后到期，且无法延期。</item>
   </plurals>
+  <plurals name="old_android_expiry_warning">
+    <item quantity="other">本应用不再支持 Android 4。Briar 将于 %s 停止工作（%d天内）。请在更高版本系统上安装 Briar 并创建一个新帐户</item>
+  </plurals>
   <string name="expiry_date_reached">本软件已过期。\n感谢您的测试！</string>
   <string name="download_briar">请下载最新版本以继续使用 Briar</string>
   <string name="create_new_account">您将需要创建一个新帐户，但可以使用相同的昵称。</string>
   <string name="download_briar_button">下载最新版本</string>
+  <string name="old_android_expiry_date_reached">Briar 不再运行于 Andriod 4 系统。\n请在更高版本系统上安装 Briar</string>
+  <string name="old_android_delete_account">您可以轻按下面的按钮从这个设备上删除您的帐户。</string>
+  <string name="delete_account_button">删除帐户</string>
   <string name="startup_open_database">正在解密数据库……</string>
   <string name="startup_migrate_database">正在更新数据库……</string>
   <string name="startup_compact_database">正在压缩数据库……</string>
@@ -271,7 +277,7 @@
   <string name="duplicate_link_dialog_text_1">您已经有此链接的待处理联系人：%s</string>
   <string name="duplicate_link_dialog_text_1_contact">您已经有此链接的联系人：%s</string>
   <!--This is a question asking whether two nicknames refer to the same person-->
-  <string name="duplicate_link_dialog_text_2">%s 和 %s 是同一个人吗？</string>
+  <string name="duplicate_link_dialog_text_2">%1$s 和 %2$s 是同一个人吗？</string>
   <!--This is a button for answering that two nicknames do indeed refer to the same person. This
 	string will be used in a dialog button, so if the translation of this string is longer than 20
 	characters, please use "Yes" instead, and use "No" for the "Different Person" button-->
@@ -280,7 +286,7 @@
 	will be used in a dialog button, so if the translation of this string longer than 20 characters,
 	please use "No" instead, and use "Yes" for the "Same Person" button-->
   <string name="different_person_button">不同的人</string>
-  <string name="duplicate_link_dialog_text_3">%s 和 %s 给你发送了相同的链接。\n\n其中一个人可能企图找出谁是你的联系人。\n\n不要告诉他们你从其他人那里收到了相同的链接。</string>
+  <string name="duplicate_link_dialog_text_3">%1$s 和 %2$s 给你发送了同样的链接。\n\n其中一个人可能企图找出谁是你的联系人。\n\n 不要告诉他们你从其他人那里收到了相同的链接。</string>
   <string name="pending_contact_updated_toast">待处理联系人已更新</string>
   <!--Introductions-->
   <string name="introduction_onboarding_title">介绍您的联系人</string>

@@ -49,6 +49,7 @@
   <string name="download_briar">A Briar használatának folytatásához kérjük töltse le a legújabb verziót.</string>
   <string name="create_new_account">Új fiókot kell létrehoznia, de használhatja ugyanazt a becenevet.</string>
   <string name="download_briar_button">Legújabb verzió letöltése</string>
+  <string name="delete_account_button">Fiók törlése</string>
   <string name="startup_open_database">Adatbázis dekódolása...</string>
   <string name="startup_migrate_database">Adatbázis frissítése</string>
   <string name="startup_compact_database">Adatbázis tömörítése...</string>
@@ -278,7 +279,6 @@ Kérjük frissítsen a legutolsó verzióra és próbálja újra.</string>
   <string name="duplicate_link_dialog_text_1">Önnek már van várakozó kapcsolata ezzel a linkkel: %s</string>
   <string name="duplicate_link_dialog_text_1_contact">Önnek már van kapcsolata ezzel a linkkel: %s</string>
   <!--This is a question asking whether two nicknames refer to the same person-->
-  <string name="duplicate_link_dialog_text_2">%s és %s ugyanaz a személy?</string>
   <!--This is a button for answering that two nicknames do indeed refer to the same person. This
 	string will be used in a dialog button, so if the translation of this string is longer than 20
 	characters, please use "Yes" instead, and use "No" for the "Different Person" button-->
@@ -287,7 +287,6 @@ Kérjük frissítsen a legutolsó verzióra és próbálja újra.</string>
 	will be used in a dialog button, so if the translation of this string longer than 20 characters,
 	please use "No" instead, and use "Yes" for the "Same Person" button-->
   <string name="different_person_button">Másik személy</string>
-  <string name="duplicate_link_dialog_text_3">%s és %s ugyanazt a linket küldte.\n\nEgyikük lehet, hogy megpróbálja kikutatni, hogy kik a kapcsolatai.\n\nNe árulja el nekik, hogy ugyanazt a linket már megkapta mástól.</string>
   <string name="pending_contact_updated_toast">Várakozó kapcsolat frissítve</string>
   <!--Introductions-->
   <string name="introduction_onboarding_title">Kapcsolatai bemutatása</string>
@@ -661,6 +660,7 @@ Vigyázat: Ez végleg törli az identitásait, kapcsolatait és üzeneteit</stri
   <string name="website_troubleshooting_title">Hibaelhárítás</string>
   <!--error handling-->
   <!--Transfer Data via Removable Drives-->
+  <string name="removable_drive_menu_title">Csatlakozás eltávolítható adathordozón keresztül</string>
   <string name="removable_drive_success_receive_title">Sikeres importálás</string>
   <!--Screenshots-->
   <!--This is a name to be used in screenshots. Feel free to change it to a local name.-->

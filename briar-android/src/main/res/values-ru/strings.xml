@@ -44,7 +44,7 @@
   <string name="startup_failed_clock_error">Briar не удалось запустить, поскольку время на устройстве выставлено некорректно.\n\nПожалуйста, установите правильное время на часах вашего устройства и повторите попытку.</string>
   <string name="startup_failed_db_error">Briar не смог открыть базу данных, содержащую вашу учетную запись, контакты и сообщения.\n\nПожалуйста, обновите приложение до последней версии и повторите попытку, или создайте новую учетную запись, выбрав \'Я забыл пароль\' в подсказке пароля.</string>
   <string name="startup_failed_data_too_old_error">Ваша учетная запись была создана в старой версии этого приложения и не может быть открыта в текущей версии.\n\nНеобходимо либо повторно установить старую версию, либо создать новую учетную запись, выбрав \'Я забыл пароль\' в подсказке пароля.</string>
-  <string name="startup_failed_data_too_new_error">Ваш счет был создан в более новой версии этого приложения и не может быть открыт в текущей версии.\n\nПожалуйста, обновите версию до последней и повторите попытку.</string>
+  <string name="startup_failed_data_too_new_error">Ваш аккаунт был создан в более новой версии этого приложения и не может быть открыт в текущей версии.\n\nПожалуйста, обновите приложение до последней версии и повторите попытку.</string>
   <string name="startup_failed_service_error">Briar не смог запустить необходимый компонент.\n\nПожалуйста, обновите приложение до последней версии и повторите попытку.</string>
   <plurals name="expiry_warning">
     <item quantity="one">Это бета-версия Briar. Срок действия вашего аккаунта закончится через %d день и не может быть возобновлен.</item>
@@ -52,10 +52,19 @@
     <item quantity="many">Это бета-версия Briar. Срок действия вашего аккаунта закончится через %d дней и не может быть возобновлен.</item>
     <item quantity="other">Это бета-версия Briar. Срок действия вашего аккаунта закончится через %d дней и не может быть возобновлен.</item>
   </plurals>
+  <plurals name="old_android_expiry_warning">
+    <item quantity="one">Android 4 больше не поддерживается. Briar перестанет работать на %s (через %d день). Пожалуйста, установите Briar на более современное устройство и создайте новую учетную запись.</item>
+    <item quantity="few">Android 4 больше не поддерживается. Briar перестанет работать на %s (через %d дня). Пожалуйста, установите Briar на более современное устройство и создайте новую учетную запись.</item>
+    <item quantity="many">Android 4 больше не поддерживается. Briar перестанет работать на %s (через %d дней). Пожалуйста, установите Briar на более современное устройство и создайте новую учетную запись.</item>
+    <item quantity="other">Android 4 больше не поддерживается. Briar перестанет работать на %s (через %d дней). Пожалуйста, установите Briar на более современное устройство и создайте новую учетную запись.</item>
+  </plurals>
   <string name="expiry_date_reached">Срок действия этого программного обеспечения истек.\nСпасибо за тестирование!</string>
   <string name="download_briar">Для продолжения использования Briar, пожалуйста, скачайте последнюю версию.</string>
   <string name="create_new_account">Вам необходимо создать новую учетную запись, но вы можете использовать тот же псевдоним.</string>
   <string name="download_briar_button">Загрузить последнюю версию</string>
+  <string name="old_android_expiry_date_reached">Briar больше не работает на Android 4.\nПожалуйста, установите Briar на более современное устройство.</string>
+  <string name="old_android_delete_account">Вы можете нажать кнопку ниже, чтобы удалить свой аккаунт с этого устройства.</string>
+  <string name="delete_account_button">Удалить аккаунт</string>
   <string name="startup_open_database">Расшифровка базы данных...</string>
   <string name="startup_migrate_database">Обновление базы данных...</string>
   <string name="startup_compact_database">Сжатие базы данных...</string>
@@ -298,7 +307,7 @@
   <string name="duplicate_link_dialog_text_1">У вас уже есть ожидающий контакт с этой ссылкой: %s</string>
   <string name="duplicate_link_dialog_text_1_contact"> У вас уже есть контакт с этой ссылкой: %s</string>
   <!--This is a question asking whether two nicknames refer to the same person-->
-  <string name="duplicate_link_dialog_text_2">%s и %s тот же человек?</string>
+  <string name="duplicate_link_dialog_text_2">%1$s и %2$s тот же человек?</string>
   <!--This is a button for answering that two nicknames do indeed refer to the same person. This
 	string will be used in a dialog button, so if the translation of this string is longer than 20
 	characters, please use "Yes" instead, and use "No" for the "Different Person" button-->
@@ -307,7 +316,7 @@
 	will be used in a dialog button, so if the translation of this string longer than 20 characters,
 	please use "No" instead, and use "Yes" for the "Same Person" button-->
   <string name="different_person_button">Другой человек</string>
-  <string name="duplicate_link_dialog_text_3">%s и %s отправили вам ту же ссылку.\n\nОдин из них, возможно, пытается выяснить, кто ваши контакты.\n\nНе говорите им, что вы получили такую ​​же ссылку от кого-то еще.</string>
+  <string name="duplicate_link_dialog_text_3">%1$s и %2$s отправили вам ту же ссылку.\n\nОдин из них, возможно, пытается выяснить, кто ваши контакты.\n\nНе говорите им, что вы получили такую ​​же ссылку от кого-то еще.</string>
   <string name="pending_contact_updated_toast">Ожидающий контакт обновлен</string>
   <!--Introductions-->
   <string name="introduction_onboarding_title">Представление ваших контактов</string>
@@ -635,6 +644,7 @@
   <string name="dev_report_memory">Память</string>
   <string name="dev_report_storage">Хранилище</string>
   <string name="dev_report_connectivity">Подключение</string>
+  <string name="dev_report_network_usage">Использование сети</string>
   <string name="dev_report_build_config">Конфигурация сборки</string>
   <string name="dev_report_logcat">Журнал приложения</string>
   <string name="dev_report_device_features">Характеристики устройства</string>

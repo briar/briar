@@ -52,10 +52,17 @@ dhe s’mund të hapet me këtë version.\n\nJu lutemi, përmirësojeni me versi
     <item quantity="one">Ky është një version beta i Briar-it. Llogaria juaj do të skadojë për %d ditë dhe s\’mund të rinovohet.</item>
     <item quantity="other">Ky është një version beta i Briar-it. Llogaria juaj do të skadojë për %d ditë dhe s\’mund të rinovohet.</item>
   </plurals>
+  <plurals name="old_android_expiry_warning">
+    <item quantity="one">Android 4 nuk mbulohet më. Briar-i do të reshtë së funksionuari më %s  (për %d ditë). Ju lutemi, instalojeni Briar-in në një pajisje më të re dhe krijoni një llogari të re.</item>
+    <item quantity="other">Android 4 nuk mbulohet më. Briar-i do të reshtë së funksionuari më %s (për %d ditë). Ju lutemi, instalojeni Briar-in në një pajisje më të re dhe krijoni një llogari të re.</item>
+  </plurals>
   <string name="expiry_date_reached">Ky software ka skaduar.\nFaleminderit që e provuat!</string>
   <string name="download_briar">Që të vazhdoni të përdorni Briar-in, ju lutemi shkarkoni versionin më të ri.</string>
   <string name="create_new_account">Do t’ju duhet të krijoni një llogari të re, por mund të përdorni të njëjtën nofkë.</string>
   <string name="download_briar_button">Shkarkoni Hedhjen Më të Re Në Qarkullim</string>
+  <string name="old_android_expiry_date_reached">Briar-i nuk funksionon më në Android 4.\nJu lutemi, instalojeni Briar-in në një pajisje më të re.</string>
+  <string name="old_android_delete_account">Mund të prekni butonin më poshtë që të fshini llogarinë tuaj prej kësaj pajisjeje.</string>
+  <string name="delete_account_button">Fshi Llogarinë</string>
   <string name="startup_open_database">Po shfshehtëzohet Baza e të Dhënave…</string>
   <string name="startup_migrate_database">Po përditësohet Baza e të dhënave…</string>
   <string name="startup_compact_database">Po kompaktësohet Baza e të Dhënave…</string>
@@ -282,7 +289,7 @@ dhe s’mund të hapet me këtë version.\n\nJu lutemi, përmirësojeni me versi
   <string name="duplicate_link_dialog_text_1">Keni tashmë një kontakt pezull me këtë lidhje: %s</string>
   <string name="duplicate_link_dialog_text_1_contact">Keni tashmë një kontakt me këtë lidhje: %s</string>
   <!--This is a question asking whether two nicknames refer to the same person-->
-  <string name="duplicate_link_dialog_text_2">A janë %s dhe %s i njëjti person?</string>
+  <string name="duplicate_link_dialog_text_2">Është %1$s dhe %2$s i njëjti person?</string>
   <!--This is a button for answering that two nicknames do indeed refer to the same person. This
 	string will be used in a dialog button, so if the translation of this string is longer than 20
 	characters, please use "Yes" instead, and use "No" for the "Different Person" button-->
@@ -291,7 +298,7 @@ dhe s’mund të hapet me këtë version.\n\nJu lutemi, përmirësojeni me versi
 	will be used in a dialog button, so if the translation of this string longer than 20 characters,
 	please use "No" instead, and use "Yes" for the "Same Person" button-->
   <string name="different_person_button">Person i Ndryshëm</string>
-  <string name="duplicate_link_dialog_text_3">%s dhe %s ju dërguan të njëjtën lidhje.\n\nNjëri prej tyre mund të jetë duke u rrekur të zbulojë se cilët janë kontaktet tuaj.\n\nMos u tregoni se morët të njëjtën lidhje nga dikush tjetër.</string>
+  <string name="duplicate_link_dialog_text_3">%1$s dhe %2$s ju dërguan të njëjtën lidhje.\n\nNjë prej tyre mund të jetë duke u rrekur të zbulojë cilët janë kontaktet tuaja.\n\nMos u thoni se morët të njëjtën lidhje nga dikush tjetër.</string>
   <string name="pending_contact_updated_toast">Kontakti pezull u përditësua</string>
   <!--Introductions-->
   <string name="introduction_onboarding_title">Prezantoni kontaktet tuaja</string>

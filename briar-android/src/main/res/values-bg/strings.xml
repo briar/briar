@@ -54,6 +54,7 @@
   <string name="download_briar">За да продължите да използвате Briar изтеглете последното издание.</string>
   <string name="create_new_account">Ще трябва да създадете нов профил, но ще можете да използвате същия прякор.</string>
   <string name="download_briar_button">Изтегляне</string>
+  <string name="delete_account_button">Премахване на профил</string>
   <string name="startup_open_database">Хранилището се дешифрира…</string>
   <string name="startup_migrate_database">Хранилището се обновява…</string>
   <string name="startup_compact_database">Хранилището се уплътнява…</string>
@@ -280,7 +281,7 @@
   <string name="duplicate_link_dialog_text_1">Вече има чакаща заявка за контакт с тази препратка: %s</string>
   <string name="duplicate_link_dialog_text_1_contact">Вече има контакт с тази препратка: %s</string>
   <!--This is a question asking whether two nicknames refer to the same person-->
-  <string name="duplicate_link_dialog_text_2">%s и %s един и същи човек ли са?</string>
+  <string name="duplicate_link_dialog_text_2">%1$s и %2$s един и същи човек ли са?</string>
   <!--This is a button for answering that two nicknames do indeed refer to the same person. This
 	string will be used in a dialog button, so if the translation of this string is longer than 20
 	characters, please use "Yes" instead, and use "No" for the "Different Person" button-->
@@ -289,7 +290,7 @@
 	will be used in a dialog button, so if the translation of this string longer than 20 characters,
 	please use "No" instead, and use "Yes" for the "Same Person" button-->
   <string name="different_person_button">Не</string>
-  <string name="duplicate_link_dialog_text_3">%s и %s са изпратили еднакви препратки.\n\nЕдиния от двамата вероятно се опитва да разбере кои са контактите ви.\n\nНе им споделяйте, че сте получили същата препратка от друг човек.</string>
+  <string name="duplicate_link_dialog_text_3">%1$s и %2$s са изпратили еднакви препратки.\n\nЕдиният от двамата вероятно се опитва да разбере кои са контактите ви.\n\nНе им споделяйте, че сте получили същата препратка от друг човек.</string>
   <string name="pending_contact_updated_toast">Обновена чакаща заявка за контакт</string>
   <!--Introductions-->
   <string name="introduction_onboarding_title">Запознаване на контакти</string>
@@ -510,11 +511,11 @@
   <!--Settings Security and Panic-->
   <string name="security_settings_title">Сигурност</string>
   <string name="pref_lock_title">Заключване на приложението</string>
-  <string name="pref_lock_summary">Заключва се екрана, за да предпази Briar докато сте вписани</string>
+  <string name="pref_lock_summary">Екранът се заключва, за да се предпази Briar докато сте вписани</string>
   <string name="pref_lock_disabled_summary">За да се възползвате от тази възможност, настройте заключване на екрана</string>
   <string name="pref_lock_timeout_title">Заключване при бездействие</string>
   <!--The %s placeholder is replaced with the following time spans, e.g. 5 Minutes, 1 Hour-->
-  <string name="pref_lock_timeout_summary">При неактивност Briar автоматично се заключав след %s</string>
+  <string name="pref_lock_timeout_summary">При неактивност Briar автоматично се заключва след %s</string>
   <!--Will be shown in a list of lock times. Should fit into the %s of "automatically lock it after %s"-->
   <string name="pref_lock_timeout_1">1 минута</string>
   <!--Will be shown in a list of lock times. Should fit into the %s of "automatically lock it after %s"-->
@@ -534,7 +535,7 @@
   <string name="password_changed">Паролата е променена.</string>
   <string name="panic_setting">Настройка на бутон за паника</string>
   <string name="panic_setting_title">Бутон за паника</string>
-  <string name="panic_setting_hint">Настройва се реакцията на Briar при използване на приложение за бутон за паника</string>
+  <string name="panic_setting_hint">Настройва се действието на Briar при използване на приложение за бутон за паника</string>
   <string name="panic_app_setting_title">Приложение бутон за паника</string>
   <string name="unknown_app">непознато приложение</string>
   <string name="panic_app_setting_summary">Няма зададено приложение</string>
@@ -605,6 +606,7 @@
   <string name="dev_report_memory">Памет</string>
   <string name="dev_report_storage">Хранилище</string>
   <string name="dev_report_connectivity">Свързаност</string>
+  <string name="dev_report_network_usage">Използване на мрежа</string>
   <string name="dev_report_build_config">Настройка на изданието</string>
   <string name="dev_report_logcat">Журнал на приложението</string>
   <string name="dev_report_device_features">Характеристики</string>
@@ -647,6 +649,8 @@
   <string name="transports_help_text">Briar може да се свърже с контактите ви през интернет, Wi-Fi или Bluetooth.\n\nЗа повече поверителност цялата връзка към интернет се пренасочва през мрежата на Tor.\n\nАко даден контакт може да бъде достъпен чрез няколко метода Briar ги използва успоредно.</string>
   <!--Share app offline-->
   <string name="hotspot_title">Споделяне на приложението извън мрежа</string>
+  <string name="hotspot_intro">Споделете приложението с някого наблизо без използване на интернет, а с през Wi-Fi на устройствата.
+\n\nВашето устройство ще създаде безжична точка за достъп. Хората наблизо биха могли да се свържат към нея и да изтеглят Briar от вашето устройство.</string>
   <string name="hotspot_button_start_sharing">Включване на безжична точка</string>
   <string name="hotspot_button_stop_sharing">Спиране на безжична точка</string>
   <string name="hotspot_progress_text_start">Настройване на безжична точка…</string>
@@ -681,9 +685,21 @@
   <string name="website_download_outro">След като файлът се изтегли, отворете го и го инсталирайте.</string>
   <string name="website_troubleshooting_title">Отстраняване на неизправности</string>
   <string name="website_troubleshooting_1">Ако не можете да изтеглите приложението пробвайте с друг мрежов четец.</string>
+  <string name="hotspot_help_wifi_title">Проблеми при свързване чрез Wi-Fi:</string>
+  <string name="hotspot_help_site_title">Проблеми при посещаване на страницата:</string>
   <string name="hotspot_help_fallback_title">Нищо не става?</string>
+  <string name="hotspot_help_fallback_intro">Запазете приложението като файл на APK и го споделете по друг начин. След като бъде получен от другото устройство може да бъде използван за инсталиране на Briar.
+\n\nЗабележка: За да го споделите чрез Bluetooth може да се наложи първо да го преименувате, така че да завършва на .zip.</string>
+  <string name="hotspot_help_fallback_button">Запазване на приложение</string>
   <!--error handling-->
+  <string name="hotspot_error_intro">Нещо се обърка при споделяне на приложението чрез Wi-Fi:</string>
+  <string name="hotspot_error_no_wifi_direct">Устройството не поддържа Wi-Fi Direct.</string>
+  <string name="hotspot_error_start_callback_failed">Безжичната точка не може да стартира: грешката е %s</string>
+  <string name="hotspot_error_start_callback_failed_unknown">Безжичната точка не може да стартира поради неизвестна грешка: причината е %d</string>
+  <string name="hotspot_error_start_callback_no_group_info">Безжичната точка не може да стартира: няма информация за група</string>
+  <string name="hotspot_error_web_server_start">Грешка при стартиране на уеб сървър</string>
   <!--Transfer Data via Removable Drives-->
+  <string name="removable_drive_menu_title">Свързване чрез преносим диск</string>
   <string name="removable_drive_title_send">Изпращане на сведения</string>
   <string name="removable_drive_title_receive">Получаване на сведения</string>
   <string name="removable_drive_send_intro">Докоснете бутона по-долу, за да бъде създаден файл, който ще съдържа шифрованите съобщения. Можете да изберете къде да бъде запазен този файл.\n\nАко желаете да го запазите на преносим диск го включете сега.</string>

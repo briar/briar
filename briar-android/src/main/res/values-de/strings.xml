@@ -42,21 +42,28 @@
   <string name="dialog_message_lost_password">Dein Briar-Konto ist verschlüsselt auf deinem Gerät  und nicht in der Cloud gespeichert, deshalb kannst du dein Passwort nicht zurücksetzen. Willst du dein Konto löschen und neu beginnen?\n\nAchtung: Deine bestehenden Identitäten, Kontakte und Nachrichten gehen dann für immer verloren.</string>
   <string name="startup_failed_activity_title">Fehler beim Starten von Briar</string>
   <string name="startup_failed_clock_error">Briar konnte nicht gestartet werden, weil die Uhr deines Geräts falsch eingestellt ist.\n\Bitte stelle die Uhr deines Geräts auf die richtige Zeit ein und versuche es erneut.</string>
-  <string name="startup_failed_db_error">Briar konnte die Datenbank, die dein Konto, deine Kontakte und deine Nachrichten enthält, nicht öffnen.\n\nBitte aktualisiere auf die neueste Version der App und versuche es erneut, oder richte ein neues Konto ein, indem du bei der Passwortabfrage \"Ich habe mein Passwort vergessen\" wählst.</string>
-  <string name="startup_failed_data_too_old_error">Dein Konto wurde mit einer alten Version dieser App erstellt und kann mit dieser Version nicht geöffnet werden. Du musst entweder die alte Version neu installieren oder ein neues Konto einrichten, indem du bei der Passwortabfrage \"Ich habe mein Passwort vergessen\" wählst.</string>
-  <string name="startup_failed_data_too_new_error">Dein Konto wurde mit einer neueren Version dieser App erstellt und kann mit dieser Version nicht geöffnet werden.\n\nBitte aktualisiere auf die aktuelle Version und versuche es erneut.</string>
+  <string name="startup_failed_db_error">Briar konnte die Datenbank mit deinem Konto, deinen Kontakten und deinen Nachrichten nicht öffnen.\n\nBitte aktualisiere auf die neueste Version der App und versuche es erneut, oder richte ein neues Konto ein, indem du bei der Passwortabfrage \"Ich habe mein Passwort vergessen\" wählst.</string>
+  <string name="startup_failed_data_too_old_error">Dein Konto wurde mit einer alten Version dieser App erstellt und kann mit dieser Version nicht geöffnet werden.\n\nDu musst entweder die alte Version neu installieren oder ein neues Konto einrichten, indem du bei der Passwortabfrage \"Ich habe mein Passwort vergessen\" wählst.</string>
+  <string name="startup_failed_data_too_new_error">Dein Konto wurde mit einer neueren Version dieser App erstellt und kann mit dieser Version nicht geöffnet werden.\n\nBitte aktualisiere auf die neueste Version und versuche es erneut.</string>
   <string name="startup_failed_service_error">Briar konnte eine erforderliche Komponente nicht starten.\n\nBitte aktualisiere auf die neueste Version der App und versuche es erneut.</string>
   <plurals name="expiry_warning">
     <item quantity="one">Dies ist eine Testversion von Briar. Dein Konto läuft in %d Tag ab und kann nicht verlängert werden.</item>
     <item quantity="other">Dies ist eine Testversion von Briar. Dein Konto läuft in %d Tagen ab und kann nicht verlängert werden.</item>
   </plurals>
+  <plurals name="old_android_expiry_warning">
+    <item quantity="one">Android 4 wird nicht mehr unterstützt. Briar wird nicht mehr auf %s funktionieren (in %d Tag). Bitte installiere es auf einem neueren Gerät und erstelle ein neues Konto.</item>
+    <item quantity="other">Android 4 wird nicht mehr unterstützt. Briar wird nicht mehr auf %s funktionieren (in %dTagen). Bitte installiere es auf einem neueren Gerät und erstelle ein neues Konto.</item>
+  </plurals>
   <string name="expiry_date_reached">Diese Software ist abgelaufen.\nDanke, dass du Briar getestet hast!</string>
   <string name="download_briar">Bitte lade die aktuelle Version von Briar herunter, um es weiter zu benutzen.</string>
   <string name="create_new_account">Du wirst ein neues Konto erstellen müssen, wobei du jedoch wieder denselben Benutzernamen verwenden kannst.</string>
   <string name="download_briar_button">Aktuelle Version herunterladen</string>
+  <string name="old_android_expiry_date_reached">Briar wird auf Android 4 nicht mehr unterstützt.\nBitte installiere Briar auf einem neueren Gerät.</string>
+  <string name="old_android_delete_account">Du kannst auf die Schaltfläche unten tippen, um dein Konto von diesem Gerät zu löschen.</string>
+  <string name="delete_account_button">Konto löschen</string>
   <string name="startup_open_database">Datenbank wird entschlüsselt...</string>
   <string name="startup_migrate_database">Datenbank wird aktualisiert...</string>
-  <string name="startup_compact_database">Datenbank wird komprimiert ...</string>
+  <string name="startup_compact_database">Datenbank wird komprimiert…</string>
   <!--Navigation Drawer-->
   <string name="nav_drawer_open_description">Navigationsleiste öffnen</string>
   <string name="nav_drawer_close_description">Navigationsleiste schliessen</string>
@@ -261,7 +268,7 @@
   <string name="adding_contact_failed">Hinzufügen von Kontakt ist fehlgeschlagen</string>
   <string name="dialog_title_remove_pending_contact">Entfernung bestätigen</string>
   <string name="dialog_message_remove_pending_contact">Dieser Kontakt befindet sich noch beim Hinzufügen. Wenn er jetzt entfernt wird, wird das Hinzufügen abgebrochen.</string>
-  <string name="own_link_error">Gebe den Link deines Kontakts ein, nicht deinen eigenen.</string>
+  <string name="own_link_error">Gib den Link deines Kontakts ein, nicht deinen eigenen</string>
   <string name="nickname_missing">Bitte gib einen Spitznamen an</string>
   <string name="invalid_link">Ungültiger Link</string>
   <string name="unsupported_link">Dieser Link kommt von einer neueren Version von Briar. Bitte führe eine Aktualisierung auf die aktuelle Version durch und versuche es dann nochmal. </string>
@@ -276,11 +283,11 @@
     <item quantity="other">%d neue Kontakte hinzugefügt.</item>
   </plurals>
   <string name="offline_state">Keine Internetverbindung</string>
-  <string name="duplicate_link_dialog_title">Link duplizieren</string>
+  <string name="duplicate_link_dialog_title">Gleicher Link</string>
   <string name="duplicate_link_dialog_text_1">Du hast bereits einen Kontakt mit diesem Link ausstehend: %s</string>
   <string name="duplicate_link_dialog_text_1_contact">Du hast bereits einen Kontakt mit diesem Link: %s</string>
   <!--This is a question asking whether two nicknames refer to the same person-->
-  <string name="duplicate_link_dialog_text_2">Sind %s und %s dieselbe Person?</string>
+  <string name="duplicate_link_dialog_text_2">Sind %1$s und %2$s dieselbe Person?</string>
   <!--This is a button for answering that two nicknames do indeed refer to the same person. This
 	string will be used in a dialog button, so if the translation of this string is longer than 20
 	characters, please use "Yes" instead, and use "No" for the "Different Person" button-->
@@ -289,7 +296,7 @@
 	will be used in a dialog button, so if the translation of this string longer than 20 characters,
 	please use "No" instead, and use "Yes" for the "Same Person" button-->
   <string name="different_person_button">Andere Person</string>
-  <string name="duplicate_link_dialog_text_3">%s und %s haben Dir denselben Link geschickt.\n\nMöglicherweise versucht einer der beiden mehr über deine Kontakte zu erfahren.\n\nDu solltest deswegen niemandem sagen, dass du diesen Link auch von jemand anderem erhalten hast.</string>
+  <string name="duplicate_link_dialog_text_3">%1$s und %2$s haben dir denselben Link geschickt.\n\nMöglicherweise versucht einer der beiden mehr über deine Kontakte zu erfahren.\n\nDu solltest deswegen niemandem sagen, dass du diesen Link auch von jemand anderem erhalten hast.</string>
   <string name="pending_contact_updated_toast">Ausstehender Kontakt aktualisiert</string>
   <!--Introductions-->
   <string name="introduction_onboarding_title">Mache deine Kontakte untereinander bekannt</string>
@@ -307,7 +314,7 @@
   <string name="introduction_request_exists_received">%1$s schlägt vor, dich als Kontakt an %2$s zu empfehlen. %2$s ist allerdings bereits in deiner Kontaktliste. Da %1$s das vielleicht nicht weiss, kannst du trotzdem antworten:</string>
   <string name="introduction_request_answered_received">%1$s schlägt vor, dich als Kontakt an %2$s zu empfehlen. </string>
   <string name="introduction_response_accepted_sent">Du hast die Kontaktempfehlung von %1$s angenommen.</string>
-  <string name="introduction_response_accepted_sent_info">Bevor %1$s zu deinen Kontakten hinzugefügt werden, müssen sie die Kontaktempfehlung ebenfalls akzeptieren. Dies kann eine Weile dauern.</string>
+  <string name="introduction_response_accepted_sent_info">Bevor %1$s zu deinen Kontakten hinzugefügt wird, muss die Kontaktempfehlung ebenfalls akzeptieren werden. Dies kann eine Weile dauern.</string>
   <string name="introduction_response_declined_sent">Du hast die Kontaktempfehlung von %1$s abgelehnt.</string>
   <string name="introduction_response_declined_auto">Die Kontaktempfehlung mit %1$s wurde automatisch abgelehnt.</string>
   <string name="introduction_response_accepted_received">%1$s hat die Kontaktempfehlung für %2$s angenommen.</string>
@@ -326,9 +333,9 @@
   <!--Private Groups-->
   <string name="groups_list_empty">Keine Gruppen vorhanden</string>
   <string name="groups_list_empty_action">Tippe auf das + Symbol, um eine Gruppe anzulegen oder frage deine Kontakte, Gruppen mit dir zu teilen</string>
-  <string name="groups_created_by">Erstellt durch %s</string>
+  <string name="groups_created_by">Erstellt von %s</string>
   <plurals name="messages">
-    <item quantity="one">%d Nachrichten</item>
+    <item quantity="one">%d Nachricht</item>
     <item quantity="other">%d Nachrichten</item>
   </plurals>
   <string name="groups_group_is_empty">Diese Gruppe ist leer</string>
@@ -364,7 +371,7 @@
     <item quantity="one">%d offene Gruppeneinladung</item>
     <item quantity="other">%d offene Gruppeneinladungen</item>
   </plurals>
-  <string name="groups_invitations_response_accepted_sent">Gruppeneinladung von %s angenommen.</string>
+  <string name="groups_invitations_response_accepted_sent">Du hast die Gruppeneinladung von %s angenommen.</string>
   <string name="groups_invitations_response_declined_sent">Du hast die Gruppeneinladung abgelehnt von %s abgelehnt.</string>
   <string name="groups_invitations_response_declined_auto">Die Gruppeneinladung von %s wurde automatisch abgelehnt.</string>
   <string name="groups_invitations_response_accepted_received">%s hat die Gruppeneinladung angenommen.</string>
@@ -415,7 +422,7 @@
   <string name="forum_declined_toast">Einladung abgelehnt</string>
   <string name="shared_by_format">Geteilt durch %s</string>
   <string name="forum_invitation_already_sharing">Bereits geteilt.</string>
-  <string name="forum_invitation_response_accepted_sent">Du hast die Forumseinladung von %s angenommen.</string>
+  <string name="forum_invitation_response_accepted_sent">Du hast die Forumeinladung von %s angenommen.</string>
   <string name="forum_invitation_response_declined_sent">Du hast die Forumeinladung von %s abgelehnt.</string>
   <string name="forum_invitation_response_declined_auto">Die Forumeinladung von %s wurde automatisch abgelehnt.</string>
   <string name="forum_invitation_response_accepted_received">%s hat die Forumeinladung angenommen.</string>
@@ -456,7 +463,7 @@
   <string name="blogs_sharing_response_accepted_received">%s hat die Blogeinladung angenommen.</string>
   <string name="blogs_sharing_response_declined_received">%s hat die Blogeinladung abgelehnt.</string>
   <string name="blogs_sharing_invitation_received">%1$shat den Blog \"%2$s\" mit dir geteilt.</string>
-  <string name="blogs_sharing_invitation_sent">Du teilst den Blog \"%1$s\" mit %2$s.</string>
+  <string name="blogs_sharing_invitation_sent">Du hast den Blog \"%1$s\" mit %2$s geteilt.</string>
   <string name="blogs_sharing_invitations_title">Blogeinladungen</string>
   <string name="blogs_sharing_joined_toast">Blog abonniert</string>
   <string name="blogs_sharing_declined_toast">Einladung abgelehnt</string>
@@ -609,6 +616,7 @@
   <string name="dev_report_memory">Speicher</string>
   <string name="dev_report_storage">Speicher</string>
   <string name="dev_report_connectivity">Konnektivität</string>
+  <string name="dev_report_network_usage">Netzwerknutzung</string>
   <string name="dev_report_build_config">Buildkonfiguration</string>
   <string name="dev_report_logcat">App-Log</string>
   <string name="dev_report_device_features">Geräteeigenschaften</string>

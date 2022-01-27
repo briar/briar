@@ -44,6 +44,7 @@
   <string name="download_briar">כדי להמשיך להשתמש ב־Briar, אנא הורד את השחרור האחרון.</string>
   <string name="create_new_account">יהיה צריך ליצור חשבון חדש, אבל אפשר להשתמש באותו הכינוי.</string>
   <string name="download_briar_button">הורד שחרור אחרון</string>
+  <string name="delete_account_button">מחק חשבון</string>
   <string name="startup_open_database">מפענח מסד נתונים…</string>
   <string name="startup_migrate_database">משדרג מסד נתונים…</string>
   <string name="startup_compact_database">מצופף מסד נתונים…</string>
@@ -256,7 +257,6 @@
   <string name="duplicate_link_dialog_text_1">יש לך כבר איש קשר ממתין עם קישור זה: %s</string>
   <string name="duplicate_link_dialog_text_1_contact">יש לך כבר איש קשר עם קישור זה: %s</string>
   <!--This is a question asking whether two nicknames refer to the same person-->
-  <string name="duplicate_link_dialog_text_2">האם %s ו־%s הם אותו איש?</string>
   <!--This is a button for answering that two nicknames do indeed refer to the same person. This
 	string will be used in a dialog button, so if the translation of this string is longer than 20
 	characters, please use "Yes" instead, and use "No" for the "Different Person" button-->
@@ -265,7 +265,6 @@
 	will be used in a dialog button, so if the translation of this string longer than 20 characters,
 	please use "No" instead, and use "Yes" for the "Same Person" button-->
   <string name="different_person_button">איש שונה</string>
-  <string name="duplicate_link_dialog_text_3">%s ו־%s שלחו לך את אותו הקישור.\n\nייתכן שאחד מהם מנסה לגלות מי הם אנשי הקשר שלך.\n\nאל תגיד לו שקיבלת את אותו הקישור ממישהו אחר.</string>
   <string name="pending_contact_updated_toast">איש קשר ממתין עודכן</string>
   <!--Introductions-->
   <string name="introduction_onboarding_title">הכר בין אנשי הקשר שלך</string>

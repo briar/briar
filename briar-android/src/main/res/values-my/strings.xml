@@ -53,6 +53,7 @@
   <string name="download_briar">Briar ကို ဆက်လက်အသုံးပြုရန် နောက်ဆုံးထွက်ထားသည်ကို ဒေါင်းလုဒ်လုပ်ပါ။</string>
   <string name="create_new_account">အကောင့်အသစ်ဖွင့်ရန် လိုအပ်သော်လည်း သုံးလက်စနာမည်ပြောင်ကို ဆက်သုံးနိုင်ပါသည်။</string>
   <string name="download_briar_button">နောက်ဆုံးထွက်ထားသည်ကို ဒေါင်းလုဒ်လုပ်မည်</string>
+  <string name="delete_account_button">အကောင့် ဖျက်သိမ်းမယ်</string>
   <string name="startup_open_database">အချက်အလက်အစုကို ပြန်ဖြည်နေသည်…</string>
   <string name="startup_migrate_database">အချက်အလက်အစုကို အဆင့်မြှင့်နေသည်…</string>
   <string name="startup_compact_database">အချက်အလက်အစုကို သိပ်သည်းစေရန်လုပ်နေသည်…</string>
@@ -207,7 +208,7 @@
   <string name="dialog_title_image_support">ရုပ်ပုံများကို ဤအဆက်အသွယ်လိပ်စာသို့ ပို့လို့ရပါပြီ</string>
   <string name="dialog_message_image_support">ဤအိုင်ကွန်ကို နှိပ်ပြီး ရုပ်ပုံများကို ပူးတွဲပါ</string>
   <string name="messaging_too_many_attachments_toast">ပထမဆုံး %d ရုပ်ပုံများသာလျှင် ပို့ပါမည်</string>
-  <string name="menu_contact">အဆက်အသွယ်</string>
+  <string name="menu_contact">ဆက်သွယ်ရန်</string>
   <!--Adding Contacts-->
   <string name="add_contact_title">အနီးနားရှိ အဆက်အသွယ်အား ထည့်သွင်းမယ်</string>
   <string name="face_to_face">သင်သည် ဤလူပုဂ္ဂိုလ်အား အပြင်မှာတွေ့ရှိမှသာလျှင် ၎င်း၏အဆက်အသွယ်ကို ပေါင်းထည့်လို့ရပါမည်။ \n\n ဒါမှသာလျှင် နောင်တွင် အခြားလူများ သင့်အား အယောင်ဆောင်ခြင်း သို့မဟုတ် သင့်မက်ဆေ့ချ်များဖတ်ရှုခြင်း တို့ကို တားဆီးနိုင်ပါမည်။</string>
@@ -270,7 +271,6 @@
   <string name="duplicate_link_dialog_text_1">သင့်မှာ ဒီလင့်ခ်နဲ့ ပတ်သက်ပြီး ဆိုင်းငံ့ထားသော အဆက်အသွယ်လိပ်စာ ရှိပြီးဖြစ်သည်: %s</string>
   <string name="duplicate_link_dialog_text_1_contact">သင့်မှာ ဒီလင့်ခ်နဲ့ အဆက်အသွယ်လိပ်စာ ရှိပြီးဖြစ်သည်: %s</string>
   <!--This is a question asking whether two nicknames refer to the same person-->
-  <string name="duplicate_link_dialog_text_2">%s နှင့် %s သည် တစ်ဦးတည်း ဖြစ်ပါသလား?</string>
   <!--This is a button for answering that two nicknames do indeed refer to the same person. This
 	string will be used in a dialog button, so if the translation of this string is longer than 20
 	characters, please use "Yes" instead, and use "No" for the "Different Person" button-->
@@ -279,7 +279,6 @@
 	will be used in a dialog button, so if the translation of this string longer than 20 characters,
 	please use "No" instead, and use "Yes" for the "Same Person" button-->
   <string name="different_person_button">နောက်တစ်ယောက် </string>
-  <string name="duplicate_link_dialog_text_3">%s နှင့် %s သည် သင့်စီသို့ တူညီသောလင့်ခ်တစ်ခု မျှဝေခဲ့ပါသည်။ \n\n သူတို့ထဲမှတစ်ဦးသည် သင့်အဆက်အသွယ်များကို ရှာဖွေနေနိုင်ပါသည်။ \n\n သူတို့အား နောက်တစ်ဦးစီမှ တူညီသောလင့်ခ်ရခဲ့သည်ကို မပြောပြပါနှင့်။</string>
   <string name="pending_contact_updated_toast">ဆိုင်းငံ့ထားသော အဆက်အသွယ်ကို အပ်ဒိတ်လုပ်ပြီး</string>
   <!--Introductions-->
   <string name="introduction_onboarding_title">သင့်ရဲ့ အဆက်အသွယ်လိပ်စာများကို မိတ်ဆက်ပါ</string>
@@ -305,8 +304,8 @@
   <string name="introduction_response_declined_received_by_introducee">%2$s မှ မိတ်ဆက်ခြင်းအား ငြင်းဆိုခဲ့သည်ကို %1$s မှ ပြောပါသည်။</string>
   <!--Connect via Bluetooth-->
   <string name="menu_item_connect_via_bluetooth">ဘလူးတုသ် နှင့် ချိတ်မယ်</string>
-  <string name="connect_via_bluetooth_title">ဘလူးတုသ် နှင့် ချိတ်မယ်</string>
-  <string name="connect_via_bluetooth_no_location_permission">တည်နေရာသုံးခွင့် မပါဘဲ ဆက်လက်မလုပ်ဆောင်နိုင်ပါ</string>
+  <string name="connect_via_bluetooth_title">ဘလူးတုသ်မှတစ်ဆင့် ချိတ်မည်</string>
+  <string name="connect_via_bluetooth_no_location_permission">တည်နေရာ သုံးခွင့်မပါဘဲ ဆက်လက် မလုပ်ဆောင်နိုင်ပါ</string>
   <string name="connect_via_bluetooth_start">ဘလူးတုသ် နှင့် ချိတ်ဆက်နေသည်...</string>
   <string name="connect_via_bluetooth_success">ဘလူးတုသ် နှင့် အောင်မြင်စွာ ချိတ်ဆက်ပြီး</string>
   <!--Private Groups-->
@@ -564,7 +563,7 @@
   <string name="learn_more">ထပ်မံလေ့လာမယ်</string>
   <string name="disappearing_messages_summary">၎င်းစကားပြောဆိုမှုထဲရှိ နောင်မက်ဆေ့ချ်များကို 7\u00A0 ရက်အကြာတွင် အလိုအလျောက် ဖျောက်ကွယ်မယ်။</string>
   <!--Settings Actions-->
-  <string name="pref_category_actions">ဆောင်ရွက်ချက်များ</string>
+  <string name="pref_category_actions">လုပ်ဆောင်မှုများ</string>
   <string name="send_feedback">တုံ့ပြန်ချက် ပေးပို့မယ်</string>
   <!--Link Warning-->
   <string name="link_warning_title">လင့်ခ် သတိပေးချက်</string>
@@ -631,6 +630,7 @@
   <!--Connections Screen-->
   <string name="transports_help_text">Briar သည် သင့်အဆက်အသွယ်များကို အင်တာနက်၊ ဝိုင်ဖိုင်၊ သို့မဟုတ် ဘလူးတုသ် မှတစ်ဆင့် ချိတ်ဆက်နိုင်ပါသည်။ \n\n အင်တာနက်ချိတ်ဆက်မှုအားလုံးသည် လုံခြုံရေးအတွက် Tor ကွန်ယက်မှတစ်ဆင့် ဖြတ်သန်းပါသည်။ \n\n အဆက်အသွယ်တစ်ဦးကို နည်းမျိုးစုံနှင့် ဆက်သွယ်နိုင်ခဲ့လျှင် Briar သည် နည်းမျိုးစုံအား တစ်ပြိုင်နက်တည်း အသုံးပြုနေပါသည်။</string>
   <!--Share app offline-->
+  <string name="hotspot_title">ဤအက်ပ်ကို အော့ဖ်လိုင်းမျှဝေမည်</string>
   <string name="hotspot_notification_channel_title">ဝိုင်ဖိုင် ဟော့စပေါ့</string>
   <string name="hotspot_button_connected">ရှေ့သို့</string>
   <!--The placeholder to be inserted into the string 'hotspot_manual_wifi': People can connect by %s-->
@@ -639,7 +639,7 @@
   <!--Download link-->
   <!--The %s placeholder will be replaced with the translation of 'hotspot_scanning_a_qr_code'-->
   <!--e.g. Download Briar 1.2.20-->
-  <string name="website_troubleshooting_title">အကူအညီ</string>
+  <string name="website_troubleshooting_title">ပြဿနာရှာဖွေပြင်ဆင်ခြင်း</string>
   <!--error handling-->
   <!--Transfer Data via Removable Drives-->
   <string name="removable_drive_success_receive_text">ဤဖိုင်တွင်ပါဝင်သည့် လျှို့ဝှက်ကုဒ်ပြောင်းမက်ဆေ့ချ်အားလုံးကို လက်ခံရရှိပါပြီ။</string>
