@@ -11,7 +11,6 @@ import android.view.ViewGroup;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
-import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.activity.ActivityComponent;
 import org.briarproject.briar.android.fragment.BaseFragment;
@@ -27,8 +26,6 @@ public class ThresholdSelectorFragment extends BaseFragment {
 
 	public static final String TAG = ThresholdSelectorFragment.class.getName();
 	private static final String NUMBER_CUSTODIANS = "numberCustodians";
-
-	protected ThresholdDefinedListener listener;
 
 	private int numberOfCustodians;
 	private int threshold;
@@ -109,7 +106,6 @@ public class ThresholdSelectorFragment extends BaseFragment {
 	@Override
 	public void onAttach(Context context) {
 		super.onAttach(context);
-		listener = (ThresholdDefinedListener) context;
 	}
 
 

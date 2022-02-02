@@ -32,11 +32,6 @@ public class CustodianRecoveryModeExplainerFragment extends BaseFragment {
 		viewModel = new ViewModelProvider(requireActivity(), viewModelFactory)
 				.get(CustodianReturnShardViewModel.class);
 	}
-//	@Override
-//	public void onCreate(@Nullable Bundle savedInstanceState) {
-//		super.onCreate(savedInstanceState);
-//		requireActivity().setTitle(R.string.title_help_recover);
-//	}
 
 	@Nullable
 	@Override

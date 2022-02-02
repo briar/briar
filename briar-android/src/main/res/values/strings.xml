@@ -671,6 +671,9 @@
 
 	<string name="backup_created">Backup created 1/6/2020</string>
 
+	<string name="social_backup_setup_explainer_title">setup social backup</string>
+	<string name="social_backup_setup_explainer_long">choose some trusted contacts</string>
+
 	<!-- recovery from the secret owner's POV -->
 
 	<string name="recovery_explainer">You need to meet your trusted contacts in-person to receive pieces</string>
