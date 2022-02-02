@@ -17,8 +17,11 @@ import org.briarproject.briar.android.activity.ActivityComponent;
 import org.briarproject.briar.android.fragment.BaseFragment;
 import org.magmacollective.darkcrystal.secretsharingwrapper.SecretSharingWrapper;
 
+import javax.inject.Inject;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.lifecycle.ViewModelProvider;
 
 public class ThresholdSelectorFragment extends BaseFragment {
 
@@ -34,6 +37,18 @@ public class ThresholdSelectorFragment extends BaseFragment {
 	private TextView thresholdRepresentation;
 	private TextView message;
 	private TextView mOfn;
+
+	@Inject
+	ViewModelProvider.Factory viewModelFactory;
+
+	private SocialBackupSetupViewModel viewModel;
+
+	@Override
+	public void injectFragment(ActivityComponent component) {
+		component.inject(this);
+		viewModel = new ViewModelProvider(requireActivity(), viewModelFactory)
+				.get(SocialBackupSetupViewModel.class);
+	}
 
 	public static ThresholdSelectorFragment newInstance(int numberCustodians) {
 		Bundle bundle = new Bundle();
@@ -104,11 +119,6 @@ public class ThresholdSelectorFragment extends BaseFragment {
 	}
 
 	@Override
-	public void injectFragment(ActivityComponent component) {
-		component.inject(this);
-	}
-
-	@Override
 	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
 		inflater.inflate(R.menu.define_threshold_actions, menu);
 		super.onCreateOptionsMenu(menu, inflater);
@@ -118,11 +128,7 @@ public class ThresholdSelectorFragment extends BaseFragment {
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
 			case R.id.action_threshold_defined:
-				try {
-					listener.thresholdDefined(threshold);
-				} catch (DbException e) {
-					e.printStackTrace();
-				}
+				viewModel.setThreshold(threshold);
 				return true;
 			default:
 				return super.onOptionsItemSelected(item);

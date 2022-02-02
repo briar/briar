@@ -12,7 +12,9 @@ import org.briarproject.briar.android.activity.ActivityComponent;
 import org.briarproject.briar.android.activity.BriarActivity;
 import org.briarproject.briar.android.contactselection.ContactSelectorListener;
 import org.briarproject.briar.android.fragment.BaseFragment;
+import org.briarproject.briar.android.socialbackup.recover.CustodianReturnShardViewModel;
 import org.briarproject.briar.api.socialbackup.BackupMetadata;
+import org.briarproject.briar.api.socialbackup.SocialBackup;
 import org.briarproject.briar.api.socialbackup.SocialBackupManager;
 
 import java.util.Collection;
@@ -20,25 +22,22 @@ import java.util.List;
 
 import javax.inject.Inject;
 
+import androidx.lifecycle.ViewModelProvider;
+
 public class DistributedBackupActivity extends BriarActivity implements
 		BaseFragment.BaseFragmentListener, ContactSelectorListener,
-		ThresholdDefinedListener,
 		ShardsSentFragment.ShardsSentDismissedListener {
 
-	private Collection<ContactId> custodians;
+	private SocialBackupSetupViewModel viewModel;
 
 	@Inject
-	public SocialBackupManager socialBackupManager;
-
-	@Inject
-	public ContactManager contactManager;
-
-	@Inject
-	public DatabaseComponent db;
+	ViewModelProvider.Factory viewModelFactory;
 
 	@Override
 	public void injectActivity(ActivityComponent component) {
 		component.inject(this);
+		viewModel = new ViewModelProvider(this, viewModelFactory)
+				.get(SocialBackupSetupViewModel.class);
 	}
 
 	@Override
@@ -46,19 +45,13 @@ public class DistributedBackupActivity extends BriarActivity implements
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_distributed_backup);
 
-		try {
-			db.transaction(false, txn -> {
-				BackupMetadata backupMetadata =
-						socialBackupManager.getBackupMetadata(txn);
-				if (backupMetadata == null) throw new DbException();
-				ExistingBackupFragment fragment =
-						ExistingBackupFragment.newInstance(backupMetadata);
-				showInitialFragment(fragment);
-			});
-		} catch (DbException e) {
-			// Check the number of contacts in the contacts list > 1
+		if (viewModel.haveExistingBackup()) {
+			ExistingBackupFragment fragment =
+					ExistingBackupFragment.newInstance();
+			showInitialFragment(fragment);
+		} else {
 			try {
-				if (contactManager.getContacts().size() < 2) {
+				if (!viewModel.haveEnoughContacts()) {
 					Toast.makeText(this,
 							R.string.social_backup_not_enough_contacts,
 							Toast.LENGTH_LONG).show();
@@ -70,9 +63,32 @@ public class DistributedBackupActivity extends BriarActivity implements
 						Toast.LENGTH_LONG).show();
 				finish();
 			}
-			CustodianSelectorFragment fragment =
-					CustodianSelectorFragment.newInstance();
-			showInitialFragment(fragment);
+			showInitialFragment(new SetupExplainerFragment());
+		}
+
+		viewModel.getState()
+				.observe(this, this::onStateChanged);
+	}
+
+	private void onStateChanged(SocialBackupSetupViewModel.State state) {
+		switch(state) {
+			case SUCCESS:
+				try {
+					viewModel.createBackup();
+					ShardsSentFragment fragment = new ShardsSentFragment();
+					showNextFragment(fragment);
+				} catch (DbException e) {
+					Toast.makeText(this,
+							"There was an error when creating the backup",
+							Toast.LENGTH_LONG).show();
+					finish();
+				}
+				break;
+			case CHOOSING_CUSTODIANS:
+				CustodianSelectorFragment fragment =
+						CustodianSelectorFragment.newInstance();
+				showNextFragment(fragment);
+				break;
 		}
 	}
 
@@ -81,32 +97,15 @@ public class DistributedBackupActivity extends BriarActivity implements
 		Toast.makeText(this,
 				String.format("Selected %d contacts", contacts.size()),
 				Toast.LENGTH_SHORT).show();
-		custodians = contacts;
+		viewModel.setCustodians(contacts);
 		ThresholdSelectorFragment fragment =
 				ThresholdSelectorFragment.newInstance(contacts.size());
 		showNextFragment(fragment);
 	}
 
 	@Override
-	public void thresholdDefined(int threshold) {
-		try {
-			db.transaction(false, txn -> {
-				socialBackupManager
-						.createBackup(txn, (List<ContactId>) custodians,
-								threshold);
-				ShardsSentFragment fragment = new ShardsSentFragment();
-				showNextFragment(fragment);
-			});
-		} catch (DbException e) {
-			Toast.makeText(this,
-					"There was an error when creating the backup",
-					Toast.LENGTH_LONG).show();
-			finish();
-		}
-	}
-
-	@Override
 	public void shardsSentDismissed() {
 		finish();
 	}
+
 }

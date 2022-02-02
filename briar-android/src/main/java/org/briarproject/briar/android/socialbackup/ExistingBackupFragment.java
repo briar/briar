@@ -16,8 +16,11 @@ import org.briarproject.briar.api.socialbackup.BackupMetadata;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.inject.Inject;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.lifecycle.ViewModelProvider;
 
 public class ExistingBackupFragment extends BaseFragment {
 
@@ -25,9 +28,21 @@ public class ExistingBackupFragment extends BaseFragment {
 	private static final String CUSTODIANS = "custodians";
 	public static final String TAG = ExistingBackupFragment.class.getName();
 
-	public static ExistingBackupFragment newInstance(
-			BackupMetadata backupMetadata) {
+	@Inject
+	ViewModelProvider.Factory viewModelFactory;
+
+	private static SocialBackupSetupViewModel viewModel;
+
+	@Override
+	public void injectFragment(ActivityComponent component) {
+		component.inject(this);
+		viewModel = new ViewModelProvider(requireActivity(), viewModelFactory)
+				.get(SocialBackupSetupViewModel.class);
+	}
+
+	public static ExistingBackupFragment newInstance() {
 		Bundle bundle = new Bundle();
+		BackupMetadata backupMetadata = viewModel.getBackupMetadata();
 		List<Author> custodians = backupMetadata.getCustodians();
 		ArrayList custodianNames = new ArrayList();
 		for (Author custodian : custodians) {
@@ -85,9 +100,5 @@ public class ExistingBackupFragment extends BaseFragment {
 		return TAG;
 	}
 
-	@Override
-	public void injectFragment(ActivityComponent component) {
-		component.inject(this);
-	}
 
 }

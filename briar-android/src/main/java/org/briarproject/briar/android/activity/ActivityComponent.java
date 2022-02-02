@@ -80,6 +80,7 @@ import org.briarproject.briar.android.sharing.ShareBlogFragment;
 import org.briarproject.briar.android.sharing.ShareForumActivity;
 import org.briarproject.briar.android.sharing.ShareForumFragment;
 import org.briarproject.briar.android.sharing.SharingModule;
+import org.briarproject.briar.android.socialbackup.SetupExplainerFragment;
 import org.briarproject.briar.android.socialbackup.recover.CustodianRecoveryModeExplainerFragment;
 import org.briarproject.briar.android.socialbackup.CustodianSelectorFragment;
 import org.briarproject.briar.android.socialbackup.DistributedBackupActivity;
@@ -306,4 +307,6 @@ public interface ActivityComponent {
 	void inject(OwnerRecoveryModeErrorFragment ownerRecoveryModeErrorFragment);
 
 	void inject(CustodianReturnShardErrorFragment custodianReturnShardErrorFragment);
+
+	void inject(SetupExplainerFragment setupExplainerFragment);
 }
