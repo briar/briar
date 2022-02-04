@@ -24,7 +24,7 @@ import javax.inject.Inject;
 
 import androidx.lifecycle.ViewModelProvider;
 
-public class DistributedBackupActivity extends BriarActivity implements
+public class SocialBackupSetupActivity extends BriarActivity implements
 		BaseFragment.BaseFragmentListener, ContactSelectorListener,
 		ShardsSentFragment.ShardsSentDismissedListener {
 

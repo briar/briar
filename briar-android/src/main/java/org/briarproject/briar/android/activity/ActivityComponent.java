@@ -83,7 +83,7 @@ import org.briarproject.briar.android.sharing.SharingModule;
 import org.briarproject.briar.android.socialbackup.SetupExplainerFragment;
 import org.briarproject.briar.android.socialbackup.recover.CustodianRecoveryModeExplainerFragment;
 import org.briarproject.briar.android.socialbackup.CustodianSelectorFragment;
-import org.briarproject.briar.android.socialbackup.DistributedBackupActivity;
+import org.briarproject.briar.android.socialbackup.SocialBackupSetupActivity;
 import org.briarproject.briar.android.socialbackup.ExistingBackupFragment;
 import org.briarproject.briar.android.socialbackup.recover.CustodianReturnShardActivity;
 import org.briarproject.briar.android.socialbackup.recover.CustodianReturnShardErrorFragment;
@@ -103,7 +103,6 @@ import org.briarproject.briar.android.socialbackup.recover.RestoreAccountDozeFra
 import org.briarproject.briar.android.socialbackup.recover.RestoreAccountSetPasswordFragment;
 import org.briarproject.briar.android.splash.SplashScreenActivity;
 import org.briarproject.briar.android.test.TestDataActivity;
-import org.briarproject.briar.api.socialbackup.recovery.RestoreAccount;
 
 import dagger.Component;
 
@@ -276,7 +275,7 @@ public interface ActivityComponent {
 
 	void inject(ThresholdSelectorFragment thresholdSelectorFragment);
 
-	void inject(DistributedBackupActivity distributedBackupActivity);
+	void inject(SocialBackupSetupActivity distributedBackupActivity);
 
 	void inject(DatabaseComponent databaseComponent);
 
