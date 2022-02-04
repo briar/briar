@@ -671,9 +671,9 @@
 
 	<string name="backup_created">Backup created 1/6/2020</string>
 
-	<string name="social_backup_setup_explainer_title">Setup social backup</string>
-	<string name="social_backup_setup_explainer_long">Backup your Briar identity and contacts list using trusted contact</string>
-	<string name="social_backup_setup_explainer_button">You must choose a set of contacts to send backup pieces to.</string>
+	<string name="social_backup_setup_explainer_title">Backup your Briar identity and contacts list using trusted contacts</string>
+	<string name="social_backup_setup_explainer_long">You must choose a set of contacts to send backup pieces to.</string>
+	<string name="social_backup_setup_explainer_button">Choose trusted contacts</string>
 
 	<!-- recovery from the secret owner's POV -->
 
