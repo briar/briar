@@ -80,6 +80,7 @@ public class AuthorNameFragment extends SetupFragment {
 		authorNameInput.setOnEditorActionListener(enabled ? this : null);
 		nextButton.setEnabled(enabled);
 		recoverButton.setEnabled(!enabled);
+		recoverButton.setVisibility(enabled ? View.INVISIBLE : View.VISIBLE);
 	}
 
 	@Override
