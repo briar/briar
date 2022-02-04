@@ -13,22 +13,38 @@
 
 	<Button
 		android:id="@+id/buttonSetupNewAccount"
+		style="@style/BriarButton"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
-		android:drawableLeft="@drawable/ic_contacts"
 		android:text="@string/setup_new_account"
+		android:drawableLeft="@drawable/ic_contacts"
 		app:layout_constraintEnd_toEndOf="parent"
 		app:layout_constraintStart_toStartOf="parent"
-		app:layout_constraintTop_toTopOf="parent" />
-
+		app:layout_constraintTop_toTopOf="parent"
+		android:drawableStart="@drawable/ic_contacts" />
+	<TextView
+		android:id="@+id/textViewExplain"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:layout_marginTop="24dp"
+		android:gravity="center"
+		android:text="@string/custodian_recovery_explainer_extra"
+		android:textSize="20sp"
+		app:layout_constraintEnd_toEndOf="parent"
+		app:layout_constraintStart_toStartOf="parent"
+		app:layout_constraintTop_toBottomOf="@+id/buttonSetupNewAccount"
+		tools:layout_editor_absoluteX="16dp" />
 	<Button
-		android:id="@+id/buttonRestoreAccount"
+		android:id="@+id/buttonRestoreAccount2"
+		style="@style/BriarButton"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
 		android:drawableLeft="@drawable/ic_repeat"
 		android:text="@string/setup_restore_account"
 		app:layout_constraintEnd_toEndOf="parent"
 		app:layout_constraintStart_toStartOf="parent"
-		app:layout_constraintTop_toBottomOf="@+id/buttonSetupNewAccount" />
+		app:layout_constraintTop_toBottomOf="@+id/textViewExplain"
+		tools:enabled="true"
+		android:drawableStart="@drawable/ic_repeat" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

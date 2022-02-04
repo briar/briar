@@ -7,8 +7,6 @@ import org.briarproject.briar.android.AndroidComponent;
 import org.briarproject.briar.android.StartupFailureActivity;
 import org.briarproject.briar.android.account.AuthorNameFragment;
 import org.briarproject.briar.android.account.DozeFragment;
-import org.briarproject.briar.android.account.NewOrRecoverActivity;
-import org.briarproject.briar.android.account.NewOrRecoverFragment;
 import org.briarproject.briar.android.account.SetPasswordFragment;
 import org.briarproject.briar.android.account.SetupActivity;
 import org.briarproject.briar.android.account.UnlockActivity;
@@ -205,8 +203,6 @@ public interface ActivityComponent {
 
 	void inject(CrashReportActivity crashReportActivity);
 
-	void inject(NewOrRecoverActivity newOrRecoverActivity);
-
 	void inject(CustodianReturnShardActivity custodianReturnShardActivity);
 
     void inject(OwnerReturnShardActivity ownerReturnShardActivity);
@@ -286,8 +282,6 @@ public interface ActivityComponent {
 	void inject(OwnerRecoveryModeExplainerFragment ownerRecoveryModeExplainerFragment);
 
 	void inject(ExistingBackupFragment existingBackupFragment);
-
-	void inject(NewOrRecoverFragment newOrRecoverFragment);
 
 	void inject(CustodianRecoveryModeExplainerFragment custodianRecoveryModeExplainerFragment);
 

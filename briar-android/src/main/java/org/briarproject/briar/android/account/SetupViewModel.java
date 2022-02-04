@@ -25,13 +25,14 @@ import static org.briarproject.briar.android.account.SetupViewModel.State.AUTHOR
 import static org.briarproject.briar.android.account.SetupViewModel.State.CREATED;
 import static org.briarproject.briar.android.account.SetupViewModel.State.DOZE;
 import static org.briarproject.briar.android.account.SetupViewModel.State.FAILED;
+import static org.briarproject.briar.android.account.SetupViewModel.State.RECOVER;
 import static org.briarproject.briar.android.account.SetupViewModel.State.SET_PASSWORD;
 
 @MethodsNotNullByDefault
 @ParametersNotNullByDefault
 public
 class SetupViewModel extends AndroidViewModel {
-	enum State {AUTHOR_NAME, SET_PASSWORD, DOZE, CREATED, FAILED}
+	enum State {AUTHOR_NAME, SET_PASSWORD, DOZE, CREATED, FAILED, RECOVER}
 
 	private static final Logger LOG =
 			getLogger(SetupActivity.class.getName());
@@ -116,5 +117,10 @@ class SetupViewModel extends AndroidViewModel {
 				state.postEvent(FAILED);
 			}
 		});
+	}
+
+	public void recoverClicked() {
+		LOG.info("RECOVER CLICKED ***");
+	  state.postEvent(RECOVER);
 	}
 }
