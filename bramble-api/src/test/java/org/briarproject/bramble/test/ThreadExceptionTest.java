@@ -12,7 +12,7 @@ public class ThreadExceptionTest extends BrambleTestCase {
 		fail();
 	}
 
-	@Test(expected = AssertionError.class)
+	@Test
 	public void testExceptionInThreadMakesTestCaseFail() {
 		Thread t = new Thread(() -> {
 			System.out.println("thread before exception");
@@ -24,7 +24,8 @@ public class ThreadExceptionTest extends BrambleTestCase {
 			t.join();
 			System.out.println("joined thread");
 		} catch (InterruptedException e) {
-			e.printStackTrace();
+			System.out.println("interrupted while joining thread");
+			fail();
 		}
 	}
 
