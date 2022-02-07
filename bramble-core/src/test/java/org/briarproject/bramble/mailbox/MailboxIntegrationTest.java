@@ -2,7 +2,10 @@ package org.briarproject.bramble.mailbox;
 
 import org.briarproject.bramble.api.WeakSingletonProvider;
 import org.briarproject.bramble.api.contact.ContactId;
-import org.briarproject.bramble.api.mailbox.MailboxId;
+import org.briarproject.bramble.api.mailbox.InvalidMailboxIdException;
+import org.briarproject.bramble.api.mailbox.MailboxAuthToken;
+import org.briarproject.bramble.api.mailbox.MailboxFileId;
+import org.briarproject.bramble.api.mailbox.MailboxFolderId;
 import org.briarproject.bramble.api.mailbox.MailboxProperties;
 import org.briarproject.bramble.mailbox.MailboxApi.ApiException;
 import org.briarproject.bramble.mailbox.MailboxApi.MailboxContact;
@@ -28,8 +31,8 @@ import okhttp3.OkHttpClient;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
-import static org.briarproject.bramble.test.TestUtils.getMailboxId;
 import static org.briarproject.bramble.test.TestUtils.getRandomBytes;
+import static org.briarproject.bramble.test.TestUtils.getRandomId;
 import static org.briarproject.bramble.test.TestUtils.isOptionalTestEnabled;
 import static org.briarproject.bramble.test.TestUtils.readBytes;
 import static org.briarproject.bramble.test.TestUtils.writeBytes;
@@ -45,8 +48,16 @@ public class MailboxIntegrationTest extends BrambleTestCase {
 	public TemporaryFolder folder = new TemporaryFolder();
 
 	private final static String URL_BASE = "http://127.0.0.1:8000";
-	private final static MailboxId SETUP_TOKEN = MailboxId.fromString(
-			"54686973206973206120736574757020746f6b656e20666f722042726961722e");
+	private final static MailboxAuthToken SETUP_TOKEN;
+
+	static {
+		try {
+			SETUP_TOKEN = MailboxAuthToken.fromString(
+					"54686973206973206120736574757020746f6b656e20666f722042726961722e");
+		} catch (InvalidMailboxIdException e) {
+			throw new IllegalStateException();
+		}
+	}
 
 	private final OkHttpClient client = new OkHttpClient.Builder()
 			.socketFactory(SocketFactory.getDefault())
@@ -77,7 +88,7 @@ public class MailboxIntegrationTest extends BrambleTestCase {
 		if (ownerProperties != null) return;
 		MailboxProperties setupProperties =
 				new MailboxProperties(URL_BASE, SETUP_TOKEN, true);
-		MailboxId ownerToken = api.setup(setupProperties);
+		MailboxAuthToken ownerToken = api.setup(setupProperties);
 		ownerProperties = new MailboxProperties(URL_BASE, ownerToken, true);
 	}
 
@@ -133,7 +144,7 @@ public class MailboxIntegrationTest extends BrambleTestCase {
 		List<MailboxFile> files1 =
 				api.getFiles(contactProperties, contact.inboxId);
 		assertEquals(1, files1.size());
-		MailboxId fileName1 = files1.get(0).name;
+		MailboxFileId fileName1 = files1.get(0).name;
 
 		// owner can't check files
 		assertThrows(ApiException.class, () ->
@@ -171,15 +182,15 @@ public class MailboxIntegrationTest extends BrambleTestCase {
 		api.addFile(contactProperties, contact.outboxId, file3);
 
 		// owner checks folders with available files
-		List<MailboxId> folders = api.getFolders(ownerProperties);
+		List<MailboxFolderId> folders = api.getFolders(ownerProperties);
 		assertEquals(singletonList(contact.outboxId), folders);
 
 		// owner lists files in contact's outbox
 		List<MailboxFile> files2 =
 				api.getFiles(ownerProperties, contact.outboxId);
 		assertEquals(2, files2.size());
-		MailboxId file2name = files2.get(0).name;
-		MailboxId file3name = files2.get(1).name;
+		MailboxFileId file2name = files2.get(0).name;
+		MailboxFileId file3name = files2.get(1).name;
 
 		// contact can't list files in contact's outbox
 		assertThrows(ApiException.class, () ->
@@ -232,8 +243,10 @@ public class MailboxIntegrationTest extends BrambleTestCase {
 	}
 
 	private MailboxContact getMailboxContact(ContactId contactId) {
-		return new MailboxContact(contactId, getMailboxId(), getMailboxId(),
-				getMailboxId());
+		MailboxAuthToken authToken = new MailboxAuthToken(getRandomId());
+		MailboxFolderId inboxId = new MailboxFolderId(getRandomId());
+		MailboxFolderId outboxId = new MailboxFolderId(getRandomId());
+		return new MailboxContact(contactId, authToken, inboxId, outboxId);
 	}
 
 }

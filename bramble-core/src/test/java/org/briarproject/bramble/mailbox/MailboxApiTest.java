@@ -4,6 +4,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import org.briarproject.bramble.api.WeakSingletonProvider;
 import org.briarproject.bramble.api.contact.ContactId;
+import org.briarproject.bramble.api.mailbox.MailboxAuthToken;
+import org.briarproject.bramble.api.mailbox.MailboxFileId;
+import org.briarproject.bramble.api.mailbox.MailboxFolderId;
 import org.briarproject.bramble.api.mailbox.MailboxId;
 import org.briarproject.bramble.api.mailbox.MailboxProperties;
 import org.briarproject.bramble.mailbox.MailboxApi.ApiException;
@@ -32,8 +35,8 @@ import okio.Buffer;
 import static java.util.Collections.singletonList;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static org.briarproject.bramble.test.TestUtils.getContactId;
-import static org.briarproject.bramble.test.TestUtils.getMailboxId;
 import static org.briarproject.bramble.test.TestUtils.getRandomBytes;
+import static org.briarproject.bramble.test.TestUtils.getRandomId;
 import static org.briarproject.bramble.test.TestUtils.readBytes;
 import static org.briarproject.bramble.test.TestUtils.writeBytes;
 import static org.briarproject.bramble.util.StringUtils.getRandomString;
@@ -63,12 +66,15 @@ public class MailboxApiTest extends BrambleTestCase {
 			};
 	private final MailboxApiImpl api = new MailboxApiImpl(httpClientProvider);
 
-	private final MailboxId token = getMailboxId();
-	private final MailboxId token2 = getMailboxId();
+	private final MailboxAuthToken token = new MailboxAuthToken(getRandomId());
+	private final MailboxAuthToken token2 = new MailboxAuthToken(getRandomId());
 	private final ContactId contactId = getContactId();
-	private final MailboxId contactToken = getMailboxId();
-	private final MailboxId contactInboxId = getMailboxId();
-	private final MailboxId contactOutboxId = getMailboxId();
+	private final MailboxAuthToken contactToken =
+			new MailboxAuthToken(getRandomId());
+	private final MailboxFolderId contactInboxId =
+			new MailboxFolderId(getRandomId());
+	private final MailboxFolderId contactOutboxId =
+			new MailboxFolderId(getRandomId());
 	private final MailboxContact mailboxContact = new MailboxContact(
 			contactId, contactToken, contactInboxId, contactOutboxId);
 
@@ -428,9 +434,11 @@ public class MailboxApiTest extends BrambleTestCase {
 
 	@Test
 	public void testGetFiles() throws Exception {
-		MailboxFile mailboxFile1 = new MailboxFile(getMailboxId(), 1337);
+		MailboxFile mailboxFile1 =
+				new MailboxFile(new MailboxFileId(getRandomId()), 1337);
 		MailboxFile mailboxFile2 =
-				new MailboxFile(getMailboxId(), System.currentTimeMillis());
+				new MailboxFile(new MailboxFileId(getRandomId()),
+						System.currentTimeMillis());
 		String fileResponse1 =
 				new ObjectMapper().writeValueAsString(mailboxFile1);
 		String fileResponse2 =
@@ -539,7 +547,7 @@ public class MailboxApiTest extends BrambleTestCase {
 
 	@Test
 	public void testGetFile() throws Exception {
-		MailboxId name = getMailboxId();
+		MailboxFileId name = new MailboxFileId(getRandomId());
 		File file1 = folder.newFile();
 		File file2 = folder.newFile();
 		File file3 = folder.newFile();
@@ -586,7 +594,7 @@ public class MailboxApiTest extends BrambleTestCase {
 
 	@Test
 	public void testDeleteFile() throws Exception {
-		MailboxId name = getMailboxId();
+		MailboxFileId name = new MailboxFileId(getRandomId());
 
 		MockWebServer server = new MockWebServer();
 		server.enqueue(new MockResponse());
@@ -636,8 +644,8 @@ public class MailboxApiTest extends BrambleTestCase {
 
 	@Test
 	public void testGetFolders() throws Exception {
-		MailboxId id1 = getMailboxId();
-		MailboxId id2 = getMailboxId();
+		MailboxFolderId id1 = new MailboxFolderId(getRandomId());
+		MailboxFolderId id2 = new MailboxFolderId(getRandomId());
 		String validResponse1 = "{\"folders\": [ {\"id\": \"" + id1 + "\"} ] }";
 		String validResponse2 = "{\"folders\": [ {\"id\": \"" + id1 + "\"}, " +
 				"{ \"id\": \"" + id2 + "\"} ] }";

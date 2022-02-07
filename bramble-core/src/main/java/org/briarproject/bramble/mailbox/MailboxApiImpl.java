@@ -8,6 +8,10 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import org.briarproject.bramble.api.WeakSingletonProvider;
 import org.briarproject.bramble.api.contact.ContactId;
+import org.briarproject.bramble.api.mailbox.InvalidMailboxIdException;
+import org.briarproject.bramble.api.mailbox.MailboxAuthToken;
+import org.briarproject.bramble.api.mailbox.MailboxFileId;
+import org.briarproject.bramble.api.mailbox.MailboxFolderId;
 import org.briarproject.bramble.api.mailbox.MailboxId;
 import org.briarproject.bramble.api.mailbox.MailboxProperties;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
@@ -33,7 +37,6 @@ import static com.fasterxml.jackson.databind.MapperFeature.BLOCK_UNSAFE_POLYMORP
 import static java.util.Objects.requireNonNull;
 import static okhttp3.internal.Util.EMPTY_REQUEST;
 import static org.briarproject.bramble.util.IoUtils.copyAndClose;
-import static org.briarproject.bramble.util.StringUtils.fromHexString;
 
 @NotNullByDefault
 class MailboxApiImpl implements MailboxApi {
@@ -53,7 +56,7 @@ class MailboxApiImpl implements MailboxApi {
 	}
 
 	@Override
-	public MailboxId setup(MailboxProperties properties)
+	public MailboxAuthToken setup(MailboxProperties properties)
 			throws IOException, ApiException {
 		if (!properties.isOwner()) throw new IllegalArgumentException();
 		Request request = getRequestBuilder(properties.getAuthToken())
@@ -74,25 +77,9 @@ class MailboxApiImpl implements MailboxApi {
 				throw new ApiException();
 			}
 			String ownerToken = tokenNode.textValue();
-			if (ownerToken == null || !isValidToken(ownerToken)) {
-				throw new ApiException();
-			}
-			return MailboxId.fromString(ownerToken);
-		} catch (JacksonException e) {
+			return MailboxAuthToken.fromString(ownerToken);
+		} catch (JacksonException | InvalidMailboxIdException e) {
 			throw new ApiException();
-		}
-	}
-
-	// TODO find a batter way to validate (regex?)
-	//  that doesn't do hex string conversion twice
-	private boolean isValidToken(String token) {
-		if (token.length() != 64) return false;
-		try {
-			// try to convert to bytes
-			fromHexString(token);
-			return true;
-		} catch (IllegalArgumentException e) {
-			return false;
 		}
 	}
 
@@ -109,8 +96,7 @@ class MailboxApiImpl implements MailboxApi {
 
 	@Override
 	public void addContact(MailboxProperties properties, MailboxContact contact)
-			throws IOException, ApiException,
-			TolerableFailureException {
+			throws IOException, ApiException, TolerableFailureException {
 		if (!properties.isOwner()) throw new IllegalArgumentException();
 		byte[] bodyBytes = mapper.writeValueAsBytes(contact);
 		RequestBody body = RequestBody.create(JSON, bodyBytes);
@@ -163,7 +149,7 @@ class MailboxApiImpl implements MailboxApi {
 	/* File Management (owner and contacts) */
 
 	@Override
-	public void addFile(MailboxProperties properties, MailboxId folderId,
+	public void addFile(MailboxProperties properties, MailboxFolderId folderId,
 			File file) throws IOException, ApiException {
 		String path = "/files/" + folderId;
 		RequestBody body = RequestBody.create(FILE, file);
@@ -173,7 +159,7 @@ class MailboxApiImpl implements MailboxApi {
 
 	@Override
 	public List<MailboxFile> getFiles(MailboxProperties properties,
-			MailboxId folderId) throws IOException, ApiException {
+			MailboxFolderId folderId) throws IOException, ApiException {
 		String path = "/files/" + folderId;
 		Response response = sendGetRequest(properties, path);
 		if (response.code() != 200) throw new ApiException();
@@ -197,20 +183,19 @@ class MailboxApiImpl implements MailboxApi {
 				}
 				String name = nameNode.asText();
 				long time = timeNode.asLong();
-				if (!isValidToken(name)) throw new ApiException();
 				if (time < 1) throw new ApiException();
-				list.add(new MailboxFile(MailboxId.fromString(name), time));
+				list.add(new MailboxFile(MailboxFileId.fromString(name), time));
 			}
 			Collections.sort(list);
 			return list;
-		} catch (JacksonException e) {
+		} catch (JacksonException | InvalidMailboxIdException e) {
 			throw new ApiException();
 		}
 	}
 
 	@Override
-	public void getFile(MailboxProperties properties, MailboxId folderId,
-			MailboxId fileId, File file) throws IOException, ApiException {
+	public void getFile(MailboxProperties properties, MailboxFolderId folderId,
+			MailboxFileId fileId, File file) throws IOException, ApiException {
 		String path = "/files/" + folderId + "/" + fileId;
 		Response response = sendGetRequest(properties, path);
 		if (response.code() != 200) throw new ApiException();
@@ -222,8 +207,8 @@ class MailboxApiImpl implements MailboxApi {
 	}
 
 	@Override
-	public void deleteFile(MailboxProperties properties, MailboxId folderId,
-			MailboxId fileId)
+	public void deleteFile(MailboxProperties properties,
+			MailboxFolderId folderId, MailboxFileId fileId)
 			throws IOException, ApiException, TolerableFailureException {
 		String path = "/files/" + folderId + "/" + fileId;
 		Request request = getRequestBuilder(properties.getAuthToken())
@@ -237,7 +222,7 @@ class MailboxApiImpl implements MailboxApi {
 	}
 
 	@Override
-	public List<MailboxId> getFolders(MailboxProperties properties)
+	public List<MailboxFolderId> getFolders(MailboxProperties properties)
 			throws IOException, ApiException {
 		if (!properties.isOwner()) throw new IllegalArgumentException();
 		Response response = sendGetRequest(properties, "/folders");
@@ -248,7 +233,7 @@ class MailboxApiImpl implements MailboxApi {
 		try {
 			JsonNode node = mapper.readTree(body.string());
 			ArrayNode filesNode = getArray(node, "folders");
-			List<MailboxId> list = new ArrayList<>();
+			List<MailboxFolderId> list = new ArrayList<>();
 			for (JsonNode fileNode : filesNode) {
 				if (!fileNode.isObject()) throw new ApiException();
 				ObjectNode objectNode = (ObjectNode) fileNode;
@@ -257,11 +242,10 @@ class MailboxApiImpl implements MailboxApi {
 					throw new ApiException();
 				}
 				String id = idNode.asText();
-				if (!isValidToken(id)) throw new ApiException();
-				list.add(MailboxId.fromString(id));
+				list.add(MailboxFolderId.fromString(id));
 			}
 			return list;
-		} catch (JacksonException e) {
+		} catch (JacksonException | InvalidMailboxIdException e) {
 			throw new ApiException();
 		}
 	}

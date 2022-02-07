@@ -16,7 +16,6 @@ import org.briarproject.bramble.api.identity.Author;
 import org.briarproject.bramble.api.identity.AuthorId;
 import org.briarproject.bramble.api.identity.Identity;
 import org.briarproject.bramble.api.identity.LocalAuthor;
-import org.briarproject.bramble.api.mailbox.MailboxId;
 import org.briarproject.bramble.api.plugin.TransportId;
 import org.briarproject.bramble.api.properties.TransportProperties;
 import org.briarproject.bramble.api.sync.ClientId;
@@ -213,10 +212,6 @@ public class TestUtils {
 		return new Contact(c, remote, local,
 				getRandomString(MAX_AUTHOR_NAME_LENGTH),
 				getAgreementPublicKey(), verified);
-	}
-
-	public static MailboxId getMailboxId() {
-		return new MailboxId(getRandomId());
 	}
 
 	public static void writeBytes(File file, byte[] bytes)

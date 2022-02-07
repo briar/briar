@@ -2,7 +2,7 @@ package org.briarproject.bramble.mailbox;
 
 import org.briarproject.bramble.api.contact.ContactId;
 import org.briarproject.bramble.api.db.Transaction;
-import org.briarproject.bramble.api.mailbox.MailboxId;
+import org.briarproject.bramble.api.mailbox.MailboxAuthToken;
 import org.briarproject.bramble.api.mailbox.MailboxProperties;
 import org.briarproject.bramble.api.mailbox.MailboxSettingsManager;
 import org.briarproject.bramble.api.mailbox.MailboxStatus;
@@ -21,7 +21,7 @@ import static org.briarproject.bramble.mailbox.MailboxSettingsManagerImpl.SETTIN
 import static org.briarproject.bramble.mailbox.MailboxSettingsManagerImpl.SETTINGS_KEY_TOKEN;
 import static org.briarproject.bramble.mailbox.MailboxSettingsManagerImpl.SETTINGS_NAMESPACE;
 import static org.briarproject.bramble.mailbox.MailboxSettingsManagerImpl.SETTINGS_UPLOADS_NAMESPACE;
-import static org.briarproject.bramble.test.TestUtils.getMailboxId;
+import static org.briarproject.bramble.test.TestUtils.getRandomId;
 import static org.briarproject.bramble.util.StringUtils.getRandomString;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -37,7 +37,7 @@ public class MailboxSettingsManagerImplTest extends BrambleMockTestCase {
 			new MailboxSettingsManagerImpl(settingsManager);
 	private final Random random = new Random();
 	private final String onion = getRandomString(64);
-	private final MailboxId token = getMailboxId();
+	private final MailboxAuthToken token = new MailboxAuthToken(getRandomId());
 	private final ContactId contactId1 = new ContactId(random.nextInt());
 	private final ContactId contactId2 = new ContactId(random.nextInt());
 	private final ContactId contactId3 = new ContactId(random.nextInt());
@@ -195,7 +195,7 @@ public class MailboxSettingsManagerImplTest extends BrambleMockTestCase {
 		assertEquals(onion, filename1);
 		String filename2 = manager.getPendingUpload(txn, contactId2);
 		assertNotNull(filename2);
-		assertEquals(token, MailboxId.fromString(filename2));
+		assertEquals(token.toString(), filename2);
 		String filename3 = manager.getPendingUpload(txn, contactId3);
 		assertNull(filename3);
 		String filename4 =

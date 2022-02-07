@@ -3,7 +3,8 @@ package org.briarproject.bramble.mailbox;
 import org.briarproject.bramble.api.contact.ContactId;
 import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.db.Transaction;
-import org.briarproject.bramble.api.mailbox.MailboxId;
+import org.briarproject.bramble.api.mailbox.InvalidMailboxIdException;
+import org.briarproject.bramble.api.mailbox.MailboxAuthToken;
 import org.briarproject.bramble.api.mailbox.MailboxProperties;
 import org.briarproject.bramble.api.mailbox.MailboxSettingsManager;
 import org.briarproject.bramble.api.mailbox.MailboxStatus;
@@ -44,8 +45,12 @@ class MailboxSettingsManagerImpl implements MailboxSettingsManager {
 		String onion = s.get(SETTINGS_KEY_ONION);
 		String token = s.get(SETTINGS_KEY_TOKEN);
 		if (isNullOrEmpty(onion) || isNullOrEmpty(token)) return null;
-		MailboxId tokenId = MailboxId.fromString(token);
-		return new MailboxProperties(onion, tokenId, true);
+		try {
+			MailboxAuthToken tokenId = MailboxAuthToken.fromString(token);
+			return new MailboxProperties(onion, tokenId, true);
+		} catch (InvalidMailboxIdException e) {
+			throw new DbException(e);
+		}
 	}
 
 	@Override

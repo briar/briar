@@ -7,6 +7,7 @@ import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 
 import java.util.Locale;
 
+import javax.annotation.Nullable;
 import javax.annotation.concurrent.ThreadSafe;
 
 import static org.briarproject.bramble.util.StringUtils.fromHexString;
@@ -14,20 +15,26 @@ import static org.briarproject.bramble.util.StringUtils.toHexString;
 
 @ThreadSafe
 @NotNullByDefault
-public class MailboxId extends UniqueId {
-
-	public MailboxId(byte[] id) {
+public abstract class MailboxId extends UniqueId {
+	MailboxId(byte[] id) {
 		super(id);
 	}
 
 	/**
-	 * Creates a {@link MailboxId} from the given string.
+	 * Returns valid {@link MailboxId} bytes from the given string.
 	 *
-	 * @throws IllegalArgumentException if token is not valid.
+	 * @throws InvalidMailboxIdException if token is not valid.
 	 */
-	public static MailboxId fromString(String token) {
-		if (token.length() != 64) throw new IllegalArgumentException();
-		return new MailboxId(fromHexString(token));
+	static byte[] bytesFromString(@Nullable String token)
+			throws InvalidMailboxIdException {
+		if (token == null || token.length() != 64) {
+			throw new InvalidMailboxIdException();
+		}
+		try {
+			return fromHexString(token);
+		} catch (IllegalArgumentException e) {
+			throw new InvalidMailboxIdException();
+		}
 	}
 
 	/**
@@ -38,10 +45,5 @@ public class MailboxId extends UniqueId {
 	@JsonValue
 	public String toString() {
 		return toHexString(getBytes()).toLowerCase(Locale.US);
-	}
-
-	@Override
-	public boolean equals(Object o) {
-		return o instanceof MailboxId && super.equals(o);
 	}
 }
