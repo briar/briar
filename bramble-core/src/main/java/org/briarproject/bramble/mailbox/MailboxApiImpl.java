@@ -17,6 +17,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
 import javax.inject.Inject;
@@ -200,6 +201,7 @@ class MailboxApiImpl implements MailboxApi {
 				if (time < 1) throw new ApiException();
 				list.add(new MailboxFile(MailboxId.fromString(name), time));
 			}
+			Collections.sort(list);
 			return list;
 		} catch (JacksonException e) {
 			throw new ApiException();

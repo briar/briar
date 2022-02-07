@@ -194,14 +194,10 @@ public class MailboxIntegrationTest extends BrambleTestCase {
 				file3downloaded);
 		byte[] downloadedBytes2 = readBytes(file2downloaded);
 		byte[] downloadedBytes3 = readBytes(file3downloaded);
-		// file order is not preserved, so we don't know what file is which
-		if (downloadedBytes2.length == bytes2.length) {
-			assertArrayEquals(bytes2, downloadedBytes2);
-			assertArrayEquals(bytes3, downloadedBytes3);
-		} else {
-			assertArrayEquals(bytes2, downloadedBytes3);
-			assertArrayEquals(bytes3, downloadedBytes2);
-		}
+		// file order is preserved (sorted by time),
+		// so we know what file is which
+		assertArrayEquals(bytes2, downloadedBytes2);
+		assertArrayEquals(bytes3, downloadedBytes3);
 
 		// contact can't download files again, even if knowing name
 		File file2forbidden = folder.newFile();

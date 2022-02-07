@@ -11,6 +11,7 @@ import java.io.IOException;
 import java.util.Collection;
 import java.util.List;
 
+import javax.annotation.Nonnull;
 import javax.annotation.concurrent.Immutable;
 
 interface MailboxApi {
@@ -130,13 +131,20 @@ interface MailboxApi {
 	}
 
 	@JsonSerialize
-	class MailboxFile {
+	class MailboxFile implements Comparable<MailboxFile> {
 		public final MailboxId name;
 		public final long time;
 
 		public MailboxFile(MailboxId name, long time) {
 			this.name = name;
 			this.time = time;
+		}
+
+		@Override
+		public int compareTo(@Nonnull MailboxApi.MailboxFile mailboxFile) {
+			//noinspection UseCompareMethod
+			return time < mailboxFile.time ? -1 :
+					(time == mailboxFile.time ? 0 : 1);
 		}
 	}
 
