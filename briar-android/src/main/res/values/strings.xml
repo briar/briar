@@ -614,6 +614,20 @@
 
 	<!-- Mailbox -->
 	<string name="mailbox_settings_title">Mailbox</string>
+	<string name="mailbox_setup_title">Mailbox Setup</string>
+	<string name="mailbox_setup_intro">Once you set up a Mailbox for Briar, you will be able to send and receive messages even if you are not online.\n
+		\nYou can install Briar Mailbox on a spare device which will act as a forwarder for your messages (for best connectivity, the Mailbox device should stay charged and online at all times).</string>
+	<string name="mailbox_setup_download">Once you installed the Briar Mailbox app on a spare device, you can link it with this device by scanning the Mailbox QR code on the next screen.\n
+		\nYou can find Briar Mailbox on F-Droid or Google Play.</string>
+	<string name="mailbox_setup_download_link">Share Download Link</string>
+	<string name="mailbox_setup_button_scan">Scan Mailbox QR code</string>
+	<string name="mailbox_share_text">You can install the Briar Mailbox app from one of those sources:\n
+		\nF-Droid: %1$s
+		\nGoogle Play: %2$s
+		\nDirect Download: %3$s</string>
+	<string name="mailbox_share_fdroid" translatable="false">https://f-droid.org/packages/org.briarproject.mailbox/</string>
+	<string name="mailbox_share_gplay" translatable="false">https://play.google.com/store/apps/details?id=org.briarproject.mailbox</string>
+	<string name="mailbox_share_download" translatable="false">https://briarproject.org/apk</string>
 
 	<!-- Conversation Settings -->
 	<string name="disappearing_messages_title">Disappearing messages</string>

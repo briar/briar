@@ -12,8 +12,7 @@ public interface MailboxModule {
 
 	@Binds
 	@IntoMap
-	@ViewModelKey(MailboxPairViewModel.class)
-	ViewModel bindMailboxViewModel(
-			MailboxPairViewModel mailboxPairViewModel);
+	@ViewModelKey(MailboxViewModel.class)
+	ViewModel bindMailboxViewModel(MailboxViewModel mailboxViewModel);
 
 }

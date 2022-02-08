@@ -12,6 +12,7 @@ import org.briarproject.bramble.api.lifecycle.LifecycleManager;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.system.AndroidExecutor;
 import org.briarproject.bramble.util.StringUtils;
+import org.briarproject.briar.android.mailbox.MailboxState.NotSetup;
 import org.briarproject.briar.android.qrcode.QrCodeDecoder;
 import org.briarproject.briar.android.viewmodel.DbViewModel;
 
@@ -24,24 +25,27 @@ import javax.inject.Inject;
 
 import androidx.annotation.Nullable;
 import androidx.annotation.UiThread;
+import androidx.lifecycle.LiveData;
+import androidx.lifecycle.MutableLiveData;
 
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Logger.getLogger;
 
-@UiThread
 @NotNullByDefault
-class MailboxPairViewModel extends DbViewModel
+class MailboxViewModel extends DbViewModel
 		implements QrCodeDecoder.ResultCallback {
-	private static final Logger LOG =
-			getLogger(MailboxPairViewModel.class.getName());
 
-	private static final int VERSION_REQUIRED = 32;
+	private static final Logger LOG =
+			getLogger(MailboxViewModel.class.getName());
 
 	@SuppressWarnings("CharsetObjectCanBeUsed") // Requires minSdkVersion >= 19
 	private static final Charset ISO_8859_1 = Charset.forName("ISO-8859-1");
+	private static final int VERSION_REQUIRED = 32;
 
 	private final CryptoComponent crypto;
 	private final QrCodeDecoder qrCodeDecoder;
+
+	private final MutableLiveData<MailboxState> state = new MutableLiveData<>();
 
 	@Nullable
 	private String onionAddress = null;
@@ -49,7 +53,7 @@ class MailboxPairViewModel extends DbViewModel
 	private String setupToken = null;
 
 	@Inject
-	MailboxPairViewModel(
+	MailboxViewModel(
 			Application app,
 			@DatabaseExecutor Executor dbExecutor,
 			LifecycleManager lifecycleManager,
@@ -60,9 +64,29 @@ class MailboxPairViewModel extends DbViewModel
 		super(app, dbExecutor, lifecycleManager, db, androidExecutor);
 		this.crypto = crypto;
 		qrCodeDecoder = new QrCodeDecoder(androidExecutor, ioExecutor, this);
+		checkIfSetup();
+	}
+
+	@UiThread
+	private void checkIfSetup() {
+		runOnDbThread(() -> {
+			// TODO really check if mailbox is setup/paired/linked
+			try {
+				Thread.sleep(1000);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+			state.postValue(new NotSetup());
+		});
+	}
+
+	@UiThread
+	LiveData<MailboxState> getState() {
+		return state;
 	}
 
 	@Override
+	@IoExecutor
 	public void onQrCodeDecoded(Result result) {
 		LOG.info("Got result from decoder");
 		byte[] bytes = result.getText().getBytes(ISO_8859_1);

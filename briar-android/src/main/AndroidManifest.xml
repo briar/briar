@@ -477,6 +477,17 @@
 				android:value="org.briarproject.briar.android.conversation.ConversationActivity" />
 		</activity>
 
+		<activity
+			android:name=".android.mailbox.MailboxActivity"
+			android:exported="false"
+			android:label="@string/mailbox_settings_title"
+			android:parentActivityName="org.briarproject.briar.android.settings.SettingsActivity"
+			android:theme="@style/BriarTheme">
+			<meta-data
+				android:name="android.support.PARENT_ACTIVITY"
+				android:value="org.briarproject.briar.android.settings.SettingsActivity" />
+		</activity>
+
 	</application>
 
 	<queries>

@@ -1,6 +1,7 @@
 package org.briarproject.briar.android.settings;
 
 import android.content.Context;
+import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
@@ -8,6 +9,7 @@ import android.view.View;
 import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
 import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
 import org.briarproject.briar.R;
+import org.briarproject.briar.android.mailbox.MailboxActivity;
 import org.briarproject.briar.android.util.ActivityLaunchers.GetImageAdvanced;
 
 import javax.inject.Inject;
@@ -74,7 +76,8 @@ public class SettingsFragment extends PreferenceFragmentCompat {
 				requireNonNull(findPreference(PREF_KEY_MAILBOX));
 		if (viewModel.shouldEnableMailbox()) {
 			prefMailbox.setOnPreferenceClickListener(preference -> {
-				// TODO show mailbox status/onboarding
+				Intent i = new Intent(requireContext(), MailboxActivity.class);
+				startActivity(i);
 				return true;
 			});
 		} else {
