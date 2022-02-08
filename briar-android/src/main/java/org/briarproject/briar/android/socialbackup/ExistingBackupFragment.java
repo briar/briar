@@ -7,6 +7,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.identity.Author;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.activity.ActivityComponent;
@@ -31,28 +32,13 @@ public class ExistingBackupFragment extends BaseFragment {
 	@Inject
 	ViewModelProvider.Factory viewModelFactory;
 
-	private static SocialBackupSetupViewModel viewModel;
+	private SocialBackupSetupViewModel viewModel;
 
 	@Override
 	public void injectFragment(ActivityComponent component) {
 		component.inject(this);
 		viewModel = new ViewModelProvider(requireActivity(), viewModelFactory)
 				.get(SocialBackupSetupViewModel.class);
-	}
-
-	public static ExistingBackupFragment newInstance() {
-		Bundle bundle = new Bundle();
-		BackupMetadata backupMetadata = viewModel.getBackupMetadata();
-		List<Author> custodians = backupMetadata.getCustodians();
-		ArrayList custodianNames = new ArrayList();
-		for (Author custodian : custodians) {
-			custodianNames.add(custodian.getName());
-		}
-		bundle.putStringArrayList(CUSTODIANS, custodianNames);
-		bundle.putInt(THRESHOLD, backupMetadata.getThreshold());
-		ExistingBackupFragment fragment = new ExistingBackupFragment();
-		fragment.setArguments(bundle);
-		return fragment;
 	}
 
 	@Override
@@ -68,20 +54,20 @@ public class ExistingBackupFragment extends BaseFragment {
 			ViewGroup container, @Nullable Bundle savedInstanceState) {
 		View view = inflater.inflate(R.layout.fragment_existing_backup,
 				container, false);
-		Bundle args = requireArguments();
-		ArrayList<String> custodianNames = args.getStringArrayList(CUSTODIANS);
+		BackupMetadata backupMetadata = viewModel.getBackupMetadata();
+		List<Author> custodians = backupMetadata.getCustodians();
 
 		StringBuilder custodianNamesString = new StringBuilder();
-		for (String custodianName : custodianNames) {
+		for (Author custodian : custodians) {
 			custodianNamesString
 					.append("• ")
-					.append(custodianName)
+					.append(custodian.getName())
 					.append("\n");
 		}
 
 		TextView textViewThreshold = view.findViewById(R.id.textViewThreshold);
 		textViewThreshold.setText(getString(R.string.existing_backup_explain,
-				args.getInt(THRESHOLD)));
+				backupMetadata.getThreshold()));
 		TextView textViewCustodians =
 				view.findViewById(R.id.textViewCustodians);
 		textViewCustodians.setText(custodianNamesString);
@@ -94,11 +80,9 @@ public class ExistingBackupFragment extends BaseFragment {
 //		listener = (ShardsSentDismissedListener) context;
 	}
 
-
 	@Override
 	public String getUniqueTag() {
 		return TAG;
 	}
-
 
 }

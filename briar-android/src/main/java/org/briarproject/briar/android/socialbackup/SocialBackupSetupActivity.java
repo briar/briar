@@ -46,9 +46,7 @@ public class SocialBackupSetupActivity extends BriarActivity implements
 		setContentView(R.layout.activity_distributed_backup);
 
 		if (viewModel.haveExistingBackup()) {
-			ExistingBackupFragment fragment =
-					ExistingBackupFragment.newInstance();
-			showInitialFragment(fragment);
+			showInitialFragment(new ExistingBackupFragment());
 		} else {
 			try {
 				if (!viewModel.haveEnoughContacts()) {
@@ -73,16 +71,13 @@ public class SocialBackupSetupActivity extends BriarActivity implements
 	private void onStateChanged(SocialBackupSetupViewModel.State state) {
 		switch(state) {
 			case SUCCESS:
-				try {
-					viewModel.createBackup();
-					ShardsSentFragment fragment = new ShardsSentFragment();
-					showNextFragment(fragment);
-				} catch (DbException e) {
-					Toast.makeText(this,
-							"There was an error when creating the backup",
-							Toast.LENGTH_LONG).show();
-					finish();
-				}
+				finish();
+				break;
+			case FAILURE:
+				Toast.makeText(this,
+						"There was an error when creating the backup",
+						Toast.LENGTH_LONG).show();
+				finish();
 				break;
 			case CHOOSING_CUSTODIANS:
 				CustodianSelectorFragment fragment =

@@ -20,6 +20,7 @@ import javax.inject.Inject;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.lifecycle.ViewModelProvider;
 
 public class ThresholdSelectorFragment extends BaseFragment {
@@ -125,10 +126,23 @@ public class ThresholdSelectorFragment extends BaseFragment {
 		switch (item.getItemId()) {
 			case R.id.action_threshold_defined:
 				viewModel.setThreshold(threshold);
+				showSuccessDialog();
 				return true;
 			default:
 				return super.onOptionsItemSelected(item);
 		}
+	}
+
+	private void showSuccessDialog() {
+		AlertDialog.Builder builder = new AlertDialog.Builder(requireContext(),
+				R.style.BriarDialogTheme);
+		builder.setTitle(R.string.backup_created);
+		builder.setMessage(R.string.backup_done_info);
+		builder.setPositiveButton(R.string.ok,
+				(dialog, which) -> viewModel.onSuccessDismissed());
+		builder.setIcon(R.drawable.ic_baseline_done_outline_24);
+				AlertDialog dialog = builder.create();
+		dialog.show();
 	}
 
 	private String buildThresholdRepresentationString() {

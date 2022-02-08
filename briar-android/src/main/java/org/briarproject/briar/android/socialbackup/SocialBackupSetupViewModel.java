@@ -32,7 +32,8 @@ public class SocialBackupSetupViewModel extends AndroidViewModel {
 		EXPLAINING,
 		CHOOSING_CUSTODIANS,
 		GETTING_THRESHOLD,
-		SUCCESS
+		SUCCESS,
+		FAILURE
 	}
 
 	private final MutableLiveData<State> state =
@@ -53,39 +54,44 @@ public class SocialBackupSetupViewModel extends AndroidViewModel {
 
 	public boolean haveExistingBackup() {
 		try {
-			db.transaction(false, txn -> {
-				backupMetadata =
-						socialBackupManager.getBackupMetadata(txn);
-				if (backupMetadata == null) throw new DbException();
-			});
+			backupMetadata = db.transactionWithNullableResult(true,
+					socialBackupManager::getBackupMetadata);
 		} catch (DbException e) {
 			return false;
 		}
-		return true;
+		return (backupMetadata != null);
 	}
 
 	public BackupMetadata getBackupMetadata() {
 		return backupMetadata;
 	}
 
-    public boolean haveEnoughContacts() throws DbException {
-	    return (contactManager.getContacts().size() > 1);
+	public boolean haveEnoughContacts() throws DbException {
+		return (contactManager.getContacts().size() > 1);
 	}
 
 	public void setCustodians(Collection<ContactId> contacts) {
 		custodians = contacts;
 	}
 
-	public void createBackup() throws DbException {
-		db.transaction(false, txn -> {
-			socialBackupManager
-					.createBackup(txn, (List<ContactId>) custodians,
-							threshold);
-		});
+	public void createBackup() {
+		try {
+			db.transaction(false, txn -> {
+				socialBackupManager
+						.createBackup(txn, (List<ContactId>) custodians,
+								threshold);
+			});
+		} catch (DbException e) {
+			state.postValue(State.FAILURE);
+		}
 	}
 
 	public void setThreshold(int threshold) {
 		this.threshold = threshold;
+		createBackup();
+	}
+
+	public void onSuccessDismissed() {
 		state.postValue(State.SUCCESS);
 	}
 
@@ -94,7 +100,7 @@ public class SocialBackupSetupViewModel extends AndroidViewModel {
 	}
 
 	public void onExplainerDismissed() {
-	    state.postValue(State.CHOOSING_CUSTODIANS);
+		state.postValue(State.CHOOSING_CUSTODIANS);
 	}
 }
 
