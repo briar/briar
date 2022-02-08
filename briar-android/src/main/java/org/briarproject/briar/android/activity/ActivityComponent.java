@@ -92,7 +92,6 @@ import org.briarproject.briar.android.socialbackup.recover.OwnerRecoveryModeExpl
 import org.briarproject.briar.android.socialbackup.recover.OwnerRecoveryModeMainFragment;
 import org.briarproject.briar.android.socialbackup.recover.OwnerReturnShardActivity;
 import org.briarproject.briar.android.socialbackup.recover.OwnerReturnShardFragment;
-import org.briarproject.briar.android.socialbackup.ShardsSentFragment;
 import org.briarproject.briar.android.socialbackup.ThresholdSelectorFragment;
 import org.briarproject.briar.android.socialbackup.creation.CreateBackupModule;
 import org.briarproject.briar.android.socialbackup.recover.OwnerReturnShardSuccessFragment;
@@ -276,8 +275,6 @@ public interface ActivityComponent {
 	void inject(DatabaseComponent databaseComponent);
 
 	void inject(CustodianSelectorFragment custodianSelectorFragment);
-
-	void inject(ShardsSentFragment shardsSentFragment);
 
 	void inject(OwnerRecoveryModeExplainerFragment ownerRecoveryModeExplainerFragment);
 

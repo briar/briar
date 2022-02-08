@@ -4,29 +4,21 @@ import android.os.Bundle;
 import android.widget.Toast;
 
 import org.briarproject.bramble.api.contact.ContactId;
-import org.briarproject.bramble.api.contact.ContactManager;
-import org.briarproject.bramble.api.db.DatabaseComponent;
 import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.activity.ActivityComponent;
 import org.briarproject.briar.android.activity.BriarActivity;
 import org.briarproject.briar.android.contactselection.ContactSelectorListener;
 import org.briarproject.briar.android.fragment.BaseFragment;
-import org.briarproject.briar.android.socialbackup.recover.CustodianReturnShardViewModel;
-import org.briarproject.briar.api.socialbackup.BackupMetadata;
-import org.briarproject.briar.api.socialbackup.SocialBackup;
-import org.briarproject.briar.api.socialbackup.SocialBackupManager;
 
 import java.util.Collection;
-import java.util.List;
 
 import javax.inject.Inject;
 
 import androidx.lifecycle.ViewModelProvider;
 
 public class SocialBackupSetupActivity extends BriarActivity implements
-		BaseFragment.BaseFragmentListener, ContactSelectorListener,
-		ShardsSentFragment.ShardsSentDismissedListener {
+		BaseFragment.BaseFragmentListener, ContactSelectorListener {
 
 	private SocialBackupSetupViewModel viewModel;
 
@@ -69,7 +61,7 @@ public class SocialBackupSetupActivity extends BriarActivity implements
 	}
 
 	private void onStateChanged(SocialBackupSetupViewModel.State state) {
-		switch(state) {
+		switch (state) {
 			case SUCCESS:
 				finish();
 				break;
@@ -96,11 +88,6 @@ public class SocialBackupSetupActivity extends BriarActivity implements
 		ThresholdSelectorFragment fragment =
 				ThresholdSelectorFragment.newInstance(contacts.size());
 		showNextFragment(fragment);
-	}
-
-	@Override
-	public void shardsSentDismissed() {
-		finish();
 	}
 
 }
