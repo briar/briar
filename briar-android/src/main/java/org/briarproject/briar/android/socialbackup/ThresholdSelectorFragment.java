@@ -2,6 +2,9 @@ package org.briarproject.briar.android.socialbackup;
 
 import android.content.Context;
 import android.os.Bundle;
+import android.text.Spannable;
+import android.text.SpannableString;
+import android.text.style.ImageSpan;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -15,6 +18,8 @@ import org.briarproject.briar.R;
 import org.briarproject.briar.android.activity.ActivityComponent;
 import org.briarproject.briar.android.fragment.BaseFragment;
 import org.magmacollective.darkcrystal.secretsharingwrapper.SecretSharingWrapper;
+
+import java.util.Arrays;
 
 import javax.inject.Inject;
 
@@ -145,15 +150,20 @@ public class ThresholdSelectorFragment extends BaseFragment {
 		dialog.show();
 	}
 
-	private String buildThresholdRepresentationString() {
-		String thresholdRepresentationText = "";
-		for (int i = 0; i < threshold; i++) {
-			thresholdRepresentationText += getString(R.string.filled_bullet);
+	private SpannableString buildThresholdRepresentationString() {
+		char[] charArray = new char[numberOfCustodians];
+		Arrays.fill(charArray, ' ');
+		SpannableString string = new SpannableString(new String(charArray));
+
+		for (int i = 0; i < numberOfCustodians; i++) {
+			int drawable = i < threshold
+					? R.drawable.ic_custodian_required
+					: R.drawable.ic_custodian_optional;
+			string.setSpan(new ImageSpan(getContext(), drawable), i,
+					i+1,
+					Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
 		}
-		for (int i = 0; i < (numberOfCustodians - threshold); i++) {
-			thresholdRepresentationText += getString(R.string.linear_bullet);
-		}
-		return thresholdRepresentationText;
+        return string;
 	}
 
 	private class SeekBarListener implements SeekBar.OnSeekBarChangeListener {
