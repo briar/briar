@@ -4,6 +4,7 @@ import android.content.Context;
 import android.os.Bundle;
 import android.text.Spannable;
 import android.text.SpannableString;
+import android.text.SpannableStringBuilder;
 import android.text.style.ImageSpan;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -150,10 +151,10 @@ public class ThresholdSelectorFragment extends BaseFragment {
 		dialog.show();
 	}
 
-	private SpannableString buildThresholdRepresentationString() {
+	private SpannableStringBuilder buildThresholdRepresentationString() {
 		char[] charArray = new char[numberOfCustodians];
 		Arrays.fill(charArray, ' ');
-		SpannableString string = new SpannableString(new String(charArray));
+		SpannableStringBuilder string = new SpannableStringBuilder(new String(charArray));
 
 		for (int i = 0; i < numberOfCustodians; i++) {
 			int drawable = i < threshold
@@ -163,6 +164,8 @@ public class ThresholdSelectorFragment extends BaseFragment {
 					i+1,
 					Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
 		}
+		// If we have more than 6, split it on two lines
+		if (numberOfCustodians > 6) string.insert(4, "\n");
         return string;
 	}
 
