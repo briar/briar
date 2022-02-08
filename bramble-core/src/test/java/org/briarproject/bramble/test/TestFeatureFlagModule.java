@@ -26,6 +26,11 @@ public class TestFeatureFlagModule {
 			}
 
 			@Override
+			public boolean shouldEnableMailbox() {
+				return true;
+			}
+
+			@Override
 			public boolean shouldEnablePrivateGroupsInCore() {
 				return true;
 			}
