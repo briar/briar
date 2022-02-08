@@ -36,7 +36,7 @@ public class SettingsFragment extends PreferenceFragmentCompat {
 	private static final String PREF_KEY_FEEDBACK = "pref_key_send_feedback";
 	private static final String PREF_KEY_DEV = "pref_key_dev";
 	private static final String PREF_KEY_EXPLODE = "pref_key_explode";
-	private static final String PREF_KEY_SHARE_APP = "pref_key_share_app";
+	private static final String PREF_KEY_MAILBOX = "pref_key_mailbox";
 
 	@Inject
 	ViewModelProvider.Factory viewModelFactory;
@@ -68,6 +68,17 @@ public class SettingsFragment extends PreferenceFragmentCompat {
 			});
 		} else {
 			prefAvatar.setVisible(false);
+		}
+
+		Preference prefMailbox =
+				requireNonNull(findPreference(PREF_KEY_MAILBOX));
+		if (viewModel.shouldEnableMailbox()) {
+			prefMailbox.setOnPreferenceClickListener(preference -> {
+				// TODO show mailbox status/onboarding
+				return true;
+			});
+		} else {
+			prefMailbox.setVisible(false);
 		}
 
 		Preference prefFeedback =

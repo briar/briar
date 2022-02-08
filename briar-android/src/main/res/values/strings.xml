@@ -612,6 +612,9 @@
 	<string name="choose_ringtone_title">Choose ringtone</string>
 	<string name="cannot_load_ringtone">Cannot load ringtone</string>
 
+	<!-- Mailbox -->
+	<string name="mailbox_settings_title">Mailbox</string>
+
 	<!-- Conversation Settings -->
 	<string name="disappearing_messages_title">Disappearing messages</string>
 	<string name="disappearing_messages_explanation_long">Turning on this setting will make new
