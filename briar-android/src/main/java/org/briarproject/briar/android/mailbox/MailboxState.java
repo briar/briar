@@ -5,6 +5,9 @@ class MailboxState {
 	static class NotSetup extends MailboxState {
 	}
 
+	static class SettingUp extends MailboxState {
+	}
+
 	// TODO add other states
 
 }

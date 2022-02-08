@@ -44,6 +44,7 @@ import org.briarproject.briar.android.hotspot.ManualHotspotFragment;
 import org.briarproject.briar.android.hotspot.QrHotspotFragment;
 import org.briarproject.briar.android.logging.CachingLogHandler;
 import org.briarproject.briar.android.login.SignInReminderReceiver;
+import org.briarproject.briar.android.mailbox.MailboxScanFragment;
 import org.briarproject.briar.android.removabledrive.ChooserFragment;
 import org.briarproject.briar.android.removabledrive.ReceiveFragment;
 import org.briarproject.briar.android.removabledrive.SendFragment;
@@ -239,4 +240,6 @@ public interface AndroidComponent
 	void inject(ReceiveFragment receiveFragment);
 
 	void inject(BluetoothIntroFragment bluetoothIntroFragment);
+
+	void inject(MailboxScanFragment mailboxScanFragment);
 }

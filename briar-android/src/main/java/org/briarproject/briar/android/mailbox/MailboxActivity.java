@@ -17,6 +17,7 @@ import androidx.lifecycle.ViewModelProvider;
 
 import static android.view.View.INVISIBLE;
 import static android.view.View.VISIBLE;
+import static org.briarproject.briar.android.util.UiUtils.showFragment;
 
 @MethodsNotNullByDefault
 @ParametersNotNullByDefault
@@ -46,13 +47,13 @@ public class MailboxActivity extends BriarActivity {
 			progressBar.setVisibility(VISIBLE);
 		}
 
-		if (savedInstanceState == null) {
-			viewModel.getState().observe(this, state -> {
-				if (state instanceof MailboxState.NotSetup) {
-					onNotSetup();
-				}
-			});
-		}
+		viewModel.getState().observe(this, state -> {
+			if (state instanceof MailboxState.NotSetup) {
+				if (savedInstanceState == null) onNotSetup();
+			} else if (state instanceof MailboxState.SettingUp) {
+				onCodeScanned();
+			}
+		});
 	}
 
 	@Override
@@ -64,12 +65,29 @@ public class MailboxActivity extends BriarActivity {
 		return super.onOptionsItemSelected(item);
 	}
 
+	@Override
+	public void onBackPressed() {
+		if (viewModel.getState()
+				.getValue() instanceof MailboxState.SettingUp) {
+			// don't go back in flow if we are already setting up mailbox
+			supportFinishAfterTransition();
+		} else {
+			super.onBackPressed();
+		}
+	}
+
 	private void onNotSetup() {
 		progressBar.setVisibility(INVISIBLE);
 		getSupportFragmentManager().beginTransaction()
 				.replace(R.id.fragmentContainer, new SetupIntroFragment(),
 						SetupIntroFragment.TAG)
 				.commit();
+	}
+
+	private void onCodeScanned() {
+		showFragment(getSupportFragmentManager(),
+				new MailboxConnectingFragment(),
+				MailboxConnectingFragment.TAG, false);
 	}
 
 }

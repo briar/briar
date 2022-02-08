@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Context;
 
 import org.briarproject.briar.R;
+import org.briarproject.briar.android.util.Permission;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.annotation.Nullable;
@@ -18,10 +19,6 @@ import static org.briarproject.briar.android.util.UiUtils.isLocationEnabled;
 import static org.briarproject.briar.android.util.UiUtils.showLocationDialog;
 
 class BluetoothConditionManager {
-
-	private enum Permission {
-		UNKNOWN, GRANTED, SHOW_RATIONALE, PERMANENTLY_DENIED
-	}
 
 	private Permission locationPermission = Permission.UNKNOWN;
 

@@ -628,6 +628,8 @@
 	<string name="mailbox_share_fdroid" translatable="false">https://f-droid.org/packages/org.briarproject.mailbox/</string>
 	<string name="mailbox_share_gplay" translatable="false">https://play.google.com/store/apps/details?id=org.briarproject.mailbox</string>
 	<string name="mailbox_share_download" translatable="false">https://briarproject.org/apk</string>
+	<string name="permission_camera_qr_denied_body">You have denied access to the camera, but scanning a QR code requires using the camera.\n\nPlease consider granting access.</string>
+	<string name="mailbox_setup_connecting">Connecting…</string>
 
 	<!-- Conversation Settings -->
 	<string name="disappearing_messages_title">Disappearing messages</string>

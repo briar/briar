@@ -52,6 +52,7 @@ import androidx.annotation.ColorRes;
 import androidx.annotation.DrawableRes;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
+import androidx.annotation.StringRes;
 import androidx.annotation.UiThread;
 import androidx.appcompat.app.AlertDialog;
 import androidx.core.content.ContextCompat;
@@ -574,4 +575,26 @@ public class UiUtils {
 				SOFT_INPUT_STATE_HIDDEN);
 	}
 
+	public static void showDenialDialog(FragmentActivity ctx,
+			@StringRes int title, @StringRes int body) {
+		AlertDialog.Builder builder =
+				new AlertDialog.Builder(ctx, R.style.BriarDialogTheme);
+		builder.setTitle(title);
+		builder.setMessage(body);
+		builder.setPositiveButton(R.string.ok, getGoToSettingsListener(ctx));
+		builder.setNegativeButton(R.string.cancel,
+				(dialog, which) -> ctx.supportFinishAfterTransition());
+		builder.show();
+	}
+
+	public static void showRationale(FragmentActivity ctx, @StringRes int title,
+			@StringRes int body, Runnable requestPermissions) {
+		AlertDialog.Builder builder =
+				new AlertDialog.Builder(ctx, R.style.BriarDialogTheme);
+		builder.setTitle(title);
+		builder.setMessage(body);
+		builder.setNeutralButton(R.string.continue_button,
+				(dialog, which) -> requestPermissions.run());
+		builder.show();
+	}
 }

@@ -9,9 +9,10 @@ import org.briarproject.bramble.api.db.DatabaseExecutor;
 import org.briarproject.bramble.api.db.TransactionManager;
 import org.briarproject.bramble.api.lifecycle.IoExecutor;
 import org.briarproject.bramble.api.lifecycle.LifecycleManager;
+import org.briarproject.bramble.api.mailbox.MailboxAuthToken;
+import org.briarproject.bramble.api.mailbox.MailboxProperties;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.system.AndroidExecutor;
-import org.briarproject.bramble.util.StringUtils;
 import org.briarproject.briar.android.mailbox.MailboxState.NotSetup;
 import org.briarproject.briar.android.qrcode.QrCodeDecoder;
 import org.briarproject.briar.android.viewmodel.DbViewModel;
@@ -23,7 +24,6 @@ import java.util.logging.Logger;
 
 import javax.inject.Inject;
 
-import androidx.annotation.Nullable;
 import androidx.annotation.UiThread;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
@@ -46,11 +46,6 @@ class MailboxViewModel extends DbViewModel
 	private final QrCodeDecoder qrCodeDecoder;
 
 	private final MutableLiveData<MailboxState> state = new MutableLiveData<>();
-
-	@Nullable
-	private String onionAddress = null;
-	@Nullable
-	private String setupToken = null;
 
 	@Inject
 	MailboxViewModel(
@@ -80,11 +75,6 @@ class MailboxViewModel extends DbViewModel
 		});
 	}
 
-	@UiThread
-	LiveData<MailboxState> getState() {
-		return state;
-	}
-
 	@Override
 	@IoExecutor
 	public void onQrCodeDecoded(Result result) {
@@ -105,15 +95,25 @@ class MailboxViewModel extends DbViewModel
 			return;
 		}
 
-		byte[] onionPubKey = Arrays.copyOfRange(bytes, 1, 33);
-		onionAddress = crypto.encodeOnionAddress(onionPubKey);
-		setupToken = StringUtils.toHexString(Arrays.copyOfRange(bytes, 33, 65))
-				.toLowerCase();
 		LOG.info("QR code is valid");
+		byte[] onionPubKey = Arrays.copyOfRange(bytes, 1, 33);
+		String onionAddress = crypto.encodeOnionAddress(onionPubKey);
+		byte[] tokenBytes = Arrays.copyOfRange(bytes, 33, 65);
+		MailboxAuthToken setupToken = new MailboxAuthToken(tokenBytes);
+		MailboxProperties props =
+				new MailboxProperties(onionAddress, setupToken, true);
+		// TODO pass props to core (maybe even do payload parsing there)
+		state.postValue(new MailboxState.SettingUp());
 	}
 
+	@UiThread
 	QrCodeDecoder getQrCodeDecoder() {
 		return qrCodeDecoder;
+	}
+
+	@UiThread
+	LiveData<MailboxState> getState() {
+		return state;
 	}
 
 }

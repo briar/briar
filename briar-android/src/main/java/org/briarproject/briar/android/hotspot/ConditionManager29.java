@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.provider.Settings;
 
 import org.briarproject.briar.R;
+import org.briarproject.briar.android.util.Permission;
 
 import java.util.logging.Logger;
 
