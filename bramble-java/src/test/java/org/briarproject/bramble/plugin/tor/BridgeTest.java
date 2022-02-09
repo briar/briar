@@ -107,7 +107,7 @@ public class BridgeTest extends BrambleTestCase {
 	private final File torDir = getTestDirectory();
 	private final Params params;
 
-	private UnixTorPluginFactory factory;
+	private DesktopTorPluginFactory factory;
 
 	public BridgeTest(Params params) {
 		this.params = params;
@@ -152,7 +152,7 @@ public class BridgeTest extends BrambleTestCase {
 				return singletonList(params.bridge);
 			}
 		};
-		factory = new UnixTorPluginFactory(ioExecutor, wakefulIoExecutor,
+		factory = new DesktopTorPluginFactory(ioExecutor, wakefulIoExecutor,
 				networkManager, locationUtils, eventBus, torSocketFactory,
 				backoffFactory, resourceProvider, bridgeProvider,
 				batteryManager, clock, torDir, DEFAULT_SOCKS_PORT,

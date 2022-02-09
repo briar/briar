@@ -105,43 +105,46 @@ import static org.briarproject.bramble.util.StringUtils.isNullOrEmpty;
 @ParametersNotNullByDefault
 abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 
-	private static final Logger LOG = getLogger(TorPlugin.class.getName());
+	static final Logger LOG = getLogger(TorPlugin.class.getName());
 
-	private static final String[] EVENTS = {
+	static final String[] EVENTS = {
 			"CIRC", "ORCONN", "HS_DESC", "NOTICE", "WARN", "ERR"
 	};
-	private static final String OWNER = "__OwningControllerProcess";
-	private static final int COOKIE_TIMEOUT_MS = 3000;
-	private static final int COOKIE_POLLING_INTERVAL_MS = 200;
+	static final String OWNER = "__OwningControllerProcess";
+	static final int COOKIE_TIMEOUT_MS = 3000;
+	static final int COOKIE_POLLING_INTERVAL_MS = 200;
 	private static final Pattern ONION_V3 = Pattern.compile("[a-z2-7]{56}");
 
 	private final Executor ioExecutor, wakefulIoExecutor;
 	private final Executor connectionStatusExecutor;
-	private final NetworkManager networkManager;
+	final NetworkManager networkManager;
 	private final LocationUtils locationUtils;
 	private final SocketFactory torSocketFactory;
-	private final Clock clock;
-	private final BatteryManager batteryManager;
+	final Clock clock;
+	final BatteryManager batteryManager;
 	private final Backoff backoff;
 	private final TorRendezvousCrypto torRendezvousCrypto;
-	private final PluginCallback callback;
+	final PluginCallback callback;
 	private final String architecture;
 	private final CircumventionProvider circumventionProvider;
 	private final ResourceProvider resourceProvider;
 	private final long maxLatency;
 	private final int maxIdleTime;
 	private final int socketTimeout;
-	private final File torDirectory, geoIpFile, configFile;
-	private final int torSocksPort;
-	private final int torControlPort;
-	private final File doneFile, cookieFile;
-	private final AtomicBoolean used = new AtomicBoolean(false);
+	final File torDirectory;
+	final File geoIpFile;
+	final File configFile;
+	final int torSocksPort;
+	final int torControlPort;
+	private final File doneFile;
+	final File cookieFile;
+	final AtomicBoolean used = new AtomicBoolean(false);
 
 	protected final PluginState state = new PluginState();
 
-	private volatile Socket controlSocket = null;
-	private volatile TorControlConnection controlConnection = null;
-	private volatile Settings settings = null;
+	volatile Socket controlSocket = null;
+	volatile TorControlConnection controlConnection = null;
+	volatile Settings settings = null;
 
 	protected abstract int getProcessId();
 
@@ -242,6 +245,7 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 		Process torProcess;
 		ProcessBuilder pb =
 				new ProcessBuilder(torPath, "-f", configPath, OWNER, pid);
+		// TODO: pb.redirectErrorStream on Linux, too?
 		Map<String, String> env = pb.environment();
 		env.put("HOME", torDirectory.getAbsolutePath());
 		pb.directory(torDirectory);
@@ -318,8 +322,9 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 		bind();
 	}
 
+
 	// TODO: Remove after a reasonable migration period (added 2020-06-25)
-	private Settings migrateSettings(Settings settings) {
+	Settings migrateSettings(Settings settings) {
 		int network = settings.getInt(PREF_TOR_NETWORK,
 				DEFAULT_PREF_TOR_NETWORK);
 		if (network == PREF_TOR_NETWORK_NEVER) {
@@ -330,11 +335,11 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 		return settings;
 	}
 
-	private boolean assetsAreUpToDate() {
+	boolean assetsAreUpToDate() {
 		return doneFile.lastModified() > getLastUpdateTime();
 	}
 
-	private void installAssets() throws PluginException {
+	void installAssets() throws PluginException {
 		try {
 			// The done file may already exist from a previous installation
 			//noinspection ResultOfMethodCallIgnored
@@ -389,20 +394,20 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 
 	private InputStream getObfs4InputStream() throws IOException {
 		InputStream in = resourceProvider
-				.getResourceInputStream("obfs4proxy_" + architecture, ".zip");
+				.getResourceInputStream("obfs4proxy_" + "linux-x86_64", ".zip");
 		ZipInputStream zin = new ZipInputStream(in);
 		if (zin.getNextEntry() == null) throw new IOException();
 		return zin;
 	}
 
-	private static void append(StringBuilder strb, String name, int value) {
+	protected static void append(StringBuilder strb, String name, int value) {
 		strb.append(name);
 		strb.append(" ");
 		strb.append(value);
 		strb.append("\n");
 	}
 
-	private InputStream getConfigInputStream() {
+	protected InputStream getConfigInputStream() {
 		StringBuilder strb = new StringBuilder();
 		append(strb, "ControlPort", torControlPort);
 		append(strb, "CookieAuthentication", 1);
@@ -415,7 +420,7 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 				strb.toString().getBytes(Charset.forName("UTF-8")));
 	}
 
-	private void listFiles(File f) {
+	void listFiles(File f) {
 		if (f.isDirectory()) {
 			File[] children = f.listFiles();
 			if (children != null) for (File child : children) listFiles(child);
@@ -424,7 +429,7 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 		}
 	}
 
-	private byte[] read(File f) throws IOException {
+	byte[] read(File f) throws IOException {
 		byte[] b = new byte[(int) f.length()];
 		FileInputStream in = new FileInputStream(f);
 		try {
@@ -440,7 +445,7 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 		}
 	}
 
-	private void bind() {
+	void bind() {
 		ioExecutor.execute(() -> {
 			// If there's already a port number stored in config, reuse it
 			String portString = settings.get(PREF_TOR_PORT);
@@ -814,8 +819,8 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 		});
 	}
 
-	private void updateConnectionStatus(NetworkStatus status,
-			boolean charging) {
+	void updateConnectionStatus(NetworkStatus status,
+								boolean charging) {
 		connectionStatusExecutor.execute(() -> {
 			if (!state.isTorRunning()) return;
 			boolean online = status.isConnected();

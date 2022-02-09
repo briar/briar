@@ -32,13 +32,14 @@ import javax.net.SocketFactory;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Logger.getLogger;
 import static org.briarproject.bramble.util.OsUtils.isLinux;
+import static org.briarproject.bramble.util.OsUtils.isWindows;
 
 @Immutable
 @NotNullByDefault
-public class UnixTorPluginFactory implements DuplexPluginFactory {
+public class DesktopTorPluginFactory implements DuplexPluginFactory {
 
 	private static final Logger LOG =
-			getLogger(UnixTorPluginFactory.class.getName());
+			getLogger(DesktopTorPluginFactory.class.getName());
 
 	private static final int MAX_LATENCY = 30 * 1000; // 30 seconds
 	private static final int MAX_IDLE_TIME = 30 * 1000; // 30 seconds
@@ -62,7 +63,7 @@ public class UnixTorPluginFactory implements DuplexPluginFactory {
 	private final CryptoComponent crypto;
 
 	@Inject
-	UnixTorPluginFactory(@IoExecutor Executor ioExecutor,
+	DesktopTorPluginFactory(@IoExecutor Executor ioExecutor,
 			@WakefulIoExecutor Executor wakefulIoExecutor,
 			NetworkManager networkManager,
 			LocationUtils locationUtils,
@@ -107,25 +108,33 @@ public class UnixTorPluginFactory implements DuplexPluginFactory {
 	@Override
 	public DuplexPlugin createPlugin(PluginCallback callback) {
 		// Check that we have a Tor binary for this architecture
-		String architecture = null;
 		if (isLinux()) {
 			String arch = System.getProperty("os.arch");
 			if (LOG.isLoggable(INFO)) {
 				LOG.info("System's os.arch is " + arch);
 			}
 			if (arch.equals("amd64")) {
-				architecture = "linux-x86_64";
+				return createUnixPlugin(callback, "linux-x86_64");
 			} else if (arch.equals("aarch64")) {
-				architecture = "linux-aarch64";
+				return createUnixPlugin(callback, "linux-aarch64");
 			} else if (arch.equals("arm")) {
-				architecture = "linux-armhf";
+				return createUnixPlugin(callback, "linux-armhf");
 			}
 		}
-		if (architecture == null) {
-			LOG.info("Tor is not supported on this architecture");
-			return null;
+		if (isWindows()) {
+			String arch = System.getProperty("os.arch");
+			if (LOG.isLoggable(INFO)) {
+				LOG.info("System's os.arch is " + arch);
+			}
+			if (arch.equals("amd64")) {
+				return createWindowsPlugin(callback, "windows-x86_64");
+			}
 		}
+		LOG.info("Tor is not supported on this architecture");
+		return null;
+	}
 
+	private DuplexPlugin createUnixPlugin(PluginCallback callback, String architecture) {
 		if (LOG.isLoggable(INFO)) {
 			LOG.info("The selected architecture for Tor is " + architecture);
 		}
@@ -140,6 +149,23 @@ public class UnixTorPluginFactory implements DuplexPluginFactory {
 				backoff, torRendezvousCrypto, callback, architecture,
 				MAX_LATENCY, MAX_IDLE_TIME, torDirectory, torSocksPort,
 				torControlPort);
+		eventBus.addListener(plugin);
+		return plugin;
+	}
+
+	private DuplexPlugin createWindowsPlugin(PluginCallback callback, String architecture) {
+		if (LOG.isLoggable(INFO)) {
+			LOG.info("The selected architecture for Tor is " + architecture);
+		}
+
+		Backoff backoff = backoffFactory.createBackoff(MIN_POLLING_INTERVAL,
+				MAX_POLLING_INTERVAL, BACKOFF_BASE);
+		TorRendezvousCrypto torRendezvousCrypto = new TorRendezvousCryptoImpl();
+		WindowsTorPlugin plugin = new WindowsTorPlugin(ioExecutor, wakefulIoExecutor,
+				networkManager, locationUtils, torSocketFactory, clock,
+				resourceProvider, circumventionProvider, batteryManager,
+				backoff, torRendezvousCrypto, callback, architecture,
+				MAX_LATENCY, MAX_IDLE_TIME, torDirectory, torSocksPort, torControlPort);
 		eventBus.addListener(plugin);
 		return plugin;
 	}
