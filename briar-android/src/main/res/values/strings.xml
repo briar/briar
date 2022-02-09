@@ -632,6 +632,9 @@
 	<string name="mailbox_setup_connecting">Connecting…</string>
 	<string name="mailbox_setup_qr_code_wrong_title">Wrong QR code</string>
 	<string name="mailbox_setup_qr_code_wrong_description">The scanned code is invalid. Please open the Briar Mailbox app and scan the QR code it presents.</string>
+	<string name="tor_offline_title">Offline</string>
+	<string name="tor_offline_description">Ensure that this device is online and connections to the internet are allowed.\n\nAfterwards, wait for the globe icon in connection settings needs to turn green.</string>
+	<string name="tor_offline_button_check">Check connection settings</string>
 
 	<!-- Conversation Settings -->
 	<string name="disappearing_messages_title">Disappearing messages</string>

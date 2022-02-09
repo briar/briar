@@ -55,6 +55,8 @@ public class MailboxActivity extends BriarActivity {
 				onCodeScanned();
 			} else if (state instanceof MailboxState.QrCodeWrong) {
 				onQrCodeWrong();
+			} else if (state instanceof MailboxState.OfflineInSetup) {
+				onOffline();
 			}
 		});
 	}
@@ -98,6 +100,11 @@ public class MailboxActivity extends BriarActivity {
 				R.string.mailbox_setup_qr_code_wrong_title,
 				R.string.mailbox_setup_qr_code_wrong_description);
 		showFragment(getSupportFragmentManager(), f, ErrorFragment.TAG);
+	}
+
+	private void onOffline() {
+		showFragment(getSupportFragmentManager(), new OfflineFragment(),
+				OfflineFragment.TAG);
 	}
 
 }
