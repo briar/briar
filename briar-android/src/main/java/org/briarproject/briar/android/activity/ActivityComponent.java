@@ -86,7 +86,6 @@ import org.briarproject.briar.android.socialbackup.ExistingBackupFragment;
 import org.briarproject.briar.android.socialbackup.recover.CustodianReturnShardActivity;
 import org.briarproject.briar.android.socialbackup.recover.CustodianReturnShardErrorFragment;
 import org.briarproject.briar.android.socialbackup.recover.CustodianReturnShardFragment;
-import org.briarproject.briar.android.socialbackup.recover.CustodianReturnShardSuccessFragment;
 import org.briarproject.briar.android.socialbackup.recover.OwnerRecoveryModeErrorFragment;
 import org.briarproject.briar.android.socialbackup.recover.OwnerRecoveryModeExplainerFragment;
 import org.briarproject.briar.android.socialbackup.recover.OwnerRecoveryModeMainFragment;
@@ -285,8 +284,6 @@ public interface ActivityComponent {
 	void inject(CustodianReturnShardFragment custodianReturnShardFragment);
 
 	void inject(OwnerReturnShardFragment ownerReturnShardFragment);
-
-	void inject(CustodianReturnShardSuccessFragment custodianReturnShardSuccessFragment);
 
 	void inject(RestoreAccountSetPasswordFragment restoreAccountSetPasswordFragment);
 

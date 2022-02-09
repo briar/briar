@@ -27,7 +27,6 @@ import androidx.lifecycle.ViewModelProvider;
 import static android.content.pm.ActivityInfo.SCREEN_ORIENTATION_NOSENSOR;
 import static android.content.pm.ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED;
 import static android.view.View.INVISIBLE;
-import static android.view.View.VISIBLE;
 import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
 import static android.widget.LinearLayout.HORIZONTAL;
 
@@ -158,5 +157,4 @@ public class OwnerReturnShardFragment extends BaseFragment
 	protected void finish() {
 		requireActivity().getSupportFragmentManager().popBackStack();
 	}
-
 }
