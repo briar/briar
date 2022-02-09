@@ -5,6 +5,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -24,6 +25,7 @@ import javax.annotation.Nullable;
 import javax.inject.Inject;
 
 import androidx.annotation.UiThread;
+import androidx.appcompat.app.AlertDialog;
 import androidx.lifecycle.ViewModelProvider;
 
 import static android.content.pm.ActivityInfo.SCREEN_ORIENTATION_NOSENSOR;
@@ -53,6 +55,7 @@ public class CustodianReturnShardFragment extends BaseFragment
 	private LinearLayout cameraOverlay;
 	private View statusView;
 	private TextView status;
+	private ProgressBar bottomSpinner;
 
 	public static CustodianReturnShardFragment newInstance() {
 		Bundle args = new Bundle();
@@ -84,6 +87,7 @@ public class CustodianReturnShardFragment extends BaseFragment
 		cameraOverlay = view.findViewById(R.id.camera_overlay);
 		statusView = view.findViewById(R.id.status_container);
 		status = view.findViewById(R.id.connect_status);
+		bottomSpinner = view.findViewById(R.id.qr_code_progress_bar);
 
 		viewModel.getState().observe(getViewLifecycleOwner(),
 				this::onReturnShardStateChanged);
@@ -141,7 +145,6 @@ public class CustodianReturnShardFragment extends BaseFragment
 
 	@UiThread
 	private void onReturnShardStateChanged(@Nullable CustodianTask.State state) {
-		LOG.info("State changed");
 //		if (state instanceof CustodianTask.State.Connecting) {
 //			try {
 //				cameraView.stop();
@@ -163,8 +166,9 @@ public class CustodianReturnShardFragment extends BaseFragment
 		} else if (state instanceof CustodianTask.State.ReceivingAck) {
 			status.setText("Receiving Ack");
 		} else if (state instanceof CustodianTask.State.Success) {
-			// TODO
-			status.setText(R.string.exchanging_contact_details);
+			statusView.setVisibility(INVISIBLE);
+			bottomSpinner.setVisibility(INVISIBLE);
+			showSuccessDialog();
 		} else if (state instanceof CustodianTask.State.Failure) {
 			// the activity will replace this fragment with an error fragment
 			statusView.setVisibility(INVISIBLE);
@@ -190,4 +194,15 @@ public class CustodianReturnShardFragment extends BaseFragment
 		requireActivity().getSupportFragmentManager().popBackStack();
 	}
 
+	private void showSuccessDialog() {
+		AlertDialog.Builder builder = new AlertDialog.Builder(requireContext(),
+				R.style.BriarDialogTheme);
+		builder.setTitle(R.string.custodian_shard_sent);
+		//builder.setMessage();
+		builder.setPositiveButton(R.string.ok,
+				(dialog, which) -> viewModel.onSuccessDismissed());
+		builder.setIcon(R.drawable.ic_baseline_done_outline_24);
+		AlertDialog dialog = builder.create();
+		dialog.show();
+	}
 }

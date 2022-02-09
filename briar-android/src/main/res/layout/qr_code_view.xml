@@ -6,6 +6,7 @@
 
 	<ProgressBar
 		style="?android:attr/progressBarStyleLarge"
+		android:id="@+id/qr_code_progress_bar"
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
 		android:layout_gravity="center" />

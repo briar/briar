@@ -177,7 +177,6 @@ public class CustodianReturnShardViewModel extends AndroidViewModel
 		successDismissed.setEvent(true);
 	}
 
-
 	QrCodeDecoder getQrCodeDecoder() {
 		return qrCodeDecoder;
 	}
