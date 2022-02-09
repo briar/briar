@@ -56,13 +56,9 @@ public class HotspotActivity extends BriarActivity
 			if (hotspotState instanceof HotspotStarted) {
 				HotspotStarted started = (HotspotStarted) hotspotState;
 				String tag = HotspotFragment.TAG;
-				// check if fragment is already added
-				// to not lose state on configuration changes
-				if (fm.findFragmentByTag(tag) == null) {
-					if (started.wasNotYetConsumed()) {
-						started.consume();
-						showFragment(fm, new HotspotFragment(), tag);
-					}
+				if (started.wasNotYetConsumed()) {
+					started.consume();
+					showFragment(fm, new HotspotFragment(), tag);
 				}
 			} else if (hotspotState instanceof HotspotError) {
 				HotspotError error = (HotspotError) hotspotState;
@@ -116,10 +112,8 @@ public class HotspotActivity extends BriarActivity
 	private void showErrorFragment(String error) {
 		FragmentManager fm = getSupportFragmentManager();
 		String tag = HotspotErrorFragment.TAG;
-		if (fm.findFragmentByTag(tag) == null) {
-			Fragment f = HotspotErrorFragment.newInstance(error);
-			showFragment(fm, f, tag, false);
-		}
+		Fragment f = HotspotErrorFragment.newInstance(error);
+		showFragment(fm, f, tag, false);
 	}
 
 	@Override

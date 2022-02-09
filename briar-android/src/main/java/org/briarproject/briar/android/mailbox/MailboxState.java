@@ -8,6 +8,9 @@ class MailboxState {
 	static class SettingUp extends MailboxState {
 	}
 
+	static class QrCodeWrong extends MailboxState {
+	}
+
 	// TODO add other states
 
 }

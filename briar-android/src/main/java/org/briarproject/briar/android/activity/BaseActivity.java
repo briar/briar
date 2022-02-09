@@ -181,12 +181,6 @@ public abstract class BaseActivity extends AppCompatActivity
 		showFragment(getSupportFragmentManager(), f, f.getUniqueTag());
 	}
 
-	protected boolean isFragmentAdded(String fragmentTag) {
-		FragmentManager fm = getSupportFragmentManager();
-		Fragment f = fm.findFragmentByTag(fragmentTag);
-		return f != null && f.isAdded();
-	}
-
 	private boolean showScreenFilterWarning() {
 		if (((BriarApplication) getApplication()).isInstrumentationTest()) {
 			return false;

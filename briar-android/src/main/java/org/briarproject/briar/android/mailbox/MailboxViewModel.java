@@ -4,6 +4,7 @@ import android.app.Application;
 
 import com.google.zxing.Result;
 
+import org.briarproject.bramble.api.FormatException;
 import org.briarproject.bramble.api.crypto.CryptoComponent;
 import org.briarproject.bramble.api.db.DatabaseExecutor;
 import org.briarproject.bramble.api.db.TransactionManager;
@@ -28,7 +29,7 @@ import androidx.annotation.UiThread;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
-import static java.util.logging.Level.INFO;
+import static java.util.logging.Level.WARNING;
 import static java.util.logging.Logger.getLogger;
 
 @NotNullByDefault
@@ -79,31 +80,39 @@ class MailboxViewModel extends DbViewModel
 	@IoExecutor
 	public void onQrCodeDecoded(Result result) {
 		LOG.info("Got result from decoder");
-		byte[] bytes = result.getText().getBytes(ISO_8859_1);
+		try {
+			// TODO pass props to core (maybe even do payload parsing there)
+			MailboxProperties properties = decodeQrCode(result.getText());
+		} catch (FormatException e) {
+			state.postValue(new MailboxState.QrCodeWrong());
+			return;
+		}
+		state.postValue(new MailboxState.SettingUp());
+	}
 
-		if (LOG.isLoggable(INFO))
-			LOG.info("QR code length in bytes: " + bytes.length);
+	private MailboxProperties decodeQrCode(String payload)
+			throws FormatException {
+		byte[] bytes = payload.getBytes(ISO_8859_1);
 		if (bytes.length != 65) {
-			LOG.info("QR code has wrong length");
-			return;
+			if (LOG.isLoggable(WARNING)) {
+				LOG.warning("QR code length is not 65: " + bytes.length);
+			}
+			throw new FormatException();
 		}
-
-		if (LOG.isLoggable(INFO))
-			LOG.info("QR code version: " + bytes[0]);
-		if (bytes[0] != VERSION_REQUIRED) {
-			LOG.info("QR code has wrong version");
-			return;
+		int version = bytes[0] & 0xFF;
+		if (version != VERSION_REQUIRED) {
+			if (LOG.isLoggable(WARNING)) {
+				LOG.warning("QR code has not version " + VERSION_REQUIRED +
+						": " + version);
+			}
+			throw new FormatException();
 		}
-
 		LOG.info("QR code is valid");
 		byte[] onionPubKey = Arrays.copyOfRange(bytes, 1, 33);
 		String onionAddress = crypto.encodeOnionAddress(onionPubKey);
 		byte[] tokenBytes = Arrays.copyOfRange(bytes, 33, 65);
 		MailboxAuthToken setupToken = new MailboxAuthToken(tokenBytes);
-		MailboxProperties props =
-				new MailboxProperties(onionAddress, setupToken, true);
-		// TODO pass props to core (maybe even do payload parsing there)
-		state.postValue(new MailboxState.SettingUp());
+		return new MailboxProperties(onionAddress, setupToken, true);
 	}
 
 	@UiThread

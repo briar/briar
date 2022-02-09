@@ -630,6 +630,8 @@
 	<string name="mailbox_share_download" translatable="false">https://briarproject.org/apk</string>
 	<string name="permission_camera_qr_denied_body">You have denied access to the camera, but scanning a QR code requires using the camera.\n\nPlease consider granting access.</string>
 	<string name="mailbox_setup_connecting">Connecting…</string>
+	<string name="mailbox_setup_qr_code_wrong_title">Wrong QR code</string>
+	<string name="mailbox_setup_qr_code_wrong_description">The scanned code is invalid. Please open the Briar Mailbox app and scan the QR code it presents.</string>
 
 	<!-- Conversation Settings -->
 	<string name="disappearing_messages_title">Disappearing messages</string>
