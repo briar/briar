@@ -91,11 +91,8 @@ public class SetupDownloadFragment extends Fragment {
 
 	private void shareLink(View v) {
 		Context ctx = requireContext();
-		String fdroid = ctx.getString(R.string.mailbox_share_fdroid);
-		String gplay = ctx.getString(R.string.mailbox_share_gplay);
 		String download = ctx.getString(R.string.mailbox_share_download);
-		String text = ctx.getString(R.string.mailbox_share_text, fdroid, gplay,
-				download);
+		String text = ctx.getString(R.string.mailbox_share_text, download);
 
 		Intent sendIntent = new Intent();
 		sendIntent.setAction(ACTION_SEND);

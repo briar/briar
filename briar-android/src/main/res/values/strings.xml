@@ -615,25 +615,21 @@
 	<!-- Mailbox -->
 	<string name="mailbox_settings_title">Mailbox</string>
 	<string name="mailbox_setup_title">Mailbox Setup</string>
-	<string name="mailbox_setup_intro">Once you set up a Mailbox for Briar, you will be able to send and receive messages even if you are not online.\n
-		\nYou can install Briar Mailbox on a spare device which will act as a forwarder for your messages (for best connectivity, the Mailbox device should stay charged and online at all times).</string>
-	<string name="mailbox_setup_download">Once you installed the Briar Mailbox app on a spare device, you can link it with this device by scanning the Mailbox QR code on the next screen.\n
-		\nYou can find Briar Mailbox on F-Droid or Google Play.</string>
+	<string name="mailbox_setup_intro">Once you set up a Mailbox for Briar, your contacts will be able to send you messages while you are offline.\n
+		\nInstall the Briar Mailbox app on a spare device. The Mailbox will receive your messages and store them until you come online.\n
+		\nKeep the Mailbox device connected to power and Wi-Fi so it\'s always online.</string>
+	<string name="mailbox_setup_download">Once you\'ve installed the Briar Mailbox app on a spare device, link it with this device by scanning your Mailbox\'s QR code.\n
+		\nYou can find the \"Briar Mailbox\" app on Google Play or wherever you downloaded Briar.</string>
 	<string name="mailbox_setup_download_link">Share Download Link</string>
 	<string name="mailbox_setup_button_scan">Scan Mailbox QR code</string>
-	<string name="mailbox_share_text">You can install the Briar Mailbox app from one of those sources:\n
-		\nF-Droid: %1$s
-		\nGoogle Play: %2$s
-		\nDirect Download: %3$s</string>
-	<string name="mailbox_share_fdroid" translatable="false">https://f-droid.org/packages/org.briarproject.mailbox/</string>
-	<string name="mailbox_share_gplay" translatable="false">https://play.google.com/store/apps/details?id=org.briarproject.mailbox</string>
-	<string name="mailbox_share_download" translatable="false">https://briarproject.org/apk</string>
+	<string name="mailbox_share_text">Briar Mailbox download information is available here: %s</string>
+	<string name="mailbox_share_download" translatable="false">https://briarproject.org/download</string>
 	<string name="permission_camera_qr_denied_body">You have denied access to the camera, but scanning a QR code requires using the camera.\n\nPlease consider granting access.</string>
 	<string name="mailbox_setup_connecting">Connecting…</string>
 	<string name="mailbox_setup_qr_code_wrong_title">Wrong QR code</string>
-	<string name="mailbox_setup_qr_code_wrong_description">The scanned code is invalid. Please open the Briar Mailbox app and scan the QR code it presents.</string>
+	<string name="mailbox_setup_qr_code_wrong_description">The scanned code is invalid. Please open the Briar Mailbox app on your mailbox device and scan the QR code it presents.</string>
 	<string name="tor_offline_title">Offline</string>
-	<string name="tor_offline_description">Ensure that this device is online and connections to the internet are allowed.\n\nAfterwards, wait for the globe icon in connection settings needs to turn green.</string>
+	<string name="tor_offline_description">Ensure that this device is online and connections to the internet are allowed.\n\nAfterwards, wait for the globe icon in connection settings to turn green.</string>
 	<string name="tor_offline_button_check">Check connection settings</string>
 
 	<!-- Conversation Settings -->
