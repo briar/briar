@@ -22,6 +22,8 @@ import org.briarproject.bramble.api.system.AndroidExecutor;
 import org.briarproject.briar.android.mailbox.MailboxState.NotSetup;
 import org.briarproject.briar.android.qrcode.QrCodeDecoder;
 import org.briarproject.briar.android.viewmodel.DbViewModel;
+import org.briarproject.briar.android.viewmodel.LiveEvent;
+import org.briarproject.briar.android.viewmodel.MutableLiveEvent;
 
 import java.nio.charset.Charset;
 import java.util.Arrays;
@@ -31,8 +33,6 @@ import java.util.logging.Logger;
 import javax.inject.Inject;
 
 import androidx.annotation.UiThread;
-import androidx.lifecycle.LiveData;
-import androidx.lifecycle.MutableLiveData;
 
 import static java.util.Objects.requireNonNull;
 import static java.util.logging.Level.WARNING;
@@ -55,7 +55,8 @@ class MailboxViewModel extends DbViewModel
 	private final PluginManager pluginManager;
 	private final MailboxSettingsManager mailboxSettingsManager;
 
-	private final MutableLiveData<MailboxState> state = new MutableLiveData<>();
+	private final MutableLiveEvent<MailboxState> state =
+			new MutableLiveEvent<>();
 
 	@Inject
 	MailboxViewModel(
@@ -81,13 +82,22 @@ class MailboxViewModel extends DbViewModel
 		runOnDbThread(true, txn -> {
 			MailboxProperties props =
 					mailboxSettingsManager.getOwnMailboxProperties(txn);
-			if (props == null) state.postValue(new NotSetup());
+			if (props == null) state.postEvent(new NotSetup());
 			else {
 				MailboxStatus mailboxStatus =
 						mailboxSettingsManager.getOwnMailboxStatus(txn);
-				state.postValue(new MailboxState.IsSetup(mailboxStatus));
+				state.postEvent(new MailboxState.IsSetup(mailboxStatus));
 			}
 		}, this::handleException);
+	}
+
+	@UiThread
+	void onScanButtonClicked() {
+		if (isTorActive()) {
+			state.setEvent(new MailboxState.ScanningQrCode());
+		} else {
+			state.setEvent(new MailboxState.OfflineInSetup());
+		}
 	}
 
 	@Override
@@ -98,12 +108,13 @@ class MailboxViewModel extends DbViewModel
 		try {
 			properties = decodeQrCode(result.getText());
 		} catch (FormatException e) {
-			state.postValue(new MailboxState.QrCodeWrong());
+			state.postEvent(new MailboxState.QrCodeWrong());
 			return;
 		}
 		onMailboxPropertiesReceived(properties);
 	}
 
+	@IoExecutor
 	// TODO move this into core #2168
 	private MailboxProperties decodeQrCode(String payload)
 			throws FormatException {
@@ -133,9 +144,9 @@ class MailboxViewModel extends DbViewModel
 	private void onMailboxPropertiesReceived(MailboxProperties properties) {
 		if (isTorActive()) {
 			// TODO pass props to core #2168
-			state.postValue(new MailboxState.SettingUp());
+			state.postEvent(new MailboxState.SettingUp());
 		} else {
-			state.postValue(new MailboxState.OfflineInSetup(properties));
+			state.postEvent(new MailboxState.OfflineInSetup(properties));
 		}
 	}
 
@@ -148,8 +159,13 @@ class MailboxViewModel extends DbViewModel
 	@UiThread
 	void tryAgainWhenOffline() {
 		MailboxState.OfflineInSetup offline =
-				(MailboxState.OfflineInSetup) requireNonNull(state.getValue());
-		onMailboxPropertiesReceived(offline.mailboxProperties);
+				(MailboxState.OfflineInSetup) requireNonNull(
+						state.getLastValue());
+		if (offline.mailboxProperties == null) {
+			onScanButtonClicked();
+		} else {
+			onMailboxPropertiesReceived(offline.mailboxProperties);
+		}
 	}
 
 	@UiThread
@@ -158,8 +174,7 @@ class MailboxViewModel extends DbViewModel
 	}
 
 	@UiThread
-	LiveData<MailboxState> getState() {
+	LiveEvent<MailboxState> getState() {
 		return state;
 	}
-
 }

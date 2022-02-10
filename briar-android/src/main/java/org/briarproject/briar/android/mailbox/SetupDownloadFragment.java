@@ -14,22 +14,30 @@ import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
 import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
 import org.briarproject.briar.R;
 
+import javax.inject.Inject;
+
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts.RequestMultiplePermissions;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentActivity;
+import androidx.lifecycle.ViewModelProvider;
 
 import static android.content.Intent.ACTION_SEND;
 import static android.content.Intent.EXTRA_TEXT;
 import static android.widget.Toast.LENGTH_LONG;
-import static org.briarproject.briar.android.util.UiUtils.showFragment;
+import static org.briarproject.briar.android.AppModule.getAndroidComponent;
 
 @MethodsNotNullByDefault
 @ParametersNotNullByDefault
 public class SetupDownloadFragment extends Fragment {
 
 	static final String TAG = SetupDownloadFragment.class.getName();
+
+	@Inject
+	ViewModelProvider.Factory viewModelFactory;
+
+	private MailboxViewModel viewModel;
 
 	private CameraPermissionManager permissionManager;
 
@@ -40,6 +48,15 @@ public class SetupDownloadFragment extends Fragment {
 					scanCode();
 				}
 			});
+
+	@Override
+	public void onAttach(Context context) {
+		super.onAttach(context);
+		FragmentActivity activity = requireActivity();
+		getAndroidComponent(activity).inject(this);
+		viewModel = new ViewModelProvider(activity, viewModelFactory)
+				.get(MailboxViewModel.class);
+	}
 
 	@Nullable
 	@Override
@@ -95,9 +112,7 @@ public class SetupDownloadFragment extends Fragment {
 	}
 
 	private void scanCode() {
-		FragmentManager fm = getParentFragmentManager();
-		Fragment f = new MailboxScanFragment();
-		showFragment(fm, f, MailboxScanFragment.TAG);
+		viewModel.onScanButtonClicked();
 	}
 
 }

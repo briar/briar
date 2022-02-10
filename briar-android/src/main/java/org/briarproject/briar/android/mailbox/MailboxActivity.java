@@ -50,9 +50,11 @@ public class MailboxActivity extends BriarActivity {
 			progressBar.setVisibility(VISIBLE);
 		}
 
-		viewModel.getState().observe(this, state -> {
+		viewModel.getState().observeEvent(this, state -> {
 			if (state instanceof MailboxState.NotSetup) {
 				onNotSetup();
+			} else if (state instanceof MailboxState.ScanningQrCode) {
+				onScanningQrCode();
 			} else if (state instanceof MailboxState.SettingUp) {
 				onCodeScanned();
 			} else if (state instanceof MailboxState.QrCodeWrong) {
@@ -79,7 +81,7 @@ public class MailboxActivity extends BriarActivity {
 	@Override
 	public void onBackPressed() {
 		if (viewModel.getState()
-				.getValue() instanceof MailboxState.SettingUp) {
+				.getLastValue() instanceof MailboxState.SettingUp) {
 			// don't go back in flow if we are already setting up mailbox
 			supportFinishAfterTransition();
 		} else {
@@ -93,6 +95,11 @@ public class MailboxActivity extends BriarActivity {
 				.replace(R.id.fragmentContainer, new SetupIntroFragment(),
 						SetupIntroFragment.TAG)
 				.commit();
+	}
+
+	private void onScanningQrCode() {
+		showFragment(getSupportFragmentManager(), new MailboxScanFragment(),
+				MailboxScanFragment.TAG);
 	}
 
 	private void onCodeScanned() {

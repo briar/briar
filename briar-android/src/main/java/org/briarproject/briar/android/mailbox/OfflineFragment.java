@@ -26,6 +26,7 @@ import androidx.fragment.app.FragmentActivity;
 import androidx.lifecycle.ViewModelProvider;
 
 import static android.view.View.FOCUS_DOWN;
+import static java.util.Objects.requireNonNull;
 import static org.briarproject.briar.android.AppModule.getAndroidComponent;
 
 @MethodsNotNullByDefault
@@ -94,7 +95,16 @@ public class OfflineFragment extends Fragment {
 	}
 
 	private void onBackButtonPressed() {
-		requireActivity().supportFinishAfterTransition();
+		MailboxState state = viewModel.getState().getLastValue();
+		MailboxState.OfflineInSetup offline =
+				(MailboxState.OfflineInSetup) requireNonNull(state);
+		if (offline.mailboxProperties == null) {
+			// not yet scanned, go back to previous fragment
+			requireActivity().getSupportFragmentManager().popBackStack();
+		} else {
+			// we had scanned already, so go back to beginning
+			requireActivity().supportFinishAfterTransition();
+		}
 	}
 
 }
