@@ -3,7 +3,9 @@ package org.briarproject.briar.android.mailbox;
 import android.os.Bundle;
 import android.view.MenuItem;
 import android.widget.ProgressBar;
+import android.widget.Toast;
 
+import org.briarproject.bramble.api.mailbox.MailboxStatus;
 import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
 import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
 import org.briarproject.briar.R;
@@ -57,6 +59,10 @@ public class MailboxActivity extends BriarActivity {
 				onQrCodeWrong();
 			} else if (state instanceof MailboxState.OfflineInSetup) {
 				onOffline();
+			} else if (state instanceof MailboxState.IsSetup) {
+				onIsSetup(((MailboxState.IsSetup) state).mailboxStatus);
+			} else {
+				throw new AssertionError("Unknown state: " + state);
 			}
 		});
 	}
@@ -105,6 +111,11 @@ public class MailboxActivity extends BriarActivity {
 	private void onOffline() {
 		showFragment(getSupportFragmentManager(), new OfflineFragment(),
 				OfflineFragment.TAG);
+	}
+
+	private void onIsSetup(MailboxStatus mailboxStatus) {
+		// TODO
+		Toast.makeText(this, "NOT IMPLEMENTED", Toast.LENGTH_LONG).show();
 	}
 
 }

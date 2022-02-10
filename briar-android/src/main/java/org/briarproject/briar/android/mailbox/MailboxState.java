@@ -1,6 +1,7 @@
 package org.briarproject.briar.android.mailbox;
 
 import org.briarproject.bramble.api.mailbox.MailboxProperties;
+import org.briarproject.bramble.api.mailbox.MailboxStatus;
 
 class MailboxState {
 
@@ -21,6 +22,12 @@ class MailboxState {
 		}
 	}
 
-	// TODO add other states
+	static class IsSetup extends MailboxState {
+		final MailboxStatus mailboxStatus;
+
+		IsSetup(MailboxStatus mailboxStatus) {
+			this.mailboxStatus = mailboxStatus;
+		}
+	}
 
 }

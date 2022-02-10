@@ -12,6 +12,8 @@ import org.briarproject.bramble.api.lifecycle.IoExecutor;
 import org.briarproject.bramble.api.lifecycle.LifecycleManager;
 import org.briarproject.bramble.api.mailbox.MailboxAuthToken;
 import org.briarproject.bramble.api.mailbox.MailboxProperties;
+import org.briarproject.bramble.api.mailbox.MailboxSettingsManager;
+import org.briarproject.bramble.api.mailbox.MailboxStatus;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.plugin.Plugin;
 import org.briarproject.bramble.api.plugin.PluginManager;
@@ -51,6 +53,7 @@ class MailboxViewModel extends DbViewModel
 	private final CryptoComponent crypto;
 	private final QrCodeDecoder qrCodeDecoder;
 	private final PluginManager pluginManager;
+	private final MailboxSettingsManager mailboxSettingsManager;
 
 	private final MutableLiveData<MailboxState> state = new MutableLiveData<>();
 
@@ -63,25 +66,28 @@ class MailboxViewModel extends DbViewModel
 			AndroidExecutor androidExecutor,
 			@IoExecutor Executor ioExecutor,
 			CryptoComponent crypto,
-			PluginManager pluginManager) {
+			PluginManager pluginManager,
+			MailboxSettingsManager mailboxSettingsManager) {
 		super(app, dbExecutor, lifecycleManager, db, androidExecutor);
 		this.crypto = crypto;
 		this.pluginManager = pluginManager;
+		this.mailboxSettingsManager = mailboxSettingsManager;
 		qrCodeDecoder = new QrCodeDecoder(androidExecutor, ioExecutor, this);
 		checkIfSetup();
 	}
 
 	@UiThread
 	private void checkIfSetup() {
-		runOnDbThread(() -> {
-			// TODO really check if mailbox is setup/paired/linked
-			try {
-				Thread.sleep(1000);
-			} catch (InterruptedException e) {
-				e.printStackTrace();
+		runOnDbThread(true, txn -> {
+			MailboxProperties props =
+					mailboxSettingsManager.getOwnMailboxProperties(txn);
+			if (props == null) state.postValue(new NotSetup());
+			else {
+				MailboxStatus mailboxStatus =
+						mailboxSettingsManager.getOwnMailboxStatus(txn);
+				state.postValue(new MailboxState.IsSetup(mailboxStatus));
 			}
-			state.postValue(new NotSetup());
-		});
+		}, this::handleException);
 	}
 
 	@Override
