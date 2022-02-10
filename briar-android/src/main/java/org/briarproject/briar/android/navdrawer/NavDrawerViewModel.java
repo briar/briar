@@ -39,6 +39,8 @@ public class NavDrawerViewModel extends DbViewModel {
 	private static final String EXPIRY_DATE_WARNING = "expiryDateWarning";
 	private static final String SHOW_TRANSPORTS_ONBOARDING =
 			"showTransportsOnboarding";
+	private static final String SHOW_SOCIAL_BACKUP_ONBOARDING =
+			"showSocialBackupOnboarding";
 
 	private final SettingsManager settingsManager;
 
@@ -47,6 +49,8 @@ public class NavDrawerViewModel extends DbViewModel {
 	private final MutableLiveData<Boolean> shouldAskForDozeWhitelisting =
 			new MutableLiveData<>();
 	private final MutableLiveData<Boolean> showTransportsOnboarding =
+			new MutableLiveData<>();
+	private final MutableLiveData<Boolean> showSocialBackupOnboarding =
 			new MutableLiveData<>();
 
 	@Inject
@@ -143,6 +147,11 @@ public class NavDrawerViewModel extends DbViewModel {
 	}
 
 	@UiThread
+	LiveData<Boolean> showSocialBackupOnboarding() {
+		return showSocialBackupOnboarding;
+	}
+
+	@UiThread
 	void checkTransportsOnboarding() {
 		if (showTransportsOnboarding.getValue() != null) return;
 		runOnDbThread(() -> {
@@ -165,6 +174,37 @@ public class NavDrawerViewModel extends DbViewModel {
 			try {
 				Settings settings = new Settings();
 				settings.putBoolean(SHOW_TRANSPORTS_ONBOARDING, false);
+				settingsManager.mergeSettings(settings, SETTINGS_NAMESPACE);
+			} catch (DbException e) {
+				logException(LOG, WARNING, e);
+			}
+		});
+	}
+
+	@UiThread
+	void checkSocialBackupOnboarding() {
+		if (showSocialBackupOnboarding.getValue() != null) return;
+		runOnDbThread(() -> {
+			try {
+				Settings settings =
+						settingsManager.getSettings(SETTINGS_NAMESPACE);
+				boolean show =
+						settings.getBoolean(SHOW_SOCIAL_BACKUP_ONBOARDING,
+								true);
+				showSocialBackupOnboarding.postValue(show);
+			} catch (DbException e) {
+				logException(LOG, WARNING, e);
+			}
+		});
+	}
+
+	@UiThread
+	void socialBackupOnboardingShown() {
+		showSocialBackupOnboarding.setValue(false);
+		runOnDbThread(() -> {
+			try {
+				Settings settings = new Settings();
+				settings.putBoolean(SHOW_SOCIAL_BACKUP_ONBOARDING, false);
 				settingsManager.mergeSettings(settings, SETTINGS_NAMESPACE);
 			} catch (DbException e) {
 				logException(LOG, WARNING, e);
