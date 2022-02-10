@@ -671,7 +671,7 @@
 	<string name="backup_created">Social Backup created</string>
 	<string name="backup_done_info">Backup pieces sent to trusted contacts</string>
 
-	<string name="social_backup_setup_explainer_title">Backup your Briar identity and contacts list using trusted contacts</string>
+	<string name="social_backup_setup_explainer_title">Backup your Briar identity and contacts list</string>
 	<string name="social_backup_setup_explainer_long">Choose a set of trusted contacts to send backup pieces to.\n\nYou decide how many of these contacts must help you recover your account.\n\nFor example, you can choose three trusted contacts and that any two of them are needed to recover.</string>
 	<string name="social_backup_setup_explainer_button">Choose trusted contacts</string>
 
