@@ -2,6 +2,10 @@ package org.briarproject.briar.android.socialbackup;
 
 import android.content.Context;
 import android.os.Bundle;
+import android.text.Spannable;
+import android.text.SpannableString;
+import android.text.SpannableStringBuilder;
+import android.text.style.ImageSpan;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -11,21 +15,24 @@ import android.view.ViewGroup;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
-import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.activity.ActivityComponent;
 import org.briarproject.briar.android.fragment.BaseFragment;
 import org.magmacollective.darkcrystal.secretsharingwrapper.SecretSharingWrapper;
 
+import java.util.Arrays;
+
+import javax.inject.Inject;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
+import androidx.lifecycle.ViewModelProvider;
 
 public class ThresholdSelectorFragment extends BaseFragment {
 
 	public static final String TAG = ThresholdSelectorFragment.class.getName();
 	private static final String NUMBER_CUSTODIANS = "numberCustodians";
-
-	protected ThresholdDefinedListener listener;
 
 	private int numberOfCustodians;
 	private int threshold;
@@ -34,6 +41,18 @@ public class ThresholdSelectorFragment extends BaseFragment {
 	private TextView thresholdRepresentation;
 	private TextView message;
 	private TextView mOfn;
+
+	@Inject
+	ViewModelProvider.Factory viewModelFactory;
+
+	private SocialBackupSetupViewModel viewModel;
+
+	@Override
+	public void injectFragment(ActivityComponent component) {
+		component.inject(this);
+		viewModel = new ViewModelProvider(requireActivity(), viewModelFactory)
+				.get(SocialBackupSetupViewModel.class);
+	}
 
 	public static ThresholdSelectorFragment newInstance(int numberCustodians) {
 		Bundle bundle = new Bundle();
@@ -94,18 +113,12 @@ public class ThresholdSelectorFragment extends BaseFragment {
 	@Override
 	public void onAttach(Context context) {
 		super.onAttach(context);
-		listener = (ThresholdDefinedListener) context;
 	}
 
 
 	@Override
 	public String getUniqueTag() {
 		return TAG;
-	}
-
-	@Override
-	public void injectFragment(ActivityComponent component) {
-		component.inject(this);
 	}
 
 	@Override
@@ -118,26 +131,42 @@ public class ThresholdSelectorFragment extends BaseFragment {
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
 			case R.id.action_threshold_defined:
-				try {
-					listener.thresholdDefined(threshold);
-				} catch (DbException e) {
-					e.printStackTrace();
-				}
+				viewModel.setThreshold(threshold);
+				showSuccessDialog();
 				return true;
 			default:
 				return super.onOptionsItemSelected(item);
 		}
 	}
 
-	private String buildThresholdRepresentationString() {
-		String thresholdRepresentationText = "";
-		for (int i = 0; i < threshold; i++) {
-			thresholdRepresentationText += getString(R.string.filled_bullet);
+	private void showSuccessDialog() {
+		AlertDialog.Builder builder = new AlertDialog.Builder(requireContext(),
+				R.style.BriarDialogTheme);
+		builder.setTitle(R.string.backup_created);
+		builder.setMessage(R.string.backup_done_info);
+		builder.setPositiveButton(R.string.ok,
+				(dialog, which) -> viewModel.onSuccessDismissed());
+		builder.setIcon(R.drawable.ic_baseline_done_outline_24);
+				AlertDialog dialog = builder.create();
+		dialog.show();
+	}
+
+	private SpannableStringBuilder buildThresholdRepresentationString() {
+		char[] charArray = new char[numberOfCustodians];
+		Arrays.fill(charArray, ' ');
+		SpannableStringBuilder string = new SpannableStringBuilder(new String(charArray));
+
+		for (int i = 0; i < numberOfCustodians; i++) {
+			int drawable = i < threshold
+					? R.drawable.ic_custodian_required
+					: R.drawable.ic_custodian_optional;
+			string.setSpan(new ImageSpan(getContext(), drawable), i,
+					i+1,
+					Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
 		}
-		for (int i = 0; i < (numberOfCustodians - threshold); i++) {
-			thresholdRepresentationText += getString(R.string.linear_bullet);
-		}
-		return thresholdRepresentationText;
+		// If we have more than 6, split it on two lines
+		if (numberOfCustodians > 6) string.insert(4, "\n");
+        return string;
 	}
 
 	private class SeekBarListener implements SeekBar.OnSeekBarChangeListener {

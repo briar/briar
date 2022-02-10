@@ -16,6 +16,7 @@
 		app:title="@string/setup_title"
 		app:titleTextColor="@android:color/white" />
 
-	<include layout="@layout/fragment_start" />
+<!--	<include layout="@layout/fragment_start" />-->
+	<include layout="@layout/fragment_new_or_recover" />
 
 </LinearLayout>

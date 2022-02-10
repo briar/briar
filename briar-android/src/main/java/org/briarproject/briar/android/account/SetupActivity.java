@@ -10,6 +10,7 @@ import org.briarproject.briar.R;
 import org.briarproject.briar.android.activity.ActivityComponent;
 import org.briarproject.briar.android.activity.BaseActivity;
 import org.briarproject.briar.android.fragment.BaseFragment.BaseFragmentListener;
+import org.briarproject.briar.android.socialbackup.recover.OwnerReturnShardActivity;
 
 import javax.annotation.Nullable;
 import javax.inject.Inject;
@@ -25,6 +26,7 @@ import static org.briarproject.briar.android.account.SetupViewModel.State.AUTHOR
 import static org.briarproject.briar.android.account.SetupViewModel.State.CREATED;
 import static org.briarproject.briar.android.account.SetupViewModel.State.DOZE;
 import static org.briarproject.briar.android.account.SetupViewModel.State.FAILED;
+import static org.briarproject.briar.android.account.SetupViewModel.State.RECOVER;
 import static org.briarproject.briar.android.account.SetupViewModel.State.SET_PASSWORD;
 
 @MethodsNotNullByDefault
@@ -60,6 +62,8 @@ public class SetupActivity extends BaseActivity
 			showPasswordFragment();
 		} else if (state == DOZE) {
 			showDozeFragment();
+		} else if (state == RECOVER) {
+			recover();
 		} else if (state == CREATED || state == FAILED) {
 			// TODO: Show an error if failed
 			showApp();
@@ -82,6 +86,13 @@ public class SetupActivity extends BaseActivity
 		startActivity(i);
 		supportFinishAfterTransition();
 		overridePendingTransition(R.anim.screen_new_in, R.anim.screen_old_out);
+	}
+
+	void recover () {
+//		finish();
+		Intent i = new Intent(this, OwnerReturnShardActivity.class);
+		i.addFlags(FLAG_ACTIVITY_NEW_TASK);
+		startActivity(i);
 	}
 
 	@Override

@@ -139,16 +139,7 @@
 		</activity>
 
 		<activity
-			android:name="org.briarproject.briar.android.account.NewOrRecoverActivity"
-			android:label="@string/activity_name_new_or_recover_account"
-			android:parentActivityName="org.briarproject.briar.android.login.StartupActivity">
-			<meta-data
-				android:name="android.support.PARENT_ACTIVITY"
-				android:value="org.briarproject.briar.android.login.StartupActivity" />
-		</activity>
-
-		<activity
-			android:name="org.briarproject.briar.android.socialbackup.DistributedBackupActivity"
+			android:name="org.briarproject.briar.android.socialbackup.SocialBackupSetupActivity"
 			android:label="@string/activity_name_distributed_backup"
 			android:parentActivityName="org.briarproject.briar.android.settings.SettingsActivity">
 			<meta-data
@@ -168,10 +159,11 @@
 		<activity
 			android:name="org.briarproject.briar.android.socialbackup.recover.OwnerReturnShardActivity"
 			android:label="@string/activity_name_recovery"
-			android:parentActivityName="org.briarproject.briar.android.account.NewOrRecoverActivity">
+
+			android:parentActivityName="org.briarproject.briar.android.account.SetupActivity">
 			<meta-data
 				android:name="android.support.PARENT_ACTIVITY"
-				android:value="org.briarproject.briar.android.account.NewOrRecoverActivity" />
+				android:value="org.briarproject.briar.android.account.SetupActivity" />
 		</activity>
 
 		<activity

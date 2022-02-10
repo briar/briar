@@ -96,7 +96,7 @@
 			app:iconSpaceReserved="false">
 
 			<intent
-				android:targetClass="org.briarproject.briar.android.socialbackup.DistributedBackupActivity"
+				android:targetClass="org.briarproject.briar.android.socialbackup.SocialBackupSetupActivity"
 				android:targetPackage="@string/app_package" />
 
 		</Preference>

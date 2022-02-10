@@ -43,6 +43,7 @@ import org.briarproject.briar.android.remotewipe.RemoteWipeModule;
 import org.briarproject.briar.android.reporting.DevReportModule;
 import org.briarproject.briar.android.settings.SettingsModule;
 import org.briarproject.briar.android.sharing.SharingModule;
+import org.briarproject.briar.android.socialbackup.SocialBackupSetupModule;
 import org.briarproject.briar.android.socialbackup.recover.CustodianReturnShardModule;
 import org.briarproject.briar.android.socialbackup.recover.OwnerReturnShardModule;
 import org.briarproject.briar.android.test.TestAvatarCreatorImpl;
@@ -96,7 +97,8 @@ import static org.briarproject.briar.android.TestingConstants.IS_DEBUG_BUILD;
 		SharingModule.class,
 		OwnerReturnShardModule.class,
 		CustodianReturnShardModule.class,
-		RemoteWipeModule.class
+		RemoteWipeModule.class,
+		SocialBackupSetupModule.class
 })
 public class AppModule {
 

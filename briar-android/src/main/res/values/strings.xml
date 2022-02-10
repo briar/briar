@@ -653,6 +653,8 @@
 	<string name="select_custodians">Select Trusted Contacts:</string>
 	<string name="select_at_least_n_contacts">Please select at least %d contacts</string>
 	<string name="select_at_least_n_more_contacts">Please select at least %d more contacts</string>
+	<string name="select_no_more_than_n_contacts">Too many! Please select no more than %d contacts</string>
+
 	<string name="threshold">Choose the minimum number of trusted contacts needed to restore your account</string>
 	<string name="threshold_disabled">Two trusted contacts will be needed to restore your account</string>
 	<string name="threshold_secure">Secure</string>
@@ -661,9 +663,21 @@
 	<string name="threshold_high_insecure">Danger of loss – lower threshold recommended</string>
 	<string name="threshold_defined">Choose Threshold</string>
 	<string name="threshold_m_of_n">%d of %d contacts needed to recover your account</string>
-	<string name="backup_done_info">Backup pieces sent to trusted contacts</string>
 
 	<!-- Recovery from the secret owner's POV -->
+
+	<string name="backup_created">Social Backup created</string>
+	<string name="backup_done_info">Backup pieces sent to trusted contacts</string>
+
+	<string name="social_backup_setup_explainer_title">Backup your Briar identity and contacts list</string>
+	<string name="social_backup_setup_explainer_long">Choose a set of trusted contacts to send backup pieces to.\n\nYou decide how many of these contacts must help you recover your account.\n\nFor example, you can choose three trusted contacts and that any two of them are needed to recover.</string>
+	<string name="social_backup_setup_explainer_button">Choose trusted contacts</string>
+
+	<string name="social_backup_onboarding_title">Backup your Briar account</string>
+	<string name="social_backup_onboarding_long">Social backup feature allows you to recover your account with the help of trusted contacts</string>
+
+	<!-- recovery from the secret owner's POV -->
+
 	<string name="recovery_explainer">You need to meet your trusted contacts in-person to receive pieces</string>
 	<string name="recovery_explainer_extra">Your trusted contact must scan a QR code to initiate the transfer.\n\nYou must both be connected to the same wifi network</string>
 	<string name="recovery_begin">Begin</string>

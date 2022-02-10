@@ -13,7 +13,6 @@ import org.briarproject.briar.android.fragment.BaseFragment;
 import org.briarproject.briar.api.socialbackup.recovery.CustodianTask;
 
 import java.io.IOException;
-import java.util.logging.Logger;
 
 import javax.annotation.Nullable;
 import javax.inject.Inject;
@@ -21,17 +20,12 @@ import javax.inject.Inject;
 import androidx.fragment.app.FragmentManager;
 import androidx.lifecycle.ViewModelProvider;
 
-import static android.content.Intent.FLAG_ACTIVITY_CLEAR_TOP;
-import static java.util.logging.Logger.getLogger;
 import static org.briarproject.briar.android.conversation.ConversationActivity.CONTACT_ID;
 
 public class CustodianReturnShardActivity extends BriarActivity
 		implements BaseFragment.BaseFragmentListener {
 
 	private CustodianReturnShardViewModel viewModel;
-	private static final Logger LOG =
-			getLogger(CustodianReturnShardActivity.class.getName());
-	private ContactId contactId;
 
 	@Inject
 	ViewModelProvider.Factory viewModelFactory;
@@ -52,7 +46,7 @@ public class CustodianReturnShardActivity extends BriarActivity
 			Intent intent = getIntent();
 			int id = intent.getIntExtra(CONTACT_ID, -1);
 			if (id == -1) throw new IllegalStateException("No ContactId");
-			contactId = new ContactId(id);
+			ContactId contactId = new ContactId(id);
 
 			try {
 				viewModel.start(contactId);
@@ -96,7 +90,8 @@ public class CustodianReturnShardActivity extends BriarActivity
 					"It looks like you are not connected to a Wifi network",
 					Toast.LENGTH_SHORT).show();
 			FragmentManager fm = getSupportFragmentManager();
-			if (fm.findFragmentByTag(CustodianReturnShardFragment.TAG) == null) {
+			if (fm.findFragmentByTag(CustodianReturnShardFragment.TAG) ==
+					null) {
 				BaseFragment f = new CustodianReturnShardErrorFragment();
 				fm.beginTransaction()
 						.replace(R.id.fragmentContainer, f, f.getUniqueTag())
@@ -106,19 +101,15 @@ public class CustodianReturnShardActivity extends BriarActivity
 		}
 	}
 
-
 	private void onReturnShardStateChanged(CustodianTask.State state) {
-        if (state instanceof CustodianTask.State.Success) {
-	        CustodianReturnShardSuccessFragment fragment = new CustodianReturnShardSuccessFragment();
-	        showNextFragment(fragment);
-        } else if (state instanceof CustodianTask.State.Failure) {
-        	// TODO error fragment here
-	        // TODO handle reason
-	        Toast.makeText(this,
-			        "Backup piece transfer failed",
-			        Toast.LENGTH_SHORT).show();
-	        finish();
-        }
+		if (state instanceof CustodianTask.State.Failure) {
+			// TODO error fragment here
+			// TODO handle reason
+			Toast.makeText(this,
+					"Backup piece transfer failed",
+					Toast.LENGTH_SHORT).show();
+			finish();
+		}
 	}
 
 	private void showCameraFragment() {

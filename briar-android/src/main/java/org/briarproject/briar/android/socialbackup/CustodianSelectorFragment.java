@@ -23,6 +23,7 @@ import java.util.Collection;
 import javax.inject.Inject;
 
 import androidx.annotation.Nullable;
+import androidx.lifecycle.ViewModelProvider;
 
 import static java.util.Objects.requireNonNull;
 
@@ -31,6 +32,18 @@ import static java.util.Objects.requireNonNull;
 public class CustodianSelectorFragment extends ContactSelectorFragment {
 
 	public static final String TAG = CustodianSelectorFragment.class.getName();
+
+	@Inject
+	ViewModelProvider.Factory viewModelFactory;
+
+	private SocialBackupSetupViewModel viewModel;
+
+	@Override
+	public void injectFragment(ActivityComponent component) {
+		component.inject(this);
+		viewModel = new ViewModelProvider(requireActivity(), viewModelFactory)
+				.get(SocialBackupSetupViewModel.class);
+	}
 
 	@Inject
 	CreateBackupController controller;
@@ -42,11 +55,6 @@ public class CustodianSelectorFragment extends ContactSelectorFragment {
 		fragment.setArguments(args);
 
 		return fragment;
-	}
-
-	@Override
-	public void injectFragment(ActivityComponent component) {
-		component.inject(this);
 	}
 
 	@Override
@@ -78,14 +86,18 @@ public class CustodianSelectorFragment extends ContactSelectorFragment {
 
 		int n = selectedContacts.size();
 		int min = 2;
-		boolean enough = n >= min;
+		int max = 7;
+		boolean amountIsValid = (n >= min) && (n <= max);
 
-		item.setVisible(enough);
+		item.setVisible(amountIsValid);
 		if (n == 0) {
 			Toast.makeText(getContext(), String.format(getString(R.string.select_at_least_n_contacts), min),
 					Toast.LENGTH_SHORT).show();
 		} else if (n < min) {
 			Toast.makeText(getContext(), String.format(getString(R.string.select_at_least_n_more_contacts), min - n),
+					Toast.LENGTH_SHORT).show();
+		} else if (n > max) {
+			Toast.makeText(getContext(), String.format(getString(R.string.select_no_more_than_n_contacts), max),
 					Toast.LENGTH_SHORT).show();
 		}
 	}

@@ -44,13 +44,6 @@ public class OwnerReturnShardActivity extends BaseActivity
 
 	private OwnerReturnShardViewModel viewModel;
 
-//	private final ActivityResultLauncher<String[]> permissionLauncher =
-//			registerForActivityResult(
-//					new ActivityResultContracts.RequestMultiplePermissions(),
-//					r ->
-//							permissionManager.onRequestPermissionResult(r,
-//									viewModel::showQrCodeFragmentIfAllowed));
-
 	@Override
 	public void injectActivity(ActivityComponent component) {
 		component.inject(this);
@@ -154,7 +147,8 @@ public class OwnerReturnShardActivity extends BaseActivity
 						"WARNING: Mismatched backup piece!",
 						Toast.LENGTH_LONG).show();
 			}
-			boolean added = (result != RestoreAccount.AddReturnShardPayloadResult.DUPLICATE) ? true : false;
+			boolean added = result !=
+					RestoreAccount.AddReturnShardPayloadResult.DUPLICATE;
 			Toast.makeText(this,
 					"Success - got backup piece" + (added ? "" : " duplicate"),
 					Toast.LENGTH_SHORT).show();

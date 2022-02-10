@@ -1,10 +1,12 @@
 package org.briarproject.briar.android.settings;
 
 import android.content.Intent;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -12,6 +14,7 @@ import org.briarproject.bramble.api.FeatureFlags;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.activity.ActivityComponent;
 import org.briarproject.briar.android.activity.BriarActivity;
+import org.briarproject.briar.android.navdrawer.NavDrawerActivity;
 import org.briarproject.briar.android.util.UiUtils;
 import org.briarproject.briar.android.view.AuthorView;
 
@@ -19,11 +22,15 @@ import javax.inject.Inject;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBar;
+import androidx.core.content.ContextCompat;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.vectordrawable.graphics.drawable.VectorDrawableCompat;
 import de.hdodenhof.circleimageview.CircleImageView;
+import uk.co.samuelwall.materialtaptargetprompt.MaterialTapTargetPrompt;
 
 import static android.widget.Toast.LENGTH_LONG;
 import static org.briarproject.briar.android.activity.RequestCodes.REQUEST_AVATAR_IMAGE;
+import static org.briarproject.briar.android.util.UiUtils.resolveColorAttribute;
 
 public class SettingsActivity extends BriarActivity {
 

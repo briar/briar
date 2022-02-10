@@ -30,6 +30,7 @@ public class AuthorNameFragment extends SetupFragment {
 	private TextInputLayout authorNameWrapper;
 	private TextInputEditText authorNameInput;
 	private Button nextButton;
+	private Button recoverButton;
 
 	public static AuthorNameFragment newInstance() {
 		return new AuthorNameFragment();
@@ -54,6 +55,9 @@ public class AuthorNameFragment extends SetupFragment {
 		authorNameInput.addTextChangedListener(this);
 		nextButton.setOnClickListener(this);
 
+		recoverButton = v.findViewById(R.id.buttonRestoreAccount);
+		recoverButton.setOnClickListener(e -> viewModel.recoverClicked());
+
 		return v;
 	}
 
@@ -75,6 +79,8 @@ public class AuthorNameFragment extends SetupFragment {
 		boolean enabled = authorNameLength > 0 && !error;
 		authorNameInput.setOnEditorActionListener(enabled ? this : null);
 		nextButton.setEnabled(enabled);
+		recoverButton.setEnabled(!enabled);
+//		recoverButton.setVisibility(enabled ? View.INVISIBLE : View.VISIBLE);
 	}
 
 	@Override

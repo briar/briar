@@ -159,7 +159,8 @@ public class NavDrawerActivity extends BriarActivity implements
 			@Override
 			public void onDrawerOpened(View drawerView) {
 				super.onDrawerOpened(drawerView);
-				navDrawerViewModel.checkTransportsOnboarding();
+//				navDrawerViewModel.checkTransportsOnboarding();
+				navDrawerViewModel.checkSocialBackupOnboarding();
 			}
 		};
 		drawerLayout.addDrawerListener(drawerToggle);
@@ -168,9 +169,12 @@ public class NavDrawerActivity extends BriarActivity implements
 		initializeTransports();
 		transportsView.setAdapter(transportsAdapter);
 
-		observeOnce(navDrawerViewModel.showTransportsOnboarding(), this, show ->
-				observeOnce(torIcon, this, imageView ->
-						showTransportsOnboarding(show, imageView)));
+//		observeOnce(navDrawerViewModel.showTransportsOnboarding(), this, show ->
+//				observeOnce(torIcon, this, imageView ->
+//						showTransportsOnboarding(show, imageView)));
+
+		observeOnce(navDrawerViewModel.showSocialBackupOnboarding(), this,
+				this::showSocialBackupOnboarding);
 
 		lockManager.isLockable().observe(this, this::setLockVisible);
 
@@ -466,6 +470,22 @@ public class NavDrawerActivity extends BriarActivity implements
 							ContextCompat.getColor(this, R.color.briar_primary))
 					.show();
 			navDrawerViewModel.transportsOnboardingShown();
+		}
+	}
+
+	private void showSocialBackupOnboarding(boolean show) {
+		if (show) {
+			new MaterialTapTargetPrompt.Builder(NavDrawerActivity.this,
+					R.style.OnboardingDialogTheme)
+					.setTarget(R.id.nav_btn_settings)
+					.setPrimaryText(R.string.social_backup_onboarding_title)
+					.setSecondaryText(R.string.social_backup_onboarding_long)
+					.setFocalRadius((float) 350)
+					.setFocalPadding((float) 100)
+					.setBackgroundColour(
+							ContextCompat.getColor(this, R.color.briar_primary))
+					.show();
+			navDrawerViewModel.socialBackupOnboardingShown();
 		}
 	}
 

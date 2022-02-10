@@ -53,7 +53,7 @@ public class CustodianReturnShardViewModel extends AndroidViewModel
 	final QrCodeDecoder qrCodeDecoder;
 	private boolean qrCodeRead = false;
 	private WifiManager wifiManager;
-	private final MutableLiveEvent<Boolean > continueClicked = new MutableLiveEvent<>();
+	private final MutableLiveEvent<Boolean> continueClicked = new MutableLiveEvent<>();
 	private final MutableLiveEvent<Boolean> showCameraFragment =
 			new MutableLiveEvent<>();
 	private final MutableLiveEvent<Boolean> successDismissed =
@@ -176,7 +176,6 @@ public class CustodianReturnShardViewModel extends AndroidViewModel
 	public void onSuccessDismissed() {
 		successDismissed.setEvent(true);
 	}
-
 
 	QrCodeDecoder getQrCodeDecoder() {
 		return qrCodeDecoder;
