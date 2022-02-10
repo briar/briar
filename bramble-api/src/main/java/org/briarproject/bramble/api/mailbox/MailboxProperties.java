@@ -8,10 +8,11 @@ import javax.annotation.concurrent.Immutable;
 @NotNullByDefault
 public class MailboxProperties {
 
-	private final String onionAddress, authToken;
+	private final String onionAddress;
+	private final MailboxAuthToken authToken;
 	private final boolean owner;
 
-	public MailboxProperties(String onionAddress, String authToken,
+	public MailboxProperties(String onionAddress, MailboxAuthToken authToken,
 			boolean owner) {
 		this.onionAddress = onionAddress;
 		this.authToken = authToken;
@@ -22,7 +23,7 @@ public class MailboxProperties {
 		return onionAddress;
 	}
 
-	public String getAuthToken() {
+	public MailboxAuthToken getAuthToken() {
 		return authToken;
 	}
 

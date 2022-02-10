@@ -2,17 +2,26 @@ package org.briarproject.bramble.mailbox;
 
 import org.briarproject.bramble.api.WeakSingletonProvider;
 import org.briarproject.bramble.api.contact.ContactId;
+import org.briarproject.bramble.api.mailbox.InvalidMailboxIdException;
+import org.briarproject.bramble.api.mailbox.MailboxAuthToken;
+import org.briarproject.bramble.api.mailbox.MailboxFileId;
+import org.briarproject.bramble.api.mailbox.MailboxFolderId;
 import org.briarproject.bramble.api.mailbox.MailboxProperties;
 import org.briarproject.bramble.mailbox.MailboxApi.ApiException;
 import org.briarproject.bramble.mailbox.MailboxApi.MailboxContact;
+import org.briarproject.bramble.mailbox.MailboxApi.MailboxFile;
 import org.briarproject.bramble.mailbox.MailboxApi.TolerableFailureException;
 import org.briarproject.bramble.test.BrambleTestCase;
 import org.junit.Before;
 import org.junit.BeforeClass;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.List;
 
 import javax.annotation.Nonnull;
 import javax.net.SocketFactory;
@@ -22,8 +31,12 @@ import okhttp3.OkHttpClient;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
-import static org.briarproject.bramble.test.TestUtils.getMailboxSecret;
+import static org.briarproject.bramble.test.TestUtils.getRandomBytes;
+import static org.briarproject.bramble.test.TestUtils.getRandomId;
 import static org.briarproject.bramble.test.TestUtils.isOptionalTestEnabled;
+import static org.briarproject.bramble.test.TestUtils.readBytes;
+import static org.briarproject.bramble.test.TestUtils.writeBytes;
+import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.assertTrue;
@@ -31,9 +44,20 @@ import static org.junit.Assume.assumeTrue;
 
 public class MailboxIntegrationTest extends BrambleTestCase {
 
+	@Rule
+	public TemporaryFolder folder = new TemporaryFolder();
+
 	private final static String URL_BASE = "http://127.0.0.1:8000";
-	private final static String SETUP_TOKEN =
-			"54686973206973206120736574757020746f6b656e20666f722042726961722e";
+	private final static MailboxAuthToken SETUP_TOKEN;
+
+	static {
+		try {
+			SETUP_TOKEN = MailboxAuthToken.fromString(
+					"54686973206973206120736574757020746f6b656e20666f722042726961722e");
+		} catch (InvalidMailboxIdException e) {
+			throw new IllegalStateException();
+		}
+	}
 
 	private final OkHttpClient client = new OkHttpClient.Builder()
 			.socketFactory(SocketFactory.getDefault())
@@ -64,7 +88,7 @@ public class MailboxIntegrationTest extends BrambleTestCase {
 		if (ownerProperties != null) return;
 		MailboxProperties setupProperties =
 				new MailboxProperties(URL_BASE, SETUP_TOKEN, true);
-		String ownerToken = api.setup(setupProperties);
+		MailboxAuthToken ownerToken = api.setup(setupProperties);
 		ownerProperties = new MailboxProperties(URL_BASE, ownerToken, true);
 	}
 
@@ -101,9 +125,128 @@ public class MailboxIntegrationTest extends BrambleTestCase {
 				() -> api.deleteContact(ownerProperties, contactId2));
 	}
 
+	@Test
+	public void testFileManagementApi() throws Exception {
+		// add contact, so we can leave each other files
+		ContactId contactId = new ContactId(1);
+		MailboxContact contact = getMailboxContact(contactId);
+		MailboxProperties contactProperties = new MailboxProperties(
+				ownerProperties.getOnionAddress(), contact.token, false);
+		api.addContact(ownerProperties, contact);
+
+		// upload a file for our contact
+		File file1 = folder.newFile();
+		byte[] bytes1 = getRandomBytes(2048);
+		writeBytes(file1, bytes1);
+		api.addFile(ownerProperties, contact.inboxId, file1);
+
+		// contact checks files
+		List<MailboxFile> files1 =
+				api.getFiles(contactProperties, contact.inboxId);
+		assertEquals(1, files1.size());
+		MailboxFileId fileName1 = files1.get(0).name;
+
+		// owner can't check files
+		assertThrows(ApiException.class, () ->
+				api.getFiles(ownerProperties, contact.inboxId));
+
+		// contact downloads file
+		File file1downloaded = folder.newFile();
+		api.getFile(contactProperties, contact.inboxId, fileName1,
+				file1downloaded);
+		assertArrayEquals(bytes1, readBytes(file1downloaded));
+
+		// owner can't download file, even if knowing name
+		File file1forbidden = folder.newFile();
+		assertThrows(ApiException.class, () -> api.getFile(ownerProperties,
+				contact.inboxId, fileName1, file1forbidden));
+		assertEquals(0, file1forbidden.length());
+
+		// owner can't delete file
+		assertThrows(ApiException.class, () ->
+				api.deleteFile(ownerProperties, contact.inboxId, fileName1));
+
+		// contact deletes file
+		api.deleteFile(contactProperties, contact.inboxId, fileName1);
+		assertEquals(0,
+				api.getFiles(contactProperties, contact.inboxId).size());
+
+		// contact uploads two files for the owner
+		File file2 = folder.newFile();
+		File file3 = folder.newFile();
+		byte[] bytes2 = getRandomBytes(2048);
+		byte[] bytes3 = getRandomBytes(1024);
+		writeBytes(file2, bytes2);
+		writeBytes(file3, bytes3);
+		api.addFile(contactProperties, contact.outboxId, file2);
+		api.addFile(contactProperties, contact.outboxId, file3);
+
+		// owner checks folders with available files
+		List<MailboxFolderId> folders = api.getFolders(ownerProperties);
+		assertEquals(singletonList(contact.outboxId), folders);
+
+		// owner lists files in contact's outbox
+		List<MailboxFile> files2 =
+				api.getFiles(ownerProperties, contact.outboxId);
+		assertEquals(2, files2.size());
+		MailboxFileId file2name = files2.get(0).name;
+		MailboxFileId file3name = files2.get(1).name;
+
+		// contact can't list files in contact's outbox
+		assertThrows(ApiException.class, () ->
+				api.getFiles(contactProperties, contact.outboxId));
+
+		// owner downloads both files from contact's outbox
+		File file2downloaded = folder.newFile();
+		File file3downloaded = folder.newFile();
+		api.getFile(ownerProperties, contact.outboxId, file2name,
+				file2downloaded);
+		api.getFile(ownerProperties, contact.outboxId, file3name,
+				file3downloaded);
+		byte[] downloadedBytes2 = readBytes(file2downloaded);
+		byte[] downloadedBytes3 = readBytes(file3downloaded);
+		// file order is preserved (sorted by time),
+		// so we know what file is which
+		assertArrayEquals(bytes2, downloadedBytes2);
+		assertArrayEquals(bytes3, downloadedBytes3);
+
+		// contact can't download files again, even if knowing name
+		File file2forbidden = folder.newFile();
+		File file3forbidden = folder.newFile();
+		assertThrows(ApiException.class, () -> api.getFile(contactProperties,
+				contact.outboxId, file2name, file2forbidden));
+		assertThrows(ApiException.class, () -> api.getFile(contactProperties,
+				contact.outboxId, file3name, file3forbidden));
+		assertEquals(0, file1forbidden.length());
+		assertEquals(0, file2forbidden.length());
+
+		// contact can't delete files in outbox
+		assertThrows(ApiException.class, () ->
+				api.deleteFile(contactProperties, contact.outboxId, file2name));
+		assertThrows(ApiException.class, () ->
+				api.deleteFile(contactProperties, contact.outboxId, file3name));
+
+		// owner deletes files
+		api.deleteFile(ownerProperties, contact.outboxId, file2name);
+		api.deleteFile(ownerProperties, contact.outboxId, file3name);
+		assertEquals(emptyList(),
+				api.getFiles(ownerProperties, contact.outboxId));
+		assertEquals(emptyList(), api.getFolders(ownerProperties));
+
+		// deleting a non-existent file is tolerable
+		assertThrows(TolerableFailureException.class, () ->
+				api.deleteFile(ownerProperties, contact.outboxId, file3name));
+
+		// owner deletes contact again to leave clean state for other tests
+		api.deleteContact(ownerProperties, contactId);
+		assertEquals(emptyList(), api.getContacts(ownerProperties));
+	}
+
 	private MailboxContact getMailboxContact(ContactId contactId) {
-		return new MailboxContact(contactId, getMailboxSecret(),
-				getMailboxSecret(), getMailboxSecret());
+		MailboxAuthToken authToken = new MailboxAuthToken(getRandomId());
+		MailboxFolderId inboxId = new MailboxFolderId(getRandomId());
+		MailboxFolderId outboxId = new MailboxFolderId(getRandomId());
+		return new MailboxContact(contactId, authToken, inboxId, outboxId);
 	}
 
 }

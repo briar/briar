@@ -25,13 +25,16 @@ import org.briarproject.bramble.api.sync.Message;
 import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.bramble.util.IoUtils;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.Random;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -46,8 +49,8 @@ import static org.briarproject.bramble.api.properties.TransportPropertyConstants
 import static org.briarproject.bramble.api.sync.ClientId.MAX_CLIENT_ID_LENGTH;
 import static org.briarproject.bramble.api.sync.SyncConstants.MAX_GROUP_DESCRIPTOR_LENGTH;
 import static org.briarproject.bramble.api.sync.SyncConstants.MAX_MESSAGE_BODY_LENGTH;
+import static org.briarproject.bramble.util.IoUtils.copyAndClose;
 import static org.briarproject.bramble.util.StringUtils.getRandomString;
-import static org.briarproject.bramble.util.StringUtils.toHexString;
 
 public class TestUtils {
 
@@ -211,8 +214,22 @@ public class TestUtils {
 				getAgreementPublicKey(), verified);
 	}
 
-	public static String getMailboxSecret() {
-		return toHexString(getRandomBytes(32)).toLowerCase(Locale.US);
+	public static void writeBytes(File file, byte[] bytes)
+			throws IOException {
+		FileOutputStream outputStream = new FileOutputStream(file);
+		//noinspection TryFinallyCanBeTryWithResources
+		try {
+			outputStream.write(bytes);
+		} finally {
+			outputStream.close();
+		}
+	}
+
+	public static byte[] readBytes(File file) throws IOException {
+		ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+		FileInputStream inputStream = new FileInputStream(file);
+		copyAndClose(inputStream, outputStream);
+		return outputStream.toByteArray();
 	}
 
 	public static double getMedian(Collection<? extends Number> samples) {
