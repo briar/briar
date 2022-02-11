@@ -45,7 +45,7 @@
         app:layout_constraintTop_toBottomOf="@+id/seekBar" />
 
     <TextView
-        android:id="@+id/textViewmOfn"
+        android:id="@+id/text_view_m_of_n"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="24dp"
@@ -54,6 +54,17 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/textViewThresholdRepresentation" />
+
+    <org.briarproject.briar.android.login.StrengthMeter
+        android:id="@+id/strength_meter"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="24dp"
+        android:visibility="visible"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/text_view_m_of_n"
+        tools:visibility="visible" />
 
     <TextView
         android:id="@+id/textViewMessage"
@@ -64,6 +75,6 @@
         android:textSize="16dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textViewmOfn" />
+        app:layout_constraintTop_toBottomOf="@+id/strength_meter" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
