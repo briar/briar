@@ -38,6 +38,14 @@ interface MailboxApi {
 			throws IOException, ApiException;
 
 	/**
+	 * Unpairs Briar and the mailbox (owner only).
+	 * Resets mailbox state to that after first install
+	 * (e.g. removes all stored files as well).
+	 */
+	void wipeMailbox(MailboxProperties properties)
+			throws IOException, ApiException;
+
+	/**
 	 * Adds a new contact to the mailbox.
 	 *
 	 * @throws TolerableFailureException if response code is 409

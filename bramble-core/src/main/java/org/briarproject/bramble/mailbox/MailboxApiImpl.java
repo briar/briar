@@ -92,6 +92,19 @@ class MailboxApiImpl implements MailboxApi {
 		return response.isSuccessful();
 	}
 
+	@Override
+	public void wipeMailbox(MailboxProperties properties)
+			throws IOException, ApiException {
+		if (!properties.isOwner()) throw new IllegalArgumentException();
+		Request request = getRequestBuilder(properties.getAuthToken())
+				.url(properties.getOnionAddress() + "/")
+				.delete()
+				.build();
+		OkHttpClient client = httpClientProvider.get();
+		Response response = client.newCall(request).execute();
+		if (response.code() != 204) throw new ApiException();
+	}
+
 	/* Contact Management API (owner only) */
 
 	@Override
