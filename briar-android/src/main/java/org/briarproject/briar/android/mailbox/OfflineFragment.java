@@ -7,7 +7,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.TextView;
 
 import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
 import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
@@ -16,17 +15,13 @@ import org.briarproject.briar.android.navdrawer.TransportsActivity;
 
 import javax.inject.Inject;
 
-import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.ActionBar;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.widget.NestedScrollView;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 import androidx.lifecycle.ViewModelProvider;
 
 import static android.view.View.FOCUS_DOWN;
-import static java.util.Objects.requireNonNull;
 import static org.briarproject.briar.android.AppModule.getAndroidComponent;
 
 @MethodsNotNullByDefault
@@ -61,29 +56,17 @@ public class OfflineFragment extends Fragment {
 				.inflate(R.layout.fragment_offline, container, false);
 
 		scrollView = (NestedScrollView) v;
-		TextView titleView = v.findViewById(R.id.titleView);
 		Button checkButton = v.findViewById(R.id.checkButton);
 		checkButton.setOnClickListener(view -> {
 			Intent i = new Intent(requireContext(), TransportsActivity.class);
 			startActivity(i);
 		});
 		buttonView = v.findViewById(R.id.button);
-		buttonView.setOnClickListener(view -> viewModel.tryAgainWhenOffline());
+		buttonView.setOnClickListener(view -> {
+			getParentFragmentManager().popBackStackImmediate();
+			viewModel.tryAgainWhenOffline();
+		});
 
-		AppCompatActivity a = (AppCompatActivity) requireActivity();
-		a.setTitle(titleView.getText());
-		ActionBar actionBar = a.getSupportActionBar();
-		if (actionBar != null) {
-			actionBar.setDisplayHomeAsUpEnabled(false);
-			actionBar.setHomeButtonEnabled(false);
-		}
-		a.getOnBackPressedDispatcher().addCallback(
-				getViewLifecycleOwner(), new OnBackPressedCallback(true) {
-					@Override
-					public void handleOnBackPressed() {
-						onBackButtonPressed();
-					}
-				});
 		return v;
 	}
 
@@ -92,19 +75,6 @@ public class OfflineFragment extends Fragment {
 		super.onStart();
 		// Scroll down in case the screen is small, so the button is visible
 		scrollView.post(() -> scrollView.fullScroll(FOCUS_DOWN));
-	}
-
-	private void onBackButtonPressed() {
-		MailboxState state = viewModel.getState().getLastValue();
-		MailboxState.OfflineInSetup offline =
-				(MailboxState.OfflineInSetup) requireNonNull(state);
-		if (offline.mailboxProperties == null) {
-			// not yet scanned, go back to previous fragment
-			requireActivity().getSupportFragmentManager().popBackStack();
-		} else {
-			// we had scanned already, so go back to beginning
-			requireActivity().supportFinishAfterTransition();
-		}
 	}
 
 }
