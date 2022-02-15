@@ -131,7 +131,8 @@ class ContactManagerImpl implements ContactManager, EventListener {
 	}
 
 	@Override
-	public PendingContact addPendingContact(Transaction txn, String link, String alias)
+	public PendingContact addPendingContact(Transaction txn, String link,
+			String alias)
 			throws DbException, FormatException, GeneralSecurityException {
 		PendingContact p =
 				pendingContactFactory.createPendingContact(link, alias);
@@ -169,7 +170,8 @@ class ContactManagerImpl implements ContactManager, EventListener {
 	}
 
 	@Override
-	public Collection<Pair<PendingContact, PendingContactState>> getPendingContacts(Transaction txn)
+	public Collection<Pair<PendingContact, PendingContactState>> getPendingContacts(
+			Transaction txn)
 			throws DbException {
 		Collection<PendingContact> pendingContacts = db.getPendingContacts(txn);
 		List<Pair<PendingContact, PendingContactState>> pairs =
@@ -184,7 +186,13 @@ class ContactManagerImpl implements ContactManager, EventListener {
 
 	@Override
 	public void removePendingContact(PendingContactId p) throws DbException {
-		db.transaction(false, txn -> db.removePendingContact(txn, p));
+		db.transaction(false, txn -> removePendingContact(txn, p));
+	}
+
+	@Override
+	public void removePendingContact(Transaction txn, PendingContactId p)
+			throws DbException {
+		db.removePendingContact(txn, p);
 		states.remove(p);
 	}
 
