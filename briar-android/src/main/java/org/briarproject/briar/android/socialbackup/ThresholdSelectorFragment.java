@@ -30,6 +30,8 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.lifecycle.ViewModelProvider;
 
+import static android.view.View.GONE;
+
 public class ThresholdSelectorFragment extends BaseFragment {
 
 	public static final String TAG = ThresholdSelectorFragment.class.getName();
@@ -93,8 +95,11 @@ public class ThresholdSelectorFragment extends BaseFragment {
 					SecretSharingWrapper.defaultThreshold(numberOfCustodians);
 			threshold = recommendedThreshold;
 			seekBar.setProgress(threshold - 2);
+			strengthMeter.setStrength(1);
 		} else {
 			seekBar.setEnabled(false);
+			seekBar.setVisibility(GONE);
+			strengthMeter.setVisibility(GONE);
 			threshold = 2;
 			seekBar.setMax(numberOfCustodians);
 			seekBar.setProgress(threshold);
@@ -195,13 +200,15 @@ public class ThresholdSelectorFragment extends BaseFragment {
                 strength = 0.75f;
 				text = R.string.threshold_low_insecure;
 			}
+			if (sanityLevel < -2) {
+				strength = 0.5f;
+			}
 			if (sanityLevel > 0) {
 				strength = 0.75f;
 				text = R.string.threshold_high_insecure;
 			}
 			strengthMeter.setStrength(strength);
 			message.setText(text);
-			// TODO change colour of thresholdRepresentation to green/red based on sanityLevel
 		}
 
 		@Override
