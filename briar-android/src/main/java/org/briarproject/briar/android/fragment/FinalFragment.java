@@ -1,5 +1,6 @@
 package org.briarproject.briar.android.fragment;
 
+import android.content.Context;
 import android.content.res.ColorStateList;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -16,6 +17,7 @@ import org.briarproject.briar.R;
 import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.ColorRes;
 import androidx.annotation.DrawableRes;
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.StringRes;
 import androidx.appcompat.app.ActionBar;
@@ -93,11 +95,6 @@ public class FinalFragment extends Fragment {
 
 		AppCompatActivity a = (AppCompatActivity) requireActivity();
 		a.setTitle(args.getInt(ARG_TITLE));
-		ActionBar actionBar = a.getSupportActionBar();
-		if (actionBar != null) {
-			actionBar.setDisplayHomeAsUpEnabled(false);
-			actionBar.setHomeButtonEnabled(false);
-		}
 		a.getOnBackPressedDispatcher().addCallback(
 				getViewLifecycleOwner(), new OnBackPressedCallback(true) {
 					@Override
@@ -109,10 +106,33 @@ public class FinalFragment extends Fragment {
 	}
 
 	@Override
+	public void onAttach(@NonNull Context context) {
+		super.onAttach(context);
+		// onAttach(Activity) is deprecated, we are told to cast the context
+		AppCompatActivity a = (AppCompatActivity) context;
+		ActionBar actionBar = a.getSupportActionBar();
+		if (shouldHideActionBarBackButton() && actionBar != null) {
+			actionBar.setDisplayHomeAsUpEnabled(false);
+			actionBar.setHomeButtonEnabled(false);
+		}
+	}
+
+	@Override
 	public void onStart() {
 		super.onStart();
 		// Scroll down in case the screen is small, so the button is visible
 		scrollView.post(() -> scrollView.fullScroll(FOCUS_DOWN));
+	}
+
+	@Override
+	public void onDetach() {
+		AppCompatActivity a = (AppCompatActivity) requireActivity();
+		ActionBar actionBar = a.getSupportActionBar();
+		if (shouldHideActionBarBackButton() && actionBar != null) {
+			actionBar.setDisplayHomeAsUpEnabled(true);
+			actionBar.setHomeButtonEnabled(true);
+		}
+		super.onDetach();
 	}
 
 	/**
@@ -121,6 +141,15 @@ public class FinalFragment extends Fragment {
 	 */
 	protected void onBackButtonPressed() {
 		requireActivity().supportFinishAfterTransition();
+	}
+
+	/**
+	 * If you are overriding {@link #onBackButtonPressed()}
+	 * and are no longer finishing the fragment, return false here.
+	 * Otherwise the ActionBar back button will be missing in your activity.
+	 */
+	protected boolean shouldHideActionBarBackButton() {
+		return true;
 	}
 
 }

@@ -44,4 +44,8 @@ public class ErrorFragment extends FinalFragment {
 		requireActivity().getSupportFragmentManager().popBackStack();
 	}
 
+	@Override
+	protected boolean shouldHideActionBarBackButton() {
+		return false;
+	}
 }
