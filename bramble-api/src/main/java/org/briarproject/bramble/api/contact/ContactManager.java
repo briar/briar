@@ -179,6 +179,12 @@ public interface ContactManager {
 	void removePendingContact(PendingContactId p) throws DbException;
 
 	/**
+	 * Removes a {@link PendingContact}.
+	 */
+	void removePendingContact(Transaction txn, PendingContactId p)
+			throws DbException;
+
+	/**
 	 * Returns the contact with the given ID.
 	 */
 	Contact getContact(ContactId c) throws DbException;
