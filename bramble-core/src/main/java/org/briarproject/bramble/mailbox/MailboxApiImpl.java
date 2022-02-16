@@ -65,8 +65,7 @@ class MailboxApiImpl implements MailboxApi {
 				.build();
 		OkHttpClient client = httpClientProvider.get();
 		Response response = client.newCall(request).execute();
-		// TODO consider throwing a special exception for the 401 case
-		if (response.code() == 401) throw new ApiException();
+		if (response.code() == 401) throw new MailboxAlreadyPairedException();
 		if (!response.isSuccessful()) throw new ApiException();
 		ResponseBody body = response.body();
 		if (body == null) throw new ApiException();
