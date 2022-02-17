@@ -110,7 +110,7 @@ class MailboxPairingTaskImpl implements MailboxPairingTask {
 		}
 		MailboxAuthToken ownerToken = api.setup(mailboxProperties);
 		MailboxProperties ownerProperties = new MailboxProperties(
-				mailboxProperties.getOnionAddress(), ownerToken, true);
+				mailboxProperties.getBaseUrl(), ownerToken, true);
 		db.transaction(false, txn -> mailboxSettingsManager
 				.setOwnMailboxProperties(txn, ownerProperties));
 		synchronized (lock) {
@@ -158,9 +158,10 @@ class MailboxPairingTaskImpl implements MailboxPairingTask {
 		LOG.info("QR code is valid");
 		byte[] onionPubKey = Arrays.copyOfRange(bytes, 1, 33);
 		String onionAddress = crypto.encodeOnionAddress(onionPubKey);
+		String baseUrl = "http://" + onionAddress + ".onion";
 		byte[] tokenBytes = Arrays.copyOfRange(bytes, 33, 65);
 		MailboxAuthToken setupToken = new MailboxAuthToken(tokenBytes);
-		return new MailboxProperties(onionAddress, setupToken, true);
+		return new MailboxProperties(baseUrl, setupToken, true);
 	}
 
 }

@@ -131,7 +131,7 @@ public class MailboxIntegrationTest extends BrambleTestCase {
 		ContactId contactId = new ContactId(1);
 		MailboxContact contact = getMailboxContact(contactId);
 		MailboxProperties contactProperties = new MailboxProperties(
-				ownerProperties.getOnionAddress(), contact.token, false);
+				ownerProperties.getBaseUrl(), contact.token, false);
 		api.addContact(ownerProperties, contact);
 
 		// upload a file for our contact
