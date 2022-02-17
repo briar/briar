@@ -1,6 +1,7 @@
 package org.briarproject.bramble.client;
 
 import org.briarproject.bramble.api.FormatException;
+import org.briarproject.bramble.api.UniqueId;
 import org.briarproject.bramble.api.client.ClientHelper;
 import org.briarproject.bramble.api.crypto.CryptoComponent;
 import org.briarproject.bramble.api.crypto.KeyParser;
@@ -20,13 +21,15 @@ import org.briarproject.bramble.api.db.Metadata;
 import org.briarproject.bramble.api.db.Transaction;
 import org.briarproject.bramble.api.identity.Author;
 import org.briarproject.bramble.api.identity.AuthorFactory;
+import org.briarproject.bramble.api.mailbox.MailboxAuthToken;
+import org.briarproject.bramble.api.mailbox.MailboxFolderId;
+import org.briarproject.bramble.api.mailbox.MailboxPropertiesUpdate;
 import org.briarproject.bramble.api.sync.GroupId;
 import org.briarproject.bramble.api.sync.Message;
 import org.briarproject.bramble.api.sync.MessageFactory;
 import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.bramble.test.BrambleMockTestCase;
 import org.briarproject.bramble.test.DbExpectations;
-import org.briarproject.bramble.util.StringUtils;
 import org.jmock.Expectations;
 import org.junit.Test;
 
@@ -41,15 +44,22 @@ import java.util.Random;
 import static org.briarproject.bramble.api.identity.AuthorConstants.MAX_AUTHOR_NAME_LENGTH;
 import static org.briarproject.bramble.api.identity.AuthorConstants.MAX_PUBLIC_KEY_LENGTH;
 import static org.briarproject.bramble.api.identity.AuthorConstants.MAX_SIGNATURE_LENGTH;
+import static org.briarproject.bramble.api.mailbox.MailboxPropertyManager.PROP_KEY_AUTHTOKEN;
+import static org.briarproject.bramble.api.mailbox.MailboxPropertyManager.PROP_KEY_INBOXID;
+import static org.briarproject.bramble.api.mailbox.MailboxPropertyManager.PROP_KEY_ONIONADDRESS;
+import static org.briarproject.bramble.api.mailbox.MailboxPropertyManager.PROP_KEY_OUTBOXID;
 import static org.briarproject.bramble.test.TestUtils.getAuthor;
 import static org.briarproject.bramble.test.TestUtils.getMessage;
 import static org.briarproject.bramble.test.TestUtils.getRandomBytes;
 import static org.briarproject.bramble.test.TestUtils.getRandomId;
 import static org.briarproject.bramble.test.TestUtils.getSignaturePrivateKey;
 import static org.briarproject.bramble.test.TestUtils.getSignaturePublicKey;
+import static org.briarproject.bramble.test.TestUtils.mailboxPropertiesUpdateEqual;
 import static org.briarproject.bramble.util.StringUtils.getRandomString;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 public class ClientHelperImplTest extends BrambleMockTestCase {
@@ -78,12 +88,34 @@ public class ClientHelperImplTest extends BrambleMockTestCase {
 	private final long timestamp = message.getTimestamp();
 	private final Metadata metadata = new Metadata();
 	private final BdfList list = BdfList.of("Sign this!", getRandomBytes(42));
-	private final String label = StringUtils.getRandomString(5);
+	private final String label = getRandomString(5);
 	private final Author author = getAuthor();
 
 	private final ClientHelper clientHelper = new ClientHelperImpl(db,
 			messageFactory, bdfReaderFactory, bdfWriterFactory, metadataParser,
 			metadataEncoder, cryptoComponent, authorFactory);
+
+	private final MailboxPropertiesUpdate validMailboxPropsUpdate;
+
+	public ClientHelperImplTest() {
+		validMailboxPropsUpdate = new MailboxPropertiesUpdate(
+				"pg6mmjiyjmcrsslvykfwnntlaru7p5svn6y2ymmju6nubxndf4pscryd",
+				new MailboxAuthToken(getRandomId()),
+				new MailboxFolderId(getRandomId()),
+				new MailboxFolderId(getRandomId()));
+	}
+
+	private BdfDictionary getValidMailboxPropsUpdateDict() {
+		BdfDictionary dict = new BdfDictionary();
+		dict.put(PROP_KEY_ONION, validMailboxPropsUpdate.getOnion());
+		dict.put(PROP_KEY_AUTHTOKEN, validMailboxPropsUpdate.getAuthToken()
+				.getBytes());
+		dict.put(PROP_KEY_INBOXID, validMailboxPropsUpdate.getInboxId()
+				.getBytes());
+		dict.put(PROP_KEY_OUTBOXID, validMailboxPropsUpdate.getOutboxId()
+				.getBytes());
+		return dict;
+	}
 
 	@Test
 	public void testAddLocalMessage() throws Exception {
@@ -513,4 +545,95 @@ public class ClientHelperImplTest extends BrambleMockTestCase {
 			will(returnValue(eof));
 		}});
 	}
+
+	@Test
+	public void testParseEmptyMailboxPropsUpdate() throws Exception {
+		BdfDictionary emptyPropsDict = new BdfDictionary();
+		MailboxPropertiesUpdate parsedProps = clientHelper
+				.parseAndValidateMailboxPropertiesUpdate(emptyPropsDict);
+		assertNull(parsedProps);
+	}
+
+	@Test
+	public void testParseValidMailboxPropsUpdate() throws Exception {
+		MailboxPropertiesUpdate parsedProps = clientHelper
+				.parseAndValidateMailboxPropertiesUpdate(
+						getValidMailboxPropsUpdateDict());
+		assertTrue(mailboxPropertiesUpdateEqual(validMailboxPropsUpdate,
+				parsedProps));
+	}
+
+	@Test(expected = FormatException.class)
+	public void testRejectsMailboxPropsUpdateOnionNotDecodable()
+			throws Exception {
+		BdfDictionary propsDict = getValidMailboxPropsUpdateDict();
+		String badOnion = "!" + propsDict.getString(PROP_KEY_ONION)
+				.substring(1);
+		propsDict.put(PROP_KEY_ONION, badOnion);
+		clientHelper.parseAndValidateMailboxPropertiesUpdate(propsDict);
+	}
+
+	@Test(expected = FormatException.class)
+	public void testRejectsMailboxPropsUpdateOnionWrongLength()
+			throws Exception {
+		BdfDictionary propsDict = getValidMailboxPropsUpdateDict();
+		String tooLongOnion = propsDict.getString(PROP_KEY_ONION) + "!";
+		propsDict.put(PROP_KEY_ONION, tooLongOnion);
+		clientHelper.parseAndValidateMailboxPropertiesUpdate(propsDict);
+	}
+
+	@Test(expected = FormatException.class)
+	public void testRejectsMailboxPropsUpdateInboxIdWrongLength()
+			throws Exception {
+		BdfDictionary propsDict = getValidMailboxPropsUpdateDict();
+		propsDict.put(PROP_KEY_INBOXID, getRandomBytes(UniqueId.LENGTH + 1));
+		clientHelper.parseAndValidateMailboxPropertiesUpdate(propsDict);
+	}
+
+	@Test(expected = FormatException.class)
+	public void testRejectsMailboxPropsUpdateOutboxIdWrongLength()
+			throws Exception {
+		BdfDictionary propsDict = getValidMailboxPropsUpdateDict();
+		propsDict.put(PROP_KEY_OUTBOXID, getRandomBytes(UniqueId.LENGTH + 1));
+		clientHelper.parseAndValidateMailboxPropertiesUpdate(propsDict);
+	}
+
+	@Test(expected = FormatException.class)
+	public void testRejectsMailboxPropsUpdateAuthTokenWrongLength()
+			throws Exception {
+		BdfDictionary propsDict = getValidMailboxPropsUpdateDict();
+		propsDict.put(PROP_KEY_AUTHTOKEN, getRandomBytes(UniqueId.LENGTH + 1));
+		clientHelper.parseAndValidateMailboxPropertiesUpdate(propsDict);
+	}
+
+	@Test(expected = FormatException.class)
+	public void testRejectsMailboxPropsUpdateMissingOnion() throws Exception {
+		BdfDictionary propsDict = getValidMailboxPropsUpdateDict();
+		propsDict.remove(PROP_KEY_ONION);
+		clientHelper.parseAndValidateMailboxPropertiesUpdate(propsDict);
+	}
+
+	@Test(expected = FormatException.class)
+	public void testRejectsMailboxPropsUpdateMissingAuthToken()
+			throws Exception {
+		BdfDictionary propsDict = getValidMailboxPropsUpdateDict();
+		propsDict.remove(PROP_KEY_AUTHTOKEN);
+		clientHelper.parseAndValidateMailboxPropertiesUpdate(propsDict);
+	}
+
+	@Test(expected = FormatException.class)
+	public void testRejectsMailboxPropsUpdateMissingInboxId() throws Exception {
+		BdfDictionary propsDict = getValidMailboxPropsUpdateDict();
+		propsDict.remove(PROP_KEY_INBOXID);
+		clientHelper.parseAndValidateMailboxPropertiesUpdate(propsDict);
+	}
+
+	@Test(expected = FormatException.class)
+	public void testRejectsMailboxPropsUpdateMissingOutboxId()
+			throws Exception {
+		BdfDictionary propsDict = getValidMailboxPropsUpdateDict();
+		propsDict.remove(PROP_KEY_OUTBOXID);
+		clientHelper.parseAndValidateMailboxPropertiesUpdate(propsDict);
+	}
+
 }

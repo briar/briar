@@ -16,6 +16,7 @@ import org.briarproject.bramble.api.identity.Author;
 import org.briarproject.bramble.api.identity.AuthorId;
 import org.briarproject.bramble.api.identity.Identity;
 import org.briarproject.bramble.api.identity.LocalAuthor;
+import org.briarproject.bramble.api.mailbox.MailboxPropertiesUpdate;
 import org.briarproject.bramble.api.plugin.TransportId;
 import org.briarproject.bramble.api.properties.TransportProperties;
 import org.briarproject.bramble.api.sync.ClientId;
@@ -38,6 +39,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.concurrent.atomic.AtomicInteger;
+
+import javax.annotation.Nullable;
 
 import static java.util.Arrays.asList;
 import static org.briarproject.bramble.api.crypto.CryptoConstants.MAX_AGREEMENT_PUBLIC_KEY_BYTES;
@@ -271,4 +274,17 @@ public class TestUtils {
 		return optionalTests != null &&
 				asList(optionalTests.split(",")).contains(testClass.getName());
 	}
+
+	public static boolean mailboxPropertiesUpdateEqual(
+			@Nullable MailboxPropertiesUpdate a,
+			@Nullable MailboxPropertiesUpdate b) {
+		if (a == null || b == null) {
+			return a == b;
+		}
+		return a.getOnionAddress().equals(b.getOnionAddress()) &&
+				a.getAuthToken().equals(b.getAuthToken()) &&
+				a.getInboxId().equals(b.getInboxId()) &&
+				a.getOutboxId().equals(b.getOutboxId());
+	}
+
 }

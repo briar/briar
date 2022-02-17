@@ -12,6 +12,9 @@ import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.settings.Settings;
 import org.briarproject.bramble.api.settings.SettingsManager;
 
+import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
+
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 import javax.inject.Inject;
@@ -32,10 +35,16 @@ class MailboxSettingsManagerImpl implements MailboxSettingsManager {
 	static final String SETTINGS_UPLOADS_NAMESPACE = "mailbox-uploads";
 
 	private final SettingsManager settingsManager;
+	private final List<MailboxHook> hooks = new CopyOnWriteArrayList<>();
 
 	@Inject
 	MailboxSettingsManagerImpl(SettingsManager settingsManager) {
 		this.settingsManager = settingsManager;
+	}
+
+	@Override
+	public void registerMailboxHook(MailboxHook hook) {
+		hooks.add(hook);
 	}
 
 	@Override
@@ -60,6 +69,9 @@ class MailboxSettingsManagerImpl implements MailboxSettingsManager {
 		s.put(SETTINGS_KEY_ONION, p.getBaseUrl());
 		s.put(SETTINGS_KEY_TOKEN, p.getAuthToken().toString());
 		settingsManager.mergeSettings(txn, s, SETTINGS_NAMESPACE);
+		for (MailboxHook hook : hooks) {
+			hook.mailboxPaired(txn, p.getOnion());
+		}
 	}
 
 	@Override
