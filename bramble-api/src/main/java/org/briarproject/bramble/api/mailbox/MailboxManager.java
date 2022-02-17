@@ -13,6 +13,11 @@ public interface MailboxManager {
 	boolean isPaired(Transaction txn) throws DbException;
 
 	/**
+	 * @return the current status of the mailbox.
+	 */
+	MailboxStatus getMailboxStatus(Transaction txn) throws DbException;
+
+	/**
 	 * Returns the currently running pairing task,
 	 * or null if no pairing task is running.
 	 */

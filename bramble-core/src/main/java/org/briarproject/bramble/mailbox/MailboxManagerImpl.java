@@ -6,6 +6,7 @@ import org.briarproject.bramble.api.lifecycle.IoExecutor;
 import org.briarproject.bramble.api.mailbox.MailboxManager;
 import org.briarproject.bramble.api.mailbox.MailboxPairingTask;
 import org.briarproject.bramble.api.mailbox.MailboxSettingsManager;
+import org.briarproject.bramble.api.mailbox.MailboxStatus;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 
 import java.util.concurrent.Executor;
@@ -41,6 +42,11 @@ class MailboxManagerImpl implements MailboxManager {
 	@Override
 	public boolean isPaired(Transaction txn) throws DbException {
 		return mailboxSettingsManager.getOwnMailboxProperties(txn) != null;
+	}
+
+	@Override
+	public MailboxStatus getMailboxStatus(Transaction txn) throws DbException {
+		return mailboxSettingsManager.getOwnMailboxStatus(txn);
 	}
 
 	@Nullable
