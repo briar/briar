@@ -34,6 +34,7 @@ import androidx.annotation.Nullable;
 import androidx.annotation.UiThread;
 
 import static java.util.Objects.requireNonNull;
+import static java.util.logging.Level.INFO;
 import static java.util.logging.Logger.getLogger;
 import static org.briarproject.bramble.api.plugin.Plugin.State.ACTIVE;
 
@@ -129,6 +130,10 @@ class MailboxViewModel extends DbViewModel
 	@UiThread
 	@Override
 	public void accept(MailboxPairingState mailboxPairingState) {
+		if (LOG.isLoggable(INFO)) {
+			LOG.info("New pairing state: " +
+					mailboxPairingState.getClass().getSimpleName());
+		}
 		state.setEvent(new MailboxState.Pairing(mailboxPairingState));
 	}
 
@@ -146,6 +151,17 @@ class MailboxViewModel extends DbViewModel
 			onScanButtonClicked();
 		} else {
 			onQrCodePayloadReceived(offline.qrCodePayload);
+		}
+	}
+
+	@UiThread
+	void tryAgainAfterError() {
+		MailboxState.Pairing pairing = (MailboxState.Pairing)
+				requireNonNull(state.getLastValue());
+		if (pairing.getQrCodePayload() == null) {
+			onScanButtonClicked();
+		} else {
+			onQrCodePayloadReceived(pairing.getQrCodePayload());
 		}
 	}
 

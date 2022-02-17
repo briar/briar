@@ -63,6 +63,13 @@ public class FinalFragment extends Fragment {
 
 	private NestedScrollView scrollView;
 	protected Button buttonView;
+	protected final OnBackPressedCallback onBackPressedCallback =
+			new OnBackPressedCallback(true) {
+				@Override
+				public void handleOnBackPressed() {
+					onBackButtonPressed();
+				}
+			};
 
 	@Nullable
 	@Override
@@ -95,13 +102,8 @@ public class FinalFragment extends Fragment {
 
 		AppCompatActivity a = (AppCompatActivity) requireActivity();
 		a.setTitle(args.getInt(ARG_TITLE));
-		a.getOnBackPressedDispatcher().addCallback(
-				getViewLifecycleOwner(), new OnBackPressedCallback(true) {
-					@Override
-					public void handleOnBackPressed() {
-						onBackButtonPressed();
-					}
-				});
+		a.getOnBackPressedDispatcher()
+				.addCallback(getViewLifecycleOwner(), onBackPressedCallback);
 		return v;
 	}
 

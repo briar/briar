@@ -19,6 +19,11 @@ class MailboxState {
 		Pairing(MailboxPairingState pairingState) {
 			this.pairingState = pairingState;
 		}
+
+		@Nullable
+		String getQrCodePayload() {
+			return pairingState.qrCodePayload;
+		}
 	}
 
 	static class OfflineWhenPairing extends MailboxState {

@@ -6,18 +6,19 @@ import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import org.briarproject.bramble.api.mailbox.MailboxPairingState;
-import org.briarproject.bramble.api.mailbox.MailboxPairingState.Pairing;
 import org.briarproject.bramble.api.mailbox.MailboxStatus;
 import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
 import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.activity.ActivityComponent;
 import org.briarproject.briar.android.activity.BriarActivity;
+import org.briarproject.briar.android.fragment.FinalFragment;
 
 import javax.inject.Inject;
 
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
 import androidx.lifecycle.ViewModelProvider;
 
 import static android.view.View.INVISIBLE;
@@ -84,9 +85,9 @@ public class MailboxActivity extends BriarActivity {
 	@Override
 	public void onBackPressed() {
 		MailboxState s = viewModel.getState().getLastValue();
-		if (s instanceof MailboxState.Pairing &&
-				((MailboxState.Pairing) s).pairingState instanceof Pairing) {
-			// don't go back in flow if we are already pairing with the mailbox
+		if (s instanceof MailboxState.Pairing) {
+			// don't go back in the flow if we are already pairing
+			// with the mailbox. We provide a try-again button instead.
 			supportFinishAfterTransition();
 		} else {
 			super.onBackPressed();
@@ -102,47 +103,63 @@ public class MailboxActivity extends BriarActivity {
 	}
 
 	private void onScanningQrCode() {
-		showFragment(getSupportFragmentManager(), new MailboxScanFragment(),
-				MailboxScanFragment.TAG);
+		FragmentManager fm = getSupportFragmentManager();
+		if (fm.findFragmentByTag(MailboxScanFragment.TAG) != null) {
+			// if the scanner is already on the back stack, pop back to it
+			// instead of adding it to the stack again
+			fm.popBackStackImmediate(MailboxScanFragment.TAG, 0);
+		} else {
+			showFragment(fm, new MailboxScanFragment(),
+					MailboxScanFragment.TAG);
+		}
 	}
 
 	private void onMailboxPairingStateChanged(MailboxPairingState s) {
 		progressBar.setVisibility(INVISIBLE);
+		FragmentManager fm = getSupportFragmentManager();
 		Fragment f;
 		String tag;
-		boolean addToBackStack = true;
 		if (s instanceof MailboxPairingState.QrCodeReceived) {
 			// ignore, showing yet another progress fragment messes with back stack
 			return;
 		} else if (s instanceof MailboxPairingState.Pairing) {
+			if (fm.getBackStackEntryCount() == 0) {
+				// We re-launched into an existing state,
+				// need to re-populate the back stack.
+				repopulateBackStack();
+			}
 			f = new MailboxConnectingFragment();
 			tag = MailboxConnectingFragment.TAG;
-			addToBackStack = false;
 		} else if (s instanceof MailboxPairingState.InvalidQrCode) {
 			f = ErrorFragment.newInstance(
 					R.string.mailbox_setup_qr_code_wrong_title,
 					R.string.mailbox_setup_qr_code_wrong_description);
 			tag = ErrorFragment.TAG;
 		} else if (s instanceof MailboxPairingState.MailboxAlreadyPaired) {
-			// TODO
-			Toast.makeText(this, "MailboxAlreadyPaired", LENGTH_LONG).show();
-			return;
+			f = ErrorFragment.newInstance(
+					R.string.mailbox_setup_already_paired_title,
+					R.string.mailbox_setup_already_paired_description);
+			tag = ErrorFragment.TAG;
 		} else if (s instanceof MailboxPairingState.ConnectionError) {
-			// TODO
-			Toast.makeText(this, "Connection Error", LENGTH_LONG).show();
-			return;
-		} else if (s instanceof MailboxPairingState.AssertionError) {
-			// TODO
-			Toast.makeText(this, "Connection Error", LENGTH_LONG).show();
-			return;
+			f = ErrorFragment.newInstance(
+					R.string.mailbox_setup_io_error_title,
+					R.string.mailbox_setup_io_error_description);
+			tag = ErrorFragment.TAG;
+		} else if (s instanceof MailboxPairingState.UnexpectedError) {
+			f = ErrorFragment.newInstance(
+					R.string.mailbox_setup_assertion_error_title,
+					R.string.mailbox_setup_assertion_error_description);
+			tag = ErrorFragment.TAG;
 		} else if (s instanceof MailboxPairingState.Paired) {
-			// TODO
-			Toast.makeText(this, "Connection Error", LENGTH_LONG).show();
-			return;
+			f = FinalFragment.newInstance(R.string.mailbox_setup_paired_title,
+					R.drawable.ic_check_circle_outline,
+					R.color.briar_brand_green,
+					R.string.mailbox_setup_paired_description);
+			tag = FinalFragment.TAG;
 		} else {
 			throw new IllegalStateException("Unhandled state: " + s.getClass());
 		}
-		showFragment(getSupportFragmentManager(), f, tag, addToBackStack);
+		showFragment(fm, f, tag);
 	}
 
 	private void onOffline() {
@@ -154,6 +171,14 @@ public class MailboxActivity extends BriarActivity {
 		progressBar.setVisibility(INVISIBLE);
 		// TODO
 		Toast.makeText(this, "NOT IMPLEMENTED", LENGTH_LONG).show();
+	}
+
+	private void repopulateBackStack() {
+		FragmentManager fm = getSupportFragmentManager();
+		onNotSetup();
+		showFragment(fm, new SetupDownloadFragment(),
+				SetupDownloadFragment.TAG);
+		onScanningQrCode();
 	}
 
 }
