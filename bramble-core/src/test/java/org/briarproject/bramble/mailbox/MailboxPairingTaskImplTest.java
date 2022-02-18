@@ -42,7 +42,7 @@ public class MailboxPairingTaskImplTest extends BrambleMockTestCase {
 			new MailboxPairingTaskFactoryImpl(executor, db, crypto, api,
 					mailboxSettingsManager);
 
-	private final String onion = getRandomString(64);
+	private final String onion = getRandomString(56);
 	private final byte[] onionBytes = getRandomBytes(32);
 	private final String onionAddress = "http://" + onion + ".onion";
 	private final MailboxAuthToken setupToken =
@@ -73,8 +73,8 @@ public class MailboxPairingTaskImplTest extends BrambleMockTestCase {
 				assertTrue(state instanceof MailboxPairingState.InvalidQrCode)
 		);
 
-		MailboxPairingTask task2 =
-				factory.createPairingTask(getRandomString(65));
+		String goodLength = "00" + getRandomString(63);
+		MailboxPairingTask task2 = factory.createPairingTask(goodLength);
 		task2.run();
 		task2.addObserver(state ->
 				assertTrue(state instanceof MailboxPairingState.InvalidQrCode)
@@ -123,7 +123,7 @@ public class MailboxPairingTaskImplTest extends BrambleMockTestCase {
 	@Test
 	public void testMailboxApiException() throws Exception {
 		testApiException(new MailboxApi.ApiException(),
-				MailboxPairingState.AssertionError.class);
+				MailboxPairingState.UnexpectedError.class);
 	}
 
 	@Test
@@ -165,7 +165,7 @@ public class MailboxPairingTaskImplTest extends BrambleMockTestCase {
 		MailboxPairingTask task = factory.createPairingTask(validPayload);
 		task.run();
 		task.addObserver(state -> assertEquals(state.getClass(),
-				MailboxPairingState.AssertionError.class));
+				MailboxPairingState.UnexpectedError.class));
 	}
 
 	private String getValidPayload() {

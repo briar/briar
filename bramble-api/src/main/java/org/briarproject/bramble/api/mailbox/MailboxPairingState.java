@@ -51,8 +51,8 @@ public abstract class MailboxPairingState {
 		}
 	}
 
-	public static class AssertionError extends MailboxPairingState {
-		public AssertionError(String qrCodePayload) {
+	public static class UnexpectedError extends MailboxPairingState {
+		public UnexpectedError(String qrCodePayload) {
 			super(qrCodePayload);
 		}
 	}

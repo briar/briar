@@ -98,30 +98,28 @@ class MailboxPairingTaskImpl implements MailboxPairingTask {
 		} catch (IOException e) {
 			onMailboxError(e, new MailboxPairingState.ConnectionError(payload));
 		} catch (ApiException | DbException e) {
-			onMailboxError(e, new MailboxPairingState.AssertionError(payload));
+			onMailboxError(e, new MailboxPairingState.UnexpectedError(payload));
 		}
 	}
 
 	private void pairMailbox() throws IOException, ApiException, DbException {
 		MailboxProperties mailboxProperties = decodeQrCodePayload(payload);
-		synchronized (lock) {
-			this.state = new MailboxPairingState.Pairing(payload);
-			notifyObservers();
-		}
+		setState(new MailboxPairingState.Pairing(payload));
 		MailboxAuthToken ownerToken = api.setup(mailboxProperties);
 		MailboxProperties ownerProperties = new MailboxProperties(
 				mailboxProperties.getBaseUrl(), ownerToken, true);
 		db.transaction(false, txn -> mailboxSettingsManager
 				.setOwnMailboxProperties(txn, ownerProperties));
-		synchronized (lock) {
-			this.state = new MailboxPairingState.Paired();
-			notifyObservers();
-		}
+		setState(new MailboxPairingState.Paired());
 		// TODO already do mailboxSettingsManager.setOwnMailboxStatus() ?
 	}
 
 	private void onMailboxError(Exception e, MailboxPairingState state) {
 		logException(LOG, WARNING, e);
+		setState(state);
+	}
+
+	private void setState(MailboxPairingState state) {
 		synchronized (lock) {
 			this.state = state;
 			notifyObservers();
