@@ -96,7 +96,7 @@ class MailboxApiImpl implements MailboxApi {
 			throws IOException, ApiException {
 		if (!properties.isOwner()) throw new IllegalArgumentException();
 		Request request = getRequestBuilder(properties.getAuthToken())
-				.url(properties.getOnionAddress() + "/")
+				.url(properties.getBaseUrl() + "/")
 				.delete()
 				.build();
 		OkHttpClient client = httpClientProvider.get();
