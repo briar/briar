@@ -12,6 +12,7 @@ import org.briarproject.bramble.api.mailbox.MailboxPairingTask;
 import org.briarproject.bramble.api.mailbox.MailboxProperties;
 import org.briarproject.bramble.api.mailbox.MailboxSettingsManager;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
+import org.briarproject.bramble.api.system.Clock;
 import org.briarproject.bramble.mailbox.MailboxApi.ApiException;
 import org.briarproject.bramble.mailbox.MailboxApi.MailboxAlreadyPairedException;
 
@@ -44,6 +45,7 @@ class MailboxPairingTaskImpl implements MailboxPairingTask {
 	private final Executor eventExecutor;
 	private final TransactionManager db;
 	private final CryptoComponent crypto;
+	private final Clock clock;
 	private final MailboxApi api;
 	private final MailboxSettingsManager mailboxSettingsManager;
 
@@ -59,12 +61,14 @@ class MailboxPairingTaskImpl implements MailboxPairingTask {
 			@EventExecutor Executor eventExecutor,
 			TransactionManager db,
 			CryptoComponent crypto,
+			Clock clock,
 			MailboxApi api,
 			MailboxSettingsManager mailboxSettingsManager) {
 		this.payload = payload;
 		this.eventExecutor = eventExecutor;
 		this.db = db;
 		this.crypto = crypto;
+		this.clock = clock;
 		this.api = api;
 		this.mailboxSettingsManager = mailboxSettingsManager;
 		state = new MailboxPairingState.QrCodeReceived(payload);
@@ -108,10 +112,13 @@ class MailboxPairingTaskImpl implements MailboxPairingTask {
 		MailboxAuthToken ownerToken = api.setup(mailboxProperties);
 		MailboxProperties ownerProperties = new MailboxProperties(
 				mailboxProperties.getBaseUrl(), ownerToken, true);
-		db.transaction(false, txn -> mailboxSettingsManager
-				.setOwnMailboxProperties(txn, ownerProperties));
+		long time = clock.currentTimeMillis();
+		db.transaction(false, txn -> {
+			mailboxSettingsManager
+					.setOwnMailboxProperties(txn, ownerProperties);
+			mailboxSettingsManager.recordSuccessfulConnection(txn, time);
+		});
 		setState(new MailboxPairingState.Paired());
-		// TODO already do mailboxSettingsManager.setOwnMailboxStatus() ?
 	}
 
 	private void onMailboxError(Exception e, MailboxPairingState state) {

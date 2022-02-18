@@ -9,6 +9,7 @@ import org.briarproject.bramble.api.mailbox.MailboxPairingState;
 import org.briarproject.bramble.api.mailbox.MailboxPairingTask;
 import org.briarproject.bramble.api.mailbox.MailboxProperties;
 import org.briarproject.bramble.api.mailbox.MailboxSettingsManager;
+import org.briarproject.bramble.api.system.Clock;
 import org.briarproject.bramble.test.BrambleMockTestCase;
 import org.briarproject.bramble.test.DbExpectations;
 import org.briarproject.bramble.test.ImmediateExecutor;
@@ -35,11 +36,12 @@ public class MailboxPairingTaskImplTest extends BrambleMockTestCase {
 	private final TransactionManager db =
 			context.mock(TransactionManager.class);
 	private final CryptoComponent crypto = context.mock(CryptoComponent.class);
+	private final Clock clock = context.mock(Clock.class);
 	private final MailboxApi api = context.mock(MailboxApi.class);
 	private final MailboxSettingsManager mailboxSettingsManager =
 			context.mock(MailboxSettingsManager.class);
 	private final MailboxPairingTaskFactory factory =
-			new MailboxPairingTaskFactoryImpl(executor, db, crypto, api,
+			new MailboxPairingTaskFactoryImpl(executor, db, crypto, clock, api,
 					mailboxSettingsManager);
 
 	private final String onion = getRandomString(56);
@@ -50,6 +52,7 @@ public class MailboxPairingTaskImplTest extends BrambleMockTestCase {
 	private final MailboxAuthToken ownerToken =
 			new MailboxAuthToken(getRandomId());
 	private final String validPayload = getValidPayload();
+	private final long time = System.currentTimeMillis();
 	private final MailboxProperties setupProperties =
 			new MailboxProperties(onionAddress, setupToken, true);
 	private final MailboxProperties ownerProperties =
@@ -88,12 +91,15 @@ public class MailboxPairingTaskImplTest extends BrambleMockTestCase {
 			will(returnValue(onion));
 			oneOf(api).setup(with(matches(setupProperties)));
 			will(returnValue(ownerToken));
+			oneOf(clock).currentTimeMillis();
+			will(returnValue(time));
 		}});
 		Transaction txn = new Transaction(null, false);
 		context.checking(new DbExpectations() {{
 			oneOf(db).transaction(with(false), withDbRunnable(txn));
 			oneOf(mailboxSettingsManager).setOwnMailboxProperties(
 					with(txn), with(matches(ownerProperties)));
+			oneOf(mailboxSettingsManager).recordSuccessfulConnection(txn, time);
 		}});
 
 		AtomicInteger i = new AtomicInteger(0);
@@ -153,6 +159,8 @@ public class MailboxPairingTaskImplTest extends BrambleMockTestCase {
 			will(returnValue(onion));
 			oneOf(api).setup(with(matches(setupProperties)));
 			will(returnValue(ownerToken));
+			oneOf(clock).currentTimeMillis();
+			will(returnValue(time));
 		}});
 		Transaction txn = new Transaction(null, false);
 		context.checking(new DbExpectations() {{
