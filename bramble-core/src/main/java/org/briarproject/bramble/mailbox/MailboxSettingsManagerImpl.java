@@ -57,7 +57,7 @@ class MailboxSettingsManagerImpl implements MailboxSettingsManager {
 	public void setOwnMailboxProperties(Transaction txn, MailboxProperties p)
 			throws DbException {
 		Settings s = new Settings();
-		s.put(SETTINGS_KEY_ONION, p.getOnionAddress());
+		s.put(SETTINGS_KEY_ONION, p.getBaseUrl());
 		s.put(SETTINGS_KEY_TOKEN, p.getAuthToken().toString());
 		settingsManager.mergeSettings(txn, s, SETTINGS_NAMESPACE);
 	}

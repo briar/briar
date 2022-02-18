@@ -60,13 +60,12 @@ class MailboxApiImpl implements MailboxApi {
 			throws IOException, ApiException {
 		if (!properties.isOwner()) throw new IllegalArgumentException();
 		Request request = getRequestBuilder(properties.getAuthToken())
-				.url(properties.getOnionAddress() + "/setup")
+				.url(properties.getBaseUrl() + "/setup")
 				.put(EMPTY_REQUEST)
 				.build();
 		OkHttpClient client = httpClientProvider.get();
 		Response response = client.newCall(request).execute();
-		// TODO consider throwing a special exception for the 401 case
-		if (response.code() == 401) throw new ApiException();
+		if (response.code() == 401) throw new MailboxAlreadyPairedException();
 		if (!response.isSuccessful()) throw new ApiException();
 		ResponseBody body = response.body();
 		if (body == null) throw new ApiException();
@@ -122,7 +121,7 @@ class MailboxApiImpl implements MailboxApi {
 	public void deleteContact(MailboxProperties properties, ContactId contactId)
 			throws IOException, ApiException, TolerableFailureException {
 		if (!properties.isOwner()) throw new IllegalArgumentException();
-		String url = properties.getOnionAddress() + "/contacts/" +
+		String url = properties.getBaseUrl() + "/contacts/" +
 				contactId.getInt();
 		Request request = getRequestBuilder(properties.getAuthToken())
 				.delete()
@@ -226,7 +225,7 @@ class MailboxApiImpl implements MailboxApi {
 		String path = "/files/" + folderId + "/" + fileId;
 		Request request = getRequestBuilder(properties.getAuthToken())
 				.delete()
-				.url(properties.getOnionAddress() + path)
+				.url(properties.getBaseUrl() + path)
 				.build();
 		OkHttpClient client = httpClientProvider.get();
 		Response response = client.newCall(request).execute();
@@ -268,7 +267,7 @@ class MailboxApiImpl implements MailboxApi {
 	private Response sendGetRequest(MailboxProperties properties, String path)
 			throws IOException {
 		Request request = getRequestBuilder(properties.getAuthToken())
-				.url(properties.getOnionAddress() + path)
+				.url(properties.getBaseUrl() + path)
 				.build();
 		OkHttpClient client = httpClientProvider.get();
 		return client.newCall(request).execute();
@@ -277,7 +276,7 @@ class MailboxApiImpl implements MailboxApi {
 	private Response sendPostRequest(MailboxProperties properties, String path,
 			RequestBody body) throws IOException {
 		Request request = getRequestBuilder(properties.getAuthToken())
-				.url(properties.getOnionAddress() + path)
+				.url(properties.getBaseUrl() + path)
 				.post(body)
 				.build();
 		OkHttpClient client = httpClientProvider.get();

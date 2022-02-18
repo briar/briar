@@ -163,6 +163,10 @@ interface MailboxApi {
 	class ApiException extends Exception {
 	}
 
+	@Immutable
+	class MailboxAlreadyPairedException extends ApiException {
+	}
+
 	/**
 	 * A failure that does not need to be retried,
 	 * e.g. when adding a contact that already exists.
