@@ -1,6 +1,7 @@
 package org.briarproject.briar.android.settings;
 
 import android.content.Context;
+import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
@@ -8,6 +9,7 @@ import android.view.View;
 import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
 import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
 import org.briarproject.briar.R;
+import org.briarproject.briar.android.mailbox.MailboxActivity;
 import org.briarproject.briar.android.util.ActivityLaunchers.GetImageAdvanced;
 
 import javax.inject.Inject;
@@ -36,7 +38,7 @@ public class SettingsFragment extends PreferenceFragmentCompat {
 	private static final String PREF_KEY_FEEDBACK = "pref_key_send_feedback";
 	private static final String PREF_KEY_DEV = "pref_key_dev";
 	private static final String PREF_KEY_EXPLODE = "pref_key_explode";
-	private static final String PREF_KEY_SHARE_APP = "pref_key_share_app";
+	private static final String PREF_KEY_MAILBOX = "pref_key_mailbox";
 
 	@Inject
 	ViewModelProvider.Factory viewModelFactory;
@@ -68,6 +70,18 @@ public class SettingsFragment extends PreferenceFragmentCompat {
 			});
 		} else {
 			prefAvatar.setVisible(false);
+		}
+
+		Preference prefMailbox =
+				requireNonNull(findPreference(PREF_KEY_MAILBOX));
+		if (viewModel.shouldEnableMailbox()) {
+			prefMailbox.setOnPreferenceClickListener(preference -> {
+				Intent i = new Intent(requireContext(), MailboxActivity.class);
+				startActivity(i);
+				return true;
+			});
+		} else {
+			prefMailbox.setVisible(false);
 		}
 
 		Preference prefFeedback =

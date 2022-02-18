@@ -24,6 +24,11 @@
 		app:fragment="org.briarproject.briar.android.settings.NotificationsFragment"
 		app:icon="@drawable/ic_notifications" />
 
+	<Preference
+		android:key="pref_key_mailbox"
+		android:title="@string/mailbox_settings_title"
+		app:icon="@drawable/ic_mailbox" />
+
 	<PreferenceCategory
 		android:key="pref_key_actions"
 		android:layout="@layout/preferences_category"

@@ -3,11 +3,10 @@ package org.briarproject.briar.android.contact.add.nearby;
 import android.content.Context;
 
 import org.briarproject.briar.R;
+import org.briarproject.briar.android.util.Permission;
 
 import java.util.Map;
 
-import androidx.annotation.StringRes;
-import androidx.appcompat.app.AlertDialog;
 import androidx.core.util.Consumer;
 import androidx.fragment.app.FragmentActivity;
 
@@ -17,15 +16,12 @@ import static android.content.pm.PackageManager.PERMISSION_GRANTED;
 import static android.os.Build.VERSION.SDK_INT;
 import static androidx.core.app.ActivityCompat.shouldShowRequestPermissionRationale;
 import static androidx.core.content.ContextCompat.checkSelfPermission;
-import static org.briarproject.briar.android.util.UiUtils.getGoToSettingsListener;
 import static org.briarproject.briar.android.util.UiUtils.isLocationEnabled;
+import static org.briarproject.briar.android.util.UiUtils.showDenialDialog;
 import static org.briarproject.briar.android.util.UiUtils.showLocationDialog;
+import static org.briarproject.briar.android.util.UiUtils.showRationale;
 
 class AddNearbyContactPermissionManager {
-
-	private enum Permission {
-		UNKNOWN, GRANTED, SHOW_RATIONALE, PERMANENTLY_DENIED
-	}
 
 	private Permission cameraPermission = Permission.UNKNOWN;
 	private Permission locationPermission = Permission.UNKNOWN;
@@ -68,54 +64,36 @@ class AddNearbyContactPermissionManager {
 		// If an essential permission has been permanently denied, ask the
 		// user to change the setting
 		if (cameraPermission == Permission.PERMANENTLY_DENIED) {
-			showDenialDialog(R.string.permission_camera_title,
+			showDenialDialog(ctx, R.string.permission_camera_title,
 					R.string.permission_camera_denied_body);
 			return false;
 		}
 		if (isBluetoothSupported &&
 				locationPermission == Permission.PERMANENTLY_DENIED) {
-			showDenialDialog(R.string.permission_location_title,
+			showDenialDialog(ctx, R.string.permission_location_title,
 					R.string.permission_location_denied_body);
 			return false;
 		}
 		// Should we show the rationale for one or both permissions?
 		if (cameraPermission == Permission.SHOW_RATIONALE &&
 				locationPermission == Permission.SHOW_RATIONALE) {
-			showRationale(R.string.permission_camera_location_title,
-					R.string.permission_camera_location_request_body);
+			showRationale(ctx, R.string.permission_camera_location_title,
+					R.string.permission_camera_location_request_body,
+					this::requestPermissions);
 		} else if (cameraPermission == Permission.SHOW_RATIONALE) {
-			showRationale(R.string.permission_camera_title,
-					R.string.permission_camera_request_body);
+			showRationale(ctx, R.string.permission_camera_title,
+					R.string.permission_camera_request_body,
+					this::requestPermissions);
 		} else if (locationPermission == Permission.SHOW_RATIONALE) {
-			showRationale(R.string.permission_location_title,
-					R.string.permission_location_request_body);
+			showRationale(ctx, R.string.permission_location_title,
+					R.string.permission_location_request_body,
+					this::requestPermissions);
 		} else if (locationEnabled) {
 			requestPermissions();
 		} else {
 			showLocationDialog(ctx);
 		}
 		return false;
-	}
-
-	private void showDenialDialog(@StringRes int title, @StringRes int body) {
-		AlertDialog.Builder builder =
-				new AlertDialog.Builder(ctx, R.style.BriarDialogTheme);
-		builder.setTitle(title);
-		builder.setMessage(body);
-		builder.setPositiveButton(R.string.ok, getGoToSettingsListener(ctx));
-		builder.setNegativeButton(R.string.cancel,
-				(dialog, which) -> ctx.supportFinishAfterTransition());
-		builder.show();
-	}
-
-	private void showRationale(@StringRes int title, @StringRes int body) {
-		AlertDialog.Builder builder =
-				new AlertDialog.Builder(ctx, R.style.BriarDialogTheme);
-		builder.setTitle(title);
-		builder.setMessage(body);
-		builder.setNeutralButton(R.string.continue_button,
-				(dialog, which) -> requestPermissions());
-		builder.show();
 	}
 
 	private void requestPermissions() {

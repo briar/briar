@@ -85,16 +85,10 @@ public class StartupActivity extends BaseActivity implements
 		if (state == SIGNED_OUT) {
 			// Configuration changes such as screen rotation
 			// can cause this to get called again.
-			// Don't replace the fragment in that case to not lose view state.
-			if (!isFragmentAdded(PasswordFragment.TAG)) {
-				showInitialFragment(new PasswordFragment());
-			}
+			showInitialFragment(new PasswordFragment());
 		} else if (state == SIGNED_IN || state == STARTING) {
 			startService(new Intent(this, BriarService.class));
-			// Only show OpenDatabaseFragment if not already visible.
-			if (!isFragmentAdded(OpenDatabaseFragment.TAG)) {
-				showNextFragment(new OpenDatabaseFragment());
-			}
+			showNextFragment(new OpenDatabaseFragment());
 		} else if (state == STARTED) {
 			setResult(RESULT_OK);
 			supportFinishAfterTransition();

@@ -20,11 +20,7 @@ import static android.content.Context.WIFI_SERVICE;
  */
 abstract class AbstractConditionManager {
 
-	enum Permission {
-		UNKNOWN, GRANTED, SHOW_RATIONALE, PERMANENTLY_DENIED
-	}
-
-	protected final Consumer<Boolean> permissionUpdateCallback;
+	final Consumer<Boolean> permissionUpdateCallback;
 	protected FragmentActivity ctx;
 	WifiManager wifiManager;
 

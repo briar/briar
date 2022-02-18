@@ -161,6 +161,10 @@ class SettingsViewModel extends DbViewModel implements EventListener {
 		return featureFlags.shouldEnableProfilePictures();
 	}
 
+	boolean shouldEnableMailbox() {
+		return featureFlags.shouldEnableMailbox();
+	}
+
 	private void loadOwnIdentityInfo() {
 		runOnDbThread(() -> {
 			try {

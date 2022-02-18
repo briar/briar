@@ -107,6 +107,7 @@ internal class HeadlessModule(private val appDir: File) {
         override fun shouldEnableImageAttachments() = false
         override fun shouldEnableProfilePictures() = false
         override fun shouldEnableDisappearingMessages() = false
+        override fun shouldEnableMailbox() = false
         override fun shouldEnablePrivateGroupsInCore() = false
         override fun shouldEnableForumsInCore() = true
         override fun shouldEnableBlogsInCore() = true
