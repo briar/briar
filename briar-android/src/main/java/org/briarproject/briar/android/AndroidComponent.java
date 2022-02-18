@@ -46,6 +46,7 @@ import org.briarproject.briar.android.logging.CachingLogHandler;
 import org.briarproject.briar.android.login.SignInReminderReceiver;
 import org.briarproject.briar.android.mailbox.ErrorFragment;
 import org.briarproject.briar.android.mailbox.MailboxScanFragment;
+import org.briarproject.briar.android.mailbox.MailboxStatusFragment;
 import org.briarproject.briar.android.mailbox.OfflineFragment;
 import org.briarproject.briar.android.mailbox.SetupDownloadFragment;
 import org.briarproject.briar.android.removabledrive.ChooserFragment;
@@ -251,4 +252,6 @@ public interface AndroidComponent
 	void inject(OfflineFragment offlineFragment);
 
 	void inject(ErrorFragment errorFragment);
+
+	void inject(MailboxStatusFragment mailboxStatusFragment);
 }

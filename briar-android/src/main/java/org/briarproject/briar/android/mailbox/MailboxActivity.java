@@ -3,10 +3,8 @@ package org.briarproject.briar.android.mailbox;
 import android.os.Bundle;
 import android.view.MenuItem;
 import android.widget.ProgressBar;
-import android.widget.Toast;
 
 import org.briarproject.bramble.api.mailbox.MailboxPairingState;
-import org.briarproject.bramble.api.mailbox.MailboxStatus;
 import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
 import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
 import org.briarproject.briar.R;
@@ -23,7 +21,6 @@ import androidx.lifecycle.ViewModelProvider;
 
 import static android.view.View.INVISIBLE;
 import static android.view.View.VISIBLE;
-import static android.widget.Toast.LENGTH_LONG;
 import static org.briarproject.briar.android.util.UiUtils.showFragment;
 
 @MethodsNotNullByDefault
@@ -66,7 +63,7 @@ public class MailboxActivity extends BriarActivity {
 			} else if (state instanceof MailboxState.OfflineWhenPairing) {
 				onOffline();
 			} else if (state instanceof MailboxState.IsPaired) {
-				onIsPaired(((MailboxState.IsPaired) state).mailboxStatus);
+				onIsPaired();
 			} else {
 				throw new AssertionError("Unknown state: " + state);
 			}
@@ -167,10 +164,10 @@ public class MailboxActivity extends BriarActivity {
 				OfflineFragment.TAG);
 	}
 
-	private void onIsPaired(MailboxStatus mailboxStatus) {
+	private void onIsPaired() {
 		progressBar.setVisibility(INVISIBLE);
-		// TODO
-		Toast.makeText(this, "NOT IMPLEMENTED", LENGTH_LONG).show();
+		showFragment(getSupportFragmentManager(), new MailboxStatusFragment(),
+				MailboxStatusFragment.TAG, false);
 	}
 
 	private void repopulateBackStack() {

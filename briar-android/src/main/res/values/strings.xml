@@ -614,7 +614,7 @@
 
 	<!-- Mailbox -->
 	<string name="mailbox_settings_title">Mailbox</string>
-	<string name="mailbox_setup_title">Mailbox Setup</string>
+	<string name="mailbox_setup_title">Mailbox setup</string>
 	<string name="mailbox_setup_intro">A Mailbox enables your contacts to send you messages while you are offline. The Mailbox will receive your messages and store them until you come online.\n
 		\nYou can install the Briar Mailbox app on a spare device. Keep it connected to power and Wi-Fi so it\'s always online.</string>
 	<string name="mailbox_setup_download">First, install the Mailbox app on another device by searching for \"Briar Mailbox\" on Google Play or wherever you downloaded Briar.\n
@@ -637,6 +637,10 @@
 	<string name="tor_offline_title">Offline</string>
 	<string name="tor_offline_description">Ensure that this device is online and connections to the internet are allowed.\n\nAfterwards, wait for the globe icon in connection settings to turn green.</string>
 	<string name="tor_offline_button_check">Check connection settings</string>
+	<string name="mailbox_status_title">Mailbox status</string>
+	<string name="mailbox_status_connected_title">Mailbox is running</string>
+	<!-- Example for string substitution: Last connection: 3min ago-->
+	<string name="mailbox_status_connected_info">Last connection: %s</string>
 
 	<!-- Conversation Settings -->
 	<string name="disappearing_messages_title">Disappearing messages</string>
