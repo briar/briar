@@ -18,6 +18,7 @@ import android.widget.TextView;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.activity.ActivityComponent;
 import org.briarproject.briar.android.fragment.BaseFragment;
+import org.briarproject.briar.android.login.StrengthMeter;
 import org.magmacollective.darkcrystal.secretsharingwrapper.SecretSharingWrapper;
 
 import java.util.Arrays;
@@ -28,6 +29,8 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.lifecycle.ViewModelProvider;
+
+import static android.view.View.GONE;
 
 public class ThresholdSelectorFragment extends BaseFragment {
 
@@ -41,6 +44,7 @@ public class ThresholdSelectorFragment extends BaseFragment {
 	private TextView thresholdRepresentation;
 	private TextView message;
 	private TextView mOfn;
+	private StrengthMeter strengthMeter;
 
 	@Inject
 	ViewModelProvider.Factory viewModelFactory;
@@ -81,7 +85,8 @@ public class ThresholdSelectorFragment extends BaseFragment {
 		thresholdRepresentation =
 				view.findViewById(R.id.textViewThresholdRepresentation);
 		message = view.findViewById(R.id.textViewMessage);
-		mOfn = view.findViewById(R.id.textViewmOfn);
+		mOfn = view.findViewById(R.id.text_view_m_of_n);
+		strengthMeter = view.findViewById(R.id.strength_meter);
 
 		if (numberOfCustodians > 3) {
 			seekBar.setMax(numberOfCustodians -3);
@@ -90,8 +95,11 @@ public class ThresholdSelectorFragment extends BaseFragment {
 					SecretSharingWrapper.defaultThreshold(numberOfCustodians);
 			threshold = recommendedThreshold;
 			seekBar.setProgress(threshold - 2);
+			strengthMeter.setStrength(1);
 		} else {
 			seekBar.setEnabled(false);
+			seekBar.setVisibility(GONE);
+			strengthMeter.setVisibility(GONE);
 			threshold = 2;
 			seekBar.setMax(numberOfCustodians);
 			seekBar.setProgress(threshold);
@@ -184,12 +192,23 @@ public class ThresholdSelectorFragment extends BaseFragment {
 			int sanityLevel = SecretSharingWrapper
 					.thresholdSanity(threshold, numberOfCustodians);
 			int text = R.string.threshold_secure;
-			if (threshold == recommendedThreshold)
+			float strength = 1;
+			if (threshold == recommendedThreshold) {
 				text = R.string.threshold_recommended;
-			if (sanityLevel < -1) text = R.string.threshold_low_insecure;
-			if (sanityLevel > 0) text = R.string.threshold_high_insecure;
+			}
+			if (sanityLevel < -1) {
+                strength = 0.75f;
+				text = R.string.threshold_low_insecure;
+			}
+			if (sanityLevel < -2) {
+				strength = 0.5f;
+			}
+			if (sanityLevel > 0) {
+				strength = 0.75f;
+				text = R.string.threshold_high_insecure;
+			}
+			strengthMeter.setStrength(strength);
 			message.setText(text);
-			// TODO change colour of thresholdRepresentation to green/red based on sanityLevel
 		}
 
 		@Override
