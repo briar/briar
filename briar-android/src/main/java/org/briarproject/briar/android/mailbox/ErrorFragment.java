@@ -56,6 +56,7 @@ public class ErrorFragment extends FinalFragment {
 			@Nullable ViewGroup container,
 			@Nullable Bundle savedInstanceState) {
 		View v = super.onCreateView(inflater, container, savedInstanceState);
+		// Do not hijack back button events, but let the activity process them
 		onBackPressedCallback.remove();
 		buttonView.setText(R.string.try_again_button);
 		buttonView.setOnClickListener(view -> {

@@ -61,7 +61,8 @@ public class MailboxStatusFragment extends Fragment {
 		long lastSuccess = state.mailboxStatus.getTimeOfLastSuccess();
 		String lastConnectionText;
 		if (lastSuccess < 0) {
-			lastConnectionText = getString(R.string.pref_lock_timeout_never);
+			lastConnectionText =
+					getString(R.string.mailbox_status_connected_never);
 		} else {
 			lastConnectionText = formatDate(requireContext(), lastSuccess);
 		}

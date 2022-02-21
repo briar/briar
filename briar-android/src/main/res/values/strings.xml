@@ -629,18 +629,21 @@
 	<string name="mailbox_setup_already_paired_description">Unlink the mailbox on your other device and try again.</string>
 	<string name="mailbox_setup_io_error_title">Could not connect</string>
 	<string name="mailbox_setup_io_error_description">Ensure that both devices are connected to the internet and try again.</string>
-	<string name="mailbox_setup_assertion_error_title">Mailbox Error</string>
+	<string name="mailbox_setup_assertion_error_title">Mailbox error</string>
 	<string name="mailbox_setup_assertion_error_description">Please send feedback (with anonymous data) via the Briar app if the issue persists.</string>
 	<string name="mailbox_setup_paired_title">Connected</string>
-	<string name="mailbox_setup_paired_description">The mailbox has been successfully linked.\n
-	\nFor ideal message delivery, keep the mailbox device connected to a charger and online.</string>
+	<string name="mailbox_setup_paired_description">Your Mailbox has been successfully linked with Briar.\n
+		\nKeep your Mailbox connected to power and Wi-Fi so it\'s always online.</string>
 	<string name="tor_offline_title">Offline</string>
-	<string name="tor_offline_description">Ensure that this device is online and connections to the internet are allowed.\n\nAfterwards, wait for the globe icon in connection settings to turn green.</string>
+	<string name="tor_offline_description">Ensure that this device is online and connections to the Internet are allowed.\n
+		\nAfterwards, wait for the globe icon in the connection settings screen to turn green.</string>
 	<string name="tor_offline_button_check">Check connection settings</string>
 	<string name="mailbox_status_title">Mailbox status</string>
 	<string name="mailbox_status_connected_title">Mailbox is running</string>
 	<!-- Example for string substitution: Last connection: 3min ago-->
 	<string name="mailbox_status_connected_info">Last connection: %s</string>
+	<!-- Indicates that there never was a connection to the mailbox. Last connection: Never -->
+	<string name="mailbox_status_connected_never">Never</string>
 
 	<!-- Conversation Settings -->
 	<string name="disappearing_messages_title">Disappearing messages</string>
