@@ -23,6 +23,8 @@ dependencyVerification {
         'net.java.dev.jna:jna:4.5.2:jna-4.5.2.jar:0c8eb7acf67261656d79005191debaba3b6bf5dd60a43735a245429381dbecff',
         'net.jcip:jcip-annotations:1.0:jcip-annotations-1.0.jar:be5805392060c71474bf6c9a67a099471274d30b83eef84bfc4e0889a4f1dcc0',
         'net.ltgt.gradle.incap:incap:0.2:incap-0.2.jar:b625b9806b0f1e4bc7a2e3457119488de3cd57ea20feedd513db070a573a4ffd',
+        'net.sf.bluecove:bluecove-gpl:2.1.0:bluecove-gpl-2.1.0.jar:6b697a3d4d50be16b86cdfad6aac173251f1fd0dce83f4947d1ed7b2aea894d0',
+        'net.sf.bluecove:bluecove:2.1.0:bluecove-2.1.0.jar:add9a58dbee3eaa35a062010a11066ba772a72119f24165f4adf0e19e60a4b8a',
         'org.apache-extras.beanshell:bsh:2.0b6:bsh-2.0b6.jar:a17955976070c0573235ee662f2794a78082758b61accffce8d3f8aedcd91047',
         'org.briarproject:obfs4proxy:0.0.12-dev-40245c4a:obfs4proxy-0.0.12-dev-40245c4a.zip:172029e7058b3a83ac93ac4991a44bf76e16ce8d46f558f5836d57da3cb3a766',
         'org.briarproject:tor:0.3.5.17:tor-0.3.5.17.jar:ce0e1f4d8f14878e61b23a35a452bc0f2a8e3117ced5a74773cd78475fa7af39',

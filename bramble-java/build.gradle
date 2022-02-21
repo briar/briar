@@ -17,6 +17,9 @@ dependencies {
 	def jna_version = '4.5.2'
 	implementation "net.java.dev.jna:jna:$jna_version"
 	implementation "net.java.dev.jna:jna-platform:$jna_version"
+	def bluecove_version = '2.1.0'
+	implementation "net.sf.bluecove:bluecove:$bluecove_version"
+	implementation "net.sf.bluecove:bluecove-gpl:$bluecove_version"
 	tor "org.briarproject:tor:$tor_version"
 	tor "org.briarproject:obfs4proxy:$obfs4proxy_version@zip"
 
