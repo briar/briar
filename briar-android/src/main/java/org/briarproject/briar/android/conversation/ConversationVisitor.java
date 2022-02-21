@@ -333,6 +333,14 @@ class ConversationVisitor implements
 						.formatDateAbsolute(ctx, r.getMessageExpiry());
 				return new ConversationNoticeItem(
 						R.layout.list_item_conversation_notice_out, text, r);
+			case CONFIRM:
+				if (!r.isLocal()) {
+					String confirmText =
+							ctx.getString(R.string.remote_wipe_confirm_received,
+									contactName.getValue());
+					return new ConversationNoticeItem(
+							R.layout.list_item_conversation_notice_in, confirmText, r);
+				}
 			default: // REVOKE
 				String revokeText;
 				if (r.isLocal()) {
