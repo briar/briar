@@ -135,7 +135,6 @@ dependencyVerification {
         'com.googlecode.json-simple:json-simple:1.1:json-simple-1.1.jar:2d9484f4c649f708f47f9a479465fc729770ee65617dca3011836602264f6439',
         'com.ibm.icu:icu4j:53.1:icu4j-53.1.jar:e37a4467bac5cdeb02c5c4b8e5063d2f4e67b69e3c7df6d6b610f13185572bab',
         'com.jraska:falcon:2.1.1:falcon-2.1.1.aar:827f06556b7fa599f29a48a5277df39ca3dce5080d4ea6f9ea1f9c7b6b78bb7a',
-        'com.madgag.spongycastle:core:1.58.0.0:core-1.58.0.0.jar:199617dd5698c5a9312b898c0a4cec7ce9dd8649d07f65d91629f58229d72728',
         'com.squareup:javapoet:1.11.1:javapoet-1.11.1.jar:9cbf2107be499ec6e95afd36b58e3ca122a24166cdd375732e51267d64058e90',
         'com.squareup:javawriter:2.1.1:javawriter-2.1.1.jar:f699823d0081f69cbb676c1845ea222e0ada79bc88a53e5d22d8bd02d328f57e',
         'com.squareup:javawriter:2.5.0:javawriter-2.5.0.jar:fcfb09fb0ea0aa97d3cfe7ea792398081348e468f126b3603cb3803f240197f0',
