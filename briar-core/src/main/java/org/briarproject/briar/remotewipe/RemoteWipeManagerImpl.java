@@ -47,6 +47,7 @@ import javax.annotation.Nullable;
 import javax.inject.Inject;
 
 import static java.util.logging.Logger.getLogger;
+import static org.briarproject.briar.api.remotewipe.MessageType.CONFIRM;
 import static org.briarproject.briar.api.remotewipe.MessageType.REVOKE;
 import static org.briarproject.briar.api.remotewipe.MessageType.SETUP;
 import static org.briarproject.briar.api.remotewipe.MessageType.WIPE;
@@ -191,7 +192,11 @@ public class RemoteWipeManagerImpl extends ConversationClientImpl
 				}
 
 				if (receivedWipeMessages.size() + 1 == THRESHOLD) {
-					LOG.warning("Threshold reached - panic!");
+					LOG.warning("Threshold number of remote wipe signals reached - panic!");
+
+					// Send a CONFIRM message to each wiper
+					sendConfirmMessages(txn);
+
 					if (observer != null) {
 						observer.onPanic();
 					}
@@ -227,6 +232,14 @@ public class RemoteWipeManagerImpl extends ConversationClientImpl
 				db.addGroup(txn, localGroup);
 			clientHelper
 					.mergeGroupMetadata(txn, localGroup.getId(), localRecord);
+		} else if (type == CONFIRM) {
+			messageTracker.trackIncomingMessage(txn, m);
+			ContactId contactId = getContactId(txn, m.getGroupId());
+
+			MessageStatus status = db.getMessageStatus(txn, contactId,
+					m.getId());
+			txn.attach(new RemoteWipeReceivedEvent(
+					createMessageHeader(m, meta, status, type), contactId));
 		}
 
 		return false;
@@ -307,6 +320,34 @@ public class RemoteWipeManagerImpl extends ConversationClientImpl
 		Message m = clientHelper.createMessage(g, timestamp, body);
 		BdfDictionary meta = BdfDictionary.of(
 				new BdfEntry(MSG_KEY_MESSAGE_TYPE, REVOKE.getValue()),
+				new BdfEntry(MSG_KEY_LOCAL, true),
+				new BdfEntry(MSG_KEY_TIMESTAMP, timestamp)
+		);
+		clientHelper.addLocalMessage(txn, m, meta, true, false);
+		messageTracker.trackOutgoingMessage(txn, m);
+	}
+
+	private void sendConfirmMessages(Transaction txn)
+			throws DbException, FormatException {
+		List<ContactId> wipers = getWiperContactIds(txn);
+		for (ContactId c : wipers) {
+			Contact contact = contactManager.getContact(txn, c);
+			sendConfirmMessage(txn, contact);
+		}
+	}
+
+	private void sendConfirmMessage(Transaction txn, Contact contact)
+			throws DbException, FormatException {
+		Group group = getContactGroup(contact);
+		GroupId g = group.getId();
+		if (!db.containsGroup(txn, g)) db.addGroup(txn, group);
+		long timestamp = clock.currentTimeMillis();
+
+		byte[] body = messageEncoder.encodeConfirmMessage();
+
+		Message m = clientHelper.createMessage(g, timestamp, body);
+		BdfDictionary meta = BdfDictionary.of(
+				new BdfEntry(MSG_KEY_MESSAGE_TYPE, CONFIRM.getValue()),
 				new BdfEntry(MSG_KEY_LOCAL, true),
 				new BdfEntry(MSG_KEY_TIMESTAMP, timestamp)
 		);

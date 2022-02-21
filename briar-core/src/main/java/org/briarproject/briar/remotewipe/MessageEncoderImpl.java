@@ -7,6 +7,7 @@ import org.briarproject.briar.api.remotewipe.MessageEncoder;
 
 import javax.inject.Inject;
 
+import static org.briarproject.briar.api.remotewipe.MessageType.CONFIRM;
 import static org.briarproject.briar.api.remotewipe.MessageType.SETUP;
 import static org.briarproject.briar.api.remotewipe.MessageType.WIPE;
 import static org.briarproject.briar.api.remotewipe.MessageType.REVOKE;
@@ -40,6 +41,14 @@ public class MessageEncoderImpl implements MessageEncoder {
 	public byte[] encodeWipeMessage() {
 		BdfList body = BdfList.of(
 				WIPE.getValue()
+		);
+		return encodeBody(body);
+	}
+
+	@Override
+	public byte[] encodeConfirmMessage() {
+		BdfList body = BdfList.of(
+				CONFIRM.getValue()
 		);
 		return encodeBody(body);
 	}
