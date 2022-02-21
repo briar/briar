@@ -6,4 +6,6 @@ public interface MessageEncoder {
 	byte[] encodeRevokeMessage();
 
 	byte[] encodeWipeMessage();
+
+	byte[] encodeConfirmMessage();
 }
