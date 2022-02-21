@@ -21,7 +21,9 @@ import javax.microedition.io.StreamConnectionNotifier;
 import static java.util.logging.Level.WARNING;
 import static java.util.logging.Logger.getLogger;
 import static org.briarproject.bramble.util.LogUtils.logException;
+import static org.briarproject.bramble.util.StringUtils.fromHexString;
 import static org.briarproject.bramble.util.StringUtils.isValidMac;
+import static org.briarproject.bramble.util.StringUtils.macToString;
 
 @MethodsNotNullByDefault
 @ParametersNotNullByDefault
@@ -65,12 +67,13 @@ class JavaBluetoothPlugin extends
 	@Nullable
 	@Override
 	String getBluetoothAddress() {
-		return localDevice.getBluetoothAddress();
+		if (localDevice == null) return null;
+		return macToString(fromHexString(localDevice.getBluetoothAddress()));
 	}
 
 	@Override
 	StreamConnectionNotifier openServerSocket(String uuid) throws IOException {
-		String url = makeUrl("localhost", uuid);
+		String url = makeServerSocketUrl(uuid);
 		return (StreamConnectionNotifier) Connector.open(url);
 	}
 
@@ -97,9 +100,7 @@ class JavaBluetoothPlugin extends
 	@Override
 	DuplexTransportConnection connectTo(String address, String uuid)
 			throws IOException {
-		String url = makeUrl(address, uuid);
-		StreamConnection s = (StreamConnection) Connector.open(url);
-		return connectionFactory.wrapSocket(this, s);
+		throw new IOException("Not implemented"); // TODO
 	}
 
 	@Override
@@ -113,7 +114,9 @@ class JavaBluetoothPlugin extends
 		// TODO
 	}
 
-	private String makeUrl(String address, String uuid) {
-		return "btspp://" + address + ":" + uuid + ";name=RFCOMM";
+	private String makeServerSocketUrl(String uuid) {
+		uuid = uuid.replaceAll("-", "");
+		return "btspp://" + "localhost" + ":" + uuid
+				+ ";encrypt=false;authenticate=false";
 	}
 }
