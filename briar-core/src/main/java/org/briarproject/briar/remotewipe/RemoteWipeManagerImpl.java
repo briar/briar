@@ -21,6 +21,7 @@ import org.briarproject.bramble.api.sync.GroupId;
 import org.briarproject.bramble.api.sync.Message;
 import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.bramble.api.sync.MessageStatus;
+import org.briarproject.bramble.api.sync.validation.MessageState;
 import org.briarproject.bramble.api.system.Clock;
 import org.briarproject.bramble.api.versioning.ClientVersioningManager;
 import org.briarproject.briar.api.attachment.AttachmentHeader;
@@ -47,6 +48,7 @@ import javax.annotation.Nullable;
 import javax.inject.Inject;
 
 import static java.util.logging.Logger.getLogger;
+import static org.briarproject.bramble.api.sync.validation.MessageState.PENDING;
 import static org.briarproject.briar.api.remotewipe.MessageType.CONFIRM;
 import static org.briarproject.briar.api.remotewipe.MessageType.REVOKE;
 import static org.briarproject.briar.api.remotewipe.MessageType.SETUP;
@@ -197,10 +199,10 @@ public class RemoteWipeManagerImpl extends ConversationClientImpl
 					// Send a CONFIRM message to each wiper
 					sendConfirmMessages(txn);
 
-//					if (observer != null) {
-//						observer.onPanic();
-//					}
-//					txn.attach(new RemoteWipeActivatedEvent());
+					if (observer != null) {
+						observer.onPanic();
+					}
+					txn.attach(new RemoteWipeActivatedEvent());
 
 					// we could here clear the metadata to allow us to send
 					// the wipe messages several times when testing
@@ -233,7 +235,6 @@ public class RemoteWipeManagerImpl extends ConversationClientImpl
 			clientHelper
 					.mergeGroupMetadata(txn, localGroup.getId(), localRecord);
 		} else if (type == CONFIRM) {
-			LOG.info("*** Got confirm msg");
 			messageTracker.trackIncomingMessage(txn, m);
 			ContactId contactId = getContactId(txn, m.getGroupId());
 
@@ -331,13 +332,28 @@ public class RemoteWipeManagerImpl extends ConversationClientImpl
 	private void sendConfirmMessages(Transaction txn)
 			throws DbException, FormatException {
 		List<ContactId> wipers = getWiperContactIds(txn);
+		List<MessageId> confirmMessages = new ArrayList<>();
 		for (ContactId c : wipers) {
 			Contact contact = contactManager.getContact(txn, c);
-			sendConfirmMessage(txn, contact);
+			confirmMessages.add(sendConfirmMessage(txn, contact));
 		}
+
+		boolean allSent = true;
+		do {
+			for (MessageId confirmMessage: confirmMessages) {
+				if (db.getMessageState(txn, confirmMessage) == PENDING) allSent = false;
+			}
+			if (!allSent) {
+				try {
+					Thread.sleep(100);
+				} catch (InterruptedException e) {
+					allSent = true;
+				}
+			}
+		} while(allSent = false);
 	}
 
-	private void sendConfirmMessage(Transaction txn, Contact contact)
+	private MessageId sendConfirmMessage(Transaction txn, Contact contact)
 			throws DbException, FormatException {
 		Group group = getContactGroup(contact);
 		GroupId g = group.getId();
@@ -354,6 +370,17 @@ public class RemoteWipeManagerImpl extends ConversationClientImpl
 		);
 		clientHelper.addLocalMessage(txn, m, meta, true, false);
 		messageTracker.trackOutgoingMessage(txn, m);
+
+		// Find the id of this message
+		List<MessageId> messageIds = (List<MessageId>) db.getMessageIds(txn, g);
+		Message newestMsg = null;
+		for (MessageId id : messageIds) {
+			Message msg = db.getMessage(txn, id);
+			if (newestMsg == null || msg.getTimestamp() > newestMsg.getTimestamp()) {
+				newestMsg = msg;
+			}
+		}
+        return newestMsg.getId();
 	}
 
 	public void wipe(Transaction txn, Contact contact)
@@ -480,6 +507,14 @@ public class RemoteWipeManagerImpl extends ConversationClientImpl
 							messageEntry.getKey());
 					headers.add(
 							createMessageHeader(message, meta, status, REVOKE));
+				} else if (meta.getLong(MSG_KEY_MESSAGE_TYPE).intValue() ==
+					CONFIRM.getValue()) {
+					Message message = clientHelper
+							.getMessage(txn, messageEntry.getKey());
+					MessageStatus status = db.getMessageStatus(txn, contactId,
+							messageEntry.getKey());
+					headers.add(
+							createMessageHeader(message, meta, status, CONFIRM));
 				}
 			}
 			return headers;
