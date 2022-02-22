@@ -197,10 +197,10 @@ public class RemoteWipeManagerImpl extends ConversationClientImpl
 					// Send a CONFIRM message to each wiper
 					sendConfirmMessages(txn);
 
-					if (observer != null) {
-						observer.onPanic();
-					}
-					txn.attach(new RemoteWipeActivatedEvent());
+//					if (observer != null) {
+//						observer.onPanic();
+//					}
+//					txn.attach(new RemoteWipeActivatedEvent());
 
 					// we could here clear the metadata to allow us to send
 					// the wipe messages several times when testing
@@ -233,6 +233,7 @@ public class RemoteWipeManagerImpl extends ConversationClientImpl
 			clientHelper
 					.mergeGroupMetadata(txn, localGroup.getId(), localRecord);
 		} else if (type == CONFIRM) {
+			LOG.info("*** Got confirm msg");
 			messageTracker.trackIncomingMessage(txn, m);
 			ContactId contactId = getContactId(txn, m.getGroupId());
 
