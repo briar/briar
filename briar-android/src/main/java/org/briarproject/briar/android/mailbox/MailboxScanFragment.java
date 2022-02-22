@@ -94,7 +94,7 @@ public class MailboxScanFragment extends Fragment {
 		logException(LOG, WARNING, e);
 		Toast.makeText(requireContext(), R.string.camera_error,
 				LENGTH_LONG).show();
-		requireActivity().getSupportFragmentManager().popBackStack();
+		viewModel.onCameraError();
 	}
 
 }

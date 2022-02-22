@@ -33,7 +33,6 @@ import androidx.annotation.AnyThread;
 import androidx.annotation.Nullable;
 import androidx.annotation.UiThread;
 
-import static java.util.Objects.requireNonNull;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Logger.getLogger;
 import static org.briarproject.bramble.api.plugin.Plugin.State.ACTIVE;
@@ -110,6 +109,11 @@ class MailboxViewModel extends DbViewModel
 		}
 	}
 
+	@UiThread
+	void onCameraError() {
+		state.setEvent(new MailboxState.CameraError());
+	}
+
 	@Override
 	@IoExecutor
 	public void onQrCodeDecoded(Result result) {
@@ -123,7 +127,7 @@ class MailboxViewModel extends DbViewModel
 			pairingTask = mailboxManager.startPairingTask(qrCodePayload);
 			pairingTask.addObserver(this);
 		} else {
-			state.postEvent(new MailboxState.OfflineWhenPairing(qrCodePayload));
+			state.postEvent(new MailboxState.OfflineWhenPairing());
 		}
 	}
 
@@ -143,26 +147,8 @@ class MailboxViewModel extends DbViewModel
 	}
 
 	@UiThread
-	void tryAgainWhenOffline() {
-		MailboxState.OfflineWhenPairing offline =
-				(MailboxState.OfflineWhenPairing) requireNonNull(
-						state.getLastValue());
-		if (offline.qrCodePayload == null) {
-			onScanButtonClicked();
-		} else {
-			onQrCodePayloadReceived(offline.qrCodePayload);
-		}
-	}
-
-	@UiThread
-	void tryAgainAfterError() {
-		MailboxState.Pairing pairing = (MailboxState.Pairing)
-				requireNonNull(state.getLastValue());
-		if (pairing.getQrCodePayload() == null) {
-			onScanButtonClicked();
-		} else {
-			onQrCodePayloadReceived(pairing.getQrCodePayload());
-		}
+	void showDownloadFragment() {
+		state.setEvent(new MailboxState.ShowDownload());
 	}
 
 	@UiThread

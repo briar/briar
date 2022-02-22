@@ -62,10 +62,7 @@ public class OfflineFragment extends Fragment {
 			startActivity(i);
 		});
 		buttonView = v.findViewById(R.id.button);
-		buttonView.setOnClickListener(view -> {
-			getParentFragmentManager().popBackStackImmediate();
-			viewModel.tryAgainWhenOffline();
-		});
+		buttonView.setOnClickListener(view -> viewModel.showDownloadFragment());
 
 		return v;
 	}

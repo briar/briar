@@ -59,10 +59,7 @@ public class ErrorFragment extends FinalFragment {
 		// Do not hijack back button events, but let the activity process them
 		onBackPressedCallback.remove();
 		buttonView.setText(R.string.try_again_button);
-		buttonView.setOnClickListener(view -> {
-			getParentFragmentManager().popBackStackImmediate();
-			viewModel.tryAgainAfterError();
-		});
+		buttonView.setOnClickListener(view -> viewModel.showDownloadFragment());
 		return v;
 	}
 

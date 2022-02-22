@@ -49,6 +49,7 @@ import org.briarproject.briar.android.mailbox.MailboxScanFragment;
 import org.briarproject.briar.android.mailbox.MailboxStatusFragment;
 import org.briarproject.briar.android.mailbox.OfflineFragment;
 import org.briarproject.briar.android.mailbox.SetupDownloadFragment;
+import org.briarproject.briar.android.mailbox.SetupIntroFragment;
 import org.briarproject.briar.android.removabledrive.ChooserFragment;
 import org.briarproject.briar.android.removabledrive.ReceiveFragment;
 import org.briarproject.briar.android.removabledrive.SendFragment;
@@ -244,6 +245,8 @@ public interface AndroidComponent
 	void inject(ReceiveFragment receiveFragment);
 
 	void inject(BluetoothIntroFragment bluetoothIntroFragment);
+
+	void inject(SetupIntroFragment setupIntroFragment);
 
 	void inject(SetupDownloadFragment setupDownloadFragment);
 

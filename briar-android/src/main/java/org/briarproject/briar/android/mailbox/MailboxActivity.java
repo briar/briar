@@ -54,6 +54,8 @@ public class MailboxActivity extends BriarActivity {
 		viewModel.getState().observeEvent(this, state -> {
 			if (state instanceof MailboxState.NotSetup) {
 				onNotSetup();
+			} else if (state instanceof MailboxState.ShowDownload) {
+				onShowDownload();
 			} else if (state instanceof MailboxState.ScanningQrCode) {
 				onScanningQrCode();
 			} else if (state instanceof MailboxState.Pairing) {
@@ -62,6 +64,8 @@ public class MailboxActivity extends BriarActivity {
 				onMailboxPairingStateChanged(s);
 			} else if (state instanceof MailboxState.OfflineWhenPairing) {
 				onOffline();
+			} else if (state instanceof MailboxState.CameraError) {
+				onCameraError();
 			} else if (state instanceof MailboxState.IsPaired) {
 				onIsPaired();
 			} else {
@@ -99,32 +103,38 @@ public class MailboxActivity extends BriarActivity {
 				.commit();
 	}
 
-	private void onScanningQrCode() {
+	private void onShowDownload() {
 		FragmentManager fm = getSupportFragmentManager();
-		if (fm.findFragmentByTag(MailboxScanFragment.TAG) != null) {
-			// if the scanner is already on the back stack, pop back to it
+		if (fm.findFragmentByTag(SetupDownloadFragment.TAG) != null) {
+			// if the fragment is already on the back stack, pop back to it
 			// instead of adding it to the stack again
-			fm.popBackStackImmediate(MailboxScanFragment.TAG, 0);
+			fm.popBackStackImmediate(SetupDownloadFragment.TAG, 0);
 		} else {
-			showFragment(fm, new MailboxScanFragment(),
-					MailboxScanFragment.TAG);
+			showFragment(fm, new SetupDownloadFragment(),
+					SetupDownloadFragment.TAG);
 		}
+	}
+
+	private void onScanningQrCode() {
+		showFragment(getSupportFragmentManager(), new MailboxScanFragment(),
+				MailboxScanFragment.TAG);
 	}
 
 	private void onMailboxPairingStateChanged(MailboxPairingState s) {
 		progressBar.setVisibility(INVISIBLE);
 		FragmentManager fm = getSupportFragmentManager();
+		if (fm.getBackStackEntryCount() == 0) {
+			// We re-launched into an existing state,
+			// need to re-populate the back stack.
+			onNotSetup();
+			onShowDownload();
+		}
 		Fragment f;
 		String tag;
 		if (s instanceof MailboxPairingState.QrCodeReceived) {
-			// ignore, showing yet another progress fragment messes with back stack
-			return;
+			f = new MailboxConnectingFragment();
+			tag = MailboxConnectingFragment.TAG;
 		} else if (s instanceof MailboxPairingState.Pairing) {
-			if (fm.getBackStackEntryCount() == 0) {
-				// We re-launched into an existing state,
-				// need to re-populate the back stack.
-				repopulateBackStack();
-			}
 			f = new MailboxConnectingFragment();
 			tag = MailboxConnectingFragment.TAG;
 		} else if (s instanceof MailboxPairingState.InvalidQrCode) {
@@ -164,18 +174,17 @@ public class MailboxActivity extends BriarActivity {
 				OfflineFragment.TAG);
 	}
 
+	private void onCameraError() {
+		Fragment f = ErrorFragment.newInstance(
+				R.string.mailbox_setup_camera_error_title,
+				R.string.mailbox_setup_camera_error_description);
+		showFragment(getSupportFragmentManager(), f, ErrorFragment.TAG);
+	}
+
 	private void onIsPaired() {
 		progressBar.setVisibility(INVISIBLE);
 		showFragment(getSupportFragmentManager(), new MailboxStatusFragment(),
 				MailboxStatusFragment.TAG, false);
-	}
-
-	private void repopulateBackStack() {
-		FragmentManager fm = getSupportFragmentManager();
-		onNotSetup();
-		showFragment(fm, new SetupDownloadFragment(),
-				SetupDownloadFragment.TAG);
-		onScanningQrCode();
 	}
 
 }
