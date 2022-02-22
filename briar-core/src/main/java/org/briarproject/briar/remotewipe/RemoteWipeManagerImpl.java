@@ -350,7 +350,7 @@ public class RemoteWipeManagerImpl extends ConversationClientImpl
 					allSent = true;
 				}
 			}
-		} while(allSent = false);
+		} while(allSent == false);
 	}
 
 	private MessageId sendConfirmMessage(Transaction txn, Contact contact)
