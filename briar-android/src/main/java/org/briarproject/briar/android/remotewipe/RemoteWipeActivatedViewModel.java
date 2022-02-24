@@ -24,6 +24,8 @@ public class RemoteWipeActivatedViewModel extends AndroidViewModel implements
 	private final DatabaseComponent db;
 	private final MutableLiveEvent<Boolean> confirmSent =
 			new MutableLiveEvent<>();
+	private int numberOfConfirmMessages;
+	private int messagesSent = 0;
 
 	@Inject
 	RemoteWipeActivatedViewModel(
@@ -33,15 +35,15 @@ public class RemoteWipeActivatedViewModel extends AndroidViewModel implements
 		super(application);
 		this.remoteWipeManager = remoteWipeManager;
 		this.db = db;
+
 		eventBus.addListener(this);
 	}
 
 	public void sendConfirmMessages() {
 		try {
-			db.transaction(false,
+			numberOfConfirmMessages = db.transactionWithResult(false,
 					remoteWipeManager::sendConfirmMessages);
 		} catch (DbException | FormatException e) {
-			System.out.println(e);
 			// If there is a problem sending the messages, just wipe
 			confirmSent.postEvent(true);
 		}
@@ -53,9 +55,12 @@ public class RemoteWipeActivatedViewModel extends AndroidViewModel implements
 
 	@Override
 	public void eventOccurred(Event e) {
-		// As soon as we know a message is sent, we can wipe
+		// As soon as we know the confirm messages are sent, we can wipe
 		if (e instanceof MessagesSentEvent) {
-          confirmSent.postEvent(true);
+			messagesSent++;
+			if (messagesSent >= numberOfConfirmMessages) {
+				confirmSent.postEvent(true);
+			}
 		}
 	}
 }
