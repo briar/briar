@@ -21,6 +21,7 @@ import java.util.List;
 import javax.inject.Inject;
 
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.lifecycle.ViewModelProvider;
 
 @MethodsNotNullByDefault
@@ -59,6 +60,14 @@ public class WiperSelectorFragment extends ContactSelectorFragment {
 		super.onCreate(savedInstanceState);
 		selectedContacts.addAll(viewModel.getWiperContactIds());
 		requireActivity().setTitle(R.string.title_select_wipers);
+
+		viewModel.getState().observe(this, this::onStateChanged);
+	}
+
+	private void onStateChanged(RemoteWipeSetupState state) {
+		if (state.equals(RemoteWipeSetupState.SUCCESS)) {
+		  showSuccessDialog();
+		}
 	}
 
 	@Override
@@ -93,6 +102,17 @@ public class WiperSelectorFragment extends ContactSelectorFragment {
 			Toast.makeText(getContext(), String.format(getString(R.string.select_at_least_n_more_contacts), min - n),
 					Toast.LENGTH_SHORT).show();
 		}
+	}
+
+	private void showSuccessDialog() {
+		AlertDialog.Builder builder = new AlertDialog.Builder(requireContext(),
+				R.style.BriarDialogTheme);
+		builder.setTitle(R.string.remote_wipe_setup_success);
+		builder.setPositiveButton(R.string.ok,
+				(dialog, which) -> viewModel.onSuccessDismissed());
+		builder.setIcon(R.drawable.ic_baseline_done_outline_24);
+		AlertDialog dialog = builder.create();
+		dialog.show();
 	}
 
 }

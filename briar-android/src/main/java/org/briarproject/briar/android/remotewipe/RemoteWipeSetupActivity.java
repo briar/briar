@@ -15,6 +15,7 @@ import java.util.Collection;
 
 import javax.inject.Inject;
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.lifecycle.ViewModelProvider;
 
 public class RemoteWipeSetupActivity extends BriarActivity implements
@@ -59,9 +60,9 @@ public class RemoteWipeSetupActivity extends BriarActivity implements
 	}
 
 	private void onStateChanged(RemoteWipeSetupState state) {
-		if (state.equals(RemoteWipeSetupState.SUCCESS)) {
-			showNextFragment(new RemoteWipeSuccessFragment());
-		} else if (state.equals(RemoteWipeSetupState.FAILED)) {
+//		if (state.equals(RemoteWipeSetupState.SUCCESS)) {
+//			showNextFragment(new RemoteWipeSuccessFragment());
+		if (state.equals(RemoteWipeSetupState.FAILED)) {
 			Toast.makeText(this,
 					R.string.remote_wipe_setup_failed,
 					Toast.LENGTH_LONG).show();
