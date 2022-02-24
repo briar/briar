@@ -160,7 +160,7 @@
   <string name="image_attach_error_invalid_mime_type">El format de la imatge no s\'admet: %s</string>
   <string name="set_contact_alias">Canvia el nom del contacte</string>
   <string name="set_contact_alias_hint">Nom del contacte</string>
-  <string name="menu_item_disappearing_messages">Missatges fonedissos</string>
+  <string name="menu_item_disappearing_messages">Missatges efímers</string>
   <!--The first placeholder will show a duration like "7 days". The second placeholder at the end will add "Tap to learn more."-->
   <string name="auto_delete_msg_you_enabled">Els vostres missatges es faran fonedissos en %1$s. %2$s</string>
   <!--The placeholder at the end will add "Tap to learn more."-->
@@ -559,8 +559,11 @@ Així que l\'actualitzi li veureu una icona diferent .</string>
   <string name="notify_sound_setting_disabled">Cap</string>
   <string name="choose_ringtone_title">Trieu el so d\'avís</string>
   <string name="cannot_load_ringtone">No s\'ha pogut carregar el so d\'avís</string>
+  <!--Mailbox-->
+  <string name="mailbox_setup_connecting">S\'està connectant...</string>
+  <string name="tor_offline_title">Fora de línia</string>
   <!--Conversation Settings-->
-  <string name="disappearing_messages_title">Missatges fonedissos</string>
+  <string name="disappearing_messages_title">Missatges efímers</string>
   <string name="learn_more">Més informació</string>
   <!--Settings Actions-->
   <string name="pref_category_actions">Accions</string>

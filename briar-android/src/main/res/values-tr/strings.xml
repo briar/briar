@@ -569,6 +569,9 @@
   <string name="notify_sound_setting_disabled">Yok</string>
   <string name="choose_ringtone_title">Zil sesi seçin</string>
   <string name="cannot_load_ringtone">Zil sesi yüklenemiyor</string>
+  <!--Mailbox-->
+  <string name="mailbox_setup_connecting">Bağlantı kuruluyor…</string>
+  <string name="tor_offline_title">Çevrimdışı</string>
   <!--Conversation Settings-->
   <string name="disappearing_messages_title">Kaybolan iletiler</string>
   <string name="disappearing_messages_explanation_long">Bu ayarı etkinleştirmeniz durumunda

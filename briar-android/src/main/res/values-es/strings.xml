@@ -50,10 +50,16 @@
     <item quantity="one">Esta es una versión de prueba de Briar. Su cuenta expirará en %d día y no podrá ser renovada.</item>
     <item quantity="other">Esta es una versión de prueba de Briar. Tu cuenta expirará en %d días y no podrá ser renovada.</item>
   </plurals>
+  <plurals name="old_android_expiry_warning">
+    <item quantity="one">Android 4 ya no es soportado. Briar dejará de funcionar sobre %s (en %d días). Por favor, instala Briar en un dispositivo más nuevo y crea una cuenta nueva.</item>
+    <item quantity="other">Android 4 ya no es soportado. Briar dejará de funcionar sobre %s (en %d días). Por favor, instala Briar en un dispositivo más nuevo y crea una cuenta nueva.</item>
+  </plurals>
   <string name="expiry_date_reached">Este programa ha caducado.\n¡Gracias por probarlo!</string>
   <string name="download_briar">Para continuar usando Briar, por favor descarga la versión mas reciente.</string>
   <string name="create_new_account">Necesitarás crear una nueva cuenta, pero puedes usar el mismo nombre de usuario.</string>
   <string name="download_briar_button">Descargar la última versión.</string>
+  <string name="old_android_expiry_date_reached">Briar ya no funciona sobre Android 4.\nPor favor, instala Briar en un dispositivo más nuevo.</string>
+  <string name="old_android_delete_account">Puedes pulsar el botón de abajo para borrar tu cuenta de este dispositivo.</string>
   <string name="delete_account_button">Borrar cuenta</string>
   <string name="startup_open_database">Descifrando la base de datos...</string>
   <string name="startup_migrate_database">Actualizando la base de datos...</string>
@@ -569,6 +575,22 @@
   <string name="notify_sound_setting_disabled">Ninguno</string>
   <string name="choose_ringtone_title">Elegir tono de notificación</string>
   <string name="cannot_load_ringtone">No se puede cargar el tono de notificación</string>
+  <!--Mailbox-->
+  <string name="mailbox_settings_title">Buzón</string>
+  <string name="mailbox_setup_title">Configuración del buzón</string>
+  <string name="mailbox_setup_intro">Un Buzón les permite a tus contactos enviarte mensajes mientras estás fuera de línea. El Buzón recibirá tus mensajes y los almacenará hasta que estés en línea.\n
+		\nPuedes instalar la aplicación Buzón de Briar en un dispositivo sobrante. Mantenlo conectado al suministro eléctrico y el Wi-Fi, de manera que siempre esté en línea.</string>
+  <string name="mailbox_setup_download">Primero, instala la aplicación Buzón en otro dispositivo, buscando \"Buzón de Briar\" en Google Play o desde donde hayas descargado Briar.\n
+		\nLuego vincula tu Buzón con Briar escaneando el código QR mostrado por la aplicación Buzón.</string>
+  <string name="mailbox_setup_download_link">Compartir enlace de descarga</string>
+  <string name="mailbox_setup_button_scan">Escanear código QR de Buzón</string>
+  <string name="permission_camera_qr_denied_body">Has denegado el acceso a la cámara, pero para escanear un código QR se requiere el uso de la cámara.\n\nPor favor considera conceder el acceso.</string>
+  <string name="mailbox_setup_connecting">Conectando...</string>
+  <string name="mailbox_setup_qr_code_wrong_title">Código QR erróneo</string>
+  <string name="mailbox_setup_qr_code_wrong_description">El código escaneado no es válido. Por favor abre la aplicación Buzón de Briar en tu dispositivo de buzón y escanea el código QR que presenta.</string>
+  <string name="tor_offline_title">Desconectado</string>
+  <string name="tor_offline_description">Asegúrate de que este dispositivo esté en línea y las conexiones a Internet estén permitidas.\n\nLuego, espera a que el ícono de un globo en las configuraciones de conexión se torne verde.</string>
+  <string name="tor_offline_button_check">Comprobar configuración de conexión</string>
   <!--Conversation Settings-->
   <string name="disappearing_messages_title">Mensajes con caducidad</string>
   <string name="disappearing_messages_explanation_long">Activar este ajuste hará que los nuevos

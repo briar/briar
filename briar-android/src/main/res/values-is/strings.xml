@@ -575,6 +575,9 @@
   <string name="notify_sound_setting_disabled">Ekkert</string>
   <string name="choose_ringtone_title">Veldu hringitón</string>
   <string name="cannot_load_ringtone">Get ekki hlaðið inn hringitóni</string>
+  <!--Mailbox-->
+  <string name="mailbox_setup_connecting">Tengist…</string>
+  <string name="tor_offline_title">Ónettengt</string>
   <!--Conversation Settings-->
   <string name="disappearing_messages_title">Sjálfeyðandi skilaboð</string>
   <string name="disappearing_messages_explanation_long">Ef kveikt er á þessari stillingu munu ný

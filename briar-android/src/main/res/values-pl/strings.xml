@@ -247,7 +247,7 @@
   <string name="face_to_face">Musisz spotkać się z osobą którą chcesz dodać jako kontakt.\n\nTo uniemożliwi komukolwiek udawanie Ciebie lub czytanie Twoich wiadomości w przyszłości.</string>
   <string name="continue_button">Kontynuuj</string>
   <string name="try_again_button">Spróbuj ponownie</string>
-  <string name="waiting_for_contact_to_scan">Czekanie aż kontakt zeskanuje kod i połączy się\u2026</string>
+  <string name="waiting_for_contact_to_scan">Oczekiwanie aż kontakt zeskanuje kod i połączy się\u2026</string>
   <string name="exchanging_contact_details">Wymienianie szczegółów dotyczących kontatku\u2026</string>
   <string name="contact_added_toast">Kontakt dodany: %s</string>
   <string name="contact_already_exists">Kontakt %s już istnieje</string>
@@ -603,6 +603,22 @@
   <string name="notify_sound_setting_disabled">Brak</string>
   <string name="choose_ringtone_title">Wybierz dzwonek</string>
   <string name="cannot_load_ringtone">Nie mogę załadować dzwonka</string>
+  <!--Mailbox-->
+  <string name="mailbox_settings_title">Skrzynka pocztowa</string>
+  <string name="mailbox_setup_title">Konfiguracja skrzynki pocztowej</string>
+  <string name="mailbox_setup_intro">Skrzynka pocztowa umożliwia Twoim kontaktom wysyłanie Ci wiadomości, gdy jesteś offline. Skrzynka pocztowa odbierze Twoje wiadomości i przechowa je, dopóki nie będziesz online.\n
+		\nAplikację Briar Mailbox można zainstalować na zapasowym urządzeniu. Podłącz je do zasilania i Wi-Fi, aby zawsze było online.</string>
+  <string name="mailbox_setup_download">Najpierw zainstaluj aplikację Mailbox na innym urządzeniu, wyszukując „Briar Mailbox” w Google Play lub gdziekolwiek pobrałeś Briar.\n
+		\nNastępnie połącz swoją skrzynkę pocztową z Briar, skanując kod QR wyświetlony w aplikacji Mailbox.</string>
+  <string name="mailbox_setup_download_link">Udostępnij łącze pobierania</string>
+  <string name="mailbox_setup_button_scan">Zeskanuj kod QR aplikacji Mailbox</string>
+  <string name="permission_camera_qr_denied_body">Odmówiłeś dostępu do aparatu, ale zeskanowanie kodu QR wymaga użycia aparatu.\n\nRozważ przyznanie dostępu.</string>
+  <string name="mailbox_setup_connecting">Trwa łączenie...</string>
+  <string name="mailbox_setup_qr_code_wrong_title">Nieprawidłowy kod QR</string>
+  <string name="mailbox_setup_qr_code_wrong_description">Zeskanowany kod jest nieprawidłowy. Otwórz aplikację Briar Mailbox na urządzeniu ze skrzynką pocztową i zeskanuj wyświetlany kod QR. </string>
+  <string name="tor_offline_title">Offline</string>
+  <string name="tor_offline_description">Upewnij się, że to urządzenie jest w trybie online, a połączenia z internetem są dozwolone.\n\nNastępnie poczekaj, aż ikona kuli ziemskiej w ustawieniach połączenia zmieni kolor na zielony.</string>
+  <string name="tor_offline_button_check">Sprawdź ustawienia połączenia </string>
   <!--Conversation Settings-->
   <string name="disappearing_messages_title">Znikające wiadomości</string>
   <string name="disappearing_messages_explanation_long">Włączenie tego ustawienia spowoduje, że

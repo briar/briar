@@ -9,7 +9,7 @@
   <string name="setup_doze_title">Фоновые подключения</string>
   <string name="setup_doze_intro">Для получения сообщений Briar должен работать в фоновом режиме.</string>
   <string name="setup_doze_explanation">Для получения сообщений Briar должен работать в фоновом режиме. Отключите оптимизацию электропитания для Briar.</string>
-  <string name="setup_doze_button">Разрешить соединения</string>
+  <string name="setup_doze_button">Разрешить подключения</string>
   <string name="choose_nickname">Придумайте псевдоним</string>
   <string name="choose_password">Придумайте пароль</string>
   <string name="confirm_password">Подтвердите пароль</string>
@@ -267,7 +267,7 @@
   <string name="contact_link_hint">Ссылка контакта</string>
   <string name="paste_button">Вставить</string>
   <string name="add_contact_button">Добавить контакт</string>
-  <string name="copy_button">Копировать</string>
+  <string name="copy_button">Скопировать</string>
   <string name="share_button">Поделиться</string>
   <string name="send_link_title">Обмен ссылками</string>
   <string name="add_contact_choose_nickname">Выберите псевдоним</string>
@@ -520,7 +520,7 @@
   <string name="pref_language_title">Язык и регион</string>
   <string name="pref_language_changed">Этот параметр вступит в силу после перезапуска Briar. Пожалуйста, выйдите и перезапустите Briar.</string>
   <string name="pref_language_default">По умолчанию</string>
-  <string name="display_settings_title">Отображение</string>
+  <string name="display_settings_title">Вид</string>
   <string name="pref_theme_title">Тема</string>
   <string name="pref_theme_light">Светлая</string>
   <string name="pref_theme_dark">Темная</string>
@@ -603,6 +603,22 @@
   <string name="notify_sound_setting_disabled">Нет</string>
   <string name="choose_ringtone_title">Выберите мелодию звонка</string>
   <string name="cannot_load_ringtone">Не удается загрузить мелодию звонка</string>
+  <!--Mailbox-->
+  <string name="mailbox_settings_title">Mailbox</string>
+  <string name="mailbox_setup_title">Настройка Mailbox</string>
+  <string name="mailbox_setup_intro">Mailbox позволяет вашим контактам отправлять вам сообщения, пока вы находитесь в автономном режиме. Mailbox будет получать ваши сообщения и хранить их до тех пор, пока вы не подключитесь к сети.\n
+		\nВы можете установить приложение Briar Mailbox на запасное устройство. Чтобы устройство всегда находилось в сети, подключите его к питанию и Wi-Fi.</string>
+  <string name="mailbox_setup_download">Во-первых, установите приложение Mailbox на другое устройство, выполнив поиск \"Briar Mailbox\" в Google Play или там, откуда вы загрузили Briar.\n
+		\nЗатем свяжите ваш Mailbox с Briar, просканировав QR-код, показанный приложением Mailbox.</string>
+  <string name="mailbox_setup_download_link">Поделиться ссылкой на загрузку</string>
+  <string name="mailbox_setup_button_scan">Сканирование QR-кода Mailbox</string>
+  <string name="permission_camera_qr_denied_body">Вы запретили доступ к камере, однако сканирование QR-кода требует использования камеры.\n\nПожалуйста, рассмотрите возможность предоставления доступа.</string>
+  <string name="mailbox_setup_connecting">Соединение...</string>
+  <string name="mailbox_setup_qr_code_wrong_title">Неправильный QR-код</string>
+  <string name="mailbox_setup_qr_code_wrong_description">Отсканированный код недействителен. Пожалуйста, откройте приложение Briar Mailbox на вашем устройстве и просканируйте представленный QR-код.</string>
+  <string name="tor_offline_title">Отключен</string>
+  <string name="tor_offline_description">Убедитесь, что устройство находится в сети и подключение к интернету разрешено.\n\nПосле этого дождитесь, пока значок глобуса в настройках подключения станет зеленым.</string>
+  <string name="tor_offline_button_check">Проверьте настройки подключения</string>
   <!--Conversation Settings-->
   <string name="disappearing_messages_title">Исчезающие сообщения</string>
   <string name="disappearing_messages_explanation_long">Включение этого параметра приведет к созданию нового

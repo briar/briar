@@ -1,45 +1,45 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources xmlns:tools="http://schemas.android.com/tools">
   <!--Setup-->
-  <string name="setup_title">Briar မှ ကြိုဆိုပါသည်</string>
-  <string name="setup_name_explanation">သင့်နာမည်ပြောင်သည် သင်တင်ထားသမျှ၏ဘေးတွင် ပေါ်နေပါလိမ့်မည်။ သို့ပါ၍ သင့်နာမည်ပြောင်အား အကောင့်ဖွင့်ပြီးနောက် ပြောင်း၍မရတော့ပါ။</string>
+  <string name="setup_title">Briar မှ ကြိုဆိုပါတယ်</string>
+  <string name="setup_name_explanation">သင့်နာမည်ပြောင်သည် သင်တင်ထားသမျှ၏ ဘေးတွင် ပေါ်နေပါလိမ့်မည်။ သို့ပါ၍ သင့်နာမည်ပြောင်အား အကောင့်ဖွင့်ပြီးနောက် ပြောင်း၍ မရတော့ပါ။</string>
   <string name="setup_next">ရှေ့သို့</string>
   <string name="setup_password_intro">စကားဝှက်တစ်ခု ရွေးပါ</string>
-  <string name="setup_password_explanation">သင့် Briar အကောင့်ကို ကလောက်တွင်မဟုတ်ဘဲ သင့်ကိရိယာတွင်သာ လျှို့ဝှက်ကုဒ်ပြောင်းသိမ်းဆည်းထားပါသည်။ သင့်စကားဝှက်ကို မေ့သွားလျှင် (သို့) Briar ကို ဖြုတ်လိုက်လျှင် သင့်အကောင့်ကို မည်သည့်နည်းနှင့်မျှ ပြန်မရယူနိုင်ပါ။\n\nကြုံရာစကားလုံးလေးလုံး (သို့) ကြုံရာအက္ခရာဆယ်လုံး၊ နံပါတ်များနှင့် သင်္ကေတများကဲ့သို့ ခန့်မှန်းရခက်သည့် ရှည်လျားသောစကားဝှက်ကို ရွေးချယ်ပါ။</string>
-  <string name="setup_doze_title">နောက်ခံချိတ်ဆက်မှုများ</string>
-  <string name="setup_doze_intro">မက်ဆေ့ချ်များလက်ခံရယူနိုင်ရန် Briar သည် နောက်ခံချိတ်ဆက်နေရန် လိုအပ်သည်။</string>
-  <string name="setup_doze_explanation">မက်ဆေ့ချ်များလက်ခံရယူနိုင်ရန် Briar သည် နောက်ခံချိတ်ဆက်နေရန် လိုအပ်သည်။ Briar အနေဖြင့် ချိတ်ဆက်မှုမပြတ်ရှိနေစေရန် ဘတ္ထရီအားအကောင်းဆုံးထိန်းညှိခြင်းကို ကျေးဇူးပြု၍ ပိတ်ထားပေးပါ။</string>
-  <string name="setup_doze_button">ချိတ်ဆက်မှုများ ခွင့်ပြုမည်</string>
+  <string name="setup_password_explanation">သင့် Briar အကောင့်ကို ကလောက်တွင်မဟုတ်ဘဲ သင့်ကိရိယာတွင်သာ လျှို့ဝှက်ကုဒ်ပြောင်း သိမ်းဆည်းထားပါသည်။ သင့်စကားဝှက်ကို မေ့သွားလျှင် (သို့) Briar ကို ဖြုတ်လိုက်လျှင် သင့်အကောင့်ကို မည်သည့်နည်းနှင့်မျှ ပြန်မရယူနိုင်ပါ။\n\nကြုံရာစကားလုံးလေးလုံး (သို့) ကြုံရာအက္ခရာဆယ်လုံး၊ နံပါတ်များနှင့် သင်္ကေတများကဲ့သို့ ခန့်မှန်းရခက်သည့် ရှည်လျားသောစကားဝှက်ကို ရွေးချယ်ပါ။</string>
+  <string name="setup_doze_title">နောက်ခံ ချိတ်ဆက်မှုများ</string>
+  <string name="setup_doze_intro">မက်ဆေ့ချ်များ လက်ခံရယူနိုင်ရန် Briar သည် နောက်ခံ၌ ချိတ်ဆက်နေရန် လိုအပ်သည်။</string>
+  <string name="setup_doze_explanation">မက်ဆေ့ချ်များ လက်ခံရယူနိုင်ရန် Briar သည် နောက်ခံ၌ ချိတ်ဆက်နေရန် လိုအပ်သည်။ Briar အနေဖြင့် ချိတ်ဆက်မှု မပြတ်ရှိနေစေရန် ဘတ္ထရီအား အကောင်းဆုံး ထိန်းညှိခြင်းကို ကျေးဇူးပြု၍ ပိတ်ထားပေးပါ။</string>
+  <string name="setup_doze_button">ချိတ်ဆက်မှုများကို ခွင့်ပြုပါ</string>
   <string name="choose_nickname">သင့်နာမည်ပြောင်ကို ရွေးပါ</string>
   <string name="choose_password">သင့်စကားဝှက်ကို ရွေးပါ</string>
   <string name="confirm_password">သင့်စကားဝှက်ကို အတည်ပြုပါ</string>
-  <string name="name_too_long">နာမည်ရှည်လွန်းသည်</string>
-  <string name="password_too_weak">စကားဝှက်က အားနည်းလွန်းသည်</string>
-  <string name="passwords_do_not_match">စကားဝှက်ကိုက်ညီမှုမရှိပါ</string>
-  <string name="create_account_button">အကောင့်ဖွင့်မည်</string>
+  <string name="name_too_long">နာမည် ရှည်လွန်းတယ်</string>
+  <string name="password_too_weak">စကားဝှက်က အားနည်းလွန်းတယ်</string>
+  <string name="passwords_do_not_match">စကားဝှက်များ မတူကြပါ</string>
+  <string name="create_account_button">အကောင့်ဖွင့်ပါ</string>
   <string name="more_info">ပိုမိုသိရှိရန်</string>
-  <string name="don_t_ask_again">ထပ်မမေးပါနှင့်</string>
+  <string name="don_t_ask_again">ထပ်မမေးပါနဲ့</string>
   <string name="setup_huawei_text">အောက်ပါခလုတ်ကိုနှိပ်၍ \"ကာကွယ်မှုပေးထားသောအက်ပ်များ\" စခရင်တွင် Briar ကို ကာကွယ်ထားကြောင်း သေချာစေပါ။</string>
-  <string name="setup_huawei_button">Briar ကို ကာကွယ်မည်</string>
+  <string name="setup_huawei_button">Briar ကို ကာကွယ်ပါ</string>
   <string name="setup_huawei_help">ကာကွယ်မှုပေးထားသောအက်ပ်များစာရင်းတွင် ထည့်မထားလျှင် Briar ကို နောက်ကွယ်တွင် ဖွင့်ထားနိုင်မည်မဟုတ်ပါ။</string>
   <string name="setup_huawei_app_launch_text">အောက်ပါခလုတ်ကိုနှိပ်ပြီး \"အက်ပ်စတင်ခြင်း\" စခရင်ကို ဖွင့်၍ Briar ကို \"ကိုယ်တိုင်စီမံမည်\" ဟု သတ်မှတ်ပါ။</string>
-  <string name="setup_huawei_app_launch_button">ဘတ္ထရီဆက်တင်များကို ဖွင့်မည်</string>
+  <string name="setup_huawei_app_launch_button">ဘတ္ထရီဆက်တင်များကို ဖွင့်ပါ</string>
   <string name="setup_huawei_app_launch_help">\"အက်ပ်စတင်ခြင်း\" စခရင်တွင် \"ကိုယ်တိုင်စီမံမည်\" ဟု သတ်မှတ်မထားလျှင် Briar ကို နောက်ကွယ်တွင် ဖွင့်ထားနိုင်မည်မဟုတ်ပါ။</string>
   <string name="setup_xiaomi_text">ဖွင့်ထားသောအက်ပ်များစာရင်းတွင် Briar ကို လော့ခ်ချထားမှ နောက်ကွယ်တွင် ဖွင့်ထားနိုင်မည်။</string>
-  <string name="setup_xiaomi_button">Briar ကို ကာကွယ်ထားမည်</string>
+  <string name="setup_xiaomi_button">Briar ကို ကာကွယ်ပါ</string>
   <string name="setup_xiaomi_help">ဖွင့်ထားသောအက်ပ်များစာရင်းတွင် လော့ခ်ချမထားပါက Briar ကို နောက်ကွယ်တွင် ဖွင့်ထားနိုင်မည်မဟုတ်ပါ။</string>
   <string name="setup_xiaomi_dialog_body_old">၁။ ဖွင့်ထားသောအက်ပ်များစာရင်း (တစ်နည်းအားဖြင့် အက်ပ်ပြောင်းရာ) ကို ဖွင့်ပါ\n\n၂။ သော့ခလောက်အိုင်ကွန်ပေါ်လာရန် Briar ပုံပေါ်မှ ပွတ်ဆွဲချပါ\n\n၃။ သော့ခတ်မထားပါက သော့ခတ်ရန်နှိပ်လိုက်ပါ</string>
   <string name="setup_xiaomi_dialog_body_new">၁။ ဖွင့်ထားသောအက်ပ်များစာရင်း (တစ်နည်းအားဖြင့် အက်ပ်ပြောင်းရာ) ကို ဖွင့်ပါ\n\n၂။ သော့ခလောက်ခလုတ်ပေါ်လာသည်အထိ Briar ပုံကို နှိပ်ထားပါ\n\n၃။ သော့ခတ်မထားပါက သော့ခတ်ရန်နှိပ်လိုက်ပါ</string>
   <string name="warning_dozed">%s ကို နောက်ကွယ်တွင် ဖွင့်မထားနိုင်ပါ</string>
   <!--Login-->
   <string name="enter_password">စကားဝှက်</string>
-  <string name="try_again">စကားဝှက်မှားနေသည်၊ ထပ်စမ်းကြည့်ပါ</string>
+  <string name="try_again">စကားဝှက်မှားနေတယ်၊ ထပ်စမ်းကြည့်ပါ</string>
   <string name="dialog_title_cannot_check_password">စကားဝှက်ကို စစ်ဆေး၍မရပါ</string>
   <string name="dialog_message_cannot_check_password">Briar က သင့်စကားဝှက်ကို မစစ်ဆေးနိုင်ပါ။ ဤပြဿနာကို ဖြေရှင်းရန် သင့်ကိရိယာကို ပိတ်၍ပြန်ဖွင့်ကြည့်ပါ။</string>
-  <string name="sign_in_button">အကောင့်ဝင်မည်</string>
-  <string name="forgotten_password">ကျွန်ုပ်၏စကားဝှက်ကို မေ့သွားပါသည်</string>
+  <string name="sign_in_button">အကောင့်ဝင်ပါ</string>
+  <string name="forgotten_password">ကျွန်ုပ်၏စကားဝှက်ကို မေ့သွားပါတယ်</string>
   <string name="dialog_title_lost_password">စကားဝှက်ပျောက်ဆုံး</string>
-  <string name="dialog_message_lost_password">သင့် Briar အကောင့်ကို ကလောက်တွင်မဟုတ်ဘဲ သင့်ကိရိယာတွင်သာ လျှို့ဝှက်ကုဒ်ပြောင်းသိမ်းဆည်းထားသောကြောင့် သင့်စကားဝှက်ကို ပြန်လည်သတ်မှတ်မပေးနိုင်ပါ။ သင့်အကောင့်ကို ဖျက်ပစ်ပြီး အသစ်ပြန်ဖွင့်ချင်ပါသလား။\n\nသတိ - သင့်ကိုယ်ပိုင်အချက်အလက်များ၊ အဆက်အသွယ်များနှင့် မက်ဆေ့ချ်များအားလုံး အပြီးပျက်သွားပါလိမ့်မည်။</string>
+  <string name="dialog_message_lost_password">သင့် Briar အကောင့်ကို ကလောက်တွင်မဟုတ်ဘဲ သင့်ကိရိယာတွင်သာ လျှို့ဝှက်ကုဒ်ပြောင်း သိမ်းဆည်းထားသောကြောင့် သင့်စကားဝှက်ကို ပြန်လည်သတ်မှတ်မပေးနိုင်ပါ။ သင့်အကောင့်ကို ဖျက်ပစ်ပြီး အသစ်ပြန်ဖွင့်ချင်ပါသလား။ \n\nသတိ - သင့်ကိုယ်ပိုင်အချက်အလက်များ၊ အဆက်အသွယ်များနှင့် မက်ဆေ့ချ်များအားလုံး အပြီး ပျက်သွားပါလိမ့်မည်။</string>
   <string name="startup_failed_activity_title">Briar မစတင်နိုင်ပါ</string>
   <string name="startup_failed_clock_error">သင့်ကိရိယာ၏နာရီသည် မှားနေပါသဖြင့် Briar မစတင်နိုင်ပါ။\n\nသင့်ကိရိယာ၏နာရီကို အချိန်မှန်အောင်တိုက်ပြီး ပြန်စမ်းကြည့်ပါ။</string>
   <string name="startup_failed_db_error">Briar သည် သင့်အကောင့်၊ သင့်အဆက်အသွယ်များနှင့် သင့်မက်ဆေ့ချ်များပါရှိသော အချက်အလက်အစုကို မဖွင့်နိုင်ပါ။\n\nအက်ပ်နောက်ဆုံးဗားရှင်းသို့ အဆင့်မြှင့်ပြီး ထပ်စမ်းကြည့်ပါ (သို့) စကားဝှက်တောင်းသည့်နေရာတွင် \'ကျွန်ုပ်၏စကားဝှက်ကို မေ့သွားပါသည်\' ကို ရွေးချယ်ပြီး အကောင့်အသစ်တစ်ခု ဖွင့်နိုင်ပါသည်။</string>
@@ -49,25 +49,30 @@
   <plurals name="expiry_warning">
     <item quantity="other">ဤအရာသည် Briar ၏ စမ်းသပ်ဆဲဗားရှင်းဖြစ်ပါသည်။ သင့်အကောင့်သည် %d ရက်ကြာလျှင် သက်တမ်းကုန်ဆုံးမည်ဖြစ်ပြီး သက်တမ်းတိုး၍မရနိုင်ပါ။</item>
   </plurals>
+  <plurals name="old_android_expiry_warning">
+    <item quantity="other">အန်းဒရိုက် ၄ ကို မပံ့ပိုးတော့ပါ။ Briar သည် %s(ရက်%dတွင်) အလုပ် မလုပ်တော့ပါ။ ကျေးဇူးပြု၍ Briar ကို စက်ပစ္စည်းအသစ်တွင် ထည့်သွင်းပြီး အကောင့်အသစ်တစ်ခု ဖန်တီးပါ။</item>
+  </plurals>
   <string name="expiry_date_reached">ဤဆော့ဖ်ဝဲသည် သက်တမ်းကုန်သွားပါပြီ။\nစမ်းသပ်အသုံးပြုခြင်းအတွက် ကျေးဇူးတင်ပါသည်။</string>
   <string name="download_briar">Briar ကို ဆက်လက်အသုံးပြုရန် နောက်ဆုံးထွက်ထားသည်ကို ဒေါင်းလုဒ်လုပ်ပါ။</string>
   <string name="create_new_account">အကောင့်အသစ်ဖွင့်ရန် လိုအပ်သော်လည်း သုံးလက်စနာမည်ပြောင်ကို ဆက်သုံးနိုင်ပါသည်။</string>
-  <string name="download_briar_button">နောက်ဆုံးထွက်ထားသည်ကို ဒေါင်းလုဒ်လုပ်မည်</string>
+  <string name="download_briar_button">နောက်ဆုံးထွက်ထားသည့်ကို ဒေါင်းလုဒ်လုပ်ပါ</string>
+  <string name="old_android_expiry_date_reached">Briar သည် အန်းဒရိုက် ၄ တွင် အလုပ်လုပ်တော့မည် မဟုတ်ပါ။ \nကျေးဇူးပြု၍ Briar ကို ပိုသစ်သော စက်ပေါ်တွင် ထည့်သွင်းပါ။</string>
+  <string name="old_android_delete_account">သင့်အကောင့်ကို ဤစက်ပစ္စည်းမှ ဖျက်ရန် အောက်ပါ ခလုတ်ကို သင်နှိပ်နိုင်သည်။</string>
   <string name="delete_account_button">အကောင့် ဖျက်သိမ်းမယ်</string>
   <string name="startup_open_database">အချက်အလက်အစုကို ပြန်ဖြည်နေသည်…</string>
   <string name="startup_migrate_database">အချက်အလက်အစုကို အဆင့်မြှင့်နေသည်…</string>
   <string name="startup_compact_database">အချက်အလက်အစုကို သိပ်သည်းစေရန်လုပ်နေသည်…</string>
   <!--Navigation Drawer-->
-  <string name="nav_drawer_open_description">လမ်းညွှန်အံ ဖွင့်မည်</string>
-  <string name="nav_drawer_close_description">လမ်းညွှန်အံ ပိတ်မည်</string>
+  <string name="nav_drawer_open_description">လမ်းညွှန်အံ ဖွင့်ပါ</string>
+  <string name="nav_drawer_close_description">လမ်းညွှန်အံ ပိတ်ပါ</string>
   <string name="contact_list_button">အဆက်အသွယ်များ</string>
-  <string name="groups_button">ကိုယ်ရေးကိုယ်တာအဖွဲ့များ</string>
+  <string name="groups_button">ကိုယ်ရေးကိုယ်တာ အဖွဲ့များ</string>
   <string name="forums_button">ဖိုရမ်များ</string>
   <string name="blogs_button">ဘလော့ဂ်များ</string>
   <!--This is part of the main menu. The app will be locked when this is tapped.-->
-  <string name="lock_button">အပ္ပလီကေးရှင်းကို သော့ခတ်မည်</string>
+  <string name="lock_button">အပ္ပလီကေးရှင်းကို သော့ခတ်မယ်</string>
   <string name="settings_button">ဆက်တင်များ</string>
-  <string name="sign_out_button">အကောင့်ထွက်မည်</string>
+  <string name="sign_out_button">အကောင့်ထွက်ပါ</string>
   <string name="transports_onboarding_text">Briar က သင့်အဆက်အသွယ်များနှင့် မည်သို့ချိတ်ဆက်သည်ကို ထိန်းချုပ်ရန် ဤနေရာကိုနှိပ်ပါ။</string>
   <!--Transports: Tor-->
   <string name="transport_tor">အင်တာနက်</string>
@@ -83,8 +88,8 @@
   <string name="tor_plugin_status_disabled_country_blocked">ဤနိုင်ငံတွင် အင်တာနက်အသုံးမပြုရန် Briar ကို ချိန်ညှိထားသည်</string>
   <!--Transports: Wi-Fi-->
   <string name="transport_lan">ဝိုင်ဖိုင်</string>
-  <string name="transport_lan_long">တူညီသောဝိုင်ဖိုင်ကွန်ရက်</string>
-  <string name="lan_device_status_on">သင့်ဖုန်းသည် ဝိုင်ဖိုင်ချိတ်ဆက်ထားသည်</string>
+  <string name="transport_lan_long">တူညီသော ဝိုင်ဖိုင်ကွန်ရက်</string>
+  <string name="lan_device_status_on">သင့်ဖုန်းသည် ဝိုင်ဖိုင် ချိတ်ဆက်ထားသည်</string>
   <string name="lan_device_status_off">သင့်ဖုန်းသည် ဝိုင်ဖိုင်ချိတ်ဆက်မထားပါ</string>
   <string name="lan_plugin_status_enabling">Briar သည် ဝိုင်ဖိုင်ကွန်ရက်ကို ချိတ်ဆက်နေပါသည်</string>
   <string name="lan_plugin_status_active">Briar သည် ဝိုင်ဖိုင်ကွန်ရက်ကို ချိတ်ဆက်ထားသည်</string>
@@ -95,9 +100,9 @@
   <string name="bt_device_status_on">သင့်ဖုန်းဘလူးတုသ် ဖွင့်ထားသည်</string>
   <string name="bt_device_status_off">သင့်ဖုန်းဘလူးတုသ် ပိတ်ထားသည်</string>
   <string name="bt_plugin_status_enabling">Briar သည် ဘလူးတုသ်ချိတ်ဆက်နေသည်</string>
-  <string name="bt_plugin_status_active">Briar သည် ဘလူးတုသ်ချိတ်ဆက်ထားသည်</string>
-  <string name="bt_plugin_status_inactive">Briar သည် ဘလူးတုသ်မချိတ်ဆက်နိုင်ပါ</string>
-  <string name="bt_plugin_status_disabled">ဘလူးတုသ်အသုံးမပြုရန် Briar ကို ချိန်ညှိထားသည်</string>
+  <string name="bt_plugin_status_active">Briar သည် ဘလူးတုသ်သို့ ချိတ်ဆက်ထားသည်</string>
+  <string name="bt_plugin_status_inactive">Briar သည် ဘလူးတုသ်နှင့် မချိတ်ဆက်နိုင်ပါ</string>
+  <string name="bt_plugin_status_disabled">ဘလူးတုသ် အသုံးမပြုရန် Briar ကို ချိန်ညှိထားသည်</string>
   <!--Notifications-->
   <string name="reminder_notification_title">Briar မှ အကောင့်ထွက်ထားသည်</string>
   <string name="reminder_notification_text">အကောင့်ပြန်ဝင်ရန် နှိပ်ပါ။</string>
@@ -106,7 +111,7 @@
   <string name="ongoing_notification_title">Briar သို့ အကောင့်ဝင်ထားသည်</string>
   <string name="ongoing_notification_text">Briar ဖွင့်ရန် နှိပ်ပါ</string>
   <plurals name="private_message_notification_text">
-    <item quantity="other">ကိုယ်ရေးမက်ဆေ့ချ်အသစ် %d ခု။</item>
+    <item quantity="other">သီးသန့်မက်ဆေ့ချ်အသစ် %d ခု။</item>
   </plurals>
   <plurals name="group_message_notification_text">
     <item quantity="other">အဖွဲ့မက်ဆေ့ချ်အသစ် %d ခု။</item>
@@ -134,6 +139,7 @@
   <string name="open">ဖွင့်မယ်</string>
   <string name="change">ပြောင်းလဲမယ်</string>
   <string name="start">စတင်ရန်</string>
+  <string name="finish">ပြီးပြီ</string>
   <string name="no_data">ဒေတာမရှိ</string>
   <string name="ellipsis">…</string>
   <string name="text_too_long">ရိုက်ထားသောစာများ ရှည်နေပါသည်</string>
@@ -147,8 +153,8 @@
   <!--Contacts and Private Conversations-->
   <string name="no_contacts">ပြသစရာအဆက်အသွယ် မရှိပါ</string>
   <string name="no_contacts_action">+ (အပေါင်းအိုင်ကွန်) အား နှိပ်၍ အဆက်အသွယ်ကို ထည့်သွင်းပါ</string>
-  <string name="date_no_private_messages">မက်ဆေ့ချ်များမရှိပါ</string>
-  <string name="no_private_messages">ပြသစရာမက်ဆေ့ချ် မရှိပါ</string>
+  <string name="date_no_private_messages">မက်ဆေ့ချ်များ မရှိပါ။</string>
+  <string name="no_private_messages">ပြသစရာ မက်ဆေ့ချ် မရှိပါ</string>
   <string name="message_hint">မက်ဆေ့ချ် အသစ်</string>
   <string name="message_hint_auto_delete">ပျောက်ကွယ်မည့် မက်ဆေ့ချ်အသစ်</string>
   <string name="message_error">မက်ဆေ့ချ်ပို့ရာတွင် ပျက်ကွက်မှုဖြစ်</string>
@@ -184,7 +190,7 @@
   <string name="auto_delete_changed_warning_send">ဘာပဲဖြစ်ဖြစ် ပို့မယ်</string>
   <string name="delete_all_messages">မက်ဆေ့ချ်များအားလုံး ဖျက်မယ်</string>
   <string name="dialog_title_delete_all_messages">မက်ဆေ့ချ်ပယ်ဖျက်ခြင်းအား အတည်ပြုမယ်</string>
-  <string name="dialog_message_delete_all_messages">မက်ဆေ့ချ်များအားလုံးကို အပြီးပယ်ဖျက်ရန် သေချာပြီလား?</string>
+  <string name="dialog_message_delete_all_messages">မက်ဆေ့ချ်များအားလုံးကို အပြီးပယ်ဖျက်ရန် သေချာပြီလား။</string>
   <string name="dialog_title_not_all_messages_deleted">မက်ဆေ့ချ်များအားလုံးကို အပြီးပယ်ဖျက်၍ မရနိုင်ပါ</string>
   <string name="dialog_message_not_deleted_ongoing_both">ဆက်လက်ဖြစ်နေဆဲရှိသော ဖိတ်ကြားခြင်းများနှင့် မိတ်ဆက်ခြင်းများနှင့် ပတ်သက်သော မက်ဆေ့ချ်များ မပြီးဆုံးခြင်းထိ ပယ်ဖျက်၍မရပါ။</string>
   <string name="dialog_message_not_deleted_ongoing_introductions">ဆက်လက်ဖြစ်နေဆဲရှိသော မိတ်ဆက်ခြင်းများနှင့် ပတ်သက်သော မက်ဆေ့ချ်များ မပြီးဆုံးခြင်းထိ ပယ်ဖျက်၍မရပါ။</string>
@@ -194,13 +200,13 @@
   <string name="dialog_message_not_deleted_not_all_selected_invitations">ဖိတ်ကြားခြင်းအား ပယ်ဖျက်ရန် တောင်းဆိုချက်နှင့် တုံ့ပြန်ချက်အား သင်ရွေးထားရပါသည်။</string>
   <string name="delete_contact">အဆက်အသွယ်ကို ဖျက်မည်</string>
   <string name="dialog_title_delete_contact">အဆက်အသွယ်ကို အပြီးပယ်ဖျက်ခြင်းအား အတည်ပြုမည်</string>
-  <string name="dialog_message_delete_contact">ဤအဆက်အသွယ်အပြင် ၎င်းနှင့်ပြောထားသမျှမက်ဆေ့ချ်အားလုံးကို ဖယ်ရှားချင်တာ သေချာပါသလား?</string>
+  <string name="dialog_message_delete_contact">ဤအဆက်အသွယ်အပြင် ၎င်းနှင့်ပြောထားသမျှမက်ဆေ့ချ်အားလုံးကို ဖယ်ရှားချင်တာ သေချာပါသလား။</string>
   <string name="contact_deleted_toast">အဆက်အသွယ်ကို ဖျက်ပြီးပါပြီ</string>
   <!--This is shown in the action bar when opening an image in fullscreen that the user sent-->
   <string name="you">သင်</string>
   <string name="save_image">ရုပ်ပုံသိမ်းဆည်းမယ်</string>
-  <string name="dialog_title_save_image">ရုပ်ပုံသိမ်းဆည်းမည်လား?</string>
-  <string name="dialog_message_save_image">ဤရုပ်ပုံသိမ်းဆည်းခြင်းဖြင့် ၎င်းပုံကို အခြားအပ္ပလီကေးရှင်းများ အသုံးပြုနိုင်ပါသည်။​ \n\n သင်သိမ်းဆည်းမည်ဆိုတာ သေချာပါလား?</string>
+  <string name="dialog_title_save_image">ရုပ်ပုံ သိမ်းဆည်းမည်လား။</string>
+  <string name="dialog_message_save_image">ဤရုပ်ပုံသိမ်းဆည်းခြင်းဖြင့် ၎င်းပုံကို အခြားအပ္ပလီကေးရှင်းများ အသုံးပြုနိုင်ပါသည်။​ \n\n သင်သိမ်းဆည်းမည်ဆိုတာ သေချာပါလား။</string>
   <string name="save_image_success">ရုပ်ပုံအား သိမ်းဆည်းပြီး</string>
   <string name="save_image_error">ရုပ်ပုံအား သိမ်းဆည်း၍ မရနိုင်ပါ</string>
   <string name="dialog_title_no_image_support">ရုပ်ပုံများ မရှိပါ</string>
@@ -211,7 +217,7 @@
   <string name="menu_contact">ဆက်သွယ်ရန်</string>
   <!--Adding Contacts-->
   <string name="add_contact_title">အနီးနားရှိ အဆက်အသွယ်အား ထည့်သွင်းမယ်</string>
-  <string name="face_to_face">သင်သည် ဤလူပုဂ္ဂိုလ်အား အပြင်မှာတွေ့ရှိမှသာလျှင် ၎င်း၏အဆက်အသွယ်ကို ပေါင်းထည့်လို့ရပါမည်။ \n\n ဒါမှသာလျှင် နောင်တွင် အခြားလူများ သင့်အား အယောင်ဆောင်ခြင်း သို့မဟုတ် သင့်မက်ဆေ့ချ်များဖတ်ရှုခြင်း တို့ကို တားဆီးနိုင်ပါမည်။</string>
+  <string name="face_to_face">သင်သည် ဤလူပုဂ္ဂိုလ်အား အပြင်မှာတွေ့ရှိမှသာလျှင် ၎င်း၏အဆက်အသွယ်ကို ပေါင်းထည့်လို့ရပါမည်။ \n\n ဒါမှသာလျှင် နောင်တွင် အခြားလူများ သင့်အား အယောင်ဆောင်ခြင်း သို့မဟုတ် သင့်မက်ဆေ့ချ်များ ဖတ်ရှုခြင်း တို့ကို တားဆီးနိုင်ပါမည်။</string>
   <string name="continue_button">ဆက်လုပ်မယ်</string>
   <string name="try_again_button">ထပ်မံကြိုးစားမယ်</string>
   <string name="waiting_for_contact_to_scan">အဆက်အသွယ်မှ​ စကန်ဖတ်၍ ချိတ်ဆက်ရန် စောင့်နေပါသည် \u2026</string>
@@ -271,6 +277,7 @@
   <string name="duplicate_link_dialog_text_1">သင့်မှာ ဒီလင့်ခ်နဲ့ ပတ်သက်ပြီး ဆိုင်းငံ့ထားသော အဆက်အသွယ်လိပ်စာ ရှိပြီးဖြစ်သည်: %s</string>
   <string name="duplicate_link_dialog_text_1_contact">သင့်မှာ ဒီလင့်ခ်နဲ့ အဆက်အသွယ်လိပ်စာ ရှိပြီးဖြစ်သည်: %s</string>
   <!--This is a question asking whether two nicknames refer to the same person-->
+  <string name="duplicate_link_dialog_text_2">%1$sနဲ့ %2$sအတူတူပဲလား။</string>
   <!--This is a button for answering that two nicknames do indeed refer to the same person. This
 	string will be used in a dialog button, so if the translation of this string is longer than 20
 	characters, please use "Yes" instead, and use "No" for the "Different Person" button-->
@@ -279,6 +286,7 @@
 	will be used in a dialog button, so if the translation of this string longer than 20 characters,
 	please use "No" instead, and use "Yes" for the "Same Person" button-->
   <string name="different_person_button">နောက်တစ်ယောက် </string>
+  <string name="duplicate_link_dialog_text_3">%1$sနှင့်%2$s တူညီသောလင့်ခ်ကို သင့်အား ပေးပို့ခဲ့သည်။ \n\n သူတို့ထဲမှ တစ်ဦးက သင့်အဆက်အသွယ်များသည် မည်သူဖြစ်သည်ကို ရှာဖွေရန် ကြိုးစားနေပေမည်။ \n\nသင်သည် အခြားသူတစ်ဦးထံမှ တူညီသောလင့်ခ်ကို ရရှိထားကြောင်း ၎င်းတို့အား မပြောပါနှင့်။</string>
   <string name="pending_contact_updated_toast">ဆိုင်းငံ့ထားသော အဆက်အသွယ်ကို အပ်ဒိတ်လုပ်ပြီး</string>
   <!--Introductions-->
   <string name="introduction_onboarding_title">သင့်ရဲ့ အဆက်အသွယ်လိပ်စာများကို မိတ်ဆက်ပါ</string>
@@ -292,7 +300,7 @@
   <string name="introduction_sent">သင့်ရဲ့ မိတ်ဆက်ခြင်းကို ပို့ပြီးပါပြီ။</string>
   <string name="introduction_error">မိတ်ဆက်ခြင်းပြုလုပ်ရာတွင် ပြဿနာဖြစ်ခဲ့ပါသည်။</string>
   <string name="introduction_request_sent">သင်မှ %1$s ကို %2$s နှင့် မိတ်ဆက်ပေးဖို့  တောင်းဆိုလိုက်ပါသည်။</string>
-  <string name="introduction_request_received">%1$s မှ သင့်ကို %2$s နှင့် မိတ်ဆက်ပေးဖို့ တောင်းဆိုပါသည်။ သင့် အဆက်အသွယ်စာရင်းထဲသို့ %2$s အားပေါင်းထည့်ချင်ပါသလား?</string>
+  <string name="introduction_request_received">%1$s မှ သင့်ကို %2$s နှင့် မိတ်ဆက်ပေးဖို့ တောင်းဆိုပါသည်။ သင့် အဆက်အသွယ်စာရင်းထဲသို့ %2$s အားပေါင်းထည့်ချင်ပါသလား။</string>
   <string name="introduction_request_exists_received">%1$s မှ သင့်ကို %2$s နှင့် မိတ်ဆက်ပေးဖို့တောင်းဆိုပါသည်၊ သို့သော်လည်း %2$s သည် သင့် အဆက်အသွယ်စာရင်းထဲတွင် ရှိပြီးသားဖြစ်နေပါသည်။ %1$s မှ ဤအကြောင်းမသိရှိနိုင်သေး၍ သင် ပြန်တုံ့ပြန်ထားနိုင်ပါသည် -</string>
   <string name="introduction_request_answered_received">%2$s ကို သင်မှ မိတ်ဆက်ပေးရန် %1$s ကတောင်းဆိုထားပါသည်။</string>
   <string name="introduction_response_accepted_sent">%1$s နှင့် မိတ်ဆက်ခြင်းအား သင်လက်ခံခဲ့ပါသည်။</string>
@@ -303,11 +311,15 @@
   <string name="introduction_response_declined_received">%2$s နှင့် မိတ်ဆက်ခြင်းကို %1$s က ငြင်းဆိုခဲ့ပါသည်။</string>
   <string name="introduction_response_declined_received_by_introducee">%2$s မှ မိတ်ဆက်ခြင်းအား ငြင်းဆိုခဲ့သည်ကို %1$s မှ ပြောပါသည်။</string>
   <!--Connect via Bluetooth-->
-  <string name="menu_item_connect_via_bluetooth">ဘလူးတုသ် နှင့် ချိတ်မယ်</string>
+  <string name="menu_item_connect_via_bluetooth">ဘလူးတုသ်နှင့် ချိတ်မယ်</string>
   <string name="connect_via_bluetooth_title">ဘလူးတုသ်မှတစ်ဆင့် ချိတ်မည်</string>
+  <string name="connect_via_bluetooth_intro">ဘလူးတုသ်ချိတ်ဆက်မှုများ အလိုအလျောက် အလုပ်မလုပ်ပါက၊ သင်သည် ကိုယ်တိုင် ချိတ်ဆက်ရန် ဤစခရင်ကို အသုံးပြုနိုင်ပါသည်။ \n\n ၎င်းကို လုပ်ဆောင်ရန်အတွက် သင့်အဆက်အသွယ်သည် အနီးအနားတွင်ရှိရန် လိုအပ်ပါသည်။ \n\n သင်နှင့် သင့်အဆက်အသွယ်နှစ်ဦးစလုံးသည် \"Start\" ကို တစ်ပြိုင်နက်တည်း နှိပ်သင့်ပါသည်။</string>
+  <string name="connect_via_bluetooth_already_discovering">ဘလူးတုသ်မှတစ်ဆင့် ချိတ်ဆက်ရန် ကြိုးစားနေပြီဖြစ်သည်။ ခဏနေ ထပ်မံစမ်းကြည့်ပါ။ </string>
   <string name="connect_via_bluetooth_no_location_permission">တည်နေရာ သုံးခွင့်မပါဘဲ ဆက်လက် မလုပ်ဆောင်နိုင်ပါ</string>
-  <string name="connect_via_bluetooth_start">ဘလူးတုသ် နှင့် ချိတ်ဆက်နေသည်...</string>
-  <string name="connect_via_bluetooth_success">ဘလူးတုသ် နှင့် အောင်မြင်စွာ ချိတ်ဆက်ပြီး</string>
+  <string name="connect_via_bluetooth_start">ဘလူးတုသ်နှင့် ချိတ်ဆက်နေတယ်...</string>
+  <string name="connect_via_bluetooth_success">ဘလူးတုသ်နှင့် အောင်မြင်စွာ ချိတ်ဆက်ပြီး</string>
+  <string name="connect_via_bluetooth_error">ဘလူးတုသ်မှ တစ်ဆင့် ချိတ်ဆက်၍ မရပါ။</string>
+  <string name="connect_via_bluetooth_error_not_supported">ဘလူးတုသ်ကို စက်က မပံ့ပိုးပါ။</string>
   <!--Private Groups-->
   <string name="groups_list_empty">ပြသစရာအဖွဲ့များမရှိ</string>
   <string name="groups_list_empty_action">+ (အပေါင်းအိုင်ကွန်) အား နှိပ်၍ အဖွဲ့ဖန်တီးပါ သို့မဟုတ် သင့် အဆက်အသွယ်များကို သင့်စီသို့ အဖွဲ့များ ဝေမျှရန် တောင်းဆိုပါ</string>
@@ -331,10 +343,10 @@
   <string name="groups_member_joined">%s သည် အဖွဲ့သို့ ဝင်ရောက်ခဲ့သည်</string>
   <string name="groups_leave">အဖွဲ့မှ ထွက်မယ်</string>
   <string name="groups_leave_dialog_title">အဖွဲ့မှ ထွက်ခြင်းအား အတည်ပြုသည်</string>
-  <string name="groups_leave_dialog_message">အဖွဲ့မှ ထွက်ရန် ‌သေချာပါသလား?</string>
+  <string name="groups_leave_dialog_message">အဖွဲ့မှ ထွက်ရန် ‌သေချာပါသလား။</string>
   <string name="groups_dissolve">အဖွဲ့အား ဖျက်သိမ်းမယ်</string>
   <string name="groups_dissolve_dialog_title">အဖွဲ့ကို ဖျက်သိမ်းခြင်းအား အတည်ပြုသည်</string>
-  <string name="groups_dissolve_dialog_message">ဤအဖွဲ့အား ဖျက်သိမ်းမည်ဆိုတာ သင်သေချာပါသလား? \n\n အခြားအဖွဲ့ဝင်များအားလုံးသည် ၎င်းတို့ စကားပြောဆိုမှုများနှင့် နောက်ဆုံးမက်ဆေ့ချ်များ ဆက်လက်ပေးပို့လက်ခံရန် မရနိုင်တော့ပါ။</string>
+  <string name="groups_dissolve_dialog_message">ဤအဖွဲ့အား ဖျက်သိမ်းမည်ဆိုတာ သင်သေချာပါသလား။ \n\n အခြားအဖွဲ့ဝင်များအားလုံးသည် ၎င်းတို့ စကားပြောဆိုမှုများနှင့် နောက်ဆုံးမက်ဆေ့ချ်များ ဆက်လက်ပေးပို့လက်ခံရန် မရနိုင်တော့ပါ။</string>
   <string name="groups_dissolve_button">ဖျက်သိမ်းမယ်</string>
   <string name="groups_dissolved_dialog_title">အဖွဲ့အား ဖျက်သိမ်းပြီးပြီဖြစ်ပါသည်</string>
   <string name="groups_dissolved_dialog_message">ဤအဖွဲ့ဖန်တီးသူသည် ဤအဖွဲ့အား ဖျက်သိမ်းခဲ့ပါသည်။ ​\n\n သင်သည် အဖွဲ့စီသို့ မက်ဆေ့ချ်များ ရေးသား၍မရနိုင်ပါ နှင့် ယခင်က ရေးပြီးသားပို့စ်များကိုလည်း မလက်ခံနိုင်လောက်ပါ။</string>
@@ -377,7 +389,7 @@
   <string name="btn_reply">ပြန်ကြားမယ်</string>
   <string name="forum_leave">ဆွေးနွေးမှုဖိုရမ်မှ ထွက်မယ်</string>
   <string name="dialog_title_leave_forum">ဆွေးနွေးမှုဖိုရမ်မှ ထွက်ခြင်း အတည်ပြုမယ်</string>
-  <string name="dialog_message_leave_forum">ဤဖိုရမ်မှ ထွက်ချင်တာ သေချာပါသလား? \n\n သင် ဤဖိုရမ်ကိုမျှဝေထားသည့် သင့်အဆက်အသွယ်များအနေဖြင့် သတင်းအသစ်များရရှိမှု ရပ်တန့်သွားနိုင်ပါသည်။</string>
+  <string name="dialog_message_leave_forum">ဤဖိုရမ်မှ ထွက်ချင်တာ သေချာပါသလား။ \n\n သင် ဤဖိုရမ်ကိုမျှဝေထားသည့် သင့်အဆက်အသွယ်များအနေဖြင့် သတင်းအသစ်များရရှိမှု ရပ်တန့်သွားနိုင်ပါသည်။</string>
   <string name="dialog_button_leave">ထွက်မယ်</string>
   <string name="forum_left_toast">ဆွေးနွေးမှုဖိုရမ်မှ ထွက်သွားပါပြီ</string>
   <!--Forum Sharing-->
@@ -421,7 +433,7 @@
   <string name="blogs_feed_empty_state">ပြစရာ ပို့စ်များမရှိ</string>
   <string name="blogs_feed_empty_state_action">သင့် အဆက်အသွယ်များနှင့် သင်စာရင်းသွင်းထားသော ဘလော့ဂ်များမှ ပို့စ်များသည် ဤနေရာတွင် ပေါ်ပါမည်။​ \n\n ဘောပင်အိုင်ကွန်အားနှိပ်၍ ပို့စ်ရေးပါ</string>
   <string name="blogs_remove_blog">ဘလော့ဂ်အား ဖယ်ရှားမယ်</string>
-  <string name="blogs_remove_blog_dialog_message">ဤဘလော့ဂ်ကို ဖယ်ရှားချင်တာ သေချာပါသလား? \n\n ပို့စ်များကို သင့်ကိရိယာမှ ဖယ်ရှားလိုက်မည်ဖြစ်သော်လည်း အခြားသူများ၏ကိရိယာများမှမူ ဖယ်ရှားလိုက်မည်မဟုတ်ပါ။ \n\n သင် ဤဘလော့ဂ်ကိုမျှဝေထားသည့် သင့်အဆက်အသွယ်များအနေဖြင့် သတင်းအသစ်များရရှိမှု ရပ်တန့်သွားနိုင်ပါသည်။</string>
+  <string name="blogs_remove_blog_dialog_message">ဤဘလော့ဂ်ကို ဖယ်ရှားချင်တာ သေချာပါသလား။ \n\n ပို့စ်များကို သင့်ကိရိယာမှ ဖယ်ရှားလိုက်မည်ဖြစ်သော်လည်း အခြားသူများ၏ကိရိယာများမှမူ ဖယ်ရှားလိုက်မည်မဟုတ်ပါ။ \n\n သင် ဤဘလော့ဂ်ကိုမျှဝေထားသည့် သင့်အဆက်အသွယ်များအနေဖြင့် သတင်းအသစ်များရရှိမှု ရပ်တန့်သွားနိုင်ပါသည်။</string>
   <string name="blogs_remove_blog_ok">ဖယ်ရှားမယ်</string>
   <string name="blogs_blog_removed">ဘလော့ဂ်အား ဖယ်ရှားပြီး</string>
   <string name="blogs_reblog_comment_hint">မှတ်ချက်ထည့်မယ် (မဖြစ်မနေမဟုတ်ပါ)</string>
@@ -453,7 +465,7 @@
   <string name="blogs_rss_feeds_manage_author">စာရေးဆရာ -</string>
   <string name="blogs_rss_feeds_manage_updated">နောက်ဆုံးအပ်ဒိတ်လုပ်ခဲ့ခြင်း -</string>
   <string name="blogs_rss_remove_feed">သတင်းပို့စ်အလွှာ ဖယ်ရှားမယ်</string>
-  <string name="blogs_rss_remove_feed_dialog_message">ဤသတင်းပို့စ်အလွှာကို ဖယ်ရှားချင်တာ သေချာပါသလား? \n\n ပို့စ်များကို သင့်ကိရိယာမှ ဖယ်ရှားလိုက်မည်ဖြစ်သော်လည်း အခြားသူများ၏ကိရိယာများမှမူ ဖယ်ရှားလိုက်မည်မဟုတ်ပါ။ \n\n သင်မှ ဤသတင်းပို့စ်အလွှာကို မျှဝေထားသည့် သင့်အဆက်အသွယ်များအနေဖြင့် သတင်းအသစ်များရရှိမှု ရပ်တန့်သွားနိုင်ပါသည်။</string>
+  <string name="blogs_rss_remove_feed_dialog_message">ဤသတင်းပို့စ်အလွှာကို ဖယ်ရှားချင်တာ သေချာပါသလား။ \n\n ပို့စ်များကို သင့်ကိရိယာမှ ဖယ်ရှားလိုက်မည်ဖြစ်သော်လည်း အခြားသူများ၏ကိရိယာများမှမူ ဖယ်ရှားလိုက်မည်မဟုတ်ပါ။ \n\n သင်မှ ဤသတင်းပို့စ်အလွှာကို မျှဝေထားသည့် သင့်အဆက်အသွယ်များအနေဖြင့် သတင်းအသစ်များရရှိမှု ရပ်တန့်သွားနိုင်ပါသည်။</string>
   <string name="blogs_rss_remove_feed_ok">ဖယ်ရှားမယ်</string>
   <string name="blogs_rss_feeds_manage_empty_state">RSS သတင်းပို့စ်အလွှာများပြရန် မရှိပါ \n\n + (အပေါင်းအိုင်ကွန်) အားနှိပ်၍ သတင်းအလွှာ တင်သွင်းပါ</string>
   <string name="blogs_rss_feeds_manage_error">သင့် သတင်းပို့စ်အလွှာကို တင်သွင်းရာတွင် အခက်အခဲတွေ့ကြုံခဲ့ပါသည်။ နောင်မှ ပြန်စမ်းကြည့်ပေးပါ။</string>
@@ -475,7 +487,7 @@
   <!--Settings Connections-->
   <string name="network_settings_title">ချိတ်ဆက်မှုများ</string>
   <string name="bluetooth_setting">ဘလူးတုသ်မှတစ်ဆင့် အဆက်အသွယ်များနှင့် ချိတ်ဆက်မည်</string>
-  <string name="wifi_setting">တူညီသောဝိုင်ဖိုင်လိုင်းပေါ်ရှိ အဆက်အသွယ်များနှင့် ချိတ်ဆက်မယ်</string>
+  <string name="wifi_setting">တူညီသော ဝိုင်ဖိုင်လိုင်းပေါ်ရှိ အဆက်အသွယ်များနှင့် ချိတ်ဆက်မယ်</string>
   <string name="tor_enable_title">အင်တာနက်သုံး၍ အဆက်အသွယ်များနှင့် ချိတ်ဆက်မယ်</string>
   <string name="tor_enable_summary">လုံခြုံမှုအတွက် ချိတ်ဆက်မှုများသည် Tor ကွန်ယက်ပေါ်  ဖြတ်သန်းပါသည်</string>
   <string name="tor_network_setting">Tor ကွန်ယက်အတွက် ချိတ်ဆက်မှု နည်းလမ်း</string>
@@ -521,7 +533,7 @@
   <string name="panic_app_setting_summary">မည်သည့် အပ္ပလီကေးရှင်းမှ သတ်မှတ်ထားခြင်းမရှိပါ</string>
   <string name="panic_app_setting_none">ဘာမှမရှိ</string>
   <string name="dialog_title_connect_panic_app">ထိတ်လန့် အပ္ပလီကေးရှင်းအား အတည်ပြုမယ်</string>
-  <string name="dialog_message_connect_panic_app">ထိတ်လန့်ခလုတ်ဖြင့် ဖျက်သိမ်းရန် လုပ်ဆောင်ချက်များ လှုံ့ဆော်ခြင်းကို %1$s အား ခွင့်ပြုမည်ဆိုသည်ကို သင်သေချာပါသလား?</string>
+  <string name="dialog_message_connect_panic_app">ထိတ်လန့်ခလုတ်ဖြင့် ဖျက်သိမ်းရန် လုပ်ဆောင်ချက်များ လှုံ့ဆော်ခြင်းကို %1$s အား ခွင့်ပြုမည်ဆိုသည်ကို သင်သေချာပါသလား။</string>
   <string name="panic_setting_destructive_action">ဖျက်သိမ်းမှု လုပ်ဆောင်ချက်များ</string>
   <string name="panic_setting_signout_title">အကောင့်ထွက်မည်</string>
   <string name="panic_setting_signout_summary">ထိတ်လန့်ခလုတ် အားနှိပ်ခံရလျှင် Briar အကောင့်မှ ထွက်ခွာမည်</string>
@@ -549,6 +561,22 @@
   <string name="notify_sound_setting_disabled">ဘာမှမရှိ</string>
   <string name="choose_ringtone_title">ဖုန်းမြည်သံရွေးမည်</string>
   <string name="cannot_load_ringtone">ဖုန်းမြည်သံမဖွင့်နိုင်ပါ</string>
+  <!--Mailbox-->
+  <string name="mailbox_settings_title">စာတိုက်ပုံး</string>
+  <string name="mailbox_setup_title">စာတိုက်ပုံး စနစ်ထည့်သွင်းခြင်း</string>
+  <string name="mailbox_setup_intro">သင်အော့ဖ်လိုင်းဖြစ်နေချိန်တွင် သင့်အဆက်အသွယ်များကို မက်ဆေ့ခ်ျများပေးပို့ရန် စာတိုက်ပုံးကို ဖွင့်ပေးသည်။ သင်အွန်လိုင်းပေါ်မလာမချင်း စာတိုက်ပုံး သည် သင့်မက်ဆေ့ဂျ်များကို လက်ခံရရှိပြီး ၎င်းတို့ကို သိမ်းဆည်းပါမည်။\n
+\nသင်သည် Briar စာတိုက်ပုံး အက်ပ်ကို အားလပ်သည့်စက်ပစ္စည်းတစ်ခုတွင် ထည့်သွင်းနိုင်သည်။ ၎င်းကို ပါဝါနှင့် ဝိုင်ဖိုင်ချိတ်ဆက်ထားပါက ၎င်းကို အမြဲအွန်လိုင်းပေါ်နေစေပါသည်။</string>
+  <string name="mailbox_setup_download">ပထမဦးစွာ၊ Google Play တွင် \"Briar စာတိုက်ပုံး\" ကို ရှာဖွေခြင်းဖြင့် အခြားစက်ပစ္စည်းပေါ်တွင် စာတိုက်ပုံး အက်ပ်ကို ထည့်သွင်းပါ။\n
+		\nထို့နောက် စာတိုက်ပုံး အက်ပ်မှပြသထားသည့် QR ကုဒ်ကို စကင်န်ဖတ်ခြင်းဖြင့် သင်၏ စာတိုက်ပုံးကို Briar နှင့် ချိတ်ဆက်ပါ။</string>
+  <string name="mailbox_setup_download_link">ဒေါင်းလုဒ်လင့်ခ်ကို မျှဝေပါ</string>
+  <string name="mailbox_setup_button_scan">စာတိုက်ပုံး QR ကုဒ်ကို စကင်န်ဖတ်ပါ</string>
+  <string name="permission_camera_qr_denied_body">သင်သည် ကင်မရာအသုံးပြုခွင့်ကို ငြင်းပယ်ထားသော်လည်း QR ကုဒ်ကို စကင်န်ဖတ်ရန် ကင်မရာကို အသုံးပြုရန် လိုအပ်ပါသည်။ \n\nကျေးဇူးပြု၍ ဝင်ရောက်ခွင့်ပြုရန် စဉ်းစားပါ။</string>
+  <string name="mailbox_setup_connecting">ချိတ်ဆက်နေသည်…</string>
+  <string name="mailbox_setup_qr_code_wrong_title">QR ကုဒ် မှားနေသည်</string>
+  <string name="mailbox_setup_qr_code_wrong_description">စကင်ဖတ်ထားသော ကုဒ်သည် မမှန်ကန်ပါ။ ကျေးဇူးပြု၍ သင့်စာတိုက်ပုံး စက်ပစ္စည်းပေါ်ရှိ Briar စာတိုက်ပုံး အက်ပ်ကိုဖွင့်ပြီး ၎င်းတွင်ပါရှိသော QR ကုဒ်ကို စကင်န်ဖတ်ပါ။</string>
+  <string name="tor_offline_title">အော့ဖ်လိုင်း</string>
+  <string name="tor_offline_description">ဤစက်ပစ္စည်းသည် အွန်လိုင်းရှိပြီး အင်တာနက်ချိတ်ဆက်မှုများကို ခွင့်ပြုထားကြောင်း သေချာပါစေ။ \n\nထို့နောက်၊ ချိတ်ဆက်မှုဆက်တင်များရှိ ကမ္ဘာလုံးအိုင်ကွန်ကို စိမ်းသည်အထိ စောင့်ဆိုင်းပါ။</string>
+  <string name="tor_offline_button_check">ချိတ်ဆက်မှု ဆက်တင်များကို စစ်ဆေးပါ</string>
   <!--Conversation Settings-->
   <string name="disappearing_messages_title">ပျောက်ကွယ် မက်ဆေ့ချ်များ</string>
   <string name="disappearing_messages_explanation_long">၎င်းအပြင်အဆင်ကို ဖွင့်ထားလျှင်
@@ -572,6 +600,7 @@
   <string name="link_warning_open_link">လင့်ခ်ဖွင့်မယ်</string>
   <!--Crash Reporter-->
   <string name="crash_report_title">Briar ပျက်ယွင်းမှုတိုင်ကြားခြင်း</string>
+  <string name="briar_crashed">ဝမ်းနည်းပါတယ်၊ Briar ပျက်သွားပါပြီ</string>
   <string name="not_your_fault">သင့်အမှားမဟုတ်ပါ။</string>
   <string name="please_send_report">ပျက်ကွက်မှု တိုင်ကြားစာ ပေးပို့၍ ကျွန်ုပ်တို့်အား Briar အပ္ပလီကေးရှင်း တိုးတက်ရန် ကူညီပေးပါ။</string>
   <string name="report_is_encrypted">သင်၏တိုင်ကြားမှုကို လျှို့ဝှက်ကုဒ်ပြောင်း၍ လုံခြုံစွာပို့ကြောင်း ကတိပြုပါသည်။</string>
@@ -589,6 +618,7 @@
   <string name="dev_report_memory">မှတ်ညဏ်</string>
   <string name="dev_report_storage">သိမ်းဆည်းမှု</string>
   <string name="dev_report_connectivity">ချိတ်ဆက်မှု</string>
+  <string name="dev_report_network_usage">ကွန်ရက် အသုံးပြုမှု</string>
   <string name="dev_report_build_config">ပြင်ဆင်ချိန်ဆမှု တည်ဆောက်မယ်</string>
   <string name="dev_report_logcat">အပ္ပလီကေးရှင်း မှတ်တမ်း</string>
   <string name="dev_report_device_features">စက်ပစ္စည်း အင်္ဂါရပ်များ</string>
@@ -631,18 +661,86 @@
   <string name="transports_help_text">Briar သည် သင့်အဆက်အသွယ်များကို အင်တာနက်၊ ဝိုင်ဖိုင်၊ သို့မဟုတ် ဘလူးတုသ် မှတစ်ဆင့် ချိတ်ဆက်နိုင်ပါသည်။ \n\n အင်တာနက်ချိတ်ဆက်မှုအားလုံးသည် လုံခြုံရေးအတွက် Tor ကွန်ယက်မှတစ်ဆင့် ဖြတ်သန်းပါသည်။ \n\n အဆက်အသွယ်တစ်ဦးကို နည်းမျိုးစုံနှင့် ဆက်သွယ်နိုင်ခဲ့လျှင် Briar သည် နည်းမျိုးစုံအား တစ်ပြိုင်နက်တည်း အသုံးပြုနေပါသည်။</string>
   <!--Share app offline-->
   <string name="hotspot_title">ဤအက်ပ်ကို အော့ဖ်လိုင်းမျှဝေမည်</string>
+  <string name="hotspot_intro">သင့်ဖုန်း၏ ဝိုင်ဖိုင်ကို အသုံးပြုခြင်းဖြင့် အင်တာနက်ချိတ်ဆက်မှုမရှိဘဲ အနီးနားရှိ လူတစ်ဦးနှင့် မျှဝေပါ။ \n\n သင့်ဖုန်းသည် ဝိုင်ဖိုင်ဟော့စပေါ့တစ်ခု စတင်ပါမည်။ အနီးနားရှိလူများသည် ဟော့စပေါ့သို့ ချိတ်ဆက်နိုင်ပြီး သင့်ဖုန်းမှ Briar အက်ပ်ကို ဒေါင်းလုဒ် လုပ်နိုင်ပါသည်။</string>
+  <string name="hotspot_button_start_sharing">hotspot ကို စတင်ပါ</string>
+  <string name="hotspot_button_stop_sharing">hotspot ကို ရပ်ပါ</string>
+  <string name="hotspot_progress_text_start">hotspot ကို တည်ဆောက်နေသည်...</string>
   <string name="hotspot_notification_channel_title">ဝိုင်ဖိုင် ဟော့စပေါ့</string>
+  <string name="hotspot_notification_title">Briar အော့ဖ်လိုင်း မျှဝေခြင်း</string>
   <string name="hotspot_button_connected">ရှေ့သို့</string>
+  <string name="permission_hotspot_location_request_body">ဝိုင်ဖိုင်ဟော့စပေါ့ ဖန်တီးရန်၊ Briar သည် သင့်တည်နေရာကို ဝင်ရောက်အသုံးပြုရန် ခွင့်ပြုချက် လိုအပ်ပါသည်။ \n\n Briar သည် သင့်တည်နေရာကို သိမ်းဆည်းထားခြင်း သို့မဟုတ် ၎င်းကို မည်သူနှင့်မျှ မမျှဝေပါ။</string>
+  <string name="permission_hotspot_location_denied_body">သင့်တည်နေရာသို့ ဝင်ရောက်ခွင့်ကို သင်ငြင်းဆိုထားသော်လည်း Briar သည် ဝိုင်ဖိုင်ဟော့စပေါ့တစ်ခု ဖန်တီးရန် ဤခွင့်ပြုချက် လိုအပ်ပါသည်။ \n\n ကျေးဇူးပြု၍ အသုံးပြုခွင့်ပေးရန် စဉ်းစားပါ။</string>
+  <string name="wifi_settings_title">ဝိုင်ဖိုင်ဆက်တင်</string>
+  <string name="wifi_settings_request_enable_body">ဝိုင်ဖိုင်ဟော့စပေါ့ ဖန်တီးရန်၊ Briar သည် ဝိုင်ဖိုင်ကို အသုံးပြုရန် လိုအပ်သည်။ ၎င်းကိုဖွင့်ပါ။</string>
+  <string name="hotspot_tab_manual">လမ်းညွှန်စာအုပ်</string>
   <!--The placeholder to be inserted into the string 'hotspot_manual_wifi': People can connect by %s-->
+  <string name="hotspot_scanning_a_qr_code">QR ကုဒ်ကို စကင်န်ဖတ်နေသည်</string>
   <!--Wi-Fi setup-->
   <!--The %s placeholder will be replaced with the translation of 'hotspot_scanning_a_qr_code'-->
+  <string name="hotspot_manual_wifi">သင့်ဖုန်းသည် ဝိုင်ဖိုင်ဟော့စပေါ့ကို ပံ့ပိုးပေးနေသည်။ Briar ကို ဒေါင်းလုဒ် လုပ်လိုသူများသည် အောက်ဖော်ပြပါ သေးစိတ်အချက်အလက်များကို အသုံးပြု၍ သို့မဟုတ် ၎င်းတို့၏ စက်ပစ္စည်း၏ ဝိုင်ဖိုင်ဆက်တင်များတွင် %sထည့်သွင်းခြင်းဖြင့် ဟော့စပေါ့သို့ ချိတ်ဆက်နိုင်ပါသည်။ ဟော့စပေါ့သို့ ချိတ်ဆက်ပြီးပါက \'Next\' ကိုနှိပ်ပါ။</string>
+  <string name="hotspot_manual_wifi_ssid">ကွန်ရက်အမည်</string>
+  <string name="hotspot_qr_wifi">သင့်ဖုန်းသည် ဝိုင်ဖိုင်ဟော့စပေါ့ကို ပံ့ပိုးပေးနေသည်။ Briar ကို ဒေါင်းလုဒ်လုပ်လိုသူများသည် ဤ QR ကုဒ်ကိုစကင်န်ဖတ်ခြင်းဖြင့် ဟော့စပေါ့သို့ ချိတ်ဆက်နိုင်သည်။ ဟော့စပေါ့သို့ ချိတ်ဆက်ပြီးပါက \'Next\' ကိုနှိပ်ပါ။</string>
+  <string name="hotspot_no_peers_connected">ချိတ်ဆက်ထားသော စက်များမရှိပါ</string>
+  <plurals name="hotspot_peers_connected">
+    <item quantity="other">%sစက်ပစ္စည်းများကို ချိတ်ဆက်ထားသည်</item>
+  </plurals>
   <!--Download link-->
   <!--The %s placeholder will be replaced with the translation of 'hotspot_scanning_a_qr_code'-->
+  <string name="hotspot_manual_site">သင့်ဖုန်းသည် ဝိုင်ဖိုင်ဟော့စပေါ့ကို ပံ့ပိုးပေးနေသည်။ ဝိုင်ဖိုင်ဟော့စပေါ့သို့ %sချိတ်ဆက်ထားသူများသည် ဝဘ်ဘရောက်ဆာတွင် အောက်ပါလင့်ခ်ကို ရိုက်ထည့်ခြင်းဖြင့် Briar ကို ဒေါင်းလုဒ် လုပ်နိုင်သည်။</string>
+  <string name="hotspot_manual_site_address">လိပ်စာ (URL)</string>
+  <string name="hotspot_qr_site">သင့်ဖုန်းသည် ဝိုင်ဖိုင်ဟော့စပေါ့ကို ပံ့ပိုးပေးနေသည်။ ဟော့စပေါ့သို့ ချိတ်ဆက်ထားသူများသည် ဤ QR ကုဒ်ကို စကင်န်ဖတ်ခြင်းဖြင့် Briar ကို ဒေါင်းလုဒ်လုပ်နိုင်ပါသည်။</string>
   <!--e.g. Download Briar 1.2.20-->
+  <string name="website_download_title">ဒေါင်းလုဒ်%s</string>
+  <string name="website_download_intro">အနီးတစ်ဝိုက်တွင် တစ်စုံတစ်ဦးမှ %sသင်နှင့် မျှဝေခဲ့သည်။</string>
+  <string name="website_download_outro">ဒေါင်းလုဒ်ပြီးပါက ဒေါင်းလုဒ်လုပ်ထားသော ဖိုင်ကိုဖွင့်ပြီး ထည့်သွင်းပါ။</string>
   <string name="website_troubleshooting_title">ပြဿနာရှာဖွေပြင်ဆင်ခြင်း</string>
+  <string name="website_troubleshooting_1">အက်ပ်ကို သင်ဒေါင်းလုဒ် မလုပ်နိုင်ပါက အခြား ဝဘ်ဘရောက်ဆာ အက်ပ်ဖြင့် ၎င်းကို စမ်းကြည့်ပါ။</string>
+  <string name="website_troubleshooting_2_old">ဒေါင်းလုဒ်လုပ်ထားသောအက်ပ်ကို ထည့်သွင်းရန်၊ စနစ်ဆက်တင်များတွင် \"အမည်မသိရင်းမြစ်များ\" မှ အက်ပ်များကို တပ်ဆင်ခွင့်ပြုရန် လိုအပ်နိုင်သည်။ ထို့နောက်တွင် သင်သည် အက်ပ်ကို ထပ်မံဒေါင်းလုဒ်လုပ်ရန် လိုအပ်နိုင်သည်။ အက်ပ်ကိုထည့်သွင်းပြီးနောက် \"အမည်မသိရင်းမြစ်များ\" ဆက်တင်ကို ပိတ်ရန် အကြံပြုအပ်ပါသည်။</string>
+  <string name="website_troubleshooting_2_new">ဒေါင်းလုဒ်လုပ်ထားသောအက်ပ်ကို ထည့်သွင်းရန်၊ သင့်ဘရောက်ဆာသည် အမည်မသိအက်ပ်များကို ထည့်သွင်းခွင့်ပြုရန် လိုအပ်နိုင်သည်။ အက်ပ်ကို ထည့်သွင်းပြီးနောက်၊ အမည်မသိအက်ပ်များကို ထည့်သွင်းရန် ဘရောက်ဆာ၏ ခွင့်ပြုချက်ကို ဖယ်ရှားရန် အကြံပြုအပ်ပါသည်။</string>
+  <string name="hotspot_help_wifi_title">ဝိုင်ဖိုင်သို့ ချိတ်ဆက်ရာတွင် ပြဿနာများ -</string>
+  <string name="hotspot_help_wifi_1">ဖုန်းနှစ်မျိုးလုံးတွင် ဝိုင်ဖိုင်ကို ပိတ်ထားပြီး ပြန်ဖွင့်ကြည့်ပါ။ ထပ်လုပ်ကြည့်ပါ။</string>
+  <string name="hotspot_help_wifi_2">သင့်ဖုန်းတွင် ဝိုင်ဖိုင်တွင် အင်တာနက်မရှိဟု ပြလာပါက၊ မည်သို့ပင်ဖြစ်စေ ချိတ်ဆက်လိုကြောင်း အသိပေးပါ။</string>
+  <string name="hotspot_help_wifi_3">ဝိုင်ဖိုင်ဟော့စပေါ့ကို အသုံးပြုနေသည့် ဖုန်းကို ပြန်လည်စတင်ပါ၊ ထို့နောက် Briar ကို စတင်ပြီး ထပ်မံမျှဝေကြည့်ပါ။</string>
+  <string name="hotspot_help_site_title">စက်အတွင်းရှိ ဝဘ်ဆိုက်သို့ ဝင်ရောက်ကြည့်ရှုရာတွင် ပြဿနာများ -</string>
+  <string name="hotspot_help_site_1">သင်ပြထားသည့်အတိုင်း လိပ်စာအတိအကျကို ထည့်သွင်းထားကြောင်း နှစ်ခါ စစ်ဆေးပါ။ သေးငယ်တဲ့ ချို့ယွင်းချက်က ပျက်သွားနိုင်ပါတယ်။</string>
+  <string name="hotspot_help_site_2">ဆိုက်ကိုဝင်ရောက်ရန် ကြိုးစားသောအခါတွင် သင့်ဖုန်းသည် မှန်ကန်သော ဝိုင်ဖိုင်နှင့် ချိတ်ဆက်နေသေးကြောင်း သေချာပါစေ။</string>
+  <string name="hotspot_help_site_3">သင့်တွင် firewall အက်ပ်တစ်ခုရှိပါက၊ ၎င်းသည် ဝင်ရောက်ခွင့်ကို ပိတ်ဆို့ထားခြင်း မဟုတ်ကြောင်း စစ်ဆေးပါ။</string>
+  <string name="hotspot_help_site_4">အကယ်၍ သင်သည် ဝဘ်ဆိုက်သို့ ဝင်ရောက်ကြည့်ရှုနိုင်သော်လည်း Briar အက်ပ်ကို ဒေါင်းလုဒ်မလုပ်ပါက အခြား ဝဘ်ဘရောက်ဆာအက်ပ်ဖြင့် ၎င်းကို စမ်းကြည့်ပါ။</string>
+  <string name="hotspot_help_fallback_title">ဘာမှ အလုပ်မဖြစ်ဘူးလား။</string>
+  <string name="hotspot_help_fallback_intro">သင်သည် အက်ပ်အား .apk ဖိုင်အဖြစ် တစ်နည်းတစ်ဖုံ မျှဝေရန် ကြိုးစားနိုင်သည်။ ဖိုင်ကို အခြားစက်ပစ္စည်းသို့ လွှဲပြောင်းပြီးသည်နှင့် Briar ကို ထည့်သွင်းရန် အသုံးပြုနိုင်သည်။
+\n\n အကြံပြုချက် - ဘလူးတုသ်မှ တစ်ဆင့် မျှဝေရန်အတွက်၊ သင်သည် .zip ဖြင့် ပထမအဆုံးသတ်ရန် ဖိုင်ကို အမည်ပြောင်းရန် လိုအပ်နိုင်သည်။</string>
+  <string name="hotspot_help_fallback_button">အက်ပ်ကို သိမ်းဆည်းပါ</string>
   <!--error handling-->
+  <string name="hotspot_error_intro">အက်ပ်အား ဝိုင်ဖိုင်မှ တစ်ဆင့် မျှဝေရန် ကြိုးစားစဉ် တစ်ခုခု မှားသွားသည် -</string>
+  <string name="hotspot_error_no_wifi_direct">စက်ပစ္စည်းသည် Wi-Fi Direct ကို မပံ့ပိုးပါ။</string>
+  <string name="hotspot_error_start_callback_failed">Hotspot စတင်မှု မအောင်မြင်ပါ - ပြဿနာ %s</string>
+  <string name="hotspot_error_start_callback_failed_unknown">Hotspot ကို အမည်မသိအမှားဖြင့် စတင်ရန် မအောင်မြင်ပါ၊ အကြောင်းပြချက် %d</string>
+  <string name="hotspot_error_start_callback_no_group_info">Hotspot စတင်ရန် မအောင်မြင်ပါ - အဖွဲ့ အချက်အလက် မရှိပါ</string>
+  <string name="hotspot_error_web_server_start">ဝဘ်ဆာဗာကို စတင်ရာတွင် အမှားအယွင်း ရှိနေသည်</string>
+  <string name="hotspot_error_web_server_serve">ဝဘ်ဆိုဒ်ကို တင်ပြရာတွင် အမှားအယွင်းရှိနေပါသည်။ \n\n ပြဿနာ ဆက်လက်ရှိနေပါက Briar အက်ပ်မှတစ်ဆင့် (အမည်မသိဒေတာဖြင့်) တုံ့ပြန်ချက်ပေးပို့ပါ။</string>
+  <string name="hotspot_flag_test">သတိပေးချက် - ဤအက်ပ်ကို Android Studio တွင် ထည့်သွင်းထားပြီး အခြားစက်ပစ္စည်းတွင် ထည့်သွင်း၍မရပါ။</string>
+  <string name="hotspot_error_framework_busy">ဟော့စပေါ့ကို စတင်၍မရပါ။ \n\n သင့်တွင် အခြားသော ဟော့စပေါ့တစ်ခု လုပ်ဆောင်နေပါက သို့မဟုတ် ဝိုင်ဖိုင်မှ တစ်ဆင့် သင့်အင်တာနက်ချိတ်ဆက်မှုကို မျှဝေနေပါက ၎င်းကို ရပ်လိုက်ပြီး နောက်မှ ထပ်စမ်းကြည့်ပါ။</string>
   <!--Transfer Data via Removable Drives-->
-  <string name="removable_drive_success_receive_text">ဤဖိုင်တွင်ပါဝင်သည့် လျှို့ဝှက်ကုဒ်ပြောင်းမက်ဆေ့ချ်အားလုံးကို လက်ခံရရှိပါပြီ။</string>
+  <string name="removable_drive_menu_title">ဖယ်ရှားနိုင်သော Drive မှတစ်ဆင့် ချိတ်ဆက်ပါ</string>
+  <string name="removable_drive_intro">အင်တာနက်၊ ဝိုင်ဖိုင်သို့မဟုတ် ဘလူးတုသ်မှ တဆင့် သင့်အဆက်အသွယ်ကို မချိတ်ဆက်နိုင်ပါက၊ Briar သည် USB stick သို့မဟုတ် SD ကတ်ကဲ့သို့ ဖြုတ်တပ်နိုင်သော drive ပေါ်တွင် မက်ဆေ့ချ်များကို လွှဲပြောင်းနိုင်သည်။</string>
+  <string name="removable_drive_explanation">အင်တာနက်၊ ဝိုင်ဖိုင်သို့မဟုတ် ဘလူးတုသ်မှတစ်ဆင့် သင့်အဆက်အသွယ်ထံသို့ ချိတ်ဆက်၍မရပါက၊ Briar သည် USB stick သို့မဟုတ် SD ကတ်ကဲ့သို့ ဖြုတ်တပ်နိုင်သော drive ပေါ်တွင် မက်ဆေ့ချ်များကို လွှဲပြောင်းနိုင်သည်။ \n\nသင် \"ဒေတာပေးပို့ရန်\" ခလုတ်ကို အသုံးပြုသည့်အခါ၊ အဆက်အသွယ်ထံ ပေးပို့ရန် စောင့်ဆိုင်းနေသည့် မည်သည့်ဒေတာကို ဖယ်ရှားနိုင်သော drive သို့ စာရေးပါမည်။ ၎င်းတွင် ကိုယ်ရေးကိုယ်တာမက်ဆေ့ချ်များ၊ ပူးတွဲပါဖိုင်များ၊ ဘလော့ဂ်များ၊ ဖိုရမ်များနှင့် သီးသန့်အုပ်စုများ ပါဝင်သည်။ \n\nဖယ်ရှားနိုင်သော drive သို့ မရေးထားမီ အရာအားလုံးကို ကုဒ်ဝှက်ထားပါမည်။ \n\nသင်၏အဆက်အသွယ်သည် ဖြုတ်တပ်နိုင်သော drive ကို လက်ခံရရှိသည့်အခါ ၎င်းတို့သည် \"ဒေတာလက်ခံရယူရန်\" ခလုတ်ကို အသုံးပြုနိုင်ပါသည်။ မက်ဆေ့ချ်များကို Briar သို့တင်သွင်းရန်။</string>
+  <string name="removable_drive_title_send">အချက်အလက် ပို့ပါ</string>
+  <string name="removable_drive_title_receive">အချက်အလက် ရယူပါ</string>
+  <string name="removable_drive_send_intro">ကုဒ်ဝှက်ထားသော မက်ဆေ့ချ်များပါရှိသော ဖိုင်အသစ်တစ်ခုကို ဖန်တီးရန် အောက်ပါခလုတ်ကို တို့ပါ။ ဖိုင်သိမ်းမည့်နေရာကို သင်ရွေးချယ်နိုင်ပါသည်။ \n\nဖယ်ရှားနိုင်သော drive တွင် ဖိုင်ကိုသိမ်းဆည်းလိုပါက၊ ယခု drive ကို ထည့်သွင်းပါ။</string>
+  <string name="removable_drive_send_no_data">လောလောဆယ်တွင် ဤအဆက်အသွယ်ထံ ပေးပို့ရန် စောင့်ဆိုင်းနေသည့် မက်ဆေ့ချ်များ မရှိပါ။</string>
+  <string name="removable_drive_send_not_supported">ဤအဆက်အသွယ်သည် Briar ဗားရှင်းဟောင်း သို့မဟုတ် ဤအင်္ဂါရပ်ကို မပံ့ပိုးသည့် စက်ဟောင်းကို အသုံးပြုနေသည်။</string>
+  <string name="removable_drive_send_button">ထုတ်ယူရန် ဖိုင်ကို ရွေးပါ</string>
+  <string name="removable_drive_ongoing">ကျေးဇူးပြု၍ လုပ်နေသောအလုပ် ပြီးအောင် စောင့်ပါ</string>
+  <string name="removable_drive_receive_intro">သင့်ထံ ဆက်သွယ်ပေးပို့သော ဖိုင်ကို ရွေးချယ်ရန် အောက်ဖော်ပြပါ ခလုတ်ကို တို့ထိပါ။ \n\nဖိုင်သည် ဖယ်ရှားနိုင်သော ဒရိုက်ဗ်ပေါ်တွင် ရှိနေပါက၊ ဒရိုက်ကို ယခု ထည့်သွင်းပါ။</string>
+  <string name="removable_drive_receive_button">တင်သွင်းရန်အတွက် ဖိုင်ကို ရွေးပါ</string>
+  <string name="removable_drive_success_send_title">တင်ပို့မှု အောင်မြင်သည်</string>
+  <string name="removable_drive_success_send_text">ဒေတာကို အောင်မြင်စွာ ထုတ်ယူပြီးပါပြီ။ ဖိုင်ကို သင့်အဆက်အသွယ်ထံ ပို့ဆောင်ရန် ယခု ၂၈ ရက်အချိန်ရှိသည်။\n\n ဖိုင်သည် ဖြုတ်တပ်နိုင်သော drive တွင်ရှိနေပါက၊ ပလပ်မဖြုတ်မီ drive ကို ထုတ်ပစ်ရန် status bar ရှိ သတိပေးချက်ကို အသုံးပြုပါ။</string>
+  <string name="removable_drive_success_receive_title">တင်သွင်းမှု အောင်မြင်သည်</string>
+  <string name="removable_drive_success_receive_text">ဤဖိုင်တွင်ပါဝင်သည့် လျှို့ဝှက်ကုဒ်ပြောင်း မက်ဆေ့ချ်အားလုံးကို လက်ခံရရှိပါပြီ။</string>
+  <string name="removable_drive_error_send_title">ဒေတာကို ထုတ်ယူရာတွင် အမှားအယွင်းရှိသည်</string>
+  <string name="removable_drive_error_send_text">ဖိုင်သို့ ဒေတာရေးရာတွင် အမှားအယွင်း တစ်ခုရှိခဲ့သည်။ \n\n ဖယ်ရှားနိုင်သော drive ကိုအသုံးပြုနေပါက ၎င်းကို မှန်ကန်စွာ ထည့်သွင်းထားကြောင်း သေချာစေရန်နှင့် ထပ်စမ်းကြည့်ပါ။ \n\n အမှား ဆက်လက်ရှိနေပါက Briar အဖွဲ့အား အသိပေးရန်အတွက် အကြံပြုချက်ပေးပို့ပါ။ </string>
+  <string name="removable_drive_error_receive_title">ဒေတာတင်သွင်းရာတွင် အမှားအယွင်း ရှိသည်</string>
+  <string name="removable_drive_error_receive_text">ရွေးချယ်ထားသောဖိုင်တွင် Briar မှတ်မိနိုင်သည့် မည်သည့်အရာမှ မပါဝင်ပါ။ \n\nမှန်ကန်သောဖိုင်ကို သင်ရွေးချယ်ထားကြောင်း စစ်ဆေးပါ။ \n\n သင်၏အဆက်အသွယ်သည် လွန်ခဲ့သည့် ၂၈ ရက်ကျော်က အဆိုပါဖိုင်ကို ဖန်တီးခဲ့ပါက၊ Briar သည် ၎င်းကို မှတ်မိနိုင်မည်မဟုတ်ပေ။</string>
   <!--Screenshots-->
   <!--This is a name to be used in screenshots. Feel free to change it to a local name.-->
   <string name="screenshot_alice">Alice</string>

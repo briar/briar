@@ -50,10 +50,17 @@
     <item quantity="one">Det här är en test-version av Briar. Ditt konto kommer att upphöra om %d dagar och kan ej förnyas.</item>
     <item quantity="other">Det här är en test-version av Briar. Ditt konto kommer att upphöra om %d dag och kan ej förnyas.</item>
   </plurals>
+  <plurals name="old_android_expiry_warning">
+    <item quantity="one">Android 4 stöds ej längre. Briar kommer att sluta fungera den %s (om %d dag). Vänligen installera Briar på en ny enhet och skapa ett nytt konto.</item>
+    <item quantity="other">Android 4 stöds ej längre. Briar kommer att sluta fungera den %s (om %d dagar). Vänligen installera Briar på en nyare enhet och skapa ett nytt konto.</item>
+  </plurals>
   <string name="expiry_date_reached">Mjukvaran har gått ut.\nTack för att du bidragit till att testa!</string>
   <string name="download_briar">För att fortsätta använda Briar, hämta den senaste utgåvan.</string>
   <string name="create_new_account">Du måste skapa ett nytt konto, men du kan använda samma smeknamn.</string>
   <string name="download_briar_button">Hämta senaste utgåvan</string>
+  <string name="old_android_expiry_date_reached">Briar kan inte längre användas på Android 4.
+Vänlige installera Briar på en nyare enhet.</string>
+  <string name="old_android_delete_account">Du kan trycka på knappen nedan för att ta bort ditt konto från denna enhet.</string>
   <string name="delete_account_button">Radera kontot</string>
   <string name="startup_open_database">Dekrypterar databasen...</string>
   <string name="startup_migrate_database">Uppgraderar databasen...</string>
@@ -569,6 +576,9 @@
   <string name="notify_sound_setting_disabled">Ingen</string>
   <string name="choose_ringtone_title">Välj ringsignal</string>
   <string name="cannot_load_ringtone">Kan ej ladda ringsignal</string>
+  <!--Mailbox-->
+  <string name="mailbox_setup_connecting">Ansluter...</string>
+  <string name="tor_offline_title">Nedkopplad</string>
   <!--Conversation Settings-->
   <string name="disappearing_messages_title">Försvinnande meddelanden</string>
   <string name="disappearing_messages_explanation_long">Att slå på denna inställning kommer att få nya

@@ -550,6 +550,9 @@
   <string name="notify_sound_setting_disabled">Ningún</string>
   <string name="choose_ringtone_title">Escolle ton</string>
   <string name="cannot_load_ringtone">Non se cargou o ton</string>
+  <!--Mailbox-->
+  <string name="mailbox_setup_connecting">Conectando...</string>
+  <string name="tor_offline_title">Desconectado</string>
   <!--Conversation Settings-->
   <string name="disappearing_messages_title">Mensaxes efémeras</string>
   <string name="disappearing_messages_explanation_long">Ao activar esta función farás que as novas

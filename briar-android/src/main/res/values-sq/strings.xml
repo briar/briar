@@ -577,6 +577,22 @@ dhe s’mund të hapet me këtë version.\n\nJu lutemi, përmirësojeni me versi
   <string name="notify_sound_setting_disabled">Asnjë</string>
   <string name="choose_ringtone_title">Zgjidhni zile</string>
   <string name="cannot_load_ringtone">S\’ngarkohet dot zile</string>
+  <!--Mailbox-->
+  <string name="mailbox_settings_title">Kuti postare</string>
+  <string name="mailbox_setup_title">Ujdisje kutie postare</string>
+  <string name="mailbox_setup_intro">Një Kuti postare u lejon kontakteve tuaj t’ju dërgojnë mesazhe , kur s’jeni në linjë. Kutia postare do të marrë mesazhet tuaj dhe depozitojë deri sa të jeni në linjë.\n
+		\nAplikacionin Briar për Kuti postare mund ta instaloni në një pajisje tjetër. Mbajeni në prizë dhe nën Wi-Fi, që të jetë përherë në linjë.</string>
+  <string name="mailbox_setup_download">Së pari, instaloni aplikacionin Kuti postare te një pajisje tjetër, duke kërkuar për “Briar Mailbox” në Google Play, ose kudo ku shkarkuat Briar-in.\n
+		\nMandej lidheni Kutinë tuaj postare me Briar-in duke skanuar kodin QR të shfaqur te aplikacioni Kuti postare.</string>
+  <string name="mailbox_setup_download_link">Ndani Lidhje Shkarkimi</string>
+  <string name="mailbox_setup_button_scan">Skanoni kod QR Kutie postare</string>
+  <string name="permission_camera_qr_denied_body">Keni mohuar hyrjen te kamera, por skanimi i një kodi QR lyp përdorimin e kamerës.\n\nJu lutemi, shihni mundësinë e dhënies së hyrjes.</string>
+  <string name="mailbox_setup_connecting">Po lidhjet…</string>
+  <string name="mailbox_setup_qr_code_wrong_title">Kod QR i gabuar</string>
+  <string name="mailbox_setup_qr_code_wrong_description">Kodi i skanuar është i pavlefshëm. Ju lutemi, hapeni aplikacionin Kuti postare Briar te pajisja juaj për kuti postare dhe skanoni kodin QR që shfaq.</string>
+  <string name="tor_offline_title">Jo në linjë</string>
+  <string name="tor_offline_description">Garantoni që kjo pajisje të jetë në lidhje dhe me lidhje në internet të lejuara.\n\nMë pas, prisni që ikona glob, te rregullimet e lidhjes, të bëhet e gjelbër.</string>
+  <string name="tor_offline_button_check">Kontrolloni rregullime lidhjeje</string>
   <!--Conversation Settings-->
   <string name="disappearing_messages_title">Mesazhe që treten</string>
   <string name="disappearing_messages_explanation_long">Aktivizimi i këtij rregullimi do të bëjë që

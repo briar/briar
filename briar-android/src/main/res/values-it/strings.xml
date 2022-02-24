@@ -575,6 +575,9 @@
   <string name="notify_sound_setting_disabled">Nessuno</string>
   <string name="choose_ringtone_title">Scegli suoneria</string>
   <string name="cannot_load_ringtone">Impossibile caricare la suoneria</string>
+  <!--Mailbox-->
+  <string name="mailbox_setup_connecting">Connessione in corso...</string>
+  <string name="tor_offline_title">Offline</string>
   <!--Conversation Settings-->
   <string name="disappearing_messages_title">Messaggi dissolventi</string>
   <string name="disappearing_messages_explanation_long">L\'attivazione di questa impostazione farà sparire

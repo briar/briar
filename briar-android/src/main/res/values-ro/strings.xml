@@ -582,6 +582,9 @@
   <string name="notify_sound_setting_disabled">Nici unul</string>
   <string name="choose_ringtone_title">Alegeți sunetul</string>
   <string name="cannot_load_ringtone">Nu se poate încărca sunetul</string>
+  <!--Mailbox-->
+  <string name="mailbox_setup_connecting">Se conectează...</string>
+  <string name="tor_offline_title">Deconectat</string>
   <!--Conversation Settings-->
   <string name="disappearing_messages_title">Mesaje ce dispar</string>
   <string name="disappearing_messages_explanation_long">Activarea acestei setări va face ca noile

@@ -567,6 +567,9 @@ Vigyázat: Ez végleg törli az identitásait, kapcsolatait és üzeneteit</stri
   <string name="notify_sound_setting_disabled">Egyik sem</string>
   <string name="choose_ringtone_title">Csengőhang választása</string>
   <string name="cannot_load_ringtone">Sikertelen a csengőhang betöltése</string>
+  <!--Mailbox-->
+  <string name="mailbox_setup_connecting">Csatlakozás...</string>
+  <string name="tor_offline_title">Offline</string>
   <!--Conversation Settings-->
   <string name="disappearing_messages_title">Eltűnő üzenetek</string>
   <string name="disappearing_messages_explanation_long">Bekapcsolva ezt  beállítást az új

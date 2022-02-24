@@ -611,6 +611,22 @@
   <string name="notify_sound_setting_disabled">هیچکدام</string>
   <string name="choose_ringtone_title">انتخاب رینگتون</string>
   <string name="cannot_load_ringtone">ناتوانی در بارگذاری رینگتون</string>
+  <!--Mailbox-->
+  <string name="mailbox_settings_title">Mailbox</string>
+  <string name="mailbox_setup_title">راه‌اندازی Mailbox</string>
+  <string name="mailbox_setup_intro">Mailbox به مخاطبین شما امکان می‌دهد در زمانی که آفلاین هستید، برای شما پیام ارسال کنند. Mailbox پیام‌های شما را دریافت می‌کند و آن‌ها را تا زمانی که آنلاین شوید نگهداری می‌کند.\n
+		شما می‌توانید برنامه Briar Mailbox را روی دستگاه دیگری نصب کنید. آن را به برق و Wi-Fi متصل نگه دارید تا همیشه آنلاین باشد. </string>
+  <string name="mailbox_setup_download">ابتدا، با جستجوی «Briar Mailbox» در Google Play یا هر جایی که Briar را دانلود کرده‌اید، برنامه Mailbox را روی دستگاه دیگری نصب کنید.\n
+		\nسپس با اسکن کد QR نمایش داده شده توسط برنامه Mailbox، صندوق پستی خود را با Briar پیوند دهید. </string>
+  <string name="mailbox_setup_download_link">اشتراک لینک دانلود</string>
+  <string name="mailbox_setup_button_scan">اسکن کد QR Mailbox</string>
+  <string name="permission_camera_qr_denied_body">شما دسترسی به دوربین را رد کرده‌اید، اما اسکن کد QR مستلزم استفاده از دوربین است.\n\nلطفا دسترسی به دوربین را بدهید.</string>
+  <string name="mailbox_setup_connecting">در حال اتصال...</string>
+  <string name="mailbox_setup_qr_code_wrong_title">کد QR اشتباه است</string>
+  <string name="mailbox_setup_qr_code_wrong_description">کد اسکن شده نامعتبر است. لطفا برنامه Briar Mailbox را در دستگاه صندوق پستی خود باز کنید و کد QR ارائه شده را اسکن کنید.</string>
+  <string name="tor_offline_title">آفلاین</string>
+  <string name="tor_offline_description">مطمئن شوید که این دستگاه آنلاین است و اجازه اتصال به اینترنت را دارد.\n\nسپس منتظر بمانید تا نماد کره زمین در تنظیمات اتصال سبز شود.</string>
+  <string name="tor_offline_button_check">تنظیمات اتصال را بررسی کنید</string>
   <!--Conversation Settings-->
   <string name="disappearing_messages_title">پیام‌های ناپدید شونده</string>
   <string name="disappearing_messages_explanation_long">روشن کردن این تنظیمات موجب خواهد شد تا پیام‌های جدید

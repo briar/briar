@@ -1,5 +1,5 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
   <!--Setup-->
   <string name="setup_title">Вітаємо у Briar</string>
   <string name="setup_name_explanation">Ваше ім\'я користувача буде відображено біля будь-якого матеріалу, який ви опублікуєте. Ви не зможете змінити його після створення облікового запису.</string>
@@ -22,29 +22,49 @@
   <string name="setup_huawei_text">Будь ласка, натисніть кнопку, що знаходиться нижче і впевніться у тому, що Briar захищено на екрані \"Захищені додатки\".</string>
   <string name="setup_huawei_button">Захистити Briar</string>
   <string name="setup_huawei_help">Якщо Briar немає у списку захищених додатків, він не зможе працювати у фоновому режимі.</string>
+  <string name="setup_huawei_app_launch_text">Будь ласка, торкніть кнопку внизу, відкрийте екран «Запуск програми» й переконайтесь, що Briar має налаштування «Керувати вручну».</string>
+  <string name="setup_huawei_app_launch_button">Відкрити налаштування батареї</string>
+  <string name="setup_huawei_app_launch_help">Якщо не вказати «Керувати вручну» для Briar на екрані «Запуск програми», він не зможе працювати в фоновому режимі.</string>
+  <string name="setup_xiaomi_text">Щоб Briar працював у фоновому режимі, закріпіть його в переліку недавніх застосунків.</string>
+  <string name="setup_xiaomi_button">Захистити Briar</string>
+  <string name="setup_xiaomi_help">Якщо не закріпити Briar у переліку недавніх застосунків, він не зможе працювати в фоновому режимі.</string>
+  <string name="setup_xiaomi_dialog_body_old">1. Відкрийте перелік недавніх застосунків (також називається перемикачем додатків)\n\n2. Проведіть униз по зображенню Briar, щоб з\'явився значок замка\n\n3. Якщо замок не замкнений, замкніть його дотиком</string>
+  <string name="setup_xiaomi_dialog_body_new">1. Відкрийте перелік недавніх застосунків (також називається перемикачем додатків)\n\n2. Затисніть зображення Briar до появи значка замка.\n\n3. Якщо замок не замкнений, замкніть його дотиком</string>
   <string name="warning_dozed">%s не вдалося запустити у фоновому режимі</string>
   <!--Login-->
   <string name="enter_password">Пароль</string>
   <string name="try_again">Неправильний пароль, спробуйте ще раз</string>
+  <string name="dialog_title_cannot_check_password">Не вдалося перевірити пароль</string>
+  <string name="dialog_message_cannot_check_password">Briar не зміг перевірити ваш пароль. Будь ласка, спробуйте перезавантажити пристрій, щоб розв\'язати цю проблему.</string>
   <string name="sign_in_button">Увійти</string>
   <string name="forgotten_password">Я забув(-ла) свій пароль</string>
   <string name="dialog_title_lost_password">Пароль втрачено</string>
   <string name="dialog_message_lost_password">Ваш обліковий запис Briar знаходиться в зашифрованому вигляді на вашому пристрої, а не зберігається на хмарі, тому ми не можемо відновити ваш пароль. Бажаєте вилучити свій обліковий запис та створити новий?\n\nЗастереження: ваші особисті дані, контакти та повідомлення будуть втрачені назавжди.</string>
-  <string name="startup_failed_notification_title">Briar не може запуститися</string>
-  <string name="startup_failed_notification_text">Натисніть для детальнішої інформації.</string>
   <string name="startup_failed_activity_title">Помилка при запуску Briar</string>
-  <string name="startup_failed_db_error">З якоїсь причини база даних вашого Briar пошкоджена і не підлягає відновленню. Ваш обліковий запис, дані та усі контакти втрачені. На жаль, вам потрібно перевстановити Briar або створити новий обліковий запис, натиснувши \"Я забув(-ла) свій пароль\".</string>
-  <string name="startup_failed_data_too_old_error">Ваш обліковий запис було створено за допомогою старішої версії цього застосунку і його неможливо відкрити за допомогою поточної версії. Вам необхідно знову встановити старішу версію або створити новий обліковий запис, обравши рядок \"Я забув(-ла) свій пароль\" у спливному вікні паролів.</string>
-  <string name="startup_failed_data_too_new_error">Ця версія програми застаріла. Будь ласка, оновіться до останньої версії та спробуйте знову.</string>
-  <string name="startup_failed_service_error">Briar не зміг запустити потрібну втулку. Перевстановлення Briar зазвичай вирішує цю проблему. Однак, будь ласка, зазначте, що у цьому випадку ви втратите свій обліковий запис та усю пов\'язану з ним інформацію, оскільки Briar не використовує центральні сервери для зберігання інформації.</string>
+  <string name="startup_failed_clock_error">Briar не зміг запуститись, бо годинник вашого пристрою збився.\n\nБудь ласка, встановіть на своєму пристрої дійсний час і повторіть спробу.</string>
+  <string name="startup_failed_db_error">Briar не зміг відкрити базу даних, що містить ваш обліковий запис, контакти й повідомлення.\n\nБудь ласка, оновіть застосунок до останньої версії й повторіть спробу — або створіть новий обліковий запис, обравши «Не пам\'ятаю пароль» у запиті пароля.</string>
+  <string name="startup_failed_data_too_old_error">Ваш обліковий запис створено старою версією застосунка, й нова версія не може його відкрити.\n\nПеревстановіть стару версію або створіть новий обліковий запис, обравши «Не пам\'ятаю пароль» у запиті пароля.</string>
+  <string name="startup_failed_data_too_new_error">Ваш обліковий запис створено новішою версією застосунка, й поточна версія не може його відкрити.\n\nБудь ласка, оновіться до найновішої версії й повторіть спробу.</string>
+  <string name="startup_failed_service_error">Briar не зміг запустити необхідний компонент.\n\nБудь ласка, оновіть застосунок до найновішої версії й повторіть спробу.</string>
   <plurals name="expiry_warning">
     <item quantity="one">Це тестова версія Briar. Термін дії вашого профілю спливає через %d день. Його не можна продовжити.</item>
     <item quantity="few">Це тестова версія Briar. Термін дії вашого профілю спливає через %d дні. Його не можна продовжити.</item>
     <item quantity="many">Це тестова версія Briar. Термін дії вашого профілю спливає через %d днів. Його не можна продовжити.</item>
     <item quantity="other">Це тестова версія Briar. Термін дії вашого профілю спливає через %d дня. Його не можна продовжити.</item>
   </plurals>
+  <plurals name="old_android_expiry_warning">
+    <item quantity="one">Android 4 більше не підтримується. Briar припинить роботу %s (за %d день). Будь ласка, встановіть Briar на новіший пристрій і створіть новий обліковий запис.</item>
+    <item quantity="few">Android 4 більше не підтримується. Briar припинить роботу %s (за %d дні). Будь ласка, встановіть Briar на новіший пристрій і створіть новий обліковий запис.</item>
+    <item quantity="many">Android 4 більше не підтримується. Briar припинить роботу %s (за %d днів). Будь ласка, встановіть Briar на новіший пристрій і створіть новий обліковий запис.</item>
+    <item quantity="other">Android 4 більше не підтримується. Briar припинить роботу %s (за %d днів). Будь ласка, встановіть Briar на новіший пристрій і створіть новий обліковий запис.</item>
+  </plurals>
   <string name="expiry_date_reached">У цієї програми закінчився термін дії\nДякуємо, що тестували її!</string>
+  <string name="download_briar">Щоб далі користуватися Briar, будь ласка, завантажте найновіший випуск.</string>
   <string name="create_new_account">Вам знадобиться створити новий обліковий запис, але ви можете використовувати те саме ім\'я користувача.</string>
+  <string name="download_briar_button">Завантажити найновіший випуск</string>
+  <string name="old_android_expiry_date_reached">Briar більше не працює на Android 4.\nБудь ласка, встановіть Briar на новіший пристрій.</string>
+  <string name="old_android_delete_account">Можете видалити обліковий запис із цього пристрою кнопкою внизу.</string>
+  <string name="delete_account_button">Видалити обліковий запис</string>
   <string name="startup_open_database">Розшифрування бази даних...</string>
   <string name="startup_migrate_database">Оновлення бази даних...</string>
   <string name="startup_compact_database">Стиснення бази даних...</string>
@@ -59,12 +79,36 @@
   <string name="lock_button">Заблокувати програму</string>
   <string name="settings_button">Налаштування</string>
   <string name="sign_out_button">Вийти</string>
+  <string name="transports_onboarding_text">Торкніть це, щоб налаштувати з\'єднання Briar із вашими контактами.</string>
   <!--Transports: Tor-->
   <string name="transport_tor">Інтернет</string>
+  <string name="tor_device_status_online_wifi">Ваш телефон має доступ до інтернету через Wi-Fi</string>
+  <string name="tor_device_status_online_mobile">Ваш телефон має доступ до інтернету через мобільні дані</string>
+  <string name="tor_device_status_offline">Ваш телефон не має доступу до інтернету</string>
+  <string name="tor_plugin_status_enabling">Briar з\'єднується з інтернетом</string>
+  <string name="tor_plugin_status_active">Briar з\'єднано з інтернетом</string>
+  <string name="tor_plugin_status_inactive">Briar не може з\'єднатися з інтернетом</string>
+  <string name="tor_plugin_status_disabled">Briar налаштовано не використовувати інтернет</string>
+  <string name="tor_plugin_status_disabled_mobile_data">Briar налаштовано не використовувати мобільні дані</string>
+  <string name="tor_plugin_status_disabled_battery">Briar налаштовано не використовувати інтернет при роботі від батареї</string>
+  <string name="tor_plugin_status_disabled_country_blocked">Briar налаштовано не використовувати інтернет у цій країні</string>
   <!--Transports: Wi-Fi-->
   <string name="transport_lan">Wi-Fi</string>
+  <string name="transport_lan_long">Спільна мережа Wi-Fi</string>
+  <string name="lan_device_status_on">Ваш телефон з\'єднано з Wi-Fi</string>
+  <string name="lan_device_status_off">Ваш телефон не з\'єднано з Wi-Fi</string>
+  <string name="lan_plugin_status_enabling">Briar з\'єднується з мережею Wi-Fi</string>
+  <string name="lan_plugin_status_active">Briar з\'єднано з мережею Wi-Fi</string>
+  <string name="lan_plugin_status_inactive">Briar не може з\'єднатися з мережею Wi-Fi</string>
+  <string name="lan_plugin_status_disabled">Briar налаштовано не використовувати мережу Wi-Fi</string>
   <!--Transports: Bluetooth-->
   <string name="transport_bt">Bluetooth</string>
+  <string name="bt_device_status_on">Bluetooth вашого телефона ввімкнено</string>
+  <string name="bt_device_status_off">Bluetooth вашого телефона вимкнено</string>
+  <string name="bt_plugin_status_enabling">Briar з\'єднується з Bluetooth</string>
+  <string name="bt_plugin_status_active">Briar з\'єднано з Bluetooth</string>
+  <string name="bt_plugin_status_inactive">Briar не може з\'єднатися з Bluetooth</string>
+  <string name="bt_plugin_status_disabled">Briar налаштовано не використовувати Bluetooth</string>
   <!--Notifications-->
   <string name="reminder_notification_title">Ви вийшли з Briar</string>
   <string name="reminder_notification_text">Натисніть, щоб знову увійти.</string>
@@ -113,6 +157,7 @@
   <string name="open">Відкрити</string>
   <string name="change">Змінити</string>
   <string name="start">Почати</string>
+  <string name="finish">Закінчити</string>
   <string name="no_data">Немає даних</string>
   <string name="ellipsis">…</string>
   <string name="text_too_long">Цей текст занадто довгий</string>
@@ -120,13 +165,17 @@
   <string name="fix">Виправити</string>
   <string name="help">Довідка</string>
   <string name="sorry">Вибачте</string>
+  <string name="error_start_activity">Недоступно у вашій системі</string>
   <string name="status_heading">Статус</string>
+  <string name="error">Помилка</string>
   <!--Contacts and Private Conversations-->
   <string name="no_contacts">Немає контактів для відображення</string>
   <string name="no_contacts_action">Натисніть на символ \"+\" для того, щоб додати контакт</string>
   <string name="date_no_private_messages">Немає повідомлень.</string>
   <string name="no_private_messages">Немає повідомлень для відображення</string>
   <string name="message_hint">Нове Повідомлення</string>
+  <string name="message_hint_auto_delete">Нове самознищуване повідомлення</string>
+  <string name="message_error">Помилка надсилання повідомлення</string>
   <string name="image_caption_hint">Додати заголовок (за бажанням)</string>
   <string name="image_attach">Прикріпити зображення</string>
   <string name="image_attach_error">Неможливо приєднати зображення</string>
@@ -134,13 +183,48 @@
   <string name="image_attach_error_invalid_mime_type">Формат зображення непідтримуваний: %s</string>
   <string name="set_contact_alias">Змінити ім\'я контакту</string>
   <string name="set_contact_alias_hint">Назва контакту</string>
-  <string name="menu_item_connect_via_bluetooth">З\'єднатися через Bluetooth</string>
-  <string name="connect_via_bluetooth_title">З\'єднатися через Bluetooth</string>
+  <string name="menu_item_disappearing_messages">Самознищувані повідомлення</string>
   <!--The first placeholder will show a duration like "7 days". The second placeholder at the end will add "Tap to learn more."-->
+  <string name="auto_delete_msg_you_enabled">Ваші повідомлення самознищаться за %1$s. %2$s</string>
   <!--The placeholder at the end will add "Tap to learn more."-->
+  <string name="auto_delete_msg_you_disabled">Ваші повідомлення не самознищуватимуться. %1$s</string>
   <!--The first placeholder will show a contact's name. The second placeholder will show a duration like "7 days". The third placeholder at the end will add "Tap to learn more."-->
+  <string name="auto_delete_msg_contact_enabled">Повідомлення %1$s самознищаться за %2$s. %3$s</string>
+  <plurals name="duration_minutes">
+    <item quantity="one">%d хвилину</item>
+    <item quantity="few">%d хвилини</item>
+    <item quantity="many">%d хвилин</item>
+    <item quantity="other">%d хвилин</item>
+  </plurals>
+  <plurals name="duration_hours">
+    <item quantity="one">%d годину</item>
+    <item quantity="few">%d години</item>
+    <item quantity="many">%d годин</item>
+    <item quantity="other">%d годин</item>
+  </plurals>
+  <plurals name="duration_days">
+    <item quantity="one">%d день</item>
+    <item quantity="few">%d дні</item>
+    <item quantity="many">%d днів</item>
+    <item quantity="other">%d днів</item>
+  </plurals>
   <!--The first placeholder will show a contact's name. The second placeholder at the end will add "Tap to learn more."-->
+  <string name="auto_delete_msg_contact_disabled">Повідомлення %1$s не самознищуватимуться. %2$s</string>
+  <string name="tap_to_learn_more">Торкніть, щоб дізнатися більше.</string>
+  <string name="auto_delete_changed_warning_title">Самознищення повідомлень змінено</string>
+  <string name="auto_delete_changed_warning_message_enabled">Поки ви писали, було увімкнено самознищення повідомлень.</string>
+  <string name="auto_delete_changed_warning_message_disabled">Поки ви писали, було вимкнено самознищення повідомлень.</string>
+  <string name="auto_delete_changed_warning_send">Надіслати все одно</string>
+  <string name="delete_all_messages">Видалити всі повідомлення</string>
+  <string name="dialog_title_delete_all_messages">Підтвердьте видалення повідомлень</string>
+  <string name="dialog_message_delete_all_messages">Ви впевнені, що бажаєте видалити всі повідомлення?</string>
   <string name="dialog_title_not_all_messages_deleted">Не вдалося видалити всі повідомлення</string>
+  <string name="dialog_message_not_deleted_ongoing_both">Повідомлення щодо незавершених запрошень чи вітань неможливо видалити.</string>
+  <string name="dialog_message_not_deleted_ongoing_introductions">Повідомлення щодо незавершених вітань неможливо видалити.</string>
+  <string name="dialog_message_not_deleted_ongoing_invitations">Повідомлення щодо незавершених запрошень неможливо видалити.</string>
+  <string name="dialog_message_not_deleted_not_all_selected_both">Щоб видалити запрошення чи вітання, оберіть запит і відповідь.</string>
+  <string name="dialog_message_not_deleted_not_all_selected_introductions">Щоб видалити вітання, оберіть запит і відповідь.</string>
+  <string name="dialog_message_not_deleted_not_all_selected_invitations">Щоб видалити запрошення, оберіть запит і відповідь.</string>
   <string name="delete_contact">Вилучити контакт</string>
   <string name="dialog_title_delete_contact">Підтвердити вилучення контакту</string>
   <string name="dialog_message_delete_contact">Ви впевнені, що хочете видалити цей контакт і всю історію листування з ним?</string>
@@ -156,6 +240,8 @@
   <string name="dialog_message_no_image_support">Briar вашого контакту ще не підтримує прикріплення зображень. Щойно користувач(-ка) оновиться, ви бачитиме іншу піктограму.</string>
   <string name="dialog_title_image_support">Тепер ви можете надсилати зображення цьому контакту</string>
   <string name="dialog_message_image_support">Натисніть на цю піктограму, щоб прикріпити зображення.</string>
+  <string name="messaging_too_many_attachments_toast">Лише перші %d зображень буде надіслано</string>
+  <string name="menu_contact">Контакти</string>
   <!--Adding Contacts-->
   <string name="add_contact_title">Додати контакт поблизу</string>
   <string name="face_to_face">Ви маєте зустрітися з особою, яку ви бажаєте додати до списку контактів.\n\nЦе виключить можливість у майбутньому будь-кому видавати себе за вас або читати ваші повідомлення.</string>
@@ -219,8 +305,9 @@
   <string name="offline_state">Відсутнє з\'єднання з інтернетом</string>
   <string name="duplicate_link_dialog_title">Дублювати посилання</string>
   <string name="duplicate_link_dialog_text_1">У вас наявний нерозглянутий запит на контакт з цим посиланням: %s</string>
+  <string name="duplicate_link_dialog_text_1_contact">Ви вже маєте контакт за цим посиланням: %s</string>
   <!--This is a question asking whether two nicknames refer to the same person-->
-  <string name="duplicate_link_dialog_text_2">%s та %s одна й та ж особа?</string>
+  <string name="duplicate_link_dialog_text_2">%1$s та %2$s — одна людина?</string>
   <!--This is a button for answering that two nicknames do indeed refer to the same person. This
 	string will be used in a dialog button, so if the translation of this string is longer than 20
 	characters, please use "Yes" instead, and use "No" for the "Different Person" button-->
@@ -229,7 +316,7 @@
 	will be used in a dialog button, so if the translation of this string longer than 20 characters,
 	please use "No" instead, and use "Yes" for the "Same Person" button-->
   <string name="different_person_button">Різні особи</string>
-  <string name="duplicate_link_dialog_text_3">%s та %s надіслали вам однакове посилання.\n\nОдин з них може намагатися виявити, які у вас є контакти.\n\nНе розповідайте їм, що ви отримали те саме посилання від ще когось.</string>
+  <string name="duplicate_link_dialog_text_3">%1$s та %2$s надіслали вам однакові посилання.\n\nХтось із них, можливо, намагається виявити ваші контакти.\n\nНе кажіть їм, що вже отримували це посилання від когось іще.</string>
   <string name="pending_contact_updated_toast">Оновлено нерозглянутий контакт</string>
   <!--Introductions-->
   <string name="introduction_onboarding_title">Поділитися своїми контактами</string>
@@ -242,16 +329,27 @@
   <string name="introduction_button">Познайомити з контактом</string>
   <string name="introduction_sent">Ваше представлення було надіслано.</string>
   <string name="introduction_error">Виникла помилка під час представлення.</string>
-  <string name="introduction_request_sent">Ви попросили представити %1$s%2$s.</string>
-  <string name="introduction_request_received">%1$sпопросили представити вас %2$s. Чи бажаєте ви додати %2$s до свого списку контактів?</string>
-  <string name="introduction_request_exists_received">%1$sпопросив вас представити %2$s, однак %2$sвже є у вашому списку контактів. Оскільки %1$sпро це може бути невідомо, ви все ще можете відповісти:</string>
-  <string name="introduction_request_answered_received">%1$sпопросив представити вас %2$s.</string>
+  <string name="introduction_request_sent">Ви попросили представити %1$s %2$s.</string>
+  <string name="introduction_request_received">%1$s попросили представити вас %2$s. Чи бажаєте ви додати %2$s до свого списку контактів?</string>
+  <string name="introduction_request_exists_received">%1$s попросив вас представити %2$s, однак %2$s вже є у вашому списку контактів. Оскільки %1$s про це може бути невідомо, ви все ще можете відповісти:</string>
+  <string name="introduction_request_answered_received">%1$s попросив представити вас %2$s.</string>
   <string name="introduction_response_accepted_sent">Ви прийняли запит на знайомство від %1$s.</string>
   <string name="introduction_response_accepted_sent_info">Перед тим, як ви додасте %1$s до списку своїх контактів, він/вона також має підтвердити цей запит. Це може зайняти якийсь час.</string>
   <string name="introduction_response_declined_sent">Ви відхилили запит на знайомство з %1$s.</string>
+  <string name="introduction_response_declined_auto">Вітання %1$s відхилено автоматично.</string>
   <string name="introduction_response_accepted_received">%1$s прийняв(-ла) запит на знайомство із %2$s.</string>
   <string name="introduction_response_declined_received">%1$s відхилив(-ла) запит на знайомство з %2$s.</string>
   <string name="introduction_response_declined_received_by_introducee">%1$s повідомляє, що %2$s відхилив(-ла) запит на знайомство.</string>
+  <!--Connect via Bluetooth-->
+  <string name="menu_item_connect_via_bluetooth">З\'єднатися через Bluetooth</string>
+  <string name="connect_via_bluetooth_title">З\'єднатися через Bluetooth</string>
+  <string name="connect_via_bluetooth_intro">Якщо Bluetooth-з\'єднання не спрацьовують автоматично, можете з\'єднатися вручну на цьому екрані.\n\nВаш контакт має бути поруч, щоб це спрацювало.\n\nВам обом слід одночасно натиснути «Почати».</string>
+  <string name="connect_via_bluetooth_already_discovering">Спроба Bluetooth-з\'єднання вже триває. Повторіть трохи пізніше.</string>
+  <string name="connect_via_bluetooth_no_location_permission">Не вдається продовжити без дозволу на отримання місцезнаходження</string>
+  <string name="connect_via_bluetooth_start">Триває Bluetooth-з\'єднання...</string>
+  <string name="connect_via_bluetooth_success">Bluetooth-з\'єднання успішне</string>
+  <string name="connect_via_bluetooth_error">Не вдалося з\'єднатися через Bluetooth.</string>
+  <string name="connect_via_bluetooth_error_not_supported">Пристрій не підтримує Bluetooth.</string>
   <!--Private Groups-->
   <string name="groups_list_empty">Немає груп для відображення</string>
   <string name="groups_list_empty_action">Натисніть на символ \"+\", щоб створити групу або попросіть у своїх контактів поділитися з вами групами</string>
@@ -299,6 +397,7 @@
   </plurals>
   <string name="groups_invitations_response_accepted_sent">Ви прийняли запрошення до групи від %s.</string>
   <string name="groups_invitations_response_declined_sent">Ви відхилили запрошення до групи від %s.</string>
+  <string name="groups_invitations_response_declined_auto">Запрошення до групи від %s відхилено автоматично.</string>
   <string name="groups_invitations_response_accepted_received">%s прийняв(-ла) запрошення до групи.</string>
   <string name="groups_invitations_response_declined_received">%sвідхилив(-ла) запрошення до групи.</string>
   <string name="sharing_status_groups">Лише засновник групи може запрошувати нових учасників до групи. Нижче зазначено усх актуальних учасників групи.</string>
@@ -351,6 +450,7 @@
   <string name="forum_invitation_already_sharing">Вже поширюється</string>
   <string name="forum_invitation_response_accepted_sent">Ви прийняли запрошення до форуму від %s.</string>
   <string name="forum_invitation_response_declined_sent">Ви відхилили запрошення до форуму від %s.</string>
+  <string name="forum_invitation_response_declined_auto">Запрошення до форуму від %s відхилено автоматично.</string>
   <string name="forum_invitation_response_accepted_received">%s прийняв запрошення до форуму.</string>
   <string name="forum_invitation_response_declined_received">%s відхилив запрошення до форуму.</string>
   <string name="sharing_status">Поширення статусу</string>
@@ -387,6 +487,7 @@
   <string name="blogs_sharing_snackbar">Блог було поширено поміж обраних контактів</string>
   <string name="blogs_sharing_response_accepted_sent">Ви прийняли запрошення до блогу від %s.</string>
   <string name="blogs_sharing_response_declined_sent">Ви відхилили запрошення до блогу від %s.</string>
+  <string name="blogs_sharing_response_declined_auto">Запрошення до блогу від %s відхилено автоматично.</string>
   <string name="blogs_sharing_response_accepted_received">%s прийняв запрошення до блогу.</string>
   <string name="blogs_sharing_response_declined_received">%s відхилив запрошення до блогу.</string>
   <string name="blogs_sharing_invitation_received">%1$s поділився з вами блогом \"%2$s\".</string>
@@ -400,6 +501,8 @@
   <string name="blogs_rss_feeds_import_button">Імпортувати</string>
   <string name="blogs_rss_feeds_import_hint">Введіть URL-посилання RSS-стрічки</string>
   <string name="blogs_rss_feeds_import_error">Нам шкода! Виникла помилка під час імпорту вашої стрічки.</string>
+  <string name="blogs_rss_feeds_import_exists">Цю стрічку вже імпортовано.</string>
+  <string name="blogs_rss_feeds">RSS-стрічки</string>
   <string name="blogs_rss_feeds_manage_imported">Імпортовано:</string>
   <string name="blogs_rss_feeds_manage_author">Автор:</string>
   <string name="blogs_rss_feeds_manage_updated">Востаннє оновлювалося:</string>
@@ -409,6 +512,10 @@
   <string name="blogs_rss_feeds_manage_empty_state">Немає RSS-стрічок до відображення\n\nНатисніть на символ \"+\", щоб імпортувати стрічку</string>
   <string name="blogs_rss_feeds_manage_error">Під час завантаження ваших стрічок виникла проблема. Будь ласка, спробуйте пізніше.</string>
   <!--Settings Profile Picture-->
+  <string name="change_profile_picture">Торкніть, щоб змінити зображення профілю</string>
+  <string name="dialog_confirm_profile_picture_title">Змінити зображення профілю</string>
+  <string name="dialog_confirm_profile_picture_remark">Лише ваші контакти можуть бачити це зображення</string>
+  <string name="change_profile_picture_failed_message">Перепрошуємо, щось пішло не так при оновленні вашого зображення профілю</string>
   <!--Settings Display-->
   <string name="pref_language_title">Мова &amp; регіон</string>
   <string name="pref_language_changed">Ці налаштування набувають чинності після того, як ви перезапустите Briar. Будь ласка, вийдіть з Briar та перезапустіть його.</string>
@@ -418,12 +525,22 @@
   <string name="pref_theme_light">Світла</string>
   <string name="pref_theme_dark">Темна</string>
   <string name="pref_theme_auto">Автоматично (Денна)</string>
-  <string name="pref_theme_system">Усталені в системі</string>
+  <string name="pref_theme_system">Усталена в системі</string>
   <!--Settings Connections-->
+  <string name="network_settings_title">З\'єднання</string>
+  <string name="bluetooth_setting">З\'єднуватися з контактами через Bluetooth</string>
+  <string name="wifi_setting">З\'єднуватися з контактами в спільній мережі Wi-Fi</string>
+  <string name="tor_enable_title">З\'єднуватися з контактами через інтернет</string>
+  <string name="tor_enable_summary">Всі з\'єднання спрямовано через мережу Tor для приватності</string>
+  <string name="tor_network_setting">Спосіб з\'єднання з мережею Tor</string>
   <string name="tor_network_setting_automatic">Розпізнавати автоматично на основі місцезнаходження</string>
+  <string name="tor_network_setting_without_bridges">Використовувати мережу Tor без мостів</string>
+  <string name="tor_network_setting_with_bridges">Використовувати мережу Tor із мостами</string>
+  <string name="tor_network_setting_never">Не з\'єднуватися з інтернетом</string>
   <!--How and when Briar will connect to Tor: E.g. "Don't connect to the Internet (in China)" or "Use Tor network with bridges (in Belarus)"-->
   <string name="tor_network_setting_summary">Автоматично: %1$s (через %2$s)</string>
   <string name="tor_mobile_data_title">Використовувати мобільну мережу</string>
+  <string name="tor_only_when_charging_title">З\'єднуватися з інтернетом лише під час заряджання</string>
   <string name="tor_only_when_charging_summary">Вимикає з’єднання з інтернетом коли пристрій працює від батареї</string>
   <!--Settings Security and Panic-->
   <string name="security_settings_title">Безпека</string>
@@ -486,9 +603,37 @@
   <string name="notify_sound_setting_disabled">Немає</string>
   <string name="choose_ringtone_title">Обрати мелодію</string>
   <string name="cannot_load_ringtone">Неможливо завантажити мелодію</string>
+  <!--Mailbox-->
+  <string name="mailbox_settings_title">Mailbox</string>
+  <string name="mailbox_setup_title">Налаштуйте Mailbox</string>
+  <string name="mailbox_setup_intro">Скринька дає змогу контактам надсилати вам повідомлення, поки ви не в мережі. Скринька отримуватиме ваші повідомлення й зберігатиме їх до появи вас у мережі.\n
+		\nМожете встановити застосунок Briar Mailbox на окремий пристрій. Забезпечте йому безперервні електрику й Wi-Fi, щоб він завжди був онлайн.</string>
+  <string name="mailbox_setup_download">Спершу встановіть застосунок Mailbox на інший пристрій, знайшовши «Briar Mailbox» у Google Play чи іншому місці, звідки ви завантажили Briar.\n
+		\nТоді з\'єднайте свій Mailbox із Briar, просканувавши QR-код, показаний застосунком Mailbox.</string>
+  <string name="mailbox_setup_download_link">Поширити посилання на завантаження</string>
+  <string name="mailbox_setup_button_scan">Сканувати QR-код Mailbox</string>
+  <string name="permission_camera_qr_denied_body">Ви заборонили доступ до камери, але камера потрібна для сканування QR-коду.\n\nБудь ласка, надайте доступ.</string>
+  <string name="mailbox_setup_connecting">Під\'єднання...</string>
+  <string name="mailbox_setup_qr_code_wrong_title">Хибний QR-код</string>
+  <string name="mailbox_setup_qr_code_wrong_description">QR-код, який ви просканували, хибний. Будь ласка, відкрийте застосунок Briar Mailbox на вашому Mailbox-пристрої й проскануйте QR-код, який він покаже.</string>
+  <string name="tor_offline_title">Поза мережею</string>
+  <string name="tor_offline_description">Переконайтесь, що пристрій у мережі, а з\'єднання з інтернетом дозволено.\n\nТоді зачекайте, поки значок глобуса в налаштуваннях з\'єднання стане зеленим.</string>
+  <string name="tor_offline_button_check">Перевірити налаштування з\'єднання</string>
   <!--Conversation Settings-->
+  <string name="disappearing_messages_title">Самознищувані повідомлення</string>
+  <string name="disappearing_messages_explanation_long">Коли цей параметр увімкнено, нові
+		повідомлення в цій розмові самознищуватимуться автоматично за 7\u00A0днів.
+		\n\nВаша копія починає відлік, щойно повідомлення доставлено.
+		Інша копія починає відлік, щойно повідомлення прочитано.
+		\n\nСамознищувані повідомлення позначаються значком бомби.
+		\n\nПам\'ятайте, всі, хто отримують надіслані вами повідомлення, все одно можуть їх копіювати.
+		\n\nЗміна цього параметру вплине на всі ваші нові повідомлення одразу, а на повідомлення
+		вашого контакту — щойно вони отримають ваше наступне повідомлення.
+		Контакт також може змінити цей параметр для вас обох.</string>
   <string name="learn_more">Дізнатися більше</string>
-  <!--Settings Feedback-->
+  <string name="disappearing_messages_summary">Знищувати майбутні повідомлення в цій розмові автоматично за 7\u00A0днів.</string>
+  <!--Settings Actions-->
+  <string name="pref_category_actions">Дії</string>
   <string name="send_feedback">Надіслати відгук</string>
   <!--Link Warning-->
   <string name="link_warning_title">Попередження про посилання</string>
@@ -497,7 +642,7 @@
   <string name="link_warning_open_link">Відкрити посилання</string>
   <!--Crash Reporter-->
   <string name="crash_report_title">Аварійний звіт Briar</string>
-  <string name="briar_crashed">Вибачте, Briar перестав працювати.</string>
+  <string name="briar_crashed">Перепрошуємо, Briar зазнав збою</string>
   <string name="not_your_fault">Це не ваша провина.</string>
   <string name="please_send_report">Будь ласка, допоможіть нам покращити Briar надіславши нам аварійний звіт.</string>
   <string name="report_is_encrypted">Ми обіцяємо, що цей звіт буде зашифровано та безпечно надіслано.</string>
@@ -507,15 +652,32 @@
   <string name="optional_contact_email">Ваша електронна адреса (необов\'язково)</string>
   <string name="include_debug_report_crash">Додати анонімну інформацію про аварійний збій</string>
   <string name="include_debug_report_feedback">Додати анонімну інформацію про цей пристрій</string>
+  <string name="dev_report_user_info">Користувацькі дані</string>
+  <string name="dev_report_basic_info">Загальні дані</string>
+  <string name="dev_report_device_info">Дані про пристрій</string>
+  <string name="dev_report_stacktrace">Траса стеку</string>
+  <string name="dev_report_time_info">Часові дані</string>
+  <string name="dev_report_memory">Пам\'ять</string>
+  <string name="dev_report_storage">Сховище</string>
+  <string name="dev_report_connectivity">З\'єднання</string>
+  <string name="dev_report_network_usage">Використання мережі</string>
+  <string name="dev_report_build_config">Параметри збірки</string>
+  <string name="dev_report_logcat">Журнал застосунку</string>
+  <string name="dev_report_device_features">Можливості пристрою</string>
   <string name="send_report">Надіслати звіт</string>
   <string name="close">Закрити</string>
+  <string name="dev_report_sending">Надсилання відгуку...</string>
+  <string name="dev_report_sent">Відгук надіслано</string>
   <string name="dev_report_saved">Звіт збережено. Його буде надіслано наступного разу, як ви увійдете до Briar.</string>
+  <string name="dev_report_error">Помилка: не вдалося надіслати звіт</string>
   <!--Sign Out-->
   <string name="progress_title_logout">Відбувається вихід з Briar…</string>
   <!--Screen Filters & Tapjacking-->
   <string name="screen_filter_title">Виявлено накладення іншої програми</string>
   <string name="screen_filter_body">Інша програма накладається на Briar. Для вашої безпеки, Briar не реагуватиме на дотики, коли інша програма накладатиметься зверху.\n\nЗверху можуть накладатися наступні програми:\n\n%1$s</string>
+  <string name="screen_filter_body_api_30">Над Briar знаходиться інший застосунок. Щоб захистити вашу безпеку, Briar не реагуватиме на дотики, поки той застосунок над ним.\n\nЗнайдіть цей застосунок у переліку внизу.</string>
   <string name="screen_filter_allow">Дозволити цим програмам накладатися зверху</string>
+  <string name="screen_filter_review_apps">Перелічити застосунки</string>
   <!--Permission Requests-->
   <string name="permission_camera_title">Дозвіл камери</string>
   <string name="permission_camera_request_body">Щоб відсканувати цей QR-код, Briar потрібен доступ до камери.</string>
@@ -524,6 +686,10 @@
   <string name="permission_camera_location_title">Камера та місцезнаходження</string>
   <string name="permission_camera_location_request_body">Щоб відсканувати QR-код, Briar потребує доступу до камери.\n\nЩоб знайти Bluetooth-пристрої, Briar потребує доступу до інформації про ваше місцезнаходження.\n\nBriar не зберігає дані про ваше місцезнаходження та не ділиться ні з ким цією інформацією.</string>
   <string name="permission_camera_denied_body">Ви відмовилися надати доступ до камери, але додавання контактів потребує використання камери.\n\nБудь ласка, подумайте про можливість надання доступу.</string>
+  <string name="permission_location_denied_body">Ви заборонили доступ до місцеперебування, але Briar потребує цього доступу, щоб знаходити Bluetooth-пристрої.\n\nБудь ласка, надайте доступ.</string>
+  <string name="permission_location_setting_title">Визначення місцеперебування</string>
+  <string name="permission_location_setting_body">Ваш пристрій не дозволяє визначати місцеперебування, а це потрібно для знаходження інших пристроїв через Bluetooth. Будь ласка, увімкніть визначення місцеперебування, щоб продовжити. Згодом ви зможете знову його вимкнути.</string>
+  <string name="permission_location_setting_button">Увімкнути визначення місцеперебування</string>
   <string name="qr_code">QR-код</string>
   <string name="show_qr_code_fullscreen">Вивести QR-код на весь екран</string>
   <!--App Locking-->
@@ -534,6 +700,93 @@
   <string name="lock_is_locked">Briar заблоковано</string>
   <string name="lock_tap_to_unlock">Натисніть, щоб розблокувати</string>
   <!--Connections Screen-->
+  <string name="transports_help_text">Briar може з\'єднуватися з вашими контактами через інтернет, Wi-Fi чи Bluetooth.\n\nУсі інтернет-з\'єднання спрямовано через мережу Tor для приватності.\n\nЯкщо до контакту є кілька шляхів, Briar використовує їх паралельно.</string>
+  <!--Share app offline-->
+  <string name="hotspot_title">Поширити застосунок офлайн</string>
+  <string name="hotspot_intro">Поширте цей застосунок із кимось поруч без інтернет-з\'єднання, використовуючи лише Wi-Fi свого телефону.
+		\n\nВаш телефон стане точкою доступу Wi-Fi. Люди поруч зможуть з\'єднатися з точкою й завантажити застосунок Briar із вашого телефону.</string>
+  <string name="hotspot_button_start_sharing">Увімкнути точку доступу</string>
+  <string name="hotspot_button_stop_sharing">Вимкнути точку доступу</string>
+  <string name="hotspot_progress_text_start">Запуск точки доступу...</string>
+  <string name="hotspot_notification_channel_title">Точка доступу Wi-Fi</string>
+  <string name="hotspot_notification_title">Поширення Briar поза мережею</string>
+  <string name="hotspot_button_connected">Вперед</string>
+  <string name="permission_hotspot_location_request_body">Для створення точки доступу Wi-Fi треба дозвіл на отримання місцеперебування.\n\nBriar не зберігає місцеперебування й нікому його не передає.</string>
+  <string name="permission_hotspot_location_denied_body">Ви заборонили доступ до місцеперебування, але Briar потребує цього доступу, щоб створити точку доступу Wi-Fi.\n\nБудь ласка, надайте доступ.</string>
+  <string name="wifi_settings_title">Налаштування Wi-Fi</string>
+  <string name="wifi_settings_request_enable_body">Будь ласка, ввімкніть Wi-Fi, щоб Briar міг створити точку доступу.</string>
+  <string name="hotspot_tab_manual">Вручну</string>
+  <!--The placeholder to be inserted into the string 'hotspot_manual_wifi': People can connect by %s-->
+  <string name="hotspot_scanning_a_qr_code">просканувавши QR-код</string>
+  <!--Wi-Fi setup-->
+  <!--The %s placeholder will be replaced with the translation of 'hotspot_scanning_a_qr_code'-->
+  <string name="hotspot_manual_wifi">Ваш телефон надає точку доступу Wi-Fi. Щоб інші змогли завантажити Briar, їм слід додати з\'єднання з цією точкою доступу в налаштуваннях Wi-Fi свого пристрою, ввівши дані внизу чи %s. Коли вони з\'єднаються з точкою доступу, натисніть «Далі».</string>
+  <string name="hotspot_manual_wifi_ssid">Назва мережі</string>
+  <string name="hotspot_qr_wifi">Ваш телефон надає точку доступу Wi-Fi. Щоб інші змогли завантажити Briar, їм слід з\'єднатися з точкою доступу, просканувавши цей QR-код. Коли вони з\'єднаються з точкою доступу, натисніть «Далі».</string>
+  <string name="hotspot_no_peers_connected">Жодного пристрою не з\'єднано</string>
+  <plurals name="hotspot_peers_connected">
+    <item quantity="one">%s пристрій з\'єднано</item>
+    <item quantity="few">%s пристрої з\'єднано</item>
+    <item quantity="many">%s пристроїв з\'єднано</item>
+    <item quantity="other">%s пристроїв з\'єднано</item>
+  </plurals>
+  <!--Download link-->
+  <!--The %s placeholder will be replaced with the translation of 'hotspot_scanning_a_qr_code'-->
+  <string name="hotspot_manual_site">Ваш телефон надає точку доступу Wi-Fi. З\'єднані з нею можуть завантажити Briar, ввівши наступне посилання у вебпереглядач або %s.</string>
+  <string name="hotspot_manual_site_address">Адреса (URL)</string>
+  <string name="hotspot_qr_site">Ваш телефон надає точку доступу Wi-Fi. З\'єднані з нею можуть завантажити Briar, просканувавши цей QR-код.</string>
+  <!--e.g. Download Briar 1.2.20-->
+  <string name="website_download_title">Завантажте %s</string>
+  <string name="website_download_intro">Хтось поруч поширює вам %s.</string>
+  <string name="website_download_outro">Після завантаження, відкрийте завантажений файл і встановіть його.</string>
+  <string name="website_troubleshooting_title">Виправлення неполадок</string>
+  <string name="website_troubleshooting_1">Якщо не вдається завантажити застосунок, повторіть спробу іншим вебпереглядачем.</string>
+  <string name="website_troubleshooting_2_old">Щоб встановити завантажений застосунок, може бути потрібно дозволити встановлення застосунків із «невідомих джерел» у налаштуваннях системи. Після цього, можливо, доведеться завантажити застосунок іще раз. Радимо вимкнути параметр «невідомих джерел» після встановлення застосунку.</string>
+  <string name="website_troubleshooting_2_new">Щоб встановити завантажений застосунок, може бути потрібно дозволити вебпереглядачу встановлювати невідомі застосунки. Після встановлення застосунку радимо вилучити у вебпереглядача цей дозвіл.</string>
+  <string name="hotspot_help_wifi_title">Проблеми з\'єднання з Wi-Fi:</string>
+  <string name="hotspot_help_wifi_1">Вимкніть і знов увімкніть Wi-Fi на обох телефонах і повторіть спробу.</string>
+  <string name="hotspot_help_wifi_2">Якщо телефон скаржиться на відсутність інтернету в мережі Wi-Fi, підтвердьте йому, що все одно бажаєте продовжити з\'єднання.</string>
+  <string name="hotspot_help_wifi_3">Перезавантажте телефон, на якому працює точка доступу Wi-Fi, запустіть Briar і повторіть спробу поширення.</string>
+  <string name="hotspot_help_site_title">Проблеми відкриття локального вебсайту:</string>
+  <string name="hotspot_help_site_1">Ще раз перевірте, що ввели адресу точно так, як показано. Будь-який одрук може спричинити невдачу.</string>
+  <string name="hotspot_help_site_2">Переконайтесь, що телефон досі з\'єднано з правильною мережею Wi-Fi (див. вище) під час відкриття сайту.</string>
+  <string name="hotspot_help_site_3">Якщо маєте застосунок-файрвол, переконайтесь, що він не блокує доступ.</string>
+  <string name="hotspot_help_site_4">Якщо вдається відкрити сайт, але не завантажити застосунок Briar, спробуйте завантажити іншим вебпереглядачем.</string>
+  <string name="hotspot_help_fallback_title">Нічого не працює?</string>
+  <string name="hotspot_help_fallback_intro">Можете зберегти застосунок як apk-файл і поширити його якось іще. Щойно файл передано на інший пристрій, за його допомогою можна встановити Briar.
+		\n\nПорада: може бути потрібно спершу змінити суфікс файлу на .zip для Bluetooth-передання.</string>
+  <string name="hotspot_help_fallback_button">Зберегти застосунок</string>
+  <!--error handling-->
+  <string name="hotspot_error_intro">Щось пішло не так при спробі поширити застосунок через Wi-Fi:</string>
+  <string name="hotspot_error_no_wifi_direct">Пристрій не підтримує Wi-Fi Direct</string>
+  <string name="hotspot_error_start_callback_failed">Не вдалося створити точку доступу: помилка %s</string>
+  <string name="hotspot_error_start_callback_failed_unknown">Не вдалося створити точку доступу через невідому помилку: %d</string>
+  <string name="hotspot_error_start_callback_no_group_info">Не вдалося створити точку доступу: бракує даних групи</string>
+  <string name="hotspot_error_web_server_start">Помилка запуску вебсервера</string>
+  <string name="hotspot_error_web_server_serve">Помилка показу вебсайту.\n\nБудь ласка, надішліть відгук (з анонімними даними) застосунком Briar, якщо проблема повторюватиметься.</string>
+  <string name="hotspot_flag_test">Попередження: застосунок встановлено Android Studio й НЕ може бути встановлено на інший пристрій.</string>
+  <string name="hotspot_error_framework_busy">Не вдалося створити точку доступу.\n\nЯкщо вже працює інша точка доступу чи ви роздаєте інтернет-з\'єднання через Wi-Fi, зупиніть це й повторіть спробу.</string>
+  <!--Transfer Data via Removable Drives-->
+  <string name="removable_drive_menu_title">З\'єднатися через флешку</string>
+  <string name="removable_drive_intro">Якщо не вдається з\'єднатися з контактом через інтернет, Wi-Fi та Bluetooth, Briar ще може передавати повідомлення за допомогою флешки чи SD-картки.</string>
+  <string name="removable_drive_explanation">Якщо не вдається з\'єднатися з контактом через інтернет, Wi-Fi та Bluetooth, Briar ще може передавати повідомлення за допомогою флешки чи SD-картки.\n\nКоли ви натиснете кнопку «Надіслати дані», будь-які дані в очікуванні надсилання контактові буде записано на флешку. Зокрема дані особистих повідомлень, прикріплень, блогів, форумів і приватних груп.\n\nПеред записом на флешку все буде зашифровано.\n\nОтримавши флешку, ваш контакт зможе імпортувати повідомлення в свій Briar кнопкою «Отримати дані».</string>
+  <string name="removable_drive_title_send">Надіслати дані</string>
+  <string name="removable_drive_title_receive">Отримати дані</string>
+  <string name="removable_drive_send_intro">Торкніть кнопку внизу, щоб створити файл зашифрованих повідомлень. Ви зможете обрати, куди зберегти файл.\n\nЯкщо бажаєте зберегти файл на флешку, під\'єднайте її зараз.</string>
+  <string name="removable_drive_send_no_data">Жодне повідомлення не очікує на надсилання цьому контактові.</string>
+  <string name="removable_drive_send_not_supported">Контакт використовує стару версію Briar чи старий пристрій, що не підтримує цієї можливості.</string>
+  <string name="removable_drive_send_button">Оберіть файл експорту</string>
+  <string name="removable_drive_ongoing">Дочекайтесь завершення поточного завдання</string>
+  <string name="removable_drive_receive_intro">Торкніть кнопку внизу, щоб обрати файл, надісланий вам контактом.\n\nЯкщо файл на флешці, під\'єднайте її зараз.</string>
+  <string name="removable_drive_receive_button">Оберіть файл імпорту</string>
+  <string name="removable_drive_success_send_title">Експорт успішний</string>
+  <string name="removable_drive_success_send_text">Дані успішно експортовано. Маєте 28 днів, щоб передати файл контактові.\n\nЯкщо файл на флешці, перед від\'єднанням вимкніть її за допомогою сповіщення в рядку стану.</string>
+  <string name="removable_drive_success_receive_title">Імпорт успішний</string>
+  <string name="removable_drive_success_receive_text">Усі зашифровані повідомлення з цього файлу отримано.</string>
+  <string name="removable_drive_error_send_title">Помилка експортування даних</string>
+  <string name="removable_drive_error_send_text">Запис даних до файлу зазнав збою.\nЯкщо використовуєте флешку, переконайтесь, що її правильно під\'єднано, й повторіть спробу.\n\nЯкщо збій повторюється, будь ласка, надішліть відгук, щоб команда Briar дізналася про проблему.</string>
+  <string name="removable_drive_error_receive_title">Помилка імпортування даних</string>
+  <string name="removable_drive_error_receive_text">Обраний файл не містив нічого зрозумілого Briar.\n\nБудь ласка, перевірте, що обрали правильний файл.\n\nЯкщо файл було створено контактом понад 28 днів тому, Briar не зможе його розпізнати.</string>
   <!--Screenshots-->
   <!--This is a name to be used in screenshots. Feel free to change it to a local name.-->
   <string name="screenshot_alice">Аліса</string>

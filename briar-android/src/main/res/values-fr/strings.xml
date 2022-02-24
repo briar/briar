@@ -5,7 +5,7 @@
   <string name="setup_name_explanation">Votre pseudonyme sera affiché à côté de tout contenu que vous publierez. Vous pourrez le modifier après avoir créé votre compte.</string>
   <string name="setup_next">Suivant</string>
   <string name="setup_password_intro">Choisir un mot de passe</string>
-  <string name="setup_password_explanation">Votre compte Briar est enregistré chiffré sur votre appareil et non dans le nuage. Si vous désinstallez Briar ou oubliez votre mot de passe, il n’existe aucune façon de récupérer votre compte.\n\nChoisissez un mot de passe long qui sera difficile à deviner, par exemple quatre mots au hasard ou dix lettres, chiffres et symboles au hasard.</string>
+  <string name="setup_password_explanation">Votre compte Briar est enregistré chiffré sur votre appareil et non dans le nuage. Si vous oubliez votre mot de passe ou désinstallez Briar, votre compte ne peut pas être récupéré.\n\nChoisissez un mot de passe long qui sera difficile à deviner, par exemple quatre mots au hasard ou dix lettres, chiffres et symboles au hasard.</string>
   <string name="setup_doze_title">Connexions d’arrière-plan</string>
   <string name="setup_doze_intro">Pour recevoir des messages, Briar a besoin de rester connectée en arrière-plan.</string>
   <string name="setup_doze_explanation">Pour recevoir des messages, Briar a besoin de rester connectée en arrière-plan. Veuillez désactiver les optimisations de la batterie afin que Briar puisse rester connectée.</string>
@@ -45,10 +45,10 @@
   <string name="startup_failed_db_error">Briar n’a pas pu ouvrir la base de données qui comprend votre compte, vos contacts et messages.\n\nVeuillez mettre l’appli à jour vers la version la plus récente et réessayer, ou créer un nouveau compte en choisissant « J’ai oublié mon mot de passe » à l’invite de mot de passe.</string>
   <string name="startup_failed_data_too_old_error">Votre compte a été créé avec une ancienne version de cette appli et ne peut pas être ouvert avec cette version.\n\nVous devez soit réinstaller l’ancienne version, soit créer un nouveau compte en choisissant « J’ai oublié mon mot de passe » à l’invite de mot de passe.</string>
   <string name="startup_failed_data_too_new_error">Votre compte a été créé avec une version plus récente de cette appli et ne peut être ouvert avec cette version.\n\nVeuillez mettre l’appli à jour vers la version la plus récente et réessayer.</string>
-  <string name="startup_failed_service_error">Briar n\'a pas pu lancer un composant essentiel.\n\nVeuillez mettre l’appli à jour vers la version la plus récente et réessayer.</string>
+  <string name="startup_failed_service_error">Briar n’a pas pu lancer un composant essentiel.\n\nVeuillez mettre l’appli à jour vers la version la plus récente et réessayer.</string>
   <plurals name="expiry_warning">
-    <item quantity="one">Ceci est une version de test de Briar. Votre compte arrivera à expiration dans %d jour et ne peut pas être renouvelé.</item>
-    <item quantity="other">Ceci est une version de test de Briar. Votre compte arrivera à expiration dans %d jours et ne pourra pas être renouvelé.</item>
+    <item quantity="one">Ceci est une version d’essai de Briar. Votre compte arrivera à expiration dans %d jour et ne peut pas être renouvelé.</item>
+    <item quantity="other">Ceci est une version d’essai de Briar. Votre compte arrivera à expiration dans %d jours et ne pourra pas être renouvelé.</item>
   </plurals>
   <string name="expiry_date_reached">Ce logiciel est arrivé à expiration.\nMerci de l’avoir testé !</string>
   <string name="download_briar">Pour continuer à utiliser Briar, veuillez télécharger la dernière version.</string>
@@ -234,7 +234,7 @@
   <string name="connecting_to_device">Connexion à l’appareil\u2026</string>
   <string name="authenticating_with_device">Autentification avec l’appareil\u2026</string>
   <string name="connection_error_title">Impossible de se connecter à votre contact</string>
-  <string name="connection_error_feedback">Si le problème persiste, veuillez nous <a href="feedback">envoyer une rétroaction</a> pour nous aider à améliorer l\'appli.</string>
+  <string name="connection_error_feedback">Si le problème persiste, veuillez nous <a href="feedback">envoyer une rétroaction</a> pour nous aider à améliorer l’appli.</string>
   <!--Adding Contacts Remotely-->
   <string name="add_contact_remotely_title_case">Ajouter un contact éloigné</string>
   <string name="add_contact_nearby_title">Ajouter un contact à proximité</string>
@@ -337,7 +337,7 @@
   <string name="groups_create_group_button">Créer un groupe</string>
   <string name="groups_create_group_invitation_button">Envoyer une invitation</string>
   <string name="groups_create_group_hint">Choisissez un nom pour votre groupe privé</string>
-  <string name="groups_invitation_sent">L’invitation de groupe a été envoyée</string>
+  <string name="groups_invitation_sent">L’invitation au groupe a été envoyée</string>
   <string name="groups_member_list">Liste des participants</string>
   <string name="groups_invite_members">Inviter des participants</string>
   <string name="groups_member_created_you">Vous avez créé le groupe</string>
@@ -354,20 +354,20 @@
   <string name="groups_dissolved_dialog_title">Le groupe a été dissous</string>
   <string name="groups_dissolved_dialog_message">Le créateur de ce groupe l’a dissous.\n\nVous ne pouvez plus écrire de messages au groupe et ne recevrez peut-être pas tous ceux qui y ont été publiés.</string>
   <!--Private Group Invitations-->
-  <string name="groups_invitations_title">Invitations de groupe</string>
+  <string name="groups_invitations_title">Invitations au groupe</string>
   <string name="groups_invitations_invitation_sent">Vous avez invité %1$s à se joindre au groupe « %2$s ».</string>
   <string name="groups_invitations_invitation_received">%1$s vous a invité à vous joindre au groupe « %2$s ».</string>
   <string name="groups_invitations_joined">S’est joint au groupe</string>
-  <string name="groups_invitations_declined">L’invitation de groupe a été refusée</string>
+  <string name="groups_invitations_declined">L’invitation au groupe a été refusée</string>
   <plurals name="groups_invitations_open">
-    <item quantity="one">%d invitation de groupe en attente</item>
-    <item quantity="other">%d invitations de groupe en attente</item>
+    <item quantity="one">%d invitation au groupe en attente</item>
+    <item quantity="other">%d invitations au groupe en attente</item>
   </plurals>
-  <string name="groups_invitations_response_accepted_sent">Vous avez accepté l’invitation de groupe de %s.</string>
-  <string name="groups_invitations_response_declined_sent">Vous avez refusé l’invitation de groupe de %s.</string>
+  <string name="groups_invitations_response_accepted_sent">Vous avez accepté l’invitation au groupe de %s.</string>
+  <string name="groups_invitations_response_declined_sent">Vous avez refusé l’invitation au groupe de %s.</string>
   <string name="groups_invitations_response_declined_auto">L’invitation au groupe provenant de %s a été refusée automatiquement.</string>
-  <string name="groups_invitations_response_accepted_received">%s a accepté l’invitation de groupe.</string>
-  <string name="groups_invitations_response_declined_received">%s a refusé l’invitation de groupe.</string>
+  <string name="groups_invitations_response_accepted_received">%s a accepté l’invitation au groupe.</string>
+  <string name="groups_invitations_response_declined_received">%s a refusé l’invitation au groupe.</string>
   <string name="sharing_status_groups">Seul le créateur peut inviter de nouveaux participants. Voici la liste des membres actuels du groupe.</string>
   <!--Private Groups Revealing Contacts-->
   <string name="groups_reveal_contacts">Dévoiler les contacts</string>
@@ -567,6 +567,9 @@
   <string name="notify_sound_setting_disabled">Aucun</string>
   <string name="choose_ringtone_title">Choisir une sonnerie</string>
   <string name="cannot_load_ringtone">Impossible de charger la sonnerie</string>
+  <!--Mailbox-->
+  <string name="mailbox_setup_connecting">Connexion…</string>
+  <string name="tor_offline_title">Hors ligne</string>
   <!--Conversation Settings-->
   <string name="disappearing_messages_title">Messages éphémères</string>
   <string name="disappearing_messages_explanation_long">L’activation de ce paramètre fera disparaître
@@ -675,6 +678,7 @@ copies des messages que vous envoyez.
   <string name="website_troubleshooting_title">Dépannage</string>
   <!--error handling-->
   <!--Transfer Data via Removable Drives-->
+  <string name="removable_drive_menu_title">Se connecter par un lecteur amovible</string>
   <string name="removable_drive_success_receive_title">L’importation est réussie</string>
   <!--Screenshots-->
   <!--This is a name to be used in screenshots. Feel free to change it to a local name.-->

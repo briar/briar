@@ -561,6 +561,22 @@
   <string name="notify_sound_setting_disabled">无</string>
   <string name="choose_ringtone_title">选择铃声</string>
   <string name="cannot_load_ringtone">无法加载铃声</string>
+  <!--Mailbox-->
+  <string name="mailbox_settings_title">邮箱</string>
+  <string name="mailbox_setup_title">邮箱设置</string>
+  <string name="mailbox_setup_intro">邮箱使你的联系人能够在你离线时向你发送消息。邮箱将接收你的邮件，并将其存储到你上线为止。\n
+		\n 你可以在备用设备上安装 Briar Mailbox 应用，并确保此设备始终有电且和Wi-Fi连接，这样它就永远在线了。</string>
+  <string name="mailbox_setup_download">首先，通过 Google Play 或任何你下载了 Briar 的地方搜索“Briar Mailbox”，在另一台设备上安装 Mailbox 应用。\n
+		\n然后通过扫描邮箱应用显示的二维码将你的 Mailbox 与Briar 链接起来。</string>
+  <string name="mailbox_setup_download_link">分享下载链接</string>
+  <string name="mailbox_setup_button_scan">扫描 Mailbox 二维码</string>
+  <string name="permission_camera_qr_denied_body">你拒绝了使用相机，但扫描二维码需要使用相机。\n\n请考虑授予访问权限。</string>
+  <string name="mailbox_setup_connecting">连接中……</string>
+  <string name="mailbox_setup_qr_code_wrong_title">错误的二维码</string>
+  <string name="mailbox_setup_qr_code_wrong_description">扫描的代码无效。请在安装有 Mailbox 应用的设备上打开 Briar 邮箱应用，并扫描它显示的二维码。</string>
+  <string name="tor_offline_title">离线</string>
+  <string name="tor_offline_description">请确保设备处于在线状态，且允许连接到互联网。\n\n然后，等待连接设置中的全局图标变为绿色。</string>
+  <string name="tor_offline_button_check">检查连接设置</string>
   <!--Conversation Settings-->
   <string name="disappearing_messages_title">让消息自动消失</string>
   <string name="disappearing_messages_explanation_long">打开此设置将使

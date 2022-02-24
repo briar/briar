@@ -540,6 +540,9 @@
   <string name="notify_sound_setting_disabled">なし</string>
   <string name="choose_ringtone_title">着信音を選択</string>
   <string name="cannot_load_ringtone">着信音を読み込めません</string>
+  <!--Mailbox-->
+  <string name="mailbox_setup_connecting">接続中…</string>
+  <string name="tor_offline_title">オフライン</string>
   <!--Conversation Settings-->
   <string name="disappearing_messages_title">消えたメッセージ</string>
   <string name="learn_more">詳細情報</string>

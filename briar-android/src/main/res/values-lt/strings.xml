@@ -603,6 +603,9 @@
   <string name="notify_sound_setting_disabled">Nėra</string>
   <string name="choose_ringtone_title">Pasirinkite skambėjimo melodiją</string>
   <string name="cannot_load_ringtone">Nepavyksta įkelti skambučio melodijos</string>
+  <!--Mailbox-->
+  <string name="mailbox_setup_connecting">Jungiamasi…</string>
+  <string name="tor_offline_title">Nepasiekiama</string>
   <!--Conversation Settings-->
   <string name="disappearing_messages_title">Išnykstančios žinutės</string>
   <string name="disappearing_messages_explanation_long">Įjungus šį nustatymą, naujos žinutės

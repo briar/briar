@@ -575,6 +575,22 @@
   <string name="notify_sound_setting_disabled">Keine</string>
   <string name="choose_ringtone_title">Klingelton auswählen</string>
   <string name="cannot_load_ringtone">Klingelton kann nicht geladen werden</string>
+  <!--Mailbox-->
+  <string name="mailbox_settings_title">Mailbox</string>
+  <string name="mailbox_setup_title">Mailbox-Einrichtung</string>
+  <string name="mailbox_setup_intro">Eine Mailbox ermöglicht es deinen Kontakten, dir Nachrichten zu senden, während du offline bist. Die Mailbox empfängt deine Nachrichten und speichert sie, bis du wieder online bist.\n
+		\nDu kannst die Briar Mailbox-App auf einem Ersatzgerät installieren. Sorge dafür, dass es mit Strom und WLAN verbunden ist, damit es immer online ist.</string>
+  <string name="mailbox_setup_download">Installiere zunächst die Mailbox-App auf einem anderen Gerät, indem du bei Google Play nach \"Briar Mailbox\" suchst oder dort, wo du Briar heruntergeladen hast.\n
+		\nVerbinde dann deine Mailbox mit Briar, indem du den angezeigten QR-Code der Mailbox-App scannst.</string>
+  <string name="mailbox_setup_download_link">Download-Link teilen</string>
+  <string name="mailbox_setup_button_scan">Mailbox QR-Code scannen</string>
+  <string name="permission_camera_qr_denied_body">Du hast den Zugriff auf die Kamera verweigert, aber das Scannen eines QR-Codes erfordert die Verwendung der Kamera.\n\nBitte gewähre den Zugriff.</string>
+  <string name="mailbox_setup_connecting">Verbinde…</string>
+  <string name="mailbox_setup_qr_code_wrong_title">Falscher QR-Code</string>
+  <string name="mailbox_setup_qr_code_wrong_description">Der gescannte Code ist ungültig. Bitte öffne die Briar Mailbox-App auf deinem Mailbox-Gerät und scanne den dort angezeigten QR-Code.</string>
+  <string name="tor_offline_title">Offline</string>
+  <string name="tor_offline_description">Stelle sicher, dass das Gerät online ist und Verbindungen zum Internet zugelassen sind.\n\nWarte anschließend, bis das Globussymbol in den Verbindungseinstellungen grün wird.</string>
+  <string name="tor_offline_button_check">Verbindungseinstellungen prüfen</string>
   <!--Conversation Settings-->
   <string name="disappearing_messages_title">Selbstlöschende Nachrichten</string>
   <string name="disappearing_messages_explanation_long">Wenn diese Einstellung aktiviert ist, werden neue
