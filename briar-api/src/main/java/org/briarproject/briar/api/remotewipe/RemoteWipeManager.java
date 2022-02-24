@@ -59,10 +59,8 @@ public interface RemoteWipeManager extends ConversationManager.ConversationClien
 
 	List<ContactId> getWiperContactIds(Transaction txn);
 
-	void sendConfirmMessages(Transaction txn) throws DbException,
+	int sendConfirmMessages(Transaction txn) throws DbException,
 			FormatException;
-
-	void sleep();
 
 	@Override
 	Collection<ConversationMessageHeader> getMessageHeaders(
