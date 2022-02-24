@@ -12,6 +12,7 @@ import org.briarproject.briar.api.conversation.ConversationManager;
 import org.briarproject.briar.api.conversation.ConversationMessageHeader;
 import org.briarproject.briar.api.socialbackup.recovery.SecretOwnerTask;
 
+import java.text.Normalizer;
 import java.util.Collection;
 import java.util.List;
 
@@ -57,6 +58,11 @@ public interface RemoteWipeManager extends ConversationManager.ConversationClien
 	List<Author> getWipers(Transaction txn) throws DbException;
 
 	List<ContactId> getWiperContactIds(Transaction txn);
+
+	void sendConfirmMessages(Transaction txn) throws DbException,
+			FormatException;
+
+	void sleep();
 
 	@Override
 	Collection<ConversationMessageHeader> getMessageHeaders(
