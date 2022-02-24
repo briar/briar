@@ -327,33 +327,14 @@ public class RemoteWipeManagerImpl extends ConversationClientImpl
 		messageTracker.trackOutgoingMessage(txn, m);
 	}
 
-	public void sendConfirmMessages(Transaction txn)
+	public int sendConfirmMessages(Transaction txn)
 			throws DbException, FormatException {
 		List<ContactId> wipers = getWiperContactIds(txn);
 		for (ContactId c : wipers) {
 			Contact contact = contactManager.getContact(txn, c);
 			sendConfirmMessage(txn, contact);
 		}
-
-//		boolean allSent = true;
-//		do {
-//			for (MessageId confirmMessage: confirmMessages) {
-//				if (db.getMessageState(txn, confirmMessage) == PENDING) allSent = false;
-//			}
-//			if (!allSent) {
-//				try {
-//					Thread.sleep(100);
-//				} catch (InterruptedException e) {
-//					allSent = true;
-//				}
-//			}
-//		} while(allSent == false);
-	}
-
-	public void sleep() {
-		try {
-			Thread.sleep(5000);
-		} catch (InterruptedException ignored) {}
+        return wipers.size();
 	}
 
 	private void sendConfirmMessage(Transaction txn, Contact contact)
@@ -373,17 +354,6 @@ public class RemoteWipeManagerImpl extends ConversationClientImpl
 		);
 		clientHelper.addLocalMessage(txn, m, meta, true, false);
 		messageTracker.trackOutgoingMessage(txn, m);
-
-		// Find the id of this message
-//		List<MessageId> messageIds = (List<MessageId>) db.getMessageIds(txn, g);
-//		Message newestMsg = null;
-//		for (MessageId id : messageIds) {
-//			Message msg = db.getMessage(txn, id);
-//			if (newestMsg == null || msg.getTimestamp() > newestMsg.getTimestamp()) {
-//				newestMsg = msg;
-//			}
-//		}
-//        return newestMsg.getId();
 	}
 
 	public void wipe(Transaction txn, Contact contact)
