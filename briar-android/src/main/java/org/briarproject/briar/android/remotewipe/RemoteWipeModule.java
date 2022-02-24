@@ -29,4 +29,10 @@ public abstract class RemoteWipeModule {
 	@ViewModelKey(RevokeRemoteWipeViewModel.class)
 	abstract ViewModel bindRevokeRemoteWipeViewModel(
 			RevokeRemoteWipeViewModel RevokeRemoteWipeViewModel);
+
+	@Binds
+	@IntoMap
+	@ViewModelKey(RemoteWipeActivatedViewModel.class)
+	abstract ViewModel bindRemoteWipeActivatedViewModel(
+			RemoteWipeActivatedViewModel remoteWipeActivatedViewModel);
 }

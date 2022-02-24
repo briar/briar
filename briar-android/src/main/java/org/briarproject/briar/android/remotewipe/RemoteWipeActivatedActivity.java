@@ -6,19 +6,36 @@ import org.briarproject.briar.android.activity.ActivityComponent;
 import org.briarproject.briar.android.activity.BriarActivity;
 
 import javax.annotation.Nullable;
+import javax.inject.Inject;
+
+import androidx.lifecycle.ViewModelProvider;
 
 
 public class RemoteWipeActivatedActivity extends BriarActivity {
+
+	@Inject
+	ViewModelProvider.Factory viewModelFactory;
+	RemoteWipeActivatedViewModel viewModel;
+
+	@Override
+	public void injectActivity(ActivityComponent component) {
+		component.inject(this);
+
+		viewModel = new ViewModelProvider(this, viewModelFactory)
+				.get(RemoteWipeActivatedViewModel.class);
+	}
 
 	@Override
 	public void onCreate(@Nullable Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
-		signOut(true, true);
-	}
+		viewModel.getConfirmSent()
+				.observeEvent(this, confirmed -> {
+					if (confirmed) {
+						signOut(true, true);
+					}
+				});
 
-	@Override
-	public void injectActivity(ActivityComponent component) {
-		component.inject(this);
+		viewModel.sendConfirmMessages();
 	}
 }

@@ -41,7 +41,6 @@ import org.briarproject.briar.api.blog.event.BlogPostAddedEvent;
 import org.briarproject.briar.api.conversation.event.ConversationMessageReceivedEvent;
 import org.briarproject.briar.api.forum.event.ForumPostReceivedEvent;
 import org.briarproject.briar.api.privategroup.event.GroupMessageAddedEvent;
-import org.briarproject.briar.api.remotewipe.RemoteWipeActivatedEvent;
 
 import java.util.Set;
 import java.util.concurrent.Callable;
