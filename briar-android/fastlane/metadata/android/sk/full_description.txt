@@ -1,0 +1,5 @@
+Briar je aplikácia na zasielanie správ určená pre aktivistov, novinárov a všetkých, ktorí potrebujú bezpečný, jednoduchý a spoľahlivý spôsob komunikácie. Na rozdiel od tradičných aplikácií na zasielanie správ, Briar sa nespolieha na centrálny server - správy sa synchronizujú priamo medzi zariadeniami používateľov. Ak vypadne internet, Briar sa dokáže synchronizovať cez Bluetooth alebo Wi-Fi, čím udržiava tok informácií aj v krízových situáciách. Ak internet funguje, Briar sa môže synchronizovať cez sieť Tor, čím chráni používateľov a ich vzťahy pred sledovaním.
+
+Aplikácia poskytuje súkromné správy, skupiny a fóra, ako aj blogy. V aplikácii je zabudovaná podpora siete Tor. Všetko, čo robíte v aplikácii Briar, sa ukladá len vo vašom zariadení, pokiaľ sa to nerozhodnete zdieľať s ostatnými používateľmi.
+
+Nie sú tu žiadne reklamy ani sledovanie. Zdrojový kód aplikácie je úplne otvorený, aby si ho mohol ktokoľvek pozrieť a už bol profesionálne skontrolovaný. Všetky vydania aplikácie Briar sú reprodukovateľné, čo umožňuje overiť, či sa zverejnený zdrojový kód presne zhoduje s tu zverejnenou aplikáciou. Vývoj aplikácie vykonáva malý neziskový tím.
