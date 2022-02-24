@@ -14,6 +14,8 @@ import org.briarproject.bramble.api.data.MetadataParser;
 import org.briarproject.bramble.api.db.DatabaseComponent;
 import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.db.Transaction;
+import org.briarproject.bramble.api.event.Event;
+import org.briarproject.bramble.api.event.EventListener;
 import org.briarproject.bramble.api.identity.Author;
 import org.briarproject.bramble.api.lifecycle.LifecycleManager;
 import org.briarproject.bramble.api.sync.Group;
@@ -48,7 +50,6 @@ import javax.annotation.Nullable;
 import javax.inject.Inject;
 
 import static java.util.logging.Logger.getLogger;
-import static org.briarproject.bramble.api.sync.validation.MessageState.PENDING;
 import static org.briarproject.briar.api.remotewipe.MessageType.CONFIRM;
 import static org.briarproject.briar.api.remotewipe.MessageType.REVOKE;
 import static org.briarproject.briar.api.remotewipe.MessageType.SETUP;
@@ -197,15 +198,12 @@ public class RemoteWipeManagerImpl extends ConversationClientImpl
 					LOG.warning("Threshold number of remote wipe signals reached - panic!");
 
 					// Send a CONFIRM message to each wiper
-					sendConfirmMessages(txn);
+//					sendConfirmMessages(txn);
 
 					if (observer != null) {
 						observer.onPanic();
 					}
 					txn.attach(new RemoteWipeActivatedEvent());
-
-					// we could here clear the metadata to allow us to send
-					// the wipe messages several times when testing
 				} else {
 					BdfList newReceivedWipeMessage = new BdfList();
 					newReceivedWipeMessage.add(contactId.getInt());
@@ -329,31 +327,36 @@ public class RemoteWipeManagerImpl extends ConversationClientImpl
 		messageTracker.trackOutgoingMessage(txn, m);
 	}
 
-	private void sendConfirmMessages(Transaction txn)
+	public void sendConfirmMessages(Transaction txn)
 			throws DbException, FormatException {
 		List<ContactId> wipers = getWiperContactIds(txn);
-		List<MessageId> confirmMessages = new ArrayList<>();
 		for (ContactId c : wipers) {
 			Contact contact = contactManager.getContact(txn, c);
-			confirmMessages.add(sendConfirmMessage(txn, contact));
+			sendConfirmMessage(txn, contact);
 		}
 
-		boolean allSent = true;
-		do {
-			for (MessageId confirmMessage: confirmMessages) {
-				if (db.getMessageState(txn, confirmMessage) == PENDING) allSent = false;
-			}
-			if (!allSent) {
-				try {
-					Thread.sleep(100);
-				} catch (InterruptedException e) {
-					allSent = true;
-				}
-			}
-		} while(allSent == false);
+//		boolean allSent = true;
+//		do {
+//			for (MessageId confirmMessage: confirmMessages) {
+//				if (db.getMessageState(txn, confirmMessage) == PENDING) allSent = false;
+//			}
+//			if (!allSent) {
+//				try {
+//					Thread.sleep(100);
+//				} catch (InterruptedException e) {
+//					allSent = true;
+//				}
+//			}
+//		} while(allSent == false);
 	}
 
-	private MessageId sendConfirmMessage(Transaction txn, Contact contact)
+	public void sleep() {
+		try {
+			Thread.sleep(5000);
+		} catch (InterruptedException ignored) {}
+	}
+
+	private void sendConfirmMessage(Transaction txn, Contact contact)
 			throws DbException, FormatException {
 		Group group = getContactGroup(contact);
 		GroupId g = group.getId();
@@ -372,15 +375,15 @@ public class RemoteWipeManagerImpl extends ConversationClientImpl
 		messageTracker.trackOutgoingMessage(txn, m);
 
 		// Find the id of this message
-		List<MessageId> messageIds = (List<MessageId>) db.getMessageIds(txn, g);
-		Message newestMsg = null;
-		for (MessageId id : messageIds) {
-			Message msg = db.getMessage(txn, id);
-			if (newestMsg == null || msg.getTimestamp() > newestMsg.getTimestamp()) {
-				newestMsg = msg;
-			}
-		}
-        return newestMsg.getId();
+//		List<MessageId> messageIds = (List<MessageId>) db.getMessageIds(txn, g);
+//		Message newestMsg = null;
+//		for (MessageId id : messageIds) {
+//			Message msg = db.getMessage(txn, id);
+//			if (newestMsg == null || msg.getTimestamp() > newestMsg.getTimestamp()) {
+//				newestMsg = msg;
+//			}
+//		}
+//        return newestMsg.getId();
 	}
 
 	public void wipe(Transaction txn, Contact contact)
