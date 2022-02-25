@@ -1,3 +1,6 @@
+-keep,includedescriptorclasses class org.briarproject.bramble.** { *; }
+-keep,includedescriptorclasses class org.briarproject.briar.** { *; }
+
 -dontwarn android.test.**
 -dontwarn android.support.test.**
 -dontnote android.support.test.**
