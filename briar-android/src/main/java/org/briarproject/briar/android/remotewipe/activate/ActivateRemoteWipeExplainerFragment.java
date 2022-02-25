@@ -15,10 +15,10 @@ import javax.inject.Inject;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.lifecycle.ViewModelProvider;
 
-public class ActivateRemoteWipeExplainerFragment extends
-		BaseFragment {
+public class ActivateRemoteWipeExplainerFragment extends BaseFragment {
 
 	public static final String TAG =
 			ActivateRemoteWipeExplainerFragment.class.getName();
@@ -54,11 +54,30 @@ public class ActivateRemoteWipeExplainerFragment extends
 
 		Button confirmButton = view.findViewById(R.id.button_confirm);
 		confirmButton.setOnClickListener(e -> viewModel.onConfirmClicked());
+
+		viewModel.getState().observe(getViewLifecycleOwner(), this::onStateChanged);
 		return view;
+	}
+
+	private void onStateChanged(ActivateRemoteWipeState state) {
+		if (state == ActivateRemoteWipeState.SUCCESS) {
+			showSuccessDialog();
+		}
 	}
 
 	@Override
 	public String getUniqueTag() {
 		return TAG;
+	}
+
+	private void showSuccessDialog() {
+		AlertDialog.Builder builder = new AlertDialog.Builder(requireContext(),
+				R.style.BriarDialogTheme);
+		builder.setTitle(R.string.remote_wipe_activate_success);
+		builder.setPositiveButton(R.string.ok,
+				(dialog, which) -> viewModel.onSuccessDismissed());
+		builder.setIcon(R.drawable.ic_baseline_done_outline_24);
+		AlertDialog dialog = builder.create();
+		dialog.show();
 	}
 }
