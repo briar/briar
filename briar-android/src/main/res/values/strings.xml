@@ -624,11 +624,11 @@
 	<string name="permission_camera_qr_denied_body">You have denied access to the camera, but scanning a QR code requires using the camera.\n\nPlease consider granting access.</string>
 	<string name="mailbox_setup_connecting">Connecting…</string>
 	<string name="mailbox_setup_qr_code_wrong_title">Wrong QR code</string>
-	<string name="mailbox_setup_qr_code_wrong_description">The scanned code is invalid. Please open the Briar Mailbox app on your mailbox device and scan the QR code it presents.</string>
+	<string name="mailbox_setup_qr_code_wrong_description">The scanned code is invalid. Please open the Briar Mailbox app on your Mailbox device and scan the QR code it presents.</string>
 	<string name="mailbox_setup_already_paired_title">Mailbox already linked</string>
-	<string name="mailbox_setup_already_paired_description">Unlink the mailbox on your other device and try again.</string>
+	<string name="mailbox_setup_already_paired_description">Unlink the Mailbox on your other device and try again.</string>
 	<string name="mailbox_setup_io_error_title">Could not connect</string>
-	<string name="mailbox_setup_io_error_description">Ensure that both devices are connected to the internet and try again.</string>
+	<string name="mailbox_setup_io_error_description">Ensure that both devices are connected to the Internet and try again.</string>
 	<string name="mailbox_setup_assertion_error_title">Mailbox error</string>
 	<string name="mailbox_setup_assertion_error_description">Please send feedback (with anonymous data) via the Briar app if the issue persists.</string>
 	<string name="mailbox_setup_camera_error_title" translatable="false">@string/camera_error</string>
