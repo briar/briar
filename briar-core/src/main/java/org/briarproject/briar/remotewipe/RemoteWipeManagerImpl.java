@@ -612,7 +612,7 @@ public class RemoteWipeManagerImpl extends ConversationClientImpl
 	@Override
 	public boolean remoteWipeIsSetup(Transaction txn) {
 		try {
-			return !db.getGroupMetadata(txn, localGroup.getId()).isEmpty();
+			return getWipers(txn).size() > 0;
 		} catch (DbException e) {
 			return false;
 		}
