@@ -1,5 +1,5 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<resources xmlns:tools="http://schemas.android.com/tools">
+<resources>
   <!--Setup-->
   <string name="setup_title">Briar-a xoş gəlmisiniz!</string>
   <string name="setup_name_explanation">Sizin nikiniz yazdığlarınızın yanında görsənəcək. Hesabı yaradandan sonra onu dəyişə bilməzsiniz.</string>
@@ -21,8 +21,8 @@
   <string name="don_t_ask_again">Bir daha soruşulmasın</string>
   <string name="setup_huawei_text">Aşağıdakı düyməni basın və əmin olun ki, Briar \"Qorunan proqramlar\" ekranında qorunur.</string>
   <string name="setup_huawei_button">Briar-ın qorunması</string>
-  <string name="setup_huawei_help">Briar qorunan tətbiqlər siyahısına əlavə olunmasa, arxa planda işləməyəcəkdir.</string>
-  <string name="warning_dozed">%sarxa planda işə düşmədi</string>
+  <string name="dnkm_huawei_protected_help">Briar qorunan tətbiqlər siyahısına əlavə olunmasa, arxa planda işləməyəcəkdir.</string>
+  <string name="dnkm_warning_dozed">%sarxa planda işə düşmədi</string>
   <!--Login-->
   <string name="enter_password">Şifrə</string>
   <string name="try_again">Şifrə yanlışdır, bir daha cəhd edin</string>

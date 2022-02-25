@@ -25,11 +25,11 @@ import androidx.lifecycle.MutableLiveData;
 import static java.util.concurrent.TimeUnit.DAYS;
 import static java.util.logging.Level.WARNING;
 import static java.util.logging.Logger.getLogger;
+import static org.briarproject.android.dontkillmelib.DozeUtils.needsDozeWhitelisting;
 import static org.briarproject.bramble.util.LogUtils.logException;
 import static org.briarproject.briar.android.TestingConstants.EXPIRY_DATE;
 import static org.briarproject.briar.android.controller.BriarControllerImpl.DOZE_ASK_AGAIN;
 import static org.briarproject.briar.android.settings.SettingsFragment.SETTINGS_NAMESPACE;
-import static org.briarproject.briar.android.util.UiUtils.needsDozeWhitelisting;
 
 @NotNullByDefault
 public class NavDrawerViewModel extends DbViewModel {

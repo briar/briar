@@ -1,5 +1,5 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<resources xmlns:tools="http://schemas.android.com/tools">
+<resources>
   <!--Setup-->
   <string name="setup_title">Briar မှ ကြိုဆိုပါသည်</string>
   <string name="setup_name_explanation">သင့်နာမည်ပြောင်သည် သင်တင်ထားသမျှ၏ ဘေးတွင် ပေါ်နေပါလိမ့်မည်။ သို့ပါ၍ သင့်နာမည်ပြောင်အား အကောင့်ဖွင့်ပြီးနောက် ပြောင်း၍ မရတော့ပါ။</string>
@@ -21,16 +21,16 @@
   <string name="don_t_ask_again">ထပ်မမေးပါနဲ့</string>
   <string name="setup_huawei_text">အောက်ပါခလုတ်ကိုနှိပ်၍ \"ကာကွယ်မှုပေးထားသောအက်ပ်များ\" စခရင်တွင် Briar ကို ကာကွယ်ထားကြောင်း သေချာစေပါ။</string>
   <string name="setup_huawei_button">Briar ကို ကာကွယ်ပါ</string>
-  <string name="setup_huawei_help">ကာကွယ်မှုပေးထားသောအက်ပ်များစာရင်းတွင် ထည့်မထားလျှင် Briar ကို နောက်ကွယ်တွင် ဖွင့်ထားနိုင်မည်မဟုတ်ပါ။</string>
-  <string name="setup_huawei_app_launch_text">အောက်ပါခလုတ်ကိုနှိပ်ပြီး \"အက်ပ်စတင်ခြင်း\" စခရင်ကို ဖွင့်၍ Briar ကို \"ကိုယ်တိုင်စီမံမည်\" ဟု သတ်မှတ်ပါ။</string>
-  <string name="setup_huawei_app_launch_button">ဘတ္ထရီဆက်တင်များကို ဖွင့်ပါ</string>
+  <string name="dnkm_huawei_protected_help">ကာကွယ်မှုပေးထားသောအက်ပ်များစာရင်းတွင် ထည့်မထားလျှင် Briar ကို နောက်ကွယ်တွင် ဖွင့်ထားနိုင်မည်မဟုတ်ပါ။</string>
+  <string name="dnkm_huawei_app_launch_text">အောက်ပါခလုတ်ကိုနှိပ်ပြီး \"အက်ပ်စတင်ခြင်း\" စခရင်ကို ဖွင့်၍ Briar ကို \"ကိုယ်တိုင်စီမံမည်\" ဟု သတ်မှတ်ပါ။</string>
+  <string name="dnkm_huawei_app_launch_button">ဘတ္ထရီဆက်တင်များကို ဖွင့်ပါ</string>
   <string name="setup_huawei_app_launch_help">\"အက်ပ်စတင်ခြင်း\" စခရင်တွင် \"ကိုယ်တိုင်စီမံမည်\" ဟု သတ်မှတ်မထားလျှင် Briar ကို နောက်ကွယ်တွင် ဖွင့်ထားနိုင်မည်မဟုတ်ပါ။</string>
-  <string name="setup_xiaomi_text">ဖွင့်ထားသောအက်ပ်များစာရင်းတွင် Briar ကို လော့ခ်ချထားမှ နောက်ကွယ်တွင် ဖွင့်ထားနိုင်မည်။</string>
+  <string name="dnkm_xiaomi_text">ဖွင့်ထားသောအက်ပ်များစာရင်းတွင် Briar ကို လော့ခ်ချထားမှ နောက်ကွယ်တွင် ဖွင့်ထားနိုင်မည်။</string>
   <string name="setup_xiaomi_button">Briar ကို ကာကွယ်မည်</string>
-  <string name="setup_xiaomi_help">ဖွင့်ထားသောအက်ပ်များစာရင်းတွင် လော့ခ်ချမထားပါက Briar ကို နောက်ကွယ်တွင် ဖွင့်ထားနိုင်မည်မဟုတ်ပါ။</string>
-  <string name="setup_xiaomi_dialog_body_old">၁။ ဖွင့်ထားသောအက်ပ်များစာရင်း (တစ်နည်းအားဖြင့် အက်ပ်ပြောင်းရာ) ကို ဖွင့်ပါ\n\n၂။ သော့ခလောက်အိုင်ကွန်ပေါ်လာရန် Briar ပုံပေါ်မှ ပွတ်ဆွဲချပါ\n\n၃။ သော့ခတ်မထားပါက သော့ခတ်ရန်နှိပ်လိုက်ပါ</string>
-  <string name="setup_xiaomi_dialog_body_new">၁။ ဖွင့်ထားသောအက်ပ်များစာရင်း (တစ်နည်းအားဖြင့် အက်ပ်ပြောင်းရာ) ကို ဖွင့်ပါ\n\n ၂။ သော့ခလောက်ခလုတ်ပေါ်လာသည်အထိ Briar ပုံကို နှိပ်ထားပါ\n\n ၃။ သော့ခတ်မထားပါက သော့ခတ်ရန်နှိပ်လိုက်ပါ</string>
-  <string name="warning_dozed">%s ကို နောက်ကွယ်တွင် ဖွင့်မထားနိုင်ပါ</string>
+  <string name="dnkm_xiaomi_help">ဖွင့်ထားသောအက်ပ်များစာရင်းတွင် လော့ခ်ချမထားပါက Briar ကို နောက်ကွယ်တွင် ဖွင့်ထားနိုင်မည်မဟုတ်ပါ။</string>
+  <string name="dnkm_xiaomi_dialog_body_old">၁။ ဖွင့်ထားသောအက်ပ်များစာရင်း (တစ်နည်းအားဖြင့် အက်ပ်ပြောင်းရာ) ကို ဖွင့်ပါ\n\n၂။ သော့ခလောက်အိုင်ကွန်ပေါ်လာရန် Briar ပုံပေါ်မှ ပွတ်ဆွဲချပါ\n\n၃။ သော့ခတ်မထားပါက သော့ခတ်ရန်နှိပ်လိုက်ပါ</string>
+  <string name="dnkm_xiaomi_dialog_body_new">၁။ ဖွင့်ထားသောအက်ပ်များစာရင်း (တစ်နည်းအားဖြင့် အက်ပ်ပြောင်းရာ) ကို ဖွင့်ပါ\n\n ၂။ သော့ခလောက်ခလုတ်ပေါ်လာသည်အထိ Briar ပုံကို နှိပ်ထားပါ\n\n ၃။ သော့ခတ်မထားပါက သော့ခတ်ရန်နှိပ်လိုက်ပါ</string>
+  <string name="dnkm_warning_dozed">%s ကို နောက်ကွယ်တွင် ဖွင့်မထားနိုင်ပါ</string>
   <!--Login-->
   <string name="enter_password">စကားဝှက်</string>
   <string name="try_again">စကားဝှက်မှားနေတယ်၊ ထပ်စမ်းကြည့်ပါ</string>

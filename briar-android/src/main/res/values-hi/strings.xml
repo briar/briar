@@ -21,8 +21,8 @@
   <string name="don_t_ask_again">फिर से मत पूछो</string>
   <string name="setup_huawei_text">कृपया नीचे दिए गए बटन को टैप करें और सुनिश्चित करें कि \"संरक्षित ऐप्स\" स्क्रीन पर Briar  सुरक्षित है</string>
   <string name="setup_huawei_button">Briar की रक्षा करें</string>
-  <string name="setup_huawei_help">अगर Briar संरक्षित ऐप्स सूची में नहीं जोड़ा गया है, तो यह पृष्ठभूमि में चलने में असमर्थ होगा।</string>
-  <string name="warning_dozed">%sपृष्ठभूमि में चलाने में असमर्थ था</string>
+  <string name="dnkm_huawei_protected_help">अगर Briar संरक्षित ऐप्स सूची में नहीं जोड़ा गया है, तो यह पृष्ठभूमि में चलने में असमर्थ होगा।</string>
+  <string name="dnkm_warning_dozed">%sपृष्ठभूमि में चलाने में असमर्थ था</string>
   <!--Login-->
   <string name="enter_password">पासवर्ड</string>
   <string name="try_again">गलत पासवर्ड, फिर से प्रयास करें</string>

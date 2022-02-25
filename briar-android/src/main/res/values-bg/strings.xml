@@ -1,5 +1,5 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<resources xmlns:tools="http://schemas.android.com/tools">
+<resources>
   <!--Setup-->
   <string name="setup_title">Добре дошли в Briar</string>
   <string name="setup_name_explanation">Прякорът ще бъде видим до всяка ваша публикация. Няма да можете да го промените след като създадете профила си.</string>
@@ -21,16 +21,16 @@
   <string name="don_t_ask_again">Спиране на този въпрос</string>
   <string name="setup_huawei_text">Докоснете бутона по-долу и се уверете, че Briar е защитен в екрана за „Защитени приложения“.</string>
   <string name="setup_huawei_button">Защитаване на Briar</string>
-  <string name="setup_huawei_help">Ако не добавите Briar в списъка на защитени приложения, няма да може да работи на заден план.</string>
-  <string name="setup_huawei_app_launch_text">Докоснете бутона по-долу, отворете „Стартиране на приложения“ и се уверете, че за Briar е избрано „Ръчно управление“.</string>
-  <string name="setup_huawei_app_launch_button">Настройки на батерия</string>
+  <string name="dnkm_huawei_protected_help">Ако не добавите Briar в списъка на защитени приложения, няма да може да работи на заден план.</string>
+  <string name="dnkm_huawei_app_launch_text">Докоснете бутона по-долу, отворете „Стартиране на приложения“ и се уверете, че за Briar е избрано „Ръчно управление“.</string>
+  <string name="dnkm_huawei_app_launch_button">Настройки на батерия</string>
   <string name="setup_huawei_app_launch_help">Ако за Briar не е избрано „Ръчно управление“ в екрана „Стартиране на приложения“, тогава няма да може да работи на заден план.</string>
-  <string name="setup_xiaomi_text">За да работи на заден план Briar трябва да бъде заключен в списъка с последно използваните приложения.</string>
+  <string name="dnkm_xiaomi_text">За да работи на заден план Briar трябва да бъде заключен в списъка с последно използваните приложения.</string>
   <string name="setup_xiaomi_button">Защитаване на Briar</string>
-  <string name="setup_xiaomi_help">Ако Briar не е заключен в списъка с последно използваните приложения, няма да работи на заден план.</string>
-  <string name="setup_xiaomi_dialog_body_old">1. Отворете списъка с отворени приложения (списък за превключване на приложения)\n\n2. Плъзнете надолу върху изображението на Briar докато се покаже икона на катинар\n\n3. Ако катинарът е отключен го докоснете, за да го заключите</string>
-  <string name="setup_xiaomi_dialog_body_new">1. Отворете списъка с отворени приложения (списък за превключване на приложения)\n\n2. Докоснете и задръжте върху изображението на Briar докато се покаже икона на катинар\n\n3. Ако катинарът е отключен го докоснете, за да го заключите</string>
-  <string name="warning_dozed">%s не може да работи на заден план</string>
+  <string name="dnkm_xiaomi_help">Ако Briar не е заключен в списъка с последно използваните приложения, няма да работи на заден план.</string>
+  <string name="dnkm_xiaomi_dialog_body_old">1. Отворете списъка с отворени приложения (списък за превключване на приложения)\n\n2. Плъзнете надолу върху изображението на Briar докато се покаже икона на катинар\n\n3. Ако катинарът е отключен го докоснете, за да го заключите</string>
+  <string name="dnkm_xiaomi_dialog_body_new">1. Отворете списъка с отворени приложения (списък за превключване на приложения)\n\n2. Докоснете и задръжте върху изображението на Briar докато се покаже икона на катинар\n\n3. Ако катинарът е отключен го докоснете, за да го заключите</string>
+  <string name="dnkm_warning_dozed">%s не може да работи на заден план</string>
   <!--Login-->
   <string name="enter_password">Парола</string>
   <string name="try_again">Грешна парола, опитайте отново</string>

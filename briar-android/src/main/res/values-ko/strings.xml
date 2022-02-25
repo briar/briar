@@ -21,9 +21,9 @@
   <string name="don_t_ask_again">다시는 물어보지 않기</string>
   <string name="setup_huawei_text">밑의 버튼을 눌러 Briar를 \"보호된 앱\" 스크린에서 보호되게 해 주세요.</string>
   <string name="setup_huawei_button">Briar 보호하기</string>
-  <string name="setup_huawei_help">Briar를 보호된 앱 목록에 추가하지 않는다면, 백그라운드에서 실행될 수 없습니다.</string>
+  <string name="dnkm_huawei_protected_help">Briar를 보호된 앱 목록에 추가하지 않는다면, 백그라운드에서 실행될 수 없습니다.</string>
   <string name="setup_xiaomi_button">Briar 보호하기</string>
-  <string name="warning_dozed">%s가 백그라운드에서 실행될 수 없었습니다</string>
+  <string name="dnkm_warning_dozed">%s가 백그라운드에서 실행될 수 없었습니다</string>
   <!--Login-->
   <string name="enter_password">비밀번호</string>
   <string name="try_again">잘못된 비밀번호입니다. 다시 시도하세요.</string>

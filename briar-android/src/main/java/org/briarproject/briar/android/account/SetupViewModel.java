@@ -2,6 +2,7 @@ package org.briarproject.briar.android.account;
 
 import android.app.Application;
 
+import org.briarproject.android.dontkillmelib.DozeHelper;
 import org.briarproject.bramble.api.account.AccountManager;
 import org.briarproject.bramble.api.crypto.PasswordStrengthEstimator;
 import org.briarproject.bramble.api.lifecycle.IoExecutor;
@@ -95,7 +96,7 @@ class SetupViewModel extends AndroidViewModel {
 	}
 
 	boolean needToShowDozeFragment() {
-		return dozeHelper.needToShowDozeFragment(getApplication());
+		return dozeHelper.needToShowDoNotKillMeFragment(getApplication());
 	}
 
 	void dozeExceptionConfirmed() {

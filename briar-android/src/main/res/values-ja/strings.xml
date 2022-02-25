@@ -1,5 +1,5 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<resources xmlns:tools="http://schemas.android.com/tools">
+<resources>
   <!--Setup-->
   <string name="setup_title">Briarへようこそ</string>
   <string name="setup_name_explanation">あなたのニックネームは、常に、あなたが投稿するコンテンツとともに表示されます。プロフィール作成後、編集はできません。</string>
@@ -21,10 +21,10 @@
   <string name="don_t_ask_again">次からは尋ねない</string>
   <string name="setup_huawei_text">下のボタンをタップして、「保護されたアプリ」画面でBriarが保護されていることを確認してください。</string>
   <string name="setup_huawei_button">Briarを保護</string>
-  <string name="setup_huawei_help">Briarが保護されたアプリのリストに追加されていない場合、Briarはバックグラウンドで実行することができません。</string>
-  <string name="setup_huawei_app_launch_button">バッテリー設定を開く</string>
+  <string name="dnkm_huawei_protected_help">Briarが保護されたアプリのリストに追加されていない場合、Briarはバックグラウンドで実行することができません。</string>
+  <string name="dnkm_huawei_app_launch_button">バッテリー設定を開く</string>
   <string name="setup_xiaomi_button">Briarを保護</string>
-  <string name="warning_dozed">%sはバックグラウンドで実行することができませんでした</string>
+  <string name="dnkm_warning_dozed">%sはバックグラウンドで実行することができませんでした</string>
   <!--Login-->
   <string name="enter_password">パスワード</string>
   <string name="try_again">パスワードが間違っています。もう一度入力してください。</string>

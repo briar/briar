@@ -1,5 +1,5 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<resources xmlns:tools="http://schemas.android.com/tools">
+<resources>
   <!--Setup-->
   <string name="setup_title">Welkom bij Briar</string>
   <string name="setup_name_explanation">Je bijnaam wordt getoond bij alle content die je post. Nadat je account is aangemaakt is het niet mogelijk je bijnaam te wijzigen.</string>
@@ -21,9 +21,9 @@
   <string name="don_t_ask_again">Vraag niet nog een keer</string>
   <string name="setup_huawei_text">Tik alsjeblieft op de knop hieronder en ga nadat Briar is beschermd naar het scherm \"Beveiligde apps\".</string>
   <string name="setup_huawei_button">Bescherm Briar</string>
-  <string name="setup_huawei_help">Als Briar niet is toegevoegd aan de beschermde apps, is het niet mogelijk om het in de achtergrond uit te voeren.</string>
+  <string name="dnkm_huawei_protected_help">Als Briar niet is toegevoegd aan de beschermde apps, is het niet mogelijk om het in de achtergrond uit te voeren.</string>
   <string name="setup_xiaomi_button">Bescherm Briar</string>
-  <string name="warning_dozed">%s kon niet in de achtergrond worden uitgevoerd</string>
+  <string name="dnkm_warning_dozed">%s kon niet in de achtergrond worden uitgevoerd</string>
   <!--Login-->
   <string name="enter_password">Wachtwoord</string>
   <string name="try_again">Verkeerd wachtwoord, probeer het nog een keer</string>

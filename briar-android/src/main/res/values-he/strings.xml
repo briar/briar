@@ -1,5 +1,5 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<resources xmlns:tools="http://schemas.android.com/tools">
+<resources>
   <!--Setup-->
   <string name="setup_title">ברוך בואך אל Briar</string>
   <string name="setup_name_explanation">כינויך יוראה ליד תוכן כלשהו שתכתוב. אינך יכול לשנות אותו לאחר יצירת חשבונך.</string>
@@ -21,9 +21,9 @@
   <string name="don_t_ask_again">לא לשאול שוב</string>
   <string name="setup_huawei_text">נא להקיש על הכפתור למטה וולוודא כי Briar מוגן במסך \"יישומים מוגנים\".</string>
   <string name="setup_huawei_button">הגן על Briar</string>
-  <string name="setup_huawei_help">אם Briar אינו מוסף אל רשימת היישומים המוגנים, הוא לא יוכל לרוץ ברקע.</string>
+  <string name="dnkm_huawei_protected_help">אם Briar אינו מוסף אל רשימת היישומים המוגנים, הוא לא יוכל לרוץ ברקע.</string>
   <string name="setup_xiaomi_button">הגן על Briar</string>
-  <string name="warning_dozed">%s לא היה יכול לרוץ ברקע</string>
+  <string name="dnkm_warning_dozed">%s לא היה יכול לרוץ ברקע</string>
   <!--Login-->
   <string name="enter_password">סיסמה</string>
   <string name="try_again">סיסמה שגויה, נסה שוב</string>

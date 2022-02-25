@@ -21,9 +21,9 @@
   <string name="don_t_ask_again">Ez galdetu berriro</string>
   <string name="setup_huawei_text">Sakatu beheko botoia eta ziurtatu Briar babestuta dagoela \"Babestutako aplikazioak\" pantailan.</string>
   <string name="setup_huawei_button">Babestu Briar</string>
-  <string name="setup_huawei_help">Briar ez bada babestutako aplikazioen zerrendara gehitzen, ezin izango du bigarren planoan ibili.</string>
+  <string name="dnkm_huawei_protected_help">Briar ez bada babestutako aplikazioen zerrendara gehitzen, ezin izango du bigarren planoan ibili.</string>
   <string name="setup_xiaomi_button">Babestu Briar</string>
-  <string name="warning_dozed">%s ezin izan da bigarren planoan exekutatu</string>
+  <string name="dnkm_warning_dozed">%s ezin izan da bigarren planoan exekutatu</string>
   <!--Login-->
   <string name="enter_password">Pasahitza</string>
   <string name="try_again">Pasahitz okerra, saiatu berriro</string>

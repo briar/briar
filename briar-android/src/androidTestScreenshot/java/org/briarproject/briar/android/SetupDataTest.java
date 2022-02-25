@@ -75,7 +75,7 @@ public class SetupDataTest extends ScreenshotTest {
 
 		// White-list Doze if needed
 		if (needsDozeWhitelisting(getApplicationContext())) {
-			onView(withText(R.string.setup_doze_button))
+			onView(withText(R.string.dnkm_doze_button))
 					.check(matches(isDisplayed()))
 					.perform(click());
 			UiDevice device = UiDevice.getInstance(getInstrumentation());

@@ -129,7 +129,7 @@ public class PromoVideoTest extends ScreenshotTest {
 
 		// White-list Doze if needed
 		if (needsDozeWhitelisting(getApplicationContext())) {
-			doClick(withText(R.string.setup_doze_button));
+			doClick(withText(R.string.dnkm_doze_button));
 			UiDevice device = UiDevice.getInstance(getInstrumentation());
 			UiObject allowButton = device.findObject(
 					new UiSelector().className("android.widget.Button")

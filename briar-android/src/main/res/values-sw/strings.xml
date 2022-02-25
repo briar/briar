@@ -24,10 +24,10 @@ Nenosiri zako haziendani </string>
   <string name="don_t_ask_again">Usiulize tena </string>
   <string name="setup_huawei_text">tafathali bonyeza alama hapo chini ili kuhakikisha Briar imelindwa na \"programu Ulizi\" kwenye kioo chako </string>
   <string name="setup_huawei_button">Linda Briar </string>
-  <string name="setup_huawei_help">
+  <string name="dnkm_huawei_protected_help">
 Kama Briar haija wekwa kwenye orotha programu ulizi, haitaweza kufanya kazi kwenye nyuma ya mkongo</string>
   <string name="setup_xiaomi_button">Linda Briar </string>
-  <string name="warning_dozed">%shaijawezekana kujiendesha kwa nyuma ya mkongo</string>
+  <string name="dnkm_warning_dozed">%shaijawezekana kujiendesha kwa nyuma ya mkongo</string>
   <!--Login-->
   <string name="enter_password">Nywila
 nenosiri</string>

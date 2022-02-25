@@ -1,5 +1,5 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<resources xmlns:tools="http://schemas.android.com/tools">
+<resources>
   <!--Setup-->
   <string name="setup_title">Välkommen till Briar</string>
   <string name="setup_name_explanation">Ditt användarnamn kommer att visas bredvid allt innehåll som du lägger upp. Du kan inte ändra ditt användarnamn efter att ditt konto skapats.</string>
@@ -21,16 +21,16 @@
   <string name="don_t_ask_again">Fråga inte igen</string>
   <string name="setup_huawei_text">Tryck på knappen längre ner för att lägga till Briar till listan över \"skyddade appar\".</string>
   <string name="setup_huawei_button">Skydda Briar</string>
-  <string name="setup_huawei_help">Om Briar inte läggs till listan över skyddade appar kan det inte köras i bakgrunden.</string>
-  <string name="setup_huawei_app_launch_text">Klicka på knappen nedan, öppna skärmen ”App-start” och säkerställ att Briar är inställt på ”Hantera manuellt”</string>
-  <string name="setup_huawei_app_launch_button">Öppna batteriinställningar</string>
+  <string name="dnkm_huawei_protected_help">Om Briar inte läggs till listan över skyddade appar kan det inte köras i bakgrunden.</string>
+  <string name="dnkm_huawei_app_launch_text">Klicka på knappen nedan, öppna skärmen ”App-start” och säkerställ att Briar är inställt på ”Hantera manuellt”</string>
+  <string name="dnkm_huawei_app_launch_button">Öppna batteriinställningar</string>
   <string name="setup_huawei_app_launch_help">Om Briar inte är inställt på ”Hantera manuellt” i skärmen ”App-start” kommer den inte att kunna köra i bakgrunden.</string>
-  <string name="setup_xiaomi_text">För att köra i bakgrunden måste Briar låsas in i listan över senaste appar.</string>
+  <string name="dnkm_xiaomi_text">För att köra i bakgrunden måste Briar låsas in i listan över senaste appar.</string>
   <string name="setup_xiaomi_button">Skydda Briar</string>
-  <string name="setup_xiaomi_help">Om Briar inte låsas in i listan över senaste appar kommer det inte att kunna köra i bakgrunden.</string>
-  <string name="setup_xiaomi_dialog_body_old">1. Öppna listan över senaste appar (också kallade appväxlaren)\n\n2. Svep nedåt vid bilden av Briar för att visa hänglåsikonen\n\n3. Om hänglåsikonen inte är låst, klicka för att låsa den</string>
-  <string name="setup_xiaomi_dialog_body_new">1. Öppna listan över senaste appar (också kallade appväxlaren)\n\n2. Tryck och håll på bilden av Briar tills hänglåsikonen dyker upp\n\n3. Om hänglåsikonen inte är låst, klicka för att låsa den</string>
-  <string name="warning_dozed">%s kunde inte köras i bakgrunden</string>
+  <string name="dnkm_xiaomi_help">Om Briar inte låsas in i listan över senaste appar kommer det inte att kunna köra i bakgrunden.</string>
+  <string name="dnkm_xiaomi_dialog_body_old">1. Öppna listan över senaste appar (också kallade appväxlaren)\n\n2. Svep nedåt vid bilden av Briar för att visa hänglåsikonen\n\n3. Om hänglåsikonen inte är låst, klicka för att låsa den</string>
+  <string name="dnkm_xiaomi_dialog_body_new">1. Öppna listan över senaste appar (också kallade appväxlaren)\n\n2. Tryck och håll på bilden av Briar tills hänglåsikonen dyker upp\n\n3. Om hänglåsikonen inte är låst, klicka för att låsa den</string>
+  <string name="dnkm_warning_dozed">%s kunde inte köras i bakgrunden</string>
   <!--Login-->
   <string name="enter_password">Lösenord</string>
   <string name="try_again">Felaktigt lösenord, försök igen </string>

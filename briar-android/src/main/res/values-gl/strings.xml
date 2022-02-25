@@ -1,5 +1,5 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<resources xmlns:tools="http://schemas.android.com/tools">
+<resources>
   <!--Setup-->
   <string name="setup_title">Benvida a Briar</string>
   <string name="setup_name_explanation">O teu alcume mostrarase xunto a todas as mensaxes que publiques. Podes cambialo tras crear a túa conta.</string>
@@ -21,9 +21,9 @@
   <string name="don_t_ask_again">Non preguntar de novo</string>
   <string name="setup_huawei_text">Por favor toca o botón inferior e asegúrate de que Briar está protexida na pantalla \"Apps Protexidas\"</string>
   <string name="setup_huawei_button">Protexer Briar</string>
-  <string name="setup_huawei_help">Se Briar non se engade ao listado de apps protexidas, non poderá funcionar en segundo plano.</string>
+  <string name="dnkm_huawei_protected_help">Se Briar non se engade ao listado de apps protexidas, non poderá funcionar en segundo plano.</string>
   <string name="setup_xiaomi_button">Protexer Briar</string>
-  <string name="warning_dozed">%s non foi quen de funcionar en segundo plano</string>
+  <string name="dnkm_warning_dozed">%s non foi quen de funcionar en segundo plano</string>
   <!--Login-->
   <string name="enter_password">Contrasinal</string>
   <string name="try_again">Contrasinal incorrecto, tenteo de novo</string>

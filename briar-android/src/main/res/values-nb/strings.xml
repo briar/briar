@@ -21,8 +21,8 @@
   <string name="don_t_ask_again">Ikke spør igjen</string>
   <string name="setup_huawei_text">Trykk på knappen nedenfor for å forsikre at Briar er beskyttet i \"Beskyttede programmer\".</string>
   <string name="setup_huawei_button">Beskytt Briar</string>
-  <string name="setup_huawei_help">Hvis Briar ikke er lagt til i listen over beskyttede programmer, vil det ikke kunne kjøre i bakgrunnen.</string>
-  <string name="warning_dozed">%s klarte ikke å kjøre i bakgrunnen</string>
+  <string name="dnkm_huawei_protected_help">Hvis Briar ikke er lagt til i listen over beskyttede programmer, vil det ikke kunne kjøre i bakgrunnen.</string>
+  <string name="dnkm_warning_dozed">%s klarte ikke å kjøre i bakgrunnen</string>
   <!--Login-->
   <string name="enter_password">Passord</string>
   <string name="try_again">Feil passord, prøv igjen</string>

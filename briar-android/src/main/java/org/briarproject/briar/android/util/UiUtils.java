@@ -1,7 +1,5 @@
 package org.briarproject.briar.android.util;
 
-import android.annotation.SuppressLint;
-import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.KeyguardManager;
 import android.content.ActivityNotFoundException;
@@ -12,7 +10,6 @@ import android.content.res.Resources;
 import android.graphics.drawable.Drawable;
 import android.location.LocationManager;
 import android.net.Uri;
-import android.os.PowerManager;
 import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.SpannableStringBuilder;
@@ -69,13 +66,11 @@ import androidx.lifecycle.Observer;
 import androidx.vectordrawable.graphics.drawable.VectorDrawableCompat;
 
 import static android.content.Context.KEYGUARD_SERVICE;
-import static android.content.Context.POWER_SERVICE;
 import static android.content.Intent.CATEGORY_DEFAULT;
 import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
 import static android.os.Build.MANUFACTURER;
 import static android.os.Build.VERSION.SDK_INT;
 import static android.provider.Settings.ACTION_LOCATION_SOURCE_SETTINGS;
-import static android.provider.Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS;
 import static android.text.format.DateUtils.DAY_IN_MILLIS;
 import static android.text.format.DateUtils.FORMAT_ABBREV_ALL;
 import static android.text.format.DateUtils.FORMAT_ABBREV_MONTH;
@@ -338,23 +333,6 @@ public class UiUtils {
 				.setNeutralButton(R.string.got_it,
 						(dialog, which) -> dialog.cancel())
 				.show();
-	}
-
-	public static boolean needsDozeWhitelisting(Context ctx) {
-		if (SDK_INT < 23) return false;
-		PowerManager pm = (PowerManager) ctx.getSystemService(POWER_SERVICE);
-		String packageName = ctx.getPackageName();
-		if (pm == null) throw new AssertionError();
-		return !pm.isIgnoringBatteryOptimizations(packageName);
-	}
-
-	@TargetApi(23)
-	@SuppressLint("BatteryLife")
-	public static Intent getDozeWhitelistingIntent(Context ctx) {
-		Intent i = new Intent();
-		i.setAction(ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS);
-		i.setData(Uri.parse("package:" + ctx.getPackageName()));
-		return i;
 	}
 
 	/**

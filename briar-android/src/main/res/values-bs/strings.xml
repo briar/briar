@@ -1,5 +1,5 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<resources xmlns:tools="http://schemas.android.com/tools">
+<resources>
   <!--Setup-->
   <string name="setup_title">Dobrodošli u Briar</string>
   <string name="setup_name_explanation">Vaše korisničko ime će biti prikazano pored sadržaja posta. Nemožete ga mijenjati nakon kreiranje računa.</string>
@@ -21,8 +21,8 @@
   <string name="don_t_ask_again">Ne pitaj ponovo</string>
   <string name="setup_huawei_text">Molim dotaknite dugme ispod i provjerite da je Briar zaštićen na \"Protected Apps\" listi.</string>
   <string name="setup_huawei_button">Zaštiti Briar</string>
-  <string name="setup_huawei_help">Ako Briar nije dodat u listu zaštićenih aplikacija - protected apps, neće moći da radi u pozadinskom modu.</string>
-  <string name="warning_dozed">%s nije mogao da se pokrene u pozadinskom modu</string>
+  <string name="dnkm_huawei_protected_help">Ako Briar nije dodat u listu zaštićenih aplikacija - protected apps, neće moći da radi u pozadinskom modu.</string>
+  <string name="dnkm_warning_dozed">%s nije mogao da se pokrene u pozadinskom modu</string>
   <!--Login-->
   <string name="enter_password">Lozinka</string>
   <string name="try_again">Pogrešna lozinka, probajte ponovo</string>

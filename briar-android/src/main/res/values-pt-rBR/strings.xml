@@ -1,5 +1,5 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<resources xmlns:tools="http://schemas.android.com/tools">
+<resources>
   <!--Setup-->
   <string name="setup_title">Boas-vindas ao Briar</string>
   <string name="setup_name_explanation">Seu nome de usuária será mostrado próximo a qualquer conteúdo que você publicar. Você não pode mudá-lo depois que criar sua conta,</string>
@@ -21,7 +21,7 @@
   <string name="don_t_ask_again">Não perguntar novamente</string>
   <string name="setup_huawei_text">Toque no botão abaixo e verifique se o Briar está protegido na tela \"Aplicativos Protegidos\"</string>
   <string name="setup_huawei_button">Proteger o Briar</string>
-  <string name="setup_huawei_help">Se o Briar não for adicionado à lista de aplicativos protegidos ele não poderá ser executado em segundo plano.</string>
+  <string name="dnkm_huawei_protected_help">Se o Briar não for adicionado à lista de aplicativos protegidos ele não poderá ser executado em segundo plano.</string>
   <string name="setup_huawei_app_launch_text">Por favor, toque no botão abaixo, abra a tela de \"Lançamento de apps\" e certifique que o Briar está definido para \"Gerenciar manualmente\".</string>
   <string name="setup_huawei_app_launch_button">Abrir Configurações de Bateria</string>
   <string name="setup_huawei_app_launch_help">Se o Briar não estiver definido como \"Gerenciar manualmente\" na tela de \"Lançamento de apps\", ele não poderá ser executado em segundo plano.</string>
@@ -31,7 +31,7 @@
   <string name="setup_xiaomi_help">Se o Briar não estiver fixado na lista de aplicativos recentes, ele não será capaz de rodar em segundo plano.</string>
   <string name="setup_xiaomi_dialog_body_old">1. Abra a lista de aplicativos recentes (também chamada de alternador de aplicativos)\n\n2. Deslize para baixo na imagem do Briar para mostrar o ícone de cadeado\n\n3. Se o cadeado não estiver trancado, toque para trancá-lo</string>
   <string name="setup_xiaomi_dialog_body_new">1. Abra a lista de aplicativos recentes (também chamada de alternador de aplicativos)\n\n2. Pressione e segure na imagem do Briar para mostrar o ícone de cadeado\n\n3. Se o cadeado não estiver trancado, toque para trancá-lo</string>
-  <string name="warning_dozed">%s não pôde ser executado em segundo plano</string>
+  <string name="dnkm_warning_dozed">%s não pôde ser executado em segundo plano</string>
   <!--Login-->
   <string name="enter_password">Senha</string>
   <string name="try_again">Senha Incorreta, tente novamente</string>

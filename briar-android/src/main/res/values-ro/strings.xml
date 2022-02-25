@@ -1,5 +1,5 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<resources xmlns:tools="http://schemas.android.com/tools">
+<resources>
   <!--Setup-->
   <string name="setup_title">Bine ați venit la Briar</string>
   <string name="setup_name_explanation">Numele dumneavoastră va fi afișat lângă orice conținut trimis. Nu îl veți putea schimba după crearea contului.</string>
@@ -21,17 +21,17 @@
   <string name="don_t_ask_again">Nu mai întreba din nou</string>
   <string name="setup_huawei_text">Vă rugăm să apăsați butonul de mai jos și să vă asigurați că Briar este marcat ca protejat în fereastra de \"Aplicații protejate\".</string>
   <string name="setup_huawei_button">Protejează Briar</string>
-  <string name="setup_huawei_help">Dacă Briar nu este adăugat în lista de aplicații protejate, nu va fi capabil să ruleze în fundal.</string>
-  <string name="setup_huawei_app_launch_text">Vă rugăm să atingeți butonul de mai jos, să deschideți ecranul \"Lansare aplicație\" și să vă asigurați că Briar este setat la \"Gestionare manuală\".</string>
-  <string name="setup_huawei_app_launch_button">Deschide setările de baterie</string>
+  <string name="dnkm_huawei_protected_help">Dacă Briar nu este adăugat în lista de aplicații protejate, nu va fi capabil să ruleze în fundal.</string>
+  <string name="dnkm_huawei_app_launch_text">Vă rugăm să atingeți butonul de mai jos, să deschideți ecranul \"Lansare aplicație\" și să vă asigurați că Briar este setat la \"Gestionare manuală\".</string>
+  <string name="dnkm_huawei_app_launch_button">Deschide setările de baterie</string>
   <string name="setup_huawei_app_launch_help">Dacă Briar nu este setat la \" Gestionare manuală\" în ecranul \"Lansare aplicație\", nu va putea rula în fundal.</string>
-  <string name="setup_huawei_app_launch_error_toast">Nu se pot deschide setările de baterie.</string>
-  <string name="setup_xiaomi_text">Pentru a funcționa în fundal, Briar trebuie să fie blocat în lista de aplicații recente.</string>
+  <string name="dnkm_huawei_app_launch_error_toast">Nu se pot deschide setările de baterie.</string>
+  <string name="dnkm_xiaomi_text">Pentru a funcționa în fundal, Briar trebuie să fie blocat în lista de aplicații recente.</string>
   <string name="setup_xiaomi_button">Protejează Briar</string>
-  <string name="setup_xiaomi_help">Dacă Briar nu este blocat în lista de aplicații recente, acesta nu va putea rula în fundal.</string>
-  <string name="setup_xiaomi_dialog_body_old">1. Deschideți lista de aplicații recente (denumită și comutatorul de aplicații)\n\n2. Trageți cu degetul în jos pe imaginea lui Briar pentru a afișa pictograma lacătului\n\n3. Dacă lacătul nu este blocat, atingeți pentru a-l bloca</string>
-  <string name="setup_xiaomi_dialog_body_new">1. Deschideți lista de aplicații recente (denumită și comutatorul de aplicatii)\n\n2. Țineți apăsată imaginea lui Briar până când apare butonul cu lacăt\n\n3. Dacă lacătul nu este blocat, apăsați pentru a-l bloca</string>
-  <string name="warning_dozed">%s nu poate rula în fundal</string>
+  <string name="dnkm_xiaomi_help">Dacă Briar nu este blocat în lista de aplicații recente, acesta nu va putea rula în fundal.</string>
+  <string name="dnkm_xiaomi_dialog_body_old">1. Deschideți lista de aplicații recente (denumită și comutatorul de aplicații)\n\n2. Trageți cu degetul în jos pe imaginea lui Briar pentru a afișa pictograma lacătului\n\n3. Dacă lacătul nu este blocat, atingeți pentru a-l bloca</string>
+  <string name="dnkm_xiaomi_dialog_body_new">1. Deschideți lista de aplicații recente (denumită și comutatorul de aplicatii)\n\n2. Țineți apăsată imaginea lui Briar până când apare butonul cu lacăt\n\n3. Dacă lacătul nu este blocat, apăsați pentru a-l bloca</string>
+  <string name="dnkm_warning_dozed">%s nu poate rula în fundal</string>
   <!--Login-->
   <string name="enter_password">Parola</string>
   <string name="try_again">Parolă greșită, reîncercați</string>

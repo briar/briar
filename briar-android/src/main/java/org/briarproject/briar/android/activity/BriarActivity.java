@@ -36,11 +36,11 @@ import static android.content.Intent.FLAG_ACTIVITY_NO_ANIMATION;
 import static android.os.Build.VERSION.SDK_INT;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Logger.getLogger;
+import static org.briarproject.android.dontkillmelib.DozeUtils.getDozeWhitelistingIntent;
 import static org.briarproject.briar.android.activity.RequestCodes.REQUEST_DOZE_WHITELISTING;
 import static org.briarproject.briar.android.activity.RequestCodes.REQUEST_PASSWORD;
 import static org.briarproject.briar.android.activity.RequestCodes.REQUEST_UNLOCK;
 import static org.briarproject.briar.android.util.UiUtils.excludeSystemUi;
-import static org.briarproject.briar.android.util.UiUtils.getDozeWhitelistingIntent;
 import static org.briarproject.briar.android.util.UiUtils.isSamsung7;
 
 @MethodsNotNullByDefault
@@ -116,7 +116,7 @@ public abstract class BriarActivity extends BaseActivity {
 				@Override
 				public void onResultUi(Boolean result) {
 					if (result) {
-						showDozeDialog(getString(R.string.warning_dozed,
+						showDozeDialog(getString(R.string.dnkm_warning_dozed,
 								getString(R.string.app_name)));
 					}
 				}

@@ -1,5 +1,5 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<resources xmlns:tools="http://schemas.android.com/tools">
+<resources>
   <!--Setup-->
   <string name="setup_title">Vítejte v Briar</string>
   <string name="setup_name_explanation">Vaše uživatelské jméno bude zobrazeno u jakéhokoli obsahu, který zveřejníte. Následná změna již nebude možná.</string>
@@ -21,8 +21,8 @@
   <string name="don_t_ask_again">Znovu se již neptat</string>
   <string name="setup_huawei_text">Klikněte na níže uvedené tlačítko a ujistěte se, že byl Briar zařazen mezi \"Chráněné aplikace\".</string>
   <string name="setup_huawei_button">Chránit Briar</string>
-  <string name="setup_huawei_help">Pokud nebyl Briar přidán mezi chráněné aplikace, nebude ho možné spustit na pozadí.</string>
-  <string name="warning_dozed">%s nebylo možné spustit na pozadí</string>
+  <string name="dnkm_huawei_protected_help">Pokud nebyl Briar přidán mezi chráněné aplikace, nebude ho možné spustit na pozadí.</string>
+  <string name="dnkm_warning_dozed">%s nebylo možné spustit na pozadí</string>
   <!--Login-->
   <string name="enter_password">Heslo</string>
   <string name="try_again">Zadali jste špatné heslo, zkuste to znovu</string>
