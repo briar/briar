@@ -1,5 +1,6 @@
 package org.briarproject.briar.android.mailbox;
 
+import android.content.Context;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -11,12 +12,15 @@ import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
 import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
 import org.briarproject.briar.R;
 
+import javax.inject.Inject;
+
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentActivity;
+import androidx.lifecycle.ViewModelProvider;
 
 import static android.view.View.FOCUS_DOWN;
-import static org.briarproject.briar.android.util.UiUtils.showFragment;
+import static org.briarproject.briar.android.AppModule.getAndroidComponent;
 
 @MethodsNotNullByDefault
 @ParametersNotNullByDefault
@@ -24,7 +28,21 @@ public class SetupIntroFragment extends Fragment {
 
 	static final String TAG = SetupIntroFragment.class.getName();
 
+	@Inject
+	ViewModelProvider.Factory viewModelFactory;
+
+	private MailboxViewModel viewModel;
+
 	private ScrollView scrollView;
+
+	@Override
+	public void onAttach(Context context) {
+		super.onAttach(context);
+		FragmentActivity activity = requireActivity();
+		getAndroidComponent(activity).inject(this);
+		viewModel = new ViewModelProvider(activity, viewModelFactory)
+				.get(MailboxViewModel.class);
+	}
 
 	@Nullable
 	@Override
@@ -35,11 +53,7 @@ public class SetupIntroFragment extends Fragment {
 				container, false);
 		scrollView = v.findViewById(R.id.scrollView);
 		Button button = v.findViewById(R.id.continueButton);
-		button.setOnClickListener(view -> {
-			FragmentManager fm = getParentFragmentManager();
-			Fragment f = new SetupDownloadFragment();
-			showFragment(fm, f, SetupDownloadFragment.TAG);
-		});
+		button.setOnClickListener(view -> viewModel.showDownloadFragment());
 		return v;
 	}
 

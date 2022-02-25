@@ -1,41 +1,37 @@
 package org.briarproject.briar.android.mailbox;
 
-import org.briarproject.bramble.api.mailbox.MailboxProperties;
+import org.briarproject.bramble.api.mailbox.MailboxPairingState;
 import org.briarproject.bramble.api.mailbox.MailboxStatus;
-
-import androidx.annotation.Nullable;
 
 class MailboxState {
 
 	static class NotSetup extends MailboxState {
 	}
 
+	static class ShowDownload extends MailboxState {
+	}
+
 	static class ScanningQrCode extends MailboxState {
 	}
 
-	static class SettingUp extends MailboxState {
-	}
+	static class Pairing extends MailboxState {
+		final MailboxPairingState pairingState;
 
-	static class QrCodeWrong extends MailboxState {
-	}
-
-	static class OfflineInSetup extends MailboxState {
-		@Nullable
-		final MailboxProperties mailboxProperties;
-
-		OfflineInSetup(@Nullable MailboxProperties mailboxProperties) {
-			this.mailboxProperties = mailboxProperties;
-		}
-
-		OfflineInSetup() {
-			this(null);
+		Pairing(MailboxPairingState pairingState) {
+			this.pairingState = pairingState;
 		}
 	}
 
-	static class IsSetup extends MailboxState {
+	static class OfflineWhenPairing extends MailboxState {
+	}
+
+	static class CameraError extends MailboxState {
+	}
+
+	static class IsPaired extends MailboxState {
 		final MailboxStatus mailboxStatus;
 
-		IsSetup(MailboxStatus mailboxStatus) {
+		IsPaired(MailboxStatus mailboxStatus) {
 			this.mailboxStatus = mailboxStatus;
 		}
 	}

@@ -71,7 +71,7 @@ class MailboxPairingTaskImpl implements MailboxPairingTask {
 		this.clock = clock;
 		this.api = api;
 		this.mailboxSettingsManager = mailboxSettingsManager;
-		state = new MailboxPairingState.QrCodeReceived(payload);
+		state = new MailboxPairingState.QrCodeReceived();
 	}
 
 	@Override
@@ -100,15 +100,15 @@ class MailboxPairingTaskImpl implements MailboxPairingTask {
 		} catch (MailboxAlreadyPairedException e) {
 			onMailboxError(e, new MailboxPairingState.MailboxAlreadyPaired());
 		} catch (IOException e) {
-			onMailboxError(e, new MailboxPairingState.ConnectionError(payload));
+			onMailboxError(e, new MailboxPairingState.ConnectionError());
 		} catch (ApiException | DbException e) {
-			onMailboxError(e, new MailboxPairingState.UnexpectedError(payload));
+			onMailboxError(e, new MailboxPairingState.UnexpectedError());
 		}
 	}
 
 	private void pairMailbox() throws IOException, ApiException, DbException {
 		MailboxProperties mailboxProperties = decodeQrCodePayload(payload);
-		setState(new MailboxPairingState.Pairing(payload));
+		setState(new MailboxPairingState.Pairing());
 		MailboxAuthToken ownerToken = api.setup(mailboxProperties);
 		MailboxProperties ownerProperties = new MailboxProperties(
 				mailboxProperties.getBaseUrl(), ownerToken, true);
