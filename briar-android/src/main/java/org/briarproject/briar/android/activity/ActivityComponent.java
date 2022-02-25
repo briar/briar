@@ -70,7 +70,6 @@ import org.briarproject.briar.android.remotewipe.RemoteWipeSetupExplainerFragmen
 import org.briarproject.briar.android.remotewipe.WiperSelectorFragment;
 import org.briarproject.briar.android.remotewipe.activate.ActivateRemoteWipeActivity;
 import org.briarproject.briar.android.remotewipe.activate.ActivateRemoteWipeExplainerFragment;
-import org.briarproject.briar.android.remotewipe.activate.ActivateRemoteWipeSuccessFragment;
 import org.briarproject.briar.android.remotewipe.revoke.RevokeRemoteWipeActivity;
 import org.briarproject.briar.android.remotewipe.revoke.RevokeRemoteWipeSuccessFragment;
 import org.briarproject.briar.android.reporting.CrashFragment;
@@ -318,8 +317,6 @@ public interface ActivityComponent {
 	void inject(RemoteWipeDisplayFragment remoteWipeDisplayFragment);
 
 	void inject(ActivateRemoteWipeExplainerFragment activateRemoteWipeExplainerFragment);
-
-	void inject(ActivateRemoteWipeSuccessFragment activateRemoteWipeSuccessFragment);
 
 	void inject(RevokeRemoteWipeSuccessFragment revokeRemoteWipeSuccessFragment);
 
