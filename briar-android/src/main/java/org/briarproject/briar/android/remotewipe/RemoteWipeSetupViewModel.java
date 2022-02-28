@@ -1,45 +1,77 @@
 package org.briarproject.briar.android.remotewipe;
 
 import android.app.Application;
-import android.provider.ContactsContract;
 
 import org.briarproject.bramble.api.FormatException;
+import org.briarproject.bramble.api.connection.ConnectionRegistry;
 import org.briarproject.bramble.api.contact.ContactId;
+import org.briarproject.bramble.api.contact.ContactManager;
 import org.briarproject.bramble.api.db.DatabaseComponent;
+import org.briarproject.bramble.api.db.DatabaseExecutor;
 import org.briarproject.bramble.api.db.DbException;
-import org.briarproject.bramble.api.identity.Author;
+import org.briarproject.bramble.api.event.EventBus;
+import org.briarproject.bramble.api.lifecycle.LifecycleManager;
+import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
+import org.briarproject.bramble.api.system.AndroidExecutor;
+import org.briarproject.briar.android.contact.ContactsViewModel;
+import org.briarproject.briar.api.conversation.ConversationManager;
+import org.briarproject.briar.api.identity.AuthorManager;
 import org.briarproject.briar.api.remotewipe.RemoteWipeManager;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.concurrent.Executor;
 
 import javax.inject.Inject;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.UiThread;
-import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.MutableLiveData;
 
-public class RemoteWipeSetupViewModel extends AndroidViewModel {
+@NotNullByDefault
+public class RemoteWipeSetupViewModel extends ContactsViewModel {
 	private final RemoteWipeManager remoteWipeManager;
 	private final DatabaseComponent db;
-	private final MutableLiveData<RemoteWipeSetupState> state = new MutableLiveData<>();
+	private List<ContactId> wiperContactIds;
+	private final MutableLiveData<RemoteWipeSetupState> state =
+			new MutableLiveData<>();
+
+	private final ContactManager contactManager;
+	private final AuthorManager authorManager;
 
 	@Inject
 	RemoteWipeSetupViewModel(
 			@NonNull Application application,
 			RemoteWipeManager remoteWipeManager,
+			@DatabaseExecutor Executor dbExecutor,
+			LifecycleManager lifecycleManager,
+			AuthorManager authorManager,
+			ConversationManager conversationManager,
+			ConnectionRegistry connectionRegistry,
+			EventBus eventBus,
+			AndroidExecutor androidExecutor,
+			ContactManager contactManager,
 			DatabaseComponent db) {
-		super(application);
+		super(application, dbExecutor, lifecycleManager, db, androidExecutor,
+				contactManager, authorManager, conversationManager,
+				connectionRegistry, eventBus);
 		this.remoteWipeManager = remoteWipeManager;
+		this.contactManager = contactManager;
+		this.authorManager = authorManager;
 		this.db = db;
+		getWiperContactIds();
+		loadContacts();
 	}
 
 	public boolean remoteWipeIsSetup() {
 		try {
 			return db.transactionWithResult(true,
-					txn -> remoteWipeManager.remoteWipeIsSetup(txn));
+					txn -> {
+						boolean isSetup = remoteWipeManager.remoteWipeIsSetup(txn);
+						if (isSetup) wiperContactIds = remoteWipeManager.getWiperContactIds(txn);
+						return isSetup;
+					});
 		} catch (DbException e) {
 			return false;
 		}
@@ -47,26 +79,12 @@ public class RemoteWipeSetupViewModel extends AndroidViewModel {
 
 	public List<ContactId> getWiperContactIds() {
 		try {
-			return db.transactionWithResult(true,
+			wiperContactIds = db.transactionWithResult(true,
 					remoteWipeManager::getWiperContactIds);
 		} catch (DbException ignored) {
 			return new ArrayList<ContactId>();
 		}
-	}
-
-	public List<String> getWiperNames() {
-		ArrayList wiperNames = new ArrayList();
-		try {
-			List<Author> wipers = db.transactionWithResult(true,
-					remoteWipeManager::getWipers);
-			for (Author wiper : wipers) {
-				wiperNames.add(wiper.getName());
-			}
-			return wiperNames;
-		} catch (DbException ignored) {
-			// Will return an empty list
-		}
-		return wiperNames;
+		return wiperContactIds;
 	}
 
 	@UiThread
@@ -86,7 +104,7 @@ public class RemoteWipeSetupViewModel extends AndroidViewModel {
 
 	@UiThread
 	public void onModifyWipers() {
-        state.postValue(RemoteWipeSetupState.MODIFY);
+		state.postValue(RemoteWipeSetupState.MODIFY);
 	}
 
 	public void setupRemoteWipe(Collection<ContactId> wipers)
@@ -95,6 +113,12 @@ public class RemoteWipeSetupViewModel extends AndroidViewModel {
 			remoteWipeManager.setup(txn, (List<ContactId>) wipers);
 			state.postValue(RemoteWipeSetupState.SUCCESS);
 		});
+	}
+
+	@Override
+	protected boolean displayContact(ContactId contactId) {
+		// Check if contact is a wiper
+		return wiperContactIds.contains(contactId);
 	}
 
 	public MutableLiveData<RemoteWipeSetupState> getState() {
