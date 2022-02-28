@@ -19,6 +19,7 @@ import android.net.NetworkInfo;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.os.Build;
+import android.os.Debug;
 import android.os.Environment;
 
 import org.briarproject.bramble.api.Pair;
@@ -163,12 +164,16 @@ class BriarReportCollector {
 		memInfo.add("SystemMemoryTotal", mem.totalMem);
 		memInfo.add("SystemMemoryFree", mem.availMem);
 		memInfo.add("SystemMemoryThreshold", mem.threshold);
+		memInfo.add("SystemMemoryLow", mem.lowMemory);
 
 		// Virtual machine memory
 		Runtime runtime = Runtime.getRuntime();
-		memInfo.add("VirtualMachineMemoryAllocated", runtime.totalMemory());
+		memInfo.add("VirtualMachineMemoryTotal", runtime.totalMemory());
 		memInfo.add("VirtualMachineMemoryFree", runtime.freeMemory());
 		memInfo.add("VirtualMachineMemoryMaximum", runtime.maxMemory());
+		memInfo.add("NativeHeapTotal", Debug.getNativeHeapSize());
+		memInfo.add("NativeHeapAllocated", Debug.getNativeHeapAllocatedSize());
+		memInfo.add("NativeHeapFree", Debug.getNativeHeapFreeSize());
 
 		return new ReportItem("Memory", R.string.dev_report_memory, memInfo);
 	}
