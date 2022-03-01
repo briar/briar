@@ -4,6 +4,7 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.activity.ActivityComponent;
@@ -46,10 +47,13 @@ public class RemoteWipeDisplayFragment extends BaseFragment
 			@Nullable ViewGroup container,
 			@Nullable Bundle savedInstanceState) {
 
-		View contentView = inflater.inflate(R.layout.list, container, false);
+		// change toolbar text (relevant when navigating back to this fragment)
+		requireActivity().setTitle(R.string.assigned_wipers);
+
+		View contentView = inflater.inflate(R.layout.fragment_remote_wipe_display, container, false);
 
 		viewModel.getWiperContactIds();
-		list = contentView.findViewById(R.id.list);
+		list = contentView.findViewById(R.id.wiperList);
 		list.setLayoutManager(new LinearLayoutManager(getActivity()));
 		list.setAdapter(adapter);
 		list.setEmptyText(R.string.no_contacts);
@@ -59,24 +63,11 @@ public class RemoteWipeDisplayFragment extends BaseFragment
 						.onSuccess(adapter::submitList)
 		);
 
+		Button button = contentView.findViewById(R.id.button_change);
+		button.setOnClickListener(e -> viewModel.onModifyWipers());
+
 		return contentView;
 	}
-//		View view = inflater.inflate(R.layout.fragment_display_remote_wipe,
-//				container, false);
-//        List<String> wiperNames = viewModel.getWiperNames();
-//		StringBuilder custodianNamesString = new StringBuilder();
-//		for (String custodianName : wiperNames) {
-//			custodianNamesString
-//					.append("• ")
-//					.append(custodianName)
-//					.append("\n");
-//		}
-//		TextView textViewThreshold = view.findViewById(R.id.textViewWipers);
-//		textViewThreshold.setText(custodianNamesString.toString());
-//
-//		Button button = view.findViewById(R.id.button);
-//		button.setOnClickListener(e -> viewModel.onModifyWipers());
-//		return view;
 
 	@Override
 	public String getUniqueTag() {
@@ -85,7 +76,6 @@ public class RemoteWipeDisplayFragment extends BaseFragment
 
 	@Override
 	public void onItemClick(View view, ContactListItem item) {
-
 	}
 
 	@Override
