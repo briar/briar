@@ -79,11 +79,11 @@ class HyperSqlDatabase extends JdbcDatabase {
 		Connection c = null;
 		Statement s = null;
 		try {
-			super.closeAllConnections();
+			closeAllConnections();
 			c = createConnection();
 			setDirty(c, false);
 			s = c.createStatement();
-			s.executeQuery("SHUTDOWN");
+			s.executeQuery("SHUTDOWN COMPACT");
 			s.close();
 			c.close();
 		} catch (SQLException e) {
@@ -106,7 +106,7 @@ class HyperSqlDatabase extends JdbcDatabase {
 		Connection c = null;
 		Statement s = null;
 		try {
-			super.closeAllConnections();
+			closeAllConnections();
 			c = createConnection();
 			s = c.createStatement();
 			s.executeQuery("SHUTDOWN COMPACT");

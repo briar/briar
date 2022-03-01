@@ -405,7 +405,9 @@ abstract class JdbcDatabase implements Database<Connection> {
 			if (reopen) {
 				Settings s = getSettings(txn, DB_SETTINGS_NAMESPACE);
 				wasDirtyOnInitialisation = isDirty(s);
-				compact = migrateSchema(txn, s, listener) || isCompactionDue(s);
+				boolean migrated = migrateSchema(txn, s, listener);
+				compact = wasDirtyOnInitialisation || migrated
+						|| isCompactionDue(s);
 			} else {
 				wasDirtyOnInitialisation = false;
 				createTables(txn);
