@@ -105,6 +105,7 @@ public class RemoteWipeDisplayFragment extends BaseFragment
 		AlertDialog.Builder builder = new AlertDialog.Builder(requireContext(),
 				R.style.BriarDialogTheme);
 		builder.setTitle(R.string.remote_wipe_disable_success);
+		builder.setMessage(R.string.remote_wipe_disable_success_explain);
 		builder.setPositiveButton(R.string.ok,
 				(dialog, which) -> viewModel.onSuccessDismissed());
 		builder.setIcon(R.drawable.ic_baseline_done_outline_24);
