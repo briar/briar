@@ -11,13 +11,6 @@
 	android:paddingBottom="@dimen/margin_medium"
 	tools:ignore="VectorDrawableCompat">
 
-	<org.briarproject.briar.android.view.BriarRecyclerView
-		android:id="@+id/wiperList"
-		android:layout_width="match_parent"
-		android:layout_height="wrap_content"
-		app:layout_constraintTop_toTopOf="parent"
-		app:layout_constraintBottom_toTopOf="@+id/button_change"
-		app:scrollToEnd="false" />
 
 	<Button
 		android:id="@+id/button_change"
@@ -25,9 +18,18 @@
 		android:layout_height="wrap_content"
 		android:layout_marginTop="24dp"
 		android:text="@string/remote_wipe_modify_contacts"
+		app:layout_constraintTop_toTopOf="parent"
 		app:layout_constraintEnd_toEndOf="parent"
 		app:layout_constraintHorizontal_bias="0.0"
 		app:layout_constraintStart_toStartOf="parent"
-		app:layout_constraintTop_toBottomOf="@+id/wiperList"
 		/>
+	<org.briarproject.briar.android.view.BriarRecyclerView
+		android:id="@+id/wiperList"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		app:layout_constraintEnd_toEndOf="parent"
+		app:layout_constraintStart_toStartOf="parent"
+		app:layout_constraintTop_toBottomOf="@id/button_change"
+		app:scrollToEnd="false" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>
