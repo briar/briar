@@ -18,7 +18,7 @@
 		android:layout_marginTop="24dp"
 		android:gravity="center"
 		android:text="@string/remote_wipe_display_explain"
-		android:textSize="20sp"
+		android:textSize="16sp"
 		app:layout_constraintTop_toTopOf="parent"
 		tools:layout_editor_absoluteX="16dp" />
 
