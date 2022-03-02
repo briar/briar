@@ -605,23 +605,6 @@ public class RemoteWipeManagerImpl extends ConversationClientImpl
 		db.removeGroup(txn, getContactGroup(c));
 	}
 
-	@Nullable
-	private Pair<MessageId, BdfDictionary> findMessage(Transaction txn,
-			GroupId g, org.briarproject.briar.api.remotewipe.MessageType type,
-			boolean local)
-			throws DbException, FormatException {
-		BdfDictionary query = BdfDictionary.of(
-				new BdfEntry(MSG_KEY_MESSAGE_TYPE, type.getValue()),
-				new BdfEntry(MSG_KEY_LOCAL, local));
-		Map<MessageId, BdfDictionary> results =
-				clientHelper.getMessageMetadataAsDictionary(txn, g, query);
-//		if (results.size() > 1) throw new DbException();
-		if (results.isEmpty()) return null;
-		Map.Entry<MessageId, BdfDictionary> e =
-				results.entrySet().iterator().next();
-		return new Pair<>(e.getKey(), e.getValue());
-	}
-
 	@Override
 	public boolean remoteWipeIsSetup(Transaction txn) {
 		try {
