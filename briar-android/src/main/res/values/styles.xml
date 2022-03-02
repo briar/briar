@@ -65,6 +65,12 @@
 		<item name="android:minWidth">@dimen/button_size</item>
 	</style>
 
+	<style name="BriarButtonFlat.Negative.Tiny" parent="BriarButtonFlat.Negative">
+		<item name="android:textSize">@dimen/text_size_tiny</item>
+		<item name="android:padding">@dimen/margin_medium</item>
+		<item name="android:minWidth">@dimen/button_size</item>
+	</style>
+
 	<style name="Divider">
 		<item name="android:background">@color/divider</item>
 	</style>

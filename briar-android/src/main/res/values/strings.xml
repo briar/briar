@@ -740,6 +740,7 @@
 	<string name="remote_wipe_setup_failed">Failed to set up remote wipe</string>
 	<string name="remote_wipe_setup_explain_title">Setup remote wipe function</string>
 	<string name="remote_wipe_setup_explain_long">You can choose a set of trusted contacts who are able to activate a remote wipe of all Briar data.\nThe wipe may be activated by any two contacts from the set.</string>
+	<string name="remote_wipe_display_explain">Any two of these trusted contacts may activate a wipe of all Briar data from your device.</string>
 
 	<!-- Settings menu -->
 	<string name="pref_remote_wipe_summary">Allow trusted contacts to activate an account wipe remotely</string>
@@ -772,6 +773,7 @@
 	<string name="revoke_remote_wipe">Revoke remote wipe status</string>
 	<string name="remote_wipe_revoke_success">Remote wipe status revoked</string>
 	<string name="remote_wipe_modify_contacts">Change remote wipers</string>
+	<string name="remote_wipe_disable">Disable remote wipe</string>
 
 	<string name="remote_wipe_confirm_received">Briar data has been wiped from %1$s\'s device. They will be unreachable until they recover their account.</string>
 

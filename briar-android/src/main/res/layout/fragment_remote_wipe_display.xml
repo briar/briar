@@ -11,22 +11,47 @@
 	android:paddingBottom="@dimen/margin_medium"
 	tools:ignore="VectorDrawableCompat">
 
-
-	<Button
-		android:id="@+id/button_change"
+	<TextView
+		android:id="@+id/text_view_explain"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
 		android:layout_marginTop="24dp"
-		android:text="@string/remote_wipe_modify_contacts"
+		android:gravity="center"
+		android:text="@string/remote_wipe_display_explain"
+		android:textSize="20sp"
 		app:layout_constraintTop_toTopOf="parent"
-		app:layout_constraintEnd_toEndOf="parent"
-		app:layout_constraintHorizontal_bias="0.0"
+		tools:layout_editor_absoluteX="16dp" />
+
+	<Button
+		android:id="@+id/button_cancel"
+		style="@style/BriarButtonFlat.Negative.Tiny"
+		android:layout_width="0dp"
+		android:layout_height="wrap_content"
+		android:layout_marginTop="24dp"
+		android:text="@string/remote_wipe_disable"
+		app:layout_constraintBottom_toBottomOf="@+id/button_change"
+		app:layout_constraintEnd_toStartOf="@id/button_change"
+		app:layout_constraintHorizontal_weight="1"
 		app:layout_constraintStart_toStartOf="parent"
-		/>
+		app:layout_constraintTop_toBottomOf="@id/text_view_explain" />
+
+	<Button
+		android:id="@+id/button_change"
+		style="@style/BriarButtonFlat.Positive.Tiny"
+		android:layout_width="0dp"
+		android:layout_height="wrap_content"
+		android:layout_marginTop="24dp"
+		android:text="@string/remote_wipe_modify_contacts"
+		app:layout_constraintHorizontal_weight="1"
+		app:layout_constraintEnd_toEndOf="parent"
+		app:layout_constraintStart_toEndOf="@id/button_cancel"
+		app:layout_constraintTop_toBottomOf="@id/text_view_explain" />
+
 	<org.briarproject.briar.android.view.BriarRecyclerView
 		android:id="@+id/wiperList"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
+		android:layout_marginTop="24dp"
 		app:layout_constraintEnd_toEndOf="parent"
 		app:layout_constraintStart_toStartOf="parent"
 		app:layout_constraintTop_toBottomOf="@id/button_change"

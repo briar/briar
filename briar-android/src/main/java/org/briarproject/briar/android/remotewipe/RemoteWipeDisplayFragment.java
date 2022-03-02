@@ -63,8 +63,11 @@ public class RemoteWipeDisplayFragment extends BaseFragment
 						.onSuccess(adapter::submitList)
 		);
 
-		Button button = contentView.findViewById(R.id.button_change);
-		button.setOnClickListener(e -> viewModel.onModifyWipers());
+		Button changeWipersButton = contentView.findViewById(R.id.button_change);
+		changeWipersButton.setOnClickListener(e -> viewModel.onModifyWipers());
+		
+		Button disableRemoteWipeButton = contentView.findViewById(R.id.button_cancel);
+		disableRemoteWipeButton.setOnClickListener(e -> viewModel.onDisableRemoteWipe());
 
 		return contentView;
 	}

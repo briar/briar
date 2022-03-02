@@ -18,6 +18,7 @@ import org.briarproject.briar.api.conversation.ConversationManager;
 import org.briarproject.briar.api.identity.AuthorManager;
 import org.briarproject.briar.api.remotewipe.RemoteWipeManager;
 
+import java.text.Normalizer;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -105,6 +106,16 @@ public class RemoteWipeSetupViewModel extends ContactsViewModel {
 	@UiThread
 	public void onModifyWipers() {
 		state.postValue(RemoteWipeSetupState.MODIFY);
+	}
+
+	@UiThread
+	public void onDisableRemoteWipe() {
+		try {
+			db.transaction(false, remoteWipeManager::revokeAll);
+		} catch (DbException | FormatException e) {
+			e.printStackTrace();
+		}
+		state.postValue(RemoteWipeSetupState.FINISHED);
 	}
 
 	public void setupRemoteWipe(Collection<ContactId> wipers)
