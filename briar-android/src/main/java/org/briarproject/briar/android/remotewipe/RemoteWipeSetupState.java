@@ -5,5 +5,6 @@ public enum RemoteWipeSetupState {
 	SUCCESS,
 	FINISHED,
 	SELECTING,
-	MODIFY
+	MODIFY,
+	DISABLED
 }

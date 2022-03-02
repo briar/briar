@@ -112,10 +112,11 @@ public class RemoteWipeSetupViewModel extends ContactsViewModel {
 	public void onDisableRemoteWipe() {
 		try {
 			db.transaction(false, remoteWipeManager::revokeAll);
+			state.postValue(RemoteWipeSetupState.DISABLED);
 		} catch (DbException | FormatException e) {
 			e.printStackTrace();
+			state.postValue(RemoteWipeSetupState.FINISHED);
 		}
-		state.postValue(RemoteWipeSetupState.FINISHED);
 	}
 
 	public void setupRemoteWipe(Collection<ContactId> wipers)

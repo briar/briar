@@ -18,6 +18,7 @@ import javax.inject.Inject;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
@@ -69,6 +70,7 @@ public class RemoteWipeDisplayFragment extends BaseFragment
 		Button disableRemoteWipeButton = contentView.findViewById(R.id.button_cancel);
 		disableRemoteWipeButton.setOnClickListener(e -> viewModel.onDisableRemoteWipe());
 
+		viewModel.getState().observe(getViewLifecycleOwner(), this::onStateChanged);
 		return contentView;
 	}
 
@@ -91,5 +93,22 @@ public class RemoteWipeDisplayFragment extends BaseFragment
 	public void onStop() {
 		super.onStop();
 		list.stopPeriodicUpdate();
+	}
+
+	private void onStateChanged(RemoteWipeSetupState state) {
+		if (state.equals(RemoteWipeSetupState.DISABLED)) {
+			showDisabledDialog();
+		}
+	}
+
+	private void showDisabledDialog() {
+		AlertDialog.Builder builder = new AlertDialog.Builder(requireContext(),
+				R.style.BriarDialogTheme);
+		builder.setTitle(R.string.remote_wipe_disable_success);
+		builder.setPositiveButton(R.string.ok,
+				(dialog, which) -> viewModel.onSuccessDismissed());
+		builder.setIcon(R.drawable.ic_baseline_done_outline_24);
+		AlertDialog dialog = builder.create();
+		dialog.show();
 	}
 }

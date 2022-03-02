@@ -774,6 +774,7 @@
 	<string name="remote_wipe_revoke_success">Remote wipe status revoked</string>
 	<string name="remote_wipe_modify_contacts">Change remote wipers</string>
 	<string name="remote_wipe_disable">Disable remote wipe</string>
+	<string name="remote_wipe_disable_success">Remote wipe is disabled</string>
 
 	<string name="remote_wipe_confirm_received">Briar data has been wiped from %1$s\'s device. They will be unreachable until they recover their account.</string>
 
