@@ -400,9 +400,7 @@ public class RemoteWipeManagerImpl extends ConversationClientImpl
 			BdfDictionary meta = clientHelper.getGroupMetadataAsDictionary(txn,
 					localGroup.getId());
 			return meta.getBoolean(GROUP_KEY_AM_WIPER, false);
-		} catch (DbException e) {
-			return false;
-		} catch (FormatException e) {
+		} catch (DbException | FormatException e) {
 			return false;
 		}
 	}
@@ -432,6 +430,21 @@ public class RemoteWipeManagerImpl extends ConversationClientImpl
 				db.addGroup(txn, localGroup);
 			clientHelper.mergeGroupMetadata(txn, localGroup.getId(), meta);
 		}
+	}
+
+	public void revokeAll(Transaction txn) throws DbException, FormatException {
+		List<ContactId> currentWipers = getWiperContactIds(txn);
+		for (ContactId c : currentWipers) {
+			sendRevokeMessage(txn, db.getContact(txn, c));
+		}
+
+		BdfList noWipers = new BdfList();
+		BdfDictionary meta = new BdfDictionary();
+		meta.put(GROUP_KEY_WIPERS, noWipers);
+
+		if (!db.containsGroup(txn, localGroup.getId()))
+			db.addGroup(txn, localGroup);
+		clientHelper.mergeGroupMetadata(txn, localGroup.getId(), meta);
 	}
 
 	@Override

@@ -53,6 +53,8 @@ public interface RemoteWipeManager extends ConversationManager.ConversationClien
 	void revoke(Transaction txn, ContactId contactId)
 			throws DbException, FormatException;
 
+	void revokeAll(Transaction txn) throws DbException, FormatException;
+
 	boolean remoteWipeIsSetup(Transaction txn);
 
 	List<Author> getWipers(Transaction txn) throws DbException;
