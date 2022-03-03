@@ -78,4 +78,11 @@ public interface SocialBackupManager extends
 	 */
 	byte[] getReturnShardPayloadBytes(Transaction txn, ContactId contactId)
 			throws DbException;
+
+
+	/**
+	 * Get a list of the contact ids of your custodians, or an empty
+	 * list if no backup exists.
+	 */
+	List<ContactId> getCustodianContactIds(Transaction txn);
 }
