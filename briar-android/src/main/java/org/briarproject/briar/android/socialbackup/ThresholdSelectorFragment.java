@@ -123,7 +123,6 @@ public class ThresholdSelectorFragment extends BaseFragment {
 		super.onAttach(context);
 	}
 
-
 	@Override
 	public String getUniqueTag() {
 		return TAG;

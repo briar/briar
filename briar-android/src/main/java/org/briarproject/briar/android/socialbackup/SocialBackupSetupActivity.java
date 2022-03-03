@@ -12,6 +12,7 @@ import org.briarproject.briar.android.contactselection.ContactSelectorListener;
 import org.briarproject.briar.android.fragment.BaseFragment;
 
 import java.util.Collection;
+import java.util.List;
 
 import javax.inject.Inject;
 
@@ -84,7 +85,7 @@ public class SocialBackupSetupActivity extends BriarActivity implements
 		Toast.makeText(this,
 				String.format("Selected %d contacts", contacts.size()),
 				Toast.LENGTH_SHORT).show();
-		viewModel.setCustodians(contacts);
+		viewModel.setCustodians((List<ContactId>) contacts);
 		ThresholdSelectorFragment fragment =
 				ThresholdSelectorFragment.newInstance(contacts.size());
 		showNextFragment(fragment);
