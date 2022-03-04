@@ -58,7 +58,7 @@ public class ExistingBackupFragment extends BaseFragment implements
 	public View onCreateView(@NonNull LayoutInflater inflater, @Nullable
 			ViewGroup container, @Nullable Bundle savedInstanceState) {
 		// change toolbar text (relevant when navigating back to this fragment)
-		requireActivity().setTitle(R.string.social_backup_trusted_contacts);
+//		requireActivity().setTitle(R.string.social_backup_trusted_contacts);
 
 		View view = inflater.inflate(R.layout.fragment_existing_backup,
 				container, false);
@@ -79,8 +79,7 @@ public class ExistingBackupFragment extends BaseFragment implements
 
 		TextView mOfn = view.findViewById(R.id.textViewThreshold);
 		mOfn.setText(String.format(
-				getString(R.string.threshold_m_of_n), threshold,
-				numberOfCustodians));
+				getString(R.string.existing_backup_explain), threshold));
 
 		TextView thresholdRepresentation =
 				view.findViewById(R.id.textViewThresholdRepresentation);
