@@ -613,4 +613,30 @@ class SocialBackupManagerImpl extends ConversationClientImpl
 				results.entrySet().iterator().next();
 		return new Pair<>(e.getKey(), e.getValue());
 	}
+
+	public List<ContactId> getCustodianContactIds(Transaction txn) {
+		ArrayList<ContactId> contactIds = new ArrayList<>();
+		try {
+			BackupMetadata b = getBackupMetadata(txn);
+		    if (b == null) throw new DbException();
+			List<Author> custodians = b.getCustodians();
+			for (Author custodian : custodians) {
+				contactIds.add(authorToContactId(txn, custodian));
+			}
+		} catch (DbException ignored) {
+			// Will return an empty list
+		}
+		return contactIds;
+	}
+
+	private ContactId authorToContactId(Transaction txn, Author author)
+			throws DbException {
+		ArrayList<Contact> contacts =
+				(ArrayList<Contact>) contactManager.getContacts(txn);
+		for (Contact c : contacts) {
+			if (c.getAuthor().equals(author)) return c.getId();
+		}
+		throw new DbException();
+	}
+
 }
