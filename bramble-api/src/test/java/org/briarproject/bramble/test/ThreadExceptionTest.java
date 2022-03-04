@@ -1,5 +1,6 @@
 package org.briarproject.bramble.test;
 
+import org.junit.Assert;
 import org.junit.Test;
 
 import static org.junit.Assert.fail;
@@ -27,7 +28,9 @@ public class ThreadExceptionTest extends BrambleTestCase {
 			System.out.println("interrupted while joining thread");
 			fail();
 		}
-	}
 
+		Assert.assertTrue(exceptionInBackgroundThread);
+		exceptionInBackgroundThread = false;
+	}
 
 }
