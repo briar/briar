@@ -26,7 +26,7 @@ public class NetworkUtils {
 			// Despite what the docs say, the return value can be null
 			//noinspection ConstantConditions
 			return ifaces == null ? emptyList() : list(ifaces);
-		} catch (SocketException e) {
+		} catch (SocketException | NullPointerException e) {
 			logException(LOG, WARNING, e);
 			return emptyList();
 		}
