@@ -1,7 +1,6 @@
 package org.briarproject.briar.android.qrcode;
 
 import android.hardware.Camera;
-import android.hardware.Camera.CameraInfo;
 import android.hardware.Camera.PreviewCallback;
 import android.hardware.Camera.Size;
 
@@ -78,9 +77,7 @@ public class QrCodeDecoder implements PreviewConsumer, PreviewCallback {
 				// The preview should be in NV21 format: width * height bytes of
 				// Y followed by width * height / 2 bytes of interleaved U and V
 				if (data.length == size.width * size.height * 3 / 2) {
-					CameraInfo info = new CameraInfo();
-					Camera.getCameraInfo(cameraIndex, info);
-					decode(data, size.width, size.height, info.orientation);
+					decode(data, size.width, size.height);
 				} else {
 					// Camera parameters have changed - ask for a new preview
 					LOG.info("Preview size does not match camera parameters");
@@ -94,9 +91,9 @@ public class QrCodeDecoder implements PreviewConsumer, PreviewCallback {
 		}
 	}
 
-	private void decode(byte[] data, int width, int height, int orientation) {
+	private void decode(byte[] data, int width, int height) {
 		ioExecutor.execute(() -> {
-			BinaryBitmap bitmap = binarize(data, width, height, orientation);
+			BinaryBitmap bitmap = binarize(data, width, height);
 			Result result;
 			try {
 				result = reader.decode(bitmap,
@@ -113,16 +110,9 @@ public class QrCodeDecoder implements PreviewConsumer, PreviewCallback {
 		});
 	}
 
-	private static BinaryBitmap binarize(byte[] data, int width, int height,
-			int orientation) {
-		// Crop to a square at the top (portrait) or left (landscape) of the
-		// screen - this will be faster to decode and should include
-		// everything visible in the viewfinder
-		int crop = Math.min(width, height);
-		int left = orientation >= 180 ? width - crop : 0;
-		int top = orientation >= 180 ? height - crop : 0;
-		LuminanceSource src = new PlanarYUVLuminanceSource(data, width,
-				height, left, top, crop, crop, false);
+	private static BinaryBitmap binarize(byte[] data, int width, int height) {
+		LuminanceSource src = new PlanarYUVLuminanceSource(data, width, height,
+				0, 0, width, height, false);
 		return new BinaryBitmap(new HybridBinarizer(src));
 	}
 
