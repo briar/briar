@@ -1,6 +1,7 @@
 package org.briarproject.bramble.plugin.tor;
 
 import org.briarproject.bramble.BrambleCoreIntegrationTestEagerSingletons;
+import org.briarproject.bramble.api.Multiset;
 import org.briarproject.bramble.api.battery.BatteryManager;
 import org.briarproject.bramble.api.crypto.CryptoComponent;
 import org.briarproject.bramble.api.event.EventBus;
@@ -29,9 +30,9 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Executor;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Logger;
 
+import javax.annotation.concurrent.GuardedBy;
 import javax.inject.Inject;
 import javax.net.SocketFactory;
 
@@ -60,24 +61,28 @@ public class BridgeTest extends BrambleTestCase {
 				DaggerBrambleJavaIntegrationTestComponent.builder().build();
 		BrambleCoreIntegrationTestEagerSingletons.Helper
 				.injectEagerSingletons(component);
-		// Share a failure counter among all the test instances
-		AtomicInteger failures = new AtomicInteger(0);
+		// Share stats among all the test instances
+		Stats stats = new Stats();
 		CircumventionProvider provider = component.getCircumventionProvider();
 		List<Params> states = new ArrayList<>();
-		for (String bridge : provider.getBridges(DEFAULT_OBFS4)) {
-			states.add(new Params(bridge, DEFAULT_OBFS4, failures, false));
-		}
-		for (String bridge : provider.getBridges(NON_DEFAULT_OBFS4)) {
-			states.add(new Params(bridge, NON_DEFAULT_OBFS4, failures, false));
-		}
-		for (String bridge : provider.getBridges(MEEK)) {
-			states.add(new Params(bridge, MEEK, failures, true));
+		for (int i = 0; i < ATTEMPTS_PER_BRIDGE; i++) {
+			for (String bridge : provider.getBridges(DEFAULT_OBFS4)) {
+				states.add(new Params(bridge, DEFAULT_OBFS4, stats, false));
+			}
+			for (String bridge : provider.getBridges(NON_DEFAULT_OBFS4)) {
+				states.add(new Params(bridge, NON_DEFAULT_OBFS4, stats, false));
+			}
+			for (String bridge : provider.getBridges(MEEK)) {
+				states.add(new Params(bridge, MEEK, stats, true));
+			}
 		}
 		return states;
 	}
 
-	private final static long TIMEOUT = MINUTES.toMillis(5);
-	private final static int NUM_FAILURES_ALLOWED = 1;
+	private final static long OBFS4_TIMEOUT = MINUTES.toMillis(2);
+	private final static long MEEK_TIMEOUT = MINUTES.toMillis(5);
+	private final static int UNREACHABLE_BRIDGES_ALLOWED = 1;
+	private final static int ATTEMPTS_PER_BRIDGE = 3;
 
 	private final static Logger LOG = getLogger(BridgeTest.class.getName());
 
@@ -175,18 +180,16 @@ public class BridgeTest extends BrambleTestCase {
 		try {
 			plugin.start();
 			long start = clock.currentTimeMillis();
-			while (clock.currentTimeMillis() - start < TIMEOUT) {
+			long timeout = params.bridgeType == MEEK
+					? MEEK_TIMEOUT : OBFS4_TIMEOUT;
+			while (clock.currentTimeMillis() - start < timeout) {
 				if (plugin.getState() == ACTIVE) return;
 				clock.sleep(500);
 			}
 			if (plugin.getState() != ACTIVE) {
-				LOG.warning("Could not connect to Tor within timeout");
-				if (params.failures.incrementAndGet() > NUM_FAILURES_ALLOWED) {
-					fail(params.failures.get() + " bridges are unreachable");
-				}
-				if (params.mustSucceed) {
-					fail("essential bridge is unreachable");
-				}
+				LOG.warning("Could not connect to Tor within timeout: "
+						+ params.bridge);
+				params.stats.countFailure(params.bridge, params.essential);
 			}
 		} finally {
 			plugin.stop();
@@ -197,15 +200,39 @@ public class BridgeTest extends BrambleTestCase {
 
 		private final String bridge;
 		private final BridgeType bridgeType;
-		private final AtomicInteger failures;
-		private final boolean mustSucceed;
+		private final Stats stats;
+		private final boolean essential;
 
 		private Params(String bridge, BridgeType bridgeType,
-				AtomicInteger failures, boolean mustSucceed) {
+				Stats stats, boolean essential) {
 			this.bridge = bridge;
 			this.bridgeType = bridgeType;
-			this.failures = failures;
-			this.mustSucceed = mustSucceed;
+			this.stats = stats;
+			this.essential = essential;
+		}
+	}
+
+	private static class Stats {
+
+		@GuardedBy("this")
+		private final Multiset<String> failures = new Multiset<>();
+		@GuardedBy("this")
+		private final List<String> unreachable = new ArrayList<>();
+
+		private synchronized void countFailure(String bridge,
+				boolean essential) {
+			if (failures.add(bridge) == ATTEMPTS_PER_BRIDGE) {
+				LOG.warning("Bridge is unreachable after "
+						+ ATTEMPTS_PER_BRIDGE + " attempts: " + bridge);
+				unreachable.add(bridge);
+				if (unreachable.size() > UNREACHABLE_BRIDGES_ALLOWED) {
+					fail(unreachable.size() + " bridges are unreachable: "
+							+ unreachable);
+				}
+				if (essential) {
+					fail("essential bridge is unreachable");
+				}
+			}
 		}
 	}
 }
