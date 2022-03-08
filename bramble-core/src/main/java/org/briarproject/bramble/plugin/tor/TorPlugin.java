@@ -108,7 +108,14 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 	private static final Logger LOG = getLogger(TorPlugin.class.getName());
 
 	private static final String[] EVENTS = {
-			"CIRC", "ORCONN", "HS_DESC", "NOTICE", "WARN", "ERR"
+			"CIRC",
+			"ORCONN",
+			"STATUS_GENERAL",
+			"STATUS_CLIENT",
+			"HS_DESC",
+			"NOTICE",
+			"WARN",
+			"ERR"
 	};
 	private static final String OWNER = "__OwningControllerProcess";
 	private static final int COOKIE_TIMEOUT_MS = 3000;
@@ -302,10 +309,16 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 			controlConnection.setEventHandler(this);
 			controlConnection.setEvents(asList(EVENTS));
 			// Check whether Tor has already bootstrapped
-			String phase = controlConnection.getInfo("status/bootstrap-phase");
-			if (phase != null && phase.contains("PROGRESS=100")) {
+			String info = controlConnection.getInfo("status/bootstrap-phase");
+			if (info != null && info.contains("PROGRESS=100")) {
 				LOG.info("Tor has already bootstrapped");
 				state.setBootstrapped();
+			}
+			// Check whether Tor has already built a circuit
+			info = controlConnection.getInfo("status/circuit-established");
+			if ("1".equals(info)) {
+				LOG.info("Tor has already built a circuit");
+				state.getAndSetCircuitBuilt(true);
 			}
 		} catch (IOException e) {
 			throw new PluginException(e);
@@ -646,7 +659,7 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 		} catch (IOException e) {
 			if (LOG.isLoggable(INFO)) {
 				LOG.info("Could not connect to v3 "
-						+ scrubOnion(onion3) + ": " + e.toString());
+						+ scrubOnion(onion3) + ": " + e);
 			}
 			tryToClose(s, LOG, WARNING);
 			return null;
@@ -727,9 +740,10 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 
 	@Override
 	public void circuitStatus(String status, String id, String path) {
-		if (status.equals("BUILT") &&
-				state.getAndSetCircuitBuilt()) {
-			LOG.info("First circuit built");
+		// In case of races between receiving CIRCUIT_ESTABLISHED and setting
+		// DisableNetwork, set our circuitBuilt flag if not already set
+		if (status.equals("BUILT") && state.getAndSetCircuitBuilt(true)) {
+			LOG.info("Circuit built");
 			backoff.reset();
 		}
 	}
@@ -740,9 +754,16 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 
 	@Override
 	public void orConnStatus(String status, String orName) {
-		if (LOG.isLoggable(INFO))
-			LOG.info("OR connection " + status + " " + orName);
-		if (status.equals("CLOSED") || status.equals("FAILED")) {
+		if (LOG.isLoggable(INFO)) LOG.info("OR connection " + status);
+
+		//noinspection IfCanBeSwitch
+		if (status.equals("LAUNCHED")) state.onOrConnectionLaunched();
+		else if (status.equals("FAILED")) state.onOrConnectionFailed();
+		else if (status.equals("CONNECTED")) state.onOrConnectionConnected();
+		else if (status.equals("CLOSED")) state.onOrConnectionClosed();
+
+		if ((status.equals("FAILED") || status.equals("CLOSED")) &&
+				state.getNumOrConnections() == 0) {
 			// Check whether we've lost connectivity
 			updateConnectionStatus(networkManager.getNetworkStatus(),
 					batteryManager.isCharging());
@@ -760,24 +781,76 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 	@Override
 	public void message(String severity, String msg) {
 		if (LOG.isLoggable(INFO)) LOG.info(severity + " " + msg);
-		if (severity.equals("NOTICE") && msg.startsWith("Bootstrapped 100%")) {
-			state.setBootstrapped();
-			backoff.reset();
+		if (msg.startsWith("Switching to guard context")) {
+			state.onSwitchingGuardContext();
 		}
 	}
 
 	@Override
 	public void unrecognized(String type, String msg) {
-		if (type.equals("HS_DESC") && msg.startsWith("UPLOADED")) {
-			if (LOG.isLoggable(INFO)) {
-				String[] words = msg.split(" ");
-				if (words.length > 1 && ONION_V3.matcher(words[1]).matches()) {
-					LOG.info("V3 descriptor uploaded");
-				} else {
-					LOG.info("V2 descriptor uploaded");
+		if (type.equals("STATUS_CLIENT")) {
+			handleClientStatus(removeSeverity(msg));
+		} else if (type.equals("STATUS_GENERAL")) {
+			handleGeneralStatus(removeSeverity(msg));
+		} else if (type.equals("HS_DESC") && msg.startsWith("UPLOADED")) {
+			LOG.info("V3 descriptor uploaded");
+		}
+	}
+
+	private String removeSeverity(String msg) {
+		return msg.replaceFirst("[^ ]+ ", "");
+	}
+
+	private void handleClientStatus(String msg) {
+		if (msg.startsWith("BOOTSTRAP PROGRESS=100")) {
+			LOG.info("Bootstrapped");
+			state.setBootstrapped();
+			backoff.reset();
+		} else if (msg.startsWith("CIRCUIT_ESTABLISHED")) {
+			if (!state.getAndSetCircuitBuilt(true)) {
+				LOG.info("Circuit built");
+				backoff.reset();
+			}
+		} else if (msg.startsWith("CIRCUIT_NOT_ESTABLISHED")) {
+			if (state.getAndSetCircuitBuilt(false)) {
+				LOG.info("Circuit not built");
+				// TODO: Disable and re-enable network to prompt Tor to rebuild
+				//  its guard/bridge connections? This will also close any
+				//  established circuits, which might still be functioning
+			}
+		}
+	}
+
+	private void handleGeneralStatus(String msg) {
+		if (msg.startsWith("CLOCK_JUMPED")) {
+			Long time = parseLongArgument(msg, "TIME");
+			if (time != null && LOG.isLoggable(WARNING)) {
+				LOG.warning("Clock jumped " + time + " seconds");
+			}
+		} else if (msg.startsWith("CLOCK_SKEW")) {
+			Long skew = parseLongArgument(msg, "SKEW");
+			if (skew != null && LOG.isLoggable(WARNING)) {
+				LOG.warning("Clock is skewed by " + skew + " seconds");
+			}
+		}
+	}
+
+	@Nullable
+	private Long parseLongArgument(String msg, String argName) {
+		String[] args = msg.split(" ");
+		for (String arg : args) {
+			if (arg.startsWith(argName + "=")) {
+				try {
+					return Long.parseLong(arg.substring(argName.length() + 1));
+				} catch (NumberFormatException e) {
+					break;
 				}
 			}
 		}
+		if (LOG.isLoggable(WARNING)) {
+			LOG.warning("Failed to parse " + argName + " from '" + msg + "'");
+		}
+		return null;
 	}
 
 	@Override
@@ -938,6 +1011,9 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 		@Nullable
 		private ServerSocket serverSocket = null;
 
+		@GuardedBy("this")
+		private int orConnectionsPending = 0, orConnectionsConnected = 0;
+
 		private synchronized void setStarted() {
 			started = true;
 			callback.pluginStateChanged(getState());
@@ -961,11 +1037,11 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 			callback.pluginStateChanged(getState());
 		}
 
-		private synchronized boolean getAndSetCircuitBuilt() {
-			boolean firstCircuit = !circuitBuilt;
-			circuitBuilt = true;
-			callback.pluginStateChanged(getState());
-			return firstCircuit;
+		private synchronized boolean getAndSetCircuitBuilt(boolean built) {
+			boolean old = circuitBuilt;
+			circuitBuilt = built;
+			if (built != old) callback.pluginStateChanged(getState());
+			return old;
 		}
 
 		private synchronized void enableNetwork(boolean enable) {
@@ -1005,6 +1081,59 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 
 		private synchronized int getReasonsDisabled() {
 			return getState() == DISABLED ? reasonsDisabled : 0;
+		}
+
+		private synchronized void onOrConnectionLaunched() {
+			orConnectionsPending++;
+			logOrConnections();
+		}
+
+		private synchronized void onOrConnectionFailed() {
+			orConnectionsPending--;
+			if (orConnectionsPending < 0) {
+				LOG.warning("Count was zero before connection failed");
+				orConnectionsPending = 0;
+			}
+			logOrConnections();
+		}
+
+		private synchronized void onOrConnectionConnected() {
+			orConnectionsPending--;
+			if (orConnectionsPending < 0) {
+				LOG.warning("Count was zero before connection connected");
+				orConnectionsPending = 0;
+			}
+			orConnectionsConnected++;
+			logOrConnections();
+		}
+
+		private synchronized void onOrConnectionClosed() {
+			orConnectionsConnected--;
+			if (orConnectionsConnected < 0) {
+				LOG.warning("Count was zero before connection closed");
+				orConnectionsConnected = 0;
+			}
+			logOrConnections();
+		}
+
+		private synchronized void onSwitchingGuardContext() {
+			// Tor doesn't seem to report events for connections belonging to
+			// the old guard context, so we have to reset the counters
+			orConnectionsPending = 0;
+			orConnectionsConnected = 0;
+			logOrConnections();
+		}
+
+		private synchronized int getNumOrConnections() {
+			return orConnectionsPending + orConnectionsConnected;
+		}
+
+		@GuardedBy("this")
+		private void logOrConnections() {
+			if (LOG.isLoggable(INFO)) {
+				LOG.info("OR connections: " + orConnectionsPending
+						+ " pending, " + orConnectionsConnected + " connected");
+			}
 		}
 	}
 }
