@@ -742,7 +742,7 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 	public void circuitStatus(String status, String id, String path) {
 		// In case of races between receiving CIRCUIT_ESTABLISHED and setting
 		// DisableNetwork, set our circuitBuilt flag if not already set
-		if (status.equals("BUILT") && state.getAndSetCircuitBuilt(true)) {
+		if (status.equals("BUILT") && !state.getAndSetCircuitBuilt(true)) {
 			LOG.info("Circuit built");
 			backoff.reset();
 		}
