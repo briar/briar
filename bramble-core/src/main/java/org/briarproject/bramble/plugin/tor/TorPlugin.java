@@ -793,7 +793,12 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 		} else if (type.equals("STATUS_GENERAL")) {
 			handleGeneralStatus(removeSeverity(msg));
 		} else if (type.equals("HS_DESC") && msg.startsWith("UPLOADED")) {
-			LOG.info("V3 descriptor uploaded");
+			String[] parts = msg.split(" ");
+			if (parts.length < 2) {
+				LOG.warning("Failed to parse HS_DESC UPLOADED event");
+			} else if (LOG.isLoggable(INFO)) {
+				LOG.info("V3 descriptor uploaded for " + scrubOnion(parts[1]));
+			}
 		}
 	}
 
