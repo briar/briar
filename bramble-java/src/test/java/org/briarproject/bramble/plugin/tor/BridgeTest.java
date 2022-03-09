@@ -29,6 +29,8 @@ import org.junit.runners.Parameterized.Parameters;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
 import java.util.concurrent.Executor;
 import java.util.logging.Logger;
 
@@ -80,9 +82,9 @@ public class BridgeTest extends BrambleTestCase {
 	}
 
 	private final static long OBFS4_TIMEOUT = MINUTES.toMillis(2);
-	private final static long MEEK_TIMEOUT = MINUTES.toMillis(5);
+	private final static long MEEK_TIMEOUT = MINUTES.toMillis(6);
 	private final static int UNREACHABLE_BRIDGES_ALLOWED = 1;
-	private final static int ATTEMPTS_PER_BRIDGE = 3;
+	private final static int ATTEMPTS_PER_BRIDGE = 5;
 
 	private final static Logger LOG = getLogger(BridgeTest.class.getName());
 
@@ -217,7 +219,7 @@ public class BridgeTest extends BrambleTestCase {
 		@GuardedBy("this")
 		private final Multiset<String> failures = new Multiset<>();
 		@GuardedBy("this")
-		private final List<String> unreachable = new ArrayList<>();
+		private final Set<String> unreachable = new TreeSet<>();
 
 		private synchronized void countFailure(String bridge,
 				boolean essential) {
