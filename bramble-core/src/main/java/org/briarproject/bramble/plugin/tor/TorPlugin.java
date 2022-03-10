@@ -254,6 +254,7 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 		Map<String, String> env = pb.environment();
 		env.put("HOME", torDirectory.getAbsolutePath());
 		pb.directory(torDirectory);
+		pb.redirectErrorStream(true);
 		try {
 			torProcess = pb.start();
 		} catch (SecurityException | IOException e) {
