@@ -83,7 +83,7 @@ public class BridgeTest extends BrambleTestCase {
 
 	private final static long OBFS4_TIMEOUT = MINUTES.toMillis(2);
 	private final static long MEEK_TIMEOUT = MINUTES.toMillis(6);
-	private final static int UNREACHABLE_BRIDGES_ALLOWED = 1;
+	private final static int UNREACHABLE_BRIDGES_ALLOWED = 4;
 	private final static int ATTEMPTS_PER_BRIDGE = 5;
 
 	private final static Logger LOG = getLogger(BridgeTest.class.getName());
