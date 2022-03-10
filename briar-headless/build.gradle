@@ -59,7 +59,12 @@ void jarFactory(Jar jarTask, jarArchitecture) {
 	}
 			{
 				it.duplicatesStrategy(DuplicatesStrategy.EXCLUDE)
-				String[] architectures = ["linux-aarch64", "linux-armhf", "linux-x86_64"]
+				String[] architectures = [
+						"linux-aarch64",
+						"linux-armhf",
+						"linux-x86_64",
+						"windows-x86_64"
+				]
 				for (String arch : architectures) {
 					if (arch != jarArchitecture) {
 						exclude "obfs4proxy_" + arch + ".zip"
@@ -110,6 +115,10 @@ task armhfLinuxJar(type: Jar) {
 
 task x86LinuxJar(type: Jar) {
 	jarFactory(it, 'linux-x86_64')
+}
+
+task windowsJar(type: Jar) {
+	jarFactory(it, 'windows-x86_64')
 }
 
 task linuxJars {
