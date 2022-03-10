@@ -413,6 +413,8 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 		append(strb, "RunAsDaemon", 1);
 		append(strb, "SafeSocks", 1);
 		append(strb, "SocksPort", torSocksPort);
+		strb.append("GeoIPFile\n");
+		strb.append("GeoIPv6File\n");
 		//noinspection CharsetObjectCanBeUsed
 		return new ByteArrayInputStream(
 				strb.toString().getBytes(Charset.forName("UTF-8")));
