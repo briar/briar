@@ -34,13 +34,13 @@ public interface CircumventionProvider {
 	 * Countries where default obfs4 bridges are likely to work.
 	 * Should be a subset of {@link #BRIDGES}.
 	 */
-	String[] DEFAULT_OBFS4_BRIDGES = {"BY", "EG", "VE"};
+	String[] DEFAULT_OBFS4_BRIDGES = {"EG", "VE"};
 
 	/**
 	 * Countries where non-default obfs4 bridges are likely to work.
 	 * Should be a subset of {@link #BRIDGES}.
 	 */
-	String[] NON_DEFAULT_OBFS4_BRIDGES = {"RU"};
+	String[] NON_DEFAULT_OBFS4_BRIDGES = {"BY", "RU"};
 
 	/**
 	 * Countries where obfs4 bridges won't work and meek is needed.
