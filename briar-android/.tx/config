@@ -8,6 +8,7 @@ source_file  = fastlane/metadata/android/en-US/full_description.txt
 source_lang  = en
 type         = TXT
 minimum_perc = 100
+# https://support.google.com/googleplay/android-developer/answer/9844778?hl=en#zippy=%2Cview-list-of-available-languages
 lang_map     = de: de-DE, is: is-IS, ja: ja-JP, tr: tr-TR, zh-Hans: zh-CN, ru: ru-RU, sv: sv-SE, hu: hu-HU, it: it-IT, my: my-MM, en: en-US, es: es-ES, fr: fr-FR, gl: gl-ES, pl: pl-PL
 
 [o:otf:p:briar:r:google-play-short-description]
