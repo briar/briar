@@ -43,10 +43,15 @@
   <plurals name="expiry_warning">
     <item quantity="other">これは、Briarのテストバージョンです。 アカウントは%d日で期限切れになり、更新できません。</item>
   </plurals>
-  <string name="expiry_date_reached">このソフトの有効期限が切れました。テストに参加してくださりありがとうございます！</string>
+  <plurals name="old_android_expiry_warning">
+    <item quantity="other">Android 4は最早サポートされていません。Briarは(%d日後に)%s上での動作を停止します。新しい端末にBriarをインストールして、新しいアカウントを作成してください。</item>
+  </plurals>
+  <string name="expiry_date_reached">このソフトウェアの有効期限が切れました。テストに参加してくださりありがとうございます！</string>
   <string name="download_briar">Briarの使用を続けるならば、最新リリースをダウンロードしてください。</string>
   <string name="create_new_account">新しいアカウントを作成する必要があります。同じニックネームも使用できます。</string>
-  <string name="download_briar_button">最新版をダウンロード</string>
+  <string name="download_briar_button">最新リリースをダウンロード</string>
+  <string name="old_android_expiry_date_reached">Briarは最早Android 4上での実行をサポートしていません。\n新しい端末にBriarをインストールしてください。</string>
+  <string name="old_android_delete_account">下のボタンをタップして、この端末からあなたのアカウントを削除できます。</string>
   <string name="delete_account_button">アカウントを削除</string>
   <string name="startup_open_database">データベースの復号化中…</string>
   <string name="startup_migrate_database">データベースをアップグレード中…</string>
@@ -145,7 +150,7 @@
   <string name="date_no_private_messages">メッセージがありません。</string>
   <string name="no_private_messages">表示するメッセージがありません</string>
   <string name="message_hint">新しいメッセージ</string>
-  <string name="message_hint_auto_delete">新しい消えたメッセージ</string>
+  <string name="message_hint_auto_delete">新しい消えるメッセージ</string>
   <string name="message_error">メッセージ送信エラー</string>
   <string name="image_caption_hint">説明文を追加する（任意）</string>
   <string name="image_attach">画像を添付</string>
@@ -154,10 +159,13 @@
   <string name="image_attach_error_invalid_mime_type">サポートされていない画像形式：%s</string>
   <string name="set_contact_alias">連絡先を変更</string>
   <string name="set_contact_alias_hint">連絡先名</string>
-  <string name="menu_item_disappearing_messages">消えたメッセージ</string>
+  <string name="menu_item_disappearing_messages">消えるメッセージ</string>
   <!--The first placeholder will show a duration like "7 days". The second placeholder at the end will add "Tap to learn more."-->
+  <string name="auto_delete_msg_you_enabled">あなたのメッセージは%1$s後に消えます。%2$s</string>
   <!--The placeholder at the end will add "Tap to learn more."-->
+  <string name="auto_delete_msg_you_disabled">あなたのメッセージは消えません。%1$s</string>
   <!--The first placeholder will show a contact's name. The second placeholder will show a duration like "7 days". The third placeholder at the end will add "Tap to learn more."-->
+  <string name="auto_delete_msg_contact_enabled">%1$sのメッセージは%2$s後に消えます。%3$s</string>
   <plurals name="duration_minutes">
     <item quantity="other">%d分</item>
   </plurals>
@@ -168,6 +176,7 @@
     <item quantity="other">%d日</item>
   </plurals>
   <!--The first placeholder will show a contact's name. The second placeholder at the end will add "Tap to learn more."-->
+  <string name="auto_delete_msg_contact_disabled">%1$sのメッセージは消えません。%2$s</string>
   <string name="tap_to_learn_more">タップすると詳細が表示されます。</string>
   <string name="auto_delete_changed_warning_send">とりあえず送る</string>
   <string name="delete_all_messages">全てのメッセージを削除</string>
@@ -192,7 +201,7 @@
   <string name="save_image_success">画像を保存しました</string>
   <string name="save_image_error">画像を保存できませんでした</string>
   <string name="dialog_title_no_image_support">利用できない画像です</string>
-  <string name="dialog_message_no_image_support">あなたのこの連絡先のBriarは画像の添付ファイルをまだサポートしていません。連絡先がアップグレードすると、別のアイコンが表示されます。</string>
+  <string name="dialog_message_no_image_support">あなたのこの連絡先のBriarは画像の添付をまだサポートしていません。連絡先がアップグレードすると、別のアイコンが表示されます。</string>
   <string name="dialog_title_image_support">この連絡先に画像を送信できるようになりました</string>
   <string name="dialog_message_image_support">このアイコンをタップして画像を添付します。</string>
   <string name="messaging_too_many_attachments_toast">最初の%d個の画像のみが送信されます。</string>
@@ -259,6 +268,7 @@
   <string name="duplicate_link_dialog_text_1">既に保留中の連絡先があります。リンク：%s</string>
   <string name="duplicate_link_dialog_text_1_contact">既に連絡先があります。リンク：%s</string>
   <!--This is a question asking whether two nicknames refer to the same person-->
+  <string name="duplicate_link_dialog_text_2">%1$sと%2$sは同じ人ですか？</string>
   <!--This is a button for answering that two nicknames do indeed refer to the same person. This
 	string will be used in a dialog button, so if the translation of this string is longer than 20
 	characters, please use "Yes" instead, and use "No" for the "Different Person" button-->
@@ -267,6 +277,7 @@
 	will be used in a dialog button, so if the translation of this string longer than 20 characters,
 	please use "No" instead, and use "Yes" for the "Same Person" button-->
   <string name="different_person_button">別の人</string>
+  <string name="duplicate_link_dialog_text_3">%1$sと%2$sから同じリンクを受信しました。\n\nどちらかがあなたの連絡先の内容を知ろうとしている可能性があります。\n\n他の人から同じリンクを受け取ったことを伝えないでください。</string>
   <string name="pending_contact_updated_toast">保留中の連絡先が更新されました</string>
   <!--Introductions-->
   <string name="introduction_onboarding_title">連絡先を紹介</string>
@@ -294,6 +305,7 @@
   <string name="menu_item_connect_via_bluetooth">Bluetooth経由で接続する</string>
   <string name="connect_via_bluetooth_title">Bluetooth経由で接続する</string>
   <string name="connect_via_bluetooth_intro">Bluetooth接続が自動的に行われない場合は、この画面を使って手動で接続することができます。\n\nこの機能を利用するには、あなたの連絡先が近くにある必要があります。\n\nあなたと連絡先が同時に\"開始\"を押してください。</string>
+  <string name="connect_via_bluetooth_already_discovering">既にBluetooth経由での接続を試行中です。すぐに再試行してください。</string>
   <string name="connect_via_bluetooth_no_location_permission">位置情報の権限なくして続行不可能</string>
   <string name="connect_via_bluetooth_start">Bluetooth経由で接続中…</string>
   <string name="connect_via_bluetooth_success">Bluetooth経由で接続に成功</string>
@@ -541,10 +553,40 @@
   <string name="choose_ringtone_title">着信音を選択</string>
   <string name="cannot_load_ringtone">着信音を読み込めません</string>
   <!--Mailbox-->
+  <string name="mailbox_settings_title">メールボックス</string>
+  <string name="mailbox_setup_title">メールボックスのセットアップ</string>
+  <string name="mailbox_setup_intro">メールボックスはあなたがオフラインの間、連絡先があなたにメッセージを送信することを有効にします。メールボックスはあなたがオンラインになるまで、メッセージを受信し保管します。\n
+		\n予備端末上にBriarのメールボックスアプリをインストールできます。それを電源とWi-Fiに接続し、常時オンラインにしてください。</string>
+  <string name="mailbox_setup_download">最初に、Google PlayまたはBriarをダウンロードしたどこかで\"Briar Mailbox\"を検索して、他の端末上にメールボックスアプリをインストールします。\n
+		\nそして、メールボックスアプリによって表示されるQRコードをスキャンして、Briarとあなたのメールボックス結びつけます。</string>
+  <string name="mailbox_setup_download_link">ダウンロードリンクを共有</string>
+  <string name="mailbox_setup_button_scan">メールボックスのQRコードをスキャン</string>
+  <string name="permission_camera_qr_denied_body">カメラへのアクセスをが拒否されましたが、QRコードをスキャンするにはカメラを使用する必要があります。\n\nカメラへのアクセスの許可を考えてください。</string>
   <string name="mailbox_setup_connecting">接続中…</string>
+  <string name="mailbox_setup_qr_code_wrong_title">不正なQRコード</string>
+  <string name="mailbox_setup_qr_code_wrong_description">スキャンされたコードは無効です。メールボックス端末上のBriarメールボックスアプリを開き、提示されたQRコードをスキャンしてください。</string>
+  <string name="mailbox_setup_already_paired_title">メールボックスは既に結びつけられています</string>
+  <string name="mailbox_setup_already_paired_description">あなたの端末上のメールボックスの結びつけを解き、再試行してください。</string>
+  <string name="mailbox_setup_io_error_title">接続できません</string>
+  <string name="mailbox_setup_io_error_description">双方の端末がインターネットに接続されていることを確かにして、再試行してください。</string>
+  <string name="mailbox_setup_assertion_error_title">メールボックスのエラー</string>
+  <string name="mailbox_setup_assertion_error_description">もし問題が続くのであれば、Briarアプリ経由で（匿名データ付きの）フィードバックを送信してください。</string>
+  <string name="mailbox_setup_camera_error_description">カメラにアクセスできません。端末を再起動してから、もう一度試してみてください。</string>
+  <string name="mailbox_setup_paired_title">接続済み</string>
+  <string name="mailbox_setup_paired_description">あなたのメールボックスはBriarとの結びつけられるのに成功しています。\n
+		メールボックスを電源とW-Fiに接続して、常時オンラインにしてください。</string>
   <string name="tor_offline_title">オフライン</string>
+  <string name="tor_offline_description">この端末がオンラインかつインターネットへの接続が許可されていること確かにしてください。\n
+		\nその後に、接続設定画面内の球体アイコンが緑に切り替わるまで、お待ちください。</string>
+  <string name="tor_offline_button_check">接続設定を確認</string>
+  <string name="mailbox_status_title">メールボックスの状態</string>
+  <string name="mailbox_status_connected_title">メールボックスは実行中</string>
+  <!--Example for string substitution: Last connection: 3min ago-->
+  <string name="mailbox_status_connected_info">最終接続: %s</string>
+  <!--Indicates that there never was a connection to the mailbox. Last connection: Never-->
+  <string name="mailbox_status_connected_never">しない</string>
   <!--Conversation Settings-->
-  <string name="disappearing_messages_title">消えたメッセージ</string>
+  <string name="disappearing_messages_title">消えるメッセージ</string>
   <string name="learn_more">詳細情報</string>
   <!--Settings Actions-->
   <string name="pref_category_actions">操作</string>
@@ -574,6 +616,7 @@
   <string name="dev_report_memory">メモリー</string>
   <string name="dev_report_storage">ストレージ</string>
   <string name="dev_report_connectivity">接続</string>
+  <string name="dev_report_network_usage">ネットワーク使用量</string>
   <string name="dev_report_logcat">アプリのログ</string>
   <string name="dev_report_device_features">デバイスの機能</string>
   <string name="send_report">レポートを送信</string>
@@ -615,6 +658,8 @@
   <string name="transports_help_text">Briarは、インターネット、Wi-Fi、Bluetoothを介して連絡先に接続することができます。\n\nすべてのインターネット接続は、プライバシー保護のためにTorネットワークを経由します。\n\n複数の方法で連絡が取れる場合、Briarはそれらを並行して使用します。</string>
   <!--Share app offline-->
   <string name="hotspot_title">このアプリをオフラインで共有</string>
+  <string name="hotspot_intro">あなたの電話機のWi-Fiを使用して、インターネット接続なしで、近くの誰かとこのアプリを共有します。
+		\n\nあなたの電話機はWi-Fiホットスポットになります。近くの人はホットスポットへ接続し、あなたの電話機からBriarアプリをダウンロードできます。</string>
   <string name="hotspot_button_start_sharing">ホットスポットを開始</string>
   <string name="hotspot_button_stop_sharing">ホットスポットを停止</string>
   <string name="hotspot_progress_text_start">ホットスポットを設定する…</string>
@@ -673,6 +718,14 @@
   <string name="hotspot_flag_test">警告: このアプリはAndroid Studioでインストールされたものであり、他の端末にインストールすることはできません。</string>
   <string name="hotspot_error_framework_busy">ホットスポットの起動ができません。\n\n他のホットスポットを起動している場合や、Wi-Fiでインターネット接続を共有している場合は、そのホットスポットを停止してから再度試してみてください。</string>
   <!--Transfer Data via Removable Drives-->
+  <string name="removable_drive_menu_title">リムーバブルドライブ経由で接続する</string>
+  <string name="removable_drive_intro">インターネット、Wi-FiまたはBluetooth経由であなたの連絡先と接続できない場合、Briarは例えばUSBメモリーまたはSDカードのような、リムーバルドライブ上でメッセージを転送することもできます。</string>
+  <string name="removable_drive_explanation">インターネット、Wi-FiまたはBluetooth経由であなたの連絡先と接続できない場合、Briarは例えばUSBメモリーまたはSDカードのような、リムーバルドライブ上でメッセージを転送することもできます。\n\n\"データ送信\"ボタンを使用したとき、連絡先への送信を待っているデータは、リムーバブルドライブに書き込まれます。これはプライベートメッセージ、添付、ブログ、フォーラムとプライベートグループを含みます。\n\n連絡先はリムーバルドライブを受け取ったときに、Briar内にメッセージをインポートするため、\"データ受信\"ボタンを使用できます。</string>
+  <string name="removable_drive_title_send">データ送信</string>
+  <string name="removable_drive_title_receive">データ受信</string>
+  <string name="removable_drive_send_intro">暗号化されたメッセージを含む新しいファイルを作成するには、下のボタンをタップしてください。ファイルの保存先を選択できます。\n\nリムーバブルドライブ上にファイルを保存したければ、ドライブを今挿れてください。</string>
+  <string name="removable_drive_send_no_data">現在、この連絡先に送信待ちのメッセージはありません。</string>
+  <string name="removable_drive_send_not_supported">この連絡先はBriarの古いバージョン、またはこの機能をサポートしない古い端末を使用中です。</string>
   <string name="removable_drive_success_receive_title">インポート成功</string>
   <!--Screenshots-->
   <!--This is a name to be used in screenshots. Feel free to change it to a local name.-->

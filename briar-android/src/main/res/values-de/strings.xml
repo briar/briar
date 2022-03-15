@@ -2,7 +2,7 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
   <!--Setup-->
   <string name="setup_title">Willkommen bei Briar</string>
-  <string name="setup_name_explanation">Dein Benutzername wird neben deinem geposteten Inhalt angezeigt. Du kannst diesen nicht mehr ändern, nachdem du dein Konto erstellt hast.</string>
+  <string name="setup_name_explanation">Dein Spitzname wird neben deinem geposteten Inhalt angezeigt. Du kannst diesen nicht mehr ändern, nachdem du dein Konto erstellt hast.</string>
   <string name="setup_next">Weiter</string>
   <string name="setup_password_intro">Wähle ein Passwort</string>
   <string name="setup_password_explanation">Dein Briar-Konto wird verschlüsselt auf deinem Gerät und nicht in der Cloud gespeichert. Wenn du dein Passwort vergisst oder Briar deinstallierst, gibt es keine Möglichkeit, dein Konto wiederherzustellen.\n\nWähle ein langes Passwort, das schwer zu erraten ist, z.B. vier zufällige Wörter oder zehn zufällige Buchstaben, Zahlen und Symbole.</string>
@@ -10,7 +10,7 @@
   <string name="setup_doze_intro">Um Nachrichten zu empfangen, muss Briar im Hintergrund verbunden bleiben.</string>
   <string name="setup_doze_explanation">Um Nachrichten zu empfangen, muss Briar im Hintergrund verbunden bleiben. Bitte deaktiviere die Akkuoptimierungen, damit Briar in Verbindung bleiben kann.</string>
   <string name="setup_doze_button">Erlaube Verbindungen</string>
-  <string name="choose_nickname">Wähle deinen Benutzernamen</string>
+  <string name="choose_nickname">Wähle deinen Spitznamen</string>
   <string name="choose_password">Wähle dein Passwort</string>
   <string name="confirm_password">Passwort bestätigen</string>
   <string name="name_too_long">Name ist zu lang</string>
@@ -56,7 +56,7 @@
   </plurals>
   <string name="expiry_date_reached">Diese Software ist abgelaufen.\nDanke, dass du Briar getestet hast!</string>
   <string name="download_briar">Bitte lade die aktuelle Version von Briar herunter, um es weiter zu benutzen.</string>
-  <string name="create_new_account">Du wirst ein neues Konto erstellen müssen, wobei du jedoch wieder denselben Benutzernamen verwenden kannst.</string>
+  <string name="create_new_account">Du wirst ein neues Konto erstellen müssen, wobei du jedoch wieder denselben Spitznamen verwenden kannst.</string>
   <string name="download_briar_button">Aktuelle Version herunterladen</string>
   <string name="old_android_expiry_date_reached">Briar wird auf Android 4 nicht mehr unterstützt.\nBitte installiere Briar auf einem neueren Gerät.</string>
   <string name="old_android_delete_account">Du kannst auf die Schaltfläche unten tippen, um dein Konto von diesem Gerät zu löschen.</string>
@@ -588,9 +588,26 @@
   <string name="mailbox_setup_connecting">Verbinde…</string>
   <string name="mailbox_setup_qr_code_wrong_title">Falscher QR-Code</string>
   <string name="mailbox_setup_qr_code_wrong_description">Der gescannte Code ist ungültig. Bitte öffne die Briar Mailbox-App auf deinem Mailbox-Gerät und scanne den dort angezeigten QR-Code.</string>
+  <string name="mailbox_setup_already_paired_title">Mailbox bereits verknüpft</string>
+  <string name="mailbox_setup_already_paired_description">Verknüpfung der Mailbox auf deinem anderen Gerät aufheben und erneut versuchen.</string>
+  <string name="mailbox_setup_io_error_title">Keine Verknüpfung möglich</string>
+  <string name="mailbox_setup_io_error_description">Stelle sicher, dass beide Geräte mit dem Internet verbunden sind, und versuche es erneut.</string>
+  <string name="mailbox_setup_assertion_error_title">Mailbox-Fehler</string>
+  <string name="mailbox_setup_assertion_error_description">Bitte sende ein Feedback (mit anonymen Daten) über die Briar-App, wenn das Problem weiterhin besteht.</string>
+  <string name="mailbox_setup_camera_error_description">Konnte nicht auf die Kamera zugreifen. Versuche es erneut, eventuell nach einem Neustart des Geräts.</string>
+  <string name="mailbox_setup_paired_title">Verbunden</string>
+  <string name="mailbox_setup_paired_description">Deine Mailbox wurde erfolgreich mit Briar verknüpft.\n
+		\nLasse deine Mailbox mit Strom und WLAN verbunden, damit sie immer online ist.</string>
   <string name="tor_offline_title">Offline</string>
-  <string name="tor_offline_description">Stelle sicher, dass das Gerät online ist und Verbindungen zum Internet zugelassen sind.\n\nWarte anschließend, bis das Globussymbol in den Verbindungseinstellungen grün wird.</string>
+  <string name="tor_offline_description">Stelle sicher, dass das Gerät online ist und Verbindungen mit dem Internet zugelassen sind.\n
+		\nWarte anschließend, bis das Globussymbol auf dem Bildschirm mit den Verbindungseinstellungen grün wird.</string>
   <string name="tor_offline_button_check">Verbindungseinstellungen prüfen</string>
+  <string name="mailbox_status_title">Mailbox-Status</string>
+  <string name="mailbox_status_connected_title">Mailbox läuft</string>
+  <!--Example for string substitution: Last connection: 3min ago-->
+  <string name="mailbox_status_connected_info">Letzte Verbindung: %s</string>
+  <!--Indicates that there never was a connection to the mailbox. Last connection: Never-->
+  <string name="mailbox_status_connected_never">Nie</string>
   <!--Conversation Settings-->
   <string name="disappearing_messages_title">Selbstlöschende Nachrichten</string>
   <string name="disappearing_messages_explanation_long">Wenn diese Einstellung aktiviert ist, werden neue

@@ -577,10 +577,14 @@
   <string name="cannot_load_ringtone">Тонът за звънене не може да бъде зареден</string>
   <!--Mailbox-->
   <string name="mailbox_settings_title">Пощенска кутия</string>
-  <string name="mailbox_setup_title">Настройка като пощенска кутия</string>
   <string name="mailbox_setup_intro">Пощенската кутия ви дава възможност да получавате съобщения от контактите ви докато сте извън мрежа. Кутията ще получава съобщенията и ще ги пази до като дойдете на линия.\n\nИнсталирайте приложението Birar Mailbox на резервно устройство. Включете го в захранване и с достъп до безжична мрежа, така че да е винаги на линия.</string>
   <string name="mailbox_setup_connecting">Свързване…</string>
+  <string name="mailbox_setup_paired_title">Свързан</string>
   <string name="tor_offline_title">Извън линия</string>
+  <!--Example for string substitution: Last connection: 3min ago-->
+  <string name="mailbox_status_connected_info">Последно свързване: %s</string>
+  <!--Indicates that there never was a connection to the mailbox. Last connection: Never-->
+  <string name="mailbox_status_connected_never">Никога</string>
   <!--Conversation Settings-->
   <string name="disappearing_messages_title">Изчезващи съобщения</string>
   <string name="disappearing_messages_explanation_long">При включване, тази настройка прави бъдещите съобщения в този разговор да изчезват след 7\u00A0дни.
