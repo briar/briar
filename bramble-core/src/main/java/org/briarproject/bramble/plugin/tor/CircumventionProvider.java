@@ -20,7 +20,7 @@ public interface CircumventionProvider {
 	 * See https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2
 	 * and https://trac.torproject.org/projects/tor/wiki/doc/OONI/censorshipwiki
 	 */
-	String[] BLOCKED = {"BY", "CN", "EG", "IR", "RU", "VE"};
+	String[] BLOCKED = {"BY", "CN", "EG", "IR", "RU", "TM", "VE"};
 
 	/**
 	 * Countries where obfs4 or meek bridge connections are likely to work.
@@ -28,7 +28,7 @@ public interface CircumventionProvider {
 	 * {@link #DEFAULT_OBFS4_BRIDGES}, {@link #NON_DEFAULT_OBFS4_BRIDGES} and
 	 * {@link #MEEK_BRIDGES}.
 	 */
-	String[] BRIDGES = {"BY", "CN", "EG", "IR", "RU", "VE"};
+	String[] BRIDGES = {"BY", "CN", "EG", "IR", "RU", "TM", "VE"};
 
 	/**
 	 * Countries where default obfs4 bridges are likely to work.
@@ -40,7 +40,7 @@ public interface CircumventionProvider {
 	 * Countries where non-default obfs4 bridges are likely to work.
 	 * Should be a subset of {@link #BRIDGES}.
 	 */
-	String[] NON_DEFAULT_OBFS4_BRIDGES = {"BY", "RU"};
+	String[] NON_DEFAULT_OBFS4_BRIDGES = {"BY", "RU", "TM"};
 
 	/**
 	 * Countries where obfs4 bridges won't work and meek is needed.
