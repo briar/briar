@@ -16,16 +16,17 @@ import org.briarproject.bramble.test.BrambleMockTestCase;
 import org.briarproject.bramble.test.DbExpectations;
 import org.junit.Test;
 
+import static java.util.Arrays.asList;
+import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
 import static org.briarproject.bramble.api.sync.SyncConstants.MAX_MESSAGE_BODY_LENGTH;
 import static org.briarproject.bramble.api.sync.SyncConstants.MAX_MESSAGE_IDS;
-import static org.briarproject.bramble.sync.SimplexOutgoingSession.BATCH_CAPACITY;
 import static org.briarproject.bramble.test.TestUtils.getContactId;
 import static org.briarproject.bramble.test.TestUtils.getMessage;
 import static org.briarproject.bramble.test.TestUtils.getRandomId;
 import static org.briarproject.bramble.test.TestUtils.getTransportId;
 
-public class SimplexOutgoingSessionTest extends BrambleMockTestCase {
+public class EagerSimplexOutgoingSessionTest extends BrambleMockTestCase {
 
 	private static final int MAX_LATENCY = Integer.MAX_VALUE;
 
@@ -41,15 +42,17 @@ public class SimplexOutgoingSessionTest extends BrambleMockTestCase {
 			new Ack(singletonList(new MessageId(getRandomId())));
 	private final Message message = getMessage(new GroupId(getRandomId()),
 			MAX_MESSAGE_BODY_LENGTH);
+	private final Message message1 = getMessage(new GroupId(getRandomId()),
+			MAX_MESSAGE_BODY_LENGTH);
 
 	@Test
-	public void testNothingToSend() throws Exception {
-		SimplexOutgoingSession session = new SimplexOutgoingSession(db,
-				eventBus, contactId, transportId, MAX_LATENCY,
-				streamWriter, recordWriter);
+	public void testNothingToSendEagerly() throws Exception {
+		EagerSimplexOutgoingSession session =
+				new EagerSimplexOutgoingSession(db, eventBus, contactId,
+						transportId, MAX_LATENCY, streamWriter, recordWriter);
 
 		Transaction noAckTxn = new Transaction(null, false);
-		Transaction noMsgTxn = new Transaction(null, false);
+		Transaction noIdsTxn = new Transaction(null, true);
 
 		context.checking(new DbExpectations() {{
 			// Add listener
@@ -62,11 +65,10 @@ public class SimplexOutgoingSessionTest extends BrambleMockTestCase {
 			oneOf(db).generateAck(noAckTxn, contactId, MAX_MESSAGE_IDS);
 			will(returnValue(null));
 			// No messages to send
-			oneOf(db).transactionWithNullableResult(with(false),
-					withNullableDbCallable(noMsgTxn));
-			oneOf(db).generateBatch(noMsgTxn, contactId,
-					BATCH_CAPACITY, MAX_LATENCY);
-			will(returnValue(null));
+			oneOf(db).transactionWithResult(with(true),
+					withDbCallable(noIdsTxn));
+			oneOf(db).getUnackedMessagesToSend(noIdsTxn, contactId);
+			will(returnValue(emptyList()));
 			// Send the end of stream marker
 			oneOf(streamWriter).sendEndOfStream();
 			// Remove listener
@@ -77,15 +79,16 @@ public class SimplexOutgoingSessionTest extends BrambleMockTestCase {
 	}
 
 	@Test
-	public void testSomethingToSend() throws Exception {
-		SimplexOutgoingSession session = new SimplexOutgoingSession(db,
-				eventBus, contactId, transportId, MAX_LATENCY,
-				streamWriter, recordWriter);
+	public void testSomethingToSendEagerly() throws Exception {
+		EagerSimplexOutgoingSession session =
+				new EagerSimplexOutgoingSession(db, eventBus, contactId,
+						transportId, MAX_LATENCY, streamWriter, recordWriter);
 
 		Transaction ackTxn = new Transaction(null, false);
 		Transaction noAckTxn = new Transaction(null, false);
+		Transaction idsTxn = new Transaction(null, true);
 		Transaction msgTxn = new Transaction(null, false);
-		Transaction noMsgTxn = new Transaction(null, false);
+		Transaction msgTxn1 = new Transaction(null, false);
 
 		context.checking(new DbExpectations() {{
 			// Add listener
@@ -103,19 +106,23 @@ public class SimplexOutgoingSessionTest extends BrambleMockTestCase {
 					withNullableDbCallable(noAckTxn));
 			oneOf(db).generateAck(noAckTxn, contactId, MAX_MESSAGE_IDS);
 			will(returnValue(null));
-			// One message to send
+			// Two messages to send
+			oneOf(db).transactionWithResult(with(true), withDbCallable(idsTxn));
+			oneOf(db).getUnackedMessagesToSend(idsTxn, contactId);
+			will(returnValue(asList(message.getId(), message1.getId())));
+			// Try to send the first message - it's no longer shared
 			oneOf(db).transactionWithNullableResult(with(false),
 					withNullableDbCallable(msgTxn));
-			oneOf(db).generateBatch(msgTxn, contactId,
-					BATCH_CAPACITY, MAX_LATENCY);
-			will(returnValue(singletonList(message)));
-			oneOf(recordWriter).writeMessage(message);
-			// No more messages
-			oneOf(db).transactionWithNullableResult(with(false),
-					withNullableDbCallable(noMsgTxn));
-			oneOf(db).generateBatch(noMsgTxn, contactId,
-					BATCH_CAPACITY, MAX_LATENCY);
+			oneOf(db).getMessageToSend(msgTxn, contactId, message.getId(),
+					MAX_LATENCY, true);
 			will(returnValue(null));
+			// Send the second message
+			oneOf(db).transactionWithNullableResult(with(false),
+					withNullableDbCallable(msgTxn1));
+			oneOf(db).getMessageToSend(msgTxn1, contactId, message1.getId(),
+					MAX_LATENCY, true);
+			will(returnValue(message1));
+			oneOf(recordWriter).writeMessage(message1);
 			// Send the end of stream marker
 			oneOf(streamWriter).sendEndOfStream();
 			// Remove listener

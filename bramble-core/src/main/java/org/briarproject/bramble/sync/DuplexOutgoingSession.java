@@ -13,11 +13,13 @@ import org.briarproject.bramble.api.lifecycle.event.LifecycleEvent;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.plugin.TransportId;
 import org.briarproject.bramble.api.plugin.event.TransportInactiveEvent;
+import org.briarproject.bramble.api.record.Record;
 import org.briarproject.bramble.api.sync.Ack;
 import org.briarproject.bramble.api.sync.Message;
 import org.briarproject.bramble.api.sync.Offer;
 import org.briarproject.bramble.api.sync.Priority;
 import org.briarproject.bramble.api.sync.Request;
+import org.briarproject.bramble.api.sync.SyncConstants;
 import org.briarproject.bramble.api.sync.SyncRecordWriter;
 import org.briarproject.bramble.api.sync.SyncSession;
 import org.briarproject.bramble.api.sync.Versions;
@@ -47,8 +49,9 @@ import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
 import static java.util.logging.Logger.getLogger;
 import static org.briarproject.bramble.api.lifecycle.LifecycleManager.LifecycleState.STOPPING;
-import static org.briarproject.bramble.api.record.Record.MAX_RECORD_PAYLOAD_BYTES;
+import static org.briarproject.bramble.api.record.Record.RECORD_HEADER_BYTES;
 import static org.briarproject.bramble.api.sync.SyncConstants.MAX_MESSAGE_IDS;
+import static org.briarproject.bramble.api.sync.SyncConstants.MAX_MESSAGE_LENGTH;
 import static org.briarproject.bramble.api.sync.SyncConstants.SUPPORTED_VERSIONS;
 import static org.briarproject.bramble.util.LogUtils.logException;
 
@@ -70,6 +73,16 @@ class DuplexOutgoingSession implements SyncSession, EventListener {
 	private static final ThrowingRunnable<IOException>
 			NEXT_SEND_TIME_DECREASED = () -> {
 	};
+
+	/**
+	 * The batch capacity must be at least {@link Record#RECORD_HEADER_BYTES}
+	 * + {@link SyncConstants#MAX_MESSAGE_LENGTH} to ensure that maximum-size
+	 * messages can be selected for transmission. Larger batches will mean
+	 * fewer round-trips between the DB and the output stream, but each
+	 * round-trip will block the DB for longer.
+	 */
+	private static final int BATCH_CAPACITY =
+			(RECORD_HEADER_BYTES + MAX_MESSAGE_LENGTH) * 2;
 
 	private final DatabaseComponent db;
 	private final Executor dbExecutor;
@@ -296,8 +309,7 @@ class DuplexOutgoingSession implements SyncSession, EventListener {
 						db.transactionWithNullableResult(false, txn -> {
 							Collection<Message> batch =
 									db.generateRequestedBatch(txn, contactId,
-											MAX_RECORD_PAYLOAD_BYTES,
-											maxLatency);
+											BATCH_CAPACITY, maxLatency);
 							setNextSendTime(db.getNextSendTime(txn, contactId));
 							return batch;
 						});

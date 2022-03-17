@@ -407,6 +407,12 @@ interface Database<T> {
 			throws DbException;
 
 	/**
+	 * Returns the length of the given message in bytes, including the
+	 * message header.
+	 */
+	int getMessageLength(T txn, MessageId m) throws DbException;
+
+	/**
 	 * Returns the metadata for all delivered messages in the given group.
 	 * <p/>
 	 * Read-only.
@@ -496,7 +502,8 @@ interface Database<T> {
 
 	/**
 	 * Returns the IDs of some messages that are eligible to be sent to the
-	 * given contact, up to the given total length.
+	 * given contact. The total length of the messages including record headers
+	 * will be no more than the given capacity.
 	 * <p/>
 	 * Unlike {@link #getUnackedMessagesToSend(Object, ContactId)} this method
 	 * does not return messages that have already been sent unless they are
@@ -504,12 +511,12 @@ interface Database<T> {
 	 * <p/>
 	 * Read-only.
 	 */
-	Collection<MessageId> getMessagesToSend(T txn, ContactId c, int maxLength,
+	Collection<MessageId> getMessagesToSend(T txn, ContactId c, int capacity,
 			long maxLatency) throws DbException;
 
 	/**
 	 * Returns the IDs of all messages that are eligible to be sent to the
-	 * given contact, together with their raw lengths.
+	 * given contact.
 	 * <p/>
 	 * Unlike {@link #getMessagesToSend(Object, ContactId, int, long)} this
 	 * method may return messages that have already been sent and are not yet
@@ -517,7 +524,7 @@ interface Database<T> {
 	 * <p/>
 	 * Read-only.
 	 */
-	Map<MessageId, Integer> getUnackedMessagesToSend(T txn, ContactId c)
+	Collection<MessageId> getUnackedMessagesToSend(T txn, ContactId c)
 			throws DbException;
 
 	/**
@@ -598,13 +605,14 @@ interface Database<T> {
 
 	/**
 	 * Returns the IDs of some messages that are eligible to be sent to the
-	 * given contact and have been requested by the contact, up to the given
-	 * total length.
+	 * given contact and have been requested by the contact. The total length
+	 * of the messages including record headers will be no more than the given
+	 * capacity.
 	 * <p/>
 	 * Read-only.
 	 */
 	Collection<MessageId> getRequestedMessagesToSend(T txn, ContactId c,
-			int maxLength, long maxLatency) throws DbException;
+			int capacity, long maxLatency) throws DbException;
 
 	/**
 	 * Returns all settings in the given namespace.

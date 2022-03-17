@@ -72,6 +72,7 @@ import static java.util.Collections.emptyMap;
 import static java.util.Collections.singletonList;
 import static java.util.concurrent.TimeUnit.HOURS;
 import static org.briarproject.bramble.api.db.DatabaseComponent.TIMER_NOT_STARTED;
+import static org.briarproject.bramble.api.record.Record.RECORD_HEADER_BYTES;
 import static org.briarproject.bramble.api.sync.Group.Visibility.INVISIBLE;
 import static org.briarproject.bramble.api.sync.Group.Visibility.SHARED;
 import static org.briarproject.bramble.api.sync.Group.Visibility.VISIBLE;
@@ -94,10 +95,14 @@ import static org.briarproject.bramble.test.TestUtils.getTransportId;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 public class DatabaseComponentImplTest extends BrambleMockTestCase {
+
+	private static final int BATCH_CAPACITY =
+			(RECORD_HEADER_BYTES + MAX_MESSAGE_LENGTH) * 2;
 
 	@SuppressWarnings("unchecked")
 	private final Database<Object> database = context.mock(Database.class);
@@ -298,11 +303,11 @@ public class DatabaseComponentImplTest extends BrambleMockTestCase {
 			throws Exception {
 		context.checking(new Expectations() {{
 			// Check whether the contact is in the DB (which it's not)
-			exactly(19).of(database).startTransaction();
+			exactly(25).of(database).startTransaction();
 			will(returnValue(txn));
-			exactly(19).of(database).containsContact(txn, contactId);
+			exactly(25).of(database).containsContact(txn, contactId);
 			will(returnValue(false));
-			exactly(19).of(database).abortTransaction(txn);
+			exactly(25).of(database).abortTransaction(txn);
 		}});
 		DatabaseComponent db = createDatabaseComponent(database, eventBus,
 				eventExecutor, shutdownManager);
@@ -351,6 +356,39 @@ public class DatabaseComponentImplTest extends BrambleMockTestCase {
 		try {
 			db.transaction(true, transaction ->
 					db.getContact(transaction, contactId));
+			fail();
+		} catch (NoSuchContactException expected) {
+			// Expected
+		}
+
+		try {
+			db.transaction(false, transaction ->
+					db.getMessageToSend(transaction, contactId, messageId, 123,
+							true));
+			fail();
+		} catch (NoSuchContactException expected) {
+			// Expected
+		}
+
+		try {
+			db.transaction(true, transaction ->
+					db.getMessagesToAck(transaction, contactId, 123));
+			fail();
+		} catch (NoSuchContactException expected) {
+			// Expected
+		}
+
+		try {
+			db.transaction(true, transaction ->
+					db.getMessagesToSend(transaction, contactId, 123, 456));
+			fail();
+		} catch (NoSuchContactException expected) {
+			// Expected
+		}
+
+		try {
+			db.transaction(true, transaction ->
+					db.getUnackedMessagesToSend(transaction, contactId));
 			fail();
 		} catch (NoSuchContactException expected) {
 			// Expected
@@ -441,6 +479,15 @@ public class DatabaseComponentImplTest extends BrambleMockTestCase {
 
 		try {
 			db.transaction(false, transaction ->
+					db.setAckSent(transaction, contactId,
+							singletonList(messageId)));
+			fail();
+		} catch (NoSuchContactException expected) {
+			// Expected
+		}
+
+		try {
+			db.transaction(false, transaction ->
 					db.setContactAlias(transaction, contactId, alias));
 			fail();
 		} catch (NoSuchContactException expected) {
@@ -451,6 +498,15 @@ public class DatabaseComponentImplTest extends BrambleMockTestCase {
 			db.transaction(false, transaction ->
 					db.setGroupVisibility(transaction, contactId, groupId,
 							SHARED));
+			fail();
+		} catch (NoSuchContactException expected) {
+			// Expected
+		}
+
+		try {
+			db.transaction(false, transaction ->
+					db.setMessagesSent(transaction, contactId,
+							singletonList(messageId), 123));
 			fail();
 		} catch (NoSuchContactException expected) {
 			// Expected
@@ -918,12 +974,14 @@ public class DatabaseComponentImplTest extends BrambleMockTestCase {
 			oneOf(database).containsContact(txn, contactId);
 			will(returnValue(true));
 			oneOf(database).getMessagesToSend(txn, contactId,
-					MAX_MESSAGE_LENGTH * 2, maxLatency);
+					BATCH_CAPACITY, maxLatency);
 			will(returnValue(ids));
+			// First message
 			oneOf(database).getMessage(txn, messageId);
 			will(returnValue(message));
 			oneOf(database).updateRetransmissionData(txn, contactId, messageId,
 					maxLatency);
+			// Second message
 			oneOf(database).getMessage(txn, messageId1);
 			will(returnValue(message1));
 			oneOf(database).updateRetransmissionData(txn, contactId, messageId1,
@@ -937,7 +995,7 @@ public class DatabaseComponentImplTest extends BrambleMockTestCase {
 
 		db.transaction(false, transaction ->
 				assertEquals(messages, db.generateBatch(transaction, contactId,
-						MAX_MESSAGE_LENGTH * 2, maxLatency)));
+						BATCH_CAPACITY, maxLatency)));
 	}
 
 	@Test
@@ -1001,12 +1059,14 @@ public class DatabaseComponentImplTest extends BrambleMockTestCase {
 			oneOf(database).containsContact(txn, contactId);
 			will(returnValue(true));
 			oneOf(database).getRequestedMessagesToSend(txn, contactId,
-					MAX_MESSAGE_LENGTH * 2, maxLatency);
+					BATCH_CAPACITY, maxLatency);
 			will(returnValue(ids));
+			// First message
 			oneOf(database).getMessage(txn, messageId);
 			will(returnValue(message));
 			oneOf(database).updateRetransmissionData(txn, contactId,
 					messageId, maxLatency);
+			// Second message
 			oneOf(database).getMessage(txn, messageId1);
 			will(returnValue(message1));
 			oneOf(database).updateRetransmissionData(txn, contactId,
@@ -1020,7 +1080,73 @@ public class DatabaseComponentImplTest extends BrambleMockTestCase {
 
 		db.transaction(false, transaction ->
 				assertEquals(messages, db.generateRequestedBatch(transaction,
-						contactId, MAX_MESSAGE_LENGTH * 2, maxLatency)));
+						contactId, BATCH_CAPACITY, maxLatency)));
+	}
+
+	@Test
+	public void testGetMessageToSendMessageNotVisible() throws Exception {
+		context.checking(new Expectations() {{
+			oneOf(database).startTransaction();
+			will(returnValue(txn));
+			oneOf(database).containsContact(txn, contactId);
+			will(returnValue(true));
+			oneOf(database).containsVisibleMessage(txn, contactId, messageId);
+			will(returnValue(false));
+			oneOf(database).commitTransaction(txn);
+		}});
+		DatabaseComponent db = createDatabaseComponent(database, eventBus,
+				eventExecutor, shutdownManager);
+
+		db.transaction(false, transaction ->
+				assertNull(db.getMessageToSend(transaction, contactId,
+						messageId, maxLatency, false)));
+	}
+
+	@Test
+	public void testGetMessageToSendMessageNotMarkedAsSent() throws Exception {
+		context.checking(new Expectations() {{
+			oneOf(database).startTransaction();
+			will(returnValue(txn));
+			oneOf(database).containsContact(txn, contactId);
+			will(returnValue(true));
+			oneOf(database).containsVisibleMessage(txn, contactId, messageId);
+			will(returnValue(true));
+			oneOf(database).getMessage(txn, messageId);
+			will(returnValue(message));
+			oneOf(database).commitTransaction(txn);
+		}});
+		DatabaseComponent db = createDatabaseComponent(database, eventBus,
+				eventExecutor, shutdownManager);
+
+		db.transaction(false, transaction ->
+				assertEquals(message, db.getMessageToSend(transaction,
+						contactId, messageId, maxLatency, false)));
+	}
+
+	@Test
+	public void testGetMessageToSendMessageMarkedAsSent() throws Exception {
+		context.checking(new Expectations() {{
+			oneOf(database).startTransaction();
+			will(returnValue(txn));
+			oneOf(database).containsContact(txn, contactId);
+			will(returnValue(true));
+			oneOf(database).containsVisibleMessage(txn, contactId, messageId);
+			will(returnValue(true));
+			oneOf(database).getMessage(txn, messageId);
+			will(returnValue(message));
+			oneOf(database).updateRetransmissionData(txn, contactId, messageId,
+					maxLatency);
+			oneOf(database).lowerRequestedFlag(txn, contactId,
+					singletonList(messageId));
+			oneOf(database).commitTransaction(txn);
+			oneOf(eventBus).broadcast(with(any(MessagesSentEvent.class)));
+		}});
+		DatabaseComponent db = createDatabaseComponent(database, eventBus,
+				eventExecutor, shutdownManager);
+
+		db.transaction(false, transaction ->
+				assertEquals(message, db.getMessageToSend(transaction,
+						contactId, messageId, maxLatency, true)));
 	}
 
 	@Test
@@ -1243,6 +1369,62 @@ public class DatabaseComponentImplTest extends BrambleMockTestCase {
 		Request r = new Request(singletonList(messageId));
 		db.transaction(false, transaction ->
 				db.receiveRequest(transaction, contactId, r));
+	}
+
+	@Test
+	public void testSetAckSent() throws Exception {
+		Collection<MessageId> acked = asList(messageId, messageId1);
+		context.checking(new Expectations() {{
+			oneOf(database).startTransaction();
+			will(returnValue(txn));
+			oneOf(database).containsContact(txn, contactId);
+			will(returnValue(true));
+			// First message is still visible to the contact - flag lowered
+			oneOf(database).containsVisibleMessage(txn, contactId, messageId);
+			will(returnValue(true));
+			// Second message is no longer visible - flag not lowered
+			oneOf(database).containsVisibleMessage(txn, contactId, messageId1);
+			will(returnValue(false));
+			oneOf(database)
+					.lowerAckFlag(txn, contactId, singletonList(messageId));
+			oneOf(database).commitTransaction(txn);
+		}});
+		DatabaseComponent db = createDatabaseComponent(database, eventBus,
+				eventExecutor, shutdownManager);
+
+		db.transaction(false, transaction ->
+				db.setAckSent(transaction, contactId, acked));
+	}
+
+	@Test
+	public void testSetMessagesSent() throws Exception {
+		long maxLatency = 123456;
+		Collection<MessageId> sent = asList(messageId, messageId1);
+		context.checking(new Expectations() {{
+			oneOf(database).startTransaction();
+			will(returnValue(txn));
+			oneOf(database).containsContact(txn, contactId);
+			will(returnValue(true));
+			// First message is still visible to the contact - mark as sent
+			oneOf(database).containsVisibleMessage(txn, contactId, messageId);
+			will(returnValue(true));
+			oneOf(database).getMessageLength(txn, messageId);
+			will(returnValue(message.getRawLength()));
+			oneOf(database).updateRetransmissionData(txn, contactId, messageId,
+					maxLatency);
+			// Second message is no longer visible - don't mark as sent
+			oneOf(database).containsVisibleMessage(txn, contactId, messageId1);
+			will(returnValue(false));
+			oneOf(database).lowerRequestedFlag(txn, contactId,
+					singletonList(messageId));
+			oneOf(database).commitTransaction(txn);
+			oneOf(eventBus).broadcast(with(any(MessagesSentEvent.class)));
+		}});
+		DatabaseComponent db = createDatabaseComponent(database, eventBus,
+				eventExecutor, shutdownManager);
+
+		db.transaction(false, transaction ->
+				db.setMessagesSent(transaction, contactId, sent, maxLatency));
 	}
 
 	@Test

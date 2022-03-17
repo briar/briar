@@ -12,4 +12,6 @@ public interface RecordWriter {
 	void flush() throws IOException;
 
 	void close() throws IOException;
+
+	long getBytesWritten();
 }

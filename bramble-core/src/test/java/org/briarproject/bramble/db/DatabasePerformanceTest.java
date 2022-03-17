@@ -33,7 +33,9 @@ import java.util.Random;
 import java.util.logging.Logger;
 
 import static java.util.logging.Level.OFF;
+import static org.briarproject.bramble.api.record.Record.RECORD_HEADER_BYTES;
 import static org.briarproject.bramble.api.sync.SyncConstants.MAX_MESSAGE_IDS;
+import static org.briarproject.bramble.api.sync.SyncConstants.MAX_MESSAGE_LENGTH;
 import static org.briarproject.bramble.api.sync.validation.MessageState.DELIVERED;
 import static org.briarproject.bramble.test.TestUtils.deleteTestDirectory;
 import static org.briarproject.bramble.test.TestUtils.getAuthor;
@@ -96,6 +98,9 @@ public abstract class DatabasePerformanceTest extends BrambleTestCase {
 
 	// All our transports use a maximum latency of 30 seconds
 	private static final int MAX_LATENCY = 30 * 1000;
+
+	private static final int BATCH_CAPACITY =
+			(RECORD_HEADER_BYTES + MAX_MESSAGE_LENGTH) * 2;
 
 	protected final File testDir = getTestDirectory();
 	private final File resultsFile = new File(getTestName() + ".tsv");
@@ -471,7 +476,7 @@ public abstract class DatabasePerformanceTest extends BrambleTestCase {
 		benchmark(name, db -> {
 			Connection txn = db.startTransaction();
 			db.getMessagesToSend(txn, pickRandom(contacts).getId(),
-					MAX_MESSAGE_IDS, MAX_LATENCY);
+					BATCH_CAPACITY, MAX_LATENCY);
 			db.commitTransaction(txn);
 		});
 	}
@@ -522,7 +527,7 @@ public abstract class DatabasePerformanceTest extends BrambleTestCase {
 		benchmark(name, db -> {
 			Connection txn = db.startTransaction();
 			db.getRequestedMessagesToSend(txn, pickRandom(contacts).getId(),
-					MAX_MESSAGE_IDS, MAX_LATENCY);
+					BATCH_CAPACITY, MAX_LATENCY);
 			db.commitTransaction(txn);
 		});
 	}

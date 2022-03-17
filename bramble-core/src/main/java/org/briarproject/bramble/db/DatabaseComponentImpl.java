@@ -75,7 +75,6 @@ import org.briarproject.bramble.api.transport.TransportKeys;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Executor;
@@ -87,6 +86,7 @@ import javax.annotation.Nullable;
 import javax.annotation.concurrent.ThreadSafe;
 import javax.inject.Inject;
 
+import static java.util.Collections.singletonList;
 import static java.util.logging.Level.WARNING;
 import static java.util.logging.Logger.getLogger;
 import static org.briarproject.bramble.api.sync.Group.Visibility.INVISIBLE;
@@ -424,13 +424,14 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 	@Nullable
 	@Override
 	public Collection<Message> generateBatch(Transaction transaction,
-			ContactId c, int maxLength, long maxLatency) throws DbException {
+			ContactId c, int capacity, long maxLatency) throws DbException {
 		if (transaction.isReadOnly()) throw new IllegalArgumentException();
 		T txn = unbox(transaction);
 		if (!db.containsContact(txn, c))
 			throw new NoSuchContactException();
 		Collection<MessageId> ids =
-				db.getMessagesToSend(txn, c, maxLength, maxLatency);
+				db.getMessagesToSend(txn, c, capacity, maxLatency);
+		if (ids.isEmpty()) return null;
 		long totalLength = 0;
 		List<Message> messages = new ArrayList<>(ids.size());
 		for (MessageId m : ids) {
@@ -439,35 +440,8 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 			messages.add(message);
 			db.updateRetransmissionData(txn, c, m, maxLatency);
 		}
-		if (ids.isEmpty()) return null;
 		db.lowerRequestedFlag(txn, c, ids);
 		transaction.attach(new MessagesSentEvent(c, ids, totalLength));
-		return messages;
-	}
-
-	@Override
-	public Collection<Message> generateBatch(Transaction transaction,
-			ContactId c, Collection<MessageId> ids, long maxLatency)
-			throws DbException {
-		if (transaction.isReadOnly()) throw new IllegalArgumentException();
-		T txn = unbox(transaction);
-		if (!db.containsContact(txn, c))
-			throw new NoSuchContactException();
-		long totalLength = 0;
-		List<Message> messages = new ArrayList<>(ids.size());
-		List<MessageId> sentIds = new ArrayList<>(ids.size());
-		for (MessageId m : ids) {
-			if (db.containsVisibleMessage(txn, c, m)) {
-				Message message = db.getMessage(txn, m);
-				totalLength += message.getRawLength();
-				messages.add(message);
-				sentIds.add(m);
-				db.updateRetransmissionData(txn, c, m, maxLatency);
-			}
-		}
-		if (messages.isEmpty()) return messages;
-		db.lowerRequestedFlag(txn, c, sentIds);
-		transaction.attach(new MessagesSentEvent(c, sentIds, totalLength));
 		return messages;
 	}
 
@@ -505,13 +479,14 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 	@Nullable
 	@Override
 	public Collection<Message> generateRequestedBatch(Transaction transaction,
-			ContactId c, int maxLength, long maxLatency) throws DbException {
+			ContactId c, int capacity, long maxLatency) throws DbException {
 		if (transaction.isReadOnly()) throw new IllegalArgumentException();
 		T txn = unbox(transaction);
 		if (!db.containsContact(txn, c))
 			throw new NoSuchContactException();
 		Collection<MessageId> ids =
-				db.getRequestedMessagesToSend(txn, c, maxLength, maxLatency);
+				db.getRequestedMessagesToSend(txn, c, capacity, maxLatency);
+		if (ids.isEmpty()) return null;
 		long totalLength = 0;
 		List<Message> messages = new ArrayList<>(ids.size());
 		for (MessageId m : ids) {
@@ -520,7 +495,6 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 			messages.add(message);
 			db.updateRetransmissionData(txn, c, m, maxLatency);
 		}
-		if (ids.isEmpty()) return null;
 		db.lowerRequestedFlag(txn, c, ids);
 		transaction.attach(new MessagesSentEvent(c, ids, totalLength));
 		return messages;
@@ -636,6 +610,24 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 	}
 
 	@Override
+	public Collection<MessageId> getMessagesToAck(Transaction transaction,
+			ContactId c, int maxMessages) throws DbException {
+		T txn = unbox(transaction);
+		if (!db.containsContact(txn, c))
+			throw new NoSuchContactException();
+		return db.getMessagesToAck(txn, c, maxMessages);
+	}
+
+	@Override
+	public Collection<MessageId> getMessagesToSend(Transaction transaction,
+			ContactId c, int capacity, long maxLatency) throws DbException {
+		T txn = unbox(transaction);
+		if (!db.containsContact(txn, c))
+			throw new NoSuchContactException();
+		return db.getMessagesToSend(txn, c, capacity, maxLatency);
+	}
+
+	@Override
 	public Collection<MessageId> getMessagesToValidate(Transaction transaction)
 			throws DbException {
 		T txn = unbox(transaction);
@@ -740,10 +732,29 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 		return status;
 	}
 
+	@Nullable
 	@Override
-	public Map<MessageId, Integer> getUnackedMessagesToSend(
-			Transaction transaction,
-			ContactId c) throws DbException {
+	public Message getMessageToSend(Transaction transaction, ContactId c,
+			MessageId m, long maxLatency, boolean markAsSent)
+			throws DbException {
+		if (transaction.isReadOnly()) throw new IllegalArgumentException();
+		T txn = unbox(transaction);
+		if (!db.containsContact(txn, c))
+			throw new NoSuchContactException();
+		if (!db.containsVisibleMessage(txn, c, m)) return null;
+		Message message = db.getMessage(txn, m);
+		if (markAsSent) {
+			db.updateRetransmissionData(txn, c, m, maxLatency);
+			db.lowerRequestedFlag(txn, c, singletonList(m));
+			transaction.attach(new MessagesSentEvent(c, singletonList(m),
+					message.getRawLength()));
+		}
+		return message;
+	}
+
+	@Override
+	public Collection<MessageId> getUnackedMessagesToSend(
+			Transaction transaction, ContactId c) throws DbException {
 		T txn = unbox(transaction);
 		if (!db.containsContact(txn, c))
 			throw new NoSuchContactException();
@@ -1070,6 +1081,20 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 	}
 
 	@Override
+	public void setAckSent(Transaction transaction, ContactId c,
+			Collection<MessageId> acked) throws DbException {
+		if (transaction.isReadOnly()) throw new IllegalArgumentException();
+		T txn = unbox(transaction);
+		if (!db.containsContact(txn, c))
+			throw new NoSuchContactException();
+		List<MessageId> visible = new ArrayList<>(acked.size());
+		for (MessageId m : acked) {
+			if (db.containsVisibleMessage(txn, c, m)) visible.add(m);
+		}
+		db.lowerAckFlag(txn, c, visible);
+	}
+
+	@Override
 	public void setCleanupTimerDuration(Transaction transaction, MessageId m,
 			long duration) throws DbException {
 		if (transaction.isReadOnly()) throw new IllegalArgumentException();
@@ -1115,7 +1140,7 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 		if (old == INVISIBLE) db.addGroupVisibility(txn, c, g, v == SHARED);
 		else if (v == INVISIBLE) db.removeGroupVisibility(txn, c, g);
 		else db.setGroupVisibility(txn, c, g, v == SHARED);
-		List<ContactId> affected = Collections.singletonList(c);
+		List<ContactId> affected = singletonList(c);
 		transaction.attach(new GroupVisibilityUpdatedEvent(affected));
 	}
 
@@ -1161,6 +1186,28 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 			throw new NoSuchMessageException();
 		db.setMessageState(txn, m, state);
 		transaction.attach(new MessageStateChangedEvent(m, false, state));
+	}
+
+	@Override
+	public void setMessagesSent(Transaction transaction, ContactId c,
+			Collection<MessageId> sent, long maxLatency) throws DbException {
+		if (transaction.isReadOnly()) throw new IllegalArgumentException();
+		T txn = unbox(transaction);
+		if (!db.containsContact(txn, c))
+			throw new NoSuchContactException();
+		long totalLength = 0;
+		List<MessageId> visible = new ArrayList<>(sent.size());
+		for (MessageId m : sent) {
+			if (db.containsVisibleMessage(txn, c, m)) {
+				visible.add(m);
+				totalLength += db.getMessageLength(txn, m);
+				db.updateRetransmissionData(txn, c, m, maxLatency);
+			}
+		}
+		db.lowerRequestedFlag(txn, c, visible);
+		if (!visible.isEmpty()) {
+			transaction.attach(new MessagesSentEvent(c, visible, totalLength));
+		}
 	}
 
 	@Override

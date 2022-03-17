@@ -57,7 +57,6 @@ import java.util.concurrent.atomic.AtomicLong;
 
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
-import static java.util.Collections.singleton;
 import static java.util.Collections.singletonList;
 import static java.util.Collections.singletonMap;
 import static java.util.concurrent.TimeUnit.SECONDS;
@@ -65,6 +64,7 @@ import static org.briarproject.bramble.api.db.DatabaseComponent.NO_CLEANUP_DEADL
 import static org.briarproject.bramble.api.db.DatabaseComponent.TIMER_NOT_STARTED;
 import static org.briarproject.bramble.api.db.Metadata.REMOVE;
 import static org.briarproject.bramble.api.identity.AuthorConstants.MAX_AUTHOR_NAME_LENGTH;
+import static org.briarproject.bramble.api.record.Record.RECORD_HEADER_BYTES;
 import static org.briarproject.bramble.api.sync.Group.Visibility.INVISIBLE;
 import static org.briarproject.bramble.api.sync.Group.Visibility.SHARED;
 import static org.briarproject.bramble.api.sync.Group.Visibility.VISIBLE;
@@ -350,14 +350,14 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 		// The message is sendable, but too large to send
 		assertOneMessageToSendLazily(db, txn);
 		assertOneMessageToSendEagerly(db, txn);
+		int capacity = RECORD_HEADER_BYTES + message.getRawLength() - 1;
 		Collection<MessageId> ids =
-				db.getMessagesToSend(txn, contactId, message.getRawLength() - 1,
-						MAX_LATENCY);
+				db.getMessagesToSend(txn, contactId, capacity, MAX_LATENCY);
 		assertTrue(ids.isEmpty());
 
 		// The message is just the right size to send
-		ids = db.getMessagesToSend(txn, contactId, message.getRawLength(),
-				MAX_LATENCY);
+		capacity = RECORD_HEADER_BYTES + message.getRawLength();
+		ids = db.getMessagesToSend(txn, contactId, capacity, MAX_LATENCY);
 		assertEquals(singletonList(messageId), ids);
 
 		db.commitTransaction(txn);
@@ -396,16 +396,15 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 		Collection<MessageId> ids = db.getMessagesToAck(txn, contactId, 1234);
 		assertEquals(asList(messageId, messageId1), ids);
 
-		// Remove both message IDs
+		// Lower the ack flag
 		db.lowerAckFlag(txn, contactId, asList(messageId, messageId1));
 
-		// Both message IDs should have been removed
+		// No message IDs should be returned
 		assertFalse(
 				db.containsAnythingToSend(txn, contactId, MAX_LATENCY, false));
 		assertFalse(
 				db.containsAnythingToSend(txn, contactId, MAX_LATENCY, true));
-		assertEquals(emptyList(), db.getMessagesToAck(txn,
-				contactId, 1234));
+		assertEquals(emptyList(), db.getMessagesToAck(txn, contactId, 1234));
 
 		// Raise the ack flag again
 		db.raiseAckFlag(txn, contactId, messageId);
@@ -2603,7 +2602,7 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 			Connection txn) throws Exception {
 		assertFalse(
 				db.containsAnythingToSend(txn, contactId, MAX_LATENCY, true));
-		Map<MessageId, Integer> unacked =
+		Collection<MessageId> unacked =
 				db.getUnackedMessagesToSend(txn, contactId);
 		assertTrue(unacked.isEmpty());
 		assertEquals(0, db.getUnackedMessageBytesToSend(txn, contactId));
@@ -2613,10 +2612,9 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 			Connection txn) throws Exception {
 		assertTrue(
 				db.containsAnythingToSend(txn, contactId, MAX_LATENCY, true));
-		Map<MessageId, Integer> unacked =
+		Collection<MessageId> unacked =
 				db.getUnackedMessagesToSend(txn, contactId);
-		assertEquals(singleton(messageId), unacked.keySet());
-		assertEquals(message.getRawLength(), unacked.get(messageId).intValue());
+		assertEquals(singletonList(messageId), unacked);
 		assertEquals(message.getRawLength(),
 				db.getUnackedMessageBytesToSend(txn, contactId));
 	}

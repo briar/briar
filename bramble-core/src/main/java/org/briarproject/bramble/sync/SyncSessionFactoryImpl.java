@@ -64,8 +64,13 @@ class SyncSessionFactoryImpl implements SyncSessionFactory {
 		OutputStream out = streamWriter.getOutputStream();
 		SyncRecordWriter recordWriter =
 				recordWriterFactory.createRecordWriter(out);
-		return new SimplexOutgoingSession(db, eventBus, c, t, maxLatency,
-				eager, streamWriter, recordWriter);
+		if (eager) {
+			return new EagerSimplexOutgoingSession(db, eventBus, c, t,
+					maxLatency, streamWriter, recordWriter);
+		} else {
+			return new SimplexOutgoingSession(db, eventBus, c, t,
+					maxLatency, streamWriter, recordWriter);
+		}
 	}
 
 	@Override

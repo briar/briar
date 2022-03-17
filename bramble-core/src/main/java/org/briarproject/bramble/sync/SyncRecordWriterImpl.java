@@ -85,4 +85,9 @@ class SyncRecordWriterImpl implements SyncRecordWriter {
 	public void flush() throws IOException {
 		writer.flush();
 	}
+
+	@Override
+	public long getBytesWritten() {
+		return writer.getBytesWritten();
+	}
 }
