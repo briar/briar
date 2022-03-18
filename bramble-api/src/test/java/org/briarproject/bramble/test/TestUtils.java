@@ -281,7 +281,7 @@ public class TestUtils {
 		if (a == null || b == null) {
 			return a == b;
 		}
-		return a.getOnionAddress().equals(b.getOnionAddress()) &&
+		return a.getOnion().equals(b.getOnion()) &&
 				a.getAuthToken().equals(b.getAuthToken()) &&
 				a.getInboxId().equals(b.getInboxId()) &&
 				a.getOutboxId().equals(b.getOutboxId());

@@ -175,9 +175,11 @@ public interface CryptoComponent {
 	String asciiArmour(byte[] b, int lineLength);
 
 	/**
-	 * Encode the onion/hidden service address given its public key. As
-	 * specified here: https://gitweb.torproject.org/torspec.git/tree/rend-spec-v3.txt?id=29245fd5#n2135
+	 * Encode the Onion given its public key. Specified here:
+	 * https://gitweb.torproject.org/torspec.git/tree/rend-spec-v3.txt?id=29245fd5#n2135
+	 *
+	 * @return the encoded onion, base32 chars
 	 */
-	String encodeOnionAddress(byte[] publicKey);
+	String encodeOnion(byte[] publicKey);
 
 }

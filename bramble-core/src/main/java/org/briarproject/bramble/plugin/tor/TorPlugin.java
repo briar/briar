@@ -682,8 +682,8 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 		byte[] localSeed = alice ? aliceSeed : bobSeed;
 		byte[] remoteSeed = alice ? bobSeed : aliceSeed;
 		String blob = torRendezvousCrypto.getPrivateKeyBlob(localSeed);
-		String localOnion = torRendezvousCrypto.getOnionAddress(localSeed);
-		String remoteOnion = torRendezvousCrypto.getOnionAddress(remoteSeed);
+		String localOnion = torRendezvousCrypto.getOnion(localSeed);
+		String remoteOnion = torRendezvousCrypto.getOnion(remoteSeed);
 		TransportProperties remoteProperties = new TransportProperties();
 		remoteProperties.put(PROP_ONION_V3, remoteOnion);
 		try {

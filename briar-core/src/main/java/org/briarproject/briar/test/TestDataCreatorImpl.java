@@ -299,7 +299,7 @@ public class TestDataCreatorImpl implements TestDataCreator {
 	private String getRandomTorAddress() {
 		byte[] pubkeyBytes =
 				crypto.generateSignatureKeyPair().getPublic().getEncoded();
-		return crypto.encodeOnionAddress(pubkeyBytes);
+		return crypto.encodeOnion(pubkeyBytes);
 	}
 
 	private void addAvatar(Contact c) throws DbException {

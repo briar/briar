@@ -8,22 +8,22 @@ import javax.annotation.concurrent.Immutable;
 @NotNullByDefault
 public class MailboxPropertiesUpdate {
 
-	private final String onionAddress;
+	private final String onion;
 	private final MailboxAuthToken authToken;
 	private final MailboxFolderId inboxId;
 	private final MailboxFolderId outboxId;
 
-	public MailboxPropertiesUpdate(String onionAddress,
+	public MailboxPropertiesUpdate(String onion,
 			MailboxAuthToken authToken, MailboxFolderId inboxId,
 			MailboxFolderId outboxId) {
-		this.onionAddress = onionAddress;
+		this.onion = onion;
 		this.authToken = authToken;
 		this.inboxId = inboxId;
 		this.outboxId = outboxId;
 	}
 
-	public String getOnionAddress() {
-		return onionAddress;
+	public String getOnion() {
+		return onion;
 	}
 
 	public MailboxAuthToken getAuthToken() {

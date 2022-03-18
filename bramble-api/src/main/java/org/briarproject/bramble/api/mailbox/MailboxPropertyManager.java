@@ -35,15 +35,15 @@ public interface MailboxPropertyManager {
 	/**
 	 * The required properties of a non-empty update message.
 	 */
-	String PROP_KEY_ONIONADDRESS = "onionAddress";
+	String PROP_KEY_ONION = "onion";
 	String PROP_KEY_AUTHTOKEN = "authToken";
 	String PROP_KEY_INBOXID = "inboxId";
 	String PROP_KEY_OUTBOXID = "outboxId";
 
 	/**
-	 * Length of the Onion Address property.
+	 * Length of the Onion property.
 	 */
-	int PROP_ONIONADDRESS_LENGTH = 56;
+	int PROP_ONION_LENGTH = 56;
 
 	/**
 	 * Message metadata key for the version number of a local or remote update,

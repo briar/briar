@@ -263,7 +263,7 @@ class MailboxPropertyManagerImpl implements MailboxPropertyManager,
 			@Nullable MailboxPropertiesUpdate p) {
 		BdfDictionary dict = new BdfDictionary();
 		if (p != null) {
-			dict.put(PROP_KEY_ONIONADDRESS, p.getOnionAddress());
+			dict.put(PROP_KEY_ONION, p.getOnion());
 			dict.put(PROP_KEY_AUTHTOKEN, p.getAuthToken().getBytes());
 			dict.put(PROP_KEY_INBOXID, p.getInboxId().getBytes());
 			dict.put(PROP_KEY_OUTBOXID, p.getOutboxId().getBytes());

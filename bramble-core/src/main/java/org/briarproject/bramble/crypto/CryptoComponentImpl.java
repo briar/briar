@@ -458,7 +458,7 @@ class CryptoComponentImpl implements CryptoComponent {
 	}
 
 	@Override
-	public String encodeOnionAddress(byte[] publicKey) {
+	public String encodeOnion(byte[] publicKey) {
 		Digest digest = new SHA3Digest(256);
 		byte[] label = ".onion checksum".getBytes(Charset.forName("US-ASCII"));
 		digest.update(label, 0, label.length);

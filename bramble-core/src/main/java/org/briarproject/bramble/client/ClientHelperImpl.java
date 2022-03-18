@@ -55,9 +55,9 @@ import static org.briarproject.bramble.api.identity.AuthorConstants.MAX_PUBLIC_K
 import static org.briarproject.bramble.api.mailbox.MailboxPropertyManager.PROP_COUNT;
 import static org.briarproject.bramble.api.mailbox.MailboxPropertyManager.PROP_KEY_AUTHTOKEN;
 import static org.briarproject.bramble.api.mailbox.MailboxPropertyManager.PROP_KEY_INBOXID;
-import static org.briarproject.bramble.api.mailbox.MailboxPropertyManager.PROP_KEY_ONIONADDRESS;
+import static org.briarproject.bramble.api.mailbox.MailboxPropertyManager.PROP_KEY_ONION;
 import static org.briarproject.bramble.api.mailbox.MailboxPropertyManager.PROP_KEY_OUTBOXID;
-import static org.briarproject.bramble.api.mailbox.MailboxPropertyManager.PROP_ONIONADDRESS_LENGTH;
+import static org.briarproject.bramble.api.mailbox.MailboxPropertyManager.PROP_ONION_LENGTH;
 import static org.briarproject.bramble.api.properties.TransportPropertyConstants.MAX_PROPERTIES_PER_TRANSPORT;
 import static org.briarproject.bramble.api.properties.TransportPropertyConstants.MAX_PROPERTY_LENGTH;
 import static org.briarproject.bramble.util.ValidationUtils.checkLength;
@@ -422,10 +422,10 @@ class ClientHelperImpl implements ClientHelper {
 		if (properties.size() < PROP_COUNT) {
 			throw new FormatException();
 		}
-		String onionAddress = properties.getString(PROP_KEY_ONIONADDRESS);
-		checkLength(onionAddress, PROP_ONIONADDRESS_LENGTH);
+		String onion = properties.getString(PROP_KEY_ONION);
+		checkLength(onion, PROP_ONION_LENGTH);
 		try {
-			Base32.decode(onionAddress, true);
+			Base32.decode(onion, true);
 		} catch (IllegalArgumentException e) {
 			throw new FormatException();
 		}
@@ -435,7 +435,7 @@ class ClientHelperImpl implements ClientHelper {
 		checkLength(inboxId, UniqueId.LENGTH);
 		byte[] outboxId = properties.getRaw(PROP_KEY_OUTBOXID);
 		checkLength(outboxId, UniqueId.LENGTH);
-		return new MailboxPropertiesUpdate(onionAddress,
+		return new MailboxPropertiesUpdate(onion,
 				new MailboxAuthToken(authToken), new MailboxFolderId(inboxId),
 				new MailboxFolderId(outboxId));
 	}
