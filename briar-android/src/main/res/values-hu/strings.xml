@@ -41,6 +41,7 @@
   <string name="dialog_title_lost_password">Elveszett jelszó</string>
   <string name="dialog_message_lost_password">A Briar fiókja az eszközén kerül tárolásra titkosítva, nem a felhőben. Ha elfelejti a jelszavát, vagy eltávolítja a Briar-t, nincs lehetőség fiókja visszanyerésére.\n\nVálasszon egy hosszú, nehezen kitalálható jelszót, például négy tetszőleges szó vagy tíz tetszőleges betű, szám vagy szimbólum.</string>
   <string name="startup_failed_activity_title">Briar indítási hiba</string>
+  <string name="startup_failed_clock_error">A Briar nem tud elindulni, mert az eszköz órája nem megfelelően jár.\n\nKérjük állítsa be az eszköz óráját a megfelelő időre és próbálja újra.</string>
   <plurals name="expiry_warning">
     <item quantity="one">Ez a teszt verziója a Briar-nak. A fiókja le fog járni %d napon belül és nem megújítható.</item>
     <item quantity="other">Ez a teszt verziója a Briar-nak. A fiókja le fog járni %d napon belül és nem megújítható.</item>
@@ -279,6 +280,7 @@ Kérjük frissítsen a legutolsó verzióra és próbálja újra.</string>
   <string name="duplicate_link_dialog_text_1">Önnek már van várakozó kapcsolata ezzel a linkkel: %s</string>
   <string name="duplicate_link_dialog_text_1_contact">Önnek már van kapcsolata ezzel a linkkel: %s</string>
   <!--This is a question asking whether two nicknames refer to the same person-->
+  <string name="duplicate_link_dialog_text_2">%1$s és %2$s ugyanaz a személy?</string>
   <!--This is a button for answering that two nicknames do indeed refer to the same person. This
 	string will be used in a dialog button, so if the translation of this string is longer than 20
 	characters, please use "Yes" instead, and use "No" for the "Different Person" button-->
@@ -287,6 +289,7 @@ Kérjük frissítsen a legutolsó verzióra és próbálja újra.</string>
 	will be used in a dialog button, so if the translation of this string longer than 20 characters,
 	please use "No" instead, and use "Yes" for the "Same Person" button-->
   <string name="different_person_button">Másik személy</string>
+  <string name="duplicate_link_dialog_text_3">%1$s és %2$s ugyanazt a linket küldte.\n\nEgyikük lehet, hogy megpróbálja kikutatni, hogy kik a kapcsolatai.\n\nNe árulja el nekik, hogy ugyanazt a linket már megkapta mástól.</string>
   <string name="pending_contact_updated_toast">Várakozó kapcsolat frissítve</string>
   <!--Introductions-->
   <string name="introduction_onboarding_title">Kapcsolatai bemutatása</string>
@@ -316,6 +319,7 @@ Kérjük frissítsen a legutolsó verzióra és próbálja újra.</string>
   <string name="connect_via_bluetooth_no_location_permission">Nem folytatható hely engedélyek nélkül</string>
   <string name="connect_via_bluetooth_start">Csatlakozás Bluetooth-on...</string>
   <string name="connect_via_bluetooth_success">Sikeres csatlakozás Bluetooth-on.</string>
+  <string name="connect_via_bluetooth_error">Nem sikerült csatlakozni Bluetooth-on.</string>
   <!--Private Groups-->
   <string name="groups_list_empty">Nincs megjeleníthető csoport</string>
   <string name="groups_list_empty_action">Koppintson a + ikonra csoport létrehozásához, vagy kérje meg kapcsolatait, hogy osszanak meg csoportokat Önnel</string>
@@ -569,7 +573,11 @@ Vigyázat: Ez végleg törli az identitásait, kapcsolatait és üzeneteit</stri
   <string name="cannot_load_ringtone">Sikertelen a csengőhang betöltése</string>
   <!--Mailbox-->
   <string name="mailbox_setup_connecting">Csatlakozás...</string>
+  <string name="mailbox_setup_paired_title">Csatlakozva</string>
   <string name="tor_offline_title">Offline</string>
+  <!--Example for string substitution: Last connection: 3min ago-->
+  <!--Indicates that there never was a connection to the mailbox. Last connection: Never-->
+  <string name="mailbox_status_connected_never">Soha</string>
   <!--Conversation Settings-->
   <string name="disappearing_messages_title">Eltűnő üzenetek</string>
   <string name="disappearing_messages_explanation_long">Bekapcsolva ezt  beállítást az új
@@ -664,6 +672,8 @@ Vigyázat: Ez végleg törli az identitásait, kapcsolatait és üzeneteit</stri
   <!--error handling-->
   <!--Transfer Data via Removable Drives-->
   <string name="removable_drive_menu_title">Csatlakozás eltávolítható adathordozón keresztül</string>
+  <string name="removable_drive_receive_button">Válassza ki az importálandó fájlt:</string>
+  <string name="removable_drive_success_send_title">Sikeres exportálás</string>
   <string name="removable_drive_success_receive_title">Sikeres importálás</string>
   <!--Screenshots-->
   <!--This is a name to be used in screenshots. Feel free to change it to a local name.-->
