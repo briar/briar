@@ -444,7 +444,7 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 		assertOneMessageToSendEagerly(db, txn);
 
 		// Mark the message as sent
-		db.updateExpiryTimeAndEta(txn, contactId, messageId, MAX_LATENCY);
+		db.updateRetransmissionData(txn, contactId, messageId, MAX_LATENCY);
 
 		// The message should no longer be sendable via lazy retransmission,
 		// but it should still be sendable via eager retransmission
@@ -1811,7 +1811,8 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 		assertFalse(status.isSeen());
 
 		// Pretend the message was sent to the contact
-		db.updateExpiryTimeAndEta(txn, contactId, messageId, Integer.MAX_VALUE);
+		db.updateRetransmissionData(txn, contactId, messageId,
+				Integer.MAX_VALUE);
 
 		// The message should be sent but not seen
 		status = db.getMessageStatus(txn, contactId, messageId);
@@ -2052,12 +2053,12 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 
 		// Update the message's expiry time as though we sent it - now the
 		// message should be sendable after one round-trip
-		db.updateExpiryTimeAndEta(txn, contactId, messageId, 1000);
+		db.updateRetransmissionData(txn, contactId, messageId, 1000);
 		assertEquals(now + 2000, db.getNextSendTime(txn, contactId));
 
 		// Update the message's expiry time again - now it should be sendable
 		// after two round-trips
-		db.updateExpiryTimeAndEta(txn, contactId, messageId, 1000);
+		db.updateRetransmissionData(txn, contactId, messageId, 1000);
 		assertEquals(now + 4000, db.getNextSendTime(txn, contactId));
 
 		// Delete the message - there should be no messages to send
@@ -2124,7 +2125,7 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 
 		// Time: now
 		// Mark the message as sent
-		db.updateExpiryTimeAndEta(txn, contactId, messageId, MAX_LATENCY);
+		db.updateRetransmissionData(txn, contactId, messageId, MAX_LATENCY);
 
 		// The message should expire after 2 * MAX_LATENCY
 		assertEquals(now + MAX_LATENCY * 2, db.getNextSendTime(txn, contactId));
@@ -2161,36 +2162,29 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 		db.addGroupVisibility(txn, contactId, groupId, true);
 		db.addMessage(txn, message, DELIVERED, true, false, null);
 
-		// Time: now
 		// Retrieve the message from the database
 		Collection<MessageId> ids = db.getMessagesToSend(txn, contactId,
 				ONE_MEGABYTE, MAX_LATENCY);
 		assertEquals(singletonList(messageId), ids);
 
-		// Time: now
 		// Mark the message as sent
-		db.updateExpiryTimeAndEta(txn, contactId, messageId, MAX_LATENCY);
+		db.updateRetransmissionData(txn, contactId, messageId, MAX_LATENCY);
 
 		// The message should expire after 2 * MAX_LATENCY
 		assertEquals(now + MAX_LATENCY * 2, db.getNextSendTime(txn, contactId));
 
-		// Time: now
 		// The message should not be sendable via the same transport
 		ids = db.getMessagesToSend(txn, contactId, ONE_MEGABYTE, MAX_LATENCY);
 		assertTrue(ids.isEmpty());
 
-		// Time: now
-		// The message should be sendable via a transport with a faster ETA
+		// The message should be sendable via a transport with a lower latency
 		ids = db.getMessagesToSend(txn, contactId, ONE_MEGABYTE,
 				MAX_LATENCY - 1);
 		assertEquals(singletonList(messageId), ids);
 
-		// Time: now + 1
-		// The message should no longer be sendable via the faster transport,
-		// as the ETA is now equal
-		time.set(now + 1);
+		// The message should not be sendable via a slower transport
 		ids = db.getMessagesToSend(txn, contactId, ONE_MEGABYTE,
-				MAX_LATENCY - 1);
+				MAX_LATENCY + 1);
 		assertTrue(ids.isEmpty());
 
 		db.commitTransaction(txn);
@@ -2221,7 +2215,7 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 
 		// Time: now
 		// Mark the message as sent
-		db.updateExpiryTimeAndEta(txn, contactId, messageId, MAX_LATENCY);
+		db.updateRetransmissionData(txn, contactId, messageId, MAX_LATENCY);
 
 		// The message should expire after 2 * MAX_LATENCY
 		assertEquals(now + MAX_LATENCY * 2, db.getNextSendTime(txn, contactId));
