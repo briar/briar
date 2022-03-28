@@ -986,6 +986,10 @@ public class IntroductionIntegrationTest
 	@Test
 	public void testIntroduceesRemovedCleanup() throws Exception {
 		addListeners(true, true);
+		// The second introducee shouldn't respond to the introduction
+		// otherwise there would be a race between the response to the REQUEST
+		// and the delivery of the ABORT
+		listener2.answerRequests = false;
 
 		// make introduction
 		introductionManager0
