@@ -7,34 +7,39 @@ import java.lang.Thread.UncaughtExceptionHandler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import javax.annotation.Nullable;
+
 import static java.util.logging.Logger.getLogger;
-import static org.junit.Assert.fail;
 
 public abstract class BrambleTestCase {
 
 	private static final Logger LOG =
 			getLogger(BrambleTestCase.class.getName());
 
-	protected volatile boolean exceptionInBackgroundThread = false;
+	@Nullable
+	protected volatile Throwable exceptionInBackgroundThread = null;
 
 	public BrambleTestCase() {
 		// Ensure exceptions thrown on worker threads cause tests to fail
 		UncaughtExceptionHandler fail = (thread, throwable) -> {
 			LOG.log(Level.WARNING, "Caught unhandled exception", throwable);
-			exceptionInBackgroundThread = true;
+			exceptionInBackgroundThread = throwable;
 		};
 		Thread.setDefaultUncaughtExceptionHandler(fail);
 	}
 
 	@Before
 	public void beforeBrambleTestCase() {
-		exceptionInBackgroundThread = false;
+		exceptionInBackgroundThread = null;
 	}
 
 	@After
 	public void afterBrambleTestCase() {
-		if (exceptionInBackgroundThread) {
-			fail("background thread has thrown an exception unexpectedly");
+		Throwable thrown = exceptionInBackgroundThread;
+		if (thrown != null) {
+			throw new AssertionError(
+					"background thread has thrown an exception unexpectedly",
+					thrown);
 		}
 	}
 }

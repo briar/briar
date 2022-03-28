@@ -1,8 +1,8 @@
 package org.briarproject.bramble.test;
 
-import org.junit.Assert;
 import org.junit.Test;
 
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.fail;
 
 public class ThreadExceptionTest extends BrambleTestCase {
@@ -29,8 +29,8 @@ public class ThreadExceptionTest extends BrambleTestCase {
 			fail();
 		}
 
-		Assert.assertTrue(exceptionInBackgroundThread);
-		exceptionInBackgroundThread = false;
+		assertNotNull(exceptionInBackgroundThread);
+		exceptionInBackgroundThread = null;
 	}
 
 }
