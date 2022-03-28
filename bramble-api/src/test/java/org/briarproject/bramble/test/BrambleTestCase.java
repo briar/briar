@@ -36,10 +36,6 @@ public abstract class BrambleTestCase {
 	@After
 	public void afterBrambleTestCase() {
 		Throwable thrown = exceptionInBackgroundThread;
-		if (thrown != null) {
-			throw new AssertionError(
-					"background thread has thrown an exception unexpectedly",
-					thrown);
-		}
+		if (thrown != null) throw new AssertionError(thrown);
 	}
 }
