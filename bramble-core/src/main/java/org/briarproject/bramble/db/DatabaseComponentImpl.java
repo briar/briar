@@ -437,7 +437,7 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 			Message message = db.getMessage(txn, m);
 			totalLength += message.getRawLength();
 			messages.add(message);
-			db.updateExpiryTimeAndEta(txn, c, m, maxLatency);
+			db.updateRetransmissionData(txn, c, m, maxLatency);
 		}
 		if (ids.isEmpty()) return null;
 		db.lowerRequestedFlag(txn, c, ids);
@@ -462,7 +462,7 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 				totalLength += message.getRawLength();
 				messages.add(message);
 				sentIds.add(m);
-				db.updateExpiryTimeAndEta(txn, c, m, maxLatency);
+				db.updateRetransmissionData(txn, c, m, maxLatency);
 			}
 		}
 		if (messages.isEmpty()) return messages;
@@ -483,7 +483,7 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 				db.getMessagesToOffer(txn, c, maxMessages, maxLatency);
 		if (ids.isEmpty()) return null;
 		for (MessageId m : ids)
-			db.updateExpiryTimeAndEta(txn, c, m, maxLatency);
+			db.updateRetransmissionData(txn, c, m, maxLatency);
 		return new Offer(ids);
 	}
 
@@ -518,7 +518,7 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 			Message message = db.getMessage(txn, m);
 			totalLength += message.getRawLength();
 			messages.add(message);
-			db.updateExpiryTimeAndEta(txn, c, m, maxLatency);
+			db.updateRetransmissionData(txn, c, m, maxLatency);
 		}
 		if (ids.isEmpty()) return null;
 		db.lowerRequestedFlag(txn, c, ids);

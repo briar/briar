@@ -922,11 +922,11 @@ public class DatabaseComponentImplTest extends BrambleMockTestCase {
 			will(returnValue(ids));
 			oneOf(database).getMessage(txn, messageId);
 			will(returnValue(message));
-			oneOf(database).updateExpiryTimeAndEta(txn, contactId, messageId,
+			oneOf(database).updateRetransmissionData(txn, contactId, messageId,
 					maxLatency);
 			oneOf(database).getMessage(txn, messageId1);
 			will(returnValue(message1));
-			oneOf(database).updateExpiryTimeAndEta(txn, contactId, messageId1,
+			oneOf(database).updateRetransmissionData(txn, contactId, messageId1,
 					maxLatency);
 			oneOf(database).lowerRequestedFlag(txn, contactId, ids);
 			oneOf(database).commitTransaction(txn);
@@ -951,9 +951,9 @@ public class DatabaseComponentImplTest extends BrambleMockTestCase {
 			will(returnValue(true));
 			oneOf(database).getMessagesToOffer(txn, contactId, 123, maxLatency);
 			will(returnValue(ids));
-			oneOf(database).updateExpiryTimeAndEta(txn, contactId, messageId,
+			oneOf(database).updateRetransmissionData(txn, contactId, messageId,
 					maxLatency);
-			oneOf(database).updateExpiryTimeAndEta(txn, contactId, messageId1,
+			oneOf(database).updateRetransmissionData(txn, contactId, messageId1,
 					maxLatency);
 			oneOf(database).commitTransaction(txn);
 		}});
@@ -1005,12 +1005,12 @@ public class DatabaseComponentImplTest extends BrambleMockTestCase {
 			will(returnValue(ids));
 			oneOf(database).getMessage(txn, messageId);
 			will(returnValue(message));
-			oneOf(database).updateExpiryTimeAndEta(txn, contactId, messageId,
-					maxLatency);
+			oneOf(database).updateRetransmissionData(txn, contactId,
+					messageId, maxLatency);
 			oneOf(database).getMessage(txn, messageId1);
 			will(returnValue(message1));
-			oneOf(database).updateExpiryTimeAndEta(txn, contactId, messageId1,
-					maxLatency);
+			oneOf(database).updateRetransmissionData(txn, contactId,
+					messageId1, maxLatency);
 			oneOf(database).lowerRequestedFlag(txn, contactId, ids);
 			oneOf(database).commitTransaction(txn);
 			oneOf(eventBus).broadcast(with(any(MessagesSentEvent.class)));

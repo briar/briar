@@ -102,7 +102,7 @@ import static org.briarproject.bramble.util.LogUtils.now;
 abstract class JdbcDatabase implements Database<Connection> {
 
 	// Package access for testing
-	static final int CODE_SCHEMA_VERSION = 49;
+	static final int CODE_SCHEMA_VERSION = 50;
 
 	// Time period offsets for incoming transport keys
 	private static final int OFFSET_PREV = -1;
@@ -252,7 +252,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 					+ " requested BOOLEAN NOT NULL,"
 					+ " expiry BIGINT NOT NULL,"
 					+ " txCount INT NOT NULL,"
-					+ " eta BIGINT NOT NULL,"
+					+ " maxLatency BIGINT," // Null if latency was reset
 					+ " PRIMARY KEY (messageId, contactId),"
 					+ " FOREIGN KEY (messageId)"
 					+ " REFERENCES messages (messageId)"
@@ -502,7 +502,8 @@ abstract class JdbcDatabase implements Database<Connection> {
 				new Migration45_46(),
 				new Migration46_47(dbTypes),
 				new Migration47_48(),
-				new Migration48_49()
+				new Migration48_49(),
+				new Migration49_50()
 		);
 	}
 
@@ -920,9 +921,10 @@ abstract class JdbcDatabase implements Database<Connection> {
 		try {
 			String sql = "INSERT INTO statuses (messageId, contactId, groupId,"
 					+ " timestamp, length, state, groupShared, messageShared,"
-					+ " deleted, ack, seen, requested, expiry, txCount, eta)"
+					+ " deleted, ack, seen, requested, expiry, txCount,"
+					+ " maxLatency)"
 					+ " VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, FALSE, 0, 0,"
-					+ " 0)";
+					+ " NULL)";
 			ps = txn.prepareStatement(sql);
 			ps.setBytes(1, m.getBytes());
 			ps.setInt(2, c.getInt());
@@ -1156,17 +1158,17 @@ abstract class JdbcDatabase implements Database<Connection> {
 				ps.setInt(2, DELIVERED.getValue());
 			} else {
 				long now = clock.currentTimeMillis();
-				long eta = now + maxLatency;
 				sql = "SELECT NULL FROM statuses"
 						+ " WHERE contactId = ? AND state = ?"
 						+ " AND groupShared = TRUE AND messageShared = TRUE"
 						+ " AND deleted = FALSE AND seen = FALSE"
-						+ " AND (expiry <= ? OR eta > ?)";
+						+ " AND (expiry <= ? OR maxLatency IS NULL"
+						+ " OR ? < maxLatency)";
 				ps = txn.prepareStatement(sql);
 				ps.setInt(1, c.getInt());
 				ps.setInt(2, DELIVERED.getValue());
 				ps.setLong(3, now);
-				ps.setLong(4, eta);
+				ps.setLong(4, maxLatency);
 			}
 			rs = ps.executeQuery();
 			boolean messagesToSend = rs.next();
@@ -2194,7 +2196,6 @@ abstract class JdbcDatabase implements Database<Connection> {
 	public Collection<MessageId> getMessagesToOffer(Connection txn,
 			ContactId c, int maxMessages, long maxLatency) throws DbException {
 		long now = clock.currentTimeMillis();
-		long eta = now + maxLatency;
 		PreparedStatement ps = null;
 		ResultSet rs = null;
 		try {
@@ -2203,13 +2204,14 @@ abstract class JdbcDatabase implements Database<Connection> {
 					+ " AND groupShared = TRUE AND messageShared = TRUE"
 					+ " AND deleted = FALSE"
 					+ " AND seen = FALSE AND requested = FALSE"
-					+ " AND (expiry <= ? OR eta > ?)"
+					+ " AND (expiry <= ? OR maxLatency IS NULL"
+					+ " OR ? < maxLatency)"
 					+ " ORDER BY timestamp LIMIT ?";
 			ps = txn.prepareStatement(sql);
 			ps.setInt(1, c.getInt());
 			ps.setInt(2, DELIVERED.getValue());
 			ps.setLong(3, now);
-			ps.setLong(4, eta);
+			ps.setLong(4, maxLatency);
 			ps.setInt(5, maxMessages);
 			rs = ps.executeQuery();
 			List<MessageId> ids = new ArrayList<>();
@@ -2253,7 +2255,6 @@ abstract class JdbcDatabase implements Database<Connection> {
 	public Collection<MessageId> getMessagesToSend(Connection txn, ContactId c,
 			int maxLength, long maxLatency) throws DbException {
 		long now = clock.currentTimeMillis();
-		long eta = now + maxLatency;
 		PreparedStatement ps = null;
 		ResultSet rs = null;
 		try {
@@ -2262,13 +2263,14 @@ abstract class JdbcDatabase implements Database<Connection> {
 					+ " AND groupShared = TRUE AND messageShared = TRUE"
 					+ " AND deleted = FALSE"
 					+ " AND seen = FALSE"
-					+ " AND (expiry <= ? OR eta > ?)"
+					+ " AND (expiry <= ? OR maxLatency IS NULL"
+					+ " OR ? < maxLatency)"
 					+ " ORDER BY timestamp";
 			ps = txn.prepareStatement(sql);
 			ps.setInt(1, c.getInt());
 			ps.setInt(2, DELIVERED.getValue());
 			ps.setLong(3, now);
-			ps.setLong(4, eta);
+			ps.setLong(4, maxLatency);
 			rs = ps.executeQuery();
 			List<MessageId> ids = new ArrayList<>();
 			int total = 0;
@@ -2552,7 +2554,6 @@ abstract class JdbcDatabase implements Database<Connection> {
 	public Collection<MessageId> getRequestedMessagesToSend(Connection txn,
 			ContactId c, int maxLength, long maxLatency) throws DbException {
 		long now = clock.currentTimeMillis();
-		long eta = now + maxLatency;
 		PreparedStatement ps = null;
 		ResultSet rs = null;
 		try {
@@ -2561,13 +2562,14 @@ abstract class JdbcDatabase implements Database<Connection> {
 					+ " AND groupShared = TRUE AND messageShared = TRUE"
 					+ " AND deleted = FALSE"
 					+ " AND seen = FALSE AND requested = TRUE"
-					+ " AND (expiry <= ? OR eta > ?)"
+					+ " AND (expiry <= ? OR maxLatency IS NULL"
+					+ " OR ? < maxLatency)"
 					+ " ORDER BY timestamp";
 			ps = txn.prepareStatement(sql);
 			ps.setInt(1, c.getInt());
 			ps.setInt(2, DELIVERED.getValue());
 			ps.setLong(3, now);
-			ps.setLong(4, eta);
+			ps.setLong(4, maxLatency);
 			rs = ps.executeQuery();
 			List<MessageId> ids = new ArrayList<>();
 			int total = 0;
@@ -3298,7 +3300,8 @@ abstract class JdbcDatabase implements Database<Connection> {
 			throws DbException {
 		PreparedStatement ps = null;
 		try {
-			String sql = "UPDATE statuses SET expiry = 0, txCount = 0, eta = 0"
+			String sql = "UPDATE statuses SET expiry = 0, txCount = 0,"
+					+ " maxLatency = NULL"
 					+ " WHERE contactId = ? AND state = ?"
 					+ " AND groupShared = TRUE AND messageShared = TRUE"
 					+ " AND deleted = FALSE AND seen = FALSE";
@@ -3643,8 +3646,8 @@ abstract class JdbcDatabase implements Database<Connection> {
 	}
 
 	@Override
-	public void updateExpiryTimeAndEta(Connection txn, ContactId c, MessageId m,
-			long maxLatency) throws DbException {
+	public void updateRetransmissionData(Connection txn, ContactId c,
+			MessageId m, long maxLatency) throws DbException {
 		PreparedStatement ps = null;
 		ResultSet rs = null;
 		try {
@@ -3660,13 +3663,12 @@ abstract class JdbcDatabase implements Database<Connection> {
 			rs.close();
 			ps.close();
 			sql = "UPDATE statuses"
-					+ " SET expiry = ?, txCount = txCount + 1, eta = ?"
+					+ " SET expiry = ?, txCount = txCount + 1, maxLatency = ?"
 					+ " WHERE messageId = ? AND contactId = ?";
 			ps = txn.prepareStatement(sql);
 			long now = clock.currentTimeMillis();
-			long eta = now + maxLatency;
 			ps.setLong(1, calculateExpiry(now, maxLatency, txCount));
-			ps.setLong(2, eta);
+			ps.setLong(2, maxLatency);
 			ps.setBytes(3, m.getBytes());
 			ps.setInt(4, c.getInt());
 			int affected = ps.executeUpdate();
