@@ -70,11 +70,6 @@ clean.dependsOn cleanTorBinaries
 
 task unpackTorBinaries {
 	doLast {
-		copy {
-			from configurations.tor.collect { zipTree(it) }
-			into torBinariesDir
-			include 'geoip.zip'
-		}
 		configurations.tor.each { outer ->
 			zipTree(outer).each { inner ->
 				if (inner.name.endsWith('_arm_pie.zip')) {

@@ -85,7 +85,6 @@ import static org.briarproject.bramble.api.plugin.TorConstants.ID;
 import static org.briarproject.bramble.api.plugin.TorConstants.PREF_TOR_MOBILE;
 import static org.briarproject.bramble.api.plugin.TorConstants.PREF_TOR_NETWORK;
 import static org.briarproject.bramble.api.plugin.TorConstants.PREF_TOR_NETWORK_AUTOMATIC;
-import static org.briarproject.bramble.api.plugin.TorConstants.PREF_TOR_NETWORK_NEVER;
 import static org.briarproject.bramble.api.plugin.TorConstants.PREF_TOR_NETWORK_WITH_BRIDGES;
 import static org.briarproject.bramble.api.plugin.TorConstants.PREF_TOR_ONLY_WHEN_CHARGING;
 import static org.briarproject.bramble.api.plugin.TorConstants.PREF_TOR_PORT;
@@ -228,7 +227,7 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 			}
 		}
 		// Load the settings
-		settings = migrateSettings(callback.getSettings());
+		settings = callback.getSettings();
 		// Install or update the assets if necessary
 		if (!assetsAreUpToDate()) installAssets();
 		if (cookieFile.exists() && !cookieFile.delete())
@@ -318,18 +317,6 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 		bind();
 	}
 
-	// TODO: Remove after a reasonable migration period (added 2020-06-25)
-	private Settings migrateSettings(Settings settings) {
-		int network = settings.getInt(PREF_TOR_NETWORK,
-				DEFAULT_PREF_TOR_NETWORK);
-		if (network == PREF_TOR_NETWORK_NEVER) {
-			settings.putInt(PREF_TOR_NETWORK, DEFAULT_PREF_TOR_NETWORK);
-			settings.putBoolean(PREF_PLUGIN_ENABLE, false);
-			callback.mergeSettings(settings);
-		}
-		return settings;
-	}
-
 	private boolean assetsAreUpToDate() {
 		return doneFile.lastModified() > getLastUpdateTime();
 	}
@@ -339,9 +326,14 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 			// The done file may already exist from a previous installation
 			//noinspection ResultOfMethodCallIgnored
 			doneFile.delete();
+			// The GeoIP file may exist from a previous installation - we can
+			// save some space by deleting it.
+			// TODO: Remove after a reasonable migration period
+			//  (added 2022-03-29)
+			//noinspection ResultOfMethodCallIgnored
+			geoIpFile.delete();
 			installTorExecutable();
 			installObfs4Executable();
-			extract(getGeoIpInputStream(), geoIpFile);
 			extract(getConfigInputStream(), configFile);
 			if (!doneFile.createNewFile())
 				LOG.warning("Failed to create done file");
@@ -374,14 +366,6 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 	private InputStream getTorInputStream() throws IOException {
 		InputStream in = resourceProvider
 				.getResourceInputStream("tor_" + architecture, ".zip");
-		ZipInputStream zin = new ZipInputStream(in);
-		if (zin.getNextEntry() == null) throw new IOException();
-		return zin;
-	}
-
-	private InputStream getGeoIpInputStream() throws IOException {
-		InputStream in = resourceProvider.getResourceInputStream("geoip",
-				".zip");
 		ZipInputStream zin = new ZipInputStream(in);
 		if (zin.getNextEntry() == null) throw new IOException();
 		return zin;
@@ -646,7 +630,7 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 		} catch (IOException e) {
 			if (LOG.isLoggable(INFO)) {
 				LOG.info("Could not connect to v3 "
-						+ scrubOnion(onion3) + ": " + e.toString());
+						+ scrubOnion(onion3) + ": " + e);
 			}
 			tryToClose(s, LOG, WARNING);
 			return null;

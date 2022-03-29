@@ -17,7 +17,7 @@ dependencies {
 	def jna_version = '4.5.2'
 	implementation "net.java.dev.jna:jna:$jna_version"
 	implementation "net.java.dev.jna:jna-platform:$jna_version"
-	tor "org.briarproject:tor:$tor_version"
+	tor "org.briarproject:tor-linux:$tor_version"
 	tor "org.briarproject:obfs4proxy:$obfs4proxy_version@zip"
 
 	annotationProcessor "com.google.dagger:dagger-compiler:$dagger_version"
