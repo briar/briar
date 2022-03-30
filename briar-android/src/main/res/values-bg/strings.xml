@@ -578,7 +578,10 @@
   <!--Mailbox-->
   <string name="mailbox_settings_title">Пощенска кутия</string>
   <string name="mailbox_setup_intro">Пощенската кутия ви дава възможност да получавате съобщения от контактите ви докато сте извън мрежа. Кутията ще получава съобщенията и ще ги пази до като дойдете на линия.\n\nИнсталирайте приложението Birar Mailbox на резервно устройство. Включете го в захранване и с достъп до безжична мрежа, така че да е винаги на линия.</string>
+  <string name="mailbox_setup_download_link">Споделяне на препратка за изтегляне</string>
   <string name="mailbox_setup_connecting">Свързване…</string>
+  <string name="mailbox_setup_qr_code_wrong_title">Грешен код на QR</string>
+  <string name="mailbox_setup_io_error_title">Грешка при свързване</string>
   <string name="mailbox_setup_paired_title">Свързан</string>
   <string name="tor_offline_title">Извън линия</string>
   <!--Example for string substitution: Last connection: 3min ago-->

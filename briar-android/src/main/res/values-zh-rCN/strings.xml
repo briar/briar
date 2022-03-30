@@ -25,6 +25,7 @@
   <string name="setup_huawei_app_launch_text">轻按下方按钮，打开“App launch”界面，确保 Briar 被设置为“手动管理”。</string>
   <string name="setup_huawei_app_launch_button">打开电池设置</string>
   <string name="setup_huawei_app_launch_help">如果“App 启动”界面中 Briar 没有被设置为“手动管理”，则其将无法在后台运行。</string>
+  <string name="setup_huawei_app_launch_error_toast">无法打开电池设置</string>
   <string name="setup_xiaomi_text">要在后台运行，需将 Briar 锁定在最近的应用列表中。</string>
   <string name="setup_xiaomi_button">保护 Briar</string>
   <string name="setup_xiaomi_help">如果未将 Briar 锁定到最近的应用列表，它将无法在后台运行。</string>
@@ -562,9 +563,9 @@
   <string name="choose_ringtone_title">选择铃声</string>
   <string name="cannot_load_ringtone">无法加载铃声</string>
   <!--Mailbox-->
-  <string name="mailbox_settings_title">邮箱</string>
-  <string name="mailbox_setup_title">邮箱设置</string>
-  <string name="mailbox_setup_intro">邮箱使你的联系人能够在你离线时向你发送消息。邮箱将接收你的邮件，并将其存储到你上线为止。\n
+  <string name="mailbox_settings_title">Mailbox</string>
+  <string name="mailbox_setup_title">Mailbox 设置</string>
+  <string name="mailbox_setup_intro">Mailbox 使你的联系人能够在你离线时向你发送消息。它将接收你的邮件，并将其存储到你上线为止。\n
 		\n 你可以在备用设备上安装 Briar Mailbox 应用，并确保此设备始终有电且和Wi-Fi连接，这样它就永远在线了。</string>
   <string name="mailbox_setup_download">首先，通过 Google Play 或任何你下载了 Briar 的地方搜索“Briar Mailbox”，在另一台设备上安装 Mailbox 应用。\n
 		\n然后通过扫描邮箱应用显示的二维码将你的 Mailbox 与Briar 链接起来。</string>
@@ -573,10 +574,27 @@
   <string name="permission_camera_qr_denied_body">你拒绝了使用相机，但扫描二维码需要使用相机。\n\n请考虑授予访问权限。</string>
   <string name="mailbox_setup_connecting">连接中……</string>
   <string name="mailbox_setup_qr_code_wrong_title">错误的二维码</string>
-  <string name="mailbox_setup_qr_code_wrong_description">扫描的代码无效。请在安装有 Mailbox 应用的设备上打开 Briar 邮箱应用，并扫描它显示的二维码。</string>
+  <string name="mailbox_setup_qr_code_wrong_description">扫描的代码无效。请在安装有 Mailbox 应用的设备上打开 Briar Mailbox 应用，并扫描它显示的二维码。</string>
+  <string name="mailbox_setup_already_paired_title">Mailbox 已链接</string>
+  <string name="mailbox_setup_already_paired_description">取消链接你其他设备上的 Mailbox 并重试。</string>
+  <string name="mailbox_setup_io_error_title">无法连接</string>
+  <string name="mailbox_setup_io_error_description">请确保两台设备都已连接到互联网，然后重试。</string>
+  <string name="mailbox_setup_assertion_error_title">Mailbox 错误</string>
+  <string name="mailbox_setup_assertion_error_description">如这个问题持续，请通过 Briar 应用发送反馈（附匿名数据）。</string>
+  <string name="mailbox_setup_camera_error_description">无法访问摄像头。再试一次，可能在重启设备之后。</string>
+  <string name="mailbox_setup_paired_title">已连接</string>
+  <string name="mailbox_setup_paired_description">你的 Mailbox 已成功和 Briar 链接。\n
+		\n保持你的 Mailbox 连接到电源和 Wi-Fi，这样它就能始终处于在线状态。</string>
   <string name="tor_offline_title">离线</string>
-  <string name="tor_offline_description">请确保设备处于在线状态，且允许连接到互联网。\n\n然后，等待连接设置中的全局图标变为绿色。</string>
+  <string name="tor_offline_description">请确保设备处于在线状态，且允许连接到互联网。\n
+		\n 然后，等待连接设置中的全局图标变为绿色。</string>
   <string name="tor_offline_button_check">检查连接设置</string>
+  <string name="mailbox_status_title">Mailbox 状态</string>
+  <string name="mailbox_status_connected_title">Mailbox 运行中</string>
+  <!--Example for string substitution: Last connection: 3min ago-->
+  <string name="mailbox_status_connected_info">上次连接：%s</string>
+  <!--Indicates that there never was a connection to the mailbox. Last connection: Never-->
+  <string name="mailbox_status_connected_never">永不</string>
   <!--Conversation Settings-->
   <string name="disappearing_messages_title">让消息自动消失</string>
   <string name="disappearing_messages_explanation_long">打开此设置将使

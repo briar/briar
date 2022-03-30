@@ -25,6 +25,7 @@
   <string name="setup_huawei_app_launch_text">Ju lutemi, prekni butonin më poshtë, hapni skenën “Nisje aplikacioni” dhe sigurohuni se për Briar-in është zgjedhur “Administrojeni dorazi”.</string>
   <string name="setup_huawei_app_launch_button">Hapni Rregullime Baterie</string>
   <string name="setup_huawei_app_launch_help">Nëse për Briar-in s’është zgjedhur “Administroje Dorazi” te skena “Nisje Aplikacioni”, s’do të jetë në gjendje të xhirojë në prapaskenë.</string>
+  <string name="setup_huawei_app_launch_error_toast">S’u hapën dot rregullimet e baterisë</string>
   <string name="setup_xiaomi_text">Për të xhiruar në prapaskenë, Briar-i lyp të jetë i kyçur te lista e aplikacioneve të përdorur së fundi.</string>
   <string name="setup_xiaomi_button">Mbroje Briar-in</string>
   <string name="setup_xiaomi_help">Nëse Briar-i s’është i kyçur te lista e aplikacioneve të përdorur së fundi, s’do të jetë në gjendje të xhirojë në prapaskenë.</string>
@@ -589,10 +590,27 @@ dhe s’mund të hapet me këtë version.\n\nJu lutemi, përmirësojeni me versi
   <string name="permission_camera_qr_denied_body">Keni mohuar hyrjen te kamera, por skanimi i një kodi QR lyp përdorimin e kamerës.\n\nJu lutemi, shihni mundësinë e dhënies së hyrjes.</string>
   <string name="mailbox_setup_connecting">Po lidhjet…</string>
   <string name="mailbox_setup_qr_code_wrong_title">Kod QR i gabuar</string>
-  <string name="mailbox_setup_qr_code_wrong_description">Kodi i skanuar është i pavlefshëm. Ju lutemi, hapeni aplikacionin Kuti postare Briar te pajisja juaj për kuti postare dhe skanoni kodin QR që shfaq.</string>
+  <string name="mailbox_setup_qr_code_wrong_description">Kodi i skanuar është i pavlefshëm. Ju lutemi, hapni aplikacionin Kuti Postare Briar në pajisjen tuaj me Kutinë Postare dhe skanoni kodin QR që paraqitet.</string>
+  <string name="mailbox_setup_already_paired_title">Kuti postare tashmë e lidhur</string>
+  <string name="mailbox_setup_already_paired_description">Shkëputeni Kutinë postare në pajisjen tuaj tjetër dhe riprovoni.</string>
+  <string name="mailbox_setup_io_error_title">S’u bë dot lidhje</string>
+  <string name="mailbox_setup_io_error_description">Siguroni që të dyja pajisjet të jenë të lidhura në Internet dhe riprovoni.</string>
+  <string name="mailbox_setup_assertion_error_title">Gabim kutie postare</string>
+  <string name="mailbox_setup_assertion_error_description">Nëse problemi vazhdon, ju lutemi, dërgoni përshtypjet (me të dhëna anonime) përmes aplikacionit Briar.</string>
+  <string name="mailbox_setup_camera_error_description">S’u përdor dot kamera. Riprovoni, ndoshta pas rinisjes së pajisjes.</string>
+  <string name="mailbox_setup_paired_title">I lidhur</string>
+  <string name="mailbox_setup_paired_description">Kutia juaj postare është lidhur me sukses me Briar-in.\n
+		\nMbajeni Kutinë tuaj postare të lidhur në rrjet energjie dhe me Wi-Fi, që të jetë përherë në linjë.</string>
   <string name="tor_offline_title">Jo në linjë</string>
-  <string name="tor_offline_description">Garantoni që kjo pajisje të jetë në lidhje dhe me lidhje në internet të lejuara.\n\nMë pas, prisni që ikona glob, te rregullimet e lidhjes, të bëhet e gjelbër.</string>
+  <string name="tor_offline_description">Siguroni që kjo pajisje të jetë në linjë dhe lidhjet me Internetin të jenë të lejuara.\n
+		\nMë pas, pritni që ikona glob te rregullimet e lidhjes të shndërrohet e gjelbër.</string>
   <string name="tor_offline_button_check">Kontrolloni rregullime lidhjeje</string>
+  <string name="mailbox_status_title">Gjendje kutie postare</string>
+  <string name="mailbox_status_connected_title">Kutia postare po punon</string>
+  <!--Example for string substitution: Last connection: 3min ago-->
+  <string name="mailbox_status_connected_info">Lidhja e fundit: %s</string>
+  <!--Indicates that there never was a connection to the mailbox. Last connection: Never-->
+  <string name="mailbox_status_connected_never">Kurrë</string>
   <!--Conversation Settings-->
   <string name="disappearing_messages_title">Mesazhe që treten</string>
   <string name="disappearing_messages_explanation_long">Aktivizimi i këtij rregullimi do të bëjë që

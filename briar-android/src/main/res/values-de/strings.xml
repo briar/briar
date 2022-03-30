@@ -25,6 +25,7 @@
   <string name="setup_huawei_app_launch_text">Bitte tippe auf die Schaltfläche unten, öffne den Bereich \"App-Start\" und stelle sicher, dass Briar auf \"Manuell verwalten\" eingestellt ist.</string>
   <string name="setup_huawei_app_launch_button">Akkueinstellungen öffnen</string>
   <string name="setup_huawei_app_launch_help">Wenn Briar im Bereich \"App-Start\" nicht auf \"Manuell verwalten\" eingestellt ist, kann es nicht im Hintergrund ausgeführt werden.</string>
+  <string name="setup_huawei_app_launch_error_toast">Akkueinstellungen konnten nicht geöffnet werden</string>
   <string name="setup_xiaomi_text">Um im Hintergrund zu laufen, muss Briar in der Liste der zuletzt verwendeten Apps gesperrt werden.</string>
   <string name="setup_xiaomi_button">Briar schützen</string>
   <string name="setup_xiaomi_help">Wenn Briar nicht in der Liste der zuletzt verwendeten Apps gesperrt ist, kann es nicht im Hintergrund ausgeführt werden.</string>

@@ -8,7 +8,7 @@
   <string name="setup_password_explanation">Votre compte Briar est enregistré chiffré sur votre appareil et non dans le nuage. Si vous oubliez votre mot de passe ou désinstallez Briar, votre compte ne peut pas être récupéré.\n\nChoisissez un mot de passe long qui sera difficile à deviner, par exemple quatre mots au hasard ou dix lettres, chiffres et symboles au hasard.</string>
   <string name="setup_doze_title">Connexions d’arrière-plan</string>
   <string name="setup_doze_intro">Pour recevoir des messages, Briar a besoin de rester connectée en arrière-plan.</string>
-  <string name="setup_doze_explanation">Pour recevoir des messages, Briar a besoin de rester connectée en arrière-plan. Veuillez désactiver les optimisations de la batterie afin que Briar puisse rester connectée.</string>
+  <string name="setup_doze_explanation">Pour recevoir des messages, Briar a besoin de rester connectée en arrière-plan. Veuillez désactiver les optimisations de la pile afin que Briar puisse rester connectée.</string>
   <string name="setup_doze_button">Autoriser les connexions</string>
   <string name="choose_nickname">Choisissez votre pseudonyme</string>
   <string name="choose_password">Choisissez votre mot de passe</string>
@@ -25,6 +25,7 @@
   <string name="setup_huawei_app_launch_text">Veuillez toucher le bouton ci-dessous, ouvrir l’écran « Lancement des applis » et vous assurer que « Gérer manuellement » est défini pour Briar.</string>
   <string name="setup_huawei_app_launch_button">Ouvrez les paramètres de la pile</string>
   <string name="setup_huawei_app_launch_help">Si « Gérer manuellement » n’est pas défini pour Briar dans l’écran « Lancement des applis », l’appli ne pourra pas fonctionner en arrière-plan.</string>
+  <string name="setup_huawei_app_launch_error_toast">Impossible d’ouvrir les paramètres de la pile</string>
   <string name="setup_xiaomi_text">Pour fonctionner en arrière-plan, Briar doit être verrouillée à la liste des applis récentes.</string>
   <string name="setup_xiaomi_button">Protéger Briar</string>
   <string name="setup_xiaomi_help">Si Briar n’est pas verrouillée à la liste des applis récentes, elle ne pourra pas fonctionner en arrière-plan.</string>
@@ -50,10 +51,16 @@
     <item quantity="one">Ceci est une version d’essai de Briar. Votre compte arrivera à expiration dans %d jour et ne peut pas être renouvelé.</item>
     <item quantity="other">Ceci est une version d’essai de Briar. Votre compte arrivera à expiration dans %d jours et ne pourra pas être renouvelé.</item>
   </plurals>
+  <plurals name="old_android_expiry_warning">
+    <item quantity="one">Android 4 n’est plus pris en charge. Briar cessera de fonctionner le %s (dans %d jour). Veuillez installer Briar sur un appareil plus récent et créer un nouveau compte.</item>
+    <item quantity="other">Android 4 n’est plus pris en charge. Briar cessera de fonctionner le %s (dans %d jours). Veuillez installer Briar sur un appareil plus récent et créer un nouveau compte.</item>
+  </plurals>
   <string name="expiry_date_reached">Ce logiciel est arrivé à expiration.\nMerci de l’avoir testé !</string>
   <string name="download_briar">Pour continuer à utiliser Briar, veuillez télécharger la dernière version.</string>
   <string name="create_new_account">Vous devrez créer un nouveau compte, mais vous pouvez utiliser le même pseudonyme.</string>
   <string name="download_briar_button">Télécharger la dernière version</string>
+  <string name="old_android_expiry_date_reached">Briar ne fonctionne plus sur Android 4. Veuillez installer Briar sur un appareil plus récent.</string>
+  <string name="old_android_delete_account">Vous pouvez toucher le bouton ci-dessous pour supprimer votre compte de cet appareil.</string>
   <string name="delete_account_button">Supprimer le compte</string>
   <string name="startup_open_database">Déchiffrement de la base de données…</string>
   <string name="startup_migrate_database">Mise à niveau de la base de données…</string>
@@ -281,6 +288,7 @@
   <string name="duplicate_link_dialog_text_1">Vous avez déjà un contact en attente avec ce lien : %s</string>
   <string name="duplicate_link_dialog_text_1_contact">Vous avez déjà un contact avec ce lien : %s</string>
   <!--This is a question asking whether two nicknames refer to the same person-->
+  <string name="duplicate_link_dialog_text_2">%1$s et %2$s sont-elles la même personne ?</string>
   <!--This is a button for answering that two nicknames do indeed refer to the same person. This
 	string will be used in a dialog button, so if the translation of this string is longer than 20
 	characters, please use "Yes" instead, and use "No" for the "Different Person" button-->
@@ -289,6 +297,7 @@
 	will be used in a dialog button, so if the translation of this string longer than 20 characters,
 	please use "No" instead, and use "Yes" for the "Same Person" button-->
   <string name="different_person_button">Une personne différente</string>
+  <string name="duplicate_link_dialog_text_3">%1$s et %2$s vous ont envoyé le même lien.\n\nL\'une de ces personnes pourrait tenter de découvrir qui sont vos contacts.\n\nNe lui dites pas que vous avez reçu le même lien de quelqu’un d’autre.</string>
   <string name="pending_contact_updated_toast">Le contact en attente a été mis à jour</string>
   <!--Introductions-->
   <string name="introduction_onboarding_title">Présenter vos contacts</string>
@@ -568,8 +577,31 @@
   <string name="choose_ringtone_title">Choisir une sonnerie</string>
   <string name="cannot_load_ringtone">Impossible de charger la sonnerie</string>
   <!--Mailbox-->
+  <string name="mailbox_settings_title">Boîte de courriel</string>
+  <string name="mailbox_setup_title">Paramètres de la boîte de courriel</string>
+  <string name="mailbox_setup_intro">Une Boîte de courriel permet à vos contacts de vous envoyer des messages alors que vous êtes hors ligne. La Boîte de courriel recevra vos messages et les enregistrera jusqu’à votre prochaine connexion. Vous pouvez installer l’appli Boîte de courriel de Briar sur un autre appareil. Gardez-le connecté à l’alimentation et au Wi-Fi afin qu’il soit toujours en ligne.</string>
+  <string name="mailbox_setup_download">Installez d’abord l’appli Boîte de courriel sur un autre appareil en cherchant « Briar Mailbox » dans Google Play ou à l’endroit où vous avez téléchargé Briar.\n
+		\nConnectez ensuite votre Boîte de courriel en balayant le code QR affiché sur l’appli Boîte de courriel.</string>
+  <string name="mailbox_setup_download_link">Partager le lien de téléchargement</string>
+  <string name="mailbox_setup_button_scan">Balayer le code QR de Boîte de courriel</string>
+  <string name="permission_camera_qr_denied_body">Vous avez refusé l’accès à l’appareil photo, mais le balayage d’un code QR de contacts exige de l’utiliser.\n\nVeuillez envisager d’y accorder l’accès.</string>
   <string name="mailbox_setup_connecting">Connexion…</string>
+  <string name="mailbox_setup_qr_code_wrong_title">Le code QR est erroné</string>
+  <string name="mailbox_setup_qr_code_wrong_description">Le code balayé est invalide. Veuillez ouvrir l’appli Boîte de courriel de Briar sur votre appareil Boîte de courriel et balayer le code qu’elle présente.</string>
+  <string name="mailbox_setup_already_paired_title">La Boîte de courriel est déjà reliée</string>
+  <string name="mailbox_setup_already_paired_description">Annuler le lien avec la Boîte de courriel sur l’autre appareil et réessayer.</string>
+  <string name="mailbox_setup_io_error_title">Connexion impossible</string>
+  <string name="mailbox_setup_io_error_description">Assurez-vous que les deux appareils sont connectés à Internet et réessayez.</string>
+  <string name="mailbox_setup_assertion_error_title">Erreur de la Boîte de courriel</string>
+  <string name="mailbox_setup_paired_title">Connecté</string>
+  <string name="mailbox_setup_paired_description">Votre Boîte de courriel a été reliée avec succès à Briar.\n
+		\nGarder votre boîte de courriel connectée à l’alimentation et au Wi-Fi afin qu’elle soit toujours en ligne.</string>
   <string name="tor_offline_title">Hors ligne</string>
+  <string name="mailbox_status_title">État de la Boîte de courriel</string>
+  <string name="mailbox_status_connected_title">La Boîte de courriel est en cours d’exécution</string>
+  <!--Example for string substitution: Last connection: 3min ago-->
+  <!--Indicates that there never was a connection to the mailbox. Last connection: Never-->
+  <string name="mailbox_status_connected_never">Jamais</string>
   <!--Conversation Settings-->
   <string name="disappearing_messages_title">Messages éphémères</string>
   <string name="disappearing_messages_explanation_long">L’activation de ce paramètre fera disparaître
@@ -637,7 +669,7 @@ copies des messages que vous envoyez.
   <string name="permission_location_request_body">Afin de découvrir des périphériques Bluetooth, Briar doit accéder à votre position.\n\nBriar n’enregistre pas votre position et ne la partage avec personne.</string>
   <string name="permission_camera_location_title">Appareil photo et position</string>
   <string name="permission_camera_location_request_body">Afin de balayer le code QR, Briar doit accéder à l’appareil photo.\n\nAfin de découvrir des périphériques Bluetooth, Briar doit accéder à votre position.\n\nBriar n’enregistre pas votre position et ne la partage avec personne.</string>
-  <string name="permission_camera_denied_body">Vous avez refusé l’accès à la caméra, mais l’ajout de contacts exige l’utilisation de celle-ci.\n\nVeuillez envisager d’y accorder l’accès.</string>
+  <string name="permission_camera_denied_body">Vous avez refusé l’accès à l’appareil photo, mais l’ajout de contacts exige de l’utiliser.\n\nVeuillez envisager d’y accorder l’accès.</string>
   <string name="permission_location_denied_body">Vous avez refusé l’accès à votre position géographique, mais Briar en a besoin pour découvrir les appareils Bluetooth.\n\nVeuillez envisager d’y accorder l’accès.</string>
   <string name="permission_location_setting_title">Paramètre de localisation</string>
   <string name="permission_location_setting_body">Afin de trouver d’autres appareils par Bluetooth, le paramètre Position de votre appareil doit être activé. Veuillez l’activer afin de poursuivre. Vous pourrez le désactiver ultérieurement.</string>

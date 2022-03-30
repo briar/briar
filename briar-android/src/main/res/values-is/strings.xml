@@ -576,8 +576,38 @@
   <string name="choose_ringtone_title">Veldu hringitón</string>
   <string name="cannot_load_ringtone">Get ekki hlaðið inn hringitóni</string>
   <!--Mailbox-->
+  <string name="mailbox_settings_title">Pósthólf</string>
+  <string name="mailbox_setup_title">Uppsetning pósthólfs</string>
+  <string name="mailbox_setup_intro">Pósthólf gerir tengiliðunum þínum kleift að senda þér skilaboð á meðan þú ert ekki á netinu. Pósthólfið tekur við skilaboðum og geymir þau þar til þú kemst í samband.\n
+		\nÞú getur sett upp Briar Mailbox pósthólfsforritið á aukatæki. Haltu því tengdu við rafmagn og Wi-Fi þannig að það verði alltaf til taks á netinu.</string>
+  <string name="mailbox_setup_download">Fyrst skaltu setja upp pósthólfsforritið á öðru tæki með því að leita að \"Briar Mailbox\" á Google Play eða hvar sem það var sem þú náðir í Briar.\n
+		\nTengdu síðan pósthólfið við Briar með því að skanna QR-kóðann sem birtist í pósthólfsforritinu.</string>
+  <string name="mailbox_setup_download_link">Deila niðurhalstengli</string>
+  <string name="mailbox_setup_button_scan">Skanna QR-kóða pósthólfs</string>
+  <string name="permission_camera_qr_denied_body">Þú hefur hafnað aðgangi að myndavélinni, en það að skanna QR-kóða krefst notkun hennar.\n\nÍhugaðu að veita þennan aðgang.</string>
   <string name="mailbox_setup_connecting">Tengist…</string>
+  <string name="mailbox_setup_qr_code_wrong_title">Rangur QR-kóði</string>
+  <string name="mailbox_setup_qr_code_wrong_description">Skannaði kóðinn er ógildur. Opnaðu Briar Mailbox forritið á pósthólfstækinu þínu og skannaðu QR-kóðann sem það birtir.</string>
+  <string name="mailbox_setup_already_paired_title">Pósthólf er þegar tengt</string>
+  <string name="mailbox_setup_already_paired_description">Aftengdu pósthólfið á hinu tækinu þínu og prófaðu aftur.</string>
+  <string name="mailbox_setup_io_error_title">Mistókst að tengjast</string>
+  <string name="mailbox_setup_io_error_description">Gakktu úr skugga um að bæði tækin séu tengd við internetið og prófaðu svo aftur.</string>
+  <string name="mailbox_setup_assertion_error_title">Villa í pósthólfi</string>
+  <string name="mailbox_setup_assertion_error_description">Sendu umsögn (með naflausum gögnum) í gegnum Briar forritið ef vandamálið er viðvarandi.</string>
+  <string name="mailbox_setup_camera_error_description">Náði ekki sambandi við myndavél. Prófaðu aftur, kannski eftir að hafa endurræst tækið.</string>
+  <string name="mailbox_setup_paired_title">Tengt</string>
+  <string name="mailbox_setup_paired_description">Tekist hefur að tengja pósthólfið þitt við Briar.\n
+		\nHaltu pósthólfinu þínu tengdu við rafmagn og Wi-Fi þannig að það sé alltaf á netinu.</string>
   <string name="tor_offline_title">Ónettengt</string>
+  <string name="tor_offline_description">Gakktu úr skugga um að þetta tæki sé tengt við netið og að tengingar við internetið séu leyfðar.\n
+		\nSíðan skaltu bíða eftir að hnatttáknið á tengistillingaskjánum verði grænt.</string>
+  <string name="tor_offline_button_check">Athugaðu tengistillingarnar</string>
+  <string name="mailbox_status_title">Staða pósthólfs</string>
+  <string name="mailbox_status_connected_title">Pósthólf er í gangi</string>
+  <!--Example for string substitution: Last connection: 3min ago-->
+  <string name="mailbox_status_connected_info">Síðasta tenging: %s</string>
+  <!--Indicates that there never was a connection to the mailbox. Last connection: Never-->
+  <string name="mailbox_status_connected_never">Aldrei</string>
   <!--Conversation Settings-->
   <string name="disappearing_messages_title">Sjálfeyðandi skilaboð</string>
   <string name="disappearing_messages_explanation_long">Ef kveikt er á þessari stillingu munu ný

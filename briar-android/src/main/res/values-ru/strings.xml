@@ -25,6 +25,7 @@
   <string name="setup_huawei_app_launch_text">Пожалуйста, нажмите кнопку ниже, откройте экран \"Запуск приложения\" и убедитесь, что для Briar установлено значение \"Управлять вручную\".</string>
   <string name="setup_huawei_app_launch_button">Открыть настройки батареи</string>
   <string name="setup_huawei_app_launch_help">Если для Briar не установлено значение \"Управлять вручную\" на экране \"Запуск приложения\", он не сможет работать в фоновом режиме.</string>
+  <string name="setup_huawei_app_launch_error_toast">Не удалось открыть настройки батареи</string>
   <string name="setup_xiaomi_text">Для работы в фоновом режиме Briar должен быть закреплен в списке недавних приложений.</string>
   <string name="setup_xiaomi_button">Защитить Briar</string>
   <string name="setup_xiaomi_help">Если Briar не закреплен в списке последних приложений, он не сможет работать в фоновом режиме.</string>
@@ -90,7 +91,7 @@
   <string name="tor_plugin_status_inactive">Briar не может подключиться к интернету.</string>
   <string name="tor_plugin_status_disabled">Briar настроен не использовать интернет</string>
   <string name="tor_plugin_status_disabled_mobile_data">Briar настроен не использовать мобильную сеть</string>
-  <string name="tor_plugin_status_disabled_battery">Briar настроен не использовать интернет при работе от батареи</string>
+  <string name="tor_plugin_status_disabled_battery">Briar настроен так, чтобы не использовать интернет при работе от батареи</string>
   <string name="tor_plugin_status_disabled_country_blocked">Briar настроен не использовать интернет в этой стране</string>
   <!--Transports: Wi-Fi-->
   <string name="transport_lan">Wi-Fi</string>
@@ -616,9 +617,26 @@
   <string name="mailbox_setup_connecting">Соединение...</string>
   <string name="mailbox_setup_qr_code_wrong_title">Неправильный QR-код</string>
   <string name="mailbox_setup_qr_code_wrong_description">Отсканированный код недействителен. Пожалуйста, откройте приложение Briar Mailbox на вашем устройстве и просканируйте представленный QR-код.</string>
+  <string name="mailbox_setup_already_paired_title">Maibox уже связан</string>
+  <string name="mailbox_setup_already_paired_description">Отвяжите Mailbox на другом устройстве и повторите попытку.</string>
+  <string name="mailbox_setup_io_error_title">Не удалось подключиться</string>
+  <string name="mailbox_setup_io_error_description">Убедитесь, что оба устройства подключены к интернету, и повторите попытку.</string>
+  <string name="mailbox_setup_assertion_error_title">Ошибка Mailbox</string>
+  <string name="mailbox_setup_assertion_error_description">Пожалуйста, отправьте отзыв (с анонимными данными) через приложение Briar, если проблема сохраняется.</string>
+  <string name="mailbox_setup_camera_error_description">Не удалось получить доступ к камере. Попробуйте еще раз. Возможно поможет перезагрузка устройства.</string>
+  <string name="mailbox_setup_paired_title">Подключено</string>
+  <string name="mailbox_setup_paired_description">Ваш Mailbox был успешно связан с Briar.\n
+		\nДержите Mailbox подключенным к электропитанию и Wi-Fi, чтобы он всегда был доступен.</string>
   <string name="tor_offline_title">Отключен</string>
-  <string name="tor_offline_description">Убедитесь, что устройство находится в сети и подключение к интернету разрешено.\n\nПосле этого дождитесь, пока значок глобуса в настройках подключения станет зеленым.</string>
+  <string name="tor_offline_description">Убедитесь, что данное устройство находится в сети и подключение к интернету разрешено.\n
+		\nПосле этого дождитесь, пока значок глобуса на экране настроек подключения станет зеленым.</string>
   <string name="tor_offline_button_check">Проверьте настройки подключения</string>
+  <string name="mailbox_status_title">Статус Mailbox</string>
+  <string name="mailbox_status_connected_title">Mailbox запущен</string>
+  <!--Example for string substitution: Last connection: 3min ago-->
+  <string name="mailbox_status_connected_info">Последнее подключение: %s</string>
+  <!--Indicates that there never was a connection to the mailbox. Last connection: Never-->
+  <string name="mailbox_status_connected_never">Никогда</string>
   <!--Conversation Settings-->
   <string name="disappearing_messages_title">Исчезающие сообщения</string>
   <string name="disappearing_messages_explanation_long">Включение этого параметра приведет к созданию нового
@@ -709,7 +727,7 @@
   <string name="hotspot_button_stop_sharing">Остановить точку доступа</string>
   <string name="hotspot_progress_text_start">Настройка точки доступа...</string>
   <string name="hotspot_notification_channel_title">Точка доступа Wi-Fi</string>
-  <string name="hotspot_notification_title">Поделиться Briar оффлайн</string>
+  <string name="hotspot_notification_title">Поделиться Briar офлайн</string>
   <string name="hotspot_button_connected">Далее</string>
   <string name="permission_hotspot_location_request_body">Для создания точки доступа Wi-Fi Briar необходимо разрешение на доступ к вашему местоположению.\n\nBriar не хранит ваше местоположение и не передает его кому-либо.</string>
   <string name="permission_hotspot_location_denied_body">Доступ к местоположению запрещен, но Briar необходимо это разрешение для создания точки доступа Wi-Fi.\n\nРассмотрите возможность предоставления доступа.</string>
