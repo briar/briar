@@ -11,6 +11,7 @@ public interface CircumventionProvider {
 	enum BridgeType {
 		DEFAULT_OBFS4,
 		NON_DEFAULT_OBFS4,
+		VANILLA,
 		MEEK
 	}
 
@@ -23,27 +24,27 @@ public interface CircumventionProvider {
 	String[] BLOCKED = {"BY", "CN", "EG", "IR", "RU", "TM", "VE"};
 
 	/**
-	 * Countries where obfs4 or meek bridge connections are likely to work.
+	 * Countries where bridge connections are likely to work.
 	 * Should be a subset of {@link #BLOCKED} and the union of
-	 * {@link #DEFAULT_OBFS4_BRIDGES}, {@link #NON_DEFAULT_OBFS4_BRIDGES} and
+	 * {@link #DEFAULT_BRIDGES}, {@link #NON_DEFAULT_BRIDGES} and
 	 * {@link #MEEK_BRIDGES}.
 	 */
 	String[] BRIDGES = {"BY", "CN", "EG", "IR", "RU", "TM", "VE"};
 
 	/**
-	 * Countries where default obfs4 bridges are likely to work.
+	 * Countries where default obfs4 or vanilla bridges are likely to work.
 	 * Should be a subset of {@link #BRIDGES}.
 	 */
-	String[] DEFAULT_OBFS4_BRIDGES = {"EG", "VE"};
+	String[] DEFAULT_BRIDGES = {"EG", "VE"};
 
 	/**
-	 * Countries where non-default obfs4 bridges are likely to work.
+	 * Countries where non-default obfs4 or vanilla bridges are likely to work.
 	 * Should be a subset of {@link #BRIDGES}.
 	 */
-	String[] NON_DEFAULT_OBFS4_BRIDGES = {"BY", "RU", "TM"};
+	String[] NON_DEFAULT_BRIDGES = {"BY", "RU", "TM"};
 
 	/**
-	 * Countries where obfs4 bridges won't work and meek is needed.
+	 * Countries where obfs4 and vanilla bridges won't work and meek is needed.
 	 * Should be a subset of {@link #BRIDGES}.
 	 */
 	String[] MEEK_BRIDGES = {"CN", "IR"};
@@ -60,10 +61,11 @@ public interface CircumventionProvider {
 	boolean doBridgesWork(String countryCode);
 
 	/**
-	 * Returns the best type of bridge connection for the given country, or
-	 * {@link #DEFAULT_OBFS4_BRIDGES} if no bridge type is known to work.
+	 * Returns the types of bridge connection that are suitable for the given
+	 * country, or {@link #DEFAULT_BRIDGES} if no bridge type is known
+	 * to work.
 	 */
-	BridgeType getBestBridgeType(String countryCode);
+	List<BridgeType> getSuitableBridgeTypes(String countryCode);
 
 	@IoExecutor
 	List<String> getBridges(BridgeType type);

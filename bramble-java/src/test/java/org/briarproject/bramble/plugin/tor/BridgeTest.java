@@ -47,6 +47,7 @@ import static org.briarproject.bramble.api.plugin.TorConstants.DEFAULT_SOCKS_POR
 import static org.briarproject.bramble.plugin.tor.CircumventionProvider.BridgeType.DEFAULT_OBFS4;
 import static org.briarproject.bramble.plugin.tor.CircumventionProvider.BridgeType.MEEK;
 import static org.briarproject.bramble.plugin.tor.CircumventionProvider.BridgeType.NON_DEFAULT_OBFS4;
+import static org.briarproject.bramble.plugin.tor.CircumventionProvider.BridgeType.VANILLA;
 import static org.briarproject.bramble.test.TestUtils.deleteTestDirectory;
 import static org.briarproject.bramble.test.TestUtils.getTestDirectory;
 import static org.briarproject.bramble.test.TestUtils.isOptionalTestEnabled;
@@ -74,6 +75,9 @@ public class BridgeTest extends BrambleTestCase {
 			for (String bridge : provider.getBridges(NON_DEFAULT_OBFS4)) {
 				states.add(new Params(bridge, NON_DEFAULT_OBFS4, stats, false));
 			}
+			for (String bridge : provider.getBridges(VANILLA)) {
+				states.add(new Params(bridge, VANILLA, stats, false));
+			}
 			for (String bridge : provider.getBridges(MEEK)) {
 				states.add(new Params(bridge, MEEK, stats, true));
 			}
@@ -98,8 +102,6 @@ public class BridgeTest extends BrambleTestCase {
 	NetworkManager networkManager;
 	@Inject
 	ResourceProvider resourceProvider;
-	@Inject
-	CircumventionProvider circumventionProvider;
 	@Inject
 	BatteryManager batteryManager;
 	@Inject
@@ -150,8 +152,8 @@ public class BridgeTest extends BrambleTestCase {
 			}
 
 			@Override
-			public BridgeType getBestBridgeType(String countryCode) {
-				return params.bridgeType;
+			public List<BridgeType> getSuitableBridgeTypes(String countryCode) {
+				return singletonList(params.bridgeType);
 			}
 
 			@Override
