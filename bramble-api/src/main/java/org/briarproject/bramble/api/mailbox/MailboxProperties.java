@@ -23,6 +23,11 @@ public class MailboxProperties {
 		return baseUrl;
 	}
 
+	public String getOnion() {
+		return baseUrl.replaceFirst("^http://", "")
+				.replaceFirst("\\.onion$", "");
+	}
+
 	public MailboxAuthToken getAuthToken() {
 		return authToken;
 	}

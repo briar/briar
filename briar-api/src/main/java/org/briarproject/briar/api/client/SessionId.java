@@ -16,9 +16,4 @@ public class SessionId extends UniqueId {
 	public SessionId(byte[] id) {
 		super(id);
 	}
-
-	@Override
-	public boolean equals(Object o) {
-		return o instanceof SessionId && super.equals(o);
-	}
 }

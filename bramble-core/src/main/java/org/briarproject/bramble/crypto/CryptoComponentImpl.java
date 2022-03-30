@@ -8,6 +8,7 @@ import org.bouncycastle.crypto.CryptoException;
 import org.bouncycastle.crypto.Digest;
 import org.bouncycastle.crypto.digests.Blake2bDigest;
 import org.bouncycastle.crypto.digests.SHA3Digest;
+import org.briarproject.bramble.api.UniqueId;
 import org.briarproject.bramble.api.crypto.AgreementPrivateKey;
 import org.briarproject.bramble.api.crypto.AgreementPublicKey;
 import org.briarproject.bramble.api.crypto.CryptoComponent;
@@ -41,6 +42,7 @@ import javax.inject.Inject;
 
 import static java.lang.System.arraycopy;
 import static java.util.logging.Level.INFO;
+import static java.util.logging.Logger.getLogger;
 import static org.briarproject.bramble.api.crypto.CryptoConstants.KEY_TYPE_AGREEMENT;
 import static org.briarproject.bramble.api.crypto.CryptoConstants.KEY_TYPE_SIGNATURE;
 import static org.briarproject.bramble.api.crypto.DecryptionResult.INVALID_CIPHERTEXT;
@@ -54,7 +56,7 @@ import static org.briarproject.bramble.util.LogUtils.now;
 class CryptoComponentImpl implements CryptoComponent {
 
 	private static final Logger LOG =
-			Logger.getLogger(CryptoComponentImpl.class.getName());
+			getLogger(CryptoComponentImpl.class.getName());
 
 	private static final int SIGNATURE_KEY_PAIR_BITS = 256;
 	private static final int STORAGE_IV_BYTES = 24; // 196 bits
@@ -126,6 +128,13 @@ class CryptoComponentImpl implements CryptoComponent {
 			throw new SecurityException("Wrong SHA1PRNG provider: "
 					+ random.getProvider().getClass());
 		}
+	}
+
+	@Override
+	public UniqueId generateUniqueId() {
+		byte[] b = new byte[UniqueId.LENGTH];
+		secureRandom.nextBytes(b);
+		return new UniqueId(b);
 	}
 
 	@Override
@@ -449,7 +458,7 @@ class CryptoComponentImpl implements CryptoComponent {
 	}
 
 	@Override
-	public String encodeOnionAddress(byte[] publicKey) {
+	public String encodeOnion(byte[] publicKey) {
 		Digest digest = new SHA3Digest(256);
 		byte[] label = ".onion checksum".getBytes(Charset.forName("US-ASCII"));
 		digest.update(label, 0, label.length);

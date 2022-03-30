@@ -87,7 +87,7 @@ public class MailboxPairingTaskImplTest extends BrambleMockTestCase {
 	@Test
 	public void testSuccessfulPairing() throws Exception {
 		context.checking(new Expectations() {{
-			oneOf(crypto).encodeOnionAddress(onionBytes);
+			oneOf(crypto).encodeOnion(onionBytes);
 			will(returnValue(onion));
 			oneOf(api).setup(with(matches(setupProperties)));
 			will(returnValue(ownerToken));
@@ -141,7 +141,7 @@ public class MailboxPairingTaskImplTest extends BrambleMockTestCase {
 	private void testApiException(Exception e,
 			Class<? extends MailboxPairingState> s) throws Exception {
 		context.checking(new Expectations() {{
-			oneOf(crypto).encodeOnionAddress(onionBytes);
+			oneOf(crypto).encodeOnion(onionBytes);
 			will(returnValue(onion));
 			oneOf(api).setup(with(matches(setupProperties)));
 			will(throwException(e));
@@ -155,7 +155,7 @@ public class MailboxPairingTaskImplTest extends BrambleMockTestCase {
 	@Test
 	public void testDbException() throws Exception {
 		context.checking(new Expectations() {{
-			oneOf(crypto).encodeOnionAddress(onionBytes);
+			oneOf(crypto).encodeOnion(onionBytes);
 			will(returnValue(onion));
 			oneOf(api).setup(with(matches(setupProperties)));
 			will(returnValue(ownerToken));

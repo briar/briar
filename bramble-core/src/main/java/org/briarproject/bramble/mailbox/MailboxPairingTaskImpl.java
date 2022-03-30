@@ -162,8 +162,8 @@ class MailboxPairingTaskImpl implements MailboxPairingTask {
 		}
 		LOG.info("QR code is valid");
 		byte[] onionPubKey = Arrays.copyOfRange(bytes, 1, 33);
-		String onionAddress = crypto.encodeOnionAddress(onionPubKey);
-		String baseUrl = "http://" + onionAddress + ".onion";
+		String onion = crypto.encodeOnion(onionPubKey);
+		String baseUrl = "http://" + onion + ".onion";
 		byte[] tokenBytes = Arrays.copyOfRange(bytes, 33, 65);
 		MailboxAuthToken setupToken = new MailboxAuthToken(tokenBytes);
 		return new MailboxProperties(baseUrl, setupToken, true);

@@ -21,9 +21,9 @@ class TorRendezvousCryptoImpl implements TorRendezvousCrypto {
 	}
 
 	@Override
-	public String getOnionAddress(byte[] seed) {
+	public String getOnion(byte[] seed) {
 		EdDSAPrivateKeySpec spec = new EdDSAPrivateKeySpec(seed, CURVE_SPEC);
-		return crypto.encodeOnionAddress(spec.getA().toByteArray());
+		return crypto.encodeOnion(spec.getA().toByteArray());
 	}
 
 	@Override
