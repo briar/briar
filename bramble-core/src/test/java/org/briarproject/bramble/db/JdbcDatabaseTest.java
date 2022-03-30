@@ -72,9 +72,6 @@ import static org.briarproject.bramble.api.sync.validation.MessageState.DELIVERE
 import static org.briarproject.bramble.api.sync.validation.MessageState.INVALID;
 import static org.briarproject.bramble.api.sync.validation.MessageState.PENDING;
 import static org.briarproject.bramble.api.sync.validation.MessageState.UNKNOWN;
-import static org.briarproject.bramble.db.DatabaseConstants.DB_SETTINGS_NAMESPACE;
-import static org.briarproject.bramble.db.DatabaseConstants.LAST_COMPACTED_KEY;
-import static org.briarproject.bramble.db.DatabaseConstants.MAX_COMPACTION_INTERVAL_MS;
 import static org.briarproject.bramble.test.TestUtils.deleteTestDirectory;
 import static org.briarproject.bramble.test.TestUtils.getAgreementPrivateKey;
 import static org.briarproject.bramble.test.TestUtils.getAgreementPublicKey;
@@ -2236,46 +2233,6 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 		ids = db.getMessagesToSend(txn, contactId, ONE_MEGABYTE, MAX_LATENCY);
 		assertFalse(ids.isEmpty());
 
-		db.commitTransaction(txn);
-		db.close();
-	}
-
-	@Test
-	public void testCompactionTime() throws Exception {
-		MessageFactory messageFactory = new TestMessageFactory();
-		long now = System.currentTimeMillis();
-		AtomicLong time = new AtomicLong(now);
-		Clock clock = new SettableClock(time);
-
-		// Time: now
-		// The last compaction time should be initialised to the current time
-		Database<Connection> db = open(false, messageFactory, clock);
-		Connection txn = db.startTransaction();
-		Settings s = db.getSettings(txn, DB_SETTINGS_NAMESPACE);
-		assertEquals(now, s.getLong(LAST_COMPACTED_KEY, 0));
-		db.commitTransaction(txn);
-		db.close();
-
-		// Time: now + MAX_COMPACTION_INTERVAL_MS
-		// The DB should not be compacted, so the last compaction time should
-		// not be updated
-		time.set(now + MAX_COMPACTION_INTERVAL_MS);
-		db = open(true, messageFactory, clock);
-		txn = db.startTransaction();
-		s = db.getSettings(txn, DB_SETTINGS_NAMESPACE);
-		assertEquals(now, s.getLong(LAST_COMPACTED_KEY, 0));
-		db.commitTransaction(txn);
-		db.close();
-
-		// Time: now + MAX_COMPACTION_INTERVAL_MS + 1
-		// The DB should be compacted, so the last compaction time should be
-		// updated
-		time.set(now + MAX_COMPACTION_INTERVAL_MS + 1);
-		db = open(true, messageFactory, clock);
-		txn = db.startTransaction();
-		s = db.getSettings(txn, DB_SETTINGS_NAMESPACE);
-		assertEquals(now + MAX_COMPACTION_INTERVAL_MS + 1,
-				s.getLong(LAST_COMPACTED_KEY, 0));
 		db.commitTransaction(txn);
 		db.close();
 	}

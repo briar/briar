@@ -85,8 +85,6 @@ import static org.briarproject.bramble.api.sync.validation.MessageState.PENDING;
 import static org.briarproject.bramble.api.sync.validation.MessageState.UNKNOWN;
 import static org.briarproject.bramble.db.DatabaseConstants.DB_SETTINGS_NAMESPACE;
 import static org.briarproject.bramble.db.DatabaseConstants.DIRTY_KEY;
-import static org.briarproject.bramble.db.DatabaseConstants.LAST_COMPACTED_KEY;
-import static org.briarproject.bramble.db.DatabaseConstants.MAX_COMPACTION_INTERVAL_MS;
 import static org.briarproject.bramble.db.DatabaseConstants.SCHEMA_VERSION_KEY;
 import static org.briarproject.bramble.db.ExponentialBackoff.calculateExpiry;
 import static org.briarproject.bramble.db.JdbcUtils.tryToClose;
@@ -378,8 +376,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 			throws DbException, SQLException;
 
 	// Used exclusively during open to compact the database after schema
-	// migrations or after DatabaseConstants#MAX_COMPACTION_INTERVAL_MS has
-	// elapsed
+	// migrations or if the database was not shut down cleanly
 	protected abstract void compactAndClose() throws DbException;
 
 	JdbcDatabase(DatabaseTypes databaseTypes, MessageFactory messageFactory,
@@ -405,7 +402,8 @@ abstract class JdbcDatabase implements Database<Connection> {
 			if (reopen) {
 				Settings s = getSettings(txn, DB_SETTINGS_NAMESPACE);
 				wasDirtyOnInitialisation = isDirty(s);
-				compact = migrateSchema(txn, s, listener) || isCompactionDue(s);
+				boolean migrated = migrateSchema(txn, s, listener);
+				compact = wasDirtyOnInitialisation || migrated;
 			} else {
 				wasDirtyOnInitialisation = false;
 				createTables(txn);
@@ -434,14 +432,6 @@ abstract class JdbcDatabase implements Database<Connection> {
 				closed = false;
 			} finally {
 				connectionsLock.unlock();
-			}
-			txn = startTransaction();
-			try {
-				storeLastCompacted(txn);
-				commitTransaction(txn);
-			} catch (DbException e) {
-				abortTransaction(txn);
-				throw e;
 			}
 		}
 	}
@@ -507,24 +497,10 @@ abstract class JdbcDatabase implements Database<Connection> {
 		);
 	}
 
-	private boolean isCompactionDue(Settings s) {
-		long lastCompacted = s.getLong(LAST_COMPACTED_KEY, 0);
-		long elapsed = clock.currentTimeMillis() - lastCompacted;
-		if (LOG.isLoggable(INFO))
-			LOG.info(elapsed + " ms since last compaction");
-		return elapsed > MAX_COMPACTION_INTERVAL_MS;
-	}
-
 	private void storeSchemaVersion(Connection txn, int version)
 			throws DbException {
 		Settings s = new Settings();
 		s.putInt(SCHEMA_VERSION_KEY, version);
-		mergeSettings(txn, s, DB_SETTINGS_NAMESPACE);
-	}
-
-	private void storeLastCompacted(Connection txn) throws DbException {
-		Settings s = new Settings();
-		s.putLong(LAST_COMPACTED_KEY, clock.currentTimeMillis());
 		mergeSettings(txn, s, DB_SETTINGS_NAMESPACE);
 	}
 
@@ -541,7 +517,6 @@ abstract class JdbcDatabase implements Database<Connection> {
 	private void initialiseSettings(Connection txn) throws DbException {
 		Settings s = new Settings();
 		s.putInt(SCHEMA_VERSION_KEY, CODE_SCHEMA_VERSION);
-		s.putLong(LAST_COMPACTED_KEY, clock.currentTimeMillis());
 		mergeSettings(txn, s, DB_SETTINGS_NAMESPACE);
 	}
 
