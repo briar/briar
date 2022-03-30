@@ -25,6 +25,7 @@
   <string name="setup_huawei_app_launch_text">Vă rugăm să atingeți butonul de mai jos, să deschideți ecranul \"Lansare aplicație\" și să vă asigurați că Briar este setat la \"Gestionare manuală\".</string>
   <string name="setup_huawei_app_launch_button">Deschide setările de baterie</string>
   <string name="setup_huawei_app_launch_help">Dacă Briar nu este setat la \" Gestionare manuală\" în ecranul \"Lansare aplicație\", nu va putea rula în fundal.</string>
+  <string name="setup_huawei_app_launch_error_toast">Nu se pot deschide setările de baterie.</string>
   <string name="setup_xiaomi_text">Pentru a funcționa în fundal, Briar trebuie să fie blocat în lista de aplicații recente.</string>
   <string name="setup_xiaomi_button">Protejează Briar</string>
   <string name="setup_xiaomi_help">Dacă Briar nu este blocat în lista de aplicații recente, acesta nu va putea rula în fundal.</string>
@@ -39,22 +40,29 @@
   <string name="sign_in_button">Autentificare</string>
   <string name="forgotten_password">Am uitat parola</string>
   <string name="dialog_title_lost_password">Parolă uitată</string>
-  <string name="dialog_message_lost_password">Contul dvs. Briar este stocat criptat pe dispozitiv, nu în cloud. Dacă vă uitați parola sau ștergeți Briar, nu veți putea să vă recuperați contul. Doriți să vă ștergeți contul și să începeți din nou?\n\nAtenție: identitățile, contactele și mesajele dvs. vor fi pierdute definitiv.</string>
+  <string name="dialog_message_lost_password">Contul dumneavoastră Briar este stocat în mod criptat pe dispozitivul dumneavoastră, nu în cloud, așa că nu vă putem reseta parola. Doriți să vă ștergeți contul și să o luați de la capăt?\n\nAtenție: Identitățile, contactele și mesajele dumneavoastră vor fi pierdute definitiv.</string>
   <string name="startup_failed_activity_title">Eroare de pornire Briar</string>
   <string name="startup_failed_clock_error">Briar nu a putut porni deoarece ceasul dispozitivului dvs. este greșit.\n\nVă rugăm să setați ceasul dispozitivului dvs. la ora corectă și să încercați din nou.</string>
-  <string name="startup_failed_db_error">Briar nu a reușit să deschidă baza de date care conține contul dvs., contactele și mesajele dvs.\n\nVă rugăm să faceți upgrade la cea mai recentă versiune a aplicației și să încercați din nou, sau să configurați un cont nou alegând \"Mi-am uitat parola\" la solicitarea parolei.</string>
+  <string name="startup_failed_db_error">Briar nu a reușit să deschidă baza de date care conține contul dumneavoastră, contactele și mesajele dumneavoastră.\n\nVă rugăm să faceți upgrade la cea mai recentă versiune a app și să încercați din nou, sau să configurați un cont nou alegând \"Mi-am uitat parola\" la solicitarea parolei.</string>
   <string name="startup_failed_data_too_old_error">Contul dvs. a fost creat cu o versiune veche a acestei aplicații și nu poate fi deschis cu această versiune.\n\nTrebuie fie să reinstalați versiunea veche, fie să creați un cont nou alegând \"Mi-am uitat parola\" la solicitarea de parolă.</string>
   <string name="startup_failed_data_too_new_error">Contul dvs. a fost creat cu o versiune mai nouă a acestei aplicații și nu poate fi deschis cu această versiune.\n\nVă rugăm să faceți upgrade la cea mai recentă versiune și să încercați din nou.</string>
-  <string name="startup_failed_service_error">Briar nu a reușit să pornească o componentă necesară.\n\nVă rugăm să faceți upgrade la cea mai recentă versiune a acestei aplicații și să încercați din nou.</string>
+  <string name="startup_failed_service_error">Briar nu a reușit să pornească o componentă necesară.\n\nVă rugăm să faceți upgrade la cea mai recentă versiune a acestui app și să încercați din nou.</string>
   <plurals name="expiry_warning">
     <item quantity="one">Aceasta este o versiune de test pentru Briar. Contul dumneavoastră va expira în %d zi și nu se poate reînnoi</item>
     <item quantity="few">Aceasta este o versiune de test pentru Briar. Contul dumneavoastră va expira în %d zile și nu se poate reînnoi.</item>
     <item quantity="other">Aceasta este o versiune de test pentru Briar. Contul dumneavoastră va expira în %d zile și nu poate fi reînnoit.</item>
   </plurals>
+  <plurals name="old_android_expiry_warning">
+    <item quantity="one">Android 4 nu mai este acceptat. Briar va înceta să mai funcționeze pe %s (în %d zi). Vă rugăm să instalați Briar pe un dispozitiv mai nou și să creați un cont nou.</item>
+    <item quantity="few">Android 4 nu mai este acceptat. Briar va înceta să mai funcționeze pe %s (in %d zile). Vă rugăm să instalați Briar pe un dispozitiv mai nou și să creați un cont nou.</item>
+    <item quantity="other">Android 4 nu mai este acceptat. Briar va înceta să mai funcționeze pe %s (in %d de zile). Vă rugăm să instalați Briar pe un dispozitiv mai nou și să creați un cont nou.</item>
+  </plurals>
   <string name="expiry_date_reached">Acest program a expirat.\nVă mulțumim că l-ați testat!</string>
   <string name="download_briar">Pentru a putea să utilizați Briar în continuare, vă rugăm să descărcați ultima versiune.</string>
   <string name="create_new_account">Va trebui să creați un cont nou, dar puteți să folosiți același nume.</string>
   <string name="download_briar_button">Descarcă ultima versiune</string>
+  <string name="old_android_expiry_date_reached">Briar nu mai funcționează pe Android 4.\nVă rugăm să instalați Briar pe un dispozitiv mai nou.</string>
+  <string name="old_android_delete_account">Puteți atinge butonul de mai jos pentru a vă șterge contul de pe acest dispozitiv.</string>
   <string name="delete_account_button">Șterge cont</string>
   <string name="startup_open_database">Decriptare bază de date...</string>
   <string name="startup_migrate_database">Actualizare bază de date...</string>
@@ -105,7 +113,7 @@
   <string name="reminder_notification_text">Atingeți pentru autentificare.</string>
   <string name="reminder_notification_channel_title">Reamintire autentificare Briar</string>
   <string name="reminder_notification_dismiss">Renunță</string>
-  <string name="ongoing_notification_title">Conectat(ă) în Briar</string>
+  <string name="ongoing_notification_title">Conectat în Briar</string>
   <string name="ongoing_notification_text">Atingeți pentru a deschide Briar</string>
   <plurals name="private_message_notification_text">
     <item quantity="one">Mesaj privat nou.</item>
@@ -548,18 +556,18 @@
   <string name="password_changed">Parola a fost schimbată.</string>
   <string name="panic_setting">Setare buton de panică</string>
   <string name="panic_setting_title">Buton de panică</string>
-  <string name="panic_setting_hint">Configurați cum va reacționa Briar atunci când folosiți o aplicație de buton de panică.</string>
-  <string name="panic_app_setting_title">Aplicația buton de panică</string>
-  <string name="unknown_app">aplicație necunoscută</string>
-  <string name="panic_app_setting_summary">Nu a fost setată nici o aplicație</string>
+  <string name="panic_setting_hint">Configurați cum va reacționa Briar atunci când folosiți un app de buton de panică.</string>
+  <string name="panic_app_setting_title">App buton de panică</string>
+  <string name="unknown_app">app necunoscut</string>
+  <string name="panic_app_setting_summary">Nu a fost setată nici un app</string>
   <string name="panic_app_setting_none">Nici una</string>
-  <string name="dialog_title_connect_panic_app">Confirmare aplicație de panică</string>
+  <string name="dialog_title_connect_panic_app">Confirmare app de panică</string>
   <string name="dialog_message_connect_panic_app">Sigur doriți să permiteți %1$s să declanșeze acțiuni destructive pentru butonul de panică?</string>
   <string name="panic_setting_destructive_action">Acțiuni distructive</string>
   <string name="panic_setting_signout_title">Ieșire</string>
   <string name="panic_setting_signout_summary">Ieși din Briar dacă un buton de panică este apăsat</string>
   <string name="purge_setting_title">Șterge cont</string>
-  <string name="purge_setting_summary">Ștergeți contul Briar dacă este apăsat un buton de panică. Atenție: aceasta va șterge definitiv identitatea, contactele și mesajele dvs.</string>
+  <string name="purge_setting_summary">Ștergeți contul Briar dacă este apăsat un buton de panică. Atenție: aceasta va șterge definitiv identitatea, contactele și mesajele voastre</string>
   <!--Settings Notifications-->
   <string name="notification_settings_title">Notificări</string>
   <string name="notify_sign_in_title">Reamintește-mi să mă conectez</string>
@@ -583,8 +591,38 @@
   <string name="choose_ringtone_title">Alegeți sunetul</string>
   <string name="cannot_load_ringtone">Nu se poate încărca sunetul</string>
   <!--Mailbox-->
+  <string name="mailbox_settings_title">Cutia poștală</string>
+  <string name="mailbox_setup_title">Configurarea cutiei poștale</string>
+  <string name="mailbox_setup_intro">O căsuță poștală permite contactelor dumneavoastră să vă trimită mesaje în timp ce sunteți offline. Căsuța poștală va primi mesajele și le va stoca până când veți fi online.\n
+\nPuteți instala app-ul Briar Mailbox pe un dispozitiv de rezervă. Țineți-l conectat la curent și la Wi-Fi, astfel încât să fie mereu online.</string>
+  <string name="mailbox_setup_download">În primul rând, instalați app Mailbox pe un alt dispozitiv căutând \"Briar Mailbox\" pe Google Play sau oriunde ați descărcat Briar.\n
+\nApoi conectați Mailbox cu Briar prin scanarea codului QR afișat de app-ul Mailbox.</string>
+  <string name="mailbox_setup_download_link">Partajați link-ul de descărcare</string>
+  <string name="mailbox_setup_button_scan">Scanați codul QR al cutiei poștale</string>
+  <string name="permission_camera_qr_denied_body">Ați refuzat acces la cameră, dar scanarea unui cod QR necesită utilizarea camerei.\n\nVă rugăm să luați în considerare acordarea de acces.</string>
   <string name="mailbox_setup_connecting">Se conectează...</string>
+  <string name="mailbox_setup_qr_code_wrong_title">Cod QR greșit</string>
+  <string name="mailbox_setup_qr_code_wrong_description">Codul scanat nu este valid. Vă rugăm să deschideți app-ul Briar Mailbox pe dispozitivul Mailbox și să scanați codul QR pe care vi-l prezintă.</string>
+  <string name="mailbox_setup_already_paired_title">Căsuță poștală deja conectată</string>
+  <string name="mailbox_setup_already_paired_description">Deconectați căsuța poștală de pe celălalt dispozitiv și încercați din nou.</string>
+  <string name="mailbox_setup_io_error_title">Nu s-a putut conecta</string>
+  <string name="mailbox_setup_io_error_description">Asigurați-vă că ambele dispozitive sunt conectate la internet și încercați din nou.</string>
+  <string name="mailbox_setup_assertion_error_title">Eroare de căsuță poștală</string>
+  <string name="mailbox_setup_assertion_error_description">Vă rugăm să trimiteți feedback (cu date anonime) prin intermediul app-ului Briar dacă problema persistă.</string>
+  <string name="mailbox_setup_camera_error_description">Nu s-a putut accesa camera. Încercați din nou, poate după repornirea dispozitivului.</string>
+  <string name="mailbox_setup_paired_title">Conectat</string>
+  <string name="mailbox_setup_paired_description">Căsuța dumneavoastră poștală a fost conectată cu succes la Briar.\n
+\nPăstrați cutia poștală conectată la curent și la Wi-Fi, astfel încât să fie mereu online.</string>
   <string name="tor_offline_title">Deconectat</string>
+  <string name="tor_offline_description">Asigurați-vă că acest dispozitiv este online și că sunt permise conexiunile la Internet.\n
+\nDupă aceea, așteptați ca pictograma globului pământesc din ecranul de configurare a conexiunii să devină verde.</string>
+  <string name="tor_offline_button_check">Verificați setările de conectare</string>
+  <string name="mailbox_status_title">Starea cutiei poștale</string>
+  <string name="mailbox_status_connected_title">Căsuța poștală este în funcțiune</string>
+  <!--Example for string substitution: Last connection: 3min ago-->
+  <string name="mailbox_status_connected_info">Ultima conectare: %s</string>
+  <!--Indicates that there never was a connection to the mailbox. Last connection: Never-->
+  <string name="mailbox_status_connected_never">Niciodată</string>
   <!--Conversation Settings-->
   <string name="disappearing_messages_title">Mesaje ce dispar</string>
   <string name="disappearing_messages_explanation_long">Activarea acestei setări va face ca noile
@@ -669,7 +707,7 @@ De asemenea, contactul dvs. poate modifica această setare pentru amândoi.</str
   <string name="transports_help_text">Briar se poate conecta la contactele dumneavoastră prin Internet, Wi-Fi sau Bluetooth.\n\nToate conexiunile la internet trec prin rețeaua Tor din motive de confidențialitate.\n\nDacă un contact poate fi accesat prin metode multiple, Briar le va folosi în mod paralel.</string>
   <!--Share app offline-->
   <string name="hotspot_title">Partajează această aplicație fără Internet</string>
-  <string name="hotspot_intro">Împărtășiți acest app cu o persoană din apropiere fără conexiune la internet, utilizând Wi-Fi-ul telefonului dumneavoastră.
+  <string name="hotspot_intro">Împărtășiți acest app cu o persoană din apropiere fără conexiune la Internet, utilizând Wi-Fi-ul telefonului dumneavoastră.
 \n\nTelefonul dumneavoastră va porni un hotspot Wi-Fi. Persoanele din apropiere se pot conecta la hotspot și pot descărca aplicația Briar de pe telefonul vostru.</string>
   <string name="hotspot_button_start_sharing">Pornește hotspot</string>
   <string name="hotspot_button_stop_sharing">Oprește hotspot</string>
