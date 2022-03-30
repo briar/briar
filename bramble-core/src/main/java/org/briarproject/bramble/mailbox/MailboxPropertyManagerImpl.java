@@ -23,6 +23,7 @@ import org.briarproject.bramble.api.mailbox.MailboxPropertiesUpdate;
 import org.briarproject.bramble.api.mailbox.MailboxPropertyManager;
 import org.briarproject.bramble.api.mailbox.MailboxSettingsManager;
 import org.briarproject.bramble.api.mailbox.MailboxSettingsManager.MailboxHook;
+import org.briarproject.bramble.api.mailbox.RemoteMailboxPropertiesUpdateEvent;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.sync.Group;
 import org.briarproject.bramble.api.sync.Group.Visibility;
@@ -101,6 +102,8 @@ class MailboxPropertyManagerImpl implements MailboxPropertyManager,
 		Visibility client = clientVersioningManager
 				.getClientVisibility(txn, c.getId(), CLIENT_ID, MAJOR_VERSION);
 		db.setGroupVisibility(txn, c.getId(), g.getId(), client);
+		// Attach the contact ID to the group
+		clientHelper.setContactId(txn, g.getId(), c.getId());
 		// If we are paired, create and send props to the newly added contact
 		MailboxProperties ownProps =
 				mailboxSettingsManager.getOwnMailboxProperties(txn);
@@ -155,8 +158,10 @@ class MailboxPropertyManagerImpl implements MailboxPropertyManager,
 					return ACCEPT_DO_NOT_SHARE;
 				}
 			}
-			// TODO should probably broadcast an event that a contact's mailbox
-			//  properties were updated
+			ContactId c = clientHelper.getContactId(txn, m.getGroupId());
+			BdfList body = clientHelper.getMessageAsList(txn, m.getId());
+			MailboxPropertiesUpdate p = parseProperties(body);
+			txn.attach(new RemoteMailboxPropertiesUpdateEvent(c, p));
 		} catch (FormatException e) {
 			throw new InvalidMessageException(e);
 		}

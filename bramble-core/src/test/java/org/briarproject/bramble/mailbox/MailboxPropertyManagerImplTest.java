@@ -17,6 +17,7 @@ import org.briarproject.bramble.api.mailbox.MailboxFolderId;
 import org.briarproject.bramble.api.mailbox.MailboxProperties;
 import org.briarproject.bramble.api.mailbox.MailboxPropertiesUpdate;
 import org.briarproject.bramble.api.mailbox.MailboxSettingsManager;
+import org.briarproject.bramble.api.mailbox.RemoteMailboxPropertiesUpdateEvent;
 import org.briarproject.bramble.api.sync.Group;
 import org.briarproject.bramble.api.sync.GroupId;
 import org.briarproject.bramble.api.sync.Message;
@@ -46,8 +47,10 @@ import static org.briarproject.bramble.test.TestUtils.getContact;
 import static org.briarproject.bramble.test.TestUtils.getGroup;
 import static org.briarproject.bramble.test.TestUtils.getMessage;
 import static org.briarproject.bramble.test.TestUtils.getRandomId;
+import static org.briarproject.bramble.test.TestUtils.hasEvent;
 import static org.briarproject.bramble.test.TestUtils.mailboxPropertiesUpdateEqual;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
@@ -120,6 +123,8 @@ public class MailboxPropertyManagerImplTest extends BrambleMockTestCase {
 			will(returnValue(SHARED));
 			oneOf(db).setGroupVisibility(txn, contact.getId(),
 					contactGroup.getId(), SHARED);
+			oneOf(clientHelper).setContactId(txn, contactGroup.getId(),
+					contact.getId());
 			oneOf(mailboxSettingsManager).getOwnMailboxProperties(txn);
 			will(returnValue(null));
 		}});
@@ -151,6 +156,8 @@ public class MailboxPropertyManagerImplTest extends BrambleMockTestCase {
 			will(returnValue(SHARED));
 			oneOf(db).setGroupVisibility(txn, contact.getId(),
 					contactGroup.getId(), SHARED);
+			oneOf(clientHelper).setContactId(txn, contactGroup.getId(),
+					contact.getId());
 			oneOf(mailboxSettingsManager).getOwnMailboxProperties(txn);
 			will(returnValue(ownProps));
 			oneOf(crypto).generateUniqueId();
@@ -204,6 +211,8 @@ public class MailboxPropertyManagerImplTest extends BrambleMockTestCase {
 			will(returnValue(SHARED));
 			oneOf(db).setGroupVisibility(txn, contact.getId(),
 					contactGroup.getId(), SHARED);
+			oneOf(clientHelper).setContactId(txn, contactGroup.getId(),
+					contact.getId());
 			oneOf(mailboxSettingsManager).getOwnMailboxProperties(txn);
 			will(returnValue(null));
 		}});
@@ -231,6 +240,8 @@ public class MailboxPropertyManagerImplTest extends BrambleMockTestCase {
 			will(returnValue(SHARED));
 			oneOf(db).setGroupVisibility(txn, contact.getId(),
 					contactGroup.getId(), SHARED);
+			oneOf(clientHelper).setContactId(txn, contactGroup.getId(),
+					contact.getId());
 			oneOf(mailboxSettingsManager).getOwnMailboxProperties(txn);
 			will(returnValue(ownProps));
 			oneOf(crypto).generateUniqueId();
@@ -275,6 +286,7 @@ public class MailboxPropertyManagerImplTest extends BrambleMockTestCase {
 		Transaction txn = new Transaction(null, false);
 		GroupId contactGroupId = new GroupId(getRandomId());
 		Message message = getMessage(contactGroupId);
+		BdfList body = BdfList.of(1, propsDict);
 		Metadata meta = new Metadata();
 		BdfDictionary metaDictionary = BdfDictionary.of(
 				new BdfEntry(MSG_KEY_VERSION, 1),
@@ -294,11 +306,18 @@ public class MailboxPropertyManagerImplTest extends BrambleMockTestCase {
 			oneOf(clientHelper).getMessageMetadataAsDictionary(txn,
 					contactGroupId);
 			will(returnValue(messageMetadata));
+			oneOf(clientHelper).getContactId(txn, contactGroupId);
+			oneOf(clientHelper).getMessageAsList(txn, message.getId());
+			will(returnValue(body));
+			oneOf(clientHelper).parseAndValidateMailboxPropertiesUpdate(
+					propsDict);
+			will(returnValue(props));
 		}});
 
 		MailboxPropertyManagerImpl t = createInstance();
 		assertEquals(ACCEPT_DO_NOT_SHARE,
 				t.incomingMessage(txn, message, meta));
+		assertTrue(hasEvent(txn, RemoteMailboxPropertiesUpdateEvent.class));
 	}
 
 	@Test
@@ -307,6 +326,7 @@ public class MailboxPropertyManagerImplTest extends BrambleMockTestCase {
 		Transaction txn = new Transaction(null, false);
 		GroupId contactGroupId = new GroupId(getRandomId());
 		Message message = getMessage(contactGroupId);
+		BdfList body = BdfList.of(1, propsDict);
 		Metadata meta = new Metadata();
 		BdfDictionary metaDictionary = BdfDictionary.of(
 				new BdfEntry(MSG_KEY_VERSION, 2),
@@ -334,11 +354,18 @@ public class MailboxPropertyManagerImplTest extends BrambleMockTestCase {
 			will(returnValue(messageMetadata));
 			oneOf(db).deleteMessage(txn, updateId);
 			oneOf(db).deleteMessageMetadata(txn, updateId);
+			oneOf(clientHelper).getContactId(txn, contactGroupId);
+			oneOf(clientHelper).getMessageAsList(txn, message.getId());
+			will(returnValue(body));
+			oneOf(clientHelper).parseAndValidateMailboxPropertiesUpdate(
+					propsDict);
+			will(returnValue(props));
 		}});
 
 		MailboxPropertyManagerImpl t = createInstance();
 		assertEquals(ACCEPT_DO_NOT_SHARE,
 				t.incomingMessage(txn, message, meta));
+		assertTrue(hasEvent(txn, RemoteMailboxPropertiesUpdateEvent.class));
 	}
 
 	@Test
@@ -372,6 +399,7 @@ public class MailboxPropertyManagerImplTest extends BrambleMockTestCase {
 		MailboxPropertyManagerImpl t = createInstance();
 		assertEquals(ACCEPT_DO_NOT_SHARE,
 				t.incomingMessage(txn, message, meta));
+		assertFalse(hasEvent(txn, RemoteMailboxPropertiesUpdateEvent.class));
 	}
 
 	@Test
@@ -667,5 +695,4 @@ public class MailboxPropertyManagerImplTest extends BrambleMockTestCase {
 					false);
 		}});
 	}
-
 }

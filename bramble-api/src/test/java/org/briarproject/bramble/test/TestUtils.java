@@ -12,6 +12,10 @@ import org.briarproject.bramble.api.crypto.PublicKey;
 import org.briarproject.bramble.api.crypto.SecretKey;
 import org.briarproject.bramble.api.crypto.SignaturePrivateKey;
 import org.briarproject.bramble.api.crypto.SignaturePublicKey;
+import org.briarproject.bramble.api.db.CommitAction;
+import org.briarproject.bramble.api.db.EventAction;
+import org.briarproject.bramble.api.db.Transaction;
+import org.briarproject.bramble.api.event.Event;
 import org.briarproject.bramble.api.identity.Author;
 import org.briarproject.bramble.api.identity.AuthorId;
 import org.briarproject.bramble.api.identity.Identity;
@@ -287,4 +291,14 @@ public class TestUtils {
 				a.getOutboxId().equals(b.getOutboxId());
 	}
 
+	public static boolean hasEvent(Transaction txn,
+			Class<? extends Event> eventClass) {
+		for (CommitAction action : txn.getActions()) {
+			if (action instanceof EventAction) {
+				Event event = ((EventAction) action).getEvent();
+				if (eventClass.isInstance(event)) return true;
+			}
+		}
+		return false;
+	}
 }
