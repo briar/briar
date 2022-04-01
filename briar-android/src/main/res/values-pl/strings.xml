@@ -25,6 +25,7 @@
   <string name="setup_huawei_app_launch_text">Dotknij przycisku poniżej, otwórz ekran „Uruchamianie aplikacji” i upewnij się, że Briar jest ustawiony na „Zarządzaj ręcznie”.</string>
   <string name="setup_huawei_app_launch_button">Otwórz Ustawienia Baterii</string>
   <string name="setup_huawei_app_launch_help">Jeśli Briar nie jest ustawiony na „Zarządzaj ręcznie” na ekranie „Uruchamianie aplikacji”, nie będzie mógł działać w tle.</string>
+  <string name="setup_huawei_app_launch_error_toast">Nie można otworzyć ustawień baterii</string>
   <string name="setup_xiaomi_text">Aby działać w tle, Briar musi być zablokowany na liście ostatnich aplikacji.</string>
   <string name="setup_xiaomi_button">Chroń Briar</string>
   <string name="setup_xiaomi_help">Jeżeli Briar nie jest zablokowany na liście ostatnich aplikacji, nie będzie mógł działać w tle.</string>
@@ -604,21 +605,39 @@
   <string name="choose_ringtone_title">Wybierz dzwonek</string>
   <string name="cannot_load_ringtone">Nie mogę załadować dzwonka</string>
   <!--Mailbox-->
-  <string name="mailbox_settings_title">Skrzynka pocztowa</string>
-  <string name="mailbox_setup_title">Konfiguracja skrzynki pocztowej</string>
-  <string name="mailbox_setup_intro">Skrzynka pocztowa umożliwia Twoim kontaktom wysyłanie Ci wiadomości, gdy jesteś offline. Skrzynka pocztowa odbierze Twoje wiadomości i przechowa je, dopóki nie będziesz online.\n
+  <string name="mailbox_settings_title">Mailbox</string>
+  <string name="mailbox_setup_title">Konfiguracja Mailbox</string>
+  <string name="mailbox_setup_intro">Mailbox umożliwia Twoim kontaktom wysyłanie Ci wiadomości, gdy jesteś offline. Mailbox odbierze Twoje wiadomości i przechowa je, dopóki nie będziesz online.\n
 		\nAplikację Briar Mailbox można zainstalować na zapasowym urządzeniu. Podłącz je do zasilania i Wi-Fi, aby zawsze było online.</string>
   <string name="mailbox_setup_download">Najpierw zainstaluj aplikację Mailbox na innym urządzeniu, wyszukując „Briar Mailbox” w Google Play lub gdziekolwiek pobrałeś Briar.\n
-		\nNastępnie połącz swoją skrzynkę pocztową z Briar, skanując kod QR wyświetlony w aplikacji Mailbox.</string>
+		\nNastępnie połącz Mailbox z Briar, skanując kod QR wyświetlony w aplikacji Mailbox.</string>
   <string name="mailbox_setup_download_link">Udostępnij łącze pobierania</string>
   <string name="mailbox_setup_button_scan">Zeskanuj kod QR aplikacji Mailbox</string>
   <string name="permission_camera_qr_denied_body">Odmówiłeś dostępu do aparatu, ale zeskanowanie kodu QR wymaga użycia aparatu.\n\nRozważ przyznanie dostępu.</string>
   <string name="mailbox_setup_connecting">Trwa łączenie...</string>
   <string name="mailbox_setup_qr_code_wrong_title">Nieprawidłowy kod QR</string>
-  <string name="mailbox_setup_qr_code_wrong_description">Zeskanowany kod jest nieprawidłowy. Otwórz aplikację Briar Mailbox na urządzeniu ze skrzynką pocztową i zeskanuj wyświetlany kod QR. </string>
+  <string name="mailbox_setup_qr_code_wrong_description">Zeskanowany kod jest nieprawidłowy. Otwórz aplikację Briar Mailbox na urządzeniu z Mailbox i zeskanuj wyświetlany kod QR. </string>
+  <string name="mailbox_setup_already_paired_title">Mailbox już podłączony</string>
+  <string name="mailbox_setup_already_paired_description">Odłącz Mailbox na drugim urządzeniu i spróbuj ponownie.</string>
+  <string name="mailbox_setup_io_error_title">Nie udało się połączyć</string>
+  <string name="mailbox_setup_io_error_description">Upewnij się, że oba urządzenia są połączone z internetem i spróbuj ponownie.</string>
+  <string name="mailbox_setup_assertion_error_title">Błąd Mailbox</string>
+  <string name="mailbox_setup_assertion_error_description">Jeśli problem będzie się powtarzał, prześlij zgłoszenie (z anonimowymi danymi) za pośrednictwem aplikacji Briar.</string>
+  <string name="mailbox_setup_camera_error_description"> 
+Brak dostępu do aparatu. Spróbuj ponownie, może po ponownym uruchomieniu urządzenia.</string>
+  <string name="mailbox_setup_paired_title">Połączony</string>
+  <string name="mailbox_setup_paired_description">Twój Mailbox został pomyślnie połączony z Briar.\n
+\nUtrzymuj swój Mailbox podłączony do zasilania i Wi-Fi, aby zawsze był online.</string>
   <string name="tor_offline_title">Offline</string>
-  <string name="tor_offline_description">Upewnij się, że to urządzenie jest w trybie online, a połączenia z internetem są dozwolone.\n\nNastępnie poczekaj, aż ikona kuli ziemskiej w ustawieniach połączenia zmieni kolor na zielony.</string>
+  <string name="tor_offline_description">Upewnij się, że to urządzenie jest w trybie online, a połączenia z Internetem są dozwolone.\n
+\nNastępnie poczekaj, aż ikona kuli ziemskiej na ekranie ustawień połączenia zmieni kolor na zielony.</string>
   <string name="tor_offline_button_check">Sprawdź ustawienia połączenia </string>
+  <string name="mailbox_status_title">Status Mailbox</string>
+  <string name="mailbox_status_connected_title">Mailbox jest uruchomiony</string>
+  <!--Example for string substitution: Last connection: 3min ago-->
+  <string name="mailbox_status_connected_info">Ostatnie połączenie: %s</string>
+  <!--Indicates that there never was a connection to the mailbox. Last connection: Never-->
+  <string name="mailbox_status_connected_never">Nigdy</string>
   <!--Conversation Settings-->
   <string name="disappearing_messages_title">Znikające wiadomości</string>
   <string name="disappearing_messages_explanation_long">Włączenie tego ustawienia spowoduje, że
