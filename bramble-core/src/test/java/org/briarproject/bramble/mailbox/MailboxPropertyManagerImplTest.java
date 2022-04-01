@@ -3,7 +3,6 @@ package org.briarproject.bramble.mailbox;
 import org.briarproject.bramble.api.client.ClientHelper;
 import org.briarproject.bramble.api.client.ContactGroupFactory;
 import org.briarproject.bramble.api.contact.Contact;
-import org.briarproject.bramble.api.contact.ContactManager;
 import org.briarproject.bramble.api.crypto.CryptoComponent;
 import org.briarproject.bramble.api.data.BdfDictionary;
 import org.briarproject.bramble.api.data.BdfEntry;
@@ -68,8 +67,6 @@ public class MailboxPropertyManagerImplTest extends BrambleMockTestCase {
 	private final CryptoComponent crypto = context.mock(CryptoComponent.class);
 	private final MailboxSettingsManager mailboxSettingsManager =
 			context.mock(MailboxSettingsManager.class);
-	private final ContactManager contactManager =
-			context.mock(ContactManager.class);
 
 	private final Group localGroup = getGroup(CLIENT_ID, MAJOR_VERSION);
 	private final BdfDictionary propsDict;
@@ -99,7 +96,7 @@ public class MailboxPropertyManagerImplTest extends BrambleMockTestCase {
 		}});
 		return new MailboxPropertyManagerImpl(db, clientHelper,
 				clientVersioningManager, metadataParser, contactGroupFactory,
-				clock, mailboxSettingsManager, contactManager, crypto);
+				clock, mailboxSettingsManager, crypto);
 	}
 
 	@Test
@@ -423,7 +420,7 @@ public class MailboxPropertyManagerImplTest extends BrambleMockTestCase {
 		));
 
 		context.checking(new Expectations() {{
-			oneOf(contactManager).getContacts();
+			oneOf(db).getContacts(txn);
 			will(returnValue(contacts));
 			oneOf(crypto).generateUniqueId();
 			will(returnValue(props.getAuthToken()));
@@ -466,7 +463,7 @@ public class MailboxPropertyManagerImplTest extends BrambleMockTestCase {
 		));
 
 		context.checking(new Expectations() {{
-			oneOf(contactManager).getContacts();
+			oneOf(db).getContacts(txn);
 			will(returnValue(contacts));
 			oneOf(contactGroupFactory).createContactGroup(CLIENT_ID,
 					MAJOR_VERSION, contact);
