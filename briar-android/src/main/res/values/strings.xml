@@ -643,10 +643,12 @@
 	<string name="tor_offline_button_check">Check connection settings</string>
 	<string name="mailbox_status_title">Mailbox status</string>
 	<string name="mailbox_status_connected_title">Mailbox is running</string>
+	<string name="mailbox_status_check_button">Check Connection</string>
 	<!-- Example for string substitution: Last connection: 3min ago-->
 	<string name="mailbox_status_connected_info">Last connection: %s</string>
 	<!-- Indicates that there never was a connection to the mailbox. Last connection: Never -->
 	<string name="mailbox_status_connected_never">Never</string>
+	<string name="mailbox_status_unlink_button">Unlink</string>
 
 	<!-- Conversation Settings -->
 	<string name="disappearing_messages_title">Disappearing messages</string>

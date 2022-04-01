@@ -2,11 +2,17 @@ package org.briarproject.briar.android.mailbox;
 
 import android.content.Context;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import org.briarproject.bramble.api.mailbox.MailboxStatus;
 import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
 import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
 import org.briarproject.briar.R;
@@ -18,9 +24,13 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 import androidx.lifecycle.ViewModelProvider;
 
-import static java.util.Objects.requireNonNull;
+import static android.view.View.INVISIBLE;
+import static android.view.View.VISIBLE;
+import static androidx.transition.TransitionManager.beginDelayedTransition;
 import static org.briarproject.briar.android.AppModule.getAndroidComponent;
+import static org.briarproject.briar.android.util.UiUtils.MIN_DATE_RESOLUTION;
 import static org.briarproject.briar.android.util.UiUtils.formatDate;
+import static org.briarproject.briar.android.util.UiUtils.observeOnce;
 
 @MethodsNotNullByDefault
 @ParametersNotNullByDefault
@@ -32,6 +42,9 @@ public class MailboxStatusFragment extends Fragment {
 	ViewModelProvider.Factory viewModelFactory;
 
 	private MailboxViewModel viewModel;
+	private final Handler handler = new Handler(Looper.getMainLooper());
+
+	private TextView statusInfoView;
 
 	@Override
 	public void onAttach(Context context) {
@@ -54,11 +67,47 @@ public class MailboxStatusFragment extends Fragment {
 	@Override
 	public void onViewCreated(View v, @Nullable Bundle savedInstanceState) {
 		super.onViewCreated(v, savedInstanceState);
-		MailboxState.IsPaired state =
-				(MailboxState.IsPaired) viewModel.getState().getLastValue();
-		requireNonNull(state); // TODO check assumption
-		TextView statusInfoView = v.findViewById(R.id.statusInfoView);
-		long lastSuccess = state.mailboxStatus.getTimeOfLastSuccess();
+
+		Button checkButton = v.findViewById(R.id.checkButton);
+		ProgressBar checkProgress = v.findViewById(R.id.checkProgress);
+		checkButton.setOnClickListener(view -> {
+			beginDelayedTransition((ViewGroup) v);
+			checkButton.setVisibility(INVISIBLE);
+			checkProgress.setVisibility(VISIBLE);
+			observeOnce(viewModel.checkConnection(), this, result -> {
+				beginDelayedTransition((ViewGroup) v);
+				checkButton.setVisibility(VISIBLE);
+				checkProgress.setVisibility(INVISIBLE);
+			});
+		});
+
+		statusInfoView = v.findViewById(R.id.statusInfoView);
+		viewModel.getStatus()
+				.observe(getViewLifecycleOwner(), this::onMailboxStateChanged);
+
+		// TODO
+		//  * detect problems and show them #2175
+		//  * add "Unlink" button confirmation dialog and functionality #2173
+		Button unlinkButton = v.findViewById(R.id.unlinkButton);
+		unlinkButton.setOnClickListener(view -> Toast.makeText(requireContext(),
+				"NOT IMPLEMENTED", Toast.LENGTH_SHORT).show());
+	}
+
+	@Override
+	public void onStart() {
+		super.onStart();
+		requireActivity().setTitle(R.string.mailbox_status_title);
+		handler.postDelayed(this::refreshLastConnection, MIN_DATE_RESOLUTION);
+	}
+
+	@Override
+	public void onStop() {
+		super.onStop();
+		handler.removeCallbacks(this::refreshLastConnection);
+	}
+
+	private void onMailboxStateChanged(MailboxStatus status) {
+		long lastSuccess = status.getTimeOfLastSuccess();
 		String lastConnectionText;
 		if (lastSuccess < 0) {
 			lastConnectionText =
@@ -69,18 +118,12 @@ public class MailboxStatusFragment extends Fragment {
 		String statusInfoText = getString(
 				R.string.mailbox_status_connected_info, lastConnectionText);
 		statusInfoView.setText(statusInfoText);
-		// TODO
-		//  * react to status changes
-		//  * detect problems and show them
-		//  * update connection time periodically like conversation timestamps
-		//  * add "Check connection" button
-		//  * add "Unlink" button with confirmation dialog
 	}
 
-	@Override
-	public void onStart() {
-		super.onStart();
-		requireActivity().setTitle(R.string.mailbox_status_title);
+	private void refreshLastConnection() {
+		MailboxStatus status = viewModel.getStatus().getValue();
+		if (status != null) onMailboxStateChanged(status);
+		handler.postDelayed(this::refreshLastConnection, MIN_DATE_RESOLUTION);
 	}
 
 }

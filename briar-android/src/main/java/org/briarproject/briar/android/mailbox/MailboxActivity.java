@@ -47,11 +47,11 @@ public class MailboxActivity extends BriarActivity {
 		setContentView(R.layout.activity_mailbox);
 
 		progressBar = findViewById(R.id.progressBar);
-		if (viewModel.getState().getValue() == null) {
+		if (viewModel.getPairingState().getValue() == null) {
 			progressBar.setVisibility(VISIBLE);
 		}
 
-		viewModel.getState().observeEvent(this, state -> {
+		viewModel.getPairingState().observeEvent(this, state -> {
 			if (state instanceof MailboxState.NotSetup) {
 				onNotSetup();
 			} else if (state instanceof MailboxState.ShowDownload) {
@@ -85,7 +85,7 @@ public class MailboxActivity extends BriarActivity {
 
 	@Override
 	public void onBackPressed() {
-		MailboxState s = viewModel.getState().getLastValue();
+		MailboxState s = viewModel.getPairingState().getLastValue();
 		if (s instanceof MailboxState.Pairing) {
 			// don't go back in the flow if we are already pairing
 			// with the mailbox. We provide a try-again button instead.
