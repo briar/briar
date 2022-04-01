@@ -1,13 +1,14 @@
 package org.briarproject.bramble.mailbox;
 
 import org.briarproject.bramble.api.crypto.CryptoComponent;
+import org.briarproject.bramble.api.db.DatabaseComponent;
 import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.db.Transaction;
-import org.briarproject.bramble.api.db.TransactionManager;
 import org.briarproject.bramble.api.mailbox.MailboxAuthToken;
 import org.briarproject.bramble.api.mailbox.MailboxPairingState;
 import org.briarproject.bramble.api.mailbox.MailboxPairingTask;
 import org.briarproject.bramble.api.mailbox.MailboxProperties;
+import org.briarproject.bramble.api.mailbox.MailboxPropertyManager;
 import org.briarproject.bramble.api.mailbox.MailboxSettingsManager;
 import org.briarproject.bramble.api.mailbox.OwnMailboxConnectionStatusEvent;
 import org.briarproject.bramble.api.system.Clock;
@@ -35,16 +36,18 @@ import static org.junit.Assert.fail;
 public class MailboxPairingTaskImplTest extends BrambleMockTestCase {
 
 	private final Executor executor = new ImmediateExecutor();
-	private final TransactionManager db =
-			context.mock(TransactionManager.class);
+	private final DatabaseComponent db =
+			context.mock(DatabaseComponent.class);
 	private final CryptoComponent crypto = context.mock(CryptoComponent.class);
 	private final Clock clock = context.mock(Clock.class);
 	private final MailboxApi api = context.mock(MailboxApi.class);
 	private final MailboxSettingsManager mailboxSettingsManager =
 			context.mock(MailboxSettingsManager.class);
+	private final MailboxPropertyManager mailboxPropertyManager =
+			context.mock(MailboxPropertyManager.class);
 	private final MailboxPairingTaskFactory factory =
 			new MailboxPairingTaskFactoryImpl(executor, db, crypto, clock, api,
-					mailboxSettingsManager);
+					mailboxSettingsManager, mailboxPropertyManager);
 
 	private final String onion = getRandomString(56);
 	private final byte[] onionBytes = getRandomBytes(32);
@@ -102,6 +105,7 @@ public class MailboxPairingTaskImplTest extends BrambleMockTestCase {
 			oneOf(mailboxSettingsManager).setOwnMailboxProperties(
 					with(txn), with(matches(ownerProperties)));
 			oneOf(mailboxSettingsManager).recordSuccessfulConnection(txn, time);
+			oneOf(db).getContacts(txn);
 		}});
 
 		AtomicInteger i = new AtomicInteger(0);
