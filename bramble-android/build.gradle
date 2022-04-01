@@ -43,7 +43,7 @@ configurations {
 dependencies {
 	implementation project(path: ':bramble-core', configuration: 'default')
 	tor "org.briarproject:tor-android:$tor_version"
-	tor "org.briarproject:obfs4proxy-android:$obfs4proxy_version@zip"
+	tor "org.briarproject:obfs4proxy-android:$obfs4proxy_version"
 
 	annotationProcessor "com.google.dagger:dagger-compiler:$dagger_version"
 
@@ -70,11 +70,6 @@ clean.dependsOn cleanTorBinaries
 
 task unpackTorBinaries {
 	doLast {
-		copy {
-			from configurations.tor.collect { zipTree(it) }
-			into torBinariesDir
-			include 'geoip.zip'
-		}
 		configurations.tor.each { outer ->
 			zipTree(outer).each { inner ->
 				if (inner.name.endsWith('_arm_pie.zip')) {

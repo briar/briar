@@ -1,6 +1,7 @@
 dependencyVerification {
     verify = [
         'cglib:cglib:3.2.8:cglib-3.2.8.jar:3f64de999ecc5595dc84ca8ff0879d8a34c8623f9ef3c517a53ed59023fcb9db',
+        'com.fasterxml.jackson.core:jackson-annotations:2.13.0:jackson-annotations-2.13.0.jar:81f9724d8843e8b08f8f6c0609e7a2b030d00c34861c4ac7e2099a7235047d6f',
         'com.google.code.findbugs:annotations:3.0.1:annotations-3.0.1.jar:6b47ff0a6de0ce17cbedc3abb0828ca5bce3009d53ea47b3723ff023c4742f79',
         'com.google.code.findbugs:jsr305:3.0.2:jsr305-3.0.2.jar:766ad2a0783f2687962c8ad74ceecc38a28b9f72a2d085ee438b7813e928d0c7',
         'com.google.dagger:dagger:2.33:dagger-2.33.jar:d8798c5b8cf6b125234e33af5c6293bb9f2208ce29b57924c35b8c0be7b6bdcb',
