@@ -6,6 +6,7 @@ import org.briarproject.bramble.api.mailbox.MailboxAuthToken;
 import org.briarproject.bramble.api.mailbox.MailboxProperties;
 import org.briarproject.bramble.api.mailbox.MailboxSettingsManager;
 import org.briarproject.bramble.api.mailbox.MailboxStatus;
+import org.briarproject.bramble.api.mailbox.OwnMailboxConnectionStatusEvent;
 import org.briarproject.bramble.api.settings.Settings;
 import org.briarproject.bramble.api.settings.SettingsManager;
 import org.briarproject.bramble.test.BrambleMockTestCase;
@@ -22,6 +23,7 @@ import static org.briarproject.bramble.mailbox.MailboxSettingsManagerImpl.SETTIN
 import static org.briarproject.bramble.mailbox.MailboxSettingsManagerImpl.SETTINGS_NAMESPACE;
 import static org.briarproject.bramble.mailbox.MailboxSettingsManagerImpl.SETTINGS_UPLOADS_NAMESPACE;
 import static org.briarproject.bramble.test.TestUtils.getRandomId;
+import static org.briarproject.bramble.test.TestUtils.hasEvent;
 import static org.briarproject.bramble.util.StringUtils.getRandomString;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -144,6 +146,7 @@ public class MailboxSettingsManagerImplTest extends BrambleMockTestCase {
 		}});
 
 		manager.recordSuccessfulConnection(txn, now);
+		hasEvent(txn, OwnMailboxConnectionStatusEvent.class);
 	}
 
 	@Test
