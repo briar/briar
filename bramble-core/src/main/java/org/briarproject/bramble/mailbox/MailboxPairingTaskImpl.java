@@ -2,14 +2,17 @@ package org.briarproject.bramble.mailbox;
 
 import org.briarproject.bramble.api.Consumer;
 import org.briarproject.bramble.api.FormatException;
+import org.briarproject.bramble.api.contact.Contact;
 import org.briarproject.bramble.api.crypto.CryptoComponent;
+import org.briarproject.bramble.api.db.DatabaseComponent;
 import org.briarproject.bramble.api.db.DbException;
-import org.briarproject.bramble.api.db.TransactionManager;
 import org.briarproject.bramble.api.event.EventExecutor;
 import org.briarproject.bramble.api.mailbox.MailboxAuthToken;
 import org.briarproject.bramble.api.mailbox.MailboxPairingState;
 import org.briarproject.bramble.api.mailbox.MailboxPairingTask;
 import org.briarproject.bramble.api.mailbox.MailboxProperties;
+import org.briarproject.bramble.api.mailbox.MailboxPropertiesUpdate;
+import org.briarproject.bramble.api.mailbox.MailboxPropertyManager;
 import org.briarproject.bramble.api.mailbox.MailboxSettingsManager;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.system.Clock;
@@ -43,11 +46,12 @@ class MailboxPairingTaskImpl implements MailboxPairingTask {
 
 	private final String payload;
 	private final Executor eventExecutor;
-	private final TransactionManager db;
+	private final DatabaseComponent db;
 	private final CryptoComponent crypto;
 	private final Clock clock;
 	private final MailboxApi api;
 	private final MailboxSettingsManager mailboxSettingsManager;
+	private final MailboxPropertyManager mailboxPropertyManager;
 
 	private final Object lock = new Object();
 	@GuardedBy("lock")
@@ -59,11 +63,12 @@ class MailboxPairingTaskImpl implements MailboxPairingTask {
 	MailboxPairingTaskImpl(
 			String payload,
 			@EventExecutor Executor eventExecutor,
-			TransactionManager db,
+			DatabaseComponent db,
 			CryptoComponent crypto,
 			Clock clock,
 			MailboxApi api,
-			MailboxSettingsManager mailboxSettingsManager) {
+			MailboxSettingsManager mailboxSettingsManager,
+			MailboxPropertyManager mailboxPropertyManager) {
 		this.payload = payload;
 		this.eventExecutor = eventExecutor;
 		this.db = db;
@@ -71,6 +76,7 @@ class MailboxPairingTaskImpl implements MailboxPairingTask {
 		this.clock = clock;
 		this.api = api;
 		this.mailboxSettingsManager = mailboxSettingsManager;
+		this.mailboxPropertyManager = mailboxPropertyManager;
 		state = new MailboxPairingState.QrCodeReceived();
 	}
 
@@ -117,6 +123,16 @@ class MailboxPairingTaskImpl implements MailboxPairingTask {
 			mailboxSettingsManager
 					.setOwnMailboxProperties(txn, ownerProperties);
 			mailboxSettingsManager.recordSuccessfulConnection(txn, time);
+			// A (possibly new) mailbox is paired. Reset message retransmission
+			// timers for contacts who doesn't have their own mailbox. This way,
+			// data stranded on our old mailbox will be re-uploaded to our new.
+			for (Contact c : db.getContacts(txn)) {
+				MailboxPropertiesUpdate remoteProps = mailboxPropertyManager
+						.getRemoteProperties(txn, c.getId());
+				if (remoteProps == null) {
+					db.resetUnackedMessagesToSend(txn, c.getId());
+				}
+			}
 		});
 		setState(new MailboxPairingState.Paired());
 	}
