@@ -92,7 +92,9 @@ import static org.briarproject.bramble.api.plugin.TorConstants.PROP_ONION_V3;
 import static org.briarproject.bramble.api.plugin.TorConstants.REASON_BATTERY;
 import static org.briarproject.bramble.api.plugin.TorConstants.REASON_COUNTRY_BLOCKED;
 import static org.briarproject.bramble.api.plugin.TorConstants.REASON_MOBILE_DATA;
+import static org.briarproject.bramble.plugin.tor.CircumventionProvider.BridgeType.DEFAULT_OBFS4;
 import static org.briarproject.bramble.plugin.tor.CircumventionProvider.BridgeType.MEEK;
+import static org.briarproject.bramble.plugin.tor.CircumventionProvider.BridgeType.NON_DEFAULT_OBFS4;
 import static org.briarproject.bramble.plugin.tor.TorRendezvousCrypto.SEED_BYTES;
 import static org.briarproject.bramble.util.IoUtils.copyAndClose;
 import static org.briarproject.bramble.util.IoUtils.tryToClose;
@@ -541,20 +543,24 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 		controlConnection.setConf("DisableNetwork", enable ? "0" : "1");
 	}
 
-	private void enableBridges(boolean enable, BridgeType bridgeType)
+	private void enableBridges(boolean enable, List<BridgeType> bridgeTypes)
 			throws IOException {
 		if (enable) {
 			Collection<String> conf = new ArrayList<>();
 			conf.add("UseBridges 1");
 			File obfs4File = getObfs4ExecutableFile();
-			if (bridgeType == MEEK) {
+			if (bridgeTypes.contains(MEEK)) {
 				conf.add("ClientTransportPlugin meek_lite exec " +
 						obfs4File.getAbsolutePath());
-			} else {
+			}
+			if (bridgeTypes.contains(DEFAULT_OBFS4) ||
+					bridgeTypes.contains(NON_DEFAULT_OBFS4)) {
 				conf.add("ClientTransportPlugin obfs4 exec " +
 						obfs4File.getAbsolutePath());
 			}
-			conf.addAll(circumventionProvider.getBridges(bridgeType));
+			for (BridgeType bridgeType : bridgeTypes) {
+				conf.addAll(circumventionProvider.getBridges(bridgeType));
+			}
 			controlConnection.setConf(conf);
 		} else {
 			controlConnection.setConf("UseBridges", "0");
@@ -909,8 +915,8 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 			int reasonsDisabled = 0;
 			boolean enableNetwork = false, enableBridges = false;
 			boolean enableConnectionPadding = false;
-			BridgeType bridgeType =
-					circumventionProvider.getBestBridgeType(country);
+			List<BridgeType> bridgeTypes =
+					circumventionProvider.getSuitableBridgeTypes(country);
 
 			if (!online) {
 				LOG.info("Disabling network, device is offline");
@@ -939,10 +945,10 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 					enableNetwork = true;
 					if (network == PREF_TOR_NETWORK_WITH_BRIDGES ||
 							(automatic && bridgesWork)) {
-						if (ipv6Only) bridgeType = MEEK;
+						if (ipv6Only) bridgeTypes = singletonList(MEEK);
 						enableBridges = true;
 						if (LOG.isLoggable(INFO)) {
-							LOG.info("Using bridge type " + bridgeType);
+							LOG.info("Using bridge types " + bridgeTypes);
 						}
 					} else {
 						LOG.info("Not using bridges");
@@ -960,7 +966,7 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 
 			try {
 				if (enableNetwork) {
-					enableBridges(enableBridges, bridgeType);
+					enableBridges(enableBridges, bridgeTypes);
 					enableConnectionPadding(enableConnectionPadding);
 					useIpv6(ipv6Only);
 				}

@@ -14,10 +14,12 @@ import javax.annotation.concurrent.Immutable;
 import javax.inject.Inject;
 
 import static java.util.Arrays.asList;
+import static java.util.Collections.singletonList;
 import static org.briarproject.bramble.api.nullsafety.NullSafety.requireNonNull;
 import static org.briarproject.bramble.plugin.tor.CircumventionProvider.BridgeType.DEFAULT_OBFS4;
 import static org.briarproject.bramble.plugin.tor.CircumventionProvider.BridgeType.MEEK;
 import static org.briarproject.bramble.plugin.tor.CircumventionProvider.BridgeType.NON_DEFAULT_OBFS4;
+import static org.briarproject.bramble.plugin.tor.CircumventionProvider.BridgeType.VANILLA;
 
 @Immutable
 @NotNullByDefault
@@ -30,9 +32,9 @@ class CircumventionProviderImpl implements CircumventionProvider {
 	private static final Set<String> BRIDGE_COUNTRIES =
 			new HashSet<>(asList(BRIDGES));
 	private static final Set<String> DEFAULT_OBFS4_BRIDGE_COUNTRIES =
-			new HashSet<>(asList(DEFAULT_OBFS4_BRIDGES));
-	private static final Set<String> NON_DEFAULT_OBFS4_BRIDGE_COUNTRIES =
-			new HashSet<>(asList(NON_DEFAULT_OBFS4_BRIDGES));
+			new HashSet<>(asList(DEFAULT_BRIDGES));
+	private static final Set<String> NON_DEFAULT_BRIDGE_COUNTRIES =
+			new HashSet<>(asList(NON_DEFAULT_BRIDGES));
 	private static final Set<String> MEEK_COUNTRIES =
 			new HashSet<>(asList(MEEK_BRIDGES));
 
@@ -51,15 +53,15 @@ class CircumventionProviderImpl implements CircumventionProvider {
 	}
 
 	@Override
-	public BridgeType getBestBridgeType(String countryCode) {
+	public List<BridgeType> getSuitableBridgeTypes(String countryCode) {
 		if (DEFAULT_OBFS4_BRIDGE_COUNTRIES.contains(countryCode)) {
-			return DEFAULT_OBFS4;
-		} else if (NON_DEFAULT_OBFS4_BRIDGE_COUNTRIES.contains(countryCode)) {
-			return NON_DEFAULT_OBFS4;
+			return asList(DEFAULT_OBFS4, VANILLA);
+		} else if (NON_DEFAULT_BRIDGE_COUNTRIES.contains(countryCode)) {
+			return asList(NON_DEFAULT_OBFS4, VANILLA);
 		} else if (MEEK_COUNTRIES.contains(countryCode)) {
-			return MEEK;
+			return singletonList(MEEK);
 		} else {
-			return DEFAULT_OBFS4;
+			return asList(DEFAULT_OBFS4, VANILLA);
 		}
 	}
 
@@ -73,12 +75,10 @@ class CircumventionProviderImpl implements CircumventionProvider {
 		List<String> bridges = new ArrayList<>();
 		while (scanner.hasNextLine()) {
 			String line = scanner.nextLine();
-			boolean isDefaultObfs4 = line.startsWith("d ");
-			boolean isNonDefaultObfs4 = line.startsWith("n ");
-			boolean isMeek = line.startsWith("m ");
-			if ((type == DEFAULT_OBFS4 && isDefaultObfs4) ||
-					(type == NON_DEFAULT_OBFS4 && isNonDefaultObfs4) ||
-					(type == MEEK && isMeek)) {
+			if ((type == DEFAULT_OBFS4 && line.startsWith("d ")) ||
+					(type == NON_DEFAULT_OBFS4 && line.startsWith("n ")) ||
+					(type == VANILLA && line.startsWith("v ")) ||
+					(type == MEEK && line.startsWith("m "))) {
 				bridges.add(line.substring(2));
 			}
 		}
