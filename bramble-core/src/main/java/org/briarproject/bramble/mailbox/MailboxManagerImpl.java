@@ -1,28 +1,44 @@
 package org.briarproject.bramble.mailbox;
 
+import org.briarproject.bramble.api.Consumer;
 import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.db.Transaction;
+import org.briarproject.bramble.api.db.TransactionManager;
 import org.briarproject.bramble.api.lifecycle.IoExecutor;
 import org.briarproject.bramble.api.mailbox.MailboxManager;
 import org.briarproject.bramble.api.mailbox.MailboxPairingTask;
+import org.briarproject.bramble.api.mailbox.MailboxProperties;
 import org.briarproject.bramble.api.mailbox.MailboxSettingsManager;
 import org.briarproject.bramble.api.mailbox.MailboxStatus;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
+import org.briarproject.bramble.api.system.Clock;
 
+import java.io.IOException;
 import java.util.concurrent.Executor;
+import java.util.logging.Logger;
 
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.Immutable;
 import javax.inject.Inject;
 
+import static java.util.logging.Level.WARNING;
+import static java.util.logging.Logger.getLogger;
+import static org.briarproject.bramble.util.LogUtils.logException;
+
 @Immutable
 @NotNullByDefault
 class MailboxManagerImpl implements MailboxManager {
 
+	private static final String TAG = MailboxManagerImpl.class.getName();
+	private final static Logger LOG = getLogger(TAG);
+
 	private final Executor ioExecutor;
+	private final MailboxApi api;
+	private final TransactionManager db;
 	private final MailboxSettingsManager mailboxSettingsManager;
 	private final MailboxPairingTaskFactory pairingTaskFactory;
+	private final Clock clock;
 	private final Object lock = new Object();
 
 	@Nullable
@@ -32,11 +48,17 @@ class MailboxManagerImpl implements MailboxManager {
 	@Inject
 	MailboxManagerImpl(
 			@IoExecutor Executor ioExecutor,
+			MailboxApi api,
+			TransactionManager db,
 			MailboxSettingsManager mailboxSettingsManager,
-			MailboxPairingTaskFactory pairingTaskFactory) {
+			MailboxPairingTaskFactory pairingTaskFactory,
+			Clock clock) {
 		this.ioExecutor = ioExecutor;
+		this.api = api;
+		this.db = db;
 		this.mailboxSettingsManager = mailboxSettingsManager;
 		this.pairingTaskFactory = pairingTaskFactory;
+		this.clock = clock;
 	}
 
 	@Override
@@ -73,6 +95,32 @@ class MailboxManagerImpl implements MailboxManager {
 			}
 		});
 		return created;
+	}
+
+	@Override
+	public void checkConnection(Consumer<Boolean> connectionCallback) {
+		ioExecutor.execute(() -> {
+			boolean success;
+			try {
+				MailboxProperties props = db.transactionWithNullableResult(true,
+						mailboxSettingsManager::getOwnMailboxProperties);
+				success = api.checkStatus(props);
+			} catch (DbException | IOException | MailboxApi.ApiException e) {
+				success = false;
+				logException(LOG, WARNING, e);
+			}
+			connectionCallback.accept(success);
+			if (!success) return;
+			try {
+				// we are only recording successful connections here
+				// as those update the UI and failures might be false negatives
+				db.transaction(false, txn ->
+						mailboxSettingsManager.recordSuccessfulConnection(txn,
+								clock.currentTimeMillis()));
+			} catch (DbException e) {
+				logException(LOG, WARNING, e);
+			}
+		});
 	}
 
 }
