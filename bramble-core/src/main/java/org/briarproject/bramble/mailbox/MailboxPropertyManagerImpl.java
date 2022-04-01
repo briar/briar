@@ -5,7 +5,6 @@ import org.briarproject.bramble.api.client.ClientHelper;
 import org.briarproject.bramble.api.client.ContactGroupFactory;
 import org.briarproject.bramble.api.contact.Contact;
 import org.briarproject.bramble.api.contact.ContactId;
-import org.briarproject.bramble.api.contact.ContactManager;
 import org.briarproject.bramble.api.contact.ContactManager.ContactHook;
 import org.briarproject.bramble.api.crypto.CryptoComponent;
 import org.briarproject.bramble.api.data.BdfDictionary;
@@ -56,7 +55,6 @@ class MailboxPropertyManagerImpl implements MailboxPropertyManager,
 	private final ContactGroupFactory contactGroupFactory;
 	private final Clock clock;
 	private final MailboxSettingsManager mailboxSettingsManager;
-	private final ContactManager contactManager;
 	private final CryptoComponent crypto;
 	private final Group localGroup;
 
@@ -66,7 +64,6 @@ class MailboxPropertyManagerImpl implements MailboxPropertyManager,
 			MetadataParser metadataParser,
 			ContactGroupFactory contactGroupFactory, Clock clock,
 			MailboxSettingsManager mailboxSettingsManager,
-			ContactManager contactManager,
 			CryptoComponent crypto) {
 		this.db = db;
 		this.clientHelper = clientHelper;
@@ -75,7 +72,6 @@ class MailboxPropertyManagerImpl implements MailboxPropertyManager,
 		this.contactGroupFactory = contactGroupFactory;
 		this.clock = clock;
 		this.mailboxSettingsManager = mailboxSettingsManager;
-		this.contactManager = contactManager;
 		this.crypto = crypto;
 		localGroup = contactGroupFactory.createLocalGroup(CLIENT_ID,
 				MAJOR_VERSION);
@@ -120,14 +116,14 @@ class MailboxPropertyManagerImpl implements MailboxPropertyManager,
 	@Override
 	public void mailboxPaired(Transaction txn, String ownOnion)
 			throws DbException {
-		for (Contact c : contactManager.getContacts()) {
+		for (Contact c : db.getContacts(txn)) {
 			createAndSendProperties(txn, c, ownOnion);
 		}
 	}
 
 	@Override
 	public void mailboxUnpaired(Transaction txn) throws DbException {
-		for (Contact c : contactManager.getContacts()) {
+		for (Contact c : db.getContacts(txn)) {
 			sendEmptyProperties(txn, c);
 		}
 	}
