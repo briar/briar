@@ -1,5 +1,6 @@
 package org.briarproject.bramble.mailbox;
 
+import org.briarproject.bramble.api.contact.Contact;
 import org.briarproject.bramble.api.crypto.CryptoComponent;
 import org.briarproject.bramble.api.db.DatabaseComponent;
 import org.briarproject.bramble.api.db.DbException;
@@ -22,9 +23,11 @@ import org.junit.Test;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
+import java.util.Collections;
 import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import static org.briarproject.bramble.test.TestUtils.getContact;
 import static org.briarproject.bramble.test.TestUtils.getRandomBytes;
 import static org.briarproject.bramble.test.TestUtils.getRandomId;
 import static org.briarproject.bramble.test.TestUtils.hasEvent;
@@ -99,6 +102,7 @@ public class MailboxPairingTaskImplTest extends BrambleMockTestCase {
 			oneOf(clock).currentTimeMillis();
 			will(returnValue(time));
 		}});
+		Contact contact1 = getContact();
 		Transaction txn = new Transaction(null, false);
 		context.checking(new DbExpectations() {{
 			oneOf(db).transaction(with(false), withDbRunnable(txn));
@@ -106,6 +110,11 @@ public class MailboxPairingTaskImplTest extends BrambleMockTestCase {
 					with(txn), with(matches(ownerProperties)));
 			oneOf(mailboxSettingsManager).recordSuccessfulConnection(txn, time);
 			oneOf(db).getContacts(txn);
+			will(returnValue(Collections.singletonList(contact1)));
+			oneOf(mailboxPropertyManager).getRemoteProperties(txn,
+					contact1.getId());
+			will(returnValue(null));
+			oneOf(db).resetUnackedMessagesToSend(txn, contact1.getId());
 		}});
 
 		AtomicInteger i = new AtomicInteger(0);
