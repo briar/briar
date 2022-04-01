@@ -1,6 +1,7 @@
 package org.briarproject.briar.android.conversation;
 
 import android.app.Application;
+import android.content.ContentResolver;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.view.View;
@@ -249,8 +250,8 @@ public class ImageViewModel extends DbViewModel implements EventListener {
 	}
 
 	private OutputStream getOutputStream(Uri uri) throws IOException {
-		OutputStream os =
-				getApplication().getContentResolver().openOutputStream(uri);
+		ContentResolver contentResolver = getApplication().getContentResolver();
+		OutputStream os = contentResolver.openOutputStream(uri, "wt");
 		if (os == null) throw new IOException();
 		return os;
 	}
