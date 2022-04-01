@@ -8,6 +8,7 @@ import org.briarproject.bramble.api.mailbox.MailboxAuthToken;
 import org.briarproject.bramble.api.mailbox.MailboxProperties;
 import org.briarproject.bramble.api.mailbox.MailboxSettingsManager;
 import org.briarproject.bramble.api.mailbox.MailboxStatus;
+import org.briarproject.bramble.api.mailbox.OwnMailboxConnectionStatusEvent;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.settings.Settings;
 import org.briarproject.bramble.api.settings.SettingsManager;
@@ -92,6 +93,8 @@ class MailboxSettingsManagerImpl implements MailboxSettingsManager {
 		s.putLong(SETTINGS_KEY_LAST_SUCCESS, now);
 		s.putInt(SETTINGS_KEY_ATTEMPTS, 0);
 		settingsManager.mergeSettings(txn, s, SETTINGS_NAMESPACE);
+		MailboxStatus status = new MailboxStatus(now, now, 0);
+		txn.attach(new OwnMailboxConnectionStatusEvent(status));
 	}
 
 	@Override
@@ -99,11 +102,14 @@ class MailboxSettingsManagerImpl implements MailboxSettingsManager {
 			throws DbException {
 		Settings oldSettings =
 				settingsManager.getSettings(txn, SETTINGS_NAMESPACE);
-		int attempts = oldSettings.getInt(SETTINGS_KEY_ATTEMPTS, 0);
+		int newAttempts = 1 + oldSettings.getInt(SETTINGS_KEY_ATTEMPTS, 0);
+		long lastSuccess = oldSettings.getLong(SETTINGS_KEY_LAST_SUCCESS, 0);
 		Settings newSettings = new Settings();
 		newSettings.putLong(SETTINGS_KEY_LAST_ATTEMPT, now);
-		newSettings.putInt(SETTINGS_KEY_ATTEMPTS, attempts + 1);
+		newSettings.putInt(SETTINGS_KEY_ATTEMPTS, newAttempts);
 		settingsManager.mergeSettings(txn, newSettings, SETTINGS_NAMESPACE);
+		MailboxStatus status = new MailboxStatus(now, lastSuccess, newAttempts);
+		txn.attach(new OwnMailboxConnectionStatusEvent(status));
 	}
 
 	@Override
