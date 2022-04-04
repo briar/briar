@@ -281,6 +281,7 @@ public class MailboxPropertyManagerImplTest extends BrambleMockTestCase {
 	public void testDoesNotDeleteAnythingWhenFirstUpdateIsDelivered()
 			throws Exception {
 		Transaction txn = new Transaction(null, false);
+		Contact contact = getContact();
 		GroupId contactGroupId = new GroupId(getRandomId());
 		Message message = getMessage(contactGroupId);
 		BdfList body = BdfList.of(1, propsDict);
@@ -304,11 +305,13 @@ public class MailboxPropertyManagerImplTest extends BrambleMockTestCase {
 					contactGroupId);
 			will(returnValue(messageMetadata));
 			oneOf(clientHelper).getContactId(txn, contactGroupId);
+			will(returnValue(contact.getId()));
 			oneOf(clientHelper).getMessageAsList(txn, message.getId());
 			will(returnValue(body));
 			oneOf(clientHelper).parseAndValidateMailboxPropertiesUpdate(
 					propsDict);
 			will(returnValue(props));
+			oneOf(db).resetUnackedMessagesToSend(txn, contact.getId());
 		}});
 
 		MailboxPropertyManagerImpl t = createInstance();
@@ -321,6 +324,7 @@ public class MailboxPropertyManagerImplTest extends BrambleMockTestCase {
 	public void testDeletesOlderUpdateWhenUpdateIsDelivered()
 			throws Exception {
 		Transaction txn = new Transaction(null, false);
+		Contact contact = getContact();
 		GroupId contactGroupId = new GroupId(getRandomId());
 		Message message = getMessage(contactGroupId);
 		BdfList body = BdfList.of(1, propsDict);
@@ -352,11 +356,13 @@ public class MailboxPropertyManagerImplTest extends BrambleMockTestCase {
 			oneOf(db).deleteMessage(txn, updateId);
 			oneOf(db).deleteMessageMetadata(txn, updateId);
 			oneOf(clientHelper).getContactId(txn, contactGroupId);
+			will(returnValue(contact.getId()));
 			oneOf(clientHelper).getMessageAsList(txn, message.getId());
 			will(returnValue(body));
 			oneOf(clientHelper).parseAndValidateMailboxPropertiesUpdate(
 					propsDict);
 			will(returnValue(props));
+			oneOf(db).resetUnackedMessagesToSend(txn, contact.getId());
 		}});
 
 		MailboxPropertyManagerImpl t = createInstance();

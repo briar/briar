@@ -158,6 +158,12 @@ class MailboxPropertyManagerImpl implements MailboxPropertyManager,
 			BdfList body = clientHelper.getMessageAsList(txn, m.getId());
 			MailboxPropertiesUpdate p = parseProperties(body);
 			txn.attach(new RemoteMailboxPropertiesUpdateEvent(c, p));
+			// Reset message retransmission timers for the contact. Avoiding
+			// messages getting stranded:
+			// - on our mailbox, if they now have a mailbox but didn't before
+			// - on the contact's old mailbox, if they removed their mailbox
+			// - on the contact's old mailbox, if they replaced their mailbox
+			db.resetUnackedMessagesToSend(txn, c);
 		} catch (FormatException e) {
 			throw new InvalidMessageException(e);
 		}
