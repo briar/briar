@@ -123,5 +123,6 @@ pre_release_tests:
   extends: .optional_tests
   script:
     - OPTIONAL_TESTS=org.briarproject.bramble.plugin.tor.BridgeTest ./gradlew --info bramble-java:test --tests BridgeTest
+  timeout: 3h
   only:
     - tags
