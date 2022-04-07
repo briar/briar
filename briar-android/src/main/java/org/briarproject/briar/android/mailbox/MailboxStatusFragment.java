@@ -20,6 +20,7 @@ import org.briarproject.briar.R;
 import javax.inject.Inject;
 
 import androidx.annotation.Nullable;
+import androidx.annotation.UiThread;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 import androidx.lifecycle.ViewModelProvider;
@@ -43,6 +44,8 @@ public class MailboxStatusFragment extends Fragment {
 
 	private MailboxViewModel viewModel;
 	private final Handler handler = new Handler(Looper.getMainLooper());
+	@Nullable // UiThread
+	private Runnable refresher = null;
 
 	private TextView statusInfoView;
 
@@ -97,13 +100,15 @@ public class MailboxStatusFragment extends Fragment {
 	public void onStart() {
 		super.onStart();
 		requireActivity().setTitle(R.string.mailbox_status_title);
-		handler.postDelayed(this::refreshLastConnection, MIN_DATE_RESOLUTION);
+		refresher = this::refreshLastConnection;
+		handler.postDelayed(refresher, MIN_DATE_RESOLUTION);
 	}
 
 	@Override
 	public void onStop() {
 		super.onStop();
-		handler.removeCallbacks(this::refreshLastConnection);
+		handler.removeCallbacks(refresher);
+		refresher = null;
 	}
 
 	private void onMailboxStateChanged(MailboxStatus status) {
@@ -120,10 +125,13 @@ public class MailboxStatusFragment extends Fragment {
 		statusInfoView.setText(statusInfoText);
 	}
 
+	@UiThread
 	private void refreshLastConnection() {
 		MailboxStatus status = viewModel.getStatus().getValue();
 		if (status != null) onMailboxStateChanged(status);
-		handler.postDelayed(this::refreshLastConnection, MIN_DATE_RESOLUTION);
+		if (refresher != null) {
+			handler.postDelayed(refresher, MIN_DATE_RESOLUTION);
+		}
 	}
 
 }
