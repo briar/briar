@@ -1,6 +1,5 @@
 package org.briarproject.bramble.mailbox;
 
-import org.briarproject.bramble.api.Consumer;
 import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.db.Transaction;
 import org.briarproject.bramble.api.db.TransactionManager;
@@ -98,19 +97,17 @@ class MailboxManagerImpl implements MailboxManager {
 	}
 
 	@Override
-	public void checkConnection(Consumer<Boolean> connectionCallback) {
-		ioExecutor.execute(() -> {
-			boolean success;
-			try {
-				MailboxProperties props = db.transactionWithNullableResult(true,
-						mailboxSettingsManager::getOwnMailboxProperties);
-				success = api.checkStatus(props);
-			} catch (DbException | IOException | MailboxApi.ApiException e) {
-				success = false;
-				logException(LOG, WARNING, e);
-			}
-			connectionCallback.accept(success);
-			if (!success) return;
+	public boolean checkConnection() {
+		boolean success;
+		try {
+			MailboxProperties props = db.transactionWithNullableResult(true,
+					mailboxSettingsManager::getOwnMailboxProperties);
+			success = api.checkStatus(props);
+		} catch (DbException | IOException | MailboxApi.ApiException e) {
+			success = false;
+			logException(LOG, WARNING, e);
+		}
+		if (success) {
 			try {
 				// we are only recording successful connections here
 				// as those update the UI and failures might be false negatives
@@ -120,7 +117,8 @@ class MailboxManagerImpl implements MailboxManager {
 			} catch (DbException e) {
 				logException(LOG, WARNING, e);
 			}
-		});
+		}
+		return success;
 	}
 
 }

@@ -52,6 +52,7 @@ class MailboxViewModel extends DbViewModel
 			getLogger(MailboxViewModel.class.getName());
 
 	private final EventBus eventBus;
+	private final Executor ioExecutor;
 	private final QrCodeDecoder qrCodeDecoder;
 	private final PluginManager pluginManager;
 	private final MailboxManager mailboxManager;
@@ -76,6 +77,7 @@ class MailboxViewModel extends DbViewModel
 			MailboxManager mailboxManager) {
 		super(app, dbExecutor, lifecycleManager, db, androidExecutor);
 		this.eventBus = eventBus;
+		this.ioExecutor = ioExecutor;
 		this.pluginManager = pluginManager;
 		this.mailboxManager = mailboxManager;
 		qrCodeDecoder = new QrCodeDecoder(androidExecutor, ioExecutor, this);
@@ -183,18 +185,14 @@ class MailboxViewModel extends DbViewModel
 
 	LiveData<Boolean> checkConnection() {
 		MutableLiveData<Boolean> liveData = new MutableLiveData<>();
-		mailboxManager.checkConnection(result ->
-				onConnectionCheckFinished(liveData, result));
+		ioExecutor.execute(() -> {
+			boolean success = mailboxManager.checkConnection();
+			if (LOG.isLoggable(INFO)) {
+				LOG.info("Got result from connection check: " + success);
+			}
+			liveData.postValue(success);
+		});
 		return liveData;
-	}
-
-	@IoExecutor
-	private void onConnectionCheckFinished(MutableLiveData<Boolean> liveData,
-			boolean success) {
-		if (LOG.isLoggable(INFO)) {
-			LOG.info("Got result from connection check: " + success);
-		}
-		liveData.postValue(success);
 	}
 
 	@UiThread
