@@ -641,12 +641,12 @@ abstract class JdbcDatabase implements Database<Connection> {
 		}
 	}
 
-	void closeAllConnections() throws SQLException {
+	void closeAllConnections() {
 		boolean interrupted = false;
 		connectionsLock.lock();
 		try {
 			closed = true;
-			for (Connection c : connections) c.close();
+			for (Connection c : connections) tryToClose(c, LOG, WARNING);
 			openConnections -= connections.size();
 			connections.clear();
 			while (openConnections > 0) {
@@ -656,7 +656,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 					LOG.warning("Interrupted while closing connections");
 					interrupted = true;
 				}
-				for (Connection c : connections) c.close();
+				for (Connection c : connections) tryToClose(c, LOG, WARNING);
 				openConnections -= connections.size();
 				connections.clear();
 			}
