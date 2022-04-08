@@ -106,7 +106,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 	/**
 	 * The maximum number of idle connections to keep open.
 	 */
-	private static final int MAX_CONNECTION_POOL_SIZE = 10;
+	private static final int MAX_CONNECTION_POOL_SIZE = 1;
 
 	// Time period offsets for incoming transport keys
 	private static final int OFFSET_PREV = -1;
