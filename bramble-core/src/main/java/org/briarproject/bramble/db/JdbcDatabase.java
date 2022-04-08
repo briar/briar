@@ -582,7 +582,13 @@ abstract class JdbcDatabase implements Database<Connection> {
 				txn.setAutoCommit(false);
 				connectionsLock.lock();
 				try {
+					// The DB may have been closed since the check above
+					if (closed) {
+						tryToClose(txn, LOG, WARNING);
+						throw new DbClosedException();
+					}
 					openConnections++;
+					connectionsChanged.signalAll();
 				} finally {
 					connectionsLock.unlock();
 				}
