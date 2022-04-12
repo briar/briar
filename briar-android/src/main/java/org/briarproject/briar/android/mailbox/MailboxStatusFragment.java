@@ -1,6 +1,7 @@
 package org.briarproject.briar.android.mailbox;
 
 import android.content.Context;
+import android.content.res.ColorStateList;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -8,6 +9,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -19,6 +21,8 @@ import org.briarproject.briar.R;
 
 import javax.inject.Inject;
 
+import androidx.annotation.ColorRes;
+import androidx.annotation.DrawableRes;
 import androidx.annotation.Nullable;
 import androidx.annotation.UiThread;
 import androidx.fragment.app.Fragment;
@@ -27,6 +31,8 @@ import androidx.lifecycle.ViewModelProvider;
 
 import static android.view.View.INVISIBLE;
 import static android.view.View.VISIBLE;
+import static androidx.core.content.ContextCompat.getColor;
+import static androidx.core.widget.ImageViewCompat.setImageTintList;
 import static androidx.transition.TransitionManager.beginDelayedTransition;
 import static org.briarproject.briar.android.AppModule.getAndroidComponent;
 import static org.briarproject.briar.android.util.UiUtils.MIN_DATE_RESOLUTION;
@@ -38,6 +44,7 @@ import static org.briarproject.briar.android.util.UiUtils.observeOnce;
 public class MailboxStatusFragment extends Fragment {
 
 	static final String TAG = MailboxStatusFragment.class.getName();
+	private static final int NUM_FAILURES = 4;
 
 	@Inject
 	ViewModelProvider.Factory viewModelFactory;
@@ -47,6 +54,8 @@ public class MailboxStatusFragment extends Fragment {
 	@Nullable // UiThread
 	private Runnable refresher = null;
 
+	private ImageView imageView;
+	private TextView statusTitleView;
 	private TextView statusInfoView;
 
 	@Override
@@ -84,6 +93,8 @@ public class MailboxStatusFragment extends Fragment {
 			});
 		});
 
+		imageView = v.findViewById(R.id.imageView);
+		statusTitleView = v.findViewById(R.id.statusTitleView);
 		statusInfoView = v.findViewById(R.id.statusInfoView);
 		viewModel.getStatus()
 				.observe(getViewLifecycleOwner(), this::onMailboxStateChanged);
@@ -112,6 +123,27 @@ public class MailboxStatusFragment extends Fragment {
 	}
 
 	private void onMailboxStateChanged(MailboxStatus status) {
+		@ColorRes int tintRes;
+		@DrawableRes int iconRes;
+		String title;
+		if (status.getAttemptsSinceSuccess() == 0) {
+			iconRes = R.drawable.ic_check_circle_outline;
+			title = getString(R.string.mailbox_status_connected_title);
+			tintRes = R.color.briar_brand_green;
+		} else if (status.getAttemptsSinceSuccess() < NUM_FAILURES) {
+			iconRes = R.drawable.ic_help_outline_white;
+			title = getString(R.string.mailbox_status_problem_title);
+			tintRes = R.color.briar_orange_500;
+		} else {
+			tintRes = R.color.briar_red_500;
+			title = getString(R.string.mailbox_status_failure_title);
+			iconRes = R.drawable.alerts_and_states_error;
+		}
+		imageView.setImageResource(iconRes);
+		int color = getColor(requireContext(), tintRes);
+		setImageTintList(imageView, ColorStateList.valueOf(color));
+		statusTitleView.setText(title);
+
 		long lastSuccess = status.getTimeOfLastSuccess();
 		String lastConnectionText;
 		if (lastSuccess < 0) {
@@ -120,8 +152,9 @@ public class MailboxStatusFragment extends Fragment {
 		} else {
 			lastConnectionText = formatDate(requireContext(), lastSuccess);
 		}
-		String statusInfoText = getString(
-				R.string.mailbox_status_connected_info, lastConnectionText);
+		String statusInfoText =
+				getString(R.string.mailbox_status_connected_info,
+						lastConnectionText);
 		statusInfoView.setText(statusInfoText);
 	}
 

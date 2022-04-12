@@ -198,6 +198,13 @@ class MailboxViewModel extends DbViewModel
 				LOG.info("Got result from connection check: " + success);
 			}
 			liveData.postValue(success);
+			if (!success) { // force failure screen
+				MailboxStatus lastStatus = status.getValue();
+				long lastSuccess = lastStatus == null ?
+						-1 : lastStatus.getTimeOfLastSuccess();
+				long now = System.currentTimeMillis();
+				status.postValue(new MailboxStatus(now, lastSuccess, 999));
+			}
 		});
 		return liveData;
 	}
