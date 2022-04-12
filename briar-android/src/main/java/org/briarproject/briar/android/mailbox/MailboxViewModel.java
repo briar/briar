@@ -105,7 +105,8 @@ class MailboxViewModel extends DbViewModel
 				if (isPaired) {
 					MailboxStatus mailboxStatus =
 							mailboxManager.getMailboxStatus(txn);
-					pairingState.postEvent(new MailboxState.IsPaired());
+					boolean isOnline = isTorActive();
+					pairingState.postEvent(new MailboxState.IsPaired(isOnline));
 					status.postValue(mailboxStatus);
 				} else {
 					pairingState.postEvent(new NotSetup());
@@ -181,6 +182,12 @@ class MailboxViewModel extends DbViewModel
 	@UiThread
 	QrCodeDecoder getQrCodeDecoder() {
 		return qrCodeDecoder;
+	}
+
+	@UiThread
+	void checkIfOnlineWhenPaired() {
+		boolean isOnline = isTorActive();
+		pairingState.setEvent(new MailboxState.IsPaired(isOnline));
 	}
 
 	LiveData<Boolean> checkConnection() {

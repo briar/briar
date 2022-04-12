@@ -67,7 +67,7 @@ public class MailboxActivity extends BriarActivity {
 			} else if (state instanceof MailboxState.CameraError) {
 				onCameraError();
 			} else if (state instanceof MailboxState.IsPaired) {
-				onIsPaired();
+				onIsPaired(((MailboxState.IsPaired) state).isOnline);
 			} else {
 				throw new AssertionError("Unknown state: " + state);
 			}
@@ -181,10 +181,13 @@ public class MailboxActivity extends BriarActivity {
 		showFragment(getSupportFragmentManager(), f, ErrorFragment.TAG);
 	}
 
-	private void onIsPaired() {
+	private void onIsPaired(boolean isOnline) {
 		progressBar.setVisibility(INVISIBLE);
-		showFragment(getSupportFragmentManager(), new MailboxStatusFragment(),
-				MailboxStatusFragment.TAG, false);
+		Fragment f = isOnline ?
+				new MailboxStatusFragment() : new OfflineStatusFragment();
+		String tag = isOnline ?
+				MailboxStatusFragment.TAG : OfflineStatusFragment.TAG;
+		showFragment(getSupportFragmentManager(), f, tag, false);
 	}
 
 }

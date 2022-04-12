@@ -28,6 +28,11 @@ class MailboxState {
 	}
 
 	static class IsPaired extends MailboxState {
+		final boolean isOnline;
+
+		IsPaired(boolean isOnline) {
+			this.isOnline = isOnline;
+		}
 	}
 
 }
