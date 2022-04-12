@@ -21,6 +21,8 @@ import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.plugin.Plugin;
 import org.briarproject.bramble.api.plugin.PluginManager;
 import org.briarproject.bramble.api.plugin.TorConstants;
+import org.briarproject.bramble.api.plugin.TransportId;
+import org.briarproject.bramble.api.plugin.event.TransportInactiveEvent;
 import org.briarproject.bramble.api.system.AndroidExecutor;
 import org.briarproject.briar.android.mailbox.MailboxState.NotSetup;
 import org.briarproject.briar.android.qrcode.QrCodeDecoder;
@@ -125,6 +127,15 @@ class MailboxViewModel extends DbViewModel
 			MailboxStatus status =
 					((OwnMailboxConnectionStatusEvent) e).getStatus();
 			this.status.setValue(status);
+		} else if (e instanceof TransportInactiveEvent) {
+			TransportId id = ((TransportInactiveEvent) e).getTransportId();
+			if (!TorConstants.ID.equals(id)) return;
+			MailboxState lastState = pairingState.getLastValue();
+			if (lastState instanceof MailboxState.IsPaired) {
+				pairingState.setEvent(new MailboxState.IsPaired(false));
+			} else if (lastState != null) {
+				pairingState.setEvent(new MailboxState.OfflineWhenPairing());
+			}
 		}
 	}
 
