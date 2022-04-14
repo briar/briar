@@ -33,10 +33,9 @@ public class OfflineFragment extends Fragment {
 	@Inject
 	ViewModelProvider.Factory viewModelFactory;
 
-	private MailboxViewModel viewModel;
+	protected MailboxViewModel viewModel;
 
 	private NestedScrollView scrollView;
-	protected Button buttonView;
 
 	@Override
 	public void onAttach(Context context) {
@@ -61,8 +60,8 @@ public class OfflineFragment extends Fragment {
 			Intent i = new Intent(requireContext(), TransportsActivity.class);
 			startActivity(i);
 		});
-		buttonView = v.findViewById(R.id.button);
-		buttonView.setOnClickListener(view -> viewModel.showDownloadFragment());
+		Button buttonView = v.findViewById(R.id.button);
+		buttonView.setOnClickListener(view -> onTryAgainClicked());
 
 		return v;
 	}
@@ -72,6 +71,10 @@ public class OfflineFragment extends Fragment {
 		super.onStart();
 		// Scroll down in case the screen is small, so the button is visible
 		scrollView.post(() -> scrollView.fullScroll(FOCUS_DOWN));
+	}
+
+	protected void onTryAgainClicked() {
+		viewModel.showDownloadFragment();
 	}
 
 }

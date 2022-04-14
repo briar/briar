@@ -10,13 +10,14 @@
 		android:id="@+id/imageView"
 		android:layout_width="32dp"
 		android:layout_height="32dp"
-		android:layout_marginStart="16dp"
-		android:layout_marginLeft="16dp"
-		app:layout_constraintBottom_toBottomOf="parent"
-		app:layout_constraintEnd_toStartOf="@+id/statusTitleView"
+		android:layout_marginHorizontal="16dp"
+		app:layout_constraintBottom_toTopOf="@+id/statusTitleView"
+		app:layout_constraintEnd_toEndOf="parent"
+		app:layout_constraintHorizontal_bias="0.5"
 		app:layout_constraintHorizontal_chainStyle="packed"
 		app:layout_constraintStart_toStartOf="parent"
 		app:layout_constraintTop_toTopOf="parent"
+		app:layout_constraintVertical_bias="0.25"
 		app:layout_constraintVertical_chainStyle="packed"
 		app:srcCompat="@drawable/ic_check_circle_outline"
 		app:tint="@color/briar_brand_green"
@@ -26,14 +27,37 @@
 		android:id="@+id/statusTitleView"
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
-		android:layout_marginHorizontal="16dp"
+		android:layout_margin="16dp"
 		android:text="@string/mailbox_status_connected_title"
 		android:textAppearance="@style/TextAppearance.MaterialComponents.Headline6"
 		app:layout_constrainedWidth="true"
-		app:layout_constraintBottom_toBottomOf="@+id/imageView"
+		app:layout_constraintBottom_toTopOf="@+id/checkButton"
 		app:layout_constraintEnd_toEndOf="parent"
-		app:layout_constraintStart_toEndOf="@+id/imageView"
-		app:layout_constraintTop_toTopOf="@+id/imageView" />
+		app:layout_constraintStart_toStartOf="parent"
+		app:layout_constraintTop_toBottomOf="@+id/imageView" />
+
+	<Button
+		android:id="@+id/checkButton"
+		style="@style/BriarButtonFlat.Neutral"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:layout_marginHorizontal="16dp"
+		android:text="@string/mailbox_status_check_button"
+		app:layout_constraintBottom_toTopOf="@+id/statusInfoView"
+		app:layout_constraintEnd_toEndOf="parent"
+		app:layout_constraintStart_toStartOf="parent"
+		app:layout_constraintTop_toBottomOf="@+id/statusTitleView" />
+
+	<ProgressBar
+		android:id="@+id/checkProgress"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:visibility="invisible"
+		app:layout_constraintBottom_toBottomOf="@+id/checkButton"
+		app:layout_constraintEnd_toEndOf="@+id/checkButton"
+		app:layout_constraintStart_toStartOf="@+id/checkButton"
+		app:layout_constraintTop_toTopOf="@+id/checkButton"
+		tools:visibility="visible" />
 
 	<TextView
 		android:id="@+id/statusInfoView"
@@ -41,11 +65,21 @@
 		android:layout_height="wrap_content"
 		android:layout_margin="16dp"
 		android:gravity="center"
-		app:layout_constraintBottom_toBottomOf="parent"
+		app:layout_constraintBottom_toTopOf="@+id/unlinkButton"
 		app:layout_constraintEnd_toEndOf="parent"
 		app:layout_constraintStart_toStartOf="parent"
-		app:layout_constraintTop_toBottomOf="@+id/statusTitleView"
-		app:layout_constraintVertical_bias="0.0"
+		app:layout_constraintTop_toBottomOf="@+id/checkButton"
 		tools:text="@string/mailbox_status_connected_info" />
+
+	<Button
+		android:id="@+id/unlinkButton"
+		style="@style/BriarButtonFlat.Negative"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:layout_margin="16dp"
+		android:text="@string/mailbox_status_unlink_button"
+		app:layout_constraintBottom_toBottomOf="parent"
+		app:layout_constraintEnd_toEndOf="parent"
+		app:layout_constraintStart_toStartOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

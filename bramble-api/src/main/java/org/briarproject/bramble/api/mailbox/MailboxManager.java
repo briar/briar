@@ -32,4 +32,13 @@ public interface MailboxManager {
 	 */
 	MailboxPairingTask startPairingTask(String qrCodePayload);
 
+	/**
+	 * Can be used by the UI to test the mailbox connection.
+	 *
+	 * @return true (success) or false (error).
+	 * A {@link OwnMailboxConnectionStatusEvent} might be broadcast with a new
+	 * {@link MailboxStatus}.
+	 */
+	boolean checkConnection();
+
 }

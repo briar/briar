@@ -7,16 +7,22 @@ import com.google.zxing.Result;
 import org.briarproject.bramble.api.Consumer;
 import org.briarproject.bramble.api.db.DatabaseExecutor;
 import org.briarproject.bramble.api.db.TransactionManager;
+import org.briarproject.bramble.api.event.Event;
+import org.briarproject.bramble.api.event.EventBus;
+import org.briarproject.bramble.api.event.EventListener;
 import org.briarproject.bramble.api.lifecycle.IoExecutor;
 import org.briarproject.bramble.api.lifecycle.LifecycleManager;
 import org.briarproject.bramble.api.mailbox.MailboxManager;
 import org.briarproject.bramble.api.mailbox.MailboxPairingState;
 import org.briarproject.bramble.api.mailbox.MailboxPairingTask;
 import org.briarproject.bramble.api.mailbox.MailboxStatus;
+import org.briarproject.bramble.api.mailbox.OwnMailboxConnectionStatusEvent;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.plugin.Plugin;
 import org.briarproject.bramble.api.plugin.PluginManager;
 import org.briarproject.bramble.api.plugin.TorConstants;
+import org.briarproject.bramble.api.plugin.TransportId;
+import org.briarproject.bramble.api.plugin.event.TransportInactiveEvent;
 import org.briarproject.bramble.api.system.AndroidExecutor;
 import org.briarproject.briar.android.mailbox.MailboxState.NotSetup;
 import org.briarproject.briar.android.qrcode.QrCodeDecoder;
@@ -32,6 +38,8 @@ import javax.inject.Inject;
 import androidx.annotation.AnyThread;
 import androidx.annotation.Nullable;
 import androidx.annotation.UiThread;
+import androidx.lifecycle.LiveData;
+import androidx.lifecycle.MutableLiveData;
 
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Logger.getLogger;
@@ -39,17 +47,22 @@ import static org.briarproject.bramble.api.plugin.Plugin.State.ACTIVE;
 
 @NotNullByDefault
 class MailboxViewModel extends DbViewModel
-		implements QrCodeDecoder.ResultCallback, Consumer<MailboxPairingState> {
+		implements QrCodeDecoder.ResultCallback, Consumer<MailboxPairingState>,
+		EventListener {
 
 	private static final Logger LOG =
 			getLogger(MailboxViewModel.class.getName());
 
+	private final EventBus eventBus;
+	private final Executor ioExecutor;
 	private final QrCodeDecoder qrCodeDecoder;
 	private final PluginManager pluginManager;
 	private final MailboxManager mailboxManager;
 
-	private final MutableLiveEvent<MailboxState> state =
+	private final MutableLiveEvent<MailboxState> pairingState =
 			new MutableLiveEvent<>();
+	private final MutableLiveData<MailboxStatus> status =
+			new MutableLiveData<>();
 	@Nullable
 	private MailboxPairingTask pairingTask = null;
 
@@ -60,19 +73,24 @@ class MailboxViewModel extends DbViewModel
 			LifecycleManager lifecycleManager,
 			TransactionManager db,
 			AndroidExecutor androidExecutor,
+			EventBus eventBus,
 			@IoExecutor Executor ioExecutor,
 			PluginManager pluginManager,
 			MailboxManager mailboxManager) {
 		super(app, dbExecutor, lifecycleManager, db, androidExecutor);
+		this.eventBus = eventBus;
+		this.ioExecutor = ioExecutor;
 		this.pluginManager = pluginManager;
 		this.mailboxManager = mailboxManager;
 		qrCodeDecoder = new QrCodeDecoder(androidExecutor, ioExecutor, this);
+		eventBus.addListener(this);
 		checkIfSetup();
 	}
 
 	@Override
 	protected void onCleared() {
 		super.onCleared();
+		eventBus.removeListener(this);
 		MailboxPairingTask task = pairingTask;
 		if (task != null) {
 			task.removeObserver(this);
@@ -89,9 +107,11 @@ class MailboxViewModel extends DbViewModel
 				if (isPaired) {
 					MailboxStatus mailboxStatus =
 							mailboxManager.getMailboxStatus(txn);
-					state.postEvent(new MailboxState.IsPaired(mailboxStatus));
+					boolean isOnline = isTorActive();
+					pairingState.postEvent(new MailboxState.IsPaired(isOnline));
+					status.postValue(mailboxStatus);
 				} else {
-					state.postEvent(new NotSetup());
+					pairingState.postEvent(new NotSetup());
 				}
 			}, this::handleException);
 		} else {
@@ -101,17 +121,36 @@ class MailboxViewModel extends DbViewModel
 	}
 
 	@UiThread
+	@Override
+	public void eventOccurred(Event e) {
+		if (e instanceof OwnMailboxConnectionStatusEvent) {
+			MailboxStatus status =
+					((OwnMailboxConnectionStatusEvent) e).getStatus();
+			this.status.setValue(status);
+		} else if (e instanceof TransportInactiveEvent) {
+			TransportId id = ((TransportInactiveEvent) e).getTransportId();
+			if (!TorConstants.ID.equals(id)) return;
+			MailboxState lastState = pairingState.getLastValue();
+			if (lastState instanceof MailboxState.IsPaired) {
+				pairingState.setEvent(new MailboxState.IsPaired(false));
+			} else if (lastState != null) {
+				pairingState.setEvent(new MailboxState.OfflineWhenPairing());
+			}
+		}
+	}
+
+	@UiThread
 	void onScanButtonClicked() {
 		if (isTorActive()) {
-			state.setEvent(new MailboxState.ScanningQrCode());
+			pairingState.setEvent(new MailboxState.ScanningQrCode());
 		} else {
-			state.setEvent(new MailboxState.OfflineWhenPairing());
+			pairingState.setEvent(new MailboxState.OfflineWhenPairing());
 		}
 	}
 
 	@UiThread
 	void onCameraError() {
-		state.setEvent(new MailboxState.CameraError());
+		pairingState.setEvent(new MailboxState.CameraError());
 	}
 
 	@Override
@@ -127,7 +166,7 @@ class MailboxViewModel extends DbViewModel
 			pairingTask = mailboxManager.startPairingTask(qrCodePayload);
 			pairingTask.addObserver(this);
 		} else {
-			state.postEvent(new MailboxState.OfflineWhenPairing());
+			pairingState.postEvent(new MailboxState.OfflineWhenPairing());
 		}
 	}
 
@@ -138,7 +177,7 @@ class MailboxViewModel extends DbViewModel
 			LOG.info("New pairing state: " +
 					mailboxPairingState.getClass().getSimpleName());
 		}
-		state.setEvent(new MailboxState.Pairing(mailboxPairingState));
+		pairingState.setEvent(new MailboxState.Pairing(mailboxPairingState));
 	}
 
 	private boolean isTorActive() {
@@ -148,7 +187,7 @@ class MailboxViewModel extends DbViewModel
 
 	@UiThread
 	void showDownloadFragment() {
-		state.setEvent(new MailboxState.ShowDownload());
+		pairingState.setEvent(new MailboxState.ShowDownload());
 	}
 
 	@UiThread
@@ -157,7 +196,37 @@ class MailboxViewModel extends DbViewModel
 	}
 
 	@UiThread
-	LiveEvent<MailboxState> getState() {
-		return state;
+	void checkIfOnlineWhenPaired() {
+		boolean isOnline = isTorActive();
+		pairingState.setEvent(new MailboxState.IsPaired(isOnline));
+	}
+
+	LiveData<Boolean> checkConnection() {
+		MutableLiveData<Boolean> liveData = new MutableLiveData<>();
+		ioExecutor.execute(() -> {
+			boolean success = mailboxManager.checkConnection();
+			if (LOG.isLoggable(INFO)) {
+				LOG.info("Got result from connection check: " + success);
+			}
+			liveData.postValue(success);
+			if (!success) { // force failure screen
+				MailboxStatus lastStatus = status.getValue();
+				long lastSuccess = lastStatus == null ?
+						-1 : lastStatus.getTimeOfLastSuccess();
+				long now = System.currentTimeMillis();
+				status.postValue(new MailboxStatus(now, lastSuccess, 999));
+			}
+		});
+		return liveData;
+	}
+
+	@UiThread
+	LiveEvent<MailboxState> getPairingState() {
+		return pairingState;
+	}
+
+	@UiThread
+	LiveData<MailboxStatus> getStatus() {
+		return status;
 	}
 }
