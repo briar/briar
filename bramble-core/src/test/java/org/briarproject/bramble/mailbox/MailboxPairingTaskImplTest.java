@@ -23,6 +23,7 @@ import org.junit.Test;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -61,10 +62,10 @@ public class MailboxPairingTaskImplTest extends BrambleMockTestCase {
 			new MailboxAuthToken(getRandomId());
 	private final String validPayload = getValidPayload();
 	private final long time = System.currentTimeMillis();
-	private final MailboxProperties setupProperties =
-			new MailboxProperties(onionAddress, setupToken, true);
-	private final MailboxProperties ownerProperties =
-			new MailboxProperties(onionAddress, ownerToken, true);
+	private final MailboxProperties setupProperties = new MailboxProperties(
+			onionAddress, setupToken, true, new ArrayList<>());
+	private final MailboxProperties ownerProperties = new MailboxProperties(
+			onionAddress, ownerToken, true, new ArrayList<>());
 
 	@Test
 	public void testInitialQrCodeReceivedState() {
@@ -98,7 +99,7 @@ public class MailboxPairingTaskImplTest extends BrambleMockTestCase {
 			oneOf(crypto).encodeOnion(onionBytes);
 			will(returnValue(onion));
 			oneOf(api).setup(with(matches(setupProperties)));
-			will(returnValue(ownerToken));
+			will(returnValue(ownerProperties));
 			oneOf(clock).currentTimeMillis();
 			will(returnValue(time));
 		}});
@@ -174,7 +175,7 @@ public class MailboxPairingTaskImplTest extends BrambleMockTestCase {
 			oneOf(crypto).encodeOnion(onionBytes);
 			will(returnValue(onion));
 			oneOf(api).setup(with(matches(setupProperties)));
-			will(returnValue(ownerToken));
+			will(returnValue(ownerProperties));
 			oneOf(clock).currentTimeMillis();
 			will(returnValue(time));
 		}});
@@ -206,7 +207,8 @@ public class MailboxPairingTaskImplTest extends BrambleMockTestCase {
 		return new PredicateMatcher<>(MailboxProperties.class, p1 ->
 				p1.getAuthToken().equals(p2.getAuthToken()) &&
 						p1.getBaseUrl().equals(p2.getBaseUrl()) &&
-						p1.isOwner() == p2.isOwner());
+						p1.isOwner() == p2.isOwner() &&
+						p1.getServerSupports().equals(p2.getServerSupports()));
 	}
 
 }

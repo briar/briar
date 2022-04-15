@@ -2,6 +2,8 @@ package org.briarproject.bramble.api.mailbox;
 
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 
+import java.util.List;
+
 import javax.annotation.concurrent.Immutable;
 
 @Immutable
@@ -11,12 +13,14 @@ public class MailboxProperties {
 	private final String baseUrl;
 	private final MailboxAuthToken authToken;
 	private final boolean owner;
+	private final List<MailboxVersion> serverSupports;
 
 	public MailboxProperties(String baseUrl, MailboxAuthToken authToken,
-			boolean owner) {
+			boolean owner, List<MailboxVersion> serverSupports) {
 		this.baseUrl = baseUrl;
 		this.authToken = authToken;
 		this.owner = owner;
+		this.serverSupports = serverSupports;
 	}
 
 	public String getBaseUrl() {
@@ -34,5 +38,9 @@ public class MailboxProperties {
 
 	public boolean isOwner() {
 		return owner;
+	}
+
+	public List<MailboxVersion> getServerSupports() {
+		return serverSupports;
 	}
 }

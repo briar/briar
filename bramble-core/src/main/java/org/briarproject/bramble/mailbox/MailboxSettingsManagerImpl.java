@@ -8,11 +8,13 @@ import org.briarproject.bramble.api.mailbox.MailboxAuthToken;
 import org.briarproject.bramble.api.mailbox.MailboxProperties;
 import org.briarproject.bramble.api.mailbox.MailboxSettingsManager;
 import org.briarproject.bramble.api.mailbox.MailboxStatus;
+import org.briarproject.bramble.api.mailbox.MailboxVersion;
 import org.briarproject.bramble.api.mailbox.OwnMailboxConnectionStatusEvent;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.settings.Settings;
 import org.briarproject.bramble.api.settings.SettingsManager;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
@@ -30,6 +32,7 @@ class MailboxSettingsManagerImpl implements MailboxSettingsManager {
 	static final String SETTINGS_NAMESPACE = "mailbox";
 	static final String SETTINGS_KEY_ONION = "onion";
 	static final String SETTINGS_KEY_TOKEN = "token";
+	static final String SETTINGS_KEY_SERVER_SUPPORTS = "serverSupports";
 	static final String SETTINGS_KEY_LAST_ATTEMPT = "lastAttempt";
 	static final String SETTINGS_KEY_LAST_SUCCESS = "lastSuccess";
 	static final String SETTINGS_KEY_ATTEMPTS = "attempts";
@@ -55,9 +58,19 @@ class MailboxSettingsManagerImpl implements MailboxSettingsManager {
 		String onion = s.get(SETTINGS_KEY_ONION);
 		String token = s.get(SETTINGS_KEY_TOKEN);
 		if (isNullOrEmpty(onion) || isNullOrEmpty(token)) return null;
+		int[] ints = s.getIntArray(SETTINGS_KEY_SERVER_SUPPORTS);
+		// We know we were paired, so we must have proper serverSupports
+		// TODO is throwing sensible? But it's done like that below on "parse error"
+		if (ints == null || ints.length == 0 || ints.length % 2 != 0) {
+			throw new DbException();
+		}
+		List<MailboxVersion> serverSupports = new ArrayList<>();
+		for (int i = 0; i < ints.length - 1; i += 2) {
+			serverSupports.add(new MailboxVersion(ints[i], ints[i + 1]));
+		}
 		try {
 			MailboxAuthToken tokenId = MailboxAuthToken.fromString(token);
-			return new MailboxProperties(onion, tokenId, true);
+			return new MailboxProperties(onion, tokenId, true, serverSupports);
 		} catch (InvalidMailboxIdException e) {
 			throw new DbException(e);
 		}
@@ -69,6 +82,14 @@ class MailboxSettingsManagerImpl implements MailboxSettingsManager {
 		Settings s = new Settings();
 		s.put(SETTINGS_KEY_ONION, p.getBaseUrl());
 		s.put(SETTINGS_KEY_TOKEN, p.getAuthToken().toString());
+		List<MailboxVersion> serverSupports = p.getServerSupports();
+		int[] ints = new int[serverSupports.size() * 2];
+		int i = 0;
+		for (MailboxVersion v : serverSupports) {
+			ints[i++] = v.getMajor();
+			ints[i++] = v.getMinor();
+		}
+		s.putIntArray(SETTINGS_KEY_SERVER_SUPPORTS, ints);
 		settingsManager.mergeSettings(txn, s, SETTINGS_NAMESPACE);
 		for (MailboxHook hook : hooks) {
 			hook.mailboxPaired(txn, p.getOnion());

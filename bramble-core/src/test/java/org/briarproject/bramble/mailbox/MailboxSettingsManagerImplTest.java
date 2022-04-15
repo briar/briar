@@ -6,6 +6,7 @@ import org.briarproject.bramble.api.mailbox.MailboxAuthToken;
 import org.briarproject.bramble.api.mailbox.MailboxProperties;
 import org.briarproject.bramble.api.mailbox.MailboxSettingsManager;
 import org.briarproject.bramble.api.mailbox.MailboxStatus;
+import org.briarproject.bramble.api.mailbox.MailboxVersion;
 import org.briarproject.bramble.api.mailbox.OwnMailboxConnectionStatusEvent;
 import org.briarproject.bramble.api.settings.Settings;
 import org.briarproject.bramble.api.settings.SettingsManager;
@@ -13,12 +14,15 @@ import org.briarproject.bramble.test.BrambleMockTestCase;
 import org.jmock.Expectations;
 import org.junit.Test;
 
+import java.util.List;
 import java.util.Random;
 
+import static java.util.Arrays.asList;
 import static org.briarproject.bramble.mailbox.MailboxSettingsManagerImpl.SETTINGS_KEY_ATTEMPTS;
 import static org.briarproject.bramble.mailbox.MailboxSettingsManagerImpl.SETTINGS_KEY_LAST_ATTEMPT;
 import static org.briarproject.bramble.mailbox.MailboxSettingsManagerImpl.SETTINGS_KEY_LAST_SUCCESS;
 import static org.briarproject.bramble.mailbox.MailboxSettingsManagerImpl.SETTINGS_KEY_ONION;
+import static org.briarproject.bramble.mailbox.MailboxSettingsManagerImpl.SETTINGS_KEY_SERVER_SUPPORTS;
 import static org.briarproject.bramble.mailbox.MailboxSettingsManagerImpl.SETTINGS_KEY_TOKEN;
 import static org.briarproject.bramble.mailbox.MailboxSettingsManagerImpl.SETTINGS_NAMESPACE;
 import static org.briarproject.bramble.mailbox.MailboxSettingsManagerImpl.SETTINGS_UPLOADS_NAMESPACE;
@@ -40,6 +44,9 @@ public class MailboxSettingsManagerImplTest extends BrambleMockTestCase {
 	private final Random random = new Random();
 	private final String onion = getRandomString(64);
 	private final MailboxAuthToken token = new MailboxAuthToken(getRandomId());
+	private final List<MailboxVersion> serverSupports =
+			asList(new MailboxVersion(1, 0), new MailboxVersion(1, 1));
+	private final int[] serverSupportsInts = {1, 0, 1, 1};
 	private final ContactId contactId1 = new ContactId(random.nextInt());
 	private final ContactId contactId2 = new ContactId(random.nextInt());
 	private final ContactId contactId3 = new ContactId(random.nextInt());
@@ -67,6 +74,7 @@ public class MailboxSettingsManagerImplTest extends BrambleMockTestCase {
 		Settings settings = new Settings();
 		settings.put(SETTINGS_KEY_ONION, onion);
 		settings.put(SETTINGS_KEY_TOKEN, token.toString());
+		settings.putIntArray(SETTINGS_KEY_SERVER_SUPPORTS, serverSupportsInts);
 
 		context.checking(new Expectations() {{
 			oneOf(settingsManager).getSettings(txn, SETTINGS_NAMESPACE);
@@ -77,6 +85,7 @@ public class MailboxSettingsManagerImplTest extends BrambleMockTestCase {
 		assertNotNull(properties);
 		assertEquals(onion, properties.getBaseUrl());
 		assertEquals(token, properties.getAuthToken());
+		assertEquals(serverSupports, properties.getServerSupports());
 		assertTrue(properties.isOwner());
 	}
 
@@ -86,8 +95,10 @@ public class MailboxSettingsManagerImplTest extends BrambleMockTestCase {
 		Settings expectedSettings = new Settings();
 		expectedSettings.put(SETTINGS_KEY_ONION, onion);
 		expectedSettings.put(SETTINGS_KEY_TOKEN, token.toString());
-		MailboxProperties properties =
-				new MailboxProperties(onion, token, true);
+		expectedSettings.putIntArray(SETTINGS_KEY_SERVER_SUPPORTS,
+				serverSupportsInts);
+		MailboxProperties properties = new MailboxProperties(onion, token, true,
+				serverSupports);
 
 		context.checking(new Expectations() {{
 			oneOf(settingsManager).mergeSettings(txn, expectedSettings,
