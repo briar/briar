@@ -21,6 +21,7 @@ import org.junit.rules.TemporaryFolder;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -89,17 +90,16 @@ public class MailboxIntegrationTest extends BrambleTestCase {
 		assumeTrue(isOptionalTestEnabled(MailboxIntegrationTest.class));
 
 		if (ownerProperties != null) return;
-		MailboxProperties setupProperties =
-				new MailboxProperties(URL_BASE, SETUP_TOKEN, true);
-		MailboxAuthToken ownerToken = api.setup(setupProperties);
-		ownerProperties = new MailboxProperties(URL_BASE, ownerToken, true);
+		MailboxProperties setupProperties = new MailboxProperties(
+				URL_BASE, SETUP_TOKEN, true, new ArrayList<>());
+		ownerProperties = api.setup(setupProperties);
 	}
 
 	@AfterClass
 	// we can't test wiping as a regular test as it stops the mailbox
 	public static void wipe() throws IOException, ApiException {
 		if (!isOptionalTestEnabled(MailboxIntegrationTest.class)) return;
-		
+
 		api.wipeMailbox(ownerProperties);
 
 		// check doesn't work anymore
@@ -107,8 +107,8 @@ public class MailboxIntegrationTest extends BrambleTestCase {
 				api.checkStatus(ownerProperties));
 
 		// new setup doesn't work as mailbox is stopping
-		MailboxProperties setupProperties =
-				new MailboxProperties(URL_BASE, SETUP_TOKEN, true);
+		MailboxProperties setupProperties = new MailboxProperties(
+				URL_BASE, SETUP_TOKEN, true, new ArrayList<>());
 		assertThrows(ApiException.class, () -> api.setup(setupProperties));
 	}
 
@@ -151,7 +151,8 @@ public class MailboxIntegrationTest extends BrambleTestCase {
 		ContactId contactId = new ContactId(1);
 		MailboxContact contact = getMailboxContact(contactId);
 		MailboxProperties contactProperties = new MailboxProperties(
-				ownerProperties.getBaseUrl(), contact.token, false);
+				ownerProperties.getBaseUrl(), contact.token, false,
+				new ArrayList<>());
 		api.addContact(ownerProperties, contact);
 
 		// upload a file for our contact
