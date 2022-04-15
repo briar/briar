@@ -107,7 +107,7 @@ import static org.briarproject.bramble.util.StringUtils.isNullOrEmpty;
 @ParametersNotNullByDefault
 abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 
-	private static final Logger LOG = getLogger(TorPlugin.class.getName());
+	protected static final Logger LOG = getLogger(TorPlugin.class.getName());
 
 	private static final String[] EVENTS = {
 			"CIRC",
@@ -124,7 +124,8 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 	private static final int COOKIE_POLLING_INTERVAL_MS = 200;
 	private static final Pattern ONION_V3 = Pattern.compile("[a-z2-7]{56}");
 
-	private final Executor ioExecutor, wakefulIoExecutor;
+	protected final Executor ioExecutor;
+	private final Executor wakefulIoExecutor;
 	private final Executor connectionStatusExecutor;
 	private final NetworkManager networkManager;
 	private final LocationUtils locationUtils;
@@ -260,29 +261,9 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 		} catch (SecurityException | IOException e) {
 			throw new PluginException(e);
 		}
-		// Log the process's standard output until it detaches
-		if (LOG.isLoggable(INFO)) {
-			Scanner stdout = new Scanner(torProcess.getInputStream());
-			Scanner stderr = new Scanner(torProcess.getErrorStream());
-			while (stdout.hasNextLine() || stderr.hasNextLine()) {
-				if (stdout.hasNextLine()) {
-					LOG.info(stdout.nextLine());
-				}
-				if (stderr.hasNextLine()) {
-					LOG.info(stderr.nextLine());
-				}
-			}
-			stdout.close();
-			stderr.close();
-		}
 		try {
-			// Wait for the process to detach or exit
-			int exit = torProcess.waitFor();
-			if (exit != 0) {
-				if (LOG.isLoggable(WARNING))
-					LOG.warning("Tor exited with value " + exit);
-				throw new PluginException();
-			}
+			// Wait for the Tor process to start
+			waitForTorToStart(torProcess);
 			// Wait for the auth cookie file to be created/updated
 			long start = clock.currentTimeMillis();
 			while (cookieFile.length() < 32) {
@@ -398,7 +379,7 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 		return zin;
 	}
 
-	private static void append(StringBuilder strb, String name, int value) {
+	private static void append(StringBuilder strb, String name, Object value) {
 		strb.append(name);
 		strb.append(" ");
 		strb.append(value);
@@ -406,9 +387,11 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 	}
 
 	private InputStream getConfigInputStream() {
+		File dataDirectory = new File(torDirectory, ".tor");
 		StringBuilder strb = new StringBuilder();
 		append(strb, "ControlPort", torControlPort);
 		append(strb, "CookieAuthentication", 1);
+		append(strb, "DataDirectory", dataDirectory.getAbsolutePath());
 		append(strb, "DisableNetwork", 1);
 		append(strb, "RunAsDaemon", 1);
 		append(strb, "SafeSocks", 1);
@@ -442,6 +425,23 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 			return b;
 		} finally {
 			tryToClose(in, LOG, WARNING);
+		}
+	}
+
+	protected void waitForTorToStart(Process torProcess)
+			throws InterruptedException, PluginException {
+		Scanner stdout = new Scanner(torProcess.getInputStream());
+		// Log the first line of stdout (contains Tor and library versions)
+		if (stdout.hasNextLine()) LOG.info(stdout.nextLine());
+		// Read the process's stdout (and redirected stderr) until it detaches
+		while (stdout.hasNextLine()) stdout.nextLine();
+		stdout.close();
+		// Wait for the process to detach or exit
+		int exit = torProcess.waitFor();
+		if (exit != 0) {
+			if (LOG.isLoggable(WARNING))
+				LOG.warning("Tor exited with value " + exit);
+			throw new PluginException();
 		}
 	}
 
