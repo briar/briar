@@ -6,8 +6,6 @@ import org.briarproject.bramble.api.event.EventBus;
 import org.briarproject.bramble.api.lifecycle.IoExecutor;
 import org.briarproject.bramble.api.network.NetworkManager;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
-import org.briarproject.bramble.api.plugin.Backoff;
-import org.briarproject.bramble.api.plugin.BackoffFactory;
 import org.briarproject.bramble.api.plugin.PluginCallback;
 import org.briarproject.bramble.api.plugin.TorControlPort;
 import org.briarproject.bramble.api.plugin.TorDirectory;
@@ -39,7 +37,6 @@ public class WindowsTorPluginFactory extends TorPluginFactory {
 			LocationUtils locationUtils,
 			EventBus eventBus,
 			SocketFactory torSocketFactory,
-			BackoffFactory backoffFactory,
 			ResourceProvider resourceProvider,
 			CircumventionProvider circumventionProvider,
 			BatteryManager batteryManager,
@@ -49,7 +46,7 @@ public class WindowsTorPluginFactory extends TorPluginFactory {
 			@TorSocksPort int torSocksPort,
 			@TorControlPort int torControlPort) {
 		super(ioExecutor, wakefulIoExecutor, networkManager, locationUtils,
-				eventBus, torSocketFactory, backoffFactory, resourceProvider,
+				eventBus, torSocketFactory, resourceProvider,
 				circumventionProvider, batteryManager, clock, crypto,
 				torDirectory, torSocksPort, torControlPort);
 	}
@@ -67,13 +64,13 @@ public class WindowsTorPluginFactory extends TorPluginFactory {
 	}
 
 	@Override
-	TorPlugin createPluginInstance(Backoff backoff,
-			TorRendezvousCrypto torRendezvousCrypto, PluginCallback callback,
+	TorPlugin createPluginInstance(TorRendezvousCrypto torRendezvousCrypto,
+			PluginCallback callback,
 			String architecture) {
 		return new WindowsTorPlugin(ioExecutor, wakefulIoExecutor,
 				networkManager, locationUtils, torSocketFactory, clock,
 				resourceProvider, circumventionProvider, batteryManager,
-				backoff, torRendezvousCrypto, callback, architecture,
+				torRendezvousCrypto, callback, architecture,
 				MAX_LATENCY, MAX_IDLE_TIME, torDirectory, torSocksPort,
 				torControlPort);
 	}

@@ -8,7 +8,6 @@ import org.briarproject.bramble.api.event.EventBus;
 import org.briarproject.bramble.api.lifecycle.IoExecutor;
 import org.briarproject.bramble.api.network.NetworkManager;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
-import org.briarproject.bramble.api.plugin.BackoffFactory;
 import org.briarproject.bramble.api.plugin.duplex.DuplexPlugin;
 import org.briarproject.bramble.api.system.Clock;
 import org.briarproject.bramble.api.system.LocationUtils;
@@ -110,8 +109,6 @@ public class BridgeTest extends BrambleTestCase {
 	@Inject
 	EventBus eventBus;
 	@Inject
-	BackoffFactory backoffFactory;
-	@Inject
 	Clock clock;
 	@Inject
 	CryptoComponent crypto;
@@ -166,9 +163,8 @@ public class BridgeTest extends BrambleTestCase {
 		};
 		factory = new UnixTorPluginFactory(ioExecutor, wakefulIoExecutor,
 				networkManager, locationUtils, eventBus, torSocketFactory,
-				backoffFactory, resourceProvider, bridgeProvider,
-				batteryManager, clock, crypto, torDir,
-				SOCKS_PORT, CONTROL_PORT);
+				resourceProvider, bridgeProvider, batteryManager, clock,
+				crypto, torDir, SOCKS_PORT, CONTROL_PORT);
 	}
 
 	@After

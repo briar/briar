@@ -8,8 +8,6 @@ import org.briarproject.bramble.api.event.EventBus;
 import org.briarproject.bramble.api.lifecycle.IoExecutor;
 import org.briarproject.bramble.api.network.NetworkManager;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
-import org.briarproject.bramble.api.plugin.Backoff;
-import org.briarproject.bramble.api.plugin.BackoffFactory;
 import org.briarproject.bramble.api.plugin.PluginCallback;
 import org.briarproject.bramble.api.plugin.TorControlPort;
 import org.briarproject.bramble.api.plugin.TorDirectory;
@@ -44,7 +42,6 @@ public class AndroidTorPluginFactory extends TorPluginFactory {
 			LocationUtils locationUtils,
 			EventBus eventBus,
 			SocketFactory torSocketFactory,
-			BackoffFactory backoffFactory,
 			ResourceProvider resourceProvider,
 			CircumventionProvider circumventionProvider,
 			BatteryManager batteryManager,
@@ -56,7 +53,7 @@ public class AndroidTorPluginFactory extends TorPluginFactory {
 			Application app,
 			AndroidWakeLockManager wakeLockManager) {
 		super(ioExecutor, wakefulIoExecutor, networkManager, locationUtils,
-				eventBus, torSocketFactory, backoffFactory, resourceProvider,
+				eventBus, torSocketFactory, resourceProvider,
 				circumventionProvider, batteryManager, clock, crypto,
 				torDirectory, torSocksPort, torControlPort);
 		this.app = app;
@@ -76,14 +73,14 @@ public class AndroidTorPluginFactory extends TorPluginFactory {
 	}
 
 	@Override
-	TorPlugin createPluginInstance(Backoff backoff,
-			TorRendezvousCrypto torRendezvousCrypto, PluginCallback callback,
+	TorPlugin createPluginInstance(TorRendezvousCrypto torRendezvousCrypto,
+			PluginCallback callback,
 			String architecture) {
 		return new AndroidTorPlugin(ioExecutor,
 				wakefulIoExecutor, app, networkManager, locationUtils,
 				torSocketFactory, clock, resourceProvider,
 				circumventionProvider, batteryManager, wakeLockManager,
-				backoff, torRendezvousCrypto, callback, architecture,
+				torRendezvousCrypto, callback, architecture,
 				MAX_LATENCY, MAX_IDLE_TIME, torDirectory, torSocksPort,
 				torControlPort);
 	}

@@ -18,7 +18,6 @@ import org.briarproject.bramble.api.network.event.NetworkStatusEvent;
 import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
-import org.briarproject.bramble.api.plugin.Backoff;
 import org.briarproject.bramble.api.plugin.ConnectionHandler;
 import org.briarproject.bramble.api.plugin.PluginCallback;
 import org.briarproject.bramble.api.plugin.PluginException;
@@ -132,7 +131,6 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 	private final SocketFactory torSocketFactory;
 	private final Clock clock;
 	private final BatteryManager batteryManager;
-	private final Backoff backoff;
 	private final TorRendezvousCrypto torRendezvousCrypto;
 	private final PluginCallback callback;
 	private final String architecture;
@@ -166,7 +164,6 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 			ResourceProvider resourceProvider,
 			CircumventionProvider circumventionProvider,
 			BatteryManager batteryManager,
-			Backoff backoff,
 			TorRendezvousCrypto torRendezvousCrypto,
 			PluginCallback callback,
 			String architecture,
@@ -184,7 +181,6 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 		this.resourceProvider = resourceProvider;
 		this.circumventionProvider = circumventionProvider;
 		this.batteryManager = batteryManager;
-		this.backoff = backoff;
 		this.torRendezvousCrypto = torRendezvousCrypto;
 		this.callback = callback;
 		this.architecture = architecture;
@@ -474,7 +470,6 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 			callback.mergeSettings(s);
 			// Create a hidden service if necessary
 			ioExecutor.execute(() -> publishHiddenService(localPort));
-			backoff.reset();
 			// Accept incoming hidden service connections from Tor
 			acceptContactConnections(ss);
 		});
@@ -541,7 +536,6 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 				return;
 			}
 			LOG.info("Connection received");
-			backoff.reset();
 			callback.handleConnection(new TorTransportConnection(this, s));
 		}
 	}
@@ -618,14 +612,13 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 
 	@Override
 	public int getPollingInterval() {
-		return backoff.getPollingInterval();
+		return 120_000; // FIXME
 	}
 
 	@Override
 	public void poll(Collection<Pair<TransportProperties, ConnectionHandler>>
 			properties) {
 		if (getState() != ACTIVE) return;
-		backoff.increment();
 		for (Pair<TransportProperties, ConnectionHandler> p : properties) {
 			connect(p.getFirst(), p.getSecond());
 		}
@@ -634,10 +627,7 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 	private void connect(TransportProperties p, ConnectionHandler h) {
 		wakefulIoExecutor.execute(() -> {
 			DuplexTransportConnection d = createConnection(p);
-			if (d != null) {
-				backoff.reset();
-				h.handleConnection(d);
-			}
+			if (d != null) h.handleConnection(d);
 		});
 	}
 
@@ -760,7 +750,6 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 		// DisableNetwork, set our circuitBuilt flag if not already set
 		if (status.equals("BUILT") && !state.getAndSetCircuitBuilt(true)) {
 			LOG.info("Circuit built");
-			backoff.reset();
 		}
 	}
 
@@ -813,12 +802,8 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 		if (msg.startsWith("BOOTSTRAP PROGRESS=100")) {
 			LOG.info("Bootstrapped");
 			state.setBootstrapped();
-			backoff.reset();
 		} else if (msg.startsWith("CIRCUIT_ESTABLISHED")) {
-			if (!state.getAndSetCircuitBuilt(true)) {
-				LOG.info("Circuit built");
-				backoff.reset();
-			}
+			if (!state.getAndSetCircuitBuilt(true)) LOG.info("Circuit built");
 		} else if (msg.startsWith("CIRCUIT_NOT_ESTABLISHED")) {
 			if (state.getAndSetCircuitBuilt(false)) {
 				LOG.info("Circuit not built");

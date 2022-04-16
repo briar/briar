@@ -5,7 +5,6 @@ import com.sun.jna.platform.win32.Kernel32;
 import org.briarproject.bramble.api.battery.BatteryManager;
 import org.briarproject.bramble.api.network.NetworkManager;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
-import org.briarproject.bramble.api.plugin.Backoff;
 import org.briarproject.bramble.api.plugin.PluginCallback;
 import org.briarproject.bramble.api.plugin.PluginException;
 import org.briarproject.bramble.api.system.Clock;
@@ -34,7 +33,6 @@ class WindowsTorPlugin extends JavaTorPlugin {
 			ResourceProvider resourceProvider,
 			CircumventionProvider circumventionProvider,
 			BatteryManager batteryManager,
-			Backoff backoff,
 			TorRendezvousCrypto torRendezvousCrypto,
 			PluginCallback callback,
 			String architecture,
@@ -45,7 +43,7 @@ class WindowsTorPlugin extends JavaTorPlugin {
 			int torControlPort) {
 		super(ioExecutor, wakefulIoExecutor, networkManager, locationUtils,
 				torSocketFactory, clock, resourceProvider,
-				circumventionProvider, batteryManager, backoff,
+				circumventionProvider, batteryManager,
 				torRendezvousCrypto, callback, architecture,
 				maxLatency, maxIdleTime, torDirectory, torSocksPort,
 				torControlPort);

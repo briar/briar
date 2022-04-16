@@ -6,8 +6,6 @@ import org.briarproject.bramble.api.event.EventBus;
 import org.briarproject.bramble.api.lifecycle.IoExecutor;
 import org.briarproject.bramble.api.network.NetworkManager;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
-import org.briarproject.bramble.api.plugin.Backoff;
-import org.briarproject.bramble.api.plugin.BackoffFactory;
 import org.briarproject.bramble.api.plugin.PluginCallback;
 import org.briarproject.bramble.api.plugin.TorConstants;
 import org.briarproject.bramble.api.plugin.TorControlPort;
@@ -41,16 +39,12 @@ abstract class TorPluginFactory implements DuplexPluginFactory {
 
 	protected static final int MAX_LATENCY = 30 * 1000; // 30 seconds
 	protected static final int MAX_IDLE_TIME = 30 * 1000; // 30 seconds
-	private static final int MIN_POLLING_INTERVAL = 60 * 1000; // 1 minute
-	private static final int MAX_POLLING_INTERVAL = 10 * 60 * 1000; // 10 mins
-	private static final double BACKOFF_BASE = 1.2;
 
 	protected final Executor ioExecutor, wakefulIoExecutor;
 	protected final NetworkManager networkManager;
 	protected final LocationUtils locationUtils;
 	protected final EventBus eventBus;
 	protected final SocketFactory torSocketFactory;
-	protected final BackoffFactory backoffFactory;
 	protected final ResourceProvider resourceProvider;
 	protected final CircumventionProvider circumventionProvider;
 	protected final BatteryManager batteryManager;
@@ -66,7 +60,6 @@ abstract class TorPluginFactory implements DuplexPluginFactory {
 			LocationUtils locationUtils,
 			EventBus eventBus,
 			SocketFactory torSocketFactory,
-			BackoffFactory backoffFactory,
 			ResourceProvider resourceProvider,
 			CircumventionProvider circumventionProvider,
 			BatteryManager batteryManager,
@@ -81,7 +74,6 @@ abstract class TorPluginFactory implements DuplexPluginFactory {
 		this.locationUtils = locationUtils;
 		this.eventBus = eventBus;
 		this.torSocketFactory = torSocketFactory;
-		this.backoffFactory = backoffFactory;
 		this.resourceProvider = resourceProvider;
 		this.circumventionProvider = circumventionProvider;
 		this.batteryManager = batteryManager;
@@ -95,7 +87,7 @@ abstract class TorPluginFactory implements DuplexPluginFactory {
 	@Nullable
 	abstract String getArchitectureForTorBinary();
 
-	abstract TorPlugin createPluginInstance(Backoff backoff,
+	abstract TorPlugin createPluginInstance(
 			TorRendezvousCrypto torRendezvousCrypto, PluginCallback callback,
 			String architecture);
 
@@ -122,11 +114,9 @@ abstract class TorPluginFactory implements DuplexPluginFactory {
 			LOG.info("The selected architecture for Tor is " + architecture);
 		}
 
-		Backoff backoff = backoffFactory.createBackoff(MIN_POLLING_INTERVAL,
-				MAX_POLLING_INTERVAL, BACKOFF_BASE);
 		TorRendezvousCrypto torRendezvousCrypto =
 				new TorRendezvousCryptoImpl(crypto);
-		TorPlugin plugin = createPluginInstance(backoff, torRendezvousCrypto,
+		TorPlugin plugin = createPluginInstance(torRendezvousCrypto,
 				callback, architecture);
 		eventBus.addListener(plugin);
 		return plugin;
