@@ -26,15 +26,18 @@ class SocksSocket extends Socket {
 			"Address type not supported"
 	};
 
+	@SuppressWarnings("MismatchedReadAndWriteOfArray")
 	private static final byte[] UNSPECIFIED_ADDRESS = new byte[4];
 
 	private final SocketAddress proxy;
-	private final int connectToProxyTimeout, extraSocketTimeout;
+	private final int connectToProxyTimeout;
+	private final int extraConnectTimeout, extraSocketTimeout;
 
 	SocksSocket(SocketAddress proxy, int connectToProxyTimeout,
-			int extraSocketTimeout) {
+			int extraConnectTimeout, int extraSocketTimeout) {
 		this.proxy = proxy;
 		this.connectToProxyTimeout = connectToProxyTimeout;
+		this.extraConnectTimeout = extraConnectTimeout;
 		this.extraSocketTimeout = extraSocketTimeout;
 	}
 
@@ -66,7 +69,7 @@ class SocksSocket extends Socket {
 
 		// Use the supplied timeout temporarily, plus any configured extra
 		int oldTimeout = getSoTimeout();
-		setSoTimeout(timeout + extraSocketTimeout);
+		setSoTimeout(timeout + extraConnectTimeout);
 
 		// Connect to the endpoint via the proxy
 		sendConnectRequest(out, host, port);

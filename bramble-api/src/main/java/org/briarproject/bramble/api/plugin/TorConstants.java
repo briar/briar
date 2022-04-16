@@ -1,5 +1,7 @@
 package org.briarproject.bramble.api.plugin;
 
+import static java.util.concurrent.TimeUnit.SECONDS;
+
 public interface TorConstants {
 
 	TransportId ID = new TransportId("org.briarproject.bramble.tor");
@@ -10,8 +12,9 @@ public interface TorConstants {
 	int DEFAULT_SOCKS_PORT = 59050;
 	int DEFAULT_CONTROL_PORT = 59051;
 
-	int CONNECT_TO_PROXY_TIMEOUT = 5000; // Milliseconds
-	int EXTRA_SOCKET_TIMEOUT = 30000; // Milliseconds
+	int CONNECT_TO_PROXY_TIMEOUT = (int) SECONDS.toMillis(5);
+	int EXTRA_CONNECT_TIMEOUT = (int) SECONDS.toMillis(120);
+	int EXTRA_SOCKET_TIMEOUT = (int) SECONDS.toMillis(30);
 
 	// Local settings (not shared with contacts)
 	String PREF_TOR_NETWORK = "network2";
