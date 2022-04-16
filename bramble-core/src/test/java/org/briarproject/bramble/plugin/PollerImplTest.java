@@ -13,7 +13,7 @@ import org.briarproject.bramble.api.plugin.TransportId;
 import org.briarproject.bramble.api.plugin.duplex.DuplexPlugin;
 import org.briarproject.bramble.api.plugin.duplex.DuplexTransportConnection;
 import org.briarproject.bramble.api.plugin.event.ConnectionClosedEvent;
-import org.briarproject.bramble.api.plugin.event.ConnectionOpenedEvent;
+import org.briarproject.bramble.api.plugin.event.PollingIntervalDecreasedEvent;
 import org.briarproject.bramble.api.plugin.event.TransportActiveEvent;
 import org.briarproject.bramble.api.plugin.event.TransportInactiveEvent;
 import org.briarproject.bramble.api.plugin.simplex.SimplexPlugin;
@@ -35,7 +35,6 @@ import java.util.concurrent.Executor;
 
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
-import static java.util.Collections.singletonList;
 import static java.util.Collections.singletonMap;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static org.briarproject.bramble.test.CollectionMatcher.collectionOf;
@@ -217,7 +216,7 @@ public class PollerImplTest extends BrambleMockTestCase {
 	}
 
 	@Test
-	public void testRescheduleOnConnectionOpened() {
+	public void testRescheduleOnPollingIntervalDecreased() {
 		Plugin plugin = context.mock(Plugin.class);
 
 		context.checking(new Expectations() {{
@@ -240,8 +239,7 @@ public class PollerImplTest extends BrambleMockTestCase {
 			will(returnValue(cancellable));
 		}});
 
-		poller.eventOccurred(new ConnectionOpenedEvent(contactId, transportId,
-				false));
+		poller.eventOccurred(new PollingIntervalDecreasedEvent(transportId));
 	}
 
 	@Test
@@ -281,10 +279,8 @@ public class PollerImplTest extends BrambleMockTestCase {
 			will(returnValue(now + 1));
 		}});
 
-		poller.eventOccurred(new ConnectionOpenedEvent(contactId, transportId,
-				false));
-		poller.eventOccurred(new ConnectionOpenedEvent(contactId, transportId,
-				false));
+		poller.eventOccurred(new PollingIntervalDecreasedEvent(transportId));
+		poller.eventOccurred(new PollingIntervalDecreasedEvent(transportId));
 	}
 
 	@Test
@@ -328,10 +324,8 @@ public class PollerImplTest extends BrambleMockTestCase {
 					with(MILLISECONDS));
 		}});
 
-		poller.eventOccurred(new ConnectionOpenedEvent(contactId, transportId,
-				false));
-		poller.eventOccurred(new ConnectionOpenedEvent(contactId, transportId,
-				false));
+		poller.eventOccurred(new PollingIntervalDecreasedEvent(transportId));
+		poller.eventOccurred(new PollingIntervalDecreasedEvent(transportId));
 	}
 
 	@Test
@@ -373,48 +367,6 @@ public class PollerImplTest extends BrambleMockTestCase {
 			// Poll the plugin
 			oneOf(plugin).poll(with(collectionOf(
 					pairOf(equal(properties), any(ConnectionHandler.class)))));
-		}});
-
-		poller.eventOccurred(new TransportActiveEvent(transportId));
-	}
-
-	@Test
-	public void testDoesNotPollIfAllContactsAreConnected() throws Exception {
-		DuplexPlugin plugin = context.mock(DuplexPlugin.class);
-
-		context.checking(new Expectations() {{
-			allowing(plugin).getId();
-			will(returnValue(transportId));
-			// Get the plugin
-			oneOf(pluginManager).getPlugin(transportId);
-			will(returnValue(plugin));
-			// The plugin supports polling
-			oneOf(plugin).shouldPoll();
-			will(returnValue(true));
-			// Schedule a polling task immediately
-			oneOf(clock).currentTimeMillis();
-			will(returnValue(now));
-			oneOf(scheduler).schedule(with(any(Runnable.class)),
-					with(ioExecutor), with(0L), with(MILLISECONDS));
-			will(returnValue(cancellable));
-			will(new RunAction());
-			// Running the polling task schedules the next polling task
-			oneOf(plugin).getPollingInterval();
-			will(returnValue(pollingInterval));
-			oneOf(random).nextDouble();
-			will(returnValue(0.5));
-			oneOf(clock).currentTimeMillis();
-			will(returnValue(now));
-			oneOf(scheduler).schedule(with(any(Runnable.class)),
-					with(ioExecutor), with((long) (pollingInterval * 0.5)),
-					with(MILLISECONDS));
-			will(returnValue(cancellable));
-			// Get the transport properties and connected contacts
-			oneOf(transportPropertyManager).getRemoteProperties(transportId);
-			will(returnValue(singletonMap(contactId, properties)));
-			oneOf(connectionRegistry).getConnectedOrBetterContacts(transportId);
-			will(returnValue(singletonList(contactId)));
-			// All contacts are connected, so don't poll the plugin
 		}});
 
 		poller.eventOccurred(new TransportActiveEvent(transportId));
