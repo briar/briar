@@ -126,10 +126,16 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 	private static final Pattern ONION_V3 = Pattern.compile("[a-z2-7]{56}");
 
 	/**
-	 * After this many successful connections to our own hidden service we
-	 * consider the network to be stable.
+	 * After this many consecutive successful connections to our own hidden
+	 * service we consider the network to be stable.
 	 */
-	private static final int STABILITY_THRESHOLD = 3;
+	private static final int STABLE_NETWORK_THRESHOLD = 3;
+
+	/**
+	 * After this many consecutive failed connections to our own hidden service
+	 * we consider our connection to the Tor network to be broken.
+	 */
+	private static final int BROKEN_NETWORK_THRESHOLD = 3;
 
 	/**
 	 * How often to poll our own hidden service when the network is considered
@@ -665,7 +671,7 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 				DuplexTransportConnection d = createConnection(p);
 				if (d == null) {
 					LOG.info("Could not connect to own hidden service");
-					state.resetNetworkStability();
+					state.onStabilityCheckFailed();
 					// If the network was previously considered stable then
 					// we didn't poll our contacts above, so poll them now
 					if (stable) pollContacts(properties);
@@ -679,7 +685,7 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 					} catch (IOException e) {
 						logException(LOG, WARNING, e);
 					}
-					state.incrementNetworkStability();
+					state.onStabilityCheckSucceeded();
 				}
 			});
 		}
@@ -945,6 +951,18 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 		}
 	}
 
+	private void disableAndReenableNetwork() {
+		connectionStatusExecutor.execute(() -> {
+			try {
+				if (state.isTorRunning()) enableNetwork(false);
+			} catch (IOException ex) {
+				logException(LOG, WARNING, ex);
+			}
+		});
+		updateConnectionStatus(networkManager.getNetworkStatus(),
+				batteryManager.isCharging());
+	}
+
 	private void updateConnectionStatus(NetworkStatus status,
 			boolean charging) {
 		connectionStatusExecutor.execute(() -> {
@@ -1071,7 +1089,14 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 				settingsChecked = false;
 
 		@GuardedBy("this")
-		private int reasonsDisabled = 0, networkStability = 0;
+		private int reasonsDisabled = 0;
+
+		/**
+		 * The number of consecutive successful (positive) or failed (negative)
+		 * connections to our own hidden service.
+		 */
+		@GuardedBy("this")
+		private int networkStability = 0;
 
 		@GuardedBy("this")
 		@Nullable
@@ -1180,19 +1205,32 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 		}
 
 		private synchronized boolean isNetworkStable() {
-			return networkStability >= STABILITY_THRESHOLD;
+			return networkStability >= STABLE_NETWORK_THRESHOLD;
 		}
 
-		private synchronized void incrementNetworkStability() {
-			networkStability++;
+		private synchronized void onStabilityCheckSucceeded() {
+			if (networkStability <= 0) networkStability = 1;
+			else networkStability++;
 			logNetworkStability();
+		}
+
+		private synchronized void onStabilityCheckFailed() {
+			if (networkStability >= 0) networkStability = -1;
+			else networkStability--;
+			if (networkStability <= -BROKEN_NETWORK_THRESHOLD) {
+				LOG.warning("Connection to Tor appears to be broken");
+				resetNetworkStability();
+				disableAndReenableNetwork();
+			} else {
+				logNetworkStability();
+			}
 		}
 
 		private synchronized void resetNetworkStability() {
 			int old = networkStability;
 			networkStability = 0;
 			logNetworkStability();
-			if (old >= STABILITY_THRESHOLD) {
+			if (old >= STABLE_NETWORK_THRESHOLD) {
 				callback.pollingIntervalDecreased();
 			}
 		}
@@ -1200,8 +1238,7 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 		@GuardedBy("this")
 		private void logNetworkStability() {
 			if (LOG.isLoggable(INFO)) {
-				LOG.info(networkStability
-						+ " successful connections to own hidden service");
+				LOG.info("Network stability score " + networkStability);
 			}
 		}
 	}
