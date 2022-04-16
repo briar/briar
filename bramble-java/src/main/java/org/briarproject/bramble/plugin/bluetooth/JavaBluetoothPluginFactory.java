@@ -69,8 +69,8 @@ public class JavaBluetoothPluginFactory implements DuplexPluginFactory {
 		BluetoothConnectionFactory<StreamConnection> connectionFactory =
 				new JavaBluetoothConnectionFactory(connectionLimiter,
 						timeoutMonitor);
-		Backoff backoff = backoffFactory.createBackoff(MIN_POLLING_INTERVAL,
-				MAX_POLLING_INTERVAL, BACKOFF_BASE);
+		Backoff backoff = backoffFactory.createBackoff(eventBus, ID,
+				MIN_POLLING_INTERVAL, MAX_POLLING_INTERVAL, BACKOFF_BASE);
 		JavaBluetoothPlugin plugin = new JavaBluetoothPlugin(connectionLimiter,
 				connectionFactory, ioExecutor, wakefulIoExecutor, secureRandom,
 				backoff, callback, MAX_LATENCY, MAX_IDLE_TIME);

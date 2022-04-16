@@ -56,4 +56,9 @@ public interface PluginCallback extends ConnectionHandler {
 	 * This method can safely be called while holding a lock.
 	 */
 	void pluginStateChanged(State state);
+
+	/**
+	 * Informs the callback that the plugin's polling interval has decreased.
+	 */
+	void pollingIntervalDecreased();
 }

@@ -44,6 +44,10 @@ public class TestPluginCallback implements PluginCallback {
 	}
 
 	@Override
+	public void pollingIntervalDecreased() {
+	}
+
+	@Override
 	public void handleConnection(DuplexTransportConnection c) {
 	}
 

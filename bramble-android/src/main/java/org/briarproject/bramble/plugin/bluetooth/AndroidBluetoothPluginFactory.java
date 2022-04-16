@@ -86,8 +86,8 @@ public class AndroidBluetoothPluginFactory implements DuplexPluginFactory {
 		BluetoothConnectionFactory<BluetoothSocket> connectionFactory =
 				new AndroidBluetoothConnectionFactory(connectionLimiter,
 						wakeLockManager, timeoutMonitor);
-		Backoff backoff = backoffFactory.createBackoff(MIN_POLLING_INTERVAL,
-				MAX_POLLING_INTERVAL, BACKOFF_BASE);
+		Backoff backoff = backoffFactory.createBackoff(eventBus, ID,
+				MIN_POLLING_INTERVAL, MAX_POLLING_INTERVAL, BACKOFF_BASE);
 		AndroidBluetoothPlugin plugin = new AndroidBluetoothPlugin(
 				connectionLimiter, connectionFactory, ioExecutor,
 				wakefulIoExecutor, secureRandom, androidExecutor, app,

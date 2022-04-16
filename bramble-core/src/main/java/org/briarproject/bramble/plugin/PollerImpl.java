@@ -20,7 +20,7 @@ import org.briarproject.bramble.api.plugin.TransportId;
 import org.briarproject.bramble.api.plugin.duplex.DuplexPlugin;
 import org.briarproject.bramble.api.plugin.duplex.DuplexTransportConnection;
 import org.briarproject.bramble.api.plugin.event.ConnectionClosedEvent;
-import org.briarproject.bramble.api.plugin.event.ConnectionOpenedEvent;
+import org.briarproject.bramble.api.plugin.event.PollingIntervalDecreasedEvent;
 import org.briarproject.bramble.api.plugin.event.TransportActiveEvent;
 import org.briarproject.bramble.api.plugin.event.TransportInactiveEvent;
 import org.briarproject.bramble.api.plugin.simplex.SimplexPlugin;
@@ -107,10 +107,14 @@ class PollerImpl implements Poller, EventListener {
 			if (!c.isIncoming() && c.isException()) {
 				connectToContact(c.getContactId(), c.getTransportId());
 			}
-		} else if (e instanceof ConnectionOpenedEvent) {
-			ConnectionOpenedEvent c = (ConnectionOpenedEvent) e;
-			// Reschedule polling, the polling interval may have decreased
-			reschedule(c.getTransportId());
+		} else if (e instanceof PollingIntervalDecreasedEvent) {
+			PollingIntervalDecreasedEvent p = (PollingIntervalDecreasedEvent) e;
+			TransportId t = p.getTransportId();
+			if (LOG.isLoggable(INFO)) {
+				LOG.info("Polling interval decreased for " + t);
+			}
+			// Reschedule polling
+			reschedule(t);
 		} else if (e instanceof TransportActiveEvent) {
 			TransportActiveEvent t = (TransportActiveEvent) e;
 			// Poll the newly activated transport
@@ -228,7 +232,7 @@ class PollerImpl implements Poller, EventListener {
 				if (!connected.contains(c))
 					properties.add(new Pair<>(e.getValue(), new Handler(c, t)));
 			}
-			if (!properties.isEmpty()) p.poll(properties);
+			p.poll(properties);
 		} catch (DbException e) {
 			logException(LOG, WARNING, e);
 		}

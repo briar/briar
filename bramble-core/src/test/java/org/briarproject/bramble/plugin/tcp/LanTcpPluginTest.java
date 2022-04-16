@@ -343,6 +343,10 @@ public class LanTcpPluginTest extends BrambleTestCase {
 		}
 
 		@Override
+		public void pollingIntervalDecreased() {
+		}
+
+		@Override
 		public void handleConnection(DuplexTransportConnection d) {
 			connectionsLatch.countDown();
 		}

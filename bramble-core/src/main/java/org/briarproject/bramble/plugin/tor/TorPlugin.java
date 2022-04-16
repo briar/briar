@@ -25,6 +25,7 @@ import org.briarproject.bramble.api.plugin.TorConstants;
 import org.briarproject.bramble.api.plugin.TransportId;
 import org.briarproject.bramble.api.plugin.duplex.DuplexPlugin;
 import org.briarproject.bramble.api.plugin.duplex.DuplexTransportConnection;
+import org.briarproject.bramble.api.plugin.event.ConnectionClosedEvent;
 import org.briarproject.bramble.api.properties.TransportProperties;
 import org.briarproject.bramble.api.rendezvous.KeyMaterialSource;
 import org.briarproject.bramble.api.rendezvous.RendezvousEndpoint;
@@ -66,6 +67,7 @@ import javax.net.SocketFactory;
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
 import static java.util.Collections.singletonMap;
+import static java.util.concurrent.TimeUnit.MINUTES;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
 import static java.util.logging.Logger.getLogger;
@@ -123,6 +125,26 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 	private static final int COOKIE_POLLING_INTERVAL_MS = 200;
 	private static final Pattern ONION_V3 = Pattern.compile("[a-z2-7]{56}");
 
+	/**
+	 * After this many successful connections to our own hidden service we
+	 * consider the network to be stable.
+	 */
+	private static final int STABILITY_THRESHOLD = 3;
+
+	/**
+	 * How often to poll our own hidden service when the network is considered
+	 * to be stable.
+	 */
+	private static final int POLLING_INTERVAL_STABLE =
+			(int) MINUTES.toMillis(5);
+
+	/**
+	 * How often to poll our own hidden service and our contacts' hidden
+	 * services when the network is considered to be unstable.
+	 */
+	private static final int POLLING_INTERVAL_UNSTABLE =
+			(int) MINUTES.toMillis(2);
+
 	protected final Executor ioExecutor;
 	private final Executor wakefulIoExecutor;
 	private final Executor connectionStatusExecutor;
@@ -150,6 +172,7 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 	private volatile Socket controlSocket = null;
 	private volatile TorControlConnection controlConnection = null;
 	private volatile Settings settings = null;
+	private volatile String ownOnion = null;
 
 	protected abstract int getProcessId();
 
@@ -508,6 +531,7 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 			return;
 		}
 		String onion3 = response.get(HS_ADDRESS);
+		ownOnion = onion3;
 		if (LOG.isLoggable(INFO)) {
 			LOG.info("V3 hidden service " + scrubOnion(onion3));
 		}
@@ -612,13 +636,58 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 
 	@Override
 	public int getPollingInterval() {
-		return 120_000; // FIXME
+		if (state.isNetworkStable()) {
+			LOG.info("Using stable polling interval");
+			return POLLING_INTERVAL_STABLE;
+		} else {
+			LOG.info("Using unstable polling interval");
+			return POLLING_INTERVAL_UNSTABLE;
+		}
 	}
 
 	@Override
 	public void poll(Collection<Pair<TransportProperties, ConnectionHandler>>
 			properties) {
 		if (getState() != ACTIVE) return;
+		String ownOnion = this.ownOnion;
+		if (ownOnion == null) {
+			// Our own hidden service hasn't been created yet
+			pollContacts(properties);
+		} else {
+			// If the network is unstable, poll our contacts
+			boolean stable = state.isNetworkStable();
+			if (!stable) pollContacts(properties);
+			// Poll our own hidden service to check if the network is stable
+			wakefulIoExecutor.execute(() -> {
+				LOG.info("Connecting to own hidden service");
+				TransportProperties p = new TransportProperties();
+				p.put(PROP_ONION_V3, ownOnion);
+				DuplexTransportConnection d = createConnection(p);
+				if (d == null) {
+					LOG.info("Could not connect to own hidden service");
+					state.resetNetworkStability();
+					// If the network was previously considered stable then
+					// we didn't poll our contacts above, so poll them now
+					if (stable) pollContacts(properties);
+				} else {
+					LOG.info("Connected to own hidden service");
+					// Close the connection (this will cause the other end of
+					// the connection to log an EOFException)
+					try {
+						d.getWriter().dispose(false);
+						d.getReader().dispose(false, false);
+					} catch (IOException e) {
+						logException(LOG, WARNING, e);
+					}
+					state.incrementNetworkStability();
+				}
+			});
+		}
+	}
+
+	private void pollContacts(
+			Collection<Pair<TransportProperties, ConnectionHandler>> properties) {
+		if (properties.isEmpty() || getState() != ACTIVE) return;
 		for (Pair<TransportProperties, ConnectionHandler> p : properties) {
 			connect(p.getFirst(), p.getSecond());
 		}
@@ -776,6 +845,9 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 	@Override
 	public void message(String severity, String msg) {
 		if (LOG.isLoggable(INFO)) LOG.info(severity + " " + msg);
+		if (msg.startsWith("Switching to guard context")) {
+			state.resetNetworkStability();
+		}
 	}
 
 	@Override
@@ -848,7 +920,15 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 
 	@Override
 	public void eventOccurred(Event e) {
-		if (e instanceof SettingsUpdatedEvent) {
+		if (e instanceof ConnectionClosedEvent) {
+			ConnectionClosedEvent c = (ConnectionClosedEvent) e;
+			if (c.getTransportId().equals(getId())
+					&& !c.isIncoming() && c.isException()) {
+				LOG.info("Outgoing connection closed with exception");
+				// The failure may indicate that the network is unstable
+				state.resetNetworkStability();
+			}
+		} else if (e instanceof SettingsUpdatedEvent) {
 			SettingsUpdatedEvent s = (SettingsUpdatedEvent) e;
 			if (s.getNamespace().equals(ID.getString())) {
 				LOG.info("Tor settings updated");
@@ -991,7 +1071,7 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 				settingsChecked = false;
 
 		@GuardedBy("this")
-		private int reasonsDisabled = 0;
+		private int reasonsDisabled = 0, networkStability = 0;
 
 		@GuardedBy("this")
 		@Nullable
@@ -1087,6 +1167,7 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 			}
 			logOrConnections();
 			if (orConnectionsConnected == 0 && oldConnected != 0) {
+				resetNetworkStability();
 				callback.pluginStateChanged(getState());
 			}
 		}
@@ -1095,6 +1176,32 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 		private void logOrConnections() {
 			if (LOG.isLoggable(INFO)) {
 				LOG.info(orConnectionsConnected + " OR connections connected");
+			}
+		}
+
+		private synchronized boolean isNetworkStable() {
+			return networkStability >= STABILITY_THRESHOLD;
+		}
+
+		private synchronized void incrementNetworkStability() {
+			networkStability++;
+			logNetworkStability();
+		}
+
+		private synchronized void resetNetworkStability() {
+			int old = networkStability;
+			networkStability = 0;
+			logNetworkStability();
+			if (old >= STABILITY_THRESHOLD) {
+				callback.pollingIntervalDecreased();
+			}
+		}
+
+		@GuardedBy("this")
+		private void logNetworkStability() {
+			if (LOG.isLoggable(INFO)) {
+				LOG.info(networkStability
+						+ " successful connections to own hidden service");
 			}
 		}
 	}

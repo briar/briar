@@ -20,6 +20,7 @@ import org.briarproject.bramble.api.plugin.TransportId;
 import org.briarproject.bramble.api.plugin.duplex.DuplexPlugin;
 import org.briarproject.bramble.api.plugin.duplex.DuplexPluginFactory;
 import org.briarproject.bramble.api.plugin.duplex.DuplexTransportConnection;
+import org.briarproject.bramble.api.plugin.event.PollingIntervalDecreasedEvent;
 import org.briarproject.bramble.api.plugin.event.TransportActiveEvent;
 import org.briarproject.bramble.api.plugin.event.TransportInactiveEvent;
 import org.briarproject.bramble.api.plugin.event.TransportStateEvent;
@@ -360,6 +361,11 @@ class PluginManagerImpl implements PluginManager, Service {
 				// the reasons for the plugin being disabled may have changed
 				eventBus.broadcast(new TransportStateEvent(id, newState));
 			}
+		}
+
+		@Override
+		public void pollingIntervalDecreased() {
+			eventBus.broadcast(new PollingIntervalDecreasedEvent(id));
 		}
 
 		@Override

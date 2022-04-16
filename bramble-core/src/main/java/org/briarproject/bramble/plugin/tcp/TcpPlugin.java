@@ -246,7 +246,7 @@ abstract class TcpPlugin implements DuplexPlugin, EventListener {
 	@Override
 	public void poll(Collection<Pair<TransportProperties, ConnectionHandler>>
 			properties) {
-		if (getState() != ACTIVE) return;
+		if (properties.isEmpty() || getState() != ACTIVE) return;
 		backoff.increment();
 		for (Pair<TransportProperties, ConnectionHandler> p : properties) {
 			connect(p.getFirst(), p.getSecond());

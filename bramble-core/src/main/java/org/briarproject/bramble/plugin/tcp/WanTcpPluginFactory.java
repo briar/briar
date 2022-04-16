@@ -60,8 +60,8 @@ public class WanTcpPluginFactory implements DuplexPluginFactory {
 
 	@Override
 	public DuplexPlugin createPlugin(PluginCallback callback) {
-		Backoff backoff = backoffFactory.createBackoff(MIN_POLLING_INTERVAL,
-				MAX_POLLING_INTERVAL, BACKOFF_BASE);
+		Backoff backoff = backoffFactory.createBackoff(eventBus, ID,
+				MIN_POLLING_INTERVAL, MAX_POLLING_INTERVAL, BACKOFF_BASE);
 		PortMapper portMapper = new PortMapperImpl(shutdownManager);
 		WanTcpPlugin plugin = new WanTcpPlugin(ioExecutor, wakefulIoExecutor,
 				backoff, portMapper, callback, MAX_LATENCY, MAX_IDLE_TIME,

@@ -61,8 +61,8 @@ public class AndroidLanTcpPluginFactory implements DuplexPluginFactory {
 
 	@Override
 	public DuplexPlugin createPlugin(PluginCallback callback) {
-		Backoff backoff = backoffFactory.createBackoff(MIN_POLLING_INTERVAL,
-				MAX_POLLING_INTERVAL, BACKOFF_BASE);
+		Backoff backoff = backoffFactory.createBackoff(eventBus, ID,
+				MIN_POLLING_INTERVAL, MAX_POLLING_INTERVAL, BACKOFF_BASE);
 		AndroidLanTcpPlugin plugin = new AndroidLanTcpPlugin(ioExecutor,
 				wakefulIoExecutor, app, backoff, callback,
 				MAX_LATENCY, MAX_IDLE_TIME, CONNECTION_TIMEOUT);

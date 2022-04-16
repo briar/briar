@@ -56,8 +56,8 @@ public class LanTcpPluginFactory implements DuplexPluginFactory {
 
 	@Override
 	public DuplexPlugin createPlugin(PluginCallback callback) {
-		Backoff backoff = backoffFactory.createBackoff(MIN_POLLING_INTERVAL,
-				MAX_POLLING_INTERVAL, BACKOFF_BASE);
+		Backoff backoff = backoffFactory.createBackoff(eventBus, ID,
+				MIN_POLLING_INTERVAL, MAX_POLLING_INTERVAL, BACKOFF_BASE);
 		LanTcpPlugin plugin = new LanTcpPlugin(ioExecutor, wakefulIoExecutor,
 				backoff, callback, MAX_LATENCY, MAX_IDLE_TIME,
 				CONNECTION_TIMEOUT);
