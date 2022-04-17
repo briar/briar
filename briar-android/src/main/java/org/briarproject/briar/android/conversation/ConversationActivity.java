@@ -1,6 +1,7 @@
 package org.briarproject.briar.android.conversation;
 
 import android.annotation.SuppressLint;
+import android.content.ActivityNotFoundException;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
@@ -121,6 +122,7 @@ import uk.co.samuelwall.materialtaptargetprompt.MaterialTapTargetPrompt;
 
 import static android.os.Build.VERSION.SDK_INT;
 import static android.view.Gravity.RIGHT;
+import static android.widget.Toast.LENGTH_LONG;
 import static android.widget.Toast.LENGTH_SHORT;
 import static androidx.core.app.ActivityOptionsCompat.makeSceneTransitionAnimation;
 import static androidx.lifecycle.Lifecycle.State.STARTED;
@@ -774,7 +776,12 @@ public class ConversationActivity extends BriarActivity
 
 	@Override
 	public void onAttachImageClicked() {
-		launcher.launch("image/*");
+		try {
+			launcher.launch("image/*");
+		} catch (ActivityNotFoundException e) {
+			Toast.makeText(this, R.string.error_start_activity,
+					LENGTH_LONG).show();
+		}
 	}
 
 	private void onImagesChosen(@Nullable List<Uri> uris) {

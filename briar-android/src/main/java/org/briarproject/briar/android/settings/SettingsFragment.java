@@ -1,10 +1,12 @@
 package org.briarproject.briar.android.settings;
 
+import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.Toast;
 
 import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
 import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
@@ -23,6 +25,7 @@ import androidx.preference.Preference;
 import androidx.preference.PreferenceFragmentCompat;
 import androidx.preference.PreferenceGroup;
 
+import static android.widget.Toast.LENGTH_LONG;
 import static java.util.Objects.requireNonNull;
 import static org.briarproject.briar.android.AppModule.getAndroidComponent;
 import static org.briarproject.briar.android.TestingConstants.IS_DEBUG_BUILD;
@@ -65,7 +68,12 @@ public class SettingsFragment extends PreferenceFragmentCompat {
 		prefAvatar = requireNonNull(findPreference(PREF_KEY_AVATAR));
 		if (viewModel.shouldEnableProfilePictures()) {
 			prefAvatar.setOnPreferenceClickListener(preference -> {
-				launcher.launch("image/*");
+				try {
+					launcher.launch("image/*");
+				} catch (ActivityNotFoundException e) {
+					Toast.makeText(requireContext(),
+							R.string.error_start_activity, LENGTH_LONG).show();
+				}
 				return true;
 			});
 		} else {

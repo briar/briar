@@ -1,5 +1,6 @@
 package org.briarproject.briar.android.removabledrive;
 
+import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.net.Uri;
 import android.os.Bundle;
@@ -68,9 +69,14 @@ public class ReceiveFragment extends Fragment {
 		scrollView = (ScrollView) v;
 		progressBar = v.findViewById(R.id.progressBar);
 		button = v.findViewById(R.id.fileButton);
-		button.setOnClickListener(view ->
-				launcher.launch("*/*")
-		);
+		button.setOnClickListener(view -> {
+			try {
+				launcher.launch("*/*");
+			} catch (ActivityNotFoundException e) {
+				Toast.makeText(requireContext(),
+						R.string.error_start_activity, LENGTH_LONG).show();
+			}
+		});
 		viewModel.getOldTaskResumedEvent()
 				.observeEvent(getViewLifecycleOwner(), this::onOldTaskResumed);
 		viewModel.getState()
