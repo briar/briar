@@ -26,6 +26,7 @@ import static org.briarproject.bramble.util.IoUtils.tryToClose;
 import static org.briarproject.bramble.util.LogUtils.logDuration;
 import static org.briarproject.bramble.util.LogUtils.logException;
 import static org.briarproject.bramble.util.LogUtils.now;
+import static org.briarproject.briar.android.attachment.media.ImageCompressor.MIME_TYPE;
 
 @NotNullByDefault
 class AttachmentCreationTask {
@@ -100,14 +101,17 @@ class AttachmentCreationTask {
 		if (!asList(getSupportedImageContentTypes()).contains(contentType)) {
 			throw new UnsupportedMimeTypeException(contentType, uri);
 		}
-		InputStream is = contentResolver.openInputStream(uri);
-		if (is == null) throw new IOException();
-		is = imageCompressor
-				.compressImage(is, contentType);
+		InputStream is;
+		try {
+			is = contentResolver.openInputStream(uri);
+			if (is == null) throw new IOException();
+		} catch (SecurityException e) {
+			throw new IOException(e);
+		}
+		is = imageCompressor.compressImage(is, contentType);
 		long timestamp = System.currentTimeMillis();
-		AttachmentHeader h = messagingManager
-				.addLocalAttachment(groupId, timestamp,
-						ImageCompressor.MIME_TYPE, is);
+		AttachmentHeader h = messagingManager.addLocalAttachment(groupId,
+				timestamp, MIME_TYPE, is);
 		tryToClose(is, LOG, WARNING);
 		logDuration(LOG, "Storing attachment", start);
 		return h;

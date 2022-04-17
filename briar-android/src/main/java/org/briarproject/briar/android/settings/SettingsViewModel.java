@@ -231,9 +231,14 @@ class SettingsViewModel extends DbViewModel implements EventListener {
 		if (!asList(getSupportedImageContentTypes()).contains(contentType)) {
 			throw new UnsupportedMimeTypeException(contentType, uri);
 		}
-		InputStream is = contentResolver.openInputStream(uri);
-		if (is == null) throw new IOException(
-				"ContentResolver returned null when opening InputStream");
+		InputStream is;
+		try {
+			is = contentResolver.openInputStream(uri);
+			if (is == null) throw new IOException(
+					"ContentResolver returned null when opening InputStream");
+		} catch (SecurityException e) {
+			throw new IOException(e);
+		}
 		InputStream compressed = imageCompressor.compressImage(is, contentType);
 
 		runOnDbThread(() -> {
