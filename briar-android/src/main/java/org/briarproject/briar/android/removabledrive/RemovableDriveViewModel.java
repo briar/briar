@@ -4,6 +4,7 @@ import android.app.Application;
 import android.net.Uri;
 
 import org.briarproject.bramble.api.Consumer;
+import org.briarproject.bramble.api.account.AccountManager;
 import org.briarproject.bramble.api.contact.ContactId;
 import org.briarproject.bramble.api.db.DatabaseExecutor;
 import org.briarproject.bramble.api.db.DbException;
@@ -32,6 +33,7 @@ import androidx.lifecycle.MutableLiveData;
 
 import static java.util.Locale.US;
 import static java.util.Objects.requireNonNull;
+import static org.briarproject.bramble.api.lifecycle.LifecycleManager.LifecycleState.STARTING_SERVICES;
 import static org.briarproject.bramble.api.plugin.file.RemovableDriveConstants.PROP_URI;
 
 @UiThread
@@ -40,6 +42,7 @@ class RemovableDriveViewModel extends DbViewModel {
 
 	enum Action {SEND, RECEIVE}
 
+	private final AccountManager accountManager;
 	private final RemovableDriveManager manager;
 
 	private final MutableLiveEvent<Action> action = new MutableLiveEvent<>();
@@ -61,8 +64,10 @@ class RemovableDriveViewModel extends DbViewModel {
 			LifecycleManager lifecycleManager,
 			TransactionManager db,
 			AndroidExecutor androidExecutor,
+			AccountManager accountManager,
 			RemovableDriveManager removableDriveManager) {
 		super(app, dbExecutor, lifecycleManager, db, androidExecutor);
+		this.accountManager = accountManager;
 		this.manager = removableDriveManager;
 	}
 
@@ -193,4 +198,8 @@ class RemovableDriveViewModel extends DbViewModel {
 		return state;
 	}
 
+	boolean isAccountSignedIn() {
+		return accountManager.hasDatabaseKey() &&
+				lifecycleManager.getLifecycleState().isAfter(STARTING_SERVICES);
+	}
 }
