@@ -186,6 +186,11 @@ public class ImageViewModel extends DbViewModel implements EventListener {
 		}
 	}
 
+	@UiThread
+	void onSaveImageError() {
+		saveState.setEvent(true);
+	}
+
 	/**
 	 * Saves the attachment on external storage,
 	 * assuming the permission was granted during install time.
