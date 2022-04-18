@@ -100,7 +100,7 @@ public class MailboxStatusFragment extends Fragment {
 				.observe(getViewLifecycleOwner(), this::onMailboxStateChanged);
 
 		// TODO
-		//  * detect problems and show them #2175
+		//  * Implement UI for warning user when mailbox is unreachable #2175
 		//  * add "Unlink" button confirmation dialog and functionality #2173
 		Button unlinkButton = v.findViewById(R.id.unlinkButton);
 		unlinkButton.setOnClickListener(view -> Toast.makeText(requireContext(),
