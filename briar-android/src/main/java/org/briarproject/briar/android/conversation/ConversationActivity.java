@@ -58,7 +58,6 @@ import org.briarproject.briar.android.privategroup.conversation.GroupActivity;
 import org.briarproject.briar.android.removabledrive.RemovableDriveActivity;
 import org.briarproject.briar.android.util.ActivityLaunchers.GetImageAdvanced;
 import org.briarproject.briar.android.util.ActivityLaunchers.GetMultipleImagesAdvanced;
-import org.briarproject.briar.android.util.ActivityLaunchers.OpenImageDocumentAdvanced;
 import org.briarproject.briar.android.util.ActivityLaunchers.OpenMultipleImageDocumentsAdvanced;
 import org.briarproject.briar.android.util.BriarSnackbarBuilder;
 import org.briarproject.briar.android.view.BriarRecyclerView;
@@ -199,12 +198,11 @@ public class ConversationActivity extends BriarActivity
 		requireNonNull(name);
 		loadMessages();
 	};
-	private final ActivityResultLauncher<String[]> docLauncher = SDK_INT >= 18 ?
+	@Nullable
+	private final ActivityResultLauncher<String[]> docLauncher = SDK_INT >= 19 ?
 			registerForActivityResult(new OpenMultipleImageDocumentsAdvanced(),
 					this::onImagesChosen) :
-			registerForActivityResult(new OpenImageDocumentAdvanced(), uri -> {
-				if (uri != null) onImagesChosen(singletonList(uri));
-			});
+			null;
 	private final ActivityResultLauncher<String> contentLauncher =
 			SDK_INT >= 18 ?
 					registerForActivityResult(new GetMultipleImagesAdvanced(),
