@@ -116,10 +116,12 @@ class AndroidTaskScheduler implements TaskScheduler, Service, AlarmListener {
 		long dueMillis = now + MILLISECONDS.convert(delay, unit);
 		Runnable wakeful = () ->
 				wakeLockManager.executeWakefully(task, executor, "TaskHandoff");
-		Future<?> check = scheduleCheckForDueTasks(delay, unit);
-		ScheduledTask s = new ScheduledTask(wakeful, dueMillis, check,
-				cancelled);
+		// Acquire the lock before scheduling the check to ensure the check
+		// doesn't access the task queue before the task has been added
+		ScheduledTask s;
 		synchronized (lock) {
+			Future<?> check = scheduleCheckForDueTasks(delay, unit);
+			s = new ScheduledTask(wakeful, dueMillis, check, cancelled);
 			tasks.add(s);
 		}
 		return s;
@@ -136,6 +138,7 @@ class AndroidTaskScheduler implements TaskScheduler, Service, AlarmListener {
 		return schedule(wrapped, executor, delay, unit, cancelled);
 	}
 
+	@GuardedBy("lock")
 	private Future<?> scheduleCheckForDueTasks(long delay, TimeUnit unit) {
 		Runnable wakeful = () -> wakeLockManager.runWakefully(
 				this::runDueTasks, "TaskScheduler");
@@ -206,7 +209,7 @@ class AndroidTaskScheduler implements TaskScheduler, Service, AlarmListener {
 		private final Future<?> check;
 		private final AtomicBoolean cancelled;
 
-		public ScheduledTask(Runnable task, long dueMillis,
+		private ScheduledTask(Runnable task, long dueMillis,
 				Future<?> check, AtomicBoolean cancelled) {
 			this.task = task;
 			this.dueMillis = dueMillis;
