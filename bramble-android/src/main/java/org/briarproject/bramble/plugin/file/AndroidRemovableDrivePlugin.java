@@ -32,13 +32,22 @@ class AndroidRemovableDrivePlugin extends RemovableDrivePlugin {
 	InputStream openInputStream(TransportProperties p) throws IOException {
 		String uri = p.get(PROP_URI);
 		if (isNullOrEmpty(uri)) throw new IllegalArgumentException();
-		return app.getContentResolver().openInputStream(Uri.parse(uri));
+		try {
+			return app.getContentResolver().openInputStream(Uri.parse(uri));
+		} catch (SecurityException e) {
+			throw new IOException(e);
+		}
 	}
 
 	@Override
 	OutputStream openOutputStream(TransportProperties p) throws IOException {
 		String uri = p.get(PROP_URI);
 		if (isNullOrEmpty(uri)) throw new IllegalArgumentException();
-		return app.getContentResolver().openOutputStream(Uri.parse(uri), "wt");
+		try {
+			return app.getContentResolver()
+					.openOutputStream(Uri.parse(uri), "wt");
+		} catch (SecurityException e) {
+			throw new IOException(e);
+		}
 	}
 }
