@@ -1,5 +1,6 @@
 package org.briarproject.briar.android.conversation;
 
+import android.content.ActivityNotFoundException;
 import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
 import android.net.Uri;
@@ -263,7 +264,11 @@ public class ImageActivity extends BriarActivity
 			if (SDK_INT >= 19) {
 				String name = viewModel.getFileName() + "." +
 						getVisibleAttachment().getExtension();
-				launcher.launch(name);
+				try {
+					launcher.launch(name);
+				} catch (ActivityNotFoundException e) {
+					viewModel.onSaveImageError();
+				}
 			} else {
 				viewModel.saveImage(getVisibleAttachment());
 			}
