@@ -180,7 +180,7 @@ public class ImageViewModel extends DbViewModel implements EventListener {
 	@UiThread
 	void saveImage(AttachmentItem attachment, @Nullable Uri uri) {
 		if (uri == null) {
-			saveState.setEvent(true);
+			onSaveImageError();
 		} else {
 			saveImage(attachment, () -> getOutputStream(uri), null);
 		}
