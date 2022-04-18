@@ -434,9 +434,11 @@ public class ConversationActivity extends BriarActivity
 			startActivity(intent);
 			return true;
 		} else if (itemId == R.id.action_transfer_data) {
-			Intent intent = new Intent(this, RemovableDriveActivity.class);
-			intent.putExtra(CONTACT_ID, contactId.getInt());
-			startActivity(intent);
+			if (SDK_INT >= 19) {
+				Intent intent = new Intent(this, RemovableDriveActivity.class);
+				intent.putExtra(CONTACT_ID, contactId.getInt());
+				startActivity(intent);
+			}
 			return true;
 		} else if (itemId == R.id.action_delete_all_messages) {
 			askToDeleteAllMessages();
