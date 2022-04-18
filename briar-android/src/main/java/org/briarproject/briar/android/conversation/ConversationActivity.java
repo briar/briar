@@ -1,7 +1,6 @@
 package org.briarproject.briar.android.conversation;
 
 import android.annotation.SuppressLint;
-import android.content.ActivityNotFoundException;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
@@ -59,6 +58,8 @@ import org.briarproject.briar.android.privategroup.conversation.GroupActivity;
 import org.briarproject.briar.android.removabledrive.RemovableDriveActivity;
 import org.briarproject.briar.android.util.ActivityLaunchers.GetImageAdvanced;
 import org.briarproject.briar.android.util.ActivityLaunchers.GetMultipleImagesAdvanced;
+import org.briarproject.briar.android.util.ActivityLaunchers.OpenImageDocumentAdvanced;
+import org.briarproject.briar.android.util.ActivityLaunchers.OpenMultipleImageDocumentsAdvanced;
 import org.briarproject.briar.android.util.BriarSnackbarBuilder;
 import org.briarproject.briar.android.view.BriarRecyclerView;
 import org.briarproject.briar.android.view.ImagePreview;
@@ -122,7 +123,6 @@ import uk.co.samuelwall.materialtaptargetprompt.MaterialTapTargetPrompt;
 
 import static android.os.Build.VERSION.SDK_INT;
 import static android.view.Gravity.RIGHT;
-import static android.widget.Toast.LENGTH_LONG;
 import static android.widget.Toast.LENGTH_SHORT;
 import static androidx.core.app.ActivityOptionsCompat.makeSceneTransitionAnimation;
 import static androidx.lifecycle.Lifecycle.State.STARTED;
@@ -145,6 +145,7 @@ import static org.briarproject.briar.android.conversation.ImageActivity.ATTACHME
 import static org.briarproject.briar.android.conversation.ImageActivity.DATE;
 import static org.briarproject.briar.android.conversation.ImageActivity.ITEM_ID;
 import static org.briarproject.briar.android.conversation.ImageActivity.NAME;
+import static org.briarproject.briar.android.util.UiUtils.launchActivityToOpenFile;
 import static org.briarproject.briar.android.util.UiUtils.observeOnce;
 import static org.briarproject.briar.android.view.AuthorView.setAvatar;
 import static org.briarproject.briar.api.messaging.MessagingConstants.MAX_ATTACHMENTS_PER_MESSAGE;
@@ -198,12 +199,19 @@ public class ConversationActivity extends BriarActivity
 		requireNonNull(name);
 		loadMessages();
 	};
-	private final ActivityResultLauncher<String> launcher = SDK_INT >= 18 ?
-			registerForActivityResult(new GetMultipleImagesAdvanced(),
+	private final ActivityResultLauncher<String[]> docLauncher = SDK_INT >= 18 ?
+			registerForActivityResult(new OpenMultipleImageDocumentsAdvanced(),
 					this::onImagesChosen) :
-			registerForActivityResult(new GetImageAdvanced(), uri -> {
+			registerForActivityResult(new OpenImageDocumentAdvanced(), uri -> {
 				if (uri != null) onImagesChosen(singletonList(uri));
 			});
+	private final ActivityResultLauncher<String> contentLauncher =
+			SDK_INT >= 18 ?
+					registerForActivityResult(new GetMultipleImagesAdvanced(),
+							this::onImagesChosen) :
+					registerForActivityResult(new GetImageAdvanced(), uri -> {
+						if (uri != null) onImagesChosen(singletonList(uri));
+					});
 
 	private AttachmentRetriever attachmentRetriever;
 	private ConversationViewModel viewModel;
@@ -776,12 +784,7 @@ public class ConversationActivity extends BriarActivity
 
 	@Override
 	public void onAttachImageClicked() {
-		try {
-			launcher.launch("image/*");
-		} catch (ActivityNotFoundException e) {
-			Toast.makeText(this, R.string.error_start_activity,
-					LENGTH_LONG).show();
-		}
+		launchActivityToOpenFile(this, docLauncher, contentLauncher, "image/*");
 	}
 
 	private void onImagesChosen(@Nullable List<Uri> uris) {

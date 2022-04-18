@@ -19,6 +19,8 @@ import org.briarproject.bramble.api.plugin.file.RemovableDriveTask;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.util.ActivityLaunchers.CreateDocumentAdvanced;
 
+import java.util.logging.Logger;
+
 import javax.inject.Inject;
 
 import androidx.activity.result.ActivityResultLauncher;
@@ -31,6 +33,9 @@ import static android.os.Build.VERSION.SDK_INT;
 import static android.view.View.FOCUS_DOWN;
 import static android.view.View.VISIBLE;
 import static android.widget.Toast.LENGTH_LONG;
+import static java.util.logging.Level.WARNING;
+import static java.util.logging.Logger.getLogger;
+import static org.briarproject.bramble.util.LogUtils.logException;
 import static org.briarproject.briar.android.AppModule.getAndroidComponent;
 
 @MethodsNotNullByDefault
@@ -38,6 +43,7 @@ import static org.briarproject.briar.android.AppModule.getAndroidComponent;
 public class SendFragment extends Fragment {
 
 	final static String TAG = SendFragment.class.getName();
+	private static final Logger LOG = getLogger(TAG);
 
 	private final ActivityResultLauncher<String> launcher =
 			registerForActivityResult(new CreateDocumentAdvanced(),
@@ -78,6 +84,7 @@ public class SendFragment extends Fragment {
 			try {
 				launcher.launch(viewModel.getFileName());
 			} catch (ActivityNotFoundException e) {
+				logException(LOG, WARNING, e);
 				Toast.makeText(requireContext(),
 						R.string.error_start_activity, LENGTH_LONG).show();
 			}

@@ -45,6 +45,7 @@ import org.briarproject.briar.android.view.ArticleMovementMethod;
 import java.util.Locale;
 import java.util.logging.Logger;
 
+import androidx.activity.result.ActivityResultLauncher;
 import androidx.annotation.AnyThread;
 import androidx.annotation.AttrRes;
 import androidx.annotation.ColorInt;
@@ -108,6 +109,7 @@ import static androidx.core.view.ViewCompat.LAYOUT_DIRECTION_RTL;
 import static java.util.Objects.requireNonNull;
 import static java.util.concurrent.TimeUnit.DAYS;
 import static java.util.logging.Level.WARNING;
+import static java.util.logging.Logger.getLogger;
 import static org.briarproject.bramble.util.LogUtils.logException;
 import static org.briarproject.briar.BuildConfig.APPLICATION_ID;
 import static org.briarproject.briar.android.TestingConstants.EXPIRY_DATE;
@@ -121,6 +123,8 @@ import static org.briarproject.briar.android.reporting.CrashReportActivity.EXTRA
 @MethodsNotNullByDefault
 @ParametersNotNullByDefault
 public class UiUtils {
+
+	private static final Logger LOG = getLogger(UiUtils.class.getName());
 
 	public static final long MIN_DATE_RESOLUTION = MINUTE_IN_MILLIS;
 	public static final int TEASER_LENGTH = 320;
@@ -600,5 +604,24 @@ public class UiUtils {
 		builder.setNeutralButton(R.string.continue_button,
 				(dialog, which) -> requestPermissions.run());
 		builder.show();
+	}
+
+	public static void launchActivityToOpenFile(Context ctx,
+			ActivityResultLauncher<String[]> docLauncher,
+			ActivityResultLauncher<String> contentLauncher,
+			String contentType) {
+		// Try OPEN_DOCUMENT, fall back to GET_CONTENT
+		try {
+			docLauncher.launch(new String[] {contentType});
+		} catch (ActivityNotFoundException e) {
+			logException(LOG, WARNING, e);
+			try {
+				contentLauncher.launch(contentType);
+			} catch (ActivityNotFoundException e1) {
+				logException(LOG, WARNING, e);
+				Toast.makeText(ctx, R.string.error_start_activity,
+						LENGTH_LONG).show();
+			}
+		}
 	}
 }

@@ -10,6 +10,8 @@ import androidx.activity.result.contract.ActivityResultContract;
 import androidx.activity.result.contract.ActivityResultContracts.CreateDocument;
 import androidx.activity.result.contract.ActivityResultContracts.GetContent;
 import androidx.activity.result.contract.ActivityResultContracts.GetMultipleContents;
+import androidx.activity.result.contract.ActivityResultContracts.OpenDocument;
+import androidx.activity.result.contract.ActivityResultContracts.OpenMultipleDocuments;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
@@ -45,6 +47,18 @@ public class ActivityLaunchers {
 		}
 	}
 
+	public static class OpenDocumentAdvanced extends OpenDocument {
+		@NonNull
+		@Override
+		public Intent createIntent(Context context, String[] input) {
+			Intent i = super.createIntent(context, input);
+			putShowAdvancedExtra(i);
+			i.setType("/*");
+			i.addFlags(FLAG_GRANT_READ_URI_PERMISSION);
+			return i;
+		}
+	}
+
 	public static class GetImageAdvanced extends GetContent {
 		@NonNull
 		@Override
@@ -64,6 +78,36 @@ public class ActivityLaunchers {
 		@NonNull
 		@Override
 		public Intent createIntent(Context context, String input) {
+			Intent i = super.createIntent(context, input);
+			putShowAdvancedExtra(i);
+			i.setType("image/*");
+			i.addFlags(FLAG_GRANT_READ_URI_PERMISSION);
+			if (SDK_INT >= 19)
+				i.putExtra(EXTRA_MIME_TYPES, getSupportedImageContentTypes());
+			return i;
+		}
+	}
+
+	public static class OpenImageDocumentAdvanced extends OpenDocument {
+		@NonNull
+		@Override
+		public Intent createIntent(Context context, String[] input) {
+			Intent i = super.createIntent(context, input);
+			putShowAdvancedExtra(i);
+			i.setType("image/*");
+			i.addFlags(FLAG_GRANT_READ_URI_PERMISSION);
+			if (SDK_INT >= 19)
+				i.putExtra(EXTRA_MIME_TYPES, getSupportedImageContentTypes());
+			return i;
+		}
+	}
+
+	@TargetApi(18)
+	public static class OpenMultipleImageDocumentsAdvanced
+			extends OpenMultipleDocuments {
+		@NonNull
+		@Override
+		public Intent createIntent(Context context, String[] input) {
 			Intent i = super.createIntent(context, input);
 			putShowAdvancedExtra(i);
 			i.setType("image/*");

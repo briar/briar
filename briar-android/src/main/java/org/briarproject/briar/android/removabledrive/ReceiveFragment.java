@@ -1,6 +1,5 @@
 package org.briarproject.briar.android.removabledrive;
 
-import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.net.Uri;
 import android.os.Bundle;
@@ -16,6 +15,7 @@ import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
 import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.util.ActivityLaunchers.GetContentAdvanced;
+import org.briarproject.briar.android.util.ActivityLaunchers.OpenDocumentAdvanced;
 
 import javax.inject.Inject;
 
@@ -29,6 +29,7 @@ import static android.view.View.FOCUS_DOWN;
 import static android.view.View.VISIBLE;
 import static android.widget.Toast.LENGTH_LONG;
 import static org.briarproject.briar.android.AppModule.getAndroidComponent;
+import static org.briarproject.briar.android.util.UiUtils.launchActivityToOpenFile;
 
 @MethodsNotNullByDefault
 @ParametersNotNullByDefault
@@ -36,7 +37,10 @@ public class ReceiveFragment extends Fragment {
 
 	final static String TAG = ReceiveFragment.class.getName();
 
-	private final ActivityResultLauncher<String> launcher =
+	private final ActivityResultLauncher<String[]> docLauncher =
+			registerForActivityResult(new OpenDocumentAdvanced(),
+					this::onDocumentChosen);
+	private final ActivityResultLauncher<String> contentLauncher =
 			registerForActivityResult(new GetContentAdvanced(),
 					this::onDocumentChosen);
 
@@ -69,14 +73,9 @@ public class ReceiveFragment extends Fragment {
 		scrollView = (ScrollView) v;
 		progressBar = v.findViewById(R.id.progressBar);
 		button = v.findViewById(R.id.fileButton);
-		button.setOnClickListener(view -> {
-			try {
-				launcher.launch("*/*");
-			} catch (ActivityNotFoundException e) {
-				Toast.makeText(requireContext(),
-						R.string.error_start_activity, LENGTH_LONG).show();
-			}
-		});
+		button.setOnClickListener(view ->
+				launchActivityToOpenFile(requireContext(),
+						docLauncher, contentLauncher, "*/*"));
 		viewModel.getOldTaskResumedEvent()
 				.observeEvent(getViewLifecycleOwner(), this::onOldTaskResumed);
 		viewModel.getState()
