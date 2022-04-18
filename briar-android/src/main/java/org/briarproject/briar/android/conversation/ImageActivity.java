@@ -32,7 +32,6 @@ import javax.inject.Inject;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AlertDialog.Builder;
 import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.Fragment;
@@ -64,7 +63,6 @@ public class ImageActivity extends BriarActivity
 	final static String DATE = "date";
 	final static String ITEM_ID = "itemId";
 
-	@RequiresApi(api = 16)
 	private final static int UI_FLAGS_DEFAULT =
 			SYSTEM_UI_FLAG_LAYOUT_STABLE | SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN;
 
@@ -78,9 +76,11 @@ public class ImageActivity extends BriarActivity
 	private List<AttachmentItem> attachments;
 	private MessageId conversationMessageId;
 
-	private final ActivityResultLauncher<String> launcher =
+	@Nullable
+	private final ActivityResultLauncher<String> launcher = SDK_INT >= 19 ?
 			registerForActivityResult(new CreateDocumentAdvanced(),
-					this::onImageUriSelected);
+					this::onImageUriSelected) :
+			null;
 
 	@Override
 	public void injectActivity(ActivityComponent component) {
@@ -208,14 +208,12 @@ public class ImageActivity extends BriarActivity
 		super.onBackPressed();
 	}
 
-	@RequiresApi(api = 16)
 	private void onImageClicked(@Nullable Boolean clicked) {
 		if (clicked != null && clicked) {
 			toggleSystemUi();
 		}
 	}
 
-	@RequiresApi(api = 16)
 	private void toggleSystemUi() {
 		View decorView = getWindow().getDecorView();
 		if (appBarLayout.getVisibility() == VISIBLE) {
@@ -225,7 +223,6 @@ public class ImageActivity extends BriarActivity
 		}
 	}
 
-	@RequiresApi(api = 16)
 	private void hideSystemUi(View decorView) {
 		decorView.setSystemUiVisibility(
 				SYSTEM_UI_FLAG_FULLSCREEN | UI_FLAGS_DEFAULT);
@@ -236,7 +233,6 @@ public class ImageActivity extends BriarActivity
 				.start();
 	}
 
-	@RequiresApi(api = 16)
 	private void showSystemUi(View decorView) {
 		decorView.setSystemUiVisibility(UI_FLAGS_DEFAULT);
 		appBarLayout.animate()
@@ -263,7 +259,7 @@ public class ImageActivity extends BriarActivity
 			if (SDK_INT >= 19) {
 				String name = viewModel.getFileName() + "." +
 						getVisibleAttachment().getExtension();
-				launcher.launch(name);
+				requireNonNull(launcher).launch(name);
 			} else {
 				viewModel.saveImage(getVisibleAttachment());
 			}

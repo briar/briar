@@ -34,6 +34,7 @@ import static android.os.Build.VERSION.SDK_INT;
 import static android.view.View.INVISIBLE;
 import static android.view.View.VISIBLE;
 import static androidx.transition.TransitionManager.beginDelayedTransition;
+import static org.briarproject.bramble.api.nullsafety.NullSafety.requireNonNull;
 import static org.briarproject.briar.android.AppModule.getAndroidComponent;
 import static org.briarproject.briar.android.hotspot.HotspotViewModel.getApkFileName;
 
@@ -47,9 +48,11 @@ public class FallbackFragment extends BaseFragment {
 	ViewModelProvider.Factory viewModelFactory;
 
 	private HotspotViewModel viewModel;
-	private final ActivityResultLauncher<String> launcher =
+	@Nullable
+	private final ActivityResultLauncher<String> launcher = SDK_INT >= 19 ?
 			registerForActivityResult(new CreateDocumentAdvanced(),
-					this::onDocumentCreated);
+					this::onDocumentCreated) :
+			null;
 	private Button fallbackButton;
 	private ProgressBar progressBar;
 
@@ -87,8 +90,11 @@ public class FallbackFragment extends BaseFragment {
 			fallbackButton.setVisibility(INVISIBLE);
 			progressBar.setVisibility(VISIBLE);
 
-			if (SDK_INT >= 19) launcher.launch(getApkFileName());
-			else viewModel.exportApk();
+			if (SDK_INT >= 19) {
+				requireNonNull(launcher).launch(getApkFileName());
+			} else {
+				viewModel.exportApk();
+			}
 		});
 		viewModel.getSavedApkToUri().observeEvent(this, this::shareUri);
 	}
