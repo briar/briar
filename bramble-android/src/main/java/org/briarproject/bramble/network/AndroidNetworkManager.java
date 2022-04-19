@@ -11,6 +11,8 @@ import android.net.LinkAddress;
 import android.net.LinkProperties;
 import android.net.Network;
 import android.net.NetworkInfo;
+import android.net.wifi.WifiInfo;
+import android.net.wifi.WifiManager;
 
 import org.briarproject.bramble.api.event.EventBus;
 import org.briarproject.bramble.api.event.EventExecutor;
@@ -38,6 +40,7 @@ import javax.annotation.Nullable;
 import javax.inject.Inject;
 
 import static android.content.Context.CONNECTIVITY_SERVICE;
+import static android.content.Context.WIFI_SERVICE;
 import static android.content.Intent.ACTION_SCREEN_OFF;
 import static android.content.Intent.ACTION_SCREEN_ON;
 import static android.net.ConnectivityManager.CONNECTIVITY_ACTION;
@@ -124,7 +127,30 @@ class AndroidNetworkManager implements NetworkManager, Service {
 			return new NetworkStatus(connected, wifi, ipv6Only);
 		} catch (SecurityException e) {
 			logException(LOG, WARNING, e);
-			return new NetworkStatus(false, false, false);
+			// Without the ConnectivityManager we can't detect whether we have
+			// internet access. Assume we do, which is probably less harmful
+			// than assuming we don't. Likewise, assume the connection is
+			// IPv6-only. Fall back to the WifiManager to detect whether we
+			// have a wifi connection.
+			LOG.info("ConnectivityManager is broken, guessing connectivity");
+			boolean connected = true, wifi = false, ipv6Only = true;
+			WifiManager wm = (WifiManager) app.getSystemService(WIFI_SERVICE);
+			if (wm != null) {
+				WifiInfo info = wm.getConnectionInfo();
+				if (info == null) {
+					LOG.info("Not connected to wifi");
+				} else {
+					LOG.info("Connected to wifi");
+					wifi = true;
+					if (info.getIpAddress() == 0) {
+						LOG.info("No IPv4 address");
+					} else {
+						LOG.info("Found an IPv4 address");
+						ipv6Only = false;
+					}
+				}
+			}
+			return new NetworkStatus(connected, wifi, ipv6Only);
 		}
 	}
 
