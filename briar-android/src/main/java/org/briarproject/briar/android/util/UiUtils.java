@@ -610,7 +610,13 @@ public class UiUtils {
 			@Nullable ActivityResultLauncher<String[]> docLauncher,
 			ActivityResultLauncher<String> contentLauncher,
 			String contentType) {
-		// Try OPEN_DOCUMENT if available, fall back to GET_CONTENT
+		// Try GET_CONTENT, fall back to OPEN_DOCUMENT if available
+		try {
+			contentLauncher.launch(contentType);
+			return;
+		} catch (ActivityNotFoundException e) {
+			logException(LOG, WARNING, e);
+		}
 		if (docLauncher != null) {
 			try {
 				docLauncher.launch(new String[] {contentType});
@@ -619,12 +625,6 @@ public class UiUtils {
 				logException(LOG, WARNING, e);
 			}
 		}
-		try {
-			contentLauncher.launch(contentType);
-		} catch (ActivityNotFoundException e) {
-			logException(LOG, WARNING, e);
-			Toast.makeText(ctx, R.string.error_start_activity,
-					LENGTH_LONG).show();
-		}
+		Toast.makeText(ctx, R.string.error_start_activity, LENGTH_LONG).show();
 	}
 }
