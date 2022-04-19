@@ -198,48 +198,53 @@ class BriarReportCollector {
 	private ReportItem getConnectivity() {
 		MultiReportInfo connectivityInfo = new MultiReportInfo();
 
-		// Is mobile data available?
-		ConnectivityManager cm = requireNonNull(
-				getSystemService(ctx, ConnectivityManager.class));
-		NetworkInfo mobile = cm.getNetworkInfo(TYPE_MOBILE);
-		boolean mobileAvailable = mobile != null && mobile.isAvailable();
-		connectivityInfo.add("MobileDataAvailable", mobileAvailable);
-
-		// Is mobile data enabled?
-		boolean mobileEnabled = false;
+		// https://issuetracker.google.com/issues/175055271
 		try {
-			Class<?> clazz = Class.forName(cm.getClass().getName());
-			Method method = clazz.getDeclaredMethod("getMobileDataEnabled");
-			method.setAccessible(true);
-			mobileEnabled = (Boolean) requireNonNull(method.invoke(cm));
-		} catch (ClassNotFoundException
-				| NoSuchMethodException
-				| IllegalArgumentException
-				| InvocationTargetException
-				| IllegalAccessException e) {
-			connectivityInfo
-					.add("MobileDataReflectionException", e.toString());
+			// Is mobile data available?
+			ConnectivityManager cm = requireNonNull(
+					getSystemService(ctx, ConnectivityManager.class));
+			NetworkInfo mobile = cm.getNetworkInfo(TYPE_MOBILE);
+			boolean mobileAvailable = mobile != null && mobile.isAvailable();
+			connectivityInfo.add("MobileDataAvailable", mobileAvailable);
+
+			// Is mobile data enabled?
+			boolean mobileEnabled = false;
+			try {
+				Class<?> clazz = Class.forName(cm.getClass().getName());
+				Method method = clazz.getDeclaredMethod("getMobileDataEnabled");
+				method.setAccessible(true);
+				mobileEnabled = (Boolean) requireNonNull(method.invoke(cm));
+			} catch (ClassNotFoundException
+					| NoSuchMethodException
+					| IllegalArgumentException
+					| InvocationTargetException
+					| IllegalAccessException e) {
+				connectivityInfo
+						.add("MobileDataReflectionException", e.toString());
+			}
+			connectivityInfo.add("MobileDataEnabled", mobileEnabled);
+
+			// Is mobile data connected ?
+			boolean mobileConnected = mobile != null && mobile.isConnected();
+			connectivityInfo.add("MobileDataConnected", mobileConnected);
+
+			// Is wifi available?
+			NetworkInfo wifi = cm.getNetworkInfo(TYPE_WIFI);
+			boolean wifiAvailable = wifi != null && wifi.isAvailable();
+			connectivityInfo.add("WifiAvailable", wifiAvailable);
+
+			// Is wifi connected?
+			boolean wifiConnected = wifi != null && wifi.isConnected();
+			connectivityInfo.add("WifiConnected", wifiConnected);
+		} catch (SecurityException e) {
+			connectivityInfo.add("ConnectivityManagerException", e.toString());
 		}
-		connectivityInfo.add("MobileDataEnabled", mobileEnabled);
-
-		// Is mobile data connected ?
-		boolean mobileConnected = mobile != null && mobile.isConnected();
-		connectivityInfo.add("MobileDataConnected", mobileConnected);
-
-		// Is wifi available?
-		NetworkInfo wifi = cm.getNetworkInfo(TYPE_WIFI);
-		boolean wifiAvailable = wifi != null && wifi.isAvailable();
-		connectivityInfo.add("WifiAvailable", wifiAvailable);
 
 		// Is wifi enabled?
 		WifiManager wm = getSystemService(ctx, WifiManager.class);
 		boolean wifiEnabled = wm != null &&
 				wm.getWifiState() == WIFI_STATE_ENABLED;
 		connectivityInfo.add("WifiEnabled", wifiEnabled);
-
-		// Is wifi connected?
-		boolean wifiConnected = wifi != null && wifi.isConnected();
-		connectivityInfo.add("WifiConnected", wifiConnected);
 
 		// Is wifi direct supported?
 		boolean wifiDirect = ctx.getSystemService(WIFI_P2P_SERVICE) != null;

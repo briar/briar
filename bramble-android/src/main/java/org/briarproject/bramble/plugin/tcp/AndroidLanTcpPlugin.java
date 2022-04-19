@@ -175,16 +175,24 @@ class AndroidLanTcpPlugin extends LanTcpPlugin {
 	@TargetApi(21)
 	@Nullable
 	private InetAddress getWifiClientIpv6Address() {
-		for (Network net : connectivityManager.getAllNetworks()) {
-			NetworkCapabilities caps =
-					connectivityManager.getNetworkCapabilities(net);
-			if (caps == null || !caps.hasTransport(TRANSPORT_WIFI)) continue;
-			LinkProperties props = connectivityManager.getLinkProperties(net);
-			if (props == null) continue;
-			for (LinkAddress linkAddress : props.getLinkAddresses()) {
-				InetAddress addr = linkAddress.getAddress();
-				if (isIpv6LinkLocalAddress(addr)) return addr;
+		// https://issuetracker.google.com/issues/175055271
+		try {
+			for (Network net : connectivityManager.getAllNetworks()) {
+				NetworkCapabilities caps =
+						connectivityManager.getNetworkCapabilities(net);
+				if (caps == null || !caps.hasTransport(TRANSPORT_WIFI)) {
+					continue;
+				}
+				LinkProperties props =
+						connectivityManager.getLinkProperties(net);
+				if (props == null) continue;
+				for (LinkAddress linkAddress : props.getLinkAddresses()) {
+					InetAddress addr = linkAddress.getAddress();
+					if (isIpv6LinkLocalAddress(addr)) return addr;
+				}
 			}
+		} catch (SecurityException e) {
+			logException(LOG, WARNING, e);
 		}
 		return null;
 	}
@@ -227,12 +235,17 @@ class AndroidLanTcpPlugin extends LanTcpPlugin {
 	// network's socket factory may try to connect via another network
 	private SocketFactory getSocketFactory() {
 		if (SDK_INT < 21) return SocketFactory.getDefault();
-		for (Network net : connectivityManager.getAllNetworks()) {
-			NetworkCapabilities caps =
-					connectivityManager.getNetworkCapabilities(net);
-			if (caps != null && caps.hasTransport(TRANSPORT_WIFI)) {
-				return net.getSocketFactory();
+		// https://issuetracker.google.com/issues/175055271
+		try {
+			for (Network net : connectivityManager.getAllNetworks()) {
+				NetworkCapabilities caps =
+						connectivityManager.getNetworkCapabilities(net);
+				if (caps != null && caps.hasTransport(TRANSPORT_WIFI)) {
+					return net.getSocketFactory();
+				}
 			}
+		} catch (SecurityException e) {
+			logException(LOG, WARNING, e);
 		}
 		LOG.warning("Could not find suitable socket factory");
 		return SocketFactory.getDefault();
