@@ -1,36 +1,36 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
-  <!--Setup-->
-  <string name="setup_title">Benvingut a Briar</string>
-  <string name="setup_name_explanation">El vostre sobrenom etiquetarà tot el que publiqueu. Després de crear el compte ja no podreu canviar el sobrenom.</string>
-  <string name="setup_next">Següent</string>
-  <string name="setup_password_intro">Establiu una contrasenya</string>
-  <string name="setup_password_explanation">El compte de Briar s\'emmagatzema xifrat en el vostre dispositiu, no en el núvol. Si oblideu la contrasenya o desinstal·leu Briar no podreu recuperar el vostre compte ni les dades associades.\n\nTrieu una contrasenya llarga que sigui difícil d\'endevinar, com ara quatre paraules aleatòries o deu lletres, números i símbols aleatoris.</string>
-  <string name="setup_doze_title">Connexions en segon pla</string>
-  <string name="setup_doze_intro">Per rebre missatges Briar necessita estar connectat en segon pla.</string>
-  <string name="setup_doze_explanation">Per rebre missatges Briar necessita estar connectat en segon pla. Desactiveu les optimitzacions de la bateria per permetre que Briar resti sempre connectat.</string>
-  <string name="setup_doze_button">Permet connexions</string>
-  <string name="choose_nickname">Trieu el sobrenom</string>
-  <string name="choose_password">Trieu la contrasenya</string>
-  <string name="confirm_password">Confirmeu la contrasenya</string>
-  <string name="name_too_long">El nom és massa llarg</string>
-  <string name="password_too_weak">La contrasenya és massa feble</string>
-  <string name="passwords_do_not_match">Les contrasenyes no coincideixen</string>
-  <string name="create_account_button">Crea el compte</string>
-  <string name="more_info">Més informació</string>
-  <string name="don_t_ask_again">No tornis a preguntar-ho</string>
-  <string name="setup_huawei_text">Feu un toc sobre el botó següent i assegureu-vos de que Briar consta com a protegit a la pantalla «Aplicacions protegides».</string>
-  <string name="setup_huawei_button">Protegeix Briar</string>
-  <string name="dnkm_huawei_protected_help">Si no afegiu Briar a la llista d\'aplicacions protegides, s\'evitarà que Briar s\'executi en segon pla.</string>
-  <string name="dnkm_huawei_app_launch_text">Premeu el botó, obriu la pantalla «Llença app» i assegureu-vos que Briar està configurat com «Gestiona a ma».</string>
-  <string name="dnkm_huawei_app_launch_button">Obriu la configuració de la bateria</string>
-  <string name="setup_huawei_app_launch_help">Si Briar no està configurat com a «Gestiona manualment» a la pantalla «Llença app», no podrà executar-se en segon pla.</string>
-  <string name="dnkm_xiaomi_text">Per executar-se en segon pla, Briar necessita ser blocat en la llista d\'aplicacions recents.</string>
-  <string name="setup_xiaomi_button">Protegeix Briar</string>
-  <string name="dnkm_xiaomi_help">Si Briar no està blocat a la llista d\'aplicacions recents, no podrà executar-se en segon pla.</string>
-  <string name="dnkm_xiaomi_dialog_body_old">1. Obriu la llista d\'aplicacions recents (de canvi d\'aplicació)\n\n2. Desplaceu avall  la icona de Briar  per mostrar la icona del cadenat\n\n3. Si el cadenat és obert, premeu per tancar-lo.</string>
-  <string name="dnkm_xiaomi_dialog_body_new">1. Obriu la llista d\'aplicacions recents (canvi d\'aplicació)\n\n2. Premeu la icona de Briar fins que es mostra la icona del cadenat\n\n3. Si el cadenat és obert, premeu per tancar-lo.</string>
-  <string name="dnkm_warning_dozed">%s no s\'ha pogut executar en segon pla</string>
+	<!--Setup-->
+	<string name="setup_title">Benvingut a Briar</string>
+	<string name="setup_name_explanation">El vostre sobrenom etiquetarà tot el que publiqueu. Després de crear el compte ja no podreu canviar el sobrenom.</string>
+	<string name="setup_next">Següent</string>
+	<string name="setup_password_intro">Establiu una contrasenya</string>
+	<string name="setup_password_explanation">El compte de Briar s\'emmagatzema xifrat en el vostre dispositiu, no en el núvol. Si oblideu la contrasenya o desinstal·leu Briar no podreu recuperar el vostre compte ni les dades associades.\n\nTrieu una contrasenya llarga que sigui difícil d\'endevinar, com ara quatre paraules aleatòries o deu lletres, números i símbols aleatoris.</string>
+	<string name="dnkm_doze_title">Connexions en segon pla</string>
+	<string name="dnkm_doze_intro">Per rebre missatges Briar necessita estar connectat en segon pla.</string>
+	<string name="dnkm_doze_explanation">Per rebre missatges Briar necessita estar connectat en segon pla. Desactiveu les optimitzacions de la bateria per permetre que Briar resti sempre connectat.</string>
+	<string name="dnkm_doze_button">Permet connexions</string>
+	<string name="choose_nickname">Trieu el sobrenom</string>
+	<string name="choose_password">Trieu la contrasenya</string>
+	<string name="confirm_password">Confirmeu la contrasenya</string>
+	<string name="name_too_long">El nom és massa llarg</string>
+	<string name="password_too_weak">La contrasenya és massa feble</string>
+	<string name="passwords_do_not_match">Les contrasenyes no coincideixen</string>
+	<string name="create_account_button">Crea el compte</string>
+	<string name="more_info">Més informació</string>
+	<string name="don_t_ask_again">No tornis a preguntar-ho</string>
+	<string name="dnkm_huawei_protected_text">Feu un toc sobre el botó següent i assegureu-vos de que Briar consta com a protegit a la pantalla «Aplicacions protegides».</string>
+	<string name="dnkm_huawei_protected_button">Protegeix Briar</string>
+	<string name="dnkm_huawei_protected_help">Si no afegiu Briar a la llista d\'aplicacions protegides, s\'evitarà que Briar s\'executi en segon pla.</string>
+	<string name="dnkm_huawei_app_launch_text">Premeu el botó, obriu la pantalla «Llença app» i assegureu-vos que Briar està configurat com «Gestiona a ma».</string>
+	<string name="dnkm_huawei_app_launch_button">Obriu la configuració de la bateria</string>
+	<string name="dnkm_huawei_app_launch_help">Si Briar no està configurat com a «Gestiona manualment» a la pantalla «Llença app», no podrà executar-se en segon pla.</string>
+	<string name="dnkm_xiaomi_text">Per executar-se en segon pla, Briar necessita ser blocat en la llista d\'aplicacions recents.</string>
+	<string name="dnkm_xiaomi_button">Protegeix Briar</string>
+	<string name="dnkm_xiaomi_help">Si Briar no està blocat a la llista d\'aplicacions recents, no podrà executar-se en segon pla.</string>
+	<string name="dnkm_xiaomi_dialog_body_old">1. Obriu la llista d\'aplicacions recents (de canvi d\'aplicació)\n\n2. Desplaceu avall  la icona de Briar  per mostrar la icona del cadenat\n\n3. Si el cadenat és obert, premeu per tancar-lo.</string>
+	<string name="dnkm_xiaomi_dialog_body_new">1. Obriu la llista d\'aplicacions recents (canvi d\'aplicació)\n\n2. Premeu la icona de Briar fins que es mostra la icona del cadenat\n\n3. Si el cadenat és obert, premeu per tancar-lo.</string>
+	<string name="dnkm_warning_dozed">%s no s\'ha pogut executar en segon pla</string>
   <!--Login-->
   <string name="enter_password">Contrasenya</string>
   <string name="try_again">La contrasenya és incorrecta, torneu a escriure-la</string>

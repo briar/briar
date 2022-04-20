@@ -19,7 +19,7 @@
 		app:layout_constraintEnd_toEndOf="parent"
 		app:layout_constraintStart_toStartOf="parent"
 		app:layout_constraintTop_toTopOf="parent"
-		tools:text="@string/setup_huawei_text" />
+		tools:text="@string/dnkm_huawei_protected_text" />
 
 	<androidx.appcompat.widget.AppCompatImageView
 		android:id="@+id/checkImage"
@@ -43,7 +43,7 @@
 		app:layout_constraintEnd_toStartOf="@+id/helpButton"
 		app:layout_constraintStart_toEndOf="@+id/checkImage"
 		app:layout_constraintTop_toBottomOf="@+id/textView"
-		tools:text="@string/setup_huawei_button" />
+		tools:text="@string/dnkm_huawei_protected_button" />
 
 	<ImageButton
 		android:id="@+id/helpButton"

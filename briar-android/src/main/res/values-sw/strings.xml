@@ -1,39 +1,39 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
-  <!--Setup-->
-  <string name="setup_title">Karibu kwenye Briar</string>
-  <string name="setup_name_explanation">lakabu lako litaonekana kwenye kila chapisho lako . Na hutaweza badilisha baada ya kuteneneza akaunti yako .</string>
-  <string name="setup_next">Ifuatayo</string>
-  <string name="setup_password_intro">Chagua neno  siri </string>
-  <string name="setup_password_explanation">Akaunti yako ya Briar imeifaziwa katika msimbo fiche kwenye kifaa chako ,nasio kwenye mawingu. Kama utasahau nywila yako au kuondoa Briar, hamana namna unaweza kuokua akaunti yako . \n\nchagua nywila ndefu ambayo ni ngumu kubuniwa , kama maneno mannne ya nasibu, au kumi ya barua za nasibu, namba na herufi.</string>
-  <string name="setup_doze_title">Uhusiano wa nyuma</string>
-  <string name="setup_doze_intro">Kupokea ujumbe kwenye Briar unaitajika uwe umeunganishwa kwenye mkondo.</string>
-  <string name="setup_doze_explanation">li kupokea ujumbe , Briar unatakiwa uwe umeunganishwa kwenye mkongo kwa nyuma . Tafadhali tengua uboreshaji wa betri ili Briar iendele kuunganishwa.</string>
-  <string name="setup_doze_button">Ruhusa kuunganishwa </string>
-  <string name="choose_nickname">Chagua lakabu yako</string>
-  <string name="choose_password">Chagua nywila yako .</string>
-  <string name="confirm_password">Hakikisha nenosiri lako 
+	<!--Setup-->
+	<string name="setup_title">Karibu kwenye Briar</string>
+	<string name="setup_name_explanation">lakabu lako litaonekana kwenye kila chapisho lako . Na hutaweza badilisha baada ya kuteneneza akaunti yako .</string>
+	<string name="setup_next">Ifuatayo</string>
+	<string name="setup_password_intro">Chagua neno  siri </string>
+	<string name="setup_password_explanation">Akaunti yako ya Briar imeifaziwa katika msimbo fiche kwenye kifaa chako ,nasio kwenye mawingu. Kama utasahau nywila yako au kuondoa Briar, hamana namna unaweza kuokua akaunti yako . \n\nchagua nywila ndefu ambayo ni ngumu kubuniwa , kama maneno mannne ya nasibu, au kumi ya barua za nasibu, namba na herufi.</string>
+	<string name="dnkm_doze_title">Uhusiano wa nyuma</string>
+	<string name="dnkm_doze_intro">Kupokea ujumbe kwenye Briar unaitajika uwe umeunganishwa kwenye mkondo.</string>
+	<string name="dnkm_doze_explanation">li kupokea ujumbe , Briar unatakiwa uwe umeunganishwa kwenye mkongo kwa nyuma . Tafadhali tengua uboreshaji wa betri ili Briar iendele kuunganishwa.</string>
+	<string name="dnkm_doze_button">Ruhusa kuunganishwa </string>
+	<string name="choose_nickname">Chagua lakabu yako</string>
+	<string name="choose_password">Chagua nywila yako .</string>
+	<string name="confirm_password">Hakikisha nenosiri lako
 </string>
-  <string name="name_too_long">Jina ni refu sana .</string>
-  <string name="password_too_weak">Nywila yako ni dhaifu
+	<string name="name_too_long">Jina ni refu sana .</string>
+	<string name="password_too_weak">Nywila yako ni dhaifu
 </string>
-  <string name="passwords_do_not_match"> 
+	<string name="passwords_do_not_match">
 Nenosiri zako haziendani </string>
-  <string name="create_account_button">Tengeneza akaunti</string>
-  <string name="more_info">Habari za ziada </string>
-  <string name="don_t_ask_again">Usiulize tena </string>
-  <string name="setup_huawei_text">tafathali bonyeza alama hapo chini ili kuhakikisha Briar imelindwa na \"programu Ulizi\" kwenye kioo chako </string>
-  <string name="setup_huawei_button">Linda Briar </string>
-  <string name="dnkm_huawei_protected_help">
+	<string name="create_account_button">Tengeneza akaunti</string>
+	<string name="more_info">Habari za ziada </string>
+	<string name="don_t_ask_again">Usiulize tena </string>
+	<string name="dnkm_huawei_protected_text">tafathali bonyeza alama hapo chini ili kuhakikisha Briar imelindwa na \"programu Ulizi\" kwenye kioo chako </string>
+	<string name="dnkm_huawei_protected_button">Linda Briar </string>
+	<string name="dnkm_huawei_protected_help">
 Kama Briar haija wekwa kwenye orotha programu ulizi, haitaweza kufanya kazi kwenye nyuma ya mkongo</string>
-  <string name="setup_xiaomi_button">Linda Briar </string>
-  <string name="dnkm_warning_dozed">%shaijawezekana kujiendesha kwa nyuma ya mkongo</string>
-  <!--Login-->
-  <string name="enter_password">Nywila
+	<string name="dnkm_xiaomi_button">Linda Briar </string>
+	<string name="dnkm_warning_dozed">%shaijawezekana kujiendesha kwa nyuma ya mkongo</string>
+	<!--Login-->
+	<string name="enter_password">Nywila
 nenosiri</string>
-  <string name="try_again">Umekosea nywila , jaribu tena 
+	<string name="try_again">Umekosea nywila , jaribu tena
 Umekosea nenosiri, jaribu tena</string>
-  <string name="dialog_title_cannot_check_password">Haiwezi Kuangalia nywila</string>
+	<string name="dialog_title_cannot_check_password">Haiwezi Kuangalia nywila</string>
   <string name="dialog_message_cannot_check_password">Briar hawezi kuangalia nywila yako. Tafadhali jaribu kuwasha upya kifaa chako ili utatue shida hii.</string>
   <string name="sign_in_button">Ingia</string>
   <string name="forgotten_password">Nimesahau nywila yangu

@@ -6,10 +6,10 @@
   <string name="setup_next">التالي</string>
   <string name="setup_password_intro">اختيار كلمة السر</string>
   <string name="setup_password_explanation">سيتم تخزين حسابك على Briar (براير) مشفرا على جهازك، وليس على الإنترنت. لذا في حالة نسيان كلمة السر الخاصة بك أو إلغاء تثبيت Briar (براير) لا توجد طريقه لاسترجاع حسابك.\n\nالرجاء اختيار كلمة سر طويلة يصعب تخمينها مثل أربع كلمات عشوائية أو عشرة حروف عشوائية مع أرقام ورموز.</string>
-  <string name="setup_doze_title">الاتصالات الخلفية</string>
-  <string name="setup_doze_intro">لاستقبال الرسائل، يحتاج Briar (براير) أن يبقى متصلا في الخلفية.</string>
-  <string name="setup_doze_explanation">لاستقبال الرسائل، يحتاج Briar (براير) أن يبقى متصلا في الخلفية. الرجاء تعطيل تحسين البطارية حتى يتمكن Briar (براير) من البقاء متصلا.</string>
-  <string name="setup_doze_button">السماح بالاتصالات</string>
+  <string name="dnkm_doze_title">الاتصالات الخلفية</string>
+  <string name="dnkm_doze_intro">لاستقبال الرسائل، يحتاج Briar (براير) أن يبقى متصلا في الخلفية.</string>
+  <string name="dnkm_doze_explanation">لاستقبال الرسائل، يحتاج Briar (براير) أن يبقى متصلا في الخلفية. الرجاء تعطيل تحسين البطارية حتى يتمكن Briar (براير) من البقاء متصلا.</string>
+  <string name="dnkm_doze_button">السماح بالاتصالات</string>
   <string name="choose_nickname">اختيار اسمك المستعار</string>
   <string name="choose_password">اختيار كلمة السر</string>
   <string name="confirm_password">تأكيد كلمة السر</string>
@@ -19,10 +19,10 @@
   <string name="create_account_button">إنشاء الحساب</string>
   <string name="more_info">معلومات أكثر</string>
   <string name="don_t_ask_again">عدم الطلب مرة أخرى</string>
-  <string name="setup_huawei_text">الرجاء الضغط على الزر في الأسفل والتأكد من أن Briar (براير) محمى في شاشة \"التطبيقات المحمية\".</string>
-  <string name="setup_huawei_button">حماية Briar (براير)</string>
+  <string name="dnkm_huawei_protected_text">الرجاء الضغط على الزر في الأسفل والتأكد من أن Briar (براير) محمى في شاشة \"التطبيقات المحمية\".</string>
+  <string name="dnkm_huawei_protected_button">حماية Briar (براير)</string>
   <string name="dnkm_huawei_protected_help">إذا لم يتم إضافة Briar (براير) في قائمة التطبيقات المحمية، فلن يتمكن من العمل في الخلفية.</string>
-  <string name="setup_xiaomi_button">حماية Briar (براير)</string>
+  <string name="dnkm_xiaomi_button">حماية Briar (براير)</string>
   <string name="dnkm_warning_dozed">%s لم يتمكن من الاشتغال في الخلفية</string>
   <!--Login-->
   <string name="enter_password">‮كلمة السّر</string>

@@ -1,21 +1,21 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
-  <!--Setup-->
-  <string name="setup_title">Degemer mat war Briar</string>
-  <string name="setup_next">De-heul</string>
-  <string name="setup_password_intro">Dibabit ur ger-tremen</string>
-  <string name="setup_doze_title">Kevreadennoù drek-leur</string>
-  <string name="setup_doze_button">Aotren ar c\'hevreadennoù</string>
-  <string name="choose_nickname">Dibabit ho lezanv</string>
-  <string name="choose_password">Dibabit ho ker-tremen</string>
-  <string name="confirm_password">Kadarnait ho ker-tremen</string>
-  <string name="name_too_long">Re hir eo an anv</string>
-  <string name="password_too_weak">Re wan eo ar ger-kuzh</string>
-  <string name="passwords_do_not_match">Ne glot ket ar gerioù-tremen</string>
-  <string name="create_account_button">Krouiñ ur gont</string>
-  <string name="more_info">Muioc\'h a ditouroù</string>
-  <string name="don_t_ask_again">Arabat goulenn ganin ken</string>
-  <string name="setup_huawei_button">Gwareziñ Briar</string>
+	<!--Setup-->
+	<string name="setup_title">Degemer mat war Briar</string>
+	<string name="setup_next">De-heul</string>
+	<string name="setup_password_intro">Dibabit ur ger-tremen</string>
+	<string name="dnkm_doze_title">Kevreadennoù drek-leur</string>
+	<string name="dnkm_doze_button">Aotren ar c\'hevreadennoù</string>
+	<string name="choose_nickname">Dibabit ho lezanv</string>
+	<string name="choose_password">Dibabit ho ker-tremen</string>
+	<string name="confirm_password">Kadarnait ho ker-tremen</string>
+	<string name="name_too_long">Re hir eo an anv</string>
+	<string name="password_too_weak">Re wan eo ar ger-kuzh</string>
+	<string name="passwords_do_not_match">Ne glot ket ar gerioù-tremen</string>
+	<string name="create_account_button">Krouiñ ur gont</string>
+	<string name="more_info">Muioc\'h a ditouroù</string>
+	<string name="don_t_ask_again">Arabat goulenn ganin ken</string>
+	<string name="dnkm_huawei_protected_button">Gwareziñ Briar</string>
   <!--Login-->
   <string name="enter_password">Ger-tremen</string>
   <string name="try_again">Ger-tremen fall, klaskit adarre</string>

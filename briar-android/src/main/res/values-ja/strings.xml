@@ -1,36 +1,36 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
-  <!--Setup-->
-  <string name="setup_title">Briarへようこそ</string>
-  <string name="setup_name_explanation">あなたのニックネームは、常に、あなたが投稿するコンテンツとともに表示されます。プロフィール作成後、編集はできません。</string>
-  <string name="setup_next">次へ</string>
-  <string name="setup_password_intro">パスワードを選択</string>
-  <string name="setup_password_explanation">Briarのアカウント情報はクラウドではなく、暗号化された端末に保存されます。アプリのアンインストールやパスワードの紛失をした場合、アカウントへのアクセスとデータを回復する手段はありません。\n\n推測するのが難しい、長いパスワードを設定してください。ランダムな4単語やランダムな10文字と数字と記号を組み合わせたものなどです。</string>
-  <string name="setup_doze_title">バックグラウンド接続</string>
-  <string name="setup_doze_intro">メッセージを受信するには、Briarはバックグラウンドで接続を維持する必要があります。</string>
-  <string name="setup_doze_explanation">メッセージを受信するには、Briarはバックグラウンドで接続を維持する必要があります。 Briarが接続を維持できるように、バッテリーの最適化を無効にしてください。</string>
-  <string name="setup_doze_button">接続を許可</string>
-  <string name="choose_nickname">ニックネームを入力</string>
-  <string name="choose_password">パスワードを入力</string>
-  <string name="confirm_password">確認のため再度パスワードを入力</string>
-  <string name="name_too_long">名前が長過ぎます。</string>
-  <string name="password_too_weak">パスワードが弱すぎます。</string>
-  <string name="passwords_do_not_match">パスワードが一致しません。</string>
-  <string name="create_account_button">アカウントを作成</string>
-  <string name="more_info">詳細情報</string>
-  <string name="don_t_ask_again">次からは尋ねない</string>
-  <string name="setup_huawei_text">下のボタンをタップして、「保護されたアプリ」画面でBriarが保護されていることを確認してください。</string>
-  <string name="setup_huawei_button">Briarを保護</string>
-  <string name="dnkm_huawei_protected_help">Briarが保護されたアプリのリストに追加されていない場合、Briarはバックグラウンドで実行することができません。</string>
-  <string name="dnkm_huawei_app_launch_button">バッテリー設定を開く</string>
-  <string name="setup_xiaomi_button">Briarを保護</string>
-  <string name="dnkm_warning_dozed">%sはバックグラウンドで実行することができませんでした</string>
-  <!--Login-->
-  <string name="enter_password">パスワード</string>
-  <string name="try_again">パスワードが間違っています。もう一度入力してください。</string>
-  <string name="dialog_title_cannot_check_password">パスワードを確認できません</string>
-  <string name="dialog_message_cannot_check_password">Briarはあなたのパスワードを確認できません。この問題を解決するため、デバイスの再起動を試してください。</string>
-  <string name="sign_in_button">サインイン</string>
+	<!--Setup-->
+	<string name="setup_title">Briarへようこそ</string>
+	<string name="setup_name_explanation">あなたのニックネームは、常に、あなたが投稿するコンテンツとともに表示されます。プロフィール作成後、編集はできません。</string>
+	<string name="setup_next">次へ</string>
+	<string name="setup_password_intro">パスワードを選択</string>
+	<string name="setup_password_explanation">Briarのアカウント情報はクラウドではなく、暗号化された端末に保存されます。アプリのアンインストールやパスワードの紛失をした場合、アカウントへのアクセスとデータを回復する手段はありません。\n\n推測するのが難しい、長いパスワードを設定してください。ランダムな4単語やランダムな10文字と数字と記号を組み合わせたものなどです。</string>
+	<string name="dnkm_doze_title">バックグラウンド接続</string>
+	<string name="dnkm_doze_intro">メッセージを受信するには、Briarはバックグラウンドで接続を維持する必要があります。</string>
+	<string name="dnkm_doze_explanation">メッセージを受信するには、Briarはバックグラウンドで接続を維持する必要があります。 Briarが接続を維持できるように、バッテリーの最適化を無効にしてください。</string>
+	<string name="dnkm_doze_button">接続を許可</string>
+	<string name="choose_nickname">ニックネームを入力</string>
+	<string name="choose_password">パスワードを入力</string>
+	<string name="confirm_password">確認のため再度パスワードを入力</string>
+	<string name="name_too_long">名前が長過ぎます。</string>
+	<string name="password_too_weak">パスワードが弱すぎます。</string>
+	<string name="passwords_do_not_match">パスワードが一致しません。</string>
+	<string name="create_account_button">アカウントを作成</string>
+	<string name="more_info">詳細情報</string>
+	<string name="don_t_ask_again">次からは尋ねない</string>
+	<string name="dnkm_huawei_protected_text">下のボタンをタップして、「保護されたアプリ」画面でBriarが保護されていることを確認してください。</string>
+	<string name="dnkm_huawei_protected_button">Briarを保護</string>
+	<string name="dnkm_huawei_protected_help">Briarが保護されたアプリのリストに追加されていない場合、Briarはバックグラウンドで実行することができません。</string>
+	<string name="dnkm_huawei_app_launch_button">バッテリー設定を開く</string>
+	<string name="dnkm_xiaomi_button">Briarを保護</string>
+	<string name="dnkm_warning_dozed">%sはバックグラウンドで実行することができませんでした</string>
+	<!--Login-->
+	<string name="enter_password">パスワード</string>
+	<string name="try_again">パスワードが間違っています。もう一度入力してください。</string>
+	<string name="dialog_title_cannot_check_password">パスワードを確認できません</string>
+	<string name="dialog_message_cannot_check_password">Briarはあなたのパスワードを確認できません。この問題を解決するため、デバイスの再起動を試してください。</string>
+	<string name="sign_in_button">サインイン</string>
   <string name="forgotten_password">パスワードを忘れました</string>
   <string name="dialog_title_lost_password">パスワードを紛失</string>
   <string name="dialog_message_lost_password">あなたのBriarアカウントはクラウド上ではなく、暗号化さた上であなたのデバイスに保存さています。したがってBriarはパスワードをリセットできません。アカウントを削除しはじめからやりなおしますか？\n\n注意：あなたのID、連絡先、メッセージは永久に復元できません。</string>

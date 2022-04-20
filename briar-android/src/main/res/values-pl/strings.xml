@@ -1,36 +1,36 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
-  <!--Setup-->
-  <string name="setup_title">Witaj w Briar</string>
-  <string name="setup_name_explanation">Twoja nazwa użytkownika będzie wyświetlana przy każdej zamieszczonej przez Ciebie treści. Nie można jej zmienić po tworzeniu konta.</string>
-  <string name="setup_next">Dalej</string>
-  <string name="setup_password_intro">Wybierz Hasło</string>
-  <string name="setup_password_explanation">Twoje konto Briar jest przechowywane w postaci zaszyfrowanej na Twoim urządzeniu, a nie w chmurze. Jeżeli zapomnisz hasło lub odinstalujesz Briar, nie da się odzyskać Twojego konta.\n\nWybierz długie hasło, które jest trudne do odgadnięcia, jak np. cztery losowe słowa, lub dziesięć losowych liter, liczb i symboli </string>
-  <string name="setup_doze_title">Połączenia w tle</string>
-  <string name="setup_doze_intro">Aby otrzymywać wiadomości, Briar musi utrzymywać połączenie w tle.</string>
-  <string name="setup_doze_explanation">Aby otrzymywać wiadomości, Briar musi utrzymywać połączenie w tle. Wyłącz optymalizacje baterii aby Briar mógł utrzymywać połączenie w tle.</string>
-  <string name="setup_doze_button">Pozwól na Połączenia</string>
-  <string name="choose_nickname">Wybierz nazwę użytkownika</string>
-  <string name="choose_password">Wybierz hasło</string>
-  <string name="confirm_password">Potwierdź hasło</string>
-  <string name="name_too_long">Nazwa użytkownika jest zbyt długa</string>
-  <string name="password_too_weak">Hasło jest zbyt długie</string>
-  <string name="passwords_do_not_match">Hasła różnią się</string>
-  <string name="create_account_button">Utwórz Konto</string>
-  <string name="more_info">Więcej Informacji</string>
-  <string name="don_t_ask_again">Nie pytaj ponownie</string>
-  <string name="setup_huawei_text">Proszę dotknąć przycisku poniżej i upewnić się, że Briar jest na liście chronionych aplikacji.</string>
-  <string name="setup_huawei_button">Chroń Briar</string>
-  <string name="dnkm_huawei_protected_help">Jeśli Briar nie będzie na liście chronionych aplikacji, nie będzie miał możliwości aby działać w tle.</string>
-  <string name="dnkm_huawei_app_launch_text">Dotknij przycisku poniżej, otwórz ekran „Uruchamianie aplikacji” i upewnij się, że Briar jest ustawiony na „Zarządzaj ręcznie”.</string>
-  <string name="dnkm_huawei_app_launch_button">Otwórz Ustawienia Baterii</string>
-  <string name="setup_huawei_app_launch_help">Jeśli Briar nie jest ustawiony na „Zarządzaj ręcznie” na ekranie „Uruchamianie aplikacji”, nie będzie mógł działać w tle.</string>
-  <string name="dnkm_huawei_app_launch_error_toast">Nie można otworzyć ustawień baterii</string>
-  <string name="dnkm_xiaomi_text">Aby działać w tle, Briar musi być zablokowany na liście ostatnich aplikacji.</string>
-  <string name="setup_xiaomi_button">Chroń Briar</string>
-  <string name="dnkm_xiaomi_help">Jeżeli Briar nie jest zablokowany na liście ostatnich aplikacji, nie będzie mógł działać w tle.</string>
-  <string name="dnkm_xiaomi_dialog_body_old">1. Otwórz listę ostatnich aplikacji (często nazywaną też przełącznikiem aplikacji)\n\n2. Przewiń w dół na obrazku Briara aby ukazała się ikonka kłódki\n\n3. Jeśli kłódka nie jest zablokowana, dotknij, aby ją zablokować</string>
-  <string name="dnkm_xiaomi_dialog_body_new">1. Otwórz listę ostatnich aplikacji (często nazywaną też przełącznikiem aplikacji)\n\n2. Przyciśnij i przytrzymaj obrazek Briara aby ukazała się ikonka kłódki\n\n3. Jeśli kłódka nie jest zablokowana, dotknij, aby ją zablokować</string>
+	<!--Setup-->
+	<string name="setup_title">Witaj w Briar</string>
+	<string name="setup_name_explanation">Twoja nazwa użytkownika będzie wyświetlana przy każdej zamieszczonej przez Ciebie treści. Nie można jej zmienić po tworzeniu konta.</string>
+	<string name="setup_next">Dalej</string>
+	<string name="setup_password_intro">Wybierz Hasło</string>
+	<string name="setup_password_explanation">Twoje konto Briar jest przechowywane w postaci zaszyfrowanej na Twoim urządzeniu, a nie w chmurze. Jeżeli zapomnisz hasło lub odinstalujesz Briar, nie da się odzyskać Twojego konta.\n\nWybierz długie hasło, które jest trudne do odgadnięcia, jak np. cztery losowe słowa, lub dziesięć losowych liter, liczb i symboli </string>
+	<string name="dnkm_doze_title">Połączenia w tle</string>
+	<string name="dnkm_doze_intro">Aby otrzymywać wiadomości, Briar musi utrzymywać połączenie w tle.</string>
+	<string name="dnkm_doze_explanation">Aby otrzymywać wiadomości, Briar musi utrzymywać połączenie w tle. Wyłącz optymalizacje baterii aby Briar mógł utrzymywać połączenie w tle.</string>
+	<string name="dnkm_doze_button">Pozwól na Połączenia</string>
+	<string name="choose_nickname">Wybierz nazwę użytkownika</string>
+	<string name="choose_password">Wybierz hasło</string>
+	<string name="confirm_password">Potwierdź hasło</string>
+	<string name="name_too_long">Nazwa użytkownika jest zbyt długa</string>
+	<string name="password_too_weak">Hasło jest zbyt długie</string>
+	<string name="passwords_do_not_match">Hasła różnią się</string>
+	<string name="create_account_button">Utwórz Konto</string>
+	<string name="more_info">Więcej Informacji</string>
+	<string name="don_t_ask_again">Nie pytaj ponownie</string>
+	<string name="dnkm_huawei_protected_text">Proszę dotknąć przycisku poniżej i upewnić się, że Briar jest na liście chronionych aplikacji.</string>
+	<string name="dnkm_huawei_protected_button">Chroń Briar</string>
+	<string name="dnkm_huawei_protected_help">Jeśli Briar nie będzie na liście chronionych aplikacji, nie będzie miał możliwości aby działać w tle.</string>
+	<string name="dnkm_huawei_app_launch_text">Dotknij przycisku poniżej, otwórz ekran „Uruchamianie aplikacji” i upewnij się, że Briar jest ustawiony na „Zarządzaj ręcznie”.</string>
+	<string name="dnkm_huawei_app_launch_button">Otwórz Ustawienia Baterii</string>
+	<string name="dnkm_huawei_app_launch_help">Jeśli Briar nie jest ustawiony na „Zarządzaj ręcznie” na ekranie „Uruchamianie aplikacji”, nie będzie mógł działać w tle.</string>
+	<string name="dnkm_huawei_app_launch_error_toast">Nie można otworzyć ustawień baterii</string>
+	<string name="dnkm_xiaomi_text">Aby działać w tle, Briar musi być zablokowany na liście ostatnich aplikacji.</string>
+	<string name="dnkm_xiaomi_button">Chroń Briar</string>
+	<string name="dnkm_xiaomi_help">Jeżeli Briar nie jest zablokowany na liście ostatnich aplikacji, nie będzie mógł działać w tle.</string>
+	<string name="dnkm_xiaomi_dialog_body_old">1. Otwórz listę ostatnich aplikacji (często nazywaną też przełącznikiem aplikacji)\n\n2. Przewiń w dół na obrazku Briara aby ukazała się ikonka kłódki\n\n3. Jeśli kłódka nie jest zablokowana, dotknij, aby ją zablokować</string>
+	<string name="dnkm_xiaomi_dialog_body_new">1. Otwórz listę ostatnich aplikacji (często nazywaną też przełącznikiem aplikacji)\n\n2. Przyciśnij i przytrzymaj obrazek Briara aby ukazała się ikonka kłódki\n\n3. Jeśli kłódka nie jest zablokowana, dotknij, aby ją zablokować</string>
   <string name="dnkm_warning_dozed">%s nie był wstanie działać w tle</string>
   <!--Login-->
   <string name="enter_password">Hasło</string>

@@ -1,36 +1,36 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
-  <!--Setup-->
-  <string name="setup_title">ברוך בואך אל Briar</string>
-  <string name="setup_name_explanation">כינויך יוראה ליד תוכן כלשהו שתכתוב. אינך יכול לשנות אותו לאחר יצירת חשבונך.</string>
-  <string name="setup_next">הבא</string>
-  <string name="setup_password_intro">נא לבחור סיסמה</string>
-  <string name="setup_password_explanation">חשבון Briar שלך מאוחסן באופן מוצפן במכשירך, לא בענן. אם תשכח את סיסמתך או תסיר את Briar, אין דרך להשיב את חשבונך.\n\nבחר סיסמה ארוכה שקשה לנחש אותה, כגון ארבע מילים אקראיות, או עשרה תווים אקראיים של אותיות, מספרים וסמלים.</string>
-  <string name="setup_doze_title">חיבורי רקע</string>
-  <string name="setup_doze_intro">כדי לקבל הודעות, Briar צריך להישאר מחובר ברקע.</string>
-  <string name="setup_doze_explanation">כדי לקבל הודעות, Briar צריך להישאר מחובר ברקע. אנא השבת מיטובי סוללה כך ש־Briar יוכל להישאר מחובר.</string>
-  <string name="setup_doze_button">התר חיבורים</string>
-  <string name="choose_nickname">נא לבחור את הכינוי שלך</string>
-  <string name="choose_password">בחר סיסמה</string>
-  <string name="confirm_password">אשר סיסמה</string>
-  <string name="name_too_long">השם ארוך מדי</string>
-  <string name="password_too_weak">הסיסמה חלשה מדי</string>
-  <string name="passwords_do_not_match">הסיסמאות לא תואמות</string>
-  <string name="create_account_button">יצירת חשבון</string>
-  <string name="more_info">מידע נוסף</string>
-  <string name="don_t_ask_again">לא לשאול שוב</string>
-  <string name="setup_huawei_text">נא להקיש על הכפתור למטה וולוודא כי Briar מוגן במסך \"יישומים מוגנים\".</string>
-  <string name="setup_huawei_button">הגן על Briar</string>
-  <string name="dnkm_huawei_protected_help">אם Briar אינו מוסף אל רשימת היישומים המוגנים, הוא לא יוכל לרוץ ברקע.</string>
-  <string name="setup_xiaomi_button">הגן על Briar</string>
-  <string name="dnkm_warning_dozed">%s לא היה יכול לרוץ ברקע</string>
-  <!--Login-->
-  <string name="enter_password">סיסמה</string>
-  <string name="try_again">סיסמה שגויה, נסה שוב</string>
-  <string name="dialog_title_cannot_check_password">לא יכול לבדוק סיסמה</string>
-  <string name="dialog_message_cannot_check_password">Briar לא יכול לבדוק את הסיסמה שלך. אנא נסה לאתחל מחדש את המכשיר שלך כדי לפתור בעיה זאת.</string>
-  <string name="sign_in_button">כניסה</string>
-  <string name="forgotten_password">שכחתי את הסיסמה שלי</string>
+	<!--Setup-->
+	<string name="setup_title">ברוך בואך אל Briar</string>
+	<string name="setup_name_explanation">כינויך יוראה ליד תוכן כלשהו שתכתוב. אינך יכול לשנות אותו לאחר יצירת חשבונך.</string>
+	<string name="setup_next">הבא</string>
+	<string name="setup_password_intro">נא לבחור סיסמה</string>
+	<string name="setup_password_explanation">חשבון Briar שלך מאוחסן באופן מוצפן במכשירך, לא בענן. אם תשכח את סיסמתך או תסיר את Briar, אין דרך להשיב את חשבונך.\n\nבחר סיסמה ארוכה שקשה לנחש אותה, כגון ארבע מילים אקראיות, או עשרה תווים אקראיים של אותיות, מספרים וסמלים.</string>
+	<string name="dnkm_doze_title">חיבורי רקע</string>
+	<string name="dnkm_doze_intro">כדי לקבל הודעות, Briar צריך להישאר מחובר ברקע.</string>
+	<string name="dnkm_doze_explanation">כדי לקבל הודעות, Briar צריך להישאר מחובר ברקע. אנא השבת מיטובי סוללה כך ש־Briar יוכל להישאר מחובר.</string>
+	<string name="dnkm_doze_button">התר חיבורים</string>
+	<string name="choose_nickname">נא לבחור את הכינוי שלך</string>
+	<string name="choose_password">בחר סיסמה</string>
+	<string name="confirm_password">אשר סיסמה</string>
+	<string name="name_too_long">השם ארוך מדי</string>
+	<string name="password_too_weak">הסיסמה חלשה מדי</string>
+	<string name="passwords_do_not_match">הסיסמאות לא תואמות</string>
+	<string name="create_account_button">יצירת חשבון</string>
+	<string name="more_info">מידע נוסף</string>
+	<string name="don_t_ask_again">לא לשאול שוב</string>
+	<string name="dnkm_huawei_protected_text">נא להקיש על הכפתור למטה וולוודא כי Briar מוגן במסך \"יישומים מוגנים\".</string>
+	<string name="dnkm_huawei_protected_button">הגן על Briar</string>
+	<string name="dnkm_huawei_protected_help">אם Briar אינו מוסף אל רשימת היישומים המוגנים, הוא לא יוכל לרוץ ברקע.</string>
+	<string name="dnkm_xiaomi_button">הגן על Briar</string>
+	<string name="dnkm_warning_dozed">%s לא היה יכול לרוץ ברקע</string>
+	<!--Login-->
+	<string name="enter_password">סיסמה</string>
+	<string name="try_again">סיסמה שגויה, נסה שוב</string>
+	<string name="dialog_title_cannot_check_password">לא יכול לבדוק סיסמה</string>
+	<string name="dialog_message_cannot_check_password">Briar לא יכול לבדוק את הסיסמה שלך. אנא נסה לאתחל מחדש את המכשיר שלך כדי לפתור בעיה זאת.</string>
+	<string name="sign_in_button">כניסה</string>
+	<string name="forgotten_password">שכחתי את הסיסמה שלי</string>
   <string name="dialog_title_lost_password">סיסמה אבודה</string>
   <string name="dialog_message_lost_password">חשבון Briar שלך מאוחסן באופן מוצפן על המכשיר שלך, לא בענן, כך שאנחנו לא יכולים לאפס את הסיסמה שלך. האם תרצה למחוק את החשבון שלך ולהתחיל מחדש?\n\nזהירות: הזהויות, אנשי הקשר וההודעות שלך יאבדו לצמיתות.</string>
   <string name="startup_failed_activity_title">כישלון הזנק Briar</string>

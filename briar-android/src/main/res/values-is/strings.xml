@@ -1,36 +1,36 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
-  <!--Setup-->
-  <string name="setup_title">Velkomin í Briar</string>
-  <string name="setup_name_explanation">Stuttnefnið þitt birtist við hlið alls þess efnis sem þú sendir inn. Þú getur ekki breytt því eftir að þú hefur skráð notandaaðganginn þinn.</string>
-  <string name="setup_next">Næsta</string>
-  <string name="setup_password_intro">Veldu lykilorð</string>
-  <string name="setup_password_explanation">Notandaaðgangur þinn í Briar er geymdur dulritaður á tækinu þínu, ekki í tölvuskýi. Ef þú gleymir lykilorðinu þínu eða fjarlægir Briar, þá er engin leið til að endurheimta notandaaðganginn þinn.\n\nVeldu langt lykilorð sem erfitt er að giska á, svo sem eins og fjögur orð af handahófi, eða slembna samsetningu tíu bósktafa, tölustafa og tákna.</string>
-  <string name="setup_doze_title">Bakgrunnstengingar</string>
-  <string name="setup_doze_intro">Til að taka á móti skilaboðum þarf Briar að haldast tengt í bakgrunni.</string>
-  <string name="setup_doze_explanation">Til að taka á móti skilaboðum þarf Briar að haldast tengt í bakgrunni. Gerðu orkusparnaðarferli óvirk svo Briar geti haldið tengingum.</string>
-  <string name="setup_doze_button">Leyfa tengingar</string>
-  <string name="choose_nickname">Veldu þér stuttnefni</string>
-  <string name="choose_password">Veldu þér lykilorð</string>
-  <string name="confirm_password">Staðfestu lykilorðið</string>
-  <string name="name_too_long">Nafnið er of langt</string>
-  <string name="password_too_weak">Lykilorðið er of veikt</string>
-  <string name="passwords_do_not_match">Lykilorðin stemma ekki</string>
-  <string name="create_account_button">Búa til notandaaðgang</string>
-  <string name="more_info">Nánari upplýsingar</string>
-  <string name="don_t_ask_again">Ekki spyrja aftur</string>
-  <string name="setup_huawei_text">Ýttu á hnappinn hér fyrir neðan og gakktu úr skugga um að Briar sé varið á skjánum \"Varin forrit\".</string>
-  <string name="setup_huawei_button">Vernda Briar</string>
-  <string name="dnkm_huawei_protected_help">Ef Briar er ekki bætt á listann yfir varin forrit, getur það ekki keyrt í bakgrunni.</string>
-  <string name="dnkm_huawei_app_launch_text">Ýttu á hnappinn hér fyrir neðan, opnaðu \"Ræsing forrits\" skjáinn og gakktu úr skugga um að Briar sé stillt á \"Stýra handvirkt\".</string>
-  <string name="dnkm_huawei_app_launch_button">Opna rafhlöðustillingar</string>
-  <string name="setup_huawei_app_launch_help">Ef Briar er ekki stillt á \"Stýra handvirkt\" í \"Ræsing forrits\" skjánum, mun það ekki geta keyrt í bakgrunni.</string>
-  <string name="dnkm_xiaomi_text">Til að keyra í bakgrunni þarf Briar að vera læst við listann yfir nýleg forrit.</string>
-  <string name="setup_xiaomi_button">Vernda Briar</string>
-  <string name="dnkm_xiaomi_help">Ef Briar er ekki læst við listann yfir nýleg forrit, mun það ekki geta keyrt í bakgrunni.</string>
-  <string name="dnkm_xiaomi_dialog_body_old">1. Opnaðu listann yfir nýleg forrit (einnig kallað forritaskiptir)\n\n2. Strjúktu niður myndina af Briar til að birta hengilástáknið\n\n3. Ef hengilásinn er ekki læstur, ýttu á hann til að læsa</string>
-  <string name="dnkm_xiaomi_dialog_body_new">1. Opnaðu listann yfir nýleg forrit (einnig kallað forritaskiptir)\n\n2. Ýttu og haltu niðri á myndina af Briar til að birta hengiláshnappinn\n\n3. Ef hengilásinn er ekki læstur, ýttu á hann til að læsa</string>
-  <string name="dnkm_warning_dozed">%s gat ekki keyrt í bakgrunni</string>
+	<!--Setup-->
+	<string name="setup_title">Velkomin í Briar</string>
+	<string name="setup_name_explanation">Stuttnefnið þitt birtist við hlið alls þess efnis sem þú sendir inn. Þú getur ekki breytt því eftir að þú hefur skráð notandaaðganginn þinn.</string>
+	<string name="setup_next">Næsta</string>
+	<string name="setup_password_intro">Veldu lykilorð</string>
+	<string name="setup_password_explanation">Notandaaðgangur þinn í Briar er geymdur dulritaður á tækinu þínu, ekki í tölvuskýi. Ef þú gleymir lykilorðinu þínu eða fjarlægir Briar, þá er engin leið til að endurheimta notandaaðganginn þinn.\n\nVeldu langt lykilorð sem erfitt er að giska á, svo sem eins og fjögur orð af handahófi, eða slembna samsetningu tíu bósktafa, tölustafa og tákna.</string>
+	<string name="dnkm_doze_title">Bakgrunnstengingar</string>
+	<string name="dnkm_doze_intro">Til að taka á móti skilaboðum þarf Briar að haldast tengt í bakgrunni.</string>
+	<string name="dnkm_doze_explanation">Til að taka á móti skilaboðum þarf Briar að haldast tengt í bakgrunni. Gerðu orkusparnaðarferli óvirk svo Briar geti haldið tengingum.</string>
+	<string name="dnkm_doze_button">Leyfa tengingar</string>
+	<string name="choose_nickname">Veldu þér stuttnefni</string>
+	<string name="choose_password">Veldu þér lykilorð</string>
+	<string name="confirm_password">Staðfestu lykilorðið</string>
+	<string name="name_too_long">Nafnið er of langt</string>
+	<string name="password_too_weak">Lykilorðið er of veikt</string>
+	<string name="passwords_do_not_match">Lykilorðin stemma ekki</string>
+	<string name="create_account_button">Búa til notandaaðgang</string>
+	<string name="more_info">Nánari upplýsingar</string>
+	<string name="don_t_ask_again">Ekki spyrja aftur</string>
+	<string name="dnkm_huawei_protected_text">Ýttu á hnappinn hér fyrir neðan og gakktu úr skugga um að Briar sé varið á skjánum \"Varin forrit\".</string>
+	<string name="dnkm_huawei_protected_button">Vernda Briar</string>
+	<string name="dnkm_huawei_protected_help">Ef Briar er ekki bætt á listann yfir varin forrit, getur það ekki keyrt í bakgrunni.</string>
+	<string name="dnkm_huawei_app_launch_text">Ýttu á hnappinn hér fyrir neðan, opnaðu \"Ræsing forrits\" skjáinn og gakktu úr skugga um að Briar sé stillt á \"Stýra handvirkt\".</string>
+	<string name="dnkm_huawei_app_launch_button">Opna rafhlöðustillingar</string>
+	<string name="dnkm_huawei_app_launch_help">Ef Briar er ekki stillt á \"Stýra handvirkt\" í \"Ræsing forrits\" skjánum, mun það ekki geta keyrt í bakgrunni.</string>
+	<string name="dnkm_xiaomi_text">Til að keyra í bakgrunni þarf Briar að vera læst við listann yfir nýleg forrit.</string>
+	<string name="dnkm_xiaomi_button">Vernda Briar</string>
+	<string name="dnkm_xiaomi_help">Ef Briar er ekki læst við listann yfir nýleg forrit, mun það ekki geta keyrt í bakgrunni.</string>
+	<string name="dnkm_xiaomi_dialog_body_old">1. Opnaðu listann yfir nýleg forrit (einnig kallað forritaskiptir)\n\n2. Strjúktu niður myndina af Briar til að birta hengilástáknið\n\n3. Ef hengilásinn er ekki læstur, ýttu á hann til að læsa</string>
+	<string name="dnkm_xiaomi_dialog_body_new">1. Opnaðu listann yfir nýleg forrit (einnig kallað forritaskiptir)\n\n2. Ýttu og haltu niðri á myndina af Briar til að birta hengiláshnappinn\n\n3. Ef hengilásinn er ekki læstur, ýttu á hann til að læsa</string>
+	<string name="dnkm_warning_dozed">%s gat ekki keyrt í bakgrunni</string>
   <!--Login-->
   <string name="enter_password">Lykilorð</string>
   <string name="try_again">Rangt lykilorð, reyndu aftur</string>

@@ -1,36 +1,36 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
-  <!--Setup-->
-  <string name="setup_title">Ongi etorri Briar-era</string>
-  <string name="setup_name_explanation">Zure ezizena argitaratzen dituzun eduki guztien ondoan agertuko da. Ezingo duzu aldatu, kontua sortu eta gero.</string>
-  <string name="setup_next">Hurrengoa</string>
-  <string name="setup_password_intro">Aukeratu pasahitz bat</string>
-  <string name="setup_password_explanation">Zure Briar kontua zure gailuan zifratuta gordetzen da, ez hodeian. Briar desinstalatzen baduzu edo pasahitza ahazten baduzu, ez dago zure kontua eta datuak berreskuratzeko modurik.\n\nAukeratu asmatzeko zaila den pasahitz luze bat, adibidez ausazko lau hitz edo ausazko hamar letra, zenbaki eta ikur.</string>
-  <string name="setup_doze_title">Atzeko planoko konexioak</string>
-  <string name="setup_doze_intro">Mezuak jasotzeko, Briar bigarren planoan konektatuta gelditu behar da.</string>
-  <string name="setup_doze_explanation">Mezuak jasotzeko, Briar bigarren planoan konektatuta gelditu behar da. Mesedez desgaitu bateria optimizazioak Briar konektatuta mantendu dadin.</string>
-  <string name="setup_doze_button">Baimendu konexioak</string>
-  <string name="choose_nickname">Aukeratu zure ezizena</string>
-  <string name="choose_password">Aukeratu zure pasahitza</string>
-  <string name="confirm_password">Berretsi zure pasahitza</string>
-  <string name="name_too_long">Izena luzeegia da</string>
-  <string name="password_too_weak">Pasahitza ahulegia da</string>
-  <string name="passwords_do_not_match">Pasahitzak ez datoz bat</string>
-  <string name="create_account_button">Sortu kontua</string>
-  <string name="more_info">Informazio gehiago</string>
-  <string name="don_t_ask_again">Ez galdetu berriro</string>
-  <string name="setup_huawei_text">Sakatu beheko botoia eta ziurtatu Briar babestuta dagoela \"Babestutako aplikazioak\" pantailan.</string>
-  <string name="setup_huawei_button">Babestu Briar</string>
-  <string name="dnkm_huawei_protected_help">Briar ez bada babestutako aplikazioen zerrendara gehitzen, ezin izango du bigarren planoan ibili.</string>
-  <string name="setup_xiaomi_button">Babestu Briar</string>
-  <string name="dnkm_warning_dozed">%s ezin izan da bigarren planoan exekutatu</string>
-  <!--Login-->
-  <string name="enter_password">Pasahitza</string>
-  <string name="try_again">Pasahitz okerra, saiatu berriro</string>
-  <string name="dialog_title_cannot_check_password">Ezin izan da pasahitza egiaztatu</string>
-  <string name="dialog_message_cannot_check_password">Briar-ek ezin du zure pasahitza egiaztatu. Saiatu gailua berrabiarazten arazo hau konpontzeko.</string>
-  <string name="sign_in_button">Hasi saioa</string>
-  <string name="forgotten_password">Nire pasahitza ahaztu dut</string>
+	<!--Setup-->
+	<string name="setup_title">Ongi etorri Briar-era</string>
+	<string name="setup_name_explanation">Zure ezizena argitaratzen dituzun eduki guztien ondoan agertuko da. Ezingo duzu aldatu, kontua sortu eta gero.</string>
+	<string name="setup_next">Hurrengoa</string>
+	<string name="setup_password_intro">Aukeratu pasahitz bat</string>
+	<string name="setup_password_explanation">Zure Briar kontua zure gailuan zifratuta gordetzen da, ez hodeian. Briar desinstalatzen baduzu edo pasahitza ahazten baduzu, ez dago zure kontua eta datuak berreskuratzeko modurik.\n\nAukeratu asmatzeko zaila den pasahitz luze bat, adibidez ausazko lau hitz edo ausazko hamar letra, zenbaki eta ikur.</string>
+	<string name="dnkm_doze_title">Atzeko planoko konexioak</string>
+	<string name="dnkm_doze_intro">Mezuak jasotzeko, Briar bigarren planoan konektatuta gelditu behar da.</string>
+	<string name="dnkm_doze_explanation">Mezuak jasotzeko, Briar bigarren planoan konektatuta gelditu behar da. Mesedez desgaitu bateria optimizazioak Briar konektatuta mantendu dadin.</string>
+	<string name="dnkm_doze_button">Baimendu konexioak</string>
+	<string name="choose_nickname">Aukeratu zure ezizena</string>
+	<string name="choose_password">Aukeratu zure pasahitza</string>
+	<string name="confirm_password">Berretsi zure pasahitza</string>
+	<string name="name_too_long">Izena luzeegia da</string>
+	<string name="password_too_weak">Pasahitza ahulegia da</string>
+	<string name="passwords_do_not_match">Pasahitzak ez datoz bat</string>
+	<string name="create_account_button">Sortu kontua</string>
+	<string name="more_info">Informazio gehiago</string>
+	<string name="don_t_ask_again">Ez galdetu berriro</string>
+	<string name="dnkm_huawei_protected_text">Sakatu beheko botoia eta ziurtatu Briar babestuta dagoela \"Babestutako aplikazioak\" pantailan.</string>
+	<string name="dnkm_huawei_protected_button">Babestu Briar</string>
+	<string name="dnkm_huawei_protected_help">Briar ez bada babestutako aplikazioen zerrendara gehitzen, ezin izango du bigarren planoan ibili.</string>
+	<string name="dnkm_xiaomi_button">Babestu Briar</string>
+	<string name="dnkm_warning_dozed">%s ezin izan da bigarren planoan exekutatu</string>
+	<!--Login-->
+	<string name="enter_password">Pasahitza</string>
+	<string name="try_again">Pasahitz okerra, saiatu berriro</string>
+	<string name="dialog_title_cannot_check_password">Ezin izan da pasahitza egiaztatu</string>
+	<string name="dialog_message_cannot_check_password">Briar-ek ezin du zure pasahitza egiaztatu. Saiatu gailua berrabiarazten arazo hau konpontzeko.</string>
+	<string name="sign_in_button">Hasi saioa</string>
+	<string name="forgotten_password">Nire pasahitza ahaztu dut</string>
   <string name="dialog_title_lost_password">Pasahitzaren galera</string>
   <string name="dialog_message_lost_password">Zure Briar kontua zure gailuan zifratuta gordetzen da, ez hodeian, beraz ezin dugu zure pasahitza berrezarri. Zure kontua ezabatu eta berriro hasi nahi zenuke?\n\nKontuz: Zure identitateak, kontaktuak eta mezuak betirako galduko dira.</string>
   <string name="startup_failed_notification_title">Briar ezin izan da abiatu</string>

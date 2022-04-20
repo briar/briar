@@ -1,36 +1,36 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
-  <!--Setup-->
-  <string name="setup_title">Benvida a Briar</string>
-  <string name="setup_name_explanation">O teu alcume mostrarase xunto a todas as mensaxes que publiques. Podes cambialo tras crear a túa conta.</string>
-  <string name="setup_next">Seguinte</string>
-  <string name="setup_password_intro">Elixe un Contrasinal</string>
-  <string name="setup_password_explanation">A túa conta en Briar gárdase cifrada no teu dispositivo, non na nube. Se esqueces o contrasinal ou desinstalas Briar, non haberá xeito de recuperar a túa conta.\n\nEscolle un contrasinal longo que sexa difícil de adiviñar, algo como catro palabras ao chou, ou dez letras aleatorias, números e símbolos.</string>
-  <string name="setup_doze_title">Conexións en segundo plano</string>
-  <string name="setup_doze_intro">Para recibir mensaxes, Briar precisa estar conectada en segundo plano.</string>
-  <string name="setup_doze_explanation">Para recibir mensaxes, Briar precisa estar conectada en segundo plano. Por favor desactiva as optimizacións de batería para que Briar poida permanecer conectada.</string>
-  <string name="setup_doze_button">Permitir conexións</string>
-  <string name="choose_nickname">Escolle o teu alcume</string>
-  <string name="choose_password">Elixe o teu contrasinal</string>
-  <string name="confirm_password">Confirma o teu contrasinal</string>
-  <string name="name_too_long">O nome é demasiado longo</string>
-  <string name="password_too_weak">O contrasinal é demasiado débil</string>
-  <string name="passwords_do_not_match">Os contrasinais non concordan</string>
-  <string name="create_account_button">Crea unha conta</string>
-  <string name="more_info">Máis información</string>
-  <string name="don_t_ask_again">Non preguntar de novo</string>
-  <string name="setup_huawei_text">Por favor toca o botón inferior e asegúrate de que Briar está protexida na pantalla \"Apps Protexidas\"</string>
-  <string name="setup_huawei_button">Protexer Briar</string>
-  <string name="dnkm_huawei_protected_help">Se Briar non se engade ao listado de apps protexidas, non poderá funcionar en segundo plano.</string>
-  <string name="setup_xiaomi_button">Protexer Briar</string>
-  <string name="dnkm_warning_dozed">%s non foi quen de funcionar en segundo plano</string>
-  <!--Login-->
-  <string name="enter_password">Contrasinal</string>
-  <string name="try_again">Contrasinal incorrecto, tenteo de novo</string>
-  <string name="dialog_title_cannot_check_password">Non se comprobou o contrasinal</string>
-  <string name="dialog_message_cannot_check_password">Briar non pode comprobar o contrasinal. Intenta reiniciar o dispositivo para solucionar o problema.</string>
-  <string name="sign_in_button">Iniciar sesión</string>
-  <string name="forgotten_password">Esquecín a miña clave</string>
+	<!--Setup-->
+	<string name="setup_title">Benvida a Briar</string>
+	<string name="setup_name_explanation">O teu alcume mostrarase xunto a todas as mensaxes que publiques. Podes cambialo tras crear a túa conta.</string>
+	<string name="setup_next">Seguinte</string>
+	<string name="setup_password_intro">Elixe un Contrasinal</string>
+	<string name="setup_password_explanation">A túa conta en Briar gárdase cifrada no teu dispositivo, non na nube. Se esqueces o contrasinal ou desinstalas Briar, non haberá xeito de recuperar a túa conta.\n\nEscolle un contrasinal longo que sexa difícil de adiviñar, algo como catro palabras ao chou, ou dez letras aleatorias, números e símbolos.</string>
+	<string name="dnkm_doze_title">Conexións en segundo plano</string>
+	<string name="dnkm_doze_intro">Para recibir mensaxes, Briar precisa estar conectada en segundo plano.</string>
+	<string name="dnkm_doze_explanation">Para recibir mensaxes, Briar precisa estar conectada en segundo plano. Por favor desactiva as optimizacións de batería para que Briar poida permanecer conectada.</string>
+	<string name="dnkm_doze_button">Permitir conexións</string>
+	<string name="choose_nickname">Escolle o teu alcume</string>
+	<string name="choose_password">Elixe o teu contrasinal</string>
+	<string name="confirm_password">Confirma o teu contrasinal</string>
+	<string name="name_too_long">O nome é demasiado longo</string>
+	<string name="password_too_weak">O contrasinal é demasiado débil</string>
+	<string name="passwords_do_not_match">Os contrasinais non concordan</string>
+	<string name="create_account_button">Crea unha conta</string>
+	<string name="more_info">Máis información</string>
+	<string name="don_t_ask_again">Non preguntar de novo</string>
+	<string name="dnkm_huawei_protected_text">Por favor toca o botón inferior e asegúrate de que Briar está protexida na pantalla \"Apps Protexidas\"</string>
+	<string name="dnkm_huawei_protected_button">Protexer Briar</string>
+	<string name="dnkm_huawei_protected_help">Se Briar non se engade ao listado de apps protexidas, non poderá funcionar en segundo plano.</string>
+	<string name="dnkm_xiaomi_button">Protexer Briar</string>
+	<string name="dnkm_warning_dozed">%s non foi quen de funcionar en segundo plano</string>
+	<!--Login-->
+	<string name="enter_password">Contrasinal</string>
+	<string name="try_again">Contrasinal incorrecto, tenteo de novo</string>
+	<string name="dialog_title_cannot_check_password">Non se comprobou o contrasinal</string>
+	<string name="dialog_message_cannot_check_password">Briar non pode comprobar o contrasinal. Intenta reiniciar o dispositivo para solucionar o problema.</string>
+	<string name="sign_in_button">Iniciar sesión</string>
+	<string name="forgotten_password">Esquecín a miña clave</string>
   <string name="dialog_title_lost_password">Contrasinal perdido</string>
   <string name="dialog_message_lost_password">Briar almacena a túa configuración cifrada no dispositivo, non na nube, así que non podemos restabelecer o teu contrasinal. Quererías borrar a túa conta e empezar de novo?\n\nPrecaución: As túas identidades, contactos e mensaxes serán eliminadas de forma permanente.</string>
   <string name="startup_failed_activity_title">Fallo de Inicio de Briar</string>

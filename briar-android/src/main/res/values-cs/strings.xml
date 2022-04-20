@@ -1,36 +1,36 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
-  <!--Setup-->
-  <string name="setup_title">Vítejte v Briar</string>
-  <string name="setup_name_explanation">Vaše uživatelské jméno bude zobrazeno u jakéhokoli obsahu, který zveřejníte. Následná změna již nebude možná.</string>
-  <string name="setup_next">Další</string>
-  <string name="setup_password_intro">Zvolte heslo</string>
-  <string name="setup_password_explanation">Váš Briar účet je šifrován a uložen ve vašem zařízení, nikoli v cloudu. Pokud zapomenete své heslo nebo odinstalujete Briar, obnovit Váš účet již nebude možné.\n\nZvolte si dlouhé heslo, které je těžké uhádnout, například čtyři náhodné fráze nebo deset náhodných písmen, čísel a symbolů.</string>
-  <string name="setup_doze_title">Připojení na pozadí</string>
-  <string name="setup_doze_intro">Pro příjem zpráv je nutné, aby byl Briar stále spuštěn na pozadí.</string>
-  <string name="setup_doze_explanation">Pro příjem zpráv je nutné, aby byl Briar spuštěn na pozadí. Prosím, vypněte optimalizaci baterie, jedině tak bude Briar stále připojen.</string>
-  <string name="setup_doze_button">Povolit připojení</string>
-  <string name="choose_nickname">Zvolte si uživatelské jméno</string>
-  <string name="choose_password">Zvolte si heslo</string>
-  <string name="confirm_password">Potvrďte své heslo</string>
-  <string name="name_too_long">Jméno je příliš dlouhé</string>
-  <string name="password_too_weak">Heslo je příliš slabé</string>
-  <string name="passwords_do_not_match">Zadaná hesla se neshodují</string>
-  <string name="create_account_button">Vytvořit účet</string>
-  <string name="more_info">Další informace</string>
-  <string name="don_t_ask_again">Znovu se již neptat</string>
-  <string name="setup_huawei_text">Klikněte na níže uvedené tlačítko a ujistěte se, že byl Briar zařazen mezi \"Chráněné aplikace\".</string>
-  <string name="setup_huawei_button">Chránit Briar</string>
-  <string name="dnkm_huawei_protected_help">Pokud nebyl Briar přidán mezi chráněné aplikace, nebude ho možné spustit na pozadí.</string>
-  <string name="dnkm_warning_dozed">%s nebylo možné spustit na pozadí</string>
-  <!--Login-->
-  <string name="enter_password">Heslo</string>
-  <string name="try_again">Zadali jste špatné heslo, zkuste to znovu</string>
-  <string name="sign_in_button">Přihlásit se</string>
-  <string name="forgotten_password">Nepamatuji si své heslo</string>
-  <string name="dialog_title_lost_password">Ztracené heslo</string>
-  <string name="dialog_message_lost_password">Váš Briar účet je šifrován a uložen ve vašem zařízení, nikoli v cloudu, z tohoto důvodu není možné obnovit Vaše heslo. Chcete odstranit svůj účet a začít znovu?\n\nUpozornění: Vaše identita, kontakty a zprávy budou permanentně ztraceny.</string>
-  <string name="startup_failed_notification_title">Briar nemohl být spuštěn</string>
+	<!--Setup-->
+	<string name="setup_title">Vítejte v Briar</string>
+	<string name="setup_name_explanation">Vaše uživatelské jméno bude zobrazeno u jakéhokoli obsahu, který zveřejníte. Následná změna již nebude možná.</string>
+	<string name="setup_next">Další</string>
+	<string name="setup_password_intro">Zvolte heslo</string>
+	<string name="setup_password_explanation">Váš Briar účet je šifrován a uložen ve vašem zařízení, nikoli v cloudu. Pokud zapomenete své heslo nebo odinstalujete Briar, obnovit Váš účet již nebude možné.\n\nZvolte si dlouhé heslo, které je těžké uhádnout, například čtyři náhodné fráze nebo deset náhodných písmen, čísel a symbolů.</string>
+	<string name="dnkm_doze_title">Připojení na pozadí</string>
+	<string name="dnkm_doze_intro">Pro příjem zpráv je nutné, aby byl Briar stále spuštěn na pozadí.</string>
+	<string name="dnkm_doze_explanation">Pro příjem zpráv je nutné, aby byl Briar spuštěn na pozadí. Prosím, vypněte optimalizaci baterie, jedině tak bude Briar stále připojen.</string>
+	<string name="dnkm_doze_button">Povolit připojení</string>
+	<string name="choose_nickname">Zvolte si uživatelské jméno</string>
+	<string name="choose_password">Zvolte si heslo</string>
+	<string name="confirm_password">Potvrďte své heslo</string>
+	<string name="name_too_long">Jméno je příliš dlouhé</string>
+	<string name="password_too_weak">Heslo je příliš slabé</string>
+	<string name="passwords_do_not_match">Zadaná hesla se neshodují</string>
+	<string name="create_account_button">Vytvořit účet</string>
+	<string name="more_info">Další informace</string>
+	<string name="don_t_ask_again">Znovu se již neptat</string>
+	<string name="dnkm_huawei_protected_text">Klikněte na níže uvedené tlačítko a ujistěte se, že byl Briar zařazen mezi \"Chráněné aplikace\".</string>
+	<string name="dnkm_huawei_protected_button">Chránit Briar</string>
+	<string name="dnkm_huawei_protected_help">Pokud nebyl Briar přidán mezi chráněné aplikace, nebude ho možné spustit na pozadí.</string>
+	<string name="dnkm_warning_dozed">%s nebylo možné spustit na pozadí</string>
+	<!--Login-->
+	<string name="enter_password">Heslo</string>
+	<string name="try_again">Zadali jste špatné heslo, zkuste to znovu</string>
+	<string name="sign_in_button">Přihlásit se</string>
+	<string name="forgotten_password">Nepamatuji si své heslo</string>
+	<string name="dialog_title_lost_password">Ztracené heslo</string>
+	<string name="dialog_message_lost_password">Váš Briar účet je šifrován a uložen ve vašem zařízení, nikoli v cloudu, z tohoto důvodu není možné obnovit Vaše heslo. Chcete odstranit svůj účet a začít znovu?\n\nUpozornění: Vaše identita, kontakty a zprávy budou permanentně ztraceny.</string>
+	<string name="startup_failed_notification_title">Briar nemohl být spuštěn</string>
   <string name="startup_failed_notification_text">Klikněte pro více informací</string>
   <string name="startup_failed_activity_title">Spuštění Briar selhalo.</string>
   <string name="startup_failed_db_error">Z nějakého důvodu je vaše databáze Briar poškozena. Váš účet, vaše data a všechny vaše kontakty budou ztraceny. Bohužel musíte přeinstalovat Briar nebo nastavit nový účet výběrem položky \'Zapomněl jsem heslo\' v řádku zadat heslo.</string>

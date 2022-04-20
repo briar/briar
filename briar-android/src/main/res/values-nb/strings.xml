@@ -1,36 +1,36 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
-  <!--Setup-->
-  <string name="setup_title">Velkommen til Briar</string>
-  <string name="setup_name_explanation">Ditt kallenavn vil bli vist ved siden av innhold du poster. Du kan endre det etter at du har opprettet kontoen din.</string>
-  <string name="setup_next">Neste</string>
-  <string name="setup_password_intro">Velg et passord</string>
-  <string name="setup_password_explanation">Din Briar-konto er lagret kryptert på din enhet, ikke i skyen. Hvis du avinstallerer Briar eller glemmer passordet ditt, går det ikke an å gjenopprette kontoen din..\n\nVelg et langt passord som er vanskelig å gjette, som fire tilfeldige ord, eller ti tilfeldige bokstaver, tall og symboler.</string>
-  <string name="setup_doze_title">Bakgrunnstilkoblinger</string>
-  <string name="setup_doze_intro">For å motta meldinger, må Briar forbli tilkoblet i bakgrunnen.</string>
-  <string name="setup_doze_explanation">For å motta meldinger, må Briar forbli tilkoblet i bakgrunnen. Skru av batterioptimiseringer slik at Briar kan forbli tilkoblet.</string>
-  <string name="setup_doze_button">Tillat tilkoblinger</string>
-  <string name="choose_nickname">Velg kallenavn</string>
-  <string name="choose_password">Velg passord</string>
-  <string name="confirm_password">Bekreft passord</string>
-  <string name="name_too_long">For langt navn</string>
-  <string name="password_too_weak">Passordet er for svakt</string>
-  <string name="passwords_do_not_match">Passordene samsvarer ikke</string>
-  <string name="create_account_button">Opprett konto</string>
-  <string name="more_info">Ytterligere informasjon</string>
-  <string name="don_t_ask_again">Ikke spør igjen</string>
-  <string name="setup_huawei_text">Trykk på knappen nedenfor for å forsikre at Briar er beskyttet i \"Beskyttede programmer\".</string>
-  <string name="setup_huawei_button">Beskytt Briar</string>
-  <string name="dnkm_huawei_protected_help">Hvis Briar ikke er lagt til i listen over beskyttede programmer, vil det ikke kunne kjøre i bakgrunnen.</string>
-  <string name="dnkm_warning_dozed">%s klarte ikke å kjøre i bakgrunnen</string>
-  <!--Login-->
-  <string name="enter_password">Passord</string>
-  <string name="try_again">Feil passord, prøv igjen</string>
-  <string name="sign_in_button">Logg inn</string>
-  <string name="forgotten_password">Jeg har glemt passordet mitt</string>
-  <string name="dialog_title_lost_password">Tapt passord</string>
-  <string name="dialog_message_lost_password">Din Briar-konto er lagret kryptert på din enhet, ikke i skyen, så du kan ikke tilbakestille passordet ditt. Ønsker du å slette kontoen og starte igjen?\n\nMerk: Identitetene dine, kontaktene og meldingene vil gå tapt for alltid.</string>
-  <string name="startup_failed_notification_title">Briar kunne ikke starte</string>
+	<!--Setup-->
+	<string name="setup_title">Velkommen til Briar</string>
+	<string name="setup_name_explanation">Ditt kallenavn vil bli vist ved siden av innhold du poster. Du kan endre det etter at du har opprettet kontoen din.</string>
+	<string name="setup_next">Neste</string>
+	<string name="setup_password_intro">Velg et passord</string>
+	<string name="setup_password_explanation">Din Briar-konto er lagret kryptert på din enhet, ikke i skyen. Hvis du avinstallerer Briar eller glemmer passordet ditt, går det ikke an å gjenopprette kontoen din..\n\nVelg et langt passord som er vanskelig å gjette, som fire tilfeldige ord, eller ti tilfeldige bokstaver, tall og symboler.</string>
+	<string name="dnkm_doze_title">Bakgrunnstilkoblinger</string>
+	<string name="dnkm_doze_intro">For å motta meldinger, må Briar forbli tilkoblet i bakgrunnen.</string>
+	<string name="dnkm_doze_explanation">For å motta meldinger, må Briar forbli tilkoblet i bakgrunnen. Skru av batterioptimiseringer slik at Briar kan forbli tilkoblet.</string>
+	<string name="dnkm_doze_button">Tillat tilkoblinger</string>
+	<string name="choose_nickname">Velg kallenavn</string>
+	<string name="choose_password">Velg passord</string>
+	<string name="confirm_password">Bekreft passord</string>
+	<string name="name_too_long">For langt navn</string>
+	<string name="password_too_weak">Passordet er for svakt</string>
+	<string name="passwords_do_not_match">Passordene samsvarer ikke</string>
+	<string name="create_account_button">Opprett konto</string>
+	<string name="more_info">Ytterligere informasjon</string>
+	<string name="don_t_ask_again">Ikke spør igjen</string>
+	<string name="dnkm_huawei_protected_text">Trykk på knappen nedenfor for å forsikre at Briar er beskyttet i \"Beskyttede programmer\".</string>
+	<string name="dnkm_huawei_protected_button">Beskytt Briar</string>
+	<string name="dnkm_huawei_protected_help">Hvis Briar ikke er lagt til i listen over beskyttede programmer, vil det ikke kunne kjøre i bakgrunnen.</string>
+	<string name="dnkm_warning_dozed">%s klarte ikke å kjøre i bakgrunnen</string>
+	<!--Login-->
+	<string name="enter_password">Passord</string>
+	<string name="try_again">Feil passord, prøv igjen</string>
+	<string name="sign_in_button">Logg inn</string>
+	<string name="forgotten_password">Jeg har glemt passordet mitt</string>
+	<string name="dialog_title_lost_password">Tapt passord</string>
+	<string name="dialog_message_lost_password">Din Briar-konto er lagret kryptert på din enhet, ikke i skyen, så du kan ikke tilbakestille passordet ditt. Ønsker du å slette kontoen og starte igjen?\n\nMerk: Identitetene dine, kontaktene og meldingene vil gå tapt for alltid.</string>
+	<string name="startup_failed_notification_title">Briar kunne ikke starte</string>
   <string name="startup_failed_activity_title">Oppstartsfeil med Briar</string>
   <string name="startup_failed_service_error">Briar kunne ikke starte det nødvendige programtillegget. Reinstallasjon av Briar fikser vanligvis dette problemet. Merk deg dog at kontoen og all data tilknyttet den vil gå tapt for godt siden Briar ikke bruker sentrale tjenere å lagre dataen din på.</string>
   <plurals name="expiry_warning">

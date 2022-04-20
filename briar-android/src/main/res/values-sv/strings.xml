@@ -1,36 +1,36 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
-  <!--Setup-->
-  <string name="setup_title">Välkommen till Briar</string>
-  <string name="setup_name_explanation">Ditt användarnamn kommer att visas bredvid allt innehåll som du lägger upp. Du kan inte ändra ditt användarnamn efter att ditt konto skapats.</string>
-  <string name="setup_next">Nästa</string>
-  <string name="setup_password_intro">Skapa lösenord</string>
-  <string name="setup_password_explanation">Ditt Briar-konto lagras krypterat på din mobil eller läsplatta, inte hos en molntjänst. Om du glömmer ditt lösenord eller avinstallerar Briar är det därför inte möjligt att återställa ditt konto.\n\nSkapa ett långt lösenord som är svårgissat, till exempel fyra slumpvalda ord eller en kombination av tio slumpvalda bokstäver, siffror och andra tecken.</string>
-  <string name="setup_doze_title">Dataanslutningar i bakgrunden</string>
-  <string name="setup_doze_intro">För att kunna ta emot meddelanden måste Briar vara anslutet i bakgrunden.</string>
-  <string name="setup_doze_explanation">För att kunna ta emot meddelanden måste Briar vara anslutet i bakgrunden. Avaktivera batterioptimering så att Briar kan hålla sig anslutet.</string>
-  <string name="setup_doze_button">Tillåt dataanslutningar</string>
-  <string name="choose_nickname">Skapa användarnamn </string>
-  <string name="choose_password">Skapa lösenord</string>
-  <string name="confirm_password">Bekräfta lösenordet</string>
-  <string name="name_too_long">Namnet har för många tecken </string>
-  <string name="password_too_weak">Lösenordet är för svagt</string>
-  <string name="passwords_do_not_match">Lösenorden överensstämmer inte </string>
-  <string name="create_account_button">Skapa konto </string>
-  <string name="more_info">Mer information</string>
-  <string name="don_t_ask_again">Fråga inte igen</string>
-  <string name="setup_huawei_text">Tryck på knappen längre ner för att lägga till Briar till listan över \"skyddade appar\".</string>
-  <string name="setup_huawei_button">Skydda Briar</string>
-  <string name="dnkm_huawei_protected_help">Om Briar inte läggs till listan över skyddade appar kan det inte köras i bakgrunden.</string>
-  <string name="dnkm_huawei_app_launch_text">Klicka på knappen nedan, öppna skärmen ”App-start” och säkerställ att Briar är inställt på ”Hantera manuellt”</string>
-  <string name="dnkm_huawei_app_launch_button">Öppna batteriinställningar</string>
-  <string name="setup_huawei_app_launch_help">Om Briar inte är inställt på ”Hantera manuellt” i skärmen ”App-start” kommer den inte att kunna köra i bakgrunden.</string>
-  <string name="dnkm_xiaomi_text">För att köra i bakgrunden måste Briar låsas in i listan över senaste appar.</string>
-  <string name="setup_xiaomi_button">Skydda Briar</string>
-  <string name="dnkm_xiaomi_help">Om Briar inte låsas in i listan över senaste appar kommer det inte att kunna köra i bakgrunden.</string>
-  <string name="dnkm_xiaomi_dialog_body_old">1. Öppna listan över senaste appar (också kallade appväxlaren)\n\n2. Svep nedåt vid bilden av Briar för att visa hänglåsikonen\n\n3. Om hänglåsikonen inte är låst, klicka för att låsa den</string>
-  <string name="dnkm_xiaomi_dialog_body_new">1. Öppna listan över senaste appar (också kallade appväxlaren)\n\n2. Tryck och håll på bilden av Briar tills hänglåsikonen dyker upp\n\n3. Om hänglåsikonen inte är låst, klicka för att låsa den</string>
-  <string name="dnkm_warning_dozed">%s kunde inte köras i bakgrunden</string>
+	<!--Setup-->
+	<string name="setup_title">Välkommen till Briar</string>
+	<string name="setup_name_explanation">Ditt användarnamn kommer att visas bredvid allt innehåll som du lägger upp. Du kan inte ändra ditt användarnamn efter att ditt konto skapats.</string>
+	<string name="setup_next">Nästa</string>
+	<string name="setup_password_intro">Skapa lösenord</string>
+	<string name="setup_password_explanation">Ditt Briar-konto lagras krypterat på din mobil eller läsplatta, inte hos en molntjänst. Om du glömmer ditt lösenord eller avinstallerar Briar är det därför inte möjligt att återställa ditt konto.\n\nSkapa ett långt lösenord som är svårgissat, till exempel fyra slumpvalda ord eller en kombination av tio slumpvalda bokstäver, siffror och andra tecken.</string>
+	<string name="dnkm_doze_title">Dataanslutningar i bakgrunden</string>
+	<string name="dnkm_doze_intro">För att kunna ta emot meddelanden måste Briar vara anslutet i bakgrunden.</string>
+	<string name="dnkm_doze_explanation">För att kunna ta emot meddelanden måste Briar vara anslutet i bakgrunden. Avaktivera batterioptimering så att Briar kan hålla sig anslutet.</string>
+	<string name="dnkm_doze_button">Tillåt dataanslutningar</string>
+	<string name="choose_nickname">Skapa användarnamn </string>
+	<string name="choose_password">Skapa lösenord</string>
+	<string name="confirm_password">Bekräfta lösenordet</string>
+	<string name="name_too_long">Namnet har för många tecken </string>
+	<string name="password_too_weak">Lösenordet är för svagt</string>
+	<string name="passwords_do_not_match">Lösenorden överensstämmer inte </string>
+	<string name="create_account_button">Skapa konto </string>
+	<string name="more_info">Mer information</string>
+	<string name="don_t_ask_again">Fråga inte igen</string>
+	<string name="dnkm_huawei_protected_text">Tryck på knappen längre ner för att lägga till Briar till listan över \"skyddade appar\".</string>
+	<string name="dnkm_huawei_protected_button">Skydda Briar</string>
+	<string name="dnkm_huawei_protected_help">Om Briar inte läggs till listan över skyddade appar kan det inte köras i bakgrunden.</string>
+	<string name="dnkm_huawei_app_launch_text">Klicka på knappen nedan, öppna skärmen ”App-start” och säkerställ att Briar är inställt på ”Hantera manuellt”</string>
+	<string name="dnkm_huawei_app_launch_button">Öppna batteriinställningar</string>
+	<string name="dnkm_huawei_app_launch_help">Om Briar inte är inställt på ”Hantera manuellt” i skärmen ”App-start” kommer den inte att kunna köra i bakgrunden.</string>
+	<string name="dnkm_xiaomi_text">För att köra i bakgrunden måste Briar låsas in i listan över senaste appar.</string>
+	<string name="dnkm_xiaomi_button">Skydda Briar</string>
+	<string name="dnkm_xiaomi_help">Om Briar inte låsas in i listan över senaste appar kommer det inte att kunna köra i bakgrunden.</string>
+	<string name="dnkm_xiaomi_dialog_body_old">1. Öppna listan över senaste appar (också kallade appväxlaren)\n\n2. Svep nedåt vid bilden av Briar för att visa hänglåsikonen\n\n3. Om hänglåsikonen inte är låst, klicka för att låsa den</string>
+	<string name="dnkm_xiaomi_dialog_body_new">1. Öppna listan över senaste appar (också kallade appväxlaren)\n\n2. Tryck och håll på bilden av Briar tills hänglåsikonen dyker upp\n\n3. Om hänglåsikonen inte är låst, klicka för att låsa den</string>
+	<string name="dnkm_warning_dozed">%s kunde inte köras i bakgrunden</string>
   <!--Login-->
   <string name="enter_password">Lösenord</string>
   <string name="try_again">Felaktigt lösenord, försök igen </string>

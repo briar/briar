@@ -1,36 +1,36 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
-  <!--Setup-->
-  <string name="setup_title">Benvenuto su Briar</string>
-  <string name="setup_name_explanation">Il tuo nickname sarà accanto ad ogni contenuto pubblicato. Non potrai cambiarlo dopo aver creato l\'account.</string>
-  <string name="setup_next">Avanti</string>
-  <string name="setup_password_intro">Scegli una password</string>
-  <string name="setup_password_explanation">Il tuo account Briar resta memorizzato cifrato nel tuo dispositivo, non nel cloud. Se dimentichi la password o disinstalli Briar, non c\'è modo di ripristinare l\'account.\n\nScegli una password lunga difficile da indovinare, come quattro parole casuali o dieci lettere, numeri e simboli a caso.</string>
-  <string name="setup_doze_title">Connessioni in background</string>
-  <string name="setup_doze_intro">Per ricevere messaggi, Briar deve restare connesso in background.</string>
-  <string name="setup_doze_explanation">Per ricevere messaggi, Briar deve restare connesso in background. Disattiva le ottimizzazioni della batteria per mantenere Briar connesso.</string>
-  <string name="setup_doze_button">Permetti le connessioni</string>
-  <string name="choose_nickname">Scegli il tuo nickname</string>
-  <string name="choose_password">Scegli la tua password</string>
-  <string name="confirm_password">Conferma la tua password</string>
-  <string name="name_too_long">Nome troppo lungo</string>
-  <string name="password_too_weak">La password è troppo debole</string>
-  <string name="passwords_do_not_match">La password non corrisponde</string>
-  <string name="create_account_button">Crea account</string>
-  <string name="more_info">Ulteriori Informazioni</string>
-  <string name="don_t_ask_again">Non chiedere più</string>
-  <string name="setup_huawei_text">Premi il pulsante qua sotto e assicurati che Briar sia protetto nella schermata \"App protette\"</string>
-  <string name="setup_huawei_button">Proteggi Briar</string>
-  <string name="dnkm_huawei_protected_help">Se Briar non viene aggiunto nell\'elenco di app protette, non potrà funzionare in background.</string>
-  <string name="dnkm_huawei_app_launch_text">Tocca il pulsante sotto, apri la schermata \"Esecuzione app\" e assicurati che Briar sia su \"Gestisci manualmente\".</string>
-  <string name="dnkm_huawei_app_launch_button">Apri impostazioni batteria</string>
-  <string name="setup_huawei_app_launch_help">Se Briar non è su \"Gestisci manualmente\" nella schermata \"Esecuzione app\", non potrà funzionare in secondo piano.</string>
-  <string name="dnkm_xiaomi_text">Per funzionare in secondo piano, Briar deve essere fissato nella lista di app recenti.</string>
-  <string name="setup_xiaomi_button">Proteggi Briar</string>
-  <string name="dnkm_xiaomi_help">Se Briar non è fissato nella lista di app recenti, non potrà funzionare in secondo piano.</string>
-  <string name="dnkm_xiaomi_dialog_body_old">1. Apri la lista di app recenti (chiamata anche app switcher)\n\n2. Scorri fino alla schermata di Briar per mostrare l\'icona del lucchetto\n\n3. Se il lucchetto non è chiuso, toccalo per chiuderlo</string>
-  <string name="dnkm_xiaomi_dialog_body_new">1. Apri la lista di app recenti (chiamata anche app switcher)\n\n2. Tieni premuta la schermata di Briar finché non compare l\'icona del lucchetto\n\n3. Se il lucchetto non è chiuso, toccalo per chiuderlo</string>
-  <string name="dnkm_warning_dozed">%s non ha potuto funzionare in background</string>
+	<!--Setup-->
+	<string name="setup_title">Benvenuto su Briar</string>
+	<string name="setup_name_explanation">Il tuo nickname sarà accanto ad ogni contenuto pubblicato. Non potrai cambiarlo dopo aver creato l\'account.</string>
+	<string name="setup_next">Avanti</string>
+	<string name="setup_password_intro">Scegli una password</string>
+	<string name="setup_password_explanation">Il tuo account Briar resta memorizzato cifrato nel tuo dispositivo, non nel cloud. Se dimentichi la password o disinstalli Briar, non c\'è modo di ripristinare l\'account.\n\nScegli una password lunga difficile da indovinare, come quattro parole casuali o dieci lettere, numeri e simboli a caso.</string>
+	<string name="dnkm_doze_title">Connessioni in background</string>
+	<string name="dnkm_doze_intro">Per ricevere messaggi, Briar deve restare connesso in background.</string>
+	<string name="dnkm_doze_explanation">Per ricevere messaggi, Briar deve restare connesso in background. Disattiva le ottimizzazioni della batteria per mantenere Briar connesso.</string>
+	<string name="dnkm_doze_button">Permetti le connessioni</string>
+	<string name="choose_nickname">Scegli il tuo nickname</string>
+	<string name="choose_password">Scegli la tua password</string>
+	<string name="confirm_password">Conferma la tua password</string>
+	<string name="name_too_long">Nome troppo lungo</string>
+	<string name="password_too_weak">La password è troppo debole</string>
+	<string name="passwords_do_not_match">La password non corrisponde</string>
+	<string name="create_account_button">Crea account</string>
+	<string name="more_info">Ulteriori Informazioni</string>
+	<string name="don_t_ask_again">Non chiedere più</string>
+	<string name="dnkm_huawei_protected_text">Premi il pulsante qua sotto e assicurati che Briar sia protetto nella schermata \"App protette\"</string>
+	<string name="dnkm_huawei_protected_button">Proteggi Briar</string>
+	<string name="dnkm_huawei_protected_help">Se Briar non viene aggiunto nell\'elenco di app protette, non potrà funzionare in background.</string>
+	<string name="dnkm_huawei_app_launch_text">Tocca il pulsante sotto, apri la schermata \"Esecuzione app\" e assicurati che Briar sia su \"Gestisci manualmente\".</string>
+	<string name="dnkm_huawei_app_launch_button">Apri impostazioni batteria</string>
+	<string name="dnkm_huawei_app_launch_help">Se Briar non è su \"Gestisci manualmente\" nella schermata \"Esecuzione app\", non potrà funzionare in secondo piano.</string>
+	<string name="dnkm_xiaomi_text">Per funzionare in secondo piano, Briar deve essere fissato nella lista di app recenti.</string>
+	<string name="dnkm_xiaomi_button">Proteggi Briar</string>
+	<string name="dnkm_xiaomi_help">Se Briar non è fissato nella lista di app recenti, non potrà funzionare in secondo piano.</string>
+	<string name="dnkm_xiaomi_dialog_body_old">1. Apri la lista di app recenti (chiamata anche app switcher)\n\n2. Scorri fino alla schermata di Briar per mostrare l\'icona del lucchetto\n\n3. Se il lucchetto non è chiuso, toccalo per chiuderlo</string>
+	<string name="dnkm_xiaomi_dialog_body_new">1. Apri la lista di app recenti (chiamata anche app switcher)\n\n2. Tieni premuta la schermata di Briar finché non compare l\'icona del lucchetto\n\n3. Se il lucchetto non è chiuso, toccalo per chiuderlo</string>
+	<string name="dnkm_warning_dozed">%s non ha potuto funzionare in background</string>
   <!--Login-->
   <string name="enter_password">Password</string>
   <string name="try_again">Password sbagliata, riprova</string>

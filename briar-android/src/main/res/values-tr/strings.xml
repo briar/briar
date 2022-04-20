@@ -1,36 +1,36 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
-  <!--Setup-->
-  <string name="setup_title">Briar\'a Hoşgeldiniz</string>
-  <string name="setup_name_explanation">Takma adınız, gönderdiğiniz herhangi bir içeriğin yanında gösterilecek. Hesabınızı oluşturduktan sonra onu değiştiremezsiniz.</string>
-  <string name="setup_next">Sonraki</string>
-  <string name="setup_password_intro">Bir Parola Seçin</string>
-  <string name="setup_password_explanation">Briar hesabınız bulutta değil aygıtınızda şifreli olarak saklanır. Parolanızı unutursanız veya Briar\'ı kaldırırsanız hesabınızı kurtarmanın bir yolu yoktur. Tahmin edilmesi zor rastgele dört sözcük, on harf, sayı ve simgeden oluşan uzun bir parola \n\n\Seçin</string>
-  <string name="setup_doze_title">Arka plan Bağlantıları</string>
-  <string name="setup_doze_intro">İletileri almak için Briar\'ın arkaplanda bağlı kalması gerekir.</string>
-  <string name="setup_doze_explanation">İletileri almak için Briar\'ın arkaplanda bağlı olması gerekir. Briar\'ın bağlı kalabilmesi için lütfen pil eniyilemesini devre dışı bırakın.</string>
-  <string name="setup_doze_button">Bağlantılara İzin Ver</string>
-  <string name="choose_nickname">Kullanıcı adınızı belirleyin</string>
-  <string name="choose_password">Parolanızı belirleyin</string>
-  <string name="confirm_password">Parolanızı doğrulayın</string>
-  <string name="name_too_long">İsim çok uzun</string>
-  <string name="password_too_weak">Parola çok zayıf</string>
-  <string name="passwords_do_not_match">Parolalar uyuşmuyor</string>
-  <string name="create_account_button">Hesap Oluştur</string>
-  <string name="more_info">Daha Fazla Bilgi</string>
-  <string name="don_t_ask_again">Tekrar sorma</string>
-  <string name="setup_huawei_text">Lütfen aşağıdaki düğmeye dokunun ve Briar\'ın \"Korunan Uygulamalar\" ekranında korunduğundan emin olun.</string>
-  <string name="setup_huawei_button">Briar\'ı Koru</string>
-  <string name="dnkm_huawei_protected_help">Briar korunan uygulamalar listesine eklenmezse, arka planda çalışamaz.</string>
-  <string name="dnkm_huawei_app_launch_text">Lütfen aşağıdaki düğmeye dokunun, \"Uygulama başlatma\" ekranını açın ve Briar için \"Manuel olarak yönet\" şeklinde ayarlanmış olduğundan emin olun.</string>
-  <string name="dnkm_huawei_app_launch_button">Pil Ayarlarını Aç</string>
-  <string name="setup_huawei_app_launch_help">Eğer Briar, \"Uygulama Başlatma\" ekranında \"Manuel olarak yönet\" olarak ayarlanmamışsa, arka planda çalışmayabilir.</string>
-  <string name="dnkm_xiaomi_text">Briar\'ın arka planda çalışması için korunan uygulamalar listesine listesine eklenmesi gerekiyor.</string>
-  <string name="setup_xiaomi_button">Briar\'ı Koru</string>
-  <string name="dnkm_xiaomi_help">Briar korunan uygulamalar listesine eklenmezse, arka planda çalışamaz.</string>
-  <string name="dnkm_xiaomi_dialog_body_old">1. Geçmiş uygulamalar listesini açın (uygulama değiştirici de deniyor)\n\n2. Briar resmini kilit simgesini görene kadar aşağı kaydırın\n\n3. Eğer kilit simgesi seçili değilse, kilitlemek için dokunun</string>
-  <string name="dnkm_xiaomi_dialog_body_new">1. Geçmiş uygulamalar listesini açın (uygulama değiştirici de deniyor)\n\n2. Kilit simgesini görene kadar Briar resmine tıklayın ve tutun\n\n3. Eğer kilit simgesi seçili değilse, kilitlemek için dokunun</string>
-  <string name="dnkm_warning_dozed">%s arka planda çalışamadı</string>
+	<!--Setup-->
+	<string name="setup_title">Briar\'a Hoşgeldiniz</string>
+	<string name="setup_name_explanation">Takma adınız, gönderdiğiniz herhangi bir içeriğin yanında gösterilecek. Hesabınızı oluşturduktan sonra onu değiştiremezsiniz.</string>
+	<string name="setup_next">Sonraki</string>
+	<string name="setup_password_intro">Bir Parola Seçin</string>
+	<string name="setup_password_explanation">Briar hesabınız bulutta değil aygıtınızda şifreli olarak saklanır. Parolanızı unutursanız veya Briar\'ı kaldırırsanız hesabınızı kurtarmanın bir yolu yoktur. Tahmin edilmesi zor rastgele dört sözcük, on harf, sayı ve simgeden oluşan uzun bir parola \n\n\Seçin</string>
+	<string name="dnkm_doze_title">Arka plan Bağlantıları</string>
+	<string name="dnkm_doze_intro">İletileri almak için Briar\'ın arkaplanda bağlı kalması gerekir.</string>
+	<string name="dnkm_doze_explanation">İletileri almak için Briar\'ın arkaplanda bağlı olması gerekir. Briar\'ın bağlı kalabilmesi için lütfen pil eniyilemesini devre dışı bırakın.</string>
+	<string name="dnkm_doze_button">Bağlantılara İzin Ver</string>
+	<string name="choose_nickname">Kullanıcı adınızı belirleyin</string>
+	<string name="choose_password">Parolanızı belirleyin</string>
+	<string name="confirm_password">Parolanızı doğrulayın</string>
+	<string name="name_too_long">İsim çok uzun</string>
+	<string name="password_too_weak">Parola çok zayıf</string>
+	<string name="passwords_do_not_match">Parolalar uyuşmuyor</string>
+	<string name="create_account_button">Hesap Oluştur</string>
+	<string name="more_info">Daha Fazla Bilgi</string>
+	<string name="don_t_ask_again">Tekrar sorma</string>
+	<string name="dnkm_huawei_protected_text">Lütfen aşağıdaki düğmeye dokunun ve Briar\'ın \"Korunan Uygulamalar\" ekranında korunduğundan emin olun.</string>
+	<string name="dnkm_huawei_protected_button">Briar\'ı Koru</string>
+	<string name="dnkm_huawei_protected_help">Briar korunan uygulamalar listesine eklenmezse, arka planda çalışamaz.</string>
+	<string name="dnkm_huawei_app_launch_text">Lütfen aşağıdaki düğmeye dokunun, \"Uygulama başlatma\" ekranını açın ve Briar için \"Manuel olarak yönet\" şeklinde ayarlanmış olduğundan emin olun.</string>
+	<string name="dnkm_huawei_app_launch_button">Pil Ayarlarını Aç</string>
+	<string name="dnkm_huawei_app_launch_help">Eğer Briar, \"Uygulama Başlatma\" ekranında \"Manuel olarak yönet\" olarak ayarlanmamışsa, arka planda çalışmayabilir.</string>
+	<string name="dnkm_xiaomi_text">Briar\'ın arka planda çalışması için korunan uygulamalar listesine listesine eklenmesi gerekiyor.</string>
+	<string name="dnkm_xiaomi_button">Briar\'ı Koru</string>
+	<string name="dnkm_xiaomi_help">Briar korunan uygulamalar listesine eklenmezse, arka planda çalışamaz.</string>
+	<string name="dnkm_xiaomi_dialog_body_old">1. Geçmiş uygulamalar listesini açın (uygulama değiştirici de deniyor)\n\n2. Briar resmini kilit simgesini görene kadar aşağı kaydırın\n\n3. Eğer kilit simgesi seçili değilse, kilitlemek için dokunun</string>
+	<string name="dnkm_xiaomi_dialog_body_new">1. Geçmiş uygulamalar listesini açın (uygulama değiştirici de deniyor)\n\n2. Kilit simgesini görene kadar Briar resmine tıklayın ve tutun\n\n3. Eğer kilit simgesi seçili değilse, kilitlemek için dokunun</string>
+	<string name="dnkm_warning_dozed">%s arka planda çalışamadı</string>
   <!--Login-->
   <string name="enter_password">Parola</string>
   <string name="try_again">Parola yanlış, tekrar deneyin</string>

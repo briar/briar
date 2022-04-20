@@ -1,36 +1,36 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
-  <!--Setup-->
-  <string name="setup_title">Добре дошли в Briar</string>
-  <string name="setup_name_explanation">Прякорът ще бъде видим до всяка ваша публикация. Няма да можете да го промените след като създадете профила си.</string>
-  <string name="setup_next">Напред</string>
-  <string name="setup_password_intro">Изберете парола</string>
-  <string name="setup_password_explanation">Профилът в Briar се съхранява шифриран на устройството ви, а не в облака. Ако забравите паролата си или премахнете Briar, няма начин да го възстановите.\n\nИзберете дълга, трудна за отгатване парола, например: четири случайни думи или десет случайни букви, числа и знаци.</string>
-  <string name="setup_doze_title">Свързаност на заден план</string>
-  <string name="setup_doze_intro">За да получавате съобщения, Briar трябва да е свързан на заден план.</string>
-  <string name="setup_doze_explanation">За да получавате съобщения, Briar трябва да е свързан на заден план. Изключете оптимизацията на батерията, за да може Briar да остане свързан.</string>
-  <string name="setup_doze_button">Разрешаване на свързаност</string>
-  <string name="choose_nickname">Изберете прякор</string>
-  <string name="choose_password">Изберете парола</string>
-  <string name="confirm_password">Потвърдете парола</string>
-  <string name="name_too_long">Името е твърде дълго</string>
-  <string name="password_too_weak">Паролата е твърде слаба</string>
-  <string name="passwords_do_not_match">Паролите не съвпадат</string>
-  <string name="create_account_button">Създаване на профил</string>
-  <string name="more_info">Повече информация</string>
-  <string name="don_t_ask_again">Спиране на този въпрос</string>
-  <string name="setup_huawei_text">Докоснете бутона по-долу и се уверете, че Briar е защитен в екрана за „Защитени приложения“.</string>
-  <string name="setup_huawei_button">Защитаване на Briar</string>
-  <string name="dnkm_huawei_protected_help">Ако не добавите Briar в списъка на защитени приложения, няма да може да работи на заден план.</string>
-  <string name="dnkm_huawei_app_launch_text">Докоснете бутона по-долу, отворете „Стартиране на приложения“ и се уверете, че за Briar е избрано „Ръчно управление“.</string>
-  <string name="dnkm_huawei_app_launch_button">Настройки на батерия</string>
-  <string name="setup_huawei_app_launch_help">Ако за Briar не е избрано „Ръчно управление“ в екрана „Стартиране на приложения“, тогава няма да може да работи на заден план.</string>
-  <string name="dnkm_xiaomi_text">За да работи на заден план Briar трябва да бъде заключен в списъка с последно използваните приложения.</string>
-  <string name="setup_xiaomi_button">Защитаване на Briar</string>
-  <string name="dnkm_xiaomi_help">Ако Briar не е заключен в списъка с последно използваните приложения, няма да работи на заден план.</string>
-  <string name="dnkm_xiaomi_dialog_body_old">1. Отворете списъка с отворени приложения (списък за превключване на приложения)\n\n2. Плъзнете надолу върху изображението на Briar докато се покаже икона на катинар\n\n3. Ако катинарът е отключен го докоснете, за да го заключите</string>
-  <string name="dnkm_xiaomi_dialog_body_new">1. Отворете списъка с отворени приложения (списък за превключване на приложения)\n\n2. Докоснете и задръжте върху изображението на Briar докато се покаже икона на катинар\n\n3. Ако катинарът е отключен го докоснете, за да го заключите</string>
-  <string name="dnkm_warning_dozed">%s не може да работи на заден план</string>
+	<!--Setup-->
+	<string name="setup_title">Добре дошли в Briar</string>
+	<string name="setup_name_explanation">Прякорът ще бъде видим до всяка ваша публикация. Няма да можете да го промените след като създадете профила си.</string>
+	<string name="setup_next">Напред</string>
+	<string name="setup_password_intro">Изберете парола</string>
+	<string name="setup_password_explanation">Профилът в Briar се съхранява шифриран на устройството ви, а не в облака. Ако забравите паролата си или премахнете Briar, няма начин да го възстановите.\n\nИзберете дълга, трудна за отгатване парола, например: четири случайни думи или десет случайни букви, числа и знаци.</string>
+	<string name="dnkm_doze_title">Свързаност на заден план</string>
+	<string name="dnkm_doze_intro">За да получавате съобщения, Briar трябва да е свързан на заден план.</string>
+	<string name="dnkm_doze_explanation">За да получавате съобщения, Briar трябва да е свързан на заден план. Изключете оптимизацията на батерията, за да може Briar да остане свързан.</string>
+	<string name="dnkm_doze_button">Разрешаване на свързаност</string>
+	<string name="choose_nickname">Изберете прякор</string>
+	<string name="choose_password">Изберете парола</string>
+	<string name="confirm_password">Потвърдете парола</string>
+	<string name="name_too_long">Името е твърде дълго</string>
+	<string name="password_too_weak">Паролата е твърде слаба</string>
+	<string name="passwords_do_not_match">Паролите не съвпадат</string>
+	<string name="create_account_button">Създаване на профил</string>
+	<string name="more_info">Повече информация</string>
+	<string name="don_t_ask_again">Спиране на този въпрос</string>
+	<string name="dnkm_huawei_protected_text">Докоснете бутона по-долу и се уверете, че Briar е защитен в екрана за „Защитени приложения“.</string>
+	<string name="dnkm_huawei_protected_button">Защитаване на Briar</string>
+	<string name="dnkm_huawei_protected_help">Ако не добавите Briar в списъка на защитени приложения, няма да може да работи на заден план.</string>
+	<string name="dnkm_huawei_app_launch_text">Докоснете бутона по-долу, отворете „Стартиране на приложения“ и се уверете, че за Briar е избрано „Ръчно управление“.</string>
+	<string name="dnkm_huawei_app_launch_button">Настройки на батерия</string>
+	<string name="dnkm_huawei_app_launch_help">Ако за Briar не е избрано „Ръчно управление“ в екрана „Стартиране на приложения“, тогава няма да може да работи на заден план.</string>
+	<string name="dnkm_xiaomi_text">За да работи на заден план Briar трябва да бъде заключен в списъка с последно използваните приложения.</string>
+	<string name="dnkm_xiaomi_button">Защитаване на Briar</string>
+	<string name="dnkm_xiaomi_help">Ако Briar не е заключен в списъка с последно използваните приложения, няма да работи на заден план.</string>
+	<string name="dnkm_xiaomi_dialog_body_old">1. Отворете списъка с отворени приложения (списък за превключване на приложения)\n\n2. Плъзнете надолу върху изображението на Briar докато се покаже икона на катинар\n\n3. Ако катинарът е отключен го докоснете, за да го заключите</string>
+	<string name="dnkm_xiaomi_dialog_body_new">1. Отворете списъка с отворени приложения (списък за превключване на приложения)\n\n2. Докоснете и задръжте върху изображението на Briar докато се покаже икона на катинар\n\n3. Ако катинарът е отключен го докоснете, за да го заключите</string>
+	<string name="dnkm_warning_dozed">%s не може да работи на заден план</string>
   <!--Login-->
   <string name="enter_password">Парола</string>
   <string name="try_again">Грешна парола, опитайте отново</string>

@@ -1,36 +1,36 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
-  <!--Setup-->
-  <string name="setup_title">Вітаємо у Briar</string>
-  <string name="setup_name_explanation">Ваше ім\'я користувача буде відображено біля будь-якого матеріалу, який ви опублікуєте. Ви не зможете змінити його після створення облікового запису.</string>
-  <string name="setup_next">Вперед</string>
-  <string name="setup_password_intro">Створіть пароль</string>
-  <string name="setup_password_explanation">Ваш обліковий запис Briar знаходиться в зашифрованому вигляді на вашому пристрої, а не зберігається на хмарі. Якщо ви забули свій пароль або видалили Briar, обліковий запис не підлягає відновленню.\n\nОбирайте довгий пароль, який буде важко підібрати. Наприклад, такий, що міститиме чотири випадкові слова, або десять випадкових літер, цифр та символів.</string>
-  <string name="setup_doze_title">Фонові з\'єднання</string>
-  <string name="setup_doze_intro">Для того, щоб отримувати повідомлення, Briar має залишатися на зв\'язку у фоновому режимі.</string>
-  <string name="setup_doze_explanation">Для того, щоб отримувати повідомлення, Briar має залишатися на зв\'язку у фоновому режимі. Будь ласка, вимкніть енергоощадливий режим, щоб Briar міг залишатися на зв\'язку.</string>
-  <string name="setup_doze_button">Дозволити з\'єднання</string>
-  <string name="choose_nickname">Оберіть ім\'я користувача</string>
-  <string name="choose_password">Створіть власний пароль</string>
-  <string name="confirm_password">Підтвердьте свій пароль</string>
-  <string name="name_too_long">Занадто довге ім\'я</string>
-  <string name="password_too_weak">Пароль занадто слабкий</string>
-  <string name="passwords_do_not_match">Паролі не збігаються</string>
-  <string name="create_account_button">Створити обліковий запис</string>
-  <string name="more_info">Детальніше</string>
-  <string name="don_t_ask_again">Не запитувати знову</string>
-  <string name="setup_huawei_text">Будь ласка, натисніть кнопку, що знаходиться нижче і впевніться у тому, що Briar захищено на екрані \"Захищені додатки\".</string>
-  <string name="setup_huawei_button">Захистити Briar</string>
-  <string name="dnkm_huawei_protected_help">Якщо Briar немає у списку захищених додатків, він не зможе працювати у фоновому режимі.</string>
-  <string name="dnkm_huawei_app_launch_text">Будь ласка, торкніть кнопку внизу, відкрийте екран «Запуск програми» й переконайтесь, що Briar має налаштування «Керувати вручну».</string>
-  <string name="dnkm_huawei_app_launch_button">Відкрити налаштування батареї</string>
-  <string name="setup_huawei_app_launch_help">Якщо не вказати «Керувати вручну» для Briar на екрані «Запуск програми», він не зможе працювати в фоновому режимі.</string>
-  <string name="dnkm_xiaomi_text">Щоб Briar працював у фоновому режимі, закріпіть його в переліку недавніх застосунків.</string>
-  <string name="setup_xiaomi_button">Захистити Briar</string>
-  <string name="dnkm_xiaomi_help">Якщо не закріпити Briar у переліку недавніх застосунків, він не зможе працювати в фоновому режимі.</string>
-  <string name="dnkm_xiaomi_dialog_body_old">1. Відкрийте перелік недавніх застосунків (також називається перемикачем додатків)\n\n2. Проведіть униз по зображенню Briar, щоб з\'явився значок замка\n\n3. Якщо замок не замкнений, замкніть його дотиком</string>
-  <string name="dnkm_xiaomi_dialog_body_new">1. Відкрийте перелік недавніх застосунків (також називається перемикачем додатків)\n\n2. Затисніть зображення Briar до появи значка замка.\n\n3. Якщо замок не замкнений, замкніть його дотиком</string>
-  <string name="dnkm_warning_dozed">%s не вдалося запустити у фоновому режимі</string>
+	<!--Setup-->
+	<string name="setup_title">Вітаємо у Briar</string>
+	<string name="setup_name_explanation">Ваше ім\'я користувача буде відображено біля будь-якого матеріалу, який ви опублікуєте. Ви не зможете змінити його після створення облікового запису.</string>
+	<string name="setup_next">Вперед</string>
+	<string name="setup_password_intro">Створіть пароль</string>
+	<string name="setup_password_explanation">Ваш обліковий запис Briar знаходиться в зашифрованому вигляді на вашому пристрої, а не зберігається на хмарі. Якщо ви забули свій пароль або видалили Briar, обліковий запис не підлягає відновленню.\n\nОбирайте довгий пароль, який буде важко підібрати. Наприклад, такий, що міститиме чотири випадкові слова, або десять випадкових літер, цифр та символів.</string>
+	<string name="dnkm_doze_title">Фонові з\'єднання</string>
+	<string name="dnkm_doze_intro">Для того, щоб отримувати повідомлення, Briar має залишатися на зв\'язку у фоновому режимі.</string>
+	<string name="dnkm_doze_explanation">Для того, щоб отримувати повідомлення, Briar має залишатися на зв\'язку у фоновому режимі. Будь ласка, вимкніть енергоощадливий режим, щоб Briar міг залишатися на зв\'язку.</string>
+	<string name="dnkm_doze_button">Дозволити з\'єднання</string>
+	<string name="choose_nickname">Оберіть ім\'я користувача</string>
+	<string name="choose_password">Створіть власний пароль</string>
+	<string name="confirm_password">Підтвердьте свій пароль</string>
+	<string name="name_too_long">Занадто довге ім\'я</string>
+	<string name="password_too_weak">Пароль занадто слабкий</string>
+	<string name="passwords_do_not_match">Паролі не збігаються</string>
+	<string name="create_account_button">Створити обліковий запис</string>
+	<string name="more_info">Детальніше</string>
+	<string name="don_t_ask_again">Не запитувати знову</string>
+	<string name="dnkm_huawei_protected_text">Будь ласка, натисніть кнопку, що знаходиться нижче і впевніться у тому, що Briar захищено на екрані \"Захищені додатки\".</string>
+	<string name="dnkm_huawei_protected_button">Захистити Briar</string>
+	<string name="dnkm_huawei_protected_help">Якщо Briar немає у списку захищених додатків, він не зможе працювати у фоновому режимі.</string>
+	<string name="dnkm_huawei_app_launch_text">Будь ласка, торкніть кнопку внизу, відкрийте екран «Запуск програми» й переконайтесь, що Briar має налаштування «Керувати вручну».</string>
+	<string name="dnkm_huawei_app_launch_button">Відкрити налаштування батареї</string>
+	<string name="dnkm_huawei_app_launch_help">Якщо не вказати «Керувати вручну» для Briar на екрані «Запуск програми», він не зможе працювати в фоновому режимі.</string>
+	<string name="dnkm_xiaomi_text">Щоб Briar працював у фоновому режимі, закріпіть його в переліку недавніх застосунків.</string>
+	<string name="dnkm_xiaomi_button">Захистити Briar</string>
+	<string name="dnkm_xiaomi_help">Якщо не закріпити Briar у переліку недавніх застосунків, він не зможе працювати в фоновому режимі.</string>
+	<string name="dnkm_xiaomi_dialog_body_old">1. Відкрийте перелік недавніх застосунків (також називається перемикачем додатків)\n\n2. Проведіть униз по зображенню Briar, щоб з\'явився значок замка\n\n3. Якщо замок не замкнений, замкніть його дотиком</string>
+	<string name="dnkm_xiaomi_dialog_body_new">1. Відкрийте перелік недавніх застосунків (також називається перемикачем додатків)\n\n2. Затисніть зображення Briar до появи значка замка.\n\n3. Якщо замок не замкнений, замкніть його дотиком</string>
+	<string name="dnkm_warning_dozed">%s не вдалося запустити у фоновому режимі</string>
   <!--Login-->
   <string name="enter_password">Пароль</string>
   <string name="try_again">Неправильний пароль, спробуйте ще раз</string>

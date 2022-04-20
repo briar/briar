@@ -1,36 +1,36 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
-  <!--Setup-->
-  <string name="setup_title">Köszöntjük a Briar-ban</string>
-  <string name="setup_name_explanation">A beceneve fog megjelenni minden tartalom mellett amit Ön osztott meg. Nem tudja megváltoztatni a fiók létrehozása után.</string>
-  <string name="setup_next">Következő</string>
-  <string name="setup_password_intro">Válasszon jelszót</string>
-  <string name="setup_password_explanation">A Briar fiókja az eszközén kerül tárolásra titkosítva, nem a felhőben. Ha elfelejti a jelszavát, vagy eltávolítja a Briar-t, nincs lehetőség fiókja visszanyerésére.\n\nVálasszon egy hosszú, nehezen kitalálható jelszót, például négy tetszőleges szó vagy tíz tetszőleges betű, szám vagy szimbólum.</string>
-  <string name="setup_doze_title">Háttérkapcsolatok</string>
-  <string name="setup_doze_intro">Az üzenetek fogadásához a Briar-nak szüksége van a háttérben csatlakozásra.</string>
-  <string name="setup_doze_explanation">Az üzenetek fogadásához a Briarnak szüksége van háttérben csatlakozásra. Kérjük tiltsa le az akkumulátor optimalizációt, így a Briar kapcsolatban tud maradni.</string>
-  <string name="setup_doze_button">Kapcsolatok engedélyezése</string>
-  <string name="choose_nickname">Felhasználónév választása</string>
-  <string name="choose_password">Jelszó választása</string>
-  <string name="confirm_password">Jelszó megerősítése</string>
-  <string name="name_too_long">A név túl hosszú</string>
-  <string name="password_too_weak">A jelszó túl gyenge</string>
-  <string name="passwords_do_not_match">A jelszavak nem egyeznek</string>
-  <string name="create_account_button">Fiók létrehozása</string>
-  <string name="more_info">További információ</string>
-  <string name="don_t_ask_again">Ne kérdezze még egyszer</string>
-  <string name="setup_huawei_text">Kérjük koppintson a gombra alább és ellenőrizze, hogy a Briar védett, a \"Védett alkalmazások\" képernyőn.</string>
-  <string name="setup_huawei_button">A Briar védelme</string>
-  <string name="dnkm_huawei_protected_help">Ha Briar nincs hozzáadva a védett alkalmazások listájához, akkor nem képes futni a háttérben.</string>
-  <string name="dnkm_huawei_app_launch_text">Kérjük koppintson a gombra alább, hogy megnyissa az \"App indítás\" képernyőt és ellenőrizze, hogy a Briar beállított  \"Kézi kezelés\"-re.</string>
-  <string name="dnkm_huawei_app_launch_button">Az akkumulátor beállítások megnyitása</string>
-  <string name="setup_huawei_app_launch_help">Ha a Briar nincs beállítva \"Kézi kezelés\"-re az \"App indítás\" képernyőn, nem fog tudni futni a háttérben.</string>
-  <string name="dnkm_xiaomi_text">Ahhoz, hogy a háttérben fusson, a Briar-t rögzíteni kell a legutóbbi appok listáján.</string>
-  <string name="setup_xiaomi_button">A Briar védelme</string>
-  <string name="dnkm_xiaomi_help">Ha Briar nincs rögzítve a legutóbbi appok listájában, akkor nem képes futni a háttérben.</string>
-  <string name="dnkm_xiaomi_dialog_body_old">1. Nyissa meg a legutolsó appok listáját (másnéven az app váltót)\n\n2. Görgessen le a Briar képén, hogy megjelenjen a lakat ikon\n\n3. Ha a lakat nem zárt, koppintson a lezárásához</string>
-  <string name="dnkm_xiaomi_dialog_body_new">1. Nyissa meg a legutolsó appok listáját (másnéven az app váltót)\n\n2. Nyomja meg és tartsa nyomva a Briar képét, hogy megjelenjen a lakat ikon\n\n3. Ha a lakat nem zárt, koppintson a lezárásához</string>
-  <string name="dnkm_warning_dozed">%s nem tud futni a háttérben</string>
+	<!--Setup-->
+	<string name="setup_title">Köszöntjük a Briar-ban</string>
+	<string name="setup_name_explanation">A beceneve fog megjelenni minden tartalom mellett amit Ön osztott meg. Nem tudja megváltoztatni a fiók létrehozása után.</string>
+	<string name="setup_next">Következő</string>
+	<string name="setup_password_intro">Válasszon jelszót</string>
+	<string name="setup_password_explanation">A Briar fiókja az eszközén kerül tárolásra titkosítva, nem a felhőben. Ha elfelejti a jelszavát, vagy eltávolítja a Briar-t, nincs lehetőség fiókja visszanyerésére.\n\nVálasszon egy hosszú, nehezen kitalálható jelszót, például négy tetszőleges szó vagy tíz tetszőleges betű, szám vagy szimbólum.</string>
+	<string name="dnkm_doze_title">Háttérkapcsolatok</string>
+	<string name="dnkm_doze_intro">Az üzenetek fogadásához a Briar-nak szüksége van a háttérben csatlakozásra.</string>
+	<string name="dnkm_doze_explanation">Az üzenetek fogadásához a Briarnak szüksége van háttérben csatlakozásra. Kérjük tiltsa le az akkumulátor optimalizációt, így a Briar kapcsolatban tud maradni.</string>
+	<string name="dnkm_doze_button">Kapcsolatok engedélyezése</string>
+	<string name="choose_nickname">Felhasználónév választása</string>
+	<string name="choose_password">Jelszó választása</string>
+	<string name="confirm_password">Jelszó megerősítése</string>
+	<string name="name_too_long">A név túl hosszú</string>
+	<string name="password_too_weak">A jelszó túl gyenge</string>
+	<string name="passwords_do_not_match">A jelszavak nem egyeznek</string>
+	<string name="create_account_button">Fiók létrehozása</string>
+	<string name="more_info">További információ</string>
+	<string name="don_t_ask_again">Ne kérdezze még egyszer</string>
+	<string name="dnkm_huawei_protected_text">Kérjük koppintson a gombra alább és ellenőrizze, hogy a Briar védett, a \"Védett alkalmazások\" képernyőn.</string>
+	<string name="dnkm_huawei_protected_button">A Briar védelme</string>
+	<string name="dnkm_huawei_protected_help">Ha Briar nincs hozzáadva a védett alkalmazások listájához, akkor nem képes futni a háttérben.</string>
+	<string name="dnkm_huawei_app_launch_text">Kérjük koppintson a gombra alább, hogy megnyissa az \"App indítás\" képernyőt és ellenőrizze, hogy a Briar beállított  \"Kézi kezelés\"-re.</string>
+	<string name="dnkm_huawei_app_launch_button">Az akkumulátor beállítások megnyitása</string>
+	<string name="dnkm_huawei_app_launch_help">Ha a Briar nincs beállítva \"Kézi kezelés\"-re az \"App indítás\" képernyőn, nem fog tudni futni a háttérben.</string>
+	<string name="dnkm_xiaomi_text">Ahhoz, hogy a háttérben fusson, a Briar-t rögzíteni kell a legutóbbi appok listáján.</string>
+	<string name="dnkm_xiaomi_button">A Briar védelme</string>
+	<string name="dnkm_xiaomi_help">Ha Briar nincs rögzítve a legutóbbi appok listájában, akkor nem képes futni a háttérben.</string>
+	<string name="dnkm_xiaomi_dialog_body_old">1. Nyissa meg a legutolsó appok listáját (másnéven az app váltót)\n\n2. Görgessen le a Briar képén, hogy megjelenjen a lakat ikon\n\n3. Ha a lakat nem zárt, koppintson a lezárásához</string>
+	<string name="dnkm_xiaomi_dialog_body_new">1. Nyissa meg a legutolsó appok listáját (másnéven az app váltót)\n\n2. Nyomja meg és tartsa nyomva a Briar képét, hogy megjelenjen a lakat ikon\n\n3. Ha a lakat nem zárt, koppintson a lezárásához</string>
+	<string name="dnkm_warning_dozed">%s nem tud futni a háttérben</string>
   <!--Login-->
   <string name="enter_password">Jelszó</string>
   <string name="try_again">Hibás jelszó, próbáld újra</string>

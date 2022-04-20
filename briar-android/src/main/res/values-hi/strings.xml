@@ -1,36 +1,36 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
-  <!--Setup-->
-  <string name="setup_title">Briar में आपका स्वागत है</string>
-  <string name="setup_name_explanation">आपके उपनाम आप पोस्ट किसी भी सामग्री के बगल में दिखाया जाएगा। आप अपना खाता बनाने के बाद इसे बदल नहीं सकते</string>
-  <string name="setup_next">अगला</string>
-  <string name="setup_password_intro">अपना पासवर्ड चुनें</string>
-  <string name="setup_password_explanation">आपका Briar खाता आपके डिवाइस पर एन्क्रिप्ट किया गया है, न कि क्लाउड में। यदि आप अपना पासवर्ड भूल जाते हैं या Briar  को अनइंस्टॉल करते हैं, तो आपका खाता पुनर्प्राप्त करने का कोई तरीका नहीं है। \ N \ n एक लंबे पासवर्ड चुनें जो अनुमान लगाने में मुश्किल हो, जैसे चार यादृच्छिक शब्द, या दस यादृच्छिक वर्ण, संख्याएं और प्रतीकों।</string>
-  <string name="setup_doze_title">पृष्ठभूमि कनेक्शन</string>
-  <string name="setup_doze_intro">संदेश प्राप्त करने के लिए, Briar को पृष्ठभूमि में जुड़े रहने की आवश्यकता है।</string>
-  <string name="setup_doze_explanation">संदेश प्राप्त करने के लिए, Briar  को पृष्ठभूमि में जुड़े रहने की आवश्यकता है। कृपया बैटरी ऑप्टिमाइजेशन अक्षम करें ताकि Briar  कनेक्ट रह सकें।</string>
-  <string name="setup_doze_button">कनेक्शन की अनुमति दें</string>
-  <string name="choose_nickname">आपका मुंहबोला नाम चुनें</string>
-  <string name="choose_password">अपना पासवर्ड चुनें</string>
-  <string name="confirm_password">अपने पासवर्ड की पुष्टि करें</string>
-  <string name="name_too_long">नाम बहुत लंबा है</string>
-  <string name="password_too_weak">पासवर्ड बहुत कमजोर है</string>
-  <string name="passwords_do_not_match">पासवर्ड मेल नहीं खाते</string>
-  <string name="create_account_button">खाता बनाएं</string>
-  <string name="more_info">अधिक जानकारी</string>
-  <string name="don_t_ask_again">फिर से मत पूछो</string>
-  <string name="setup_huawei_text">कृपया नीचे दिए गए बटन को टैप करें और सुनिश्चित करें कि \"संरक्षित ऐप्स\" स्क्रीन पर Briar  सुरक्षित है</string>
-  <string name="setup_huawei_button">Briar की रक्षा करें</string>
-  <string name="dnkm_huawei_protected_help">अगर Briar संरक्षित ऐप्स सूची में नहीं जोड़ा गया है, तो यह पृष्ठभूमि में चलने में असमर्थ होगा।</string>
-  <string name="dnkm_warning_dozed">%sपृष्ठभूमि में चलाने में असमर्थ था</string>
-  <!--Login-->
-  <string name="enter_password">पासवर्ड</string>
-  <string name="try_again">गलत पासवर्ड, फिर से प्रयास करें</string>
-  <string name="sign_in_button">साइन इन करें</string>
-  <string name="forgotten_password">मुझे अपना पासवर्ड याद नहीं है</string>
-  <string name="dialog_title_lost_password">पासवर्ड खो गया</string>
-  <string name="dialog_message_lost_password">आपका Briar  खाता आपके डिवाइस पर एन्क्रिप्ट किया गया है, बादल में नहीं, इसलिए हम आपका पासवर्ड रीसेट नहीं कर सकते। क्या आप अपना खाता हटाना चाहते हैं और फिर से शुरू करना चाहते हैं? \ N \ n सावधानी: आपकी पहचान, संपर्क और संदेश स्थायी रूप से खो जाएंगे</string>
-  <string name="startup_failed_notification_title">Briar  शुरू नहीं हो सका</string>
+	<!--Setup-->
+	<string name="setup_title">Briar में आपका स्वागत है</string>
+	<string name="setup_name_explanation">आपके उपनाम आप पोस्ट किसी भी सामग्री के बगल में दिखाया जाएगा। आप अपना खाता बनाने के बाद इसे बदल नहीं सकते</string>
+	<string name="setup_next">अगला</string>
+	<string name="setup_password_intro">अपना पासवर्ड चुनें</string>
+	<string name="setup_password_explanation">आपका Briar खाता आपके डिवाइस पर एन्क्रिप्ट किया गया है, न कि क्लाउड में। यदि आप अपना पासवर्ड भूल जाते हैं या Briar  को अनइंस्टॉल करते हैं, तो आपका खाता पुनर्प्राप्त करने का कोई तरीका नहीं है। \ N \ n एक लंबे पासवर्ड चुनें जो अनुमान लगाने में मुश्किल हो, जैसे चार यादृच्छिक शब्द, या दस यादृच्छिक वर्ण, संख्याएं और प्रतीकों।</string>
+	<string name="dnkm_doze_title">पृष्ठभूमि कनेक्शन</string>
+	<string name="dnkm_doze_intro">संदेश प्राप्त करने के लिए, Briar को पृष्ठभूमि में जुड़े रहने की आवश्यकता है।</string>
+	<string name="dnkm_doze_explanation">संदेश प्राप्त करने के लिए, Briar  को पृष्ठभूमि में जुड़े रहने की आवश्यकता है। कृपया बैटरी ऑप्टिमाइजेशन अक्षम करें ताकि Briar  कनेक्ट रह सकें।</string>
+	<string name="dnkm_doze_button">कनेक्शन की अनुमति दें</string>
+	<string name="choose_nickname">आपका मुंहबोला नाम चुनें</string>
+	<string name="choose_password">अपना पासवर्ड चुनें</string>
+	<string name="confirm_password">अपने पासवर्ड की पुष्टि करें</string>
+	<string name="name_too_long">नाम बहुत लंबा है</string>
+	<string name="password_too_weak">पासवर्ड बहुत कमजोर है</string>
+	<string name="passwords_do_not_match">पासवर्ड मेल नहीं खाते</string>
+	<string name="create_account_button">खाता बनाएं</string>
+	<string name="more_info">अधिक जानकारी</string>
+	<string name="don_t_ask_again">फिर से मत पूछो</string>
+	<string name="dnkm_huawei_protected_text">कृपया नीचे दिए गए बटन को टैप करें और सुनिश्चित करें कि \"संरक्षित ऐप्स\" स्क्रीन पर Briar  सुरक्षित है</string>
+	<string name="dnkm_huawei_protected_button">Briar की रक्षा करें</string>
+	<string name="dnkm_huawei_protected_help">अगर Briar संरक्षित ऐप्स सूची में नहीं जोड़ा गया है, तो यह पृष्ठभूमि में चलने में असमर्थ होगा।</string>
+	<string name="dnkm_warning_dozed">%sपृष्ठभूमि में चलाने में असमर्थ था</string>
+	<!--Login-->
+	<string name="enter_password">पासवर्ड</string>
+	<string name="try_again">गलत पासवर्ड, फिर से प्रयास करें</string>
+	<string name="sign_in_button">साइन इन करें</string>
+	<string name="forgotten_password">मुझे अपना पासवर्ड याद नहीं है</string>
+	<string name="dialog_title_lost_password">पासवर्ड खो गया</string>
+	<string name="dialog_message_lost_password">आपका Briar  खाता आपके डिवाइस पर एन्क्रिप्ट किया गया है, बादल में नहीं, इसलिए हम आपका पासवर्ड रीसेट नहीं कर सकते। क्या आप अपना खाता हटाना चाहते हैं और फिर से शुरू करना चाहते हैं? \ N \ n सावधानी: आपकी पहचान, संपर्क और संदेश स्थायी रूप से खो जाएंगे</string>
+	<string name="startup_failed_notification_title">Briar  शुरू नहीं हो सका</string>
   <string name="startup_failed_notification_text">अधिक जानकारी के लिए टैप करें।</string>
   <string name="startup_failed_activity_title">Briar  स्टार्टअप विफलता</string>
   <string name="startup_failed_db_error">किसी कारण से, आपका Briar  डेटाबेस मरम्मत से परे दूषित हो गया है। आपका खाता, आपका डेटा और आपके सभी संपर्क खो गए हैं। दुर्भाग्यवश, आपको पासवर्ड प्रॉम्प्ट पर \'मेरा पासवर्ड भूल गया है\' चुनकर Briar  को पुनर्स्थापित करने या एक नया खाता सेट अप करने की आवश्यकता है।</string>

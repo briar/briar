@@ -1,39 +1,39 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
-  <!--Setup-->
-  <string name="setup_title">به Briar (برایر) خوش آمدید</string>
-  <string name="setup_name_explanation">نام مستعار شما کنار هر مطلبی که پست کنید قرار خواهد گرفت. بعد از ایجاد حساب کاربری امکان تغییر آن وجود ندارد.</string>
-  <string name="setup_next">بعدی</string>
-  <string name="setup_password_intro">یک گذرواژه انتخاب کنید</string>
-  <string name="setup_password_explanation">حساب کاربری Briar (برایر) شما به صورت رمزگذاری شده روی دستگاه شما به جای حافظه ابری ذخیره شده است. اگر گذرواژه خود را فراموش کنید یا Briar (برایر) را پاک کنید، راهی برای بازیابی حساب کاربری شما وجود نخواهد داشت.
+	<!--Setup-->
+	<string name="setup_title">به Briar (برایر) خوش آمدید</string>
+	<string name="setup_name_explanation">نام مستعار شما کنار هر مطلبی که پست کنید قرار خواهد گرفت. بعد از ایجاد حساب کاربری امکان تغییر آن وجود ندارد.</string>
+	<string name="setup_next">بعدی</string>
+	<string name="setup_password_intro">یک گذرواژه انتخاب کنید</string>
+	<string name="setup_password_explanation">حساب کاربری Briar (برایر) شما به صورت رمزگذاری شده روی دستگاه شما به جای حافظه ابری ذخیره شده است. اگر گذرواژه خود را فراموش کنید یا Briar (برایر) را پاک کنید، راهی برای بازیابی حساب کاربری شما وجود نخواهد داشت.
 
 یک گذرواژه طولانی انتخاب کنید که حدس آن سخت باشد، مثل چهار عبارت تصادفی یا ده لغت تصادفی با اعداد و نماد ها.</string>
-  <string name="setup_doze_title">اتصال های پس زمینه</string>
-  <string name="setup_doze_intro">برای دریافت پیام، Briar (برایر) نیاز دارد تا در پس زمینه اتصال داشته باشد.</string>
-  <string name="setup_doze_explanation">برای دریافت پیام، Briar (برایر) نیاز دارد تا در پس زمینه اتصال داشته باشد. لطفا بهینه سازی باتری را غیر فعال کنید تا Briar (برایر) بتواند به اتصال خود ادامه دهد.</string>
-  <string name="setup_doze_button">دادن اجازه به ارتباطات</string>
-  <string name="choose_nickname">نام مستعار خود را انتخاب کنید</string>
-  <string name="choose_password">گذرواژه خود را انتخاب کنید</string>
-  <string name="confirm_password">گذرواژه خود را تایید کنید</string>
-  <string name="name_too_long">نام بیش از حد طولانی می باشد</string>
-  <string name="password_too_weak">گذرواژه ضعیف می باشد</string>
-  <string name="passwords_do_not_match">رمز های عبور مطابقت ندارند </string>
-  <string name="create_account_button">ایجاد حساب کاربری</string>
-  <string name="more_info">اطلاعات بیشتر</string>
-  <string name="don_t_ask_again">دیگر نپرس</string>
-  <string name="setup_huawei_text">لطفا روی دکمه زیر کلیک کنید و مطمئن شوید که از Briar (برایر) در صفحه \"برنامه های محافظت شده\" محافظت می شود.</string>
-  <string name="setup_huawei_button">حفاظت از Briar (برایر)</string>
-  <string name="dnkm_huawei_protected_help">اگر Briar (برایر) به فهرست برنامه های محافظت شده اضافه نشده، نمی تواند در پس زمینه مشغول به کار باشد.</string>
-  <string name="dnkm_huawei_app_launch_text">لطفا روی دکمه زیر زده، صفحه‌ی \"راه اندازی برنامه\" را باز کرده و از این که برایر (Briar) بر روی \"مدیریت دستی\" تنظیم شده باشد، اطمینان حاصل کنید.</string>
-  <string name="dnkm_huawei_app_launch_button">باز کردن تنظیمات باتری</string>
-  <string name="setup_huawei_app_launch_help">اگر در صفحه \"راه اندازی برنامه\"، برایر (Briar) بر روی گزینه \"مدیریت دستی\" تنظیم نشده باشد، برنامه قادر به فعالیت در پس‌زمینه نخواهد بود.</string>
-  <string name="setup_huawei_app_launch_error_toast">تنظیمات باتری باز نشد</string>
+	<string name="dnkm_doze_title">اتصال های پس زمینه</string>
+	<string name="dnkm_doze_intro">برای دریافت پیام، Briar (برایر) نیاز دارد تا در پس زمینه اتصال داشته باشد.</string>
+	<string name="dnkm_doze_explanation">برای دریافت پیام، Briar (برایر) نیاز دارد تا در پس زمینه اتصال داشته باشد. لطفا بهینه سازی باتری را غیر فعال کنید تا Briar (برایر) بتواند به اتصال خود ادامه دهد.</string>
+	<string name="dnkm_doze_button">دادن اجازه به ارتباطات</string>
+	<string name="choose_nickname">نام مستعار خود را انتخاب کنید</string>
+	<string name="choose_password">گذرواژه خود را انتخاب کنید</string>
+	<string name="confirm_password">گذرواژه خود را تایید کنید</string>
+	<string name="name_too_long">نام بیش از حد طولانی می باشد</string>
+	<string name="password_too_weak">گذرواژه ضعیف می باشد</string>
+	<string name="passwords_do_not_match">رمز های عبور مطابقت ندارند </string>
+	<string name="create_account_button">ایجاد حساب کاربری</string>
+	<string name="more_info">اطلاعات بیشتر</string>
+	<string name="don_t_ask_again">دیگر نپرس</string>
+	<string name="dnkm_huawei_protected_text">لطفا روی دکمه زیر کلیک کنید و مطمئن شوید که از Briar (برایر) در صفحه \"برنامه های محافظت شده\" محافظت می شود.</string>
+	<string name="dnkm_huawei_protected_button">حفاظت از Briar (برایر)</string>
+	<string name="dnkm_huawei_protected_help">اگر Briar (برایر) به فهرست برنامه های محافظت شده اضافه نشده، نمی تواند در پس زمینه مشغول به کار باشد.</string>
+	<string name="dnkm_huawei_app_launch_text">لطفا روی دکمه زیر زده، صفحه‌ی \"راه اندازی برنامه\" را باز کرده و از این که برایر (Briar) بر روی \"مدیریت دستی\" تنظیم شده باشد، اطمینان حاصل کنید.</string>
+	<string name="dnkm_huawei_app_launch_button">باز کردن تنظیمات باتری</string>
+	<string name="dnkm_huawei_app_launch_help">اگر در صفحه \"راه اندازی برنامه\"، برایر (Briar) بر روی گزینه \"مدیریت دستی\" تنظیم نشده باشد، برنامه قادر به فعالیت در پس‌زمینه نخواهد بود.</string>
+	<string name="setup_huawei_app_launch_error_toast">تنظیمات باتری باز نشد</string>
   <string name="dnkm_xiaomi_text">برای اجرا در پس‌زمینه، لازم است برایر (Briar) در لیست اپ‌های اخیر قفل شود.</string>
-  <string name="setup_xiaomi_button">حفاظت از Briar (برایر)</string>
-  <string name="dnkm_xiaomi_help">اگر برایر (Briar) در لیست اپ‌های اخیر قفل نشود، قادر با اجرا در پس‌زمینه نخواهد بود.</string>
-  <string name="dnkm_xiaomi_dialog_body_old">1. لیست اپ‌های اخیر (یا app switcher) را باز کنید\n\n2. عکس اپ برایر (Briar) را پایین کشیده تا آیکون قفل نمایش یابد\n\n3. اگر قفل بسته نیست، روی آن بزنید تا قفل شود</string>
-  <string name="dnkm_xiaomi_dialog_body_new">1. لیست اپ‌های اخیر (یا app switcher) را باز کنید\n\n2. اروی عکس اپ برایر (Briar) نگه داشته تا آیکون قفل نمایش یابد\n\n3. اگر قفل بسته نیست، روی آن بزنید تا قفل شود</string>
-  <string name="dnkm_warning_dozed">ناتوانی %s برای اجراء در پس زمینه</string>
+	<string name="dnkm_xiaomi_button">حفاظت از Briar (برایر)</string>
+	<string name="dnkm_xiaomi_help">اگر برایر (Briar) در لیست اپ‌های اخیر قفل نشود، قادر با اجرا در پس‌زمینه نخواهد بود.</string>
+	<string name="dnkm_xiaomi_dialog_body_old">1. لیست اپ‌های اخیر (یا app switcher) را باز کنید\n\n2. عکس اپ برایر (Briar) را پایین کشیده تا آیکون قفل نمایش یابد\n\n3. اگر قفل بسته نیست، روی آن بزنید تا قفل شود</string>
+	<string name="dnkm_xiaomi_dialog_body_new">1. لیست اپ‌های اخیر (یا app switcher) را باز کنید\n\n2. اروی عکس اپ برایر (Briar) نگه داشته تا آیکون قفل نمایش یابد\n\n3. اگر قفل بسته نیست، روی آن بزنید تا قفل شود</string>
+	<string name="dnkm_warning_dozed">ناتوانی %s برای اجراء در پس زمینه</string>
   <!--Login-->
   <string name="enter_password">گذرواژه</string>
   <string name="try_again">گذرواژه اشتباه است، لطفا دوباره سعی کنید</string>

@@ -1,36 +1,36 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
-  <!--Setup-->
-  <string name="setup_title">Добредојде во Briar</string>
-  <string name="setup_name_explanation">Вашето корисничко име ќе се појави до секоја содржина која ќе ја објавите. Истото не можете да го промените откога ќе ја креирате вашата сметка.</string>
-  <string name="setup_next">Следно</string>
-  <string name="setup_password_intro">Одбери лозинка</string>
-  <string name="setup_password_explanation">Вашата Briar сметка е зачувана енкриптирана на вашиот уред, а не во облак. Ако ја заборавите вашата лозинка или го избришете Briar, не постои начин да ја повратите вашата сметка.\n\nОдберете долга лозинка која е тешка за погодување, на пример четири произволни зборови, или десет произволни букви, бројки или симболи.</string>
-  <string name="setup_doze_title">Позадински поврзувања на Интернет</string>
-  <string name="setup_doze_intro">За да примате пораки, Briar мора да биде поврзан на Интернет во позадина.</string>
-  <string name="setup_doze_explanation">За да примате пораки, Briar мора да биде поврзан на Интернет во позадина. Исклучете ги оптимизациите за батеријата за Briar да може да остане поврзан на Интернет.</string>
-  <string name="setup_doze_button">Дозволени поврзувања</string>
-  <string name="choose_nickname">Одберете корисничко име</string>
-  <string name="choose_password">Одберете лозинка</string>
-  <string name="confirm_password">Потврдете ја лозинката</string>
-  <string name="name_too_long">Името е предолго</string>
-  <string name="password_too_weak">Лозинката е многу лесна</string>
-  <string name="passwords_do_not_match">Лозинките не се исти</string>
-  <string name="create_account_button">Создади сметка</string>
-  <string name="more_info">Повеќе информации</string>
-  <string name="don_t_ask_again">Не прашувај повторно</string>
-  <string name="setup_huawei_text">Допрете го копчето подолу и осигурајте се дека Briar е заштитен во \"Protected Apps\" / мак. \"Заштитени апликации\" екранот.</string>
-  <string name="setup_huawei_button">Заштити го Briar</string>
-  <string name="dnkm_huawei_protected_help">Ако Briar не е додаден на листата со заштитени апликации, ќе биде оневозможен да работи во позадина.</string>
-  <string name="setup_xiaomi_button">Заштити го Briar</string>
-  <string name="dnkm_warning_dozed">%s беше оневозможен да работи во позадина</string>
-  <!--Login-->
-  <string name="enter_password">Лозинка</string>
-  <string name="try_again">Погрешна лозинка</string>
-  <string name="dialog_title_cannot_check_password">Не може да се провери лозинката</string>
-  <string name="dialog_message_cannot_check_password">Briar не може да ја провери вашата лозинка. Ве молиме обидетете се со рестартирање на вашиот уред за да го решите овој проблем.</string>
-  <string name="sign_in_button">Најави се</string>
-  <string name="forgotten_password">Ја заборавив лозинката</string>
+	<!--Setup-->
+	<string name="setup_title">Добредојде во Briar</string>
+	<string name="setup_name_explanation">Вашето корисничко име ќе се појави до секоја содржина која ќе ја објавите. Истото не можете да го промените откога ќе ја креирате вашата сметка.</string>
+	<string name="setup_next">Следно</string>
+	<string name="setup_password_intro">Одбери лозинка</string>
+	<string name="setup_password_explanation">Вашата Briar сметка е зачувана енкриптирана на вашиот уред, а не во облак. Ако ја заборавите вашата лозинка или го избришете Briar, не постои начин да ја повратите вашата сметка.\n\nОдберете долга лозинка која е тешка за погодување, на пример четири произволни зборови, или десет произволни букви, бројки или симболи.</string>
+	<string name="dnkm_doze_title">Позадински поврзувања на Интернет</string>
+	<string name="dnkm_doze_intro">За да примате пораки, Briar мора да биде поврзан на Интернет во позадина.</string>
+	<string name="dnkm_doze_explanation">За да примате пораки, Briar мора да биде поврзан на Интернет во позадина. Исклучете ги оптимизациите за батеријата за Briar да може да остане поврзан на Интернет.</string>
+	<string name="dnkm_doze_button">Дозволени поврзувања</string>
+	<string name="choose_nickname">Одберете корисничко име</string>
+	<string name="choose_password">Одберете лозинка</string>
+	<string name="confirm_password">Потврдете ја лозинката</string>
+	<string name="name_too_long">Името е предолго</string>
+	<string name="password_too_weak">Лозинката е многу лесна</string>
+	<string name="passwords_do_not_match">Лозинките не се исти</string>
+	<string name="create_account_button">Создади сметка</string>
+	<string name="more_info">Повеќе информации</string>
+	<string name="don_t_ask_again">Не прашувај повторно</string>
+	<string name="dnkm_huawei_protected_text">Допрете го копчето подолу и осигурајте се дека Briar е заштитен во \"Protected Apps\" / мак. \"Заштитени апликации\" екранот.</string>
+	<string name="dnkm_huawei_protected_button">Заштити го Briar</string>
+	<string name="dnkm_huawei_protected_help">Ако Briar не е додаден на листата со заштитени апликации, ќе биде оневозможен да работи во позадина.</string>
+	<string name="dnkm_xiaomi_button">Заштити го Briar</string>
+	<string name="dnkm_warning_dozed">%s беше оневозможен да работи во позадина</string>
+	<!--Login-->
+	<string name="enter_password">Лозинка</string>
+	<string name="try_again">Погрешна лозинка</string>
+	<string name="dialog_title_cannot_check_password">Не може да се провери лозинката</string>
+	<string name="dialog_message_cannot_check_password">Briar не може да ја провери вашата лозинка. Ве молиме обидетете се со рестартирање на вашиот уред за да го решите овој проблем.</string>
+	<string name="sign_in_button">Најави се</string>
+	<string name="forgotten_password">Ја заборавив лозинката</string>
   <string name="dialog_title_lost_password">Изгубена лозинка</string>
   <string name="dialog_message_lost_password">Вашата Briar сметка е зачувана енкриптирана на вашиот уред, а не на облак, со оглед на тоа ние не можеме да ја рестартираме вашата лозинка. Дали сакате да ја избришете вашата сметка и да почнете од почеток?\n\nВнимание: Вашите идентитети, контакти и пораки ќе бидат трајно изгубени.</string>
   <string name="startup_failed_notification_title">Briar не може да се стартува</string>
