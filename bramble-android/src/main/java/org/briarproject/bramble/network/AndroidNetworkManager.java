@@ -11,6 +11,8 @@ import android.net.LinkAddress;
 import android.net.LinkProperties;
 import android.net.Network;
 import android.net.NetworkInfo;
+import android.net.wifi.WifiInfo;
+import android.net.wifi.WifiManager;
 
 import org.briarproject.bramble.api.event.EventBus;
 import org.briarproject.bramble.api.event.EventExecutor;
@@ -38,6 +40,7 @@ import javax.annotation.Nullable;
 import javax.inject.Inject;
 
 import static android.content.Context.CONNECTIVITY_SERVICE;
+import static android.content.Context.WIFI_SERVICE;
 import static android.content.Intent.ACTION_SCREEN_OFF;
 import static android.content.Intent.ACTION_SCREEN_ON;
 import static android.net.ConnectivityManager.CONNECTIVITY_ACTION;
@@ -111,15 +114,37 @@ class AndroidNetworkManager implements NetworkManager, Service {
 
 	@Override
 	public NetworkStatus getNetworkStatus() {
-		NetworkInfo net = connectivityManager.getActiveNetworkInfo();
-		boolean connected = net != null && net.isConnected();
-		boolean wifi = false, ipv6Only = false;
-		if (connected) {
-			wifi = net.getType() == TYPE_WIFI;
-			if (SDK_INT >= 23) ipv6Only = isActiveNetworkIpv6Only();
-			else ipv6Only = areAllAvailableNetworksIpv6Only();
+		// https://issuetracker.google.com/issues/175055271
+		try {
+			NetworkInfo net = connectivityManager.getActiveNetworkInfo();
+			boolean connected = net != null && net.isConnected();
+			boolean wifi = false, ipv6Only = false;
+			if (connected) {
+				wifi = net.getType() == TYPE_WIFI;
+				if (SDK_INT >= 23) ipv6Only = isActiveNetworkIpv6Only();
+				else ipv6Only = areAllAvailableNetworksIpv6Only();
+			}
+			return new NetworkStatus(connected, wifi, ipv6Only);
+		} catch (SecurityException e) {
+			logException(LOG, WARNING, e);
+			// Without the ConnectivityManager we can't detect whether we have
+			// internet access. Assume we do, which is probably less harmful
+			// than assuming we don't. Likewise, assume the connection is
+			// IPv6-only. Fall back to the WifiManager to detect whether we
+			// have a wifi connection.
+			LOG.info("ConnectivityManager is broken, guessing connectivity");
+			boolean connected = true, wifi = false, ipv6Only = true;
+			WifiManager wm = (WifiManager) app.getSystemService(WIFI_SERVICE);
+			if (wm != null) {
+				WifiInfo info = wm.getConnectionInfo();
+				if (info != null && info.getIpAddress() != 0) {
+					LOG.info("Connected to wifi");
+					wifi = true;
+					ipv6Only = false;
+				}
+			}
+			return new NetworkStatus(connected, wifi, ipv6Only);
 		}
-		return new NetworkStatus(connected, wifi, ipv6Only);
 	}
 
 	/**
@@ -130,23 +155,29 @@ class AndroidNetworkManager implements NetworkManager, Service {
 	 */
 	@TargetApi(23)
 	private boolean isActiveNetworkIpv6Only() {
-		Network net = connectivityManager.getActiveNetwork();
-		if (net == null) {
-			LOG.info("No active network");
+		// https://issuetracker.google.com/issues/175055271
+		try {
+			Network net = connectivityManager.getActiveNetwork();
+			if (net == null) {
+				LOG.info("No active network");
+				return false;
+			}
+			LinkProperties props = connectivityManager.getLinkProperties(net);
+			if (props == null) {
+				LOG.info("No link properties for active network");
+				return false;
+			}
+			boolean hasIpv6Unicast = false;
+			for (LinkAddress linkAddress : props.getLinkAddresses()) {
+				InetAddress addr = linkAddress.getAddress();
+				if (addr instanceof Inet4Address) return false;
+				if (!addr.isMulticastAddress()) hasIpv6Unicast = true;
+			}
+			return hasIpv6Unicast;
+		} catch (SecurityException e) {
+			logException(LOG, WARNING, e);
 			return false;
 		}
-		LinkProperties props = connectivityManager.getLinkProperties(net);
-		if (props == null) {
-			LOG.info("No link properties for active network");
-			return false;
-		}
-		boolean hasIpv6Unicast = false;
-		for (LinkAddress linkAddress : props.getLinkAddresses()) {
-			InetAddress addr = linkAddress.getAddress();
-			if (addr instanceof Inet4Address) return false;
-			if (!addr.isMulticastAddress()) hasIpv6Unicast = true;
-		}
-		return hasIpv6Unicast;
 	}
 
 	/**
