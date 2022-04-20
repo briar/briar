@@ -2,6 +2,7 @@ package org.briarproject.bramble.api.mailbox;
 
 import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.db.Transaction;
+import org.briarproject.bramble.api.lifecycle.IoExecutor;
 
 import javax.annotation.Nullable;
 
@@ -41,4 +42,10 @@ public interface MailboxManager {
 	 */
 	boolean checkConnection();
 
+	/**
+	 * Unpairs the owner's mailbox and tries to wipe it.
+	 * As this makes a network call, it should be run on the {@link IoExecutor}.
+	 */
+	@IoExecutor
+	void unPair() throws DbException;
 }

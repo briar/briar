@@ -76,6 +76,17 @@ class MailboxSettingsManagerImpl implements MailboxSettingsManager {
 	}
 
 	@Override
+	public void removeOwnMailboxProperties(Transaction txn) throws DbException {
+		Settings s = new Settings();
+		s.put(SETTINGS_KEY_ONION, "");
+		s.put(SETTINGS_KEY_TOKEN, "");
+		settingsManager.mergeSettings(txn, s, SETTINGS_NAMESPACE);
+		for (MailboxHook hook : hooks) {
+			hook.mailboxUnpaired(txn);
+		}
+	}
+
+	@Override
 	public MailboxStatus getOwnMailboxStatus(Transaction txn)
 			throws DbException {
 		Settings s = settingsManager.getSettings(txn, SETTINGS_NAMESPACE);
