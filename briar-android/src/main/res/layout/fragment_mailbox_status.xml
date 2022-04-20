@@ -19,22 +19,23 @@
 		app:layout_constraintTop_toTopOf="parent"
 		app:layout_constraintVertical_bias="0.25"
 		app:layout_constraintVertical_chainStyle="packed"
-		app:srcCompat="@drawable/ic_check_circle_outline"
-		app:tint="@color/briar_brand_green"
-		tools:ignore="ContentDescription" />
+		tools:ignore="ContentDescription"
+		tools:srcCompat="@drawable/ic_help_outline_white"
+		tools:tint="@color/briar_orange_500" />
 
 	<TextView
 		android:id="@+id/statusTitleView"
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
 		android:layout_margin="16dp"
-		android:text="@string/mailbox_status_connected_title"
+		android:gravity="center"
 		android:textAppearance="@style/TextAppearance.MaterialComponents.Headline6"
 		app:layout_constrainedWidth="true"
 		app:layout_constraintBottom_toTopOf="@+id/checkButton"
 		app:layout_constraintEnd_toEndOf="parent"
 		app:layout_constraintStart_toStartOf="parent"
-		app:layout_constraintTop_toBottomOf="@+id/imageView" />
+		app:layout_constraintTop_toBottomOf="@+id/imageView"
+		tools:text="@string/mailbox_status_problem_title" />
 
 	<Button
 		android:id="@+id/checkButton"

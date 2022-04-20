@@ -103,22 +103,32 @@ class MailboxManagerImpl implements MailboxManager {
 			MailboxProperties props = db.transactionWithNullableResult(true,
 					mailboxSettingsManager::getOwnMailboxProperties);
 			success = api.checkStatus(props);
-		} catch (DbException | IOException | MailboxApi.ApiException e) {
+		} catch (DbException e) {
+			logException(LOG, WARNING, e);
+			// we don't treat this is a failure to record
+			return false;
+		} catch (IOException | MailboxApi.ApiException e) {
+			// we record this as a failure
 			success = false;
 			logException(LOG, WARNING, e);
 		}
-		if (success) {
-			try {
-				// we are only recording successful connections here
-				// as those update the UI and failures might be false negatives
-				db.transaction(false, txn ->
-						mailboxSettingsManager.recordSuccessfulConnection(txn,
-								clock.currentTimeMillis()));
-			} catch (DbException e) {
-				logException(LOG, WARNING, e);
-			}
+		try {
+			recordCheckResult(success);
+		} catch (DbException e) {
+			logException(LOG, WARNING, e);
 		}
 		return success;
+	}
+
+	private void recordCheckResult(boolean success) throws DbException {
+		long now = clock.currentTimeMillis();
+		db.transaction(false, txn -> {
+			if (success) {
+				mailboxSettingsManager.recordSuccessfulConnection(txn, now);
+			} else {
+				mailboxSettingsManager.recordFailedConnectionAttempt(txn, now);
+			}
+		});
 	}
 
 }
