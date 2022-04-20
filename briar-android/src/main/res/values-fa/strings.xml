@@ -27,6 +27,7 @@
   <string name="setup_huawei_app_launch_text">لطفا روی دکمه زیر زده، صفحه‌ی \"راه اندازی برنامه\" را باز کرده و از این که برایر (Briar) بر روی \"مدیریت دستی\" تنظیم شده باشد، اطمینان حاصل کنید.</string>
   <string name="setup_huawei_app_launch_button">باز کردن تنظیمات باتری</string>
   <string name="setup_huawei_app_launch_help">اگر در صفحه \"راه اندازی برنامه\"، برایر (Briar) بر روی گزینه \"مدیریت دستی\" تنظیم نشده باشد، برنامه قادر به فعالیت در پس‌زمینه نخواهد بود.</string>
+  <string name="setup_huawei_app_launch_error_toast">تنظیمات باتری باز نشد</string>
   <string name="setup_xiaomi_text">برای اجرا در پس‌زمینه، لازم است برایر (Briar) در لیست اپ‌های اخیر قفل شود.</string>
   <string name="setup_xiaomi_button">حفاظت از Briar (برایر)</string>
   <string name="setup_xiaomi_help">اگر برایر (Briar) در لیست اپ‌های اخیر قفل نشود، قادر با اجرا در پس‌زمینه نخواهد بود.</string>
@@ -314,7 +315,7 @@
   <string name="pending_contact_updated_toast">مخاطب معلق به روز رسانی شد</string>
   <!--Introductions-->
   <string name="introduction_onboarding_title">معرفی مخاطبان</string>
-  <string name="introduction_onboarding_text">شما می توانید مخاطبان خود را به یکدیگر معرفی کنید، در این صورت دیگر نیازی به دیدار حضوری برای اتصال روی Briar (برایر) نمی باشد.</string>
+  <string name="introduction_onboarding_text">مخاطبین خود را به یکدیگر معرفی کنید تا بتوانند در Briar متصل شوند.</string>
   <string name="introduction_menu_item">معرفی کردن</string>
   <string name="introduction_activity_title">انتخاب مخاطب</string>
   <string name="introduction_not_possible">شما همین الان یک معرفی در مرحله انجام با این مخاطبان دارید. لطفا اجازه دهید تا این معرفی به پایان برسد. اگر شما و یا مخاطبانتان به ندرت آنلاین هستید، ممکن است کمی زمان ببرد.</string>
@@ -623,10 +624,31 @@
   <string name="permission_camera_qr_denied_body">شما دسترسی به دوربین را رد کرده‌اید، اما اسکن کد QR مستلزم استفاده از دوربین است.\n\nلطفا دسترسی به دوربین را بدهید.</string>
   <string name="mailbox_setup_connecting">در حال اتصال...</string>
   <string name="mailbox_setup_qr_code_wrong_title">کد QR اشتباه است</string>
-  <string name="mailbox_setup_qr_code_wrong_description">کد اسکن شده نامعتبر است. لطفا برنامه Briar Mailbox را در دستگاه صندوق پستی خود باز کنید و کد QR ارائه شده را اسکن کنید.</string>
+  <string name="mailbox_setup_qr_code_wrong_description">کد اسکن‌شده نامعتبر است. لطفا برنامه Briar Mailbox را در دستگاه Mailbox خود باز کنید و کد QR ارائه‌شده را اسکن کنید.</string>
+  <string name="mailbox_setup_already_paired_title">صندوق‌پستی قبلا متصل شده است</string>
+  <string name="mailbox_setup_already_paired_description">اتصال صندوق‌پستی دستگاه دیگرتان را لغو کنید و دوباره امتحان کنید.</string>
+  <string name="mailbox_setup_io_error_title">متصل نشد</string>
+  <string name="mailbox_setup_io_error_description">مطمئن شوید که هر دو دستگاه به اینترنت متصل هستند و دوباره امتحان کنید.</string>
+  <string name="mailbox_setup_assertion_error_title">خطای Mailbox</string>
+  <string name="mailbox_setup_assertion_error_description">لطفا در صورت تداوم مشکل، بازخورد (با داده‌های ناشناس) را از طریق برنامه Briar ارسال کنید.</string>
+  <string name="mailbox_setup_camera_error_description">دسترسی به دوربین امکان پذیر نیست. لطفا بعد از راه‌اندازی مجدد دستگاه، دوباره امتحان کنید.</string>
+  <string name="mailbox_setup_paired_title">متصل</string>
+  <string name="mailbox_setup_paired_description">صندوق پستی شما با موفقیت با Briar وصل شد.\n
+		\nصندوق پستی خود را به برق و Wi-Fi متصل نگه دارید تا همیشه آنلاین باشد.</string>
   <string name="tor_offline_title">آفلاین</string>
-  <string name="tor_offline_description">مطمئن شوید که این دستگاه آنلاین است و اجازه اتصال به اینترنت را دارد.\n\nسپس منتظر بمانید تا نماد کره زمین در تنظیمات اتصال سبز شود.</string>
+  <string name="tor_offline_description">مطمئن شوید که این دستگاه آنلاین است و اتصال به اینترنت مجاز است.\n
+		\nپس از آن، منتظر بمانید تا نماد کره زمین در صفحه تنظیمات اتصال سبز شود.</string>
   <string name="tor_offline_button_check">تنظیمات اتصال را بررسی کنید</string>
+  <string name="mailbox_status_title">وضعیت Mailbox</string>
+  <string name="mailbox_status_connected_title">Mailbox در حال اجراست</string>
+  <string name="mailbox_status_problem_title">ما در اتصال به صندوق پستی به مشکلی برخوردیم</string>
+  <string name="mailbox_status_failure_title">صندوق پستی در دسترس نیست</string>
+  <string name="mailbox_status_check_button">اتصال را بررسی کنید</string>
+  <!--Example for string substitution: Last connection: 3min ago-->
+  <string name="mailbox_status_connected_info">آخرین اتصال: %s</string>
+  <!--Indicates that there never was a connection to the mailbox. Last connection: Never-->
+  <string name="mailbox_status_connected_never">هیچ وقت</string>
+  <string name="mailbox_status_unlink_button">لغو پیوند</string>
   <!--Conversation Settings-->
   <string name="disappearing_messages_title">پیام‌های ناپدید شونده</string>
   <string name="disappearing_messages_explanation_long">روشن کردن این تنظیمات موجب خواهد شد تا پیام‌های جدید

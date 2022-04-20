@@ -25,6 +25,7 @@
   <string name="setup_huawei_app_launch_text">Bakstelėkite mygtuką žemiau, atverkite langą „Programų paleidimas (angl. App launch)“ ir įsitikinkite, kad Briar yra nustatyta į „Tvarkyti rankiniu būdu (angl. Manage manually)“.</string>
   <string name="setup_huawei_app_launch_button">Atverti akumuliatoriaus nustatymus</string>
   <string name="setup_huawei_app_launch_help">Jeigu „Programų paleidimo (angl. App launch)“ lange Briar nėra nustatyta į „Tvarkyti rankiniu būdu (angl. Manage manually)“, tuomet programėlė negalės veikti fone.</string>
+  <string name="setup_huawei_app_launch_error_toast">Nepavyko atverti akumuliatoriaus nustatymų</string>
   <string name="setup_xiaomi_text">Tam, kad galėtų veikti fone, Briar turi būti prirakinta prie paskiausiųjų programėlių sąrašo.</string>
   <string name="setup_xiaomi_button">Apsaugoti Briar</string>
   <string name="setup_xiaomi_help">Jei Briar nebus prirakinta prie paskiausiųjų programėlių sąrašo, ji negalės veikti fone.</string>
@@ -320,7 +321,6 @@
   <string name="pending_contact_updated_toast">Laukiantis adresatas atnaujintas</string>
   <!--Introductions-->
   <string name="introduction_onboarding_title">Supažindinkite savo adresatus</string>
-  <string name="introduction_onboarding_text">Galite supažindinti savo adresatus vieną su kitu, kad jiems nereikėtų susitikti gyvai ir jie galėtų užmegzti ryšį, naudodami Briar.</string>
   <string name="introduction_menu_item">Supažindinti</string>
   <string name="introduction_activity_title">Pasirinkite adresatą</string>
   <string name="introduction_not_possible">Jau vyksta vienas supažindinimas tarp šių adresatų. Iš pradžių, leiskite, kad jis būtų užbaigtas. Jeigu jūs ar jūsų adresatai retai būna prisijungę, tuomet tai gali šiek tiek užtrukti.</string>
@@ -604,8 +604,31 @@
   <string name="choose_ringtone_title">Pasirinkite skambėjimo melodiją</string>
   <string name="cannot_load_ringtone">Nepavyksta įkelti skambučio melodijos</string>
   <!--Mailbox-->
+  <string name="mailbox_settings_title">Pašto dėžutė</string>
+  <string name="mailbox_setup_title">Pašto dėžutės sąranka</string>
+  <string name="mailbox_setup_intro">Pašto dėžutės leidžia adresatams siųsti jums žinutes, kol esate neprisijungę prie interneto. Žinutės bus siunčiamos į jūsų pašto dėžutę ir saugomos ten tol, kol prisijungsite prie interneto.\n
+		\nGalite įsidiegti Briar pašto dėžutę laisvame atsarginiame įrenginyje. Palikite įrenginį prijungtą prie maitinimo šaltinio ir belaidžio (Wi-Fi) ryšio, kad jis būtų pastoviai prijungtas prie interneto.</string>
+  <string name="mailbox_setup_download_link">Bendrinti atsisiuntimo nuorodą</string>
+  <string name="mailbox_setup_button_scan">Skenuoti pašto dėžutės QR kodą</string>
   <string name="mailbox_setup_connecting">Jungiamasi…</string>
+  <string name="mailbox_setup_qr_code_wrong_title">Neteisingas QR kodas</string>
+  <string name="mailbox_setup_already_paired_title">Pašto dėžutė jau susieta</string>
+  <string name="mailbox_setup_io_error_title">Nepavyko prisijungti</string>
+  <string name="mailbox_setup_io_error_description">Įsitikinkite, kad abu įrenginiai yra prisijungę prie interneto ir bandykite dar kartą.</string>
+  <string name="mailbox_setup_assertion_error_title">Pašto dėžutės klaida</string>
+  <string name="mailbox_setup_assertion_error_description">Jei problema išlieka, išsiųskite atsiliepimą (su anoniminiais duomenimis) per Briar programėlę.</string>
+  <string name="mailbox_setup_camera_error_description">Nepavyko gauti prieigos prie kameros. Bandykite dar kartą, galbūt po to, kai paleisite įrenginį iš naujo.</string>
+  <string name="mailbox_setup_paired_title">Prisijungta</string>
   <string name="tor_offline_title">Nepasiekiama</string>
+  <string name="tor_offline_button_check">Tikrinti ryšio nustatymus</string>
+  <string name="mailbox_status_title">Pašto dėžutės būsena</string>
+  <string name="mailbox_status_connected_title">Pašto dėžutė veikia</string>
+  <string name="mailbox_status_check_button">Tikrinti ryšį</string>
+  <!--Example for string substitution: Last connection: 3min ago-->
+  <string name="mailbox_status_connected_info">Paskutinis prisijungimas: %s</string>
+  <!--Indicates that there never was a connection to the mailbox. Last connection: Never-->
+  <string name="mailbox_status_connected_never">Niekada</string>
+  <string name="mailbox_status_unlink_button">Atsieti</string>
   <!--Conversation Settings-->
   <string name="disappearing_messages_title">Išnykstančios žinutės</string>
   <string name="disappearing_messages_explanation_long">Įjungus šį nustatymą, naujos žinutės
