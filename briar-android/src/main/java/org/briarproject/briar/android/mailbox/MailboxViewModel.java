@@ -6,6 +6,7 @@ import com.google.zxing.Result;
 
 import org.briarproject.bramble.api.Consumer;
 import org.briarproject.bramble.api.db.DatabaseExecutor;
+import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.db.TransactionManager;
 import org.briarproject.bramble.api.event.Event;
 import org.briarproject.bramble.api.event.EventBus;
@@ -218,6 +219,18 @@ class MailboxViewModel extends DbViewModel
 			}
 		});
 		return liveData;
+	}
+
+	@UiThread
+	void unlink() {
+		ioExecutor.execute(() -> {
+			try {
+				mailboxManager.unPair();
+				pairingState.postEvent(new MailboxState.NotSetup());
+			} catch (DbException e) {
+				handleException(e);
+			}
+		});
 	}
 
 	@UiThread

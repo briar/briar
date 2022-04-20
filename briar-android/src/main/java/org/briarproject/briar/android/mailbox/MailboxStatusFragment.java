@@ -12,7 +12,6 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import org.briarproject.bramble.api.mailbox.MailboxStatus;
 import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
@@ -25,6 +24,7 @@ import androidx.annotation.ColorRes;
 import androidx.annotation.DrawableRes;
 import androidx.annotation.Nullable;
 import androidx.annotation.UiThread;
+import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 import androidx.lifecycle.ViewModelProvider;
@@ -57,6 +57,8 @@ public class MailboxStatusFragment extends Fragment {
 	private ImageView imageView;
 	private TextView statusTitleView;
 	private TextView statusInfoView;
+	private Button unlinkButton;
+	private ProgressBar unlinkProgress;
 
 	@Override
 	public void onAttach(Context context) {
@@ -101,10 +103,9 @@ public class MailboxStatusFragment extends Fragment {
 
 		// TODO
 		//  * Implement UI for warning user when mailbox is unreachable #2175
-		//  * add "Unlink" button confirmation dialog and functionality #2173
-		Button unlinkButton = v.findViewById(R.id.unlinkButton);
-		unlinkButton.setOnClickListener(view -> Toast.makeText(requireContext(),
-				"NOT IMPLEMENTED", Toast.LENGTH_SHORT).show());
+		unlinkButton = v.findViewById(R.id.unlinkButton);
+		unlinkProgress = v.findViewById(R.id.unlinkProgress);
+		unlinkButton.setOnClickListener(view -> onUnlinkButtonClicked());
 	}
 
 	@Override
@@ -165,6 +166,23 @@ public class MailboxStatusFragment extends Fragment {
 		if (refresher != null) {
 			handler.postDelayed(refresher, MIN_DATE_RESOLUTION);
 		}
+	}
+
+	private void onUnlinkButtonClicked() {
+		AlertDialog.Builder builder = new AlertDialog.Builder(requireContext(),
+				R.style.BriarDialogTheme);
+		builder.setTitle(R.string.mailbox_status_unlink_dialog_title);
+		builder.setMessage(R.string.mailbox_status_unlink_dialog_message);
+		builder.setPositiveButton(R.string.cancel,
+				(dialog, which) -> dialog.cancel());
+		builder.setNegativeButton(R.string.mailbox_status_unlink_button,
+				(dialog, which) -> {
+					beginDelayedTransition((ViewGroup) requireView());
+					unlinkButton.setVisibility(INVISIBLE);
+					unlinkProgress.setVisibility(VISIBLE);
+					viewModel.unlink();
+				});
+		builder.show();
 	}
 
 }
