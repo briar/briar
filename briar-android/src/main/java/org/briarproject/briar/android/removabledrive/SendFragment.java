@@ -109,7 +109,8 @@ public class SendFragment extends Fragment {
 			// to prevent duplicates on the back stack.
 			getParentFragmentManager().popBackStack();
 			// Start again (picks up existing task or allows to start a new one)
-			viewModel.startSendData();
+			// unless the activity was recreated after the app was killed
+			if (viewModel.isAccountSignedIn()) viewModel.startSendData();
 		}
 	}
 
