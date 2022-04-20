@@ -137,17 +137,10 @@ class AndroidNetworkManager implements NetworkManager, Service {
 			WifiManager wm = (WifiManager) app.getSystemService(WIFI_SERVICE);
 			if (wm != null) {
 				WifiInfo info = wm.getConnectionInfo();
-				if (info == null) {
-					LOG.info("Not connected to wifi");
-				} else {
+				if (info != null && info.getIpAddress() != 0) {
 					LOG.info("Connected to wifi");
 					wifi = true;
-					if (info.getIpAddress() == 0) {
-						LOG.info("No IPv4 address");
-					} else {
-						LOG.info("Found an IPv4 address");
-						ipv6Only = false;
-					}
+					ipv6Only = false;
 				}
 			}
 			return new NetworkStatus(connected, wifi, ipv6Only);
