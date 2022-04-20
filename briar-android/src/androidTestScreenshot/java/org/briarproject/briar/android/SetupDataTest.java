@@ -26,9 +26,9 @@ import static androidx.test.espresso.matcher.ViewMatchers.isEnabled;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
 import static androidx.test.platform.app.InstrumentationRegistry.getInstrumentation;
+import static org.briarproject.android.dontkillmelib.DozeUtils.needsDozeWhitelisting;
 import static org.briarproject.bramble.api.plugin.LanTcpConstants.ID;
 import static org.briarproject.briar.android.ViewActions.waitUntilMatches;
-import static org.briarproject.briar.android.util.UiUtils.needsDozeWhitelisting;
 import static org.hamcrest.Matchers.allOf;
 import static org.junit.Assert.assertTrue;
 

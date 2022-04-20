@@ -3,6 +3,7 @@ package org.briarproject.briar.android.account;
 import android.app.Application;
 import android.content.Context;
 
+import org.briarproject.android.dontkillmelib.DozeHelper;
 import org.briarproject.bramble.api.account.AccountManager;
 import org.briarproject.bramble.api.crypto.PasswordStrengthEstimator;
 import org.briarproject.bramble.test.BrambleMockTestCase;
@@ -48,7 +49,7 @@ public class SetupViewModelTest extends BrambleMockTestCase {
 		context.checking(new Expectations() {{
 			oneOf(accountManager).accountExists();
 			will(returnValue(false));
-			allowing(dozeHelper).needToShowDozeFragment(app);
+			allowing(dozeHelper).needToShowDoNotKillMeFragment(app);
 			allowing(app).getApplicationContext();
 			will(returnValue(appContext));
 			allowing(appContext).getPackageManager();
