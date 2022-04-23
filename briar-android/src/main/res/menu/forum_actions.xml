@@ -7,7 +7,7 @@
 		android:id="@+id/action_forum_share"
 		android:icon="@drawable/social_share_white"
 		android:title="@string/forum_share_button"
-		app:showAsAction="ifRoom"/>
+		app:showAsAction="never"/>
 
 	<item
 		android:id="@+id/action_forum_sharing_status"
