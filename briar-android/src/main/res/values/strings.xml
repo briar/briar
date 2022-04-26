@@ -652,6 +652,25 @@
 	<string name="mailbox_status_unlink_no_wipe_title">Your Mailbox has been unlinked</string>
 	<string name="mailbox_status_unlink_no_wipe_message">Next time you have access to your Mailbox device, please open the Mailbox app and tap the \"Unlink\" button to complete the process.\n\nIf you no longer have access to your Mailbox device, don\'t worry. Your data is encrypted so it will remain secure even if you don\'t complete the process.</string>
 
+	<string name="mailbox_error_wizard_button">Fix problem</string>
+	<string name="mailbox_error_wizard_title">Mailbox troubleshooting wizard</string>
+	<string name="mailbox_error_wizard_question1">Do you have access to your Mailbox device?</string>
+	<string name="mailbox_error_wizard_answer1">Yes, I have access to it right now.</string>
+	<string name="mailbox_error_wizard_answer2">Not right now, but I can get access to it later.</string>
+	<string name="mailbox_error_wizard_answer3">No, I no longer have access to it.</string>
+	<string name="mailbox_error_wizard_info1_1">Check that the Mailbox device is turned on and connected to the Internet.</string>
+	<string name="mailbox_error_wizard_question1_1">Open the Mailbox app. What do you see?</string>
+	<string name="mailbox_error_wizard_answer1_1">I see instructions for setting up the Mailbox</string>
+	<string name="mailbox_error_wizard_answer1_2">I see a QR code</string>
+	<string name="mailbox_error_wizard_answer1_3">I see \"Mailbox is online\"</string>
+	<string name="mailbox_error_wizard_answer1_4">I see \"Mailbox is offline\"</string>
+	<string name="mailbox_error_wizard_info1_1_1">Please unlink your Mailbox using the button below, then follow the instructions on the Mailbox device to link it again.</string>
+	<string name="mailbox_error_wizard_info_1_1_2">Please unlink your Mailbox using the button below, then scan the QR code to link it again.</string>
+	<string name="mailbox_error_wizard_info1_1_3">Please use the button below to check the connection between Briar and the Mailbox.\n\nIf the connection fails again:\n* Check that the Mailbox and Briar apps are updated to the latest version.\n* Restart your Mailbox and Briar devices and try again.</string>
+	<string name="mailbox_error_wizard_info1_1_4">Check that the mailbox device is properly connected to the Internet.\n\nCheck that the clock on the Mailbox device shows the right time, date and timezone.\n\nCheck that the Mailbox and Briar apps are updated to the latest version.\n\nRestart your Mailbox and Briar devices and try again.</string>
+	<string name="mailbox_error_wizard_info2">Please come back to this screen when you have access to the device.</string>
+	<string name="mailbox_error_wizard_info3">Please unlink your mailbox using the button below.\n\nAfter unlinking your old Mailbox, you can set up a new Mailbox at any time.</string>
+
 	<!-- Conversation Settings -->
 	<string name="disappearing_messages_title">Disappearing messages</string>
 	<string name="disappearing_messages_explanation_long">Turning on this setting will make new

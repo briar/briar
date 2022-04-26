@@ -204,11 +204,7 @@ class MailboxViewModel extends DbViewModel
 
 	LiveData<Boolean> checkConnection() {
 		MutableLiveData<Boolean> liveData = new MutableLiveData<>();
-		ioExecutor.execute(() -> {
-			boolean success = mailboxManager.checkConnection();
-			if (LOG.isLoggable(INFO)) {
-				LOG.info("Got result from connection check: " + success);
-			}
+		checkConnection(success -> {
 			liveData.postValue(success);
 			if (!success) { // force failure screen
 				MailboxStatus lastStatus = status.getValue();
@@ -219,6 +215,23 @@ class MailboxViewModel extends DbViewModel
 			}
 		});
 		return liveData;
+	}
+
+	void checkConnectionFromWizard() {
+		checkConnection(success -> {
+			boolean isOnline = isTorActive();
+			pairingState.postEvent(new MailboxState.IsPaired(isOnline));
+		});
+	}
+
+	private void checkConnection(@IoExecutor Consumer<Boolean> consumer) {
+		ioExecutor.execute(() -> {
+			boolean success = mailboxManager.checkConnection();
+			if (LOG.isLoggable(INFO)) {
+				LOG.info("Got result from connection check: " + success);
+			}
+			consumer.accept(success);
+		});
 	}
 
 	@UiThread
