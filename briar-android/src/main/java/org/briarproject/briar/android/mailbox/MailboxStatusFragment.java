@@ -172,7 +172,7 @@ public class MailboxStatusFragment extends Fragment {
 		AlertDialog.Builder builder = new AlertDialog.Builder(requireContext(),
 				R.style.BriarDialogTheme);
 		builder.setTitle(R.string.mailbox_status_unlink_dialog_title);
-		builder.setMessage(R.string.mailbox_status_unlink_dialog_message);
+		builder.setMessage(R.string.mailbox_status_unlink_dialog_question);
 		builder.setPositiveButton(R.string.cancel,
 				(dialog, which) -> dialog.cancel());
 		builder.setNegativeButton(R.string.mailbox_status_unlink_button,

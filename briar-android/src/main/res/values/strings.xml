@@ -652,7 +652,8 @@
 	<string name="mailbox_status_connected_never">Never</string>
 	<string name="mailbox_status_unlink_button">Unlink</string>
 	<string name="mailbox_status_unlink_dialog_title">Unlink mailbox?</string>
-	<string name="mailbox_status_unlink_dialog_message">Unlinking a working Mailbox will result in message delivery issues, even when relinking it later again.</string>
+	<string name="mailbox_status_unlink_dialog_question">Are you sure you want to unlink your Mailbox?</string>
+	<string name="mailbox_status_unlink_dialog_warning">If you unlink your Mailbox, you won\'t be able to receive messages while Briar is offline.</string>
 
 	<!-- Conversation Settings -->
 	<string name="disappearing_messages_title">Disappearing messages</string>
