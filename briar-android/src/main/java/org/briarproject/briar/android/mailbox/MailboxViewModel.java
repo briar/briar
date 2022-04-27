@@ -226,7 +226,7 @@ class MailboxViewModel extends DbViewModel
 		ioExecutor.execute(() -> {
 			try {
 				boolean wasWiped = mailboxManager.unPair();
-				pairingState.postEvent(new MailboxState.NotSetup(!wasWiped));
+				pairingState.postEvent(new MailboxState.WasUnpaired(!wasWiped));
 			} catch (DbException e) {
 				handleException(e);
 			}

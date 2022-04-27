@@ -5,15 +5,6 @@ import org.briarproject.bramble.api.mailbox.MailboxPairingState;
 class MailboxState {
 
 	static class NotSetup extends MailboxState {
-		final boolean tellUserToWipeMailbox;
-
-		NotSetup() {
-			this(false);
-		}
-
-		NotSetup(boolean tellUserToWipeMailbox) {
-			this.tellUserToWipeMailbox = tellUserToWipeMailbox;
-		}
 	}
 
 	static class ShowDownload extends MailboxState {
@@ -41,6 +32,14 @@ class MailboxState {
 
 		IsPaired(boolean isOnline) {
 			this.isOnline = isOnline;
+		}
+	}
+
+	static class WasUnpaired extends MailboxState {
+		final boolean tellUserToWipeMailbox;
+
+		WasUnpaired(boolean tellUserToWipeMailbox) {
+			this.tellUserToWipeMailbox = tellUserToWipeMailbox;
 		}
 	}
 

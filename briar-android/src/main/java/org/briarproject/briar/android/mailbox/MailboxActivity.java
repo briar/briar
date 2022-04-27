@@ -11,6 +11,7 @@ import org.briarproject.briar.R;
 import org.briarproject.briar.android.activity.ActivityComponent;
 import org.briarproject.briar.android.activity.BriarActivity;
 import org.briarproject.briar.android.fragment.FinalFragment;
+import org.briarproject.briar.android.view.BlankFragment;
 
 import javax.inject.Inject;
 
@@ -54,8 +55,7 @@ public class MailboxActivity extends BriarActivity {
 
 		viewModel.getPairingState().observeEvent(this, state -> {
 			if (state instanceof MailboxState.NotSetup) {
-				MailboxState.NotSetup s = (MailboxState.NotSetup) state;
-				onNotSetup(s.tellUserToWipeMailbox);
+				onNotSetup();
 			} else if (state instanceof MailboxState.ShowDownload) {
 				onShowDownload();
 			} else if (state instanceof MailboxState.ScanningQrCode) {
@@ -70,6 +70,9 @@ public class MailboxActivity extends BriarActivity {
 				onCameraError();
 			} else if (state instanceof MailboxState.IsPaired) {
 				onIsPaired(((MailboxState.IsPaired) state).isOnline);
+			} else if (state instanceof MailboxState.WasUnpaired) {
+				MailboxState.WasUnpaired s = (MailboxState.WasUnpaired) state;
+				onUnPaired(s.tellUserToWipeMailbox);
 			} else {
 				throw new AssertionError("Unknown state: " + state);
 			}
@@ -97,17 +100,8 @@ public class MailboxActivity extends BriarActivity {
 		}
 	}
 
-	private void onNotSetup(boolean tellUserToWipeMailbox) {
+	private void onNotSetup() {
 		progressBar.setVisibility(INVISIBLE);
-		if (tellUserToWipeMailbox) {
-			AlertDialog.Builder builder =
-					new AlertDialog.Builder(this, R.style.BriarDialogTheme);
-			builder.setTitle(R.string.mailbox_status_unlink_no_wipe_title);
-			builder.setMessage(R.string.mailbox_status_unlink_no_wipe_message);
-			builder.setNeutralButton(R.string.got_it,
-					(dialog, which) -> dialog.cancel());
-			builder.show();
-		}
 		getSupportFragmentManager().beginTransaction()
 				.replace(R.id.fragmentContainer, new SetupIntroFragment(),
 						SetupIntroFragment.TAG)
@@ -137,7 +131,7 @@ public class MailboxActivity extends BriarActivity {
 		if (fm.getBackStackEntryCount() == 0) {
 			// We re-launched into an existing state,
 			// need to re-populate the back stack.
-			onNotSetup(false);
+			onNotSetup();
 			onShowDownload();
 		}
 		Fragment f;
@@ -199,6 +193,24 @@ public class MailboxActivity extends BriarActivity {
 		String tag = isOnline ?
 				MailboxStatusFragment.TAG : OfflineStatusFragment.TAG;
 		showFragment(getSupportFragmentManager(), f, tag, false);
+	}
+
+	private void onUnPaired(boolean tellUserToWipeMailbox) {
+		if (tellUserToWipeMailbox) {
+			showFragment(getSupportFragmentManager(), new BlankFragment(),
+					BlankFragment.TAG);
+			AlertDialog.Builder builder =
+					new AlertDialog.Builder(this, R.style.BriarDialogTheme);
+			builder.setTitle(R.string.mailbox_status_unlink_no_wipe_title);
+			builder.setMessage(R.string.mailbox_status_unlink_no_wipe_message);
+			builder.setNeutralButton(R.string.got_it,
+					(dialog, which) -> dialog.cancel());
+			builder.setOnCancelListener(
+					dialog -> supportFinishAfterTransition());
+			builder.show();
+		} else {
+			supportFinishAfterTransition();
+		}
 	}
 
 }
