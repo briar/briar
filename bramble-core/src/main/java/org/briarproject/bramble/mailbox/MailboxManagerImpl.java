@@ -102,6 +102,7 @@ class MailboxManagerImpl implements MailboxManager {
 		try {
 			MailboxProperties props = db.transactionWithNullableResult(true,
 					mailboxSettingsManager::getOwnMailboxProperties);
+			if (props == null) throw new DbException();
 			success = api.checkStatus(props);
 		} catch (DbException e) {
 			logException(LOG, WARNING, e);
@@ -135,6 +136,11 @@ class MailboxManagerImpl implements MailboxManager {
 	public boolean unPair() throws DbException {
 		MailboxProperties properties = db.transactionWithNullableResult(true,
 				mailboxSettingsManager::getOwnMailboxProperties);
+		if (properties == null) {
+			// no more mailbox, that's strange but possible if called in quick
+			// succession, so let's return true this time
+			return true;
+		}
 		boolean wasWiped;
 		try {
 			api.wipeMailbox(properties);
