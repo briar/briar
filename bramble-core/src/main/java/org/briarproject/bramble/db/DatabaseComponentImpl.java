@@ -424,7 +424,7 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 	@Nullable
 	@Override
 	public Collection<Message> generateBatch(Transaction transaction,
-			ContactId c, int capacity, long maxLatency) throws DbException {
+			ContactId c, long capacity, long maxLatency) throws DbException {
 		if (transaction.isReadOnly()) throw new IllegalArgumentException();
 		T txn = unbox(transaction);
 		if (!db.containsContact(txn, c))
@@ -479,7 +479,7 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 	@Nullable
 	@Override
 	public Collection<Message> generateRequestedBatch(Transaction transaction,
-			ContactId c, int capacity, long maxLatency) throws DbException {
+			ContactId c, long capacity, long maxLatency) throws DbException {
 		if (transaction.isReadOnly()) throw new IllegalArgumentException();
 		T txn = unbox(transaction);
 		if (!db.containsContact(txn, c))
@@ -620,7 +620,7 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 
 	@Override
 	public Collection<MessageId> getMessagesToSend(Transaction transaction,
-			ContactId c, int capacity, long maxLatency) throws DbException {
+			ContactId c, long capacity, long maxLatency) throws DbException {
 		T txn = unbox(transaction);
 		if (!db.containsContact(txn, c))
 			throw new NoSuchContactException();

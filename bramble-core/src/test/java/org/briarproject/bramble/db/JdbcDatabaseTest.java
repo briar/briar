@@ -350,7 +350,7 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 		// The message is sendable, but too large to send
 		assertOneMessageToSendLazily(db, txn);
 		assertOneMessageToSendEagerly(db, txn);
-		int capacity = RECORD_HEADER_BYTES + message.getRawLength() - 1;
+		long capacity = RECORD_HEADER_BYTES + message.getRawLength() - 1;
 		Collection<MessageId> ids =
 				db.getMessagesToSend(txn, contactId, capacity, MAX_LATENCY);
 		assertTrue(ids.isEmpty());

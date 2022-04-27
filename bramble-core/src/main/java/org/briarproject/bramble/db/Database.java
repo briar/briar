@@ -511,14 +511,14 @@ interface Database<T> {
 	 * <p/>
 	 * Read-only.
 	 */
-	Collection<MessageId> getMessagesToSend(T txn, ContactId c, int capacity,
+	Collection<MessageId> getMessagesToSend(T txn, ContactId c, long capacity,
 			long maxLatency) throws DbException;
 
 	/**
 	 * Returns the IDs of all messages that are eligible to be sent to the
 	 * given contact.
 	 * <p/>
-	 * Unlike {@link #getMessagesToSend(Object, ContactId, int, long)} this
+	 * Unlike {@link #getMessagesToSend(Object, ContactId, long, long)} this
 	 * method may return messages that have already been sent and are not yet
 	 * due for retransmission.
 	 * <p/>
@@ -612,7 +612,7 @@ interface Database<T> {
 	 * Read-only.
 	 */
 	Collection<MessageId> getRequestedMessagesToSend(T txn, ContactId c,
-			int capacity, long maxLatency) throws DbException;
+			long capacity, long maxLatency) throws DbException;
 
 	/**
 	 * Returns all settings in the given namespace.

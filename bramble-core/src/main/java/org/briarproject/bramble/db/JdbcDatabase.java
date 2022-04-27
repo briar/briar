@@ -2253,7 +2253,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 
 	@Override
 	public Collection<MessageId> getMessagesToSend(Connection txn,
-			ContactId c, int capacity, long maxLatency) throws DbException {
+			ContactId c, long capacity, long maxLatency) throws DbException {
 		long now = clock.currentTimeMillis();
 		PreparedStatement ps = null;
 		ResultSet rs = null;
@@ -2548,7 +2548,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 
 	@Override
 	public Collection<MessageId> getRequestedMessagesToSend(Connection txn,
-			ContactId c, int capacity, long maxLatency) throws DbException {
+			ContactId c, long capacity, long maxLatency) throws DbException {
 		long now = clock.currentTimeMillis();
 		PreparedStatement ps = null;
 		ResultSet rs = null;

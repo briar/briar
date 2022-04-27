@@ -208,7 +208,7 @@ public interface DatabaseComponent extends TransactionManager {
 	 */
 	@Nullable
 	Collection<Message> generateBatch(Transaction txn, ContactId c,
-			int capacity, long maxLatency) throws DbException;
+			long capacity, long maxLatency) throws DbException;
 
 	/**
 	 * Returns an offer for the given contact for transmission over a
@@ -237,7 +237,7 @@ public interface DatabaseComponent extends TransactionManager {
 	 */
 	@Nullable
 	Collection<Message> generateRequestedBatch(Transaction txn, ContactId c,
-			int capacity, long maxLatency) throws DbException;
+			long capacity, long maxLatency) throws DbException;
 
 	/**
 	 * Returns the contact with the given ID.
@@ -363,7 +363,7 @@ public interface DatabaseComponent extends TransactionManager {
 	 * Read-only.
 	 */
 	Collection<MessageId> getMessagesToSend(Transaction txn, ContactId c,
-			int capacity, long maxLatency) throws DbException;
+			long capacity, long maxLatency) throws DbException;
 
 	/**
 	 * Returns the IDs of any messages that need to be validated.
@@ -498,7 +498,7 @@ public interface DatabaseComponent extends TransactionManager {
 	 * Returns the IDs of all messages that are eligible to be sent to the
 	 * given contact.
 	 * <p>
-	 * Unlike {@link #getMessagesToSend(Transaction, ContactId, int, long)}
+	 * Unlike {@link #getMessagesToSend(Transaction, ContactId, long, long)}
 	 * this method may return messages that have already been sent and are
 	 * not yet due for retransmission.
 	 * <p/>

@@ -61,7 +61,7 @@ public class MailboxOutgoingSessionTest extends BrambleMockTestCase {
 		Transaction noAckIdTxn = new Transaction(null, true);
 		Transaction noMsgIdTxn = new Transaction(null, true);
 
-		int capacityForMessages = MAX_FILE_PAYLOAD_BYTES - versionRecordBytes;
+		long capacityForMessages = MAX_FILE_PAYLOAD_BYTES - versionRecordBytes;
 
 		context.checking(new DbExpectations() {{
 			// Add listener
@@ -107,7 +107,7 @@ public class MailboxOutgoingSessionTest extends BrambleMockTestCase {
 		Transaction msgTxn = new Transaction(null, true);
 
 		int ackRecordBytes = RECORD_HEADER_BYTES + MessageId.LENGTH;
-		int capacityForMessages =
+		long capacityForMessages =
 				MAX_FILE_PAYLOAD_BYTES - versionRecordBytes - ackRecordBytes;
 
 		context.checking(new DbExpectations() {{
@@ -164,7 +164,7 @@ public class MailboxOutgoingSessionTest extends BrambleMockTestCase {
 	public void testAllCapacityUsedByAcks() throws Exception {
 		// The file has enough capacity for a max-size ack record, another
 		// ack record with one message ID, and a few bytes left over
-		int capacity = RECORD_HEADER_BYTES + MessageId.LENGTH * MAX_MESSAGE_IDS
+		long capacity = RECORD_HEADER_BYTES + MessageId.LENGTH * MAX_MESSAGE_IDS
 				+ RECORD_HEADER_BYTES + MessageId.LENGTH + MessageId.LENGTH - 1;
 
 		MailboxOutgoingSession session = new MailboxOutgoingSession(db,

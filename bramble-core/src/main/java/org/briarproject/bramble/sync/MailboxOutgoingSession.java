@@ -42,7 +42,7 @@ class MailboxOutgoingSession extends SimplexOutgoingSession {
 			getLogger(MailboxOutgoingSession.class.getName());
 
 	private final DeferredSendHandler deferredSendHandler;
-	private final int initialCapacity;
+	private final long initialCapacity;
 
 	MailboxOutgoingSession(DatabaseComponent db,
 			EventBus eventBus,
@@ -52,7 +52,7 @@ class MailboxOutgoingSession extends SimplexOutgoingSession {
 			StreamWriter streamWriter,
 			SyncRecordWriter recordWriter,
 			DeferredSendHandler deferredSendHandler,
-			int capacity) {
+			long capacity) {
 		super(db, eventBus, contactId, transportId, maxLatency, streamWriter,
 				recordWriter);
 		this.deferredSendHandler = deferredSendHandler;
@@ -71,10 +71,10 @@ class MailboxOutgoingSession extends SimplexOutgoingSession {
 	}
 
 	private Collection<MessageId> loadMessageIdsToAck() throws DbException {
-		int idCapacity = (getRemainingCapacity() - RECORD_HEADER_BYTES)
+		long idCapacity = (getRemainingCapacity() - RECORD_HEADER_BYTES)
 				/ MessageId.LENGTH;
 		if (idCapacity <= 0) return emptyList(); // Out of capacity
-		int maxMessageIds = min(idCapacity, MAX_MESSAGE_IDS);
+		int maxMessageIds = (int) min(idCapacity, MAX_MESSAGE_IDS);
 		Collection<MessageId> ids = db.transactionWithResult(true, txn ->
 				db.getMessagesToAck(txn, contactId, maxMessageIds));
 		if (LOG.isLoggable(INFO)) {
@@ -83,8 +83,8 @@ class MailboxOutgoingSession extends SimplexOutgoingSession {
 		return ids;
 	}
 
-	private int getRemainingCapacity() {
-		return initialCapacity - (int) recordWriter.getBytesWritten();
+	private long getRemainingCapacity() {
+		return initialCapacity - recordWriter.getBytesWritten();
 	}
 
 	@Override
@@ -102,7 +102,7 @@ class MailboxOutgoingSession extends SimplexOutgoingSession {
 	}
 
 	private Collection<MessageId> loadMessageIdsToSend() throws DbException {
-		int capacity = getRemainingCapacity();
+		long capacity = getRemainingCapacity();
 		if (capacity < RECORD_HEADER_BYTES + MESSAGE_HEADER_LENGTH) {
 			return emptyList(); // Out of capacity
 		}
