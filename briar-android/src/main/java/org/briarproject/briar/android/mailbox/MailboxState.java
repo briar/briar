@@ -35,4 +35,12 @@ class MailboxState {
 		}
 	}
 
+	static class WasUnpaired extends MailboxState {
+		final boolean tellUserToWipeMailbox;
+
+		WasUnpaired(boolean tellUserToWipeMailbox) {
+			this.tellUserToWipeMailbox = tellUserToWipeMailbox;
+		}
+	}
+
 }

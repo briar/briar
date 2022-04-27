@@ -11,10 +11,12 @@ import org.briarproject.briar.R;
 import org.briarproject.briar.android.activity.ActivityComponent;
 import org.briarproject.briar.android.activity.BriarActivity;
 import org.briarproject.briar.android.fragment.FinalFragment;
+import org.briarproject.briar.android.view.BlankFragment;
 
 import javax.inject.Inject;
 
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.lifecycle.ViewModelProvider;
@@ -68,6 +70,9 @@ public class MailboxActivity extends BriarActivity {
 				onCameraError();
 			} else if (state instanceof MailboxState.IsPaired) {
 				onIsPaired(((MailboxState.IsPaired) state).isOnline);
+			} else if (state instanceof MailboxState.WasUnpaired) {
+				MailboxState.WasUnpaired s = (MailboxState.WasUnpaired) state;
+				onUnPaired(s.tellUserToWipeMailbox);
 			} else {
 				throw new AssertionError("Unknown state: " + state);
 			}
@@ -188,6 +193,24 @@ public class MailboxActivity extends BriarActivity {
 		String tag = isOnline ?
 				MailboxStatusFragment.TAG : OfflineStatusFragment.TAG;
 		showFragment(getSupportFragmentManager(), f, tag, false);
+	}
+
+	private void onUnPaired(boolean tellUserToWipeMailbox) {
+		if (tellUserToWipeMailbox) {
+			showFragment(getSupportFragmentManager(), new BlankFragment(),
+					BlankFragment.TAG);
+			AlertDialog.Builder builder =
+					new AlertDialog.Builder(this, R.style.BriarDialogTheme);
+			builder.setTitle(R.string.mailbox_status_unlink_no_wipe_title);
+			builder.setMessage(R.string.mailbox_status_unlink_no_wipe_message);
+			builder.setNeutralButton(R.string.got_it,
+					(dialog, which) -> dialog.cancel());
+			builder.setOnCancelListener(
+					dialog -> supportFinishAfterTransition());
+			builder.show();
+		} else {
+			supportFinishAfterTransition();
+		}
 	}
 
 }
