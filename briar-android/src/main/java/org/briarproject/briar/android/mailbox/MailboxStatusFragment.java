@@ -53,6 +53,7 @@ public class MailboxStatusFragment extends Fragment {
 	private final Handler handler = new Handler(Looper.getMainLooper());
 	@Nullable // UiThread
 	private Runnable refresher = null;
+	private boolean showUnlinkWarning = true;
 
 	private ImageView imageView;
 	private TextView statusTitleView;
@@ -105,7 +106,9 @@ public class MailboxStatusFragment extends Fragment {
 		//  * Implement UI for warning user when mailbox is unreachable #2175
 		unlinkButton = v.findViewById(R.id.unlinkButton);
 		unlinkProgress = v.findViewById(R.id.unlinkProgress);
-		unlinkButton.setOnClickListener(view -> onUnlinkButtonClicked());
+		unlinkButton.setOnClickListener(view ->
+				onUnlinkButtonClicked(showUnlinkWarning)
+		);
 	}
 
 	@Override
@@ -131,14 +134,17 @@ public class MailboxStatusFragment extends Fragment {
 			iconRes = R.drawable.ic_check_circle_outline;
 			title = getString(R.string.mailbox_status_connected_title);
 			tintRes = R.color.briar_brand_green;
+			showUnlinkWarning = true;
 		} else if (status.getAttemptsSinceSuccess() < NUM_FAILURES) {
 			iconRes = R.drawable.ic_help_outline_white;
 			title = getString(R.string.mailbox_status_problem_title);
 			tintRes = R.color.briar_orange_500;
+			showUnlinkWarning = false;
 		} else {
 			tintRes = R.color.briar_red_500;
 			title = getString(R.string.mailbox_status_failure_title);
 			iconRes = R.drawable.alerts_and_states_error;
+			showUnlinkWarning = false;
 		}
 		imageView.setImageResource(iconRes);
 		int color = getColor(requireContext(), tintRes);
@@ -168,11 +174,16 @@ public class MailboxStatusFragment extends Fragment {
 		}
 	}
 
-	private void onUnlinkButtonClicked() {
+	private void onUnlinkButtonClicked(boolean showWarning) {
 		AlertDialog.Builder builder = new AlertDialog.Builder(requireContext(),
 				R.style.BriarDialogTheme);
 		builder.setTitle(R.string.mailbox_status_unlink_dialog_title);
-		builder.setMessage(R.string.mailbox_status_unlink_dialog_question);
+		String msg = getString(R.string.mailbox_status_unlink_dialog_question);
+		if (showWarning) {
+			msg = getString(R.string.mailbox_status_unlink_dialog_warning) +
+					"\n\n" + msg;
+		}
+		builder.setMessage(msg);
 		builder.setPositiveButton(R.string.cancel,
 				(dialog, which) -> dialog.cancel());
 		builder.setNegativeButton(R.string.mailbox_status_unlink_button,
