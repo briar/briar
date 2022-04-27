@@ -83,4 +83,15 @@
 		app:layout_constraintEnd_toEndOf="parent"
 		app:layout_constraintStart_toStartOf="parent" />
 
+	<ProgressBar
+		android:id="@+id/unlinkProgress"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:visibility="invisible"
+		app:layout_constraintBottom_toBottomOf="@+id/unlinkButton"
+		app:layout_constraintEnd_toEndOf="@+id/unlinkButton"
+		app:layout_constraintStart_toStartOf="@+id/unlinkButton"
+		app:layout_constraintTop_toTopOf="@+id/unlinkButton"
+		tools:visibility="visible" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>

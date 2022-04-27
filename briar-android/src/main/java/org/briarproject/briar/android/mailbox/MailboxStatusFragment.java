@@ -12,7 +12,6 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import org.briarproject.bramble.api.mailbox.MailboxStatus;
 import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
@@ -25,6 +24,7 @@ import androidx.annotation.ColorRes;
 import androidx.annotation.DrawableRes;
 import androidx.annotation.Nullable;
 import androidx.annotation.UiThread;
+import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 import androidx.lifecycle.ViewModelProvider;
@@ -53,10 +53,13 @@ public class MailboxStatusFragment extends Fragment {
 	private final Handler handler = new Handler(Looper.getMainLooper());
 	@Nullable // UiThread
 	private Runnable refresher = null;
+	private boolean showUnlinkWarning = true;
 
 	private ImageView imageView;
 	private TextView statusTitleView;
 	private TextView statusInfoView;
+	private Button unlinkButton;
+	private ProgressBar unlinkProgress;
 
 	@Override
 	public void onAttach(Context context) {
@@ -101,10 +104,11 @@ public class MailboxStatusFragment extends Fragment {
 
 		// TODO
 		//  * Implement UI for warning user when mailbox is unreachable #2175
-		//  * add "Unlink" button confirmation dialog and functionality #2173
-		Button unlinkButton = v.findViewById(R.id.unlinkButton);
-		unlinkButton.setOnClickListener(view -> Toast.makeText(requireContext(),
-				"NOT IMPLEMENTED", Toast.LENGTH_SHORT).show());
+		unlinkButton = v.findViewById(R.id.unlinkButton);
+		unlinkProgress = v.findViewById(R.id.unlinkProgress);
+		unlinkButton.setOnClickListener(view ->
+				onUnlinkButtonClicked(showUnlinkWarning)
+		);
 	}
 
 	@Override
@@ -130,14 +134,17 @@ public class MailboxStatusFragment extends Fragment {
 			iconRes = R.drawable.ic_check_circle_outline;
 			title = getString(R.string.mailbox_status_connected_title);
 			tintRes = R.color.briar_brand_green;
+			showUnlinkWarning = true;
 		} else if (status.getAttemptsSinceSuccess() < NUM_FAILURES) {
 			iconRes = R.drawable.ic_help_outline_white;
 			title = getString(R.string.mailbox_status_problem_title);
 			tintRes = R.color.briar_orange_500;
+			showUnlinkWarning = false;
 		} else {
 			tintRes = R.color.briar_red_500;
 			title = getString(R.string.mailbox_status_failure_title);
 			iconRes = R.drawable.alerts_and_states_error;
+			showUnlinkWarning = false;
 		}
 		imageView.setImageResource(iconRes);
 		int color = getColor(requireContext(), tintRes);
@@ -165,6 +172,28 @@ public class MailboxStatusFragment extends Fragment {
 		if (refresher != null) {
 			handler.postDelayed(refresher, MIN_DATE_RESOLUTION);
 		}
+	}
+
+	private void onUnlinkButtonClicked(boolean showWarning) {
+		AlertDialog.Builder builder = new AlertDialog.Builder(requireContext(),
+				R.style.BriarDialogTheme);
+		builder.setTitle(R.string.mailbox_status_unlink_dialog_title);
+		String msg = getString(R.string.mailbox_status_unlink_dialog_question);
+		if (showWarning) {
+			msg = getString(R.string.mailbox_status_unlink_dialog_warning) +
+					"\n\n" + msg;
+		}
+		builder.setMessage(msg);
+		builder.setPositiveButton(R.string.cancel,
+				(dialog, which) -> dialog.cancel());
+		builder.setNegativeButton(R.string.mailbox_status_unlink_button,
+				(dialog, which) -> {
+					beginDelayedTransition((ViewGroup) requireView());
+					unlinkButton.setVisibility(INVISIBLE);
+					unlinkProgress.setVisibility(VISIBLE);
+					viewModel.unlink();
+				});
+		builder.show();
 	}
 
 }
