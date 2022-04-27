@@ -15,6 +15,7 @@ import org.briarproject.briar.android.fragment.FinalFragment;
 import javax.inject.Inject;
 
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.lifecycle.ViewModelProvider;
@@ -53,7 +54,8 @@ public class MailboxActivity extends BriarActivity {
 
 		viewModel.getPairingState().observeEvent(this, state -> {
 			if (state instanceof MailboxState.NotSetup) {
-				onNotSetup();
+				MailboxState.NotSetup s = (MailboxState.NotSetup) state;
+				onNotSetup(s.tellUserToWipeMailbox);
 			} else if (state instanceof MailboxState.ShowDownload) {
 				onShowDownload();
 			} else if (state instanceof MailboxState.ScanningQrCode) {
@@ -95,8 +97,17 @@ public class MailboxActivity extends BriarActivity {
 		}
 	}
 
-	private void onNotSetup() {
+	private void onNotSetup(boolean tellUserToWipeMailbox) {
 		progressBar.setVisibility(INVISIBLE);
+		if (tellUserToWipeMailbox) {
+			AlertDialog.Builder builder =
+					new AlertDialog.Builder(this, R.style.BriarDialogTheme);
+			builder.setTitle(R.string.mailbox_status_unlink_no_wipe_title);
+			builder.setMessage(R.string.mailbox_status_unlink_no_wipe_message);
+			builder.setNeutralButton(R.string.got_it,
+					(dialog, which) -> dialog.cancel());
+			builder.show();
+		}
 		getSupportFragmentManager().beginTransaction()
 				.replace(R.id.fragmentContainer, new SetupIntroFragment(),
 						SetupIntroFragment.TAG)
@@ -126,7 +137,7 @@ public class MailboxActivity extends BriarActivity {
 		if (fm.getBackStackEntryCount() == 0) {
 			// We re-launched into an existing state,
 			// need to re-populate the back stack.
-			onNotSetup();
+			onNotSetup(false);
 			onShowDownload();
 		}
 		Fragment f;
