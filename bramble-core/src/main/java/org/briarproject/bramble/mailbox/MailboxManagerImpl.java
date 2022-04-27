@@ -132,17 +132,19 @@ class MailboxManagerImpl implements MailboxManager {
 	}
 
 	@Override
-	public void unPair() throws DbException {
+	public boolean unPair() throws DbException {
 		MailboxProperties properties = db.transactionWithNullableResult(true,
 				mailboxSettingsManager::getOwnMailboxProperties);
+		boolean wasWiped;
 		try {
 			api.wipeMailbox(properties);
+			wasWiped = true;
 		} catch (IOException | MailboxApi.ApiException e) {
-			// We wipe on a best-effort basis.
-			// If we can't do it, we still unpair.
 			logException(LOG, WARNING, e);
+			wasWiped = false;
 		}
 		db.transaction(false,
 				mailboxSettingsManager::removeOwnMailboxProperties);
+		return wasWiped;
 	}
 }

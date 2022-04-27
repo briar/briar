@@ -45,7 +45,11 @@ public interface MailboxManager {
 	/**
 	 * Unpairs the owner's mailbox and tries to wipe it.
 	 * As this makes a network call, it should be run on the {@link IoExecutor}.
+	 *
+	 * @return true if we could wipe the mailbox, false if we couldn't.
+	 * It is advised to inform the user to wipe the mailbox themselves,
+	 * if we failed to wipe it.
 	 */
 	@IoExecutor
-	void unPair() throws DbException;
+	boolean unPair() throws DbException;
 }
