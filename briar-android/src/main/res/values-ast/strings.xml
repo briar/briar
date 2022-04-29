@@ -1,23 +1,23 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
-  <!--Setup-->
-  <string name="setup_title">Afáyate\'n Briar</string>
-  <string name="setup_name_explanation">El to alcuñu apaecerá cabo cualquier conteníu que publiques.Nun puede cambiase después de crear la cuenta.</string>
-  <string name="setup_next">Siguiente</string>
-  <string name="setup_password_intro">Escueye una contraseña</string>
-  <string name="setup_doze_title">Conexones de fondu</string>
-  <string name="setup_doze_button">Permitir conexones</string>
-  <string name="choose_nickname">Escueyi un alcuñu</string>
-  <string name="choose_password">Escueyi una contraseña</string>
-  <string name="confirm_password">Confirma la contraseña</string>
-  <string name="name_too_long">El nome ye enforma llargu</string>
-  <string name="password_too_weak">La contraseña ye enforma feble</string>
-  <string name="passwords_do_not_match">Les contraseñes nun casen</string>
-  <string name="create_account_button">Crear cuenta</string>
-  <string name="more_info">Más información</string>
-  <string name="don_t_ask_again">Nun volver a entrugar</string>
-  <string name="setup_huawei_button">Protexer Briar</string>
-  <string name="warning_dozed">%s nun pudo executase\'n segundu planu</string>
+	<!--Setup-->
+	<string name="setup_title">Afáyate\'n Briar</string>
+	<string name="setup_name_explanation">El to alcuñu apaecerá cabo cualquier conteníu que publiques.Nun puede cambiase después de crear la cuenta.</string>
+	<string name="setup_next">Siguiente</string>
+	<string name="setup_password_intro">Escueye una contraseña</string>
+	<string name="dnkm_doze_title">Conexones de fondu</string>
+	<string name="dnkm_doze_button">Permitir conexones</string>
+	<string name="choose_nickname">Escueyi un alcuñu</string>
+	<string name="choose_password">Escueyi una contraseña</string>
+	<string name="confirm_password">Confirma la contraseña</string>
+	<string name="name_too_long">El nome ye enforma llargu</string>
+	<string name="password_too_weak">La contraseña ye enforma feble</string>
+	<string name="passwords_do_not_match">Les contraseñes nun casen</string>
+	<string name="create_account_button">Crear cuenta</string>
+	<string name="more_info">Más información</string>
+	<string name="don_t_ask_again">Nun volver a entrugar</string>
+	<string name="dnkm_huawei_protected_button">Protexer Briar</string>
+  <string name="dnkm_warning_dozed">%s nun pudo executase\'n segundu planu</string>
   <!--Login-->
   <string name="enter_password">Contraseña</string>
   <string name="try_again">Contraseña enquivocada, tenta otra vuelta</string>

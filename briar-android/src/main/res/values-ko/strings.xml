@@ -1,36 +1,36 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
-  <!--Setup-->
-  <string name="setup_title">Briar에 오신 것을 환영합니다</string>
-  <string name="setup_name_explanation">별명은 게시한 모든 컨텐츠 옆에 보여지게 됩니다. 별명은 계정을 만든 후에는 바꿀 수 없습니다.</string>
-  <string name="setup_next">다음</string>
-  <string name="setup_password_intro">비밀번호를 정해주세요.</string>
-  <string name="setup_password_explanation">Briar 계정은 암호화되어 기기에 저장되기 때문에 클라우드에 저장되지 않습니다. 비밀번호를 잊어버리셨거나 Briar를 삭제하셨었다면 계정을 복구할 방법이 없습니다.\n\n연관성 없는 네 단어, 혹은 완전히 무작위적인 글자, 숫자, 그리고 기호의 조합과 같은 길고 알아맞추기 어려운 비밀번호로 정해주세요.</string>
-  <string name="setup_doze_title">백그라운드 연결</string>
-  <string name="setup_doze_intro">메시지를 받기 위해서는 Briar가 백그라운드에서 연결된 상태를 유지해야 합니다.</string>
-  <string name="setup_doze_explanation">메시지를 받기 위해서는 Briar가 백그라운드에서 연결된 상태를 유지해야 합니다. Briar가 백그라운드에서 연결된 상태를 유지할 수 있게 배터리 최적화를 비활성화해 주세요.</string>
-  <string name="setup_doze_button">연결 허용하기</string>
-  <string name="choose_nickname">별명을 정하세요</string>
-  <string name="choose_password">비밀번호를 정하세요</string>
-  <string name="confirm_password">비밀번호를 확인하세요</string>
-  <string name="name_too_long">이름이 너무 깁니다.</string>
-  <string name="password_too_weak">비밀번호가 너무 약합니다</string>
-  <string name="passwords_do_not_match">비밀번호가 일치하지 않습니다</string>
-  <string name="create_account_button">계정 만들기</string>
-  <string name="more_info">추가 정보</string>
-  <string name="don_t_ask_again">다시는 물어보지 않기</string>
-  <string name="setup_huawei_text">밑의 버튼을 눌러 Briar를 \"보호된 앱\" 스크린에서 보호되게 해 주세요.</string>
-  <string name="setup_huawei_button">Briar 보호하기</string>
-  <string name="setup_huawei_help">Briar를 보호된 앱 목록에 추가하지 않는다면, 백그라운드에서 실행될 수 없습니다.</string>
-  <string name="setup_xiaomi_button">Briar 보호하기</string>
-  <string name="warning_dozed">%s가 백그라운드에서 실행될 수 없었습니다</string>
-  <!--Login-->
-  <string name="enter_password">비밀번호</string>
-  <string name="try_again">잘못된 비밀번호입니다. 다시 시도하세요.</string>
-  <string name="dialog_title_cannot_check_password">비밀번호를 확인할 수 없습니다</string>
-  <string name="dialog_message_cannot_check_password">비밀번호를 확인할 수 없었습니다. 이 문제를 해결하기 위해 기기를 재시작 해 보세요.</string>
-  <string name="sign_in_button">로그인</string>
-  <string name="forgotten_password">비밀번호를 잊어버렸습니다</string>
+	<!--Setup-->
+	<string name="setup_title">Briar에 오신 것을 환영합니다</string>
+	<string name="setup_name_explanation">별명은 게시한 모든 컨텐츠 옆에 보여지게 됩니다. 별명은 계정을 만든 후에는 바꿀 수 없습니다.</string>
+	<string name="setup_next">다음</string>
+	<string name="setup_password_intro">비밀번호를 정해주세요.</string>
+	<string name="setup_password_explanation">Briar 계정은 암호화되어 기기에 저장되기 때문에 클라우드에 저장되지 않습니다. 비밀번호를 잊어버리셨거나 Briar를 삭제하셨었다면 계정을 복구할 방법이 없습니다.\n\n연관성 없는 네 단어, 혹은 완전히 무작위적인 글자, 숫자, 그리고 기호의 조합과 같은 길고 알아맞추기 어려운 비밀번호로 정해주세요.</string>
+	<string name="dnkm_doze_title">백그라운드 연결</string>
+	<string name="dnkm_doze_intro">메시지를 받기 위해서는 Briar가 백그라운드에서 연결된 상태를 유지해야 합니다.</string>
+	<string name="dnkm_doze_explanation">메시지를 받기 위해서는 Briar가 백그라운드에서 연결된 상태를 유지해야 합니다. Briar가 백그라운드에서 연결된 상태를 유지할 수 있게 배터리 최적화를 비활성화해 주세요.</string>
+	<string name="dnkm_doze_button">연결 허용하기</string>
+	<string name="choose_nickname">별명을 정하세요</string>
+	<string name="choose_password">비밀번호를 정하세요</string>
+	<string name="confirm_password">비밀번호를 확인하세요</string>
+	<string name="name_too_long">이름이 너무 깁니다.</string>
+	<string name="password_too_weak">비밀번호가 너무 약합니다</string>
+	<string name="passwords_do_not_match">비밀번호가 일치하지 않습니다</string>
+	<string name="create_account_button">계정 만들기</string>
+	<string name="more_info">추가 정보</string>
+	<string name="don_t_ask_again">다시는 물어보지 않기</string>
+	<string name="dnkm_huawei_protected_text">밑의 버튼을 눌러 Briar를 \"보호된 앱\" 스크린에서 보호되게 해 주세요.</string>
+	<string name="dnkm_huawei_protected_button">Briar 보호하기</string>
+	<string name="dnkm_huawei_protected_help">Briar를 보호된 앱 목록에 추가하지 않는다면, 백그라운드에서 실행될 수 없습니다.</string>
+	<string name="dnkm_xiaomi_button">Briar 보호하기</string>
+	<string name="dnkm_warning_dozed">%s가 백그라운드에서 실행될 수 없었습니다</string>
+	<!--Login-->
+	<string name="enter_password">비밀번호</string>
+	<string name="try_again">잘못된 비밀번호입니다. 다시 시도하세요.</string>
+	<string name="dialog_title_cannot_check_password">비밀번호를 확인할 수 없습니다</string>
+	<string name="dialog_message_cannot_check_password">비밀번호를 확인할 수 없었습니다. 이 문제를 해결하기 위해 기기를 재시작 해 보세요.</string>
+	<string name="sign_in_button">로그인</string>
+	<string name="forgotten_password">비밀번호를 잊어버렸습니다</string>
   <string name="dialog_title_lost_password">비밀번호 분실</string>
   <string name="dialog_message_lost_password">Briar 계정은 클라우드가 아니라 기기에서 암호화돼 저장되므로 비밀번호를 재설정 할 수 없습니다. 계정을 삭제하고 다시 시작하시겠습니까? \n\n주의 : 신원, 연락처 및 메시지는 영구적으로 손실됩니다.</string>
   <string name="startup_failed_notification_title">Briar가 켜질 수 없습니다</string>

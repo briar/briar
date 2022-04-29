@@ -1,38 +1,38 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<resources xmlns:tools="http://schemas.android.com/tools">
-  <!--Setup-->
-  <string name="setup_title">Dobrodosli u Briar</string>
-  <string name="setup_name_explanation">Vas nadimak ce biti prikazan pored sadrzaja posta. Nemozete ga promijeniti poslije kreiranja racuna.</string>
-  <string name="setup_next">Dalje</string>
-  <string name="setup_password_intro">Izaberite lozinku</string>
-  <string name="setup_password_explanation">Vaš Briar račun je kriptovan i sačuvan na vašem uređaju, ne u server-oblaku. Ako zaboravite šifru ili deinstalirate Briar, nema načina da povratite vaš račun.
+<resources>
+	<!--Setup-->
+	<string name="setup_title">Dobrodosli u Briar</string>
+	<string name="setup_name_explanation">Vas nadimak ce biti prikazan pored sadrzaja posta. Nemozete ga promijeniti poslije kreiranja racuna.</string>
+	<string name="setup_next">Dalje</string>
+	<string name="setup_password_intro">Izaberite lozinku</string>
+	<string name="setup_password_explanation">Vaš Briar račun je kriptovan i sačuvan na vašem uređaju, ne u server-oblaku. Ako zaboravite šifru ili deinstalirate Briar, nema načina da povratite vaš račun.
 
 Izaberite dugačku lozinku koju je teško pogoditi, kao četiri nasumične riječi ili deset nasumičnih slova, brojeva i simbola.</string>
-  <string name="setup_doze_title">Konekcije u pozadini</string>
-  <string name="setup_doze_intro">Da bi primao poruke, Briar mora da ostane konektovan u pozadini.</string>
-  <string name="setup_doze_explanation">Da bi primao poruke, Briar mora da ostane konektovan u pozadini. Molim vas da isključite optimizacije baterije kako bi Briar ostao konektovan.</string>
-  <string name="setup_doze_button">Dozvolite konekcije</string>
-  <string name="choose_nickname">Izaberite vaš nadimak</string>
-  <string name="choose_password">Izaberite vašu šifru</string>
-  <string name="confirm_password">Potvrdite vašu šifru</string>
-  <string name="name_too_long">Ime je predugo</string>
-  <string name="password_too_weak">Šifra je slaba</string>
-  <string name="passwords_do_not_match">Šifre se ne poklapaju</string>
-  <string name="create_account_button">Kreirajte račun</string>
-  <string name="more_info">Vise informacija</string>
-  <string name="don_t_ask_again">Ne pitaj ponovo</string>
-  <string name="setup_huawei_text">Molim dotaknite dugme ispod i provjerite da je Briar zasticen na \"Protected Apps\" listi.</string>
-  <string name="setup_huawei_button">Zastiti Briar</string>
-  <string name="setup_huawei_help">Ako Briar nije dodat u listi zasticenih aplikacija - protected apps, nece moci da radi u pozadini.</string>
-  <string name="warning_dozed">%s nije mogao da se pokrene u pozadini</string>
-  <!--Login-->
-  <string name="enter_password">Lozinka</string>
-  <string name="try_again">Pogrešna šifra, probajte opet</string>
-  <string name="sign_in_button">Prijavite se</string>
-  <string name="forgotten_password">Zaboravio sam šifru</string>
-  <string name="dialog_title_lost_password">Izgubljena šifra</string>
-  <string name="dialog_message_lost_password">Vaš Briar račun je kriptovan i sačuvan na vašem uređaju, ne u server-oblaku, pa nemožemo resetovati vašu šifru. Želite li da izbrišete račun i počnete iz početka?\n\nPozor: Vaši identiteti, kontakti i poruke će biti premanentno izgubljeni.</string>
-  <string name="startup_failed_notification_title">Brirar nije mogao da startuje</string>
+	<string name="dnkm_doze_title">Konekcije u pozadini</string>
+	<string name="dnkm_doze_intro">Da bi primao poruke, Briar mora da ostane konektovan u pozadini.</string>
+	<string name="dnkm_doze_explanation">Da bi primao poruke, Briar mora da ostane konektovan u pozadini. Molim vas da isključite optimizacije baterije kako bi Briar ostao konektovan.</string>
+	<string name="dnkm_doze_button">Dozvolite konekcije</string>
+	<string name="choose_nickname">Izaberite vaš nadimak</string>
+	<string name="choose_password">Izaberite vašu šifru</string>
+	<string name="confirm_password">Potvrdite vašu šifru</string>
+	<string name="name_too_long">Ime je predugo</string>
+	<string name="password_too_weak">Šifra je slaba</string>
+	<string name="passwords_do_not_match">Šifre se ne poklapaju</string>
+	<string name="create_account_button">Kreirajte račun</string>
+	<string name="more_info">Vise informacija</string>
+	<string name="don_t_ask_again">Ne pitaj ponovo</string>
+	<string name="dnkm_huawei_protected_text">Molim dotaknite dugme ispod i provjerite da je Briar zasticen na \"Protected Apps\" listi.</string>
+	<string name="dnkm_huawei_protected_button">Zastiti Briar</string>
+	<string name="dnkm_huawei_protected_help">Ako Briar nije dodat u listi zasticenih aplikacija - protected apps, nece moci da radi u pozadini.</string>
+	<string name="dnkm_warning_dozed">%s nije mogao da se pokrene u pozadini</string>
+	<!--Login-->
+	<string name="enter_password">Lozinka</string>
+	<string name="try_again">Pogrešna šifra, probajte opet</string>
+	<string name="sign_in_button">Prijavite se</string>
+	<string name="forgotten_password">Zaboravio sam šifru</string>
+	<string name="dialog_title_lost_password">Izgubljena šifra</string>
+	<string name="dialog_message_lost_password">Vaš Briar račun je kriptovan i sačuvan na vašem uređaju, ne u server-oblaku, pa nemožemo resetovati vašu šifru. Želite li da izbrišete račun i počnete iz početka?\n\nPozor: Vaši identiteti, kontakti i poruke će biti premanentno izgubljeni.</string>
+	<string name="startup_failed_notification_title">Brirar nije mogao da startuje</string>
   <string name="startup_failed_notification_text">Dotaknite za vise informacija.</string>
   <string name="startup_failed_activity_title">Briar neuspješno startovanje</string>
   <string name="startup_failed_db_error">Iz nekog razloga, Briar baza podataka je nepovratno korumpirana. Vaš račun, vaši podaci i svi kontakti su izgubljeni. Nažalost, morate reinstalirati Briar ili podesiti novi račun tako što ćete izabrati  \'ZaboraviIi ste lozinku?\' .</string>

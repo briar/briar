@@ -1,36 +1,36 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<resources xmlns:tools="http://schemas.android.com/tools">
-  <!--Setup-->
-  <string name="setup_title">歡迎來到 Briar</string>
-  <string name="setup_name_explanation">您的暱稱將顯示在您發佈的任何內容旁。暱稱在創建帳戶後將無法更改。</string>
-  <string name="setup_next">下一步</string>
-  <string name="setup_password_intro">設置密碼</string>
-  <string name="setup_password_explanation">您的 Briar 帳戶被加密儲存在您的裝置上，而非在雲端。卸載 Briar 或忘記密碼將導致帳戶無法恢復。請設置不易被猜出的長密碼，比如四個隨機英文單詞，或是由隨機字母、數字和符號組成的十位字符。</string>
-  <string name="setup_doze_title">背景網絡連接</string>
-  <string name="setup_doze_intro">爲了接收消息，Briar 需要在後臺保持連接。</string>
-  <string name="setup_doze_explanation">Briar 需要保持背景網絡連接去接收消息。爲此，請停用電量優化選項。</string>
-  <string name="setup_doze_button">允許連接</string>
-  <string name="choose_nickname">設置暱稱</string>
-  <string name="choose_password">設置密碼</string>
-  <string name="confirm_password">確認密碼</string>
-  <string name="name_too_long">暱稱過長</string>
-  <string name="password_too_weak">密碼不夠強</string>
-  <string name="passwords_do_not_match">兩個密碼並不相同</string>
-  <string name="create_account_button">創建帳戶</string>
-  <string name="more_info">更多信息</string>
-  <string name="don_t_ask_again">不再詢問</string>
-  <string name="setup_huawei_text">輕按下方的按鈕將 Briar 加入“受保護的程式”列表。</string>
-  <string name="setup_huawei_button">保護 Briar</string>
-  <string name="setup_huawei_help">如果 Briar 未被加入受保護程式列表，它將無法在背景運行。</string>
-  <string name="warning_dozed">%s 無法在背景運行。</string>
-  <!--Login-->
-  <string name="enter_password">密碼</string>
-  <string name="try_again">密碼錯誤，請重試</string>
-  <string name="sign_in_button">登錄</string>
-  <string name="forgotten_password">我忘記了密碼</string>
-  <string name="dialog_title_lost_password">忘記密碼</string>
-  <string name="dialog_message_lost_password">您的 Briar 帳戶被加密儲存在您的裝置上，而非在雲端。因此我們無法重置您的密碼。您是否希望刪除帳戶，重新開始？\n\n注意：刪除帳戶將永久失去您以前的身份、聯絡人和訊息。</string>
-  <string name="startup_failed_notification_title">Briar 無法啓動</string>
+<resources>
+	<!--Setup-->
+	<string name="setup_title">歡迎來到 Briar</string>
+	<string name="setup_name_explanation">您的暱稱將顯示在您發佈的任何內容旁。暱稱在創建帳戶後將無法更改。</string>
+	<string name="setup_next">下一步</string>
+	<string name="setup_password_intro">設置密碼</string>
+	<string name="setup_password_explanation">您的 Briar 帳戶被加密儲存在您的裝置上，而非在雲端。卸載 Briar 或忘記密碼將導致帳戶無法恢復。請設置不易被猜出的長密碼，比如四個隨機英文單詞，或是由隨機字母、數字和符號組成的十位字符。</string>
+	<string name="dnkm_doze_title">背景網絡連接</string>
+	<string name="dnkm_doze_intro">爲了接收消息，Briar 需要在後臺保持連接。</string>
+	<string name="dnkm_doze_explanation">Briar 需要保持背景網絡連接去接收消息。爲此，請停用電量優化選項。</string>
+	<string name="dnkm_doze_button">允許連接</string>
+	<string name="choose_nickname">設置暱稱</string>
+	<string name="choose_password">設置密碼</string>
+	<string name="confirm_password">確認密碼</string>
+	<string name="name_too_long">暱稱過長</string>
+	<string name="password_too_weak">密碼不夠強</string>
+	<string name="passwords_do_not_match">兩個密碼並不相同</string>
+	<string name="create_account_button">創建帳戶</string>
+	<string name="more_info">更多信息</string>
+	<string name="don_t_ask_again">不再詢問</string>
+	<string name="dnkm_huawei_protected_text">輕按下方的按鈕將 Briar 加入“受保護的程式”列表。</string>
+	<string name="dnkm_huawei_protected_button">保護 Briar</string>
+	<string name="dnkm_huawei_protected_help">如果 Briar 未被加入受保護程式列表，它將無法在背景運行。</string>
+	<string name="dnkm_warning_dozed">%s 無法在背景運行。</string>
+	<!--Login-->
+	<string name="enter_password">密碼</string>
+	<string name="try_again">密碼錯誤，請重試</string>
+	<string name="sign_in_button">登錄</string>
+	<string name="forgotten_password">我忘記了密碼</string>
+	<string name="dialog_title_lost_password">忘記密碼</string>
+	<string name="dialog_message_lost_password">您的 Briar 帳戶被加密儲存在您的裝置上，而非在雲端。因此我們無法重置您的密碼。您是否希望刪除帳戶，重新開始？\n\n注意：刪除帳戶將永久失去您以前的身份、聯絡人和訊息。</string>
+	<string name="startup_failed_notification_title">Briar 無法啓動</string>
   <string name="startup_failed_notification_text">輕按查看更多信息。</string>
   <string name="startup_failed_activity_title">Briar 啓動失敗</string>
   <string name="startup_failed_db_error">由於某些原因，Briar 數據庫已損壞並且無法修復。您的帳戶、數據和所有聯絡人已經丟失。很不幸，您需要重新安裝 Briar 或者在提示輸入密碼時選擇“我忘記了密碼”來重新創建一個 Briar 帳戶。</string>

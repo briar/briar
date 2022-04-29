@@ -1,44 +1,44 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<resources xmlns:tools="http://schemas.android.com/tools">
-  <!--Setup-->
-  <string name="setup_title">Boas-vindas ao Briar</string>
-  <string name="setup_name_explanation">Seu nome de usuária será mostrado próximo a qualquer conteúdo que você publicar. Você não pode mudá-lo depois que criar sua conta,</string>
-  <string name="setup_next">Próximo</string>
-  <string name="setup_password_intro">Escolha uma senha</string>
-  <string name="setup_password_explanation">A sua conta do Briar está salva de modo criptografado no seu dispositivo, não na nuvem. Se você esquecer sua senha nou desinstalar o Briar não há como recuperar sua conta.\n\nEscolha uma senha longa que seja difícil de ser adivinhada, como cinco palavras aleatórias ou dez letras, números e símbolos aleatórios.</string>
-  <string name="setup_doze_title">Conexões em segundo plano</string>
-  <string name="setup_doze_intro">Para receber mensagens, o Briar precisa permanecer conectado em segundo plano.</string>
-  <string name="setup_doze_explanation">Para receber mensagens, o Briar precisa permanecer conectado em segundo plano. Por favor, desative as otimizações da bateria para que o Briar possa permanecer conectado.</string>
-  <string name="setup_doze_button">Pemitir conexões</string>
-  <string name="choose_nickname">Escolha seu apelido</string>
-  <string name="choose_password">Escolha sua senha</string>
-  <string name="confirm_password">Confirme sua senha</string>
-  <string name="name_too_long">O nome está muito grande</string>
-  <string name="password_too_weak">A senha está muito fraca</string>
-  <string name="passwords_do_not_match">As senhas não conferem</string>
-  <string name="create_account_button">Criar conta</string>
-  <string name="more_info">Informações adicionais</string>
-  <string name="don_t_ask_again">Não perguntar novamente</string>
-  <string name="setup_huawei_text">Toque no botão abaixo e verifique se o Briar está protegido na tela \"Aplicativos Protegidos\"</string>
-  <string name="setup_huawei_button">Proteger o Briar</string>
-  <string name="setup_huawei_help">Se o Briar não for adicionado à lista de aplicativos protegidos ele não poderá ser executado em segundo plano.</string>
-  <string name="setup_huawei_app_launch_text">Por favor, toque no botão abaixo, abra a tela de \"Lançamento de apps\" e certifique que o Briar está definido para \"Gerenciar manualmente\".</string>
+<resources>
+	<!--Setup-->
+	<string name="setup_title">Boas-vindas ao Briar</string>
+	<string name="setup_name_explanation">Seu nome de usuária será mostrado próximo a qualquer conteúdo que você publicar. Você não pode mudá-lo depois que criar sua conta,</string>
+	<string name="setup_next">Próximo</string>
+	<string name="setup_password_intro">Escolha uma senha</string>
+	<string name="setup_password_explanation">A sua conta do Briar está salva de modo criptografado no seu dispositivo, não na nuvem. Se você esquecer sua senha nou desinstalar o Briar não há como recuperar sua conta.\n\nEscolha uma senha longa que seja difícil de ser adivinhada, como cinco palavras aleatórias ou dez letras, números e símbolos aleatórios.</string>
+	<string name="dnkm_doze_title">Conexões em segundo plano</string>
+	<string name="dnkm_doze_intro">Para receber mensagens, o Briar precisa permanecer conectado em segundo plano.</string>
+	<string name="dnkm_doze_explanation">Para receber mensagens, o Briar precisa permanecer conectado em segundo plano. Por favor, desative as otimizações da bateria para que o Briar possa permanecer conectado.</string>
+	<string name="dnkm_doze_button">Pemitir conexões</string>
+	<string name="choose_nickname">Escolha seu apelido</string>
+	<string name="choose_password">Escolha sua senha</string>
+	<string name="confirm_password">Confirme sua senha</string>
+	<string name="name_too_long">O nome está muito grande</string>
+	<string name="password_too_weak">A senha está muito fraca</string>
+	<string name="passwords_do_not_match">As senhas não conferem</string>
+	<string name="create_account_button">Criar conta</string>
+	<string name="more_info">Informações adicionais</string>
+	<string name="don_t_ask_again">Não perguntar novamente</string>
+	<string name="dnkm_huawei_protected_text">Toque no botão abaixo e verifique se o Briar está protegido na tela \"Aplicativos Protegidos\"</string>
+	<string name="dnkm_huawei_protected_button">Proteger o Briar</string>
+	<string name="dnkm_huawei_protected_help">Se o Briar não for adicionado à lista de aplicativos protegidos ele não poderá ser executado em segundo plano.</string>
+	<string name="setup_huawei_app_launch_text">Por favor, toque no botão abaixo, abra a tela de \"Lançamento de apps\" e certifique que o Briar está definido para \"Gerenciar manualmente\".</string>
   <string name="setup_huawei_app_launch_button">Abrir Configurações de Bateria</string>
   <string name="setup_huawei_app_launch_help">Se o Briar não estiver definido como \"Gerenciar manualmente\" na tela de \"Lançamento de apps\", ele não poderá ser executado em segundo plano.</string>
   <string name="setup_huawei_app_launch_error_toast">Não pôde abrir configurações de bateria</string>
   <string name="setup_xiaomi_text">Para ser executado em segundo plano, o Briar deve estar fixado à lista de apps recentes.</string>
-  <string name="setup_xiaomi_button">Proteger o Briar</string>
+  <string name="dnkm_xiaomi_button">Proteger o Briar</string>
   <string name="setup_xiaomi_help">Se o Briar não estiver fixado na lista de aplicativos recentes, ele não será capaz de rodar em segundo plano.</string>
   <string name="setup_xiaomi_dialog_body_old">1. Abra a lista de aplicativos recentes (também chamada de alternador de aplicativos)\n\n2. Deslize para baixo na imagem do Briar para mostrar o ícone de cadeado\n\n3. Se o cadeado não estiver trancado, toque para trancá-lo</string>
   <string name="setup_xiaomi_dialog_body_new">1. Abra a lista de aplicativos recentes (também chamada de alternador de aplicativos)\n\n2. Pressione e segure na imagem do Briar para mostrar o ícone de cadeado\n\n3. Se o cadeado não estiver trancado, toque para trancá-lo</string>
-  <string name="warning_dozed">%s não pôde ser executado em segundo plano</string>
-  <!--Login-->
-  <string name="enter_password">Senha</string>
-  <string name="try_again">Senha Incorreta, tente novamente</string>
-  <string name="dialog_title_cannot_check_password">Não foi possível verificar sua senha</string>
-  <string name="dialog_message_cannot_check_password">O Briar não conseguiu verificar sua senha. Por favor, tente reiniciar o aparelho para resolver o problema.</string>
-  <string name="sign_in_button">Entrar</string>
-  <string name="forgotten_password">Esqueci minha senha</string>
+	<string name="dnkm_warning_dozed">%s não pôde ser executado em segundo plano</string>
+	<!--Login-->
+	<string name="enter_password">Senha</string>
+	<string name="try_again">Senha Incorreta, tente novamente</string>
+	<string name="dialog_title_cannot_check_password">Não foi possível verificar sua senha</string>
+	<string name="dialog_message_cannot_check_password">O Briar não conseguiu verificar sua senha. Por favor, tente reiniciar o aparelho para resolver o problema.</string>
+	<string name="sign_in_button">Entrar</string>
+	<string name="forgotten_password">Esqueci minha senha</string>
   <string name="dialog_title_lost_password">Perdeu a senha</string>
   <string name="dialog_message_lost_password">Sua conta Briar é armazenada em seu dispositivo e criptografada, não na Nuvem, assim não podemos recuperar a senha. Você quer deletar sua conta e começar de novo?\n\nAtenção: Isso irá apagar permanentemente suas identidades, contatos e mensagens</string>
   <string name="startup_failed_activity_title">Inicialização do Briar falhou</string>

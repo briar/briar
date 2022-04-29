@@ -1,36 +1,36 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<resources xmlns:tools="http://schemas.android.com/tools">
-  <!--Setup-->
-  <string name="setup_title">Briar-a xoş gəlmisiniz!</string>
-  <string name="setup_name_explanation">Sizin nikiniz yazdığlarınızın yanında görsənəcək. Hesabı yaradandan sonra onu dəyişə bilməzsiniz.</string>
-  <string name="setup_next">Növbəti</string>
-  <string name="setup_password_intro">Şifrə seçin</string>
-  <string name="setup_password_explanation">Sizin Briar hesabınız internetda yox, cihazınızda şifrələnir. Şifrənizi unutursanız və ya Briar\'ı qaldırsanız, hesabınızı bərpa etmək üçün heç bir yol yoxdur. Uzun şifrə seçin. Və o şifrəni təxmin etmək çətin olan dörd təsadüfi sözdən və ya on təsadüfi hərfdən, nömrələrdən və simvollardan olması məsləhətdir.</string>
-  <string name="setup_doze_title">Fon qoşulmaları</string>
-  <string name="setup_doze_intro">Mesajları qəbul etmək üçün Briar arxa planda işləməlidir.</string>
-  <string name="setup_doze_explanation">Mesajları qəbul etmək üçün Briar arxa planda işləməlidir. Briar-ın xəttdə qalması üçün, batareya optimallaşdırmalarını söndürün</string>
-  <string name="setup_doze_button">Qoşulmalara izn ver</string>
-  <string name="choose_nickname">Nik seçin</string>
-  <string name="choose_password">Şifrə seçin</string>
-  <string name="confirm_password">Şifrəni təsdiq edin</string>
-  <string name="name_too_long">Adınız çox uzundur</string>
-  <string name="password_too_weak">Şifrə çox zəifdir</string>
-  <string name="passwords_do_not_match">Parollar uyğun deyil</string>
-  <string name="create_account_button">Hesab yaradın</string>
-  <string name="more_info">Digər məlumatlar</string>
-  <string name="don_t_ask_again">Bir daha soruşulmasın</string>
-  <string name="setup_huawei_text">Aşağıdakı düyməni basın və əmin olun ki, Briar \"Qorunan proqramlar\" ekranında qorunur.</string>
-  <string name="setup_huawei_button">Briar-ın qorunması</string>
-  <string name="setup_huawei_help">Briar qorunan tətbiqlər siyahısına əlavə olunmasa, arxa planda işləməyəcəkdir.</string>
-  <string name="warning_dozed">%sarxa planda işə düşmədi</string>
-  <!--Login-->
-  <string name="enter_password">Şifrə</string>
-  <string name="try_again">Şifrə yanlışdır, bir daha cəhd edin</string>
-  <string name="sign_in_button">Daxil ol</string>
-  <string name="forgotten_password">Mən şifrəni unutmuşam</string>
-  <string name="dialog_title_lost_password">Yaddan çıxmış şifrə</string>
-  <string name="dialog_message_lost_password">Sizin Briar hesabınız internetda yox, cihazınızda şifrələnir, ona görə biz onu silə bilmirik. Hesabı silib yenidən başlamaq istəyirsiniz? Diqqət: Sizin şəxsi məlumatlarınız, kontaktlarınız, məktublar və parametrlər silinəcək.</string>
-  <string name="startup_failed_notification_title">Briar başlamadı</string>
+<resources>
+	<!--Setup-->
+	<string name="setup_title">Briar-a xoş gəlmisiniz!</string>
+	<string name="setup_name_explanation">Sizin nikiniz yazdığlarınızın yanında görsənəcək. Hesabı yaradandan sonra onu dəyişə bilməzsiniz.</string>
+	<string name="setup_next">Növbəti</string>
+	<string name="setup_password_intro">Şifrə seçin</string>
+	<string name="setup_password_explanation">Sizin Briar hesabınız internetda yox, cihazınızda şifrələnir. Şifrənizi unutursanız və ya Briar\'ı qaldırsanız, hesabınızı bərpa etmək üçün heç bir yol yoxdur. Uzun şifrə seçin. Və o şifrəni təxmin etmək çətin olan dörd təsadüfi sözdən və ya on təsadüfi hərfdən, nömrələrdən və simvollardan olması məsləhətdir.</string>
+	<string name="dnkm_doze_title">Fon qoşulmaları</string>
+	<string name="dnkm_doze_intro">Mesajları qəbul etmək üçün Briar arxa planda işləməlidir.</string>
+	<string name="dnkm_doze_explanation">Mesajları qəbul etmək üçün Briar arxa planda işləməlidir. Briar-ın xəttdə qalması üçün, batareya optimallaşdırmalarını söndürün</string>
+	<string name="dnkm_doze_button">Qoşulmalara izn ver</string>
+	<string name="choose_nickname">Nik seçin</string>
+	<string name="choose_password">Şifrə seçin</string>
+	<string name="confirm_password">Şifrəni təsdiq edin</string>
+	<string name="name_too_long">Adınız çox uzundur</string>
+	<string name="password_too_weak">Şifrə çox zəifdir</string>
+	<string name="passwords_do_not_match">Parollar uyğun deyil</string>
+	<string name="create_account_button">Hesab yaradın</string>
+	<string name="more_info">Digər məlumatlar</string>
+	<string name="don_t_ask_again">Bir daha soruşulmasın</string>
+	<string name="dnkm_huawei_protected_text">Aşağıdakı düyməni basın və əmin olun ki, Briar \"Qorunan proqramlar\" ekranında qorunur.</string>
+	<string name="dnkm_huawei_protected_button">Briar-ın qorunması</string>
+	<string name="dnkm_huawei_protected_help">Briar qorunan tətbiqlər siyahısına əlavə olunmasa, arxa planda işləməyəcəkdir.</string>
+	<string name="dnkm_warning_dozed">%sarxa planda işə düşmədi</string>
+	<!--Login-->
+	<string name="enter_password">Şifrə</string>
+	<string name="try_again">Şifrə yanlışdır, bir daha cəhd edin</string>
+	<string name="sign_in_button">Daxil ol</string>
+	<string name="forgotten_password">Mən şifrəni unutmuşam</string>
+	<string name="dialog_title_lost_password">Yaddan çıxmış şifrə</string>
+	<string name="dialog_message_lost_password">Sizin Briar hesabınız internetda yox, cihazınızda şifrələnir, ona görə biz onu silə bilmirik. Hesabı silib yenidən başlamaq istəyirsiniz? Diqqət: Sizin şəxsi məlumatlarınız, kontaktlarınız, məktublar və parametrlər silinəcək.</string>
+	<string name="startup_failed_notification_title">Briar başlamadı</string>
   <string name="startup_failed_notification_text">Digər malumat üçün toxunun.</string>
   <string name="startup_failed_activity_title">Başlama xətası</string>
   <string name="startup_failed_db_error">Briar məlumat bazası nədənsə sıradan çıxıb. Hesabınız, məlumatlarınız və bütün əlaqələriniz itirilmişdır. Təəssüf ki, Briar\'ı yenidən bərpa etməli və ya \'Şifrəni unutmuşam\' seçərək yeni hesab yaratmalısınız.</string>

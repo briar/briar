@@ -39,11 +39,11 @@ import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
 import static androidx.test.platform.app.InstrumentationRegistry.getInstrumentation;
 import static java.lang.Thread.sleep;
+import static org.briarproject.android.dontkillmelib.DozeUtils.needsDozeWhitelisting;
 import static org.briarproject.bramble.api.plugin.LanTcpConstants.ID;
 import static org.briarproject.briar.android.OverlayTapViewAction.visualClick;
 import static org.briarproject.briar.android.ViewActions.waitFor;
 import static org.briarproject.briar.android.ViewActions.waitUntilMatches;
-import static org.briarproject.briar.android.util.UiUtils.needsDozeWhitelisting;
 import static org.hamcrest.CoreMatchers.allOf;
 import static org.junit.Assert.assertTrue;
 
@@ -129,7 +129,7 @@ public class PromoVideoTest extends ScreenshotTest {
 
 		// White-list Doze if needed
 		if (needsDozeWhitelisting(getApplicationContext())) {
-			doClick(withText(R.string.setup_doze_button));
+			doClick(withText(R.string.dnkm_doze_button));
 			UiDevice device = UiDevice.getInstance(getInstrumentation());
 			UiObject allowButton = device.findObject(
 					new UiSelector().className("android.widget.Button")

@@ -13,12 +13,12 @@ import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
 import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.account.PowerView.OnCheckedChangedListener;
-import org.briarproject.briar.android.util.UiUtils;
 
 import androidx.annotation.Nullable;
 
 import static android.view.View.INVISIBLE;
 import static android.view.View.VISIBLE;
+import static org.briarproject.android.dontkillmelib.DozeUtils.getDozeWhitelistingIntent;
 import static org.briarproject.briar.android.activity.RequestCodes.REQUEST_DOZE_WHITELISTING;
 import static org.briarproject.briar.android.util.UiUtils.showOnboardingDialog;
 
@@ -44,7 +44,7 @@ public class DozeFragment extends SetupFragment
 	public View onCreateView(LayoutInflater inflater,
 			@Nullable ViewGroup container,
 			@Nullable Bundle savedInstanceState) {
-		requireActivity().setTitle(getString(R.string.setup_doze_title));
+		requireActivity().setTitle(getString(R.string.dnkm_doze_title));
 		setHasOptionsMenu(false);
 		View v = inflater.inflate(R.layout.fragment_setup_doze, container,
 				false);
@@ -80,7 +80,7 @@ public class DozeFragment extends SetupFragment
 
 	@Override
 	protected String getHelpText() {
-		return getString(R.string.setup_doze_explanation);
+		return getString(R.string.dnkm_doze_explanation);
 	}
 
 	@Override
@@ -108,7 +108,7 @@ public class DozeFragment extends SetupFragment
 	@SuppressLint("BatteryLife")
 	private void askForDozeWhitelisting() {
 		if (getContext() == null) return;
-		Intent i = UiUtils.getDozeWhitelistingIntent(getContext());
+		Intent i = getDozeWhitelistingIntent(getContext());
 		startActivityForResult(i, REQUEST_DOZE_WHITELISTING);
 	}
 

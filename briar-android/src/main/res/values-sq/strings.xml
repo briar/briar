@@ -1,38 +1,38 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<resources xmlns:tools="http://schemas.android.com/tools">
-  <!--Setup-->
-  <string name="setup_title">Mirë se vini në Briar</string>
-  <string name="setup_name_explanation">Nofka juaj do të shfaqet në krah të çfarëdo gjëje që postoni. S\’mund ta ndryshoni më, pas krijimit të llogarisë tuaj.</string>
-  <string name="setup_next">Pasuesi</string>
-  <string name="setup_password_intro">Zgjidhni një Fjalëkalim</string>
-  <string name="setup_password_explanation">Llogaria juaj Briar depozitohet e fshehtëzuar në pajisjen tuaj, jo në re. Nëse harroni fjalëkalimin tuaj apo e çinstaloni Briar-in, nuk ka ndonjë mënyrë për të ringjallur llogarinë tuaj.\n\nZgjidhni një fjalëkalim të gjatë, që është i vështirë për t\’u marrë me mend, f.v., katër fjalë kuturu, ose dhjetë shkronja, numra dhe shenja kuturu.</string>
-  <string name="setup_doze_title">Lidhje Në Prapaskenë</string>
-  <string name="setup_doze_intro">Për të marrë mesazhe, Briar-i lypset të qëndrojë i lidhur në prapaskenë.</string>
-  <string name="setup_doze_explanation">Për të marrë mesazhe, Briar-i lypset të mbetet i lidhur në prapaskenë. Ju lutemi, çaktivizoni optimizime baterie, që kështu Briar-i të mund të qëndrojë i lidhur.</string>
-  <string name="setup_doze_button">Lejo Lidhje</string>
-  <string name="choose_nickname">Zgjidhni nofkën tuaj</string>
-  <string name="choose_password">Zgjidhni fjalëkalimin tuaj</string>
-  <string name="confirm_password">Ripohoni fjalëkalimin tuaj</string>
-  <string name="name_too_long">Emri është shumë i gjatë</string>
-  <string name="password_too_weak">Fjalëkalimi është shumë i dobët</string>
-  <string name="passwords_do_not_match">Fjalëkalimet nuk përputhen</string>
-  <string name="create_account_button">Krijoje Llogarinë</string>
-  <string name="more_info">Më Tepër të Dhëna</string>
-  <string name="don_t_ask_again">Mos pyet sërish</string>
-  <string name="setup_huawei_text">Ju lutemi, prekni butoni më poshtë dhe sigurohuni që Briar-i të jetë i mbrojtur, te skena \"Aplikacione të Mbrojtur\".</string>
-  <string name="setup_huawei_button">Mbroje Briar-in</string>
-  <string name="setup_huawei_help">Nëse Briar-i s\’është shtuar te lista e aplikacioneve të mbrojtur, s\’do të jetë në gjendje të xhirojë në prapaskenë.</string>
-  <string name="setup_huawei_app_launch_text">Ju lutemi, prekni butonin më poshtë, hapni skenën “Nisje aplikacioni” dhe sigurohuni se për Briar-in është zgjedhur “Administrojeni dorazi”.</string>
-  <string name="setup_huawei_app_launch_button">Hapni Rregullime Baterie</string>
-  <string name="setup_huawei_app_launch_help">Nëse për Briar-in s’është zgjedhur “Administroje Dorazi” te skena “Nisje Aplikacioni”, s’do të jetë në gjendje të xhirojë në prapaskenë.</string>
-  <string name="setup_huawei_app_launch_error_toast">S’u hapën dot rregullimet e baterisë</string>
-  <string name="setup_xiaomi_text">Për të xhiruar në prapaskenë, Briar-i lyp të jetë i kyçur te lista e aplikacioneve të përdorur së fundi.</string>
-  <string name="setup_xiaomi_button">Mbroje Briar-in</string>
-  <string name="setup_xiaomi_help">Nëse Briar-i s’është i kyçur te lista e aplikacioneve të përdorur së fundi, s’do të jetë në gjendje të xhirojë në prapaskenë.</string>
-  <string name="setup_xiaomi_dialog_body_old">1. Hapni listën e aplikacioneve përdorur së fundi (e quajtur edhe këmbyes aplikacionesh)\n\n2. Fërkojeni për poshtë te figura për Briar-in, që të shfaqet ikona e drynit\n\n3. Nëse dryni s’është o kyçur, prekeni që të kyçet</string>
-  <string name="setup_xiaomi_dialog_body_new">1. Hapni listën e aplikacioneve përdorur së fundi (e quajtur edhe 
+<resources>
+	<!--Setup-->
+	<string name="setup_title">Mirë se vini në Briar</string>
+	<string name="setup_name_explanation">Nofka juaj do të shfaqet në krah të çfarëdo gjëje që postoni. S\’mund ta ndryshoni më, pas krijimit të llogarisë tuaj.</string>
+	<string name="setup_next">Pasuesi</string>
+	<string name="setup_password_intro">Zgjidhni një Fjalëkalim</string>
+	<string name="setup_password_explanation">Llogaria juaj Briar depozitohet e fshehtëzuar në pajisjen tuaj, jo në re. Nëse harroni fjalëkalimin tuaj apo e çinstaloni Briar-in, nuk ka ndonjë mënyrë për të ringjallur llogarinë tuaj.\n\nZgjidhni një fjalëkalim të gjatë, që është i vështirë për t\’u marrë me mend, f.v., katër fjalë kuturu, ose dhjetë shkronja, numra dhe shenja kuturu.</string>
+	<string name="dnkm_doze_title">Lidhje Në Prapaskenë</string>
+	<string name="dnkm_doze_intro">Për të marrë mesazhe, Briar-i lypset të qëndrojë i lidhur në prapaskenë.</string>
+	<string name="dnkm_doze_explanation">Për të marrë mesazhe, Briar-i lypset të mbetet i lidhur në prapaskenë. Ju lutemi, çaktivizoni optimizime baterie, që kështu Briar-i të mund të qëndrojë i lidhur.</string>
+	<string name="dnkm_doze_button">Lejo Lidhje</string>
+	<string name="choose_nickname">Zgjidhni nofkën tuaj</string>
+	<string name="choose_password">Zgjidhni fjalëkalimin tuaj</string>
+	<string name="confirm_password">Ripohoni fjalëkalimin tuaj</string>
+	<string name="name_too_long">Emri është shumë i gjatë</string>
+	<string name="password_too_weak">Fjalëkalimi është shumë i dobët</string>
+	<string name="passwords_do_not_match">Fjalëkalimet nuk përputhen</string>
+	<string name="create_account_button">Krijoje Llogarinë</string>
+	<string name="more_info">Më Tepër të Dhëna</string>
+	<string name="don_t_ask_again">Mos pyet sërish</string>
+	<string name="dnkm_huawei_protected_text">Ju lutemi, prekni butoni më poshtë dhe sigurohuni që Briar-i të jetë i mbrojtur, te skena \"Aplikacione të Mbrojtur\".</string>
+	<string name="dnkm_huawei_protected_button">Mbroje Briar-in</string>
+	<string name="dnkm_huawei_protected_help">Nëse Briar-i s\’është shtuar te lista e aplikacioneve të mbrojtur, s\’do të jetë në gjendje të xhirojë në prapaskenë.</string>
+	<string name="dnkm_huawei_app_launch_text">Ju lutemi, prekni butonin më poshtë, hapni skenën “Nisje aplikacioni” dhe sigurohuni se për Briar-in është zgjedhur “Administrojeni dorazi”.</string>
+	<string name="dnkm_huawei_app_launch_button">Hapni Rregullime Baterie</string>
+	<string name="dnkm_huawei_app_launch_help">Nëse për Briar-in s’është zgjedhur “Administroje Dorazi” te skena “Nisje Aplikacioni”, s’do të jetë në gjendje të xhirojë në prapaskenë.</string>
+	<string name="dnkm_huawei_app_launch_error_toast">S’u hapën dot rregullimet e baterisë</string>
+	<string name="dnkm_xiaomi_text">Për të xhiruar në prapaskenë, Briar-i lyp të jetë i kyçur te lista e aplikacioneve të përdorur së fundi.</string>
+	<string name="dnkm_xiaomi_button">Mbroje Briar-in</string>
+	<string name="dnkm_xiaomi_help">Nëse Briar-i s’është i kyçur te lista e aplikacioneve të përdorur së fundi, s’do të jetë në gjendje të xhirojë në prapaskenë.</string>
+	<string name="dnkm_xiaomi_dialog_body_old">1. Hapni listën e aplikacioneve përdorur së fundi (e quajtur edhe këmbyes aplikacionesh)\n\n2. Fërkojeni për poshtë te figura për Briar-in, që të shfaqet ikona e drynit\n\n3. Nëse dryni s’është o kyçur, prekeni që të kyçet</string>
+	<string name="dnkm_xiaomi_dialog_body_new">1. Hapni listën e aplikacioneve përdorur së fundi (e quajtur edhe
 këmbyes aplikacionesh)\n\n2. Shtypni dhe mbajeni të shtypur figurën e Briar-it, deri sa të shfaqet butoni i drynit\n\n3. Nëse dryni s’është o kyçur, prekeni që të kyçet</string>
-  <string name="warning_dozed">%s s\’qe në gjendje të xhirojë në prapaskenë</string>
+  <string name="dnkm_warning_dozed">%s s\’qe në gjendje të xhirojë në prapaskenë</string>
   <!--Login-->
   <string name="enter_password">Fjalëkalim</string>
   <string name="try_again">Fjalëkalim i gabuar, riprovoni</string>

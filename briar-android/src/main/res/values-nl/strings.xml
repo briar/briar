@@ -1,36 +1,36 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<resources xmlns:tools="http://schemas.android.com/tools">
-  <!--Setup-->
-  <string name="setup_title">Welkom bij Briar</string>
-  <string name="setup_name_explanation">Je bijnaam wordt getoond bij alle content die je post. Nadat je account is aangemaakt is het niet mogelijk je bijnaam te wijzigen.</string>
-  <string name="setup_next">Volgende</string>
-  <string name="setup_password_intro">Kies een wachtwoord</string>
-  <string name="setup_password_explanation">Je Briar-account is versleuteld opgeslagen op je apparaat, niet in de cloud. Als je je wachtzin vergeet of Briar deïnstalleert is er geen manier om je account te herstellen.\n\nKies een lang wachtwoord die moeilijk is om te raden, bijvoorbeeld vier willekeurige woorden of tien willekeurige letters, cijfers en symbolen.</string>
-  <string name="setup_doze_title">Achtergrondverbindingen</string>
-  <string name="setup_doze_intro">Om berichten te ontvangen dient Briar in de achtergrond verbonden te blijven.</string>
-  <string name="setup_doze_explanation">Briar moet in de achtergrond verbonden blijven om berichten te ontvangen. Schakel batterij-optimalisaties alsjeblieft uit zodat Briar verbonden kan blijven.</string>
-  <string name="setup_doze_button">Sta verbindingen toe</string>
-  <string name="choose_nickname">Kies een bijnaam</string>
-  <string name="choose_password">Kies een wachtwoord</string>
-  <string name="confirm_password">Bevestig je wachtwoord</string>
-  <string name="name_too_long">Naam is te lang</string>
-  <string name="password_too_weak">Wachtwoord is te zwak</string>
-  <string name="passwords_do_not_match">Wachtwoorden komen niet overeen</string>
-  <string name="create_account_button">Maak account aan</string>
-  <string name="more_info">Meer informatie</string>
-  <string name="don_t_ask_again">Vraag niet nog een keer</string>
-  <string name="setup_huawei_text">Tik alsjeblieft op de knop hieronder en ga nadat Briar is beschermd naar het scherm \"Beveiligde apps\".</string>
-  <string name="setup_huawei_button">Bescherm Briar</string>
-  <string name="setup_huawei_help">Als Briar niet is toegevoegd aan de beschermde apps, is het niet mogelijk om het in de achtergrond uit te voeren.</string>
-  <string name="setup_xiaomi_button">Bescherm Briar</string>
-  <string name="warning_dozed">%s kon niet in de achtergrond worden uitgevoerd</string>
-  <!--Login-->
-  <string name="enter_password">Wachtwoord</string>
-  <string name="try_again">Verkeerd wachtwoord, probeer het nog een keer</string>
-  <string name="dialog_title_cannot_check_password">Kan wachtwoord niet controleren</string>
-  <string name="dialog_message_cannot_check_password">Briar kan je wachtwoord niet controleren. Start je apparaat opnieuw op en probeer het nog eens.</string>
-  <string name="sign_in_button">Log in</string>
-  <string name="forgotten_password">Ik ben mijn wachtwoord vergeten</string>
+<resources>
+	<!--Setup-->
+	<string name="setup_title">Welkom bij Briar</string>
+	<string name="setup_name_explanation">Je bijnaam wordt getoond bij alle content die je post. Nadat je account is aangemaakt is het niet mogelijk je bijnaam te wijzigen.</string>
+	<string name="setup_next">Volgende</string>
+	<string name="setup_password_intro">Kies een wachtwoord</string>
+	<string name="setup_password_explanation">Je Briar-account is versleuteld opgeslagen op je apparaat, niet in de cloud. Als je je wachtzin vergeet of Briar deïnstalleert is er geen manier om je account te herstellen.\n\nKies een lang wachtwoord die moeilijk is om te raden, bijvoorbeeld vier willekeurige woorden of tien willekeurige letters, cijfers en symbolen.</string>
+	<string name="dnkm_doze_title">Achtergrondverbindingen</string>
+	<string name="dnkm_doze_intro">Om berichten te ontvangen dient Briar in de achtergrond verbonden te blijven.</string>
+	<string name="dnkm_doze_explanation">Briar moet in de achtergrond verbonden blijven om berichten te ontvangen. Schakel batterij-optimalisaties alsjeblieft uit zodat Briar verbonden kan blijven.</string>
+	<string name="dnkm_doze_button">Sta verbindingen toe</string>
+	<string name="choose_nickname">Kies een bijnaam</string>
+	<string name="choose_password">Kies een wachtwoord</string>
+	<string name="confirm_password">Bevestig je wachtwoord</string>
+	<string name="name_too_long">Naam is te lang</string>
+	<string name="password_too_weak">Wachtwoord is te zwak</string>
+	<string name="passwords_do_not_match">Wachtwoorden komen niet overeen</string>
+	<string name="create_account_button">Maak account aan</string>
+	<string name="more_info">Meer informatie</string>
+	<string name="don_t_ask_again">Vraag niet nog een keer</string>
+	<string name="dnkm_huawei_protected_text">Tik alsjeblieft op de knop hieronder en ga nadat Briar is beschermd naar het scherm \"Beveiligde apps\".</string>
+	<string name="dnkm_huawei_protected_button">Bescherm Briar</string>
+	<string name="dnkm_huawei_protected_help">Als Briar niet is toegevoegd aan de beschermde apps, is het niet mogelijk om het in de achtergrond uit te voeren.</string>
+	<string name="dnkm_xiaomi_button">Bescherm Briar</string>
+	<string name="dnkm_warning_dozed">%s kon niet in de achtergrond worden uitgevoerd</string>
+	<!--Login-->
+	<string name="enter_password">Wachtwoord</string>
+	<string name="try_again">Verkeerd wachtwoord, probeer het nog een keer</string>
+	<string name="dialog_title_cannot_check_password">Kan wachtwoord niet controleren</string>
+	<string name="dialog_message_cannot_check_password">Briar kan je wachtwoord niet controleren. Start je apparaat opnieuw op en probeer het nog eens.</string>
+	<string name="sign_in_button">Log in</string>
+	<string name="forgotten_password">Ik ben mijn wachtwoord vergeten</string>
   <string name="dialog_title_lost_password">Wachtwoord vergeten</string>
   <string name="dialog_message_lost_password">Je Briar-account is versleuteld opgeslagen op je apparaat, niet in de cloud, dus kunnen we je wachtwoord niet herstellen. Wil je je account verwijderen en opnieuw beginnen?\n\nLet op: Je identiteiten, contacten en berichten zullen permanent verloren gaan.</string>
   <string name="startup_failed_activity_title">Opstarten Briar mislukt</string>
