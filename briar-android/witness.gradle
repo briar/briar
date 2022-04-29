@@ -184,7 +184,7 @@ dependencyVerification {
         'org.bouncycastle:bcpkix-jdk15on:1.56:bcpkix-jdk15on-1.56.jar:7043dee4e9e7175e93e0b36f45b1ec1ecb893c5f755667e8b916eb8dd201c6ca',
         'org.bouncycastle:bcprov-jdk15on:1.56:bcprov-jdk15on-1.56.jar:963e1ee14f808ffb99897d848ddcdb28fa91ddda867eb18d303e82728f878349',
         'org.bouncycastle:bcprov-jdk15on:1.65:bcprov-jdk15on-1.65.jar:e78f96eb59066c94c94fb2d6b5eb80f52feac6f5f9776898634f8addec6e2137',
-        'org.briarproject:dont-kill-me-lib:0.2.1:dont-kill-me-lib-0.2.1.aar:c302cf5864aa1e97e4f21bb26c704d4338104d4fdb6c8939180eab734ffa7a36',
+        'org.briarproject:dont-kill-me-lib:0.2.2:dont-kill-me-lib-0.2.2.aar:5e95bf79abe1342fb15be6757ac23be165127f052b93055ef1a796e5b8d6ab8a',
         'org.checkerframework:checker-compat-qual:2.5.3:checker-compat-qual-2.5.3.jar:d76b9afea61c7c082908023f0cbc1427fab9abd2df915c8b8a3e7a509bccbc6d',
         'org.checkerframework:checker-qual:2.5.2:checker-qual-2.5.2.jar:64b02691c8b9d4e7700f8ee2e742dce7ea2c6e81e662b7522c9ee3bf568c040a',
         'org.checkerframework:checker-qual:3.5.0:checker-qual-3.5.0.jar:729990b3f18a95606fc2573836b6958bcdb44cb52bfbd1b7aa9c339cff35a5a4',
