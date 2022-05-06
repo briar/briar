@@ -164,8 +164,8 @@ public class BridgeTest extends BrambleTestCase {
 		factory = new UnixTorPluginFactory(ioExecutor, wakefulIoExecutor,
 				networkManager, locationUtils, eventBus, torSocketFactory,
 				backoffFactory, resourceProvider, bridgeProvider,
-				batteryManager, clock, torDir, DEFAULT_SOCKS_PORT,
-				DEFAULT_CONTROL_PORT, crypto);
+				batteryManager, clock, crypto, torDir,
+				DEFAULT_SOCKS_PORT, DEFAULT_CONTROL_PORT);
 	}
 
 	@After
