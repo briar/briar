@@ -30,7 +30,7 @@ import static org.briarproject.bramble.util.OsUtils.isWindows;
 
 @Immutable
 @NotNullByDefault
-class WindowsTorPluginFactory extends TorPluginFactory {
+public class WindowsTorPluginFactory extends TorPluginFactory {
 
 	@Inject
 	WindowsTorPluginFactory(@IoExecutor Executor ioExecutor,
