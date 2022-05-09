@@ -1256,6 +1256,12 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 		}
 	}
 
+	@Override
+	public void printStats(Transaction transaction) throws DbException {
+		T txn = unbox(transaction);
+		db.printStats(txn);
+	}
+
 	private class CommitActionVisitor implements Visitor {
 
 		@Override

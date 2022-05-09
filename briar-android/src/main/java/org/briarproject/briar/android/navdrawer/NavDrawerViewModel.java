@@ -2,9 +2,9 @@ package org.briarproject.briar.android.navdrawer;
 
 import android.app.Application;
 
+import org.briarproject.bramble.api.db.DatabaseComponent;
 import org.briarproject.bramble.api.db.DatabaseExecutor;
 import org.briarproject.bramble.api.db.DbException;
-import org.briarproject.bramble.api.db.TransactionManager;
 import org.briarproject.bramble.api.lifecycle.LifecycleManager;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.settings.Settings;
@@ -41,6 +41,7 @@ public class NavDrawerViewModel extends DbViewModel {
 	private static final String SHOW_TRANSPORTS_ONBOARDING =
 			"showTransportsOnboarding";
 
+	private final DatabaseComponent db;
 	private final SettingsManager settingsManager;
 
 	private final MutableLiveData<Boolean> showExpiryWarning =
@@ -54,10 +55,11 @@ public class NavDrawerViewModel extends DbViewModel {
 	NavDrawerViewModel(Application app,
 			@DatabaseExecutor Executor dbExecutor,
 			LifecycleManager lifecycleManager,
-			TransactionManager db,
+			DatabaseComponent db,
 			AndroidExecutor androidExecutor,
 			SettingsManager settingsManager) {
 		super(app, dbExecutor, lifecycleManager, db, androidExecutor);
+		this.db = db;
 		this.settingsManager = settingsManager;
 	}
 
@@ -169,6 +171,18 @@ public class NavDrawerViewModel extends DbViewModel {
 				Settings settings = new Settings();
 				settings.putBoolean(SHOW_TRANSPORTS_ONBOARDING, false);
 				settingsManager.mergeSettings(settings, SETTINGS_NAMESPACE);
+			} catch (DbException e) {
+				handleException(e);
+			}
+		});
+	}
+
+	public void printStats() {
+		runOnDbThread(() -> {
+			try {
+				db.transaction(false, txn -> {
+					db.printStats(txn);
+				});
 			} catch (DbException e) {
 				handleException(e);
 			}

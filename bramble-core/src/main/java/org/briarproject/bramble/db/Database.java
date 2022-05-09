@@ -862,4 +862,6 @@ interface Database<T> {
 	 * Stores the given transport keys, deleting any keys they have replaced.
 	 */
 	void updateTransportKeys(T txn, TransportKeySet ks) throws DbException;
+
+	void printStats(T txn) throws DbException;
 }

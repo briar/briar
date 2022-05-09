@@ -215,6 +215,7 @@ public class NavDrawerActivity extends BriarActivity implements
 		if (IS_DEBUG_BUILD || shouldWarnOldAndroidExpiry()) {
 			navDrawerViewModel.checkExpiryWarning();
 		}
+		navDrawerViewModel.printStats();
 	}
 
 	@Override

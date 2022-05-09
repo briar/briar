@@ -13,8 +13,12 @@ import org.briarproject.bramble.util.StringUtils;
 import java.io.File;
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Properties;
 import java.util.logging.Logger;
 
@@ -26,6 +30,7 @@ import static java.util.logging.Level.WARNING;
 import static java.util.logging.Logger.getLogger;
 import static org.briarproject.bramble.db.JdbcUtils.tryToClose;
 import static org.briarproject.bramble.util.IoUtils.isNonEmptyDirectory;
+import static org.briarproject.bramble.util.LogUtils.logException;
 import static org.briarproject.bramble.util.LogUtils.logFileOrDir;
 
 /**
@@ -97,6 +102,73 @@ class H2Database extends JdbcDatabase {
 		} catch (SQLException e) {
 			tryToClose(s, LOG, WARNING);
 			tryToClose(c, LOG, WARNING);
+			throw new DbException(e);
+		}
+	}
+
+	@Override
+	public void printStats(Connection txn) throws DbException {
+		List<String> names = printNames(txn);
+		for (String table : names) {
+			tryPrintStats(txn, table);
+		}
+	}
+
+	private List<String> printNames(Connection txn) throws DbException {
+		List<String> names = new ArrayList<>();
+		PreparedStatement ps = null;
+		ResultSet rs = null;
+		try {
+			String sql =
+					"SELECT table_catalog, table_schema, table_name FROM INFORMATION_SCHEMA.TABLES";
+			ps = txn.prepareStatement(sql);
+			rs = ps.executeQuery();
+			while (rs.next()) {
+				String catalog = rs.getString(1);
+				String schema = rs.getString(2);
+				String name = rs.getString(3);
+				LOG.info(
+						String.format("Table %s %s %s", catalog, schema, name));
+				names.add(schema + "." + name);
+			}
+			rs.close();
+			ps.close();
+		} catch (SQLException e) {
+			tryToClose(rs, LOG, WARNING);
+			tryToClose(ps, LOG, WARNING);
+			throw new DbException(e);
+		}
+		return names;
+	}
+
+	private void tryPrintStats(Connection txn, String table) {
+		try {
+			printStats(txn, table);
+		} catch (DbException e) {
+			logException(LOG, WARNING, e);
+		}
+	}
+
+	private void printStats(Connection txn, String table) throws DbException {
+		PreparedStatement ps = null;
+		ResultSet rs = null;
+		try {
+			String sql = "CALL DISK_SPACE_USED(?)";
+			ps = txn.prepareStatement(sql);
+			ps.setString(1, table);
+			rs = ps.executeQuery();
+			if (!rs.next()) {
+				rs.close();
+				ps.close();
+			}
+			long size = rs.getLong(1);
+			if (rs.next()) throw new DbStateException();
+			rs.close();
+			ps.close();
+			LOG.info(String.format("Size of table %s: %d", table, size));
+		} catch (SQLException e) {
+			tryToClose(rs, LOG, WARNING);
+			tryToClose(ps, LOG, WARNING);
 			throw new DbException(e);
 		}
 	}

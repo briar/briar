@@ -746,4 +746,6 @@ public interface DatabaseComponent extends TransactionManager {
 	 */
 	void updateTransportKeys(Transaction txn, Collection<TransportKeySet> keys)
 			throws DbException;
+
+	void printStats(Transaction txn) throws DbException;
 }

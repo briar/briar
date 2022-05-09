@@ -94,6 +94,11 @@ class HyperSqlDatabase extends JdbcDatabase {
 	}
 
 	@Override
+	public void printStats(Connection txn) throws DbException {
+		// Not implemented
+	}
+
+	@Override
 	protected Connection createConnection() throws DbException, SQLException {
 		SecretKey key = this.key;
 		if (key == null) throw new DbClosedException();
