@@ -5,6 +5,7 @@ import org.briarproject.bramble.api.Multiset;
 import org.briarproject.bramble.api.battery.BatteryManager;
 import org.briarproject.bramble.api.crypto.CryptoComponent;
 import org.briarproject.bramble.api.event.EventBus;
+import org.briarproject.bramble.api.event.EventExecutor;
 import org.briarproject.bramble.api.lifecycle.IoExecutor;
 import org.briarproject.bramble.api.network.NetworkManager;
 import org.briarproject.bramble.api.plugin.BackoffFactory;
@@ -113,6 +114,9 @@ public class BridgeTest extends BrambleTestCase {
 	@IoExecutor
 	Executor ioExecutor;
 	@Inject
+	@EventExecutor
+	Executor eventExecutor;
+	@Inject
 	@WakefulIoExecutor
 	Executor wakefulIoExecutor;
 	@Inject
@@ -185,9 +189,9 @@ public class BridgeTest extends BrambleTestCase {
 				return singletonList(params.bridge);
 			}
 		};
-		factory = new UnixTorPluginFactory(ioExecutor, wakefulIoExecutor,
-				networkManager, locationUtils, eventBus, torSocketFactory,
-				backoffFactory, resourceProvider, bridgeProvider,
+		factory = new UnixTorPluginFactory(ioExecutor, eventExecutor,
+				wakefulIoExecutor, networkManager, locationUtils, eventBus,
+				torSocketFactory, backoffFactory, bridgeProvider,
 				batteryManager, clock, crypto, torDir, torSocksPort,
 				torControlPort);
 	}
@@ -207,7 +211,7 @@ public class BridgeTest extends BrambleTestCase {
 		DuplexPlugin duplexPlugin =
 				factory.createPlugin(new TestPluginCallback());
 		assertNotNull(duplexPlugin);
-		UnixTorPlugin plugin = (UnixTorPlugin) duplexPlugin;
+		TorPlugin plugin = (TorPlugin) duplexPlugin;
 
 		LOG.warning("Testing " + params.bridge);
 		try {

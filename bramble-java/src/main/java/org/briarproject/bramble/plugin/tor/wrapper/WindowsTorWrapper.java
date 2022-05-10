@@ -1,54 +1,29 @@
-package org.briarproject.bramble.plugin.tor;
+package org.briarproject.bramble.plugin.tor.wrapper;
 
 import com.sun.jna.platform.win32.Kernel32;
 
-import org.briarproject.bramble.api.battery.BatteryManager;
-import org.briarproject.bramble.api.network.NetworkManager;
-import org.briarproject.bramble.api.plugin.Backoff;
-import org.briarproject.bramble.api.plugin.PluginCallback;
-import org.briarproject.bramble.api.plugin.PluginException;
-import org.briarproject.bramble.api.system.Clock;
-import org.briarproject.bramble.api.system.LocationUtils;
-import org.briarproject.bramble.api.system.ResourceProvider;
 import org.briarproject.nullsafety.NotNullByDefault;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.Scanner;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.Executor;
 
-import javax.net.SocketFactory;
-
 import static java.util.logging.Level.INFO;
 
 @NotNullByDefault
-class WindowsTorPlugin extends JavaTorPlugin {
+public class WindowsTorWrapper extends JavaTorWrapper {
 
-	WindowsTorPlugin(Executor ioExecutor,
-			Executor wakefulIoExecutor,
-			NetworkManager networkManager,
-			LocationUtils locationUtils,
-			SocketFactory torSocketFactory,
-			Clock clock,
-			ResourceProvider resourceProvider,
-			CircumventionProvider circumventionProvider,
-			BatteryManager batteryManager,
-			Backoff backoff,
-			TorRendezvousCrypto torRendezvousCrypto,
-			PluginCallback callback,
+	public WindowsTorWrapper(Executor ioExecutor,
+			Executor eventExecutor,
 			String architecture,
-			long maxLatency,
-			int maxIdleTime,
 			File torDirectory,
 			int torSocksPort,
 			int torControlPort) {
-		super(ioExecutor, wakefulIoExecutor, networkManager, locationUtils,
-				torSocketFactory, clock, resourceProvider,
-				circumventionProvider, batteryManager, backoff,
-				torRendezvousCrypto, callback, architecture,
-				maxLatency, maxIdleTime, torDirectory, torSocksPort,
-				torControlPort);
+		super(ioExecutor, eventExecutor, architecture, torDirectory,
+				torSocksPort, torControlPort);
 	}
 
 	@Override
@@ -58,7 +33,7 @@ class WindowsTorPlugin extends JavaTorPlugin {
 
 	@Override
 	protected void waitForTorToStart(Process torProcess)
-			throws InterruptedException, PluginException {
+			throws InterruptedException, IOException {
 		// On Windows the RunAsDaemon option has no effect, so Tor won't detach.
 		// Wait for the control port to be opened, then continue to read its
 		// stdout and stderr in a background thread until it exits.
@@ -91,7 +66,7 @@ class WindowsTorPlugin extends JavaTorPlugin {
 			}
 		});
 		// Wait for the startup result
-		if (!success.take()) throw new PluginException();
+		if (!success.take()) throw new IOException();
 	}
 
 	@Override

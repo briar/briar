@@ -40,9 +40,9 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicReference;
 import java.util.logging.Logger;
 
+import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;
 import javax.inject.Inject;
 
@@ -288,8 +288,10 @@ class PluginManagerImpl implements PluginManager, Service {
 	private class Callback implements PluginCallback {
 
 		private final TransportId id;
-		private final AtomicReference<State> state =
-				new AtomicReference<>(STARTING_STOPPING);
+		private final Object stateLock = new Object();
+
+		@GuardedBy("lock")
+		private State state = STARTING_STOPPING;
 
 		private Callback(TransportId id) {
 			this.id = id;
@@ -343,22 +345,26 @@ class PluginManagerImpl implements PluginManager, Service {
 
 		@Override
 		public void pluginStateChanged(State newState) {
-			State oldState = state.getAndSet(newState);
-			if (newState != oldState) {
-				if (LOG.isLoggable(INFO)) {
-					LOG.info(id + " changed from state " + oldState
-							+ " to " + newState);
+			synchronized (stateLock) {
+				if (newState != state) {
+					State oldState = state;
+					state = newState;
+					if (LOG.isLoggable(INFO)) {
+						LOG.info(id + " changed from state " + oldState
+								+ " to " + newState);
+					}
+					eventBus.broadcast(new TransportStateEvent(id, newState));
+					if (newState == ACTIVE) {
+						eventBus.broadcast(new TransportActiveEvent(id));
+					} else if (oldState == ACTIVE) {
+						eventBus.broadcast(new TransportInactiveEvent(id));
+					}
+				} else if (newState == DISABLED) {
+					// Broadcast an event even though the state hasn't changed,
+					// as the reasons for the plugin being disabled may have
+					// changed
+					eventBus.broadcast(new TransportStateEvent(id, newState));
 				}
-				eventBus.broadcast(new TransportStateEvent(id, newState));
-				if (newState == ACTIVE) {
-					eventBus.broadcast(new TransportActiveEvent(id));
-				} else if (oldState == ACTIVE) {
-					eventBus.broadcast(new TransportInactiveEvent(id));
-				}
-			} else if (newState == DISABLED) {
-				// Broadcast an event even though the state hasn't changed, as
-				// the reasons for the plugin being disabled may have changed
-				eventBus.broadcast(new TransportStateEvent(id, newState));
 			}
 		}
 
