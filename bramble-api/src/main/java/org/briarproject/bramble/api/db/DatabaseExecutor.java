@@ -18,6 +18,10 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
  * submitted, tasks are not run concurrently, and submitting a task will never
  * block. Tasks must not run indefinitely. Tasks submitted during shutdown are
  * discarded.
+ * <p>
+ * It is not mandatory to use this executor for database tasks. The database
+ * can be accessed from any thread, but this executor's guarantee that tasks
+ * are run in the order they're submitted may be useful in some cases.
  */
 @Qualifier
 @Target({FIELD, METHOD, PARAMETER})

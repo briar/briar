@@ -19,6 +19,8 @@ class RecordWriterImpl implements RecordWriter {
 	private final OutputStream out;
 	private final byte[] header = new byte[RECORD_HEADER_BYTES];
 
+	private long bytesWritten = 0;
+
 	RecordWriterImpl(OutputStream out) {
 		this.out = out;
 	}
@@ -31,6 +33,7 @@ class RecordWriterImpl implements RecordWriter {
 		ByteUtils.writeUint16(payload.length, header, 2);
 		out.write(header);
 		out.write(payload);
+		bytesWritten += RECORD_HEADER_BYTES + payload.length;
 	}
 
 	@Override
@@ -41,5 +44,10 @@ class RecordWriterImpl implements RecordWriter {
 	@Override
 	public void close() throws IOException {
 		out.close();
+	}
+
+	@Override
+	public long getBytesWritten() {
+		return bytesWritten;
 	}
 }

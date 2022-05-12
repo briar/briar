@@ -20,4 +20,6 @@ public interface SyncRecordWriter {
 	void writePriority(Priority p) throws IOException;
 
 	void flush() throws IOException;
+
+	long getBytesWritten();
 }

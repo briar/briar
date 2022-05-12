@@ -51,7 +51,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -77,6 +76,7 @@ import static java.util.logging.Logger.getLogger;
 import static org.briarproject.bramble.api.db.DatabaseComponent.NO_CLEANUP_DEADLINE;
 import static org.briarproject.bramble.api.db.DatabaseComponent.TIMER_NOT_STARTED;
 import static org.briarproject.bramble.api.db.Metadata.REMOVE;
+import static org.briarproject.bramble.api.record.Record.RECORD_HEADER_BYTES;
 import static org.briarproject.bramble.api.sync.Group.Visibility.INVISIBLE;
 import static org.briarproject.bramble.api.sync.Group.Visibility.SHARED;
 import static org.briarproject.bramble.api.sync.Group.Visibility.VISIBLE;
@@ -1909,6 +1909,31 @@ abstract class JdbcDatabase implements Database<Connection> {
 	}
 
 	@Override
+	public int getMessageLength(Connection txn, MessageId m)
+			throws DbException {
+		PreparedStatement ps = null;
+		ResultSet rs = null;
+		try {
+			String sql = "SELECT length from messages"
+					+ " WHERE messageId = ? AND state = ?";
+			ps = txn.prepareStatement(sql);
+			ps.setBytes(1, m.getBytes());
+			ps.setInt(2, DELIVERED.getValue());
+			rs = ps.executeQuery();
+			if (!rs.next()) throw new DbStateException();
+			int length = rs.getInt(1);
+			if (rs.next()) throw new DbStateException();
+			rs.close();
+			ps.close();
+			return length;
+		} catch (SQLException e) {
+			tryToClose(rs, LOG, WARNING);
+			tryToClose(ps, LOG, WARNING);
+			throw new DbException(e);
+		}
+	}
+
+	@Override
 	public Map<MessageId, Metadata> getMessageMetadata(Connection txn,
 			GroupId g) throws DbException {
 		PreparedStatement ps = null;
@@ -2256,8 +2281,8 @@ abstract class JdbcDatabase implements Database<Connection> {
 	}
 
 	@Override
-	public Collection<MessageId> getMessagesToSend(Connection txn, ContactId c,
-			int maxLength, long maxLatency) throws DbException {
+	public Collection<MessageId> getMessagesToSend(Connection txn,
+			ContactId c, long capacity, long maxLatency) throws DbException {
 		long now = clock.currentTimeMillis();
 		PreparedStatement ps = null;
 		ResultSet rs = null;
@@ -2277,12 +2302,11 @@ abstract class JdbcDatabase implements Database<Connection> {
 			ps.setLong(4, maxLatency);
 			rs = ps.executeQuery();
 			List<MessageId> ids = new ArrayList<>();
-			int total = 0;
 			while (rs.next()) {
 				int length = rs.getInt(1);
-				if (total + length > maxLength) break;
+				if (capacity < RECORD_HEADER_BYTES + length) break;
 				ids.add(new MessageId(rs.getBytes(2)));
-				total += length;
+				capacity -= RECORD_HEADER_BYTES + length;
 			}
 			rs.close();
 			ps.close();
@@ -2295,12 +2319,12 @@ abstract class JdbcDatabase implements Database<Connection> {
 	}
 
 	@Override
-	public Map<MessageId, Integer> getUnackedMessagesToSend(Connection txn,
+	public Collection<MessageId> getUnackedMessagesToSend(Connection txn,
 			ContactId c) throws DbException {
 		PreparedStatement ps = null;
 		ResultSet rs = null;
 		try {
-			String sql = "SELECT length, messageId FROM statuses"
+			String sql = "SELECT messageId FROM statuses"
 					+ " WHERE contactId = ? AND state = ?"
 					+ " AND groupShared = TRUE AND messageShared = TRUE"
 					+ " AND deleted = FALSE AND seen = FALSE"
@@ -2309,15 +2333,11 @@ abstract class JdbcDatabase implements Database<Connection> {
 			ps.setInt(1, c.getInt());
 			ps.setInt(2, DELIVERED.getValue());
 			rs = ps.executeQuery();
-			Map<MessageId, Integer> results = new LinkedHashMap<>();
-			while (rs.next()) {
-				int length = rs.getInt(1);
-				MessageId id = new MessageId(rs.getBytes(2));
-				results.put(id, length);
-			}
+			List<MessageId> ids = new ArrayList<>();
+			while (rs.next()) ids.add(new MessageId(rs.getBytes(1)));
 			rs.close();
 			ps.close();
-			return results;
+			return ids;
 		} catch (SQLException e) {
 			tryToClose(rs, LOG, WARNING);
 			tryToClose(ps, LOG, WARNING);
@@ -2430,6 +2450,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 				MessageId m = new MessageId(rs.getBytes(1));
 				GroupId g = new GroupId(rs.getBytes(2));
 				Collection<MessageId> messageIds = ids.get(g);
+				//noinspection Java8MapApi
 				if (messageIds == null) {
 					messageIds = new ArrayList<>();
 					ids.put(g, messageIds);
@@ -2556,7 +2577,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 
 	@Override
 	public Collection<MessageId> getRequestedMessagesToSend(Connection txn,
-			ContactId c, int maxLength, long maxLatency) throws DbException {
+			ContactId c, long capacity, long maxLatency) throws DbException {
 		long now = clock.currentTimeMillis();
 		PreparedStatement ps = null;
 		ResultSet rs = null;
@@ -2576,12 +2597,11 @@ abstract class JdbcDatabase implements Database<Connection> {
 			ps.setLong(4, maxLatency);
 			rs = ps.executeQuery();
 			List<MessageId> ids = new ArrayList<>();
-			int total = 0;
 			while (rs.next()) {
 				int length = rs.getInt(1);
-				if (total + length > maxLength) break;
+				if (capacity < RECORD_HEADER_BYTES + length) break;
 				ids.add(new MessageId(rs.getBytes(2)));
-				total += length;
+				capacity -= RECORD_HEADER_BYTES + length;
 			}
 			rs.close();
 			ps.close();
@@ -2735,6 +2755,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 				ContactId c = new ContactId(rs.getInt(1));
 				TransportId t = new TransportId(rs.getString(2));
 				Collection<TransportId> transportIds = ids.get(c);
+				//noinspection Java8MapApi
 				if (transportIds == null) {
 					transportIds = new ArrayList<>();
 					ids.put(c, transportIds);
