@@ -70,6 +70,7 @@ import static java.sql.Types.BOOLEAN;
 import static java.sql.Types.INTEGER;
 import static java.sql.Types.VARCHAR;
 import static java.util.Arrays.asList;
+import static java.util.logging.Level.FINE;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
 import static java.util.logging.Logger.getLogger;
@@ -572,6 +573,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 		try {
 			if (closed) throw new DbClosedException();
 			txn = connections.poll();
+			logConnectionCounts();
 		} finally {
 			connectionsLock.unlock();
 		}
@@ -582,7 +584,14 @@ abstract class JdbcDatabase implements Database<Connection> {
 				txn.setAutoCommit(false);
 				connectionsLock.lock();
 				try {
+					// The DB may have been closed since the check above
+					if (closed) {
+						tryToClose(txn, LOG, WARNING);
+						throw new DbClosedException();
+					}
 					openConnections++;
+					logConnectionCounts();
+					connectionsChanged.signalAll();
 				} finally {
 					connectionsLock.unlock();
 				}
@@ -593,67 +602,87 @@ abstract class JdbcDatabase implements Database<Connection> {
 		return txn;
 	}
 
-	@Override
-	public void abortTransaction(Connection txn) {
-		try {
-			txn.rollback();
-			connectionsLock.lock();
-			try {
-				connections.add(txn);
-				connectionsChanged.signalAll();
-			} finally {
-				connectionsLock.unlock();
-			}
-		} catch (SQLException e) {
-			// Try to close the connection
-			logException(LOG, WARNING, e);
-			tryToClose(txn, LOG, WARNING);
-			// Whatever happens, allow the database to close
-			connectionsLock.lock();
-			try {
-				openConnections--;
-				connectionsChanged.signalAll();
-			} finally {
-				connectionsLock.unlock();
-			}
+	@GuardedBy("connectionsLock")
+	private void logConnectionCounts() {
+		if (LOG.isLoggable(FINE)) {
+			LOG.fine(openConnections + " connections open, "
+					+ connections.size() + " in pool");
 		}
 	}
 
 	@Override
-	public void commitTransaction(Connection txn) throws DbException {
+	public void abortTransaction(Connection txn) {
+		// The transaction may have been aborted due to an earlier exception,
+		// so close the connection rather than returning it to the pool
 		try {
-			txn.commit();
+			txn.rollback();
 		} catch (SQLException e) {
-			throw new DbException(e);
+			logException(LOG, WARNING, e);
 		}
+		closeConnection(txn);
+	}
+
+	private void closeConnection(Connection txn) {
+		tryToClose(txn, LOG, WARNING);
 		connectionsLock.lock();
 		try {
-			connections.add(txn);
+			openConnections--;
+			logConnectionCounts();
 			connectionsChanged.signalAll();
 		} finally {
 			connectionsLock.unlock();
 		}
 	}
 
-	void closeAllConnections() throws SQLException {
+	@Override
+	public void commitTransaction(Connection txn) throws DbException {
+		// If the transaction commits successfully then return the connection
+		// to the pool, otherwise close it
+		try {
+			txn.commit();
+			returnConnectionToPool(txn);
+		} catch (SQLException e) {
+			logException(LOG, WARNING, e);
+			closeConnection(txn);
+			throw new DbException(e);
+		}
+	}
+
+	private void returnConnectionToPool(Connection txn) {
+		connectionsLock.lock();
+		try {
+			connections.add(txn);
+			logConnectionCounts();
+			connectionsChanged.signalAll();
+		} finally {
+			connectionsLock.unlock();
+		}
+	}
+
+	void closeAllConnections() {
 		boolean interrupted = false;
 		connectionsLock.lock();
 		try {
 			closed = true;
-			for (Connection c : connections) c.close();
+			for (Connection c : connections) tryToClose(c, LOG, WARNING);
 			openConnections -= connections.size();
 			connections.clear();
 			while (openConnections > 0) {
+				if (LOG.isLoggable(INFO)) {
+					LOG.info("Waiting for " + openConnections
+							+ " connections to be closed");
+				}
 				try {
 					connectionsChanged.await();
 				} catch (InterruptedException e) {
 					LOG.warning("Interrupted while closing connections");
 					interrupted = true;
 				}
-				for (Connection c : connections) c.close();
+				for (Connection c : connections) tryToClose(c, LOG, WARNING);
 				openConnections -= connections.size();
 				connections.clear();
 			}
+			LOG.info("All connections closed");
 		} finally {
 			connectionsLock.unlock();
 		}
