@@ -115,9 +115,7 @@ class MailboxPairingTaskImpl implements MailboxPairingTask {
 	private void pairMailbox() throws IOException, ApiException, DbException {
 		MailboxProperties mailboxProperties = decodeQrCodePayload(payload);
 		setState(new MailboxPairingState.Pairing());
-		MailboxAuthToken ownerToken = api.setup(mailboxProperties);
-		MailboxProperties ownerProperties = new MailboxProperties(
-				mailboxProperties.getBaseUrl(), ownerToken, true);
+		MailboxProperties ownerProperties = api.setup(mailboxProperties);
 		long time = clock.currentTimeMillis();
 		db.transaction(false, txn -> {
 			mailboxSettingsManager
@@ -182,7 +180,8 @@ class MailboxPairingTaskImpl implements MailboxPairingTask {
 		String baseUrl = "http://" + onion + ".onion";
 		byte[] tokenBytes = Arrays.copyOfRange(bytes, 33, 65);
 		MailboxAuthToken setupToken = new MailboxAuthToken(tokenBytes);
-		return new MailboxProperties(baseUrl, setupToken, true);
+		return new MailboxProperties(baseUrl, setupToken, true,
+				new ArrayList<>());
 	}
 
 }

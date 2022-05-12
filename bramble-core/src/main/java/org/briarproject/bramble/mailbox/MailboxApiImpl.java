@@ -14,6 +14,7 @@ import org.briarproject.bramble.api.mailbox.MailboxFileId;
 import org.briarproject.bramble.api.mailbox.MailboxFolderId;
 import org.briarproject.bramble.api.mailbox.MailboxId;
 import org.briarproject.bramble.api.mailbox.MailboxProperties;
+import org.briarproject.bramble.api.mailbox.MailboxVersion;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 
 import java.io.File;
@@ -56,7 +57,7 @@ class MailboxApiImpl implements MailboxApi {
 	}
 
 	@Override
-	public MailboxAuthToken setup(MailboxProperties properties)
+	public MailboxProperties setup(MailboxProperties properties)
 			throws IOException, ApiException {
 		if (!properties.isOwner()) throw new IllegalArgumentException();
 		Request request = getRequestBuilder(properties.getAuthToken())
@@ -75,8 +76,27 @@ class MailboxApiImpl implements MailboxApi {
 			if (tokenNode == null) {
 				throw new ApiException();
 			}
-			String ownerToken = tokenNode.textValue();
-			return MailboxAuthToken.fromString(ownerToken);
+			List<MailboxVersion> serverSupports = new ArrayList<>();
+			ArrayNode serverSupportsNode = getArray(node, "serverSupports");
+			for (JsonNode versionNode : serverSupportsNode) {
+				if (!versionNode.isObject()) throw new ApiException();
+				ObjectNode objectNode = (ObjectNode) versionNode;
+				JsonNode majorNode = objectNode.get("major");
+				JsonNode minorNode = objectNode.get("minor");
+				if (majorNode == null || !majorNode.isNumber()) {
+					throw new ApiException();
+				}
+				if (minorNode == null || !minorNode.isNumber()) {
+					throw new ApiException();
+				}
+				int major = majorNode.asInt();
+				int minor = minorNode.asInt();
+				if (major < 0 || minor < 0) throw new ApiException();
+				serverSupports.add(new MailboxVersion(major, minor));
+			}
+			return new MailboxProperties(properties.getBaseUrl(),
+					MailboxAuthToken.fromString(tokenNode.textValue()),
+					true, serverSupports);
 		} catch (JacksonException | InvalidMailboxIdException e) {
 			throw new ApiException();
 		}

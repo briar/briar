@@ -27,6 +27,7 @@ import org.briarproject.bramble.test.BrambleMockTestCase;
 import org.jmock.Expectations;
 import org.junit.Test;
 
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -76,7 +77,7 @@ public class MailboxPropertyManagerImplTest extends BrambleMockTestCase {
 
 	public MailboxPropertyManagerImplTest() {
 		ownProps = new MailboxProperties("http://bar.onion",
-				new MailboxAuthToken(getRandomId()), true);
+				new MailboxAuthToken(getRandomId()), true, new ArrayList<>());
 		props = new MailboxPropertiesUpdate(ownProps.getOnion(),
 				new MailboxAuthToken(getRandomId()),
 				new MailboxFolderId(getRandomId()),

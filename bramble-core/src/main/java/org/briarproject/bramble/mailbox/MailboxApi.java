@@ -27,7 +27,7 @@ interface MailboxApi {
 	 * @return the owner token
 	 * @throws ApiException for 401 response.
 	 */
-	MailboxAuthToken setup(MailboxProperties properties)
+	MailboxProperties setup(MailboxProperties properties)
 			throws IOException, ApiException;
 
 	/**

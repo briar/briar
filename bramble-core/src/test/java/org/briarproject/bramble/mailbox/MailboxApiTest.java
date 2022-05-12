@@ -37,6 +37,7 @@ import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static org.briarproject.bramble.test.TestUtils.getContactId;
 import static org.briarproject.bramble.test.TestUtils.getRandomBytes;
 import static org.briarproject.bramble.test.TestUtils.getRandomId;
+import static org.briarproject.bramble.test.TestUtils.mailboxPropertiesEqual;
 import static org.briarproject.bramble.test.TestUtils.readBytes;
 import static org.briarproject.bramble.test.TestUtils.writeBytes;
 import static org.briarproject.bramble.util.StringUtils.getRandomString;
@@ -80,11 +81,20 @@ public class MailboxApiTest extends BrambleTestCase {
 
 	@Test
 	public void testSetup() throws Exception {
-		String validResponse = "{\"token\":\"" + token2 + "\"}";
+		String validVersions = "[ {\"major\":1,\"minor\":0} ]";
+		String validResponse = makeSetupResponse(
+				"\"" + token2 + "\"", validVersions);
 		String invalidResponse = "{\"foo\":\"bar\"}";
-		String invalidTokenResponse = "{\"token\":{\"foo\":\"bar\"}}";
-		String invalidTokenResponse2 =
-				"{\"token\":\"" + getRandomString(64) + "\"}";
+		String invalidTokenResponse = makeSetupResponse(
+				"{\"foo\":\"bar\"}", validVersions);
+		String invalidTokenResponse2 = makeSetupResponse(
+				"\"" + getRandomString(64) + "\"", validVersions);
+		String invalidVersionsResponse = makeSetupResponse(
+				"\"" + token2 + "\"", "42");
+		String invalidVersionsResponse2 = makeSetupResponse(
+				"\"" + token2 + "\"", "[ 1,0 ]");
+		String invalidVersionsResponse3 = makeSetupResponse(
+				"\"" + token2 + "\"", "[ {\"major\":1, \"minor\":-1} ]");
 
 		MockWebServer server = new MockWebServer();
 		server.enqueue(new MockResponse().setBody(validResponse));
@@ -94,15 +104,18 @@ public class MailboxApiTest extends BrambleTestCase {
 		server.enqueue(new MockResponse().setResponseCode(500));
 		server.enqueue(new MockResponse().setBody(invalidTokenResponse));
 		server.enqueue(new MockResponse().setBody(invalidTokenResponse2));
+		server.enqueue(new MockResponse().setBody(invalidVersionsResponse));
+		server.enqueue(new MockResponse().setBody(invalidVersionsResponse2));
+		server.enqueue(new MockResponse().setBody(invalidVersionsResponse3));
 		server.start();
 		String baseUrl = getBaseUrl(server);
 		MailboxProperties properties =
-				new MailboxProperties(baseUrl, token, true);
+				new MailboxProperties(baseUrl, token, true, new ArrayList<>());
 		MailboxProperties properties2 =
-				new MailboxProperties(baseUrl, token2, true);
+				new MailboxProperties(baseUrl, token2, true, new ArrayList<>());
 
 		// valid response with valid token
-		assertEquals(token2, api.setup(properties));
+		mailboxPropertiesEqual(properties2, api.setup(properties));
 		RecordedRequest request1 = server.takeRequest();
 		assertEquals("/setup", request1.getPath());
 		assertEquals("PUT", request1.getMethod());
@@ -149,12 +162,38 @@ public class MailboxApiTest extends BrambleTestCase {
 		assertEquals("/setup", request7.getPath());
 		assertEquals("PUT", request7.getMethod());
 		assertToken(request7, token);
+
+		// invalid non-array serverSupports response
+		assertThrows(ApiException.class, () -> api.setup(properties));
+		RecordedRequest request8 = server.takeRequest();
+		assertEquals("/setup", request8.getPath());
+		assertEquals("PUT", request8.getMethod());
+		assertToken(request8, token);
+
+		// invalid non-object in serverSupports array response
+		assertThrows(ApiException.class, () -> api.setup(properties));
+		RecordedRequest request9 = server.takeRequest();
+		assertEquals("/setup", request9.getPath());
+		assertEquals("PUT", request9.getMethod());
+		assertToken(request9, token);
+
+		// invalid negative minor version in serverSupports response
+		assertThrows(ApiException.class, () -> api.setup(properties));
+		RecordedRequest request10 = server.takeRequest();
+		assertEquals("/setup", request10.getPath());
+		assertEquals("PUT", request10.getMethod());
+		assertToken(request10, token);
+	}
+
+	private String makeSetupResponse(String token, String versions) {
+		return "{\"token\":" + token + "," +
+				"\"serverSupports\":" + versions + "}";
 	}
 
 	@Test
 	public void testSetupOnlyForOwner() {
 		MailboxProperties properties =
-				new MailboxProperties("", token, false);
+				new MailboxProperties("", token, false, new ArrayList<>());
 		assertThrows(
 				IllegalArgumentException.class,
 				() -> api.setup(properties)
@@ -170,9 +209,9 @@ public class MailboxApiTest extends BrambleTestCase {
 		server.start();
 		String baseUrl = getBaseUrl(server);
 		MailboxProperties properties =
-				new MailboxProperties(baseUrl, token, true);
+				new MailboxProperties(baseUrl, token, true, new ArrayList<>());
 		MailboxProperties properties2 =
-				new MailboxProperties(baseUrl, token2, true);
+				new MailboxProperties(baseUrl, token2, true, new ArrayList<>());
 
 		assertTrue(api.checkStatus(properties));
 		RecordedRequest request1 = server.takeRequest();
@@ -193,7 +232,7 @@ public class MailboxApiTest extends BrambleTestCase {
 	@Test
 	public void testStatusOnlyForOwner() {
 		MailboxProperties properties =
-				new MailboxProperties("", token, false);
+				new MailboxProperties("", token, false, new ArrayList<>());
 		assertThrows(
 				IllegalArgumentException.class,
 				() -> api.checkStatus(properties)
@@ -210,9 +249,9 @@ public class MailboxApiTest extends BrambleTestCase {
 		server.start();
 		String baseUrl = getBaseUrl(server);
 		MailboxProperties properties =
-				new MailboxProperties(baseUrl, token, true);
+				new MailboxProperties(baseUrl, token, true, new ArrayList<>());
 		MailboxProperties properties2 =
-				new MailboxProperties(baseUrl, token2, true);
+				new MailboxProperties(baseUrl, token2, true, new ArrayList<>());
 
 		api.wipeMailbox(properties);
 		RecordedRequest request1 = server.takeRequest();
@@ -242,7 +281,7 @@ public class MailboxApiTest extends BrambleTestCase {
 	@Test
 	public void testWipeOnlyForOwner() {
 		MailboxProperties properties =
-				new MailboxProperties("", token, false);
+				new MailboxProperties("", token, false, new ArrayList<>());
 		assertThrows(IllegalArgumentException.class, () ->
 				api.wipeMailbox(properties));
 	}
@@ -256,7 +295,7 @@ public class MailboxApiTest extends BrambleTestCase {
 		server.start();
 		String baseUrl = getBaseUrl(server);
 		MailboxProperties properties =
-				new MailboxProperties(baseUrl, token, true);
+				new MailboxProperties(baseUrl, token, true, new ArrayList<>());
 
 		// contact gets added as expected
 		api.addContact(properties, mailboxContact);
@@ -288,7 +327,7 @@ public class MailboxApiTest extends BrambleTestCase {
 	@Test
 	public void testAddContactOnlyForOwner() {
 		MailboxProperties properties =
-				new MailboxProperties("", token, false);
+				new MailboxProperties("", token, false, new ArrayList<>());
 		assertThrows(IllegalArgumentException.class, () ->
 				api.addContact(properties, mailboxContact));
 	}
@@ -303,7 +342,7 @@ public class MailboxApiTest extends BrambleTestCase {
 		server.start();
 		String baseUrl = getBaseUrl(server);
 		MailboxProperties properties =
-				new MailboxProperties(baseUrl, token, true);
+				new MailboxProperties(baseUrl, token, true, new ArrayList<>());
 
 		// contact gets deleted as expected
 		api.deleteContact(properties, contactId);
@@ -340,7 +379,7 @@ public class MailboxApiTest extends BrambleTestCase {
 	@Test
 	public void testDeleteContactOnlyForOwner() {
 		MailboxProperties properties =
-				new MailboxProperties("", token, false);
+				new MailboxProperties("", token, false, new ArrayList<>());
 		assertThrows(IllegalArgumentException.class, () ->
 				api.deleteContact(properties, contactId));
 	}
@@ -367,7 +406,7 @@ public class MailboxApiTest extends BrambleTestCase {
 		server.start();
 		String baseUrl = getBaseUrl(server);
 		MailboxProperties properties =
-				new MailboxProperties(baseUrl, token, true);
+				new MailboxProperties(baseUrl, token, true, new ArrayList<>());
 
 		// valid response with two contacts
 		assertEquals(singletonList(contactId), api.getContacts(properties));
@@ -432,7 +471,7 @@ public class MailboxApiTest extends BrambleTestCase {
 	@Test
 	public void testGetContactsOnlyForOwner() {
 		MailboxProperties properties =
-				new MailboxProperties("", token, false);
+				new MailboxProperties("", token, false, new ArrayList<>());
 		assertThrows(
 				IllegalArgumentException.class,
 				() -> api.getContacts(properties)
@@ -452,7 +491,7 @@ public class MailboxApiTest extends BrambleTestCase {
 		server.start();
 		String baseUrl = getBaseUrl(server);
 		MailboxProperties properties =
-				new MailboxProperties(baseUrl, token, true);
+				new MailboxProperties(baseUrl, token, true, new ArrayList<>());
 
 		// file gets uploaded as expected
 		api.addFile(properties, contactInboxId, file);
@@ -511,7 +550,7 @@ public class MailboxApiTest extends BrambleTestCase {
 		server.start();
 		String baseUrl = getBaseUrl(server);
 		MailboxProperties properties =
-				new MailboxProperties(baseUrl, token, true);
+				new MailboxProperties(baseUrl, token, true, new ArrayList<>());
 
 		// valid response with one file
 		List<MailboxFile> received1 = api.getFiles(properties, contactInboxId);
@@ -607,7 +646,7 @@ public class MailboxApiTest extends BrambleTestCase {
 		server.start();
 		String baseUrl = getBaseUrl(server);
 		MailboxProperties properties =
-				new MailboxProperties(baseUrl, token, true);
+				new MailboxProperties(baseUrl, token, true, new ArrayList<>());
 
 		// file gets downloaded as expected
 		api.getFile(properties, contactOutboxId, name, file1);
@@ -651,7 +690,7 @@ public class MailboxApiTest extends BrambleTestCase {
 		server.start();
 		String baseUrl = getBaseUrl(server);
 		MailboxProperties properties =
-				new MailboxProperties(baseUrl, token, true);
+				new MailboxProperties(baseUrl, token, true, new ArrayList<>());
 
 		// file gets deleted as expected
 		api.deleteFile(properties, contactInboxId, name);
@@ -715,7 +754,7 @@ public class MailboxApiTest extends BrambleTestCase {
 		server.start();
 		String baseUrl = getBaseUrl(server);
 		MailboxProperties properties =
-				new MailboxProperties(baseUrl, token, true);
+				new MailboxProperties(baseUrl, token, true, new ArrayList<>());
 
 		// valid response with one folders
 		assertEquals(singletonList(id1), api.getFolders(properties));
@@ -784,7 +823,7 @@ public class MailboxApiTest extends BrambleTestCase {
 	@Test
 	public void testGetFoldersOnlyForOwner() {
 		MailboxProperties properties =
-				new MailboxProperties("", token, false);
+				new MailboxProperties("", token, false, new ArrayList<>());
 		assertThrows(IllegalArgumentException.class, () ->
 				api.getFolders(properties));
 	}

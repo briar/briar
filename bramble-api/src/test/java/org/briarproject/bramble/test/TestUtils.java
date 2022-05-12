@@ -20,6 +20,7 @@ import org.briarproject.bramble.api.identity.Author;
 import org.briarproject.bramble.api.identity.AuthorId;
 import org.briarproject.bramble.api.identity.Identity;
 import org.briarproject.bramble.api.identity.LocalAuthor;
+import org.briarproject.bramble.api.mailbox.MailboxProperties;
 import org.briarproject.bramble.api.mailbox.MailboxPropertiesUpdate;
 import org.briarproject.bramble.api.plugin.TransportId;
 import org.briarproject.bramble.api.properties.TransportProperties;
@@ -289,6 +290,18 @@ public class TestUtils {
 				a.getAuthToken().equals(b.getAuthToken()) &&
 				a.getInboxId().equals(b.getInboxId()) &&
 				a.getOutboxId().equals(b.getOutboxId());
+	}
+
+	public static boolean mailboxPropertiesEqual(
+			@Nullable MailboxProperties a,
+			@Nullable MailboxProperties b) {
+		if (a == null || b == null) {
+			return a == b;
+		}
+		return a.getOnion().equals(b.getOnion()) &&
+				a.getAuthToken().equals(b.getAuthToken()) &&
+				a.isOwner() == b.isOwner() &&
+				a.getServerSupports().equals(b.getServerSupports());
 	}
 
 	public static boolean hasEvent(Transaction txn,
