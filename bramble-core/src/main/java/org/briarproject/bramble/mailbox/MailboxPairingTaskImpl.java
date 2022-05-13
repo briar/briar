@@ -127,7 +127,7 @@ class MailboxPairingTaskImpl implements MailboxPairingTask {
 			for (Contact c : db.getContacts(txn)) {
 				MailboxPropertiesUpdate remoteProps = mailboxPropertyManager
 						.getRemoteProperties(txn, c.getId());
-				if (remoteProps == null) {
+				if (remoteProps == null || !remoteProps.hasMailbox()) {
 					db.resetUnackedMessagesToSend(txn, c.getId());
 				}
 			}

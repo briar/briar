@@ -31,14 +31,20 @@ class MailboxPropertyValidator extends BdfMessageValidator {
 	@Override
 	protected BdfMessageContext validateMessage(Message m, Group g,
 			BdfList body) throws InvalidMessageException, FormatException {
-		// Version, properties
-		checkSize(body, 2);
+		// Version, Properties, clientSupports, serverSupports
+		checkSize(body, 4);
 		// Version
 		long version = body.getLong(0);
 		if (version < 0) throw new FormatException();
+		// clientSupports
+		BdfList clientSupports = body.getList(1);
+		// serverSupports
+		BdfList serverSupports = body.getList(2);
 		// Properties
-		BdfDictionary dictionary = body.getDictionary(1);
-		clientHelper.parseAndValidateMailboxPropertiesUpdate(dictionary);
+		BdfDictionary dictionary = body.getDictionary(3);
+		clientHelper.parseAndValidateMailboxPropertiesUpdate(clientSupports,
+				serverSupports, dictionary
+		);
 		// Return the metadata
 		BdfDictionary meta = new BdfDictionary();
 		meta.put(MSG_KEY_VERSION, version);

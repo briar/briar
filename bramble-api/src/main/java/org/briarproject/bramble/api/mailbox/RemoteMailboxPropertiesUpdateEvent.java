@@ -4,7 +4,6 @@ import org.briarproject.bramble.api.contact.ContactId;
 import org.briarproject.bramble.api.event.Event;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 
-import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 
 /**
@@ -16,11 +15,10 @@ import javax.annotation.concurrent.Immutable;
 public class RemoteMailboxPropertiesUpdateEvent extends Event {
 
 	private final ContactId contactId;
-	@Nullable
 	private final MailboxPropertiesUpdate mailboxPropertiesUpdate;
 
 	public RemoteMailboxPropertiesUpdateEvent(ContactId contactId,
-			@Nullable MailboxPropertiesUpdate mailboxPropertiesUpdate) {
+			MailboxPropertiesUpdate mailboxPropertiesUpdate) {
 		this.contactId = contactId;
 		this.mailboxPropertiesUpdate = mailboxPropertiesUpdate;
 	}
@@ -29,7 +27,6 @@ public class RemoteMailboxPropertiesUpdateEvent extends Event {
 		return contactId;
 	}
 
-	@Nullable
 	public MailboxPropertiesUpdate getMailboxPropertiesUpdate() {
 		return mailboxPropertiesUpdate;
 	}

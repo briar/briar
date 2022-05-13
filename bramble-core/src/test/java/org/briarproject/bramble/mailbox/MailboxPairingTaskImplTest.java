@@ -9,6 +9,7 @@ import org.briarproject.bramble.api.mailbox.MailboxAuthToken;
 import org.briarproject.bramble.api.mailbox.MailboxPairingState;
 import org.briarproject.bramble.api.mailbox.MailboxPairingTask;
 import org.briarproject.bramble.api.mailbox.MailboxProperties;
+import org.briarproject.bramble.api.mailbox.MailboxPropertiesUpdate;
 import org.briarproject.bramble.api.mailbox.MailboxPropertyManager;
 import org.briarproject.bramble.api.mailbox.MailboxSettingsManager;
 import org.briarproject.bramble.api.mailbox.OwnMailboxConnectionStatusEvent;
@@ -24,10 +25,11 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import static java.util.Collections.singletonList;
+import static org.briarproject.bramble.mailbox.MailboxApi.CLIENT_SUPPORTS;
 import static org.briarproject.bramble.test.TestUtils.getContact;
 import static org.briarproject.bramble.test.TestUtils.getRandomBytes;
 import static org.briarproject.bramble.test.TestUtils.getRandomId;
@@ -105,16 +107,18 @@ public class MailboxPairingTaskImplTest extends BrambleMockTestCase {
 		}});
 		Contact contact1 = getContact();
 		Transaction txn = new Transaction(null, false);
+		MailboxPropertiesUpdate emptyProps = new MailboxPropertiesUpdate(
+				CLIENT_SUPPORTS);
 		context.checking(new DbExpectations() {{
 			oneOf(db).transaction(with(false), withDbRunnable(txn));
 			oneOf(mailboxSettingsManager).setOwnMailboxProperties(
 					with(txn), with(matches(ownerProperties)));
 			oneOf(mailboxSettingsManager).recordSuccessfulConnection(txn, time);
 			oneOf(db).getContacts(txn);
-			will(returnValue(Collections.singletonList(contact1)));
+			will(returnValue(singletonList(contact1)));
 			oneOf(mailboxPropertyManager).getRemoteProperties(txn,
 					contact1.getId());
-			will(returnValue(null));
+			will(returnValue(emptyProps));
 			oneOf(db).resetUnackedMessagesToSend(txn, contact1.getId());
 		}});
 

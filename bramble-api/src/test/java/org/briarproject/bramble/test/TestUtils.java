@@ -22,6 +22,7 @@ import org.briarproject.bramble.api.identity.Identity;
 import org.briarproject.bramble.api.identity.LocalAuthor;
 import org.briarproject.bramble.api.mailbox.MailboxProperties;
 import org.briarproject.bramble.api.mailbox.MailboxPropertiesUpdate;
+import org.briarproject.bramble.api.mailbox.MailboxPropertiesUpdateMailbox;
 import org.briarproject.bramble.api.plugin.TransportId;
 import org.briarproject.bramble.api.properties.TransportProperties;
 import org.briarproject.bramble.api.sync.ClientId;
@@ -286,10 +287,21 @@ public class TestUtils {
 		if (a == null || b == null) {
 			return a == b;
 		}
-		return a.getOnion().equals(b.getOnion()) &&
-				a.getAuthToken().equals(b.getAuthToken()) &&
-				a.getInboxId().equals(b.getInboxId()) &&
-				a.getOutboxId().equals(b.getOutboxId());
+		if (!a.hasMailbox() && !b.hasMailbox()) {
+			return a.getClientSupports().equals(b.getClientSupports());
+		} else if (a.hasMailbox() && b.hasMailbox()) {
+			MailboxPropertiesUpdateMailbox am =
+					(MailboxPropertiesUpdateMailbox) a;
+			MailboxPropertiesUpdateMailbox bm =
+					(MailboxPropertiesUpdateMailbox) b;
+			return am.getClientSupports().equals(bm.getClientSupports()) &&
+					am.getServerSupports().equals(bm.getServerSupports()) &&
+					am.getOnion().equals(bm.getOnion()) &&
+					am.getAuthToken().equals(bm.getAuthToken()) &&
+					am.getInboxId().equals(bm.getInboxId()) &&
+					am.getOutboxId().equals(bm.getOutboxId());
+		}
+		return false;
 	}
 
 	public static boolean mailboxPropertiesEqual(

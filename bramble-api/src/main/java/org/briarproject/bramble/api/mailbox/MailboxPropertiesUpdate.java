@@ -2,40 +2,27 @@ package org.briarproject.bramble.api.mailbox;
 
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 
+import java.util.List;
+
 import javax.annotation.concurrent.Immutable;
 
 @Immutable
 @NotNullByDefault
 public class MailboxPropertiesUpdate {
 
-	private final String onion;
-	private final MailboxAuthToken authToken;
-	private final MailboxFolderId inboxId;
-	private final MailboxFolderId outboxId;
+	boolean hasMailbox;
+	private final List<MailboxVersion> clientSupports;
 
-	public MailboxPropertiesUpdate(String onion,
-			MailboxAuthToken authToken, MailboxFolderId inboxId,
-			MailboxFolderId outboxId) {
-		this.onion = onion;
-		this.authToken = authToken;
-		this.inboxId = inboxId;
-		this.outboxId = outboxId;
+	public MailboxPropertiesUpdate(List<MailboxVersion> clientSupports) {
+		this.hasMailbox = false;
+		this.clientSupports = clientSupports;
 	}
 
-	public String getOnion() {
-		return onion;
+	public List<MailboxVersion> getClientSupports() {
+		return clientSupports;
 	}
 
-	public MailboxAuthToken getAuthToken() {
-		return authToken;
+	public boolean hasMailbox() {
+		return hasMailbox;
 	}
-
-	public MailboxFolderId getInboxId() {
-		return inboxId;
-	}
-
-	public MailboxFolderId getOutboxId() {
-		return outboxId;
-	}
-
 }
