@@ -172,17 +172,28 @@ public abstract class BriarIntegrationTest<C extends BriarIntegrationTestCompone
 				true);
 		contact0From2 = contactManager2.getContact(contactId0From2);
 
-		// Sync initial client versioning updates and mailbox updates
+		// Sync client versioning update from 0 to 1
 		sync0To1(1, true);
+		// Sync client versioning update and ack from 1 to 0
 		sync1To0(1, true);
+		// Sync second client versioning update, mailbox properties and ack
+		// from 0 to 1
 		sync0To1(2, true);
+		// Sync mailbox properties and ack from 1 to 0
 		sync1To0(1, true);
+		// Sync final ack from 0 to 1
 		ack0To1(1);
 
+		// Sync client versioning update from 0 to 2
 		sync0To2(1, true);
+		// Sync client versioning update and ack from 2 to 0
 		sync2To0(1, true);
+		// Sync second client versioning update, mailbox properties and ack
+		// from 0 to 2
 		sync0To2(2, true);
+		// Sync mailbox properties and ack from 2 to 0
 		sync2To0(1, true);
+		// Sync final ack from 0 to 2
 		ack0To2(1);
 	}
 
@@ -199,18 +210,26 @@ public abstract class BriarIntegrationTest<C extends BriarIntegrationTestCompone
 				rootKey1_2, c2.getClock().currentTimeMillis(), false, true,
 				true);
 
-		// Sync initial client versioning updates
+		// Sync initial client versioning update from 1 to 2
 		sync1To2(1, true);
+		// Sync initial client versioning update and ack from 2 to 1
 		sync2To1(1, true);
-		// Sync 2nd client versioning msg from 1to2, mailbox updates, and
-		// transport properties if we should
 		if (haveTransportProperties) {
+			// Sync second client versioning update, mailbox properties,
+			// transport properties and ack from 1 to 2
 			sync1To2(3, true);
+			// Sync mailbox properties, transport properties and acks
+			// from 2 to 1
 			sync2To1(2, true);
+			// Sync final acks from 1 to 2
 			ack1To2(2);
 		} else {
+			// Sync second client versioning update, mailbox properties
+			// and ack from 1 to 2
 			sync1To2(2, true);
+			// Sync mailbox properties and acks from 2 to 1
 			sync2To1(1, true);
+			// Sync final ack from 1 to 2
 			ack1To2(1);
 		}
 	}
