@@ -233,6 +233,9 @@ class ValidationManagerImpl implements ValidationManager, Service,
 		if (v == null) {
 			if (LOG.isLoggable(WARNING)) LOG.warning("No validator for " + cv);
 		} else {
+			if (LOG.isLoggable(INFO)) {
+				LOG.info("Validating message for " + cv.getClientId());
+			}
 			try {
 				MessageContext context = v.validateMessage(m, g);
 				storeMessageContextAsync(m, g.getClientId(),
@@ -323,6 +326,9 @@ class ValidationManagerImpl implements ValidationManager, Service,
 		ClientMajorVersion cv = new ClientMajorVersion(c, majorVersion);
 		IncomingMessageHook hook = hooks.get(cv);
 		if (hook == null) return ACCEPT_DO_NOT_SHARE;
+		if (LOG.isLoggable(INFO)) {
+			LOG.info("Delivering message for " + c);
+		}
 		try {
 			return hook.incomingMessage(txn, m, meta);
 		} catch (DbException e) {
