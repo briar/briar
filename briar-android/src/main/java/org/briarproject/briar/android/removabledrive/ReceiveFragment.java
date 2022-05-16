@@ -15,11 +15,13 @@ import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
 import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.util.ActivityLaunchers.GetContentAdvanced;
+import org.briarproject.briar.android.util.ActivityLaunchers.OpenDocumentAdvanced;
 
 import javax.inject.Inject;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 import androidx.lifecycle.ViewModelProvider;
@@ -28,14 +30,19 @@ import static android.view.View.FOCUS_DOWN;
 import static android.view.View.VISIBLE;
 import static android.widget.Toast.LENGTH_LONG;
 import static org.briarproject.briar.android.AppModule.getAndroidComponent;
+import static org.briarproject.briar.android.util.UiUtils.launchActivityToOpenFile;
 
+@RequiresApi(19)
 @MethodsNotNullByDefault
 @ParametersNotNullByDefault
 public class ReceiveFragment extends Fragment {
 
 	final static String TAG = ReceiveFragment.class.getName();
 
-	private final ActivityResultLauncher<String> launcher =
+	private final ActivityResultLauncher<String[]> docLauncher =
+			registerForActivityResult(new OpenDocumentAdvanced(),
+					this::onDocumentChosen);
+	private final ActivityResultLauncher<String> contentLauncher =
 			registerForActivityResult(new GetContentAdvanced(),
 					this::onDocumentChosen);
 
@@ -69,8 +76,8 @@ public class ReceiveFragment extends Fragment {
 		progressBar = v.findViewById(R.id.progressBar);
 		button = v.findViewById(R.id.fileButton);
 		button.setOnClickListener(view ->
-				launcher.launch("*/*")
-		);
+				launchActivityToOpenFile(requireContext(),
+						docLauncher, contentLauncher, "*/*"));
 		viewModel.getOldTaskResumedEvent()
 				.observeEvent(getViewLifecycleOwner(), this::onOldTaskResumed);
 		viewModel.getState()

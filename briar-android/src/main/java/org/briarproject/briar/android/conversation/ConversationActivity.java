@@ -58,6 +58,7 @@ import org.briarproject.briar.android.privategroup.conversation.GroupActivity;
 import org.briarproject.briar.android.removabledrive.RemovableDriveActivity;
 import org.briarproject.briar.android.util.ActivityLaunchers.GetImageAdvanced;
 import org.briarproject.briar.android.util.ActivityLaunchers.GetMultipleImagesAdvanced;
+import org.briarproject.briar.android.util.ActivityLaunchers.OpenMultipleImageDocumentsAdvanced;
 import org.briarproject.briar.android.util.BriarSnackbarBuilder;
 import org.briarproject.briar.android.view.BriarRecyclerView;
 import org.briarproject.briar.android.view.ImagePreview;
@@ -143,6 +144,7 @@ import static org.briarproject.briar.android.conversation.ImageActivity.ATTACHME
 import static org.briarproject.briar.android.conversation.ImageActivity.DATE;
 import static org.briarproject.briar.android.conversation.ImageActivity.ITEM_ID;
 import static org.briarproject.briar.android.conversation.ImageActivity.NAME;
+import static org.briarproject.briar.android.util.UiUtils.launchActivityToOpenFile;
 import static org.briarproject.briar.android.util.UiUtils.observeOnce;
 import static org.briarproject.briar.android.view.AuthorView.setAvatar;
 import static org.briarproject.briar.api.messaging.MessagingConstants.MAX_ATTACHMENTS_PER_MESSAGE;
@@ -196,12 +198,18 @@ public class ConversationActivity extends BriarActivity
 		requireNonNull(name);
 		loadMessages();
 	};
-	private final ActivityResultLauncher<String> launcher = SDK_INT >= 18 ?
-			registerForActivityResult(new GetMultipleImagesAdvanced(),
+	@Nullable
+	private final ActivityResultLauncher<String[]> docLauncher = SDK_INT >= 19 ?
+			registerForActivityResult(new OpenMultipleImageDocumentsAdvanced(),
 					this::onImagesChosen) :
-			registerForActivityResult(new GetImageAdvanced(), uri -> {
-				if (uri != null) onImagesChosen(singletonList(uri));
-			});
+			null;
+	private final ActivityResultLauncher<String> contentLauncher =
+			SDK_INT >= 18 ?
+					registerForActivityResult(new GetMultipleImagesAdvanced(),
+							this::onImagesChosen) :
+					registerForActivityResult(new GetImageAdvanced(), uri -> {
+						if (uri != null) onImagesChosen(singletonList(uri));
+					});
 
 	private AttachmentRetriever attachmentRetriever;
 	private ConversationViewModel viewModel;
@@ -424,9 +432,11 @@ public class ConversationActivity extends BriarActivity
 			startActivity(intent);
 			return true;
 		} else if (itemId == R.id.action_transfer_data) {
-			Intent intent = new Intent(this, RemovableDriveActivity.class);
-			intent.putExtra(CONTACT_ID, contactId.getInt());
-			startActivity(intent);
+			if (SDK_INT >= 19) {
+				Intent intent = new Intent(this, RemovableDriveActivity.class);
+				intent.putExtra(CONTACT_ID, contactId.getInt());
+				startActivity(intent);
+			}
 			return true;
 		} else if (itemId == R.id.action_delete_all_messages) {
 			askToDeleteAllMessages();
@@ -774,7 +784,7 @@ public class ConversationActivity extends BriarActivity
 
 	@Override
 	public void onAttachImageClicked() {
-		launcher.launch("image/*");
+		launchActivityToOpenFile(this, docLauncher, contentLauncher, "image/*");
 	}
 
 	private void onImagesChosen(@Nullable List<Uri> uris) {

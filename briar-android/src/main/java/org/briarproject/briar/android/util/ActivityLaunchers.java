@@ -1,6 +1,5 @@
 package org.briarproject.briar.android.util;
 
-import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.Intent;
 
@@ -10,8 +9,11 @@ import androidx.activity.result.contract.ActivityResultContract;
 import androidx.activity.result.contract.ActivityResultContracts.CreateDocument;
 import androidx.activity.result.contract.ActivityResultContracts.GetContent;
 import androidx.activity.result.contract.ActivityResultContracts.GetMultipleContents;
+import androidx.activity.result.contract.ActivityResultContracts.OpenDocument;
+import androidx.activity.result.contract.ActivityResultContracts.OpenMultipleDocuments;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 
 import static android.app.Activity.RESULT_CANCELED;
 import static android.bluetooth.BluetoothAdapter.ACTION_REQUEST_DISCOVERABLE;
@@ -24,6 +26,7 @@ import static org.briarproject.bramble.util.AndroidUtils.getSupportedImageConten
 @NotNullByDefault
 public class ActivityLaunchers {
 
+	@RequiresApi(19)
 	public static class CreateDocumentAdvanced extends CreateDocument {
 		@NonNull
 		@Override
@@ -45,6 +48,19 @@ public class ActivityLaunchers {
 		}
 	}
 
+	@RequiresApi(19)
+	public static class OpenDocumentAdvanced extends OpenDocument {
+		@NonNull
+		@Override
+		public Intent createIntent(Context context, String[] input) {
+			Intent i = super.createIntent(context, input);
+			putShowAdvancedExtra(i);
+			i.setType("/*");
+			i.addFlags(FLAG_GRANT_READ_URI_PERMISSION);
+			return i;
+		}
+	}
+
 	public static class GetImageAdvanced extends GetContent {
 		@NonNull
 		@Override
@@ -59,11 +75,42 @@ public class ActivityLaunchers {
 		}
 	}
 
-	@TargetApi(18)
+	@RequiresApi(18)
 	public static class GetMultipleImagesAdvanced extends GetMultipleContents {
 		@NonNull
 		@Override
 		public Intent createIntent(Context context, String input) {
+			Intent i = super.createIntent(context, input);
+			putShowAdvancedExtra(i);
+			i.setType("image/*");
+			i.addFlags(FLAG_GRANT_READ_URI_PERMISSION);
+			if (SDK_INT >= 19)
+				i.putExtra(EXTRA_MIME_TYPES, getSupportedImageContentTypes());
+			return i;
+		}
+	}
+
+	@RequiresApi(19)
+	public static class OpenImageDocumentAdvanced extends OpenDocument {
+		@NonNull
+		@Override
+		public Intent createIntent(Context context, String[] input) {
+			Intent i = super.createIntent(context, input);
+			putShowAdvancedExtra(i);
+			i.setType("image/*");
+			i.addFlags(FLAG_GRANT_READ_URI_PERMISSION);
+			if (SDK_INT >= 19)
+				i.putExtra(EXTRA_MIME_TYPES, getSupportedImageContentTypes());
+			return i;
+		}
+	}
+
+	@RequiresApi(19)
+	public static class OpenMultipleImageDocumentsAdvanced
+			extends OpenMultipleDocuments {
+		@NonNull
+		@Override
+		public Intent createIntent(Context context, String[] input) {
 			Intent i = super.createIntent(context, input);
 			putShowAdvancedExtra(i);
 			i.setType("image/*");

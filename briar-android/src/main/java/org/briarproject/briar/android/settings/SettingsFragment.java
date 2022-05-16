@@ -11,6 +11,7 @@ import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.mailbox.MailboxActivity;
 import org.briarproject.briar.android.util.ActivityLaunchers.GetImageAdvanced;
+import org.briarproject.briar.android.util.ActivityLaunchers.OpenImageDocumentAdvanced;
 
 import javax.inject.Inject;
 
@@ -23,9 +24,11 @@ import androidx.preference.Preference;
 import androidx.preference.PreferenceFragmentCompat;
 import androidx.preference.PreferenceGroup;
 
+import static android.os.Build.VERSION.SDK_INT;
 import static java.util.Objects.requireNonNull;
 import static org.briarproject.briar.android.AppModule.getAndroidComponent;
 import static org.briarproject.briar.android.TestingConstants.IS_DEBUG_BUILD;
+import static org.briarproject.briar.android.util.UiUtils.launchActivityToOpenFile;
 import static org.briarproject.briar.android.util.UiUtils.triggerFeedback;
 
 @MethodsNotNullByDefault
@@ -46,7 +49,12 @@ public class SettingsFragment extends PreferenceFragmentCompat {
 	private SettingsViewModel viewModel;
 	private AvatarPreference prefAvatar;
 
-	private final ActivityResultLauncher<String> launcher =
+	@Nullable
+	private final ActivityResultLauncher<String[]> docLauncher = SDK_INT >= 19 ?
+			registerForActivityResult(new OpenImageDocumentAdvanced(),
+					this::onImageSelected) :
+			null;
+	private final ActivityResultLauncher<String> contentLauncher =
 			registerForActivityResult(new GetImageAdvanced(),
 					this::onImageSelected);
 
@@ -65,7 +73,8 @@ public class SettingsFragment extends PreferenceFragmentCompat {
 		prefAvatar = requireNonNull(findPreference(PREF_KEY_AVATAR));
 		if (viewModel.shouldEnableProfilePictures()) {
 			prefAvatar.setOnPreferenceClickListener(preference -> {
-				launcher.launch("image/*");
+				launchActivityToOpenFile(requireContext(),
+						docLauncher, contentLauncher, "image/*");
 				return true;
 			});
 		} else {

@@ -1,5 +1,6 @@
 package org.briarproject.briar.android.removabledrive;
 
+import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.net.Uri;
 import android.os.Bundle;
@@ -18,10 +19,13 @@ import org.briarproject.bramble.api.plugin.file.RemovableDriveTask;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.util.ActivityLaunchers.CreateDocumentAdvanced;
 
+import java.util.logging.Logger;
+
 import javax.inject.Inject;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 import androidx.lifecycle.ViewModelProvider;
@@ -30,13 +34,18 @@ import static android.os.Build.VERSION.SDK_INT;
 import static android.view.View.FOCUS_DOWN;
 import static android.view.View.VISIBLE;
 import static android.widget.Toast.LENGTH_LONG;
+import static java.util.logging.Level.WARNING;
+import static java.util.logging.Logger.getLogger;
+import static org.briarproject.bramble.util.LogUtils.logException;
 import static org.briarproject.briar.android.AppModule.getAndroidComponent;
 
+@RequiresApi(19)
 @MethodsNotNullByDefault
 @ParametersNotNullByDefault
 public class SendFragment extends Fragment {
 
 	final static String TAG = SendFragment.class.getName();
+	private static final Logger LOG = getLogger(TAG);
 
 	private final ActivityResultLauncher<String> launcher =
 			registerForActivityResult(new CreateDocumentAdvanced(),
@@ -73,9 +82,15 @@ public class SendFragment extends Fragment {
 		introTextView = v.findViewById(R.id.introTextView);
 		progressBar = v.findViewById(R.id.progressBar);
 		button = v.findViewById(R.id.fileButton);
-		button.setOnClickListener(view ->
-				launcher.launch(viewModel.getFileName())
-		);
+		button.setOnClickListener(view -> {
+			try {
+				launcher.launch(viewModel.getFileName());
+			} catch (ActivityNotFoundException e) {
+				logException(LOG, WARNING, e);
+				Toast.makeText(requireContext(),
+						R.string.error_start_activity, LENGTH_LONG).show();
+			}
+		});
 
 		viewModel.getOldTaskResumedEvent()
 				.observeEvent(getViewLifecycleOwner(), this::onOldTaskResumed);
