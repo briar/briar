@@ -143,7 +143,7 @@ public class MailboxStatusFragment extends Fragment {
 			title = getString(R.string.mailbox_status_problem_title);
 			tintRes = R.color.briar_orange_500;
 			showUnlinkWarning = false;
-			wizardButton.setVisibility(GONE);
+			wizardButton.setVisibility(VISIBLE);
 		} else {
 			tintRes = R.color.briar_red_500;
 			title = getString(R.string.mailbox_status_failure_title);
