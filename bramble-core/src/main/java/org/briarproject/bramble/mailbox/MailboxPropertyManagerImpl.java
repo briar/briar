@@ -180,10 +180,15 @@ class MailboxPropertyManagerImpl implements MailboxPropertyManager,
 	}
 
 	@Override
-	@Nullable
 	public MailboxPropertiesUpdate getLocalProperties(Transaction txn,
 			ContactId c) throws DbException {
-		return getProperties(txn, db.getContact(txn, c), true);
+		MailboxPropertiesUpdate local =
+				getProperties(txn, db.getContact(txn, c), true);
+		// An update (with or without mailbox) is created when contact is added
+		if (local == null) {
+			throw new DbException();
+		}
+		return local;
 	}
 
 	@Override

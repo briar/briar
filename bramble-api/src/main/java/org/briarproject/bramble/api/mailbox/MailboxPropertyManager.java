@@ -57,7 +57,6 @@ public interface MailboxPropertyManager {
 	 */
 	String MSG_KEY_LOCAL = "local";
 
-	@Nullable
 	MailboxPropertiesUpdate getLocalProperties(Transaction txn, ContactId c)
 			throws DbException;
 

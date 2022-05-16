@@ -674,30 +674,6 @@ public class MailboxPropertyManagerImplTest extends BrambleMockTestCase {
 	}
 
 	@Test
-	public void testGetLocalPropertiesReturnsNullBecauseNoUpdate()
-			throws Exception {
-		Transaction txn = new Transaction(null, false);
-		Contact contact = getContact();
-		Group contactGroup = getGroup(CLIENT_ID, MAJOR_VERSION);
-		Map<MessageId, BdfDictionary> emptyMessageMetadata =
-				new LinkedHashMap<>();
-
-		context.checking(new Expectations() {{
-			oneOf(db).getContact(txn, contact.getId());
-			will(returnValue(contact));
-			oneOf(contactGroupFactory).createContactGroup(CLIENT_ID,
-					MAJOR_VERSION, contact);
-			will(returnValue(contactGroup));
-			oneOf(clientHelper).getMessageMetadataAsDictionary(txn,
-					contactGroup.getId());
-			will(returnValue(emptyMessageMetadata));
-		}});
-
-		MailboxPropertyManagerImpl t = createInstance();
-		assertNull(t.getLocalProperties(txn, contact.getId()));
-	}
-
-	@Test
 	public void testGetLocalPropertiesNoMailbox()
 			throws Exception {
 		Transaction txn = new Transaction(null, false);
