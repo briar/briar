@@ -4,8 +4,8 @@ import org.briarproject.bramble.api.crypto.CryptoComponent;
 import org.briarproject.bramble.api.db.DatabaseComponent;
 import org.briarproject.bramble.api.event.EventExecutor;
 import org.briarproject.bramble.api.mailbox.MailboxPairingTask;
-import org.briarproject.bramble.api.mailbox.MailboxPropertyManager;
 import org.briarproject.bramble.api.mailbox.MailboxSettingsManager;
+import org.briarproject.bramble.api.mailbox.MailboxUpdateManager;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.system.Clock;
 
@@ -24,7 +24,7 @@ class MailboxPairingTaskFactoryImpl implements MailboxPairingTaskFactory {
 	private final Clock clock;
 	private final MailboxApi api;
 	private final MailboxSettingsManager mailboxSettingsManager;
-	private final MailboxPropertyManager mailboxPropertyManager;
+	private final MailboxUpdateManager mailboxUpdateManager;
 
 	@Inject
 	MailboxPairingTaskFactoryImpl(
@@ -34,20 +34,20 @@ class MailboxPairingTaskFactoryImpl implements MailboxPairingTaskFactory {
 			Clock clock,
 			MailboxApi api,
 			MailboxSettingsManager mailboxSettingsManager,
-			MailboxPropertyManager mailboxPropertyManager) {
+			MailboxUpdateManager mailboxUpdateManager) {
 		this.eventExecutor = eventExecutor;
 		this.db = db;
 		this.crypto = crypto;
 		this.clock = clock;
 		this.api = api;
 		this.mailboxSettingsManager = mailboxSettingsManager;
-		this.mailboxPropertyManager = mailboxPropertyManager;
+		this.mailboxUpdateManager = mailboxUpdateManager;
 	}
 
 	@Override
 	public MailboxPairingTask createPairingTask(String qrCodePayload) {
 		return new MailboxPairingTaskImpl(qrCodePayload, eventExecutor, db,
 				crypto, clock, api, mailboxSettingsManager,
-				mailboxPropertyManager);
+				mailboxUpdateManager);
 	}
 }

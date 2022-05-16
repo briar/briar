@@ -21,7 +21,8 @@ import org.briarproject.bramble.api.identity.AuthorId;
 import org.briarproject.bramble.api.identity.Identity;
 import org.briarproject.bramble.api.identity.LocalAuthor;
 import org.briarproject.bramble.api.mailbox.MailboxProperties;
-import org.briarproject.bramble.api.mailbox.MailboxPropertiesUpdate;
+import org.briarproject.bramble.api.mailbox.MailboxUpdate;
+import org.briarproject.bramble.api.mailbox.MailboxUpdateWithMailbox;
 import org.briarproject.bramble.api.plugin.TransportId;
 import org.briarproject.bramble.api.properties.TransportProperties;
 import org.briarproject.bramble.api.sync.ClientId;
@@ -280,20 +281,27 @@ public class TestUtils {
 				asList(optionalTests.split(",")).contains(testClass.getName());
 	}
 
-	public static boolean mailboxPropertiesUpdateEqual(
-			@Nullable MailboxPropertiesUpdate a,
-			@Nullable MailboxPropertiesUpdate b) {
+	public static boolean mailboxUpdateEqual(@Nullable MailboxUpdate a,
+			@Nullable MailboxUpdate b) {
 		if (a == null || b == null) {
 			return a == b;
 		}
-		return a.getOnion().equals(b.getOnion()) &&
-				a.getAuthToken().equals(b.getAuthToken()) &&
-				a.getInboxId().equals(b.getInboxId()) &&
-				a.getOutboxId().equals(b.getOutboxId());
+		if (!a.hasMailbox() && !b.hasMailbox()) {
+			return a.getClientSupports().equals(b.getClientSupports());
+		} else if (a.hasMailbox() && b.hasMailbox()) {
+			MailboxUpdateWithMailbox am = (MailboxUpdateWithMailbox) a;
+			MailboxUpdateWithMailbox bm = (MailboxUpdateWithMailbox) b;
+			return am.getClientSupports().equals(bm.getClientSupports()) &&
+					am.getServerSupports().equals(bm.getServerSupports()) &&
+					am.getOnion().equals(bm.getOnion()) &&
+					am.getAuthToken().equals(bm.getAuthToken()) &&
+					am.getInboxId().equals(bm.getInboxId()) &&
+					am.getOutboxId().equals(bm.getOutboxId());
+		}
+		return false;
 	}
 
-	public static boolean mailboxPropertiesEqual(
-			@Nullable MailboxProperties a,
+	public static boolean mailboxPropertiesEqual(@Nullable MailboxProperties a,
 			@Nullable MailboxProperties b) {
 		if (a == null || b == null) {
 			return a == b;

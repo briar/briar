@@ -9,31 +9,31 @@ import org.briarproject.bramble.api.sync.ClientId;
 import javax.annotation.Nullable;
 
 @NotNullByDefault
-public interface MailboxPropertyManager {
+public interface MailboxUpdateManager {
 
 	/**
-	 * The unique ID of the mailbox property client.
+	 * The unique ID of the mailbox update (properties) client.
 	 */
 	ClientId CLIENT_ID =
 			new ClientId("org.briarproject.bramble.mailbox.properties");
 
 	/**
-	 * The current major version of the mailbox property client.
+	 * The current major version of the mailbox update (properties) client.
 	 */
-	int MAJOR_VERSION = 0;
+	int MAJOR_VERSION = 1;
 
 	/**
-	 * The current minor version of the mailbox property client.
+	 * The current minor version of the mailbox update (properties) client.
 	 */
 	int MINOR_VERSION = 0;
 
 	/**
-	 * The number of properties required for a (non-empty) update message.
+	 * The number of properties required for an update message with a mailbox.
 	 */
 	int PROP_COUNT = 4;
 
 	/**
-	 * The required properties of a non-empty update message.
+	 * The required properties of an update message with a mailbox.
 	 */
 	String PROP_KEY_ONION = "onion";
 	String PROP_KEY_AUTHTOKEN = "authToken";
@@ -57,11 +57,10 @@ public interface MailboxPropertyManager {
 	 */
 	String MSG_KEY_LOCAL = "local";
 
-	@Nullable
-	MailboxPropertiesUpdate getLocalProperties(Transaction txn, ContactId c)
+	MailboxUpdate getLocalUpdate(Transaction txn, ContactId c)
 			throws DbException;
 
 	@Nullable
-	MailboxPropertiesUpdate getRemoteProperties(Transaction txn, ContactId c)
+	MailboxUpdate getRemoteUpdate(Transaction txn, ContactId c)
 			throws DbException;
 }

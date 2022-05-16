@@ -11,9 +11,9 @@ import org.briarproject.bramble.api.mailbox.MailboxAuthToken;
 import org.briarproject.bramble.api.mailbox.MailboxPairingState;
 import org.briarproject.bramble.api.mailbox.MailboxPairingTask;
 import org.briarproject.bramble.api.mailbox.MailboxProperties;
-import org.briarproject.bramble.api.mailbox.MailboxPropertiesUpdate;
-import org.briarproject.bramble.api.mailbox.MailboxPropertyManager;
 import org.briarproject.bramble.api.mailbox.MailboxSettingsManager;
+import org.briarproject.bramble.api.mailbox.MailboxUpdate;
+import org.briarproject.bramble.api.mailbox.MailboxUpdateManager;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.system.Clock;
 import org.briarproject.bramble.mailbox.MailboxApi.ApiException;
@@ -51,7 +51,7 @@ class MailboxPairingTaskImpl implements MailboxPairingTask {
 	private final Clock clock;
 	private final MailboxApi api;
 	private final MailboxSettingsManager mailboxSettingsManager;
-	private final MailboxPropertyManager mailboxPropertyManager;
+	private final MailboxUpdateManager mailboxUpdateManager;
 
 	private final Object lock = new Object();
 	@GuardedBy("lock")
@@ -68,7 +68,7 @@ class MailboxPairingTaskImpl implements MailboxPairingTask {
 			Clock clock,
 			MailboxApi api,
 			MailboxSettingsManager mailboxSettingsManager,
-			MailboxPropertyManager mailboxPropertyManager) {
+			MailboxUpdateManager mailboxUpdateManager) {
 		this.payload = payload;
 		this.eventExecutor = eventExecutor;
 		this.db = db;
@@ -76,7 +76,7 @@ class MailboxPairingTaskImpl implements MailboxPairingTask {
 		this.clock = clock;
 		this.api = api;
 		this.mailboxSettingsManager = mailboxSettingsManager;
-		this.mailboxPropertyManager = mailboxPropertyManager;
+		this.mailboxUpdateManager = mailboxUpdateManager;
 		state = new MailboxPairingState.QrCodeReceived();
 	}
 
@@ -125,9 +125,9 @@ class MailboxPairingTaskImpl implements MailboxPairingTask {
 			// timers for contacts who doesn't have their own mailbox. This way,
 			// data stranded on our old mailbox will be re-uploaded to our new.
 			for (Contact c : db.getContacts(txn)) {
-				MailboxPropertiesUpdate remoteProps = mailboxPropertyManager
-						.getRemoteProperties(txn, c.getId());
-				if (remoteProps == null) {
+				MailboxUpdate update = mailboxUpdateManager.getRemoteUpdate(
+						txn, c.getId());
+				if (update == null || !update.hasMailbox()) {
 					db.resetUnackedMessagesToSend(txn, c.getId());
 				}
 			}

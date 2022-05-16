@@ -91,7 +91,7 @@ class MailboxSettingsManagerImpl implements MailboxSettingsManager {
 		s.putIntArray(SETTINGS_KEY_SERVER_SUPPORTS, ints);
 		settingsManager.mergeSettings(txn, s, SETTINGS_NAMESPACE);
 		for (MailboxHook hook : hooks) {
-			hook.mailboxPaired(txn, p.getOnion());
+			hook.mailboxPaired(txn, p.getOnion(), p.getServerSupports());
 		}
 	}
 

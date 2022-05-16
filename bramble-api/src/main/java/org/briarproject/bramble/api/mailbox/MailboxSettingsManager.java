@@ -7,6 +7,8 @@ import org.briarproject.bramble.api.db.Transaction;
 import org.briarproject.bramble.api.lifecycle.LifecycleManager;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 
+import java.util.List;
+
 import javax.annotation.Nullable;
 
 @NotNullByDefault
@@ -49,7 +51,8 @@ public interface MailboxSettingsManager {
 		 * @param txn A read-write transaction
 		 * @param ownOnion Our new mailbox's onion (56 base32 chars)
 		 */
-		void mailboxPaired(Transaction txn, String ownOnion)
+		void mailboxPaired(Transaction txn, String ownOnion,
+				List<MailboxVersion> serverSupports)
 				throws DbException;
 
 		/**

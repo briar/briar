@@ -172,16 +172,18 @@ public abstract class BriarIntegrationTest<C extends BriarIntegrationTestCompone
 				true);
 		contact0From2 = contactManager2.getContact(contactId0From2);
 
-		// Sync initial client versioning updates
+		// Sync initial client versioning updates and mailbox updates
 		sync0To1(1, true);
 		sync1To0(1, true);
-		sync0To1(1, true);
-		ack1To0(1);
+		sync0To1(2, true);
+		sync1To0(1, true);
+		ack0To1(1);
 
 		sync0To2(1, true);
 		sync2To0(1, true);
-		sync0To2(1, true);
-		ack2To0(1);
+		sync0To2(2, true);
+		sync2To0(1, true);
+		ack0To2(1);
 	}
 
 	protected void addContacts1And2() throws Exception {
@@ -200,13 +202,16 @@ public abstract class BriarIntegrationTest<C extends BriarIntegrationTestCompone
 		// Sync initial client versioning updates
 		sync1To2(1, true);
 		sync2To1(1, true);
+		// Sync 2nd client versioning msg from 1to2, mailbox updates, and
+		// transport properties if we should
 		if (haveTransportProperties) {
+			sync1To2(3, true);
+			sync2To1(2, true);
+			ack1To2(2);
+		} else {
 			sync1To2(2, true);
 			sync2To1(1, true);
 			ack1To2(1);
-		} else {
-			sync1To2(1, true);
-			ack2To1(1);
 		}
 	}
 

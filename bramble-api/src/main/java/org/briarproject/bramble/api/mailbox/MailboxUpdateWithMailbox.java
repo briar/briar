@@ -2,20 +2,27 @@ package org.briarproject.bramble.api.mailbox;
 
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 
+import java.util.List;
+
 import javax.annotation.concurrent.Immutable;
 
 @Immutable
 @NotNullByDefault
-public class MailboxPropertiesUpdate {
-
+public class MailboxUpdateWithMailbox extends MailboxUpdate {
+	private final List<MailboxVersion> serverSupports;
 	private final String onion;
 	private final MailboxAuthToken authToken;
 	private final MailboxFolderId inboxId;
 	private final MailboxFolderId outboxId;
 
-	public MailboxPropertiesUpdate(String onion,
+	public MailboxUpdateWithMailbox(List<MailboxVersion> clientSupports,
+			List<MailboxVersion> serverSupports, String onion,
 			MailboxAuthToken authToken, MailboxFolderId inboxId,
-			MailboxFolderId outboxId) {
+			MailboxFolderId outboxId
+	) {
+		super(clientSupports);
+		this.hasMailbox = true;
+		this.serverSupports = serverSupports;
 		this.onion = onion;
 		this.authToken = authToken;
 		this.inboxId = inboxId;
@@ -38,4 +45,7 @@ public class MailboxPropertiesUpdate {
 		return outboxId;
 	}
 
+	public List<MailboxVersion> getServerSupports() {
+		return serverSupports;
+	}
 }

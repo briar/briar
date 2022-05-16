@@ -25,7 +25,9 @@ import org.briarproject.bramble.api.identity.Author;
 import org.briarproject.bramble.api.identity.AuthorFactory;
 import org.briarproject.bramble.api.mailbox.MailboxAuthToken;
 import org.briarproject.bramble.api.mailbox.MailboxFolderId;
-import org.briarproject.bramble.api.mailbox.MailboxPropertiesUpdate;
+import org.briarproject.bramble.api.mailbox.MailboxUpdate;
+import org.briarproject.bramble.api.mailbox.MailboxUpdateWithMailbox;
+import org.briarproject.bramble.api.mailbox.MailboxVersion;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.plugin.TransportId;
 import org.briarproject.bramble.api.properties.TransportProperties;
@@ -39,12 +41,13 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.security.GeneralSecurityException;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 import javax.inject.Inject;
 
@@ -52,12 +55,12 @@ import static org.briarproject.bramble.api.client.ContactGroupConstants.GROUP_KE
 import static org.briarproject.bramble.api.identity.Author.FORMAT_VERSION;
 import static org.briarproject.bramble.api.identity.AuthorConstants.MAX_AUTHOR_NAME_LENGTH;
 import static org.briarproject.bramble.api.identity.AuthorConstants.MAX_PUBLIC_KEY_LENGTH;
-import static org.briarproject.bramble.api.mailbox.MailboxPropertyManager.PROP_COUNT;
-import static org.briarproject.bramble.api.mailbox.MailboxPropertyManager.PROP_KEY_AUTHTOKEN;
-import static org.briarproject.bramble.api.mailbox.MailboxPropertyManager.PROP_KEY_INBOXID;
-import static org.briarproject.bramble.api.mailbox.MailboxPropertyManager.PROP_KEY_ONION;
-import static org.briarproject.bramble.api.mailbox.MailboxPropertyManager.PROP_KEY_OUTBOXID;
-import static org.briarproject.bramble.api.mailbox.MailboxPropertyManager.PROP_ONION_LENGTH;
+import static org.briarproject.bramble.api.mailbox.MailboxUpdateManager.PROP_COUNT;
+import static org.briarproject.bramble.api.mailbox.MailboxUpdateManager.PROP_KEY_AUTHTOKEN;
+import static org.briarproject.bramble.api.mailbox.MailboxUpdateManager.PROP_KEY_INBOXID;
+import static org.briarproject.bramble.api.mailbox.MailboxUpdateManager.PROP_KEY_ONION;
+import static org.briarproject.bramble.api.mailbox.MailboxUpdateManager.PROP_KEY_OUTBOXID;
+import static org.briarproject.bramble.api.mailbox.MailboxUpdateManager.PROP_ONION_LENGTH;
 import static org.briarproject.bramble.api.properties.TransportPropertyConstants.MAX_PROPERTIES_PER_TRANSPORT;
 import static org.briarproject.bramble.api.properties.TransportPropertyConstants.MAX_PROPERTY_LENGTH;
 import static org.briarproject.bramble.util.ValidationUtils.checkLength;
@@ -412,11 +415,28 @@ class ClientHelperImpl implements ClientHelper {
 	}
 
 	@Override
-	@Nullable
-	public MailboxPropertiesUpdate parseAndValidateMailboxPropertiesUpdate(
-			BdfDictionary properties) throws FormatException {
+	public MailboxUpdate parseAndValidateMailboxUpdate(BdfList clientSupports,
+			BdfList serverSupports, BdfDictionary properties)
+			throws FormatException {
+		List<MailboxVersion> clientSupportsList =
+				getMailboxVersionList(clientSupports);
+		List<MailboxVersion> serverSupportsList =
+				getMailboxVersionList(serverSupports);
+
+		// We must always learn what Mailbox API version(s) the client supports
+		if (clientSupports.isEmpty()) {
+			throw new FormatException();
+		}
 		if (properties.isEmpty()) {
-			return null;
+			// No mailbox -- cannot claim to support any API versions!
+			if (!serverSupports.isEmpty()) {
+				throw new FormatException();
+			}
+			return new MailboxUpdate(clientSupportsList);
+		}
+		// Mailbox must be accompanied by the Mailbox API version(s) it supports
+		if (serverSupports.isEmpty()) {
+			throw new FormatException();
 		}
 		// Accepting more props than we need, for forward compatibility
 		if (properties.size() < PROP_COUNT) {
@@ -435,9 +455,23 @@ class ClientHelperImpl implements ClientHelper {
 		checkLength(inboxId, UniqueId.LENGTH);
 		byte[] outboxId = properties.getRaw(PROP_KEY_OUTBOXID);
 		checkLength(outboxId, UniqueId.LENGTH);
-		return new MailboxPropertiesUpdate(onion,
-				new MailboxAuthToken(authToken), new MailboxFolderId(inboxId),
-				new MailboxFolderId(outboxId));
+		return new MailboxUpdateWithMailbox(clientSupportsList,
+				serverSupportsList, onion, new MailboxAuthToken(authToken),
+				new MailboxFolderId(inboxId), new MailboxFolderId(outboxId));
+	}
+
+	private List<MailboxVersion> getMailboxVersionList(BdfList bdfList)
+			throws FormatException {
+		List<MailboxVersion> list = new ArrayList<>();
+		for (int i = 0; i < bdfList.size(); i++) {
+			BdfList element = bdfList.getList(i);
+			if (element.size() != 2) {
+				throw new FormatException();
+			}
+			list.add(new MailboxVersion(element.getLong(0).intValue(),
+					element.getLong(1).intValue()));
+		}
+		return list;
 	}
 
 	@Override

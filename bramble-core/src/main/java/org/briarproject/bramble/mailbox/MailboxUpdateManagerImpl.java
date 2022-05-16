@@ -18,11 +18,13 @@ import org.briarproject.bramble.api.lifecycle.LifecycleManager.OpenDatabaseHook;
 import org.briarproject.bramble.api.mailbox.MailboxAuthToken;
 import org.briarproject.bramble.api.mailbox.MailboxFolderId;
 import org.briarproject.bramble.api.mailbox.MailboxProperties;
-import org.briarproject.bramble.api.mailbox.MailboxPropertiesUpdate;
-import org.briarproject.bramble.api.mailbox.MailboxPropertyManager;
 import org.briarproject.bramble.api.mailbox.MailboxSettingsManager;
 import org.briarproject.bramble.api.mailbox.MailboxSettingsManager.MailboxHook;
-import org.briarproject.bramble.api.mailbox.RemoteMailboxPropertiesUpdateEvent;
+import org.briarproject.bramble.api.mailbox.MailboxUpdate;
+import org.briarproject.bramble.api.mailbox.MailboxUpdateManager;
+import org.briarproject.bramble.api.mailbox.MailboxUpdateWithMailbox;
+import org.briarproject.bramble.api.mailbox.MailboxVersion;
+import org.briarproject.bramble.api.mailbox.RemoteMailboxUpdateEvent;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.sync.Group;
 import org.briarproject.bramble.api.sync.Group.Visibility;
@@ -35,6 +37,7 @@ import org.briarproject.bramble.api.system.Clock;
 import org.briarproject.bramble.api.versioning.ClientVersioningManager;
 import org.briarproject.bramble.api.versioning.ClientVersioningManager.ClientVersioningHook;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
@@ -42,9 +45,10 @@ import javax.annotation.Nullable;
 import javax.inject.Inject;
 
 import static org.briarproject.bramble.api.sync.validation.IncomingMessageHook.DeliveryAction.ACCEPT_DO_NOT_SHARE;
+import static org.briarproject.bramble.mailbox.MailboxApi.CLIENT_SUPPORTS;
 
 @NotNullByDefault
-class MailboxPropertyManagerImpl implements MailboxPropertyManager,
+class MailboxUpdateManagerImpl implements MailboxUpdateManager,
 		OpenDatabaseHook, ContactHook, ClientVersioningHook,
 		IncomingMessageHook, MailboxHook {
 
@@ -59,7 +63,7 @@ class MailboxPropertyManagerImpl implements MailboxPropertyManager,
 	private final Group localGroup;
 
 	@Inject
-	MailboxPropertyManagerImpl(DatabaseComponent db, ClientHelper clientHelper,
+	MailboxUpdateManagerImpl(DatabaseComponent db, ClientHelper clientHelper,
 			ClientVersioningManager clientVersioningManager,
 			MetadataParser metadataParser,
 			ContactGroupFactory contactGroupFactory, Clock clock,
@@ -100,11 +104,15 @@ class MailboxPropertyManagerImpl implements MailboxPropertyManager,
 		db.setGroupVisibility(txn, c.getId(), g.getId(), client);
 		// Attach the contact ID to the group
 		clientHelper.setContactId(txn, g.getId(), c.getId());
-		// If we are paired, create and send props to the newly added contact
 		MailboxProperties ownProps =
 				mailboxSettingsManager.getOwnMailboxProperties(txn);
 		if (ownProps != null) {
-			createAndSendProperties(txn, c, ownProps.getOnion());
+			// We are paired, create and send props to the newly added contact
+			createAndSendUpdateWithMailbox(txn, c, ownProps.getServerSupports(),
+					ownProps.getOnion());
+		} else {
+			// Not paired, but we still want to get our clientSupports sent
+			sendUpdateNoMailbox(txn, c);
 		}
 	}
 
@@ -114,17 +122,18 @@ class MailboxPropertyManagerImpl implements MailboxPropertyManager,
 	}
 
 	@Override
-	public void mailboxPaired(Transaction txn, String ownOnion)
+	public void mailboxPaired(Transaction txn, String ownOnion,
+			List<MailboxVersion> serverSupports)
 			throws DbException {
 		for (Contact c : db.getContacts(txn)) {
-			createAndSendProperties(txn, c, ownOnion);
+			createAndSendUpdateWithMailbox(txn, c, serverSupports, ownOnion);
 		}
 	}
 
 	@Override
 	public void mailboxUnpaired(Transaction txn) throws DbException {
 		for (Contact c : db.getContacts(txn)) {
-			sendEmptyProperties(txn, c);
+			sendUpdateNoMailbox(txn, c);
 		}
 	}
 
@@ -156,8 +165,8 @@ class MailboxPropertyManagerImpl implements MailboxPropertyManager,
 			}
 			ContactId c = clientHelper.getContactId(txn, m.getGroupId());
 			BdfList body = clientHelper.getMessageAsList(txn, m.getId());
-			MailboxPropertiesUpdate p = parseProperties(body);
-			txn.attach(new RemoteMailboxPropertiesUpdateEvent(c, p));
+			MailboxUpdate u = parseUpdate(body);
+			txn.attach(new RemoteMailboxUpdateEvent(c, u));
 			// Reset message retransmission timers for the contact. Avoiding
 			// messages getting stranded:
 			// - on our mailbox, if they now have a mailbox but didn't before
@@ -171,70 +180,79 @@ class MailboxPropertyManagerImpl implements MailboxPropertyManager,
 	}
 
 	@Override
-	@Nullable
-	public MailboxPropertiesUpdate getLocalProperties(Transaction txn,
-			ContactId c) throws DbException {
-		return getProperties(txn, db.getContact(txn, c), true);
+	public MailboxUpdate getLocalUpdate(Transaction txn, ContactId c)
+			throws DbException {
+		MailboxUpdate local = getUpdate(txn, db.getContact(txn, c), true);
+		// An update (with or without mailbox) is created when contact is added
+		if (local == null) {
+			throw new DbException();
+		}
+		return local;
 	}
 
 	@Override
 	@Nullable
-	public MailboxPropertiesUpdate getRemoteProperties(Transaction txn,
-			ContactId c) throws DbException {
-		return getProperties(txn, db.getContact(txn, c), false);
+	public MailboxUpdate getRemoteUpdate(Transaction txn, ContactId c) throws
+			DbException {
+		return getUpdate(txn, db.getContact(txn, c), false);
 	}
 
 	/**
 	 * Creates and sends an update message to the given contact. The message
-	 * holds our own mailbox's onion, and generated unique properties. All of
-	 * which the contact needs to communicate with our Mailbox.
+	 * holds our own mailbox's onion, generated unique properties, and lists of
+	 * supported Mailbox API version(s). All of which the contact needs to
+	 * communicate with our Mailbox.
 	 */
-	private void createAndSendProperties(Transaction txn,
-			Contact c, String ownOnion) throws DbException {
-		MailboxPropertiesUpdate p = new MailboxPropertiesUpdate(ownOnion,
+	private void createAndSendUpdateWithMailbox(Transaction txn, Contact c,
+			List<MailboxVersion> serverSupports, String ownOnion)
+			throws DbException {
+		MailboxUpdate u = new MailboxUpdateWithMailbox(
+				CLIENT_SUPPORTS, serverSupports, ownOnion,
 				new MailboxAuthToken(crypto.generateUniqueId().getBytes()),
 				new MailboxFolderId(crypto.generateUniqueId().getBytes()),
 				new MailboxFolderId(crypto.generateUniqueId().getBytes()));
 		Group g = getContactGroup(c);
-		storeMessageReplaceLatest(txn, g.getId(), p);
+		storeMessageReplaceLatest(txn, g.getId(), u);
 	}
 
 	/**
-	 * Sends an empty update message to the given contact. The empty update
-	 * indicates for the receiving contact that we no longer have a Mailbox that
-	 * they can use.
+	 * Sends an update message with empty properties to the given contact. The
+	 * empty update indicates for the receiving contact that we don't have any
+	 * Mailbox that they can use. It still includes the list of Mailbox API
+	 * version(s) that we support as a client.
 	 */
-	private void sendEmptyProperties(Transaction txn, Contact c)
+	private void sendUpdateNoMailbox(Transaction txn, Contact c)
 			throws DbException {
 		Group g = getContactGroup(c);
-		storeMessageReplaceLatest(txn, g.getId(), null);
+		MailboxUpdate u = new MailboxUpdate(CLIENT_SUPPORTS);
+		storeMessageReplaceLatest(txn, g.getId(), u);
 	}
 
 	@Nullable
-	private MailboxPropertiesUpdate getProperties(Transaction txn,
-			Contact c, boolean local) throws DbException {
-		MailboxPropertiesUpdate p = null;
+	private MailboxUpdate getUpdate(Transaction txn, Contact c, boolean local)
+			throws DbException {
+		MailboxUpdate u = null;
 		Group g = getContactGroup(c);
 		try {
 			LatestUpdate latest = findLatest(txn, g.getId(), local);
 			if (latest != null) {
 				BdfList body =
 						clientHelper.getMessageAsList(txn, latest.messageId);
-				p = parseProperties(body);
+				u = parseUpdate(body);
 			}
 		} catch (FormatException e) {
 			throw new DbException(e);
 		}
-		return p;
+		return u;
 	}
 
 	private void storeMessageReplaceLatest(Transaction txn, GroupId g,
-			@Nullable MailboxPropertiesUpdate p) throws DbException {
+			MailboxUpdate u) throws DbException {
 		try {
 			LatestUpdate latest = findLatest(txn, g, true);
 			long version = latest == null ? 1 : latest.version + 1;
 			Message m = clientHelper.createMessage(g, clock.currentTimeMillis(),
-					encodeProperties(version, p));
+					encodeProperties(version, u));
 			BdfDictionary meta = new BdfDictionary();
 			meta.put(MSG_KEY_VERSION, version);
 			meta.put(MSG_KEY_LOCAL, true);
@@ -266,23 +284,36 @@ class MailboxPropertyManagerImpl implements MailboxPropertyManager,
 		return null;
 	}
 
-	private BdfList encodeProperties(long version,
-			@Nullable MailboxPropertiesUpdate p) {
+	private BdfList encodeProperties(long version, MailboxUpdate u) {
 		BdfDictionary dict = new BdfDictionary();
-		if (p != null) {
-			dict.put(PROP_KEY_ONION, p.getOnion());
-			dict.put(PROP_KEY_AUTHTOKEN, p.getAuthToken().getBytes());
-			dict.put(PROP_KEY_INBOXID, p.getInboxId().getBytes());
-			dict.put(PROP_KEY_OUTBOXID, p.getOutboxId().getBytes());
+		BdfList serverSupports = new BdfList();
+		if (u.hasMailbox()) {
+			MailboxUpdateWithMailbox um = (MailboxUpdateWithMailbox) u;
+			serverSupports = encodeSupportsList(um.getServerSupports());
+			dict.put(PROP_KEY_ONION, um.getOnion());
+			dict.put(PROP_KEY_AUTHTOKEN, um.getAuthToken().getBytes());
+			dict.put(PROP_KEY_INBOXID, um.getInboxId().getBytes());
+			dict.put(PROP_KEY_OUTBOXID, um.getOutboxId().getBytes());
 		}
-		return BdfList.of(version, dict);
+		return BdfList.of(version, encodeSupportsList(u.getClientSupports()),
+				serverSupports, dict);
 	}
 
-	@Nullable
-	private MailboxPropertiesUpdate parseProperties(BdfList body)
+	private BdfList encodeSupportsList(List<MailboxVersion> supportsList) {
+		BdfList supports = new BdfList();
+		for (MailboxVersion version : supportsList) {
+			supports.add(BdfList.of(version.getMajor(), version.getMinor()));
+		}
+		return supports;
+	}
+
+	private MailboxUpdate parseUpdate(BdfList body)
 			throws FormatException {
-		BdfDictionary dict = body.getDictionary(1);
-		return clientHelper.parseAndValidateMailboxPropertiesUpdate(dict);
+		BdfList clientSupports = body.getList(1);
+		BdfList serverSupports = body.getList(2);
+		BdfDictionary dict = body.getDictionary(3);
+		return clientHelper.parseAndValidateMailboxUpdate(clientSupports,
+				serverSupports, dict);
 	}
 
 	private Group getContactGroup(Contact c) {

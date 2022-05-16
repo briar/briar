@@ -9,7 +9,7 @@ import org.briarproject.bramble.api.data.BdfList;
 import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.db.Transaction;
 import org.briarproject.bramble.api.identity.Author;
-import org.briarproject.bramble.api.mailbox.MailboxPropertiesUpdate;
+import org.briarproject.bramble.api.mailbox.MailboxUpdate;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.plugin.TransportId;
 import org.briarproject.bramble.api.properties.TransportProperties;
@@ -20,8 +20,6 @@ import org.briarproject.bramble.api.sync.MessageId;
 import java.security.GeneralSecurityException;
 import java.util.Collection;
 import java.util.Map;
-
-import javax.annotation.Nullable;
 
 @NotNullByDefault
 public interface ClientHelper {
@@ -127,16 +125,14 @@ public interface ClientHelper {
 			BdfDictionary properties) throws FormatException;
 
 	/**
-	 * Parse and validate the property dictionary of a Mailbox property update
-	 * message.
+	 * Parse and validate the elements of a Mailbox update message.
 	 *
-	 * @return the properties for using the Mailbox, or null if there is no
-	 * Mailbox available
-	 * @throws FormatException if the properties are not valid
+	 * @return the parsed update message
+	 * @throws FormatException if the message elements are invalid
 	 */
-	@Nullable
-	MailboxPropertiesUpdate parseAndValidateMailboxPropertiesUpdate(
-			BdfDictionary properties) throws FormatException;
+	MailboxUpdate parseAndValidateMailboxUpdate(BdfList clientSupports,
+			BdfList serverSupports, BdfDictionary properties)
+			throws FormatException;
 
 	/**
 	 * Retrieves the contact ID from the group metadata of the given contact
