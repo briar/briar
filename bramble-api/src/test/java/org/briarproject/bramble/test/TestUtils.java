@@ -21,8 +21,8 @@ import org.briarproject.bramble.api.identity.AuthorId;
 import org.briarproject.bramble.api.identity.Identity;
 import org.briarproject.bramble.api.identity.LocalAuthor;
 import org.briarproject.bramble.api.mailbox.MailboxProperties;
-import org.briarproject.bramble.api.mailbox.MailboxPropertiesUpdate;
-import org.briarproject.bramble.api.mailbox.MailboxPropertiesUpdateMailbox;
+import org.briarproject.bramble.api.mailbox.MailboxUpdate;
+import org.briarproject.bramble.api.mailbox.MailboxUpdateWithMailbox;
 import org.briarproject.bramble.api.plugin.TransportId;
 import org.briarproject.bramble.api.properties.TransportProperties;
 import org.briarproject.bramble.api.sync.ClientId;
@@ -281,19 +281,16 @@ public class TestUtils {
 				asList(optionalTests.split(",")).contains(testClass.getName());
 	}
 
-	public static boolean mailboxPropertiesUpdateEqual(
-			@Nullable MailboxPropertiesUpdate a,
-			@Nullable MailboxPropertiesUpdate b) {
+	public static boolean mailboxUpdateEqual(@Nullable MailboxUpdate a,
+			@Nullable MailboxUpdate b) {
 		if (a == null || b == null) {
 			return a == b;
 		}
 		if (!a.hasMailbox() && !b.hasMailbox()) {
 			return a.getClientSupports().equals(b.getClientSupports());
 		} else if (a.hasMailbox() && b.hasMailbox()) {
-			MailboxPropertiesUpdateMailbox am =
-					(MailboxPropertiesUpdateMailbox) a;
-			MailboxPropertiesUpdateMailbox bm =
-					(MailboxPropertiesUpdateMailbox) b;
+			MailboxUpdateWithMailbox am = (MailboxUpdateWithMailbox) a;
+			MailboxUpdateWithMailbox bm = (MailboxUpdateWithMailbox) b;
 			return am.getClientSupports().equals(bm.getClientSupports()) &&
 					am.getServerSupports().equals(bm.getServerSupports()) &&
 					am.getOnion().equals(bm.getOnion()) &&
@@ -304,8 +301,7 @@ public class TestUtils {
 		return false;
 	}
 
-	public static boolean mailboxPropertiesEqual(
-			@Nullable MailboxProperties a,
+	public static boolean mailboxPropertiesEqual(@Nullable MailboxProperties a,
 			@Nullable MailboxProperties b) {
 		if (a == null || b == null) {
 			return a == b;

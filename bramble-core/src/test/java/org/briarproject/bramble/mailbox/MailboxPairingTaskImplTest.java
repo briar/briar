@@ -9,9 +9,9 @@ import org.briarproject.bramble.api.mailbox.MailboxAuthToken;
 import org.briarproject.bramble.api.mailbox.MailboxPairingState;
 import org.briarproject.bramble.api.mailbox.MailboxPairingTask;
 import org.briarproject.bramble.api.mailbox.MailboxProperties;
-import org.briarproject.bramble.api.mailbox.MailboxPropertiesUpdate;
-import org.briarproject.bramble.api.mailbox.MailboxPropertyManager;
 import org.briarproject.bramble.api.mailbox.MailboxSettingsManager;
+import org.briarproject.bramble.api.mailbox.MailboxUpdate;
+import org.briarproject.bramble.api.mailbox.MailboxUpdateManager;
 import org.briarproject.bramble.api.mailbox.OwnMailboxConnectionStatusEvent;
 import org.briarproject.bramble.api.system.Clock;
 import org.briarproject.bramble.test.BrambleMockTestCase;
@@ -49,11 +49,11 @@ public class MailboxPairingTaskImplTest extends BrambleMockTestCase {
 	private final MailboxApi api = context.mock(MailboxApi.class);
 	private final MailboxSettingsManager mailboxSettingsManager =
 			context.mock(MailboxSettingsManager.class);
-	private final MailboxPropertyManager mailboxPropertyManager =
-			context.mock(MailboxPropertyManager.class);
+	private final MailboxUpdateManager mailboxUpdateManager =
+			context.mock(MailboxUpdateManager.class);
 	private final MailboxPairingTaskFactory factory =
 			new MailboxPairingTaskFactoryImpl(executor, db, crypto, clock, api,
-					mailboxSettingsManager, mailboxPropertyManager);
+					mailboxSettingsManager, mailboxUpdateManager);
 
 	private final String onion = getRandomString(56);
 	private final byte[] onionBytes = getRandomBytes(32);
@@ -107,8 +107,7 @@ public class MailboxPairingTaskImplTest extends BrambleMockTestCase {
 		}});
 		Contact contact1 = getContact();
 		Transaction txn = new Transaction(null, false);
-		MailboxPropertiesUpdate emptyProps = new MailboxPropertiesUpdate(
-				CLIENT_SUPPORTS);
+		MailboxUpdate updateNoMailbox = new MailboxUpdate(CLIENT_SUPPORTS);
 		context.checking(new DbExpectations() {{
 			oneOf(db).transaction(with(false), withDbRunnable(txn));
 			oneOf(mailboxSettingsManager).setOwnMailboxProperties(
@@ -116,9 +115,9 @@ public class MailboxPairingTaskImplTest extends BrambleMockTestCase {
 			oneOf(mailboxSettingsManager).recordSuccessfulConnection(txn, time);
 			oneOf(db).getContacts(txn);
 			will(returnValue(singletonList(contact1)));
-			oneOf(mailboxPropertyManager).getRemoteProperties(txn,
+			oneOf(mailboxUpdateManager).getRemoteUpdate(txn,
 					contact1.getId());
-			will(returnValue(emptyProps));
+			will(returnValue(updateNoMailbox));
 			oneOf(db).resetUnackedMessagesToSend(txn, contact1.getId());
 		}});
 

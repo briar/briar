@@ -9,7 +9,7 @@ import org.briarproject.bramble.api.data.BdfList;
 import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.db.Transaction;
 import org.briarproject.bramble.api.identity.Author;
-import org.briarproject.bramble.api.mailbox.MailboxPropertiesUpdate;
+import org.briarproject.bramble.api.mailbox.MailboxUpdate;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.plugin.TransportId;
 import org.briarproject.bramble.api.properties.TransportProperties;
@@ -125,14 +125,14 @@ public interface ClientHelper {
 			BdfDictionary properties) throws FormatException;
 
 	/**
-	 * Parse and validate the elements of a Mailbox property update message.
+	 * Parse and validate the elements of a Mailbox update message.
 	 *
 	 * @return the parsed update message
 	 * @throws FormatException if the message elements are invalid
 	 */
-	MailboxPropertiesUpdate parseAndValidateMailboxPropertiesUpdate(
-			BdfList clientSupports, BdfList serverSupports,
-			BdfDictionary properties) throws FormatException;
+	MailboxUpdate parseAndValidateMailboxUpdate(BdfList clientSupports,
+			BdfList serverSupports, BdfDictionary properties)
+			throws FormatException;
 
 	/**
 	 * Retrieves the contact ID from the group metadata of the given contact

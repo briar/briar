@@ -23,8 +23,8 @@ import org.briarproject.bramble.api.identity.Author;
 import org.briarproject.bramble.api.identity.AuthorFactory;
 import org.briarproject.bramble.api.mailbox.MailboxAuthToken;
 import org.briarproject.bramble.api.mailbox.MailboxFolderId;
-import org.briarproject.bramble.api.mailbox.MailboxPropertiesUpdate;
-import org.briarproject.bramble.api.mailbox.MailboxPropertiesUpdateMailbox;
+import org.briarproject.bramble.api.mailbox.MailboxUpdate;
+import org.briarproject.bramble.api.mailbox.MailboxUpdateWithMailbox;
 import org.briarproject.bramble.api.mailbox.MailboxVersion;
 import org.briarproject.bramble.api.sync.GroupId;
 import org.briarproject.bramble.api.sync.Message;
@@ -47,17 +47,17 @@ import static java.util.Collections.singletonList;
 import static org.briarproject.bramble.api.identity.AuthorConstants.MAX_AUTHOR_NAME_LENGTH;
 import static org.briarproject.bramble.api.identity.AuthorConstants.MAX_PUBLIC_KEY_LENGTH;
 import static org.briarproject.bramble.api.identity.AuthorConstants.MAX_SIGNATURE_LENGTH;
-import static org.briarproject.bramble.api.mailbox.MailboxPropertyManager.PROP_KEY_AUTHTOKEN;
-import static org.briarproject.bramble.api.mailbox.MailboxPropertyManager.PROP_KEY_INBOXID;
-import static org.briarproject.bramble.api.mailbox.MailboxPropertyManager.PROP_KEY_ONION;
-import static org.briarproject.bramble.api.mailbox.MailboxPropertyManager.PROP_KEY_OUTBOXID;
+import static org.briarproject.bramble.api.mailbox.MailboxUpdateManager.PROP_KEY_AUTHTOKEN;
+import static org.briarproject.bramble.api.mailbox.MailboxUpdateManager.PROP_KEY_INBOXID;
+import static org.briarproject.bramble.api.mailbox.MailboxUpdateManager.PROP_KEY_ONION;
+import static org.briarproject.bramble.api.mailbox.MailboxUpdateManager.PROP_KEY_OUTBOXID;
 import static org.briarproject.bramble.test.TestUtils.getAuthor;
 import static org.briarproject.bramble.test.TestUtils.getMessage;
 import static org.briarproject.bramble.test.TestUtils.getRandomBytes;
 import static org.briarproject.bramble.test.TestUtils.getRandomId;
 import static org.briarproject.bramble.test.TestUtils.getSignaturePrivateKey;
 import static org.briarproject.bramble.test.TestUtils.getSignaturePublicKey;
-import static org.briarproject.bramble.test.TestUtils.mailboxPropertiesUpdateEqual;
+import static org.briarproject.bramble.test.TestUtils.mailboxUpdateEqual;
 import static org.briarproject.bramble.util.StringUtils.getRandomString;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
@@ -98,7 +98,7 @@ public class ClientHelperImplTest extends BrambleMockTestCase {
 			messageFactory, bdfReaderFactory, bdfWriterFactory, metadataParser,
 			metadataEncoder, cryptoComponent, authorFactory);
 
-	private final MailboxPropertiesUpdateMailbox validMailboxPropsUpdate;
+	private final MailboxUpdateWithMailbox validMailboxUpdateWithMailbox;
 	private final BdfList emptyClientSupports;
 	private final BdfList someClientSupports;
 	private final BdfList emptyServerSupports;
@@ -109,7 +109,7 @@ public class ClientHelperImplTest extends BrambleMockTestCase {
 		someClientSupports = BdfList.of(BdfList.of(1, 0));
 		emptyServerSupports = new BdfList();
 		someServerSupports = BdfList.of(BdfList.of(1, 0));
-		validMailboxPropsUpdate = new MailboxPropertiesUpdateMailbox(
+		validMailboxUpdateWithMailbox = new MailboxUpdateWithMailbox(
 				singletonList(new MailboxVersion(1, 0)),
 				singletonList(new MailboxVersion(1, 0)),
 				"pg6mmjiyjmcrsslvykfwnntlaru7p5svn6y2ymmju6nubxndf4pscryd",
@@ -118,14 +118,14 @@ public class ClientHelperImplTest extends BrambleMockTestCase {
 				new MailboxFolderId(getRandomId()));
 	}
 
-	private BdfDictionary getValidMailboxPropsUpdateDict() {
+	private BdfDictionary getValidMailboxUpdateWithMailboxDict() {
 		BdfDictionary dict = new BdfDictionary();
-		dict.put(PROP_KEY_ONION, validMailboxPropsUpdate.getOnion());
-		dict.put(PROP_KEY_AUTHTOKEN, validMailboxPropsUpdate.getAuthToken()
+		dict.put(PROP_KEY_ONION, validMailboxUpdateWithMailbox.getOnion());
+		dict.put(PROP_KEY_AUTHTOKEN, validMailboxUpdateWithMailbox
+				.getAuthToken().getBytes());
+		dict.put(PROP_KEY_INBOXID, validMailboxUpdateWithMailbox.getInboxId()
 				.getBytes());
-		dict.put(PROP_KEY_INBOXID, validMailboxPropsUpdate.getInboxId()
-				.getBytes());
-		dict.put(PROP_KEY_OUTBOXID, validMailboxPropsUpdate.getOutboxId()
+		dict.put(PROP_KEY_OUTBOXID, validMailboxUpdateWithMailbox.getOutboxId()
 				.getBytes());
 		return dict;
 	}
@@ -560,172 +560,150 @@ public class ClientHelperImplTest extends BrambleMockTestCase {
 	}
 
 	@Test(expected = FormatException.class)
-	public void testRejectsMailboxPropsWithEmptyClientSupports()
+	public void testRejectsMailboxUpdateWithEmptyClientSupports()
 			throws Exception {
 		BdfDictionary emptyPropsDict = new BdfDictionary();
-		clientHelper.parseAndValidateMailboxPropertiesUpdate(
-				emptyClientSupports, emptyServerSupports, emptyPropsDict
+		clientHelper.parseAndValidateMailboxUpdate(emptyClientSupports,
+				emptyServerSupports, emptyPropsDict
 		);
 	}
 
 	@Test
-	public void testParseEmptyMailboxPropsUpdate() throws Exception {
+	public void testParseMailboxUpdateNoMailbox() throws Exception {
 		BdfDictionary emptyPropsDict = new BdfDictionary();
-		MailboxPropertiesUpdate parsedProps = clientHelper
-				.parseAndValidateMailboxPropertiesUpdate(someClientSupports,
-						emptyServerSupports, emptyPropsDict
-				);
-		assertFalse(parsedProps.hasMailbox());
+		MailboxUpdate parsedUpdate = clientHelper.parseAndValidateMailboxUpdate(
+				someClientSupports, emptyServerSupports, emptyPropsDict);
+		assertFalse(parsedUpdate.hasMailbox());
 	}
 
 	@Test(expected = FormatException.class)
-	public void testRejectsEmptyMailboxPropsWithSomeServerSupports()
+	public void testRejectsMailboxUpdateNoMailboxWithSomeServerSupports()
 			throws Exception {
 		BdfDictionary emptyPropsDict = new BdfDictionary();
-		clientHelper.parseAndValidateMailboxPropertiesUpdate(someClientSupports,
-				someServerSupports, emptyPropsDict
-		);
+		clientHelper.parseAndValidateMailboxUpdate(someClientSupports,
+				someServerSupports, emptyPropsDict);
 	}
 
 	@Test(expected = FormatException.class)
-	public void testRejectsMailboxPropsShortSupports() throws Exception {
-		clientHelper.parseAndValidateMailboxPropertiesUpdate(
-				BdfList.of(BdfList.of(1)), emptyServerSupports,
-				new BdfDictionary()
-		);
+	public void testRejectsMailboxUpdateShortSupports() throws Exception {
+		clientHelper.parseAndValidateMailboxUpdate(BdfList.of(BdfList.of(1)),
+				emptyServerSupports, new BdfDictionary());
 	}
 
 	@Test(expected = FormatException.class)
-	public void testRejectsMailboxPropsLongSupports() throws Exception {
-		clientHelper.parseAndValidateMailboxPropertiesUpdate(
+	public void testRejectsMailboxUpdateLongSupports() throws Exception {
+		clientHelper.parseAndValidateMailboxUpdate(
 				BdfList.of(BdfList.of(1, 0, 0)), emptyServerSupports,
-				new BdfDictionary()
-		);
+				new BdfDictionary());
 	}
 
 	@Test(expected = FormatException.class)
-	public void testRejectsMailboxPropsNonIntSupports() throws Exception {
-		clientHelper.parseAndValidateMailboxPropertiesUpdate(
+	public void testRejectsMailboxUpdateNonIntSupports() throws Exception {
+		clientHelper.parseAndValidateMailboxUpdate(
 				BdfList.of(BdfList.of(1, "0")), emptyServerSupports,
 				new BdfDictionary()
 		);
 	}
 
 	@Test(expected = FormatException.class)
-	public void testRejectsMailboxPropsNonListSupports() throws Exception {
-		clientHelper.parseAndValidateMailboxPropertiesUpdate(
-				BdfList.of("non-list"), emptyServerSupports, new BdfDictionary()
-		);
+	public void testRejectsMailboxUpdateNonListSupports() throws Exception {
+		clientHelper.parseAndValidateMailboxUpdate(
+				BdfList.of("non-list"), emptyServerSupports,
+				new BdfDictionary());
 	}
 
 	@Test
-	public void testParseValidMailboxPropsUpdate() throws Exception {
-		MailboxPropertiesUpdate parsedProps = clientHelper
-				.parseAndValidateMailboxPropertiesUpdate(
-						someClientSupports, someServerSupports,
-						getValidMailboxPropsUpdateDict()
-				);
-		assertTrue(mailboxPropertiesUpdateEqual(validMailboxPropsUpdate,
-				parsedProps));
+	public void testParseValidMailboxUpdateWithMailbox() throws Exception {
+		MailboxUpdate parsedUpdate = clientHelper.parseAndValidateMailboxUpdate(
+				someClientSupports, someServerSupports,
+				getValidMailboxUpdateWithMailboxDict());
+		assertTrue(
+				mailboxUpdateEqual(validMailboxUpdateWithMailbox,
+						parsedUpdate));
 	}
 
 	@Test(expected = FormatException.class)
-	public void rejectsMailboxPropsWithEmptyServerSupports() throws Exception {
-		clientHelper.parseAndValidateMailboxPropertiesUpdate(
-				someClientSupports, emptyServerSupports,
-				getValidMailboxPropsUpdateDict()
-		);
+	public void rejectsMailboxUpdateWithEmptyServerSupports() throws Exception {
+		clientHelper.parseAndValidateMailboxUpdate(someClientSupports,
+				emptyServerSupports, getValidMailboxUpdateWithMailboxDict());
 	}
 
 	@Test(expected = FormatException.class)
-	public void testRejectsMailboxPropsUpdateOnionNotDecodable()
-			throws Exception {
-		BdfDictionary propsDict = getValidMailboxPropsUpdateDict();
+	public void testRejectsMailboxUpdateOnionNotDecodable() throws Exception {
+		BdfDictionary propsDict = getValidMailboxUpdateWithMailboxDict();
 		String badOnion = "!" + propsDict.getString(PROP_KEY_ONION)
 				.substring(1);
 		propsDict.put(PROP_KEY_ONION, badOnion);
-		clientHelper.parseAndValidateMailboxPropertiesUpdate(someClientSupports,
-				emptyServerSupports, propsDict
-		);
+		clientHelper.parseAndValidateMailboxUpdate(someClientSupports,
+				emptyServerSupports, propsDict);
 	}
 
 	@Test(expected = FormatException.class)
-	public void testRejectsMailboxPropsUpdateOnionWrongLength()
-			throws Exception {
-		BdfDictionary propsDict = getValidMailboxPropsUpdateDict();
+	public void testRejectsMailboxUpdateOnionWrongLength() throws Exception {
+		BdfDictionary propsDict = getValidMailboxUpdateWithMailboxDict();
 		String tooLongOnion = propsDict.getString(PROP_KEY_ONION) + "!";
 		propsDict.put(PROP_KEY_ONION, tooLongOnion);
-		clientHelper.parseAndValidateMailboxPropertiesUpdate(someClientSupports,
+		clientHelper.parseAndValidateMailboxUpdate(someClientSupports,
 				emptyServerSupports, propsDict
 		);
 	}
 
 	@Test(expected = FormatException.class)
-	public void testRejectsMailboxPropsUpdateInboxIdWrongLength()
-			throws Exception {
-		BdfDictionary propsDict = getValidMailboxPropsUpdateDict();
+	public void testRejectsMailboxUpdateInboxIdWrongLength() throws Exception {
+		BdfDictionary propsDict = getValidMailboxUpdateWithMailboxDict();
 		propsDict.put(PROP_KEY_INBOXID, getRandomBytes(UniqueId.LENGTH + 1));
-		clientHelper.parseAndValidateMailboxPropertiesUpdate(someClientSupports,
-				someServerSupports, propsDict
-		);
+		clientHelper.parseAndValidateMailboxUpdate(someClientSupports,
+				someServerSupports, propsDict);
 	}
 
 	@Test(expected = FormatException.class)
-	public void testRejectsMailboxPropsUpdateOutboxIdWrongLength()
-			throws Exception {
-		BdfDictionary propsDict = getValidMailboxPropsUpdateDict();
+	public void testRejectsMailboxUpdateOutboxIdWrongLength() throws Exception {
+		BdfDictionary propsDict = getValidMailboxUpdateWithMailboxDict();
 		propsDict.put(PROP_KEY_OUTBOXID, getRandomBytes(UniqueId.LENGTH + 1));
-		clientHelper.parseAndValidateMailboxPropertiesUpdate(someClientSupports,
-				someServerSupports, propsDict
-		);
+		clientHelper.parseAndValidateMailboxUpdate(someClientSupports,
+				someServerSupports, propsDict);
 	}
 
 	@Test(expected = FormatException.class)
-	public void testRejectsMailboxPropsUpdateAuthTokenWrongLength()
+	public void testRejectsMailboxUpdateAuthTokenWrongLength()
 			throws Exception {
-		BdfDictionary propsDict = getValidMailboxPropsUpdateDict();
+		BdfDictionary propsDict = getValidMailboxUpdateWithMailboxDict();
 		propsDict.put(PROP_KEY_AUTHTOKEN, getRandomBytes(UniqueId.LENGTH + 1));
-		clientHelper.parseAndValidateMailboxPropertiesUpdate(someClientSupports,
-				someServerSupports, propsDict
-		);
+		clientHelper.parseAndValidateMailboxUpdate(someClientSupports,
+				someServerSupports, propsDict);
 	}
 
 	@Test(expected = FormatException.class)
-	public void testRejectsMailboxPropsUpdateMissingOnion() throws Exception {
-		BdfDictionary propsDict = getValidMailboxPropsUpdateDict();
+	public void testRejectsMailboxUpdateMissingOnion() throws Exception {
+		BdfDictionary propsDict = getValidMailboxUpdateWithMailboxDict();
 		propsDict.remove(PROP_KEY_ONION);
-		clientHelper.parseAndValidateMailboxPropertiesUpdate(someClientSupports,
+		clientHelper.parseAndValidateMailboxUpdate(someClientSupports,
 				someServerSupports, propsDict
 		);
 	}
 
 	@Test(expected = FormatException.class)
-	public void testRejectsMailboxPropsUpdateMissingAuthToken()
-			throws Exception {
-		BdfDictionary propsDict = getValidMailboxPropsUpdateDict();
+	public void testRejectsMailboxUpdateMissingAuthToken() throws Exception {
+		BdfDictionary propsDict = getValidMailboxUpdateWithMailboxDict();
 		propsDict.remove(PROP_KEY_AUTHTOKEN);
-		clientHelper.parseAndValidateMailboxPropertiesUpdate(someClientSupports,
-				someServerSupports, propsDict
-		);
+		clientHelper.parseAndValidateMailboxUpdate(someClientSupports,
+				someServerSupports, propsDict);
 	}
 
 	@Test(expected = FormatException.class)
-	public void testRejectsMailboxPropsUpdateMissingInboxId() throws Exception {
-		BdfDictionary propsDict = getValidMailboxPropsUpdateDict();
+	public void testRejectsMailboxUpdateMissingInboxId() throws Exception {
+		BdfDictionary propsDict = getValidMailboxUpdateWithMailboxDict();
 		propsDict.remove(PROP_KEY_INBOXID);
-		clientHelper.parseAndValidateMailboxPropertiesUpdate(someClientSupports,
-				someServerSupports, propsDict
-		);
+		clientHelper.parseAndValidateMailboxUpdate(someClientSupports,
+				someServerSupports, propsDict);
 	}
 
 	@Test(expected = FormatException.class)
-	public void testRejectsMailboxPropsUpdateMissingOutboxId()
-			throws Exception {
-		BdfDictionary propsDict = getValidMailboxPropsUpdateDict();
+	public void testRejectsMailboxUpdateMissingOutboxId() throws Exception {
+		BdfDictionary propsDict = getValidMailboxUpdateWithMailboxDict();
 		propsDict.remove(PROP_KEY_OUTBOXID);
-		clientHelper.parseAndValidateMailboxPropertiesUpdate(someClientSupports,
-				someServerSupports, propsDict
-		);
+		clientHelper.parseAndValidateMailboxUpdate(someClientSupports,
+				someServerSupports, propsDict);
 	}
 
 }

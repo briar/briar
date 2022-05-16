@@ -7,7 +7,7 @@ import org.briarproject.bramble.api.mailbox.MailboxAuthToken;
 import org.briarproject.bramble.api.mailbox.MailboxFileId;
 import org.briarproject.bramble.api.mailbox.MailboxFolderId;
 import org.briarproject.bramble.api.mailbox.MailboxProperties;
-import org.briarproject.bramble.api.mailbox.MailboxPropertyManager;
+import org.briarproject.bramble.api.mailbox.MailboxUpdateManager;
 import org.briarproject.bramble.api.mailbox.MailboxVersion;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 
@@ -26,7 +26,7 @@ interface MailboxApi {
 
 	/**
 	 * Mailbox API versions that we support as a client. This is reported to our
-	 * contacts by {@link MailboxPropertyManager}.
+	 * contacts by {@link MailboxUpdateManager}.
 	 */
 	List<MailboxVersion> CLIENT_SUPPORTS = singletonList(
 			new MailboxVersion(1, 0));

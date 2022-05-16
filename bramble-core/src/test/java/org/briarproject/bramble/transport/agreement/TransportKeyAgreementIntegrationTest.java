@@ -345,7 +345,7 @@ public class TransportKeyAgreementIntegrationTest
 					.canSendOutgoingStreams(aliceId, DUPLEX_TRANSPORT_ID));
 		}
 
-		// Sync initial client versioning updates and mailbox properties updates
+		// Sync initial client versioning updates and mailbox updates
 		syncMessage(alice, bob, bobId, 1, true);
 		syncMessage(bob, alice, aliceId, 1, true);
 		syncMessage(alice, bob, bobId, 2, true);

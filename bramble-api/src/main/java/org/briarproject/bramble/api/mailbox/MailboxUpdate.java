@@ -8,12 +8,12 @@ import javax.annotation.concurrent.Immutable;
 
 @Immutable
 @NotNullByDefault
-public class MailboxPropertiesUpdate {
+public class MailboxUpdate {
 
 	boolean hasMailbox;
 	private final List<MailboxVersion> clientSupports;
 
-	public MailboxPropertiesUpdate(List<MailboxVersion> clientSupports) {
+	public MailboxUpdate(List<MailboxVersion> clientSupports) {
 		this.hasMailbox = false;
 		this.clientSupports = clientSupports;
 	}

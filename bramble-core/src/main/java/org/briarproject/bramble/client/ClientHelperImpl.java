@@ -25,8 +25,8 @@ import org.briarproject.bramble.api.identity.Author;
 import org.briarproject.bramble.api.identity.AuthorFactory;
 import org.briarproject.bramble.api.mailbox.MailboxAuthToken;
 import org.briarproject.bramble.api.mailbox.MailboxFolderId;
-import org.briarproject.bramble.api.mailbox.MailboxPropertiesUpdate;
-import org.briarproject.bramble.api.mailbox.MailboxPropertiesUpdateMailbox;
+import org.briarproject.bramble.api.mailbox.MailboxUpdate;
+import org.briarproject.bramble.api.mailbox.MailboxUpdateWithMailbox;
 import org.briarproject.bramble.api.mailbox.MailboxVersion;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.plugin.TransportId;
@@ -55,12 +55,12 @@ import static org.briarproject.bramble.api.client.ContactGroupConstants.GROUP_KE
 import static org.briarproject.bramble.api.identity.Author.FORMAT_VERSION;
 import static org.briarproject.bramble.api.identity.AuthorConstants.MAX_AUTHOR_NAME_LENGTH;
 import static org.briarproject.bramble.api.identity.AuthorConstants.MAX_PUBLIC_KEY_LENGTH;
-import static org.briarproject.bramble.api.mailbox.MailboxPropertyManager.PROP_COUNT;
-import static org.briarproject.bramble.api.mailbox.MailboxPropertyManager.PROP_KEY_AUTHTOKEN;
-import static org.briarproject.bramble.api.mailbox.MailboxPropertyManager.PROP_KEY_INBOXID;
-import static org.briarproject.bramble.api.mailbox.MailboxPropertyManager.PROP_KEY_ONION;
-import static org.briarproject.bramble.api.mailbox.MailboxPropertyManager.PROP_KEY_OUTBOXID;
-import static org.briarproject.bramble.api.mailbox.MailboxPropertyManager.PROP_ONION_LENGTH;
+import static org.briarproject.bramble.api.mailbox.MailboxUpdateManager.PROP_COUNT;
+import static org.briarproject.bramble.api.mailbox.MailboxUpdateManager.PROP_KEY_AUTHTOKEN;
+import static org.briarproject.bramble.api.mailbox.MailboxUpdateManager.PROP_KEY_INBOXID;
+import static org.briarproject.bramble.api.mailbox.MailboxUpdateManager.PROP_KEY_ONION;
+import static org.briarproject.bramble.api.mailbox.MailboxUpdateManager.PROP_KEY_OUTBOXID;
+import static org.briarproject.bramble.api.mailbox.MailboxUpdateManager.PROP_ONION_LENGTH;
 import static org.briarproject.bramble.api.properties.TransportPropertyConstants.MAX_PROPERTIES_PER_TRANSPORT;
 import static org.briarproject.bramble.api.properties.TransportPropertyConstants.MAX_PROPERTY_LENGTH;
 import static org.briarproject.bramble.util.ValidationUtils.checkLength;
@@ -415,9 +415,9 @@ class ClientHelperImpl implements ClientHelper {
 	}
 
 	@Override
-	public MailboxPropertiesUpdate parseAndValidateMailboxPropertiesUpdate(
-			BdfList clientSupports, BdfList serverSupports,
-			BdfDictionary properties) throws FormatException {
+	public MailboxUpdate parseAndValidateMailboxUpdate(BdfList clientSupports,
+			BdfList serverSupports, BdfDictionary properties)
+			throws FormatException {
 		List<MailboxVersion> clientSupportsList =
 				getMailboxVersionList(clientSupports);
 		List<MailboxVersion> serverSupportsList =
@@ -432,7 +432,7 @@ class ClientHelperImpl implements ClientHelper {
 			if (!serverSupports.isEmpty()) {
 				throw new FormatException();
 			}
-			return new MailboxPropertiesUpdate(clientSupportsList);
+			return new MailboxUpdate(clientSupportsList);
 		}
 		// Mailbox must be accompanied by the Mailbox API version(s) it supports
 		if (serverSupports.isEmpty()) {
@@ -455,7 +455,7 @@ class ClientHelperImpl implements ClientHelper {
 		checkLength(inboxId, UniqueId.LENGTH);
 		byte[] outboxId = properties.getRaw(PROP_KEY_OUTBOXID);
 		checkLength(outboxId, UniqueId.LENGTH);
-		return new MailboxPropertiesUpdateMailbox(clientSupportsList,
+		return new MailboxUpdateWithMailbox(clientSupportsList,
 				serverSupportsList, onion, new MailboxAuthToken(authToken),
 				new MailboxFolderId(inboxId), new MailboxFolderId(outboxId));
 	}

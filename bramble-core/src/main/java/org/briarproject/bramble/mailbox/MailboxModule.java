@@ -5,8 +5,8 @@ import org.briarproject.bramble.api.contact.ContactManager;
 import org.briarproject.bramble.api.data.MetadataEncoder;
 import org.briarproject.bramble.api.lifecycle.LifecycleManager;
 import org.briarproject.bramble.api.mailbox.MailboxManager;
-import org.briarproject.bramble.api.mailbox.MailboxPropertyManager;
 import org.briarproject.bramble.api.mailbox.MailboxSettingsManager;
+import org.briarproject.bramble.api.mailbox.MailboxUpdateManager;
 import org.briarproject.bramble.api.sync.validation.ValidationManager;
 import org.briarproject.bramble.api.system.Clock;
 import org.briarproject.bramble.api.versioning.ClientVersioningManager;
@@ -17,18 +17,18 @@ import javax.inject.Singleton;
 import dagger.Module;
 import dagger.Provides;
 
-import static org.briarproject.bramble.api.mailbox.MailboxPropertyManager.CLIENT_ID;
-import static org.briarproject.bramble.api.mailbox.MailboxPropertyManager.MAJOR_VERSION;
-import static org.briarproject.bramble.api.mailbox.MailboxPropertyManager.MINOR_VERSION;
+import static org.briarproject.bramble.api.mailbox.MailboxUpdateManager.CLIENT_ID;
+import static org.briarproject.bramble.api.mailbox.MailboxUpdateManager.MAJOR_VERSION;
+import static org.briarproject.bramble.api.mailbox.MailboxUpdateManager.MINOR_VERSION;
 
 @Module
 public class MailboxModule {
 
 	public static class EagerSingletons {
 		@Inject
-		MailboxPropertyValidator mailboxPropertyValidator;
+		MailboxUpdateValidator mailboxUpdateValidator;
 		@Inject
-		MailboxPropertyManager mailboxPropertyManager;
+		MailboxUpdateManager mailboxUpdateManager;
 	}
 
 	@Provides
@@ -56,10 +56,10 @@ public class MailboxModule {
 
 	@Provides
 	@Singleton
-	MailboxPropertyValidator provideMailboxPropertyValidator(
+	MailboxUpdateValidator provideMailboxUpdateValidator(
 			ValidationManager validationManager, ClientHelper clientHelper,
 			MetadataEncoder metadataEncoder, Clock clock) {
-		MailboxPropertyValidator validator = new MailboxPropertyValidator(
+		MailboxUpdateValidator validator = new MailboxUpdateValidator(
 				clientHelper, metadataEncoder, clock);
 		validationManager.registerMessageValidator(CLIENT_ID, MAJOR_VERSION,
 				validator);
@@ -68,19 +68,19 @@ public class MailboxModule {
 
 	@Provides
 	@Singleton
-	MailboxPropertyManager provideMailboxPropertyManager(
+	MailboxUpdateManager provideMailboxUpdateManager(
 			LifecycleManager lifecycleManager,
 			ValidationManager validationManager, ContactManager contactManager,
 			ClientVersioningManager clientVersioningManager,
 			MailboxSettingsManager mailboxSettingsManager,
-			MailboxPropertyManagerImpl mailboxPropertyManager) {
-		lifecycleManager.registerOpenDatabaseHook(mailboxPropertyManager);
+			MailboxUpdateManagerImpl mailboxUpdateManager) {
+		lifecycleManager.registerOpenDatabaseHook(mailboxUpdateManager);
 		validationManager.registerIncomingMessageHook(CLIENT_ID, MAJOR_VERSION,
-				mailboxPropertyManager);
-		contactManager.registerContactHook(mailboxPropertyManager);
+				mailboxUpdateManager);
+		contactManager.registerContactHook(mailboxUpdateManager);
 		clientVersioningManager.registerClient(CLIENT_ID, MAJOR_VERSION,
-				MINOR_VERSION, mailboxPropertyManager);
-		mailboxSettingsManager.registerMailboxHook(mailboxPropertyManager);
-		return mailboxPropertyManager;
+				MINOR_VERSION, mailboxUpdateManager);
+		mailboxSettingsManager.registerMailboxHook(mailboxUpdateManager);
+		return mailboxUpdateManager;
 	}
 }

@@ -1051,8 +1051,8 @@ public class IntroductionIntegrationTest
 				true);
 		contact0From1 = contactManager1.getContact(contactId0From1);
 
-		// Sync initial client versioning updates, mailbox properties updates,
-		// and transport properties
+		// Sync initial client versioning updates, mailbox updates, and
+		// transport properties
 		sync0To1(1, true);
 		sync1To0(1, true);
 		sync0To1(3, true);

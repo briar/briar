@@ -15,15 +15,15 @@ import org.briarproject.bramble.api.system.Clock;
 
 import javax.annotation.concurrent.Immutable;
 
-import static org.briarproject.bramble.api.mailbox.MailboxPropertyManager.MSG_KEY_LOCAL;
-import static org.briarproject.bramble.api.mailbox.MailboxPropertyManager.MSG_KEY_VERSION;
+import static org.briarproject.bramble.api.mailbox.MailboxUpdateManager.MSG_KEY_LOCAL;
+import static org.briarproject.bramble.api.mailbox.MailboxUpdateManager.MSG_KEY_VERSION;
 import static org.briarproject.bramble.util.ValidationUtils.checkSize;
 
 @Immutable
 @NotNullByDefault
-class MailboxPropertyValidator extends BdfMessageValidator {
+class MailboxUpdateValidator extends BdfMessageValidator {
 
-	MailboxPropertyValidator(ClientHelper clientHelper,
+	MailboxUpdateValidator(ClientHelper clientHelper,
 			MetadataEncoder metadataEncoder, Clock clock) {
 		super(clientHelper, metadataEncoder, clock);
 	}
@@ -42,9 +42,8 @@ class MailboxPropertyValidator extends BdfMessageValidator {
 		BdfList serverSupports = body.getList(2);
 		// Properties
 		BdfDictionary dictionary = body.getDictionary(3);
-		clientHelper.parseAndValidateMailboxPropertiesUpdate(clientSupports,
-				serverSupports, dictionary
-		);
+		clientHelper.parseAndValidateMailboxUpdate(clientSupports,
+				serverSupports, dictionary);
 		// Return the metadata
 		BdfDictionary meta = new BdfDictionary();
 		meta.put(MSG_KEY_VERSION, version);

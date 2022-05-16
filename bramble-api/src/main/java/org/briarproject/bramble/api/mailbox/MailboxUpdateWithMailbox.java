@@ -8,14 +8,14 @@ import javax.annotation.concurrent.Immutable;
 
 @Immutable
 @NotNullByDefault
-public class MailboxPropertiesUpdateMailbox extends MailboxPropertiesUpdate {
+public class MailboxUpdateWithMailbox extends MailboxUpdate {
 	private final List<MailboxVersion> serverSupports;
 	private final String onion;
 	private final MailboxAuthToken authToken;
 	private final MailboxFolderId inboxId;
 	private final MailboxFolderId outboxId;
 
-	public MailboxPropertiesUpdateMailbox(List<MailboxVersion> clientSupports,
+	public MailboxUpdateWithMailbox(List<MailboxVersion> clientSupports,
 			List<MailboxVersion> serverSupports, String onion,
 			MailboxAuthToken authToken, MailboxFolderId inboxId,
 			MailboxFolderId outboxId
