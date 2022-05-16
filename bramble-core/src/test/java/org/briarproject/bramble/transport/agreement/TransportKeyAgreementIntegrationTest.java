@@ -345,11 +345,16 @@ public class TransportKeyAgreementIntegrationTest
 					.canSendOutgoingStreams(aliceId, DUPLEX_TRANSPORT_ID));
 		}
 
-		// Sync initial client versioning updates and mailbox updates
+		// Sync client versioning update from Alice to Bob
 		syncMessage(alice, bob, bobId, 1, true);
+		// Sync client versioning update and ack from Bob to Alice
 		syncMessage(bob, alice, aliceId, 1, true);
+		// Sync second client versioning update, mailbox properties and ack
+		// from Alice to Bob
 		syncMessage(alice, bob, bobId, 2, true);
+		// Sync mailbox properties and ack from Bob to Alice
 		syncMessage(bob, alice, aliceId, 1, true);
+		// Sync final ack from Alice to Bob
 		sendAcks(alice, bob, bobId, 1);
 
 		return new Pair<>(aliceId, bobId);

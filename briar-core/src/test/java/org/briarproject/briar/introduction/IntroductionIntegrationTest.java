@@ -1057,6 +1057,7 @@ public class IntroductionIntegrationTest
 		sync1To0(1, true);
 		sync0To1(3, true);
 		sync1To0(2, true);
+		ack0To1(2);
 
 		// a new introduction should be possible
 		assertTrue(introductionManager0
