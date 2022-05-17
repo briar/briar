@@ -57,6 +57,23 @@ class MailboxApiImpl implements MailboxApi {
 	}
 
 	@Override
+	public List<MailboxVersion> getServerSupports(MailboxProperties properties)
+			throws IOException, ApiException {
+		if (!properties.isOwner()) throw new IllegalArgumentException();
+		Response response = sendGetRequest(properties, "/versions");
+		if (response.code() != 200) throw new ApiException();
+
+		ResponseBody body = response.body();
+		if (body == null) throw new ApiException();
+		try {
+			JsonNode node = mapper.readTree(body.string());
+			return parseServerSupports(node);
+		} catch (JacksonException e) {
+			throw new ApiException();
+		}
+	}
+
+	@Override
 	public MailboxProperties setup(MailboxProperties properties)
 			throws IOException, ApiException {
 		if (!properties.isOwner()) throw new IllegalArgumentException();
@@ -76,30 +93,35 @@ class MailboxApiImpl implements MailboxApi {
 			if (tokenNode == null) {
 				throw new ApiException();
 			}
-			List<MailboxVersion> serverSupports = new ArrayList<>();
-			ArrayNode serverSupportsNode = getArray(node, "serverSupports");
-			for (JsonNode versionNode : serverSupportsNode) {
-				if (!versionNode.isObject()) throw new ApiException();
-				ObjectNode objectNode = (ObjectNode) versionNode;
-				JsonNode majorNode = objectNode.get("major");
-				JsonNode minorNode = objectNode.get("minor");
-				if (majorNode == null || !majorNode.isNumber()) {
-					throw new ApiException();
-				}
-				if (minorNode == null || !minorNode.isNumber()) {
-					throw new ApiException();
-				}
-				int major = majorNode.asInt();
-				int minor = minorNode.asInt();
-				if (major < 0 || minor < 0) throw new ApiException();
-				serverSupports.add(new MailboxVersion(major, minor));
-			}
 			return new MailboxProperties(properties.getBaseUrl(),
 					MailboxAuthToken.fromString(tokenNode.textValue()),
-					true, serverSupports);
+					true, parseServerSupports(node));
 		} catch (JacksonException | InvalidMailboxIdException e) {
 			throw new ApiException();
 		}
+	}
+
+	private List<MailboxVersion> parseServerSupports(JsonNode node)
+			throws ApiException {
+		List<MailboxVersion> serverSupports = new ArrayList<>();
+		ArrayNode serverSupportsNode = getArray(node, "serverSupports");
+		for (JsonNode versionNode : serverSupportsNode) {
+			if (!versionNode.isObject()) throw new ApiException();
+			ObjectNode objectNode = (ObjectNode) versionNode;
+			JsonNode majorNode = objectNode.get("major");
+			JsonNode minorNode = objectNode.get("minor");
+			if (majorNode == null || !majorNode.isNumber()) {
+				throw new ApiException();
+			}
+			if (minorNode == null || !minorNode.isNumber()) {
+				throw new ApiException();
+			}
+			int major = majorNode.asInt();
+			int minor = minorNode.asInt();
+			if (major < 0 || minor < 0) throw new ApiException();
+			serverSupports.add(new MailboxVersion(major, minor));
+		}
+		return serverSupports;
 	}
 
 	@Override

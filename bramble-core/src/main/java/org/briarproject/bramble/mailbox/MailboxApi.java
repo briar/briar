@@ -31,6 +31,9 @@ interface MailboxApi {
 	List<MailboxVersion> CLIENT_SUPPORTS = singletonList(
 			new MailboxVersion(1, 0));
 
+	List<MailboxVersion> getServerSupports(MailboxProperties properties)
+			throws IOException, ApiException;
+
 	/**
 	 * Sets up the mailbox with the setup token.
 	 *

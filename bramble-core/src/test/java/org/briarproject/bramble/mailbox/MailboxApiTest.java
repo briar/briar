@@ -9,6 +9,7 @@ import org.briarproject.bramble.api.mailbox.MailboxFileId;
 import org.briarproject.bramble.api.mailbox.MailboxFolderId;
 import org.briarproject.bramble.api.mailbox.MailboxId;
 import org.briarproject.bramble.api.mailbox.MailboxProperties;
+import org.briarproject.bramble.api.mailbox.MailboxVersion;
 import org.briarproject.bramble.mailbox.MailboxApi.ApiException;
 import org.briarproject.bramble.mailbox.MailboxApi.MailboxContact;
 import org.briarproject.bramble.mailbox.MailboxApi.MailboxFile;
@@ -78,6 +79,94 @@ public class MailboxApiTest extends BrambleTestCase {
 			new MailboxFolderId(getRandomId());
 	private final MailboxContact mailboxContact = new MailboxContact(
 			contactId, contactToken, contactInboxId, contactOutboxId);
+
+	@Test
+	public void testGetServerSupports() throws Exception {
+		String validVersions = "[ {\"major\":1,\"minor\":0} ]";
+		String validResponse = makeVersionsResponse(validVersions);
+		String invalidResponse = "{\"foo\":\"bar\"}";
+		String invalidVersionsResponse = makeVersionsResponse("42");
+		String invalidVersionsResponse2 = makeVersionsResponse("[ 1,0 ]");
+		String invalidVersionsResponse3 =
+				makeVersionsResponse("[ {\"major\":1, \"minor\":-1} ]");
+
+		MockWebServer server = new MockWebServer();
+		server.enqueue(new MockResponse().setBody(validResponse));
+		server.enqueue(new MockResponse().setBody(invalidResponse));
+		server.enqueue(new MockResponse().setResponseCode(401));
+		server.enqueue(new MockResponse().setResponseCode(500));
+		server.enqueue(new MockResponse().setBody(invalidVersionsResponse));
+		server.enqueue(new MockResponse().setBody(invalidVersionsResponse2));
+		server.enqueue(new MockResponse().setBody(invalidVersionsResponse3));
+		server.start();
+		String baseUrl = getBaseUrl(server);
+		List<MailboxVersion> versions = singletonList(new MailboxVersion(1, 0));
+		MailboxProperties properties =
+				new MailboxProperties(baseUrl, token, true, new ArrayList<>());
+		MailboxProperties properties2 =
+				new MailboxProperties(baseUrl, token2, true, new ArrayList<>());
+
+		RecordedRequest request;
+
+		// valid response with valid token
+		assertEquals(versions, api.getServerSupports(properties));
+		request = server.takeRequest();
+		assertEquals("/versions", request.getPath());
+		assertEquals("GET", request.getMethod());
+		assertToken(request, token);
+
+		// invalid response
+		assertThrows(ApiException.class,
+				() -> api.getServerSupports(properties));
+		request = server.takeRequest();
+		assertEquals("/versions", request.getPath());
+		assertEquals("GET", request.getMethod());
+		assertToken(request, token);
+
+		// 401 response
+		assertThrows(ApiException.class,
+				() -> api.getServerSupports(properties2));
+		request = server.takeRequest();
+		assertEquals("/versions", request.getPath());
+		assertEquals("GET", request.getMethod());
+		assertToken(request, token2);
+
+		// 500 response
+		assertThrows(ApiException.class,
+				() -> api.getServerSupports(properties));
+		request = server.takeRequest();
+		assertEquals("/versions", request.getPath());
+		assertEquals("GET", request.getMethod());
+		assertToken(request, token);
+
+		// invalid non-array serverSupports response
+		assertThrows(ApiException.class,
+				() -> api.getServerSupports(properties));
+		request = server.takeRequest();
+		assertEquals("/versions", request.getPath());
+		assertEquals("GET", request.getMethod());
+		assertToken(request, token);
+
+		// invalid non-object in serverSupports array response
+		assertThrows(ApiException.class,
+				() -> api.getServerSupports(properties));
+		request = server.takeRequest();
+		assertEquals("/versions", request.getPath());
+		assertEquals("GET", request.getMethod());
+		assertToken(request, token);
+
+		// invalid negative minor version in serverSupports response
+		assertThrows(ApiException.class,
+				() -> api.getServerSupports(properties));
+		request = server.takeRequest();
+		assertEquals("/versions", request.getPath());
+		assertEquals("GET", request.getMethod());
+		assertToken(request, token);
+	}
+
+	private String makeVersionsResponse(String versions) {
+		return "{\"serverSupports\":" + versions + "}";
+	}
 
 	@Test
 	public void testSetup() throws Exception {
