@@ -214,16 +214,74 @@ public class MailboxUpdateManagerImplTest extends BrambleMockTestCase {
 	}
 
 	@Test
-	public void testDoesNotCreateGroupsAtStartupIfAlreadyCreated()
+	public void testChecksForCurrentClientSupportsInLatestUpdateOnSecondStartup()
 			throws Exception {
 		Transaction txn = new Transaction(null, false);
+
+		Contact contact = getContact();
+		List<Contact> contacts = singletonList(contact);
+		Group contactGroup = getGroup(CLIENT_ID, MAJOR_VERSION);
+
+		Map<MessageId, BdfDictionary> emptyMessageMetadata =
+				new LinkedHashMap<>();
+
+		context.checking(new Expectations() {{
+			oneOf(contactGroupFactory).createContactGroup(CLIENT_ID,
+					MAJOR_VERSION, contact);
+			will(returnValue(contactGroup));
+			oneOf(db).addGroup(txn, contactGroup);
+			oneOf(clientVersioningManager).getClientVisibility(txn,
+					contact.getId(), CLIENT_ID, MAJOR_VERSION);
+			will(returnValue(SHARED));
+			oneOf(db).setGroupVisibility(txn, contact.getId(),
+					contactGroup.getId(), SHARED);
+			oneOf(clientHelper).setContactId(txn, contactGroup.getId(),
+					contact.getId());
+			oneOf(mailboxSettingsManager).getOwnMailboxProperties(txn);
+			will(returnValue(null));
+			oneOf(contactGroupFactory).createContactGroup(CLIENT_ID,
+					MAJOR_VERSION, contact);
+			will(returnValue(contactGroup));
+			oneOf(clientHelper).getMessageMetadataAsDictionary(txn,
+					contactGroup.getId());
+			will(returnValue(emptyMessageMetadata));
+			expectStoreMessage(txn, contactGroup.getId(), 1, realClientSupports,
+					emptyServerSupports, emptyPropsDict, true);
+		}});
+
+		MailboxUpdateManagerImpl t = createInstance();
+		t.addingContact(txn, contact);
+
+		Message message = getMessage(contactGroup.getId());
+		BdfList body = BdfList.of(1, realClientSupports, emptyServerSupports,
+				emptyPropsDict);
+		BdfDictionary metaDictionary = BdfDictionary.of(
+				new BdfEntry(MSG_KEY_VERSION, 1),
+				new BdfEntry(MSG_KEY_LOCAL, true)
+		);
+		Map<MessageId, BdfDictionary> messageMetadata = new LinkedHashMap<>();
+		messageMetadata.put(message.getId(), metaDictionary);
 
 		context.checking(new Expectations() {{
 			oneOf(db).containsGroup(txn, localGroup.getId());
 			will(returnValue(true));
+			oneOf(db).getContacts(txn);
+			will(returnValue(contacts));
+			oneOf(db).getContact(txn, contact.getId());
+			will(returnValue(contact));
+			oneOf(contactGroupFactory)
+					.createContactGroup(CLIENT_ID, MAJOR_VERSION, contact);
+			will(returnValue(contactGroup));
+			oneOf(clientHelper).getMessageMetadataAsDictionary(txn,
+					contactGroup.getId());
+			will(returnValue(messageMetadata));
+			oneOf(clientHelper).getMessageAsList(txn, message.getId());
+			will(returnValue(body));
+			oneOf(clientHelper).parseAndValidateMailboxUpdate(
+					realClientSupports, emptyServerSupports, emptyPropsDict);
+			will(returnValue(updateNoMailbox));
 		}});
 
-		MailboxUpdateManagerImpl t = createInstance();
 		t.onDatabaseOpened(txn);
 	}
 

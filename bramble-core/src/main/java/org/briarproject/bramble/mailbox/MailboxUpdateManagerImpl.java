@@ -84,6 +84,14 @@ class MailboxUpdateManagerImpl implements MailboxUpdateManager,
 	@Override
 	public void onDatabaseOpened(Transaction txn) throws DbException {
 		if (db.containsGroup(txn, localGroup.getId())) {
+			for (Contact c : db.getContacts(txn)) {
+				MailboxUpdate latest = getLocalUpdate(txn, c.getId());
+				if (!latest.getClientSupports().equals(CLIENT_SUPPORTS)) {
+					latest.setClientSupports(CLIENT_SUPPORTS);
+					Group g = getContactGroup(c);
+					storeMessageReplaceLatest(txn, g.getId(), latest);
+				}
+			}
 			return;
 		}
 		db.addGroup(txn, localGroup);
@@ -123,8 +131,7 @@ class MailboxUpdateManagerImpl implements MailboxUpdateManager,
 
 	@Override
 	public void mailboxPaired(Transaction txn, String ownOnion,
-			List<MailboxVersion> serverSupports)
-			throws DbException {
+			List<MailboxVersion> serverSupports) throws DbException {
 		for (Contact c : db.getContacts(txn)) {
 			createAndSendUpdateWithMailbox(txn, c, serverSupports, ownOnion);
 		}
@@ -192,8 +199,8 @@ class MailboxUpdateManagerImpl implements MailboxUpdateManager,
 
 	@Override
 	@Nullable
-	public MailboxUpdate getRemoteUpdate(Transaction txn, ContactId c) throws
-			DbException {
+	public MailboxUpdate getRemoteUpdate(Transaction txn, ContactId c)
+			throws DbException {
 		return getUpdate(txn, db.getContact(txn, c), false);
 	}
 
@@ -307,8 +314,7 @@ class MailboxUpdateManagerImpl implements MailboxUpdateManager,
 		return supports;
 	}
 
-	private MailboxUpdate parseUpdate(BdfList body)
-			throws FormatException {
+	private MailboxUpdate parseUpdate(BdfList body) throws FormatException {
 		BdfList clientSupports = body.getList(1);
 		BdfList serverSupports = body.getList(2);
 		BdfDictionary dict = body.getDictionary(3);

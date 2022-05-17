@@ -11,7 +11,7 @@ import javax.annotation.concurrent.Immutable;
 public class MailboxUpdate {
 
 	boolean hasMailbox;
-	private final List<MailboxVersion> clientSupports;
+	private List<MailboxVersion> clientSupports;
 
 	public MailboxUpdate(List<MailboxVersion> clientSupports) {
 		this.hasMailbox = false;
@@ -20,6 +20,10 @@ public class MailboxUpdate {
 
 	public List<MailboxVersion> getClientSupports() {
 		return clientSupports;
+	}
+
+	public void setClientSupports(List<MailboxVersion> clientSupports) {
+		this.clientSupports = clientSupports;
 	}
 
 	public boolean hasMailbox() {
