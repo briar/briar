@@ -17,6 +17,7 @@ import org.briarproject.bramble.api.mailbox.MailboxStatus;
 import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
 import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
 import org.briarproject.briar.R;
+import org.briarproject.briar.android.view.BriarButton;
 
 import javax.inject.Inject;
 
@@ -29,6 +30,7 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 import androidx.lifecycle.ViewModelProvider;
 
+import static android.view.View.GONE;
 import static android.view.View.INVISIBLE;
 import static android.view.View.VISIBLE;
 import static androidx.core.content.ContextCompat.getColor;
@@ -38,6 +40,7 @@ import static org.briarproject.briar.android.AppModule.getAndroidComponent;
 import static org.briarproject.briar.android.util.UiUtils.MIN_DATE_RESOLUTION;
 import static org.briarproject.briar.android.util.UiUtils.formatDate;
 import static org.briarproject.briar.android.util.UiUtils.observeOnce;
+import static org.briarproject.briar.android.util.UiUtils.showFragment;
 
 @MethodsNotNullByDefault
 @ParametersNotNullByDefault
@@ -58,6 +61,7 @@ public class MailboxStatusFragment extends Fragment {
 	private ImageView imageView;
 	private TextView statusTitleView;
 	private TextView statusInfoView;
+	private Button wizardButton;
 	private Button unlinkButton;
 	private ProgressBar unlinkProgress;
 
@@ -83,18 +87,11 @@ public class MailboxStatusFragment extends Fragment {
 	public void onViewCreated(View v, @Nullable Bundle savedInstanceState) {
 		super.onViewCreated(v, savedInstanceState);
 
-		Button checkButton = v.findViewById(R.id.checkButton);
-		ProgressBar checkProgress = v.findViewById(R.id.checkProgress);
-		checkButton.setOnClickListener(view -> {
-			beginDelayedTransition((ViewGroup) v);
-			checkButton.setVisibility(INVISIBLE);
-			checkProgress.setVisibility(VISIBLE);
-			observeOnce(viewModel.checkConnection(), this, result -> {
-				beginDelayedTransition((ViewGroup) v);
-				checkButton.setVisibility(VISIBLE);
-				checkProgress.setVisibility(INVISIBLE);
-			});
-		});
+		BriarButton checkButton = v.findViewById(R.id.checkButton);
+		checkButton.setOnClickListener(view ->
+				observeOnce(viewModel.checkConnection(), this, result ->
+						checkButton.reset()
+				));
 
 		imageView = v.findViewById(R.id.imageView);
 		statusTitleView = v.findViewById(R.id.statusTitleView);
@@ -102,8 +99,13 @@ public class MailboxStatusFragment extends Fragment {
 		viewModel.getStatus()
 				.observe(getViewLifecycleOwner(), this::onMailboxStateChanged);
 
-		// TODO
-		//  * Implement UI for warning user when mailbox is unreachable #2175
+		wizardButton = v.findViewById(R.id.wizardButton);
+		wizardButton.setOnClickListener(view -> {
+			Fragment f = new ErrorWizardFragment();
+			String tag = ErrorWizardFragment.TAG;
+			showFragment(getParentFragmentManager(), f, tag, false);
+		});
+
 		unlinkButton = v.findViewById(R.id.unlinkButton);
 		unlinkProgress = v.findViewById(R.id.unlinkProgress);
 		unlinkButton.setOnClickListener(view ->
@@ -135,16 +137,19 @@ public class MailboxStatusFragment extends Fragment {
 			title = getString(R.string.mailbox_status_connected_title);
 			tintRes = R.color.briar_brand_green;
 			showUnlinkWarning = true;
+			wizardButton.setVisibility(GONE);
 		} else if (status.getAttemptsSinceSuccess() < NUM_FAILURES) {
 			iconRes = R.drawable.ic_help_outline_white;
 			title = getString(R.string.mailbox_status_problem_title);
 			tintRes = R.color.briar_orange_500;
 			showUnlinkWarning = false;
+			wizardButton.setVisibility(VISIBLE);
 		} else {
 			tintRes = R.color.briar_red_500;
 			title = getString(R.string.mailbox_status_failure_title);
 			iconRes = R.drawable.alerts_and_states_error;
 			showUnlinkWarning = false;
+			wizardButton.setVisibility(VISIBLE);
 		}
 		imageView.setImageResource(iconRes);
 		int color = getColor(requireContext(), tintRes);

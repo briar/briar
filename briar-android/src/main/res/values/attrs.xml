@@ -37,14 +37,19 @@
 	<declare-styleable name="LargeTextInputView">
 		<attr name="buttonText" format="string"/>
 		<attr name="maxLines" format="integer"/>
-		<attr name="fillHeight" format="boolean"/>
+		<attr name="fillHeight" format="boolean" />
 	</declare-styleable>
 
 	<declare-styleable name="UnreadMessageButton">
 		<attr name="direction" format="enum">
-			<enum name="up" value="0"/>
-			<enum name="down" value="1"/>
+			<enum name="up" value="0" />
+			<enum name="down" value="1" />
 		</attr>
+	</declare-styleable>
+
+	<declare-styleable name="BriarButton">
+		<attr name="text" format="string" />
+		<attr name="buttonStyle" format="reference" />
 	</declare-styleable>
 
 </resources>

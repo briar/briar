@@ -45,6 +45,7 @@ import org.briarproject.briar.android.hotspot.QrHotspotFragment;
 import org.briarproject.briar.android.logging.CachingLogHandler;
 import org.briarproject.briar.android.login.SignInReminderReceiver;
 import org.briarproject.briar.android.mailbox.ErrorFragment;
+import org.briarproject.briar.android.mailbox.ErrorWizardFragment;
 import org.briarproject.briar.android.mailbox.MailboxScanFragment;
 import org.briarproject.briar.android.mailbox.MailboxStatusFragment;
 import org.briarproject.briar.android.mailbox.OfflineFragment;
@@ -257,4 +258,6 @@ public interface AndroidComponent
 	void inject(ErrorFragment errorFragment);
 
 	void inject(MailboxStatusFragment mailboxStatusFragment);
+
+	void inject(ErrorWizardFragment errorWizardFragment);
 }

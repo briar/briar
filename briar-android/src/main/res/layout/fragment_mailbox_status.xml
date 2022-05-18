@@ -37,28 +37,17 @@
 		app:layout_constraintTop_toBottomOf="@+id/imageView"
 		tools:text="@string/mailbox_status_problem_title" />
 
-	<Button
+	<org.briarproject.briar.android.view.BriarButton
 		android:id="@+id/checkButton"
-		style="@style/BriarButtonFlat.Neutral"
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
 		android:layout_marginHorizontal="16dp"
-		android:text="@string/mailbox_status_check_button"
+		app:buttonStyle="@style/BriarButtonFlat.Neutral"
 		app:layout_constraintBottom_toTopOf="@+id/statusInfoView"
 		app:layout_constraintEnd_toEndOf="parent"
 		app:layout_constraintStart_toStartOf="parent"
-		app:layout_constraintTop_toBottomOf="@+id/statusTitleView" />
-
-	<ProgressBar
-		android:id="@+id/checkProgress"
-		android:layout_width="wrap_content"
-		android:layout_height="wrap_content"
-		android:visibility="invisible"
-		app:layout_constraintBottom_toBottomOf="@+id/checkButton"
-		app:layout_constraintEnd_toEndOf="@+id/checkButton"
-		app:layout_constraintStart_toStartOf="@+id/checkButton"
-		app:layout_constraintTop_toTopOf="@+id/checkButton"
-		tools:visibility="visible" />
+		app:layout_constraintTop_toBottomOf="@+id/statusTitleView"
+		app:text="@string/mailbox_status_check_button" />
 
 	<TextView
 		android:id="@+id/statusInfoView"
@@ -71,6 +60,22 @@
 		app:layout_constraintStart_toStartOf="parent"
 		app:layout_constraintTop_toBottomOf="@+id/checkButton"
 		tools:text="@string/mailbox_status_connected_info" />
+
+	<Button
+		android:id="@+id/wizardButton"
+		style="@style/BriarButtonFlat.Positive"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:layout_margin="16dp"
+		android:text="@string/mailbox_error_wizard_button"
+		android:visibility="gone"
+		app:drawableTint="@color/briar_button_text_positive"
+		app:layout_constraintBottom_toTopOf="@+id/unlinkButton"
+		app:layout_constraintEnd_toEndOf="parent"
+		app:layout_constraintStart_toStartOf="parent"
+		app:layout_constraintTop_toBottomOf="@+id/statusInfoView"
+		app:layout_constraintVertical_bias="0.0"
+		tools:visibility="visible" />
 
 	<Button
 		android:id="@+id/unlinkButton"
