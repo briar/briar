@@ -8,6 +8,7 @@ import org.briarproject.bramble.api.contact.ContactId;
 import org.briarproject.bramble.api.contact.ContactManager.ContactHook;
 import org.briarproject.bramble.api.crypto.CryptoComponent;
 import org.briarproject.bramble.api.data.BdfDictionary;
+import org.briarproject.bramble.api.data.BdfEntry;
 import org.briarproject.bramble.api.data.BdfList;
 import org.briarproject.bramble.api.data.MetadataParser;
 import org.briarproject.bramble.api.db.DatabaseComponent;
@@ -84,27 +85,47 @@ class MailboxUpdateManagerImpl implements MailboxUpdateManager,
 	@Override
 	public void onDatabaseOpened(Transaction txn) throws DbException {
 		if (db.containsGroup(txn, localGroup.getId())) {
+			try {
+				BdfDictionary meta = clientHelper.getGroupMetadataAsDictionary(
+						txn, localGroup.getId());
+				BdfList sent = meta.getList(GROUP_KEY_SENT_CLIENT_SUPPORTS);
+				if (clientHelper.parseMailboxVersionList(sent)
+						.equals(CLIENT_SUPPORTS)) {
+					return;
+				}
+			} catch (FormatException e) {
+				throw new DbException();
+			}
+			// Our current clientSupports list has changed compared to what we
+			// last sent out.
 			for (Contact c : db.getContacts(txn)) {
 				MailboxUpdate latest = getLocalUpdate(txn, c.getId());
-				if (!latest.getClientSupports().equals(CLIENT_SUPPORTS)) {
-					MailboxUpdate updated;
-					if (latest.hasMailbox()) {
-						updated = new MailboxUpdateWithMailbox(
-								(MailboxUpdateWithMailbox) latest,
-								CLIENT_SUPPORTS);
-					} else {
-						updated = new MailboxUpdate(CLIENT_SUPPORTS);
-					}
-					Group g = getContactGroup(c);
-					storeMessageReplaceLatest(txn, g.getId(), updated);
+				MailboxUpdate updated;
+				if (latest.hasMailbox()) {
+					updated = new MailboxUpdateWithMailbox(
+							(MailboxUpdateWithMailbox) latest,
+							CLIENT_SUPPORTS);
+				} else {
+					updated = new MailboxUpdate(CLIENT_SUPPORTS);
 				}
+				Group g = getContactGroup(c);
+				storeMessageReplaceLatest(txn, g.getId(), updated);
 			}
-			return;
+		} else {
+			db.addGroup(txn, localGroup);
+			// Set things up for any pre-existing contacts
+			for (Contact c : db.getContacts(txn)) {
+				addingContact(txn, c);
+			}
 		}
-		db.addGroup(txn, localGroup);
-		// Set things up for any pre-existing contacts
-		for (Contact c : db.getContacts(txn)) {
-			addingContact(txn, c);
+
+		try {
+			BdfDictionary meta = BdfDictionary.of(new BdfEntry(
+					GROUP_KEY_SENT_CLIENT_SUPPORTS,
+					encodeSupportsList(CLIENT_SUPPORTS)));
+			clientHelper.mergeGroupMetadata(txn, localGroup.getId(), meta);
+		} catch (FormatException e) {
+			throw new DbException();
 		}
 	}
 

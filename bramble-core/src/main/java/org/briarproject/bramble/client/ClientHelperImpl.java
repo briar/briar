@@ -419,9 +419,9 @@ class ClientHelperImpl implements ClientHelper {
 			BdfList serverSupports, BdfDictionary properties)
 			throws FormatException {
 		List<MailboxVersion> clientSupportsList =
-				getMailboxVersionList(clientSupports);
+				parseMailboxVersionList(clientSupports);
 		List<MailboxVersion> serverSupportsList =
-				getMailboxVersionList(serverSupports);
+				parseMailboxVersionList(serverSupports);
 
 		// We must always learn what Mailbox API version(s) the client supports
 		if (clientSupports.isEmpty()) {
@@ -460,7 +460,8 @@ class ClientHelperImpl implements ClientHelper {
 				new MailboxFolderId(inboxId), new MailboxFolderId(outboxId));
 	}
 
-	private List<MailboxVersion> getMailboxVersionList(BdfList bdfList)
+	@Override
+	public List<MailboxVersion> parseMailboxVersionList(BdfList bdfList)
 			throws FormatException {
 		List<MailboxVersion> list = new ArrayList<>();
 		for (int i = 0; i < bdfList.size(); i++) {

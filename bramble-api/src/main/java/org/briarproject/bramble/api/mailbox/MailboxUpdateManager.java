@@ -57,6 +57,12 @@ public interface MailboxUpdateManager {
 	 */
 	String MSG_KEY_LOCAL = "local";
 
+	/**
+	 * Key in the client's local group for storing the clientSupports list that
+	 * was last sent out.
+	 */
+	String GROUP_KEY_SENT_CLIENT_SUPPORTS = "sentClientSupports";
+
 	MailboxUpdate getLocalUpdate(Transaction txn, ContactId c)
 			throws DbException;
 
