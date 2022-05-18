@@ -20,13 +20,18 @@ public class MailboxUpdateWithMailbox extends MailboxUpdate {
 			MailboxAuthToken authToken, MailboxFolderId inboxId,
 			MailboxFolderId outboxId
 	) {
-		super(clientSupports);
-		this.hasMailbox = true;
+		super(clientSupports, true);
 		this.serverSupports = serverSupports;
 		this.onion = onion;
 		this.authToken = authToken;
 		this.inboxId = inboxId;
 		this.outboxId = outboxId;
+	}
+
+	public MailboxUpdateWithMailbox(MailboxUpdateWithMailbox o,
+			List<MailboxVersion> newClientSupports) {
+		this(newClientSupports, o.serverSupports, o.onion, o.authToken,
+				o.inboxId, o.outboxId);
 	}
 
 	public String getOnion() {

@@ -87,9 +87,16 @@ class MailboxUpdateManagerImpl implements MailboxUpdateManager,
 			for (Contact c : db.getContacts(txn)) {
 				MailboxUpdate latest = getLocalUpdate(txn, c.getId());
 				if (!latest.getClientSupports().equals(CLIENT_SUPPORTS)) {
-					latest.setClientSupports(CLIENT_SUPPORTS);
+					MailboxUpdate updated;
+					if (latest.hasMailbox()) {
+						updated = new MailboxUpdateWithMailbox(
+								(MailboxUpdateWithMailbox) latest,
+								CLIENT_SUPPORTS);
+					} else {
+						updated = new MailboxUpdate(CLIENT_SUPPORTS);
+					}
 					Group g = getContactGroup(c);
-					storeMessageReplaceLatest(txn, g.getId(), latest);
+					storeMessageReplaceLatest(txn, g.getId(), updated);
 				}
 			}
 			return;
