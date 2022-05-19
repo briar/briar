@@ -129,7 +129,7 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 	 * After this many consecutive successful connections to our own hidden
 	 * service we consider the network to be stable.
 	 */
-	private static final int STABLE_NETWORK_THRESHOLD = 3;
+	private static final int STABLE_NETWORK_THRESHOLD = 10;
 
 	/**
 	 * After this many consecutive failed connections to our own hidden service
@@ -142,7 +142,7 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 	 * to be stable.
 	 */
 	private static final int POLLING_INTERVAL_STABLE =
-			(int) MINUTES.toMillis(5);
+			(int) MINUTES.toMillis(10);
 
 	/**
 	 * How often to poll our own hidden service and our contacts' hidden
