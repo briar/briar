@@ -1071,7 +1071,8 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 			if (reasonsDisabled != 0) return DISABLED;
 			if (!networkInitialised) return ENABLING;
 			if (!networkEnabled) return INACTIVE;
-			return bootstrapped && circuitBuilt ? ACTIVE : ENABLING;
+			return bootstrapped && circuitBuilt && orConnectionsConnected > 0
+					? ACTIVE : ENABLING;
 		}
 
 		private synchronized int getReasonsDisabled() {
@@ -1098,17 +1099,23 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 				LOG.warning("Count was zero before connection connected");
 				orConnectionsPending = 0;
 			}
+			int oldConnected = orConnectionsConnected;
 			orConnectionsConnected++;
 			logOrConnections();
+			if (oldConnected == 0) callback.pluginStateChanged(getState());
 		}
 
 		private synchronized void onOrConnectionClosed() {
+			int oldConnected = orConnectionsConnected;
 			orConnectionsConnected--;
 			if (orConnectionsConnected < 0) {
 				LOG.warning("Count was zero before connection closed");
 				orConnectionsConnected = 0;
 			}
 			logOrConnections();
+			if (orConnectionsConnected == 0 && oldConnected != 0) {
+				callback.pluginStateChanged(getState());
+			}
 		}
 
 		private synchronized void onSwitchingGuardContext() {
