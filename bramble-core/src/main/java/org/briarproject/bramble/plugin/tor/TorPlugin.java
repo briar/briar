@@ -128,6 +128,19 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 	/**
 	 * After this many consecutive successful connections to our own hidden
 	 * service we consider the network to be stable.
+	 * <p>
+	 * This constant times {@link #POLLING_INTERVAL_UNSTABLE} should be
+	 * greater than {@link #POLLING_INTERVAL_STABLE}. This ensures that if
+	 * we experience a network outage that isn't detected by the
+	 * {@link NetworkManager}, and if one of our contacts comes online during
+	 * the outage, then either the outage lasts longer than
+	 * {@link #POLLING_INTERVAL_STABLE}, in which case we detect the outage
+	 * by failing to connect to our own hidden service, or the outage ends
+	 * before the contact considers their own network connection to be stable,
+	 * in which case the contact is still trying to connect to us when the
+	 * outage ends. Either way, we don't end up in a situation where both we
+	 * and the contact consider our network connections to be stable and stop
+	 * trying to connect to each other, despite both being online.
 	 */
 	private static final int STABLE_NETWORK_THRESHOLD = 10;
 
