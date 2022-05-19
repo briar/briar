@@ -751,13 +751,6 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 		else if (status.equals("FAILED")) state.onOrConnectionFailed();
 		else if (status.equals("CONNECTED")) state.onOrConnectionConnected();
 		else if (status.equals("CLOSED")) state.onOrConnectionClosed();
-
-		if ((status.equals("FAILED") || status.equals("CLOSED")) &&
-				state.getNumOrConnections() == 0) {
-			// Check whether we've lost connectivity
-			updateConnectionStatus(networkManager.getNetworkStatus(),
-					batteryManager.isCharging());
-		}
 	}
 
 	@Override
@@ -857,8 +850,8 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 				settings = s.getSettings();
 				// Works around a bug introduced in Tor 0.3.4.8.
 				// https://trac.torproject.org/projects/tor/ticket/28027
-				// Could be replaced with callback.transportDisabled()
-				// when fixed.
+				// TODO: The upstream ticket is marked as fixed and backported,
+				//  but this workaround is still needed when disabling bridges
 				disableNetwork();
 				updateConnectionStatus(networkManager.getNetworkStatus(),
 						batteryManager.isCharging());
@@ -1014,6 +1007,7 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 			callback.pluginStateChanged(getState());
 		}
 
+		@SuppressWarnings("BooleanMethodIsAlwaysInverted")
 		private synchronized boolean isTorRunning() {
 			return started && !stopped;
 		}
@@ -1124,10 +1118,6 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 			orConnectionsPending = 0;
 			orConnectionsConnected = 0;
 			logOrConnections();
-		}
-
-		private synchronized int getNumOrConnections() {
-			return orConnectionsPending + orConnectionsConnected;
 		}
 
 		@GuardedBy("this")
