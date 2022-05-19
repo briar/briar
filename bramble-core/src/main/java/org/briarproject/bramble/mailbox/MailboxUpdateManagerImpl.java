@@ -46,13 +46,13 @@ import javax.annotation.Nullable;
 import javax.inject.Inject;
 
 import static org.briarproject.bramble.api.sync.validation.IncomingMessageHook.DeliveryAction.ACCEPT_DO_NOT_SHARE;
-import static org.briarproject.bramble.mailbox.MailboxApi.CLIENT_SUPPORTS;
 
 @NotNullByDefault
 class MailboxUpdateManagerImpl implements MailboxUpdateManager,
 		OpenDatabaseHook, ContactHook, ClientVersioningHook,
 		IncomingMessageHook, MailboxHook {
 
+	private final List<MailboxVersion> clientSupports;
 	private final DatabaseComponent db;
 	private final ClientHelper clientHelper;
 	private final ClientVersioningManager clientVersioningManager;
@@ -64,12 +64,14 @@ class MailboxUpdateManagerImpl implements MailboxUpdateManager,
 	private final Group localGroup;
 
 	@Inject
-	MailboxUpdateManagerImpl(DatabaseComponent db, ClientHelper clientHelper,
+	MailboxUpdateManagerImpl(List<MailboxVersion> clientSupports,
+			DatabaseComponent db, ClientHelper clientHelper,
 			ClientVersioningManager clientVersioningManager,
 			MetadataParser metadataParser,
 			ContactGroupFactory contactGroupFactory, Clock clock,
 			MailboxSettingsManager mailboxSettingsManager,
 			CryptoComponent crypto) {
+		this.clientSupports = clientSupports;
 		this.db = db;
 		this.clientHelper = clientHelper;
 		this.clientVersioningManager = clientVersioningManager;
@@ -90,7 +92,7 @@ class MailboxUpdateManagerImpl implements MailboxUpdateManager,
 						txn, localGroup.getId());
 				BdfList sent = meta.getList(GROUP_KEY_SENT_CLIENT_SUPPORTS);
 				if (clientHelper.parseMailboxVersionList(sent)
-						.equals(CLIENT_SUPPORTS)) {
+						.equals(clientSupports)) {
 					return;
 				}
 			} catch (FormatException e) {
@@ -103,10 +105,9 @@ class MailboxUpdateManagerImpl implements MailboxUpdateManager,
 				MailboxUpdate updated;
 				if (latest.hasMailbox()) {
 					updated = new MailboxUpdateWithMailbox(
-							(MailboxUpdateWithMailbox) latest,
-							CLIENT_SUPPORTS);
+							(MailboxUpdateWithMailbox) latest, clientSupports);
 				} else {
-					updated = new MailboxUpdate(CLIENT_SUPPORTS);
+					updated = new MailboxUpdate(clientSupports);
 				}
 				Group g = getContactGroup(c);
 				storeMessageReplaceLatest(txn, g.getId(), updated);
@@ -122,7 +123,7 @@ class MailboxUpdateManagerImpl implements MailboxUpdateManager,
 		try {
 			BdfDictionary meta = BdfDictionary.of(new BdfEntry(
 					GROUP_KEY_SENT_CLIENT_SUPPORTS,
-					encodeSupportsList(CLIENT_SUPPORTS)));
+					encodeSupportsList(clientSupports)));
 			clientHelper.mergeGroupMetadata(txn, localGroup.getId(), meta);
 		} catch (FormatException e) {
 			throw new DbException();
@@ -242,7 +243,7 @@ class MailboxUpdateManagerImpl implements MailboxUpdateManager,
 			List<MailboxVersion> serverSupports, String ownOnion)
 			throws DbException {
 		MailboxUpdate u = new MailboxUpdateWithMailbox(
-				CLIENT_SUPPORTS, serverSupports, ownOnion,
+				clientSupports, serverSupports, ownOnion,
 				new MailboxAuthToken(crypto.generateUniqueId().getBytes()),
 				new MailboxFolderId(crypto.generateUniqueId().getBytes()),
 				new MailboxFolderId(crypto.generateUniqueId().getBytes()));
@@ -259,7 +260,7 @@ class MailboxUpdateManagerImpl implements MailboxUpdateManager,
 	private void sendUpdateNoMailbox(Transaction txn, Contact c)
 			throws DbException {
 		Group g = getContactGroup(c);
-		MailboxUpdate u = new MailboxUpdate(CLIENT_SUPPORTS);
+		MailboxUpdate u = new MailboxUpdate(clientSupports);
 		storeMessageReplaceLatest(txn, g.getId(), u);
 	}
 
