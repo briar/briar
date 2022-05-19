@@ -8,6 +8,7 @@ import org.briarproject.bramble.api.contact.ContactId;
 import org.briarproject.bramble.api.contact.ContactManager.ContactHook;
 import org.briarproject.bramble.api.crypto.CryptoComponent;
 import org.briarproject.bramble.api.data.BdfDictionary;
+import org.briarproject.bramble.api.data.BdfEntry;
 import org.briarproject.bramble.api.data.BdfList;
 import org.briarproject.bramble.api.data.MetadataParser;
 import org.briarproject.bramble.api.db.DatabaseComponent;
@@ -45,13 +46,13 @@ import javax.annotation.Nullable;
 import javax.inject.Inject;
 
 import static org.briarproject.bramble.api.sync.validation.IncomingMessageHook.DeliveryAction.ACCEPT_DO_NOT_SHARE;
-import static org.briarproject.bramble.mailbox.MailboxApi.CLIENT_SUPPORTS;
 
 @NotNullByDefault
 class MailboxUpdateManagerImpl implements MailboxUpdateManager,
 		OpenDatabaseHook, ContactHook, ClientVersioningHook,
 		IncomingMessageHook, MailboxHook {
 
+	private final List<MailboxVersion> clientSupports;
 	private final DatabaseComponent db;
 	private final ClientHelper clientHelper;
 	private final ClientVersioningManager clientVersioningManager;
@@ -63,12 +64,14 @@ class MailboxUpdateManagerImpl implements MailboxUpdateManager,
 	private final Group localGroup;
 
 	@Inject
-	MailboxUpdateManagerImpl(DatabaseComponent db, ClientHelper clientHelper,
+	MailboxUpdateManagerImpl(List<MailboxVersion> clientSupports,
+			DatabaseComponent db, ClientHelper clientHelper,
 			ClientVersioningManager clientVersioningManager,
 			MetadataParser metadataParser,
 			ContactGroupFactory contactGroupFactory, Clock clock,
 			MailboxSettingsManager mailboxSettingsManager,
 			CryptoComponent crypto) {
+		this.clientSupports = clientSupports;
 		this.db = db;
 		this.clientHelper = clientHelper;
 		this.clientVersioningManager = clientVersioningManager;
@@ -84,12 +87,46 @@ class MailboxUpdateManagerImpl implements MailboxUpdateManager,
 	@Override
 	public void onDatabaseOpened(Transaction txn) throws DbException {
 		if (db.containsGroup(txn, localGroup.getId())) {
-			return;
+			try {
+				BdfDictionary meta = clientHelper.getGroupMetadataAsDictionary(
+						txn, localGroup.getId());
+				BdfList sent = meta.getList(GROUP_KEY_SENT_CLIENT_SUPPORTS);
+				if (clientHelper.parseMailboxVersionList(sent)
+						.equals(clientSupports)) {
+					return;
+				}
+			} catch (FormatException e) {
+				throw new DbException();
+			}
+			// Our current clientSupports list has changed compared to what we
+			// last sent out.
+			for (Contact c : db.getContacts(txn)) {
+				MailboxUpdate latest = getLocalUpdate(txn, c.getId());
+				MailboxUpdate updated;
+				if (latest.hasMailbox()) {
+					updated = new MailboxUpdateWithMailbox(
+							(MailboxUpdateWithMailbox) latest, clientSupports);
+				} else {
+					updated = new MailboxUpdate(clientSupports);
+				}
+				Group g = getContactGroup(c);
+				storeMessageReplaceLatest(txn, g.getId(), updated);
+			}
+		} else {
+			db.addGroup(txn, localGroup);
+			// Set things up for any pre-existing contacts
+			for (Contact c : db.getContacts(txn)) {
+				addingContact(txn, c);
+			}
 		}
-		db.addGroup(txn, localGroup);
-		// Set things up for any pre-existing contacts
-		for (Contact c : db.getContacts(txn)) {
-			addingContact(txn, c);
+
+		try {
+			BdfDictionary meta = BdfDictionary.of(new BdfEntry(
+					GROUP_KEY_SENT_CLIENT_SUPPORTS,
+					encodeSupportsList(clientSupports)));
+			clientHelper.mergeGroupMetadata(txn, localGroup.getId(), meta);
+		} catch (FormatException e) {
+			throw new DbException();
 		}
 	}
 
@@ -123,8 +160,7 @@ class MailboxUpdateManagerImpl implements MailboxUpdateManager,
 
 	@Override
 	public void mailboxPaired(Transaction txn, String ownOnion,
-			List<MailboxVersion> serverSupports)
-			throws DbException {
+			List<MailboxVersion> serverSupports) throws DbException {
 		for (Contact c : db.getContacts(txn)) {
 			createAndSendUpdateWithMailbox(txn, c, serverSupports, ownOnion);
 		}
@@ -192,8 +228,8 @@ class MailboxUpdateManagerImpl implements MailboxUpdateManager,
 
 	@Override
 	@Nullable
-	public MailboxUpdate getRemoteUpdate(Transaction txn, ContactId c) throws
-			DbException {
+	public MailboxUpdate getRemoteUpdate(Transaction txn, ContactId c)
+			throws DbException {
 		return getUpdate(txn, db.getContact(txn, c), false);
 	}
 
@@ -207,7 +243,7 @@ class MailboxUpdateManagerImpl implements MailboxUpdateManager,
 			List<MailboxVersion> serverSupports, String ownOnion)
 			throws DbException {
 		MailboxUpdate u = new MailboxUpdateWithMailbox(
-				CLIENT_SUPPORTS, serverSupports, ownOnion,
+				clientSupports, serverSupports, ownOnion,
 				new MailboxAuthToken(crypto.generateUniqueId().getBytes()),
 				new MailboxFolderId(crypto.generateUniqueId().getBytes()),
 				new MailboxFolderId(crypto.generateUniqueId().getBytes()));
@@ -224,7 +260,7 @@ class MailboxUpdateManagerImpl implements MailboxUpdateManager,
 	private void sendUpdateNoMailbox(Transaction txn, Contact c)
 			throws DbException {
 		Group g = getContactGroup(c);
-		MailboxUpdate u = new MailboxUpdate(CLIENT_SUPPORTS);
+		MailboxUpdate u = new MailboxUpdate(clientSupports);
 		storeMessageReplaceLatest(txn, g.getId(), u);
 	}
 
@@ -307,8 +343,7 @@ class MailboxUpdateManagerImpl implements MailboxUpdateManager,
 		return supports;
 	}
 
-	private MailboxUpdate parseUpdate(BdfList body)
-			throws FormatException {
+	private MailboxUpdate parseUpdate(BdfList body) throws FormatException {
 		BdfList clientSupports = body.getList(1);
 		BdfList serverSupports = body.getList(2);
 		BdfDictionary dict = body.getDictionary(3);

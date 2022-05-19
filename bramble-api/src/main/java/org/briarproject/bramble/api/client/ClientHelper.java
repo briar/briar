@@ -10,6 +10,7 @@ import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.db.Transaction;
 import org.briarproject.bramble.api.identity.Author;
 import org.briarproject.bramble.api.mailbox.MailboxUpdate;
+import org.briarproject.bramble.api.mailbox.MailboxVersion;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.plugin.TransportId;
 import org.briarproject.bramble.api.properties.TransportProperties;
@@ -19,6 +20,7 @@ import org.briarproject.bramble.api.sync.MessageId;
 
 import java.security.GeneralSecurityException;
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 
 @NotNullByDefault
@@ -132,6 +134,9 @@ public interface ClientHelper {
 	 */
 	MailboxUpdate parseAndValidateMailboxUpdate(BdfList clientSupports,
 			BdfList serverSupports, BdfDictionary properties)
+			throws FormatException;
+
+	List<MailboxVersion> parseMailboxVersionList(BdfList bdfList)
 			throws FormatException;
 
 	/**

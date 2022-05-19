@@ -12,6 +12,7 @@ import org.briarproject.bramble.api.mailbox.MailboxProperties;
 import org.briarproject.bramble.api.mailbox.MailboxSettingsManager;
 import org.briarproject.bramble.api.mailbox.MailboxUpdate;
 import org.briarproject.bramble.api.mailbox.MailboxUpdateManager;
+import org.briarproject.bramble.api.mailbox.MailboxVersion;
 import org.briarproject.bramble.api.mailbox.OwnMailboxConnectionStatusEvent;
 import org.briarproject.bramble.api.system.Clock;
 import org.briarproject.bramble.test.BrambleMockTestCase;
@@ -29,7 +30,6 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static java.util.Collections.singletonList;
-import static org.briarproject.bramble.mailbox.MailboxApi.CLIENT_SUPPORTS;
 import static org.briarproject.bramble.test.TestUtils.getContact;
 import static org.briarproject.bramble.test.TestUtils.getRandomBytes;
 import static org.briarproject.bramble.test.TestUtils.getRandomId;
@@ -107,7 +107,8 @@ public class MailboxPairingTaskImplTest extends BrambleMockTestCase {
 		}});
 		Contact contact1 = getContact();
 		Transaction txn = new Transaction(null, false);
-		MailboxUpdate updateNoMailbox = new MailboxUpdate(CLIENT_SUPPORTS);
+		MailboxUpdate updateNoMailbox = new MailboxUpdate(
+				singletonList(new MailboxVersion(47, 11)));
 		context.checking(new DbExpectations() {{
 			oneOf(db).transaction(with(false), withDbRunnable(txn));
 			oneOf(mailboxSettingsManager).setOwnMailboxProperties(

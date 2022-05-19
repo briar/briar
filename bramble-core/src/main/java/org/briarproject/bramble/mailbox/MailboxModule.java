@@ -7,9 +7,12 @@ import org.briarproject.bramble.api.lifecycle.LifecycleManager;
 import org.briarproject.bramble.api.mailbox.MailboxManager;
 import org.briarproject.bramble.api.mailbox.MailboxSettingsManager;
 import org.briarproject.bramble.api.mailbox.MailboxUpdateManager;
+import org.briarproject.bramble.api.mailbox.MailboxVersion;
 import org.briarproject.bramble.api.sync.validation.ValidationManager;
 import org.briarproject.bramble.api.system.Clock;
 import org.briarproject.bramble.api.versioning.ClientVersioningManager;
+
+import java.util.List;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -20,6 +23,7 @@ import dagger.Provides;
 import static org.briarproject.bramble.api.mailbox.MailboxUpdateManager.CLIENT_ID;
 import static org.briarproject.bramble.api.mailbox.MailboxUpdateManager.MAJOR_VERSION;
 import static org.briarproject.bramble.api.mailbox.MailboxUpdateManager.MINOR_VERSION;
+import static org.briarproject.bramble.mailbox.MailboxApi.CLIENT_SUPPORTS;
 
 @Module
 public class MailboxModule {
@@ -64,6 +68,11 @@ public class MailboxModule {
 		validationManager.registerMessageValidator(CLIENT_ID, MAJOR_VERSION,
 				validator);
 		return validator;
+	}
+
+	@Provides
+	List<MailboxVersion> provideClientSupports() {
+		return CLIENT_SUPPORTS;
 	}
 
 	@Provides
