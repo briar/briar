@@ -746,18 +746,8 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 	public void orConnStatus(String status, String orName) {
 		if (LOG.isLoggable(INFO)) LOG.info("OR connection " + status);
 
-		//noinspection IfCanBeSwitch
-		if (status.equals("LAUNCHED")) state.onOrConnectionLaunched();
-		else if (status.equals("FAILED")) state.onOrConnectionFailed();
-		else if (status.equals("CONNECTED")) state.onOrConnectionConnected();
+		if (status.equals("CONNECTED")) state.onOrConnectionConnected();
 		else if (status.equals("CLOSED")) state.onOrConnectionClosed();
-
-		if ((status.equals("FAILED") || status.equals("CLOSED")) &&
-				state.getNumOrConnections() == 0) {
-			// Check whether we've lost connectivity
-			updateConnectionStatus(networkManager.getNetworkStatus(),
-					batteryManager.isCharging());
-		}
 	}
 
 	@Override
@@ -771,9 +761,6 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 	@Override
 	public void message(String severity, String msg) {
 		if (LOG.isLoggable(INFO)) LOG.info(severity + " " + msg);
-		if (msg.startsWith("Switching to guard context")) {
-			state.onSwitchingGuardContext();
-		}
 	}
 
 	@Override
@@ -855,11 +842,6 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 			if (s.getNamespace().equals(ID.getString())) {
 				LOG.info("Tor settings updated");
 				settings = s.getSettings();
-				// Works around a bug introduced in Tor 0.3.4.8.
-				// https://trac.torproject.org/projects/tor/ticket/28027
-				// Could be replaced with callback.transportDisabled()
-				// when fixed.
-				disableNetwork();
 				updateConnectionStatus(networkManager.getNetworkStatus(),
 						batteryManager.isCharging());
 			}
@@ -870,16 +852,6 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 			updateConnectionStatus(networkManager.getNetworkStatus(),
 					((BatteryEvent) e).isCharging());
 		}
-	}
-
-	private void disableNetwork() {
-		connectionStatusExecutor.execute(() -> {
-			try {
-				if (state.isTorRunning()) enableNetwork(false);
-			} catch (IOException ex) {
-				logException(LOG, WARNING, ex);
-			}
-		});
 	}
 
 	private void updateConnectionStatus(NetworkStatus status,
@@ -1007,13 +979,14 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 		private ServerSocket serverSocket = null;
 
 		@GuardedBy("this")
-		private int orConnectionsPending = 0, orConnectionsConnected = 0;
+		private int orConnectionsConnected = 0;
 
 		private synchronized void setStarted() {
 			started = true;
 			callback.pluginStateChanged(getState());
 		}
 
+		@SuppressWarnings("BooleanMethodIsAlwaysInverted")
 		private synchronized boolean isTorRunning() {
 			return started && !stopped;
 		}
@@ -1071,63 +1044,38 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 			if (reasonsDisabled != 0) return DISABLED;
 			if (!networkInitialised) return ENABLING;
 			if (!networkEnabled) return INACTIVE;
-			return bootstrapped && circuitBuilt ? ACTIVE : ENABLING;
+			return bootstrapped && circuitBuilt && orConnectionsConnected > 0
+					? ACTIVE : ENABLING;
 		}
 
 		private synchronized int getReasonsDisabled() {
 			return getState() == DISABLED ? reasonsDisabled : 0;
 		}
 
-		private synchronized void onOrConnectionLaunched() {
-			orConnectionsPending++;
-			logOrConnections();
-		}
-
-		private synchronized void onOrConnectionFailed() {
-			orConnectionsPending--;
-			if (orConnectionsPending < 0) {
-				LOG.warning("Count was zero before connection failed");
-				orConnectionsPending = 0;
-			}
-			logOrConnections();
-		}
-
 		private synchronized void onOrConnectionConnected() {
-			orConnectionsPending--;
-			if (orConnectionsPending < 0) {
-				LOG.warning("Count was zero before connection connected");
-				orConnectionsPending = 0;
-			}
+			int oldConnected = orConnectionsConnected;
 			orConnectionsConnected++;
 			logOrConnections();
+			if (oldConnected == 0) callback.pluginStateChanged(getState());
 		}
 
 		private synchronized void onOrConnectionClosed() {
+			int oldConnected = orConnectionsConnected;
 			orConnectionsConnected--;
 			if (orConnectionsConnected < 0) {
 				LOG.warning("Count was zero before connection closed");
 				orConnectionsConnected = 0;
 			}
 			logOrConnections();
-		}
-
-		private synchronized void onSwitchingGuardContext() {
-			// Tor doesn't seem to report events for connections belonging to
-			// the old guard context, so we have to reset the counters
-			orConnectionsPending = 0;
-			orConnectionsConnected = 0;
-			logOrConnections();
-		}
-
-		private synchronized int getNumOrConnections() {
-			return orConnectionsPending + orConnectionsConnected;
+			if (orConnectionsConnected == 0 && oldConnected != 0) {
+				callback.pluginStateChanged(getState());
+			}
 		}
 
 		@GuardedBy("this")
 		private void logOrConnections() {
 			if (LOG.isLoggable(INFO)) {
-				LOG.info("OR connections: " + orConnectionsPending
-						+ " pending, " + orConnectionsConnected + " connected");
+				LOG.info(orConnectionsConnected + "OR connections connected");
 			}
 		}
 	}
