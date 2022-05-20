@@ -103,6 +103,11 @@ abstract class JdbcDatabase implements Database<Connection> {
 	// Package access for testing
 	static final int CODE_SCHEMA_VERSION = 50;
 
+	/**
+	 * The maximum number of idle connections to keep open.
+	 */
+	private static final int MAX_CONNECTION_POOL_SIZE = 1;
+
 	// Time period offsets for incoming transport keys
 	private static final int OFFSET_PREV = -1;
 	private static final int OFFSET_CURR = 0;
@@ -364,7 +369,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 	private final Condition connectionsChanged = connectionsLock.newCondition();
 
 	@GuardedBy("connectionsLock")
-	private final LinkedList<Connection> connections = new LinkedList<>();
+	private final LinkedList<Connection> connectionPool = new LinkedList<>();
 
 	@GuardedBy("connectionsLock")
 	private int openConnections = 0;
@@ -572,7 +577,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 		connectionsLock.lock();
 		try {
 			if (closed) throw new DbClosedException();
-			txn = connections.poll();
+			txn = connectionPool.poll();
 			logConnectionCounts();
 		} finally {
 			connectionsLock.unlock();
@@ -606,7 +611,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 	private void logConnectionCounts() {
 		if (LOG.isLoggable(FINE)) {
 			LOG.fine(openConnections + " connections open, "
-					+ connections.size() + " in pool");
+					+ connectionPool.size() + " in pool");
 		}
 	}
 
@@ -649,14 +654,18 @@ abstract class JdbcDatabase implements Database<Connection> {
 	}
 
 	private void returnConnectionToPool(Connection txn) {
+		boolean shouldClose;
 		connectionsLock.lock();
 		try {
-			connections.add(txn);
+			shouldClose = connectionPool.size() >= MAX_CONNECTION_POOL_SIZE;
+			if (shouldClose) openConnections--;
+			else connectionPool.add(txn);
 			logConnectionCounts();
 			connectionsChanged.signalAll();
 		} finally {
 			connectionsLock.unlock();
 		}
+		if (shouldClose) tryToClose(txn, LOG, WARNING);
 	}
 
 	void closeAllConnections() {
@@ -664,9 +673,9 @@ abstract class JdbcDatabase implements Database<Connection> {
 		connectionsLock.lock();
 		try {
 			closed = true;
-			for (Connection c : connections) tryToClose(c, LOG, WARNING);
-			openConnections -= connections.size();
-			connections.clear();
+			for (Connection c : connectionPool) tryToClose(c, LOG, WARNING);
+			openConnections -= connectionPool.size();
+			connectionPool.clear();
 			while (openConnections > 0) {
 				if (LOG.isLoggable(INFO)) {
 					LOG.info("Waiting for " + openConnections
@@ -678,9 +687,9 @@ abstract class JdbcDatabase implements Database<Connection> {
 					LOG.warning("Interrupted while closing connections");
 					interrupted = true;
 				}
-				for (Connection c : connections) tryToClose(c, LOG, WARNING);
-				openConnections -= connections.size();
-				connections.clear();
+				for (Connection c : connectionPool) tryToClose(c, LOG, WARNING);
+				openConnections -= connectionPool.size();
+				connectionPool.clear();
 			}
 			LOG.info("All connections closed");
 		} finally {
