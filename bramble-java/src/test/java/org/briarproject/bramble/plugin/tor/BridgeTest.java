@@ -89,6 +89,9 @@ public class BridgeTest extends BrambleTestCase {
 	private final static long MEEK_TIMEOUT = MINUTES.toMillis(6);
 	private final static int UNREACHABLE_BRIDGES_ALLOWED = 6;
 	private final static int ATTEMPTS_PER_BRIDGE = 5;
+	// Use different ports from Briar Desktop to avoid conflicts
+	private final static int SOCKS_PORT = DEFAULT_SOCKS_PORT + 10;
+	private final static int CONTROL_PORT = DEFAULT_CONTROL_PORT + 10;
 
 	private final static Logger LOG = getLogger(BridgeTest.class.getName());
 
@@ -164,8 +167,8 @@ public class BridgeTest extends BrambleTestCase {
 		factory = new UnixTorPluginFactory(ioExecutor, wakefulIoExecutor,
 				networkManager, locationUtils, eventBus, torSocketFactory,
 				backoffFactory, resourceProvider, bridgeProvider,
-				batteryManager, clock, torDir, DEFAULT_SOCKS_PORT,
-				DEFAULT_CONTROL_PORT, crypto);
+				batteryManager, clock, crypto, torDir,
+				SOCKS_PORT, CONTROL_PORT);
 	}
 
 	@After
