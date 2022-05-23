@@ -1,6 +1,8 @@
-package org.briarproject.bramble.api.mailbox;
+package org.briarproject.bramble.api.mailbox.event;
 
 import org.briarproject.bramble.api.event.Event;
+import org.briarproject.bramble.api.mailbox.MailboxSettingsManager;
+import org.briarproject.bramble.api.mailbox.MailboxStatus;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 
 import javax.annotation.concurrent.Immutable;

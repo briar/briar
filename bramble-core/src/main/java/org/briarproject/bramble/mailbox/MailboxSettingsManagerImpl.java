@@ -9,7 +9,8 @@ import org.briarproject.bramble.api.mailbox.MailboxProperties;
 import org.briarproject.bramble.api.mailbox.MailboxSettingsManager;
 import org.briarproject.bramble.api.mailbox.MailboxStatus;
 import org.briarproject.bramble.api.mailbox.MailboxVersion;
-import org.briarproject.bramble.api.mailbox.OwnMailboxConnectionStatusEvent;
+import org.briarproject.bramble.api.mailbox.event.MailboxProblemEvent;
+import org.briarproject.bramble.api.mailbox.event.OwnMailboxConnectionStatusEvent;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.settings.Settings;
 import org.briarproject.bramble.api.settings.SettingsManager;
@@ -22,6 +23,7 @@ import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 import javax.inject.Inject;
 
+import static java.util.concurrent.TimeUnit.DAYS;
 import static org.briarproject.bramble.util.StringUtils.isNullOrEmpty;
 
 @Immutable
@@ -141,6 +143,9 @@ class MailboxSettingsManagerImpl implements MailboxSettingsManager {
 		settingsManager.mergeSettings(txn, newSettings, SETTINGS_NAMESPACE);
 		MailboxStatus status = new MailboxStatus(now, lastSuccess, newAttempts);
 		txn.attach(new OwnMailboxConnectionStatusEvent(status));
+		if (now - lastSuccess > DAYS.toMillis(3) && newAttempts > 10) {
+			txn.attach(new MailboxProblemEvent());
+		}
 	}
 
 	@Override

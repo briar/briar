@@ -3,6 +3,7 @@ package org.briarproject.bramble.api.mailbox;
 import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.db.Transaction;
 import org.briarproject.bramble.api.lifecycle.IoExecutor;
+import org.briarproject.bramble.api.mailbox.event.OwnMailboxConnectionStatusEvent;
 
 import javax.annotation.Nullable;
 
