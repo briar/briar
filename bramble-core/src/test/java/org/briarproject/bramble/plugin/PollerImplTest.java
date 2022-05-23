@@ -1,5 +1,6 @@
 package org.briarproject.bramble.plugin;
 
+import org.briarproject.bramble.api.Cancellable;
 import org.briarproject.bramble.api.connection.ConnectionManager;
 import org.briarproject.bramble.api.connection.ConnectionRegistry;
 import org.briarproject.bramble.api.contact.ContactId;
@@ -20,7 +21,6 @@ import org.briarproject.bramble.api.properties.TransportProperties;
 import org.briarproject.bramble.api.properties.TransportPropertyManager;
 import org.briarproject.bramble.api.system.Clock;
 import org.briarproject.bramble.api.system.TaskScheduler;
-import org.briarproject.bramble.api.system.TaskScheduler.Cancellable;
 import org.briarproject.bramble.test.BrambleMockTestCase;
 import org.briarproject.bramble.test.ImmediateExecutor;
 import org.briarproject.bramble.test.RunAction;

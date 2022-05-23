@@ -1,5 +1,6 @@
 package org.briarproject.bramble.rendezvous;
 
+import org.briarproject.bramble.api.Cancellable;
 import org.briarproject.bramble.api.connection.ConnectionManager;
 import org.briarproject.bramble.api.contact.PendingContact;
 import org.briarproject.bramble.api.contact.PendingContactState;
@@ -27,7 +28,6 @@ import org.briarproject.bramble.api.rendezvous.event.RendezvousConnectionOpenedE
 import org.briarproject.bramble.api.rendezvous.event.RendezvousPollEvent;
 import org.briarproject.bramble.api.system.Clock;
 import org.briarproject.bramble.api.system.TaskScheduler;
-import org.briarproject.bramble.api.system.TaskScheduler.Cancellable;
 import org.briarproject.bramble.test.BrambleMockTestCase;
 import org.briarproject.bramble.test.CaptureArgumentAction;
 import org.briarproject.bramble.test.DbExpectations;

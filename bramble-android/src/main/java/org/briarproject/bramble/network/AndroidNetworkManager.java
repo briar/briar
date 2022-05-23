@@ -14,6 +14,7 @@ import android.net.NetworkInfo;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 
+import org.briarproject.bramble.api.Cancellable;
 import org.briarproject.bramble.api.event.EventBus;
 import org.briarproject.bramble.api.event.EventExecutor;
 import org.briarproject.bramble.api.lifecycle.Service;
@@ -23,7 +24,6 @@ import org.briarproject.bramble.api.network.event.NetworkStatusEvent;
 import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
 import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
 import org.briarproject.bramble.api.system.TaskScheduler;
-import org.briarproject.bramble.api.system.TaskScheduler.Cancellable;
 
 import java.net.Inet4Address;
 import java.net.InetAddress;
