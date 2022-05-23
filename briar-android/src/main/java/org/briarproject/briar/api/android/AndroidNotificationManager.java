@@ -32,6 +32,7 @@ public interface AndroidNotificationManager {
 	int BLOG_POST_NOTIFICATION_ID = 7;
 	int CONTACT_ADDED_NOTIFICATION_ID = 8;
 	int HOTSPOT_NOTIFICATION_ID = 9;
+	int MAILBOX_PROBLEM_NOTIFICATION_ID = 10;
 
 	// Channel IDs
 	String CONTACT_CHANNEL_ID = "contacts";
@@ -44,6 +45,7 @@ public interface AndroidNotificationManager {
 	String ONGOING_CHANNEL_ID = "zForegroundService2";
 	String REMINDER_CHANNEL_ID = "zSignInReminder";
 	String HOTSPOT_CHANNEL_ID = "zHotspot";
+	String MAILBOX_PROBLEM_CHANNEL_ID = "zMailboxProblem";
 
 	// This channel is no longer used - keep the ID so we can remove the
 	// channel from existing installations
@@ -104,4 +106,8 @@ public interface AndroidNotificationManager {
 	void showHotspotNotification();
 
 	void clearHotspotNotification();
+
+	void showMailboxProblemNotification();
+
+	void clearMailboxProblemNotification();
 }

@@ -117,6 +117,7 @@ public class MailboxStatusFragment extends Fragment {
 	public void onStart() {
 		super.onStart();
 		requireActivity().setTitle(R.string.mailbox_status_title);
+		viewModel.clearProblemNotification();
 		refresher = this::refreshLastConnection;
 		handler.postDelayed(refresher, MIN_DATE_RESOLUTION);
 	}

@@ -18,6 +18,9 @@ import org.briarproject.bramble.api.event.Event;
 import org.briarproject.bramble.api.event.EventListener;
 import org.briarproject.bramble.api.lifecycle.Service;
 import org.briarproject.bramble.api.lifecycle.ServiceException;
+import org.briarproject.bramble.api.mailbox.MailboxStatus;
+import org.briarproject.bramble.api.mailbox.event.MailboxProblemEvent;
+import org.briarproject.bramble.api.mailbox.event.OwnMailboxConnectionStatusEvent;
 import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
 import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
 import org.briarproject.bramble.api.settings.Settings;
@@ -32,6 +35,7 @@ import org.briarproject.briar.android.conversation.ConversationActivity;
 import org.briarproject.briar.android.forum.ForumActivity;
 import org.briarproject.briar.android.hotspot.HotspotActivity;
 import org.briarproject.briar.android.login.SignInReminderReceiver;
+import org.briarproject.briar.android.mailbox.MailboxActivity;
 import org.briarproject.briar.android.navdrawer.NavDrawerActivity;
 import org.briarproject.briar.android.privategroup.conversation.GroupActivity;
 import org.briarproject.briar.android.splash.SplashScreenActivity;
@@ -69,10 +73,12 @@ import static android.content.Context.NOTIFICATION_SERVICE;
 import static android.content.Intent.FLAG_ACTIVITY_CLEAR_TOP;
 import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
 import static android.content.Intent.FLAG_ACTIVITY_SINGLE_TOP;
+import static android.net.Uri.EMPTY;
 import static android.os.Build.VERSION.SDK_INT;
 import static androidx.core.app.NotificationCompat.CATEGORY_MESSAGE;
 import static androidx.core.app.NotificationCompat.CATEGORY_SERVICE;
 import static androidx.core.app.NotificationCompat.CATEGORY_SOCIAL;
+import static androidx.core.app.NotificationCompat.PRIORITY_HIGH;
 import static androidx.core.app.NotificationCompat.PRIORITY_LOW;
 import static androidx.core.app.NotificationCompat.PRIORITY_MIN;
 import static androidx.core.app.NotificationCompat.VISIBILITY_SECRET;
@@ -182,6 +188,7 @@ class AndroidNotificationManagerImpl implements AndroidNotificationManager,
 			clearForumPostNotification();
 			clearBlogPostNotification();
 			clearContactAddedNotification();
+			clearMailboxProblemNotification();
 			return null;
 		});
 		try {
@@ -250,6 +257,13 @@ class AndroidNotificationManagerImpl implements AndroidNotificationManager,
 			ContactAddedEvent c = (ContactAddedEvent) e;
 			// Don't show notifications for contacts added in person
 			if (!c.isVerified()) showContactAddedNotification();
+		} else if (e instanceof MailboxProblemEvent) {
+			showMailboxProblemNotification();
+		} else if (e instanceof OwnMailboxConnectionStatusEvent) {
+			MailboxStatus s = ((OwnMailboxConnectionStatusEvent) e).getStatus();
+			if (s.getAttemptsSinceSuccess() == 0) {
+				clearMailboxProblemNotification();
+			}
 		}
 	}
 
@@ -756,5 +770,46 @@ class AndroidNotificationManagerImpl implements AndroidNotificationManager,
 	@Override
 	public void clearHotspotNotification() {
 		notificationManager.cancel(HOTSPOT_NOTIFICATION_ID);
+	}
+
+	@Override
+	public void showMailboxProblemNotification() {
+		if (SDK_INT >= 26) {
+			NotificationChannel channel = new NotificationChannel(
+					MAILBOX_PROBLEM_CHANNEL_ID, appContext.getString(
+					R.string.mailbox_error_notification_channel_title),
+					IMPORTANCE_DEFAULT);
+			channel.setLockscreenVisibility(VISIBILITY_SECRET);
+			notificationManager.createNotificationChannel(channel);
+		}
+
+		NotificationCompat.Builder b = new NotificationCompat.Builder(
+				appContext, MAILBOX_PROBLEM_CHANNEL_ID);
+		b.setSmallIcon(R.drawable.ic_mailbox);
+		b.setColor(getColor(appContext, R.color.briar_red_500));
+		b.setContentTitle(
+				appContext.getText(R.string.mailbox_error_notification_title));
+		b.setContentText(
+				appContext.getText(R.string.mailbox_error_notification_text));
+		b.setAutoCancel(true);
+		b.setNotificationSilent(); // not important enough for sound
+		b.setWhen(0); // Don't show the time
+		b.setPriority(PRIORITY_HIGH);
+
+		// Touching the notification shows the mailbox status page
+		Intent i = new Intent(appContext, MailboxActivity.class);
+		i.setData(EMPTY); // for some reason, the back navigation needs an Uri
+		i.setFlags(FLAG_ACTIVITY_CLEAR_TOP);
+		TaskStackBuilder t = TaskStackBuilder.create(appContext);
+		t.addParentStack(MailboxActivity.class);
+		t.addNextIntent(i);
+		b.setContentIntent(t.getPendingIntent(nextRequestId++, 0));
+
+		notificationManager.notify(MAILBOX_PROBLEM_NOTIFICATION_ID, b.build());
+	}
+
+	@Override
+	public void clearMailboxProblemNotification() {
+		notificationManager.cancel(MAILBOX_PROBLEM_NOTIFICATION_ID);
 	}
 }
