@@ -20,7 +20,7 @@ public interface MailboxUpdateManager {
 	/**
 	 * The current major version of the mailbox update (properties) client.
 	 */
-	int MAJOR_VERSION = 1;
+	int MAJOR_VERSION = 2;
 
 	/**
 	 * The current minor version of the mailbox update (properties) client.
