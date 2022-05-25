@@ -59,8 +59,7 @@ class MailboxApiCallerImpl implements MailboxApiCaller {
 		private void start() {
 			synchronized (lock) {
 				if (cancelled) throw new AssertionError();
-				scheduledTask = taskScheduler.schedule(this::callApi,
-						ioExecutor, 0, MILLISECONDS);
+				ioExecutor.execute(this::callApi);
 			}
 		}
 

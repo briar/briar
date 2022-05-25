@@ -31,22 +31,18 @@ public class MailboxApiCallerImplTest extends BrambleMockTestCase {
 			new MailboxApiCallerImpl(taskScheduler, ioExecutor);
 
 	@Test
-	public void testSubmitsTaskWithZeroDelay() {
-		// Calling retryWithBackoff() should schedule a try with zero delay
+	public void testSubmitsTaskImmediately() {
+		// Calling retryWithBackoff() should schedule the first try immediately
 		AtomicReference<Runnable> runnable = new AtomicReference<>(null);
 		context.checking(new Expectations() {{
-			oneOf(taskScheduler).schedule(with(any(Runnable.class)),
-					with(ioExecutor), with(0L), with(MILLISECONDS));
-			will(new DoAllAction(
-					new CaptureArgumentAction<>(runnable, Runnable.class, 0),
-					returnValue(scheduledTask)
-			));
+			oneOf(ioExecutor).execute(with(any(Runnable.class)));
+			will(new CaptureArgumentAction<>(runnable, Runnable.class, 0));
 		}});
 
 		caller.retryWithBackoff(supplier);
 
-		// When the scheduled task runs, the supplier should be called. The
-		// supplier returns false, so no retries should be scheduled
+		// When the task runs, the supplier should be called. The supplier
+		// returns false, so no retries should be scheduled
 		context.checking(new Expectations() {{
 			oneOf(supplier).get();
 			will(returnValue(false));
@@ -57,21 +53,17 @@ public class MailboxApiCallerImplTest extends BrambleMockTestCase {
 
 	@Test
 	public void testDoesNotRetryTaskIfCancelled() {
-		// Calling retryWithBackoff() should schedule a try with zero delay
+		// Calling retryWithBackoff() should schedule the first try immediately
 		AtomicReference<Runnable> runnable = new AtomicReference<>(null);
 		context.checking(new Expectations() {{
-			oneOf(taskScheduler).schedule(with(any(Runnable.class)),
-					with(ioExecutor), with(0L), with(MILLISECONDS));
-			will(new DoAllAction(
-					new CaptureArgumentAction<>(runnable, Runnable.class, 0),
-					returnValue(scheduledTask)
-			));
+			oneOf(ioExecutor).execute(with(any(Runnable.class)));
+			will(new CaptureArgumentAction<>(runnable, Runnable.class, 0));
 		}});
 
 		Cancellable returned = caller.retryWithBackoff(supplier);
 
-		// When the scheduled task runs, the supplier should be called. The
-		// supplier returns true, so a retry should be scheduled
+		// When the task runs, the supplier should be called. The supplier
+		// returns true, so a retry should be scheduled
 		context.checking(new Expectations() {{
 			oneOf(supplier).get();
 			will(returnValue(true));
@@ -105,6 +97,7 @@ public class MailboxApiCallerImplTest extends BrambleMockTestCase {
 
 	@Test
 	public void testDoublesRetryIntervalUntilMaximumIsReached() {
+		// The expected retry intervals increase from the min to the max
 		List<Long> expectedIntervals = new ArrayList<>();
 		for (long interval = MIN_RETRY_INTERVAL_MS;
 				interval <= MAX_RETRY_INTERVAL_MS; interval *= 2) {
@@ -114,21 +107,17 @@ public class MailboxApiCallerImplTest extends BrambleMockTestCase {
 		expectedIntervals.add(MAX_RETRY_INTERVAL_MS);
 		expectedIntervals.add(MAX_RETRY_INTERVAL_MS);
 
-		// Calling retryWithBackoff() should schedule a try with zero delay
+		// Calling retryWithBackoff() should schedule the first try immediately
 		AtomicReference<Runnable> runnable = new AtomicReference<>(null);
 		context.checking(new Expectations() {{
-			oneOf(taskScheduler).schedule(with(any(Runnable.class)),
-					with(ioExecutor), with(0L), with(MILLISECONDS));
-			will(new DoAllAction(
-					new CaptureArgumentAction<>(runnable, Runnable.class, 0),
-					returnValue(scheduledTask)
-			));
+			oneOf(ioExecutor).execute(with(any(Runnable.class)));
+			will(new CaptureArgumentAction<>(runnable, Runnable.class, 0));
 		}});
 
 		caller.retryWithBackoff(supplier);
 
-		// Each time the scheduled task runs, the supplier returns true, so a
-		// retry should be scheduled with a longer interval
+		// Each time the task runs, the supplier returns true, so a retry
+		// should be scheduled with a longer interval
 		for (long interval : expectedIntervals) {
 			context.checking(new Expectations() {{
 				oneOf(supplier).get();
