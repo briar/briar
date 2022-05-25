@@ -23,7 +23,6 @@ import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 import javax.inject.Inject;
 
-import static java.util.concurrent.TimeUnit.DAYS;
 import static org.briarproject.bramble.util.StringUtils.isNullOrEmpty;
 
 @Immutable
@@ -143,9 +142,7 @@ class MailboxSettingsManagerImpl implements MailboxSettingsManager {
 		settingsManager.mergeSettings(txn, newSettings, SETTINGS_NAMESPACE);
 		MailboxStatus status = new MailboxStatus(now, lastSuccess, newAttempts);
 		txn.attach(new OwnMailboxConnectionStatusEvent(status));
-		if (now - lastSuccess > DAYS.toMillis(3) && newAttempts > 10) {
-			txn.attach(new MailboxProblemEvent());
-		}
+		if (status.hasProblem(now)) txn.attach(new MailboxProblemEvent());
 	}
 
 	@Override

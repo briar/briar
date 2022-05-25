@@ -139,7 +139,7 @@ public class MailboxStatusFragment extends Fragment {
 			tintRes = R.color.briar_brand_green;
 			showUnlinkWarning = true;
 			wizardButton.setVisibility(GONE);
-		} else if (status.getAttemptsSinceSuccess() < NUM_FAILURES) {
+		} else if (!status.hasProblem(System.currentTimeMillis())) {
 			iconRes = R.drawable.ic_help_outline_white;
 			title = getString(R.string.mailbox_status_problem_title);
 			tintRes = R.color.briar_orange_500;
