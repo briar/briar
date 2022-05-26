@@ -1,5 +1,6 @@
 package org.briarproject.bramble.system;
 
+import org.briarproject.bramble.api.Cancellable;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.system.Clock;
 import org.briarproject.bramble.api.system.TaskScheduler;

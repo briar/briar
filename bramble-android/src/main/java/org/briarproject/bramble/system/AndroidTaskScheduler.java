@@ -8,6 +8,7 @@ import android.content.Intent;
 import android.os.Process;
 import android.os.SystemClock;
 
+import org.briarproject.bramble.api.Cancellable;
 import org.briarproject.bramble.api.lifecycle.Service;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.system.AlarmListener;

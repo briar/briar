@@ -1,10 +1,10 @@
 package org.briarproject.bramble.io;
 
+import org.briarproject.bramble.api.Cancellable;
 import org.briarproject.bramble.api.io.TimeoutMonitor;
 import org.briarproject.bramble.api.lifecycle.IoExecutor;
 import org.briarproject.bramble.api.system.Clock;
 import org.briarproject.bramble.api.system.TaskScheduler;
-import org.briarproject.bramble.api.system.TaskScheduler.Cancellable;
 import org.briarproject.bramble.api.system.Wakeful;
 
 import java.io.IOException;
