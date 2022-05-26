@@ -17,7 +17,7 @@ import org.briarproject.bramble.api.mailbox.MailboxManager;
 import org.briarproject.bramble.api.mailbox.MailboxPairingState;
 import org.briarproject.bramble.api.mailbox.MailboxPairingTask;
 import org.briarproject.bramble.api.mailbox.MailboxStatus;
-import org.briarproject.bramble.api.mailbox.OwnMailboxConnectionStatusEvent;
+import org.briarproject.bramble.api.mailbox.event.OwnMailboxConnectionStatusEvent;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.plugin.Plugin;
 import org.briarproject.bramble.api.plugin.PluginManager;
@@ -30,6 +30,7 @@ import org.briarproject.briar.android.qrcode.QrCodeDecoder;
 import org.briarproject.briar.android.viewmodel.DbViewModel;
 import org.briarproject.briar.android.viewmodel.LiveEvent;
 import org.briarproject.briar.android.viewmodel.MutableLiveEvent;
+import org.briarproject.briar.api.android.AndroidNotificationManager;
 
 import java.util.concurrent.Executor;
 import java.util.logging.Logger;
@@ -59,6 +60,7 @@ class MailboxViewModel extends DbViewModel
 	private final QrCodeDecoder qrCodeDecoder;
 	private final PluginManager pluginManager;
 	private final MailboxManager mailboxManager;
+	private final AndroidNotificationManager notificationManager;
 
 	private final MutableLiveEvent<MailboxState> pairingState =
 			new MutableLiveEvent<>();
@@ -77,12 +79,14 @@ class MailboxViewModel extends DbViewModel
 			EventBus eventBus,
 			@IoExecutor Executor ioExecutor,
 			PluginManager pluginManager,
-			MailboxManager mailboxManager) {
+			MailboxManager mailboxManager,
+			AndroidNotificationManager notificationManager) {
 		super(app, dbExecutor, lifecycleManager, db, androidExecutor);
 		this.eventBus = eventBus;
 		this.ioExecutor = ioExecutor;
 		this.pluginManager = pluginManager;
 		this.mailboxManager = mailboxManager;
+		this.notificationManager = notificationManager;
 		qrCodeDecoder = new QrCodeDecoder(androidExecutor, ioExecutor, this);
 		eventBus.addListener(this);
 		checkIfSetup();
@@ -249,6 +253,10 @@ class MailboxViewModel extends DbViewModel
 				handleException(e);
 			}
 		});
+	}
+
+	void clearProblemNotification() {
+		notificationManager.clearMailboxProblemNotification();
 	}
 
 	@UiThread

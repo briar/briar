@@ -1,5 +1,6 @@
 package org.briarproject.bramble.api.mailbox;
 
+import static java.util.concurrent.TimeUnit.HOURS;
 import static org.briarproject.bramble.api.transport.TransportConstants.MAX_FRAME_LENGTH;
 import static org.briarproject.bramble.api.transport.TransportConstants.MAX_PAYLOAD_LENGTH;
 import static org.briarproject.bramble.api.transport.TransportConstants.STREAM_HEADER_LENGTH;
@@ -20,4 +21,17 @@ public interface MailboxConstants {
 	int MAX_FILE_PAYLOAD_BYTES =
 			(MAX_FILE_BYTES - TAG_LENGTH - STREAM_HEADER_LENGTH)
 					/ MAX_FRAME_LENGTH * MAX_PAYLOAD_LENGTH;
+
+	/**
+	 * The number of connection failures
+	 * that indicate a problem with the mailbox.
+	 */
+	int PROBLEM_NUM_CONNECTION_FAILURES = 5;
+
+	/**
+	 * The time in milliseconds since the last connection success
+	 * that need to pass to indicates a problem with the mailbox.
+	 */
+	long PROBLEM_MS_SINCE_LAST_SUCCESS = HOURS.toMillis(1);
+
 }

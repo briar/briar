@@ -4,6 +4,9 @@ import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 
 import javax.annotation.concurrent.Immutable;
 
+import static org.briarproject.bramble.api.mailbox.MailboxConstants.PROBLEM_MS_SINCE_LAST_SUCCESS;
+import static org.briarproject.bramble.api.mailbox.MailboxConstants.PROBLEM_NUM_CONNECTION_FAILURES;
+
 @Immutable
 @NotNullByDefault
 public class MailboxStatus {
@@ -55,5 +58,13 @@ public class MailboxStatus {
 	 */
 	public int getAttemptsSinceSuccess() {
 		return attemptsSinceSuccess;
+	}
+
+	/**
+	 * @return true if this status indicates a problem with the mailbox.
+	 */
+	public boolean hasProblem(long now) {
+		return attemptsSinceSuccess >= PROBLEM_NUM_CONNECTION_FAILURES &&
+				(now - lastSuccess) >= PROBLEM_MS_SINCE_LAST_SUCCESS;
 	}
 }

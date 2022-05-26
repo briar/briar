@@ -7,7 +7,7 @@ import org.briarproject.bramble.api.mailbox.MailboxProperties;
 import org.briarproject.bramble.api.mailbox.MailboxSettingsManager;
 import org.briarproject.bramble.api.mailbox.MailboxStatus;
 import org.briarproject.bramble.api.mailbox.MailboxVersion;
-import org.briarproject.bramble.api.mailbox.OwnMailboxConnectionStatusEvent;
+import org.briarproject.bramble.api.mailbox.event.OwnMailboxConnectionStatusEvent;
 import org.briarproject.bramble.api.settings.Settings;
 import org.briarproject.bramble.api.settings.SettingsManager;
 import org.briarproject.bramble.test.BrambleMockTestCase;
