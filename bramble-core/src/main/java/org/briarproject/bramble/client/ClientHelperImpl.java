@@ -25,6 +25,7 @@ import org.briarproject.bramble.api.identity.Author;
 import org.briarproject.bramble.api.identity.AuthorFactory;
 import org.briarproject.bramble.api.mailbox.MailboxAuthToken;
 import org.briarproject.bramble.api.mailbox.MailboxFolderId;
+import org.briarproject.bramble.api.mailbox.MailboxProperties;
 import org.briarproject.bramble.api.mailbox.MailboxUpdate;
 import org.briarproject.bramble.api.mailbox.MailboxUpdateWithMailbox;
 import org.briarproject.bramble.api.mailbox.MailboxVersion;
@@ -455,9 +456,11 @@ class ClientHelperImpl implements ClientHelper {
 		checkLength(inboxId, UniqueId.LENGTH);
 		byte[] outboxId = properties.getRaw(PROP_KEY_OUTBOXID);
 		checkLength(outboxId, UniqueId.LENGTH);
-		return new MailboxUpdateWithMailbox(clientSupportsList,
-				serverSupportsList, onion, new MailboxAuthToken(authToken),
+		String baseUrl = "http://" + onion + ".onion"; // TODO
+		MailboxProperties props = new MailboxProperties(baseUrl,
+				new MailboxAuthToken(authToken), serverSupportsList,
 				new MailboxFolderId(inboxId), new MailboxFolderId(outboxId));
+		return new MailboxUpdateWithMailbox(clientSupportsList, props);
 	}
 
 	@Override

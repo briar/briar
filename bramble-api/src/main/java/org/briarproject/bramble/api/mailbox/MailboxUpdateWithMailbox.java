@@ -9,48 +9,21 @@ import javax.annotation.concurrent.Immutable;
 @Immutable
 @NotNullByDefault
 public class MailboxUpdateWithMailbox extends MailboxUpdate {
-	private final List<MailboxVersion> serverSupports;
-	private final String onion;
-	private final MailboxAuthToken authToken;
-	private final MailboxFolderId inboxId;
-	private final MailboxFolderId outboxId;
+
+	private final MailboxProperties properties;
 
 	public MailboxUpdateWithMailbox(List<MailboxVersion> clientSupports,
-			List<MailboxVersion> serverSupports, String onion,
-			MailboxAuthToken authToken, MailboxFolderId inboxId,
-			MailboxFolderId outboxId
-	) {
+			MailboxProperties properties) {
 		super(clientSupports, true);
-		this.serverSupports = serverSupports;
-		this.onion = onion;
-		this.authToken = authToken;
-		this.inboxId = inboxId;
-		this.outboxId = outboxId;
+		this.properties = properties;
 	}
 
 	public MailboxUpdateWithMailbox(MailboxUpdateWithMailbox o,
 			List<MailboxVersion> newClientSupports) {
-		this(newClientSupports, o.serverSupports, o.onion, o.authToken,
-				o.inboxId, o.outboxId);
+		this(newClientSupports, o.getMailboxProperties());
 	}
 
-	public String getOnion() {
-		return onion;
-	}
-
-	public MailboxAuthToken getAuthToken() {
-		return authToken;
-	}
-
-	public MailboxFolderId getInboxId() {
-		return inboxId;
-	}
-
-	public MailboxFolderId getOutboxId() {
-		return outboxId;
-	}
-
-	public List<MailboxVersion> getServerSupports() {
-		return serverSupports;
+	public MailboxProperties getMailboxProperties() {
+		return properties;
 	}
 }

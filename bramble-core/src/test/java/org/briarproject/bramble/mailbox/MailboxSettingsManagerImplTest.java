@@ -97,7 +97,7 @@ public class MailboxSettingsManagerImplTest extends BrambleMockTestCase {
 		expectedSettings.put(SETTINGS_KEY_TOKEN, token.toString());
 		expectedSettings.putIntArray(SETTINGS_KEY_SERVER_SUPPORTS,
 				serverSupportsInts);
-		MailboxProperties properties = new MailboxProperties(onion, token, true,
+		MailboxProperties properties = new MailboxProperties(onion, token,
 				serverSupports);
 
 		context.checking(new Expectations() {{

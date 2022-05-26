@@ -95,7 +95,7 @@ class MailboxApiImpl implements MailboxApi {
 			}
 			return new MailboxProperties(properties.getBaseUrl(),
 					MailboxAuthToken.fromString(tokenNode.textValue()),
-					true, parseServerSupports(node));
+					parseServerSupports(node));
 		} catch (JacksonException | InvalidMailboxIdException e) {
 			throw new ApiException();
 		}

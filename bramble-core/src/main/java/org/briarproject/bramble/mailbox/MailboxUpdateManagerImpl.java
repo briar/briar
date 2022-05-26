@@ -242,11 +242,14 @@ class MailboxUpdateManagerImpl implements MailboxUpdateManager,
 	private void createAndSendUpdateWithMailbox(Transaction txn, Contact c,
 			List<MailboxVersion> serverSupports, String ownOnion)
 			throws DbException {
-		MailboxUpdate u = new MailboxUpdateWithMailbox(
-				clientSupports, serverSupports, ownOnion,
+		String baseUrl = "http://" + ownOnion + ".onion"; // TODO
+		MailboxProperties properties = new MailboxProperties(baseUrl,
 				new MailboxAuthToken(crypto.generateUniqueId().getBytes()),
+				serverSupports,
 				new MailboxFolderId(crypto.generateUniqueId().getBytes()),
 				new MailboxFolderId(crypto.generateUniqueId().getBytes()));
+		MailboxUpdate u =
+				new MailboxUpdateWithMailbox(clientSupports, properties);
 		Group g = getContactGroup(c);
 		storeMessageReplaceLatest(txn, g.getId(), u);
 	}
@@ -325,11 +328,12 @@ class MailboxUpdateManagerImpl implements MailboxUpdateManager,
 		BdfList serverSupports = new BdfList();
 		if (u.hasMailbox()) {
 			MailboxUpdateWithMailbox um = (MailboxUpdateWithMailbox) u;
-			serverSupports = encodeSupportsList(um.getServerSupports());
-			dict.put(PROP_KEY_ONION, um.getOnion());
-			dict.put(PROP_KEY_AUTHTOKEN, um.getAuthToken().getBytes());
-			dict.put(PROP_KEY_INBOXID, um.getInboxId().getBytes());
-			dict.put(PROP_KEY_OUTBOXID, um.getOutboxId().getBytes());
+			MailboxProperties properties = um.getMailboxProperties();
+			serverSupports = encodeSupportsList(properties.getServerSupports());
+			dict.put(PROP_KEY_ONION, properties.getOnion());
+			dict.put(PROP_KEY_AUTHTOKEN, properties.getAuthToken());
+			dict.put(PROP_KEY_INBOXID, properties.getInboxId());
+			dict.put(PROP_KEY_OUTBOXID, properties.getOutboxId());
 		}
 		return BdfList.of(version, encodeSupportsList(u.getClientSupports()),
 				serverSupports, dict);
