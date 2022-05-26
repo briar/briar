@@ -44,27 +44,32 @@ class OwnMailboxConnectivityChecker extends ConnectivityCheckerImpl {
 		if (!properties.isOwner()) throw new IllegalArgumentException();
 		return () -> {
 			try {
-				try {
-					mailboxApi.getFolders(properties);
-					LOG.info("Own mailbox is reachable");
-					long now = clock.currentTimeMillis();
-					db.transaction(false, txn -> mailboxSettingsManager
-							.recordSuccessfulConnection(txn, now));
-					// Call the observers and cache the result
-					onConnectivityCheckSucceeded(now);
-					return false; // Don't retry
-				} catch (IOException | ApiException e) {
-					LOG.warning("Own mailbox is unreachable");
-					logException(LOG, WARNING, e);
-					long now = clock.currentTimeMillis();
-					db.transaction(false, txn -> mailboxSettingsManager
-							.recordFailedConnectionAttempt(txn, now));
-				}
+				return checkConnectivityAndStoreResult(properties);
 			} catch (DbException e) {
 				logException(LOG, WARNING, e);
+				return true; // Retry
 			}
-			return true; // Retry
 		};
 	}
 
+	private boolean checkConnectivityAndStoreResult(
+			MailboxProperties properties) throws DbException {
+		try {
+			mailboxApi.getFolders(properties);
+			LOG.info("Own mailbox is reachable");
+			long now = clock.currentTimeMillis();
+			db.transaction(false, txn -> mailboxSettingsManager
+					.recordSuccessfulConnection(txn, now));
+			// Call the observers and cache the result
+			onConnectivityCheckSucceeded(now);
+			return false; // Don't retry
+		} catch (IOException | ApiException e) {
+			LOG.warning("Own mailbox is unreachable");
+			logException(LOG, WARNING, e);
+			long now = clock.currentTimeMillis();
+			db.transaction(false, txn -> mailboxSettingsManager
+					.recordFailedConnectionAttempt(txn, now));
+		}
+		return true; // Retry
+	}
 }
