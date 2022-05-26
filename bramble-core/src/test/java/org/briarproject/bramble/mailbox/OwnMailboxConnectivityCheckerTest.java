@@ -17,7 +17,6 @@ import org.junit.Test;
 import java.io.IOException;
 import java.util.concurrent.atomic.AtomicReference;
 
-import static java.util.Collections.emptyList;
 import static org.briarproject.bramble.mailbox.MailboxApi.CLIENT_SUPPORTS;
 import static org.briarproject.bramble.test.TestUtils.getMailboxProperties;
 import static org.junit.Assert.assertFalse;
@@ -63,8 +62,8 @@ public class OwnMailboxConnectivityCheckerTest extends BrambleMockTestCase {
 		// When the check succeeds, the success should be recorded in the DB
 		// and the observer should be called
 		context.checking(new DbExpectations() {{
-			oneOf(mailboxApi).getFolders(properties);
-			will(returnValue(emptyList()));
+			oneOf(mailboxApi).checkStatus(properties);
+			will(returnValue(true));
 			oneOf(clock).currentTimeMillis();
 			will(returnValue(now));
 			oneOf(db).transaction(with(false), withDbRunnable(txn));
@@ -98,7 +97,7 @@ public class OwnMailboxConnectivityCheckerTest extends BrambleMockTestCase {
 		// When the check fails, the failure should be recorded in the DB and
 		// the observer should not be called
 		context.checking(new DbExpectations() {{
-			oneOf(mailboxApi).getFolders(properties);
+			oneOf(mailboxApi).checkStatus(properties);
 			will(throwException(new IOException()));
 			oneOf(clock).currentTimeMillis();
 			will(returnValue(now));

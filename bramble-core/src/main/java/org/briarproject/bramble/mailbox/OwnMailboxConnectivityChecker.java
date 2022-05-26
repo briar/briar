@@ -55,7 +55,7 @@ class OwnMailboxConnectivityChecker extends ConnectivityCheckerImpl {
 	private boolean checkConnectivityAndStoreResult(
 			MailboxProperties properties) throws DbException {
 		try {
-			mailboxApi.getFolders(properties);
+			if (!mailboxApi.checkStatus(properties)) throw new ApiException();
 			LOG.info("Own mailbox is reachable");
 			long now = clock.currentTimeMillis();
 			db.transaction(false, txn -> mailboxSettingsManager
