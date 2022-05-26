@@ -1,7 +1,6 @@
 package org.briarproject.bramble.mailbox;
 
 import org.briarproject.bramble.api.Cancellable;
-import org.briarproject.bramble.api.Supplier;
 import org.briarproject.bramble.api.lifecycle.IoExecutor;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.system.TaskScheduler;
@@ -31,15 +30,15 @@ class MailboxApiCallerImpl implements MailboxApiCaller {
 	}
 
 	@Override
-	public Cancellable retryWithBackoff(Supplier<Boolean> supplier) {
-		Task task = new Task(supplier);
+	public Cancellable retryWithBackoff(ApiCall apiCall) {
+		Task task = new Task(apiCall);
 		task.start();
 		return task;
 	}
 
 	private class Task implements Cancellable {
 
-		private final Supplier<Boolean> supplier;
+		private final ApiCall apiCall;
 		private final Object lock = new Object();
 
 		@GuardedBy("lock")
@@ -52,8 +51,8 @@ class MailboxApiCallerImpl implements MailboxApiCaller {
 		@GuardedBy("lock")
 		private long retryIntervalMs = MIN_RETRY_INTERVAL_MS;
 
-		private Task(Supplier<Boolean> supplier) {
-			this.supplier = supplier;
+		private Task(ApiCall apiCall) {
+			this.apiCall = apiCall;
 		}
 
 		private void start() {
@@ -68,8 +67,8 @@ class MailboxApiCallerImpl implements MailboxApiCaller {
 			synchronized (lock) {
 				if (cancelled) return;
 			}
-			// The supplier returns true if we should retry
-			if (supplier.get()) {
+			// The call returns true if we should retry
+			if (apiCall.callApi()) {
 				synchronized (lock) {
 					if (cancelled) return;
 					scheduledTask = taskScheduler.schedule(this::callApi,

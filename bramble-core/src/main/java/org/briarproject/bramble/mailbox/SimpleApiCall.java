@@ -1,6 +1,5 @@
 package org.briarproject.bramble.mailbox;
 
-import org.briarproject.bramble.api.Supplier;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.mailbox.MailboxApi.ApiException;
 import org.briarproject.bramble.mailbox.MailboxApi.TolerableFailureException;
@@ -17,17 +16,17 @@ import static org.briarproject.bramble.util.LogUtils.logException;
  * Convenience class for making simple API calls that don't return values.
  */
 @NotNullByDefault
-public abstract class SimpleApiCall implements Supplier<Boolean> {
+public abstract class SimpleApiCall implements ApiCall {
 
 	private static final Logger LOG = getLogger(SimpleApiCall.class.getName());
 
-	abstract void callApi()
+	abstract void tryToCallApi()
 			throws IOException, ApiException, TolerableFailureException;
 
 	@Override
-	public Boolean get() {
+	public boolean callApi() {
 		try {
-			callApi();
+			tryToCallApi();
 			return false; // Succeeded, don't retry
 		} catch (IOException | ApiException e) {
 			logException(LOG, WARNING, e);
