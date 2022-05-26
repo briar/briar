@@ -15,6 +15,7 @@ public class MailboxUpdateWithMailbox extends MailboxUpdate {
 	public MailboxUpdateWithMailbox(List<MailboxVersion> clientSupports,
 			MailboxProperties properties) {
 		super(clientSupports, true);
+		if (properties.isOwner()) throw new IllegalArgumentException();
 		this.properties = properties;
 	}
 
