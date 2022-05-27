@@ -321,16 +321,6 @@ public class MailboxApiTest extends BrambleTestCase {
 	}
 
 	@Test
-	public void testStatusOnlyForOwner() {
-		MailboxProperties properties =
-				getMailboxProperties(false, CLIENT_SUPPORTS);
-		assertThrows(
-				IllegalArgumentException.class,
-				() -> api.checkStatus(properties)
-		);
-	}
-
-	@Test
 	public void testWipe() throws Exception {
 		MockWebServer server = new MockWebServer();
 		server.enqueue(new MockResponse().setResponseCode(204));
