@@ -5,8 +5,6 @@ import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.system.Clock;
 import org.briarproject.bramble.mailbox.MailboxApi.ApiException;
 
-import java.io.IOException;
-
 import javax.annotation.concurrent.ThreadSafe;
 
 @ThreadSafe
@@ -24,16 +22,11 @@ class ContactMailboxConnectivityChecker extends ConnectivityCheckerImpl {
 	@Override
 	ApiCall createConnectivityCheckTask(MailboxProperties properties) {
 		if (properties.isOwner()) throw new IllegalArgumentException();
-		return new SimpleApiCall() {
-			@Override
-			void tryToCallApi() throws IOException, ApiException {
-				if (!mailboxApi.checkStatus(properties)) {
-					throw new ApiException();
-				}
-				// Call the observers and cache the result
-				onConnectivityCheckSucceeded(clock.currentTimeMillis());
-			}
-		};
+		return new SimpleApiCall(() -> {
+			if (!mailboxApi.checkStatus(properties)) throw new ApiException();
+			// Call the observers and cache the result
+			onConnectivityCheckSucceeded(clock.currentTimeMillis());
+		});
 	}
 
 }
