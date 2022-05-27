@@ -127,7 +127,6 @@ class MailboxApiImpl implements MailboxApi {
 	@Override
 	public boolean checkStatus(MailboxProperties properties)
 			throws IOException, ApiException {
-		if (!properties.isOwner()) throw new IllegalArgumentException();
 		Response response = sendGetRequest(properties, "/status");
 		if (response.code() == 401) throw new ApiException();
 		return response.isSuccessful();
