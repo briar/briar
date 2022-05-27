@@ -640,6 +640,7 @@
 	<string name="mailbox_status_connected_title">Mailbox is running</string>
 	<string name="mailbox_status_problem_title">Briar is having trouble connecting to the Mailbox</string>
 	<string name="mailbox_status_failure_title">Mailbox is unavailable</string>
+	<string name="mailbox_status_incompatible_title">Mailbox is incompatible. Ensure Briar and Mailbox are updated to latest version.</string>
 	<string name="mailbox_status_check_button">Check Connection</string>
 	<!-- Example for string substitution: Last connection: 3min ago-->
 	<string name="mailbox_status_connected_info">Last connection: %s</string>

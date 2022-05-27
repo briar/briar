@@ -47,7 +47,6 @@ import static org.briarproject.briar.android.util.UiUtils.showFragment;
 public class MailboxStatusFragment extends Fragment {
 
 	static final String TAG = MailboxStatusFragment.class.getName();
-	private static final int NUM_FAILURES = 4;
 
 	@Inject
 	ViewModelProvider.Factory viewModelFactory;
@@ -133,24 +132,30 @@ public class MailboxStatusFragment extends Fragment {
 		@ColorRes int tintRes;
 		@DrawableRes int iconRes;
 		String title;
-		if (status.getAttemptsSinceSuccess() == 0) {
-			iconRes = R.drawable.ic_check_circle_outline;
-			title = getString(R.string.mailbox_status_connected_title);
-			tintRes = R.color.briar_brand_green;
-			showUnlinkWarning = true;
-			wizardButton.setVisibility(GONE);
-		} else if (!status.hasProblem(System.currentTimeMillis())) {
-			iconRes = R.drawable.ic_help_outline_white;
-			title = getString(R.string.mailbox_status_problem_title);
-			tintRes = R.color.briar_orange_500;
-			showUnlinkWarning = false;
-			wizardButton.setVisibility(VISIBLE);
-		} else {
+		if (status.hasProblem(System.currentTimeMillis())) {
 			tintRes = R.color.briar_red_500;
 			title = getString(R.string.mailbox_status_failure_title);
 			iconRes = R.drawable.alerts_and_states_error;
 			showUnlinkWarning = false;
 			wizardButton.setVisibility(VISIBLE);
+		} else if (status.getAttemptsSinceSuccess() > 0) {
+			iconRes = R.drawable.ic_help_outline_white;
+			title = getString(R.string.mailbox_status_problem_title);
+			tintRes = R.color.briar_orange_500;
+			showUnlinkWarning = false;
+			wizardButton.setVisibility(VISIBLE);
+		} else if (status.isMailboxIncompatible()) {
+			tintRes = R.color.briar_red_500;
+			title = getString(R.string.mailbox_status_incompatible_title);
+			iconRes = R.drawable.alerts_and_states_error;
+			showUnlinkWarning = true;
+			wizardButton.setVisibility(GONE);
+		} else {
+			iconRes = R.drawable.ic_check_circle_outline;
+			title = getString(R.string.mailbox_status_connected_title);
+			tintRes = R.color.briar_brand_green;
+			showUnlinkWarning = true;
+			wizardButton.setVisibility(GONE);
 		}
 		imageView.setImageResource(iconRes);
 		int color = getColor(requireContext(), tintRes);
