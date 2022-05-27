@@ -9,8 +9,6 @@ import java.io.IOException;
 
 import javax.annotation.concurrent.ThreadSafe;
 
-import static org.briarproject.bramble.api.nullsafety.NullSafety.requireNonNull;
-
 @ThreadSafe
 @NotNullByDefault
 class ContactMailboxConnectivityChecker extends ConnectivityCheckerImpl {
@@ -29,8 +27,9 @@ class ContactMailboxConnectivityChecker extends ConnectivityCheckerImpl {
 		return new SimpleApiCall() {
 			@Override
 			void tryToCallApi() throws IOException, ApiException {
-				mailboxApi.getFiles(properties,
-						requireNonNull(properties.getInboxId()));
+				if (!mailboxApi.checkStatus(properties)) {
+					throw new ApiException();
+				}
 				// Call the observers and cache the result
 				onConnectivityCheckSucceeded(clock.currentTimeMillis());
 			}

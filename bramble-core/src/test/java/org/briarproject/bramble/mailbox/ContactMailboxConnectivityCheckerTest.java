@@ -13,8 +13,6 @@ import org.junit.Test;
 import java.io.IOException;
 import java.util.concurrent.atomic.AtomicReference;
 
-import static java.util.Collections.emptyList;
-import static org.briarproject.bramble.api.nullsafety.NullSafety.requireNonNull;
 import static org.briarproject.bramble.mailbox.MailboxApi.CLIENT_SUPPORTS;
 import static org.briarproject.bramble.test.TestUtils.getMailboxProperties;
 import static org.junit.Assert.assertFalse;
@@ -54,9 +52,8 @@ public class ContactMailboxConnectivityCheckerTest extends BrambleMockTestCase {
 
 		// When the check succeeds the observer should be called
 		context.checking(new Expectations() {{
-			oneOf(mailboxApi).getFiles(properties,
-					requireNonNull(properties.getInboxId()));
-			will(returnValue(emptyList()));
+			oneOf(mailboxApi).checkStatus(properties);
+			will(returnValue(true));
 			oneOf(clock).currentTimeMillis();
 			will(returnValue(now));
 			oneOf(observer).onConnectivityCheckSucceeded();
@@ -86,8 +83,7 @@ public class ContactMailboxConnectivityCheckerTest extends BrambleMockTestCase {
 
 		// When the check fails, the observer should not be called
 		context.checking(new Expectations() {{
-			oneOf(mailboxApi).getFiles(properties,
-					requireNonNull(properties.getInboxId()));
+			oneOf(mailboxApi).checkStatus(properties);
 			will(throwException(new IOException()));
 		}});
 
