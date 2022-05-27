@@ -187,6 +187,32 @@ public class ConnectivityCheckerImplTest extends BrambleMockTestCase {
 		checker.onConnectivityCheckSucceeded(now);
 	}
 
+	@Test
+	public void testCheckIsCancelledWhenObserverIsRemoved() {
+		ConnectivityCheckerImpl checker = createChecker();
+
+		// When checkConnectivity() is called a check should be started
+		context.checking(new Expectations() {{
+			oneOf(clock).currentTimeMillis();
+			will(returnValue(now));
+			oneOf(mailboxApiCaller).retryWithBackoff(apiCall);
+			will(returnValue(task));
+		}});
+
+		checker.checkConnectivity(properties, observer1);
+
+		// When the observer is removed the check should be cancelled
+		context.checking(new Expectations() {{
+			oneOf(task).cancel();
+		}});
+
+		checker.removeObserver(observer1);
+
+		// If the check runs anyway (cancellation came too late) the observer
+		// should not be called
+		checker.onConnectivityCheckSucceeded(now);
+	}
+
 	private ConnectivityCheckerImpl createChecker() {
 
 		return new ConnectivityCheckerImpl(clock, mailboxApiCaller) {
