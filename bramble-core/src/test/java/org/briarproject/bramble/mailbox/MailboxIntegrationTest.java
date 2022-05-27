@@ -114,7 +114,23 @@ public class MailboxIntegrationTest extends BrambleTestCase {
 
 	@Test
 	public void testStatus() throws Exception {
+		// Owner calls status endpoint
 		assertTrue(api.checkStatus(ownerProperties));
+
+		// Owner adds contact
+		ContactId contactId = new ContactId(1);
+		MailboxContact contact = getMailboxContact(contactId);
+		MailboxProperties contactProperties = new MailboxProperties(
+				ownerProperties.getBaseUrl(), contact.token,
+				new ArrayList<>(), contact.inboxId, contact.outboxId);
+		api.addContact(ownerProperties, contact);
+
+		// Contact calls status endpoint
+		assertTrue(api.checkStatus(contactProperties));
+
+		// Owner deletes contact again to leave clean state for other tests
+		api.deleteContact(ownerProperties, contactId);
+		assertEquals(emptyList(), api.getContacts(ownerProperties));
 	}
 
 	@Test
