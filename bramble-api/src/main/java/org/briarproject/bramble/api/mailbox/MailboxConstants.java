@@ -16,6 +16,12 @@ public interface MailboxConstants {
 	TransportId ID = new TransportId("org.briarproject.bramble.mailbox");
 
 	/**
+	 * The highest major version of the mailbox server
+	 * that this client supports.
+	 */
+	int MAILBOX_VERSION_MAJOR = 1;
+
+	/**
 	 * The maximum length of a file that can be uploaded to or downloaded from
 	 * a mailbox.
 	 */

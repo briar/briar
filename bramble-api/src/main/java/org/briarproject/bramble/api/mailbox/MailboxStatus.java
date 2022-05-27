@@ -2,8 +2,11 @@ package org.briarproject.bramble.api.mailbox;
 
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 
+import java.util.List;
+
 import javax.annotation.concurrent.Immutable;
 
+import static org.briarproject.bramble.api.mailbox.MailboxConstants.MAILBOX_VERSION_MAJOR;
 import static org.briarproject.bramble.api.mailbox.MailboxConstants.PROBLEM_MS_SINCE_LAST_SUCCESS;
 import static org.briarproject.bramble.api.mailbox.MailboxConstants.PROBLEM_NUM_CONNECTION_FAILURES;
 
@@ -13,12 +16,15 @@ public class MailboxStatus {
 
 	private final long lastAttempt, lastSuccess;
 	private final int attemptsSinceSuccess;
+	private final List<MailboxVersion> serverSupports;
 
 	public MailboxStatus(long lastAttempt, long lastSuccess,
-			int attemptsSinceSuccess) {
+			int attemptsSinceSuccess,
+			List<MailboxVersion> serverSupports) {
 		this.lastAttempt = lastAttempt;
 		this.lastSuccess = lastSuccess;
 		this.attemptsSinceSuccess = attemptsSinceSuccess;
+		this.serverSupports = serverSupports;
 	}
 
 	/**
@@ -67,4 +73,16 @@ public class MailboxStatus {
 		return attemptsSinceSuccess >= PROBLEM_NUM_CONNECTION_FAILURES &&
 				(now - lastSuccess) >= PROBLEM_MS_SINCE_LAST_SUCCESS;
 	}
+
+	/**
+	 * @return true if the Mailbox is incompatible with this version of Briar,
+	 * so that the mailbox needs to be updated.
+	 */
+	public boolean isMailboxIncompatible() {
+		for (MailboxVersion version : serverSupports) {
+			if (version.getMajor() <= MAILBOX_VERSION_MAJOR) return false;
+		}
+		return true;
+	}
+
 }
