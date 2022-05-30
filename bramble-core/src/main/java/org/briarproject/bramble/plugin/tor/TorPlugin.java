@@ -1106,7 +1106,7 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 		@GuardedBy("this")
 		private void logOrConnections() {
 			if (LOG.isLoggable(INFO)) {
-				LOG.info(orConnectionsConnected + "OR connections connected");
+				LOG.info(orConnectionsConnected + " OR connections connected");
 			}
 		}
 	}
