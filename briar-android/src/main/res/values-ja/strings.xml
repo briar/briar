@@ -1,36 +1,32 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<resources>
-	<!--Setup-->
-	<string name="setup_title">Briarへようこそ</string>
-	<string name="setup_name_explanation">あなたのニックネームは、常に、あなたが投稿するコンテンツとともに表示されます。プロフィール作成後、編集はできません。</string>
-	<string name="setup_next">次へ</string>
-	<string name="setup_password_intro">パスワードを選択</string>
-	<string name="setup_password_explanation">Briarのアカウント情報はクラウドではなく、暗号化された端末に保存されます。アプリのアンインストールやパスワードの紛失をした場合、アカウントへのアクセスとデータを回復する手段はありません。\n\n推測するのが難しい、長いパスワードを設定してください。ランダムな4単語やランダムな10文字と数字と記号を組み合わせたものなどです。</string>
-	<string name="dnkm_doze_title">バックグラウンド接続</string>
-	<string name="dnkm_doze_intro">メッセージを受信するには、Briarはバックグラウンドで接続を維持する必要があります。</string>
-	<string name="dnkm_doze_explanation">メッセージを受信するには、Briarはバックグラウンドで接続を維持する必要があります。 Briarが接続を維持できるように、バッテリーの最適化を無効にしてください。</string>
-	<string name="dnkm_doze_button">接続を許可</string>
-	<string name="choose_nickname">ニックネームを入力</string>
-	<string name="choose_password">パスワードを入力</string>
-	<string name="confirm_password">確認のため再度パスワードを入力</string>
-	<string name="name_too_long">名前が長過ぎます。</string>
-	<string name="password_too_weak">パスワードが弱すぎます。</string>
-	<string name="passwords_do_not_match">パスワードが一致しません。</string>
-	<string name="create_account_button">アカウントを作成</string>
-	<string name="more_info">詳細情報</string>
-	<string name="don_t_ask_again">次からは尋ねない</string>
-	<string name="dnkm_huawei_protected_text">下のボタンをタップして、「保護されたアプリ」画面でBriarが保護されていることを確認してください。</string>
-	<string name="dnkm_huawei_protected_button">Briarを保護</string>
-	<string name="dnkm_huawei_protected_help">Briarが保護されたアプリのリストに追加されていない場合、Briarはバックグラウンドで実行することができません。</string>
-	<string name="dnkm_huawei_app_launch_button">バッテリー設定を開く</string>
-	<string name="dnkm_xiaomi_button">Briarを保護</string>
-	<string name="dnkm_warning_dozed">%sはバックグラウンドで実行することができませんでした</string>
-	<!--Login-->
-	<string name="enter_password">パスワード</string>
-	<string name="try_again">パスワードが間違っています。もう一度入力してください。</string>
-	<string name="dialog_title_cannot_check_password">パスワードを確認できません</string>
-	<string name="dialog_message_cannot_check_password">Briarはあなたのパスワードを確認できません。この問題を解決するため、デバイスの再起動を試してください。</string>
-	<string name="sign_in_button">サインイン</string>
+<resources xmlns:tools="http://schemas.android.com/tools">
+  <!--Setup-->
+  <string name="setup_title">Briarへようこそ</string>
+  <string name="setup_name_explanation">あなたのニックネームは、常に、あなたが投稿するコンテンツとともに表示されます。プロフィール作成後、編集はできません。</string>
+  <string name="setup_next">次へ</string>
+  <string name="setup_password_intro">パスワードを選択</string>
+  <string name="setup_password_explanation">Briarのアカウント情報はクラウドではなく、暗号化された端末に保存されます。アプリのアンインストールやパスワードの紛失をした場合、アカウントへのアクセスとデータを回復する手段はありません。\n\n推測するのが難しい、長いパスワードを設定してください。ランダムな4単語やランダムな10文字と数字と記号を組み合わせたものなどです。</string>
+  <string name="dnkm_doze_intro">メッセージを受信するには、Briarはバックグラウンドで接続を維持する必要があります。</string>
+  <string name="dnkm_doze_explanation">メッセージを受信するには、Briarはバックグラウンドで接続を維持する必要があります。 Briarが接続を維持できるように、バッテリーの最適化を無効にしてください。</string>
+  <string name="choose_nickname">ニックネームを入力</string>
+  <string name="choose_password">パスワードを入力</string>
+  <string name="confirm_password">確認のため再度パスワードを入力</string>
+  <string name="name_too_long">名前が長過ぎます。</string>
+  <string name="password_too_weak">パスワードが弱すぎます。</string>
+  <string name="passwords_do_not_match">パスワードが一致しません。</string>
+  <string name="create_account_button">アカウントを作成</string>
+  <string name="more_info">詳細情報</string>
+  <string name="don_t_ask_again">次からは尋ねない</string>
+  <string name="dnkm_huawei_protected_text">下のボタンをタップして、「保護されたアプリ」画面でBriarが保護されていることを確認してください。</string>
+  <string name="dnkm_huawei_protected_button">Briarを保護</string>
+  <string name="dnkm_huawei_protected_help">Briarが保護されたアプリのリストに追加されていない場合、Briarはバックグラウンドで実行することができません。</string>
+  <string name="dnkm_xiaomi_button">Briarを保護</string>
+  <!--Login-->
+  <string name="enter_password">パスワード</string>
+  <string name="try_again">パスワードが間違っています。もう一度入力してください。</string>
+  <string name="dialog_title_cannot_check_password">パスワードを確認できません</string>
+  <string name="dialog_message_cannot_check_password">Briarはあなたのパスワードを確認できません。この問題を解決するため、デバイスの再起動を試してください。</string>
+  <string name="sign_in_button">サインイン</string>
   <string name="forgotten_password">パスワードを忘れました</string>
   <string name="dialog_title_lost_password">パスワードを紛失</string>
   <string name="dialog_message_lost_password">あなたのBriarアカウントはクラウド上ではなく、暗号化さた上であなたのデバイスに保存さています。したがってBriarはパスワードをリセットできません。アカウントを削除しはじめからやりなおしますか？\n\n注意：あなたのID、連絡先、メッセージは永久に復元できません。</string>
@@ -38,8 +34,8 @@
   <string name="startup_failed_clock_error">デバイスの時計が不正なので、Briarは起動できませんでした。\n\nデバイスの時計を正しい時刻に設定して、再試行してください。</string>
   <string name="startup_failed_db_error">Briarは、あなたのアカウント、連絡先、メッセージを含むデータベースを開くことができませんでした。\n\nアプリを最新版にアップグレードして再度お試しいただくか、パスワード入力画面で\'パスワードを忘れました\'を選択して新しいアカウントを設定してください。</string>
   <string name="startup_failed_data_too_old_error">あなたのアカウントは古いバージョンのアプリで作成されたもので、このバージョンでは開くことができません。\n\n古いバージョンを再インストールするか、パスワード入力画面で\'パスワードを忘れました\'を選択して新しいアカウントを設定する必要があります。</string>
-  <string name="startup_failed_data_too_new_error">あなたのアカウントは、このアプリの新しいバージョンで作成されたもので、このバージョンでは開くことができません。\n\n最新のバージョンにアップグレードしてから再度お試しください。</string>
-  <string name="startup_failed_service_error">Briarは、必要なコンポーネントを起動できませんでした。\n\n最新版のアプリにアップグレードしてから再度お試しください。</string>
+  <string name="startup_failed_data_too_new_error">あなたのアカウントは、このアプリの新しいバージョンで作成されたもので、このバージョンでは開くことができません。\n\n最新版にアップグレードしてから、もう一度試してください。</string>
+  <string name="startup_failed_service_error">Briarは、必要なコンポーネントを起動できませんでした。\n\nアプリの最新版にアップグレードしてから、もう一度試してください。</string>
   <plurals name="expiry_warning">
     <item quantity="other">これは、Briarのテストバージョンです。 アカウントは%d日で期限切れになり、更新できません。</item>
   </plurals>
@@ -141,7 +137,7 @@
   <string name="fix">修復する</string>
   <string name="help">ヘルプ</string>
   <string name="sorry">申し訳ありません</string>
-  <string name="error_start_activity">あなたのシステム上で利用不可能</string>
+  <string name="error_start_activity">あなたのシステム上で利用できません</string>
   <string name="status_heading">状態</string>
   <string name="error">エラー</string>
   <!--Contacts and Private Conversations-->
@@ -216,8 +212,8 @@
   <string name="contact_added_toast">追加された連絡先：%s</string>
   <string name="contact_already_exists">連絡先%sは既に存在しています </string>
   <string name="qr_code_invalid">QRコードが無効です</string>
-  <string name="qr_code_too_old">スキャンしたQRコードは%sの古いバージョンから取得されました。\n\n最新バージョンへアップグレードしてもらって、もう一度お試しください。</string>
-  <string name="qr_code_too_new">スキャンしたQRコードは、新しいバージョンの%sから取得されました。\n\n最新バージョンにアップグレードしてから、もう一度お試しください。</string>
+  <string name="qr_code_too_old">スキャンしたQRコードは%sの古いバージョンから取得されました。\n\n最新版へアップグレードしてもらって、もう一度お試しください。</string>
+  <string name="qr_code_too_new">スキャンしたQRコードは、新しいバージョンの%sから取得されました。\n\n最新版にアップグレードしてから、もう一度お試しください。</string>
   <string name="camera_error">カメラエラー</string>
   <string name="connecting_to_device">デバイスに接続中\u2026</string>
   <string name="authenticating_with_device">デバイス同士での認証中\u2026</string>
@@ -253,7 +249,7 @@
   <string name="own_link_error">あなたのリンクではなく連絡先のリンクを入力してください</string>
   <string name="nickname_missing">ニックネームを入力してください</string>
   <string name="invalid_link">無効なリンク</string>
-  <string name="unsupported_link">このリンクは、Briarの新しいバージョンからのものです。 最新バージョンにアップグレードしてから、もう一度試してください。</string>
+  <string name="unsupported_link">このリンクは、Briarの新しいバージョンからのものです。 最新版にアップグレードしてから、もう一度試してください。</string>
   <string name="intent_own_link">あなたのBriar自身を指すリンクを開きました。 別の追加したい連絡先を使用してください！</string>
   <string name="missing_link">リンクを入力してください</string>
   <!--This is a numeral indicating the first step in a series of screens-->
@@ -281,7 +277,6 @@
   <string name="pending_contact_updated_toast">保留中の連絡先が更新されました</string>
   <!--Introductions-->
   <string name="introduction_onboarding_title">連絡先を紹介</string>
-  <string name="introduction_onboarding_text">連絡先をお互いに紹介できるので、Briarを使用して連絡するために直接会う必要はありません。</string>
   <string name="introduction_menu_item">はじめに</string>
   <string name="introduction_activity_title">連絡先を選択</string>
   <string name="introduction_not_possible">これらの連絡先については、すでに1つの紹介が進行中です。 これが最初に完了するようにしてください。 あなたやあなたの連絡相手がめったにオンラインにならない場合、これには時間がかかることがあります。</string>
@@ -581,6 +576,9 @@
   <string name="tor_offline_button_check">接続設定を確認</string>
   <string name="mailbox_status_title">メールボックスの状態</string>
   <string name="mailbox_status_connected_title">メールボックスは実行中</string>
+  <string name="mailbox_status_problem_title">Briarはメールボックスへの接続が不調です</string>
+  <string name="mailbox_status_failure_title">メールボックスは利用できません</string>
+  <string name="mailbox_status_check_button">接続を確認</string>
   <!--Example for string substitution: Last connection: 3min ago-->
   <string name="mailbox_status_connected_info">最終接続: %s</string>
   <!--Indicates that there never was a connection to the mailbox. Last connection: Never-->
@@ -726,7 +724,18 @@
   <string name="removable_drive_send_intro">暗号化されたメッセージを含む新しいファイルを作成するには、下のボタンをタップしてください。ファイルの保存先を選択できます。\n\nリムーバブルドライブ上にファイルを保存したければ、ドライブを今挿れてください。</string>
   <string name="removable_drive_send_no_data">現在、この連絡先に送信待ちのメッセージはありません。</string>
   <string name="removable_drive_send_not_supported">この連絡先はBriarの古いバージョン、またはこの機能をサポートしない古い端末を使用中です。</string>
+  <string name="removable_drive_send_button">エクスポート用ファイルを選択してください</string>
+  <string name="removable_drive_ongoing">継続中の作業が完了するのをお待ちください</string>
+  <string name="removable_drive_receive_intro">連絡先があなたに送信したファイルを選択するため、以下のボタンをタップしてください。\n\nそのファイルがリムーバルドライブ上にある場合、そのドライブを今挿入してください。</string>
+  <string name="removable_drive_receive_button">インポート用ファイルを選択してください</string>
+  <string name="removable_drive_success_send_title">エクスポート成功</string>
+  <string name="removable_drive_success_send_text">データのエクスポートが成功しました。28日以内に連絡先へファイルを転送することができます。\n\nファイルがリムーバブルドライブ上にある場合、それを着脱する前に、ステータスバー内の通知を利用してイジェクトしてください。</string>
   <string name="removable_drive_success_receive_title">インポート成功</string>
+  <string name="removable_drive_success_receive_text">全ての暗号化されたメッセージは、受け取っているこのファイル内に含まれました。</string>
+  <string name="removable_drive_error_send_title">データエクスポートでエラー</string>
+  <string name="removable_drive_error_send_text">ファイルへデータを書き込み中にエラーが発生しました。\n\nリムーバブルドライブを使用している場合、適切に挿入されていることを確かにして、再度お試しください。\n\nエラーが持続する場合、経験している問題について、Briarチームにフィードバックを送信してください。</string>
+  <string name="removable_drive_error_receive_title">データインポートでエラー</string>
+  <string name="removable_drive_error_receive_text">選択されたファイルは、Briarが正しく認識するものが含まれていません。\n\n正しいファイルが選択されていることを確認してください。\n\n連絡先が28日より前にファイルを作成した場合、Briarは正しく認識することができません。</string>
   <!--Screenshots-->
   <!--This is a name to be used in screenshots. Feel free to change it to a local name.-->
   <string name="screenshot_alice">アリス</string>

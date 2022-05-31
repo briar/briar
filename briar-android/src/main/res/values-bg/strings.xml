@@ -1,36 +1,32 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<resources>
-	<!--Setup-->
-	<string name="setup_title">Добре дошли в Briar</string>
-	<string name="setup_name_explanation">Прякорът ще бъде видим до всяка ваша публикация. Няма да можете да го промените след като създадете профила си.</string>
-	<string name="setup_next">Напред</string>
-	<string name="setup_password_intro">Изберете парола</string>
-	<string name="setup_password_explanation">Профилът в Briar се съхранява шифриран на устройството ви, а не в облака. Ако забравите паролата си или премахнете Briar, няма начин да го възстановите.\n\nИзберете дълга, трудна за отгатване парола, например: четири случайни думи или десет случайни букви, числа и знаци.</string>
-	<string name="dnkm_doze_title">Свързаност на заден план</string>
-	<string name="dnkm_doze_intro">За да получавате съобщения, Briar трябва да е свързан на заден план.</string>
-	<string name="dnkm_doze_explanation">За да получавате съобщения, Briar трябва да е свързан на заден план. Изключете оптимизацията на батерията, за да може Briar да остане свързан.</string>
-	<string name="dnkm_doze_button">Разрешаване на свързаност</string>
-	<string name="choose_nickname">Изберете прякор</string>
-	<string name="choose_password">Изберете парола</string>
-	<string name="confirm_password">Потвърдете парола</string>
-	<string name="name_too_long">Името е твърде дълго</string>
-	<string name="password_too_weak">Паролата е твърде слаба</string>
-	<string name="passwords_do_not_match">Паролите не съвпадат</string>
-	<string name="create_account_button">Създаване на профил</string>
-	<string name="more_info">Повече информация</string>
-	<string name="don_t_ask_again">Спиране на този въпрос</string>
-	<string name="dnkm_huawei_protected_text">Докоснете бутона по-долу и се уверете, че Briar е защитен в екрана за „Защитени приложения“.</string>
-	<string name="dnkm_huawei_protected_button">Защитаване на Briar</string>
-	<string name="dnkm_huawei_protected_help">Ако не добавите Briar в списъка на защитени приложения, няма да може да работи на заден план.</string>
-	<string name="dnkm_huawei_app_launch_text">Докоснете бутона по-долу, отворете „Стартиране на приложения“ и се уверете, че за Briar е избрано „Ръчно управление“.</string>
-	<string name="dnkm_huawei_app_launch_button">Настройки на батерия</string>
-	<string name="dnkm_huawei_app_launch_help">Ако за Briar не е избрано „Ръчно управление“ в екрана „Стартиране на приложения“, тогава няма да може да работи на заден план.</string>
-	<string name="dnkm_xiaomi_text">За да работи на заден план Briar трябва да бъде заключен в списъка с последно използваните приложения.</string>
-	<string name="dnkm_xiaomi_button">Защитаване на Briar</string>
-	<string name="dnkm_xiaomi_help">Ако Briar не е заключен в списъка с последно използваните приложения, няма да работи на заден план.</string>
-	<string name="dnkm_xiaomi_dialog_body_old">1. Отворете списъка с отворени приложения (списък за превключване на приложения)\n\n2. Плъзнете надолу върху изображението на Briar докато се покаже икона на катинар\n\n3. Ако катинарът е отключен го докоснете, за да го заключите</string>
-	<string name="dnkm_xiaomi_dialog_body_new">1. Отворете списъка с отворени приложения (списък за превключване на приложения)\n\n2. Докоснете и задръжте върху изображението на Briar докато се покаже икона на катинар\n\n3. Ако катинарът е отключен го докоснете, за да го заключите</string>
-	<string name="dnkm_warning_dozed">%s не може да работи на заден план</string>
+<resources xmlns:tools="http://schemas.android.com/tools">
+  <!--Setup-->
+  <string name="setup_title">Добре дошли в Briar</string>
+  <string name="setup_name_explanation">Прякорът ще бъде видим до всяка ваша публикация. Няма да можете да го промените след като създадете профила си.</string>
+  <string name="setup_next">Напред</string>
+  <string name="setup_password_intro">Изберете парола</string>
+  <string name="setup_password_explanation">Профилът в Briar се съхранява шифриран на устройството ви, а не в облака. Ако забравите паролата си или премахнете Briar, няма начин да го възстановите.\n\nИзберете дълга, трудна за отгатване парола, например: четири случайни думи или десет случайни букви, числа и знаци.</string>
+  <string name="dnkm_doze_intro">За да получавате съобщения, Briar трябва да е свързан на заден план.</string>
+  <string name="dnkm_doze_explanation">За да получавате съобщения, Briar трябва да е свързан на заден план. Изключете оптимизацията на батерията, за да може Briar да остане свързан.</string>
+  <string name="choose_nickname">Изберете прякор</string>
+  <string name="choose_password">Изберете парола</string>
+  <string name="confirm_password">Потвърдете парола</string>
+  <string name="name_too_long">Името е твърде дълго</string>
+  <string name="password_too_weak">Паролата е твърде слаба</string>
+  <string name="passwords_do_not_match">Паролите не съвпадат</string>
+  <string name="create_account_button">Създаване на профил</string>
+  <string name="more_info">Повече информация</string>
+  <string name="don_t_ask_again">Спиране на този въпрос</string>
+  <string name="dnkm_huawei_protected_text">Докоснете бутона по-долу и се уверете, че Briar е защитен в екрана за „Защитени приложения“.</string>
+  <string name="dnkm_huawei_protected_button">Защитаване на Briar</string>
+  <string name="dnkm_huawei_protected_help">Ако не добавите Briar в списъка на защитени приложения, няма да може да работи на заден план.</string>
+  <string name="dnkm_huawei_app_launch_text">Докоснете бутона по-долу, отворете „Стартиране на приложения“ и се уверете, че за Briar е избрано „Ръчно управление“.</string>
+  <string name="dnkm_huawei_app_launch_help">Ако за Briar не е избрано „Ръчно управление“ в екрана „Стартиране на приложения“, тогава няма да може да работи на заден план.</string>
+  <string name="dnkm_xiaomi_text">За да работи на заден план Briar трябва да бъде заключен в списъка с последно използваните приложения.</string>
+  <string name="dnkm_xiaomi_button">Предпазване на Briar</string>
+  <string name="dnkm_xiaomi_help">Ако Briar не е заключен в списъка с последно използваните приложения, няма да работи на заден план.</string>
+  <string name="dnkm_xiaomi_dialog_body_old">1. Отворете списъка с отворени приложения (списък за превключване на приложения)\n\n2. Плъзнете надолу върху изображението на Briar докато се покаже икона на катинар\n\n3. Ако катинарът е отключен го докоснете, за да го заключите</string>
+  <string name="dnkm_xiaomi_dialog_body_new">1. Отворете списъка с отворени приложения (списък за превключване на приложения)\n\n2. Докоснете и задръжте върху изображението на Briar докато се покаже икона на катинар\n\n3. Ако катинарът е отключен го докоснете, за да го заключите</string>
   <!--Login-->
   <string name="enter_password">Парола</string>
   <string name="try_again">Грешна парола, опитайте отново</string>
@@ -300,7 +296,7 @@
   <string name="pending_contact_updated_toast">Обновена чакаща заявка за контакт</string>
   <!--Introductions-->
   <string name="introduction_onboarding_title">Запознаване на контакти</string>
-  <string name="introduction_onboarding_text">Можете да запознавате контактите си един с друг. Така няма да им се налага да се срещат лично, за да се свържат в Briar.</string>
+  <string name="introduction_onboarding_text">Можете да запознавате контактите си един с друг, за да се свържат в Briar.</string>
   <string name="introduction_menu_item">Запознаване</string>
   <string name="introduction_activity_title">Избор на контакт</string>
   <string name="introduction_not_possible">С тези контакти вече имате запознанство в процес. Нека първо завърши. Ако вие или контактите ви сте рядко на линия може да отнеме известно време.</string>
@@ -500,14 +496,14 @@
   <string name="pref_theme_system">Спрямо системата</string>
   <!--Settings Connections-->
   <string name="network_settings_title">Свързаност</string>
-  <string name="bluetooth_setting">Свързване с контактите чрез Bluetooth</string>
+  <string name="bluetooth_setting">Връзката с контактите е чрез Bluetooth</string>
   <string name="wifi_setting">Свързване с контактите в същата безжична мрежа</string>
-  <string name="tor_enable_title">Свързване с контактите през интернет</string>
+  <string name="tor_enable_title">Връзката с контактите е през интернет</string>
   <string name="tor_enable_summary">За повече поверителност цялата връзка към интернет се пренасочва през мрежата на Tor</string>
   <string name="tor_network_setting">Начин на свързване към мрежата на Tor</string>
   <string name="tor_network_setting_automatic">Автоматично, на база местоположение</string>
-  <string name="tor_network_setting_without_bridges">Използване на мрежата на Tor без мостове</string>
-  <string name="tor_network_setting_with_bridges">Използване на мрежата на Tor с мостове</string>
+  <string name="tor_network_setting_without_bridges">Мрежата на Tor се използва без мостове</string>
+  <string name="tor_network_setting_with_bridges">Мрежата на Tor се използва с мостове</string>
   <string name="tor_network_setting_never">Без свързване с интернет</string>
   <!--How and when Briar will connect to Tor: E.g. "Don't connect to the Internet (in China)" or "Use Tor network with bridges (in Belarus)"-->
   <string name="tor_network_setting_summary">Автоматично: %1$s (в/ъв %2$s)</string>
@@ -539,20 +535,20 @@
   <string name="choose_new_password">Нова парола</string>
   <string name="confirm_new_password">Потвърдете новата парола</string>
   <string name="password_changed">Паролата е променена.</string>
-  <string name="panic_setting">Настройка на бутон за паника</string>
-  <string name="panic_setting_title">Бутон за паника</string>
-  <string name="panic_setting_hint">Настройва се действието на Briar при използване на приложение за бутон за паника</string>
-  <string name="panic_app_setting_title">Приложение бутон за паника</string>
+  <string name="panic_setting">Настройка на бутон при паника</string>
+  <string name="panic_setting_title">Бутон при паника</string>
+  <string name="panic_setting_hint">Настройва се действието на Briar при използване на приложение за бутон при паника</string>
+  <string name="panic_app_setting_title">Приложение бутон при паника</string>
   <string name="unknown_app">непознато приложение</string>
   <string name="panic_app_setting_summary">Няма зададено приложение</string>
   <string name="panic_app_setting_none">Няма</string>
   <string name="dialog_title_connect_panic_app">Потвърждение на приложение при паника</string>
-  <string name="dialog_message_connect_panic_app">Сигурни ли сте, че желаете да позволите на %1$s да задейства разрушителните действия на бутона за паника?</string>
+  <string name="dialog_message_connect_panic_app">Сигурни ли сте, че желаете да позволите на %1$s да задейства разрушителните действия на бутона при паника?</string>
   <string name="panic_setting_destructive_action">Разрушителни действия</string>
   <string name="panic_setting_signout_title">Отписване</string>
-  <string name="panic_setting_signout_summary">Отписване от Briar при задействан бутон за паника</string>
+  <string name="panic_setting_signout_summary">Отписване от Briar при задействан бутон при паника</string>
   <string name="purge_setting_title">Премахване на профил</string>
-  <string name="purge_setting_summary">Профилът на Briar се изтрива при задействане на бутона за паника. Внимание: Изтрива безвъзвратно профила, контактите и съобщенията</string>
+  <string name="purge_setting_summary">Профилът на Briar се изтрива след задействане на бутона при паника. Внимание: Изтрива безвъзвратно профила, контактите и съобщенията</string>
   <!--Settings Notifications-->
   <string name="notification_settings_title">Известия</string>
   <string name="notify_sign_in_title">Напомняне за вписване</string>
@@ -577,17 +573,37 @@
   <string name="cannot_load_ringtone">Тонът за звънене не може да бъде зареден</string>
   <!--Mailbox-->
   <string name="mailbox_settings_title">Пощенска кутия</string>
-  <string name="mailbox_setup_intro">Пощенската кутия ви дава възможност да получавате съобщения от контактите ви докато сте извън мрежа. Кутията ще получава съобщенията и ще ги пази до като дойдете на линия.\n\nИнсталирайте приложението Birar Mailbox на резервно устройство. Включете го в захранване и с достъп до безжична мрежа, така че да е винаги на линия.</string>
+  <string name="mailbox_setup_title">Настройка като пощенска кутия</string>
+  <string name="mailbox_setup_intro">Пощенската кутия ви дава възможност да получавате съобщения от вашите контакти докато сте извън мрежа. Кутията ще получава съобщенията и ще ги пази докато дойдете на линия.\n\nИнсталирайте приложението Birar Mailbox на резервно устройство. Снабдете го със захранване и постоянен достъп до безжична мрежа, така че да е винаги на линия.</string>
+  <string name="mailbox_setup_download">Първо инсталирайте приложението Mailbox на друго устройство като потърсите „Briar Mailbox“ в Google Play или от където сте инсталирали Briar.\n
+\nСлед това свържете Mailbox с Briar чрез сканиране на кода за QR от приложението Mailbox.</string>
   <string name="mailbox_setup_download_link">Споделяне на препратка за изтегляне</string>
+  <string name="mailbox_setup_button_scan">Сканиране на кода за QR на пощенска кутия</string>
+  <string name="permission_camera_qr_denied_body">Отказахте достъп до камерата, но тя е необходима за добавянето на контакти.\n\nОбмислете дали да не дадете разрешение.</string>
   <string name="mailbox_setup_connecting">Свързване…</string>
   <string name="mailbox_setup_qr_code_wrong_title">Грешен код на QR</string>
+  <string name="mailbox_setup_qr_code_wrong_description">Сканираният код е недействителен. Отворете приложението Briar Malibox на устройството, на което е инсталирано и сканирайте кода, който то предостави.</string>
+  <string name="mailbox_setup_already_paired_title">Пощенската кутия е вече свързана</string>
+  <string name="mailbox_setup_already_paired_description">Изключете връзката с пощенската кутия на другото устройство и опитайте отново.</string>
   <string name="mailbox_setup_io_error_title">Грешка при свързване</string>
+  <string name="mailbox_setup_io_error_description">Уверете се, че и двете устройства са свързани към интернет, и опитайте отново.</string>
+  <string name="mailbox_setup_assertion_error_title">Грешка в пощенската кутия</string>
   <string name="mailbox_setup_paired_title">Свързан</string>
   <string name="tor_offline_title">Извън линия</string>
+  <string name="tor_offline_button_check">Проверете настройките на връзката</string>
+  <string name="mailbox_status_title">Състояние на пощенаската кутия</string>
+  <string name="mailbox_status_connected_title">Пощенската кутия работи</string>
+  <string name="mailbox_status_problem_title">Briar не може да се свърже с пощенската кутия</string>
+  <string name="mailbox_status_failure_title">Пощенската кутия не е достъпна</string>
+  <string name="mailbox_status_check_button">Проверка на връзката</string>
   <!--Example for string substitution: Last connection: 3min ago-->
   <string name="mailbox_status_connected_info">Последно свързване: %s</string>
   <!--Indicates that there never was a connection to the mailbox. Last connection: Never-->
   <string name="mailbox_status_connected_never">Никога</string>
+  <string name="mailbox_status_unlink_button">Изключване на връзка</string>
+  <string name="mailbox_status_unlink_dialog_title">Ще изключите ли връзката с пощенската кутия?</string>
+  <string name="mailbox_status_unlink_dialog_question">Сигурни ли сте, че желаете да изключите връзката с пощенската кутия?</string>
+  <string name="mailbox_error_wizard_info2">Върнете се на този екран, когато получите достъп до устройството.</string>
   <!--Conversation Settings-->
   <string name="disappearing_messages_title">Изчезващи съобщения</string>
   <string name="disappearing_messages_explanation_long">При включване, тази настройка прави бъдещите съобщения в този разговор да изчезват след 7\u00A0дни.
@@ -668,8 +684,8 @@
   <string name="transports_help_text">Briar може да се свърже с контактите ви през интернет, Wi-Fi или Bluetooth.\n\nЗа повече поверителност цялата връзка към интернет се пренасочва през мрежата на Tor.\n\nАко даден контакт може да бъде достъпен чрез няколко метода Briar ги използва успоредно.</string>
   <!--Share app offline-->
   <string name="hotspot_title">Споделяне на приложението извън мрежа</string>
-  <string name="hotspot_intro">Споделете приложението с някого наблизо без използване на интернет, а през Wi-Fi на устройствата.
-\n\nВашето устройство ще създаде безжична точка за достъп. Хората наблизо биха могли да се свържат към нея и да изтеглят Briar от вашето устройство.</string>
+  <string name="hotspot_intro">Споделете приложението с някого наблизо през Wi-Fi на устройствата, без използване на връзка с интернет.
+\n\nВашето устройство ще създаде безжична точка за достъп. Хората наблизо могат да се свържат към нея и да изтеглят Briar от вашето устройство.</string>
   <string name="hotspot_button_start_sharing">Включване на безжична точка</string>
   <string name="hotspot_button_stop_sharing">Спиране на безжична точка</string>
   <string name="hotspot_progress_text_start">Настройване на безжична точка…</string>
@@ -712,6 +728,7 @@
   <string name="hotspot_help_site_1">Уверете се, че въвеждате адреса точно, както е показан. Дори малка грешка може да доведе до неуспех.</string>
   <string name="hotspot_help_site_2">Уверете се, че устройството е свързано с правилната мрежа на Wi-Fi (вижте по-горе) докато отваряте страницата.</string>
   <string name="hotspot_help_site_3">Ако имате инсталирано приложение за защитна стена се уверете, че не спира достъпа.</string>
+  <string name="hotspot_help_site_4">Ако можете да отворите страницата, но не и да изтеглите приложението на Briar пробвайте с друг мрежов четец.</string>
   <string name="hotspot_help_fallback_title">Нищо не става?</string>
   <string name="hotspot_help_fallback_intro">Запазете приложението като файл на APK и го споделете по друг начин. След като бъде получен от другото устройство може да бъде използван за инсталиране на Briar.
 \n\nЗабележка: За да го споделите чрез Bluetooth може да се наложи първо да го преименувате, така че да завършва на .zip.</string>
@@ -723,6 +740,7 @@
   <string name="hotspot_error_start_callback_failed_unknown">Безжичната точка не може да стартира поради неизвестна грешка: причината е %d</string>
   <string name="hotspot_error_start_callback_no_group_info">Безжичната точка не може да стартира: няма информация за група</string>
   <string name="hotspot_error_web_server_start">Грешка при стартиране на уеб сървър</string>
+  <string name="hotspot_flag_test">Внимание: Това приложение е инсталирано с Android Studio и НЕ може да бъде инсталирано на друго устройство.</string>
   <!--Transfer Data via Removable Drives-->
   <string name="removable_drive_menu_title">Свързване чрез преносим диск</string>
   <string name="removable_drive_title_send">Изпращане на сведения</string>

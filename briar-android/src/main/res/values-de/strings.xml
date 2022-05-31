@@ -1,37 +1,32 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<resources>
-	<!--Setup-->
-	<string name="setup_title">Willkommen bei Briar</string>
-	<string name="setup_name_explanation">Dein Spitzname wird neben deinem geposteten Inhalt angezeigt. Du kannst diesen nicht mehr ändern, nachdem du dein Konto erstellt hast.</string>
-	<string name="setup_next">Weiter</string>
-	<string name="setup_password_intro">Wähle ein Passwort</string>
-	<string name="setup_password_explanation">Dein Briar-Konto wird verschlüsselt auf deinem Gerät und nicht in der Cloud gespeichert. Wenn du dein Passwort vergisst oder Briar deinstallierst, gibt es keine Möglichkeit, dein Konto wiederherzustellen.\n\nWähle ein langes Passwort, das schwer zu erraten ist, z.B. vier zufällige Wörter oder zehn zufällige Buchstaben, Zahlen und Symbole.</string>
-	<string name="dnkm_doze_title">Hintergrundverbindungen</string>
-	<string name="dnkm_doze_intro">Um Nachrichten zu empfangen, muss Briar im Hintergrund verbunden bleiben.</string>
-	<string name="dnkm_doze_explanation">Um Nachrichten zu empfangen, muss Briar im Hintergrund verbunden bleiben. Bitte deaktiviere die Akkuoptimierungen, damit Briar in Verbindung bleiben kann.</string>
-	<string name="dnkm_doze_button">Erlaube Verbindungen</string>
-	<string name="choose_nickname">Wähle deinen Spitznamen</string>
-	<string name="choose_password">Wähle dein Passwort</string>
-	<string name="confirm_password">Passwort bestätigen</string>
-	<string name="name_too_long">Name ist zu lang</string>
-	<string name="password_too_weak">Passwort ist zu schwach</string>
-	<string name="passwords_do_not_match">Passwörter stimmen nicht überein</string>
-	<string name="create_account_button">Konto anlegen</string>
-	<string name="more_info">Weitere Informationen</string>
-	<string name="don_t_ask_again">Nicht erneut nachfragen</string>
-	<string name="dnkm_huawei_protected_text">Bitte tippe auf die Schaltfläche unten und stelle sicher, dass Briar unter \"Geschützte Apps\" angezeigt wird.</string>
-	<string name="dnkm_huawei_protected_button">Briar schützen</string>
-	<string name="dnkm_huawei_protected_help">Wenn Briar nicht zur Liste der geschützten Apps hinzugefügt wird, kann es nicht im Hintergrund ausgeführt werden.</string>
-	<string name="dnkm_huawei_app_launch_text">Bitte tippe auf die Schaltfläche unten, öffne den Bereich \"App-Start\" und stelle sicher, dass Briar auf \"Manuell verwalten\" eingestellt ist.</string>
-	<string name="dnkm_huawei_app_launch_button">Akkueinstellungen öffnen</string>
-	<string name="dnkm_huawei_app_launch_help">Wenn Briar im Bereich \"App-Start\" nicht auf \"Manuell verwalten\" eingestellt ist, kann es nicht im Hintergrund ausgeführt werden.</string>
-	<string name="dnkm_huawei_app_launch_error_toast">Akkueinstellungen konnten nicht geöffnet werden</string>
-	<string name="dnkm_xiaomi_text">Um im Hintergrund zu laufen, muss Briar in der Liste der zuletzt verwendeten Apps gesperrt werden.</string>
-	<string name="dnkm_xiaomi_button">Briar schützen</string>
-	<string name="dnkm_xiaomi_help">Wenn Briar nicht in der Liste der zuletzt verwendeten Apps gesperrt ist, kann es nicht im Hintergrund ausgeführt werden.</string>
-	<string name="dnkm_xiaomi_dialog_body_old">1. Öffne die Liste der zuletzt verwendeten Apps (auch \'App Switcher\' genannt)\n\n2. Wische auf dem Bild von Briar nach unten, um das Vorhängeschlosssymbol anzuzeigen\n\n3. Wenn das Vorhängeschloss nicht gesperrt ist, tippe darauf, um es zu sperren</string>
-	<string name="dnkm_xiaomi_dialog_body_new">1. Öffne die Liste der zuletzt verwendeten Apps (auch \'App Switcher\' genannt)\n\n2. Halte das Bild von Briar gedrückt, bis die Schaltfläche für das Vorhängeschloss angezeigt wird\n\n3. Wenn das Vorhängeschloss nicht gesperrt ist, tippe darauf, um es zu sperren</string>
-  <string name="dnkm_warning_dozed">%s konnte nicht im Hintergrund ausgeführt werden</string>
+<resources xmlns:tools="http://schemas.android.com/tools">
+  <!--Setup-->
+  <string name="setup_title">Willkommen bei Briar</string>
+  <string name="setup_name_explanation">Dein Spitzname wird neben deinem geposteten Inhalt angezeigt. Du kannst diesen nicht mehr ändern, nachdem du dein Konto erstellt hast.</string>
+  <string name="setup_next">Weiter</string>
+  <string name="setup_password_intro">Wähle ein Passwort</string>
+  <string name="setup_password_explanation">Dein Briar-Konto wird verschlüsselt auf deinem Gerät und nicht in der Cloud gespeichert. Wenn du dein Passwort vergisst oder Briar deinstallierst, gibt es keine Möglichkeit, dein Konto wiederherzustellen.\n\nWähle ein langes Passwort, das schwer zu erraten ist, z.B. vier zufällige Wörter oder zehn zufällige Buchstaben, Zahlen und Symbole.</string>
+  <string name="dnkm_doze_intro">Um Nachrichten zu empfangen, muss Briar im Hintergrund verbunden bleiben.</string>
+  <string name="dnkm_doze_explanation">Um Nachrichten zu empfangen, muss Briar im Hintergrund verbunden bleiben. Bitte deaktiviere die Akkuoptimierungen, damit Briar in Verbindung bleiben kann.</string>
+  <string name="choose_nickname">Wähle deinen Spitznamen</string>
+  <string name="choose_password">Wähle dein Passwort</string>
+  <string name="confirm_password">Passwort bestätigen</string>
+  <string name="name_too_long">Name ist zu lang</string>
+  <string name="password_too_weak">Passwort ist zu schwach</string>
+  <string name="passwords_do_not_match">Passwörter stimmen nicht überein</string>
+  <string name="create_account_button">Konto anlegen</string>
+  <string name="more_info">Weitere Informationen</string>
+  <string name="don_t_ask_again">Nicht erneut nachfragen</string>
+  <string name="dnkm_huawei_protected_text">Bitte tippe auf die Schaltfläche unten und stelle sicher, dass Briar unter \"Geschützte Apps\" angezeigt wird.</string>
+  <string name="dnkm_huawei_protected_button">Briar schützen</string>
+  <string name="dnkm_huawei_protected_help">Wenn Briar nicht zur Liste der geschützten Apps hinzugefügt wird, kann es nicht im Hintergrund ausgeführt werden.</string>
+  <string name="dnkm_huawei_app_launch_text">Bitte tippe auf die Schaltfläche unten, öffne den Bereich \"App-Start\" und stelle sicher, dass Briar auf \"Manuell verwalten\" eingestellt ist.</string>
+  <string name="dnkm_huawei_app_launch_help">Wenn Briar im Bereich \"App-Start\" nicht auf \"Manuell verwalten\" eingestellt ist, kann es nicht im Hintergrund ausgeführt werden.</string>
+  <string name="dnkm_xiaomi_text">Um im Hintergrund zu laufen, muss Briar in der Liste der zuletzt verwendeten Apps gesperrt werden.</string>
+  <string name="dnkm_xiaomi_button">Briar schützen</string>
+  <string name="dnkm_xiaomi_help">Wenn Briar nicht in der Liste der zuletzt verwendeten Apps gesperrt ist, kann es nicht im Hintergrund ausgeführt werden.</string>
+  <string name="dnkm_xiaomi_dialog_body_old">1. Öffne die Liste der zuletzt verwendeten Apps (auch \'App Switcher\' genannt)\n\n2. Wische auf dem Bild von Briar nach unten, um das Vorhängeschlosssymbol anzuzeigen\n\n3. Wenn das Vorhängeschloss nicht gesperrt ist, tippe darauf, um es zu sperren</string>
+  <string name="dnkm_xiaomi_dialog_body_new">1. Öffne die Liste der zuletzt verwendeten Apps (auch \'App Switcher\' genannt)\n\n2. Halte das Bild von Briar gedrückt, bis die Schaltfläche für das Vorhängeschloss angezeigt wird\n\n3. Wenn das Vorhängeschloss nicht gesperrt ist, tippe darauf, um es zu sperren</string>
   <!--Login-->
   <string name="enter_password">Passwort</string>
   <string name="try_again">Passwort falsch, bitte erneut versuchen</string>
@@ -301,7 +296,7 @@
   <string name="pending_contact_updated_toast">Ausstehender Kontakt aktualisiert</string>
   <!--Introductions-->
   <string name="introduction_onboarding_title">Mache deine Kontakte untereinander bekannt</string>
-  <string name="introduction_onboarding_text">Du kannst deine Kontakte untereinander bekannt machen. So können sie sich über Briar verbinden, ohne sich persönlich treffen zu müssen.</string>
+  <string name="introduction_onboarding_text">Stelle deine Kontakte einander vor, damit sie miteinander über Briar in Kontakt treten können.</string>
   <string name="introduction_menu_item">Kontaktempfehlung abgeben</string>
   <string name="introduction_activity_title">Kontakt auswählen</string>
   <string name="introduction_not_possible">Es wird bereits eine Kontaktempfehlung mit diesen Kontakten verarbeitet. Bitte warte, bis die Verarbeitung abgeschlossen ist. Falls du oder deine Kontakte selten online sind, kann es etwas dauern.</string>
@@ -605,10 +600,21 @@
   <string name="tor_offline_button_check">Verbindungseinstellungen prüfen</string>
   <string name="mailbox_status_title">Mailbox-Status</string>
   <string name="mailbox_status_connected_title">Mailbox läuft</string>
+  <string name="mailbox_status_problem_title">Briar hat Probleme mit der Verbindung zur Mailbox</string>
+  <string name="mailbox_status_failure_title">Mailbox ist nicht verfügbar</string>
+  <string name="mailbox_status_check_button">Verbindung überprüfen</string>
   <!--Example for string substitution: Last connection: 3min ago-->
   <string name="mailbox_status_connected_info">Letzte Verbindung: %s</string>
   <!--Indicates that there never was a connection to the mailbox. Last connection: Never-->
   <string name="mailbox_status_connected_never">Nie</string>
+  <string name="mailbox_status_unlink_button">Trennen</string>
+  <string name="mailbox_status_unlink_dialog_title">Mailbox trennen?</string>
+  <string name="mailbox_status_unlink_dialog_question">Bist du sicher, dass du die Verknüpfung mit deiner Mailbox aufheben willst?</string>
+  <string name="mailbox_status_unlink_dialog_warning">Wenn du die Verknüpfung mit deiner Mailbox aufhebst, kannst du keine Nachrichten empfangen, während Briar offline ist.</string>
+  <string name="mailbox_status_unlink_no_wipe_title">Deine Mailbox wurde getrennt</string>
+  <string name="mailbox_status_unlink_no_wipe_message">Wenn du das nächste Mal Zugriff auf dein Mailbox-Gerät hast, öffne bitte die Mailbox-App und tippe auf die Schaltfläche \"Trennen\", um den Vorgang abzuschließen.\n\nWenn du keinen Zugriff mehr auf dein Mailbox-Gerät hast, mach dir keine Sorgen. Deine Daten sind verschlüsselt, sodass sie sicher bleiben, auch wenn du den Vorgang nicht abschließt.</string>
+  <string name="mailbox_error_notification_text">Antippen, um das Problem zu beheben.</string>
+  <string name="mailbox_error_wizard_button">Problem beheben</string>
   <!--Conversation Settings-->
   <string name="disappearing_messages_title">Selbstlöschende Nachrichten</string>
   <string name="disappearing_messages_explanation_long">Wenn diese Einstellung aktiviert ist, werden neue

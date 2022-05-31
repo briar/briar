@@ -1,36 +1,32 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<resources>
-	<!--Setup-->
-	<string name="setup_title">Вітаємо у Briar</string>
-	<string name="setup_name_explanation">Ваше ім\'я користувача буде відображено біля будь-якого матеріалу, який ви опублікуєте. Ви не зможете змінити його після створення облікового запису.</string>
-	<string name="setup_next">Вперед</string>
-	<string name="setup_password_intro">Створіть пароль</string>
-	<string name="setup_password_explanation">Ваш обліковий запис Briar знаходиться в зашифрованому вигляді на вашому пристрої, а не зберігається на хмарі. Якщо ви забули свій пароль або видалили Briar, обліковий запис не підлягає відновленню.\n\nОбирайте довгий пароль, який буде важко підібрати. Наприклад, такий, що міститиме чотири випадкові слова, або десять випадкових літер, цифр та символів.</string>
-	<string name="dnkm_doze_title">Фонові з\'єднання</string>
-	<string name="dnkm_doze_intro">Для того, щоб отримувати повідомлення, Briar має залишатися на зв\'язку у фоновому режимі.</string>
-	<string name="dnkm_doze_explanation">Для того, щоб отримувати повідомлення, Briar має залишатися на зв\'язку у фоновому режимі. Будь ласка, вимкніть енергоощадливий режим, щоб Briar міг залишатися на зв\'язку.</string>
-	<string name="dnkm_doze_button">Дозволити з\'єднання</string>
-	<string name="choose_nickname">Оберіть ім\'я користувача</string>
-	<string name="choose_password">Створіть власний пароль</string>
-	<string name="confirm_password">Підтвердьте свій пароль</string>
-	<string name="name_too_long">Занадто довге ім\'я</string>
-	<string name="password_too_weak">Пароль занадто слабкий</string>
-	<string name="passwords_do_not_match">Паролі не збігаються</string>
-	<string name="create_account_button">Створити обліковий запис</string>
-	<string name="more_info">Детальніше</string>
-	<string name="don_t_ask_again">Не запитувати знову</string>
-	<string name="dnkm_huawei_protected_text">Будь ласка, натисніть кнопку, що знаходиться нижче і впевніться у тому, що Briar захищено на екрані \"Захищені додатки\".</string>
-	<string name="dnkm_huawei_protected_button">Захистити Briar</string>
-	<string name="dnkm_huawei_protected_help">Якщо Briar немає у списку захищених додатків, він не зможе працювати у фоновому режимі.</string>
-	<string name="dnkm_huawei_app_launch_text">Будь ласка, торкніть кнопку внизу, відкрийте екран «Запуск програми» й переконайтесь, що Briar має налаштування «Керувати вручну».</string>
-	<string name="dnkm_huawei_app_launch_button">Відкрити налаштування батареї</string>
-	<string name="dnkm_huawei_app_launch_help">Якщо не вказати «Керувати вручну» для Briar на екрані «Запуск програми», він не зможе працювати в фоновому режимі.</string>
-	<string name="dnkm_xiaomi_text">Щоб Briar працював у фоновому режимі, закріпіть його в переліку недавніх застосунків.</string>
-	<string name="dnkm_xiaomi_button">Захистити Briar</string>
-	<string name="dnkm_xiaomi_help">Якщо не закріпити Briar у переліку недавніх застосунків, він не зможе працювати в фоновому режимі.</string>
-	<string name="dnkm_xiaomi_dialog_body_old">1. Відкрийте перелік недавніх застосунків (також називається перемикачем додатків)\n\n2. Проведіть униз по зображенню Briar, щоб з\'явився значок замка\n\n3. Якщо замок не замкнений, замкніть його дотиком</string>
-	<string name="dnkm_xiaomi_dialog_body_new">1. Відкрийте перелік недавніх застосунків (також називається перемикачем додатків)\n\n2. Затисніть зображення Briar до появи значка замка.\n\n3. Якщо замок не замкнений, замкніть його дотиком</string>
-	<string name="dnkm_warning_dozed">%s не вдалося запустити у фоновому режимі</string>
+<resources xmlns:tools="http://schemas.android.com/tools">
+  <!--Setup-->
+  <string name="setup_title">Вітаємо у Briar</string>
+  <string name="setup_name_explanation">Ваше ім\'я користувача буде відображено біля будь-якого матеріалу, який ви опублікуєте. Ви не зможете змінити його після створення облікового запису.</string>
+  <string name="setup_next">Вперед</string>
+  <string name="setup_password_intro">Створіть пароль</string>
+  <string name="setup_password_explanation">Ваш обліковий запис Briar знаходиться в зашифрованому вигляді на вашому пристрої, а не зберігається на хмарі. Якщо ви забули свій пароль або видалили Briar, обліковий запис не підлягає відновленню.\n\nОбирайте довгий пароль, який буде важко підібрати. Наприклад, такий, що міститиме чотири випадкові слова, або десять випадкових літер, цифр та символів.</string>
+  <string name="dnkm_doze_intro">Для того, щоб отримувати повідомлення, Briar має залишатися на зв\'язку у фоновому режимі.</string>
+  <string name="dnkm_doze_explanation">Для того, щоб отримувати повідомлення, Briar має залишатися на зв\'язку у фоновому режимі. Будь ласка, вимкніть енергоощадливий режим, щоб Briar міг залишатися на зв\'язку.</string>
+  <string name="choose_nickname">Оберіть ім\'я користувача</string>
+  <string name="choose_password">Створіть власний пароль</string>
+  <string name="confirm_password">Підтвердьте свій пароль</string>
+  <string name="name_too_long">Занадто довге ім\'я</string>
+  <string name="password_too_weak">Пароль занадто слабкий</string>
+  <string name="passwords_do_not_match">Паролі не збігаються</string>
+  <string name="create_account_button">Створити обліковий запис</string>
+  <string name="more_info">Детальніше</string>
+  <string name="don_t_ask_again">Не запитувати знову</string>
+  <string name="dnkm_huawei_protected_text">Будь ласка, натисніть кнопку, що знаходиться нижче і впевніться у тому, що Briar захищено на екрані \"Захищені додатки\".</string>
+  <string name="dnkm_huawei_protected_button">Захистити Briar</string>
+  <string name="dnkm_huawei_protected_help">Якщо Briar немає у списку захищених додатків, він не зможе працювати у фоновому режимі.</string>
+  <string name="dnkm_huawei_app_launch_text">Будь ласка, торкніть кнопку внизу, відкрийте екран «Запуск програми» й переконайтесь, що Briar має налаштування «Керувати вручну».</string>
+  <string name="dnkm_huawei_app_launch_help">Якщо не вказати «Керувати вручну» для Briar на екрані «Запуск програми», він не зможе працювати в фоновому режимі.</string>
+  <string name="dnkm_xiaomi_text">Щоб Briar працював у фоновому режимі, закріпіть його в переліку недавніх застосунків.</string>
+  <string name="dnkm_xiaomi_button">Захистити Briar</string>
+  <string name="dnkm_xiaomi_help">Якщо не закріпити Briar у переліку недавніх застосунків, він не зможе працювати в фоновому режимі.</string>
+  <string name="dnkm_xiaomi_dialog_body_old">1. Відкрийте перелік недавніх застосунків (також називається перемикачем додатків)\n\n2. Проведіть униз по зображенню Briar, щоб з\'явився значок замка\n\n3. Якщо замок не замкнений, замкніть його дотиком</string>
+  <string name="dnkm_xiaomi_dialog_body_new">1. Відкрийте перелік недавніх застосунків (також називається перемикачем додатків)\n\n2. Затисніть зображення Briar до появи значка замка.\n\n3. Якщо замок не замкнений, замкніть його дотиком</string>
   <!--Login-->
   <string name="enter_password">Пароль</string>
   <string name="try_again">Неправильний пароль, спробуйте ще раз</string>
@@ -173,7 +169,7 @@
   <string name="no_contacts_action">Натисніть на символ \"+\" для того, щоб додати контакт</string>
   <string name="date_no_private_messages">Немає повідомлень.</string>
   <string name="no_private_messages">Немає повідомлень для відображення</string>
-  <string name="message_hint">Нове Повідомлення</string>
+  <string name="message_hint">Нове повідомлення</string>
   <string name="message_hint_auto_delete">Нове самознищуване повідомлення</string>
   <string name="message_error">Помилка надсилання повідомлення</string>
   <string name="image_caption_hint">Додати заголовок (за бажанням)</string>
@@ -219,11 +215,11 @@
   <string name="dialog_title_delete_all_messages">Підтвердьте видалення повідомлень</string>
   <string name="dialog_message_delete_all_messages">Ви впевнені, що бажаєте видалити всі повідомлення?</string>
   <string name="dialog_title_not_all_messages_deleted">Не вдалося видалити всі повідомлення</string>
-  <string name="dialog_message_not_deleted_ongoing_both">Повідомлення щодо незавершених запрошень чи вітань неможливо видалити.</string>
-  <string name="dialog_message_not_deleted_ongoing_introductions">Повідомлення щодо незавершених вітань неможливо видалити.</string>
+  <string name="dialog_message_not_deleted_ongoing_both">Повідомлення щодо незавершених запрошень чи представлень неможливо видалити.</string>
+  <string name="dialog_message_not_deleted_ongoing_introductions">Повідомлення щодо незавершених представлень неможливо видалити.</string>
   <string name="dialog_message_not_deleted_ongoing_invitations">Повідомлення щодо незавершених запрошень неможливо видалити.</string>
-  <string name="dialog_message_not_deleted_not_all_selected_both">Щоб видалити запрошення чи вітання, оберіть запит і відповідь.</string>
-  <string name="dialog_message_not_deleted_not_all_selected_introductions">Щоб видалити вітання, оберіть запит і відповідь.</string>
+  <string name="dialog_message_not_deleted_not_all_selected_both">Щоб видалити запрошення чи представлення, оберіть запит і відповідь.</string>
+  <string name="dialog_message_not_deleted_not_all_selected_introductions">Щоб видалити представлення, оберіть запит і відповідь.</string>
   <string name="dialog_message_not_deleted_not_all_selected_invitations">Щоб видалити запрошення, оберіть запит і відповідь.</string>
   <string name="delete_contact">Вилучити контакт</string>
   <string name="dialog_title_delete_contact">Підтвердити вилучення контакту</string>
@@ -320,7 +316,7 @@
   <string name="pending_contact_updated_toast">Оновлено нерозглянутий контакт</string>
   <!--Introductions-->
   <string name="introduction_onboarding_title">Поділитися своїми контактами</string>
-  <string name="introduction_onboarding_text">Ви можете познайомити свої контакти один з одним, таким чином їм не доведеться зустрічатися особисто, щоб під\'єднатися до Briar.</string>
+  <string name="introduction_onboarding_text">Представте свої контакти навзаєм, щоб вони могли спілкуватись у Briar.</string>
   <string name="introduction_menu_item">Познайомити з контактом</string>
   <string name="introduction_activity_title">Оберіть контакт</string>
   <string name="introduction_not_possible">У вас уже є один незавершений процес представлення цих контактів. Будь ласка, спершу дозвольте цій дії завершитись. Якщо ви або ваші контакти рідко з\'являєтеся у мережі, це може зайняти якійсь час.</string>
@@ -336,7 +332,7 @@
   <string name="introduction_response_accepted_sent">Ви прийняли запит на знайомство від %1$s.</string>
   <string name="introduction_response_accepted_sent_info">Перед тим, як ви додасте %1$s до списку своїх контактів, він/вона також має підтвердити цей запит. Це може зайняти якийсь час.</string>
   <string name="introduction_response_declined_sent">Ви відхилили запит на знайомство з %1$s.</string>
-  <string name="introduction_response_declined_auto">Вітання %1$s відхилено автоматично.</string>
+  <string name="introduction_response_declined_auto">Представлення %1$s відхилено автоматично.</string>
   <string name="introduction_response_accepted_received">%1$s прийняв(-ла) запит на знайомство із %2$s.</string>
   <string name="introduction_response_declined_received">%1$s відхилив(-ла) запит на знайомство з %2$s.</string>
   <string name="introduction_response_declined_received_by_introducee">%1$s повідомляє, що %2$s відхилив(-ла) запит на знайомство.</string>
@@ -605,7 +601,7 @@
   <string name="cannot_load_ringtone">Неможливо завантажити мелодію</string>
   <!--Mailbox-->
   <string name="mailbox_settings_title">Mailbox</string>
-  <string name="mailbox_setup_title">Налаштуйте Mailbox</string>
+  <string name="mailbox_setup_title">Налаштування Mailbox</string>
   <string name="mailbox_setup_intro">Скринька дає змогу контактам надсилати вам повідомлення, поки ви не в мережі. Скринька отримуватиме ваші повідомлення й зберігатиме їх до появи вас у мережі.\n
 		\nМожете встановити застосунок Briar Mailbox на окремий пристрій. Забезпечте йому безперервні електрику й Wi-Fi, щоб він завжди був онлайн.</string>
   <string name="mailbox_setup_download">Спершу встановіть застосунок Mailbox на інший пристрій, знайшовши «Briar Mailbox» у Google Play чи іншому місці, звідки ви завантажили Briar.\n
@@ -615,10 +611,34 @@
   <string name="permission_camera_qr_denied_body">Ви заборонили доступ до камери, але камера потрібна для сканування QR-коду.\n\nБудь ласка, надайте доступ.</string>
   <string name="mailbox_setup_connecting">Під\'єднання...</string>
   <string name="mailbox_setup_qr_code_wrong_title">Хибний QR-код</string>
-  <string name="mailbox_setup_qr_code_wrong_description">QR-код, який ви просканували, хибний. Будь ласка, відкрийте застосунок Briar Mailbox на вашому Mailbox-пристрої й проскануйте QR-код, який він покаже.</string>
+  <string name="mailbox_setup_qr_code_wrong_description">Проскановано хибний код. Будь ласка, відкрийте застосунок Briar Mailbox на своєму Mailbox-пристрої та проскануйте показаний ним QR-код.</string>
+  <string name="mailbox_setup_already_paired_title">Mailbox уже під\'єднано</string>
+  <string name="mailbox_setup_already_paired_description">Від\'єднайте Mailbox від свого іншого пристрою й повторіть спробу.</string>
+  <string name="mailbox_setup_io_error_title">Не вдалося з\'єднатися</string>
+  <string name="mailbox_setup_io_error_description">Переконайтесь, що обидва пристрої мають інтернет-з\'єднання, й повторіть спробу.</string>
+  <string name="mailbox_setup_assertion_error_title">Помилка Mailbox</string>
+  <string name="mailbox_setup_assertion_error_description">Будь ласка, надішліть відгук (з анонімними даними) застосунком Briar, якщо проблема повторюватиметься.</string>
+  <string name="mailbox_setup_camera_error_description">Не вдалось отримати доступ до камери. Повторіть спробу — можливо, перезавантаживши пристрій.</string>
+  <string name="mailbox_setup_paired_title">Під\'єднано</string>
+  <string name="mailbox_setup_paired_description">Ваш Mailbox успішно під\'єднано до Briar.\n
+		\nЗабезпечте Mailbox постійне з\'єднання з електромережею та Wi-Fi, щоб він постійно був на зв\'язку.</string>
   <string name="tor_offline_title">Поза мережею</string>
-  <string name="tor_offline_description">Переконайтесь, що пристрій у мережі, а з\'єднання з інтернетом дозволено.\n\nТоді зачекайте, поки значок глобуса в налаштуваннях з\'єднання стане зеленим.</string>
+  <string name="tor_offline_description">Переконайтесь, що пристрій у мережі й дозволяє інтернет-з\'єднання.\n
+		\nТоді дочекайтесь, поки значок «глобус» екрану налаштувань з\'єднання стане зеленим.</string>
   <string name="tor_offline_button_check">Перевірити налаштування з\'єднання</string>
+  <string name="mailbox_status_title">Стан Mailbox</string>
+  <string name="mailbox_status_connected_title">Mailbox працює</string>
+  <string name="mailbox_status_problem_title">Не вдається з\'єднати Briar із Mailbox</string>
+  <string name="mailbox_status_failure_title">Mailbox недоступна</string>
+  <string name="mailbox_status_check_button">Перевірити з\'єднання</string>
+  <!--Example for string substitution: Last connection: 3min ago-->
+  <string name="mailbox_status_connected_info">З\'єднання було: %s</string>
+  <!--Indicates that there never was a connection to the mailbox. Last connection: Never-->
+  <string name="mailbox_status_connected_never">Ніколи</string>
+  <string name="mailbox_status_unlink_button">Від\'єднати</string>
+  <string name="mailbox_error_wizard_question1">Ви маєте доступ до вашого пристрою Mailbox?</string>
+  <string name="mailbox_error_wizard_answer1_1">Я бачу вказівки щодо налаштування Mailbox</string>
+  <string name="mailbox_error_wizard_answer1_2">Я бачу QR-код</string>
   <!--Conversation Settings-->
   <string name="disappearing_messages_title">Самознищувані повідомлення</string>
   <string name="disappearing_messages_explanation_long">Коли цей параметр увімкнено, нові

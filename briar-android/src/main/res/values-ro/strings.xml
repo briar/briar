@@ -1,37 +1,32 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<resources>
-	<!--Setup-->
-	<string name="setup_title">Bine ați venit la Briar</string>
-	<string name="setup_name_explanation">Numele dumneavoastră va fi afișat lângă orice conținut trimis. Nu îl veți putea schimba după crearea contului.</string>
-	<string name="setup_next">Înainte</string>
-	<string name="setup_password_intro">Alegeți o parolă</string>
-	<string name="setup_password_explanation">Contul dvs. Briar este stocat criptat pe dispozitiv, nu în cloud. Dacă vă uitați parola sau ștergeți Briar, nu veți putea să vă recuperați contul.\n\nAlegeți o parolă lungă greu de ghicit, de exemplu, patru cuvinte aleatorii sau zece litere, numere și simboluri aleatoare.</string>
-	<string name="dnkm_doze_title">Conexiuni în fundal</string>
-	<string name="dnkm_doze_intro">Pentru a primi mesaje, Briar are nevoie să stea conectat în fundal.</string>
-	<string name="dnkm_doze_explanation">Pentru a primi mesaje, Briar are nevoie să stea conectat în fundal. Vă rugăm să dezactivați optimizarea bateriei ca Briar să rămână conectat.</string>
-	<string name="dnkm_doze_button">Permite conexiuni</string>
-	<string name="choose_nickname">Alegeți-vă numele de utilizator</string>
-	<string name="choose_password">Alegeți-vă parola</string>
-	<string name="confirm_password">Confirmați parola</string>
-	<string name="name_too_long">Numele este prea lung</string>
-	<string name="password_too_weak">Parola este prea slabă</string>
-	<string name="passwords_do_not_match">Parolele nu se potrivesc</string>
-	<string name="create_account_button">Creează un cont</string>
-	<string name="more_info">Informații suplimentare</string>
-	<string name="don_t_ask_again">Nu mai întreba din nou</string>
-	<string name="dnkm_huawei_protected_text">Vă rugăm să apăsați butonul de mai jos și să vă asigurați că Briar este marcat ca protejat în fereastra de \"Aplicații protejate\".</string>
-	<string name="dnkm_huawei_protected_button">Protejează Briar</string>
-	<string name="dnkm_huawei_protected_help">Dacă Briar nu este adăugat în lista de aplicații protejate, nu va fi capabil să ruleze în fundal.</string>
-	<string name="dnkm_huawei_app_launch_text">Vă rugăm să atingeți butonul de mai jos, să deschideți ecranul \"Lansare aplicație\" și să vă asigurați că Briar este setat la \"Gestionare manuală\".</string>
-	<string name="dnkm_huawei_app_launch_button">Deschide setările de baterie</string>
-	<string name="dnkm_huawei_app_launch_help">Dacă Briar nu este setat la \" Gestionare manuală\" în ecranul \"Lansare aplicație\", nu va putea rula în fundal.</string>
-	<string name="dnkm_huawei_app_launch_error_toast">Nu se pot deschide setările de baterie.</string>
-	<string name="dnkm_xiaomi_text">Pentru a funcționa în fundal, Briar trebuie să fie blocat în lista de aplicații recente.</string>
-	<string name="dnkm_xiaomi_button">Protejează Briar</string>
-	<string name="dnkm_xiaomi_help">Dacă Briar nu este blocat în lista de aplicații recente, acesta nu va putea rula în fundal.</string>
-	<string name="dnkm_xiaomi_dialog_body_old">1. Deschideți lista de aplicații recente (denumită și comutatorul de aplicații)\n\n2. Trageți cu degetul în jos pe imaginea lui Briar pentru a afișa pictograma lacătului\n\n3. Dacă lacătul nu este blocat, atingeți pentru a-l bloca</string>
-	<string name="dnkm_xiaomi_dialog_body_new">1. Deschideți lista de aplicații recente (denumită și comutatorul de aplicatii)\n\n2. Țineți apăsată imaginea lui Briar până când apare butonul cu lacăt\n\n3. Dacă lacătul nu este blocat, apăsați pentru a-l bloca</string>
-  <string name="dnkm_warning_dozed">%s nu poate rula în fundal</string>
+<resources xmlns:tools="http://schemas.android.com/tools">
+  <!--Setup-->
+  <string name="setup_title">Bine ați venit la Briar</string>
+  <string name="setup_name_explanation">Numele dumneavoastră va fi afișat lângă orice conținut trimis. Nu îl veți putea schimba după crearea contului.</string>
+  <string name="setup_next">Înainte</string>
+  <string name="setup_password_intro">Alegeți o parolă</string>
+  <string name="setup_password_explanation">Contul dvs. Briar este stocat criptat pe dispozitiv, nu în cloud. Dacă vă uitați parola sau ștergeți Briar, nu veți putea să vă recuperați contul.\n\nAlegeți o parolă lungă greu de ghicit, de exemplu, patru cuvinte aleatorii sau zece litere, numere și simboluri aleatoare.</string>
+  <string name="dnkm_doze_intro">Pentru a primi mesaje, Briar are nevoie să stea conectat în fundal.</string>
+  <string name="dnkm_doze_explanation">Pentru a primi mesaje, Briar are nevoie să stea conectat în fundal. Vă rugăm să dezactivați optimizarea bateriei ca Briar să rămână conectat.</string>
+  <string name="choose_nickname">Alegeți-vă numele de utilizator</string>
+  <string name="choose_password">Alegeți-vă parola</string>
+  <string name="confirm_password">Confirmați parola</string>
+  <string name="name_too_long">Numele este prea lung</string>
+  <string name="password_too_weak">Parola este prea slabă</string>
+  <string name="passwords_do_not_match">Parolele nu se potrivesc</string>
+  <string name="create_account_button">Creează un cont</string>
+  <string name="more_info">Informații suplimentare</string>
+  <string name="don_t_ask_again">Nu mai întreba din nou</string>
+  <string name="dnkm_huawei_protected_text">Vă rugăm să apăsați butonul de mai jos și să vă asigurați că Briar este marcat ca protejat în fereastra de \"Aplicații protejate\".</string>
+  <string name="dnkm_huawei_protected_button">Protejează Briar</string>
+  <string name="dnkm_huawei_protected_help">Dacă Briar nu este adăugat în lista de aplicații protejate, nu va fi capabil să ruleze în fundal.</string>
+  <string name="dnkm_huawei_app_launch_text">Vă rugăm să atingeți butonul de mai jos, să deschideți ecranul \"Lansare aplicație\" și să vă asigurați că Briar este setat la \"Gestionare manuală\".</string>
+  <string name="dnkm_huawei_app_launch_help">Dacă Briar nu este setat la \" Gestionare manuală\" în ecranul \"Lansare aplicație\", nu va putea rula în fundal.</string>
+  <string name="dnkm_xiaomi_text">Pentru a funcționa în fundal, Briar trebuie să fie blocat în lista de aplicații recente.</string>
+  <string name="dnkm_xiaomi_button">Protejează Briar</string>
+  <string name="dnkm_xiaomi_help">Dacă Briar nu este blocat în lista de aplicații recente, acesta nu va putea rula în fundal.</string>
+  <string name="dnkm_xiaomi_dialog_body_old">1. Deschideți lista de aplicații recente (denumită și comutatorul de aplicații)\n\n2. Trageți cu degetul în jos pe imaginea lui Briar pentru a afișa pictograma lacătului\n\n3. Dacă lacătul nu este blocat, atingeți pentru a-l bloca</string>
+  <string name="dnkm_xiaomi_dialog_body_new">1. Deschideți lista de aplicații recente (denumită și comutatorul de aplicatii)\n\n2. Țineți apăsată imaginea lui Briar până când apare butonul cu lacăt\n\n3. Dacă lacătul nu este blocat, apăsați pentru a-l bloca</string>
   <!--Login-->
   <string name="enter_password">Parola</string>
   <string name="try_again">Parolă greșită, reîncercați</string>
@@ -311,7 +306,7 @@
   <string name="pending_contact_updated_toast">Listă solicitări de contact în așteptare actualizată</string>
   <!--Introductions-->
   <string name="introduction_onboarding_title">Recomandați-vă contactele</string>
-  <string name="introduction_onboarding_text">Puteți să vă recomandați contactele unele altora, încât sa nu fie nevoie ca să se vadă față în față pentru a se putea conecta la Briar.</string>
+  <string name="introduction_onboarding_text">Recomandați-vă contactele unele altora pentru a se putea conecta prin Briar.</string>
   <string name="introduction_menu_item">Fă o recomandare</string>
   <string name="introduction_activity_title">Alege un contact</string>
   <string name="introduction_not_possible">Ați trimis deja o solicitare la contacte. Așteptați să vă răspundă. Dacă dvs. sau persoanele persoanele de contact sunteți rareori online, este posibil să dureze ceva timp.</string>
@@ -592,37 +587,62 @@
   <string name="cannot_load_ringtone">Nu se poate încărca sunetul</string>
   <!--Mailbox-->
   <string name="mailbox_settings_title">Cutia poștală</string>
-  <string name="mailbox_setup_title">Configurarea cutiei poștale</string>
-  <string name="mailbox_setup_intro">O căsuță poștală permite contactelor dumneavoastră să vă trimită mesaje în timp ce sunteți offline. Căsuța poștală va primi mesajele și le va stoca până când veți fi online.\n
-\nPuteți instala app-ul Briar Mailbox pe un dispozitiv de rezervă. Țineți-l conectat la curent și la Wi-Fi, astfel încât să fie mereu online.</string>
-  <string name="mailbox_setup_download">În primul rând, instalați app Mailbox pe un alt dispozitiv căutând \"Briar Mailbox\" pe Google Play sau oriunde ați descărcat Briar.\n
-\nApoi conectați Mailbox cu Briar prin scanarea codului QR afișat de app-ul Mailbox.</string>
+  <string name="mailbox_setup_title">Configurarea Cutiei poștale</string>
+  <string name="mailbox_setup_intro">O Cutie poștală permite contactelor dumneavoastră să vă trimită mesaje în timp ce sunteți deconectați. Cutia poștală va primi mesajele și le va stoca până când veți fi conectați.\n
+\nPuteți instala aplicația Cutie poștală Briar pe un dispozitiv de rezervă. Țineți-l conectat la curent și la Wi-Fi, astfel încât să fie mereu online.</string>
+  <string name="mailbox_setup_download">În primul rând, instalați aplicația Cutie poștală pe un alt dispozitiv căutând \"Cutie poștală Briar\" pe Google Play sau de unde ați descărcat Briar.\n
+\nApoi atașați Cutia poștală la Briar prin scanarea codului QR afișat de aplicația Cutie poștală.</string>
   <string name="mailbox_setup_download_link">Partajați link-ul de descărcare</string>
-  <string name="mailbox_setup_button_scan">Scanați codul QR al cutiei poștale</string>
+  <string name="mailbox_setup_button_scan">Scanați codul QR al Cutiei poștale</string>
   <string name="permission_camera_qr_denied_body">Ați refuzat acces la cameră, dar scanarea unui cod QR necesită utilizarea camerei.\n\nVă rugăm să luați în considerare acordarea de acces.</string>
   <string name="mailbox_setup_connecting">Se conectează...</string>
   <string name="mailbox_setup_qr_code_wrong_title">Cod QR greșit</string>
-  <string name="mailbox_setup_qr_code_wrong_description">Codul scanat nu este valid. Vă rugăm să deschideți app-ul Briar Mailbox pe dispozitivul Mailbox și să scanați codul QR pe care vi-l prezintă.</string>
-  <string name="mailbox_setup_already_paired_title">Căsuță poștală deja conectată</string>
-  <string name="mailbox_setup_already_paired_description">Deconectați căsuța poștală de pe celălalt dispozitiv și încercați din nou.</string>
+  <string name="mailbox_setup_qr_code_wrong_description">Codul scanat nu este valid. Vă rugăm să deschideți aplicația Cutie poștală Briar pe dispozitivul Cutie poștală și să scanați codul QR pe care vi-l prezintă.</string>
+  <string name="mailbox_setup_already_paired_title">Cutia poștală este deja atașată</string>
+  <string name="mailbox_setup_already_paired_description">Detașați Cutia poștală de la celălalt dispozitiv și încercați din nou.</string>
   <string name="mailbox_setup_io_error_title">Nu s-a putut conecta</string>
-  <string name="mailbox_setup_io_error_description">Asigurați-vă că ambele dispozitive sunt conectate la internet și încercați din nou.</string>
-  <string name="mailbox_setup_assertion_error_title">Eroare de căsuță poștală</string>
+  <string name="mailbox_setup_io_error_description">Asigurați-vă că ambele dispozitive sunt conectate la Internet și încercați din nou.</string>
+  <string name="mailbox_setup_assertion_error_title">Eroare de Cutie poștală</string>
   <string name="mailbox_setup_assertion_error_description">Vă rugăm să trimiteți feedback (cu date anonime) prin intermediul app-ului Briar dacă problema persistă.</string>
   <string name="mailbox_setup_camera_error_description">Nu s-a putut accesa camera. Încercați din nou, poate după repornirea dispozitivului.</string>
   <string name="mailbox_setup_paired_title">Conectat</string>
-  <string name="mailbox_setup_paired_description">Căsuța dumneavoastră poștală a fost conectată cu succes la Briar.\n
-\nPăstrați cutia poștală conectată la curent și la Wi-Fi, astfel încât să fie mereu online.</string>
+  <string name="mailbox_setup_paired_description">Cutia dumneavoastră poștală a fost atașată cu succes la Briar.\n
+\nPăstrați Cutia poștală conectată la curent și la Wi-Fi, astfel încât să fie mereu online.</string>
   <string name="tor_offline_title">Deconectat</string>
   <string name="tor_offline_description">Asigurați-vă că acest dispozitiv este online și că sunt permise conexiunile la Internet.\n
 \nDupă aceea, așteptați ca pictograma globului pământesc din ecranul de configurare a conexiunii să devină verde.</string>
   <string name="tor_offline_button_check">Verificați setările de conectare</string>
-  <string name="mailbox_status_title">Starea cutiei poștale</string>
-  <string name="mailbox_status_connected_title">Căsuța poștală este în funcțiune</string>
+  <string name="mailbox_status_title">Starea Cutiei poștale</string>
+  <string name="mailbox_status_connected_title">Cutia poștală este în funcțiune</string>
+  <string name="mailbox_status_problem_title">Briar nu se poate conecta la Cutia poștală.</string>
+  <string name="mailbox_status_failure_title">Cutia poștală este indisponibilă</string>
+  <string name="mailbox_status_check_button">Verificare conexiune</string>
   <!--Example for string substitution: Last connection: 3min ago-->
   <string name="mailbox_status_connected_info">Ultima conectare: %s</string>
   <!--Indicates that there never was a connection to the mailbox. Last connection: Never-->
   <string name="mailbox_status_connected_never">Niciodată</string>
+  <string name="mailbox_status_unlink_button">Detașează</string>
+  <string name="mailbox_status_unlink_dialog_title">Detașează cutia poștală?</string>
+  <string name="mailbox_status_unlink_dialog_question">Sunteți siguri că doriți detașarea Cutiei voastre poștale?</string>
+  <string name="mailbox_status_unlink_dialog_warning">Dacă vă detașați Cutia poștală nu veți mai putea primii mesaje cât timp Briar este deconectat.</string>
+  <string name="mailbox_status_unlink_no_wipe_title">Cutia voastră poștală a fost detașată.</string>
+  <string name="mailbox_status_unlink_no_wipe_message">Data viitoare când veți avea acces la dispozitivul Cutie poștală, deschideți aplicația Cutie poștală și apăsați butonul \"Detașare\" pentru a finaliza procesul.\n\nDacă nu mai aveți acces la dispozitivul Cutie poștală, nu vă faceți griji. Datele voastre sunt criptate, astfel încât vor rămâne în siguranță chiar dacă nu finalizați procesul.</string>
+  <string name="mailbox_error_notification_channel_title">Problemă la Cutia poștală Briar</string>
+  <string name="mailbox_error_notification_title">Cutia poștală Briar este indisponibilă</string>
+  <string name="mailbox_error_notification_text">Atingeți pentru a rezolva problema.</string>
+  <string name="mailbox_error_wizard_button">Rezolvă problema</string>
+  <string name="mailbox_error_wizard_title">Ghid rezolvare probleme Cutie poștală</string>
+  <string name="mailbox_error_wizard_question1">Aveți acces la dispozitivul Cutie poștală?</string>
+  <string name="mailbox_error_wizard_answer1">Da, am acces acum.</string>
+  <string name="mailbox_error_wizard_answer2">Nu acum, dar pot accesa mai târziu.</string>
+  <string name="mailbox_error_wizard_answer3">Nu, nu mai am acces.</string>
+  <string name="mailbox_error_wizard_info1_1">Verificați dacă dispozitivul Cutie poștală este pornit și este conectat la Internet.</string>
+  <string name="mailbox_error_wizard_question1_1">Deschideți aplicația Cutie poștală. Ce vedeți?</string>
+  <string name="mailbox_error_wizard_answer1_1">Văd instrucțiuni pentru setarea Cutiei poștale</string>
+  <string name="mailbox_error_wizard_answer1_2">Văd un cod QR</string>
+  <string name="mailbox_error_wizard_answer1_3">Văd \"Cutia poștală e pornită\"</string>
+  <string name="mailbox_error_wizard_answer1_4">Văd \"Dispozitivul este deconectat\"</string>
+  <string name="mailbox_error_wizard_info1_1_1">Vă rugăm să vă detașați de la Căsuța poștală folosind butonul de mai jos, apoi urmăriți instrucțiunile de pe dispozitivul Căsuță poștală pentru a o atașa din nou.</string>
   <!--Conversation Settings-->
   <string name="disappearing_messages_title">Mesaje ce dispar</string>
   <string name="disappearing_messages_explanation_long">Activarea acestei setări va face ca noile

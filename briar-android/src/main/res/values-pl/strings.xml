@@ -1,37 +1,32 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<resources>
-	<!--Setup-->
-	<string name="setup_title">Witaj w Briar</string>
-	<string name="setup_name_explanation">Twoja nazwa użytkownika będzie wyświetlana przy każdej zamieszczonej przez Ciebie treści. Nie można jej zmienić po tworzeniu konta.</string>
-	<string name="setup_next">Dalej</string>
-	<string name="setup_password_intro">Wybierz Hasło</string>
-	<string name="setup_password_explanation">Twoje konto Briar jest przechowywane w postaci zaszyfrowanej na Twoim urządzeniu, a nie w chmurze. Jeżeli zapomnisz hasło lub odinstalujesz Briar, nie da się odzyskać Twojego konta.\n\nWybierz długie hasło, które jest trudne do odgadnięcia, jak np. cztery losowe słowa, lub dziesięć losowych liter, liczb i symboli </string>
-	<string name="dnkm_doze_title">Połączenia w tle</string>
-	<string name="dnkm_doze_intro">Aby otrzymywać wiadomości, Briar musi utrzymywać połączenie w tle.</string>
-	<string name="dnkm_doze_explanation">Aby otrzymywać wiadomości, Briar musi utrzymywać połączenie w tle. Wyłącz optymalizacje baterii aby Briar mógł utrzymywać połączenie w tle.</string>
-	<string name="dnkm_doze_button">Pozwól na Połączenia</string>
-	<string name="choose_nickname">Wybierz nazwę użytkownika</string>
-	<string name="choose_password">Wybierz hasło</string>
-	<string name="confirm_password">Potwierdź hasło</string>
-	<string name="name_too_long">Nazwa użytkownika jest zbyt długa</string>
-	<string name="password_too_weak">Hasło jest zbyt długie</string>
-	<string name="passwords_do_not_match">Hasła różnią się</string>
-	<string name="create_account_button">Utwórz Konto</string>
-	<string name="more_info">Więcej Informacji</string>
-	<string name="don_t_ask_again">Nie pytaj ponownie</string>
-	<string name="dnkm_huawei_protected_text">Proszę dotknąć przycisku poniżej i upewnić się, że Briar jest na liście chronionych aplikacji.</string>
-	<string name="dnkm_huawei_protected_button">Chroń Briar</string>
-	<string name="dnkm_huawei_protected_help">Jeśli Briar nie będzie na liście chronionych aplikacji, nie będzie miał możliwości aby działać w tle.</string>
-	<string name="dnkm_huawei_app_launch_text">Dotknij przycisku poniżej, otwórz ekran „Uruchamianie aplikacji” i upewnij się, że Briar jest ustawiony na „Zarządzaj ręcznie”.</string>
-	<string name="dnkm_huawei_app_launch_button">Otwórz Ustawienia Baterii</string>
-	<string name="dnkm_huawei_app_launch_help">Jeśli Briar nie jest ustawiony na „Zarządzaj ręcznie” na ekranie „Uruchamianie aplikacji”, nie będzie mógł działać w tle.</string>
-	<string name="dnkm_huawei_app_launch_error_toast">Nie można otworzyć ustawień baterii</string>
-	<string name="dnkm_xiaomi_text">Aby działać w tle, Briar musi być zablokowany na liście ostatnich aplikacji.</string>
-	<string name="dnkm_xiaomi_button">Chroń Briar</string>
-	<string name="dnkm_xiaomi_help">Jeżeli Briar nie jest zablokowany na liście ostatnich aplikacji, nie będzie mógł działać w tle.</string>
-	<string name="dnkm_xiaomi_dialog_body_old">1. Otwórz listę ostatnich aplikacji (często nazywaną też przełącznikiem aplikacji)\n\n2. Przewiń w dół na obrazku Briara aby ukazała się ikonka kłódki\n\n3. Jeśli kłódka nie jest zablokowana, dotknij, aby ją zablokować</string>
-	<string name="dnkm_xiaomi_dialog_body_new">1. Otwórz listę ostatnich aplikacji (często nazywaną też przełącznikiem aplikacji)\n\n2. Przyciśnij i przytrzymaj obrazek Briara aby ukazała się ikonka kłódki\n\n3. Jeśli kłódka nie jest zablokowana, dotknij, aby ją zablokować</string>
-  <string name="dnkm_warning_dozed">%s nie był wstanie działać w tle</string>
+<resources xmlns:tools="http://schemas.android.com/tools">
+  <!--Setup-->
+  <string name="setup_title">Witaj w Briar</string>
+  <string name="setup_name_explanation">Twoja nazwa użytkownika będzie wyświetlana przy każdej zamieszczonej przez Ciebie treści. Nie można jej zmienić po tworzeniu konta.</string>
+  <string name="setup_next">Dalej</string>
+  <string name="setup_password_intro">Wybierz Hasło</string>
+  <string name="setup_password_explanation">Twoje konto Briar jest przechowywane w postaci zaszyfrowanej na Twoim urządzeniu, a nie w chmurze. Jeżeli zapomnisz hasło lub odinstalujesz Briar, nie da się odzyskać Twojego konta.\n\nWybierz długie hasło, które jest trudne do odgadnięcia, jak np. cztery losowe słowa, lub dziesięć losowych liter, liczb i symboli </string>
+  <string name="dnkm_doze_intro">Aby otrzymywać wiadomości, Briar musi utrzymywać połączenie w tle.</string>
+  <string name="dnkm_doze_explanation">Aby otrzymywać wiadomości, Briar musi utrzymywać połączenie w tle. Wyłącz optymalizacje baterii aby Briar mógł utrzymywać połączenie w tle.</string>
+  <string name="choose_nickname">Wybierz nazwę użytkownika</string>
+  <string name="choose_password">Wybierz hasło</string>
+  <string name="confirm_password">Potwierdź hasło</string>
+  <string name="name_too_long">Nazwa użytkownika jest zbyt długa</string>
+  <string name="password_too_weak">Hasło jest zbyt długie</string>
+  <string name="passwords_do_not_match">Hasła różnią się</string>
+  <string name="create_account_button">Utwórz Konto</string>
+  <string name="more_info">Więcej Informacji</string>
+  <string name="don_t_ask_again">Nie pytaj ponownie</string>
+  <string name="dnkm_huawei_protected_text">Proszę dotknąć przycisku poniżej i upewnić się, że Briar jest na liście chronionych aplikacji.</string>
+  <string name="dnkm_huawei_protected_button">Chroń Briar</string>
+  <string name="dnkm_huawei_protected_help">Jeśli Briar nie będzie na liście chronionych aplikacji, nie będzie miał możliwości aby działać w tle.</string>
+  <string name="dnkm_huawei_app_launch_text">Dotknij przycisku poniżej, otwórz ekran „Uruchamianie aplikacji” i upewnij się, że Briar jest ustawiony na „Zarządzaj ręcznie”.</string>
+  <string name="dnkm_huawei_app_launch_help">Jeśli Briar nie jest ustawiony na „Zarządzaj ręcznie” na ekranie „Uruchamianie aplikacji”, nie będzie mógł działać w tle.</string>
+  <string name="dnkm_xiaomi_text">Aby działać w tle, Briar musi być zablokowany na liście ostatnich aplikacji.</string>
+  <string name="dnkm_xiaomi_button">Chroń Briar</string>
+  <string name="dnkm_xiaomi_help">Jeżeli Briar nie jest zablokowany na liście ostatnich aplikacji, nie będzie mógł działać w tle.</string>
+  <string name="dnkm_xiaomi_dialog_body_old">1. Otwórz listę ostatnich aplikacji (często nazywaną też przełącznikiem aplikacji)\n\n2. Przewiń w dół na obrazku Briara aby ukazała się ikonka kłódki\n\n3. Jeśli kłódka nie jest zablokowana, dotknij, aby ją zablokować</string>
+  <string name="dnkm_xiaomi_dialog_body_new">1. Otwórz listę ostatnich aplikacji (często nazywaną też przełącznikiem aplikacji)\n\n2. Przyciśnij i przytrzymaj obrazek Briara aby ukazała się ikonka kłódki\n\n3. Jeśli kłódka nie jest zablokowana, dotknij, aby ją zablokować</string>
   <!--Login-->
   <string name="enter_password">Hasło</string>
   <string name="try_again">Złe hasło, spróbuj ponownie</string>
@@ -321,7 +316,7 @@
   <string name="pending_contact_updated_toast">Oczekujący kontakt zaktualizowany</string>
   <!--Introductions-->
   <string name="introduction_onboarding_title">Przedstaw swoje kontakty.</string>
-  <string name="introduction_onboarding_text">Możesz przedstawić twoje kontakty sobie nawzajem, wtedy nie będą musiały spotykać się osobiście, żeby połączyć się w Briar</string>
+  <string name="introduction_onboarding_text">Przedstaw kontakty sobie nawzajem, aby mogły się połączyć w Briar.</string>
   <string name="introduction_menu_item">Wykonaj przedstawienie</string>
   <string name="introduction_activity_title">Wybierz kontakt</string>
   <string name="introduction_not_possible">Masz już jedno przedstawienie w toku. Proszę pozwolić aby proces najpierw się zakończył. Jeśli ty, albo twoje kontakty są rzadko online, może to zabrać trochę czasu.</string>
@@ -634,10 +629,25 @@ Brak dostępu do aparatu. Spróbuj ponownie, może po ponownym uruchomieniu urz�
   <string name="tor_offline_button_check">Sprawdź ustawienia połączenia </string>
   <string name="mailbox_status_title">Status Mailbox</string>
   <string name="mailbox_status_connected_title">Mailbox jest uruchomiony</string>
+  <string name="mailbox_status_problem_title">Briar ma problemy z połączeniem się z Mailbox</string>
+  <string name="mailbox_status_failure_title">Skrzynka pocztowa jest niedostępna</string>
+  <string name="mailbox_status_check_button">Sprawdź połączenie</string>
   <!--Example for string substitution: Last connection: 3min ago-->
   <string name="mailbox_status_connected_info">Ostatnie połączenie: %s</string>
   <!--Indicates that there never was a connection to the mailbox. Last connection: Never-->
   <string name="mailbox_status_connected_never">Nigdy</string>
+  <string name="mailbox_status_unlink_button">Odłącz</string>
+  <string name="mailbox_status_unlink_dialog_title">Odłączyć skrzynkę odbiorczą?</string>
+  <string name="mailbox_status_unlink_dialog_question">Czy na pewno chcesz odłączyć swoją skrzynkę odbiorczą?</string>
+  <string name="mailbox_status_unlink_dialog_warning">Jeżeli odłączysz swoją skrzynkę odbiorczą nie będziesz już otrzymywał(a) wiadomości kiedy Briar będzie offline.</string>
+  <string name="mailbox_status_unlink_no_wipe_title">Twoja skrzynka odbiorcza została odłączona</string>
+  <string name="mailbox_status_unlink_no_wipe_message">Gdy następnym razem będziesz mieć dostęp do swojego urządzenia Mailbox, otwórz aplikację Mailbox i dotknij przycisku \"Odłącz\" , aby dokończyć proces.\n\nJeśli nie masz już dostępu do swojego urządzenia Mailbox, nie martw się. Twoje dane są zaszyfrowane, więc pozostaną bezpieczne, nawet jeśli nie ukończysz tego procesu.</string>
+  <string name="mailbox_error_notification_title">Skrzynka pocztowa Briar jest niedostępna</string>
+  <string name="mailbox_error_notification_text">Naciśnij, aby rozwiązać problem.</string>
+  <string name="mailbox_error_wizard_button">Napraw problem</string>
+  <string name="mailbox_error_wizard_answer1">Tak, mam teraz dostęp</string>
+  <string name="mailbox_error_wizard_answer2">Nie w tej chwili, ale będę miał(a) dostęp później</string>
+  <string name="mailbox_error_wizard_answer3">Nie, nie mam już dostępu do urządzenia.</string>
   <!--Conversation Settings-->
   <string name="disappearing_messages_title">Znikające wiadomości</string>
   <string name="disappearing_messages_explanation_long">Włączenie tego ustawienia spowoduje, że

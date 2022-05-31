@@ -1,36 +1,32 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<resources>
-	<!--Setup-->
-	<string name="setup_title">Benvenuto su Briar</string>
-	<string name="setup_name_explanation">Il tuo nickname sarà accanto ad ogni contenuto pubblicato. Non potrai cambiarlo dopo aver creato l\'account.</string>
-	<string name="setup_next">Avanti</string>
-	<string name="setup_password_intro">Scegli una password</string>
-	<string name="setup_password_explanation">Il tuo account Briar resta memorizzato cifrato nel tuo dispositivo, non nel cloud. Se dimentichi la password o disinstalli Briar, non c\'è modo di ripristinare l\'account.\n\nScegli una password lunga difficile da indovinare, come quattro parole casuali o dieci lettere, numeri e simboli a caso.</string>
-	<string name="dnkm_doze_title">Connessioni in background</string>
-	<string name="dnkm_doze_intro">Per ricevere messaggi, Briar deve restare connesso in background.</string>
-	<string name="dnkm_doze_explanation">Per ricevere messaggi, Briar deve restare connesso in background. Disattiva le ottimizzazioni della batteria per mantenere Briar connesso.</string>
-	<string name="dnkm_doze_button">Permetti le connessioni</string>
-	<string name="choose_nickname">Scegli il tuo nickname</string>
-	<string name="choose_password">Scegli la tua password</string>
-	<string name="confirm_password">Conferma la tua password</string>
-	<string name="name_too_long">Nome troppo lungo</string>
-	<string name="password_too_weak">La password è troppo debole</string>
-	<string name="passwords_do_not_match">La password non corrisponde</string>
-	<string name="create_account_button">Crea account</string>
-	<string name="more_info">Ulteriori Informazioni</string>
-	<string name="don_t_ask_again">Non chiedere più</string>
-	<string name="dnkm_huawei_protected_text">Premi il pulsante qua sotto e assicurati che Briar sia protetto nella schermata \"App protette\"</string>
-	<string name="dnkm_huawei_protected_button">Proteggi Briar</string>
-	<string name="dnkm_huawei_protected_help">Se Briar non viene aggiunto nell\'elenco di app protette, non potrà funzionare in background.</string>
-	<string name="dnkm_huawei_app_launch_text">Tocca il pulsante sotto, apri la schermata \"Esecuzione app\" e assicurati che Briar sia su \"Gestisci manualmente\".</string>
-	<string name="dnkm_huawei_app_launch_button">Apri impostazioni batteria</string>
-	<string name="dnkm_huawei_app_launch_help">Se Briar non è su \"Gestisci manualmente\" nella schermata \"Esecuzione app\", non potrà funzionare in secondo piano.</string>
-	<string name="dnkm_xiaomi_text">Per funzionare in secondo piano, Briar deve essere fissato nella lista di app recenti.</string>
-	<string name="dnkm_xiaomi_button">Proteggi Briar</string>
-	<string name="dnkm_xiaomi_help">Se Briar non è fissato nella lista di app recenti, non potrà funzionare in secondo piano.</string>
-	<string name="dnkm_xiaomi_dialog_body_old">1. Apri la lista di app recenti (chiamata anche app switcher)\n\n2. Scorri fino alla schermata di Briar per mostrare l\'icona del lucchetto\n\n3. Se il lucchetto non è chiuso, toccalo per chiuderlo</string>
-	<string name="dnkm_xiaomi_dialog_body_new">1. Apri la lista di app recenti (chiamata anche app switcher)\n\n2. Tieni premuta la schermata di Briar finché non compare l\'icona del lucchetto\n\n3. Se il lucchetto non è chiuso, toccalo per chiuderlo</string>
-	<string name="dnkm_warning_dozed">%s non ha potuto funzionare in background</string>
+<resources xmlns:tools="http://schemas.android.com/tools">
+  <!--Setup-->
+  <string name="setup_title">Benvenuto su Briar</string>
+  <string name="setup_name_explanation">Il tuo nickname sarà accanto ad ogni contenuto pubblicato. Non potrai cambiarlo dopo aver creato l\'account.</string>
+  <string name="setup_next">Avanti</string>
+  <string name="setup_password_intro">Scegli una password</string>
+  <string name="setup_password_explanation">Il tuo account Briar resta memorizzato cifrato nel tuo dispositivo, non nel cloud. Se dimentichi la password o disinstalli Briar, non c\'è modo di ripristinare l\'account.\n\nScegli una password lunga difficile da indovinare, come quattro parole casuali o dieci lettere, numeri e simboli a caso.</string>
+  <string name="dnkm_doze_intro">Per ricevere messaggi, Briar deve restare connesso in background.</string>
+  <string name="dnkm_doze_explanation">Per ricevere messaggi, Briar deve restare connesso in background. Disattiva le ottimizzazioni della batteria per mantenere Briar connesso.</string>
+  <string name="choose_nickname">Scegli il tuo nickname</string>
+  <string name="choose_password">Scegli la tua password</string>
+  <string name="confirm_password">Conferma la tua password</string>
+  <string name="name_too_long">Nome troppo lungo</string>
+  <string name="password_too_weak">La password è troppo debole</string>
+  <string name="passwords_do_not_match">La password non corrisponde</string>
+  <string name="create_account_button">Crea account</string>
+  <string name="more_info">Ulteriori Informazioni</string>
+  <string name="don_t_ask_again">Non chiedere più</string>
+  <string name="dnkm_huawei_protected_text">Premi il pulsante qua sotto e assicurati che Briar sia protetto nella schermata \"App protette\"</string>
+  <string name="dnkm_huawei_protected_button">Proteggi Briar</string>
+  <string name="dnkm_huawei_protected_help">Se Briar non viene aggiunto nell\'elenco di app protette, non potrà funzionare in background.</string>
+  <string name="dnkm_huawei_app_launch_text">Tocca il pulsante sotto, apri la schermata \"Esecuzione app\" e assicurati che Briar sia su \"Gestisci manualmente\".</string>
+  <string name="dnkm_huawei_app_launch_help">Se Briar non è su \"Gestisci manualmente\" nella schermata \"Esecuzione app\", non potrà funzionare in secondo piano.</string>
+  <string name="dnkm_xiaomi_text">Per funzionare in secondo piano, Briar deve essere fissato nella lista di app recenti.</string>
+  <string name="dnkm_xiaomi_button">Proteggi Briar</string>
+  <string name="dnkm_xiaomi_help">Se Briar non è fissato nella lista di app recenti, non potrà funzionare in secondo piano.</string>
+  <string name="dnkm_xiaomi_dialog_body_old">1. Apri la lista di app recenti (chiamata anche app switcher)\n\n2. Scorri fino alla schermata di Briar per mostrare l\'icona del lucchetto\n\n3. Se il lucchetto non è chiuso, toccalo per chiuderlo</string>
+  <string name="dnkm_xiaomi_dialog_body_new">1. Apri la lista di app recenti (chiamata anche app switcher)\n\n2. Tieni premuta la schermata di Briar finché non compare l\'icona del lucchetto\n\n3. Se il lucchetto non è chiuso, toccalo per chiuderlo</string>
   <!--Login-->
   <string name="enter_password">Password</string>
   <string name="try_again">Password sbagliata, riprova</string>
@@ -48,10 +44,12 @@
   <string name="startup_failed_service_error">Briar non ha potuto avviare un componente necessario.\n\nAggiorna all\'ultima versione dell\'app e riprova.</string>
   <plurals name="expiry_warning">
     <item quantity="one">Questa è una versione di prova di Briar. Il tuo account scadrà fra %d giorno e non può essere rinnovato.</item>
+    <item quantity="many">Questa è una versione di prova di Briar. Il tuo account scadrà fra %d giorni e non può essere rinnovato.</item>
     <item quantity="other">Questa è una versione di prova di Briar. Il tuo account scadrà fra %d giorni e non può essere rinnovato.</item>
   </plurals>
   <plurals name="old_android_expiry_warning">
     <item quantity="one">Android 4 non è più supportato. Briar smetterà di funzionare il %s (tra %d giorno). Installa Briar in un dispositivo più recente e crea un nuovo account.</item>
+    <item quantity="many">Android 4 non è più supportato. Briar smetterà di funzionare il %s (tra %d giorni). Installa Briar in un dispositivo più recente e crea un nuovo account.</item>
     <item quantity="other">Android 4 non è più supportato. Briar smetterà di funzionare il %s (tra %d giorni). Installa Briar in un dispositivo più recente e crea un nuovo account.</item>
   </plurals>
   <string name="expiry_date_reached">Questo software è scaduto.\nGrazie per il test!</string>
@@ -114,18 +112,22 @@
   <string name="ongoing_notification_text">Tocca per aprire Briar.</string>
   <plurals name="private_message_notification_text">
     <item quantity="one">Nuovo messaggio privato.</item>
+    <item quantity="many">%d nuovi messaggi privati.</item>
     <item quantity="other">%d nuovi messaggi privati.</item>
   </plurals>
   <plurals name="group_message_notification_text">
     <item quantity="one">Nuovo messaggio di gruppo.</item>
+    <item quantity="many">%d nuovi messaggi di gruppo.</item>
     <item quantity="other">%d nuovi messaggi di gruppo.</item>
   </plurals>
   <plurals name="forum_post_notification_text">
     <item quantity="one">Nuovo messaggio sul forum.</item>
+    <item quantity="many">%d nuovi messaggi sul forum.</item>
     <item quantity="other">%d nuovi messaggi sul forum.</item>
   </plurals>
   <plurals name="blog_post_notification_text">
     <item quantity="one">Nuovo post sul blog.</item>
+    <item quantity="many">%d nuovi post sul blog</item>
     <item quantity="other">%d nuovi post sul blog</item>
   </plurals>
   <!--Misc-->
@@ -180,14 +182,17 @@
   <string name="auto_delete_msg_contact_enabled">I messaggi di %1$s spariranno dopo %2$s. %3$s</string>
   <plurals name="duration_minutes">
     <item quantity="one">%d minuto</item>
+    <item quantity="many">%d minuti</item>
     <item quantity="other">%d minuti</item>
   </plurals>
   <plurals name="duration_hours">
     <item quantity="one">%d ora</item>
+    <item quantity="many">%d ore</item>
     <item quantity="other">%d ore</item>
   </plurals>
   <plurals name="duration_days">
     <item quantity="one">%d giorno</item>
+    <item quantity="many">%d giorni</item>
     <item quantity="other">%d giorni</item>
   </plurals>
   <!--The first placeholder will show a contact's name. The second placeholder at the end will add "Tap to learn more."-->
@@ -280,6 +285,7 @@
   <string name="step_2">2</string>
   <plurals name="contact_added_notification_text">
     <item quantity="one">Nuovo contatto aggiunto.</item>
+    <item quantity="many">%d nuovi contatti aggiunti.</item>
     <item quantity="other">%d nuovi contatti aggiunti.</item>
   </plurals>
   <string name="offline_state">Nessuna connessione internet</string>
@@ -300,7 +306,7 @@
   <string name="pending_contact_updated_toast">Contatto in attesa aggiornato</string>
   <!--Introductions-->
   <string name="introduction_onboarding_title">Presenta i tuoi contatti</string>
-  <string name="introduction_onboarding_text">Puoi presentare i tuoi contatti fra di loro, così non hanno bisogno di incontrarsi di persona per connettersi a Briar.</string>
+  <string name="introduction_onboarding_text">Presenta i tuoi contatti fra di loro in modo che possano connettersi su Briar.</string>
   <string name="introduction_menu_item">Crea l\'introduzione</string>
   <string name="introduction_activity_title">Seleziona Contatto</string>
   <string name="introduction_not_possible">Ti stai già presentando con questi contatti. Prima attendi che finisca. Se tu o i tuoi contatti siete raramente online, potrebbe volerci un po\' di tempo.</string>
@@ -336,6 +342,7 @@
   <string name="groups_created_by">Creato da %s</string>
   <plurals name="messages">
     <item quantity="one">%d messaggio</item>
+    <item quantity="many">%d messaggi</item>
     <item quantity="other">%d messaggi</item>
   </plurals>
   <string name="groups_group_is_empty">Questo gruppo e\' vuoto</string>
@@ -369,6 +376,7 @@
   <string name="groups_invitations_declined">Invito al gruppo rifiutato</string>
   <plurals name="groups_invitations_open">
     <item quantity="one">%d invito al gruppo aperto.</item>
+    <item quantity="many">%d inviti al gruppo aperti.</item>
     <item quantity="other">%d inviti al gruppo aperti.</item>
   </plurals>
   <string name="groups_invitations_response_accepted_sent">Hai accettato l\'invito al gruppo da %s.</string>
@@ -395,6 +403,7 @@
   <string name="no_posts">Nessun post.</string>
   <plurals name="posts">
     <item quantity="one">%d post</item>
+    <item quantity="many">%d post</item>
     <item quantity="other">%d post</item>
   </plurals>
   <string name="forum_new_message_hint">Nuovo post</string>
@@ -432,6 +441,7 @@
   <string name="shared_with">Condiviso con %1$d (%2$d online)</string>
   <plurals name="forums_shared">
     <item quantity="one">%d forum condiviso dai contatti</item>
+    <item quantity="many">%d forum condivisi dai contatti</item>
     <item quantity="other">%d forum condivisi dai contatti</item>
   </plurals>
   <string name="nobody">Nessuno</string>
@@ -576,8 +586,68 @@
   <string name="choose_ringtone_title">Scegli suoneria</string>
   <string name="cannot_load_ringtone">Impossibile caricare la suoneria</string>
   <!--Mailbox-->
+  <string name="mailbox_settings_title">Casella postale</string>
+  <string name="mailbox_setup_title">Impostazioni della casella postale</string>
+  <string name="mailbox_setup_intro">Una casella postale consente ai tuoi contatti di lasciarti messaggi mentre non sei in linea. La casella riceverà i tuoi messaggi e li conserverà finché non torni in linea.\n
+		\nPuoi installare l\'app Briar Mailbox in un dispositivo di scorta. Tienilo collegato alla corrente e al Wi-Fi in modo che resti in linea.</string>
+  <string name="mailbox_setup_download">Per prima cosa, installa l\'app Mailbox in un altro dispositivo cercando \"Briar Mailbox\" su Google Play o da dove avevi scaricato Briar.\n
+		\nPoi collega la tua casella con Briar scansionando il codice QR mostrato dall\'app Mailbox.</string>
+  <string name="mailbox_setup_download_link">Condividi link di download</string>
+  <string name="mailbox_setup_button_scan">Scansiona codice QR Mailbox</string>
+  <string name="permission_camera_qr_denied_body">Hai negato l\'accesso alla fotocamera, ma la scansione di un codice QR ne richiede l\'utilizzo.\n\nPrendi in considerazione di consentirne l\'accesso.</string>
   <string name="mailbox_setup_connecting">Connessione in corso...</string>
+  <string name="mailbox_setup_qr_code_wrong_title">Codice QR errato</string>
+  <string name="mailbox_setup_qr_code_wrong_description">Il codice scansionato non è valido. Apri l\'app Briar Mailbox nel tuo dispositivo della casella postale e scansiona il codice QR che mostra.</string>
+  <string name="mailbox_setup_already_paired_title">Casella postale già collegata</string>
+  <string name="mailbox_setup_already_paired_description">Scollega la casella postale sul tuo altro dispositivo e riprova.</string>
+  <string name="mailbox_setup_io_error_title">Impossibile connettere</string>
+  <string name="mailbox_setup_io_error_description">Assicurati che entrambi i dispositivi siano connessi ad internet e riprova.</string>
+  <string name="mailbox_setup_assertion_error_title">Errore casella postale</string>
+  <string name="mailbox_setup_assertion_error_description">Invia feedback (con dati anonimi) con l\'app Briar se il problema persiste.</string>
+  <string name="mailbox_setup_camera_error_description">Impossibile accedere alla fotocamera. Riprova, magari dopo un riavvio del dispositivo.</string>
+  <string name="mailbox_setup_paired_title">Connesso</string>
+  <string name="mailbox_setup_paired_description">La tua casella postale è stata collegata correttamente a Briar.\n
+		\nTienila collegata alla corrente e al Wi-Fi in modo che sia sempre in linea.</string>
   <string name="tor_offline_title">Offline</string>
+  <string name="tor_offline_description">Assicurati che questo dispositivo sia in linea e che le connessioni ad internet siano permesse.\n
+		\nSuccessivamente, attendi che l\'icona del globo nella schermata delle impostazioni di connessione diventi verde.</string>
+  <string name="tor_offline_button_check">Controlla impostazioni di connessione</string>
+  <string name="mailbox_status_title">Stato casella postale</string>
+  <string name="mailbox_status_connected_title">Casella postale in esecuzione</string>
+  <string name="mailbox_status_problem_title">Briar sta avendo problemi a connettersi alla casella postale</string>
+  <string name="mailbox_status_failure_title">Casella postale non disponibile</string>
+  <string name="mailbox_status_check_button">Controlla connessione</string>
+  <!--Example for string substitution: Last connection: 3min ago-->
+  <string name="mailbox_status_connected_info">Ultima connessione: %s</string>
+  <!--Indicates that there never was a connection to the mailbox. Last connection: Never-->
+  <string name="mailbox_status_connected_never">Mai</string>
+  <string name="mailbox_status_unlink_button">Scollega</string>
+  <string name="mailbox_status_unlink_dialog_title">Scollegare la casella postale?</string>
+  <string name="mailbox_status_unlink_dialog_question">Vuoi davvero scollegare la tua casella postale?</string>
+  <string name="mailbox_status_unlink_dialog_warning">Se la scolleghi non potrai più ricevere messaggi mentre Briar è offline.</string>
+  <string name="mailbox_status_unlink_no_wipe_title">La casella postale è stata scollegata</string>
+  <string name="mailbox_status_unlink_no_wipe_message">La prossima volta che avrai accesso al dispositivo della casella postale, apri l\'app Mailbox e tocca il pulsante \"Scollega\" per completare il processo.\n\nSe non hai più accesso al dispositivo, non preoccuparti. I dati sono cifrati e rimarranno sicuri anche se non completi il processo.</string>
+  <string name="mailbox_error_wizard_button">Risolvi problema</string>
+  <string name="mailbox_error_wizard_title">Wizard risoluzione problemi casella postale</string>
+  <string name="mailbox_error_wizard_question1">Hai accesso al dispositivo della casella postale?</string>
+  <string name="mailbox_error_wizard_answer1">Sì, vi ho accesso in questo momento.</string>
+  <string name="mailbox_error_wizard_answer2">Non ora, ma posso accedervi più tardi.</string>
+  <string name="mailbox_error_wizard_answer3">No, non ne ho più accesso.</string>
+  <string name="mailbox_error_wizard_info1_1">Controlla se quel dispositivo della casella postale è acceso e connesso a internet.</string>
+  <string name="mailbox_error_wizard_question1_1">Apri l\'app Mailbox. Cosa vedi?</string>
+  <string name="mailbox_error_wizard_answer1_1">Vedo istruzioni per configurare la casella postale</string>
+  <string name="mailbox_error_wizard_answer1_2">Vedo un codice QR</string>
+  <string name="mailbox_error_wizard_answer1_3">Vedo \"Casella postale in esecuzione\"</string>
+  <string name="mailbox_error_wizard_answer1_4">Vedo \"Dispositivo offline\"</string>
+  <string name="mailbox_error_wizard_info1_1_1">Scollega la casella postale usando il pulsante sottostante, poi segui le istruzioni nel dispositivo della casella postale per ricollegarla.</string>
+  <string name="mailbox_error_wizard_info_1_1_2">Scollega la casella postale usando il pulsante sottostante, poi scansiona il codice QR per ricollegarla.</string>
+  <string name="mailbox_error_wizard_info1_1_3">Usa il pulsante sottostante per controllare la connessione tra Briar e la casella postale.\n\n
+		Se la connessione fallisce di nuovo:\n
+		\u2022 Verifica che le app Mailbox e Briar siano aggiornate alla versione più recente.\n
+		\u2022 Riavvia i dispositivi di Mailbox e Briar e riprova.</string>
+  <string name="mailbox_error_wizard_info1_1_4">Controlla che il dispositivo della casella postale sia connesso a internet correttamente.\n\nControlla che l\'orologio nel dispositivo della casella postale mostri l\'orario, la data e il fuso orario giusti.\n\nControlla che le app Mailbox e Briar siano aggiornate alla versione più recente.\n\nRiavvia i dispositivi di Mailbox e Briar e riprova.</string>
+  <string name="mailbox_error_wizard_info2">Torna in questa schermata quando avrai accesso al dispositivo.</string>
+  <string name="mailbox_error_wizard_info3">Scollega la casella postale usando il pulsante sottostante.\n\nDopo avere sbloccato la vecchia casella postale, puoi configurarne una nuova in qualsiasi momento.</string>
   <!--Conversation Settings-->
   <string name="disappearing_messages_title">Messaggi dissolventi</string>
   <string name="disappearing_messages_explanation_long">L\'attivazione di questa impostazione farà sparire
@@ -685,6 +755,7 @@
   <string name="hotspot_no_peers_connected">Nessun dispositivo connesso</string>
   <plurals name="hotspot_peers_connected">
     <item quantity="one">%s dispositivo connesso</item>
+    <item quantity="many">%s dispositivi connessi</item>
     <item quantity="other">%s dispositivi connessi</item>
   </plurals>
   <!--Download link-->
