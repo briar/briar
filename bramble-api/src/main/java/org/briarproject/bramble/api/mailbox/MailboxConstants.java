@@ -1,5 +1,7 @@
 package org.briarproject.bramble.api.mailbox;
 
+import org.briarproject.bramble.api.plugin.TransportId;
+
 import static java.util.concurrent.TimeUnit.HOURS;
 import static org.briarproject.bramble.api.transport.TransportConstants.MAX_FRAME_LENGTH;
 import static org.briarproject.bramble.api.transport.TransportConstants.MAX_PAYLOAD_LENGTH;
@@ -7,6 +9,11 @@ import static org.briarproject.bramble.api.transport.TransportConstants.STREAM_H
 import static org.briarproject.bramble.api.transport.TransportConstants.TAG_LENGTH;
 
 public interface MailboxConstants {
+
+	/**
+	 * The transport ID of the mailbox plugin.
+	 */
+	TransportId ID = new TransportId("org.briarproject.bramble.mailbox");
 
 	/**
 	 * The maximum length of a file that can be uploaded to or downloaded from

@@ -67,6 +67,7 @@ abstract class AbstractRemovableDrivePlugin implements SimplexPlugin {
 	public void start() {
 		callback.mergeLocalProperties(
 				new TransportProperties(singletonMap(PROP_SUPPORTED, "true")));
+		callback.pluginStateChanged(ACTIVE);
 	}
 
 	@Override

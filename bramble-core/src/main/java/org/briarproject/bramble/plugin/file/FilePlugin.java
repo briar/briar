@@ -11,6 +11,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.util.logging.Logger;
 
 import static java.util.logging.Level.WARNING;
@@ -29,11 +30,6 @@ abstract class FilePlugin implements SimplexPlugin {
 	protected final PluginCallback callback;
 	protected final long maxLatency;
 
-	protected abstract void writerFinished(File f, boolean exception);
-
-	protected abstract void readerFinished(File f, boolean exception,
-			boolean recognised);
-
 	FilePlugin(PluginCallback callback, long maxLatency) {
 		this.callback = callback;
 		this.maxLatency = maxLatency;
@@ -50,9 +46,8 @@ abstract class FilePlugin implements SimplexPlugin {
 		String path = p.get(PROP_PATH);
 		if (isNullOrEmpty(path)) return null;
 		try {
-			File file = new File(path);
-			FileInputStream in = new FileInputStream(file);
-			return new FileTransportReader(file, in, this);
+			FileInputStream in = new FileInputStream(path);
+			return new TransportInputStreamReader(in);
 		} catch (IOException e) {
 			logException(LOG, WARNING, e);
 			return null;
@@ -70,8 +65,8 @@ abstract class FilePlugin implements SimplexPlugin {
 				LOG.info("Failed to create file");
 				return null;
 			}
-			FileOutputStream out = new FileOutputStream(file);
-			return new FileTransportWriter(file, out, this);
+			OutputStream out = new FileOutputStream(file);
+			return new TransportOutputStreamWriter(this, out);
 		} catch (IOException e) {
 			logException(LOG, WARNING, e);
 			return null;
