@@ -4,6 +4,7 @@ import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 
 import java.util.List;
 
+import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 
 @Immutable
@@ -14,13 +15,36 @@ public class MailboxProperties {
 	private final MailboxAuthToken authToken;
 	private final boolean owner;
 	private final List<MailboxVersion> serverSupports;
+	@Nullable
+	private final MailboxFolderId inboxId; // Null for own mailbox
+	@Nullable
+	private final MailboxFolderId outboxId; // Null for own mailbox
 
+	/**
+	 * Constructor for properties used by the mailbox's owner.
+	 */
 	public MailboxProperties(String baseUrl, MailboxAuthToken authToken,
-			boolean owner, List<MailboxVersion> serverSupports) {
+			List<MailboxVersion> serverSupports) {
 		this.baseUrl = baseUrl;
 		this.authToken = authToken;
-		this.owner = owner;
+		this.owner = true;
 		this.serverSupports = serverSupports;
+		this.inboxId = null;
+		this.outboxId = null;
+	}
+
+	/**
+	 * Constructor for properties used by a contact of the mailbox's owner.
+	 */
+	public MailboxProperties(String baseUrl, MailboxAuthToken authToken,
+			List<MailboxVersion> serverSupports, MailboxFolderId inboxId,
+			MailboxFolderId outboxId) {
+		this.baseUrl = baseUrl;
+		this.authToken = authToken;
+		this.owner = false;
+		this.serverSupports = serverSupports;
+		this.inboxId = inboxId;
+		this.outboxId = outboxId;
 	}
 
 	public String getBaseUrl() {
@@ -42,5 +66,15 @@ public class MailboxProperties {
 
 	public List<MailboxVersion> getServerSupports() {
 		return serverSupports;
+	}
+
+	@Nullable
+	public MailboxFolderId getInboxId() {
+		return inboxId;
+	}
+
+	@Nullable
+	public MailboxFolderId getOutboxId() {
+		return outboxId;
 	}
 }

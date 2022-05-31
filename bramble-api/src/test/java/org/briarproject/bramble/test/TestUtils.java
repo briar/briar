@@ -20,9 +20,12 @@ import org.briarproject.bramble.api.identity.Author;
 import org.briarproject.bramble.api.identity.AuthorId;
 import org.briarproject.bramble.api.identity.Identity;
 import org.briarproject.bramble.api.identity.LocalAuthor;
+import org.briarproject.bramble.api.mailbox.MailboxAuthToken;
+import org.briarproject.bramble.api.mailbox.MailboxFolderId;
 import org.briarproject.bramble.api.mailbox.MailboxProperties;
 import org.briarproject.bramble.api.mailbox.MailboxUpdate;
 import org.briarproject.bramble.api.mailbox.MailboxUpdateWithMailbox;
+import org.briarproject.bramble.api.mailbox.MailboxVersion;
 import org.briarproject.bramble.api.plugin.TransportId;
 import org.briarproject.bramble.api.properties.TransportProperties;
 import org.briarproject.bramble.api.sync.ClientId;
@@ -223,6 +226,19 @@ public class TestUtils {
 				getAgreementPublicKey(), verified);
 	}
 
+	public static MailboxProperties getMailboxProperties(boolean owner,
+			List<MailboxVersion> serverSupports) {
+		String baseUrl = "http://" + getRandomString(56) + ".onion"; // TODO
+		MailboxAuthToken authToken = new MailboxAuthToken(getRandomId());
+		if (owner) {
+			return new MailboxProperties(baseUrl, authToken, serverSupports);
+		}
+		MailboxFolderId inboxId = new MailboxFolderId(getRandomId());
+		MailboxFolderId outboxId = new MailboxFolderId(getRandomId());
+		return new MailboxProperties(baseUrl, authToken, serverSupports,
+				inboxId, outboxId);
+	}
+
 	public static void writeBytes(File file, byte[] bytes)
 			throws IOException {
 		FileOutputStream outputStream = new FileOutputStream(file);
@@ -275,7 +291,7 @@ public class TestUtils {
 		return Math.sqrt(getVariance(samples));
 	}
 
-	public static boolean isOptionalTestEnabled(Class testClass) {
+	public static boolean isOptionalTestEnabled(Class<?> testClass) {
 		String optionalTests = System.getenv("OPTIONAL_TESTS");
 		return optionalTests != null &&
 				asList(optionalTests.split(",")).contains(testClass.getName());
@@ -292,11 +308,8 @@ public class TestUtils {
 			MailboxUpdateWithMailbox am = (MailboxUpdateWithMailbox) a;
 			MailboxUpdateWithMailbox bm = (MailboxUpdateWithMailbox) b;
 			return am.getClientSupports().equals(bm.getClientSupports()) &&
-					am.getServerSupports().equals(bm.getServerSupports()) &&
-					am.getOnion().equals(bm.getOnion()) &&
-					am.getAuthToken().equals(bm.getAuthToken()) &&
-					am.getInboxId().equals(bm.getInboxId()) &&
-					am.getOutboxId().equals(bm.getOutboxId());
+					mailboxPropertiesEqual(am.getMailboxProperties(),
+							bm.getMailboxProperties());
 		}
 		return false;
 	}

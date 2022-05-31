@@ -1,7 +1,6 @@
 package org.briarproject.bramble.mailbox;
 
 import org.briarproject.bramble.api.Cancellable;
-import org.briarproject.bramble.api.Supplier;
 import org.briarproject.bramble.api.system.TaskScheduler;
 import org.briarproject.bramble.test.BrambleMockTestCase;
 import org.briarproject.bramble.test.CaptureArgumentAction;
@@ -23,8 +22,7 @@ public class MailboxApiCallerImplTest extends BrambleMockTestCase {
 	private final TaskScheduler taskScheduler =
 			context.mock(TaskScheduler.class);
 	private final Executor ioExecutor = context.mock(Executor.class);
-	private final BooleanSupplier supplier =
-			context.mock(BooleanSupplier.class);
+	private final ApiCall apiCall = context.mock(ApiCall.class);
 	private final Cancellable scheduledTask = context.mock(Cancellable.class);
 
 	private final MailboxApiCallerImpl caller =
@@ -39,12 +37,12 @@ public class MailboxApiCallerImplTest extends BrambleMockTestCase {
 			will(new CaptureArgumentAction<>(runnable, Runnable.class, 0));
 		}});
 
-		caller.retryWithBackoff(supplier);
+		caller.retryWithBackoff(apiCall);
 
-		// When the task runs, the supplier should be called. The supplier
+		// When the task runs, the API call should be called. The call
 		// returns false, so no retries should be scheduled
 		context.checking(new Expectations() {{
-			oneOf(supplier).get();
+			oneOf(apiCall).callApi();
 			will(returnValue(false));
 		}});
 
@@ -60,12 +58,12 @@ public class MailboxApiCallerImplTest extends BrambleMockTestCase {
 			will(new CaptureArgumentAction<>(runnable, Runnable.class, 0));
 		}});
 
-		Cancellable returned = caller.retryWithBackoff(supplier);
+		Cancellable returned = caller.retryWithBackoff(apiCall);
 
-		// When the task runs, the supplier should be called. The supplier
+		// When the task runs, the API call should be called. The call
 		// returns true, so a retry should be scheduled
 		context.checking(new Expectations() {{
-			oneOf(supplier).get();
+			oneOf(apiCall).callApi();
 			will(returnValue(true));
 			oneOf(taskScheduler).schedule(with(any(Runnable.class)),
 					with(ioExecutor), with(MIN_RETRY_INTERVAL_MS),
@@ -90,7 +88,7 @@ public class MailboxApiCallerImplTest extends BrambleMockTestCase {
 		returned.cancel();
 
 		// If the scheduled task runs anyway (cancellation came too late),
-		// the supplier should not be called and no further tries should be
+		// the API call should not be called and no further tries should be
 		// scheduled
 		runnable.get().run();
 	}
@@ -114,13 +112,13 @@ public class MailboxApiCallerImplTest extends BrambleMockTestCase {
 			will(new CaptureArgumentAction<>(runnable, Runnable.class, 0));
 		}});
 
-		caller.retryWithBackoff(supplier);
+		caller.retryWithBackoff(apiCall);
 
-		// Each time the task runs, the supplier returns true, so a retry
+		// Each time the task runs, the API call returns true, so a retry
 		// should be scheduled with a longer interval
 		for (long interval : expectedIntervals) {
 			context.checking(new Expectations() {{
-				oneOf(supplier).get();
+				oneOf(apiCall).callApi();
 				will(returnValue(true));
 				oneOf(taskScheduler).schedule(with(any(Runnable.class)),
 						with(ioExecutor), with(interval), with(MILLISECONDS));
@@ -133,9 +131,5 @@ public class MailboxApiCallerImplTest extends BrambleMockTestCase {
 
 			runnable.get().run();
 		}
-	}
-
-	// Reify the generic type to mollify jMock
-	private interface BooleanSupplier extends Supplier<Boolean> {
 	}
 }

@@ -6,8 +6,7 @@ import org.briarproject.bramble.api.data.BdfDictionary;
 import org.briarproject.bramble.api.data.BdfEntry;
 import org.briarproject.bramble.api.data.BdfList;
 import org.briarproject.bramble.api.data.MetadataEncoder;
-import org.briarproject.bramble.api.mailbox.MailboxAuthToken;
-import org.briarproject.bramble.api.mailbox.MailboxFolderId;
+import org.briarproject.bramble.api.mailbox.MailboxProperties;
 import org.briarproject.bramble.api.mailbox.MailboxUpdate;
 import org.briarproject.bramble.api.mailbox.MailboxUpdateManager;
 import org.briarproject.bramble.api.mailbox.MailboxUpdateWithMailbox;
@@ -24,8 +23,8 @@ import java.util.List;
 
 import static java.util.Collections.singletonList;
 import static org.briarproject.bramble.test.TestUtils.getGroup;
+import static org.briarproject.bramble.test.TestUtils.getMailboxProperties;
 import static org.briarproject.bramble.test.TestUtils.getMessage;
-import static org.briarproject.bramble.test.TestUtils.getRandomId;
 import static org.junit.Assert.assertEquals;
 
 public class MailboxUpdateValidatorTest extends BrambleMockTestCase {
@@ -35,7 +34,6 @@ public class MailboxUpdateValidatorTest extends BrambleMockTestCase {
 	private final BdfDictionary bdfDict;
 	private final BdfList emptyServerSupports;
 	private final BdfList someClientSupports;
-	private final List<MailboxVersion> someClientSupportsList;
 	private final BdfList someServerSupports;
 	private final MailboxUpdateWithMailbox updateMailbox;
 	private final MailboxUpdate updateNoMailbox;
@@ -49,17 +47,15 @@ public class MailboxUpdateValidatorTest extends BrambleMockTestCase {
 		//  {@link ClientHelper#parseAndValidateMailboxUpdate(BdfList, BdfList, BdfDictionary)}
 		emptyServerSupports = new BdfList();
 		someClientSupports = BdfList.of(BdfList.of(1, 0));
-		someClientSupportsList = singletonList(new MailboxVersion(1, 0));
+		List<MailboxVersion> someClientSupportsList =
+				singletonList(new MailboxVersion(1, 0));
 		someServerSupports = BdfList.of(BdfList.of(1, 0));
 		bdfDict = BdfDictionary.of(new BdfEntry("foo", "bar"));
 
+		MailboxProperties props = getMailboxProperties(false,
+				singletonList(new MailboxVersion(1, 0)));
 		updateMailbox = new MailboxUpdateWithMailbox(
-				singletonList(new MailboxVersion(1, 0)),
-				singletonList(new MailboxVersion(1, 0)),
-				"baz",
-				new MailboxAuthToken(getRandomId()),
-				new MailboxFolderId(getRandomId()),
-				new MailboxFolderId(getRandomId()));
+				singletonList(new MailboxVersion(1, 0)), props);
 		updateNoMailbox = new MailboxUpdate(someClientSupportsList);
 
 

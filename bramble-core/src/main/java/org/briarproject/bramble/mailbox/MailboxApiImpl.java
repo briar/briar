@@ -95,7 +95,7 @@ class MailboxApiImpl implements MailboxApi {
 			}
 			return new MailboxProperties(properties.getBaseUrl(),
 					MailboxAuthToken.fromString(tokenNode.textValue()),
-					true, parseServerSupports(node));
+					parseServerSupports(node));
 		} catch (JacksonException | InvalidMailboxIdException e) {
 			throw new ApiException();
 		}
@@ -127,7 +127,6 @@ class MailboxApiImpl implements MailboxApi {
 	@Override
 	public boolean checkStatus(MailboxProperties properties)
 			throws IOException, ApiException {
-		if (!properties.isOwner()) throw new IllegalArgumentException();
 		Response response = sendGetRequest(properties, "/status");
 		if (response.code() == 401) throw new ApiException();
 		return response.isSuccessful();

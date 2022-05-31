@@ -31,6 +31,7 @@ class MailboxSettingsManagerImpl implements MailboxSettingsManager {
 
 	// Package access for testing
 	static final String SETTINGS_NAMESPACE = "mailbox";
+	// TODO: This currently stores the base URL, not the 56-char onion address
 	static final String SETTINGS_KEY_ONION = "onion";
 	static final String SETTINGS_KEY_TOKEN = "token";
 	static final String SETTINGS_KEY_SERVER_SUPPORTS = "serverSupports";
@@ -70,7 +71,7 @@ class MailboxSettingsManagerImpl implements MailboxSettingsManager {
 		}
 		try {
 			MailboxAuthToken tokenId = MailboxAuthToken.fromString(token);
-			return new MailboxProperties(onion, tokenId, true, serverSupports);
+			return new MailboxProperties(onion, tokenId, serverSupports);
 		} catch (InvalidMailboxIdException e) {
 			throw new DbException(e);
 		}

@@ -91,7 +91,7 @@ public class MailboxIntegrationTest extends BrambleTestCase {
 
 		if (ownerProperties != null) return;
 		MailboxProperties setupProperties = new MailboxProperties(
-				URL_BASE, SETUP_TOKEN, true, new ArrayList<>());
+				URL_BASE, SETUP_TOKEN, new ArrayList<>());
 		ownerProperties = api.setup(setupProperties);
 	}
 
@@ -108,13 +108,29 @@ public class MailboxIntegrationTest extends BrambleTestCase {
 
 		// new setup doesn't work as mailbox is stopping
 		MailboxProperties setupProperties = new MailboxProperties(
-				URL_BASE, SETUP_TOKEN, true, new ArrayList<>());
+				URL_BASE, SETUP_TOKEN, new ArrayList<>());
 		assertThrows(ApiException.class, () -> api.setup(setupProperties));
 	}
 
 	@Test
 	public void testStatus() throws Exception {
+		// Owner calls status endpoint
 		assertTrue(api.checkStatus(ownerProperties));
+
+		// Owner adds contact
+		ContactId contactId = new ContactId(1);
+		MailboxContact contact = getMailboxContact(contactId);
+		MailboxProperties contactProperties = new MailboxProperties(
+				ownerProperties.getBaseUrl(), contact.token,
+				new ArrayList<>(), contact.inboxId, contact.outboxId);
+		api.addContact(ownerProperties, contact);
+
+		// Contact calls status endpoint
+		assertTrue(api.checkStatus(contactProperties));
+
+		// Owner deletes contact again to leave clean state for other tests
+		api.deleteContact(ownerProperties, contactId);
+		assertEquals(emptyList(), api.getContacts(ownerProperties));
 	}
 
 	@Test
@@ -151,8 +167,8 @@ public class MailboxIntegrationTest extends BrambleTestCase {
 		ContactId contactId = new ContactId(1);
 		MailboxContact contact = getMailboxContact(contactId);
 		MailboxProperties contactProperties = new MailboxProperties(
-				ownerProperties.getBaseUrl(), contact.token, false,
-				new ArrayList<>());
+				ownerProperties.getBaseUrl(), contact.token,
+				new ArrayList<>(), contact.inboxId, contact.outboxId);
 		api.addContact(ownerProperties, contact);
 
 		// upload a file for our contact

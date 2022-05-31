@@ -11,8 +11,6 @@ import org.briarproject.bramble.api.data.MetadataParser;
 import org.briarproject.bramble.api.db.DatabaseComponent;
 import org.briarproject.bramble.api.db.Metadata;
 import org.briarproject.bramble.api.db.Transaction;
-import org.briarproject.bramble.api.mailbox.MailboxAuthToken;
-import org.briarproject.bramble.api.mailbox.MailboxFolderId;
 import org.briarproject.bramble.api.mailbox.MailboxProperties;
 import org.briarproject.bramble.api.mailbox.MailboxSettingsManager;
 import org.briarproject.bramble.api.mailbox.MailboxUpdate;
@@ -48,6 +46,7 @@ import static org.briarproject.bramble.api.sync.Group.Visibility.SHARED;
 import static org.briarproject.bramble.api.sync.validation.IncomingMessageHook.DeliveryAction.ACCEPT_DO_NOT_SHARE;
 import static org.briarproject.bramble.test.TestUtils.getContact;
 import static org.briarproject.bramble.test.TestUtils.getGroup;
+import static org.briarproject.bramble.test.TestUtils.getMailboxProperties;
 import static org.briarproject.bramble.test.TestUtils.getMessage;
 import static org.briarproject.bramble.test.TestUtils.getRandomId;
 import static org.briarproject.bramble.test.TestUtils.hasEvent;
@@ -82,6 +81,7 @@ public class MailboxUpdateManagerImplTest extends BrambleMockTestCase {
 	private final List<MailboxVersion> someServerSupportsList;
 	private final BdfList someServerSupports;
 	private final BdfList emptyServerSupports = new BdfList();
+	private final MailboxProperties updateProps;
 	private final MailboxUpdateWithMailbox updateWithMailbox;
 	private final MailboxUpdate updateNoMailbox;
 	private final MailboxProperties ownProps;
@@ -108,22 +108,16 @@ public class MailboxUpdateManagerImplTest extends BrambleMockTestCase {
 
 		updateNoMailbox = new MailboxUpdate(someClientSupportsList);
 
-		ownProps = new MailboxProperties("http://bar.onion",
-				new MailboxAuthToken(getRandomId()), true,
-				someServerSupportsList);
+		updateProps = getMailboxProperties(false, someServerSupportsList);
+		ownProps = new MailboxProperties(updateProps.getBaseUrl(),
+				updateProps.getAuthToken(), someServerSupportsList);
 		updateWithMailbox = new MailboxUpdateWithMailbox(someClientSupportsList,
-				someServerSupportsList, ownProps.getOnion(),
-				new MailboxAuthToken(getRandomId()),
-				new MailboxFolderId(getRandomId()),
-				new MailboxFolderId(getRandomId()));
+				updateProps);
 		propsDict = new BdfDictionary();
-		propsDict.put(PROP_KEY_ONION, updateWithMailbox.getOnion());
-		propsDict.put(PROP_KEY_AUTHTOKEN, updateWithMailbox.getAuthToken()
-				.getBytes());
-		propsDict.put(PROP_KEY_INBOXID, updateWithMailbox.getInboxId()
-				.getBytes());
-		propsDict.put(PROP_KEY_OUTBOXID, updateWithMailbox.getOutboxId()
-				.getBytes());
+		propsDict.put(PROP_KEY_ONION, updateProps.getOnion());
+		propsDict.put(PROP_KEY_AUTHTOKEN, updateProps.getAuthToken());
+		propsDict.put(PROP_KEY_INBOXID, updateProps.getInboxId());
+		propsDict.put(PROP_KEY_OUTBOXID, updateProps.getOutboxId());
 	}
 
 	private MailboxUpdateManagerImpl createInstance(
@@ -219,11 +213,11 @@ public class MailboxUpdateManagerImplTest extends BrambleMockTestCase {
 			oneOf(mailboxSettingsManager).getOwnMailboxProperties(txn);
 			will(returnValue(ownProps));
 			oneOf(crypto).generateUniqueId();
-			will(returnValue(updateWithMailbox.getAuthToken()));
+			will(returnValue(updateProps.getAuthToken()));
 			oneOf(crypto).generateUniqueId();
-			will(returnValue(updateWithMailbox.getInboxId()));
+			will(returnValue(updateProps.getInboxId()));
 			oneOf(crypto).generateUniqueId();
-			will(returnValue(updateWithMailbox.getOutboxId()));
+			will(returnValue(updateProps.getOutboxId()));
 			oneOf(contactGroupFactory).createContactGroup(CLIENT_ID,
 					MAJOR_VERSION, contact);
 			will(returnValue(contactGroup));
@@ -478,11 +472,11 @@ public class MailboxUpdateManagerImplTest extends BrambleMockTestCase {
 			oneOf(mailboxSettingsManager).getOwnMailboxProperties(txn);
 			will(returnValue(ownProps));
 			oneOf(crypto).generateUniqueId();
-			will(returnValue(updateWithMailbox.getAuthToken()));
+			will(returnValue(updateProps.getAuthToken()));
 			oneOf(crypto).generateUniqueId();
-			will(returnValue(updateWithMailbox.getInboxId()));
+			will(returnValue(updateProps.getInboxId()));
 			oneOf(crypto).generateUniqueId();
-			will(returnValue(updateWithMailbox.getOutboxId()));
+			will(returnValue(updateProps.getOutboxId()));
 			oneOf(contactGroupFactory).createContactGroup(CLIENT_ID,
 					MAJOR_VERSION, contact);
 			will(returnValue(contactGroup));
@@ -668,11 +662,11 @@ public class MailboxUpdateManagerImplTest extends BrambleMockTestCase {
 			oneOf(db).getContacts(txn);
 			will(returnValue(contacts));
 			oneOf(crypto).generateUniqueId();
-			will(returnValue(updateWithMailbox.getAuthToken()));
+			will(returnValue(updateProps.getAuthToken()));
 			oneOf(crypto).generateUniqueId();
-			will(returnValue(updateWithMailbox.getInboxId()));
+			will(returnValue(updateProps.getInboxId()));
 			oneOf(crypto).generateUniqueId();
-			will(returnValue(updateWithMailbox.getOutboxId()));
+			will(returnValue(updateProps.getOutboxId()));
 			oneOf(contactGroupFactory).createContactGroup(CLIENT_ID,
 					MAJOR_VERSION, contact);
 			will(returnValue(contactGroup));

@@ -21,8 +21,7 @@ import org.briarproject.bramble.api.db.Metadata;
 import org.briarproject.bramble.api.db.Transaction;
 import org.briarproject.bramble.api.identity.Author;
 import org.briarproject.bramble.api.identity.AuthorFactory;
-import org.briarproject.bramble.api.mailbox.MailboxAuthToken;
-import org.briarproject.bramble.api.mailbox.MailboxFolderId;
+import org.briarproject.bramble.api.mailbox.MailboxProperties;
 import org.briarproject.bramble.api.mailbox.MailboxUpdate;
 import org.briarproject.bramble.api.mailbox.MailboxUpdateWithMailbox;
 import org.briarproject.bramble.api.mailbox.MailboxVersion;
@@ -52,6 +51,7 @@ import static org.briarproject.bramble.api.mailbox.MailboxUpdateManager.PROP_KEY
 import static org.briarproject.bramble.api.mailbox.MailboxUpdateManager.PROP_KEY_ONION;
 import static org.briarproject.bramble.api.mailbox.MailboxUpdateManager.PROP_KEY_OUTBOXID;
 import static org.briarproject.bramble.test.TestUtils.getAuthor;
+import static org.briarproject.bramble.test.TestUtils.getMailboxProperties;
 import static org.briarproject.bramble.test.TestUtils.getMessage;
 import static org.briarproject.bramble.test.TestUtils.getRandomBytes;
 import static org.briarproject.bramble.test.TestUtils.getRandomId;
@@ -111,22 +111,18 @@ public class ClientHelperImplTest extends BrambleMockTestCase {
 		someServerSupports = BdfList.of(BdfList.of(1, 0));
 		validMailboxUpdateWithMailbox = new MailboxUpdateWithMailbox(
 				singletonList(new MailboxVersion(1, 0)),
-				singletonList(new MailboxVersion(1, 0)),
-				"pg6mmjiyjmcrsslvykfwnntlaru7p5svn6y2ymmju6nubxndf4pscryd",
-				new MailboxAuthToken(getRandomId()),
-				new MailboxFolderId(getRandomId()),
-				new MailboxFolderId(getRandomId()));
+				getMailboxProperties(false,
+						singletonList(new MailboxVersion(1, 0))));
 	}
 
 	private BdfDictionary getValidMailboxUpdateWithMailboxDict() {
 		BdfDictionary dict = new BdfDictionary();
-		dict.put(PROP_KEY_ONION, validMailboxUpdateWithMailbox.getOnion());
-		dict.put(PROP_KEY_AUTHTOKEN, validMailboxUpdateWithMailbox
-				.getAuthToken().getBytes());
-		dict.put(PROP_KEY_INBOXID, validMailboxUpdateWithMailbox.getInboxId()
-				.getBytes());
-		dict.put(PROP_KEY_OUTBOXID, validMailboxUpdateWithMailbox.getOutboxId()
-				.getBytes());
+		MailboxProperties properties =
+				validMailboxUpdateWithMailbox.getMailboxProperties();
+		dict.put(PROP_KEY_ONION, properties.getOnion());
+		dict.put(PROP_KEY_AUTHTOKEN, properties.getAuthToken());
+		dict.put(PROP_KEY_INBOXID, properties.getInboxId());
+		dict.put(PROP_KEY_OUTBOXID, properties.getOutboxId());
 		return dict;
 	}
 
