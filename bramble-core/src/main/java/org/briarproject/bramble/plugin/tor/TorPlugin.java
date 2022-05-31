@@ -2,6 +2,7 @@ package org.briarproject.bramble.plugin.tor;
 
 import net.freehaven.tor.control.EventHandler;
 import net.freehaven.tor.control.TorControlConnection;
+import net.freehaven.tor.control.TorNotRunningException;
 
 import org.briarproject.bramble.PoliteExecutor;
 import org.briarproject.bramble.api.Pair;
@@ -321,6 +322,8 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 				LOG.info("Tor has already built a circuit");
 				state.getAndSetCircuitBuilt(true);
 			}
+		} catch (TorNotRunningException e) {
+			throw new RuntimeException(e);
 		} catch (IOException e) {
 			throw new PluginException(e);
 		}
@@ -492,6 +495,8 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 			} else {
 				response = controlConnection.addOnion(privKey, portLines);
 			}
+		} catch (TorNotRunningException e) {
+			throw new RuntimeException(e);
 		} catch (IOException e) {
 			logException(LOG, WARNING, e);
 			return;
@@ -540,30 +545,38 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 
 	protected void enableNetwork(boolean enable) throws IOException {
 		state.enableNetwork(enable);
-		controlConnection.setConf("DisableNetwork", enable ? "0" : "1");
+		try {
+			controlConnection.setConf("DisableNetwork", enable ? "0" : "1");
+		} catch (TorNotRunningException e) {
+			throw new RuntimeException(e);
+		}
 	}
 
 	private void enableBridges(boolean enable, List<BridgeType> bridgeTypes)
 			throws IOException {
-		if (enable) {
-			Collection<String> conf = new ArrayList<>();
-			conf.add("UseBridges 1");
-			File obfs4File = getObfs4ExecutableFile();
-			if (bridgeTypes.contains(MEEK)) {
-				conf.add("ClientTransportPlugin meek_lite exec " +
-						obfs4File.getAbsolutePath());
+		try {
+			if (enable) {
+				Collection<String> conf = new ArrayList<>();
+				conf.add("UseBridges 1");
+				File obfs4File = getObfs4ExecutableFile();
+				if (bridgeTypes.contains(MEEK)) {
+					conf.add("ClientTransportPlugin meek_lite exec " +
+							obfs4File.getAbsolutePath());
+				}
+				if (bridgeTypes.contains(DEFAULT_OBFS4) ||
+						bridgeTypes.contains(NON_DEFAULT_OBFS4)) {
+					conf.add("ClientTransportPlugin obfs4 exec " +
+							obfs4File.getAbsolutePath());
+				}
+				for (BridgeType bridgeType : bridgeTypes) {
+					conf.addAll(circumventionProvider.getBridges(bridgeType));
+				}
+				controlConnection.setConf(conf);
+			} else {
+				controlConnection.setConf("UseBridges", "0");
 			}
-			if (bridgeTypes.contains(DEFAULT_OBFS4) ||
-					bridgeTypes.contains(NON_DEFAULT_OBFS4)) {
-				conf.add("ClientTransportPlugin obfs4 exec " +
-						obfs4File.getAbsolutePath());
-			}
-			for (BridgeType bridgeType : bridgeTypes) {
-				conf.addAll(circumventionProvider.getBridges(bridgeType));
-			}
-			controlConnection.setConf(conf);
-		} else {
-			controlConnection.setConf("UseBridges", "0");
+		} catch (TorNotRunningException e) {
+			throw new RuntimeException(e);
 		}
 	}
 
@@ -577,6 +590,8 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 				controlConnection.setConf("DisableNetwork", "1");
 				controlConnection.shutdownTor("TERM");
 				controlSocket.close();
+			} catch (TorNotRunningException e) {
+				throw new RuntimeException(e);
 			} catch (IOException e) {
 				logException(LOG, WARNING, e);
 			}
@@ -708,7 +723,11 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 			});
 			Map<Integer, String> portLines =
 					singletonMap(80, "127.0.0.1:" + port);
-			controlConnection.addOnion(blob, portLines);
+			try {
+				controlConnection.addOnion(blob, portLines);
+			} catch (TorNotRunningException e) {
+				throw new RuntimeException(e);
+			}
 			return new RendezvousEndpoint() {
 
 				@Override
@@ -718,7 +737,11 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 
 				@Override
 				public void close() throws IOException {
-					controlConnection.delOnion(localOnion);
+					try {
+						controlConnection.delOnion(localOnion);
+					} catch (TorNotRunningException e) {
+						throw new RuntimeException(e);
+					}
 					tryToClose(ss, LOG, WARNING);
 				}
 			};
@@ -950,12 +973,20 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 	}
 
 	private void enableConnectionPadding(boolean enable) throws IOException {
-		controlConnection.setConf("ConnectionPadding", enable ? "1" : "0");
+		try {
+			controlConnection.setConf("ConnectionPadding", enable ? "1" : "0");
+		} catch (TorNotRunningException e) {
+			throw new RuntimeException(e);
+		}
 	}
 
 	private void useIpv6(boolean ipv6Only) throws IOException {
-		controlConnection.setConf("ClientUseIPv4", ipv6Only ? "0" : "1");
-		controlConnection.setConf("ClientUseIPv6", ipv6Only ? "1" : "0");
+		try {
+			controlConnection.setConf("ClientUseIPv4", ipv6Only ? "0" : "1");
+			controlConnection.setConf("ClientUseIPv6", ipv6Only ? "1" : "0");
+		} catch (TorNotRunningException e) {
+			throw new RuntimeException(e);
+		}
 	}
 
 	@ThreadSafe
@@ -1075,7 +1106,7 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 		@GuardedBy("this")
 		private void logOrConnections() {
 			if (LOG.isLoggable(INFO)) {
-				LOG.info(orConnectionsConnected + "OR connections connected");
+				LOG.info(orConnectionsConnected + " OR connections connected");
 			}
 		}
 	}
