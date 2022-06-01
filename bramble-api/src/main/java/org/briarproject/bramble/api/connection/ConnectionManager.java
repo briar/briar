@@ -17,6 +17,17 @@ public interface ConnectionManager {
 	void manageIncomingConnection(TransportId t, TransportConnectionReader r);
 
 	/**
+	 * Manages an incoming connection from a contact via a mailbox.
+	 * <p>
+	 * This method does not mark the tag as recognised until after the data
+	 * has been read from the {@link TransportConnectionReader}, at which
+	 * point the {@link TagController} is called to decide whether the tag
+	 * should be marked as recognised.
+	 */
+	void manageIncomingConnection(TransportId t, TransportConnectionReader r,
+			TagController c);
+
+	/**
 	 * Manages an incoming connection from a contact over a duplex transport.
 	 */
 	void manageIncomingConnection(TransportId t, DuplexTransportConnection d);
@@ -46,4 +57,21 @@ public interface ConnectionManager {
 	 */
 	void manageOutgoingConnection(PendingContactId p, TransportId t,
 			DuplexTransportConnection d);
+
+	/**
+	 * An interface for controlling whether a tag should be marked as
+	 * recognised.
+	 */
+	interface TagController {
+		/**
+		 * This method is only called if a tag was read from the corresponding
+		 * {@link TransportConnectionReader} and recognised.
+		 *
+		 * @param exception True if an exception was thrown while reading from
+		 * the {@link TransportConnectionReader}, after successfully reading
+		 * and recognising the tag.
+		 * @return True if the tag should be marked as recognised.
+		 */
+		boolean shouldMarkTagAsRecognised(boolean exception);
+	}
 }

@@ -67,7 +67,15 @@ class ConnectionManagerImpl implements ConnectionManager {
 			TransportConnectionReader r) {
 		ioExecutor.execute(new IncomingSimplexSyncConnection(keyManager,
 				connectionRegistry, streamReaderFactory, streamWriterFactory,
-				syncSessionFactory, transportPropertyManager, t, r));
+				syncSessionFactory, transportPropertyManager, t, r, null));
+	}
+
+	@Override
+	public void manageIncomingConnection(TransportId t,
+			TransportConnectionReader r, TagController c) {
+		ioExecutor.execute(new IncomingSimplexSyncConnection(keyManager,
+				connectionRegistry, streamReaderFactory, streamWriterFactory,
+				syncSessionFactory, transportPropertyManager, t, r, c));
 	}
 
 	@Override
