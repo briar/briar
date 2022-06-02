@@ -13,6 +13,7 @@ import dagger.Module;
 		DefaultWakefulIoExecutorModule.class,
 		TestDatabaseConfigModule.class,
 		TestFeatureFlagModule.class,
+		TestMailboxDirectoryModule.class,
 		TestPluginConfigModule.class,
 		TestSecureRandomModule.class,
 		TimeTravelModule.class

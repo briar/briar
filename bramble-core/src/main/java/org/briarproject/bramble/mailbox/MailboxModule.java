@@ -4,6 +4,7 @@ import org.briarproject.bramble.api.FeatureFlags;
 import org.briarproject.bramble.api.client.ClientHelper;
 import org.briarproject.bramble.api.contact.ContactManager;
 import org.briarproject.bramble.api.data.MetadataEncoder;
+import org.briarproject.bramble.api.event.EventBus;
 import org.briarproject.bramble.api.lifecycle.LifecycleManager;
 import org.briarproject.bramble.api.mailbox.MailboxManager;
 import org.briarproject.bramble.api.mailbox.MailboxSettingsManager;
@@ -34,6 +35,8 @@ public class MailboxModule {
 		MailboxUpdateValidator mailboxUpdateValidator;
 		@Inject
 		MailboxUpdateManager mailboxUpdateManager;
+		@Inject
+		MailboxFileManager mailboxFileManager;
 	}
 
 	@Provides
@@ -100,5 +103,15 @@ public class MailboxModule {
 			mailboxSettingsManager.registerMailboxHook(mailboxUpdateManager);
 		}
 		return mailboxUpdateManager;
+	}
+
+	@Provides
+	@Singleton
+	MailboxFileManager provideMailboxFileManager(FeatureFlags featureFlags,
+			EventBus eventBus, MailboxFileManagerImpl mailboxFileManager) {
+		if (featureFlags.shouldEnableMailbox()) {
+			eventBus.addListener(mailboxFileManager);
+		}
+		return mailboxFileManager;
 	}
 }

@@ -6,6 +6,7 @@ import dagger.Provides
 import org.briarproject.bramble.account.AccountModule
 import org.briarproject.bramble.api.FeatureFlags
 import org.briarproject.bramble.api.db.DatabaseConfig
+import org.briarproject.bramble.api.mailbox.MailboxDirectory
 import org.briarproject.bramble.api.plugin.PluginConfig
 import org.briarproject.bramble.api.plugin.TorConstants.DEFAULT_CONTROL_PORT
 import org.briarproject.bramble.api.plugin.TorConstants.DEFAULT_SOCKS_PORT
@@ -69,6 +70,12 @@ internal class HeadlessModule(private val appDir: File) {
         val dbDir = File(appDir, "db")
         val keyDir = File(appDir, "key")
         return HeadlessDatabaseConfig(dbDir, keyDir)
+    }
+
+    @Provides
+    @MailboxDirectory
+    internal fun provideMailboxDirectory(): File {
+        return File(appDir, "mailbox")
     }
 
     @Provides

@@ -14,6 +14,7 @@ import org.briarproject.bramble.api.crypto.PublicKey;
 import org.briarproject.bramble.api.db.DatabaseConfig;
 import org.briarproject.bramble.api.event.EventBus;
 import org.briarproject.bramble.api.lifecycle.LifecycleManager;
+import org.briarproject.bramble.api.mailbox.MailboxDirectory;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.plugin.BluetoothConstants;
 import org.briarproject.bramble.api.plugin.LanTcpConstants;
@@ -155,6 +156,13 @@ public class AppModule {
 		KeyStrengthener keyStrengthener = SDK_INT >= 23
 				? new AndroidKeyStrengthener() : null;
 		return new AndroidDatabaseConfig(dbDir, keyDir, keyStrengthener);
+	}
+
+	@Provides
+	@Singleton
+	@MailboxDirectory
+	File provideMailboxDirectory(Application app) {
+		return app.getDir("mailbox", MODE_PRIVATE);
 	}
 
 	@Provides
