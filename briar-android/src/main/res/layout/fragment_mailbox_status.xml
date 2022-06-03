@@ -31,11 +31,28 @@
 		android:gravity="center"
 		android:textAppearance="@style/TextAppearance.MaterialComponents.Headline6"
 		app:layout_constrainedWidth="true"
-		app:layout_constraintBottom_toTopOf="@+id/checkButton"
+		app:layout_constraintBottom_toTopOf="@+id/statusMessageView"
 		app:layout_constraintEnd_toEndOf="parent"
 		app:layout_constraintStart_toStartOf="parent"
 		app:layout_constraintTop_toBottomOf="@+id/imageView"
 		tools:text="@string/mailbox_status_problem_title" />
+
+	<TextView
+		android:id="@+id/statusMessageView"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:layout_marginHorizontal="16dp"
+		android:layout_marginBottom="16dp"
+		android:gravity="center"
+		android:textAppearance="@style/TextAppearance.MaterialComponents.Body1"
+		android:visibility="gone"
+		app:layout_constrainedWidth="true"
+		app:layout_constraintBottom_toTopOf="@+id/checkButton"
+		app:layout_constraintEnd_toEndOf="parent"
+		app:layout_constraintStart_toStartOf="parent"
+		app:layout_constraintTop_toBottomOf="@+id/statusTitleView"
+		tools:text="@string/mailbox_status_mailbox_too_old_message"
+		tools:visibility="visible" />
 
 	<org.briarproject.briar.android.view.BriarButton
 		android:id="@+id/checkButton"
@@ -46,7 +63,7 @@
 		app:layout_constraintBottom_toTopOf="@+id/statusInfoView"
 		app:layout_constraintEnd_toEndOf="parent"
 		app:layout_constraintStart_toStartOf="parent"
-		app:layout_constraintTop_toBottomOf="@+id/statusTitleView"
+		app:layout_constraintTop_toBottomOf="@+id/statusMessageView"
 		app:text="@string/mailbox_status_check_button" />
 
 	<TextView

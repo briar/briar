@@ -6,9 +6,10 @@ import java.util.List;
 
 import javax.annotation.concurrent.Immutable;
 
-import static org.briarproject.bramble.api.mailbox.MailboxConstants.MAILBOX_VERSION_MAJOR;
+import static org.briarproject.bramble.api.mailbox.MailboxConstants.CLIENT_SUPPORTS;
 import static org.briarproject.bramble.api.mailbox.MailboxConstants.PROBLEM_MS_SINCE_LAST_SUCCESS;
 import static org.briarproject.bramble.api.mailbox.MailboxConstants.PROBLEM_NUM_CONNECTION_FAILURES;
+import static org.briarproject.bramble.api.mailbox.MailboxHelper.getHighestCommonMajorVersion;
 
 @Immutable
 @NotNullByDefault
@@ -75,14 +76,11 @@ public class MailboxStatus {
 	}
 
 	/**
-	 * @return true if the Mailbox is incompatible with this version of Briar,
-	 * so that the mailbox needs to be updated.
+	 * @return a positive integer if the mailbox is compatible. Same result as
+	 * {@link MailboxHelper#getHighestCommonMajorVersion(List, List)}.
 	 */
-	public boolean isMailboxIncompatible() {
-		for (MailboxVersion version : serverSupports) {
-			if (version.getMajor() <= MAILBOX_VERSION_MAJOR) return false;
-		}
-		return true;
+	public int getMailboxCompatibility() {
+		return getHighestCommonMajorVersion(CLIENT_SUPPORTS, serverSupports);
 	}
 
 }

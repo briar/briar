@@ -35,7 +35,7 @@ import okio.Buffer;
 
 import static java.util.Collections.singletonList;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
-import static org.briarproject.bramble.mailbox.MailboxApi.CLIENT_SUPPORTS;
+import static org.briarproject.bramble.api.mailbox.MailboxConstants.CLIENT_SUPPORTS;
 import static org.briarproject.bramble.test.TestUtils.getContactId;
 import static org.briarproject.bramble.test.TestUtils.getMailboxProperties;
 import static org.briarproject.bramble.test.TestUtils.getRandomBytes;

@@ -17,7 +17,7 @@ import org.junit.Test;
 import java.io.IOException;
 import java.util.concurrent.atomic.AtomicReference;
 
-import static org.briarproject.bramble.mailbox.MailboxApi.CLIENT_SUPPORTS;
+import static org.briarproject.bramble.api.mailbox.MailboxConstants.CLIENT_SUPPORTS;
 import static org.briarproject.bramble.test.TestUtils.getMailboxProperties;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
