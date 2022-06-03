@@ -70,13 +70,14 @@ class TorReachabilityMonitorImpl
 		eventBus.removeListener(this);
 		synchronized (lock) {
 			destroyed = true;
-			onTorInactive();
+			if (task != null) task.cancel();
+			task = null;
 			observers.clear();
 		}
 	}
 
 	@Override
-	public void addObserver(TorReachabilityObserver o) {
+	public void addOneShotObserver(TorReachabilityObserver o) {
 		boolean callNow = false;
 		synchronized (lock) {
 			if (destroyed) return;

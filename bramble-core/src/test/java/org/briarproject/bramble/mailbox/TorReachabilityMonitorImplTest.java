@@ -156,7 +156,7 @@ public class TorReachabilityMonitorImplTest extends BrambleMockTestCase {
 		monitor.start();
 
 		// Register an observer
-		monitor.addObserver(observer);
+		monitor.addOneShotObserver(observer);
 
 		// When Tor becomes active, a task should be scheduled
 		AtomicReference<Runnable> runnable = new AtomicReference<>(null);
@@ -202,7 +202,7 @@ public class TorReachabilityMonitorImplTest extends BrambleMockTestCase {
 		monitor.start();
 
 		// Register an observer
-		monitor.addObserver(observer);
+		monitor.addOneShotObserver(observer);
 
 		// When the task runs, the observer should be called
 		context.checking(new Expectations() {{
@@ -241,6 +241,6 @@ public class TorReachabilityMonitorImplTest extends BrambleMockTestCase {
 			oneOf(observer).onTorReachable();
 		}});
 
-		monitor.addObserver(observer);
+		monitor.addOneShotObserver(observer);
 	}
 }

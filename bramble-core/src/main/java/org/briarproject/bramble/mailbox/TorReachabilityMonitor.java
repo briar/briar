@@ -36,7 +36,7 @@ interface TorReachabilityMonitor {
 	 * Observers are removed after being called, or when the monitor is
 	 * {@link #destroy() destroyed}.
 	 */
-	void addObserver(TorReachabilityObserver o);
+	void addOneShotObserver(TorReachabilityObserver o);
 
 	interface TorReachabilityObserver {
 
