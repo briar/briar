@@ -20,7 +20,6 @@ import java.io.IOException;
 import javax.annotation.Nullable;
 
 import static java.util.logging.Level.WARNING;
-import static org.briarproject.bramble.api.nullsafety.NullSafety.requireNonNull;
 import static org.briarproject.bramble.util.LogUtils.logException;
 
 @NotNullByDefault
@@ -51,7 +50,7 @@ class IncomingSimplexSyncConnection extends SyncConnection implements Runnable {
 	@Override
 	public void run() {
 		// Read and recognise the tag
-		byte[] tag = null;
+		byte[] tag;
 		StreamContext ctx;
 		try {
 			tag = readTag(reader.getInputStream());
@@ -63,24 +62,24 @@ class IncomingSimplexSyncConnection extends SyncConnection implements Runnable {
 			}
 		} catch (IOException | DbException e) {
 			logException(LOG, WARNING, e);
-			onError(false, tag);
+			onError();
 			return;
 		}
 		if (ctx == null) {
 			LOG.info("Unrecognised tag");
-			onError(false, tag);
+			onError();
 			return;
 		}
 		ContactId contactId = ctx.getContactId();
 		if (contactId == null) {
 			LOG.warning("Received rendezvous stream, expected contact");
-			onError(true, tag);
+			onError(tag);
 			return;
 		}
 		if (ctx.isHandshakeMode()) {
 			// TODO: Support handshake mode for contacts
 			LOG.warning("Received handshake tag, expected rotation mode");
-			onError(true, tag);
+			onError(tag);
 			return;
 		}
 		try {
@@ -94,15 +93,17 @@ class IncomingSimplexSyncConnection extends SyncConnection implements Runnable {
 			reader.dispose(false, true);
 		} catch (IOException e) {
 			logException(LOG, WARNING, e);
-			onError(true, tag);
+			onError(tag);
 		}
 	}
 
-	private void onError(boolean recognised, @Nullable byte[] tag) {
-		if (recognised) {
-			markTagAsRecognisedIfRequired(true, requireNonNull(tag));
-		}
-		disposeOnError(reader, recognised);
+	private void onError() {
+		disposeOnError(reader, false);
+	}
+
+	private void onError(byte[] tag) {
+		markTagAsRecognisedIfRequired(true, tag);
+		disposeOnError(reader, true);
 	}
 
 	private void markTagAsRecognisedIfRequired(boolean exception, byte[] tag) {
