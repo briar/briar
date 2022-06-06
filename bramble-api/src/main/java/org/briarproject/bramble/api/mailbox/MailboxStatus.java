@@ -2,10 +2,14 @@ package org.briarproject.bramble.api.mailbox;
 
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 
+import java.util.List;
+
 import javax.annotation.concurrent.Immutable;
 
+import static org.briarproject.bramble.api.mailbox.MailboxConstants.CLIENT_SUPPORTS;
 import static org.briarproject.bramble.api.mailbox.MailboxConstants.PROBLEM_MS_SINCE_LAST_SUCCESS;
 import static org.briarproject.bramble.api.mailbox.MailboxConstants.PROBLEM_NUM_CONNECTION_FAILURES;
+import static org.briarproject.bramble.api.mailbox.MailboxHelper.getHighestCommonMajorVersion;
 
 @Immutable
 @NotNullByDefault
@@ -13,12 +17,15 @@ public class MailboxStatus {
 
 	private final long lastAttempt, lastSuccess;
 	private final int attemptsSinceSuccess;
+	private final List<MailboxVersion> serverSupports;
 
 	public MailboxStatus(long lastAttempt, long lastSuccess,
-			int attemptsSinceSuccess) {
+			int attemptsSinceSuccess,
+			List<MailboxVersion> serverSupports) {
 		this.lastAttempt = lastAttempt;
 		this.lastSuccess = lastSuccess;
 		this.attemptsSinceSuccess = attemptsSinceSuccess;
+		this.serverSupports = serverSupports;
 	}
 
 	/**
@@ -67,4 +74,13 @@ public class MailboxStatus {
 		return attemptsSinceSuccess >= PROBLEM_NUM_CONNECTION_FAILURES &&
 				(now - lastSuccess) >= PROBLEM_MS_SINCE_LAST_SUCCESS;
 	}
+
+	/**
+	 * @return a positive integer if the mailbox is compatible. Same result as
+	 * {@link MailboxHelper#getHighestCommonMajorVersion(List, List)}.
+	 */
+	public int getMailboxCompatibility() {
+		return getHighestCommonMajorVersion(CLIENT_SUPPORTS, serverSupports);
+	}
+
 }

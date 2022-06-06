@@ -36,6 +36,7 @@ import static android.view.View.VISIBLE;
 import static androidx.core.content.ContextCompat.getColor;
 import static androidx.core.widget.ImageViewCompat.setImageTintList;
 import static androidx.transition.TransitionManager.beginDelayedTransition;
+import static org.briarproject.bramble.api.mailbox.MailboxConstants.API_CLIENT_TOO_OLD;
 import static org.briarproject.briar.android.AppModule.getAndroidComponent;
 import static org.briarproject.briar.android.util.UiUtils.MIN_DATE_RESOLUTION;
 import static org.briarproject.briar.android.util.UiUtils.formatDate;
@@ -47,7 +48,6 @@ import static org.briarproject.briar.android.util.UiUtils.showFragment;
 public class MailboxStatusFragment extends Fragment {
 
 	static final String TAG = MailboxStatusFragment.class.getName();
-	private static final int NUM_FAILURES = 4;
 
 	@Inject
 	ViewModelProvider.Factory viewModelFactory;
@@ -59,8 +59,7 @@ public class MailboxStatusFragment extends Fragment {
 	private boolean showUnlinkWarning = true;
 
 	private ImageView imageView;
-	private TextView statusTitleView;
-	private TextView statusInfoView;
+	private TextView statusTitleView, statusMessageView, statusInfoView;
 	private Button wizardButton;
 	private Button unlinkButton;
 	private ProgressBar unlinkProgress;
@@ -95,6 +94,7 @@ public class MailboxStatusFragment extends Fragment {
 
 		imageView = v.findViewById(R.id.imageView);
 		statusTitleView = v.findViewById(R.id.statusTitleView);
+		statusMessageView = v.findViewById(R.id.statusMessageView);
 		statusInfoView = v.findViewById(R.id.statusInfoView);
 		viewModel.getStatus()
 				.observe(getViewLifecycleOwner(), this::onMailboxStateChanged);
@@ -133,29 +133,51 @@ public class MailboxStatusFragment extends Fragment {
 		@ColorRes int tintRes;
 		@DrawableRes int iconRes;
 		String title;
-		if (status.getAttemptsSinceSuccess() == 0) {
-			iconRes = R.drawable.ic_check_circle_outline;
-			title = getString(R.string.mailbox_status_connected_title);
-			tintRes = R.color.briar_brand_green;
-			showUnlinkWarning = true;
-			wizardButton.setVisibility(GONE);
-		} else if (!status.hasProblem(System.currentTimeMillis())) {
-			iconRes = R.drawable.ic_help_outline_white;
-			title = getString(R.string.mailbox_status_problem_title);
-			tintRes = R.color.briar_orange_500;
-			showUnlinkWarning = false;
-			wizardButton.setVisibility(VISIBLE);
-		} else {
+		String message = null;
+		if (status.hasProblem(System.currentTimeMillis())) {
 			tintRes = R.color.briar_red_500;
 			title = getString(R.string.mailbox_status_failure_title);
 			iconRes = R.drawable.alerts_and_states_error;
 			showUnlinkWarning = false;
 			wizardButton.setVisibility(VISIBLE);
+		} else if (status.getAttemptsSinceSuccess() > 0) {
+			iconRes = R.drawable.ic_help_outline_white;
+			title = getString(R.string.mailbox_status_problem_title);
+			tintRes = R.color.briar_orange_500;
+			showUnlinkWarning = false;
+			wizardButton.setVisibility(VISIBLE);
+		} else if (status.getMailboxCompatibility() < 0) {
+			tintRes = R.color.briar_red_500;
+			if (status.getMailboxCompatibility() == API_CLIENT_TOO_OLD) {
+				title = getString(R.string.mailbox_status_app_too_old_title);
+				message =
+						getString(R.string.mailbox_status_app_too_old_message);
+			} else {
+				title = getString(
+						R.string.mailbox_status_mailbox_too_old_title);
+				message = getString(
+						R.string.mailbox_status_mailbox_too_old_message);
+			}
+			iconRes = R.drawable.alerts_and_states_error;
+			showUnlinkWarning = true;
+			wizardButton.setVisibility(GONE);
+		} else {
+			iconRes = R.drawable.ic_check_circle_outline;
+			title = getString(R.string.mailbox_status_connected_title);
+			tintRes = R.color.briar_brand_green;
+			showUnlinkWarning = true;
+			wizardButton.setVisibility(GONE);
 		}
 		imageView.setImageResource(iconRes);
 		int color = getColor(requireContext(), tintRes);
 		setImageTintList(imageView, ColorStateList.valueOf(color));
 		statusTitleView.setText(title);
+		if (message == null) {
+			statusMessageView.setVisibility(GONE);
+		} else {
+			statusMessageView.setVisibility(VISIBLE);
+			statusMessageView.setText(message);
+		}
 
 		long lastSuccess = status.getTimeOfLastSuccess();
 		String lastConnectionText;

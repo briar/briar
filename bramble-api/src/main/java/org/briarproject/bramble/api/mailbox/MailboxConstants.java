@@ -2,6 +2,9 @@ package org.briarproject.bramble.api.mailbox;
 
 import org.briarproject.bramble.api.plugin.TransportId;
 
+import java.util.List;
+
+import static java.util.Collections.singletonList;
 import static java.util.concurrent.TimeUnit.HOURS;
 import static org.briarproject.bramble.api.transport.TransportConstants.MAX_FRAME_LENGTH;
 import static org.briarproject.bramble.api.transport.TransportConstants.MAX_PAYLOAD_LENGTH;
@@ -14,6 +17,27 @@ public interface MailboxConstants {
 	 * The transport ID of the mailbox plugin.
 	 */
 	TransportId ID = new TransportId("org.briarproject.bramble.mailbox");
+
+	/**
+	 * Mailbox API versions that we support as a client. This is reported to our
+	 * contacts by {@link MailboxUpdateManager}.
+	 */
+	List<MailboxVersion> CLIENT_SUPPORTS = singletonList(
+			new MailboxVersion(1, 0));
+
+	/**
+	 * The constant returned by
+	 * {@link MailboxHelper#getHighestCommonMajorVersion(List, List)}
+	 * when the server is too old to support our major version.
+	 */
+	int API_SERVER_TOO_OLD = -1;
+
+	/**
+	 * The constant returned by
+	 * {@link MailboxHelper#getHighestCommonMajorVersion(List, List)}
+	 * when we as a client are too old to support the server's major version.
+	 */
+	int API_CLIENT_TOO_OLD = -2;
 
 	/**
 	 * The maximum length of a file that can be uploaded to or downloaded from

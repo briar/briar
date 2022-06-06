@@ -10,8 +10,8 @@ import org.junit.Test;
 
 import javax.annotation.Nonnull;
 
+import static org.briarproject.bramble.api.mailbox.MailboxConstants.CLIENT_SUPPORTS;
 import static org.briarproject.bramble.mailbox.ConnectivityCheckerImpl.CONNECTIVITY_CHECK_FRESHNESS_MS;
-import static org.briarproject.bramble.mailbox.MailboxApi.CLIENT_SUPPORTS;
 import static org.briarproject.bramble.test.TestUtils.getMailboxProperties;
 
 public class ConnectivityCheckerImplTest extends BrambleMockTestCase {

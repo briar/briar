@@ -22,10 +22,10 @@ import javax.inject.Singleton;
 import dagger.Module;
 import dagger.Provides;
 
+import static org.briarproject.bramble.api.mailbox.MailboxConstants.CLIENT_SUPPORTS;
 import static org.briarproject.bramble.api.mailbox.MailboxUpdateManager.CLIENT_ID;
 import static org.briarproject.bramble.api.mailbox.MailboxUpdateManager.MAJOR_VERSION;
 import static org.briarproject.bramble.api.mailbox.MailboxUpdateManager.MINOR_VERSION;
-import static org.briarproject.bramble.mailbox.MailboxApi.CLIENT_SUPPORTS;
 
 @Module
 public class MailboxModule {
