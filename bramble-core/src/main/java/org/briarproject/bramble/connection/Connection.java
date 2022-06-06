@@ -54,7 +54,7 @@ abstract class Connection {
 		}
 	}
 
-	private byte[] readTag(InputStream in) throws IOException {
+	byte[] readTag(InputStream in) throws IOException {
 		byte[] tag = new byte[TAG_LENGTH];
 		read(in, tag);
 		return tag;

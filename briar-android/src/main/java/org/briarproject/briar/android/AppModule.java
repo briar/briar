@@ -14,6 +14,7 @@ import org.briarproject.bramble.api.crypto.PublicKey;
 import org.briarproject.bramble.api.db.DatabaseConfig;
 import org.briarproject.bramble.api.event.EventBus;
 import org.briarproject.bramble.api.lifecycle.LifecycleManager;
+import org.briarproject.bramble.api.mailbox.MailboxDirectory;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.plugin.BluetoothConstants;
 import org.briarproject.bramble.api.plugin.LanTcpConstants;
@@ -27,6 +28,7 @@ import org.briarproject.bramble.api.plugin.simplex.SimplexPluginFactory;
 import org.briarproject.bramble.api.reporting.DevConfig;
 import org.briarproject.bramble.plugin.bluetooth.AndroidBluetoothPluginFactory;
 import org.briarproject.bramble.plugin.file.AndroidRemovableDrivePluginFactory;
+import org.briarproject.bramble.plugin.file.MailboxPluginFactory;
 import org.briarproject.bramble.plugin.tcp.AndroidLanTcpPluginFactory;
 import org.briarproject.bramble.plugin.tor.AndroidTorPluginFactory;
 import org.briarproject.bramble.util.AndroidUtils;
@@ -63,6 +65,7 @@ import org.briarproject.briar.api.test.TestAvatarCreator;
 
 import java.io.File;
 import java.security.GeneralSecurityException;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -76,7 +79,6 @@ import dagger.Provides;
 import static android.content.Context.MODE_PRIVATE;
 import static android.os.Build.VERSION.SDK_INT;
 import static java.util.Arrays.asList;
-import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
 import static java.util.Collections.singletonMap;
 import static org.briarproject.bramble.api.plugin.TorConstants.DEFAULT_CONTROL_PORT;
@@ -158,6 +160,13 @@ public class AppModule {
 
 	@Provides
 	@Singleton
+	@MailboxDirectory
+	File provideMailboxDirectory(Application app) {
+		return app.getDir("mailbox", MODE_PRIVATE);
+	}
+
+	@Provides
+	@Singleton
 	@TorDirectory
 	File provideTorDirectory(Application app) {
 		return app.getDir("tor", MODE_PRIVATE);
@@ -190,7 +199,7 @@ public class AppModule {
 	PluginConfig providePluginConfig(AndroidBluetoothPluginFactory bluetooth,
 			AndroidTorPluginFactory tor, AndroidLanTcpPluginFactory lan,
 			AndroidRemovableDrivePluginFactory drive,
-			FeatureFlags featureFlags) {
+			MailboxPluginFactory mailbox, FeatureFlags featureFlags) {
 		@NotNullByDefault
 		PluginConfig pluginConfig = new PluginConfig() {
 
@@ -201,8 +210,10 @@ public class AppModule {
 
 			@Override
 			public Collection<SimplexPluginFactory> getSimplexFactories() {
-				if (SDK_INT >= 19) return singletonList(drive);
-				else return emptyList();
+				List<SimplexPluginFactory> simplex = new ArrayList<>();
+				if (featureFlags.shouldEnableMailbox()) simplex.add(mailbox);
+				if (SDK_INT >= 19) simplex.add(drive);
+				return simplex;
 			}
 
 			@Override

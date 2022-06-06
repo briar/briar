@@ -13,6 +13,7 @@ import org.briarproject.bramble.system.DefaultWakefulIoExecutorModule;
 import org.briarproject.bramble.system.TimeTravelModule;
 import org.briarproject.bramble.test.TestDatabaseConfigModule;
 import org.briarproject.bramble.test.TestFeatureFlagModule;
+import org.briarproject.bramble.test.TestMailboxDirectoryModule;
 import org.briarproject.bramble.test.TestSecureRandomModule;
 
 import javax.inject.Singleton;
@@ -27,6 +28,7 @@ import dagger.Component;
 		DefaultWakefulIoExecutorModule.class,
 		TestDatabaseConfigModule.class,
 		TestFeatureFlagModule.class,
+		TestMailboxDirectoryModule.class,
 		RemovableDriveIntegrationTestModule.class,
 		RemovableDriveModule.class,
 		TestSecureRandomModule.class,

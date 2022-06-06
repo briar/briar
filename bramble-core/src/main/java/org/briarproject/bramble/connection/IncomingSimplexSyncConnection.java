@@ -1,7 +1,9 @@
 package org.briarproject.bramble.connection;
 
+import org.briarproject.bramble.api.connection.ConnectionManager.TagController;
 import org.briarproject.bramble.api.connection.ConnectionRegistry;
 import org.briarproject.bramble.api.contact.ContactId;
+import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.plugin.TransportConnectionReader;
 import org.briarproject.bramble.api.plugin.TransportId;
@@ -15,6 +17,8 @@ import org.briarproject.bramble.api.transport.StreamWriterFactory;
 
 import java.io.IOException;
 
+import javax.annotation.Nullable;
+
 import static java.util.logging.Level.WARNING;
 import static org.briarproject.bramble.util.LogUtils.logException;
 
@@ -23,6 +27,8 @@ class IncomingSimplexSyncConnection extends SyncConnection implements Runnable {
 
 	private final TransportId transportId;
 	private final TransportConnectionReader reader;
+	@Nullable
+	private final TagController tagController;
 
 	IncomingSimplexSyncConnection(KeyManager keyManager,
 			ConnectionRegistry connectionRegistry,
@@ -30,33 +36,50 @@ class IncomingSimplexSyncConnection extends SyncConnection implements Runnable {
 			StreamWriterFactory streamWriterFactory,
 			SyncSessionFactory syncSessionFactory,
 			TransportPropertyManager transportPropertyManager,
-			TransportId transportId, TransportConnectionReader reader) {
+			TransportId transportId,
+			TransportConnectionReader reader,
+			@Nullable TagController tagController) {
 		super(keyManager, connectionRegistry, streamReaderFactory,
 				streamWriterFactory, syncSessionFactory,
 				transportPropertyManager);
 		this.transportId = transportId;
 		this.reader = reader;
+		this.tagController = tagController;
 	}
 
 	@Override
 	public void run() {
 		// Read and recognise the tag
-		StreamContext ctx = recogniseTag(reader, transportId);
+		byte[] tag;
+		StreamContext ctx;
+		try {
+			tag = readTag(reader.getInputStream());
+			// If we have a tag controller, defer marking the tag as recognised
+			if (tagController == null) {
+				ctx = keyManager.getStreamContext(transportId, tag);
+			} else {
+				ctx = keyManager.getStreamContextOnly(transportId, tag);
+			}
+		} catch (IOException | DbException e) {
+			logException(LOG, WARNING, e);
+			onError();
+			return;
+		}
 		if (ctx == null) {
 			LOG.info("Unrecognised tag");
-			onError(false);
+			onError();
 			return;
 		}
 		ContactId contactId = ctx.getContactId();
 		if (contactId == null) {
 			LOG.warning("Received rendezvous stream, expected contact");
-			onError(true);
+			onError(tag);
 			return;
 		}
 		if (ctx.isHandshakeMode()) {
 			// TODO: Support handshake mode for contacts
 			LOG.warning("Received handshake tag, expected rotation mode");
-			onError(true);
+			onError(tag);
 			return;
 		}
 		try {
@@ -65,15 +88,33 @@ class IncomingSimplexSyncConnection extends SyncConnection implements Runnable {
 					LOG.info("Ignoring priority for simplex connection");
 			// Create and run the incoming session
 			createIncomingSession(ctx, reader, handler).run();
+			// Success
+			markTagAsRecognisedIfRequired(false, tag);
 			reader.dispose(false, true);
 		} catch (IOException e) {
 			logException(LOG, WARNING, e);
-			onError(true);
+			onError(tag);
 		}
 	}
 
-	private void onError(boolean recognised) {
-		disposeOnError(reader, recognised);
+	private void onError() {
+		disposeOnError(reader, false);
+	}
+
+	private void onError(byte[] tag) {
+		markTagAsRecognisedIfRequired(true, tag);
+		disposeOnError(reader, true);
+	}
+
+	private void markTagAsRecognisedIfRequired(boolean exception, byte[] tag) {
+		if (tagController != null &&
+				tagController.shouldMarkTagAsRecognised(exception)) {
+			try {
+				keyManager.markTagAsRecognised(transportId, tag);
+			} catch (DbException e) {
+				logException(LOG, WARNING, e);
+			}
+		}
 	}
 }
 
