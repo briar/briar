@@ -3,6 +3,7 @@ package org.briarproject.bramble.db;
 import org.briarproject.bramble.api.crypto.SecretKey;
 import org.briarproject.bramble.test.TestUtils;
 import org.briarproject.bramble.util.StringUtils;
+import org.junit.Before;
 
 import java.io.File;
 import java.sql.Connection;
@@ -10,9 +11,17 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.sql.Statement;
 
+import static org.briarproject.bramble.test.TestUtils.isCryptoStrengthUnlimited;
+import static org.junit.Assume.assumeTrue;
+
 public class BasicHyperSqlTest extends BasicDatabaseTest {
 
 	private final SecretKey key = TestUtils.getSecretKey();
+
+	@Before
+	public void setUp() {
+		assumeTrue(isCryptoStrengthUnlimited());
+	}
 
 	@Override
 	protected String getBinaryType() {

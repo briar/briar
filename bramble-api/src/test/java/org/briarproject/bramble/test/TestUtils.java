@@ -40,6 +40,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -50,6 +51,7 @@ import java.util.Random;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.annotation.Nullable;
+import javax.crypto.Cipher;
 
 import static java.util.Arrays.asList;
 import static org.briarproject.bramble.api.crypto.CryptoConstants.MAX_AGREEMENT_PUBLIC_KEY_BYTES;
@@ -334,5 +336,14 @@ public class TestUtils {
 			}
 		}
 		return false;
+	}
+
+	public static boolean isCryptoStrengthUnlimited() {
+		try {
+			return Cipher.getMaxAllowedKeyLength("AES/CBC/PKCS5Padding")
+					== Integer.MAX_VALUE;
+		} catch (NoSuchAlgorithmException e) {
+			throw new AssertionError();
+		}
 	}
 }
