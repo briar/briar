@@ -14,7 +14,6 @@ import javax.annotation.concurrent.Immutable;
 import javax.inject.Inject;
 
 import static java.util.Arrays.asList;
-import static java.util.Collections.singletonList;
 import static org.briarproject.bramble.api.nullsafety.NullSafety.requireNonNull;
 import static org.briarproject.bramble.plugin.tor.CircumventionProvider.BridgeType.DEFAULT_OBFS4;
 import static org.briarproject.bramble.plugin.tor.CircumventionProvider.BridgeType.MEEK;
@@ -35,8 +34,8 @@ class CircumventionProviderImpl implements CircumventionProvider {
 			new HashSet<>(asList(DEFAULT_BRIDGES));
 	private static final Set<String> NON_DEFAULT_BRIDGE_COUNTRIES =
 			new HashSet<>(asList(NON_DEFAULT_BRIDGES));
-	private static final Set<String> MEEK_COUNTRIES =
-			new HashSet<>(asList(MEEK_BRIDGES));
+	private static final Set<String> DPI_COUNTRIES =
+			new HashSet<>(asList(DPI_BRIDGES));
 
 	@Inject
 	CircumventionProviderImpl() {
@@ -58,8 +57,8 @@ class CircumventionProviderImpl implements CircumventionProvider {
 			return asList(DEFAULT_OBFS4, VANILLA);
 		} else if (NON_DEFAULT_BRIDGE_COUNTRIES.contains(countryCode)) {
 			return asList(NON_DEFAULT_OBFS4, VANILLA);
-		} else if (MEEK_COUNTRIES.contains(countryCode)) {
-			return singletonList(MEEK);
+		} else if (DPI_COUNTRIES.contains(countryCode)) {
+			return asList(NON_DEFAULT_OBFS4, MEEK);
 		} else {
 			return asList(DEFAULT_OBFS4, VANILLA);
 		}
