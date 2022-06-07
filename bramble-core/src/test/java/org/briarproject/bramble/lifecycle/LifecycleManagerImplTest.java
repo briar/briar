@@ -9,12 +9,16 @@ import org.briarproject.bramble.api.lifecycle.event.LifecycleEvent;
 import org.briarproject.bramble.api.system.Clock;
 import org.briarproject.bramble.test.BrambleMockTestCase;
 import org.briarproject.bramble.test.DbExpectations;
+import org.jmock.Expectations;
 import org.junit.Before;
 import org.junit.Test;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import static junit.framework.TestCase.assertTrue;
+import static org.briarproject.bramble.api.lifecycle.LifecycleManager.LifecycleState.RUNNING;
+import static org.briarproject.bramble.api.lifecycle.LifecycleManager.LifecycleState.STARTING;
+import static org.briarproject.bramble.api.lifecycle.LifecycleManager.LifecycleState.STOPPING;
 import static org.briarproject.bramble.api.lifecycle.LifecycleManager.StartResult.CLOCK_ERROR;
 import static org.briarproject.bramble.api.lifecycle.LifecycleManager.StartResult.SUCCESS;
 import static org.briarproject.bramble.api.system.Clock.MAX_REASONABLE_TIME_MS;
@@ -57,6 +61,7 @@ public class LifecycleManagerImplTest extends BrambleMockTestCase {
 		lifecycleManager.registerOpenDatabaseHook(hook);
 
 		assertEquals(SUCCESS, lifecycleManager.startServices(dbKey));
+		assertEquals(RUNNING, lifecycleManager.getLifecycleState());
 		assertTrue(called.get());
 	}
 
@@ -69,6 +74,7 @@ public class LifecycleManagerImplTest extends BrambleMockTestCase {
 		}});
 
 		assertEquals(CLOCK_ERROR, lifecycleManager.startServices(dbKey));
+		assertEquals(STARTING, lifecycleManager.getLifecycleState());
 	}
 
 	@Test
@@ -80,5 +86,40 @@ public class LifecycleManagerImplTest extends BrambleMockTestCase {
 		}});
 
 		assertEquals(CLOCK_ERROR, lifecycleManager.startServices(dbKey));
+		assertEquals(STARTING, lifecycleManager.getLifecycleState());
+	}
+
+	@Test
+	public void testSecondCallToStopServicesReturnsEarly() throws Exception {
+		long now = System.currentTimeMillis();
+		Transaction txn = new Transaction(null, false);
+
+		context.checking(new DbExpectations() {{
+			oneOf(clock).currentTimeMillis();
+			will(returnValue(now));
+			oneOf(db).open(dbKey, lifecycleManager);
+			will(returnValue(false));
+			oneOf(db).transaction(with(false), withDbRunnable(txn));
+			oneOf(db).removeTemporaryMessages(txn);
+			exactly(2).of(eventBus).broadcast(with(any(LifecycleEvent.class)));
+		}});
+
+		assertEquals(SUCCESS, lifecycleManager.startServices(dbKey));
+		assertEquals(RUNNING, lifecycleManager.getLifecycleState());
+		context.assertIsSatisfied();
+
+		context.checking(new Expectations() {{
+			oneOf(eventBus).broadcast(with(any(LifecycleEvent.class)));
+			oneOf(db).close();
+		}});
+
+		lifecycleManager.stopServices();
+		assertEquals(STOPPING, lifecycleManager.getLifecycleState());
+		context.assertIsSatisfied();
+
+		// Calling stopServices() again should not broadcast another event or
+		// try to close the DB again
+		lifecycleManager.stopServices();
+		assertEquals(STOPPING, lifecycleManager.getLifecycleState());
 	}
 }
