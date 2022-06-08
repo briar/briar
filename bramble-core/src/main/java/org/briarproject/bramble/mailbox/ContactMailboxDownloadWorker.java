@@ -69,14 +69,6 @@ class ContactMailboxDownloadWorker implements MailboxWorker,
 	@Nullable
 	private Cancellable apiCall = null;
 
-	@GuardedBy("lock")
-	@Nullable
-	private ConnectivityObserver connectivityObserver = null;
-
-	@GuardedBy("lock")
-	@Nullable
-	private TorReachabilityObserver reachabilityObserver = null;
-
 	ContactMailboxDownloadWorker(
 			ConnectivityChecker connectivityChecker,
 			TorReachabilityMonitor torReachabilityMonitor,
@@ -101,38 +93,28 @@ class ContactMailboxDownloadWorker implements MailboxWorker,
 			if (state != State.CREATED) throw new IllegalStateException();
 			state = State.CONNECTIVITY_CHECK;
 		}
-		connectivityChecker.checkConnectivity(mailboxProperties, this);
 		// Avoid leaking observer in case destroy() is called concurrently
-		boolean remove = false;
+		// before observer is added
+		connectivityChecker.checkConnectivity(mailboxProperties, this);
+		boolean destroyed;
 		synchronized (lock) {
-			if (state == State.DESTROYED) remove = true;
-			else connectivityObserver = this;
+			destroyed = state == State.DESTROYED;
 		}
-		if (remove) connectivityChecker.removeObserver(this);
+		if (destroyed) connectivityChecker.removeObserver(this);
 	}
 
 	@Override
 	public void destroy() {
 		LOG.info("Destroyed");
 		Cancellable apiCall;
-		ConnectivityObserver connectivityObserver;
-		TorReachabilityObserver reachabilityObserver;
 		synchronized (lock) {
 			state = State.DESTROYED;
 			apiCall = this.apiCall;
 			this.apiCall = null;
-			connectivityObserver = this.connectivityObserver;
-			this.connectivityObserver = null;
-			reachabilityObserver = this.reachabilityObserver;
-			this.reachabilityObserver = null;
 		}
 		if (apiCall != null) apiCall.cancel();
-		if (connectivityObserver != null) {
-			connectivityChecker.removeObserver(connectivityObserver);
-		}
-		if (reachabilityObserver != null) {
-			torReachabilityMonitor.removeObserver(reachabilityObserver);
-		}
+		connectivityChecker.removeObserver(this);
+		torReachabilityMonitor.removeObserver(this);
 	}
 
 	@Override
@@ -141,8 +123,6 @@ class ContactMailboxDownloadWorker implements MailboxWorker,
 		synchronized (lock) {
 			if (state != State.CONNECTIVITY_CHECK) return;
 			state = State.DOWNLOAD_CYCLE_1;
-			// No need to remove the observer in destroy()
-			connectivityObserver = null;
 			// Start first download cycle
 			apiCall = mailboxApiCaller.retryWithBackoff(
 					new SimpleApiCall(this::apiCallListInbox));
@@ -173,14 +153,14 @@ class ContactMailboxDownloadWorker implements MailboxWorker,
 			}
 		}
 		if (addObserver) {
-			torReachabilityMonitor.addOneShotObserver(this);
 			// Avoid leaking observer in case destroy() is called concurrently
-			boolean remove = false;
+			// before observer is added
+			torReachabilityMonitor.addOneShotObserver(this);
+			boolean destroyed;
 			synchronized (lock) {
-				if (state == State.DESTROYED) remove = true;
-				else reachabilityObserver = this;
+				destroyed = state == State.DESTROYED;
 			}
-			if (remove) torReachabilityMonitor.removeObserver(this);
+			if (destroyed) torReachabilityMonitor.removeObserver(this);
 		}
 	}
 
@@ -253,8 +233,6 @@ class ContactMailboxDownloadWorker implements MailboxWorker,
 		synchronized (lock) {
 			if (state != State.WAITING_FOR_TOR) return;
 			state = State.DOWNLOAD_CYCLE_2;
-			// No need to remove the observer in destroy()
-			reachabilityObserver = null;
 			// Start second download cycle
 			apiCall = mailboxApiCaller.retryWithBackoff(
 					new SimpleApiCall(this::apiCallListInbox));

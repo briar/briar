@@ -74,9 +74,10 @@ public class ContactMailboxDownloadWorkerTest extends BrambleMockTestCase {
 		worker.start();
 
 		// When the worker is destroyed it should remove the connectivity
-		// observer
+		// and reachability observers
 		context.checking(new Expectations() {{
 			oneOf(connectivityChecker).removeObserver(worker);
+			oneOf(torReachabilityMonitor).removeObserver(worker);
 		}});
 
 		worker.destroy();
@@ -202,8 +203,13 @@ public class ContactMailboxDownloadWorkerTest extends BrambleMockTestCase {
 
 		assertFalse(listTask.get().callApi());
 
-		// When the worker is destroyed it should not remove the connectivity
-		// and reachability observers, which were removed when they were called
+		// When the worker is destroyed it should remove the connectivity
+		// and reachability observers
+		context.checking(new Expectations() {{
+			oneOf(connectivityChecker).removeObserver(worker);
+			oneOf(torReachabilityMonitor).removeObserver(worker);
+		}});
+
 		worker.destroy();
 	}
 }
