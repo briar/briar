@@ -44,7 +44,7 @@ public class ContactMailboxDownloadWorkerTest extends BrambleMockTestCase {
 			new MailboxFile(new MailboxFileId(getRandomId()), now - 1);
 	private final MailboxFile file2 =
 			new MailboxFile(new MailboxFileId(getRandomId()), now);
-	private final List<MailboxFile> filesInWrongOrder = asList(file2, file1);
+	private final List<MailboxFile> files = asList(file1, file2);
 
 	private File testDir, tempFile;
 	private ContactMailboxDownloadWorker worker;
@@ -104,13 +104,12 @@ public class ContactMailboxDownloadWorkerTest extends BrambleMockTestCase {
 		worker.onConnectivityCheckSucceeded();
 
 		// When the list-inbox tasks runs and finds some files to download,
-		// it should sort them in timestamp order and start a download task
-		// for the first file
+		// it should start a download task for the first file
 		AtomicReference<ApiCall> downloadTask = new AtomicReference<>(null);
 		context.checking(new Expectations() {{
 			oneOf(mailboxApi).getFiles(mailboxProperties,
 					requireNonNull(mailboxProperties.getInboxId()));
-			will(returnValue(filesInWrongOrder));
+			will(returnValue(files));
 			oneOf(mailboxApiCaller).retryWithBackoff(with(any(ApiCall.class)));
 			will(new CaptureArgumentAction<>(downloadTask, ApiCall.class, 0));
 		}});

@@ -11,7 +11,6 @@ import org.briarproject.bramble.mailbox.TorReachabilityMonitor.TorReachabilityOb
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
@@ -21,7 +20,6 @@ import javax.annotation.Nullable;
 import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;
 
-import static java.util.Collections.sort;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Logger.getLogger;
 import static org.briarproject.bramble.api.nullsafety.NullSafety.requireNonNull;
@@ -147,14 +145,8 @@ class ContactMailboxDownloadWorker implements MailboxWorker,
 		LOG.info("Listing inbox");
 		List<MailboxFile> files = mailboxApi.getFiles(mailboxProperties,
 				requireNonNull(mailboxProperties.getInboxId()));
-		if (files.isEmpty()) {
-			onDownloadCycleFinished();
-		} else {
-			files = new ArrayList<>(files);
-			//noinspection UseCompareMethod,Java8ListSort
-			sort(files, (a, b) -> Long.valueOf(a.time).compareTo(b.time));
-			downloadNextFile(new LinkedList<>(files));
-		}
+		if (files.isEmpty()) onDownloadCycleFinished();
+		else downloadNextFile(new LinkedList<>(files));
 	}
 
 	private void onDownloadCycleFinished() {
