@@ -7,7 +7,6 @@ import java.util.HashSet;
 import java.util.Set;
 
 import static java.util.Arrays.asList;
-import static java.util.Collections.singletonList;
 import static org.briarproject.bramble.plugin.tor.CircumventionProvider.BLOCKED;
 import static org.briarproject.bramble.plugin.tor.CircumventionProvider.BRIDGES;
 import static org.briarproject.bramble.plugin.tor.CircumventionProvider.BridgeType.DEFAULT_OBFS4;
@@ -15,7 +14,7 @@ import static org.briarproject.bramble.plugin.tor.CircumventionProvider.BridgeTy
 import static org.briarproject.bramble.plugin.tor.CircumventionProvider.BridgeType.NON_DEFAULT_OBFS4;
 import static org.briarproject.bramble.plugin.tor.CircumventionProvider.BridgeType.VANILLA;
 import static org.briarproject.bramble.plugin.tor.CircumventionProvider.DEFAULT_BRIDGES;
-import static org.briarproject.bramble.plugin.tor.CircumventionProvider.MEEK_BRIDGES;
+import static org.briarproject.bramble.plugin.tor.CircumventionProvider.DPI_BRIDGES;
 import static org.briarproject.bramble.plugin.tor.CircumventionProvider.NON_DEFAULT_BRIDGES;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -32,18 +31,18 @@ public class CircumventionProviderTest extends BrambleTestCase {
 		Set<String> defaultBridges = new HashSet<>(asList(DEFAULT_BRIDGES));
 		Set<String> nonDefaultBridges =
 				new HashSet<>(asList(NON_DEFAULT_BRIDGES));
-		Set<String> meekBridges = new HashSet<>(asList(MEEK_BRIDGES));
+		Set<String> dpiBridges = new HashSet<>(asList(DPI_BRIDGES));
 		// BRIDGES should be a subset of BLOCKED
 		assertTrue(blocked.containsAll(bridges));
 		// BRIDGES should be the union of the bridge type sets
 		Set<String> union = new HashSet<>(defaultBridges);
 		union.addAll(nonDefaultBridges);
-		union.addAll(meekBridges);
+		union.addAll(dpiBridges);
 		assertEquals(bridges, union);
 		// The bridge type sets should not overlap
 		assertEmptyIntersection(defaultBridges, nonDefaultBridges);
-		assertEmptyIntersection(defaultBridges, meekBridges);
-		assertEmptyIntersection(nonDefaultBridges, meekBridges);
+		assertEmptyIntersection(defaultBridges, dpiBridges);
+		assertEmptyIntersection(nonDefaultBridges, dpiBridges);
 	}
 
 	@Test
@@ -56,8 +55,8 @@ public class CircumventionProviderTest extends BrambleTestCase {
 			assertEquals(asList(NON_DEFAULT_OBFS4, VANILLA),
 					provider.getSuitableBridgeTypes(country));
 		}
-		for (String country : MEEK_BRIDGES) {
-			assertEquals(singletonList(MEEK),
+		for (String country : DPI_BRIDGES) {
+			assertEquals(asList(NON_DEFAULT_OBFS4, MEEK),
 					provider.getSuitableBridgeTypes(country));
 		}
 		assertEquals(asList(DEFAULT_OBFS4, VANILLA),

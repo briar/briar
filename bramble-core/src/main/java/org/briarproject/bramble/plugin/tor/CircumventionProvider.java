@@ -27,7 +27,7 @@ public interface CircumventionProvider {
 	 * Countries where bridge connections are likely to work.
 	 * Should be a subset of {@link #BLOCKED} and the union of
 	 * {@link #DEFAULT_BRIDGES}, {@link #NON_DEFAULT_BRIDGES} and
-	 * {@link #MEEK_BRIDGES}.
+	 * {@link #DPI_BRIDGES}.
 	 */
 	String[] BRIDGES = {"BY", "CN", "EG", "IR", "RU", "TM", "VE"};
 
@@ -44,10 +44,10 @@ public interface CircumventionProvider {
 	String[] NON_DEFAULT_BRIDGES = {"BY", "RU", "TM"};
 
 	/**
-	 * Countries where obfs4 and vanilla bridges won't work and meek is needed.
-	 * Should be a subset of {@link #BRIDGES}.
+	 * Countries where vanilla bridges are blocked via DPI but non-default
+	 * obfs4 bridges and meek may work. Should be a subset of {@link #BRIDGES}.
 	 */
-	String[] MEEK_BRIDGES = {"CN", "IR"};
+	String[] DPI_BRIDGES = {"CN", "IR"};
 
 	/**
 	 * Returns true if vanilla Tor connections are blocked in the given country.
