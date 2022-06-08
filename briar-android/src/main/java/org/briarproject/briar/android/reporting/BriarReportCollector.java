@@ -7,7 +7,6 @@
 package org.briarproject.briar.android.reporting;
 
 import android.annotation.SuppressLint;
-import android.app.ActivityManager;
 import android.bluetooth.BluetoothAdapter;
 import android.content.Context;
 import android.content.pm.FeatureInfo;
@@ -19,7 +18,6 @@ import android.net.NetworkInfo;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.os.Build;
-import android.os.Debug;
 import android.os.Environment;
 
 import org.briarproject.bramble.api.Pair;
@@ -29,6 +27,7 @@ import org.briarproject.briar.R;
 import org.briarproject.briar.android.reporting.ReportData.MultiReportInfo;
 import org.briarproject.briar.android.reporting.ReportData.ReportItem;
 import org.briarproject.briar.android.reporting.ReportData.SingleReportInfo;
+import org.briarproject.briar.api.android.MemoryStats;
 import org.briarproject.briar.api.android.NetworkUsageMetrics;
 import org.briarproject.briar.api.android.NetworkUsageMetrics.Metrics;
 
@@ -76,14 +75,14 @@ class BriarReportCollector {
 	}
 
 	ReportData collectReportData(@Nullable Throwable t, long appStartTime,
-			String logs) {
+			String logs, MemoryStats memoryStats) {
 		ReportData reportData = new ReportData()
 				.add(getBasicInfo(t))
 				.add(getDeviceInfo());
 		if (t != null) reportData.add(getStacktrace(t));
 		return reportData
 				.add(getTimeInfo(appStartTime))
-				.add(getMemory())
+				.add(getMemory(memoryStats))
 				.add(getStorage())
 				.add(getConnectivity())
 				.add(getNetworkUsage())
@@ -154,26 +153,22 @@ class BriarReportCollector {
 		return format.format(new Date(time));
 	}
 
-	private ReportItem getMemory() {
+	private ReportItem getMemory(MemoryStats stats) {
 		MultiReportInfo memInfo = new MultiReportInfo();
 
 		// System memory
-		ActivityManager am = getSystemService(ctx, ActivityManager.class);
-		ActivityManager.MemoryInfo mem = new ActivityManager.MemoryInfo();
-		requireNonNull(am).getMemoryInfo(mem);
-		memInfo.add("SystemMemoryTotal", mem.totalMem);
-		memInfo.add("SystemMemoryFree", mem.availMem);
-		memInfo.add("SystemMemoryThreshold", mem.threshold);
-		memInfo.add("SystemMemoryLow", mem.lowMemory);
+		memInfo.add("SystemMemoryTotal", stats.systemMemoryTotal);
+		memInfo.add("SystemMemoryFree", stats.systemMemoryFree);
+		memInfo.add("SystemMemoryThreshold", stats.systemMemoryThreshold);
+		memInfo.add("SystemMemoryLow", stats.systemMemoryLow);
 
 		// Virtual machine memory
-		Runtime runtime = Runtime.getRuntime();
-		memInfo.add("VirtualMachineMemoryTotal", runtime.totalMemory());
-		memInfo.add("VirtualMachineMemoryFree", runtime.freeMemory());
-		memInfo.add("VirtualMachineMemoryMaximum", runtime.maxMemory());
-		memInfo.add("NativeHeapTotal", Debug.getNativeHeapSize());
-		memInfo.add("NativeHeapAllocated", Debug.getNativeHeapAllocatedSize());
-		memInfo.add("NativeHeapFree", Debug.getNativeHeapFreeSize());
+		memInfo.add("VirtualMachineMemoryTotal", stats.vmMemoryTotal);
+		memInfo.add("VirtualMachineMemoryFree", stats.vmMemoryFree);
+		memInfo.add("VirtualMachineMemoryMaximum", stats.vmMemoryMax);
+		memInfo.add("NativeHeapTotal", stats.nativeHeapTotal);
+		memInfo.add("NativeHeapAllocated", stats.nativeHeapAllocated);
+		memInfo.add("NativeHeapFree", stats.nativeHeapFree);
 
 		return new ReportItem("Memory", R.string.dev_report_memory, memInfo);
 	}
