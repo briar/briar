@@ -1,6 +1,8 @@
 package org.briarproject.briar.android.util;
 
 import android.app.Activity;
+import android.app.ActivityManager;
+import android.app.ActivityManager.MemoryInfo;
 import android.app.KeyguardManager;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
@@ -10,6 +12,7 @@ import android.content.res.Resources;
 import android.graphics.drawable.Drawable;
 import android.location.LocationManager;
 import android.net.Uri;
+import android.os.Debug;
 import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.SpannableStringBuilder;
@@ -38,6 +41,7 @@ import org.briarproject.bramble.util.StringUtils;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.reporting.FeedbackActivity;
 import org.briarproject.briar.android.view.ArticleMovementMethod;
+import org.briarproject.briar.api.android.MemoryStats;
 
 import java.util.Locale;
 import java.util.logging.Logger;
@@ -113,6 +117,7 @@ import static org.briarproject.briar.android.TestingConstants.OLD_ANDROID_WARN_D
 import static org.briarproject.briar.android.reporting.CrashReportActivity.EXTRA_APP_LOGCAT;
 import static org.briarproject.briar.android.reporting.CrashReportActivity.EXTRA_APP_START_TIME;
 import static org.briarproject.briar.android.reporting.CrashReportActivity.EXTRA_INITIAL_COMMENT;
+import static org.briarproject.briar.android.reporting.CrashReportActivity.EXTRA_MEMORY_STATS;
 import static org.briarproject.briar.android.reporting.CrashReportActivity.EXTRA_THROWABLE;
 
 @MethodsNotNullByDefault
@@ -429,12 +434,27 @@ public class UiUtils {
 			Class<? extends FragmentActivity> activity, @Nullable Throwable t,
 			@Nullable Long appStartTime, @Nullable byte[] logKey, @Nullable
 			String initialComment) {
+		// Collect memory stats from the current process, not the crash
+		// reporter process
+		ActivityManager am =
+				requireNonNull(getSystemService(ctx, ActivityManager.class));
+		MemoryInfo mem = new MemoryInfo();
+		am.getMemoryInfo(mem);
+		Runtime runtime = Runtime.getRuntime();
+		MemoryStats memoryStats = new MemoryStats(mem.totalMem,
+				mem.availMem, mem.threshold, mem.lowMemory,
+				runtime.totalMemory(), runtime.freeMemory(),
+				runtime.maxMemory(), Debug.getNativeHeapSize(),
+				Debug.getNativeHeapAllocatedSize(),
+				Debug.getNativeHeapFreeSize());
+
 		final Intent dialogIntent = new Intent(ctx, activity);
 		dialogIntent.setFlags(FLAG_ACTIVITY_NEW_TASK);
 		dialogIntent.putExtra(EXTRA_THROWABLE, t);
 		dialogIntent.putExtra(EXTRA_APP_START_TIME, appStartTime);
 		dialogIntent.putExtra(EXTRA_APP_LOGCAT, logKey);
 		dialogIntent.putExtra(EXTRA_INITIAL_COMMENT, initialComment);
+		dialogIntent.putExtra(EXTRA_MEMORY_STATS, memoryStats);
 		ctx.startActivity(dialogIntent);
 	}
 

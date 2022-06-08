@@ -18,6 +18,7 @@ import org.briarproject.briar.android.reporting.ReportData.MultiReportInfo;
 import org.briarproject.briar.android.reporting.ReportData.ReportItem;
 import org.briarproject.briar.android.viewmodel.LiveEvent;
 import org.briarproject.briar.android.viewmodel.MutableLiveEvent;
+import org.briarproject.briar.api.android.MemoryStats;
 import org.briarproject.briar.api.android.NetworkUsageMetrics;
 import org.json.JSONException;
 
@@ -84,7 +85,8 @@ class ReportViewModel extends AndroidViewModel {
 	}
 
 	void init(@Nullable Throwable t, long appStartTime,
-			@Nullable byte[] logKey, @Nullable String initialComment) {
+			@Nullable byte[] logKey, @Nullable String initialComment,
+			MemoryStats memoryStats) {
 		this.initialComment = initialComment;
 		isFeedback = t == null;
 		if (reportData.getValue() == null) new SingleShotAndroidExecutor(() -> {
@@ -102,8 +104,8 @@ class ReportViewModel extends AndroidViewModel {
 							logHandler.getRecentLogRecords());
 				}
 			}
-			ReportData data =
-					collector.collectReportData(t, appStartTime, decryptedLogs);
+			ReportData data = collector.collectReportData(t, appStartTime,
+					decryptedLogs, memoryStats);
 			reportData.postValue(data);
 		}).start();
 	}
@@ -150,7 +152,7 @@ class ReportViewModel extends AndroidViewModel {
 
 	/**
 	 * The content of the report that will be loaded after
-	 * {@link #init(Throwable, long, byte[], String)} was called.
+	 * {@link #init(Throwable, long, byte[], String, MemoryStats)} was called.
 	 */
 	LiveData<ReportData> getReportData() {
 		return reportData;

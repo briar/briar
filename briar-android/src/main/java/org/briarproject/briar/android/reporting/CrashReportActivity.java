@@ -15,6 +15,7 @@ import org.briarproject.briar.android.activity.BaseActivity;
 import org.briarproject.briar.android.fragment.BaseFragment;
 import org.briarproject.briar.android.fragment.BaseFragment.BaseFragmentListener;
 import org.briarproject.briar.android.logout.HideUiActivity;
+import org.briarproject.briar.api.android.MemoryStats;
 
 import javax.inject.Inject;
 
@@ -37,6 +38,7 @@ public class CrashReportActivity extends BaseActivity
 	public static final String EXTRA_THROWABLE = "throwable";
 	public static final String EXTRA_APP_START_TIME = "appStartTime";
 	public static final String EXTRA_APP_LOGCAT = "logcat";
+	public static final String EXTRA_MEMORY_STATS = "memoryStats";
 
 	@Inject
 	ViewModelProvider.Factory viewModelFactory;
@@ -60,7 +62,9 @@ public class CrashReportActivity extends BaseActivity
 		Throwable t = (Throwable) intent.getSerializableExtra(EXTRA_THROWABLE);
 		long appStartTime = intent.getLongExtra(EXTRA_APP_START_TIME, -1);
 		byte[] logKey = intent.getByteArrayExtra(EXTRA_APP_LOGCAT);
-		viewModel.init(t, appStartTime, logKey, initialComment);
+		MemoryStats memoryStats =
+				(MemoryStats) intent.getSerializableExtra(EXTRA_MEMORY_STATS);
+		viewModel.init(t, appStartTime, logKey, initialComment, memoryStats);
 		viewModel.getShowReport().observeEvent(this, show -> {
 			if (show) displayFragment(true);
 		});
@@ -87,7 +91,7 @@ public class CrashReportActivity extends BaseActivity
 		exit();
 	}
 
-	void displayFragment(boolean showReportForm) {
+	private void displayFragment(boolean showReportForm) {
 		BaseFragment f;
 		if (showReportForm) {
 			f = new ReportFormFragment();
@@ -101,7 +105,7 @@ public class CrashReportActivity extends BaseActivity
 				.commit();
 	}
 
-	void exit() {
+	private void exit() {
 		if (!viewModel.isFeedback()) {
 			Intent i = new Intent(this, HideUiActivity.class);
 			i.addFlags(FLAG_ACTIVITY_NEW_TASK
