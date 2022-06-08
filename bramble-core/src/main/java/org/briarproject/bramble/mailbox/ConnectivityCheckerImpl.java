@@ -80,8 +80,7 @@ abstract class ConnectivityCheckerImpl implements ConnectivityChecker {
 						> CONNECTIVITY_CHECK_FRESHNESS_MS) {
 					// The last connectivity check is stale, start a new one
 					connectivityObservers.add(o);
-					ApiCall task =
-							createConnectivityCheckTask(properties);
+					ApiCall task = createConnectivityCheckTask(properties);
 					connectivityCheck = mailboxApiCaller.retryWithBackoff(task);
 				} else {
 					// The last connectivity check is fresh
@@ -106,6 +105,18 @@ abstract class ConnectivityCheckerImpl implements ConnectivityChecker {
 		}
 		for (ConnectivityObserver o : observers) {
 			o.onConnectivityCheckSucceeded();
+		}
+	}
+
+	@Override
+	public void removeObserver(ConnectivityObserver o) {
+		synchronized (lock) {
+			if (destroyed) return;
+			connectivityObservers.remove(o);
+			if (connectivityObservers.isEmpty() && connectivityCheck != null) {
+				connectivityCheck.cancel();
+				connectivityCheck = null;
+			}
 		}
 	}
 }

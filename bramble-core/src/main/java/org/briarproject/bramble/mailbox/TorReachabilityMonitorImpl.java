@@ -88,6 +88,14 @@ class TorReachabilityMonitorImpl
 	}
 
 	@Override
+	public void removeObserver(TorReachabilityObserver o) {
+		synchronized (lock) {
+			if (destroyed) return;
+			observers.remove(o);
+		}
+	}
+
+	@Override
 	public void eventOccurred(Event e) {
 		if (e instanceof TransportActiveEvent) {
 			TransportActiveEvent t = (TransportActiveEvent) e;

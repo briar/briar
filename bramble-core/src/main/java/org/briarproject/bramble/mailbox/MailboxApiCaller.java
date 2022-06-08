@@ -24,6 +24,8 @@ interface MailboxApiCaller {
 	 * Asynchronously calls the given API call on the {@link IoExecutor},
 	 * automatically retrying at increasing intervals until the API call
 	 * returns false or retries are cancelled.
+	 * <p>
+	 * This method is safe to call while holding a lock.
 	 *
 	 * @return A {@link Cancellable} that can be used to cancel any future
 	 * retries.

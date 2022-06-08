@@ -38,6 +38,12 @@ interface TorReachabilityMonitor {
 	 */
 	void addOneShotObserver(TorReachabilityObserver o);
 
+	/**
+	 * Removes an observer that was added via
+	 * {@link #addOneShotObserver(TorReachabilityObserver)}.
+	 */
+	void removeObserver(TorReachabilityObserver o);
+
 	interface TorReachabilityObserver {
 
 		void onTorReachable();
