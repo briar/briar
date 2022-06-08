@@ -30,6 +30,17 @@ import static org.briarproject.bramble.util.LogUtils.logException;
 class ContactMailboxDownloadWorker implements MailboxWorker,
 		ConnectivityObserver, TorReachabilityObserver {
 
+	/**
+	 * When the worker is started it waits for a connectivity check, then
+	 * starts its first download cycle: checking the inbox, downloading and
+	 * deleting any files, and checking again until the inbox is empty.
+	 * <p>
+	 * The worker then waits for our Tor hidden service to be reachable before
+	 * starting its second download cycle. This ensures that if a contact
+	 * tried and failed to connect to our hidden service before it was
+	 * reachable, and therefore uploaded a file to the mailbox instead, we'll
+	 * find the file in the second download cycle.
+	 */
 	private enum State {
 		CREATED,
 		CONNECTIVITY_CHECK,
