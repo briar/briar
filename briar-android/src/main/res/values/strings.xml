@@ -312,6 +312,14 @@
 	<string name="duplicate_link_dialog_text_3">%1$s and %2$s sent you the same link.\n\nOne of them may be trying to discover who your contacts are.\n\nDon\'t tell them you received the same link from someone else.</string>
 	<string name="pending_contact_updated_toast">Pending contact updated</string>
 
+	<!-- Contact trust levels -->
+
+	<string name="contact_trust_level_anonymous">Anonymous contact</string>
+	<string name="contact_trust_level_unverified">Unverified contact</string>
+	<string name="contact_trust_level_verified">Verified contact</string>
+	<string name="contact_trust_level_ourselves">Me</string>
+	<string name="contact_trust_level_default">Unknown contact</string>
+
 	<!-- Introductions -->
 
 	<string name="introduction_onboarding_title">Introduce your contacts</string>
