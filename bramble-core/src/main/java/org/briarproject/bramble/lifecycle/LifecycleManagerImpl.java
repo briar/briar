@@ -198,11 +198,15 @@ class LifecycleManagerImpl implements LifecycleManager, MigrationListener {
 			state = STOPPING;
 			eventBus.broadcast(new LifecycleEvent(STOPPING));
 			for (Service s : services) {
-				long start = now();
-				s.stopService();
-				if (LOG.isLoggable(FINE)) {
-					logDuration(LOG, "Stopping service "
-							+ s.getClass().getSimpleName(), start);
+				try {
+					long start = now();
+					s.stopService();
+					if (LOG.isLoggable(FINE)) {
+						logDuration(LOG, "Stopping service "
+								+ s.getClass().getSimpleName(), start);
+					}
+				} catch (ServiceException e) {
+					logException(LOG, WARNING, e);
 				}
 			}
 			for (ExecutorService e : executors) {
@@ -212,12 +216,14 @@ class LifecycleManagerImpl implements LifecycleManager, MigrationListener {
 				}
 				e.shutdownNow();
 			}
-			long start = now();
-			db.close();
-			logDuration(LOG, "Closing database", start);
+			try {
+				long start = now();
+				db.close();
+				logDuration(LOG, "Closing database", start);
+			} catch (DbException e) {
+				logException(LOG, WARNING, e);
+			}
 			shutdownLatch.countDown();
-		} catch (DbException | ServiceException e) {
-			logException(LOG, WARNING, e);
 		} finally {
 			startStopSemaphore.release();
 		}
