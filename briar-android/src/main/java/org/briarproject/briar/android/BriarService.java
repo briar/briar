@@ -157,9 +157,9 @@ public class BriarService extends Service {
 					started = true;
 				} else if (result == ALREADY_RUNNING) {
 					LOG.warning("Already running");
-					// The LifecycleManager has outlived the BriarService
-					// instance that created it. Rather than trying to recover
-					// from this unexpected state, try to exit cleanly
+					// The core has outlived the original BriarService
+					// instance. We don't know how to recover from this
+					// unexpected state, so try to exit cleanly
 					shutdownFromBackground();
 				} else {
 					if (LOG.isLoggable(WARNING))
