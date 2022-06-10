@@ -18,6 +18,7 @@ import java.util.List;
 import java.util.Random;
 
 import static java.util.Arrays.asList;
+import static java.util.Collections.singletonList;
 import static org.briarproject.bramble.mailbox.MailboxSettingsManagerImpl.SETTINGS_KEY_ATTEMPTS;
 import static org.briarproject.bramble.mailbox.MailboxSettingsManagerImpl.SETTINGS_KEY_LAST_ATTEMPT;
 import static org.briarproject.bramble.mailbox.MailboxSettingsManagerImpl.SETTINGS_KEY_LAST_SUCCESS;
@@ -162,6 +163,28 @@ public class MailboxSettingsManagerImplTest extends BrambleMockTestCase {
 		}});
 
 		manager.recordSuccessfulConnection(txn, now);
+		hasEvent(txn, OwnMailboxConnectionStatusEvent.class);
+	}
+
+	@Test
+	public void testRecordsSuccessWithVersions() throws Exception {
+		Transaction txn = new Transaction(null, false);
+		List<MailboxVersion> versions = singletonList(new MailboxVersion(2, 1));
+		Settings expectedSettings = new Settings();
+		expectedSettings.putLong(SETTINGS_KEY_LAST_ATTEMPT, now);
+		expectedSettings.putLong(SETTINGS_KEY_LAST_SUCCESS, now);
+		expectedSettings.putInt(SETTINGS_KEY_ATTEMPTS, 0);
+		expectedSettings.putInt(SETTINGS_KEY_SERVER_SUPPORTS, 0);
+		int[] newVersionsInts = {2, 1};
+		expectedSettings
+				.putIntArray(SETTINGS_KEY_SERVER_SUPPORTS, newVersionsInts);
+
+		context.checking(new Expectations() {{
+			oneOf(settingsManager).mergeSettings(txn, expectedSettings,
+					SETTINGS_NAMESPACE);
+		}});
+
+		manager.recordSuccessfulConnection(txn, now, versions);
 		hasEvent(txn, OwnMailboxConnectionStatusEvent.class);
 	}
 
