@@ -493,10 +493,6 @@
 
 	<queries>
 		<package android:name="info.guardianproject.ripple" />
-		<package android:name="com.huawei.systemmanager" />
-		<package android:name="com.huawei.powergenie" />
-		<package android:name="com.evenwell.PowerMonitor" />
-		<package android:name="com.miui.securitycenter" />
 
 		<intent>
 			<action android:name="android.intent.action.VIEW" />
