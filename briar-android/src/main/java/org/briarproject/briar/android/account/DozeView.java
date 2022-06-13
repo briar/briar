@@ -50,7 +50,7 @@ class DozeView extends PowerView {
 		onButtonClickListener.run();
 	}
 
-	public void setOnButtonClickListener(Runnable runnable) {
+	void setOnButtonClickListener(Runnable runnable) {
 		onButtonClickListener = runnable;
 	}
 

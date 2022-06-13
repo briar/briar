@@ -38,14 +38,23 @@
 			app:layout_constraintStart_toStartOf="parent"
 			app:layout_constraintTop_toBottomOf="@+id/huaweiProtectedAppsView" />
 
-		<org.briarproject.briar.android.account.XiaomiView
-			android:id="@+id/xiaomiView"
+		<org.briarproject.briar.android.account.XiaomiRecentAppsView
+			android:id="@+id/xiaomiRecentAppsView"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
 			android:paddingBottom="@dimen/margin_large"
 			app:layout_constraintEnd_toEndOf="parent"
 			app:layout_constraintStart_toStartOf="parent"
 			app:layout_constraintTop_toBottomOf="@+id/huaweiAppLaunchView" />
+
+		<org.briarproject.briar.android.account.XiaomiLockAppsView
+			android:id="@+id/xiaomiLockAppsView"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:paddingBottom="@dimen/margin_large"
+			app:layout_constraintEnd_toEndOf="parent"
+			app:layout_constraintStart_toStartOf="parent"
+			app:layout_constraintTop_toBottomOf="@+id/xiaomiRecentAppsView" />
 
 		<Button
 			android:id="@+id/next"
@@ -57,7 +66,7 @@
 			app:layout_constraintBottom_toBottomOf="parent"
 			app:layout_constraintEnd_toEndOf="parent"
 			app:layout_constraintStart_toStartOf="parent"
-			app:layout_constraintTop_toBottomOf="@+id/xiaomiView"
+			app:layout_constraintTop_toBottomOf="@+id/xiaomiLockAppsView"
 			app:layout_constraintVertical_bias="1.0"
 			tools:enabled="true" />
 
