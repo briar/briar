@@ -175,13 +175,8 @@ public class AddNearbyContactActivity extends BriarActivity
 			showErrorFragment();
 		} else {
 			String msg;
-			if (qrCodeTooOld) {
-				msg = getString(R.string.qr_code_too_old,
-						getString(R.string.app_name));
-			} else {
-				msg = getString(R.string.qr_code_too_new,
-						getString(R.string.app_name));
-			}
+			if (qrCodeTooOld) msg = getString(R.string.qr_code_too_old_1);
+			else msg = getString(R.string.qr_code_too_new_1);
 			showNextFragment(AddNearbyContactErrorFragment.newInstance(msg));
 		}
 	}

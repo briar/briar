@@ -78,16 +78,15 @@ class WebServer extends NanoHTTPD {
 		try (InputStream is = ctx.getAssets().open(FILE_HTML)) {
 			doc = Jsoup.parse(is, UTF_8.name(), "");
 		}
-		String app = ctx.getString(R.string.app_name);
-		String appV = app + " " + VERSION_NAME;
 		String filename = getApkFileName();
 		doc.select("#download_title").first()
-				.text(ctx.getString(R.string.website_download_title, appV));
+				.text(ctx.getString(R.string.website_download_title_1,
+						VERSION_NAME));
 		doc.select("#download_intro").first()
-				.text(ctx.getString(R.string.website_download_intro, app));
+				.text(ctx.getString(R.string.website_download_intro_1));
 		doc.select(".button").first().attr("href", filename);
 		doc.select("#download_button").first()
-				.text(ctx.getString(R.string.website_download_title, app));
+				.text(ctx.getString(R.string.website_download_button));
 		doc.select("#download_outro").first()
 				.text(ctx.getString(R.string.website_download_outro));
 		doc.select("#troubleshooting_title").first()

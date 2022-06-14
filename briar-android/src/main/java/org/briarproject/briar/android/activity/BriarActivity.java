@@ -25,6 +25,7 @@ import javax.annotation.Nullable;
 import javax.inject.Inject;
 
 import androidx.annotation.RequiresApi;
+import androidx.annotation.StringRes;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.widget.Toolbar;
@@ -104,7 +105,7 @@ public abstract class BriarActivity extends BaseActivity {
 			LOG.info("Not signed in, launching StartupActivity");
 			Intent i = new Intent(this, StartupActivity.class);
 			startActivityForResult(i, REQUEST_PASSWORD);
-		} else if (lockManager.isLocked() && !isFinishing()) {
+		} else if (SDK_INT >= 21 && lockManager.isLocked() && !isFinishing()) {
 			// Also check that the activity isn't finishing already.
 			// This is possible if we finished in onActivityResult().
 			// Launching another UnlockActivity would cause a loop.
@@ -115,10 +116,7 @@ public abstract class BriarActivity extends BaseActivity {
 			briarController.hasDozed(new UiResultHandler<Boolean>(this) {
 				@Override
 				public void onResultUi(Boolean result) {
-					if (result) {
-						showDozeDialog(getString(R.string.dnkm_warning_dozed,
-								getString(R.string.app_name)));
-					}
+					if (result) showDozeDialog(R.string.dnkm_warning_dozed_1);
 				}
 			});
 		}
@@ -175,7 +173,7 @@ public abstract class BriarActivity extends BaseActivity {
 		return toolbar;
 	}
 
-	protected void showDozeDialog(String message) {
+	protected void showDozeDialog(@StringRes int message) {
 		AlertDialog.Builder b =
 				new AlertDialog.Builder(this, R.style.BriarDialogTheme);
 		b.setMessage(message);
