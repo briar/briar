@@ -9,10 +9,12 @@ import org.briarproject.bramble.api.mailbox.MailboxPairingTask;
 import org.briarproject.bramble.api.mailbox.MailboxProperties;
 import org.briarproject.bramble.api.mailbox.MailboxSettingsManager;
 import org.briarproject.bramble.api.mailbox.MailboxStatus;
+import org.briarproject.bramble.api.mailbox.MailboxVersion;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.system.Clock;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.concurrent.Executor;
 import java.util.logging.Logger;
 
@@ -98,34 +100,35 @@ class MailboxManagerImpl implements MailboxManager {
 
 	@Override
 	public boolean checkConnection() {
-		boolean success;
+		List<MailboxVersion> versions = null;
 		try {
 			MailboxProperties props = db.transactionWithNullableResult(true,
 					mailboxSettingsManager::getOwnMailboxProperties);
 			if (props == null) throw new DbException();
-			success = api.checkStatus(props);
+			versions = api.getServerSupports(props);
 		} catch (DbException e) {
 			logException(LOG, WARNING, e);
 			// we don't treat this is a failure to record
 			return false;
 		} catch (IOException | MailboxApi.ApiException e) {
 			// we record this as a failure
-			success = false;
 			logException(LOG, WARNING, e);
 		}
 		try {
-			recordCheckResult(success);
+			recordCheckResult(versions);
 		} catch (DbException e) {
 			logException(LOG, WARNING, e);
 		}
-		return success;
+		return versions != null;
 	}
 
-	private void recordCheckResult(boolean success) throws DbException {
+	private void recordCheckResult(@Nullable List<MailboxVersion> versions)
+			throws DbException {
 		long now = clock.currentTimeMillis();
 		db.transaction(false, txn -> {
-			if (success) {
-				mailboxSettingsManager.recordSuccessfulConnection(txn, now);
+			if (versions != null) {
+				mailboxSettingsManager
+						.recordSuccessfulConnection(txn, now, versions);
 			} else {
 				mailboxSettingsManager.recordFailedConnectionAttempt(txn, now);
 			}
