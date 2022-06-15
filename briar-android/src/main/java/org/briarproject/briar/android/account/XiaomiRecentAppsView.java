@@ -1,6 +1,5 @@
 package org.briarproject.briar.android.account;
 
-
 import android.content.Context;
 import android.util.AttributeSet;
 
@@ -12,23 +11,23 @@ import javax.annotation.Nullable;
 import androidx.annotation.StringRes;
 import androidx.annotation.UiThread;
 
-import static org.briarproject.android.dontkillmelib.XiaomiUtils.isMiuiTenOrLater;
-import static org.briarproject.android.dontkillmelib.XiaomiUtils.isXiaomiOrRedmiDevice;
+import static org.briarproject.android.dontkillmelib.XiaomiUtils.isMiuiVersionAtLeast;
+import static org.briarproject.android.dontkillmelib.XiaomiUtils.xiaomiRecentAppsNeedsToBeShown;
 import static org.briarproject.briar.android.util.UiUtils.showOnboardingDialog;
 
 @UiThread
 @NotNullByDefault
-class XiaomiView extends PowerView {
+class XiaomiRecentAppsView extends PowerView {
 
-	public XiaomiView(Context context) {
+	public XiaomiRecentAppsView(Context context) {
 		this(context, null);
 	}
 
-	public XiaomiView(Context context, @Nullable AttributeSet attrs) {
+	public XiaomiRecentAppsView(Context context, @Nullable AttributeSet attrs) {
 		this(context, attrs, 0);
 	}
 
-	public XiaomiView(Context context, @Nullable AttributeSet attrs,
+	public XiaomiRecentAppsView(Context context, @Nullable AttributeSet attrs,
 			int defStyleAttr) {
 		super(context, attrs, defStyleAttr);
 		setText(R.string.dnkm_xiaomi_text);
@@ -37,7 +36,7 @@ class XiaomiView extends PowerView {
 
 	@Override
 	public boolean needsToBeShown() {
-		return isXiaomiOrRedmiDevice();
+		return xiaomiRecentAppsNeedsToBeShown();
 	}
 
 	@Override
@@ -48,7 +47,7 @@ class XiaomiView extends PowerView {
 
 	@Override
 	protected void onButtonClick() {
-		int bodyRes = isMiuiTenOrLater()
+		int bodyRes = isMiuiVersionAtLeast(10, 0)
 				? R.string.dnkm_xiaomi_dialog_body_new
 				: R.string.dnkm_xiaomi_dialog_body_old;
 		showOnboardingDialog(getContext(), getContext().getString(bodyRes));

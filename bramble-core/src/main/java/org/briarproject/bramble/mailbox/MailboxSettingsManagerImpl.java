@@ -77,13 +77,7 @@ class MailboxSettingsManagerImpl implements MailboxSettingsManager {
 		s.put(SETTINGS_KEY_ONION, p.getBaseUrl());
 		s.put(SETTINGS_KEY_TOKEN, p.getAuthToken().toString());
 		List<MailboxVersion> serverSupports = p.getServerSupports();
-		int[] ints = new int[serverSupports.size() * 2];
-		int i = 0;
-		for (MailboxVersion v : serverSupports) {
-			ints[i++] = v.getMajor();
-			ints[i++] = v.getMinor();
-		}
-		s.putIntArray(SETTINGS_KEY_SERVER_SUPPORTS, ints);
+		encodeServerSupports(serverSupports, s);
 		settingsManager.mergeSettings(txn, s, SETTINGS_NAMESPACE);
 		for (MailboxHook hook : hooks) {
 			hook.mailboxPaired(txn, p.getOnion(), p.getServerSupports());
@@ -121,14 +115,30 @@ class MailboxSettingsManagerImpl implements MailboxSettingsManager {
 	@Override
 	public void recordSuccessfulConnection(Transaction txn, long now)
 			throws DbException {
-		Settings oldSettings =
-				settingsManager.getSettings(txn, SETTINGS_NAMESPACE);
+		recordSuccessfulConnection(txn, now, null);
+	}
+
+	@Override
+	public void recordSuccessfulConnection(Transaction txn, long now,
+			@Nullable List<MailboxVersion> versions) throws DbException {
 		Settings s = new Settings();
+		// fetch version that the server supports first
+		List<MailboxVersion> serverSupports;
+		if (versions == null) {
+			Settings oldSettings =
+					settingsManager.getSettings(txn, SETTINGS_NAMESPACE);
+			serverSupports = parseServerSupports(oldSettings);
+		} else {
+			serverSupports = versions;
+			// store new versions
+			encodeServerSupports(serverSupports, s);
+		}
+		// now record the successful connection
 		s.putLong(SETTINGS_KEY_LAST_ATTEMPT, now);
 		s.putLong(SETTINGS_KEY_LAST_SUCCESS, now);
 		s.putInt(SETTINGS_KEY_ATTEMPTS, 0);
 		settingsManager.mergeSettings(txn, s, SETTINGS_NAMESPACE);
-		List<MailboxVersion> serverSupports = parseServerSupports(oldSettings);
+		// broadcast status event
 		MailboxStatus status = new MailboxStatus(now, now, 0, serverSupports);
 		txn.attach(new OwnMailboxConnectionStatusEvent(status));
 	}
@@ -169,6 +179,17 @@ class MailboxSettingsManagerImpl implements MailboxSettingsManager {
 		String filename = s.get(String.valueOf(id.getInt()));
 		if (isNullOrEmpty(filename)) return null;
 		return filename;
+	}
+
+	private void encodeServerSupports(List<MailboxVersion> serverSupports,
+			Settings s) {
+		int[] ints = new int[serverSupports.size() * 2];
+		int i = 0;
+		for (MailboxVersion v : serverSupports) {
+			ints[i++] = v.getMajor();
+			ints[i++] = v.getMinor();
+		}
+		s.putIntArray(SETTINGS_KEY_SERVER_SUPPORTS, ints);
 	}
 
 	private List<MailboxVersion> parseServerSupports(Settings s)
