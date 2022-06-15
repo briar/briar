@@ -5,6 +5,7 @@ import org.briarproject.bramble.api.plugin.TransportId;
 import java.util.List;
 
 import static java.util.Collections.singletonList;
+import static java.util.concurrent.TimeUnit.DAYS;
 import static java.util.concurrent.TimeUnit.HOURS;
 import static org.briarproject.bramble.api.transport.TransportConstants.MAX_FRAME_LENGTH;
 import static org.briarproject.bramble.api.transport.TransportConstants.MAX_PAYLOAD_LENGTH;
@@ -65,4 +66,8 @@ public interface MailboxConstants {
 	 */
 	long PROBLEM_MS_SINCE_LAST_SUCCESS = HOURS.toMillis(1);
 
+	/**
+	 * The maximum latency of the mailbox transport in milliseconds.
+	 */
+	long MAX_LATENCY = DAYS.toMillis(14);
 }
