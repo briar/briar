@@ -106,7 +106,8 @@ class RemovableDriveManagerImpl
 	@Override
 	public boolean isWriterTaskNeeded(ContactId c) throws DbException {
 		return db.transactionWithResult(true, txn ->
-				db.containsAnythingToSend(txn, c, MAX_LATENCY, true));
+				db.containsAcksToSend(txn, c) ||
+						db.containsMessagesToSend(txn, c, MAX_LATENCY, true));
 	}
 
 	@Override

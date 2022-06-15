@@ -303,11 +303,11 @@ public class DatabaseComponentImplTest extends BrambleMockTestCase {
 			throws Exception {
 		context.checking(new Expectations() {{
 			// Check whether the contact is in the DB (which it's not)
-			exactly(25).of(database).startTransaction();
+			exactly(27).of(database).startTransaction();
 			will(returnValue(txn));
-			exactly(25).of(database).containsContact(txn, contactId);
+			exactly(27).of(database).containsContact(txn, contactId);
 			will(returnValue(false));
-			exactly(25).of(database).abortTransaction(txn);
+			exactly(27).of(database).abortTransaction(txn);
 		}});
 		DatabaseComponent db = createDatabaseComponent(database, eventBus,
 				eventExecutor, shutdownManager);
@@ -316,6 +316,23 @@ public class DatabaseComponentImplTest extends BrambleMockTestCase {
 			db.transaction(false, transaction ->
 					db.addTransportKeys(transaction, contactId,
 							createTransportKeys()));
+			fail();
+		} catch (NoSuchContactException expected) {
+			// Expected
+		}
+
+		try {
+			db.transaction(true, transaction ->
+					db.containsAcksToSend(transaction, contactId));
+			fail();
+		} catch (NoSuchContactException expected) {
+			// Expected
+		}
+
+		try {
+			db.transaction(true, transaction ->
+					db.containsMessagesToSend(transaction, contactId,
+							123, true));
 			fail();
 		} catch (NoSuchContactException expected) {
 			// Expected

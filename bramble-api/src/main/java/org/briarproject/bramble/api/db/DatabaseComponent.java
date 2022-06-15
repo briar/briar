@@ -126,16 +126,11 @@ public interface DatabaseComponent extends TransactionManager {
 			TransportKeys k) throws DbException;
 
 	/**
-	 * Returns true if there are any acks or messages to send to the given
-	 * contact over a transport with the given maximum latency.
+	 * Returns true if there are any acks to send to the given contact.
 	 * <p/>
 	 * Read-only.
-	 *
-	 * @param eager True if messages that are not yet due for retransmission
-	 * should be included
 	 */
-	boolean containsAnythingToSend(Transaction txn, ContactId c,
-			long maxLatency, boolean eager) throws DbException;
+	boolean containsAcksToSend(Transaction txn, ContactId c) throws DbException;
 
 	/**
 	 * Returns true if the database contains the given contact for the given
@@ -160,6 +155,18 @@ public interface DatabaseComponent extends TransactionManager {
 	 * Read-only.
 	 */
 	boolean containsIdentity(Transaction txn, AuthorId a) throws DbException;
+
+	/**
+	 * Returns true if there are any messages to send to the given contact
+	 * over a transport with the given maximum latency.
+	 * <p/>
+	 * Read-only.
+	 *
+	 * @param eager True if messages that are not yet due for retransmission
+	 * should be included
+	 */
+	boolean containsMessagesToSend(Transaction txn, ContactId c,
+			long maxLatency, boolean eager) throws DbException;
 
 	/**
 	 * Returns true if the database contains the given pending contact.

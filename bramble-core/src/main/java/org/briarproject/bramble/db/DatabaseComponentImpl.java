@@ -342,12 +342,12 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 	}
 
 	@Override
-	public boolean containsAnythingToSend(Transaction transaction, ContactId c,
-			long maxLatency, boolean eager) throws DbException {
+	public boolean containsAcksToSend(Transaction transaction, ContactId c)
+			throws DbException {
 		T txn = unbox(transaction);
 		if (!db.containsContact(txn, c))
 			throw new NoSuchContactException();
-		return db.containsAnythingToSend(txn, c, maxLatency, eager);
+		return db.containsAcksToSend(txn, c);
 	}
 
 	@Override
@@ -371,6 +371,15 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 			throws DbException {
 		T txn = unbox(transaction);
 		return db.containsIdentity(txn, a);
+	}
+
+	@Override
+	public boolean containsMessagesToSend(Transaction transaction, ContactId c,
+			long maxLatency, boolean eager) throws DbException {
+		T txn = unbox(transaction);
+		if (!db.containsContact(txn, c))
+			throw new NoSuchContactException();
+		return db.containsMessagesToSend(txn, c, maxLatency, eager);
 	}
 
 	@Override
