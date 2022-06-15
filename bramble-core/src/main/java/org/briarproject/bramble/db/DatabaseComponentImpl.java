@@ -1025,7 +1025,8 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 				db.getGroupVisibility(txn, id).keySet();
 		db.removeGroup(txn, id);
 		transaction.attach(new GroupRemovedEvent(g));
-		transaction.attach(new GroupVisibilityUpdatedEvent(affected));
+		transaction.attach(new GroupVisibilityUpdatedEvent(INVISIBLE,
+				affected));
 	}
 
 	@Override
@@ -1150,7 +1151,7 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 		else if (v == INVISIBLE) db.removeGroupVisibility(txn, c, g);
 		else db.setGroupVisibility(txn, c, g, v == SHARED);
 		List<ContactId> affected = singletonList(c);
-		transaction.attach(new GroupVisibilityUpdatedEvent(affected));
+		transaction.attach(new GroupVisibilityUpdatedEvent(v, affected));
 	}
 
 	@Override
