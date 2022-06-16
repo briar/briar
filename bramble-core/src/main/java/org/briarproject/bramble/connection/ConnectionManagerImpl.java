@@ -13,6 +13,7 @@ import org.briarproject.bramble.api.plugin.TransportConnectionWriter;
 import org.briarproject.bramble.api.plugin.TransportId;
 import org.briarproject.bramble.api.plugin.duplex.DuplexTransportConnection;
 import org.briarproject.bramble.api.properties.TransportPropertyManager;
+import org.briarproject.bramble.api.sync.OutgoingSessionRecord;
 import org.briarproject.bramble.api.sync.SyncSessionFactory;
 import org.briarproject.bramble.api.transport.KeyManager;
 import org.briarproject.bramble.api.transport.StreamReaderFactory;
@@ -100,7 +101,16 @@ class ConnectionManagerImpl implements ConnectionManager {
 			TransportConnectionWriter w) {
 		ioExecutor.execute(new OutgoingSimplexSyncConnection(keyManager,
 				connectionRegistry, streamReaderFactory, streamWriterFactory,
-				syncSessionFactory, transportPropertyManager, c, t, w));
+				syncSessionFactory, transportPropertyManager, c, t, w, null));
+	}
+
+	@Override
+	public void manageOutgoingConnection(ContactId c, TransportId t,
+			TransportConnectionWriter w, OutgoingSessionRecord sessionRecord) {
+		ioExecutor.execute(new OutgoingSimplexSyncConnection(keyManager,
+				connectionRegistry, streamReaderFactory, streamWriterFactory,
+				syncSessionFactory, transportPropertyManager, c, t, w,
+				sessionRecord));
 	}
 
 	@Override
