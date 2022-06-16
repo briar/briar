@@ -77,14 +77,18 @@ class MailboxUploadWorker implements MailboxWorker, ConnectivityObserver,
 	 * should help to avoid creating lots of small files when several acks or
 	 * messages become available to send in a short period (eg when reading a
 	 * file downloaded from a mailbox).
+	 * <p>
+	 * Package access for testing.
 	 */
-	private static final long CHECK_DELAY_MS = 5_000;
+	static final long CHECK_DELAY_MS = 5_000;
 
 	/**
 	 * How long to wait before retrying when an exception occurs while writing
 	 * a file.
+	 * <p>
+	 * Package access for testing.
 	 */
-	private static final long RETRY_DELAY_MS = MINUTES.toMillis(1);
+	static final long RETRY_DELAY_MS = MINUTES.toMillis(1);
 
 	private final Executor ioExecutor;
 	private final DatabaseComponent db;
