@@ -7,9 +7,9 @@ import org.briarproject.bramble.api.event.EventBus;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.plugin.TransportId;
 import org.briarproject.bramble.api.sync.Ack;
-import org.briarproject.bramble.api.sync.DeferredSendHandler;
 import org.briarproject.bramble.api.sync.Message;
 import org.briarproject.bramble.api.sync.MessageId;
+import org.briarproject.bramble.api.sync.OutgoingSessionRecord;
 import org.briarproject.bramble.api.sync.SyncRecordWriter;
 import org.briarproject.bramble.api.transport.StreamWriter;
 
@@ -29,7 +29,7 @@ import static org.briarproject.bramble.api.sync.SyncConstants.MESSAGE_HEADER_LEN
 
 /**
  * A {@link SimplexOutgoingSession} for sending and acking messages via a
- * mailbox. The session uses a {@link DeferredSendHandler} to record the IDs
+ * mailbox. The session uses a {@link OutgoingSessionRecord} to record the IDs
  * of the messages sent and acked during the session so that they can be
  * recorded in the DB as sent or acked after the file has been successfully
  * uploaded to the mailbox.
@@ -41,7 +41,7 @@ class MailboxOutgoingSession extends SimplexOutgoingSession {
 	private static final Logger LOG =
 			getLogger(MailboxOutgoingSession.class.getName());
 
-	private final DeferredSendHandler deferredSendHandler;
+	private final OutgoingSessionRecord sessionRecord;
 	private final long initialCapacity;
 
 	MailboxOutgoingSession(DatabaseComponent db,
@@ -51,11 +51,11 @@ class MailboxOutgoingSession extends SimplexOutgoingSession {
 			long maxLatency,
 			StreamWriter streamWriter,
 			SyncRecordWriter recordWriter,
-			DeferredSendHandler deferredSendHandler,
+			OutgoingSessionRecord sessionRecord,
 			long capacity) {
 		super(db, eventBus, contactId, transportId, maxLatency, streamWriter,
 				recordWriter);
-		this.deferredSendHandler = deferredSendHandler;
+		this.sessionRecord = sessionRecord;
 		this.initialCapacity = capacity;
 	}
 
@@ -65,7 +65,7 @@ class MailboxOutgoingSession extends SimplexOutgoingSession {
 			Collection<MessageId> idsToAck = loadMessageIdsToAck();
 			if (idsToAck.isEmpty()) break;
 			recordWriter.writeAck(new Ack(idsToAck));
-			deferredSendHandler.onAckSent(idsToAck);
+			sessionRecord.onAckSent(idsToAck);
 			LOG.info("Sent ack");
 		}
 	}
@@ -96,7 +96,7 @@ class MailboxOutgoingSession extends SimplexOutgoingSession {
 					db.getMessageToSend(txn, contactId, m, maxLatency, false));
 			if (message == null) continue; // No longer shared
 			recordWriter.writeMessage(message);
-			deferredSendHandler.onMessageSent(m);
+			sessionRecord.onMessageSent(m);
 			LOG.info("Sent message");
 		}
 	}
