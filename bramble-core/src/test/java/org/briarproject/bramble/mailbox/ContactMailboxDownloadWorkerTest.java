@@ -1,5 +1,6 @@
 package org.briarproject.bramble.mailbox;
 
+import org.briarproject.bramble.api.Cancellable;
 import org.briarproject.bramble.api.mailbox.MailboxFileId;
 import org.briarproject.bramble.api.mailbox.MailboxProperties;
 import org.briarproject.bramble.mailbox.MailboxApi.MailboxFile;
@@ -7,6 +8,7 @@ import org.briarproject.bramble.mailbox.MailboxApi.TolerableFailureException;
 import org.briarproject.bramble.test.BrambleMockTestCase;
 import org.briarproject.bramble.test.CaptureArgumentAction;
 import org.jmock.Expectations;
+import org.jmock.lib.action.DoAllAction;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -36,6 +38,7 @@ public class ContactMailboxDownloadWorkerTest extends BrambleMockTestCase {
 	private final MailboxApi mailboxApi = context.mock(MailboxApi.class);
 	private final MailboxFileManager mailboxFileManager =
 			context.mock(MailboxFileManager.class);
+	private final Cancellable apiCall = context.mock(Cancellable.class);
 
 	private final MailboxProperties mailboxProperties =
 			getMailboxProperties(false, CLIENT_SUPPORTS);
@@ -96,30 +99,36 @@ public class ContactMailboxDownloadWorkerTest extends BrambleMockTestCase {
 
 		// When the connectivity check succeeds, a list-inbox task should be
 		// started for the first download cycle
-		AtomicReference<ApiCall> listTask = new AtomicReference<>(null);
+		AtomicReference<ApiCall> listTask = new AtomicReference<>();
 		context.checking(new Expectations() {{
 			oneOf(mailboxApiCaller).retryWithBackoff(with(any(ApiCall.class)));
-			will(new CaptureArgumentAction<>(listTask, ApiCall.class, 0));
+			will(new DoAllAction(
+					new CaptureArgumentAction<>(listTask, ApiCall.class, 0),
+					returnValue(apiCall)
+			));
 		}});
 
 		worker.onConnectivityCheckSucceeded();
 
 		// When the list-inbox tasks runs and finds some files to download,
 		// it should start a download task for the first file
-		AtomicReference<ApiCall> downloadTask = new AtomicReference<>(null);
+		AtomicReference<ApiCall> downloadTask = new AtomicReference<>();
 		context.checking(new Expectations() {{
 			oneOf(mailboxApi).getFiles(mailboxProperties,
 					requireNonNull(mailboxProperties.getInboxId()));
 			will(returnValue(files));
 			oneOf(mailboxApiCaller).retryWithBackoff(with(any(ApiCall.class)));
-			will(new CaptureArgumentAction<>(downloadTask, ApiCall.class, 0));
+			will(new DoAllAction(
+					new CaptureArgumentAction<>(downloadTask, ApiCall.class, 0),
+					returnValue(apiCall)
+			));
 		}});
 
 		assertFalse(listTask.get().callApi());
 
 		// When the first download task runs it should download the file to the
 		// location provided by the file manager and start a delete task
-		AtomicReference<ApiCall> deleteTask = new AtomicReference<>(null);
+		AtomicReference<ApiCall> deleteTask = new AtomicReference<>();
 		context.checking(new Expectations() {{
 			oneOf(mailboxFileManager).createTempFileForDownload();
 			will(returnValue(tempFile));
@@ -128,7 +137,10 @@ public class ContactMailboxDownloadWorkerTest extends BrambleMockTestCase {
 					file1.name, tempFile);
 			oneOf(mailboxFileManager).handleDownloadedFile(tempFile);
 			oneOf(mailboxApiCaller).retryWithBackoff(with(any(ApiCall.class)));
-			will(new CaptureArgumentAction<>(deleteTask, ApiCall.class, 0));
+			will(new DoAllAction(
+					new CaptureArgumentAction<>(deleteTask, ApiCall.class, 0),
+					returnValue(apiCall)
+			));
 		}});
 
 		assertFalse(downloadTask.get().callApi());
@@ -140,7 +152,10 @@ public class ContactMailboxDownloadWorkerTest extends BrambleMockTestCase {
 					requireNonNull(mailboxProperties.getInboxId()), file1.name);
 			will(throwException(new TolerableFailureException()));
 			oneOf(mailboxApiCaller).retryWithBackoff(with(any(ApiCall.class)));
-			will(new CaptureArgumentAction<>(downloadTask, ApiCall.class, 0));
+			will(new DoAllAction(
+					new CaptureArgumentAction<>(downloadTask, ApiCall.class, 0),
+					returnValue(apiCall)
+			));
 		}});
 
 		assertFalse(deleteTask.get().callApi());
@@ -155,7 +170,10 @@ public class ContactMailboxDownloadWorkerTest extends BrambleMockTestCase {
 					file2.name, tempFile);
 			oneOf(mailboxFileManager).handleDownloadedFile(tempFile);
 			oneOf(mailboxApiCaller).retryWithBackoff(with(any(ApiCall.class)));
-			will(new CaptureArgumentAction<>(deleteTask, ApiCall.class, 0));
+			will(new DoAllAction(
+					new CaptureArgumentAction<>(deleteTask, ApiCall.class, 0),
+					returnValue(apiCall)
+			));
 		}});
 
 		assertFalse(downloadTask.get().callApi());
@@ -168,7 +186,10 @@ public class ContactMailboxDownloadWorkerTest extends BrambleMockTestCase {
 					requireNonNull(mailboxProperties.getInboxId()), file2.name);
 			will(throwException(new TolerableFailureException()));
 			oneOf(mailboxApiCaller).retryWithBackoff(with(any(ApiCall.class)));
-			will(new CaptureArgumentAction<>(listTask, ApiCall.class, 0));
+			will(new DoAllAction(
+					new CaptureArgumentAction<>(listTask, ApiCall.class, 0),
+					returnValue(apiCall)
+			));
 		}});
 
 		assertFalse(deleteTask.get().callApi());
@@ -188,7 +209,10 @@ public class ContactMailboxDownloadWorkerTest extends BrambleMockTestCase {
 		// be started for the second download cycle
 		context.checking(new Expectations() {{
 			oneOf(mailboxApiCaller).retryWithBackoff(with(any(ApiCall.class)));
-			will(new CaptureArgumentAction<>(listTask, ApiCall.class, 0));
+			will(new DoAllAction(
+					new CaptureArgumentAction<>(listTask, ApiCall.class, 0),
+					returnValue(apiCall)
+			));
 		}});
 
 		worker.onTorReachable();

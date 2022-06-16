@@ -146,10 +146,12 @@ class ContactMailboxDownloadWorker implements MailboxWorker,
 			if (state == State.DOWNLOAD_CYCLE_1) {
 				LOG.info("First download cycle finished");
 				state = State.WAITING_FOR_TOR;
+				apiCall = null;
 				addObserver = true;
 			} else if (state == State.DOWNLOAD_CYCLE_2) {
 				LOG.info("Second download cycle finished");
 				state = State.FINISHED;
+				apiCall = null;
 			}
 		}
 		if (addObserver) {
