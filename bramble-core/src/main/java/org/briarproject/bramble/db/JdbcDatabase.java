@@ -2490,12 +2490,28 @@ abstract class JdbcDatabase implements Database<Connection> {
 	}
 
 	@Override
-	public long getNextSendTime(Connection txn, ContactId c)
+	public long getNextSendTime(Connection txn, ContactId c, long maxLatency)
 			throws DbException {
 		PreparedStatement ps = null;
 		ResultSet rs = null;
 		try {
-			String sql = "SELECT expiry FROM statuses"
+			// Are any messages sendable immediately?
+			String sql = "SELECT NULL FROM statuses"
+					+ " WHERE contactId = ? AND state = ?"
+					+ " AND groupShared = TRUE AND messageShared = TRUE"
+					+ " AND deleted = FALSE AND seen = FALSE"
+					+ " AND (maxLatency IS NULL OR ? < maxLatency)";
+			ps = txn.prepareStatement(sql);
+			ps.setInt(1, c.getInt());
+			ps.setInt(2, DELIVERED.getValue());
+			ps.setLong(3, maxLatency);
+			rs = ps.executeQuery();
+			boolean found = rs.next();
+			rs.close();
+			ps.close();
+			if (found) return 0;
+			// When is the earliest expiry time (could be in the past)?
+			sql = "SELECT expiry FROM statuses"
 					+ " WHERE contactId = ? AND state = ?"
 					+ " AND groupShared = TRUE AND messageShared = TRUE"
 					+ " AND deleted = FALSE AND seen = FALSE"
