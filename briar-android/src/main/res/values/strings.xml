@@ -316,11 +316,10 @@
 
 	<!-- Contact trust levels -->
 
-	<string name="contact_trust_level_anonymous">Anonymous contact</string>
 	<string name="contact_trust_level_unverified">Unverified contact</string>
 	<string name="contact_trust_level_verified">Verified contact</string>
 	<string name="contact_trust_level_ourselves">Me</string>
-	<string name="contact_trust_level_default">Unknown contact</string>
+	<string name="contact_trust_level_stranger">Stranger</string>
 
 	<!-- Introductions -->
 
