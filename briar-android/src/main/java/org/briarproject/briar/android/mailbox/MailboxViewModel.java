@@ -135,12 +135,23 @@ class MailboxViewModel extends DbViewModel
 		} else if (e instanceof TransportInactiveEvent) {
 			TransportId id = ((TransportInactiveEvent) e).getTransportId();
 			if (!TorConstants.ID.equals(id)) return;
-			MailboxState lastState = pairingState.getLastValue();
-			if (lastState instanceof MailboxState.IsPaired) {
-				pairingState.setEvent(new MailboxState.IsPaired(false));
-			} else if (lastState != null) {
+			onTorInactive();
+		}
+	}
+
+	@UiThread
+	private void onTorInactive() {
+		MailboxState lastState = pairingState.getLastValue();
+		if (lastState instanceof MailboxState.IsPaired) {
+			// we are already paired, so use IsPaired state
+			pairingState.setEvent(new MailboxState.IsPaired(false));
+		} else if (lastState instanceof MailboxState.Pairing) {
+			MailboxState.Pairing p = (MailboxState.Pairing) lastState;
+			// check that we not just finished pairing (showing success screen)
+			if (!(p.pairingState instanceof MailboxPairingState.Paired)) {
 				pairingState.setEvent(new MailboxState.OfflineWhenPairing());
 			}
+			// else ignore offline event as user will be leaving UI flow anyway
 		}
 	}
 
