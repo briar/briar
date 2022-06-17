@@ -81,10 +81,10 @@ class MailboxFileManagerImpl implements MailboxFileManager, EventListener {
 	@Override
 	public File createAndWriteTempFileForUpload(ContactId contactId,
 			OutgoingSessionRecord sessionRecord) throws IOException {
+		File f = createTempFile(UPLOAD_DIR_NAME);
 		// We shouldn't reach this point until the plugin has been started
 		SimplexPlugin plugin =
 				(SimplexPlugin) requireNonNull(pluginManager.getPlugin(ID));
-		File f = createTempFile(UPLOAD_DIR_NAME);
 		TransportProperties p = new TransportProperties();
 		p.put(PROP_PATH, f.getAbsolutePath());
 		TransportConnectionWriter writer = plugin.createWriter(p);
