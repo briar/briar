@@ -814,10 +814,10 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 	}
 
 	@Override
-	public long getNextSendTime(Transaction transaction, ContactId c)
-			throws DbException {
+	public long getNextSendTime(Transaction transaction, ContactId c,
+			long maxLatency) throws DbException {
 		T txn = unbox(transaction);
-		return db.getNextSendTime(txn, c);
+		return db.getNextSendTime(txn, c, maxLatency);
 	}
 
 	@Override

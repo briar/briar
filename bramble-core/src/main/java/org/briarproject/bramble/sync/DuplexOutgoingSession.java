@@ -313,7 +313,8 @@ class DuplexOutgoingSession implements SyncSession, EventListener {
 							Collection<Message> batch =
 									db.generateRequestedBatch(txn, contactId,
 											BATCH_CAPACITY, maxLatency);
-							setNextSendTime(db.getNextSendTime(txn, contactId));
+							setNextSendTime(db.getNextSendTime(txn, contactId,
+									maxLatency));
 							return batch;
 						});
 				if (LOG.isLoggable(INFO))
@@ -356,7 +357,8 @@ class DuplexOutgoingSession implements SyncSession, EventListener {
 				Offer o = db.transactionWithNullableResult(false, txn -> {
 					Offer offer = db.generateOffer(txn, contactId,
 							MAX_MESSAGE_IDS, maxLatency);
-					setNextSendTime(db.getNextSendTime(txn, contactId));
+					setNextSendTime(db.getNextSendTime(txn, contactId,
+							maxLatency));
 					return offer;
 				});
 				if (LOG.isLoggable(INFO))
