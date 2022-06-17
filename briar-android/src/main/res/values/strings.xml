@@ -34,6 +34,7 @@
 	<string name="dnkm_xiaomi_dialog_body_new">1. Open the recent apps list (also called the app switcher)\n\n2. If Briar has a small image of a padlock next to its name then you don\'t need to do anything\n\n3. If there\'s no padlock, press and hold the image of Briar until the padlock button appears, then tap it</string>
 	<string name="dnkm_xiaomi_lock_apps_text">Please tap the button below to open the security settings. Tap \"Boost speed\", then tap \"Lock apps\", and make sure Briar is set to \"Locked\".</string>
 	<string name="dnkm_xiaomi_lock_apps_help">If Briar is not set to \"Locked\" in the \"Lock apps\" screen, it will be unable to run in the background.</string>
+	<string name="dnkm_warning_dozed_1">Briar was unable to run in the background</string>
 
 	<!-- Login -->
 	<string name="enter_password">Password</string>
@@ -247,8 +248,8 @@
 	<string name="contact_added_toast">Contact added: %s</string>
 	<string name="contact_already_exists">Contact %s already exists</string>
 	<string name="qr_code_invalid">The QR code is invalid</string>
-	<string name="qr_code_too_old">The QR code you have scanned comes from an older version of %s.\n\nPlease ask your contact to upgrade to the latest version and then try again.</string>
-	<string name="qr_code_too_new">The QR code you have scanned comes from a newer version of %s.\n\nPlease upgrade to the latest version and then try again.</string>
+	<string name="qr_code_too_old_1">The QR code you have scanned comes from an older version of Briar.\n\nPlease ask your contact to upgrade to the latest version and then try again.</string>
+	<string name="qr_code_too_new_1">The QR code you have scanned comes from a newer version of Briar.\n\nPlease upgrade to the latest version and then try again.</string>
 	<string name="camera_error">Camera error</string>
 	<string name="connecting_to_device">Connecting to device\u2026</string>
 	<string name="authenticating_with_device">Authenticating with device\u2026</string>
@@ -812,8 +813,9 @@
 	<string name="hotspot_qr_site">Your phone is providing a Wi-Fi hotspot. People who are connected to the hotspot can download Briar by scanning this QR code.</string>
 
 	<!-- e.g. Download Briar 1.2.20 -->
-	<string name="website_download_title">Download %s</string>
-	<string name="website_download_intro">Someone nearby shared %s with you.</string>
+	<string name="website_download_title_1">Download Briar %s</string>
+	<string name="website_download_intro_1">Someone nearby shared Briar with you.</string>
+	<string name="website_download_button">Download Briar</string>
 	<string name="website_download_outro">After the download is complete, open the downloaded file and install it.</string>
 	<string name="website_troubleshooting_title">Troubleshooting</string>
 	<string name="website_troubleshooting_1">If you cannot download the app, try it with a different web browser app.</string>

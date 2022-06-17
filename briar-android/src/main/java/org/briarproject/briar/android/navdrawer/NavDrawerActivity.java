@@ -147,7 +147,7 @@ public class NavDrawerActivity extends BriarActivity implements
 			}
 		}
 		navDrawerViewModel.shouldAskForDozeWhitelisting().observe(this, ask -> {
-			if (ask) showDozeDialog(getString(R.string.dnkm_doze_intro));
+			if (ask) showDozeDialog(R.string.dnkm_doze_intro);
 		});
 
 		Toolbar toolbar = setUpCustomToolbar(false);
