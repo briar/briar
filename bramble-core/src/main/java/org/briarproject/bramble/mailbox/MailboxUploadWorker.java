@@ -48,7 +48,7 @@ class MailboxUploadWorker implements MailboxWorker, ConnectivityObserver,
 		EventListener {
 
 	/**
-	 * When the worker is started is checks for data to send. If data is ready
+	 * When the worker is started it checks for data to send. If data is ready
 	 * to send, the worker waits for a connectivity check, then writes and
 	 * uploads a file and checks again for data to send.
 	 * <p>
