@@ -378,9 +378,9 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 
 		// Initially there should be nothing to send
 		assertFalse(
-				db.containsAnythingToSend(txn, contactId, MAX_LATENCY, false));
+				db.containsMessagesToSend(txn, contactId, MAX_LATENCY, false));
 		assertFalse(
-				db.containsAnythingToSend(txn, contactId, MAX_LATENCY, true));
+				db.containsMessagesToSend(txn, contactId, MAX_LATENCY, true));
 
 		// Add some messages to ack
 		Message message1 = getMessage(groupId);
@@ -389,10 +389,7 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 		db.addMessage(txn, message1, DELIVERED, true, false, contactId);
 
 		// Both message IDs should be returned
-		assertTrue(
-				db.containsAnythingToSend(txn, contactId, MAX_LATENCY, false));
-		assertTrue(
-				db.containsAnythingToSend(txn, contactId, MAX_LATENCY, true));
+		assertTrue(db.containsAcksToSend(txn, contactId));
 		Collection<MessageId> ids = db.getMessagesToAck(txn, contactId, 1234);
 		assertEquals(asList(messageId, messageId1), ids);
 
@@ -400,10 +397,7 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 		db.lowerAckFlag(txn, contactId, asList(messageId, messageId1));
 
 		// No message IDs should be returned
-		assertFalse(
-				db.containsAnythingToSend(txn, contactId, MAX_LATENCY, false));
-		assertFalse(
-				db.containsAnythingToSend(txn, contactId, MAX_LATENCY, true));
+		assertFalse(db.containsAcksToSend(txn, contactId));
 		assertEquals(emptyList(), db.getMessagesToAck(txn, contactId, 1234));
 
 		// Raise the ack flag again
@@ -411,10 +405,7 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 		db.raiseAckFlag(txn, contactId, messageId1);
 
 		// Both message IDs should be returned
-		assertTrue(
-				db.containsAnythingToSend(txn, contactId, MAX_LATENCY, false));
-		assertTrue(
-				db.containsAnythingToSend(txn, contactId, MAX_LATENCY, true));
+		assertTrue(db.containsAcksToSend(txn, contactId));
 		ids = db.getMessagesToAck(txn, contactId, 1234);
 		assertEquals(asList(messageId, messageId1), ids);
 
@@ -2579,7 +2570,7 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 	private void assertNothingToSendLazily(Database<Connection> db,
 			Connection txn) throws Exception {
 		assertFalse(
-				db.containsAnythingToSend(txn, contactId, MAX_LATENCY, false));
+				db.containsMessagesToSend(txn, contactId, MAX_LATENCY, false));
 		Collection<MessageId> ids =
 				db.getMessagesToSend(txn, contactId, ONE_MEGABYTE, MAX_LATENCY);
 		assertTrue(ids.isEmpty());
@@ -2590,7 +2581,7 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 	private void assertOneMessageToSendLazily(Database<Connection> db,
 			Connection txn) throws Exception {
 		assertTrue(
-				db.containsAnythingToSend(txn, contactId, MAX_LATENCY, false));
+				db.containsMessagesToSend(txn, contactId, MAX_LATENCY, false));
 		Collection<MessageId> ids =
 				db.getMessagesToSend(txn, contactId, ONE_MEGABYTE, MAX_LATENCY);
 		assertEquals(singletonList(messageId), ids);
@@ -2601,7 +2592,7 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 	private void assertNothingToSendEagerly(Database<Connection> db,
 			Connection txn) throws Exception {
 		assertFalse(
-				db.containsAnythingToSend(txn, contactId, MAX_LATENCY, true));
+				db.containsMessagesToSend(txn, contactId, MAX_LATENCY, true));
 		Collection<MessageId> unacked =
 				db.getUnackedMessagesToSend(txn, contactId);
 		assertTrue(unacked.isEmpty());
@@ -2611,7 +2602,7 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 	private void assertOneMessageToSendEagerly(Database<Connection> db,
 			Connection txn) throws Exception {
 		assertTrue(
-				db.containsAnythingToSend(txn, contactId, MAX_LATENCY, true));
+				db.containsMessagesToSend(txn, contactId, MAX_LATENCY, true));
 		Collection<MessageId> unacked =
 				db.getUnackedMessagesToSend(txn, contactId);
 		assertEquals(singletonList(messageId), unacked);

@@ -7,6 +7,7 @@ import org.briarproject.bramble.api.plugin.TransportConnectionReader;
 import org.briarproject.bramble.api.plugin.TransportConnectionWriter;
 import org.briarproject.bramble.api.plugin.TransportId;
 import org.briarproject.bramble.api.plugin.duplex.DuplexTransportConnection;
+import org.briarproject.bramble.api.sync.OutgoingSessionRecord;
 
 @NotNullByDefault
 public interface ConnectionManager {
@@ -44,6 +45,14 @@ public interface ConnectionManager {
 	 */
 	void manageOutgoingConnection(ContactId c, TransportId t,
 			TransportConnectionWriter w);
+
+	/**
+	 * Manages an outgoing connection to a contact via a mailbox. The IDs of
+	 * any messages sent or acked are added to the given
+	 * {@link OutgoingSessionRecord}.
+	 */
+	void manageOutgoingConnection(ContactId c, TransportId t,
+			TransportConnectionWriter w, OutgoingSessionRecord sessionRecord);
 
 	/**
 	 * Manages an outgoing connection to a contact over a duplex transport.

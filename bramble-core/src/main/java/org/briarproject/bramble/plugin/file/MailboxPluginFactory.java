@@ -9,13 +9,11 @@ import org.briarproject.bramble.api.plugin.simplex.SimplexPluginFactory;
 import javax.annotation.Nullable;
 import javax.inject.Inject;
 
-import static java.util.concurrent.TimeUnit.DAYS;
 import static org.briarproject.bramble.api.mailbox.MailboxConstants.ID;
+import static org.briarproject.bramble.api.mailbox.MailboxConstants.MAX_LATENCY;
 
 @NotNullByDefault
 public class MailboxPluginFactory implements SimplexPluginFactory {
-
-	private static final long MAX_LATENCY = DAYS.toMillis(14);
 
 	@Inject
 	MailboxPluginFactory() {

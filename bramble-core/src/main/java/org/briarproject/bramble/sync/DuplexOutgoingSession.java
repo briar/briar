@@ -50,6 +50,7 @@ import static java.util.logging.Level.WARNING;
 import static java.util.logging.Logger.getLogger;
 import static org.briarproject.bramble.api.lifecycle.LifecycleManager.LifecycleState.STOPPING;
 import static org.briarproject.bramble.api.record.Record.RECORD_HEADER_BYTES;
+import static org.briarproject.bramble.api.sync.Group.Visibility.SHARED;
 import static org.briarproject.bramble.api.sync.SyncConstants.MAX_MESSAGE_IDS;
 import static org.briarproject.bramble.api.sync.SyncConstants.MAX_MESSAGE_LENGTH;
 import static org.briarproject.bramble.api.sync.SyncConstants.SUPPORTED_VERSIONS;
@@ -235,8 +236,10 @@ class DuplexOutgoingSession implements SyncSession, EventListener {
 			generateOffer();
 		} else if (e instanceof GroupVisibilityUpdatedEvent) {
 			GroupVisibilityUpdatedEvent g = (GroupVisibilityUpdatedEvent) e;
-			if (g.getAffectedContacts().contains(contactId))
+			if (g.getVisibility() == SHARED &&
+					g.getAffectedContacts().contains(contactId)) {
 				generateOffer();
+			}
 		} else if (e instanceof MessageRequestedEvent) {
 			if (((MessageRequestedEvent) e).getContactId().equals(contactId))
 				generateBatch();

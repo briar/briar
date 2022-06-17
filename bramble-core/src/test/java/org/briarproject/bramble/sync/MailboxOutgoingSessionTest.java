@@ -6,10 +6,10 @@ import org.briarproject.bramble.api.db.Transaction;
 import org.briarproject.bramble.api.event.EventBus;
 import org.briarproject.bramble.api.plugin.TransportId;
 import org.briarproject.bramble.api.sync.Ack;
-import org.briarproject.bramble.api.sync.DeferredSendHandler;
 import org.briarproject.bramble.api.sync.GroupId;
 import org.briarproject.bramble.api.sync.Message;
 import org.briarproject.bramble.api.sync.MessageId;
+import org.briarproject.bramble.api.sync.OutgoingSessionRecord;
 import org.briarproject.bramble.api.sync.SyncRecordWriter;
 import org.briarproject.bramble.api.sync.Versions;
 import org.briarproject.bramble.api.transport.StreamWriter;
@@ -30,6 +30,7 @@ import static org.briarproject.bramble.test.TestUtils.getContactId;
 import static org.briarproject.bramble.test.TestUtils.getMessage;
 import static org.briarproject.bramble.test.TestUtils.getRandomId;
 import static org.briarproject.bramble.test.TestUtils.getTransportId;
+import static org.junit.Assert.assertEquals;
 
 public class MailboxOutgoingSessionTest extends BrambleMockTestCase {
 
@@ -40,8 +41,6 @@ public class MailboxOutgoingSessionTest extends BrambleMockTestCase {
 	private final StreamWriter streamWriter = context.mock(StreamWriter.class);
 	private final SyncRecordWriter recordWriter =
 			context.mock(SyncRecordWriter.class);
-	private final DeferredSendHandler deferredSendHandler =
-			context.mock(DeferredSendHandler.class);
 
 	private final ContactId contactId = getContactId();
 	private final TransportId transportId = getTransportId();
@@ -53,9 +52,10 @@ public class MailboxOutgoingSessionTest extends BrambleMockTestCase {
 
 	@Test
 	public void testNothingToSend() throws Exception {
+		OutgoingSessionRecord sessionRecord = new OutgoingSessionRecord();
 		MailboxOutgoingSession session = new MailboxOutgoingSession(db,
 				eventBus, contactId, transportId, MAX_LATENCY,
-				streamWriter, recordWriter, deferredSendHandler,
+				streamWriter, recordWriter, sessionRecord,
 				MAX_FILE_PAYLOAD_BYTES);
 
 		Transaction noAckIdTxn = new Transaction(null, true);
@@ -92,13 +92,17 @@ public class MailboxOutgoingSessionTest extends BrambleMockTestCase {
 		}});
 
 		session.run();
+
+		assertEquals(emptyList(), sessionRecord.getAckedIds());
+		assertEquals(emptyList(), sessionRecord.getSentIds());
 	}
 
 	@Test
 	public void testSomethingToSend() throws Exception {
+		OutgoingSessionRecord sessionRecord = new OutgoingSessionRecord();
 		MailboxOutgoingSession session = new MailboxOutgoingSession(db,
 				eventBus, contactId, transportId, MAX_LATENCY,
-				streamWriter, recordWriter, deferredSendHandler,
+				streamWriter, recordWriter, sessionRecord,
 				MAX_FILE_PAYLOAD_BYTES);
 
 		Transaction ackIdTxn = new Transaction(null, true);
@@ -127,8 +131,6 @@ public class MailboxOutgoingSessionTest extends BrambleMockTestCase {
 			oneOf(recordWriter).getBytesWritten();
 			will(returnValue((long) versionRecordBytes));
 			oneOf(recordWriter).writeAck(with(any(Ack.class)));
-			oneOf(deferredSendHandler)
-					.onAckSent(singletonList(message.getId()));
 			// No more messages to ack
 			oneOf(db).transactionWithResult(with(true),
 					withDbCallable(noAckIdTxn));
@@ -150,7 +152,6 @@ public class MailboxOutgoingSessionTest extends BrambleMockTestCase {
 					MAX_LATENCY, false);
 			will(returnValue(message1));
 			oneOf(recordWriter).writeMessage(message1);
-			oneOf(deferredSendHandler).onMessageSent(message1.getId());
 			// Send the end of stream marker
 			oneOf(streamWriter).sendEndOfStream();
 			// Remove listener
@@ -158,6 +159,11 @@ public class MailboxOutgoingSessionTest extends BrambleMockTestCase {
 		}});
 
 		session.run();
+
+		assertEquals(singletonList(message.getId()),
+				sessionRecord.getAckedIds());
+		assertEquals(singletonList(message1.getId()),
+				sessionRecord.getSentIds());
 	}
 
 	@Test
@@ -167,9 +173,10 @@ public class MailboxOutgoingSessionTest extends BrambleMockTestCase {
 		long capacity = RECORD_HEADER_BYTES + MessageId.LENGTH * MAX_MESSAGE_IDS
 				+ RECORD_HEADER_BYTES + MessageId.LENGTH + MessageId.LENGTH - 1;
 
+		OutgoingSessionRecord sessionRecord = new OutgoingSessionRecord();
 		MailboxOutgoingSession session = new MailboxOutgoingSession(db,
 				eventBus, contactId, transportId, MAX_LATENCY,
-				streamWriter, recordWriter, deferredSendHandler, capacity);
+				streamWriter, recordWriter, sessionRecord, capacity);
 
 		Transaction ackIdTxn1 = new Transaction(null, true);
 		Transaction ackIdTxn2 = new Transaction(null, true);
@@ -184,6 +191,9 @@ public class MailboxOutgoingSessionTest extends BrambleMockTestCase {
 		}
 		List<MessageId> idsInSecondAck =
 				singletonList(new MessageId(getRandomId()));
+		List<MessageId> allIds = new ArrayList<>(MAX_MESSAGE_IDS + 1);
+		allIds.addAll(idsInFirstAck);
+		allIds.addAll(idsInSecondAck);
 
 		context.checking(new DbExpectations() {{
 			// Add listener
@@ -200,7 +210,6 @@ public class MailboxOutgoingSessionTest extends BrambleMockTestCase {
 			will(returnValue(idsInFirstAck));
 			// Send the first ack record
 			oneOf(recordWriter).writeAck(with(any(Ack.class)));
-			oneOf(deferredSendHandler).onAckSent(idsInFirstAck);
 			// Calculate remaining capacity for acks
 			oneOf(recordWriter).getBytesWritten();
 			will(returnValue((long) versionRecordBytes + firstAckRecordBytes));
@@ -211,7 +220,6 @@ public class MailboxOutgoingSessionTest extends BrambleMockTestCase {
 			will(returnValue(idsInSecondAck));
 			// Send the second ack record
 			oneOf(recordWriter).writeAck(with(any(Ack.class)));
-			oneOf(deferredSendHandler).onAckSent(idsInSecondAck);
 			// Not enough capacity left for another ack
 			oneOf(recordWriter).getBytesWritten();
 			will(returnValue((long) versionRecordBytes + firstAckRecordBytes
@@ -227,5 +235,8 @@ public class MailboxOutgoingSessionTest extends BrambleMockTestCase {
 		}});
 
 		session.run();
+
+		assertEquals(allIds, sessionRecord.getAckedIds());
+		assertEquals(emptyList(), sessionRecord.getSentIds());
 	}
 }

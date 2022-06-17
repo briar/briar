@@ -342,12 +342,12 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 	}
 
 	@Override
-	public boolean containsAnythingToSend(Transaction transaction, ContactId c,
-			long maxLatency, boolean eager) throws DbException {
+	public boolean containsAcksToSend(Transaction transaction, ContactId c)
+			throws DbException {
 		T txn = unbox(transaction);
 		if (!db.containsContact(txn, c))
 			throw new NoSuchContactException();
-		return db.containsAnythingToSend(txn, c, maxLatency, eager);
+		return db.containsAcksToSend(txn, c);
 	}
 
 	@Override
@@ -371,6 +371,15 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 			throws DbException {
 		T txn = unbox(transaction);
 		return db.containsIdentity(txn, a);
+	}
+
+	@Override
+	public boolean containsMessagesToSend(Transaction transaction, ContactId c,
+			long maxLatency, boolean eager) throws DbException {
+		T txn = unbox(transaction);
+		if (!db.containsContact(txn, c))
+			throw new NoSuchContactException();
+		return db.containsMessagesToSend(txn, c, maxLatency, eager);
 	}
 
 	@Override
@@ -1016,7 +1025,8 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 				db.getGroupVisibility(txn, id).keySet();
 		db.removeGroup(txn, id);
 		transaction.attach(new GroupRemovedEvent(g));
-		transaction.attach(new GroupVisibilityUpdatedEvent(affected));
+		transaction.attach(new GroupVisibilityUpdatedEvent(INVISIBLE,
+				affected));
 	}
 
 	@Override
@@ -1141,7 +1151,7 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 		else if (v == INVISIBLE) db.removeGroupVisibility(txn, c, g);
 		else db.setGroupVisibility(txn, c, g, v == SHARED);
 		List<ContactId> affected = singletonList(c);
-		transaction.attach(new GroupVisibilityUpdatedEvent(affected));
+		transaction.attach(new GroupVisibilityUpdatedEvent(v, affected));
 	}
 
 	@Override

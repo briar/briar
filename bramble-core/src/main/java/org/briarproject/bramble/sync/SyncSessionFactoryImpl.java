@@ -6,6 +6,7 @@ import org.briarproject.bramble.api.db.DatabaseExecutor;
 import org.briarproject.bramble.api.event.EventBus;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.plugin.TransportId;
+import org.briarproject.bramble.api.sync.OutgoingSessionRecord;
 import org.briarproject.bramble.api.sync.Priority;
 import org.briarproject.bramble.api.sync.PriorityHandler;
 import org.briarproject.bramble.api.sync.SyncRecordReader;
@@ -24,6 +25,8 @@ import java.util.concurrent.Executor;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 import javax.inject.Inject;
+
+import static org.briarproject.bramble.api.mailbox.MailboxConstants.MAX_FILE_PAYLOAD_BYTES;
 
 @Immutable
 @NotNullByDefault
@@ -71,6 +74,18 @@ class SyncSessionFactoryImpl implements SyncSessionFactory {
 			return new SimplexOutgoingSession(db, eventBus, c, t,
 					maxLatency, streamWriter, recordWriter);
 		}
+	}
+
+	@Override
+	public SyncSession createSimplexOutgoingSession(ContactId c, TransportId t,
+			long maxLatency, StreamWriter streamWriter,
+			OutgoingSessionRecord sessionRecord) {
+		OutputStream out = streamWriter.getOutputStream();
+		SyncRecordWriter recordWriter =
+				recordWriterFactory.createRecordWriter(out);
+		return new MailboxOutgoingSession(db, eventBus, c, t, maxLatency,
+				streamWriter, recordWriter, sessionRecord,
+				MAX_FILE_PAYLOAD_BYTES);
 	}
 
 	@Override

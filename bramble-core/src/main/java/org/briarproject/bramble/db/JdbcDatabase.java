@@ -1147,8 +1147,8 @@ abstract class JdbcDatabase implements Database<Connection> {
 	}
 
 	@Override
-	public boolean containsAnythingToSend(Connection txn, ContactId c,
-			long maxLatency, boolean eager) throws DbException {
+	public boolean containsAcksToSend(Connection txn, ContactId c)
+			throws DbException {
 		PreparedStatement ps = null;
 		ResultSet rs = null;
 		try {
@@ -1160,34 +1160,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 			boolean acksToSend = rs.next();
 			rs.close();
 			ps.close();
-			if (acksToSend) return true;
-			if (eager) {
-				sql = "SELECT NULL from statuses"
-						+ " WHERE contactId = ? AND state = ?"
-						+ " AND groupShared = TRUE AND messageShared = TRUE"
-						+ " AND deleted = FALSE AND seen = FALSE";
-				ps = txn.prepareStatement(sql);
-				ps.setInt(1, c.getInt());
-				ps.setInt(2, DELIVERED.getValue());
-			} else {
-				long now = clock.currentTimeMillis();
-				sql = "SELECT NULL FROM statuses"
-						+ " WHERE contactId = ? AND state = ?"
-						+ " AND groupShared = TRUE AND messageShared = TRUE"
-						+ " AND deleted = FALSE AND seen = FALSE"
-						+ " AND (expiry <= ? OR maxLatency IS NULL"
-						+ " OR ? < maxLatency)";
-				ps = txn.prepareStatement(sql);
-				ps.setInt(1, c.getInt());
-				ps.setInt(2, DELIVERED.getValue());
-				ps.setLong(3, now);
-				ps.setLong(4, maxLatency);
-			}
-			rs = ps.executeQuery();
-			boolean messagesToSend = rs.next();
-			rs.close();
-			ps.close();
-			return messagesToSend;
+			return acksToSend;
 		} catch (SQLException e) {
 			tryToClose(rs, LOG, WARNING);
 			tryToClose(ps, LOG, WARNING);
@@ -1300,6 +1273,46 @@ abstract class JdbcDatabase implements Database<Connection> {
 			rs.close();
 			ps.close();
 			return found;
+		} catch (SQLException e) {
+			tryToClose(rs, LOG, WARNING);
+			tryToClose(ps, LOG, WARNING);
+			throw new DbException(e);
+		}
+	}
+
+	@Override
+	public boolean containsMessagesToSend(Connection txn, ContactId c,
+			long maxLatency, boolean eager) throws DbException {
+		PreparedStatement ps = null;
+		ResultSet rs = null;
+		try {
+			if (eager) {
+				String sql = "SELECT NULL from statuses"
+						+ " WHERE contactId = ? AND state = ?"
+						+ " AND groupShared = TRUE AND messageShared = TRUE"
+						+ " AND deleted = FALSE AND seen = FALSE";
+				ps = txn.prepareStatement(sql);
+				ps.setInt(1, c.getInt());
+				ps.setInt(2, DELIVERED.getValue());
+			} else {
+				long now = clock.currentTimeMillis();
+				String sql = "SELECT NULL FROM statuses"
+						+ " WHERE contactId = ? AND state = ?"
+						+ " AND groupShared = TRUE AND messageShared = TRUE"
+						+ " AND deleted = FALSE AND seen = FALSE"
+						+ " AND (expiry <= ? OR maxLatency IS NULL"
+						+ " OR ? < maxLatency)";
+				ps = txn.prepareStatement(sql);
+				ps.setInt(1, c.getInt());
+				ps.setInt(2, DELIVERED.getValue());
+				ps.setLong(3, now);
+				ps.setLong(4, maxLatency);
+			}
+			rs = ps.executeQuery();
+			boolean messagesToSend = rs.next();
+			rs.close();
+			ps.close();
+			return messagesToSend;
 		} catch (SQLException e) {
 			tryToClose(rs, LOG, WARNING);
 			tryToClose(ps, LOG, WARNING);
