@@ -5,7 +5,6 @@ import org.briarproject.bramble.api.mailbox.MailboxFolderId;
 import org.briarproject.bramble.api.mailbox.MailboxProperties;
 import org.briarproject.bramble.test.BrambleMockTestCase;
 import org.jmock.Expectations;
-import org.junit.Before;
 import org.junit.Test;
 
 import static org.briarproject.bramble.api.mailbox.MailboxConstants.CLIENT_SUPPORTS;
@@ -34,13 +33,9 @@ public class ContactMailboxClientTest extends BrambleMockTestCase {
 			requireNonNull(properties.getOutboxId());
 	private final ContactId contactId = getContactId();
 
-	private ContactMailboxClient client;
-
-	@Before
-	public void setUp() {
-		client = new ContactMailboxClient(workerFactory, connectivityChecker,
-				reachabilityMonitor);
-	}
+	private final ContactMailboxClient client =
+			new ContactMailboxClient(workerFactory, connectivityChecker,
+					reachabilityMonitor);
 
 	@Test
 	public void testStartAndDestroyWithNoContactsAssigned() {

@@ -12,7 +12,6 @@ import org.briarproject.bramble.test.BrambleMockTestCase;
 import org.briarproject.bramble.test.CaptureArgumentAction;
 import org.jmock.Expectations;
 import org.jmock.lib.action.DoAllAction;
-import org.junit.Before;
 import org.junit.Test;
 
 import java.util.concurrent.Executor;
@@ -38,13 +37,9 @@ public class TorReachabilityMonitorImplTest extends BrambleMockTestCase {
 	private final TorReachabilityObserver observer =
 			context.mock(TorReachabilityObserver.class);
 
-	private TorReachabilityMonitorImpl monitor;
-
-	@Before
-	public void setUp() {
-		monitor = new TorReachabilityMonitorImpl(ioExecutor, taskScheduler,
-				pluginManager, eventBus);
-	}
+	private final TorReachabilityMonitorImpl monitor =
+			new TorReachabilityMonitorImpl(ioExecutor, taskScheduler,
+					pluginManager, eventBus);
 
 	@Test
 	public void testSchedulesTaskWhenStartedIfTorIsActive() {

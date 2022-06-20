@@ -17,7 +17,6 @@ import org.briarproject.bramble.api.identity.LocalAuthor;
 import org.briarproject.bramble.api.transport.KeyManager;
 import org.briarproject.bramble.test.BrambleMockTestCase;
 import org.briarproject.bramble.test.DbExpectations;
-import org.junit.Before;
 import org.junit.Test;
 
 import java.util.Collection;
@@ -63,13 +62,9 @@ public class ContactManagerImplTest extends BrambleMockTestCase {
 	private final long timestamp = System.currentTimeMillis();
 	private final boolean alice = new Random().nextBoolean();
 
-	private ContactManagerImpl contactManager;
-
-	@Before
-	public void setUp() {
-		contactManager = new ContactManagerImpl(db, keyManager,
-				identityManager, pendingContactFactory);
-	}
+	private final ContactManagerImpl contactManager =
+			new ContactManagerImpl(db, keyManager, identityManager,
+					pendingContactFactory);
 
 	@Test
 	public void testAddContact() throws Exception {

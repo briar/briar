@@ -34,7 +34,6 @@ import org.briarproject.bramble.test.DbExpectations;
 import org.briarproject.bramble.test.ImmediateExecutor;
 import org.briarproject.bramble.test.PredicateMatcher;
 import org.jmock.Expectations;
-import org.junit.Before;
 import org.junit.Test;
 
 import java.util.Random;
@@ -93,14 +92,10 @@ public class RendezvousPollerImplTest extends BrambleMockTestCase {
 			getTransportProperties(3);
 	private final boolean alice = new Random().nextBoolean();
 
-	private RendezvousPollerImpl rendezvousPoller;
-
-	@Before
-	public void setUp() {
-		rendezvousPoller = new RendezvousPollerImpl(ioExecutor, scheduler, db,
-				identityManager, transportCrypto, rendezvousCrypto,
-				pluginManager, connectionManager, eventBus, clock);
-	}
+	private final RendezvousPollerImpl rendezvousPoller =
+			new RendezvousPollerImpl(ioExecutor, scheduler, db,
+					identityManager, transportCrypto, rendezvousCrypto,
+					pluginManager, connectionManager, eventBus, clock);
 
 	@Test
 	public void testAddsPendingContactsAndSchedulesPollingAtStartup()

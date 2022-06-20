@@ -2,7 +2,6 @@ package org.briarproject.bramble.data;
 
 import org.briarproject.bramble.test.BrambleTestCase;
 import org.briarproject.bramble.util.StringUtils;
-import org.junit.Before;
 import org.junit.Test;
 
 import java.io.ByteArrayOutputStream;
@@ -17,14 +16,8 @@ import static org.junit.Assert.assertArrayEquals;
 
 public class BdfWriterImplTest extends BrambleTestCase {
 
-	private ByteArrayOutputStream out = null;
-	private BdfWriterImpl w = null;
-
-	@Before
-	public void setUp() {
-		out = new ByteArrayOutputStream();
-		w = new BdfWriterImpl(out);
-	}
+	private final ByteArrayOutputStream out = new ByteArrayOutputStream();
+	private final BdfWriterImpl w = new BdfWriterImpl(out);
 
 	@Test
 	public void testWriteNull() throws IOException {

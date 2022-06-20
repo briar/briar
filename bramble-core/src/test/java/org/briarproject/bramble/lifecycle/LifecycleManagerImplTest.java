@@ -10,7 +10,6 @@ import org.briarproject.bramble.api.system.Clock;
 import org.briarproject.bramble.test.BrambleMockTestCase;
 import org.briarproject.bramble.test.DbExpectations;
 import org.jmock.Expectations;
-import org.junit.Before;
 import org.junit.Test;
 
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -34,12 +33,8 @@ public class LifecycleManagerImplTest extends BrambleMockTestCase {
 
 	private final SecretKey dbKey = getSecretKey();
 
-	private LifecycleManagerImpl lifecycleManager;
-
-	@Before
-	public void setUp() {
-		lifecycleManager = new LifecycleManagerImpl(db, eventBus, clock);
-	}
+	private final LifecycleManagerImpl lifecycleManager =
+			new LifecycleManagerImpl(db, eventBus, clock);
 
 	@Test
 	public void testOpenDatabaseHooksAreCalledAtStartup() throws Exception {
