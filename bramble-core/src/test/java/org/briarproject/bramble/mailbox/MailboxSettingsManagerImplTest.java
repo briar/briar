@@ -163,7 +163,7 @@ public class MailboxSettingsManagerImplTest extends BrambleMockTestCase {
 		}});
 
 		manager.recordSuccessfulConnection(txn, now);
-		hasEvent(txn, OwnMailboxConnectionStatusEvent.class);
+		assertTrue(hasEvent(txn, OwnMailboxConnectionStatusEvent.class));
 	}
 
 	@Test

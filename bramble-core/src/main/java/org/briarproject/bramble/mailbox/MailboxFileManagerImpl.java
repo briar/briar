@@ -1,6 +1,7 @@
 package org.briarproject.bramble.mailbox;
 
 import org.briarproject.bramble.api.connection.ConnectionManager;
+import org.briarproject.bramble.api.contact.ContactId;
 import org.briarproject.bramble.api.event.Event;
 import org.briarproject.bramble.api.event.EventBus;
 import org.briarproject.bramble.api.event.EventListener;
@@ -10,13 +11,18 @@ import org.briarproject.bramble.api.mailbox.MailboxDirectory;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.plugin.PluginManager;
 import org.briarproject.bramble.api.plugin.TransportConnectionReader;
+import org.briarproject.bramble.api.plugin.TransportConnectionWriter;
 import org.briarproject.bramble.api.plugin.event.TransportActiveEvent;
 import org.briarproject.bramble.api.plugin.simplex.SimplexPlugin;
 import org.briarproject.bramble.api.properties.TransportProperties;
+import org.briarproject.bramble.api.sync.OutgoingSessionRecord;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executor;
 import java.util.logging.Logger;
@@ -30,6 +36,7 @@ import static org.briarproject.bramble.api.lifecycle.LifecycleManager.LifecycleS
 import static org.briarproject.bramble.api.mailbox.MailboxConstants.ID;
 import static org.briarproject.bramble.api.nullsafety.NullSafety.requireNonNull;
 import static org.briarproject.bramble.api.plugin.file.FileConstants.PROP_PATH;
+import static org.briarproject.bramble.util.IoUtils.delete;
 import static org.briarproject.bramble.util.LogUtils.logException;
 
 @ThreadSafe
@@ -41,6 +48,7 @@ class MailboxFileManagerImpl implements MailboxFileManager, EventListener {
 
 	// Package access for testing
 	static final String DOWNLOAD_DIR_NAME = "downloads";
+	static final String UPLOAD_DIR_NAME = "uploads";
 
 	private final Executor ioExecutor;
 	private final PluginManager pluginManager;
@@ -67,14 +75,44 @@ class MailboxFileManagerImpl implements MailboxFileManager, EventListener {
 
 	@Override
 	public File createTempFileForDownload() throws IOException {
+		return createTempFile(DOWNLOAD_DIR_NAME);
+	}
+
+	@Override
+	public File createAndWriteTempFileForUpload(ContactId contactId,
+			OutgoingSessionRecord sessionRecord) throws IOException {
+		File f = createTempFile(UPLOAD_DIR_NAME);
+		// We shouldn't reach this point until the plugin has been started
+		SimplexPlugin plugin =
+				(SimplexPlugin) requireNonNull(pluginManager.getPlugin(ID));
+		TransportProperties p = new TransportProperties();
+		p.put(PROP_PATH, f.getAbsolutePath());
+		TransportConnectionWriter writer = plugin.createWriter(p);
+		if (writer == null) {
+			delete(f);
+			throw new IOException();
+		}
+		MailboxFileWriter decorated = new MailboxFileWriter(writer);
+		LOG.info("Writing file for upload");
+		connectionManager.manageOutgoingConnection(contactId, ID, decorated,
+				sessionRecord);
+		if (decorated.awaitDisposal()) {
+			// An exception was thrown during the session - delete the file
+			delete(f);
+			throw new IOException();
+		}
+		return f;
+	}
+
+	private File createTempFile(String dirName) throws IOException {
 		// Wait for orphaned files to be handled before creating new files
 		try {
 			orphanLatch.await();
 		} catch (InterruptedException e) {
 			throw new IOException(e);
 		}
-		File downloadDir = createDirectoryIfNeeded(DOWNLOAD_DIR_NAME);
-		return File.createTempFile("mailbox", ".tmp", downloadDir);
+		File dir = createDirectoryIfNeeded(dirName);
+		return File.createTempFile("mailbox", ".tmp", dir);
 	}
 
 	private File createDirectoryIfNeeded(String name) throws IOException {
@@ -116,6 +154,8 @@ class MailboxFileManagerImpl implements MailboxFileManager, EventListener {
 
 	@Override
 	public void eventOccurred(Event e) {
+		// Wait for the transport to become active before handling orphaned
+		// files so that we can get the plugin from the plugin manager
 		if (e instanceof TransportActiveEvent) {
 			TransportActiveEvent t = (TransportActiveEvent) e;
 			if (t.getTransportId().equals(ID)) {
@@ -127,17 +167,25 @@ class MailboxFileManagerImpl implements MailboxFileManager, EventListener {
 
 	/**
 	 * This method is called at startup, as soon as the plugin is started, to
-	 * handle any files that were left in the download directory at the last
-	 * shutdown.
+	 * delete any files that were left in the upload directory at the last
+	 * shutdown and handle any files that were left in the download directory.
 	 */
 	@IoExecutor
 	private void handleOrphanedFiles() {
 		try {
+			File uploadDir = createDirectoryIfNeeded(UPLOAD_DIR_NAME);
+			File[] orphanedUploads = uploadDir.listFiles();
+			if (orphanedUploads != null) {
+				for (File f : orphanedUploads) delete(f);
+			}
 			File downloadDir = createDirectoryIfNeeded(DOWNLOAD_DIR_NAME);
-			File[] orphans = downloadDir.listFiles();
-			// Now that we've got the list of orphans, new files can be created
+			File[] orphanedDownloads = downloadDir.listFiles();
+			// Now that we've got the list of orphaned downloads, new files
+			// can be created in the download directory
 			orphanLatch.countDown();
-			if (orphans != null) for (File f : orphans) handleDownloadedFile(f);
+			if (orphanedDownloads != null) {
+				for (File f : orphanedDownloads) handleDownloadedFile(f);
+			}
 		} catch (IOException e) {
 			logException(LOG, WARNING, e);
 		}
@@ -165,9 +213,58 @@ class MailboxFileManagerImpl implements MailboxFileManager, EventListener {
 			delegate.dispose(exception, recognised);
 			if (isHandlingComplete(exception, recognised)) {
 				LOG.info("Deleting downloaded file");
-				if (!file.delete()) {
-					LOG.warning("Failed to delete downloaded file");
-				}
+				delete(file);
+			}
+		}
+	}
+
+	private static class MailboxFileWriter
+			implements TransportConnectionWriter {
+
+		private final TransportConnectionWriter delegate;
+		private final BlockingQueue<Boolean> disposalResult =
+				new ArrayBlockingQueue<>(1);
+
+		private MailboxFileWriter(TransportConnectionWriter delegate) {
+			this.delegate = delegate;
+		}
+
+		@Override
+		public long getMaxLatency() {
+			return delegate.getMaxLatency();
+		}
+
+		@Override
+		public int getMaxIdleTime() {
+			return delegate.getMaxIdleTime();
+		}
+
+		@Override
+		public boolean isLossyAndCheap() {
+			return delegate.isLossyAndCheap();
+		}
+
+		@Override
+		public OutputStream getOutputStream() throws IOException {
+			return delegate.getOutputStream();
+		}
+
+		@Override
+		public void dispose(boolean exception) throws IOException {
+			delegate.dispose(exception);
+			disposalResult.add(exception);
+		}
+
+		/**
+		 * Waits for the delegate to be disposed and returns true if an
+		 * exception occurred.
+		 */
+		private boolean awaitDisposal() {
+			try {
+				return disposalResult.take();
+			} catch (InterruptedException e) {
+				LOG.info("Interrupted while waiting for disposal");
+				return true;
 			}
 		}
 	}

@@ -40,7 +40,7 @@ public class IoUtils {
 		}
 	}
 
-	private static void delete(File f) {
+	public static void delete(File f) {
 		if (!f.delete() && LOG.isLoggable(WARNING))
 			LOG.warning("Could not delete " + f.getAbsolutePath());
 	}
