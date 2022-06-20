@@ -52,6 +52,7 @@ public class MailboxModule {
 	}
 
 	@Provides
+	@Singleton
 	MailboxSettingsManager provideMailboxSettingsManager(
 			MailboxSettingsManagerImpl mailboxSettingsManager) {
 		return mailboxSettingsManager;

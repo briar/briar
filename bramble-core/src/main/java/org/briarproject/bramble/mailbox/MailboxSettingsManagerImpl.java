@@ -20,13 +20,13 @@ import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import javax.annotation.Nullable;
-import javax.annotation.concurrent.Immutable;
+import javax.annotation.concurrent.ThreadSafe;
 import javax.inject.Inject;
 
 import static java.util.Collections.emptyList;
 import static org.briarproject.bramble.util.StringUtils.isNullOrEmpty;
 
-@Immutable
+@ThreadSafe
 @NotNullByDefault
 class MailboxSettingsManagerImpl implements MailboxSettingsManager {
 
