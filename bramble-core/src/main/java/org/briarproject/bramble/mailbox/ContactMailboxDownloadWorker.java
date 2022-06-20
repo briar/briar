@@ -90,7 +90,7 @@ class ContactMailboxDownloadWorker implements MailboxWorker,
 		LOG.info("Started");
 		synchronized (lock) {
 			// Don't allow the worker to be reused
-			if (state != State.CREATED) throw new IllegalStateException();
+			if (state != State.CREATED) return;
 			state = State.CONNECTIVITY_CHECK;
 		}
 		// Avoid leaking observer in case destroy() is called concurrently
