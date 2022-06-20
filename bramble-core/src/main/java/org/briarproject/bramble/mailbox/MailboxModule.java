@@ -115,4 +115,10 @@ public class MailboxModule {
 		}
 		return mailboxFileManager;
 	}
+
+	@Provides
+	MailboxWorkerFactory provideMailboxWorkerFactory(
+			MailboxWorkerFactoryImpl mailboxWorkerFactory) {
+		return mailboxWorkerFactory;
+	}
 }
