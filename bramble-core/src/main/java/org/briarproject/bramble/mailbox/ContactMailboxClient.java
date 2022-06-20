@@ -5,14 +5,21 @@ import org.briarproject.bramble.api.mailbox.MailboxFolderId;
 import org.briarproject.bramble.api.mailbox.MailboxProperties;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 
+import java.util.logging.Logger;
+
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;
 import javax.inject.Inject;
 
+import static java.util.logging.Logger.getLogger;
+
 @ThreadSafe
 @NotNullByDefault
 class ContactMailboxClient implements MailboxClient {
+
+	private static final Logger LOG =
+			getLogger(ContactMailboxClient.class.getName());
 
 	private final MailboxWorkerFactory workerFactory;
 	private final ConnectivityChecker connectivityChecker;
@@ -34,11 +41,13 @@ class ContactMailboxClient implements MailboxClient {
 
 	@Override
 	public void start() {
+		LOG.info("Started");
 		// Nothing to do until contact is assigned
 	}
 
 	@Override
 	public void destroy() {
+		LOG.info("Destroyed");
 		MailboxWorker uploadWorker, downloadWorker;
 		synchronized (lock) {
 			uploadWorker = this.uploadWorker;
@@ -53,6 +62,7 @@ class ContactMailboxClient implements MailboxClient {
 	@Override
 	public void assignContactForUpload(ContactId contactId,
 			MailboxProperties properties, MailboxFolderId folderId) {
+		LOG.info("Contact assigned for upload");
 		if (properties.isOwner()) throw new IllegalArgumentException();
 		// For a contact's mailbox we should always be uploading to the outbox
 		// assigned to us by the contact
@@ -70,6 +80,7 @@ class ContactMailboxClient implements MailboxClient {
 
 	@Override
 	public void deassignContactForUpload(ContactId contactId) {
+		LOG.info("Contact deassigned for upload");
 		MailboxWorker uploadWorker;
 		synchronized (lock) {
 			uploadWorker = this.uploadWorker;
@@ -81,6 +92,7 @@ class ContactMailboxClient implements MailboxClient {
 	@Override
 	public void assignContactForDownload(ContactId contactId,
 			MailboxProperties properties, MailboxFolderId folderId) {
+		LOG.info("Contact assigned for download");
 		if (properties.isOwner()) throw new IllegalArgumentException();
 		// For a contact's mailbox we should always be downloading from the
 		// inbox assigned to us by the contact
@@ -99,6 +111,7 @@ class ContactMailboxClient implements MailboxClient {
 
 	@Override
 	public void deassignContactForDownload(ContactId contactId) {
+		LOG.info("Contact deassigned for download");
 		MailboxWorker downloadWorker;
 		synchronized (lock) {
 			downloadWorker = this.downloadWorker;
