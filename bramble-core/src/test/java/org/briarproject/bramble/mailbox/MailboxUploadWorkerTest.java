@@ -94,10 +94,7 @@ public class MailboxUploadWorkerTest extends BrambleMockTestCase {
 	public void testChecksForDataWhenStartedAndRemovesObserverWhenDestroyed()
 			throws Exception {
 		// When the worker is started it should check for data to send
-		context.checking(new DbExpectations() {{
-			oneOf(ioExecutor).execute(with(any(Runnable.class)));
-			will(new RunAction());
-		}});
+		expectRunTaskOnIoExecutor();
 		expectCheckForDataToSendNoDataWaiting();
 
 		worker.start();
@@ -117,10 +114,7 @@ public class MailboxUploadWorkerTest extends BrambleMockTestCase {
 		// When the worker is started it should check for data to send. As
 		// there's data ready to send immediately, the worker should start a
 		// connectivity check
-		context.checking(new DbExpectations() {{
-			oneOf(ioExecutor).execute(with(any(Runnable.class)));
-			will(new RunAction());
-		}});
+		expectRunTaskOnIoExecutor();
 		expectCheckForDataToSendAndStartConnectivityCheck();
 
 		worker.start();
@@ -131,10 +125,9 @@ public class MailboxUploadWorkerTest extends BrambleMockTestCase {
 
 		// When the connectivity check succeeds, the worker should write a file
 		// and start an upload task
+		expectRunTaskOnIoExecutor();
 		AtomicReference<ApiCall> upload = new AtomicReference<>();
 		context.checking(new Expectations() {{
-			oneOf(ioExecutor).execute(with(any(Runnable.class)));
-			will(new RunAction());
 			oneOf(mailboxFileManager).createAndWriteTempFileForUpload(
 					with(contactId), with(any(OutgoingSessionRecord.class)));
 			will(new DoAllAction(
@@ -183,10 +176,7 @@ public class MailboxUploadWorkerTest extends BrambleMockTestCase {
 		// When the worker is started it should check for data to send. As
 		// there's data ready to send immediately, the worker should start a
 		// connectivity check
-		context.checking(new DbExpectations() {{
-			oneOf(ioExecutor).execute(with(any(Runnable.class)));
-			will(new RunAction());
-		}});
+		expectRunTaskOnIoExecutor();
 		expectCheckForDataToSendAndStartConnectivityCheck();
 
 		worker.start();
@@ -197,10 +187,9 @@ public class MailboxUploadWorkerTest extends BrambleMockTestCase {
 
 		// When the connectivity check succeeds, the worker should write a file
 		// and start an upload task
+		expectRunTaskOnIoExecutor();
 		AtomicReference<ApiCall> upload = new AtomicReference<>();
 		context.checking(new Expectations() {{
-			oneOf(ioExecutor).execute(with(any(Runnable.class)));
-			will(new RunAction());
 			oneOf(mailboxFileManager).createAndWriteTempFileForUpload(
 					with(contactId), with(any(OutgoingSessionRecord.class)));
 			will(new DoAllAction(
@@ -244,11 +233,8 @@ public class MailboxUploadWorkerTest extends BrambleMockTestCase {
 		// When the worker is started it should check for data to send. As
 		// the data isn't ready to send immediately, the worker should
 		// schedule a wakeup
+		expectRunTaskOnIoExecutor();
 		AtomicReference<Runnable> wakeup = new AtomicReference<>();
-		context.checking(new DbExpectations() {{
-			oneOf(ioExecutor).execute(with(any(Runnable.class)));
-			will(new RunAction());
-		}});
 		expectCheckForDataToSendAndScheduleWakeup(wakeup);
 
 		worker.start();
@@ -270,11 +256,8 @@ public class MailboxUploadWorkerTest extends BrambleMockTestCase {
 		// When the worker is started it should check for data to send. As
 		// the data isn't ready to send immediately, the worker should
 		// schedule a wakeup
+		expectRunTaskOnIoExecutor();
 		AtomicReference<Runnable> wakeup = new AtomicReference<>();
-		context.checking(new DbExpectations() {{
-			oneOf(ioExecutor).execute(with(any(Runnable.class)));
-			will(new RunAction());
-		}});
 		expectCheckForDataToSendAndScheduleWakeup(wakeup);
 
 		worker.start();
@@ -299,11 +282,8 @@ public class MailboxUploadWorkerTest extends BrambleMockTestCase {
 		// When the worker is started it should check for data to send. As
 		// the data isn't ready to send immediately, the worker should
 		// schedule a wakeup
+		expectRunTaskOnIoExecutor();
 		AtomicReference<Runnable> wakeup = new AtomicReference<>();
-		context.checking(new DbExpectations() {{
-			oneOf(ioExecutor).execute(with(any(Runnable.class)));
-			will(new RunAction());
-		}});
 		expectCheckForDataToSendAndScheduleWakeup(wakeup);
 
 		worker.start();
@@ -343,10 +323,7 @@ public class MailboxUploadWorkerTest extends BrambleMockTestCase {
 	@Test
 	public void testCancelsCheckWhenDestroyed() throws Exception {
 		// When the worker is started it should check for data to send
-		context.checking(new DbExpectations() {{
-			oneOf(ioExecutor).execute(with(any(Runnable.class)));
-			will(new RunAction());
-		}});
+		expectRunTaskOnIoExecutor();
 		expectCheckForDataToSendNoDataWaiting();
 
 		worker.start();
@@ -379,10 +356,7 @@ public class MailboxUploadWorkerTest extends BrambleMockTestCase {
 		// When the worker is started it should check for data to send. As
 		// there's data ready to send immediately, the worker should start a
 		// connectivity check
-		context.checking(new DbExpectations() {{
-			oneOf(ioExecutor).execute(with(any(Runnable.class)));
-			will(new RunAction());
-		}});
+		expectRunTaskOnIoExecutor();
 		expectCheckForDataToSendAndStartConnectivityCheck();
 
 		worker.start();
@@ -390,10 +364,9 @@ public class MailboxUploadWorkerTest extends BrambleMockTestCase {
 		// When the connectivity check succeeds, the worker should try to
 		// write a file. This fails with an exception, so the worker should
 		// retry by scheduling a check for new data after a short delay
+		expectRunTaskOnIoExecutor();
 		AtomicReference<Runnable> check = new AtomicReference<>();
 		context.checking(new Expectations() {{
-			oneOf(ioExecutor).execute(with(any(Runnable.class)));
-			will(new RunAction());
 			oneOf(mailboxFileManager).createAndWriteTempFileForUpload(
 					with(contactId), with(any(OutgoingSessionRecord.class)));
 			will(throwException(new IOException())); // Oh noes!
@@ -412,6 +385,13 @@ public class MailboxUploadWorkerTest extends BrambleMockTestCase {
 		expectRemoveObserverAndListener();
 
 		worker.destroy();
+	}
+
+	private void expectRunTaskOnIoExecutor() {
+		context.checking(new Expectations() {{
+			oneOf(ioExecutor).execute(with(any(Runnable.class)));
+			will(new RunAction());
+		}});
 	}
 
 	private void expectCheckForDataToSendNoDataWaiting() throws Exception {

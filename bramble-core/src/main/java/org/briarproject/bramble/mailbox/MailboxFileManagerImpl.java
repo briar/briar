@@ -176,11 +176,7 @@ class MailboxFileManagerImpl implements MailboxFileManager, EventListener {
 			File uploadDir = createDirectoryIfNeeded(UPLOAD_DIR_NAME);
 			File[] orphanedUploads = uploadDir.listFiles();
 			if (orphanedUploads != null) {
-				for (File f : orphanedUploads) {
-					if (!f.delete()) {
-						LOG.warning("Failed to delete orphaned upload");
-					}
-				}
+				for (File f : orphanedUploads) delete(f);
 			}
 			File downloadDir = createDirectoryIfNeeded(DOWNLOAD_DIR_NAME);
 			File[] orphanedDownloads = downloadDir.listFiles();
@@ -217,9 +213,7 @@ class MailboxFileManagerImpl implements MailboxFileManager, EventListener {
 			delegate.dispose(exception, recognised);
 			if (isHandlingComplete(exception, recognised)) {
 				LOG.info("Deleting downloaded file");
-				if (!file.delete()) {
-					LOG.warning("Failed to delete downloaded file");
-				}
+				delete(file);
 			}
 		}
 	}
