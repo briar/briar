@@ -90,6 +90,9 @@ class OwnMailboxContactListWorker
 	@Nullable
 	private Cancellable apiCall = null;
 
+	/**
+	 * A queue of updates waiting to be applied to the remote contact list.
+	 */
 	@GuardedBy("lock")
 	private final Queue<Update> updates = new LinkedList<>();
 
@@ -101,6 +104,7 @@ class OwnMailboxContactListWorker
 			MailboxApi mailboxApi,
 			MailboxUpdateManager mailboxUpdateManager,
 			MailboxProperties mailboxProperties) {
+		if (!mailboxProperties.isOwner()) throw new IllegalArgumentException();
 		this.ioExecutor = ioExecutor;
 		this.db = db;
 		this.connectivityChecker = connectivityChecker;
@@ -290,12 +294,17 @@ class OwnMailboxContactListWorker
 
 	@IoExecutor
 	private void apiCallRemoveContact(ContactId c)
-			throws IOException, ApiException, TolerableFailureException {
+			throws IOException, ApiException {
 		synchronized (lock) {
 			if (state != State.UPDATING_CONTACT_LIST) return;
 		}
 		LOG.info("Removing contact from remote contact list");
-		mailboxApi.deleteContact(mailboxProperties, c);
+		try {
+			mailboxApi.deleteContact(mailboxProperties, c);
+		} catch (TolerableFailureException e) {
+			// Catch this so we can continue to the next update
+			logException(LOG, INFO, e);
+		}
 		updateContactList();
 	}
 
@@ -319,6 +328,7 @@ class OwnMailboxContactListWorker
 			}
 			updates.add(new Update(true, c));
 			if (state == State.WAITING_FOR_CHANGES) {
+				state = State.UPDATING_CONTACT_LIST;
 				ioExecutor.execute(this::updateContactList);
 			}
 		}
@@ -333,13 +343,21 @@ class OwnMailboxContactListWorker
 			}
 			updates.add(new Update(false, c));
 			if (state == State.WAITING_FOR_CHANGES) {
+				state = State.UPDATING_CONTACT_LIST;
 				ioExecutor.execute(this::updateContactList);
 			}
 		}
 	}
 
+	/**
+	 * An update that should be applied to the remote contact list.
+	 */
 	private static class Update {
 
+		/**
+		 * True if the contact should be added, false if the contact should be
+		 * removed.
+		 */
 		private final boolean add;
 		private final ContactId contactId;
 
