@@ -109,12 +109,18 @@ public class MailboxActivity extends BriarActivity {
 	}
 
 	private void onShowDownload() {
+		boolean needToShow = true;
 		FragmentManager fm = getSupportFragmentManager();
+		// if the fragment is already on the back stack, pop back to it
+		// instead of adding it to the stack again
 		if (fm.findFragmentByTag(SetupDownloadFragment.TAG) != null) {
-			// if the fragment is already on the back stack, pop back to it
-			// instead of adding it to the stack again
-			fm.popBackStackImmediate(SetupDownloadFragment.TAG, 0);
-		} else {
+			// if the activity was previously destroyed, the fragment is still
+			// found, but popping back to it won't work, so we need to handle
+			// this case and show the fragment again anyway.
+			needToShow =
+					!fm.popBackStackImmediate(SetupDownloadFragment.TAG, 0);
+		}
+		if (needToShow) {
 			showFragment(fm, new SetupDownloadFragment(),
 					SetupDownloadFragment.TAG);
 		}
