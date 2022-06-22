@@ -63,6 +63,8 @@ public class MailboxStatusFragment extends Fragment {
 	private Button wizardButton;
 	private Button unlinkButton;
 	private ProgressBar unlinkProgress;
+	@Nullable
+	private AlertDialog dialog = null;
 
 	@Override
 	public void onAttach(Context context) {
@@ -127,6 +129,15 @@ public class MailboxStatusFragment extends Fragment {
 		super.onStop();
 		handler.removeCallbacks(refresher);
 		refresher = null;
+	}
+
+	@Override
+	public void onDetach() {
+		super.onDetach();
+		if (dialog != null) {
+			dialog.dismiss();
+			dialog = null;
+		}
 	}
 
 	private void onMailboxStateChanged(MailboxStatus status) {
@@ -222,7 +233,9 @@ public class MailboxStatusFragment extends Fragment {
 					unlinkProgress.setVisibility(VISIBLE);
 					viewModel.unlink();
 				});
-		builder.show();
+		builder.setOnDismissListener(dialog ->
+				MailboxStatusFragment.this.dialog = null);
+		dialog = builder.show();
 	}
 
 }
