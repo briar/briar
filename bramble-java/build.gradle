@@ -18,7 +18,9 @@ dependencies {
 	implementation "net.java.dev.jna:jna:$jna_version"
 	implementation "net.java.dev.jna:jna-platform:$jna_version"
 	tor "org.briarproject:tor-linux:$tor_version"
+	tor "org.briarproject:tor-windows:$tor_version"
 	tor "org.briarproject:obfs4proxy-linux:$obfs4proxy_version"
+	tor "org.briarproject:obfs4proxy-windows:$obfs4proxy_version"
 
 	annotationProcessor "com.google.dagger:dagger-compiler:$dagger_version"
 

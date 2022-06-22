@@ -16,9 +16,7 @@ public class DesktopSecureRandomModule {
 	@Provides
 	@Singleton
 	SecureRandomProvider provideSecureRandomProvider() {
-		if (isLinux() || isMac())
-			return new UnixSecureRandomProvider();
-		// TODO: Create a secure random provider for Windows
-		throw new UnsupportedOperationException();
+		if (isLinux() || isMac()) return new UnixSecureRandomProvider();
+		return () -> null; // Use system default
 	}
 }

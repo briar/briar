@@ -21,6 +21,7 @@ import org.briarproject.bramble.event.DefaultEventExecutorModule
 import org.briarproject.bramble.network.JavaNetworkModule
 import org.briarproject.bramble.plugin.tor.CircumventionModule
 import org.briarproject.bramble.plugin.tor.UnixTorPluginFactory
+import org.briarproject.bramble.plugin.tor.WindowsTorPluginFactory
 import org.briarproject.bramble.socks.SocksModule
 import org.briarproject.bramble.system.ClockModule
 import org.briarproject.bramble.system.DefaultTaskSchedulerModule
@@ -29,6 +30,7 @@ import org.briarproject.bramble.system.DesktopSecureRandomModule
 import org.briarproject.bramble.system.JavaSystemModule
 import org.briarproject.bramble.util.OsUtils.isLinux
 import org.briarproject.bramble.util.OsUtils.isMac
+import org.briarproject.bramble.util.OsUtils.isWindows
 import org.briarproject.briar.headless.blogs.HeadlessBlogModule
 import org.briarproject.briar.headless.contact.HeadlessContactModule
 import org.briarproject.briar.headless.event.HeadlessEventModule
@@ -94,9 +96,15 @@ internal class HeadlessModule(private val appDir: File) {
 
     @Provides
     @Singleton
-    internal fun providePluginConfig(tor: UnixTorPluginFactory): PluginConfig {
-        val duplex: List<DuplexPluginFactory> =
-            if (isLinux() || isMac()) listOf(tor) else emptyList()
+    internal fun providePluginConfig(
+        unixTor: UnixTorPluginFactory,
+        winTor: WindowsTorPluginFactory
+    ): PluginConfig {
+        val duplex: List<DuplexPluginFactory> = when {
+            isLinux() || isMac() -> listOf(unixTor)
+            isWindows() -> listOf(winTor)
+            else -> emptyList()
+        }
         return object : PluginConfig {
             override fun getDuplexFactories(): Collection<DuplexPluginFactory> = duplex
             override fun getSimplexFactories(): Collection<SimplexPluginFactory> = emptyList()
