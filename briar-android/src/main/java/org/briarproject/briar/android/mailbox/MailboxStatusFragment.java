@@ -216,7 +216,8 @@ public class MailboxStatusFragment extends Fragment {
 				(dialog, which) -> dialog.cancel());
 		builder.setNegativeButton(R.string.mailbox_status_unlink_button,
 				(dialog, which) -> {
-					beginDelayedTransition((ViewGroup) requireView());
+					ViewGroup v = (ViewGroup) getView();
+					if (v != null) beginDelayedTransition(v);
 					unlinkButton.setVisibility(INVISIBLE);
 					unlinkProgress.setVisibility(VISIBLE);
 					viewModel.unlink();
