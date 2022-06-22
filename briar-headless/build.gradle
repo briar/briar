@@ -45,6 +45,7 @@ dependencies {
 }
 
 void jarFactory(Jar jarTask, jarArchitecture) {
+	jarTask.dependsOn(jar)
 	jarTask.doFirst {
 		println 'Building ' + jarArchitecture + ' version has started'
 	}
