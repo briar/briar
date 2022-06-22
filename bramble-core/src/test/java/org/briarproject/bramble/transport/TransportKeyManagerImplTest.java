@@ -22,7 +22,6 @@ import org.hamcrest.Description;
 import org.jmock.Expectations;
 import org.jmock.api.Action;
 import org.jmock.api.Invocation;
-import org.junit.Before;
 import org.junit.Test;
 
 import java.util.ArrayList;
@@ -72,13 +71,9 @@ public class TransportKeyManagerImplTest extends BrambleMockTestCase {
 	private final SecretKey rootKey = getSecretKey();
 	private final Random random = new Random();
 
-	private TransportKeyManager transportKeyManager;
-
-	@Before
-	public void setUp() {
-		transportKeyManager = new TransportKeyManagerImpl(db, transportCrypto,
-				dbExecutor, scheduler, clock, transportId, maxLatency);
-	}
+	private final TransportKeyManager transportKeyManager =
+			new TransportKeyManagerImpl(db, transportCrypto, dbExecutor,
+					scheduler, clock, transportId, maxLatency);
 
 	@Test
 	public void testKeysAreUpdatedAtStartup() throws Exception {

@@ -14,7 +14,6 @@ import org.briarproject.bramble.api.system.Clock;
 import org.briarproject.bramble.test.BrambleMockTestCase;
 import org.briarproject.bramble.test.DbExpectations;
 import org.jmock.Expectations;
-import org.junit.Before;
 import org.junit.Test;
 
 import static java.util.Collections.singletonList;
@@ -41,13 +40,8 @@ public class IdentityManagerImplTest extends BrambleMockTestCase {
 	private final KeyPair handshakeKeyPair =
 			new KeyPair(handshakePublicKey, handshakePrivateKey);
 
-	private IdentityManagerImpl identityManager;
-
-	@Before
-	public void setUp() {
-		identityManager =
-				new IdentityManagerImpl(db, crypto, authorFactory, clock);
-	}
+	private final IdentityManagerImpl identityManager =
+			new IdentityManagerImpl(db, crypto, authorFactory, clock);
 
 	@Test
 	public void testOpenDatabaseIdentityRegistered() throws Exception {

@@ -4,7 +4,6 @@ import org.briarproject.bramble.api.plugin.PluginCallback;
 import org.briarproject.bramble.api.properties.TransportProperties;
 import org.briarproject.bramble.test.BrambleMockTestCase;
 import org.jmock.Expectations;
-import org.junit.Before;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -25,12 +24,8 @@ public class ModemPluginTest extends BrambleMockTestCase {
 	private final PluginCallback callback = context.mock(PluginCallback.class);
 	private final Modem modem = context.mock(Modem.class);
 
-	private ModemPlugin plugin;
-
-	@Before
-	public void setUp() {
-		plugin = new ModemPlugin(modemFactory, serialPortList, callback, 0);
-	}
+	private final ModemPlugin plugin =
+			new ModemPlugin(modemFactory, serialPortList, callback, 0);
 
 	@Test
 	public void testModemCreation() throws Exception {

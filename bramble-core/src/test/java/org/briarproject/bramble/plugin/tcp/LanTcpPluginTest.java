@@ -12,7 +12,6 @@ import org.briarproject.bramble.api.plugin.duplex.DuplexTransportConnection;
 import org.briarproject.bramble.api.properties.TransportProperties;
 import org.briarproject.bramble.api.settings.Settings;
 import org.briarproject.bramble.test.BrambleTestCase;
-import org.junit.Before;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -46,13 +45,11 @@ public class LanTcpPluginTest extends BrambleTestCase {
 
 	private final Backoff backoff = new TestBackoff();
 	private final ExecutorService ioExecutor = newCachedThreadPool();
+	private final Callback callback = new Callback();
 
-	private Callback callback = null;
-	private LanTcpPlugin plugin = null;
+	private final LanTcpPlugin plugin;
 
-	@Before
-	public void setUp() {
-		callback = new Callback();
+	public LanTcpPluginTest() {
 		plugin = new LanTcpPlugin(ioExecutor, ioExecutor, backoff, callback,
 				0, 0, 1000) {
 			@Override

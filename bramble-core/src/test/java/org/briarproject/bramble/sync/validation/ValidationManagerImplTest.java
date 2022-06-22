@@ -20,7 +20,6 @@ import org.briarproject.bramble.api.sync.validation.MessageValidator;
 import org.briarproject.bramble.test.BrambleMockTestCase;
 import org.briarproject.bramble.test.DbExpectations;
 import org.briarproject.bramble.test.ImmediateExecutor;
-import org.junit.Before;
 import org.junit.Test;
 
 import java.util.LinkedHashMap;
@@ -70,11 +69,10 @@ public class ValidationManagerImplTest extends BrambleMockTestCase {
 	private final MessageContext validResultWithDependencies =
 			new MessageContext(metadata, singletonList(messageId1));
 
-	private ValidationManagerImpl vm;
+	private final ValidationManagerImpl vm =
+			new ValidationManagerImpl(db, dbExecutor, validationExecutor);
 
-	@Before
-	public void setUp() {
-		vm = new ValidationManagerImpl(db, dbExecutor, validationExecutor);
+	public ValidationManagerImplTest() {
 		vm.registerMessageValidator(clientId, majorVersion, validator);
 		vm.registerIncomingMessageHook(clientId, majorVersion, hook);
 	}

@@ -52,6 +52,7 @@ public class MailboxModule {
 	}
 
 	@Provides
+	@Singleton
 	MailboxSettingsManager provideMailboxSettingsManager(
 			MailboxSettingsManagerImpl mailboxSettingsManager) {
 		return mailboxSettingsManager;
@@ -113,5 +114,11 @@ public class MailboxModule {
 			eventBus.addListener(mailboxFileManager);
 		}
 		return mailboxFileManager;
+	}
+
+	@Provides
+	MailboxWorkerFactory provideMailboxWorkerFactory(
+			MailboxWorkerFactoryImpl mailboxWorkerFactory) {
+		return mailboxWorkerFactory;
 	}
 }

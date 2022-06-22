@@ -14,7 +14,6 @@ import org.briarproject.bramble.api.sync.SyncRecordReader;
 import org.briarproject.bramble.api.sync.Versions;
 import org.briarproject.bramble.test.BrambleMockTestCase;
 import org.jmock.Expectations;
-import org.junit.Before;
 import org.junit.Test;
 
 import java.io.ByteArrayOutputStream;
@@ -44,12 +43,8 @@ public class SyncRecordReaderImplTest extends BrambleMockTestCase {
 			context.mock(MessageFactory.class);
 	private final RecordReader recordReader = context.mock(RecordReader.class);
 
-	private SyncRecordReader reader;
-
-	@Before
-	public void setUp() {
-		reader = new SyncRecordReaderImpl(messageFactory, recordReader);
-	}
+	private final SyncRecordReader reader =
+			new SyncRecordReaderImpl(messageFactory, recordReader);
 
 	@Test
 	public void testNoFormatExceptionIfAckIsMaximumSize() throws Exception {

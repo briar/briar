@@ -147,7 +147,7 @@ class MailboxUploadWorker implements MailboxWorker, ConnectivityObserver,
 		LOG.info("Started");
 		synchronized (lock) {
 			// Don't allow the worker to be reused
-			if (state != State.CREATED) throw new IllegalStateException();
+			if (state != State.CREATED) return;
 			state = State.CHECKING_FOR_DATA;
 		}
 		ioExecutor.execute(this::checkForDataToSend);
