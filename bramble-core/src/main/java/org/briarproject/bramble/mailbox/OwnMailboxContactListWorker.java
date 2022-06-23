@@ -221,7 +221,7 @@ class OwnMailboxContactListWorker
 			if (state != State.UPDATING_CONTACT_LIST) return;
 			update = updates.poll();
 			if (update == null) {
-				LOG.info("Contact list is up to date");
+				LOG.info("No more updates to process");
 				state = State.WAITING_FOR_CHANGES;
 				apiCall = null;
 				return;
