@@ -5,6 +5,7 @@ import org.briarproject.bramble.api.db.Transaction;
 import org.briarproject.bramble.api.db.TransactionManager;
 import org.briarproject.bramble.api.mailbox.MailboxProperties;
 import org.briarproject.bramble.api.mailbox.MailboxSettingsManager;
+import org.briarproject.bramble.api.mailbox.MailboxVersion;
 import org.briarproject.bramble.api.system.Clock;
 import org.briarproject.bramble.mailbox.ConnectivityChecker.ConnectivityObserver;
 import org.briarproject.bramble.test.BrambleMockTestCase;
@@ -15,8 +16,10 @@ import org.jmock.lib.action.DoAllAction;
 import org.junit.Test;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 
+import static java.util.Collections.singletonList;
 import static org.briarproject.bramble.api.mailbox.MailboxConstants.CLIENT_SUPPORTS;
 import static org.briarproject.bramble.test.TestUtils.getMailboxProperties;
 import static org.junit.Assert.assertFalse;
@@ -39,6 +42,8 @@ public class OwnMailboxConnectivityCheckerTest extends BrambleMockTestCase {
 	private final MailboxProperties properties =
 			getMailboxProperties(true, CLIENT_SUPPORTS);
 	private final long now = System.currentTimeMillis();
+	private final List<MailboxVersion> serverSupports =
+			singletonList(new MailboxVersion(123, 456));
 
 	@Test
 	public void testObserverIsCalledWhenCheckSucceeds() throws Exception {
@@ -62,12 +67,13 @@ public class OwnMailboxConnectivityCheckerTest extends BrambleMockTestCase {
 		// When the check succeeds, the success should be recorded in the DB
 		// and the observer should be called
 		context.checking(new DbExpectations() {{
-			oneOf(mailboxApi).checkStatus(properties);
-			will(returnValue(true));
+			oneOf(mailboxApi).getServerSupports(properties);
+			will(returnValue(serverSupports));
 			oneOf(clock).currentTimeMillis();
 			will(returnValue(now));
 			oneOf(db).transaction(with(false), withDbRunnable(txn));
-			oneOf(mailboxSettingsManager).recordSuccessfulConnection(txn, now);
+			oneOf(mailboxSettingsManager).recordSuccessfulConnection(txn, now,
+					serverSupports);
 			oneOf(observer).onConnectivityCheckSucceeded();
 		}});
 
@@ -97,7 +103,7 @@ public class OwnMailboxConnectivityCheckerTest extends BrambleMockTestCase {
 		// When the check fails, the failure should be recorded in the DB and
 		// the observer should not be called
 		context.checking(new DbExpectations() {{
-			oneOf(mailboxApi).checkStatus(properties);
+			oneOf(mailboxApi).getServerSupports(properties);
 			will(throwException(new IOException()));
 			oneOf(clock).currentTimeMillis();
 			will(returnValue(now));

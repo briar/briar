@@ -4,11 +4,13 @@ import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.db.TransactionManager;
 import org.briarproject.bramble.api.mailbox.MailboxProperties;
 import org.briarproject.bramble.api.mailbox.MailboxSettingsManager;
+import org.briarproject.bramble.api.mailbox.MailboxVersion;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.system.Clock;
 import org.briarproject.bramble.mailbox.MailboxApi.ApiException;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.logging.Logger;
 
 import javax.annotation.concurrent.ThreadSafe;
@@ -55,11 +57,12 @@ class OwnMailboxConnectivityChecker extends ConnectivityCheckerImpl {
 	private boolean checkConnectivityAndStoreResult(
 			MailboxProperties properties) throws DbException {
 		try {
-			if (!mailboxApi.checkStatus(properties)) throw new ApiException();
+			List<MailboxVersion> serverSupports =
+					mailboxApi.getServerSupports(properties);
 			LOG.info("Own mailbox is reachable");
 			long now = clock.currentTimeMillis();
 			db.transaction(false, txn -> mailboxSettingsManager
-					.recordSuccessfulConnection(txn, now));
+					.recordSuccessfulConnection(txn, now, serverSupports));
 			// Call the observers and cache the result
 			onConnectivityCheckSucceeded(now);
 			return false; // Don't retry

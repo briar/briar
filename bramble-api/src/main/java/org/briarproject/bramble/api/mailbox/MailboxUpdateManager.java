@@ -63,9 +63,26 @@ public interface MailboxUpdateManager {
 	 */
 	String GROUP_KEY_SENT_CLIENT_SUPPORTS = "sentClientSupports";
 
+	/**
+	 * Returns the latest {@link MailboxUpdate} sent to the given contact.
+	 * <p>
+	 * If we have our own mailbox then the update will be a
+	 * {@link MailboxUpdateWithMailbox} containing the
+	 * {@link MailboxProperties} the contact should use for communicating with
+	 * our mailbox.
+	 */
 	MailboxUpdate getLocalUpdate(Transaction txn, ContactId c)
 			throws DbException;
 
+	/**
+	 * Returns the latest {@link MailboxUpdate} received from the given
+	 * contact, or null if no update has been received.
+	 * <p>
+	 * If the contact has a mailbox then the update will be a
+	 * {@link MailboxUpdateWithMailbox} containing the
+	 * {@link MailboxProperties} we should use for communicating with the
+	 * contact's mailbox.
+	 */
 	@Nullable
 	MailboxUpdate getRemoteUpdate(Transaction txn, ContactId c)
 			throws DbException;
