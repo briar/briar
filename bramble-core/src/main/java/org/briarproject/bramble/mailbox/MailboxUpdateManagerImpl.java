@@ -242,8 +242,7 @@ class MailboxUpdateManagerImpl implements MailboxUpdateManager,
 	private void createAndSendUpdateWithMailbox(Transaction txn, Contact c,
 			List<MailboxVersion> serverSupports, String ownOnion)
 			throws DbException {
-		String baseUrl = "http://" + ownOnion + ".onion"; // TODO
-		MailboxProperties properties = new MailboxProperties(baseUrl,
+		MailboxProperties properties = new MailboxProperties(ownOnion,
 				new MailboxAuthToken(crypto.generateUniqueId().getBytes()),
 				serverSupports,
 				new MailboxFolderId(crypto.generateUniqueId().getBytes()),

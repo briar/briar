@@ -456,8 +456,7 @@ class ClientHelperImpl implements ClientHelper {
 		checkLength(inboxId, UniqueId.LENGTH);
 		byte[] outboxId = properties.getRaw(PROP_KEY_OUTBOXID);
 		checkLength(outboxId, UniqueId.LENGTH);
-		String baseUrl = "http://" + onion + ".onion"; // TODO
-		MailboxProperties props = new MailboxProperties(baseUrl,
+		MailboxProperties props = new MailboxProperties(onion,
 				new MailboxAuthToken(authToken), serverSupportsList,
 				new MailboxFolderId(inboxId), new MailboxFolderId(outboxId));
 		return new MailboxUpdateWithMailbox(clientSupportsList, props);

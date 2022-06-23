@@ -29,19 +29,35 @@ public interface MailboxUpdateManager {
 
 	/**
 	 * The number of properties required for an update message with a mailbox.
+	 * <p>
+	 * The required properties are {@link #PROP_KEY_ONION},
+	 * {@link #PROP_KEY_AUTHTOKEN}, {@link #PROP_KEY_INBOXID} and
+	 * {@link #PROP_KEY_OUTBOXID}.
 	 */
 	int PROP_COUNT = 4;
 
 	/**
-	 * The required properties of an update message with a mailbox.
+	 * The onion address of the mailbox, excluding the .onion suffix.
 	 */
 	String PROP_KEY_ONION = "onion";
+
+	/**
+	 * A bearer token for accessing the mailbox (64 hex digits).
+	 */
 	String PROP_KEY_AUTHTOKEN = "authToken";
+
+	/**
+	 * A folder ID for downloading messages (64 hex digits).
+	 */
 	String PROP_KEY_INBOXID = "inboxId";
+
+	/**
+	 * A folder ID for uploading messages (64 hex digits).
+	 */
 	String PROP_KEY_OUTBOXID = "outboxId";
 
 	/**
-	 * Length of the Onion property.
+	 * Length of the {@link #PROP_KEY_ONION} property.
 	 */
 	int PROP_ONION_LENGTH = 56;
 

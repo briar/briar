@@ -11,7 +11,7 @@ import javax.annotation.concurrent.Immutable;
 @NotNullByDefault
 public class MailboxProperties {
 
-	private final String baseUrl;
+	private final String onion;
 	private final MailboxAuthToken authToken;
 	private final boolean owner;
 	private final List<MailboxVersion> serverSupports;
@@ -23,9 +23,9 @@ public class MailboxProperties {
 	/**
 	 * Constructor for properties used by the mailbox's owner.
 	 */
-	public MailboxProperties(String baseUrl, MailboxAuthToken authToken,
+	public MailboxProperties(String onion, MailboxAuthToken authToken,
 			List<MailboxVersion> serverSupports) {
-		this.baseUrl = baseUrl;
+		this.onion = onion;
 		this.authToken = authToken;
 		this.owner = true;
 		this.serverSupports = serverSupports;
@@ -36,10 +36,10 @@ public class MailboxProperties {
 	/**
 	 * Constructor for properties used by a contact of the mailbox's owner.
 	 */
-	public MailboxProperties(String baseUrl, MailboxAuthToken authToken,
+	public MailboxProperties(String onion, MailboxAuthToken authToken,
 			List<MailboxVersion> serverSupports, MailboxFolderId inboxId,
 			MailboxFolderId outboxId) {
-		this.baseUrl = baseUrl;
+		this.onion = onion;
 		this.authToken = authToken;
 		this.owner = false;
 		this.serverSupports = serverSupports;
@@ -47,13 +47,11 @@ public class MailboxProperties {
 		this.outboxId = outboxId;
 	}
 
-	public String getBaseUrl() {
-		return baseUrl;
-	}
-
+	/**
+	 * Returns the onion address of the mailbox, excluding the .onion suffix.
+	 */
 	public String getOnion() {
-		return baseUrl.replaceFirst("^http://", "")
-				.replaceFirst("\\.onion$", "");
+		return onion;
 	}
 
 	public MailboxAuthToken getAuthToken() {

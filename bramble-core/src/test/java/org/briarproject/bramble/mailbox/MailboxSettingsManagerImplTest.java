@@ -84,7 +84,7 @@ public class MailboxSettingsManagerImplTest extends BrambleMockTestCase {
 
 		MailboxProperties properties = manager.getOwnMailboxProperties(txn);
 		assertNotNull(properties);
-		assertEquals(onion, properties.getBaseUrl());
+		assertEquals(onion, properties.getOnion());
 		assertEquals(token, properties.getAuthToken());
 		assertEquals(serverSupports, properties.getServerSupports());
 		assertTrue(properties.isOwner());

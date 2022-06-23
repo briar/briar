@@ -42,18 +42,22 @@ import static org.briarproject.bramble.util.IoUtils.copyAndClose;
 @NotNullByDefault
 class MailboxApiImpl implements MailboxApi {
 
-	private final WeakSingletonProvider<OkHttpClient> httpClientProvider;
-	private final JsonMapper mapper = JsonMapper.builder()
-			.enable(BLOCK_UNSAFE_POLYMORPHIC_BASE_TYPES)
-			.build();
 	private static final MediaType JSON =
 			requireNonNull(MediaType.parse("application/json; charset=utf-8"));
 	private static final MediaType FILE =
 			requireNonNull(MediaType.parse("application/octet-stream"));
 
+	private final WeakSingletonProvider<OkHttpClient> httpClientProvider;
+	private final JsonMapper mapper = JsonMapper.builder()
+			.enable(BLOCK_UNSAFE_POLYMORPHIC_BASE_TYPES)
+			.build();
+	private final UrlConverter urlConverter;
+
 	@Inject
-	MailboxApiImpl(WeakSingletonProvider<OkHttpClient> httpClientProvider) {
+	MailboxApiImpl(WeakSingletonProvider<OkHttpClient> httpClientProvider,
+			UrlConverter urlConverter) {
 		this.httpClientProvider = httpClientProvider;
+		this.urlConverter = urlConverter;
 	}
 
 	@Override
@@ -78,7 +82,7 @@ class MailboxApiImpl implements MailboxApi {
 			throws IOException, ApiException {
 		if (!properties.isOwner()) throw new IllegalArgumentException();
 		Request request = getRequestBuilder(properties.getAuthToken())
-				.url(properties.getBaseUrl() + "/setup")
+				.url(getBaseUrl(properties) + "/setup")
 				.put(EMPTY_REQUEST)
 				.build();
 		OkHttpClient client = httpClientProvider.get();
@@ -93,7 +97,7 @@ class MailboxApiImpl implements MailboxApi {
 			if (tokenNode == null) {
 				throw new ApiException();
 			}
-			return new MailboxProperties(properties.getBaseUrl(),
+			return new MailboxProperties(properties.getOnion(),
 					MailboxAuthToken.fromString(tokenNode.textValue()),
 					parseServerSupports(node));
 		} catch (JacksonException | InvalidMailboxIdException e) {
@@ -137,7 +141,7 @@ class MailboxApiImpl implements MailboxApi {
 			throws IOException, ApiException {
 		if (!properties.isOwner()) throw new IllegalArgumentException();
 		Request request = getRequestBuilder(properties.getAuthToken())
-				.url(properties.getBaseUrl() + "/")
+				.url(getBaseUrl(properties) + "/")
 				.delete()
 				.build();
 		OkHttpClient client = httpClientProvider.get();
@@ -162,7 +166,7 @@ class MailboxApiImpl implements MailboxApi {
 	public void deleteContact(MailboxProperties properties, ContactId contactId)
 			throws IOException, ApiException, TolerableFailureException {
 		if (!properties.isOwner()) throw new IllegalArgumentException();
-		String url = properties.getBaseUrl() + "/contacts/" +
+		String url = getBaseUrl(properties) + "/contacts/" +
 				contactId.getInt();
 		Request request = getRequestBuilder(properties.getAuthToken())
 				.delete()
@@ -266,7 +270,7 @@ class MailboxApiImpl implements MailboxApi {
 		String path = "/files/" + folderId + "/" + fileId;
 		Request request = getRequestBuilder(properties.getAuthToken())
 				.delete()
-				.url(properties.getBaseUrl() + path)
+				.url(getBaseUrl(properties) + path)
 				.build();
 		OkHttpClient client = httpClientProvider.get();
 		Response response = client.newCall(request).execute();
@@ -308,7 +312,7 @@ class MailboxApiImpl implements MailboxApi {
 	private Response sendGetRequest(MailboxProperties properties, String path)
 			throws IOException {
 		Request request = getRequestBuilder(properties.getAuthToken())
-				.url(properties.getBaseUrl() + path)
+				.url(getBaseUrl(properties) + path)
 				.build();
 		OkHttpClient client = httpClientProvider.get();
 		return client.newCall(request).execute();
@@ -317,7 +321,7 @@ class MailboxApiImpl implements MailboxApi {
 	private Response sendPostRequest(MailboxProperties properties, String path,
 			RequestBody body) throws IOException {
 		Request request = getRequestBuilder(properties.getAuthToken())
-				.url(properties.getBaseUrl() + path)
+				.url(getBaseUrl(properties) + path)
 				.post(body)
 				.build();
 		OkHttpClient client = httpClientProvider.get();
@@ -339,4 +343,7 @@ class MailboxApiImpl implements MailboxApi {
 		return (ArrayNode) arrayNode;
 	}
 
+	private String getBaseUrl(MailboxProperties properties) {
+		return urlConverter.convertOnionToBaseUrl(properties.getOnion());
+	}
 }
