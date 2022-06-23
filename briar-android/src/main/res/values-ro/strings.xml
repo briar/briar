@@ -26,7 +26,10 @@
   <string name="dnkm_xiaomi_button">Protejează Briar</string>
   <string name="dnkm_xiaomi_help">Dacă Briar nu este blocat în lista de aplicații recente, acesta nu va putea rula în fundal.</string>
   <string name="dnkm_xiaomi_dialog_body_old">1. Deschideți lista de aplicații recente (denumită și comutatorul de aplicații)\n\n2. Trageți cu degetul în jos pe imaginea lui Briar pentru a afișa pictograma lacătului\n\n3. Dacă lacătul nu este blocat, atingeți pentru a-l bloca</string>
-  <string name="dnkm_xiaomi_dialog_body_new">1. Deschideți lista de aplicații recente (denumită și comutatorul de aplicatii)\n\n2. Țineți apăsată imaginea lui Briar până când apare butonul cu lacăt\n\n3. Dacă lacătul nu este blocat, apăsați pentru a-l bloca</string>
+  <string name="dnkm_xiaomi_dialog_body_new">1. Deschideți lista de aplicații recente (denumită și comutatorul de aplicatii)\n\n2. Dacă Briar are o mică imagine cu un lacăt lângă nume atunci nu este nevoie să faceți nimic.\n\n3. Dacă lacătul lipsește atunci atingeți și țineți apăsat pe imaginea Briar până când lacătul apare, apoi atingeți-l.</string>
+  <string name="dnkm_xiaomi_lock_apps_text">Vă rugăm să atingeți butonul de mai jos pentru a deschide setările de securitate. Atingeți \"\"Boost Speed\", apoi atingeți \"Aplicații blocate\" și asigurați-vă că Briar e setat ca \"Blocat\".</string>
+  <string name="dnkm_xiaomi_lock_apps_help">Dacă Briar nu este setat ca \"Blocat\" în ecranul de \"Aplicații blocate\" atunci nu v-a putea să ruleze în fundal.</string>
+  <string name="dnkm_warning_dozed_1">Briar nu a putut rula în fundal</string>
   <!--Login-->
   <string name="enter_password">Parola</string>
   <string name="try_again">Parolă greșită, reîncercați</string>
@@ -239,8 +242,8 @@
   <string name="contact_added_toast">Contact adăugat: %s</string>
   <string name="contact_already_exists">Contactul %s există deja</string>
   <string name="qr_code_invalid">Codul QR este invalid!</string>
-  <string name="qr_code_too_old">Codul QR pe care l-ați scanat aparține unei versiuni vechi %s.\n\nRugați-vă contactul să actualizeze aplicația la cea mai recentă versiune și apoi încercați din nou.</string>
-  <string name="qr_code_too_new">Codul QR pe care l-ați scanat aparține unei versiuni mai noi %s.\n\nVă rugăm să actualizați aplicația la cea mai recentă versiune și apoi încercați din nou.</string>
+  <string name="qr_code_too_old_1">Codul QR pe care l-ați scanat aparține unei versiuni vechi de Briar.\n\nRugați-vă contactul să actualizeze aplicația la cea mai recentă versiune și apoi încercați din nou.</string>
+  <string name="qr_code_too_new_1">Codul QR pe care l-ați scanat aparține unei versiuni mai noi de Briar.\n\nVă rugăm să actualizați aplicația la cea mai recentă versiune și apoi încercați din nou.</string>
   <string name="camera_error">Eroare la camera foto</string>
   <string name="connecting_to_device">Conectare la dispozitiv\u2026</string>
   <string name="authenticating_with_device">Autentificare cu dispozitivul\u2026</string>
@@ -616,6 +619,10 @@
   <string name="mailbox_status_connected_title">Cutia poștală este în funcțiune</string>
   <string name="mailbox_status_problem_title">Briar nu se poate conecta la Cutia poștală.</string>
   <string name="mailbox_status_failure_title">Cutia poștală este indisponibilă</string>
+  <string name="mailbox_status_app_too_old_title">Briar este prea vechi</string>
+  <string name="mailbox_status_app_too_old_message">Actualizați Briar la cea mai nouă versiune și reîncercați.</string>
+  <string name="mailbox_status_mailbox_too_old_title">Cutia poștală este prea veche</string>
+  <string name="mailbox_status_mailbox_too_old_message">Actualizați-vă Cutia poștală la cea mai nouă versiune și încercați din nou.</string>
   <string name="mailbox_status_check_button">Verificare conexiune</string>
   <!--Example for string substitution: Last connection: 3min ago-->
   <string name="mailbox_status_connected_info">Ultima conectare: %s</string>
@@ -643,6 +650,14 @@
   <string name="mailbox_error_wizard_answer1_3">Văd \"Cutia poștală e pornită\"</string>
   <string name="mailbox_error_wizard_answer1_4">Văd \"Dispozitivul este deconectat\"</string>
   <string name="mailbox_error_wizard_info1_1_1">Vă rugăm să vă detașați de la Căsuța poștală folosind butonul de mai jos, apoi urmăriți instrucțiunile de pe dispozitivul Căsuță poștală pentru a o atașa din nou.</string>
+  <string name="mailbox_error_wizard_info_1_1_2">Vă rugăm să detașați Cutia poștală folosind butonul de mai jos, apoi scanați codul QR pentru a o atașa din nou.</string>
+  <string name="mailbox_error_wizard_info1_1_3">Vă rugăm să folosiți butonul de mai jos pentru a verifica conexiunea dintre Briar și Cutia poștală.\n\n
+		Dacă eșuează din nou conexiunea :\n
+		\u2022 Verificați dacă aplicațiile Cutie poștală și Briar sunt actualizate la cea mai recentă versiune.\n
+		\u2022 Reporniți dispozitivele Cutie poștală și Briar și încercați din nou.</string>
+  <string name="mailbox_error_wizard_info1_1_4">Verificați dacă dispozitivul de Cutie poștală este conectat corect la Internet.\n\nVerificați dacă ceasul de pe dispozitivul de Cutie poștală indică ora, data și fusul orar corect.\n\nVerificați dacă aplicațiile Cutie poștală și Briar sunt actualizate la cea mai recentă versiune.\n\nReporniți dispozitivele Cutie poștală și Briar și încercați din nou.</string>
+  <string name="mailbox_error_wizard_info2">Vă rugăm să reveniți la acest ecran atunci când aveți acces la dispozitiv.</string>
+  <string name="mailbox_error_wizard_info3">Vă rugăm să detașați Cutia poștală folosind butonul de mai jos\n\nDupă ce ați detașat vechea Cutie poștală puteți configura una nouă în orice moment.</string>
   <!--Conversation Settings-->
   <string name="disappearing_messages_title">Mesaje ce dispar</string>
   <string name="disappearing_messages_explanation_long">Activarea acestei setări va face ca noile
@@ -759,8 +774,9 @@ De asemenea, contactul dvs. poate modifica această setare pentru amândoi.</str
   <string name="hotspot_manual_site_address">Adresă (URL)</string>
   <string name="hotspot_qr_site">Dispozitivul dumneavoastră oferă un hotspot Wi-Fi. Persoanele care sunt conectate la hotspot pot descărca Briar scanând acest cod QR.</string>
   <!--e.g. Download Briar 1.2.20-->
-  <string name="website_download_title">Descărcare %s</string>
-  <string name="website_download_intro">Cineva din apropiere a partajat %scu dumneavoastră.</string>
+  <string name="website_download_title_1">Descarcă Briar %s</string>
+  <string name="website_download_intro_1">Cineva din apropiere a partajat Briar cu dumneavoastră.</string>
+  <string name="website_download_button">Descarcă Briar</string>
   <string name="website_download_outro">După ce descărcarea a luat sfârșit, deschideți și instalați fișierul descărcat.</string>
   <string name="website_troubleshooting_title">Depanare</string>
   <string name="website_troubleshooting_1">Dacă nu puteți descărca aplicația încercați cu un alt browser.</string>

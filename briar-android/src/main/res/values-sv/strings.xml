@@ -1,36 +1,31 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<resources>
-	<!--Setup-->
-	<string name="setup_title">Välkommen till Briar</string>
-	<string name="setup_name_explanation">Ditt användarnamn kommer att visas bredvid allt innehåll som du lägger upp. Du kan inte ändra ditt användarnamn efter att ditt konto skapats.</string>
-	<string name="setup_next">Nästa</string>
-	<string name="setup_password_intro">Skapa lösenord</string>
-	<string name="setup_password_explanation">Ditt Briar-konto lagras krypterat på din mobil eller läsplatta, inte hos en molntjänst. Om du glömmer ditt lösenord eller avinstallerar Briar är det därför inte möjligt att återställa ditt konto.\n\nSkapa ett långt lösenord som är svårgissat, till exempel fyra slumpvalda ord eller en kombination av tio slumpvalda bokstäver, siffror och andra tecken.</string>
-	<string name="dnkm_doze_title">Dataanslutningar i bakgrunden</string>
-	<string name="dnkm_doze_intro">För att kunna ta emot meddelanden måste Briar vara anslutet i bakgrunden.</string>
-	<string name="dnkm_doze_explanation">För att kunna ta emot meddelanden måste Briar vara anslutet i bakgrunden. Avaktivera batterioptimering så att Briar kan hålla sig anslutet.</string>
-	<string name="dnkm_doze_button">Tillåt dataanslutningar</string>
-	<string name="choose_nickname">Skapa användarnamn </string>
-	<string name="choose_password">Skapa lösenord</string>
-	<string name="confirm_password">Bekräfta lösenordet</string>
-	<string name="name_too_long">Namnet har för många tecken </string>
-	<string name="password_too_weak">Lösenordet är för svagt</string>
-	<string name="passwords_do_not_match">Lösenorden överensstämmer inte </string>
-	<string name="create_account_button">Skapa konto </string>
-	<string name="more_info">Mer information</string>
-	<string name="don_t_ask_again">Fråga inte igen</string>
-	<string name="dnkm_huawei_protected_text">Tryck på knappen längre ner för att lägga till Briar till listan över \"skyddade appar\".</string>
-	<string name="dnkm_huawei_protected_button">Skydda Briar</string>
-	<string name="dnkm_huawei_protected_help">Om Briar inte läggs till listan över skyddade appar kan det inte köras i bakgrunden.</string>
-	<string name="dnkm_huawei_app_launch_text">Klicka på knappen nedan, öppna skärmen ”App-start” och säkerställ att Briar är inställt på ”Hantera manuellt”</string>
-	<string name="dnkm_huawei_app_launch_button">Öppna batteriinställningar</string>
-	<string name="dnkm_huawei_app_launch_help">Om Briar inte är inställt på ”Hantera manuellt” i skärmen ”App-start” kommer den inte att kunna köra i bakgrunden.</string>
-	<string name="dnkm_xiaomi_text">För att köra i bakgrunden måste Briar låsas in i listan över senaste appar.</string>
-	<string name="dnkm_xiaomi_button">Skydda Briar</string>
-	<string name="dnkm_xiaomi_help">Om Briar inte låsas in i listan över senaste appar kommer det inte att kunna köra i bakgrunden.</string>
-	<string name="dnkm_xiaomi_dialog_body_old">1. Öppna listan över senaste appar (också kallade appväxlaren)\n\n2. Svep nedåt vid bilden av Briar för att visa hänglåsikonen\n\n3. Om hänglåsikonen inte är låst, klicka för att låsa den</string>
-	<string name="dnkm_xiaomi_dialog_body_new">1. Öppna listan över senaste appar (också kallade appväxlaren)\n\n2. Tryck och håll på bilden av Briar tills hänglåsikonen dyker upp\n\n3. Om hänglåsikonen inte är låst, klicka för att låsa den</string>
-	<string name="dnkm_warning_dozed">%s kunde inte köras i bakgrunden</string>
+<resources xmlns:tools="http://schemas.android.com/tools">
+  <!--Setup-->
+  <string name="setup_title">Välkommen till Briar</string>
+  <string name="setup_name_explanation">Ditt användarnamn kommer att visas bredvid allt innehåll som du lägger upp. Du kan inte ändra ditt användarnamn efter att ditt konto skapats.</string>
+  <string name="setup_next">Nästa</string>
+  <string name="setup_password_intro">Skapa lösenord</string>
+  <string name="setup_password_explanation">Ditt Briar-konto lagras krypterat på din mobil eller läsplatta, inte hos en molntjänst. Om du glömmer ditt lösenord eller avinstallerar Briar är det därför inte möjligt att återställa ditt konto.\n\nSkapa ett långt lösenord som är svårgissat, till exempel fyra slumpvalda ord eller en kombination av tio slumpvalda bokstäver, siffror och andra tecken.</string>
+  <string name="dnkm_doze_intro">För att kunna ta emot meddelanden måste Briar vara anslutet i bakgrunden.</string>
+  <string name="dnkm_doze_explanation">För att kunna ta emot meddelanden måste Briar vara anslutet i bakgrunden. Avaktivera batterioptimering så att Briar kan hålla sig anslutet.</string>
+  <string name="choose_nickname">Välj ditt användarnamn</string>
+  <string name="choose_password">Skapa lösenord</string>
+  <string name="confirm_password">Bekräfta lösenordet</string>
+  <string name="name_too_long">Namnet har för många tecken </string>
+  <string name="password_too_weak">Lösenordet är för svagt</string>
+  <string name="passwords_do_not_match">Lösenorden överensstämmer inte </string>
+  <string name="create_account_button">Skapa konto </string>
+  <string name="more_info">Mer information</string>
+  <string name="don_t_ask_again">Fråga inte igen</string>
+  <string name="dnkm_huawei_protected_text">Tryck på knappen längre ner för att lägga till Briar till listan över \"skyddade appar\".</string>
+  <string name="dnkm_huawei_protected_button">Skydda Briar</string>
+  <string name="dnkm_huawei_protected_help">Om Briar inte läggs till listan över skyddade appar kan det inte köras i bakgrunden.</string>
+  <string name="dnkm_huawei_app_launch_text">Klicka på knappen nedan, öppna skärmen ”App-start” och säkerställ att Briar är inställt på ”Hantera manuellt”</string>
+  <string name="dnkm_huawei_app_launch_help">Om Briar inte är inställt på ”Hantera manuellt” i skärmen ”App-start” kommer den inte att kunna köra i bakgrunden.</string>
+  <string name="dnkm_xiaomi_text">För att köra i bakgrunden måste Briar låsas in i listan över senaste appar.</string>
+  <string name="dnkm_xiaomi_button">Skydda Briar</string>
+  <string name="dnkm_xiaomi_help">Om Briar inte låsas in i listan över senaste appar kommer det inte att kunna köra i bakgrunden.</string>
+  <string name="dnkm_xiaomi_dialog_body_old">1. Öppna listan över senaste appar (också kallade appväxlaren)\n\n2. Svep nedåt vid bilden av Briar för att visa hänglåsikonen\n\n3. Om hänglåsikonen inte är låst, klicka för att låsa den</string>
   <!--Login-->
   <string name="enter_password">Lösenord</string>
   <string name="try_again">Felaktigt lösenord, försök igen </string>
@@ -56,7 +51,7 @@
   </plurals>
   <string name="expiry_date_reached">Mjukvaran har gått ut.\nTack för att du bidragit till att testa!</string>
   <string name="download_briar">För att fortsätta använda Briar, hämta den senaste utgåvan.</string>
-  <string name="create_new_account">Du måste skapa ett nytt konto, men du kan använda samma smeknamn.</string>
+  <string name="create_new_account">Du måste skapa ett nytt konto, men du kan använda samma användarnamn.</string>
   <string name="download_briar_button">Hämta senaste utgåvan</string>
   <string name="old_android_expiry_date_reached">Briar kan inte längre användas på Android 4.
 Vänlige installera Briar på en nyare enhet.</string>
@@ -235,8 +230,6 @@ Vänlige installera Briar på en nyare enhet.</string>
   <string name="contact_added_toast">Kontakt tillagd: %s</string>
   <string name="contact_already_exists">Kontakten %s finns redan</string>
   <string name="qr_code_invalid">QR-koden är felaktig</string>
-  <string name="qr_code_too_old">QR-koden som du har skannat kommer från en äldre version av %s.\n\nBe din kontakt att uppgradera till den senaste versionen och försök sedan igen.</string>
-  <string name="qr_code_too_new">QR-koden som du har skannat kommer från en äldre version av %s.\n\nUppgradera till senaste versionen och försök sedan igen.</string>
   <string name="camera_error">Kamerafel</string>
   <string name="connecting_to_device">Ansluter till enhet\u2026</string>
   <string name="authenticating_with_device">Autentiserar med enhet\u2026</string>
@@ -253,9 +246,9 @@ Vänlige installera Briar på en nyare enhet.</string>
   <string name="copy_button">Kopiera</string>
   <string name="share_button">Dela</string>
   <string name="send_link_title">Utbyt länkar</string>
-  <string name="add_contact_choose_nickname">Välj smeknamn</string>
-  <string name="add_contact_choose_a_nickname">Skriv ett smeknamn</string>
-  <string name="nickname_intro">Ge din kontakt ett smeknamn. Bara du kan se detta.</string>
+  <string name="add_contact_choose_nickname">Välj användarnamn</string>
+  <string name="add_contact_choose_a_nickname">Skriv ett användarnamn</string>
+  <string name="nickname_intro">Ge din kontakt ett användarnamn. Bara du kan se detta.</string>
   <string name="your_link">Ge den här länken till kontakten du vill lägga till</string>
   <string name="link_clip_label">Briar-länk</string>
   <string name="link_copied_toast">Länken kopierades</string>
@@ -270,7 +263,7 @@ Vänlige installera Briar på en nyare enhet.</string>
   <string name="dialog_title_remove_pending_contact">Bekräfta borttagning</string>
   <string name="dialog_message_remove_pending_contact">Denna kontakt håller på att läggas till. Om du tar bort den nu kommer den ej läggas till.</string>
   <string name="own_link_error">Skriv in länken du fick från din kontakt, inte din egna länk</string>
-  <string name="nickname_missing">Skriv in ett smeknamn</string>
+  <string name="nickname_missing">Skriv in ett användarnamn</string>
   <string name="invalid_link">Felakting länk</string>
   <string name="unsupported_link">Denna länk kommer från en nyare version av Briar. Var snäll och uppgradera till den senaste versionen och försök igen.</string>
   <string name="intent_own_link">Du har öppnat din egna länk. Använd länken du fick från kontakten du vill lägga till!</string>
@@ -301,7 +294,7 @@ Vänlige installera Briar på en nyare enhet.</string>
   <string name="pending_contact_updated_toast">Väntande kontakt har uppdaterats</string>
   <!--Introductions-->
   <string name="introduction_onboarding_title">Presentera dina kontakter</string>
-  <string name="introduction_onboarding_text">Du kan presentera dina kontakter för varandra, på så sätt behöver de inte träffas personligen för att lägga till varandra på Briar.</string>
+  <string name="introduction_onboarding_text">Introducera dina kontakter för varandra så att de kan ansluta sig till varandra via Briar.</string>
   <string name="introduction_menu_item">Presentera kontakt</string>
   <string name="introduction_activity_title">Välj kontakt</string>
   <string name="introduction_not_possible">Du har redan påbörjat en presentation mellan dessa kontakter. Vänligen vänta tills detta är klart. Om du eller dina kontakter är online sällan så kan det ta ett tag.</string>
@@ -577,8 +570,42 @@ Vänlige installera Briar på en nyare enhet.</string>
   <string name="choose_ringtone_title">Välj ringsignal</string>
   <string name="cannot_load_ringtone">Kan ej ladda ringsignal</string>
   <!--Mailbox-->
+  <string name="mailbox_settings_title">Mailbox</string>
+  <string name="mailbox_setup_title">Mailbox-inställning</string>
+  <string name="mailbox_setup_intro">En Mailbox låter dina kontakter skicka dig meddelanden medan du är nedkopplad. Mailbox kommer att ta emot dina meddelanden och spara dem tills du är uppkopplad.\n
+		\nDu kan installera appen Briar Mailbox på en extraenhet. Låt den vara ansluten till ström och Wi-Fi så att den alltid är uppkopplad.</string>
+  <string name="mailbox_setup_download">Installera först Mailbox-appen på en annan enhet genom att söka efter ”Briar Mailbox” på Google Play eller där du hämtat Briar.\n
+		\nLänka sedan din Mailbox med Briar genom att skanna QR-koden som visas i Mailbox-appen.</string>
+  <string name="mailbox_setup_download_link">Dela hämtningslänk</string>
+  <string name="mailbox_setup_button_scan">Skanna Mailbox QR-kod</string>
+  <string name="permission_camera_qr_denied_body">Du har nekat åtkomst till kameran, men att skanna en QR-kod kräver användning av kameran.\n\nÖverväg att bevilja tillstånd.</string>
   <string name="mailbox_setup_connecting">Ansluter...</string>
+  <string name="mailbox_setup_qr_code_wrong_title">Felaktig QR-kod</string>
+  <string name="mailbox_setup_qr_code_wrong_description">Den skannade koden är ogiltig. Öppna Briar Mailbox-appen på din Mailbox-enhet och skanna QR-koden som visas.</string>
+  <string name="mailbox_setup_already_paired_title">Mailbox redan länkad</string>
+  <string name="mailbox_setup_already_paired_description">Avlänka Mailbox på din andra enhet och försök igen.</string>
+  <string name="mailbox_setup_io_error_title">Kunde inte ansluta</string>
+  <string name="mailbox_setup_io_error_description">Säkerställ att båda enheterna är anslutna till internet och försök igen.</string>
+  <string name="mailbox_setup_assertion_error_title">Mailbox-fel</string>
+  <string name="mailbox_setup_assertion_error_description">Skicka återkoppling (med anonymiserad data) via Briar-appen om felet kvarstår.</string>
+  <string name="mailbox_setup_camera_error_description">Kunde inte komma åt kamera. Försök igen, eventuellt efter att ha startat om enheten.</string>
+  <string name="mailbox_setup_paired_title">Ansluten</string>
+  <string name="mailbox_setup_paired_description">Din Mailbox har framgångsrikt länkats med Briar.\n
+		\nHåll din Mailbox ansluten till ström och Wi-Fi så att den alltid är uppkopplad.</string>
   <string name="tor_offline_title">Nedkopplad</string>
+  <string name="tor_offline_description">Säkerställ att denna enhet är uppkopplad och att anslutningar till internet är tillåtna.\n
+		\nEfteråt, vänta på att ikonen med en glob bland på skärmen för anslutningsinställningar blir grön.</string>
+  <string name="tor_offline_button_check">Kontrollera anslutningsinställningar</string>
+  <string name="mailbox_status_title">Mailbox-status</string>
+  <string name="mailbox_status_connected_title">Mailbox kör</string>
+  <string name="mailbox_status_problem_title">Briar har problem med att ansluta till Mailbox</string>
+  <string name="mailbox_status_failure_title">Mailbox är ogilltänglig</string>
+  <string name="mailbox_status_check_button">Kontrollera anslutning</string>
+  <!--Example for string substitution: Last connection: 3min ago-->
+  <string name="mailbox_status_connected_info">Senaste anslutning: %s</string>
+  <!--Indicates that there never was a connection to the mailbox. Last connection: Never-->
+  <string name="mailbox_status_connected_never">Aldrig</string>
+  <string name="mailbox_status_unlink_button">Avlänka</string>
   <!--Conversation Settings-->
   <string name="disappearing_messages_title">Försvinnande meddelanden</string>
   <string name="disappearing_messages_explanation_long">Att slå på denna inställning kommer att få nya
@@ -662,14 +689,14 @@ Vänlige installera Briar på en nyare enhet.</string>
   <!--Connections Screen-->
   <string name="transports_help_text">Briar kan ansluta till dina kontakter via internet, Wi-Fi eller Bluetooth.\n\nAlla internetanslutningar går via Tor-nätverket av integritetsskäl.\n\nOm en kontakt kan nås via flera metoder kommer Briar att använda dem parallellt.</string>
   <!--Share app offline-->
-  <string name="hotspot_title">Dela denna app off-line</string>
+  <string name="hotspot_title">Dela denna app nedkopplat</string>
   <string name="hotspot_intro">Dela denna app med någon i närheten utan en internetanslutning via din telefons Wi-Fi.
-		\n\nDin telefon kommer att starta en Wi-Fi-hostpot. Personer i närheten kan ansluta till hotspoten och hämta Briar-appen från din telefon.</string>
+		\n\nDin telefon kommer att starta en Wi-Fi-hotspot. Personer i närheten kan ansluta till hotspoten och hämta Briar-appen från din telefon.</string>
   <string name="hotspot_button_start_sharing">Starta hotspot</string>
   <string name="hotspot_button_stop_sharing">Stoppa hotspot</string>
   <string name="hotspot_progress_text_start">Ställer in hotspot…</string>
   <string name="hotspot_notification_channel_title">Wi-Fi-hotspot</string>
-  <string name="hotspot_notification_title">Dela Briar off-line</string>
+  <string name="hotspot_notification_title">Delar Briar nedkopplat</string>
   <string name="hotspot_button_connected">Nästa</string>
   <string name="permission_hotspot_location_request_body">För att skapa en Wi-Fi-hotspot måste Briar ha tillåtelse att komma åt din plats.\n\nBriar sparar inte din plats eller delar den med någon.</string>
   <string name="permission_hotspot_location_denied_body">Du har nekat åtkomst till din plats, men Briar behöver denna tilltåelse för att skapa en Wi-Fi-hotspot.\n\nÖverväg att bevilja åtkomst.</string>
@@ -694,8 +721,6 @@ Vänlige installera Briar på en nyare enhet.</string>
   <string name="hotspot_manual_site_address">Adress (URL)</string>
   <string name="hotspot_qr_site">Din telfon tillhandahåller en Wi-Fi-hotspot. Personer som är anslutna till hotstpoen kan hämta Briar genom att skanna denna QR-kod.</string>
   <!--e.g. Download Briar 1.2.20-->
-  <string name="website_download_title">Hämta %s</string>
-  <string name="website_download_intro">Någon i närheten delade %s med dig.</string>
   <string name="website_download_outro">Efter att hämtningen är slutför öppna den hämtade filen och installera den.</string>
   <string name="website_troubleshooting_title">Felsökning</string>
   <string name="website_troubleshooting_1">Om du inte kan hämta appen, prova med en annan webbläsarapp.</string>

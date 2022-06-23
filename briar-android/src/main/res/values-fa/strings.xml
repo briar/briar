@@ -28,7 +28,10 @@
   <string name="dnkm_xiaomi_button">حفاظت از Briar (برایر)</string>
   <string name="dnkm_xiaomi_help">اگر برایر (Briar) در لیست اپ‌های اخیر قفل نشود، قادر با اجرا در پس‌زمینه نخواهد بود.</string>
   <string name="dnkm_xiaomi_dialog_body_old">1. لیست اپ‌های اخیر (یا app switcher) را باز کنید\n\n2. عکس اپ برایر (Briar) را پایین کشیده تا آیکون قفل نمایش یابد\n\n3. اگر قفل بسته نیست، روی آن بزنید تا قفل شود</string>
-  <string name="dnkm_xiaomi_dialog_body_new">1. لیست اپ‌های اخیر (یا app switcher) را باز کنید\n\n2. اروی عکس اپ برایر (Briar) نگه داشته تا آیکون قفل نمایش یابد\n\n3. اگر قفل بسته نیست، روی آن بزنید تا قفل شود</string>
+  <string name="dnkm_xiaomi_dialog_body_new">1. فهرست برنامه‌های اخیر را باز کنید (که به آن app switcher نیز گفته می‌شود)\n\n2. اگر Briar تصویر کوچکی از یک قفل در کنار نام خود دارد، دیگر لازم نیست کاری انجام دهید\n\n3. اگر قفلی وجود ندارد، تصویر Briar را فشار داده و نگه دارید تا دکمه قفل ظاهر شود، سپس روی آن ضربه بزنید.</string>
+  <string name="dnkm_xiaomi_lock_apps_text">لطفا روی دکمه زیر ضربه بزنید تا تنظیمات امنیتی باز شود. روی \"Boost speed\" ضربه بزنید، سپس روی \"Lock apps\" ضربه بزنید و مطمئن شوید که Briar روی \"Locked\" تنظیم شده است.</string>
+  <string name="dnkm_xiaomi_lock_apps_help">اگر Briar در صفحه \"Lock apps\" روی \"Locked\" تنظیم نشود، نمی‌تواند در پس‌زمینه اجرا شود.</string>
+  <string name="dnkm_warning_dozed_1">Briar قادر به اجرا در پس‌زمینه نبود</string>
   <!--Login-->
   <string name="enter_password">گذرواژه</string>
   <string name="try_again">گذرواژه اشتباه است، لطفا دوباره سعی کنید</string>
@@ -240,12 +243,8 @@
   <string name="contact_added_toast">مخاطب اضافه شد: %s</string>
   <string name="contact_already_exists">مخاطب %s از قبل وجود دارد</string>
   <string name="qr_code_invalid">کد کیوآر نامعتبر می باشد</string>
-  <string name="qr_code_too_old">کد کیوآر اسکن شده متعلق به یک نسخه قدیمی از %s است.
-
-لطفا از مخاطب‌ خود بخواهید تا به آخرین نسخه ارتقا داده و سپس دوباره تلاش کنید.</string>
-  <string name="qr_code_too_new">کد کیوآر اسکن شده توسط شما متعلق به یک نسخه جدیدتر  از %s است.
-
-لطفا به آخرین نسخه ارتقا داده و دوباره تلاش کنید.</string>
+  <string name="qr_code_too_old_1">کد QR که اسکن کرده‌اید مربوط به نسخه قدیمی Briar است.\n\nلطفا از مخاطب خود بخواهید به آخرین نسخه ارتقا دهد و سپس دوباره امتحان کنید.</string>
+  <string name="qr_code_too_new_1">کد QR که اسکن کرده‌اید مربوط به نسخه جدیدتری از Briar است.\n\nلطفا به آخرین نسخه ارتقا دهید و سپس دوباره امتحان کنید.</string>
   <string name="camera_error">خطای دوربین</string>
   <string name="connecting_to_device">اتصال به دستگاهu2026\</string>
   <string name="authenticating_with_device">تصدیق سازی با دستگاه u2026\</string>
@@ -638,6 +637,10 @@
   <string name="mailbox_status_connected_title">Mailbox در حال اجراست</string>
   <string name="mailbox_status_problem_title">Briar در اتصال به صندوق پستی به مشکلی برخورده است</string>
   <string name="mailbox_status_failure_title">صندوق پستی در دسترس نیست</string>
+  <string name="mailbox_status_app_too_old_title">Briar خیلی قدیمی است</string>
+  <string name="mailbox_status_app_too_old_message">Briar را به آخرین نسخه برنامه به‌روزرسانی کنید و دوباره امتحان کنید.</string>
+  <string name="mailbox_status_mailbox_too_old_title">Mailbox خیلی قدیمی است</string>
+  <string name="mailbox_status_mailbox_too_old_message">Mailbox خود را به آخرین نسخه برنامه به‌روزرسانی کنید و دوباره امتحان کنید.</string>
   <string name="mailbox_status_check_button">اتصال را بررسی کنید</string>
   <!--Example for string substitution: Last connection: 3min ago-->
   <string name="mailbox_status_connected_info">آخرین اتصال: %s</string>
@@ -800,8 +803,9 @@ Briar (برایر) موقعیت شما را ذخیره نمی‌کند و آن �
   <string name="hotspot_manual_site_address">آدرس (URL)</string>
   <string name="hotspot_qr_site">تلفن شما Wi-Fi hotspot ارائه می‌کند. کسانی که به hotspot متصل هستند، می‌توانند Briar را با اسکن این کد QR دانلود کنند.</string>
   <!--e.g. Download Briar 1.2.20-->
-  <string name="website_download_title">دانلود %s</string>
-  <string name="website_download_intro">فردی در نزدیکی %s را با شما به اشتراک گذاشته است.</string>
+  <string name="website_download_title_1">دانلود Briar %s</string>
+  <string name="website_download_intro_1">شخصی در همین نزدیکی Briar را با شما به اشتراک گذاشته است.</string>
+  <string name="website_download_button">دانلود Briar</string>
   <string name="website_download_outro">پس از تکمیل دانلود، فایل دانلود شده را باز کرده و نصب کنید.</string>
   <string name="website_troubleshooting_title">◾️ عیب یابی</string>
   <string name="website_troubleshooting_1">اگر قادر به دانلود کردن برنامه نیستید، با مرورگر دیگری امتحان کنید.</string>

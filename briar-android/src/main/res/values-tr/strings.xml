@@ -1,36 +1,31 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<resources>
-	<!--Setup-->
-	<string name="setup_title">Briar\'a Hoşgeldiniz</string>
-	<string name="setup_name_explanation">Takma adınız, gönderdiğiniz herhangi bir içeriğin yanında gösterilecek. Hesabınızı oluşturduktan sonra onu değiştiremezsiniz.</string>
-	<string name="setup_next">Sonraki</string>
-	<string name="setup_password_intro">Bir Parola Seçin</string>
-	<string name="setup_password_explanation">Briar hesabınız bulutta değil aygıtınızda şifreli olarak saklanır. Parolanızı unutursanız veya Briar\'ı kaldırırsanız hesabınızı kurtarmanın bir yolu yoktur. Tahmin edilmesi zor rastgele dört sözcük, on harf, sayı ve simgeden oluşan uzun bir parola \n\n\Seçin</string>
-	<string name="dnkm_doze_title">Arka plan Bağlantıları</string>
-	<string name="dnkm_doze_intro">İletileri almak için Briar\'ın arkaplanda bağlı kalması gerekir.</string>
-	<string name="dnkm_doze_explanation">İletileri almak için Briar\'ın arkaplanda bağlı olması gerekir. Briar\'ın bağlı kalabilmesi için lütfen pil eniyilemesini devre dışı bırakın.</string>
-	<string name="dnkm_doze_button">Bağlantılara İzin Ver</string>
-	<string name="choose_nickname">Kullanıcı adınızı belirleyin</string>
-	<string name="choose_password">Parolanızı belirleyin</string>
-	<string name="confirm_password">Parolanızı doğrulayın</string>
-	<string name="name_too_long">İsim çok uzun</string>
-	<string name="password_too_weak">Parola çok zayıf</string>
-	<string name="passwords_do_not_match">Parolalar uyuşmuyor</string>
-	<string name="create_account_button">Hesap Oluştur</string>
-	<string name="more_info">Daha Fazla Bilgi</string>
-	<string name="don_t_ask_again">Tekrar sorma</string>
-	<string name="dnkm_huawei_protected_text">Lütfen aşağıdaki düğmeye dokunun ve Briar\'ın \"Korunan Uygulamalar\" ekranında korunduğundan emin olun.</string>
-	<string name="dnkm_huawei_protected_button">Briar\'ı Koru</string>
-	<string name="dnkm_huawei_protected_help">Briar korunan uygulamalar listesine eklenmezse, arka planda çalışamaz.</string>
-	<string name="dnkm_huawei_app_launch_text">Lütfen aşağıdaki düğmeye dokunun, \"Uygulama başlatma\" ekranını açın ve Briar için \"Manuel olarak yönet\" şeklinde ayarlanmış olduğundan emin olun.</string>
-	<string name="dnkm_huawei_app_launch_button">Pil Ayarlarını Aç</string>
-	<string name="dnkm_huawei_app_launch_help">Eğer Briar, \"Uygulama Başlatma\" ekranında \"Manuel olarak yönet\" olarak ayarlanmamışsa, arka planda çalışmayabilir.</string>
-	<string name="dnkm_xiaomi_text">Briar\'ın arka planda çalışması için korunan uygulamalar listesine listesine eklenmesi gerekiyor.</string>
-	<string name="dnkm_xiaomi_button">Briar\'ı Koru</string>
-	<string name="dnkm_xiaomi_help">Briar korunan uygulamalar listesine eklenmezse, arka planda çalışamaz.</string>
-	<string name="dnkm_xiaomi_dialog_body_old">1. Geçmiş uygulamalar listesini açın (uygulama değiştirici de deniyor)\n\n2. Briar resmini kilit simgesini görene kadar aşağı kaydırın\n\n3. Eğer kilit simgesi seçili değilse, kilitlemek için dokunun</string>
-	<string name="dnkm_xiaomi_dialog_body_new">1. Geçmiş uygulamalar listesini açın (uygulama değiştirici de deniyor)\n\n2. Kilit simgesini görene kadar Briar resmine tıklayın ve tutun\n\n3. Eğer kilit simgesi seçili değilse, kilitlemek için dokunun</string>
-	<string name="dnkm_warning_dozed">%s arka planda çalışamadı</string>
+<resources xmlns:tools="http://schemas.android.com/tools">
+  <!--Setup-->
+  <string name="setup_title">Briar\'a Hoşgeldiniz</string>
+  <string name="setup_name_explanation">Takma adınız, gönderdiğiniz herhangi bir içeriğin yanında gösterilecek. Hesabınızı oluşturduktan sonra onu değiştiremezsiniz.</string>
+  <string name="setup_next">Sonraki</string>
+  <string name="setup_password_intro">Bir Parola Seçin</string>
+  <string name="setup_password_explanation">Briar hesabınız bulutta değil aygıtınızda şifreli olarak saklanır. Parolanızı unutursanız veya Briar\'ı kaldırırsanız hesabınızı kurtarmanın bir yolu yoktur. Tahmin edilmesi zor rastgele dört sözcük, on harf, sayı ve simgeden oluşan uzun bir parola \n\n\Seçin</string>
+  <string name="dnkm_doze_intro">İletileri almak için Briar\'ın arkaplanda bağlı kalması gerekir.</string>
+  <string name="dnkm_doze_explanation">İletileri almak için Briar\'ın arkaplanda bağlı olması gerekir. Briar\'ın bağlı kalabilmesi için lütfen pil eniyilemesini devre dışı bırakın.</string>
+  <string name="choose_nickname">Kullanıcı adınızı belirleyin</string>
+  <string name="choose_password">Parolanızı belirleyin</string>
+  <string name="confirm_password">Parolanızı doğrulayın</string>
+  <string name="name_too_long">İsim çok uzun</string>
+  <string name="password_too_weak">Parola çok zayıf</string>
+  <string name="passwords_do_not_match">Parolalar uyuşmuyor</string>
+  <string name="create_account_button">Hesap Oluştur</string>
+  <string name="more_info">Daha Fazla Bilgi</string>
+  <string name="don_t_ask_again">Tekrar sorma</string>
+  <string name="dnkm_huawei_protected_text">Lütfen aşağıdaki düğmeye dokunun ve Briar\'ın \"Korunan Uygulamalar\" ekranında korunduğundan emin olun.</string>
+  <string name="dnkm_huawei_protected_button">Briar\'ı Koru</string>
+  <string name="dnkm_huawei_protected_help">Briar korunan uygulamalar listesine eklenmezse, arka planda çalışamaz.</string>
+  <string name="dnkm_huawei_app_launch_text">Lütfen aşağıdaki düğmeye dokunun, \"Uygulama başlatma\" ekranını açın ve Briar için \"Manuel olarak yönet\" şeklinde ayarlanmış olduğundan emin olun.</string>
+  <string name="dnkm_huawei_app_launch_help">Eğer Briar, \"Uygulama Başlatma\" ekranında \"Manuel olarak yönet\" olarak ayarlanmamışsa, arka planda çalışmayabilir.</string>
+  <string name="dnkm_xiaomi_text">Briar\'ın arka planda çalışması için korunan uygulamalar listesine listesine eklenmesi gerekiyor.</string>
+  <string name="dnkm_xiaomi_button">Briar\'ı Koru</string>
+  <string name="dnkm_xiaomi_help">Briar korunan uygulamalar listesine eklenmezse, arka planda çalışamaz.</string>
+  <string name="dnkm_xiaomi_dialog_body_old">1. Geçmiş uygulamalar listesini açın (uygulama değiştirici de deniyor)\n\n2. Briar resmini kilit simgesini görene kadar aşağı kaydırın\n\n3. Eğer kilit simgesi seçili değilse, kilitlemek için dokunun</string>
   <!--Login-->
   <string name="enter_password">Parola</string>
   <string name="try_again">Parola yanlış, tekrar deneyin</string>
@@ -50,10 +45,16 @@
     <item quantity="one">Bu Briar\'ın deneme sürümüdür. Hesabınız %d gün içinde sona erecek ve yenilenemez.</item>
     <item quantity="other">Bu Briar\'ın deneme sürümüdür. Hesabınız %d gün içinde geçersiz olacak ve yenilenmeyecektir.</item>
   </plurals>
+  <plurals name="old_android_expiry_warning">
+    <item quantity="one">Android 4 artık desteklenmiyor. Briar %s tarihinde (%d gün sonra) çalışmayı durduracaktır. Lütfen Briar\'ı daha yeni bir aygıta yükleyin ve yeni bir hesap oluşturun.</item>
+    <item quantity="other">Android 4 artık desteklenmiyor. Briar %s tarihinde (%d gün sonra) çalışmayı durduracaktır. Lütfen Briar\'ı daha yeni bir aygıta yükleyin ve yeni bir hesap oluşturun.</item>
+  </plurals>
   <string name="expiry_date_reached">Bu yazılımın süresi doldu.\nDenediğiniz için teşekkürler!</string>
   <string name="download_briar">Briar\'ı kullanmaya devam etmek için lütfen en son sürümü indirin.</string>
   <string name="create_new_account">Yeni bir hesap oluşturmanız gerekecek, fakat aynı takma adı kullanabilirsiniz.</string>
   <string name="download_briar_button">En Son Sürümü İndir</string>
+  <string name="old_android_expiry_date_reached">Briar artık Android 4 üzerinde çalışmıyor.\nLütfen Briar\'ı daha yeni bir aygıta kurun.</string>
+  <string name="old_android_delete_account">Bu aygıttan hesabınızı silmek için aşağıdaki düğmeye dokunabilirsiniz.</string>
   <string name="delete_account_button">Hesabı Sil</string>
   <string name="startup_open_database">Veritabanı Şifresi Çözülüyor...</string>
   <string name="startup_migrate_database">Veritabanı Yükseltiliyor...</string>
@@ -228,8 +229,6 @@
   <string name="contact_added_toast">Kişi eklendi: %s</string>
   <string name="contact_already_exists"> %s kişisi zaten var</string>
   <string name="qr_code_invalid">QR kodu hatalı</string>
-  <string name="qr_code_too_old">Taradığınız QR kodu eski bir%s sürümünden geliyor. Lütfen kişinize en son sürüme yükseltmesini ve tekrar denemesini söyleyin.</string>
-  <string name="qr_code_too_new">Taradığınız QR kodu daha yeni bir %s sürümünden geliyor. Lütfen en son sürüme yükseltin ve yeniden deneyin.</string>
   <string name="camera_error">Kamera hatası</string>
   <string name="connecting_to_device">Aygıta bağlanıyor\u2026</string>
   <string name="authenticating_with_device">Aygıtla kimlik doğrulama\u2026</string>
@@ -294,7 +293,7 @@
   <string name="pending_contact_updated_toast">Bekleyen kişi güncellendi</string>
   <!--Introductions-->
   <string name="introduction_onboarding_title">Kişilerinizi tanıştırın</string>
-  <string name="introduction_onboarding_text">Kişilerinizi birbirlerine tanıtabilirsiniz, bu nedenle Briar\'a bağlanmak için şahsen bir araya gelmeniz gerekmez.</string>
+  <string name="introduction_onboarding_text">Kişilerinizi birbirlerine tanıtın, böylece Briar üzerinden bağlantı kurabilirler.</string>
   <string name="introduction_menu_item">Tanıştır</string>
   <string name="introduction_activity_title">Kişi seç</string>
   <string name="introduction_not_possible">Bu kişilerle hala devam eden tanıştırma süreciniz var. Lütfen bu sürecin tamamlanmasını bekleyin. Eğer kişileriniz nadiren çevrimiçi oluyorsa, bu biraz zaman alabilir. </string>
@@ -570,8 +569,47 @@
   <string name="choose_ringtone_title">Zil sesi seçin</string>
   <string name="cannot_load_ringtone">Zil sesi yüklenemiyor</string>
   <!--Mailbox-->
+  <string name="mailbox_settings_title">Mailbox</string>
+  <string name="mailbox_setup_title">Mailbox kurulumu</string>
+  <string name="mailbox_setup_intro">Mailbox siz çevrimdışıyken kişilerinizin size ileti göndermesini sağlar. Posta Kutusu iletilerinizi alır ve siz çevrimiçi olana kadar saklar.\n
+		\n*Briar Posta Kutusu uygulamasını yedek bir aygıta kurabilirsiniz. Aygıtı enerjiye ve Wi-Fi\'ya bağlı tutun ki sürekli çevrimiçi olsun.</string>
+  <string name="mailbox_setup_download">İlk olarak, Mailbox uygulamasını bir başka aygıtta Google Play veya Briar\'ı nereden indirdiyseniz orada \"Briar Mailbox\" aratarak kurun.\n
+		\nDaha sonra Mailbox\'u Briar ile Mailbox uygulamasında görüntülenen karekodu tarayarak bağlantılandırın.</string>
+  <string name="mailbox_setup_download_link">İndirme Bağlantısını Paylaş</string>
+  <string name="mailbox_setup_button_scan">Mailbox Karekodunu Tara</string>
+  <string name="permission_camera_qr_denied_body">Kameraya erişimi engellediniz, ancak Mailbox karekodunu taramak için kamerayı kullanmanız gerekiyor.\n\nLütfen erişim izni vermeyi düşünün.</string>
   <string name="mailbox_setup_connecting">Bağlantı kuruluyor…</string>
+  <string name="mailbox_setup_qr_code_wrong_title">Yanlış Karekod</string>
+  <string name="mailbox_setup_qr_code_wrong_description">Taranan kod geçersiz. Lütfen Briar Mailbox uygulamasını Mailbox aygıtınızda açın ve gösterdiği Karekodu tarayın.</string>
+  <string name="mailbox_setup_already_paired_title">Mailbox zaten bağlanmış</string>
+  <string name="mailbox_setup_already_paired_description">Diğer aygıttan Mailbox bağlantısını kaldırın ve tekrar deneyin</string>
+  <string name="mailbox_setup_io_error_title">Bağlantı kurulamıyor</string>
+  <string name="mailbox_setup_io_error_description">Her iki aygıtında İnternete bağlı olduğundan emin olun ve tekrar deneyin.</string>
+  <string name="mailbox_setup_assertion_error_title">Mailbox hatası</string>
+  <string name="mailbox_setup_assertion_error_description">Eğer sorun devam ederse lütfen Briar uygulaması aracılığıyla (anonim veri kullanarak) geri bildirim gönderin.</string>
+  <string name="mailbox_setup_camera_error_description">Kameraya erişilemiyor. Aygıtı yeniden başlatarak tekrar deneyin.</string>
+  <string name="mailbox_setup_paired_title">Bağlantı kuruldu</string>
+  <string name="mailbox_setup_paired_description">Mailbox\'unuz Briar ile başarılı bir şekilde bağlandı.\n
+		Mailbox\'unuzu enerjiye ve Wi-Fi\'ye bağlı tutun, böylece sürekli çevrimiçi kalır.</string>
   <string name="tor_offline_title">Çevrimdışı</string>
+  <string name="tor_offline_description">Aygıtın çevrimiçi olduğundan ve İnternet bağlantılarına izin verildiğinden emin olun.\n
+		\nDaha sonra bağlantı ayarları ekranındaki yerküre simgesinin yeşil olmasını bekleyin..</string>
+  <string name="tor_offline_button_check">Bağlantı ayarlarını denetle</string>
+  <string name="mailbox_status_title">Mailbox durumu</string>
+  <string name="mailbox_status_connected_title">Mailbox çalışıyor</string>
+  <string name="mailbox_status_problem_title">Briar Mailbox\'a bağlantı kurmakta zorluk yaşıyor.</string>
+  <string name="mailbox_status_failure_title">Mailbox kullanılamıyor</string>
+  <string name="mailbox_status_check_button">Bağlantıyı denetle</string>
+  <!--Example for string substitution: Last connection: 3min ago-->
+  <string name="mailbox_status_connected_info">Son bağlantı: %s</string>
+  <!--Indicates that there never was a connection to the mailbox. Last connection: Never-->
+  <string name="mailbox_status_connected_never">Hiç bir zaman</string>
+  <string name="mailbox_status_unlink_button">Bağlantıyı kaldır</string>
+  <string name="mailbox_status_unlink_dialog_title">Mailbox bağlantısını kaldır?</string>
+  <string name="mailbox_status_unlink_dialog_question">Mailbox bağlantısını kaldırmak istediğinizden emin misiniz?</string>
+  <string name="mailbox_status_unlink_dialog_warning">Mailbox bağlantısını kaldırırsanız, Briar çevrimdışı iken ileti alamayacaksınız.</string>
+  <string name="mailbox_status_unlink_no_wipe_title">Mailbox bağlantısı kaldırıldı.</string>
+  <string name="mailbox_status_unlink_no_wipe_message">Mailbox aygıtınıza sonraki erişiminizde lütfen Mailbox uygulamasını açın ve \"Bağlantıyı Kaldır\" düğmesine dokunarak işlemi tamamlayın.\n\nEğer Mailbox aygıtınıza artık erişiminiz yoksa endişelenmeyin. Veriniz şifrelenmiştir ve bu süreci tamamlamasanız bile güvenli kalacaktır.</string>
   <!--Conversation Settings-->
   <string name="disappearing_messages_title">Kaybolan iletiler</string>
   <string name="disappearing_messages_explanation_long">Bu ayarı etkinleştirmeniz durumunda
@@ -687,8 +725,6 @@
   <string name="hotspot_manual_site_address">Adres (URL)</string>
   <string name="hotspot_qr_site">Telefonunuz bir kablosuz erişim noktası sunuyor. Erişim noktasına bağlı kişiler Briar\'ı QR kodunu tarayarak indirebilirler. </string>
   <!--e.g. Download Briar 1.2.20-->
-  <string name="website_download_title">%s İndir</string>
-  <string name="website_download_intro">Yakınınızda olan biri sizinle %s paylaştı</string>
   <string name="website_download_outro">İndirme tamamlandıktan sonra, indirdiğiniz dosyayı açın ve kurun.</string>
   <string name="website_troubleshooting_title">Sorun çözme</string>
   <string name="website_troubleshooting_1">Uygulamayı indiremiyorsanız, başka bir tarayıcı uygulamasıyla deneyin.</string>

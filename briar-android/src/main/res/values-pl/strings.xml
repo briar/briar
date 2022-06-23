@@ -26,7 +26,6 @@
   <string name="dnkm_xiaomi_button">Chroń Briar</string>
   <string name="dnkm_xiaomi_help">Jeżeli Briar nie jest zablokowany na liście ostatnich aplikacji, nie będzie mógł działać w tle.</string>
   <string name="dnkm_xiaomi_dialog_body_old">1. Otwórz listę ostatnich aplikacji (często nazywaną też przełącznikiem aplikacji)\n\n2. Przewiń w dół na obrazku Briara aby ukazała się ikonka kłódki\n\n3. Jeśli kłódka nie jest zablokowana, dotknij, aby ją zablokować</string>
-  <string name="dnkm_xiaomi_dialog_body_new">1. Otwórz listę ostatnich aplikacji (często nazywaną też przełącznikiem aplikacji)\n\n2. Przyciśnij i przytrzymaj obrazek Briara aby ukazała się ikonka kłódki\n\n3. Jeśli kłódka nie jest zablokowana, dotknij, aby ją zablokować</string>
   <!--Login-->
   <string name="enter_password">Hasło</string>
   <string name="try_again">Złe hasło, spróbuj ponownie</string>
@@ -248,8 +247,6 @@
   <string name="contact_added_toast">Kontakt dodany: %s</string>
   <string name="contact_already_exists">Kontakt %s już istnieje</string>
   <string name="qr_code_invalid">Kod QR jest nieprawidłowy</string>
-  <string name="qr_code_too_old">Kod QR, który zeskanowałeś pochodzi od starszej wersji %s.\n\nPoproś swój kontakt o zaktualizowanie do najnowszej wersji i wtedy spróbuj ponownie.</string>
-  <string name="qr_code_too_new">Kod QR, który zeskanowałeś pochodzi od nowszej wersji %s.\n\n Wykonaj aktualizację do najnowszej wersji i spróbuj ponownie.</string>
   <string name="camera_error">Błąd aparatu</string>
   <string name="connecting_to_device">Łączenie z urządzeniem\u2026</string>
   <string name="authenticating_with_device">Autoryzowanie z urządzeniem\u2026</string>
@@ -765,8 +762,6 @@ Brak dostępu do aparatu. Spróbuj ponownie, może po ponownym uruchomieniu urz�
   <string name="hotspot_manual_site_address">Adres (URL)</string>
   <string name="hotspot_qr_site">Twój telefon udostępnia hotspot Wi-Fi. Osoby połączone z hotspotem mogą pobrać Briar, skanując ten kod QR.</string>
   <!--e.g. Download Briar 1.2.20-->
-  <string name="website_download_title">Pobierz %s</string>
-  <string name="website_download_intro"> Ktoś w pobliżu udostępnił Ci %s.</string>
   <string name="website_download_outro">Po zakończeniu pobierania otwórz pobrany plik i zainstaluj go.</string>
   <string name="website_troubleshooting_title">Rozwiązywanie problemów</string>
   <string name="website_troubleshooting_1">Jeśli nie możesz pobrać aplikacji, spróbuj za pomocą innej przeglądarki internetowej.</string>

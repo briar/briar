@@ -26,7 +26,6 @@
   <string name="dnkm_xiaomi_button">Захистити Briar</string>
   <string name="dnkm_xiaomi_help">Якщо не закріпити Briar у переліку недавніх застосунків, він не зможе працювати в фоновому режимі.</string>
   <string name="dnkm_xiaomi_dialog_body_old">1. Відкрийте перелік недавніх застосунків (також називається перемикачем додатків)\n\n2. Проведіть униз по зображенню Briar, щоб з\'явився значок замка\n\n3. Якщо замок не замкнений, замкніть його дотиком</string>
-  <string name="dnkm_xiaomi_dialog_body_new">1. Відкрийте перелік недавніх застосунків (також називається перемикачем додатків)\n\n2. Затисніть зображення Briar до появи значка замка.\n\n3. Якщо замок не замкнений, замкніть його дотиком</string>
   <!--Login-->
   <string name="enter_password">Пароль</string>
   <string name="try_again">Неправильний пароль, спробуйте ще раз</string>
@@ -248,8 +247,6 @@
   <string name="contact_added_toast">Додали контакт: %s</string>
   <string name="contact_already_exists">Контакт %s вже існує</string>
   <string name="qr_code_invalid">QR-код неправильний</string>
-  <string name="qr_code_too_old">QR-код, який ви просканували, надійшов зі старішої версії від %s.\n\nБудь ласка, попросіть у свого контакту оновитися до останньої версії, а тоді спробуйте знову.</string>
-  <string name="qr_code_too_new">QR-код, який ви просканували, надійшов з новішої версії від %s.\n\nБудь ласка, оновіться до останньої версії, а тоді спробуйте знову.</string>
   <string name="camera_error">Помилка камери</string>
   <string name="connecting_to_device">З\'єднання з пристроєм\u2026</string>
   <string name="authenticating_with_device">Автентифікація з пристроєм\u2026</string>
@@ -756,8 +753,6 @@
   <string name="hotspot_manual_site_address">Адреса (URL)</string>
   <string name="hotspot_qr_site">Ваш телефон надає точку доступу Wi-Fi. З\'єднані з нею можуть завантажити Briar, просканувавши цей QR-код.</string>
   <!--e.g. Download Briar 1.2.20-->
-  <string name="website_download_title">Завантажте %s</string>
-  <string name="website_download_intro">Хтось поруч поширює вам %s.</string>
   <string name="website_download_outro">Після завантаження, відкрийте завантажений файл і встановіть його.</string>
   <string name="website_troubleshooting_title">Виправлення неполадок</string>
   <string name="website_troubleshooting_1">Якщо не вдається завантажити застосунок, повторіть спробу іншим вебпереглядачем.</string>

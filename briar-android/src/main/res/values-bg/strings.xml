@@ -18,7 +18,7 @@
   <string name="more_info">Повече информация</string>
   <string name="don_t_ask_again">Спиране на този въпрос</string>
   <string name="dnkm_huawei_protected_text">Докоснете бутона по-долу и се уверете, че Briar е защитен в екрана за „Защитени приложения“.</string>
-  <string name="dnkm_huawei_protected_button">Защитаване на Briar</string>
+  <string name="dnkm_huawei_protected_button">Предпазване на Briar</string>
   <string name="dnkm_huawei_protected_help">Ако не добавите Briar в списъка на защитени приложения, няма да може да работи на заден план.</string>
   <string name="dnkm_huawei_app_launch_text">Докоснете бутона по-долу, отворете „Стартиране на приложения“ и се уверете, че за Briar е избрано „Ръчно управление“.</string>
   <string name="dnkm_huawei_app_launch_help">Ако за Briar не е избрано „Ръчно управление“ в екрана „Стартиране на приложения“, тогава няма да може да работи на заден план.</string>
@@ -26,7 +26,7 @@
   <string name="dnkm_xiaomi_button">Предпазване на Briar</string>
   <string name="dnkm_xiaomi_help">Ако Briar не е заключен в списъка с последно използваните приложения, няма да работи на заден план.</string>
   <string name="dnkm_xiaomi_dialog_body_old">1. Отворете списъка с отворени приложения (списък за превключване на приложения)\n\n2. Плъзнете надолу върху изображението на Briar докато се покаже икона на катинар\n\n3. Ако катинарът е отключен го докоснете, за да го заключите</string>
-  <string name="dnkm_xiaomi_dialog_body_new">1. Отворете списъка с отворени приложения (списък за превключване на приложения)\n\n2. Докоснете и задръжте върху изображението на Briar докато се покаже икона на катинар\n\n3. Ако катинарът е отключен го докоснете, за да го заключите</string>
+  <string name="dnkm_warning_dozed_1">Briar не може да работи във фонов режим</string>
   <!--Login-->
   <string name="enter_password">Парола</string>
   <string name="try_again">Грешна парола, опитайте отново</string>
@@ -48,7 +48,7 @@
   </plurals>
   <plurals name="old_android_expiry_warning">
     <item quantity="one">Android 4 не се поддържа. Briar ще спре да работи на %s (след %d ден). Инсталирайте Briar на друго устройство и създайте нов профил.</item>
-    <item quantity="other">Android 4 не се поддържа. Briar ще спре да работи на %s (след %d дни). Инсталирайте Briar на друго устройство и създайте нов профил.</item>
+    <item quantity="other">Android 4 не се поддържа. Briar ще спре да работи на %s (след %d дена). Инсталирайте Briar на друго устройство и създайте нов профил.</item>
   </plurals>
   <string name="expiry_date_reached">Софтуерът е с изтекъл срок.\nБлагодарим за изпитването!</string>
   <string name="download_briar">За да продължите да използвате Briar изтеглете последното издание.</string>
@@ -87,8 +87,8 @@
   <!--Transports: Wi-Fi-->
   <string name="transport_lan">Wi-Fi</string>
   <string name="transport_lan_long">Същата безжична мрежа</string>
-  <string name="lan_device_status_on">Устройството е свързан с безжична мрежа</string>
-  <string name="lan_device_status_off">Устройството не е свързан с безжична мрежа</string>
+  <string name="lan_device_status_on">Устройството е свързано с безжична мрежа</string>
+  <string name="lan_device_status_off">Устройството не е свързано с безжична мрежа</string>
   <string name="lan_plugin_status_enabling">Briar се свързва с безжична мрежа</string>
   <string name="lan_plugin_status_active">Briar е свързан с безжична мрежа</string>
   <string name="lan_plugin_status_inactive">Briar не е свързан с безжична мрежа</string>
@@ -230,8 +230,8 @@
   <string name="contact_added_toast">Добавен контакт: %s</string>
   <string name="contact_already_exists">Контактът %s вече съществува</string>
   <string name="qr_code_invalid">Кодът за QR е недействителен</string>
-  <string name="qr_code_too_old">Сканираният код за QR е от по-ранно издание на %s.\n\nНека вашия контакт инсталира последното издание и да пробва отново.</string>
-  <string name="qr_code_too_new">Сканираният код за QR е от по-ново издание на %s.\n\nИнсталирайте последното издание и пробвайте отново.</string>
+  <string name="qr_code_too_old_1">Сканираният код за QR е от по-ранно издание на Briar.\n\nНека вашия контакт инсталира последното издание и да пробва отново.</string>
+  <string name="qr_code_too_new_1">Сканираният код за QR е от по-ново издание на Briar.\n\nИнсталирайте последното издание и пробвайте отново.</string>
   <string name="camera_error">Грешка в камерата</string>
   <string name="connecting_to_device">Свързване с устройство\u2026</string>
   <string name="authenticating_with_device">Удостоверяване с устройство\u2026</string>
@@ -584,25 +584,34 @@
   <string name="mailbox_setup_qr_code_wrong_title">Грешен код на QR</string>
   <string name="mailbox_setup_qr_code_wrong_description">Сканираният код е недействителен. Отворете приложението Briar Malibox на устройството, на което е инсталирано и сканирайте кода, който то предостави.</string>
   <string name="mailbox_setup_already_paired_title">Пощенската кутия е вече свързана</string>
-  <string name="mailbox_setup_already_paired_description">Изключете връзката с пощенската кутия на другото устройство и опитайте отново.</string>
+  <string name="mailbox_setup_already_paired_description">Прекъснете връзката с пощенската кутия от другото устройство и опитайте отново.</string>
   <string name="mailbox_setup_io_error_title">Грешка при свързване</string>
   <string name="mailbox_setup_io_error_description">Уверете се, че и двете устройства са свързани към интернет, и опитайте отново.</string>
   <string name="mailbox_setup_assertion_error_title">Грешка в пощенската кутия</string>
+  <string name="mailbox_setup_assertion_error_description">Изпратете обратна връзка (с анонимизирани данни) през приложението Briar ако проблемът продължи да се появява.</string>
+  <string name="mailbox_setup_camera_error_description">Няма достъп до камерата. Опитайте отново и след рестарт на усройството.</string>
   <string name="mailbox_setup_paired_title">Свързан</string>
+  <string name="mailbox_setup_paired_description">Пощенската кутия е свързана с Briar.\n\nЗа да е винаги на линия, я дръжте включена в захранване и свързана с безжична мрежа.</string>
   <string name="tor_offline_title">Извън линия</string>
   <string name="tor_offline_button_check">Проверете настройките на връзката</string>
   <string name="mailbox_status_title">Състояние на пощенаската кутия</string>
   <string name="mailbox_status_connected_title">Пощенската кутия работи</string>
   <string name="mailbox_status_problem_title">Briar не може да се свърже с пощенската кутия</string>
   <string name="mailbox_status_failure_title">Пощенската кутия не е достъпна</string>
+  <string name="mailbox_status_app_too_old_title">Изданието на Briar е твърде старо</string>
+  <string name="mailbox_status_app_too_old_message">Инсталирайте последното издание на Briar и пробвайте отново.</string>
+  <string name="mailbox_status_mailbox_too_old_title">Изданието на Пощенската кутия е твърде старо</string>
+  <string name="mailbox_status_mailbox_too_old_message">Инсталирайте последното издание на Пощенска кутия и пробвайте отново.</string>
   <string name="mailbox_status_check_button">Проверка на връзката</string>
   <!--Example for string substitution: Last connection: 3min ago-->
   <string name="mailbox_status_connected_info">Последно свързване: %s</string>
   <!--Indicates that there never was a connection to the mailbox. Last connection: Never-->
   <string name="mailbox_status_connected_never">Никога</string>
-  <string name="mailbox_status_unlink_button">Изключване на връзка</string>
-  <string name="mailbox_status_unlink_dialog_title">Ще изключите ли връзката с пощенската кутия?</string>
-  <string name="mailbox_status_unlink_dialog_question">Сигурни ли сте, че желаете да изключите връзката с пощенската кутия?</string>
+  <string name="mailbox_status_unlink_button">Прекъсване на връзка</string>
+  <string name="mailbox_status_unlink_dialog_title">Ще прекъснете ли връзката с пощенската кутия?</string>
+  <string name="mailbox_status_unlink_dialog_question">Сигурни ли сте, че желаете да прекъснете връзката с пощенската кутия?</string>
+  <string name="mailbox_status_unlink_dialog_warning">Ако прекъснете връзката с пощенската кутия, няма да получавате съобщения докато Briar е без мрежа.</string>
+  <string name="mailbox_status_unlink_no_wipe_title">Връзката с пощенската кутия е прекъсната</string>
   <string name="mailbox_error_wizard_info2">Върнете се на този екран, когато получите достъп до устройството.</string>
   <!--Conversation Settings-->
   <string name="disappearing_messages_title">Изчезващи съобщения</string>
@@ -695,7 +704,7 @@
   <string name="permission_hotspot_location_request_body">За да създаде безжична точка за достъп, на Briar му е необходимо разрешение за достъп до местоположението.\n\nBriar не го пази и не го споделя с никого.</string>
   <string name="permission_hotspot_location_denied_body">Отказахте достъп до местоположението, но то е необходимо за създаване на безжична точка за достъп.\n\nОбмислете дали да не дадете разрешение.</string>
   <string name="wifi_settings_title">Настройки на Wi-Fi</string>
-  <string name="wifi_settings_request_enable_body">За създаване на безжична точка за достъп Briar се нуждае от Wi-Fi. Включете го.</string>
+  <string name="wifi_settings_request_enable_body">За да създаде безжична точка за достъп, Briar се нуждае от безжична мрежа. Включете Wi-Fi.</string>
   <string name="hotspot_tab_manual">Ръчно</string>
   <!--The placeholder to be inserted into the string 'hotspot_manual_wifi': People can connect by %s-->
   <string name="hotspot_scanning_a_qr_code">като сканират код за QR</string>
@@ -715,9 +724,10 @@
   <string name="hotspot_manual_site_address">Адрес (URL)</string>
   <string name="hotspot_qr_site">Устройството ви създава безжична точка за достъп. Хората, които са свързани към нея могат да изтеглят Briar като сканират този код за QR.</string>
   <!--e.g. Download Briar 1.2.20-->
-  <string name="website_download_title">Изтеглете %s</string>
-  <string name="website_download_intro">Някой наблизо споделя с вас %s.</string>
-  <string name="website_download_outro">След като файлът се изтегли, отворете го и го инсталирайте.</string>
+  <string name="website_download_title_1">Изтегляне на Briar %s</string>
+  <string name="website_download_intro_1">Някой наблизо споделя Briar с вас.</string>
+  <string name="website_download_button">Изтегляне на Briar</string>
+  <string name="website_download_outro">След като файлът бъде изтеглен, го отворете и го инсталирайте.</string>
   <string name="website_troubleshooting_title">Отстраняване на неизправности</string>
   <string name="website_troubleshooting_1">Ако не можете да изтеглите приложението пробвайте с друг мрежов четец.</string>
   <string name="hotspot_help_wifi_title">Проблеми при свързване чрез Wi-Fi:</string>
@@ -726,7 +736,7 @@
   <string name="hotspot_help_wifi_3">Рестартирайте устройството, което създава безжичната точка за достъп, отворете Briar и го споделете отново.</string>
   <string name="hotspot_help_site_title">Проблеми при посещаване на страницата:</string>
   <string name="hotspot_help_site_1">Уверете се, че въвеждате адреса точно, както е показан. Дори малка грешка може да доведе до неуспех.</string>
-  <string name="hotspot_help_site_2">Уверете се, че устройството е свързано с правилната мрежа на Wi-Fi (вижте по-горе) докато отваряте страницата.</string>
+  <string name="hotspot_help_site_2">Уверете се, че устройството е свързано с правилната безжична мрежа (вижте по-горе) докато отваряте страницата.</string>
   <string name="hotspot_help_site_3">Ако имате инсталирано приложение за защитна стена се уверете, че не спира достъпа.</string>
   <string name="hotspot_help_site_4">Ако можете да отворите страницата, но не и да изтеглите приложението на Briar пробвайте с друг мрежов четец.</string>
   <string name="hotspot_help_fallback_title">Нищо не става?</string>
@@ -741,8 +751,11 @@
   <string name="hotspot_error_start_callback_no_group_info">Безжичната точка не може да стартира: няма информация за група</string>
   <string name="hotspot_error_web_server_start">Грешка при стартиране на уеб сървър</string>
   <string name="hotspot_flag_test">Внимание: Това приложение е инсталирано с Android Studio и НЕ може да бъде инсталирано на друго устройство.</string>
+  <string name="hotspot_error_framework_busy">Безжичната точка не може да бъде стартирана.\n\nАко има включена друга безжична точка за достъп или споделяте мобилните си данни по безжичен път, опитайте да ги спрете и пробвайте отново.</string>
   <!--Transfer Data via Removable Drives-->
   <string name="removable_drive_menu_title">Свързване чрез преносим диск</string>
+  <string name="removable_drive_intro">Ако не можете да се свържете с контакта си чрез интернет, безжична мрежа или Bluetooth, Briar може да прехвърли съобщенията и на преносим диск, например памет на USB или SD карта.</string>
+  <string name="removable_drive_explanation">Ако не можете да се свържете с контакта си чрез интернет, безжична мрежа или Bluetooth, Briar може да прехвърли съобщенията и на преносим диск, например памет на USB или SD карта.\n\nКогато използвате бутона „Изпращане на сведения“, всичко, коeто чака да бъде изпратено на контакта, ще бъде записано на преносимия диск. Това включва лични съобщения, прикачени файлове, блогове, форуми и частни групи.\n\nПреди да бъде записано на преносимия диск, всичко ще бъде шифровано.\n\nКогато контактът ви получи сменяемото устройство, за да внесе съобщенията в Briar, той може да използва бутона „Получаване на сведения“.</string>
   <string name="removable_drive_title_send">Изпращане на сведения</string>
   <string name="removable_drive_title_receive">Получаване на сведения</string>
   <string name="removable_drive_send_intro">Докоснете бутона по-долу, за да бъде създаден файл, който ще съдържа шифрованите съобщения. Можете да изберете къде да бъде запазен този файл.\n\nАко желаете да го запазите на преносим диск го включете сега.</string>

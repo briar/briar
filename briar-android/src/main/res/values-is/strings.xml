@@ -1,36 +1,31 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<resources>
-	<!--Setup-->
-	<string name="setup_title">Velkomin í Briar</string>
-	<string name="setup_name_explanation">Stuttnefnið þitt birtist við hlið alls þess efnis sem þú sendir inn. Þú getur ekki breytt því eftir að þú hefur skráð notandaaðganginn þinn.</string>
-	<string name="setup_next">Næsta</string>
-	<string name="setup_password_intro">Veldu lykilorð</string>
-	<string name="setup_password_explanation">Notandaaðgangur þinn í Briar er geymdur dulritaður á tækinu þínu, ekki í tölvuskýi. Ef þú gleymir lykilorðinu þínu eða fjarlægir Briar, þá er engin leið til að endurheimta notandaaðganginn þinn.\n\nVeldu langt lykilorð sem erfitt er að giska á, svo sem eins og fjögur orð af handahófi, eða slembna samsetningu tíu bósktafa, tölustafa og tákna.</string>
-	<string name="dnkm_doze_title">Bakgrunnstengingar</string>
-	<string name="dnkm_doze_intro">Til að taka á móti skilaboðum þarf Briar að haldast tengt í bakgrunni.</string>
-	<string name="dnkm_doze_explanation">Til að taka á móti skilaboðum þarf Briar að haldast tengt í bakgrunni. Gerðu orkusparnaðarferli óvirk svo Briar geti haldið tengingum.</string>
-	<string name="dnkm_doze_button">Leyfa tengingar</string>
-	<string name="choose_nickname">Veldu þér stuttnefni</string>
-	<string name="choose_password">Veldu þér lykilorð</string>
-	<string name="confirm_password">Staðfestu lykilorðið</string>
-	<string name="name_too_long">Nafnið er of langt</string>
-	<string name="password_too_weak">Lykilorðið er of veikt</string>
-	<string name="passwords_do_not_match">Lykilorðin stemma ekki</string>
-	<string name="create_account_button">Búa til notandaaðgang</string>
-	<string name="more_info">Nánari upplýsingar</string>
-	<string name="don_t_ask_again">Ekki spyrja aftur</string>
-	<string name="dnkm_huawei_protected_text">Ýttu á hnappinn hér fyrir neðan og gakktu úr skugga um að Briar sé varið á skjánum \"Varin forrit\".</string>
-	<string name="dnkm_huawei_protected_button">Vernda Briar</string>
-	<string name="dnkm_huawei_protected_help">Ef Briar er ekki bætt á listann yfir varin forrit, getur það ekki keyrt í bakgrunni.</string>
-	<string name="dnkm_huawei_app_launch_text">Ýttu á hnappinn hér fyrir neðan, opnaðu \"Ræsing forrits\" skjáinn og gakktu úr skugga um að Briar sé stillt á \"Stýra handvirkt\".</string>
-	<string name="dnkm_huawei_app_launch_button">Opna rafhlöðustillingar</string>
-	<string name="dnkm_huawei_app_launch_help">Ef Briar er ekki stillt á \"Stýra handvirkt\" í \"Ræsing forrits\" skjánum, mun það ekki geta keyrt í bakgrunni.</string>
-	<string name="dnkm_xiaomi_text">Til að keyra í bakgrunni þarf Briar að vera læst við listann yfir nýleg forrit.</string>
-	<string name="dnkm_xiaomi_button">Vernda Briar</string>
-	<string name="dnkm_xiaomi_help">Ef Briar er ekki læst við listann yfir nýleg forrit, mun það ekki geta keyrt í bakgrunni.</string>
-	<string name="dnkm_xiaomi_dialog_body_old">1. Opnaðu listann yfir nýleg forrit (einnig kallað forritaskiptir)\n\n2. Strjúktu niður myndina af Briar til að birta hengilástáknið\n\n3. Ef hengilásinn er ekki læstur, ýttu á hann til að læsa</string>
-	<string name="dnkm_xiaomi_dialog_body_new">1. Opnaðu listann yfir nýleg forrit (einnig kallað forritaskiptir)\n\n2. Ýttu og haltu niðri á myndina af Briar til að birta hengiláshnappinn\n\n3. Ef hengilásinn er ekki læstur, ýttu á hann til að læsa</string>
-	<string name="dnkm_warning_dozed">%s gat ekki keyrt í bakgrunni</string>
+<resources xmlns:tools="http://schemas.android.com/tools">
+  <!--Setup-->
+  <string name="setup_title">Velkomin í Briar</string>
+  <string name="setup_name_explanation">Stuttnefnið þitt birtist við hlið alls þess efnis sem þú sendir inn. Þú getur ekki breytt því eftir að þú hefur skráð notandaaðganginn þinn.</string>
+  <string name="setup_next">Næsta</string>
+  <string name="setup_password_intro">Veldu lykilorð</string>
+  <string name="setup_password_explanation">Notandaaðgangur þinn í Briar er geymdur dulritaður á tækinu þínu, ekki í tölvuskýi. Ef þú gleymir lykilorðinu þínu eða fjarlægir Briar, þá er engin leið til að endurheimta notandaaðganginn þinn.\n\nVeldu langt lykilorð sem erfitt er að giska á, svo sem eins og fjögur orð af handahófi, eða slembna samsetningu tíu bósktafa, tölustafa og tákna.</string>
+  <string name="dnkm_doze_intro">Til að taka á móti skilaboðum þarf Briar að haldast tengt í bakgrunni.</string>
+  <string name="dnkm_doze_explanation">Til að taka á móti skilaboðum þarf Briar að haldast tengt í bakgrunni. Gerðu orkusparnaðarferli óvirk svo Briar geti haldið tengingum.</string>
+  <string name="choose_nickname">Veldu þér stuttnefni</string>
+  <string name="choose_password">Veldu þér lykilorð</string>
+  <string name="confirm_password">Staðfestu lykilorðið</string>
+  <string name="name_too_long">Nafnið er of langt</string>
+  <string name="password_too_weak">Lykilorðið er of veikt</string>
+  <string name="passwords_do_not_match">Lykilorðin stemma ekki</string>
+  <string name="create_account_button">Búa til notandaaðgang</string>
+  <string name="more_info">Nánari upplýsingar</string>
+  <string name="don_t_ask_again">Ekki spyrja aftur</string>
+  <string name="dnkm_huawei_protected_text">Ýttu á hnappinn hér fyrir neðan og gakktu úr skugga um að Briar sé varið á skjánum \"Varin forrit\".</string>
+  <string name="dnkm_huawei_protected_button">Vernda Briar</string>
+  <string name="dnkm_huawei_protected_help">Ef Briar er ekki bætt á listann yfir varin forrit, getur það ekki keyrt í bakgrunni.</string>
+  <string name="dnkm_huawei_app_launch_text">Ýttu á hnappinn hér fyrir neðan, opnaðu \"Ræsing forrits\" skjáinn og gakktu úr skugga um að Briar sé stillt á \"Stýra handvirkt\".</string>
+  <string name="dnkm_huawei_app_launch_help">Ef Briar er ekki stillt á \"Stýra handvirkt\" í \"Ræsing forrits\" skjánum, mun það ekki geta keyrt í bakgrunni.</string>
+  <string name="dnkm_xiaomi_text">Til að keyra í bakgrunni þarf Briar að vera læst við listann yfir nýleg forrit.</string>
+  <string name="dnkm_xiaomi_button">Vernda Briar</string>
+  <string name="dnkm_xiaomi_help">Ef Briar er ekki læst við listann yfir nýleg forrit, mun það ekki geta keyrt í bakgrunni.</string>
+  <string name="dnkm_xiaomi_dialog_body_old">1. Opnaðu listann yfir nýleg forrit (einnig kallað forritaskiptir)\n\n2. Strjúktu niður myndina af Briar til að birta hengilástáknið\n\n3. Ef hengilásinn er ekki læstur, ýttu á hann til að læsa</string>
   <!--Login-->
   <string name="enter_password">Lykilorð</string>
   <string name="try_again">Rangt lykilorð, reyndu aftur</string>
@@ -234,8 +229,6 @@
   <string name="contact_added_toast">Tengilið bætt við: %s</string>
   <string name="contact_already_exists">Tengiliðurinn %s er þegar til</string>
   <string name="qr_code_invalid">QR-kóðinn er ógildur</string>
-  <string name="qr_code_too_old">QR-kóðinn sem þú skannaðir kemur frá eldri útgáfu af %s.\n\nBiddu tengiliðinn þinn um að uppfæra í nýjustu útgáfuna og prófaðu síðan aftur.</string>
-  <string name="qr_code_too_new">QR-kóðinn sem þú skannaðir kemur frá nýrri útgáfu af %s.\n\nUppfærðu í nýjustu útgáfuna og prófaðu síðan aftur.</string>
   <string name="camera_error">Villa í myndavél</string>
   <string name="connecting_to_device">Tengist við tæki\u2026</string>
   <string name="authenticating_with_device">Auðkenni við tæki\u2026</string>
@@ -300,7 +293,6 @@
   <string name="pending_contact_updated_toast">Tengiliður í bið uppfærður</string>
   <!--Introductions-->
   <string name="introduction_onboarding_title">Kynntu tengiliðina þína</string>
-  <string name="introduction_onboarding_text">Þú getur kynnt tengiliðina þína fyrir hver öðrum, svo að þeir þurfi ekki að hittast í eigin persónu til að tengjast í gegnum Briar.</string>
   <string name="introduction_menu_item">Útbúa kynningu</string>
   <string name="introduction_activity_title">Veldu tengilið</string>
   <string name="introduction_not_possible">Þú ert þegar með eina kynningu í vinnslu gagnvart þessum tengiliðum. Leyfðu því ferli að ljúka fyrst. Ef þú eða tengiliðirnir þínir eruð sjaldan á netinu, gæti þetta tekið svolítinn tíma.</string>
@@ -604,10 +596,13 @@
   <string name="tor_offline_button_check">Athugaðu tengistillingarnar</string>
   <string name="mailbox_status_title">Staða pósthólfs</string>
   <string name="mailbox_status_connected_title">Pósthólf er í gangi</string>
+  <string name="mailbox_status_failure_title">Pósthólf er ekki tiltækt</string>
+  <string name="mailbox_status_check_button">Athugaðu tenginguna</string>
   <!--Example for string substitution: Last connection: 3min ago-->
   <string name="mailbox_status_connected_info">Síðasta tenging: %s</string>
   <!--Indicates that there never was a connection to the mailbox. Last connection: Never-->
   <string name="mailbox_status_connected_never">Aldrei</string>
+  <string name="mailbox_status_unlink_button">Aftengja</string>
   <!--Conversation Settings-->
   <string name="disappearing_messages_title">Sjálfeyðandi skilaboð</string>
   <string name="disappearing_messages_explanation_long">Ef kveikt er á þessari stillingu munu ný
@@ -723,8 +718,6 @@
   <string name="hotspot_manual_site_address">Vistfang (URL)</string>
   <string name="hotspot_qr_site">Síminn þinn er að reka Wi-Fi aðgangsstað. Fólk sem er tengt aðgangsstaðnum getur sótt Briar með því að skanna þennan QR-kóða.</string>
   <!--e.g. Download Briar 1.2.20-->
-  <string name="website_download_title">Sækja %s</string>
-  <string name="website_download_intro">Einhver í nágrenninu hefur deilt %s með þér.</string>
   <string name="website_download_outro">Eftir að niðurhalinu er lokið, skaltu opna sóttu skrána og setja hana upp.</string>
   <string name="website_troubleshooting_title">Lausn á vandamálum</string>
   <string name="website_troubleshooting_1">Ef þú getur ekki sótt forritið, ættirðu að prófa það með öðrum vafra.</string>

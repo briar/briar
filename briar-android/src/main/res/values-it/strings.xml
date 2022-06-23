@@ -26,7 +26,6 @@
   <string name="dnkm_xiaomi_button">Proteggi Briar</string>
   <string name="dnkm_xiaomi_help">Se Briar non è fissato nella lista di app recenti, non potrà funzionare in secondo piano.</string>
   <string name="dnkm_xiaomi_dialog_body_old">1. Apri la lista di app recenti (chiamata anche app switcher)\n\n2. Scorri fino alla schermata di Briar per mostrare l\'icona del lucchetto\n\n3. Se il lucchetto non è chiuso, toccalo per chiuderlo</string>
-  <string name="dnkm_xiaomi_dialog_body_new">1. Apri la lista di app recenti (chiamata anche app switcher)\n\n2. Tieni premuta la schermata di Briar finché non compare l\'icona del lucchetto\n\n3. Se il lucchetto non è chiuso, toccalo per chiuderlo</string>
   <!--Login-->
   <string name="enter_password">Password</string>
   <string name="try_again">Password sbagliata, riprova</string>
@@ -239,8 +238,6 @@
   <string name="contact_added_toast">Contatto aggiunto: %s</string>
   <string name="contact_already_exists">Il contatto %s esiste già</string>
   <string name="qr_code_invalid">Il codice QR non è valido</string>
-  <string name="qr_code_too_old">Il codice QR che hai scansionato proviene da una vecchia versione di %s.\n\nChiedi al tuo contatto di aggiornare all\'ultima versione e poi riprova.</string>
-  <string name="qr_code_too_new">Il codice QR che hai scansionato proviene da una versione più recente di %s.\n\nAggiorna all\'ultima versione e poi riprova.</string>
   <string name="camera_error">Errore fotocamera</string>
   <string name="connecting_to_device">Connessione al dispositivo\u2026</string>
   <string name="authenticating_with_device">Autenticazione con il dispositivo\u2026</string>
@@ -627,6 +624,9 @@
   <string name="mailbox_status_unlink_dialog_warning">Se la scolleghi non potrai più ricevere messaggi mentre Briar è offline.</string>
   <string name="mailbox_status_unlink_no_wipe_title">La casella postale è stata scollegata</string>
   <string name="mailbox_status_unlink_no_wipe_message">La prossima volta che avrai accesso al dispositivo della casella postale, apri l\'app Mailbox e tocca il pulsante \"Scollega\" per completare il processo.\n\nSe non hai più accesso al dispositivo, non preoccuparti. I dati sono cifrati e rimarranno sicuri anche se non completi il processo.</string>
+  <string name="mailbox_error_notification_channel_title">Problema casella postale di Briar</string>
+  <string name="mailbox_error_notification_title">Casella postale di Briar non disponibile</string>
+  <string name="mailbox_error_notification_text">Tocca per risolvere il problema.</string>
   <string name="mailbox_error_wizard_button">Risolvi problema</string>
   <string name="mailbox_error_wizard_title">Wizard risoluzione problemi casella postale</string>
   <string name="mailbox_error_wizard_question1">Hai accesso al dispositivo della casella postale?</string>
@@ -764,8 +764,6 @@
   <string name="hotspot_manual_site_address">Indirizzo (URL)</string>
   <string name="hotspot_qr_site">Il tuo telefono sta fornendo un hotspot Wi-Fi. Le persone connesse all\'hotspot possono scaricare Briar scansionando questo codice QR.</string>
   <!--e.g. Download Briar 1.2.20-->
-  <string name="website_download_title">Scarica %s</string>
-  <string name="website_download_intro">Qualcuno nelle vicinanze ha condiviso %s con te.</string>
   <string name="website_download_outro">Dopo il completamento del download, apri il file scaricato e installalo.</string>
   <string name="website_troubleshooting_title">Risoluzione dei problemi</string>
   <string name="website_troubleshooting_1">Se non puoi scaricare l\'app, prova con un browser web diverso.</string>

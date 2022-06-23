@@ -26,7 +26,10 @@
   <string name="dnkm_xiaomi_button">Briar schützen</string>
   <string name="dnkm_xiaomi_help">Wenn Briar nicht in der Liste der zuletzt verwendeten Apps gesperrt ist, kann es nicht im Hintergrund ausgeführt werden.</string>
   <string name="dnkm_xiaomi_dialog_body_old">1. Öffne die Liste der zuletzt verwendeten Apps (auch \'App Switcher\' genannt)\n\n2. Wische auf dem Bild von Briar nach unten, um das Vorhängeschlosssymbol anzuzeigen\n\n3. Wenn das Vorhängeschloss nicht gesperrt ist, tippe darauf, um es zu sperren</string>
-  <string name="dnkm_xiaomi_dialog_body_new">1. Öffne die Liste der zuletzt verwendeten Apps (auch \'App Switcher\' genannt)\n\n2. Halte das Bild von Briar gedrückt, bis die Schaltfläche für das Vorhängeschloss angezeigt wird\n\n3. Wenn das Vorhängeschloss nicht gesperrt ist, tippe darauf, um es zu sperren</string>
+  <string name="dnkm_xiaomi_dialog_body_new">1. Öffne die Liste der zuletzt verwendeten Apps (auch \'App Switcher\' genannt)\n\n2. Wenn neben Briar ein kleines Vorhängeschloss angezeigt wird, brauchst du nichts zu tun.\n\n3. Wenn kein Vorhängeschloss vorhanden ist, halte das Bild von Briar gedrückt, bis die Schaltfläche für das Vorhängeschloss erscheint, und tippe dann darauf</string>
+  <string name="dnkm_xiaomi_lock_apps_text">Bitte tippe auf die Schaltfläche unten, um die Sicherheitseinstellungen zu öffnen. Tippe auf \"Geschwindigkeit erhöhen\", dann auf \"Apps sperren\" und stelle sicher, dass Briar auf \"Gesperrt\" gesetzt ist.</string>
+  <string name="dnkm_xiaomi_lock_apps_help">Wenn Briar nicht auf \" Gesperrt\" im Bereich \"Apps sperren\" gesetzt wurde, kann sie nicht im Hintergrund ausgeführt werden.</string>
+  <string name="dnkm_warning_dozed_1">Briar konnte nicht im Hintergrund ausgeführt werden</string>
   <!--Login-->
   <string name="enter_password">Passwort</string>
   <string name="try_again">Passwort falsch, bitte erneut versuchen</string>
@@ -169,11 +172,11 @@
   <string name="set_contact_alias_hint">Name des Kontakts</string>
   <string name="menu_item_disappearing_messages">Selbstlöschende Nachrichten</string>
   <!--The first placeholder will show a duration like "7 days". The second placeholder at the end will add "Tap to learn more."-->
-  <string name="auto_delete_msg_you_enabled">Deine Nachrichten werden nach %1$sgelöscht. %2$s</string>
+  <string name="auto_delete_msg_you_enabled">Deine Nachrichten werden nach %1$s gelöscht. %2$s</string>
   <!--The placeholder at the end will add "Tap to learn more."-->
   <string name="auto_delete_msg_you_disabled">Deine Nachrichten werden nicht gelöscht. %1$s</string>
   <!--The first placeholder will show a contact's name. The second placeholder will show a duration like "7 days". The third placeholder at the end will add "Tap to learn more."-->
-  <string name="auto_delete_msg_contact_enabled">%1$s\'s Nachrichten werden nach%2$sgelöscht. %3$s</string>
+  <string name="auto_delete_msg_contact_enabled">%1$s\'s Nachrichten werden nach %2$s gelöscht. %3$s</string>
   <plurals name="duration_minutes">
     <item quantity="one">%d Minute</item>
     <item quantity="other">%d Minuten</item>
@@ -230,8 +233,8 @@
   <string name="contact_added_toast">Kontakt hinzugefügt: %s</string>
   <string name="contact_already_exists">Kontakt %s existiert bereits</string>
   <string name="qr_code_invalid">Der QR-Code ist ungültig</string>
-  <string name="qr_code_too_old">Der QR-Code, den du eingescannt hast, kommt von einer älteren Version von %s.\n\nBitte deinen Kontakt, zur neuesten Version upzudaten, und probiere es erneut.</string>
-  <string name="qr_code_too_new">Der QR-Code, den du gescannt hast, kommt von einer neueren Version.\n\nBitte aktualisiere %s auf die neueste Version und versuche es erneut.</string>
+  <string name="qr_code_too_old_1">Der QR-Code, den du gescannt hast, kommt von einer älteren Version von Briar.\n\nBitte deinen Kontakt, zur neuesten Version upzudaten, und versuche es erneut.</string>
+  <string name="qr_code_too_new_1">Der QR-Code, den du gescannt hast, kommt von einer neueren Version.\n\nBitte aktualisiere Briar auf die neueste Version und versuche es erneut.</string>
   <string name="camera_error">Kamerafehler</string>
   <string name="connecting_to_device">Verbinde mit Gerät\u2026</string>
   <string name="authenticating_with_device">Authentifiziere Gerät\u2026</string>
@@ -307,7 +310,7 @@
   <string name="introduction_error">Es gab einen Fehler beim Versuch, die Kontaktempfehlung zu verschicken.</string>
   <string name="introduction_request_sent">Du wolltest %1$s an %2$s als Kontakt empfehlen</string>
   <string name="introduction_request_received">%1$s schlägt vor, dich als Kontakt an %2$s zu empfehlen. Möchtest du %2$s zu deiner Kontaktliste hinzufügen?</string>
-  <string name="introduction_request_exists_received">%1$s schlägt vor, dich als Kontakt an %2$s zu empfehlen. %2$s ist allerdings bereits in deiner Kontaktliste. Da %1$s das vielleicht nicht weiss, kannst du trotzdem antworten:</string>
+  <string name="introduction_request_exists_received">%1$s schlägt vor, dich als Kontakt an %2$s zu empfehlen. %2$s ist allerdings bereits in deiner Kontaktliste. Da %1$s das vielleicht nicht weiß, kannst du trotzdem antworten:</string>
   <string name="introduction_request_answered_received">%1$s schlägt vor, dich als Kontakt an %2$s zu empfehlen. </string>
   <string name="introduction_response_accepted_sent">Du hast die Kontaktempfehlung von %1$s angenommen.</string>
   <string name="introduction_response_accepted_sent_info">Bevor %1$s zu deinen Kontakten hinzugefügt wird, muss die Kontaktempfehlung ebenfalls akzeptieren werden. Dies kann eine Weile dauern.</string>
@@ -412,7 +415,7 @@
   <string name="forum_share_error">Es gab einen Fehler beim Versuch, dieses Forum zu teilen.</string>
   <string name="forum_invitation_received">%1$s hat das Forum \"%2$s\" mit dir geteilt.</string>
   <string name="forum_invitation_sent">Du hast das Forum \"%1$s\" mit %2$s geteilt.</string>
-  <string name="forum_invitations_title">Forumeinladungen</string>
+  <string name="forum_invitations_title">Foreneinladungen</string>
   <string name="forum_invitation_exists">Du hast bereits eine Einladung zu diesem Forum angenommen.\n\nMehrere Einladungen anzunehmen wird deine Verbindung zu diesem Forum schneller und zuverlässiger machen.</string>
   <string name="forum_joined_toast">Dem Forum beigetreten</string>
   <string name="forum_declined_toast">Einladung abgelehnt</string>
@@ -476,7 +479,7 @@
   <string name="blogs_rss_feeds_manage_updated">Letzte Aktualisierung:</string>
   <string name="blogs_rss_remove_feed">Feed entfernen</string>
   <string name="blogs_rss_remove_feed_dialog_message">Bist du sicher, dass du diesen Feed löschen willst?\n\nBeiträge werden von deinem Gerät entfernt, aber nicht von den Geräten anderer Personen.\n\nAlle Kontakte, für die du diesen Feed freigegeben hast, können keine Updates mehr erhalten.</string>
-  <string name="blogs_rss_remove_feed_ok">Aufheben</string>
+  <string name="blogs_rss_remove_feed_ok">Entfernen</string>
   <string name="blogs_rss_feeds_manage_empty_state">Keine RSS-Feeds vorhanden\n\nTippe auf das + Symbol, um einen Feed zu importieren</string>
   <string name="blogs_rss_feeds_manage_error">Es gab ein Problem beim Laden deiner Feeds. Bitte versuche es später erneut.</string>
   <!--Settings Profile Picture-->
@@ -602,6 +605,10 @@
   <string name="mailbox_status_connected_title">Mailbox läuft</string>
   <string name="mailbox_status_problem_title">Briar hat Probleme mit der Verbindung zur Mailbox</string>
   <string name="mailbox_status_failure_title">Mailbox ist nicht verfügbar</string>
+  <string name="mailbox_status_app_too_old_title">Briar ist zu alt</string>
+  <string name="mailbox_status_app_too_old_message">Aktualisiere Briar auf die neueste Version der App und versuche es erneut.</string>
+  <string name="mailbox_status_mailbox_too_old_title">Mailbox ist zu alt</string>
+  <string name="mailbox_status_mailbox_too_old_message">Aktualisiere deine Mailbox auf die neueste Version der App und versuche es erneut.</string>
   <string name="mailbox_status_check_button">Verbindung überprüfen</string>
   <!--Example for string substitution: Last connection: 3min ago-->
   <string name="mailbox_status_connected_info">Letzte Verbindung: %s</string>
@@ -613,8 +620,30 @@
   <string name="mailbox_status_unlink_dialog_warning">Wenn du die Verknüpfung mit deiner Mailbox aufhebst, kannst du keine Nachrichten empfangen, während Briar offline ist.</string>
   <string name="mailbox_status_unlink_no_wipe_title">Deine Mailbox wurde getrennt</string>
   <string name="mailbox_status_unlink_no_wipe_message">Wenn du das nächste Mal Zugriff auf dein Mailbox-Gerät hast, öffne bitte die Mailbox-App und tippe auf die Schaltfläche \"Trennen\", um den Vorgang abzuschließen.\n\nWenn du keinen Zugriff mehr auf dein Mailbox-Gerät hast, mach dir keine Sorgen. Deine Daten sind verschlüsselt, sodass sie sicher bleiben, auch wenn du den Vorgang nicht abschließt.</string>
+  <string name="mailbox_error_notification_channel_title">Briar Mailbox Problem</string>
+  <string name="mailbox_error_notification_title">Briar Mailbox ist nicht verfügbar</string>
   <string name="mailbox_error_notification_text">Antippen, um das Problem zu beheben.</string>
   <string name="mailbox_error_wizard_button">Problem beheben</string>
+  <string name="mailbox_error_wizard_title">Assistent zur Fehlerbehebung für die Mailbox</string>
+  <string name="mailbox_error_wizard_question1">Hast du Zugriff auf dein Mailbox-Gerät?</string>
+  <string name="mailbox_error_wizard_answer1">Ja, ich habe jetzt Zugriff darauf.</string>
+  <string name="mailbox_error_wizard_answer2">Im Moment nicht, aber ich kann später Zugriff darauf bekommen.</string>
+  <string name="mailbox_error_wizard_answer3">Nein, ich habe keinen Zugriff mehr darauf.</string>
+  <string name="mailbox_error_wizard_info1_1">Überprüfe, ob das Mailbox-Gerät eingeschaltet und mit dem Internet verbunden ist.</string>
+  <string name="mailbox_error_wizard_question1_1">Öffne die Mailbox-App. Was siehst du?</string>
+  <string name="mailbox_error_wizard_answer1_1">Ich sehe eine Anleitung zum Einrichten der Mailbox</string>
+  <string name="mailbox_error_wizard_answer1_2">Ich sehe einen QR-Code</string>
+  <string name="mailbox_error_wizard_answer1_3">Ich sehe \"Mailbox wird ausgeführt\"</string>
+  <string name="mailbox_error_wizard_answer1_4">Ich sehe \"Gerät ist offline\"</string>
+  <string name="mailbox_error_wizard_info1_1_1">Bitte trenne die Verknüpfung deiner Mailbox über die Schaltfläche unten und folge dann den Anweisungen auf dem Mailbox-Gerät, um sie erneut zu verbinden.</string>
+  <string name="mailbox_error_wizard_info_1_1_2">Bitte trenne die Verknüpfung deiner Mailbox über die Schaltfläche unten und scanne dann den QR-Code, um sie erneut zu verbinden.</string>
+  <string name="mailbox_error_wizard_info1_1_3">Bitte benutze die Schaltfläche unten, um die Verbindung zwischen Briar und der Mailbox zu überprüfen.\n\n
+		Wenn die Verbindung erneut fehlschlägt:\n
+		\u2022 Überprüfe, ob die Mailbox- und Briar-Apps auf die neueste Version aktualisiert sind.\n
+		\u2022 Starte deine Mailbox- und Briar-Geräte neu und versuche es erneut.</string>
+  <string name="mailbox_error_wizard_info1_1_4">Überprüfe, ob das Mailbox-Gerät ordnungsgemäß mit dem Internet verbunden ist.\n\nÜberprüfe, ob die Uhr auf dem Mailbox-Gerät die richtige Uhrzeit, das richtige Datum und die richtige Zeitzone anzeigt.\n\nÜberprüfe, ob die Mailbox- und Briar-Apps auf die neueste Version aktualisiert sind.\n\nStarte deine Mailbox- und Briar-Geräte neu und versuche es erneut.</string>
+  <string name="mailbox_error_wizard_info2">Bitte rufe diesen Bildschirm wieder auf, wenn du Zugriff auf das Gerät hast.</string>
+  <string name="mailbox_error_wizard_info3">Bitte trenne die Verknüpfung deiner Mailbox über die Schaltfläche unten.\n\nNach der Trennung deiner alten Mailbox kannst du jederzeit eine neue Mailbox einrichten.</string>
   <!--Conversation Settings-->
   <string name="disappearing_messages_title">Selbstlöschende Nachrichten</string>
   <string name="disappearing_messages_explanation_long">Wenn diese Einstellung aktiviert ist, werden neue
@@ -663,7 +692,7 @@
   <string name="send_report">Bericht senden</string>
   <string name="close">Schließen</string>
   <string name="dev_report_sending">Rückmeldung wird gesendet…</string>
-  <string name="dev_report_sent">Feedback senden</string>
+  <string name="dev_report_sent">Feedback gesendet</string>
   <string name="dev_report_saved">Der Bericht wurde gespeichert. Er wird verschickt, wenn du dich das nächste Mal bei Briar anmeldest.</string>
   <string name="dev_report_error">Fehler: Senden des Reports fehlgeschlagen</string>
   <!--Sign Out-->
@@ -682,7 +711,7 @@
   <string name="permission_camera_location_title">Kamera und Standort</string>
   <string name="permission_camera_location_request_body">Um den QR-Code zu scannen, braucht Briar Zugriff auf die Kamera.\n\nUm Bluetooth-Geräte zu finden, braucht Briar Zugriff auf deinen Standort.\n\nBriar speichert weder deinen Standort noch gibt es ihn an andere weiter.</string>
   <string name="permission_camera_denied_body">Du hast den Zugriff auf die Kamera verweigert, aber das Hinzufügen von Kontakten erfordert die Verwendung der Kamera.\n\nBitte gewähre den Zugriff.</string>
-  <string name="permission_location_denied_body">Du hast den Zugriff auf deinen Standort verweigert, aber Briar benötigt diese Berechtigung, um Bluetooth-Geräte zu erkennen.\n\nBitte gewähre den Zugriff.</string>
+  <string name="permission_location_denied_body">Du hast den Zugriff auf deinen Standort verweigert, aber Briar benötigt diese Berechtigung, um Bluetooth-Geräte zu erkennen.\n\nBitte überlege, ob du Zugriff gewährst.</string>
   <string name="permission_location_setting_title">Standorteinstellung</string>
   <string name="permission_location_setting_body">Die Standorteinstellung deines Geräts muss aktiviert sein, um andere Geräte über Bluetooth zu finden. Bitte aktiviere den Standort, um fortzufahren. Du kannst sie anschließend wieder deaktivieren.</string>
   <string name="permission_location_setting_button">Standort aktivieren</string>
@@ -708,7 +737,7 @@
   <string name="hotspot_notification_title">Briar offline teilen</string>
   <string name="hotspot_button_connected">Weiter</string>
   <string name="permission_hotspot_location_request_body">Um einen WLAN-Hotspot zu erstellen, benötigt Briar die Erlaubnis, auf deinen Standort zuzugreifen.\n\nBriar speichert weder deinen Standort noch gibt es ihn an andere weiter.</string>
-  <string name="permission_hotspot_location_denied_body">Du hast den Zugriff auf deinen Standort verweigert, aber Briar benötigt diese Berechtigung, um einen WLAN-Hotspot zu erstellen.\n\nBitte gewähre den Zugriff.</string>
+  <string name="permission_hotspot_location_denied_body">Du hast den Zugriff auf deinen Standort verweigert, aber Briar benötigt diese Berechtigung, um einen WLAN-Hotspot zu erstellen.\n\nBitte überlege, ob du Zugriff gewährst.</string>
   <string name="wifi_settings_title">WLAN-Einstellungen</string>
   <string name="wifi_settings_request_enable_body">Um einen WLAN-Hotspot zu erstellen, benötigt Briar das WLAN. Bitte aktiviere es.</string>
   <string name="hotspot_tab_manual">Manuell</string>
@@ -730,8 +759,9 @@
   <string name="hotspot_manual_site_address">Adresse (URL)</string>
   <string name="hotspot_qr_site">Dein Telefon stellt einen WLAN-Hotspot bereit. Personen, die mit dem Hotspot verbunden sind, können Briar durch Scannen dieses QR-Codes herunterladen.</string>
   <!--e.g. Download Briar 1.2.20-->
-  <string name="website_download_title">Download %s</string>
-  <string name="website_download_intro">Jemand in der Nähe hat %s mit dir geteilt.</string>
+  <string name="website_download_title_1">Briar %s herunterladen</string>
+  <string name="website_download_intro_1">Jemand in der Nähe hat Briar mit dir geteilt.</string>
+  <string name="website_download_button">Briar herunterladen</string>
   <string name="website_download_outro">Nach Abschluss des Downloads öffne die heruntergeladene Datei und installiere sie.</string>
   <string name="website_troubleshooting_title">Fehlerbehebung</string>
   <string name="website_troubleshooting_1">Wenn du die App nicht herunterladen kannst, versuche es mit einer anderen Webbrowser-App.</string>

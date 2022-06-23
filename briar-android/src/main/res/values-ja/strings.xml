@@ -1,13 +1,13 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources xmlns:tools="http://schemas.android.com/tools">
   <!--Setup-->
-  <string name="setup_title">Briarへようこそ</string>
+  <string name="setup_title">Briar へようこそ</string>
   <string name="setup_name_explanation">あなたのニックネームは、常に、あなたが投稿するコンテンツとともに表示されます。プロフィール作成後、編集はできません。</string>
   <string name="setup_next">次へ</string>
   <string name="setup_password_intro">パスワードを選択</string>
-  <string name="setup_password_explanation">Briarのアカウント情報はクラウドではなく、暗号化された端末に保存されます。アプリのアンインストールやパスワードの紛失をした場合、アカウントへのアクセスとデータを回復する手段はありません。\n\n推測するのが難しい、長いパスワードを設定してください。ランダムな4単語やランダムな10文字と数字と記号を組み合わせたものなどです。</string>
-  <string name="dnkm_doze_intro">メッセージを受信するには、Briarはバックグラウンドで接続を維持する必要があります。</string>
-  <string name="dnkm_doze_explanation">メッセージを受信するには、Briarはバックグラウンドで接続を維持する必要があります。 Briarが接続を維持できるように、バッテリーの最適化を無効にしてください。</string>
+  <string name="setup_password_explanation">Briar のアカウント情報はクラウドではなく、暗号化された端末に保存されます。アプリのアンインストールやパスワードを紛失した場合、アカウントへのアクセスとデータを回復する手段はありません。\n\n推測するのが難しい、長いパスワードを設定してください。ランダムな４単語やランダムな10文字と数字と記号を組み合わせたものなどです。</string>
+  <string name="dnkm_doze_intro">メッセージを受信するために、Briar はバックグラウンドで接続を維持する必要があります。</string>
+  <string name="dnkm_doze_explanation">メッセージを受信するために、Briar はバックグラウンドで接続を維持する必要があります。 Briar が接続を維持できるように、バッテリーの最適化を無効にしてください。</string>
   <string name="choose_nickname">ニックネームを入力</string>
   <string name="choose_password">パスワードを入力</string>
   <string name="confirm_password">確認のため再度パスワードを入力</string>
@@ -17,36 +17,42 @@
   <string name="create_account_button">アカウントを作成</string>
   <string name="more_info">詳細情報</string>
   <string name="don_t_ask_again">次からは尋ねない</string>
-  <string name="dnkm_huawei_protected_text">下のボタンをタップして、「保護されたアプリ」画面でBriarが保護されていることを確認してください。</string>
-  <string name="dnkm_huawei_protected_button">Briarを保護</string>
-  <string name="dnkm_huawei_protected_help">Briarが保護されたアプリのリストに追加されていない場合、Briarはバックグラウンドで実行することができません。</string>
-  <string name="dnkm_xiaomi_button">Briarを保護</string>
+  <string name="dnkm_huawei_protected_text">下のボタンをタップして、「保護されたアプリ」画面で Briar が保護されていることを確認してください。</string>
+  <string name="dnkm_huawei_protected_button">Briar を保護する</string>
+  <string name="dnkm_huawei_protected_help">Briar が保護されたアプリのリストに追加されていないと、Briar はバックグラウンドで実行することができません。</string>
+  <string name="dnkm_huawei_app_launch_text">下のボタンをタップして「アプリの起動」画面を開き、Briar が「手動で管理する」に設定されていることを確認してください。</string>
+  <string name="dnkm_huawei_app_launch_help">「アプリ起動」画面で Briar を「手動で管理する」に設定していないと、バックグラウンドで動作させることができません。</string>
+  <string name="dnkm_xiaomi_text">バックグラウンドで実行するには、Briar を最近のアプリのリストにロックする必要があります。</string>
+  <string name="dnkm_xiaomi_button">Briar を保護する</string>
+  <string name="dnkm_xiaomi_help">Briar が最近のアプリのリストにロックされていないと、バックグラウンドで実行することができません。</string>
+  <string name="dnkm_xiaomi_dialog_body_old">1. 最近使ったアプリのリスト（アプリスイッチャーともいう）を開いて下さい。\n\n2. Briar の画像を下にスワイプすると、南京錠のアイコンが表示されます。\n\n3. ロックされていない場合は、タップしてロックします。</string>
+  <string name="dnkm_warning_dozed_1">Briarはバックグラウンドで実行することができませんでした</string>
   <!--Login-->
   <string name="enter_password">パスワード</string>
   <string name="try_again">パスワードが間違っています。もう一度入力してください。</string>
   <string name="dialog_title_cannot_check_password">パスワードを確認できません</string>
-  <string name="dialog_message_cannot_check_password">Briarはあなたのパスワードを確認できません。この問題を解決するため、デバイスの再起動を試してください。</string>
+  <string name="dialog_message_cannot_check_password">Briar がパスワードを確認することができませんでした。この問題を解決するには、端末の再起動を試してください。</string>
   <string name="sign_in_button">サインイン</string>
   <string name="forgotten_password">パスワードを忘れました</string>
   <string name="dialog_title_lost_password">パスワードを紛失</string>
-  <string name="dialog_message_lost_password">あなたのBriarアカウントはクラウド上ではなく、暗号化さた上であなたのデバイスに保存さています。したがってBriarはパスワードをリセットできません。アカウントを削除しはじめからやりなおしますか？\n\n注意：あなたのID、連絡先、メッセージは永久に復元できません。</string>
-  <string name="startup_failed_activity_title">起動に失敗しました</string>
-  <string name="startup_failed_clock_error">デバイスの時計が不正なので、Briarは起動できませんでした。\n\nデバイスの時計を正しい時刻に設定して、再試行してください。</string>
-  <string name="startup_failed_db_error">Briarは、あなたのアカウント、連絡先、メッセージを含むデータベースを開くことができませんでした。\n\nアプリを最新版にアップグレードして再度お試しいただくか、パスワード入力画面で\'パスワードを忘れました\'を選択して新しいアカウントを設定してください。</string>
+  <string name="dialog_message_lost_password">Briar アカウントはクラウド上ではなく、暗号化さた上であなたの端末に保存さています。したがって、Briar はパスワードをリセットできません。アカウントを削除して、はじめからやり直しますか？\n\n注意：あなたのID、連絡先、メッセージは永久に失われます。</string>
+  <string name="startup_failed_activity_title">Briar の起動に失敗しました</string>
+  <string name="startup_failed_clock_error">お使いの端末の時計が正しくないため、Briar は起動できませんでした。\n\n端末の時計を正しい時刻に設定してから、もう一度試してください。</string>
+  <string name="startup_failed_db_error">Briar は、あなたのアカウント、連絡先、メッセージを含むデータベースを開くことができませんでした。\n\nアプリを最新版にアップグレードしてもう一度お試しいただくか、パスワード入力画面で「パスワードを忘れました」を選択して新しいアカウントを設定してください。</string>
   <string name="startup_failed_data_too_old_error">あなたのアカウントは古いバージョンのアプリで作成されたもので、このバージョンでは開くことができません。\n\n古いバージョンを再インストールするか、パスワード入力画面で\'パスワードを忘れました\'を選択して新しいアカウントを設定する必要があります。</string>
   <string name="startup_failed_data_too_new_error">あなたのアカウントは、このアプリの新しいバージョンで作成されたもので、このバージョンでは開くことができません。\n\n最新版にアップグレードしてから、もう一度試してください。</string>
-  <string name="startup_failed_service_error">Briarは、必要なコンポーネントを起動できませんでした。\n\nアプリの最新版にアップグレードしてから、もう一度試してください。</string>
+  <string name="startup_failed_service_error">Briar は、必要なコンポーネントを起動できませんでした。\n\nアプリの最新版にアップグレードしてから、もう一度試してください。</string>
   <plurals name="expiry_warning">
-    <item quantity="other">これは、Briarのテストバージョンです。 アカウントは%d日で期限切れになり、更新できません。</item>
+    <item quantity="other">これは、Briar のテストバージョンです。 アカウントはあと%d日で期限切れになり、更新できません。</item>
   </plurals>
   <plurals name="old_android_expiry_warning">
-    <item quantity="other">Android 4は最早サポートされていません。Briarは(%d日後に)%s上での動作を停止します。新しい端末にBriarをインストールして、新しいアカウントを作成してください。</item>
+    <item quantity="other">Android 4はサポートされなくなりました。Briar は(%d日後に)%s上での動作を停止します。新しい端末に Briar をインストールして、新しいアカウントを作成してください。</item>
   </plurals>
   <string name="expiry_date_reached">このソフトウェアの有効期限が切れました。テストに参加してくださりありがとうございます！</string>
-  <string name="download_briar">Briarの使用を続けるならば、最新リリースをダウンロードしてください。</string>
+  <string name="download_briar">Briarの使用を続けるには、最新リリースをダウンロードしてください。</string>
   <string name="create_new_account">新しいアカウントを作成する必要があります。同じニックネームも使用できます。</string>
   <string name="download_briar_button">最新リリースをダウンロード</string>
-  <string name="old_android_expiry_date_reached">Briarは最早Android 4上での実行をサポートしていません。\n新しい端末にBriarをインストールしてください。</string>
+  <string name="old_android_expiry_date_reached">Briar は Android 4 では動作しなくなりました。\n新しい端末にBriarをインストールしてください。</string>
   <string name="old_android_delete_account">下のボタンをタップして、この端末からあなたのアカウントを削除できます。</string>
   <string name="delete_account_button">アカウントを削除</string>
   <string name="startup_open_database">データベースの復号化中…</string>
@@ -63,36 +69,36 @@
   <string name="lock_button">アプリをロック</string>
   <string name="settings_button">設定</string>
   <string name="sign_out_button">サインアウト</string>
-  <string name="transports_onboarding_text">ここにタップすると、Briarがあなたの連絡先に接続する方法を制御できます。</string>
+  <string name="transports_onboarding_text">ここにタップすると、Briar があなたの連絡先に接続する方法を制御できます。</string>
   <!--Transports: Tor-->
   <string name="transport_tor">インターネット</string>
   <string name="tor_device_status_online_wifi">電話機はWi-Fiでインターネットにアクセスできます</string>
   <string name="tor_device_status_online_mobile">電話機はモバイル データでインターネットにアクセスできます</string>
-  <string name="tor_device_status_offline">電話機がインターネットに接続できない</string>
-  <string name="tor_plugin_status_enabling">Briarはインターネットに接続中</string>
-  <string name="tor_plugin_status_active">Briarはインターネットに接続しました</string>
-  <string name="tor_plugin_status_inactive">Briarはインターネットに接続不可能</string>
-  <string name="tor_plugin_status_disabled">Briarはインターネットを使用しないように設定されました</string>
-  <string name="tor_plugin_status_disabled_mobile_data">Briarはモバイルデータを使用しないように設定されました</string>
-  <string name="tor_plugin_status_disabled_battery">Briarはバッテリー駆動時にインターネットを使用しないように設定されました</string>
-  <string name="tor_plugin_status_disabled_country_blocked">Briarはこの国でインターネットを使わないように設定されました</string>
+  <string name="tor_device_status_offline">電話機がインターネットに接続できません</string>
+  <string name="tor_plugin_status_enabling">Briar はインターネットに接続中です…</string>
+  <string name="tor_plugin_status_active">Briar はインターネットに接続されました</string>
+  <string name="tor_plugin_status_inactive">Briar はインターネットに接続できません</string>
+  <string name="tor_plugin_status_disabled">Briar はインターネットを使用しないように設定されています</string>
+  <string name="tor_plugin_status_disabled_mobile_data">Briar はモバイルデータを使用しないように設定されています</string>
+  <string name="tor_plugin_status_disabled_battery">Briar はバッテリー駆動時にインターネットを使用しないように設定されています</string>
+  <string name="tor_plugin_status_disabled_country_blocked">Briar はこの国でインターネットを使わないように設定されています</string>
   <!--Transports: Wi-Fi-->
   <string name="transport_lan">Wi-Fi</string>
-  <string name="transport_lan_long">同じWi-Fiネットワーク</string>
-  <string name="lan_device_status_on">電話機はWi-Fiに接続されました</string>
+  <string name="transport_lan_long">同じ Wi-Fi ネットワーク</string>
+  <string name="lan_device_status_on">電話機は Wi-Fi に接続されました</string>
   <string name="lan_device_status_off">電話機はWi-Fiに接続されていません</string>
-  <string name="lan_plugin_status_enabling">BriarはWi-Fiネットワークに接続中</string>
-  <string name="lan_plugin_status_active">BriarはWi-Fiネットワークに接続されました</string>
-  <string name="lan_plugin_status_inactive">BriarはWi-Fiネットワークに接続不可能</string>
-  <string name="lan_plugin_status_disabled">BriarはWi-Fiネットワークを使用しないように設定されました</string>
+  <string name="lan_plugin_status_enabling">Briar は Wi-Fi ネットワークに接続中です…</string>
+  <string name="lan_plugin_status_active">Briar は Wi-Fi ネットワークに接続されました</string>
+  <string name="lan_plugin_status_inactive">Briar は Wi-Fi ネットワークに接続できません</string>
+  <string name="lan_plugin_status_disabled">Briar は Wi-Fi ネットワークを使用しないように設定されています</string>
   <!--Transports: Bluetooth-->
   <string name="transport_bt">Bluetooth</string>
-  <string name="bt_device_status_on">電話機のBluetoothはオンにされました</string>
-  <string name="bt_device_status_off">電話機のBluetoothはオフにされました</string>
-  <string name="bt_plugin_status_enabling">BriarはBluetoothに接続中</string>
-  <string name="bt_plugin_status_active">BriarはBluetoothに接続しました</string>
-  <string name="bt_plugin_status_inactive">BriarはBluetoothに接続不可能</string>
-  <string name="bt_plugin_status_disabled">BriarはBluetoothを使用しないように設定されました</string>
+  <string name="bt_device_status_on">携帯電話の Bluetooth はオンになっています</string>
+  <string name="bt_device_status_off">携帯電話の Bluetooth はオフにされました</string>
+  <string name="bt_plugin_status_enabling">Briar は Bluetooth に接続中です…</string>
+  <string name="bt_plugin_status_active">Briar は Bluetooth に接続しました</string>
+  <string name="bt_plugin_status_inactive">Briar は Bluetooth に接続できません</string>
+  <string name="bt_plugin_status_disabled">Briar は Bluetooth を使用しないように設定されています</string>
   <!--Notifications-->
   <string name="reminder_notification_title">Briarからサインアウト</string>
   <string name="reminder_notification_text">タップして再ログインします。</string>
@@ -174,6 +180,9 @@
   <!--The first placeholder will show a contact's name. The second placeholder at the end will add "Tap to learn more."-->
   <string name="auto_delete_msg_contact_disabled">%1$sのメッセージは消えません。%2$s</string>
   <string name="tap_to_learn_more">タップすると詳細が表示されます。</string>
+  <string name="auto_delete_changed_warning_title">消えるメッセージが変更されました</string>
+  <string name="auto_delete_changed_warning_message_enabled">メッセージの作成を開始してから、消えるメッセージが有効になりました。</string>
+  <string name="auto_delete_changed_warning_message_disabled">メッセージの作成を開始してから、消えるメッセージは無効になりました。</string>
   <string name="auto_delete_changed_warning_send">とりあえず送る</string>
   <string name="delete_all_messages">全てのメッセージを削除</string>
   <string name="dialog_title_delete_all_messages">メッセージの削除時に確認</string>
@@ -212,11 +221,11 @@
   <string name="contact_added_toast">追加された連絡先：%s</string>
   <string name="contact_already_exists">連絡先%sは既に存在しています </string>
   <string name="qr_code_invalid">QRコードが無効です</string>
-  <string name="qr_code_too_old">スキャンしたQRコードは%sの古いバージョンから取得されました。\n\n最新版へアップグレードしてもらって、もう一度お試しください。</string>
-  <string name="qr_code_too_new">スキャンしたQRコードは、新しいバージョンの%sから取得されました。\n\n最新版にアップグレードしてから、もう一度お試しください。</string>
+  <string name="qr_code_too_old_1">スキャンしたQRコードはBriarの古いバージョンから取得されました。\n\n最新版へアップグレードしてもらって、もう一度お試しください。</string>
+  <string name="qr_code_too_new_1">スキャンしたQRコードは、新しいバージョンのBriarから取得されました。\n\n最新版にアップグレードしてから、もう一度お試しください。</string>
   <string name="camera_error">カメラエラー</string>
-  <string name="connecting_to_device">デバイスに接続中\u2026</string>
-  <string name="authenticating_with_device">デバイス同士での認証中\u2026</string>
+  <string name="connecting_to_device">端末に接続中\u2026</string>
+  <string name="authenticating_with_device">端末同士での認証中\u2026</string>
   <string name="connection_error_title">連絡先に接続できませんでした</string>
   <string name="connection_error_feedback">この問題が解決しない場合、アプリを改善するために<a href="feedback">フィードバック</a>を送信してください。</string>
   <!--Adding Contacts Remotely-->
@@ -277,6 +286,7 @@
   <string name="pending_contact_updated_toast">保留中の連絡先が更新されました</string>
   <!--Introductions-->
   <string name="introduction_onboarding_title">連絡先を紹介</string>
+  <string name="introduction_onboarding_text">連絡先をお互いに紹介することで、Briarで繋がることができます。</string>
   <string name="introduction_menu_item">はじめに</string>
   <string name="introduction_activity_title">連絡先を選択</string>
   <string name="introduction_not_possible">これらの連絡先については、すでに1つの紹介が進行中です。 これが最初に完了するようにしてください。 あなたやあなたの連絡相手がめったにオンラインにならない場合、これには時間がかかることがあります。</string>
@@ -305,7 +315,7 @@
   <string name="connect_via_bluetooth_start">Bluetooth経由で接続中…</string>
   <string name="connect_via_bluetooth_success">Bluetooth経由で接続に成功</string>
   <string name="connect_via_bluetooth_error">Bluetooth経由で接続不可能。</string>
-  <string name="connect_via_bluetooth_error_not_supported">Bluetoothはデバイスによってサポートされていません。</string>
+  <string name="connect_via_bluetooth_error_not_supported">Bluetoothは端末によってサポートされていません。</string>
   <!--Private Groups-->
   <string name="groups_list_empty">表示するグループがありません</string>
   <string name="groups_list_empty_action">「＋」アイコンをタップしてグループを作成するか、連絡先に登録している誰かにグループを共有してもらう</string>
@@ -338,8 +348,8 @@
   <string name="groups_dissolved_dialog_message">このグループの作成者はこのグループを削除しました。\n\nそのため、書き込まれたすべてのメンバーは会話を続けることができなくなり、最新のメッセージも受信できなくなりました。</string>
   <!--Private Group Invitations-->
   <string name="groups_invitations_title">グループへ招待</string>
-  <string name="groups_invitations_invitation_sent">%1$sをグループ \"%2$s\"に招待しています。</string>
-  <string name="groups_invitations_invitation_received">%1$sがあなたをグループ \"%2$s\"に招待しています。</string>
+  <string name="groups_invitations_invitation_sent">%1$sをグループ\"%2$s\"に招待しています。</string>
+  <string name="groups_invitations_invitation_received">%1$sがあなたをグループ\"%2$s\"に招待しています。</string>
   <string name="groups_invitations_joined">グループに参加しました</string>
   <string name="groups_invitations_declined">グループへの招待を辞退しました</string>
   <plurals name="groups_invitations_open">
@@ -419,7 +429,7 @@
   <string name="blogs_feed_empty_state">表示する投稿がありません</string>
   <string name="blogs_feed_empty_state_action">登録している連絡先やブログからの投稿がここに表示されます\n\nペンアイコンをタップして投稿を書き込みます</string>
   <string name="blogs_remove_blog">ブログを削除</string>
-  <string name="blogs_remove_blog_dialog_message">このブログを削除してもよろしいですか？\n\n投稿はデバイスから削除されますが、他の人のデバイスからは削除されません。\n\nこのブログを共有した人に更新の受信を停止します。</string>
+  <string name="blogs_remove_blog_dialog_message">このブログを削除してもよろしいですか？\n\n投稿は端末から削除されますが、他の人の端末からは削除されません。\n\nこのブログを共有した人に更新の受信を停止します。</string>
   <string name="blogs_remove_blog_ok">解除</string>
   <string name="blogs_blog_removed">ブログを削除しました</string>
   <string name="blogs_reblog_comment_hint">コメントを追加する（任意）</string>
@@ -451,7 +461,7 @@
   <string name="blogs_rss_feeds_manage_author">著者:</string>
   <string name="blogs_rss_feeds_manage_updated">最終更新:</string>
   <string name="blogs_rss_remove_feed">フィードを削除</string>
-  <string name="blogs_rss_remove_feed_dialog_message">このフィードを削除してもよろしいですか？\n\n投稿はデバイスから削除されますが、他の人のデバイスからは削除されません。\n\nこのフィードを共有した人は更新の受信を停止されます。</string>
+  <string name="blogs_rss_remove_feed_dialog_message">このフィードを削除してもよろしいですか？\n\n投稿は端末から削除されますが、他の人の端末からは削除されません。\n\nこのフィードを共有した人は更新の受信を停止されます。</string>
   <string name="blogs_rss_remove_feed_ok">解除</string>
   <string name="blogs_rss_feeds_manage_empty_state">表示するRSSフィードはありません\n\n「＋」アイコンをタップしてフィードをインポートします</string>
   <string name="blogs_rss_feeds_manage_error">フィードの読み込み中に問題が発生しました。 後でもう一度やり直してください。</string>
@@ -473,7 +483,7 @@
   <!--Settings Connections-->
   <string name="network_settings_title">接続</string>
   <string name="bluetooth_setting">Bluetooth経由で連絡先に接続</string>
-  <string name="wifi_setting">同じWi-Fiネットワークで連絡先に接続</string>
+  <string name="wifi_setting">同じ Wi-Fi ネットワークで連絡先に接続</string>
   <string name="tor_enable_title">インターネット経由で連絡先に接続</string>
   <string name="tor_enable_summary">全接続をプライバシーのためにTorネットワークを通す</string>
   <string name="tor_network_setting">Torネットワークの接続方法</string>
@@ -482,15 +492,15 @@
   <string name="tor_network_setting_with_bridges">ブリッジを通してTorネットワークを使用する</string>
   <string name="tor_network_setting_never">インターネットに接続しない</string>
   <!--How and when Briar will connect to Tor: E.g. "Don't connect to the Internet (in China)" or "Use Tor network with bridges (in Belarus)"-->
-  <string name="tor_network_setting_summary">自動：%1$s（%2$sのうち）</string>
+  <string name="tor_network_setting_summary">自動：%1$s（%2$s内）</string>
   <string name="tor_mobile_data_title">モバイルデータを使用する</string>
   <string name="tor_only_when_charging_title">充電時にのみインターネットに接続する</string>
-  <string name="tor_only_when_charging_summary">デバイスがバッテリー使用している場合、インターネット接続を無効にする</string>
+  <string name="tor_only_when_charging_summary">端末がバッテリーを使用している場合、インターネット接続を無効にする</string>
   <!--Settings Security and Panic-->
   <string name="security_settings_title">セキュリティ</string>
   <string name="pref_lock_title">アプリロック</string>
-  <string name="pref_lock_summary">ログイン中にデバイスの画面ロックを使用して、Briarを保護します</string>
-  <string name="pref_lock_disabled_summary">この機能を使用するには、デバイスの画面ロックを設定します</string>
+  <string name="pref_lock_summary">ログイン中に端末の画面ロックを使用して、Briarを保護します</string>
+  <string name="pref_lock_disabled_summary">この機能を使用するには、端末の画面ロックを設定します</string>
   <string name="pref_lock_timeout_title">\"Inactivity timeout\"された場合、アプリロックをロックする</string>
   <!--The %s placeholder is replaced with the following time spans, e.g. 5 Minutes, 1 Hour-->
   <string name="pref_lock_timeout_summary">Briarを使用しない場合、%s後に自動的にロックします</string>
@@ -503,7 +513,7 @@
   <!--Will be shown in a list of lock times. Should fit into the %s of "automatically lock it after %s"-->
   <string name="pref_lock_timeout_30">30分</string>
   <!--Will be shown in a list of lock times. Should fit into the %s of "automatically lock it after %s"-->
-  <string name="pref_lock_timeout_60">1 時間</string>
+  <string name="pref_lock_timeout_60">1時間</string>
   <string name="pref_lock_timeout_never">しない</string>
   <string name="pref_lock_timeout_never_summary">Briarを自動的にロックしない</string>
   <string name="change_password">パスワードの変更</string>
@@ -578,14 +588,58 @@
   <string name="mailbox_status_connected_title">メールボックスは実行中</string>
   <string name="mailbox_status_problem_title">Briarはメールボックスへの接続が不調です</string>
   <string name="mailbox_status_failure_title">メールボックスは利用できません</string>
+  <string name="mailbox_status_app_too_old_title">Briarは古すぎます</string>
+  <string name="mailbox_status_app_too_old_message">Briarをアプリの最新版に更新し、再度お試しください。</string>
+  <string name="mailbox_status_mailbox_too_old_title">メールボックスは古すぎます</string>
+  <string name="mailbox_status_mailbox_too_old_message">メールボックスをアプリの最新版に更新し、再度お試しください。</string>
   <string name="mailbox_status_check_button">接続を確認</string>
   <!--Example for string substitution: Last connection: 3min ago-->
   <string name="mailbox_status_connected_info">最終接続: %s</string>
   <!--Indicates that there never was a connection to the mailbox. Last connection: Never-->
   <string name="mailbox_status_connected_never">しない</string>
+  <string name="mailbox_status_unlink_button">リンク解除</string>
+  <string name="mailbox_status_unlink_dialog_title">メールボックスをリンク解除しますか？</string>
+  <string name="mailbox_status_unlink_dialog_question">本当にあなたのメールボックスをリンク解除してもよろしいですか?</string>
+  <string name="mailbox_status_unlink_dialog_warning">メールボックスをリンク解除すると、Briarがオフライン中にメッセージを受け取れません。</string>
+  <string name="mailbox_status_unlink_no_wipe_title">メールボックスはリンク解除されました</string>
+  <string name="mailbox_status_unlink_no_wipe_message">次回、メールボックス端末にアクセスした際に、メールボックスアプリを起動し、「リンク解除」ボタンをタップして処理を完了してください。\n\nメールボックス端末にアクセスできなくなった場合でも、ご安心ください。データは暗号化されているので、処理を完了しなくても安全なままです。</string>
+  <string name="mailbox_error_notification_channel_title">Briarメールボックスに問題</string>
+  <string name="mailbox_error_notification_title">Briarメールボックスは利用できません</string>
+  <string name="mailbox_error_notification_text">タップして問題を修正する。</string>
+  <string name="mailbox_error_wizard_button">問題を修正する</string>
+  <string name="mailbox_error_wizard_title">メールボックスのトラブルシューティングウィザード</string>
+  <string name="mailbox_error_wizard_question1">あなたのメールボックス端末にアクセスできますか？</string>
+  <string name="mailbox_error_wizard_answer1">はい、私は確かに今アクセスしています。</string>
+  <string name="mailbox_error_wizard_answer2">今すぐには無理ですが、後でアクセスできるようになります。</string>
+  <string name="mailbox_error_wizard_answer3">いいえ、最早アクセスできません。</string>
+  <string name="mailbox_error_wizard_info1_1">メールボックス端末の電源が入っていて、インターネットに接続されているかを確認してください。</string>
+  <string name="mailbox_error_wizard_question1_1">メールボックスアプリを開いてください。何が確認できますか？</string>
+  <string name="mailbox_error_wizard_answer1_1">メールボックスの設定方法が表示される</string>
+  <string name="mailbox_error_wizard_answer1_2">QRコードが表示される</string>
+  <string name="mailbox_error_wizard_answer1_3">「メールボックスは実行中」と表示される</string>
+  <string name="mailbox_error_wizard_answer1_4">「デバイスがオフライン」と表示されます</string>
+  <string name="mailbox_error_wizard_info1_1_1">以下のボタンでメールボックスのリンクを解除し、メールボックスの端末の指示に従って再度リンクしてください。</string>
+  <string name="mailbox_error_wizard_info_1_1_2">以下のボタンでメールボックスのリンクを解除し、QRコードを読み取って再度リンクしてください。</string>
+  <string name="mailbox_error_wizard_info1_1_3">以下のボタンを使用して、Briarとメールボックスの間での接続を確認してください。\n\n
+		接続が再び失敗する場合:\n
+		\u2022 メールボックスとBriarアプリが最新版に更新されているか確認してください。\n
+		\u2022 メールボックスとBriarの端末を再起動して、再度お試しください。</string>
+  <string name="mailbox_error_wizard_info1_1_4">メールボックス端末がインターネットに適切に接続されているか、確認してください。\n\nメールボックス端末の時計が正しい時刻、日付、時間帯を表示しているか、確認してください。\n\nメールボックスとBriarアプリが最新版に更新されているか、確認してください。\n\nメールボックスとBriarの端末を再起動し、再度お試しください。</string>
+  <string name="mailbox_error_wizard_info2">端末にアクセスしたら、この画面に戻って来てください。</string>
+  <string name="mailbox_error_wizard_info3">以下のボタンを使用してメールボックスをリンク解除してください。\n\n古いメールボックスをリンク解除した後、いつでも新しいメールボックスをセットアップできます。</string>
   <!--Conversation Settings-->
   <string name="disappearing_messages_title">消えるメッセージ</string>
+  <string name="disappearing_messages_explanation_long">この設定を有効にすると、
+		この会話内での新しいメッセージは、自動的に7\u00A0日後に消えます。
+		\n\nメッセージの送信者の複製用のカウントダウンは、メッセージが到着した後に始まります。
+		受取人用のカウントダウンは、メッセージを読んでから始まります。
+		\n\n消えるメッセージには、爆弾アイコンで印が付けられます。
+		\n\n受取人は、あなたが送ったメッセージの複製を取れることに留意してください。
+		\n\nこの設定を変更すると、すぐにあなたの新着メッセージで反映され、
+		連絡先があなたの次のメッセージを受信した時点で、その連絡先のメッセージに適用されます。
+		連絡先もあなたと二人に、この設定を変更できます。</string>
   <string name="learn_more">詳細情報</string>
+  <string name="disappearing_messages_summary">この会話の今後のメッセージは、自動的に7\u00A0日後に消えます。</string>
   <!--Settings Actions-->
   <string name="pref_category_actions">操作</string>
   <string name="send_feedback">フィードバックを送信</string>
@@ -605,18 +659,19 @@
   <string name="enter_feedback">フィードバックを入力してください</string>
   <string name="optional_contact_email">あなたのメールアドレス（任意）</string>
   <string name="include_debug_report_crash">クラッシュに関する匿名のデータを添付する</string>
-  <string name="include_debug_report_feedback">このデバイスに関する匿名のデータを添付する</string>
+  <string name="include_debug_report_feedback">この端末に関する匿名のデータを添付する</string>
   <string name="dev_report_user_info">ユーザー情報</string>
   <string name="dev_report_basic_info">基本情報</string>
-  <string name="dev_report_device_info">デバイス情報</string>
+  <string name="dev_report_device_info">端末情報</string>
   <string name="dev_report_stacktrace">スタックトレース</string>
   <string name="dev_report_time_info">時間情報</string>
   <string name="dev_report_memory">メモリー</string>
   <string name="dev_report_storage">ストレージ</string>
   <string name="dev_report_connectivity">接続</string>
   <string name="dev_report_network_usage">ネットワーク使用量</string>
+  <string name="dev_report_build_config">ビルド構成</string>
   <string name="dev_report_logcat">アプリのログ</string>
-  <string name="dev_report_device_features">デバイスの機能</string>
+  <string name="dev_report_device_features">端末の機能</string>
   <string name="send_report">レポートを送信</string>
   <string name="close">閉じる</string>
   <string name="dev_report_sending">フィードバックを送信中…</string>
@@ -635,19 +690,19 @@
   <string name="permission_camera_title">カメラへのアクセス許可</string>
   <string name="permission_camera_request_body">QRコードをスキャンするには、Briarはカメラにアクセスする必要があります。</string>
   <string name="permission_location_title">位置情報へのアクセスの許可</string>
-  <string name="permission_location_request_body">Bluetoothデバイスを検出するには、Briarがあなたの位置情報へのアクセスを必要とします。\n\nBriarはあなたの場所を保存したり、誰とも共有したりしません。</string>
+  <string name="permission_location_request_body">Bluetooth端末を検出するには、Briarがあなたの位置情報へのアクセスを必要とします。\n\nBriarはあなたの場所を保存したり、誰とも共有したりしません。</string>
   <string name="permission_camera_location_title">カメラと位置情報</string>
-  <string name="permission_camera_location_request_body">QRコードをスキャンするには、Briarはカメラにアクセスする必要があります。\n\nBluetoothデバイスを検出するには、Briarは現在地情報にアクセスする許可が必要です。\n\nBriarは現在地を保存したり、誰とも共有したりしません。</string>
+  <string name="permission_camera_location_request_body">QRコードをスキャンするには、Briarはカメラにアクセスする必要があります。\n\nBluetooth端末を検出するには、Briarは現在地情報にアクセスする許可が必要です。\n\nBriarは現在地を保存したり、誰とも共有したりしません。</string>
   <string name="permission_camera_denied_body">カメラへのアクセスをが拒否されましたが、連絡先を追加するにはカメラを使用する必要があります。\n\nカメラへのアクセスの許可を考えてください。</string>
-  <string name="permission_location_denied_body">あなたの位置情報にアクセスすることを拒否しましたが、BriarはBluetoothデバイスを発見するのに、この権限が必要です。\n\nアクセス権を付与することを考慮願います。</string>
+  <string name="permission_location_denied_body">あなたの位置情報にアクセスすることを拒否しましたが、BriarはBluetooth端末を発見するのに、この権限が必要です。\n\nアクセス権を付与することを考慮願います。</string>
   <string name="permission_location_setting_title">位置情報設定</string>
-  <string name="permission_location_setting_body">デバイスの位置情報設定は、Bluetoothを介して他のデバイスを見つけるために、オンにする必要があります。続けるには位置情報を有効にしてください。その後、位置情報を無効にできます。</string>
+  <string name="permission_location_setting_body">端末の位置情報設定は、Bluetoothを介して他の端末を見つけるために、オンにする必要があります。続けるには位置情報を有効にしてください。その後、位置情報を無効にできます。</string>
   <string name="permission_location_setting_button">位置情報を有効化</string>
   <string name="qr_code">QRコード</string>
   <string name="show_qr_code_fullscreen">QRコードを全画面表示する</string>
   <!--App Locking-->
   <string name="lock_unlock">Briarのロックを解除</string>
-  <string name="lock_unlock_verbose">Briarのロックを解除するには、デバイスのPIN、パターン、またはパスワードを入力してください</string>
+  <string name="lock_unlock_verbose">Briarのロックを解除するには、端末のPIN、パターン、またはパスワードを入力してください</string>
   <string name="lock_unlock_fingerprint_description">登録した指で指紋センサーに触れて続行します</string>
   <string name="lock_unlock_password">パスワードを使用</string>
   <string name="lock_is_locked">Briarはロックされています</string>
@@ -673,12 +728,12 @@
   <string name="hotspot_scanning_a_qr_code">QRコードをスキャン</string>
   <!--Wi-Fi setup-->
   <!--The %s placeholder will be replaced with the translation of 'hotspot_scanning_a_qr_code'-->
-  <string name="hotspot_manual_wifi">あなたの電話機はWi-Fiホットスポットを提供しています。Briarのダウンロードを希望する人は、以下の方法で端末のWi-Fi設定に追加するか、または %s によるホットスポットに接続してください。そのホットスポットに接続されたら、\'Next\'を押してください。</string>
+  <string name="hotspot_manual_wifi">あなたの電話機はWi-Fiホットスポットを提供しています。Briarのダウンロードを希望する人は、以下の方法で端末のWi-Fi設定に追加するか、または %s によるホットスポットに接続してください。そのホットスポットに接続されたら、「次へ」を押してください。</string>
   <string name="hotspot_manual_wifi_ssid">ネットワーク名</string>
-  <string name="hotspot_qr_wifi">あなたの電話機はWi-Fiホットスポットを提供しています。Briarのダウンロードを希望する人は、このQRコードをスキャンしてホットスポットに接続してください。そのホットスポットに接続されたら、\'Next\'を押してください。</string>
-  <string name="hotspot_no_peers_connected">接続されたデバイスなし</string>
+  <string name="hotspot_qr_wifi">あなたの電話機はWi-Fiホットスポットを提供しています。Briarのダウンロードを希望する人は、このQRコードをスキャンしてホットスポットに接続してください。そのホットスポットに接続されたら、「次へ」を押してください。</string>
+  <string name="hotspot_no_peers_connected">接続された端末なし</string>
   <plurals name="hotspot_peers_connected">
-    <item quantity="other">%s機の接続されたデバイス</item>
+    <item quantity="other">%s機の接続された端末</item>
   </plurals>
   <!--Download link-->
   <!--The %s placeholder will be replaced with the translation of 'hotspot_scanning_a_qr_code'-->
@@ -686,8 +741,9 @@
   <string name="hotspot_manual_site_address">アドレス（URL）</string>
   <string name="hotspot_qr_site">あなたの電話機はWi-Fiホットスポットを提供しています。ホットスポットに接続された人は、このQRコードをスキャンして、Briarをダウンロードできます。</string>
   <!--e.g. Download Briar 1.2.20-->
-  <string name="website_download_title">%s をダウンロードする</string>
-  <string name="website_download_intro">近くの誰かが、あなたと %s を共有しました。</string>
+  <string name="website_download_title_1">Briar %sをダウンロード</string>
+  <string name="website_download_intro_1">近くの誰かが、あなたとBriarを共有しました。</string>
+  <string name="website_download_button">Briarをダウンロード</string>
   <string name="website_download_outro">ダウンロードが完了した後に、ダウンロードしたファイルを開いて、インストールしてください。</string>
   <string name="website_troubleshooting_title">トラブルシューティング</string>
   <string name="website_troubleshooting_1">アプリをインストールできない場合、別のブラウザアプリで試してください。</string>
@@ -703,13 +759,14 @@
   <string name="hotspot_help_site_3">ファイアウォールアプリを使用している場合は、それがアクセスをブロックしていないか確認してください。</string>
   <string name="hotspot_help_site_4">サイトにはアクセスできるが、Briarアプリがダウンロードできない場合は、別のウェブブラウザアプリで試してみてください。</string>
   <string name="hotspot_help_fallback_title">どれもうまくいきませんか?</string>
-  <string name="hotspot_help_fallback_intro">他の方法で共有するために、アプリを.apkファイルとして保存してみてください。そのファイルをもう一方のデバイスに転送すれば、Briarをインストールすることができます。
+  <string name="hotspot_help_fallback_intro">他の方法で共有するために、アプリを.apkファイルとして保存してみてください。そのファイルをもう一方の端末に転送すれば、Briarをインストールすることができます。
 		\n\nヒント: Bluetoothで共有する場合は、まずファイル名を.zipで終わるように名前変更する必要があるかもしれません。</string>
   <string name="hotspot_help_fallback_button">アプリを保存する</string>
   <!--error handling-->
   <string name="hotspot_error_intro">Wi-Fiでアプリを共有しようとしたときに、何か問題が発生しました。</string>
-  <string name="hotspot_error_no_wifi_direct">デバイスはWi-Fiダイレクトをサポートしていません</string>
+  <string name="hotspot_error_no_wifi_direct">端末はWi-Fiダイレクトをサポートしていません</string>
   <string name="hotspot_error_start_callback_failed">ホットスポットの開始に失敗しました: エラー %s</string>
+  <string name="hotspot_error_start_callback_failed_unknown">ホットスポットは未知のエラーで開始に失敗しました。理由 %d</string>
   <string name="hotspot_error_start_callback_no_group_info">ホットスポットの開始に失敗しました: グループ情報なし</string>
   <string name="hotspot_error_web_server_start">ウェブサーバー起動エラー</string>
   <string name="hotspot_error_web_server_serve">ウェブサイトの表示にエラーが発生しました。\n\n問題が解決しない場合は、Briarアプリから（匿名のデータで）フィードバックを送ってください。</string>
