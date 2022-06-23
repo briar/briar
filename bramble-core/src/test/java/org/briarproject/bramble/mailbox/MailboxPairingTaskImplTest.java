@@ -55,7 +55,6 @@ public class MailboxPairingTaskImplTest extends BrambleMockTestCase {
 
 	private final String onion = getRandomString(56);
 	private final byte[] onionBytes = getRandomBytes(32);
-	private final String baseUrl = "http://" + onion + ".onion"; // TODO
 	private final MailboxAuthToken setupToken =
 			new MailboxAuthToken(getRandomId());
 	private final MailboxAuthToken ownerToken =
@@ -63,9 +62,9 @@ public class MailboxPairingTaskImplTest extends BrambleMockTestCase {
 	private final String validPayload = getValidPayload();
 	private final long time = System.currentTimeMillis();
 	private final MailboxProperties setupProperties = new MailboxProperties(
-			baseUrl, setupToken, new ArrayList<>());
+			onion, setupToken, new ArrayList<>());
 	private final MailboxProperties ownerProperties = new MailboxProperties(
-			baseUrl, ownerToken, new ArrayList<>());
+			onion, ownerToken, new ArrayList<>());
 
 	@Test
 	public void testInitialQrCodeReceivedState() {
@@ -207,7 +206,7 @@ public class MailboxPairingTaskImplTest extends BrambleMockTestCase {
 	private PredicateMatcher<MailboxProperties> matches(MailboxProperties p2) {
 		return new PredicateMatcher<>(MailboxProperties.class, p1 ->
 				p1.getAuthToken().equals(p2.getAuthToken()) &&
-						p1.getBaseUrl().equals(p2.getBaseUrl()) &&
+						p1.getOnion().equals(p2.getOnion()) &&
 						p1.isOwner() == p2.isOwner() &&
 						p1.getServerSupports().equals(p2.getServerSupports()));
 	}

@@ -49,8 +49,8 @@ public class MailboxIntegrationTest extends BrambleTestCase {
 	@Rule
 	public TemporaryFolder folder = new TemporaryFolder();
 
-	private final static String URL_BASE = "http://127.0.0.1:8000";
-	private final static MailboxAuthToken SETUP_TOKEN;
+	private static final String URL_BASE = "http://127.0.0.1:8000";
+	private static final MailboxAuthToken SETUP_TOKEN;
 
 	static {
 		try {
@@ -74,8 +74,10 @@ public class MailboxIntegrationTest extends BrambleTestCase {
 					return client;
 				}
 			};
-	private final static MailboxApiImpl api =
-			new MailboxApiImpl(httpClientProvider);
+	// We aren't using a real onion address, so use the given address verbatim
+	private static final UrlConverter urlConverter = onion -> onion;
+	private static final MailboxApiImpl api =
+			new MailboxApiImpl(httpClientProvider, urlConverter);
 	// needs to be static to keep values across different tests
 	private static MailboxProperties ownerProperties;
 
@@ -121,7 +123,7 @@ public class MailboxIntegrationTest extends BrambleTestCase {
 		ContactId contactId = new ContactId(1);
 		MailboxContact contact = getMailboxContact(contactId);
 		MailboxProperties contactProperties = new MailboxProperties(
-				ownerProperties.getBaseUrl(), contact.token,
+				ownerProperties.getOnion(), contact.token,
 				new ArrayList<>(), contact.inboxId, contact.outboxId);
 		api.addContact(ownerProperties, contact);
 
@@ -167,7 +169,7 @@ public class MailboxIntegrationTest extends BrambleTestCase {
 		ContactId contactId = new ContactId(1);
 		MailboxContact contact = getMailboxContact(contactId);
 		MailboxProperties contactProperties = new MailboxProperties(
-				ownerProperties.getBaseUrl(), contact.token,
+				ownerProperties.getOnion(), contact.token,
 				new ArrayList<>(), contact.inboxId, contact.outboxId);
 		api.addContact(ownerProperties, contact);
 

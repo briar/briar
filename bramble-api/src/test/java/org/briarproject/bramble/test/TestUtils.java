@@ -230,14 +230,14 @@ public class TestUtils {
 
 	public static MailboxProperties getMailboxProperties(boolean owner,
 			List<MailboxVersion> serverSupports) {
-		String baseUrl = "http://" + getRandomString(56) + ".onion"; // TODO
+		String onion = getRandomString(56);
 		MailboxAuthToken authToken = new MailboxAuthToken(getRandomId());
 		if (owner) {
-			return new MailboxProperties(baseUrl, authToken, serverSupports);
+			return new MailboxProperties(onion, authToken, serverSupports);
 		}
 		MailboxFolderId inboxId = new MailboxFolderId(getRandomId());
 		MailboxFolderId outboxId = new MailboxFolderId(getRandomId());
-		return new MailboxProperties(baseUrl, authToken, serverSupports,
+		return new MailboxProperties(onion, authToken, serverSupports,
 				inboxId, outboxId);
 	}
 

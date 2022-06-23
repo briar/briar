@@ -68,7 +68,10 @@ public class MailboxApiTest extends BrambleTestCase {
 					return client;
 				}
 			};
-	private final MailboxApiImpl api = new MailboxApiImpl(httpClientProvider);
+	// We aren't using a real onion address, so use the given address verbatim
+	private final UrlConverter urlConverter = onion -> onion;
+	private final MailboxApiImpl api = new MailboxApiImpl(httpClientProvider,
+			urlConverter);
 
 	private final MailboxAuthToken token = new MailboxAuthToken(getRandomId());
 	private final MailboxAuthToken token2 = new MailboxAuthToken(getRandomId());

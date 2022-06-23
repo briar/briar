@@ -59,7 +59,12 @@ public class MailboxModule {
 	}
 
 	@Provides
-	MailboxApi providesMailboxApi(MailboxApiImpl mailboxApi) {
+	UrlConverter provideUrlConverter(UrlConverterImpl urlConverter) {
+		return urlConverter;
+	}
+
+	@Provides
+	MailboxApi provideMailboxApi(MailboxApiImpl mailboxApi) {
 		return mailboxApi;
 	}
 

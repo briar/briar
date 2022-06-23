@@ -109,7 +109,7 @@ public class MailboxUpdateManagerImplTest extends BrambleMockTestCase {
 		updateNoMailbox = new MailboxUpdate(someClientSupportsList);
 
 		updateProps = getMailboxProperties(false, someServerSupportsList);
-		ownProps = new MailboxProperties(updateProps.getBaseUrl(),
+		ownProps = new MailboxProperties(updateProps.getOnion(),
 				updateProps.getAuthToken(), someServerSupportsList);
 		updateWithMailbox = new MailboxUpdateWithMailbox(someClientSupportsList,
 				updateProps);
@@ -170,7 +170,7 @@ public class MailboxUpdateManagerImplTest extends BrambleMockTestCase {
 					contactGroup.getId());
 			will(returnValue(messageMetadata));
 			expectStoreMessage(txn, contactGroup.getId(), 1, someClientSupports,
-					emptyServerSupports, emptyPropsDict, true);
+					emptyServerSupports, emptyPropsDict);
 
 			oneOf(clientHelper).mergeGroupMetadata(txn, localGroup.getId(),
 					sentDict);
@@ -225,7 +225,7 @@ public class MailboxUpdateManagerImplTest extends BrambleMockTestCase {
 					contactGroup.getId());
 			will(returnValue(messageMetadata));
 			expectStoreMessage(txn, contactGroup.getId(), 1, someClientSupports,
-					someServerSupports, propsDict, true);
+					someServerSupports, propsDict);
 
 			oneOf(clientHelper).mergeGroupMetadata(txn, localGroup.getId(),
 					sentDict);
@@ -276,7 +276,7 @@ public class MailboxUpdateManagerImplTest extends BrambleMockTestCase {
 					contactGroup.getId());
 			will(returnValue(emptyMessageMetadata));
 			expectStoreMessage(txn, contactGroup.getId(), 1, someClientSupports,
-					emptyServerSupports, emptyPropsDict, true);
+					emptyServerSupports, emptyPropsDict);
 
 			oneOf(clientHelper).mergeGroupMetadata(txn, localGroup.getId(),
 					sentDict);
@@ -341,7 +341,7 @@ public class MailboxUpdateManagerImplTest extends BrambleMockTestCase {
 					contactGroup.getId());
 			will(returnValue(emptyMessageMetadata));
 			expectStoreMessage(txn, contactGroup.getId(), 1, someClientSupports,
-					emptyServerSupports, emptyPropsDict, true);
+					emptyServerSupports, emptyPropsDict);
 
 			oneOf(clientHelper).mergeGroupMetadata(txn, localGroup.getId(),
 					sentDict);
@@ -400,7 +400,7 @@ public class MailboxUpdateManagerImplTest extends BrambleMockTestCase {
 					contactGroup.getId());
 			will(returnValue(messageMetadata));
 			expectStoreMessage(txn, contactGroup.getId(), 2,
-					newerClientSupports, someServerSupports, propsDict, true);
+					newerClientSupports, someServerSupports, propsDict);
 			oneOf(db).removeMessage(txn, messageId);
 
 			oneOf(clientHelper).mergeGroupMetadata(txn, localGroup.getId(),
@@ -441,7 +441,7 @@ public class MailboxUpdateManagerImplTest extends BrambleMockTestCase {
 					contactGroup.getId());
 			will(returnValue(messageMetadata));
 			expectStoreMessage(txn, contactGroup.getId(), 1, someClientSupports,
-					emptyServerSupports, emptyPropsDict, true);
+					emptyServerSupports, emptyPropsDict);
 		}});
 
 		MailboxUpdateManagerImpl t = createInstance(someClientSupportsList);
@@ -484,7 +484,7 @@ public class MailboxUpdateManagerImplTest extends BrambleMockTestCase {
 					contactGroup.getId());
 			will(returnValue(messageMetadata));
 			expectStoreMessage(txn, contactGroup.getId(), 1, someClientSupports,
-					someServerSupports, propsDict, true);
+					someServerSupports, propsDict);
 		}});
 
 		MailboxUpdateManagerImpl t = createInstance(someClientSupportsList);
@@ -674,7 +674,7 @@ public class MailboxUpdateManagerImplTest extends BrambleMockTestCase {
 					contactGroup.getId());
 			will(returnValue(messageMetadata));
 			expectStoreMessage(txn, contactGroup.getId(), 2, someClientSupports,
-					someServerSupports, propsDict, true);
+					someServerSupports, propsDict);
 			oneOf(db).removeMessage(txn, latestId);
 		}});
 
@@ -712,7 +712,7 @@ public class MailboxUpdateManagerImplTest extends BrambleMockTestCase {
 					contactGroup.getId());
 			will(returnValue(messageMetadata));
 			expectStoreMessage(txn, contactGroup.getId(), 2, someClientSupports,
-					emptyServerSupports, emptyPropsDict, true);
+					emptyServerSupports, emptyPropsDict);
 			oneOf(db).removeMessage(txn, latestId);
 		}});
 
@@ -890,15 +890,14 @@ public class MailboxUpdateManagerImplTest extends BrambleMockTestCase {
 
 	private void expectStoreMessage(Transaction txn, GroupId g,
 			long version, BdfList clientSupports, BdfList serverSupports,
-			BdfDictionary properties, boolean local)
-			throws Exception {
+			BdfDictionary properties) throws Exception {
 		BdfList body = BdfList.of(version, clientSupports, serverSupports,
 				properties);
 		Message message = getMessage(g);
 		long timestamp = message.getTimestamp();
 		BdfDictionary meta = BdfDictionary.of(
 				new BdfEntry(MSG_KEY_VERSION, version),
-				new BdfEntry(MSG_KEY_LOCAL, local)
+				new BdfEntry(MSG_KEY_LOCAL, true)
 		);
 
 		context.checking(new Expectations() {{
