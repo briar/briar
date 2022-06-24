@@ -1,12 +1,17 @@
 package org.briarproject.bramble.mailbox;
 
+import org.briarproject.bramble.BrambleCoreEagerSingletons;
 import org.briarproject.bramble.api.WeakSingletonProvider;
 import org.briarproject.bramble.api.mailbox.InvalidMailboxIdException;
 import org.briarproject.bramble.api.mailbox.MailboxAuthToken;
+import org.briarproject.bramble.io.IoModule;
 
 import javax.annotation.Nonnull;
+import javax.inject.Singleton;
 import javax.net.SocketFactory;
 
+import dagger.Module;
+import dagger.Provides;
 import okhttp3.OkHttpClient;
 
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
@@ -41,5 +46,35 @@ class MailboxIntegrationTestUtils {
 
 	static MailboxApi createMailboxApi() {
 		return new MailboxApiImpl(createHttpClientProvider(), onion -> onion);
+	}
+
+	static MailboxIntegrationTestComponent createTestComponent() {
+		MailboxIntegrationTestComponent component =
+				DaggerMailboxIntegrationTestComponent
+						.builder()
+						.ioModule(new TestIoModule())
+						.mailboxModule(new TestMailboxModule())
+						.build();
+		BrambleCoreEagerSingletons.Helper.injectEagerSingletons(component);
+		return component;
+	}
+
+	@Module
+	static class TestIoModule extends IoModule {
+
+		@Provides
+		@Singleton
+		WeakSingletonProvider<OkHttpClient> provideOkHttpClientProvider() {
+			return createHttpClientProvider();
+		}
+	}
+
+	@Module
+	static class TestMailboxModule extends MailboxModule {
+
+		@Provides
+		UrlConverter provideUrlConverter() {
+			return onion -> onion;
+		}
 	}
 }
