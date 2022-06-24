@@ -1,8 +1,6 @@
 package org.briarproject.bramble.mailbox;
 
-import org.briarproject.bramble.api.WeakSingletonProvider;
 import org.briarproject.bramble.api.contact.ContactId;
-import org.briarproject.bramble.api.mailbox.InvalidMailboxIdException;
 import org.briarproject.bramble.api.mailbox.MailboxAuthToken;
 import org.briarproject.bramble.api.mailbox.MailboxFileId;
 import org.briarproject.bramble.api.mailbox.MailboxFolderId;
@@ -13,7 +11,6 @@ import org.briarproject.bramble.mailbox.MailboxApi.MailboxFile;
 import org.briarproject.bramble.mailbox.MailboxApi.TolerableFailureException;
 import org.briarproject.bramble.test.BrambleTestCase;
 import org.junit.AfterClass;
-import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
@@ -25,14 +22,11 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import javax.annotation.Nonnull;
-import javax.net.SocketFactory;
-
-import okhttp3.OkHttpClient;
-
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
-import static java.util.concurrent.TimeUnit.MILLISECONDS;
+import static org.briarproject.bramble.mailbox.MailboxIntegrationTestUtils.SETUP_TOKEN;
+import static org.briarproject.bramble.mailbox.MailboxIntegrationTestUtils.URL_BASE;
+import static org.briarproject.bramble.mailbox.MailboxIntegrationTestUtils.createMailboxApi;
 import static org.briarproject.bramble.test.TestUtils.getRandomBytes;
 import static org.briarproject.bramble.test.TestUtils.getRandomId;
 import static org.briarproject.bramble.test.TestUtils.isOptionalTestEnabled;
@@ -40,58 +34,31 @@ import static org.briarproject.bramble.test.TestUtils.readBytes;
 import static org.briarproject.bramble.test.TestUtils.writeBytes;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assume.assumeTrue;
 
-public class MailboxIntegrationTest extends BrambleTestCase {
+public class MailboxApiIntegrationTest extends BrambleTestCase {
 
 	@Rule
 	public TemporaryFolder folder = new TemporaryFolder();
 
-	private static final String URL_BASE = "http://127.0.0.1:8000";
-	private static final MailboxAuthToken SETUP_TOKEN;
+	private static final MailboxApi api = createMailboxApi();
 
-	static {
-		try {
-			SETUP_TOKEN = MailboxAuthToken.fromString(
-					"54686973206973206120736574757020746f6b656e20666f722042726961722e");
-		} catch (InvalidMailboxIdException e) {
-			throw new IllegalStateException();
-		}
-	}
-
-	private static final OkHttpClient client = new OkHttpClient.Builder()
-			.socketFactory(SocketFactory.getDefault())
-			.connectTimeout(60_000, MILLISECONDS)
-			.build();
-	private static final WeakSingletonProvider<OkHttpClient>
-			httpClientProvider =
-			new WeakSingletonProvider<OkHttpClient>() {
-				@Override
-				@Nonnull
-				public OkHttpClient createInstance() {
-					return client;
-				}
-			};
-	// We aren't using a real onion address, so use the given address verbatim
-	private static final UrlConverter urlConverter = onion -> onion;
-	private static final MailboxApiImpl api =
-			new MailboxApiImpl(httpClientProvider, urlConverter);
 	// needs to be static to keep values across different tests
 	private static MailboxProperties ownerProperties;
 
 	/**
 	 * Called before each test to make sure the mailbox is setup once
 	 * before starting with individual tests.
-	 * {@link BeforeClass} needs to be static, so we can't use the API class.
 	 */
-	@Before
-	public void ensureSetup() throws IOException, ApiException {
+	@BeforeClass
+	public static void setUp() throws IOException, ApiException {
 		// Skip this test unless it's explicitly enabled in the environment
-		assumeTrue(isOptionalTestEnabled(MailboxIntegrationTest.class));
+		assumeTrue(isOptionalTestEnabled(MailboxApiIntegrationTest.class));
 
-		if (ownerProperties != null) return;
+		assertNull(ownerProperties);
 		MailboxProperties setupProperties = new MailboxProperties(
 				URL_BASE, SETUP_TOKEN, new ArrayList<>());
 		ownerProperties = api.setup(setupProperties);
@@ -100,7 +67,7 @@ public class MailboxIntegrationTest extends BrambleTestCase {
 	@AfterClass
 	// we can't test wiping as a regular test as it stops the mailbox
 	public static void wipe() throws IOException, ApiException {
-		if (!isOptionalTestEnabled(MailboxIntegrationTest.class)) return;
+		if (!isOptionalTestEnabled(MailboxApiIntegrationTest.class)) return;
 
 		api.wipeMailbox(ownerProperties);
 
