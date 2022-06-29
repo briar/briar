@@ -37,8 +37,14 @@ public interface LifecycleManager {
 	 */
 	enum LifecycleState {
 
-		STARTING, MIGRATING_DATABASE, COMPACTING_DATABASE, STARTING_SERVICES,
-		RUNNING, STOPPING;
+		CREATED,
+		STARTING,
+		MIGRATING_DATABASE,
+		COMPACTING_DATABASE,
+		STARTING_SERVICES,
+		RUNNING,
+		STOPPING,
+		STOPPED;
 
 		public boolean isAfter(LifecycleState state) {
 			return ordinal() > state.ordinal();

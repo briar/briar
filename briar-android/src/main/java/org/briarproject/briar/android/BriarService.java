@@ -156,8 +156,11 @@ public class BriarService extends Service {
 				if (result == SUCCESS) {
 					started = true;
 				} else if (result == ALREADY_RUNNING) {
-					LOG.info("Already running");
-					stopSelf();
+					LOG.warning("Already running");
+					// The core has outlived the original BriarService
+					// instance. We don't know how to recover from this
+					// unexpected state, so try to exit cleanly
+					shutdownFromBackground();
 				} else {
 					if (LOG.isLoggable(WARNING))
 						LOG.warning("Startup failed: " + result);
