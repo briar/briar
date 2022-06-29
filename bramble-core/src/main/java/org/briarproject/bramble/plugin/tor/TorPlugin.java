@@ -1045,8 +1045,10 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 			if (!wasBootstrapped) callback.pluginStateChanged(getState());
 		}
 
-		// Sets the `circuitBuilt` flag and returns true if the flag has
-		// changed.
+		/**
+		 * Sets the `circuitBuilt` flag and returns true if the flag has
+		 * changed.
+		 */
 		private synchronized boolean setCircuitBuilt(boolean built) {
 			if (built == circuitBuilt) return false; // Unchanged
 			circuitBuilt = built;
@@ -1054,8 +1056,10 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 			return true; // Changed
 		}
 
-		// Sets the `networkEnabled` flag and returns true if the flag has
-		// changed.
+		/**
+		 * Sets the `networkEnabled` flag and returns true if the flag has
+		 * changed.
+		 */
 		private synchronized boolean enableNetwork(boolean enable) {
 			boolean wasInitialised = networkInitialised;
 			boolean wasEnabled = networkEnabled;
@@ -1068,16 +1072,20 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 			return enable != wasEnabled;
 		}
 
-		// Sets the `paddingEnabled` flag and returns true if the flag has
-		// changed. Doesn't affect getState().
+		/**
+		 * Sets the `paddingEnabled` flag and returns true if the flag has
+		 * changed. Doesn't affect getState().
+		 */
 		private synchronized boolean enableConnectionPadding(boolean enable) {
 			if (enable == paddingEnabled) return false; // Unchanged
 			paddingEnabled = enable;
 			return true; // Changed
 		}
 
-		// Sets the `ipv6Enabled` flag and returns true if the flag has
-		// changed. Doesn't affect getState().
+		/**
+		 * Sets the `ipv6Enabled` flag and returns true if the flag has
+		 * changed. Doesn't affect getState().
+		 */
 		private synchronized boolean enableIpv6(boolean enable) {
 			if (enable == ipv6Enabled) return false; // Unchanged
 			ipv6Enabled = enable;
@@ -1106,9 +1114,11 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 			if (serverSocket == ss) serverSocket = null;
 		}
 
-		// Sets the list of bridge types being used and returns true if the
-		// list has changed. The list is empty if bridges are disabled.
-		// Doesn't affect getState().
+		/**
+		 * Sets the list of bridge types being used and returns true if the
+		 * list has changed. The list is empty if bridges are disabled.
+		 * Doesn't affect getState().
+		 */
 		private synchronized boolean setBridgeTypes(List<BridgeType> types) {
 			if (types.equals(bridgeTypes)) return false; // Unchanged
 			bridgeTypes = types;
