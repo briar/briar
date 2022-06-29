@@ -1,5 +1,6 @@
 package org.briarproject.bramble.util;
 
+import org.briarproject.bramble.api.FormatException;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 
 import java.io.UnsupportedEncodingException;
@@ -95,10 +96,10 @@ public class StringUtils {
 	/**
 	 * Converts the given hex string to a byte array.
 	 */
-	public static byte[] fromHexString(String hex) {
+	public static byte[] fromHexString(String hex) throws FormatException {
 		int len = hex.length();
 		if (len % 2 != 0)
-			throw new IllegalArgumentException("Not a hex string");
+			throw new FormatException();
 		byte[] bytes = new byte[len / 2];
 		for (int i = 0, j = 0; i < len; i += 2, j++) {
 			int high = hexDigitToInt(hex.charAt(i));
@@ -108,11 +109,11 @@ public class StringUtils {
 		return bytes;
 	}
 
-	private static int hexDigitToInt(char c) {
+	private static int hexDigitToInt(char c) throws FormatException {
 		if (c >= '0' && c <= '9') return c - '0';
 		if (c >= 'A' && c <= 'F') return c - 'A' + 10;
 		if (c >= 'a' && c <= 'f') return c - 'a' + 10;
-		throw new IllegalArgumentException("Not a hex digit: " + c);
+		throw new FormatException();
 	}
 
 	public static String trim(String s) {
@@ -130,13 +131,13 @@ public class StringUtils {
 		return MAC.matcher(mac).matches();
 	}
 
-	public static byte[] macToBytes(String mac) {
-		if (!MAC.matcher(mac).matches()) throw new IllegalArgumentException();
+	public static byte[] macToBytes(String mac) throws FormatException {
+		if (!MAC.matcher(mac).matches()) throw new FormatException();
 		return fromHexString(mac.replaceAll(":", ""));
 	}
 
-	public static String macToString(byte[] mac) {
-		if (mac.length != 6) throw new IllegalArgumentException();
+	public static String macToString(byte[] mac) throws FormatException {
+		if (mac.length != 6) throw new FormatException();
 		StringBuilder s = new StringBuilder();
 		for (byte b : mac) {
 			if (s.length() > 0) s.append(':');

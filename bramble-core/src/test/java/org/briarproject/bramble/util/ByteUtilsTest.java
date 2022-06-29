@@ -1,5 +1,6 @@
 package org.briarproject.bramble.util;
 
+import org.briarproject.bramble.api.FormatException;
 import org.briarproject.bramble.test.BrambleTestCase;
 import org.junit.Test;
 
@@ -11,7 +12,7 @@ import static org.junit.Assert.fail;
 public class ByteUtilsTest extends BrambleTestCase {
 
 	@Test
-	public void testReadUint16() {
+	public void testReadUint16() throws FormatException {
 		byte[] b = StringUtils.fromHexString("00000000");
 		assertEquals(0, ByteUtils.readUint16(b, 1));
 		b = StringUtils.fromHexString("00000100");
@@ -33,7 +34,7 @@ public class ByteUtilsTest extends BrambleTestCase {
 	}
 
 	@Test
-	public void testReadUint32() {
+	public void testReadUint32() throws FormatException {
 		byte[] b = StringUtils.fromHexString("000000000000");
 		assertEquals(0, ByteUtils.readUint32(b, 1));
 		b = StringUtils.fromHexString("000000000100");
@@ -55,7 +56,7 @@ public class ByteUtilsTest extends BrambleTestCase {
 	}
 
 	@Test
-	public void testReadUint64() {
+	public void testReadUint64() throws FormatException {
 		byte[] b = StringUtils.fromHexString("00000000000000000000");
 		assertEquals(0L, ByteUtils.readUint64(b, 1));
 		b = StringUtils.fromHexString("00000000000000000100");

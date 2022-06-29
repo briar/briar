@@ -1,6 +1,7 @@
 package org.briarproject.bramble.crypto;
 
 import org.bouncycastle.crypto.digests.Blake2bDigest;
+import org.briarproject.bramble.api.FormatException;
 import org.briarproject.bramble.test.BrambleTestCase;
 import org.briarproject.bramble.util.StringUtils;
 import org.junit.Test;
@@ -47,7 +48,7 @@ public class Blake2bDigestTest extends BrambleTestCase {
 	};
 
 	@Test
-	public void testDigestWithKeyedTestVectors() {
+	public void testDigestWithKeyedTestVectors() throws FormatException {
 		for (String[] keyedTestVector : KEYED_TEST_VECTORS) {
 			byte[] input = StringUtils.fromHexString(keyedTestVector[0]);
 			byte[] key = StringUtils.fromHexString(keyedTestVector[1]);
@@ -63,7 +64,8 @@ public class Blake2bDigestTest extends BrambleTestCase {
 	}
 
 	@Test
-	public void testDigestWithKeyedTestVectorsAndRandomUpdate() {
+	public void testDigestWithKeyedTestVectorsAndRandomUpdate()
+			throws FormatException {
 		Random random = new Random();
 		for (int i = 0; i < 100; i++) {
 			for (String[] keyedTestVector : KEYED_TEST_VECTORS) {
@@ -138,7 +140,7 @@ public class Blake2bDigestTest extends BrambleTestCase {
 	}
 
 	@Test
-	public void runSelfTest() {
+	public void runSelfTest() throws FormatException {
 		Blake2bDigest testDigest = new Blake2bDigest(256);
 		byte[] md = new byte[64];
 

@@ -2,6 +2,7 @@ package org.briarproject.bramble.api.mailbox;
 
 import com.fasterxml.jackson.annotation.JsonValue;
 
+import org.briarproject.bramble.api.FormatException;
 import org.briarproject.bramble.api.UniqueId;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 
@@ -32,7 +33,7 @@ public abstract class MailboxId extends UniqueId {
 		}
 		try {
 			return fromHexString(token);
-		} catch (IllegalArgumentException e) {
+		} catch (FormatException e) {
 			throw new InvalidMailboxIdException();
 		}
 	}

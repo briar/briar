@@ -285,7 +285,7 @@ class LanTcpPlugin extends TcpPlugin {
 				if (ip.length == 16) addrs.add(InetAddress.getByAddress(ip));
 			}
 			return addrs;
-		} catch (IllegalArgumentException | UnknownHostException e) {
+		} catch (FormatException | UnknownHostException e) {
 			return emptyList();
 		}
 	}

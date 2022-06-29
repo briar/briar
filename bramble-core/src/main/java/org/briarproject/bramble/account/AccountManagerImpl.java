@@ -1,5 +1,6 @@
 package org.briarproject.bramble.account;
 
+import org.briarproject.bramble.api.FormatException;
 import org.briarproject.bramble.api.account.AccountManager;
 import org.briarproject.bramble.api.crypto.CryptoComponent;
 import org.briarproject.bramble.api.crypto.DecryptionException;
@@ -209,7 +210,13 @@ class AccountManagerImpl implements AccountManager {
 			LOG.warning("Failed to load encrypted database key");
 			throw new DecryptionException(INVALID_CIPHERTEXT);
 		}
-		byte[] ciphertext = fromHexString(hex);
+		byte[] ciphertext;
+		try {
+			ciphertext = fromHexString(hex);
+		} catch (FormatException e) {
+			LOG.warning("Encrypted database key has invalid format");
+			throw new DecryptionException(INVALID_CIPHERTEXT);
+		}
 		KeyStrengthener keyStrengthener = databaseConfig.getKeyStrengthener();
 		byte[] plaintext = crypto.decryptWithPassword(ciphertext, password,
 				keyStrengthener);
