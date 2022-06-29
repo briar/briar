@@ -618,11 +618,12 @@ public class BdfReaderImplTest extends BrambleTestCase {
 		r.readDictionary();
 	}
 
-	private void setContents(String hex) {
+	private void setContents(String hex) throws FormatException {
 		setContents(hex, DEFAULT_MAX_BUFFER_SIZE);
 	}
 
-	private void setContents(String hex, int maxBufferSize) {
+	private void setContents(String hex, int maxBufferSize)
+			throws FormatException {
 		ByteArrayInputStream in = new ByteArrayInputStream(fromHexString(hex));
 		r = new BdfReaderImpl(in, DEFAULT_NESTED_LIMIT, maxBufferSize);
 	}

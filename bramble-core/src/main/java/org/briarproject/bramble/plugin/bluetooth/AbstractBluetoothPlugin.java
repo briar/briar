@@ -427,7 +427,13 @@ abstract class AbstractBluetoothPlugin<S, SS> implements BluetoothPlugin,
 		BdfList descriptor = new BdfList();
 		descriptor.add(TRANSPORT_ID_BLUETOOTH);
 		String address = getBluetoothAddress();
-		if (address != null) descriptor.add(macToBytes(address));
+		if (address != null) {
+			try {
+				descriptor.add(macToBytes(address));
+			} catch (FormatException e) {
+				throw new RuntimeException();
+			}
+		}
 		return new BluetoothKeyAgreementListener(descriptor, ss);
 	}
 

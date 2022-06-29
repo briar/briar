@@ -1,5 +1,6 @@
 package org.briarproject.bramble.crypto;
 
+import org.briarproject.bramble.api.FormatException;
 import org.briarproject.bramble.api.crypto.SecretKey;
 import org.briarproject.bramble.test.BrambleTestCase;
 import org.briarproject.bramble.util.StringUtils;
@@ -15,11 +16,11 @@ public class XSalsa20Poly1305AuthenticatedCipherTest extends BrambleTestCase {
 
 	// Test vectors from the NaCl paper
 	// http://cr.yp.to/highspeed/naclcrypto-20090310.pdf
-	private static final byte[] TEST_KEY = StringUtils.fromHexString(
+	private final byte[] TEST_KEY = StringUtils.fromHexString(
 			"1b27556473e985d462cd51197a9a46c76009549eac6474f206c4ee0844f68389");
-	private static final byte[] TEST_IV = StringUtils.fromHexString(
+	private final byte[] TEST_IV = StringUtils.fromHexString(
 			"69696ee955b62b73cd62bda875fc73d68219e0036b7a0b37");
-	private static final byte[] TEST_PLAINTEXT = StringUtils.fromHexString(
+	private final byte[] TEST_PLAINTEXT = StringUtils.fromHexString(
 					"be075fc53c81f2d5cf141316" +
 					"ebeb0c7b5228c52a4c62cbd4" +
 					"4b66849b64244ffce5ecbaaf" +
@@ -31,7 +32,7 @@ public class XSalsa20Poly1305AuthenticatedCipherTest extends BrambleTestCase {
 					"048977eb48f59ffd4924ca1c" +
 					"60902e52f0a089bc76897040" +
 					"e082f937763848645e0705");
-	private static final byte[] TEST_CIPHERTEXT = StringUtils.fromHexString(
+	private final byte[] TEST_CIPHERTEXT = StringUtils.fromHexString(
 					"f3ffc7703f9400e52a7dfb4b" +
 					"3d3305d98e993b9f48681273" +
 					"c29650ba32fc76ce48332ea7" +
@@ -45,6 +46,10 @@ public class XSalsa20Poly1305AuthenticatedCipherTest extends BrambleTestCase {
 					"56244a9e88d5f9b37973f622" +
 					"a43d14a6599b1f654cb45a74" +
 					"e355a5");
+
+	public XSalsa20Poly1305AuthenticatedCipherTest() throws FormatException {
+		// required for throws declaration
+	}
 
 	@Test
 	public void testEncrypt() throws Exception {

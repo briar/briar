@@ -22,6 +22,7 @@ import android.widget.Toast;
 import com.google.android.material.snackbar.Snackbar;
 
 import org.briarproject.bramble.api.FeatureFlags;
+import org.briarproject.bramble.api.FormatException;
 import org.briarproject.bramble.api.Pair;
 import org.briarproject.bramble.api.connection.ConnectionRegistry;
 import org.briarproject.bramble.api.contact.ContactId;
@@ -519,8 +520,12 @@ public class ConversationActivity extends BriarActivity
 		Selection<String> selection = tracker.getSelection();
 		List<MessageId> messages = new ArrayList<>(selection.size());
 		for (String str : selection) {
-			MessageId id = new MessageId(fromHexString(str));
-			messages.add(id);
+			try {
+				MessageId id = new MessageId(fromHexString(str));
+				messages.add(id);
+			} catch (FormatException e) {
+				LOG.warning("Invalid message id");
+			}
 		}
 		return messages;
 	}

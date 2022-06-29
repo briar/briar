@@ -8,6 +8,7 @@ import android.os.StrictMode;
 import com.vanniktech.emoji.RecentEmoji;
 
 import org.briarproject.bramble.api.FeatureFlags;
+import org.briarproject.bramble.api.FormatException;
 import org.briarproject.bramble.api.crypto.CryptoComponent;
 import org.briarproject.bramble.api.crypto.KeyStrengthener;
 import org.briarproject.bramble.api.crypto.PublicKey;
@@ -242,7 +243,7 @@ public class AppModule {
 				try {
 					return crypto.getMessageKeyParser().parsePublicKey(
 							StringUtils.fromHexString(DEV_PUBLIC_KEY_HEX));
-				} catch (GeneralSecurityException e) {
+				} catch (GeneralSecurityException | FormatException e) {
 					throw new RuntimeException(e);
 				}
 			}

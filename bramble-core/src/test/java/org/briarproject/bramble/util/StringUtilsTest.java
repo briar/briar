@@ -1,5 +1,6 @@
 package org.briarproject.bramble.util;
 
+import org.briarproject.bramble.api.FormatException;
 import org.briarproject.bramble.test.BrambleTestCase;
 import org.junit.Test;
 
@@ -24,18 +25,19 @@ public class StringUtilsTest extends BrambleTestCase {
 		assertEquals("", StringUtils.toHexString(new byte[0]));
 	}
 
-	@Test(expected = IllegalArgumentException.class)
-	public void testFromHexStringRejectsInvalidLength() {
+	@Test(expected = FormatException.class)
+	public void testFromHexStringRejectsInvalidLength() throws FormatException {
 		StringUtils.fromHexString("12345");
 	}
 
-	@Test(expected = IllegalArgumentException.class)
-	public void testFromHexStringRejectsInvalidCharacter() {
+	@Test(expected = FormatException.class)
+	public void testFromHexStringRejectsInvalidCharacter()
+			throws FormatException {
 		StringUtils.fromHexString("ABCDEFGH");
 	}
 
 	@Test
-	public void testFromHexStringUppercase() {
+	public void testFromHexStringUppercase() throws FormatException {
 		String s = "000102037F800A0B0C0D0EFF";
 		byte[] expected = new byte[] {
 				0x00, 0x01, 0x02, 0x03, 0x7F, (byte) 0x80,
@@ -45,7 +47,7 @@ public class StringUtilsTest extends BrambleTestCase {
 	}
 
 	@Test
-	public void testFromHexStringLowercase() {
+	public void testFromHexStringLowercase() throws FormatException {
 		String s = "000102037f800a0b0c0d0eff";
 		byte[] expected = new byte[] {
 				0x00, 0x01, 0x02, 0x03, 0x7F, (byte) 0x80,
@@ -55,7 +57,7 @@ public class StringUtilsTest extends BrambleTestCase {
 	}
 
 	@Test
-	public void testFromHexStringEmptyInput() {
+	public void testFromHexStringEmptyInput() throws FormatException {
 		assertArrayEquals(new byte[0], StringUtils.fromHexString(""));
 	}
 
@@ -174,52 +176,52 @@ public class StringUtilsTest extends BrambleTestCase {
 		assertEquals("", StringUtils.truncateUtf8("", 123));
 	}
 
-	@Test(expected = IllegalArgumentException.class)
-	public void testMacToBytesRejectsShortMac() {
+	@Test(expected = FormatException.class)
+	public void testMacToBytesRejectsShortMac() throws FormatException {
 		StringUtils.macToBytes("00:00:00:00:00");
 	}
 
-	@Test(expected = IllegalArgumentException.class)
-	public void testMacToBytesRejectsLongMac() {
+	@Test(expected = FormatException.class)
+	public void testMacToBytesRejectsLongMac() throws FormatException {
 		StringUtils.macToBytes("00:00:00:00:00:00:00");
 	}
 
-	@Test(expected = IllegalArgumentException.class)
-	public void testMacToBytesRejectsInvalidCharacter() {
+	@Test(expected = FormatException.class)
+	public void testMacToBytesRejectsInvalidCharacter() throws FormatException {
 		StringUtils.macToBytes("00:00:00:00:00:0g");
 	}
 
-	@Test(expected = IllegalArgumentException.class)
-	public void testMacToBytesRejectsInvalidFormat() {
+	@Test(expected = FormatException.class)
+	public void testMacToBytesRejectsInvalidFormat() throws FormatException {
 		StringUtils.macToBytes("0:000:00:00:00:00");
 	}
 
 	@Test
-	public void testMacToBytesUpperCase() {
+	public void testMacToBytesUpperCase() throws FormatException {
 		byte[] expected = new byte[] {0x0A, 0x1B, 0x2C, 0x3D, 0x4E, 0x5F};
 		String mac = "0A:1B:2C:3D:4E:5F";
 		assertArrayEquals(expected, StringUtils.macToBytes(mac));
 	}
 
 	@Test
-	public void testMacToBytesLowerCase() {
+	public void testMacToBytesLowerCase() throws FormatException {
 		byte[] expected = new byte[] {0x0A, 0x1B, 0x2C, 0x3D, 0x4E, 0x5F};
 		String mac = "0a:1b:2c:3d:4e:5f";
 		assertArrayEquals(expected, StringUtils.macToBytes(mac));
 	}
 
-	@Test(expected = IllegalArgumentException.class)
-	public void testMacToStringRejectsShortMac() {
+	@Test(expected = FormatException.class)
+	public void testMacToStringRejectsShortMac() throws FormatException {
 		StringUtils.macToString(new byte[5]);
 	}
 
-	@Test(expected = IllegalArgumentException.class)
-	public void testMacToStringRejectsLongMac() {
+	@Test(expected = FormatException.class)
+	public void testMacToStringRejectsLongMac() throws FormatException {
 		StringUtils.macToString(new byte[7]);
 	}
 
 	@Test
-	public void testMacToString() {
+	public void testMacToString() throws FormatException {
 		byte[] mac = new byte[] {0x0a, 0x1b, 0x2c, 0x3d, 0x4e, 0x5f};
 		String expected = "0A:1B:2C:3D:4E:5F";
 		assertEquals(expected, StringUtils.macToString(mac));

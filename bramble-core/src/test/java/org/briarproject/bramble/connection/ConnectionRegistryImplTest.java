@@ -1,5 +1,6 @@
 package org.briarproject.bramble.connection;
 
+import org.briarproject.bramble.api.FormatException;
 import org.briarproject.bramble.api.connection.ConnectionRegistry;
 import org.briarproject.bramble.api.connection.InterruptibleConnection;
 import org.briarproject.bramble.api.contact.ContactId;
@@ -56,6 +57,10 @@ public class ConnectionRegistryImplTest extends BrambleMockTestCase {
 			new Priority(fromHexString("00000000000000000000000000000000"));
 	private final Priority high =
 			new Priority(fromHexString("FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF"));
+
+	public ConnectionRegistryImplTest() throws FormatException {
+		// required for throws declaration
+	}
 
 	@Test
 	public void testRegisterMultipleConnections() {
