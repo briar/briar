@@ -65,6 +65,7 @@ import javax.annotation.concurrent.ThreadSafe;
 import javax.net.SocketFactory;
 
 import static java.util.Arrays.asList;
+import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
 import static java.util.Collections.singletonMap;
 import static java.util.logging.Level.INFO;
@@ -93,9 +94,7 @@ import static org.briarproject.bramble.api.plugin.TorConstants.PROP_ONION_V3;
 import static org.briarproject.bramble.api.plugin.TorConstants.REASON_BATTERY;
 import static org.briarproject.bramble.api.plugin.TorConstants.REASON_COUNTRY_BLOCKED;
 import static org.briarproject.bramble.api.plugin.TorConstants.REASON_MOBILE_DATA;
-import static org.briarproject.bramble.plugin.tor.CircumventionProvider.BridgeType.DEFAULT_OBFS4;
 import static org.briarproject.bramble.plugin.tor.CircumventionProvider.BridgeType.MEEK;
-import static org.briarproject.bramble.plugin.tor.CircumventionProvider.BridgeType.NON_DEFAULT_OBFS4;
 import static org.briarproject.bramble.plugin.tor.TorRendezvousCrypto.SEED_BYTES;
 import static org.briarproject.bramble.util.IoUtils.copyAndClose;
 import static org.briarproject.bramble.util.IoUtils.tryToClose;
@@ -239,8 +238,14 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 		}
 		// Load the settings
 		settings = callback.getSettings();
-		// Install or update the assets if necessary
-		if (!assetsAreUpToDate()) installAssets();
+		try {
+			// Install or update the assets if necessary
+			if (!assetsAreUpToDate()) installAssets();
+			// Start from the default config every time
+			extract(getConfigInputStream(), configFile);
+		} catch (IOException e) {
+			throw new PluginException(e);
+		}
 		if (cookieFile.exists() && !cookieFile.delete())
 			LOG.warning("Old auth cookie not deleted");
 		// Start a new Tor process
@@ -302,7 +307,7 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 			info = controlConnection.getInfo("status/circuit-established");
 			if ("1".equals(info)) {
 				LOG.info("Tor has already built a circuit");
-				state.getAndSetCircuitBuilt(true);
+				state.setCircuitBuilt(true);
 			}
 		} catch (TorNotRunningException e) {
 			throw new RuntimeException(e);
@@ -321,25 +326,20 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 		return doneFile.lastModified() > getLastUpdateTime();
 	}
 
-	private void installAssets() throws PluginException {
-		try {
-			// The done file may already exist from a previous installation
-			//noinspection ResultOfMethodCallIgnored
-			doneFile.delete();
-			// The GeoIP file may exist from a previous installation - we can
-			// save some space by deleting it.
-			// TODO: Remove after a reasonable migration period
-			//  (added 2022-03-29)
-			//noinspection ResultOfMethodCallIgnored
-			geoIpFile.delete();
-			installTorExecutable();
-			installObfs4Executable();
-			extract(getConfigInputStream(), configFile);
-			if (!doneFile.createNewFile())
-				LOG.warning("Failed to create done file");
-		} catch (IOException e) {
-			throw new PluginException(e);
-		}
+	private void installAssets() throws IOException {
+		// The done file may already exist from a previous installation
+		//noinspection ResultOfMethodCallIgnored
+		doneFile.delete();
+		// The GeoIP file may exist from a previous installation - we can
+		// save some space by deleting it.
+		// TODO: Remove after a reasonable migration period
+		//  (added 2022-03-29)
+		//noinspection ResultOfMethodCallIgnored
+		geoIpFile.delete();
+		installTorExecutable();
+		installObfs4Executable();
+		if (!doneFile.createNewFile())
+			LOG.warning("Failed to create done file");
 	}
 
 	protected void extract(InputStream in, File dest) throws IOException {
@@ -398,6 +398,10 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 		append(strb, "SocksPort", torSocksPort);
 		strb.append("GeoIPFile\n");
 		strb.append("GeoIPv6File\n");
+		append(strb, "ConnectionPadding", 0);
+		String obfs4Path = getObfs4ExecutableFile().getAbsolutePath();
+		append(strb, "ClientTransportPlugin obfs4 exec", obfs4Path);
+		append(strb, "ClientTransportPlugin meek_lite exec", obfs4Path);
 		//noinspection CharsetObjectCanBeUsed
 		return new ByteArrayInputStream(
 				strb.toString().getBytes(Charset.forName("UTF-8")));
@@ -547,7 +551,7 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 	}
 
 	protected void enableNetwork(boolean enable) throws IOException {
-		state.enableNetwork(enable);
+		if (!state.enableNetwork(enable)) return; // Unchanged
 		try {
 			controlConnection.setConf("DisableNetwork", enable ? "0" : "1");
 		} catch (TorNotRunningException e) {
@@ -555,28 +559,20 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 		}
 	}
 
-	private void enableBridges(boolean enable, List<BridgeType> bridgeTypes)
+	private void enableBridges(List<BridgeType> bridgeTypes)
 			throws IOException {
+		if (!state.setBridgeTypes(bridgeTypes)) return; // Unchanged
 		try {
-			if (enable) {
+			if (bridgeTypes.isEmpty()) {
+				controlConnection.setConf("UseBridges", "0");
+				controlConnection.resetConf(singletonList("Bridge"));
+			} else {
 				Collection<String> conf = new ArrayList<>();
 				conf.add("UseBridges 1");
-				File obfs4File = getObfs4ExecutableFile();
-				if (bridgeTypes.contains(MEEK)) {
-					conf.add("ClientTransportPlugin meek_lite exec " +
-							obfs4File.getAbsolutePath());
-				}
-				if (bridgeTypes.contains(DEFAULT_OBFS4) ||
-						bridgeTypes.contains(NON_DEFAULT_OBFS4)) {
-					conf.add("ClientTransportPlugin obfs4 exec " +
-							obfs4File.getAbsolutePath());
-				}
 				for (BridgeType bridgeType : bridgeTypes) {
 					conf.addAll(circumventionProvider.getBridges(bridgeType));
 				}
 				controlConnection.setConf(conf);
-			} else {
-				controlConnection.setConf("UseBridges", "0");
 			}
 		} catch (TorNotRunningException e) {
 			throw new RuntimeException(e);
@@ -758,7 +754,7 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 	public void circuitStatus(String status, String id, String path) {
 		// In case of races between receiving CIRCUIT_ESTABLISHED and setting
 		// DisableNetwork, set our circuitBuilt flag if not already set
-		if (status.equals("BUILT") && !state.getAndSetCircuitBuilt(true)) {
+		if (status.equals("BUILT") && state.setCircuitBuilt(true)) {
 			LOG.info("Circuit built");
 			backoff.reset();
 		}
@@ -815,12 +811,12 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 			state.setBootstrapped();
 			backoff.reset();
 		} else if (msg.startsWith("CIRCUIT_ESTABLISHED")) {
-			if (!state.getAndSetCircuitBuilt(true)) {
+			if (state.setCircuitBuilt(true)) {
 				LOG.info("Circuit built");
 				backoff.reset();
 			}
 		} else if (msg.startsWith("CIRCUIT_NOT_ESTABLISHED")) {
-			if (state.getAndSetCircuitBuilt(false)) {
+			if (state.setCircuitBuilt(false)) {
 				LOG.info("Circuit not built");
 				// TODO: Disable and re-enable network to prompt Tor to rebuild
 				//  its guard/bridge connections? This will also close any
@@ -911,10 +907,8 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 			}
 
 			int reasonsDisabled = 0;
-			boolean enableNetwork = false, enableBridges = false;
-			boolean enableConnectionPadding = false;
-			List<BridgeType> bridgeTypes =
-					circumventionProvider.getSuitableBridgeTypes(country);
+			boolean enableNetwork = false, enableConnectionPadding = false;
+			List<BridgeType> bridgeTypes = emptyList();
 
 			if (!online) {
 				LOG.info("Disabling network, device is offline");
@@ -943,8 +937,12 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 					enableNetwork = true;
 					if (network == PREF_TOR_NETWORK_WITH_BRIDGES ||
 							(automatic && bridgesWork)) {
-						if (ipv6Only) bridgeTypes = singletonList(MEEK);
-						enableBridges = true;
+						if (ipv6Only) {
+							bridgeTypes = singletonList(MEEK);
+						} else {
+							bridgeTypes = circumventionProvider
+									.getSuitableBridgeTypes(country);
+						}
 						if (LOG.isLoggable(INFO)) {
 							LOG.info("Using bridge types " + bridgeTypes);
 						}
@@ -964,9 +962,9 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 
 			try {
 				if (enableNetwork) {
-					enableBridges(enableBridges, bridgeTypes);
+					enableBridges(bridgeTypes);
 					enableConnectionPadding(enableConnectionPadding);
-					useIpv6(ipv6Only);
+					enableIpv6(ipv6Only);
 				}
 				enableNetwork(enableNetwork);
 			} catch (IOException e) {
@@ -976,6 +974,7 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 	}
 
 	private void enableConnectionPadding(boolean enable) throws IOException {
+		if (!state.enableConnectionPadding(enable)) return; // Unchanged
 		try {
 			controlConnection.setConf("ConnectionPadding", enable ? "1" : "0");
 		} catch (TorNotRunningException e) {
@@ -983,10 +982,11 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 		}
 	}
 
-	private void useIpv6(boolean ipv6Only) throws IOException {
+	private void enableIpv6(boolean enable) throws IOException {
+		if (!state.enableIpv6(enable)) return; // Unchanged
 		try {
-			controlConnection.setConf("ClientUseIPv4", ipv6Only ? "0" : "1");
-			controlConnection.setConf("ClientUseIPv6", ipv6Only ? "1" : "0");
+			controlConnection.setConf("ClientUseIPv4", enable ? "0" : "1");
+			controlConnection.setConf("ClientUseIPv6", enable ? "1" : "0");
 		} catch (TorNotRunningException e) {
 			throw new RuntimeException(e);
 		}
@@ -1001,6 +1001,8 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 				stopped = false,
 				networkInitialised = false,
 				networkEnabled = false,
+				paddingEnabled = false,
+				ipv6Enabled = false,
 				bootstrapped = false,
 				circuitBuilt = false,
 				settingsChecked = false;
@@ -1014,6 +1016,9 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 
 		@GuardedBy("this")
 		private int orConnectionsConnected = 0;
+
+		@GuardedBy("this")
+		private List<BridgeType> bridgeTypes = emptyList();
 
 		private synchronized void setStarted() {
 			started = true;
@@ -1035,28 +1040,66 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 		}
 
 		private synchronized void setBootstrapped() {
+			boolean wasBootstrapped = bootstrapped;
 			bootstrapped = true;
-			callback.pluginStateChanged(getState());
+			if (!wasBootstrapped) callback.pluginStateChanged(getState());
 		}
 
-		private synchronized boolean getAndSetCircuitBuilt(boolean built) {
-			boolean old = circuitBuilt;
+		/**
+		 * Sets the `circuitBuilt` flag and returns true if the flag has
+		 * changed.
+		 */
+		private synchronized boolean setCircuitBuilt(boolean built) {
+			if (built == circuitBuilt) return false; // Unchanged
 			circuitBuilt = built;
-			if (built != old) callback.pluginStateChanged(getState());
-			return old;
+			callback.pluginStateChanged(getState());
+			return true; // Changed
 		}
 
-		private synchronized void enableNetwork(boolean enable) {
+		/**
+		 * Sets the `networkEnabled` flag and returns true if the flag has
+		 * changed.
+		 */
+		private synchronized boolean enableNetwork(boolean enable) {
+			boolean wasInitialised = networkInitialised;
+			boolean wasEnabled = networkEnabled;
 			networkInitialised = true;
 			networkEnabled = enable;
 			if (!enable) circuitBuilt = false;
-			callback.pluginStateChanged(getState());
+			if (!wasInitialised || enable != wasEnabled) {
+				callback.pluginStateChanged(getState());
+			}
+			return enable != wasEnabled;
 		}
 
-		private synchronized void setReasonsDisabled(int reasonsDisabled) {
+		/**
+		 * Sets the `paddingEnabled` flag and returns true if the flag has
+		 * changed. Doesn't affect getState().
+		 */
+		private synchronized boolean enableConnectionPadding(boolean enable) {
+			if (enable == paddingEnabled) return false; // Unchanged
+			paddingEnabled = enable;
+			return true; // Changed
+		}
+
+		/**
+		 * Sets the `ipv6Enabled` flag and returns true if the flag has
+		 * changed. Doesn't affect getState().
+		 */
+		private synchronized boolean enableIpv6(boolean enable) {
+			if (enable == ipv6Enabled) return false; // Unchanged
+			ipv6Enabled = enable;
+			return true; // Changed
+		}
+
+		private synchronized void setReasonsDisabled(int reasons) {
+			boolean wasChecked = settingsChecked;
 			settingsChecked = true;
-			this.reasonsDisabled = reasonsDisabled;
-			callback.pluginStateChanged(getState());
+			int oldReasons = reasonsDisabled;
+			reasonsDisabled = reasons;
+			if (!wasChecked || reasons != oldReasons) {
+				callback.pluginStateChanged(getState());
+			}
 		}
 
 		// Doesn't affect getState()
@@ -1069,6 +1112,17 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 		// Doesn't affect getState()
 		private synchronized void clearServerSocket(ServerSocket ss) {
 			if (serverSocket == ss) serverSocket = null;
+		}
+
+		/**
+		 * Sets the list of bridge types being used and returns true if the
+		 * list has changed. The list is empty if bridges are disabled.
+		 * Doesn't affect getState().
+		 */
+		private synchronized boolean setBridgeTypes(List<BridgeType> types) {
+			if (types.equals(bridgeTypes)) return false; // Unchanged
+			bridgeTypes = types;
+			return true; // Changed
 		}
 
 		private synchronized State getState() {
