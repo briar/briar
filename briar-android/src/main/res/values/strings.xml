@@ -687,8 +687,6 @@
 	<!-- About -->
 	<string name="about_title">About</string>
 	<string name="briar_version">Briar Version:</string>
-	<string name="briar_website"><a href="https://briarproject.org/">Briar website</a></string>
-	<string name="briar_source_code"><a href="https://code.briarproject.org/briar/briar">Briar source code</a></string>
 	<string name="links">Links</string>
 
 	<!-- Conversation Settings -->
