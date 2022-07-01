@@ -586,7 +586,6 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 		if (controlSocket != null && controlConnection != null) {
 			try {
 				LOG.info("Stopping Tor");
-				controlConnection.setConf("DisableNetwork", "1");
 				controlConnection.shutdownTor("TERM");
 				controlSocket.close();
 			} catch (TorNotRunningException e) {
