@@ -8,11 +8,8 @@
 		android:id="@+id/BriarVersion"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
-		android:padding="16dp"
 		android:text="@string/briar_version"
 		android:textAppearance="@style/TextAppearance.MaterialComponents.Body1"
-		android:textSize="22sp"
-		android:textStyle="bold"
 		app:layout_constraintStart_toStartOf="parent"
 		app:layout_constraintTop_toTopOf="parent" />
 
@@ -20,11 +17,8 @@
 		android:id="@+id/LinksTitle"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
-		android:padding="16dp"
 		android:text="@string/links"
 		android:textAppearance="@style/TextAppearance.MaterialComponents.Body1"
-		android:textSize="20sp"
-		android:textStyle="bold"
 		app:layout_constraintStart_toStartOf="parent"
 		app:layout_constraintTop_toBottomOf="@+id/BriarVersion" />
 
@@ -32,11 +26,8 @@
 		android:id="@+id/BriarWebsite"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
-		android:padding="16dp"
 		android:text="@string/briar_website"
 		android:textAppearance="@style/TextAppearance.MaterialComponents.Body1"
-		android:textSize="22sp"
-		android:textStyle="bold"
 		app:layout_constraintStart_toStartOf="parent"
 		app:layout_constraintTop_toBottomOf="@+id/LinksTitle" />
 
@@ -44,11 +35,8 @@
 		android:id="@+id/BriarSourceCode"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
-		android:padding="16dp"
 		android:text="@string/briar_source_code"
 		android:textAppearance="@style/TextAppearance.MaterialComponents.Body1"
-		android:textSize="22sp"
-		android:textStyle="bold"
 		app:layout_constraintStart_toStartOf="parent"
 		app:layout_constraintTop_toBottomOf="@+id/BriarWebsite" />
 
