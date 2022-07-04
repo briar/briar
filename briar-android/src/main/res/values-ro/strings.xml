@@ -41,10 +41,10 @@
   <string name="dialog_message_lost_password">Contul dumneavoastră Briar este stocat în mod criptat pe dispozitivul dumneavoastră, nu în cloud, așa că nu vă putem reseta parola. Doriți să vă ștergeți contul și să o luați de la capăt?\n\nAtenție: Identitățile, contactele și mesajele dumneavoastră vor fi pierdute definitiv.</string>
   <string name="startup_failed_activity_title">Eroare de pornire Briar</string>
   <string name="startup_failed_clock_error">Briar nu a putut porni deoarece ceasul dispozitivului dvs. este greșit.\n\nVă rugăm să setați ceasul dispozitivului dvs. la ora corectă și să încercați din nou.</string>
-  <string name="startup_failed_db_error">Briar nu a reușit să deschidă baza de date care conține contul dumneavoastră, contactele și mesajele dumneavoastră.\n\nVă rugăm să faceți upgrade la cea mai recentă versiune a app și să încercați din nou, sau să configurați un cont nou alegând \"Mi-am uitat parola\" la solicitarea parolei.</string>
+  <string name="startup_failed_db_error">Briar nu a reușit să deschidă baza de date care conține contul dumneavoastră, contactele și mesajele dumneavoastră.\n\nVă rugăm să faceți upgrade la cea mai recentă versiune a aplicației și să încercați din nou, sau să configurați un cont nou alegând \"Mi-am uitat parola\" la solicitarea parolei.</string>
   <string name="startup_failed_data_too_old_error">Contul dvs. a fost creat cu o versiune veche a acestei aplicații și nu poate fi deschis cu această versiune.\n\nTrebuie fie să reinstalați versiunea veche, fie să creați un cont nou alegând \"Mi-am uitat parola\" la solicitarea de parolă.</string>
   <string name="startup_failed_data_too_new_error">Contul dvs. a fost creat cu o versiune mai nouă a acestei aplicații și nu poate fi deschis cu această versiune.\n\nVă rugăm să faceți upgrade la cea mai recentă versiune și să încercați din nou.</string>
-  <string name="startup_failed_service_error">Briar nu a reușit să pornească o componentă necesară.\n\nVă rugăm să faceți upgrade la cea mai recentă versiune a acestui app și să încercați din nou.</string>
+  <string name="startup_failed_service_error">Briar nu a reușit să pornească o componentă necesară.\n\nVă rugăm să faceți upgrade la cea mai recentă versiune a acestei aplicații și să încercați din nou.</string>
   <plurals name="expiry_warning">
     <item quantity="one">Aceasta este o versiune de test pentru Briar. Contul dumneavoastră va expira în %d zi și nu se poate reînnoi</item>
     <item quantity="few">Aceasta este o versiune de test pentru Briar. Contul dumneavoastră va expira în %d zile și nu se poate reînnoi.</item>
@@ -554,12 +554,12 @@
   <string name="password_changed">Parola a fost schimbată.</string>
   <string name="panic_setting">Setare buton de panică</string>
   <string name="panic_setting_title">Buton de panică</string>
-  <string name="panic_setting_hint">Configurați cum va reacționa Briar atunci când folosiți un app de buton de panică.</string>
-  <string name="panic_app_setting_title">App buton de panică</string>
-  <string name="unknown_app">app necunoscut</string>
-  <string name="panic_app_setting_summary">Nu a fost setată nici un app</string>
+  <string name="panic_setting_hint">Configurați cum va reacționa Briar atunci când folosiți o aplicație de buton de panică.</string>
+  <string name="panic_app_setting_title">Aplicație buton de panică</string>
+  <string name="unknown_app">aplicație necunoscută</string>
+  <string name="panic_app_setting_summary">Nu a fost setată nici o aplicație</string>
   <string name="panic_app_setting_none">Nici una</string>
-  <string name="dialog_title_connect_panic_app">Confirmare app de panică</string>
+  <string name="dialog_title_connect_panic_app">Confirmare aplicație de panică</string>
   <string name="dialog_message_connect_panic_app">Sigur doriți să permiteți %1$s să declanșeze acțiuni destructive pentru butonul de panică?</string>
   <string name="panic_setting_destructive_action">Acțiuni distructive</string>
   <string name="panic_setting_signout_title">Ieșire</string>
@@ -606,7 +606,7 @@
   <string name="mailbox_setup_io_error_title">Nu s-a putut conecta</string>
   <string name="mailbox_setup_io_error_description">Asigurați-vă că ambele dispozitive sunt conectate la Internet și încercați din nou.</string>
   <string name="mailbox_setup_assertion_error_title">Eroare de Cutie poștală</string>
-  <string name="mailbox_setup_assertion_error_description">Vă rugăm să trimiteți feedback (cu date anonime) prin intermediul app-ului Briar dacă problema persistă.</string>
+  <string name="mailbox_setup_assertion_error_description">Vă rugăm să trimiteți feedback (cu date anonime) prin intermediul aplicației Briar dacă problema persistă.</string>
   <string name="mailbox_setup_camera_error_description">Nu s-a putut accesa camera. Încercați din nou, poate după repornirea dispozitivului.</string>
   <string name="mailbox_setup_paired_title">Conectat</string>
   <string name="mailbox_setup_paired_description">Cutia dumneavoastră poștală a fost atașată cu succes la Briar.\n
@@ -742,7 +742,7 @@ De asemenea, contactul dvs. poate modifica această setare pentru amândoi.</str
   <string name="transports_help_text">Briar se poate conecta la contactele dumneavoastră prin Internet, Wi-Fi sau Bluetooth.\n\nToate conexiunile la internet trec prin rețeaua Tor din motive de confidențialitate.\n\nDacă un contact poate fi accesat prin metode multiple, Briar le va folosi în mod paralel.</string>
   <!--Share app offline-->
   <string name="hotspot_title">Partajează această aplicație fără Internet</string>
-  <string name="hotspot_intro">Împărtășiți acest app cu o persoană din apropiere fără conexiune la Internet, utilizând Wi-Fi-ul telefonului dumneavoastră.
+  <string name="hotspot_intro">Împărtășiți această aplicație cu o persoană din apropiere fără conexiune la Internet, utilizând Wi-Fi-ul telefonului dumneavoastră.
 \n\nTelefonul dumneavoastră va porni un hotspot Wi-Fi. Persoanele din apropiere se pot conecta la hotspot și pot descărca aplicația Briar de pe telefonul vostru.</string>
   <string name="hotspot_button_start_sharing">Pornește hotspot</string>
   <string name="hotspot_button_stop_sharing">Oprește hotspot</string>
@@ -793,7 +793,7 @@ De asemenea, contactul dvs. poate modifica această setare pentru amândoi.</str
   <string name="hotspot_help_site_4">Dacă puteți vizita siteul dar nu puteți descărca aplicația Briar, încercați cu un alt browser.</string>
   <string name="hotspot_help_fallback_title">Nimic nu funcționează?</string>
   <string name="hotspot_help_fallback_intro">Puteți încerca să salvați aplicația ca un fișier .APK pentru a-l partaja în alt mod. Odată fișierul transferat pe celălalt dispozitiv, poate fi folosit să se instaleze Briar.
-		\n\nPont: Pentru a partaja prin Bluetooth s-ar putea sa fie necesar sa redenumiți fișierul ca să aivă terminația .ZIP.</string>
+		\n\nPont: Pentru a partaja prin Bluetooth s-ar putea sa fie necesar sa redenumiți fișierul ca să aibă terminația .ZIP.</string>
   <string name="hotspot_help_fallback_button">Salvează aplicația</string>
   <!--error handling-->
   <string name="hotspot_error_intro">A apărut o problemă când s-a încercat partajarea aplicației prin Wi-Fi.</string>

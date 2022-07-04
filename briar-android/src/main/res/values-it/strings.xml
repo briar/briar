@@ -26,6 +26,10 @@
   <string name="dnkm_xiaomi_button">Proteggi Briar</string>
   <string name="dnkm_xiaomi_help">Se Briar non è fissato nella lista di app recenti, non potrà funzionare in secondo piano.</string>
   <string name="dnkm_xiaomi_dialog_body_old">1. Apri la lista di app recenti (chiamata anche app switcher)\n\n2. Scorri fino alla schermata di Briar per mostrare l\'icona del lucchetto\n\n3. Se il lucchetto non è chiuso, toccalo per chiuderlo</string>
+  <string name="dnkm_xiaomi_dialog_body_new">1. Apri la lista di app recenti (chiamata anche app switcher)\n\n2. Se Briar ha un piccolo lucchetto accanto al nome, allora non devi fare nulla\n\n3. Se non c\'è un lucchetto, tieni premuta la schermata di Briar finché non compare l\'icona del lucchetto, poi toccala</string>
+  <string name="dnkm_xiaomi_lock_apps_text">Tocca il pulsante sottostante per aprire le impostazioni di sicurezza. Tocca \"Aumenta velocità\", poi \"Blocca le app\" e assicurati che Briar sia impostato su \"Bloccato\".</string>
+  <string name="dnkm_xiaomi_lock_apps_help">Se Briar non è impostato su \"Bloccato\" nella schermata \"Blocca le app\", non riuscirà a funzionare in secondo piano.</string>
+  <string name="dnkm_warning_dozed_1">Briar non è riuscito a funzionare in secondo piano</string>
   <!--Login-->
   <string name="enter_password">Password</string>
   <string name="try_again">Password sbagliata, riprova</string>
@@ -238,6 +242,8 @@
   <string name="contact_added_toast">Contatto aggiunto: %s</string>
   <string name="contact_already_exists">Il contatto %s esiste già</string>
   <string name="qr_code_invalid">Il codice QR non è valido</string>
+  <string name="qr_code_too_old_1">Il codice QR che hai scansionato proviene da una versione più vecchia di Briar.\n\nChiedi al tuo contatto di aggiornare all\'ultima versione e poi riprova.</string>
+  <string name="qr_code_too_new_1">Il codice QR che hai scansionato proviene da una versione più recente di Briar.\n\nAggiorna all\'ultima versione e poi riprova.</string>
   <string name="camera_error">Errore fotocamera</string>
   <string name="connecting_to_device">Connessione al dispositivo\u2026</string>
   <string name="authenticating_with_device">Autenticazione con il dispositivo\u2026</string>
@@ -613,6 +619,10 @@
   <string name="mailbox_status_connected_title">Casella postale in esecuzione</string>
   <string name="mailbox_status_problem_title">Briar sta avendo problemi a connettersi alla casella postale</string>
   <string name="mailbox_status_failure_title">Casella postale non disponibile</string>
+  <string name="mailbox_status_app_too_old_title">Briar è troppo vecchio</string>
+  <string name="mailbox_status_app_too_old_message">Aggiorna Briar all\'ultima versione e riprova.</string>
+  <string name="mailbox_status_mailbox_too_old_title">La cassella postale è troppo vecchia</string>
+  <string name="mailbox_status_mailbox_too_old_message">Aggiorna la casella postale all\'ultima versione e riprova.</string>
   <string name="mailbox_status_check_button">Controlla connessione</string>
   <!--Example for string substitution: Last connection: 3min ago-->
   <string name="mailbox_status_connected_info">Ultima connessione: %s</string>
@@ -764,6 +774,9 @@
   <string name="hotspot_manual_site_address">Indirizzo (URL)</string>
   <string name="hotspot_qr_site">Il tuo telefono sta fornendo un hotspot Wi-Fi. Le persone connesse all\'hotspot possono scaricare Briar scansionando questo codice QR.</string>
   <!--e.g. Download Briar 1.2.20-->
+  <string name="website_download_title_1">Scarica Briar %s</string>
+  <string name="website_download_intro_1">Qualcuno nelle vicinanze ha condiviso Briar con te.</string>
+  <string name="website_download_button">Scarica Briar</string>
   <string name="website_download_outro">Dopo il completamento del download, apri il file scaricato e installalo.</string>
   <string name="website_troubleshooting_title">Risoluzione dei problemi</string>
   <string name="website_troubleshooting_1">Se non puoi scaricare l\'app, prova con un browser web diverso.</string>
