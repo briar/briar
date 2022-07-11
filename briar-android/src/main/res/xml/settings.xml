@@ -29,6 +29,11 @@
 		android:title="@string/mailbox_settings_title"
 		app:icon="@drawable/ic_mailbox" />
 
+	<Preference
+		android:title="@string/about_title"
+		app:fragment="org.briarproject.briar.android.settings.AboutFragment"
+		app:icon="@drawable/ic_info_dark" />
+
 	<PreferenceCategory
 		android:key="pref_key_actions"
 		android:layout="@layout/preferences_category"
