@@ -15,7 +15,7 @@ import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
 import org.briarproject.briar.BuildConfig;
 import org.briarproject.briar.R;
 
-
+import java.util.Locale;
 import java.util.logging.Logger;
 
 import androidx.annotation.NonNull;
@@ -37,6 +37,7 @@ public class AboutFragment extends Fragment {
 	private TextView briarVersion;
 	private TextView briarWebsite;
 	private TextView briarSourceCode;
+	private TextView translatedBy;
 
 	@Nullable
 	@Override
@@ -56,6 +57,7 @@ public class AboutFragment extends Fragment {
 				getString(R.string.briar_version, BuildConfig.VERSION_NAME));
 		briarWebsite = requireActivity().findViewById(R.id.BriarWebsite);
 		briarSourceCode = requireActivity().findViewById(R.id.BriarSourceCode);
+		translatedBy = requireActivity().findViewById(R.id.TranslatedBy);
 		briarWebsite.setOnClickListener(View -> {
 			String url = "https://briarproject.org/";
 			Intent i = new Intent(Intent.ACTION_VIEW);
@@ -80,6 +82,13 @@ public class AboutFragment extends Fragment {
 						R.string.error_start_activity, LENGTH_LONG).show();
 			}
 		});
+		if (!Locale.getDefault().getLanguage()
+				.equals(Locale.ENGLISH.toString())) {
+			translatedBy.setVisibility(View.VISIBLE);
+			translatedBy.setText(getString(
+					R.string.translated_by,
+					getString(R.string.translator_name)));
+		}
 	}
 
 }
