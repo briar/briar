@@ -800,6 +800,13 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 		}
 	}
 
+	@Override
+	public void controlConnectionClosed() {
+		if (state.isTorRunning()) {
+			throw new RuntimeException("Control connection closed");
+		}
+	}
+
 	private String removeSeverity(String msg) {
 		return msg.replaceFirst("[^ ]+ ", "");
 	}
