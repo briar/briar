@@ -317,8 +317,8 @@
 	
 	<!-- Peer trust levels -->
 
-	<string name="peer_trust_level_unverified">Unverified</string>
-	<string name="peer_trust_level_verified">Verified</string>
+	<string name="peer_trust_level_unverified">Unverified contact</string>
+	<string name="peer_trust_level_verified">Verified contact</string>
 	<string name="peer_trust_level_ourselves">Me</string>
 	<string name="peer_trust_level_stranger">Stranger</string>
 
