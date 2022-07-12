@@ -15,7 +15,6 @@ import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
 import org.briarproject.briar.BuildConfig;
 import org.briarproject.briar.R;
 
-import java.util.Locale;
 import java.util.logging.Logger;
 
 import androidx.annotation.NonNull;
@@ -26,6 +25,7 @@ import static android.widget.Toast.LENGTH_LONG;
 import static java.util.logging.Level.WARNING;
 import static java.util.logging.Logger.getLogger;
 import static org.briarproject.bramble.util.LogUtils.logException;
+import static java.util.Locale.*;
 
 @MethodsNotNullByDefault
 @ParametersNotNullByDefault
@@ -82,8 +82,8 @@ public class AboutFragment extends Fragment {
 						R.string.error_start_activity, LENGTH_LONG).show();
 			}
 		});
-		if (!Locale.getDefault().getLanguage()
-				.equals(Locale.ENGLISH.toString())) {
+		if (!getDefault().getLanguage()
+				.equals(ENGLISH.toString())) {
 			translatedBy.setVisibility(View.VISIBLE);
 			translatedBy.setText(getString(
 					R.string.translated_by,
