@@ -83,7 +83,9 @@ public class AboutFragment extends Fragment {
 			}
 		});
 		if (!getDefault().getLanguage()
-				.equals(ENGLISH.toString())) {
+				.equals(ENGLISH.toString()) &&
+				getString(R.string.translated_by).length() != 0 &&
+				getString(R.string.translator_name).length() != 0) {
 			translatedBy.setVisibility(View.VISIBLE);
 			translatedBy.setText(getString(
 					R.string.translated_by,
