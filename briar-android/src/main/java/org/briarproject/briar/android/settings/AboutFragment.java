@@ -36,6 +36,7 @@ public class AboutFragment extends Fragment {
 	private TextView briarVersion;
 	private TextView briarWebsite;
 	private TextView briarSourceCode;
+	private TextView briarChangelog;
 
 	@Nullable
 	@Override
@@ -55,6 +56,7 @@ public class AboutFragment extends Fragment {
 				getString(R.string.briar_version, BuildConfig.VERSION_NAME));
 		briarWebsite = requireActivity().findViewById(R.id.BriarWebsite);
 		briarSourceCode = requireActivity().findViewById(R.id.BriarSourceCode);
+		briarChangelog = requireActivity().findViewById(R.id.BriarChangelog);
 		briarWebsite.setOnClickListener(View -> {
 			String url = "https://briarproject.org/";
 			Intent i = new Intent(Intent.ACTION_VIEW);
@@ -69,6 +71,19 @@ public class AboutFragment extends Fragment {
 		});
 		briarSourceCode.setOnClickListener(View -> {
 			String url = "https://code.briarproject.org/briar/briar";
+			Intent i = new Intent(Intent.ACTION_VIEW);
+			i.setData(Uri.parse(url));
+			try {
+				startActivity(i);
+			} catch (ActivityNotFoundException e) {
+				logException(LOG, WARNING, e);
+				Toast.makeText(requireContext(),
+						R.string.error_start_activity, LENGTH_LONG).show();
+			}
+		});
+		briarChangelog.setOnClickListener(View -> {
+			String url =
+					"https://code.briarproject.org/briar/briar/-/wikis/changelog";
 			Intent i = new Intent(Intent.ACTION_VIEW);
 			i.setData(Uri.parse(url));
 			try {
