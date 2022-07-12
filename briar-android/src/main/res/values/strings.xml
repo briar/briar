@@ -699,7 +699,7 @@
 	<string name="briar_source_code">\u2022 <a href="">Briar source code</a></string>
 	<string name="translated_by"></string><!--Just translate this: "Translated by: %s" -->
 	<string name="translator_name"></string> <!-- Here translators can add their names or Transifex usernames -->
-	<string name="translator_thanks">Thanks to all the unlisted contributors in the Localisation Lab</string>
+	<string name="translator_thanks">Thanks to all the contributors at the Localization Lab</string>
 
 	<!-- Conversation Settings -->
 	<string name="disappearing_messages_title">Disappearing messages</string>
