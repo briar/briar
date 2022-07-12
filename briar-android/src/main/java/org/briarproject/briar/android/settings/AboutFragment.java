@@ -34,6 +34,7 @@ public class AboutFragment extends Fragment {
 	private static final Logger LOG = getLogger(TAG);
 
 	private TextView briarVersion;
+	private TextView torVersion;
 	private TextView briarWebsite;
 	private TextView briarSourceCode;
 	private TextView briarChangelog;
@@ -54,6 +55,9 @@ public class AboutFragment extends Fragment {
 		briarVersion = requireActivity().findViewById(R.id.BriarVersion);
 		briarVersion.setText(
 				getString(R.string.briar_version, BuildConfig.VERSION_NAME));
+		torVersion = requireActivity().findViewById(R.id.TorVersion);
+		torVersion.setText(
+				getString(R.string.tor_version, BuildConfig.TorVersion));
 		briarWebsite = requireActivity().findViewById(R.id.BriarWebsite);
 		briarSourceCode = requireActivity().findViewById(R.id.BriarSourceCode);
 		briarChangelog = requireActivity().findViewById(R.id.BriarChangelog);

@@ -15,6 +15,15 @@
 		app:layout_constraintTop_toTopOf="parent" />
 
 	<TextView
+		android:id="@+id/TorVersion"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:text="@string/tor_version"
+		android:textAppearance="@style/TextAppearance.MaterialComponents.Body1"
+		app:layout_constraintStart_toStartOf="parent"
+		app:layout_constraintTop_toBottomOf="@+id/BriarVersion" />
+
+	<TextView
 		android:id="@+id/LinksTitle"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
@@ -22,7 +31,7 @@
 		android:text="@string/links"
 		android:textAppearance="@style/TextAppearance.MaterialComponents.Body1"
 		app:layout_constraintStart_toStartOf="parent"
-		app:layout_constraintTop_toBottomOf="@+id/BriarVersion" />
+		app:layout_constraintTop_toBottomOf="@+id/TorVersion" />
 
 	<TextView
 		android:id="@+id/BriarWebsite"

@@ -29,6 +29,7 @@ android {
 		versionCode 10410
 		versionName "1.4.10"
 		applicationId "org.briarproject.briar.android"
+		buildConfigField "String", "TorVersion", "\"$tor_version\""
 
 		vectorDrawables.useSupportLibrary = true
 		buildConfigField "String", "GitHash",

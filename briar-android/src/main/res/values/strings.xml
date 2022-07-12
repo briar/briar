@@ -314,7 +314,7 @@
 	<string name="different_person_button">Different Person</string>
 	<string name="duplicate_link_dialog_text_3">%1$s and %2$s sent you the same link.\n\nOne of them may be trying to discover who your contacts are.\n\nDon\'t tell them you received the same link from someone else.</string>
 	<string name="pending_contact_updated_toast">Pending contact updated</string>
-	
+
 	<!-- Peer trust levels -->
 
 	<string name="peer_trust_level_unverified">Unverified contact</string>
@@ -693,7 +693,8 @@
 
 	<!-- About -->
 	<string name="about_title">About</string>
-	<string name="briar_version">Briar Version: %s</string>
+	<string name="briar_version">Briar version: %s</string>
+	<string name="tor_version">Tor version: %s</string>
 	<string name="links">Links</string>
 	<string name="briar_website">\u2022 <a href="">Website</a></string>
 	<string name="briar_source_code">\u2022 <a href="">Source code</a></string>
