@@ -18,9 +18,9 @@
 		android:id="@+id/LinksTitle"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
+		android:layout_marginTop="16dp"
 		android:text="@string/links"
 		android:textAppearance="@style/TextAppearance.MaterialComponents.Body1"
-		android:layout_marginTop="16dp"
 		app:layout_constraintStart_toStartOf="parent"
 		app:layout_constraintTop_toBottomOf="@+id/BriarVersion" />
 
@@ -41,5 +41,15 @@
 		android:textAppearance="@style/TextAppearance.MaterialComponents.Body1"
 		app:layout_constraintStart_toStartOf="parent"
 		app:layout_constraintTop_toBottomOf="@+id/BriarWebsite" />
+
+	<TextView
+		android:id="@+id/TranslatorThanks"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:layout_marginTop="16dp"
+		android:text="@string/translator_thanks"
+		android:textAppearance="@style/TextAppearance.MaterialComponents.Body1"
+		app:layout_constraintStart_toStartOf="parent"
+		app:layout_constraintTop_toBottomOf="@+id/BriarSourceCode" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
