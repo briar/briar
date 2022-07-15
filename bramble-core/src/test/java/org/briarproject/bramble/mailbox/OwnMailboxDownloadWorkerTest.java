@@ -1,20 +1,10 @@
 package org.briarproject.bramble.mailbox;
 
-import org.briarproject.bramble.api.Cancellable;
 import org.briarproject.bramble.api.mailbox.MailboxFileId;
 import org.briarproject.bramble.api.mailbox.MailboxFolderId;
-import org.briarproject.bramble.api.mailbox.MailboxProperties;
 import org.briarproject.bramble.mailbox.MailboxApi.MailboxFile;
-import org.briarproject.bramble.mailbox.MailboxApi.TolerableFailureException;
-import org.briarproject.bramble.test.BrambleMockTestCase;
-import org.briarproject.bramble.test.CaptureArgumentAction;
-import org.jmock.Expectations;
-import org.jmock.lib.action.DoAllAction;
-import org.junit.After;
-import org.junit.Before;
 import org.junit.Test;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -28,56 +18,31 @@ import static java.util.Collections.emptyList;
 import static org.briarproject.bramble.api.mailbox.MailboxConstants.CLIENT_SUPPORTS;
 import static org.briarproject.bramble.mailbox.MailboxDownloadWorker.FolderFile;
 import static org.briarproject.bramble.mailbox.OwnMailboxDownloadWorker.MAX_ROUND_ROBIN_FILES;
-import static org.briarproject.bramble.test.TestUtils.deleteTestDirectory;
 import static org.briarproject.bramble.test.TestUtils.getMailboxProperties;
 import static org.briarproject.bramble.test.TestUtils.getRandomId;
-import static org.briarproject.bramble.test.TestUtils.getTestDirectory;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 
-public class OwnMailboxDownloadWorkerTest extends BrambleMockTestCase {
+public class OwnMailboxDownloadWorkerTest
+		extends MailboxDownloadWorkerTest<OwnMailboxDownloadWorker> {
 
-	private final ConnectivityChecker connectivityChecker =
-			context.mock(ConnectivityChecker.class);
-	private final TorReachabilityMonitor torReachabilityMonitor =
-			context.mock(TorReachabilityMonitor.class);
-	private final MailboxApiCaller mailboxApiCaller =
-			context.mock(MailboxApiCaller.class);
-	private final MailboxApi mailboxApi = context.mock(MailboxApi.class);
-	private final MailboxFileManager mailboxFileManager =
-			context.mock(MailboxFileManager.class);
-	private final Cancellable apiCall = context.mock(Cancellable.class);
-
-	private final MailboxProperties mailboxProperties =
-			getMailboxProperties(true, CLIENT_SUPPORTS);
-	private final long now = System.currentTimeMillis();
 	private final MailboxFolderId folderId1 =
 			new MailboxFolderId(getRandomId());
 	private final MailboxFolderId folderId2 =
 			new MailboxFolderId(getRandomId());
 	private final List<MailboxFolderId> folderIds =
 			asList(folderId1, folderId2);
-	private final MailboxFile file1 =
-			new MailboxFile(new MailboxFileId(getRandomId()), now - 1);
-	private final MailboxFile file2 =
-			new MailboxFile(new MailboxFileId(getRandomId()), now);
-	private final List<MailboxFile> files = asList(file1, file2);
 
-	private File testDir, tempFile;
-	private OwnMailboxDownloadWorker worker;
-
-	@Before
-	public void setUp() {
-		testDir = getTestDirectory();
-		tempFile = new File(testDir, "temp");
+	public OwnMailboxDownloadWorkerTest() {
+		mailboxProperties = getMailboxProperties(true, CLIENT_SUPPORTS);
 		worker = new OwnMailboxDownloadWorker(connectivityChecker,
 				torReachabilityMonitor, mailboxApiCaller, mailboxApi,
 				mailboxFileManager, mailboxProperties);
 	}
 
-	@After
-	public void tearDown() {
-		deleteTestDirectory(testDir);
+	@Override
+	public void setUp() {
+		super.setUp();
 	}
 
 	@Test
@@ -232,74 +197,6 @@ public class OwnMailboxDownloadWorkerTest extends BrambleMockTestCase {
 			assertEquals(MAX_ROUND_ROBIN_FILES / 2,
 					countFilesWithFolderId(queue, folderId));
 		}
-	}
-
-	private void expectStartConnectivityCheck() {
-		context.checking(new Expectations() {{
-			oneOf(connectivityChecker).checkConnectivity(
-					with(mailboxProperties), with(worker));
-		}});
-	}
-
-	private void expectStartTask(AtomicReference<ApiCall> task) {
-		context.checking(new Expectations() {{
-			oneOf(mailboxApiCaller).retryWithBackoff(with(any(ApiCall.class)));
-			will(new DoAllAction(
-					new CaptureArgumentAction<>(task, ApiCall.class, 0),
-					returnValue(apiCall)
-			));
-		}});
-	}
-
-	private void expectCheckForFoldersWithAvailableFiles(
-			List<MailboxFolderId> folderIds) throws Exception {
-		context.checking(new Expectations() {{
-			oneOf(mailboxApi).getFolders(mailboxProperties);
-			will(returnValue(folderIds));
-		}});
-	}
-
-	private void expectCheckForFiles(MailboxFolderId folderId,
-			List<MailboxFile> files) throws Exception {
-		context.checking(new Expectations() {{
-			oneOf(mailboxApi).getFiles(mailboxProperties, folderId);
-			will(returnValue(files));
-		}});
-	}
-
-	private void expectDownloadFile(MailboxFolderId folderId, MailboxFile file)
-			throws Exception {
-		context.checking(new Expectations() {{
-			oneOf(mailboxFileManager).createTempFileForDownload();
-			will(returnValue(tempFile));
-			oneOf(mailboxApi).getFile(mailboxProperties, folderId, file.name,
-					tempFile);
-			oneOf(mailboxFileManager).handleDownloadedFile(tempFile);
-		}});
-	}
-
-	private void expectDeleteFile(MailboxFolderId folderId, MailboxFile file,
-			boolean tolerableFailure) throws Exception {
-		context.checking(new Expectations() {{
-			oneOf(mailboxApi).deleteFile(mailboxProperties, folderId,
-					file.name);
-			if (tolerableFailure) {
-				will(throwException(new TolerableFailureException()));
-			}
-		}});
-	}
-
-	private void expectAddReachabilityObserver() {
-		context.checking(new Expectations() {{
-			oneOf(torReachabilityMonitor).addOneShotObserver(worker);
-		}});
-	}
-
-	private void expectRemoveObservers() {
-		context.checking(new Expectations() {{
-			oneOf(connectivityChecker).removeObserver(worker);
-			oneOf(torReachabilityMonitor).removeObserver(worker);
-		}});
 	}
 
 	private Map<MailboxFolderId, Queue<MailboxFile>> createAvailableFiles(
