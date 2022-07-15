@@ -314,7 +314,7 @@
 	<string name="different_person_button">Different Person</string>
 	<string name="duplicate_link_dialog_text_3">%1$s and %2$s sent you the same link.\n\nOne of them may be trying to discover who your contacts are.\n\nDon\'t tell them you received the same link from someone else.</string>
 	<string name="pending_contact_updated_toast">Pending contact updated</string>
-
+	
 	<!-- Peer trust levels -->
 
 	<string name="peer_trust_level_unverified">Unverified contact</string>
@@ -699,7 +699,8 @@
 	<string name="briar_website">\u2022 <a href="">Website</a></string>
 	<string name="briar_source_code">\u2022 <a href="">Source code</a></string>
 	<string name="briar_changelog">\u2022 <a href="">Changelog</a></string>
-	<string name="translator_thanks">Thanks to all the contributors at the Localization Lab</string><!-- Here translators can add their names or Transifex usernames(eg "Thanks to all the contributors at the Localization Lab, especially Tom, Matthew and Jerry") -->
+	<!-- Here translators can add their names or Transifex usernames(eg "Thanks to all the contributors at the Localization Lab, especially Tom, Matthew and Jerry") -->
+	<string name="translator_thanks">Thanks to all the contributors at the Localization Lab</string>
 
 	<!-- Conversation Settings -->
 	<string name="disappearing_messages_title">Disappearing messages</string>
