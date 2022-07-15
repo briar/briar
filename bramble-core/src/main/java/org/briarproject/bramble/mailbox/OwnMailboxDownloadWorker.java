@@ -63,6 +63,10 @@ class OwnMailboxDownloadWorker extends MailboxDownloadWorker {
 		else listNextFolder(new LinkedList<>(folders), new HashMap<>());
 	}
 
+	/**
+	 * Removes the next folder from `queue` and starts a task to list the
+	 * files in the folder and add them to `available`.
+	 */
 	private void listNextFolder(Queue<MailboxFolderId> queue,
 			Map<MailboxFolderId, Queue<MailboxFile>> available) {
 		synchronized (lock) {
@@ -93,6 +97,10 @@ class OwnMailboxDownloadWorker extends MailboxDownloadWorker {
 		}
 	}
 
+	/**
+	 * Visits the given folders in round-robin order to create a queue of up to
+	 * {@link #MAX_ROUND_ROBIN_FILES} to download.
+	 */
 	private void createDownloadQueue(
 			Map<MailboxFolderId, Queue<MailboxFile>> available) {
 		synchronized (lock) {
