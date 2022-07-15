@@ -63,41 +63,30 @@ public class AboutFragment extends Fragment {
 		briarChangelog = requireActivity().findViewById(R.id.BriarChangelog);
 		briarWebsite.setOnClickListener(View -> {
 			String url = "https://briarproject.org/";
-			Intent i = new Intent(Intent.ACTION_VIEW);
-			i.setData(Uri.parse(url));
-			try {
-				startActivity(i);
-			} catch (ActivityNotFoundException e) {
-				logException(LOG, WARNING, e);
-				Toast.makeText(requireContext(),
-						R.string.error_start_activity, LENGTH_LONG).show();
-			}
+			goToUrl(url);
 		});
 		briarSourceCode.setOnClickListener(View -> {
 			String url = "https://code.briarproject.org/briar/briar";
-			Intent i = new Intent(Intent.ACTION_VIEW);
-			i.setData(Uri.parse(url));
-			try {
-				startActivity(i);
-			} catch (ActivityNotFoundException e) {
-				logException(LOG, WARNING, e);
-				Toast.makeText(requireContext(),
-						R.string.error_start_activity, LENGTH_LONG).show();
-			}
+			goToUrl(url);
 		});
 		briarChangelog.setOnClickListener(View -> {
 			String url =
 					"https://code.briarproject.org/briar/briar/-/wikis/changelog";
-			Intent i = new Intent(Intent.ACTION_VIEW);
-			i.setData(Uri.parse(url));
-			try {
-				startActivity(i);
-			} catch (ActivityNotFoundException e) {
-				logException(LOG, WARNING, e);
-				Toast.makeText(requireContext(),
-						R.string.error_start_activity, LENGTH_LONG).show();
-			}
+			goToUrl(url);
 		});
+	}
+
+	private void goToUrl(String url) {
+		Intent i = new Intent(Intent.ACTION_VIEW);
+		i.setData(Uri.parse(url));
+		try {
+			startActivity(i);
+		} catch (ActivityNotFoundException e) {
+			logException(LOG, WARNING, e);
+			Toast.makeText(requireContext(),
+					R.string.error_start_activity, LENGTH_LONG).show();
+		}
+
 	}
 
 }
