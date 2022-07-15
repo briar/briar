@@ -15,7 +15,6 @@ import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
 import org.briarproject.briar.BuildConfig;
 import org.briarproject.briar.R;
 
-
 import java.util.logging.Logger;
 
 import androidx.annotation.NonNull;
