@@ -5,6 +5,12 @@ import org.briarproject.bramble.api.mailbox.MailboxFolderId;
 import org.briarproject.bramble.api.mailbox.MailboxProperties;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.logging.Logger;
 
 import javax.annotation.Nullable;
@@ -15,63 +21,70 @@ import static java.util.logging.Logger.getLogger;
 
 @ThreadSafe
 @NotNullByDefault
-class ContactMailboxClient implements MailboxClient {
+class OwnMailboxClient implements MailboxClient {
 
 	private static final Logger LOG =
-			getLogger(ContactMailboxClient.class.getName());
+			getLogger(OwnMailboxClient.class.getName());
 
 	private final MailboxWorkerFactory workerFactory;
 	private final ConnectivityChecker connectivityChecker;
 	private final TorReachabilityMonitor reachabilityMonitor;
+	private final MailboxWorker contactListWorker;
 	private final Object lock = new Object();
 
 	@GuardedBy("lock")
-	@Nullable
-	private MailboxWorker uploadWorker = null, downloadWorker = null;
+	private final Map<ContactId, MailboxWorker> uploadWorkers = new HashMap<>();
 
-	ContactMailboxClient(MailboxWorkerFactory workerFactory,
+	@GuardedBy("lock")
+	@Nullable
+	private MailboxWorker downloadWorker = null;
+
+	@GuardedBy("lock")
+	private final Set<ContactId> assignedForDownload = new HashSet<>();
+
+	OwnMailboxClient(MailboxWorkerFactory workerFactory,
 			ConnectivityChecker connectivityChecker,
-			TorReachabilityMonitor reachabilityMonitor) {
+			TorReachabilityMonitor reachabilityMonitor,
+			MailboxProperties properties) {
 		this.workerFactory = workerFactory;
 		this.connectivityChecker = connectivityChecker;
 		this.reachabilityMonitor = reachabilityMonitor;
+		contactListWorker = workerFactory.createContactListWorkerForOwnMailbox(
+				connectivityChecker, properties);
 	}
 
 	@Override
 	public void start() {
 		LOG.info("Started");
-		// Nothing to do until contact is assigned
+		contactListWorker.start();
 	}
 
 	@Override
 	public void destroy() {
 		LOG.info("Destroyed");
-		MailboxWorker uploadWorker, downloadWorker;
+		List<MailboxWorker> uploadWorkers;
+		MailboxWorker downloadWorker;
 		synchronized (lock) {
-			uploadWorker = this.uploadWorker;
-			this.uploadWorker = null;
+			uploadWorkers = new ArrayList<>(this.uploadWorkers.values());
+			this.uploadWorkers.clear();
 			downloadWorker = this.downloadWorker;
 			this.downloadWorker = null;
 		}
-		if (uploadWorker != null) uploadWorker.destroy();
+		for (MailboxWorker worker : uploadWorkers) worker.destroy();
 		if (downloadWorker != null) downloadWorker.destroy();
+		contactListWorker.destroy();
 	}
 
 	@Override
 	public void assignContactForUpload(ContactId contactId,
 			MailboxProperties properties, MailboxFolderId folderId) {
 		LOG.info("Contact assigned for upload");
-		if (properties.isOwner()) throw new IllegalArgumentException();
-		// For a contact's mailbox we should always be uploading to the outbox
-		// assigned to us by the contact
-		if (!folderId.equals(properties.getOutboxId())) {
-			throw new IllegalArgumentException();
-		}
+		if (!properties.isOwner()) throw new IllegalArgumentException();
 		MailboxWorker uploadWorker = workerFactory.createUploadWorker(
 				connectivityChecker, properties, folderId, contactId);
 		synchronized (lock) {
-			if (this.uploadWorker != null) throw new IllegalStateException();
-			this.uploadWorker = uploadWorker;
+			MailboxWorker old = uploadWorkers.put(contactId, uploadWorker);
+			if (old != null) throw new IllegalStateException();
 		}
 		uploadWorker.start();
 	}
@@ -81,8 +94,7 @@ class ContactMailboxClient implements MailboxClient {
 		LOG.info("Contact deassigned for upload");
 		MailboxWorker uploadWorker;
 		synchronized (lock) {
-			uploadWorker = this.uploadWorker;
-			this.uploadWorker = null;
+			uploadWorker = uploadWorkers.remove(contactId);
 		}
 		if (uploadWorker != null) uploadWorker.destroy();
 	}
@@ -91,30 +103,37 @@ class ContactMailboxClient implements MailboxClient {
 	public void assignContactForDownload(ContactId contactId,
 			MailboxProperties properties, MailboxFolderId folderId) {
 		LOG.info("Contact assigned for download");
-		if (properties.isOwner()) throw new IllegalArgumentException();
-		// For a contact's mailbox we should always be downloading from the
-		// inbox assigned to us by the contact
-		if (!folderId.equals(properties.getInboxId())) {
-			throw new IllegalArgumentException();
-		}
-		MailboxWorker downloadWorker =
-				workerFactory.createDownloadWorkerForContactMailbox(
-						connectivityChecker, reachabilityMonitor, properties);
+		if (!properties.isOwner()) throw new IllegalArgumentException();
+		MailboxWorker toStart = null;
 		synchronized (lock) {
-			if (this.downloadWorker != null) throw new IllegalStateException();
-			this.downloadWorker = downloadWorker;
+			if (!assignedForDownload.add(contactId)) {
+				throw new IllegalStateException();
+			}
+			// Create a download worker if we don't already have one
+			if (downloadWorker == null) {
+				toStart = workerFactory.createDownloadWorkerForOwnMailbox(
+						connectivityChecker, reachabilityMonitor, properties);
+				downloadWorker = toStart;
+			}
 		}
-		downloadWorker.start();
+		if (toStart != null) toStart.start();
 	}
 
 	@Override
 	public void deassignContactForDownload(ContactId contactId) {
 		LOG.info("Contact deassigned for download");
-		MailboxWorker downloadWorker;
+		MailboxWorker toDestroy = null;
 		synchronized (lock) {
-			downloadWorker = this.downloadWorker;
-			this.downloadWorker = null;
+			if (!assignedForDownload.remove(contactId)) {
+				throw new IllegalStateException();
+			}
+			// If there are no more contacts assigned for download, destroy
+			// the download worker
+			if (assignedForDownload.isEmpty()) {
+				toDestroy = downloadWorker;
+				downloadWorker = null;
+			}
 		}
-		if (downloadWorker != null) downloadWorker.destroy();
+		if (toDestroy != null) toDestroy.destroy();
 	}
 }

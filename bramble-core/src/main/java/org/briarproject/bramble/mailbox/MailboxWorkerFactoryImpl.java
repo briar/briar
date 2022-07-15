@@ -6,6 +6,7 @@ import org.briarproject.bramble.api.event.EventBus;
 import org.briarproject.bramble.api.lifecycle.IoExecutor;
 import org.briarproject.bramble.api.mailbox.MailboxFolderId;
 import org.briarproject.bramble.api.mailbox.MailboxProperties;
+import org.briarproject.bramble.api.mailbox.MailboxUpdateManager;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.system.Clock;
 import org.briarproject.bramble.api.system.TaskScheduler;
@@ -27,6 +28,7 @@ class MailboxWorkerFactoryImpl implements MailboxWorkerFactory {
 	private final MailboxApiCaller mailboxApiCaller;
 	private final MailboxApi mailboxApi;
 	private final MailboxFileManager mailboxFileManager;
+	private final MailboxUpdateManager mailboxUpdateManager;
 
 	@Inject
 	MailboxWorkerFactoryImpl(@IoExecutor Executor ioExecutor,
@@ -36,7 +38,8 @@ class MailboxWorkerFactoryImpl implements MailboxWorkerFactory {
 			EventBus eventBus,
 			MailboxApiCaller mailboxApiCaller,
 			MailboxApi mailboxApi,
-			MailboxFileManager mailboxFileManager) {
+			MailboxFileManager mailboxFileManager,
+			MailboxUpdateManager mailboxUpdateManager) {
 		this.ioExecutor = ioExecutor;
 		this.db = db;
 		this.clock = clock;
@@ -45,6 +48,7 @@ class MailboxWorkerFactoryImpl implements MailboxWorkerFactory {
 		this.mailboxApiCaller = mailboxApiCaller;
 		this.mailboxApi = mailboxApi;
 		this.mailboxFileManager = mailboxFileManager;
+		this.mailboxUpdateManager = mailboxUpdateManager;
 	}
 
 	@Override
@@ -75,7 +79,17 @@ class MailboxWorkerFactoryImpl implements MailboxWorkerFactory {
 			ConnectivityChecker connectivityChecker,
 			TorReachabilityMonitor reachabilityMonitor,
 			MailboxProperties properties) {
-		// TODO
-		throw new UnsupportedOperationException();
+		return new OwnMailboxDownloadWorker(connectivityChecker,
+				reachabilityMonitor, mailboxApiCaller, mailboxApi,
+				mailboxFileManager, properties);
+	}
+
+	@Override
+	public MailboxWorker createContactListWorkerForOwnMailbox(
+			ConnectivityChecker connectivityChecker,
+			MailboxProperties properties) {
+		return new OwnMailboxContactListWorker(ioExecutor, db, eventBus,
+				connectivityChecker, mailboxApiCaller, mailboxApi,
+				mailboxUpdateManager, properties);
 	}
 }
