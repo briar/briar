@@ -34,8 +34,10 @@ public class AboutFragment extends Fragment {
 	private static final Logger LOG = getLogger(TAG);
 
 	private TextView briarVersion;
+	private TextView torVersion;
 	private TextView briarWebsite;
 	private TextView briarSourceCode;
+	private TextView briarChangelog;
 
 	@Nullable
 	@Override
@@ -53,32 +55,38 @@ public class AboutFragment extends Fragment {
 		briarVersion = requireActivity().findViewById(R.id.BriarVersion);
 		briarVersion.setText(
 				getString(R.string.briar_version, BuildConfig.VERSION_NAME));
+		torVersion = requireActivity().findViewById(R.id.TorVersion);
+		torVersion.setText(
+				getString(R.string.tor_version, BuildConfig.TorVersion));
 		briarWebsite = requireActivity().findViewById(R.id.BriarWebsite);
 		briarSourceCode = requireActivity().findViewById(R.id.BriarSourceCode);
+		briarChangelog = requireActivity().findViewById(R.id.BriarChangelog);
 		briarWebsite.setOnClickListener(View -> {
 			String url = "https://briarproject.org/";
-			Intent i = new Intent(Intent.ACTION_VIEW);
-			i.setData(Uri.parse(url));
-			try {
-				startActivity(i);
-			} catch (ActivityNotFoundException e) {
-				logException(LOG, WARNING, e);
-				Toast.makeText(requireContext(),
-						R.string.error_start_activity, LENGTH_LONG).show();
-			}
+			goToUrl(url);
 		});
 		briarSourceCode.setOnClickListener(View -> {
 			String url = "https://code.briarproject.org/briar/briar";
-			Intent i = new Intent(Intent.ACTION_VIEW);
-			i.setData(Uri.parse(url));
-			try {
-				startActivity(i);
-			} catch (ActivityNotFoundException e) {
-				logException(LOG, WARNING, e);
-				Toast.makeText(requireContext(),
-						R.string.error_start_activity, LENGTH_LONG).show();
-			}
+			goToUrl(url);
 		});
+		briarChangelog.setOnClickListener(View -> {
+			String url =
+					"https://code.briarproject.org/briar/briar/-/wikis/changelog";
+			goToUrl(url);
+		});
+	}
+
+	private void goToUrl(String url) {
+		Intent i = new Intent(Intent.ACTION_VIEW);
+		i.setData(Uri.parse(url));
+		try {
+			startActivity(i);
+		} catch (ActivityNotFoundException e) {
+			logException(LOG, WARNING, e);
+			Toast.makeText(requireContext(),
+					R.string.error_start_activity, LENGTH_LONG).show();
+		}
+
 	}
 
 }
