@@ -32,13 +32,24 @@ class OwnMailboxClient implements MailboxClient {
 	private final MailboxWorker contactListWorker;
 	private final Object lock = new Object();
 
+	/**
+	 * Upload workers: one worker per contact assigned for upload.
+	 */
 	@GuardedBy("lock")
 	private final Map<ContactId, MailboxWorker> uploadWorkers = new HashMap<>();
 
+	/**
+	 * Download worker: shared between all contacts assigned for download.
+	 * Null if no contacts are assigned for download.
+	 */
 	@GuardedBy("lock")
 	@Nullable
 	private MailboxWorker downloadWorker = null;
 
+	/**
+	 * IDs of contacts assigned for download, so that we know when to
+	 * create/destroy the download worker.
+	 */
 	@GuardedBy("lock")
 	private final Set<ContactId> assignedForDownload = new HashSet<>();
 
@@ -46,6 +57,7 @@ class OwnMailboxClient implements MailboxClient {
 			ConnectivityChecker connectivityChecker,
 			TorReachabilityMonitor reachabilityMonitor,
 			MailboxProperties properties) {
+		if (!properties.isOwner()) throw new IllegalArgumentException();
 		this.workerFactory = workerFactory;
 		this.connectivityChecker = connectivityChecker;
 		this.reachabilityMonitor = reachabilityMonitor;
@@ -70,6 +82,7 @@ class OwnMailboxClient implements MailboxClient {
 			downloadWorker = this.downloadWorker;
 			this.downloadWorker = null;
 		}
+		// Destroy the workers (with apologies to Mr Marx and Mr Engels)
 		for (MailboxWorker worker : uploadWorkers) worker.destroy();
 		if (downloadWorker != null) downloadWorker.destroy();
 		contactListWorker.destroy();
@@ -104,12 +117,14 @@ class OwnMailboxClient implements MailboxClient {
 			MailboxProperties properties, MailboxFolderId folderId) {
 		LOG.info("Contact assigned for download");
 		if (!properties.isOwner()) throw new IllegalArgumentException();
+		// Create a download worker if we don't already have one. The worker
+		// will use the API to discover which folders have files to download,
+		// so it doesn't need to track the set of assigned contacts
 		MailboxWorker toStart = null;
 		synchronized (lock) {
 			if (!assignedForDownload.add(contactId)) {
 				throw new IllegalStateException();
 			}
-			// Create a download worker if we don't already have one
 			if (downloadWorker == null) {
 				toStart = workerFactory.createDownloadWorkerForOwnMailbox(
 						connectivityChecker, reachabilityMonitor, properties);
@@ -122,13 +137,13 @@ class OwnMailboxClient implements MailboxClient {
 	@Override
 	public void deassignContactForDownload(ContactId contactId) {
 		LOG.info("Contact deassigned for download");
+		// If there are no more contacts assigned for download, destroy the
+		// download worker
 		MailboxWorker toDestroy = null;
 		synchronized (lock) {
 			if (!assignedForDownload.remove(contactId)) {
 				throw new IllegalStateException();
 			}
-			// If there are no more contacts assigned for download, destroy
-			// the download worker
 			if (assignedForDownload.isEmpty()) {
 				toDestroy = downloadWorker;
 				downloadWorker = null;

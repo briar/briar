@@ -24,6 +24,10 @@ interface MailboxClient {
 
 	/**
 	 * Assigns a contact to the client for upload.
+	 *
+	 * @param properties Properties for communicating with the mailbox
+	 * managed by this client.
+	 * @param folderId The ID of the folder to which files will be uploaded.
 	 */
 	void assignContactForUpload(ContactId c, MailboxProperties properties,
 			MailboxFolderId folderId);
@@ -35,6 +39,11 @@ interface MailboxClient {
 
 	/**
 	 * Assigns a contact to the client for download.
+	 *
+	 * @param properties Properties for communicating with the mailbox
+	 * managed by this client.
+	 * @param folderId The ID of the folder from which files will be
+	 * downloaded.
 	 */
 	void assignContactForDownload(ContactId c, MailboxProperties properties,
 			MailboxFolderId folderId);
