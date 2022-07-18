@@ -10,7 +10,6 @@ import java.util.logging.Logger;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;
-import javax.inject.Inject;
 
 import static java.util.logging.Logger.getLogger;
 
@@ -30,7 +29,6 @@ class ContactMailboxClient implements MailboxClient {
 	@Nullable
 	private MailboxWorker uploadWorker = null, downloadWorker = null;
 
-	@Inject
 	ContactMailboxClient(MailboxWorkerFactory workerFactory,
 			ConnectivityChecker connectivityChecker,
 			TorReachabilityMonitor reachabilityMonitor) {

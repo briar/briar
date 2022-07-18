@@ -24,4 +24,8 @@ interface MailboxWorkerFactory {
 			ConnectivityChecker connectivityChecker,
 			TorReachabilityMonitor reachabilityMonitor,
 			MailboxProperties properties);
+
+	MailboxWorker createContactListWorkerForOwnMailbox(
+			ConnectivityChecker connectivityChecker,
+			MailboxProperties properties);
 }

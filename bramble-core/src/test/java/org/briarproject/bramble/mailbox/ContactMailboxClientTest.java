@@ -75,7 +75,7 @@ public class ContactMailboxClientTest extends BrambleMockTestCase {
 	}
 
 	@Test
-	public void assignContactForDownloadAndDestroyClient() {
+	public void testAssignContactForDownloadAndDestroyClient() {
 		client.start();
 
 		// When the contact is assigned, the worker should be created and
@@ -89,7 +89,7 @@ public class ContactMailboxClientTest extends BrambleMockTestCase {
 	}
 
 	@Test
-	public void assignAndDeassignContactForDownload() {
+	public void testAssignAndDeassignContactForDownload() {
 		client.start();
 
 		// When the contact is assigned, the worker should be created and
