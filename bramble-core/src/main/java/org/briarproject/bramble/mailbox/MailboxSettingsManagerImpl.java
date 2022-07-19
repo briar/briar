@@ -113,33 +113,17 @@ class MailboxSettingsManagerImpl implements MailboxSettingsManager {
 	}
 
 	@Override
-	public void recordSuccessfulConnection(Transaction txn, long now)
-			throws DbException {
-		recordSuccessfulConnection(txn, now, null);
-	}
-
-	@Override
 	public void recordSuccessfulConnection(Transaction txn, long now,
-			@Nullable List<MailboxVersion> versions) throws DbException {
+			List<MailboxVersion> versions) throws DbException {
 		Settings s = new Settings();
-		// fetch version that the server supports first
-		List<MailboxVersion> serverSupports;
-		if (versions == null) {
-			Settings oldSettings =
-					settingsManager.getSettings(txn, SETTINGS_NAMESPACE);
-			serverSupports = parseServerSupports(oldSettings);
-		} else {
-			serverSupports = versions;
-			// store new versions
-			encodeServerSupports(serverSupports, s);
-		}
-		// now record the successful connection
+		// record the successful connection
 		s.putLong(SETTINGS_KEY_LAST_ATTEMPT, now);
 		s.putLong(SETTINGS_KEY_LAST_SUCCESS, now);
 		s.putInt(SETTINGS_KEY_ATTEMPTS, 0);
+		encodeServerSupports(versions, s);
 		settingsManager.mergeSettings(txn, s, SETTINGS_NAMESPACE);
 		// broadcast status event
-		MailboxStatus status = new MailboxStatus(now, now, 0, serverSupports);
+		MailboxStatus status = new MailboxStatus(now, now, 0, versions);
 		txn.attach(new OwnMailboxConnectionStatusEvent(status));
 	}
 

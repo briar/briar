@@ -147,22 +147,19 @@ public class MailboxSettingsManagerImplTest extends BrambleMockTestCase {
 	@Test
 	public void testRecordsSuccess() throws Exception {
 		Transaction txn = new Transaction(null, false);
-		Settings oldSettings = new Settings();
-		oldSettings
-				.putIntArray(SETTINGS_KEY_SERVER_SUPPORTS, serverSupportsInts);
 		Settings expectedSettings = new Settings();
 		expectedSettings.putLong(SETTINGS_KEY_LAST_ATTEMPT, now);
 		expectedSettings.putLong(SETTINGS_KEY_LAST_SUCCESS, now);
 		expectedSettings.putInt(SETTINGS_KEY_ATTEMPTS, 0);
+		expectedSettings.putIntArray(SETTINGS_KEY_SERVER_SUPPORTS,
+				serverSupportsInts);
 
 		context.checking(new Expectations() {{
-			oneOf(settingsManager).getSettings(txn, SETTINGS_NAMESPACE);
-			will(returnValue(oldSettings));
 			oneOf(settingsManager).mergeSettings(txn, expectedSettings,
 					SETTINGS_NAMESPACE);
 		}});
 
-		manager.recordSuccessfulConnection(txn, now);
+		manager.recordSuccessfulConnection(txn, now, serverSupports);
 		assertTrue(hasEvent(txn, OwnMailboxConnectionStatusEvent.class));
 	}
 

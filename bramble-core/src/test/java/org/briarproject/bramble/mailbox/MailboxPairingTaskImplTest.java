@@ -110,7 +110,8 @@ public class MailboxPairingTaskImplTest extends BrambleMockTestCase {
 			oneOf(db).transaction(with(false), withDbRunnable(txn));
 			oneOf(mailboxSettingsManager).setOwnMailboxProperties(
 					with(txn), with(matches(ownerProperties)));
-			oneOf(mailboxSettingsManager).recordSuccessfulConnection(txn, time);
+			oneOf(mailboxSettingsManager).recordSuccessfulConnection(txn, time,
+					ownerProperties.getServerSupports());
 			oneOf(db).getContacts(txn);
 			will(returnValue(singletonList(contact1)));
 			oneOf(mailboxUpdateManager).getRemoteUpdate(txn,

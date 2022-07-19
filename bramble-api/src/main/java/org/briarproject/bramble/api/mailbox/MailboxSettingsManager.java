@@ -32,9 +32,6 @@ public interface MailboxSettingsManager {
 
 	MailboxStatus getOwnMailboxStatus(Transaction txn) throws DbException;
 
-	void recordSuccessfulConnection(Transaction txn, long now)
-			throws DbException;
-
 	void recordSuccessfulConnection(Transaction txn, long now,
 			List<MailboxVersion> versions) throws DbException;
 
