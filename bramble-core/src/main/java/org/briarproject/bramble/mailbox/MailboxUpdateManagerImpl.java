@@ -159,10 +159,11 @@ class MailboxUpdateManagerImpl implements MailboxUpdateManager,
 	}
 
 	@Override
-	public void mailboxPaired(Transaction txn, String ownOnion,
-			List<MailboxVersion> serverSupports) throws DbException {
+	public void mailboxPaired(Transaction txn, MailboxProperties p)
+			throws DbException {
 		for (Contact c : db.getContacts(txn)) {
-			createAndSendUpdateWithMailbox(txn, c, serverSupports, ownOnion);
+			createAndSendUpdateWithMailbox(txn, c, p.getServerSupports(),
+					p.getOnion());
 		}
 	}
 

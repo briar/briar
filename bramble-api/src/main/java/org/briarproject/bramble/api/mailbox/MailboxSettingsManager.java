@@ -49,10 +49,8 @@ public interface MailboxSettingsManager {
 		 * Called when Briar is paired with a mailbox
 		 *
 		 * @param txn A read-write transaction
-		 * @param ownOnion Our new mailbox's onion (56 base32 chars)
 		 */
-		void mailboxPaired(Transaction txn, String ownOnion,
-				List<MailboxVersion> serverSupports)
+		void mailboxPaired(Transaction txn, MailboxProperties p)
 				throws DbException;
 
 		/**

@@ -78,7 +78,6 @@ public class MailboxUpdateManagerImplTest extends BrambleMockTestCase {
 	private final BdfList someClientSupports;
 	private final List<MailboxVersion> newerClientSupportsList;
 	private final BdfList newerClientSupports;
-	private final List<MailboxVersion> someServerSupportsList;
 	private final BdfList someServerSupports;
 	private final BdfList emptyServerSupports = new BdfList();
 	private final MailboxProperties updateProps;
@@ -100,8 +99,8 @@ public class MailboxUpdateManagerImplTest extends BrambleMockTestCase {
 				newerClientSupportsList.get(0).getMajor(),
 				newerClientSupportsList.get(0).getMinor()));
 
-		someServerSupportsList = singletonList(new MailboxVersion(
-				rnd.nextInt(), rnd.nextInt()));
+		List<MailboxVersion> someServerSupportsList =
+				singletonList(new MailboxVersion(rnd.nextInt(), rnd.nextInt()));
 		someServerSupports = BdfList.of(BdfList.of(
 				someServerSupportsList.get(0).getMajor(),
 				someServerSupportsList.get(0).getMinor()));
@@ -679,7 +678,7 @@ public class MailboxUpdateManagerImplTest extends BrambleMockTestCase {
 		}});
 
 		MailboxUpdateManagerImpl t = createInstance(someClientSupportsList);
-		t.mailboxPaired(txn, ownProps.getOnion(), someServerSupportsList);
+		t.mailboxPaired(txn, ownProps);
 	}
 
 	@Test

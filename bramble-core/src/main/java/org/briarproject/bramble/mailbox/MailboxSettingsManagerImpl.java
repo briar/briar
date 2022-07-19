@@ -80,7 +80,7 @@ class MailboxSettingsManagerImpl implements MailboxSettingsManager {
 		encodeServerSupports(serverSupports, s);
 		settingsManager.mergeSettings(txn, s, SETTINGS_NAMESPACE);
 		for (MailboxHook hook : hooks) {
-			hook.mailboxPaired(txn, p.getOnion(), p.getServerSupports());
+			hook.mailboxPaired(txn, p);
 		}
 	}
 
@@ -89,6 +89,10 @@ class MailboxSettingsManagerImpl implements MailboxSettingsManager {
 		Settings s = new Settings();
 		s.put(SETTINGS_KEY_ONION, "");
 		s.put(SETTINGS_KEY_TOKEN, "");
+		s.put(SETTINGS_KEY_ATTEMPTS, "");
+		s.put(SETTINGS_KEY_LAST_ATTEMPT, "");
+		s.put(SETTINGS_KEY_LAST_SUCCESS, "");
+		s.put(SETTINGS_KEY_SERVER_SUPPORTS, "");
 		settingsManager.mergeSettings(txn, s, SETTINGS_NAMESPACE);
 		for (MailboxHook hook : hooks) {
 			hook.mailboxUnpaired(txn);

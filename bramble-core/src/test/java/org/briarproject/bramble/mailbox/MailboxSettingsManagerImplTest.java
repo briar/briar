@@ -5,6 +5,7 @@ import org.briarproject.bramble.api.db.Transaction;
 import org.briarproject.bramble.api.mailbox.MailboxAuthToken;
 import org.briarproject.bramble.api.mailbox.MailboxProperties;
 import org.briarproject.bramble.api.mailbox.MailboxSettingsManager;
+import org.briarproject.bramble.api.mailbox.MailboxSettingsManager.MailboxHook;
 import org.briarproject.bramble.api.mailbox.MailboxStatus;
 import org.briarproject.bramble.api.mailbox.MailboxVersion;
 import org.briarproject.bramble.api.mailbox.event.OwnMailboxConnectionStatusEvent;
@@ -39,6 +40,7 @@ public class MailboxSettingsManagerImplTest extends BrambleMockTestCase {
 
 	private final SettingsManager settingsManager =
 			context.mock(SettingsManager.class);
+	private final MailboxHook hook = context.mock(MailboxHook.class);
 
 	private final MailboxSettingsManager manager =
 			new MailboxSettingsManagerImpl(settingsManager);
@@ -47,6 +49,8 @@ public class MailboxSettingsManagerImplTest extends BrambleMockTestCase {
 	private final MailboxAuthToken token = new MailboxAuthToken(getRandomId());
 	private final List<MailboxVersion> serverSupports =
 			asList(new MailboxVersion(1, 0), new MailboxVersion(1, 1));
+	private final MailboxProperties properties = new MailboxProperties(onion,
+			token, serverSupports);
 	private final int[] serverSupportsInts = {1, 0, 1, 1};
 	private final ContactId contactId1 = new ContactId(random.nextInt());
 	private final ContactId contactId2 = new ContactId(random.nextInt());
@@ -98,15 +102,38 @@ public class MailboxSettingsManagerImplTest extends BrambleMockTestCase {
 		expectedSettings.put(SETTINGS_KEY_TOKEN, token.toString());
 		expectedSettings.putIntArray(SETTINGS_KEY_SERVER_SUPPORTS,
 				serverSupportsInts);
-		MailboxProperties properties = new MailboxProperties(onion, token,
-				serverSupports);
+
+		manager.registerMailboxHook(hook);
 
 		context.checking(new Expectations() {{
 			oneOf(settingsManager).mergeSettings(txn, expectedSettings,
 					SETTINGS_NAMESPACE);
+			oneOf(hook).mailboxPaired(txn, properties);
 		}});
 
 		manager.setOwnMailboxProperties(txn, properties);
+	}
+
+	@Test
+	public void testRemovesProperties() throws Exception {
+		Transaction txn = new Transaction(null, false);
+		Settings expectedSettings = new Settings();
+		expectedSettings.put(SETTINGS_KEY_ONION, "");
+		expectedSettings.put(SETTINGS_KEY_TOKEN, "");
+		expectedSettings.put(SETTINGS_KEY_ATTEMPTS, "");
+		expectedSettings.put(SETTINGS_KEY_LAST_ATTEMPT, "");
+		expectedSettings.put(SETTINGS_KEY_LAST_SUCCESS, "");
+		expectedSettings.put(SETTINGS_KEY_SERVER_SUPPORTS, "");
+
+		manager.registerMailboxHook(hook);
+
+		context.checking(new Expectations() {{
+			oneOf(settingsManager).mergeSettings(txn, expectedSettings,
+					SETTINGS_NAMESPACE);
+			oneOf(hook).mailboxUnpaired(txn);
+		}});
+
+		manager.removeOwnMailboxProperties(txn);
 	}
 
 	@Test
@@ -182,7 +209,7 @@ public class MailboxSettingsManagerImplTest extends BrambleMockTestCase {
 		}});
 
 		manager.recordSuccessfulConnection(txn, now, versions);
-		hasEvent(txn, OwnMailboxConnectionStatusEvent.class);
+		assertTrue(hasEvent(txn, OwnMailboxConnectionStatusEvent.class));
 	}
 
 	@Test
