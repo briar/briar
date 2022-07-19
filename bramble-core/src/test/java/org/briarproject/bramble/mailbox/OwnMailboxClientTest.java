@@ -50,6 +50,7 @@ public class OwnMailboxClientTest extends BrambleMockTestCase {
 		client.start();
 
 		expectDestroyWorker(contactListWorker);
+		expectDestroyConnectivityChecker();
 		client.destroy();
 	}
 
@@ -67,6 +68,7 @@ public class OwnMailboxClientTest extends BrambleMockTestCase {
 		// When the client is destroyed, the worker should be destroyed
 		expectDestroyWorker(uploadWorker1);
 		expectDestroyWorker(contactListWorker);
+		expectDestroyConnectivityChecker();
 		client.destroy();
 	}
 
@@ -87,6 +89,7 @@ public class OwnMailboxClientTest extends BrambleMockTestCase {
 		context.assertIsSatisfied();
 
 		expectDestroyWorker(contactListWorker);
+		expectDestroyConnectivityChecker();
 		client.destroy();
 	}
 
@@ -120,6 +123,7 @@ public class OwnMailboxClientTest extends BrambleMockTestCase {
 		context.assertIsSatisfied();
 
 		expectDestroyWorker(contactListWorker);
+		expectDestroyConnectivityChecker();
 		client.destroy();
 	}
 
@@ -137,6 +141,7 @@ public class OwnMailboxClientTest extends BrambleMockTestCase {
 		// When the client is destroyed, the worker should be destroyed
 		expectDestroyWorker(downloadWorker);
 		expectDestroyWorker(contactListWorker);
+		expectDestroyConnectivityChecker();
 		client.destroy();
 	}
 
@@ -166,6 +171,7 @@ public class OwnMailboxClientTest extends BrambleMockTestCase {
 		context.assertIsSatisfied();
 
 		expectDestroyWorker(contactListWorker);
+		expectDestroyConnectivityChecker();
 		client.destroy();
 	}
 
@@ -203,6 +209,12 @@ public class OwnMailboxClientTest extends BrambleMockTestCase {
 	private void expectDestroyWorker(MailboxWorker worker) {
 		context.checking(new Expectations() {{
 			oneOf(worker).destroy();
+		}});
+	}
+
+	private void expectDestroyConnectivityChecker() {
+		context.checking(new Expectations() {{
+			oneOf(connectivityChecker).destroy();
 		}});
 	}
 }
