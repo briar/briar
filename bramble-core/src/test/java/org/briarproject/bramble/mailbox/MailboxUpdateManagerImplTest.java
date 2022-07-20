@@ -16,6 +16,8 @@ import org.briarproject.bramble.api.mailbox.MailboxSettingsManager;
 import org.briarproject.bramble.api.mailbox.MailboxUpdate;
 import org.briarproject.bramble.api.mailbox.MailboxUpdateWithMailbox;
 import org.briarproject.bramble.api.mailbox.MailboxVersion;
+import org.briarproject.bramble.api.mailbox.event.MailboxPairedEvent;
+import org.briarproject.bramble.api.mailbox.event.MailboxUnpairedEvent;
 import org.briarproject.bramble.api.mailbox.event.RemoteMailboxUpdateEvent;
 import org.briarproject.bramble.api.sync.Group;
 import org.briarproject.bramble.api.sync.GroupId;
@@ -679,6 +681,7 @@ public class MailboxUpdateManagerImplTest extends BrambleMockTestCase {
 
 		MailboxUpdateManagerImpl t = createInstance(someClientSupportsList);
 		t.mailboxPaired(txn, ownProps);
+		assertTrue(hasEvent(txn, MailboxPairedEvent.class));
 	}
 
 	@Test
@@ -717,6 +720,7 @@ public class MailboxUpdateManagerImplTest extends BrambleMockTestCase {
 
 		MailboxUpdateManagerImpl t = createInstance(someClientSupportsList);
 		t.mailboxUnpaired(txn);
+		assertTrue(hasEvent(txn, MailboxUnpairedEvent.class));
 	}
 
 	@Test

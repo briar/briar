@@ -25,6 +25,8 @@ import org.briarproject.bramble.api.mailbox.MailboxUpdate;
 import org.briarproject.bramble.api.mailbox.MailboxUpdateManager;
 import org.briarproject.bramble.api.mailbox.MailboxUpdateWithMailbox;
 import org.briarproject.bramble.api.mailbox.MailboxVersion;
+import org.briarproject.bramble.api.mailbox.event.MailboxPairedEvent;
+import org.briarproject.bramble.api.mailbox.event.MailboxUnpairedEvent;
 import org.briarproject.bramble.api.mailbox.event.RemoteMailboxUpdateEvent;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.sync.Group;
@@ -38,6 +40,7 @@ import org.briarproject.bramble.api.system.Clock;
 import org.briarproject.bramble.api.versioning.ClientVersioningManager;
 import org.briarproject.bramble.api.versioning.ClientVersioningManager.ClientVersioningHook;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -161,17 +164,23 @@ class MailboxUpdateManagerImpl implements MailboxUpdateManager,
 	@Override
 	public void mailboxPaired(Transaction txn, MailboxProperties p)
 			throws DbException {
+		Map<ContactId, MailboxUpdateWithMailbox> localUpdates = new HashMap<>();
 		for (Contact c : db.getContacts(txn)) {
-			createAndSendUpdateWithMailbox(txn, c, p.getServerSupports(),
-					p.getOnion());
+			MailboxUpdateWithMailbox u = createAndSendUpdateWithMailbox(txn, c,
+					p.getServerSupports(), p.getOnion());
+			localUpdates.put(c.getId(), u);
 		}
+		txn.attach(new MailboxPairedEvent(p, localUpdates));
 	}
 
 	@Override
 	public void mailboxUnpaired(Transaction txn) throws DbException {
+		Map<ContactId, MailboxUpdate> localUpdates = new HashMap<>();
 		for (Contact c : db.getContacts(txn)) {
-			sendUpdateNoMailbox(txn, c);
+			MailboxUpdate u = sendUpdateNoMailbox(txn, c);
+			localUpdates.put(c.getId(), u);
 		}
+		txn.attach(new MailboxUnpairedEvent(localUpdates));
 	}
 
 	@Override
@@ -240,18 +249,19 @@ class MailboxUpdateManagerImpl implements MailboxUpdateManager,
 	 * supported Mailbox API version(s). All of which the contact needs to
 	 * communicate with our Mailbox.
 	 */
-	private void createAndSendUpdateWithMailbox(Transaction txn, Contact c,
-			List<MailboxVersion> serverSupports, String ownOnion)
-			throws DbException {
+	private MailboxUpdateWithMailbox createAndSendUpdateWithMailbox(
+			Transaction txn, Contact c, List<MailboxVersion> serverSupports,
+			String ownOnion) throws DbException {
 		MailboxProperties properties = new MailboxProperties(ownOnion,
 				new MailboxAuthToken(crypto.generateUniqueId().getBytes()),
 				serverSupports,
 				new MailboxFolderId(crypto.generateUniqueId().getBytes()),
 				new MailboxFolderId(crypto.generateUniqueId().getBytes()));
-		MailboxUpdate u =
+		MailboxUpdateWithMailbox u =
 				new MailboxUpdateWithMailbox(clientSupports, properties);
 		Group g = getContactGroup(c);
 		storeMessageReplaceLatest(txn, g.getId(), u);
+		return u;
 	}
 
 	/**
@@ -260,11 +270,12 @@ class MailboxUpdateManagerImpl implements MailboxUpdateManager,
 	 * Mailbox that they can use. It still includes the list of Mailbox API
 	 * version(s) that we support as a client.
 	 */
-	private void sendUpdateNoMailbox(Transaction txn, Contact c)
+	private MailboxUpdate sendUpdateNoMailbox(Transaction txn, Contact c)
 			throws DbException {
 		Group g = getContactGroup(c);
 		MailboxUpdate u = new MailboxUpdate(clientSupports);
 		storeMessageReplaceLatest(txn, g.getId(), u);
+		return u;
 	}
 
 	@Nullable
