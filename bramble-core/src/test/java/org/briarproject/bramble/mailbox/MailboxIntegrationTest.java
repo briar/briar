@@ -186,7 +186,7 @@ public class MailboxIntegrationTest extends BrambleTestCase {
 		MailboxFileId fileName1 = files1.get(0).name;
 
 		// owner can't check files
-		assertThrows(ApiException.class, () ->
+		assertThrows(TolerableFailureException.class, () ->
 				api.getFiles(ownerProperties, contact.inboxId));
 
 		// contact downloads file
@@ -197,12 +197,13 @@ public class MailboxIntegrationTest extends BrambleTestCase {
 
 		// owner can't download file, even if knowing name
 		File file1forbidden = folder.newFile();
-		assertThrows(ApiException.class, () -> api.getFile(ownerProperties,
-				contact.inboxId, fileName1, file1forbidden));
+		assertThrows(TolerableFailureException.class, () ->
+				api.getFile(ownerProperties, contact.inboxId, fileName1,
+						file1forbidden));
 		assertEquals(0, file1forbidden.length());
 
 		// owner can't delete file
-		assertThrows(ApiException.class, () ->
+		assertThrows(TolerableFailureException.class, () ->
 				api.deleteFile(ownerProperties, contact.inboxId, fileName1));
 
 		// contact deletes file
@@ -232,7 +233,7 @@ public class MailboxIntegrationTest extends BrambleTestCase {
 		MailboxFileId file3name = files2.get(1).name;
 
 		// contact can't list files in contact's outbox
-		assertThrows(ApiException.class, () ->
+		assertThrows(TolerableFailureException.class, () ->
 				api.getFiles(contactProperties, contact.outboxId));
 
 		// owner downloads both files from contact's outbox
@@ -252,17 +253,19 @@ public class MailboxIntegrationTest extends BrambleTestCase {
 		// contact can't download files again, even if knowing name
 		File file2forbidden = folder.newFile();
 		File file3forbidden = folder.newFile();
-		assertThrows(ApiException.class, () -> api.getFile(contactProperties,
-				contact.outboxId, file2name, file2forbidden));
-		assertThrows(ApiException.class, () -> api.getFile(contactProperties,
-				contact.outboxId, file3name, file3forbidden));
+		assertThrows(TolerableFailureException.class, () ->
+				api.getFile(contactProperties, contact.outboxId, file2name,
+						file2forbidden));
+		assertThrows(TolerableFailureException.class, () ->
+				api.getFile(contactProperties, contact.outboxId, file3name,
+						file3forbidden));
 		assertEquals(0, file1forbidden.length());
 		assertEquals(0, file2forbidden.length());
 
 		// contact can't delete files in outbox
-		assertThrows(ApiException.class, () ->
+		assertThrows(TolerableFailureException.class, () ->
 				api.deleteFile(contactProperties, contact.outboxId, file2name));
-		assertThrows(ApiException.class, () ->
+		assertThrows(TolerableFailureException.class, () ->
 				api.deleteFile(contactProperties, contact.outboxId, file3name));
 
 		// owner deletes files

@@ -19,9 +19,7 @@ import javax.annotation.Nullable;
 import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;
 
-import static java.util.logging.Level.INFO;
 import static java.util.logging.Logger.getLogger;
-import static org.briarproject.bramble.util.LogUtils.logException;
 
 @ThreadSafe
 @NotNullByDefault
@@ -161,9 +159,17 @@ abstract class MailboxDownloadWorker implements MailboxWorker,
 	void downloadNextFile(Queue<FolderFile> queue) {
 		synchronized (lock) {
 			if (state == State.DESTROYED) return;
-			FolderFile file = queue.remove();
-			apiCall = mailboxApiCaller.retryWithBackoff(
-					new SimpleApiCall(() -> apiCallDownloadFile(file, queue)));
+			if (queue.isEmpty()) {
+				// Check for files again, as new files may have arrived while
+				// we were downloading
+				apiCall = mailboxApiCaller.retryWithBackoff(
+						createApiCallForDownloadCycle());
+			} else {
+				FolderFile file = queue.remove();
+				apiCall = mailboxApiCaller.retryWithBackoff(
+						new SimpleApiCall(() ->
+								apiCallDownloadFile(file, queue)));
+			}
 		}
 	}
 
@@ -182,6 +188,14 @@ abstract class MailboxDownloadWorker implements MailboxWorker,
 				LOG.warning("Failed to delete temporary file");
 			}
 			throw e;
+		} catch (TolerableFailureException e) {
+			// File not found - continue to the next file
+			LOG.warning("File does not exist");
+			if (!tempFile.delete()) {
+				LOG.warning("Failed to delete temporary file");
+			}
+			downloadNextFile(queue);
+			return;
 		}
 		mailboxFileManager.handleDownloadedFile(tempFile);
 		deleteFile(file, queue);
@@ -204,20 +218,10 @@ abstract class MailboxDownloadWorker implements MailboxWorker,
 			mailboxApi.deleteFile(mailboxProperties, file.folderId,
 					file.fileId);
 		} catch (TolerableFailureException e) {
-			// Catch this so we can continue to the next file
-			logException(LOG, INFO, e);
+			// File not found - continue to the next file
+			LOG.warning("File does not exist");
 		}
-		if (queue.isEmpty()) {
-			// Check for files again, as new files may have arrived while we
-			// were downloading
-			synchronized (lock) {
-				if (state == State.DESTROYED) return;
-				apiCall = mailboxApiCaller.retryWithBackoff(
-						createApiCallForDownloadCycle());
-			}
-		} else {
-			downloadNextFile(queue);
-		}
+		downloadNextFile(queue);
 	}
 
 	@Override

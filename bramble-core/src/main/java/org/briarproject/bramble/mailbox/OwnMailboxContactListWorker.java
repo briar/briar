@@ -303,7 +303,7 @@ class OwnMailboxContactListWorker
 			mailboxApi.deleteContact(mailboxProperties, c);
 		} catch (TolerableFailureException e) {
 			// Catch this so we can continue to the next update
-			logException(LOG, INFO, e);
+			LOG.warning("Contact does not exist");
 		}
 		updateContactList();
 	}

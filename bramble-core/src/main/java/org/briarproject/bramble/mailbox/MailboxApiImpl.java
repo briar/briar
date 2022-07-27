@@ -216,9 +216,11 @@ class MailboxApiImpl implements MailboxApi {
 
 	@Override
 	public List<MailboxFile> getFiles(MailboxProperties properties,
-			MailboxFolderId folderId) throws IOException, ApiException {
+			MailboxFolderId folderId)
+			throws IOException, ApiException, TolerableFailureException {
 		String path = "/files/" + folderId;
 		Response response = sendGetRequest(properties, path);
+		if (response.code() == 404) throw new TolerableFailureException();
 		if (response.code() != 200) throw new ApiException();
 
 		ResponseBody body = response.body();
@@ -252,9 +254,11 @@ class MailboxApiImpl implements MailboxApi {
 
 	@Override
 	public void getFile(MailboxProperties properties, MailboxFolderId folderId,
-			MailboxFileId fileId, File file) throws IOException, ApiException {
+			MailboxFileId fileId, File file)
+			throws IOException, ApiException, TolerableFailureException {
 		String path = "/files/" + folderId + "/" + fileId;
 		Response response = sendGetRequest(properties, path);
+		if (response.code() == 404) throw new TolerableFailureException();
 		if (response.code() != 200) throw new ApiException();
 
 		ResponseBody body = response.body();

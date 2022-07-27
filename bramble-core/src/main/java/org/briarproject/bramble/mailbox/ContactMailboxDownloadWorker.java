@@ -5,6 +5,7 @@ import org.briarproject.bramble.api.mailbox.MailboxProperties;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.mailbox.MailboxApi.ApiException;
 import org.briarproject.bramble.mailbox.MailboxApi.MailboxFile;
+import org.briarproject.bramble.mailbox.MailboxApi.TolerableFailureException;
 
 import java.io.IOException;
 import java.util.LinkedList;
@@ -13,6 +14,7 @@ import java.util.Queue;
 
 import javax.annotation.concurrent.ThreadSafe;
 
+import static java.util.Collections.emptyList;
 import static org.briarproject.bramble.api.nullsafety.NullSafety.requireNonNull;
 
 @ThreadSafe
@@ -43,8 +45,13 @@ class ContactMailboxDownloadWorker extends MailboxDownloadWorker {
 		LOG.info("Listing inbox");
 		MailboxFolderId folderId =
 				requireNonNull(mailboxProperties.getInboxId());
-		List<MailboxFile> files =
-				mailboxApi.getFiles(mailboxProperties, folderId);
+		List<MailboxFile> files;
+		try {
+			files = mailboxApi.getFiles(mailboxProperties, folderId);
+		} catch (TolerableFailureException e) {
+			LOG.warning("Inbox folder does not exist");
+			files = emptyList();
+		}
 		if (files.isEmpty()) {
 			onDownloadCycleFinished();
 		} else {

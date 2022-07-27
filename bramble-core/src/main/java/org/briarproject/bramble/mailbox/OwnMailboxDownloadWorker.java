@@ -5,6 +5,7 @@ import org.briarproject.bramble.api.mailbox.MailboxProperties;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.mailbox.MailboxApi.ApiException;
 import org.briarproject.bramble.mailbox.MailboxApi.MailboxFile;
+import org.briarproject.bramble.mailbox.MailboxApi.TolerableFailureException;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -85,9 +86,15 @@ class OwnMailboxDownloadWorker extends MailboxDownloadWorker {
 			if (state == State.DESTROYED) return;
 		}
 		LOG.info("Listing folder");
-		List<MailboxFile> files =
-				mailboxApi.getFiles(mailboxProperties, folder);
-		if (!files.isEmpty()) available.put(folder, new LinkedList<>(files));
+		try {
+			List<MailboxFile> files =
+					mailboxApi.getFiles(mailboxProperties, folder);
+			if (!files.isEmpty()) {
+				available.put(folder, new LinkedList<>(files));
+			}
+		} catch (TolerableFailureException e) {
+			LOG.warning("Folder does not exist");
+		}
 		if (queue.isEmpty()) {
 			LOG.info("Finished listing folders");
 			if (available.isEmpty()) onDownloadCycleFinished();
