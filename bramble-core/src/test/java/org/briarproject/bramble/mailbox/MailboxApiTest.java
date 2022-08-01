@@ -630,6 +630,7 @@ public class MailboxApiTest extends BrambleTestCase {
 		server.enqueue(new MockResponse().setBody(invalidResponse3));
 		server.enqueue(new MockResponse().setBody(invalidResponse4));
 		server.enqueue(new MockResponse().setResponseCode(401));
+		server.enqueue(new MockResponse().setResponseCode(404));
 		server.enqueue(new MockResponse().setResponseCode(500));
 		server.start();
 		String baseUrl = getBaseUrl(server);
@@ -706,13 +707,21 @@ public class MailboxApiTest extends BrambleTestCase {
 		assertEquals("GET", request8.getMethod());
 		assertToken(request8, token);
 
-		// 500 internal server error
-		assertThrows(ApiException.class,
-				() -> api.getFiles(properties, contactInboxId));
+		// 404 not found
+		assertThrows(TolerableFailureException.class, () ->
+				api.getFiles(properties, contactInboxId));
 		RecordedRequest request9 = server.takeRequest();
 		assertEquals("/files/" + contactInboxId, request9.getPath());
 		assertEquals("GET", request9.getMethod());
 		assertToken(request9, token);
+
+		// 500 internal server error
+		assertThrows(ApiException.class,
+				() -> api.getFiles(properties, contactInboxId));
+		RecordedRequest request10 = server.takeRequest();
+		assertEquals("/files/" + contactInboxId, request10.getPath());
+		assertEquals("GET", request10.getMethod());
+		assertToken(request10, token);
 	}
 
 	@Test

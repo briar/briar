@@ -91,9 +91,13 @@ interface MailboxApi {
 	 * Used by owner and contacts to list their files to retrieve.
 	 * <p>
 	 * Returns 200 OK with the list of files in JSON.
+	 *
+	 * @throws TolerableFailureException if response code is 404 (folder does
+	 * not exist or client is not authorised to download from it)
 	 */
 	List<MailboxFile> getFiles(MailboxProperties properties,
-			MailboxFolderId folderId) throws IOException, ApiException;
+			MailboxFolderId folderId)
+			throws IOException, ApiException, TolerableFailureException;
 
 	/**
 	 * Used by owner and contacts to retrieve a file.
@@ -102,17 +106,22 @@ interface MailboxApi {
 	 * in the response body.
 	 *
 	 * @param file the empty file the response bytes will be written into.
+	 * @throws TolerableFailureException if response code is 404 (folder does
+	 * not exist, client is not authorised to download from folder, or file
+	 * does not exist)
 	 */
 	void getFile(MailboxProperties properties, MailboxFolderId folderId,
-			MailboxFileId fileId, File file) throws IOException, ApiException;
+			MailboxFileId fileId, File file)
+			throws IOException, ApiException, TolerableFailureException;
 
 	/**
 	 * Used by owner and contacts to delete files.
 	 * <p>
 	 * Returns 200 OK (no exception) if deletion was successful.
 	 *
-	 * @throws TolerableFailureException on 404 response,
-	 * because file was most likely deleted already.
+	 * @throws TolerableFailureException if response code is 404 (folder does
+	 * not exist, client is not authorised to download from folder, or file
+	 * does not exist)
 	 */
 	void deleteFile(MailboxProperties properties, MailboxFolderId folderId,
 			MailboxFileId fileId)
