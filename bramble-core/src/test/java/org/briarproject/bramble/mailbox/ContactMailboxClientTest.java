@@ -40,6 +40,8 @@ public class ContactMailboxClientTest extends BrambleMockTestCase {
 	@Test
 	public void testStartAndDestroyWithNoContactsAssigned() {
 		client.start();
+
+		expectDestroyConnectivityChecker();
 		client.destroy();
 	}
 
@@ -54,6 +56,7 @@ public class ContactMailboxClientTest extends BrambleMockTestCase {
 
 		// When the client is destroyed, the worker should be destroyed
 		expectDestroyWorker(uploadWorker);
+		expectDestroyConnectivityChecker();
 		client.destroy();
 	}
 
@@ -71,6 +74,7 @@ public class ContactMailboxClientTest extends BrambleMockTestCase {
 		client.deassignContactForUpload(contactId);
 		context.assertIsSatisfied();
 
+		expectDestroyConnectivityChecker();
 		client.destroy();
 	}
 
@@ -85,6 +89,7 @@ public class ContactMailboxClientTest extends BrambleMockTestCase {
 
 		// When the client is destroyed, the worker should be destroyed
 		expectDestroyWorker(downloadWorker);
+		expectDestroyConnectivityChecker();
 		client.destroy();
 	}
 
@@ -102,6 +107,7 @@ public class ContactMailboxClientTest extends BrambleMockTestCase {
 		client.deassignContactForDownload(contactId);
 		context.assertIsSatisfied();
 
+		expectDestroyConnectivityChecker();
 		client.destroy();
 	}
 
@@ -126,6 +132,12 @@ public class ContactMailboxClientTest extends BrambleMockTestCase {
 	private void expectDestroyWorker(MailboxWorker worker) {
 		context.checking(new Expectations() {{
 			oneOf(worker).destroy();
+		}});
+	}
+
+	private void expectDestroyConnectivityChecker() {
+		context.checking(new Expectations() {{
+			oneOf(connectivityChecker).destroy();
 		}});
 	}
 }

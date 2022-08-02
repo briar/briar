@@ -1,6 +1,7 @@
 package org.briarproject.bramble.api.mailbox;
 
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
+import org.briarproject.bramble.api.nullsafety.NullSafety;
 
 import java.util.List;
 
@@ -74,5 +75,23 @@ public class MailboxProperties {
 	@Nullable
 	public MailboxFolderId getOutboxId() {
 		return outboxId;
+	}
+
+	@Override
+	public boolean equals(Object o) {
+		if (o instanceof MailboxProperties) {
+			MailboxProperties m = (MailboxProperties) o;
+			return owner == m.owner &&
+					onion.equals(m.onion) &&
+					authToken.equals(m.authToken) &&
+					NullSafety.equals(inboxId, m.inboxId) &&
+					NullSafety.equals(outboxId, m.outboxId);
+		}
+		return false;
+	}
+
+	@Override
+	public int hashCode() {
+		return authToken.hashCode();
 	}
 }

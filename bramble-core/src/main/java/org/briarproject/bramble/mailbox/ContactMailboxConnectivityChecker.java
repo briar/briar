@@ -6,6 +6,7 @@ import org.briarproject.bramble.api.system.Clock;
 import org.briarproject.bramble.mailbox.MailboxApi.ApiException;
 
 import javax.annotation.concurrent.ThreadSafe;
+import javax.inject.Inject;
 
 @ThreadSafe
 @NotNullByDefault
@@ -13,6 +14,7 @@ class ContactMailboxConnectivityChecker extends ConnectivityCheckerImpl {
 
 	private final MailboxApi mailboxApi;
 
+	@Inject
 	ContactMailboxConnectivityChecker(Clock clock,
 			MailboxApiCaller mailboxApiCaller, MailboxApi mailboxApi) {
 		super(clock, mailboxApiCaller);

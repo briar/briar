@@ -55,6 +55,10 @@ class ContactMailboxClient implements MailboxClient {
 		}
 		if (uploadWorker != null) uploadWorker.destroy();
 		if (downloadWorker != null) downloadWorker.destroy();
+		// The connectivity checker belongs to the client, so it should be
+		// destroyed. The Tor reachability monitor is shared between clients,
+		// so it should not be destroyed
+		connectivityChecker.destroy();
 	}
 
 	@Override

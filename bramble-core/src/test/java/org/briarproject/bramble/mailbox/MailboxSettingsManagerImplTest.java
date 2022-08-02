@@ -5,6 +5,7 @@ import org.briarproject.bramble.api.db.Transaction;
 import org.briarproject.bramble.api.mailbox.MailboxAuthToken;
 import org.briarproject.bramble.api.mailbox.MailboxProperties;
 import org.briarproject.bramble.api.mailbox.MailboxSettingsManager;
+import org.briarproject.bramble.api.mailbox.MailboxSettingsManager.MailboxHook;
 import org.briarproject.bramble.api.mailbox.MailboxStatus;
 import org.briarproject.bramble.api.mailbox.MailboxVersion;
 import org.briarproject.bramble.api.mailbox.event.OwnMailboxConnectionStatusEvent;
@@ -18,7 +19,6 @@ import java.util.List;
 import java.util.Random;
 
 import static java.util.Arrays.asList;
-import static java.util.Collections.singletonList;
 import static org.briarproject.bramble.mailbox.MailboxSettingsManagerImpl.SETTINGS_KEY_ATTEMPTS;
 import static org.briarproject.bramble.mailbox.MailboxSettingsManagerImpl.SETTINGS_KEY_LAST_ATTEMPT;
 import static org.briarproject.bramble.mailbox.MailboxSettingsManagerImpl.SETTINGS_KEY_LAST_SUCCESS;
@@ -27,10 +27,11 @@ import static org.briarproject.bramble.mailbox.MailboxSettingsManagerImpl.SETTIN
 import static org.briarproject.bramble.mailbox.MailboxSettingsManagerImpl.SETTINGS_KEY_TOKEN;
 import static org.briarproject.bramble.mailbox.MailboxSettingsManagerImpl.SETTINGS_NAMESPACE;
 import static org.briarproject.bramble.mailbox.MailboxSettingsManagerImpl.SETTINGS_UPLOADS_NAMESPACE;
+import static org.briarproject.bramble.test.TestUtils.getEvent;
 import static org.briarproject.bramble.test.TestUtils.getRandomId;
-import static org.briarproject.bramble.test.TestUtils.hasEvent;
 import static org.briarproject.bramble.util.StringUtils.getRandomString;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
@@ -39,6 +40,7 @@ public class MailboxSettingsManagerImplTest extends BrambleMockTestCase {
 
 	private final SettingsManager settingsManager =
 			context.mock(SettingsManager.class);
+	private final MailboxHook hook = context.mock(MailboxHook.class);
 
 	private final MailboxSettingsManager manager =
 			new MailboxSettingsManagerImpl(settingsManager);
@@ -47,6 +49,8 @@ public class MailboxSettingsManagerImplTest extends BrambleMockTestCase {
 	private final MailboxAuthToken token = new MailboxAuthToken(getRandomId());
 	private final List<MailboxVersion> serverSupports =
 			asList(new MailboxVersion(1, 0), new MailboxVersion(1, 1));
+	private final MailboxProperties properties = new MailboxProperties(onion,
+			token, serverSupports);
 	private final int[] serverSupportsInts = {1, 0, 1, 1};
 	private final ContactId contactId1 = new ContactId(random.nextInt());
 	private final ContactId contactId2 = new ContactId(random.nextInt());
@@ -98,15 +102,38 @@ public class MailboxSettingsManagerImplTest extends BrambleMockTestCase {
 		expectedSettings.put(SETTINGS_KEY_TOKEN, token.toString());
 		expectedSettings.putIntArray(SETTINGS_KEY_SERVER_SUPPORTS,
 				serverSupportsInts);
-		MailboxProperties properties = new MailboxProperties(onion, token,
-				serverSupports);
+
+		manager.registerMailboxHook(hook);
 
 		context.checking(new Expectations() {{
 			oneOf(settingsManager).mergeSettings(txn, expectedSettings,
 					SETTINGS_NAMESPACE);
+			oneOf(hook).mailboxPaired(txn, properties);
 		}});
 
 		manager.setOwnMailboxProperties(txn, properties);
+	}
+
+	@Test
+	public void testRemovesProperties() throws Exception {
+		Transaction txn = new Transaction(null, false);
+		Settings expectedSettings = new Settings();
+		expectedSettings.put(SETTINGS_KEY_ONION, "");
+		expectedSettings.put(SETTINGS_KEY_TOKEN, "");
+		expectedSettings.put(SETTINGS_KEY_ATTEMPTS, "");
+		expectedSettings.put(SETTINGS_KEY_LAST_ATTEMPT, "");
+		expectedSettings.put(SETTINGS_KEY_LAST_SUCCESS, "");
+		expectedSettings.put(SETTINGS_KEY_SERVER_SUPPORTS, "");
+
+		manager.registerMailboxHook(hook);
+
+		context.checking(new Expectations() {{
+			oneOf(settingsManager).mergeSettings(txn, expectedSettings,
+					SETTINGS_NAMESPACE);
+			oneOf(hook).mailboxUnpaired(txn);
+		}});
+
+		manager.removeOwnMailboxProperties(txn);
 	}
 
 	@Test
@@ -147,45 +174,26 @@ public class MailboxSettingsManagerImplTest extends BrambleMockTestCase {
 	@Test
 	public void testRecordsSuccess() throws Exception {
 		Transaction txn = new Transaction(null, false);
-		Settings oldSettings = new Settings();
-		oldSettings
-				.putIntArray(SETTINGS_KEY_SERVER_SUPPORTS, serverSupportsInts);
 		Settings expectedSettings = new Settings();
 		expectedSettings.putLong(SETTINGS_KEY_LAST_ATTEMPT, now);
 		expectedSettings.putLong(SETTINGS_KEY_LAST_SUCCESS, now);
 		expectedSettings.putInt(SETTINGS_KEY_ATTEMPTS, 0);
-
-		context.checking(new Expectations() {{
-			oneOf(settingsManager).getSettings(txn, SETTINGS_NAMESPACE);
-			will(returnValue(oldSettings));
-			oneOf(settingsManager).mergeSettings(txn, expectedSettings,
-					SETTINGS_NAMESPACE);
-		}});
-
-		manager.recordSuccessfulConnection(txn, now);
-		assertTrue(hasEvent(txn, OwnMailboxConnectionStatusEvent.class));
-	}
-
-	@Test
-	public void testRecordsSuccessWithVersions() throws Exception {
-		Transaction txn = new Transaction(null, false);
-		List<MailboxVersion> versions = singletonList(new MailboxVersion(2, 1));
-		Settings expectedSettings = new Settings();
-		expectedSettings.putLong(SETTINGS_KEY_LAST_ATTEMPT, now);
-		expectedSettings.putLong(SETTINGS_KEY_LAST_SUCCESS, now);
-		expectedSettings.putInt(SETTINGS_KEY_ATTEMPTS, 0);
-		expectedSettings.putInt(SETTINGS_KEY_SERVER_SUPPORTS, 0);
-		int[] newVersionsInts = {2, 1};
-		expectedSettings
-				.putIntArray(SETTINGS_KEY_SERVER_SUPPORTS, newVersionsInts);
+		expectedSettings.putIntArray(SETTINGS_KEY_SERVER_SUPPORTS,
+				serverSupportsInts);
 
 		context.checking(new Expectations() {{
 			oneOf(settingsManager).mergeSettings(txn, expectedSettings,
 					SETTINGS_NAMESPACE);
 		}});
 
-		manager.recordSuccessfulConnection(txn, now, versions);
-		hasEvent(txn, OwnMailboxConnectionStatusEvent.class);
+		manager.recordSuccessfulConnection(txn, now, serverSupports);
+		OwnMailboxConnectionStatusEvent e =
+				getEvent(txn, OwnMailboxConnectionStatusEvent.class);
+		MailboxStatus status = e.getStatus();
+		assertEquals(now, status.getTimeOfLastAttempt());
+		assertEquals(now, status.getTimeOfLastSuccess());
+		assertEquals(0, status.getAttemptsSinceSuccess());
+		assertFalse(status.hasProblem(now));
 	}
 
 	@Test

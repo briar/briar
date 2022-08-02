@@ -120,7 +120,8 @@ class MailboxPairingTaskImpl implements MailboxPairingTask {
 		db.transaction(false, txn -> {
 			mailboxSettingsManager
 					.setOwnMailboxProperties(txn, ownerProperties);
-			mailboxSettingsManager.recordSuccessfulConnection(txn, time);
+			mailboxSettingsManager.recordSuccessfulConnection(txn, time,
+					ownerProperties.getServerSupports());
 			// A (possibly new) mailbox is paired. Reset message retransmission
 			// timers for contacts who doesn't have their own mailbox. This way,
 			// data stranded on our old mailbox will be re-uploaded to our new.

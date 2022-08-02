@@ -86,6 +86,10 @@ class OwnMailboxClient implements MailboxClient {
 		for (MailboxWorker worker : uploadWorkers) worker.destroy();
 		if (downloadWorker != null) downloadWorker.destroy();
 		contactListWorker.destroy();
+		// The connectivity checker belongs to the client, so it should be
+		// destroyed. The Tor reachability monitor is shared between clients,
+		// so it should not be destroyed
+		connectivityChecker.destroy();
 	}
 
 	@Override

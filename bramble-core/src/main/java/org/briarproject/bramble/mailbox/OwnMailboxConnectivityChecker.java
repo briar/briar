@@ -14,6 +14,7 @@ import java.util.List;
 import java.util.logging.Logger;
 
 import javax.annotation.concurrent.ThreadSafe;
+import javax.inject.Inject;
 
 import static java.util.logging.Level.WARNING;
 import static java.util.logging.Logger.getLogger;
@@ -30,6 +31,7 @@ class OwnMailboxConnectivityChecker extends ConnectivityCheckerImpl {
 	private final TransactionManager db;
 	private final MailboxSettingsManager mailboxSettingsManager;
 
+	@Inject
 	OwnMailboxConnectivityChecker(Clock clock,
 			MailboxApiCaller mailboxApiCaller,
 			MailboxApi mailboxApi,

@@ -3,6 +3,7 @@ package org.briarproject.bramble.mailbox;
 import org.briarproject.bramble.api.client.ClientHelper;
 import org.briarproject.bramble.api.client.ContactGroupFactory;
 import org.briarproject.bramble.api.contact.Contact;
+import org.briarproject.bramble.api.contact.ContactId;
 import org.briarproject.bramble.api.crypto.CryptoComponent;
 import org.briarproject.bramble.api.data.BdfDictionary;
 import org.briarproject.bramble.api.data.BdfEntry;
@@ -16,6 +17,8 @@ import org.briarproject.bramble.api.mailbox.MailboxSettingsManager;
 import org.briarproject.bramble.api.mailbox.MailboxUpdate;
 import org.briarproject.bramble.api.mailbox.MailboxUpdateWithMailbox;
 import org.briarproject.bramble.api.mailbox.MailboxVersion;
+import org.briarproject.bramble.api.mailbox.event.MailboxPairedEvent;
+import org.briarproject.bramble.api.mailbox.event.MailboxUnpairedEvent;
 import org.briarproject.bramble.api.mailbox.event.RemoteMailboxUpdateEvent;
 import org.briarproject.bramble.api.sync.Group;
 import org.briarproject.bramble.api.sync.GroupId;
@@ -32,6 +35,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
+import static java.util.Collections.singleton;
 import static java.util.Collections.singletonList;
 import static org.briarproject.bramble.api.mailbox.MailboxUpdateManager.CLIENT_ID;
 import static org.briarproject.bramble.api.mailbox.MailboxUpdateManager.GROUP_KEY_SENT_CLIENT_SUPPORTS;
@@ -45,6 +49,7 @@ import static org.briarproject.bramble.api.mailbox.MailboxUpdateManager.PROP_KEY
 import static org.briarproject.bramble.api.sync.Group.Visibility.SHARED;
 import static org.briarproject.bramble.api.sync.validation.IncomingMessageHook.DeliveryAction.ACCEPT_DO_NOT_SHARE;
 import static org.briarproject.bramble.test.TestUtils.getContact;
+import static org.briarproject.bramble.test.TestUtils.getEvent;
 import static org.briarproject.bramble.test.TestUtils.getGroup;
 import static org.briarproject.bramble.test.TestUtils.getMailboxProperties;
 import static org.briarproject.bramble.test.TestUtils.getMessage;
@@ -71,6 +76,11 @@ public class MailboxUpdateManagerImplTest extends BrambleMockTestCase {
 	private final MailboxSettingsManager mailboxSettingsManager =
 			context.mock(MailboxSettingsManager.class);
 
+	private final Contact contact = getContact();
+	private final List<Contact> contacts = singletonList(contact);
+	private final Group contactGroup = getGroup(CLIENT_ID, MAJOR_VERSION);
+	private final GroupId contactGroupId = contactGroup.getId();
+	private final Message message = getMessage(contactGroupId);
 	private final Group localGroup = getGroup(CLIENT_ID, MAJOR_VERSION);
 	private final BdfDictionary propsDict;
 	private final BdfDictionary emptyPropsDict = new BdfDictionary();
@@ -78,7 +88,6 @@ public class MailboxUpdateManagerImplTest extends BrambleMockTestCase {
 	private final BdfList someClientSupports;
 	private final List<MailboxVersion> newerClientSupportsList;
 	private final BdfList newerClientSupports;
-	private final List<MailboxVersion> someServerSupportsList;
 	private final BdfList someServerSupports;
 	private final BdfList emptyServerSupports = new BdfList();
 	private final MailboxProperties updateProps;
@@ -100,8 +109,8 @@ public class MailboxUpdateManagerImplTest extends BrambleMockTestCase {
 				newerClientSupportsList.get(0).getMajor(),
 				newerClientSupportsList.get(0).getMinor()));
 
-		someServerSupportsList = singletonList(new MailboxVersion(
-				rnd.nextInt(), rnd.nextInt()));
+		List<MailboxVersion> someServerSupportsList =
+				singletonList(new MailboxVersion(rnd.nextInt(), rnd.nextInt()));
 		someServerSupports = BdfList.of(BdfList.of(
 				someServerSupportsList.get(0).getMajor(),
 				someServerSupportsList.get(0).getMinor()));
@@ -135,8 +144,6 @@ public class MailboxUpdateManagerImplTest extends BrambleMockTestCase {
 	@Test
 	public void testCreatesGroupsAtUnpairedStartup() throws Exception {
 		Transaction txn = new Transaction(null, false);
-		Contact contact = getContact();
-		Group contactGroup = getGroup(CLIENT_ID, MAJOR_VERSION);
 		Map<MessageId, BdfDictionary> messageMetadata = new LinkedHashMap<>();
 		BdfDictionary sentDict = BdfDictionary.of(new BdfEntry(
 				GROUP_KEY_SENT_CLIENT_SUPPORTS,
@@ -158,8 +165,8 @@ public class MailboxUpdateManagerImplTest extends BrambleMockTestCase {
 					contact.getId(), CLIENT_ID, MAJOR_VERSION);
 			will(returnValue(SHARED));
 			oneOf(db).setGroupVisibility(txn, contact.getId(),
-					contactGroup.getId(), SHARED);
-			oneOf(clientHelper).setContactId(txn, contactGroup.getId(),
+					contactGroupId, SHARED);
+			oneOf(clientHelper).setContactId(txn, contactGroupId,
 					contact.getId());
 			oneOf(mailboxSettingsManager).getOwnMailboxProperties(txn);
 			will(returnValue(null));
@@ -167,9 +174,9 @@ public class MailboxUpdateManagerImplTest extends BrambleMockTestCase {
 					MAJOR_VERSION, contact);
 			will(returnValue(contactGroup));
 			oneOf(clientHelper).getMessageMetadataAsDictionary(txn,
-					contactGroup.getId());
+					contactGroupId);
 			will(returnValue(messageMetadata));
-			expectStoreMessage(txn, contactGroup.getId(), 1, someClientSupports,
+			expectStoreMessage(txn, contactGroupId, 1, someClientSupports,
 					emptyServerSupports, emptyPropsDict);
 
 			oneOf(clientHelper).mergeGroupMetadata(txn, localGroup.getId(),
@@ -184,8 +191,6 @@ public class MailboxUpdateManagerImplTest extends BrambleMockTestCase {
 	public void testCreatesGroupsAndCreatesAndSendsAtPairedStartup()
 			throws Exception {
 		Transaction txn = new Transaction(null, false);
-		Contact contact = getContact();
-		Group contactGroup = getGroup(CLIENT_ID, MAJOR_VERSION);
 		Map<MessageId, BdfDictionary> messageMetadata = new LinkedHashMap<>();
 		BdfDictionary sentDict = BdfDictionary.of(new BdfEntry(
 				GROUP_KEY_SENT_CLIENT_SUPPORTS,
@@ -207,8 +212,8 @@ public class MailboxUpdateManagerImplTest extends BrambleMockTestCase {
 					contact.getId(), CLIENT_ID, MAJOR_VERSION);
 			will(returnValue(SHARED));
 			oneOf(db).setGroupVisibility(txn, contact.getId(),
-					contactGroup.getId(), SHARED);
-			oneOf(clientHelper).setContactId(txn, contactGroup.getId(),
+					contactGroupId, SHARED);
+			oneOf(clientHelper).setContactId(txn, contactGroupId,
 					contact.getId());
 			oneOf(mailboxSettingsManager).getOwnMailboxProperties(txn);
 			will(returnValue(ownProps));
@@ -222,9 +227,9 @@ public class MailboxUpdateManagerImplTest extends BrambleMockTestCase {
 					MAJOR_VERSION, contact);
 			will(returnValue(contactGroup));
 			oneOf(clientHelper).getMessageMetadataAsDictionary(txn,
-					contactGroup.getId());
+					contactGroupId);
 			will(returnValue(messageMetadata));
-			expectStoreMessage(txn, contactGroup.getId(), 1, someClientSupports,
+			expectStoreMessage(txn, contactGroupId, 1, someClientSupports,
 					someServerSupports, propsDict);
 
 			oneOf(clientHelper).mergeGroupMetadata(txn, localGroup.getId(),
@@ -238,9 +243,6 @@ public class MailboxUpdateManagerImplTest extends BrambleMockTestCase {
 	@Test
 	public void testUnchangedClientSupportsOnSecondStartup() throws Exception {
 		Transaction txn = new Transaction(null, false);
-
-		Contact contact = getContact();
-		Group contactGroup = getGroup(CLIENT_ID, MAJOR_VERSION);
 
 		Map<MessageId, BdfDictionary> emptyMessageMetadata =
 				new LinkedHashMap<>();
@@ -264,8 +266,8 @@ public class MailboxUpdateManagerImplTest extends BrambleMockTestCase {
 					contact.getId(), CLIENT_ID, MAJOR_VERSION);
 			will(returnValue(SHARED));
 			oneOf(db).setGroupVisibility(txn, contact.getId(),
-					contactGroup.getId(), SHARED);
-			oneOf(clientHelper).setContactId(txn, contactGroup.getId(),
+					contactGroupId, SHARED);
+			oneOf(clientHelper).setContactId(txn, contactGroupId,
 					contact.getId());
 			oneOf(mailboxSettingsManager).getOwnMailboxProperties(txn);
 			will(returnValue(null));
@@ -273,9 +275,9 @@ public class MailboxUpdateManagerImplTest extends BrambleMockTestCase {
 					MAJOR_VERSION, contact);
 			will(returnValue(contactGroup));
 			oneOf(clientHelper).getMessageMetadataAsDictionary(txn,
-					contactGroup.getId());
+					contactGroupId);
 			will(returnValue(emptyMessageMetadata));
-			expectStoreMessage(txn, contactGroup.getId(), 1, someClientSupports,
+			expectStoreMessage(txn, contactGroupId, 1, someClientSupports,
 					emptyServerSupports, emptyPropsDict);
 
 			oneOf(clientHelper).mergeGroupMetadata(txn, localGroup.getId(),
@@ -304,9 +306,6 @@ public class MailboxUpdateManagerImplTest extends BrambleMockTestCase {
 			throws Exception {
 		Transaction txn = new Transaction(null, false);
 
-		Contact contact = getContact();
-		Group contactGroup = getGroup(CLIENT_ID, MAJOR_VERSION);
-
 		Map<MessageId, BdfDictionary> emptyMessageMetadata =
 				new LinkedHashMap<>();
 		BdfDictionary sentDict = BdfDictionary.of(new BdfEntry(
@@ -329,8 +328,8 @@ public class MailboxUpdateManagerImplTest extends BrambleMockTestCase {
 					contact.getId(), CLIENT_ID, MAJOR_VERSION);
 			will(returnValue(SHARED));
 			oneOf(db).setGroupVisibility(txn, contact.getId(),
-					contactGroup.getId(), SHARED);
-			oneOf(clientHelper).setContactId(txn, contactGroup.getId(),
+					contactGroupId, SHARED);
+			oneOf(clientHelper).setContactId(txn, contactGroupId,
 					contact.getId());
 			oneOf(mailboxSettingsManager).getOwnMailboxProperties(txn);
 			will(returnValue(null));
@@ -338,9 +337,9 @@ public class MailboxUpdateManagerImplTest extends BrambleMockTestCase {
 					MAJOR_VERSION, contact);
 			will(returnValue(contactGroup));
 			oneOf(clientHelper).getMessageMetadataAsDictionary(txn,
-					contactGroup.getId());
+					contactGroupId);
 			will(returnValue(emptyMessageMetadata));
-			expectStoreMessage(txn, contactGroup.getId(), 1, someClientSupports,
+			expectStoreMessage(txn, contactGroupId, 1, someClientSupports,
 					emptyServerSupports, emptyPropsDict);
 
 			oneOf(clientHelper).mergeGroupMetadata(txn, localGroup.getId(),
@@ -384,7 +383,7 @@ public class MailboxUpdateManagerImplTest extends BrambleMockTestCase {
 					MAJOR_VERSION, contact);
 			will(returnValue(contactGroup));
 			oneOf(clientHelper).getMessageMetadataAsDictionary(txn,
-					contactGroup.getId());
+					contactGroupId);
 			will(returnValue(messageMetadata));
 			oneOf(clientHelper).getMessageAsList(txn, messageId);
 			will(returnValue(body));
@@ -397,9 +396,9 @@ public class MailboxUpdateManagerImplTest extends BrambleMockTestCase {
 
 			// storeMessageReplaceLatest()
 			oneOf(clientHelper).getMessageMetadataAsDictionary(txn,
-					contactGroup.getId());
+					contactGroupId);
 			will(returnValue(messageMetadata));
-			expectStoreMessage(txn, contactGroup.getId(), 2,
+			expectStoreMessage(txn, contactGroupId, 2,
 					newerClientSupports, someServerSupports, propsDict);
 			oneOf(db).removeMessage(txn, messageId);
 
@@ -415,8 +414,6 @@ public class MailboxUpdateManagerImplTest extends BrambleMockTestCase {
 	public void testCreatesContactGroupWhenAddingContactUnpaired()
 			throws Exception {
 		Transaction txn = new Transaction(null, false);
-		Contact contact = getContact();
-		Group contactGroup = getGroup(CLIENT_ID, MAJOR_VERSION);
 		Map<MessageId, BdfDictionary> messageMetadata = new LinkedHashMap<>();
 
 		context.checking(new Expectations() {{
@@ -429,8 +426,8 @@ public class MailboxUpdateManagerImplTest extends BrambleMockTestCase {
 					contact.getId(), CLIENT_ID, MAJOR_VERSION);
 			will(returnValue(SHARED));
 			oneOf(db).setGroupVisibility(txn, contact.getId(),
-					contactGroup.getId(), SHARED);
-			oneOf(clientHelper).setContactId(txn, contactGroup.getId(),
+					contactGroupId, SHARED);
+			oneOf(clientHelper).setContactId(txn, contactGroupId,
 					contact.getId());
 			oneOf(mailboxSettingsManager).getOwnMailboxProperties(txn);
 			will(returnValue(null));
@@ -438,9 +435,9 @@ public class MailboxUpdateManagerImplTest extends BrambleMockTestCase {
 					MAJOR_VERSION, contact);
 			will(returnValue(contactGroup));
 			oneOf(clientHelper).getMessageMetadataAsDictionary(txn,
-					contactGroup.getId());
+					contactGroupId);
 			will(returnValue(messageMetadata));
-			expectStoreMessage(txn, contactGroup.getId(), 1, someClientSupports,
+			expectStoreMessage(txn, contactGroupId, 1, someClientSupports,
 					emptyServerSupports, emptyPropsDict);
 		}});
 
@@ -452,8 +449,6 @@ public class MailboxUpdateManagerImplTest extends BrambleMockTestCase {
 	public void testCreatesContactGroupAndCreatesAndSendsWhenAddingContactPaired()
 			throws Exception {
 		Transaction txn = new Transaction(null, false);
-		Contact contact = getContact();
-		Group contactGroup = getGroup(CLIENT_ID, MAJOR_VERSION);
 		Map<MessageId, BdfDictionary> messageMetadata = new LinkedHashMap<>();
 
 		context.checking(new Expectations() {{
@@ -466,8 +461,8 @@ public class MailboxUpdateManagerImplTest extends BrambleMockTestCase {
 					contact.getId(), CLIENT_ID, MAJOR_VERSION);
 			will(returnValue(SHARED));
 			oneOf(db).setGroupVisibility(txn, contact.getId(),
-					contactGroup.getId(), SHARED);
-			oneOf(clientHelper).setContactId(txn, contactGroup.getId(),
+					contactGroupId, SHARED);
+			oneOf(clientHelper).setContactId(txn, contactGroupId,
 					contact.getId());
 			oneOf(mailboxSettingsManager).getOwnMailboxProperties(txn);
 			will(returnValue(ownProps));
@@ -481,9 +476,9 @@ public class MailboxUpdateManagerImplTest extends BrambleMockTestCase {
 					MAJOR_VERSION, contact);
 			will(returnValue(contactGroup));
 			oneOf(clientHelper).getMessageMetadataAsDictionary(txn,
-					contactGroup.getId());
+					contactGroupId);
 			will(returnValue(messageMetadata));
-			expectStoreMessage(txn, contactGroup.getId(), 1, someClientSupports,
+			expectStoreMessage(txn, contactGroupId, 1, someClientSupports,
 					someServerSupports, propsDict);
 		}});
 
@@ -494,8 +489,6 @@ public class MailboxUpdateManagerImplTest extends BrambleMockTestCase {
 	@Test
 	public void testRemovesGroupWhenRemovingContact() throws Exception {
 		Transaction txn = new Transaction(null, false);
-		Contact contact = getContact();
-		Group contactGroup = getGroup(CLIENT_ID, MAJOR_VERSION);
 
 		context.checking(new Expectations() {{
 			oneOf(contactGroupFactory).createContactGroup(CLIENT_ID,
@@ -512,9 +505,6 @@ public class MailboxUpdateManagerImplTest extends BrambleMockTestCase {
 	public void testDoesNotDeleteAnythingWhenFirstUpdateIsDelivered()
 			throws Exception {
 		Transaction txn = new Transaction(null, false);
-		Contact contact = getContact();
-		GroupId contactGroupId = new GroupId(getRandomId());
-		Message message = getMessage(contactGroupId);
 		BdfList body = BdfList.of(1, someClientSupports, someServerSupports,
 				propsDict);
 		Metadata meta = new Metadata();
@@ -549,16 +539,23 @@ public class MailboxUpdateManagerImplTest extends BrambleMockTestCase {
 		MailboxUpdateManagerImpl t = createInstance(someClientSupportsList);
 		assertEquals(ACCEPT_DO_NOT_SHARE,
 				t.incomingMessage(txn, message, meta));
-		assertTrue(hasEvent(txn, RemoteMailboxUpdateEvent.class));
+
+		RemoteMailboxUpdateEvent e =
+				getEvent(txn, RemoteMailboxUpdateEvent.class);
+		assertEquals(contact.getId(), e.getContact());
+		MailboxUpdate u = e.getMailboxUpdate();
+		assertTrue(u.hasMailbox());
+		MailboxUpdateWithMailbox uMailbox = (MailboxUpdateWithMailbox) u;
+		assertEquals(updateWithMailbox.getClientSupports(),
+				uMailbox.getClientSupports());
+		assertEquals(updateWithMailbox.getMailboxProperties(),
+				uMailbox.getMailboxProperties());
 	}
 
 	@Test
 	public void testDeletesOlderUpdateWhenUpdateIsDelivered()
 			throws Exception {
 		Transaction txn = new Transaction(null, false);
-		Contact contact = getContact();
-		GroupId contactGroupId = new GroupId(getRandomId());
-		Message message = getMessage(contactGroupId);
 		BdfList body = BdfList.of(1, someClientSupports, someServerSupports,
 				propsDict);
 		Metadata meta = new Metadata();
@@ -601,14 +598,22 @@ public class MailboxUpdateManagerImplTest extends BrambleMockTestCase {
 		MailboxUpdateManagerImpl t = createInstance(someClientSupportsList);
 		assertEquals(ACCEPT_DO_NOT_SHARE,
 				t.incomingMessage(txn, message, meta));
-		assertTrue(hasEvent(txn, RemoteMailboxUpdateEvent.class));
+
+		RemoteMailboxUpdateEvent e =
+				getEvent(txn, RemoteMailboxUpdateEvent.class);
+		assertEquals(contact.getId(), e.getContact());
+		MailboxUpdate u = e.getMailboxUpdate();
+		assertTrue(u.hasMailbox());
+		MailboxUpdateWithMailbox uMailbox = (MailboxUpdateWithMailbox) u;
+		assertEquals(updateWithMailbox.getClientSupports(),
+				uMailbox.getClientSupports());
+		assertEquals(updateWithMailbox.getMailboxProperties(),
+				uMailbox.getMailboxProperties());
 	}
 
 	@Test
 	public void testDeletesObsoleteUpdateWhenDelivered() throws Exception {
 		Transaction txn = new Transaction(null, false);
-		GroupId contactGroupId = new GroupId(getRandomId());
-		Message message = getMessage(contactGroupId);
 		Metadata meta = new Metadata();
 		BdfDictionary metaDictionary = BdfDictionary.of(
 				new BdfEntry(MSG_KEY_VERSION, 3),
@@ -635,16 +640,13 @@ public class MailboxUpdateManagerImplTest extends BrambleMockTestCase {
 		MailboxUpdateManagerImpl t = createInstance(someClientSupportsList);
 		assertEquals(ACCEPT_DO_NOT_SHARE,
 				t.incomingMessage(txn, message, meta));
+
 		assertFalse(hasEvent(txn, RemoteMailboxUpdateEvent.class));
 	}
 
 	@Test
 	public void testCreatesAndStoresLocalUpdateWithNewVersionOnPairing()
 			throws Exception {
-		Contact contact = getContact();
-		List<Contact> contacts = singletonList(contact);
-		Group contactGroup = getGroup(CLIENT_ID, MAJOR_VERSION);
-
 		Transaction txn = new Transaction(null, false);
 		Map<MessageId, BdfDictionary> messageMetadata = new LinkedHashMap<>();
 		MessageId latestId = new MessageId(getRandomId());
@@ -671,23 +673,31 @@ public class MailboxUpdateManagerImplTest extends BrambleMockTestCase {
 					MAJOR_VERSION, contact);
 			will(returnValue(contactGroup));
 			oneOf(clientHelper).getMessageMetadataAsDictionary(txn,
-					contactGroup.getId());
+					contactGroupId);
 			will(returnValue(messageMetadata));
-			expectStoreMessage(txn, contactGroup.getId(), 2, someClientSupports,
+			expectStoreMessage(txn, contactGroupId, 2, someClientSupports,
 					someServerSupports, propsDict);
 			oneOf(db).removeMessage(txn, latestId);
 		}});
 
 		MailboxUpdateManagerImpl t = createInstance(someClientSupportsList);
-		t.mailboxPaired(txn, ownProps.getOnion(), someServerSupportsList);
+		t.mailboxPaired(txn, ownProps);
+
+		MailboxPairedEvent e = getEvent(txn, MailboxPairedEvent.class);
+		assertEquals(ownProps, e.getProperties());
+		Map<ContactId, MailboxUpdateWithMailbox> localUpdates =
+				e.getLocalUpdates();
+		assertEquals(singleton(contact.getId()), localUpdates.keySet());
+		MailboxUpdateWithMailbox u = localUpdates.get(contact.getId());
+		assertEquals(updateWithMailbox.getClientSupports(),
+				u.getClientSupports());
+		assertEquals(updateWithMailbox.getMailboxProperties(),
+				u.getMailboxProperties());
 	}
 
 	@Test
 	public void testStoresLocalUpdateNoMailboxWithNewVersionOnUnpairing()
 			throws Exception {
-		Contact contact = getContact();
-		List<Contact> contacts = singletonList(contact);
-		Group contactGroup = getGroup(CLIENT_ID, MAJOR_VERSION);
 
 		Transaction txn = new Transaction(null, false);
 		Map<MessageId, BdfDictionary> messageMetadata = new LinkedHashMap<>();
@@ -709,22 +719,26 @@ public class MailboxUpdateManagerImplTest extends BrambleMockTestCase {
 					MAJOR_VERSION, contact);
 			will(returnValue(contactGroup));
 			oneOf(clientHelper).getMessageMetadataAsDictionary(txn,
-					contactGroup.getId());
+					contactGroupId);
 			will(returnValue(messageMetadata));
-			expectStoreMessage(txn, contactGroup.getId(), 2, someClientSupports,
+			expectStoreMessage(txn, contactGroupId, 2, someClientSupports,
 					emptyServerSupports, emptyPropsDict);
 			oneOf(db).removeMessage(txn, latestId);
 		}});
 
 		MailboxUpdateManagerImpl t = createInstance(someClientSupportsList);
 		t.mailboxUnpaired(txn);
+
+		MailboxUnpairedEvent e = getEvent(txn, MailboxUnpairedEvent.class);
+		Map<ContactId, MailboxUpdate> localUpdates = e.getLocalUpdates();
+		assertEquals(singleton(contact.getId()), localUpdates.keySet());
+		MailboxUpdate u = localUpdates.get(contact.getId());
+		assertFalse(u.hasMailbox());
 	}
 
 	@Test
 	public void testGetRemoteUpdate() throws Exception {
 		Transaction txn = new Transaction(null, false);
-		Contact contact = getContact();
-		Group contactGroup = getGroup(CLIENT_ID, MAJOR_VERSION);
 		BdfDictionary metaDictionary = BdfDictionary.of(
 				new BdfEntry(MSG_KEY_VERSION, 1),
 				new BdfEntry(MSG_KEY_LOCAL, false)
@@ -742,7 +756,7 @@ public class MailboxUpdateManagerImplTest extends BrambleMockTestCase {
 					.createContactGroup(CLIENT_ID, MAJOR_VERSION, contact);
 			will(returnValue(contactGroup));
 			oneOf(clientHelper).getMessageMetadataAsDictionary(txn,
-					contactGroup.getId());
+					contactGroupId);
 			will(returnValue(messageMetadata));
 			oneOf(clientHelper).getMessageAsList(txn, messageId);
 			will(returnValue(body));
@@ -760,8 +774,6 @@ public class MailboxUpdateManagerImplTest extends BrambleMockTestCase {
 	public void testGetRemoteUpdateReturnsNullBecauseNoUpdate()
 			throws Exception {
 		Transaction txn = new Transaction(null, false);
-		Contact contact = getContact();
-		Group contactGroup = getGroup(CLIENT_ID, MAJOR_VERSION);
 		Map<MessageId, BdfDictionary> emptyMessageMetadata =
 				new LinkedHashMap<>();
 
@@ -772,7 +784,7 @@ public class MailboxUpdateManagerImplTest extends BrambleMockTestCase {
 					MAJOR_VERSION, contact);
 			will(returnValue(contactGroup));
 			oneOf(clientHelper).getMessageMetadataAsDictionary(txn,
-					contactGroup.getId());
+					contactGroupId);
 			will(returnValue(emptyMessageMetadata));
 		}});
 
@@ -783,8 +795,6 @@ public class MailboxUpdateManagerImplTest extends BrambleMockTestCase {
 	@Test
 	public void testGetRemoteUpdateNoMailbox() throws Exception {
 		Transaction txn = new Transaction(null, false);
-		Contact contact = getContact();
-		Group contactGroup = getGroup(CLIENT_ID, MAJOR_VERSION);
 		BdfDictionary metaDictionary = BdfDictionary.of(
 				new BdfEntry(MSG_KEY_VERSION, 1),
 				new BdfEntry(MSG_KEY_LOCAL, false)
@@ -802,7 +812,7 @@ public class MailboxUpdateManagerImplTest extends BrambleMockTestCase {
 					MAJOR_VERSION, contact);
 			will(returnValue(contactGroup));
 			oneOf(clientHelper).getMessageMetadataAsDictionary(txn,
-					contactGroup.getId());
+					contactGroupId);
 			will(returnValue(messageMetadata));
 			oneOf(clientHelper).getMessageAsList(txn, messageId);
 			will(returnValue(body));
@@ -819,8 +829,6 @@ public class MailboxUpdateManagerImplTest extends BrambleMockTestCase {
 	@Test
 	public void testGetLocalUpdate() throws Exception {
 		Transaction txn = new Transaction(null, false);
-		Contact contact = getContact();
-		Group contactGroup = getGroup(CLIENT_ID, MAJOR_VERSION);
 		BdfDictionary metaDictionary = BdfDictionary.of(
 				new BdfEntry(MSG_KEY_VERSION, 1),
 				new BdfEntry(MSG_KEY_LOCAL, true)
@@ -838,7 +846,7 @@ public class MailboxUpdateManagerImplTest extends BrambleMockTestCase {
 					MAJOR_VERSION, contact);
 			will(returnValue(contactGroup));
 			oneOf(clientHelper).getMessageMetadataAsDictionary(txn,
-					contactGroup.getId());
+					contactGroupId);
 			will(returnValue(messageMetadata));
 			oneOf(clientHelper).getMessageAsList(txn, messageId);
 			will(returnValue(body));
@@ -855,8 +863,6 @@ public class MailboxUpdateManagerImplTest extends BrambleMockTestCase {
 	@Test
 	public void testGetLocalUpdateNoMailbox() throws Exception {
 		Transaction txn = new Transaction(null, false);
-		Contact contact = getContact();
-		Group contactGroup = getGroup(CLIENT_ID, MAJOR_VERSION);
 		BdfDictionary metaDictionary = BdfDictionary.of(
 				new BdfEntry(MSG_KEY_VERSION, 1),
 				new BdfEntry(MSG_KEY_LOCAL, true)
@@ -874,7 +880,7 @@ public class MailboxUpdateManagerImplTest extends BrambleMockTestCase {
 					MAJOR_VERSION, contact);
 			will(returnValue(contactGroup));
 			oneOf(clientHelper).getMessageMetadataAsDictionary(txn,
-					contactGroup.getId());
+					contactGroupId);
 			will(returnValue(messageMetadata));
 			oneOf(clientHelper).getMessageAsList(txn, messageId);
 			will(returnValue(body));
