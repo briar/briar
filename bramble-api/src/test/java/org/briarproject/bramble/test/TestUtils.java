@@ -338,6 +338,17 @@ public class TestUtils {
 		return false;
 	}
 
+	public static <E extends Event> E getEvent(Transaction txn,
+			Class<E> eventClass) {
+		for (CommitAction action : txn.getActions()) {
+			if (action instanceof EventAction) {
+				Event event = ((EventAction) action).getEvent();
+				if (eventClass.isInstance(event)) return eventClass.cast(event);
+			}
+		}
+		throw new AssertionError();
+	}
+
 	public static boolean isCryptoStrengthUnlimited() {
 		try {
 			return Cipher.getMaxAllowedKeyLength("AES/CBC/PKCS5Padding")

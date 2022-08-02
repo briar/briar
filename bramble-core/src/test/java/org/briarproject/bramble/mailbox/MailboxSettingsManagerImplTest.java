@@ -19,7 +19,6 @@ import java.util.List;
 import java.util.Random;
 
 import static java.util.Arrays.asList;
-import static java.util.Collections.singletonList;
 import static org.briarproject.bramble.mailbox.MailboxSettingsManagerImpl.SETTINGS_KEY_ATTEMPTS;
 import static org.briarproject.bramble.mailbox.MailboxSettingsManagerImpl.SETTINGS_KEY_LAST_ATTEMPT;
 import static org.briarproject.bramble.mailbox.MailboxSettingsManagerImpl.SETTINGS_KEY_LAST_SUCCESS;
@@ -28,10 +27,11 @@ import static org.briarproject.bramble.mailbox.MailboxSettingsManagerImpl.SETTIN
 import static org.briarproject.bramble.mailbox.MailboxSettingsManagerImpl.SETTINGS_KEY_TOKEN;
 import static org.briarproject.bramble.mailbox.MailboxSettingsManagerImpl.SETTINGS_NAMESPACE;
 import static org.briarproject.bramble.mailbox.MailboxSettingsManagerImpl.SETTINGS_UPLOADS_NAMESPACE;
+import static org.briarproject.bramble.test.TestUtils.getEvent;
 import static org.briarproject.bramble.test.TestUtils.getRandomId;
-import static org.briarproject.bramble.test.TestUtils.hasEvent;
 import static org.briarproject.bramble.util.StringUtils.getRandomString;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
@@ -187,29 +187,13 @@ public class MailboxSettingsManagerImplTest extends BrambleMockTestCase {
 		}});
 
 		manager.recordSuccessfulConnection(txn, now, serverSupports);
-		assertTrue(hasEvent(txn, OwnMailboxConnectionStatusEvent.class));
-	}
-
-	@Test
-	public void testRecordsSuccessWithVersions() throws Exception {
-		Transaction txn = new Transaction(null, false);
-		List<MailboxVersion> versions = singletonList(new MailboxVersion(2, 1));
-		Settings expectedSettings = new Settings();
-		expectedSettings.putLong(SETTINGS_KEY_LAST_ATTEMPT, now);
-		expectedSettings.putLong(SETTINGS_KEY_LAST_SUCCESS, now);
-		expectedSettings.putInt(SETTINGS_KEY_ATTEMPTS, 0);
-		expectedSettings.putInt(SETTINGS_KEY_SERVER_SUPPORTS, 0);
-		int[] newVersionsInts = {2, 1};
-		expectedSettings
-				.putIntArray(SETTINGS_KEY_SERVER_SUPPORTS, newVersionsInts);
-
-		context.checking(new Expectations() {{
-			oneOf(settingsManager).mergeSettings(txn, expectedSettings,
-					SETTINGS_NAMESPACE);
-		}});
-
-		manager.recordSuccessfulConnection(txn, now, versions);
-		assertTrue(hasEvent(txn, OwnMailboxConnectionStatusEvent.class));
+		OwnMailboxConnectionStatusEvent e =
+				getEvent(txn, OwnMailboxConnectionStatusEvent.class);
+		MailboxStatus status = e.getStatus();
+		assertEquals(now, status.getTimeOfLastAttempt());
+		assertEquals(now, status.getTimeOfLastSuccess());
+		assertEquals(0, status.getAttemptsSinceSuccess());
+		assertFalse(status.hasProblem(now));
 	}
 
 	@Test
