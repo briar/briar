@@ -85,7 +85,8 @@ public class MailboxProperties {
 					onion.equals(m.onion) &&
 					authToken.equals(m.authToken) &&
 					NullSafety.equals(inboxId, m.inboxId) &&
-					NullSafety.equals(outboxId, m.outboxId);
+					NullSafety.equals(outboxId, m.outboxId) &&
+					serverSupports.equals(m.serverSupports);
 		}
 		return false;
 	}

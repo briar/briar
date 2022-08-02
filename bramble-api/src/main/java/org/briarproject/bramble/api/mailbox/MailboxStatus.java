@@ -68,6 +68,13 @@ public class MailboxStatus {
 	}
 
 	/**
+	 * Returns the mailbox's supported API versions.
+	 */
+	public List<MailboxVersion> getServerSupports() {
+		return serverSupports;
+	}
+
+	/**
 	 * @return true if this status indicates a problem with the mailbox.
 	 */
 	public boolean hasProblem(long now) {
