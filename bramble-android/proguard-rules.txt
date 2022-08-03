@@ -18,3 +18,7 @@
 -dontnote com.google.common.**
 
 -dontwarn com.fasterxml.jackson.databind.ext.Java7SupportImpl
+
+# Keep all Jackson-serialisable classes and their members
+-keep interface com.fasterxml.jackson.databind.annotation.JsonSerialize
+-keep @com.fasterxml.jackson.databind.annotation.JsonSerialize class * { *; }
