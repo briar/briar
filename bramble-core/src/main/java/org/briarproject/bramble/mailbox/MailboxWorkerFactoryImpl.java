@@ -88,8 +88,10 @@ class MailboxWorkerFactoryImpl implements MailboxWorkerFactory {
 	public MailboxWorker createContactListWorkerForOwnMailbox(
 			ConnectivityChecker connectivityChecker,
 			MailboxProperties properties) {
-		return new OwnMailboxContactListWorker(ioExecutor, db, eventBus,
-				connectivityChecker, mailboxApiCaller, mailboxApi,
-				mailboxUpdateManager, properties);
+		OwnMailboxContactListWorker worker = new OwnMailboxContactListWorker(
+				ioExecutor, db, eventBus, connectivityChecker, mailboxApiCaller,
+				mailboxApi, mailboxUpdateManager, properties);
+		eventBus.addListener(worker);
+		return worker;
 	}
 }
