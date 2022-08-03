@@ -6,7 +6,6 @@ import org.briarproject.briar.avatar.AvatarModule;
 import org.briarproject.briar.blog.BlogModule;
 import org.briarproject.briar.client.BriarClientModule;
 import org.briarproject.briar.conversation.ConversationModule;
-import org.briarproject.briar.feed.DnsModule;
 import org.briarproject.briar.feed.FeedModule;
 import org.briarproject.briar.forum.ForumModule;
 import org.briarproject.briar.identity.IdentityModule;
@@ -26,7 +25,6 @@ import dagger.Module;
 		BlogModule.class,
 		BriarClientModule.class,
 		ConversationModule.class,
-		DnsModule.class,
 		FeedModule.class,
 		ForumModule.class,
 		GroupInvitationModule.class,

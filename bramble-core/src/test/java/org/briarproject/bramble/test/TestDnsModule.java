@@ -1,4 +1,4 @@
-package org.briarproject.briar.test;
+package org.briarproject.bramble.test;
 
 import dagger.Module;
 import dagger.Provides;

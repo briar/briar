@@ -8,6 +8,8 @@ import org.briarproject.bramble.api.event.EventBus;
 import org.briarproject.bramble.api.identity.IdentityManager;
 import org.briarproject.bramble.api.lifecycle.LifecycleManager;
 import org.briarproject.bramble.test.BrambleCoreIntegrationTestModule;
+import org.briarproject.bramble.test.TestDnsModule;
+import org.briarproject.bramble.test.TestSocksModule;
 import org.briarproject.briar.api.messaging.MessagingManager;
 import org.briarproject.briar.api.messaging.PrivateMessageFactory;
 import org.briarproject.briar.autodelete.AutoDeleteModule;
@@ -25,7 +27,9 @@ import dagger.Component;
 		BrambleCoreModule.class,
 		BriarClientModule.class,
 		ConversationModule.class,
-		MessagingModule.class
+		MessagingModule.class,
+		TestDnsModule.class,
+		TestSocksModule.class
 })
 interface SimplexMessagingIntegrationTestComponent
 		extends BrambleCoreIntegrationTestEagerSingletons {

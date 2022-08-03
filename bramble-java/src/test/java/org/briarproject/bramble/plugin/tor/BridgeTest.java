@@ -9,6 +9,8 @@ import org.briarproject.bramble.api.lifecycle.IoExecutor;
 import org.briarproject.bramble.api.network.NetworkManager;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.plugin.BackoffFactory;
+import org.briarproject.bramble.api.plugin.TorControlPort;
+import org.briarproject.bramble.api.plugin.TorSocksPort;
 import org.briarproject.bramble.api.plugin.duplex.DuplexPlugin;
 import org.briarproject.bramble.api.system.Clock;
 import org.briarproject.bramble.api.system.LocationUtils;
@@ -42,8 +44,6 @@ import static java.util.Collections.singletonList;
 import static java.util.concurrent.TimeUnit.MINUTES;
 import static java.util.logging.Logger.getLogger;
 import static org.briarproject.bramble.api.plugin.Plugin.State.ACTIVE;
-import static org.briarproject.bramble.api.plugin.TorConstants.DEFAULT_CONTROL_PORT;
-import static org.briarproject.bramble.api.plugin.TorConstants.DEFAULT_SOCKS_PORT;
 import static org.briarproject.bramble.plugin.tor.CircumventionProvider.BridgeType.DEFAULT_OBFS4;
 import static org.briarproject.bramble.plugin.tor.CircumventionProvider.BridgeType.MEEK;
 import static org.briarproject.bramble.plugin.tor.CircumventionProvider.BridgeType.NON_DEFAULT_OBFS4;
@@ -89,9 +89,6 @@ public class BridgeTest extends BrambleTestCase {
 	private final static long MEEK_TIMEOUT = MINUTES.toMillis(6);
 	private final static int UNREACHABLE_BRIDGES_ALLOWED = 6;
 	private final static int ATTEMPTS_PER_BRIDGE = 5;
-	// Use different ports from Briar Desktop to avoid conflicts
-	private final static int SOCKS_PORT = DEFAULT_SOCKS_PORT + 10;
-	private final static int CONTROL_PORT = DEFAULT_CONTROL_PORT + 10;
 
 	private final static Logger LOG = getLogger(BridgeTest.class.getName());
 
@@ -115,6 +112,12 @@ public class BridgeTest extends BrambleTestCase {
 	Clock clock;
 	@Inject
 	CryptoComponent crypto;
+	@Inject
+	@TorSocksPort
+	int torSocksPort;
+	@Inject
+	@TorControlPort
+	int torControlPort;
 
 	private final File torDir = getTestDirectory();
 	private final Params params;
@@ -167,8 +170,8 @@ public class BridgeTest extends BrambleTestCase {
 		factory = new UnixTorPluginFactory(ioExecutor, wakefulIoExecutor,
 				networkManager, locationUtils, eventBus, torSocketFactory,
 				backoffFactory, resourceProvider, bridgeProvider,
-				batteryManager, clock, crypto, torDir,
-				SOCKS_PORT, CONTROL_PORT);
+				batteryManager, clock, crypto, torDir, torSocksPort,
+				torControlPort);
 	}
 
 	@After

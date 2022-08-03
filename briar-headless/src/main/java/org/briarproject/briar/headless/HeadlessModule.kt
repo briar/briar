@@ -18,16 +18,12 @@ import org.briarproject.bramble.api.plugin.duplex.DuplexPluginFactory
 import org.briarproject.bramble.api.plugin.simplex.SimplexPluginFactory
 import org.briarproject.bramble.battery.DefaultBatteryManagerModule
 import org.briarproject.bramble.event.DefaultEventExecutorModule
-import org.briarproject.bramble.network.JavaNetworkModule
-import org.briarproject.bramble.plugin.tor.CircumventionModule
 import org.briarproject.bramble.plugin.tor.UnixTorPluginFactory
 import org.briarproject.bramble.plugin.tor.WindowsTorPluginFactory
-import org.briarproject.bramble.socks.SocksModule
 import org.briarproject.bramble.system.ClockModule
 import org.briarproject.bramble.system.DefaultTaskSchedulerModule
 import org.briarproject.bramble.system.DefaultWakefulIoExecutorModule
 import org.briarproject.bramble.system.DesktopSecureRandomModule
-import org.briarproject.bramble.system.JavaSystemModule
 import org.briarproject.bramble.util.OsUtils.isLinux
 import org.briarproject.bramble.util.OsUtils.isMac
 import org.briarproject.bramble.util.OsUtils.isWindows
@@ -43,7 +39,6 @@ import javax.inject.Singleton
 @Module(
     includes = [
         AccountModule::class,
-        CircumventionModule::class,
         ClockModule::class,
         DefaultBatteryManagerModule::class,
         DefaultEventExecutorModule::class,
@@ -54,10 +49,7 @@ import javax.inject.Singleton
         HeadlessContactModule::class,
         HeadlessEventModule::class,
         HeadlessForumModule::class,
-        HeadlessMessagingModule::class,
-        JavaNetworkModule::class,
-        JavaSystemModule::class,
-        SocksModule::class
+        HeadlessMessagingModule::class
     ]
 )
 internal class HeadlessModule(private val appDir: File) {

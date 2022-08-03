@@ -9,6 +9,8 @@ import org.briarproject.bramble.api.properties.TransportPropertyManager;
 import org.briarproject.bramble.api.transport.KeyManager;
 import org.briarproject.bramble.test.BrambleCoreIntegrationTestModule;
 import org.briarproject.bramble.test.BrambleIntegrationTestComponent;
+import org.briarproject.bramble.test.TestDnsModule;
+import org.briarproject.bramble.test.TestSocksModule;
 
 import javax.inject.Singleton;
 
@@ -17,7 +19,9 @@ import dagger.Component;
 @Singleton
 @Component(modules = {
 		BrambleCoreIntegrationTestModule.class,
-		BrambleCoreModule.class
+		BrambleCoreModule.class,
+		TestDnsModule.class,
+		TestSocksModule.class
 })
 interface TransportKeyAgreementTestComponent
 		extends BrambleIntegrationTestComponent {

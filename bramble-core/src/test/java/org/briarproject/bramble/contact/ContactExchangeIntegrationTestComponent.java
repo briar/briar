@@ -10,6 +10,8 @@ import org.briarproject.bramble.api.identity.IdentityManager;
 import org.briarproject.bramble.api.lifecycle.IoExecutor;
 import org.briarproject.bramble.api.lifecycle.LifecycleManager;
 import org.briarproject.bramble.test.BrambleCoreIntegrationTestModule;
+import org.briarproject.bramble.test.TestDnsModule;
+import org.briarproject.bramble.test.TestSocksModule;
 
 import java.util.concurrent.Executor;
 
@@ -20,7 +22,9 @@ import dagger.Component;
 @Singleton
 @Component(modules = {
 		BrambleCoreIntegrationTestModule.class,
-		BrambleCoreModule.class
+		BrambleCoreModule.class,
+		TestDnsModule.class,
+		TestSocksModule.class
 })
 interface ContactExchangeIntegrationTestComponent
 		extends BrambleCoreIntegrationTestEagerSingletons {

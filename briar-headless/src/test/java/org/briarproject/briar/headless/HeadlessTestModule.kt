@@ -15,13 +15,9 @@ import org.briarproject.bramble.api.plugin.TransportId
 import org.briarproject.bramble.api.plugin.duplex.DuplexPluginFactory
 import org.briarproject.bramble.api.plugin.simplex.SimplexPluginFactory
 import org.briarproject.bramble.event.DefaultEventExecutorModule
-import org.briarproject.bramble.network.JavaNetworkModule
-import org.briarproject.bramble.plugin.tor.CircumventionModule
-import org.briarproject.bramble.socks.SocksModule
 import org.briarproject.bramble.system.ClockModule
 import org.briarproject.bramble.system.DefaultTaskSchedulerModule
 import org.briarproject.bramble.system.DefaultWakefulIoExecutorModule
-import org.briarproject.bramble.system.JavaSystemModule
 import org.briarproject.bramble.test.TestFeatureFlagModule
 import org.briarproject.bramble.test.TestSecureRandomModule
 import org.briarproject.briar.api.test.TestAvatarCreator
@@ -36,15 +32,11 @@ import javax.inject.Singleton
 
 @Module(
     includes = [
-        JavaNetworkModule::class,
-        JavaSystemModule::class,
         AccountModule::class,
-        CircumventionModule::class,
         ClockModule::class,
         DefaultEventExecutorModule::class,
         DefaultTaskSchedulerModule::class,
         DefaultWakefulIoExecutorModule::class,
-        SocksModule::class,
         TestFeatureFlagModule::class,
         TestSecureRandomModule::class,
         HeadlessBlogModule::class,

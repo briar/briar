@@ -1,4 +1,4 @@
-package org.briarproject.briar.feed;
+package org.briarproject.bramble.io;
 
 import dagger.Module;
 import dagger.Provides;

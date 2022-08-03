@@ -14,7 +14,8 @@ import dagger.Component;
 @Component(modules = {
 		BrambleCoreIntegrationTestModule.class,
 		BrambleCoreModule.class,
-		BrambleJavaModule.class
+		BrambleJavaModule.class,
+		TestTorPortsModule.class
 })
 public interface BrambleJavaIntegrationTestComponent
 		extends BrambleCoreIntegrationTestEagerSingletons {

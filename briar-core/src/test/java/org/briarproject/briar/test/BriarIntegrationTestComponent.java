@@ -10,6 +10,8 @@ import org.briarproject.bramble.api.properties.TransportPropertyManager;
 import org.briarproject.bramble.api.system.Clock;
 import org.briarproject.bramble.test.BrambleCoreIntegrationTestModule;
 import org.briarproject.bramble.test.BrambleIntegrationTestComponent;
+import org.briarproject.bramble.test.TestDnsModule;
+import org.briarproject.bramble.test.TestSocksModule;
 import org.briarproject.bramble.test.TimeTravel;
 import org.briarproject.briar.api.attachment.AttachmentReader;
 import org.briarproject.briar.api.autodelete.AutoDeleteManager;
@@ -61,7 +63,9 @@ import dagger.Component;
 		IntroductionModule.class,
 		MessagingModule.class,
 		PrivateGroupModule.class,
-		SharingModule.class
+		SharingModule.class,
+		TestDnsModule.class,
+		TestSocksModule.class
 })
 public interface BriarIntegrationTestComponent
 		extends BrambleIntegrationTestComponent {

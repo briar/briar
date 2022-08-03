@@ -1,5 +1,6 @@
 package org.briarproject.bramble;
 
+import org.briarproject.bramble.io.DnsModule;
 import org.briarproject.bramble.network.JavaNetworkModule;
 import org.briarproject.bramble.plugin.tor.CircumventionModule;
 import org.briarproject.bramble.socks.SocksModule;
@@ -9,6 +10,7 @@ import dagger.Module;
 
 @Module(includes = {
 		CircumventionModule.class,
+		DnsModule.class,
 		JavaNetworkModule.class,
 		JavaSystemModule.class,
 		SocksModule.class

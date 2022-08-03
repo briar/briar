@@ -12,9 +12,11 @@ import org.briarproject.bramble.event.DefaultEventExecutorModule;
 import org.briarproject.bramble.system.DefaultWakefulIoExecutorModule;
 import org.briarproject.bramble.system.TimeTravelModule;
 import org.briarproject.bramble.test.TestDatabaseConfigModule;
+import org.briarproject.bramble.test.TestDnsModule;
 import org.briarproject.bramble.test.TestFeatureFlagModule;
 import org.briarproject.bramble.test.TestMailboxDirectoryModule;
 import org.briarproject.bramble.test.TestSecureRandomModule;
+import org.briarproject.bramble.test.TestSocksModule;
 
 import javax.inject.Singleton;
 
@@ -27,12 +29,14 @@ import dagger.Component;
 		DefaultEventExecutorModule.class,
 		DefaultWakefulIoExecutorModule.class,
 		TestDatabaseConfigModule.class,
+		TestDnsModule.class,
 		TestFeatureFlagModule.class,
 		TestMailboxDirectoryModule.class,
 		RemovableDriveIntegrationTestModule.class,
 		RemovableDriveModule.class,
 		TestSecureRandomModule.class,
-		TimeTravelModule.class
+		TimeTravelModule.class,
+		TestSocksModule.class
 })
 interface RemovableDriveIntegrationTestComponent
 		extends BrambleCoreEagerSingletons {
