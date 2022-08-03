@@ -746,7 +746,9 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 	public Message getMessageToSend(Transaction transaction, ContactId c,
 			MessageId m, long maxLatency, boolean markAsSent)
 			throws DbException {
-		if (transaction.isReadOnly()) throw new IllegalArgumentException();
+		if (markAsSent && transaction.isReadOnly()) {
+			throw new IllegalArgumentException();
+		}
 		T txn = unbox(transaction);
 		if (!db.containsContact(txn, c))
 			throw new NoSuchContactException();
