@@ -349,13 +349,13 @@ public interface DatabaseComponent extends TransactionManager {
 			Metadata query) throws DbException;
 
 	/**
-	 * Returns the IDs of some messages received from the given contact that
-	 * need to be acknowledged, up to the given number of messages.
+	 * Returns the IDs of all messages received from the given contact that
+	 * need to be acknowledged.
 	 * <p/>
 	 * Read-only.
 	 */
-	Collection<MessageId> getMessagesToAck(Transaction txn, ContactId c,
-			int maxMessages) throws DbException;
+	Collection<MessageId> getMessagesToAck(Transaction txn, ContactId c)
+			throws DbException;
 
 	/**
 	 * Returns the IDs of some messages that are eligible to be sent to the

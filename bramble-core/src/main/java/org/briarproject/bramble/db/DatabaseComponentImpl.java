@@ -620,11 +620,11 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 
 	@Override
 	public Collection<MessageId> getMessagesToAck(Transaction transaction,
-			ContactId c, int maxMessages) throws DbException {
+			ContactId c) throws DbException {
 		T txn = unbox(transaction);
 		if (!db.containsContact(txn, c))
 			throw new NoSuchContactException();
-		return db.getMessagesToAck(txn, c, maxMessages);
+		return db.getMessagesToAck(txn, c, Integer.MAX_VALUE);
 	}
 
 	@Override

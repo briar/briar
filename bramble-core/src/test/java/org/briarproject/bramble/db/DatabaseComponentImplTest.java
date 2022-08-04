@@ -389,7 +389,7 @@ public class DatabaseComponentImplTest extends BrambleMockTestCase {
 
 		try {
 			db.transaction(true, transaction ->
-					db.getMessagesToAck(transaction, contactId, 123));
+					db.getMessagesToAck(transaction, contactId));
 			fail();
 		} catch (NoSuchContactException expected) {
 			// Expected

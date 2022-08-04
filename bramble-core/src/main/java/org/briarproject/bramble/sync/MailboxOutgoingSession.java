@@ -14,7 +14,9 @@ import org.briarproject.bramble.api.sync.SyncRecordWriter;
 import org.briarproject.bramble.api.transport.StreamWriter;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.logging.Logger;
 
 import javax.annotation.concurrent.ThreadSafe;
@@ -61,26 +63,32 @@ class MailboxOutgoingSession extends SimplexOutgoingSession {
 
 	@Override
 	void sendAcks() throws DbException, IOException {
-		while (!isInterrupted()) {
-			Collection<MessageId> idsToAck = loadMessageIdsToAck();
-			if (idsToAck.isEmpty()) break;
-			recordWriter.writeAck(new Ack(idsToAck));
-			sessionRecord.onAckSent(idsToAck);
+		List<MessageId> idsToAck = loadMessageIdsToAck();
+		int idsSent = 0;
+		while (idsSent < idsToAck.size() && !isInterrupted()) {
+			int idsRemaining = idsToAck.size() - idsSent;
+			long capacity = getRemainingCapacity();
+			long idCapacity =
+					(capacity - RECORD_HEADER_BYTES) / MessageId.LENGTH;
+			if (idCapacity == 0) break; // Out of capacity
+			int idsInRecord = (int) min(idCapacity, MAX_MESSAGE_IDS);
+			int idsToSend = min(idsRemaining, idsInRecord);
+			List<MessageId> acked =
+					idsToAck.subList(idsSent, idsSent + idsToSend);
+			recordWriter.writeAck(new Ack(acked));
+			sessionRecord.onAckSent(acked);
 			LOG.info("Sent ack");
+			idsSent += idsToSend;
 		}
 	}
 
-	private Collection<MessageId> loadMessageIdsToAck() throws DbException {
-		long idCapacity = (getRemainingCapacity() - RECORD_HEADER_BYTES)
-				/ MessageId.LENGTH;
-		if (idCapacity <= 0) return emptyList(); // Out of capacity
-		int maxMessageIds = (int) min(idCapacity, MAX_MESSAGE_IDS);
+	private List<MessageId> loadMessageIdsToAck() throws DbException {
 		Collection<MessageId> ids = db.transactionWithResult(true, txn ->
-				db.getMessagesToAck(txn, contactId, maxMessageIds));
+				db.getMessagesToAck(txn, contactId));
 		if (LOG.isLoggable(INFO)) {
 			LOG.info(ids.size() + " messages to ack");
 		}
-		return ids;
+		return new ArrayList<>(ids);
 	}
 
 	private long getRemainingCapacity() {
