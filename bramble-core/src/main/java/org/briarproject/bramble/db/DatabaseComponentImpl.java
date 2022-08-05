@@ -1099,11 +1099,7 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 		T txn = unbox(transaction);
 		if (!db.containsContact(txn, c))
 			throw new NoSuchContactException();
-		List<MessageId> visible = new ArrayList<>(acked.size());
-		for (MessageId m : acked) {
-			if (db.containsVisibleMessage(txn, c, m)) visible.add(m);
-		}
-		db.lowerAckFlag(txn, c, visible);
+		db.lowerAckFlag(txn, c, acked);
 	}
 
 	@Override
