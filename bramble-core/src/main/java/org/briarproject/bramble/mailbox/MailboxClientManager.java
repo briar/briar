@@ -52,6 +52,32 @@ import static org.briarproject.bramble.api.plugin.Plugin.State.ACTIVE;
 import static org.briarproject.bramble.api.plugin.TorConstants.ID;
 import static org.briarproject.bramble.util.LogUtils.logException;
 
+/**
+ * This component manages a {@link MailboxClient} for each mailbox we know
+ * about and are able to use (our own mailbox and/or contacts' mailboxes).
+ * The clients are created when we come online (i.e. when the Tor plugin
+ * becomes {@link Plugin.State#ACTIVE active}) and destroyed when we go
+ * offline.
+ * <p/>
+ * The manager keeps track of the latest {@link MailboxUpdate} sent to and
+ * received from each contact. These updates are used to decide which
+ * mailboxes the manager needs clients for, and which mailbox (if any) should
+ * be used for uploading data to and/or downloading data from each contact.
+ * <p/>
+ * The assignments of contacts to mailboxes for upload and/or download may
+ * change when the following events happen:
+ * <ul>
+ *     <li> A mailbox is paired or unpaired </li>
+ *     <li> A contact is added or removed </li>
+ *     <li> A {@link MailboxUpdate} is received from a contact </li>
+ *     <li> We discover that our own mailbox's supported API versions have
+ *     changed </li>
+ * </ul>
+ * <p/>
+ * The manager keeps its mutable state consistent with the state in the DB by
+ * using commit actions and events to update the manager's state on the event
+ * thread.
+ */
 @ThreadSafe
 @NotNullByDefault
 class MailboxClientManager implements Service, EventListener {
@@ -69,7 +95,7 @@ class MailboxClientManager implements Service, EventListener {
 	private final TorReachabilityMonitor reachabilityMonitor;
 	private final AtomicBoolean used = new AtomicBoolean(false);
 
-	// All mutable state must only be accessed on the worker thread
+	// The following mutable state must only be accessed on the event thread
 	private final Map<ContactId, Updates> contactUpdates = new HashMap<>();
 	private final Map<ContactId, MailboxClient> contactClients =
 			new HashMap<>();
@@ -142,6 +168,10 @@ class MailboxClientManager implements Service, EventListener {
 			online = true;
 			createClients();
 		}
+		// Now that the mutable state has been initialised we can start
+		// handling events. This is done in a commit action so that we don't
+		// miss any changes to the DB state or handle events for any changes
+		// that were already reflected in the initial load
 		handleEvents = true;
 	}
 
@@ -192,7 +222,7 @@ class MailboxClientManager implements Service, EventListener {
 		CountDownLatch latch = new CountDownLatch(1);
 		eventExecutor.execute(() -> {
 			handleEvents = false;
-			destroyClients();
+			if (online) destroyClients();
 			latch.countDown();
 		});
 		reachabilityMonitor.destroy();
@@ -554,6 +584,10 @@ class MailboxClientManager implements Service, EventListener {
 				requireNonNull(remoteProps.getOutboxId()));
 	}
 
+	/**
+	 * Returns the {@link MailboxProperties} included in the given update,
+	 * which must be a {@link MailboxUpdateWithMailbox}.
+	 */
 	private MailboxProperties getMailboxProperties(MailboxUpdate update) {
 		if (!(update instanceof MailboxUpdateWithMailbox)) {
 			throw new IllegalArgumentException();
@@ -600,7 +634,8 @@ class MailboxClientManager implements Service, EventListener {
 	}
 
 	/**
-	 * Returns true if we're compatible with our own mailbox.
+	 * Returns true if our client-supported API versions are compatible with
+	 * our own mailbox's server-supported API versions.
 	 */
 	@SuppressWarnings("BooleanMethodIsAlwaysInverted")
 	private boolean isOwnMailboxUsable(MailboxProperties ownProperties) {
@@ -608,9 +643,21 @@ class MailboxClientManager implements Service, EventListener {
 				ownProperties.getServerSupports()) >= 0;
 	}
 
+	/**
+	 * A container for the latest {@link MailboxUpdate updates} sent to and
+	 * received from a given contact.
+	 */
 	private static class Updates {
 
+		/**
+		 * The latest update sent to the contact.
+		 */
 		private final MailboxUpdate local;
+
+		/**
+		 * The latest update received from the contact, or null if no update
+		 * has been received.
+		 */
 		@Nullable
 		private final MailboxUpdate remote;
 
