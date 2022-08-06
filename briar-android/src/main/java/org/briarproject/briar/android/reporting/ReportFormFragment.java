@@ -1,5 +1,8 @@
 package org.briarproject.briar.android.reporting;
 
+import android.content.ActivityNotFoundException;
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -10,6 +13,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
@@ -17,6 +21,9 @@ import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.activity.ActivityComponent;
 import org.briarproject.briar.android.fragment.BaseFragment;
+import org.briarproject.briar.android.settings.AboutFragment;
+
+import java.util.logging.Logger;
 
 import javax.inject.Inject;
 
@@ -27,14 +34,19 @@ import androidx.recyclerview.widget.RecyclerView;
 import static android.view.View.GONE;
 import static android.view.View.INVISIBLE;
 import static android.view.View.VISIBLE;
+import static android.widget.Toast.LENGTH_LONG;
 import static android.widget.Toast.LENGTH_SHORT;
 import static java.util.Objects.requireNonNull;
+import static java.util.logging.Level.WARNING;
+import static java.util.logging.Logger.getLogger;
+import static org.briarproject.bramble.util.LogUtils.logException;
 
 @MethodsNotNullByDefault
 @ParametersNotNullByDefault
 public class ReportFormFragment extends BaseFragment {
 
 	public final static String TAG = ReportFormFragment.class.getName();
+	private static final Logger LOG = getLogger(TAG);
 
 	@Inject
 	ViewModelProvider.Factory viewModelFactory;
@@ -43,6 +55,7 @@ public class ReportFormFragment extends BaseFragment {
 
 	private EditText userCommentView;
 	private EditText userEmailView;
+	private TextView privacyPolicy;
 	private CheckBox includeDebugReport;
 	private Button chevron;
 	private RecyclerView list;
@@ -73,6 +86,7 @@ public class ReportFormFragment extends BaseFragment {
 
 		userCommentView = v.findViewById(R.id.user_comment);
 		userEmailView = v.findViewById(R.id.user_email);
+		privacyPolicy = v.findViewById(R.id.PrivacyPolicy);
 		includeDebugReport = v.findViewById(R.id.include_debug_report);
 		chevron = v.findViewById(R.id.chevron);
 		list = v.findViewById(R.id.list);
@@ -89,6 +103,19 @@ public class ReportFormFragment extends BaseFragment {
 			includeDebugReport.setChecked(true);
 			userCommentView.setHint(R.string.describe_crash);
 		}
+
+		privacyPolicy.setOnClickListener(View -> {
+			String url = "https://briarproject.org/privacy-policy/";
+			Intent i = new Intent(Intent.ACTION_VIEW);
+			i.setData(Uri.parse(url));
+			try {
+				startActivity(i);
+			} catch (ActivityNotFoundException e) {
+				logException(LOG, WARNING, e);
+				Toast.makeText(requireContext(),
+						R.string.error_start_activity, LENGTH_LONG).show();
+			}
+		});
 
 		chevron.setOnClickListener(view -> {
 			boolean show = chevron.getText().equals(getString(R.string.show));
