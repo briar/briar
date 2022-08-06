@@ -61,6 +61,15 @@
 		app:layout_constraintTop_toBottomOf="@+id/BriarSourceCode" />
 
 	<TextView
+		android:id="@+id/BriarPrivacyPolicy"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:text="@string/briar_privacy_policy"
+		android:textAppearance="@style/TextAppearance.MaterialComponents.Body1"
+		app:layout_constraintStart_toStartOf="parent"
+		app:layout_constraintTop_toBottomOf="@+id/BriarChangelog" />
+
+	<TextView
 		android:id="@+id/TranslatorThanks"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
@@ -68,6 +77,6 @@
 		android:text="@string/translator_thanks"
 		android:textAppearance="@style/TextAppearance.MaterialComponents.Body1"
 		app:layout_constraintStart_toStartOf="parent"
-		app:layout_constraintTop_toBottomOf="@+id/BriarChangelog" />
+		app:layout_constraintTop_toBottomOf="@+id/BriarPrivacyPolicy" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
