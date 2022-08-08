@@ -330,29 +330,26 @@ class MailboxClientManager implements Service, EventListener {
 		for (Entry<ContactId, Updates> e : contactUpdates.entrySet()) {
 			ContactId c = e.getKey();
 			Updates u = e.getValue();
-			boolean isOwnMailboxUsable =
-					isOwnMailboxUsable(ownProperties, u.remote);
+			if (!isOwnMailboxUsable(ownProperties, u.remote)) {
+				// Our mailbox isn't usable for communicating with this
+				// contact, so don't assign/reassign this contact
+				continue;
+			}
 			if (isContactMailboxUsable(u.remote)) {
 				// The contact has a usable mailbox, so the contact should
 				// currently be assigned to the contact's mailbox for upload
-				// and download
-				if (isOwnMailboxUsable) {
-					// Reassign the contact to our mailbox for download
-					MailboxClient contactClient =
-							requireNonNull(contactClients.get(c));
-					contactClient.deassignContactForDownload(c);
-					assignContactToOwnMailboxForDownload(c, u);
-				}
-				// Else the contact remains assigned to the contact's mailbox
-				// for download
-			} else if (isOwnMailboxUsable) {
+				// and download. Reassign the contact to our mailbox for
+				// download
+				MailboxClient contactClient =
+						requireNonNull(contactClients.get(c));
+				contactClient.deassignContactForDownload(c);
+				assignContactToOwnMailboxForDownload(c, u);
+			} else {
 				// The contact doesn't have a usable mailbox, so assign the
 				// contact to our mailbox for upload and download
 				assignContactToOwnMailboxForUpload(c, u);
 				assignContactToOwnMailboxForDownload(c, u);
 			}
-			// Else the contact doesn't have a usable mailbox and neither do we,
-			// so the contact remains unassigned for upload and download
 		}
 	}
 
