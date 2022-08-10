@@ -1,12 +1,16 @@
 package org.briarproject.bramble.mailbox;
 
 import org.briarproject.bramble.api.Cancellable;
+import org.briarproject.bramble.api.connection.ConnectionRegistry;
 import org.briarproject.bramble.api.contact.ContactId;
 import org.briarproject.bramble.api.db.DatabaseComponent;
 import org.briarproject.bramble.api.db.Transaction;
 import org.briarproject.bramble.api.event.EventBus;
 import org.briarproject.bramble.api.mailbox.MailboxFolderId;
 import org.briarproject.bramble.api.mailbox.MailboxProperties;
+import org.briarproject.bramble.api.plugin.event.ContactConnectedEvent;
+import org.briarproject.bramble.api.plugin.event.ContactDisconnectedEvent;
+import org.briarproject.bramble.api.sync.GroupId;
 import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.bramble.api.sync.OutgoingSessionRecord;
 import org.briarproject.bramble.api.sync.event.MessageSharedEvent;
@@ -25,10 +29,12 @@ import org.junit.Test;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Map;
 import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicReference;
 
 import static java.util.Collections.singletonList;
+import static java.util.Collections.singletonMap;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static org.briarproject.bramble.api.mailbox.MailboxConstants.CLIENT_SUPPORTS;
 import static org.briarproject.bramble.api.mailbox.MailboxConstants.MAX_LATENCY;
@@ -50,6 +56,8 @@ public class MailboxUploadWorkerTest extends BrambleMockTestCase {
 	private final TaskScheduler taskScheduler =
 			context.mock(TaskScheduler.class);
 	private final EventBus eventBus = context.mock(EventBus.class);
+	private final ConnectionRegistry connectionRegistry =
+			context.mock(ConnectionRegistry.class);
 	private final ConnectivityChecker connectivityChecker =
 			context.mock(ConnectivityChecker.class);
 	private final MailboxApiCaller mailboxApiCaller =
@@ -72,6 +80,9 @@ public class MailboxUploadWorkerTest extends BrambleMockTestCase {
 	private final MessageId ackedId = new MessageId(getRandomId());
 	private final MessageId sentId = new MessageId(getRandomId());
 	private final MessageId newMessageId = new MessageId(getRandomId());
+	private final GroupId groupId = new GroupId(getRandomId());
+	private final Map<ContactId, Boolean> groupVisibility =
+			singletonMap(contactId, true);
 
 	private File testDir, tempFile;
 	private MailboxUploadWorker worker;
@@ -81,8 +92,9 @@ public class MailboxUploadWorkerTest extends BrambleMockTestCase {
 		testDir = getTestDirectory();
 		tempFile = new File(testDir, "temp");
 		worker = new MailboxUploadWorker(ioExecutor, db, clock, taskScheduler,
-				eventBus, connectivityChecker, mailboxApiCaller, mailboxApi,
-				mailboxFileManager, mailboxProperties, folderId, contactId);
+				eventBus, connectionRegistry, connectivityChecker,
+				mailboxApiCaller, mailboxApi, mailboxFileManager,
+				mailboxProperties, folderId, contactId);
 	}
 
 	@After
@@ -93,11 +105,56 @@ public class MailboxUploadWorkerTest extends BrambleMockTestCase {
 	@Test
 	public void testChecksForDataWhenStartedAndRemovesObserverWhenDestroyed()
 			throws Exception {
-		// When the worker is started it should check for data to send
+		// When the worker is started it should check the connection registry.
+		// We're not connected to the contact, so the worker should check for
+		// data to send
 		expectRunTaskOnIoExecutor();
+		expectCheckConnectionRegistry(false);
 		expectCheckForDataToSendNoDataWaiting();
 
 		worker.start();
+
+		// When the worker is destroyed it should remove the connectivity
+		// observer and event listener
+		expectRemoveObserverAndListener();
+
+		worker.destroy();
+	}
+
+	@Test
+	public void testDoesNotCheckForDataWhenStartedIfConnectedToContact() {
+		// When the worker is started it should check the connection registry.
+		// We're connected to the contact, so the worker should not check for
+		// data to send
+		expectRunTaskOnIoExecutor();
+		expectCheckConnectionRegistry(true);
+
+		worker.start();
+
+		// When the worker is destroyed it should remove the connectivity
+		// observer and event listener
+		expectRemoveObserverAndListener();
+
+		worker.destroy();
+	}
+
+	@Test
+	public void testChecksForDataWhenContactDisconnects() throws Exception {
+		// When the worker is started it should check the connection registry.
+		// We're connected to the contact, so the worker should not check for
+		// data to send
+		expectRunTaskOnIoExecutor();
+		expectCheckConnectionRegistry(true);
+
+		worker.start();
+
+		// When the contact disconnects, the worker should start a task to
+		// check for data to send
+		expectRunTaskOnIoExecutor();
+		expectCheckConnectionRegistry(false);
+		expectCheckForDataToSendNoDataWaiting();
+
+		worker.eventOccurred(new ContactDisconnectedEvent(contactId));
 
 		// When the worker is destroyed it should remove the connectivity
 		// observer and event listener
@@ -111,10 +168,12 @@ public class MailboxUploadWorkerTest extends BrambleMockTestCase {
 			throws Exception {
 		Transaction recordTxn = new Transaction(null, false);
 
-		// When the worker is started it should check for data to send. As
-		// there's data ready to send immediately, the worker should start a
-		// connectivity check
+		// When the worker is started it should check the connection registry.
+		// We're not connected to the contact, so the worker should check for
+		// data to send. As there's data ready to send immediately, the worker
+		// should start a connectivity check
 		expectRunTaskOnIoExecutor();
+		expectCheckConnectionRegistry(false);
 		expectCheckForDataToSendAndStartConnectivityCheck();
 
 		worker.start();
@@ -149,7 +208,9 @@ public class MailboxUploadWorkerTest extends BrambleMockTestCase {
 		worker.onConnectivityCheckSucceeded();
 
 		// When the upload task runs, it should upload the file, record
-		// the acked/sent messages in the DB, and check for more data to send
+		// the acked/sent messages in the DB, and check the connection
+		// registry. We're not connected to the contact, so the worker should
+		// check for more data to send
 		context.checking(new DbExpectations() {{
 			oneOf(mailboxApi).addFile(mailboxProperties, folderId, tempFile);
 			oneOf(db).transaction(with(false), withDbRunnable(recordTxn));
@@ -157,6 +218,7 @@ public class MailboxUploadWorkerTest extends BrambleMockTestCase {
 			oneOf(db).setMessagesSent(recordTxn, contactId,
 					singletonList(sentId), MAX_LATENCY);
 		}});
+		expectCheckConnectionRegistry(false);
 		expectCheckForDataToSendNoDataWaiting();
 
 		assertFalse(upload.get().callApi());
@@ -172,11 +234,41 @@ public class MailboxUploadWorkerTest extends BrambleMockTestCase {
 	}
 
 	@Test
-	public void testCancelsApiCallWhenDestroyed() throws Exception {
-		// When the worker is started it should check for data to send. As
-		// there's data ready to send immediately, the worker should start a
-		// connectivity check
+	public void testDoesNotWriteFileIfContactConnectsDuringConnectivityCheck()
+			throws Exception {
+		// When the worker is started it should check the connection registry.
+		// We're not connected to the contact, so the worker should check for
+		// data to send. As there's data ready to send immediately, the worker
+		// should start a connectivity check
 		expectRunTaskOnIoExecutor();
+		expectCheckConnectionRegistry(false);
+		expectCheckForDataToSendAndStartConnectivityCheck();
+
+		worker.start();
+
+		// Before the connectivity check succeeds, we make a direct connection
+		// to the contact
+		worker.eventOccurred(new ContactConnectedEvent(contactId));
+
+		// When the connectivity check succeeds, the worker should not start
+		// writing and uploading a file
+		worker.onConnectivityCheckSucceeded();
+
+		// When the worker is destroyed it should remove the connectivity
+		// observer and event listener
+		expectRemoveObserverAndListener();
+
+		worker.destroy();
+	}
+
+	@Test
+	public void testCancelsApiCallWhenDestroyed() throws Exception {
+		// When the worker is started it should check the connection registry.
+		// We're not connected to the contact, so the worker should check for
+		// data to send. As there's data ready to send immediately, the worker
+		// should start a connectivity check
+		expectRunTaskOnIoExecutor();
+		expectCheckConnectionRegistry(false);
 		expectCheckForDataToSendAndStartConnectivityCheck();
 
 		worker.start();
@@ -212,9 +304,7 @@ public class MailboxUploadWorkerTest extends BrambleMockTestCase {
 
 		// When the worker is destroyed it should remove the connectivity
 		// observer and event listener and cancel the upload task
-		context.checking(new Expectations() {{
-			oneOf(apiCall).cancel();
-		}});
+		expectCancelTask(apiCall);
 		expectRemoveObserverAndListener();
 
 		worker.destroy();
@@ -230,16 +320,21 @@ public class MailboxUploadWorkerTest extends BrambleMockTestCase {
 	@Test
 	public void testSchedulesWakeupWhenStartedIfDataIsNotReady()
 			throws Exception {
-		// When the worker is started it should check for data to send. As
-		// the data isn't ready to send immediately, the worker should
-		// schedule a wakeup
+		// When the worker is started it should check the connection registry.
+		// We're not connected to the contact, so the worker should check for
+		// data to send. As the data isn't ready to send immediately, the
+		// worker should schedule a wakeup
 		expectRunTaskOnIoExecutor();
 		AtomicReference<Runnable> wakeup = new AtomicReference<>();
+		expectCheckConnectionRegistry(false);
 		expectCheckForDataToSendAndScheduleWakeup(wakeup);
 
 		worker.start();
 
-		// When the wakeup task runs it should check for data to send
+		// When the wakeup task runs it should check the connection registry.
+		// We're not connected to the contact, so the worker should check for
+		// data to send
+		expectCheckConnectionRegistry(false);
 		expectCheckForDataToSendNoDataWaiting();
 
 		wakeup.get().run();
@@ -252,11 +347,43 @@ public class MailboxUploadWorkerTest extends BrambleMockTestCase {
 	}
 
 	@Test
-	public void testCancelsWakeupIfDestroyedBeforeWakingUp() throws Exception {
+	public void testCancelsWakeupIfContactConnectsBeforeWakingUp()
+			throws Exception {
 		// When the worker is started it should check for data to send. As
 		// the data isn't ready to send immediately, the worker should
 		// schedule a wakeup
 		expectRunTaskOnIoExecutor();
+		AtomicReference<Runnable> wakeup = new AtomicReference<>();
+		expectCheckConnectionRegistry(false);
+		expectCheckForDataToSendAndScheduleWakeup(wakeup);
+
+		worker.start();
+
+		// Before the wakeup task runs, we make a direct connection to the
+		// contact. The worker should cancel the wakeup task
+		expectCancelTask(wakeupTask);
+
+		worker.eventOccurred(new ContactConnectedEvent(contactId));
+
+		// If the wakeup task runs anyway (cancellation came too late), it
+		// should return without doing anything
+		wakeup.get().run();
+
+		// When the worker is destroyed it should remove the connectivity
+		// observer and event listener
+		expectRemoveObserverAndListener();
+
+		worker.destroy();
+	}
+
+	@Test
+	public void testCancelsWakeupIfDestroyedBeforeWakingUp() throws Exception {
+		// When the worker is started it should check the connection registry.
+		// We're not connected to the contact, so the worker should check for
+		// data to send. As the data isn't ready to send immediately, the
+		// worker should schedule a wakeup
+		expectRunTaskOnIoExecutor();
+		expectCheckConnectionRegistry(false);
 		AtomicReference<Runnable> wakeup = new AtomicReference<>();
 		expectCheckForDataToSendAndScheduleWakeup(wakeup);
 
@@ -264,9 +391,7 @@ public class MailboxUploadWorkerTest extends BrambleMockTestCase {
 
 		// When the worker is destroyed it should cancel the wakeup and
 		// remove the connectivity observer and event listener
-		context.checking(new Expectations() {{
-			oneOf(wakeupTask).cancel();
-		}});
+		expectCancelTask(wakeupTask);
 		expectRemoveObserverAndListener();
 
 		worker.destroy();
@@ -279,10 +404,12 @@ public class MailboxUploadWorkerTest extends BrambleMockTestCase {
 	@Test
 	public void testCancelsWakeupIfEventIsReceivedBeforeWakingUp()
 			throws Exception {
-		// When the worker is started it should check for data to send. As
-		// the data isn't ready to send immediately, the worker should
-		// schedule a wakeup
+		// When the worker is started it should check the connection registry.
+		// We're not connected to the contact, so the worker should check for
+		// data to send. As the data isn't ready to send immediately, the
+		// worker should schedule a wakeup
 		expectRunTaskOnIoExecutor();
+		expectCheckConnectionRegistry(false);
 		AtomicReference<Runnable> wakeup = new AtomicReference<>();
 		expectCheckForDataToSendAndScheduleWakeup(wakeup);
 
@@ -293,11 +420,10 @@ public class MailboxUploadWorkerTest extends BrambleMockTestCase {
 		// wakeup task and schedule a check for new data after a short delay
 		AtomicReference<Runnable> check = new AtomicReference<>();
 		expectScheduleCheck(check, CHECK_DELAY_MS);
-		context.checking(new Expectations() {{
-			oneOf(wakeupTask).cancel();
-		}});
+		expectCancelTask(wakeupTask);
 
-		worker.eventOccurred(new MessageSharedEvent(newMessageId));
+		worker.eventOccurred(new MessageSharedEvent(newMessageId, groupId,
+				groupVisibility));
 
 		// If the wakeup task runs anyway (cancellation came too late), it
 		// should return early when it finds the state has changed
@@ -306,9 +432,13 @@ public class MailboxUploadWorkerTest extends BrambleMockTestCase {
 		// Before the check task runs, the worker receives another event that
 		// indicates new data may be available. The event should be ignored,
 		// as a check for new data has already been scheduled
-		worker.eventOccurred(new MessageSharedEvent(newMessageId));
+		worker.eventOccurred(new MessageSharedEvent(newMessageId, groupId,
+				groupVisibility));
 
-		// When the check task runs, it should check for new data
+		// When the check task runs, it should check the connection registry.
+		// We're not connected to the contact, so the worker should check for
+		// new data
+		expectCheckConnectionRegistry(false);
 		expectCheckForDataToSendNoDataWaiting();
 
 		check.get().run();
@@ -322,8 +452,11 @@ public class MailboxUploadWorkerTest extends BrambleMockTestCase {
 
 	@Test
 	public void testCancelsCheckWhenDestroyed() throws Exception {
-		// When the worker is started it should check for data to send
+		// When the worker is started it should check the connection registry.
+		// We're not connected to the contact, so the worker should check for
+		// data to send
 		expectRunTaskOnIoExecutor();
+		expectCheckConnectionRegistry(false);
 		expectCheckForDataToSendNoDataWaiting();
 
 		worker.start();
@@ -334,13 +467,12 @@ public class MailboxUploadWorkerTest extends BrambleMockTestCase {
 		AtomicReference<Runnable> check = new AtomicReference<>();
 		expectScheduleCheck(check, CHECK_DELAY_MS);
 
-		worker.eventOccurred(new MessageSharedEvent(newMessageId));
+		worker.eventOccurred(new MessageSharedEvent(newMessageId, groupId,
+				groupVisibility));
 
 		// When the worker is destroyed it should cancel the check and
 		// remove the connectivity observer and event listener
-		context.checking(new Expectations() {{
-			oneOf(checkTask).cancel();
-		}});
+		expectCancelTask(checkTask);
 		expectRemoveObserverAndListener();
 
 		worker.destroy();
@@ -351,12 +483,51 @@ public class MailboxUploadWorkerTest extends BrambleMockTestCase {
 	}
 
 	@Test
+	public void testCancelsCheckIfContactConnects() throws Exception {
+		// When the worker is started it should check the connection registry.
+		// We're not connected to the contact, so the worker should check for
+		// data to send
+		expectRunTaskOnIoExecutor();
+		expectCheckConnectionRegistry(false);
+		expectCheckForDataToSendNoDataWaiting();
+
+		worker.start();
+
+		// The worker receives an event that indicates new data may be
+		// available. The worker should schedule a check for new data after
+		// a short delay
+		AtomicReference<Runnable> check = new AtomicReference<>();
+		expectScheduleCheck(check, CHECK_DELAY_MS);
+
+		worker.eventOccurred(new MessageSharedEvent(newMessageId, groupId,
+				groupVisibility));
+
+		// Before the check task runs, we make a direct connection to the
+		// contact. The worker should cancel the check
+		expectCancelTask(checkTask);
+
+		worker.eventOccurred(new ContactConnectedEvent(contactId));
+
+		// If the check runs anyway (cancellation came too late), it should
+		// return early when it finds the state has changed
+		check.get().run();
+
+		// When the worker is destroyed it should cancel the check and
+		// remove the connectivity observer and event listener
+		expectRemoveObserverAndListener();
+
+		worker.destroy();
+	}
+
+	@Test
 	public void testRetriesAfterDelayIfExceptionOccursWhileWritingFile()
 			throws Exception {
-		// When the worker is started it should check for data to send. As
-		// there's data ready to send immediately, the worker should start a
-		// connectivity check
+		// When the worker is started it should check the connection registry.
+		// We're not connected to the contact, so the worker should check for
+		// data to send. As there's data ready to send immediately, the worker
+		// should start a connectivity check
 		expectRunTaskOnIoExecutor();
+		expectCheckConnectionRegistry(false);
 		expectCheckForDataToSendAndStartConnectivityCheck();
 
 		worker.start();
@@ -375,7 +546,10 @@ public class MailboxUploadWorkerTest extends BrambleMockTestCase {
 
 		worker.onConnectivityCheckSucceeded();
 
-		// When the check task runs it should check for new data
+		// When the check task runs it should check the connection registry.
+		// We're not connected to the contact, so the worker should check for
+		// new data
+		expectCheckConnectionRegistry(false);
 		expectCheckForDataToSendNoDataWaiting();
 
 		check.get().run();
@@ -385,6 +559,13 @@ public class MailboxUploadWorkerTest extends BrambleMockTestCase {
 		expectRemoveObserverAndListener();
 
 		worker.destroy();
+	}
+
+	private void expectCheckConnectionRegistry(boolean connected) {
+		context.checking(new Expectations() {{
+			oneOf(connectionRegistry).isConnected(contactId);
+			will(returnValue(connected));
+		}});
 	}
 
 	private void expectRunTaskOnIoExecutor() {
@@ -453,6 +634,12 @@ public class MailboxUploadWorkerTest extends BrambleMockTestCase {
 					new CaptureArgumentAction<>(check, Runnable.class, 0),
 					returnValue(checkTask)
 			));
+		}});
+	}
+
+	private void expectCancelTask(Cancellable task) {
+		context.checking(new Expectations() {{
+			oneOf(task).cancel();
 		}});
 	}
 

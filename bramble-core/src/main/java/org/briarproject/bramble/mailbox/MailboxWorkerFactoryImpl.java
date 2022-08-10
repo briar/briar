@@ -1,5 +1,6 @@
 package org.briarproject.bramble.mailbox;
 
+import org.briarproject.bramble.api.connection.ConnectionRegistry;
 import org.briarproject.bramble.api.contact.ContactId;
 import org.briarproject.bramble.api.db.DatabaseComponent;
 import org.briarproject.bramble.api.event.EventBus;
@@ -25,6 +26,7 @@ class MailboxWorkerFactoryImpl implements MailboxWorkerFactory {
 	private final Clock clock;
 	private final TaskScheduler taskScheduler;
 	private final EventBus eventBus;
+	private final ConnectionRegistry connectionRegistry;
 	private final MailboxApiCaller mailboxApiCaller;
 	private final MailboxApi mailboxApi;
 	private final MailboxFileManager mailboxFileManager;
@@ -36,6 +38,7 @@ class MailboxWorkerFactoryImpl implements MailboxWorkerFactory {
 			Clock clock,
 			TaskScheduler taskScheduler,
 			EventBus eventBus,
+			ConnectionRegistry connectionRegistry,
 			MailboxApiCaller mailboxApiCaller,
 			MailboxApi mailboxApi,
 			MailboxFileManager mailboxFileManager,
@@ -45,6 +48,7 @@ class MailboxWorkerFactoryImpl implements MailboxWorkerFactory {
 		this.clock = clock;
 		this.taskScheduler = taskScheduler;
 		this.eventBus = eventBus;
+		this.connectionRegistry = connectionRegistry;
 		this.mailboxApiCaller = mailboxApiCaller;
 		this.mailboxApi = mailboxApi;
 		this.mailboxFileManager = mailboxFileManager;
@@ -57,9 +61,9 @@ class MailboxWorkerFactoryImpl implements MailboxWorkerFactory {
 			MailboxProperties properties, MailboxFolderId folderId,
 			ContactId contactId) {
 		MailboxUploadWorker worker = new MailboxUploadWorker(ioExecutor, db,
-				clock, taskScheduler, eventBus, connectivityChecker,
-				mailboxApiCaller, mailboxApi, mailboxFileManager,
-				properties, folderId, contactId);
+				clock, taskScheduler, eventBus, connectionRegistry,
+				connectivityChecker, mailboxApiCaller, mailboxApi,
+				mailboxFileManager, properties, folderId, contactId);
 		eventBus.addListener(worker);
 		return worker;
 	}
