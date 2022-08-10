@@ -292,6 +292,7 @@ Vänlige installera Briar på en nyare enhet.</string>
   <string name="different_person_button">Olika personer</string>
   <string name="duplicate_link_dialog_text_3">%1$s och %2$s skickade dig samma länk.\n\nEn av dem kanske försöker ta reda på vilka dina kontakter är.\n\nBerätta inte för dem att du fått samma länk från någon annan.</string>
   <string name="pending_contact_updated_toast">Väntande kontakt har uppdaterats</string>
+  <!--Peer trust levels-->
   <!--Introductions-->
   <string name="introduction_onboarding_title">Presentera dina kontakter</string>
   <string name="introduction_onboarding_text">Introducera dina kontakter för varandra så att de kan ansluta sig till varandra via Briar.</string>
@@ -606,6 +607,10 @@ Vänlige installera Briar på en nyare enhet.</string>
   <!--Indicates that there never was a connection to the mailbox. Last connection: Never-->
   <string name="mailbox_status_connected_never">Aldrig</string>
   <string name="mailbox_status_unlink_button">Avlänka</string>
+  <!--About-->
+  <string name="about_title">Om</string>
+  <string name="links">Länkar</string>
+  <!--Here translators can add their names or Transifex usernames(eg "Thanks to all the contributors at the Localization Lab, especially Tom, Matthew and Jerry")-->
   <!--Conversation Settings-->
   <string name="disappearing_messages_title">Försvinnande meddelanden</string>
   <string name="disappearing_messages_explanation_long">Att slå på denna inställning kommer att få nya

@@ -301,6 +301,7 @@
   <string name="different_person_button">Pessoa diferente</string>
   <string name="duplicate_link_dialog_text_3">%1$s e %2$s enviaram o mesmo link para você.\n\nUm deles pode estar tentando descobrir quem são seus contatos.\n\nNão diga a eles que você recebeu o mesmo link de outra pessoa.</string>
   <string name="pending_contact_updated_toast">Contato pendente atualizado</string>
+  <!--Peer trust levels-->
   <!--Introductions-->
   <string name="introduction_onboarding_title">Apresente seus contatos</string>
   <string name="introduction_onboarding_text">Apresente seus contatos entre si para que eles possam se conectar no Briar.</string>
@@ -624,6 +625,10 @@
   <string name="mailbox_status_unlink_dialog_warning">Se você desvincular seu Mailbox, você não poderá receber mensagens enquanto o Briar estiver offline.</string>
   <string name="mailbox_status_unlink_no_wipe_title">Seu Mailbox foi desvinculado</string>
   <string name="mailbox_status_unlink_no_wipe_message">Na próxima vez que você acessar seu dispositivo de Mailbox, por favor, abra o app Mailbox e toque no botão \"Desvincular\" para completar o processo. \n\nSe você não tem mais acesso ao seu dispositivo de Mailbox, não se preocupe. Seus dados estão criptografados, logo, continuarão seguros mesmo que você não complete o processo.</string>
+  <!--About-->
+  <string name="about_title">Sobre</string>
+  <string name="links">Linques</string>
+  <!--Here translators can add their names or Transifex usernames(eg "Thanks to all the contributors at the Localization Lab, especially Tom, Matthew and Jerry")-->
   <!--Conversation Settings-->
   <string name="disappearing_messages_title">Mensagens efêmeras</string>
   <string name="disappearing_messages_explanation_long">Ativar essa opção fará novas

@@ -26,6 +26,7 @@
   <string name="dnkm_xiaomi_button">Предпазване на Briar</string>
   <string name="dnkm_xiaomi_help">Ако Briar не е заключен в списъка с последно използваните приложения, няма да работи на заден план.</string>
   <string name="dnkm_xiaomi_dialog_body_old">1. Отворете списъка с отворени приложения (списък за превключване на приложения)\n\n2. Плъзнете надолу върху изображението на Briar докато се покаже икона на катинар\n\n3. Ако катинарът е отключен го докоснете, за да го заключите</string>
+  <string name="dnkm_xiaomi_dialog_body_new">1. Отворете списъка с последните приложения\n\n2. Ако до името на Briar има значка на катинарче, не е необходимо да правите нищо\n\n3. Ако няма – натиснете и задръжте изображението на Briar, докато се появи бутон за катинарче, след което го докоснете</string>
   <string name="dnkm_warning_dozed_1">Briar не може да работи във фонов режим</string>
   <!--Login-->
   <string name="enter_password">Парола</string>
@@ -135,7 +136,7 @@
   <string name="accept">Приемане</string>
   <string name="decline">Отказване</string>
   <string name="online">На линия</string>
-  <string name="offline">Извън линия</string>
+  <string name="offline">Не е свързано</string>
   <string name="send">Изпращане</string>
   <string name="allow">Разрешаване</string>
   <string name="open">Отваряне</string>
@@ -294,6 +295,11 @@
   <string name="different_person_button">Не</string>
   <string name="duplicate_link_dialog_text_3">%1$s и %2$s са изпратили еднакви препратки.\n\nЕдиният от двамата вероятно се опитва да разбере кои са контактите ви.\n\nНе им споделяйте, че сте получили същата препратка от друг човек.</string>
   <string name="pending_contact_updated_toast">Обновена чакаща заявка за контакт</string>
+  <!--Peer trust levels-->
+  <string name="peer_trust_level_unverified">Непроверен контакт</string>
+  <string name="peer_trust_level_verified">Проверен контакт</string>
+  <string name="peer_trust_level_ourselves">Аз</string>
+  <string name="peer_trust_level_stranger">Непознат</string>
   <!--Introductions-->
   <string name="introduction_onboarding_title">Запознаване на контакти</string>
   <string name="introduction_onboarding_text">Можете да запознавате контактите си един с друг, за да се свържат в Briar.</string>
@@ -592,7 +598,9 @@
   <string name="mailbox_setup_camera_error_description">Няма достъп до камерата. Опитайте отново и след рестарт на усройството.</string>
   <string name="mailbox_setup_paired_title">Свързан</string>
   <string name="mailbox_setup_paired_description">Пощенската кутия е свързана с Briar.\n\nЗа да е винаги на линия, я дръжте включена в захранване и свързана с безжична мрежа.</string>
-  <string name="tor_offline_title">Извън линия</string>
+  <string name="tor_offline_title">Не е свързано</string>
+  <string name="tor_offline_description">Уверете се, че устройството е свързано с интернет.\n
+\nСлед това изчакайте иконата на земното кълбо в екрана за настройки на връзката да стане зелена.</string>
   <string name="tor_offline_button_check">Проверете настройките на връзката</string>
   <string name="mailbox_status_title">Състояние на пощенаската кутия</string>
   <string name="mailbox_status_connected_title">Пощенската кутия работи</string>
@@ -607,12 +615,41 @@
   <string name="mailbox_status_connected_info">Последно свързване: %s</string>
   <!--Indicates that there never was a connection to the mailbox. Last connection: Never-->
   <string name="mailbox_status_connected_never">Никога</string>
-  <string name="mailbox_status_unlink_button">Прекъсване на връзка</string>
-  <string name="mailbox_status_unlink_dialog_title">Ще прекъснете ли връзката с пощенската кутия?</string>
+  <string name="mailbox_status_unlink_button">Прекъсване на връзката</string>
+  <string name="mailbox_status_unlink_dialog_title">Желаете ли да прекъснете връзката с пощенската кутия?</string>
   <string name="mailbox_status_unlink_dialog_question">Сигурни ли сте, че желаете да прекъснете връзката с пощенската кутия?</string>
   <string name="mailbox_status_unlink_dialog_warning">Ако прекъснете връзката с пощенската кутия, няма да получавате съобщения докато Briar е без мрежа.</string>
   <string name="mailbox_status_unlink_no_wipe_title">Връзката с пощенската кутия е прекъсната</string>
+  <string name="mailbox_status_unlink_no_wipe_message">За да завършите процеса, следващия път, когато имате достъп до устройството с пощенската кутия, отворете приложението на пощенската кутия и докоснете бутона „Прекъсване на връзката“.\n\nДаже и вече нямате достъп до устройството с пощенската кутия - не се притеснявайте. Вашата информация е шифрована, така че ще остане защитена, дори и да не завършите този процес.</string>
+  <string name="mailbox_error_notification_channel_title">Проблем с пощенската кутия на Briar</string>
+  <string name="mailbox_error_notification_title">Пощенската кутия на Briar не е достъпна</string>
+  <string name="mailbox_error_notification_text">Докоснете за отстраняване на проблема.</string>
+  <string name="mailbox_error_wizard_button">Отстраняване на проблема</string>
+  <string name="mailbox_error_wizard_title">Помощник за отстраняване на неизправнисти на Briar</string>
+  <string name="mailbox_error_wizard_question1">Имате ли достъп до устройството с пощенската кутия?</string>
+  <string name="mailbox_error_wizard_answer1">Да, в момента имам.</string>
+  <string name="mailbox_error_wizard_answer2">В момента не, но по-късно ще имам.</string>
+  <string name="mailbox_error_wizard_answer3">Не, вече нямам достъп до него.</string>
+  <string name="mailbox_error_wizard_info1_1">Проверете да ли устройството с пощенската кутия е включено и има връзка с интернет.</string>
+  <string name="mailbox_error_wizard_question1_1">Отворете приложението за пощенска кутия. Какво виждате?</string>
+  <string name="mailbox_error_wizard_answer1_1">Виждам инструкциите за настройка на пощенска кутия</string>
+  <string name="mailbox_error_wizard_answer1_2">Виждам код за QR</string>
+  <string name="mailbox_error_wizard_answer1_3">Виждам „Пощенската кутия работи“</string>
+  <string name="mailbox_error_wizard_answer1_4">Виждам „Устройството не е свързано“</string>
+  <string name="mailbox_error_wizard_info1_1_1">Прекъснете връзката с пощенската кутия, чрез бутона отдолу, а след това, за да се свържете отново с нея, следвайте инструкциите.</string>
+  <string name="mailbox_error_wizard_info_1_1_2">Прекъснете връзката с пощенската кутия, чрез бутона отдолу, а след това, за да се свържете отново с нея, сканирайте кода за QR..</string>
+  <string name="mailbox_error_wizard_info1_1_3">Използвайте бутона по-долу, за да проверите връзката между Briar и пощенската кутия.\n\n
+Ако връзката отново е неуспешна:\n
+\u2022 Проверете дали приложенията Пощенска кутия и Briar са последно издание.\n
+\u2022 Рестартирайте устройствата с Пощенска кутия и Briar и опитайте отново.</string>
+  <string name="mailbox_error_wizard_info1_1_4">Проверете дали устройството с пощенска кутия е свързано с интернет.\n\nПроверете дали часовникът на това устройство показва точното време, дата и часови пояс.\n\nПроверете дали приложенията Пощенска кутия и Briar са последно издание.\n\nРестартирайте устройствата с Пощенска кутия и Briar и опитайте отново.</string>
   <string name="mailbox_error_wizard_info2">Върнете се на този екран, когато получите достъп до устройството.</string>
+  <string name="mailbox_error_wizard_info3">Прекъснете връзката с пощенската кутия, чрез бутона отдолу.\n\nСлед като прекъснете връзката със старата пощенска кутия можете да настроите нова по всяко време.</string>
+  <!--About-->
+  <string name="about_title">Относно</string>
+  <string name="links">Препратки</string>
+  <!--Here translators can add their names or Transifex usernames(eg "Thanks to all the contributors at the Localization Lab, especially Tom, Matthew and Jerry")-->
+  <string name="translator_thanks">Благодарим на всички сътрудници на Localization Lab</string>
   <!--Conversation Settings-->
   <string name="disappearing_messages_title">Изчезващи съобщения</string>
   <string name="disappearing_messages_explanation_long">При включване, тази настройка прави бъдещите съобщения в този разговор да изчезват след 7\u00A0дни.
@@ -730,6 +767,8 @@
   <string name="website_download_outro">След като файлът бъде изтеглен, го отворете и го инсталирайте.</string>
   <string name="website_troubleshooting_title">Отстраняване на неизправности</string>
   <string name="website_troubleshooting_1">Ако не можете да изтеглите приложението пробвайте с друг мрежов четец.</string>
+  <string name="website_troubleshooting_2_old">За да инсталирате изтегленото приложение, може да се наложи да разрешите инсталирането на приложения от „Неизвестни източници“ в системните настройки. След това може да се наложи да изтеглите приложението отново. Препоръчваме ви да изключете настройката \"Неизвестни източници\", след като инсталирате приложението.</string>
+  <string name="website_troubleshooting_2_new">За да инсталирате изтегленото приложение, може да се наложи да разрешите на мрежовия си четец да инсталира непознати приложения. След като инсталирате приложението, ви препоръчваме да премахнете разрешението за инсталиране на неизвестни приложения.</string>
   <string name="hotspot_help_wifi_title">Проблеми при свързване чрез Wi-Fi:</string>
   <string name="hotspot_help_wifi_1">Изключете и включете Wi-Fi и на двете устройства, и опитайте отново.</string>
   <string name="hotspot_help_wifi_2">Ако устройството се оплаква, че безжичната мрежа няма достъп до интернет, останете свързани въпреки това.</string>
@@ -750,6 +789,7 @@
   <string name="hotspot_error_start_callback_failed_unknown">Безжичната точка не може да стартира поради неизвестна грешка: причината е %d</string>
   <string name="hotspot_error_start_callback_no_group_info">Безжичната точка не може да стартира: няма информация за група</string>
   <string name="hotspot_error_web_server_start">Грешка при стартиране на уеб сървър</string>
+  <string name="hotspot_error_web_server_serve">Грешка при показване на страницата.n\nАко проблемът продължи да се появява, изпратете обратна връзка (с анонимизирани данни) през приложението Briar.</string>
   <string name="hotspot_flag_test">Внимание: Това приложение е инсталирано с Android Studio и НЕ може да бъде инсталирано на друго устройство.</string>
   <string name="hotspot_error_framework_busy">Безжичната точка не може да бъде стартирана.\n\nАко има включена друга безжична точка за достъп или споделяте мобилните си данни по безжичен път, опитайте да ги спрете и пробвайте отново.</string>
   <!--Transfer Data via Removable Drives-->

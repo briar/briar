@@ -284,6 +284,11 @@
   <string name="different_person_button">別の人</string>
   <string name="duplicate_link_dialog_text_3">%1$sと%2$sから同じリンクを受信しました。\n\nどちらかがあなたの連絡先の内容を知ろうとしている可能性があります。\n\n他の人から同じリンクを受け取ったことを伝えないでください。</string>
   <string name="pending_contact_updated_toast">保留中の連絡先が更新されました</string>
+  <!--Peer trust levels-->
+  <string name="peer_trust_level_unverified">検証されてない連絡先</string>
+  <string name="peer_trust_level_verified">検証された連絡先</string>
+  <string name="peer_trust_level_ourselves">私</string>
+  <string name="peer_trust_level_stranger">見知らぬ人</string>
   <!--Introductions-->
   <string name="introduction_onboarding_title">連絡先を紹介</string>
   <string name="introduction_onboarding_text">連絡先をお互いに紹介することで、Briarで繋がることができます。</string>
@@ -627,6 +632,16 @@
   <string name="mailbox_error_wizard_info1_1_4">メールボックス端末がインターネットに適切に接続されているか、確認してください。\n\nメールボックス端末の時計が正しい時刻、日付、時間帯を表示しているか、確認してください。\n\nメールボックスとBriarアプリが最新版に更新されているか、確認してください。\n\nメールボックスとBriarの端末を再起動し、再度お試しください。</string>
   <string name="mailbox_error_wizard_info2">端末にアクセスしたら、この画面に戻って来てください。</string>
   <string name="mailbox_error_wizard_info3">以下のボタンを使用してメールボックスをリンク解除してください。\n\n古いメールボックスをリンク解除した後、いつでも新しいメールボックスをセットアップできます。</string>
+  <!--About-->
+  <string name="about_title">Tor Project について</string>
+  <string name="briar_version">Briar バージョン: %s</string>
+  <string name="tor_version">Tor バージョン: %s</string>
+  <string name="links">リンク</string>
+  <string name="briar_website">\u2022 <a href="">ウェブサイト</a></string>
+  <string name="briar_source_code">\u2022 <a href="">ソースコード</a></string>
+  <string name="briar_changelog">\u2022 <a href="">変更履歴</a></string>
+  <!--Here translators can add their names or Transifex usernames(eg "Thanks to all the contributors at the Localization Lab, especially Tom, Matthew and Jerry")-->
+  <string name="translator_thanks">Localization Labの全貢献者へ感謝</string>
   <!--Conversation Settings-->
   <string name="disappearing_messages_title">消えるメッセージ</string>
   <string name="disappearing_messages_explanation_long">この設定を有効にすると、

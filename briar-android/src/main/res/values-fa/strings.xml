@@ -307,6 +307,11 @@
   <string name="different_person_button">شخص متفاوت</string>
   <string name="duplicate_link_dialog_text_3">%1$s و %2$s یک پیوند یکسان را به شما ارسال کردند.\n\nشاید یکی از آن‌ها قصد شناسایی مخاطبین شما را دارد.\n\nبه آن‌ها نگویید که همان لینک را از فرد دیگری نیز دریافت کرده‌اید.</string>
   <string name="pending_contact_updated_toast">مخاطب معلق به روز رسانی شد</string>
+  <!--Peer trust levels-->
+  <string name="peer_trust_level_unverified">مخاطب تایید نشده</string>
+  <string name="peer_trust_level_verified">مخاطب تایید شده</string>
+  <string name="peer_trust_level_ourselves">من</string>
+  <string name="peer_trust_level_stranger">غریبه</string>
   <!--Introductions-->
   <string name="introduction_onboarding_title">معرفی مخاطبان</string>
   <string name="introduction_onboarding_text">مخاطبین خود را به یکدیگر معرفی کنید تا بتوانند در Briar متصل شوند.</string>
@@ -676,6 +681,16 @@
   <string name="mailbox_error_wizard_info1_1_4">بررسی کنید که دستگاه Mailbox به درستی به اینترنت متصل باشد.\n\nبررسی کنید که ساعت در دستگاه Mailbox زمان، تاریخ و منطقه زمانی مناسب را نشان دهد.\n\nبررسی کنید که برنامه‌های Mailbox و Briar به آخرین نسخه به‌روزرسانی شده باشند. \n\nدستگاه‌های Mailbox و Briar خود را راه‌اندازی مجدد کنید و دوباره امتحان کنید.</string>
   <string name="mailbox_error_wizard_info2">لطفا هنگامی که به دستگاه دسترسی دارید به این صفحه بازگردید.</string>
   <string name="mailbox_error_wizard_info3">لطفا با استفاده از دکمه زیر، پیوند Mailbox خود را لغو کنید.\n\nپس از لغو پیوند Mailbox قدیمی، می‌توانید هر زمان که خواستید یک Mailbox جدید راه‌اندازی کنید.</string>
+  <!--About-->
+  <string name="about_title">درباره‌ی Psiphon</string>
+  <string name="briar_version">نسخه Briar: %s</string>
+  <string name="tor_version">نسخه Tor: %s</string>
+  <string name="links">لینک ها</string>
+  <string name="briar_website">\u2022 <a href="">وبسایت</a></string>
+  <string name="briar_source_code">\u2022 <a href="">کد منبع</a></string>
+  <string name="briar_changelog">\u2022 <a href="">گزارش تغییرات</a></string>
+  <!--Here translators can add their names or Transifex usernames(eg "Thanks to all the contributors at the Localization Lab, especially Tom, Matthew and Jerry")-->
+  <string name="translator_thanks">با تشکر از همه مشارکت کنندگان در Localization Lab بخصوص erinm، Reza Ghasemi، Mohsen Eghbal و Vox.</string>
   <!--Conversation Settings-->
   <string name="disappearing_messages_title">پیام‌های ناپدید شونده</string>
   <string name="disappearing_messages_explanation_long">روشن کردن این تنظیمات موجب خواهد شد تا پیام‌های جدید

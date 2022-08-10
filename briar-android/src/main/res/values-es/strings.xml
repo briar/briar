@@ -301,6 +301,8 @@
   <string name="different_person_button">Diferente Persona</string>
   <string name="duplicate_link_dialog_text_3">%1$s y %2$s te enviaron el mismo enlace.\n\nUno de ellos puede estar tratando de descubrir quiénes son tus contactos.\n\nNo les digas que recibiste el mismo enlace de otra persona.</string>
   <string name="pending_contact_updated_toast">Contacto pendiente actualizado</string>
+  <!--Peer trust levels-->
+  <string name="peer_trust_level_ourselves">Yo</string>
   <!--Introductions-->
   <string name="introduction_onboarding_title">Presenta a tus contactos</string>
   <string name="introduction_menu_item">Hacer presentación</string>
@@ -617,6 +619,10 @@
   <!--Indicates that there never was a connection to the mailbox. Last connection: Never-->
   <string name="mailbox_status_connected_never">Nunca</string>
   <string name="mailbox_status_unlink_button">Desvincular</string>
+  <!--About-->
+  <string name="about_title">Acerca de</string>
+  <string name="links">Enlaces</string>
+  <!--Here translators can add their names or Transifex usernames(eg "Thanks to all the contributors at the Localization Lab, especially Tom, Matthew and Jerry")-->
   <!--Conversation Settings-->
   <string name="disappearing_messages_title">Mensajes con caducidad</string>
   <string name="disappearing_messages_explanation_long">Activar este ajuste hará que los nuevos

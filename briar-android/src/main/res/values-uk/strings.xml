@@ -311,6 +311,7 @@
   <string name="different_person_button">Різні особи</string>
   <string name="duplicate_link_dialog_text_3">%1$s та %2$s надіслали вам однакові посилання.\n\nХтось із них, можливо, намагається виявити ваші контакти.\n\nНе кажіть їм, що вже отримували це посилання від когось іще.</string>
   <string name="pending_contact_updated_toast">Оновлено нерозглянутий контакт</string>
+  <!--Peer trust levels-->
   <!--Introductions-->
   <string name="introduction_onboarding_title">Поділитися своїми контактами</string>
   <string name="introduction_onboarding_text">Представте свої контакти навзаєм, щоб вони могли спілкуватись у Briar.</string>
@@ -636,6 +637,10 @@
   <string name="mailbox_error_wizard_question1">Ви маєте доступ до вашого пристрою Mailbox?</string>
   <string name="mailbox_error_wizard_answer1_1">Я бачу вказівки щодо налаштування Mailbox</string>
   <string name="mailbox_error_wizard_answer1_2">Я бачу QR-код</string>
+  <!--About-->
+  <string name="about_title">Про</string>
+  <string name="links">Посилання</string>
+  <!--Here translators can add their names or Transifex usernames(eg "Thanks to all the contributors at the Localization Lab, especially Tom, Matthew and Jerry")-->
   <!--Conversation Settings-->
   <string name="disappearing_messages_title">Самознищувані повідомлення</string>
   <string name="disappearing_messages_explanation_long">Коли цей параметр увімкнено, нові

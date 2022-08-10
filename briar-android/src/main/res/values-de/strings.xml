@@ -297,6 +297,11 @@
   <string name="different_person_button">Andere Person</string>
   <string name="duplicate_link_dialog_text_3">%1$s und %2$s haben dir denselben Link geschickt.\n\nMöglicherweise versucht einer der beiden mehr über deine Kontakte zu erfahren.\n\nDu solltest deswegen niemandem sagen, dass du diesen Link auch von jemand anderem erhalten hast.</string>
   <string name="pending_contact_updated_toast">Ausstehender Kontakt aktualisiert</string>
+  <!--Peer trust levels-->
+  <string name="peer_trust_level_unverified">Nicht überprüfter Kontakt</string>
+  <string name="peer_trust_level_verified">Überprüfter Kontakt</string>
+  <string name="peer_trust_level_ourselves">Ich</string>
+  <string name="peer_trust_level_stranger">Fremder</string>
   <!--Introductions-->
   <string name="introduction_onboarding_title">Mache deine Kontakte untereinander bekannt</string>
   <string name="introduction_onboarding_text">Stelle deine Kontakte einander vor, damit sie miteinander über Briar in Kontakt treten können.</string>
@@ -644,6 +649,16 @@
   <string name="mailbox_error_wizard_info1_1_4">Überprüfe, ob das Mailbox-Gerät ordnungsgemäß mit dem Internet verbunden ist.\n\nÜberprüfe, ob die Uhr auf dem Mailbox-Gerät die richtige Uhrzeit, das richtige Datum und die richtige Zeitzone anzeigt.\n\nÜberprüfe, ob die Mailbox- und Briar-Apps auf die neueste Version aktualisiert sind.\n\nStarte deine Mailbox- und Briar-Geräte neu und versuche es erneut.</string>
   <string name="mailbox_error_wizard_info2">Bitte rufe diesen Bildschirm wieder auf, wenn du Zugriff auf das Gerät hast.</string>
   <string name="mailbox_error_wizard_info3">Bitte trenne die Verknüpfung deiner Mailbox über die Schaltfläche unten.\n\nNach der Trennung deiner alten Mailbox kannst du jederzeit eine neue Mailbox einrichten.</string>
+  <!--About-->
+  <string name="about_title">Über</string>
+  <string name="briar_version">Briar Version: %s</string>
+  <string name="tor_version">Tor Version: %s</string>
+  <string name="links">Links</string>
+  <string name="briar_website">\u2022 <a href="">Webseite</a></string>
+  <string name="briar_source_code">\u2022 <a href="">Quellcode</a></string>
+  <string name="briar_changelog">\u2022 <a href="">Changelog</a></string>
+  <!--Here translators can add their names or Transifex usernames(eg "Thanks to all the contributors at the Localization Lab, especially Tom, Matthew and Jerry")-->
+  <string name="translator_thanks">Dank an alle Mitwirkenden des Localization Lab</string>
   <!--Conversation Settings-->
   <string name="disappearing_messages_title">Selbstlöschende Nachrichten</string>
   <string name="disappearing_messages_explanation_long">Wenn diese Einstellung aktiviert ist, werden neue
@@ -787,7 +802,7 @@
   <string name="hotspot_error_start_callback_failed_unknown">Hotspot konnte aus einem unbekannten Grund nicht gestartet werden, Grund %d</string>
   <string name="hotspot_error_start_callback_no_group_info">Hotspot konnte nicht gestartet werden: keine Gruppeninformation</string>
   <string name="hotspot_error_web_server_start">Fehler beim Starten des Webservers</string>
-  <string name="hotspot_error_web_server_serve">Fehler bei der Darstellung der Website.\n\nBitte sende eine Rückmeldung (mit anonymen Daten) über die Briar-App, wenn das Problem weiterhin besteht.</string>
+  <string name="hotspot_error_web_server_serve">Fehler bei der Darstellung der Webseite.\n\nBitte sende eine Rückmeldung (mit anonymen Daten) über die Briar-App, wenn das Problem weiterhin besteht.</string>
   <string name="hotspot_flag_test">Warnung: Diese App wurde mit Android Studio installiert und kann NICHT auf einem anderen Gerät installiert werden.</string>
   <string name="hotspot_error_framework_busy">Hotspot kann nicht gestartet werden.\n\nWenn du einen anderen Hotspot betreibst oder deine Internetverbindung über WLAN teilst, beende dies und versuche es danach erneut.</string>
   <!--Transfer Data via Removable Drives-->

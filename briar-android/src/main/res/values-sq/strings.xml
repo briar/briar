@@ -298,6 +298,11 @@ dhe s’mund të hapet me këtë version.\n\nJu lutemi, përmirësojeni me versi
   <string name="different_person_button">Person i Ndryshëm</string>
   <string name="duplicate_link_dialog_text_3">%1$s dhe %2$s ju dërguan të njëjtën lidhje.\n\nNjë prej tyre mund të jetë duke u rrekur të zbulojë cilët janë kontaktet tuaja.\n\nMos u thoni se morët të njëjtën lidhje nga dikush tjetër.</string>
   <string name="pending_contact_updated_toast">Kontakti pezull u përditësua</string>
+  <!--Peer trust levels-->
+  <string name="peer_trust_level_unverified">Kontakt i paverifikuar</string>
+  <string name="peer_trust_level_verified">Kontakt i verifikuar</string>
+  <string name="peer_trust_level_ourselves">Unë</string>
+  <string name="peer_trust_level_stranger">I huaj</string>
   <!--Introductions-->
   <string name="introduction_onboarding_title">Prezantoni kontaktet tuaja</string>
   <string name="introduction_onboarding_text">Prezantoni kontaktet tuaj me njëri-tjetrin, që të mund të lidhen me Briar.</string>
@@ -645,6 +650,16 @@ dhe s’mund të hapet me këtë version.\n\nJu lutemi, përmirësojeni me versi
   <string name="mailbox_error_wizard_info1_1_4">Shihni që pajisja kuti postare të jetë lidhur si duhet në Internet.\n\nKontrolloni që sahati te pajisja Kuti postare shfaq kohën, datën dhe zonën kohore të saktë.\n\nShihni që aplikacionet Kuti postare dhe Briar të jenë të përditësuar me versionin më të ri.\n\nRinisni pajisjet tuaja Kuti postare dhe Briar dhe riprovoni.</string>
   <string name="mailbox_error_wizard_info2">Ju lutemi, rikthejuni kësaj skene kur të keni mundësi të përdorni pajisjen.</string>
   <string name="mailbox_error_wizard_info3">Ju lutemi, shkëputeni kutinë tuaj postare duke përdorur butonin më poshtë.\n\nPasi të shkëputni Kutinë tuaj të vjetër postare, mund të ujdisni kurdo një Kuti të re postare.</string>
+  <!--About-->
+  <string name="about_title">Mbi</string>
+  <string name="briar_version">Version Briar-i: %s</string>
+  <string name="tor_version">Version Tor-i: %s</string>
+  <string name="links">Lidhje</string>
+  <string name="briar_website">\u2022 <a href="">Sajt</a></string>
+  <string name="briar_source_code">\u2022 <a href="">Kod burim</a></string>
+  <string name="briar_changelog">\u2022 <a href="">Regjistër ndryshimesh</a></string>
+  <!--Here translators can add their names or Transifex usernames(eg "Thanks to all the contributors at the Localization Lab, especially Tom, Matthew and Jerry")-->
+  <string name="translator_thanks">Faleminderit krejt kontribuesve prej Localization Lab</string>
   <!--Conversation Settings-->
   <string name="disappearing_messages_title">Mesazhe që treten</string>
   <string name="disappearing_messages_explanation_long">Aktivizimi i këtij rregullimi do të bëjë që

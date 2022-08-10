@@ -311,6 +311,7 @@
   <string name="different_person_button">Inna osoba</string>
   <string name="duplicate_link_dialog_text_3">%1$si  %2$s wysłał ci ten sam link.\n\nJeden z nich może próbować odkryć, kim są twoje kontakty.\n\nNie mów im, że otrzymałeś ten sam link od kogoś innego.</string>
   <string name="pending_contact_updated_toast">Oczekujący kontakt zaktualizowany</string>
+  <!--Peer trust levels-->
   <!--Introductions-->
   <string name="introduction_onboarding_title">Przedstaw swoje kontakty.</string>
   <string name="introduction_onboarding_text">Przedstaw kontakty sobie nawzajem, aby mogły się połączyć w Briar.</string>
@@ -645,6 +646,10 @@ Brak dostępu do aparatu. Spróbuj ponownie, może po ponownym uruchomieniu urz�
   <string name="mailbox_error_wizard_answer1">Tak, mam teraz dostęp</string>
   <string name="mailbox_error_wizard_answer2">Nie w tej chwili, ale będę miał(a) dostęp później</string>
   <string name="mailbox_error_wizard_answer3">Nie, nie mam już dostępu do urządzenia.</string>
+  <!--About-->
+  <string name="about_title">O programie...</string>
+  <string name="links">Odnośniki</string>
+  <!--Here translators can add their names or Transifex usernames(eg "Thanks to all the contributors at the Localization Lab, especially Tom, Matthew and Jerry")-->
   <!--Conversation Settings-->
   <string name="disappearing_messages_title">Znikające wiadomości</string>
   <string name="disappearing_messages_explanation_long">Włączenie tego ustawienia spowoduje, że

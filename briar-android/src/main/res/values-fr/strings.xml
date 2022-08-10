@@ -301,6 +301,7 @@
   <string name="different_person_button">Une personne différente</string>
   <string name="duplicate_link_dialog_text_3">%1$s et %2$s vous ont envoyé le même lien.\n\nL\'une de ces personnes pourrait tenter de découvrir qui sont vos contacts.\n\nNe lui dites pas que vous avez reçu le même lien de quelqu’un d’autre.</string>
   <string name="pending_contact_updated_toast">Le contact en attente a été mis à jour</string>
+  <!--Peer trust levels-->
   <!--Introductions-->
   <string name="introduction_onboarding_title">Présenter vos contacts</string>
   <string name="introduction_onboarding_text">Présentez vos contacts l\'un à l\'autre ainsi ils pourront se contacter via Briar.</string>
@@ -611,6 +612,10 @@
   <!--Example for string substitution: Last connection: 3min ago-->
   <!--Indicates that there never was a connection to the mailbox. Last connection: Never-->
   <string name="mailbox_status_connected_never">Jamais</string>
+  <!--About-->
+  <string name="about_title">À propos</string>
+  <string name="links">Liens</string>
+  <!--Here translators can add their names or Transifex usernames(eg "Thanks to all the contributors at the Localization Lab, especially Tom, Matthew and Jerry")-->
   <!--Conversation Settings-->
   <string name="disappearing_messages_title">Messages éphémères</string>
   <string name="disappearing_messages_explanation_long">L’activation de ce paramètre fera disparaître

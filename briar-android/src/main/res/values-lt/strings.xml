@@ -311,6 +311,7 @@
   <string name="different_person_button">Kitas asmuo</string>
   <string name="duplicate_link_dialog_text_3">%1$s ir %2$s išsiuntė jums tą pačią nuorodą.\n\nGali būti, kad vienas iš šių asmenų bando sužinoti kas yra jūsų adresatų sąraše.\n\nNesakykite šiems asmenims, kad gavote tokią pačią nuorodą iš kito asmens.</string>
   <string name="pending_contact_updated_toast">Laukiantis adresatas atnaujintas</string>
+  <!--Peer trust levels-->
   <!--Introductions-->
   <string name="introduction_onboarding_title">Supažindinkite savo adresatus</string>
   <string name="introduction_menu_item">Supažindinti</string>
@@ -623,6 +624,10 @@
   <!--Indicates that there never was a connection to the mailbox. Last connection: Never-->
   <string name="mailbox_status_connected_never">Niekada</string>
   <string name="mailbox_status_unlink_button">Atsieti</string>
+  <!--About-->
+  <string name="about_title">Apie</string>
+  <string name="links">Nuorodos</string>
+  <!--Here translators can add their names or Transifex usernames(eg "Thanks to all the contributors at the Localization Lab, especially Tom, Matthew and Jerry")-->
   <!--Conversation Settings-->
   <string name="disappearing_messages_title">Išnykstančios žinutės</string>
   <string name="disappearing_messages_explanation_long">Įjungus šį nustatymą, naujos žinutės
@@ -740,6 +745,8 @@
   <string name="hotspot_manual_site_address">Adresas (URL)</string>
   <string name="hotspot_qr_site">Jūsų telefonas teikia belaidį (Wi-Fi) prieigos tašką. Žmonės, prisijungę prie prieigos taško, gali atsisiųsti Briar, skenuodami šį QR kodą.</string>
   <!--e.g. Download Briar 1.2.20-->
+  <string name="website_download_title_1">Atsisiųsti Briar %s</string>
+  <string name="website_download_button">Atsisiųsti Briar</string>
   <string name="website_download_outro">Kai atsisiuntimas pasibaigs, atverkite atsisiųstą failą ir jį įdiekite.</string>
   <string name="website_troubleshooting_title">Nesklandumų šalinimas</string>
   <string name="website_troubleshooting_1">Jei negalite atsisiųsti programėlės, pabandykite naudoti kitą saityno naršyklės programėlę.</string>

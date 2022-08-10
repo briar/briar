@@ -291,6 +291,11 @@
   <string name="different_person_button">Farklı Kişi</string>
   <string name="duplicate_link_dialog_text_3">%1$s ve %2$s size aynı bağlantıyı gönderdi.\n\nAralarından biri kişilerinizin kim olduğunu keşfetmeye çalışıyor olabilir.\n\nOnlara başkasından aynı bağlantıyı aldığınızı söylemeyin.</string>
   <string name="pending_contact_updated_toast">Bekleyen kişi güncellendi</string>
+  <!--Peer trust levels-->
+  <string name="peer_trust_level_unverified">Doğrulanmamış kişi</string>
+  <string name="peer_trust_level_verified">Doğrulanmış kişi</string>
+  <string name="peer_trust_level_ourselves">Benim</string>
+  <string name="peer_trust_level_stranger">Yabancı</string>
   <!--Introductions-->
   <string name="introduction_onboarding_title">Kişilerinizi tanıştırın</string>
   <string name="introduction_onboarding_text">Kişilerinizi birbirlerine tanıtın, böylece Briar üzerinden bağlantı kurabilirler.</string>
@@ -599,6 +604,10 @@
   <string name="mailbox_status_connected_title">Mailbox çalışıyor</string>
   <string name="mailbox_status_problem_title">Briar Mailbox\'a bağlantı kurmakta zorluk yaşıyor.</string>
   <string name="mailbox_status_failure_title">Mailbox kullanılamıyor</string>
+  <string name="mailbox_status_app_too_old_title">Briar çok eski</string>
+  <string name="mailbox_status_app_too_old_message">Briar\'ı uygulamanın son sürümüne güncelleyin ve tekrar deneyin.</string>
+  <string name="mailbox_status_mailbox_too_old_title">Mailbox çok eski</string>
+  <string name="mailbox_status_mailbox_too_old_message">Mailbox\'unuzu uygulamanın son sürümüne güncelleyin ve tekrar deneyin.</string>
   <string name="mailbox_status_check_button">Bağlantıyı denetle</string>
   <!--Example for string substitution: Last connection: 3min ago-->
   <string name="mailbox_status_connected_info">Son bağlantı: %s</string>
@@ -610,6 +619,37 @@
   <string name="mailbox_status_unlink_dialog_warning">Mailbox bağlantısını kaldırırsanız, Briar çevrimdışı iken ileti alamayacaksınız.</string>
   <string name="mailbox_status_unlink_no_wipe_title">Mailbox bağlantısı kaldırıldı.</string>
   <string name="mailbox_status_unlink_no_wipe_message">Mailbox aygıtınıza sonraki erişiminizde lütfen Mailbox uygulamasını açın ve \"Bağlantıyı Kaldır\" düğmesine dokunarak işlemi tamamlayın.\n\nEğer Mailbox aygıtınıza artık erişiminiz yoksa endişelenmeyin. Veriniz şifrelenmiştir ve bu süreci tamamlamasanız bile güvenli kalacaktır.</string>
+  <string name="mailbox_error_notification_channel_title">Briar Mailbox sorunu</string>
+  <string name="mailbox_error_notification_title">Briar Mailbox kullanılamıyor</string>
+  <string name="mailbox_error_notification_text">Sorunu çözmek için dokunun</string>
+  <string name="mailbox_error_wizard_button">Sorunu çöz</string>
+  <string name="mailbox_error_wizard_title">Mailbox sorun çözme sihirbazı</string>
+  <string name="mailbox_error_wizard_question1">Mailbox aygıtınıza erişiminiz var mı?</string>
+  <string name="mailbox_error_wizard_answer1">Evet, şu an ona erişimim var.</string>
+  <string name="mailbox_error_wizard_answer2">Şimdi değil ama daha sonra erişebilirim.</string>
+  <string name="mailbox_error_wizard_answer3">Hayır, artık ona erişimim yok.</string>
+  <string name="mailbox_error_wizard_info1_1">Mailbox aygıtının açık ve İnternet\'e bağlı olduğunu denetleyin.</string>
+  <string name="mailbox_error_wizard_question1_1">Mailbox uygulamasını açın. Ne görüyorsunuz?</string>
+  <string name="mailbox_error_wizard_answer1_1">Mailbox kurulumu yönergelerini görüyorum.</string>
+  <string name="mailbox_error_wizard_answer1_2">Bir Karekod görüyorum.</string>
+  <string name="mailbox_error_wizard_answer1_3">\"Mailbox çalışıyor\" görüyorum</string>
+  <string name="mailbox_error_wizard_answer1_4">\"Aygıt çevrimdışı\" görüyorum</string>
+  <string name="mailbox_error_wizard_info1_1_1">Lütfen Mailbox\'ınızın bağlantısını aşağıdaki düğmeyi kullanarak kesin, daha sonra tekrar bağlamak için Mailbox aygıtındaki yönergeleri izleyin.</string>
+  <string name="mailbox_error_wizard_info_1_1_2">Lütfen Mailbox\'ınızın bağlantısını aşağıdaki düğmeyi kullanarak kesin, daha sonra tekrar bağlamak için Karekodu tarayın.</string>
+  <string name="mailbox_error_wizard_info1_1_3">Briar ve Mailbox arasındaki bağlantıyı denetlemek için aşağıdaki düğmeyi kullanın.\n\n
+		Eğer bağlantı tekrar başarısız olursa:\n
+		\u2022 Mailbox ve Briar\'ın son sürüme güncellendiğini denetleyin.\n
+		Mailbox ve Briar aygıtlarını yeniden başlatın ve tekrar deneyin.</string>
+  <!--About-->
+  <string name="about_title">Hakkında</string>
+  <string name="briar_version">Briar sürümü: %s</string>
+  <string name="tor_version">Tor sürümü: %s</string>
+  <string name="links">Bağlantılar</string>
+  <string name="briar_website">\u2022 <a href="">Web Site</a></string>
+  <string name="briar_source_code">\u2022 <a href="">Kaynak kod</a></string>
+  <string name="briar_changelog">\u2022 <a href="">Değişiklik günlüğü</a></string>
+  <!--Here translators can add their names or Transifex usernames(eg "Thanks to all the contributors at the Localization Lab, especially Tom, Matthew and Jerry")-->
+  <string name="translator_thanks">Localization Lab\'taki tüm katkı sağlayanlara teşekkürler</string>
   <!--Conversation Settings-->
   <string name="disappearing_messages_title">Kaybolan iletiler</string>
   <string name="disappearing_messages_explanation_long">Bu ayarı etkinleştirmeniz durumunda
@@ -725,6 +765,9 @@
   <string name="hotspot_manual_site_address">Adres (URL)</string>
   <string name="hotspot_qr_site">Telefonunuz bir kablosuz erişim noktası sunuyor. Erişim noktasına bağlı kişiler Briar\'ı QR kodunu tarayarak indirebilirler. </string>
   <!--e.g. Download Briar 1.2.20-->
+  <string name="website_download_title_1">Briar\'ı indir %s</string>
+  <string name="website_download_intro_1">Yakınlarınızdaki biri sizinle Briar\'ı paylaştı</string>
+  <string name="website_download_button">Briar\'ı indir</string>
   <string name="website_download_outro">İndirme tamamlandıktan sonra, indirdiğiniz dosyayı açın ve kurun.</string>
   <string name="website_troubleshooting_title">Sorun çözme</string>
   <string name="website_troubleshooting_1">Uygulamayı indiremiyorsanız, başka bir tarayıcı uygulamasıyla deneyin.</string>

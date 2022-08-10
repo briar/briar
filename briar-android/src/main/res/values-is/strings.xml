@@ -291,6 +291,7 @@
   <string name="different_person_button">Annar einstaklingur</string>
   <string name="duplicate_link_dialog_text_3">%1$s og %2$s sendu þér sama tengilinn.\n\nAnnar þeirra gæti verið að reyna að finna út hverjir tengiliðirnir þínir eru.\n\nEkki segja þeim að þú hafir fengið sama tengil frá einhverjum öðrum.</string>
   <string name="pending_contact_updated_toast">Tengiliður í bið uppfærður</string>
+  <!--Peer trust levels-->
   <!--Introductions-->
   <string name="introduction_onboarding_title">Kynntu tengiliðina þína</string>
   <string name="introduction_menu_item">Útbúa kynningu</string>
@@ -603,6 +604,10 @@
   <!--Indicates that there never was a connection to the mailbox. Last connection: Never-->
   <string name="mailbox_status_connected_never">Aldrei</string>
   <string name="mailbox_status_unlink_button">Aftengja</string>
+  <!--About-->
+  <string name="about_title">Um hugbúnaðinn</string>
+  <string name="links">Hlekkir</string>
+  <!--Here translators can add their names or Transifex usernames(eg "Thanks to all the contributors at the Localization Lab, especially Tom, Matthew and Jerry")-->
   <!--Conversation Settings-->
   <string name="disappearing_messages_title">Sjálfeyðandi skilaboð</string>
   <string name="disappearing_messages_explanation_long">Ef kveikt er á þessari stillingu munu ný

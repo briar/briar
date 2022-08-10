@@ -281,6 +281,8 @@
   <string name="different_person_button">နောက်တစ်ယောက် </string>
   <string name="duplicate_link_dialog_text_3">%1$sနှင့်%2$s တူညီသောလင့်ခ်ကို သင့်အား ပေးပို့ခဲ့သည်။ \n\n သူတို့ထဲမှ တစ်ဦးက သင့်အဆက်အသွယ်များသည် မည်သူဖြစ်သည်ကို ရှာဖွေရန် ကြိုးစားနေပေမည်။ \n\nသင်သည် အခြားသူတစ်ဦးထံမှ တူညီသောလင့်ခ်ကို ရရှိထားကြောင်း ၎င်းတို့အား မပြောပါနှင့်။</string>
   <string name="pending_contact_updated_toast">ဆိုင်းငံ့ထားသော အဆက်အသွယ်ကို အပ်ဒိတ်လုပ်ပြီး</string>
+  <!--Peer trust levels-->
+  <string name="peer_trust_level_ourselves">ကျွနု်ပ်ကို</string>
   <!--Introductions-->
   <string name="introduction_onboarding_title">သင့်ရဲ့ အဆက်အသွယ်လိပ်စာများကို မိတ်ဆက်ပါ</string>
   <string name="introduction_menu_item">မိတ်ဆက်ခြင်း ပြုလုပ်ပါ</string>
@@ -570,6 +572,9 @@
   <!--Example for string substitution: Last connection: 3min ago-->
   <!--Indicates that there never was a connection to the mailbox. Last connection: Never-->
   <string name="mailbox_status_connected_never">ဘယ်တော့မှ</string>
+  <!--About-->
+  <string name="about_title">အကြောင်း</string>
+  <!--Here translators can add their names or Transifex usernames(eg "Thanks to all the contributors at the Localization Lab, especially Tom, Matthew and Jerry")-->
   <!--Conversation Settings-->
   <string name="disappearing_messages_title">ပျောက်ကွယ် မက်ဆေ့ချ်များ</string>
   <string name="disappearing_messages_explanation_long">၎င်းအပြင်အဆင်ကို ဖွင့်ထားလျှင်
