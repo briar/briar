@@ -168,6 +168,7 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 		assertTrue(db.containsContact(txn, contactId));
 		assertTrue(db.containsGroup(txn, groupId));
 		assertTrue(db.containsMessage(txn, messageId));
+		assertEquals(groupId, db.getGroupId(txn, messageId));
 		assertArrayEquals(message.getBody(),
 				db.getMessage(txn, messageId).getBody());
 

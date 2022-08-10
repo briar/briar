@@ -44,6 +44,7 @@ import java.util.logging.Logger;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.ThreadSafe;
 
+import static java.lang.Boolean.TRUE;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
@@ -233,7 +234,10 @@ class DuplexOutgoingSession implements SyncSession, EventListener {
 			ContactRemovedEvent c = (ContactRemovedEvent) e;
 			if (c.getContactId().equals(contactId)) interrupt();
 		} else if (e instanceof MessageSharedEvent) {
-			generateOffer();
+			MessageSharedEvent m = (MessageSharedEvent) e;
+			if (m.getGroupVisibility().get(contactId) == TRUE) {
+				generateOffer();
+			}
 		} else if (e instanceof GroupVisibilityUpdatedEvent) {
 			GroupVisibilityUpdatedEvent g = (GroupVisibilityUpdatedEvent) e;
 			if (g.getVisibility() == SHARED &&

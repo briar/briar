@@ -284,6 +284,13 @@ public interface DatabaseComponent extends TransactionManager {
 	Group getGroup(Transaction txn, GroupId g) throws DbException;
 
 	/**
+	 * Returns the ID of the group containing the given message.
+	 * <p/>
+	 * Read-only.
+	 */
+	GroupId getGroupId(Transaction txn, MessageId m) throws DbException;
+
+	/**
 	 * Returns the metadata for the given group.
 	 * <p/>
 	 * Read-only.

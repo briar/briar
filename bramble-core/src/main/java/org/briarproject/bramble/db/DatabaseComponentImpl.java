@@ -287,7 +287,12 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 			transaction.attach(new MessageAddedEvent(m, null));
 			transaction.attach(new MessageStateChangedEvent(m.getId(), true,
 					DELIVERED));
-			if (shared) transaction.attach(new MessageSharedEvent(m.getId()));
+			if (shared) {
+				Map<ContactId, Boolean> visibility =
+						db.getGroupVisibility(txn, m.getGroupId());
+				transaction.attach(new MessageSharedEvent(m.getId(),
+						m.getGroupId(), visibility));
+			}
 		}
 		db.mergeMessageMetadata(txn, m.getId(), meta);
 	}
@@ -548,6 +553,15 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 		if (!db.containsGroup(txn, g))
 			throw new NoSuchGroupException();
 		return db.getGroup(txn, g);
+	}
+
+	@Override
+	public GroupId getGroupId(Transaction transaction, MessageId m)
+			throws DbException {
+		T txn = unbox(transaction);
+		if (!db.containsMessage(txn, m))
+			throw new NoSuchMessageException();
+		return db.getGroupId(txn, m);
 	}
 
 	@Override
@@ -1184,7 +1198,9 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 		if (db.getMessageState(txn, m) != DELIVERED)
 			throw new IllegalArgumentException("Shared undelivered message");
 		db.setMessageShared(txn, m, true);
-		transaction.attach(new MessageSharedEvent(m));
+		GroupId g = db.getGroupId(txn, m);
+		Map<ContactId, Boolean> visibility = db.getGroupVisibility(txn, g);
+		transaction.attach(new MessageSharedEvent(m, g, visibility));
 	}
 
 	@Override

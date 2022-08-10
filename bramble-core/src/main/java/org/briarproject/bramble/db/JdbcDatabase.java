@@ -1684,6 +1684,27 @@ abstract class JdbcDatabase implements Database<Connection> {
 	}
 
 	@Override
+	public GroupId getGroupId(Connection txn, MessageId m) throws DbException {
+		PreparedStatement ps = null;
+		ResultSet rs = null;
+		try {
+			String sql = "SELECT groupId FROM messages WHERE messageId = ?";
+			ps = txn.prepareStatement(sql);
+			ps.setBytes(1, m.getBytes());
+			rs = ps.executeQuery();
+			if (!rs.next()) throw new DbStateException();
+			GroupId g = new GroupId(rs.getBytes(1));
+			rs.close();
+			ps.close();
+			return g;
+		} catch (SQLException e) {
+			tryToClose(rs, LOG, WARNING);
+			tryToClose(ps, LOG, WARNING);
+			throw new DbException(e);
+		}
+	}
+
+	@Override
 	public Collection<Group> getGroups(Connection txn, ClientId c,
 			int majorVersion) throws DbException {
 		PreparedStatement ps = null;
