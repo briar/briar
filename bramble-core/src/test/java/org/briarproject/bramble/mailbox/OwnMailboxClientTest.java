@@ -1,13 +1,22 @@
 package org.briarproject.bramble.mailbox;
 
+import org.briarproject.bramble.api.Cancellable;
 import org.briarproject.bramble.api.contact.ContactId;
 import org.briarproject.bramble.api.mailbox.MailboxFolderId;
 import org.briarproject.bramble.api.mailbox.MailboxProperties;
+import org.briarproject.bramble.api.system.TaskScheduler;
 import org.briarproject.bramble.test.BrambleMockTestCase;
+import org.briarproject.bramble.test.CaptureArgumentAction;
 import org.jmock.Expectations;
+import org.jmock.lib.action.DoAllAction;
 import org.junit.Test;
 
+import java.util.concurrent.Executor;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicReference;
+
 import static org.briarproject.bramble.api.mailbox.MailboxConstants.CLIENT_SUPPORTS;
+import static org.briarproject.bramble.mailbox.OwnMailboxClient.CONNECTIVITY_CHECK_INTERVAL_MS;
 import static org.briarproject.bramble.test.TestUtils.getContactId;
 import static org.briarproject.bramble.test.TestUtils.getMailboxProperties;
 import static org.briarproject.bramble.test.TestUtils.getRandomId;
@@ -20,6 +29,9 @@ public class OwnMailboxClientTest extends BrambleMockTestCase {
 			context.mock(ConnectivityChecker.class);
 	private final TorReachabilityMonitor reachabilityMonitor =
 			context.mock(TorReachabilityMonitor.class);
+	private final TaskScheduler taskScheduler =
+			context.mock(TaskScheduler.class);
+	private final Executor ioExecutor = context.mock(Executor.class);
 	private final MailboxWorker contactListWorker =
 			context.mock(MailboxWorker.class, "contactListWorker");
 	private final MailboxWorker uploadWorker1 =
@@ -28,6 +40,8 @@ public class OwnMailboxClientTest extends BrambleMockTestCase {
 			context.mock(MailboxWorker.class, "uploadWorker2");
 	private final MailboxWorker downloadWorker =
 			context.mock(MailboxWorker.class, "downloadWorker");
+	private final Cancellable connectivityCheck =
+			context.mock(Cancellable.class);
 
 	private final MailboxProperties properties =
 			getMailboxProperties(true, CLIENT_SUPPORTS);
@@ -40,12 +54,13 @@ public class OwnMailboxClientTest extends BrambleMockTestCase {
 	public OwnMailboxClientTest() {
 		expectCreateContactListWorker();
 		client = new OwnMailboxClient(workerFactory, connectivityChecker,
-				reachabilityMonitor, properties);
+				reachabilityMonitor, taskScheduler, ioExecutor, properties);
 		context.assertIsSatisfied();
 	}
 
 	@Test
 	public void testStartAndDestroyWithNoContactsAssigned() {
+		expectStartConnectivityCheck();
 		expectStartWorker(contactListWorker);
 		client.start();
 
@@ -56,6 +71,7 @@ public class OwnMailboxClientTest extends BrambleMockTestCase {
 
 	@Test
 	public void testAssignContactForUploadAndDestroyClient() {
+		expectStartConnectivityCheck();
 		expectStartWorker(contactListWorker);
 		client.start();
 
@@ -74,6 +90,7 @@ public class OwnMailboxClientTest extends BrambleMockTestCase {
 
 	@Test
 	public void testAssignAndDeassignContactForUpload() {
+		expectStartConnectivityCheck();
 		expectStartWorker(contactListWorker);
 		client.start();
 
@@ -95,6 +112,7 @@ public class OwnMailboxClientTest extends BrambleMockTestCase {
 
 	@Test
 	public void testAssignAndDeassignTwoContactsForUpload() {
+		expectStartConnectivityCheck();
 		expectStartWorker(contactListWorker);
 		client.start();
 
@@ -129,6 +147,7 @@ public class OwnMailboxClientTest extends BrambleMockTestCase {
 
 	@Test
 	public void testAssignContactForDownloadAndDestroyClient() {
+		expectStartConnectivityCheck();
 		expectStartWorker(contactListWorker);
 		client.start();
 
@@ -147,6 +166,7 @@ public class OwnMailboxClientTest extends BrambleMockTestCase {
 
 	@Test
 	public void testAssignAndDeassignTwoContactsForDownload() {
+		expectStartConnectivityCheck();
 		expectStartWorker(contactListWorker);
 		client.start();
 
@@ -173,6 +193,68 @@ public class OwnMailboxClientTest extends BrambleMockTestCase {
 		expectDestroyWorker(contactListWorker);
 		expectDestroyConnectivityChecker();
 		client.destroy();
+	}
+
+	@Test
+	public void testCancelsConnectivityCheckWhenClientIsDestroyed() {
+		expectStartConnectivityCheck();
+		expectStartWorker(contactListWorker);
+		client.start();
+
+		// When the first connectivity check succeeds, the worker should
+		// schedule a second check
+		AtomicReference<Runnable> task = new AtomicReference<>();
+		expectScheduleConnectivityCheck(task);
+		client.onConnectivityCheckSucceeded();
+
+		// When the task runs, the worker should check the mailbox's
+		// connectivity
+		expectStartConnectivityCheck();
+		task.get().run();
+
+		// When the second connectivity check succeeds, the worker should
+		// schedule a third check
+		expectScheduleConnectivityCheck(task);
+		client.onConnectivityCheckSucceeded();
+
+		// When the client is destroyed, the scheduled check should be cancelled
+		expectDestroyWorker(contactListWorker);
+		expectDestroyConnectivityChecker();
+		context.checking(new Expectations() {{
+			oneOf(connectivityCheck).cancel();
+		}});
+		client.destroy();
+
+		// If the task runs anyway (cancellation came too late), it should
+		// return when it finds that the client has been destroyed
+		task.get().run();
+	}
+
+	@Test
+	public void testIgnoresConnectivityResultWhenClientIsDestroyed() {
+		expectStartConnectivityCheck();
+		expectStartWorker(contactListWorker);
+		client.start();
+
+		// When the first connectivity check succeeds, the worker should
+		// schedule a second check
+		AtomicReference<Runnable> task = new AtomicReference<>();
+		expectScheduleConnectivityCheck(task);
+		client.onConnectivityCheckSucceeded();
+
+		// When the task runs, the worker should check the mailbox's
+		// connectivity
+		expectStartConnectivityCheck();
+		task.get().run();
+
+		// Before the connectivity check succeeds, the client is destroyed
+		expectDestroyWorker(contactListWorker);
+		expectDestroyConnectivityChecker();
+		client.destroy();
+
+		// If the connectivity check succeeds despite the connectivity checker
+		// having been destroyed, the client should not schedule another check
+		client.onConnectivityCheckSucceeded();
 	}
 
 	private void expectCreateContactListWorker() {
@@ -203,6 +285,25 @@ public class OwnMailboxClientTest extends BrambleMockTestCase {
 	private void expectStartWorker(MailboxWorker worker) {
 		context.checking(new Expectations() {{
 			oneOf(worker).start();
+		}});
+	}
+
+	private void expectStartConnectivityCheck() {
+		context.checking(new Expectations() {{
+			oneOf(connectivityChecker).checkConnectivity(properties, client);
+		}});
+	}
+
+	private void expectScheduleConnectivityCheck(
+			AtomicReference<Runnable> task) {
+		context.checking(new Expectations() {{
+			oneOf(taskScheduler).schedule(with(any(Runnable.class)),
+					with(ioExecutor), with(CONNECTIVITY_CHECK_INTERVAL_MS),
+					with(TimeUnit.MILLISECONDS));
+			will(new DoAllAction(
+					new CaptureArgumentAction<>(task, Runnable.class, 0),
+					returnValue(connectivityCheck)
+			));
 		}});
 	}
 
