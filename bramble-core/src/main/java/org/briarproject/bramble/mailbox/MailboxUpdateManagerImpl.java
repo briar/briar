@@ -49,6 +49,9 @@ import java.util.Map.Entry;
 import javax.annotation.Nullable;
 import javax.inject.Inject;
 
+import static java.util.Collections.emptyList;
+import static org.briarproject.bramble.api.data.BdfDictionary.NULL_VALUE;
+import static org.briarproject.bramble.api.nullsafety.NullSafety.requireNonNull;
 import static org.briarproject.bramble.api.sync.validation.IncomingMessageHook.DeliveryAction.ACCEPT_DO_NOT_SHARE;
 
 @NotNullByDefault
@@ -175,6 +178,12 @@ class MailboxUpdateManagerImpl implements MailboxUpdateManager,
 			localUpdates.put(c.getId(), u);
 		}
 		txn.attach(new MailboxPairedEvent(p, localUpdates));
+		// Store the list of server-supported versions
+		try {
+			storeSentServerSupports(txn, p.getServerSupports());
+		} catch (FormatException e) {
+			throw new DbException();
+		}
 	}
 
 	@Override
@@ -185,6 +194,76 @@ class MailboxUpdateManagerImpl implements MailboxUpdateManager,
 			localUpdates.put(c.getId(), u);
 		}
 		txn.attach(new MailboxUnpairedEvent(localUpdates));
+		// Remove the list of server-supported versions
+		try {
+			BdfDictionary meta = BdfDictionary.of(new BdfEntry(
+					GROUP_KEY_SENT_SERVER_SUPPORTS, NULL_VALUE));
+			clientHelper.mergeGroupMetadata(txn, localGroup.getId(), meta);
+		} catch (FormatException e) {
+			throw new DbException();
+		}
+	}
+
+	@Override
+	public void serverSupportedVersionsReceived(Transaction txn,
+			List<MailboxVersion> serverSupports) throws DbException {
+		try {
+			List<MailboxVersion> oldServerSupports =
+					loadSentServerSupports(txn);
+			if (serverSupports.equals(oldServerSupports)) return;
+			storeSentServerSupports(txn, serverSupports);
+			for (Contact c : db.getContacts(txn)) {
+				Group contactGroup = getContactGroup(c);
+				LatestUpdate latest =
+						findLatest(txn, contactGroup.getId(), true);
+				// This method should only be called when we have a mailbox
+				if (latest == null) throw new DbException();
+				BdfList body =
+						clientHelper.getMessageAsList(txn, latest.messageId);
+				MailboxUpdate oldUpdate = parseUpdate(body);
+				if (!oldUpdate.hasMailbox()) throw new DbException();
+				MailboxUpdateWithMailbox newUpdate = updateServerSupports(
+						(MailboxUpdateWithMailbox) oldUpdate, serverSupports);
+				storeMessageReplaceLatest(txn, contactGroup.getId(), newUpdate,
+						latest);
+			}
+		} catch (FormatException e) {
+			throw new DbException();
+		}
+	}
+
+	private void storeSentServerSupports(Transaction txn,
+			List<MailboxVersion> serverSupports)
+			throws DbException, FormatException {
+		BdfDictionary meta = BdfDictionary.of(new BdfEntry(
+				GROUP_KEY_SENT_SERVER_SUPPORTS,
+				encodeSupportsList(serverSupports)));
+		clientHelper.mergeGroupMetadata(txn, localGroup.getId(), meta);
+	}
+
+	private List<MailboxVersion> loadSentServerSupports(Transaction txn)
+			throws DbException, FormatException {
+		BdfDictionary meta = clientHelper.getGroupMetadataAsDictionary(txn,
+				localGroup.getId());
+		BdfList serverSupports =
+				meta.getOptionalList(GROUP_KEY_SENT_SERVER_SUPPORTS);
+		if (serverSupports == null) return emptyList();
+		return clientHelper.parseMailboxVersionList(serverSupports);
+	}
+
+	/**
+	 * Returns a new {@link MailboxUpdateWithMailbox} that updates the list
+	 * of server-supported API versions in the given
+	 * {@link MailboxUpdateWithMailbox}.
+	 */
+	private MailboxUpdateWithMailbox updateServerSupports(
+			MailboxUpdateWithMailbox old, List<MailboxVersion> serverSupports) {
+		MailboxProperties oldProps = old.getMailboxProperties();
+		MailboxProperties newProps = new MailboxProperties(oldProps.getOnion(),
+				oldProps.getAuthToken(), serverSupports,
+				requireNonNull(oldProps.getInboxId()),
+				requireNonNull(oldProps.getOutboxId()));
+		return new MailboxUpdateWithMailbox(old.getClientSupports(), newProps);
 	}
 
 	@Override
@@ -304,18 +383,24 @@ class MailboxUpdateManagerImpl implements MailboxUpdateManager,
 			MailboxUpdate u) throws DbException {
 		try {
 			LatestUpdate latest = findLatest(txn, g, true);
-			long version = latest == null ? 1 : latest.version + 1;
-			Message m = clientHelper.createMessage(g, clock.currentTimeMillis(),
-					encodeProperties(version, u));
-			BdfDictionary meta = new BdfDictionary();
-			meta.put(MSG_KEY_VERSION, version);
-			meta.put(MSG_KEY_LOCAL, true);
-			clientHelper.addLocalMessage(txn, m, meta, true, false);
-			if (latest != null) {
-				db.removeMessage(txn, latest.messageId);
-			}
+			storeMessageReplaceLatest(txn, g, u, latest);
 		} catch (FormatException e) {
 			throw new DbException(e);
+		}
+	}
+
+	private void storeMessageReplaceLatest(Transaction txn, GroupId g,
+			MailboxUpdate u, @Nullable LatestUpdate latest)
+			throws DbException, FormatException {
+		long version = latest == null ? 1 : latest.version + 1;
+		Message m = clientHelper.createMessage(g, clock.currentTimeMillis(),
+				encodeProperties(version, u));
+		BdfDictionary meta = new BdfDictionary();
+		meta.put(MSG_KEY_VERSION, version);
+		meta.put(MSG_KEY_LOCAL, true);
+		clientHelper.addLocalMessage(txn, m, meta, true, false);
+		if (latest != null) {
+			db.removeMessage(txn, latest.messageId);
 		}
 	}
 
