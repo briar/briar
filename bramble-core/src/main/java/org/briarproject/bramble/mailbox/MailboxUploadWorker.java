@@ -328,13 +328,13 @@ class MailboxUploadWorker implements MailboxWorker, ConnectivityObserver,
 		LOG.info("Uploading file");
 		mailboxApi.addFile(mailboxProperties, folderId, file);
 		markMessagesSentOrAcked(sessionRecord);
+		delete(file);
 		synchronized (lock) {
 			if (state != State.WRITING_UPLOADING) return;
 			state = State.CHECKING_FOR_DATA;
 			apiCall = null;
 			this.file = null;
 		}
-		delete(file);
 		checkForDataToSend();
 	}
 

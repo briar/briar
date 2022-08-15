@@ -19,6 +19,7 @@ import org.briarproject.bramble.api.mailbox.MailboxUpdateWithMailbox;
 import org.briarproject.bramble.api.mailbox.MailboxVersion;
 import org.briarproject.bramble.api.mailbox.event.MailboxPairedEvent;
 import org.briarproject.bramble.api.mailbox.event.MailboxUnpairedEvent;
+import org.briarproject.bramble.api.mailbox.event.MailboxUpdateSentEvent;
 import org.briarproject.bramble.api.mailbox.event.RemoteMailboxUpdateEvent;
 import org.briarproject.bramble.api.sync.Group;
 import org.briarproject.bramble.api.sync.GroupId;
@@ -185,6 +186,9 @@ public class MailboxUpdateManagerImplTest extends BrambleMockTestCase {
 
 		MailboxUpdateManagerImpl t = createInstance(someClientSupportsList);
 		t.onDatabaseOpened(txn);
+
+		MailboxUpdateSentEvent e = getEvent(txn, MailboxUpdateSentEvent.class);
+		assertNoMailboxPropertiesSent(e, someClientSupportsList);
 	}
 
 	@Test
@@ -238,11 +242,15 @@ public class MailboxUpdateManagerImplTest extends BrambleMockTestCase {
 
 		MailboxUpdateManagerImpl t = createInstance(someClientSupportsList);
 		t.onDatabaseOpened(txn);
+
+		MailboxUpdateSentEvent e = getEvent(txn, MailboxUpdateSentEvent.class);
+		assertMailboxPropertiesSent(e, someClientSupportsList);
 	}
 
 	@Test
 	public void testUnchangedClientSupportsOnSecondStartup() throws Exception {
-		Transaction txn = new Transaction(null, false);
+		Transaction txn1 = new Transaction(null, false);
+		Transaction txn2 = new Transaction(null, false);
 
 		Map<MessageId, BdfDictionary> emptyMessageMetadata =
 				new LinkedHashMap<>();
@@ -251,46 +259,49 @@ public class MailboxUpdateManagerImplTest extends BrambleMockTestCase {
 				someClientSupports));
 
 		context.checking(new Expectations() {{
-			oneOf(db).containsGroup(txn, localGroup.getId());
+			oneOf(db).containsGroup(txn1, localGroup.getId());
 			will(returnValue(false));
-			oneOf(db).addGroup(txn, localGroup);
-			oneOf(db).getContacts(txn);
+			oneOf(db).addGroup(txn1, localGroup);
+			oneOf(db).getContacts(txn1);
 			will(returnValue(singletonList(contact)));
 
 			// addingContact()
 			oneOf(contactGroupFactory).createContactGroup(CLIENT_ID,
 					MAJOR_VERSION, contact);
 			will(returnValue(contactGroup));
-			oneOf(db).addGroup(txn, contactGroup);
-			oneOf(clientVersioningManager).getClientVisibility(txn,
+			oneOf(db).addGroup(txn1, contactGroup);
+			oneOf(clientVersioningManager).getClientVisibility(txn1,
 					contact.getId(), CLIENT_ID, MAJOR_VERSION);
 			will(returnValue(SHARED));
-			oneOf(db).setGroupVisibility(txn, contact.getId(),
+			oneOf(db).setGroupVisibility(txn1, contact.getId(),
 					contactGroupId, SHARED);
-			oneOf(clientHelper).setContactId(txn, contactGroupId,
+			oneOf(clientHelper).setContactId(txn1, contactGroupId,
 					contact.getId());
-			oneOf(mailboxSettingsManager).getOwnMailboxProperties(txn);
+			oneOf(mailboxSettingsManager).getOwnMailboxProperties(txn1);
 			will(returnValue(null));
 			oneOf(contactGroupFactory).createContactGroup(CLIENT_ID,
 					MAJOR_VERSION, contact);
 			will(returnValue(contactGroup));
-			oneOf(clientHelper).getMessageMetadataAsDictionary(txn,
+			oneOf(clientHelper).getMessageMetadataAsDictionary(txn1,
 					contactGroupId);
 			will(returnValue(emptyMessageMetadata));
-			expectStoreMessage(txn, contactGroupId, 1, someClientSupports,
+			expectStoreMessage(txn1, contactGroupId, 1, someClientSupports,
 					emptyServerSupports, emptyPropsDict);
 
-			oneOf(clientHelper).mergeGroupMetadata(txn, localGroup.getId(),
+			oneOf(clientHelper).mergeGroupMetadata(txn1, localGroup.getId(),
 					sentDict);
 		}});
 
 		MailboxUpdateManagerImpl t = createInstance(someClientSupportsList);
-		t.onDatabaseOpened(txn);
+		t.onDatabaseOpened(txn1);
+
+		MailboxUpdateSentEvent e = getEvent(txn1, MailboxUpdateSentEvent.class);
+		assertNoMailboxPropertiesSent(e, someClientSupportsList);
 
 		context.checking(new Expectations() {{
-			oneOf(db).containsGroup(txn, localGroup.getId());
+			oneOf(db).containsGroup(txn2, localGroup.getId());
 			will(returnValue(true));
-			oneOf(clientHelper).getGroupMetadataAsDictionary(txn,
+			oneOf(clientHelper).getGroupMetadataAsDictionary(txn2,
 					localGroup.getId());
 			will(returnValue(sentDict));
 			oneOf(clientHelper).parseMailboxVersionList(someClientSupports);
@@ -298,13 +309,16 @@ public class MailboxUpdateManagerImplTest extends BrambleMockTestCase {
 		}});
 
 		t = createInstance(someClientSupportsList);
-		t.onDatabaseOpened(txn);
+		t.onDatabaseOpened(txn2);
+
+		assertFalse(hasEvent(txn2, MailboxUpdateSentEvent.class));
 	}
 
 	@Test
 	public void testSendsUpdateWhenClientSupportsChangedOnSecondStartup()
 			throws Exception {
-		Transaction txn = new Transaction(null, false);
+		Transaction txn1 = new Transaction(null, false);
+		Transaction txn2 = new Transaction(null, false);
 
 		Map<MessageId, BdfDictionary> emptyMessageMetadata =
 				new LinkedHashMap<>();
@@ -313,41 +327,45 @@ public class MailboxUpdateManagerImplTest extends BrambleMockTestCase {
 				someClientSupports));
 
 		context.checking(new Expectations() {{
-			oneOf(db).containsGroup(txn, localGroup.getId());
+			oneOf(db).containsGroup(txn1, localGroup.getId());
 			will(returnValue(false));
-			oneOf(db).addGroup(txn, localGroup);
-			oneOf(db).getContacts(txn);
+			oneOf(db).addGroup(txn1, localGroup);
+			oneOf(db).getContacts(txn1);
 			will(returnValue(singletonList(contact)));
 
 			// addingContact()
 			oneOf(contactGroupFactory).createContactGroup(CLIENT_ID,
 					MAJOR_VERSION, contact);
 			will(returnValue(contactGroup));
-			oneOf(db).addGroup(txn, contactGroup);
-			oneOf(clientVersioningManager).getClientVisibility(txn,
+			oneOf(db).addGroup(txn1, contactGroup);
+			oneOf(clientVersioningManager).getClientVisibility(txn1,
 					contact.getId(), CLIENT_ID, MAJOR_VERSION);
 			will(returnValue(SHARED));
-			oneOf(db).setGroupVisibility(txn, contact.getId(),
+			oneOf(db).setGroupVisibility(txn1, contact.getId(),
 					contactGroupId, SHARED);
-			oneOf(clientHelper).setContactId(txn, contactGroupId,
+			oneOf(clientHelper).setContactId(txn1, contactGroupId,
 					contact.getId());
-			oneOf(mailboxSettingsManager).getOwnMailboxProperties(txn);
+			oneOf(mailboxSettingsManager).getOwnMailboxProperties(txn1);
 			will(returnValue(null));
 			oneOf(contactGroupFactory).createContactGroup(CLIENT_ID,
 					MAJOR_VERSION, contact);
 			will(returnValue(contactGroup));
-			oneOf(clientHelper).getMessageMetadataAsDictionary(txn,
+			oneOf(clientHelper).getMessageMetadataAsDictionary(txn1,
 					contactGroupId);
 			will(returnValue(emptyMessageMetadata));
-			expectStoreMessage(txn, contactGroupId, 1, someClientSupports,
+			expectStoreMessage(txn1, contactGroupId, 1, someClientSupports,
 					emptyServerSupports, emptyPropsDict);
 
-			oneOf(clientHelper).mergeGroupMetadata(txn, localGroup.getId(),
+			oneOf(clientHelper).mergeGroupMetadata(txn1, localGroup.getId(),
 					sentDict);
 		}});
 
 		MailboxUpdateManagerImpl t = createInstance(someClientSupportsList);
-		t.onDatabaseOpened(txn);
+		t.onDatabaseOpened(txn1);
+
+		MailboxUpdateSentEvent e1 =
+				getEvent(txn1, MailboxUpdateSentEvent.class);
+		assertNoMailboxPropertiesSent(e1, someClientSupportsList);
 
 		BdfDictionary metaDictionary = BdfDictionary.of(
 				new BdfEntry(MSG_KEY_VERSION, 1),
@@ -356,58 +374,62 @@ public class MailboxUpdateManagerImplTest extends BrambleMockTestCase {
 		Map<MessageId, BdfDictionary> messageMetadata = new LinkedHashMap<>();
 		MessageId messageId = new MessageId(getRandomId());
 		messageMetadata.put(messageId, metaDictionary);
-		BdfList body = BdfList.of(1, someClientSupports, someServerSupports,
-				propsDict);
+		BdfList oldBody = BdfList.of(1, someClientSupports, emptyServerSupports,
+				emptyPropsDict);
 		BdfDictionary newerSentDict = BdfDictionary.of(new BdfEntry(
 				GROUP_KEY_SENT_CLIENT_SUPPORTS,
 				newerClientSupports));
 
 		context.checking(new Expectations() {{
-			oneOf(db).containsGroup(txn, localGroup.getId());
+			oneOf(db).containsGroup(txn2, localGroup.getId());
 			will(returnValue(true));
 
 			// Find out that we are now on newerClientSupportsList
-			oneOf(clientHelper).getGroupMetadataAsDictionary(txn,
+			oneOf(clientHelper).getGroupMetadataAsDictionary(txn2,
 					localGroup.getId());
 			will(returnValue(sentDict));
 			oneOf(clientHelper).parseMailboxVersionList(someClientSupports);
 			will(returnValue(someClientSupportsList));
 
-			oneOf(db).getContacts(txn);
+			oneOf(db).getContacts(txn2);
 			will(returnValue(singletonList(contact)));
-			oneOf(db).getContact(txn, contact.getId());
+			oneOf(db).getContact(txn2, contact.getId());
 			will(returnValue(contact));
 
 			// getLocalUpdate()
 			oneOf(contactGroupFactory).createContactGroup(CLIENT_ID,
 					MAJOR_VERSION, contact);
 			will(returnValue(contactGroup));
-			oneOf(clientHelper).getMessageMetadataAsDictionary(txn,
+			oneOf(clientHelper).getMessageMetadataAsDictionary(txn2,
 					contactGroupId);
 			will(returnValue(messageMetadata));
-			oneOf(clientHelper).getMessageAsList(txn, messageId);
-			will(returnValue(body));
+			oneOf(clientHelper).getMessageAsList(txn2, messageId);
+			will(returnValue(oldBody));
 			oneOf(clientHelper).parseAndValidateMailboxUpdate(
-					someClientSupports, someServerSupports, propsDict);
-			will(returnValue(updateWithMailbox));
+					someClientSupports, emptyServerSupports, emptyPropsDict);
+			will(returnValue(updateNoMailbox));
 			oneOf(contactGroupFactory).createContactGroup(CLIENT_ID,
 					MAJOR_VERSION, contact);
 			will(returnValue(contactGroup));
 
 			// storeMessageReplaceLatest()
-			oneOf(clientHelper).getMessageMetadataAsDictionary(txn,
+			oneOf(clientHelper).getMessageMetadataAsDictionary(txn2,
 					contactGroupId);
 			will(returnValue(messageMetadata));
-			expectStoreMessage(txn, contactGroupId, 2,
-					newerClientSupports, someServerSupports, propsDict);
-			oneOf(db).removeMessage(txn, messageId);
+			expectStoreMessage(txn2, contactGroupId, 2,
+					newerClientSupports, emptyServerSupports, emptyPropsDict);
+			oneOf(db).removeMessage(txn2, messageId);
 
-			oneOf(clientHelper).mergeGroupMetadata(txn, localGroup.getId(),
+			oneOf(clientHelper).mergeGroupMetadata(txn2, localGroup.getId(),
 					newerSentDict);
 		}});
 
 		t = createInstance(newerClientSupportsList);
-		t.onDatabaseOpened(txn);
+		t.onDatabaseOpened(txn2);
+
+		MailboxUpdateSentEvent e2 =
+				getEvent(txn2, MailboxUpdateSentEvent.class);
+		assertNoMailboxPropertiesSent(e2, newerClientSupportsList);
 	}
 
 	@Test
@@ -443,6 +465,9 @@ public class MailboxUpdateManagerImplTest extends BrambleMockTestCase {
 
 		MailboxUpdateManagerImpl t = createInstance(someClientSupportsList);
 		t.addingContact(txn, contact);
+
+		MailboxUpdateSentEvent e = getEvent(txn, MailboxUpdateSentEvent.class);
+		assertNoMailboxPropertiesSent(e, someClientSupportsList);
 	}
 
 	@Test
@@ -484,6 +509,9 @@ public class MailboxUpdateManagerImplTest extends BrambleMockTestCase {
 
 		MailboxUpdateManagerImpl t = createInstance(someClientSupportsList);
 		t.addingContact(txn, contact);
+
+		MailboxUpdateSentEvent e = getEvent(txn, MailboxUpdateSentEvent.class);
+		assertMailboxPropertiesSent(e, someClientSupportsList);
 	}
 
 	@Test
@@ -693,6 +721,8 @@ public class MailboxUpdateManagerImplTest extends BrambleMockTestCase {
 				u.getClientSupports());
 		assertEquals(updateWithMailbox.getMailboxProperties(),
 				u.getMailboxProperties());
+
+		assertFalse(hasEvent(txn, MailboxUpdateSentEvent.class));
 	}
 
 	@Test
@@ -734,6 +764,8 @@ public class MailboxUpdateManagerImplTest extends BrambleMockTestCase {
 		assertEquals(singleton(contact.getId()), localUpdates.keySet());
 		MailboxUpdate u = localUpdates.get(contact.getId());
 		assertFalse(u.hasMailbox());
+
+		assertFalse(hasEvent(txn, MailboxUpdateSentEvent.class));
 	}
 
 	@Test
@@ -914,5 +946,23 @@ public class MailboxUpdateManagerImplTest extends BrambleMockTestCase {
 			oneOf(clientHelper).addLocalMessage(txn, message, meta, true,
 					false);
 		}});
+	}
+
+	private void assertNoMailboxPropertiesSent(MailboxUpdateSentEvent e,
+			List<MailboxVersion> clientSupports) {
+		assertEquals(contact.getId(), e.getContactId());
+		MailboxUpdate u = e.getMailboxUpdate();
+		assertEquals(clientSupports, u.getClientSupports());
+		assertFalse(u.hasMailbox());
+	}
+
+	private void assertMailboxPropertiesSent(MailboxUpdateSentEvent e,
+			List<MailboxVersion> clientSupports) {
+		assertEquals(contact.getId(), e.getContactId());
+		MailboxUpdate u = e.getMailboxUpdate();
+		assertEquals(clientSupports, u.getClientSupports());
+		assertTrue(u.hasMailbox());
+		MailboxUpdateWithMailbox uMailbox = (MailboxUpdateWithMailbox) u;
+		assertEquals(updateProps, uMailbox.getMailboxProperties());
 	}
 }

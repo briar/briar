@@ -349,13 +349,13 @@ public interface DatabaseComponent extends TransactionManager {
 			Metadata query) throws DbException;
 
 	/**
-	 * Returns the IDs of some messages received from the given contact that
-	 * need to be acknowledged, up to the given number of messages.
+	 * Returns the IDs of all messages received from the given contact that
+	 * need to be acknowledged.
 	 * <p/>
 	 * Read-only.
 	 */
-	Collection<MessageId> getMessagesToAck(Transaction txn, ContactId c,
-			int maxMessages) throws DbException;
+	Collection<MessageId> getMessagesToAck(Transaction txn, ContactId c)
+			throws DbException;
 
 	/**
 	 * Returns the IDs of some messages that are eligible to be sent to the
@@ -492,6 +492,8 @@ public interface DatabaseComponent extends TransactionManager {
 	 * Returns the message with the given ID for transmission to the given
 	 * contact over a transport with the given maximum latency. Returns null
 	 * if the message is no longer visible to the contact.
+	 * <p/>
+	 * Read-only if {@code markAsSent} is false.
 	 *
 	 * @param markAsSent True if the message should be marked as sent.
 	 * If false it can be marked as sent by calling

@@ -389,7 +389,7 @@ public class DatabaseComponentImplTest extends BrambleMockTestCase {
 
 		try {
 			db.transaction(true, transaction ->
-					db.getMessagesToAck(transaction, contactId, 123));
+					db.getMessagesToAck(transaction, contactId));
 			fail();
 		} catch (NoSuchContactException expected) {
 			// Expected
@@ -1396,14 +1396,7 @@ public class DatabaseComponentImplTest extends BrambleMockTestCase {
 			will(returnValue(txn));
 			oneOf(database).containsContact(txn, contactId);
 			will(returnValue(true));
-			// First message is still visible to the contact - flag lowered
-			oneOf(database).containsVisibleMessage(txn, contactId, messageId);
-			will(returnValue(true));
-			// Second message is no longer visible - flag not lowered
-			oneOf(database).containsVisibleMessage(txn, contactId, messageId1);
-			will(returnValue(false));
-			oneOf(database)
-					.lowerAckFlag(txn, contactId, singletonList(messageId));
+			oneOf(database).lowerAckFlag(txn, contactId, acked);
 			oneOf(database).commitTransaction(txn);
 		}});
 		DatabaseComponent db = createDatabaseComponent(database, eventBus,

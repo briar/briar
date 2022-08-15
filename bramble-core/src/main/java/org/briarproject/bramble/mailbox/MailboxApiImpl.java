@@ -22,7 +22,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 
 import javax.inject.Inject;
@@ -35,6 +34,7 @@ import okhttp3.Response;
 import okhttp3.ResponseBody;
 
 import static com.fasterxml.jackson.databind.MapperFeature.BLOCK_UNSAFE_POLYMORPHIC_BASE_TYPES;
+import static java.util.Collections.sort;
 import static java.util.Objects.requireNonNull;
 import static okhttp3.internal.Util.EMPTY_REQUEST;
 import static org.briarproject.bramble.util.IoUtils.copyAndClose;
@@ -125,6 +125,8 @@ class MailboxApiImpl implements MailboxApi {
 			if (major < 0 || minor < 0) throw new ApiException();
 			serverSupports.add(new MailboxVersion(major, minor));
 		}
+		// Sort the list of versions for easier comparison
+		sort(serverSupports);
 		return serverSupports;
 	}
 
@@ -245,7 +247,7 @@ class MailboxApiImpl implements MailboxApi {
 				if (time < 1) throw new ApiException();
 				list.add(new MailboxFile(MailboxFileId.fromString(name), time));
 			}
-			Collections.sort(list);
+			sort(list);
 			return list;
 		} catch (JacksonException | InvalidMailboxIdException e) {
 			throw new ApiException();

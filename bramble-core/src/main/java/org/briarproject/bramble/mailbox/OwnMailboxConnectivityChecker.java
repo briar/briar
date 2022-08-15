@@ -59,6 +59,7 @@ class OwnMailboxConnectivityChecker extends ConnectivityCheckerImpl {
 	private boolean checkConnectivityAndStoreResult(
 			MailboxProperties properties) throws DbException {
 		try {
+			LOG.info("Checking whether own mailbox is reachable");
 			List<MailboxVersion> serverSupports =
 					mailboxApi.getServerSupports(properties);
 			LOG.info("Own mailbox is reachable");

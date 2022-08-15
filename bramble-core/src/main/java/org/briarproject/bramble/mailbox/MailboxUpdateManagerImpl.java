@@ -27,6 +27,7 @@ import org.briarproject.bramble.api.mailbox.MailboxUpdateWithMailbox;
 import org.briarproject.bramble.api.mailbox.MailboxVersion;
 import org.briarproject.bramble.api.mailbox.event.MailboxPairedEvent;
 import org.briarproject.bramble.api.mailbox.event.MailboxUnpairedEvent;
+import org.briarproject.bramble.api.mailbox.event.MailboxUpdateSentEvent;
 import org.briarproject.bramble.api.mailbox.event.RemoteMailboxUpdateEvent;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.sync.Group;
@@ -114,6 +115,7 @@ class MailboxUpdateManagerImpl implements MailboxUpdateManager,
 				}
 				Group g = getContactGroup(c);
 				storeMessageReplaceLatest(txn, g.getId(), updated);
+				txn.attach(new MailboxUpdateSentEvent(c.getId(), updated));
 			}
 		} else {
 			db.addGroup(txn, localGroup);
@@ -146,14 +148,16 @@ class MailboxUpdateManagerImpl implements MailboxUpdateManager,
 		clientHelper.setContactId(txn, g.getId(), c.getId());
 		MailboxProperties ownProps =
 				mailboxSettingsManager.getOwnMailboxProperties(txn);
+		MailboxUpdate u;
 		if (ownProps != null) {
 			// We are paired, create and send props to the newly added contact
-			createAndSendUpdateWithMailbox(txn, c, ownProps.getServerSupports(),
-					ownProps.getOnion());
+			u = createAndSendUpdateWithMailbox(txn, c,
+					ownProps.getServerSupports(), ownProps.getOnion());
 		} else {
 			// Not paired, but we still want to get our clientSupports sent
-			sendUpdateNoMailbox(txn, c);
+			u = sendUpdateNoMailbox(txn, c);
 		}
+		txn.attach(new MailboxUpdateSentEvent(c.getId(), u));
 	}
 
 	@Override

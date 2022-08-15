@@ -620,11 +620,11 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 
 	@Override
 	public Collection<MessageId> getMessagesToAck(Transaction transaction,
-			ContactId c, int maxMessages) throws DbException {
+			ContactId c) throws DbException {
 		T txn = unbox(transaction);
 		if (!db.containsContact(txn, c))
 			throw new NoSuchContactException();
-		return db.getMessagesToAck(txn, c, maxMessages);
+		return db.getMessagesToAck(txn, c, Integer.MAX_VALUE);
 	}
 
 	@Override
@@ -746,7 +746,9 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 	public Message getMessageToSend(Transaction transaction, ContactId c,
 			MessageId m, long maxLatency, boolean markAsSent)
 			throws DbException {
-		if (transaction.isReadOnly()) throw new IllegalArgumentException();
+		if (markAsSent && transaction.isReadOnly()) {
+			throw new IllegalArgumentException();
+		}
 		T txn = unbox(transaction);
 		if (!db.containsContact(txn, c))
 			throw new NoSuchContactException();
@@ -1097,11 +1099,7 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 		T txn = unbox(transaction);
 		if (!db.containsContact(txn, c))
 			throw new NoSuchContactException();
-		List<MessageId> visible = new ArrayList<>(acked.size());
-		for (MessageId m : acked) {
-			if (db.containsVisibleMessage(txn, c, m)) visible.add(m);
-		}
-		db.lowerAckFlag(txn, c, visible);
+		db.lowerAckFlag(txn, c, acked);
 	}
 
 	@Override

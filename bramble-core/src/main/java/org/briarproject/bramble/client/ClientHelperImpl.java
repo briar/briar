@@ -52,6 +52,7 @@ import java.util.Map.Entry;
 import javax.annotation.concurrent.Immutable;
 import javax.inject.Inject;
 
+import static java.util.Collections.sort;
 import static org.briarproject.bramble.api.client.ContactGroupConstants.GROUP_KEY_CONTACT_ID;
 import static org.briarproject.bramble.api.identity.Author.FORMAT_VERSION;
 import static org.briarproject.bramble.api.identity.AuthorConstants.MAX_AUTHOR_NAME_LENGTH;
@@ -474,6 +475,8 @@ class ClientHelperImpl implements ClientHelper {
 			list.add(new MailboxVersion(element.getLong(0).intValue(),
 					element.getLong(1).intValue()));
 		}
+		// Sort the list of versions for easier comparison
+		sort(list);
 		return list;
 	}
 
