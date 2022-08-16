@@ -35,4 +35,13 @@ public class MailboxHelper {
 		return API_SERVER_TOO_OLD;
 	}
 
+	/**
+	 * Returns true if a client and server with the given API versions can
+	 * communicate with each other (ie, have any major API versions in common).
+	 */
+	public static boolean isClientCompatibleWithServer(
+			List<MailboxVersion> client, List<MailboxVersion> server) {
+		int common = getHighestCommonMajorVersion(client, server);
+		return common != API_CLIENT_TOO_OLD && common != API_SERVER_TOO_OLD;
+	}
 }

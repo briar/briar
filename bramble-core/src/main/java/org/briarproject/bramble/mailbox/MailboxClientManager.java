@@ -46,7 +46,7 @@ import javax.inject.Inject;
 import static java.util.logging.Level.WARNING;
 import static java.util.logging.Logger.getLogger;
 import static org.briarproject.bramble.api.mailbox.MailboxConstants.CLIENT_SUPPORTS;
-import static org.briarproject.bramble.api.mailbox.MailboxHelper.getHighestCommonMajorVersion;
+import static org.briarproject.bramble.api.mailbox.MailboxHelper.isClientCompatibleWithServer;
 import static org.briarproject.bramble.api.nullsafety.NullSafety.requireNonNull;
 import static org.briarproject.bramble.api.plugin.Plugin.State.ACTIVE;
 import static org.briarproject.bramble.api.plugin.TorConstants.ID;
@@ -627,8 +627,8 @@ class MailboxClientManager implements Service, EventListener {
 	 */
 	private boolean isMailboxUsable(List<MailboxVersion> contactClient,
 			List<MailboxVersion> server) {
-		return getHighestCommonMajorVersion(contactClient, server) >= 0
-				&& getHighestCommonMajorVersion(CLIENT_SUPPORTS, server) >= 0;
+		return isClientCompatibleWithServer(contactClient, server)
+				&& isClientCompatibleWithServer(CLIENT_SUPPORTS, server);
 	}
 
 	/**
@@ -637,8 +637,8 @@ class MailboxClientManager implements Service, EventListener {
 	 */
 	@SuppressWarnings("BooleanMethodIsAlwaysInverted")
 	private boolean isOwnMailboxUsable(MailboxProperties ownProperties) {
-		return getHighestCommonMajorVersion(CLIENT_SUPPORTS,
-				ownProperties.getServerSupports()) >= 0;
+		return isClientCompatibleWithServer(CLIENT_SUPPORTS,
+				ownProperties.getServerSupports());
 	}
 
 	/**
