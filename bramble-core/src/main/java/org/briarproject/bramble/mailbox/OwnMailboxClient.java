@@ -1,9 +1,13 @@
 package org.briarproject.bramble.mailbox;
 
+import org.briarproject.bramble.api.Cancellable;
 import org.briarproject.bramble.api.contact.ContactId;
+import org.briarproject.bramble.api.lifecycle.IoExecutor;
 import org.briarproject.bramble.api.mailbox.MailboxFolderId;
 import org.briarproject.bramble.api.mailbox.MailboxProperties;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
+import org.briarproject.bramble.api.system.TaskScheduler;
+import org.briarproject.bramble.mailbox.ConnectivityChecker.ConnectivityObserver;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -11,17 +15,27 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.Executor;
 import java.util.logging.Logger;
 
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;
 
+import static java.util.concurrent.TimeUnit.HOURS;
+import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static java.util.logging.Logger.getLogger;
 
 @ThreadSafe
 @NotNullByDefault
-class OwnMailboxClient implements MailboxClient {
+class OwnMailboxClient implements MailboxClient, ConnectivityObserver {
+
+	/**
+	 * How often to check our own mailbox's connectivity.
+	 * <p>
+	 * Package access for testing.
+	 */
+	static final long CONNECTIVITY_CHECK_INTERVAL_MS = HOURS.toMillis(1);
 
 	private static final Logger LOG =
 			getLogger(OwnMailboxClient.class.getName());
@@ -29,6 +43,9 @@ class OwnMailboxClient implements MailboxClient {
 	private final MailboxWorkerFactory workerFactory;
 	private final ConnectivityChecker connectivityChecker;
 	private final TorReachabilityMonitor reachabilityMonitor;
+	private final TaskScheduler taskScheduler;
+	private final Executor ioExecutor;
+	private final MailboxProperties properties;
 	private final MailboxWorker contactListWorker;
 	private final Object lock = new Object();
 
@@ -53,14 +70,30 @@ class OwnMailboxClient implements MailboxClient {
 	@GuardedBy("lock")
 	private final Set<ContactId> assignedForDownload = new HashSet<>();
 
+	/**
+	 * Scheduled task for periodically checking whether the mailbox is
+	 * reachable.
+	 */
+	@GuardedBy("lock")
+	@Nullable
+	private Cancellable connectivityTask = null;
+
+	@GuardedBy("lock")
+	private boolean destroyed = false;
+
 	OwnMailboxClient(MailboxWorkerFactory workerFactory,
 			ConnectivityChecker connectivityChecker,
 			TorReachabilityMonitor reachabilityMonitor,
+			TaskScheduler taskScheduler,
+			@IoExecutor Executor ioExecutor,
 			MailboxProperties properties) {
 		if (!properties.isOwner()) throw new IllegalArgumentException();
 		this.workerFactory = workerFactory;
 		this.connectivityChecker = connectivityChecker;
 		this.reachabilityMonitor = reachabilityMonitor;
+		this.taskScheduler = taskScheduler;
+		this.ioExecutor = ioExecutor;
+		this.properties = properties;
 		contactListWorker = workerFactory.createContactListWorkerForOwnMailbox(
 				connectivityChecker, properties);
 	}
@@ -68,6 +101,7 @@ class OwnMailboxClient implements MailboxClient {
 	@Override
 	public void start() {
 		LOG.info("Started");
+		checkConnectivity();
 		contactListWorker.start();
 	}
 
@@ -76,15 +110,21 @@ class OwnMailboxClient implements MailboxClient {
 		LOG.info("Destroyed");
 		List<MailboxWorker> uploadWorkers;
 		MailboxWorker downloadWorker;
+		Cancellable connectivityTask;
 		synchronized (lock) {
 			uploadWorkers = new ArrayList<>(this.uploadWorkers.values());
 			this.uploadWorkers.clear();
 			downloadWorker = this.downloadWorker;
 			this.downloadWorker = null;
+			connectivityTask = this.connectivityTask;
+			this.connectivityTask = null;
+			destroyed = true;
 		}
 		// Destroy the workers (with apologies to Mr Marx and Mr Engels)
 		for (MailboxWorker worker : uploadWorkers) worker.destroy();
 		if (downloadWorker != null) downloadWorker.destroy();
+		// If a connectivity check is scheduled, cancel it
+		if (connectivityTask != null) connectivityTask.cancel();
 		contactListWorker.destroy();
 		// The connectivity checker belongs to the client, so it should be
 		// destroyed. The Tor reachability monitor is shared between clients,
@@ -154,5 +194,29 @@ class OwnMailboxClient implements MailboxClient {
 			}
 		}
 		if (toDestroy != null) toDestroy.destroy();
+	}
+
+	private void checkConnectivity() {
+		synchronized (lock) {
+			if (destroyed) return;
+			connectivityTask = null;
+		}
+		connectivityChecker.checkConnectivity(properties, this);
+		// Avoid leaking observer in case destroy() is called concurrently
+		// before observer is added
+		boolean removeObserver;
+		synchronized (lock) {
+			removeObserver = destroyed;
+		}
+		if (removeObserver) connectivityChecker.removeObserver(this);
+	}
+
+	@Override
+	public void onConnectivityCheckSucceeded() {
+		synchronized (lock) {
+			if (destroyed) return;
+			connectivityTask = taskScheduler.schedule(this::checkConnectivity,
+					ioExecutor, CONNECTIVITY_CHECK_INTERVAL_MS, MILLISECONDS);
+		}
 	}
 }

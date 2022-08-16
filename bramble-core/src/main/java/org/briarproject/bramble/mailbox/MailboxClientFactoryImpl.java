@@ -1,7 +1,11 @@
 package org.briarproject.bramble.mailbox;
 
+import org.briarproject.bramble.api.lifecycle.IoExecutor;
 import org.briarproject.bramble.api.mailbox.MailboxProperties;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
+import org.briarproject.bramble.api.system.TaskScheduler;
+
+import java.util.concurrent.Executor;
 
 import javax.inject.Inject;
 import javax.inject.Provider;
@@ -10,15 +14,21 @@ import javax.inject.Provider;
 class MailboxClientFactoryImpl implements MailboxClientFactory {
 
 	private final MailboxWorkerFactory workerFactory;
+	private final TaskScheduler taskScheduler;
+	private final Executor ioExecutor;
 	private final Provider<ContactMailboxConnectivityChecker>
 			contactCheckerProvider;
 	private final Provider<OwnMailboxConnectivityChecker> ownCheckerProvider;
 
 	@Inject
 	MailboxClientFactoryImpl(MailboxWorkerFactory workerFactory,
+			TaskScheduler taskScheduler,
+			@IoExecutor Executor ioExecutor,
 			Provider<ContactMailboxConnectivityChecker> contactCheckerProvider,
 			Provider<OwnMailboxConnectivityChecker> ownCheckerProvider) {
 		this.workerFactory = workerFactory;
+		this.taskScheduler = taskScheduler;
+		this.ioExecutor = ioExecutor;
 		this.contactCheckerProvider = contactCheckerProvider;
 		this.ownCheckerProvider = ownCheckerProvider;
 	}
@@ -37,6 +47,6 @@ class MailboxClientFactoryImpl implements MailboxClientFactory {
 			MailboxProperties properties) {
 		ConnectivityChecker connectivityChecker = ownCheckerProvider.get();
 		return new OwnMailboxClient(workerFactory, connectivityChecker,
-				reachabilityMonitor, properties);
+				reachabilityMonitor, taskScheduler, ioExecutor, properties);
 	}
 }
