@@ -29,6 +29,7 @@ import static org.briarproject.bramble.mailbox.MailboxSettingsManagerImpl.SETTIN
 import static org.briarproject.bramble.mailbox.MailboxSettingsManagerImpl.SETTINGS_UPLOADS_NAMESPACE;
 import static org.briarproject.bramble.test.TestUtils.getEvent;
 import static org.briarproject.bramble.test.TestUtils.getRandomId;
+import static org.briarproject.bramble.test.TestUtils.hasEvent;
 import static org.briarproject.bramble.util.StringUtils.getRandomString;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -52,6 +53,7 @@ public class MailboxSettingsManagerImplTest extends BrambleMockTestCase {
 	private final MailboxProperties properties = new MailboxProperties(onion,
 			token, serverSupports);
 	private final int[] serverSupportsInts = {1, 0, 1, 1};
+	private final Settings pairedSettings;
 	private final ContactId contactId1 = new ContactId(random.nextInt());
 	private final ContactId contactId2 = new ContactId(random.nextInt());
 	private final ContactId contactId3 = new ContactId(random.nextInt());
@@ -59,6 +61,14 @@ public class MailboxSettingsManagerImplTest extends BrambleMockTestCase {
 	private final long lastAttempt = now - 1234;
 	private final long lastSuccess = now - 2345;
 	private final int attempts = 123;
+
+	public MailboxSettingsManagerImplTest() {
+		pairedSettings = new Settings();
+		pairedSettings.put(SETTINGS_KEY_ONION, onion);
+		pairedSettings.put(SETTINGS_KEY_TOKEN, token.toString());
+		pairedSettings.putIntArray(SETTINGS_KEY_SERVER_SUPPORTS,
+				serverSupportsInts);
+	}
 
 	@Test
 	public void testReturnsNullPropertiesIfSettingsAreEmpty() throws Exception {
@@ -76,14 +86,10 @@ public class MailboxSettingsManagerImplTest extends BrambleMockTestCase {
 	@Test
 	public void testReturnsProperties() throws Exception {
 		Transaction txn = new Transaction(null, true);
-		Settings settings = new Settings();
-		settings.put(SETTINGS_KEY_ONION, onion);
-		settings.put(SETTINGS_KEY_TOKEN, token.toString());
-		settings.putIntArray(SETTINGS_KEY_SERVER_SUPPORTS, serverSupportsInts);
 
 		context.checking(new Expectations() {{
 			oneOf(settingsManager).getSettings(txn, SETTINGS_NAMESPACE);
-			will(returnValue(settings));
+			will(returnValue(pairedSettings));
 		}});
 
 		MailboxProperties properties = manager.getOwnMailboxProperties(txn);
@@ -97,16 +103,11 @@ public class MailboxSettingsManagerImplTest extends BrambleMockTestCase {
 	@Test
 	public void testStoresProperties() throws Exception {
 		Transaction txn = new Transaction(null, false);
-		Settings expectedSettings = new Settings();
-		expectedSettings.put(SETTINGS_KEY_ONION, onion);
-		expectedSettings.put(SETTINGS_KEY_TOKEN, token.toString());
-		expectedSettings.putIntArray(SETTINGS_KEY_SERVER_SUPPORTS,
-				serverSupportsInts);
 
 		manager.registerMailboxHook(hook);
 
 		context.checking(new Expectations() {{
-			oneOf(settingsManager).mergeSettings(txn, expectedSettings,
+			oneOf(settingsManager).mergeSettings(txn, pairedSettings,
 					SETTINGS_NAMESPACE);
 			oneOf(hook).mailboxPaired(txn, properties);
 		}});
@@ -182,6 +183,8 @@ public class MailboxSettingsManagerImplTest extends BrambleMockTestCase {
 				serverSupportsInts);
 
 		context.checking(new Expectations() {{
+			oneOf(settingsManager).getSettings(txn, SETTINGS_NAMESPACE);
+			will(returnValue(pairedSettings));
 			oneOf(settingsManager).mergeSettings(txn, expectedSettings,
 					SETTINGS_NAMESPACE);
 		}});
@@ -197,21 +200,35 @@ public class MailboxSettingsManagerImplTest extends BrambleMockTestCase {
 	}
 
 	@Test
+	public void testDoesNotRecordSuccessIfNotPaired() throws Exception {
+		Transaction txn = new Transaction(null, false);
+
+		context.checking(new Expectations() {{
+			oneOf(settingsManager).getSettings(txn, SETTINGS_NAMESPACE);
+			will(returnValue(new Settings()));
+		}});
+
+		manager.recordSuccessfulConnection(txn, now, serverSupports);
+		assertFalse(hasEvent(txn, OwnMailboxConnectionStatusEvent.class));
+	}
+
+	@Test
 	public void testRecordsFailureOnFirstAttempt() throws Exception {
-		testRecordsFailure(new Settings(), 0);
+		testRecordsFailure(pairedSettings, 0, 0);
 	}
 
 	@Test
 	public void testRecordsFailureOnLaterAttempt() throws Exception {
 		Settings oldSettings = new Settings();
+		oldSettings.putAll(pairedSettings);
 		oldSettings.putLong(SETTINGS_KEY_LAST_ATTEMPT, lastAttempt);
 		oldSettings.putLong(SETTINGS_KEY_LAST_SUCCESS, lastSuccess);
 		oldSettings.putInt(SETTINGS_KEY_ATTEMPTS, attempts);
-		testRecordsFailure(oldSettings, attempts);
+		testRecordsFailure(oldSettings, attempts, lastSuccess);
 	}
 
-	private void testRecordsFailure(Settings oldSettings, int oldAttempts)
-			throws Exception {
+	private void testRecordsFailure(Settings oldSettings, int oldAttempts,
+			long lastSuccess) throws Exception {
 		Transaction txn = new Transaction(null, false);
 		Settings expectedSettings = new Settings();
 		expectedSettings.putLong(SETTINGS_KEY_LAST_ATTEMPT, now);
@@ -225,6 +242,25 @@ public class MailboxSettingsManagerImplTest extends BrambleMockTestCase {
 		}});
 
 		manager.recordFailedConnectionAttempt(txn, now);
+		OwnMailboxConnectionStatusEvent e =
+				getEvent(txn, OwnMailboxConnectionStatusEvent.class);
+		MailboxStatus status = e.getStatus();
+		assertEquals(now, status.getTimeOfLastAttempt());
+		assertEquals(lastSuccess, status.getTimeOfLastSuccess());
+		assertEquals(oldAttempts + 1, status.getAttemptsSinceSuccess());
+	}
+
+	@Test
+	public void testDoesNotRecordFailureIfNotPaired() throws Exception {
+		Transaction txn = new Transaction(null, false);
+
+		context.checking(new Expectations() {{
+			oneOf(settingsManager).getSettings(txn, SETTINGS_NAMESPACE);
+			will(returnValue(new Settings()));
+		}});
+
+		manager.recordFailedConnectionAttempt(txn, now);
+		assertFalse(hasEvent(txn, OwnMailboxConnectionStatusEvent.class));
 	}
 
 	@Test

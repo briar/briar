@@ -46,7 +46,7 @@ public interface MailboxSettingsManager {
 
 	interface MailboxHook {
 		/**
-		 * Called when Briar is paired with a mailbox
+		 * Called when Briar is paired with a mailbox.
 		 *
 		 * @param txn A read-write transaction
 		 */
@@ -54,10 +54,20 @@ public interface MailboxSettingsManager {
 				throws DbException;
 
 		/**
-		 * Called when the mailbox is unpaired
+		 * Called when the mailbox is unpaired.
 		 *
 		 * @param txn A read-write transaction
 		 */
 		void mailboxUnpaired(Transaction txn) throws DbException;
+
+		/**
+		 * Called when we receive our mailbox's server-supported API versions.
+		 * This happens whenever we successfully check the connectivity of
+		 * our mailbox, so this hook may be called frequently.
+		 *
+		 * @param txn A read-write transaction
+		 */
+		void serverSupportedVersionsReceived(Transaction txn,
+				List<MailboxVersion> serverSupports) throws DbException;
 	}
 }

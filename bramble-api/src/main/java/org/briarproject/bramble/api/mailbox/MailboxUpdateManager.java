@@ -80,6 +80,12 @@ public interface MailboxUpdateManager {
 	String GROUP_KEY_SENT_CLIENT_SUPPORTS = "sentClientSupports";
 
 	/**
+	 * Key in the client's local group for storing the serverSupports list that
+	 * was last sent out, if any.
+	 */
+	String GROUP_KEY_SENT_SERVER_SUPPORTS = "sentServerSupports";
+
+	/**
 	 * Returns the latest {@link MailboxUpdate} sent to the given contact.
 	 * <p>
 	 * If we have our own mailbox then the update will be a

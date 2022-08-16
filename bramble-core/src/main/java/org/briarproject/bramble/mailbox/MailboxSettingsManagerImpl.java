@@ -119,6 +119,12 @@ class MailboxSettingsManagerImpl implements MailboxSettingsManager {
 	@Override
 	public void recordSuccessfulConnection(Transaction txn, long now,
 			List<MailboxVersion> versions) throws DbException {
+		// if we no longer have a paired mailbox, return
+		Settings oldSettings =
+				settingsManager.getSettings(txn, SETTINGS_NAMESPACE);
+		String onion = oldSettings.get(SETTINGS_KEY_ONION);
+		String token = oldSettings.get(SETTINGS_KEY_TOKEN);
+		if (isNullOrEmpty(onion) || isNullOrEmpty(token)) return;
 		Settings s = new Settings();
 		// record the successful connection
 		s.putLong(SETTINGS_KEY_LAST_ATTEMPT, now);
@@ -126,6 +132,9 @@ class MailboxSettingsManagerImpl implements MailboxSettingsManager {
 		s.putInt(SETTINGS_KEY_ATTEMPTS, 0);
 		encodeServerSupports(versions, s);
 		settingsManager.mergeSettings(txn, s, SETTINGS_NAMESPACE);
+		for (MailboxHook hook : hooks) {
+			hook.serverSupportedVersionsReceived(txn, versions);
+		}
 		// broadcast status event
 		MailboxStatus status = new MailboxStatus(now, now, 0, versions);
 		txn.attach(new OwnMailboxConnectionStatusEvent(status));
@@ -134,8 +143,12 @@ class MailboxSettingsManagerImpl implements MailboxSettingsManager {
 	@Override
 	public void recordFailedConnectionAttempt(Transaction txn, long now)
 			throws DbException {
+		// if we no longer have a paired mailbox, return
 		Settings oldSettings =
 				settingsManager.getSettings(txn, SETTINGS_NAMESPACE);
+		String onion = oldSettings.get(SETTINGS_KEY_ONION);
+		String token = oldSettings.get(SETTINGS_KEY_TOKEN);
+		if (isNullOrEmpty(onion) || isNullOrEmpty(token)) return;
 		int newAttempts = 1 + oldSettings.getInt(SETTINGS_KEY_ATTEMPTS, 0);
 		long lastSuccess = oldSettings.getLong(SETTINGS_KEY_LAST_SUCCESS, 0);
 		Settings newSettings = new Settings();
