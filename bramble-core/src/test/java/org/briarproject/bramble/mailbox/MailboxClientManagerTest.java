@@ -281,12 +281,11 @@ public class MailboxClientManagerTest extends BrambleMockTestCase {
 		manager.eventOccurred(new TransportActiveEvent(ID));
 
 		// When we go offline, the manager should destroy the client for our
-		// own mailbox
+		// own mailbox.
 		expectDestroyClientForOwnMailbox();
 		manager.eventOccurred(new TransportInactiveEvent(ID));
 
-		// At shutdown the manager should destroy the client for our own
-		// mailbox and the reachability monitor.
+		// At shutdown the manager should destroy the reachability monitor.
 		expectRunTaskOnEventExecutor();
 		expectDestroyReachabilityMonitor();
 		manager.stopService();
@@ -322,8 +321,8 @@ public class MailboxClientManagerTest extends BrambleMockTestCase {
 	@Test
 	public void testReassignsContactToOurMailboxWhenPaired() throws Exception {
 		// At startup the manager should load the local and remote updates
-		// and our own mailbox properties. We have a mailbox but the contact
-		// doesn't.
+		// and our own mailbox properties. The contact has a mailbox but we
+		// don't.
 		//
 		// We're online, so the manager should create a client for the
 		// contact's mailbox and assign the contact to it for upload and
@@ -358,8 +357,8 @@ public class MailboxClientManagerTest extends BrambleMockTestCase {
 	public void testDoesNotAssignContactWhenPairedIfContactHasNotSentUpdate()
 			throws Exception {
 		// At startup the manager should load the local and remote updates
-		// and our own mailbox properties. We have a mailbox but the contact
-		// has never sent us an update, so the remote update is null.
+		// and our own mailbox properties. We don't have a mailbox and the
+		// contact has never sent us an update, so the remote update is null.
 		expectLoadUpdates(localUpdateWithoutMailbox, null, null);
 		expectCheckPluginState(ACTIVE);
 		manager.startService();

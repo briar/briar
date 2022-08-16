@@ -95,7 +95,8 @@ class MailboxClientManager implements Service, EventListener {
 	private final TorReachabilityMonitor reachabilityMonitor;
 	private final AtomicBoolean used = new AtomicBoolean(false);
 
-	// The following mutable state must only be accessed on the event thread
+	// All of the following mutable state must only be accessed on the
+	// event thread
 	private final Map<ContactId, Updates> contactUpdates = new HashMap<>();
 	private final Map<ContactId, MailboxClient> contactClients =
 			new HashMap<>();
@@ -343,13 +344,12 @@ class MailboxClientManager implements Service, EventListener {
 				MailboxClient contactClient =
 						requireNonNull(contactClients.get(c));
 				contactClient.deassignContactForDownload(c);
-				assignContactToOwnMailboxForDownload(c, u);
 			} else {
 				// The contact doesn't have a usable mailbox, so assign the
-				// contact to our mailbox for upload and download
+				// contact to our mailbox for upload
 				assignContactToOwnMailboxForUpload(c, u);
-				assignContactToOwnMailboxForDownload(c, u);
 			}
+			assignContactToOwnMailboxForDownload(c, u);
 		}
 	}
 
