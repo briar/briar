@@ -19,7 +19,7 @@ import org.briarproject.bramble.api.mailbox.MailboxUpdateWithMailbox;
 import org.briarproject.bramble.api.mailbox.MailboxVersion;
 import org.briarproject.bramble.api.mailbox.event.MailboxPairedEvent;
 import org.briarproject.bramble.api.mailbox.event.MailboxUnpairedEvent;
-import org.briarproject.bramble.api.mailbox.event.MailboxUpdateSentEvent;
+import org.briarproject.bramble.api.mailbox.event.MailboxUpdateSentToNewContactEvent;
 import org.briarproject.bramble.api.mailbox.event.RemoteMailboxUpdateEvent;
 import org.briarproject.bramble.api.sync.Group;
 import org.briarproject.bramble.api.sync.GroupId;
@@ -187,8 +187,7 @@ public class MailboxUpdateManagerImplTest extends BrambleMockTestCase {
 		MailboxUpdateManagerImpl t = createInstance(someClientSupportsList);
 		t.onDatabaseOpened(txn);
 
-		MailboxUpdateSentEvent e = getEvent(txn, MailboxUpdateSentEvent.class);
-		assertNoMailboxPropertiesSent(e, someClientSupportsList);
+		assertFalse(hasEvent(txn, MailboxUpdateSentToNewContactEvent.class));
 	}
 
 	@Test
@@ -243,8 +242,7 @@ public class MailboxUpdateManagerImplTest extends BrambleMockTestCase {
 		MailboxUpdateManagerImpl t = createInstance(someClientSupportsList);
 		t.onDatabaseOpened(txn);
 
-		MailboxUpdateSentEvent e = getEvent(txn, MailboxUpdateSentEvent.class);
-		assertMailboxPropertiesSent(e, someClientSupportsList);
+		assertFalse(hasEvent(txn, MailboxUpdateSentToNewContactEvent.class));
 	}
 
 	@Test
@@ -295,8 +293,7 @@ public class MailboxUpdateManagerImplTest extends BrambleMockTestCase {
 		MailboxUpdateManagerImpl t = createInstance(someClientSupportsList);
 		t.onDatabaseOpened(txn1);
 
-		MailboxUpdateSentEvent e = getEvent(txn1, MailboxUpdateSentEvent.class);
-		assertNoMailboxPropertiesSent(e, someClientSupportsList);
+		assertFalse(hasEvent(txn1, MailboxUpdateSentToNewContactEvent.class));
 
 		context.checking(new Expectations() {{
 			oneOf(db).containsGroup(txn2, localGroup.getId());
@@ -311,7 +308,7 @@ public class MailboxUpdateManagerImplTest extends BrambleMockTestCase {
 		t = createInstance(someClientSupportsList);
 		t.onDatabaseOpened(txn2);
 
-		assertFalse(hasEvent(txn2, MailboxUpdateSentEvent.class));
+		assertFalse(hasEvent(txn2, MailboxUpdateSentToNewContactEvent.class));
 	}
 
 	@Test
@@ -363,9 +360,7 @@ public class MailboxUpdateManagerImplTest extends BrambleMockTestCase {
 		MailboxUpdateManagerImpl t = createInstance(someClientSupportsList);
 		t.onDatabaseOpened(txn1);
 
-		MailboxUpdateSentEvent e1 =
-				getEvent(txn1, MailboxUpdateSentEvent.class);
-		assertNoMailboxPropertiesSent(e1, someClientSupportsList);
+		assertFalse(hasEvent(txn1, MailboxUpdateSentToNewContactEvent.class));
 
 		BdfDictionary metaDictionary = BdfDictionary.of(
 				new BdfEntry(MSG_KEY_VERSION, 1),
@@ -427,9 +422,7 @@ public class MailboxUpdateManagerImplTest extends BrambleMockTestCase {
 		t = createInstance(newerClientSupportsList);
 		t.onDatabaseOpened(txn2);
 
-		MailboxUpdateSentEvent e2 =
-				getEvent(txn2, MailboxUpdateSentEvent.class);
-		assertNoMailboxPropertiesSent(e2, newerClientSupportsList);
+		assertFalse(hasEvent(txn2, MailboxUpdateSentToNewContactEvent.class));
 	}
 
 	@Test
@@ -466,7 +459,8 @@ public class MailboxUpdateManagerImplTest extends BrambleMockTestCase {
 		MailboxUpdateManagerImpl t = createInstance(someClientSupportsList);
 		t.addingContact(txn, contact);
 
-		MailboxUpdateSentEvent e = getEvent(txn, MailboxUpdateSentEvent.class);
+		MailboxUpdateSentToNewContactEvent
+				e = getEvent(txn, MailboxUpdateSentToNewContactEvent.class);
 		assertNoMailboxPropertiesSent(e, someClientSupportsList);
 	}
 
@@ -510,7 +504,8 @@ public class MailboxUpdateManagerImplTest extends BrambleMockTestCase {
 		MailboxUpdateManagerImpl t = createInstance(someClientSupportsList);
 		t.addingContact(txn, contact);
 
-		MailboxUpdateSentEvent e = getEvent(txn, MailboxUpdateSentEvent.class);
+		MailboxUpdateSentToNewContactEvent
+				e = getEvent(txn, MailboxUpdateSentToNewContactEvent.class);
 		assertMailboxPropertiesSent(e, someClientSupportsList);
 	}
 
@@ -722,7 +717,7 @@ public class MailboxUpdateManagerImplTest extends BrambleMockTestCase {
 		assertEquals(updateWithMailbox.getMailboxProperties(),
 				u.getMailboxProperties());
 
-		assertFalse(hasEvent(txn, MailboxUpdateSentEvent.class));
+		assertFalse(hasEvent(txn, MailboxUpdateSentToNewContactEvent.class));
 	}
 
 	@Test
@@ -765,7 +760,7 @@ public class MailboxUpdateManagerImplTest extends BrambleMockTestCase {
 		MailboxUpdate u = localUpdates.get(contact.getId());
 		assertFalse(u.hasMailbox());
 
-		assertFalse(hasEvent(txn, MailboxUpdateSentEvent.class));
+		assertFalse(hasEvent(txn, MailboxUpdateSentToNewContactEvent.class));
 	}
 
 	@Test
@@ -948,7 +943,8 @@ public class MailboxUpdateManagerImplTest extends BrambleMockTestCase {
 		}});
 	}
 
-	private void assertNoMailboxPropertiesSent(MailboxUpdateSentEvent e,
+	private void assertNoMailboxPropertiesSent(
+			MailboxUpdateSentToNewContactEvent e,
 			List<MailboxVersion> clientSupports) {
 		assertEquals(contact.getId(), e.getContactId());
 		MailboxUpdate u = e.getMailboxUpdate();
@@ -956,7 +952,8 @@ public class MailboxUpdateManagerImplTest extends BrambleMockTestCase {
 		assertFalse(u.hasMailbox());
 	}
 
-	private void assertMailboxPropertiesSent(MailboxUpdateSentEvent e,
+	private void assertMailboxPropertiesSent(
+			MailboxUpdateSentToNewContactEvent e,
 			List<MailboxVersion> clientSupports) {
 		assertEquals(contact.getId(), e.getContactId());
 		MailboxUpdate u = e.getMailboxUpdate();

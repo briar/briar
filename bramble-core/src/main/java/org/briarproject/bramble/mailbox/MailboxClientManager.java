@@ -21,7 +21,7 @@ import org.briarproject.bramble.api.mailbox.MailboxUpdateWithMailbox;
 import org.briarproject.bramble.api.mailbox.MailboxVersion;
 import org.briarproject.bramble.api.mailbox.event.MailboxPairedEvent;
 import org.briarproject.bramble.api.mailbox.event.MailboxUnpairedEvent;
-import org.briarproject.bramble.api.mailbox.event.MailboxUpdateSentEvent;
+import org.briarproject.bramble.api.mailbox.event.MailboxUpdateSentToNewContactEvent;
 import org.briarproject.bramble.api.mailbox.event.OwnMailboxConnectionStatusEvent;
 import org.briarproject.bramble.api.mailbox.event.RemoteMailboxUpdateEvent;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
@@ -269,9 +269,10 @@ class MailboxClientManager implements Service, EventListener {
 			LOG.info("Mailbox unpaired");
 			MailboxUnpairedEvent m = (MailboxUnpairedEvent) e;
 			onMailboxUnpaired(m.getLocalUpdates());
-		} else if (e instanceof MailboxUpdateSentEvent) {
+		} else if (e instanceof MailboxUpdateSentToNewContactEvent) {
 			LOG.info("Contact added");
-			MailboxUpdateSentEvent m = (MailboxUpdateSentEvent) e;
+			MailboxUpdateSentToNewContactEvent
+					m = (MailboxUpdateSentToNewContactEvent) e;
 			onContactAdded(m.getContactId(), m.getMailboxUpdate());
 		} else if (e instanceof ContactRemovedEvent) {
 			LOG.info("Contact removed");

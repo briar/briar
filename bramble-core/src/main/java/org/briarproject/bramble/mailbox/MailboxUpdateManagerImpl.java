@@ -27,7 +27,7 @@ import org.briarproject.bramble.api.mailbox.MailboxUpdateWithMailbox;
 import org.briarproject.bramble.api.mailbox.MailboxVersion;
 import org.briarproject.bramble.api.mailbox.event.MailboxPairedEvent;
 import org.briarproject.bramble.api.mailbox.event.MailboxUnpairedEvent;
-import org.briarproject.bramble.api.mailbox.event.MailboxUpdateSentEvent;
+import org.briarproject.bramble.api.mailbox.event.MailboxUpdateSentToNewContactEvent;
 import org.briarproject.bramble.api.mailbox.event.RemoteMailboxUpdateEvent;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.sync.Group;
@@ -115,13 +115,12 @@ class MailboxUpdateManagerImpl implements MailboxUpdateManager,
 				}
 				Group g = getContactGroup(c);
 				storeMessageReplaceLatest(txn, g.getId(), updated);
-				txn.attach(new MailboxUpdateSentEvent(c.getId(), updated));
 			}
 		} else {
 			db.addGroup(txn, localGroup);
 			// Set things up for any pre-existing contacts
 			for (Contact c : db.getContacts(txn)) {
-				addingContact(txn, c);
+				addingContact(txn, c, false);
 			}
 		}
 
@@ -137,6 +136,17 @@ class MailboxUpdateManagerImpl implements MailboxUpdateManager,
 
 	@Override
 	public void addingContact(Transaction txn, Contact c) throws DbException {
+		addingContact(txn, c, true);
+	}
+
+	/**
+	 * @param attachEvent True if a {@link MailboxUpdateSentToNewContactEvent}
+	 * should be attached to the transaction. We should only do this when
+	 * adding a new contact, not when setting up this client for an existing
+	 * contact.
+	 */
+	private void addingContact(Transaction txn, Contact c, boolean attachEvent)
+			throws DbException {
 		// Create a group to share with the contact
 		Group g = getContactGroup(c);
 		db.addGroup(txn, g);
@@ -157,7 +167,9 @@ class MailboxUpdateManagerImpl implements MailboxUpdateManager,
 			// Not paired, but we still want to get our clientSupports sent
 			u = sendUpdateNoMailbox(txn, c);
 		}
-		txn.attach(new MailboxUpdateSentEvent(c.getId(), u));
+		if (attachEvent) {
+			txn.attach(new MailboxUpdateSentToNewContactEvent(c.getId(), u));
+		}
 	}
 
 	@Override
