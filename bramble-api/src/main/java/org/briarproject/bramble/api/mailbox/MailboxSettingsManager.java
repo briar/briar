@@ -62,6 +62,8 @@ public interface MailboxSettingsManager {
 
 		/**
 		 * Called when we receive our mailbox's server-supported API versions.
+		 * This happens whenever we successfully check the connectivity of
+		 * our mailbox, so this hook may be called frequently.
 		 *
 		 * @param txn A read-write transaction
 		 */

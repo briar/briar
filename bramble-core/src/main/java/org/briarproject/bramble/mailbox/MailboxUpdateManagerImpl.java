@@ -216,7 +216,9 @@ class MailboxUpdateManagerImpl implements MailboxUpdateManager,
 				Group contactGroup = getContactGroup(c);
 				LatestUpdate latest =
 						findLatest(txn, contactGroup.getId(), true);
-				// This method should only be called when we have a mailbox
+				// This method should only be called when we have a mailbox,
+				// in which case we should have sent a local update to every
+				// contact
 				if (latest == null) throw new DbException();
 				BdfList body =
 						clientHelper.getMessageAsList(txn, latest.messageId);
