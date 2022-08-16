@@ -4,17 +4,22 @@ import org.briarproject.bramble.api.FeatureFlags;
 import org.briarproject.bramble.api.client.ClientHelper;
 import org.briarproject.bramble.api.contact.ContactManager;
 import org.briarproject.bramble.api.data.MetadataEncoder;
+import org.briarproject.bramble.api.db.DatabaseExecutor;
+import org.briarproject.bramble.api.db.TransactionManager;
 import org.briarproject.bramble.api.event.EventBus;
+import org.briarproject.bramble.api.event.EventExecutor;
 import org.briarproject.bramble.api.lifecycle.LifecycleManager;
 import org.briarproject.bramble.api.mailbox.MailboxManager;
 import org.briarproject.bramble.api.mailbox.MailboxSettingsManager;
 import org.briarproject.bramble.api.mailbox.MailboxUpdateManager;
 import org.briarproject.bramble.api.mailbox.MailboxVersion;
+import org.briarproject.bramble.api.plugin.PluginManager;
 import org.briarproject.bramble.api.sync.validation.ValidationManager;
 import org.briarproject.bramble.api.system.Clock;
 import org.briarproject.bramble.api.versioning.ClientVersioningManager;
 
 import java.util.List;
+import java.util.concurrent.Executor;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -37,6 +42,8 @@ public class MailboxModule {
 		MailboxUpdateManager mailboxUpdateManager;
 		@Inject
 		MailboxFileManager mailboxFileManager;
+		@Inject
+		MailboxClientManager mailboxClientManager;
 	}
 
 	@Provides
@@ -125,5 +132,50 @@ public class MailboxModule {
 	MailboxWorkerFactory provideMailboxWorkerFactory(
 			MailboxWorkerFactoryImpl mailboxWorkerFactory) {
 		return mailboxWorkerFactory;
+	}
+
+	@Provides
+	MailboxClientFactory provideMailboxClientFactory(
+			MailboxClientFactoryImpl mailboxClientFactory) {
+		return mailboxClientFactory;
+	}
+
+	@Provides
+	MailboxApiCaller provideMailboxApiCaller(
+			MailboxApiCallerImpl mailboxApiCaller) {
+		return mailboxApiCaller;
+	}
+
+	@Provides
+	@Singleton
+	TorReachabilityMonitor provideTorReachabilityMonitor(
+			TorReachabilityMonitorImpl reachabilityMonitor) {
+		return reachabilityMonitor;
+	}
+
+	@Provides
+	@Singleton
+	MailboxClientManager provideMailboxClientManager(
+			@EventExecutor Executor eventExecutor,
+			@DatabaseExecutor Executor dbExecutor,
+			TransactionManager db,
+			ContactManager contactManager,
+			PluginManager pluginManager,
+			MailboxSettingsManager mailboxSettingsManager,
+			MailboxUpdateManager mailboxUpdateManager,
+			MailboxClientFactory mailboxClientFactory,
+			TorReachabilityMonitor reachabilityMonitor,
+			FeatureFlags featureFlags,
+			LifecycleManager lifecycleManager,
+			EventBus eventBus) {
+		MailboxClientManager manager = new MailboxClientManager(eventExecutor,
+				dbExecutor, db, contactManager, pluginManager,
+				mailboxSettingsManager, mailboxUpdateManager,
+				mailboxClientFactory, reachabilityMonitor);
+		if (featureFlags.shouldEnableMailbox()) {
+			lifecycleManager.registerService(manager);
+			eventBus.addListener(manager);
+		}
+		return manager;
 	}
 }
