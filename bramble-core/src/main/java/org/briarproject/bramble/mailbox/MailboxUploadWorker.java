@@ -1,6 +1,7 @@
 package org.briarproject.bramble.mailbox;
 
 import org.briarproject.bramble.api.Cancellable;
+import org.briarproject.bramble.api.connection.ConnectionRegistry;
 import org.briarproject.bramble.api.contact.ContactId;
 import org.briarproject.bramble.api.db.DatabaseComponent;
 import org.briarproject.bramble.api.db.DbException;
@@ -12,6 +13,8 @@ import org.briarproject.bramble.api.lifecycle.IoExecutor;
 import org.briarproject.bramble.api.mailbox.MailboxFolderId;
 import org.briarproject.bramble.api.mailbox.MailboxProperties;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
+import org.briarproject.bramble.api.plugin.event.ContactConnectedEvent;
+import org.briarproject.bramble.api.plugin.event.ContactDisconnectedEvent;
 import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.bramble.api.sync.OutgoingSessionRecord;
 import org.briarproject.bramble.api.sync.event.GroupVisibilityUpdatedEvent;
@@ -32,6 +35,7 @@ import javax.annotation.Nullable;
 import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;
 
+import static java.lang.Boolean.TRUE;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static java.util.concurrent.TimeUnit.MINUTES;
 import static java.util.logging.Level.INFO;
@@ -58,9 +62,16 @@ class MailboxUploadWorker implements MailboxWorker, ConnectivityObserver,
 	 * <p>
 	 * If there's no data to send, the worker listens for events indicating
 	 * that new data may be ready to send.
+	 * <p>
+	 * Whenever we're directly connected to the contact, the worker doesn't
+	 * check for data to send or start connectivity checks until the contact
+	 * disconnects. However, if the worker has already started writing and
+	 * uploading a file when the contact connects, the worker will finish the
+	 * upload.
 	 */
 	private enum State {
 		CREATED,
+		CONNECTED_TO_CONTACT,
 		CHECKING_FOR_DATA,
 		WAITING_FOR_DATA,
 		CONNECTIVITY_CHECK,
@@ -95,6 +106,7 @@ class MailboxUploadWorker implements MailboxWorker, ConnectivityObserver,
 	private final Clock clock;
 	private final TaskScheduler taskScheduler;
 	private final EventBus eventBus;
+	private final ConnectionRegistry connectionRegistry;
 	private final ConnectivityChecker connectivityChecker;
 	private final MailboxApiCaller mailboxApiCaller;
 	private final MailboxApi mailboxApi;
@@ -121,6 +133,7 @@ class MailboxUploadWorker implements MailboxWorker, ConnectivityObserver,
 			Clock clock,
 			TaskScheduler taskScheduler,
 			EventBus eventBus,
+			ConnectionRegistry connectionRegistry,
 			ConnectivityChecker connectivityChecker,
 			MailboxApiCaller mailboxApiCaller,
 			MailboxApi mailboxApi,
@@ -133,6 +146,7 @@ class MailboxUploadWorker implements MailboxWorker, ConnectivityObserver,
 		this.clock = clock;
 		this.taskScheduler = taskScheduler;
 		this.eventBus = eventBus;
+		this.connectionRegistry = connectionRegistry;
 		this.connectivityChecker = connectivityChecker;
 		this.mailboxApiCaller = mailboxApiCaller;
 		this.mailboxApi = mailboxApi;
@@ -182,6 +196,12 @@ class MailboxUploadWorker implements MailboxWorker, ConnectivityObserver,
 		synchronized (lock) {
 			checkTask = null;
 			if (state != State.CHECKING_FOR_DATA) return;
+			// Check whether we're directly connected to the contact. Calling
+			// this while holding the lock isn't ideal, but it avoids races
+			if (connectionRegistry.isConnected(contactId)) {
+				state = State.CONNECTED_TO_CONTACT;
+				return;
+			}
 		}
 		LOG.info("Checking for data to send");
 		try {
@@ -364,14 +384,32 @@ class MailboxUploadWorker implements MailboxWorker, ConnectivityObserver,
 				onDataToSend();
 			}
 		} else if (e instanceof MessageSharedEvent) {
-			LOG.info("Message shared");
-			onDataToSend();
+			MessageSharedEvent m = (MessageSharedEvent) e;
+			// If the contact is present in the map (ie the value is not null)
+			// and the value is true, the message's group is shared with the
+			// contact and therefore the message may now be sendable
+			if (m.getGroupVisibility().get(contactId) == TRUE) {
+				LOG.info("Message shared");
+				onDataToSend();
+			}
 		} else if (e instanceof GroupVisibilityUpdatedEvent) {
 			GroupVisibilityUpdatedEvent g = (GroupVisibilityUpdatedEvent) e;
 			if (g.getVisibility() == SHARED &&
 					g.getAffectedContacts().contains(contactId)) {
 				LOG.info("Group shared");
 				onDataToSend();
+			}
+		} else if (e instanceof ContactConnectedEvent) {
+			ContactConnectedEvent c = (ContactConnectedEvent) e;
+			if (c.getContactId().equals(contactId)) {
+				LOG.info("Contact connected");
+				onContactConnected();
+			}
+		} else if (e instanceof ContactDisconnectedEvent) {
+			ContactDisconnectedEvent c = (ContactDisconnectedEvent) e;
+			if (c.getContactId().equals(contactId)) {
+				LOG.info("Contact disconnected");
+				onContactDisconnected();
 			}
 		}
 	}
@@ -390,5 +428,37 @@ class MailboxUploadWorker implements MailboxWorker, ConnectivityObserver,
 		}
 		// If we had scheduled a wakeup when data was due to be sent, cancel it
 		if (wakeupTask != null) wakeupTask.cancel();
+	}
+
+	@EventExecutor
+	private void onContactConnected() {
+		Cancellable wakeupTask = null, checkTask = null;
+		synchronized (lock) {
+			if (state == State.DESTROYED) return;
+			// If we're checking for data to send, waiting for data to send,
+			// or checking connectivity then wait until we disconnect from
+			// the contact before proceeding. If we're writing or uploading
+			// a file then continue
+			if (state == State.CHECKING_FOR_DATA ||
+					state == State.WAITING_FOR_DATA ||
+					state == State.CONNECTIVITY_CHECK) {
+				state = State.CONNECTED_TO_CONTACT;
+				wakeupTask = this.wakeupTask;
+				this.wakeupTask = null;
+				checkTask = this.checkTask;
+				this.checkTask = null;
+			}
+		}
+		if (wakeupTask != null) wakeupTask.cancel();
+		if (checkTask != null) checkTask.cancel();
+	}
+
+	@EventExecutor
+	private void onContactDisconnected() {
+		synchronized (lock) {
+			if (state != State.CONNECTED_TO_CONTACT) return;
+			state = State.CHECKING_FOR_DATA;
+		}
+		ioExecutor.execute(this::checkForDataToSend);
 	}
 }

@@ -44,6 +44,7 @@ import java.util.logging.Logger;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.ThreadSafe;
 
+import static java.lang.Boolean.TRUE;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
@@ -233,7 +234,13 @@ class DuplexOutgoingSession implements SyncSession, EventListener {
 			ContactRemovedEvent c = (ContactRemovedEvent) e;
 			if (c.getContactId().equals(contactId)) interrupt();
 		} else if (e instanceof MessageSharedEvent) {
-			generateOffer();
+			MessageSharedEvent m = (MessageSharedEvent) e;
+			// If the contact is present in the map (ie the value is not null)
+			// and the value is true, the message's group is shared with the
+			// contact and therefore the message may now be sendable
+			if (m.getGroupVisibility().get(contactId) == TRUE) {
+				generateOffer();
+			}
 		} else if (e instanceof GroupVisibilityUpdatedEvent) {
 			GroupVisibilityUpdatedEvent g = (GroupVisibilityUpdatedEvent) e;
 			if (g.getVisibility() == SHARED &&
