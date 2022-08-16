@@ -235,6 +235,9 @@ class DuplexOutgoingSession implements SyncSession, EventListener {
 			if (c.getContactId().equals(contactId)) interrupt();
 		} else if (e instanceof MessageSharedEvent) {
 			MessageSharedEvent m = (MessageSharedEvent) e;
+			// If the contact is present in the map (ie the value is not null)
+			// and the value is true, the message's group is shared with the
+			// contact and therefore the message may now be sendable
 			if (m.getGroupVisibility().get(contactId) == TRUE) {
 				generateOffer();
 			}

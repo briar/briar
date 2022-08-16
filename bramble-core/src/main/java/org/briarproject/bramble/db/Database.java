@@ -352,8 +352,11 @@ interface Database<T> {
 			throws DbException;
 
 	/**
-	 * Returns the IDs of all contacts to which the given group's visibility is
-	 * either {@link Visibility VISIBLE} or {@link Visibility SHARED}.
+	 * Returns the IDs of all contacts for which the given group's visibility
+	 * is either {@link Visibility#SHARED shared} or
+	 * {@link Visibility#VISIBLE visible}. The value in the map is true if the
+	 * group is {@link Visibility#SHARED shared} or false if the group is
+	 * {@link Visibility#VISIBLE visible}.
 	 * <p/>
 	 * Read-only.
 	 */

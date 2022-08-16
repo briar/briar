@@ -3,6 +3,7 @@ package org.briarproject.bramble.api.sync.event;
 import org.briarproject.bramble.api.contact.ContactId;
 import org.briarproject.bramble.api.event.Event;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
+import org.briarproject.bramble.api.sync.Group.Visibility;
 import org.briarproject.bramble.api.sync.GroupId;
 import org.briarproject.bramble.api.sync.MessageId;
 
@@ -36,6 +37,13 @@ public class MessageSharedEvent extends Event {
 		return groupId;
 	}
 
+	/**
+	 * Returns the IDs of all contacts for which the visibility of the
+	 * message's group is either {@link Visibility#SHARED shared} or
+	 * {@link Visibility#VISIBLE visible}. The value in the map is true if the
+	 * group is {@link Visibility#SHARED shared} or false if the group is
+	 * {@link Visibility#VISIBLE visible}.
+	 */
 	public Map<ContactId, Boolean> getGroupVisibility() {
 		return groupVisibility;
 	}
