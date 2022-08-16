@@ -33,6 +33,7 @@ import java.util.Map;
 import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicReference;
 
+import static java.util.Collections.emptyMap;
 import static java.util.Collections.singletonList;
 import static java.util.Collections.singletonMap;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
@@ -512,8 +513,56 @@ public class MailboxUploadWorkerTest extends BrambleMockTestCase {
 		// return early when it finds the state has changed
 		check.get().run();
 
-		// When the worker is destroyed it should cancel the check and
-		// remove the connectivity observer and event listener
+		// When the worker is destroyed it should remove the connectivity
+		// observer and event listener
+		expectRemoveObserverAndListener();
+
+		worker.destroy();
+	}
+
+	@Test
+	public void testDoesNotScheduleCheckIfGroupIsVisible() throws Exception {
+		// When the worker is started it should check the connection registry.
+		// We're not connected to the contact, so the worker should check for
+		// data to send
+		expectRunTaskOnIoExecutor();
+		expectCheckConnectionRegistry(false);
+		expectCheckForDataToSendNoDataWaiting();
+
+		worker.start();
+
+		// The worker receives an event that indicates new data may be
+		// available. The group is visible to the contact but not shared, so
+		// the worker should not schedule a check for new data
+		worker.eventOccurred(new MessageSharedEvent(newMessageId, groupId,
+				singletonMap(contactId, false)));
+
+		// When the worker is destroyed it should remove the connectivity
+		// observer and event listener
+		expectRemoveObserverAndListener();
+
+		worker.destroy();
+	}
+
+	@Test
+	public void testDoesNotScheduleCheckIfGroupIsInvisible() throws Exception {
+		// When the worker is started it should check the connection registry.
+		// We're not connected to the contact, so the worker should check for
+		// data to send
+		expectRunTaskOnIoExecutor();
+		expectCheckConnectionRegistry(false);
+		expectCheckForDataToSendNoDataWaiting();
+
+		worker.start();
+
+		// The worker receives an event that indicates new data may be
+		// available. The group is not visible to the contact, so the worker
+		// should not schedule a check for new data
+		worker.eventOccurred(new MessageSharedEvent(newMessageId, groupId,
+				emptyMap()));
+
+		// When the worker is destroyed it should remove the connectivity
+		// observer and event listener
 		expectRemoveObserverAndListener();
 
 		worker.destroy();
