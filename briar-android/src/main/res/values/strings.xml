@@ -665,6 +665,7 @@
 	<string name="mailbox_status_unlink_dialog_warning">If you unlink your Mailbox, you won\'t be able to receive messages while Briar is offline.</string>
 	<string name="mailbox_status_unlink_no_wipe_title">Your Mailbox has been unlinked</string>
 	<string name="mailbox_status_unlink_no_wipe_message">Next time you have access to your Mailbox device, please open the Mailbox app and tap the \"Unlink\" button to complete the process.\n\nIf you no longer have access to your Mailbox device, don\'t worry. Your data is encrypted so it will remain secure even if you don\'t complete the process.</string>
+	<string name="mailbox_status_unlink_success">Your Mailbox has been unlinked</string>
 
 	<string name="mailbox_error_notification_channel_title">Briar Mailbox problem</string>
 	<string name="mailbox_error_notification_title">Briar Mailbox is unavailable</string>
