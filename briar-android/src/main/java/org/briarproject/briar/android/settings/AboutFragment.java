@@ -38,6 +38,7 @@ public class AboutFragment extends Fragment {
 	private TextView briarWebsite;
 	private TextView briarSourceCode;
 	private TextView briarChangelog;
+	private TextView briarPrivacyPolicy;
 
 	@Nullable
 	@Override
@@ -61,6 +62,8 @@ public class AboutFragment extends Fragment {
 		briarWebsite = requireActivity().findViewById(R.id.BriarWebsite);
 		briarSourceCode = requireActivity().findViewById(R.id.BriarSourceCode);
 		briarChangelog = requireActivity().findViewById(R.id.BriarChangelog);
+		briarPrivacyPolicy =
+				requireActivity().findViewById(R.id.BriarPrivacyPolicy);
 		briarWebsite.setOnClickListener(View -> {
 			String url = "https://briarproject.org/";
 			goToUrl(url);
@@ -72,6 +75,11 @@ public class AboutFragment extends Fragment {
 		briarChangelog.setOnClickListener(View -> {
 			String url =
 					"https://code.briarproject.org/briar/briar/-/wikis/changelog";
+			goToUrl(url);
+		});
+		briarPrivacyPolicy.setOnClickListener(View -> {
+			String url =
+					"https://briarproject.org/privacy-policy/";
 			goToUrl(url);
 		});
 	}
