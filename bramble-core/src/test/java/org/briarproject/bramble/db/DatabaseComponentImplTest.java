@@ -70,6 +70,7 @@ import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.emptyMap;
 import static java.util.Collections.singletonList;
+import static java.util.Collections.singletonMap;
 import static java.util.concurrent.TimeUnit.HOURS;
 import static org.briarproject.bramble.api.db.DatabaseComponent.TIMER_NOT_STARTED;
 import static org.briarproject.bramble.api.record.Record.RECORD_HEADER_BYTES;
@@ -283,12 +284,16 @@ public class DatabaseComponentImplTest extends BrambleMockTestCase {
 					temporary, null);
 			oneOf(database).mergeMessageMetadata(txn, messageId, metadata);
 			oneOf(database).commitTransaction(txn);
-			// The message was added, so the listeners should be called
+			// Broadcast events for message being added and changing state
 			oneOf(eventBus).broadcast(with(any(MessageAddedEvent.class)));
 			oneOf(eventBus).broadcast(with(any(
 					MessageStateChangedEvent.class)));
-			if (shared)
+			// If message is shared, get group visibility and broadcast event
+			if (shared) {
+				oneOf(database).getGroupVisibility(txn, groupId);
+				will(returnValue(singletonMap(contactId, true)));
 				oneOf(eventBus).broadcast(with(any(MessageSharedEvent.class)));
+			}
 		}});
 		DatabaseComponent db = createDatabaseComponent(database, eventBus,
 				eventExecutor, shutdownManager);
@@ -1881,12 +1886,16 @@ public class DatabaseComponentImplTest extends BrambleMockTestCase {
 			oneOf(database).containsMessage(txn, messageId);
 			will(returnValue(true));
 			oneOf(database).getMessageDependents(txn, messageId);
-			// broadcast for message added event
+			// Broadcast events for message being added and changing state
 			oneOf(eventBus).broadcast(with(any(MessageAddedEvent.class)));
 			oneOf(eventBus).broadcast(with(any(
 					MessageStateChangedEvent.class)));
-			if (shared)
+			// If message is shared, get group visibility and broadcast event
+			if (shared) {
+				oneOf(database).getGroupVisibility(txn, groupId);
+				will(returnValue(singletonMap(contactId, true)));
 				oneOf(eventBus).broadcast(with(any(MessageSharedEvent.class)));
+			}
 			// endTransaction()
 			oneOf(database).commitTransaction(txn);
 			// close()
