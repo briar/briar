@@ -1,0 +1,29 @@
+task checkstyleMain(type: Checkstyle) {
+    source 'src/main/java'
+    include '**/*.java'
+    classpath = files()
+    reports {
+        xml {
+            destination file("build/reports/checkstyle/main.xml")
+        }
+        html {
+            destination file("build/reports/checkstyle/main.html")
+        }
+    }
+    check.dependsOn it
+}
+
+task checkstyleTest(type: Checkstyle) {
+    source 'src/test/java'
+    include '**/*.java'
+    classpath = files()
+    reports {
+        xml {
+            destination file("build/reports/checkstyle/test.xml")
+        }
+        html {
+            destination file("build/reports/checkstyle/test.html")
+        }
+    }
+    check.dependsOn it
+}

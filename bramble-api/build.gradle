@@ -5,6 +5,7 @@ targetCompatibility = 1.8
 apply plugin: 'ru.vyarus.animalsniffer'
 apply plugin: 'witness'
 apply from: 'witness.gradle'
+apply plugin: 'checkstyle'
 
 dependencies {
 	implementation "com.google.dagger:dagger:$dagger_version"

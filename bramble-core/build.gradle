@@ -7,6 +7,7 @@ apply plugin: 'idea'
 apply plugin: 'witness'
 apply from: 'witness.gradle'
 apply from: '../dagger.gradle'
+apply plugin: 'checkstyle'
 
 dependencies {
 	implementation project(path: ':bramble-api', configuration: 'default')

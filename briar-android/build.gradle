@@ -1,6 +1,10 @@
 apply plugin: 'com.android.application'
 apply plugin: 'witness'
 apply from: 'witness.gradle'
+apply plugin: 'checkstyle'
+// Need to manually apply this as the Java plugin is not applied to this module hence this is not
+// done automatically.
+apply from: "${rootProject.rootDir}/gradle/checkstyle.gradle"
 
 def getStdout = { command, defaultValue ->
 	def stdout = new ByteArrayOutputStream()
