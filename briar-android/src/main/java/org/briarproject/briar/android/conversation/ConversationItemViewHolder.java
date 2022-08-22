@@ -19,6 +19,7 @@ import static android.view.View.VISIBLE;
 import static org.briarproject.bramble.util.StringUtils.trim;
 import static org.briarproject.briar.android.util.UiUtils.formatDate;
 import static org.briarproject.briar.android.util.UiUtils.formatDuration;
+import static org.briarproject.briar.android.util.UiUtils.makeLinksClickable;
 import static org.briarproject.briar.api.autodelete.AutoDeleteConstants.NO_AUTO_DELETE_TIMER;
 
 @UiThread
@@ -58,6 +59,7 @@ abstract class ConversationItemViewHolder extends ViewHolder {
 
 		if (item.getText() != null) {
 			text.setText(trim(item.getText()));
+			makeLinksClickable(text, listener::onLinkClick);
 		}
 
 		long timestamp = item.getTime();
