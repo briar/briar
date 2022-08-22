@@ -9,9 +9,9 @@ import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 @NotNullByDefault
 interface UrlConverter {
 
-   /**
-    * Converts a raw onion address, excluding the .onion suffix, into an
-    * HTTP URL.
-    */
-   String convertOnionToBaseUrl(String onion);
+	/**
+	 * Converts a raw onion address, excluding the .onion suffix, into an
+	 * HTTP URL.
+	 */
+	String convertOnionToBaseUrl(String onion);
 }
