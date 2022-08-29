@@ -785,7 +785,7 @@ class AndroidNotificationManagerImpl implements AndroidNotificationManager,
 
 		NotificationCompat.Builder b = new NotificationCompat.Builder(
 				appContext, MAILBOX_PROBLEM_CHANNEL_ID);
-		b.setSmallIcon(R.drawable.ic_mailbox);
+		b.setSmallIcon(R.drawable.notification_mailbox);
 		b.setColor(getColor(appContext, R.color.briar_red_500));
 		b.setContentTitle(
 				appContext.getText(R.string.mailbox_error_notification_title));
