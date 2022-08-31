@@ -46,7 +46,7 @@ dependencyVerification {
         'org.jmock:jmock-legacy:2.12.0:jmock-legacy-2.12.0.jar:dea3a9cca653d082e2fe7e40232e982fe03a9984c7d67ceff24f3e03fe580dcd',
         'org.jmock:jmock-testjar:2.12.0:jmock-testjar-2.12.0.jar:efefbcf6cd294d0e29f0c46eb2a3380d4ca4e1763ff719c69e2f2ac62f564a04',
         'org.jmock:jmock:2.12.0:jmock-2.12.0.jar:266d07314c0cd343c46ff8a55601272de8cf406807caf55e6f313295f83d10be',
-        'org.jsoup:jsoup:1.13.1:jsoup-1.13.1.jar:e2b99c0d2fa39f69f27efb1c0016390713feb2f2e02d8ea7f1c36b780271598a',
+        'org.jsoup:jsoup:1.15.3:jsoup-1.15.3.jar:e20a5e78b1372f2a4e620832db4442d5077e5cbde280b24c666a3770844999bc',
         'org.objenesis:objenesis:3.0.1:objenesis-3.0.1.jar:7a8ff780b9ff48415d7c705f60030b0acaa616e7f823c98eede3b63508d4e984',
         'org.ow2.asm:asm:7.1:asm-7.1.jar:4ab2fa2b6d2cc9ccb1eaa05ea329c407b47b13ed2915f62f8c4b8cc96258d4de',
         'org.ow2.asm:asm:9.1:asm-9.1.jar:cda4de455fab48ff0bcb7c48b4639447d4de859a7afc30a094a986f0936beba2',
