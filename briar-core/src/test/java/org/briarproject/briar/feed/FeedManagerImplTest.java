@@ -131,7 +131,7 @@ public class FeedManagerImplTest extends BrambleMockTestCase {
 		SyndEntry entry = new SyndEntryImpl();
 		entry.setUpdatedDate(new Date());
 		entries.add(entry);
-		String text = "<p> (" + entry.getUpdatedDate().toString() + ")</p>";
+		String text = "<p>(" + entry.getUpdatedDate().toString() + ")</p>";
 		Message msg = getMessage(blogGroupId);
 		BlogPost post = new BlogPost(msg, null, localAuthor);
 
