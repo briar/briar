@@ -14,7 +14,7 @@ dependencies {
 	implementation 'org.jdom:jdom2:2.0.6'
 	//noinspection GradleDependency
 	implementation "com.squareup.okhttp3:okhttp:$okhttp_version"
-	implementation 'org.jsoup:jsoup:1.13.1'
+	implementation 'org.jsoup:jsoup:1.15.3'
 
 	annotationProcessor "com.google.dagger:dagger-compiler:$dagger_version"
 
