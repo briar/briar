@@ -33,6 +33,7 @@
 		android:paddingBottom="@dimen/listitem_vertical_margin"
 		android:textColor="?android:attr/textColorSecondary"
 		android:textSize="@dimen/text_size_small"
+		android:textColorLink="@color/briar_text_link"
 		app:layout_constraintEnd_toEndOf="parent"
 		app:layout_constraintStart_toStartOf="parent"
 		app:layout_constraintTop_toBottomOf="@+id/authorView"
