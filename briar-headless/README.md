@@ -368,7 +368,6 @@ are:
   identity key. This happens for contacts added remotely or via introduction.
   * `verified`: The author is one of our contacts and we verified their identity key.
   * `ourselves`: The user is the author of the blog post.
-  * `anonymous`: This status is deprecated and no longer used. It will be removed in future versions.
 
 ### Writing a blog post
 

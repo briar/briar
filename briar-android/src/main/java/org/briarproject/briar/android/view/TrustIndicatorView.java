@@ -28,9 +28,6 @@ public class TrustIndicatorView extends AppCompatImageView {
 	public void setTrustLevel(Status status) {
 		int res;
 		switch (status) {
-			case ANONYMOUS:
-				res = R.drawable.trust_indicator_anonymous;
-				break;
 			case UNVERIFIED:
 				res = R.drawable.trust_indicator_unverified;
 				break;
