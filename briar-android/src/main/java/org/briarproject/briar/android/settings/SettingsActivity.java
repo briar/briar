@@ -1,5 +1,6 @@
 package org.briarproject.briar.android.settings;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.MenuItem;
 
@@ -17,6 +18,8 @@ import androidx.fragment.app.FragmentManager;
 import androidx.preference.Preference;
 import androidx.preference.PreferenceFragmentCompat;
 import androidx.preference.PreferenceFragmentCompat.OnPreferenceStartFragmentCallback;
+
+import static android.content.Intent.ACTION_MANAGE_NETWORK_USAGE;
 
 @MethodsNotNullByDefault
 @ParametersNotNullByDefault
@@ -40,12 +43,18 @@ public class SettingsActivity extends BriarActivity
 			actionBar.setDisplayHomeAsUpEnabled(true);
 		}
 
-		// show display fragment after theme change
-		Bundle extras = getIntent().getExtras();
+		Intent i = getIntent();
+		Bundle extras = i.getExtras();
 		if (bundle == null && extras != null &&
 				extras.getBoolean(EXTRA_THEME_CHANGE, false)) {
+			// show display fragment after theme change
 			FragmentManager fragmentManager = getSupportFragmentManager();
 			showNextFragment(fragmentManager, new DisplayFragment());
+		} else if (bundle == null &&
+				ACTION_MANAGE_NETWORK_USAGE.equals(i.getAction())) {
+			// show connection if coming from network settings
+			FragmentManager fragmentManager = getSupportFragmentManager();
+			showNextFragment(fragmentManager, new ConnectionsFragment());
 		}
 
 		setContentView(R.layout.activity_settings);
