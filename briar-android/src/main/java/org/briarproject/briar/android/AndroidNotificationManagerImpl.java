@@ -69,6 +69,7 @@ import static android.app.Notification.DEFAULT_VIBRATE;
 import static android.app.NotificationManager.IMPORTANCE_DEFAULT;
 import static android.app.NotificationManager.IMPORTANCE_LOW;
 import static android.app.PendingIntent.getActivity;
+import static android.app.PendingIntent.getBroadcast;
 import static android.content.Context.NOTIFICATION_SERVICE;
 import static android.content.Intent.FLAG_ACTIVITY_CLEAR_TOP;
 import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
@@ -83,6 +84,7 @@ import static androidx.core.app.NotificationCompat.PRIORITY_LOW;
 import static androidx.core.app.NotificationCompat.PRIORITY_MIN;
 import static androidx.core.app.NotificationCompat.VISIBILITY_SECRET;
 import static androidx.core.content.ContextCompat.getColor;
+import static org.briarproject.bramble.util.AndroidUtils.getImmutableFlags;
 import static org.briarproject.briar.android.activity.BriarActivity.GROUP_ID;
 import static org.briarproject.briar.android.conversation.ConversationActivity.CONTACT_ID;
 import static org.briarproject.briar.android.navdrawer.NavDrawerActivity.BLOG_URI;
@@ -291,7 +293,7 @@ class AndroidNotificationManagerImpl implements AndroidNotificationManager,
 		b.setWhen(0); // Don't show the time
 		b.setOngoing(true);
 		Intent i = new Intent(appContext, SplashScreenActivity.class);
-		b.setContentIntent(getActivity(appContext, 0, i, 0));
+		b.setContentIntent(getActivity(appContext, 0, i, getImmutableFlags(0)));
 		if (SDK_INT >= 21) {
 			b.setCategory(CATEGORY_SERVICE);
 			b.setVisibility(VISIBILITY_SECRET);
@@ -351,7 +353,8 @@ class AndroidNotificationManagerImpl implements AndroidNotificationManager,
 				TaskStackBuilder t = TaskStackBuilder.create(appContext);
 				t.addParentStack(ConversationActivity.class);
 				t.addNextIntent(i);
-				b.setContentIntent(t.getPendingIntent(nextRequestId++, 0));
+				b.setContentIntent(t.getPendingIntent(nextRequestId++,
+						getImmutableFlags(0)));
 			} else {
 				// Touching the notification shows the contact list
 				Intent i = new Intent(appContext, NavDrawerActivity.class);
@@ -360,7 +363,8 @@ class AndroidNotificationManagerImpl implements AndroidNotificationManager,
 				TaskStackBuilder t = TaskStackBuilder.create(appContext);
 				t.addParentStack(NavDrawerActivity.class);
 				t.addNextIntent(i);
-				b.setContentIntent(t.getPendingIntent(nextRequestId++, 0));
+				b.setContentIntent(t.getPendingIntent(nextRequestId++,
+						getImmutableFlags(0)));
 			}
 			notificationManager.notify(PRIVATE_MESSAGE_NOTIFICATION_ID,
 					b.build());
@@ -399,7 +403,7 @@ class AndroidNotificationManagerImpl implements AndroidNotificationManager,
 		Intent i = new Intent(appContext, NotificationCleanupService.class);
 		i.setData(uri);
 		b.setDeleteIntent(PendingIntent.getService(appContext, nextRequestId++,
-				i, 0));
+				i, getImmutableFlags(0)));
 	}
 
 	@Override
@@ -454,7 +458,8 @@ class AndroidNotificationManagerImpl implements AndroidNotificationManager,
 				TaskStackBuilder t = TaskStackBuilder.create(appContext);
 				t.addParentStack(GroupActivity.class);
 				t.addNextIntent(i);
-				b.setContentIntent(t.getPendingIntent(nextRequestId++, 0));
+				b.setContentIntent(t.getPendingIntent(nextRequestId++,
+						getImmutableFlags(0)));
 			} else {
 				// Touching the notification shows the group list
 				Intent i = new Intent(appContext, NavDrawerActivity.class);
@@ -463,7 +468,8 @@ class AndroidNotificationManagerImpl implements AndroidNotificationManager,
 				TaskStackBuilder t = TaskStackBuilder.create(appContext);
 				t.addParentStack(NavDrawerActivity.class);
 				t.addNextIntent(i);
-				b.setContentIntent(t.getPendingIntent(nextRequestId++, 0));
+				b.setContentIntent(t.getPendingIntent(nextRequestId++,
+						getImmutableFlags(0)));
 			}
 			notificationManager.notify(GROUP_MESSAGE_NOTIFICATION_ID,
 					b.build());
@@ -522,7 +528,8 @@ class AndroidNotificationManagerImpl implements AndroidNotificationManager,
 				TaskStackBuilder t = TaskStackBuilder.create(appContext);
 				t.addParentStack(ForumActivity.class);
 				t.addNextIntent(i);
-				b.setContentIntent(t.getPendingIntent(nextRequestId++, 0));
+				b.setContentIntent(t.getPendingIntent(nextRequestId++,
+						getImmutableFlags(0)));
 			} else {
 				// Touching the notification shows the forum list
 				Intent i = new Intent(appContext, NavDrawerActivity.class);
@@ -531,7 +538,8 @@ class AndroidNotificationManagerImpl implements AndroidNotificationManager,
 				TaskStackBuilder t = TaskStackBuilder.create(appContext);
 				t.addParentStack(NavDrawerActivity.class);
 				t.addNextIntent(i);
-				b.setContentIntent(t.getPendingIntent(nextRequestId++, 0));
+				b.setContentIntent(t.getPendingIntent(nextRequestId++,
+						getImmutableFlags(0)));
 			}
 			notificationManager.notify(FORUM_POST_NOTIFICATION_ID, b.build());
 		}
@@ -583,7 +591,8 @@ class AndroidNotificationManagerImpl implements AndroidNotificationManager,
 			TaskStackBuilder t = TaskStackBuilder.create(appContext);
 			t.addParentStack(NavDrawerActivity.class);
 			t.addNextIntent(i);
-			b.setContentIntent(t.getPendingIntent(nextRequestId++, 0));
+			b.setContentIntent(
+					t.getPendingIntent(nextRequestId++, getImmutableFlags(0)));
 
 			notificationManager.notify(BLOG_POST_NOTIFICATION_ID, b.build());
 		}
@@ -621,7 +630,8 @@ class AndroidNotificationManagerImpl implements AndroidNotificationManager,
 		TaskStackBuilder t = TaskStackBuilder.create(appContext);
 		t.addParentStack(NavDrawerActivity.class);
 		t.addNextIntent(i);
-		b.setContentIntent(t.getPendingIntent(nextRequestId++, 0));
+		b.setContentIntent(
+				t.getPendingIntent(nextRequestId++, getImmutableFlags(0)));
 
 		notificationManager.notify(CONTACT_ADDED_NOTIFICATION_ID,
 				b.build());
@@ -662,12 +672,12 @@ class AndroidNotificationManagerImpl implements AndroidNotificationManager,
 		Intent i1 = new Intent(appContext, SignInReminderReceiver.class);
 		i1.setAction(ACTION_DISMISS_REMINDER);
 		PendingIntent actionIntent =
-				PendingIntent.getBroadcast(appContext, 0, i1, 0);
+				getBroadcast(appContext, 0, i1, getImmutableFlags(0));
 		b.addAction(0, actionTitle, actionIntent);
 
 		Intent i = new Intent(appContext, SplashScreenActivity.class);
 		i.setFlags(FLAG_ACTIVITY_NEW_TASK | FLAG_ACTIVITY_CLEAR_TOP);
-		b.setContentIntent(getActivity(appContext, 0, i, 0));
+		b.setContentIntent(getActivity(appContext, 0, i, getImmutableFlags(0)));
 
 		notificationManager.notify(REMINDER_NOTIFICATION_ID, b.build());
 	}
@@ -761,7 +771,8 @@ class AndroidNotificationManagerImpl implements AndroidNotificationManager,
 		Intent i = new Intent(appContext, HotspotActivity.class);
 		i.addFlags(FLAG_ACTIVITY_SINGLE_TOP);
 		i.setAction(ACTION_STOP_HOTSPOT);
-		PendingIntent actionIntent = getActivity(appContext, 0, i, 0);
+		PendingIntent actionIntent =
+				getActivity(appContext, 0, i, getImmutableFlags(0));
 		int icon = SDK_INT >= 21 ? R.drawable.ic_portable_wifi_off : 0;
 		b.addAction(icon, actionTitle, actionIntent);
 		notificationManager.notify(HOTSPOT_NOTIFICATION_ID, b.build());
@@ -803,7 +814,8 @@ class AndroidNotificationManagerImpl implements AndroidNotificationManager,
 		TaskStackBuilder t = TaskStackBuilder.create(appContext);
 		t.addParentStack(MailboxActivity.class);
 		t.addNextIntent(i);
-		b.setContentIntent(t.getPendingIntent(nextRequestId++, 0));
+		b.setContentIntent(
+				t.getPendingIntent(nextRequestId++, getImmutableFlags(0)));
 
 		notificationManager.notify(MAILBOX_PROBLEM_NOTIFICATION_ID, b.build());
 	}

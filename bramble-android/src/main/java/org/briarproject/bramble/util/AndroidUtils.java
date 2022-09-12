@@ -22,6 +22,7 @@ import java.util.Scanner;
 
 import javax.annotation.Nullable;
 
+import static android.app.PendingIntent.FLAG_IMMUTABLE;
 import static android.content.Context.MODE_PRIVATE;
 import static android.os.Build.VERSION.SDK_INT;
 import static java.lang.Runtime.getRuntime;
@@ -138,5 +139,12 @@ public class AndroidUtils {
 
 	public static boolean isUiThread() {
 		return Looper.myLooper() == Looper.getMainLooper();
+	}
+
+	public static int getImmutableFlags(int flags) {
+		if (SDK_INT >= 23) {
+			return FLAG_IMMUTABLE | flags;
+		}
+		return flags;
 	}
 }
