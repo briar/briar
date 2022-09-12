@@ -1,5 +1,6 @@
 package org.briarproject.briar.android.contact.add.nearby;
 
+import android.annotation.SuppressLint;
 import android.app.Application;
 import android.bluetooth.BluetoothAdapter;
 import android.content.BroadcastReceiver;
@@ -250,6 +251,7 @@ class AddNearbyContactViewModel extends AndroidViewModel
 	}
 
 	@UiThread
+	@SuppressLint("MissingPermission") // we check permissions before
 	private boolean isBluetoothReady() {
 		if (bt == null || bluetoothPlugin == null) {
 			// Continue without Bluetooth

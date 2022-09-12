@@ -782,6 +782,10 @@
 	<string name="permission_location_setting_title">Location setting</string>
 	<string name="permission_location_setting_body">Your device\'s location setting must be turned on to find other devices via Bluetooth. Please enable location to continue. You can disable it again afterwards.</string>
 	<string name="permission_location_setting_button">Enable location</string>
+	<string name="permission_bluetooth_title">Nearby devices permission</string>
+	<string name="permission_bluetooth_body">To use Bluetooth communication, Briar needs permission to find and connect to nearby devices.</string>
+	<string name="permission_bluetooth_denied_body">You have denied access to nearby devices, but Briar needs this permission to use Bluetooth.\n\nPlease consider granting access.</string>
+
 	<string name="qr_code">QR code</string>
 	<string name="show_qr_code_fullscreen">Show QR code fullscreen</string>
 

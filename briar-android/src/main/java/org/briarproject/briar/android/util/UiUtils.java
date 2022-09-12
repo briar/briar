@@ -44,6 +44,7 @@ import org.briarproject.nullsafety.MethodsNotNullByDefault;
 import org.briarproject.nullsafety.ParametersNotNullByDefault;
 
 import java.util.Locale;
+import java.util.Map;
 import java.util.logging.Logger;
 
 import androidx.activity.result.ActivityResultLauncher;
@@ -70,6 +71,9 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.Observer;
 import androidx.vectordrawable.graphics.drawable.VectorDrawableCompat;
 
+import static android.Manifest.permission.BLUETOOTH_ADVERTISE;
+import static android.Manifest.permission.BLUETOOTH_CONNECT;
+import static android.Manifest.permission.BLUETOOTH_SCAN;
 import static android.content.Context.KEYGUARD_SERVICE;
 import static android.content.Intent.CATEGORY_DEFAULT;
 import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
@@ -105,6 +109,7 @@ import static androidx.core.content.ContextCompat.getColor;
 import static androidx.core.content.ContextCompat.getSystemService;
 import static androidx.core.graphics.drawable.DrawableCompat.setTint;
 import static androidx.core.view.ViewCompat.LAYOUT_DIRECTION_RTL;
+import static java.lang.Boolean.TRUE;
 import static java.util.Objects.requireNonNull;
 import static java.util.concurrent.TimeUnit.DAYS;
 import static java.util.logging.Level.WARNING;
@@ -346,10 +351,10 @@ public class UiUtils {
 
 	/**
 	 * @return true if location is enabled,
-	 * or it isn't required due to this being a SDK < 28 device.
+	 * or it isn't required due to this being a device with SDK < 28 or >= 31.
 	 */
 	public static boolean isLocationEnabled(Context ctx) {
-		if (SDK_INT >= 28) {
+		if (SDK_INT >= 28 && SDK_INT < 31) {
 			LocationManager lm = ctx.getSystemService(LocationManager.class);
 			return lm.isLocationEnabled();
 		} else {
@@ -624,5 +629,22 @@ public class UiUtils {
 			}
 		}
 		Toast.makeText(ctx, R.string.error_start_activity, LENGTH_LONG).show();
+	}
+
+	@RequiresApi(31)
+	public static void requestBluetoothPermissions(
+			ActivityResultLauncher<String[]> launcher) {
+		String[] perms = new String[] {BLUETOOTH_ADVERTISE, BLUETOOTH_CONNECT,
+				BLUETOOTH_SCAN};
+		launcher.launch(perms);
+	}
+
+	@RequiresApi(31)
+	public static boolean wasGrantedBluetoothPermissions(
+			@Nullable Map<String, Boolean> grantedMap) {
+		return grantedMap != null &&
+				TRUE.equals(grantedMap.get(BLUETOOTH_ADVERTISE)) &&
+				TRUE.equals(grantedMap.get(BLUETOOTH_CONNECT)) &&
+				TRUE.equals(grantedMap.get(BLUETOOTH_SCAN));
 	}
 }

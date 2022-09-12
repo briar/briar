@@ -6,7 +6,6 @@ import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.content.ContentResolver;
 import android.content.Context;
-import android.os.Build;
 import android.os.Parcel;
 import android.os.StrictMode;
 import android.provider.Settings;
@@ -15,12 +14,19 @@ import org.briarproject.nullsafety.NotNullByDefault;
 
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.util.Set;
 
 import javax.annotation.concurrent.Immutable;
 import javax.inject.Inject;
 
+import static android.os.Build.FINGERPRINT;
+import static android.os.Build.SERIAL;
 import static android.os.Build.VERSION.SDK_INT;
+import static android.os.Process.myPid;
+import static android.os.Process.myTid;
+import static android.os.Process.myUid;
 import static android.provider.Settings.Secure.ANDROID_ID;
+import static org.briarproject.bramble.util.AndroidUtils.hasBtConnectPermission;
 
 @Immutable
 @NotNullByDefault
@@ -39,22 +45,27 @@ class AndroidSecureRandomProvider extends UnixSecureRandomProvider {
 	@Override
 	protected void writeToEntropyPool(DataOutputStream out) throws IOException {
 		super.writeToEntropyPool(out);
-		out.writeInt(android.os.Process.myPid());
-		out.writeInt(android.os.Process.myTid());
-		out.writeInt(android.os.Process.myUid());
-		if (Build.FINGERPRINT != null) out.writeUTF(Build.FINGERPRINT);
-		if (Build.SERIAL != null) out.writeUTF(Build.SERIAL);
+		out.writeInt(myPid());
+		out.writeInt(myTid());
+		out.writeInt(myUid());
+		if (FINGERPRINT != null) out.writeUTF(FINGERPRINT);
+		if (SERIAL != null) out.writeUTF(SERIAL);
 		ContentResolver contentResolver = appContext.getContentResolver();
 		String id = Settings.Secure.getString(contentResolver, ANDROID_ID);
 		if (id != null) out.writeUTF(id);
-		Parcel parcel = Parcel.obtain();
-		BluetoothAdapter bt = BluetoothAdapter.getDefaultAdapter();
-		if (bt != null) {
-			for (BluetoothDevice device : bt.getBondedDevices())
-				parcel.writeParcelable(device, 0);
+		// use bluetooth paired devices as well, if allowed
+		if (hasBtConnectPermission(appContext)) {
+			Parcel parcel = Parcel.obtain();
+			BluetoothAdapter bt = BluetoothAdapter.getDefaultAdapter();
+			if (bt != null) {
+				@SuppressLint("MissingPermission")
+				Set<BluetoothDevice> deviceSet = bt.getBondedDevices();
+				for (BluetoothDevice device : deviceSet)
+					parcel.writeParcelable(device, 0);
+			}
+			out.write(parcel.marshall());
+			parcel.recycle();
 		}
-		out.write(parcel.marshall());
-		parcel.recycle();
 	}
 
 	@Override
@@ -77,7 +88,7 @@ class AndroidSecureRandomProvider extends UnixSecureRandomProvider {
 					.invoke(null, (Object) seed);
 			// Mix the output of the Linux PRNG into the OpenSSL PRNG
 			int bytesRead = (Integer) Class.forName(
-					"org.apache.harmony.xnet.provider.jsse.NativeCrypto")
+							"org.apache.harmony.xnet.provider.jsse.NativeCrypto")
 					.getMethod("RAND_load_file", String.class, long.class)
 					.invoke(null, "/dev/urandom", 1024);
 			if (bytesRead != 1024) throw new IOException();

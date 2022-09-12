@@ -1,6 +1,5 @@
 package org.briarproject.briar.android.contact.connect;
 
-import android.app.Activity;
 import android.content.Context;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -14,15 +13,17 @@ import org.briarproject.briar.android.util.ActivityLaunchers.RequestBluetoothDis
 import org.briarproject.nullsafety.MethodsNotNullByDefault;
 import org.briarproject.nullsafety.ParametersNotNullByDefault;
 
+import java.util.Map;
+
 import javax.inject.Inject;
 
 import androidx.activity.result.ActivityResultLauncher;
-import androidx.activity.result.contract.ActivityResultContracts.RequestPermission;
+import androidx.activity.result.contract.ActivityResultContracts.RequestMultiplePermissions;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentActivity;
 import androidx.lifecycle.ViewModelProvider;
 
-import static android.Manifest.permission.ACCESS_FINE_LOCATION;
 import static android.widget.Toast.LENGTH_LONG;
 import static org.briarproject.briar.android.AppModule.getAndroidComponent;
 
@@ -42,8 +43,8 @@ public class BluetoothIntroFragment extends Fragment {
 	private final ActivityResultLauncher<Integer> bluetoothDiscoverableRequest =
 			registerForActivityResult(new RequestBluetoothDiscoverable(),
 					this::onBluetoothDiscoverable);
-	private final ActivityResultLauncher<String> permissionRequest =
-			registerForActivityResult(new RequestPermission(),
+	private final ActivityResultLauncher<String[]> permissionRequest =
+			registerForActivityResult(new RequestMultiplePermissions(),
 					this::onPermissionRequestResult);
 
 	@Override
@@ -80,12 +81,13 @@ public class BluetoothIntroFragment extends Fragment {
 			// if the permission is already granted.
 			// So we can use the request as a generic entry point
 			// to the whole flow.
-			permissionRequest.launch(ACCESS_FINE_LOCATION);
+			conditionManager.requestPermissions(permissionRequest);
 		}
 	}
 
-	private void onPermissionRequestResult(@Nullable Boolean result) {
-		Activity a = requireActivity();
+	private void onPermissionRequestResult(
+			@Nullable Map<String, Boolean> result) {
+		FragmentActivity a = requireActivity();
 		// update permission result in BluetoothConnecter
 		conditionManager.onLocationPermissionResult(a, result);
 		// what to do when the user denies granting the location permission

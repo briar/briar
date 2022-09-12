@@ -8,18 +8,32 @@ import org.briarproject.briar.R;
 import org.briarproject.nullsafety.MethodsNotNullByDefault;
 import org.briarproject.nullsafety.ParametersNotNullByDefault;
 
+import java.util.Map;
+
 import javax.inject.Inject;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts.RequestMultiplePermissions;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
+import androidx.fragment.app.FragmentActivity;
 import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.preference.ListPreference;
 import androidx.preference.PreferenceFragmentCompat;
 import androidx.preference.SwitchPreferenceCompat;
 
+import static android.Manifest.permission.BLUETOOTH_CONNECT;
+import static android.os.Build.VERSION.SDK_INT;
+import static org.briarproject.bramble.util.AndroidUtils.hasBtConnectPermission;
+import static org.briarproject.bramble.util.AndroidUtils.hasBtScanPermission;
 import static org.briarproject.briar.android.AppModule.getAndroidComponent;
 import static org.briarproject.briar.android.settings.SettingsActivity.enableAndPersist;
+import static org.briarproject.briar.android.util.UiUtils.requestBluetoothPermissions;
+import static org.briarproject.briar.android.util.UiUtils.showDenialDialog;
+import static org.briarproject.briar.android.util.UiUtils.showRationale;
+import static org.briarproject.briar.android.util.UiUtils.wasGrantedBluetoothPermissions;
 
 @MethodsNotNullByDefault
 @ParametersNotNullByDefault
@@ -47,6 +61,11 @@ public class ConnectionsFragment extends PreferenceFragmentCompat {
 	private SwitchPreferenceCompat torMobile;
 	private SwitchPreferenceCompat torOnlyWhenCharging;
 
+	@RequiresApi(31)
+	private final ActivityResultLauncher<String[]> requestPermissionLauncher =
+			registerForActivityResult(new RequestMultiplePermissions(),
+					this::handleBtPermissionResult);
+
 	@Override
 	public void onAttach(@NonNull Context context) {
 		super.onAttach(context);
@@ -69,6 +88,25 @@ public class ConnectionsFragment extends PreferenceFragmentCompat {
 
 		torNetwork.setSummaryProvider(viewModel.torSummaryProvider);
 
+		if (SDK_INT >= 31) {
+			enableBluetooth.setOnPreferenceChangeListener((p, value) -> {
+				FragmentActivity ctx = requireActivity();
+				if (hasBtConnectPermission(ctx) && hasBtScanPermission(ctx)) {
+					return true;
+				} else if (shouldShowRequestPermissionRationale(
+						BLUETOOTH_CONNECT)) {
+					showRationale(ctx, R.string.permission_bluetooth_title,
+							R.string.permission_bluetooth_body,
+							this::requestBtPermissions);
+					// we don't update the preference directly,
+					// but do it via the launcher, if we got the permissions
+					return false;
+				} else {
+					requestBtPermissions();
+					return false;
+				}
+			});
+		}
 		enableBluetooth.setPreferenceDataStore(connectionsManager.btStore);
 		enableWifi.setPreferenceDataStore(connectionsManager.wifiStore);
 		enableTor.setPreferenceDataStore(connectionsManager.torStore);
@@ -115,4 +153,19 @@ public class ConnectionsFragment extends PreferenceFragmentCompat {
 		requireActivity().setTitle(R.string.network_settings_title);
 	}
 
+	@RequiresApi(31)
+	private void requestBtPermissions() {
+		requestBluetoothPermissions(requestPermissionLauncher);
+	}
+
+	@RequiresApi(31)
+	private void handleBtPermissionResult(Map<String, Boolean> grantedMap) {
+		if (wasGrantedBluetoothPermissions(grantedMap)) {
+			enableBluetooth.setChecked(true);
+		} else {
+			showDenialDialog(requireActivity(),
+					R.string.permission_bluetooth_title,
+					R.string.permission_bluetooth_denied_body);
+		}
+	}
 }

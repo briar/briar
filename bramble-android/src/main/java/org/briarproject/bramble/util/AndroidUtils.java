@@ -22,9 +22,14 @@ import java.util.Scanner;
 
 import javax.annotation.Nullable;
 
+import static android.Manifest.permission.BLUETOOTH_CONNECT;
+import static android.Manifest.permission.BLUETOOTH_SCAN;
 import static android.app.PendingIntent.FLAG_IMMUTABLE;
 import static android.content.Context.MODE_PRIVATE;
+import static android.content.pm.PackageManager.PERMISSION_GRANTED;
 import static android.os.Build.VERSION.SDK_INT;
+import static android.os.Process.myPid;
+import static android.os.Process.myUid;
 import static java.lang.Runtime.getRuntime;
 import static java.util.Arrays.asList;
 import static org.briarproject.nullsafety.NullSafety.requireNonNull;
@@ -47,6 +52,16 @@ public class AndroidUtils {
 			if (Build.CPU_ABI2 != null) abis.add(Build.CPU_ABI2);
 		}
 		return abis;
+	}
+
+	public static boolean hasBtScanPermission(Context ctx) {
+		return SDK_INT < 31 || ctx.checkPermission(BLUETOOTH_SCAN, myPid(),
+				myUid()) == PERMISSION_GRANTED;
+	}
+
+	public static boolean hasBtConnectPermission(Context ctx) {
+		return SDK_INT < 31 || ctx.checkPermission(BLUETOOTH_CONNECT, myPid(),
+				myUid()) == PERMISSION_GRANTED;
 	}
 
 	public static String getBluetoothAddress(Context ctx,

@@ -58,6 +58,8 @@ import static java.util.Locale.US;
 import static java.util.Objects.requireNonNull;
 import static java.util.TimeZone.getTimeZone;
 import static org.briarproject.bramble.util.AndroidUtils.getBluetoothAddressAndMethod;
+import static org.briarproject.bramble.util.AndroidUtils.hasBtConnectPermission;
+import static org.briarproject.bramble.util.AndroidUtils.hasBtScanPermission;
 import static org.briarproject.bramble.util.PrivacyUtils.scrubInetAddress;
 import static org.briarproject.bramble.util.PrivacyUtils.scrubMacAddress;
 import static org.briarproject.bramble.util.StringUtils.isNullOrEmpty;
@@ -273,12 +275,13 @@ class BriarReportCollector {
 
 			// Is Bluetooth enabled?
 			@SuppressLint("HardwareIds")
-			boolean btEnabled = bt.isEnabled()
+			boolean btEnabled = hasBtConnectPermission(ctx) && bt.isEnabled()
 					&& !isNullOrEmpty(bt.getAddress());
 			connectivityInfo.add("BluetoothEnabled", btEnabled);
 
 			// Is Bluetooth connectable?
-			int scanMode = bt.getScanMode();
+			@SuppressLint("MissingPermission")
+			int scanMode = hasBtScanPermission(ctx) ? bt.getScanMode() : -1;
 			boolean btConnectable = scanMode == SCAN_MODE_CONNECTABLE ||
 					scanMode == SCAN_MODE_CONNECTABLE_DISCOVERABLE;
 			connectivityInfo.add("BluetoothConnectable", btConnectable);
@@ -298,11 +301,14 @@ class BriarReportCollector {
 						btLeAdvertise);
 			}
 
-			Pair<String, String> p = getBluetoothAddressAndMethod(ctx, bt);
-			String address = p.getFirst();
-			String method = p.getSecond();
-			connectivityInfo.add("BluetoothAddress", scrubMacAddress(address));
-			connectivityInfo.add("BluetoothAddressMethod", method);
+			if (hasBtConnectPermission(ctx)) {
+				Pair<String, String> p = getBluetoothAddressAndMethod(ctx, bt);
+				String address = p.getFirst();
+				String method = p.getSecond();
+				connectivityInfo.add("BluetoothAddress",
+						scrubMacAddress(address));
+				connectivityInfo.add("BluetoothAddressMethod", method);
+			}
 		}
 		return new ReportItem("Connectivity", R.string.dev_report_connectivity,
 				connectivityInfo);

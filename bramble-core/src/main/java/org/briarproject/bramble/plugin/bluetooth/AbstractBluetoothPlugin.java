@@ -89,6 +89,16 @@ abstract class AbstractBluetoothPlugin<S, SS> implements BluetoothPlugin,
 
 	private volatile String contactConnectionsUuid = null;
 
+	/**
+	 * Override and return true, if the plugin is now allowed to access the
+	 * Bluetooth hardware, so it must be
+	 * {@link org.briarproject.bramble.api.plugin.Plugin.State#DISABLED}
+	 * in {@link #start()}.
+	 */
+	protected boolean isBluetoothAccessible() {
+		return true;
+	}
+
 	abstract void initialiseAdapter() throws IOException;
 
 	abstract boolean isAdapterEnabled();
@@ -176,19 +186,28 @@ abstract class AbstractBluetoothPlugin<S, SS> implements BluetoothPlugin,
 				DEFAULT_PREF_PLUGIN_ENABLE);
 		everConnected.set(settings.getBoolean(PREF_EVER_CONNECTED,
 				DEFAULT_PREF_EVER_CONNECTED));
+		// disable plugin, if conditions for enabling are not met
+		if (enabledByUser && !isBluetoothAccessible()) {
+			enabledByUser = false;
+			settings.putBoolean(PREF_PLUGIN_ENABLE, false);
+			callback.mergeSettings(settings);
+		}
 		state.setStarted(enabledByUser);
 		try {
 			initialiseAdapter();
 		} catch (IOException e) {
 			throw new PluginException(e);
 		}
-		updateProperties();
-		if (enabledByUser && isAdapterEnabled()) bind();
+		if (enabledByUser) {
+			updateProperties();
+			if (isAdapterEnabled()) bind();
+		}
 	}
 
 	private void bind() {
 		ioExecutor.execute(() -> {
 			if (getState() != INACTIVE) return;
+			if (contactConnectionsUuid == null) updateProperties();
 			// Bind a server socket to accept connections from contacts
 			SS ss;
 			try {
