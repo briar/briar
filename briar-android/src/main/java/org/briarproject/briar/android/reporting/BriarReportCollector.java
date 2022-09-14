@@ -7,6 +7,7 @@
 package org.briarproject.briar.android.reporting;
 
 import android.annotation.SuppressLint;
+import android.app.usage.UsageStatsManager;
 import android.bluetooth.BluetoothAdapter;
 import android.content.Context;
 import android.content.pm.FeatureInfo;
@@ -48,6 +49,7 @@ import androidx.annotation.Nullable;
 
 import static android.bluetooth.BluetoothAdapter.SCAN_MODE_CONNECTABLE;
 import static android.bluetooth.BluetoothAdapter.SCAN_MODE_CONNECTABLE_DISCOVERABLE;
+import static android.content.Context.USAGE_STATS_SERVICE;
 import static android.content.Context.WIFI_P2P_SERVICE;
 import static android.net.ConnectivityManager.TYPE_MOBILE;
 import static android.net.ConnectivityManager.TYPE_WIFI;
@@ -122,6 +124,12 @@ class BriarReportCollector {
 				.add("Product", Build.PRODUCT)
 				.add("Model", Build.MODEL)
 				.add("Brand", Build.BRAND);
+		if (SDK_INT >= 28) {
+			UsageStatsManager usageStatsManager = (UsageStatsManager)
+					ctx.getSystemService(USAGE_STATS_SERVICE);
+			deviceInfo.add("AppStandbyBucket",
+					usageStatsManager.getAppStandbyBucket());
+		}
 		return new ReportItem("DeviceInfo", R.string.dev_report_device_info,
 				deviceInfo);
 	}
