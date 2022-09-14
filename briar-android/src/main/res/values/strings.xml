@@ -781,6 +781,7 @@
 	<string name="permission_location_denied_body">You have denied access to your location, but Briar needs this permission to discover Bluetooth devices.\n\nPlease consider granting access.</string>
 	<string name="permission_location_setting_title">Location setting</string>
 	<string name="permission_location_setting_body">Your device\'s location setting must be turned on to find other devices via Bluetooth. Please enable location to continue. You can disable it again afterwards.</string>
+	<string name="permission_location_setting_hotspot_body">Your device\'s location setting must be turned on to create a Wi-Fi hotspot. Please enable location to continue. You can disable it again afterwards.</string>
 	<string name="permission_location_setting_button">Enable location</string>
 	<string name="permission_bluetooth_title">Nearby devices permission</string>
 	<string name="permission_bluetooth_body">To use Bluetooth communication, Briar needs permission to find and connect to nearby devices.</string>
@@ -812,7 +813,9 @@
 	<string name="hotspot_button_connected">Next</string>
 
 	<string name="permission_hotspot_location_request_body">To create a Wi-Fi hotspot, Briar needs permission to access your location.\n\nBriar does not store your location or share it with anyone.</string>
+	<string name="permission_hotspot_location_request_precise_body">To create a Wi-Fi hotspot, Briar needs permission to access your precise location.\n\nBriar does not store your location or share it with anyone.</string>
 	<string name="permission_hotspot_location_denied_body">You have denied access to your location, but Briar needs this permission to create a Wi-Fi hotspot.\n\nPlease consider granting access.</string>
+	<string name="permission_hotspot_location_denied_precise_body">You have denied access to your precise location, but Briar needs this permission to create a Wi-Fi hotspot.\n\nPlease consider granting access.</string>
 	<string name="wifi_settings_title">Wi-Fi setting</string>
 	<string name="wifi_settings_request_enable_body">To create a Wi-Fi hotspot, Briar needs to use Wi-Fi. Please enable it.</string>
 

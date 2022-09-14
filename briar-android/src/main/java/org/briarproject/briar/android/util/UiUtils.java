@@ -529,10 +529,19 @@ public class UiUtils {
 	}
 
 	public static void showLocationDialog(Context ctx) {
+		showLocationDialog(ctx, true);
+	}
+
+	public static void showLocationDialog(Context ctx, boolean forBluetooth) {
 		AlertDialog.Builder builder =
 				new AlertDialog.Builder(ctx, R.style.BriarDialogTheme);
 		builder.setTitle(R.string.permission_location_setting_title);
-		builder.setMessage(R.string.permission_location_setting_body);
+		if (forBluetooth) {
+			builder.setMessage(R.string.permission_location_setting_body);
+		} else {
+			builder.setMessage(
+					R.string.permission_location_setting_hotspot_body);
+		}
 		builder.setNegativeButton(R.string.cancel, null);
 		builder.setPositiveButton(R.string.permission_location_setting_button,
 				(dialog, which) -> {
