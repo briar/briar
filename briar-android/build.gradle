@@ -171,7 +171,7 @@ task verifyTranslations {
 		lc.children().each { value -> translations.add(value.text()) }
 
 		def folders = ["default", "en-US"]
-		def exceptions = ["values-night", "values-v21", "values-ldrtl"]
+		def exceptions = ["values-night", "values-v21", "values-v31", "values-ldrtl"]
 		project.file("src/main/res").eachDir { dir ->
 			if (dir.name.startsWith("values-") && !exceptions.contains(dir.name)) {
 				folders.add(dir.name.substring(7).replace("-r", "-"))
