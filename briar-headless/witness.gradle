@@ -1,8 +1,8 @@
 dependencyVerification {
     verify = [
-        'com.fasterxml.jackson.core:jackson-annotations:2.13.0:jackson-annotations-2.13.0.jar:81f9724d8843e8b08f8f6c0609e7a2b030d00c34861c4ac7e2099a7235047d6f',
-        'com.fasterxml.jackson.core:jackson-core:2.13.0:jackson-core-2.13.0.jar:348bc59b348df2e807b356f1d62d2afb41a974073328abc773eb0932b855d2c8',
-        'com.fasterxml.jackson.core:jackson-databind:2.13.0:jackson-databind-2.13.0.jar:9c826d27176268777adcf97e1c6e2051c7e33a7aaa2c370c2e8c6077fd9da3f4',
+        'com.fasterxml.jackson.core:jackson-annotations:2.13.4:jackson-annotations-2.13.4.jar:ac5b27a634942391ca113850ee7db01df1499a240174021263501c05fc653b44',
+        'com.fasterxml.jackson.core:jackson-core:2.13.4:jackson-core-2.13.4.jar:4c2e043200edd9ee7ba6fc378bd5c17784a5bf2388e152d208068b51fd0839cf',
+        'com.fasterxml.jackson.core:jackson-databind:2.13.4:jackson-databind-2.13.4.jar:c9faff420d9e2c7e1e4711dbeebec2506a32c9942027211c5c293d8d87807eb6',
         'com.github.ajalt:clikt:2.2.0:clikt-2.2.0.jar:beb3136d06764ec8ce0810a8fd6c8b7b49d04287d1deef3a07c016e43a458d33',
         'com.google.code.findbugs:jsr305:3.0.2:jsr305-3.0.2.jar:766ad2a0783f2687962c8ad74ceecc38a28b9f72a2d085ee438b7813e928d0c7',
         'com.google.dagger:dagger-compiler:2.24:dagger-compiler-2.24.jar:3c5afb955fb188da485cb2c048eff37dce0e1530b9780a0f2f7187d16d1ccc1f',

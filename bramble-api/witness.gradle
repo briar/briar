@@ -1,10 +1,10 @@
 dependencyVerification {
     verify = [
         'cglib:cglib:3.2.8:cglib-3.2.8.jar:3f64de999ecc5595dc84ca8ff0879d8a34c8623f9ef3c517a53ed59023fcb9db',
-        'com.fasterxml.jackson.core:jackson-annotations:2.13.0:jackson-annotations-2.13.0.jar:81f9724d8843e8b08f8f6c0609e7a2b030d00c34861c4ac7e2099a7235047d6f',
+        'com.fasterxml.jackson.core:jackson-annotations:2.13.4:jackson-annotations-2.13.4.jar:ac5b27a634942391ca113850ee7db01df1499a240174021263501c05fc653b44',
         'com.google.code.findbugs:annotations:3.0.1:annotations-3.0.1.jar:6b47ff0a6de0ce17cbedc3abb0828ca5bce3009d53ea47b3723ff023c4742f79',
         'com.google.code.findbugs:jsr305:3.0.2:jsr305-3.0.2.jar:766ad2a0783f2687962c8ad74ceecc38a28b9f72a2d085ee438b7813e928d0c7',
-        'com.google.dagger:dagger:2.33:dagger-2.33.jar:d8798c5b8cf6b125234e33af5c6293bb9f2208ce29b57924c35b8c0be7b6bdcb',
+        'com.google.dagger:dagger:2.43.2:dagger-2.43.2.jar:c89681f7cbbf8c527bf4ac2748515d617fdb54a1d425c08d914fdc28192b5fe4',
         'javax.inject:javax.inject:1:javax.inject-1.jar:91c77044a50c481636c32d916fd89c9118a72195390452c81065080f957de7ff',
         'junit:junit:4.13.2:junit-4.13.2.jar:8e495b634469d64fb8acfa3495a065cbacc8a0fff55ce1e31007be4c16dc57d3',
         'net.bytebuddy:byte-buddy:1.9.12:byte-buddy-1.9.12.jar:3688c3d434bebc3edc5516296a2ed0f47b65e451071b4afecad84f902f0efc11',
