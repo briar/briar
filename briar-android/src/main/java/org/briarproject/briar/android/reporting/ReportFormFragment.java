@@ -21,7 +21,6 @@ import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.activity.ActivityComponent;
 import org.briarproject.briar.android.fragment.BaseFragment;
-import org.briarproject.briar.android.settings.AboutFragment;
 
 import java.util.logging.Logger;
 
@@ -40,6 +39,7 @@ import static java.util.Objects.requireNonNull;
 import static java.util.logging.Level.WARNING;
 import static java.util.logging.Logger.getLogger;
 import static org.briarproject.bramble.util.LogUtils.logException;
+import static org.briarproject.briar.android.util.UiUtils.onSingleLinkClick;
 
 @MethodsNotNullByDefault
 @ParametersNotNullByDefault
@@ -104,18 +104,7 @@ public class ReportFormFragment extends BaseFragment {
 			userCommentView.setHint(R.string.describe_crash);
 		}
 
-		privacyPolicy.setOnClickListener(View -> {
-			String url = "https://briarproject.org/privacy-policy/";
-			Intent i = new Intent(Intent.ACTION_VIEW);
-			i.setData(Uri.parse(url));
-			try {
-				startActivity(i);
-			} catch (ActivityNotFoundException e) {
-				logException(LOG, WARNING, e);
-				Toast.makeText(requireContext(),
-						R.string.error_start_activity, LENGTH_LONG).show();
-			}
-		});
+		onSingleLinkClick(privacyPolicy, this::triggerPrivacyPolicy);
 
 		chevron.setOnClickListener(view -> {
 			boolean show = chevron.getText().equals(getString(R.string.show));
@@ -185,6 +174,18 @@ public class ReportFormFragment extends BaseFragment {
 			// trying to send now
 			Toast.makeText(requireContext(), R.string.dev_report_sending,
 					LENGTH_SHORT).show();
+		}
+	}
+
+	private void triggerPrivacyPolicy() {
+		Intent i = new Intent(Intent.ACTION_VIEW);
+		i.setData(Uri.parse("https://briarproject.org/privacy-policy/\\"));
+		try {
+			startActivity(i);
+		} catch (ActivityNotFoundException e) {
+			logException(LOG, WARNING, e);
+			Toast.makeText(requireContext(),
+					R.string.error_start_activity, LENGTH_LONG).show();
 		}
 	}
 
