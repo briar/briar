@@ -1,7 +1,6 @@
 package org.briarproject.briar.android.hotspot;
 
 import android.content.Context;
-import android.content.DialogInterface;
 import android.net.wifi.WifiManager;
 
 import org.briarproject.briar.R;
@@ -20,6 +19,12 @@ import static android.content.Context.WIFI_SERVICE;
  */
 abstract class AbstractConditionManager {
 
+	/**
+	 * Consumes false, if permissions have been denied. Then we don't call
+	 * {@link HotspotIntroFragment#startHotspotIfConditionsFulfilled()},
+	 * which would result in the same permission being requested again
+	 * immediately.
+	 */
 	final Consumer<Boolean> permissionUpdateCallback;
 	protected FragmentActivity ctx;
 	WifiManager wifiManager;
@@ -51,19 +56,6 @@ abstract class AbstractConditionManager {
 	 * @return true if conditions are fulfilled and flow can continue.
 	 */
 	abstract boolean checkAndRequestConditions();
-
-	void showDenialDialog(FragmentActivity ctx,
-			@StringRes int title, @StringRes int body,
-			DialogInterface.OnClickListener onOkClicked, Runnable onDismiss) {
-		AlertDialog.Builder builder = new AlertDialog.Builder(ctx);
-		builder.setTitle(title);
-		builder.setMessage(body);
-		builder.setPositiveButton(R.string.ok, onOkClicked);
-		builder.setNegativeButton(R.string.cancel,
-				(dialog, which) -> ctx.supportFinishAfterTransition());
-		builder.setOnDismissListener(dialog -> onDismiss.run());
-		builder.show();
-	}
 
 	void showRationale(Context ctx, @StringRes int title,
 			@StringRes int body, Runnable onContinueClicked,

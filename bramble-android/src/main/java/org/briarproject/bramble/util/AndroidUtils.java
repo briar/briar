@@ -23,7 +23,6 @@ import java.util.Scanner;
 import javax.annotation.Nullable;
 
 import static android.Manifest.permission.BLUETOOTH_CONNECT;
-import static android.Manifest.permission.BLUETOOTH_SCAN;
 import static android.app.PendingIntent.FLAG_IMMUTABLE;
 import static android.content.Context.MODE_PRIVATE;
 import static android.content.pm.PackageManager.PERMISSION_GRANTED;
@@ -52,11 +51,6 @@ public class AndroidUtils {
 			if (Build.CPU_ABI2 != null) abis.add(Build.CPU_ABI2);
 		}
 		return abis;
-	}
-
-	public static boolean hasBtScanPermission(Context ctx) {
-		return SDK_INT < 31 || ctx.checkPermission(BLUETOOTH_SCAN, myPid(),
-				myUid()) == PERMISSION_GRANTED;
 	}
 
 	public static boolean hasBtConnectPermission(Context ctx) {

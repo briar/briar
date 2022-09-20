@@ -91,9 +91,10 @@ abstract class AbstractBluetoothPlugin<S, SS> implements BluetoothPlugin,
 
 	/**
 	 * Override and return true, if the plugin is now allowed to access the
-	 * Bluetooth hardware, so it must be
+	 * Bluetooth hardware.
+	 * If this returns false, the plugin must be
 	 * {@link org.briarproject.bramble.api.plugin.Plugin.State#DISABLED}
-	 * in {@link #start()}.
+	 * in {@link #start()} and not attempt to access Bluetooth hardware.
 	 */
 	protected boolean isBluetoothAccessible() {
 		return true;
@@ -553,7 +554,8 @@ abstract class AbstractBluetoothPlugin<S, SS> implements BluetoothPlugin,
 	private void onSettingsUpdated(Settings settings) {
 		boolean enabledByUser = settings.getBoolean(PREF_PLUGIN_ENABLE,
 				DEFAULT_PREF_PLUGIN_ENABLE);
-		SS ss = state.setEnabledByUser(enabledByUser);
+		boolean shouldEnable = enabledByUser && isBluetoothAccessible();
+		SS ss = state.setEnabledByUser(shouldEnable);
 		State s = getState();
 		if (ss != null) {
 			LOG.info("Disabled by user, closing server socket");

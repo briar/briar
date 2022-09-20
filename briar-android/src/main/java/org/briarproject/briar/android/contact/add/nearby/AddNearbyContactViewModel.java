@@ -89,8 +89,8 @@ import static org.briarproject.briar.android.contact.add.nearby.AddNearbyContact
 import static org.briarproject.briar.android.contact.add.nearby.AddNearbyContactViewModel.BluetoothDecision.NO_ADAPTER;
 import static org.briarproject.briar.android.contact.add.nearby.AddNearbyContactViewModel.BluetoothDecision.REFUSED;
 import static org.briarproject.briar.android.contact.add.nearby.AddNearbyContactViewModel.BluetoothDecision.UNKNOWN;
+import static org.briarproject.briar.android.util.PermissionUtils.isLocationEnabledForBt;
 import static org.briarproject.briar.android.util.UiUtils.handleException;
-import static org.briarproject.briar.android.util.UiUtils.isLocationEnabled;
 
 @NotNullByDefault
 class AddNearbyContactViewModel extends AndroidViewModel
@@ -396,7 +396,7 @@ class AddNearbyContactViewModel extends AndroidViewModel
 	void showQrCodeFragmentIfAllowed() {
 		boolean permissionsGranted = areEssentialPermissionsGranted(
 				getApplication(), isBluetoothSupported());
-		boolean locationEnabled = isLocationEnabled(getApplication());
+		boolean locationEnabled = isLocationEnabledForBt(getApplication());
 		if (wasContinueClicked && permissionsGranted && locationEnabled) {
 			if (isWifiReady() && isBluetoothReady()) {
 				LOG.info("Wifi and Bluetooth are ready");

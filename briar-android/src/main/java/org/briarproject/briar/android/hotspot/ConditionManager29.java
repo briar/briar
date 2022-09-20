@@ -1,11 +1,11 @@
 package org.briarproject.briar.android.hotspot;
 
 import android.content.Intent;
-import android.location.LocationManager;
 import android.provider.Settings;
 
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.util.Permission;
+import org.briarproject.briar.android.util.PermissionUtils;
 
 import java.util.logging.Logger;
 
@@ -23,8 +23,8 @@ import static androidx.core.app.ActivityCompat.shouldShowRequestPermissionRation
 import static java.lang.Boolean.TRUE;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Logger.getLogger;
-import static org.briarproject.briar.android.util.UiUtils.getGoToSettingsListener;
-import static org.briarproject.briar.android.util.UiUtils.showLocationDialog;
+import static org.briarproject.briar.android.util.PermissionUtils.isLocationEnabledForWiFi;
+import static org.briarproject.briar.android.util.PermissionUtils.showLocationDialog;
 
 /**
  * This class ensures that the conditions to open a hotspot are fulfilled on
@@ -47,6 +47,7 @@ class ConditionManager29 extends AbstractConditionManager {
 	ConditionManager29(ActivityResultCaller arc,
 			Consumer<Boolean> permissionUpdateCallback) {
 		super(permissionUpdateCallback);
+		// permissionUpdateCallback receives false if permissions were denied
 		locationRequest = arc.registerForActivityResult(
 				new RequestPermission(), granted -> {
 					onRequestPermissionResult(granted);
@@ -66,7 +67,7 @@ class ConditionManager29 extends AbstractConditionManager {
 
 	private boolean areEssentialPermissionsGranted() {
 		boolean isWifiEnabled = wifiManager.isWifiEnabled();
-		boolean isLocationEnabled = isLocationEnabled();
+		boolean isLocationEnabled = isLocationEnabledForWiFi(ctx);
 		if (LOG.isLoggable(INFO)) {
 			LOG.info(String.format("areEssentialPermissionsGranted(): " +
 							"locationPermission? %s, " +
@@ -87,7 +88,7 @@ class ConditionManager29 extends AbstractConditionManager {
 			return false;
 		}
 		// ensure location is enabled (if needed on this device)
-		if (!isLocationEnabled()) {
+		if (!isLocationEnabledForWiFi(ctx)) {
 			showLocationDialog(ctx, false);
 			return false;
 		}
@@ -98,8 +99,8 @@ class ConditionManager29 extends AbstractConditionManager {
 			int res = SDK_INT >= 31 ?
 					R.string.permission_hotspot_location_denied_precise_body :
 					R.string.permission_hotspot_location_denied_body;
-			showDenialDialog(ctx, R.string.permission_location_title, res,
-					getGoToSettingsListener(ctx),
+			PermissionUtils.showDenialDialog(ctx,
+					R.string.permission_location_title, res,
 					() -> permissionUpdateCallback.accept(false));
 			return false;
 		}
@@ -147,14 +148,6 @@ class ConditionManager29 extends AbstractConditionManager {
 
 	private void requestEnableWiFi() {
 		wifiRequest.launch(new Intent(Settings.Panel.ACTION_WIFI));
-	}
-
-	private boolean isLocationEnabled() {
-		if (SDK_INT >= 31) {
-			LocationManager lm = ctx.getSystemService(LocationManager.class);
-			return lm.isLocationEnabled();
-		}
-		return true;
 	}
 
 }

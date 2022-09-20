@@ -53,13 +53,12 @@ import static org.briarproject.bramble.api.plugin.Plugin.State.STARTING_STOPPING
 import static org.briarproject.bramble.api.plugin.TorConstants.REASON_BATTERY;
 import static org.briarproject.bramble.api.plugin.TorConstants.REASON_COUNTRY_BLOCKED;
 import static org.briarproject.bramble.api.plugin.TorConstants.REASON_MOBILE_DATA;
-import static org.briarproject.bramble.util.AndroidUtils.hasBtConnectPermission;
-import static org.briarproject.bramble.util.AndroidUtils.hasBtScanPermission;
-import static org.briarproject.briar.android.util.UiUtils.requestBluetoothPermissions;
-import static org.briarproject.briar.android.util.UiUtils.showDenialDialog;
+import static org.briarproject.briar.android.util.PermissionUtils.areBluetoothPermissionsGranted;
+import static org.briarproject.briar.android.util.PermissionUtils.requestBluetoothPermissions;
+import static org.briarproject.briar.android.util.PermissionUtils.showDenialDialog;
+import static org.briarproject.briar.android.util.PermissionUtils.showRationale;
+import static org.briarproject.briar.android.util.PermissionUtils.wasGrantedBluetoothPermissions;
 import static org.briarproject.briar.android.util.UiUtils.showOnboardingDialog;
-import static org.briarproject.briar.android.util.UiUtils.showRationale;
-import static org.briarproject.briar.android.util.UiUtils.wasGrantedBluetoothPermissions;
 
 @MethodsNotNullByDefault
 @ParametersNotNullByDefault
@@ -220,8 +219,7 @@ public class TransportsActivity extends BriarActivity {
 	}
 
 	private void onClicked(TransportId transportId, boolean enable) {
-		if (enable && SDK_INT >= 31 &&
-				(!hasBtConnectPermission(this) || !hasBtScanPermission(this))) {
+		if (enable && SDK_INT >= 31 && !areBluetoothPermissionsGranted(this)) {
 			if (shouldShowRequestPermissionRationale(BLUETOOTH_CONNECT)) {
 				showRationale(this, R.string.permission_bluetooth_title,
 						R.string.permission_bluetooth_body,
@@ -354,9 +352,10 @@ public class TransportsActivity extends BriarActivity {
 
 	@RequiresApi(31)
 	private void handleBtPermissionResult(Map<String, Boolean> grantedMap) {
-		if (wasGrantedBluetoothPermissions(grantedMap)) {
+		if (wasGrantedBluetoothPermissions(this, grantedMap)) {
 			viewModel.enableTransport(BluetoothConstants.ID, true);
 		} else {
+			// update adapter to reflect the "off" toggle state after denying
 			transportsAdapter.notifyDataSetChanged();
 			showDenialDialog(this,
 					R.string.permission_bluetooth_title,

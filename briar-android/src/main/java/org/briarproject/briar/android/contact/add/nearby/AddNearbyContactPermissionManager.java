@@ -19,17 +19,17 @@ import static android.content.pm.PackageManager.PERMISSION_GRANTED;
 import static android.os.Build.VERSION.SDK_INT;
 import static androidx.core.app.ActivityCompat.shouldShowRequestPermissionRationale;
 import static androidx.core.content.ContextCompat.checkSelfPermission;
-import static org.briarproject.bramble.util.AndroidUtils.hasBtConnectPermission;
-import static org.briarproject.bramble.util.AndroidUtils.hasBtScanPermission;
 import static org.briarproject.briar.android.util.Permission.GRANTED;
 import static org.briarproject.briar.android.util.Permission.PERMANENTLY_DENIED;
 import static org.briarproject.briar.android.util.Permission.SHOW_RATIONALE;
 import static org.briarproject.briar.android.util.Permission.UNKNOWN;
-import static org.briarproject.briar.android.util.UiUtils.isLocationEnabled;
-import static org.briarproject.briar.android.util.UiUtils.showDenialDialog;
-import static org.briarproject.briar.android.util.UiUtils.showLocationDialog;
-import static org.briarproject.briar.android.util.UiUtils.showRationale;
-import static org.briarproject.briar.android.util.UiUtils.wasGrantedBluetoothPermissions;
+import static org.briarproject.briar.android.util.PermissionUtils.areBluetoothPermissionsGranted;
+import static org.briarproject.briar.android.util.PermissionUtils.gotPermission;
+import static org.briarproject.briar.android.util.PermissionUtils.isLocationEnabledForBt;
+import static org.briarproject.briar.android.util.PermissionUtils.showDenialDialog;
+import static org.briarproject.briar.android.util.PermissionUtils.showLocationDialog;
+import static org.briarproject.briar.android.util.PermissionUtils.showRationale;
+import static org.briarproject.briar.android.util.PermissionUtils.wasGrantedBluetoothPermissions;
 
 class AddNearbyContactPermissionManager {
 
@@ -64,9 +64,7 @@ class AddNearbyContactPermissionManager {
 		} else if (SDK_INT < 31) {
 			bluetoothOk = checkSelfPermission(ctx, ACCESS_FINE_LOCATION) == ok;
 		} else {
-			bluetoothOk = hasBtConnectPermission(ctx) &&
-					hasBtScanPermission(ctx) &&
-					checkSelfPermission(ctx, BLUETOOTH_ADVERTISE) == ok;
+			bluetoothOk = areBluetoothPermissionsGranted(ctx);
 		}
 		return bluetoothOk && checkSelfPermission(ctx, CAMERA) == ok;
 	}
@@ -79,7 +77,7 @@ class AddNearbyContactPermissionManager {
 	}
 
 	boolean checkPermissions() {
-		boolean locationEnabled = isLocationEnabled(ctx);
+		boolean locationEnabled = isLocationEnabledForBt(ctx);
 		if (locationEnabled && areEssentialPermissionsGranted()) return true;
 		// If an essential permission has been permanently denied, ask the
 		// user to change the setting
@@ -141,7 +139,7 @@ class AddNearbyContactPermissionManager {
 	}
 
 	void onRequestPermissionResult(Map<String, Boolean> result) {
-		if (gotPermission(CAMERA, result)) {
+		if (gotPermission(ctx, result, CAMERA)) {
 			cameraPermission = GRANTED;
 		} else if (shouldShowRationale(CAMERA)) {
 			cameraPermission = SHOW_RATIONALE;
@@ -150,7 +148,7 @@ class AddNearbyContactPermissionManager {
 		}
 		if (isBluetoothSupported) {
 			if (SDK_INT < 31) {
-				if (gotPermission(ACCESS_FINE_LOCATION, result)) {
+				if (gotPermission(ctx, result, ACCESS_FINE_LOCATION)) {
 					locationPermission = GRANTED;
 				} else if (shouldShowRationale(ACCESS_FINE_LOCATION)) {
 					locationPermission = SHOW_RATIONALE;
@@ -158,7 +156,7 @@ class AddNearbyContactPermissionManager {
 					locationPermission = PERMANENTLY_DENIED;
 				}
 			} else {
-				if (wasGrantedBluetoothPermissions(result)) {
+				if (wasGrantedBluetoothPermissions(ctx, result)) {
 					bluetoothPermissions = GRANTED;
 				} else if (shouldShowRationale(BLUETOOTH_CONNECT)) {
 					bluetoothPermissions = SHOW_RATIONALE;
@@ -167,17 +165,6 @@ class AddNearbyContactPermissionManager {
 				}
 			}
 		}
-	}
-
-	private boolean gotPermission(String permission,
-			Map<String, Boolean> result) {
-		Boolean permissionResult = result.get(permission);
-		return permissionResult == null ?
-				isGranted(permission) : permissionResult;
-	}
-
-	private boolean isGranted(String permission) {
-		return checkSelfPermission(ctx, permission) == PERMISSION_GRANTED;
 	}
 
 	private boolean shouldShowRationale(String permission) {

@@ -26,14 +26,13 @@ import androidx.preference.SwitchPreferenceCompat;
 
 import static android.Manifest.permission.BLUETOOTH_CONNECT;
 import static android.os.Build.VERSION.SDK_INT;
-import static org.briarproject.bramble.util.AndroidUtils.hasBtConnectPermission;
-import static org.briarproject.bramble.util.AndroidUtils.hasBtScanPermission;
 import static org.briarproject.briar.android.AppModule.getAndroidComponent;
 import static org.briarproject.briar.android.settings.SettingsActivity.enableAndPersist;
-import static org.briarproject.briar.android.util.UiUtils.requestBluetoothPermissions;
-import static org.briarproject.briar.android.util.UiUtils.showDenialDialog;
-import static org.briarproject.briar.android.util.UiUtils.showRationale;
-import static org.briarproject.briar.android.util.UiUtils.wasGrantedBluetoothPermissions;
+import static org.briarproject.briar.android.util.PermissionUtils.areBluetoothPermissionsGranted;
+import static org.briarproject.briar.android.util.PermissionUtils.requestBluetoothPermissions;
+import static org.briarproject.briar.android.util.PermissionUtils.showDenialDialog;
+import static org.briarproject.briar.android.util.PermissionUtils.showRationale;
+import static org.briarproject.briar.android.util.PermissionUtils.wasGrantedBluetoothPermissions;
 
 @MethodsNotNullByDefault
 @ParametersNotNullByDefault
@@ -91,7 +90,7 @@ public class ConnectionsFragment extends PreferenceFragmentCompat {
 		if (SDK_INT >= 31) {
 			enableBluetooth.setOnPreferenceChangeListener((p, value) -> {
 				FragmentActivity ctx = requireActivity();
-				if (hasBtConnectPermission(ctx) && hasBtScanPermission(ctx)) {
+				if (areBluetoothPermissionsGranted(ctx)) {
 					return true;
 				} else if (shouldShowRequestPermissionRationale(
 						BLUETOOTH_CONNECT)) {
@@ -160,7 +159,7 @@ public class ConnectionsFragment extends PreferenceFragmentCompat {
 
 	@RequiresApi(31)
 	private void handleBtPermissionResult(Map<String, Boolean> grantedMap) {
-		if (wasGrantedBluetoothPermissions(grantedMap)) {
+		if (wasGrantedBluetoothPermissions(requireActivity(), grantedMap)) {
 			enableBluetooth.setChecked(true);
 		} else {
 			showDenialDialog(requireActivity(),

@@ -46,6 +46,7 @@ import static org.briarproject.bramble.api.plugin.BluetoothConstants.PROP_UUID;
 import static org.briarproject.bramble.api.plugin.Plugin.State.ACTIVE;
 import static org.briarproject.bramble.util.LogUtils.logException;
 import static org.briarproject.bramble.util.StringUtils.isNullOrEmpty;
+import static org.briarproject.briar.android.util.PermissionUtils.areBluetoothPermissionsGranted;
 
 @UiThread
 @NotNullByDefault
@@ -260,7 +261,8 @@ class ConnectViaBluetoothViewModel extends DbViewModel implements
 
 	private void stopConnecting() {
 		BluetoothPlugin bluetoothPlugin = this.bluetoothPlugin;
-		if (bluetoothPlugin != null) {
+		if (bluetoothPlugin != null &&
+				areBluetoothPermissionsGranted(getApplication())) {
 			bluetoothPlugin.stopDiscoverAndConnect();
 		}
 	}

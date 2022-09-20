@@ -1,35 +1,34 @@
 package org.briarproject.briar.android.contact.connect;
 
 import android.app.Activity;
-import android.content.Context;
+import android.widget.Toast;
 
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.util.Permission;
-import org.briarproject.briar.android.util.UiUtils;
 
 import java.util.Map;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.annotation.Nullable;
 import androidx.annotation.UiThread;
-import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.FragmentActivity;
 
 import static android.Manifest.permission.ACCESS_FINE_LOCATION;
 import static android.Manifest.permission.BLUETOOTH_CONNECT;
-import static android.content.pm.PackageManager.PERMISSION_GRANTED;
 import static android.os.Build.VERSION.SDK_INT;
+import static android.widget.Toast.LENGTH_LONG;
 import static androidx.core.app.ActivityCompat.shouldShowRequestPermissionRationale;
-import static androidx.core.content.ContextCompat.checkSelfPermission;
 import static org.briarproject.briar.android.util.Permission.GRANTED;
 import static org.briarproject.briar.android.util.Permission.PERMANENTLY_DENIED;
 import static org.briarproject.briar.android.util.Permission.SHOW_RATIONALE;
 import static org.briarproject.briar.android.util.Permission.UNKNOWN;
-import static org.briarproject.briar.android.util.UiUtils.getGoToSettingsListener;
-import static org.briarproject.briar.android.util.UiUtils.isLocationEnabled;
-import static org.briarproject.briar.android.util.UiUtils.requestBluetoothPermissions;
-import static org.briarproject.briar.android.util.UiUtils.showLocationDialog;
-import static org.briarproject.briar.android.util.UiUtils.wasGrantedBluetoothPermissions;
+import static org.briarproject.briar.android.util.PermissionUtils.gotPermission;
+import static org.briarproject.briar.android.util.PermissionUtils.isLocationEnabledForBt;
+import static org.briarproject.briar.android.util.PermissionUtils.requestBluetoothPermissions;
+import static org.briarproject.briar.android.util.PermissionUtils.showDenialDialog;
+import static org.briarproject.briar.android.util.PermissionUtils.showLocationDialog;
+import static org.briarproject.briar.android.util.PermissionUtils.showRationale;
+import static org.briarproject.briar.android.util.PermissionUtils.wasGrantedBluetoothPermissions;
 
 class BluetoothConditionManager {
 
@@ -48,7 +47,7 @@ class BluetoothConditionManager {
 	@UiThread
 	void requestPermissions(ActivityResultLauncher<String[]> launcher) {
 		if (SDK_INT < 31) {
-			launcher.launch(new String[] {ACCESS_FINE_LOCATION});
+			requestLocationPermission(launcher);
 		} else {
 			requestBluetoothPermissions(launcher);
 		}
@@ -58,7 +57,7 @@ class BluetoothConditionManager {
 	void onLocationPermissionResult(Activity activity,
 			@Nullable Map<String, Boolean> result) {
 		if (SDK_INT < 31) {
-			if (gotPermission(activity, result)) {
+			if (gotPermission(activity, result, ACCESS_FINE_LOCATION)) {
 				locationPermission = GRANTED;
 			} else if (shouldShowRequestPermissionRationale(activity,
 					ACCESS_FINE_LOCATION)) {
@@ -67,7 +66,7 @@ class BluetoothConditionManager {
 				locationPermission = PERMANENTLY_DENIED;
 			}
 		} else {
-			if (wasGrantedBluetoothPermissions(result)) {
+			if (wasGrantedBluetoothPermissions(activity, result)) {
 				bluetoothPermissions = GRANTED;
 			} else if (shouldShowRequestPermissionRationale(activity,
 					BLUETOOTH_CONNECT)) {
@@ -84,58 +83,38 @@ class BluetoothConditionManager {
 		boolean permissionGranted =
 				(SDK_INT < 23 || locationPermission == GRANTED) &&
 						bluetoothPermissions == GRANTED;
-		boolean locationEnabled = isLocationEnabled(ctx);
+		boolean locationEnabled = isLocationEnabledForBt(ctx);
 		if (permissionGranted && locationEnabled) return true;
 
 		if (locationPermission == PERMANENTLY_DENIED) {
-			showDenialDialog(ctx, onLocationDenied);
+			showDenialDialog(ctx, R.string.permission_location_title,
+					R.string.permission_location_denied_body, onLocationDenied);
 		} else if (locationPermission == SHOW_RATIONALE) {
-			showRationale(ctx, permissionRequest);
+			showRationale(ctx, R.string.permission_location_title,
+					R.string.permission_location_request_body,
+					() -> requestLocationPermission(permissionRequest));
 		} else if (!locationEnabled) {
 			showLocationDialog(ctx);
 		} else if (bluetoothPermissions == PERMANENTLY_DENIED) {
-			UiUtils.showDenialDialog(ctx, R.string.permission_bluetooth_title,
-					R.string.permission_bluetooth_denied_body);
+			Runnable onDenied = () -> Toast.makeText(ctx,
+					R.string.connect_via_bluetooth_no_bluetooth_permission,
+					LENGTH_LONG).show();
+			showDenialDialog(ctx, R.string.permission_bluetooth_title,
+					R.string.permission_bluetooth_denied_body, onDenied);
 		} else if (bluetoothPermissions == SHOW_RATIONALE && SDK_INT >= 31) {
-			UiUtils.showRationale(ctx, R.string.permission_bluetooth_title,
+			// SDK_INT is checked to make linter happy, because
+			// requestBluetoothPermissions() requires SDK_INT 31
+			showRationale(ctx,
+					R.string.permission_bluetooth_title,
 					R.string.permission_bluetooth_body, () ->
 							requestBluetoothPermissions(permissionRequest));
 		}
 		return false;
 	}
 
-	private void showDenialDialog(Context ctx, Runnable onLocationDenied) {
-		new AlertDialog.Builder(ctx, R.style.BriarDialogTheme)
-				.setTitle(R.string.permission_location_title)
-				.setMessage(R.string.permission_location_denied_body)
-				.setPositiveButton(R.string.ok, getGoToSettingsListener(ctx))
-				.setNegativeButton(R.string.cancel, (v, d) ->
-						onLocationDenied.run())
-				.show();
-	}
-
-	private void showRationale(Context ctx,
-			ActivityResultLauncher<String[]> permissionRequest) {
-		new AlertDialog.Builder(ctx, R.style.BriarDialogTheme)
-				.setTitle(R.string.permission_location_title)
-				.setMessage(R.string.permission_location_request_body)
-				.setPositiveButton(R.string.ok, (dialog, which) ->
-						permissionRequest.launch(
-								new String[] {ACCESS_FINE_LOCATION}))
-				.show();
-	}
-
-	private boolean gotPermission(Context ctx,
-			@Nullable Map<String, Boolean> result) {
-		Boolean permissionResult =
-				result == null ? null : result.get(ACCESS_FINE_LOCATION);
-		return permissionResult == null ? isLocationPermissionGranted(ctx) :
-				permissionResult;
-	}
-
-	private boolean isLocationPermissionGranted(Context ctx) {
-		return checkSelfPermission(ctx, ACCESS_FINE_LOCATION) ==
-				PERMISSION_GRANTED;
+	private void requestLocationPermission(
+			ActivityResultLauncher<String[]> launcher) {
+		launcher.launch(new String[] {ACCESS_FINE_LOCATION});
 	}
 
 }

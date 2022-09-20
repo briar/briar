@@ -61,10 +61,10 @@ import static java.util.Objects.requireNonNull;
 import static java.util.TimeZone.getTimeZone;
 import static org.briarproject.bramble.util.AndroidUtils.getBluetoothAddressAndMethod;
 import static org.briarproject.bramble.util.AndroidUtils.hasBtConnectPermission;
-import static org.briarproject.bramble.util.AndroidUtils.hasBtScanPermission;
 import static org.briarproject.bramble.util.PrivacyUtils.scrubInetAddress;
 import static org.briarproject.bramble.util.PrivacyUtils.scrubMacAddress;
 import static org.briarproject.bramble.util.StringUtils.isNullOrEmpty;
+import static org.briarproject.briar.android.util.PermissionUtils.areBluetoothPermissionsGranted;
 
 @Immutable
 @NotNullByDefault
@@ -289,7 +289,8 @@ class BriarReportCollector {
 
 			// Is Bluetooth connectable?
 			@SuppressLint("MissingPermission")
-			int scanMode = hasBtScanPermission(ctx) ? bt.getScanMode() : -1;
+			int scanMode = areBluetoothPermissionsGranted(ctx) ?
+					bt.getScanMode() : -1;
 			boolean btConnectable = scanMode == SCAN_MODE_CONNECTABLE ||
 					scanMode == SCAN_MODE_CONNECTABLE_DISCOVERABLE;
 			connectivityInfo.add("BluetoothConnectable", btConnectable);

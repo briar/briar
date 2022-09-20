@@ -353,6 +353,7 @@
 	<string name="connect_via_bluetooth_intro">In case Bluetooth connections do not work automatically, you can use this screen to connect manually.\n\nYour contact needs to be nearby for this to work.\n\nYou and your contact should both press \"Start\" at the same time.</string>
 	<string name="connect_via_bluetooth_already_discovering">Already trying to connect via Bluetooth. Please try again shortly.</string>
 	<string name="connect_via_bluetooth_no_location_permission">Cannot continue without location permission</string>
+	<string name="connect_via_bluetooth_no_bluetooth_permission">Cannot continue without nearby devices permission</string>
 	<string name="connect_via_bluetooth_start">Connecting via Bluetooth…</string>
 	<string name="connect_via_bluetooth_success">Successfully connected via Bluetooth</string>
 	<string name="connect_via_bluetooth_error">Could not connect via Bluetooth.</string>
