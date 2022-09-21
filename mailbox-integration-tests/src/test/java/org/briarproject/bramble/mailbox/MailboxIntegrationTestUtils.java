@@ -3,7 +3,6 @@ package org.briarproject.bramble.mailbox;
 import org.briarproject.bramble.BrambleCoreIntegrationTestEagerSingletons;
 import org.briarproject.bramble.api.WeakSingletonProvider;
 import org.briarproject.bramble.api.mailbox.MailboxAuthToken;
-import org.briarproject.bramble.io.IoModule;
 import org.briarproject.bramble.test.TestDatabaseConfigModule;
 
 import java.io.File;
@@ -13,7 +12,6 @@ import java.util.Arrays;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.annotation.Nonnull;
-import javax.inject.Singleton;
 import javax.net.SocketFactory;
 
 import dagger.Module;
@@ -73,21 +71,10 @@ class MailboxIntegrationTestUtils {
 						.builder()
 						.testDatabaseConfigModule(
 								new TestDatabaseConfigModule(databaseDir))
-						.ioModule(new TestIoModule())
 						.build();
 		BrambleCoreIntegrationTestEagerSingletons.Helper
 				.injectEagerSingletons(component);
 		return component;
-	}
-
-	@Module
-	static class TestIoModule extends IoModule {
-
-		@Provides
-		@Singleton
-		WeakSingletonProvider<OkHttpClient> provideOkHttpClientProvider() {
-			return createHttpClientProvider();
-		}
 	}
 
 	@Module
