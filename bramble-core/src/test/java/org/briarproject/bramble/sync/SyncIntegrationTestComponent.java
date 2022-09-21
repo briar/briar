@@ -2,8 +2,10 @@ package org.briarproject.bramble.sync;
 
 import org.briarproject.bramble.BrambleCoreIntegrationTestEagerSingletons;
 import org.briarproject.bramble.BrambleCoreModule;
+import org.briarproject.bramble.mailbox.UrlConverterModule;
 import org.briarproject.bramble.test.BrambleCoreIntegrationTestModule;
 import org.briarproject.bramble.test.TestDnsModule;
+import org.briarproject.bramble.test.TestPluginConfigModule;
 import org.briarproject.bramble.test.TestSocksModule;
 
 import javax.inject.Singleton;
@@ -14,8 +16,10 @@ import dagger.Component;
 @Component(modules = {
 		BrambleCoreIntegrationTestModule.class,
 		BrambleCoreModule.class,
+		UrlConverterModule.class,
 		TestDnsModule.class,
-		TestSocksModule.class
+		TestSocksModule.class,
+		TestPluginConfigModule.class,
 })
 interface SyncIntegrationTestComponent extends
 		BrambleCoreIntegrationTestEagerSingletons {

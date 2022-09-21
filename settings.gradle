@@ -6,3 +6,15 @@ include ':briar-api'
 include ':briar-core'
 include ':briar-android'
 include ':briar-headless'
+// Enable the mailbox integration tests by passing
+// `MAILBOX_INTEGRATION_TESTS=true ./gradlew mailbox-integration-tests:test`
+// on the command line (for CI etc) or set `mailbox-integration-tests=true`
+// in gradle.properties to enable the modules for local development.
+if (ext.has("mailbox-integration-tests") && ext.get("mailbox-integration-tests") == "true"
+		|| System.env.MAILBOX_INTEGRATION_TESTS) {
+	include ':mailbox-integration-tests'
+	include(":mailbox-core")
+	include(":mailbox-lib")
+	project(":mailbox-core").projectDir = file("briar-mailbox/mailbox-core")
+	project(":mailbox-lib").projectDir = file("briar-mailbox/mailbox-lib")
+}

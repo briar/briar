@@ -1,8 +1,10 @@
 package org.briarproject.briar.introduction;
 
 import org.briarproject.bramble.BrambleCoreModule;
+import org.briarproject.bramble.mailbox.UrlConverterModule;
 import org.briarproject.bramble.test.BrambleCoreIntegrationTestModule;
 import org.briarproject.bramble.test.TestDnsModule;
+import org.briarproject.bramble.test.TestPluginConfigModule;
 import org.briarproject.bramble.test.TestSocksModule;
 import org.briarproject.briar.attachment.AttachmentModule;
 import org.briarproject.briar.autodelete.AutoDeleteModule;
@@ -39,8 +41,10 @@ import dagger.Component;
 		MessagingModule.class,
 		PrivateGroupModule.class,
 		SharingModule.class,
+		UrlConverterModule.class,
 		TestDnsModule.class,
-		TestSocksModule.class
+		TestSocksModule.class,
+		TestPluginConfigModule.class,
 })
 interface IntroductionIntegrationTestComponent
 		extends BriarIntegrationTestComponent {

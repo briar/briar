@@ -1,0 +1,3 @@
+[submodule "briar-mailbox"]
+	path = briar-mailbox
+	url = https://code.briarproject.org/briar/briar-mailbox.git

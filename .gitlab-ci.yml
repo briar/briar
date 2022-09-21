@@ -5,6 +5,9 @@ stages:
   - optional_tests
   - check_reproducibility
 
+variables:
+  GIT_SUBMODULE_STRATEGY: recursive
+
 workflow:
   # when to create a CI pipeline
   rules:
@@ -32,6 +35,7 @@ test:
   extends: .base-test
   stage: test
   script:
+    - git submodule update
     - ./gradlew -Djava.security.egd=file:/dev/urandom animalSnifferMain animalSnifferTest
     - ./gradlew -Djava.security.egd=file:/dev/urandom assembleOfficialDebug :briar-headless:linuxJars
     - ./gradlew -Djava.security.egd=file:/dev/urandom compileOfficialDebugAndroidTestSources compileScreenshotDebugAndroidTestSources check
@@ -109,12 +113,5 @@ mailbox integration test:
       when: manual
       allow_failure: true # TODO figure out how not to allow failure while leaving this optional
   script:
-    # start mailbox
-    - cd /opt && git clone --depth 1 https://code.briarproject.org/briar/briar-mailbox.git briar-mailbox
-    - cd briar-mailbox
-    - mkdir -p /root/.local/share # create directory that mailbox (currently) expects to exist
-    - ./gradlew run --args="--debug --setup-token 54686973206973206120736574757020746f6b656e20666f722042726961722e" &
-    # run mailbox integration test once mailbox has started
-    - cd "$CI_PROJECT_DIR"
-    - bramble-core/src/test/bash/wait-for-mailbox.sh
-    - OPTIONAL_TESTS=org.briarproject.bramble.mailbox.MailboxIntegrationTest ./gradlew --info bramble-core:test --tests MailboxIntegrationTest
+    - (cd briar-mailbox; git fetch; git reset --hard origin/mailbox-lib)
+    - MAILBOX_INTEGRATION_TESTS=true ./gradlew --info mailbox-integration-tests:test

@@ -3,6 +3,7 @@ package org.briarproject.bramble.test;
 import org.briarproject.bramble.BrambleCoreIntegrationTestEagerSingletons;
 import org.briarproject.bramble.BrambleCoreModule;
 import org.briarproject.bramble.BrambleJavaModule;
+import org.briarproject.bramble.mailbox.UrlConverterModule;
 import org.briarproject.bramble.plugin.tor.BridgeTest;
 import org.briarproject.bramble.plugin.tor.CircumventionProvider;
 
@@ -15,7 +16,9 @@ import dagger.Component;
 		BrambleCoreIntegrationTestModule.class,
 		BrambleCoreModule.class,
 		BrambleJavaModule.class,
-		TestTorPortsModule.class
+		UrlConverterModule.class,
+		TestTorPortsModule.class,
+		TestPluginConfigModule.class,
 })
 public interface BrambleJavaIntegrationTestComponent
 		extends BrambleCoreIntegrationTestEagerSingletons {

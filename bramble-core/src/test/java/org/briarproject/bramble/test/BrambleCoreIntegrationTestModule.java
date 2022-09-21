@@ -14,7 +14,6 @@ import dagger.Module;
 		TestDatabaseConfigModule.class,
 		TestFeatureFlagModule.class,
 		TestMailboxDirectoryModule.class,
-		TestPluginConfigModule.class,
 		TestSecureRandomModule.class,
 		TimeTravelModule.class
 })
