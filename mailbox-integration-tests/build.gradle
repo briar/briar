@@ -2,50 +2,19 @@ apply plugin: 'java-library'
 sourceCompatibility = 1.8
 targetCompatibility = 1.8
 
-apply plugin: 'ru.vyarus.animalsniffer'
 apply plugin: 'idea'
 apply from: '../dagger.gradle'
 
 dependencies {
-	implementation project(path: ':bramble-api', configuration: 'default')
-	implementation project(path: ':bramble-core', configuration: 'default')
-
-	annotationProcessor "com.google.dagger:dagger-compiler:$dagger_version"
-
-	testImplementation project(path: ':bramble-api', configuration: 'testOutput')
-	testImplementation project(path: ':bramble-core', configuration: 'testOutput')
-	testImplementation 'org.hsqldb:hsqldb:2.3.5' // The last version that supports Java 1.6
-	testImplementation 'net.jodah:concurrentunit:0.4.2'
-	testImplementation "junit:junit:$junit_version"
-	testImplementation "org.jmock:jmock:$jmock_version"
-	testImplementation "org.jmock:jmock-junit4:$jmock_version"
-	testImplementation "org.jmock:jmock-imposters:$jmock_version"
-	testImplementation "com.squareup.okhttp3:mockwebserver:4.9.3"
+	testImplementation project(path: ':bramble-api', configuration: 'default')
+	testImplementation project(path: ':bramble-core', configuration: 'default')
 	testImplementation project(path: ':mailbox-core', configuration: 'default')
 	testImplementation project(path: ':mailbox-lib', configuration: 'default')
+	testImplementation project(path: ':bramble-api', configuration: 'testOutput')
+	testImplementation project(path: ':bramble-core', configuration: 'testOutput')
+
+	testImplementation "junit:junit:$junit_version"
 	testImplementation "ch.qos.logback:logback-classic:1.2.11"
 
 	testAnnotationProcessor "com.google.dagger:dagger-compiler:$dagger_version"
-
-	signature 'org.codehaus.mojo.signature:java16:1.1@signature'
-}
-
-animalsniffer {
-	// Allow requireNonNull: Android desugaring rewrites it (so it's safe for us to use),
-	// and it gets used when passing method references instead of lambdas with Java 11.
-	// Note that this line allows *all* methods from java.util.Objects.
-	// That's the best that we can do with the configuration options that Animal Sniffer offers.
-	ignore 'java.util.Objects'
-}
-
-// needed to make test output available to bramble-java
-configurations {
-	testOutput.extendsFrom(testCompile)
-}
-task jarTest(type: Jar, dependsOn: testClasses) {
-	from sourceSets.test.output
-	classifier = 'test'
-}
-artifacts {
-	testOutput jarTest
 }
