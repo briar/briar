@@ -98,7 +98,7 @@ bridge test:
       allow_failure: true
   script:
     - OPTIONAL_TESTS=org.briarproject.bramble.plugin.tor.BridgeTest ./gradlew --info bramble-java:test --tests BridgeTest
-  timeout: 3h
+  timeout: 4h
 
 mailbox integration test:
   extends: .optional_tests

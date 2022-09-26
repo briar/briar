@@ -39,7 +39,7 @@ buildscript {
 		okhttp_version = "3.12.13"
 		jackson_version = "2.13.0"
 		tor_version = "0.4.5.14"
-		obfs4proxy_version = "0.0.12"
+		obfs4proxy_version = "0.0.14"
 		junit_version = "4.13.2"
 		jmock_version = '2.12.0'
 	}
