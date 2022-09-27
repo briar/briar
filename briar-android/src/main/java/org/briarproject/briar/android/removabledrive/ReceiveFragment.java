@@ -8,7 +8,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ProgressBar;
-import android.widget.ScrollView;
 import android.widget.Toast;
 
 import org.briarproject.briar.R;
@@ -26,10 +25,10 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 import androidx.lifecycle.ViewModelProvider;
 
-import static android.view.View.FOCUS_DOWN;
 import static android.view.View.VISIBLE;
 import static android.widget.Toast.LENGTH_LONG;
 import static org.briarproject.briar.android.AppModule.getAndroidComponent;
+import static org.briarproject.briar.android.util.UiUtils.hideViewOnSmallScreen;
 import static org.briarproject.briar.android.util.UiUtils.launchActivityToOpenFile;
 
 @RequiresApi(19)
@@ -50,7 +49,6 @@ public class ReceiveFragment extends Fragment {
 	ViewModelProvider.Factory viewModelFactory;
 
 	private RemovableDriveViewModel viewModel;
-	private ScrollView scrollView;
 	private Button button;
 	private ProgressBar progressBar;
 
@@ -72,7 +70,6 @@ public class ReceiveFragment extends Fragment {
 		View v = inflater.inflate(R.layout.fragment_transfer_data_receive,
 				container, false);
 
-		scrollView = (ScrollView) v;
 		progressBar = v.findViewById(R.id.progressBar);
 		button = v.findViewById(R.id.fileButton);
 		button.setOnClickListener(view ->
@@ -93,8 +90,7 @@ public class ReceiveFragment extends Fragment {
 	public void onStart() {
 		super.onStart();
 		requireActivity().setTitle(R.string.removable_drive_title_receive);
-		// Scroll down in case the screen is small, so the button is visible
-		scrollView.post(() -> scrollView.fullScroll(FOCUS_DOWN));
+		hideViewOnSmallScreen(requireView().findViewById(R.id.imageView));
 	}
 
 	@Override
