@@ -33,6 +33,11 @@
 			android:title="@string/lock_button"
 			android:visible="false"
 			tools:visible="false" />
+	</group>
+
+	<group
+		android:id="@+id/nav_btn_signout_separated"
+		android:checkableBehavior="single">
 		<item
 			android:id="@+id/nav_btn_signout"
 			android:icon="@drawable/ic_signout"
