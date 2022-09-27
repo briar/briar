@@ -12,6 +12,7 @@ import static org.briarproject.bramble.plugin.tor.CircumventionProvider.BRIDGES;
 import static org.briarproject.bramble.plugin.tor.CircumventionProvider.BridgeType.DEFAULT_OBFS4;
 import static org.briarproject.bramble.plugin.tor.CircumventionProvider.BridgeType.MEEK;
 import static org.briarproject.bramble.plugin.tor.CircumventionProvider.BridgeType.NON_DEFAULT_OBFS4;
+import static org.briarproject.bramble.plugin.tor.CircumventionProvider.BridgeType.SNOWFLAKE;
 import static org.briarproject.bramble.plugin.tor.CircumventionProvider.BridgeType.VANILLA;
 import static org.briarproject.bramble.plugin.tor.CircumventionProvider.DEFAULT_BRIDGES;
 import static org.briarproject.bramble.plugin.tor.CircumventionProvider.DPI_BRIDGES;
@@ -56,7 +57,7 @@ public class CircumventionProviderTest extends BrambleTestCase {
 					provider.getSuitableBridgeTypes(country));
 		}
 		for (String country : DPI_BRIDGES) {
-			assertEquals(asList(NON_DEFAULT_OBFS4, MEEK),
+			assertEquals(asList(NON_DEFAULT_OBFS4, MEEK, SNOWFLAKE),
 					provider.getSuitableBridgeTypes(country));
 		}
 		assertEquals(asList(DEFAULT_OBFS4, VANILLA),

@@ -47,6 +47,7 @@ import static org.briarproject.bramble.api.plugin.Plugin.State.ACTIVE;
 import static org.briarproject.bramble.plugin.tor.CircumventionProvider.BridgeType.DEFAULT_OBFS4;
 import static org.briarproject.bramble.plugin.tor.CircumventionProvider.BridgeType.MEEK;
 import static org.briarproject.bramble.plugin.tor.CircumventionProvider.BridgeType.NON_DEFAULT_OBFS4;
+import static org.briarproject.bramble.plugin.tor.CircumventionProvider.BridgeType.SNOWFLAKE;
 import static org.briarproject.bramble.plugin.tor.CircumventionProvider.BridgeType.VANILLA;
 import static org.briarproject.bramble.test.TestUtils.deleteTestDirectory;
 import static org.briarproject.bramble.test.TestUtils.getTestDirectory;
@@ -57,6 +58,8 @@ import static org.junit.Assume.assumeTrue;
 
 @RunWith(Parameterized.class)
 public class BridgeTest extends BrambleTestCase {
+
+	private static final String[] SNOWFLAKE_COUNTRY_CODES = {"TM", "ZZ"};
 
 	@Parameters
 	public static Iterable<Params> data() {
@@ -69,23 +72,36 @@ public class BridgeTest extends BrambleTestCase {
 		CircumventionProvider provider = component.getCircumventionProvider();
 		List<Params> states = new ArrayList<>();
 		for (int i = 0; i < ATTEMPTS_PER_BRIDGE; i++) {
-			for (String bridge : provider.getBridges(DEFAULT_OBFS4)) {
+			for (String bridge :
+					provider.getBridges(DEFAULT_OBFS4, "", true)) {
 				states.add(new Params(bridge, DEFAULT_OBFS4, stats, false));
 			}
-			for (String bridge : provider.getBridges(NON_DEFAULT_OBFS4)) {
-				states.add(new Params(bridge, NON_DEFAULT_OBFS4, stats, false));
+			for (String bridge :
+					provider.getBridges(NON_DEFAULT_OBFS4, "", true)) {
+				states.add(new Params(bridge, NON_DEFAULT_OBFS4, stats,
+						false));
 			}
-			for (String bridge : provider.getBridges(VANILLA)) {
+			for (String bridge : provider.getBridges(VANILLA, "", true)) {
 				states.add(new Params(bridge, VANILLA, stats, false));
 			}
-			for (String bridge : provider.getBridges(MEEK)) {
+			for (String bridge : provider.getBridges(MEEK, "", true)) {
 				states.add(new Params(bridge, MEEK, stats, true));
+			}
+			for (String countryCode : SNOWFLAKE_COUNTRY_CODES) {
+				for (String bridge :
+						provider.getBridges(SNOWFLAKE, countryCode, true)) {
+					states.add(new Params(bridge, SNOWFLAKE, stats, true));
+				}
+				for (String bridge :
+						provider.getBridges(SNOWFLAKE, countryCode, false)) {
+					states.add(new Params(bridge, SNOWFLAKE, stats, true));
+				}
 			}
 		}
 		return states;
 	}
 
-	private final static long OBFS4_TIMEOUT = MINUTES.toMillis(2);
+	private final static long TIMEOUT = MINUTES.toMillis(2);
 	private final static long MEEK_TIMEOUT = MINUTES.toMillis(6);
 	private final static int UNREACHABLE_BRIDGES_ALLOWED = 6;
 	private final static int ATTEMPTS_PER_BRIDGE = 5;
@@ -163,7 +179,8 @@ public class BridgeTest extends BrambleTestCase {
 			}
 
 			@Override
-			public List<String> getBridges(BridgeType bridgeType) {
+			public List<String> getBridges(BridgeType bridgeType,
+					String countryCode, boolean letsEncrypt) {
 				return singletonList(params.bridge);
 			}
 		};
@@ -190,8 +207,7 @@ public class BridgeTest extends BrambleTestCase {
 		try {
 			plugin.start();
 			long start = clock.currentTimeMillis();
-			long timeout = params.bridgeType == MEEK
-					? MEEK_TIMEOUT : OBFS4_TIMEOUT;
+			long timeout = params.bridgeType == MEEK ? MEEK_TIMEOUT : TIMEOUT;
 			while (clock.currentTimeMillis() - start < timeout) {
 				if (plugin.getState() == ACTIVE) return;
 				clock.sleep(500);

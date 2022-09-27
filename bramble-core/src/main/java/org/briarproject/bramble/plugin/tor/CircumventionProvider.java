@@ -12,7 +12,8 @@ public interface CircumventionProvider {
 		DEFAULT_OBFS4,
 		NON_DEFAULT_OBFS4,
 		VANILLA,
-		MEEK
+		MEEK,
+		SNOWFLAKE
 	}
 
 	/**
@@ -41,13 +42,14 @@ public interface CircumventionProvider {
 	 * Countries where non-default obfs4 or vanilla bridges are likely to work.
 	 * Should be a subset of {@link #BRIDGES}.
 	 */
-	String[] NON_DEFAULT_BRIDGES = {"BY", "RU", "TM"};
+	String[] NON_DEFAULT_BRIDGES = {"BY", "RU"};
 
 	/**
 	 * Countries where vanilla bridges are blocked via DPI but non-default
-	 * obfs4 bridges and meek may work. Should be a subset of {@link #BRIDGES}.
+	 * obfs4 bridges, meek and snowflake may work. Should be a subset of
+	 * {@link #BRIDGES}.
 	 */
-	String[] DPI_BRIDGES = {"CN", "IR"};
+	String[] DPI_BRIDGES = {"CN", "IR", "TM"};
 
 	/**
 	 * Returns true if vanilla Tor connections are blocked in the given country.
@@ -68,6 +70,6 @@ public interface CircumventionProvider {
 	List<BridgeType> getSuitableBridgeTypes(String countryCode);
 
 	@IoExecutor
-	List<String> getBridges(BridgeType type);
-
+	List<String> getBridges(BridgeType type, String countryCode,
+			boolean letsEncrypt);
 }

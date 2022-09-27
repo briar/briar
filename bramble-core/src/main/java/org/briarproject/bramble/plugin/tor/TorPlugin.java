@@ -95,6 +95,7 @@ import static org.briarproject.bramble.api.plugin.TorConstants.REASON_BATTERY;
 import static org.briarproject.bramble.api.plugin.TorConstants.REASON_COUNTRY_BLOCKED;
 import static org.briarproject.bramble.api.plugin.TorConstants.REASON_MOBILE_DATA;
 import static org.briarproject.bramble.plugin.tor.CircumventionProvider.BridgeType.MEEK;
+import static org.briarproject.bramble.plugin.tor.CircumventionProvider.BridgeType.SNOWFLAKE;
 import static org.briarproject.bramble.plugin.tor.TorRendezvousCrypto.SEED_BYTES;
 import static org.briarproject.bramble.util.IoUtils.copyAndClose;
 import static org.briarproject.bramble.util.IoUtils.tryToClose;
@@ -210,6 +211,10 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 
 	protected File getObfs4ExecutableFile() {
 		return new File(torDirectory, "obfs4proxy");
+	}
+
+	protected File getSnowflakeExecutableFile() {
+		return new File(torDirectory, "snowflake");
 	}
 
 	@Override
@@ -338,6 +343,7 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 		geoIpFile.delete();
 		installTorExecutable();
 		installObfs4Executable();
+		installSnowflakeExecutable();
 		if (!doneFile.createNewFile())
 			LOG.warning("Failed to create done file");
 	}
@@ -363,17 +369,29 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 		if (!obfs4File.setExecutable(true, true)) throw new IOException();
 	}
 
+	protected void installSnowflakeExecutable() throws IOException {
+		if (LOG.isLoggable(INFO))
+			LOG.info("Installing snowflake binary for " + architecture);
+		File snowflakeFile = getSnowflakeExecutableFile();
+		extract(getSnowflakeInputStream(), snowflakeFile);
+		if (!snowflakeFile.setExecutable(true, true)) throw new IOException();
+	}
+
 	private InputStream getTorInputStream() throws IOException {
-		InputStream in = resourceProvider
-				.getResourceInputStream("tor_" + architecture, ".zip");
-		ZipInputStream zin = new ZipInputStream(in);
-		if (zin.getNextEntry() == null) throw new IOException();
-		return zin;
+		return getZipInputStream("tor");
 	}
 
 	private InputStream getObfs4InputStream() throws IOException {
+		return getZipInputStream("obfs4proxy");
+	}
+
+	private InputStream getSnowflakeInputStream() throws IOException {
+		return getZipInputStream("snowflake");
+	}
+
+	private InputStream getZipInputStream(String basename) throws IOException {
 		InputStream in = resourceProvider
-				.getResourceInputStream("obfs4proxy_" + architecture, ".zip");
+				.getResourceInputStream(basename + "_" + architecture, ".zip");
 		ZipInputStream zin = new ZipInputStream(in);
 		if (zin.getNextEntry() == null) throw new IOException();
 		return zin;
@@ -402,6 +420,8 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 		String obfs4Path = getObfs4ExecutableFile().getAbsolutePath();
 		append(strb, "ClientTransportPlugin obfs4 exec", obfs4Path);
 		append(strb, "ClientTransportPlugin meek_lite exec", obfs4Path);
+		String snowflakePath = getSnowflakeExecutableFile().getAbsolutePath();
+		append(strb, "ClientTransportPlugin snowflake exec", snowflakePath);
 		//noinspection CharsetObjectCanBeUsed
 		return new ByteArrayInputStream(
 				strb.toString().getBytes(Charset.forName("UTF-8")));
@@ -559,7 +579,7 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 		}
 	}
 
-	private void enableBridges(List<BridgeType> bridgeTypes)
+	private void enableBridges(List<BridgeType> bridgeTypes, String countryCode)
 			throws IOException {
 		if (!state.setBridgeTypes(bridgeTypes)) return; // Unchanged
 		try {
@@ -569,14 +589,25 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 			} else {
 				Collection<String> conf = new ArrayList<>();
 				conf.add("UseBridges 1");
+				boolean letsEncrypt = canVerifyLetsEncryptCerts();
 				for (BridgeType bridgeType : bridgeTypes) {
-					conf.addAll(circumventionProvider.getBridges(bridgeType));
+					conf.addAll(circumventionProvider
+							.getBridges(bridgeType, countryCode, letsEncrypt));
 				}
 				controlConnection.setConf(conf);
 			}
 		} catch (TorNotRunningException e) {
 			throw new RuntimeException(e);
 		}
+	}
+
+	/**
+	 * Returns true if this device can verify Let's Encrypt certificates signed
+	 * with the IdentTrust DST Root X3 certificate, which expired at the end of
+	 * September 2021.
+	 */
+	protected boolean canVerifyLetsEncryptCerts() {
+		return true;
 	}
 
 	@Override
@@ -944,7 +975,7 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 					if (network == PREF_TOR_NETWORK_WITH_BRIDGES ||
 							(automatic && bridgesWork)) {
 						if (ipv6Only) {
-							bridgeTypes = singletonList(MEEK);
+							bridgeTypes = asList(MEEK, SNOWFLAKE);
 						} else {
 							bridgeTypes = circumventionProvider
 									.getSuitableBridgeTypes(country);
@@ -968,7 +999,7 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 
 			try {
 				if (enableNetwork) {
-					enableBridges(bridgeTypes);
+					enableBridges(bridgeTypes, country);
 					enableConnectionPadding(enableConnectionPadding);
 					enableIpv6(ipv6Only);
 				}
