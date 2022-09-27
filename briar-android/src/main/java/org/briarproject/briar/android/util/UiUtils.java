@@ -8,6 +8,7 @@ import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
+import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.graphics.drawable.Drawable;
 import android.location.LocationManager;
@@ -90,6 +91,8 @@ import static android.text.format.DateUtils.WEEK_IN_MILLIS;
 import static android.text.format.DateUtils.YEAR_IN_MILLIS;
 import static android.view.KeyEvent.ACTION_DOWN;
 import static android.view.KeyEvent.KEYCODE_ENTER;
+import static android.view.View.GONE;
+import static android.view.View.VISIBLE;
 import static android.view.WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE;
 import static android.view.WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE;
 import static android.view.WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN;
@@ -547,6 +550,17 @@ public class UiUtils {
 				VectorDrawableCompat.create(ctx.getResources(), resId, null);
 		setTint(requireNonNull(icon), getColor(ctx, R.color.color_primary));
 		return icon;
+	}
+
+	public static void hideViewOnSmallScreen(View view) {
+		boolean small = isSmallScreenRelativeToFontSize(view.getContext());
+		view.setVisibility(small ? GONE : VISIBLE);
+	}
+
+	public static boolean isSmallScreenRelativeToFontSize(Context ctx) {
+		Configuration config = ctx.getResources().getConfiguration();
+		if (config.fontScale == 0f) return true;
+		return config.screenHeightDp / config.fontScale < 600;
 	}
 
 	/**
