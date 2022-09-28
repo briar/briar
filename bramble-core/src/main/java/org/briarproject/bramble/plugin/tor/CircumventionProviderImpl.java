@@ -121,7 +121,7 @@ class CircumventionProviderImpl implements CircumventionProvider {
 		return params;
 	}
 
-	private String makeKey(String countryCode, boolean oldAndroid) {
-		return countryCode + " " + (oldAndroid ? "1" : "0");
+	private String makeKey(String countryCode, boolean letsEncrypt) {
+		return countryCode + " " + (letsEncrypt ? "1" : "0");
 	}
 }
