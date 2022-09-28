@@ -31,6 +31,8 @@ import java.util.zip.ZipInputStream;
 
 import javax.net.SocketFactory;
 
+import androidx.annotation.ChecksSdkIntAtLeast;
+
 import static android.os.Build.VERSION.SDK_INT;
 import static java.util.Arrays.asList;
 import static java.util.logging.Level.INFO;
@@ -45,13 +47,14 @@ class AndroidTorPlugin extends TorPlugin {
 
 	private static final String TOR_LIB_NAME = "libtor.so";
 	private static final String OBFS4_LIB_NAME = "libobfs4proxy.so";
+	private static final String SNOWFLAKE_LIB_NAME = "libsnowflake.so";
 
 	private static final Logger LOG =
 			getLogger(AndroidTorPlugin.class.getName());
 
 	private final Application app;
 	private final AndroidWakeLock wakeLock;
-	private final File torLib, obfs4Lib;
+	private final File torLib, obfs4Lib, snowflakeLib;
 
 	AndroidTorPlugin(Executor ioExecutor,
 			Executor wakefulIoExecutor,
@@ -83,6 +86,7 @@ class AndroidTorPlugin extends TorPlugin {
 		String nativeLibDir = app.getApplicationInfo().nativeLibraryDir;
 		torLib = new File(nativeLibDir, TOR_LIB_NAME);
 		obfs4Lib = new File(nativeLibDir, OBFS4_LIB_NAME);
+		snowflakeLib = new File(nativeLibDir, SNOWFLAKE_LIB_NAME);
 	}
 
 	@Override
@@ -109,6 +113,12 @@ class AndroidTorPlugin extends TorPlugin {
 	}
 
 	@Override
+	@ChecksSdkIntAtLeast(api = 25)
+	protected boolean canVerifyLetsEncryptCerts() {
+		return SDK_INT >= 25;
+	}
+
+	@Override
 	public void stop() {
 		super.stop();
 		wakeLock.release();
@@ -125,38 +135,42 @@ class AndroidTorPlugin extends TorPlugin {
 	}
 
 	@Override
+	protected File getSnowflakeExecutableFile() {
+		return snowflakeLib.exists()
+				? snowflakeLib : super.getSnowflakeExecutableFile();
+	}
+
+	@Override
 	protected void installTorExecutable() throws IOException {
-		File extracted = super.getTorExecutableFile();
-		if (torLib.exists()) {
-			// If an older version left behind a Tor binary, delete it
-			if (extracted.exists()) {
-				if (extracted.delete()) LOG.info("Deleted Tor binary");
-				else LOG.info("Failed to delete Tor binary");
-			}
-		} else if (SDK_INT < 29) {
-			// The binary wasn't extracted at install time. Try to extract it
-			extractLibraryFromApk(TOR_LIB_NAME, extracted);
-		} else {
-			// No point extracting the binary, we won't be allowed to execute it
-			throw new FileNotFoundException(torLib.getAbsolutePath());
-		}
+		installExecutable(super.getTorExecutableFile(), torLib, TOR_LIB_NAME);
 	}
 
 	@Override
 	protected void installObfs4Executable() throws IOException {
-		File extracted = super.getObfs4ExecutableFile();
-		if (obfs4Lib.exists()) {
-			// If an older version left behind an obfs4 binary, delete it
+		installExecutable(super.getObfs4ExecutableFile(), obfs4Lib,
+				OBFS4_LIB_NAME);
+	}
+
+	@Override
+	protected void installSnowflakeExecutable() throws IOException {
+		installExecutable(super.getSnowflakeExecutableFile(), snowflakeLib,
+				SNOWFLAKE_LIB_NAME);
+	}
+
+	private void installExecutable(File extracted, File lib, String libName)
+			throws IOException {
+		if (lib.exists()) {
+			// If an older version left behind a binary, delete it
 			if (extracted.exists()) {
-				if (extracted.delete()) LOG.info("Deleted obfs4 binary");
-				else LOG.info("Failed to delete obfs4 binary");
+				if (extracted.delete()) LOG.info("Deleted old binary");
+				else LOG.info("Failed to delete old binary");
 			}
 		} else if (SDK_INT < 29) {
 			// The binary wasn't extracted at install time. Try to extract it
-			extractLibraryFromApk(OBFS4_LIB_NAME, extracted);
+			extractLibraryFromApk(libName, extracted);
 		} else {
 			// No point extracting the binary, we won't be allowed to execute it
-			throw new FileNotFoundException(obfs4Lib.getAbsolutePath());
+			throw new FileNotFoundException(lib.getAbsolutePath());
 		}
 	}
 

@@ -1,5 +1,6 @@
 dependencyVerification {
     verify = [
+        'androidx.annotation:annotation:1.5.0:annotation-1.5.0.jar:261fb7c0210858500bab66d34354972a75166ab4182add283780b05513d6ec4a',
         'cglib:cglib:3.2.8:cglib-3.2.8.jar:3f64de999ecc5595dc84ca8ff0879d8a34c8623f9ef3c517a53ed59023fcb9db',
         'com.android.tools.analytics-library:protos:30.0.3:protos-30.0.3.jar:f62b89dcd9de719c6a7b7e15fb1dd20e45b57222e675cf633607bd0ed6bca7e7',
         'com.android.tools.analytics-library:shared:30.0.3:shared-30.0.3.jar:05aa9ba3cc890354108521fdf99802565aae5dd6ca44a6ac8bb8d594d1c1cd15',
@@ -88,6 +89,7 @@ dependencyVerification {
         'org.bouncycastle:bcpkix-jdk15on:1.56:bcpkix-jdk15on-1.56.jar:7043dee4e9e7175e93e0b36f45b1ec1ecb893c5f755667e8b916eb8dd201c6ca',
         'org.bouncycastle:bcprov-jdk15on:1.56:bcprov-jdk15on-1.56.jar:963e1ee14f808ffb99897d848ddcdb28fa91ddda867eb18d303e82728f878349',
         'org.briarproject:obfs4proxy-android:0.0.14:obfs4proxy-android-0.0.14.jar:ad9b1ee4757b05867a19e993147bbb018bddd1f26ce3da746d5f037d5991a8c8',
+        'org.briarproject:snowflake-android:2.3.1:snowflake-android-2.3.1.jar:1f83c9a070f87b7074af13627709a8b5aced5460104be7166af736b1bb73c293',
         'org.briarproject:tor-android:0.4.5.14:tor-android-0.4.5.14.jar:7cf1beaa6c1db51fc8fac263aba9624ef289c3db29772509efcbc59f7057330a',
         'org.checkerframework:checker-compat-qual:2.5.3:checker-compat-qual-2.5.3.jar:d76b9afea61c7c082908023f0cbc1427fab9abd2df915c8b8a3e7a509bccbc6d',
         'org.checkerframework:checker-qual:2.5.2:checker-qual-2.5.2.jar:64b02691c8b9d4e7700f8ee2e742dce7ea2c6e81e662b7522c9ee3bf568c040a',
@@ -129,10 +131,12 @@ dependencyVerification {
         'org.jetbrains.kotlin:kotlin-reflect:1.4.32:kotlin-reflect-1.4.32.jar:dbf19e9cdaa9c3c170f3f6f6ce3922f38dfc1d7fa1cab5b7c23a19da8b5eec5b',
         'org.jetbrains.kotlin:kotlin-stdlib-common:1.4.20:kotlin-stdlib-common-1.4.20.jar:a7112c9b3cefee418286c9c9372f7af992bd1e6e030691d52f60cb36dbec8320',
         'org.jetbrains.kotlin:kotlin-stdlib-common:1.4.32:kotlin-stdlib-common-1.4.32.jar:e1ff6f55ee9e7591dcc633f7757bac25a7edb1cc7f738b37ec652f10f66a4145',
+        'org.jetbrains.kotlin:kotlin-stdlib-common:1.7.10:kotlin-stdlib-common-1.7.10.jar:19f102efe9629f8eabc63853ad15c533e47c47f91fca09285c5bde86e59f91d4',
         'org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.4.32:kotlin-stdlib-jdk7-1.4.32.jar:5f801e75ca27d8791c14b07943c608da27620d910a8093022af57f543d5d98b6',
         'org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.4.32:kotlin-stdlib-jdk8-1.4.32.jar:adc43e54757b106e0cd7b3b7aa257dff471b61efdabe067fc02b2f57e2396262',
         'org.jetbrains.kotlin:kotlin-stdlib:1.4.20:kotlin-stdlib-1.4.20.jar:b8ab1da5cdc89cb084d41e1f28f20a42bd431538642a5741c52bbfae3fa3e656',
         'org.jetbrains.kotlin:kotlin-stdlib:1.4.32:kotlin-stdlib-1.4.32.jar:13e9fd3e69dc7230ce0fc873a92a4e5d521d179bcf1bef75a6705baac3bfecba',
+        'org.jetbrains.kotlin:kotlin-stdlib:1.7.10:kotlin-stdlib-1.7.10.jar:e771fe74250a943e8f6346713201ff1d8cb95c3a5d1a91a22b65a9e04f6a8901',
         'org.jetbrains.kotlinx:kotlinx-metadata-jvm:0.1.0:kotlinx-metadata-jvm-0.1.0.jar:9753bb39efef35957c5c15df9a3cb769aabf2cdfa74b47afcb7760e5146be3b5',
         'org.jetbrains:annotations:13.0:annotations-13.0.jar:ace2a10dc8e2d5fd34925ecac03e4988b2c0f851650c94b8cef49ba1bd111478',
         'org.jmock:jmock-imposters:2.12.0:jmock-imposters-2.12.0.jar:3b836269745a137c9b2347e8d7c2104845b126ef04f012d6bfd94f1a7dea7b09',

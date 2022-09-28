@@ -42,8 +42,10 @@ configurations {
 
 dependencies {
 	implementation project(path: ':bramble-core', configuration: 'default')
+	implementation 'androidx.annotation:annotation:1.5.0'
 	tor "org.briarproject:tor-android:$tor_version"
 	tor "org.briarproject:obfs4proxy-android:$obfs4proxy_version"
+	tor "org.briarproject:snowflake-android:$snowflake_version"
 
 	annotationProcessor "com.google.dagger:dagger-compiler:$dagger_version"
 
