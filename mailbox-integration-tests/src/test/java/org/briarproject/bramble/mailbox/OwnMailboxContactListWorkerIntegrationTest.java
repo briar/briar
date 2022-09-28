@@ -16,6 +16,7 @@ import org.briarproject.bramble.api.mailbox.MailboxProperties;
 import org.briarproject.bramble.mailbox.MailboxApi.ApiException;
 import org.briarproject.bramble.test.BrambleTestCase;
 import org.briarproject.mailbox.lib.Mailbox;
+import org.briarproject.mailbox.lib.TestMailbox;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
@@ -68,7 +69,7 @@ public class OwnMailboxContactListWorkerIntegrationTest
 
 	@Before
 	public void setUp() throws Exception {
-		mailbox = new Mailbox(mailboxDataDirectory.getRoot());
+		mailbox = new TestMailbox(mailboxDataDirectory.getRoot());
 		mailbox.init();
 		mailbox.startLifecycle();
 
@@ -97,7 +98,7 @@ public class OwnMailboxContactListWorkerIntegrationTest
 
 	@After
 	public void tearDown() {
-		mailbox.stopLifecycle();
+		mailbox.stopLifecycle(true);
 	}
 
 	private Identity setUp(MailboxIntegrationTestComponent device, String name)

@@ -12,6 +12,7 @@ import org.briarproject.bramble.mailbox.MailboxApi.MailboxFile;
 import org.briarproject.bramble.mailbox.MailboxApi.TolerableFailureException;
 import org.briarproject.bramble.test.BrambleTestCase;
 import org.briarproject.mailbox.lib.Mailbox;
+import org.briarproject.mailbox.lib.TestMailbox;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
@@ -56,7 +57,7 @@ public class MailboxApiIntegrationTest extends BrambleTestCase {
 	@Before
 	public void setUp()
 			throws IOException, ApiException, InvalidMailboxIdException {
-		mailbox = new Mailbox(dataDirectory.getRoot());
+		mailbox = new TestMailbox(dataDirectory.getRoot());
 		mailbox.init();
 		mailbox.startLifecycle();
 
@@ -70,7 +71,7 @@ public class MailboxApiIntegrationTest extends BrambleTestCase {
 
 	@After
 	public void tearDown() {
-		mailbox.stopLifecycle();
+		mailbox.stopLifecycle(true);
 	}
 
 	@Test
