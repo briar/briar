@@ -87,7 +87,7 @@ class MailboxIntegrationTestUtils {
 	}
 
 	interface Check {
-		boolean check();
+		boolean check() throws Exception;
 	}
 
 	/**
@@ -97,7 +97,7 @@ class MailboxIntegrationTestUtils {
 	 * next invocation.
 	 */
 	static void retryUntilSuccessOrTimeout(long totalTime, long step,
-			Check check) {
+			Check check) throws Exception {
 		AtomicBoolean success = new AtomicBoolean(false);
 
 		checkRepeatedly(totalTime, step, () -> {
@@ -119,7 +119,7 @@ class MailboxIntegrationTestUtils {
 	 * next invocation.
 	 */
 	private static void checkRepeatedly(long totalTime, long step,
-			Check check) {
+			Check check) throws Exception {
 		long start = currentTimeMillis();
 		while (currentTimeMillis() - start < totalTime) {
 			if (check.check()) {

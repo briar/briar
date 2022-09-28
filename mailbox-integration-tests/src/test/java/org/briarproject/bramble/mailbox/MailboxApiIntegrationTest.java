@@ -11,7 +11,6 @@ import org.briarproject.bramble.mailbox.MailboxApi.MailboxContact;
 import org.briarproject.bramble.mailbox.MailboxApi.MailboxFile;
 import org.briarproject.bramble.mailbox.MailboxApi.TolerableFailureException;
 import org.briarproject.bramble.test.BrambleTestCase;
-import org.briarproject.mailbox.lib.Mailbox;
 import org.briarproject.mailbox.lib.TestMailbox;
 import org.junit.After;
 import org.junit.Before;
@@ -47,7 +46,7 @@ public class MailboxApiIntegrationTest extends BrambleTestCase {
 	@Rule
 	public TemporaryFolder dataDirectory = new TemporaryFolder();
 
-	private Mailbox mailbox;
+	private TestMailbox mailbox;
 	private MailboxAuthToken setupToken;
 
 	private final MailboxApi api = createMailboxApi();
@@ -58,7 +57,6 @@ public class MailboxApiIntegrationTest extends BrambleTestCase {
 	public void setUp()
 			throws IOException, ApiException, InvalidMailboxIdException {
 		mailbox = new TestMailbox(dataDirectory.getRoot());
-		mailbox.init();
 		mailbox.startLifecycle();
 
 		setupToken = MailboxAuthToken.fromString(mailbox.getSetupToken());

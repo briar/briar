@@ -20,7 +20,7 @@ dependencies {
 	implementation project(path: ':briar-core', configuration: 'default')
 	implementation project(path: ':bramble-java', configuration: 'default')
 
-	implementation 'org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.4.32'
+	implementation 'org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.7.10'
 	implementation 'io.javalin:javalin:3.5.0'
 	implementation 'org.slf4j:slf4j-simple:1.7.30'
 	implementation "com.fasterxml.jackson.core:jackson-databind:$jackson_version"
@@ -77,7 +77,7 @@ void jarFactory(Jar jarTask, jarArchitecture) {
 	jarTask.with jar
 	jarTask.doLast {
 		// Rename the original jar
-		File jar = jarTask.archivePath
+		File jar = jarTask.archiveFile.get().asFile
 		String srcPath = jar.toString().replaceFirst('\\.jar$', '.unsorted.jar')
 		File srcFile = new File(srcPath)
 		jar.renameTo(srcFile)

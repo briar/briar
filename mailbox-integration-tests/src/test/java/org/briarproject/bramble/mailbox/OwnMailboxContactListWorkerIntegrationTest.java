@@ -13,9 +13,7 @@ import org.briarproject.bramble.api.mailbox.MailboxAuthToken;
 import org.briarproject.bramble.api.mailbox.MailboxPairingState.Paired;
 import org.briarproject.bramble.api.mailbox.MailboxPairingTask;
 import org.briarproject.bramble.api.mailbox.MailboxProperties;
-import org.briarproject.bramble.mailbox.MailboxApi.ApiException;
 import org.briarproject.bramble.test.BrambleTestCase;
-import org.briarproject.mailbox.lib.Mailbox;
 import org.briarproject.mailbox.lib.TestMailbox;
 import org.junit.After;
 import org.junit.Before;
@@ -24,15 +22,11 @@ import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
-import java.util.logging.Logger;
 
-import static java.util.logging.Level.WARNING;
-import static java.util.logging.Logger.getLogger;
 import static org.briarproject.bramble.api.mailbox.MailboxAuthToken.fromString;
 import static org.briarproject.bramble.mailbox.MailboxIntegrationTestUtils.createMailboxApi;
 import static org.briarproject.bramble.mailbox.MailboxIntegrationTestUtils.createTestComponent;
@@ -41,18 +35,14 @@ import static org.briarproject.bramble.mailbox.MailboxIntegrationTestUtils.retry
 import static org.briarproject.bramble.test.TestUtils.getSecretKey;
 import static org.briarproject.bramble.test.TestUtils.getTestDirectory;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
 
 public class OwnMailboxContactListWorkerIntegrationTest
 		extends BrambleTestCase {
 
-	private static final Logger LOG = getLogger(
-			OwnMailboxContactListWorkerIntegrationTest.class.getName());
-
 	@Rule
 	public TemporaryFolder mailboxDataDirectory = new TemporaryFolder();
 
-	private Mailbox mailbox;
+	private TestMailbox mailbox;
 
 	private final MailboxApi api = createMailboxApi();
 
@@ -70,7 +60,6 @@ public class OwnMailboxContactListWorkerIntegrationTest
 	@Before
 	public void setUp() throws Exception {
 		mailbox = new TestMailbox(mailboxDataDirectory.getRoot());
-		mailbox.init();
 		mailbox.startLifecycle();
 
 		MailboxAuthToken setupToken = fromString(mailbox.getSetupToken());
@@ -119,23 +108,17 @@ public class OwnMailboxContactListWorkerIntegrationTest
 	}
 
 	@Test
-	public void testUploadContacts() throws DbException {
+	public void testUploadContacts() throws Exception {
 		int numContactsToAdd = 5;
 		List<ContactId> expectedContacts =
 				createContacts(component, identity, numContactsToAdd);
 
 		// Check for number of contacts on mailbox via API every 100ms
 		retryUntilSuccessOrTimeout(1000, 100, () -> {
-			try {
-				Collection<ContactId> contacts =
-						api.getContacts(ownerProperties);
-				if (contacts.size() == numContactsToAdd) {
-					assertEquals(expectedContacts, contacts);
-					return true;
-				}
-			} catch (IOException | ApiException e) {
-				LOG.log(WARNING, "Error while fetching contacts via API", e);
-				fail();
+			Collection<ContactId> contacts = api.getContacts(ownerProperties);
+			if (contacts.size() == numContactsToAdd) {
+				assertEquals(expectedContacts, contacts);
+				return true;
 			}
 			return false;
 		});

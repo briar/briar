@@ -47,7 +47,7 @@ buildscript {
 	}
 }
 
-if ((project.hasProperty("mailbox-integration-tests") && project.property("mailbox-integration-tests") == "true")
+if ((project.hasProperty("briar.mailbox_integration_tests") && project.property("briar.mailbox_integration_tests") == "true")
 		|| System.env.MAILBOX_INTEGRATION_TESTS) {
 	configure([project(':mailbox-core'), project(':mailbox-lib')]) {
 		apply from: "../gradle/variables.gradle"
