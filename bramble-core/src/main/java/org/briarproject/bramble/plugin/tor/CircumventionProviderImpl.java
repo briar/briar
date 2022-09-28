@@ -94,7 +94,9 @@ class CircumventionProviderImpl implements CircumventionProvider {
 		return bridges;
 	}
 
-	private String getSnowflakeParams(String countryCode, boolean letsEncrypt) {
+	// Package access for testing
+	@SuppressWarnings("WeakerAccess")
+	String getSnowflakeParams(String countryCode, boolean letsEncrypt) {
 		Map<String, String> params = loadSnowflakeParams();
 		if (countryCode.isEmpty()) countryCode = DEFAULT_COUNTRY_CODE;
 		// If we have parameters for this country code, return them
