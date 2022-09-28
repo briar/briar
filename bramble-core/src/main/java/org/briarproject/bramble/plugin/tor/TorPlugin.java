@@ -2,7 +2,6 @@ package org.briarproject.bramble.plugin.tor;
 
 import net.freehaven.tor.control.EventHandler;
 import net.freehaven.tor.control.TorControlConnection;
-import net.freehaven.tor.control.TorNotRunningException;
 
 import org.briarproject.bramble.PoliteExecutor;
 import org.briarproject.bramble.api.Pair;
@@ -314,8 +313,6 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 				LOG.info("Tor has already built a circuit");
 				state.setCircuitBuilt(true);
 			}
-		} catch (TorNotRunningException e) {
-			throw new RuntimeException(e);
 		} catch (IOException e) {
 			throw new PluginException(e);
 		}
@@ -522,8 +519,6 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 			} else {
 				response = controlConnection.addOnion(privKey, portLines);
 			}
-		} catch (TorNotRunningException e) {
-			throw new RuntimeException(e);
 		} catch (IOException e) {
 			logException(LOG, WARNING, e);
 			return;
@@ -572,32 +567,24 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 
 	protected void enableNetwork(boolean enable) throws IOException {
 		if (!state.enableNetwork(enable)) return; // Unchanged
-		try {
-			controlConnection.setConf("DisableNetwork", enable ? "0" : "1");
-		} catch (TorNotRunningException e) {
-			throw new RuntimeException(e);
-		}
+		controlConnection.setConf("DisableNetwork", enable ? "0" : "1");
 	}
 
 	private void enableBridges(List<BridgeType> bridgeTypes, String countryCode)
 			throws IOException {
 		if (!state.setBridgeTypes(bridgeTypes)) return; // Unchanged
-		try {
-			if (bridgeTypes.isEmpty()) {
-				controlConnection.setConf("UseBridges", "0");
-				controlConnection.resetConf(singletonList("Bridge"));
-			} else {
-				Collection<String> conf = new ArrayList<>();
-				conf.add("UseBridges 1");
-				boolean letsEncrypt = canVerifyLetsEncryptCerts();
-				for (BridgeType bridgeType : bridgeTypes) {
-					conf.addAll(circumventionProvider
-							.getBridges(bridgeType, countryCode, letsEncrypt));
-				}
-				controlConnection.setConf(conf);
+		if (bridgeTypes.isEmpty()) {
+			controlConnection.setConf("UseBridges", "0");
+			controlConnection.resetConf(singletonList("Bridge"));
+		} else {
+			Collection<String> conf = new ArrayList<>();
+			conf.add("UseBridges 1");
+			boolean letsEncrypt = canVerifyLetsEncryptCerts();
+			for (BridgeType bridgeType : bridgeTypes) {
+				conf.addAll(circumventionProvider
+						.getBridges(bridgeType, countryCode, letsEncrypt));
 			}
-		} catch (TorNotRunningException e) {
-			throw new RuntimeException(e);
+			controlConnection.setConf(conf);
 		}
 	}
 
@@ -619,8 +606,6 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 				LOG.info("Stopping Tor");
 				controlConnection.shutdownTor("TERM");
 				controlSocket.close();
-			} catch (TorNotRunningException e) {
-				throw new RuntimeException(e);
 			} catch (IOException e) {
 				logException(LOG, WARNING, e);
 			}
@@ -752,11 +737,7 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 			});
 			Map<Integer, String> portLines =
 					singletonMap(80, "127.0.0.1:" + port);
-			try {
-				controlConnection.addOnion(blob, portLines);
-			} catch (TorNotRunningException e) {
-				throw new RuntimeException(e);
-			}
+			controlConnection.addOnion(blob, portLines);
 			return new RendezvousEndpoint() {
 
 				@Override
@@ -766,11 +747,7 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 
 				@Override
 				public void close() throws IOException {
-					try {
-						controlConnection.delOnion(localOnion);
-					} catch (TorNotRunningException e) {
-						throw new RuntimeException(e);
-					}
+					controlConnection.delOnion(localOnion);
 					tryToClose(ss, LOG, WARNING);
 				}
 			};
@@ -1012,21 +989,13 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 
 	private void enableConnectionPadding(boolean enable) throws IOException {
 		if (!state.enableConnectionPadding(enable)) return; // Unchanged
-		try {
-			controlConnection.setConf("ConnectionPadding", enable ? "1" : "0");
-		} catch (TorNotRunningException e) {
-			throw new RuntimeException(e);
-		}
+		controlConnection.setConf("ConnectionPadding", enable ? "1" : "0");
 	}
 
 	private void enableIpv6(boolean enable) throws IOException {
 		if (!state.enableIpv6(enable)) return; // Unchanged
-		try {
-			controlConnection.setConf("ClientUseIPv4", enable ? "0" : "1");
-			controlConnection.setConf("ClientUseIPv6", enable ? "1" : "0");
-		} catch (TorNotRunningException e) {
-			throw new RuntimeException(e);
-		}
+		controlConnection.setConf("ClientUseIPv4", enable ? "0" : "1");
+		controlConnection.setConf("ClientUseIPv6", enable ? "1" : "0");
 	}
 
 	@ThreadSafe
