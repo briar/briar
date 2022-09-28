@@ -26,6 +26,10 @@
   <string name="dnkm_xiaomi_button">Proteger Briar</string>
   <string name="dnkm_xiaomi_help">Si Briar no está bloqueado en la lista de aplicaciones recientes, no podrá ejecutarse en segundo plano.</string>
   <string name="dnkm_xiaomi_dialog_body_old">1. Abre la lista de aplicaciones recientes (también llamada selectora de aplicaciones)\n\n2. Desliza hacia abajo sobre la imagen de Briar para mostrar el ícono de un candado\n\n3. Si el candado no está bloqueado, púlsalo para hacerlo</string>
+  <string name="dnkm_xiaomi_dialog_body_new">1. Abra la lista de aplicaciones recientes (también llamada el interruptor de aplicaciones)\n\n2. Si Briar tiene una pequeña imagen de un candado junto a su nombre, entonces no necesita hacer nada\n\n3. Si no hay ningún candado, mantenga pulsada la imagen de Briar hasta que aparezca el botón del candado, y luego púlselo.</string>
+  <string name="dnkm_xiaomi_lock_apps_text">Toca el botón de abajo para abrir la configuración de seguridad. Toca \"Aumentar la velocidad\", luego toca \"Bloquear aplicaciones\" y asegúrate de que Briar esté configurado como \"Bloqueado\".</string>
+  <string name="dnkm_xiaomi_lock_apps_help">Si Briar no está configurado como \"Bloqueado\" en la pantalla \"Bloquear aplicaciones\", no podrá ejecutarse en segundo plano.</string>
+  <string name="dnkm_warning_dozed_1">Briar no ha podido ejecutarse en segundo plano</string>
   <!--Login-->
   <string name="enter_password">Contraseña</string>
   <string name="try_again">Contraseña incorrecta, inténtalo de nuevo</string>
@@ -238,6 +242,8 @@
   <string name="contact_added_toast">Contacto añadido: %s</string>
   <string name="contact_already_exists">El contacto %s ya existe</string>
   <string name="qr_code_invalid">El código QR no es válido</string>
+  <string name="qr_code_too_old_1">El código QR que has escaneado procede de una versión antigua de Briar.\n\nPor favor, pide a tu contacto que actualice a la última versión y vuelve a intentarlo.</string>
+  <string name="qr_code_too_new_1">El código QR que has escaneado proviene de una versión más reciente de Briar.\n\nPor favor, actualiza a la última versión y vuelve a intentarlo.</string>
   <string name="camera_error">Error de cámara</string>
   <string name="connecting_to_device">Conectando al dispositivo\u2026</string>
   <string name="authenticating_with_device">Autentificándose con el dispositivo\u2026</string>
@@ -302,9 +308,13 @@
   <string name="duplicate_link_dialog_text_3">%1$s y %2$s te enviaron el mismo enlace.\n\nUno de ellos puede estar tratando de descubrir quiénes son tus contactos.\n\nNo les digas que recibiste el mismo enlace de otra persona.</string>
   <string name="pending_contact_updated_toast">Contacto pendiente actualizado</string>
   <!--Peer trust levels-->
+  <string name="peer_trust_level_unverified">Contacto no verificado</string>
+  <string name="peer_trust_level_verified">Contacto verificado</string>
   <string name="peer_trust_level_ourselves">Yo</string>
+  <string name="peer_trust_level_stranger">Extraño</string>
   <!--Introductions-->
   <string name="introduction_onboarding_title">Presenta a tus contactos</string>
+  <string name="introduction_onboarding_text">Presenta a tus contactos para que puedan conectarse en Briar.</string>
   <string name="introduction_menu_item">Hacer presentación</string>
   <string name="introduction_activity_title">Seleccionar contacto</string>
   <string name="introduction_not_possible">Ya tienes una presentación en curso con estos contactos. Por favor, deja que esto termine primero. Si tu o tus contactos raramente están en línea, esto puede tomar algún tiempo.</string>
@@ -612,17 +622,59 @@
   <string name="tor_offline_button_check">Comprobar configuración de conexión</string>
   <string name="mailbox_status_title">Estado del buzón</string>
   <string name="mailbox_status_connected_title">El buzón está en ejecución</string>
+  <string name="mailbox_status_problem_title">Briar tiene problemas para conectarse al Buzón de Correo</string>
   <string name="mailbox_status_failure_title">El buzón no está disponible</string>
+  <string name="mailbox_status_app_too_old_title">Briar es demasiado viejo</string>
+  <string name="mailbox_status_app_too_old_message">Actualiza Briar a la última versión de la aplicación y vuelve a intentarlo.</string>
+  <string name="mailbox_status_mailbox_too_old_title">El buzón es demasiado viejo</string>
+  <string name="mailbox_status_mailbox_too_old_message">Actualiza tu buzón a la última versión de la aplicación y vuelve a intentarlo.</string>
   <string name="mailbox_status_check_button">Comprobar conexión</string>
   <!--Example for string substitution: Last connection: 3min ago-->
   <string name="mailbox_status_connected_info">Última conexión: %s</string>
   <!--Indicates that there never was a connection to the mailbox. Last connection: Never-->
   <string name="mailbox_status_connected_never">Nunca</string>
   <string name="mailbox_status_unlink_button">Desvincular</string>
+  <string name="mailbox_status_unlink_dialog_title">¿Desenlazar el buzón?</string>
+  <string name="mailbox_status_unlink_dialog_question">¿Está seguro de que quiere desvincular su buzón?</string>
+  <string name="mailbox_status_unlink_dialog_warning">Si desvinculas tu buzón, no podrás recibir mensajes mientras Briar esté desconectado.</string>
+  <string name="mailbox_status_unlink_no_wipe_title">Su buzón ha sido desvinculado</string>
+  <string name="mailbox_status_unlink_no_wipe_message">La próxima vez que tengas acceso a tu dispositivo Mailbox, abre la aplicación Mailbox y toca el botón \"Desvincular\" para completar el proceso.\n\nIf ya no tienes acceso a tu dispositivo Mailbox, no te preocupes. Tus datos están encriptados, por lo que seguirán estando seguros aunque no completes el proceso.</string>
+  <string name="mailbox_status_unlink_success">Su buzón ha sido desvinculado</string>
+  <string name="mailbox_error_notification_channel_title">Problema con el buzón de Briar</string>
+  <string name="mailbox_error_notification_title">El buzón de Briar no está disponible</string>
+  <string name="mailbox_error_notification_text">Pulse para solucionar el problema.</string>
+  <string name="mailbox_error_wizard_button">Solucionar el problema</string>
+  <string name="mailbox_error_wizard_title">Asistente para la resolución de problemas del Buzón de Correo</string>
+  <string name="mailbox_error_wizard_question1">¿Tiene acceso a su dispositivo de Buzón de Correo?</string>
+  <string name="mailbox_error_wizard_answer1">Sí, tengo acceso a ella ahora mismo.</string>
+  <string name="mailbox_error_wizard_answer2">Ahora mismo no, pero puedo acceder a él más tarde.</string>
+  <string name="mailbox_error_wizard_answer3">No, ya no tengo acceso a ella.</string>
+  <string name="mailbox_error_wizard_info1_1">Compruebe que el dispositivo del Buzón de Correo está encendido y conectado a Internet.</string>
+  <string name="mailbox_error_wizard_question1_1">Abre la aplicación del Buzón de Correo. ¿Qué ves?</string>
+  <string name="mailbox_error_wizard_answer1_1">Veo las instrucciones para configurar el Buzón de Correo</string>
+  <string name="mailbox_error_wizard_answer1_2">Veo un código QR</string>
+  <string name="mailbox_error_wizard_answer1_3">Veo que \"El buzón está funcionando\"</string>
+  <string name="mailbox_error_wizard_answer1_4">Veo \"Dispositivo fuera de línea\"</string>
+  <string name="mailbox_error_wizard_info1_1_1">Por favor, desvincule su buzón utilizando el botón de abajo, luego siga las instrucciones del dispositivo del buzón para vincularlo de nuevo.</string>
+  <string name="mailbox_error_wizard_info_1_1_2">Por favor, desvincula tu buzón usando el botón de abajo, y luego escanea el código QR para vincularlo de nuevo.</string>
+  <string name="mailbox_error_wizard_info1_1_3">Por favor, utilice el botón de abajo para comprobar la conexión entre Briar y el Buzón de Correo.\n\n
+		Si la conexión vuelve a fallar:\n
+		\u2022 Comprueba que las aplicaciones del Buzón de Correo y de Briar están actualizadas a la última versión.\n
+		\u2022 Reinicie sus dispositivos de Buzón de Correo y Briar e inténtelo de nuevo.</string>
+  <string name="mailbox_error_wizard_info1_1_4">Comprueba que el dispositivo de correo está correctamente conectado a Internet.\n\nComprueba que el reloj del dispositivo de buzón muestra la hora, la fecha y la zona horaria correctas.\n\nComprueba que las aplicaciones de Correo y Briar están actualizadas a la última versión.\n\nReinicia tus dispositivos de Correo y Briar y vuelve a intentarlo.</string>
+  <string name="mailbox_error_wizard_info2">Vuelva a esta pantalla cuando tenga acceso al dispositivo.</string>
+  <string name="mailbox_error_wizard_info3">Por favor, desvincule su buzón utilizando el botón de abajo.\n\nDespués de desvincular su antiguo buzón, puede configurar un nuevo buzón en cualquier momento.</string>
   <!--About-->
   <string name="about_title">Acerca de</string>
+  <string name="briar_version">Versión de Briar: %s</string>
+  <string name="tor_version">Versión de Tor: %s</string>
   <string name="links">Enlaces</string>
+  <string name="briar_website">\u2022 <a href="">Página web</a></string>
+  <string name="briar_source_code">\u2022 <a href="">Código fuente</a></string>
+  <string name="briar_changelog">\u2022 <a href="">Registro de cambios</a></string>
+  <string name="briar_privacy_policy">\u2022 <a href="">Política de privacidad</a></string>
   <!--Here translators can add their names or Transifex usernames(eg "Thanks to all the contributors at the Localization Lab, especially Tom, Matthew and Jerry")-->
+  <string name="translator_thanks">Gracias a todos los colaboradores del Laboratorio de Traducción</string>
   <!--Conversation Settings-->
   <string name="disappearing_messages_title">Mensajes con caducidad</string>
   <string name="disappearing_messages_explanation_long">Activar este ajuste hará que los nuevos
@@ -654,6 +706,7 @@
   <string name="describe_crash">Describe qué ha ocurrido (opcional)</string>
   <string name="enter_feedback">Escribe tu comentario</string>
   <string name="optional_contact_email">Tu correo electrónico (opcional)</string>
+  <string name="privacy_policy">Al enviarnos datos, acepta nuestra <a href="">política de privacidad</a></string>
   <string name="include_debug_report_crash">Incluir datos anónimos sobre la falla</string>
   <string name="include_debug_report_feedback">Incluir datos anónimos sobre este dispositivo</string>
   <string name="dev_report_user_info">Información de usuario</string>
@@ -739,6 +792,9 @@
   <string name="hotspot_manual_site_address">Dirección (URL)</string>
   <string name="hotspot_qr_site">Tu teléfono está proporcionando un punto de acceso Wi-Fi. Las personas que están conectadas al mismo pueden descargar Briar escaneando este código QR.</string>
   <!--e.g. Download Briar 1.2.20-->
+  <string name="website_download_title_1">Descargar Briar %s</string>
+  <string name="website_download_intro_1">Alguien cercano compartió a Briar con usted.</string>
+  <string name="website_download_button">Descargar Briar</string>
   <string name="website_download_outro">Luego de que la descarga se complete, abre el archivo descargado e instálalo.</string>
   <string name="website_troubleshooting_title">Resolución de problemas</string>
   <string name="website_troubleshooting_1">Si no puedes descargar la aplicación, inténtalo con una aplicación de navegación web diferente.</string>

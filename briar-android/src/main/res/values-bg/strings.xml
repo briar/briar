@@ -621,6 +621,7 @@
   <string name="mailbox_status_unlink_dialog_warning">Ако прекъснете връзката с пощенската кутия, няма да получавате съобщения докато Briar е без мрежа.</string>
   <string name="mailbox_status_unlink_no_wipe_title">Връзката с пощенската кутия е прекъсната</string>
   <string name="mailbox_status_unlink_no_wipe_message">За да завършите процеса, следващия път, когато имате достъп до устройството с пощенската кутия, отворете приложението на пощенската кутия и докоснете бутона „Прекъсване на връзката“.\n\nДаже и вече нямате достъп до устройството с пощенската кутия - не се притеснявайте. Вашата информация е шифрована, така че ще остане защитена, дори и да не завършите този процес.</string>
+  <string name="mailbox_status_unlink_success">Връзката с пощенската кутия е прекъсната</string>
   <string name="mailbox_error_notification_channel_title">Проблем с пощенската кутия на Briar</string>
   <string name="mailbox_error_notification_title">Пощенската кутия на Briar не е достъпна</string>
   <string name="mailbox_error_notification_text">Докоснете за отстраняване на проблема.</string>
@@ -647,7 +648,13 @@
   <string name="mailbox_error_wizard_info3">Прекъснете връзката с пощенската кутия, чрез бутона отдолу.\n\nСлед като прекъснете връзката със старата пощенска кутия можете да настроите нова по всяко време.</string>
   <!--About-->
   <string name="about_title">Относно</string>
+  <string name="briar_version">Издание на Briar: %s</string>
+  <string name="tor_version">Издание на Tor: %s</string>
   <string name="links">Препратки</string>
+  <string name="briar_website">\u2022 <a href="">Страница</a></string>
+  <string name="briar_source_code">\u2022 <a href="">Изходен код</a></string>
+  <string name="briar_changelog">\u2022 <a href="">Дневник на промените</a></string>
+  <string name="briar_privacy_policy">\u2022 <a href="">Политика за личните данни</a></string>
   <!--Here translators can add their names or Transifex usernames(eg "Thanks to all the contributors at the Localization Lab, especially Tom, Matthew and Jerry")-->
   <string name="translator_thanks">Благодарим на всички сътрудници на Localization Lab</string>
   <!--Conversation Settings-->
@@ -677,6 +684,7 @@
   <string name="describe_crash">Опишете случилото се (незадължително)</string>
   <string name="enter_feedback">Въведете обратна връзка</string>
   <string name="optional_contact_email">Адрес на електронна поща (по желание)</string>
+  <string name="privacy_policy">Като ни изпращате данни, се съгласявате с <a href="">политиката за личните данни</a></string>
   <string name="include_debug_report_crash">Изпращане на анонимни данни за срива</string>
   <string name="include_debug_report_feedback">Изпращане на анонимни данни за устройството</string>
   <string name="dev_report_user_info">Данни за потербителя</string>

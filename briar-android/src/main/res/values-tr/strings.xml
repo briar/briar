@@ -26,6 +26,10 @@
   <string name="dnkm_xiaomi_button">Briar\'ı Koru</string>
   <string name="dnkm_xiaomi_help">Briar korunan uygulamalar listesine eklenmezse, arka planda çalışamaz.</string>
   <string name="dnkm_xiaomi_dialog_body_old">1. Geçmiş uygulamalar listesini açın (uygulama değiştirici de deniyor)\n\n2. Briar resmini kilit simgesini görene kadar aşağı kaydırın\n\n3. Eğer kilit simgesi seçili değilse, kilitlemek için dokunun</string>
+  <string name="dnkm_xiaomi_dialog_body_new">1. Son uygulamalar listesini açın (uygulama değiştirici de deniyor)\n\n2. Eğer bu Briar\'ın yanında küçük bir kilit resmi varsa bir şey yapmanıza gerek yok\n\n3. Eğer kilit resmi yoksa, kilit düğmesi gözükene kadar Briar resmine tıklayın ve basılı kalın, kilit çıkınca da dokunun</string>
+  <string name="dnkm_xiaomi_lock_apps_text">Güvenlik ayarlarını açmak için aşağıdaki düğmeye dokunun. \"Hızı Arttır\"a dokunun, daha sonra \"Uygulamaları kilitle\"ye dokunun ve Briar\'ın \"Kilitli\" olduğundan emin olun.</string>
+  <string name="dnkm_xiaomi_lock_apps_help">Eğer Briar \"Uygulamaları kilitle\" ekranında \"Kilitli\" değilse, arka planda çalışamaz.</string>
+  <string name="dnkm_warning_dozed_1">Briar arka planda çalışamadı</string>
   <!--Login-->
   <string name="enter_password">Parola</string>
   <string name="try_again">Parola yanlış, tekrar deneyin</string>
@@ -229,6 +233,8 @@
   <string name="contact_added_toast">Kişi eklendi: %s</string>
   <string name="contact_already_exists"> %s kişisi zaten var</string>
   <string name="qr_code_invalid">QR kodu hatalı</string>
+  <string name="qr_code_too_old_1">Taradığınız QR kodu Briar\'ın eski bir sürümünden geliyor. Lütfen kişiye en son sürüme yükseltmesini ve tekrar denemesini söyleyin.</string>
+  <string name="qr_code_too_new_1">Taradığınız QR kodu Briar\'ın daha yeni bir sürümünden geliyor. Lütfen en son sürüme yükseltin ve yeniden deneyin.</string>
   <string name="camera_error">Kamera hatası</string>
   <string name="connecting_to_device">Aygıta bağlanıyor\u2026</string>
   <string name="authenticating_with_device">Aygıtla kimlik doğrulama\u2026</string>
@@ -619,6 +625,7 @@
   <string name="mailbox_status_unlink_dialog_warning">Mailbox bağlantısını kaldırırsanız, Briar çevrimdışı iken ileti alamayacaksınız.</string>
   <string name="mailbox_status_unlink_no_wipe_title">Mailbox bağlantısı kaldırıldı.</string>
   <string name="mailbox_status_unlink_no_wipe_message">Mailbox aygıtınıza sonraki erişiminizde lütfen Mailbox uygulamasını açın ve \"Bağlantıyı Kaldır\" düğmesine dokunarak işlemi tamamlayın.\n\nEğer Mailbox aygıtınıza artık erişiminiz yoksa endişelenmeyin. Veriniz şifrelenmiştir ve bu süreci tamamlamasanız bile güvenli kalacaktır.</string>
+  <string name="mailbox_status_unlink_success">Mailbox bağlantısı kaldırıldı.</string>
   <string name="mailbox_error_notification_channel_title">Briar Mailbox sorunu</string>
   <string name="mailbox_error_notification_title">Briar Mailbox kullanılamıyor</string>
   <string name="mailbox_error_notification_text">Sorunu çözmek için dokunun</string>
@@ -640,6 +647,9 @@
 		Eğer bağlantı tekrar başarısız olursa:\n
 		\u2022 Mailbox ve Briar\'ın son sürüme güncellendiğini denetleyin.\n
 		Mailbox ve Briar aygıtlarını yeniden başlatın ve tekrar deneyin.</string>
+  <string name="mailbox_error_wizard_info1_1_4">Mailbox aygıtının İnternet\'e düzgün bir şekilde bağlandığını denetleyin.\n\nMailbox aygıtındaki saatin doğru zamanı, tarihi ve saat dilimini gösterdiğini denetleyin.\n\nMailbox ve Briar uygulamalarının son sürüm olduğunu denetleyin.\n\nMailbox ve Briar aygıtlarınızı yeniden başlatıp, tekrar deneyin.</string>
+  <string name="mailbox_error_wizard_info2">Aygıta erişiminiz olduğunda bu ekranı tekrar açın.</string>
+  <string name="mailbox_error_wizard_info3">Lütfen aşağıdaki düğmeyi kullanarak Mailbox bağlantısını kaldırın.\n\nMailbox bağlantısını kaldırdıktan sonra yeni bir Mailbox\'u istediğiniz zaman ayarlayabilirsiniz.</string>
   <!--About-->
   <string name="about_title">Hakkında</string>
   <string name="briar_version">Briar sürümü: %s</string>
@@ -648,6 +658,7 @@
   <string name="briar_website">\u2022 <a href="">Web Site</a></string>
   <string name="briar_source_code">\u2022 <a href="">Kaynak kod</a></string>
   <string name="briar_changelog">\u2022 <a href="">Değişiklik günlüğü</a></string>
+  <string name="briar_privacy_policy">\u2022 <a href="">Gizlilik Politikası</a></string>
   <!--Here translators can add their names or Transifex usernames(eg "Thanks to all the contributors at the Localization Lab, especially Tom, Matthew and Jerry")-->
   <string name="translator_thanks">Localization Lab\'taki tüm katkı sağlayanlara teşekkürler</string>
   <!--Conversation Settings-->
@@ -681,6 +692,7 @@
   <string name="describe_crash">Ne olduğunu bize anlatın (isteğe bağlı)</string>
   <string name="enter_feedback">Geri bildiriminizi girin</string>
   <string name="optional_contact_email">E-posta adresiniz (isteğe bağlı)</string>
+  <string name="privacy_policy">Bize veri göndererek <a href="">gizlilik politikamızı</a> kabul etmiş oluyorsunuz.</string>
   <string name="include_debug_report_crash">Çökme ile  ilgili anonim verileri ekle</string>
   <string name="include_debug_report_feedback">Bu aygıtla ilgili anonim verileri ekle</string>
   <string name="dev_report_user_info">Kullanıcı bilgisi</string>

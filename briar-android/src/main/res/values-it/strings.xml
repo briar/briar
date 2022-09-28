@@ -307,6 +307,11 @@
   <string name="different_person_button">Persone diverse</string>
   <string name="duplicate_link_dialog_text_3">%1$s e %2$s ti hanno inviato lo stesso link.\n\nUno dei due potrebbe tentare di scoprire chi sono i tuoi contatti.\n\nNon dirgli che hai ricevuto lo stesso link da qualcun altro.</string>
   <string name="pending_contact_updated_toast">Contatto in attesa aggiornato</string>
+  <!--Peer trust levels-->
+  <string name="peer_trust_level_unverified">Contatto non verificato</string>
+  <string name="peer_trust_level_verified">Contatto verificato</string>
+  <string name="peer_trust_level_ourselves">Io</string>
+  <string name="peer_trust_level_stranger">Sconosciuto</string>
   <!--Introductions-->
   <string name="introduction_onboarding_title">Presenta i tuoi contatti</string>
   <string name="introduction_onboarding_text">Presenta i tuoi contatti fra di loro in modo che possano connettersi su Briar.</string>
@@ -634,6 +639,7 @@
   <string name="mailbox_status_unlink_dialog_warning">Se la scolleghi non potrai più ricevere messaggi mentre Briar è offline.</string>
   <string name="mailbox_status_unlink_no_wipe_title">La casella postale è stata scollegata</string>
   <string name="mailbox_status_unlink_no_wipe_message">La prossima volta che avrai accesso al dispositivo della casella postale, apri l\'app Mailbox e tocca il pulsante \"Scollega\" per completare il processo.\n\nSe non hai più accesso al dispositivo, non preoccuparti. I dati sono cifrati e rimarranno sicuri anche se non completi il processo.</string>
+  <string name="mailbox_status_unlink_success">La casella postale è stata scollegata</string>
   <string name="mailbox_error_notification_channel_title">Problema casella postale di Briar</string>
   <string name="mailbox_error_notification_title">Casella postale di Briar non disponibile</string>
   <string name="mailbox_error_notification_text">Tocca per risolvere il problema.</string>
@@ -658,6 +664,17 @@
   <string name="mailbox_error_wizard_info1_1_4">Controlla che il dispositivo della casella postale sia connesso a internet correttamente.\n\nControlla che l\'orologio nel dispositivo della casella postale mostri l\'orario, la data e il fuso orario giusti.\n\nControlla che le app Mailbox e Briar siano aggiornate alla versione più recente.\n\nRiavvia i dispositivi di Mailbox e Briar e riprova.</string>
   <string name="mailbox_error_wizard_info2">Torna in questa schermata quando avrai accesso al dispositivo.</string>
   <string name="mailbox_error_wizard_info3">Scollega la casella postale usando il pulsante sottostante.\n\nDopo avere sbloccato la vecchia casella postale, puoi configurarne una nuova in qualsiasi momento.</string>
+  <!--About-->
+  <string name="about_title">Informazioni</string>
+  <string name="briar_version">Versione di Briar: %s</string>
+  <string name="tor_version">Versione di Tor: %s</string>
+  <string name="links">Collegamenti</string>
+  <string name="briar_website">\u2022 <a href="">Sito web</a></string>
+  <string name="briar_source_code">\u2022 <a href="">Codice sorgente</a></string>
+  <string name="briar_changelog">\u2022 <a href="">Cronologia</a></string>
+  <string name="briar_privacy_policy">\u2022 <a href="">Informativa sulla privacy</a></string>
+  <!--Here translators can add their names or Transifex usernames(eg "Thanks to all the contributors at the Localization Lab, especially Tom, Matthew and Jerry")-->
+  <string name="translator_thanks">Grazie a tutti i collaboratori nel Localization Lab</string>
   <!--Conversation Settings-->
   <string name="disappearing_messages_title">Messaggi dissolventi</string>
   <string name="disappearing_messages_explanation_long">L\'attivazione di questa impostazione farà sparire
@@ -689,6 +706,7 @@
   <string name="describe_crash">Descrivi cosa è successo (facoltativo)</string>
   <string name="enter_feedback">Immetti il tuo feedback</string>
   <string name="optional_contact_email">Il tuo indirizzo email (facoltativo)</string>
+  <string name="privacy_policy">Inviandoci dati, accetti la nostra <a href="">informativa sulla privacy</a></string>
   <string name="include_debug_report_crash">Includere dati anonimi riguardo al crash</string>
   <string name="include_debug_report_feedback">Includere dati anonimi riguardo al tuo dispositivo</string>
   <string name="dev_report_user_info">Informazioni utente</string>

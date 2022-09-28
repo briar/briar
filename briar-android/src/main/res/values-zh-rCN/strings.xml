@@ -611,6 +611,7 @@
   <string name="mailbox_status_unlink_dialog_warning">如果您解除Mailbox 的链接，您将无法在 Briar 离线时接收消息。</string>
   <string name="mailbox_status_unlink_no_wipe_title">已解除你 Mailbox 的链接</string>
   <string name="mailbox_status_unlink_no_wipe_message">下次您有机会访问安装有 Mailbox 应用的设备时，请打开此应用程序并轻按“解除链接”按钮来完成这个过程。\n\n如果您不再能够访问此设备，不要担心。您的数据是加密的，所以即使您没有完成这个过程，数据也会保持安全。</string>
+  <string name="mailbox_status_unlink_success">已解除你 Mailbox 的链接</string>
   <string name="mailbox_error_notification_channel_title">Briar Mailbox 问题</string>
   <string name="mailbox_error_notification_title">Briar Mailbox 不可用</string>
   <string name="mailbox_error_notification_text">轻按修复问题。</string>
@@ -643,6 +644,7 @@
   <string name="briar_website">\u2022 <a href="">网站</a></string>
   <string name="briar_source_code">\u2022 <a href="">源代码</a></string>
   <string name="briar_changelog">\u2022 <a href="">变更记录</a></string>
+  <string name="briar_privacy_policy">\u2022 <a href="">隐私政策</a></string>
   <!--Here translators can add their names or Transifex usernames(eg "Thanks to all the contributors at the Localization Lab, especially Tom, Matthew and Jerry")-->
   <string name="translator_thanks">感谢所有 Localization Lab 的贡献者们</string>
   <!--Conversation Settings-->
@@ -676,6 +678,7 @@
   <string name="describe_crash">描述发生了什么（选填）</string>
   <string name="enter_feedback">输入您的反馈</string>
   <string name="optional_contact_email">您的邮箱地址（选填）</string>
+  <string name="privacy_policy">给我们发送数据表示您同意我们的<a href="">隐私政策</a></string>
   <string name="include_debug_report_crash">包含关于本次崩溃的匿名数据</string>
   <string name="include_debug_report_feedback">包含关于本设备的匿名数据</string>
   <string name="dev_report_user_info">用户信息</string>

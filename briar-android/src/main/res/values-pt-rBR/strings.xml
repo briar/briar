@@ -625,6 +625,7 @@
   <string name="mailbox_status_unlink_dialog_warning">Se você desvincular seu Mailbox, você não poderá receber mensagens enquanto o Briar estiver offline.</string>
   <string name="mailbox_status_unlink_no_wipe_title">Seu Mailbox foi desvinculado</string>
   <string name="mailbox_status_unlink_no_wipe_message">Na próxima vez que você acessar seu dispositivo de Mailbox, por favor, abra o app Mailbox e toque no botão \"Desvincular\" para completar o processo. \n\nSe você não tem mais acesso ao seu dispositivo de Mailbox, não se preocupe. Seus dados estão criptografados, logo, continuarão seguros mesmo que você não complete o processo.</string>
+  <string name="mailbox_status_unlink_success">Seu Mailbox foi desvinculado</string>
   <!--About-->
   <string name="about_title">Sobre</string>
   <string name="links">Linques</string>

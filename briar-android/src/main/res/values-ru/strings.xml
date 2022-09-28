@@ -653,6 +653,7 @@
   <string name="mailbox_status_unlink_dialog_warning">Если вы отвяжете свой Mailbox, вы не сможете получать сообщения, пока Briar находится в оффлайн.</string>
   <string name="mailbox_status_unlink_no_wipe_title">Ваш Mailbox был отвязан</string>
   <string name="mailbox_status_unlink_no_wipe_message">В следующий раз, когда у вас будет доступ к устройству Mailbox, откройте приложение Mailbox и нажмите кнопку \"Unlink\", чтобы завершить процесс.\n\nЕсли у вас больше нет доступа к устройству Mailbox, не волнуйтесь. Ваши данные зашифрованы, поэтому они останутся в безопасности, даже если вы не завершите процесс.</string>
+  <string name="mailbox_status_unlink_success">Ваш Mailbox был отвязан</string>
   <string name="mailbox_error_notification_channel_title">Проблема с Briar Mailbox</string>
   <string name="mailbox_error_notification_title">Briar Mailbox недоступен</string>
   <string name="mailbox_error_notification_text">Нажмите, чтобы устранить проблему.</string>
@@ -685,6 +686,7 @@
   <string name="briar_website">\u2022 <a href="">Сайт</a></string>
   <string name="briar_source_code">\u2022 <a href="">Исходный код</a></string>
   <string name="briar_changelog">\u2022 <a href="">Список изменений</a></string>
+  <string name="briar_privacy_policy">\u2022 <a href="">Политика конфиденциальности</a></string>
   <!--Here translators can add their names or Transifex usernames(eg "Thanks to all the contributors at the Localization Lab, especially Tom, Matthew and Jerry")-->
   <string name="translator_thanks">Благодарим всех участников проекта Localization Lab</string>
   <!--Conversation Settings-->
@@ -718,6 +720,7 @@
   <string name="describe_crash">Опишите, что произошло (необязательно)</string>
   <string name="enter_feedback">Введите свой отзыв</string>
   <string name="optional_contact_email">Ваш адрес email (необязательно)</string>
+  <string name="privacy_policy">Отправляя нам данные, вы соглашаетесь с нашей <a href="">политикой конфиденциальности</a></string>
   <string name="include_debug_report_crash">Включить анонимные данные о сбое</string>
   <string name="include_debug_report_feedback">Включить анонимные данные об этом устройстве</string>
   <string name="dev_report_user_info">Информация о пользователе</string>

@@ -616,17 +616,30 @@
   <string name="tor_offline_button_check">Tikrinti ryšio nustatymus</string>
   <string name="mailbox_status_title">Pašto dėžutės būsena</string>
   <string name="mailbox_status_connected_title">Pašto dėžutė veikia</string>
+  <string name="mailbox_status_failure_title">Pašto dėžutė yra neprieinama</string>
   <string name="mailbox_status_app_too_old_title">Briar yra per sena</string>
   <string name="mailbox_status_app_too_old_message">Atnaujinkite Briar programėlę iki naujausios versijos ir bandykite dar kartą.</string>
+  <string name="mailbox_status_mailbox_too_old_title">Pašto dėžutė yra per sena</string>
   <string name="mailbox_status_check_button">Tikrinti ryšį</string>
   <!--Example for string substitution: Last connection: 3min ago-->
   <string name="mailbox_status_connected_info">Paskutinis prisijungimas: %s</string>
   <!--Indicates that there never was a connection to the mailbox. Last connection: Never-->
   <string name="mailbox_status_connected_never">Niekada</string>
   <string name="mailbox_status_unlink_button">Atsieti</string>
+  <string name="mailbox_status_unlink_dialog_title">Atsieti pašto dėžutę?</string>
+  <string name="mailbox_status_unlink_dialog_question">Ar tikrai norite atsieti pašto dėžutę?</string>
+  <string name="mailbox_status_unlink_no_wipe_title">Jūsų pašto dėžutė atsieta</string>
+  <string name="mailbox_status_unlink_success">Jūsų pašto dėžutė atsieta</string>
+  <string name="mailbox_error_wizard_title">Pašto dėžutės nesklandumų šalinimo vediklis</string>
   <!--About-->
   <string name="about_title">Apie</string>
+  <string name="briar_version">Briar versija: %s</string>
+  <string name="tor_version">Tor versija: %s</string>
   <string name="links">Nuorodos</string>
+  <string name="briar_website">\u2022 <a href="">Internetinė svetainė</a></string>
+  <string name="briar_source_code">\u2022 <a href="">Pradinis kodas</a></string>
+  <string name="briar_changelog">\u2022 <a href="">Keitinių žurnalas</a></string>
+  <string name="briar_privacy_policy">\u2022 <a href="">Privatumo politika</a></string>
   <!--Here translators can add their names or Transifex usernames(eg "Thanks to all the contributors at the Localization Lab, especially Tom, Matthew and Jerry")-->
   <!--Conversation Settings-->
   <string name="disappearing_messages_title">Išnykstančios žinutės</string>
@@ -659,6 +672,7 @@
   <string name="describe_crash">Aprašykite kas nutiko (nebūtina)</string>
   <string name="enter_feedback">Įveskite savo atsiliepimą</string>
   <string name="optional_contact_email">Jūsų el. pašto adresas (nebūtina)</string>
+  <string name="privacy_policy">Siųsdami mums savo duomenis, sutinkate su mūsų <a href="">privatumo politika</a></string>
   <string name="include_debug_report_crash">Įtraukti anoniminius duomenis apie strigtį</string>
   <string name="include_debug_report_feedback">Įtraukti anoniminius duomenis apie šį įrenginį</string>
   <string name="dev_report_user_info">Naudotojo informacija</string>

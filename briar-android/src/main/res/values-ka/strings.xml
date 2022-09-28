@@ -1,0 +1,845 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources xmlns:tools="http://schemas.android.com/tools">
+  <!--Setup-->
+  <string name="setup_title">მოგესალმებათ Briar</string>
+  <string name="setup_name_explanation">თქვენი მეტსახელი გამოჩნდება ნებისმიერი თქვენი პოსტის გვერდით. თქვენ ვაღარ შეცვლით მას თქვენი ანგარიშის შექმნის შემდგომ.</string>
+  <string name="setup_next">შემდეგ</string>
+  <string name="setup_password_intro">აირჩიეთ პაროლი</string>
+  <string name="setup_password_explanation">თქვენი Briar-ანგარიში დაშიფრული ინახება თქვენს მოწყობილობაზე და არა ონლაინ-საცავში. პაროლის დავიწყების ან Briar-ის დეინსტალაციის შემთხვევაში, თქვენს ანგარიშს ვეღარ აღადგენთ.\n\nშეარჩიეთ გრძელი და ძნელად გამოსაცნობი პაროლი, მაგალითად ოთხი შემთხვევითი სიტყვა, ან ათი შემთხვევითი ასო, ციფრი და სიმბოლო.</string>
+  <string name="dnkm_doze_intro">შეტყობინებების მისაღებად Briar უნდა დარჩეს დაკავშირებული ფონურ რეჟიმში.</string>
+  <string name="dnkm_doze_explanation">წერილების მისაღებად Briar უნდა დარჩეს კავშირზე ფონურად. გთხოვთ გათიშოთ ბატარეის დამზოგი, რომ Briar მუდმივად დაკავშირებული იყოს.</string>
+  <string name="choose_nickname">აირჩიეთ თქვენი მეტსახელი</string>
+  <string name="choose_password">აირჩიეთ თქვენი პაროლი</string>
+  <string name="confirm_password">დაადასტურეთ თქვენი პაროლი</string>
+  <string name="name_too_long">სახელი ძალიან გრძელია</string>
+  <string name="password_too_weak">პაროლი ძალიან სუსტია</string>
+  <string name="passwords_do_not_match">პაროლები არ ემთხვევა</string>
+  <string name="create_account_button">ანგარიშის შექმნა</string>
+  <string name="more_info">ვრცლად</string>
+  <string name="don_t_ask_again">აღარ შემეკითხო</string>
+  <string name="dnkm_huawei_protected_text">შეეხეთ ღილაკს ქვემოთ და დარწმუნდით, რომ Briar დაცულია „დაცულ აპების“ ეკრანზე.</string>
+  <string name="dnkm_huawei_protected_button">დაიცავით Briar</string>
+  <string name="dnkm_huawei_protected_help">თუ Briar არ დაემატება დაცული აპების სიაში, ის ვერ გაიშვება ფონურ რეჟიმში.</string>
+  <string name="dnkm_huawei_app_launch_text">შეეხეთ ღილაკს ქვემოთ, გახსენით „აპების გაშვების“ ეკრანი და დარწმუნდით, რომ Briar დაყენებულია „ხელით მართვაზე“.</string>
+  <string name="dnkm_huawei_app_launch_help">თუ Briar-ს „ხელით მართვა“ არ არის დაყენებული „ხელით მართვაზე“ „აპების გაშვების“ ეკრანზე, ის ვერ იმუშავებს ფონურ რეჟიმში.</string>
+  <string name="dnkm_xiaomi_text">ფონურ რეჟიმში გასაშვებად Briar უნდა დაიბლოკოს ბოლო აპების სიაში.</string>
+  <string name="dnkm_xiaomi_button">დაიცავით Briar</string>
+  <string name="dnkm_xiaomi_help">თუ Briar არ არის დაბლოკილი ბოლო აპების სიაში, ის ვერ გაიშვება ფონურ რეჟიმში.</string>
+  <string name="dnkm_xiaomi_dialog_body_old">1. გახსენით ბოლო აპების სია (ე.წ. აპების გადამრთველი)\n\n2. ჩამოუსვით Briar-ის გამოსახულებას თითი, რომ გამოჩნდეს ბოქლომის ხატულა\n\n3. თუ ბოქლომი არ არის ჩაკეტილი, შეეხეთ ჩასაკეტად</string>
+  <string name="dnkm_xiaomi_dialog_body_new">1. გახსენით ბოლო აპების სია (ე.წ. აპების გადამრთველი\n\n2. თუ Briar-ის გვერდით არის ბოქლომის პატარა გამოსახულება, აღარაფრის გაკეთება არ მოგიწევთ\n\n3. თუ იქ არ არის ბოქლომის ნიშანი, შეეხეთ და დააყოვნეთ აპის გამოსახულებაზე სანამ არ გამოჩნდება ბოქლომის ღილაკი, შემდეგ შეეხეთ მას</string>
+  <string name="dnkm_xiaomi_lock_apps_text">უსაფრთხოების პარამეტრების გასახსნელად, დააჭირეთ ღილაკს ქვემოთ. შეეხეთ „სიჩქარის გაზრდას“ და შემდეგ „აპების დაბლოკვას“, დარწმუნდით, რომ Briar დაყენებულია „დაბლოკილზე“.</string>
+  <string name="dnkm_xiaomi_lock_apps_help">თუ Briar „აპების დაბლოკვის“ ეკრანზე არ არის დაყენებული „დაბლოკილზე“, ის ვერ გაიშვება ფონურ რეჟიმში.</string>
+  <string name="dnkm_warning_dozed_1">Briar-ის გაშვება ფონურ რეჟიმში შეუძლებელია</string>
+  <!--Login-->
+  <string name="enter_password">პაროლი</string>
+  <string name="try_again">პაროლი არასწორია, ისევ სცადეთ</string>
+  <string name="dialog_title_cannot_check_password">პაროლის შემოწმება ვერ ხერხდება</string>
+  <string name="dialog_message_cannot_check_password">Briar ვერ ამოწმებს თქვენს პაროლს. ამ პრობლემის გადასაჭრელად, სცადეთ თქვენი მოწყობილობის გადატვირთვა.</string>
+  <string name="sign_in_button">შესვლა</string>
+  <string name="forgotten_password">დამავიწყდა პაროლი</string>
+  <string name="dialog_title_lost_password">დაკარგული პაროლი</string>
+  <string name="dialog_message_lost_password">თქვენი Briar-ანგარიში დაშიფრული ინახება თქვენს მოწყობილობაზე და არა ონლაინ-საცავში. ასე რომ, ჩვენ ვერ გადავტვირთავთ თქვენს პაროლს. გსურთ წაშალოთ თქვენი ანგარიში და ახლიდან შექმნათ?\n\nგაფრთხილება: თქვენი ვინაობა, კონტაქტები და შეტყობინებები სამუდამოდ დაიკარგება.</string>
+  <string name="startup_failed_activity_title">Briar-ის გაშვების შეცდომა</string>
+  <string name="startup_failed_clock_error">Briar-ის გაშვება ვერ ხერხდება, რადგან თქვენი მოწყობილობის საათი არასწორია.\n\nგთხოვთ, დააყენოთ თქვენს მოწყობილობაზე სწორი დრო და ისევ სცადოთ.</string>
+  <string name="startup_failed_db_error">Briar ვერ ახერხებს მონაცემთა ბაზის გახსნას, რომელიც შეიცავს თქვენს ანგარიშს, კონტაქტებსა და შეტყობინებებს.\n\nგთხოვთ განაახლოთ აპი ბოლო ვერსიამდე და ისევ სცადოთ, ან დააყენეთ ახალი ანგარიში პაროლის მოთხოვნაში „დამავიწყდა პაროლის“ არჩევით.</string>
+  <string name="startup_failed_data_too_old_error">თქვენი ანგარიში შექმნილია ამ აპის ძველი ვერსიის მეშვეობით და ვერ გაიხსნება ამ ვერსიაში.\n\nან ხელახლა უნდა დააინსტალიროთ ძველი ვერსია, ან დააყენეთ ახალი ანგარიში პაროლის მოთხოვნაში „დამავიწყდა პაროლის“ არჩევით.</string>
+  <string name="startup_failed_data_too_new_error">თქვენი ანგარიში შეიქმნა ამ აპის ახალი ვერსიის მეშვეობით და ვერ გაიხსნება ამ ვერსიაში.\n\nგთხოვთ, განაახლოთ ბოლო ვერსიამდე და ხელახლა სცადოთ.</string>
+  <string name="startup_failed_service_error">ვერ ახერხებს საჭირო კომპონენტების გაშვებას.\n\nგთხოვთ, განაახლოთ აპის ბოლო ვერსიამდე და ისევ სცადოთ.</string>
+  <plurals name="expiry_warning">
+    <item quantity="one">ესაა საცდელი ვერსიის Briar. თქვენს ანგარიშს %d დღეში გაუვა ვადა და ვეღარ გახანგრძლივდება.</item>
+    <item quantity="other">ეს არის Briar-ის საცდელი ვერსია, რომლის ვადა %d დღეში ამოიწურება და მისი განახლება შეუძლებელია.</item>
+  </plurals>
+  <plurals name="old_android_expiry_warning">
+    <item quantity="one">Android 4 აღარაა მხარდაჭერილი. Briar-ის გაუქმების ვადაა %s (%d დღეში). გთხოვთ, Briar გამოიყენოთ უფრო ახალ მოწყობილობაზე და ახალი ანგარიში შექმნათ.</item>
+    <item quantity="other">Android 4 აღარაა მხარდაჭერილი. Briar შეწყვეტს მუშაობას %s (%d დღეში). გთხოვთ, დააინსტალიროთ Briar უფრო ახალ მოწყობილობაზე და ახალი ანგარიში შექმნათ.</item>
+  </plurals>
+  <string name="expiry_date_reached">პროგრამული უზრუნველყოფის ვადა ამოიწურა.\nგმადლობთ ტესტირებისთვის!</string>
+  <string name="download_briar">თუ გსურთ, კვლავ გამოიყენოთ Briar, ჩამოტვირთეთ ბოლო გამოშვება.</string>
+  <string name="create_new_account">დაგჭირდებათ ახალი ანგარიშის შექმნა, თუმცა იმავე მეტსახელის გამოყენება შეგეძლებათ.</string>
+  <string name="download_briar_button">ბოლო გამოშვების ჩამოტვირთვა</string>
+  <string name="old_android_expiry_date_reached">Briar აღარ გაეშვება Android 4 ვერსიაზე.\nგთხოვთ, დააყენოთ Briar უფრო ახალ მოწყობილობაზე.</string>
+  <string name="old_android_delete_account">ამ მოწყობილობიდან თქვენი ანგარიშის წასაშლელად, შეგიძლიათ შეეხოთ ღილაკს ქვემოთ.</string>
+  <string name="delete_account_button">ანგარიშის წაშლა</string>
+  <string name="startup_open_database">მიმდინარეობს მონაცემთა ბაზის გაშიფვრა…</string>
+  <string name="startup_migrate_database">მიმდინარეობს მონაცემთა ბაზის განახლება…</string>
+  <string name="startup_compact_database">მიმდინარეობს მონაცემთა ბაზის შეკუმშვა…</string>
+  <!--Navigation Drawer-->
+  <string name="nav_drawer_open_description">გახსენით ნავიგაციის პანელი</string>
+  <string name="nav_drawer_close_description">დახურეთ ნავიგაციის პანელი</string>
+  <string name="contact_list_button">კონტაქტები</string>
+  <string name="groups_button">დახურული ჯგუფები</string>
+  <string name="forums_button">ფორუმები</string>
+  <string name="blogs_button">ბლოგები</string>
+  <!--This is part of the main menu. The app will be locked when this is tapped.-->
+  <string name="lock_button">აპის დაბლოკვა</string>
+  <string name="settings_button">პარამეტრები</string>
+  <string name="sign_out_button">გამოსვლა</string>
+  <string name="transports_onboarding_text">შეეხეთ აქ, რომ განსაზღვროთ, როგორ დაუკავშირდეს Briar თქვენს კონტაქტებს.</string>
+  <!--Transports: Tor-->
+  <string name="transport_tor">ინტერნეტი</string>
+  <string name="tor_device_status_online_wifi">თქვენს ტელეფონს აქვს ინტერნეტზე წვდომა Wi-Fi-ს მეშვეობით</string>
+  <string name="tor_device_status_online_mobile">თქვენს ტელეფონს აქვს ინტერნეტზე წვდომა მობილური მონაცემების მეშვეობით</string>
+  <string name="tor_device_status_offline">თქვენს ტელეფონს არ აქვს ინტერნეტზე წვდომა</string>
+  <string name="tor_plugin_status_enabling">Briar უკავშირდება ინტერნეტს</string>
+  <string name="tor_plugin_status_active">Briar დაკავშირებულია ინტერნეტთან</string>
+  <string name="tor_plugin_status_inactive">Briar ვერ უკავშირდება ინტერნეტს</string>
+  <string name="tor_plugin_status_disabled">Briar კონფიგურირებულია, რომ არ გამოიყენოს ინტერნეტი</string>
+  <string name="tor_plugin_status_disabled_mobile_data">Briar კონფიგურირებულია, რომ არ გამოიყენოს მობილური მონაცემები</string>
+  <string name="tor_plugin_status_disabled_battery">Briar კონფიგურირებულია, რომ არ გამოიყენოს ინტერნეტი, თუ ბატარეით მუშაობს.</string>
+  <string name="tor_plugin_status_disabled_country_blocked">Briar კონფიგურირებულია, რომ არ გამოიყენოს ინტერნეტი ამ ქვეყანაში</string>
+  <!--Transports: Wi-Fi-->
+  <string name="transport_lan">Wi-Fi</string>
+  <string name="transport_lan_long">იგივე Wi-Fi ქსელი</string>
+  <string name="lan_device_status_on">თქვენი ტელეფონი დაკავშირებულია Wi-Fi-თან</string>
+  <string name="lan_device_status_off">თქვენი ტელეფონი არ არის დაკავშირებული Wi-Fi-თან</string>
+  <string name="lan_plugin_status_enabling">Briar უკავშირდება Wi-Fi ქსელს</string>
+  <string name="lan_plugin_status_active">Briar დაკავშირებულია Wi-Fi ქსელთან</string>
+  <string name="lan_plugin_status_inactive">Briar ვერ უკავშირდება Wi-Fi ქსელს</string>
+  <string name="lan_plugin_status_disabled">Briar კონფიგურირებულია, რომ არ გამოიყენოს Wi-Fi ქსელი</string>
+  <!--Transports: Bluetooth-->
+  <string name="transport_bt">Bluetooth</string>
+  <string name="bt_device_status_on">თქვენი ტელეფონის Bluetooth ჩართულია</string>
+  <string name="bt_device_status_off">თქვენი ტელეფონის Bluetooth გამორთულია</string>
+  <string name="bt_plugin_status_enabling">Briar უკავშირდება Bluetooth-ს</string>
+  <string name="bt_plugin_status_active">Briar დაკავშირებულია Bluetooth-თან</string>
+  <string name="bt_plugin_status_inactive">Briar ვერ უკავშირდება Bluetooth-ს</string>
+  <string name="bt_plugin_status_disabled">Briar კონფიგურირებულია, რომ არ გამოიყენოს Bluetooth</string>
+  <!--Notifications-->
+  <string name="reminder_notification_title">გამოსულია Briar-იდან</string>
+  <string name="reminder_notification_text">შეეხეთ ანგარიშზე დასაბრუნებლად.</string>
+  <string name="reminder_notification_channel_title">Briar-ში შესვლის შეხსენება</string>
+  <string name="reminder_notification_dismiss">გაუქმება</string>
+  <string name="ongoing_notification_title">შესულია Briar-ში</string>
+  <string name="ongoing_notification_text">შეეხეთ Briar-ის გასახსნელად.</string>
+  <plurals name="private_message_notification_text">
+    <item quantity="one">ახალი პირადი წერილი.</item>
+    <item quantity="other">%d ახალი პირადი შეტყობინება.</item>
+  </plurals>
+  <plurals name="group_message_notification_text">
+    <item quantity="one">ახალი ჯგუფური წერილი.</item>
+    <item quantity="other">%d ახალი ჯგუფური შეტყობინება.</item>
+  </plurals>
+  <plurals name="forum_post_notification_text">
+    <item quantity="one">ახალი პოსტი ფორუმზე.</item>
+    <item quantity="other">%d ახალი პოსტი ფორუმზე.</item>
+  </plurals>
+  <plurals name="blog_post_notification_text">
+    <item quantity="one">ახალი ჩანაწერი ბლოგზე.</item>
+    <item quantity="other">%d ახალი პოსტი ბლოგზე.</item>
+  </plurals>
+  <!--Misc-->
+  <string name="now">ახლა</string>
+  <string name="show">ჩვენება</string>
+  <string name="hide">დამალვა</string>
+  <string name="ok">კარგი</string>
+  <string name="cancel">გაუქმება</string>
+  <string name="got_it">გასაგებია</string>
+  <string name="delete">წაშლა</string>
+  <string name="accept">მიღება</string>
+  <string name="decline">უარყოფა</string>
+  <string name="online">ონლაინ</string>
+  <string name="offline">ხაზგარეშე</string>
+  <string name="send">გაგზავნა</string>
+  <string name="allow">ნებართვა</string>
+  <string name="open">გახსნა</string>
+  <string name="change">შეცვლა</string>
+  <string name="start">დაწყება</string>
+  <string name="finish">დასრულება</string>
+  <string name="no_data">არაა მონაცემი</string>
+  <string name="ellipsis">…</string>
+  <string name="text_too_long">შეყვანილი ტექსტი მეტად ვრცელია</string>
+  <string name="show_onboarding">გამოჩნდეს დახმარების არე</string>
+  <string name="fix">მოგვარება</string>
+  <string name="help">დახმარება</string>
+  <string name="sorry">ვწუხვართ</string>
+  <string name="error_start_activity">მიუწვდომელია თქვენს სისტემაზე</string>
+  <string name="status_heading">მდგომარეობა:</string>
+  <string name="error">შეცდომა</string>
+  <!--Contacts and Private Conversations-->
+  <string name="no_contacts">კონტაქტები არაა</string>
+  <string name="no_contacts_action">შეეხეთ + ნიშანს კონტაქტის დასამატებლად</string>
+  <string name="date_no_private_messages">წერილები არაა.</string>
+  <string name="no_private_messages">გამოსაჩენი წერილები არაა</string>
+  <string name="message_hint">ახალი წერილი</string>
+  <string name="message_hint_auto_delete">ახალი თვითწაშლადი წერილი</string>
+  <string name="message_error">შეცდომა წერილის გაგზავნისას</string>
+  <string name="image_caption_hint">წარწერის დამატება (არასავალდებულო)</string>
+  <string name="image_attach">სურათის მიმაგრება</string>
+  <string name="image_attach_error">ვერ მიმაგრდა სურათ(ებ)ი</string>
+  <string name="image_attach_error_too_big">სურათი მეტად დიდია. ზღვარი %d მბაიტი.</string>
+  <string name="image_attach_error_invalid_mime_type">სურათის სახეობა მხარდაუჭერელია: %s</string>
+  <string name="set_contact_alias">კონტაქტის გადარქმევა</string>
+  <string name="set_contact_alias_hint">კონტაქტის სახელი</string>
+  <string name="menu_item_disappearing_messages">თვითწაშლადი წერილები</string>
+  <!--The first placeholder will show a duration like "7 days". The second placeholder at the end will add "Tap to learn more."-->
+  <string name="auto_delete_msg_you_enabled">თქვენი წერილების თვითწაშლამდე დარჩენილია %1$s. %2$s</string>
+  <!--The placeholder at the end will add "Tap to learn more."-->
+  <string name="auto_delete_msg_you_disabled">თქვენი წერილები არ წაიშლება თავისთავად. %1$s</string>
+  <!--The first placeholder will show a contact's name. The second placeholder will show a duration like "7 days". The third placeholder at the end will add "Tap to learn more."-->
+  <string name="auto_delete_msg_contact_enabled">%1$s-ის წერილების თვითწაშლამდე დარჩენილია %2$s. %3$s</string>
+  <plurals name="duration_minutes">
+    <item quantity="one">%d წუთი</item>
+    <item quantity="other">%d წუთი</item>
+  </plurals>
+  <plurals name="duration_hours">
+    <item quantity="one">%d საათი</item>
+    <item quantity="other">%d საათი</item>
+  </plurals>
+  <plurals name="duration_days">
+    <item quantity="one">%d დღე</item>
+    <item quantity="other">%d დღე</item>
+  </plurals>
+  <!--The first placeholder will show a contact's name. The second placeholder at the end will add "Tap to learn more."-->
+  <string name="auto_delete_msg_contact_disabled">%1$s-ის წერილები თავისთავად არ წაიშლება. %2$s</string>
+  <string name="tap_to_learn_more">შეეხეთ, რომ იხილოთ ვრცლად.</string>
+  <string name="auto_delete_changed_warning_title">თვითწაშლადი წერილები შეიცვალა</string>
+  <string name="auto_delete_changed_warning_message_enabled">ვინაიდან დაიწყეთ წერილის შედგენა, თვითწაშლადი წერილები გათიშულია.</string>
+  <string name="auto_delete_changed_warning_message_disabled">ვინაიდან დაიწყეთ წერილის შედგენა, თვითწაშლადი წერილები გათიშულია.</string>
+  <string name="auto_delete_changed_warning_send">მაინც გაგზავნა</string>
+  <string name="delete_all_messages">ყველა წერილის წაშლა</string>
+  <string name="dialog_title_delete_all_messages">შეტყობინების წაშლის დასტური</string>
+  <string name="dialog_message_delete_all_messages">ნამდვილად გსურთ წაშალოთ ყველა წერილი?</string>
+  <string name="dialog_title_not_all_messages_deleted">ვერ წაიშალა ყველა წერილი</string>
+  <string name="dialog_message_not_deleted_ongoing_both">მიმდინარე მოწვევასთან ან წარდგენასთან დაკავშირებული წერილები ვერ წაიშლება მათ დასრულებამდე.</string>
+  <string name="dialog_message_not_deleted_ongoing_introductions">მიმდინარე წარდგენებთან დაკავშირებული წერილები ვერ წაიშლება მათ დასრულებამდე.</string>
+  <string name="dialog_message_not_deleted_ongoing_invitations">მიმდინარე მოწვევებთან დაკავშირებული წერილები ვერ წაიშლება მათ დასრულებამდე.</string>
+  <string name="dialog_message_not_deleted_not_all_selected_both">მოწვევის ან წარდგენის წასაშლელად უნდა მონიშნოთ მოთხოვნაც და პასუხიც.</string>
+  <string name="dialog_message_not_deleted_not_all_selected_introductions">წარდგენის წასაშლელად უნდა მონიშნოთ მოთხოვნაც და პასუხიც.</string>
+  <string name="dialog_message_not_deleted_not_all_selected_invitations">მოწვევის წასაშლელად უნდა მონიშნოთ მოთხოვნაც და პასუხიც.</string>
+  <string name="delete_contact">კონტაქტის წაშლა</string>
+  <string name="dialog_title_delete_contact">კონტაქტის წაშლის დასტური</string>
+  <string name="dialog_message_delete_contact">ნამდვილად გსურთ ამოშალოთ ეს კონტაქტი და მასთან მიმოცვლილი ყველა შეტყობინება?</string>
+  <string name="contact_deleted_toast">კონტაქტი წაიშალა</string>
+  <!--This is shown in the action bar when opening an image in fullscreen that the user sent-->
+  <string name="you">თქვენ</string>
+  <string name="save_image">სურათის შენახვა</string>
+  <string name="dialog_title_save_image">შეინახოს სურათი?</string>
+  <string name="dialog_message_save_image">სურათის შენახვის შემთხვევაში სხვა აპებსაც შეეძლება მასთან წვდომა.\n\nნამდვილად გსურთ შენახვა?</string>
+  <string name="save_image_success">სურათი შენახულია</string>
+  <string name="save_image_error">ვერ შეინახა სურათი</string>
+  <string name="dialog_title_no_image_support">სურათები მიუწვდომელია</string>
+  <string name="dialog_message_no_image_support">თქვენ მიერ დამატებული კონტაქტის Briar-ში ჯერ არაა მხარდაჭერილი სურათების მიმაგრება. როცა ახალ ვერსიაზე გადავლენ, განსხვავებული ნიშანი გამოჩნდება.</string>
+  <string name="dialog_title_image_support">ახლა უკვე სურათებიც შეგიძლიათ გაუგზავნოთ ამ კონტაქტს</string>
+  <string name="dialog_message_image_support">შეეხეთ ამ ნიშანს სურათების მისამაგრებლად.</string>
+  <string name="messaging_too_many_attachments_toast">მხოლოდ პირველი %d სურათი გაიგზავნება</string>
+  <string name="menu_contact">კონტაქტი</string>
+  <!--Adding Contacts-->
+  <string name="add_contact_title">ახლომყოფი კონტაქტის დამატება</string>
+  <string name="face_to_face">პირისპირ უნდა შეხვდეთ იმ ადამიანს, რომლის კონტაქტად დამატებაც გსურთ.\n\nეს იმის საწინდარი იქნება, რომ მომავალში ვერავინ გაასაღებს თავს სხვა პიროვნებად და ვერ გაეცნობა თქვენს წერილებს.</string>
+  <string name="continue_button">განაგრძეთ</string>
+  <string name="try_again_button">კვლავ სცადეთ</string>
+  <string name="waiting_for_contact_to_scan">ელოდება კოდის წაკითხვასა და მიერთებას\u2026</string>
+  <string name="exchanging_contact_details">კონტაქტის მონაცემების გაცვლა\u2026</string>
+  <string name="contact_added_toast">კონტაქტი დაემატა: %s</string>
+  <string name="contact_already_exists">კონტაქტი %s უკვე არსებობს</string>
+  <string name="qr_code_invalid">არასწორი QR-კოდი</string>
+  <string name="qr_code_too_old_1">ამოკითხული QR-კოდი ძველი ვერსიის Briar-იდანაა.\n\nსთხოვეთ თქვენს კონტაქტს, განაახლოს ბოლო ვერსიამდე და შემდეგ სცადეთ ხელახლა.</string>
+  <string name="qr_code_too_new_1">ამოკითხული QR-კოდი ახალი ვერსიის Briar-იდანაა.\n\nგთხოვთ განაახლოთ ბოლო ვერსიამდე და შემდეგ სცადეთ ხელახლა.</string>
+  <string name="camera_error">კამერის შეცდომა</string>
+  <string name="connecting_to_device">უკავშირდება მოწყობილობას\u2026</string>
+  <string name="authenticating_with_device">დამოწმება მოწყობილობით\u2026</string>
+  <string name="connection_error_title">ვერ დაუკავშირდა თქვენს კონტაქტს</string>
+  <string name="connection_error_feedback">თუ ხარვეზი არ გამოსწორდება, გთხოვთ <a href="feedback">გამოგვეხმაუროთ</a>, რომ შევძლოთ პროგრამის გაუმჯობესება.</string>
+  <!--Adding Contacts Remotely-->
+  <string name="add_contact_remotely_title_case">კონტაქტის დისტანციურად დამატება</string>
+  <string name="add_contact_nearby_title">ახლომყოფი კონტაქტის დამატება</string>
+  <string name="add_contact_remotely_title">კონტაქტის დისტანციურად დამატება</string>
+  <string name="contact_link_intro">შეიყვანოთ დასამატებელი პირისგან მიღებული ბმული</string>
+  <string name="contact_link_hint">კონტაქტის ბმული</string>
+  <string name="paste_button">ჩასმა</string>
+  <string name="add_contact_button">კონტაქტის დამატება</string>
+  <string name="copy_button">ასლი</string>
+  <string name="share_button">გაზიარება</string>
+  <string name="send_link_title">ბმულების გაცვლა</string>
+  <string name="add_contact_choose_nickname">აირჩიეთ მეტსახელი</string>
+  <string name="add_contact_choose_a_nickname">შეიყვანეთ მეტსახელი</string>
+  <string name="nickname_intro">მიუთითეთ მეტსახელი ამ პირისთვის. მხოლოდ თქვენთვის იქნება ხილული.</string>
+  <string name="your_link">მიაწოდეთ ეს ბმული კონტაქტს, რომლის დამატებაც გსურთ</string>
+  <string name="link_clip_label">Briar-ის ბმული</string>
+  <string name="link_copied_toast">ბმულის ასლი აღებულია</string>
+  <string name="adding_contact_error">შეცდომა წარმოიშვა ამ კონტაქტის დამატებისას.</string>
+  <string name="pending_contact_requests_snackbar">დამატების მომლოდინე მოთხოვნებია</string>
+  <string name="pending_contact_requests">დამატების მომლოდინე მოთხოვნები</string>
+  <string name="no_pending_contacts">მომლოდინე კონტაქტები არაა</string>
+  <string name="waiting_for_contact_to_come_online">ელოდება კონტაქტის ხაზზე შემოსვლას…</string>
+  <string name="connecting">უკავშირდება…</string>
+  <string name="adding_contact">კონტაქტი ემატება…</string>
+  <string name="adding_contact_failed">კონტაქტის დამატება ვერ მოხერხდა</string>
+  <string name="dialog_title_remove_pending_contact">ამოშლის დასტური</string>
+  <string name="dialog_message_remove_pending_contact">ამ კონტაქტის დამატება ჯერ კიდევ მიმდინარეობს. თუ ამოშლით მას ახლა, აღარ დაემატება.</string>
+  <string name="own_link_error">კონტაქტის ბმული შეიყვანეთ და არა თქვენი</string>
+  <string name="nickname_missing">გთხოვთ მიუთითოთ მეტსახელი</string>
+  <string name="invalid_link">არასწორი ბმული</string>
+  <string name="unsupported_link">ბმული ახალი ვერსიის Briar-იდანაა. გთხოვთ განაახლოთ ბოლო ვერსიამდე და შემდეგ სცადეთ ხელახლა.</string>
+  <string name="intent_own_link">საკუთარი ბმული გახსენით. გამოიყენეთ კონტაქტის ბმული!</string>
+  <string name="missing_link">გთხოვთ შეიყვანოთ ბმული</string>
+  <!--This is a numeral indicating the first step in a series of screens-->
+  <string name="step_1">1</string>
+  <!--This is a numeral indicating the second step in a series of screens-->
+  <string name="step_2">2</string>
+  <plurals name="contact_added_notification_text">
+    <item quantity="one">ახალი კონტაქტი დაემატა.</item>
+    <item quantity="other">%d ახალი კონტაქტი დაემატა.</item>
+  </plurals>
+  <string name="offline_state">ინტერნეტკავშირი არაა</string>
+  <string name="duplicate_link_dialog_title">გამეორებული ბმული</string>
+  <string name="duplicate_link_dialog_text_1">უკვე გყავთ მომლოდინე კონტაქტი ამ ბმულით: %s</string>
+  <string name="duplicate_link_dialog_text_1_contact">უკვე გყავთ კონტაქტი ამ ბმულით: %s</string>
+  <!--This is a question asking whether two nicknames refer to the same person-->
+  <string name="duplicate_link_dialog_text_2">%1$s და %2$s ერთი და იგივე პიროვნებაა?</string>
+  <!--This is a button for answering that two nicknames do indeed refer to the same person. This
+	string will be used in a dialog button, so if the translation of this string is longer than 20
+	characters, please use "Yes" instead, and use "No" for the "Different Person" button-->
+  <string name="same_person_button">იგივეა</string>
+  <!--This is a button for answering that two nicknames refer to different people. This string
+	will be used in a dialog button, so if the translation of this string longer than 20 characters,
+	please use "No" instead, and use "Yes" for the "Same Person" button-->
+  <string name="different_person_button">სხვადასხვაა</string>
+  <string name="duplicate_link_dialog_text_3">%1$s და %2$s ერთსა და იმავე ბმულს გიგზავნით.\n\nრომელიმე შეიძლება ცდილობდეს თქვენი კონტაქტების დადგენას.\n\nნუ გაუმხელთ მათ, რომ სხვისგანაც მიიღეთ იგივე ბმული.</string>
+  <string name="pending_contact_updated_toast">მომლოდინე კონტაქტი განახლებულია</string>
+  <!--Peer trust levels-->
+  <string name="peer_trust_level_unverified">დაუმოწმებელი კონტაქტი</string>
+  <string name="peer_trust_level_verified">დამოწმებული კონტაქტი</string>
+  <string name="peer_trust_level_ourselves">მე</string>
+  <string name="peer_trust_level_stranger">უცნობი</string>
+  <!--Introductions-->
+  <string name="introduction_onboarding_title">წარადგინეთ თქვენი კონტაქტები</string>
+  <string name="introduction_onboarding_text">წარუდგენით თქვენი კონტაქტები ერთიმეორეს, რომ შეძლონ ერთმანეთის დაკავშირება Briar-ში.</string>
+  <string name="introduction_menu_item">წარდგენის დაწყება</string>
+  <string name="introduction_activity_title">აირჩიეთ კონტაქტი</string>
+  <string name="introduction_not_possible">ერთხელ უკვე წამოწყებული გაქვთ წარდგენა ამ კონტაქტებს შორის. გთხოვთ, ჯერ დაელოდოთ მის დასრულებას. დიდხანს შეიძლება გასტანოს, თუ თქვენ და თქვენი კონტაქტები იშვიათად იმყოფებით ხოლმე ხაზზე.</string>
+  <string name="introduction_message_title">კონტაქტების წარდგენა</string>
+  <string name="introduction_message_hint">წერილის დამატება (არასავალდებულო)</string>
+  <string name="introduction_button">წარდგენის დაწყება</string>
+  <string name="introduction_sent">თქვენი წარდგენა გაგზავნილია.</string>
+  <string name="introduction_error">შეცდომა წარმოიშვა წარდგენის წამოწყებისას.</string>
+  <string name="introduction_request_sent">თქვენ ითხოვეთ, რომ %1$s წარუდგინოთ %2$s-ს.</string>
+  <string name="introduction_request_received">%1$s ითხოვს, რომ თქვენი თავი წარუდგინოს %2$s-ს. გსურთ დაიმატოთ %2$s ნაცნობი ხალხის სიაში?</string>
+  <string name="introduction_request_exists_received">%1$s ცდილობს, რომ თქვენი თავი წარუდგინოს %2$s-ს, მაგრამ %2$s უკვე დამატებული გყავთ. ვინაიდან შეიძლება არ იცოდეს, მაინც გაქვთ საშუალება, უპასუხოთ %1$s-ს:</string>
+  <string name="introduction_request_answered_received">%1$s ითხოვს, რომ თქვენი თავი წარუდგინოს %2$s-ს.</string>
+  <string name="introduction_response_accepted_sent">თქვენ დათანხმდით, რომ თქვენი თავი წარუდგინონ %1$s-ს.</string>
+  <string name="introduction_response_accepted_sent_info">სანამ %1$s დაემატება თქვენს კონტაქტებს, ჯერ უნდა დათანხმდეს წარდგენასაც. გარკვეულ ხანს შეიძლება გასტანოს.</string>
+  <string name="introduction_response_declined_sent">თქვენ უარი განაცხადეთ, რომ თქვენი თავი წარუდგინონ %1$s-ს.</string>
+  <string name="introduction_response_declined_auto">წარდგენა %1$s-სთან ავტომატურად უარყოფილია.</string>
+  <string name="introduction_response_accepted_received">%1$s დათანხმდა, რომ წარუდგინონ %2$s-ს.</string>
+  <string name="introduction_response_declined_received">%1$s უარს აცხადებს, რომ წარუდგინონ %2$s-ს.</string>
+  <string name="introduction_response_declined_received_by_introducee">%1$s აცხადებს, რომ %2$s უარს ამბობს წარდგენაზე.</string>
+  <!--Connect via Bluetooth-->
+  <string name="menu_item_connect_via_bluetooth">დაკავშირება Bluetooth-ით</string>
+  <string name="connect_via_bluetooth_title">დაკავშირება Bluetooth-ით</string>
+  <string name="connect_via_bluetooth_intro">იმ შემთხვევაში, თუ Bluetooth-კავშირები ავტომატურად არ იმუშავებს, ამ ეკრანიდან შეგეძლებათ ხელით მიერთება.\n\nამისათვის თქვენი კონტაქტი ახლოს უნდა გყავდეთ.\n\nაუცილებელია, რომ ორივემ ერთდროულად დააჭიროთ „დაწყებას“.</string>
+  <string name="connect_via_bluetooth_already_discovering">უკვე ცდილობს Bluetooth-ით დაკავშირებას. კვლავ სცადეთ მოგვიანებით.</string>
+  <string name="connect_via_bluetooth_no_location_permission">ვერ განაგრძობს ადგილმდებარეობის ნებართვის გარეშე</string>
+  <string name="connect_via_bluetooth_start">უკავშირდება Bluetooth-ით…</string>
+  <string name="connect_via_bluetooth_success">წარმატებით დაუკავშირდა Bluetooth-ით</string>
+  <string name="connect_via_bluetooth_error">ვერ დაუკავშირდა Bluetooth-ით.</string>
+  <string name="connect_via_bluetooth_error_not_supported">Bluetooth მხარდაუჭერელია ამ მოწყობილობაზე.</string>
+  <!--Private Groups-->
+  <string name="groups_list_empty">ჯგუფები არაა</string>
+  <string name="groups_list_empty_action">შეეხეთ + ნიშანს ჯგუფის შესაქმნელად ან სთხოვეთ თქვენს კონტაქტებს, გაგიზიარონ ჯგუფები</string>
+  <string name="groups_created_by">შემქმნელია %s</string>
+  <plurals name="messages">
+    <item quantity="one">%d წერილი</item>
+    <item quantity="other">%d წერილი</item>
+  </plurals>
+  <string name="groups_group_is_empty">ჯგუფი ცარიელია</string>
+  <string name="groups_group_is_dissolved">ჯგუფი დაიშალა</string>
+  <string name="groups_remove">მოცილება</string>
+  <string name="groups_create_group_title">დახურული ჯგუფის შექმნა</string>
+  <string name="groups_create_group_button">ჯგუფის შექმნა</string>
+  <string name="groups_create_group_invitation_button">მოწვევის გაგზავნა</string>
+  <string name="groups_create_group_hint">აირჩიეთ თქვენი დახურული ჯგუფის სახელი</string>
+  <string name="groups_invitation_sent">ჯგუფის მოწვევა გაგზავნილია</string>
+  <string name="groups_member_list">წევრთა სია</string>
+  <string name="groups_invite_members">წევრების მოწვევა</string>
+  <string name="groups_member_created_you">თქვენ შექმენით ჯგუფი</string>
+  <string name="groups_member_created">%s-მა შექმნა ჯგუფი</string>
+  <string name="groups_member_joined_you">თქვენ შეუერთდით ჯგუფს</string>
+  <string name="groups_member_joined">%s შემოუერთდა ჯგუფს</string>
+  <string name="groups_leave">ჯგუფის დატოვება</string>
+  <string name="groups_leave_dialog_title">ჯგუფის დატოვების დადასტურება</string>
+  <string name="groups_leave_dialog_message">ნამდვილად გსურთ დატოვოთ ეს ჯგუფი?</string>
+  <string name="groups_dissolve">ჯგუფის დაშლა</string>
+  <string name="groups_dissolve_dialog_title">ჯგუფის დაშლის დასტური</string>
+  <string name="groups_dissolve_dialog_message">ნამდვილად გსურთ დაშალოთ ეს ჯგუფი?\n\nდანარჩენი წევრები ვეღარ შეძლებენ საუბრის გაგრძელებას და შესაძლოა, ვეღარ იხილონ ბოლო წერილები.</string>
+  <string name="groups_dissolve_button">დაშლა</string>
+  <string name="groups_dissolved_dialog_title">ჯგუფი დაიშალა</string>
+  <string name="groups_dissolved_dialog_message">ჯგუფი დაიშალა შემქმნელის მიერ.\n\nთქვენ აღარ შეგეძლებათ წერილების დაწერა ამ ჯგუფში და შესაძლოა, ვეღარ იხილოთ ბოლოს გამოქვეყნებული ნაწერები.</string>
+  <!--Private Group Invitations-->
+  <string name="groups_invitations_title">ჯგუფის მოწვევები</string>
+  <string name="groups_invitations_invitation_sent">თქვენ მოიწვიეთ %1$s, რომ შემოუერთდეს ჯგუფს „%2$s“.</string>
+  <string name="groups_invitations_invitation_received">%1$s გიწვევთ, რომ შეუერთდეთ ჯგუფს „%2$s“.</string>
+  <string name="groups_invitations_joined">შეუერთდა ჯგუფს</string>
+  <string name="groups_invitations_declined">ჯგუფის მოწვევა უარყოფილია</string>
+  <plurals name="groups_invitations_open">
+    <item quantity="one">ღია ჯგუფის %d მოწვევა</item>
+    <item quantity="other">ღია ჯგუფის %d მოწვევა</item>
+  </plurals>
+  <string name="groups_invitations_response_accepted_sent">თქვენ დათანხმდით ჯგუფში მიწვევას, რომელსაც გიგზავნიდათ %s.</string>
+  <string name="groups_invitations_response_declined_sent">თქვენ უარყავით ჯგუფში მიწვევა, რომელსაც გიგზავნიდათ %s.</string>
+  <string name="groups_invitations_response_declined_auto">ჯგუფში მიწვევა, რომელსაც %s გიგზავნიდათ, ავტომატურად უარყოფილია.</string>
+  <string name="groups_invitations_response_accepted_received">%s დათანხმდა ჯგუფში მოწვევას.</string>
+  <string name="groups_invitations_response_declined_received">%s უარს აცხადებს ჯგუფში მოწვევაზე.</string>
+  <string name="sharing_status_groups">მხოლოდ ჯგუფის შემქმნელს შეუძლია ახალი წევრების მოწვევა. ქვემოთ მოცემულია ამ ჯგუფის ყველა წევრი.</string>
+  <!--Private Groups Revealing Contacts-->
+  <string name="groups_reveal_contacts">კონტაქტების გამხელა</string>
+  <string name="groups_reveal_dialog_message">შეგიძლიათ გაუმხილოთ თქვენი კონტაქტები ჯგუფის ამჟამინდელ და მომავალ წევრებს.\n\nკონტაქტების გამხელით ჯგუფთან კავშირი იქნება მეტად სწრაფი და საიმედო, ვინაიდან გამხელილ კონტაქტებთან დაკავშირება მაშინაც შეგეძლებათ, როცა ჯგუფის შემქმნელი ხაზზე არ იქნება.</string>
+  <string name="groups_reveal_visible">პირთან ურთიერთობა ხილულია ჯგუფისთვის</string>
+  <string name="groups_reveal_visible_revealed_by_us">პირთან ურთიერთობა ხილულია ჯგუფისთვის (თქვენ მიერ გამხელილი)</string>
+  <string name="groups_reveal_visible_revealed_by_contact">პირთან ურთიერთობა ხილულია ჯგუფისთვის (%s-ის მიერ გამხელილი)</string>
+  <string name="groups_reveal_invisible">პირთან ურთიერთობა დაფარულია ჯგუფისთვის</string>
+  <!--Forums-->
+  <string name="no_forums">ფორუმები არაა</string>
+  <string name="no_forums_action">შეეხეთ + ნიშანს ფორუმის შესაქმნელად ან სთხოვეთ თქვენს კონტაქტებს, გაგიზიარონ ფორუმები</string>
+  <string name="create_forum_title">ფორუმის შექმნა</string>
+  <string name="choose_forum_hint">აირჩიეთ თქვენი ფორუმის სახელი</string>
+  <string name="create_forum_button">ფორუმის შექმნა</string>
+  <string name="forum_created_toast">ფორუმი შექმნილია</string>
+  <string name="no_forum_posts">გამოსაჩენი პოსტები არაა</string>
+  <string name="no_posts">პოსტები არაა</string>
+  <plurals name="posts">
+    <item quantity="one">%d პოსტი</item>
+    <item quantity="other">%d პოსტი</item>
+  </plurals>
+  <string name="forum_new_message_hint">ახალი პოსტი</string>
+  <string name="forum_message_reply_hint">ახალი პასუხი</string>
+  <string name="btn_reply">პასუხი</string>
+  <string name="forum_leave">ფორუმის დატოვება</string>
+  <string name="dialog_title_leave_forum">ფორუმის დატოვების დასტური</string>
+  <string name="dialog_message_leave_forum">ნამდვილად გსურთ დატოვოთ ეს ფორუმი?\n\nკონტაქტები, რომელთაც უზიარებდით ამ ფორუმს, ვეღარ მიიღებენ სიახლეებს.</string>
+  <string name="dialog_button_leave">დატოვება</string>
+  <string name="forum_left_toast">ფორუმი დატოვებულია</string>
+  <!--Forum Sharing-->
+  <string name="forum_share_button">ფორუმის გაზიარება</string>
+  <string name="contacts_selected">კონტაქტები შერჩეულია</string>
+  <string name="activity_share_toolbar_header">კონტაქტების არჩევა</string>
+  <string name="no_contacts_selector">კონტაქტები არაა</string>
+  <string name="no_contacts_selector_action">გთხოვთ დაბრუნდეთ ხალხის დამატების შემდგომ</string>
+  <string name="forum_shared_snackbar">ფორუმი გაზიარებულია შერჩეულ კონტაქტებთან</string>
+  <string name="forum_share_message">წერილის დამატება (არასავალდებულო)</string>
+  <string name="forum_share_error">შეცდომა წარმოიშვა ამ ფორუმის გაზიარებისას.</string>
+  <string name="forum_invitation_received">%1$s გიზიარებთ „%2$s“ ფორუმს.</string>
+  <string name="forum_invitation_sent">თქვენ ფორუმი „%1$s“ გაუზიარეთ %2$s-ს.</string>
+  <string name="forum_invitations_title">ფორუმის მოწვევები</string>
+  <string name="forum_invitation_exists">თქვენ უკვე დათანხმდით ამ ფორუმში მიწვევას.\n\nდამატებით მიწვევებზე დათანხმებით ფორუმთან კავშირი მეტად სწრაფი და მდგრადი გახდება.</string>
+  <string name="forum_joined_toast">შეუერთდა ფორუმს</string>
+  <string name="forum_declined_toast">მოწვევა უარყოფილია</string>
+  <string name="shared_by_format">გამზიარებელია %s</string>
+  <string name="forum_invitation_already_sharing">უკვე გაზიარებულია</string>
+  <string name="forum_invitation_response_accepted_sent">თქვენ დათანხმდით ფორუმში მიწვევას, რომელსაც გიგზავნიდათ %s.</string>
+  <string name="forum_invitation_response_declined_sent">თქვენ უარყავით ფორუმში მიწვევა, რომელსაც გიგზავნიდათ %s.</string>
+  <string name="forum_invitation_response_declined_auto">ფორუმში მიწვევა, რომელსაც %s გიგზავნიდათ, ავტომატურად უარყოფილია.</string>
+  <string name="forum_invitation_response_accepted_received">%s დათანხმდა ფორუმში მოწვევას.</string>
+  <string name="forum_invitation_response_declined_received">%s უარს აცხადებს ფორუმში მოწვევაზე.</string>
+  <string name="sharing_status">გაზიარების მდგომარეობა</string>
+  <string name="sharing_status_forum">ნებისმიერ წევრს შეუძლია გაუზიაროს ფორუმი საკუთარ კონტაქტებს. ამასთანავე, შესაძლოა, ჯგუფში კიდევ არიან წევრები, რომელთაც ვერ ხედავთ.</string>
+  <string name="shared_with">იზიარებს %1$d (%2$d ხაზზეა)</string>
+  <plurals name="forums_shared">
+    <item quantity="one">%d გაზიარებული ფორუმი კონტაქტების მიერ</item>
+    <item quantity="other">%d გაზიარებული ფორუმი კონტაქტების მიერ</item>
+  </plurals>
+  <string name="nobody">არავინ</string>
+  <!--Blogs-->
+  <string name="blogs_other_blog_empty_state">პოსტები არაა</string>
+  <string name="read_more">ვრცლად</string>
+  <string name="blogs_write_blog_post">ბლოგზე ჩანაწერის გაკეთება</string>
+  <string name="blogs_write_blog_post_body_hint">აკრიფეთ პოსტი</string>
+  <string name="blogs_publish_blog_post">გამოქვეყნება</string>
+  <string name="blogs_blog_post_created">ბლოგზე ჩანაწერი შექმნილია</string>
+  <string name="blogs_blog_post_received">ბლოგის ახალი ჩანაწერია მიღებული</string>
+  <string name="blogs_blog_post_scroll_to">გადასვლა</string>
+  <string name="blogs_feed_empty_state">პოსტები არაა</string>
+  <string name="blogs_feed_empty_state_action">თქვენი კონტაქტების დადებული და თქვენ მიერ გამოწერილი ბლოგების პოსტები გამოჩნდება აქ\n\nშეეხეთ კალმის ნიშანს პოსტის დასაწერად</string>
+  <string name="blogs_remove_blog">ბლოგის მოცილება</string>
+  <string name="blogs_remove_blog_dialog_message">ნამდვილად გსურთ ამოშალოთ ეს ბლოგი?\n\nპოსტები მოცილდება თქვენი მოწყობილობიდან, მაგრამ დარჩება სხვების მოწყობილობებზე.\n\nკონტაქტები, რომელთაც უზიარებდით ამ ბლოგს, ვეღარ მიიღებენ სიახლეებს.</string>
+  <string name="blogs_remove_blog_ok">მოცილება</string>
+  <string name="blogs_blog_removed">ბლოგი მოცილებულია</string>
+  <string name="blogs_reblog_comment_hint">შენიშვნის დამატება (არასავალდებულო)</string>
+  <string name="blogs_reblog_button">ხელახლა დადება</string>
+  <!--Blog Sharing-->
+  <string name="blogs_sharing_share">ბლოგის გაზიარება</string>
+  <string name="blogs_sharing_error">შეცდომა წარმოიშვა ბლოგის გაზიარებისას.</string>
+  <string name="blogs_sharing_button">ბლოგის გაზიარება</string>
+  <string name="blogs_sharing_snackbar">ბლოგი გაზიარებულია შერჩეულ კონტაქტებთან</string>
+  <string name="blogs_sharing_response_accepted_sent">თქვენ დათანხმდით ბლოგზე მიწვევას, რომელსაც გიგზავნიდათ %s.</string>
+  <string name="blogs_sharing_response_declined_sent">თქვენ უარყავით ბლოგზე მიწვევა, რომელსაც გიგზავნიდათ %s.</string>
+  <string name="blogs_sharing_response_declined_auto">ბლოგზე მიწვევა, რომელსაც %s გიგზავნიდათ, ავტომატურად უარყოფილია.</string>
+  <string name="blogs_sharing_response_accepted_received">%s დათანხმდა ბლოგზე მოწვევას.</string>
+  <string name="blogs_sharing_response_declined_received">%s უარყოფს ბლოგზე მოწვევას.</string>
+  <string name="blogs_sharing_invitation_received">%1$s გიზიარებთ „%2$s“ ბლოგს.</string>
+  <string name="blogs_sharing_invitation_sent">თქვენ ბლოგი „%1$s“ გაუზიარეთ %2$s-ს.</string>
+  <string name="blogs_sharing_invitations_title">ბლოგის მოწვევები</string>
+  <string name="blogs_sharing_joined_toast">გამოწერილია ბლოგი</string>
+  <string name="blogs_sharing_declined_toast">მოწვევა უარყოფილია</string>
+  <string name="sharing_status_blog">ნებისმიერს, რომელსაც გამოწერილი აქვს ბლოგი, შეუძლია გაუზიაროს თავის კონტაქტებს. თქვენ უზიარებთ ბლოგს მოცემულ კონტაქტებს. ამასთანავე, შესაძლოა, კიდევ არიან სხვა გამომწერები, რომელთაც ვერ ხედავთ.</string>
+  <!--RSS Feeds-->
+  <string name="blogs_rss_feeds_import">RSS-არხის გადმოტანა</string>
+  <string name="blogs_rss_feeds_import_button">გადმოტანა</string>
+  <string name="blogs_rss_feeds_import_hint">შეიყვანეთ RSS-არხის ბმული</string>
+  <string name="blogs_rss_feeds_import_error">ვწუხვართ! შეცდომა წარმოიშვა არხის გადმოტანისას.</string>
+  <string name="blogs_rss_feeds_import_exists">არხი უკვე გადმოტანილია.</string>
+  <string name="blogs_rss_feeds">RSS-არხები</string>
+  <string name="blogs_rss_feeds_manage_imported">გადმოტანილი:</string>
+  <string name="blogs_rss_feeds_manage_author">ავტორი:</string>
+  <string name="blogs_rss_feeds_manage_updated">ბოლო განახლება:</string>
+  <string name="blogs_rss_remove_feed">არხის მოცილება</string>
+  <string name="blogs_rss_remove_feed_dialog_message">ნამდვილად გსურთ ამოშალოთ ეს არხი?\n\nპოსტები მოცილდება თქვენი მოწყობილობიდან, მაგრამ დარჩება სხვების მოწყობილობებზე.\n\nკონტაქტები, რომელთაც უზიარებდით ამ არხს, ვეღარ მიიღებენ სიახლეებს.</string>
+  <string name="blogs_rss_remove_feed_ok">მოცილება</string>
+  <string name="blogs_rss_feeds_manage_empty_state">RSS-არხები არაა\n\nშეეხეთ + ნიშანს არხის გადმოსატანად</string>
+  <string name="blogs_rss_feeds_manage_error">რაღაც შეცდომა წარმოიშვა თქვენი არხების ჩატვირთვისას. გთხოვთ სცადოთ მოგვიანებით.</string>
+  <!--Settings Profile Picture-->
+  <string name="change_profile_picture">შეეხეთ პროფილის სურათის შესაცვლელად</string>
+  <string name="dialog_confirm_profile_picture_title">პროფილის სურათის შეცვლა</string>
+  <string name="dialog_confirm_profile_picture_remark">მხოლოდ თქვენი კონტაქტები იხილავენ ამ სურათს</string>
+  <string name="change_profile_picture_failed_message">სამწუხაროდ, რაღაც ხარვეზი წარმოიშვა პროფილის სურათის განახლებისას</string>
+  <!--Settings Display-->
+  <string name="pref_language_title">ენა და რეგიონი</string>
+  <string name="pref_language_changed">პარამეტრების ცვლილება აისახება, როცა ახლიდან ჩაირთვება Briar. გთხოვთ გამოხვიდეთ ანგარიშიდან და კვლავ გაუშვათ Briar.</string>
+  <string name="pref_language_default">სისტემის მიხედვით</string>
+  <string name="display_settings_title">ჩვენება</string>
+  <string name="pref_theme_title">იერსახე</string>
+  <string name="pref_theme_light">ნათელი</string>
+  <string name="pref_theme_dark">მუქი</string>
+  <string name="pref_theme_auto">ავტომატური (დღის მონაკვეთით)</string>
+  <string name="pref_theme_system">სისტემის მიხედვით</string>
+  <!--Settings Connections-->
+  <string name="network_settings_title">კავშირი</string>
+  <string name="bluetooth_setting">კონტაქტებთან დაკავშირება Bluetooth-ით</string>
+  <string name="wifi_setting">კონტაქტებთან დაკავშირება საერთო WiFi-ქსელით</string>
+  <string name="tor_enable_title">კონტაქტებთან დაკავშირება ინტერნეტით</string>
+  <string name="tor_enable_summary">ყველა კავშირი Tor-ქსელით გაივლის პირადულობისთვის</string>
+  <string name="tor_network_setting">Tor-ქსელთან დაკავშირების გზა</string>
+  <string name="tor_network_setting_automatic">ავტომატურად მდებარეობის მიხედვით</string>
+  <string name="tor_network_setting_without_bridges">Tor-ქსელთან მიერთება უხიდებოდ</string>
+  <string name="tor_network_setting_with_bridges">Tor-ქსელთან მიერთება ხიდებით</string>
+  <string name="tor_network_setting_never">ინტერნეტთან კავშირის გარეშე</string>
+  <!--How and when Briar will connect to Tor: E.g. "Don't connect to the Internet (in China)" or "Use Tor network with bridges (in Belarus)"-->
+  <string name="tor_network_setting_summary">ავტომატური: %1$s (%2$s)</string>
+  <string name="tor_mobile_data_title">ფიჭური ინტერნეტის გამოყენება</string>
+  <string name="tor_only_when_charging_title">ინტერნეტთან დაკავშირება მხოლოდ დამუხტვისას</string>
+  <string name="tor_only_when_charging_summary">თიშავს ინტერნეტკავშირს, როცა მოწყობილობა ბატარეას იყენებს</string>
+  <!--Settings Security and Panic-->
+  <string name="security_settings_title">უსაფრთხოება</string>
+  <string name="pref_lock_title">აპის ჩაკეტვა</string>
+  <string name="pref_lock_summary">მოწყობილობის ეკრანის ჩამკეტით Briar-ის დაცვა ანგარიშზე ყოფნისას</string>
+  <string name="pref_lock_disabled_summary">ამ შესაძლებლობით სარგებლობისთვის დააყენეთ ეკრანის ჩამკეტი თქვენს მოწყობილობაზე</string>
+  <string name="pref_lock_timeout_title">აპის ჩაკეტვა უმოქმედობისას</string>
+  <!--The %s placeholder is replaced with the following time spans, e.g. 5 Minutes, 1 Hour-->
+  <string name="pref_lock_timeout_summary">როცა არ იყენებთ Briar-ს, ავტომატურად ჩაიკეტება %s</string>
+  <!--Will be shown in a list of lock times. Should fit into the %s of "automatically lock it after %s"-->
+  <string name="pref_lock_timeout_1">1 წუთში</string>
+  <!--Will be shown in a list of lock times. Should fit into the %s of "automatically lock it after %s"-->
+  <string name="pref_lock_timeout_5">5 წუთში</string>
+  <!--Will be shown in a list of lock times. Should fit into the %s of "automatically lock it after %s"-->
+  <string name="pref_lock_timeout_15">15 წუთში</string>
+  <!--Will be shown in a list of lock times. Should fit into the %s of "automatically lock it after %s"-->
+  <string name="pref_lock_timeout_30">30 წუთში</string>
+  <!--Will be shown in a list of lock times. Should fit into the %s of "automatically lock it after %s"-->
+  <string name="pref_lock_timeout_60">1 საათში</string>
+  <string name="pref_lock_timeout_never">არასდროს</string>
+  <string name="pref_lock_timeout_never_summary">არასდროს ჩაიკეტოს Briar ავტომატურად</string>
+  <string name="change_password">პაროლის შეცვლა</string>
+  <string name="current_password">მიმდინარე პაროლი</string>
+  <string name="choose_new_password">ახალი პაროლი</string>
+  <string name="confirm_new_password">ახალი პაროლის დადასტურება</string>
+  <string name="password_changed">პაროლი შეიცვალა.</string>
+  <string name="panic_setting">განგაშის ღილაკის გამართვა</string>
+  <string name="panic_setting_title">განგაშის ღილაკი</string>
+  <string name="panic_setting_hint">განსაზღვრეთ, როგორ იმოქმედებს Briar განგაშის ღილაკზე დაჭერისას</string>
+  <string name="panic_app_setting_title">განგაშის ღილაკის აპი</string>
+  <string name="unknown_app">უცნობი აპი</string>
+  <string name="panic_app_setting_summary">არაა აპი მითითებული</string>
+  <string name="panic_app_setting_none">არცერთი</string>
+  <string name="dialog_title_connect_panic_app">განგაშის აპის დადასტურება</string>
+  <string name="dialog_message_connect_panic_app">ნამდვილად გსურთ, რომ %1$s გახდეს განგაშის ღილაკის გამანადგურებელი მოქმედებების გამომწვევი?</string>
+  <string name="panic_setting_destructive_action">გამანადგურებელი მოქმედებები</string>
+  <string name="panic_setting_signout_title">გამოსვლა</string>
+  <string name="panic_setting_signout_summary">Briar-იდან გამოსვლა განგაშის ღილაკზე დაჭერისას</string>
+  <string name="purge_setting_title">ანგარიშის წაშლა</string>
+  <string name="purge_setting_summary">წაიშალოს თქვენი Briar-ანგარიში განგაშის ღილაკზე დაჭერისას. გაფრთხილება: შედეგად, სამუდამოდ დაიკარგება თქვენი ვინაობის მონაცემები, კონტაქტები და წერილები</string>
+  <!--Settings Notifications-->
+  <string name="notification_settings_title">შეტყობინებები</string>
+  <string name="notify_sign_in_title">ანგარიშზე შესვლის შეხსენება</string>
+  <string name="notify_sign_in_summary">შეხსენების ჩვენება ტელეფონის ჩართვისას ან აპის განახლების შემდგომ</string>
+  <string name="notify_private_messages_setting_title">პირადი წერილები</string>
+  <string name="notify_private_messages_setting_summary">შეტყობინება პირად წერილებზე</string>
+  <string name="notify_private_messages_setting_summary_26">შეტყობინების გამართვა პირადი წერილებისთვის</string>
+  <string name="notify_group_messages_setting_title">ჯგუფის წერილები</string>
+  <string name="notify_group_messages_setting_summary">შეტყობინება ჯგუფის წერილებზე</string>
+  <string name="notify_group_messages_setting_summary_26">შეტყობინების გამართვა ჯგუფის წერილებისთვის</string>
+  <string name="notify_forum_posts_setting_title">ფორუმის პოსტები</string>
+  <string name="notify_forum_posts_setting_summary">შეტყობინება ფორუმის პოსტებზე</string>
+  <string name="notify_forum_posts_setting_summary_26">შეტყობინების გამართვა ფორუმის პოსტებისთვის</string>
+  <string name="notify_blog_posts_setting_title">ბლოგის ჩანაწერები</string>
+  <string name="notify_blog_posts_setting_summary">შეტყობინება ბლოგის პოსტებზე</string>
+  <string name="notify_blog_posts_setting_summary_26">შეტყობინების გამართვა ბლოგის ჩანაწერებისთვის</string>
+  <string name="notify_vibration_setting">ვიბრაცია</string>
+  <string name="notify_sound_setting">ხმა</string>
+  <string name="notify_sound_setting_default">ნაგულისხმევი ზარის ხმა</string>
+  <string name="notify_sound_setting_disabled">არცერთი</string>
+  <string name="choose_ringtone_title">აირჩიეთ ზარის ხმა</string>
+  <string name="cannot_load_ringtone">ვერ ჩაიტვირთა ზარის ხმა</string>
+  <!--Mailbox-->
+  <string name="mailbox_settings_title">Mailbox</string>
+  <string name="mailbox_setup_title">Mailbox – გამართვა</string>
+  <string name="mailbox_setup_intro">Mailbox საშუალებას იძლევა, წერილები მიიღოთ თქვენი კონტაქტებისგან მაშინაც კი, როცა ხაზზე არ იმყოფებით. Mailbox მიიღებს თქვენს წერილებს და შეინახავს მანამ, სანამ ხაზზე არ გახვალთ.\n
+		\nშეგიძლიათ დააყენოთ Briar Mailbox აპი სათადარიგო მოწყობილობაზე. დატოვეთ დაერთებული კვებასა და WiFi-ქსელზე, რომ მუდამ ხაზზე იყოს.</string>
+  <string name="mailbox_setup_download">ჯერ დააყენეთ Mailbox აპი რამე სხვა მოწყობილობაზე, ამისთვის „Briar Mailbox“ მოძებნეთ Google Play-ში ან იქ, საიდანაც თავის დროზე ჩამოტვირთეთ Briar.\n
+		\nშემდეგ თქვენი Mailbox დაუკავშირეთ Briar-ს QR-კოდის მეშვეობით, რომელიც გამოჩნდება Mailbox-ის აპში.</string>
+  <string name="mailbox_setup_download_link">ჩამოსატვირთი ბმულის გაზიარება</string>
+  <string name="mailbox_setup_button_scan">Mailbox-ის QR-კოდის წაკითხვა</string>
+  <string name="permission_camera_qr_denied_body">თქვენ უარყოფილი გაქვთ კამერასთან წვდომის ნებართვა, მაგრამ QR-კოდის წასაკითხად აუცილებელია კამერა.\n\nგთხოვთ გაითვალისწინოთ და დართოთ ნება.</string>
+  <string name="mailbox_setup_connecting">უკავშირდება…</string>
+  <string name="mailbox_setup_qr_code_wrong_title">არასწორი QR-კოდი</string>
+  <string name="mailbox_setup_qr_code_wrong_description">ამოკითხული კოდი არასწორია. გთხოვთ გახსნათ Briar-ის Mailbox-აპი თქვენი Mailbox-ის მოწყობილობაზე და წააკითხოთ იქ ნაჩვენები QR-კოდი.</string>
+  <string name="mailbox_setup_already_paired_title">Mailbox უკვე მიბმულია</string>
+  <string name="mailbox_setup_already_paired_description">ჩახსენით Mailbox თქვენს სათადარიგო მოწყობილობაზე და კვლავ სცადეთ.</string>
+  <string name="mailbox_setup_io_error_title">ვერ დაუკავშირდა</string>
+  <string name="mailbox_setup_io_error_description">დარწმუნდით, რომ ორივე მოწყობილობა დაკავშირებულია ინტერნეტთან და კვლავ სცადეთ.</string>
+  <string name="mailbox_setup_assertion_error_title">Mailbox-ის შეცდომა</string>
+  <string name="mailbox_setup_assertion_error_description">გთხოვთ გამოგვეხმაუროთ (ვინაობის გაუმხელი მონაცემებით) Briar-პროგრამიდან, თუ ხარვეზი არ გამოსწორდება.</string>
+  <string name="mailbox_setup_camera_error_description">ვერ დაუკავშირდა კამერას. კვლავ სცადეთ, უმჯობესია მოწყობილობის ახლიდან ჩართვის შემდეგ.</string>
+  <string name="mailbox_setup_paired_title">დაკავშირებულია</string>
+  <string name="mailbox_setup_paired_description">თქვენი Mailbox წარმატებით მიება Briar-ს.\n
+		\nდატოვეთ Mailbox ჩართული კვებასა და WiFi-ქსელში, რომ მუდამ ხაზზე იყოს.</string>
+  <string name="tor_offline_title">ხაზგარეშე</string>
+  <string name="tor_offline_description">დარწმუნდით, რომ ეს მოწყობილობა ხაზზეა და ინტერნეტთან კავშირი შეზღუდული არ აქვს.\n
+		\nშემდგომ დაელოდეთ, როდის გამწვანდება პლანეტის ნიშანი კავშირის პარამეტრების ეკრანზე.</string>
+  <string name="tor_offline_button_check">გადახედეთ კავშირის პარამეტრებს</string>
+  <string name="mailbox_status_title">Mailbox-ის მდგომარეობა</string>
+  <string name="mailbox_status_connected_title">Mailbox გაშვებულია</string>
+  <string name="mailbox_status_problem_title">Briar ხარვეზებს აწყდება Mailbox-თან დაკავშირებისას</string>
+  <string name="mailbox_status_failure_title">Mailbox მიუწვდომელია</string>
+  <string name="mailbox_status_app_too_old_title">Briar ზედმეტად ძველია</string>
+  <string name="mailbox_status_app_too_old_message">განაახლეთ Briar ბოლო ვერსიამდე და კვლავ სცადეთ.</string>
+  <string name="mailbox_status_mailbox_too_old_title">Mailbox ზედმეტად ძველია</string>
+  <string name="mailbox_status_mailbox_too_old_message">განაახლეთ თქვენი Mailbox ბოლო ვერსიამდე და კვლავ სცადეთ.</string>
+  <string name="mailbox_status_check_button">კავშირის შემოწმება</string>
+  <!--Example for string substitution: Last connection: 3min ago-->
+  <string name="mailbox_status_connected_info">ბოლო დაკავშირება: %s</string>
+  <!--Indicates that there never was a connection to the mailbox. Last connection: Never-->
+  <string name="mailbox_status_connected_never">არასდროს</string>
+  <string name="mailbox_status_unlink_button">ჩახსნა</string>
+  <string name="mailbox_status_unlink_dialog_title">ჩაიხსნას Mailbox?</string>
+  <string name="mailbox_status_unlink_dialog_question">ნამდვილად გსურთ ჩაიხსნას თქვენი Mailbox?</string>
+  <string name="mailbox_status_unlink_dialog_warning">თუ ჩაიხსნება Mailbox, ვეღარ მიიღებთ წერილებს, როცა Briar ხაზზე არ იქნება.</string>
+  <string name="mailbox_status_unlink_no_wipe_title">თქვენი Mailbox ჩახსნილია</string>
+  <string name="mailbox_status_unlink_no_wipe_message">შემდეგ ჯერზე, როცა წვდომას მოახერხებთ თქვენს Mailbox-მოწყობილობასთან, გახსენით Mailbox-აპი და შეეხეთ „ჩახსნის“ ღილაკს პროცესის დასასრულებლად.\n\nთუ აღარ გაქვთ წვდომა თქვენს Mailbox-მოწყობილობასთან, ნუ იღელვებთ. თქვენი მონაცემები დაშიფრულია და მაინც დაცული დარჩება, თუ ვერ დაასრულებთ ჩახსნის პროცესს.</string>
+  <string name="mailbox_status_unlink_success">თქვენი Mailbox ჩახსნილია</string>
+  <string name="mailbox_error_notification_channel_title">Briar Mailbox ხარვეზი</string>
+  <string name="mailbox_error_notification_title">Briar Mailbox მიუწვდომელია</string>
+  <string name="mailbox_error_notification_text">შეეხეთ ხარვეზის მოსაგვარებლად.</string>
+  <string name="mailbox_error_wizard_button">ხარვეზის მოგვარება</string>
+  <string name="mailbox_error_wizard_title">Mailbox-ის ხარვეზების აღმოფხვრის მეგზური</string>
+  <string name="mailbox_error_wizard_question1">გაქვთ წვდომა Mailbox-მოწყობილობასთან?</string>
+  <string name="mailbox_error_wizard_answer1">დიახ, ახლა მაქვს წვდომა.</string>
+  <string name="mailbox_error_wizard_answer2">ახლა არა, მაგრამ ცოტა ხანში მექნება.</string>
+  <string name="mailbox_error_wizard_answer3">არა, აღარ მაქვს წვდომა.</string>
+  <string name="mailbox_error_wizard_info1_1">შეამოწმეთ, ჩართულია თუ არა Mailbox-მოწყობილობა და დაკავშირებულია თუ არა ინტერნეტთან.</string>
+  <string name="mailbox_error_wizard_question1_1">გახსენით Mailbox-აპი. რას ხედავთ?</string>
+  <string name="mailbox_error_wizard_answer1_1">ვხედავ მითითებებს Mailbox-ის გასამართად</string>
+  <string name="mailbox_error_wizard_answer1_2">ვხედავ QR-კოდს</string>
+  <string name="mailbox_error_wizard_answer1_3">ვხედავ, რომ „Mailbox გაშვებულია“</string>
+  <string name="mailbox_error_wizard_answer1_4">ვხედავ, რომ „მოწყობილობა კავშირგარეშეა“</string>
+  <string name="mailbox_error_wizard_info1_1_1">გთხოვთ ჩახსნათ Mailbox ქვემოთ არსებული ღილაკით, შემდეგ კი მიჰყვეთ Mailbox-მოწყობილობაზე მითითებებს ხელახლა მიბმისთვის.</string>
+  <string name="mailbox_error_wizard_info_1_1_2">გთხოვთ ჩახსნათ Mailbox ქვემოთ არსებული ღილაკით, შემდეგ წააკითხოთ QR-კოდი ხელახლა.</string>
+  <string name="mailbox_error_wizard_info1_1_3">გთხოვთ გამოიყენოთ ქვემოთ არსებული ღილაკი კავშირის შესამოწმებლად Briar-სა და Mailbox-ს შორის.\n\n
+		თუ კავშირი მაინც ვერ შედგება:\n
+		\u2022 შეამოწმეთ, განახლებულია თუ არა Mailbox და Briar ბოლო ვერსიებამდე.\n
+		\u2022 ხელახლა ჩართეთ Mailbox- და Briar-მოწყობილობები და კვლავ სცადეთ.</string>
+  <string name="mailbox_error_wizard_info1_1_4">შეამოწმეთ, Mailbox-მოწყობილობა სათანადოდაა თუ არა დაკავშირებული ინტერნეტთან.\n\nგადაამოწმეთ, ხომ გასწორებულია Mailbox-მოწყობილობაზე საათი, თარიღი და დროის სარტყელი.\n\nნახეთ, განახლებულია თუ არა Mailbox- და Briar-აპები ბოლო ვერსიებამდე.\n\nხელახლა ჩართეთ Mailbox- და Briar-მოწყობილობები და კვლავ სცადეთ.</string>
+  <string name="mailbox_error_wizard_info2">გთხოვთ დაუბრუნდეთ ამ ეკრანს, როცა წვდომა გექნებათ მოწყობილობასთან.</string>
+  <string name="mailbox_error_wizard_info3">გთხოვთ ჩახსენით თქვენი Mailbox ქვემოთ არსებული ღილაკით.\n\nძველი Mailbox-ის ჩახსნის შემდგომ შეგეძლებათ დააყენოთ ახალი Mailbox ნებისმიერ დროს.</string>
+  <!--About-->
+  <string name="about_title">შესახებ</string>
+  <string name="briar_version">Briar-ის ვერსია: %s</string>
+  <string name="tor_version">Tor-ის ვერსია: %s</string>
+  <string name="links">ბმულები</string>
+  <string name="briar_website">\u2022 <a href="">ვებსაიტი</a></string>
+  <string name="briar_source_code">\u2022 <a href="">წყაროს კოდი</a></string>
+  <string name="briar_changelog">\u2022 <a href="">ცვლილებები</a></string>
+  <string name="briar_privacy_policy">\u2022 <a href="">პირადულობის დებულება</a></string>
+  <!--Here translators can add their names or Transifex usernames(eg "Thanks to all the contributors at the Localization Lab, especially Tom, Matthew and Jerry")-->
+  <string name="translator_thanks">დიდი მადლობა წვლილის ყველა შემომტანს Localization-Lab-იდან</string>
+  <!--Conversation Settings-->
+  <string name="disappearing_messages_title">თვითწაშლადი წერილები</string>
+  <string name="disappearing_messages_explanation_long">ამ პარამეტრის ჩართვის შედეგად ახალი
+		წერილები მოცემულ მიმოწერაში თავისთავად წაიშლება 7\u00A0დღის შემდეგ.
+		\n\nდროის ათვლა გამგზავნის ასლისთვის დაიწყება წერილის მიწოდების შემდგომ.
+		დროის ათვლა მიმღების ასლისთვის დაიწყება წერილის გახსნის შემდგომ.
+		\n\nთვითწაშლად წერილებს დაედება ბომბის ნიშანი.
+		\n\nგაითვალისწინეთ, რომ მიმღებებს მაინც შეეძლებათ თქვენ მიერ გაგზავნილი წერილების ასლის შექმნა.
+		\n\nთუ შეცვლით ამ პარამეტრს, დაუყოვნებლივ აისახება თქვენს ახალ წერილებზე, ხოლო მიმღები
+		კონტაქტის წერილებზე მას შემდეგ, რაც თქვენგან გაგზავნილ მომდევნო წერილს მიიღებს.
+		თქვენს კონტაქტსაც შეუძლია ამ პარამეტრის შეცვლა ორივე თქვენგანისთვის.</string>
+  <string name="learn_more">ვრცლად</string>
+  <string name="disappearing_messages_summary">ამ მიმოწერაში მომდევნო წერილები თავისთავად წაიშალოს 7\u00A0დღის შემდეგ.</string>
+  <!--Settings Actions-->
+  <string name="pref_category_actions">მოქმედებები</string>
+  <string name="send_feedback">გამოხმაურება</string>
+  <!--Link Warning-->
+  <string name="link_warning_title">გაფრთხილება ბმულზე</string>
+  <string name="link_warning_intro">თქვენ აპირებთ ამ ბმულის გახსნას გარეშე აპით</string>
+  <string name="link_warning_text">შედეგად შეიძლება თქვენი ვინაობა გამჟღავნდეს. კარგად დაფიქრდით, ღირს თუ არა იმ პირის ნდობა, რომელმაც ეს ბმული გამოგიგზავნათ და უმჯობესია, მის გასახსნელად Tor-ბრაუზერი გამოიყენოთ.</string>
+  <string name="link_warning_open_link">ბმულის გახსნა</string>
+  <!--Crash Reporter-->
+  <string name="crash_report_title">Briar-ის გათიშვის მოხსენება</string>
+  <string name="briar_crashed">სამწუხაროდ, Briar უეცრად გაითიშა</string>
+  <string name="not_your_fault">თქვენი ბრალი არაა.</string>
+  <string name="please_send_report">დაგვეხმარეთ, რომ გავაუმჯობესოთ Briar და გამოგვიგზავნეთ მოხსენება გათიშვის შესახებ.</string>
+  <string name="report_is_encrypted">გპირდებით, რომ ეს მოხსენება დაიშიფრება და გამოიგზავნება უსაფრთხოდ.</string>
+  <string name="feedback_title">გამოხმაურება</string>
+  <string name="describe_crash">აღწერეთ, რა მოხდა (არასავალდებულო)</string>
+  <string name="enter_feedback">შეიყვანეთ გამოხმაურების ტექსტი</string>
+  <string name="optional_contact_email">თქვენი ელფოსტა (არასავალდებულო)</string>
+  <string name="privacy_policy">მონაცემთა გამოგზავნით ეთანხმებით ჩვენს <a href="">პირადულობის დაცვის დებულებას</a></string>
+  <string name="include_debug_report_crash">დაერთვება გათიშვის შესახებ ვინაობის გამხელისგან დაცული მონაცემებიც</string>
+  <string name="include_debug_report_feedback">დაერთვება მოწყობილობის შესახებ ვინაობის გამხელისგან დაცული მონაცემებიც</string>
+  <string name="dev_report_user_info">მომხმარებლის მონაცემები</string>
+  <string name="dev_report_basic_info">ძირითადი მონაცემები</string>
+  <string name="dev_report_device_info">მოწყობილობის მონაცემები</string>
+  <string name="dev_report_stacktrace">მიმდევრობითი აღრიცხვა</string>
+  <string name="dev_report_time_info">დროის შესახებ მონაცემები</string>
+  <string name="dev_report_memory">მეხსიერება</string>
+  <string name="dev_report_storage">საცავი</string>
+  <string name="dev_report_connectivity">დაკავშირებულობა</string>
+  <string name="dev_report_network_usage">ქსელის მოხმარება</string>
+  <string name="dev_report_build_config">ანაწყობის აგებულება</string>
+  <string name="dev_report_logcat">აპის ჩანაწერები</string>
+  <string name="dev_report_device_features">მოწყობილობის მახასიათებლები</string>
+  <string name="send_report">მოხსენების გაგზავნა</string>
+  <string name="close">დახურვა</string>
+  <string name="dev_report_sending">იგზავნება გამოხმაურება…</string>
+  <string name="dev_report_sent">გამოხმაურება გაგზავნილია</string>
+  <string name="dev_report_saved">მოხსენება შენახულია. გაიგზავნება მომდევნო ჯერზე Briar-ის ანგარიშზე შესვლისას.</string>
+  <string name="dev_report_error">შეცდომა: მოხსენების გაგზავნა ვერ მოხერხდა</string>
+  <!--Sign Out-->
+  <string name="progress_title_logout">გამოდის Briar-იდან…</string>
+  <!--Screen Filters & Tapjacking-->
+  <string name="screen_filter_title">გამოვლენილია ეკრანის გადაფარვა</string>
+  <string name="screen_filter_body">რომელიღაც აპმა ზემოდან გადაფარა Briar. თქვენი უსაფრთხოებისთვის Briar აღარ აღიქვამს შეხებას, როცა ზემოდან სხვა პროგრამაა გამოსახული.\n\nმოცემული აპებიდან ერთ-ერთი შეიძლება ფარავდეს:\n\n%1$s</string>
+  <string name="screen_filter_body_api_30">რომელიღაც აპმა ზემოდან გადაფარა Briar. თქვენი უსაფრთხოებისთვის Briar აღარ აღიქვამს შეხებას, როცა ზემოდან სხვა პროგრამაა გამოსახული.\n\nგადახედეთ ქვემოთ მოცემულ აპებს, რომ იპოვოთ, რომელია ამის გამომწვევი.</string>
+  <string name="screen_filter_allow">ამ აპებისთვის ზემოდან გადაფარვის ნების მიცემა</string>
+  <string name="screen_filter_review_apps">აპების გადახედვა</string>
+  <!--Permission Requests-->
+  <string name="permission_camera_title">კამერის ნებართვა</string>
+  <string name="permission_camera_request_body">QR-კოდის წასაკითხად Briar საჭიროებს კამერასთან წვდომას.</string>
+  <string name="permission_location_title">მდებარეობის ნებართვა</string>
+  <string name="permission_location_request_body">Bluetooth-მოწყობილობების აღმოსაჩენად Briar საჭიროებს თქვენი მდებარეობის გამოყენების ნებართვას.\n\nBriar არ ინახავს და არავის გაუზიარებს თქვენს ადგილმდებარეობას.</string>
+  <string name="permission_camera_location_title">კამერა და მდებარეობა</string>
+  <string name="permission_camera_location_request_body">QR-კოდის წასაკითხად Briar საჭიროებს კამერასთან წვდომას.\n\nBluetooth-მოწყობილობების აღმოსაჩენად Briar საჭიროებს თქვენი მდებარეობის გამოყენების ნებართვას.\n\nBriar არ ინახავს და არავის გაუზიარებს თქვენს ადგილმდებარეობას.</string>
+  <string name="permission_camera_denied_body">თქვენ უარყოფილი გაქვთ კამერასთან წვდომის ნებართვა, მაგრამ კონტაქტების დასამატებლად აუცილებელია კამერა.\n\nგთხოვთ გაითვალისწინოთ და დართოთ ნება.</string>
+  <string name="permission_location_denied_body">თქვენ უარყოფილი გაქვთ მდებარეობის მონაცემებთან წვდომის ნებართვა, მაგრამ Briar-ს ესაჭიროება იგი Bluetooth-მოწყობილობების აღმოსაჩენად.\n\nგთხოვთ გაითვალისწინოთ და დართოთ ნება.</string>
+  <string name="permission_location_setting_title">მდებარეობის პარამეტრები</string>
+  <string name="permission_location_setting_body">თქვენი მოწყობილობის მდებარეობის პარამეტრები ჩართული უნდა იყოს სხვა მოწყობილობების Bluetooth-ით მოსანახად. გთხოვთ ჩართოთ და ისე განაგრძოთ. შემდგომ შეგეძლებათ გამორთვა.</string>
+  <string name="permission_location_setting_button">მდებარეობის ჩართვა</string>
+  <string name="qr_code">QR-კოდი</string>
+  <string name="show_qr_code_fullscreen">QR-კოდის სრულ ეკრანზე ჩვენება</string>
+  <!--App Locking-->
+  <string name="lock_unlock">Briar-ის გახსნა</string>
+  <string name="lock_unlock_verbose">შეიყვანეთ მოწყობილობის PIN-კოდი, მონახაზი ან პაროლი Briar-ის გასახსნელად</string>
+  <string name="lock_unlock_fingerprint_description">შეეხეთ თითის ანაბეჭდის აღმქმელს დამახსოვრებული თითით, რომ განაგრძოთ</string>
+  <string name="lock_unlock_password">გამოიყენეთ პაროლი</string>
+  <string name="lock_is_locked">Briar ჩაკეტილია</string>
+  <string name="lock_tap_to_unlock">შეეხეთ გასახსნელად</string>
+  <!--Connections Screen-->
+  <string name="transports_help_text">Briar-ს შეუძლია თქვენს კონტაქტებთან დაკავშირება ინტერნეტით, WiFi-თ ან Bluetooth-ით.\n\nინტერნეტით მიმოცვლილი ყველა მონაცემი Tor-ქსელს გაივლის პირადულობის უზრუნველსაყოფად.\n\nთუ ცალკეულ პირთან დაკავშირება რამდენიმე გზითაა შესაძლებელი, Briar ყველა მათგანით ერთდროულად ისარგებლებს.</string>
+  <!--Share app offline-->
+  <string name="hotspot_title">ამ აპის გაზიარება კავშირგარეშედ</string>
+  <string name="hotspot_intro">გაუზიარეთ ეს პროგრამა თქვენს მახლობლად მყოფ ხალხს ინტერნეტკავშირის გარეშე თქვენი ტელეფონის WiFi-ს მეშვეობით.
+		\n\nტელეფონი იმუშავებს WiFi-ს წვდომის წერტილად. ახლოს მყოფნი კი შეძლებენ მიუერთდნენ და გადაიწერონ Briar თქვენი ტელეფონიდან.</string>
+  <string name="hotspot_button_start_sharing">წვდომის წერტილის ჩართვა</string>
+  <string name="hotspot_button_stop_sharing">წვდომის წერტილის გათიშვა</string>
+  <string name="hotspot_progress_text_start">მზადდება წვდომის წერტილი…</string>
+  <string name="hotspot_notification_channel_title">WiFi-ს წვდომის წერტილი</string>
+  <string name="hotspot_notification_title">Briar-ის ხაზგარეშედ გაზიარება</string>
+  <string name="hotspot_button_connected">შემდეგ</string>
+  <string name="permission_hotspot_location_request_body">WiFi-ს წვდომის წერტილის შესაქმნელად Briar საჭიროებს თქვენი მდებარეობის გამოყენების ნებართვას.\n\nBriar არ ინახავს და არავის გაუზიარებს თქვენს ადგილმდებარეობას.</string>
+  <string name="permission_hotspot_location_denied_body">თქვენ უარყოფილი გაქვთ მდებარეობის მონაცემებთან წვდომის ნებართვა, მაგრამ Briar-ს ესაჭიროება იგი WiFi-ს წვდომის წერტილის გასამართად.\n\nგთხოვთ გაითვალისწინოთ და დართოთ ნება.</string>
+  <string name="wifi_settings_title">WiFi-ს პარამეტრები</string>
+  <string name="wifi_settings_request_enable_body">WiFi-ს წვდომის წერტილის შესაქმნელად, Briar-ს ესაჭიროება WiFi. გთხოვთ ჩართოთ.</string>
+  <string name="hotspot_tab_manual">ხელით</string>
+  <!--The placeholder to be inserted into the string 'hotspot_manual_wifi': People can connect by %s-->
+  <string name="hotspot_scanning_a_qr_code">იკითხება QR-კოდი</string>
+  <!--Wi-Fi setup-->
+  <!--The %s placeholder will be replaced with the translation of 'hotspot_scanning_a_qr_code'-->
+  <string name="hotspot_manual_wifi">თქვენი ტელეფონი წარმოადგენს WiFi-ს წვდომის წერტილს. ვისაც სურს ჩამოტვირთოს Briar, შეუძლია დაუკავშირდეს ამ წვდომის წერტილს მისი დამატებით საკუთარი მოწყობილობის WiFi-ს პარამეტრებში, რისთვისაც გამოადგება ქვემოთ მოცემული მონაცემები ან %s. როცა დაუკავშირდება წვდომის წერტილს, დააჭირეთ „შემდეგს“.</string>
+  <string name="hotspot_manual_wifi_ssid">ქსელის სახელი</string>
+  <string name="hotspot_qr_wifi">თქვენი ტელეფონი წარმოადგენს WiFi-ს წვდომის წერტილს. ვისაც სურს ჩამოტვირთოს Briar, შეუძლია დაუკავშირდეს ამ წვდომის წერტილს QR-კოდის წაკითხვით. როცა დაუკავშირდება წვდომის წერტილს, დააჭირეთ „შემდეგს“.</string>
+  <string name="hotspot_no_peers_connected">არაა დაკავშირებული მოწყობილობები</string>
+  <plurals name="hotspot_peers_connected">
+    <item quantity="one">%s მოწყობილობაა დაკავშირებული</item>
+    <item quantity="other">%s მოწყობილობაა დაკავშირებული</item>
+  </plurals>
+  <!--Download link-->
+  <!--The %s placeholder will be replaced with the translation of 'hotspot_scanning_a_qr_code'-->
+  <string name="hotspot_manual_site">თქვენი ტელეფონი წარმოადგენს WiFi-ს წვდომის წერტილს. ვინც დაკავშირებულია ამ წვდომის წერტილთან, შეუძლია ჩამოტვირთოს Briar ბრაუზერში მოცემული ბმულის აკრეფით ან %s.</string>
+  <string name="hotspot_manual_site_address">მისამართი (URL)</string>
+  <string name="hotspot_qr_site">თქვენი ტელეფონი წარმოადგენს WiFi-ს წვდომის წერტილს. ვინც დაკავშირებულია ამ წვდომის წერტილთან, შეუძლია ჩამოტვირთოს Briar ბრაუზერში QR-კოდის გამოყენებით.</string>
+  <!--e.g. Download Briar 1.2.20-->
+  <string name="website_download_title_1">ჩამოტვირთეთ Briar %s</string>
+  <string name="website_download_intro_1">ახლომახლო ვიღაცამ გაგიზიარათ Briar.</string>
+  <string name="website_download_button">ჩამოტვირთეთ Briar</string>
+  <string name="website_download_outro">ჩამოტვირთვის დასრულების შემდგომ გახსენით ჩამოტვირთული ფაილი და დააყენეთ.</string>
+  <string name="website_troubleshooting_title">გაუმართაობის აღმოფხვრა</string>
+  <string name="website_troubleshooting_1">თუ ვერ ახერხებთ აპის ჩამოტვირთვას, სცადეთ სხვა ბრაუზერით.</string>
+  <string name="website_troubleshooting_2_old">ჩამოტვირთული აპის დასაყენებლად, სავარაუდოდ, დაგჭირდებათ „უცნობი წყაროდან“ დაყენების ნებართვის ამოქმედება სისტემის პარამეტრებში. ამის შემდგომ კი შეიძლება მოგიწიოთ აპის ხელახლა ჩამოტვირთვა. გირჩევთ, „უცნობი წყაროდან“ დაყენების ნებართვა კვლავ გააუქმოთ აპის დაყენების შემდეგ.</string>
+  <string name="website_troubleshooting_2_new">ჩამოტვირთული აპის დასაყენებლად, სავარაუდოდ, საჭირო იქნება, თქვენს ბრაუზერს დართოთ უცნობი აპების დაყენების ნება. აპის დაყენების შემდგომ კი გირჩევთ, გააუქმოთ ბრაუზერის ეს ნებართვა უცნობი აპების დასაყენებლად.</string>
+  <string name="hotspot_help_wifi_title">ხარვეზები WiFi-სთან დაკავშირებისას:</string>
+  <string name="hotspot_help_wifi_1">გათიშეთ და ახლიდან ჩართეთ WiFi ორივე ტელეფონზე, შემდეგ კვლავ სცადეთ.</string>
+  <string name="hotspot_help_wifi_2">თუ ტელეფონი გიწერთ, რომ WiFi-ს არ გააჩნია ინტერნეტწვდომა, მიუთითეთ, რომ მაინც გსურთ კავშირზე დარჩენა.</string>
+  <string name="hotspot_help_wifi_3">ახლიდან ჩართეთ ტელეფონი, რომელზეც გაშვებულია WiFi-ს წვდომის წერტილი, შემდეგ კი გახსენით Briar და კვლავ სცადეთ გაზიარება.</string>
+  <string name="hotspot_help_site_title">ხარვეზები ადგილობრივ საიტზე შესვლისას:</string>
+  <string name="hotspot_help_site_1">კარგად გადაამოწმეთ, სწორად შეიყვანეთ თუ არა ნაჩვენები მისამართი. მცირე შეცდომაც საკმარისია, რომ არ იმუშაოს.</string>
+  <string name="hotspot_help_site_2">დარწმუნდით, რომ თქვენი ტელეფონი კვლავ დაკავშირებულია სათანადო WiFi-ქსელთან (იხილეთ ზემოთ), როცა ცდილობთ საიტთან წვდომას.</string>
+  <string name="hotspot_help_site_3">თუ გიყენიათ ქსელის ფარი, შეამოწმეთ, ხომ არ ზღუდავს წვდომას.</string>
+  <string name="hotspot_help_site_4">თუ ახერხებთ საიტზე შესვლას, მაგრამ ვერ ჩამოტვირთეთ Briar, სცადეთ სხვა ბრაუზერი.</string>
+  <string name="hotspot_help_fallback_title">ვერაფერმა უშველა?</string>
+  <string name="hotspot_help_fallback_intro">შეგიძლიათ შეინახოთ .apk ფაილის სახითაც რამე განსხვავებული გზით გაზიარებისთვის. სხვა მოწყობილობაზე მოხვედრისას კი მისი მეშვეობით დაყენდება Briar.
+		\n\nრჩევა: Bluetooth-ით გაზიარებამდე, სავარაუდოდ, საჭირო იქნება დაბოლოების შეცვლა .zip-ით.</string>
+  <string name="hotspot_help_fallback_button">აპის შენახვა</string>
+  <!--error handling-->
+  <string name="hotspot_error_intro">რაღაც ხარვეზი წარმოიშვა აპის WiFi-თ გაზიარებისას:</string>
+  <string name="hotspot_error_no_wifi_direct">მოწყობილობაზე არაა მხარდაჭერილი WiFi Direct</string>
+  <string name="hotspot_error_start_callback_failed">წვდომის წერტილი ვერ გაეშვა: შეცდომა %s</string>
+  <string name="hotspot_error_start_callback_failed_unknown">წვდომის წერტილი ვერ გაეშვა დაუდგენელი შეცდომის გამო, მიზეზი %d</string>
+  <string name="hotspot_error_start_callback_no_group_info">წვდომის წერტილი ვერ გაეშვა: ჯგუფის მონაცემები არაა</string>
+  <string name="hotspot_error_web_server_start">შეცდომა ვებსერვერის გაშვებისას</string>
+  <string name="hotspot_error_web_server_serve">შეცდომა საიტის წარმოდგენისას.\n\nგთხოვთ გამოგვეხმაუროთ (ვინაობის გაუმხელი მონაცემებით) Briar-პროგრამიდან, თუ ხარვეზი არ გამოსწორდება.</string>
+  <string name="hotspot_flag_test">გაფრთხილება: აპის დასაყენებლად გამოყენებულია Android Studio და სხვა მოწყობილობაზე ᲕᲔᲠ დაყენდება.</string>
+  <string name="hotspot_error_framework_busy">ვერ მოხერხდა წვდომის წერტილის ჩართვა.\n\nთუ სხვა წვდომის წერტილი გაქვთ გაშვებული ან ინტერნეტს აზიარებთ WiFi-თ, შეწყვიტეთ და შემდგომ სცადეთ ხელახლა.</string>
+  <!--Transfer Data via Removable Drives-->
+  <string name="removable_drive_menu_title">დაკავშირება მოსახსნელი მეხსიერებით</string>
+  <string name="removable_drive_intro">თუ ვერ უკავშირდებთ თქვენს კონტაქტს ინტერნეტით, WiFi-თ ან Bluetooth-ით, Briar-ს აგრეთვე შეუძლია წერილების გადატანა მოსახსნელ მოწყობილობებზე, როგორიცაა USB-მეხსიერება ან SD-ბარათი.</string>
+  <string name="removable_drive_explanation">თუ ვერ უკავშირდებით თქვენს კონტაქტებს ინტერნეტით, WiFi-თ ან Bluetooth-ით, Briar-ს შეუძლია წერილების გადატანა მოსახსნელ საცავზე, როგორიცაა USB-მეხსიერება ან SD-ბარათი.\n\nროცა დააჭერთ „მონაცემთა გაგზავნის“ ღილაკს, ყველა გასაგზავნი მასალა ჩაიწერება ამ მოსახსნელ მეხსიერებაზე. მათ შორის შეიძლება იყოს პირადი წერილები, დანართები, ბლოგის ჩანაწერები და დახურული ჯგუფები.\n\nყველაფერი წინასწარ დაიშიფრება ამ მეხსიერებაზე ჩაწერამდე.\n\nთქვენს კონტაქტს როცა მიაწვდით მითითებულ მოსახსნელ საცავს, „მონაცემთა მიღების“ ღილაკით შეეძლება გადაიტანოს წერილები თავის Briar-პროგრამაში.</string>
+  <string name="removable_drive_title_send">მონაცემთა გაგზავნა</string>
+  <string name="removable_drive_title_receive">მონაცემთა მიღება</string>
+  <string name="removable_drive_send_intro">შეეხეთ ღილაკს ქვემოთ დაშიფრული წერილების შემცველი ახალი ფაილის შესაქმნელად. შეგიძლიათ მიუთითოთ, სად შეინახოს.\n\nთუ გსურთ ფაილის შენახვა მოსახსნელ მეხსიერებაზე, შეუერთეთ ახლავე.</string>
+  <string name="removable_drive_send_no_data">ამ კონტაქტთან გასაგზავნი წერილები ამჟამად არაა.</string>
+  <string name="removable_drive_send_not_supported">ამ კონტაქტს მოძველებული ვერსიის Briar ან ძველი მოწყობილობა აქვს, რომელზეც მხარდაუჭერელია ეს შესაძლებლობა.</string>
+  <string name="removable_drive_send_button">ფაილის არჩევა გადასატანად</string>
+  <string name="removable_drive_ongoing">გთხოვთ მოითმინოთ, სანამ მიმდინარე მოქმედება შესრულდება</string>
+  <string name="removable_drive_receive_intro">შეეხეთ ღილაკს ქვემოთ იმ ფაილის ასარჩევად, რომელიც საკონტაქტო პირმა გამოგიგზავნათ.\n\nთუ ფაილი მოსახსნელ მეხსიერებაზეა, შეუერთეთ ახლავე.</string>
+  <string name="removable_drive_receive_button">ფაილის არჩევა გადმოსატანად</string>
+  <string name="removable_drive_success_send_title">გადატანილია წარმატებით</string>
+  <string name="removable_drive_success_send_text">მონაცემები გადატანილია წარმატებით. 28 დღე გაქვთ ფაილის კონტაქტისთვის მისაწოდებლად.\n\nთუ ფაილი მოსახსნელ მეხსიერებაზეა, გამოიყენეთ მდგომარეობის ზოლზე მოცემული შეტყობინება მის გასათიშად გამოერთებამდე.</string>
+  <string name="removable_drive_success_receive_title">გადმოტანილია წარმატებით</string>
+  <string name="removable_drive_success_receive_text">ყველა დაშიფრული წერილი ამ ფაილიდან მიღებულია.</string>
+  <string name="removable_drive_error_send_title">შეცდომა მონაცემთა გადატანისას</string>
+  <string name="removable_drive_error_send_text">შეცდომა წარმოიშვა ფაილში მონაცემთა ჩაწერისას.\n\nთუ მოსახსნელ მეხსიერებას იყენებთ, შეამოწმეთ, ხომ კარგადაა შეერთებული და კვლავ სცადეთ.\n\nთუ არ გამოსწორდება, გთხოვთ გამოგვეხმაუროთ და აცნობოთ Briar-ის გუნდს ამ ხარვეზის შესახებ.</string>
+  <string name="removable_drive_error_receive_title">შეცდომა მონაცემთა გადმოტანისას</string>
+  <string name="removable_drive_error_receive_text">შერჩეული ფაილი არაფერს შეიცავს, რის ამოცნობასაც Briar შეძლებდა.\n\nშეამოწმეთ, ხომ ნამდვილად სწორი ფაილია არჩეული.\n\nთუ 28 დღეზე მეტია გასული, რაც გამომგზავნმა პირმა შექმნა ეგ ფაილი, მაშინ Briar ვერ მოახერხებს მის ამოცნობას.</string>
+  <!--Screenshots-->
+  <!--This is a name to be used in screenshots. Feel free to change it to a local name.-->
+  <string name="screenshot_alice">ანა</string>
+  <!--This is a name to be used in screenshots. Feel free to change it to a local name.-->
+  <string name="screenshot_bob">ბექა</string>
+  <!--This is a name to be used in screenshots. Feel free to change it to a local name.-->
+  <string name="screenshot_carol">სალომე</string>
+  <!--This is a message to be used in screenshots. Please use the same translation for Bob!-->
+  <string name="screenshot_message_1">ჰეი, ბექა!</string>
+  <!--This is a message to be used in screenshots. Please use the same translation for Alice!-->
+  <string name="screenshot_message_2">ჰეი, ანა! გმადლობ, რომ მაცნობე Briar-ის შესახებ!</string>
+  <!--This is a message to be used in screenshots.-->
+  <string name="screenshot_message_3">არაფრის, იმედია მოგეწონება 😀</string>
+</resources>

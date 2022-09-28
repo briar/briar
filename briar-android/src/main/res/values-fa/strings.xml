@@ -96,7 +96,7 @@
   <!--Transports: Wi-Fi-->
   <string name="transport_lan">وای فای</string>
   <string name="transport_lan_long">همان شبکه وای-فای</string>
-  <string name="lan_device_status_on">موبایل شما به وای-فای وصل می باشد</string>
+  <string name="lan_device_status_on">تلفن شما به Wi-Fi متصل است</string>
   <string name="lan_device_status_off">موبایل شما به وای-فای وصل نیست</string>
   <string name="lan_plugin_status_enabling">Briar در حال اتصال به شبکه وای-فای می باشد</string>
   <string name="lan_plugin_status_active">Briar به شبکه وای-فای متصل می باشد</string>
@@ -540,7 +540,7 @@
   <string name="wifi_setting">اتصال به مخاطبان روی یک شبکه وای‌-فای یکسان</string>
   <string name="tor_enable_title">اتصال به مخاطبان از طریق اینترنت</string>
   <string name="tor_enable_summary">تمام اتصال ها برای حفظ حریم خصوصی از شبکه تور عبور می‌کنند</string>
-  <string name="tor_network_setting">روش اتصال برای شبکه تور</string>
+  <string name="tor_network_setting">روش اتصال برای شبکه Tor</string>
   <string name="tor_network_setting_automatic">خودکار مبتنی بر موقعیت</string>
   <string name="tor_network_setting_without_bridges">استفاده از شبکه تور بدون پل</string>
   <string name="tor_network_setting_with_bridges">استفاده از شبکه تور با پل</string>
@@ -657,6 +657,7 @@
   <string name="mailbox_status_unlink_dialog_warning">اگر پیوند صندوق پستی خود را لغو کنید، زمانی که Briar آفلاین است، نمی‌توانید پیام‌ها را دریافت کنید.</string>
   <string name="mailbox_status_unlink_no_wipe_title">پیوند صندوق پستی شما لغو شد</string>
   <string name="mailbox_status_unlink_no_wipe_message">دفعه بعد که به دستگاه صندوق پستی خود دسترسی پیدا کردید، لطفا برنامه صندوق پستی را باز کنید و روی دکمه \"لغو پیوند\" بزنید تا فرآیند تکمیل شود.\n\nاگر دیگر به دستگاه صندوق پستی خود دسترسی ندارید، نگران نباشید. داده‌های شما رمزگذاری شده‌اند، بنابراین حتی اگر این فرآیند را کامل نکرده‌ایدد، امن می‌مانند.</string>
+  <string name="mailbox_status_unlink_success">پیوند صندوق پستی شما لغو شد</string>
   <string name="mailbox_error_notification_channel_title">مشکل صندوق پستی Briar</string>
   <string name="mailbox_error_notification_title">صندوق پستی Briar در دسترس نیست</string>
   <string name="mailbox_error_notification_text">برای حل مشکل، ضربه بزنید.</string>
@@ -689,6 +690,7 @@
   <string name="briar_website">\u2022 <a href="">وبسایت</a></string>
   <string name="briar_source_code">\u2022 <a href="">کد منبع</a></string>
   <string name="briar_changelog">\u2022 <a href="">گزارش تغییرات</a></string>
+  <string name="briar_privacy_policy">\u2022 <a href="">سیاست حفظ حریم خصوصی</a></string>
   <!--Here translators can add their names or Transifex usernames(eg "Thanks to all the contributors at the Localization Lab, especially Tom, Matthew and Jerry")-->
   <string name="translator_thanks">با تشکر از همه مشارکت کنندگان در Localization Lab بخصوص erinm، Reza Ghasemi، Mohsen Eghbal و Vox.</string>
   <!--Conversation Settings-->
@@ -722,6 +724,7 @@
   <string name="describe_crash">توضیح دهید چه اتفاقی افتاد (اختیاری)</string>
   <string name="enter_feedback">بازخورد خود را وارد کنید</string>
   <string name="optional_contact_email">آدرس ایمیل شما (اختیاری)</string>
+  <string name="privacy_policy">با ارسال داده به ما، با <a href="">سیاست حفظ حریم خصوصی</a> ما موافقت می‌کنید</string>
   <string name="include_debug_report_crash">قرار دادن داده های ناشناس مربوط به خرابی</string>
   <string name="include_debug_report_feedback">قرار دادن داده های ناشناس درباره این دستگاه</string>
   <string name="dev_report_user_info">اطلاعات کاربر</string>

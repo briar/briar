@@ -26,6 +26,9 @@
   <string name="dnkm_xiaomi_button">Chroń Briar</string>
   <string name="dnkm_xiaomi_help">Jeżeli Briar nie jest zablokowany na liście ostatnich aplikacji, nie będzie mógł działać w tle.</string>
   <string name="dnkm_xiaomi_dialog_body_old">1. Otwórz listę ostatnich aplikacji (często nazywaną też przełącznikiem aplikacji)\n\n2. Przewiń w dół na obrazku Briara aby ukazała się ikonka kłódki\n\n3. Jeśli kłódka nie jest zablokowana, dotknij, aby ją zablokować</string>
+  <string name="dnkm_xiaomi_dialog_body_new">1. Otwórz listę ostatnich aplikacji (zwaną również przełącznikiem aplikacji)\n\n2. Jeśli Briar ma mały symbol kłódki obok swojej nazwy, to nie musisz nic robić\n\n3. Jeśli nie ma kłódki, naciśnij i przytrzymaj obrazek Briar, aż pojawi się przycisk kłódki, a następnie dotknij go</string>
+  <string name="dnkm_xiaomi_lock_apps_text">Naciśnij poniższy przycisk, aby otworzyć ustawienia bezpieczeństwa. Naciśnij \"Zwiększ prędkość\", następnie \"Zablokuj aplikacje\" i upewnij się, że Briar jest ustawiony na \"Zablokowany\".</string>
+  <string name="dnkm_warning_dozed_1">Briar nie był wstanie działać w tle</string>
   <!--Login-->
   <string name="enter_password">Hasło</string>
   <string name="try_again">Złe hasło, spróbuj ponownie</string>
@@ -312,6 +315,10 @@
   <string name="duplicate_link_dialog_text_3">%1$si  %2$s wysłał ci ten sam link.\n\nJeden z nich może próbować odkryć, kim są twoje kontakty.\n\nNie mów im, że otrzymałeś ten sam link od kogoś innego.</string>
   <string name="pending_contact_updated_toast">Oczekujący kontakt zaktualizowany</string>
   <!--Peer trust levels-->
+  <string name="peer_trust_level_unverified">Niezweryfikowane kontakty</string>
+  <string name="peer_trust_level_verified">Zweryfikowane kontakty</string>
+  <string name="peer_trust_level_ourselves">Ja</string>
+  <string name="peer_trust_level_stranger">Nieznani</string>
   <!--Introductions-->
   <string name="introduction_onboarding_title">Przedstaw swoje kontakty.</string>
   <string name="introduction_onboarding_text">Przedstaw kontakty sobie nawzajem, aby mogły się połączyć w Briar.</string>
@@ -629,6 +636,10 @@ Brak dostępu do aparatu. Spróbuj ponownie, może po ponownym uruchomieniu urz�
   <string name="mailbox_status_connected_title">Mailbox jest uruchomiony</string>
   <string name="mailbox_status_problem_title">Briar ma problemy z połączeniem się z Mailbox</string>
   <string name="mailbox_status_failure_title">Skrzynka pocztowa jest niedostępna</string>
+  <string name="mailbox_status_app_too_old_title">Wersja Briar jest zbyt stara</string>
+  <string name="mailbox_status_app_too_old_message">Zaktualizuj Briar do najnowszej wersji i spróbuj ponownie.</string>
+  <string name="mailbox_status_mailbox_too_old_title">Mailbox jest za stary</string>
+  <string name="mailbox_status_mailbox_too_old_message">Zaktualizuj Mailbox do najnowszej wersji aplikacji i spróbuj ponownie.</string>
   <string name="mailbox_status_check_button">Sprawdź połączenie</string>
   <!--Example for string substitution: Last connection: 3min ago-->
   <string name="mailbox_status_connected_info">Ostatnie połączenie: %s</string>
@@ -640,16 +651,32 @@ Brak dostępu do aparatu. Spróbuj ponownie, może po ponownym uruchomieniu urz�
   <string name="mailbox_status_unlink_dialog_warning">Jeżeli odłączysz swoją skrzynkę odbiorczą nie będziesz już otrzymywał(a) wiadomości kiedy Briar będzie offline.</string>
   <string name="mailbox_status_unlink_no_wipe_title">Twoja skrzynka odbiorcza została odłączona</string>
   <string name="mailbox_status_unlink_no_wipe_message">Gdy następnym razem będziesz mieć dostęp do swojego urządzenia Mailbox, otwórz aplikację Mailbox i dotknij przycisku \"Odłącz\" , aby dokończyć proces.\n\nJeśli nie masz już dostępu do swojego urządzenia Mailbox, nie martw się. Twoje dane są zaszyfrowane, więc pozostaną bezpieczne, nawet jeśli nie ukończysz tego procesu.</string>
+  <string name="mailbox_status_unlink_success">Twoja skrzynka odbiorcza została odłączona</string>
+  <string name="mailbox_error_notification_channel_title">Problem z Mailboxem Briara</string>
   <string name="mailbox_error_notification_title">Skrzynka pocztowa Briar jest niedostępna</string>
   <string name="mailbox_error_notification_text">Naciśnij, aby rozwiązać problem.</string>
   <string name="mailbox_error_wizard_button">Napraw problem</string>
+  <string name="mailbox_error_wizard_title">Kreator rozwiązywania problemów z Mailbox</string>
+  <string name="mailbox_error_wizard_question1">Czy masz dostęp do swojego urządzenia Mailbox?</string>
   <string name="mailbox_error_wizard_answer1">Tak, mam teraz dostęp</string>
   <string name="mailbox_error_wizard_answer2">Nie w tej chwili, ale będę miał(a) dostęp później</string>
   <string name="mailbox_error_wizard_answer3">Nie, nie mam już dostępu do urządzenia.</string>
+  <string name="mailbox_error_wizard_info1_1">Sprawdź, czy urządzenie Mailbox jest włączone i podłączone do Internetu.</string>
+  <string name="mailbox_error_wizard_question1_1">Otwórz aplikację Mailbox. Co widzisz?</string>
+  <string name="mailbox_error_wizard_answer1_1">Widzę instrukcje dotyczące konfiguracji skrzynki pocztowej</string>
+  <string name="mailbox_error_wizard_answer1_2">Widzę kod QR</string>
+  <string name="mailbox_error_wizard_answer1_3">Widzę \"Mailbox jest uruchomiony\"</string>
+  <string name="mailbox_error_wizard_answer1_4">Widzę \"Urządzenie offline\"</string>
   <!--About-->
   <string name="about_title">O programie...</string>
+  <string name="briar_version">Wersja Briar: %s</string>
+  <string name="tor_version">Wersja Tor: %s</string>
   <string name="links">Odnośniki</string>
+  <string name="briar_website">\u2022 <a href="">Strona internetowa</a></string>
+  <string name="briar_source_code">\u2022 <a href="">Kod źródłowy</a></string>
+  <string name="briar_changelog">\u2022 <a href="">Dziennik zmian</a></string>
   <!--Here translators can add their names or Transifex usernames(eg "Thanks to all the contributors at the Localization Lab, especially Tom, Matthew and Jerry")-->
+  <string name="translator_thanks">Dziękujemy wszystkim wspierającym z Localization Lab</string>
   <!--Conversation Settings-->
   <string name="disappearing_messages_title">Znikające wiadomości</string>
   <string name="disappearing_messages_explanation_long">Włączenie tego ustawienia spowoduje, że
@@ -767,6 +794,9 @@ Brak dostępu do aparatu. Spróbuj ponownie, może po ponownym uruchomieniu urz�
   <string name="hotspot_manual_site_address">Adres (URL)</string>
   <string name="hotspot_qr_site">Twój telefon udostępnia hotspot Wi-Fi. Osoby połączone z hotspotem mogą pobrać Briar, skanując ten kod QR.</string>
   <!--e.g. Download Briar 1.2.20-->
+  <string name="website_download_title_1">Pobierz Briar %s</string>
+  <string name="website_download_intro_1">Ktoś w pobliżu udostępnił Ci Briar.</string>
+  <string name="website_download_button">Pobierz Briar</string>
   <string name="website_download_outro">Po zakończeniu pobierania otwórz pobrany plik i zainstaluj go.</string>
   <string name="website_troubleshooting_title">Rozwiązywanie problemów</string>
   <string name="website_troubleshooting_1">Jeśli nie możesz pobrać aplikacji, spróbuj za pomocą innej przeglądarki internetowej.</string>
