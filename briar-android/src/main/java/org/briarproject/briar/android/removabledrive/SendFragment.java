@@ -13,11 +13,11 @@ import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
-import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
 import org.briarproject.bramble.api.plugin.file.RemovableDriveTask;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.util.ActivityLaunchers.CreateDocumentAdvanced;
+import org.briarproject.nullsafety.MethodsNotNullByDefault;
+import org.briarproject.nullsafety.ParametersNotNullByDefault;
 
 import java.util.logging.Logger;
 

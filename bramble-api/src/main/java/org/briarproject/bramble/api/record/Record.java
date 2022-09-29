@@ -1,6 +1,6 @@
 package org.briarproject.bramble.api.record;
 
-import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
+import org.briarproject.nullsafety.NotNullByDefault;
 
 import javax.annotation.concurrent.Immutable;
 

@@ -1,6 +1,6 @@
 package org.briarproject.briar.android.logging;
 
-import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
+import org.briarproject.nullsafety.NotNullByDefault;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;

@@ -9,10 +9,10 @@ import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.widget.LinearLayout;
 
-import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
-import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.view.EmojiTextInputView.OnKeyboardShownListener;
+import org.briarproject.nullsafety.MethodsNotNullByDefault;
+import org.briarproject.nullsafety.ParametersNotNullByDefault;
 
 import androidx.annotation.LayoutRes;
 import androidx.annotation.Nullable;

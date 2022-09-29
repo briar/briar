@@ -1,9 +1,9 @@
 package org.briarproject.briar.api.forum;
 
-import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.sync.Group;
 import org.briarproject.briar.api.client.NamedGroup;
 import org.briarproject.briar.api.sharing.Shareable;
+import org.briarproject.nullsafety.NotNullByDefault;
 
 import javax.annotation.concurrent.Immutable;
 

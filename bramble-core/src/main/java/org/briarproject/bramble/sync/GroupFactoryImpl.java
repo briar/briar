@@ -1,13 +1,13 @@
 package org.briarproject.bramble.sync;
 
 import org.briarproject.bramble.api.crypto.CryptoComponent;
-import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.sync.ClientId;
 import org.briarproject.bramble.api.sync.Group;
 import org.briarproject.bramble.api.sync.GroupFactory;
 import org.briarproject.bramble.api.sync.GroupId;
 import org.briarproject.bramble.util.ByteUtils;
 import org.briarproject.bramble.util.StringUtils;
+import org.briarproject.nullsafety.NotNullByDefault;
 
 import javax.annotation.concurrent.Immutable;
 import javax.inject.Inject;

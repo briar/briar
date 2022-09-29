@@ -2,8 +2,8 @@ package org.briarproject.briar.android.login;
 
 import android.content.Context;
 
-import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.briar.R;
+import org.briarproject.nullsafety.NotNullByDefault;
 
 import androidx.appcompat.app.AlertDialog;
 

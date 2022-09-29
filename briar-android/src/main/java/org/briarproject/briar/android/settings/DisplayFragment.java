@@ -4,10 +4,10 @@ import android.app.AlertDialog;
 import android.content.Intent;
 import android.os.Bundle;
 
-import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.Localizer;
 import org.briarproject.briar.android.util.UiUtils;
+import org.briarproject.nullsafety.NotNullByDefault;
 
 import java.util.ArrayList;
 import java.util.Arrays;

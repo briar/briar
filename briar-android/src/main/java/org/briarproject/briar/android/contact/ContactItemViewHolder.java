@@ -5,10 +5,10 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.view.TrustIndicatorView;
 import org.briarproject.briar.api.identity.AuthorInfo;
+import org.briarproject.nullsafety.NotNullByDefault;
 
 import javax.annotation.Nullable;
 

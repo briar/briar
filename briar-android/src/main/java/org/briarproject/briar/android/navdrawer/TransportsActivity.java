@@ -13,8 +13,6 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import org.briarproject.bramble.api.network.NetworkStatus;
-import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
-import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
 import org.briarproject.bramble.api.plugin.BluetoothConstants;
 import org.briarproject.bramble.api.plugin.LanTcpConstants;
 import org.briarproject.bramble.api.plugin.Plugin.State;
@@ -23,6 +21,8 @@ import org.briarproject.bramble.api.plugin.TransportId;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.activity.ActivityComponent;
 import org.briarproject.briar.android.activity.BriarActivity;
+import org.briarproject.nullsafety.MethodsNotNullByDefault;
+import org.briarproject.nullsafety.ParametersNotNullByDefault;
 
 import java.util.ArrayList;
 import java.util.List;

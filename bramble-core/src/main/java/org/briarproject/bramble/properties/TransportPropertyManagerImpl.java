@@ -14,7 +14,6 @@ import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.db.Metadata;
 import org.briarproject.bramble.api.db.Transaction;
 import org.briarproject.bramble.api.lifecycle.LifecycleManager.OpenDatabaseHook;
-import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.plugin.TransportId;
 import org.briarproject.bramble.api.properties.TransportProperties;
 import org.briarproject.bramble.api.properties.TransportPropertyManager;
@@ -29,6 +28,7 @@ import org.briarproject.bramble.api.sync.validation.IncomingMessageHook;
 import org.briarproject.bramble.api.system.Clock;
 import org.briarproject.bramble.api.versioning.ClientVersioningManager;
 import org.briarproject.bramble.api.versioning.ClientVersioningManager.ClientVersioningHook;
+import org.briarproject.nullsafety.NotNullByDefault;
 
 import java.util.HashMap;
 import java.util.Iterator;

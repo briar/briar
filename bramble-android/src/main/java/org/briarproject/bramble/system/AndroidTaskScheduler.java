@@ -10,11 +10,11 @@ import android.os.SystemClock;
 
 import org.briarproject.bramble.api.Cancellable;
 import org.briarproject.bramble.api.lifecycle.Service;
-import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.system.AlarmListener;
 import org.briarproject.bramble.api.system.AndroidWakeLockManager;
 import org.briarproject.bramble.api.system.TaskScheduler;
 import org.briarproject.bramble.api.system.Wakeful;
+import org.briarproject.nullsafety.NotNullByDefault;
 
 import java.util.ArrayList;
 import java.util.List;

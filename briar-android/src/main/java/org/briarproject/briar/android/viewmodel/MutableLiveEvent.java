@@ -1,6 +1,6 @@
 package org.briarproject.briar.android.viewmodel;
 
-import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
+import org.briarproject.nullsafety.NotNullByDefault;
 
 @NotNullByDefault
 public class MutableLiveEvent<T> extends LiveEvent<T> {

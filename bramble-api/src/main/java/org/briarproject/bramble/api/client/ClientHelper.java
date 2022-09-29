@@ -11,12 +11,12 @@ import org.briarproject.bramble.api.db.Transaction;
 import org.briarproject.bramble.api.identity.Author;
 import org.briarproject.bramble.api.mailbox.MailboxUpdate;
 import org.briarproject.bramble.api.mailbox.MailboxVersion;
-import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.plugin.TransportId;
 import org.briarproject.bramble.api.properties.TransportProperties;
 import org.briarproject.bramble.api.sync.GroupId;
 import org.briarproject.bramble.api.sync.Message;
 import org.briarproject.bramble.api.sync.MessageId;
+import org.briarproject.nullsafety.NotNullByDefault;
 
 import java.security.GeneralSecurityException;
 import java.util.Collection;

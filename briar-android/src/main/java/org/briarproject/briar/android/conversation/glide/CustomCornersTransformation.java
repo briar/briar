@@ -9,7 +9,7 @@ import android.graphics.RectF;
 import com.bumptech.glide.load.engine.bitmap_recycle.BitmapPool;
 import com.bumptech.glide.load.resource.bitmap.BitmapTransformation;
 
-import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
+import org.briarproject.nullsafety.NotNullByDefault;
 
 import java.security.MessageDigest;
 

@@ -2,12 +2,12 @@ package org.briarproject.bramble.api.connection;
 
 import org.briarproject.bramble.api.contact.ContactId;
 import org.briarproject.bramble.api.contact.PendingContactId;
-import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.plugin.TransportConnectionReader;
 import org.briarproject.bramble.api.plugin.TransportConnectionWriter;
 import org.briarproject.bramble.api.plugin.TransportId;
 import org.briarproject.bramble.api.plugin.duplex.DuplexTransportConnection;
 import org.briarproject.bramble.api.sync.OutgoingSessionRecord;
+import org.briarproject.nullsafety.NotNullByDefault;
 
 @NotNullByDefault
 public interface ConnectionManager {

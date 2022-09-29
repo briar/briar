@@ -1,8 +1,8 @@
 package org.briarproject.bramble.reliability;
 
-import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.reliability.ReadHandler;
 import org.briarproject.bramble.api.system.Clock;
+import org.briarproject.nullsafety.NotNullByDefault;
 
 import java.io.IOException;
 import java.util.Comparator;

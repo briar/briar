@@ -14,10 +14,10 @@ import org.briarproject.bramble.PoliteExecutor;
 import org.briarproject.bramble.api.Pair;
 import org.briarproject.bramble.api.event.Event;
 import org.briarproject.bramble.api.network.event.NetworkStatusEvent;
-import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.plugin.Backoff;
 import org.briarproject.bramble.api.plugin.PluginCallback;
 import org.briarproject.bramble.api.settings.Settings;
+import org.briarproject.nullsafety.NotNullByDefault;
 
 import java.io.IOException;
 import java.net.InetAddress;
@@ -43,13 +43,13 @@ import static java.util.Collections.list;
 import static java.util.Collections.singletonList;
 import static java.util.logging.Level.WARNING;
 import static java.util.logging.Logger.getLogger;
-import static org.briarproject.bramble.api.nullsafety.NullSafety.requireNonNull;
 import static org.briarproject.bramble.api.plugin.LanTcpConstants.DEFAULT_PREF_PLUGIN_ENABLE;
 import static org.briarproject.bramble.api.plugin.Plugin.State.ACTIVE;
 import static org.briarproject.bramble.api.plugin.Plugin.State.INACTIVE;
 import static org.briarproject.bramble.util.IoUtils.tryToClose;
 import static org.briarproject.bramble.util.LogUtils.logException;
 import static org.briarproject.bramble.util.NetworkUtils.getNetworkInterfaces;
+import static org.briarproject.nullsafety.NullSafety.requireNonNull;
 
 @NotNullByDefault
 class AndroidLanTcpPlugin extends LanTcpPlugin {

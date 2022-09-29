@@ -21,8 +21,6 @@ import org.briarproject.bramble.api.lifecycle.ServiceException;
 import org.briarproject.bramble.api.mailbox.MailboxStatus;
 import org.briarproject.bramble.api.mailbox.event.MailboxProblemEvent;
 import org.briarproject.bramble.api.mailbox.event.OwnMailboxConnectionStatusEvent;
-import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
-import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
 import org.briarproject.bramble.api.settings.Settings;
 import org.briarproject.bramble.api.settings.SettingsManager;
 import org.briarproject.bramble.api.settings.event.SettingsUpdatedEvent;
@@ -46,6 +44,8 @@ import org.briarproject.briar.api.conversation.ConversationResponse;
 import org.briarproject.briar.api.conversation.event.ConversationMessageReceivedEvent;
 import org.briarproject.briar.api.forum.event.ForumPostReceivedEvent;
 import org.briarproject.briar.api.privategroup.event.GroupMessageAddedEvent;
+import org.briarproject.nullsafety.MethodsNotNullByDefault;
+import org.briarproject.nullsafety.ParametersNotNullByDefault;
 
 import java.util.Set;
 import java.util.concurrent.Callable;

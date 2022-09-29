@@ -1,8 +1,8 @@
 package org.briarproject.briar.android.conversation;
 
-import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.briar.android.attachment.AttachmentItem;
 import org.briarproject.briar.api.messaging.PrivateMessageHeader;
+import org.briarproject.nullsafety.NotNullByDefault;
 
 import java.util.List;
 

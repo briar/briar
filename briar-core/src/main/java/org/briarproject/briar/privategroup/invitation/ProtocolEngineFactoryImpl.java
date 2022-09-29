@@ -3,7 +3,6 @@ package org.briarproject.briar.privategroup.invitation;
 import org.briarproject.bramble.api.client.ClientHelper;
 import org.briarproject.bramble.api.db.DatabaseComponent;
 import org.briarproject.bramble.api.identity.IdentityManager;
-import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.system.Clock;
 import org.briarproject.bramble.api.versioning.ClientVersioningManager;
 import org.briarproject.briar.api.autodelete.AutoDeleteManager;
@@ -11,6 +10,7 @@ import org.briarproject.briar.api.conversation.ConversationManager;
 import org.briarproject.briar.api.privategroup.GroupMessageFactory;
 import org.briarproject.briar.api.privategroup.PrivateGroupFactory;
 import org.briarproject.briar.api.privategroup.PrivateGroupManager;
+import org.briarproject.nullsafety.NotNullByDefault;
 
 import javax.annotation.concurrent.Immutable;
 import javax.inject.Inject;

@@ -2,8 +2,8 @@ package org.briarproject.bramble.api.rendezvous.event;
 
 import org.briarproject.bramble.api.contact.PendingContactId;
 import org.briarproject.bramble.api.event.Event;
-import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.plugin.TransportId;
+import org.briarproject.nullsafety.NotNullByDefault;
 
 import java.util.Collection;
 

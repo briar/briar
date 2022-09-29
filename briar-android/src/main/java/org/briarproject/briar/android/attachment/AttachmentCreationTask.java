@@ -5,11 +5,11 @@ import android.net.Uri;
 
 import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.lifecycle.IoExecutor;
-import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.sync.GroupId;
 import org.briarproject.briar.android.attachment.media.ImageCompressor;
 import org.briarproject.briar.api.attachment.AttachmentHeader;
 import org.briarproject.briar.api.messaging.MessagingManager;
+import org.briarproject.nullsafety.NotNullByDefault;
 
 import java.io.IOException;
 import java.io.InputStream;

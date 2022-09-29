@@ -9,7 +9,6 @@ import org.briarproject.bramble.api.data.BdfReader;
 import org.briarproject.bramble.api.data.BdfReaderFactory;
 import org.briarproject.bramble.api.data.MetadataEncoder;
 import org.briarproject.bramble.api.db.Metadata;
-import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.sync.Group;
 import org.briarproject.bramble.api.sync.InvalidMessageException;
 import org.briarproject.bramble.api.sync.Message;
@@ -17,6 +16,7 @@ import org.briarproject.bramble.api.sync.MessageContext;
 import org.briarproject.bramble.api.sync.validation.MessageValidator;
 import org.briarproject.bramble.api.system.Clock;
 import org.briarproject.briar.attachment.CountingInputStream;
+import org.briarproject.nullsafety.NotNullByDefault;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;

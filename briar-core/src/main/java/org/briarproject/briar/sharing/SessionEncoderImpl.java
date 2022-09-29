@@ -1,8 +1,8 @@
 package org.briarproject.briar.sharing;
 
 import org.briarproject.bramble.api.data.BdfDictionary;
-import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.sync.MessageId;
+import org.briarproject.nullsafety.NotNullByDefault;
 
 import javax.annotation.concurrent.Immutable;
 import javax.inject.Inject;

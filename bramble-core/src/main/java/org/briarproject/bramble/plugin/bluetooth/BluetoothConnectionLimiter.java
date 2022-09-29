@@ -1,7 +1,7 @@
 package org.briarproject.bramble.plugin.bluetooth;
 
-import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.plugin.duplex.DuplexTransportConnection;
+import org.briarproject.nullsafety.NotNullByDefault;
 
 @NotNullByDefault
 interface BluetoothConnectionLimiter {

@@ -4,10 +4,10 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
-import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.privategroup.list.GroupViewHolder.OnGroupRemoveClickListener;
+import org.briarproject.nullsafety.MethodsNotNullByDefault;
+import org.briarproject.nullsafety.ParametersNotNullByDefault;
 
 import androidx.recyclerview.widget.DiffUtil.ItemCallback;
 import androidx.recyclerview.widget.ListAdapter;

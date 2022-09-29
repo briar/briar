@@ -10,8 +10,8 @@ import org.briarproject.bramble.api.mailbox.MailboxProperties;
 import org.briarproject.bramble.api.mailbox.MailboxSettingsManager;
 import org.briarproject.bramble.api.mailbox.MailboxStatus;
 import org.briarproject.bramble.api.mailbox.MailboxVersion;
-import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.system.Clock;
+import org.briarproject.nullsafety.NotNullByDefault;
 
 import java.io.IOException;
 import java.util.List;

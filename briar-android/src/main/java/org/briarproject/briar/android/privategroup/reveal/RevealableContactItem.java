@@ -1,10 +1,10 @@
 package org.briarproject.briar.android.privategroup.reveal;
 
 import org.briarproject.bramble.api.contact.Contact;
-import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.briar.android.contactselection.SelectableContactItem;
 import org.briarproject.briar.api.identity.AuthorInfo;
 import org.briarproject.briar.api.privategroup.Visibility;
+import org.briarproject.nullsafety.NotNullByDefault;
 
 import javax.annotation.concurrent.NotThreadSafe;
 

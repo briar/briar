@@ -3,10 +3,10 @@ package org.briarproject.bramble.transport;
 import org.briarproject.bramble.api.crypto.TransportCrypto;
 import org.briarproject.bramble.api.db.DatabaseComponent;
 import org.briarproject.bramble.api.db.DatabaseExecutor;
-import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.plugin.TransportId;
 import org.briarproject.bramble.api.system.Clock;
 import org.briarproject.bramble.api.system.TaskScheduler;
+import org.briarproject.nullsafety.NotNullByDefault;
 
 import java.util.concurrent.Executor;
 

@@ -8,7 +8,7 @@ import android.os.Looper;
 import android.provider.Settings;
 
 import org.briarproject.bramble.api.Pair;
-import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
+import org.briarproject.nullsafety.NotNullByDefault;
 
 import java.io.File;
 import java.io.IOException;
@@ -26,7 +26,7 @@ import static android.content.Context.MODE_PRIVATE;
 import static android.os.Build.VERSION.SDK_INT;
 import static java.lang.Runtime.getRuntime;
 import static java.util.Arrays.asList;
-import static org.briarproject.bramble.api.nullsafety.NullSafety.requireNonNull;
+import static org.briarproject.nullsafety.NullSafety.requireNonNull;
 
 @NotNullByDefault
 public class AndroidUtils {

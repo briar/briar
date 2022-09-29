@@ -15,7 +15,6 @@ import org.briarproject.bramble.api.event.Event;
 import org.briarproject.bramble.api.identity.Author;
 import org.briarproject.bramble.api.identity.AuthorId;
 import org.briarproject.bramble.api.identity.IdentityManager;
-import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.plugin.TransportId;
 import org.briarproject.bramble.api.properties.TransportProperties;
 import org.briarproject.bramble.api.sync.GroupId;
@@ -31,6 +30,7 @@ import org.briarproject.briar.api.identity.AuthorInfo;
 import org.briarproject.briar.api.identity.AuthorManager;
 import org.briarproject.briar.api.introduction.IntroductionResponse;
 import org.briarproject.briar.api.introduction.event.IntroductionResponseReceivedEvent;
+import org.briarproject.nullsafety.NotNullByDefault;
 
 import java.util.Map;
 

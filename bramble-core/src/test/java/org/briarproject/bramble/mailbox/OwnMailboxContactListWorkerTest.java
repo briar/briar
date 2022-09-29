@@ -30,9 +30,9 @@ import java.util.concurrent.atomic.AtomicReference;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
 import static org.briarproject.bramble.api.mailbox.MailboxConstants.CLIENT_SUPPORTS;
-import static org.briarproject.bramble.api.nullsafety.NullSafety.requireNonNull;
 import static org.briarproject.bramble.test.TestUtils.getContact;
 import static org.briarproject.bramble.test.TestUtils.getMailboxProperties;
+import static org.briarproject.nullsafety.NullSafety.requireNonNull;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 

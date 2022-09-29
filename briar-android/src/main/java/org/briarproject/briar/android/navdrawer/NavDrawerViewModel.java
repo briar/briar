@@ -6,12 +6,12 @@ import org.briarproject.bramble.api.db.DatabaseExecutor;
 import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.db.TransactionManager;
 import org.briarproject.bramble.api.lifecycle.LifecycleManager;
-import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.settings.Settings;
 import org.briarproject.bramble.api.settings.SettingsManager;
 import org.briarproject.bramble.api.system.AndroidExecutor;
 import org.briarproject.briar.android.BriarApplication;
 import org.briarproject.briar.android.viewmodel.DbViewModel;
+import org.briarproject.nullsafety.NotNullByDefault;
 
 import java.util.concurrent.Executor;
 import java.util.logging.Logger;

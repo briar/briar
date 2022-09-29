@@ -29,7 +29,6 @@ import org.briarproject.bramble.api.mailbox.event.MailboxPairedEvent;
 import org.briarproject.bramble.api.mailbox.event.MailboxUnpairedEvent;
 import org.briarproject.bramble.api.mailbox.event.MailboxUpdateSentToNewContactEvent;
 import org.briarproject.bramble.api.mailbox.event.RemoteMailboxUpdateEvent;
-import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.sync.Group;
 import org.briarproject.bramble.api.sync.Group.Visibility;
 import org.briarproject.bramble.api.sync.GroupId;
@@ -40,6 +39,7 @@ import org.briarproject.bramble.api.sync.validation.IncomingMessageHook;
 import org.briarproject.bramble.api.system.Clock;
 import org.briarproject.bramble.api.versioning.ClientVersioningManager;
 import org.briarproject.bramble.api.versioning.ClientVersioningManager.ClientVersioningHook;
+import org.briarproject.nullsafety.NotNullByDefault;
 
 import java.util.HashMap;
 import java.util.List;
@@ -51,8 +51,8 @@ import javax.inject.Inject;
 
 import static java.util.Collections.emptyList;
 import static org.briarproject.bramble.api.data.BdfDictionary.NULL_VALUE;
-import static org.briarproject.bramble.api.nullsafety.NullSafety.requireNonNull;
 import static org.briarproject.bramble.api.sync.validation.IncomingMessageHook.DeliveryAction.ACCEPT_DO_NOT_SHARE;
+import static org.briarproject.nullsafety.NullSafety.requireNonNull;
 
 @NotNullByDefault
 class MailboxUpdateManagerImpl implements MailboxUpdateManager,

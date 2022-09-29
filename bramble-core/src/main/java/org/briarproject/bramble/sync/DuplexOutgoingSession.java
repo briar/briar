@@ -10,7 +10,6 @@ import org.briarproject.bramble.api.event.EventBus;
 import org.briarproject.bramble.api.event.EventListener;
 import org.briarproject.bramble.api.lifecycle.IoExecutor;
 import org.briarproject.bramble.api.lifecycle.event.LifecycleEvent;
-import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.plugin.TransportId;
 import org.briarproject.bramble.api.plugin.event.TransportInactiveEvent;
 import org.briarproject.bramble.api.record.Record;
@@ -31,6 +30,7 @@ import org.briarproject.bramble.api.sync.event.MessageToAckEvent;
 import org.briarproject.bramble.api.sync.event.MessageToRequestEvent;
 import org.briarproject.bramble.api.system.Clock;
 import org.briarproject.bramble.api.transport.StreamWriter;
+import org.briarproject.nullsafety.NotNullByDefault;
 
 import java.io.IOException;
 import java.util.Collection;

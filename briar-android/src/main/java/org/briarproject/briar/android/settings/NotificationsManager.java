@@ -7,11 +7,11 @@ import android.net.Uri;
 import android.widget.Toast;
 
 import org.briarproject.bramble.api.db.DbException;
-import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
-import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
 import org.briarproject.bramble.api.settings.Settings;
 import org.briarproject.bramble.api.settings.SettingsManager;
 import org.briarproject.briar.R;
+import org.briarproject.nullsafety.MethodsNotNullByDefault;
+import org.briarproject.nullsafety.ParametersNotNullByDefault;
 
 import java.util.concurrent.Executor;
 import java.util.logging.Logger;

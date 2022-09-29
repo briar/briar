@@ -6,8 +6,6 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 
-import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
-import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.activity.ActivityComponent;
 import org.briarproject.briar.android.privategroup.creation.GroupInviteActivity;
@@ -15,6 +13,8 @@ import org.briarproject.briar.android.privategroup.memberlist.GroupMemberListAct
 import org.briarproject.briar.android.privategroup.reveal.RevealContactsActivity;
 import org.briarproject.briar.android.threaded.ThreadListActivity;
 import org.briarproject.briar.android.threaded.ThreadListViewModel;
+import org.briarproject.nullsafety.MethodsNotNullByDefault;
+import org.briarproject.nullsafety.ParametersNotNullByDefault;
 
 import javax.annotation.Nullable;
 import javax.inject.Inject;
@@ -25,10 +25,10 @@ import androidx.lifecycle.ViewModelProvider;
 
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
-import static org.briarproject.bramble.api.nullsafety.NullSafety.requireNonNull;
 import static org.briarproject.briar.android.activity.RequestCodes.REQUEST_GROUP_INVITE;
 import static org.briarproject.briar.android.util.UiUtils.observeOnce;
 import static org.briarproject.briar.api.privategroup.PrivateGroupConstants.MAX_GROUP_POST_TEXT_LENGTH;
+import static org.briarproject.nullsafety.NullSafety.requireNonNull;
 
 @MethodsNotNullByDefault
 @ParametersNotNullByDefault

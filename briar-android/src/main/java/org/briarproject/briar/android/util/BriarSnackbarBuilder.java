@@ -6,8 +6,8 @@ import android.view.View.OnClickListener;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.snackbar.Snackbar.Callback;
 
-import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.briar.R;
+import org.briarproject.nullsafety.NotNullByDefault;
 
 import androidx.annotation.ColorRes;
 import androidx.annotation.Nullable;

@@ -1,10 +1,10 @@
 package org.briarproject.bramble.test;
 
-import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.plugin.TransportConnectionReader;
 import org.briarproject.bramble.api.plugin.TransportConnectionWriter;
 import org.briarproject.bramble.api.plugin.duplex.DuplexTransportConnection;
 import org.briarproject.bramble.api.properties.TransportProperties;
+import org.briarproject.nullsafety.NotNullByDefault;
 
 import java.io.IOException;
 import java.io.InputStream;

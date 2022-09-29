@@ -4,8 +4,8 @@ import org.bouncycastle.crypto.engines.Salsa20Engine;
 import org.bouncycastle.crypto.params.KeyParameter;
 import org.bouncycastle.crypto.params.ParametersWithIV;
 import org.briarproject.bramble.api.crypto.SecretKey;
-import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.rendezvous.KeyMaterialSource;
+import org.briarproject.nullsafety.NotNullByDefault;
 
 import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;

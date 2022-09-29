@@ -16,8 +16,6 @@ import android.widget.TextView;
 
 import com.google.android.material.appbar.AppBarLayout;
 
-import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
-import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
 import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.activity.ActivityComponent;
@@ -26,6 +24,8 @@ import org.briarproject.briar.android.attachment.AttachmentItem;
 import org.briarproject.briar.android.util.ActivityLaunchers.CreateDocumentAdvanced;
 import org.briarproject.briar.android.util.BriarSnackbarBuilder;
 import org.briarproject.briar.android.view.PullDownLayout;
+import org.briarproject.nullsafety.MethodsNotNullByDefault;
+import org.briarproject.nullsafety.ParametersNotNullByDefault;
 
 import java.util.List;
 

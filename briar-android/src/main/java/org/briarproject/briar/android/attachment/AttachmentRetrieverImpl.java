@@ -3,7 +3,6 @@ package org.briarproject.briar.android.attachment;
 import org.briarproject.bramble.api.db.DatabaseExecutor;
 import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.db.NoSuchMessageException;
-import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.briar.android.attachment.AttachmentItem.State;
 import org.briarproject.briar.android.attachment.media.ImageHelper;
@@ -13,6 +12,7 @@ import org.briarproject.briar.api.attachment.Attachment;
 import org.briarproject.briar.api.attachment.AttachmentHeader;
 import org.briarproject.briar.api.attachment.AttachmentReader;
 import org.briarproject.briar.api.messaging.PrivateMessageHeader;
+import org.briarproject.nullsafety.NotNullByDefault;
 
 import java.io.BufferedInputStream;
 import java.io.InputStream;

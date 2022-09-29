@@ -3,8 +3,8 @@ package org.briarproject.briar.android.contact;
 import android.view.View;
 import android.widget.TextView;
 
-import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.briar.R;
+import org.briarproject.nullsafety.NotNullByDefault;
 
 import java.util.Locale;
 

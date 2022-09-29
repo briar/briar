@@ -5,12 +5,12 @@ import org.briarproject.bramble.api.event.Event;
 import org.briarproject.bramble.api.event.EventBus;
 import org.briarproject.bramble.api.event.EventListener;
 import org.briarproject.bramble.api.lifecycle.IoExecutor;
-import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.plugin.Plugin;
 import org.briarproject.bramble.api.plugin.PluginManager;
 import org.briarproject.bramble.api.plugin.event.TransportActiveEvent;
 import org.briarproject.bramble.api.plugin.event.TransportInactiveEvent;
 import org.briarproject.bramble.api.system.TaskScheduler;
+import org.briarproject.nullsafety.NotNullByDefault;
 
 import java.util.ArrayList;
 import java.util.List;

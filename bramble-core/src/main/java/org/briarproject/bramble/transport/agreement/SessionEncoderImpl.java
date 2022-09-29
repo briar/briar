@@ -3,9 +3,9 @@ package org.briarproject.bramble.transport.agreement;
 import org.briarproject.bramble.api.crypto.KeyPair;
 import org.briarproject.bramble.api.data.BdfDictionary;
 import org.briarproject.bramble.api.data.BdfEntry;
-import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.plugin.TransportId;
 import org.briarproject.bramble.api.transport.KeySetId;
+import org.briarproject.nullsafety.NotNullByDefault;
 
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;

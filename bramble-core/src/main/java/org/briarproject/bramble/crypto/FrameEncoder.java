@@ -1,7 +1,7 @@
 package org.briarproject.bramble.crypto;
 
-import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.util.ByteUtils;
+import org.briarproject.nullsafety.NotNullByDefault;
 
 import static org.briarproject.bramble.api.transport.TransportConstants.FRAME_HEADER_PLAINTEXT_LENGTH;
 import static org.briarproject.bramble.api.transport.TransportConstants.FRAME_NONCE_LENGTH;

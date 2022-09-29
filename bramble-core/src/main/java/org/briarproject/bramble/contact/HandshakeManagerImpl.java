@@ -16,13 +16,13 @@ import org.briarproject.bramble.api.db.DatabaseComponent;
 import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.db.TransactionManager;
 import org.briarproject.bramble.api.identity.IdentityManager;
-import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.record.Record;
 import org.briarproject.bramble.api.record.RecordReader;
 import org.briarproject.bramble.api.record.RecordReaderFactory;
 import org.briarproject.bramble.api.record.RecordWriter;
 import org.briarproject.bramble.api.record.RecordWriterFactory;
 import org.briarproject.bramble.api.transport.StreamWriter;
+import org.briarproject.nullsafety.NotNullByDefault;
 
 import java.io.EOFException;
 import java.io.IOException;

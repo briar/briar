@@ -1,7 +1,7 @@
 package org.briarproject.bramble.mailbox;
 
-import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.plugin.Plugin;
+import org.briarproject.nullsafety.NotNullByDefault;
 
 import javax.annotation.concurrent.ThreadSafe;
 

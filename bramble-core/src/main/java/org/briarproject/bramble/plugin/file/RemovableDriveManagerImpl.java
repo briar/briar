@@ -4,12 +4,12 @@ import org.briarproject.bramble.api.contact.ContactId;
 import org.briarproject.bramble.api.db.DatabaseComponent;
 import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.lifecycle.IoExecutor;
-import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.plugin.file.RemovableDriveManager;
 import org.briarproject.bramble.api.plugin.file.RemovableDriveTask;
 import org.briarproject.bramble.api.properties.TransportProperties;
 import org.briarproject.bramble.api.properties.TransportPropertyManager;
 import org.briarproject.bramble.api.transport.KeyManager;
+import org.briarproject.nullsafety.NotNullByDefault;
 
 import java.util.concurrent.Executor;
 

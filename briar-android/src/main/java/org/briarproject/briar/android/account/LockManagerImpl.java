@@ -11,8 +11,6 @@ import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.event.Event;
 import org.briarproject.bramble.api.event.EventListener;
 import org.briarproject.bramble.api.lifecycle.Service;
-import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
-import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
 import org.briarproject.bramble.api.settings.Settings;
 import org.briarproject.bramble.api.settings.SettingsManager;
 import org.briarproject.bramble.api.settings.event.SettingsUpdatedEvent;
@@ -20,6 +18,8 @@ import org.briarproject.briar.R;
 import org.briarproject.briar.android.BriarService;
 import org.briarproject.briar.api.android.AndroidNotificationManager;
 import org.briarproject.briar.api.android.LockManager;
+import org.briarproject.nullsafety.MethodsNotNullByDefault;
+import org.briarproject.nullsafety.ParametersNotNullByDefault;
 
 import java.util.concurrent.Executor;
 import java.util.logging.Logger;

@@ -3,10 +3,10 @@ package org.briarproject.briar.android.privategroup.reveal;
 import android.view.View;
 import android.widget.ImageView;
 
-import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.contact.OnContactClickListener;
 import org.briarproject.briar.android.contactselection.BaseSelectableContactHolder;
+import org.briarproject.nullsafety.NotNullByDefault;
 
 import javax.annotation.Nullable;
 

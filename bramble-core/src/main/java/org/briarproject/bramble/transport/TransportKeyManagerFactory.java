@@ -1,7 +1,7 @@
 package org.briarproject.bramble.transport;
 
-import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.plugin.TransportId;
+import org.briarproject.nullsafety.NotNullByDefault;
 
 @NotNullByDefault
 interface TransportKeyManagerFactory {

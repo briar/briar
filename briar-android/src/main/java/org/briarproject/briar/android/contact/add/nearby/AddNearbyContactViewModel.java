@@ -34,7 +34,6 @@ import org.briarproject.bramble.api.keyagreement.event.KeyAgreementListeningEven
 import org.briarproject.bramble.api.keyagreement.event.KeyAgreementStartedEvent;
 import org.briarproject.bramble.api.keyagreement.event.KeyAgreementWaitingEvent;
 import org.briarproject.bramble.api.lifecycle.IoExecutor;
-import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.plugin.BluetoothConstants;
 import org.briarproject.bramble.api.plugin.LanTcpConstants;
 import org.briarproject.bramble.api.plugin.Plugin;
@@ -57,6 +56,7 @@ import org.briarproject.briar.android.qrcode.QrCodeDecoder;
 import org.briarproject.briar.android.qrcode.QrCodeUtils;
 import org.briarproject.briar.android.viewmodel.LiveEvent;
 import org.briarproject.briar.android.viewmodel.MutableLiveEvent;
+import org.briarproject.nullsafety.NotNullByDefault;
 
 import java.io.IOException;
 import java.nio.charset.Charset;

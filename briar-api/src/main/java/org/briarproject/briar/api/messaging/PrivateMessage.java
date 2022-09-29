@@ -1,8 +1,8 @@
 package org.briarproject.briar.api.messaging;
 
-import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.sync.Message;
 import org.briarproject.briar.api.attachment.AttachmentHeader;
+import org.briarproject.nullsafety.NotNullByDefault;
 
 import java.util.List;
 

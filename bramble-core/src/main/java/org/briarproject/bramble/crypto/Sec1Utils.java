@@ -1,6 +1,6 @@
 package org.briarproject.bramble.crypto;
 
-import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
+import org.briarproject.nullsafety.NotNullByDefault;
 
 @NotNullByDefault
 class Sec1Utils {

@@ -1,9 +1,9 @@
 package org.briarproject.bramble.api.properties.event;
 
 import org.briarproject.bramble.api.event.Event;
-import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.plugin.TransportId;
 import org.briarproject.bramble.api.properties.TransportProperties;
+import org.briarproject.nullsafety.NotNullByDefault;
 
 import javax.annotation.concurrent.Immutable;
 

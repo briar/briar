@@ -2,7 +2,7 @@ package org.briarproject.bramble.api.keyagreement.event;
 
 import org.briarproject.bramble.api.event.Event;
 import org.briarproject.bramble.api.keyagreement.Payload;
-import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
+import org.briarproject.nullsafety.NotNullByDefault;
 
 import javax.annotation.concurrent.Immutable;
 

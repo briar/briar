@@ -1,7 +1,7 @@
 package org.briarproject.bramble.api.mailbox;
 
-import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
-import org.briarproject.bramble.api.nullsafety.NullSafety;
+import org.briarproject.nullsafety.NotNullByDefault;
+import org.briarproject.nullsafety.NullSafety;
 
 import java.util.List;
 

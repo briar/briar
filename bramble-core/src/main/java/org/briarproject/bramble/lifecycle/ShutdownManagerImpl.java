@@ -1,7 +1,7 @@
 package org.briarproject.bramble.lifecycle;
 
 import org.briarproject.bramble.api.lifecycle.ShutdownManager;
-import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
+import org.briarproject.nullsafety.NotNullByDefault;
 
 import java.util.HashMap;
 import java.util.Map;

@@ -2,8 +2,8 @@ package org.briarproject.briar.android.attachment;
 
 import android.content.res.Resources;
 
-import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.briar.R;
+import org.briarproject.nullsafety.NotNullByDefault;
 
 import javax.annotation.concurrent.Immutable;
 

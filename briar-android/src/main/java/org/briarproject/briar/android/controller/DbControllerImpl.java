@@ -2,7 +2,7 @@ package org.briarproject.briar.android.controller;
 
 import org.briarproject.bramble.api.db.DatabaseExecutor;
 import org.briarproject.bramble.api.lifecycle.LifecycleManager;
-import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
+import org.briarproject.nullsafety.NotNullByDefault;
 
 import java.util.concurrent.Executor;
 import java.util.logging.Logger;

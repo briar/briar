@@ -5,8 +5,8 @@ import android.content.res.Resources;
 import android.graphics.Rect;
 import android.view.View;
 
-import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.briar.R;
+import org.briarproject.nullsafety.NotNullByDefault;
 
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.RecyclerView.ItemDecoration;

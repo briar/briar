@@ -5,9 +5,9 @@ import org.briarproject.bramble.api.contact.PendingContactId;
 import org.briarproject.bramble.api.crypto.SecretKey;
 import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.db.Transaction;
-import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.transport.KeySetId;
 import org.briarproject.bramble.api.transport.StreamContext;
+import org.briarproject.nullsafety.NotNullByDefault;
 
 import javax.annotation.Nullable;
 

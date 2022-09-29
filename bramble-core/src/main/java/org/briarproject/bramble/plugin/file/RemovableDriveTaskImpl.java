@@ -3,11 +3,11 @@ package org.briarproject.bramble.plugin.file;
 import org.briarproject.bramble.api.Consumer;
 import org.briarproject.bramble.api.connection.ConnectionManager;
 import org.briarproject.bramble.api.event.EventBus;
-import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.plugin.PluginManager;
 import org.briarproject.bramble.api.plugin.file.RemovableDriveTask;
 import org.briarproject.bramble.api.plugin.simplex.SimplexPlugin;
 import org.briarproject.bramble.api.properties.TransportProperties;
+import org.briarproject.nullsafety.NotNullByDefault;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -17,8 +17,8 @@ import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;
 
 import static java.lang.Math.min;
-import static org.briarproject.bramble.api.nullsafety.NullSafety.requireNonNull;
 import static org.briarproject.bramble.api.plugin.file.RemovableDriveConstants.ID;
+import static org.briarproject.nullsafety.NullSafety.requireNonNull;
 
 @ThreadSafe
 @NotNullByDefault

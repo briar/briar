@@ -1,8 +1,8 @@
 package org.briarproject.bramble.api.settings.event;
 
 import org.briarproject.bramble.api.event.Event;
-import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.settings.Settings;
+import org.briarproject.nullsafety.NotNullByDefault;
 
 import javax.annotation.concurrent.Immutable;
 

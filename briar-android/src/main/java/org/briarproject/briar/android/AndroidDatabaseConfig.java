@@ -2,7 +2,7 @@ package org.briarproject.briar.android;
 
 import org.briarproject.bramble.api.crypto.KeyStrengthener;
 import org.briarproject.bramble.api.db.DatabaseConfig;
-import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
+import org.briarproject.nullsafety.NotNullByDefault;
 
 import java.io.File;
 

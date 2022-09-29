@@ -4,11 +4,11 @@ import org.briarproject.bramble.api.Cancellable;
 import org.briarproject.bramble.api.mailbox.MailboxFileId;
 import org.briarproject.bramble.api.mailbox.MailboxFolderId;
 import org.briarproject.bramble.api.mailbox.MailboxProperties;
-import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.mailbox.ConnectivityChecker.ConnectivityObserver;
 import org.briarproject.bramble.mailbox.MailboxApi.ApiException;
 import org.briarproject.bramble.mailbox.MailboxApi.TolerableFailureException;
 import org.briarproject.bramble.mailbox.TorReachabilityMonitor.TorReachabilityObserver;
+import org.briarproject.nullsafety.NotNullByDefault;
 
 import java.io.File;
 import java.io.IOException;

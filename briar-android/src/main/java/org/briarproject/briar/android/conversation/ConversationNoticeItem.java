@@ -1,8 +1,8 @@
 package org.briarproject.briar.android.conversation;
 
-import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.briar.api.conversation.ConversationRequest;
 import org.briarproject.briar.api.conversation.ConversationResponse;
+import org.briarproject.nullsafety.NotNullByDefault;
 
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.NotThreadSafe;

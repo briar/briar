@@ -1,8 +1,8 @@
 package org.briarproject.bramble.plugin.file;
 
-import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.plugin.TransportConnectionWriter;
 import org.briarproject.bramble.api.plugin.simplex.SimplexPlugin;
+import org.briarproject.nullsafety.NotNullByDefault;
 
 import java.io.OutputStream;
 import java.util.logging.Logger;

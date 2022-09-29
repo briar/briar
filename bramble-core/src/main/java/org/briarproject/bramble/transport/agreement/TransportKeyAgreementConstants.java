@@ -1,6 +1,6 @@
 package org.briarproject.bramble.transport.agreement;
 
-import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
+import org.briarproject.nullsafety.NotNullByDefault;
 
 @NotNullByDefault
 interface TransportKeyAgreementConstants {

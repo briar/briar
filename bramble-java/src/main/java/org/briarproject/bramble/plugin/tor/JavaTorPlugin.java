@@ -2,12 +2,12 @@ package org.briarproject.bramble.plugin.tor;
 
 import org.briarproject.bramble.api.battery.BatteryManager;
 import org.briarproject.bramble.api.network.NetworkManager;
-import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.plugin.Backoff;
 import org.briarproject.bramble.api.plugin.PluginCallback;
 import org.briarproject.bramble.api.system.Clock;
 import org.briarproject.bramble.api.system.LocationUtils;
 import org.briarproject.bramble.api.system.ResourceProvider;
+import org.briarproject.nullsafety.NotNullByDefault;
 
 import java.io.File;
 import java.net.URI;

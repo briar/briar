@@ -1,9 +1,9 @@
 package org.briarproject.bramble.mailbox;
 
 import org.briarproject.bramble.api.mailbox.MailboxProperties;
-import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.system.Clock;
 import org.briarproject.bramble.mailbox.MailboxApi.ApiException;
+import org.briarproject.nullsafety.NotNullByDefault;
 
 import java.util.logging.Logger;
 

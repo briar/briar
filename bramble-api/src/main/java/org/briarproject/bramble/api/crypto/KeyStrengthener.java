@@ -1,6 +1,6 @@
 package org.briarproject.bramble.api.crypto;
 
-import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
+import org.briarproject.nullsafety.NotNullByDefault;
 
 /**
  * Interface for strengthening a password-based key, for example by using a

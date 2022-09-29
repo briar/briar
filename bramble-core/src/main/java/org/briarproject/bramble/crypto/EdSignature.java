@@ -10,7 +10,7 @@ import net.i2p.crypto.eddsa.spec.EdDSAPublicKeySpec;
 
 import org.briarproject.bramble.api.crypto.PrivateKey;
 import org.briarproject.bramble.api.crypto.PublicKey;
-import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
+import org.briarproject.nullsafety.NotNullByDefault;
 
 import java.security.GeneralSecurityException;
 import java.security.NoSuchAlgorithmException;

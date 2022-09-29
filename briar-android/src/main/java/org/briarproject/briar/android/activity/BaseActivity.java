@@ -6,8 +6,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewGroup.LayoutParams;
 
-import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
-import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.AndroidComponent;
 import org.briarproject.briar.android.BriarApplication;
@@ -21,6 +19,8 @@ import org.briarproject.briar.android.widget.TapSafeFrameLayout;
 import org.briarproject.briar.android.widget.TapSafeFrameLayout.OnTapFilteredListener;
 import org.briarproject.briar.api.android.ScreenFilterMonitor;
 import org.briarproject.briar.api.android.ScreenFilterMonitor.AppDetails;
+import org.briarproject.nullsafety.MethodsNotNullByDefault;
+import org.briarproject.nullsafety.ParametersNotNullByDefault;
 
 import java.util.ArrayList;
 import java.util.Collection;

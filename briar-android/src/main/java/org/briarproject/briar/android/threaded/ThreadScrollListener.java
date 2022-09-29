@@ -1,8 +1,8 @@
 package org.briarproject.briar.android.threaded;
 
-import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.briar.android.view.BriarRecyclerViewScrollListener;
 import org.briarproject.briar.android.view.UnreadMessageButton;
+import org.briarproject.nullsafety.NotNullByDefault;
 
 import java.util.logging.Logger;
 

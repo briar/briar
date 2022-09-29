@@ -24,11 +24,11 @@ import org.briarproject.bramble.api.mailbox.event.MailboxUnpairedEvent;
 import org.briarproject.bramble.api.mailbox.event.MailboxUpdateSentToNewContactEvent;
 import org.briarproject.bramble.api.mailbox.event.OwnMailboxConnectionStatusEvent;
 import org.briarproject.bramble.api.mailbox.event.RemoteMailboxUpdateEvent;
-import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.plugin.Plugin;
 import org.briarproject.bramble.api.plugin.PluginManager;
 import org.briarproject.bramble.api.plugin.event.TransportActiveEvent;
 import org.briarproject.bramble.api.plugin.event.TransportInactiveEvent;
+import org.briarproject.nullsafety.NotNullByDefault;
 
 import java.util.HashMap;
 import java.util.List;
@@ -47,10 +47,10 @@ import static java.util.logging.Level.WARNING;
 import static java.util.logging.Logger.getLogger;
 import static org.briarproject.bramble.api.mailbox.MailboxConstants.CLIENT_SUPPORTS;
 import static org.briarproject.bramble.api.mailbox.MailboxHelper.isClientCompatibleWithServer;
-import static org.briarproject.bramble.api.nullsafety.NullSafety.requireNonNull;
 import static org.briarproject.bramble.api.plugin.Plugin.State.ACTIVE;
 import static org.briarproject.bramble.api.plugin.TorConstants.ID;
 import static org.briarproject.bramble.util.LogUtils.logException;
+import static org.briarproject.nullsafety.NullSafety.requireNonNull;
 
 /**
  * This component manages a {@link MailboxClient} for each mailbox we know

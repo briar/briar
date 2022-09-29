@@ -17,7 +17,6 @@ import org.briarproject.bramble.api.identity.Author;
 import org.briarproject.bramble.api.identity.AuthorId;
 import org.briarproject.bramble.api.identity.IdentityManager;
 import org.briarproject.bramble.api.identity.LocalAuthor;
-import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.sync.Group;
 import org.briarproject.bramble.api.sync.GroupId;
 import org.briarproject.bramble.api.sync.Message;
@@ -40,6 +39,7 @@ import org.briarproject.briar.api.privategroup.Visibility;
 import org.briarproject.briar.api.privategroup.event.ContactRelationshipRevealedEvent;
 import org.briarproject.briar.api.privategroup.event.GroupDissolvedEvent;
 import org.briarproject.briar.api.privategroup.event.GroupMessageAddedEvent;
+import org.briarproject.nullsafety.NotNullByDefault;
 
 import java.util.ArrayList;
 import java.util.Collection;

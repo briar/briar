@@ -3,13 +3,13 @@ package org.briarproject.bramble.api.transport;
 import org.briarproject.bramble.api.contact.ContactId;
 import org.briarproject.bramble.api.contact.PendingContactId;
 import org.briarproject.bramble.api.crypto.SecretKey;
-import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.plugin.TransportId;
+import org.briarproject.nullsafety.NotNullByDefault;
 
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 
-import static org.briarproject.bramble.api.nullsafety.NullSafety.requireExactlyOneNull;
+import static org.briarproject.nullsafety.NullSafety.requireExactlyOneNull;
 
 @Immutable
 @NotNullByDefault

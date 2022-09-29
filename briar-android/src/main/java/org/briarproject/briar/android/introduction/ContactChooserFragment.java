@@ -5,8 +5,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
-import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.activity.ActivityComponent;
 import org.briarproject.briar.android.contact.ContactListAdapter;
@@ -14,6 +12,8 @@ import org.briarproject.briar.android.contact.ContactListItem;
 import org.briarproject.briar.android.contact.OnContactClickListener;
 import org.briarproject.briar.android.fragment.BaseFragment;
 import org.briarproject.briar.android.view.BriarRecyclerView;
+import org.briarproject.nullsafety.MethodsNotNullByDefault;
+import org.briarproject.nullsafety.ParametersNotNullByDefault;
 
 import javax.inject.Inject;
 

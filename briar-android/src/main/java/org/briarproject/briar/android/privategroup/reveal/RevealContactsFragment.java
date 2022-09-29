@@ -4,13 +4,13 @@ import android.content.Context;
 import android.os.Bundle;
 
 import org.briarproject.bramble.api.contact.ContactId;
-import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
-import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
 import org.briarproject.bramble.api.sync.GroupId;
 import org.briarproject.briar.android.activity.ActivityComponent;
 import org.briarproject.briar.android.contact.OnContactClickListener;
 import org.briarproject.briar.android.contactselection.BaseContactSelectorFragment;
 import org.briarproject.briar.android.contactselection.ContactSelectorController;
+import org.briarproject.nullsafety.MethodsNotNullByDefault;
+import org.briarproject.nullsafety.ParametersNotNullByDefault;
 
 import java.util.Collection;
 

@@ -1,10 +1,10 @@
 package org.briarproject.bramble.api.plugin;
 
 import org.briarproject.bramble.api.Pair;
-import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.properties.TransportProperties;
 import org.briarproject.bramble.api.settings.SettingsManager;
 import org.briarproject.bramble.api.system.Wakeful;
+import org.briarproject.nullsafety.NotNullByDefault;
 
 import java.util.Collection;
 

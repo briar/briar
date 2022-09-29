@@ -11,9 +11,9 @@ import org.briarproject.bramble.api.mailbox.MailboxStatus;
 import org.briarproject.bramble.api.mailbox.MailboxVersion;
 import org.briarproject.bramble.api.mailbox.event.MailboxProblemEvent;
 import org.briarproject.bramble.api.mailbox.event.OwnMailboxConnectionStatusEvent;
-import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.settings.Settings;
 import org.briarproject.bramble.api.settings.SettingsManager;
+import org.briarproject.nullsafety.NotNullByDefault;
 
 import java.util.ArrayList;
 import java.util.List;

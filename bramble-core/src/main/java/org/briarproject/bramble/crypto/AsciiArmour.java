@@ -1,8 +1,8 @@
 package org.briarproject.bramble.crypto;
 
 import org.briarproject.bramble.api.FormatException;
-import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.util.StringUtils;
+import org.briarproject.nullsafety.NotNullByDefault;
 
 @NotNullByDefault
 class AsciiArmour {

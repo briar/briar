@@ -17,14 +17,14 @@ import android.util.DisplayMetrics;
 import org.briarproject.bramble.api.db.DatabaseExecutor;
 import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.lifecycle.IoExecutor;
-import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
-import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
 import org.briarproject.bramble.api.settings.Settings;
 import org.briarproject.bramble.api.settings.SettingsManager;
 import org.briarproject.bramble.api.system.AndroidExecutor;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.hotspot.HotspotState.NetworkConfig;
 import org.briarproject.briar.android.qrcode.QrCodeUtils;
+import org.briarproject.nullsafety.MethodsNotNullByDefault;
+import org.briarproject.nullsafety.ParametersNotNullByDefault;
 
 import java.security.SecureRandom;
 import java.util.concurrent.Executor;

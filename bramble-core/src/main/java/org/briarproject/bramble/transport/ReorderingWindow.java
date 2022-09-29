@@ -1,6 +1,6 @@
 package org.briarproject.bramble.transport;
 
-import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
+import org.briarproject.nullsafety.NotNullByDefault;
 
 import java.util.ArrayList;
 import java.util.Collections;

@@ -15,7 +15,6 @@ import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.db.Metadata;
 import org.briarproject.bramble.api.db.Transaction;
 import org.briarproject.bramble.api.lifecycle.LifecycleManager.OpenDatabaseHook;
-import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.sync.ClientId;
 import org.briarproject.bramble.api.sync.Group;
 import org.briarproject.bramble.api.sync.Group.Visibility;
@@ -36,6 +35,7 @@ import org.briarproject.briar.api.sharing.Shareable;
 import org.briarproject.briar.api.sharing.SharingInvitationItem;
 import org.briarproject.briar.api.sharing.SharingManager;
 import org.briarproject.briar.client.ConversationClientImpl;
+import org.briarproject.nullsafety.NotNullByDefault;
 
 import java.util.ArrayList;
 import java.util.Collection;

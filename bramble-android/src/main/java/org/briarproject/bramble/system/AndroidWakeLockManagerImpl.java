@@ -5,9 +5,9 @@ import android.content.Context;
 import android.content.pm.PackageManager;
 import android.os.PowerManager;
 
-import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.system.AndroidWakeLock;
 import org.briarproject.bramble.api.system.AndroidWakeLockManager;
+import org.briarproject.nullsafety.NotNullByDefault;
 
 import java.util.concurrent.Executor;
 import java.util.concurrent.ScheduledExecutorService;
@@ -18,7 +18,7 @@ import static android.content.Context.POWER_SERVICE;
 import static android.os.PowerManager.PARTIAL_WAKE_LOCK;
 import static java.util.concurrent.TimeUnit.MINUTES;
 import static java.util.concurrent.TimeUnit.SECONDS;
-import static org.briarproject.bramble.api.nullsafety.NullSafety.requireNonNull;
+import static org.briarproject.nullsafety.NullSafety.requireNonNull;
 
 @NotNullByDefault
 class AndroidWakeLockManagerImpl implements AndroidWakeLockManager {

@@ -22,7 +22,6 @@ import org.briarproject.bramble.api.identity.Author;
 import org.briarproject.bramble.api.identity.AuthorId;
 import org.briarproject.bramble.api.identity.Identity;
 import org.briarproject.bramble.api.identity.LocalAuthor;
-import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.plugin.TransportId;
 import org.briarproject.bramble.api.settings.Settings;
 import org.briarproject.bramble.api.sync.ClientId;
@@ -40,6 +39,7 @@ import org.briarproject.bramble.api.transport.KeySetId;
 import org.briarproject.bramble.api.transport.OutgoingKeys;
 import org.briarproject.bramble.api.transport.TransportKeySet;
 import org.briarproject.bramble.api.transport.TransportKeys;
+import org.briarproject.nullsafety.NotNullByDefault;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;

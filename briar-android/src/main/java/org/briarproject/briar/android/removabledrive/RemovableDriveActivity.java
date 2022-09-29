@@ -5,8 +5,6 @@ import android.os.Bundle;
 import android.view.MenuItem;
 
 import org.briarproject.bramble.api.contact.ContactId;
-import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
-import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
 import org.briarproject.bramble.api.plugin.file.RemovableDriveTask;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.activity.ActivityComponent;
@@ -14,6 +12,8 @@ import org.briarproject.briar.android.activity.BriarActivity;
 import org.briarproject.briar.android.fragment.FinalFragment;
 import org.briarproject.briar.android.removabledrive.RemovableDriveViewModel.Action;
 import org.briarproject.briar.android.removabledrive.TransferDataState.TaskAvailable;
+import org.briarproject.nullsafety.MethodsNotNullByDefault;
+import org.briarproject.nullsafety.ParametersNotNullByDefault;
 
 import javax.inject.Inject;
 

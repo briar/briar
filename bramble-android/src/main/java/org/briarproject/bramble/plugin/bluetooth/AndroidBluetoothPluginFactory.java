@@ -6,7 +6,6 @@ import android.bluetooth.BluetoothSocket;
 import org.briarproject.bramble.api.event.EventBus;
 import org.briarproject.bramble.api.io.TimeoutMonitor;
 import org.briarproject.bramble.api.lifecycle.IoExecutor;
-import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.plugin.Backoff;
 import org.briarproject.bramble.api.plugin.BackoffFactory;
 import org.briarproject.bramble.api.plugin.PluginCallback;
@@ -17,6 +16,7 @@ import org.briarproject.bramble.api.system.AndroidExecutor;
 import org.briarproject.bramble.api.system.AndroidWakeLockManager;
 import org.briarproject.bramble.api.system.Clock;
 import org.briarproject.bramble.api.system.WakefulIoExecutor;
+import org.briarproject.nullsafety.NotNullByDefault;
 
 import java.security.SecureRandom;
 import java.util.concurrent.Executor;

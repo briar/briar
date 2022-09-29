@@ -16,7 +16,6 @@ import org.briarproject.bramble.api.event.Event;
 import org.briarproject.bramble.api.event.EventBus;
 import org.briarproject.bramble.api.event.EventListener;
 import org.briarproject.bramble.api.lifecycle.LifecycleManager;
-import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.settings.Settings;
 import org.briarproject.bramble.api.settings.SettingsManager;
 import org.briarproject.bramble.api.sync.GroupId;
@@ -47,6 +46,7 @@ import org.briarproject.briar.api.messaging.PrivateMessageFactory;
 import org.briarproject.briar.api.messaging.PrivateMessageFormat;
 import org.briarproject.briar.api.messaging.PrivateMessageHeader;
 import org.briarproject.briar.api.messaging.event.AttachmentReceivedEvent;
+import org.briarproject.nullsafety.NotNullByDefault;
 
 import java.util.Collection;
 import java.util.List;

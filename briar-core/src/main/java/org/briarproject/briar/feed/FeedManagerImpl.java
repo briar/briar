@@ -22,7 +22,6 @@ import org.briarproject.bramble.api.event.EventListener;
 import org.briarproject.bramble.api.identity.LocalAuthor;
 import org.briarproject.bramble.api.lifecycle.IoExecutor;
 import org.briarproject.bramble.api.lifecycle.LifecycleManager.OpenDatabaseHook;
-import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.plugin.TorConstants;
 import org.briarproject.bramble.api.plugin.TransportId;
 import org.briarproject.bramble.api.plugin.event.TransportActiveEvent;
@@ -40,6 +39,7 @@ import org.briarproject.briar.api.blog.BlogPost;
 import org.briarproject.briar.api.blog.BlogPostFactory;
 import org.briarproject.briar.api.feed.Feed;
 import org.briarproject.briar.api.feed.FeedManager;
+import org.briarproject.nullsafety.NotNullByDefault;
 
 import java.io.IOException;
 import java.io.InputStream;

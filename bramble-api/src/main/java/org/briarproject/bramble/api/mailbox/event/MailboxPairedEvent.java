@@ -4,7 +4,7 @@ import org.briarproject.bramble.api.contact.ContactId;
 import org.briarproject.bramble.api.event.Event;
 import org.briarproject.bramble.api.mailbox.MailboxProperties;
 import org.briarproject.bramble.api.mailbox.MailboxUpdateWithMailbox;
-import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
+import org.briarproject.nullsafety.NotNullByDefault;
 
 import java.util.Map;
 

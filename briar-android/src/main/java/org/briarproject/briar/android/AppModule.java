@@ -16,7 +16,6 @@ import org.briarproject.bramble.api.db.DatabaseConfig;
 import org.briarproject.bramble.api.event.EventBus;
 import org.briarproject.bramble.api.lifecycle.LifecycleManager;
 import org.briarproject.bramble.api.mailbox.MailboxDirectory;
-import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.plugin.BluetoothConstants;
 import org.briarproject.bramble.api.plugin.LanTcpConstants;
 import org.briarproject.bramble.api.plugin.PluginConfig;
@@ -63,6 +62,7 @@ import org.briarproject.briar.api.android.LockManager;
 import org.briarproject.briar.api.android.NetworkUsageMetrics;
 import org.briarproject.briar.api.android.ScreenFilterMonitor;
 import org.briarproject.briar.api.test.TestAvatarCreator;
+import org.briarproject.nullsafety.NotNullByDefault;
 
 import java.io.File;
 import java.security.GeneralSecurityException;

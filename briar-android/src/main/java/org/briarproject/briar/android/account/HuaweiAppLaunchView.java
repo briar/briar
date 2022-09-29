@@ -6,8 +6,8 @@ import android.content.Intent;
 import android.util.AttributeSet;
 import android.widget.Toast;
 
-import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.briar.R;
+import org.briarproject.nullsafety.NotNullByDefault;
 
 import java.util.logging.Logger;
 

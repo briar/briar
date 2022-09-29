@@ -1,6 +1,6 @@
 package org.briarproject.bramble.api.db;
 
-import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
+import org.briarproject.nullsafety.NotNullByDefault;
 
 @NotNullByDefault
 public interface DbRunnable<E extends Exception> {

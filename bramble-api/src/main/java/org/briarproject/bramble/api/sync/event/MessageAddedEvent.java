@@ -2,9 +2,9 @@ package org.briarproject.bramble.api.sync.event;
 
 import org.briarproject.bramble.api.contact.ContactId;
 import org.briarproject.bramble.api.event.Event;
-import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.sync.GroupId;
 import org.briarproject.bramble.api.sync.Message;
+import org.briarproject.nullsafety.NotNullByDefault;
 
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;

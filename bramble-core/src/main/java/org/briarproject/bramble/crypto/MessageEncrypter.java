@@ -31,8 +31,8 @@ import org.briarproject.bramble.api.crypto.KeyPair;
 import org.briarproject.bramble.api.crypto.KeyParser;
 import org.briarproject.bramble.api.crypto.PrivateKey;
 import org.briarproject.bramble.api.crypto.PublicKey;
-import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.util.StringUtils;
+import org.briarproject.nullsafety.NotNullByDefault;
 
 import java.io.FileInputStream;
 import java.io.FileOutputStream;

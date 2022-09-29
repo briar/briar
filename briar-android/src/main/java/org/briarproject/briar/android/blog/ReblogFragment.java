@@ -7,8 +7,6 @@ import android.view.ViewGroup;
 import android.widget.ProgressBar;
 import android.widget.ScrollView;
 
-import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
-import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
 import org.briarproject.bramble.api.sync.GroupId;
 import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.briar.R;
@@ -20,6 +18,8 @@ import org.briarproject.briar.android.view.TextSendController.SendListener;
 import org.briarproject.briar.android.view.TextSendController.SendState;
 import org.briarproject.briar.android.widget.LinkDialogFragment;
 import org.briarproject.briar.api.attachment.AttachmentHeader;
+import org.briarproject.nullsafety.MethodsNotNullByDefault;
+import org.briarproject.nullsafety.ParametersNotNullByDefault;
 
 import java.util.List;
 

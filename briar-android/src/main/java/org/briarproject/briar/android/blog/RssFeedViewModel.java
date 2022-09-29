@@ -9,7 +9,6 @@ import org.briarproject.bramble.api.db.Transaction;
 import org.briarproject.bramble.api.db.TransactionManager;
 import org.briarproject.bramble.api.lifecycle.IoExecutor;
 import org.briarproject.bramble.api.lifecycle.LifecycleManager;
-import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.sync.GroupId;
 import org.briarproject.bramble.api.system.AndroidExecutor;
 import org.briarproject.briar.android.viewmodel.DbViewModel;
@@ -18,6 +17,7 @@ import org.briarproject.briar.android.viewmodel.LiveResult;
 import org.briarproject.briar.android.viewmodel.MutableLiveEvent;
 import org.briarproject.briar.api.feed.Feed;
 import org.briarproject.briar.api.feed.FeedManager;
+import org.briarproject.nullsafety.NotNullByDefault;
 
 import java.io.IOException;
 import java.net.MalformedURLException;

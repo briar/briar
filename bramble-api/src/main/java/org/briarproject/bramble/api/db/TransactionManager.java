@@ -1,7 +1,7 @@
 package org.briarproject.bramble.api.db;
 
 import org.briarproject.bramble.api.event.EventExecutor;
-import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
+import org.briarproject.nullsafety.NotNullByDefault;
 
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.ThreadSafe;

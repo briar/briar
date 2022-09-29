@@ -8,9 +8,9 @@ import com.bumptech.glide.Registry;
 import com.bumptech.glide.annotation.GlideModule;
 import com.bumptech.glide.module.AppGlideModule;
 
-import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.briar.android.BriarApplication;
 import org.briarproject.briar.api.attachment.AttachmentHeader;
+import org.briarproject.nullsafety.NotNullByDefault;
 
 import java.io.InputStream;
 

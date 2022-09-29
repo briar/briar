@@ -8,9 +8,9 @@ import org.jmock.Expectations;
 import org.junit.Test;
 
 import static org.briarproject.bramble.api.mailbox.MailboxConstants.CLIENT_SUPPORTS;
-import static org.briarproject.bramble.api.nullsafety.NullSafety.requireNonNull;
 import static org.briarproject.bramble.test.TestUtils.getContactId;
 import static org.briarproject.bramble.test.TestUtils.getMailboxProperties;
+import static org.briarproject.nullsafety.NullSafety.requireNonNull;
 
 public class ContactMailboxClientTest extends BrambleMockTestCase {
 

@@ -3,7 +3,7 @@ package org.briarproject.bramble.system;
 import android.os.PowerManager;
 import android.os.PowerManager.WakeLock;
 
-import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
+import org.briarproject.nullsafety.NotNullByDefault;
 
 import java.util.concurrent.Future;
 import java.util.concurrent.ScheduledExecutorService;
@@ -18,7 +18,7 @@ import static java.util.logging.Level.FINE;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
 import static java.util.logging.Logger.getLogger;
-import static org.briarproject.bramble.api.nullsafety.NullSafety.requireNonNull;
+import static org.briarproject.nullsafety.NullSafety.requireNonNull;
 
 @ThreadSafe
 @NotNullByDefault

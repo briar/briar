@@ -4,13 +4,13 @@ import org.briarproject.bramble.api.FormatException;
 import org.briarproject.bramble.api.data.BdfList;
 import org.briarproject.bramble.api.data.MetadataEncoder;
 import org.briarproject.bramble.api.db.Metadata;
-import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.sync.Group;
 import org.briarproject.bramble.api.sync.InvalidMessageException;
 import org.briarproject.bramble.api.sync.Message;
 import org.briarproject.bramble.api.sync.MessageContext;
 import org.briarproject.bramble.api.sync.validation.MessageValidator;
 import org.briarproject.bramble.api.system.Clock;
+import org.briarproject.nullsafety.NotNullByDefault;
 
 import java.util.logging.Logger;
 

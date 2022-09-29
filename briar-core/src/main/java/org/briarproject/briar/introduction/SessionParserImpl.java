@@ -9,7 +9,6 @@ import org.briarproject.bramble.api.crypto.PublicKey;
 import org.briarproject.bramble.api.data.BdfDictionary;
 import org.briarproject.bramble.api.data.BdfEntry;
 import org.briarproject.bramble.api.identity.Author;
-import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.plugin.TransportId;
 import org.briarproject.bramble.api.properties.TransportProperties;
 import org.briarproject.bramble.api.sync.GroupId;
@@ -20,6 +19,7 @@ import org.briarproject.briar.api.introduction.Role;
 import org.briarproject.briar.introduction.IntroduceeSession.Local;
 import org.briarproject.briar.introduction.IntroduceeSession.Remote;
 import org.briarproject.briar.introduction.IntroducerSession.Introducee;
+import org.briarproject.nullsafety.NotNullByDefault;
 
 import java.util.HashMap;
 import java.util.Map;

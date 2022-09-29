@@ -4,7 +4,6 @@ import org.briarproject.bramble.api.contact.ContactId;
 import org.briarproject.bramble.api.db.DatabaseComponent;
 import org.briarproject.bramble.api.db.DatabaseExecutor;
 import org.briarproject.bramble.api.event.EventBus;
-import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.plugin.TransportId;
 import org.briarproject.bramble.api.sync.OutgoingSessionRecord;
 import org.briarproject.bramble.api.sync.Priority;
@@ -17,6 +16,7 @@ import org.briarproject.bramble.api.sync.SyncSession;
 import org.briarproject.bramble.api.sync.SyncSessionFactory;
 import org.briarproject.bramble.api.system.Clock;
 import org.briarproject.bramble.api.transport.StreamWriter;
+import org.briarproject.nullsafety.NotNullByDefault;
 
 import java.io.InputStream;
 import java.io.OutputStream;

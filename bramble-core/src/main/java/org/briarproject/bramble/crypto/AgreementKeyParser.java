@@ -5,7 +5,7 @@ import org.briarproject.bramble.api.crypto.AgreementPublicKey;
 import org.briarproject.bramble.api.crypto.KeyParser;
 import org.briarproject.bramble.api.crypto.PrivateKey;
 import org.briarproject.bramble.api.crypto.PublicKey;
-import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
+import org.briarproject.nullsafety.NotNullByDefault;
 
 import java.security.GeneralSecurityException;
 

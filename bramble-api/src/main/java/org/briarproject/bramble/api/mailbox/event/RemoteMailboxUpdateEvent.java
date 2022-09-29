@@ -3,7 +3,7 @@ package org.briarproject.bramble.api.mailbox.event;
 import org.briarproject.bramble.api.contact.ContactId;
 import org.briarproject.bramble.api.event.Event;
 import org.briarproject.bramble.api.mailbox.MailboxUpdate;
-import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
+import org.briarproject.nullsafety.NotNullByDefault;
 
 import javax.annotation.concurrent.Immutable;
 

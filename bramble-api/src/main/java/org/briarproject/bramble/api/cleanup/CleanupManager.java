@@ -5,9 +5,9 @@ import org.briarproject.bramble.api.crypto.SecretKey;
 import org.briarproject.bramble.api.db.DatabaseComponent;
 import org.briarproject.bramble.api.db.Transaction;
 import org.briarproject.bramble.api.lifecycle.LifecycleManager;
-import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.sync.ClientId;
 import org.briarproject.bramble.api.sync.MessageId;
+import org.briarproject.nullsafety.NotNullByDefault;
 
 /**
  * The CleanupManager is responsible for tracking the cleanup deadlines of

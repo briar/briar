@@ -10,7 +10,6 @@ import org.briarproject.bramble.api.crypto.SecretKey;
 import org.briarproject.bramble.api.identity.Author;
 import org.briarproject.bramble.api.identity.AuthorId;
 import org.briarproject.bramble.api.identity.Identity;
-import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.plugin.TransportId;
 import org.briarproject.bramble.api.settings.Settings;
 import org.briarproject.bramble.api.sync.Ack;
@@ -27,6 +26,7 @@ import org.briarproject.bramble.api.sync.validation.MessageState;
 import org.briarproject.bramble.api.transport.KeySetId;
 import org.briarproject.bramble.api.transport.TransportKeySet;
 import org.briarproject.bramble.api.transport.TransportKeys;
+import org.briarproject.nullsafety.NotNullByDefault;
 
 import java.util.Collection;
 import java.util.List;

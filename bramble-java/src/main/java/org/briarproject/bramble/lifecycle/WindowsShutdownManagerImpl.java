@@ -14,7 +14,7 @@ import com.sun.jna.win32.StdCallLibrary.StdCallCallback;
 import com.sun.jna.win32.W32APIFunctionMapper;
 import com.sun.jna.win32.W32APITypeMapper;
 
-import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
+import org.briarproject.nullsafety.NotNullByDefault;
 
 import java.util.Collections;
 import java.util.HashMap;

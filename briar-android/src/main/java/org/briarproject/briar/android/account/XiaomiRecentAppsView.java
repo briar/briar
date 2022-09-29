@@ -3,8 +3,8 @@ package org.briarproject.briar.android.account;
 import android.content.Context;
 import android.util.AttributeSet;
 
-import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.briar.R;
+import org.briarproject.nullsafety.NotNullByDefault;
 
 import javax.annotation.Nullable;
 

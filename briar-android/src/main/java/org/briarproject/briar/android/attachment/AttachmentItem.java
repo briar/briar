@@ -3,10 +3,10 @@ package org.briarproject.briar.android.attachment;
 import android.os.Parcel;
 import android.os.Parcelable;
 
-import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.sync.GroupId;
 import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.briar.api.attachment.AttachmentHeader;
+import org.briarproject.nullsafety.NotNullByDefault;
 
 import javax.annotation.concurrent.Immutable;
 

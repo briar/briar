@@ -9,11 +9,11 @@ import android.view.ViewGroup;
 import android.view.animation.AccelerateInterpolator;
 import android.widget.TextView;
 
-import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.util.StringUtils;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.threaded.ThreadItemAdapter.ThreadItemListener;
 import org.briarproject.briar.android.view.AuthorView;
+import org.briarproject.nullsafety.NotNullByDefault;
 
 import androidx.annotation.CallSuper;
 import androidx.annotation.UiThread;

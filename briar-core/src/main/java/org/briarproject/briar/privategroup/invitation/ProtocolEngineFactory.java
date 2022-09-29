@@ -1,6 +1,6 @@
 package org.briarproject.briar.privategroup.invitation;
 
-import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
+import org.briarproject.nullsafety.NotNullByDefault;
 
 @NotNullByDefault
 interface ProtocolEngineFactory {

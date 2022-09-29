@@ -4,9 +4,9 @@ import com.bumptech.glide.load.model.ModelLoader;
 import com.bumptech.glide.load.model.ModelLoaderFactory;
 import com.bumptech.glide.load.model.MultiModelLoaderFactory;
 
-import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.briar.android.BriarApplication;
 import org.briarproject.briar.api.attachment.AttachmentHeader;
+import org.briarproject.nullsafety.NotNullByDefault;
 
 import java.io.InputStream;
 

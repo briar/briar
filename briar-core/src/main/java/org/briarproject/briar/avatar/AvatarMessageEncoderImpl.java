@@ -4,12 +4,12 @@ import org.briarproject.bramble.api.Pair;
 import org.briarproject.bramble.api.client.ClientHelper;
 import org.briarproject.bramble.api.data.BdfDictionary;
 import org.briarproject.bramble.api.data.BdfList;
-import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.sync.GroupId;
 import org.briarproject.bramble.api.sync.Message;
 import org.briarproject.bramble.api.system.Clock;
 import org.briarproject.briar.api.attachment.FileTooBigException;
 import org.briarproject.briar.api.avatar.AvatarMessageEncoder;
+import org.briarproject.nullsafety.NotNullByDefault;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;

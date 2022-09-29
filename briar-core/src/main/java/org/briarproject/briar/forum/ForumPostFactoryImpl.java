@@ -4,12 +4,12 @@ import org.briarproject.bramble.api.FormatException;
 import org.briarproject.bramble.api.client.ClientHelper;
 import org.briarproject.bramble.api.data.BdfList;
 import org.briarproject.bramble.api.identity.LocalAuthor;
-import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.sync.GroupId;
 import org.briarproject.bramble.api.sync.Message;
 import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.briar.api.forum.ForumPost;
 import org.briarproject.briar.api.forum.ForumPostFactory;
+import org.briarproject.nullsafety.NotNullByDefault;
 
 import java.security.GeneralSecurityException;
 

@@ -1,9 +1,9 @@
 package org.briarproject.bramble.record;
 
-import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.record.Record;
 import org.briarproject.bramble.api.record.RecordWriter;
 import org.briarproject.bramble.util.ByteUtils;
+import org.briarproject.nullsafety.NotNullByDefault;
 
 import java.io.IOException;
 import java.io.OutputStream;

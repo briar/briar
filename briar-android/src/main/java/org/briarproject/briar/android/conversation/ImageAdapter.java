@@ -8,10 +8,10 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
 
-import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.attachment.AttachmentItem;
 import org.briarproject.briar.android.conversation.glide.Radii;
+import org.briarproject.nullsafety.NotNullByDefault;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -6,12 +6,12 @@ import org.briarproject.bramble.api.contact.ContactManager;
 import org.briarproject.bramble.api.db.DatabaseExecutor;
 import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.lifecycle.LifecycleManager;
-import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.sync.GroupId;
 import org.briarproject.briar.android.controller.DbControllerImpl;
 import org.briarproject.briar.android.controller.handler.ResultExceptionHandler;
 import org.briarproject.briar.api.identity.AuthorInfo;
 import org.briarproject.briar.api.identity.AuthorManager;
+import org.briarproject.nullsafety.NotNullByDefault;
 
 import java.util.ArrayList;
 import java.util.Collection;

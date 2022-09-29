@@ -2,7 +2,7 @@ package org.briarproject.briar.test;
 
 import org.briarproject.bramble.api.event.Event;
 import org.briarproject.bramble.api.event.EventListener;
-import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
+import org.briarproject.nullsafety.NotNullByDefault;
 
 import java.util.concurrent.atomic.AtomicReference;
 

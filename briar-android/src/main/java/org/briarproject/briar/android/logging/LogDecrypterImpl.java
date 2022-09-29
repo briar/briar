@@ -1,9 +1,9 @@
 package org.briarproject.briar.android.logging;
 
 import org.briarproject.bramble.api.crypto.SecretKey;
-import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.reporting.DevConfig;
 import org.briarproject.bramble.api.transport.StreamReaderFactory;
+import org.briarproject.nullsafety.NotNullByDefault;
 
 import java.io.File;
 import java.io.FileInputStream;

@@ -1,6 +1,5 @@
 package org.briarproject.briar.api.conversation;
 
-import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.briar.api.blog.BlogInvitationRequest;
 import org.briarproject.briar.api.blog.BlogInvitationResponse;
 import org.briarproject.briar.api.forum.ForumInvitationRequest;
@@ -10,6 +9,7 @@ import org.briarproject.briar.api.introduction.IntroductionResponse;
 import org.briarproject.briar.api.messaging.PrivateMessageHeader;
 import org.briarproject.briar.api.privategroup.invitation.GroupInvitationRequest;
 import org.briarproject.briar.api.privategroup.invitation.GroupInvitationResponse;
+import org.briarproject.nullsafety.NotNullByDefault;
 
 @NotNullByDefault
 public interface ConversationMessageVisitor<T> {

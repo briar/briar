@@ -34,8 +34,6 @@ import org.briarproject.bramble.api.db.NoSuchContactException;
 import org.briarproject.bramble.api.event.Event;
 import org.briarproject.bramble.api.event.EventBus;
 import org.briarproject.bramble.api.event.EventListener;
-import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
-import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
 import org.briarproject.bramble.api.plugin.event.ContactConnectedEvent;
 import org.briarproject.bramble.api.plugin.event.ContactDisconnectedEvent;
 import org.briarproject.bramble.api.sync.ClientId;
@@ -86,6 +84,8 @@ import org.briarproject.briar.api.introduction.IntroductionManager;
 import org.briarproject.briar.api.messaging.MessagingManager;
 import org.briarproject.briar.api.messaging.PrivateMessageHeader;
 import org.briarproject.briar.api.privategroup.invitation.GroupInvitationManager;
+import org.briarproject.nullsafety.MethodsNotNullByDefault;
+import org.briarproject.nullsafety.ParametersNotNullByDefault;
 
 import java.util.ArrayList;
 import java.util.Collection;

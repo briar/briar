@@ -42,7 +42,6 @@ import org.briarproject.bramble.api.identity.Identity;
 import org.briarproject.bramble.api.identity.event.IdentityAddedEvent;
 import org.briarproject.bramble.api.identity.event.IdentityRemovedEvent;
 import org.briarproject.bramble.api.lifecycle.ShutdownManager;
-import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.plugin.TransportId;
 import org.briarproject.bramble.api.settings.Settings;
 import org.briarproject.bramble.api.settings.event.SettingsUpdatedEvent;
@@ -72,6 +71,7 @@ import org.briarproject.bramble.api.sync.validation.MessageState;
 import org.briarproject.bramble.api.transport.KeySetId;
 import org.briarproject.bramble.api.transport.TransportKeySet;
 import org.briarproject.bramble.api.transport.TransportKeys;
+import org.briarproject.nullsafety.NotNullByDefault;
 
 import java.util.ArrayList;
 import java.util.Collection;

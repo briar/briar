@@ -3,9 +3,9 @@ package org.briarproject.bramble.api.properties;
 import org.briarproject.bramble.api.contact.ContactId;
 import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.db.Transaction;
-import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.plugin.TransportId;
 import org.briarproject.bramble.api.sync.ClientId;
+import org.briarproject.nullsafety.NotNullByDefault;
 
 import java.util.Map;
 

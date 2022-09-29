@@ -1,7 +1,7 @@
 package org.briarproject.bramble.crypto;
 
 import org.briarproject.bramble.api.crypto.PasswordStrengthEstimator;
-import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
+import org.briarproject.nullsafety.NotNullByDefault;
 
 import java.util.HashSet;
 

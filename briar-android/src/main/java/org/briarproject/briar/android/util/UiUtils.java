@@ -34,14 +34,14 @@ import com.google.android.material.textfield.TextInputLayout;
 
 import org.briarproject.bramble.api.contact.Contact;
 import org.briarproject.bramble.api.identity.Author;
-import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
-import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
 import org.briarproject.bramble.api.system.AndroidExecutor;
 import org.briarproject.bramble.util.StringUtils;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.reporting.FeedbackActivity;
 import org.briarproject.briar.android.view.ArticleMovementMethod;
 import org.briarproject.briar.api.android.MemoryStats;
+import org.briarproject.nullsafety.MethodsNotNullByDefault;
+import org.briarproject.nullsafety.ParametersNotNullByDefault;
 
 import java.util.Locale;
 import java.util.logging.Logger;

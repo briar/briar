@@ -12,8 +12,8 @@ import org.briarproject.bramble.api.identity.Identity;
 import org.briarproject.bramble.api.identity.IdentityManager;
 import org.briarproject.bramble.api.identity.LocalAuthor;
 import org.briarproject.bramble.api.lifecycle.LifecycleManager.OpenDatabaseHook;
-import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.system.Clock;
+import org.briarproject.nullsafety.NotNullByDefault;
 
 import java.util.Collection;
 import java.util.logging.Logger;
@@ -23,9 +23,9 @@ import javax.annotation.concurrent.ThreadSafe;
 import javax.inject.Inject;
 
 import static java.util.logging.Logger.getLogger;
-import static org.briarproject.bramble.api.nullsafety.NullSafety.requireNonNull;
 import static org.briarproject.bramble.util.LogUtils.logDuration;
 import static org.briarproject.bramble.util.LogUtils.now;
+import static org.briarproject.nullsafety.NullSafety.requireNonNull;
 
 @ThreadSafe
 @NotNullByDefault

@@ -1,10 +1,10 @@
 package org.briarproject.bramble.reliability;
 
-import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
-import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
 import org.briarproject.bramble.api.reliability.ReliabilityLayer;
 import org.briarproject.bramble.api.reliability.WriteHandler;
 import org.briarproject.bramble.api.system.Clock;
+import org.briarproject.nullsafety.MethodsNotNullByDefault;
+import org.briarproject.nullsafety.ParametersNotNullByDefault;
 
 import java.io.IOException;
 import java.io.InputStream;

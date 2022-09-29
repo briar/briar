@@ -1,7 +1,7 @@
 package org.briarproject.bramble.api;
 
-import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.util.StringUtils;
+import org.briarproject.nullsafety.NotNullByDefault;
 
 import java.util.Arrays;
 

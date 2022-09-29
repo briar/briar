@@ -21,8 +21,8 @@ import org.briarproject.bramble.api.event.EventListener;
 import org.briarproject.bramble.api.identity.Author;
 import org.briarproject.bramble.api.identity.AuthorId;
 import org.briarproject.bramble.api.identity.IdentityManager;
-import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.transport.KeyManager;
+import org.briarproject.nullsafety.NotNullByDefault;
 
 import java.security.GeneralSecurityException;
 import java.util.ArrayList;

@@ -1,6 +1,6 @@
 package org.briarproject.briar.util;
 
-import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
+import org.briarproject.nullsafety.NotNullByDefault;
 import org.jsoup.Jsoup;
 import org.jsoup.safety.Safelist;
 

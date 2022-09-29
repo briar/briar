@@ -7,11 +7,11 @@ import org.briarproject.bramble.api.db.Transaction;
 import org.briarproject.bramble.api.identity.AuthorId;
 import org.briarproject.bramble.api.identity.IdentityManager;
 import org.briarproject.bramble.api.identity.LocalAuthor;
-import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.briar.api.attachment.AttachmentHeader;
 import org.briarproject.briar.api.avatar.AvatarManager;
 import org.briarproject.briar.api.identity.AuthorInfo;
 import org.briarproject.briar.api.identity.AuthorManager;
+import org.briarproject.nullsafety.NotNullByDefault;
 
 import java.util.Collection;
 

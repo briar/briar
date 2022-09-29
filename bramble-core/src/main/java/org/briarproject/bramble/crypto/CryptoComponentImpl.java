@@ -21,11 +21,11 @@ import org.briarproject.bramble.api.crypto.PublicKey;
 import org.briarproject.bramble.api.crypto.SecretKey;
 import org.briarproject.bramble.api.crypto.SignaturePrivateKey;
 import org.briarproject.bramble.api.crypto.SignaturePublicKey;
-import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.system.SecureRandomProvider;
 import org.briarproject.bramble.util.Base32;
 import org.briarproject.bramble.util.ByteUtils;
 import org.briarproject.bramble.util.StringUtils;
+import org.briarproject.nullsafety.NotNullByDefault;
 import org.whispersystems.curve25519.Curve25519;
 import org.whispersystems.curve25519.Curve25519KeyPair;
 

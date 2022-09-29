@@ -3,8 +3,8 @@ package org.briarproject.bramble.plugin.tcp;
 import org.bitlet.weupnp.GatewayDevice;
 import org.bitlet.weupnp.GatewayDiscover;
 import org.briarproject.bramble.api.lifecycle.ShutdownManager;
-import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
-import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
+import org.briarproject.nullsafety.MethodsNotNullByDefault;
+import org.briarproject.nullsafety.ParametersNotNullByDefault;
 import org.xml.sax.SAXException;
 
 import java.io.IOException;

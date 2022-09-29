@@ -1,9 +1,9 @@
 package org.briarproject.bramble.plugin.modem;
 
-import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.reliability.ReliabilityLayerFactory;
 import org.briarproject.bramble.api.system.Clock;
 import org.briarproject.bramble.system.SystemClock;
+import org.briarproject.nullsafety.NotNullByDefault;
 
 import java.util.concurrent.Executor;
 

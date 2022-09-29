@@ -9,12 +9,12 @@ import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.TextView;
 
-import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.view.AuthorView;
 import org.briarproject.briar.api.blog.BlogCommentHeader;
 import org.briarproject.briar.api.blog.BlogPostHeader;
+import org.briarproject.nullsafety.NotNullByDefault;
 
 import androidx.annotation.UiThread;
 import androidx.core.view.ViewCompat;

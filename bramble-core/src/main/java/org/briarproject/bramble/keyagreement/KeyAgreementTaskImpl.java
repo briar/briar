@@ -16,11 +16,11 @@ import org.briarproject.bramble.api.keyagreement.event.KeyAgreementListeningEven
 import org.briarproject.bramble.api.keyagreement.event.KeyAgreementStartedEvent;
 import org.briarproject.bramble.api.keyagreement.event.KeyAgreementStoppedListeningEvent;
 import org.briarproject.bramble.api.keyagreement.event.KeyAgreementWaitingEvent;
-import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
-import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
 import org.briarproject.bramble.api.plugin.PluginManager;
 import org.briarproject.bramble.api.record.RecordReaderFactory;
 import org.briarproject.bramble.api.record.RecordWriterFactory;
+import org.briarproject.nullsafety.MethodsNotNullByDefault;
+import org.briarproject.nullsafety.ParametersNotNullByDefault;
 
 import java.io.IOException;
 import java.util.logging.Logger;

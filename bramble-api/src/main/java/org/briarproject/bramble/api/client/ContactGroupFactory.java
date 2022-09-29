@@ -2,9 +2,9 @@ package org.briarproject.bramble.api.client;
 
 import org.briarproject.bramble.api.contact.Contact;
 import org.briarproject.bramble.api.identity.AuthorId;
-import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.sync.ClientId;
 import org.briarproject.bramble.api.sync.Group;
+import org.briarproject.nullsafety.NotNullByDefault;
 
 @NotNullByDefault
 public interface ContactGroupFactory {

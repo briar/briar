@@ -1,6 +1,6 @@
 package org.briarproject.bramble.reliability;
 
-import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
+import org.briarproject.nullsafety.NotNullByDefault;
 
 @NotNullByDefault
 class Crc32 {

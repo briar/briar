@@ -1,6 +1,6 @@
 package org.briarproject.briar.api.attachment;
 
-import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
+import org.briarproject.nullsafety.NotNullByDefault;
 
 import java.io.InputStream;
 

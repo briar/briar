@@ -20,8 +20,6 @@ import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.navigation.NavigationView.OnNavigationItemSelectedListener;
 
 import org.briarproject.bramble.api.lifecycle.LifecycleManager;
-import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
-import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
 import org.briarproject.bramble.api.plugin.BluetoothConstants;
 import org.briarproject.bramble.api.plugin.LanTcpConstants;
 import org.briarproject.bramble.api.plugin.Plugin.State;
@@ -40,6 +38,8 @@ import org.briarproject.briar.android.fragment.BaseFragment.BaseFragmentListener
 import org.briarproject.briar.android.logout.SignOutFragment;
 import org.briarproject.briar.android.privategroup.list.GroupListFragment;
 import org.briarproject.briar.android.settings.SettingsActivity;
+import org.briarproject.nullsafety.MethodsNotNullByDefault;
+import org.briarproject.nullsafety.ParametersNotNullByDefault;
 
 import java.util.ArrayList;
 import java.util.List;

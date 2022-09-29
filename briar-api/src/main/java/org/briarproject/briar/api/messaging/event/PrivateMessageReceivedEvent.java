@@ -1,9 +1,9 @@
 package org.briarproject.briar.api.messaging.event;
 
 import org.briarproject.bramble.api.contact.ContactId;
-import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.briar.api.conversation.event.ConversationMessageReceivedEvent;
 import org.briarproject.briar.api.messaging.PrivateMessageHeader;
+import org.briarproject.nullsafety.NotNullByDefault;
 
 import javax.annotation.concurrent.Immutable;
 

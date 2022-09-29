@@ -9,7 +9,6 @@ import org.briarproject.bramble.api.db.DatabaseComponent;
 import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.db.Transaction;
 import org.briarproject.bramble.api.event.Event;
-import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.sync.ClientId;
 import org.briarproject.bramble.api.sync.Group;
 import org.briarproject.bramble.api.sync.Group.Visibility;
@@ -23,6 +22,7 @@ import org.briarproject.briar.api.client.ProtocolStateException;
 import org.briarproject.briar.api.conversation.ConversationManager;
 import org.briarproject.briar.api.sharing.Shareable;
 import org.briarproject.briar.api.sharing.event.ContactLeftShareableEvent;
+import org.briarproject.nullsafety.NotNullByDefault;
 
 import java.util.Map;
 

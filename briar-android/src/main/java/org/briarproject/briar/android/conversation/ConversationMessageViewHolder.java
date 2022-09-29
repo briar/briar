@@ -4,9 +4,9 @@ import android.content.res.ColorStateList;
 import android.view.View;
 import android.view.ViewGroup;
 
-import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.attachment.AttachmentItem;
+import org.briarproject.nullsafety.NotNullByDefault;
 
 import androidx.annotation.UiThread;
 import androidx.constraintlayout.widget.ConstraintSet;

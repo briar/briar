@@ -1,6 +1,6 @@
 package org.briarproject.bramble.io;
 
-import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
+import org.briarproject.nullsafety.NotNullByDefault;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;

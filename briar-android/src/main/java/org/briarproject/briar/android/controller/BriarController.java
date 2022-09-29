@@ -1,8 +1,8 @@
 package org.briarproject.briar.android.controller;
 
-import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.system.Wakeful;
 import org.briarproject.briar.android.controller.handler.ResultHandler;
+import org.briarproject.nullsafety.NotNullByDefault;
 
 @NotNullByDefault
 public interface BriarController extends ActivityLifecycleController {
