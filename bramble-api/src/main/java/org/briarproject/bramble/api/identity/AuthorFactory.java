@@ -1,7 +1,7 @@
 package org.briarproject.bramble.api.identity;
 
 import org.briarproject.bramble.api.crypto.PublicKey;
-import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
+import org.briarproject.nullsafety.NotNullByDefault;
 
 @NotNullByDefault
 public interface AuthorFactory {

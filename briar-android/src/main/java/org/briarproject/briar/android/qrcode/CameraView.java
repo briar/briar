@@ -14,8 +14,8 @@ import android.view.SurfaceView;
 import android.view.View;
 import android.view.WindowManager;
 
-import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
-import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
+import org.briarproject.nullsafety.MethodsNotNullByDefault;
+import org.briarproject.nullsafety.ParametersNotNullByDefault;
 
 import java.io.IOException;
 import java.util.List;

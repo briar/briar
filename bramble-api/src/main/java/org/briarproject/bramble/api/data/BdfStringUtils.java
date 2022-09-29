@@ -2,7 +2,7 @@ package org.briarproject.bramble.api.data;
 
 import org.briarproject.bramble.api.Bytes;
 import org.briarproject.bramble.api.FormatException;
-import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
+import org.briarproject.nullsafety.NotNullByDefault;
 
 import java.util.List;
 import java.util.Map;

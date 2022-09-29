@@ -5,9 +5,9 @@ import android.content.Intent;
 
 import org.briarproject.bramble.api.account.AccountManager;
 import org.briarproject.bramble.api.lifecycle.LifecycleManager;
-import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.settings.SettingsManager;
 import org.briarproject.briar.R;
+import org.briarproject.nullsafety.NotNullByDefault;
 import org.junit.ClassRule;
 
 import javax.inject.Inject;

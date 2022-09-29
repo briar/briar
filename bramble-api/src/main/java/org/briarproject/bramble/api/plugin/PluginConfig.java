@@ -1,8 +1,8 @@
 package org.briarproject.bramble.api.plugin;
 
-import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.plugin.duplex.DuplexPluginFactory;
 import org.briarproject.bramble.api.plugin.simplex.SimplexPluginFactory;
+import org.briarproject.nullsafety.NotNullByDefault;
 
 import java.util.Collection;
 import java.util.List;

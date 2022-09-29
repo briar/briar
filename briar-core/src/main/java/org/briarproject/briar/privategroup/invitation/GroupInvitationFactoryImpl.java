@@ -7,10 +7,10 @@ import org.briarproject.bramble.api.contact.Contact;
 import org.briarproject.bramble.api.crypto.PrivateKey;
 import org.briarproject.bramble.api.data.BdfList;
 import org.briarproject.bramble.api.identity.AuthorId;
-import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.sync.Group;
 import org.briarproject.bramble.api.sync.GroupId;
 import org.briarproject.briar.api.privategroup.invitation.GroupInvitationFactory;
+import org.briarproject.nullsafety.NotNullByDefault;
 
 import java.security.GeneralSecurityException;
 

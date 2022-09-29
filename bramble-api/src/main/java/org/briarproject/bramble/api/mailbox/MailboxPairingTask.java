@@ -1,7 +1,7 @@
 package org.briarproject.bramble.api.mailbox;
 
 import org.briarproject.bramble.api.Consumer;
-import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
+import org.briarproject.nullsafety.NotNullByDefault;
 
 @NotNullByDefault
 public interface MailboxPairingTask extends Runnable {

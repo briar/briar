@@ -8,7 +8,7 @@ import org.bouncycastle.math.ec.ECPoint;
 import org.briarproject.bramble.api.crypto.KeyParser;
 import org.briarproject.bramble.api.crypto.PrivateKey;
 import org.briarproject.bramble.api.crypto.PublicKey;
-import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
+import org.briarproject.nullsafety.NotNullByDefault;
 
 import java.math.BigInteger;
 import java.security.GeneralSecurityException;

@@ -1,8 +1,8 @@
 package org.briarproject.briar.android.logging;
 
 import org.briarproject.bramble.api.crypto.PublicKey;
-import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.reporting.DevConfig;
+import org.briarproject.nullsafety.NotNullByDefault;
 
 import java.io.File;
 

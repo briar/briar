@@ -2,9 +2,9 @@ package org.briarproject.bramble.db;
 
 import org.briarproject.bramble.api.db.DatabaseConfig;
 import org.briarproject.bramble.api.db.DbException;
-import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.sync.MessageFactory;
 import org.briarproject.bramble.api.system.Clock;
+import org.briarproject.nullsafety.NotNullByDefault;
 import org.junit.Ignore;
 
 import java.sql.Connection;

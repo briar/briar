@@ -1,7 +1,7 @@
 package org.briarproject.bramble.plugin;
 
-import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.plugin.Backoff;
+import org.briarproject.nullsafety.NotNullByDefault;
 
 import java.util.concurrent.atomic.AtomicInteger;
 

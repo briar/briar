@@ -6,13 +6,13 @@ import android.widget.ImageView;
 
 import com.bumptech.glide.load.Transformation;
 
-import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.attachment.AttachmentItem;
 import org.briarproject.briar.android.conversation.glide.BriarImageTransformation;
 import org.briarproject.briar.android.conversation.glide.GlideApp;
 import org.briarproject.briar.android.conversation.glide.Radii;
+import org.briarproject.nullsafety.NotNullByDefault;
 
 import androidx.annotation.DrawableRes;
 import androidx.recyclerview.widget.RecyclerView.ViewHolder;

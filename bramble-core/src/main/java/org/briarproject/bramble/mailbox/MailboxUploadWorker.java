@@ -12,7 +12,6 @@ import org.briarproject.bramble.api.event.EventListener;
 import org.briarproject.bramble.api.lifecycle.IoExecutor;
 import org.briarproject.bramble.api.mailbox.MailboxFolderId;
 import org.briarproject.bramble.api.mailbox.MailboxProperties;
-import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.plugin.event.ContactConnectedEvent;
 import org.briarproject.bramble.api.plugin.event.ContactDisconnectedEvent;
 import org.briarproject.bramble.api.sync.MessageId;
@@ -24,6 +23,7 @@ import org.briarproject.bramble.api.system.Clock;
 import org.briarproject.bramble.api.system.TaskScheduler;
 import org.briarproject.bramble.mailbox.ConnectivityChecker.ConnectivityObserver;
 import org.briarproject.bramble.mailbox.MailboxApi.ApiException;
+import org.briarproject.nullsafety.NotNullByDefault;
 
 import java.io.File;
 import java.io.IOException;

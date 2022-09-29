@@ -8,7 +8,6 @@ import org.briarproject.bramble.api.account.AccountManager;
 import org.briarproject.bramble.api.db.DatabaseExecutor;
 import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.lifecycle.LifecycleManager;
-import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.settings.Settings;
 import org.briarproject.bramble.api.settings.SettingsManager;
 import org.briarproject.bramble.api.system.AndroidWakeLockManager;
@@ -17,6 +16,7 @@ import org.briarproject.briar.android.BriarService;
 import org.briarproject.briar.android.BriarService.BriarServiceConnection;
 import org.briarproject.briar.android.controller.handler.ResultHandler;
 import org.briarproject.briar.api.android.DozeWatchdog;
+import org.briarproject.nullsafety.NotNullByDefault;
 
 import java.util.concurrent.Executor;
 import java.util.logging.Logger;

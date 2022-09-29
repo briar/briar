@@ -21,7 +21,6 @@ import android.os.Build;
 import android.os.Environment;
 
 import org.briarproject.bramble.api.Pair;
-import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.briar.BuildConfig;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.reporting.ReportData.MultiReportInfo;
@@ -30,6 +29,7 @@ import org.briarproject.briar.android.reporting.ReportData.SingleReportInfo;
 import org.briarproject.briar.api.android.MemoryStats;
 import org.briarproject.briar.api.android.NetworkUsageMetrics;
 import org.briarproject.briar.api.android.NetworkUsageMetrics.Metrics;
+import org.briarproject.nullsafety.NotNullByDefault;
 
 import java.io.File;
 import java.io.PrintWriter;

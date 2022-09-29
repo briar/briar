@@ -15,7 +15,7 @@
  */
 package org.briarproject.briar.android.viewmodel;
 
-import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
+import org.briarproject.nullsafety.NotNullByDefault;
 
 import java.util.Map;
 import java.util.Map.Entry;

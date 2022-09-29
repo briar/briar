@@ -7,11 +7,11 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import org.briarproject.bramble.api.Pair;
-import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.util.BriarAdapter;
 import org.briarproject.briar.android.util.ItemReturningAdapter;
+import org.briarproject.nullsafety.NotNullByDefault;
 
 import java.util.ArrayList;
 import java.util.Collection;

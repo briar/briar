@@ -2,8 +2,8 @@ package org.briarproject.bramble.api.sync.validation;
 
 import org.briarproject.bramble.api.crypto.SecretKey;
 import org.briarproject.bramble.api.lifecycle.LifecycleManager;
-import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.sync.ClientId;
+import org.briarproject.nullsafety.NotNullByDefault;
 
 /**
  * Responsible for managing message validators and passing them messages to

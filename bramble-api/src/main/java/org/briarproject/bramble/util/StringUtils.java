@@ -1,7 +1,7 @@
 package org.briarproject.bramble.util;
 
 import org.briarproject.bramble.api.FormatException;
-import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
+import org.briarproject.nullsafety.NotNullByDefault;
 
 import java.io.UnsupportedEncodingException;
 import java.nio.ByteBuffer;

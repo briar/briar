@@ -1,7 +1,7 @@
 package org.briarproject.briar.introduction;
 
 import org.briarproject.bramble.api.FormatException;
-import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
+import org.briarproject.nullsafety.NotNullByDefault;
 
 import javax.annotation.concurrent.Immutable;
 

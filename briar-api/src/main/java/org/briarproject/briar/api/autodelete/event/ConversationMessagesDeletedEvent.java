@@ -2,8 +2,8 @@ package org.briarproject.briar.api.autodelete.event;
 
 import org.briarproject.bramble.api.contact.ContactId;
 import org.briarproject.bramble.api.event.Event;
-import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.sync.MessageId;
+import org.briarproject.nullsafety.NotNullByDefault;
 
 import java.util.Collection;
 

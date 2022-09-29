@@ -1,9 +1,9 @@
 package org.briarproject.bramble.plugin.bluetooth;
 
 import org.briarproject.bramble.api.event.EventBus;
-import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.plugin.duplex.DuplexTransportConnection;
 import org.briarproject.bramble.api.sync.event.CloseSyncConnectionsEvent;
+import org.briarproject.nullsafety.NotNullByDefault;
 
 import java.util.LinkedList;
 import java.util.List;

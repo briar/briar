@@ -6,9 +6,9 @@ import android.view.ViewGroup;
 import android.widget.CheckBox;
 import android.widget.TextView;
 
-import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.reporting.ReportData.ReportItem;
+import org.briarproject.nullsafety.NotNullByDefault;
 
 import java.util.List;
 

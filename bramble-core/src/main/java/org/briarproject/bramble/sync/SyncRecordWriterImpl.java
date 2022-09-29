@@ -1,6 +1,5 @@
 package org.briarproject.bramble.sync;
 
-import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.record.Record;
 import org.briarproject.bramble.api.record.RecordWriter;
 import org.briarproject.bramble.api.sync.Ack;
@@ -12,6 +11,7 @@ import org.briarproject.bramble.api.sync.Priority;
 import org.briarproject.bramble.api.sync.Request;
 import org.briarproject.bramble.api.sync.SyncRecordWriter;
 import org.briarproject.bramble.api.sync.Versions;
+import org.briarproject.nullsafety.NotNullByDefault;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;

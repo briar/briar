@@ -36,12 +36,12 @@ import javax.annotation.Nullable;
 import static java.util.Collections.singletonList;
 import static java.util.Collections.singletonMap;
 import static org.briarproject.bramble.api.mailbox.MailboxConstants.CLIENT_SUPPORTS;
-import static org.briarproject.bramble.api.nullsafety.NullSafety.requireNonNull;
 import static org.briarproject.bramble.api.plugin.Plugin.State.ACTIVE;
 import static org.briarproject.bramble.api.plugin.Plugin.State.ENABLING;
 import static org.briarproject.bramble.api.plugin.TorConstants.ID;
 import static org.briarproject.bramble.test.TestUtils.getContact;
 import static org.briarproject.bramble.test.TestUtils.getMailboxProperties;
+import static org.briarproject.nullsafety.NullSafety.requireNonNull;
 
 public class MailboxClientManagerTest extends BrambleMockTestCase {
 

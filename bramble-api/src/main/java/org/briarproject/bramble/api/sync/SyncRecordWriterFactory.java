@@ -1,6 +1,6 @@
 package org.briarproject.bramble.api.sync;
 
-import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
+import org.briarproject.nullsafety.NotNullByDefault;
 
 import java.io.OutputStream;
 

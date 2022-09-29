@@ -10,10 +10,10 @@ import org.briarproject.bramble.api.crypto.SecretKey;
 import org.briarproject.bramble.api.data.BdfList;
 import org.briarproject.bramble.api.identity.Author;
 import org.briarproject.bramble.api.identity.AuthorId;
-import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.briar.api.client.SessionId;
 import org.briarproject.briar.introduction.IntroduceeSession.Common;
 import org.briarproject.briar.introduction.IntroduceeSession.Remote;
+import org.briarproject.nullsafety.NotNullByDefault;
 
 import java.security.GeneralSecurityException;
 

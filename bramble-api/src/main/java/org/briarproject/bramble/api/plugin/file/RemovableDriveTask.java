@@ -1,8 +1,8 @@
 package org.briarproject.bramble.api.plugin.file;
 
 import org.briarproject.bramble.api.Consumer;
-import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.properties.TransportProperties;
+import org.briarproject.nullsafety.NotNullByDefault;
 
 @NotNullByDefault
 public interface RemovableDriveTask extends Runnable {

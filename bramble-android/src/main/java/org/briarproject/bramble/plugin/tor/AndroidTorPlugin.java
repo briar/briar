@@ -7,8 +7,6 @@ import android.content.pm.PackageManager.NameNotFoundException;
 
 import org.briarproject.bramble.api.battery.BatteryManager;
 import org.briarproject.bramble.api.network.NetworkManager;
-import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
-import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
 import org.briarproject.bramble.api.plugin.Backoff;
 import org.briarproject.bramble.api.plugin.PluginCallback;
 import org.briarproject.bramble.api.system.AndroidWakeLock;
@@ -17,6 +15,8 @@ import org.briarproject.bramble.api.system.Clock;
 import org.briarproject.bramble.api.system.LocationUtils;
 import org.briarproject.bramble.api.system.ResourceProvider;
 import org.briarproject.bramble.util.AndroidUtils;
+import org.briarproject.nullsafety.MethodsNotNullByDefault;
+import org.briarproject.nullsafety.ParametersNotNullByDefault;
 
 import java.io.File;
 import java.io.FileInputStream;

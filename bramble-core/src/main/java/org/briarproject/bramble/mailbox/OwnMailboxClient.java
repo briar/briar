@@ -5,9 +5,9 @@ import org.briarproject.bramble.api.contact.ContactId;
 import org.briarproject.bramble.api.lifecycle.IoExecutor;
 import org.briarproject.bramble.api.mailbox.MailboxFolderId;
 import org.briarproject.bramble.api.mailbox.MailboxProperties;
-import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.system.TaskScheduler;
 import org.briarproject.bramble.mailbox.ConnectivityChecker.ConnectivityObserver;
+import org.briarproject.nullsafety.NotNullByDefault;
 
 import java.util.ArrayList;
 import java.util.HashMap;

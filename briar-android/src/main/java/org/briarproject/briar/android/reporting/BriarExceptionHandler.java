@@ -4,8 +4,8 @@ import android.app.Application;
 import android.os.Process;
 import android.util.Log;
 
-import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.briar.android.logging.LogEncrypter;
+import org.briarproject.nullsafety.NotNullByDefault;
 
 import java.lang.Thread.UncaughtExceptionHandler;
 

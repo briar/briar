@@ -1,6 +1,6 @@
 package org.briarproject.bramble.api.rendezvous;
 
-import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
+import org.briarproject.nullsafety.NotNullByDefault;
 
 /**
  * A source of key material for use in making rendezvous connections.

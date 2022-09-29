@@ -3,7 +3,7 @@ package org.briarproject.briar.android.util;
 import android.content.Context;
 import android.content.Intent;
 
-import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
+import org.briarproject.nullsafety.NotNullByDefault;
 
 import androidx.activity.result.contract.ActivityResultContract;
 import androidx.activity.result.contract.ActivityResultContracts.CreateDocument;

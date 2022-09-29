@@ -2,10 +2,10 @@ package org.briarproject.bramble.mailbox;
 
 import org.briarproject.bramble.api.mailbox.MailboxFolderId;
 import org.briarproject.bramble.api.mailbox.MailboxProperties;
-import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.mailbox.MailboxApi.ApiException;
 import org.briarproject.bramble.mailbox.MailboxApi.MailboxFile;
 import org.briarproject.bramble.mailbox.MailboxApi.TolerableFailureException;
+import org.briarproject.nullsafety.NotNullByDefault;
 
 import java.io.IOException;
 import java.util.ArrayList;

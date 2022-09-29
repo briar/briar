@@ -1,6 +1,6 @@
 package org.briarproject.bramble.api.connection;
 
-import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
+import org.briarproject.nullsafety.NotNullByDefault;
 
 /**
  * A duplex sync connection that can be closed by interrupting its outgoing

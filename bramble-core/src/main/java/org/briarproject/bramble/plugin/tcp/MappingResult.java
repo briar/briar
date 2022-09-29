@@ -1,6 +1,6 @@
 package org.briarproject.bramble.plugin.tcp;
 
-import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
+import org.briarproject.nullsafety.NotNullByDefault;
 
 import java.net.InetAddress;
 import java.net.InetSocketAddress;

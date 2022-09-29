@@ -1,7 +1,7 @@
 package org.briarproject.briar.android.controller.handler;
 
-import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.briar.android.DestroyableContext;
+import org.briarproject.nullsafety.NotNullByDefault;
 
 import javax.annotation.concurrent.Immutable;
 

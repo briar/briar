@@ -1,6 +1,6 @@
 package org.briarproject.briar.api.android;
 
-import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
+import org.briarproject.nullsafety.NotNullByDefault;
 
 import java.util.Collection;
 

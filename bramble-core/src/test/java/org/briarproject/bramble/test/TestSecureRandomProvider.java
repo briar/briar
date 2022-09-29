@@ -1,7 +1,7 @@
 package org.briarproject.bramble.test;
 
-import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.system.SecureRandomProvider;
+import org.briarproject.nullsafety.NotNullByDefault;
 
 import java.security.Provider;
 

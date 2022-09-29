@@ -1,8 +1,8 @@
 package org.briarproject.bramble.transport;
 
 import org.briarproject.bramble.api.crypto.SecretKey;
-import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.transport.OutgoingKeys;
+import org.briarproject.nullsafety.NotNullByDefault;
 
 import javax.annotation.concurrent.NotThreadSafe;
 

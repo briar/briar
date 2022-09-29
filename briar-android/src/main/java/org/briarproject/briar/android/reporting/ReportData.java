@@ -1,6 +1,6 @@
 package org.briarproject.briar.android.reporting;
 
-import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
+import org.briarproject.nullsafety.NotNullByDefault;
 import org.json.JSONException;
 import org.json.JSONObject;
 

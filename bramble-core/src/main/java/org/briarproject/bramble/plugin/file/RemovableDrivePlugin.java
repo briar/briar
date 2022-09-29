@@ -1,8 +1,8 @@
 package org.briarproject.bramble.plugin.file;
 
-import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.plugin.PluginCallback;
 import org.briarproject.bramble.api.properties.TransportProperties;
+import org.briarproject.nullsafety.NotNullByDefault;
 
 import java.io.FileInputStream;
 import java.io.FileOutputStream;

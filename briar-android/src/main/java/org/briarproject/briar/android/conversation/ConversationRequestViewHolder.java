@@ -3,8 +3,8 @@ package org.briarproject.briar.android.conversation;
 import android.view.View;
 import android.widget.Button;
 
-import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.briar.R;
+import org.briarproject.nullsafety.NotNullByDefault;
 
 import androidx.annotation.UiThread;
 

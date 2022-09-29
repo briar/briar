@@ -1,9 +1,9 @@
 package org.briarproject.briar.api.privategroup.invitation;
 
 import org.briarproject.bramble.api.contact.Contact;
-import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.briar.api.privategroup.PrivateGroup;
 import org.briarproject.briar.api.sharing.InvitationItem;
+import org.briarproject.nullsafety.NotNullByDefault;
 
 import javax.annotation.concurrent.Immutable;
 

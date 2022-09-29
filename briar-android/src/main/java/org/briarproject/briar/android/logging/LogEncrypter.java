@@ -1,7 +1,7 @@
 package org.briarproject.briar.android.logging;
 
-import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.util.AndroidUtils;
+import org.briarproject.nullsafety.NotNullByDefault;
 
 import androidx.annotation.Nullable;
 

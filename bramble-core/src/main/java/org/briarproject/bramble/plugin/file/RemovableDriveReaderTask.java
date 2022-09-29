@@ -2,10 +2,10 @@ package org.briarproject.bramble.plugin.file;
 
 import org.briarproject.bramble.api.connection.ConnectionManager;
 import org.briarproject.bramble.api.event.EventBus;
-import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.plugin.PluginManager;
 import org.briarproject.bramble.api.plugin.TransportConnectionReader;
 import org.briarproject.bramble.api.properties.TransportProperties;
+import org.briarproject.nullsafety.NotNullByDefault;
 
 import java.io.IOException;
 import java.io.InputStream;

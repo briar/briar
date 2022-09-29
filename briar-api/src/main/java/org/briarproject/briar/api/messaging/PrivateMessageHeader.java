@@ -1,11 +1,11 @@
 package org.briarproject.briar.api.messaging;
 
-import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.sync.GroupId;
 import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.briar.api.attachment.AttachmentHeader;
 import org.briarproject.briar.api.conversation.ConversationMessageHeader;
 import org.briarproject.briar.api.conversation.ConversationMessageVisitor;
+import org.briarproject.nullsafety.NotNullByDefault;
 
 import java.util.List;
 

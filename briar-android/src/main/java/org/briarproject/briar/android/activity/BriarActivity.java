@@ -5,8 +5,6 @@ import android.transition.Transition;
 import android.view.Window;
 import android.widget.CheckBox;
 
-import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
-import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
 import org.briarproject.bramble.api.system.AndroidWakeLockManager;
 import org.briarproject.bramble.api.system.Wakeful;
 import org.briarproject.briar.R;
@@ -18,6 +16,8 @@ import org.briarproject.briar.android.controller.handler.UiResultHandler;
 import org.briarproject.briar.android.login.StartupActivity;
 import org.briarproject.briar.android.logout.ExitActivity;
 import org.briarproject.briar.api.android.LockManager;
+import org.briarproject.nullsafety.MethodsNotNullByDefault;
+import org.briarproject.nullsafety.ParametersNotNullByDefault;
 
 import java.util.logging.Logger;
 

@@ -3,7 +3,7 @@ package org.briarproject.briar.android.attachment.media;
 import android.graphics.BitmapFactory;
 import android.webkit.MimeTypeMap;
 
-import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
+import org.briarproject.nullsafety.NotNullByDefault;
 
 import java.io.InputStream;
 

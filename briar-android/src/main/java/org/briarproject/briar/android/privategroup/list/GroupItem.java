@@ -1,12 +1,12 @@
 package org.briarproject.briar.android.privategroup.list;
 
 import org.briarproject.bramble.api.identity.Author;
-import org.briarproject.briar.api.identity.AuthorInfo;
-import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.sync.GroupId;
 import org.briarproject.briar.api.client.MessageTracker.GroupCount;
+import org.briarproject.briar.api.identity.AuthorInfo;
 import org.briarproject.briar.api.privategroup.GroupMessageHeader;
 import org.briarproject.briar.api.privategroup.PrivateGroup;
+import org.briarproject.nullsafety.NotNullByDefault;
 
 import javax.annotation.concurrent.Immutable;
 

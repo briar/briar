@@ -1,8 +1,8 @@
 package org.briarproject.briar.privategroup.invitation;
 
 import org.briarproject.bramble.api.FormatException;
-import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.sync.Group.Visibility;
+import org.briarproject.nullsafety.NotNullByDefault;
 
 import javax.annotation.concurrent.Immutable;
 

@@ -17,7 +17,6 @@ import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.db.Transaction;
 import org.briarproject.bramble.api.identity.IdentityManager;
 import org.briarproject.bramble.api.identity.LocalAuthor;
-import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.plugin.TransportId;
 import org.briarproject.bramble.api.properties.TransportProperties;
 import org.briarproject.bramble.api.properties.TransportPropertyManager;
@@ -37,6 +36,7 @@ import org.briarproject.briar.api.identity.AuthorManager;
 import org.briarproject.briar.api.introduction.IntroductionRequest;
 import org.briarproject.briar.api.introduction.event.IntroductionAbortedEvent;
 import org.briarproject.briar.api.introduction.event.IntroductionRequestReceivedEvent;
+import org.briarproject.nullsafety.NotNullByDefault;
 
 import java.security.GeneralSecurityException;
 import java.util.Collection;
@@ -49,7 +49,6 @@ import javax.inject.Inject;
 
 import static java.lang.Math.max;
 import static java.util.logging.Level.WARNING;
-import static org.briarproject.bramble.api.nullsafety.NullSafety.requireNonNull;
 import static org.briarproject.bramble.api.system.Clock.MIN_REASONABLE_TIME_MS;
 import static org.briarproject.bramble.util.LogUtils.logException;
 import static org.briarproject.briar.introduction.IntroduceeState.AWAIT_AUTH;
@@ -59,6 +58,7 @@ import static org.briarproject.briar.introduction.IntroduceeState.LOCAL_DECLINED
 import static org.briarproject.briar.introduction.IntroduceeState.REMOTE_ACCEPTED;
 import static org.briarproject.briar.introduction.IntroduceeState.REMOTE_DECLINED;
 import static org.briarproject.briar.introduction.IntroduceeState.START;
+import static org.briarproject.nullsafety.NullSafety.requireNonNull;
 
 @Immutable
 @NotNullByDefault

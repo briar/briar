@@ -5,10 +5,10 @@ import android.graphics.Bitmap;
 import android.util.DisplayMetrics;
 
 import org.briarproject.bramble.api.lifecycle.IoExecutor;
-import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
-import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
 import org.briarproject.briar.android.hotspot.HotspotState.WebsiteConfig;
 import org.briarproject.briar.android.qrcode.QrCodeUtils;
+import org.briarproject.nullsafety.MethodsNotNullByDefault;
+import org.briarproject.nullsafety.ParametersNotNullByDefault;
 
 import java.io.IOException;
 import java.net.InetAddress;

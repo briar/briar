@@ -2,7 +2,7 @@ package org.briarproject.bramble.api.record;
 
 import org.briarproject.bramble.api.FormatException;
 import org.briarproject.bramble.api.Predicate;
-import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
+import org.briarproject.nullsafety.NotNullByDefault;
 
 import java.io.EOFException;
 import java.io.IOException;

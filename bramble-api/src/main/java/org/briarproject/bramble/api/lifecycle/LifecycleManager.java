@@ -4,9 +4,9 @@ import org.briarproject.bramble.api.crypto.SecretKey;
 import org.briarproject.bramble.api.db.DatabaseComponent;
 import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.db.Transaction;
-import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.system.Clock;
 import org.briarproject.bramble.api.system.Wakeful;
+import org.briarproject.nullsafety.NotNullByDefault;
 
 import java.util.concurrent.ExecutorService;
 

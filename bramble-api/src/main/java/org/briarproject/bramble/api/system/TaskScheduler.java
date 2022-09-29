@@ -1,7 +1,7 @@
 package org.briarproject.bramble.api.system;
 
 import org.briarproject.bramble.api.Cancellable;
-import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
+import org.briarproject.nullsafety.NotNullByDefault;
 
 import java.util.concurrent.Executor;
 import java.util.concurrent.TimeUnit;

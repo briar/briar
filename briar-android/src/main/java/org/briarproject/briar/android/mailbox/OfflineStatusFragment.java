@@ -1,7 +1,7 @@
 package org.briarproject.briar.android.mailbox;
 
-import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
-import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
+import org.briarproject.nullsafety.MethodsNotNullByDefault;
+import org.briarproject.nullsafety.ParametersNotNullByDefault;
 
 @MethodsNotNullByDefault
 @ParametersNotNullByDefault

@@ -11,7 +11,7 @@ import android.os.Parcel;
 import android.os.StrictMode;
 import android.provider.Settings;
 
-import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
+import org.briarproject.nullsafety.NotNullByDefault;
 
 import java.io.DataOutputStream;
 import java.io.IOException;

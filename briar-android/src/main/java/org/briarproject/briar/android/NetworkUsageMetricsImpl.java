@@ -3,8 +3,8 @@ package org.briarproject.briar.android;
 import android.net.TrafficStats;
 import android.os.Process;
 
-import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.briar.api.android.NetworkUsageMetrics;
+import org.briarproject.nullsafety.NotNullByDefault;
 
 import java.util.logging.Logger;
 

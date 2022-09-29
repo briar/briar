@@ -3,8 +3,8 @@ package org.briarproject.briar.api.autodelete;
 import org.briarproject.bramble.api.contact.ContactId;
 import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.db.Transaction;
-import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.sync.ClientId;
+import org.briarproject.nullsafety.NotNullByDefault;
 
 import static java.util.concurrent.TimeUnit.DAYS;
 

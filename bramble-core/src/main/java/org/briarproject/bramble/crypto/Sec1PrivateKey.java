@@ -2,7 +2,7 @@ package org.briarproject.bramble.crypto;
 
 import org.bouncycastle.crypto.params.ECPrivateKeyParameters;
 import org.briarproject.bramble.api.crypto.PrivateKey;
-import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
+import org.briarproject.nullsafety.NotNullByDefault;
 
 import javax.annotation.concurrent.Immutable;
 

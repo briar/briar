@@ -6,7 +6,7 @@ import android.view.View;
 
 import com.google.android.material.snackbar.Snackbar.SnackbarLayout;
 
-import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
+import org.briarproject.nullsafety.NotNullByDefault;
 
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import androidx.coordinatorlayout.widget.CoordinatorLayout.Behavior;

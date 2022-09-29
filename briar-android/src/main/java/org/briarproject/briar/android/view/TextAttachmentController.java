@@ -9,12 +9,12 @@ import android.os.Parcel;
 import android.os.Parcelable;
 import android.widget.Toast;
 
-import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.attachment.AttachmentItemResult;
 import org.briarproject.briar.android.attachment.AttachmentManager;
 import org.briarproject.briar.android.attachment.AttachmentResult;
 import org.briarproject.briar.android.view.ImagePreview.ImagePreviewListener;
+import org.briarproject.nullsafety.NotNullByDefault;
 
 import java.util.ArrayList;
 import java.util.Collection;

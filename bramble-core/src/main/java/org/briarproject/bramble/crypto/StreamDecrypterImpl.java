@@ -3,8 +3,8 @@ package org.briarproject.bramble.crypto;
 import org.briarproject.bramble.api.FormatException;
 import org.briarproject.bramble.api.crypto.SecretKey;
 import org.briarproject.bramble.api.crypto.StreamDecrypter;
-import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.util.ByteUtils;
+import org.briarproject.nullsafety.NotNullByDefault;
 
 import java.io.EOFException;
 import java.io.IOException;

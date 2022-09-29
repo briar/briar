@@ -7,7 +7,7 @@ import org.briarproject.bramble.api.data.BdfWriter;
 import org.briarproject.bramble.api.data.BdfWriterFactory;
 import org.briarproject.bramble.api.data.MetadataEncoder;
 import org.briarproject.bramble.api.db.Metadata;
-import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
+import org.briarproject.nullsafety.NotNullByDefault;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;

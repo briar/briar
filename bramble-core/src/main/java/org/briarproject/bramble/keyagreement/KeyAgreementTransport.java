@@ -2,7 +2,6 @@ package org.briarproject.bramble.keyagreement;
 
 import org.briarproject.bramble.api.Predicate;
 import org.briarproject.bramble.api.keyagreement.KeyAgreementConnection;
-import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.plugin.TransportId;
 import org.briarproject.bramble.api.plugin.duplex.DuplexTransportConnection;
 import org.briarproject.bramble.api.record.Record;
@@ -10,6 +9,7 @@ import org.briarproject.bramble.api.record.RecordReader;
 import org.briarproject.bramble.api.record.RecordReaderFactory;
 import org.briarproject.bramble.api.record.RecordWriter;
 import org.briarproject.bramble.api.record.RecordWriterFactory;
+import org.briarproject.nullsafety.NotNullByDefault;
 
 import java.io.EOFException;
 import java.io.IOException;

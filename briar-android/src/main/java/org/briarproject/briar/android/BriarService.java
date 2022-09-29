@@ -50,7 +50,6 @@ import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
 import static org.briarproject.bramble.api.lifecycle.LifecycleManager.StartResult.ALREADY_RUNNING;
 import static org.briarproject.bramble.api.lifecycle.LifecycleManager.StartResult.SUCCESS;
-import static org.briarproject.bramble.api.nullsafety.NullSafety.requireNonNull;
 import static org.briarproject.bramble.util.AndroidUtils.isUiThread;
 import static org.briarproject.briar.android.BriarApplication.ENTRY_ACTIVITY;
 import static org.briarproject.briar.api.android.AndroidNotificationManager.FAILURE_CHANNEL_ID;
@@ -59,6 +58,7 @@ import static org.briarproject.briar.api.android.AndroidNotificationManager.ONGO
 import static org.briarproject.briar.api.android.AndroidNotificationManager.ONGOING_NOTIFICATION_ID;
 import static org.briarproject.briar.api.android.LockManager.ACTION_LOCK;
 import static org.briarproject.briar.api.android.LockManager.EXTRA_PID;
+import static org.briarproject.nullsafety.NullSafety.requireNonNull;
 
 public class BriarService extends Service {
 

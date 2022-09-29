@@ -2,7 +2,7 @@ package org.briarproject.briar.android.qrcode;
 
 import android.hardware.Camera;
 
-import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
+import org.briarproject.nullsafety.NotNullByDefault;
 
 import androidx.annotation.UiThread;
 

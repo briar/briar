@@ -14,7 +14,6 @@ import org.briarproject.bramble.api.event.EventBus;
 import org.briarproject.bramble.api.event.EventListener;
 import org.briarproject.bramble.api.lifecycle.IoExecutor;
 import org.briarproject.bramble.api.lifecycle.LifecycleManager;
-import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.bramble.api.system.AndroidExecutor;
 import org.briarproject.briar.android.attachment.AttachmentItem;
@@ -24,6 +23,7 @@ import org.briarproject.briar.android.viewmodel.MutableLiveEvent;
 import org.briarproject.briar.api.attachment.Attachment;
 import org.briarproject.briar.api.attachment.AttachmentReader;
 import org.briarproject.briar.api.messaging.event.AttachmentReceivedEvent;
+import org.briarproject.nullsafety.NotNullByDefault;
 
 import java.io.File;
 import java.io.FileOutputStream;

@@ -2,7 +2,7 @@ package org.briarproject.briar.android.attachment;
 
 import android.net.Uri;
 
-import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
+import org.briarproject.nullsafety.NotNullByDefault;
 
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;

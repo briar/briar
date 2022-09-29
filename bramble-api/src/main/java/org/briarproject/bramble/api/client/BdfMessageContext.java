@@ -1,8 +1,8 @@
 package org.briarproject.bramble.api.client;
 
 import org.briarproject.bramble.api.data.BdfDictionary;
-import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.sync.MessageId;
+import org.briarproject.nullsafety.NotNullByDefault;
 
 import java.util.Collection;
 import java.util.Collections;

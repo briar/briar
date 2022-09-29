@@ -1,7 +1,7 @@
 package org.briarproject.bramble.plugin.tor;
 
 import org.briarproject.bramble.api.lifecycle.IoExecutor;
-import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
+import org.briarproject.nullsafety.NotNullByDefault;
 
 import java.util.List;
 

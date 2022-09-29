@@ -1,6 +1,6 @@
 package org.briarproject.bramble.api.reliability;
 
-import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
+import org.briarproject.nullsafety.NotNullByDefault;
 
 @NotNullByDefault
 public interface ReliabilityLayerFactory {

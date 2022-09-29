@@ -1,7 +1,7 @@
 package org.briarproject.briar.android.conversation;
 
-import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.briar.android.view.BriarRecyclerViewScrollListener;
+import org.briarproject.nullsafety.NotNullByDefault;
 
 @NotNullByDefault
 class ConversationScrollListener extends

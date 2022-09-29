@@ -1,7 +1,7 @@
 package org.briarproject.briar.android.removabledrive;
 
-import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.plugin.file.RemovableDriveTask;
+import org.briarproject.nullsafety.NotNullByDefault;
 
 @NotNullByDefault
 abstract class TransferDataState {

@@ -1,7 +1,7 @@
 package org.briarproject.bramble.plugin.file;
 
-import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.plugin.TransportConnectionReader;
+import org.briarproject.nullsafety.NotNullByDefault;
 
 import java.io.InputStream;
 import java.util.logging.Logger;

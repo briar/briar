@@ -1,9 +1,9 @@
 package org.briarproject.bramble.plugin.file;
 
 import org.briarproject.bramble.api.contact.ContactId;
-import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.plugin.file.RemovableDriveTask;
 import org.briarproject.bramble.api.properties.TransportProperties;
+import org.briarproject.nullsafety.NotNullByDefault;
 
 @NotNullByDefault
 interface RemovableDriveTaskFactory {

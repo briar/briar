@@ -1,7 +1,7 @@
 package org.briarproject.bramble.system;
 
-import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.system.SecureRandomProvider;
+import org.briarproject.nullsafety.NotNullByDefault;
 
 import java.io.DataOutputStream;
 import java.io.IOException;

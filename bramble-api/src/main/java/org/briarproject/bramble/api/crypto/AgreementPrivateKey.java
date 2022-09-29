@@ -1,7 +1,7 @@
 package org.briarproject.bramble.api.crypto;
 
 import org.briarproject.bramble.api.Bytes;
-import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
+import org.briarproject.nullsafety.NotNullByDefault;
 
 import javax.annotation.concurrent.Immutable;
 

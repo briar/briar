@@ -1,11 +1,11 @@
 package org.briarproject.bramble.sync;
 
-import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.record.RecordWriter;
 import org.briarproject.bramble.api.record.RecordWriterFactory;
 import org.briarproject.bramble.api.sync.MessageFactory;
 import org.briarproject.bramble.api.sync.SyncRecordWriter;
 import org.briarproject.bramble.api.sync.SyncRecordWriterFactory;
+import org.briarproject.nullsafety.NotNullByDefault;
 
 import java.io.OutputStream;
 

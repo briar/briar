@@ -1,7 +1,7 @@
 package org.briarproject.briar.android.view;
 
-import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.briar.android.util.ItemReturningAdapter;
+import org.briarproject.nullsafety.NotNullByDefault;
 
 import androidx.annotation.CallSuper;
 import androidx.recyclerview.widget.LinearLayoutManager;

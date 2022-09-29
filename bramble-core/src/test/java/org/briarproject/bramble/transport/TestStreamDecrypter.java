@@ -1,8 +1,8 @@
 package org.briarproject.bramble.transport;
 
 import org.briarproject.bramble.api.crypto.StreamDecrypter;
-import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.util.ByteUtils;
+import org.briarproject.nullsafety.NotNullByDefault;
 
 import java.io.EOFException;
 import java.io.IOException;

@@ -4,8 +4,8 @@ import android.app.Application;
 import android.content.Context;
 import android.content.res.Resources;
 
-import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.system.ResourceProvider;
+import org.briarproject.nullsafety.NotNullByDefault;
 
 import java.io.InputStream;
 

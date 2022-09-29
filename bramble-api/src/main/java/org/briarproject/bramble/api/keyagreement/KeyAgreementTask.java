@@ -1,6 +1,6 @@
 package org.briarproject.bramble.api.keyagreement;
 
-import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
+import org.briarproject.nullsafety.NotNullByDefault;
 
 /**
  * A task for conducting a key agreement with a remote peer.

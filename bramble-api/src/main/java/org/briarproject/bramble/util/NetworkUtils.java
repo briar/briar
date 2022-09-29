@@ -1,6 +1,6 @@
 package org.briarproject.bramble.util;
 
-import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
+import org.briarproject.nullsafety.NotNullByDefault;
 
 import java.net.NetworkInterface;
 import java.net.SocketException;

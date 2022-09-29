@@ -1,6 +1,6 @@
 package org.briarproject.bramble.api.event;
 
-import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
+import org.briarproject.nullsafety.NotNullByDefault;
 
 /**
  * An interface for receiving notifications when events occur.

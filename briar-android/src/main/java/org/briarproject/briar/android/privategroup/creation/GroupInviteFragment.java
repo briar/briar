@@ -2,14 +2,14 @@ package org.briarproject.briar.android.privategroup.creation;
 
 import android.os.Bundle;
 
-import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
-import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
 import org.briarproject.bramble.api.sync.GroupId;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.activity.ActivityComponent;
 import org.briarproject.briar.android.contactselection.ContactSelectorController;
 import org.briarproject.briar.android.contactselection.ContactSelectorFragment;
 import org.briarproject.briar.android.contactselection.SelectableContactItem;
+import org.briarproject.nullsafety.MethodsNotNullByDefault;
+import org.briarproject.nullsafety.ParametersNotNullByDefault;
 
 import javax.inject.Inject;
 

@@ -2,7 +2,7 @@ package org.briarproject.bramble.data;
 
 import org.briarproject.bramble.api.data.BdfReader;
 import org.briarproject.bramble.api.data.BdfReaderFactory;
-import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
+import org.briarproject.nullsafety.NotNullByDefault;
 
 import java.io.InputStream;
 
