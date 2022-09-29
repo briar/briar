@@ -79,6 +79,17 @@ public class MailboxActivity extends BriarActivity {
 				throw new AssertionError("Unknown state: " + state);
 			}
 		});
+
+		// re-show unpaired dialog, if it was previously shown
+		// Attention: When using BlankFragment for something else, this needs to
+		// be adapted.
+		if (savedInstanceState != null) {
+			FragmentManager fm = getSupportFragmentManager();
+			Fragment f = fm.findFragmentByTag(BlankFragment.TAG);
+			if (f != null && f.isAdded()) {
+				onUnPaired(true);
+			}
+		}
 	}
 
 	@Override
