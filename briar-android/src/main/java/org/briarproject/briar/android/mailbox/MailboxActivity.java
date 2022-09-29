@@ -104,10 +104,13 @@ public class MailboxActivity extends BriarActivity {
 
 	private void onNotSetup() {
 		progressBar.setVisibility(INVISIBLE);
-		getSupportFragmentManager().beginTransaction()
-				.replace(R.id.fragmentContainer, new SetupIntroFragment(),
-						SetupIntroFragment.TAG)
-				.commit();
+		FragmentManager fm = getSupportFragmentManager();
+		// If we already have a back stack, fragment state was restored after
+		// activity got killed, so don't re-add our fragment again.
+		if (fm.getBackStackEntryCount() == 0) {
+			showFragment(fm, new SetupIntroFragment(), SetupIntroFragment.TAG,
+					false);
+		}
 	}
 
 	private void onShowDownload() {
