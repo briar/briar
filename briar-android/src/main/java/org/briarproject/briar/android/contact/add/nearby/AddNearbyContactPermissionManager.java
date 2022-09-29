@@ -103,6 +103,11 @@ class AddNearbyContactPermissionManager {
 			showRationale(ctx, R.string.permission_camera_location_title,
 					R.string.permission_camera_location_request_body,
 					this::requestPermissions);
+		} else if (cameraPermission == SHOW_RATIONALE &&
+				bluetoothPermissions == SHOW_RATIONALE) {
+			showRationale(ctx, R.string.permission_camera_bluetooth_title,
+					R.string.permission_camera_bluetooth_request_body,
+					this::requestPermissions);
 		} else if (cameraPermission == SHOW_RATIONALE) {
 			showRationale(ctx, R.string.permission_camera_title,
 					R.string.permission_camera_request_body,

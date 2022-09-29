@@ -314,7 +314,7 @@
 	<string name="different_person_button">Different Person</string>
 	<string name="duplicate_link_dialog_text_3">%1$s and %2$s sent you the same link.\n\nOne of them may be trying to discover who your contacts are.\n\nDon\'t tell them you received the same link from someone else.</string>
 	<string name="pending_contact_updated_toast">Pending contact updated</string>
-	
+
 	<!-- Peer trust levels -->
 
 	<string name="peer_trust_level_unverified">Unverified contact</string>
@@ -778,6 +778,8 @@
 	<string name="permission_location_request_body">To discover Bluetooth devices, Briar needs permission to access your location.\n\nBriar does not store your location or share it with anyone.</string>
 	<string name="permission_camera_location_title">Camera and location</string>
 	<string name="permission_camera_location_request_body">To scan the QR code, Briar needs access to the camera.\n\nTo discover Bluetooth devices, Briar needs permission to access your location.\n\nBriar does not store your location or share it with anyone.</string>
+	<string name="permission_camera_bluetooth_title">Camera and nearby devices</string>
+	<string name="permission_camera_bluetooth_request_body">To scan the QR code, Briar needs access to the camera.\n\nTo discover Bluetooth devices, Briar needs permission to find and connect to nearby devices.</string>
 	<string name="permission_camera_denied_body">You have denied access to the camera, but adding contacts requires using the camera.\n\nPlease consider granting access.</string>
 	<string name="permission_location_denied_body">You have denied access to your location, but Briar needs this permission to discover Bluetooth devices.\n\nPlease consider granting access.</string>
 	<string name="permission_location_setting_title">Location setting</string>
