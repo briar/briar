@@ -10,6 +10,7 @@ dependencyVerification {
         'net.bytebuddy:byte-buddy:1.9.12:byte-buddy-1.9.12.jar:3688c3d434bebc3edc5516296a2ed0f47b65e451071b4afecad84f902f0efc11',
         'net.jcip:jcip-annotations:1.0:jcip-annotations-1.0.jar:be5805392060c71474bf6c9a67a099471274d30b83eef84bfc4e0889a4f1dcc0',
         'org.apache-extras.beanshell:bsh:2.0b6:bsh-2.0b6.jar:a17955976070c0573235ee662f2794a78082758b61accffce8d3f8aedcd91047',
+        'org.briarproject:null-safety:0.1:null-safety-0.1.jar:161760de5e838cb982bafa973df820675d4397098e9a91637a36a306d43ba011',
         'org.codehaus.mojo.signature:java16:1.1:java16-1.1.signature:53799223a2c98dba2d0add810bed76315460df285c69e4f397ae6098f87dd619',
         'org.codehaus.mojo:animal-sniffer-ant-tasks:1.20:animal-sniffer-ant-tasks-1.20.jar:bb7d2498144118311d968bb08ff6fae3fc535fb1cb9cca8b8e9ea65b189422ac',
         'org.codehaus.mojo:animal-sniffer:1.20:animal-sniffer-1.20.jar:80c422523c38db91260c6d78e5ee4b012862ab61cc55020c9e243dd7b5c62249',
