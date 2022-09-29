@@ -36,6 +36,8 @@ dependencyVerification {
         'org.bitlet:weupnp:0.1.4:weupnp-0.1.4.jar:88df7e6504929d00bdb832863761385c68ab92af945b04f0770b126270a444fb',
         'org.bouncycastle:bcprov-jdk15to18:1.70:bcprov-jdk15to18-1.70.jar:7df4c54f29ce2dd616dc3b198ca4db3dfcc79e3cb397c084a0aff97b85c0bf38',
         'org.briarproject:jtorctl:0.5:jtorctl-0.5.jar:43f8c7d390169772b9a2c82ab806c8414c136a2a8636c555e22754bb7260793b',
+        'org.briarproject:null-safety:0.1:null-safety-0.1.jar:161760de5e838cb982bafa973df820675d4397098e9a91637a36a306d43ba011',
+        'org.briarproject:socks-socket:0.1:socks-socket-0.1.jar:e5898822d10f5390363c5dddb945891648c92cf93ba50709e07f0d173ec0eb4b',
         'org.checkerframework:checker-compat-qual:2.5.3:checker-compat-qual-2.5.3.jar:d76b9afea61c7c082908023f0cbc1427fab9abd2df915c8b8a3e7a509bccbc6d',
         'org.checkerframework:checker-qual:2.5.2:checker-qual-2.5.2.jar:64b02691c8b9d4e7700f8ee2e742dce7ea2c6e81e662b7522c9ee3bf568c040a',
         'org.codehaus.mojo.signature:java16:1.1:java16-1.1.signature:53799223a2c98dba2d0add810bed76315460df285c69e4f397ae6098f87dd619',

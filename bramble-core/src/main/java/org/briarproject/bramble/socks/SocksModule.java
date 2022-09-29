@@ -1,6 +1,7 @@
 package org.briarproject.bramble.socks;
 
 import org.briarproject.bramble.api.plugin.TorSocksPort;
+import org.briarproject.socks.SocksSocketFactory;
 
 import java.net.InetSocketAddress;
 
