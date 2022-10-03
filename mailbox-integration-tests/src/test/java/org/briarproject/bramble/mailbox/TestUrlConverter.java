@@ -1,6 +1,6 @@
 package org.briarproject.bramble.mailbox;
 
-import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
+import org.briarproject.nullsafety.NotNullByDefault;
 
 import static org.briarproject.bramble.mailbox.MailboxIntegrationTestUtils.URL_BASE;
 
