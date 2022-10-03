@@ -113,5 +113,5 @@ mailbox integration test:
       when: manual
       allow_failure: true # TODO figure out how not to allow failure while leaving this optional
   script:
-    - (cd briar-mailbox; git fetch; git reset --hard origin/mailbox-lib)
+    - (cd briar-mailbox; git fetch; git reset --hard origin/main)
     - MAILBOX_INTEGRATION_TESTS=true ./gradlew --info mailbox-integration-tests:test
