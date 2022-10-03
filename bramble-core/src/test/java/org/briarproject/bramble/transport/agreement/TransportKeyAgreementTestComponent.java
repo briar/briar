@@ -7,9 +7,11 @@ import org.briarproject.bramble.api.db.DatabaseComponent;
 import org.briarproject.bramble.api.lifecycle.LifecycleManager;
 import org.briarproject.bramble.api.properties.TransportPropertyManager;
 import org.briarproject.bramble.api.transport.KeyManager;
+import org.briarproject.bramble.mailbox.UrlConverterModule;
 import org.briarproject.bramble.test.BrambleCoreIntegrationTestModule;
 import org.briarproject.bramble.test.BrambleIntegrationTestComponent;
 import org.briarproject.bramble.test.TestDnsModule;
+import org.briarproject.bramble.test.TestPluginConfigModule;
 import org.briarproject.bramble.test.TestSocksModule;
 
 import javax.inject.Singleton;
@@ -20,8 +22,10 @@ import dagger.Component;
 @Component(modules = {
 		BrambleCoreIntegrationTestModule.class,
 		BrambleCoreModule.class,
+		UrlConverterModule.class,
 		TestDnsModule.class,
-		TestSocksModule.class
+		TestSocksModule.class,
+		TestPluginConfigModule.class,
 })
 interface TransportKeyAgreementTestComponent
 		extends BrambleIntegrationTestComponent {

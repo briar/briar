@@ -28,12 +28,8 @@ buildscript {
 		}
 	}
 
-	dependencies {
-		classpath 'com.android.tools.build:gradle:7.0.3'
-		classpath 'ru.vyarus:gradle-animalsniffer-plugin:1.5.3'
-		classpath files('libs/gradle-witness.jar')
-	}
 	ext {
+		kotlin_version = '1.7.10'
 		dagger_version = "2.33"
 		// okhttp 3.12.x is supported until end of 2021, newer versions need minSdk 21
 		okhttp_version = "3.12.13"
@@ -43,5 +39,18 @@ buildscript {
 		snowflake_version = "2.3.1"
 		junit_version = "4.13.2"
 		jmock_version = '2.12.0'
+	}
+	dependencies {
+		classpath 'com.android.tools.build:gradle:7.0.3'
+		classpath 'ru.vyarus:gradle-animalsniffer-plugin:1.5.3'
+		classpath files('libs/gradle-witness.jar')
+		classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+	}
+}
+
+if ((project.hasProperty("briar.mailbox_integration_tests") && project.property("briar.mailbox_integration_tests") == "true")
+		|| System.env.MAILBOX_INTEGRATION_TESTS) {
+	configure([project(':mailbox-core'), project(':mailbox-lib')]) {
+		apply from: "../gradle/variables.gradle"
 	}
 }

@@ -8,9 +8,11 @@ import org.briarproject.bramble.api.identity.AuthorFactory;
 import org.briarproject.bramble.api.lifecycle.LifecycleManager;
 import org.briarproject.bramble.api.properties.TransportPropertyManager;
 import org.briarproject.bramble.api.system.Clock;
+import org.briarproject.bramble.mailbox.UrlConverterModule;
 import org.briarproject.bramble.test.BrambleCoreIntegrationTestModule;
 import org.briarproject.bramble.test.BrambleIntegrationTestComponent;
 import org.briarproject.bramble.test.TestDnsModule;
+import org.briarproject.bramble.test.TestPluginConfigModule;
 import org.briarproject.bramble.test.TestSocksModule;
 import org.briarproject.bramble.test.TimeTravel;
 import org.briarproject.briar.api.attachment.AttachmentReader;
@@ -64,8 +66,10 @@ import dagger.Component;
 		MessagingModule.class,
 		PrivateGroupModule.class,
 		SharingModule.class,
+		UrlConverterModule.class,
 		TestDnsModule.class,
-		TestSocksModule.class
+		TestSocksModule.class,
+		TestPluginConfigModule.class,
 })
 public interface BriarIntegrationTestComponent
 		extends BrambleIntegrationTestComponent {
