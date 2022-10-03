@@ -1,11 +1,11 @@
 package org.briarproject.bramble.test;
 
-import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.plugin.PluginCallback;
 import org.briarproject.bramble.api.plugin.TorConstants;
 import org.briarproject.bramble.api.plugin.TransportId;
 import org.briarproject.bramble.api.plugin.duplex.DuplexPlugin;
 import org.briarproject.bramble.api.plugin.duplex.DuplexPluginFactory;
+import org.briarproject.nullsafety.NotNullByDefault;
 
 import javax.annotation.Nullable;
 import javax.inject.Inject;
