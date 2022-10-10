@@ -24,9 +24,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import javax.annotation.Nonnull;
-import javax.net.SocketFactory;
-
 import okhttp3.OkHttpClient;
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
@@ -34,8 +31,8 @@ import okhttp3.mockwebserver.RecordedRequest;
 import okio.Buffer;
 
 import static java.util.Collections.singletonList;
-import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static org.briarproject.bramble.api.mailbox.MailboxConstants.CLIENT_SUPPORTS;
+import static org.briarproject.bramble.mailbox.MailboxTestUtils.createHttpClientProvider;
 import static org.briarproject.bramble.test.TestUtils.getContactId;
 import static org.briarproject.bramble.test.TestUtils.getMailboxProperties;
 import static org.briarproject.bramble.test.TestUtils.getRandomBytes;
@@ -56,18 +53,8 @@ public class MailboxApiTest extends BrambleTestCase {
 	@Rule
 	public TemporaryFolder folder = new TemporaryFolder();
 
-	private final OkHttpClient client = new OkHttpClient.Builder()
-			.socketFactory(SocketFactory.getDefault())
-			.connectTimeout(60_000, MILLISECONDS)
-			.build();
 	private final WeakSingletonProvider<OkHttpClient> httpClientProvider =
-			new WeakSingletonProvider<OkHttpClient>() {
-				@Override
-				@Nonnull
-				public OkHttpClient createInstance() {
-					return client;
-				}
-			};
+			createHttpClientProvider();
 	// We aren't using a real onion address, so use the given address verbatim
 	private final UrlConverter urlConverter = onion -> onion;
 	private final MailboxApiImpl api = new MailboxApiImpl(httpClientProvider,

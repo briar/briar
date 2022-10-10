@@ -4,7 +4,6 @@ import org.briarproject.bramble.api.Pair;
 import org.briarproject.bramble.api.data.BdfList;
 import org.briarproject.bramble.api.keyagreement.KeyAgreementListener;
 import org.briarproject.bramble.api.plugin.ConnectionHandler;
-import org.briarproject.bramble.api.plugin.PluginException;
 import org.briarproject.bramble.api.plugin.TorConstants;
 import org.briarproject.bramble.api.plugin.TransportId;
 import org.briarproject.bramble.api.plugin.duplex.DuplexPlugin;
@@ -48,13 +47,13 @@ public class FakeTorPlugin implements DuplexPlugin {
 	}
 
 	@Override
-	public void start() throws PluginException {
+	public void start() {
 		LOG.info("Starting plugin");
 		state = ACTIVE;
 	}
 
 	@Override
-	public void stop() throws PluginException {
+	public void stop() {
 		LOG.info("Stopping plugin");
 		state = DISABLED;
 	}

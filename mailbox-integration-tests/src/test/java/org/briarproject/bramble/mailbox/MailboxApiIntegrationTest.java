@@ -26,7 +26,7 @@ import java.util.List;
 
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
-import static org.briarproject.bramble.mailbox.MailboxIntegrationTestUtils.URL_BASE;
+import static org.briarproject.bramble.mailbox.AbstractMailboxIntegrationTest.URL_BASE;
 import static org.briarproject.bramble.mailbox.MailboxIntegrationTestUtils.createMailboxApi;
 import static org.briarproject.bramble.test.TestUtils.getRandomBytes;
 import static org.briarproject.bramble.test.TestUtils.getRandomId;
