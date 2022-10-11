@@ -8,12 +8,8 @@ import org.briarproject.bramble.api.identity.Author;
 import org.briarproject.bramble.api.identity.AuthorFactory;
 import org.briarproject.bramble.api.identity.LocalAuthor;
 import org.briarproject.bramble.api.mailbox.MailboxProperties;
-import org.briarproject.mailbox.lib.TestMailbox;
-import org.junit.After;
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -27,11 +23,6 @@ import static org.junit.Assert.assertEquals;
 public class OwnMailboxContactListWorkerIntegrationTest
 		extends AbstractMailboxIntegrationTest {
 
-	@Rule
-	public TemporaryFolder mailboxDataDirectory = new TemporaryFolder();
-
-	private TestMailbox mailbox;
-
 	private final MailboxApi api = createMailboxApi();
 
 	private MailboxProperties ownerProperties;
@@ -42,19 +33,11 @@ public class OwnMailboxContactListWorkerIntegrationTest
 	private final long timestamp = System.currentTimeMillis();
 
 	@Before
+	@Override
 	public void setUp() throws Exception {
-		mailbox = new TestMailbox(mailboxDataDirectory.getRoot());
-		mailbox.startLifecycle();
-
-		c1 = startTestComponent(dir1, "Alice");
+		super.setUp();
 		localAuthor1 = c1.getIdentityManager().getLocalAuthor();
-
 		ownerProperties = pair(c1, mailbox);
-	}
-
-	@After
-	public void tearDown() {
-		mailbox.stopLifecycle(true);
 	}
 
 	@Test

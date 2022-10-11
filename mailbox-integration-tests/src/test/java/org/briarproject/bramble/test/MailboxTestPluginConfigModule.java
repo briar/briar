@@ -6,6 +6,7 @@ import org.briarproject.bramble.api.plugin.TransportId;
 import org.briarproject.bramble.api.plugin.duplex.DuplexPluginFactory;
 import org.briarproject.bramble.api.plugin.simplex.SimplexPlugin;
 import org.briarproject.bramble.api.plugin.simplex.SimplexPluginFactory;
+import org.briarproject.bramble.plugin.file.MailboxPluginFactory;
 import org.briarproject.nullsafety.NotNullByDefault;
 
 import java.util.Collection;
@@ -17,14 +18,14 @@ import javax.annotation.Nullable;
 import dagger.Module;
 import dagger.Provides;
 
+import static java.util.Arrays.asList;
 import static java.util.Collections.emptyMap;
 import static java.util.Collections.singletonList;
-import static org.briarproject.bramble.test.TestUtils.getTransportId;
+import static org.briarproject.bramble.test.TestPluginConfigModule.SIMPLEX_TRANSPORT_ID;
 
 @Module
-public class FakeTorPluginConfigModule {
+public class MailboxTestPluginConfigModule {
 
-	public static final TransportId SIMPLEX_TRANSPORT_ID = getTransportId();
 	private static final int MAX_LATENCY = 30_000; // 30 seconds
 
 	@NotNullByDefault
@@ -48,7 +49,8 @@ public class FakeTorPluginConfigModule {
 	};
 
 	@Provides
-	PluginConfig providePluginConfig(FakeTorPluginFactory tor) {
+	PluginConfig providePluginConfig(FakeTorPluginFactory tor,
+			MailboxPluginFactory mailboxPluginFactory) {
 		@NotNullByDefault
 		PluginConfig pluginConfig = new PluginConfig() {
 
@@ -59,7 +61,7 @@ public class FakeTorPluginConfigModule {
 
 			@Override
 			public Collection<SimplexPluginFactory> getSimplexFactories() {
-				return singletonList(simplex);
+				return asList(simplex, mailboxPluginFactory);
 			}
 
 			@Override

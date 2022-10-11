@@ -32,6 +32,6 @@ public class FakeTorPluginFactory implements DuplexPluginFactory {
 	@Nullable
 	@Override
 	public DuplexPlugin createPlugin(PluginCallback callback) {
-		return new FakeTorPlugin();
+		return new FakeTorPlugin(callback);
 	}
 }

@@ -235,11 +235,16 @@ public abstract class BrambleIntegrationTest<C extends BrambleIntegrationTestCom
 
 	protected void awaitPendingMessageDelivery(int num)
 			throws TimeoutException {
-		deliveryWaiter.await(TIMEOUT, num);
+		awaitPendingMessageDelivery(num, TIMEOUT);
+	}
+
+	protected void awaitPendingMessageDelivery(int num, long timeout)
+			throws TimeoutException {
+		deliveryWaiter.await(timeout, num);
 		assertEquals("Messages delivered", num, deliveryCounter.getAndSet(0));
 
 		try {
-			messageSemaphore.tryAcquire(num, TIMEOUT, MILLISECONDS);
+			messageSemaphore.tryAcquire(num, timeout, MILLISECONDS);
 		} catch (InterruptedException e) {
 			LOG.info("Interrupted while waiting for messages");
 			Thread.currentThread().interrupt();
