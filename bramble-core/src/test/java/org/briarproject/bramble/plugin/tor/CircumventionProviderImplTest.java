@@ -1,5 +1,6 @@
 package org.briarproject.bramble.plugin.tor;
 
+import org.briarproject.bramble.plugin.tor.CircumventionProviderImpl.SnowflakeBroker;
 import org.briarproject.bramble.test.BrambleTestCase;
 import org.junit.Test;
 
@@ -17,6 +18,9 @@ import static org.briarproject.bramble.plugin.tor.CircumventionProvider.BridgeTy
 import static org.briarproject.bramble.plugin.tor.CircumventionProvider.DEFAULT_BRIDGES;
 import static org.briarproject.bramble.plugin.tor.CircumventionProvider.DPI_BRIDGES;
 import static org.briarproject.bramble.plugin.tor.CircumventionProvider.NON_DEFAULT_BRIDGES;
+import static org.briarproject.bramble.plugin.tor.CircumventionProviderImpl.SnowflakeBroker.AMP_CACHE;
+import static org.briarproject.bramble.plugin.tor.CircumventionProviderImpl.SnowflakeBroker.AZURE;
+import static org.briarproject.bramble.plugin.tor.CircumventionProviderImpl.SnowflakeBroker.FASTLY;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotEquals;
@@ -67,18 +71,23 @@ public class CircumventionProviderImplTest extends BrambleTestCase {
 	}
 
 	@Test
-	public void testHasSnowflakeParamsWithLetsEncrypt() {
-		testHasSnowflakeParams(true);
+	public void testHasSnowflakeParamsForFastly() {
+		testHasSnowflakeParams(FASTLY);
 	}
 
 	@Test
-	public void testHasSnowflakeParamsWithoutLetsEncrypt() {
-		testHasSnowflakeParams(false);
+	public void testHasSnowflakeParamsForAzure() {
+		testHasSnowflakeParams(AZURE);
 	}
 
-	private void testHasSnowflakeParams(boolean letsEncrypt) {
-		String tmParams = provider.getSnowflakeParams("TM", letsEncrypt);
-		String defaultParams = provider.getSnowflakeParams("ZZ", letsEncrypt);
+	@Test
+	public void testHasSnowflakeParamsForAmpCache() {
+		testHasSnowflakeParams(AMP_CACHE);
+	}
+
+	private void testHasSnowflakeParams(SnowflakeBroker broker) {
+		String tmParams = provider.getSnowflakeParams("TM", broker);
+		String defaultParams = provider.getSnowflakeParams("ZZ", broker);
 		assertFalse(tmParams.isEmpty());
 		assertFalse(defaultParams.isEmpty());
 		assertNotEquals(defaultParams, tmParams);

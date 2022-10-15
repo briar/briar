@@ -21,6 +21,9 @@ import static org.briarproject.bramble.plugin.tor.CircumventionProvider.BridgeTy
 import static org.briarproject.bramble.plugin.tor.CircumventionProvider.BridgeType.NON_DEFAULT_OBFS4;
 import static org.briarproject.bramble.plugin.tor.CircumventionProvider.BridgeType.SNOWFLAKE;
 import static org.briarproject.bramble.plugin.tor.CircumventionProvider.BridgeType.VANILLA;
+import static org.briarproject.bramble.plugin.tor.CircumventionProviderImpl.SnowflakeBroker.AMP_CACHE;
+import static org.briarproject.bramble.plugin.tor.CircumventionProviderImpl.SnowflakeBroker.AZURE;
+import static org.briarproject.bramble.plugin.tor.CircumventionProviderImpl.SnowflakeBroker.FASTLY;
 import static org.briarproject.nullsafety.NullSafety.requireNonNull;
 
 @Immutable
@@ -41,6 +44,20 @@ class CircumventionProviderImpl implements CircumventionProvider {
 			new HashSet<>(asList(NON_DEFAULT_BRIDGES));
 	private static final Set<String> DPI_COUNTRIES =
 			new HashSet<>(asList(DPI_BRIDGES));
+
+	// Package access for testing
+	enum SnowflakeBroker {
+
+		FASTLY('F'),
+		AZURE('A'),
+		AMP_CACHE('M');
+
+		private final char value;
+
+		SnowflakeBroker(char value) {
+			this.value = value;
+		}
+	}
 
 	@Inject
 	CircumventionProviderImpl() {
@@ -86,7 +103,17 @@ class CircumventionProviderImpl implements CircumventionProvider {
 					(type == MEEK && line.startsWith("m "))) {
 				bridges.add(line.substring(2));
 			} else if (type == SNOWFLAKE && line.startsWith("s ")) {
-				String params = getSnowflakeParams(countryCode, letsEncrypt);
+				String params;
+				// If the client can verify Let's Encrypt certificates then
+				// use the Fastly broker, otherwise use Azure
+				if (letsEncrypt) {
+					params = getSnowflakeParams(countryCode, FASTLY);
+				} else {
+					params = getSnowflakeParams(countryCode, AZURE);
+				}
+				bridges.add(line.substring(2) + " " + params);
+				// Also use the AMP cache broker
+				params = getSnowflakeParams(countryCode, AMP_CACHE);
 				bridges.add(line.substring(2) + " " + params);
 			}
 		}
@@ -95,15 +122,14 @@ class CircumventionProviderImpl implements CircumventionProvider {
 	}
 
 	// Package access for testing
-	@SuppressWarnings("WeakerAccess")
-	String getSnowflakeParams(String countryCode, boolean letsEncrypt) {
+	String getSnowflakeParams(String countryCode, SnowflakeBroker broker) {
 		Map<String, String> params = loadSnowflakeParams();
 		if (countryCode.isEmpty()) countryCode = DEFAULT_COUNTRY_CODE;
 		// If we have parameters for this country code, return them
-		String value = params.get(makeKey(countryCode, letsEncrypt));
+		String value = params.get(makeKey(countryCode, broker));
 		if (value != null) return value;
 		// Return the default parameters
-		value = params.get(makeKey(DEFAULT_COUNTRY_CODE, letsEncrypt));
+		value = params.get(makeKey(DEFAULT_COUNTRY_CODE, broker));
 		return requireNonNull(value);
 	}
 
@@ -115,7 +141,7 @@ class CircumventionProviderImpl implements CircumventionProvider {
 		while (scanner.hasNextLine()) {
 			String line = scanner.nextLine();
 			if (line.length() < 5) continue;
-			String key = line.substring(0, 4); // Country code, space, digit
+			String key = line.substring(0, 4); // Country code, space, broker
 			String value = line.substring(5);
 			params.put(key, value);
 		}
@@ -123,7 +149,7 @@ class CircumventionProviderImpl implements CircumventionProvider {
 		return params;
 	}
 
-	private String makeKey(String countryCode, boolean letsEncrypt) {
-		return countryCode + " " + (letsEncrypt ? "1" : "0");
+	private String makeKey(String countryCode, SnowflakeBroker broker) {
+		return countryCode + " " + broker.value;
 	}
 }
