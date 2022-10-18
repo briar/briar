@@ -93,7 +93,7 @@ public class ContactListFragment extends BaseFragment
 		list = contentView.findViewById(R.id.list);
 		list.setLayoutManager(new LinearLayoutManager(requireContext()));
 		list.setAdapter(adapter);
-		list.setEmptyImage(R.drawable.ic_empty_state_contact_list);
+		list.setEmptyImage(R.drawable.il_empty_state_contact_list);
 		list.setEmptyText(getString(R.string.no_contacts));
 		list.setEmptyAction(getString(R.string.no_contacts_action));
 

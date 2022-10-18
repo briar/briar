@@ -26,4 +26,7 @@
 	<color name="thread_item_highlight">@android:color/black</color>
 
 	<color name="divider">@android:color/black</color>
+
+	<color name="il_border">#64748B</color>
+	<color name="il_background">#334155</color>
 </resources>
