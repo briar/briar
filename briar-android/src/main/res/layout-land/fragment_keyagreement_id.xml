@@ -1,89 +1,83 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
 	xmlns:app="http://schemas.android.com/apk/res-auto"
 	xmlns:tools="http://schemas.android.com/tools"
-	android:id="@+id/scrollView"
 	android:layout_width="match_parent"
-	android:layout_height="wrap_content"
+	android:layout_height="match_parent"
 	android:orientation="vertical">
 
-	<androidx.constraintlayout.widget.ConstraintLayout
+	<ScrollView
+		android:id="@+id/scrollView"
+		android:layout_width="match_parent"
+		android:layout_height="0dp"
+		android:layout_weight="1">
+
+		<androidx.constraintlayout.widget.ConstraintLayout
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content">
+
+			<ImageView
+				android:id="@+id/diagram"
+				android:layout_width="@dimen/hero_square"
+				android:layout_height="@dimen/hero_square"
+				android:layout_margin="16dp"
+				app:layout_constraintEnd_toStartOf="@id/guideline"
+				app:layout_constraintStart_toStartOf="parent"
+				app:layout_constraintTop_toTopOf="parent"
+				app:srcCompat="@drawable/il_qr_code"
+				tools:ignore="ContentDescription" />
+
+			<TextView
+				android:id="@+id/introTwoWay"
+				android:layout_width="0dp"
+				android:layout_height="wrap_content"
+				android:layout_margin="16dp"
+				android:text="@string/add_contact_intro_two_way"
+				app:layout_constraintEnd_toStartOf="@+id/guideline"
+				app:layout_constraintStart_toStartOf="parent"
+				app:layout_constraintTop_toBottomOf="@+id/diagram" />
+
+			<androidx.constraintlayout.widget.Guideline
+				android:id="@+id/guideline"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:orientation="vertical"
+				app:layout_constraintGuide_percent="0.5" />
+
+			<ImageView
+				android:id="@+id/explanationImage"
+				android:layout_width="0dp"
+				android:layout_height="wrap_content"
+				android:layout_margin="16dp"
+				android:scaleType="fitCenter"
+				app:layout_constraintEnd_toEndOf="parent"
+				app:layout_constraintStart_toStartOf="@+id/guideline"
+				app:layout_constraintTop_toTopOf="parent"
+				app:srcCompat="@drawable/il_qr_code_nearby"
+				tools:ignore="ContentDescription" />
+
+			<TextView
+				android:id="@+id/explanationText"
+				android:layout_width="0dp"
+				android:layout_height="wrap_content"
+				android:layout_margin="16dp"
+				android:text="@string/face_to_face"
+				app:layout_constraintEnd_toEndOf="parent"
+				app:layout_constraintStart_toEndOf="@+id/guideline"
+				app:layout_constraintTop_toBottomOf="@+id/explanationImage" />
+
+		</androidx.constraintlayout.widget.ConstraintLayout>
+
+	</ScrollView>
+
+	<Button
+		android:id="@+id/continueButton"
+		style="@style/BriarButton"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
-		android:padding="@dimen/margin_large">
+		android:layout_gravity="center_horizontal"
+		android:layout_marginHorizontal="16dp"
+		android:text="@string/continue_button"
+		app:layout_constraintBottom_toBottomOf="parent" />
 
-		<ImageView
-			android:id="@+id/diagram"
-			android:layout_width="0dp"
-			android:layout_height="wrap_content"
-			android:layout_weight="1"
-			android:adjustViewBounds="true"
-			android:padding="@dimen/margin_medium"
-			android:scaleType="fitCenter"
-			app:layout_constraintBottom_toBottomOf="@id/explanationText"
-			app:layout_constraintEnd_toStartOf="@id/explanationText"
-			app:layout_constraintStart_toStartOf="parent"
-			app:layout_constraintTop_toTopOf="parent"
-			app:srcCompat="@drawable/qr_code_intro"
-			app:tint="@color/color_primary"
-			tools:ignore="ContentDescription" />
-
-		<ImageView
-			android:id="@+id/explanationImage"
-			android:layout_width="0dp"
-			android:layout_height="wrap_content"
-			android:layout_weight="1"
-			android:adjustViewBounds="true"
-			android:paddingStart="@dimen/margin_large"
-			android:paddingTop="@dimen/margin_large"
-			android:paddingEnd="@dimen/margin_large"
-			android:scaleType="fitCenter"
-			app:layout_constraintBottom_toTopOf="@id/explanationText"
-			app:layout_constraintEnd_toEndOf="parent"
-			app:layout_constraintStart_toEndOf="@id/diagram"
-			app:layout_constraintTop_toTopOf="parent"
-			app:srcCompat="@drawable/qr_code_explanation"
-			tools:ignore="ContentDescription" />
-
-		<TextView
-			android:id="@+id/explanationText"
-			android:layout_width="0dp"
-			android:layout_height="wrap_content"
-			android:layout_weight="1"
-			android:padding="@dimen/margin_large"
-			android:text="@string/face_to_face"
-			app:layout_constraintEnd_toEndOf="parent"
-			app:layout_constraintStart_toEndOf="@id/diagram"
-			app:layout_constraintTop_toBottomOf="@id/explanationImage" />
-
-		<View
-			android:id="@+id/explanationBorder"
-			android:layout_width="0dp"
-			android:layout_height="0dp"
-			android:background="@drawable/border_explanation"
-			app:layout_constraintBottom_toBottomOf="@id/explanationText"
-			app:layout_constraintEnd_toEndOf="@id/explanationImage"
-			app:layout_constraintStart_toStartOf="@id/explanationImage"
-			app:layout_constraintTop_toTopOf="@id/explanationImage" />
-
-		<androidx.constraintlayout.widget.Barrier
-			android:id="@+id/barrier"
-			android:layout_width="wrap_content"
-			android:layout_height="wrap_content"
-			app:barrierDirection="bottom"
-			app:constraint_referenced_ids="diagram,explanationBorder" />
-
-		<Button
-			android:id="@+id/continueButton"
-			style="@style/BriarButton"
-			android:layout_width="match_parent"
-			android:layout_height="wrap_content"
-			android:layout_gravity="center_horizontal"
-			android:layout_marginTop="@dimen/margin_medium"
-			android:text="@string/continue_button"
-			app:layout_constraintBottom_toBottomOf="parent"
-			app:layout_constraintTop_toBottomOf="@id/barrier" />
-
-	</androidx.constraintlayout.widget.ConstraintLayout>
-
-</ScrollView>
+</LinearLayout>

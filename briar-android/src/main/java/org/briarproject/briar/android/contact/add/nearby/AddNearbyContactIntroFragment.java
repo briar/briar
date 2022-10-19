@@ -4,7 +4,6 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ScrollView;
 
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.activity.ActivityComponent;
@@ -19,8 +18,6 @@ import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts.RequestMultiplePermissions;
 import androidx.lifecycle.ViewModelProvider;
 
-import static android.view.View.FOCUS_DOWN;
-
 @MethodsNotNullByDefault
 @ParametersNotNullByDefault
 public class AddNearbyContactIntroFragment extends BaseFragment {
@@ -33,8 +30,6 @@ public class AddNearbyContactIntroFragment extends BaseFragment {
 
 	private AddNearbyContactViewModel viewModel;
 	private AddNearbyContactPermissionManager permissionManager;
-
-	private ScrollView scrollView;
 
 	private final ActivityResultLauncher<String[]> permissionLauncher =
 			registerForActivityResult(new RequestMultiplePermissions(), r -> {
@@ -67,10 +62,8 @@ public class AddNearbyContactIntroFragment extends BaseFragment {
 	public View onCreateView(LayoutInflater inflater,
 			@Nullable ViewGroup container,
 			@Nullable Bundle savedInstanceState) {
-
 		View v = inflater.inflate(R.layout.fragment_keyagreement_id, container,
 				false);
-		scrollView = v.findViewById(R.id.scrollView);
 		View button = v.findViewById(R.id.continueButton);
 		button.setOnClickListener(view -> {
 			viewModel.stopDiscovery();
@@ -98,8 +91,6 @@ public class AddNearbyContactIntroFragment extends BaseFragment {
 		permissionManager.resetPermissions();
 		// Reset plugins in case they were assigned when we weren't signed-in
 		viewModel.resetPlugins();
-		// Scroll down in case the screen is small, so the button is visible
-		scrollView.post(() -> scrollView.fullScroll(FOCUS_DOWN));
 	}
 
 	@Override
