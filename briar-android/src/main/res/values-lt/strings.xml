@@ -592,9 +592,9 @@
   <string name="notify_blog_posts_setting_summary_26">Konfigūruoti tinklaraščio įrašų pranešimus</string>
   <string name="notify_vibration_setting">Vibruoti</string>
   <string name="notify_sound_setting">Garsas</string>
-  <string name="notify_sound_setting_default">Numatytoji skambėjimo melodija</string>
+  <string name="notify_sound_setting_default">Numatytoji skambučio melodija</string>
   <string name="notify_sound_setting_disabled">Nėra</string>
-  <string name="choose_ringtone_title">Pasirinkite skambėjimo melodiją</string>
+  <string name="choose_ringtone_title">Pasirinkite skambučio melodiją</string>
   <string name="cannot_load_ringtone">Nepavyksta įkelti skambučio melodijos</string>
   <!--Mailbox-->
   <string name="mailbox_settings_title">Pašto dėžutė</string>

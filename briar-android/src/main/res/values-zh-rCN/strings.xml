@@ -7,7 +7,7 @@
   <string name="setup_password_intro">设置一个密码</string>
   <string name="setup_password_explanation">您的 Briar 帐户将被加密储存在您的设备上，而非云端。卸载 Briar 或忘记密码，将导致帐户无法恢复。请设置一个不易被猜出的长密码，比如四个随机英文单词，或是由随机字母、数字和符号组成的十位字符。</string>
   <string name="dnkm_doze_intro">为了接收消息，Briar 需要在后台保持连接。</string>
-  <string name="dnkm_doze_explanation">为了接收消息，Briar 需要在后台保持连接。为此，请禁用电量优化选项。</string>
+  <string name="dnkm_doze_explanation">为了接收消息，Briar 需要在后台保持连接。因此，请禁用电量优化选项。</string>
   <string name="choose_nickname">设置昵称</string>
   <string name="choose_password">设置密码</string>
   <string name="confirm_password">确认密码</string>

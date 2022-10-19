@@ -28,6 +28,7 @@
   <string name="dnkm_xiaomi_dialog_body_old">1. Otwórz listę ostatnich aplikacji (często nazywaną też przełącznikiem aplikacji)\n\n2. Przewiń w dół na obrazku Briara aby ukazała się ikonka kłódki\n\n3. Jeśli kłódka nie jest zablokowana, dotknij, aby ją zablokować</string>
   <string name="dnkm_xiaomi_dialog_body_new">1. Otwórz listę ostatnich aplikacji (zwaną również przełącznikiem aplikacji)\n\n2. Jeśli Briar ma mały symbol kłódki obok swojej nazwy, to nie musisz nic robić\n\n3. Jeśli nie ma kłódki, naciśnij i przytrzymaj obrazek Briar, aż pojawi się przycisk kłódki, a następnie dotknij go</string>
   <string name="dnkm_xiaomi_lock_apps_text">Naciśnij poniższy przycisk, aby otworzyć ustawienia bezpieczeństwa. Naciśnij \"Zwiększ prędkość\", następnie \"Zablokuj aplikacje\" i upewnij się, że Briar jest ustawiony na \"Zablokowany\".</string>
+  <string name="dnkm_xiaomi_lock_apps_help">Jeśli Briar nie jest ustawiony na \"Zablokowany\" na ekranie \"Zablokuj aplikacje\", nie będzie mógł działać w tle.</string>
   <string name="dnkm_warning_dozed_1">Briar nie był wstanie działać w tle</string>
   <!--Login-->
   <string name="enter_password">Hasło</string>
@@ -250,6 +251,8 @@
   <string name="contact_added_toast">Kontakt dodany: %s</string>
   <string name="contact_already_exists">Kontakt %s już istnieje</string>
   <string name="qr_code_invalid">Kod QR jest nieprawidłowy</string>
+  <string name="qr_code_too_old_1">Zeskanowany kod QR pochodzi ze starszej wersji Briar.\n\nProszę poprosić Twój kontakt  o aktualizację do najnowszej wersji, a następnie spróbować ponownie.</string>
+  <string name="qr_code_too_new_1">Zeskanowany kod QR pochodzi z nowszej wersji programu Briar.\n\nProszę zaktualizować go do najnowszej wersji, a następnie spróbować ponownie.</string>
   <string name="camera_error">Błąd aparatu</string>
   <string name="connecting_to_device">Łączenie z urządzeniem\u2026</string>
   <string name="authenticating_with_device">Autoryzowanie z urządzeniem\u2026</string>
@@ -667,6 +670,15 @@ Brak dostępu do aparatu. Spróbuj ponownie, może po ponownym uruchomieniu urz�
   <string name="mailbox_error_wizard_answer1_2">Widzę kod QR</string>
   <string name="mailbox_error_wizard_answer1_3">Widzę \"Mailbox jest uruchomiony\"</string>
   <string name="mailbox_error_wizard_answer1_4">Widzę \"Urządzenie offline\"</string>
+  <string name="mailbox_error_wizard_info1_1_1">Proszę odłączyć Twój Mailbox za pomocą poniższego przycisku, a następnie postępować zgodnie z instrukcjami na urządzeniu Mailbox, aby ponownie go połączyć.</string>
+  <string name="mailbox_error_wizard_info_1_1_2">Proszę odłączyć swój Mailbox za pomocą poniższego przycisku, a następnie zeskanować kod QR, aby połączyć go ponownie.</string>
+  <string name="mailbox_error_wizard_info1_1_3">Proszę użyć poniższego przycisku, aby sprawdzić połączenie pomiędzy Briar a Mailbox.\n\n
+		Jeśli połączenie ponownie się nie powiedzie:\n
+		\u2022 Sprawdź, czy aplikacje Mailbox i Briar są zaktualizowane do najnowszej wersji.\n
+		\u2022 Uruchom ponownie urządzenia Mailbox i Briar i spróbuj ponownie.</string>
+  <string name="mailbox_error_wizard_info1_1_4">Sprawdź, czy urządzenie Mailbox jest prawidłowo podłączone do Internetu.\n\nSprawdź, czy zegar na urządzeniu Mailbox pokazuje właściwą godzinę, datę i strefę czasową.\n\nSprawdź, czy aplikacje Mailbox i Briar są zaktualizowane do najnowszej wersji.\n\nUruchom ponownie urządzenia Mailbox i Briar i spróbuj ponownie.</string>
+  <string name="mailbox_error_wizard_info2">Wróć do tego ekranu, gdy będziesz miał dostęp do urządzenia.</string>
+  <string name="mailbox_error_wizard_info3">Proszę odłączyć swój Mailbox za pomocą poniższego przycisku. Po odłączeniu starego Mailbox możesz w każdej chwili uruchomić nowy Mailbox</string>
   <!--About-->
   <string name="about_title">O programie...</string>
   <string name="briar_version">Wersja Briar: %s</string>
@@ -675,6 +687,7 @@ Brak dostępu do aparatu. Spróbuj ponownie, może po ponownym uruchomieniu urz�
   <string name="briar_website">\u2022 <a href="">Strona internetowa</a></string>
   <string name="briar_source_code">\u2022 <a href="">Kod źródłowy</a></string>
   <string name="briar_changelog">\u2022 <a href="">Dziennik zmian</a></string>
+  <string name="briar_privacy_policy">\u2022 <a href="">Polityka prywatności</a></string>
   <!--Here translators can add their names or Transifex usernames(eg "Thanks to all the contributors at the Localization Lab, especially Tom, Matthew and Jerry")-->
   <string name="translator_thanks">Dziękujemy wszystkim wspierającym z Localization Lab</string>
   <!--Conversation Settings-->
@@ -708,6 +721,7 @@ Brak dostępu do aparatu. Spróbuj ponownie, może po ponownym uruchomieniu urz�
   <string name="describe_crash">Opisz co się stało (opcjonalne)</string>
   <string name="enter_feedback">Napisz swoją opinię</string>
   <string name="optional_contact_email">Twój adres email (opcjonalne)</string>
+  <string name="privacy_policy">Wysyłając nam dane zgadzasz się na naszą  <a href="">politykę prywatności</a></string>
   <string name="include_debug_report_crash">Załącz anonimowe dane na temat awarii</string>
   <string name="include_debug_report_feedback">Załącz anonimowe dane o tym urządzeniu</string>
   <string name="dev_report_user_info">Informacje o użytkowniku</string>

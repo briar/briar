@@ -20,12 +20,16 @@
   <string name="dnkm_huawei_protected_text">Tryck på knappen längre ner för att lägga till Briar till listan över \"skyddade appar\".</string>
   <string name="dnkm_huawei_protected_button">Skydda Briar</string>
   <string name="dnkm_huawei_protected_help">Om Briar inte läggs till listan över skyddade appar kan det inte köras i bakgrunden.</string>
-  <string name="dnkm_huawei_app_launch_text">Klicka på knappen nedan, öppna skärmen ”App-start” och säkerställ att Briar är inställt på ”Hantera manuellt”</string>
+  <string name="dnkm_huawei_app_launch_text">Tryck på knappen nedan, öppna skärmen ”App-start” och säkerställ att Briar är inställt på ”Hantera manuellt”</string>
   <string name="dnkm_huawei_app_launch_help">Om Briar inte är inställt på ”Hantera manuellt” i skärmen ”App-start” kommer den inte att kunna köra i bakgrunden.</string>
   <string name="dnkm_xiaomi_text">För att köra i bakgrunden måste Briar låsas in i listan över senaste appar.</string>
   <string name="dnkm_xiaomi_button">Skydda Briar</string>
   <string name="dnkm_xiaomi_help">Om Briar inte låsas in i listan över senaste appar kommer det inte att kunna köra i bakgrunden.</string>
-  <string name="dnkm_xiaomi_dialog_body_old">1. Öppna listan över senaste appar (också kallade appväxlaren)\n\n2. Svep nedåt vid bilden av Briar för att visa hänglåsikonen\n\n3. Om hänglåsikonen inte är låst, klicka för att låsa den</string>
+  <string name="dnkm_xiaomi_dialog_body_old">1. Öppna listan över senaste appar (också kallade appväxlaren)\n\n2. Svep nedåt vid bilden av Briar för att visa hänglåsikonen\n\n3. Om hänglåsikonen inte är låst, tryck för att låsa den</string>
+  <string name="dnkm_xiaomi_dialog_body_new">1. Öppna listan över senaste appar (också kallad appväxlaren)\n\n2. Om Briar har en liten hänglåsikon bredvid namnet så behöver du inte göra något mer.\n\n3. Om ingen hänglåsikon syns så tryck och håll kvar Briar tills hänglåsikonen dyker upp.</string>
+  <string name="dnkm_xiaomi_lock_apps_text">Vänligen tryck på knappen nedan för att öppna säkerhetsinställningarna. Trycka på \"Öka hastigheten\", och sedan på \"Låsta appar\". Se där till att Briar är inställd på \"Låst\".</string>
+  <string name="dnkm_xiaomi_lock_apps_help">Om Briar inte är inställt på \"Låst\" på \"Låsta appar\"-sidan, så kommer Briar inte att kunna köra i bakgrunden.</string>
+  <string name="dnkm_warning_dozed_1">Briar kunde inte köras i bakgrunden</string>
   <!--Login-->
   <string name="enter_password">Lösenord</string>
   <string name="try_again">Felaktigt lösenord, försök igen </string>
@@ -71,7 +75,7 @@ Vänlige installera Briar på en nyare enhet.</string>
   <string name="lock_button">Lås appen</string>
   <string name="settings_button">Inställningar</string>
   <string name="sign_out_button">Logga ut</string>
-  <string name="transports_onboarding_text">Klicka här för att styra hur Briar ansluter till dina kontakter.</string>
+  <string name="transports_onboarding_text">Tryck här för att styra hur Briar ansluter till dina kontakter.</string>
   <!--Transports: Tor-->
   <string name="transport_tor">Internet</string>
   <string name="tor_device_status_online_wifi">Din telefon har internetåtkomst via Wi-Fi</string>
@@ -188,7 +192,7 @@ Vänlige installera Briar på en nyare enhet.</string>
   </plurals>
   <!--The first placeholder will show a contact's name. The second placeholder at the end will add "Tap to learn more."-->
   <string name="auto_delete_msg_contact_disabled">%1$ss meddelanden kommer inte att försvinna. %2$s</string>
-  <string name="tap_to_learn_more">Klicka för att lära dig mer.</string>
+  <string name="tap_to_learn_more">Tryck för att lära dig mer.</string>
   <string name="auto_delete_changed_warning_title">Försvinnande meddelanden ändrade</string>
   <string name="auto_delete_changed_warning_message_enabled">Sedan du börjat skriva ditt meddelande har försvinnande meddelanden aktiverats.</string>
   <string name="auto_delete_changed_warning_message_disabled">Sedan du börjat skriva ditt meddelande har försvinnande meddelande inaktiverats.</string>
@@ -230,6 +234,8 @@ Vänlige installera Briar på en nyare enhet.</string>
   <string name="contact_added_toast">Kontakt tillagd: %s</string>
   <string name="contact_already_exists">Kontakten %s finns redan</string>
   <string name="qr_code_invalid">QR-koden är felaktig</string>
+  <string name="qr_code_too_old_1">QR-koden som du har skannat kommer från en äldre version av Briar.\n\nVar vänlig och be din kontakt att uppgradera till den senaste versionen och försök sedan igen.</string>
+  <string name="qr_code_too_new_1">QR-koden som du har skannat kommer från en äldre version av Briar.\n\nVänligen uppgradera till den senaste versionen och försök igen.</string>
   <string name="camera_error">Kamerafel</string>
   <string name="connecting_to_device">Ansluter till enhet\u2026</string>
   <string name="authenticating_with_device">Autentiserar med enhet\u2026</string>
@@ -293,6 +299,10 @@ Vänlige installera Briar på en nyare enhet.</string>
   <string name="duplicate_link_dialog_text_3">%1$s och %2$s skickade dig samma länk.\n\nEn av dem kanske försöker ta reda på vilka dina kontakter är.\n\nBerätta inte för dem att du fått samma länk från någon annan.</string>
   <string name="pending_contact_updated_toast">Väntande kontakt har uppdaterats</string>
   <!--Peer trust levels-->
+  <string name="peer_trust_level_unverified">Overifierad kontakt.</string>
+  <string name="peer_trust_level_verified">Verifierad kontakt.</string>
+  <string name="peer_trust_level_ourselves">Mig</string>
+  <string name="peer_trust_level_stranger">Främling</string>
   <!--Introductions-->
   <string name="introduction_onboarding_title">Presentera dina kontakter</string>
   <string name="introduction_onboarding_text">Introducera dina kontakter för varandra så att de kan ansluta sig till varandra via Briar.</string>
@@ -601,16 +611,57 @@ Vänlige installera Briar på en nyare enhet.</string>
   <string name="mailbox_status_connected_title">Mailbox kör</string>
   <string name="mailbox_status_problem_title">Briar har problem med att ansluta till Mailbox</string>
   <string name="mailbox_status_failure_title">Mailbox är ogilltänglig</string>
+  <string name="mailbox_status_app_too_old_title">Briar är för gammal</string>
+  <string name="mailbox_status_app_too_old_message">Uppgradera Briar till den senaste versionen av appen och försök igen.</string>
+  <string name="mailbox_status_mailbox_too_old_title">Mailbox är för gammal</string>
+  <string name="mailbox_status_mailbox_too_old_message">Uppdatera din Mailbox till senaste versionen av appen och försök igen.</string>
   <string name="mailbox_status_check_button">Kontrollera anslutning</string>
   <!--Example for string substitution: Last connection: 3min ago-->
   <string name="mailbox_status_connected_info">Senaste anslutning: %s</string>
   <!--Indicates that there never was a connection to the mailbox. Last connection: Never-->
   <string name="mailbox_status_connected_never">Aldrig</string>
   <string name="mailbox_status_unlink_button">Avlänka</string>
+  <string name="mailbox_status_unlink_dialog_title">Koppla ifrån Mailbox?</string>
+  <string name="mailbox_status_unlink_dialog_question">Är du säker på att du vill koppla ifrån din Mailbox?</string>
+  <string name="mailbox_status_unlink_dialog_warning">Om du kopplar från din Mailbox så kommer du inte att kunna ta emot meddelanden medan Briar är bortkopplad från Internet.</string>
+  <string name="mailbox_status_unlink_no_wipe_title">Din Mailbox har kopplats från.</string>
+  <string name="mailbox_status_unlink_no_wipe_message">Nästa gång du har tillgång till din Mailbox-enhet, vänligen öppna Mailbox-appen och trycka på \"Koppla från\"-knappen för att fullfölja proceduren.\n\nOm du inte längre har tillgång till din Mailbox-enhet behöver du inte oroa sig. Din data är krypterad och kommer förbli säkrad även om du inte gör detta.</string>
+  <string name="mailbox_status_unlink_success">Din Mailbox har kopplats från.</string>
+  <string name="mailbox_error_notification_channel_title">Problem med Briar Mailbox</string>
+  <string name="mailbox_error_notification_title">Briar Mailbox är otillgänglig</string>
+  <string name="mailbox_error_notification_text">Tryck för att fixa problemet</string>
+  <string name="mailbox_error_wizard_button">Fixa problemet</string>
+  <string name="mailbox_error_wizard_title">Felsökningsguide för Mailbox</string>
+  <string name="mailbox_error_wizard_question1">Har du tillgång till din Mailbox-enhet?</string>
+  <string name="mailbox_error_wizard_answer1">Ja, jag har den här.</string>
+  <string name="mailbox_error_wizard_answer2">Inte just nu, men jag kan komma åt den senare.</string>
+  <string name="mailbox_error_wizard_answer3">Nej, jag har inte längre tillgång till den.</string>
+  <string name="mailbox_error_wizard_info1_1">Kontrollera att Mailbox-enheten är påslagen och ansluten till Internet.</string>
+  <string name="mailbox_error_wizard_question1_1">Öppna Mailbox-appen. Vad ser du?</string>
+  <string name="mailbox_error_wizard_answer1_1">Jag ser instruktioner för hur man ställer in Mailbox.</string>
+  <string name="mailbox_error_wizard_answer1_2">Jag ser en QR-kod.</string>
+  <string name="mailbox_error_wizard_answer1_3">Jag ser \"Mailbox kör\"</string>
+  <string name="mailbox_error_wizard_answer1_4">Jag ser \"Enheten är nedkopplad\"</string>
+  <string name="mailbox_error_wizard_info1_1_1">Vänligen koppla bort din Mailbox genom knappen nedan, följ sedan instruktionerna i Mailbox-enheten för att länka den igen.</string>
+  <string name="mailbox_error_wizard_info_1_1_2">Vänligen koppla bort din Mailbox genom knappen nedan, skanna sedan QR-koden för att länka den igen.</string>
+  <string name="mailbox_error_wizard_info1_1_3">Vänligen använd knappen nedan för att kontrollera kopplingen mellan Briar och Mailbox.\n\n
+		Om anslutningen misslyckas igen:\n
+		\u2022 Kontrollera att Mailbox- och Briar-apparna är uppdaterade till senaste versionen.\n
+		\u2022 Starta om Mailbox- och Briar-enheterna och försök igen.</string>
+  <string name="mailbox_error_wizard_info1_1_4">Kontrollera att Mailbox-enheten är korrekt ansluten till Internet.\n\nKontrollera att Mailbox-enhetens klocka visar korrekt tid, datum och tidszon.\n\nKontrollera att Mailbox- och Briar-apparna är uppdaterade till senaste versionen.\n\nStart om Mailbox- och Briar-enheterna och försök igen.</string>
+  <string name="mailbox_error_wizard_info2">Vänligen kom tillbaka till den här sidan när du har tillgång till enheten.</string>
+  <string name="mailbox_error_wizard_info3">Vänligen koppla bort din Mailbox med knappen nedan.\n\nEfter att din gamla Mailbox kopplats bort så kan du ställa in en ny Mailbox när som helst.</string>
   <!--About-->
   <string name="about_title">Om</string>
+  <string name="briar_version">Version av Briar: %s</string>
+  <string name="tor_version">Version av Tor: %s</string>
   <string name="links">Länkar</string>
+  <string name="briar_website">\u2020 <a href="">Webbplats</a></string>
+  <string name="briar_source_code">\u2020 <a href="">Källkod</a></string>
+  <string name="briar_changelog">\u2020 <a href="">Ändringar</a></string>
+  <string name="briar_privacy_policy">\u2020 <a href="">Integritetspolicy</a></string>
   <!--Here translators can add their names or Transifex usernames(eg "Thanks to all the contributors at the Localization Lab, especially Tom, Matthew and Jerry")-->
+  <string name="translator_thanks">Tack till att bidragsgivare vid Localization Lab</string>
   <!--Conversation Settings-->
   <string name="disappearing_messages_title">Försvinnande meddelanden</string>
   <string name="disappearing_messages_explanation_long">Att slå på denna inställning kommer att få nya
@@ -642,6 +693,7 @@ Vänlige installera Briar på en nyare enhet.</string>
   <string name="describe_crash">Beskriv vad som hänt (valfritt)</string>
   <string name="enter_feedback">Skriv ner dina synpunkter</string>
   <string name="optional_contact_email">Din e-postadress (valfritt)</string>
+  <string name="privacy_policy">Genom att skicka data till oss så godkänner du vår <a href="">integritetspolicy</a></string>
   <string name="include_debug_report_crash">Inkludera anonym data om krashen.</string>
   <string name="include_debug_report_feedback">Inkludera anonym data om den här enheten</string>
   <string name="dev_report_user_info">Användarinformation</string>
@@ -726,6 +778,9 @@ Vänlige installera Briar på en nyare enhet.</string>
   <string name="hotspot_manual_site_address">Adress (URL)</string>
   <string name="hotspot_qr_site">Din telfon tillhandahåller en Wi-Fi-hotspot. Personer som är anslutna till hotstpoen kan hämta Briar genom att skanna denna QR-kod.</string>
   <!--e.g. Download Briar 1.2.20-->
+  <string name="website_download_title_1">Ladda ner Briar %s</string>
+  <string name="website_download_intro_1">Någon i närheten delade med sig av Briar till dig.</string>
+  <string name="website_download_button">Ladda ner Briar</string>
   <string name="website_download_outro">Efter att hämtningen är slutför öppna den hämtade filen och installera den.</string>
   <string name="website_troubleshooting_title">Felsökning</string>
   <string name="website_troubleshooting_1">Om du inte kan hämta appen, prova med en annan webbläsarapp.</string>
@@ -760,12 +815,12 @@ Vänlige installera Briar på en nyare enhet.</string>
   <string name="removable_drive_explanation">Om du inte kan ansluta till din kontakter via internet, Wi-Fi eller Bluetooth så kan Briar också överföra meddelanden via en borttagbar enhet så som en USB-stick eller ett SD-kort.\n\nNär du använder knappen ”Skicka data” kommer all data som väntar på att skickas till kontakter att skrivas på den borttagbara enheten. Detta inkluderar privata meddelanden, bifogade filer, bloggar, forum och privata grupper.\n\nAllting kommer att krypteras innan det skrivs på den borttagbara enheten.\n\nNär din kontakt erhåller den borttagbara enheten kan de använda knappen ”Ta emot data” för att importera meddelandena i Briar.</string>
   <string name="removable_drive_title_send">Skicka data</string>
   <string name="removable_drive_title_receive">Ta emot data</string>
-  <string name="removable_drive_send_intro">Klicka på knappen nedan för att skapa en ny fil som innehåller de krypterade meddelandena. Du kan välja var filen ska sparas.\n\nOm du vill spara filen på en borttagbar enhet, anslut enheten nu.</string>
+  <string name="removable_drive_send_intro">Tryck på knappen nedan för att skapa en ny fil som innehåller de krypterade meddelandena. Du kan välja var filen ska sparas.\n\nOm du vill spara filen på en borttagbar enhet, anslut enheten nu.</string>
   <string name="removable_drive_send_no_data">Det finns för närvarande inga meddelanden som väntar på att skickas till denna kontakt.</string>
   <string name="removable_drive_send_not_supported">Denna kontakt använder en gammal version av Briar eller en gammal enhet som inte har stöd för denna funktion.</string>
   <string name="removable_drive_send_button">Välj fil att exportera</string>
   <string name="removable_drive_ongoing">Vänligen vänta på att den pågående åtgärden ska slutföras</string>
-  <string name="removable_drive_receive_intro">Klicka på knappen nedan för att välja filen som din kontakt skickat dig.\n\nOm filen finns på en borttagbar enhet, anslut enheten nu.</string>
+  <string name="removable_drive_receive_intro">Tryck på knappen nedan för att välja filen som din kontakt skickat dig.\n\nOm filen finns på en borttagbar enhet, anslut enheten nu.</string>
   <string name="removable_drive_receive_button">Välj fil att importera</string>
   <string name="removable_drive_success_send_title">Export framgångsrik</string>
   <string name="removable_drive_success_send_text">Data exporterades framgångsrikt. Du har nu 28 dagar på dig att transportera filen till din kontakt.\n\nOm filen finns på en borttagbar enhet använd notifikationen i statusraden för att mata ut enheten innan du drar ut den.</string>

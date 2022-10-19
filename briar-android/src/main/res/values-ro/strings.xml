@@ -421,7 +421,7 @@
   <string name="dialog_title_leave_forum">Confirmați părăsirea forumului</string>
   <string name="dialog_message_leave_forum">Sigur doriți să părăsiți acest forum?\n\nS-ar putea ca orice contact cu care ați partajat acest forum să nu mai primească actualizări.</string>
   <string name="dialog_button_leave">Părăsiți</string>
-  <string name="forum_left_toast">Forum părăsit</string>
+  <string name="forum_left_toast">Ați părăsit forumul</string>
   <!--Forum Sharing-->
   <string name="forum_share_button">Partajați forumul</string>
   <string name="contacts_selected">Contacte selectate</string>
@@ -599,7 +599,7 @@
   <string name="mailbox_setup_intro">Având o cutie poștală, contactele dvs. pot să vă trimită mesaje în timp ce sunteți offline. Cutia poștală va primi mesajele și le va stoca până când intrați online.\n
 		\nPuteți instala aplicația de cutie poștală Briar pe un dispozitiv de rezervă. Țineți-l conectat la o sursă de curent și la Wi-Fi, astfel încât să fie întotdeauna online.</string>
   <string name="mailbox_setup_download">În primul rând, instalați aplicația de cutie poștală pe un alt dispozitiv căutând „Cutie poștală Briar” în Google Play sau de unde ați descărcat Briar.\n
-\nApoi conectați cutia poștală la Briar prin scanarea codului QR afișat de aplicația de cutie poștală.</string>
+		\nApoi conectați cutia poștală la Briar prin scanarea codului QR afișat de aplicația de cutie poștală.</string>
   <string name="mailbox_setup_download_link">Partajați linkul de descărcare</string>
   <string name="mailbox_setup_button_scan">Scanați codul QR al cutiei poștale</string>
   <string name="permission_camera_qr_denied_body">Ați refuzat accesul la cameră, dar scanarea unui cod QR necesită utilizarea camerei.\n\nLuați în considerare acordarea accesului.</string>
