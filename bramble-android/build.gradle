@@ -15,8 +15,8 @@ android {
 	defaultConfig {
 		minSdkVersion 16
 		targetSdkVersion 30
-		versionCode 10412
-		versionName "1.4.12"
+		versionCode 10413
+		versionName "1.4.13"
 		consumerProguardFiles 'proguard-rules.txt'
 
 		testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
