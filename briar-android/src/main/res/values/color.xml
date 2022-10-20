@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 	<color name="briar_lime_600">#67a60f</color>
+	<color name="briar_lime_600_new">#65A30D</color>
 	<color name="briar_lime_400">#82c91e</color>
+	<color name="briar_lime_400_new">#A3E635</color>
 
 	<color name="briar_blue_800">#134a81</color>
 	<color name="briar_blue_600">#1b69b6</color>
@@ -55,6 +57,7 @@
 
 	<color name="il_border">#9CA3AF</color>
 	<color name="il_background">#E5E7EB</color>
+	<color name="il_lime">@color/briar_lime_600_new</color>
 
 	<!-- text colors -->
 	<color name="briar_text_link">@color/briar_blue_400</color>

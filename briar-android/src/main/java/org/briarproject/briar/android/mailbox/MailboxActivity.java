@@ -186,8 +186,7 @@ public class MailboxActivity extends BriarActivity {
 			tag = ErrorFragment.TAG;
 		} else if (s instanceof MailboxPairingState.Paired) {
 			f = FinalFragment.newInstance(R.string.mailbox_setup_paired_title,
-					R.drawable.ic_check_circle_outline,
-					R.color.briar_brand_green,
+					R.drawable.ic_check_circle, 0,
 					R.string.mailbox_setup_paired_description);
 			tag = FinalFragment.TAG;
 		} else {

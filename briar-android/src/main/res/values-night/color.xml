@@ -29,4 +29,5 @@
 
 	<color name="il_border">#64748B</color>
 	<color name="il_background">#334155</color>
+	<color name="il_lime">@color/briar_lime_400_new</color>
 </resources>
