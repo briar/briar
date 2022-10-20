@@ -148,7 +148,7 @@ public class MailboxStatusFragment extends Fragment {
 		if (status.hasProblem(System.currentTimeMillis())) {
 			tintRes = R.color.briar_red_500;
 			title = getString(R.string.mailbox_status_failure_title);
-			iconRes = R.drawable.alerts_and_states_error;
+			iconRes = R.drawable.ic_error;
 			showUnlinkWarning = false;
 			wizardButton.setVisibility(VISIBLE);
 		} else if (status.getAttemptsSinceSuccess() > 0) {
@@ -169,11 +169,11 @@ public class MailboxStatusFragment extends Fragment {
 				message = getString(
 						R.string.mailbox_status_mailbox_too_old_message);
 			}
-			iconRes = R.drawable.alerts_and_states_error;
+			iconRes = R.drawable.ic_error;
 			showUnlinkWarning = true;
 			wizardButton.setVisibility(GONE);
 		} else {
-			iconRes = R.drawable.ic_check_circle_outline;
+			iconRes = R.drawable.ic_check_circle;
 			title = getString(R.string.mailbox_status_connected_title);
 			tintRes = R.color.briar_brand_green;
 			showUnlinkWarning = true;

@@ -13,6 +13,8 @@
 	<color name="briar_orange_500">#fc9403</color>
 
 	<color name="briar_red_500">#db3b21</color>
+	<color name="briar_red_500_new">#EF4444</color>
+	<color name="briar_red_600">#DC2626</color>
 
 	<color name="briar_night_950">#0e171f</color>
 	<color name="briar_night_800">#212d3b</color>
@@ -58,6 +60,7 @@
 	<color name="il_border">#9CA3AF</color>
 	<color name="il_background">#E5E7EB</color>
 	<color name="il_lime">@color/briar_lime_600_new</color>
+	<color name="il_red">@color/briar_red_600</color>
 
 	<!-- text colors -->
 	<color name="briar_text_link">@color/briar_blue_400</color>

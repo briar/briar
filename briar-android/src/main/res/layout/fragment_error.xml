@@ -21,7 +21,7 @@
 			app:layout_constraintTop_toTopOf="parent"
 			app:layout_constraintVertical_bias="0.25"
 			app:layout_constraintVertical_chainStyle="packed"
-			app:srcCompat="@drawable/alerts_and_states_error"
+			app:srcCompat="@drawable/ic_error"
 			app:tint="@color/briar_red_500"
 			tools:ignore="ContentDescription" />
 

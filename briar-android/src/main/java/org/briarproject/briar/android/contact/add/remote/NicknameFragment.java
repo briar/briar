@@ -211,7 +211,7 @@ public class NicknameFragment extends BaseFragment {
 	private void showWarningDialog(String name1, String name2) {
 		Context ctx = requireContext();
 		Builder b = new Builder(ctx, R.style.BriarDialogTheme);
-		b.setIcon(getDialogIcon(ctx, R.drawable.alerts_and_states_error));
+		b.setIcon(getDialogIcon(ctx, R.drawable.ic_error));
 		b.setTitle(getString(R.string.duplicate_link_dialog_title));
 		b.setMessage(
 				getString(R.string.duplicate_link_dialog_text_3, name1, name2));
