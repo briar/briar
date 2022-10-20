@@ -6,7 +6,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.ScrollView;
 
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.widget.OnboardingFullDialogFragment;
@@ -20,8 +19,8 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 import androidx.lifecycle.ViewModelProvider;
 
-import static android.view.View.FOCUS_DOWN;
 import static org.briarproject.briar.android.AppModule.getAndroidComponent;
+import static org.briarproject.briar.android.util.UiUtils.hideViewOnSmallScreen;
 
 @MethodsNotNullByDefault
 @ParametersNotNullByDefault
@@ -33,7 +32,6 @@ public class ChooserFragment extends Fragment {
 	ViewModelProvider.Factory viewModelFactory;
 
 	private RemovableDriveViewModel viewModel;
-	private ScrollView scrollView;
 
 	@Override
 	public void onAttach(Context context) {
@@ -50,8 +48,6 @@ public class ChooserFragment extends Fragment {
 			@Nullable Bundle savedInstanceState) {
 		View v = inflater.inflate(R.layout.fragment_transfer_data_chooser,
 				container, false);
-
-		scrollView = (ScrollView) v;
 
 		Button buttonLearnMore = v.findViewById(R.id.buttonLearnMore);
 		buttonLearnMore.setOnClickListener(e -> showLearnMoreDialog());
@@ -75,8 +71,7 @@ public class ChooserFragment extends Fragment {
 			// as we only support one per ViewModel instance
 			requireActivity().supportFinishAfterTransition();
 		} else {
-			// Scroll down in case the screen is small, so the button is visible
-			scrollView.post(() -> scrollView.fullScroll(FOCUS_DOWN));
+			hideViewOnSmallScreen(requireView().findViewById(R.id.imageView));
 		}
 	}
 
