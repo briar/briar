@@ -6,7 +6,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.ScrollView;
 
 import org.briarproject.briar.R;
 import org.briarproject.nullsafety.MethodsNotNullByDefault;
@@ -19,8 +18,8 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 import androidx.lifecycle.ViewModelProvider;
 
-import static android.view.View.FOCUS_DOWN;
 import static org.briarproject.briar.android.AppModule.getAndroidComponent;
+import static org.briarproject.briar.android.util.UiUtils.hideViewOnSmallScreen;
 
 @MethodsNotNullByDefault
 @ParametersNotNullByDefault
@@ -32,8 +31,6 @@ public class SetupIntroFragment extends Fragment {
 	ViewModelProvider.Factory viewModelFactory;
 
 	private MailboxViewModel viewModel;
-
-	private ScrollView scrollView;
 
 	@Override
 	public void onAttach(Context context) {
@@ -51,7 +48,6 @@ public class SetupIntroFragment extends Fragment {
 			@Nullable Bundle savedInstanceState) {
 		View v = inflater.inflate(R.layout.fragment_mailbox_setup_intro,
 				container, false);
-		scrollView = v.findViewById(R.id.scrollView);
 		Button button = v.findViewById(R.id.continueButton);
 		button.setOnClickListener(view -> viewModel.showDownloadFragment());
 		return v;
@@ -61,8 +57,7 @@ public class SetupIntroFragment extends Fragment {
 	public void onStart() {
 		super.onStart();
 		requireActivity().setTitle(R.string.mailbox_setup_title);
-		// Scroll down in case the screen is small, so the button is visible
-		scrollView.post(() -> scrollView.fullScroll(FOCUS_DOWN));
+		hideViewOnSmallScreen(requireView().findViewById(R.id.imageView));
 	}
 
 }
