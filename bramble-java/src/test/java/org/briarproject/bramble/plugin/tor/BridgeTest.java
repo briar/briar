@@ -30,6 +30,7 @@ import org.junit.runners.Parameterized.Parameters;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
@@ -198,6 +199,11 @@ public class BridgeTest extends BrambleTestCase {
 
 	@Test
 	public void testBridges() throws Exception {
+		if (params.stats.hasSucceeded(params.bridge)) {
+			LOG.info("Skipping previously successful bridge: " + params.bridge);
+			return;
+		}
+
 		DuplexPlugin duplexPlugin =
 				factory.createPlugin(new TestPluginCallback());
 		assertNotNull(duplexPlugin);
@@ -209,10 +215,13 @@ public class BridgeTest extends BrambleTestCase {
 			long start = clock.currentTimeMillis();
 			long timeout = params.bridgeType == MEEK ? MEEK_TIMEOUT : TIMEOUT;
 			while (clock.currentTimeMillis() - start < timeout) {
-				if (plugin.getState() == ACTIVE) return;
+				if (plugin.getState() == ACTIVE) break;
 				clock.sleep(500);
 			}
-			if (plugin.getState() != ACTIVE) {
+			if (plugin.getState() == ACTIVE) {
+				LOG.info("Connected to Tor: " + params.bridge);
+				params.stats.countSuccess(params.bridge);
+			} else {
 				LOG.warning("Could not connect to Tor within timeout: "
 						+ params.bridge);
 				params.stats.countFailure(params.bridge, params.essential);
@@ -241,9 +250,19 @@ public class BridgeTest extends BrambleTestCase {
 	private static class Stats {
 
 		@GuardedBy("this")
+		private final Set<String> successes = new HashSet<>();
+		@GuardedBy("this")
 		private final Multiset<String> failures = new Multiset<>();
 		@GuardedBy("this")
 		private final Set<String> unreachable = new TreeSet<>();
+
+		private synchronized boolean hasSucceeded(String bridge) {
+			return successes.contains(bridge);
+		}
+
+		private synchronized  void countSuccess(String bridge) {
+			successes.add(bridge);
+		}
 
 		private synchronized void countFailure(String bridge,
 				boolean essential) {
