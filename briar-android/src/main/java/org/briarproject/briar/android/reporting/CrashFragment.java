@@ -16,6 +16,8 @@ import javax.inject.Inject;
 import androidx.annotation.Nullable;
 import androidx.lifecycle.ViewModelProvider;
 
+import static org.briarproject.briar.android.util.UiUtils.hideViewOnSmallScreen;
+
 @MethodsNotNullByDefault
 @ParametersNotNullByDefault
 public class CrashFragment extends BaseFragment {
@@ -55,4 +57,9 @@ public class CrashFragment extends BaseFragment {
 		return TAG;
 	}
 
+	@Override
+	public void onStart() {
+		super.onStart();
+		hideViewOnSmallScreen(requireView().findViewById(R.id.errorIcon));
+	}
 }
