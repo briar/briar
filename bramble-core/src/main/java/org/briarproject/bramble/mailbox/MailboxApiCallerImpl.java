@@ -20,12 +20,15 @@ import static java.util.concurrent.TimeUnit.MILLISECONDS;
 class MailboxApiCallerImpl implements MailboxApiCaller {
 
 	private final TaskScheduler taskScheduler;
+	private final MailboxConfig mailboxConfig;
 	private final Executor ioExecutor;
 
 	@Inject
 	MailboxApiCallerImpl(TaskScheduler taskScheduler,
+			MailboxConfig mailboxConfig,
 			@IoExecutor Executor ioExecutor) {
 		this.taskScheduler = taskScheduler;
+		this.mailboxConfig = mailboxConfig;
 		this.ioExecutor = ioExecutor;
 	}
 
@@ -49,7 +52,8 @@ class MailboxApiCallerImpl implements MailboxApiCaller {
 		private boolean cancelled = false;
 
 		@GuardedBy("lock")
-		private long retryIntervalMs = MIN_RETRY_INTERVAL_MS;
+		private long retryIntervalMs =
+				mailboxConfig.getApiCallerMinRetryInterval();
 
 		private Task(ApiCall apiCall) {
 			this.apiCall = apiCall;
@@ -74,8 +78,9 @@ class MailboxApiCallerImpl implements MailboxApiCaller {
 					scheduledTask = taskScheduler.schedule(this::callApi,
 							ioExecutor, retryIntervalMs, MILLISECONDS);
 					// Increase the retry interval each time we retry
-					retryIntervalMs =
-							min(MAX_RETRY_INTERVAL_MS, retryIntervalMs * 2);
+					retryIntervalMs = min(
+							mailboxConfig.getApiCallerMaxRetryInterval(),
+							retryIntervalMs * 2);
 				}
 			} else {
 				synchronized (lock) {

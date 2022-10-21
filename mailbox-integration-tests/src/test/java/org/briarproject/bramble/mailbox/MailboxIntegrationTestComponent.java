@@ -24,7 +24,7 @@ import dagger.Component;
 		BrambleCoreIntegrationTestModule.class,
 		BrambleCoreModule.class,
 		BriarCoreModule.class,
-		TestUrlConverterModule.class,
+		TestModularMailboxModule.class,
 		MailboxTestPluginConfigModule.class,
 		TestSocksModule.class,
 		TestDnsModule.class,

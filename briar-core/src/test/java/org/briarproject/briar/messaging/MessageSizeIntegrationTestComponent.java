@@ -2,7 +2,7 @@ package org.briarproject.briar.messaging;
 
 import org.briarproject.bramble.BrambleCoreIntegrationTestEagerSingletons;
 import org.briarproject.bramble.BrambleCoreModule;
-import org.briarproject.bramble.mailbox.UrlConverterModule;
+import org.briarproject.bramble.mailbox.ModularMailboxModule;
 import org.briarproject.bramble.test.BrambleCoreIntegrationTestModule;
 import org.briarproject.bramble.test.TestDnsModule;
 import org.briarproject.bramble.test.TestPluginConfigModule;
@@ -29,7 +29,7 @@ import dagger.Component;
 		ForumModule.class,
 		IdentityModule.class,
 		MessagingModule.class,
-		UrlConverterModule.class,
+		ModularMailboxModule.class,
 		TestDnsModule.class,
 		TestSocksModule.class,
 		TestPluginConfigModule.class,

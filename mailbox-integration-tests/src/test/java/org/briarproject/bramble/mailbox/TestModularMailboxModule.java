@@ -9,7 +9,12 @@ import static org.briarproject.bramble.mailbox.AbstractMailboxIntegrationTest.UR
 
 @Module
 @NotNullByDefault
-class TestUrlConverterModule {
+class TestModularMailboxModule {
+
+	@Provides
+	MailboxConfig provideMailboxConfig(TestMailboxConfigImpl mailboxConfig) {
+		return mailboxConfig;
+	}
 
 	static UrlConverter urlConverter = onion -> URL_BASE;
 

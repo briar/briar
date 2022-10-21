@@ -21,7 +21,8 @@ public class MailboxIntegrationTest extends AbstractMailboxIntegrationTest {
 		// c1 one pairs the mailbox
 		MailboxProperties props1 = pair(c1, mailbox);
 
-		// Check for number of contacts on mailbox via API every 100ms
+		// Check for number of contacts on mailbox via API every 100ms.
+		// This should be quick and will succeed with first call.
 		retryUntilSuccessOrTimeout(1_000, 100, () -> {
 			Collection<ContactId> contacts = api.getContacts(props1);
 			return contacts.size() == 1;
@@ -39,20 +40,17 @@ public class MailboxIntegrationTest extends AbstractMailboxIntegrationTest {
 		// send message and wait for it to arrive via mailbox
 		sendMessage(c1, contact2From1.getId(), "test");
 
-		// restart Tor for c1 to cause an immediate upload
-		// and wait until file arrived on mailbox
-		restartTor(c1);
-		retryUntilSuccessOrTimeout(5_000, 100, () -> {
+		// wait until file arrived on mailbox
+		retryUntilSuccessOrTimeout(5_000, 500, () -> {
 			List<MailboxFile> files = api.getFiles(props2, props2.getInboxId());
-			return files.size() > 0;
+			return files.size() > 1;
 		});
 
-		// restart Tor for c2 to cause an immediate download
-		// and wait for message to arrive
-		restartTor(c2);
-		awaitPendingMessageDelivery(1, 5_000);
+		// wait for message to arrive
+		// this might require 2nd download cycle after Tor reachability period
+		awaitPendingMessageDelivery(1);
 
-		// private message arrived for c2
+		// assert that private message arrived for c2
 		int size = getFromDb(c2, txn -> c2.getMessagingManager()
 				.getMessageHeaders(txn, contact1From2.getId()).size());
 		assertEquals(1, size);

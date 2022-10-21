@@ -4,7 +4,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import static java.lang.System.currentTimeMillis;
 import static org.briarproject.bramble.mailbox.MailboxTestUtils.createHttpClientProvider;
-import static org.briarproject.bramble.mailbox.TestUrlConverterModule.urlConverter;
+import static org.briarproject.bramble.mailbox.TestModularMailboxModule.urlConverter;
 import static org.junit.Assert.fail;
 
 class MailboxIntegrationTestUtils {

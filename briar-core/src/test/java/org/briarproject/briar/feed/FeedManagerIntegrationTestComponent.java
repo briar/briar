@@ -4,7 +4,7 @@ import org.briarproject.bramble.BrambleCoreIntegrationTestEagerSingletons;
 import org.briarproject.bramble.BrambleCoreModule;
 import org.briarproject.bramble.api.identity.IdentityManager;
 import org.briarproject.bramble.api.lifecycle.LifecycleManager;
-import org.briarproject.bramble.mailbox.UrlConverterModule;
+import org.briarproject.bramble.mailbox.ModularMailboxModule;
 import org.briarproject.bramble.test.BrambleCoreIntegrationTestModule;
 import org.briarproject.bramble.test.TestDnsModule;
 import org.briarproject.bramble.test.TestPluginConfigModule;
@@ -29,7 +29,7 @@ import dagger.Component;
 		BriarClientModule.class,
 		FeedModule.class,
 		IdentityModule.class,
-		UrlConverterModule.class,
+		ModularMailboxModule.class,
 		TestDnsModule.class,
 		TestSocksModule.class,
 		TestPluginConfigModule.class,
