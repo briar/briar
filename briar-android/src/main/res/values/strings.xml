@@ -261,7 +261,7 @@
 	<string name="add_contact_remotely_title_case">Add Contact at a Distance</string>
 	<string name="add_contact_nearby_title">Add contact nearby</string>
 	<string name="add_contact_remotely_title">Add contact at a distance</string>
-	<string name="contact_link_intro">Enter the link from your contact here</string>
+	<string name="contact_link_intro">Also insert the link of the contact here, only after both links have been exchanged, the connection will be established</string>
 	<string name="contact_link_hint">Contact\'s link</string>
 	<string name="paste_button">Paste</string>
 	<string name="add_contact_button">Add contact</string>
