@@ -318,6 +318,7 @@
 	<string name="different_person_button">Different Person</string>
 	<string name="duplicate_link_dialog_text_3">%1$s and %2$s sent you the same link.\n\nOne of them may be trying to discover who your contacts are.\n\nDon\'t tell them you received the same link from someone else.</string>
 	<string name="pending_contact_updated_toast">Pending contact updated</string>
+	<string name="info_both_must_enter_links">You must both add each other\'s links</string>
 
 	<!-- Peer trust levels -->
 

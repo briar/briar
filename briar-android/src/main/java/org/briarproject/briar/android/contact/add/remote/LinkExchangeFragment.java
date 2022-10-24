@@ -122,6 +122,9 @@ public class LinkExchangeFragment extends BaseFragment {
 						.startChooser());
 		shareButton.setEnabled(true);
 
+		TextView infoText = v.findViewById(R.id.info_text);
+		infoText.setText(R.string.info_both_must_enter_links);
+
 		Button continueButton = v.findViewById(R.id.addButton);
 		continueButton.setOnClickListener(view -> onContinueButtonClicked());
 		continueButton.setEnabled(true);
