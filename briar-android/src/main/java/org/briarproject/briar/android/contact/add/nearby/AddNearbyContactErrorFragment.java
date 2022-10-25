@@ -22,7 +22,7 @@ import androidx.fragment.app.FragmentActivity;
 import androidx.lifecycle.ViewModelProvider;
 
 import static android.content.Intent.FLAG_ACTIVITY_CLEAR_TOP;
-import static android.view.View.GONE;
+import static org.briarproject.briar.android.util.UiUtils.hideViewOnSmallScreen;
 import static org.briarproject.briar.android.util.UiUtils.onSingleLinkClick;
 
 @MethodsNotNullByDefault
@@ -70,8 +70,11 @@ public class AddNearbyContactErrorFragment extends BaseFragment {
 		TextView explanation = v.findViewById(R.id.errorMessage);
 		Bundle args = getArguments();
 		String errorMessage = args == null ? null : args.getString(ERROR_MSG);
-		if (errorMessage == null) explanation.setVisibility(GONE);
-		else explanation.setText(args.getString(ERROR_MSG));
+		if (errorMessage == null) {
+			explanation.setText(getString(R.string.add_contact_error_two_way));
+		} else {
+			explanation.setText(args.getString(ERROR_MSG));
+		}
 
 		// make feedback link clickable
 		TextView sendFeedback = v.findViewById(R.id.sendFeedback);
@@ -98,6 +101,12 @@ public class AddNearbyContactErrorFragment extends BaseFragment {
 		// because it gets called when creating AddNearbyContactFragment
 		// in landscape orientation to force portrait orientation.
 		viewModel.stopListening();
+	}
+
+	@Override
+	public void onStart() {
+		super.onStart();
+		hideViewOnSmallScreen(requireView().findViewById(R.id.errorIcon));
 	}
 
 	private void triggerFeedback() {
