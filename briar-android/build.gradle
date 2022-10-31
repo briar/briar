@@ -112,7 +112,6 @@ dependencies {
 	implementation 'androidx.recyclerview:recyclerview-selection:1.1.0'
 
 	implementation 'info.guardianproject.panic:panic:1.0'
-	implementation 'info.guardianproject.trustedintents:trustedintents:0.2'
 	implementation 'de.hdodenhof:circleimageview:3.1.0'
 	implementation 'com.google.zxing:core:3.3.3'  // newer version need minSdk 24
 	implementation 'uk.co.samuelwall:material-tap-target-prompt:3.3.0'
@@ -157,8 +156,8 @@ dependencies {
 	androidTestAnnotationProcessor "com.google.dagger:dagger-compiler:$dagger_version"
 	androidTestCompileOnly 'javax.annotation:jsr250-api:1.0'
 	androidTestImplementation "junit:junit:$junit_version"
-	androidTestScreenshotImplementation 'tools.fastlane:screengrab:2.0.0'
-	androidTestScreenshotImplementation 'com.jraska:falcon:2.1.1'
+	androidTestScreenshotImplementation 'tools.fastlane:screengrab:2.1.1'
+	androidTestScreenshotImplementation 'com.jraska:falcon:2.2.0'
 	androidTestScreenshotImplementation 'androidx.test.uiautomator:uiautomator:2.2.0'
 }
 
