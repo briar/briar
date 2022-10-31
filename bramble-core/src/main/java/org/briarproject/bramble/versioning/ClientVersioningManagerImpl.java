@@ -228,15 +228,11 @@ class ClientVersioningManagerImpl implements ClientVersioningManager,
 				Contact contact = db.getContact(txn, c);
 				callVisibilityHooks(txn, contact, before, after);
 			}
-			// Broadcast events for any new client versions
-			Set<ClientVersion> oldRemoteVersions = new HashSet<>();
-			for (ClientState cs : oldRemoteStates) {
-				oldRemoteVersions.add(cs.clientVersion);
-			}
+			// Broadcast events for any client version update
 			for (ClientState cs : newRemoteStates) {
-				if (!oldRemoteVersions.contains(cs.clientVersion)) {
-					txn.attach(new ClientVersionUpdatedEvent(c,
-							cs.clientVersion));
+				if (!oldRemoteStates.contains(cs)) {
+					txn.attach(
+							new ClientVersionUpdatedEvent(c, cs.clientVersion));
 				}
 			}
 		} catch (FormatException e) {
