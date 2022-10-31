@@ -5,8 +5,8 @@ apply plugin: 'witness'
 apply from: 'witness.gradle'
 
 android {
-	compileSdkVersion 30
-	buildToolsVersion '30.0.3'
+	compileSdkVersion 33
+	buildToolsVersion '33.0.0'
 
 	packagingOptions {
 		doNotStrip '**/*.so'
@@ -14,12 +14,13 @@ android {
 
 	defaultConfig {
 		minSdkVersion 16
-		targetSdkVersion 30
+		targetSdkVersion 31
 		versionCode 10415
 		versionName "1.4.15"
 		consumerProguardFiles 'proguard-rules.txt'
 
 		testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+		testInstrumentationRunnerArguments disableAnalytics: 'true'
 	}
 
 	compileOptions {

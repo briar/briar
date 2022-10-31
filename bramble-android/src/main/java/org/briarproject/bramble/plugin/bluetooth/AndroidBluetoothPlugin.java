@@ -55,6 +55,7 @@ import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
 import static java.util.logging.Logger.getLogger;
+import static org.briarproject.bramble.util.AndroidUtils.hasBtConnectPermission;
 import static org.briarproject.bramble.util.PrivacyUtils.scrubMacAddress;
 
 @MethodsNotNullByDefault
@@ -95,6 +96,11 @@ class AndroidBluetoothPlugin extends
 		this.androidExecutor = androidExecutor;
 		this.app = app;
 		this.clock = clock;
+	}
+
+	@Override
+	protected boolean isBluetoothAccessible() {
+		return hasBtConnectPermission(app);
 	}
 
 	@Override

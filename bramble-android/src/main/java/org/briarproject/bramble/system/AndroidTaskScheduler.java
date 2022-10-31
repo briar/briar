@@ -41,6 +41,7 @@ import static java.util.logging.Level.INFO;
 import static java.util.logging.Logger.getLogger;
 import static org.briarproject.bramble.system.AlarmConstants.EXTRA_PID;
 import static org.briarproject.bramble.system.AlarmConstants.REQUEST_ALARM;
+import static org.briarproject.bramble.util.AndroidUtils.getImmutableFlags;
 
 @ThreadSafe
 @NotNullByDefault
@@ -199,7 +200,7 @@ class AndroidTaskScheduler implements TaskScheduler, Service, AlarmListener {
 		Intent i = new Intent(app, AlarmReceiver.class);
 		i.putExtra(EXTRA_PID, android.os.Process.myPid());
 		return PendingIntent.getBroadcast(app, REQUEST_ALARM, i,
-				FLAG_CANCEL_CURRENT);
+				getImmutableFlags(FLAG_CANCEL_CURRENT));
 	}
 
 	private class ScheduledTask

@@ -16,8 +16,8 @@ def getStdout = { command, defaultValue ->
 }
 
 android {
-	compileSdkVersion 30
-	buildToolsVersion '30.0.3'
+	compileSdkVersion 33
+	buildToolsVersion '33.0.0'
 
 	packagingOptions {
 		doNotStrip '**/*.so'
@@ -25,7 +25,7 @@ android {
 
 	defaultConfig {
 		minSdkVersion 16
-		targetSdkVersion 30
+		targetSdkVersion 31
 		versionCode 10415
 		versionName "1.4.15"
 		applicationId "org.briarproject.briar.android"
@@ -105,7 +105,7 @@ dependencies {
 
 	implementation 'androidx.fragment:fragment:1.3.4'
 	implementation 'androidx.preference:preference:1.1.1'
-	implementation 'androidx.exifinterface:exifinterface:1.3.2'
+	implementation 'androidx.exifinterface:exifinterface:1.3.3'
 	implementation 'androidx.lifecycle:lifecycle-extensions:2.2.0'
 	implementation 'androidx.constraintlayout:constraintlayout:2.0.4'
 	implementation 'com.google.android.material:material:1.3.0'
@@ -119,7 +119,7 @@ dependencies {
 	implementation 'com.vanniktech:emoji-google:0.7.0' // newer versions need minSdk 21
 	implementation 'com.github.kobakei:MaterialFabSpeedDial:1.2.1'
 	implementation 'com.github.chrisbanes:PhotoView:2.3.0'
-	def glideVersion = '4.11.0'
+	def glideVersion = '4.12.0'
 	implementation("com.github.bumptech.glide:glide:$glideVersion") {
 		exclude group: 'com.android.support'
 		exclude module: 'disklrucache' // when there's no disk cache, we can't accidentally use it
@@ -148,7 +148,7 @@ dependencies {
 	testAnnotationProcessor "com.google.dagger:dagger-compiler:$dagger_version"
 
 	androidTestImplementation project(path: ':bramble-api', configuration: 'testOutput')
-	androidTestImplementation 'androidx.test.ext:junit:1.1.2'
+	androidTestImplementation 'androidx.test.ext:junit:1.1.3'
 	androidTestImplementation "androidx.test.espresso:espresso-core:$espressoVersion"
 	androidTestImplementation "androidx.test.espresso:espresso-contrib:$espressoVersion"
 	androidTestImplementation "androidx.test.espresso:espresso-intents:$espressoVersion"
@@ -171,7 +171,7 @@ task verifyTranslations {
 		lc.children().each { value -> translations.add(value.text()) }
 
 		def folders = ["default", "en-US"]
-		def exceptions = ["values-night", "values-v21", "values-ldrtl"]
+		def exceptions = ["values-night", "values-v21", "values-v31", "values-ldrtl"]
 		project.file("src/main/res").eachDir { dir ->
 			if (dir.name.startsWith("values-") && !exceptions.contains(dir.name)) {
 				folders.add(dir.name.substring(7).replace("-r", "-"))

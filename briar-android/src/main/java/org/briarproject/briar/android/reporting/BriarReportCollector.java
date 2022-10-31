@@ -7,6 +7,7 @@
 package org.briarproject.briar.android.reporting;
 
 import android.annotation.SuppressLint;
+import android.app.usage.UsageStatsManager;
 import android.bluetooth.BluetoothAdapter;
 import android.content.Context;
 import android.content.pm.FeatureInfo;
@@ -48,6 +49,7 @@ import androidx.annotation.Nullable;
 
 import static android.bluetooth.BluetoothAdapter.SCAN_MODE_CONNECTABLE;
 import static android.bluetooth.BluetoothAdapter.SCAN_MODE_CONNECTABLE_DISCOVERABLE;
+import static android.content.Context.USAGE_STATS_SERVICE;
 import static android.content.Context.WIFI_P2P_SERVICE;
 import static android.net.ConnectivityManager.TYPE_MOBILE;
 import static android.net.ConnectivityManager.TYPE_WIFI;
@@ -58,9 +60,11 @@ import static java.util.Locale.US;
 import static java.util.Objects.requireNonNull;
 import static java.util.TimeZone.getTimeZone;
 import static org.briarproject.bramble.util.AndroidUtils.getBluetoothAddressAndMethod;
+import static org.briarproject.bramble.util.AndroidUtils.hasBtConnectPermission;
 import static org.briarproject.bramble.util.PrivacyUtils.scrubInetAddress;
 import static org.briarproject.bramble.util.PrivacyUtils.scrubMacAddress;
 import static org.briarproject.bramble.util.StringUtils.isNullOrEmpty;
+import static org.briarproject.briar.android.util.PermissionUtils.areBluetoothPermissionsGranted;
 
 @Immutable
 @NotNullByDefault
@@ -120,6 +124,12 @@ class BriarReportCollector {
 				.add("Product", Build.PRODUCT)
 				.add("Model", Build.MODEL)
 				.add("Brand", Build.BRAND);
+		if (SDK_INT >= 28) {
+			UsageStatsManager usageStatsManager = (UsageStatsManager)
+					ctx.getSystemService(USAGE_STATS_SERVICE);
+			deviceInfo.add("AppStandbyBucket",
+					usageStatsManager.getAppStandbyBucket());
+		}
 		return new ReportItem("DeviceInfo", R.string.dev_report_device_info,
 				deviceInfo);
 	}
@@ -273,12 +283,14 @@ class BriarReportCollector {
 
 			// Is Bluetooth enabled?
 			@SuppressLint("HardwareIds")
-			boolean btEnabled = bt.isEnabled()
+			boolean btEnabled = hasBtConnectPermission(ctx) && bt.isEnabled()
 					&& !isNullOrEmpty(bt.getAddress());
 			connectivityInfo.add("BluetoothEnabled", btEnabled);
 
 			// Is Bluetooth connectable?
-			int scanMode = bt.getScanMode();
+			@SuppressLint("MissingPermission")
+			int scanMode = areBluetoothPermissionsGranted(ctx) ?
+					bt.getScanMode() : -1;
 			boolean btConnectable = scanMode == SCAN_MODE_CONNECTABLE ||
 					scanMode == SCAN_MODE_CONNECTABLE_DISCOVERABLE;
 			connectivityInfo.add("BluetoothConnectable", btConnectable);
@@ -298,11 +310,14 @@ class BriarReportCollector {
 						btLeAdvertise);
 			}
 
-			Pair<String, String> p = getBluetoothAddressAndMethod(ctx, bt);
-			String address = p.getFirst();
-			String method = p.getSecond();
-			connectivityInfo.add("BluetoothAddress", scrubMacAddress(address));
-			connectivityInfo.add("BluetoothAddressMethod", method);
+			if (hasBtConnectPermission(ctx)) {
+				Pair<String, String> p = getBluetoothAddressAndMethod(ctx, bt);
+				String address = p.getFirst();
+				String method = p.getSecond();
+				connectivityInfo.add("BluetoothAddress",
+						scrubMacAddress(address));
+				connectivityInfo.add("BluetoothAddressMethod", method);
+			}
 		}
 		return new ReportItem("Connectivity", R.string.dev_report_connectivity,
 				connectivityInfo);

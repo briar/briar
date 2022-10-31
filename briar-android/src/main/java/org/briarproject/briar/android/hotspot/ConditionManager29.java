@@ -5,6 +5,7 @@ import android.provider.Settings;
 
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.util.Permission;
+import org.briarproject.briar.android.util.PermissionUtils;
 
 import java.util.logging.Logger;
 
@@ -17,11 +18,13 @@ import androidx.annotation.RequiresApi;
 import androidx.core.util.Consumer;
 
 import static android.Manifest.permission.ACCESS_FINE_LOCATION;
+import static android.os.Build.VERSION.SDK_INT;
 import static androidx.core.app.ActivityCompat.shouldShowRequestPermissionRationale;
 import static java.lang.Boolean.TRUE;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Logger.getLogger;
-import static org.briarproject.briar.android.util.UiUtils.getGoToSettingsListener;
+import static org.briarproject.briar.android.util.PermissionUtils.isLocationEnabledForWiFi;
+import static org.briarproject.briar.android.util.PermissionUtils.showLocationDialog;
 
 /**
  * This class ensures that the conditions to open a hotspot are fulfilled on
@@ -44,6 +47,7 @@ class ConditionManager29 extends AbstractConditionManager {
 	ConditionManager29(ActivityResultCaller arc,
 			Consumer<Boolean> permissionUpdateCallback) {
 		super(permissionUpdateCallback);
+		// permissionUpdateCallback receives false if permissions were denied
 		locationRequest = arc.registerForActivityResult(
 				new RequestPermission(), granted -> {
 					onRequestPermissionResult(granted);
@@ -63,13 +67,16 @@ class ConditionManager29 extends AbstractConditionManager {
 
 	private boolean areEssentialPermissionsGranted() {
 		boolean isWifiEnabled = wifiManager.isWifiEnabled();
+		boolean isLocationEnabled = isLocationEnabledForWiFi(ctx);
 		if (LOG.isLoggable(INFO)) {
 			LOG.info(String.format("areEssentialPermissionsGranted(): " +
 							"locationPermission? %s, " +
-							"wifiManager.isWifiEnabled()? %b",
-					locationPermission, isWifiEnabled));
+							"wifiManager.isWifiEnabled()? %b" +
+							"isLocationEnabled? %b",
+					locationPermission, isWifiEnabled, isLocationEnabled));
 		}
-		return locationPermission == Permission.GRANTED && isWifiEnabled;
+		return locationPermission == Permission.GRANTED && isWifiEnabled &&
+				isLocationEnabled;
 	}
 
 	@Override
@@ -77,24 +84,33 @@ class ConditionManager29 extends AbstractConditionManager {
 		if (areEssentialPermissionsGranted()) return true;
 
 		if (locationPermission == Permission.UNKNOWN) {
-			locationRequest.launch(ACCESS_FINE_LOCATION);
+			requestPermissions();
+			return false;
+		}
+		// ensure location is enabled (if needed on this device)
+		if (!isLocationEnabledForWiFi(ctx)) {
+			showLocationDialog(ctx, false);
 			return false;
 		}
 
 		// If the location permission has been permanently denied, ask the
 		// user to change the setting
 		if (locationPermission == Permission.PERMANENTLY_DENIED) {
-			showDenialDialog(ctx, R.string.permission_location_title,
-					R.string.permission_hotspot_location_denied_body,
-					getGoToSettingsListener(ctx),
+			int res = SDK_INT >= 31 ?
+					R.string.permission_hotspot_location_denied_precise_body :
+					R.string.permission_hotspot_location_denied_body;
+			PermissionUtils.showDenialDialog(ctx,
+					R.string.permission_location_title, res,
 					() -> permissionUpdateCallback.accept(false));
 			return false;
 		}
 
 		// Should we show the rationale for location permission?
 		if (locationPermission == Permission.SHOW_RATIONALE) {
-			showRationale(ctx, R.string.permission_location_title,
-					R.string.permission_hotspot_location_request_body,
+			int res = SDK_INT >= 31 ?
+					R.string.permission_hotspot_location_request_precise_body :
+					R.string.permission_hotspot_location_request_body;
+			showRationale(ctx, R.string.permission_location_title, res,
 					this::requestPermissions,
 					() -> permissionUpdateCallback.accept(false));
 			return false;

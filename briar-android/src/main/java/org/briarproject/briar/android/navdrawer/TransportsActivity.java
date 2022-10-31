@@ -26,18 +26,24 @@ import org.briarproject.nullsafety.ParametersNotNullByDefault;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import javax.inject.Inject;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts.RequestMultiplePermissions;
 import androidx.annotation.ColorRes;
 import androidx.annotation.DrawableRes;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.annotation.StringRes;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.widget.SwitchCompat;
 import androidx.core.content.ContextCompat;
 import androidx.lifecycle.ViewModelProvider;
 
+import static android.Manifest.permission.BLUETOOTH_CONNECT;
+import static android.os.Build.VERSION.SDK_INT;
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
 import static org.briarproject.bramble.api.plugin.Plugin.State.ACTIVE;
@@ -47,6 +53,11 @@ import static org.briarproject.bramble.api.plugin.Plugin.State.STARTING_STOPPING
 import static org.briarproject.bramble.api.plugin.TorConstants.REASON_BATTERY;
 import static org.briarproject.bramble.api.plugin.TorConstants.REASON_COUNTRY_BLOCKED;
 import static org.briarproject.bramble.api.plugin.TorConstants.REASON_MOBILE_DATA;
+import static org.briarproject.briar.android.util.PermissionUtils.areBluetoothPermissionsGranted;
+import static org.briarproject.briar.android.util.PermissionUtils.requestBluetoothPermissions;
+import static org.briarproject.briar.android.util.PermissionUtils.showDenialDialog;
+import static org.briarproject.briar.android.util.PermissionUtils.showRationale;
+import static org.briarproject.briar.android.util.PermissionUtils.wasGrantedBluetoothPermissions;
 import static org.briarproject.briar.android.util.UiUtils.showOnboardingDialog;
 
 @MethodsNotNullByDefault
@@ -60,6 +71,11 @@ public class TransportsActivity extends BriarActivity {
 
 	private PluginViewModel viewModel;
 	private BaseAdapter transportsAdapter;
+
+	@RequiresApi(31)
+	private final ActivityResultLauncher<String[]> requestPermissionLauncher =
+			registerForActivityResult(new RequestMultiplePermissions(),
+					this::handleBtPermissionResult);
 
 	@Override
 	public void injectActivity(ActivityComponent component) {
@@ -149,8 +165,7 @@ public class TransportsActivity extends BriarActivity {
 						view.findViewById(R.id.switchCompat);
 				switchCompat.setText(getString(t.switchLabel));
 				switchCompat.setOnClickListener(v ->
-						viewModel.enableTransport(t.id,
-								switchCompat.isChecked()));
+						onClicked(t.id, switchCompat.isChecked()));
 				switchCompat.setChecked(t.isSwitchChecked);
 
 				TextView summary = view.findViewById(R.id.summary);
@@ -201,6 +216,20 @@ public class TransportsActivity extends BriarActivity {
 			updateBtResources(bt, on);
 			transportsAdapter.notifyDataSetChanged();
 		});
+	}
+
+	private void onClicked(TransportId transportId, boolean enable) {
+		if (enable && SDK_INT >= 31 && !areBluetoothPermissionsGranted(this)) {
+			if (shouldShowRequestPermissionRationale(BLUETOOTH_CONNECT)) {
+				showRationale(this, R.string.permission_bluetooth_title,
+						R.string.permission_bluetooth_body,
+						this::requestBtPermissions);
+			} else {
+				requestBtPermissions();
+			}
+		} else {
+			viewModel.enableTransport(transportId, enable);
+		}
 	}
 
 	private String getBulletString(@StringRes int resId) {
@@ -314,6 +343,24 @@ public class TransportsActivity extends BriarActivity {
 			transportsAdapter.notifyDataSetChanged();
 		});
 		return transport;
+	}
+
+	@RequiresApi(31)
+	private void requestBtPermissions() {
+		requestBluetoothPermissions(requestPermissionLauncher);
+	}
+
+	@RequiresApi(31)
+	private void handleBtPermissionResult(Map<String, Boolean> grantedMap) {
+		if (wasGrantedBluetoothPermissions(this, grantedMap)) {
+			viewModel.enableTransport(BluetoothConstants.ID, true);
+		} else {
+			// update adapter to reflect the "off" toggle state after denying
+			transportsAdapter.notifyDataSetChanged();
+			showDenialDialog(this,
+					R.string.permission_bluetooth_title,
+					R.string.permission_bluetooth_denied_body);
+		}
 	}
 
 	private static class Transport {

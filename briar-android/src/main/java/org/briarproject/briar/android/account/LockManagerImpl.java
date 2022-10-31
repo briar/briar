@@ -39,6 +39,7 @@ import static android.os.Process.myPid;
 import static android.os.SystemClock.elapsedRealtime;
 import static java.util.concurrent.TimeUnit.MINUTES;
 import static java.util.logging.Level.WARNING;
+import static org.briarproject.bramble.util.AndroidUtils.getImmutableFlags;
 import static org.briarproject.bramble.util.LogUtils.logException;
 import static org.briarproject.briar.android.settings.SecurityFragment.PREF_SCREEN_LOCK;
 import static org.briarproject.briar.android.settings.SecurityFragment.PREF_SCREEN_LOCK_TIMEOUT;
@@ -87,7 +88,8 @@ public class LockManagerImpl implements LockManager, Service, EventListener {
 				new Intent(ACTION_LOCK, null, appContext, BriarService.class);
 		i.putExtra(EXTRA_PID, myPid());
 		// When not using FLAG_UPDATE_CURRENT, the intent might have no extras
-		lockIntent = getService(appContext, 0, i, FLAG_UPDATE_CURRENT);
+		lockIntent = getService(appContext, 0, i,
+				getImmutableFlags(FLAG_UPDATE_CURRENT));
 		timeoutNever = Integer.parseInt(
 				appContext.getString(R.string.pref_lock_timeout_value_never));
 		timeoutDefault = Integer.parseInt(
