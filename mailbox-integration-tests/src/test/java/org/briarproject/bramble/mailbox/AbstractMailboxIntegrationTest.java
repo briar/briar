@@ -15,9 +15,6 @@ import org.briarproject.bramble.api.mailbox.MailboxPairingState;
 import org.briarproject.bramble.api.mailbox.MailboxPairingTask;
 import org.briarproject.bramble.api.mailbox.MailboxProperties;
 import org.briarproject.bramble.api.mailbox.MailboxUpdateWithMailbox;
-import org.briarproject.bramble.api.plugin.Plugin;
-import org.briarproject.bramble.api.plugin.PluginException;
-import org.briarproject.bramble.api.plugin.TorConstants;
 import org.briarproject.bramble.api.sync.GroupId;
 import org.briarproject.bramble.test.BrambleIntegrationTest;
 import org.briarproject.bramble.test.TestDatabaseConfigModule;
@@ -86,7 +83,6 @@ abstract class AbstractMailboxIntegrationTest
 						.testDatabaseConfigModule(dbModule)
 						.build();
 		injectEagerSingletons(component);
-		component.getPluginManager().setPluginEnabled(TorConstants.ID, false);
 
 		setUp(component, name);
 		return component;
@@ -121,37 +117,43 @@ abstract class AbstractMailboxIntegrationTest
 		if (!latch.await(10, SECONDS)) {
 			fail("Timeout reached when waiting for pairing.");
 		}
-		return c.getDatabaseComponent()
+		MailboxProperties properties = c.getDatabaseComponent()
 				.transactionWithNullableResult(true, txn ->
 						c.getMailboxSettingsManager()
 								.getOwnMailboxProperties(txn)
 				);
+		assertNotNull(properties);
+		return properties;
 	}
 
 	void addContacts() throws Exception {
 		LocalAuthor author1 = c1.getIdentityManager().getLocalAuthor();
 		LocalAuthor author2 = c2.getIdentityManager().getLocalAuthor();
 
-		ContactId contactId1 = c1.getContactManager().addContact(author2,
-				author1.getId(), rootKey, c1.getClock().currentTimeMillis(),
-				true, true, true);
-		ContactId contactId2 = c2.getContactManager().addContact(author1,
-				author2.getId(), rootKey, c2.getClock().currentTimeMillis(),
-				false, true, true);
+		ContactId contactId2From1 =
+				c1.getContactManager().addContact(author2,
+						author1.getId(), rootKey,
+						c1.getClock().currentTimeMillis(),
+						true, true, true);
+		ContactId contactId1From2 =
+				c2.getContactManager().addContact(author1,
+						author2.getId(), rootKey,
+						c2.getClock().currentTimeMillis(),
+						false, true, true);
 
-		contact2From1 = c1.getContactManager().getContact(contactId2);
-		contact1From2 = c2.getContactManager().getContact(contactId1);
+		contact2From1 = c1.getContactManager().getContact(contactId2From1);
+		contact1From2 = c2.getContactManager().getContact(contactId1From2);
 
-		// Sync client versioning update from 0 to 1
+		// Sync client versioning update from 1 to 2
 		sync1To2(1, true);
-		// Sync client versioning update and ack from 1 to 0
+		// Sync client versioning update and ack from 2 to 1
 		sync2To1(1, true);
 		// Sync second client versioning update, mailbox properties and ack
-		// from 0 to 1
+		// from 1 to 2
 		sync1To2(2, true);
-		// Sync mailbox properties and ack from 1 to 0
+		// Sync mailbox properties and ack from 2 to 1
 		sync2To1(1, true);
-		// Sync final ack from 0 to 1
+		// Sync final ack from 1 to 2
 		ack1To2(1);
 	}
 
@@ -159,14 +161,6 @@ abstract class AbstractMailboxIntegrationTest
 			DbCallable<T, ?> callable) throws Exception {
 		return device.getDatabaseComponent()
 				.transactionWithResult(true, callable::call);
-	}
-
-	void restartTor(MailboxIntegrationTestComponent device)
-			throws PluginException {
-		Plugin torPlugin = device.getPluginManager().getPlugin(TorConstants.ID);
-		assertNotNull(torPlugin);
-		torPlugin.stop();
-		torPlugin.start();
 	}
 
 	MailboxProperties getMailboxProperties(

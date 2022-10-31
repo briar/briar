@@ -15,16 +15,16 @@ class TestMailboxConfigImpl implements MailboxConfig {
 
 	@Override
 	public long getApiCallerMinRetryInterval() {
-		return 1000; // MailboxApiCaller.MIN_RETRY_INTERVAL_MS;
+		return 1000;
 	}
 
 	@Override
 	public long getApiCallerMaxRetryInterval() {
-		return 2000; // MailboxApiCaller.MAX_RETRY_INTERVAL_MS;
+		return 2000;
 	}
 
 	@Override
 	public long getTorReachabilityPeriod() {
-		return 5000; // TorReachabilityMonitor.REACHABILITY_PERIOD_MS;
+		return 10_000;
 	}
 }
