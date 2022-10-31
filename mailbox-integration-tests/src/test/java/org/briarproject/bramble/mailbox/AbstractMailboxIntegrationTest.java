@@ -18,6 +18,8 @@ import org.briarproject.bramble.api.mailbox.MailboxUpdateWithMailbox;
 import org.briarproject.bramble.api.sync.GroupId;
 import org.briarproject.bramble.test.BrambleIntegrationTest;
 import org.briarproject.bramble.test.TestDatabaseConfigModule;
+import org.briarproject.bramble.test.TestLogFormatter;
+import org.briarproject.bramble.test.TestThreadFactoryModule;
 import org.briarproject.briar.api.messaging.PrivateMessage;
 import org.briarproject.mailbox.lib.AbstractMailbox;
 import org.briarproject.mailbox.lib.TestMailbox;
@@ -42,6 +44,10 @@ abstract class AbstractMailboxIntegrationTest
 		extends BrambleIntegrationTest<MailboxIntegrationTestComponent> {
 
 	static final String URL_BASE = "http://127.0.0.1:8000";
+
+	AbstractMailboxIntegrationTest() {
+		TestLogFormatter.use();
+	}
 
 	private final File dir1 = new File(testDir, "alice");
 	private final File dir2 = new File(testDir, "bob");
@@ -73,13 +79,16 @@ abstract class AbstractMailboxIntegrationTest
 		mailbox.stopLifecycle(true);
 	}
 
-	MailboxIntegrationTestComponent startTestComponent(
+	private MailboxIntegrationTestComponent startTestComponent(
 			File databaseDir, String name) throws Exception {
+		TestThreadFactoryModule threadFactoryModule =
+				new TestThreadFactoryModule(name);
 		TestDatabaseConfigModule dbModule =
 				new TestDatabaseConfigModule(databaseDir);
 		MailboxIntegrationTestComponent component =
 				DaggerMailboxIntegrationTestComponent
 						.builder()
+						.testThreadFactoryModule(threadFactoryModule)
 						.testDatabaseConfigModule(dbModule)
 						.build();
 		injectEagerSingletons(component);

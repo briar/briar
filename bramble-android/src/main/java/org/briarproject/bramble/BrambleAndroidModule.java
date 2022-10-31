@@ -9,6 +9,7 @@ import org.briarproject.bramble.socks.SocksModule;
 import org.briarproject.bramble.system.AndroidSystemModule;
 import org.briarproject.bramble.system.AndroidTaskSchedulerModule;
 import org.briarproject.bramble.system.AndroidWakefulIoExecutorModule;
+import org.briarproject.bramble.system.DefaultThreadFactoryModule;
 
 import dagger.Module;
 
@@ -18,6 +19,7 @@ import dagger.Module;
 		AndroidSystemModule.class,
 		AndroidTaskSchedulerModule.class,
 		AndroidWakefulIoExecutorModule.class,
+		DefaultThreadFactoryModule.class,
 		CircumventionModule.class,
 		DnsModule.class,
 		ReportingModule.class,

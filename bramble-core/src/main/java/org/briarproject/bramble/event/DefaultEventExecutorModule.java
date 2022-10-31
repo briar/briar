@@ -3,6 +3,7 @@ package org.briarproject.bramble.event;
 import org.briarproject.bramble.api.event.EventExecutor;
 
 import java.util.concurrent.Executor;
+import java.util.concurrent.ThreadFactory;
 
 import javax.inject.Singleton;
 
@@ -22,10 +23,11 @@ public class DefaultEventExecutorModule {
 	@Provides
 	@Singleton
 	@EventExecutor
-	Executor provideEventExecutor() {
+	Executor provideEventExecutor(ThreadFactory threadFactory) {
 		return newSingleThreadExecutor(r -> {
-			Thread t = new Thread(r);
+			Thread t = threadFactory.newThread(r);
 			t.setDaemon(true);
+			t.setName(t.getName() + "-Event");
 			return t;
 		});
 	}

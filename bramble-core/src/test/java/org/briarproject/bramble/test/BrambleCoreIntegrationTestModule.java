@@ -11,6 +11,7 @@ import dagger.Module;
 		DefaultBatteryManagerModule.class,
 		DefaultEventExecutorModule.class,
 		DefaultWakefulIoExecutorModule.class,
+		TestThreadFactoryModule.class,
 		TestDatabaseConfigModule.class,
 		TestFeatureFlagModule.class,
 		TestMailboxDirectoryModule.class,
