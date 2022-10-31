@@ -16,6 +16,7 @@ import com.google.android.material.textfield.TextInputLayout;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.activity.ActivityComponent;
 import org.briarproject.briar.android.fragment.BaseFragment;
+import org.briarproject.briar.android.view.InfoView;
 import org.briarproject.nullsafety.MethodsNotNullByDefault;
 import org.briarproject.nullsafety.ParametersNotNullByDefault;
 
@@ -122,7 +123,7 @@ public class LinkExchangeFragment extends BaseFragment {
 						.startChooser());
 		shareButton.setEnabled(true);
 
-		TextView infoText = v.findViewById(R.id.info_text);
+		InfoView infoText = v.findViewById(R.id.infoView);
 		infoText.setText(R.string.info_both_must_enter_links);
 
 		Button continueButton = v.findViewById(R.id.addButton);

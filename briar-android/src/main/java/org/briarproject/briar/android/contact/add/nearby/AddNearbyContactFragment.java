@@ -94,8 +94,7 @@ public class AddNearbyContactFragment extends BaseFragment
 		statusView = view.findViewById(R.id.status_container);
 		status = view.findViewById(R.id.connect_status);
 		infoView = view.findViewById(R.id.info_view);
-		TextView info = view.findViewById(R.id.info_text);
-		info.setText(R.string.info_both_must_scan);
+		infoView.setText(R.string.info_both_must_scan);
 		qrCodeView = view.findViewById(R.id.qr_code_view);
 		qrCodeView.setFullscreenListener(this);
 
