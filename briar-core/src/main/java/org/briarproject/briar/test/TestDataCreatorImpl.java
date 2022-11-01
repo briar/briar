@@ -1,5 +1,6 @@
 package org.briarproject.briar.test;
 
+import org.briarproject.bramble.api.FeatureFlags;
 import org.briarproject.bramble.api.FormatException;
 import org.briarproject.bramble.api.contact.Contact;
 import org.briarproject.bramble.api.contact.ContactId;
@@ -91,6 +92,8 @@ public class TestDataCreatorImpl implements TestDataCreator {
 	private final TestAvatarCreator testAvatarCreator;
 	private final AvatarMessageEncoder avatarMessageEncoder;
 
+	private final FeatureFlags featureFlags;
+
 	@IoExecutor
 	private final Executor ioExecutor;
 
@@ -110,6 +113,7 @@ public class TestDataCreatorImpl implements TestDataCreator {
 			ForumManager forumManager,
 			TestAvatarCreator testAvatarCreator,
 			AvatarMessageEncoder avatarMessageEncoder,
+			FeatureFlags featureFlags,
 			@IoExecutor Executor ioExecutor) {
 		this.authorFactory = authorFactory;
 		this.clock = clock;
@@ -126,6 +130,7 @@ public class TestDataCreatorImpl implements TestDataCreator {
 		this.forumManager = forumManager;
 		this.testAvatarCreator = testAvatarCreator;
 		this.avatarMessageEncoder = avatarMessageEncoder;
+		this.featureFlags = featureFlags;
 		this.ioExecutor = ioExecutor;
 	}
 
@@ -381,6 +386,7 @@ public class TestDataCreatorImpl implements TestDataCreator {
 
 	private void createBlogPosts(List<Contact> contacts, int numBlogPosts)
 			throws DbException {
+		if (!featureFlags.shouldEnableBlogsInCore()) return;
 		LocalAuthor localAuthor = identityManager.getLocalAuthor();
 		Blog ours = blogManager.getPersonalBlog(localAuthor);
 		for (Contact contact : contacts) {
@@ -415,6 +421,7 @@ public class TestDataCreatorImpl implements TestDataCreator {
 
 	private List<Forum> createForums(List<Contact> contacts, int numForums)
 			throws DbException {
+		if (!featureFlags.shouldEnableForumsInCore()) return emptyList();
 		List<Forum> forums = new ArrayList<>(numForums);
 		for (int i = 0; i < numForums; i++) {
 			// create forum
