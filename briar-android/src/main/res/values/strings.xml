@@ -167,6 +167,7 @@
 	<string name="error_start_activity">Unavailable on your system</string>
 	<string name="status_heading">Status:</string>
 	<string name="error">Error</string>
+	<string name="info">Information</string>
 
 	<!-- Contacts and Private Conversations-->
 	<string name="no_contacts">No contacts to show</string>
@@ -257,6 +258,7 @@
 	<string name="authenticating_with_device">Authenticating with device\u2026</string>
 	<string name="connection_error_title">Could not connect to your contact</string>
 	<string name="connection_error_feedback">If this problem persists, please <a href="feedback">send feedback</a> to help us improve the app.</string>
+	<string name="info_both_must_scan">You must both scan each other\'s QR codes</string>
 
 	<!-- Adding Contacts Remotely -->
 
@@ -316,6 +318,7 @@
 	<string name="different_person_button">Different Person</string>
 	<string name="duplicate_link_dialog_text_3">%1$s and %2$s sent you the same link.\n\nOne of them may be trying to discover who your contacts are.\n\nDon\'t tell them you received the same link from someone else.</string>
 	<string name="pending_contact_updated_toast">Pending contact updated</string>
+	<string name="info_both_must_enter_links">You must both add each other\'s links</string>
 
 	<!-- Peer trust levels -->
 

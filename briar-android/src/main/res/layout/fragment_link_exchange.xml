@@ -30,8 +30,7 @@
 				app:layout_constraintBottom_toTopOf="@+id/stepOneText"
 				app:layout_constraintEnd_toStartOf="@+id/guideline"
 				app:layout_constraintStart_toStartOf="parent"
-				app:layout_constraintTop_toTopOf="parent"
-				app:layout_constraintVertical_bias="0.0" />
+				app:layout_constraintTop_toTopOf="parent" />
 
 			<TextView
 				android:id="@+id/stepOneText"
@@ -64,7 +63,6 @@
 				app:layout_constraintEnd_toEndOf="parent"
 				app:layout_constraintStart_toStartOf="@+id/guideline"
 				app:layout_constraintTop_toTopOf="@+id/stepOne"
-				app:layout_constraintVertical_bias="0.0"
 				app:layout_constraintVertical_chainStyle="packed" />
 
 			<TextView
@@ -162,7 +160,6 @@
 				app:drawableStartCompat="@drawable/social_share_blue"
 				app:layout_constraintBottom_toBottomOf="@id/copyButton"
 				app:layout_constraintEnd_toEndOf="parent"
-				app:layout_constraintHorizontal_bias="1.0"
 				app:layout_constraintStart_toEndOf="@id/copyButton"
 				app:layout_constraintTop_toTopOf="@id/copyButton" />
 
@@ -226,7 +223,17 @@
 				app:layout_constraintHorizontal_bias="1.0"
 				app:layout_constraintStart_toStartOf="parent"
 				app:layout_constraintTop_toBottomOf="@+id/linkInputLayout"
+				app:layout_constraintBottom_toTopOf="@+id/infoView"
 				app:layout_constraintVertical_bias="0.0" />
+
+			<org.briarproject.briar.android.view.InfoView
+				android:id="@+id/infoView"
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:layout_marginTop="16dp"
+				app:layout_constraintEnd_toEndOf="parent"
+				app:layout_constraintStart_toStartOf="parent"
+				app:layout_constraintTop_toBottomOf="@+id/pasteButton" />
 
 		</androidx.constraintlayout.widget.ConstraintLayout>
 	</ScrollView>
