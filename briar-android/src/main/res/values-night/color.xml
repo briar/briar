@@ -26,4 +26,10 @@
 	<color name="thread_item_highlight">@android:color/black</color>
 
 	<color name="divider">@android:color/black</color>
+
+	<color name="il_border">#64748B</color>
+	<color name="il_background">#334155</color>
+	<color name="il_lime">@color/briar_lime_400_new</color>
+	<color name="il_orange">@color/briar_orange_400</color>
+	<color name="il_red">@color/briar_red_500_new</color>
 </resources>

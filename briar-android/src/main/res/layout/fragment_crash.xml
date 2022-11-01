@@ -30,7 +30,7 @@
 				app:layout_constraintTop_toTopOf="parent"
 				app:layout_constraintVertical_bias="0.25"
 				app:layout_constraintVertical_chainStyle="packed"
-				app:srcCompat="@drawable/ic_crash"
+				app:srcCompat="@drawable/il_crash"
 				app:tint="?attr/colorControlNormal"
 				tools:ignore="ContentDescription" />
 

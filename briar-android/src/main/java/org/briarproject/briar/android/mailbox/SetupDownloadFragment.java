@@ -6,7 +6,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.ScrollView;
 
 import org.briarproject.briar.R;
 import org.briarproject.nullsafety.MethodsNotNullByDefault;
@@ -21,8 +20,8 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 import androidx.lifecycle.ViewModelProvider;
 
-import static android.view.View.FOCUS_DOWN;
 import static org.briarproject.briar.android.AppModule.getAndroidComponent;
+import static org.briarproject.briar.android.util.UiUtils.hideViewOnSmallScreen;
 
 @MethodsNotNullByDefault
 @ParametersNotNullByDefault
@@ -36,7 +35,6 @@ public class SetupDownloadFragment extends Fragment {
 	private MailboxViewModel viewModel;
 
 	private CameraPermissionManager permissionManager;
-	private ScrollView scrollView;
 
 	private final ActivityResultLauncher<String[]> permissionLauncher =
 			registerForActivityResult(new RequestMultiplePermissions(), r -> {
@@ -62,7 +60,6 @@ public class SetupDownloadFragment extends Fragment {
 			@Nullable Bundle savedInstanceState) {
 		View v = inflater.inflate(R.layout.fragment_mailbox_setup_download,
 				container, false);
-		scrollView = v.findViewById(R.id.scrollView);
 
 		permissionManager = new CameraPermissionManager(requireActivity(),
 				permissionLauncher::launch);
@@ -80,8 +77,7 @@ public class SetupDownloadFragment extends Fragment {
 	public void onStart() {
 		super.onStart();
 		requireActivity().setTitle(R.string.mailbox_setup_title);
-		// Scroll down in case the screen is small, so the button is visible
-		scrollView.post(() -> scrollView.fullScroll(FOCUS_DOWN));
+		hideViewOnSmallScreen(requireView().findViewById(R.id.imageView));
 		// Permissions may have been granted manually while we were stopped
 		permissionManager.resetPermissions();
 	}

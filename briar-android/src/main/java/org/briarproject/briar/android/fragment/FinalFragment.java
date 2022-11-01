@@ -22,12 +22,11 @@ import androidx.annotation.Nullable;
 import androidx.annotation.StringRes;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.widget.ImageViewCompat;
-import androidx.core.widget.NestedScrollView;
 import androidx.fragment.app.Fragment;
 
-import static android.view.View.FOCUS_DOWN;
 import static android.view.View.GONE;
+import static androidx.core.widget.ImageViewCompat.setImageTintList;
+import static org.briarproject.briar.android.util.UiUtils.hideViewOnSmallScreen;
 
 /**
  * A fragment to be used at the end of a user flow
@@ -61,7 +60,6 @@ public class FinalFragment extends Fragment {
 		return f;
 	}
 
-	private NestedScrollView scrollView;
 	protected Button buttonView;
 	protected final OnBackPressedCallback onBackPressedCallback =
 			new OnBackPressedCallback(true) {
@@ -79,7 +77,6 @@ public class FinalFragment extends Fragment {
 		View v = inflater
 				.inflate(R.layout.fragment_final, container, false);
 
-		scrollView = (NestedScrollView) v;
 		ImageView iconView = v.findViewById(R.id.iconView);
 		TextView titleView = v.findViewById(R.id.titleView);
 		TextView textView = v.findViewById(R.id.textView);
@@ -88,9 +85,12 @@ public class FinalFragment extends Fragment {
 		Bundle args = requireArguments();
 		titleView.setText(args.getInt(ARG_TITLE));
 		iconView.setImageResource(args.getInt(ARG_ICON));
-		int color = getResources().getColor(args.getInt(ARG_ICON_TINT));
-		ColorStateList tint = ColorStateList.valueOf(color);
-		ImageViewCompat.setImageTintList(iconView, tint);
+		int tintRes = args.getInt(ARG_ICON_TINT);
+		if (tintRes != 0) {
+			int color = getResources().getColor(tintRes);
+			ColorStateList tint = ColorStateList.valueOf(color);
+			setImageTintList(iconView, tint);
+		}
 		int textRes = args.getInt(ARG_TEXT);
 		if (textRes == 0) {
 			textView.setVisibility(GONE);
@@ -122,8 +122,7 @@ public class FinalFragment extends Fragment {
 	@Override
 	public void onStart() {
 		super.onStart();
-		// Scroll down in case the screen is small, so the button is visible
-		scrollView.post(() -> scrollView.fullScroll(FOCUS_DOWN));
+		hideViewOnSmallScreen(requireView().findViewById(R.id.iconView));
 	}
 
 	@Override

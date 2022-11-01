@@ -15,7 +15,7 @@
 		app:layout_constraintStart_toStartOf="parent"
 		app:layout_constraintTop_toTopOf="parent"
 		app:layout_constraintVertical_chainStyle="packed"
-		app:srcCompat="@drawable/ic_bluetooth" />
+		app:srcCompat="@drawable/il_bluetooth_connect" />
 
 	<ProgressBar
 		android:id="@+id/progressBar"

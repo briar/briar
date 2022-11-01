@@ -1,20 +1,27 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 	<color name="briar_lime_600">#67a60f</color>
+	<color name="briar_lime_600_new">#65A30D</color>
 	<color name="briar_lime_400">#82c91e</color>
+	<color name="briar_lime_400_new">#A3E635</color>
 
 	<color name="briar_blue_800">#134a81</color>
 	<color name="briar_blue_600">#1b69b6</color>
 	<color name="briar_blue_400">#418cd8</color>
 
 	<color name="briar_orange_200">#fed69f</color>
+	<color name="briar_orange_400">#FBBF24</color>
 	<color name="briar_orange_500">#fc9403</color>
+	<color name="briar_orange_500_new">#F59E0B</color>
 
 	<color name="briar_red_500">#db3b21</color>
+	<color name="briar_red_500_new">#EF4444</color>
+	<color name="briar_red_600">#DC2626</color>
 
 	<color name="briar_night_950">#0e171f</color>
 	<color name="briar_night_800">#212d3b</color>
 	<color name="briar_night_700">#2e3d4f</color>
+	<color name="briar_night_600">#475569</color>
 	<color name="briar_night_500">#435b77</color>
 	<color name="briar_night_50">#ebf3fa</color>
 
@@ -51,6 +58,12 @@
 	<color name="msg_status_bubble_background">#66000000</color>
 	<color name="msg_status_bubble_foreground">@android:color/white</color>
 	<color name="msg_selected_background">@color/briar_accent</color>
+
+	<color name="il_border">#9CA3AF</color>
+	<color name="il_background">#E5E7EB</color>
+	<color name="il_lime">@color/briar_lime_600_new</color>
+	<color name="il_orange">@color/briar_orange_500_new</color>
+	<color name="il_red">@color/briar_red_600</color>
 
 	<!-- text colors -->
 	<color name="briar_text_link">@color/briar_blue_400</color>

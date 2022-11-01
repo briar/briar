@@ -26,6 +26,7 @@ import androidx.lifecycle.ViewModelProvider;
 
 import static android.widget.Toast.LENGTH_LONG;
 import static org.briarproject.briar.android.AppModule.getAndroidComponent;
+import static org.briarproject.briar.android.util.UiUtils.hideViewOnSmallScreen;
 
 @MethodsNotNullByDefault
 @ParametersNotNullByDefault
@@ -72,6 +73,7 @@ public class BluetoothIntroFragment extends Fragment {
 	@Override
 	public void onStart() {
 		super.onStart();
+		hideViewOnSmallScreen(requireView().findViewById(R.id.introImageView));
 		conditionManager.reset();
 	}
 

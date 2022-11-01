@@ -41,7 +41,7 @@
 		app:layout_constraintTop_toTopOf="parent"
 		app:layout_constraintVertical_chainStyle="packed"
 		app:tint="?attr/colorControlNormal"
-		tools:src="@drawable/ic_empty_state_group_list" />
+		tools:src="@drawable/il_empty_state_group_list" />
 
 	<TextView
 		android:id="@+id/emptyText"

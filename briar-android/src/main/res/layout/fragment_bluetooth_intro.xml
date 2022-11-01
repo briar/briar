@@ -1,51 +1,56 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
 	xmlns:app="http://schemas.android.com/apk/res-auto"
-	xmlns:tools="http://schemas.android.com/tools"
 	android:layout_width="match_parent"
 	android:layout_height="match_parent"
-	android:fillViewport="true"
-	tools:context=".android.contact.connect.BluetoothIntroFragment">
+	android:orientation="vertical">
 
-	<androidx.constraintlayout.widget.ConstraintLayout
+	<ScrollView
+		android:id="@+id/scrollView"
 		android:layout_width="match_parent"
-		android:layout_height="wrap_content">
+		android:layout_height="0dp"
+		android:layout_weight="1">
 
-		<androidx.appcompat.widget.AppCompatImageView
-			android:id="@+id/introImageView"
-			android:layout_width="0dp"
-			android:layout_height="0dp"
-			android:layout_margin="16dp"
-			app:layout_constraintBottom_toTopOf="@+id/introTextView"
-			app:layout_constraintEnd_toEndOf="parent"
-			app:layout_constraintHeight_percent="0.2"
-			app:layout_constraintStart_toStartOf="parent"
-			app:layout_constraintTop_toTopOf="parent"
-			app:srcCompat="@drawable/ic_bluetooth" />
+		<androidx.constraintlayout.widget.ConstraintLayout
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content">
 
-		<TextView
-			android:id="@+id/introTextView"
-			android:layout_width="0dp"
-			android:layout_height="wrap_content"
-			android:layout_margin="16dp"
-			android:text="@string/connect_via_bluetooth_intro"
-			app:layout_constraintBottom_toTopOf="@+id/startButton"
-			app:layout_constraintEnd_toEndOf="parent"
-			app:layout_constraintHorizontal_bias="0.5"
-			app:layout_constraintStart_toStartOf="parent"
-			app:layout_constraintTop_toBottomOf="@+id/introImageView" />
+			<androidx.appcompat.widget.AppCompatImageView
+				android:id="@+id/introImageView"
+				android:layout_width="@dimen/hero_rect_width"
+				android:layout_height="@dimen/hero_rect_height"
+				android:layout_margin="16dp"
+				app:layout_constraintBottom_toTopOf="@+id/introTextView"
+				app:layout_constraintEnd_toEndOf="parent"
+				app:layout_constraintStart_toStartOf="parent"
+				app:layout_constraintTop_toTopOf="parent"
+				app:srcCompat="@drawable/il_bluetooth_connect" />
 
-		<Button
-			android:id="@+id/startButton"
-			style="@style/BriarButton"
-			android:layout_width="0dp"
-			android:layout_height="wrap_content"
-			android:layout_margin="16dp"
-			android:text="@string/start"
-			app:layout_constraintBottom_toBottomOf="parent"
-			app:layout_constraintEnd_toEndOf="parent"
-			app:layout_constraintStart_toStartOf="parent" />
+			<TextView
+				android:id="@+id/introTextView"
+				android:layout_width="0dp"
+				android:layout_height="wrap_content"
+				android:layout_margin="16dp"
+				android:text="@string/connect_via_bluetooth_intro"
+				app:layout_constraintBottom_toBottomOf="parent"
+				app:layout_constraintEnd_toEndOf="parent"
+				app:layout_constraintHorizontal_bias="0.5"
+				app:layout_constraintStart_toStartOf="parent"
+				app:layout_constraintTop_toBottomOf="@+id/introImageView" />
 
-	</androidx.constraintlayout.widget.ConstraintLayout>
+		</androidx.constraintlayout.widget.ConstraintLayout>
 
-</ScrollView>
+	</ScrollView>
+
+	<Button
+		android:id="@+id/startButton"
+		style="@style/BriarButton"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:layout_marginHorizontal="16dp"
+		android:text="@string/start"
+		app:layout_constraintBottom_toBottomOf="parent"
+		app:layout_constraintEnd_toEndOf="parent"
+		app:layout_constraintStart_toStartOf="parent" />
+
+</LinearLayout>

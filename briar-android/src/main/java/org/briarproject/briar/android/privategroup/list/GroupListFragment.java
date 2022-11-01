@@ -70,7 +70,7 @@ public class GroupListFragment extends BaseFragment implements
 
 		adapter = new GroupListAdapter(this);
 		list = v.findViewById(R.id.list);
-		list.setEmptyImage(R.drawable.ic_empty_state_group_list);
+		list.setEmptyImage(R.drawable.il_empty_state_group_list);
 		list.setEmptyText(R.string.groups_list_empty);
 		list.setEmptyAction(R.string.groups_list_empty_action);
 		list.setLayoutManager(new LinearLayoutManager(getContext()));
