@@ -241,8 +241,7 @@
 	<!-- Adding Contacts -->
 
 	<string name="add_contact_title">Add Contact Nearby</string>
-	<string name="add_contact_intro_two_way">Both of you need to scan each other\'s QR code.</string>
-	<string name="add_contact_error_two_way">Did both of you scan each other\'s QR code?</string>
+	<string name="add_contact_error_two_way">Did you both scan each other\'s QR codes?</string>
 	<string name="face_to_face">You must meet up with the person you want to add as a contact.\n\nThis will prevent anyone from impersonating you or reading your messages in future.</string>
 	<string name="continue_button">Continue</string>
 	<string name="try_again_button">Try Again</string>
