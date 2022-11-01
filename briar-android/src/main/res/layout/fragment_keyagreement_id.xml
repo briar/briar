@@ -34,7 +34,7 @@
 				android:id="@+id/introTwoWay"
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
-				android:text="@string/add_contact_intro_two_way"
+				android:text="@string/info_both_must_scan"
 				app:layout_constraintEnd_toEndOf="parent"
 				app:layout_constraintStart_toStartOf="parent"
 				app:layout_constraintTop_toBottomOf="@+id/diagram" />
