@@ -1,5 +1,5 @@
 dependencyVerification {
-    verify = [
+	verify = [
             'androidx.activity:activity-ktx:1.2.3:activity-ktx-1.2.3.aar:423c0226e237e08de245cf66f8ccaf103854bc19a584d971a4a075fd15d70df1',
             'androidx.activity:activity:1.2.2:activity-1.2.2.aar:e165fb20f006b77894d349572cc3acd2760baa8416ae4d33cb8de6a84dd6730c',
             'androidx.activity:activity:1.2.4:activity-1.2.4.aar:ae8e9c7de57e387d2ad90e73f3a5a5dfd502bd4f034c1dccfdb3506d1d2df81a',
@@ -101,14 +101,13 @@ dependencyVerification {
             'com.google.j2objc:j2objc-annotations:1.3:j2objc-annotations-1.3.jar:21af30c92267bd6122c0e0b4d20cccb6641a37eaf956c6540ec471d584e64a7b',
             'com.google.zxing:core:3.3.3:core-3.3.3.jar:5820f81e943e4bce0329306621e2d6255d2930b0a6ce934c5c23c0d6d3f20599',
             'com.ibm.icu:icu4j:53.1:icu4j-53.1.jar:e37a4467bac5cdeb02c5c4b8e5063d2f4e67b69e3c7df6d6b610f13185572bab',
-            'com.jraska:falcon:2.1.1:falcon-2.1.1.aar:827f06556b7fa599f29a48a5277df39ca3dce5080d4ea6f9ea1f9c7b6b78bb7a',
+            'com.jraska:falcon:2.2.0:falcon-2.2.0.aar:8b016c6e016ef99fb493b8614b2362cfba540a68ac16a9bb6da310ae10e30b81',
             'com.squareup:javapoet:1.13.0:javapoet-1.13.0.jar:4c7517e848a71b36d069d12bb3bf46a70fd4cda3105d822b0ed2e19c00b69291',
             'com.squareup:javawriter:2.1.1:javawriter-2.1.1.jar:f699823d0081f69cbb676c1845ea222e0ada79bc88a53e5d22d8bd02d328f57e',
             'com.vanniktech:emoji-google:0.7.0:emoji-google-0.7.0.aar:b98966812e3f607ee823cde15dd9b3823c6f02e5587572b860b9d95e3f971402',
             'com.vanniktech:emoji:0.7.0:emoji-0.7.0.aar:66f5981f8b5f93e82d2d4b3fa4c6299904d686ca62a2366e61de723b20253707',
             'de.hdodenhof:circleimageview:3.1.0:circleimageview-3.1.0.aar:8e9965b54072ee159074a55df216e17d5a622c94ce915ef311b1a1f32660c7fb',
             'info.guardianproject.panic:panic:1.0:panic-1.0.jar:35116ab95212e67f94577faf67b88c11a6b21cbf9178b3f5b51d3dff45203ffd',
-            'info.guardianproject.trustedintents:trustedintents:0.2:trustedintents-0.2.jar:6221456d8821a8d974c2acf86306900237cf6afaaa94a4c9c44e161350f80f3e',
             'javax.annotation:javax.annotation-api:1.3.2:javax.annotation-api-1.3.2.jar:e04ba5195bcd555dc95650f7cc614d151e4bcd52d29a10b8aa2197f3ab89ab9b',
             'javax.annotation:jsr250-api:1.0:jsr250-api-1.0.jar:a1a922d0d9b6d183ed3800dfac01d1e1eb159f0e8c6f94736931c1def54a941f',
             'javax.inject:javax.inject:1:javax.inject-1.jar:91c77044a50c481636c32d916fd89c9118a72195390452c81065080f957de7ff',
@@ -173,7 +172,6 @@ dependencyVerification {
             'org.robolectric:shadows-framework:4.4:shadows-framework-4.4.jar:0602f5bbef601036831e0ce8600b6d08d80ce3c9260be5cb7b362b176ce3d9f0',
             'org.robolectric:utils-reflector:4.4:utils-reflector-4.4.jar:35a77865bb9a451e99b95575cb154a5f08ecb007bd17e390817c0f31ab9db869',
             'org.robolectric:utils:4.4:utils-4.4.jar:f9756b5c57116ae9ec55a65ca52b64ba1f77d30b5eb7b55fef5d125fdf7d69d9',
-            'tools.fastlane:screengrab:2.0.0:screengrab-2.0.0.aar:15ac15eb7c371db05e721be8d466567c2b7274b767d91478e781b6d89ee5d3d0',
-            'uk.co.samuelwall:material-tap-target-prompt:3.3.0:material-tap-target-prompt-3.3.0.aar:00f16e8d7e55d01e3b41cf66e09eee8588870ca7285ba3c72267ca0482f1606e',
-    ]
+            'tools.fastlane:screengrab:2.1.1:screengrab-2.1.1.aar:5a02781c0986e71ddbc691263115c2db70bdebb4b48d5b6dcf06ab1cb547d62d',
+            'uk.co.samuelwall:material-tap-target-prompt:3.3.0:material-tap-target-prompt-3.3.0.aar:00f16e8d7e55d01e3b41cf66e09eee8588870ca7285ba3c72267ca0482f1606e',]
 }
