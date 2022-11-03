@@ -15,28 +15,29 @@ import org.briarproject.bramble.api.mailbox.MailboxPairingState;
 import org.briarproject.bramble.api.mailbox.MailboxPairingTask;
 import org.briarproject.bramble.api.mailbox.MailboxProperties;
 import org.briarproject.bramble.api.mailbox.MailboxUpdateWithMailbox;
-import org.briarproject.bramble.api.sync.GroupId;
+import org.briarproject.bramble.api.plugin.TransportId;
+import org.briarproject.bramble.api.properties.TransportProperties;
 import org.briarproject.bramble.test.BrambleIntegrationTest;
 import org.briarproject.bramble.test.TestDatabaseConfigModule;
 import org.briarproject.bramble.test.TestLogFormatter;
 import org.briarproject.bramble.test.TestThreadFactoryModule;
-import org.briarproject.briar.api.messaging.PrivateMessage;
 import org.briarproject.mailbox.lib.AbstractMailbox;
 import org.briarproject.mailbox.lib.TestMailbox;
 import org.junit.After;
 import org.junit.Before;
 
 import java.io.File;
+import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 
-import static java.util.Collections.emptyList;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.briarproject.bramble.api.mailbox.MailboxAuthToken.fromString;
 import static org.briarproject.bramble.mailbox.MailboxIntegrationTestComponent.Helper.injectEagerSingletons;
 import static org.briarproject.bramble.mailbox.MailboxIntegrationTestUtils.createMailboxApi;
 import static org.briarproject.bramble.mailbox.MailboxTestUtils.getQrCodePayload;
 import static org.briarproject.bramble.test.TestUtils.getSecretKey;
-import static org.briarproject.briar.api.autodelete.AutoDeleteConstants.NO_AUTO_DELETE_TIMER;
+import static org.briarproject.bramble.util.StringUtils.getRandomString;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.fail;
 
@@ -49,6 +50,7 @@ abstract class AbstractMailboxIntegrationTest
 		TestLogFormatter.use();
 	}
 
+	private final TransportId transportId = new TransportId(getRandomString(4));
 	private final File dir1 = new File(testDir, "alice");
 	private final File dir2 = new File(testDir, "bob");
 	private final SecretKey rootKey = getSecretKey();
@@ -185,13 +187,12 @@ abstract class AbstractMailboxIntegrationTest
 		return update.getMailboxProperties();
 	}
 
-	void sendMessage(MailboxIntegrationTestComponent from,
-			ContactId toContactId, String text) throws Exception {
-		GroupId g = from.getMessagingManager().getConversationId(toContactId);
-		PrivateMessage m = from.getPrivateMessageFactory().createPrivateMessage(
-				g, from.getClock().currentTimeMillis(), text, emptyList(),
-				NO_AUTO_DELETE_TIMER);
-		from.getMessagingManager().addLocalMessage(m);
+	void broadcastMessage(MailboxIntegrationTestComponent from)
+			throws Exception {
+		TransportProperties p = from.getTransportPropertyManager()
+				.getLocalProperties(transportId);
+		p.put(getRandomString(23), getRandomString(8));
+		from.getTransportPropertyManager().mergeLocalProperties(transportId, p);
 	}
 
 	void sync1To2(int num, boolean valid) throws Exception {
@@ -208,6 +209,13 @@ abstract class AbstractMailboxIntegrationTest
 
 	void ack2To1(int num) throws Exception {
 		sendAcks(c2, c1, contact1From2.getId(), num);
+	}
+
+	void assertNumMessages(MailboxIntegrationTestComponent c,
+			ContactId contactId, int num) throws DbException {
+		Map<ContactId, TransportProperties> p = c.getTransportPropertyManager()
+				.getRemoteProperties(transportId);
+		assertEquals(num, p.get(contactId).size());
 	}
 
 }

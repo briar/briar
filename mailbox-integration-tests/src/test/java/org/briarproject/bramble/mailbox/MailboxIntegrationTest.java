@@ -38,7 +38,7 @@ public class MailboxIntegrationTest extends AbstractMailboxIntegrationTest {
 		assertNotNull(props2.getInboxId());
 
 		// send message and wait for it to arrive via mailbox
-		sendMessage(c1, contact2From1.getId(), "test");
+		broadcastMessage(c1);
 
 		// wait until file arrived on mailbox
 		retryUntilSuccessOrTimeout(5_000, 500, () -> {
@@ -50,10 +50,8 @@ public class MailboxIntegrationTest extends AbstractMailboxIntegrationTest {
 		// this might require 2nd download cycle after Tor reachability period
 		awaitPendingMessageDelivery(1);
 
-		// assert that private message arrived for c2
-		int size = getFromDb(c2, txn -> c2.getMessagingManager()
-				.getMessageHeaders(txn, contact1From2.getId()).size());
-		assertEquals(1, size);
+		// assert that message arrived for c2
+		assertNumMessages(c2,  contact1From2.getId(), 1);
 
 		// all files were deleted from mailbox
 		assertEquals(0, api.getFiles(props2, props2.getInboxId()).size());
