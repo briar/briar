@@ -16,3 +16,6 @@ for LANG_DIR in "$DIR"/metadata/android/*; do
     rm -r "$LANG_DIR"
   fi
 done
+
+# Remove languages that aren't available in Google Play
+rm -rf "$DIR/metadata/android/nb"
