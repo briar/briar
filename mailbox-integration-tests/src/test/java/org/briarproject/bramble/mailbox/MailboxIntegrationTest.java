@@ -52,12 +52,8 @@ public class MailboxIntegrationTest extends AbstractMailboxIntegrationTest {
 		// send message and wait for it to arrive via mailbox
 		broadcastMessage(c1);
 
-		// wait until file with broadcast message arrived on mailbox
-		retryUntilSuccessOrTimeout(10_000, 500, () -> {
-			List<MailboxFile> files = api.getFiles(props2, props2.getInboxId());
-			return files.size() == 2;
-		});
-		LOG.info("Broadcast message uploaded");
+		// we don't check for two messages now, because 2 (Bob) might have
+		// download the first message still in their 1st download cycle.
 
 		// wait for message to arrive
 		// this might require 2nd download cycle after Tor reachability period
