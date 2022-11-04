@@ -1,7 +1,9 @@
 #!/usr/bin/env bash
-tx pull -a -r briar.google-play-full-description,briar.google-play-short-description
 
 DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" &>/dev/null && pwd)"
+
+cd "$DIR"/..
+tx pull -a -r briar.google-play-full-description,briar.google-play-short-description
 
 for LANG_DIR in "$DIR"/metadata/android/*; do
   if [[ "$LANG_DIR" == *en-US ]]; then
