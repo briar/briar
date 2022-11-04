@@ -7,12 +7,17 @@ import org.junit.Test;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.logging.Logger;
 
+import static java.util.logging.Logger.getLogger;
 import static org.briarproject.bramble.mailbox.MailboxIntegrationTestUtils.retryUntilSuccessOrTimeout;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
 public class MailboxIntegrationTest extends AbstractMailboxIntegrationTest {
+
+	private static final Logger LOG =
+			getLogger(MailboxIntegrationTest.class.getSimpleName());
 
 	@Test
 	public void testSendMessageViaMailbox() throws Exception {
@@ -37,21 +42,30 @@ public class MailboxIntegrationTest extends AbstractMailboxIntegrationTest {
 				getMailboxProperties(c2, contact1From2.getId());
 		assertNotNull(props2.getInboxId());
 
+		// wait until file containing mailbox properties arrived on mailbox
+		retryUntilSuccessOrTimeout(5_000, 500, () -> {
+			List<MailboxFile> files = api.getFiles(props2, props2.getInboxId());
+			return files.size() == 1;
+		});
+		LOG.info("Mailbox properties uploaded");
+
 		// send message and wait for it to arrive via mailbox
 		broadcastMessage(c1);
 
-		// wait until file arrived on mailbox
-		retryUntilSuccessOrTimeout(5_000, 500, () -> {
+		// wait until file with broadcast message arrived on mailbox
+		retryUntilSuccessOrTimeout(10_000, 500, () -> {
 			List<MailboxFile> files = api.getFiles(props2, props2.getInboxId());
-			return files.size() > 1;
+			return files.size() == 2;
 		});
+		LOG.info("Broadcast message uploaded");
 
 		// wait for message to arrive
 		// this might require 2nd download cycle after Tor reachability period
+		LOG.info("Waiting for delivery of broadcast message");
 		awaitPendingMessageDelivery(1);
 
 		// assert that message arrived for c2
-		assertNumMessages(c2,  contact1From2.getId(), 1);
+		assertNumMessages(c2, contact1From2.getId(), 1);
 
 		// all files were deleted from mailbox
 		assertEquals(0, api.getFiles(props2, props2.getInboxId()).size());
