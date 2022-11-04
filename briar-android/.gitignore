@@ -13,7 +13,6 @@ src/main/res/values-iw
 /fastlane/README.md
 /fastlane/metadata/android/*/changelogs
 # Local Fastlane installation
-/fastlane/vendor
-/fastlane/.bundle
-/fastlane/Gemfile
-/fastlane/Gemfile.lock
+/vendor
+/Gemfile
+/Gemfile.lock
