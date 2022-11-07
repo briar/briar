@@ -167,6 +167,7 @@
   <string name="error_start_activity">Nie dostępne na Twoim systemie</string>
   <string name="status_heading">Status</string>
   <string name="error">Błąd</string>
+  <string name="info">Informacja</string>
   <!--Contacts and Private Conversations-->
   <string name="no_contacts">Brak kontaktów do pokazania</string>
   <string name="no_contacts_action">Dotknij ikonki + aby dodać kontakt</string>

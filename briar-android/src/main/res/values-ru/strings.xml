@@ -167,6 +167,7 @@
   <string name="error_start_activity">Недоступно для вашей системы</string>
   <string name="status_heading">Статус:</string>
   <string name="error">Ошибка</string>
+  <string name="info">Информация</string>
   <!--Contacts and Private Conversations-->
   <string name="no_contacts">Нет контактов для отображения</string>
   <string name="no_contacts_action">Для добавления контакта нажмите значок +</string>
@@ -243,6 +244,7 @@
   <string name="menu_contact">Контакт</string>
   <!--Adding Contacts-->
   <string name="add_contact_title">Добавление контакта поблизости</string>
+  <string name="add_contact_error_two_way">Просканировали ли вы QR-коды друг друга?</string>
   <string name="face_to_face">Вы должны встретиться с человеком, которого хотите добавить в контакты.\n\nЭто не позволит кому-либо выдать себя за вас или читать ваши сообщения.</string>
   <string name="continue_button">Продолжить</string>
   <string name="try_again_button">Попробовать снова</string>
@@ -258,6 +260,7 @@
   <string name="authenticating_with_device">Аутентификация с устройством\u2026</string>
   <string name="connection_error_title">Не удалось подключиться к контакту</string>
   <string name="connection_error_feedback">Если эта проблема сохраняется, пожалуйста <a href="feedback">отправьте отзыв</a>,  чтобы помочь нам улучшить приложение.</string>
+  <string name="info_both_must_scan">Вы должны Просканировать QR-коды друг друга.</string>
   <!--Adding Contacts Remotely-->
   <string name="add_contact_remotely_title_case">Добавление контакта удаленно</string>
   <string name="add_contact_nearby_title">Добавить контакт поблизости</string>
@@ -317,6 +320,7 @@
   <string name="different_person_button">Другой человек</string>
   <string name="duplicate_link_dialog_text_3">%1$s и %2$s отправили вам ту же ссылку.\n\nОдин из них, возможно, пытается выяснить, кто ваши контакты.\n\nНе говорите им, что вы получили такую ​​же ссылку от кого-то еще.</string>
   <string name="pending_contact_updated_toast">Ожидающий контакт обновлен</string>
+  <string name="info_both_must_enter_links">Вы должны добавить ссылки друг друга</string>
   <!--Peer trust levels-->
   <string name="peer_trust_level_unverified">Неверифицированный контакт</string>
   <string name="peer_trust_level_verified">Верифицированный контакт</string>
@@ -350,6 +354,7 @@
   <string name="connect_via_bluetooth_intro">Если соединение Bluetooth не устанавливается автоматически, вы можете использовать этот экран для подключения вручную.\n\nДля этого ваш собеседник должен находиться рядом.\n\nВы и ваш собеседник должны одновременно нажать кнопку \'Начать\'.</string>
   <string name="connect_via_bluetooth_already_discovering">Пытаемся подключиться через Bluetooth. Пожалуйста, повторите попытку в ближайшее время.</string>
   <string name="connect_via_bluetooth_no_location_permission">Невозможно продолжить без доступа к местоположению</string>
+  <string name="connect_via_bluetooth_no_bluetooth_permission">Невозможно продолжить без разрешения ближайших устройств</string>
   <string name="connect_via_bluetooth_start">Подключение через Bluetooth...</string>
   <string name="connect_via_bluetooth_success">Успешное подключение через Bluetooth</string>
   <string name="connect_via_bluetooth_error">Не удалось подключиться через Bluetooth.</string>
@@ -756,11 +761,17 @@
   <string name="permission_location_request_body">Для обнаружения Bluetooth-устройств, Briar требуется разрешение на доступ к вашему местоположению.\n\nBriar не хранит ваше местоположение и не делится им кем-либо еще.</string>
   <string name="permission_camera_location_title">Камера и местоположение</string>
   <string name="permission_camera_location_request_body">Для сканирования QR-кода Briar необходим доступ к камере.\n\nДля обнаружения Bluetooth-устройств, Briar требуется разрешение на доступ к вашему местоположению.\n\nBriar не хранит ваше местоположение и не делится им кем-либо еще.</string>
+  <string name="permission_camera_bluetooth_title">Камера и ближайшие устройства</string>
+  <string name="permission_camera_bluetooth_request_body">Чтобы просканировать QR-код, Briar нужен доступ к камере.\n\nДля обнаружения устройств Bluetooth, Briar нужно разрешение на поиск и подключение к ближайшим устройствам.</string>
   <string name="permission_camera_denied_body">Доступ к камере запрещен, но для добавления контактов необходимо использовать камеру.\n\nРассмотрите возможность предоставления доступа.</string>
   <string name="permission_location_denied_body">Доступ к местоположению запрещен, но Briar необходимо это разрешение для обнаружения устройств Bluetooth.\n\nРассмотрите возможность предоставления доступа.</string>
   <string name="permission_location_setting_title">Настройка местоположения</string>
   <string name="permission_location_setting_body">Для поиска других устройств через Bluetooth необходимо включить настройку местоположения вашего устройства. Пожалуйста, включите местоположение, чтобы продолжить. После этого вы можете отключить ее снова.</string>
+  <string name="permission_location_setting_hotspot_body">Для создания точки доступа Wi-Fi необходимо включить определение местоположения вашего устройства. После этого его можно снова отключить.</string>
   <string name="permission_location_setting_button">Включить местоположение</string>
+  <string name="permission_bluetooth_title">Разрешение ближайших устройств</string>
+  <string name="permission_bluetooth_body">Чтобы использовать Bluetooth, Briar требуется разрешение на поиск и подключение к ближайшим устройствам.</string>
+  <string name="permission_bluetooth_denied_body">Вы запретили доступ к ближайшим устройствам, но Briar необходимо это разрешение для использования Bluetooth.\n\nРассмотрите возможность предоставления доступа.</string>
   <string name="qr_code">QR-код</string>
   <string name="show_qr_code_fullscreen">Показать QR-код во весь экран</string>
   <!--App Locking-->
@@ -783,7 +794,9 @@
   <string name="hotspot_notification_title">Поделиться Briar офлайн</string>
   <string name="hotspot_button_connected">Далее</string>
   <string name="permission_hotspot_location_request_body">Для создания точки доступа Wi-Fi Briar необходимо разрешение на доступ к вашему местоположению.\n\nBriar не хранит ваше местоположение и не передает его кому-либо.</string>
+  <string name="permission_hotspot_location_request_precise_body">Для создания точки доступа Wi-Fi Briar необходимо разрешение на доступ к вашему точному местоположению.\n\nBriar не хранит ваше местоположение и не передает его кому-либо.</string>
   <string name="permission_hotspot_location_denied_body">Доступ к местоположению запрещен, но Briar необходимо это разрешение для создания точки доступа Wi-Fi.\n\nРассмотрите возможность предоставления доступа.</string>
+  <string name="permission_hotspot_location_denied_precise_body">Доступ к точному местоположению запрещен, но Briar необходимо это разрешение для создания точки доступа Wi-Fi.\n\nРассмотрите возможность предоставления доступа.</string>
   <string name="wifi_settings_title">Настройка Wi-Fi</string>
   <string name="wifi_settings_request_enable_body">Чтобы создать точку доступа Wi-Fi, Briar должен использовать Wi-Fi. Пожалуйста, включите его.</string>
   <string name="hotspot_tab_manual">Вручную</string>

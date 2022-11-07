@@ -146,6 +146,7 @@
   <string name="error_start_activity">あなたのシステム上で利用できません</string>
   <string name="status_heading">状態</string>
   <string name="error">エラー</string>
+  <string name="info">情報</string>
   <!--Contacts and Private Conversations-->
   <string name="no_contacts">表示する連絡先がありません</string>
   <string name="no_contacts_action">「＋」アイコンをタップして連絡先を追加</string>

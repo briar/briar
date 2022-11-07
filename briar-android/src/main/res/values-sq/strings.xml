@@ -156,6 +156,7 @@ dhe s’mund të hapet me këtë version.\n\nJu lutemi, përmirësojeni me versi
   <string name="error_start_activity">Jo i passhëm në sistemin tuaj</string>
   <string name="status_heading">Gjendje:</string>
   <string name="error">Gabim</string>
+  <string name="info">Informacion</string>
   <!--Contacts and Private Conversations-->
   <string name="no_contacts">S’ka kontakte për shfaqje</string>
   <string name="no_contacts_action">Prekni ikonën + që të shtoni një kontakt</string>
@@ -226,6 +227,7 @@ dhe s’mund të hapet me këtë version.\n\nJu lutemi, përmirësojeni me versi
   <string name="menu_contact">Kontakt</string>
   <!--Adding Contacts-->
   <string name="add_contact_title">Shtoni Kontakt Atypari</string>
+  <string name="add_contact_error_two_way">A skanuat, që të dy palët, kodet QR të njëri-tjetrit?</string>
   <string name="face_to_face">Duhet të takoheni me personin që doni ta shtoni si kontakt.\n\nKjo do të pengojë cilindo të hiqet si ju ose të lexojë në të ardhmen mesazhet tuaj.</string>
   <string name="continue_button">Vazhdo</string>
   <string name="try_again_button">Riprovoni</string>
@@ -241,6 +243,7 @@ dhe s’mund të hapet me këtë version.\n\nJu lutemi, përmirësojeni me versi
   <string name="authenticating_with_device">Po bëhet mirëfilltësimi me pajisjen\u2026</string>
   <string name="connection_error_title">S’u lidh dot te kontakti juaj</string>
   <string name="connection_error_feedback">Nëse problemi vazhdon, ju lutemi, <a href="feedback">na njoftoni</a>, që të mund të përmirësojmë aplikacionin.</string>
+  <string name="info_both_must_scan">Duhet të skanoni, të dy palët, kodet QR të njëri-tjetrit</string>
   <!--Adding Contacts Remotely-->
   <string name="add_contact_remotely_title_case">Shtoni Kontakt në Largësi</string>
   <string name="add_contact_nearby_title">Shtoni kontakt atypari</string>
@@ -298,6 +301,7 @@ dhe s’mund të hapet me këtë version.\n\nJu lutemi, përmirësojeni me versi
   <string name="different_person_button">Person i Ndryshëm</string>
   <string name="duplicate_link_dialog_text_3">%1$s dhe %2$s ju dërguan të njëjtën lidhje.\n\nNjë prej tyre mund të jetë duke u rrekur të zbulojë cilët janë kontaktet tuaja.\n\nMos u thoni se morët të njëjtën lidhje nga dikush tjetër.</string>
   <string name="pending_contact_updated_toast">Kontakti pezull u përditësua</string>
+  <string name="info_both_must_enter_links">Duhet të shtoni, të dy palët, lidhjet e njëri tjetrit</string>
   <!--Peer trust levels-->
   <string name="peer_trust_level_unverified">Kontakt i paverifikuar</string>
   <string name="peer_trust_level_verified">Kontakt i verifikuar</string>
@@ -331,6 +335,7 @@ dhe s’mund të hapet me këtë version.\n\nJu lutemi, përmirësojeni me versi
   <string name="connect_via_bluetooth_intro">Në rast se lidhjet me Bluetooth s’funksionojnë automatikisht, mund të përdorni këtë skenë që të bëni lidhjen dorazi.\n\nQë kjo të funksionojë, kontakti juaj duhet të jetë atypari.\n\nJu dhe kontakti juaj duhet të shtypni që të dy “Fillo” në të njëjtën kohë.</string>
   <string name="connect_via_bluetooth_already_discovering">Po provohet tashmë të bëhet lidhje përmes Bluetooth-i. Ju lutemi, riprovoni pas pak.</string>
   <string name="connect_via_bluetooth_no_location_permission">S’mund të vazhdohet pa leje vendore</string>
+  <string name="connect_via_bluetooth_no_bluetooth_permission">Pa leje pajisjesh atypari s’mund të vazhdohet </string>
   <string name="connect_via_bluetooth_start">Po lidhet me Bluetooth…</string>
   <string name="connect_via_bluetooth_success">U lidh me sukses përmes Bluetooth-i</string>
   <string name="connect_via_bluetooth_error">S’u bë dot lidhja me Bluetooth.</string>
@@ -728,11 +733,17 @@ Këtë rregullim mund ta ndryshojë edhe kontakti juaj, për të dy ju.</string>
   <string name="permission_location_request_body">Që të pikasë pajisje Bluetooth, Briar-i lyp leje të njohë vendin tuaj.\n\nBriar-i nuk e depoziton vendin tuaj, as e ndan me dikë.</string>
   <string name="permission_camera_location_title">Kamera dhe vend</string>
   <string name="permission_camera_location_request_body">Që të skanojë kodin QR, Briar-it i duhet të përdorë kamerën.\n\nQë të pikasë pajisje Bluetooth, Briar-i lyp leje të njohë vendin tuaj.\n\nBriar-i nuk e depoziton vendin tuaj, as e ndan me dikë.</string>
+  <string name="permission_camera_bluetooth_title">Kamerë dhe pajisje atypari</string>
+  <string name="permission_camera_bluetooth_request_body">Që të skanohet kodi QR, Briar-i lyp leje përdorimi të kamerës.\n\nQë të zbulohen pajisje Bluetooth, Briar-i lyp leje të gjejë dhe të lidhet me pajisje atypari.</string>
   <string name="permission_camera_denied_body">Keni mohuar hyrjen në kamera, por shtimi i kontakteve lyp përdorimin e kamerës.\n\nJu lutemi, shihni mundësinë e akordimit të hyrjes.</string>
   <string name="permission_location_denied_body">Keni mohuar hyrje te vendndodhja juaj, por Briar-i ka nevojë për këtë leje, që të mund të zbulojë pajisje Bluetooth.\n\nJu lutemi, shihni mundësinë e akordimit të hyrjes.</string>
   <string name="permission_location_setting_title">Rregullime vendndodhjeje</string>
   <string name="permission_location_setting_body">Që të gjenden pajisje të tjera përmes Bluetooth-i, rregullimi për vendndodhjen e pajisjes tuaj duhet të jetë i aktivizuar. Ju lutemi, që të vazhdohet, aktivizoni vendndodhjen. Më pas, mund ta çaktivizoni prapë.</string>
+  <string name="permission_location_setting_hotspot_body">Që të krijohet një hotspot Wi-Fi, duhet aktivizuar rregullimi për vendndodhje të pajisjes tuaj. Ju lutemi, që të vazhdohet, aktivizoni këtë rregullim. Mund ta çaktivizoni sërish më pas.</string>
   <string name="permission_location_setting_button">Aktivizoni vendndodhje</string>
+  <string name="permission_bluetooth_title">Leje pajisjesh atypari</string>
+  <string name="permission_bluetooth_body">Që të përdoret komunikim Bluetooth, Briar-i lyp leje të gjejë dhe të lidhet me pajisje atypari.</string>
+  <string name="permission_bluetooth_denied_body">Keni mohuar hyrje te pajisje atyprai, por Briar-i ka nevojë për këtë leje, që të përdorë Bluetooth-in.\n\nJu lutemi, shihni mundësinë e akordimit të hyrjes.</string>
   <string name="qr_code">Kod QR</string>
   <string name="show_qr_code_fullscreen">Shfaqe kodin QR sa tërë ekrani</string>
   <!--App Locking-->
@@ -758,7 +769,9 @@ Briar-i i përdor ato paralelisht.</string>
   <string name="hotspot_notification_title">Dhënie Briar-i “offline”</string>
   <string name="hotspot_button_connected">Pasuesi</string>
   <string name="permission_hotspot_location_request_body">Që të krijohet një hotspot Wi-Fi, Briar-i lyp leje për të njohur vendndodhjen tuaj.\n\nBriar-i nuk e depoziton apo ia jep dikujt vendndodhjen tuaj.</string>
+  <string name="permission_hotspot_location_request_precise_body">Që të krijohet një hotspot Wi-Fi, Briar-i lyp leje për të njohur saktësisht vendndodhjen tuaj.\n\nBriar-i nuk e depoziton apo ia jep dikujt atë.</string>
   <string name="permission_hotspot_location_denied_body">Keni mohuar njohjen e vendndodhjes tuaj, ndërkohë që Briar-it i duhet kjo leje për të krijuar një hotspot Wi-Fi.\n\nJu lutemi, shihni mundësinë e akordimit të kësaj lejeje.</string>
+  <string name="permission_hotspot_location_denied_precise_body">Keni mohuar njohjen e saktë të vendndodhjes tuaj, ndërkohë që Briar-it i duhet kjo leje për të krijuar një hotspot Wi-Fi.\n\nJu lutemi, shihni mundësinë e akordimit të kësaj lejeje.</string>
   <string name="wifi_settings_title">Rregullim Wi-Fi-i</string>
   <string name="wifi_settings_request_enable_body">Që të krijohet një hotspot Wi-Fi, Briar-it i duhet të përdorë Wi-Fi-n. Ju lutemi, aktivizojeni.</string>
   <string name="hotspot_tab_manual">Dorazi</string>

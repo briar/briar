@@ -149,6 +149,7 @@
   <string name="error_start_activity">在您的系统上不可用</string>
   <string name="status_heading">状态：</string>
   <string name="error">错误</string>
+  <string name="info">信息</string>
   <!--Contacts and Private Conversations-->
   <string name="no_contacts">尚无联系人可供显示</string>
   <string name="no_contacts_action">轻按 + 号即可添加联系人</string>
@@ -216,6 +217,7 @@
   <string name="menu_contact">联系人</string>
   <!--Adding Contacts-->
   <string name="add_contact_title">添加附近的联系人</string>
+  <string name="add_contact_error_two_way">你和联系人互扫二维码了吗？</string>
   <string name="face_to_face">您必须面对面添加联系人。\n\n这样将防止未来他人冒充您的身份并查看您的信息。</string>
   <string name="continue_button">继续</string>
   <string name="try_again_button">重试</string>
@@ -231,6 +233,7 @@
   <string name="authenticating_with_device">正在验证设备\u2026</string>
   <string name="connection_error_title">无法连接到您的联系人</string>
   <string name="connection_error_feedback">如果该问题仍存在，请 <a href="feedback">发送反馈</a> 帮助我们改善应用。</string>
+  <string name="info_both_must_scan">你和联系人必须互扫二维码</string>
   <!--Adding Contacts Remotely-->
   <string name="add_contact_remotely_title_case">添加远处的联系人</string>
   <string name="add_contact_nearby_title">添加附近的联系人</string>
@@ -287,6 +290,7 @@
   <string name="different_person_button">不同的人</string>
   <string name="duplicate_link_dialog_text_3">%1$s 和 %2$s 给你发送了同样的链接。\n\n其中一个人可能企图找出谁是你的联系人。\n\n 不要告诉他们你从其他人那里收到了相同的链接。</string>
   <string name="pending_contact_updated_toast">待处理联系人已更新</string>
+  <string name="info_both_must_enter_links">你和联系人必须互相添加链接</string>
   <!--Peer trust levels-->
   <string name="peer_trust_level_unverified">未验证的联系人</string>
   <string name="peer_trust_level_verified">已验证的联系人</string>
@@ -320,6 +324,7 @@
   <string name="connect_via_bluetooth_intro">如果蓝牙无法自动连接，您可以使用此界面进行手动连接。\n\n你的联系人需要在附近，这样才能工作。\n\n你和你的联系人应该同时按“开始。</string>
   <string name="connect_via_bluetooth_already_discovering">已经在尝试通过蓝牙连接。请稍后再试</string>
   <string name="connect_via_bluetooth_no_location_permission">没有位置权限不能继续 </string>
+  <string name="connect_via_bluetooth_no_bluetooth_permission">没有附近设备权限无法继续运行</string>
   <string name="connect_via_bluetooth_start">正通过蓝牙连接 …</string>
   <string name="connect_via_bluetooth_success">通过蓝牙连接成功</string>
   <string name="connect_via_bluetooth_error">无法通过蓝牙连接。</string>
@@ -714,11 +719,17 @@
   <string name="permission_location_request_body">Briar 需要位置信息权限以发现蓝牙设备。\n\nBriar 不会存储您的位置或将它分享给任何人。</string>
   <string name="permission_camera_location_title">相机和位置</string>
   <string name="permission_camera_location_request_body"> Briar 需要相机权限以扫描二维码。\n\nBriar 需要位置信息权限以发现蓝牙设备。\n\nBriar 不会存储您的位置或将它分享给任何人。</string>
+  <string name="permission_camera_bluetooth_title">相机和附近设备</string>
+  <string name="permission_camera_bluetooth_request_body">Briar 需要相机权限以扫描二维码。\n\nBriar 需要发现并连接到附近设备的权限以发现蓝牙设备。</string>
   <string name="permission_camera_denied_body">您已拒绝相机权限，而添加联系人需要使用相机。\n\n请考虑授予相机权限。</string>
   <string name="permission_location_denied_body">您已拒绝访问您的位置信息，但 Briar 需要此权限才能发现蓝牙设备。\n\n请考虑授予访问权限。</string>
   <string name="permission_location_setting_title">位置设定</string>
   <string name="permission_location_setting_body">必须打开你设备的位置设置，才能通过蓝牙找到其他设备。请启用位置以继续。您可以在之后再次禁用它。</string>
+  <string name="permission_location_setting_hotspot_body">必须打开你设备的位置设置，才能创建无线热点。请启用位置以继续。您可以在之后再禁用。</string>
   <string name="permission_location_setting_button">启用位置</string>
+  <string name="permission_bluetooth_title">“附近设备”权限</string>
+  <string name="permission_bluetooth_body">要使用蓝牙通信，Briar 需要发现并连接到附近设备的权限。</string>
+  <string name="permission_bluetooth_denied_body">你拒绝了对附近设备的访问权，但 Briar 需要这个权限才能使用蓝牙。\n\n请考虑授予权限。</string>
   <string name="qr_code">二维码</string>
   <string name="show_qr_code_fullscreen">全屏显示二维码</string>
   <!--App Locking-->
@@ -741,7 +752,9 @@
   <string name="hotspot_notification_title">正离线分享 Briar</string>
   <string name="hotspot_button_connected">下一步</string>
   <string name="permission_hotspot_location_request_body">为了创建一个Wi-Fi热点，Briar 需要访问你位置的权限。\n\n Briar 不会储存你的位置也不会和任何人分享它。</string>
+  <string name="permission_hotspot_location_request_precise_body">要创建无线热点，Briar 需要访问你的精确位置。\n\nBriar 不会储存你的位置也不会和任何人分享它。</string>
   <string name="permission_hotspot_location_denied_body">你拒绝了访问你的位置，但 Briar 需要这个权限才能创建 Wi-Fi 热点。\n\n请考虑授予访问权限。</string>
+  <string name="permission_hotspot_location_denied_precise_body">你拒绝了 Briar 访问你的精确位置，但 Briar 需要这个权限才能创建 无线热点。\n\n请考虑授予访问权限。</string>
   <string name="wifi_settings_title">Wi-Fi 设置</string>
   <string name="wifi_settings_request_enable_body">要创建 Wi-Fi 热点，Briar 需要使用 Wi-Fi。请允许它。</string>
   <string name="hotspot_tab_manual">手动</string>

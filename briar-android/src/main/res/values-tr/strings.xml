@@ -155,6 +155,7 @@
   <string name="error_start_activity">Sisteminizde mevcut değil</string>
   <string name="status_heading">Durum</string>
   <string name="error">Hata</string>
+  <string name="info">Bilgiler</string>
   <!--Contacts and Private Conversations-->
   <string name="no_contacts">Gösterilecek kişi yok</string>
   <string name="no_contacts_action">kişi eklemek için + simgesine dokunun</string>

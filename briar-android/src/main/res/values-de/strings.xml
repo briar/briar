@@ -155,6 +155,7 @@
   <string name="error_start_activity">Nicht verfügbar für dein System</string>
   <string name="status_heading">Status:</string>
   <string name="error">Fehler</string>
+  <string name="info">Information</string>
   <!--Contacts and Private Conversations-->
   <string name="no_contacts">Keine Kontakte vorhanden</string>
   <string name="no_contacts_action">Tippe auf das + Symbol, um einen Kontakt hinzuzufügen</string>
@@ -225,6 +226,7 @@
   <string name="menu_contact">Kontakt</string>
   <!--Adding Contacts-->
   <string name="add_contact_title">Kontakt in der Nähe hinzufügen</string>
+  <string name="add_contact_error_two_way">Habt ihr beide die QR-Codes des jeweils anderen gescannt?</string>
   <string name="face_to_face">Um einen neuen Kontakt hinzuzufügen, ist es notwendig, dass sich beide Kontakte an einem Ort treffen.\n\nDadurch wird betrügerische Identitätsvortäuschung und unautorisierter Kommunikationszugriff verhindert.</string>
   <string name="continue_button">Weiter</string>
   <string name="try_again_button">Noch einmal versuchen</string>
@@ -240,6 +242,7 @@
   <string name="authenticating_with_device">Authentifiziere Gerät\u2026</string>
   <string name="connection_error_title">Keine Verbindung zum Kontakt</string>
   <string name="connection_error_feedback">Wenn das Problem weiterbesteht, hilf uns die App zu verbessern und <a href="feedback">schicke Feedback</a>.</string>
+  <string name="info_both_must_scan">Ihr müsst beide die QR-Codes des jeweils anderen scannen</string>
   <!--Adding Contacts Remotely-->
   <string name="add_contact_remotely_title_case">Kontakt aus der Ferne hinzufügen</string>
   <string name="add_contact_nearby_title">Kontakt in der Nähe hinzufügen</string>
@@ -297,6 +300,7 @@
   <string name="different_person_button">Andere Person</string>
   <string name="duplicate_link_dialog_text_3">%1$s und %2$s haben dir denselben Link geschickt.\n\nMöglicherweise versucht einer der beiden mehr über deine Kontakte zu erfahren.\n\nDu solltest deswegen niemandem sagen, dass du diesen Link auch von jemand anderem erhalten hast.</string>
   <string name="pending_contact_updated_toast">Ausstehender Kontakt aktualisiert</string>
+  <string name="info_both_must_enter_links">Ihr müsst beide die Links des jeweils anderen hinzufügen</string>
   <!--Peer trust levels-->
   <string name="peer_trust_level_unverified">Nicht überprüfter Kontakt</string>
   <string name="peer_trust_level_verified">Überprüfter Kontakt</string>
@@ -330,6 +334,7 @@
   <string name="connect_via_bluetooth_intro">Falls Verbindungen über Bluetooth nicht automatisch funktionieren, kannst du über diesen Bildschirm eine manuelle Verbindung herstellen.\n\nDein Kontakt muss sich in der Nähe befinden, damit dies funktioniert. Du und dein Kontakt sollten gleichzeitig auf \"Start\" drücken.</string>
   <string name="connect_via_bluetooth_already_discovering">Es wird bereits versucht, eine Verbindung über Bluetooth herzustellen. Bitte probiere es in Kürze erneut.</string>
   <string name="connect_via_bluetooth_no_location_permission">Kann ohne Standortberechtigung nicht fortgesetzt werden</string>
+  <string name="connect_via_bluetooth_no_bluetooth_permission">Kann nicht ohne die Berechtigung für Geräte in der Nähe fortgesetzt werden</string>
   <string name="connect_via_bluetooth_start">Verbinde über Bluetooth…</string>
   <string name="connect_via_bluetooth_success">Erfolgsreich über Bluetooth verbunden</string>
   <string name="connect_via_bluetooth_error">Konnte keine Verbindung über Bluetooth herstellen.</string>
@@ -728,11 +733,17 @@
   <string name="permission_location_request_body">Um Bluetooth-Geräte zu finden, braucht Briar Zugriff auf deinen Standort.\n\nBriar speichert weder deinen Standort noch gibt es ihn an andere weiter.</string>
   <string name="permission_camera_location_title">Kamera und Standort</string>
   <string name="permission_camera_location_request_body">Um den QR-Code zu scannen, braucht Briar Zugriff auf die Kamera.\n\nUm Bluetooth-Geräte zu finden, braucht Briar Zugriff auf deinen Standort.\n\nBriar speichert weder deinen Standort noch gibt es ihn an andere weiter.</string>
+  <string name="permission_camera_bluetooth_title">Kamera und Geräte in der Nähe</string>
+  <string name="permission_camera_bluetooth_request_body">Um den QR-Code zu scannen, braucht Briar Zugriff auf die Kamera.\n\nUm Bluetooth-Geräte zu finden, braucht Briar die Berechtigung, Geräte in der Nähe zu finden und sich mit ihnen zu verbinden.</string>
   <string name="permission_camera_denied_body">Du hast den Zugriff auf die Kamera verweigert, aber das Hinzufügen von Kontakten erfordert die Verwendung der Kamera.\n\nBitte gewähre den Zugriff.</string>
   <string name="permission_location_denied_body">Du hast den Zugriff auf deinen Standort verweigert, aber Briar benötigt diese Berechtigung, um Bluetooth-Geräte zu erkennen.\n\nBitte überlege, ob du Zugriff gewährst.</string>
   <string name="permission_location_setting_title">Standorteinstellung</string>
   <string name="permission_location_setting_body">Die Standorteinstellung deines Geräts muss aktiviert sein, um andere Geräte über Bluetooth zu finden. Bitte aktiviere den Standort, um fortzufahren. Du kannst sie anschließend wieder deaktivieren.</string>
+  <string name="permission_location_setting_hotspot_body">Die Standorteinstellung deines Geräts muss aktiviert sein, um einen WLAN-Hotspot zu erstellen. Bitte aktiviere den Standort, um fortzufahren. Du kannst sie danach wieder deaktivieren.</string>
   <string name="permission_location_setting_button">Standort aktivieren</string>
+  <string name="permission_bluetooth_title">Berechtigung für Geräte in der Nähe</string>
+  <string name="permission_bluetooth_body">Um die Bluetooth-Kommunikation nutzen zu können, benötigt Briar die Berechtigung, Geräte in der Nähe zu finden und sich mit ihnen zu verbinden.</string>
+  <string name="permission_bluetooth_denied_body">Du hast den Zugriff auf die Geräte in der Nähe verweigert, aber Briar benötigt diese Berechtigung, um Bluetooth-Geräte zu nutzen.\n\nBitte überlege, ob du Zugriff gewährst.</string>
   <string name="qr_code">QR-Code</string>
   <string name="show_qr_code_fullscreen">QR-Code im Vollbildmodus anzeigen</string>
   <!--App Locking-->
@@ -754,8 +765,10 @@
   <string name="hotspot_notification_channel_title">WLAN-Hotspot</string>
   <string name="hotspot_notification_title">Briar offline teilen</string>
   <string name="hotspot_button_connected">Weiter</string>
-  <string name="permission_hotspot_location_request_body">Um einen WLAN-Hotspot zu erstellen, benötigt Briar die Erlaubnis, auf deinen Standort zuzugreifen.\n\nBriar speichert weder deinen Standort noch gibt es ihn an andere weiter.</string>
+  <string name="permission_hotspot_location_request_body">Um einen WLAN-Hotspot zu erstellen, benötigt Briar die Berechtigung, auf deinen Standort zuzugreifen.\n\nBriar speichert weder deinen Standort noch gibt es ihn an andere weiter.</string>
+  <string name="permission_hotspot_location_request_precise_body">Um einen WLAN-Hotspot zu erstellen, benötigt Briar die Berechtigung, auf deinen genauen Standort zuzugreifen.\n\nBriar speichert weder deinen Standort noch gibt es ihn an andere weiter.</string>
   <string name="permission_hotspot_location_denied_body">Du hast den Zugriff auf deinen Standort verweigert, aber Briar benötigt diese Berechtigung, um einen WLAN-Hotspot zu erstellen.\n\nBitte überlege, ob du Zugriff gewährst.</string>
+  <string name="permission_hotspot_location_denied_precise_body">Du hast den Zugriff auf deinen genauen Standort verweigert, aber Briar benötigt diese Berechtigung, um einen WLAN-Hotspot zu erstellen.\n\nBitte überlege, ob du Zugriff gewährst.</string>
   <string name="wifi_settings_title">WLAN-Einstellungen</string>
   <string name="wifi_settings_request_enable_body">Um einen WLAN-Hotspot zu erstellen, benötigt Briar das WLAN. Bitte aktiviere es.</string>
   <string name="hotspot_tab_manual">Manuell</string>
