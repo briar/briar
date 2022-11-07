@@ -17,6 +17,7 @@ import org.briarproject.bramble.api.plugin.simplex.SimplexPluginFactory
 import org.briarproject.bramble.event.DefaultEventExecutorModule
 import org.briarproject.bramble.system.ClockModule
 import org.briarproject.bramble.system.DefaultTaskSchedulerModule
+import org.briarproject.bramble.system.DefaultThreadFactoryModule
 import org.briarproject.bramble.system.DefaultWakefulIoExecutorModule
 import org.briarproject.bramble.test.TestFeatureFlagModule
 import org.briarproject.bramble.test.TestSecureRandomModule
@@ -37,6 +38,7 @@ import javax.inject.Singleton
         DefaultEventExecutorModule::class,
         DefaultTaskSchedulerModule::class,
         DefaultWakefulIoExecutorModule::class,
+        DefaultThreadFactoryModule::class,
         TestFeatureFlagModule::class,
         TestSecureRandomModule::class,
         HeadlessBlogModule::class,

@@ -9,6 +9,7 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.RejectedExecutionHandler;
+import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.ThreadPoolExecutor;
 
 import javax.inject.Inject;
@@ -37,31 +38,31 @@ public class CryptoExecutorModule {
 	private static final int MAX_EXECUTOR_THREADS =
 			Math.max(1, Runtime.getRuntime().availableProcessors() - 1);
 
-	private final ExecutorService cryptoExecutor;
-
 	public CryptoExecutorModule() {
-		// Use an unbounded queue
-		BlockingQueue<Runnable> queue = new LinkedBlockingQueue<>();
-		// Discard tasks that are submitted during shutdown
-		RejectedExecutionHandler policy =
-				new ThreadPoolExecutor.DiscardPolicy();
-		// Create a limited # of threads and keep them in the pool for 60 secs
-		cryptoExecutor = new TimeLoggingExecutor("CryptoExecutor", 0,
-				MAX_EXECUTOR_THREADS, 60, SECONDS, queue, policy);
 	}
 
 	@Provides
 	@Singleton
 	@CryptoExecutor
 	ExecutorService provideCryptoExecutorService(
-			LifecycleManager lifecycleManager) {
+			LifecycleManager lifecycleManager, ThreadFactory threadFactory) {
+		// Use an unbounded queue
+		BlockingQueue<Runnable> queue = new LinkedBlockingQueue<>();
+		// Discard tasks that are submitted during shutdown
+		RejectedExecutionHandler policy =
+				new ThreadPoolExecutor.DiscardPolicy();
+		// Create a limited # of threads and keep them in the pool for 60 secs
+		ExecutorService cryptoExecutor = new TimeLoggingExecutor(
+				"CryptoExecutor", 0, MAX_EXECUTOR_THREADS, 60, SECONDS, queue,
+				threadFactory, policy);
 		lifecycleManager.registerForShutdown(cryptoExecutor);
 		return cryptoExecutor;
 	}
 
 	@Provides
 	@CryptoExecutor
-	Executor provideCryptoExecutor() {
+	Executor provideCryptoExecutor(
+			@CryptoExecutor ExecutorService cryptoExecutor) {
 		return cryptoExecutor;
 	}
 }

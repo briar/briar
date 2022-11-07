@@ -9,7 +9,8 @@ import org.briarproject.bramble.api.lifecycle.LifecycleManager;
 import org.briarproject.bramble.api.plugin.file.RemovableDriveManager;
 import org.briarproject.bramble.battery.DefaultBatteryManagerModule;
 import org.briarproject.bramble.event.DefaultEventExecutorModule;
-import org.briarproject.bramble.mailbox.UrlConverterModule;
+import org.briarproject.bramble.mailbox.ModularMailboxModule;
+import org.briarproject.bramble.system.DefaultThreadFactoryModule;
 import org.briarproject.bramble.system.DefaultWakefulIoExecutorModule;
 import org.briarproject.bramble.system.TimeTravelModule;
 import org.briarproject.bramble.test.TestDatabaseConfigModule;
@@ -29,13 +30,14 @@ import dagger.Component;
 		DefaultBatteryManagerModule.class,
 		DefaultEventExecutorModule.class,
 		DefaultWakefulIoExecutorModule.class,
+		DefaultThreadFactoryModule.class,
 		TestDatabaseConfigModule.class,
 		TestDnsModule.class,
 		TestFeatureFlagModule.class,
 		TestMailboxDirectoryModule.class,
 		RemovableDriveIntegrationTestModule.class,
 		RemovableDriveModule.class,
-		UrlConverterModule.class,
+		ModularMailboxModule.class,
 		TestSecureRandomModule.class,
 		TimeTravelModule.class,
 		TestSocksModule.class,

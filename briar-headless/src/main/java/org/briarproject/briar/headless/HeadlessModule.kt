@@ -22,6 +22,7 @@ import org.briarproject.bramble.plugin.tor.UnixTorPluginFactory
 import org.briarproject.bramble.plugin.tor.WindowsTorPluginFactory
 import org.briarproject.bramble.system.ClockModule
 import org.briarproject.bramble.system.DefaultTaskSchedulerModule
+import org.briarproject.bramble.system.DefaultThreadFactoryModule
 import org.briarproject.bramble.system.DefaultWakefulIoExecutorModule
 import org.briarproject.bramble.system.DesktopSecureRandomModule
 import org.briarproject.bramble.util.OsUtils.isLinux
@@ -44,6 +45,7 @@ import javax.inject.Singleton
         DefaultEventExecutorModule::class,
         DefaultTaskSchedulerModule::class,
         DefaultWakefulIoExecutorModule::class,
+        DefaultThreadFactoryModule::class,
         DesktopSecureRandomModule::class,
         HeadlessBlogModule::class,
         HeadlessContactModule::class,

@@ -4,7 +4,11 @@ import dagger.Module;
 import dagger.Provides;
 
 @Module
-public class UrlConverterModule {
+public class ModularMailboxModule {
+	@Provides
+	MailboxConfig provideMailboxConfig(MailboxConfigImpl mailboxConfig) {
+		return mailboxConfig;
+	}
 
 	@Provides
 	UrlConverter provideUrlConverter(UrlConverterImpl urlConverter) {

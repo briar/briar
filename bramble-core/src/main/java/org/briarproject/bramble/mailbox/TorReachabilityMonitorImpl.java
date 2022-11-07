@@ -32,6 +32,7 @@ class TorReachabilityMonitorImpl
 
 	private final Executor ioExecutor;
 	private final TaskScheduler taskScheduler;
+	private final MailboxConfig mailboxConfig;
 	private final PluginManager pluginManager;
 	private final EventBus eventBus;
 	private final Object lock = new Object();
@@ -50,10 +51,12 @@ class TorReachabilityMonitorImpl
 	TorReachabilityMonitorImpl(
 			@IoExecutor Executor ioExecutor,
 			TaskScheduler taskScheduler,
+			MailboxConfig mailboxConfig,
 			PluginManager pluginManager,
 			EventBus eventBus) {
 		this.ioExecutor = ioExecutor;
 		this.taskScheduler = taskScheduler;
+		this.mailboxConfig = mailboxConfig;
 		this.pluginManager = pluginManager;
 		this.eventBus = eventBus;
 	}
@@ -110,7 +113,7 @@ class TorReachabilityMonitorImpl
 		synchronized (lock) {
 			if (destroyed || task != null) return;
 			task = taskScheduler.schedule(this::onTorReachable, ioExecutor,
-					REACHABILITY_PERIOD_MS, MILLISECONDS);
+					mailboxConfig.getTorReachabilityPeriod(), MILLISECONDS);
 		}
 	}
 

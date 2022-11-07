@@ -1,7 +1,7 @@
 package org.briarproject.bramble;
 
 import org.briarproject.bramble.io.DnsModule;
-import org.briarproject.bramble.mailbox.UrlConverterModule;
+import org.briarproject.bramble.mailbox.ModularMailboxModule;
 import org.briarproject.bramble.network.JavaNetworkModule;
 import org.briarproject.bramble.plugin.tor.CircumventionModule;
 import org.briarproject.bramble.socks.SocksModule;
@@ -14,7 +14,7 @@ import dagger.Module;
 		DnsModule.class,
 		JavaNetworkModule.class,
 		JavaSystemModule.class,
-		UrlConverterModule.class,
+		ModularMailboxModule.class,
 		SocksModule.class
 })
 public class BrambleJavaModule {

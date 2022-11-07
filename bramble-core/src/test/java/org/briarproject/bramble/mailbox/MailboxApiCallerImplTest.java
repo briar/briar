@@ -21,12 +21,13 @@ public class MailboxApiCallerImplTest extends BrambleMockTestCase {
 
 	private final TaskScheduler taskScheduler =
 			context.mock(TaskScheduler.class);
+	private final MailboxConfig mailboxConfig = new MailboxConfigImpl();
 	private final Executor ioExecutor = context.mock(Executor.class);
 	private final ApiCall apiCall = context.mock(ApiCall.class);
 	private final Cancellable scheduledTask = context.mock(Cancellable.class);
 
 	private final MailboxApiCallerImpl caller =
-			new MailboxApiCallerImpl(taskScheduler, ioExecutor);
+			new MailboxApiCallerImpl(taskScheduler, mailboxConfig, ioExecutor);
 
 	@Test
 	public void testSubmitsTaskImmediately() {

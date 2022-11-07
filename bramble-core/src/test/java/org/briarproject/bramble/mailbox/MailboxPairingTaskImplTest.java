@@ -22,13 +22,12 @@ import org.jmock.Expectations;
 import org.junit.Test;
 
 import java.io.IOException;
-import java.nio.ByteBuffer;
-import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static java.util.Collections.singletonList;
+import static org.briarproject.bramble.mailbox.MailboxTestUtils.getQrCodePayload;
 import static org.briarproject.bramble.test.TestUtils.getContact;
 import static org.briarproject.bramble.test.TestUtils.getRandomBytes;
 import static org.briarproject.bramble.test.TestUtils.getRandomId;
@@ -59,7 +58,8 @@ public class MailboxPairingTaskImplTest extends BrambleMockTestCase {
 			new MailboxAuthToken(getRandomId());
 	private final MailboxAuthToken ownerToken =
 			new MailboxAuthToken(getRandomId());
-	private final String validPayload = getValidPayload();
+	private final String validPayload =
+			getQrCodePayload(onionBytes, setupToken.getBytes());
 	private final long time = System.currentTimeMillis();
 	private final MailboxProperties setupProperties = new MailboxProperties(
 			onion, setupToken, new ArrayList<>());
@@ -192,16 +192,6 @@ public class MailboxPairingTaskImplTest extends BrambleMockTestCase {
 		task.run();
 		task.addObserver(state -> assertEquals(state.getClass(),
 				MailboxPairingState.UnexpectedError.class));
-	}
-
-	private String getValidPayload() {
-		byte[] payloadBytes = ByteBuffer.allocate(65)
-				.put((byte) 32) // 1
-				.put(onionBytes) // 32
-				.put(setupToken.getBytes()) // 32
-				.array();
-		//noinspection CharsetObjectCanBeUsed
-		return new String(payloadBytes, Charset.forName("ISO-8859-1"));
 	}
 
 	private PredicateMatcher<MailboxProperties> matches(MailboxProperties p2) {

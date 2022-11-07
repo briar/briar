@@ -6,6 +6,7 @@ import org.briarproject.bramble.api.system.TaskScheduler;
 import java.util.concurrent.RejectedExecutionHandler;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
+import java.util.concurrent.ThreadFactory;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -21,18 +22,15 @@ public class DefaultTaskSchedulerModule {
 		TaskScheduler scheduler;
 	}
 
-	private final ScheduledExecutorService scheduledExecutorService;
-
-	public DefaultTaskSchedulerModule() {
+	@Provides
+	@Singleton
+	TaskScheduler provideTaskScheduler(LifecycleManager lifecycleManager,
+			ThreadFactory threadFactory) {
 		// Discard tasks that are submitted during shutdown
 		RejectedExecutionHandler policy =
 				new ScheduledThreadPoolExecutor.DiscardPolicy();
-		scheduledExecutorService = new ScheduledThreadPoolExecutor(1, policy);
-	}
-
-	@Provides
-	@Singleton
-	TaskScheduler provideTaskScheduler(LifecycleManager lifecycleManager) {
+		ScheduledExecutorService scheduledExecutorService =
+				new ScheduledThreadPoolExecutor(1, threadFactory, policy);
 		lifecycleManager.registerForShutdown(scheduledExecutorService);
 		return new TaskSchedulerImpl(scheduledExecutorService);
 	}

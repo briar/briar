@@ -29,6 +29,7 @@ public class TorReachabilityMonitorImplTest extends BrambleMockTestCase {
 	private final Executor ioExecutor = context.mock(Executor.class);
 	private final TaskScheduler taskScheduler =
 			context.mock(TaskScheduler.class);
+	private final MailboxConfig mailboxConfig = new MailboxConfigImpl();
 	private final PluginManager pluginManager =
 			context.mock(PluginManager.class);
 	private final EventBus eventBus = context.mock(EventBus.class);
@@ -39,7 +40,7 @@ public class TorReachabilityMonitorImplTest extends BrambleMockTestCase {
 
 	private final TorReachabilityMonitorImpl monitor =
 			new TorReachabilityMonitorImpl(ioExecutor, taskScheduler,
-					pluginManager, eventBus);
+					mailboxConfig, pluginManager, eventBus);
 
 	@Test
 	public void testSchedulesTaskWhenStartedIfTorIsActive() {

@@ -3,7 +3,7 @@ package org.briarproject.briar.android;
 import org.briarproject.bramble.BrambleAndroidModule;
 import org.briarproject.bramble.BrambleCoreModule;
 import org.briarproject.bramble.account.BriarAccountModule;
-import org.briarproject.bramble.mailbox.UrlConverterModule;
+import org.briarproject.bramble.mailbox.ModularMailboxModule;
 import org.briarproject.bramble.plugin.file.RemovableDriveModule;
 import org.briarproject.bramble.system.ClockModule;
 import org.briarproject.briar.BriarCoreModule;
@@ -28,7 +28,7 @@ import dagger.Component;
 		BrambleAndroidModule.class,
 		BriarAccountModule.class,
 		BrambleCoreModule.class,
-		UrlConverterModule.class
+		ModularMailboxModule.class
 })
 public interface BriarUiTestComponent extends AndroidComponent {
 

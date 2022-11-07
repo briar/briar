@@ -107,6 +107,10 @@ bridge test:
 mailbox integration test:
   extends: .optional_tests
   rules:
+    - changes:
+        - mailbox-integration-tests/**/*
+      when: on_success
+      allow_failure: false
     - if: '$CI_PIPELINE_SOURCE == "schedule"'
       when: on_success
     - if: '$CI_COMMIT_TAG == null'
