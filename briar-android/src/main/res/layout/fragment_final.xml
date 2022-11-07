@@ -28,7 +28,7 @@
 				app:layout_constraintVertical_bias="0.25"
 				app:layout_constraintVertical_chainStyle="packed"
 				tools:ignore="ContentDescription"
-				tools:srcCompat="@drawable/ic_error"
+				tools:srcCompat="@drawable/alerts_and_states_error"
 				tools:tint="@color/briar_red_500" />
 
 			<TextView
