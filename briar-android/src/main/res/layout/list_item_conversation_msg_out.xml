@@ -36,7 +36,8 @@
 			app:layout_constraintStart_toStartOf="parent"
 			app:layout_constraintTop_toTopOf="parent"
 			app:spanCount="2"
-			tools:ignore="ContentDescription" />
+			tools:ignore="ContentDescription"
+			tools:src="@drawable/alerts_and_states_error" />
 
 		<com.vanniktech.emoji.EmojiTextView
 			android:id="@+id/text"
