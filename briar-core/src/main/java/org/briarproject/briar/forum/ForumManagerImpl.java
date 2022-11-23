@@ -105,11 +105,14 @@ class ForumManagerImpl extends BdfIncomingMessageHook implements ForumManager {
 
 	@Override
 	public void removeForum(Forum f) throws DbException {
-		db.transaction(false, txn -> {
-			for (RemoveForumHook hook : removeHooks)
-				hook.removingForum(txn, f);
-			db.removeGroup(txn, f.getGroup());
-		});
+		db.transaction(false, txn -> removeForum(txn, f));
+	}
+
+	@Override
+	public void removeForum(Transaction txn, Forum f) throws DbException {
+		for (RemoveForumHook hook : removeHooks)
+			hook.removingForum(txn, f);
+		db.removeGroup(txn, f.getGroup());
 	}
 
 	@Override
@@ -266,6 +269,12 @@ class ForumManagerImpl extends BdfIncomingMessageHook implements ForumManager {
 			throws DbException {
 		db.transaction(false, txn ->
 				messageTracker.setReadFlag(txn, g, m, read));
+	}
+
+	@Override
+	public void setReadFlag(Transaction txn, GroupId g, MessageId m,
+			boolean read) throws DbException {
+		messageTracker.setReadFlag(txn, g, m, read);
 	}
 
 	private Forum parseForum(Group g) throws FormatException {

@@ -25,9 +25,22 @@ public interface SharingManager<S extends Shareable>
 			@Nullable String text) throws DbException;
 
 	/**
+	 * Sends an invitation to share the given group with the given contact,
+	 * including optional text.
+	 */
+	void sendInvitation(Transaction txn, GroupId shareableId,
+			ContactId contactId, @Nullable String text) throws DbException;
+
+	/**
 	 * Responds to a pending group invitation
 	 */
 	void respondToInvitation(S s, Contact c, boolean accept)
+			throws DbException;
+
+	/**
+	 * Responds to a pending group invitation
+	 */
+	void respondToInvitation(Transaction txn, S s, Contact c, boolean accept)
 			throws DbException;
 
 	/**
@@ -37,9 +50,21 @@ public interface SharingManager<S extends Shareable>
 			throws DbException;
 
 	/**
+	 * Responds to a pending group invitation
+	 */
+	void respondToInvitation(Transaction txn, ContactId c, SessionId id,
+			boolean accept) throws DbException;
+
+	/**
 	 * Returns all invitations to groups.
 	 */
 	Collection<SharingInvitationItem> getInvitations() throws DbException;
+
+	/**
+	 * Returns all invitations to groups.
+	 */
+	Collection<SharingInvitationItem> getInvitations(Transaction txn)
+			throws DbException;
 
 	/**
 	 * Returns all contacts with whom the given group is shared.
@@ -56,5 +81,11 @@ public interface SharingManager<S extends Shareable>
 	 * Returns true if the group not already shared and no invitation is open
 	 */
 	boolean canBeShared(GroupId g, Contact c) throws DbException;
+
+	/**
+	 * Returns true if the group not already shared and no invitation is open
+	 */
+	boolean canBeShared(Transaction txn, GroupId g, Contact c)
+			throws DbException;
 
 }

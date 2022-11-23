@@ -259,8 +259,14 @@ abstract class SharingManagerImpl<S extends Shareable>
 	@Override
 	public void sendInvitation(GroupId shareableId, ContactId contactId,
 			@Nullable String text) throws DbException {
+		db.transaction(false,
+				txn -> sendInvitation(txn, shareableId, contactId, text));
+	}
+
+	@Override
+	public void sendInvitation(Transaction txn, GroupId shareableId,
+			ContactId contactId, @Nullable String text) throws DbException {
 		SessionId sessionId = getSessionId(shareableId);
-		Transaction txn = db.startTransaction(false);
 		try {
 			Contact contact = db.getContact(txn, contactId);
 			if (!canBeShared(txn, shareableId, contact))
@@ -286,11 +292,8 @@ abstract class SharingManagerImpl<S extends Shareable>
 			session = engine.onInviteAction(txn, session, text);
 			// Store the updated session
 			storeSession(txn, storageId, session);
-			db.commitTransaction(txn);
 		} catch (FormatException e) {
 			throw new DbException(e);
-		} finally {
-			db.endTransaction(txn);
 		}
 	}
 
@@ -301,10 +304,22 @@ abstract class SharingManagerImpl<S extends Shareable>
 	}
 
 	@Override
+	public void respondToInvitation(Transaction txn, S s, Contact c,
+			boolean accept) throws DbException {
+		respondToInvitation(txn, c.getId(), getSessionId(s.getId()), accept);
+	}
+
+	@Override
 	public void respondToInvitation(ContactId c, SessionId id, boolean accept)
 			throws DbException {
 		db.transaction(false,
 				txn -> respondToInvitation(txn, c, id, accept, false));
+	}
+
+	@Override
+	public void respondToInvitation(Transaction txn, ContactId c, SessionId id,
+			boolean accept) throws DbException {
+		respondToInvitation(txn, c, id, accept, false);
 	}
 
 	private void respondToInvitation(Transaction txn, ContactId c,
@@ -390,10 +405,15 @@ abstract class SharingManagerImpl<S extends Shareable>
 	@Override
 	public Collection<SharingInvitationItem> getInvitations()
 			throws DbException {
+		return db.transactionWithResult(true, this::getInvitations);
+	}
+
+	@Override
+	public Collection<SharingInvitationItem> getInvitations(Transaction txn)
+			throws DbException {
 		List<SharingInvitationItem> items = new ArrayList<>();
 		BdfDictionary query = messageParser.getInvitesAvailableToAnswerQuery();
 		Map<S, Collection<Contact>> sharers = new HashMap<>();
-		Transaction txn = db.startTransaction(true);
 		try {
 			// get invitations from each contact
 			for (Contact c : db.getContacts(txn)) {
@@ -423,12 +443,9 @@ abstract class SharingManagerImpl<S extends Shareable>
 						new SharingInvitationItem(s, subscribed, contacts);
 				items.add(invitation);
 			}
-			db.commitTransaction(txn);
 			return items;
 		} catch (FormatException e) {
 			throw new DbException(e);
-		} finally {
-			db.endTransaction(txn);
 		}
 	}
 
@@ -461,7 +478,8 @@ abstract class SharingManagerImpl<S extends Shareable>
 		}
 	}
 
-	private boolean canBeShared(Transaction txn, GroupId g, Contact c)
+	@Override
+	public boolean canBeShared(Transaction txn, GroupId g, Contact c)
 			throws DbException {
 		// The group can't be shared unless the contact supports the client
 		Visibility client = clientVersioningManager.getClientVisibility(txn,

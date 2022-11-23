@@ -49,6 +49,11 @@ public interface ForumManager {
 	void removeForum(Forum f) throws DbException;
 
 	/**
+	 * Unsubscribes from a forum.
+	 */
+	void removeForum(Transaction txn, Forum f) throws DbException;
+
+	/**
 	 * Creates a local forum post.
 	 */
 	@CryptoExecutor
@@ -126,6 +131,11 @@ public interface ForumManager {
 	 * Marks a message as read or unread and updates the group count.
 	 */
 	void setReadFlag(GroupId g, MessageId m, boolean read) throws DbException;
+
+	/**
+	 * Marks a message as read or unread and updates the group count.
+	 */
+	void setReadFlag(Transaction txn, GroupId g, MessageId m, boolean read) throws DbException;
 
 	interface RemoveForumHook {
 		/**
