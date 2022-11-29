@@ -75,4 +75,5 @@
 
 	<dimen name="text_input_height">42dp</dimen>
 
+	<dimen name="outline_button_stroke">2dp</dimen>
 </resources>

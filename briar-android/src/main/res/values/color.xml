@@ -80,6 +80,7 @@
 	<color name="briar_button_text_neutral">@color/briar_night_500</color>
 	<color name="briar_button_text_negative">@color/briar_red_500</color>
 	<color name="briar_button_text_disabled">#28000000</color>
+	<color name="briar_button_outline">@android:color/secondary_text_dark</color>
 
 	<color name="thread_indicator">@color/briar_gray_500</color>
 	<color name="thread_item_background">@color/window_background</color>

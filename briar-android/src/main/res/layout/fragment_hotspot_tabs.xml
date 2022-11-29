@@ -62,13 +62,12 @@
 		android:layout_height="wrap_content"
 		android:layout_marginHorizontal="16dp"
 		android:layout_marginTop="6dp"
-		android:layout_marginBottom="1dp"
 		android:gravity="center"
 		android:text="@string/hotspot_no_peers_connected"
-		app:layout_constraintTop_toBottomOf="@+id/coordinatorLayout"
 		app:layout_constraintBottom_toTopOf="@+id/connectedButton"
 		app:layout_constraintEnd_toEndOf="parent"
-		app:layout_constraintStart_toStartOf="parent" />
+		app:layout_constraintStart_toStartOf="parent"
+		app:layout_constraintTop_toBottomOf="@+id/coordinatorLayout" />
 
 	<Button
 		android:id="@+id/connectedButton"
@@ -76,8 +75,8 @@
 		android:layout_width="0dp"
 		android:layout_height="wrap_content"
 		android:layout_marginHorizontal="16dp"
-		android:layout_marginTop="1dp"
-		android:layout_marginBottom="1dp"
+		android:layout_marginTop="6dp"
+		android:drawablePadding="8dp"
 		android:text="@string/hotspot_button_connected"
 		app:drawableLeftCompat="@drawable/ic_check_white"
 		app:drawableStartCompat="@drawable/ic_check_white"
@@ -89,12 +88,11 @@
 
 	<Button
 		android:id="@+id/stopButton"
-		style="@style/BriarButtonFlat.Negative"
-		android:layout_width="wrap_content"
+		style="@style/BriarButtonOutline.Negative"
+		android:layout_width="0dp"
 		android:layout_height="wrap_content"
 		android:layout_marginHorizontal="16dp"
 		android:layout_marginTop="6dp"
-		android:layout_marginBottom="2dp"
 		android:drawablePadding="8dp"
 		android:text="@string/hotspot_button_stop_sharing"
 		app:drawableLeftCompat="@drawable/ic_portable_wifi_off"
