@@ -40,8 +40,17 @@ configurations {
 }
 
 dependencies {
-	implementation project(path: ':bramble-core', configuration: 'default')
+	// To satisfy Android Studio's linter, an Android module that depends on another module must
+	// not specify which configuration of the other module it depends on. Therefore we don't
+	// inherit implementation dependencies of the other module and must declare any such
+	// dependencies we want to use.
+	implementation project(':bramble-api')
+	implementation project(':bramble-core')
+
 	implementation 'androidx.annotation:annotation:1.5.0'
+	implementation "org.briarproject:jtorctl:$jtorctl_version"
+	implementation "com.google.dagger:dagger:$dagger_version"
+
 	tor "org.briarproject:tor-android:$tor_version"
 	tor "org.briarproject:obfs4proxy-android:$obfs4proxy_version"
 	tor "org.briarproject:snowflake-android:$snowflake_version"
@@ -51,6 +60,7 @@ dependencies {
 	compileOnly 'javax.annotation:jsr250-api:1.0'
 
 	testImplementation project(path: ':bramble-api', configuration: 'testOutput')
+
 	testImplementation "junit:junit:$junit_version"
 	testImplementation "org.jmock:jmock:$jmock_version"
 	testImplementation "org.jmock:jmock-junit4:$jmock_version"

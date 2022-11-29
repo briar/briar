@@ -13,10 +13,12 @@ configurations {
 
 dependencies {
 	implementation project(path: ':bramble-core', configuration: 'default')
+
 	implementation fileTree(dir: 'libs', include: '*.jar')
 	def jna_version = '4.5.2'
 	implementation "net.java.dev.jna:jna:$jna_version"
 	implementation "net.java.dev.jna:jna-platform:$jna_version"
+
 	tor "org.briarproject:tor-linux:$tor_version"
 	tor "org.briarproject:tor-windows:$tor_version"
 	tor "org.briarproject:obfs4proxy-linux:$obfs4proxy_version"
@@ -28,6 +30,7 @@ dependencies {
 
 	testImplementation project(path: ':bramble-api', configuration: 'testOutput')
 	testImplementation project(path: ':bramble-core', configuration: 'testOutput')
+
 	testImplementation "junit:junit:$junit_version"
 	testImplementation "org.jmock:jmock:$jmock_version"
 	testImplementation "org.jmock:jmock-junit4:$jmock_version"

@@ -9,18 +9,18 @@ apply from: 'witness.gradle'
 apply from: '../dagger.gradle'
 
 dependencies {
+	implementation project(path: ':bramble-core', configuration: 'default')
 	implementation project(path: ':briar-api', configuration: 'default')
+
 	implementation 'com.rometools:rome:1.15.0'
 	implementation 'org.jdom:jdom2:2.0.6'
-	//noinspection GradleDependency
-	implementation "com.squareup.okhttp3:okhttp:$okhttp_version"
-	implementation 'org.jsoup:jsoup:1.15.3'
+	implementation "org.jsoup:jsoup:$jsoup_version"
 
 	annotationProcessor "com.google.dagger:dagger-compiler:$dagger_version"
 
-	testImplementation project(path: ':bramble-core', configuration: 'default')
-	testImplementation project(path: ':bramble-core', configuration: 'testOutput')
 	testImplementation project(path: ':bramble-api', configuration: 'testOutput')
+	testImplementation project(path: ':bramble-core', configuration: 'testOutput')
+
 	testImplementation 'net.jodah:concurrentunit:0.4.2'
 	testImplementation "junit:junit:$junit_version"
 	testImplementation "org.jmock:jmock:$jmock_version"
@@ -37,7 +37,7 @@ configurations {
 	testOutput.extendsFrom(testCompile)
 }
 task jarTest(type: Jar, dependsOn: testClasses) {
-	from sourceSets.test.output
+	from sourceSets.test.output, sourceSets.main.output
 	classifier = 'test'
 }
 artifacts {

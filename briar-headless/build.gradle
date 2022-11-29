@@ -17,13 +17,13 @@ sourceCompatibility = 1.8
 targetCompatibility = 1.8
 
 dependencies {
-	implementation project(path: ':briar-core', configuration: 'default')
+	implementation project(path: ':bramble-core', configuration: 'default')
 	implementation project(path: ':bramble-java', configuration: 'default')
+	implementation project(path: ':briar-core', configuration: 'default')
 
 	implementation 'org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.7.10'
 	implementation 'io.javalin:javalin:3.5.0'
 	implementation 'org.slf4j:slf4j-simple:1.7.30'
-	implementation "com.fasterxml.jackson.core:jackson-databind:$jackson_version"
 	implementation 'com.github.ajalt:clikt:2.2.0'
 
 	def daggerVersion = '2.24'
@@ -36,10 +36,11 @@ dependencies {
 	def junitVersion = '5.5.2'
 	testImplementation "org.junit.jupiter:junit-jupiter-api:$junitVersion"
 	testImplementation "org.junit.jupiter:junit-jupiter-params:$junitVersion"
-	testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:$junitVersion"
 	testImplementation 'io.mockk:mockk:1.12.4'
 	testImplementation 'org.skyscreamer:jsonassert:1.5.0'
 	testImplementation "com.squareup.okhttp3:okhttp:4.10.0"
+
+	testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:$junitVersion"
 
 	kaptTest "com.google.dagger:dagger-compiler:$daggerVersion"
 }
