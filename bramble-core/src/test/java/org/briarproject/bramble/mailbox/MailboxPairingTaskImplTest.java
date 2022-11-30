@@ -68,8 +68,7 @@ public class MailboxPairingTaskImplTest extends BrambleMockTestCase {
 
 	@Test
 	public void testInitialQrCodeReceivedState() {
-		MailboxPairingTask task =
-				factory.createPairingTask(getRandomString(42));
+		MailboxPairingTask task = createPairingTask(getRandomString(42));
 		task.addObserver(state ->
 				assertTrue(state instanceof MailboxPairingState.QrCodeReceived)
 		);
@@ -77,15 +76,14 @@ public class MailboxPairingTaskImplTest extends BrambleMockTestCase {
 
 	@Test
 	public void testInvalidQrCode() {
-		MailboxPairingTask task1 =
-				factory.createPairingTask(getRandomString(42));
+		MailboxPairingTask task1 = createPairingTask(getRandomString(42));
 		task1.run();
 		task1.addObserver(state ->
 				assertTrue(state instanceof MailboxPairingState.InvalidQrCode)
 		);
 
 		String goodLength = "00" + getRandomString(63);
-		MailboxPairingTask task2 = factory.createPairingTask(goodLength);
+		MailboxPairingTask task2 = createPairingTask(goodLength);
 		task2.run();
 		task2.addObserver(state ->
 				assertTrue(state instanceof MailboxPairingState.InvalidQrCode)
@@ -121,7 +119,7 @@ public class MailboxPairingTaskImplTest extends BrambleMockTestCase {
 		}});
 
 		AtomicInteger i = new AtomicInteger(0);
-		MailboxPairingTask task = factory.createPairingTask(validPayload);
+		MailboxPairingTask task = createPairingTask(validPayload);
 		task.addObserver(state -> {
 			if (i.get() == 0) {
 				assertEquals(MailboxPairingState.QrCodeReceived.class,
@@ -165,7 +163,7 @@ public class MailboxPairingTaskImplTest extends BrambleMockTestCase {
 			will(throwException(e));
 		}});
 
-		MailboxPairingTask task = factory.createPairingTask(validPayload);
+		MailboxPairingTask task = createPairingTask(validPayload);
 		task.run();
 		task.addObserver(state -> assertEquals(state.getClass(), s));
 	}
@@ -188,7 +186,7 @@ public class MailboxPairingTaskImplTest extends BrambleMockTestCase {
 			will(throwException(new DbException()));
 		}});
 
-		MailboxPairingTask task = factory.createPairingTask(validPayload);
+		MailboxPairingTask task = createPairingTask(validPayload);
 		task.run();
 		task.addObserver(state -> assertEquals(state.getClass(),
 				MailboxPairingState.UnexpectedError.class));
@@ -202,4 +200,12 @@ public class MailboxPairingTaskImplTest extends BrambleMockTestCase {
 						p1.getServerSupports().equals(p2.getServerSupports()));
 	}
 
+	private MailboxPairingTask createPairingTask(String qrCodePayload) {
+		context.checking(new Expectations() {{
+			oneOf(clock).currentTimeMillis();
+			will(returnValue(time));
+		}});
+
+		return factory.createPairingTask(qrCodePayload);
+	}
 }
