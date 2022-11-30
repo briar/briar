@@ -633,7 +633,9 @@
 	<string name="mailbox_setup_download_link">Share Download Link</string>
 	<string name="mailbox_setup_button_scan">Scan Mailbox QR code</string>
 	<string name="permission_camera_qr_denied_body">You have denied access to the camera, but scanning a QR code requires using the camera.\n\nPlease consider granting access.</string>
-	<string name="mailbox_setup_connecting">Connecting…</string>
+	<string name="mailbox_setup_connecting">Connecting to Mailbox…</string>
+	<!-- This string is shown when connecting to a Mailbox for the first time. The placeholder will be replaced with a duration, e.g. "2 minutes". -->
+	<string name="mailbox_setup_connecting_info">This may take up to %1s</string>
 	<string name="mailbox_setup_qr_code_wrong_title">Wrong QR code</string>
 	<string name="mailbox_setup_qr_code_wrong_description">The scanned code is invalid. Please open the Briar Mailbox app on your Mailbox device and scan the QR code it presents.</string>
 	<string name="mailbox_setup_already_paired_title">Mailbox already linked</string>

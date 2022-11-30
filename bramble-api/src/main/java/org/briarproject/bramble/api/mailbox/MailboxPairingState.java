@@ -2,10 +2,27 @@ package org.briarproject.bramble.api.mailbox;
 
 public abstract class MailboxPairingState {
 
-	public static class QrCodeReceived extends MailboxPairingState {
+	public abstract static class Pending extends MailboxPairingState {
+
+		public final long timeStarted;
+
+		private Pending(long timeStarted) {
+			this.timeStarted = timeStarted;
+		}
 	}
 
-	public static class Pairing extends MailboxPairingState {
+	public static class QrCodeReceived extends Pending {
+
+		public QrCodeReceived(long timeStarted) {
+			super(timeStarted);
+		}
+	}
+
+	public static class Pairing extends Pending {
+
+		public Pairing(long timeStarted) {
+			super(timeStarted);
+		}
 	}
 
 	public static class Paired extends MailboxPairingState {

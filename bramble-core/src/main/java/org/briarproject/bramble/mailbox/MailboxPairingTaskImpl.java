@@ -52,6 +52,7 @@ class MailboxPairingTaskImpl implements MailboxPairingTask {
 	private final MailboxApi api;
 	private final MailboxSettingsManager mailboxSettingsManager;
 	private final MailboxUpdateManager mailboxUpdateManager;
+	private final long timeStarted;
 
 	private final Object lock = new Object();
 	@GuardedBy("lock")
@@ -77,7 +78,8 @@ class MailboxPairingTaskImpl implements MailboxPairingTask {
 		this.api = api;
 		this.mailboxSettingsManager = mailboxSettingsManager;
 		this.mailboxUpdateManager = mailboxUpdateManager;
-		state = new MailboxPairingState.QrCodeReceived();
+		timeStarted = clock.currentTimeMillis();
+		state = new MailboxPairingState.QrCodeReceived(timeStarted);
 	}
 
 	@Override
@@ -114,7 +116,7 @@ class MailboxPairingTaskImpl implements MailboxPairingTask {
 
 	private void pairMailbox() throws IOException, ApiException, DbException {
 		MailboxProperties mailboxProperties = decodeQrCodePayload(payload);
-		setState(new MailboxPairingState.Pairing());
+		setState(new MailboxPairingState.Pairing(timeStarted));
 		MailboxProperties ownerProperties = api.setup(mailboxProperties);
 		long time = clock.currentTimeMillis();
 		db.transaction(false, txn -> {
