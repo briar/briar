@@ -10,6 +10,7 @@ import org.briarproject.bramble.api.data.BdfReaderFactory;
 import org.briarproject.bramble.api.keyagreement.Payload;
 import org.briarproject.bramble.api.qrcode.QrCodeClassifier;
 import org.briarproject.bramble.api.qrcode.QrCodeClassifier.QrCodeType;
+import org.briarproject.bramble.api.qrcode.WrongQrCodeTypeException;
 import org.briarproject.bramble.test.BrambleMockTestCase;
 import org.jmock.Expectations;
 import org.junit.Test;
@@ -40,8 +41,8 @@ public class PayloadParserImplTest extends BrambleMockTestCase {
 	private final PayloadParserImpl payloadParser =
 			new PayloadParserImpl(bdfReaderFactory, qrCodeClassifier);
 
-	@Test(expected = FormatException.class)
-	public void testThrowsFormatExceptionForWrongQrCodeType() throws Exception {
+	@Test(expected = WrongQrCodeTypeException.class)
+	public void testThrowsExceptionForWrongQrCodeType() throws Exception {
 		expectClassifyQrCode(payload, MAILBOX, QR_FORMAT_VERSION);
 
 		payloadParser.parse(payload);

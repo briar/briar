@@ -43,6 +43,7 @@ import org.briarproject.bramble.api.plugin.PluginManager;
 import org.briarproject.bramble.api.plugin.TransportId;
 import org.briarproject.bramble.api.plugin.duplex.DuplexTransportConnection;
 import org.briarproject.bramble.api.plugin.event.TransportStateEvent;
+import org.briarproject.bramble.api.qrcode.WrongQrCodeTypeException;
 import org.briarproject.bramble.api.system.AndroidExecutor;
 import org.briarproject.bramble.plugin.bluetooth.BluetoothPlugin;
 import org.briarproject.briar.R;
@@ -50,9 +51,13 @@ import org.briarproject.briar.android.contact.add.nearby.AddContactState.Contact
 import org.briarproject.briar.android.contact.add.nearby.AddContactState.ContactExchangeResult.Error;
 import org.briarproject.briar.android.contact.add.nearby.AddContactState.ContactExchangeResult.Success;
 import org.briarproject.briar.android.contact.add.nearby.AddContactState.ContactExchangeStarted;
+import org.briarproject.briar.android.contact.add.nearby.AddContactState.Failed;
+import org.briarproject.briar.android.contact.add.nearby.AddContactState.Failed.WrongQrCodeType;
+import org.briarproject.briar.android.contact.add.nearby.AddContactState.Failed.WrongQrCodeVersion;
 import org.briarproject.briar.android.contact.add.nearby.AddContactState.KeyAgreementListening;
 import org.briarproject.briar.android.contact.add.nearby.AddContactState.KeyAgreementStarted;
 import org.briarproject.briar.android.contact.add.nearby.AddContactState.KeyAgreementWaiting;
+import org.briarproject.briar.android.contact.add.nearby.AddContactState.QrCodeScanned;
 import org.briarproject.briar.android.qrcode.QrCodeDecoder;
 import org.briarproject.briar.android.qrcode.QrCodeUtils;
 import org.briarproject.briar.android.viewmodel.LiveEvent;
@@ -373,11 +378,11 @@ class AddNearbyContactViewModel extends AndroidViewModel
 		} else if (e instanceof KeyAgreementAbortedEvent) {
 			LOG.info("KeyAgreementAbortedEvent received");
 			resetPayloadFlags();
-			state.setValue(new AddContactState.Failed());
+			state.setValue(new Failed());
 		} else if (e instanceof KeyAgreementFailedEvent) {
 			LOG.info("KeyAgreementFailedEvent received");
 			resetPayloadFlags();
-			state.setValue(new AddContactState.Failed());
+			state.setValue(new Failed());
 		}
 	}
 
@@ -446,16 +451,19 @@ class AddNearbyContactViewModel extends AndroidViewModel
 			Payload remotePayload = payloadParser.parse(result.getText());
 			gotRemotePayload = true;
 			currentTask.connectAndRunProtocol(remotePayload);
-			state.postValue(new AddContactState.QrCodeScanned());
+			state.postValue(new QrCodeScanned());
+		} catch (WrongQrCodeTypeException e) {
+			resetPayloadFlags();
+			state.postValue(new WrongQrCodeType(e.getQrCodeType()));
 		} catch (UnsupportedVersionException e) {
 			resetPayloadFlags();
-			state.postValue(new AddContactState.Failed(e.isTooOld()));
+			state.postValue(new WrongQrCodeVersion(e.isTooOld()));
 		} catch (IOException | IllegalArgumentException e) {
 			LOG.log(WARNING, "QR Code Invalid", e);
 			androidExecutor.runOnUiThread(() -> Toast.makeText(getApplication(),
 					R.string.qr_code_invalid, LENGTH_LONG).show());
 			resetPayloadFlags();
-			state.postValue(new AddContactState.Failed());
+			state.postValue(new Failed());
 		}
 	}
 

@@ -22,6 +22,7 @@ import androidx.fragment.app.FragmentActivity;
 import androidx.lifecycle.ViewModelProvider;
 
 import static android.content.Intent.FLAG_ACTIVITY_CLEAR_TOP;
+import static android.view.View.GONE;
 import static org.briarproject.briar.android.util.UiUtils.hideViewOnSmallScreen;
 import static org.briarproject.briar.android.util.UiUtils.onSingleLinkClick;
 
@@ -31,17 +32,22 @@ public class AddNearbyContactErrorFragment extends BaseFragment {
 
 	public static final String TAG =
 			AddNearbyContactErrorFragment.class.getName();
-	private static final String ERROR_MSG = "errorMessage";
+	private static final String ARG_TITLE = "title";
+	private static final String ARG_ERROR_MSG = "message";
+	private static final String ARG_FEEDBACK = "feedback";
 
 	@Inject
 	ViewModelProvider.Factory viewModelFactory;
 
 	private AddNearbyContactViewModel viewModel;
 
-	public static AddNearbyContactErrorFragment newInstance(String errorMsg) {
+	public static AddNearbyContactErrorFragment newInstance(String title,
+			String errorMessage, boolean feedback) {
 		AddNearbyContactErrorFragment f = new AddNearbyContactErrorFragment();
 		Bundle args = new Bundle();
-		args.putString(ERROR_MSG, errorMsg);
+		args.putString(ARG_TITLE, title);
+		args.putString(ARG_ERROR_MSG, errorMessage);
+		args.putBoolean(ARG_FEEDBACK, feedback);
 		f.setArguments(args);
 		return f;
 	}
@@ -66,19 +72,32 @@ public class AddNearbyContactErrorFragment extends BaseFragment {
 		View v = inflater.inflate(R.layout.fragment_error_contact_exchange,
 				container, false);
 
-		// set optional error message
-		TextView explanation = v.findViewById(R.id.errorMessage);
+		String title = null, errorMessage = null;
+		boolean feedback = true;
 		Bundle args = getArguments();
-		String errorMessage = args == null ? null : args.getString(ERROR_MSG);
-		if (errorMessage == null) {
-			explanation.setText(getString(R.string.add_contact_error_two_way));
-		} else {
-			explanation.setText(args.getString(ERROR_MSG));
+		if (args != null) {
+			title = args.getString(ARG_TITLE);
+			errorMessage = args.getString(ARG_ERROR_MSG);
+			feedback = args.getBoolean(ARG_FEEDBACK, true);
 		}
 
-		// make feedback link clickable
+		if (title != null) {
+			TextView titleView = v.findViewById(R.id.errorTitle);
+			titleView.setText(title);
+		}
+
+		if (errorMessage != null) {
+			TextView messageView = v.findViewById(R.id.errorMessage);
+			messageView.setText(errorMessage);
+		}
+
 		TextView sendFeedback = v.findViewById(R.id.sendFeedback);
-		onSingleLinkClick(sendFeedback, this::triggerFeedback);
+		if (feedback) {
+			// make feedback link clickable
+			onSingleLinkClick(sendFeedback, this::triggerFeedback);
+		} else {
+			sendFeedback.setVisibility(GONE);
+		}
 
 		// buttons
 		Button tryAgain = v.findViewById(R.id.tryAgainButton);

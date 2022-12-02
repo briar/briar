@@ -14,6 +14,7 @@ import org.briarproject.bramble.api.plugin.LanTcpConstants;
 import org.briarproject.bramble.api.plugin.TransportId;
 import org.briarproject.bramble.api.qrcode.QrCodeClassifier;
 import org.briarproject.bramble.api.qrcode.QrCodeClassifier.QrCodeType;
+import org.briarproject.bramble.api.qrcode.WrongQrCodeTypeException;
 import org.briarproject.nullsafety.NotNullByDefault;
 
 import java.io.ByteArrayInputStream;
@@ -49,7 +50,8 @@ class PayloadParserImpl implements PayloadParser {
 	public Payload parse(String payloadString) throws IOException {
 		Pair<QrCodeType, Integer> typeAndVersion =
 				qrCodeClassifier.classifyQrCode(payloadString);
-		if (typeAndVersion.getFirst() != BQP) throw new FormatException();
+		QrCodeType qrCodeType = typeAndVersion.getFirst();
+		if (qrCodeType != BQP) throw new WrongQrCodeTypeException(qrCodeType);
 		int formatVersion = typeAndVersion.getSecond();
 		if (formatVersion != QR_FORMAT_VERSION) {
 			boolean tooOld = formatVersion < QR_FORMAT_VERSION;
