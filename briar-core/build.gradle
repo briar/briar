@@ -9,8 +9,9 @@ apply from: 'witness.gradle'
 apply from: '../dagger.gradle'
 
 dependencies {
+	api project(path: ':briar-api', configuration: 'default')
+
 	implementation project(path: ':bramble-core', configuration: 'default')
-	implementation project(path: ':briar-api', configuration: 'default')
 
 	implementation 'com.rometools:rome:1.15.0'
 	implementation 'org.jdom:jdom2:2.0.6'
