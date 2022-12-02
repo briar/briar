@@ -1,17 +1,25 @@
 package org.briarproject.bramble.api.keyagreement;
 
-public interface KeyAgreementConstants {
+import org.briarproject.bramble.api.mailbox.MailboxConstants;
 
-	/**
-	 * The version of the BQP protocol used in beta releases. This version
-	 * number is reserved.
-	 */
-	byte BETA_PROTOCOL_VERSION = 89;
+public interface KeyAgreementConstants {
 
 	/**
 	 * The current version of the BQP protocol.
 	 */
 	byte PROTOCOL_VERSION = 4;
+
+	/**
+	 * The QR code format identifier, used to distinguish BQP QR codes from
+	 * QR codes used for other purposes. See
+	 * {@link MailboxConstants#QR_FORMAT_ID}.
+	 */
+	byte QR_FORMAT_ID = 0;
+
+	/**
+	 * The QR code format version.
+	 */
+	byte QR_FORMAT_VERSION = PROTOCOL_VERSION;
 
 	/**
 	 * The length of the BQP key commitment in bytes.

@@ -3,7 +3,6 @@ package org.briarproject.bramble.util;
 import org.briarproject.bramble.api.FormatException;
 import org.briarproject.nullsafety.NotNullByDefault;
 
-import java.io.UnsupportedEncodingException;
 import java.nio.ByteBuffer;
 import java.nio.charset.CharacterCodingException;
 import java.nio.charset.Charset;
@@ -17,13 +16,18 @@ import javax.annotation.Nullable;
 import static java.nio.charset.CodingErrorAction.IGNORE;
 import static java.util.regex.Pattern.CASE_INSENSITIVE;
 
+@SuppressWarnings("CharsetObjectCanBeUsed")
 @NotNullByDefault
 public class StringUtils {
 
-	private static final Charset UTF_8 = Charset.forName("UTF-8");
-	private static Pattern MAC = Pattern.compile("[0-9a-f]{2}:[0-9a-f]{2}:" +
-					"[0-9a-f]{2}:[0-9a-f]{2}:[0-9a-f]{2}:[0-9a-f]{2}",
-			CASE_INSENSITIVE);
+	public static final Charset UTF_8 = Charset.forName("UTF-8");
+	public static final Charset US_ASCII = Charset.forName("US-ASCII");
+	public static final Charset ISO_8859_1 = Charset.forName("ISO-8859-1");
+
+	private static final Pattern MAC =
+			Pattern.compile("[0-9a-f]{2}:[0-9a-f]{2}:" +
+							"[0-9a-f]{2}:[0-9a-f]{2}:[0-9a-f]{2}:[0-9a-f]{2}",
+					CASE_INSENSITIVE);
 
 	private static final char[] HEX = new char[] {
 			'0', '1', '2', '3', '4', '5', '6', '7',
@@ -45,11 +49,7 @@ public class StringUtils {
 	}
 
 	public static byte[] toUtf8(String s) {
-		try {
-			return s.getBytes("UTF-8");
-		} catch (UnsupportedEncodingException e) {
-			throw new AssertionError(e);
-		}
+		return s.getBytes(UTF_8);
 	}
 
 	public static String fromUtf8(byte[] bytes) {

@@ -1,5 +1,7 @@
 package org.briarproject.bramble.api.mailbox;
 
+import org.briarproject.bramble.api.qrcode.QrCodeClassifier.QrCodeType;
+
 public abstract class MailboxPairingState {
 
 	public abstract static class Pending extends MailboxPairingState {
@@ -29,6 +31,14 @@ public abstract class MailboxPairingState {
 	}
 
 	public static class InvalidQrCode extends MailboxPairingState {
+
+		public final QrCodeType qrCodeType;
+		public final int formatVersion;
+
+		public InvalidQrCode(QrCodeType qrCodeType, int formatVersion) {
+			this.qrCodeType = qrCodeType;
+			this.formatVersion = formatVersion;
+		}
 	}
 
 	public static class MailboxAlreadyPaired extends MailboxPairingState {

@@ -1,5 +1,6 @@
 package org.briarproject.bramble.mailbox;
 
+import org.briarproject.bramble.api.Pair;
 import org.briarproject.bramble.api.contact.Contact;
 import org.briarproject.bramble.api.crypto.CryptoComponent;
 import org.briarproject.bramble.api.db.DatabaseComponent;
@@ -13,6 +14,8 @@ import org.briarproject.bramble.api.mailbox.MailboxSettingsManager;
 import org.briarproject.bramble.api.mailbox.MailboxUpdate;
 import org.briarproject.bramble.api.mailbox.MailboxUpdateManager;
 import org.briarproject.bramble.api.mailbox.MailboxVersion;
+import org.briarproject.bramble.api.qrcode.QrCodeClassifier;
+import org.briarproject.bramble.api.qrcode.QrCodeClassifier.QrCodeType;
 import org.briarproject.bramble.api.system.Clock;
 import org.briarproject.bramble.test.BrambleMockTestCase;
 import org.briarproject.bramble.test.DbExpectations;
@@ -27,6 +30,9 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static java.util.Collections.singletonList;
+import static org.briarproject.bramble.api.mailbox.MailboxConstants.QR_FORMAT_VERSION;
+import static org.briarproject.bramble.api.qrcode.QrCodeClassifier.QrCodeType.BQP;
+import static org.briarproject.bramble.api.qrcode.QrCodeClassifier.QrCodeType.MAILBOX;
 import static org.briarproject.bramble.mailbox.MailboxTestUtils.getQrCodePayload;
 import static org.briarproject.bramble.test.TestUtils.getContact;
 import static org.briarproject.bramble.test.TestUtils.getRandomBytes;
@@ -48,9 +54,8 @@ public class MailboxPairingTaskImplTest extends BrambleMockTestCase {
 			context.mock(MailboxSettingsManager.class);
 	private final MailboxUpdateManager mailboxUpdateManager =
 			context.mock(MailboxUpdateManager.class);
-	private final MailboxPairingTaskFactory factory =
-			new MailboxPairingTaskFactoryImpl(executor, db, crypto, clock, api,
-					mailboxSettingsManager, mailboxUpdateManager);
+	private final QrCodeClassifier qrCodeClassifier =
+			context.mock(QrCodeClassifier.class);
 
 	private final String onion = getRandomString(56);
 	private final byte[] onionBytes = getRandomBytes(32);
@@ -75,23 +80,47 @@ public class MailboxPairingTaskImplTest extends BrambleMockTestCase {
 	}
 
 	@Test
-	public void testInvalidQrCode() {
-		MailboxPairingTask task1 = createPairingTask(getRandomString(42));
-		task1.run();
-		task1.addObserver(state ->
+	public void testInvalidQrCodeType() {
+		String payload = getRandomString(65);
+		MailboxPairingTask task = createPairingTask(payload);
+
+		expectClassifyQrCode(payload, BQP, QR_FORMAT_VERSION);
+
+		task.run();
+		task.addObserver(state ->
 				assertTrue(state instanceof MailboxPairingState.InvalidQrCode)
 		);
+	}
 
-		String goodLength = "00" + getRandomString(63);
-		MailboxPairingTask task2 = createPairingTask(goodLength);
-		task2.run();
-		task2.addObserver(state ->
+	@Test
+	public void testInvalidQrCodeVersion() {
+		String payload = getRandomString(65);
+		MailboxPairingTask task = createPairingTask(payload);
+
+		expectClassifyQrCode(payload, MAILBOX, QR_FORMAT_VERSION + 1);
+
+		task.run();
+		task.addObserver(state ->
+				assertTrue(state instanceof MailboxPairingState.InvalidQrCode)
+		);
+	}
+
+	@Test
+	public void testInvalidQrCodeLength() {
+		String payload = getRandomString(42);
+		MailboxPairingTask task = createPairingTask(payload);
+
+		expectClassifyQrCode(payload, MAILBOX, QR_FORMAT_VERSION);
+
+		task.run();
+		task.addObserver(state ->
 				assertTrue(state instanceof MailboxPairingState.InvalidQrCode)
 		);
 	}
 
 	@Test
 	public void testSuccessfulPairing() throws Exception {
+		expectClassifyQrCode(validPayload, MAILBOX, QR_FORMAT_VERSION);
 		context.checking(new Expectations() {{
 			oneOf(crypto).encodeOnion(onionBytes);
 			will(returnValue(onion));
@@ -156,6 +185,7 @@ public class MailboxPairingTaskImplTest extends BrambleMockTestCase {
 
 	private void testApiException(Exception e,
 			Class<? extends MailboxPairingState> s) throws Exception {
+		expectClassifyQrCode(validPayload, MAILBOX, QR_FORMAT_VERSION);
 		context.checking(new Expectations() {{
 			oneOf(crypto).encodeOnion(onionBytes);
 			will(returnValue(onion));
@@ -170,6 +200,7 @@ public class MailboxPairingTaskImplTest extends BrambleMockTestCase {
 
 	@Test
 	public void testDbException() throws Exception {
+		expectClassifyQrCode(validPayload, MAILBOX, QR_FORMAT_VERSION);
 		context.checking(new Expectations() {{
 			oneOf(crypto).encodeOnion(onionBytes);
 			will(returnValue(onion));
@@ -206,6 +237,16 @@ public class MailboxPairingTaskImplTest extends BrambleMockTestCase {
 			will(returnValue(time));
 		}});
 
-		return factory.createPairingTask(qrCodePayload);
+		return new MailboxPairingTaskImpl(qrCodePayload, executor, db,
+				crypto, clock, api, mailboxSettingsManager,
+				mailboxUpdateManager, qrCodeClassifier);
+	}
+
+	private void expectClassifyQrCode(String payload, QrCodeType qrCodeType,
+			int formatVersion) {
+		context.checking(new Expectations() {{
+			oneOf(qrCodeClassifier).classifyQrCode(payload);
+			will(returnValue(new Pair<>(qrCodeType, formatVersion)));
+		}});
 	}
 }

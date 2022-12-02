@@ -60,7 +60,6 @@ import org.briarproject.briar.android.viewmodel.MutableLiveEvent;
 import org.briarproject.nullsafety.NotNullByDefault;
 
 import java.io.IOException;
-import java.nio.charset.Charset;
 import java.util.concurrent.Executor;
 import java.util.logging.Logger;
 
@@ -85,6 +84,7 @@ import static org.briarproject.bramble.api.plugin.Plugin.State.DISABLED;
 import static org.briarproject.bramble.api.plugin.Plugin.State.INACTIVE;
 import static org.briarproject.bramble.api.plugin.Plugin.State.STARTING_STOPPING;
 import static org.briarproject.bramble.util.LogUtils.logException;
+import static org.briarproject.bramble.util.StringUtils.ISO_8859_1;
 import static org.briarproject.briar.android.contact.add.nearby.AddNearbyContactPermissionManager.areEssentialPermissionsGranted;
 import static org.briarproject.briar.android.contact.add.nearby.AddNearbyContactViewModel.BluetoothDecision.NO_ADAPTER;
 import static org.briarproject.briar.android.contact.add.nearby.AddNearbyContactViewModel.BluetoothDecision.REFUSED;
@@ -125,9 +125,6 @@ class AddNearbyContactViewModel extends AndroidViewModel
 		 */
 		REFUSED
 	}
-
-	@SuppressWarnings("CharsetObjectCanBeUsed") // Requires minSdkVersion >= 19
-	private static final Charset ISO_8859_1 = Charset.forName("ISO-8859-1");
 
 	private final EventBus eventBus;
 	private final AndroidExecutor androidExecutor;
@@ -446,10 +443,7 @@ class AddNearbyContactViewModel extends AndroidViewModel
 		// Ignore results until the KeyAgreementTask is ready
 		if (!gotLocalPayload || gotRemotePayload || currentTask == null) return;
 		try {
-			byte[] payloadBytes = result.getText().getBytes(ISO_8859_1);
-			if (LOG.isLoggable(INFO))
-				LOG.info("Remote payload is " + payloadBytes.length + " bytes");
-			Payload remotePayload = payloadParser.parse(payloadBytes);
+			Payload remotePayload = payloadParser.parse(result.getText());
 			gotRemotePayload = true;
 			currentTask.connectAndRunProtocol(remotePayload);
 			state.postValue(new AddContactState.QrCodeScanned());

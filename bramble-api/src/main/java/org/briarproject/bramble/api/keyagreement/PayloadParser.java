@@ -7,5 +7,5 @@ import java.io.IOException;
 @NotNullByDefault
 public interface PayloadParser {
 
-	Payload parse(byte[] raw) throws IOException;
+	Payload parse(String payload) throws IOException;
 }

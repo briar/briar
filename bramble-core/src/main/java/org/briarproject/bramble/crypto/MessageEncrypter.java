@@ -39,11 +39,12 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintStream;
-import java.nio.charset.Charset;
 import java.security.SecureRandom;
 import java.util.Scanner;
 
 import javax.annotation.concurrent.Immutable;
+
+import static org.briarproject.bramble.util.StringUtils.UTF_8;
 
 @Immutable
 @NotNullByDefault
@@ -228,7 +229,7 @@ public class MessageEncrypter {
 		PublicKey publicKey =
 				encrypter.getKeyParser().parsePublicKey(keyBytes);
 		String message = readFully(System.in);
-		byte[] plaintext = message.getBytes(Charset.forName("UTF-8"));
+		byte[] plaintext = message.getBytes(UTF_8);
 		byte[] ciphertext = encrypter.encrypt(publicKey, plaintext);
 		System.out.println(AsciiArmour.wrap(ciphertext, LINE_LENGTH));
 	}
@@ -242,7 +243,7 @@ public class MessageEncrypter {
 				encrypter.getKeyParser().parsePrivateKey(keyBytes);
 		byte[] ciphertext = AsciiArmour.unwrap(readFully(System.in));
 		byte[] plaintext = encrypter.decrypt(privateKey, ciphertext);
-		System.out.println(new String(plaintext, Charset.forName("UTF-8")));
+		System.out.println(new String(plaintext, UTF_8));
 	}
 
 	private static String readFully(InputStream in) throws IOException {

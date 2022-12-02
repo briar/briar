@@ -46,7 +46,6 @@ import java.io.OutputStream;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -100,6 +99,7 @@ import static org.briarproject.bramble.util.IoUtils.copyAndClose;
 import static org.briarproject.bramble.util.IoUtils.tryToClose;
 import static org.briarproject.bramble.util.LogUtils.logException;
 import static org.briarproject.bramble.util.PrivacyUtils.scrubOnion;
+import static org.briarproject.bramble.util.StringUtils.UTF_8;
 import static org.briarproject.bramble.util.StringUtils.isNullOrEmpty;
 
 @MethodsNotNullByDefault
@@ -419,9 +419,7 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 		append(strb, "ClientTransportPlugin meek_lite exec", obfs4Path);
 		String snowflakePath = getSnowflakeExecutableFile().getAbsolutePath();
 		append(strb, "ClientTransportPlugin snowflake exec", snowflakePath);
-		//noinspection CharsetObjectCanBeUsed
-		return new ByteArrayInputStream(
-				strb.toString().getBytes(Charset.forName("UTF-8")));
+		return new ByteArrayInputStream(strb.toString().getBytes(UTF_8));
 	}
 
 	private void listFiles(File f) {
