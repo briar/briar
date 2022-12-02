@@ -48,6 +48,13 @@ dependencies {
 }
 
 void jarFactory(Jar jarTask, jarArchitecture) {
+	jarTask.dependsOn(
+			':bramble-api:jar',
+			':bramble-core:jar',
+			':bramble-java:jar',
+			':briar-api:jar',
+			':briar-core:jar'
+	)
 	jarTask.dependsOn(jar)
 	jarTask.doFirst {
 		println 'Building ' + jarArchitecture + ' version has started'
