@@ -9,13 +9,14 @@ apply from: 'witness.gradle'
 apply from: '../dagger.gradle'
 
 dependencies {
-	api project(path: ':briar-api', configuration: 'default')
+	api project(':briar-api')
 
-	implementation project(path: ':bramble-core', configuration: 'default')
+	implementation project(':bramble-core')
 
 	implementation 'com.rometools:rome:1.15.0'
 	implementation 'org.jdom:jdom2:2.0.6'
 	implementation "org.jsoup:jsoup:$jsoup_version"
+	implementation "com.squareup.okhttp3:okhttp:$okhttp_version"
 
 	annotationProcessor "com.google.dagger:dagger-compiler:$dagger_version"
 

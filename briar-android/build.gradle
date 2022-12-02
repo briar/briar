@@ -98,14 +98,14 @@ android {
 }
 
 dependencies {
-	// To satisfy Android Studio's linter, an Android module that depends on another module must
-	// not specify which configuration of the other module it depends on. Therefore we don't
-	// inherit implementation dependencies of the other module and must declare any such
-	// dependencies we want to use.
+	// In theory this dependency shouldn't be needed, but without it Android Studio's linter will
+	// complain about unresolved symbols for bramble-api test classes in briar-android tests,
+	// even though the bramble-api test classes are provided by the testImplementation dependency
+	// below and the compiler can find them
 	implementation project(':bramble-api')
+
 	implementation project(':bramble-core')
 	implementation project(':bramble-android')
-	implementation project(':briar-api')
 	implementation project(':briar-core')
 
 	implementation 'androidx.fragment:fragment:1.3.4'
@@ -117,8 +117,6 @@ dependencies {
 	implementation 'androidx.recyclerview:recyclerview-selection:1.1.0'
 
 	implementation 'org.briarproject:dont-kill-me-lib:0.2.5'
-	implementation "com.google.dagger:dagger:$dagger_version"
-	//noinspection GradleDependency
 	implementation "com.squareup.okhttp3:okhttp:$okhttp_version"
 	implementation "org.jsoup:jsoup:$jsoup_version"
 	implementation 'info.guardianproject.panic:panic:1.0'

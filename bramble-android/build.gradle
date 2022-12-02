@@ -40,16 +40,15 @@ configurations {
 }
 
 dependencies {
-	// To satisfy Android Studio's linter, an Android module that depends on another module must
-	// not specify which configuration of the other module it depends on. Therefore we don't
-	// inherit implementation dependencies of the other module and must declare any such
-	// dependencies we want to use.
+	// In theory this dependency shouldn't be needed, but without it Android Studio's linter will
+	// complain about unresolved symbols for bramble-api test classes in bramble-android tests,
+	// even though the bramble-api test classes are provided by the testImplementation dependency
+	// below and the compiler can find them
 	implementation project(':bramble-api')
+
 	implementation project(':bramble-core')
 
 	implementation 'androidx.annotation:annotation:1.5.0'
-	implementation "org.briarproject:jtorctl:$jtorctl_version"
-	implementation "com.google.dagger:dagger:$dagger_version"
 
 	tor "org.briarproject:tor-android:$tor_version"
 	tor "org.briarproject:obfs4proxy-android:$obfs4proxy_version"

@@ -17,17 +17,19 @@ sourceCompatibility = 1.8
 targetCompatibility = 1.8
 
 dependencies {
-	implementation project(path: ':bramble-core', configuration: 'default')
-	implementation project(path: ':bramble-java', configuration: 'default')
-	implementation project(path: ':briar-core', configuration: 'default')
+	implementation project(':bramble-core')
+	implementation project(':bramble-java')
+	implementation project(':briar-core')
 
 	implementation 'org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.7.10'
 	implementation 'io.javalin:javalin:3.5.0'
 	implementation 'org.slf4j:slf4j-simple:1.7.30'
 	implementation 'com.github.ajalt:clikt:2.2.0'
+	implementation "org.bouncycastle:bcprov-jdk15to18:$bouncy_castle_version"
+	implementation "com.squareup.okhttp3:okhttp:$okhttp_version"
+	implementation "com.fasterxml.jackson.core:jackson-databind:$jackson_version"
 
-	def daggerVersion = '2.24'
-	kapt "com.google.dagger:dagger-compiler:$daggerVersion"
+	kapt "com.google.dagger:dagger-compiler:$dagger_version"
 
 	testImplementation project(path: ':bramble-api', configuration: 'testOutput')
 	testImplementation project(path: ':bramble-core', configuration: 'testOutput')
@@ -42,7 +44,7 @@ dependencies {
 
 	testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:$junitVersion"
 
-	kaptTest "com.google.dagger:dagger-compiler:$daggerVersion"
+	kaptTest "com.google.dagger:dagger-compiler:$dagger_version"
 }
 
 void jarFactory(Jar jarTask, jarArchitecture) {

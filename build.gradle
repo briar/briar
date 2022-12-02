@@ -35,8 +35,8 @@ buildscript {
 		tor_version = "0.4.5.14"
 		obfs4proxy_version = "0.0.14-tor1"
 		snowflake_version = "2.3.1"
-		jtorctl_version = '0.5'
 		jsoup_version = '1.15.3'
+		bouncy_castle_version = '1.71'
 		junit_version = "4.13.2"
 		jmock_version = '2.12.0'
 	}
