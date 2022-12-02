@@ -10,6 +10,13 @@ import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.event.EventExecutor;
 import org.briarproject.bramble.api.mailbox.MailboxAuthToken;
 import org.briarproject.bramble.api.mailbox.MailboxPairingState;
+import org.briarproject.bramble.api.mailbox.MailboxPairingState.ConnectionError;
+import org.briarproject.bramble.api.mailbox.MailboxPairingState.InvalidQrCode;
+import org.briarproject.bramble.api.mailbox.MailboxPairingState.MailboxAlreadyPaired;
+import org.briarproject.bramble.api.mailbox.MailboxPairingState.Paired;
+import org.briarproject.bramble.api.mailbox.MailboxPairingState.Pairing;
+import org.briarproject.bramble.api.mailbox.MailboxPairingState.QrCodeReceived;
+import org.briarproject.bramble.api.mailbox.MailboxPairingState.UnexpectedError;
 import org.briarproject.bramble.api.mailbox.MailboxPairingTask;
 import org.briarproject.bramble.api.mailbox.MailboxProperties;
 import org.briarproject.bramble.api.mailbox.MailboxSettingsManager;
@@ -84,7 +91,7 @@ class MailboxPairingTaskImpl implements MailboxPairingTask {
 		this.mailboxUpdateManager = mailboxUpdateManager;
 		this.qrCodeClassifier = qrCodeClassifier;
 		timeStarted = clock.currentTimeMillis();
-		state = new MailboxPairingState.QrCodeReceived(timeStarted);
+		state = new QrCodeReceived(timeStarted);
 	}
 
 	@Override
@@ -111,27 +118,25 @@ class MailboxPairingTaskImpl implements MailboxPairingTask {
 		QrCodeType qrCodeType = typeAndVersion.getFirst();
 		int formatVersion = typeAndVersion.getSecond();
 		if (qrCodeType != MAILBOX || formatVersion != QR_FORMAT_VERSION) {
-			setState(new MailboxPairingState.InvalidQrCode(qrCodeType,
-					formatVersion));
+			setState(new InvalidQrCode(qrCodeType, formatVersion));
 			return;
 		}
 		try {
 			pairMailbox();
 		} catch (FormatException e) {
-			onMailboxError(e, new MailboxPairingState.InvalidQrCode(qrCodeType,
-					formatVersion));
+			onMailboxError(e, new InvalidQrCode(qrCodeType, formatVersion));
 		} catch (MailboxAlreadyPairedException e) {
-			onMailboxError(e, new MailboxPairingState.MailboxAlreadyPaired());
+			onMailboxError(e, new MailboxAlreadyPaired());
 		} catch (IOException e) {
-			onMailboxError(e, new MailboxPairingState.ConnectionError());
+			onMailboxError(e, new ConnectionError());
 		} catch (ApiException | DbException e) {
-			onMailboxError(e, new MailboxPairingState.UnexpectedError());
+			onMailboxError(e, new UnexpectedError());
 		}
 	}
 
 	private void pairMailbox() throws IOException, ApiException, DbException {
 		MailboxProperties mailboxProperties = decodeQrCodePayload(payload);
-		setState(new MailboxPairingState.Pairing(timeStarted));
+		setState(new Pairing(timeStarted));
 		MailboxProperties ownerProperties = api.setup(mailboxProperties);
 		long time = clock.currentTimeMillis();
 		db.transaction(false, txn -> {
@@ -150,7 +155,7 @@ class MailboxPairingTaskImpl implements MailboxPairingTask {
 				}
 			}
 		});
-		setState(new MailboxPairingState.Paired());
+		setState(new Paired());
 	}
 
 	private void onMailboxError(Exception e, MailboxPairingState state) {

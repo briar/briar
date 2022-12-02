@@ -637,8 +637,10 @@
 	<string name="mailbox_setup_connecting">Connecting to Mailbox…</string>
 	<!-- This string is shown when connecting to a Mailbox for the first time. The placeholder will be replaced with a duration, e.g. "2 minutes". -->
 	<string name="mailbox_setup_connecting_info">This may take up to %1s</string>
-	<string name="mailbox_setup_qr_code_wrong_title">Wrong QR code</string>
-	<string name="mailbox_setup_qr_code_wrong_description">The scanned code is invalid. Please open the Briar Mailbox app on your Mailbox device and scan the QR code it presents.</string>
+	<string name="mailbox_qr_code_too_old">The QR code you have scanned comes from an older version of Briar Mailbox.\n\nPlease upgrade Briar Mailbox to the latest version and then try again.</string>
+	<string name="mailbox_qr_code_too_new">The QR code you have scanned comes from a newer version of Briar Mailbox.\n\nPlease upgrade Briar to the latest version and then try again.</string>
+	<string name="contact_qr_code_for_mailbox">The QR code you have scanned is for adding a Briar contact.\n\nIf you want to add a contact, please go to the contact list and tap the + icon.</string>
+	<string name="mailbox_setup_qr_code_wrong_description">The QR code you have scanned does not come from Briar Mailbox.\n\nPlease open the Briar Mailbox app on your Mailbox device and scan the QR code it presents.</string>
 	<string name="mailbox_setup_already_paired_title">Mailbox already linked</string>
 	<string name="mailbox_setup_already_paired_description">Unlink the Mailbox on your other device and try again.</string>
 	<string name="mailbox_setup_io_error_title">Could not connect</string>

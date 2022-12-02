@@ -8,6 +8,13 @@ import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.db.Transaction;
 import org.briarproject.bramble.api.mailbox.MailboxAuthToken;
 import org.briarproject.bramble.api.mailbox.MailboxPairingState;
+import org.briarproject.bramble.api.mailbox.MailboxPairingState.ConnectionError;
+import org.briarproject.bramble.api.mailbox.MailboxPairingState.InvalidQrCode;
+import org.briarproject.bramble.api.mailbox.MailboxPairingState.MailboxAlreadyPaired;
+import org.briarproject.bramble.api.mailbox.MailboxPairingState.Paired;
+import org.briarproject.bramble.api.mailbox.MailboxPairingState.Pairing;
+import org.briarproject.bramble.api.mailbox.MailboxPairingState.QrCodeReceived;
+import org.briarproject.bramble.api.mailbox.MailboxPairingState.UnexpectedError;
 import org.briarproject.bramble.api.mailbox.MailboxPairingTask;
 import org.briarproject.bramble.api.mailbox.MailboxProperties;
 import org.briarproject.bramble.api.mailbox.MailboxSettingsManager;
@@ -17,6 +24,8 @@ import org.briarproject.bramble.api.mailbox.MailboxVersion;
 import org.briarproject.bramble.api.qrcode.QrCodeClassifier;
 import org.briarproject.bramble.api.qrcode.QrCodeClassifier.QrCodeType;
 import org.briarproject.bramble.api.system.Clock;
+import org.briarproject.bramble.mailbox.MailboxApi.ApiException;
+import org.briarproject.bramble.mailbox.MailboxApi.MailboxAlreadyPairedException;
 import org.briarproject.bramble.test.BrambleMockTestCase;
 import org.briarproject.bramble.test.DbExpectations;
 import org.briarproject.bramble.test.ImmediateExecutor;
@@ -75,8 +84,7 @@ public class MailboxPairingTaskImplTest extends BrambleMockTestCase {
 	public void testInitialQrCodeReceivedState() {
 		MailboxPairingTask task = createPairingTask(getRandomString(42));
 		task.addObserver(state ->
-				assertTrue(state instanceof MailboxPairingState.QrCodeReceived)
-		);
+				assertTrue(state instanceof QrCodeReceived));
 	}
 
 	@Test
@@ -88,8 +96,7 @@ public class MailboxPairingTaskImplTest extends BrambleMockTestCase {
 
 		task.run();
 		task.addObserver(state ->
-				assertTrue(state instanceof MailboxPairingState.InvalidQrCode)
-		);
+				assertTrue(state instanceof InvalidQrCode));
 	}
 
 	@Test
@@ -101,8 +108,7 @@ public class MailboxPairingTaskImplTest extends BrambleMockTestCase {
 
 		task.run();
 		task.addObserver(state ->
-				assertTrue(state instanceof MailboxPairingState.InvalidQrCode)
-		);
+				assertTrue(state instanceof InvalidQrCode));
 	}
 
 	@Test
@@ -114,8 +120,7 @@ public class MailboxPairingTaskImplTest extends BrambleMockTestCase {
 
 		task.run();
 		task.addObserver(state ->
-				assertTrue(state instanceof MailboxPairingState.InvalidQrCode)
-		);
+				assertTrue(state instanceof InvalidQrCode));
 	}
 
 	@Test
@@ -151,14 +156,11 @@ public class MailboxPairingTaskImplTest extends BrambleMockTestCase {
 		MailboxPairingTask task = createPairingTask(validPayload);
 		task.addObserver(state -> {
 			if (i.get() == 0) {
-				assertEquals(MailboxPairingState.QrCodeReceived.class,
-						state.getClass());
+				assertEquals(QrCodeReceived.class, state.getClass());
 			} else if (i.get() == 1) {
-				assertEquals(MailboxPairingState.Pairing.class,
-						state.getClass());
+				assertEquals(Pairing.class, state.getClass());
 			} else if (i.get() == 2) {
-				assertEquals(MailboxPairingState.Paired.class,
-						state.getClass());
+				assertEquals(Paired.class, state.getClass());
 			} else fail("Unexpected change of state " + state.getClass());
 			i.getAndIncrement();
 		});
@@ -167,20 +169,18 @@ public class MailboxPairingTaskImplTest extends BrambleMockTestCase {
 
 	@Test
 	public void testAlreadyPaired() throws Exception {
-		testApiException(new MailboxApi.MailboxAlreadyPairedException(),
-				MailboxPairingState.MailboxAlreadyPaired.class);
+		testApiException(new MailboxAlreadyPairedException(),
+				MailboxAlreadyPaired.class);
 	}
 
 	@Test
 	public void testMailboxApiException() throws Exception {
-		testApiException(new MailboxApi.ApiException(),
-				MailboxPairingState.UnexpectedError.class);
+		testApiException(new ApiException(), UnexpectedError.class);
 	}
 
 	@Test
 	public void testApiIOException() throws Exception {
-		testApiException(new IOException(),
-				MailboxPairingState.ConnectionError.class);
+		testApiException(new IOException(), ConnectionError.class);
 	}
 
 	private void testApiException(Exception e,
@@ -219,8 +219,8 @@ public class MailboxPairingTaskImplTest extends BrambleMockTestCase {
 
 		MailboxPairingTask task = createPairingTask(validPayload);
 		task.run();
-		task.addObserver(state -> assertEquals(state.getClass(),
-				MailboxPairingState.UnexpectedError.class));
+		task.addObserver(state ->
+				assertEquals(state.getClass(), UnexpectedError.class));
 	}
 
 	private PredicateMatcher<MailboxProperties> matches(MailboxProperties p2) {

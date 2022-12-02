@@ -15,6 +15,7 @@ import org.briarproject.bramble.api.lifecycle.IoExecutor;
 import org.briarproject.bramble.api.lifecycle.LifecycleManager;
 import org.briarproject.bramble.api.mailbox.MailboxManager;
 import org.briarproject.bramble.api.mailbox.MailboxPairingState;
+import org.briarproject.bramble.api.mailbox.MailboxPairingState.Paired;
 import org.briarproject.bramble.api.mailbox.MailboxPairingTask;
 import org.briarproject.bramble.api.mailbox.MailboxStatus;
 import org.briarproject.bramble.api.mailbox.event.OwnMailboxConnectionStatusEvent;
@@ -24,7 +25,14 @@ import org.briarproject.bramble.api.plugin.TorConstants;
 import org.briarproject.bramble.api.plugin.TransportId;
 import org.briarproject.bramble.api.plugin.event.TransportInactiveEvent;
 import org.briarproject.bramble.api.system.AndroidExecutor;
+import org.briarproject.briar.android.mailbox.MailboxState.CameraError;
+import org.briarproject.briar.android.mailbox.MailboxState.IsPaired;
 import org.briarproject.briar.android.mailbox.MailboxState.NotSetup;
+import org.briarproject.briar.android.mailbox.MailboxState.OfflineWhenPairing;
+import org.briarproject.briar.android.mailbox.MailboxState.Pairing;
+import org.briarproject.briar.android.mailbox.MailboxState.ScanningQrCode;
+import org.briarproject.briar.android.mailbox.MailboxState.ShowDownload;
+import org.briarproject.briar.android.mailbox.MailboxState.WasUnpaired;
 import org.briarproject.briar.android.qrcode.QrCodeDecoder;
 import org.briarproject.briar.android.viewmodel.DbViewModel;
 import org.briarproject.briar.android.viewmodel.LiveEvent;
@@ -113,7 +121,7 @@ class MailboxViewModel extends DbViewModel
 					MailboxStatus mailboxStatus =
 							mailboxManager.getMailboxStatus(txn);
 					boolean isOnline = isTorActive();
-					pairingState.postEvent(new MailboxState.IsPaired(isOnline));
+					pairingState.postEvent(new IsPaired(isOnline));
 					status.postValue(mailboxStatus);
 				} else {
 					pairingState.postEvent(new NotSetup());
@@ -142,14 +150,14 @@ class MailboxViewModel extends DbViewModel
 	@UiThread
 	private void onTorInactive() {
 		MailboxState lastState = pairingState.getLastValue();
-		if (lastState instanceof MailboxState.IsPaired) {
+		if (lastState instanceof IsPaired) {
 			// we are already paired, so use IsPaired state
-			pairingState.setEvent(new MailboxState.IsPaired(false));
-		} else if (lastState instanceof MailboxState.Pairing) {
-			MailboxState.Pairing p = (MailboxState.Pairing) lastState;
+			pairingState.setEvent(new IsPaired(false));
+		} else if (lastState instanceof Pairing) {
+			Pairing p = (Pairing) lastState;
 			// check that we not just finished pairing (showing success screen)
-			if (!(p.pairingState instanceof MailboxPairingState.Paired)) {
-				pairingState.setEvent(new MailboxState.OfflineWhenPairing());
+			if (!(p.pairingState instanceof Paired)) {
+				pairingState.setEvent(new OfflineWhenPairing());
 			}
 			// else ignore offline event as user will be leaving UI flow anyway
 		}
@@ -158,15 +166,15 @@ class MailboxViewModel extends DbViewModel
 	@UiThread
 	void onScanButtonClicked() {
 		if (isTorActive()) {
-			pairingState.setEvent(new MailboxState.ScanningQrCode());
+			pairingState.setEvent(new ScanningQrCode());
 		} else {
-			pairingState.setEvent(new MailboxState.OfflineWhenPairing());
+			pairingState.setEvent(new OfflineWhenPairing());
 		}
 	}
 
 	@UiThread
 	void onCameraError() {
-		pairingState.setEvent(new MailboxState.CameraError());
+		pairingState.setEvent(new CameraError());
 	}
 
 	@Override
@@ -182,7 +190,7 @@ class MailboxViewModel extends DbViewModel
 			pairingTask = mailboxManager.startPairingTask(qrCodePayload);
 			pairingTask.addObserver(this);
 		} else {
-			pairingState.postEvent(new MailboxState.OfflineWhenPairing());
+			pairingState.postEvent(new OfflineWhenPairing());
 		}
 	}
 
@@ -193,7 +201,7 @@ class MailboxViewModel extends DbViewModel
 			LOG.info("New pairing state: " +
 					mailboxPairingState.getClass().getSimpleName());
 		}
-		pairingState.setEvent(new MailboxState.Pairing(mailboxPairingState));
+		pairingState.setEvent(new Pairing(mailboxPairingState));
 	}
 
 	private boolean isTorActive() {
@@ -203,7 +211,7 @@ class MailboxViewModel extends DbViewModel
 
 	@UiThread
 	void showDownloadFragment() {
-		pairingState.setEvent(new MailboxState.ShowDownload());
+		pairingState.setEvent(new ShowDownload());
 	}
 
 	@UiThread
@@ -214,7 +222,7 @@ class MailboxViewModel extends DbViewModel
 	@UiThread
 	void checkIfOnlineWhenPaired() {
 		boolean isOnline = isTorActive();
-		pairingState.setEvent(new MailboxState.IsPaired(isOnline));
+		pairingState.setEvent(new IsPaired(isOnline));
 	}
 
 	LiveData<Boolean> checkConnection() {
@@ -227,7 +235,7 @@ class MailboxViewModel extends DbViewModel
 		checkConnection(success -> {
 			boolean isOnline = isTorActive();
 			// make UI move back to status fragment by changing pairingState
-			pairingState.postEvent(new MailboxState.IsPaired(isOnline));
+			pairingState.postEvent(new IsPaired(isOnline));
 		});
 	}
 
@@ -246,7 +254,7 @@ class MailboxViewModel extends DbViewModel
 		ioExecutor.execute(() -> {
 			try {
 				boolean wasWiped = mailboxManager.unPair();
-				pairingState.postEvent(new MailboxState.WasUnpaired(!wasWiped));
+				pairingState.postEvent(new WasUnpaired(!wasWiped));
 			} catch (DbException e) {
 				handleException(e);
 			}
