@@ -9,23 +9,24 @@ apply from: 'witness.gradle'
 apply from: '../dagger.gradle'
 
 dependencies {
-	implementation project(path: ':bramble-api', configuration: 'default')
-	implementation 'org.bouncycastle:bcprov-jdk15to18:1.71'
+	api project(':bramble-api')
+
+	api 'org.briarproject:jtorctl:0.5'
+
+	implementation "org.bouncycastle:bcprov-jdk15to18:$bouncy_castle_version"
 	//noinspection GradleDependency
 	implementation 'com.h2database:h2:1.4.192' // The last version that supports Java 1.6
 	implementation 'org.bitlet:weupnp:0.1.4'
 	implementation 'net.i2p.crypto:eddsa:0.2.0'
 	implementation 'org.whispersystems:curve25519-java:0.5.0'
-	implementation 'org.briarproject:jtorctl:0.5'
 	implementation 'org.briarproject:socks-socket:0.1'
-
-	//noinspection GradleDependency
 	implementation "com.squareup.okhttp3:okhttp:$okhttp_version"
 	implementation "com.fasterxml.jackson.core:jackson-databind:$jackson_version"
 
 	annotationProcessor "com.google.dagger:dagger-compiler:$dagger_version"
 
 	testImplementation project(path: ':bramble-api', configuration: 'testOutput')
+
 	testImplementation 'org.hsqldb:hsqldb:2.3.5' // The last version that supports Java 1.6
 	testImplementation 'net.jodah:concurrentunit:0.4.2'
 	testImplementation "junit:junit:$junit_version"
@@ -52,7 +53,7 @@ configurations {
 	testOutput.extendsFrom(testCompile)
 }
 task jarTest(type: Jar, dependsOn: testClasses) {
-	from sourceSets.test.output
+	from sourceSets.test.output, sourceSets.main.output
 	classifier = 'test'
 }
 artifacts {

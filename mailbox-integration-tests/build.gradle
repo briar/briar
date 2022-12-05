@@ -6,16 +6,17 @@ apply plugin: 'idea'
 apply from: '../dagger.gradle'
 
 dependencies {
-	testImplementation project(path: ':bramble-api', configuration: 'default')
+	testImplementation project(':bramble-api')
 	testImplementation project(path: ':bramble-api', configuration: 'testOutput')
-	testImplementation project(path: ':bramble-core', configuration: 'default')
+	testImplementation project(':bramble-core')
 	testImplementation project(path: ':bramble-core', configuration: 'testOutput')
-	testImplementation project(path: ':mailbox-core', configuration: 'default')
-	testImplementation project(path: ':mailbox-lib', configuration: 'default')
+	testImplementation project(':mailbox-core')
+	testImplementation project(':mailbox-lib')
 
 	testImplementation "junit:junit:$junit_version"
 	testImplementation "ch.qos.logback:logback-classic:1.2.11"
 	testImplementation 'net.jodah:concurrentunit:0.4.6'
+	testImplementation "com.squareup.okhttp3:okhttp:$okhttp_version"
 
 	testAnnotationProcessor "com.google.dagger:dagger-compiler:$dagger_version"
 }

@@ -40,8 +40,16 @@ configurations {
 }
 
 dependencies {
-	implementation project(path: ':bramble-core', configuration: 'default')
+	// In theory this dependency shouldn't be needed, but without it Android Studio's linter will
+	// complain about unresolved symbols for bramble-api test classes in bramble-android tests,
+	// even though the bramble-api test classes are provided by the testImplementation dependency
+	// below and the compiler can find them
+	implementation project(':bramble-api')
+
+	implementation project(':bramble-core')
+
 	implementation 'androidx.annotation:annotation:1.5.0'
+
 	tor "org.briarproject:tor-android:$tor_version"
 	tor "org.briarproject:obfs4proxy-android:$obfs4proxy_version"
 	tor "org.briarproject:snowflake-android:$snowflake_version"
@@ -51,6 +59,7 @@ dependencies {
 	compileOnly 'javax.annotation:jsr250-api:1.0'
 
 	testImplementation project(path: ':bramble-api', configuration: 'testOutput')
+
 	testImplementation "junit:junit:$junit_version"
 	testImplementation "org.jmock:jmock:$jmock_version"
 	testImplementation "org.jmock:jmock-junit4:$jmock_version"

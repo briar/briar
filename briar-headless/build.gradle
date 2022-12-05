@@ -17,17 +17,19 @@ sourceCompatibility = 1.8
 targetCompatibility = 1.8
 
 dependencies {
-	implementation project(path: ':briar-core', configuration: 'default')
-	implementation project(path: ':bramble-java', configuration: 'default')
+	implementation project(':bramble-core')
+	implementation project(':bramble-java')
+	implementation project(':briar-core')
 
 	implementation 'org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.7.10'
 	implementation 'io.javalin:javalin:3.5.0'
 	implementation 'org.slf4j:slf4j-simple:1.7.30'
-	implementation "com.fasterxml.jackson.core:jackson-databind:$jackson_version"
 	implementation 'com.github.ajalt:clikt:2.2.0'
+	implementation "org.bouncycastle:bcprov-jdk15to18:$bouncy_castle_version"
+	implementation "com.squareup.okhttp3:okhttp:$okhttp_version"
+	implementation "com.fasterxml.jackson.core:jackson-databind:$jackson_version"
 
-	def daggerVersion = '2.24'
-	kapt "com.google.dagger:dagger-compiler:$daggerVersion"
+	kapt "com.google.dagger:dagger-compiler:$dagger_version"
 
 	testImplementation project(path: ':bramble-api', configuration: 'testOutput')
 	testImplementation project(path: ':bramble-core', configuration: 'testOutput')
@@ -36,15 +38,23 @@ dependencies {
 	def junitVersion = '5.5.2'
 	testImplementation "org.junit.jupiter:junit-jupiter-api:$junitVersion"
 	testImplementation "org.junit.jupiter:junit-jupiter-params:$junitVersion"
-	testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:$junitVersion"
 	testImplementation 'io.mockk:mockk:1.12.4'
 	testImplementation 'org.skyscreamer:jsonassert:1.5.0'
 	testImplementation "com.squareup.okhttp3:okhttp:4.10.0"
 
-	kaptTest "com.google.dagger:dagger-compiler:$daggerVersion"
+	testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:$junitVersion"
+
+	kaptTest "com.google.dagger:dagger-compiler:$dagger_version"
 }
 
 void jarFactory(Jar jarTask, jarArchitecture) {
+	jarTask.dependsOn(
+			':bramble-api:jar',
+			':bramble-core:jar',
+			':bramble-java:jar',
+			':briar-api:jar',
+			':briar-core:jar'
+	)
 	jarTask.dependsOn(jar)
 	jarTask.doFirst {
 		println 'Building ' + jarArchitecture + ' version has started'
