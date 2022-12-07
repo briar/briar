@@ -175,11 +175,13 @@ public class FeedManagerImplTest extends BrambleMockTestCase {
 	}
 
 	private void expectStoreFeed(BdfList feedList) throws Exception {
+		Transaction txn = new Transaction(null, false);
 		BdfDictionary feedDict =
 				BdfDictionary.of(new BdfEntry(KEY_FEEDS, feedList));
 		expectGetLocalGroup();
-		context.checking(new Expectations() {{
-			oneOf(clientHelper).mergeGroupMetadata(localGroupId, feedDict);
+		context.checking(new DbExpectations() {{
+			oneOf(db).transaction(with(false), withDbRunnable(txn));
+			oneOf(clientHelper).mergeGroupMetadata(txn, localGroupId, feedDict);
 			if (feedList.size() == 1) {
 				oneOf(feedFactory).feedToBdfDictionary(feed);
 				will(returnValue(feedList.getDictionary(0)));
