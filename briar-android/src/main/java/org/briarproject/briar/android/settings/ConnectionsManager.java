@@ -18,7 +18,6 @@ import static org.briarproject.bramble.api.plugin.TorConstants.DEFAULT_PREF_TOR_
 import static org.briarproject.bramble.api.plugin.TorConstants.DEFAULT_PREF_TOR_ONLY_WHEN_CHARGING;
 import static org.briarproject.bramble.api.plugin.TorConstants.PREF_TOR_MOBILE;
 import static org.briarproject.bramble.api.plugin.TorConstants.PREF_TOR_NETWORK;
-import static org.briarproject.bramble.api.plugin.TorConstants.PREF_TOR_NETWORK_NEVER;
 import static org.briarproject.bramble.api.plugin.TorConstants.PREF_TOR_ONLY_WHEN_CHARGING;
 import static org.briarproject.briar.android.settings.SettingsViewModel.BT_NAMESPACE;
 import static org.briarproject.briar.android.settings.SettingsViewModel.TOR_NAMESPACE;
@@ -61,32 +60,18 @@ class ConnectionsManager {
 	}
 
 	void updateTorSettings(Settings settings) {
-		Settings torSettings = migrateTorSettings(settings);
-		torEnabled.postValue(torSettings.getBoolean(PREF_PLUGIN_ENABLE,
+		torEnabled.postValue(settings.getBoolean(PREF_PLUGIN_ENABLE,
 				TorConstants.DEFAULT_PREF_PLUGIN_ENABLE));
 
-		int torNetworkSetting = torSettings.getInt(PREF_TOR_NETWORK,
+		int torNetworkSetting = settings.getInt(PREF_TOR_NETWORK,
 				DEFAULT_PREF_TOR_NETWORK);
 		torNetwork.postValue(Integer.toString(torNetworkSetting));
 
-		torMobile.postValue(torSettings.getBoolean(PREF_TOR_MOBILE,
+		torMobile.postValue(settings.getBoolean(PREF_TOR_MOBILE,
 				DEFAULT_PREF_TOR_MOBILE));
-		torCharging
-				.postValue(torSettings.getBoolean(PREF_TOR_ONLY_WHEN_CHARGING,
-						DEFAULT_PREF_TOR_ONLY_WHEN_CHARGING));
-	}
 
-	// TODO: Remove after a reasonable migration period (added 2020-06-25)
-	private Settings migrateTorSettings(Settings s) {
-		int network = s.getInt(PREF_TOR_NETWORK, DEFAULT_PREF_TOR_NETWORK);
-		if (network == PREF_TOR_NETWORK_NEVER) {
-			s.putInt(PREF_TOR_NETWORK, DEFAULT_PREF_TOR_NETWORK);
-			s.putBoolean(PREF_PLUGIN_ENABLE, false);
-			// We don't need to save the migrated settings - the Tor plugin is
-			// responsible for that. This code just handles the case where the
-			// settings are loaded before the plugin migrates them.
-		}
-		return s;
+		torCharging.postValue(settings.getBoolean(PREF_TOR_ONLY_WHEN_CHARGING,
+				DEFAULT_PREF_TOR_ONLY_WHEN_CHARGING));
 	}
 
 	LiveData<Boolean> btEnabled() {

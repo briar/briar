@@ -52,7 +52,6 @@ import static org.briarproject.bramble.api.lifecycle.LifecycleManager.StartResul
 import static org.briarproject.bramble.api.lifecycle.LifecycleManager.StartResult.SUCCESS;
 import static org.briarproject.bramble.util.AndroidUtils.isUiThread;
 import static org.briarproject.briar.android.BriarApplication.ENTRY_ACTIVITY;
-import static org.briarproject.briar.api.android.AndroidNotificationManager.FAILURE_CHANNEL_ID;
 import static org.briarproject.briar.api.android.AndroidNotificationManager.ONGOING_CHANNEL_ID;
 import static org.briarproject.briar.api.android.AndroidNotificationManager.ONGOING_CHANNEL_OLD_ID;
 import static org.briarproject.briar.api.android.AndroidNotificationManager.ONGOING_NOTIFICATION_ID;
@@ -141,11 +140,6 @@ public class BriarService extends Service {
 				ongoingChannel.setLockscreenVisibility(VISIBILITY_SECRET);
 				ongoingChannel.setShowBadge(false);
 				nm.createNotificationChannel(ongoingChannel);
-				// Delete the unused channel previously used for startup
-				// failure notifications
-				// TODO: Remove this ID after a reasonable upgrade period
-				//  (added 2021-07-12)
-				nm.deleteNotificationChannel(FAILURE_CHANNEL_ID);
 			}
 			Notification foregroundNotification =
 					notificationManager.getForegroundNotification();

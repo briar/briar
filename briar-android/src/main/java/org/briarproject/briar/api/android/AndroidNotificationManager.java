@@ -24,7 +24,6 @@ public interface AndroidNotificationManager {
 
 	// Notification IDs
 	int ONGOING_NOTIFICATION_ID = 1;
-	int FAILURE_NOTIFICATION_ID = 2;
 	int REMINDER_NOTIFICATION_ID = 3;
 	int PRIVATE_MESSAGE_NOTIFICATION_ID = 4;
 	int GROUP_MESSAGE_NOTIFICATION_ID = 5;
@@ -46,10 +45,6 @@ public interface AndroidNotificationManager {
 	String REMINDER_CHANNEL_ID = "zSignInReminder";
 	String HOTSPOT_CHANNEL_ID = "zHotspot";
 	String MAILBOX_PROBLEM_CHANNEL_ID = "zMailboxProblem";
-
-	// This channel is no longer used - keep the ID so we can remove the
-	// channel from existing installations
-	String FAILURE_CHANNEL_ID = "zStartupFailure";
 
 	// Actions for pending intents
 	String ACTION_DISMISS_REMINDER = "dismissReminder";
