@@ -60,7 +60,7 @@
 		<item name="android:textColor">@color/briar_button_text_neutral</item>
 	</style>
 
-	<style name="BriarButtonFlat.Positive.Tiny" parent="BriarButtonFlat">
+	<style name="BriarButtonFlat.Positive.Tiny" parent="BriarButtonFlat.Positive">
 		<item name="android:textSize">@dimen/text_size_tiny</item>
 		<item name="android:padding">@dimen/margin_medium</item>
 		<item name="android:minWidth">@dimen/button_size</item>
