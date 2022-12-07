@@ -16,13 +16,12 @@ import org.briarproject.nullsafety.ParametersNotNullByDefault;
 import javax.inject.Inject;
 
 import androidx.annotation.Nullable;
-import androidx.core.widget.NestedScrollView;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 import androidx.lifecycle.ViewModelProvider;
 
-import static android.view.View.FOCUS_DOWN;
 import static org.briarproject.briar.android.AppModule.getAndroidComponent;
+import static org.briarproject.briar.android.util.UiUtils.hideViewOnSmallScreen;
 
 @MethodsNotNullByDefault
 @ParametersNotNullByDefault
@@ -34,8 +33,6 @@ public class OfflineFragment extends Fragment {
 	ViewModelProvider.Factory viewModelFactory;
 
 	protected MailboxViewModel viewModel;
-
-	private NestedScrollView scrollView;
 
 	@Override
 	public void onAttach(Context context) {
@@ -54,7 +51,6 @@ public class OfflineFragment extends Fragment {
 		View v = inflater
 				.inflate(R.layout.fragment_offline, container, false);
 
-		scrollView = (NestedScrollView) v;
 		Button checkButton = v.findViewById(R.id.checkButton);
 		checkButton.setOnClickListener(view -> {
 			Intent i = new Intent(requireContext(), TransportsActivity.class);
@@ -69,8 +65,7 @@ public class OfflineFragment extends Fragment {
 	@Override
 	public void onStart() {
 		super.onStart();
-		// Scroll down in case the screen is small, so the button is visible
-		scrollView.post(() -> scrollView.fullScroll(FOCUS_DOWN));
+		hideViewOnSmallScreen(requireView().findViewById(R.id.iconView));
 	}
 
 	protected void onTryAgainClicked() {

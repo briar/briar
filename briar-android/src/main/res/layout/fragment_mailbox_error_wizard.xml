@@ -79,10 +79,11 @@
 
 			<org.briarproject.briar.android.view.BriarButton
 				android:id="@+id/button3"
-				android:layout_width="wrap_content"
+				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
 				android:layout_gravity="center"
-				app:buttonStyle="@style/BriarButtonFlat.Negative"
+				android:layout_marginHorizontal="16dp"
+				app:buttonStyle="@style/BriarButtonOutline.Negative"
 				app:text="@string/mailbox_status_unlink_button" />
 		</LinearLayout>
 

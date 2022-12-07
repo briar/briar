@@ -44,25 +44,46 @@
 		<item name="android:textColor">@color/button_text</item>
 	</style>
 
-	<style name="BriarButtonFlat.Negative" parent="Widget.AppCompat.Button.Borderless">
+	<style name="BriarButtonFlat" parent="Widget.AppCompat.Button.Borderless">
+		<item name="android:textSize">@dimen/text_size_medium</item>
+	</style>
+
+	<style name="BriarButtonFlat.Negative" parent="BriarButtonFlat">
 		<item name="android:textColor">@color/briar_button_text_negative</item>
-		<item name="android:textSize">@dimen/text_size_medium</item>
 	</style>
 
-	<style name="BriarButtonFlat.Positive" parent="Widget.AppCompat.Button.Borderless">
+	<style name="BriarButtonFlat.Positive" parent="BriarButtonFlat">
 		<item name="android:textColor">@color/briar_button_text_positive</item>
-		<item name="android:textSize">@dimen/text_size_medium</item>
 	</style>
 
-	<style name="BriarButtonFlat.Neutral" parent="Widget.AppCompat.Button.Borderless">
+	<style name="BriarButtonFlat.Neutral" parent="BriarButtonFlat">
 		<item name="android:textColor">@color/briar_button_text_neutral</item>
-		<item name="android:textSize">@dimen/text_size_medium</item>
 	</style>
 
 	<style name="BriarButtonFlat.Positive.Tiny" parent="BriarButtonFlat.Positive">
 		<item name="android:textSize">@dimen/text_size_tiny</item>
 		<item name="android:padding">@dimen/margin_medium</item>
 		<item name="android:minWidth">@dimen/button_size</item>
+	</style>
+
+	<style name="BriarButtonOutline" parent="Widget.AppCompat.Button.Borderless">
+		<item name="android:layout_width">match_parent</item>
+		<item name="android:layout_height">wrap_content</item>
+		<item name="android:textSize">@dimen/text_size_medium</item>
+		<item name="android:background">@drawable/button_outline</item>
+		<item name="android:padding">@dimen/margin_large</item>
+	</style>
+
+	<style name="BriarButtonOutline.Negative" parent="BriarButtonOutline">
+		<item name="android:textColor">@color/briar_button_text_negative</item>
+	</style>
+
+	<style name="BriarButtonOutline.Positive" parent="BriarButtonOutline">
+		<item name="android:textColor">@color/briar_button_text_positive</item>
+	</style>
+
+	<style name="BriarButtonOutline.Neutral" parent="BriarButtonOutline">
+		<item name="android:textColor">@color/briar_button_text_neutral</item>
 	</style>
 
 	<style name="Divider">

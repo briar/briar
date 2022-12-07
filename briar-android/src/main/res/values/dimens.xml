@@ -74,5 +74,4 @@
 	<dimen name="blogs_avatar_comment_size">20dp</dimen>
 
 	<dimen name="text_input_height">42dp</dimen>
-
 </resources>
