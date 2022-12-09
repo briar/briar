@@ -22,6 +22,9 @@ public interface FeedConstants {
 	String KEY_FEED_PRIVATE_KEY = "feedPrivateKey";
 	String KEY_FEED_DESC = "feedDesc";
 	String KEY_FEED_RSS_AUTHOR = "feedRssAuthor";
+	String KEY_FEED_RSS_TITLE = "feedRssTitle";
+	String KEY_FEED_RSS_LINK = "feedRssLink";
+	String KEY_FEED_RSS_URI = "feedRssUri";
 	String KEY_FEED_ADDED = "feedAdded";
 	String KEY_FEED_UPDATED = "feedUpdated";
 	String KEY_FEED_LAST_ENTRY = "feedLastEntryTime";

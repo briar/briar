@@ -80,7 +80,7 @@ public class FeedManagerIntegrationTest extends BrambleTestCase {
 		assertTrue(feed.getLastEntryTime() > 0);
 		assertTrue(feed.getAdded() > 0);
 		assertTrue(feed.getUpdated() > 0);
-		assertEquals(url, feed.getUrl());
+		assertEquals(url, feed.getProperties().getUrl());
 		assertEquals(feedBlog, feed.getBlog());
 		assertEquals("Schneier on Security", feed.getTitle());
 		assertEquals(feed.getTitle(), feed.getBlog().getName());

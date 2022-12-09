@@ -25,6 +25,7 @@ import org.briarproject.briar.api.blog.BlogManager;
 import org.briarproject.briar.api.blog.BlogPost;
 import org.briarproject.briar.api.blog.BlogPostFactory;
 import org.briarproject.briar.api.feed.Feed;
+import org.briarproject.briar.api.feed.RssProperties;
 import org.jmock.Expectations;
 import org.junit.Test;
 
@@ -83,8 +84,9 @@ public class FeedManagerImplTest extends BrambleMockTestCase {
 	private final GroupId blogGroupId = blogGroup.getId();
 	private final LocalAuthor localAuthor = getLocalAuthor();
 	private final Blog blog = new Blog(blogGroup, localAuthor, true);
-	private final Feed feed =
-			new Feed("http://example.org", blog, localAuthor, 0);
+	private final RssProperties properties = new RssProperties(
+			"http://example.org", null, null, null, null, null);
+	private final Feed feed = new Feed(blog, localAuthor, properties, 0, 0, 0);
 	private final BdfDictionary feedDict = new BdfDictionary();
 
 	private final FeedManagerImpl feedManager =

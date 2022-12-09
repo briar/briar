@@ -168,7 +168,9 @@ class RssFeedViewModel extends DbViewModel {
 		List<Feed> list = getList(feeds);
 		if (list != null) {
 			for (Feed feed : list) {
-				if (url.equals(feed.getUrl())) {
+				// TODO: Fetch the feed and also match it against feeds that
+				//  were imported from files?
+				if (url.equals(feed.getProperties().getUrl())) {
 					return true;
 				}
 			}

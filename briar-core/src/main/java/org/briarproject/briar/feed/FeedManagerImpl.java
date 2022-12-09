@@ -297,8 +297,10 @@ class FeedManagerImpl implements FeedManager, EventListener, OpenDatabaseHook,
 		List<Feed> newFeeds = new ArrayList<>(feeds.size());
 		for (Feed feed : feeds) {
 			try {
+				String url = feed.getProperties().getUrl();
+				if (url == null) continue;
 				// fetch and clean feed
-				SyndFeed sf = fetchSyndFeed(feed.getUrl());
+				SyndFeed sf = fetchSyndFeed(url);
 				// sort and add new entries
 				long lastEntryTime = postFeedEntries(feed, sf.getEntries());
 				newFeeds.add(feedFactory.createFeed(feed, sf, lastEntryTime));
