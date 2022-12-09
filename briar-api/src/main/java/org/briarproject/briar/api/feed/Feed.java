@@ -68,6 +68,7 @@ public class Feed implements Comparable<Feed> {
 		return false;
 	}
 
+	// FIXME: compareTo() is inconsistent with equals()
 	@Override
 	public int compareTo(Feed o) {
 		if (this == o) return 0;

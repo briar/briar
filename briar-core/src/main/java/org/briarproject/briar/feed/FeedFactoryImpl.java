@@ -13,7 +13,6 @@ import org.briarproject.bramble.api.identity.Author;
 import org.briarproject.bramble.api.identity.AuthorFactory;
 import org.briarproject.bramble.api.identity.LocalAuthor;
 import org.briarproject.bramble.api.system.Clock;
-import org.briarproject.bramble.util.StringUtils;
 import org.briarproject.briar.api.blog.Blog;
 import org.briarproject.briar.api.blog.BlogFactory;
 import org.briarproject.briar.api.feed.Feed;
@@ -22,6 +21,7 @@ import org.briarproject.briar.api.feed.RssProperties;
 import javax.inject.Inject;
 
 import static org.briarproject.bramble.api.identity.AuthorConstants.MAX_AUTHOR_NAME_LENGTH;
+import static org.briarproject.bramble.util.StringUtils.truncateUtf8;
 import static org.briarproject.briar.api.feed.FeedConstants.KEY_FEED_ADDED;
 import static org.briarproject.briar.api.feed.FeedConstants.KEY_FEED_AUTHOR;
 import static org.briarproject.briar.api.feed.FeedConstants.KEY_FEED_DESC;
@@ -51,25 +51,29 @@ class FeedFactoryImpl implements FeedFactory {
 	}
 
 	@Override
-	public Feed createFeed(String url, SyndFeed syndFeed) {
-		String title = syndFeed.getTitle();
+	public Feed createFeed(String url, SyndFeed sf) {
+		String title = sf.getTitle();
 		if (title == null) title = "RSS";
-		else title = StringUtils.truncateUtf8(title, MAX_AUTHOR_NAME_LENGTH);
+		else title = truncateUtf8(title, MAX_AUTHOR_NAME_LENGTH);
 
 		LocalAuthor localAuthor = authorFactory.createLocalAuthor(title);
 		Blog blog = blogFactory.createFeedBlog(localAuthor);
 		long added = clock.currentTimeMillis();
 
-		RssProperties properties =
-				new RssProperties(url, null, null, null, null, null);
+		RssProperties properties = new RssProperties(url, sf.getTitle(),
+				sf.getDescription(), sf.getAuthor(), sf.getLink(), sf.getUri());
 		return new Feed(blog, localAuthor, properties, added, 0, 0);
 	}
 
 	@Override
-	public Feed createFeed(Feed feed, SyndFeed f, long lastEntryTime) {
+	public Feed updateFeed(Feed feed, SyndFeed sf, long lastEntryTime) {
 		long updated = clock.currentTimeMillis();
-		return new Feed(feed.getBlog(), feed.getLocalAuthor(),
-				feed.getProperties(), feed.getAdded(), updated, lastEntryTime);
+		String url = feed.getProperties().getUrl();
+		// Update the RSS properties
+		RssProperties properties = new RssProperties(url, sf.getTitle(),
+				sf.getDescription(), sf.getAuthor(), sf.getLink(), sf.getUri());
+		return new Feed(feed.getBlog(), feed.getLocalAuthor(), properties,
+				feed.getAdded(), updated, lastEntryTime);
 	}
 
 	@Override
@@ -115,12 +119,12 @@ class FeedFactoryImpl implements FeedFactory {
 		RssProperties properties = feed.getProperties();
 		if (properties.getUrl() != null)
 			d.put(KEY_FEED_URL, properties.getUrl());
+		if (properties.getTitle() != null)
+			d.put(KEY_FEED_RSS_TITLE, properties.getTitle());
 		if (properties.getDescription() != null)
 			d.put(KEY_FEED_DESC, properties.getDescription());
 		if (properties.getAuthor() != null)
 			d.put(KEY_FEED_RSS_AUTHOR, properties.getAuthor());
-		if (properties.getTitle() != null)
-			d.put(KEY_FEED_RSS_TITLE, properties.getTitle());
 		if (properties.getLink() != null)
 			d.put(KEY_FEED_RSS_LINK, properties.getLink());
 		if (properties.getUri() != null)

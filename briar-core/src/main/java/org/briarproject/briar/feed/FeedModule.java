@@ -38,4 +38,9 @@ public class FeedModule {
 	FeedFactory provideFeedFactory(FeedFactoryImpl feedFactory) {
 		return feedFactory;
 	}
+
+	@Provides
+	FeedMatcher provideFeedMatcher(FeedMatcherImpl feedMatcher) {
+		return feedMatcher;
+	}
 }

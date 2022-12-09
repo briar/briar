@@ -179,7 +179,7 @@ class FeedManagerImpl implements FeedManager, EventListener, OpenDatabaseHook,
 
 		// post entries
 		long lastEntryTime = postFeedEntries(feed, sf.getEntries());
-		Feed updatedFeed = feedFactory.createFeed(feed, sf, lastEntryTime);
+		Feed updatedFeed = feedFactory.updateFeed(feed, sf, lastEntryTime);
 
 		// store feed metadata again to also store last entry time
 		txn = db.startTransaction(false);
@@ -303,7 +303,7 @@ class FeedManagerImpl implements FeedManager, EventListener, OpenDatabaseHook,
 				SyndFeed sf = fetchSyndFeed(url);
 				// sort and add new entries
 				long lastEntryTime = postFeedEntries(feed, sf.getEntries());
-				newFeeds.add(feedFactory.createFeed(feed, sf, lastEntryTime));
+				newFeeds.add(feedFactory.updateFeed(feed, sf, lastEntryTime));
 			} catch (IOException | DbException e) {
 				logException(LOG, WARNING, e);
 				newFeeds.add(feed);
@@ -328,7 +328,7 @@ class FeedManagerImpl implements FeedManager, EventListener, OpenDatabaseHook,
 		// clean title
 		String title = sf.getTitle();
 		if (title != null) title = cleanAll(title);
-		sf.setTitle(isNullOrEmpty(title) ? null : title);
+		sf.setTitle(isNullOrEmpty(title) ? "RSS" : title);
 
 		// clean description
 		String description = sf.getDescription();
@@ -339,6 +339,10 @@ class FeedManagerImpl implements FeedManager, EventListener, OpenDatabaseHook,
 		String author = sf.getAuthor();
 		if (author != null) author = cleanAll(author);
 		sf.setAuthor(isNullOrEmpty(author) ? null : author);
+
+		// set other relevant fields to null if empty
+		if ("".equals(sf.getLink())) sf.setLink(null);
+		if ("".equals(sf.getUri())) sf.setUri(null);
 
 		return sf;
 	}
