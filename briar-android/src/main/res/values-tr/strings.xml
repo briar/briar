@@ -226,6 +226,7 @@
   <string name="menu_contact">İletişim</string>
   <!--Adding Contacts-->
   <string name="add_contact_title">Yakındaki Kişiyi Ekle</string>
+  <string name="add_contact_error_two_way">Birbirinizin kare kodunu taradınız mı?</string>
   <string name="face_to_face">Kişi olarak eklemek istediğiniz kişiyle buluşmanız gerekir.\n\nBu, gelecekte başkalarının sizin kimliğinize bürünmesini veya iletilerinizi okumasını engelleyecektir.</string>
   <string name="continue_button">Devam et</string>
   <string name="try_again_button">Tekrar deneyin</string>
@@ -241,6 +242,7 @@
   <string name="authenticating_with_device">Aygıtla kimlik doğrulama\u2026</string>
   <string name="connection_error_title">Kişinizle bağlantı kurulamadı</string>
   <string name="connection_error_feedback">Sorun devam ederse, uygulamayı geliştirmemize yardımcı olmak için <a href="feedback">geri bildirim gönderin</a>.</string>
+  <string name="info_both_must_scan">Birbirinizin kare kodunu taramalısınız.</string>
   <!--Adding Contacts Remotely-->
   <string name="add_contact_remotely_title_case">Uzaktaki Kişiyi Ekle</string>
   <string name="add_contact_nearby_title">Yakındaki kişiyi ekle</string>
@@ -298,6 +300,7 @@
   <string name="different_person_button">Farklı Kişi</string>
   <string name="duplicate_link_dialog_text_3">%1$s ve %2$s size aynı bağlantıyı gönderdi.\n\nAralarından biri kişilerinizin kim olduğunu keşfetmeye çalışıyor olabilir.\n\nOnlara başkasından aynı bağlantıyı aldığınızı söylemeyin.</string>
   <string name="pending_contact_updated_toast">Bekleyen kişi güncellendi</string>
+  <string name="info_both_must_enter_links">Birbirinizin bağlantısını eklemelisiniz.</string>
   <!--Peer trust levels-->
   <string name="peer_trust_level_unverified">Doğrulanmamış kişi</string>
   <string name="peer_trust_level_verified">Doğrulanmış kişi</string>
@@ -331,6 +334,7 @@
   <string name="connect_via_bluetooth_intro">Bluetooth bağlantıları otomatik olarak çalışmadığında, elle bağlanmak için bu ekranı kullanabilirsiniz.\n\nBunun çalışması için kişinin yakınınızda olması gerekiyor.\n\nSizin ve kişinin aynı anda \"Başlat\" seçeneğine basması gerekiyor.</string>
   <string name="connect_via_bluetooth_already_discovering">Bluetooth ile zaten bağlanmaya çalışıyor. Lütfen daha sonra tekrar deneyin.</string>
   <string name="connect_via_bluetooth_no_location_permission">Konum izni olmadan devam edilemez</string>
+  <string name="connect_via_bluetooth_no_bluetooth_permission">Yakındaki cihazlar izni olmadan devam edilemez</string>
   <string name="connect_via_bluetooth_start">Bluetooth ile bağlanılıyor…</string>
   <string name="connect_via_bluetooth_success">Bluetooth ile başarılı bir şekilde bağlandı</string>
   <string name="connect_via_bluetooth_error">Bluetooth ile bağlanamıyor.</string>
@@ -729,11 +733,17 @@
   <string name="permission_location_request_body">Bluetooth aygıtlarını keşfetmek için, Briar\'ın konumunuza erişmesi gerekiyor.\n\nBriar konum bilginizi kaydetmez ve kimseyle paylaşmaz.</string>
   <string name="permission_camera_location_title">Kamera ve konum</string>
   <string name="permission_camera_location_request_body">QR kodunu taramak için, Briar\'ın kameranıza erişmesi gerekiyor.\n\nBluetooth aygıtlarını keşfetmek için Briar\'ın konumunuza erişmesi gerekiyor.\n\nBriar konumunuzu saklamaz ve hiç kimseyle paylaşmaz.</string>
+  <string name="permission_camera_bluetooth_title">Kamera ve yakındaki cihazlar</string>
+  <string name="permission_camera_bluetooth_request_body">Kare kodunu taramak için Briar\'ın kameraya erişmesi gerekiyor.\n\nBluetooth cihazlarını keşfetmek için, Briar\'a yakındaki cihazları bulma ve bağlanma izni gerekiyor.</string>
   <string name="permission_camera_denied_body">Kameraya erişimi engellediniz, ancak kişi eklemek için kamerayı kullanmanız gerekiyor.\n\nLütfen erişim izni vermeyi düşünün.</string>
   <string name="permission_location_denied_body">Konuma erişimi engellediniz, ancak Briar\'ın Bluetooth aygıtlarını bulabilmek için bu izne ihtiyacı var.\n\nLütfen erişim izni vermeyi düşünün.</string>
   <string name="permission_location_setting_title">Konum ayarı</string>
   <string name="permission_location_setting_body">Diğer aygıtları Bluetooth aracılığıyla bulmak için aygıtınızın konum ayarını açmanız gerekiyor. Devam etmek için lütfen konumu etkinleştirin. Daha sonra tekrar etkisizleştirebilirsiniz. </string>
+  <string name="permission_location_setting_hotspot_body">Wi-Fi bağlantı noktası oluşturmak için aygıtınızın konum ayarını açmanız gerekiyor. Devam etmek için lütfen konumu etkinleştirin. Daha sonra tekrar kapatabilirsiniz. </string>
   <string name="permission_location_setting_button">Konumu etkinleştir</string>
+  <string name="permission_bluetooth_title">Yakındaki cihazlar izni</string>
+  <string name="permission_bluetooth_body">Bluetooth iletişimini kullanmak için Briar\'a yakındaki cihazları bulma ve bağlanma izni gerekiyor.</string>
+  <string name="permission_bluetooth_denied_body">Yakındaki cihazlar iznini engellediniz, ancak Briar\'ın Bluetooth kullanması için bu izne ihtiyacı var.\n\nLütfen erişim izni vermeyi düşünün.</string>
   <string name="qr_code">QR kodu</string>
   <string name="show_qr_code_fullscreen">QR kodunu tam ekran göster</string>
   <!--App Locking-->
@@ -756,7 +766,9 @@
   <string name="hotspot_notification_title">Briar çevrimdışı paylaşılıyor</string>
   <string name="hotspot_button_connected">İleri</string>
   <string name="permission_hotspot_location_request_body">Bir kablosuz erişim noktası oluşturmak için, Briar konumunuza erişme iznine ihtiyaç duyar.\n\nBriar konum bilginizi kaydetmez ve kimseyle paylaşmaz.</string>
+  <string name="permission_hotspot_location_request_precise_body">Bir kablosuz erişim noktası oluşturmak için, Briar kesin konumunuza erişim iznine ihtiyaç duyar.\n\nBriar konum bilginizi kaydetmez ve kimseyle paylaşmaz.</string>
   <string name="permission_hotspot_location_denied_body">Konuma erişimi engellediniz, ancak Briar\'ın Wi-Fi erişim noktası oluşturmak için bu izne ihtiyacı var.\n\nLütfen erişim izni vermeyi düşünün.</string>
+  <string name="permission_hotspot_location_denied_precise_body">Kesin konumunuza erişimi engellediniz, ancak Briar\'ın Wi-Fi erişim noktası oluşturmak için bu izne ihtiyacı var.\n\nLütfen erişim izni vermeyi düşünün.</string>
   <string name="wifi_settings_title">Kablosuz ağ ayarları</string>
   <string name="wifi_settings_request_enable_body">Bir kablosuz erişim noktası oluşturmak için Briar\'ın kablosuz ağı kullanması gerekiyor. Lütfen kablosuz ağı etkinleştirin.</string>
   <string name="hotspot_tab_manual">El ile</string>
