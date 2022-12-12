@@ -9,7 +9,7 @@ import javax.annotation.concurrent.Immutable;
 
 @Immutable
 @NotNullByDefault
-public class Feed implements Comparable<Feed> {
+public class Feed {
 
 	private final Blog blog;
 	private final LocalAuthor localAuthor;
@@ -66,16 +66,6 @@ public class Feed implements Comparable<Feed> {
 			return blog.equals(f.blog);
 		}
 		return false;
-	}
-
-	// FIXME: compareTo() is inconsistent with equals()
-	@Override
-	public int compareTo(Feed o) {
-		if (this == o) return 0;
-		long aTime = getAdded(), bTime = o.getAdded();
-		if (aTime > bTime) return -1;
-		if (aTime < bTime) return 1;
-		return 0;
 	}
 
 	@Override

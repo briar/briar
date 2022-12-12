@@ -22,7 +22,6 @@ import org.briarproject.nullsafety.NotNullByDefault;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.Executor;
 import java.util.logging.Logger;
@@ -101,7 +100,6 @@ class RssFeedViewModel extends DbViewModel {
 	private List<Feed> loadFeeds(Transaction txn) throws DbException {
 		long start = now();
 		List<Feed> feeds = feedManager.getFeeds(txn);
-		Collections.sort(feeds);
 		logDuration(LOG, "Loading feeds", start);
 		return feeds;
 	}
@@ -145,7 +143,6 @@ class RssFeedViewModel extends DbViewModel {
 				Feed feed = feedManager.addFeed(url);
 				List<Feed> updated = addListItem(getList(feeds), feed);
 				if (updated != null) {
-					Collections.sort(updated);
 					feeds.postValue(new LiveResult<>(updated));
 				}
 				importResult.postEvent(IMPORTED);

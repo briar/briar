@@ -62,6 +62,7 @@ import okhttp3.ResponseBody;
 
 import static java.util.Collections.sort;
 import static java.util.logging.Level.WARNING;
+import static java.util.logging.Logger.getLogger;
 import static org.briarproject.bramble.util.LogUtils.logException;
 import static org.briarproject.bramble.util.StringUtils.isNullOrEmpty;
 import static org.briarproject.bramble.util.StringUtils.truncateUtf8;
@@ -79,7 +80,7 @@ class FeedManagerImpl implements FeedManager, EventListener, OpenDatabaseHook,
 		RemoveBlogHook {
 
 	private static final Logger LOG =
-			Logger.getLogger(FeedManagerImpl.class.getName());
+			getLogger(FeedManagerImpl.class.getName());
 
 	private final TaskScheduler scheduler;
 	private final Executor ioExecutor;
