@@ -26,7 +26,6 @@ import static android.os.Process.myPid;
 import static android.os.Process.myTid;
 import static android.os.Process.myUid;
 import static android.provider.Settings.Secure.ANDROID_ID;
-import static org.briarproject.bramble.util.AndroidUtils.hasBtConnectPermission;
 
 @Immutable
 @NotNullByDefault
@@ -53,8 +52,8 @@ class AndroidSecureRandomProvider extends UnixSecureRandomProvider {
 		ContentResolver contentResolver = appContext.getContentResolver();
 		String id = Settings.Secure.getString(contentResolver, ANDROID_ID);
 		if (id != null) out.writeUTF(id);
-		// use bluetooth paired devices as well, if allowed
-		if (hasBtConnectPermission(appContext)) {
+		// On API 31 and higher we need permission to access bonded devices
+		if (SDK_INT < 31) {
 			Parcel parcel = Parcel.obtain();
 			BluetoothAdapter bt = BluetoothAdapter.getDefaultAdapter();
 			if (bt != null) {
