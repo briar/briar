@@ -158,11 +158,9 @@ public class MailboxActivity extends BriarActivity {
 		}
 		Fragment f;
 		String tag;
-		if (s instanceof MailboxPairingState.QrCodeReceived) {
-			f = new MailboxConnectingFragment();
-			tag = MailboxConnectingFragment.TAG;
-		} else if (s instanceof MailboxPairingState.Pairing) {
-			f = new MailboxConnectingFragment();
+		if (s instanceof MailboxPairingState.Pending) {
+			long timeStarted = ((MailboxPairingState.Pending) s).timeStarted;
+			f = MailboxConnectingFragment.newInstance(timeStarted);
 			tag = MailboxConnectingFragment.TAG;
 		} else if (s instanceof MailboxPairingState.InvalidQrCode) {
 			f = ErrorFragment.newInstance(
