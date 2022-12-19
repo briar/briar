@@ -52,6 +52,10 @@ abstract class AddContactState {
 
 		static class WrongQrCodeVersion extends Failed {
 
+			/**
+			 * True if the app producing the code is too old.
+			 * False if the scanning app is too old.
+			 */
 			final boolean qrCodeTooOld;
 
 			WrongQrCodeVersion(boolean qrCodeTooOld) {
