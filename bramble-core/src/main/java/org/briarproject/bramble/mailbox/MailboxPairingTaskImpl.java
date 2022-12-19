@@ -2,6 +2,7 @@ package org.briarproject.bramble.mailbox;
 
 import org.briarproject.bramble.api.Consumer;
 import org.briarproject.bramble.api.FormatException;
+import org.briarproject.bramble.api.Pair;
 import org.briarproject.bramble.api.contact.Contact;
 import org.briarproject.bramble.api.crypto.CryptoComponent;
 import org.briarproject.bramble.api.db.DatabaseComponent;
@@ -9,18 +10,26 @@ import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.event.EventExecutor;
 import org.briarproject.bramble.api.mailbox.MailboxAuthToken;
 import org.briarproject.bramble.api.mailbox.MailboxPairingState;
+import org.briarproject.bramble.api.mailbox.MailboxPairingState.ConnectionError;
+import org.briarproject.bramble.api.mailbox.MailboxPairingState.InvalidQrCode;
+import org.briarproject.bramble.api.mailbox.MailboxPairingState.MailboxAlreadyPaired;
+import org.briarproject.bramble.api.mailbox.MailboxPairingState.Paired;
+import org.briarproject.bramble.api.mailbox.MailboxPairingState.Pairing;
+import org.briarproject.bramble.api.mailbox.MailboxPairingState.QrCodeReceived;
+import org.briarproject.bramble.api.mailbox.MailboxPairingState.UnexpectedError;
 import org.briarproject.bramble.api.mailbox.MailboxPairingTask;
 import org.briarproject.bramble.api.mailbox.MailboxProperties;
 import org.briarproject.bramble.api.mailbox.MailboxSettingsManager;
 import org.briarproject.bramble.api.mailbox.MailboxUpdate;
 import org.briarproject.bramble.api.mailbox.MailboxUpdateManager;
+import org.briarproject.bramble.api.qrcode.QrCodeClassifier;
+import org.briarproject.bramble.api.qrcode.QrCodeClassifier.QrCodeType;
 import org.briarproject.bramble.api.system.Clock;
 import org.briarproject.bramble.mailbox.MailboxApi.ApiException;
 import org.briarproject.bramble.mailbox.MailboxApi.MailboxAlreadyPairedException;
 import org.briarproject.nullsafety.NotNullByDefault;
 
 import java.io.IOException;
-import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -32,7 +41,10 @@ import javax.annotation.concurrent.ThreadSafe;
 
 import static java.util.logging.Level.WARNING;
 import static java.util.logging.Logger.getLogger;
+import static org.briarproject.bramble.api.mailbox.MailboxConstants.QR_FORMAT_VERSION;
+import static org.briarproject.bramble.api.qrcode.QrCodeClassifier.QrCodeType.MAILBOX;
 import static org.briarproject.bramble.util.LogUtils.logException;
+import static org.briarproject.bramble.util.StringUtils.ISO_8859_1;
 
 @ThreadSafe
 @NotNullByDefault
@@ -40,9 +52,6 @@ class MailboxPairingTaskImpl implements MailboxPairingTask {
 
 	private final static Logger LOG =
 			getLogger(MailboxPairingTaskImpl.class.getName());
-	@SuppressWarnings("CharsetObjectCanBeUsed") // Requires minSdkVersion >= 19
-	private static final Charset ISO_8859_1 = Charset.forName("ISO-8859-1");
-	private static final int VERSION_REQUIRED = 32;
 
 	private final String payload;
 	private final Executor eventExecutor;
@@ -52,6 +61,7 @@ class MailboxPairingTaskImpl implements MailboxPairingTask {
 	private final MailboxApi api;
 	private final MailboxSettingsManager mailboxSettingsManager;
 	private final MailboxUpdateManager mailboxUpdateManager;
+	private final QrCodeClassifier qrCodeClassifier;
 	private final long timeStarted;
 
 	private final Object lock = new Object();
@@ -69,7 +79,8 @@ class MailboxPairingTaskImpl implements MailboxPairingTask {
 			Clock clock,
 			MailboxApi api,
 			MailboxSettingsManager mailboxSettingsManager,
-			MailboxUpdateManager mailboxUpdateManager) {
+			MailboxUpdateManager mailboxUpdateManager,
+			QrCodeClassifier qrCodeClassifier) {
 		this.payload = payload;
 		this.eventExecutor = eventExecutor;
 		this.db = db;
@@ -78,8 +89,9 @@ class MailboxPairingTaskImpl implements MailboxPairingTask {
 		this.api = api;
 		this.mailboxSettingsManager = mailboxSettingsManager;
 		this.mailboxUpdateManager = mailboxUpdateManager;
+		this.qrCodeClassifier = qrCodeClassifier;
 		timeStarted = clock.currentTimeMillis();
-		state = new MailboxPairingState.QrCodeReceived(timeStarted);
+		state = new QrCodeReceived(timeStarted);
 	}
 
 	@Override
@@ -101,22 +113,30 @@ class MailboxPairingTaskImpl implements MailboxPairingTask {
 
 	@Override
 	public void run() {
+		Pair<QrCodeType, Integer> typeAndVersion =
+				qrCodeClassifier.classifyQrCode(payload);
+		QrCodeType qrCodeType = typeAndVersion.getFirst();
+		int formatVersion = typeAndVersion.getSecond();
+		if (qrCodeType != MAILBOX || formatVersion != QR_FORMAT_VERSION) {
+			setState(new InvalidQrCode(qrCodeType, formatVersion));
+			return;
+		}
 		try {
 			pairMailbox();
 		} catch (FormatException e) {
-			onMailboxError(e, new MailboxPairingState.InvalidQrCode());
+			onMailboxError(e, new InvalidQrCode(qrCodeType, formatVersion));
 		} catch (MailboxAlreadyPairedException e) {
-			onMailboxError(e, new MailboxPairingState.MailboxAlreadyPaired());
+			onMailboxError(e, new MailboxAlreadyPaired());
 		} catch (IOException e) {
-			onMailboxError(e, new MailboxPairingState.ConnectionError());
+			onMailboxError(e, new ConnectionError());
 		} catch (ApiException | DbException e) {
-			onMailboxError(e, new MailboxPairingState.UnexpectedError());
+			onMailboxError(e, new UnexpectedError());
 		}
 	}
 
 	private void pairMailbox() throws IOException, ApiException, DbException {
 		MailboxProperties mailboxProperties = decodeQrCodePayload(payload);
-		setState(new MailboxPairingState.Pairing(timeStarted));
+		setState(new Pairing(timeStarted));
 		MailboxProperties ownerProperties = api.setup(mailboxProperties);
 		long time = clock.currentTimeMillis();
 		db.transaction(false, txn -> {
@@ -135,7 +155,7 @@ class MailboxPairingTaskImpl implements MailboxPairingTask {
 				}
 			}
 		});
-		setState(new MailboxPairingState.Paired());
+		setState(new Paired());
 	}
 
 	private void onMailboxError(Exception e, MailboxPairingState state) {
@@ -166,14 +186,6 @@ class MailboxPairingTaskImpl implements MailboxPairingTask {
 		if (bytes.length != 65) {
 			if (LOG.isLoggable(WARNING)) {
 				LOG.warning("QR code length is not 65: " + bytes.length);
-			}
-			throw new FormatException();
-		}
-		int version = bytes[0] & 0xFF;
-		if (version != VERSION_REQUIRED) {
-			if (LOG.isLoggable(WARNING)) {
-				LOG.warning("QR code has not version " + VERSION_REQUIRED +
-						": " + version);
 			}
 			throw new FormatException();
 		}

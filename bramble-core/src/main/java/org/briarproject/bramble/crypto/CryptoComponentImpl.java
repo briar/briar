@@ -29,7 +29,6 @@ import org.briarproject.nullsafety.NotNullByDefault;
 import org.whispersystems.curve25519.Curve25519;
 import org.whispersystems.curve25519.Curve25519KeyPair;
 
-import java.nio.charset.Charset;
 import java.security.GeneralSecurityException;
 import java.security.NoSuchAlgorithmException;
 import java.security.Provider;
@@ -51,6 +50,7 @@ import static org.briarproject.bramble.api.crypto.DecryptionResult.KEY_STRENGTHE
 import static org.briarproject.bramble.util.ByteUtils.INT_32_BYTES;
 import static org.briarproject.bramble.util.LogUtils.logDuration;
 import static org.briarproject.bramble.util.LogUtils.now;
+import static org.briarproject.bramble.util.StringUtils.US_ASCII;
 
 @NotNullByDefault
 class CryptoComponentImpl implements CryptoComponent {
@@ -460,7 +460,7 @@ class CryptoComponentImpl implements CryptoComponent {
 	@Override
 	public String encodeOnion(byte[] publicKey) {
 		Digest digest = new SHA3Digest(256);
-		byte[] label = ".onion checksum".getBytes(Charset.forName("US-ASCII"));
+		byte[] label = ".onion checksum".getBytes(US_ASCII);
 		digest.update(label, 0, label.length);
 		digest.update(publicKey, 0, publicKey.length);
 		digest.update(ONION_HS_PROTOCOL_VERSION);

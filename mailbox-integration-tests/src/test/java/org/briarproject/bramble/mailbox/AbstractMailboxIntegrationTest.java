@@ -11,7 +11,7 @@ import org.briarproject.bramble.api.identity.IdentityManager;
 import org.briarproject.bramble.api.identity.LocalAuthor;
 import org.briarproject.bramble.api.lifecycle.LifecycleManager;
 import org.briarproject.bramble.api.mailbox.MailboxAuthToken;
-import org.briarproject.bramble.api.mailbox.MailboxPairingState;
+import org.briarproject.bramble.api.mailbox.MailboxPairingState.Paired;
 import org.briarproject.bramble.api.mailbox.MailboxPairingTask;
 import org.briarproject.bramble.api.mailbox.MailboxProperties;
 import org.briarproject.bramble.api.mailbox.MailboxUpdateWithMailbox;
@@ -121,7 +121,7 @@ abstract class AbstractMailboxIntegrationTest
 
 		CountDownLatch latch = new CountDownLatch(1);
 		pairingTask.addObserver((state) -> {
-			if (state instanceof MailboxPairingState.Paired) {
+			if (state instanceof Paired) {
 				latch.countDown();
 			}
 		});

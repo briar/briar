@@ -6,10 +6,24 @@ import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import org.briarproject.bramble.api.mailbox.MailboxPairingState;
+import org.briarproject.bramble.api.mailbox.MailboxPairingState.ConnectionError;
+import org.briarproject.bramble.api.mailbox.MailboxPairingState.InvalidQrCode;
+import org.briarproject.bramble.api.mailbox.MailboxPairingState.MailboxAlreadyPaired;
+import org.briarproject.bramble.api.mailbox.MailboxPairingState.Paired;
+import org.briarproject.bramble.api.mailbox.MailboxPairingState.Pending;
+import org.briarproject.bramble.api.mailbox.MailboxPairingState.UnexpectedError;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.activity.ActivityComponent;
 import org.briarproject.briar.android.activity.BriarActivity;
 import org.briarproject.briar.android.fragment.FinalFragment;
+import org.briarproject.briar.android.mailbox.MailboxState.CameraError;
+import org.briarproject.briar.android.mailbox.MailboxState.IsPaired;
+import org.briarproject.briar.android.mailbox.MailboxState.NotSetup;
+import org.briarproject.briar.android.mailbox.MailboxState.OfflineWhenPairing;
+import org.briarproject.briar.android.mailbox.MailboxState.Pairing;
+import org.briarproject.briar.android.mailbox.MailboxState.ScanningQrCode;
+import org.briarproject.briar.android.mailbox.MailboxState.ShowDownload;
+import org.briarproject.briar.android.mailbox.MailboxState.WasUnpaired;
 import org.briarproject.briar.android.view.BlankFragment;
 import org.briarproject.nullsafety.MethodsNotNullByDefault;
 import org.briarproject.nullsafety.ParametersNotNullByDefault;
@@ -25,6 +39,9 @@ import androidx.lifecycle.ViewModelProvider;
 import static android.view.View.INVISIBLE;
 import static android.view.View.VISIBLE;
 import static android.widget.Toast.LENGTH_LONG;
+import static org.briarproject.bramble.api.mailbox.MailboxConstants.QR_FORMAT_VERSION;
+import static org.briarproject.bramble.api.qrcode.QrCodeClassifier.QrCodeType.BQP;
+import static org.briarproject.bramble.api.qrcode.QrCodeClassifier.QrCodeType.MAILBOX;
 import static org.briarproject.briar.android.util.UiUtils.showFragment;
 
 @MethodsNotNullByDefault
@@ -56,24 +73,23 @@ public class MailboxActivity extends BriarActivity {
 		}
 
 		viewModel.getPairingState().observeEvent(this, state -> {
-			if (state instanceof MailboxState.NotSetup) {
+			if (state instanceof NotSetup) {
 				onNotSetup();
-			} else if (state instanceof MailboxState.ShowDownload) {
+			} else if (state instanceof ShowDownload) {
 				onShowDownload();
-			} else if (state instanceof MailboxState.ScanningQrCode) {
+			} else if (state instanceof ScanningQrCode) {
 				onScanningQrCode();
-			} else if (state instanceof MailboxState.Pairing) {
-				MailboxPairingState s =
-						((MailboxState.Pairing) state).pairingState;
+			} else if (state instanceof Pairing) {
+				MailboxPairingState s = ((Pairing) state).pairingState;
 				onMailboxPairingStateChanged(s);
-			} else if (state instanceof MailboxState.OfflineWhenPairing) {
+			} else if (state instanceof OfflineWhenPairing) {
 				onOffline();
-			} else if (state instanceof MailboxState.CameraError) {
+			} else if (state instanceof CameraError) {
 				onCameraError();
-			} else if (state instanceof MailboxState.IsPaired) {
-				onIsPaired(((MailboxState.IsPaired) state).isOnline);
-			} else if (state instanceof MailboxState.WasUnpaired) {
-				MailboxState.WasUnpaired s = (MailboxState.WasUnpaired) state;
+			} else if (state instanceof IsPaired) {
+				onIsPaired(((IsPaired) state).isOnline);
+			} else if (state instanceof WasUnpaired) {
+				WasUnpaired s = (WasUnpaired) state;
 				onUnPaired(s.tellUserToWipeMailbox);
 			} else {
 				throw new AssertionError("Unknown state: " + state);
@@ -104,7 +120,7 @@ public class MailboxActivity extends BriarActivity {
 	@Override
 	public void onBackPressed() {
 		MailboxState s = viewModel.getPairingState().getLastValue();
-		if (s instanceof MailboxState.Pairing) {
+		if (s instanceof Pairing) {
 			// don't go back in the flow if we are already pairing
 			// with the mailbox. We provide a try-again button instead.
 			supportFinishAfterTransition();
@@ -158,31 +174,44 @@ public class MailboxActivity extends BriarActivity {
 		}
 		Fragment f;
 		String tag;
-		if (s instanceof MailboxPairingState.Pending) {
-			long timeStarted = ((MailboxPairingState.Pending) s).timeStarted;
+		if (s instanceof Pending) {
+			long timeStarted = ((Pending) s).timeStarted;
 			f = MailboxConnectingFragment.newInstance(timeStarted);
 			tag = MailboxConnectingFragment.TAG;
-		} else if (s instanceof MailboxPairingState.InvalidQrCode) {
-			f = ErrorFragment.newInstance(
-					R.string.mailbox_setup_qr_code_wrong_title,
-					R.string.mailbox_setup_qr_code_wrong_description);
+		} else if (s instanceof InvalidQrCode) {
+			InvalidQrCode i = (InvalidQrCode) s;
+			int errorRes;
+			if (i.qrCodeType == MAILBOX) {
+				if (i.formatVersion < QR_FORMAT_VERSION) {
+					errorRes = R.string.mailbox_qr_code_too_old;
+				} else if (i.formatVersion > QR_FORMAT_VERSION) {
+					errorRes = R.string.mailbox_qr_code_too_new;
+				} else {
+					errorRes = R.string.mailbox_setup_qr_code_wrong_description;
+				}
+			} else if (i.qrCodeType == BQP) {
+				errorRes = R.string.contact_qr_code_for_mailbox;
+			} else {
+				errorRes = R.string.mailbox_setup_qr_code_wrong_description;
+			}
+			f = ErrorFragment.newInstance(R.string.qr_code_invalid, errorRes);
 			tag = ErrorFragment.TAG;
-		} else if (s instanceof MailboxPairingState.MailboxAlreadyPaired) {
+		} else if (s instanceof MailboxAlreadyPaired) {
 			f = ErrorFragment.newInstance(
 					R.string.mailbox_setup_already_paired_title,
 					R.string.mailbox_setup_already_paired_description);
 			tag = ErrorFragment.TAG;
-		} else if (s instanceof MailboxPairingState.ConnectionError) {
+		} else if (s instanceof ConnectionError) {
 			f = ErrorFragment.newInstance(
 					R.string.mailbox_setup_io_error_title,
 					R.string.mailbox_setup_io_error_description);
 			tag = ErrorFragment.TAG;
-		} else if (s instanceof MailboxPairingState.UnexpectedError) {
+		} else if (s instanceof UnexpectedError) {
 			f = ErrorFragment.newInstance(
 					R.string.mailbox_setup_assertion_error_title,
 					R.string.mailbox_setup_assertion_error_description);
 			tag = ErrorFragment.TAG;
-		} else if (s instanceof MailboxPairingState.Paired) {
+		} else if (s instanceof Paired) {
 			f = FinalFragment.newInstance(R.string.mailbox_setup_paired_title,
 					R.drawable.ic_check_circle_outline,
 					R.color.briar_brand_green,

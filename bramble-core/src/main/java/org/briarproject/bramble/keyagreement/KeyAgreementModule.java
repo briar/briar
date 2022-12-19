@@ -1,7 +1,5 @@
 package org.briarproject.bramble.keyagreement;
 
-import org.briarproject.bramble.api.data.BdfReaderFactory;
-import org.briarproject.bramble.api.data.BdfWriterFactory;
 import org.briarproject.bramble.api.keyagreement.KeyAgreementTask;
 import org.briarproject.bramble.api.keyagreement.PayloadEncoder;
 import org.briarproject.bramble.api.keyagreement.PayloadParser;
@@ -19,13 +17,13 @@ public class KeyAgreementModule {
 	}
 
 	@Provides
-	PayloadEncoder providePayloadEncoder(BdfWriterFactory bdfWriterFactory) {
-		return new PayloadEncoderImpl(bdfWriterFactory);
+	PayloadEncoder providePayloadEncoder(PayloadEncoderImpl payloadEncoder) {
+		return payloadEncoder;
 	}
 
 	@Provides
-	PayloadParser providePayloadParser(BdfReaderFactory bdfReaderFactory) {
-		return new PayloadParserImpl(bdfReaderFactory);
+	PayloadParser providePayloadParser(PayloadParserImpl payloadParser) {
+		return payloadParser;
 	}
 
 	@Provides

@@ -13,7 +13,8 @@ import java.io.IOException;
 import javax.annotation.concurrent.Immutable;
 import javax.inject.Inject;
 
-import static org.briarproject.bramble.api.keyagreement.KeyAgreementConstants.PROTOCOL_VERSION;
+import static org.briarproject.bramble.api.keyagreement.KeyAgreementConstants.QR_FORMAT_ID;
+import static org.briarproject.bramble.api.keyagreement.KeyAgreementConstants.QR_FORMAT_VERSION;
 
 @Immutable
 @NotNullByDefault
@@ -29,7 +30,8 @@ class PayloadEncoderImpl implements PayloadEncoder {
 	@Override
 	public byte[] encode(Payload p) {
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
-		out.write(PROTOCOL_VERSION);
+		int formatIdAndVersion = (QR_FORMAT_ID << 5) | QR_FORMAT_VERSION;
+		out.write(formatIdAndVersion);
 		BdfWriter w = bdfWriterFactory.createWriter(out);
 		try {
 			w.writeListStart(); // Payload start

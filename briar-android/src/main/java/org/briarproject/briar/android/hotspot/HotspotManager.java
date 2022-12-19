@@ -436,7 +436,7 @@ class HotspotManager {
 	}
 
 	private static String createWifiLoginString(String ssid, String password) {
-		// https://en.wikipedia.org/wiki/QR_code#WiFi_network_login
+		// https://en.wikipedia.org/wiki/QR_code#Joining_a_Wi%E2%80%91Fi_network
 		// do not remove the dangling ';', it can cause problems to omit it
 		return "WIFI:S:" + ssid + ";T:WPA;P:" + password + ";;";
 	}

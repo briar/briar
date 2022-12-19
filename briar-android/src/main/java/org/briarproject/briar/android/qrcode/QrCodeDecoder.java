@@ -41,7 +41,6 @@ public class QrCodeDecoder implements PreviewConsumer, PreviewCallback {
 	private final ResultCallback callback;
 
 	private Camera camera = null;
-	private int cameraIndex = 0;
 
 	public QrCodeDecoder(AndroidExecutor androidExecutor,
 			@IoExecutor Executor ioExecutor, ResultCallback callback) {
@@ -53,14 +52,12 @@ public class QrCodeDecoder implements PreviewConsumer, PreviewCallback {
 	@Override
 	public void start(Camera camera, int cameraIndex) {
 		this.camera = camera;
-		this.cameraIndex = cameraIndex;
 		askForPreviewFrame();
 	}
 
 	@Override
 	public void stop() {
 		camera = null;
-		cameraIndex = 0;
 	}
 
 	@UiThread

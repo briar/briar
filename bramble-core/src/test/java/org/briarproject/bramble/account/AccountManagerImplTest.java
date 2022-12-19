@@ -20,7 +20,6 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.nio.charset.Charset;
 
 import javax.annotation.Nullable;
 
@@ -34,6 +33,7 @@ import static org.briarproject.bramble.test.TestUtils.getIdentity;
 import static org.briarproject.bramble.test.TestUtils.getRandomBytes;
 import static org.briarproject.bramble.test.TestUtils.getSecretKey;
 import static org.briarproject.bramble.test.TestUtils.getTestDirectory;
+import static org.briarproject.bramble.util.StringUtils.UTF_8;
 import static org.briarproject.bramble.util.StringUtils.getRandomString;
 import static org.briarproject.bramble.util.StringUtils.toHexString;
 import static org.junit.Assert.assertArrayEquals;
@@ -342,7 +342,7 @@ public class AccountManagerImplTest extends BrambleMockTestCase {
 	private void storeDatabaseKey(File f, String hex) throws IOException {
 		f.getParentFile().mkdirs();
 		FileOutputStream out = new FileOutputStream(f);
-		out.write(hex.getBytes(Charset.forName("UTF-8")));
+		out.write(hex.getBytes(UTF_8));
 		out.flush();
 		out.close();
 	}
@@ -350,7 +350,7 @@ public class AccountManagerImplTest extends BrambleMockTestCase {
 	@Nullable
 	private String loadDatabaseKey(File f) throws IOException {
 		BufferedReader reader = new BufferedReader(new InputStreamReader(
-				new FileInputStream(f), Charset.forName("UTF-8")));
+				new FileInputStream(f), UTF_8));
 		String hex = reader.readLine();
 		reader.close();
 		return hex;

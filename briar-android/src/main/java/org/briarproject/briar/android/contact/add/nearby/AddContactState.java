@@ -3,12 +3,14 @@ package org.briarproject.briar.android.contact.add.nearby;
 import android.graphics.Bitmap;
 
 import org.briarproject.bramble.api.identity.Author;
+import org.briarproject.bramble.api.qrcode.QrCodeClassifier.QrCodeType;
 
 import androidx.annotation.Nullable;
 
 abstract class AddContactState {
 
 	static class KeyAgreementListening extends AddContactState {
+
 		final Bitmap qrCode;
 
 		KeyAgreementListening(Bitmap qrCode) {
@@ -29,6 +31,7 @@ abstract class AddContactState {
 	}
 
 	static class ContactExchangeFinished extends AddContactState {
+
 		final ContactExchangeResult result;
 
 		ContactExchangeFinished(ContactExchangeResult result) {
@@ -37,25 +40,34 @@ abstract class AddContactState {
 	}
 
 	static class Failed extends AddContactState {
-		/**
-		 * Non-null if failed due to the scanned QR code version.
-		 * True if the app producing the code is too old.
-		 * False if the scanning app is too old.
-		 */
-		@Nullable
-		final Boolean qrCodeTooOld;
 
-		Failed(@Nullable Boolean qrCodeTooOld) {
-			this.qrCodeTooOld = qrCodeTooOld;
+		static class WrongQrCodeType extends Failed {
+
+			final QrCodeType qrCodeType;
+
+			WrongQrCodeType(QrCodeType qrCodeType) {
+				this.qrCodeType = qrCodeType;
+			}
 		}
 
-		Failed() {
-			this(null);
+		static class WrongQrCodeVersion extends Failed {
+
+			/**
+			 * True if the app producing the code is too old.
+			 * False if the scanning app is too old.
+			 */
+			final boolean qrCodeTooOld;
+
+			WrongQrCodeVersion(boolean qrCodeTooOld) {
+				this.qrCodeTooOld = qrCodeTooOld;
+			}
 		}
 	}
 
 	abstract static class ContactExchangeResult {
+
 		static class Success extends ContactExchangeResult {
+
 			final Author remoteAuthor;
 
 			Success(Author remoteAuthor) {
@@ -64,6 +76,7 @@ abstract class AddContactState {
 		}
 
 		static class Error extends ContactExchangeResult {
+
 			@Nullable
 			final Author duplicateAuthor;
 

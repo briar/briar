@@ -7,7 +7,7 @@ import net.i2p.crypto.eddsa.spec.EdDSAPrivateKeySpec;
 import org.bouncycastle.util.encoders.Base64;
 import org.briarproject.bramble.api.crypto.CryptoComponent;
 
-import java.nio.charset.Charset;
+import static org.briarproject.bramble.util.StringUtils.US_ASCII;
 
 class TorRendezvousCryptoImpl implements TorRendezvousCrypto {
 
@@ -31,6 +31,6 @@ class TorRendezvousCryptoImpl implements TorRendezvousCrypto {
 		EdDSAPrivateKeySpec spec = new EdDSAPrivateKeySpec(seed, CURVE_SPEC);
 		byte[] hash = spec.getH();
 		byte[] base64 = Base64.encode(hash);
-		return "ED25519-V3:" + new String(base64, Charset.forName("US-ASCII"));
+		return "ED25519-V3:" + new String(base64, US_ASCII);
 	}
 }

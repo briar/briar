@@ -1,5 +1,6 @@
 package org.briarproject.bramble.api.mailbox;
 
+import org.briarproject.bramble.api.keyagreement.KeyAgreementConstants;
 import org.briarproject.bramble.api.plugin.TransportId;
 
 import java.util.List;
@@ -18,6 +19,18 @@ public interface MailboxConstants {
 	 * The transport ID of the mailbox plugin.
 	 */
 	TransportId ID = new TransportId("org.briarproject.bramble.mailbox");
+
+	/**
+	 * The QR code format identifier, used to distinguish mailbox QR codes
+	 * from QR codes used for other purposes. See
+	 * {@link KeyAgreementConstants#QR_FORMAT_ID};
+	 */
+	byte QR_FORMAT_ID = 1;
+
+	/**
+	 * The QR code format version.
+	 */
+	byte QR_FORMAT_VERSION = 0;
 
 	/**
 	 * Mailbox API versions that we support as a client. This is reported to our

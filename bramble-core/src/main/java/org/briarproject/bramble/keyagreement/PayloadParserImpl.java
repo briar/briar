@@ -1,6 +1,7 @@
 package org.briarproject.bramble.keyagreement;
 
 import org.briarproject.bramble.api.FormatException;
+import org.briarproject.bramble.api.Pair;
 import org.briarproject.bramble.api.UnsupportedVersionException;
 import org.briarproject.bramble.api.data.BdfList;
 import org.briarproject.bramble.api.data.BdfReader;
@@ -11,6 +12,9 @@ import org.briarproject.bramble.api.keyagreement.TransportDescriptor;
 import org.briarproject.bramble.api.plugin.BluetoothConstants;
 import org.briarproject.bramble.api.plugin.LanTcpConstants;
 import org.briarproject.bramble.api.plugin.TransportId;
+import org.briarproject.bramble.api.qrcode.QrCodeClassifier;
+import org.briarproject.bramble.api.qrcode.QrCodeClassifier.QrCodeType;
+import org.briarproject.bramble.api.qrcode.WrongQrCodeTypeException;
 import org.briarproject.nullsafety.NotNullByDefault;
 
 import java.io.ByteArrayInputStream;
@@ -21,34 +25,42 @@ import java.util.List;
 import javax.annotation.concurrent.Immutable;
 import javax.inject.Inject;
 
-import static org.briarproject.bramble.api.keyagreement.KeyAgreementConstants.BETA_PROTOCOL_VERSION;
 import static org.briarproject.bramble.api.keyagreement.KeyAgreementConstants.COMMIT_LENGTH;
-import static org.briarproject.bramble.api.keyagreement.KeyAgreementConstants.PROTOCOL_VERSION;
+import static org.briarproject.bramble.api.keyagreement.KeyAgreementConstants.QR_FORMAT_VERSION;
 import static org.briarproject.bramble.api.keyagreement.KeyAgreementConstants.TRANSPORT_ID_BLUETOOTH;
 import static org.briarproject.bramble.api.keyagreement.KeyAgreementConstants.TRANSPORT_ID_LAN;
+import static org.briarproject.bramble.api.qrcode.QrCodeClassifier.QrCodeType.BQP;
+import static org.briarproject.bramble.util.StringUtils.ISO_8859_1;
 
 @Immutable
 @NotNullByDefault
 class PayloadParserImpl implements PayloadParser {
 
 	private final BdfReaderFactory bdfReaderFactory;
+	private final QrCodeClassifier qrCodeClassifier;
 
 	@Inject
-	PayloadParserImpl(BdfReaderFactory bdfReaderFactory) {
+	PayloadParserImpl(BdfReaderFactory bdfReaderFactory,
+			QrCodeClassifier qrCodeClassifier) {
 		this.bdfReaderFactory = bdfReaderFactory;
+		this.qrCodeClassifier = qrCodeClassifier;
 	}
 
 	@Override
-	public Payload parse(byte[] raw) throws IOException {
-		ByteArrayInputStream in = new ByteArrayInputStream(raw);
-		// First byte: the protocol version
-		int protocolVersion = in.read();
-		if (protocolVersion == -1) throw new FormatException();
-		if (protocolVersion != PROTOCOL_VERSION) {
-			boolean tooOld = protocolVersion < PROTOCOL_VERSION ||
-					protocolVersion == BETA_PROTOCOL_VERSION;
+	public Payload parse(String payloadString) throws IOException {
+		Pair<QrCodeType, Integer> typeAndVersion =
+				qrCodeClassifier.classifyQrCode(payloadString);
+		QrCodeType qrCodeType = typeAndVersion.getFirst();
+		if (qrCodeType != BQP) throw new WrongQrCodeTypeException(qrCodeType);
+		int formatVersion = typeAndVersion.getSecond();
+		if (formatVersion != QR_FORMAT_VERSION) {
+			boolean tooOld = formatVersion < QR_FORMAT_VERSION;
 			throw new UnsupportedVersionException(tooOld);
 		}
+		byte[] raw = payloadString.getBytes(ISO_8859_1);
+		ByteArrayInputStream in = new ByteArrayInputStream(raw);
+		// First byte: the format identifier and version (already parsed)
+		if (in.read() == -1) throw new AssertionError();
 		// The rest of the payload is a BDF list with one or more elements
 		BdfReader r = bdfReaderFactory.createReader(in);
 		BdfList payload = r.readList();
