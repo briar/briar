@@ -148,7 +148,7 @@ public class AddNearbyContactActivity extends BriarActivity
 		} else if (state instanceof WrongQrCodeType) {
 			QrCodeType qrCodeType = ((WrongQrCodeType) state).qrCodeType;
 			if (qrCodeType == MAILBOX) onMailboxQrCodeScanned();
-			else showErrorFragment();
+			else onWrongQrCodeType();
 		} else if (state instanceof WrongQrCodeVersion) {
 			boolean qrCodeTooOld = ((WrongQrCodeVersion) state).qrCodeTooOld;
 			onWrongQrCodeVersion(qrCodeTooOld);
@@ -183,6 +183,13 @@ public class AddNearbyContactActivity extends BriarActivity
 	private void onMailboxQrCodeScanned() {
 		String title = getString(R.string.qr_code_invalid);
 		String msg = getString(R.string.mailbox_qr_code_for_contact);
+		showNextFragment(
+				AddNearbyContactErrorFragment.newInstance(title, msg, false));
+	}
+
+	private void onWrongQrCodeType() {
+		String title = getString(R.string.qr_code_invalid);
+		String msg = getString(R.string.qr_code_format_unknown);
 		showNextFragment(
 				AddNearbyContactErrorFragment.newInstance(title, msg, false));
 	}
