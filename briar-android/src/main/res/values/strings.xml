@@ -253,7 +253,7 @@
 	<string name="qr_code_too_old_1">The QR code you have scanned comes from an older version of Briar.\n\nPlease ask your contact to upgrade to the latest version and then try again.</string>
 	<string name="qr_code_too_new_1">The QR code you have scanned comes from a newer version of Briar.\n\nPlease upgrade to the latest version and then try again.</string>
 	<string name="mailbox_qr_code_for_contact">The QR code you have scanned comes from Briar Mailbox.\n\nIf you want to link a Mailbox, please choose Settings > Mailbox from the Briar menu.</string>
-	<string name="qr_code_format_unknown">The QR code you have scanned does not come from Briar.\n\nPlease scan the QR code shown on your contact\'s screen.</string>
+	<string name="qr_code_format_unknown">The QR code you have scanned is not meant for adding a Briar contact.\n\nPlease scan the QR code shown on your contact\'s screen.</string>
 	<string name="camera_error">Camera error</string>
 	<string name="connecting_to_device">Connecting to device\u2026</string>
 	<string name="authenticating_with_device">Authenticating with device\u2026</string>
