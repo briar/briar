@@ -65,6 +65,9 @@ public class AndroidUtils {
 
 	public static Pair<String, String> getBluetoothAddressAndMethod(Context ctx,
 			BluetoothAdapter adapter) {
+		// If we don't have permission to access the adapter's address, let
+		// the caller know we can't find it
+		if (!hasBtConnectPermission(ctx)) return new Pair<>("", "");
 		// Return the adapter's address if it's valid and not fake
 		@SuppressLint("HardwareIds")
 		String address = adapter.getAddress();
