@@ -1,4 +1,5 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:tools="http://schemas.android.com/tools"
 	package="org.briarproject.bramble">
 
 	<uses-feature
@@ -7,15 +8,17 @@
 
 	<uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 	<uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+	<!-- The BLUETOOTH permission was supposed to be removed in API 31 but is still needed on some Xiaomi/Redmi/POCO devices running API 31 -->
 	<uses-permission
 		android:name="android.permission.BLUETOOTH"
-		android:maxSdkVersion="30" />
+		android:maxSdkVersion="31" />
 	<uses-permission
 		android:name="android.permission.BLUETOOTH_ADMIN"
 		android:maxSdkVersion="30" />
 	<uses-permission
 		android:name="android.permission.BLUETOOTH_SCAN"
-		android:usesPermissionFlags="neverForLocation" />
+		android:usesPermissionFlags="neverForLocation"
+		tools:targetApi="31" />
 	<uses-permission android:name="android.permission.BLUETOOTH_CONNECT" />
 	<uses-permission android:name="android.permission.BLUETOOTH_ADVERTISE" />
 	<uses-permission android:name="android.permission.INTERNET" />
