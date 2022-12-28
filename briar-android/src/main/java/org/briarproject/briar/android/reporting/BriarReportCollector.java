@@ -310,14 +310,12 @@ class BriarReportCollector {
 						btLeAdvertise);
 			}
 
-			if (hasBtConnectPermission(ctx)) {
-				Pair<String, String> p = getBluetoothAddressAndMethod(ctx, bt);
-				String address = p.getFirst();
-				String method = p.getSecond();
-				connectivityInfo.add("BluetoothAddress",
-						scrubMacAddress(address));
-				connectivityInfo.add("BluetoothAddressMethod", method);
-			}
+			Pair<String, String> p = getBluetoothAddressAndMethod(ctx, bt);
+			String address = p.getFirst();
+			String method = p.getSecond();
+			connectivityInfo.add("BluetoothAddress",
+					scrubMacAddress(address));
+			connectivityInfo.add("BluetoothAddressMethod", method);
 		}
 		return new ReportItem("Connectivity", R.string.dev_report_connectivity,
 				connectivityInfo);
