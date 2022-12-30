@@ -161,6 +161,7 @@
   <string name="error_start_activity">Indisponibil pentru sistemul dvs.</string>
   <string name="status_heading">Stare:</string>
   <string name="error">Eroare</string>
+  <string name="info">Informații</string>
   <!--Contacts and Private Conversations-->
   <string name="no_contacts">Niciun contact de afișat</string>
   <string name="no_contacts_action">Atingeți iconița + pentru a adăuga un contact</string>
@@ -234,6 +235,7 @@
   <string name="menu_contact">Contact</string>
   <!--Adding Contacts-->
   <string name="add_contact_title">Adăugați un contact din apropiere</string>
+  <string name="add_contact_error_two_way">Ați scanat amândoi codurile QR ale celuilalt?</string>
   <string name="face_to_face">Trebuie să vă întâlniți cu persoana pe care doriți să o adăugați la contacte.\n\nAcest pas împiedică alte persoane să se substituie dvs. sau să citească mesajele dvs. în viitor.</string>
   <string name="continue_button">Continuați</string>
   <string name="try_again_button">Încercați din nou</string>
@@ -244,11 +246,14 @@
   <string name="qr_code_invalid">Codul QR este nevalid!</string>
   <string name="qr_code_too_old_1">Codul QR pe care l-ați scanat provine de la o versiune Briar mai veche.\n\nSolicitați contactului să actualizeze aplicația la cea mai recentă versiune, după care încercați din nou.</string>
   <string name="qr_code_too_new_1">Codul QR pe care l-ați scanat provine de la o versiune Briar mai nouă.\n\nActualizați aplicația la cea mai recentă versiune, după care încercați din nou.</string>
+  <string name="mailbox_qr_code_for_contact">Codul QR pe care l-ați scanat provine de la o Cutie poștală Briar.\n\nDacă doriți să conectați Cutia poștală, vă rugăm să mergeți în Setări &gt; Cutie Poștală în meniul Briar..</string>
+  <string name="qr_code_format_unknown">Codul QR pe care l-ați scanat nu este menit pentru a adăuga un contact Briar.\n\nVă rugăm să scanați codul QR afișat pe ecranul contactului dumneavoastră.</string>
   <string name="camera_error">Eroare cameră</string>
   <string name="connecting_to_device">Se conectează la dispozitiv\u2026</string>
   <string name="authenticating_with_device">Se realizează autentificarea cu dispozitivul\u2026</string>
   <string name="connection_error_title">Nu a fost posibilă conectarea cu contactul dvs.</string>
   <string name="connection_error_feedback">Dacă problema persistă, <a href="feedback">trimiteți feedback</a> pentru a ne ajuta să îmbunătățim aplicația.</string>
+  <string name="info_both_must_scan">Trebuie să scanați amândoi codurile QR ale celuilalt.</string>
   <!--Adding Contacts Remotely-->
   <string name="add_contact_remotely_title_case">Adăugați contact de la distanță</string>
   <string name="add_contact_nearby_title">Adaugă un contact din apropiere</string>
@@ -307,6 +312,7 @@
   <string name="different_person_button">Persoană diferită</string>
   <string name="duplicate_link_dialog_text_3">%1$s și  %2$sv-au trimis același link.\n\nUna dintre aceste persoane ar putea încerca să afle cine sunt contactele dvs.\n\nNu îi spuneți că ați primit același link de la altcineva.</string>
   <string name="pending_contact_updated_toast">Contact în așteptare actualizat</string>
+  <string name="info_both_must_enter_links">Amândoi trebuie să adăugați linkurile celuilalt</string>
   <!--Peer trust levels-->
   <string name="peer_trust_level_unverified">Contact neverificat</string>
   <string name="peer_trust_level_verified">Contact verificat</string>
@@ -340,6 +346,7 @@
   <string name="connect_via_bluetooth_intro">În cazul în care conexiunile Bluetooth nu funcționează automat, puteți utiliza acest ecran pentru a vă conecta manual.\n\nContactul trebuie să fie în apropiere pentru ca procedura să funcționeze.\n\nDvs. și contactul trebuie să apăsați pe „Start” simultan.</string>
   <string name="connect_via_bluetooth_already_discovering">Încercați deja să vă conectați prin Bluetooth. Încercați din nou în scurt timp.</string>
   <string name="connect_via_bluetooth_no_location_permission">Nu se poate continua fără a permite accesul la locație</string>
+  <string name="connect_via_bluetooth_no_bluetooth_permission">Nu se poate continua fără permisiunea dispozitivelor din apropiere</string>
   <string name="connect_via_bluetooth_start">Se conectează prin Bluetooth...</string>
   <string name="connect_via_bluetooth_success">Conectare reușită prin Bluetooth</string>
   <string name="connect_via_bluetooth_error">Nu s-a reușit conectarea prin Bluetooth.</string>
@@ -603,9 +610,13 @@
   <string name="mailbox_setup_download_link">Partajați linkul de descărcare</string>
   <string name="mailbox_setup_button_scan">Scanați codul QR al cutiei poștale</string>
   <string name="permission_camera_qr_denied_body">Ați refuzat accesul la cameră, dar scanarea unui cod QR necesită utilizarea camerei.\n\nLuați în considerare acordarea accesului.</string>
-  <string name="mailbox_setup_connecting">Se conectează...</string>
-  <string name="mailbox_setup_qr_code_wrong_title">Cod QR greșit</string>
-  <string name="mailbox_setup_qr_code_wrong_description">Codul scanat nu este valid. Deschideți aplicația de cutie poștală Briar pe dispozitivul pe care este instalată și scanați codul QR pe care îl afișează.</string>
+  <string name="mailbox_setup_connecting">Se conectează la Cutia poștală…</string>
+  <!--This string is shown when connecting to a Mailbox for the first time. The placeholder will be replaced with a duration, e.g. "2 minutes".-->
+  <string name="mailbox_setup_connecting_info">Asta ar putea dura până la %1s</string>
+  <string name="mailbox_qr_code_too_old">Codul QR pe care l-ați scanat provine de la o versiune de Cutie poștală Briar mai veche.\n\nActualizați Cutia poștală la cea mai recentă versiune, după care încercați din nou.</string>
+  <string name="mailbox_qr_code_too_new">Codul QR pe care l-ați scanat provine de la o versiune de Cutie poștală Briar mai nouă.\n\nActualizați Briar la cea mai recentă versiune, după care încercați din nou.</string>
+  <string name="contact_qr_code_for_mailbox">Codul QR pe care l-ați scanat este pentru a adăuga un contact Briar.\n\nDacă doriți să adăugați un contact, vă rugăm să mergeți la lista de contacte și să apăsați +.</string>
+  <string name="mailbox_setup_qr_code_wrong_description">Codul QR pe care l-ați scanat nu provine de la o Cutie poștală Briar.\n\nVă rugăm să deschideți aplicația de Cutie poștală Briar pe dispozitivul pe care este instalată și scanați codul QR pe care îl afișează.</string>
   <string name="mailbox_setup_already_paired_title">Cutia poștală este deja conectată</string>
   <string name="mailbox_setup_already_paired_description">Anulați conectarea cutiei poștale la celălalt dispozitiv și încercați din nou.</string>
   <string name="mailbox_setup_io_error_title">Nu s-a reușit conectarea</string>
@@ -742,11 +753,17 @@
   <string name="permission_location_request_body">Pentru a putea descoperi dispozitive Bluetooth, Briar are nevoie de permisiunea de a accesa locația dvs.\n\nBriar nu stochează locația dvs. și nici nu o partajează cu nimeni.  </string>
   <string name="permission_camera_location_title">Cameră foto și locație</string>
   <string name="permission_camera_location_request_body">Pentru a scana codul QR, Briar are nevoie de acces la camera foto.\n\nPentru a putea descoperi dispozitive Bluetooth, Briar are nevoie de permisiunea de acces la locația dvs.\n\nBriar nu stochează locația dvs. și nici nu o partajează cu nimeni.</string>
+  <string name="permission_camera_bluetooth_title">Camera și dispozitivele din apropiere</string>
+  <string name="permission_camera_bluetooth_request_body">Pentru a scana codul QR, Briar are nevoie de acces la camera foto.\n\nPentru a descoperi dispozitive Bluetooth, Briar are nevoie de permisiunea de a găsi și de a se conecta la dispozitivele din apropiere.</string>
   <string name="permission_camera_denied_body">Ați refuzat accesul la camera foto, dar folosirea acesteia este obligatorie pentru a adăuga contacte.\n\nVă rugăm să luați în considerare acordarea accesului.</string>
   <string name="permission_location_denied_body">Ați refuzat accesul la locație, dar Briar are nevoie de această permisiune pentru a descoperi dispozitive Bluetooth.\n\nVă rugăm să luați în considerare acordarea accesului.</string>
   <string name="permission_location_setting_title">Setări privind locația</string>
   <string name="permission_location_setting_body">Funcția de locație a dispozitivului dvs. trebuie să fie activată pentru a găsi alte dispozitive prin Bluetooth. Activați locația pentru a continua. Puteți să o dezactivați din nou ulterior.</string>
+  <string name="permission_location_setting_hotspot_body">Setarea de localizare a dispozitivului dumneavoastră trebuie să fie activată pentru a crea un hotspot Wi-Fi. Vă rugăm să activați localizarea pentru a continua. Puteți să o dezactivați din nou după aceea.</string>
   <string name="permission_location_setting_button">Activați locația</string>
+  <string name="permission_bluetooth_title">Permisiunea dispozitivelor apropiate</string>
+  <string name="permission_bluetooth_body">Pentru a utiliza comunicarea Bluetooth, Briar are nevoie de permisiunea de a găsi și de a se conecta la dispozitivele din apropiere.</string>
+  <string name="permission_bluetooth_denied_body">Ați refuzat accesul la dispozitivele din apropiere, dar Briar are nevoie de această permisiune pentru a utiliza Bluetooth.\n\nVă rugăm să luați în considerare acordarea accesului.</string>
   <string name="qr_code">Cod QR</string>
   <string name="show_qr_code_fullscreen">Afișați codul QR pe tot ecranul</string>
   <!--App Locking-->
@@ -769,7 +786,9 @@
   <string name="hotspot_notification_title">Se partajează Brian offline</string>
   <string name="hotspot_button_connected">Înainte</string>
   <string name="permission_hotspot_location_request_body">Pentru a crea un hotspot Wi-Fi, Briar are nevoie de permisiunea de a accesa locația dvs.\n\nBriar nu stochează locația dvs. și nici nu o partajează cu nimeni.</string>
+  <string name="permission_hotspot_location_request_precise_body">Pentru a crea un hotspot Wi-Fi, Briar are nevoie de permisiunea de a accesa locația dumneavoastră exactă.\n\nBriar nu stochează locația dumneavoastră și nu o împărtășește cu nimeni.</string>
   <string name="permission_hotspot_location_denied_body">Ați refuzat accesul la locație, dar Briar are nevoie de această permisiune pentru a crea un hotspot Wi-Fi.\n\nVă rugăm să luați în considerare acordarea accesului.</string>
+  <string name="permission_hotspot_location_denied_precise_body">Ați refuzat accesul la locația dumneavoastră exactă, dar Briar are nevoie de această permisiune pentru a crea un hotspot Wi-Fi.Vă rugăm să luați în considerare acordarea accesului.</string>
   <string name="wifi_settings_title">Se setează Wi-Fi</string>
   <string name="wifi_settings_request_enable_body">Pentru a crea un hotspot Wi-Fi, Briar trebuie să folosească Wi-Fi. Vă rugăm să activați funcția.</string>
   <string name="hotspot_tab_manual">Manual</string>

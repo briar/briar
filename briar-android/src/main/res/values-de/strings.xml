@@ -594,9 +594,7 @@
   <string name="mailbox_setup_download_link">Download-Link teilen</string>
   <string name="mailbox_setup_button_scan">Mailbox QR-Code scannen</string>
   <string name="permission_camera_qr_denied_body">Du hast den Zugriff auf die Kamera verweigert, aber das Scannen eines QR-Codes erfordert die Verwendung der Kamera.\n\nBitte gewähre den Zugriff.</string>
-  <string name="mailbox_setup_connecting">Verbinde…</string>
-  <string name="mailbox_setup_qr_code_wrong_title">Falscher QR-Code</string>
-  <string name="mailbox_setup_qr_code_wrong_description">Der gescannte Code ist ungültig. Bitte öffne die Briar Mailbox-App auf deinem Mailbox-Gerät und scanne den dort angezeigten QR-Code.</string>
+  <!--This string is shown when connecting to a Mailbox for the first time. The placeholder will be replaced with a duration, e.g. "2 minutes".-->
   <string name="mailbox_setup_already_paired_title">Mailbox bereits verknüpft</string>
   <string name="mailbox_setup_already_paired_description">Verknüpfung der Mailbox auf deinem anderen Gerät aufheben und erneut versuchen.</string>
   <string name="mailbox_setup_io_error_title">Keine Verknüpfung möglich</string>

@@ -600,9 +600,7 @@
   <string name="mailbox_setup_download_link">Compartilhar Link de Download</string>
   <string name="mailbox_setup_button_scan">Escanear código QR do Mailbox</string>
   <string name="permission_camera_qr_denied_body">Você negou acesso à câmera, mas escanear um código QR requer o uso da câmera.\n\nPor favor, considere conceder acesso.</string>
-  <string name="mailbox_setup_connecting">Conectando...</string>
-  <string name="mailbox_setup_qr_code_wrong_title">Código QR errado</string>
-  <string name="mailbox_setup_qr_code_wrong_description">O código escaneado é inválido. Por favor, abra o app Briar Mailbox no seu dispositivo Mailbox e escaneie o código QR apresentado.</string>
+  <!--This string is shown when connecting to a Mailbox for the first time. The placeholder will be replaced with a duration, e.g. "2 minutes".-->
   <string name="mailbox_setup_already_paired_title">Mailbox já vinculado</string>
   <string name="mailbox_setup_already_paired_description">Desvincule o Mailbox no seu outro dispositivo e tente de novo.</string>
   <string name="mailbox_setup_io_error_title">Não foi possível conectar</string>

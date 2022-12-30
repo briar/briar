@@ -573,9 +573,7 @@
   <string name="mailbox_setup_download_link">ダウンロードリンクを共有</string>
   <string name="mailbox_setup_button_scan">メールボックスのQRコードをスキャン</string>
   <string name="permission_camera_qr_denied_body">カメラへのアクセスをが拒否されましたが、QRコードをスキャンするにはカメラを使用する必要があります。\n\nカメラへのアクセスの許可を考えてください。</string>
-  <string name="mailbox_setup_connecting">接続中…</string>
-  <string name="mailbox_setup_qr_code_wrong_title">不正なQRコード</string>
-  <string name="mailbox_setup_qr_code_wrong_description">スキャンされたコードは無効です。メールボックス端末上のBriarメールボックスアプリを開き、提示されたQRコードをスキャンしてください。</string>
+  <!--This string is shown when connecting to a Mailbox for the first time. The placeholder will be replaced with a duration, e.g. "2 minutes".-->
   <string name="mailbox_setup_already_paired_title">メールボックスは既に結びつけられています</string>
   <string name="mailbox_setup_already_paired_description">あなたの端末上のメールボックスの結びつけを解き、再試行してください。</string>
   <string name="mailbox_setup_io_error_title">接続できません</string>

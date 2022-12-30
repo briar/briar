@@ -5,7 +5,7 @@
   <string name="setup_name_explanation">Ваш псевдоним будет отображаться рядом с любым размещаемым вами контентом. Его нельзя изменить после создания аккаунта.</string>
   <string name="setup_next">Вперед</string>
   <string name="setup_password_intro">Придумайте пароль</string>
-  <string name="setup_password_explanation">Ваш аккаунт Briar хранится в зашифрованном виде только на устройстве. Если вы забудете свой пароль или удалите Briar, то не сможете восстановить свою учетную запись.\n\nПридумайте длинный пароль, который трудно угадать, например четыре случайных слова или десять случайных букв, цифр и символов.</string>
+  <string name="setup_password_explanation">Аккаунт Briar хранится в зашифрованном виде только на устройстве. Если вы забудете свой пароль или удалите Briar, восстановить аккаунт будет невозможно.\n\nПридумайте длинный пароль, который трудно угадать, например четыре случайных слова или десять случайных букв, цифр и символов.</string>
   <string name="dnkm_doze_intro">Для получения сообщений Briar должен работать в фоновом режиме.</string>
   <string name="dnkm_doze_explanation">Для получения сообщений Briar должен работать в фоновом режиме. Отключите оптимизацию электропитания для Briar.</string>
   <string name="choose_nickname">Придумайте псевдоним</string>
@@ -14,7 +14,7 @@
   <string name="name_too_long">Слишком длинное имя</string>
   <string name="password_too_weak">Пароль слишком слабый</string>
   <string name="passwords_do_not_match">Пароли не совпадают</string>
-  <string name="create_account_button">Создать учетную запись</string>
+  <string name="create_account_button">Создать аккаунт</string>
   <string name="more_info">Дополнительная информация</string>
   <string name="don_t_ask_again">Больше не спрашивать</string>
   <string name="dnkm_huawei_protected_text">Нажмите кнопку ниже и убедитесь, что Briar отображается на экране защищенных приложений.</string>
@@ -38,11 +38,11 @@
   <string name="sign_in_button">Войти</string>
   <string name="forgotten_password">Я забыл свой пароль</string>
   <string name="dialog_title_lost_password">Пароль утерян</string>
-  <string name="dialog_message_lost_password">Ваш аккаунт Briar хранится в зашифрованном виде только на устройстве, поэтому мы не можем сбросить пароль. Удалить учетную запись и начать заново?\n\nВнимание: ваши идентификаторы, контакты и сообщения будут потеряны навсегда.</string>
+  <string name="dialog_message_lost_password">Ваш аккаунт Briar хранится в зашифрованном виде только на устройстве, поэтому мы не можем сбросить пароль. Удалить аккаунт и начать заново?\n\nВнимание: ваши идентификаторы, контакты и сообщения будут потеряны навсегда.</string>
   <string name="startup_failed_activity_title">Сбой при запуске Briar</string>
   <string name="startup_failed_clock_error">Briar не удалось запустить, поскольку время на устройстве выставлено некорректно.\n\nПожалуйста, установите правильное время на часах вашего устройства и повторите попытку.</string>
-  <string name="startup_failed_db_error">Briar не смог открыть базу данных, содержащую вашу учетную запись, контакты и сообщения.\n\nПожалуйста, обновите приложение до последней версии и повторите попытку, или создайте новую учетную запись, выбрав \'Я забыл пароль\' в подсказке пароля.</string>
-  <string name="startup_failed_data_too_old_error">Ваша учетная запись была создана в старой версии этого приложения и не может быть открыта в текущей версии.\n\nНеобходимо либо повторно установить старую версию, либо создать новую учетную запись, выбрав \'Я забыл пароль\' в подсказке пароля.</string>
+  <string name="startup_failed_db_error">Briar не смог открыть базу данных, содержащую ваш аккаунт, контакты и сообщения.\n\nПожалуйста, обновите приложение до последней версии и повторите попытку, или создайте новый аккаунт, выбрав \'Я забыл пароль\' в подсказке пароля.</string>
+  <string name="startup_failed_data_too_old_error">Ваш аккаунт был создан в старой версии Briar, поэтому открыть его в этой версии приложения не удастся.\n\nВам необходимо либо установить старую версию, либо создать новый аккаунт, выбрав \'я забыл свой пароль\' на этапе авторизации в приложении.</string>
   <string name="startup_failed_data_too_new_error">Ваш аккаунт был создан в более новой версии этого приложения и не может быть открыт в текущей версии.\n\nПожалуйста, обновите приложение до последней версии и повторите попытку.</string>
   <string name="startup_failed_service_error">Briar не смог запустить необходимый компонент.\n\nПожалуйста, обновите приложение до последней версии и повторите попытку.</string>
   <plurals name="expiry_warning">
@@ -55,11 +55,11 @@
     <item quantity="one">Android 4 больше не поддерживается. Briar перестанет работать на %s (через %d день). Пожалуйста, установите Briar на более современное устройство и создайте новую учетную запись.</item>
     <item quantity="few">Android 4 больше не поддерживается. Briar перестанет работать на %s (через %d дня). Пожалуйста, установите Briar на более современное устройство и создайте новую учетную запись.</item>
     <item quantity="many">Android 4 больше не поддерживается. Briar перестанет работать на %s (через %d дней). Пожалуйста, установите Briar на более современное устройство и создайте новую учетную запись.</item>
-    <item quantity="other">Android 4 больше не поддерживается. Briar перестанет работать на %s (через %d дней). Пожалуйста, установите Briar на более современное устройство и создайте новую учетную запись.</item>
+    <item quantity="other">Android 4 больше не поддерживается. Briar перестанет работать на %s (через %d дней). Пожалуйста, установите Briar на более современное устройство и создайте новый аккаунт.</item>
   </plurals>
   <string name="expiry_date_reached">Срок действия этого программного обеспечения истек.\nСпасибо за тестирование!</string>
   <string name="download_briar">Для продолжения использования Briar, пожалуйста, скачайте последнюю версию.</string>
-  <string name="create_new_account">Вам необходимо создать новую учетную запись, но вы можете использовать тот же псевдоним.</string>
+  <string name="create_new_account">Вам необходимо создать новый аккаунт, но вы можете использовать тот же псевдоним.</string>
   <string name="download_briar_button">Загрузить последнюю версию</string>
   <string name="old_android_expiry_date_reached">Briar больше не работает на Android 4.\nПожалуйста, установите Briar на более современное устройство.</string>
   <string name="old_android_delete_account">Вы можете нажать кнопку ниже, чтобы удалить свой аккаунт с этого устройства.</string>
@@ -255,6 +255,8 @@
   <string name="qr_code_invalid">Неверный QR-код</string>
   <string name="qr_code_too_old_1">QR-код, который вы сосканировали, сгенерирован в старой версии Briar.\n\nПопросите вашего собеседника обновиться до последней версии и повторите попытку.</string>
   <string name="qr_code_too_new_1">QR-код, который вы сосканировали, сгенерирован в новой версии Briar.\n\nОбновите приложение до последней версии и повторите попытку.</string>
+  <string name="mailbox_qr_code_for_contact">QR-код, который вы сосканировали, получен из Briar Mailbox.\n\nЕсли вы хотите связать Mailbox, пожалуйста, выберите Настройки &gt; Mailbox в меню Briar.</string>
+  <string name="qr_code_format_unknown">QR-код, который вы сосканировали, не предназначен для добавления контакта Briar.\n\nПожалуйста, сосканируйте QR-код, показанный на экране вашего контакта.</string>
   <string name="camera_error">Ошибка камеры</string>
   <string name="connecting_to_device">Подключение к устройству\u2026</string>
   <string name="authenticating_with_device">Аутентификация с устройством\u2026</string>
@@ -274,7 +276,7 @@
   <string name="send_link_title">Обмен ссылками</string>
   <string name="add_contact_choose_nickname">Выберите псевдоним</string>
   <string name="add_contact_choose_a_nickname">Введите псевдоним</string>
-  <string name="nickname_intro">Задайте этому контакту псевдоним. Его можете видеть только вы.</string>
+  <string name="nickname_intro">Задайте этому контакту псевдоним. Его сможете видеть только вы.</string>
   <string name="your_link">Передайте эту ссылку контакту, который вы хотите добавить.</string>
   <string name="link_clip_label">Ссылка Briar</string>
   <string name="link_copied_toast">Ссылка скопирована</string>
@@ -589,7 +591,7 @@
   <string name="panic_setting_signout_title">Выйти</string>
   <string name="panic_setting_signout_summary">Выйти из Briar, если нажата тревожная кнопка</string>
   <string name="purge_setting_title">Удалить аккаунт</string>
-  <string name="purge_setting_summary">Удалить вашу учетную запись Briar при нажатии тревожной кнопки. Внимание: это необратимо удалит ваши идентификаторы, контакты и сообщения</string>
+  <string name="purge_setting_summary">Удалить ваш аккаунт Briar при нажатии тревожной кнопки. Внимание: это необратимо удалит ваши идентификаторы, контакты и сообщения</string>
   <!--Settings Notifications-->
   <string name="notification_settings_title">Уведомления</string>
   <string name="notify_sign_in_title">Напомнить мне войти</string>
@@ -622,9 +624,13 @@
   <string name="mailbox_setup_download_link">Поделиться ссылкой на загрузку</string>
   <string name="mailbox_setup_button_scan">Сканирование QR-кода Mailbox</string>
   <string name="permission_camera_qr_denied_body">Вы запретили доступ к камере, однако сканирование QR-кода требует использования камеры.\n\nПожалуйста, рассмотрите возможность предоставления доступа.</string>
-  <string name="mailbox_setup_connecting">Соединение...</string>
-  <string name="mailbox_setup_qr_code_wrong_title">Неправильный QR-код</string>
-  <string name="mailbox_setup_qr_code_wrong_description">Отсканированный код недействителен. Пожалуйста, откройте приложение Briar Mailbox на вашем устройстве и просканируйте представленный QR-код.</string>
+  <string name="mailbox_setup_connecting">Подключение к Mailbox…</string>
+  <!--This string is shown when connecting to a Mailbox for the first time. The placeholder will be replaced with a duration, e.g. "2 minutes".-->
+  <string name="mailbox_setup_connecting_info">Это может занять до %1s</string>
+  <string name="mailbox_qr_code_too_old">QR-код, который вы сосканировали, получен из старой версии Briar Mailbox.\n\nПожалуйста, обновите Briar Mailbox до последней версии и повторите попытку.</string>
+  <string name="mailbox_qr_code_too_new">QR-код, который вы сосканировали, получен из более новой версии Briar Mailbox.\n\nПожалуйста, обновите Briar до последней версии и повторите попытку.</string>
+  <string name="contact_qr_code_for_mailbox">QR-код, который вы сосканировали, предназначен для добавления контакта Briar.\n\nЕсли вы хотите добавить контакт, перейдите в список контактов и нажмите на значок +.</string>
+  <string name="mailbox_setup_qr_code_wrong_description">QR-код, который вы сосканировали, получен не от Briar Mailbox.\n\nПожалуйста, откройте приложение Briar Mailbox на вашем устройстве Mailbox и сосканируйте представленный QR-код.</string>
   <string name="mailbox_setup_already_paired_title">Maibox уже связан</string>
   <string name="mailbox_setup_already_paired_description">Отвяжите Mailbox на другом устройстве и повторите попытку.</string>
   <string name="mailbox_setup_io_error_title">Не удалось подключиться</string>

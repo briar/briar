@@ -608,9 +608,7 @@
   <string name="mailbox_setup_download_link">Поширити посилання на завантаження</string>
   <string name="mailbox_setup_button_scan">Сканувати QR-код Mailbox</string>
   <string name="permission_camera_qr_denied_body">Ви заборонили доступ до камери, але камера потрібна для сканування QR-коду.\n\nБудь ласка, надайте доступ.</string>
-  <string name="mailbox_setup_connecting">Під\'єднання...</string>
-  <string name="mailbox_setup_qr_code_wrong_title">Хибний QR-код</string>
-  <string name="mailbox_setup_qr_code_wrong_description">Проскановано хибний код. Будь ласка, відкрийте застосунок Briar Mailbox на своєму Mailbox-пристрої та проскануйте показаний ним QR-код.</string>
+  <!--This string is shown when connecting to a Mailbox for the first time. The placeholder will be replaced with a duration, e.g. "2 minutes".-->
   <string name="mailbox_setup_already_paired_title">Mailbox уже під\'єднано</string>
   <string name="mailbox_setup_already_paired_description">Від\'єднайте Mailbox від свого іншого пристрою й повторіть спробу.</string>
   <string name="mailbox_setup_io_error_title">Не вдалося з\'єднатися</string>

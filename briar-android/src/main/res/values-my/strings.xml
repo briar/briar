@@ -565,8 +565,7 @@
   <string name="mailbox_setup_download_link">ဒေါင်းလုဒ်လင့်ခ်ကို မျှဝေပါ</string>
   <string name="mailbox_setup_button_scan">စာတိုက်ပုံး QR ကုဒ်ကို စကင်န်ဖတ်ပါ</string>
   <string name="permission_camera_qr_denied_body">သင်သည် ကင်မရာအသုံးပြုခွင့်ကို ငြင်းပယ်ထားသော်လည်း QR ကုဒ်ကို စကင်န်ဖတ်ရန် ကင်မရာကို အသုံးပြုရန် လိုအပ်ပါသည်။ \n\nကျေးဇူးပြု၍ ဝင်ရောက်ခွင့်ပြုရန် စဉ်းစားပါ။</string>
-  <string name="mailbox_setup_connecting">ချိတ်ဆက်နေသည်…</string>
-  <string name="mailbox_setup_qr_code_wrong_title">QR ကုဒ် မှားနေသည်</string>
+  <!--This string is shown when connecting to a Mailbox for the first time. The placeholder will be replaced with a duration, e.g. "2 minutes".-->
   <string name="mailbox_setup_paired_title">ချိတ်ဆက်ပြီးပါပြီ</string>
   <string name="tor_offline_title">အော့ဖ်လိုင်း</string>
   <string name="tor_offline_button_check">ချိတ်ဆက်မှု ဆက်တင်များကို စစ်ဆေးပါ</string>

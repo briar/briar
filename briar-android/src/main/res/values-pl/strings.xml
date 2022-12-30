@@ -618,9 +618,7 @@
   <string name="mailbox_setup_download_link">Udostępnij łącze pobierania</string>
   <string name="mailbox_setup_button_scan">Zeskanuj kod QR aplikacji Mailbox</string>
   <string name="permission_camera_qr_denied_body">Odmówiłeś dostępu do aparatu, ale zeskanowanie kodu QR wymaga użycia aparatu.\n\nRozważ przyznanie dostępu.</string>
-  <string name="mailbox_setup_connecting">Trwa łączenie...</string>
-  <string name="mailbox_setup_qr_code_wrong_title">Nieprawidłowy kod QR</string>
-  <string name="mailbox_setup_qr_code_wrong_description">Zeskanowany kod jest nieprawidłowy. Otwórz aplikację Briar Mailbox na urządzeniu z Mailbox i zeskanuj wyświetlany kod QR. </string>
+  <!--This string is shown when connecting to a Mailbox for the first time. The placeholder will be replaced with a duration, e.g. "2 minutes".-->
   <string name="mailbox_setup_already_paired_title">Mailbox już podłączony</string>
   <string name="mailbox_setup_already_paired_description">Odłącz Mailbox na drugim urządzeniu i spróbuj ponownie.</string>
   <string name="mailbox_setup_io_error_title">Nie udało się połączyć</string>

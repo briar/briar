@@ -588,9 +588,7 @@
   <string name="mailbox_setup_download_link">ჩამოტვირთვის ბმულის გაზიარება</string>
   <string name="mailbox_setup_button_scan">საფოსტო ყუთის QR კოდის სკანირება</string>
   <string name="permission_camera_qr_denied_body">თქვენ უარყავით კამერაზე წვდომა, მაგრამ QR კოდის სკანირებისთვის საჭიროა კამერის გამოყენება.\n\nგთხოვთ, განიხილოთ წვდომის მინიჭება.</string>
-  <string name="mailbox_setup_connecting">უკავშირდება…</string>
-  <string name="mailbox_setup_qr_code_wrong_title">არასწორი QR კოდი</string>
-  <string name="mailbox_setup_qr_code_wrong_description">სკანირებული კოდი არასწორია. გთხოვთ გახსნათ Briar Mailbox აპი თქვენს მოწყობილობაზე საფოსტო ყუთით და დაასკანიროთ იქ არსებული QR კოდი.</string>
+  <!--This string is shown when connecting to a Mailbox for the first time. The placeholder will be replaced with a duration, e.g. "2 minutes".-->
   <string name="mailbox_setup_already_paired_title">საფოსტო ყუთი უკვე დაკავშირებულია</string>
   <string name="mailbox_setup_already_paired_description">ჩახსენით საფოსტო ყუთი სათადარიგო მოწყობილობაზე და ისევ სცადეთ.</string>
   <string name="mailbox_setup_io_error_title">დაკავშირება ვერ ხერხდება</string>

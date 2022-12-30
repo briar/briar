@@ -590,9 +590,7 @@ Vänlige installera Briar på en nyare enhet.</string>
   <string name="mailbox_setup_download_link">Dela hämtningslänk</string>
   <string name="mailbox_setup_button_scan">Skanna Mailbox QR-kod</string>
   <string name="permission_camera_qr_denied_body">Du har nekat åtkomst till kameran, men att skanna en QR-kod kräver användning av kameran.\n\nÖverväg att bevilja tillstånd.</string>
-  <string name="mailbox_setup_connecting">Ansluter...</string>
-  <string name="mailbox_setup_qr_code_wrong_title">Felaktig QR-kod</string>
-  <string name="mailbox_setup_qr_code_wrong_description">Den skannade koden är ogiltig. Öppna Briar Mailbox-appen på din Mailbox-enhet och skanna QR-koden som visas.</string>
+  <!--This string is shown when connecting to a Mailbox for the first time. The placeholder will be replaced with a duration, e.g. "2 minutes".-->
   <string name="mailbox_setup_already_paired_title">Mailbox redan länkad</string>
   <string name="mailbox_setup_already_paired_description">Avlänka Mailbox på din andra enhet och försök igen.</string>
   <string name="mailbox_setup_io_error_title">Kunde inte ansluta</string>

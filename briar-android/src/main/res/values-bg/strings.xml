@@ -224,6 +224,7 @@
   <string name="menu_contact">Контакт</string>
   <!--Adding Contacts-->
   <string name="add_contact_title">Добавяне на контакт на живо</string>
+  <string name="add_contact_error_two_way">Сканирахте ли взаимно кодовете си за QR?</string>
   <string name="face_to_face">Трябва да се срещнете лично с човека, чиито контакт искате да добавите.\n\nТака никой не може да се представи за вас или да чете съобщенията ви в бъдеще.</string>
   <string name="continue_button">Напред</string>
   <string name="try_again_button">Нов опит</string>
@@ -239,6 +240,7 @@
   <string name="authenticating_with_device">Удостоверяване с устройство\u2026</string>
   <string name="connection_error_title">Не може да бъде установена връзка с контакта</string>
   <string name="connection_error_feedback">Ако проблемът продължава, <a href="feedback">изпратете обратна връзка</a>, за да ни помогнете да подобрим приложението.</string>
+  <string name="info_both_must_scan">Трябва взаимно да сканирате кодовете си за QR</string>
   <!--Adding Contacts Remotely-->
   <string name="add_contact_remotely_title_case">Добавяне на контакт отдалечено</string>
   <string name="add_contact_nearby_title">Добавяне на контакт на живо</string>
@@ -296,6 +298,7 @@
   <string name="different_person_button">Не</string>
   <string name="duplicate_link_dialog_text_3">%1$s и %2$s са изпратили еднакви препратки.\n\nЕдиният от двамата вероятно се опитва да разбере кои са контактите ви.\n\nНе им споделяйте, че сте получили същата препратка от друг човек.</string>
   <string name="pending_contact_updated_toast">Обновена чакаща заявка за контакт</string>
+  <string name="info_both_must_enter_links">Трябва взаимно да добавите препратките си</string>
   <!--Peer trust levels-->
   <string name="peer_trust_level_unverified">Непроверен контакт</string>
   <string name="peer_trust_level_verified">Проверен контакт</string>
@@ -329,6 +332,7 @@
   <string name="connect_via_bluetooth_intro">В случай, че връзка чрез Bluetooth не се установява автоматично можете да използвате този екран, за да се свържете ръчно.\n\nВие и контакта трябва да бъдете близо един до друг.\n\nДвамата трябва да докоснете бутона „Старт“ едновременно.</string>
   <string name="connect_via_bluetooth_already_discovering">Осъществява св връзка през Bluetooth. По-късно опитайте отново.</string>
   <string name="connect_via_bluetooth_no_location_permission">Не може да продължи без разрешение за местоположение</string>
+  <string name="connect_via_bluetooth_no_bluetooth_permission">Не може да продължи без разрешение за устройства наблизо</string>
   <string name="connect_via_bluetooth_start">Свързване чрез Bluetooth…</string>
   <string name="connect_via_bluetooth_success">Успешно е създaдена връзка чрез Bluetooth</string>
   <string name="connect_via_bluetooth_error">Не може да бъде установена връзка чрез Bluetooth.</string>
@@ -586,10 +590,8 @@
 \nСлед това свържете Mailbox с Briar чрез сканиране на кода за QR от приложението Mailbox.</string>
   <string name="mailbox_setup_download_link">Споделяне на препратка за изтегляне</string>
   <string name="mailbox_setup_button_scan">Сканиране на кода за QR на пощенска кутия</string>
-  <string name="permission_camera_qr_denied_body">Отказахте достъп до камерата, но тя е необходима за добавянето на контакти.\n\nОбмислете дали да не дадете разрешение.</string>
-  <string name="mailbox_setup_connecting">Свързване…</string>
-  <string name="mailbox_setup_qr_code_wrong_title">Грешен код на QR</string>
-  <string name="mailbox_setup_qr_code_wrong_description">Сканираният код е недействителен. Отворете приложението Briar Malibox на устройството, на което е инсталирано и сканирайте кода, който то предостави.</string>
+  <string name="permission_camera_qr_denied_body">Отказахте достъп до камерата, но достъп е необходим за сканиране на кодове за QR.\n\nОбмислете дали да не дадете разрешение.</string>
+  <!--This string is shown when connecting to a Mailbox for the first time. The placeholder will be replaced with a duration, e.g. "2 minutes".-->
   <string name="mailbox_setup_already_paired_title">Пощенската кутия е вече свързана</string>
   <string name="mailbox_setup_already_paired_description">Прекъснете връзката с пощенската кутия от другото устройство и опитайте отново.</string>
   <string name="mailbox_setup_io_error_title">Грешка при свързване</string>
@@ -718,14 +720,20 @@
   <string name="permission_camera_title">Разрешение за камера</string>
   <string name="permission_camera_request_body">За да сканира кода за QR, Briar трябва да използва камерата.</string>
   <string name="permission_location_title">Разрешение за местоположение</string>
-  <string name="permission_location_request_body">За да открива устройства чрез Bluetooth, на Briar му е необходимо разрешение за достъп до местоположението.\n\nBriar не го пази и не го споделя с никого.</string>
+  <string name="permission_location_request_body">За да открива устройства чрез Bluetooth, Briar се нуждае от разрешение за достъп до местоположението.\n\nBriar не го пази и не го споделя с никого.</string>
   <string name="permission_camera_location_title">Камера и местоположение</string>
-  <string name="permission_camera_location_request_body">За да сканира кодове за QR, на Briar му е необходимо разрешение за достъп до камерата.\n\nЗа да открива устройства чрез Bluetooth, на Briar му е необходимо разрешение за достъп до местоположението.\n\nBriar не го пази и не го споделя с никого.</string>
-  <string name="permission_camera_denied_body">Отказахте достъп до камерата, но тя е необходима за добавянето на контакти.\n\nОбмислете дали да не дадете разрешение.</string>
-  <string name="permission_location_denied_body">Отказахте достъп до местоположението, но то е необходимо за откриване на устройства чрез Bluetooth.\n\nОбмислете дали да не дадете разрешение.</string>
+  <string name="permission_camera_location_request_body">За да сканира кода за QR, Briar трябва да използва камерата.\n\nЗа да открива устройства чрез Bluetooth, Briar трябва да има достъп до местоположението.\n\nBriar не го пази и не го споделя с никого.</string>
+  <string name="permission_camera_bluetooth_title">Камера и устройства наблизо</string>
+  <string name="permission_camera_bluetooth_request_body">За да сканира кода за QR, Briar трябва да използва камерата.\n\nЗа да открива устройства чрез Bluetooth, Briar се нуждае от достъп до местоположението. Briar се нуждае от разрешение да намира и да се свързва с устройства наблизо.</string>
+  <string name="permission_camera_denied_body">Отказахте достъп до камерата, но достъп е необходим за добавяне на контакти.\n\nОбмислете дали да не дадете разрешение.</string>
+  <string name="permission_location_denied_body">Отказахте достъп до местоположението, но достъп е необходим за откриване на устройства чрез Bluetooth.\n\nОбмислете дали да не дадете разрешение.</string>
   <string name="permission_location_setting_title">Настройки на местоположението</string>
-  <string name="permission_location_setting_body">Местоположението на устройството ви трябва да е включено, за да бъдат откривани устройства чрез Bluetooth. За да продължите включете местоположението. След това можете да го изключите.</string>
+  <string name="permission_location_setting_body">За да бъдат откривани устройства чрез Bluetooth местоположението на устройството ви трябва да е включено. За да продължите включете местоположението. След това можете да го изключите.</string>
+  <string name="permission_location_setting_hotspot_body">За да създаде безжична точка за достъп местоположението на устройството ви трябва да е включено. За да продължите включете местоположението. След това можете да го изключите.</string>
   <string name="permission_location_setting_button">Включване на местеположение</string>
+  <string name="permission_bluetooth_title">Разрешение за устройства наблизо</string>
+  <string name="permission_bluetooth_body">За да извършва разговори чрез Bluetooth, Briar се нуждае от разрешение да намира и да се свързва с устройства наблизо.</string>
+  <string name="permission_bluetooth_denied_body">Отказахте достъп до устройства наблизо, но достъп е необходим за използване на Bluetooth.\n\nОбмислете дали да не дадете разрешение.</string>
   <string name="qr_code">Код за QR</string>
   <string name="show_qr_code_fullscreen">Код за QR на цял екран</string>
   <!--App Locking-->
@@ -747,8 +755,10 @@
   <string name="hotspot_notification_channel_title">Безжична точка за достъп</string>
   <string name="hotspot_notification_title">Споделяне на Briar извън мрежа</string>
   <string name="hotspot_button_connected">Напред</string>
-  <string name="permission_hotspot_location_request_body">За да създаде безжична точка за достъп, на Briar му е необходимо разрешение за достъп до местоположението.\n\nBriar не го пази и не го споделя с никого.</string>
-  <string name="permission_hotspot_location_denied_body">Отказахте достъп до местоположението, но то е необходимо за създаване на безжична точка за достъп.\n\nОбмислете дали да не дадете разрешение.</string>
+  <string name="permission_hotspot_location_request_body">За да създаде безжична точка за достъп, Briar се нуждае от разрешение за достъп до местоположението.\n\nBriar не го пази и не го споделя с никого.</string>
+  <string name="permission_hotspot_location_request_precise_body">За да създаде безжична точка за достъп, Briar се нуждае от разрешение за достъп до точното местоположение.\n\nBriar не го пази и не го споделя с никого.</string>
+  <string name="permission_hotspot_location_denied_body">Отказахте достъп до местоположението, но достъп е необходим за създаване на безжична точка за достъп.\n\nОбмислете дали да не дадете разрешение.</string>
+  <string name="permission_hotspot_location_denied_precise_body">Отказахте достъп до точното местоположение, но достъп е необходим за създаване на безжична точка за достъп.\n\nОбмислете дали да не дадете разрешение.</string>
   <string name="wifi_settings_title">Настройки на Wi-Fi</string>
   <string name="wifi_settings_request_enable_body">За да създаде безжична точка за достъп, Briar се нуждае от безжична мрежа. Включете Wi-Fi.</string>
   <string name="hotspot_tab_manual">Ръчно</string>

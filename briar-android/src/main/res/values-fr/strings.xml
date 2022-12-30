@@ -593,9 +593,7 @@
   <string name="mailbox_setup_download_link">Partager le lien de téléchargement</string>
   <string name="mailbox_setup_button_scan">Balayer le code QR de Boîte de courriel</string>
   <string name="permission_camera_qr_denied_body">Vous avez refusé l’accès à l’appareil photo, mais le balayage d’un code QR de contacts exige de l’utiliser.\n\nVeuillez envisager d’y accorder l’accès.</string>
-  <string name="mailbox_setup_connecting">Connexion…</string>
-  <string name="mailbox_setup_qr_code_wrong_title">Le code QR est erroné</string>
-  <string name="mailbox_setup_qr_code_wrong_description">Le code balayé est invalide. Veuillez ouvrir l’appli Boîte de courriel de Briar sur votre appareil Boîte de courriel et balayer le code qu’elle présente.</string>
+  <!--This string is shown when connecting to a Mailbox for the first time. The placeholder will be replaced with a duration, e.g. "2 minutes".-->
   <string name="mailbox_setup_already_paired_title">La Boîte de courriel est déjà reliée</string>
   <string name="mailbox_setup_already_paired_description">Annuler le lien avec la Boîte de courriel sur l’autre appareil et réessayer.</string>
   <string name="mailbox_setup_io_error_title">Connexion impossible</string>

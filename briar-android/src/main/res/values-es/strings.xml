@@ -235,6 +235,7 @@
   <string name="menu_contact">Contacto</string>
   <!--Adding Contacts-->
   <string name="add_contact_title">Agregar contacto cercano</string>
+  <string name="add_contact_error_two_way">¿Ambos escanearon los códigos QR del otro?</string>
   <string name="face_to_face">Debes reunirte con la persona a la que quieras añadir como contacto.\n\nHaciéndolo así prevendrás que nadie te suplante o pueda leer tus mensajes en el futuro.</string>
   <string name="continue_button">Continuar</string>
   <string name="try_again_button">Prueba de nuevo</string>
@@ -308,6 +309,7 @@
   <string name="different_person_button">Diferente Persona</string>
   <string name="duplicate_link_dialog_text_3">%1$s y %2$s te enviaron el mismo enlace.\n\nUno de ellos puede estar tratando de descubrir quiénes son tus contactos.\n\nNo les digas que recibiste el mismo enlace de otra persona.</string>
   <string name="pending_contact_updated_toast">Contacto pendiente actualizado</string>
+  <string name="info_both_must_enter_links">Ambos deben agregar los enlaces del otro</string>
   <!--Peer trust levels-->
   <string name="peer_trust_level_unverified">Contacto no verificado</string>
   <string name="peer_trust_level_verified">Contacto verificado</string>
@@ -341,6 +343,7 @@
   <string name="connect_via_bluetooth_intro">En el caso que las conexiones Bluetooth no funcionen automáticamente, puedes usar esta pantalla para conectarte manualmente.\n\nTu contacto necesita estar cerca para que esto funcione.\n\nAmbos deberían presionar \"Inicio\" al mismo tiempo.</string>
   <string name="connect_via_bluetooth_already_discovering">Ya se está intentando conectar vía Bluetooth. Por favor inténtalo de nuevo en unos segundos.</string>
   <string name="connect_via_bluetooth_no_location_permission">No se puede continuar sin permiso de ubicación</string>
+  <string name="connect_via_bluetooth_no_bluetooth_permission">No se puede continuar sin el permiso de dispositivos cercanos</string>
   <string name="connect_via_bluetooth_start">Conectar mediante Bluetooth...</string>
   <string name="connect_via_bluetooth_success">Conectado exitosamente mediante Bluetooth</string>
   <string name="connect_via_bluetooth_error">No se pudo conectar mediante Bluetooth.</string>
@@ -604,9 +607,7 @@
   <string name="mailbox_setup_download_link">Compartir enlace de descarga</string>
   <string name="mailbox_setup_button_scan">Escanear código QR de Buzón</string>
   <string name="permission_camera_qr_denied_body">Has denegado el acceso a la cámara, pero para escanear un código QR se requiere el uso de la cámara.\n\nPor favor considera conceder el acceso.</string>
-  <string name="mailbox_setup_connecting">Conectando...</string>
-  <string name="mailbox_setup_qr_code_wrong_title">Código QR erróneo</string>
-  <string name="mailbox_setup_qr_code_wrong_description">El código escaneado no es válido. Por favor abre la aplicación Buzón de Briar en tu dispositivo de buzón y escanea el código QR que presenta.</string>
+  <!--This string is shown when connecting to a Mailbox for the first time. The placeholder will be replaced with a duration, e.g. "2 minutes".-->
   <string name="mailbox_setup_already_paired_title">Buzón ya vinculado</string>
   <string name="mailbox_setup_already_paired_description">Desvincula el Buzón en tu otro dispositivo e inténtalo de nuevo.</string>
   <string name="mailbox_setup_io_error_title">No se pudo conectar</string>
@@ -743,6 +744,7 @@
   <string name="permission_location_request_body">Para descubrir dispositivos Bluetooth, Briar necesita permiso para acceder tu ubicación.\n\nBriar no la almacena o la comparte con nadie.</string>
   <string name="permission_camera_location_title">Cámara y ubicación</string>
   <string name="permission_camera_location_request_body">Para escanear el código QR, Briar necesita acceso a la cámara.\n\nPara descubrir dispositivos Bluetooth, Briar necesita permiso para acceder tu ubicación.\n\nBriar no la almacena o la comparte con nadie.</string>
+  <string name="permission_camera_bluetooth_title">Cámara y dispositivos cercanos</string>
   <string name="permission_camera_denied_body">Has denegado el acceso a la cámara, pero para añadir contactos se requiere el uso de la cámara.\n\nPor favor considera la posibilidad de conceder el acceso.</string>
   <string name="permission_location_denied_body">Has denegado el acceso a tu ubicación, pero Briar necesita este permiso para descubrir dispositivos Bluetooth.\n\nPor favor considera la posibilidad de conceder el acceso.</string>
   <string name="permission_location_setting_title">Configuración de ubicación</string>
