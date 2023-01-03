@@ -13,6 +13,7 @@ import org.briarproject.briar.android.privategroup.memberlist.GroupMemberListAct
 import org.briarproject.briar.android.privategroup.reveal.RevealContactsActivity;
 import org.briarproject.briar.android.threaded.ThreadListActivity;
 import org.briarproject.briar.android.threaded.ThreadListViewModel;
+import org.briarproject.briar.android.widget.LinkDialogFragment;
 import org.briarproject.nullsafety.MethodsNotNullByDefault;
 import org.briarproject.nullsafety.ParametersNotNullByDefault;
 
@@ -156,6 +157,12 @@ public class GroupActivity extends
 	public void onReplyClick(GroupMessageItem item) {
 		Boolean isDissolved = viewModel.isDissolved().getValue();
 		if (isDissolved != null && !isDissolved) super.onReplyClick(item);
+	}
+
+	@Override
+	public void onLinkClick(String url){
+		LinkDialogFragment f = LinkDialogFragment.newInstance(url);
+		f.show(getSupportFragmentManager(), f.getUniqueTag());
 	}
 
 	private void setGroupEnabled(boolean enabled) {

@@ -20,6 +20,7 @@ import androidx.annotation.UiThread;
 import androidx.recyclerview.widget.RecyclerView;
 
 import static androidx.core.content.ContextCompat.getColor;
+import static org.briarproject.briar.android.util.UiUtils.makeLinksClickable;
 
 @UiThread
 @NotNullByDefault
@@ -43,6 +44,7 @@ public abstract class BaseThreadItemViewHolder<I extends ThreadItem>
 	@CallSuper
 	public void bind(I item, ThreadItemListener<I> listener) {
 		textView.setText(StringUtils.trim(item.getText()));
+		makeLinksClickable(textView, listener::onLinkClick);
 
 		author.setAuthor(item.getAuthor(), item.getAuthorInfo());
 		author.setDate(item.getTimestamp());

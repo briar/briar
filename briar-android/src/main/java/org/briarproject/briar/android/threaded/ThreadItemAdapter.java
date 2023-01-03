@@ -137,6 +137,7 @@ public class ThreadItemAdapter<I extends ThreadItem>
 
 	public interface ThreadItemListener<I> {
 		void onReplyClick(I item);
+		void onLinkClick(String url);
 	}
 
 }
