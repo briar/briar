@@ -26,7 +26,7 @@ dependencyVerification {
         'org.apache-extras.beanshell:bsh:2.0b6:bsh-2.0b6.jar:a17955976070c0573235ee662f2794a78082758b61accffce8d3f8aedcd91047',
         'org.briarproject:obfs4proxy-android:0.0.14-tor1:obfs4proxy-android-0.0.14-tor1.jar:8b08068778b133484b17956d8f7a7710739c33f671a26a68156f4d34e6f28c30',
         'org.briarproject:snowflake-android:2.3.1:snowflake-android-2.3.1.jar:1f83c9a070f87b7074af13627709a8b5aced5460104be7166af736b1bb73c293',
-        'org.briarproject:tor-android:0.4.5.14:tor-android-0.4.5.14.jar:7cf1beaa6c1db51fc8fac263aba9624ef289c3db29772509efcbc59f7057330a',
+        'org.briarproject:tor-android:0.4.7.12:tor-android-0.4.7.12.jar:38b3bd68675660b53d7c6f029c0fbd35279d46880f1a60534216f7efbd2caa96',
         'org.checkerframework:checker-compat-qual:2.5.5:checker-compat-qual-2.5.5.jar:11d134b245e9cacc474514d2d66b5b8618f8039a1465cdc55bbc0b34e0008b7a',
         'org.checkerframework:checker-qual:3.12.0:checker-qual-3.12.0.jar:ff10785ac2a357ec5de9c293cb982a2cbb605c0309ea4cc1cb9b9bc6dbe7f3cb',
         'org.hamcrest:hamcrest-core:2.1:hamcrest-core-2.1.jar:e09109e54a289d88506b9bfec987ddd199f4217c9464132668351b9a4f00bee9',
