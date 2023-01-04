@@ -2,6 +2,9 @@ package org.briarproject.briar.android.blog;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.Html;
+import android.text.SpannableStringBuilder;
+import android.text.util.Linkify;
 import android.view.MenuItem;
 import android.widget.ProgressBar;
 
@@ -123,7 +126,11 @@ public class WriteBlogPostActivity extends BriarActivity
 		input.setVisibility(GONE);
 		progressBar.setVisibility(VISIBLE);
 
-		storePost(text);
+		SpannableStringBuilder ssb = SpannableStringBuilder.valueOf(text);
+		Linkify.addLinks(ssb, Linkify.WEB_URLS);
+		String html = Html.toHtml(ssb);
+
+		storePost(html);
 		return new MutableLiveData<>(SENT);
 	}
 
