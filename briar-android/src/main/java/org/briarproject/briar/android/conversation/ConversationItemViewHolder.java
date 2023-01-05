@@ -1,6 +1,7 @@
 package org.briarproject.briar.android.conversation;
 
 import android.content.Context;
+import android.text.util.Linkify;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -59,6 +60,7 @@ abstract class ConversationItemViewHolder extends ViewHolder {
 
 		if (item.getText() != null) {
 			text.setText(trim(item.getText()));
+			Linkify.addLinks(text, Linkify.WEB_URLS);
 			makeLinksClickable(text, listener::onLinkClick);
 		}
 

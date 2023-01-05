@@ -23,7 +23,6 @@
 		android:elevation="@dimen/message_bubble_elevation"
 		android:textColor="?android:attr/textColorPrimary"
 		android:textColorLink="@color/briar_text_link"
-		android:autoLink="web"
 		tools:text="Short message"
 		tools:visibility="visible" />
 

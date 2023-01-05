@@ -22,7 +22,6 @@
 		android:background="@drawable/msg_in_top"
 		android:elevation="@dimen/message_bubble_elevation"
 		android:textColorLink="@color/briar_text_link"
-		android:autoLink="web"
 		tools:text="Short message"
 		tools:visibility="visible" />
 

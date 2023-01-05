@@ -42,7 +42,6 @@
 		android:layout_marginBottom="@dimen/message_bubble_padding_bottom_inner"
 		android:textColor="?android:attr/textColorPrimary"
 		android:textColorLink="@color/briar_text_link"
-		android:autoLink="web"
 		app:layout_constrainedWidth="true"
 		app:layout_constraintBottom_toTopOf="@+id/statusLayout"
 		app:layout_constraintEnd_toEndOf="parent"

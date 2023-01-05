@@ -171,9 +171,10 @@ class BlogPostViewHolder extends RecyclerView.ViewHolder {
 			// TODO make author clickable #624
 
 			text.setText(c.getComment());
+			Linkify.addLinks(text, Linkify.WEB_URLS);
+			text.setMovementMethod(null);
 			if (fullText) {
 				text.setTextIsSelectable(true);
-				Linkify.addLinks(text, Linkify.WEB_URLS);
 				makeLinksClickable(text, listener::onLinkClick);
 			}
 

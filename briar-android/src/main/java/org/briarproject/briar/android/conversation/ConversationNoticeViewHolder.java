@@ -1,5 +1,6 @@
 package org.briarproject.briar.android.conversation;
 
+import android.text.util.Linkify;
 import android.view.View;
 import android.widget.TextView;
 
@@ -41,6 +42,7 @@ class ConversationNoticeViewHolder extends ConversationItemViewHolder {
 		} else {
 			msgText.setVisibility(VISIBLE);
 			msgText.setText(trim(text));
+			Linkify.addLinks(msgText, Linkify.WEB_URLS);
 			makeLinksClickable(msgText, listener::onLinkClick);
 			layout.setBackgroundResource(isIncoming() ?
 					R.drawable.notice_in_bottom : R.drawable.notice_out_bottom);
