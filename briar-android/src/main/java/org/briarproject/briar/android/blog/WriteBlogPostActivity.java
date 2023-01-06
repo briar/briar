@@ -2,17 +2,19 @@ package org.briarproject.briar.android.blog;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.text.Html;
 import android.text.SpannableStringBuilder;
 import android.text.util.Linkify;
 import android.view.MenuItem;
 import android.widget.ProgressBar;
+
+import com.google.android.material.snackbar.Snackbar;
 
 import org.briarproject.bramble.api.FormatException;
 import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.identity.IdentityManager;
 import org.briarproject.bramble.api.identity.LocalAuthor;
 import org.briarproject.bramble.api.sync.GroupId;
+import org.briarproject.bramble.util.StringUtils;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.activity.ActivityComponent;
 import org.briarproject.briar.android.activity.BriarActivity;
@@ -24,6 +26,7 @@ import org.briarproject.briar.api.attachment.AttachmentHeader;
 import org.briarproject.briar.api.blog.BlogManager;
 import org.briarproject.briar.api.blog.BlogPost;
 import org.briarproject.briar.api.blog.BlogPostFactory;
+import org.briarproject.briar.util.HtmlUtils;
 import org.briarproject.nullsafety.MethodsNotNullByDefault;
 import org.briarproject.nullsafety.ParametersNotNullByDefault;
 
@@ -34,11 +37,13 @@ import java.util.logging.Logger;
 import javax.inject.Inject;
 
 import androidx.annotation.Nullable;
+import androidx.core.text.HtmlCompat;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
+import static com.google.android.material.snackbar.BaseTransientBottomBar.LENGTH_SHORT;
 import static java.util.logging.Level.WARNING;
 import static org.briarproject.bramble.util.LogUtils.logException;
 import static org.briarproject.bramble.util.StringUtils.isNullOrEmpty;
@@ -121,14 +126,23 @@ public class WriteBlogPostActivity extends BriarActivity
 			List<AttachmentHeader> headers, long expectedAutoDeleteTimer) {
 		if (isNullOrEmpty(text)) throw new AssertionError();
 
+		SpannableStringBuilder ssb = SpannableStringBuilder.valueOf(text);
+		Linkify.addLinks(ssb, Linkify.WEB_URLS);
+		String html = HtmlUtils.clean(
+				HtmlCompat.toHtml(ssb,
+						HtmlCompat.TO_HTML_PARAGRAPH_LINES_INDIVIDUAL),
+				HtmlUtils.ARTICLE);
+
+		int textLength = StringUtils.toUtf8(html).length;
+		if (textLength > MAX_BLOG_POST_TEXT_LENGTH) {
+			Snackbar.make(input, R.string.text_too_long, LENGTH_SHORT).show();
+			return new MutableLiveData<>(null);
+		}
+
 		// hide publish button, show progress bar
 		input.hideSoftKeyboard();
 		input.setVisibility(GONE);
 		progressBar.setVisibility(VISIBLE);
-
-		SpannableStringBuilder ssb = SpannableStringBuilder.valueOf(text);
-		Linkify.addLinks(ssb, Linkify.WEB_URLS);
-		String html = Html.toHtml(ssb);
 
 		storePost(html);
 		return new MutableLiveData<>(SENT);
