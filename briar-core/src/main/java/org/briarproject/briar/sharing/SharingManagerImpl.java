@@ -51,6 +51,7 @@ import javax.annotation.Nullable;
 import static org.briarproject.bramble.api.sync.Group.Visibility.SHARED;
 import static org.briarproject.bramble.api.sync.validation.IncomingMessageHook.DeliveryAction.ACCEPT_DO_NOT_SHARE;
 import static org.briarproject.briar.api.autodelete.AutoDeleteConstants.NO_AUTO_DELETE_TIMER;
+import static org.briarproject.briar.api.sharing.SharingManager.SharingStatus.SHAREABLE;
 import static org.briarproject.briar.sharing.MessageType.ABORT;
 import static org.briarproject.briar.sharing.MessageType.ACCEPT;
 import static org.briarproject.briar.sharing.MessageType.DECLINE;
@@ -269,7 +270,7 @@ abstract class SharingManagerImpl<S extends Shareable>
 		SessionId sessionId = getSessionId(shareableId);
 		try {
 			Contact contact = db.getContact(txn, contactId);
-			if (!canBeShared(txn, shareableId, contact))
+			if (getSharingStatus(txn, shareableId, contact) != SHAREABLE)
 				// we might have received an invitation in the meantime
 				return;
 			// Look up the session, if there is one
@@ -467,34 +468,36 @@ abstract class SharingManagerImpl<S extends Shareable>
 	}
 
 	@Override
-	public boolean canBeShared(GroupId g, Contact c) throws DbException {
+	public SharingStatus getSharingStatus(GroupId g, Contact c) throws DbException {
 		Transaction txn = db.startTransaction(true);
 		try {
-			boolean canBeShared = canBeShared(txn, g, c);
+			SharingStatus sharingStatus = getSharingStatus(txn, g, c);
 			db.commitTransaction(txn);
-			return canBeShared;
+			return sharingStatus;
 		} finally {
 			db.endTransaction(txn);
 		}
 	}
 
 	@Override
-	public boolean canBeShared(Transaction txn, GroupId g, Contact c)
+	public SharingStatus getSharingStatus(Transaction txn, GroupId g, Contact c)
 			throws DbException {
 		// The group can't be shared unless the contact supports the client
 		Visibility client = clientVersioningManager.getClientVisibility(txn,
 				c.getId(), getShareableClientId(), getShareableMajorVersion());
-		if (client != SHARED) return false;
+		if (client != SHARED) return SharingStatus.NOT_SUPPORTED;
 		GroupId contactGroupId = getContactGroup(c).getId();
 		SessionId sessionId = getSessionId(g);
 		try {
 			StoredSession ss = getSession(txn, contactGroupId, sessionId);
 			// If there's no session, we can share the group with the contact
-			if (ss == null) return true;
+			if (ss == null) return SharingStatus.SHAREABLE;
 			// If the session's in the right state, the contact can be invited
 			Session session =
 					sessionParser.parseSession(contactGroupId, ss.bdfSession);
-			return session.getState().canInvite();
+			if (session.getState().canInvite()) return SharingStatus.SHAREABLE;
+			if (session.getState().isSharing()) return SharingStatus.SHARING;
+			return SharingStatus.INVITED;
 		} catch (FormatException e) {
 			throw new DbException(e);
 		}

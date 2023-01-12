@@ -37,6 +37,7 @@ import org.briarproject.briar.api.privategroup.invitation.GroupInvitationItem;
 import org.briarproject.briar.api.privategroup.invitation.GroupInvitationManager;
 import org.briarproject.briar.api.privategroup.invitation.GroupInvitationRequest;
 import org.briarproject.briar.api.privategroup.invitation.GroupInvitationResponse;
+import org.briarproject.briar.api.sharing.SharingManager.SharingStatus;
 import org.briarproject.briar.client.ConversationClientImpl;
 import org.briarproject.nullsafety.NotNullByDefault;
 
@@ -56,6 +57,7 @@ import javax.inject.Inject;
 import static org.briarproject.bramble.api.sync.Group.Visibility.SHARED;
 import static org.briarproject.bramble.api.sync.validation.IncomingMessageHook.DeliveryAction.ACCEPT_DO_NOT_SHARE;
 import static org.briarproject.briar.api.autodelete.AutoDeleteConstants.NO_AUTO_DELETE_TIMER;
+import static org.briarproject.briar.privategroup.invitation.CreatorState.JOINED;
 import static org.briarproject.briar.privategroup.invitation.CreatorState.START;
 import static org.briarproject.briar.privategroup.invitation.MessageType.ABORT;
 import static org.briarproject.briar.privategroup.invitation.MessageType.INVITE;
@@ -511,7 +513,7 @@ class GroupInvitationManagerImpl extends ConversationClientImpl
 	}
 
 	@Override
-	public boolean isInvitationAllowed(Contact c, GroupId privateGroupId)
+	public SharingStatus getSharingStatus(Contact c, GroupId privateGroupId)
 			throws DbException {
 		GroupId contactGroupId = getContactGroup(c).getId();
 		SessionId sessionId = getSessionId(privateGroupId);
@@ -523,13 +525,16 @@ class GroupInvitationManagerImpl extends ConversationClientImpl
 			StoredSession ss = getSession(txn, contactGroupId, sessionId);
 			db.commitTransaction(txn);
 			// The group can't be shared unless the contact supports the client
-			if (client != SHARED) return false;
+			if (client != SHARED) return SharingStatus.NOT_SUPPORTED;
 			// If there's no session, the contact can be invited
-			if (ss == null) return true;
+			if (ss == null) return SharingStatus.SHAREABLE;
 			// If the session's in the start state, the contact can be invited
 			CreatorSession session = sessionParser
 					.parseCreatorSession(contactGroupId, ss.bdfSession);
-			return session.getState() == START;
+			CreatorState state = session.getState();
+			if (state == START) return SharingStatus.SHAREABLE;
+			if (state == JOINED) return SharingStatus.SHARING;
+			return SharingStatus.INVITED;
 		} catch (FormatException e) {
 			throw new DbException(e);
 		} finally {

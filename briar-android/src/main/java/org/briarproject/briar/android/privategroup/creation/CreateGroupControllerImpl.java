@@ -26,6 +26,7 @@ import org.briarproject.briar.api.privategroup.PrivateGroupFactory;
 import org.briarproject.briar.api.privategroup.PrivateGroupManager;
 import org.briarproject.briar.api.privategroup.invitation.GroupInvitationFactory;
 import org.briarproject.briar.api.privategroup.invitation.GroupInvitationManager;
+import org.briarproject.briar.api.sharing.SharingManager.SharingStatus;
 import org.briarproject.nullsafety.NotNullByDefault;
 
 import java.util.ArrayList;
@@ -140,8 +141,8 @@ class CreateGroupControllerImpl extends ContactSelectorControllerImpl
 	}
 
 	@Override
-	protected boolean isDisabled(GroupId g, Contact c) throws DbException {
-		return !groupInvitationManager.isInvitationAllowed(c, g);
+	protected SharingStatus getSharingStatus(GroupId g, Contact c) throws DbException {
+		return groupInvitationManager.getSharingStatus(c, g);
 	}
 
 	@Override

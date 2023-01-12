@@ -13,6 +13,7 @@ import org.briarproject.briar.android.contactselection.ContactSelectorController
 import org.briarproject.briar.android.controller.handler.ExceptionHandler;
 import org.briarproject.briar.api.forum.ForumSharingManager;
 import org.briarproject.briar.api.identity.AuthorManager;
+import org.briarproject.briar.api.sharing.SharingManager.SharingStatus;
 import org.briarproject.nullsafety.NotNullByDefault;
 
 import java.util.Collection;
@@ -47,8 +48,9 @@ class ShareForumControllerImpl extends ContactSelectorControllerImpl
 	}
 
 	@Override
-	protected boolean isDisabled(GroupId g, Contact c) throws DbException {
-		return !forumSharingManager.canBeShared(g, c);
+	protected SharingStatus getSharingStatus(GroupId g, Contact c)
+			throws DbException {
+		return forumSharingManager.getSharingStatus(g, c);
 	}
 
 	@Override

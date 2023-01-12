@@ -19,6 +19,7 @@ import java.util.Collection;
 
 import static org.briarproject.bramble.api.cleanup.CleanupManager.BATCH_DELAY_MS;
 import static org.briarproject.briar.api.autodelete.AutoDeleteConstants.MIN_AUTO_DELETE_TIMER_MS;
+import static org.briarproject.briar.api.sharing.SharingManager.SharingStatus.SHAREABLE;
 import static org.briarproject.briar.test.TestEventListener.assertEvent;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -146,8 +147,8 @@ public abstract class AbstractAutoDeleteIntegrationTest
 		waitForEvents(c1);
 
 		// 0 can invite 1 again
-		assertTrue(getSharingManager0()
-				.canBeShared(getShareable().getId(), contact1From0));
+		assertEquals(SHAREABLE, getSharingManager0().getSharingStatus(
+				getShareable().getId(), contact1From0));
 
 		// Before 1's timer elapses, 1 should still see the auto-decline message
 		c0.getTimeTravel().addCurrentTimeMillis(timerLatency - 1);
@@ -183,8 +184,8 @@ public abstract class AbstractAutoDeleteIntegrationTest
 		assertEquals(0, getMessageHeaders(c0, contactId1From0).size());
 
 		// 0 can invite 1 again and really does invite
-		assertTrue(getSharingManager0()
-				.canBeShared(getShareable().getId(), contact1From0));
+		assertEquals(SHAREABLE, getSharingManager0()
+				.getSharingStatus(getShareable().getId(), contact1From0));
 		// Send invitation
 		getSharingManager0()
 				.sendInvitation(getShareable().getId(), contactId1From0,

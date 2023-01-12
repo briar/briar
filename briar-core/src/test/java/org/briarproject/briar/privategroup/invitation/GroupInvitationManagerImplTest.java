@@ -62,12 +62,14 @@ import static org.briarproject.briar.api.privategroup.PrivateGroupConstants.GROU
 import static org.briarproject.briar.api.privategroup.PrivateGroupConstants.MAX_GROUP_NAME_LENGTH;
 import static org.briarproject.briar.api.privategroup.invitation.GroupInvitationManager.CLIENT_ID;
 import static org.briarproject.briar.api.privategroup.invitation.GroupInvitationManager.MAJOR_VERSION;
+import static org.briarproject.briar.api.sharing.SharingManager.SharingStatus.INVITED;
+import static org.briarproject.briar.api.sharing.SharingManager.SharingStatus.SHAREABLE;
+import static org.briarproject.briar.api.sharing.SharingManager.SharingStatus.SHARING;
 import static org.briarproject.briar.privategroup.invitation.MessageType.ABORT;
 import static org.briarproject.briar.privategroup.invitation.MessageType.INVITE;
 import static org.briarproject.briar.privategroup.invitation.MessageType.JOIN;
 import static org.briarproject.briar.privategroup.invitation.MessageType.LEAVE;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 public class GroupInvitationManagerImplTest extends BrambleMockTestCase {
@@ -871,31 +873,31 @@ public class GroupInvitationManagerImplTest extends BrambleMockTestCase {
 	@Test
 	public void testIsInvitationAllowed() throws Exception {
 		expectIsInvitationAllowed(CreatorState.START);
-		assertTrue(groupInvitationManager
-				.isInvitationAllowed(contact, privateGroup.getId()));
+		assertEquals(SHAREABLE, groupInvitationManager
+				.getSharingStatus(contact, privateGroup.getId()));
 	}
 
 	@Test
 	public void testIsNotInvitationAllowed() throws Exception {
 		expectIsInvitationAllowed(CreatorState.DISSOLVED);
-		assertFalse(groupInvitationManager
-				.isInvitationAllowed(contact, privateGroup.getId()));
+		assertEquals(INVITED, groupInvitationManager
+				.getSharingStatus(contact, privateGroup.getId()));
 
 		expectIsInvitationAllowed(CreatorState.ERROR);
-		assertFalse(groupInvitationManager
-				.isInvitationAllowed(contact, privateGroup.getId()));
+		assertEquals(INVITED, groupInvitationManager
+				.getSharingStatus(contact, privateGroup.getId()));
 
 		expectIsInvitationAllowed(CreatorState.INVITED);
-		assertFalse(groupInvitationManager
-				.isInvitationAllowed(contact, privateGroup.getId()));
+		assertEquals(INVITED, groupInvitationManager
+				.getSharingStatus(contact, privateGroup.getId()));
 
 		expectIsInvitationAllowed(CreatorState.JOINED);
-		assertFalse(groupInvitationManager
-				.isInvitationAllowed(contact, privateGroup.getId()));
+		assertEquals(SHARING, groupInvitationManager
+				.getSharingStatus(contact, privateGroup.getId()));
 
 		expectIsInvitationAllowed(CreatorState.LEFT);
-		assertFalse(groupInvitationManager
-				.isInvitationAllowed(contact, privateGroup.getId()));
+		assertEquals(INVITED, groupInvitationManager
+				.getSharingStatus(contact, privateGroup.getId()));
 	}
 
 	private void expectIsInvitationAllowed(CreatorState state)

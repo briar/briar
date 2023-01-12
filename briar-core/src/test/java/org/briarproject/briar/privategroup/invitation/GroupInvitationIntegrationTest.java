@@ -29,6 +29,9 @@ import javax.annotation.Nullable;
 
 import static java.util.Collections.emptySet;
 import static org.briarproject.briar.api.autodelete.AutoDeleteConstants.MIN_AUTO_DELETE_TIMER_MS;
+import static org.briarproject.briar.api.sharing.SharingManager.SharingStatus.INVITED;
+import static org.briarproject.briar.api.sharing.SharingManager.SharingStatus.SHAREABLE;
+import static org.briarproject.briar.api.sharing.SharingManager.SharingStatus.SHARING;
 import static org.briarproject.briar.test.BriarTestUtils.assertGroupCount;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -319,8 +322,8 @@ public class GroupInvitationIntegrationTest
 		sendInvitation(c0.getClock().currentTimeMillis(), null);
 
 		// invitation is not allowed before the first hasn't been answered
-		assertFalse(groupInvitationManager0
-				.isInvitationAllowed(contact1From0, privateGroup.getId()));
+		assertEquals(INVITED, groupInvitationManager0
+				.getSharingStatus(contact1From0, privateGroup.getId()));
 
 		// deliver invitation and response
 		sync0To1(1, true);
@@ -329,8 +332,8 @@ public class GroupInvitationIntegrationTest
 		sync1To0(1, true);
 
 		// after invitation was declined, inviting again is possible
-		assertTrue(groupInvitationManager0
-				.isInvitationAllowed(contact1From0, privateGroup.getId()));
+		assertEquals(SHAREABLE, groupInvitationManager0
+				.getSharingStatus(contact1From0, privateGroup.getId()));
 
 		// send and accept the second invitation
 		sendInvitation(c0.getClock().currentTimeMillis(), "Second Invitation");
@@ -340,8 +343,8 @@ public class GroupInvitationIntegrationTest
 		sync1To0(1, true);
 
 		// invitation is not allowed since the member joined the group now
-		assertFalse(groupInvitationManager0
-				.isInvitationAllowed(contact1From0, privateGroup.getId()));
+		assertEquals(SHARING, groupInvitationManager0
+				.getSharingStatus(contact1From0, privateGroup.getId()));
 
 		// don't allow another invitation request
 		try {
@@ -723,8 +726,8 @@ public class GroupInvitationIntegrationTest
 		sync1To0(1, true);
 
 		// inviting again is not possible
-		assertFalse(groupInvitationManager0
-				.isInvitationAllowed(contact1From0, privateGroup.getId()));
+		assertEquals(SHARING, groupInvitationManager0
+				.getSharingStatus(contact1From0, privateGroup.getId()));
 
 		// contacts remove each other
 		removeAllContacts();
@@ -737,8 +740,8 @@ public class GroupInvitationIntegrationTest
 		addDefaultContacts();
 
 		// creator can still not invite again
-		assertFalse(groupInvitationManager0
-				.isInvitationAllowed(contact1From0, privateGroup.getId()));
+		assertEquals(INVITED, groupInvitationManager0
+				.getSharingStatus(contact1From0, privateGroup.getId()));
 
 		// finally invitee can remove group without issues
 		groupManager1.removePrivateGroup(privateGroup.getId());

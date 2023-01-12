@@ -17,6 +17,10 @@ import javax.annotation.Nullable;
 public interface SharingManager<S extends Shareable>
 		extends ConversationClient {
 
+	enum SharingStatus {
+		SHAREABLE, INVITED, SHARING, NOT_SUPPORTED
+	}
+
 	/**
 	 * Sends an invitation to share the given group with the given contact,
 	 * including optional text.
@@ -80,12 +84,12 @@ public interface SharingManager<S extends Shareable>
 	/**
 	 * Returns true if the group not already shared and no invitation is open
 	 */
-	boolean canBeShared(GroupId g, Contact c) throws DbException;
+	SharingStatus getSharingStatus(GroupId g, Contact c) throws DbException;
 
 	/**
 	 * Returns true if the group not already shared and no invitation is open
 	 */
-	boolean canBeShared(Transaction txn, GroupId g, Contact c)
+	SharingStatus getSharingStatus(Transaction txn, GroupId g, Contact c)
 			throws DbException;
 
 }
