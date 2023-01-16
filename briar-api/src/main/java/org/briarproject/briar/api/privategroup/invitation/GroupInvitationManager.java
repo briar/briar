@@ -80,8 +80,10 @@ public interface GroupInvitationManager extends ConversationClient {
 	Collection<GroupInvitationItem> getInvitations() throws DbException;
 
 	/**
-	 * Returns true if the given contact can be invited to the given private
-	 * group.
+	 * Returns the current {@link SharingStatus} for the given {@link Contact}
+	 * and {@link PrivateGroup} identified by the given {@link GroupId}.
+	 * This indicates whether the {@link PrivateGroup} can be shared
+	 * with the contact.
 	 */
 	SharingStatus getSharingStatus(Contact c, GroupId g) throws DbException;
 }

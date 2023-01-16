@@ -18,7 +18,27 @@ public interface SharingManager<S extends Shareable>
 		extends ConversationClient {
 
 	enum SharingStatus {
-		SHAREABLE, INVITED, SHARING, NOT_SUPPORTED
+		/**
+		 * The {@link Shareable} can be shared with the requested contact.
+		 */
+		SHAREABLE,
+		/**
+		 * The {@link Shareable} can not be shared with the requested contact,
+		 * because of an ongoing sharing session.
+		 * In most cases, this means that the contact was already invited.
+		 */
+		INVITED,
+		/**
+		 * The {@link Shareable} can not be shared with the requested contact,
+		 * because it is already being shared.
+		 */
+		SHARING,
+		/**
+		 * The {@link Shareable} can not be shared with the requested contact,
+		 * because it is not supported by that contact.
+		 * This could be a missing or outdated client.
+		 */
+		NOT_SUPPORTED
 	}
 
 	/**
@@ -82,12 +102,18 @@ public interface SharingManager<S extends Shareable>
 			throws DbException;
 
 	/**
-	 * Returns true if the group not already shared and no invitation is open
+	 * Returns the current {@link SharingStatus} for the given {@link Contact}
+	 * and {@link Shareable} identified by the given {@link GroupId}.
+	 * This indicates whether the {@link Shareable} can be shared
+	 * with the contact.
 	 */
 	SharingStatus getSharingStatus(GroupId g, Contact c) throws DbException;
 
 	/**
-	 * Returns true if the group not already shared and no invitation is open
+	 * Returns the current {@link SharingStatus} for the given {@link Contact}
+	 * and {@link Shareable} identified by the given {@link GroupId}.
+	 * This indicates whether the {@link Shareable} can be shared
+	 * with the contact.
 	 */
 	SharingStatus getSharingStatus(Transaction txn, GroupId g, Contact c)
 			throws DbException;
