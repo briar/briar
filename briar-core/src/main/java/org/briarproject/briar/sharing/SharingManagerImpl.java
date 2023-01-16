@@ -26,6 +26,7 @@ import org.briarproject.bramble.api.versioning.ClientVersioningManager;
 import org.briarproject.bramble.api.versioning.ClientVersioningManager.ClientVersioningHook;
 import org.briarproject.briar.api.autodelete.event.ConversationMessagesDeletedEvent;
 import org.briarproject.briar.api.client.MessageTracker;
+import org.briarproject.briar.api.client.ProtocolStateException;
 import org.briarproject.briar.api.client.SessionId;
 import org.briarproject.briar.api.conversation.ConversationMessageHeader;
 import org.briarproject.briar.api.conversation.ConversationRequest;
@@ -58,7 +59,11 @@ import static org.briarproject.briar.sharing.MessageType.DECLINE;
 import static org.briarproject.briar.sharing.MessageType.INVITE;
 import static org.briarproject.briar.sharing.MessageType.LEAVE;
 import static org.briarproject.briar.sharing.State.LOCAL_INVITED;
+import static org.briarproject.briar.sharing.State.LOCAL_LEFT;
+import static org.briarproject.briar.sharing.State.REMOTE_HANGING;
+import static org.briarproject.briar.sharing.State.REMOTE_INVITED;
 import static org.briarproject.briar.sharing.State.SHARING;
+import static org.briarproject.briar.sharing.State.START;
 
 @NotNullByDefault
 abstract class SharingManagerImpl<S extends Shareable>
@@ -468,7 +473,8 @@ abstract class SharingManagerImpl<S extends Shareable>
 	}
 
 	@Override
-	public SharingStatus getSharingStatus(GroupId g, Contact c) throws DbException {
+	public SharingStatus getSharingStatus(GroupId g, Contact c)
+			throws DbException {
 		Transaction txn = db.startTransaction(true);
 		try {
 			SharingStatus sharingStatus = getSharingStatus(txn, g, c);
@@ -495,9 +501,14 @@ abstract class SharingManagerImpl<S extends Shareable>
 			// If the session's in the right state, the contact can be invited
 			Session session =
 					sessionParser.parseSession(contactGroupId, ss.bdfSession);
-			if (session.getState().canInvite()) return SharingStatus.SHAREABLE;
-			if (session.getState().isSharing()) return SharingStatus.SHARING;
-			return SharingStatus.INVITED;
+			State state = session.getState();
+			if (state == START) return SharingStatus.SHAREABLE;
+			if (state == LOCAL_INVITED) return SharingStatus.INVITE_RECEIVED;
+			if (state == REMOTE_INVITED) return SharingStatus.INVITE_SENT;
+			if (state == SHARING) return SharingStatus.SHARING;
+			if (state == LOCAL_LEFT || state == REMOTE_HANGING)
+				throw new ProtocolStateException();
+			throw new AssertionError("Unhandled state: " + state.name());
 		} catch (FormatException e) {
 			throw new DbException(e);
 		}

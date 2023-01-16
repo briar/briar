@@ -13,6 +13,7 @@ import org.briarproject.bramble.api.sync.GroupId;
 import org.briarproject.bramble.api.sync.Message;
 import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.bramble.test.TestDatabaseConfigModule;
+import org.briarproject.briar.api.client.ProtocolStateException;
 import org.briarproject.briar.api.conversation.ConversationMessageHeader;
 import org.briarproject.briar.api.conversation.ConversationResponse;
 import org.briarproject.briar.api.conversation.DeletionResult;
@@ -43,11 +44,11 @@ import javax.annotation.Nullable;
 
 import static java.util.Collections.emptySet;
 import static junit.framework.Assert.assertNotNull;
+import static junit.framework.TestCase.fail;
 import static org.briarproject.bramble.util.StringUtils.getRandomString;
 import static org.briarproject.briar.api.autodelete.AutoDeleteConstants.MIN_AUTO_DELETE_TIMER_MS;
 import static org.briarproject.briar.api.forum.ForumSharingManager.CLIENT_ID;
 import static org.briarproject.briar.api.forum.ForumSharingManager.MAJOR_VERSION;
-import static org.briarproject.briar.api.sharing.SharingManager.SharingStatus.INVITED;
 import static org.briarproject.briar.api.sharing.SharingManager.SharingStatus.SHAREABLE;
 import static org.briarproject.briar.api.sharing.SharingManager.SharingStatus.SHARING;
 import static org.briarproject.briar.test.BriarTestUtils.assertGroupCount;
@@ -349,8 +350,12 @@ public class ForumSharingIntegrationTest
 		assertEquals(SHAREABLE, forumSharingManager0
 				.getSharingStatus(forum.getId(), contact1From0));
 		// invitee that left can not yet share again
-		assertEquals(INVITED, forumSharingManager1
-				.getSharingStatus(forum.getId(), contact0From1));
+		try {
+			forumSharingManager1.getSharingStatus(forum.getId(), contact0From1);
+			fail();
+		} catch (ProtocolStateException e) {
+			// expected
+		}
 
 		// sharer responds with leave message
 		sync0To1(1, true);

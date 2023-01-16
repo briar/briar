@@ -26,6 +26,7 @@ import org.briarproject.bramble.api.versioning.ClientVersioningManager;
 import org.briarproject.bramble.api.versioning.ClientVersioningManager.ClientVersioningHook;
 import org.briarproject.briar.api.autodelete.event.ConversationMessagesDeletedEvent;
 import org.briarproject.briar.api.client.MessageTracker;
+import org.briarproject.briar.api.client.ProtocolStateException;
 import org.briarproject.briar.api.client.SessionId;
 import org.briarproject.briar.api.conversation.ConversationMessageHeader;
 import org.briarproject.briar.api.conversation.DeletionResult;
@@ -57,6 +58,9 @@ import javax.inject.Inject;
 import static org.briarproject.bramble.api.sync.Group.Visibility.SHARED;
 import static org.briarproject.bramble.api.sync.validation.IncomingMessageHook.DeliveryAction.ACCEPT_DO_NOT_SHARE;
 import static org.briarproject.briar.api.autodelete.AutoDeleteConstants.NO_AUTO_DELETE_TIMER;
+import static org.briarproject.briar.privategroup.invitation.CreatorState.DISSOLVED;
+import static org.briarproject.briar.privategroup.invitation.CreatorState.ERROR;
+import static org.briarproject.briar.privategroup.invitation.CreatorState.INVITED;
 import static org.briarproject.briar.privategroup.invitation.CreatorState.JOINED;
 import static org.briarproject.briar.privategroup.invitation.CreatorState.START;
 import static org.briarproject.briar.privategroup.invitation.MessageType.ABORT;
@@ -533,8 +537,14 @@ class GroupInvitationManagerImpl extends ConversationClientImpl
 					.parseCreatorSession(contactGroupId, ss.bdfSession);
 			CreatorState state = session.getState();
 			if (state == START) return SharingStatus.SHAREABLE;
+			if (state == INVITED) return SharingStatus.INVITE_RECEIVED;
 			if (state == JOINED) return SharingStatus.SHARING;
-			return SharingStatus.INVITED;
+			// The creator can also be a LEFT state, after re-adding a contact
+			// and re-creating the session with #recreateSession()
+			if (state == CreatorState.LEFT) return SharingStatus.SHARING;
+			if (state == DISSOLVED) throw new ProtocolStateException();
+			if (state == ERROR) return SharingStatus.ERROR;
+			throw new AssertionError("Unhandled state: " + state.name());
 		} catch (FormatException e) {
 			throw new DbException(e);
 		} finally {

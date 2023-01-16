@@ -46,14 +46,6 @@ enum State {
 		return visibility;
 	}
 
-	public boolean canInvite() {
-		return this == START;
-	}
-
-	public boolean isSharing() {
-		return this == SHARING;
-	}
-
 	public boolean isAwaitingResponse() {
 		return this == LOCAL_INVITED || this == REMOTE_INVITED;
 	}

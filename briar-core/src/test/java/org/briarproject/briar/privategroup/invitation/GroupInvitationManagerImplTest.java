@@ -25,6 +25,7 @@ import org.briarproject.bramble.test.DbExpectations;
 import org.briarproject.bramble.test.TestUtils;
 import org.briarproject.briar.api.client.MessageTracker;
 import org.briarproject.briar.api.client.SessionId;
+import org.briarproject.briar.api.client.ProtocolStateException;
 import org.briarproject.briar.api.conversation.ConversationMessageHeader;
 import org.briarproject.briar.api.privategroup.PrivateGroup;
 import org.briarproject.briar.api.privategroup.PrivateGroupFactory;
@@ -62,7 +63,8 @@ import static org.briarproject.briar.api.privategroup.PrivateGroupConstants.GROU
 import static org.briarproject.briar.api.privategroup.PrivateGroupConstants.MAX_GROUP_NAME_LENGTH;
 import static org.briarproject.briar.api.privategroup.invitation.GroupInvitationManager.CLIENT_ID;
 import static org.briarproject.briar.api.privategroup.invitation.GroupInvitationManager.MAJOR_VERSION;
-import static org.briarproject.briar.api.sharing.SharingManager.SharingStatus.INVITED;
+import static org.briarproject.briar.api.sharing.SharingManager.SharingStatus.ERROR;
+import static org.briarproject.briar.api.sharing.SharingManager.SharingStatus.INVITE_RECEIVED;
 import static org.briarproject.briar.api.sharing.SharingManager.SharingStatus.SHAREABLE;
 import static org.briarproject.briar.api.sharing.SharingManager.SharingStatus.SHARING;
 import static org.briarproject.briar.privategroup.invitation.MessageType.ABORT;
@@ -880,15 +882,20 @@ public class GroupInvitationManagerImplTest extends BrambleMockTestCase {
 	@Test
 	public void testIsNotInvitationAllowed() throws Exception {
 		expectIsInvitationAllowed(CreatorState.DISSOLVED);
-		assertEquals(INVITED, groupInvitationManager
-				.getSharingStatus(contact, privateGroup.getId()));
+		try {
+			groupInvitationManager
+					.getSharingStatus(contact, privateGroup.getId());
+			fail();
+		} catch (ProtocolStateException e) {
+			// expected
+		}
 
 		expectIsInvitationAllowed(CreatorState.ERROR);
-		assertEquals(INVITED, groupInvitationManager
+		assertEquals(ERROR, groupInvitationManager
 				.getSharingStatus(contact, privateGroup.getId()));
 
 		expectIsInvitationAllowed(CreatorState.INVITED);
-		assertEquals(INVITED, groupInvitationManager
+		assertEquals(INVITE_RECEIVED, groupInvitationManager
 				.getSharingStatus(contact, privateGroup.getId()));
 
 		expectIsInvitationAllowed(CreatorState.JOINED);
@@ -896,7 +903,7 @@ public class GroupInvitationManagerImplTest extends BrambleMockTestCase {
 				.getSharingStatus(contact, privateGroup.getId()));
 
 		expectIsInvitationAllowed(CreatorState.LEFT);
-		assertEquals(INVITED, groupInvitationManager
+		assertEquals(SHARING, groupInvitationManager
 				.getSharingStatus(contact, privateGroup.getId()));
 	}
 
