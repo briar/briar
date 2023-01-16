@@ -925,6 +925,7 @@ public class ConversationActivity extends BriarActivity
 	}
 
 	private void removeContact() {
+		list.showProgressBar();
 		runOnDbThread(() -> {
 			try {
 				contactManager.removeContact(contactId);
