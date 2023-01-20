@@ -167,32 +167,24 @@ class FeedManagerImpl implements FeedManager, EventListener, OpenDatabaseHook,
 		Feed feed = feedFactory.createFeed(url, sf);
 
 		// store feed metadata and new blog
-		Transaction txn = db.startTransaction(false);
-		try {
+		db.transaction(false, txn -> {
 			blogManager.addBlog(txn, feed.getBlog());
 			List<Feed> feeds = getFeeds(txn);
 			feeds.add(feed);
 			storeFeeds(txn, feeds);
-			db.commitTransaction(txn);
-		} finally {
-			db.endTransaction(txn);
-		}
+		});
 
 		// post entries
 		long lastEntryTime = postFeedEntries(feed, sf.getEntries());
 		Feed updatedFeed = feedFactory.updateFeed(feed, sf, lastEntryTime);
 
 		// store feed metadata again to also store last entry time
-		txn = db.startTransaction(false);
-		try {
+		db.transaction(false, txn -> {
 			List<Feed> feeds = getFeeds(txn);
 			feeds.remove(feed);
 			feeds.add(updatedFeed);
 			storeFeeds(txn, feeds);
-			db.commitTransaction(txn);
-		} finally {
-			db.endTransaction(txn);
-		}
+		});
 
 		return updatedFeed;
 	}
@@ -200,14 +192,9 @@ class FeedManagerImpl implements FeedManager, EventListener, OpenDatabaseHook,
 	@Override
 	public void removeFeed(Feed feed) throws DbException {
 		LOG.info("Removing RSS feed...");
-		Transaction txn = db.startTransaction(false);
-		try {
-			// this will call removingBlog() where the feed itself gets removed
-			blogManager.removeBlog(txn, feed.getBlog());
-			db.commitTransaction(txn);
-		} finally {
-			db.endTransaction(txn);
-		}
+		// this will call removingBlog() where the feed itself gets removed
+		db.transaction(false, txn ->
+				blogManager.removeBlog(txn, feed.getBlog()));
 	}
 
 	@Override
@@ -375,9 +362,8 @@ class FeedManagerImpl implements FeedManager, EventListener, OpenDatabaseHook,
 	long postFeedEntries(Feed feed, List<SyndEntry> entries)
 			throws DbException {
 
-		long lastEntryTime = feed.getLastEntryTime();
-		Transaction txn = db.startTransaction(false);
-		try {
+		return db.transactionWithResult(false, txn -> {
+			long lastEntryTime = feed.getLastEntryTime();
 			//noinspection Java8ListSort
 			sort(entries, getEntryComparator());
 			for (SyndEntry entry : entries) {
@@ -396,11 +382,8 @@ class FeedManagerImpl implements FeedManager, EventListener, OpenDatabaseHook,
 					if (entryTime > lastEntryTime) lastEntryTime = entryTime;
 				}
 			}
-			db.commitTransaction(txn);
-		} finally {
-			db.endTransaction(txn);
-		}
-		return lastEntryTime;
+			return lastEntryTime;
+		});
 	}
 
 	private void postEntry(Transaction txn, Feed feed, SyndEntry entry) {

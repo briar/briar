@@ -137,17 +137,14 @@ public class FeedManagerImplTest extends BrambleMockTestCase {
 		Message msg = getMessage(blogGroupId);
 		BlogPost post = new BlogPost(msg, null, localAuthor);
 
-		context.checking(new Expectations() {{
-			oneOf(db).startTransaction(false);
-			will(returnValue(txn));
+		context.checking(new DbExpectations() {{
+			oneOf(db).transactionWithResult(with(false), withDbCallable(txn));
 			oneOf(clock).currentTimeMillis();
 			will(returnValue(42L));
 			oneOf(blogPostFactory).createBlogPost(feed.getBlogId(), 42L, null,
 					localAuthor, text);
 			will(returnValue(post));
 			oneOf(blogManager).addLocalPost(txn, post);
-			oneOf(db).commitTransaction(txn);
-			oneOf(db).endTransaction(txn);
 		}});
 		feedManager.postFeedEntries(feed, entries);
 	}
