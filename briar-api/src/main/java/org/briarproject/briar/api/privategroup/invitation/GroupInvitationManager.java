@@ -9,6 +9,7 @@ import org.briarproject.briar.api.client.ProtocolStateException;
 import org.briarproject.briar.api.client.SessionId;
 import org.briarproject.briar.api.conversation.ConversationManager.ConversationClient;
 import org.briarproject.briar.api.privategroup.PrivateGroup;
+import org.briarproject.briar.api.sharing.SharingManager.SharingStatus;
 import org.briarproject.nullsafety.NotNullByDefault;
 
 import java.util.Collection;
@@ -79,8 +80,13 @@ public interface GroupInvitationManager extends ConversationClient {
 	Collection<GroupInvitationItem> getInvitations() throws DbException;
 
 	/**
-	 * Returns true if the given contact can be invited to the given private
-	 * group.
+	 * Returns the current {@link SharingStatus} for the given {@link Contact}
+	 * and {@link PrivateGroup} identified by the given {@link GroupId}.
+	 * This indicates whether the {@link PrivateGroup} can be shared
+	 * with the contact.
+	 *
+	 * @throws ProtocolStateException if {@link PrivateGroup}
+	 * was already dissolved.
 	 */
-	boolean isInvitationAllowed(Contact c, GroupId g) throws DbException;
+	SharingStatus getSharingStatus(Contact c, GroupId g) throws DbException;
 }

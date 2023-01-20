@@ -23,6 +23,8 @@ import javax.annotation.Nullable;
 import static org.briarproject.bramble.api.cleanup.CleanupManager.BATCH_DELAY_MS;
 import static org.briarproject.briar.api.autodelete.AutoDeleteConstants.MIN_AUTO_DELETE_TIMER_MS;
 import static org.briarproject.briar.api.autodelete.AutoDeleteConstants.NO_AUTO_DELETE_TIMER;
+import static org.briarproject.briar.api.sharing.SharingManager.SharingStatus.SHAREABLE;
+import static org.briarproject.briar.api.sharing.SharingManager.SharingStatus.SHARING;
 import static org.briarproject.briar.test.TestEventListener.assertEvent;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -157,8 +159,8 @@ public class AutoDeleteIntegrationTest extends AbstractAutoDeleteTest {
 		waitForEvents(c1);
 
 		// 0 can invite 1 again
-		assertTrue(groupInvitationManager0
-				.isInvitationAllowed(contact1From0, privateGroup.getId()));
+		assertEquals(SHAREABLE, groupInvitationManager0
+				.getSharingStatus(contact1From0, privateGroup.getId()));
 
 		// Before 1's timer elapses, 1 should still see the auto-decline message
 		c0.getTimeTravel().addCurrentTimeMillis(timerLatency - 1);
@@ -194,8 +196,8 @@ public class AutoDeleteIntegrationTest extends AbstractAutoDeleteTest {
 		assertEquals(0, getMessageHeaders(c0, contactId1From0).size());
 
 		// 0 can invite 1 again and really does invite
-		assertTrue(groupInvitationManager0
-				.isInvitationAllowed(contact1From0, privateGroup.getId()));
+		assertEquals(SHAREABLE, groupInvitationManager0
+				.getSharingStatus(contact1From0, privateGroup.getId()));
 		sendInvitation(privateGroup, contact1From0.getId(),
 				"Join this faster please!");
 		sync0To1(1, true);
@@ -395,8 +397,8 @@ public class AutoDeleteIntegrationTest extends AbstractAutoDeleteTest {
 		// 1 joined the PrivateGroup
 		assertEquals(pg,
 				c1.getPrivateGroupManager().getPrivateGroup(pg.getId()));
-		assertFalse(groupInvitationManager0
-				.isInvitationAllowed(contact1From0, pg.getId()));
+		assertEquals(SHARING, groupInvitationManager0
+				.getSharingStatus(contact1From0, pg.getId()));
 	}
 
 	@Test

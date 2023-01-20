@@ -5,6 +5,7 @@ import org.briarproject.bramble.api.contact.ContactId;
 import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.db.Transaction;
 import org.briarproject.bramble.api.sync.GroupId;
+import org.briarproject.briar.api.client.ProtocolStateException;
 import org.briarproject.briar.api.client.SessionId;
 import org.briarproject.briar.api.conversation.ConversationManager.ConversationClient;
 import org.briarproject.nullsafety.NotNullByDefault;
@@ -16,6 +17,38 @@ import javax.annotation.Nullable;
 @NotNullByDefault
 public interface SharingManager<S extends Shareable>
 		extends ConversationClient {
+
+	enum SharingStatus {
+		/**
+		 * The {@link Shareable} can be shared with the requested contact.
+		 */
+		SHAREABLE,
+		/**
+		 * The {@link Shareable} can not be shared with the requested contact,
+		 * because the contact was already invited.
+		 */
+		INVITE_SENT,
+		/**
+		 * The {@link Shareable} can not be shared with the requested contact,
+		 * because the contact has already invited us.
+		 */
+		INVITE_RECEIVED,
+		/**
+		 * The {@link Shareable} can not be shared with the requested contact,
+		 * because it is already being shared.
+		 */
+		SHARING,
+		/**
+		 * The {@link Shareable} can not be shared with the requested contact,
+		 * because it is not supported by that contact.
+		 * This could be a missing or outdated client.
+		 */
+		NOT_SUPPORTED,
+		/**
+		 * The sharing session has encountered an error.
+		 */
+		ERROR
+	}
 
 	/**
 	 * Sends an invitation to share the given group with the given contact,
@@ -78,14 +111,24 @@ public interface SharingManager<S extends Shareable>
 			throws DbException;
 
 	/**
-	 * Returns true if the group not already shared and no invitation is open
+	 * Returns the current {@link SharingStatus} for the given {@link Contact}
+	 * and {@link Shareable} identified by the given {@link GroupId}.
+	 * This indicates whether the {@link Shareable} can be shared
+	 * with the contact.
+	 *
+	 * @throws ProtocolStateException if we already left the {@link Shareable}.
 	 */
-	boolean canBeShared(GroupId g, Contact c) throws DbException;
+	SharingStatus getSharingStatus(GroupId g, Contact c) throws DbException;
 
 	/**
-	 * Returns true if the group not already shared and no invitation is open
+	 * Returns the current {@link SharingStatus} for the given {@link Contact}
+	 * and {@link Shareable} identified by the given {@link GroupId}.
+	 * This indicates whether the {@link Shareable} can be shared
+	 * with the contact.
+	 *
+	 * @throws ProtocolStateException if we already left the {@link Shareable}.
 	 */
-	boolean canBeShared(Transaction txn, GroupId g, Contact c)
+	SharingStatus getSharingStatus(Transaction txn, GroupId g, Contact c)
 			throws DbException;
 
 }

@@ -1,36 +1,33 @@
 package org.briarproject.briar.android.contactselection;
 
 import org.briarproject.bramble.api.contact.Contact;
-import org.briarproject.briar.android.contact.ContactItem;
 import org.briarproject.briar.api.identity.AuthorInfo;
+import org.briarproject.briar.api.sharing.SharingManager.SharingStatus;
 import org.briarproject.nullsafety.NotNullByDefault;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
+import static org.briarproject.briar.api.sharing.SharingManager.SharingStatus.SHAREABLE;
+
 @NotThreadSafe
 @NotNullByDefault
-public class SelectableContactItem extends ContactItem {
+public class SelectableContactItem extends BaseSelectableContactItem {
 
-	private boolean selected;
-	private final boolean disabled;
+	private final SharingStatus sharingStatus;
 
 	public SelectableContactItem(Contact contact, AuthorInfo authorInfo,
-			boolean selected, boolean disabled) {
-		super(contact, authorInfo);
-		this.selected = selected;
-		this.disabled = disabled;
+			boolean selected, SharingStatus sharingStatus) {
+		super(contact, authorInfo, selected);
+		this.sharingStatus = sharingStatus;
 	}
 
-	boolean isSelected() {
-		return selected;
+	public SharingStatus getSharingStatus() {
+		return sharingStatus;
 	}
 
-	void toggleSelected() {
-		selected = !selected;
-	}
-
+	@Override
 	public boolean isDisabled() {
-		return disabled;
+		return sharingStatus != SHAREABLE;
 	}
 
 }

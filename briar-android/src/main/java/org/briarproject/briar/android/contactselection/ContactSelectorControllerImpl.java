@@ -11,6 +11,7 @@ import org.briarproject.briar.android.controller.DbControllerImpl;
 import org.briarproject.briar.android.controller.handler.ResultExceptionHandler;
 import org.briarproject.briar.api.identity.AuthorInfo;
 import org.briarproject.briar.api.identity.AuthorManager;
+import org.briarproject.briar.api.sharing.SharingManager.SharingStatus;
 import org.briarproject.nullsafety.NotNullByDefault;
 
 import java.util.ArrayList;
@@ -53,10 +54,8 @@ public abstract class ContactSelectorControllerImpl
 					AuthorInfo authorInfo = authorManager.getAuthorInfo(c);
 					// was this contact already selected?
 					boolean selected = selection.contains(c.getId());
-					// can this contact be selected?
-					boolean disabled = isDisabled(g, c);
 					contacts.add(new SelectableContactItem(c, authorInfo,
-							selected, disabled));
+							selected, getSharingStatus(g, c)));
 				}
 				handler.onResult(contacts);
 			} catch (DbException e) {
@@ -67,7 +66,7 @@ public abstract class ContactSelectorControllerImpl
 	}
 
 	@DatabaseExecutor
-	protected abstract boolean isDisabled(GroupId g, Contact c)
+	protected abstract SharingStatus getSharingStatus(GroupId g, Contact c)
 			throws DbException;
 
 }

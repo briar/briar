@@ -13,6 +13,7 @@ import org.briarproject.bramble.api.sync.GroupId;
 import org.briarproject.bramble.api.sync.Message;
 import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.bramble.test.TestDatabaseConfigModule;
+import org.briarproject.briar.api.client.ProtocolStateException;
 import org.briarproject.briar.api.conversation.ConversationMessageHeader;
 import org.briarproject.briar.api.conversation.ConversationResponse;
 import org.briarproject.briar.api.conversation.DeletionResult;
@@ -43,10 +44,13 @@ import javax.annotation.Nullable;
 
 import static java.util.Collections.emptySet;
 import static junit.framework.Assert.assertNotNull;
+import static junit.framework.TestCase.fail;
 import static org.briarproject.bramble.util.StringUtils.getRandomString;
 import static org.briarproject.briar.api.autodelete.AutoDeleteConstants.MIN_AUTO_DELETE_TIMER_MS;
 import static org.briarproject.briar.api.forum.ForumSharingManager.CLIENT_ID;
 import static org.briarproject.briar.api.forum.ForumSharingManager.MAJOR_VERSION;
+import static org.briarproject.briar.api.sharing.SharingManager.SharingStatus.SHAREABLE;
+import static org.briarproject.briar.api.sharing.SharingManager.SharingStatus.SHARING;
 import static org.briarproject.briar.test.BriarTestUtils.assertGroupCount;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -183,9 +187,11 @@ public class ForumSharingIntegrationTest
 		assertEquals(2, getMessages1From0().size());
 		// forum can not be shared again
 		Contact c1 = contactManager0.getContact(contactId1From0);
-		assertFalse(forumSharingManager0.canBeShared(forum.getId(), c1));
+		assertEquals(SHARING,
+				forumSharingManager0.getSharingStatus(forum.getId(), c1));
 		Contact c0 = contactManager1.getContact(contactId0From1);
-		assertFalse(forumSharingManager1.canBeShared(forum.getId(), c0));
+		assertEquals(SHARING,
+				forumSharingManager1.getSharingStatus(forum.getId(), c0));
 	}
 
 	@Test
@@ -271,7 +277,8 @@ public class ForumSharingIntegrationTest
 		assertEquals(2, getMessages1From0().size());
 		// forum can be shared again
 		Contact c1 = contactManager0.getContact(contactId1From0);
-		assertTrue(forumSharingManager0.canBeShared(forum.getId(), c1));
+		assertEquals(SHAREABLE,
+				forumSharingManager0.getSharingStatus(forum.getId(), c1));
 
 		// sharer un-subscribes from forum
 		forumManager0.removeForum(forum);
@@ -340,18 +347,22 @@ public class ForumSharingIntegrationTest
 		assertFalse(forumSharingManager1.getSharedWith(forum.getId())
 				.contains(contact0));
 		// forum can be shared again by sharer
-		assertTrue(forumSharingManager0
-				.canBeShared(forum.getId(), contact1From0));
+		assertEquals(SHAREABLE, forumSharingManager0
+				.getSharingStatus(forum.getId(), contact1From0));
 		// invitee that left can not yet share again
-		assertFalse(forumSharingManager1
-				.canBeShared(forum.getId(), contact0From1));
+		try {
+			forumSharingManager1.getSharingStatus(forum.getId(), contact0From1);
+			fail();
+		} catch (ProtocolStateException e) {
+			// expected
+		}
 
 		// sharer responds with leave message
 		sync0To1(1, true);
 
 		// invitee that left can now share again
-		assertTrue(forumSharingManager1
-				.canBeShared(forum.getId(), contact0From1));
+		assertEquals(SHAREABLE, forumSharingManager1
+				.getSharingStatus(forum.getId(), contact0From1));
 	}
 
 	@Test
@@ -405,13 +416,15 @@ public class ForumSharingIntegrationTest
 		assertFalse(forumSharingManager1.getSharedWith(forum.getId())
 				.contains(contact0));
 		// forum can be re-shared by invitee now
-		assertTrue(forumSharingManager1.canBeShared(forum.getId(), c0));
+		assertEquals(SHAREABLE,
+				forumSharingManager1.getSharingStatus(forum.getId(), c0));
 
 		// invitee responds with LEAVE message
 		sync1To0(1, true);
 
 		// sharer can share forum again as well now
-		assertTrue(forumSharingManager0.canBeShared(forum.getId(), c1));
+		assertEquals(SHAREABLE,
+				forumSharingManager0.getSharingStatus(forum.getId(), c1));
 
 		// invitee also un-subscribes forum without effect
 		forumManager1.removeForum(forum);
@@ -621,10 +634,10 @@ public class ForumSharingIntegrationTest
 		addContacts1And2();
 
 		// forum can be shared with contacts again
-		assertTrue(forumSharingManager0
-				.canBeShared(forum.getId(), contact1From0));
-		assertTrue(forumSharingManager0
-				.canBeShared(forum.getId(), contact2From0));
+		assertEquals(SHAREABLE, forumSharingManager0
+				.getSharingStatus(forum.getId(), contact1From0));
+		assertEquals(SHAREABLE, forumSharingManager0
+				.getSharingStatus(forum.getId(), contact2From0));
 
 		// send invitation
 		forumSharingManager0

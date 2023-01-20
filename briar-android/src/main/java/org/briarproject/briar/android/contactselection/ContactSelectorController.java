@@ -10,7 +10,7 @@ import org.briarproject.nullsafety.NotNullByDefault;
 import java.util.Collection;
 
 @NotNullByDefault
-public interface ContactSelectorController<I extends SelectableContactItem>
+public interface ContactSelectorController<I extends BaseSelectableContactItem>
 		extends DbController {
 
 	void loadContacts(GroupId g, Collection<ContactId> selection,

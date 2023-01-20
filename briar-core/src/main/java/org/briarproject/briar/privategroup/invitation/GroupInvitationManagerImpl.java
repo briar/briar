@@ -26,6 +26,7 @@ import org.briarproject.bramble.api.versioning.ClientVersioningManager;
 import org.briarproject.bramble.api.versioning.ClientVersioningManager.ClientVersioningHook;
 import org.briarproject.briar.api.autodelete.event.ConversationMessagesDeletedEvent;
 import org.briarproject.briar.api.client.MessageTracker;
+import org.briarproject.briar.api.client.ProtocolStateException;
 import org.briarproject.briar.api.client.SessionId;
 import org.briarproject.briar.api.conversation.ConversationMessageHeader;
 import org.briarproject.briar.api.conversation.DeletionResult;
@@ -37,6 +38,7 @@ import org.briarproject.briar.api.privategroup.invitation.GroupInvitationItem;
 import org.briarproject.briar.api.privategroup.invitation.GroupInvitationManager;
 import org.briarproject.briar.api.privategroup.invitation.GroupInvitationRequest;
 import org.briarproject.briar.api.privategroup.invitation.GroupInvitationResponse;
+import org.briarproject.briar.api.sharing.SharingManager.SharingStatus;
 import org.briarproject.briar.client.ConversationClientImpl;
 import org.briarproject.nullsafety.NotNullByDefault;
 
@@ -56,6 +58,10 @@ import javax.inject.Inject;
 import static org.briarproject.bramble.api.sync.Group.Visibility.SHARED;
 import static org.briarproject.bramble.api.sync.validation.IncomingMessageHook.DeliveryAction.ACCEPT_DO_NOT_SHARE;
 import static org.briarproject.briar.api.autodelete.AutoDeleteConstants.NO_AUTO_DELETE_TIMER;
+import static org.briarproject.briar.privategroup.invitation.CreatorState.DISSOLVED;
+import static org.briarproject.briar.privategroup.invitation.CreatorState.ERROR;
+import static org.briarproject.briar.privategroup.invitation.CreatorState.INVITED;
+import static org.briarproject.briar.privategroup.invitation.CreatorState.JOINED;
 import static org.briarproject.briar.privategroup.invitation.CreatorState.START;
 import static org.briarproject.briar.privategroup.invitation.MessageType.ABORT;
 import static org.briarproject.briar.privategroup.invitation.MessageType.INVITE;
@@ -511,7 +517,7 @@ class GroupInvitationManagerImpl extends ConversationClientImpl
 	}
 
 	@Override
-	public boolean isInvitationAllowed(Contact c, GroupId privateGroupId)
+	public SharingStatus getSharingStatus(Contact c, GroupId privateGroupId)
 			throws DbException {
 		GroupId contactGroupId = getContactGroup(c).getId();
 		SessionId sessionId = getSessionId(privateGroupId);
@@ -523,13 +529,23 @@ class GroupInvitationManagerImpl extends ConversationClientImpl
 			StoredSession ss = getSession(txn, contactGroupId, sessionId);
 			db.commitTransaction(txn);
 			// The group can't be shared unless the contact supports the client
-			if (client != SHARED) return false;
+			if (client != SHARED) return SharingStatus.NOT_SUPPORTED;
 			// If there's no session, the contact can be invited
-			if (ss == null) return true;
+			if (ss == null) return SharingStatus.SHAREABLE;
 			// If the session's in the start state, the contact can be invited
 			CreatorSession session = sessionParser
 					.parseCreatorSession(contactGroupId, ss.bdfSession);
-			return session.getState() == START;
+			CreatorState state = session.getState();
+			if (state == START) return SharingStatus.SHAREABLE;
+			if (state == INVITED) return SharingStatus.INVITE_RECEIVED;
+			if (state == JOINED) return SharingStatus.SHARING;
+			// Apart from the common case that the contact LEFT the group,
+			// the creator can also be a LEFT state, after re-adding a contact
+			// and re-creating the session with #recreateSession()
+			if (state == CreatorState.LEFT) return SharingStatus.SHARING;
+			if (state == DISSOLVED) throw new ProtocolStateException();
+			if (state == ERROR) return SharingStatus.ERROR;
+			throw new AssertionError("Unhandled state: " + state.name());
 		} catch (FormatException e) {
 			throw new DbException(e);
 		} finally {

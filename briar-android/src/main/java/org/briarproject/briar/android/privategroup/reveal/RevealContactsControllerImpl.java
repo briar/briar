@@ -92,7 +92,7 @@ class RevealContactsControllerImpl extends DbControllerImpl
 					boolean selected =
 							disabled || selection.contains(c.getId());
 					items.add(new RevealableContactItem(c, authorInfo, selected,
-							disabled, m.getVisibility()));
+							m.getVisibility()));
 				}
 
 			}

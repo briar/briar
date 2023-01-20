@@ -33,7 +33,7 @@ import static org.briarproject.briar.android.contactselection.ContactSelectorAct
 
 @MethodsNotNullByDefault
 @ParametersNotNullByDefault
-public abstract class BaseContactSelectorFragment<I extends SelectableContactItem, A extends BaseContactSelectorAdapter<I, ? extends ContactItemViewHolder<I>>>
+public abstract class BaseContactSelectorFragment<I extends BaseSelectableContactItem, A extends BaseContactSelectorAdapter<I, ? extends ContactItemViewHolder<I>>>
 		extends BaseFragment
 		implements OnContactClickListener<I> {
 

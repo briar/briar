@@ -33,6 +33,8 @@ import java.util.Collection;
 import static org.briarproject.briar.api.autodelete.AutoDeleteConstants.MIN_AUTO_DELETE_TIMER_MS;
 import static org.briarproject.briar.api.blog.BlogSharingManager.CLIENT_ID;
 import static org.briarproject.briar.api.blog.BlogSharingManager.MAJOR_VERSION;
+import static org.briarproject.briar.api.sharing.SharingManager.SharingStatus.SHAREABLE;
+import static org.briarproject.briar.api.sharing.SharingManager.SharingStatus.SHARING;
 import static org.briarproject.briar.test.BriarTestUtils.assertGroupCount;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -106,14 +108,18 @@ public class BlogSharingIntegrationTest
 	public void testPersonalBlogCannotBeSharedWithOwner() throws Exception {
 		listenToEvents(true);
 
-		assertFalse(blogSharingManager0.canBeShared(blog1.getId(),
-				contact1From0));
-		assertFalse(blogSharingManager0.canBeShared(blog2.getId(),
-				contact2From0));
-		assertFalse(blogSharingManager1.canBeShared(blog0.getId(),
-				contact0From1));
-		assertFalse(blogSharingManager2.canBeShared(blog0.getId(),
-				contact0From2));
+		assertEquals(SHARING,
+				blogSharingManager0.getSharingStatus(blog1.getId(),
+						contact1From0));
+		assertEquals(SHARING,
+				blogSharingManager0.getSharingStatus(blog2.getId(),
+						contact2From0));
+		assertEquals(SHARING,
+				blogSharingManager1.getSharingStatus(blog0.getId(),
+						contact0From1));
+		assertEquals(SHARING,
+				blogSharingManager2.getSharingStatus(blog0.getId(),
+						contact0From2));
 	}
 
 	@Test
@@ -191,13 +197,13 @@ public class BlogSharingIntegrationTest
 		}
 		// sharer has own invitation message and response
 		assertEquals(2, db0.transactionWithResult(true, txn ->
-				blogSharingManager0.getMessageHeaders(txn, contactId1From0))
+						blogSharingManager0.getMessageHeaders(txn, contactId1From0))
 				.size());
 		// blog can not be shared again
-		assertFalse(blogSharingManager0.canBeShared(blog2.getId(),
-				contact1From0));
-		assertFalse(blogSharingManager1.canBeShared(blog2.getId(),
-				contact0From1));
+		assertEquals(SHARING, blogSharingManager0.getSharingStatus(
+				blog2.getId(), contact1From0));
+		assertEquals(SHARING, blogSharingManager1.getSharingStatus(
+				blog2.getId(), contact0From1));
 
 		// group message count is still correct
 		assertGroupCount(messageTracker0, g, 2, 1);
@@ -300,13 +306,13 @@ public class BlogSharingIntegrationTest
 		}
 		// sharer has own invitation message and response
 		assertEquals(2, db0.transactionWithResult(true, txn ->
-				blogSharingManager0.getMessageHeaders(txn, contactId1From0))
+						blogSharingManager0.getMessageHeaders(txn, contactId1From0))
 				.size());
 		// blog can not be shared again
-		assertFalse(blogSharingManager0.canBeShared(rssBlog.getId(),
-				contact1From0));
-		assertFalse(blogSharingManager1.canBeShared(rssBlog.getId(),
-				contact0From1));
+		assertEquals(SHARING, blogSharingManager0.getSharingStatus(
+				rssBlog.getId(), contact1From0));
+		assertEquals(SHARING, blogSharingManager1.getSharingStatus(
+				rssBlog.getId(), contact0From1));
 
 		// group message count is still correct
 		assertGroupCount(messageTracker0, g, 2, 1);
@@ -361,11 +367,11 @@ public class BlogSharingIntegrationTest
 		}
 		// sharer has own invitation message and response
 		assertEquals(2, db0.transactionWithResult(true, txn ->
-				blogSharingManager0.getMessageHeaders(txn, contactId1From0))
+						blogSharingManager0.getMessageHeaders(txn, contactId1From0))
 				.size());
 		// blog can be shared again
-		assertTrue(
-				blogSharingManager0.canBeShared(blog2.getId(), contact1From0));
+		assertEquals(SHAREABLE, blogSharingManager0.getSharingStatus(
+				blog2.getId(), contact1From0));
 	}
 
 	@Test
@@ -416,8 +422,8 @@ public class BlogSharingIntegrationTest
 		assertEquals(0,
 				blogSharingManager1.getSharedWith(blog2.getId()).size());
 		// blog can be shared again by sharer
-		assertTrue(
-				blogSharingManager0.canBeShared(blog2.getId(), contact1From0));
+		assertEquals(SHAREABLE, blogSharingManager0.getSharingStatus(
+				blog2.getId(), contact1From0));
 	}
 
 	@Test
@@ -534,8 +540,8 @@ public class BlogSharingIntegrationTest
 				.contains(contact0From1));
 
 		// 1 can again share blog 1 with 0
-		assertTrue(
-				blogSharingManager1.canBeShared(blog1.getId(), contact0From1));
+		assertEquals(SHAREABLE, blogSharingManager1.getSharingStatus(
+				blog1.getId(), contact0From1));
 	}
 
 	@Test
@@ -592,8 +598,8 @@ public class BlogSharingIntegrationTest
 		}
 
 		// 0 can share blog2 again with 1
-		assertTrue(
-				blogSharingManager0.canBeShared(blog2.getId(), contact1From0));
+		assertEquals(SHAREABLE, blogSharingManager0.getSharingStatus(
+				blog2.getId(), contact1From0));
 	}
 
 	@NotNullByDefault
