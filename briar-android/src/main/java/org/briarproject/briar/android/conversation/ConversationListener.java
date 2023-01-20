@@ -20,4 +20,6 @@ interface ConversationListener {
 
 	void onAutoDeleteTimerNoticeClicked();
 
+	void onLinkClick(String url);
+
 }

@@ -3,6 +3,7 @@ package org.briarproject.briar.android.blog;
 import android.content.Context;
 import android.content.Intent;
 import android.text.Spanned;
+import android.text.util.Linkify;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -170,7 +171,12 @@ class BlogPostViewHolder extends RecyclerView.ViewHolder {
 			// TODO make author clickable #624
 
 			text.setText(c.getComment());
-			if (fullText) text.setTextIsSelectable(true);
+			Linkify.addLinks(text, Linkify.WEB_URLS);
+			text.setMovementMethod(null);
+			if (fullText) {
+				text.setTextIsSelectable(true);
+				makeLinksClickable(text, listener::onLinkClick);
+			}
 
 			commentContainer.addView(v);
 		}

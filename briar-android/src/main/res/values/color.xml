@@ -67,6 +67,7 @@
 
 	<!-- text colors -->
 	<color name="briar_text_link">@color/briar_blue_400</color>
+	<color name="briar_text_link_inverse">@android:color/white</color>
 	<color name="briar_text_primary">#df000000</color>
 	<color name="briar_text_primary_inverse">@android:color/white</color>
 	<color name="briar_text_secondary_inverse">#b4ffffff</color>

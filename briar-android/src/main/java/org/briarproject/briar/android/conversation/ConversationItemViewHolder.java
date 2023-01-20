@@ -1,6 +1,7 @@
 package org.briarproject.briar.android.conversation;
 
 import android.content.Context;
+import android.text.util.Linkify;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -19,6 +20,7 @@ import static android.view.View.VISIBLE;
 import static org.briarproject.bramble.util.StringUtils.trim;
 import static org.briarproject.briar.android.util.UiUtils.formatDate;
 import static org.briarproject.briar.android.util.UiUtils.formatDuration;
+import static org.briarproject.briar.android.util.UiUtils.makeLinksClickable;
 import static org.briarproject.briar.api.autodelete.AutoDeleteConstants.NO_AUTO_DELETE_TIMER;
 
 @UiThread
@@ -58,6 +60,8 @@ abstract class ConversationItemViewHolder extends ViewHolder {
 
 		if (item.getText() != null) {
 			text.setText(trim(item.getText()));
+			Linkify.addLinks(text, Linkify.WEB_URLS);
+			makeLinksClickable(text, listener::onLinkClick);
 		}
 
 		long timestamp = item.getTime();

@@ -114,6 +114,7 @@
 			android:textColor="?android:attr/textColorPrimary"
 			android:textIsSelectable="true"
 			android:textSize="@dimen/text_size_medium"
+			android:textColorLink="@color/briar_text_link"
 			app:layout_constraintBottom_toBottomOf="parent"
 			app:layout_constraintEnd_toEndOf="parent"
 			app:layout_constraintStart_toStartOf="parent"

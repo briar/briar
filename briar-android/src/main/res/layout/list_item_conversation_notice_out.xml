@@ -23,6 +23,7 @@
 		android:background="@drawable/msg_out_top"
 		android:elevation="@dimen/message_bubble_elevation"
 		android:textColor="@color/briar_text_primary_inverse"
+		android:textColorLink="@color/briar_text_link_inverse"
 		tools:text="This is a long long long message that spans over several lines.\n\nIt ends here."
 		tools:visibility="visible" />
 

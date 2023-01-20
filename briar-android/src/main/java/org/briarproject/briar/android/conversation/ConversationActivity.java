@@ -66,6 +66,7 @@ import org.briarproject.briar.android.view.TextAttachmentController.AttachmentLi
 import org.briarproject.briar.android.view.TextInputView;
 import org.briarproject.briar.android.view.TextSendController;
 import org.briarproject.briar.android.view.TextSendController.SendState;
+import org.briarproject.briar.android.widget.LinkDialogFragment;
 import org.briarproject.briar.api.android.AndroidNotificationManager;
 import org.briarproject.briar.api.attachment.AttachmentHeader;
 import org.briarproject.briar.api.autodelete.event.ConversationMessagesDeletedEvent;
@@ -474,6 +475,12 @@ public class ConversationActivity extends BriarActivity
 	public void onDestroyActionMode(ActionMode mode) {
 		tracker.clearSelection();
 		actionMode = null;
+	}
+
+	@Override
+	public void onLinkClick(String url) {
+		LinkDialogFragment f = LinkDialogFragment.newInstance(url);
+		f.show(getSupportFragmentManager(), f.getUniqueTag());
 	}
 
 	private void addSelectionTracker() {

@@ -21,6 +21,7 @@
 		android:layout_marginRight="@dimen/message_bubble_margin_non_tail"
 		android:background="@drawable/msg_in_top"
 		android:elevation="@dimen/message_bubble_elevation"
+		android:textColorLink="@color/briar_text_link"
 		tools:text="Short message"
 		tools:visibility="visible" />
 

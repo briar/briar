@@ -19,6 +19,7 @@ import org.briarproject.briar.android.view.TextSendController;
 import org.briarproject.briar.android.view.TextSendController.SendListener;
 import org.briarproject.briar.android.view.TextSendController.SendState;
 import org.briarproject.briar.android.view.UnreadMessageButton;
+import org.briarproject.briar.android.widget.LinkDialogFragment;
 import org.briarproject.briar.api.attachment.AttachmentHeader;
 import org.briarproject.nullsafety.MethodsNotNullByDefault;
 import org.briarproject.nullsafety.ParametersNotNullByDefault;
@@ -200,6 +201,12 @@ public abstract class ThreadListActivity<I extends ThreadItem, A extends ThreadI
 				textInput.setOnKeyboardShownListener(null);
 			});
 		}
+	}
+
+	@Override
+	public void onLinkClick(String url) {
+		LinkDialogFragment f = LinkDialogFragment.newInstance(url);
+		f.show(getSupportFragmentManager(), f.getUniqueTag());
 	}
 
 	protected void setToolbarSubTitle(SharingInfo sharingInfo) {
