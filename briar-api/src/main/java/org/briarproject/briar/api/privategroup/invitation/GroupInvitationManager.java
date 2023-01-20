@@ -85,7 +85,8 @@ public interface GroupInvitationManager extends ConversationClient {
 	 * This indicates whether the {@link PrivateGroup} can be shared
 	 * with the contact.
 	 *
-	 * @throws ProtocolStateException if {@link PrivateGroup} was already left.
+	 * @throws ProtocolStateException if {@link PrivateGroup}
+	 * was already dissolved.
 	 */
 	SharingStatus getSharingStatus(Contact c, GroupId g) throws DbException;
 }

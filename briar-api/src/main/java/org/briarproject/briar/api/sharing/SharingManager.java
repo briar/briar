@@ -116,7 +116,7 @@ public interface SharingManager<S extends Shareable>
 	 * This indicates whether the {@link Shareable} can be shared
 	 * with the contact.
 	 *
-	 * @throws ProtocolStateException if {@link Shareable} was already left.
+	 * @throws ProtocolStateException if we already left the {@link Shareable}.
 	 */
 	SharingStatus getSharingStatus(GroupId g, Contact c) throws DbException;
 
@@ -126,7 +126,7 @@ public interface SharingManager<S extends Shareable>
 	 * This indicates whether the {@link Shareable} can be shared
 	 * with the contact.
 	 *
-	 * @throws ProtocolStateException if {@link Shareable} was already left.
+	 * @throws ProtocolStateException if we already left the {@link Shareable}.
 	 */
 	SharingStatus getSharingStatus(Transaction txn, GroupId g, Contact c)
 			throws DbException;

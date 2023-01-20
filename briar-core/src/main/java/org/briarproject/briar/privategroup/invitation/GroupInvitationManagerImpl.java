@@ -539,7 +539,8 @@ class GroupInvitationManagerImpl extends ConversationClientImpl
 			if (state == START) return SharingStatus.SHAREABLE;
 			if (state == INVITED) return SharingStatus.INVITE_RECEIVED;
 			if (state == JOINED) return SharingStatus.SHARING;
-			// The creator can also be a LEFT state, after re-adding a contact
+			// Apart from the common case that the contact LEFT the group,
+			// the creator can also be a LEFT state, after re-adding a contact
 			// and re-creating the session with #recreateSession()
 			if (state == CreatorState.LEFT) return SharingStatus.SHARING;
 			if (state == DISSOLVED) throw new ProtocolStateException();
