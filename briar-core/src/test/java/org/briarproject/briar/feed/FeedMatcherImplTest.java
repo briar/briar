@@ -88,14 +88,10 @@ public class FeedMatcherImplTest extends BrambleTestCase {
 		// The second feed has the given RSS fields
 		Feed feed2 = createFeed(new RssProperties(null,
 				title, description, author, link, uri));
-		// The third feed has no matching RSS fields
-		Feed feed3 = createFeed(new RssProperties(null,
-				nope(), nope(), nope(), nope(), nope()));
 
-		Feed match = matcher.findMatchingFeed(candidate,
-				asList(feed1, feed2, feed3));
+		Feed match = matcher.findMatchingFeed(candidate, asList(feed1, feed2));
 
-		// The matcher should not choose any of the feeds
+		// The matcher should not choose either of the feeds
 		assertNull(match);
 	}
 
