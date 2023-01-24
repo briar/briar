@@ -28,6 +28,7 @@ import org.briarproject.briar.api.feed.RssProperties;
 import org.jmock.Expectations;
 import org.junit.Test;
 
+import java.io.ByteArrayInputStream;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.concurrent.Executor;
@@ -38,6 +39,7 @@ import okhttp3.OkHttpClient;
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.Collections.singletonList;
 import static okhttp3.mockwebserver.SocketPolicy.DISCONNECT_DURING_RESPONSE_BODY;
 import static org.briarproject.bramble.test.TestUtils.getGroup;
@@ -46,6 +48,7 @@ import static org.briarproject.bramble.test.TestUtils.getMessage;
 import static org.briarproject.briar.api.feed.FeedConstants.KEY_FEEDS;
 import static org.briarproject.briar.api.feed.FeedManager.CLIENT_ID;
 import static org.briarproject.briar.api.feed.FeedManager.MAJOR_VERSION;
+import static org.hamcrest.Matchers.nullValue;
 
 public class FeedManagerImplTest extends BrambleMockTestCase {
 
@@ -183,7 +186,7 @@ public class FeedManagerImplTest extends BrambleMockTestCase {
 	}
 
 	@Test
-	public void testAddNewFeed() throws Exception {
+	public void testAddNewFeedFromUrl() throws Exception {
 		// Fetching and parsing the feed will succeed; there are no entries
 		String feedXml = createRssFeedXml();
 
@@ -223,7 +226,7 @@ public class FeedManagerImplTest extends BrambleMockTestCase {
 	}
 
 	@Test
-	public void testAddExistingFeed() throws Exception {
+	public void testAddExistingFeedFromUrl() throws Exception {
 		// Fetching and parsing the feed will succeed; there are no entries
 		String feedXml = createRssFeedXml();
 
@@ -246,6 +249,63 @@ public class FeedManagerImplTest extends BrambleMockTestCase {
 		expectGetAndStoreFeeds(newFeed);
 
 		feedManager.addFeed(url);
+	}
+
+	@Test
+	public void testAddNewFeedFromInputStream() throws Exception {
+		// Reading and parsing the feed will succeed; there are no entries
+		String feedXml = createRssFeedXml();
+		Feed newFeed = createFeed(null, blog);
+
+		Group existingBlogGroup = getGroup(BlogManager.CLIENT_ID,
+				BlogManager.MAJOR_VERSION);
+		Blog existingBlog = new Blog(existingBlogGroup, localAuthor, true);
+		Feed existingFeed = createFeed(null, existingBlog);
+
+		expectGetFeeds(existingFeed);
+
+		context.checking(new DbExpectations() {{
+			// The added feed doesn't match any existing feed
+			oneOf(feedMatcher).findMatchingFeed(with(any(RssProperties.class)),
+					with(singletonList(existingFeed)));
+			will(returnValue(null));
+			// Create the new feed
+			oneOf(feedFactory).createFeed(with(nullValue(String.class)),
+					with(any(SyndFeed.class)));
+			will(returnValue(newFeed));
+			// Add the new feed to the list of feeds
+			Transaction txn = new Transaction(null, false);
+			oneOf(db).transaction(with(false), withDbRunnable(txn));
+			oneOf(blogManager).addBlog(txn, blog);
+			expectGetFeeds(txn, existingFeed);
+			expectStoreFeeds(txn, existingFeed, newFeed);
+		}});
+
+		expectUpdateFeedNoEntries(newFeed);
+		expectGetAndStoreFeeds(existingFeed, newFeed);
+
+		feedManager.addFeed(new ByteArrayInputStream(feedXml.getBytes(UTF_8)));
+	}
+
+	@Test
+	public void testAddExistingFeedFromInputStream() throws Exception {
+		// Reading and parsing the feed will succeed; there are no entries
+		String feedXml = createRssFeedXml();
+		Feed newFeed = createFeed(null, blog);
+
+		expectGetFeeds(newFeed);
+
+		context.checking(new DbExpectations() {{
+			// The added feed matches an existing feed
+			oneOf(feedMatcher).findMatchingFeed(with(any(RssProperties.class)),
+					with(singletonList(newFeed)));
+			will(returnValue(newFeed));
+		}});
+
+		expectUpdateFeedNoEntries(newFeed);
+		expectGetAndStoreFeeds(newFeed);
+
+		feedManager.addFeed(new ByteArrayInputStream(feedXml.getBytes(UTF_8)));
 	}
 
 	private Feed createFeed(String url, Blog blog) {

@@ -56,6 +56,7 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Logger;
 
+import javax.annotation.Nullable;
 import javax.annotation.concurrent.ThreadSafe;
 import javax.inject.Inject;
 
@@ -68,6 +69,7 @@ import static java.util.Collections.singletonList;
 import static java.util.Collections.sort;
 import static java.util.logging.Level.WARNING;
 import static java.util.logging.Logger.getLogger;
+import static org.briarproject.bramble.util.IoUtils.tryToClose;
 import static org.briarproject.bramble.util.LogUtils.logException;
 import static org.briarproject.bramble.util.StringUtils.isNullOrEmpty;
 import static org.briarproject.bramble.util.StringUtils.truncateUtf8;
@@ -170,7 +172,19 @@ class FeedManagerImpl implements FeedManager, EventListener, OpenDatabaseHook,
 	@Override
 	public Feed addFeed(String url) throws DbException, IOException {
 		// fetch feed to get posts and metadata
-		SyndFeed sf = fetchSyndFeed(url);
+		SyndFeed sf = fetchAndCleanFeed(url);
+		return addFeed(url, sf);
+	}
+
+	@Override
+	public Feed addFeed(InputStream in) throws DbException, IOException {
+		// fetch feed to get posts and metadata
+		SyndFeed sf = fetchAndCleanFeed(in);
+		return addFeed(null, sf);
+	}
+
+	private Feed addFeed(@Nullable String url, SyndFeed sf) throws DbException {
+		// extract properties from the feed
 		RssProperties properties = new RssProperties(url, sf.getTitle(),
 				sf.getDescription(), sf.getAuthor(), sf.getLink(), sf.getUri());
 
@@ -323,7 +337,7 @@ class FeedManagerImpl implements FeedManager, EventListener, OpenDatabaseHook,
 				String url = feed.getProperties().getUrl();
 				if (url == null) continue;
 				// fetch and clean feed
-				SyndFeed sf = fetchSyndFeed(url);
+				SyndFeed sf = fetchAndCleanFeed(url);
 				// sort and add new entries
 				long lastEntryTime = postFeedEntries(feed, sf.getEntries());
 				updatedFeeds.add(
@@ -342,11 +356,17 @@ class FeedManagerImpl implements FeedManager, EventListener, OpenDatabaseHook,
 		LOG.info("Done updating RSS feeds");
 	}
 
-	private SyndFeed fetchSyndFeed(String url) throws IOException {
-		// fetch feed
-		InputStream stream = getFeedInputStream(url);
-		SyndFeed sf = getSyndFeed(stream);
-		stream.close();
+	private SyndFeed fetchAndCleanFeed(String url) throws IOException {
+		return fetchAndCleanFeed(getFeedInputStream(url));
+	}
+
+	private SyndFeed fetchAndCleanFeed(InputStream in) throws IOException {
+		SyndFeed sf;
+		try {
+			sf = getSyndFeed(in);
+		} finally {
+			tryToClose(in, LOG, WARNING);
+		}
 
 		// clean title
 		String title = sf.getTitle();

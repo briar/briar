@@ -18,6 +18,7 @@ import org.briarproject.briar.api.blog.BlogFactory;
 import org.briarproject.briar.api.feed.Feed;
 import org.briarproject.briar.api.feed.RssProperties;
 
+import javax.annotation.Nullable;
 import javax.inject.Inject;
 
 import static org.briarproject.bramble.api.identity.AuthorConstants.MAX_AUTHOR_NAME_LENGTH;
@@ -51,7 +52,7 @@ class FeedFactoryImpl implements FeedFactory {
 	}
 
 	@Override
-	public Feed createFeed(String url, SyndFeed sf) {
+	public Feed createFeed(@Nullable String url, SyndFeed sf) {
 		String title = sf.getTitle();
 		if (title == null) title = "RSS";
 		else title = truncateUtf8(title, MAX_AUTHOR_NAME_LENGTH);
