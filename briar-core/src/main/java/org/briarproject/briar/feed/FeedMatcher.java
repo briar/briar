@@ -11,7 +11,7 @@ import javax.annotation.concurrent.ThreadSafe;
 
 @ThreadSafe
 @NotNullByDefault
-public interface FeedMatcher {
+interface FeedMatcher {
 
 	/**
 	 * Returns the best match for the given candidate from the given list of
