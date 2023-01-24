@@ -47,8 +47,11 @@ import java.security.GeneralSecurityException;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.ListIterator;
+import java.util.Map;
 import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Logger;
@@ -61,6 +64,7 @@ import okhttp3.Request;
 import okhttp3.Response;
 import okhttp3.ResponseBody;
 
+import static java.util.Collections.singletonList;
 import static java.util.Collections.sort;
 import static java.util.logging.Level.WARNING;
 import static java.util.logging.Logger.getLogger;
@@ -195,12 +199,7 @@ class FeedManagerImpl implements FeedManager, EventListener, OpenDatabaseHook,
 		Feed updatedFeed = feedFactory.updateFeed(feed, sf, lastEntryTime);
 
 		// store feed metadata again to also store last entry time
-		db.transaction(false, txn -> {
-			List<Feed> feeds = getFeeds(txn);
-			feeds.remove(feed);
-			feeds.add(updatedFeed);
-			storeFeeds(txn, feeds);
-		});
+		updateFeeds(singletonList(updatedFeed));
 
 		return updatedFeed;
 	}
@@ -270,8 +269,23 @@ class FeedManagerImpl implements FeedManager, EventListener, OpenDatabaseHook,
 		}
 	}
 
-	private void storeFeeds(List<Feed> feeds) throws DbException {
-		db.transaction(false, txn -> storeFeeds(txn, feeds));
+	/**
+	 * Updates the given feeds in the stored list of feeds, without affecting
+	 * any other feeds in the list or re-adding any of the given feeds that
+	 * have been removed from the list.
+	 */
+	private void updateFeeds(List<Feed> updatedFeeds) throws DbException {
+		Map<GroupId, Feed> updatedMap = new HashMap<>();
+		for (Feed feed : updatedFeeds) updatedMap.put(feed.getBlogId(), feed);
+		db.transaction(false, txn -> {
+			List<Feed> feeds = getFeeds(txn);
+			ListIterator<Feed> it = feeds.listIterator();
+			while (it.hasNext()) {
+				Feed updated = updatedMap.get(it.next().getBlogId());
+				if (updated != null) it.set(updated);
+			}
+			storeFeeds(txn, feeds);
+		});
 	}
 
 	/**
@@ -297,8 +311,13 @@ class FeedManagerImpl implements FeedManager, EventListener, OpenDatabaseHook,
 			return;
 		}
 
+		if (feeds.isEmpty()) {
+			LOG.info("No RSS feeds to update");
+			return;
+		}
+
 		// Fetch and update all feeds
-		List<Feed> newFeeds = new ArrayList<>(feeds.size());
+		List<Feed> updatedFeeds = new ArrayList<>(feeds.size());
 		for (Feed feed : feeds) {
 			try {
 				String url = feed.getProperties().getUrl();
@@ -307,16 +326,16 @@ class FeedManagerImpl implements FeedManager, EventListener, OpenDatabaseHook,
 				SyndFeed sf = fetchSyndFeed(url);
 				// sort and add new entries
 				long lastEntryTime = postFeedEntries(feed, sf.getEntries());
-				newFeeds.add(feedFactory.updateFeed(feed, sf, lastEntryTime));
+				updatedFeeds.add(
+						feedFactory.updateFeed(feed, sf, lastEntryTime));
 			} catch (IOException | DbException e) {
 				logException(LOG, WARNING, e);
-				newFeeds.add(feed);
 			}
 		}
 
 		// Store updated feeds
 		try {
-			storeFeeds(newFeeds);
+			updateFeeds(updatedFeeds);
 		} catch (DbException e) {
 			logException(LOG, WARNING, e);
 		}

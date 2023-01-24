@@ -103,7 +103,7 @@ public class FeedManagerImplTest extends BrambleMockTestCase {
 	public void testFetchFeedsEmptyList() throws Exception {
 		// The list of feeds is empty
 		expectGetFeeds();
-		expectStoreFeeds();
+
 		feedManager.setTorActive(true);
 		feedManager.fetchFeeds();
 	}
@@ -120,7 +120,7 @@ public class FeedManagerImplTest extends BrambleMockTestCase {
 		Feed feed = createFeed(url, blog);
 
 		expectGetFeeds(feed);
-		expectStoreFeeds(feed);
+		expectGetAndStoreFeeds(feed);
 
 		feedManager.setTorActive(true);
 		feedManager.fetchFeeds();
@@ -136,7 +136,7 @@ public class FeedManagerImplTest extends BrambleMockTestCase {
 		Feed feed = createFeed(url, blog);
 
 		expectGetFeeds(feed);
-		expectStoreFeeds(feed);
+		expectGetAndStoreFeeds(feed);
 
 		feedManager.setTorActive(true);
 		feedManager.fetchFeeds();
@@ -155,7 +155,7 @@ public class FeedManagerImplTest extends BrambleMockTestCase {
 
 		expectGetFeeds(feed);
 		expectUpdateFeedNoEntries(feed);
-		expectStoreFeeds(feed);
+		expectGetAndStoreFeeds(feed);
 
 		feedManager.setTorActive(true);
 		feedManager.fetchFeeds();
@@ -176,7 +176,7 @@ public class FeedManagerImplTest extends BrambleMockTestCase {
 
 		expectGetFeeds(feed);
 		expectUpdateFeedOneEntry(feed);
-		expectStoreFeeds(feed);
+		expectGetAndStoreFeeds(feed);
 
 		feedManager.setTorActive(true);
 		feedManager.fetchFeeds();
@@ -296,14 +296,6 @@ public class FeedManagerImplTest extends BrambleMockTestCase {
 				will(returnValue(feeds[i]));
 			}
 		}});
-	}
-
-	private void expectStoreFeeds(Feed... feeds) throws Exception {
-		Transaction txn = new Transaction(null, false);
-		context.checking(new DbExpectations() {{
-			oneOf(db).transaction(with(false), withDbRunnable(txn));
-		}});
-		expectStoreFeeds(txn, feeds);
 	}
 
 	private void expectStoreFeeds(Transaction txn, Feed... feeds)
