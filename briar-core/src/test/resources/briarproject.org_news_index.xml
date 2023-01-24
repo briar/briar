@@ -1,0 +1,95 @@
+<feed xmlns="http://www.w3.org/2005/Atom">
+  
+    <title>News - Briar</title>
+  
+  <link href="https://briarproject.org/news/index.xml" rel="self"/>
+  <link href="https://briarproject.org/news/"/>
+  <updated>2022-12-05T12:00:00+00:00</updated>
+  <id>https://briarproject.org/news/</id>
+  <author>
+    <name>The Briar Team</name>
+  </author>
+  <generator>Hugo -- gohugo.io</generator>
+  <entry>
+    <title type="html"><![CDATA[Briar Desktop got another round of funding]]></title>
+    <link href="https://briarproject.org/news/2022-briar-desktop-nlnet-funding/"/>
+    <id>https://briarproject.org/news/2022-briar-desktop-nlnet-funding/</id>
+    <published>2022-12-05T12:00:00+00:00</published>
+    <updated>2022-12-05T12:00:00+00:00</updated>
+    <summary><![CDATA[Briar Desktop got another round of funding So far, Briar is only available as an Android app, which is preventing some organizations that work in repressive environments from using it as a secure communications tool and considering it as a more secure alternative to email. To remedy that, we have started working on a desktop app in September 2021 that is supposed to work on three major operating systems: Linux, macOS and Windows.]]></summary>
+    
+  </entry>
+  <entry>
+    <title type="html"><![CDATA[Briar is available on Google Play again]]></title>
+    <link href="https://briarproject.org/news/2022-briar-removed-from-google-play/"/>
+    <id>https://briarproject.org/news/2022-briar-removed-from-google-play/</id>
+    <published>2022-02-28T13:20:00+00:00</published>
+    <updated>2022-02-28T13:20:00+00:00</updated>
+    <summary><![CDATA[Status update Update (February 28, 13:20 UTC): Briar is available on Google Play again.
+Briar was briefly removed from Google Play because we didn&rsquo;t provide Google&rsquo;s review team with a username and password for testing the app. We provided Google with a username and password for testing and the app is now available again.
+About Briar Briar is a messaging app designed for activists, journalists, and anyone else who needs a safe, easy and robust way to communicate.]]></summary>
+    
+  </entry>
+  <entry>
+    <title type="html"><![CDATA[Briar 1.4 released - offline app sharing, message transfer via SD cards and USB sticks]]></title>
+    <link href="https://briarproject.org/news/2021-briar-1.4-released/"/>
+    <id>https://briarproject.org/news/2021-briar-1.4-released/</id>
+    <published>2021-11-15T00:00:00+00:00</published>
+    <updated>2021-11-15T00:00:00+00:00</updated>
+    <summary><![CDATA[Press release The Briar Project released version 1.4 of its Android app today. This release adds a couple of new features, highlighted below.
+First of all, users can now share the app offline. Prior to this release, the only way to get the app was to to download it from the internet, which requires an internet connection. Now, it is possible to share the app offline to others who don&rsquo;t have it installed.]]></summary>
+    
+  </entry>
+  <entry>
+    <title type="html"><![CDATA[Briar 1.3 released - image attachments, profile images and disappearing messages]]></title>
+    <link href="https://briarproject.org/news/2021-briar-1.3-released/"/>
+    <id>https://briarproject.org/news/2021-briar-1.3-released/</id>
+    <published>2021-06-07T00:00:00+00:00</published>
+    <updated>2021-06-07T00:00:00+00:00</updated>
+    <summary><![CDATA[Press release   The Briar Project released version 1.3 of its Android app today. Thanks to support from eQualit.ie, this release adds several new features that have been requested by many users over the years.
+With today&rsquo;s release, users can upload profile pictures that will be visible only to their contacts.
+Lots of people have asked for a way to send images via Briar. We listened! This release adds the ability to send images in private conversations.]]></summary>
+    
+  </entry>
+  <entry>
+    <title type="html"><![CDATA[Briar 1.2 released, contacts can now be added by exchanging links]]></title>
+    <link href="https://briarproject.org/news/2019-briar-1.2-released-remote-contacts/"/>
+    <id>https://briarproject.org/news/2019-briar-1.2-released-remote-contacts/</id>
+    <published>2019-11-06T00:00:00+00:00</published>
+    <updated>2019-11-06T00:00:00+00:00</updated>
+    <summary><![CDATA[Press Release The Briar Project released version 1.2 of its Android app today. This release allows users to add each other securely by exchanging links. Previously users needed to meet in person or ask a mutual contact to introduce them.
+Most messenger apps find your contacts by uploading your phone&rsquo;s contact list to a server. Since Briar is designed to protect metadata and contact relationships, it instead uses the Tor network to connect directly and securely to the person you&rsquo;re adding, without revealing your contact list to anyone.]]></summary>
+    
+  </entry>
+  <entry>
+    <title type="html"><![CDATA[Briar 1.1 released with dark theme, new emoji and more]]></title>
+    <link href="https://briarproject.org/news/2018-briar-1.1-released/"/>
+    <id>https://briarproject.org/news/2018-briar-1.1-released/</id>
+    <published>2018-09-14T00:00:00+00:00</published>
+    <updated>2018-09-14T00:00:00+00:00</updated>
+    <summary><![CDATA[Press Release The Briar Project released version 1.1 of its Android app today. This release adds new features following the app&rsquo;s first public release in May.
+Thanks to support from the Open Technology Fund, the new release has a dark theme designed by Ura Design. Users can switch between the light and dark themes, or use an automatic mode that activates the dark theme at night. The conversation screen has also been redesigned, with rounded message bubbles and a new color scheme.]]></summary>
+    
+  </entry>
+  <entry>
+    <title type="html"><![CDATA[Briar - Secure P2P Messenger Releases First Version, Receives New Funding]]></title>
+    <link href="https://briarproject.org/news/2018-1.0-released-new-funding/"/>
+    <id>https://briarproject.org/news/2018-1.0-released-new-funding/</id>
+    <published>2018-05-09T00:00:00+00:00</published>
+    <updated>2018-05-09T00:00:00+00:00</updated>
+    <summary><![CDATA[Press Release The peer-to-peer messenger Briar released its first stable version today. It is available for Android devices from Google Play or F-Droid. This release follows a security audit and a 10 month public beta period during which many bugs were fixed and lots of feedback was received. The Briar Project wishes to thank all beta testers for their contributions.
+The development of Briar will continue with help from the Open Technology Fund, which has previously supported the project as part of its mission to promote internet freedom worldwide.]]></summary>
+    
+  </entry>
+  <entry>
+    <title type="html"><![CDATA[Briar - Darknet Messenger Releases Beta, Passes Security Audit]]></title>
+    <link href="https://briarproject.org/news/2017-beta-released-security-audit/"/>
+    <id>https://briarproject.org/news/2017-beta-released-security-audit/</id>
+    <published>2017-07-21T00:00:00+00:00</published>
+    <updated>2017-07-21T00:00:00+00:00</updated>
+    <summary><![CDATA[Press Release After extensive private beta tests, the first public beta of Briar was released today. Briar is a secure messaging app for Android.
+Unlike other popular apps, Briar does not require servers to work. It connects users directly using a peer-to-peer network. This makes it resistant to censorship and allows it to work even without internet access.
+The app encrypts all data end-to-end and also hides metadata about who is communicating.]]></summary>
+    
+  </entry>
+</feed>
