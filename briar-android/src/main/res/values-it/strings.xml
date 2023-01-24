@@ -446,6 +446,10 @@
   <string name="forum_declined_toast">Invito declinato</string>
   <string name="shared_by_format">Condiviso da %s</string>
   <string name="forum_invitation_already_sharing">Già in condivisione</string>
+  <string name="forum_invitation_already_invited">Invito già spedito</string>
+  <string name="forum_invitation_invite_received">Invito già ricevuto</string>
+  <string name="forum_invitation_not_supported">Non supportato da questo contatto</string>
+  <string name="forum_invitation_error">Errore. Si tratta di un bug, non è colpa tua</string>
   <string name="forum_invitation_response_accepted_sent">Hai accettato l\'invito al forum da %s</string>
   <string name="forum_invitation_response_declined_sent">Hai declinato l\'invito al forum da %s</string>
   <string name="forum_invitation_response_declined_auto">L\'invito di %s al forum è stato rifiutato automaticamente.</string>

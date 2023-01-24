@@ -459,6 +459,10 @@
   <string name="forum_declined_toast">Приглашение отклонено</string>
   <string name="shared_by_format">Совместно %s</string>
   <string name="forum_invitation_already_sharing">Уже поделился(-лась)</string>
+  <string name="forum_invitation_already_invited">Приглашение уже отправлено</string>
+  <string name="forum_invitation_invite_received">Приглашение уже получено</string>
+  <string name="forum_invitation_not_supported">Не поддерживается этим контактом</string>
+  <string name="forum_invitation_error">Ошибка. Это программная ошибка, а не ваша вина</string>
   <string name="forum_invitation_response_accepted_sent">Вы приняли приглашение на форум от %s.</string>
   <string name="forum_invitation_response_declined_sent">Вы отклонили приглашение на форум от %s.</string>
   <string name="forum_invitation_response_declined_auto">Приглашение на форум от %s было отклонено автоматически.</string>

@@ -313,6 +313,10 @@
   <string name="duplicate_link_dialog_text_3">%1$s та %2$s надіслали вам однакові посилання.\n\nХтось із них, можливо, намагається виявити ваші контакти.\n\nНе кажіть їм, що вже отримували це посилання від когось іще.</string>
   <string name="pending_contact_updated_toast">Оновлено нерозглянутий контакт</string>
   <!--Peer trust levels-->
+  <string name="peer_trust_level_unverified">Неперевірений контакт</string>
+  <string name="peer_trust_level_verified">Перевірений контакт</string>
+  <string name="peer_trust_level_ourselves">Я</string>
+  <string name="peer_trust_level_stranger">Чужинець</string>
   <!--Introductions-->
   <string name="introduction_onboarding_title">Поділитися своїми контактами</string>
   <string name="introduction_onboarding_text">Представте свої контакти навзаєм, щоб вони могли спілкуватись у Briar.</string>
@@ -341,6 +345,7 @@
   <string name="connect_via_bluetooth_intro">Якщо Bluetooth-з\'єднання не спрацьовують автоматично, можете з\'єднатися вручну на цьому екрані.\n\nВаш контакт має бути поруч, щоб це спрацювало.\n\nВам обом слід одночасно натиснути «Почати».</string>
   <string name="connect_via_bluetooth_already_discovering">Спроба Bluetooth-з\'єднання вже триває. Повторіть трохи пізніше.</string>
   <string name="connect_via_bluetooth_no_location_permission">Не вдається продовжити без дозволу на отримання місцезнаходження</string>
+  <string name="connect_via_bluetooth_no_bluetooth_permission">Неможливо продовжите без дозволу пристроїв поблизу</string>
   <string name="connect_via_bluetooth_start">Триває Bluetooth-з\'єднання...</string>
   <string name="connect_via_bluetooth_success">Bluetooth-з\'єднання успішне</string>
   <string name="connect_via_bluetooth_error">Не вдалося з\'єднатися через Bluetooth.</string>
@@ -443,6 +448,10 @@
   <string name="forum_declined_toast">Запрошення було відхилено</string>
   <string name="shared_by_format">Поширено %s</string>
   <string name="forum_invitation_already_sharing">Вже поширюється</string>
+  <string name="forum_invitation_already_invited">Запрошення вже відправлене</string>
+  <string name="forum_invitation_invite_received">Запрошення вже отримано</string>
+  <string name="forum_invitation_not_supported">Не підтримується цим контактом</string>
+  <string name="forum_invitation_error">Помилка. Це збій програми, а не ваша провина</string>
   <string name="forum_invitation_response_accepted_sent">Ви прийняли запрошення до форуму від %s.</string>
   <string name="forum_invitation_response_declined_sent">Ви відхилили запрошення до форуму від %s.</string>
   <string name="forum_invitation_response_declined_auto">Запрошення до форуму від %s відхилено автоматично.</string>
@@ -609,6 +618,7 @@
   <string name="mailbox_setup_button_scan">Сканувати QR-код Mailbox</string>
   <string name="permission_camera_qr_denied_body">Ви заборонили доступ до камери, але камера потрібна для сканування QR-коду.\n\nБудь ласка, надайте доступ.</string>
   <!--This string is shown when connecting to a Mailbox for the first time. The placeholder will be replaced with a duration, e.g. "2 minutes".-->
+  <string name="mailbox_setup_connecting_info">Це може зайняти до %1s</string>
   <string name="mailbox_setup_already_paired_title">Mailbox уже під\'єднано</string>
   <string name="mailbox_setup_already_paired_description">Від\'єднайте Mailbox від свого іншого пристрою й повторіть спробу.</string>
   <string name="mailbox_setup_io_error_title">Не вдалося з\'єднатися</string>
@@ -627,19 +637,39 @@
   <string name="mailbox_status_connected_title">Mailbox працює</string>
   <string name="mailbox_status_problem_title">Не вдається з\'єднати Briar із Mailbox</string>
   <string name="mailbox_status_failure_title">Mailbox недоступна</string>
+  <string name="mailbox_status_app_too_old_title">Версія Briar занадто стара</string>
+  <string name="mailbox_status_app_too_old_message">Оновіть Briar до найновішої версії та спробуйте ще.</string>
+  <string name="mailbox_status_mailbox_too_old_title">Версія потової скриньки занадто стара</string>
   <string name="mailbox_status_check_button">Перевірити з\'єднання</string>
   <!--Example for string substitution: Last connection: 3min ago-->
   <string name="mailbox_status_connected_info">З\'єднання було: %s</string>
   <!--Indicates that there never was a connection to the mailbox. Last connection: Never-->
   <string name="mailbox_status_connected_never">Ніколи</string>
   <string name="mailbox_status_unlink_button">Від\'єднати</string>
+  <string name="mailbox_status_unlink_dialog_title">Від\'єднати потову скриньку?</string>
+  <string name="mailbox_status_unlink_dialog_question">Ви впевнені що хочете від\'єднати поштову скриньку?</string>
+  <string name="mailbox_status_unlink_dialog_warning">Якщо ви від\'єднаєте вашу поштову скриньку, ви не зможете отримувати повідомлення поки Briar не на зв\'язку</string>
+  <string name="mailbox_status_unlink_no_wipe_title">Ваша поштова скринька від\'єднана</string>
+  <string name="mailbox_status_unlink_success">Ваша поштова скринька від\'єднана</string>
+  <string name="mailbox_error_notification_channel_title">Проблема з поштовою скринькою Briar</string>
+  <string name="mailbox_error_notification_title">Поштова скринька Briar не доступна</string>
+  <string name="mailbox_error_notification_text">Натисніть щоб виправити проблему</string>
+  <string name="mailbox_error_wizard_button">Виправити проблему</string>
   <string name="mailbox_error_wizard_question1">Ви маєте доступ до вашого пристрою Mailbox?</string>
   <string name="mailbox_error_wizard_answer1_1">Я бачу вказівки щодо налаштування Mailbox</string>
   <string name="mailbox_error_wizard_answer1_2">Я бачу QR-код</string>
+  <string name="mailbox_error_wizard_info2">Будь ласка повертайтесь до цього екрану коли у вас буде доступ до пристрою</string>
   <!--About-->
   <string name="about_title">Про</string>
+  <string name="briar_version">Версія Briar %s</string>
+  <string name="tor_version">Версія Tor %s</string>
   <string name="links">Посилання</string>
+  <string name="briar_website">\u2022 <a href="">Вебсайт</a></string>
+  <string name="briar_source_code">\u2022 <a href="">Вихідний код</a></string>
+  <string name="briar_changelog">\u2022 <a href="">Список змін та доповнень</a></string>
+  <string name="briar_privacy_policy">\u2022 <a href="">Політика конфіденційности</a></string>
   <!--Here translators can add their names or Transifex usernames(eg "Thanks to all the contributors at the Localization Lab, especially Tom, Matthew and Jerry")-->
+  <string name="translator_thanks">Дякуємо всім хто вніс свій внесок у Localization Lab</string>
   <!--Conversation Settings-->
   <string name="disappearing_messages_title">Самознищувані повідомлення</string>
   <string name="disappearing_messages_explanation_long">Коли цей параметр увімкнено, нові
@@ -671,6 +701,7 @@
   <string name="describe_crash">Опишіть, що сталося (за бажанням)</string>
   <string name="enter_feedback">Введіть свій відгук</string>
   <string name="optional_contact_email">Ваша електронна адреса (необов\'язково)</string>
+  <string name="privacy_policy">Відправляючи нам дані ви погоджуєтесь з нашою <a href="">політикою конфіденційности</a></string>
   <string name="include_debug_report_crash">Додати анонімну інформацію про аварійний збій</string>
   <string name="include_debug_report_feedback">Додати анонімну інформацію про цей пристрій</string>
   <string name="dev_report_user_info">Користувацькі дані</string>
@@ -706,11 +737,13 @@
   <string name="permission_location_request_body">Щоб знайти Bluetooth-пристрої, Briar потребує доступу до інформації про ваше місцезнаходження.\n\nBriar не зберігає дані про ваше місцезнаходження та не ділиться ні з ким цією інформацією.</string>
   <string name="permission_camera_location_title">Камера та місцезнаходження</string>
   <string name="permission_camera_location_request_body">Щоб відсканувати QR-код, Briar потребує доступу до камери.\n\nЩоб знайти Bluetooth-пристрої, Briar потребує доступу до інформації про ваше місцезнаходження.\n\nBriar не зберігає дані про ваше місцезнаходження та не ділиться ні з ким цією інформацією.</string>
+  <string name="permission_camera_bluetooth_title">Камера та пристрої поблизу</string>
   <string name="permission_camera_denied_body">Ви відмовилися надати доступ до камери, але додавання контактів потребує використання камери.\n\nБудь ласка, подумайте про можливість надання доступу.</string>
   <string name="permission_location_denied_body">Ви заборонили доступ до місцеперебування, але Briar потребує цього доступу, щоб знаходити Bluetooth-пристрої.\n\nБудь ласка, надайте доступ.</string>
   <string name="permission_location_setting_title">Визначення місцеперебування</string>
   <string name="permission_location_setting_body">Ваш пристрій не дозволяє визначати місцеперебування, а це потрібно для знаходження інших пристроїв через Bluetooth. Будь ласка, увімкніть визначення місцеперебування, щоб продовжити. Згодом ви зможете знову його вимкнути.</string>
   <string name="permission_location_setting_button">Увімкнути визначення місцеперебування</string>
+  <string name="permission_bluetooth_title">Дозволи на пристроях поблизу</string>
   <string name="qr_code">QR-код</string>
   <string name="show_qr_code_fullscreen">Вивести QR-код на весь екран</string>
   <!--App Locking-->
@@ -757,6 +790,9 @@
   <string name="hotspot_manual_site_address">Адреса (URL)</string>
   <string name="hotspot_qr_site">Ваш телефон надає точку доступу Wi-Fi. З\'єднані з нею можуть завантажити Briar, просканувавши цей QR-код.</string>
   <!--e.g. Download Briar 1.2.20-->
+  <string name="website_download_title_1">Завантаження Briar %s</string>
+  <string name="website_download_intro_1">Хтось поблизу поділився з вами Briar.</string>
+  <string name="website_download_button">Завантажити Briar</string>
   <string name="website_download_outro">Після завантаження, відкрийте завантажений файл і встановіть його.</string>
   <string name="website_troubleshooting_title">Виправлення неполадок</string>
   <string name="website_troubleshooting_1">Якщо не вдається завантажити застосунок, повторіть спробу іншим вебпереглядачем.</string>

@@ -420,6 +420,10 @@
   <string name="forum_declined_toast">邀请已谢绝</string>
   <string name="shared_by_format">由 %s 分享</string>
   <string name="forum_invitation_already_sharing">已在分享</string>
+  <string name="forum_invitation_already_invited">邀请已发送</string>
+  <string name="forum_invitation_invite_received">已收到邀请</string>
+  <string name="forum_invitation_not_supported">不被此联系人所支持</string>
+  <string name="forum_invitation_error">错误。这是一个故障，不是你的问题</string>
   <string name="forum_invitation_response_accepted_sent">您接受了来自 %s的论坛邀请</string>
   <string name="forum_invitation_response_declined_sent">您谢绝了来自 %s的论坛邀请</string>
   <string name="forum_invitation_response_declined_auto">来自 %s 的论坛邀请被自动拒绝了</string>

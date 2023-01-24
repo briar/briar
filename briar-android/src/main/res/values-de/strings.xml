@@ -237,6 +237,8 @@
   <string name="qr_code_invalid">Der QR-Code ist ungültig</string>
   <string name="qr_code_too_old_1">Der QR-Code, den du gescannt hast, kommt von einer älteren Version von Briar.\n\nBitte deinen Kontakt, zur neuesten Version upzudaten, und versuche es erneut.</string>
   <string name="qr_code_too_new_1">Der QR-Code, den du gescannt hast, kommt von einer neueren Version.\n\nBitte aktualisiere Briar auf die neueste Version und versuche es erneut.</string>
+  <string name="mailbox_qr_code_for_contact">Der QR-Code, den du gescannt hast, stammt von einer Briar-Mailbox.\n\nWenn du dich mit einer Mailbox verbinden willst, dann wähle in den Einstellungen &gt; Mailbox im Briar-Menü.</string>
+  <string name="qr_code_format_unknown">Der QR-Code, den du gescannt hast, ist nicht dazu gedacht, einen Kontakt hinzuzufügen.\n\nBitte scanne den QR-Code, der auf dem Display deines Kontaktes angezeigt wird.</string>
   <string name="camera_error">Kamerafehler</string>
   <string name="connecting_to_device">Verbinde mit Gerät\u2026</string>
   <string name="authenticating_with_device">Authentifiziere Gerät\u2026</string>
@@ -431,6 +433,10 @@
   <string name="forum_declined_toast">Einladung abgelehnt</string>
   <string name="shared_by_format">Geteilt durch %s</string>
   <string name="forum_invitation_already_sharing">Bereits geteilt.</string>
+  <string name="forum_invitation_already_invited">Die Einladung wurde bereits versendet.</string>
+  <string name="forum_invitation_invite_received">Die Einladung wurde bereits empfangen.</string>
+  <string name="forum_invitation_not_supported">Dies wird von diesem Kontakt nicht unterstützt.</string>
+  <string name="forum_invitation_error">Fehler. Dies ist ein Bug und ist nicht dein Fehler.</string>
   <string name="forum_invitation_response_accepted_sent">Du hast die Forumeinladung von %s angenommen.</string>
   <string name="forum_invitation_response_declined_sent">Du hast die Forumeinladung von %s abgelehnt.</string>
   <string name="forum_invitation_response_declined_auto">Die Forumeinladung von %s wurde automatisch abgelehnt.</string>
@@ -594,7 +600,13 @@
   <string name="mailbox_setup_download_link">Download-Link teilen</string>
   <string name="mailbox_setup_button_scan">Mailbox QR-Code scannen</string>
   <string name="permission_camera_qr_denied_body">Du hast den Zugriff auf die Kamera verweigert, aber das Scannen eines QR-Codes erfordert die Verwendung der Kamera.\n\nBitte gewähre den Zugriff.</string>
+  <string name="mailbox_setup_connecting">Verbinde mit der Mailbox…</string>
   <!--This string is shown when connecting to a Mailbox for the first time. The placeholder will be replaced with a duration, e.g. "2 minutes".-->
+  <string name="mailbox_setup_connecting_info">Dies könnte %1s erfordern.</string>
+  <string name="mailbox_qr_code_too_old">Der QR-Code, den du gescannt hast, stammt von einer älteren Briar-Mailbox Version.\n\nBitte aktualisiere die Briar-Mailbox auf die neueste Version und probiere es noch einmal.</string>
+  <string name="mailbox_qr_code_too_new">Der QR-Code, den du gescannt hast, stammt von einer neueren Briar-Mailbox Version.\n\nBitte aktualisiere Briar auf die neueste Version und probiere es noch einmal.</string>
+  <string name="contact_qr_code_for_mailbox">Der QR-Code, den du gescannt hast, ist dafür gedacht, einen Kontakt hinzuzufügen.\n\nWenn du einen Kontakt hinzufügen möchtest, gehe bitte zur Kontaktliste und klicke auf das + Symbol.</string>
+  <string name="mailbox_setup_qr_code_wrong_description">Der QR-Code, den du gescannt hast, stammt nicht von einer Briar-Mailbox.\n\nBitte öffne die Briar-Mailbox auf deinem Mailbox-Gerät und scanne den davon angezeigten QR-Code.</string>
   <string name="mailbox_setup_already_paired_title">Mailbox bereits verknüpft</string>
   <string name="mailbox_setup_already_paired_description">Verknüpfung der Mailbox auf deinem anderen Gerät aufheben und erneut versuchen.</string>
   <string name="mailbox_setup_io_error_title">Keine Verknüpfung möglich</string>

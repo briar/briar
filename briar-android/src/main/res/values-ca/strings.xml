@@ -1,36 +1,35 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<resources>
-	<!--Setup-->
-	<string name="setup_title">Benvingut a Briar</string>
-	<string name="setup_name_explanation">El vostre sobrenom etiquetarà tot el que publiqueu. Després de crear el compte ja no podreu canviar el sobrenom.</string>
-	<string name="setup_next">Següent</string>
-	<string name="setup_password_intro">Establiu una contrasenya</string>
-	<string name="setup_password_explanation">El compte de Briar s\'emmagatzema xifrat en el vostre dispositiu, no en el núvol. Si oblideu la contrasenya o desinstal·leu Briar no podreu recuperar el vostre compte ni les dades associades.\n\nTrieu una contrasenya llarga que sigui difícil d\'endevinar, com ara quatre paraules aleatòries o deu lletres, números i símbols aleatoris.</string>
-	<string name="dnkm_doze_title">Connexions en segon pla</string>
-	<string name="dnkm_doze_intro">Per rebre missatges Briar necessita estar connectat en segon pla.</string>
-	<string name="dnkm_doze_explanation">Per rebre missatges Briar necessita estar connectat en segon pla. Desactiveu les optimitzacions de la bateria per permetre que Briar resti sempre connectat.</string>
-	<string name="dnkm_doze_button">Permet connexions</string>
-	<string name="choose_nickname">Trieu el sobrenom</string>
-	<string name="choose_password">Trieu la contrasenya</string>
-	<string name="confirm_password">Confirmeu la contrasenya</string>
-	<string name="name_too_long">El nom és massa llarg</string>
-	<string name="password_too_weak">La contrasenya és massa feble</string>
-	<string name="passwords_do_not_match">Les contrasenyes no coincideixen</string>
-	<string name="create_account_button">Crea el compte</string>
-	<string name="more_info">Més informació</string>
-	<string name="don_t_ask_again">No tornis a preguntar-ho</string>
-	<string name="dnkm_huawei_protected_text">Feu un toc sobre el botó següent i assegureu-vos de que Briar consta com a protegit a la pantalla «Aplicacions protegides».</string>
-	<string name="dnkm_huawei_protected_button">Protegeix Briar</string>
-	<string name="dnkm_huawei_protected_help">Si no afegiu Briar a la llista d\'aplicacions protegides, s\'evitarà que Briar s\'executi en segon pla.</string>
-	<string name="dnkm_huawei_app_launch_text">Premeu el botó, obriu la pantalla «Llença app» i assegureu-vos que Briar està configurat com «Gestiona a ma».</string>
-	<string name="dnkm_huawei_app_launch_button">Obriu la configuració de la bateria</string>
-	<string name="dnkm_huawei_app_launch_help">Si Briar no està configurat com a «Gestiona manualment» a la pantalla «Llença app», no podrà executar-se en segon pla.</string>
-	<string name="dnkm_xiaomi_text">Per executar-se en segon pla, Briar necessita ser blocat en la llista d\'aplicacions recents.</string>
-	<string name="dnkm_xiaomi_button">Protegeix Briar</string>
-	<string name="dnkm_xiaomi_help">Si Briar no està blocat a la llista d\'aplicacions recents, no podrà executar-se en segon pla.</string>
-	<string name="dnkm_xiaomi_dialog_body_old">1. Obriu la llista d\'aplicacions recents (de canvi d\'aplicació)\n\n2. Desplaceu avall  la icona de Briar  per mostrar la icona del cadenat\n\n3. Si el cadenat és obert, premeu per tancar-lo.</string>
-	<string name="dnkm_xiaomi_dialog_body_new">1. Obriu la llista d\'aplicacions recents (canvi d\'aplicació)\n\n2. Premeu la icona de Briar fins que es mostra la icona del cadenat\n\n3. Si el cadenat és obert, premeu per tancar-lo.</string>
-	<string name="dnkm_warning_dozed">%s no s\'ha pogut executar en segon pla</string>
+<resources xmlns:tools="http://schemas.android.com/tools">
+  <!--Setup-->
+  <string name="setup_title">Benvingut a Briar</string>
+  <string name="setup_name_explanation">El vostre sobrenom etiquetarà tot el que publiqueu. Després de crear el compte ja no podreu canviar el sobrenom.</string>
+  <string name="setup_next">Següent</string>
+  <string name="setup_password_intro">Establiu una contrasenya</string>
+  <string name="setup_password_explanation">El compte de Briar s\'emmagatzema xifrat en el vostre dispositiu, no en el núvol. Si oblideu la contrasenya o desinstal·leu Briar no podreu recuperar el vostre compte ni les dades associades.\n\nTrieu una contrasenya llarga que sigui difícil d\'endevinar, com ara quatre paraules aleatòries o deu lletres, números i símbols aleatoris.</string>
+  <string name="dnkm_doze_intro">Per rebre missatges Briar necessita estar connectat en segon pla.</string>
+  <string name="dnkm_doze_explanation">Per rebre missatges Briar necessita estar connectat en segon pla. Desactiveu les optimitzacions de la bateria per permetre que Briar resti sempre connectat.</string>
+  <string name="choose_nickname">Trieu el sobrenom</string>
+  <string name="choose_password">Trieu la contrasenya</string>
+  <string name="confirm_password">Confirmeu la contrasenya</string>
+  <string name="name_too_long">El nom és massa llarg</string>
+  <string name="password_too_weak">La contrasenya és massa feble</string>
+  <string name="passwords_do_not_match">Les contrasenyes no coincideixen</string>
+  <string name="create_account_button">Crea el compte</string>
+  <string name="more_info">Més informació</string>
+  <string name="don_t_ask_again">No tornis a preguntar-ho</string>
+  <string name="dnkm_huawei_protected_text">Feu un toc sobre el botó següent i assegureu-vos de que Briar consta com a protegit a la pantalla «Aplicacions protegides».</string>
+  <string name="dnkm_huawei_protected_button">Protegeix Briar</string>
+  <string name="dnkm_huawei_protected_help">Si no afegiu Briar a la llista d\'aplicacions protegides, s\'evitarà que Briar s\'executi en segon pla.</string>
+  <string name="dnkm_huawei_app_launch_text">Premeu el botó, obriu la pantalla «Llença app» i assegureu-vos que Briar està configurat com «Gestiona a ma».</string>
+  <string name="dnkm_huawei_app_launch_help">Si Briar no està configurat com a «Gestiona manualment» a la pantalla «Llença app», no podrà executar-se en segon pla.</string>
+  <string name="dnkm_xiaomi_text">Per executar-se en segon pla, Briar necessita ser blocat en la llista d\'aplicacions recents.</string>
+  <string name="dnkm_xiaomi_button">Protegeix Briar</string>
+  <string name="dnkm_xiaomi_help">Si Briar no està blocat a la llista d\'aplicacions recents, no podrà executar-se en segon pla.</string>
+  <string name="dnkm_xiaomi_dialog_body_old">1. Obriu la llista d\'aplicacions recents (de canvi d\'aplicació)\n\n2. Desplaceu avall  la icona de Briar  per mostrar la icona del cadenat\n\n3. Si el cadenat és obert, premeu per tancar-lo.</string>
+  <string name="dnkm_xiaomi_dialog_body_new">1. Obriu la llista d\'aplicacions recents (també anomenada commutador d\'aplicacions)\n\n2. Si el Briar té una petita imatge d\'un cadenat al costat del seu nom, no cal que feu res\n\n3. Si no hi ha cadenat, manteniu premuda la imatge de Briar fins que aparegui el botó del cadenat i, a continuació, toqueu-lo</string>
+  <string name="dnkm_xiaomi_lock_apps_text">Toqueu el botó següent per obrir la configuració de seguretat. Toqueu «Augmenta la velocitat» i, a continuació, toqueu «Bloca aplicacions» i assegureu-vos que el Briar estigui configurat a \"Blocat\".</string>
+  <string name="dnkm_xiaomi_lock_apps_help">Si el Briar no està configurat com a «Blocat» a la pantalla «Bloca aplicacions», no es podrà executar en segon pla.</string>
+  <string name="dnkm_warning_dozed_1">El Briar no va poder executar-se en segon pla</string>
   <!--Login-->
   <string name="enter_password">Contrasenya</string>
   <string name="try_again">La contrasenya és incorrecta, torneu a escriure-la</string>
@@ -41,14 +40,25 @@
   <string name="dialog_title_lost_password">Contrasenya perduda</string>
   <string name="dialog_message_lost_password">El vostre compte de Briar s\'emmagatzema només en el vostre dispositiu i xifrat. La contrasenya, doncs, no es pot restablir. Voleu esborrar el compte i crear-ne un de nou?\n\nAtenció! Si esborreu el compte la vostra identitat, els contactes i els missatges antics es perdran per sempre.</string>
   <string name="startup_failed_activity_title">Error iniciant Briar</string>
+  <string name="startup_failed_clock_error">El Briar no s\'ha pogut iniciar perquè l\'hora del dispositiu és incorrecte.\n\nConfigureu l\'hora del dispositiu correctament i torneu-ho a provar.</string>
+  <string name="startup_failed_db_error">El Briar no ha pogut obrir la base de dades que conté el vostre compte, els vostres contactes i els vostres missatges.\n\nActualitzeu a la darrera versió de l\'aplicació i torneu-ho a provar, o configureu un compte nou seleccionant «He oblidat la meva contrasenya» a la sol·licitud de contrasenya.</string>
+  <string name="startup_failed_data_too_old_error">El vostre compte s\'ha creat amb una versió antiga d\'aquesta aplicació i no es pot obrir amb aquesta versió.\n\nHeu de tornar a instal·lar la versió antiga o configurar un compte nou escollint «He oblidat la meva contrasenya» a la sol·licitud de contrasenya.</string>
+  <string name="startup_failed_data_too_new_error">El vostre compte s\'ha creat amb una versió més recent d\'aquesta aplicació i no es pot obrir amb aquesta versió.\n\nActualitzeu a la versió més recent i torneu-ho a provar.</string>
+  <string name="startup_failed_service_error">El Briar no ha pogut iniciar un component necessari.\n\nActualitzeu l\'aplicació a la darrera versió i torna-ho a provar.</string>
   <plurals name="expiry_warning">
     <item quantity="one">Aquesta és una versió de prova de Briar. El vostre compte expira en %d dia i no es pot renovar.</item>
     <item quantity="other">Aquesta és una versió de prova de Briar. El vostre compte caducarà en %d dies i no es podrà renovar.</item>
+  </plurals>
+  <plurals name="old_android_expiry_warning">
+    <item quantity="one">L\'Android 4 ja no és compatible. El Briar deixarà de funcionar a %s (d\'aquí a %d dia). Instal·leu el Briar en un dispositiu més nou i creeu un compte nou.</item>
+    <item quantity="other">L\'Android 4 ja no és compatible. El Briar deixarà de funcionar a %s (d\'aquí a %d dies). Instal·leu el Briar en un dispositiu més nou i creeu un compte nou.</item>
   </plurals>
   <string name="expiry_date_reached">Aquesta versió de Briar ha caducat.\nGràcies per haver-lo provat!</string>
   <string name="download_briar">Per continuar utilitzant Briar, baixeu la darrera versió.</string>
   <string name="create_new_account">Haureu de crear un compte nou, però podeu utilitzar el mateix sobrenom.</string>
   <string name="download_briar_button">Descarrega la darrera versió</string>
+  <string name="old_android_expiry_date_reached">El Briar ja no funciona amb l\'Android 4.\nInstal·leu el Briar en un dispositiu més nou.</string>
+  <string name="old_android_delete_account">Podeu tocar el botó següent per suprimir el vostre compte d\'aquest dispositiu.</string>
   <string name="delete_account_button">Esborreu el compte</string>
   <string name="startup_open_database">S\'està desxifrant la base de dades...</string>
   <string name="startup_migrate_database">S\'està actualitzant la base de dades...</string>
@@ -145,6 +155,7 @@
   <string name="error_start_activity">No està disponible en el vostre sistema</string>
   <string name="status_heading">Estat</string>
   <string name="error">Error</string>
+  <string name="info">Informació</string>
   <!--Contacts and Private Conversations-->
   <string name="no_contacts">No hi ha cap contacte per mostrar</string>
   <string name="no_contacts_action">Toqueu la icona + per afegir un contacte</string>
@@ -216,6 +227,7 @@ Així que l\'actualitzi li veureu una icona diferent .</string>
   <string name="menu_contact">Contacte</string>
   <!--Adding Contacts-->
   <string name="add_contact_title">Afegeix un contacte proper</string>
+  <string name="add_contact_error_two_way">Tots dos heu escanejat el codi QR de l\'altre?</string>
   <string name="face_to_face">Heu de coincidir en el mateix lloc amb la persona que voleu afegir com a contacte.\n\nD\'aquesta manera evitareu que algú suplanti les vostres identitats o pugui llegir els vostres missatges en el futur.</string>
   <string name="continue_button">Continua</string>
   <string name="try_again_button">Torna-ho a provar</string>
@@ -224,13 +236,16 @@ Així que l\'actualitzi li veureu una icona diferent .</string>
   <string name="contact_added_toast">S\'ha afegit el contacte %s</string>
   <string name="contact_already_exists">El contacte %s ja existia</string>
   <string name="qr_code_invalid">El codi QR és invàlid</string>
-  <string name="qr_code_too_old">El codi QR que heu escanejat prové d\'una versió antiga de %s.\n\nDemaneu al vostre contacte que l\'actualitzi i torneu a provar-ho.</string>
-  <string name="qr_code_too_new">El codi QR que heu escanejat prové d\'una versió de %s més nova que la vostra.\n\nActualitzeu la vostra aplicació i torneu a provar-ho.</string>
+  <string name="qr_code_too_old_1">El codi QR que heu escanejat prové d\'una versió anterior del Briar.\n\nDemaneu al vostre contacte que actualitzi a la versió més recent i, a continuació, torneu-ho a provar.</string>
+  <string name="qr_code_too_new_1">El codi QR que heu escanejat prové d\'una versió més recent del Briar.\n\nActualitzeu a la darrera versió i torneu-ho a provar.</string>
+  <string name="mailbox_qr_code_for_contact">El codi QR que heu escanejat prové del Briar Mailbox.\n\nSi voleu enllaçar una bústia de correu, seleccioneu Configuració &gt; Bústia del menú Briar.</string>
+  <string name="qr_code_format_unknown">El codi QR que heu escanejat no serveix per afegir un contacte del Briar.\n\nEscanejeu el codi QR que es mostra a la pantalla del vostre contacte.</string>
   <string name="camera_error">Error de la càmera</string>
   <string name="connecting_to_device">Connectant-se al dispositiu\u2026</string>
   <string name="authenticating_with_device">Autenticant-se amb el dispositiu\u2026</string>
   <string name="connection_error_title">No ha pogut connectar-se al vostre contacte</string>
   <string name="connection_error_feedback">Si aquest problema persisteix, <a href="feedback">envieu-nos un comentari</a> per ajudar-nos a millorar l\'aplicació.</string>
+  <string name="info_both_must_scan">Tots dos heu d\'escanejar el codi QR de l\'altre</string>
   <!--Adding Contacts Remotely-->
   <string name="add_contact_remotely_title_case">Afegeix un contacte llunyà</string>
   <string name="add_contact_nearby_title">Afegeix un contacte proper</string>
@@ -277,6 +292,7 @@ Així que l\'actualitzi li veureu una icona diferent .</string>
   <string name="duplicate_link_dialog_text_1">Teniu una sol·licitud de contacte pendent amb l\'enllaç %s</string>
   <string name="duplicate_link_dialog_text_1_contact">Ja teniu un contacte amb aquest enllaç: %s</string>
   <!--This is a question asking whether two nicknames refer to the same person-->
+  <string name="duplicate_link_dialog_text_2">%1$s i %2$s són la mateixa persona?</string>
   <!--This is a button for answering that two nicknames do indeed refer to the same person. This
 	string will be used in a dialog button, so if the translation of this string is longer than 20
 	characters, please use "Yes" instead, and use "No" for the "Different Person" button-->
@@ -285,10 +301,17 @@ Així que l\'actualitzi li veureu una icona diferent .</string>
 	will be used in a dialog button, so if the translation of this string longer than 20 characters,
 	please use "No" instead, and use "Yes" for the "Same Person" button-->
   <string name="different_person_button">Persones diferents</string>
+  <string name="duplicate_link_dialog_text_3">%1$s i %2$s us han enviat el mateix enllaç.\n\nÉs possible que un d\'ells estigui intentant descobrir qui són els teus contactes.\n\nNo els diguis que has rebut el mateix enllaç d\'una altra persona.</string>
   <string name="pending_contact_updated_toast">S\'ha actualitzat la sol·licitud de contacte pendent</string>
+  <string name="info_both_must_enter_links">Tots dos heu d\'afegir l\'enllaç de l\'altre</string>
+  <!--Peer trust levels-->
+  <string name="peer_trust_level_unverified">Contacte no verificat</string>
+  <string name="peer_trust_level_verified">Contacte verificat</string>
+  <string name="peer_trust_level_ourselves">Jo</string>
+  <string name="peer_trust_level_stranger">Estrany</string>
   <!--Introductions-->
   <string name="introduction_onboarding_title">Presenteu als vostres contactes</string>
-  <string name="introduction_onboarding_text">Podeu presentar als vostres contactes entre si, de manera que no necessitin trobar-se en persona per a relacionar-se a través de Briar.</string>
+  <string name="introduction_onboarding_text">Presenteu els vostres contactes entre ells perquè es puguin connectar al Briar.</string>
   <string name="introduction_menu_item">Presenta-li un altre contacte</string>
   <string name="introduction_activity_title">Trieu un contacte</string>
   <string name="introduction_not_possible">Ja teniu una presentació en marxa entre aquests contactes. Si us plau, primer deixeu que aquesta presentació acabi. Si vós o els contactes presentats sovint esteu desconnectats, la presentació pot trigar temps.</string>
@@ -311,9 +334,14 @@ Així que l\'actualitzi li veureu una icona diferent .</string>
   <!--Connect via Bluetooth-->
   <string name="menu_item_connect_via_bluetooth">Connecta via bluetooth</string>
   <string name="connect_via_bluetooth_title">Connecta via bluetooth</string>
+  <string name="connect_via_bluetooth_intro">En cas que les connexions Bluetooth no funcionin automàticament, podeu utilitzar aquesta pantalla per connectar-vos manualment.\n\nEl vostre contacte ha d\'estar a prop perquè això funcioni.\n\nVós i el vostre contacte hauríeu de prémer «Inicia» alhora.</string>
+  <string name="connect_via_bluetooth_already_discovering">Ja s\'està provant de connectar-se mitjançant Bluetooth. Torneu-ho a provar més tard.</string>
   <string name="connect_via_bluetooth_no_location_permission">No es pot continuar sense permís per obtenir la posició.</string>
+  <string name="connect_via_bluetooth_no_bluetooth_permission">No es pot continuar sense el permís de dispositius propers</string>
   <string name="connect_via_bluetooth_start">Connectant-se via Bluetooth...</string>
   <string name="connect_via_bluetooth_success">S\'ha connectat via Bluetooth.</string>
+  <string name="connect_via_bluetooth_error">No s\'ha pogut connectar mitjançant Bluetooth.</string>
+  <string name="connect_via_bluetooth_error_not_supported">El Bluetooth no és compatible amb el dispositiu.</string>
   <!--Private Groups-->
   <string name="groups_list_empty">No hi ha cap grup per mostrar</string>
   <string name="groups_list_empty_action">Toqueu la icona + per crear un grup o demaneu als vostres contactes que us afegeixin als seus grups</string>
@@ -406,6 +434,10 @@ Així que l\'actualitzi li veureu una icona diferent .</string>
   <string name="forum_declined_toast">Heu refusat la invitació</string>
   <string name="shared_by_format">Compartit per %s</string>
   <string name="forum_invitation_already_sharing">Ja l\'esteu compartint</string>
+  <string name="forum_invitation_already_invited">La invitació ja s\'ha enviat</string>
+  <string name="forum_invitation_invite_received">La invitació ja s\'ha rebut</string>
+  <string name="forum_invitation_not_supported">Aquest contacte no és compatible</string>
+  <string name="forum_invitation_error">Això és un error i no és culpa vostre</string>
   <string name="forum_invitation_response_accepted_sent">Heu acceptat la invitació al fòrum enviada per %s.</string>
   <string name="forum_invitation_response_declined_sent">Heu refusat la invitació al fòrum enviada per %s.</string>
   <string name="forum_invitation_response_declined_auto">La invitació al blog de %s s\'ha declinat automàticament.</string>
@@ -560,11 +592,104 @@ Així que l\'actualitzi li veureu una icona diferent .</string>
   <string name="choose_ringtone_title">Trieu el so d\'avís</string>
   <string name="cannot_load_ringtone">No s\'ha pogut carregar el so d\'avís</string>
   <!--Mailbox-->
-  <string name="mailbox_setup_connecting">S\'està connectant...</string>
+  <string name="mailbox_settings_title">Bústia</string>
+  <string name="mailbox_setup_title">Configuració de la bústia</string>
+  <string name="mailbox_setup_intro">Una bústia permet als vostres contactes enviar-vos missatges mentre esteu fora de línia. La bústia rebrà els vostres missatges i els emmagatzemarà fins que us connecteu.\n
+		\nPodeu instal·lar l\'aplicació Briar Mailbox en un dispositiu de recanvi. Mantingueu-lo connectat a l\'alimentació i a la Wi-Fi perquè estigui sempre en línia.</string>
+  <string name="mailbox_setup_download">Primer, instal·leu l\'aplicació Mailbox en un altre dispositiu cercant «Briar Mailbox» a Google Play o allà on hageu baixat el Briar.\n
+		\nA continuació, enllaceu la vostra bústia amb Briar escanejant el codi QR que mostra l\'aplicació Mailbox.</string>
+  <string name="mailbox_setup_download_link">Comparteix l\'enllaç de baixada</string>
+  <string name="mailbox_setup_button_scan">Escaneja el codi QR de la bústia</string>
+  <string name="permission_camera_qr_denied_body">Heu denegat l\'accés a la càmera, però per escanejar un codi QR cal utilitzar-la.\n\nConsidereu concedir l\'accés.</string>
+  <string name="mailbox_setup_connecting">S\'està connectant a la bústia...</string>
+  <!--This string is shown when connecting to a Mailbox for the first time. The placeholder will be replaced with a duration, e.g. "2 minutes".-->
+  <string name="mailbox_setup_connecting_info">Això pot trigar fins a %1s</string>
+  <string name="mailbox_qr_code_too_old">El codi QR que heu escanejat prové d\'una versió anterior del Briar Mailbox.\n\nActualitzeu el Briar Mailbox a la darrera versió i torneu-ho a provar.</string>
+  <string name="mailbox_qr_code_too_new">El codi QR que heu escanejat prové d\'una versió més recent de Briar Mailbox.\n\nActualitzeu el Briar a la darrera versió i torneu-ho a provar.</string>
+  <string name="contact_qr_code_for_mailbox">El codi QR que heu escanejat serveix per afegir un contacte del Briar.\n\nSi voleu afegir un contacte, aneu a la llista de contactes i toqueu la icona +.</string>
+  <string name="mailbox_setup_qr_code_wrong_description">El codi QR que heu escanejat no prové del Briar Mailbox.\n\nObriu l\'aplicació Briar Mailbox al dispositiu Mailbox i escanegeu el codi QR que hi apareix.</string>
+  <string name="mailbox_setup_already_paired_title">La bústia ja està enllaçada</string>
+  <string name="mailbox_setup_already_paired_description">Desenllaceu la bústia de l\'altre dispositiu i torneu-ho a provar.</string>
+  <string name="mailbox_setup_io_error_title">No s\'ha pogut connectar</string>
+  <string name="mailbox_setup_io_error_description">Assegureu-vos que tots dos dispositius estiguin connectats a Internet i torneu-ho a provar.</string>
+  <string name="mailbox_setup_assertion_error_title">Error de bústia</string>
+  <string name="mailbox_setup_assertion_error_description">Envieu comentaris (amb dades anònimes) mitjançant l\'aplicació Briar si el problema persisteix.</string>
+  <string name="mailbox_setup_camera_error_description">No s\'ha pogut accedir a la càmera. Torneu-ho a provar després de reiniciar el dispositiu.</string>
+  <string name="mailbox_setup_paired_title">Connectat</string>
+  <string name="mailbox_setup_paired_description">La vostra bústia s\'ha enllaçat correctament amb el Briar.\n
+		\nMantingueu la vostra bústia connectada a l\'alimentació i a la Wi-Fi perquè estigui sempre en línia.</string>
   <string name="tor_offline_title">Fora de línia</string>
+  <string name="tor_offline_description">Assegureu-vos que aquest dispositiu estigui en línia i que es permeten les connexions a Internet.\n
+		\nDesprés, espereu que la icona del globus terraqüi a la pantalla de configuració de connexió es torni verda.</string>
+  <string name="tor_offline_button_check">Comproveu la configuració de la connexió</string>
+  <string name="mailbox_status_title">Estat de la bústia</string>
+  <string name="mailbox_status_connected_title">La bústia s\'està executant</string>
+  <string name="mailbox_status_problem_title">El Briar té problemes per connectar-se a la bústia</string>
+  <string name="mailbox_status_failure_title">La bústia no està disponible</string>
+  <string name="mailbox_status_app_too_old_title">En Briar és massa antic</string>
+  <string name="mailbox_status_app_too_old_message">Actualitzeu el Briar a la darrera versió i torneu-ho a provar.</string>
+  <string name="mailbox_status_mailbox_too_old_title">La bústia és massa antiga</string>
+  <string name="mailbox_status_mailbox_too_old_message">Actualitza la vostra bústia a la darrera versió i torneu-ho a provar.</string>
+  <string name="mailbox_status_check_button">Comprova la connexió</string>
+  <!--Example for string substitution: Last connection: 3min ago-->
+  <string name="mailbox_status_connected_info">Última connexió: %s</string>
+  <!--Indicates that there never was a connection to the mailbox. Last connection: Never-->
+  <string name="mailbox_status_connected_never">Mai</string>
+  <string name="mailbox_status_unlink_button">Desenllaça</string>
+  <string name="mailbox_status_unlink_dialog_title">Voleu desenllaçar la bústia?</string>
+  <string name="mailbox_status_unlink_dialog_question">Esteu segur que voleu desenllaçar la vostra bústia?</string>
+  <string name="mailbox_status_unlink_dialog_warning">Si desenllaçeu la vostra bústia no podreu rebre missatges mentre el Briar estigui fora de línia.</string>
+  <string name="mailbox_status_unlink_no_wipe_title">La vostra bústia s\'ha desenllaçat</string>
+  <string name="mailbox_status_unlink_no_wipe_message">La propera vegada que tingueu accés al vostre dispositiu Mailbox, obriu l\'aplicació Mailbox i toqueu el botó «Desenllaça» per completar el procés.\n\nSi ja no teniu accés al dispositiu Mailbox, no us preocupeu. Les vostres dades estan xifrades, de manera que es mantindran segures encara que no completeu el procés.</string>
+  <string name="mailbox_status_unlink_success">La vostra bústia s\'ha desenllaçat</string>
+  <string name="mailbox_error_notification_channel_title">Problema amb la bústia Briar</string>
+  <string name="mailbox_error_notification_title">La bústia Briar no està disponible</string>
+  <string name="mailbox_error_notification_text">Toqueu per solucionar el problema.</string>
+  <string name="mailbox_error_wizard_button">Soluciona el problema</string>
+  <string name="mailbox_error_wizard_title">Assistent per a la resolució de problemes de la bústia</string>
+  <string name="mailbox_error_wizard_question1">Teniu accés al vostre dispositiu Mailbox?</string>
+  <string name="mailbox_error_wizard_answer1">Sí, hi tinc accés ara mateix.</string>
+  <string name="mailbox_error_wizard_answer2">Ara mateix no, però hi puc accedir més tard.</string>
+  <string name="mailbox_error_wizard_answer3">No, ja no hi tinc accés.</string>
+  <string name="mailbox_error_wizard_info1_1">Comproveu que el dispositiu Mailbox estigui encès i connectat a Internet.</string>
+  <string name="mailbox_error_wizard_question1_1">Obriu l\'aplicació Mailbox. Què veus?</string>
+  <string name="mailbox_error_wizard_answer1_1">Veig instruccions per configurar la bústia</string>
+  <string name="mailbox_error_wizard_answer1_2">Veig un codi QR</string>
+  <string name="mailbox_error_wizard_answer1_3">Veig «El Mailbox s\'està executant»</string>
+  <string name="mailbox_error_wizard_answer1_4">Veig «Dispositiu fora de línia»</string>
+  <string name="mailbox_error_wizard_info1_1_1">Desenllaceu la vostra bústia mitjançant el botó següent i, a continuació, seguiu les instruccions del dispositiu Mailbox per enllaçar-la de nou.</string>
+  <string name="mailbox_error_wizard_info_1_1_2">Desenllaceu la bústia amb el botó següent i escanegeu el codi QR per tornar-la a enllaçar.</string>
+  <string name="mailbox_error_wizard_info1_1_3">Feu servir el botó següent per comprovar la connexió entre Briar i el Mailbox.\n\n
+		Si la connexió torna a fallar:\n
+		\u2022 Comproveu que les aplicacions Mailbox i Briar estiguin actualitzades a la darrera versió.\n
+		\u2022 Reinicieu els vostres dispositius Mailbox i Briar i torneu-ho a provar.</string>
+  <string name="mailbox_error_wizard_info1_1_4">Comproveu que el dispositiu Mailbox estigui connectat correctament a Internet.\n\nComproveu que l\'hora, data i zona horària del dispositiu Mailbox siguin correctes.\n\nComproveu que les aplicacions Mailbox i Briar estiguin actualitzades a la darrera versió.\ n\nReinicieu els vostres dispositius Mailbox i Briar i torneu-ho a provar.</string>
+  <string name="mailbox_error_wizard_info2">Torneu a aquesta pantalla quan tingueu accés al dispositiu.</string>
+  <string name="mailbox_error_wizard_info3">Desenllaceu la vostra bústia amb el botó següent.\n\nDesprés de desenllaçar la vostra bústia antiga, podeu configurar una bústia nova en qualsevol moment.</string>
+  <!--About-->
+  <string name="about_title">Quant a</string>
+  <string name="briar_version">Versió del Briar: %s</string>
+  <string name="tor_version">Versió del Tor: %s</string>
+  <string name="links">Enllaços</string>
+  <string name="briar_website">\u2022 <a href="">Lloc web</a></string>
+  <string name="briar_source_code">\u2022 <a href="">Codi font</a></string>
+  <string name="briar_changelog">\u2022 <a href="">Registre de canvis</a></string>
+  <string name="briar_privacy_policy">\u2022 <a href="">Política de privadesa</a></string>
+  <!--Here translators can add their names or Transifex usernames(eg "Thanks to all the contributors at the Localization Lab, especially Tom, Matthew and Jerry")-->
+  <string name="translator_thanks">Gràcies a tots els col·laboradors del Localization Lab, especialment a Jaime Muñoz</string>
   <!--Conversation Settings-->
   <string name="disappearing_messages_title">Missatges efímers</string>
+  <string name="disappearing_messages_explanation_long">Si activeu aquesta configuració, es crearà un/a nou/va
+		els missatges d\'aquesta conversa desapareixen automàticament al cap de 7\u00A0dies.
+		\n\nEl compte enrere per a la còpia del missatge del remitent comença després d\'haver estat lliurat.
+		El compte enrere comença per al destinatari després que hagi llegit el missatge.
+		\n\nEls missatges que desapareixeran estan marcats amb una icona de bomba.
+		\n\nTingues en compte que els destinataris encara poden fer còpies dels missatges que envieu.
+		\n\nSi canvieu aquesta configuració, s\'aplicarà als vostres missatges nous immediatament i als vostres
+		missatges del contacte un cop rebin el vostre següent missatge.
+		El vostre contacte també pot canviar aquesta configuració per a tots dos.</string>
   <string name="learn_more">Més informació</string>
+  <string name="disappearing_messages_summary">Feu que els missatges futurs d\'aquesta conversa desapareguin automàticament al cap de 7\u00A0dies.</string>
   <!--Settings Actions-->
   <string name="pref_category_actions">Accions</string>
   <string name="send_feedback">Envieu comentaris</string>
@@ -575,6 +700,7 @@ Així que l\'actualitzi li veureu una icona diferent .</string>
   <string name="link_warning_open_link">Obre l\'enllaç</string>
   <!--Crash Reporter-->
   <string name="crash_report_title">Informe de fallida de Briar</string>
+  <string name="briar_crashed">El Briar ha fallat</string>
   <string name="not_your_fault">Això no és culpa vostra.</string>
   <string name="please_send_report">Ajudi\'ns a construir un Briar millor enviant-nos un informe de fallida.</string>
   <string name="report_is_encrypted">Us garantim que l\'informe es xifra i s\'envia de manera segura.</string>
@@ -582,19 +708,35 @@ Així que l\'actualitzi li veureu una icona diferent .</string>
   <string name="describe_crash">Descriviu el que hi ha succeït (opcional)</string>
   <string name="enter_feedback">Escriviu els vostres comentaris</string>
   <string name="optional_contact_email">La vostra adreça de correu (opcional)</string>
+  <string name="privacy_policy">En enviar-nos dades, accepteu la nostra <a href="">política de privadesa</a></string>
   <string name="include_debug_report_crash">Inclou dades anònimes sobre la fallida</string>
   <string name="include_debug_report_feedback">Inclou dades anònimes sobre el dispositiu</string>
+  <string name="dev_report_user_info">Informació de l\'usuari</string>
   <string name="dev_report_basic_info">Informació bàsica</string>
+  <string name="dev_report_device_info">Informació del dispositiu</string>
+  <string name="dev_report_stacktrace">Traça de la pila</string>
+  <string name="dev_report_time_info">Informació del temps</string>
+  <string name="dev_report_memory">Memòria</string>
   <string name="dev_report_storage">Emmagatzematge</string>
+  <string name="dev_report_connectivity">Connectivitat</string>
+  <string name="dev_report_network_usage">Ús de la xarxa</string>
+  <string name="dev_report_build_config">Configuració de la compilació</string>
+  <string name="dev_report_logcat">Registre de l\'aplicació</string>
+  <string name="dev_report_device_features">Característiques del dispositiu</string>
   <string name="send_report">Envia l\'informe</string>
   <string name="close">Tanca</string>
+  <string name="dev_report_sending">S\'està enviant els comentaris...</string>
+  <string name="dev_report_sent">Comentaris enviats</string>
   <string name="dev_report_saved">S\'ha desat l\'informe. Se us enviarà la propera vegada que inicieu sessió a Briar.</string>
+  <string name="dev_report_error">Error: no s\'ha pogut enviar l\'informe</string>
   <!--Sign Out-->
   <string name="progress_title_logout">S\'està tancant la sessió de Briar...</string>
   <!--Screen Filters & Tapjacking-->
   <string name="screen_filter_title">S\'ha detectat superposició de la pantalla</string>
   <string name="screen_filter_body">Una altra aplicació es troba damunt de Briar. Per protegir la vostra seguretat, Briar no respondrà a les pulsacions quan una altra aplicació s\'hi hagi sobreposat.\n\nLes següents aplicacions poden estar sobreposades a Briar:\n\n%1$s</string>
+  <string name="screen_filter_body_api_30">Una altra aplicació està dibuixant a sobre del Briar. Per protegir la vostra seguretat, el Briar no respondrà als tocs quan hi hagi una altra aplicació dibuixant a sobre.\n\nReviseu les aplicacions a continuació per trobar l\'aplicació responsable.</string>
   <string name="screen_filter_allow">Permet que aquestes aplicacions se sobreposin a Briar</string>
+  <string name="screen_filter_review_apps">Revisa les aplicacions</string>
   <!--Permission Requests-->
   <string name="permission_camera_title">Permís de la càmera</string>
   <string name="permission_camera_request_body">Per escanejar el codi QR, Briar necessita accedir a la càmera.</string>
@@ -602,7 +744,17 @@ Així que l\'actualitzi li veureu una icona diferent .</string>
   <string name="permission_location_request_body">Per a descobrir dispositius Bluetooth, Briar necessita accedir a la vostra posició.\n\nBriar no guarda la vostra posició ni la comparteix amb ningú.</string>
   <string name="permission_camera_location_title">Permís d\'accés a la càmera i a la posició</string>
   <string name="permission_camera_location_request_body">Per escanejar el codi QR, Briar necessita accedir a la càmera.\n\nPer trobar dispositius Bluetooth, Briar necessita accedir a la vostra posició.\n\nBriar no guarda la vostra posició ni la comparteix amb ningú.</string>
+  <string name="permission_camera_bluetooth_title">Càmera i dispositius propers</string>
+  <string name="permission_camera_bluetooth_request_body">Per escanejar el codi QR, el Briar necessita accedir a la càmera.\n\nPer descobrir dispositius Bluetooth, el Briar necessita permís per trobar i connectar-se a dispositius propers.</string>
   <string name="permission_camera_denied_body">Heu denegat l\'accés a la càmera però per afegir contactes cal utilitzar la càmera.\n\nRecomanem que permeteu l\'accés a la càmera.</string>
+  <string name="permission_location_denied_body">Heu denegat l\'accés a la vostra ubicació, però el Briar necessita aquest permís per descobrir dispositius Bluetooth.\n\nPenseu en concedir l\'accés.</string>
+  <string name="permission_location_setting_title">Configuració d\'ubicació</string>
+  <string name="permission_location_setting_body">La configuració d\'ubicació del dispositiu ha d\'estar activada per trobar altres dispositius mitjançant Bluetooth. Activeu la ubicació per continuar. Podeu tornar a desactivar-lo després.</string>
+  <string name="permission_location_setting_hotspot_body">La configuració d\'ubicació del dispositiu s\'ha d\'activar per crear un punt d\'accés Wi-Fi. Activeu la ubicació per continuar. Podeu tornar a desactivar-lo després.</string>
+  <string name="permission_location_setting_button">Activa la ubicació</string>
+  <string name="permission_bluetooth_title">Permís de dispositius propers</string>
+  <string name="permission_bluetooth_body">Per utilitzar la comunicació Bluetooth, el Briar necessita permís per trobar i connectar-se a dispositius propers.</string>
+  <string name="permission_bluetooth_denied_body">Heu denegat l\'accés als dispositius propers, però el Briar necessita aquest permís per utilitzar Bluetooth.\n\nPenseu en concedir l\'accés.</string>
   <string name="qr_code">Codi QR</string>
   <string name="show_qr_code_fullscreen">Mostra el codi QR a pantalla completa</string>
   <!--App Locking-->
@@ -615,17 +767,92 @@ Així que l\'actualitzi li veureu una icona diferent .</string>
   <!--Connections Screen-->
   <string name="transports_help_text">Briar pot contactar els vostres contactes via Internet, WiFi o Bluetooth.\n\nTotes les connexions d\'Internet van via la xarxa Tor per privacitat.\n\nSi es pot arribar a un contacte per diversos mètodes, Briar els usa tots simultàniament.</string>
   <!--Share app offline-->
+  <string name="hotspot_title">Comparteix aquesta aplicació fora de línia</string>
+  <string name="hotspot_intro">Compartiu aquesta aplicació amb algú proper sense connexió a Internet mitjançant la Wi-Fi del telèfon.
+		\n\nEl vostre telèfon iniciarà un punt d\'accés Wi-Fi. Les persones properes poden connectar-se al punt d\'accés i baixar l\'aplicació Briar des del telèfon.</string>
+  <string name="hotspot_button_start_sharing">Inicia el punt d\'accés</string>
+  <string name="hotspot_button_stop_sharing">Atura el punt d\'accés</string>
+  <string name="hotspot_progress_text_start">S\'està configurant el punt d\'accés...</string>
   <string name="hotspot_notification_channel_title">Punt d\'accés Wi-Fi</string>
+  <string name="hotspot_notification_title">Compartint el Briar fora de línia</string>
   <string name="hotspot_button_connected">Endavant</string>
+  <string name="permission_hotspot_location_request_body">Per crear un punt d\'accés Wi-Fi, el Briar necessita permís per accedir a la vostra ubicació.\n\nel Briar no emmagatzema la vostra ubicació ni la comparteix amb ningú.</string>
+  <string name="permission_hotspot_location_request_precise_body">Per crear un punt d\'accés Wi-Fi, el Briar necessita permís per accedir a la vostra ubicació precisa.\n\nel Briar no emmagatzema la vostra ubicació ni la comparteix amb ningú.</string>
+  <string name="permission_hotspot_location_denied_body">Heu denegat l\'accés a la vostra ubicació, però el Briar necessita aquest permís per crear un punt d\'accés Wi-Fi.\n\nPenseu en concedir l\'accés.</string>
+  <string name="permission_hotspot_location_denied_precise_body">Heu denegat l\'accés a la vostra ubicació precisa, però el Briar necessita aquest permís per crear un punt d\'accés Wi-Fi.\n\nPenseu en concedir l\'accés.</string>
+  <string name="wifi_settings_title">Configuració Wi-Fi</string>
+  <string name="wifi_settings_request_enable_body">Per crear un punt d\'accés Wi-Fi, el Briar ha d\'utilitzar Wi-Fi.  Activeu-lo.</string>
+  <string name="hotspot_tab_manual">Manual</string>
   <!--The placeholder to be inserted into the string 'hotspot_manual_wifi': People can connect by %s-->
+  <string name="hotspot_scanning_a_qr_code">escanejant un codi QR</string>
   <!--Wi-Fi setup-->
   <!--The %s placeholder will be replaced with the translation of 'hotspot_scanning_a_qr_code'-->
+  <string name="hotspot_manual_wifi">El vostre telèfon proporciona un punt d\'accés Wi-Fi. Les persones que vulguin baixar el Briar es poden connectar al punt d\'accés afegint-lo a la configuració Wi-Fi del seu dispositiu mitjançant els detalls següents o mitjançant %s. Quan s\'hagin connectat al punt d\'accés, premeu «Següent».</string>
+  <string name="hotspot_manual_wifi_ssid">Nom de la xarxa</string>
+  <string name="hotspot_qr_wifi">El vostre telèfon proporciona un punt d\'accés Wi-Fi. Les persones que vulguin baixar el Briar poden connectar-se al punt d\'accés escanejant aquest codi QR. Quan s\'hagin connectat al punt d\'accés, premeu «Següent».</string>
+  <string name="hotspot_no_peers_connected">No hi ha cap dispositiu connectat</string>
+  <plurals name="hotspot_peers_connected">
+    <item quantity="one">%s dispositiu connectat</item>
+    <item quantity="other">%s dispositius connectats</item>
+  </plurals>
   <!--Download link-->
   <!--The %s placeholder will be replaced with the translation of 'hotspot_scanning_a_qr_code'-->
+  <string name="hotspot_manual_site">El vostre telèfon proporciona un punt d\'accés Wi-Fi. Les persones connectades al punt d\'accés poden baixar el Briar escrivint l\'enllaç següent en un navegador web o %s.</string>
+  <string name="hotspot_manual_site_address">Adreça (URL)</string>
+  <string name="hotspot_qr_site">El vostre telèfon proporciona una punt d\'accés Wi-Fi. Les persones connectades al punt d\'accés poden baixar el Briar escanejant aquest codi QR.</string>
   <!--e.g. Download Briar 1.2.20-->
+  <string name="website_download_title_1">Baixa el Briar %s</string>
+  <string name="website_download_intro_1">Algú a prop ha compartit el Briar amb vós.</string>
+  <string name="website_download_button">Baixa el Briar</string>
+  <string name="website_download_outro">Un cop finalitzada la baixada, obriu el fitxer baixat i instal·leu-lo.</string>
   <string name="website_troubleshooting_title">Detecció d\'errors</string>
+  <string name="website_troubleshooting_1">Si no podeu baixar l\'aplicació, proveu amb un altre navegador web.</string>
+  <string name="website_troubleshooting_2_old">Per instal·lar l\'aplicació baixada, és possible que hàgiu de permetre la instal·lació d\'aplicacions des de «Fonts desconegudes» a la configuració del sistema. Després, potser haureu de tornar a baixar l\'aplicació. Us recomanem que desactiveu la configuració «Fonts desconegudes» després d\'instal·lar l\'aplicació.</string>
+  <string name="website_troubleshooting_2_new">Per instal·lar l\'aplicació baixada, potser haureu de permetre que el navegador instal·li aplicacions desconegudes. Després d\'instal·lar l\'aplicació, us recomanem que elimineu el permís del navegador per instal·lar aplicacions desconegudes.</string>
+  <string name="hotspot_help_wifi_title">Problemes amb la connexió Wi-Fi:</string>
+  <string name="hotspot_help_wifi_1">Proveu a desactivar i reactivar la Wi-Fi als dos telèfons i torneu-ho a provar.</string>
+  <string name="hotspot_help_wifi_2">Si el vostre telèfon es queixa que la Wi-Fi no té Internet, digueu-li que voleu mantenir-vos connectat de totes maneres.</string>
+  <string name="hotspot_help_wifi_3">Reinicieu el telèfon que executa el punt d\'accés Wi-Fi, inicieu el Briar i torneu a provar de compartir.</string>
+  <string name="hotspot_help_site_title">Problemes per visitar el lloc web local:</string>
+  <string name="hotspot_help_site_1">Torneu a comprovar que heu introduït l\'adreça exactament com es mostra. Un petit error pot fer que falli.</string>
+  <string name="hotspot_help_site_2">Assegureu-vos que el vostre telèfon encara estigui connectat a la Wi-Fi correcta (vegeu més amunt) quan intenteu accedir al lloc.</string>
+  <string name="hotspot_help_site_3">Si teniu un tallafoc, comproveu que no bloquegi l\'accés.</string>
+  <string name="hotspot_help_site_4">Si podeu visitar el lloc, però no baixar l\'aplicació Briar, proveu-ho amb un navegador web diferent.</string>
+  <string name="hotspot_help_fallback_title">No funciona res?</string>
+  <string name="hotspot_help_fallback_intro">Podeu provar de desar l\'aplicació com a fitxer .apk per compartir-la d\'una altra manera. Un cop el fitxer s\'ha transferit a l\'altre dispositiu, es pot utilitzar per instal·lar el Briar.
+		\n\nConsell: per compartir mitjançant Bluetooth, és possible que hàgiu de canviar el nom del fitxer perquè acabi amb .zip.</string>
+  <string name="hotspot_help_fallback_button">Desa l\'aplicació</string>
   <!--error handling-->
+  <string name="hotspot_error_intro">S\'ha produït un error en intentar compartir l\'aplicació mitjançant Wi-Fi:</string>
+  <string name="hotspot_error_no_wifi_direct">El dispositiu no és compatible amb Wi-Fi Direct</string>
+  <string name="hotspot_error_start_callback_failed">El punt d\'accés no s\'ha pogut iniciar: error %s</string>
+  <string name="hotspot_error_start_callback_failed_unknown">El punt d\'accés no s\'ha pogut iniciar amb un error desconegut, motiu %d</string>
+  <string name="hotspot_error_start_callback_no_group_info">El punt d\'accés no s\'ha pogut iniciar: no hi ha informació del grup</string>
+  <string name="hotspot_error_web_server_start">S\'ha produït un error en iniciar el servidor web</string>
+  <string name="hotspot_error_web_server_serve">S\'ha produït un error en presentar el lloc web.\n\nSi el problema persisteix, envieu comentaris (amb dades anònimes) mitjançant l\'aplicació Briar.</string>
+  <string name="hotspot_flag_test">Avís: aquesta aplicació s\'ha instal·lat amb l\'Android Studio i NO es pot instal·lar en un altre dispositiu.</string>
+  <string name="hotspot_error_framework_busy">No es pot iniciar el punt d\'accés.\n\nSi teniu un altre punt d\'accés en execució o compartiu la vostra connexió a Internet mitjançant Wi-Fi, proveu d\'aturar-lo i torneu-ho a provar més tard.</string>
   <!--Transfer Data via Removable Drives-->
+  <string name="removable_drive_menu_title">Connecta mitjançant una unitat extraïble</string>
+  <string name="removable_drive_intro">Si no us podeu connectar al vostre contacte a través d\'Internet, Wi-Fi o Bluetooth, el Briar també pot transferir missatges en una unitat extraïble, com ara un llapis USB o una targeta SD.</string>
+  <string name="removable_drive_explanation">Si no podeu connectar-vos al vostre contacte a través d\'Internet, Wi-Fi o Bluetooth, el Briar també pot transferir missatges en una unitat extraïble, com ara un llapis USB o una targeta SD.\n\nQuan feu servir el botó «Envia dades», qualsevol dada que estigui esperant per ser enviada al contacte s\'escriurà a la unitat extraïble. Això inclou missatges privats, fitxers adjunts, blogs, fòrums i grups privats.\n\nTot es xifrarà abans que s\'escrigui a la unitat extraïble.\n\nQuan el vostre contacte rebi la unitat extraïble, pot utilitzar el botó «Rebre dades» per importar els missatges al Briar.</string>
+  <string name="removable_drive_title_send">Envia dades</string>
+  <string name="removable_drive_title_receive">Rebre dades</string>
+  <string name="removable_drive_send_intro">Toqueu el botó següent per crear un fitxer nou que contingui els missatges xifrats. Podeu triar on es desarà el fitxer.\n\nSi voleu desar el fitxer en una unitat extraïble, inseriu la unitat ara.</string>
+  <string name="removable_drive_send_no_data">Actualment no hi ha cap missatge esperant per ser enviat a aquest contacte.</string>
+  <string name="removable_drive_send_not_supported">Aquest contacte utilitza una versió antiga del Briar o un dispositiu antic que no admet aquesta funció.</string>
+  <string name="removable_drive_send_button">Trieu el fitxer per exportar</string>
+  <string name="removable_drive_ongoing">Espereu que es completi la tasca en curs</string>
+  <string name="removable_drive_receive_intro">Toqueu el botó següent per triar el fitxer que t\'ha enviat el vostre contacte.\n\nSi el fitxer es troba en una unitat extraïble, inseriu-la ara.</string>
+  <string name="removable_drive_receive_button">Trieu el fitxer per importar</string>
+  <string name="removable_drive_success_send_title">Exportació correcta</string>
+  <string name="removable_drive_success_send_text">Les dades s\'han exportat correctament. Ara teniu 28 dies per transportar el fitxer al vostre contacte.\n\nSi el fitxer es troba en una unitat extraïble, feu servir la notificació de la barra d\'estat per expulsar la unitat abans de desconnectar-la.</string>
+  <string name="removable_drive_success_receive_title">Importació correcta</string>
+  <string name="removable_drive_success_receive_text">S\'han rebut tots els missatges xifrats continguts en aquest fitxer.</string>
+  <string name="removable_drive_error_send_title">S\'ha produït un error en exportar les dades</string>
+  <string name="removable_drive_error_send_text">S\'ha produït un error escrivint dades al fitxer.\n\nSi utilitzeu una unitat extraïble, assegureu-vos que estigui inserida correctament i torneu-ho a provar.\n\nSi l\'error persisteix, envieu comentaris per informar l\'equip del Briar sobre el assumpte.</string>
+  <string name="removable_drive_error_receive_title">S\'ha produït un error en importar les dades</string>
+  <string name="removable_drive_error_receive_text">El fitxer seleccionat no contenia res que el Briar pogués reconèixer.\n\nComproveu que heu triat el fitxer correcte.\n\nSi el vostre contacte va crear el fitxer fa més de 28 dies, el Briar no el podrà reconèixer.</string>
   <!--Screenshots-->
   <!--This is a name to be used in screenshots. Feel free to change it to a local name.-->
   <string name="screenshot_alice">Alba</string>

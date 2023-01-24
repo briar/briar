@@ -214,6 +214,7 @@
   <string name="menu_contact">連絡先</string>
   <!--Adding Contacts-->
   <string name="add_contact_title">近くの人を連絡先に追加する</string>
+  <string name="add_contact_error_two_way">お互いのQRコードを読み取りましたか？</string>
   <string name="face_to_face">連絡先として追加したい人と会う必要があります。\n\nこれにより、だれかがあなたになりすましたり、メッセージを読んだりするのを防ぐことができます。</string>
   <string name="continue_button">続ける</string>
   <string name="try_again_button">もう一度やり直してください</string>
@@ -222,13 +223,16 @@
   <string name="contact_added_toast">追加された連絡先：%s</string>
   <string name="contact_already_exists">連絡先%sは既に存在しています </string>
   <string name="qr_code_invalid">QRコードが無効です</string>
-  <string name="qr_code_too_old_1">スキャンしたQRコードはBriarの古いバージョンから取得されました。\n\n最新版へアップグレードしてもらって、もう一度お試しください。</string>
-  <string name="qr_code_too_new_1">スキャンしたQRコードは、新しいバージョンのBriarから取得されました。\n\n最新版にアップグレードしてから、もう一度お試しください。</string>
+  <string name="qr_code_too_old_1">読み取ったQRコードは、Briarの古いバージョンから生じました。\n\n最新版へアップグレードしてもらって、もう一度お試しください。</string>
+  <string name="qr_code_too_new_1">読み取ったQRコードは、新しいバージョンのBriarから生じました。\n\n最新版にアップグレードしてから、もう一度お試しください。</string>
+  <string name="mailbox_qr_code_for_contact">読み取ったQRコードは、Briarメールボックスから生じるものです。\n\nメールボックスに関連付けたいならば、設定を選択してください&gt; Briarメニューからメールボックス</string>
+  <string name="qr_code_format_unknown">読み取ったQRコードは、Briarの連絡先を追加するために示されたものではありません。\n\nあなたの連絡先の画面上に表示されたQRコードを読み取ってください。</string>
   <string name="camera_error">カメラエラー</string>
   <string name="connecting_to_device">端末に接続中\u2026</string>
   <string name="authenticating_with_device">端末同士での認証中\u2026</string>
   <string name="connection_error_title">連絡先に接続できませんでした</string>
   <string name="connection_error_feedback">この問題が解決しない場合、アプリを改善するために<a href="feedback">フィードバック</a>を送信してください。</string>
+  <string name="info_both_must_scan">お互いのQRコードを読み取る必要があります</string>
   <!--Adding Contacts Remotely-->
   <string name="add_contact_remotely_title_case">離れた場所にいる相手を連絡先に追加</string>
   <string name="add_contact_nearby_title">近くにいる相手を連絡先に追加</string>
@@ -285,6 +289,7 @@
   <string name="different_person_button">別の人</string>
   <string name="duplicate_link_dialog_text_3">%1$sと%2$sから同じリンクを受信しました。\n\nどちらかがあなたの連絡先の内容を知ろうとしている可能性があります。\n\n他の人から同じリンクを受け取ったことを伝えないでください。</string>
   <string name="pending_contact_updated_toast">保留中の連絡先が更新されました</string>
+  <string name="info_both_must_enter_links">お互いのリンクを追加する必要があります</string>
   <!--Peer trust levels-->
   <string name="peer_trust_level_unverified">検証されてない連絡先</string>
   <string name="peer_trust_level_verified">検証された連絡先</string>
@@ -569,11 +574,17 @@
   <string name="mailbox_setup_intro">メールボックスはあなたがオフラインの間、連絡先があなたにメッセージを送信することを有効にします。メールボックスはあなたがオンラインになるまで、メッセージを受信し保管します。\n
 		\n予備端末上にBriarのメールボックスアプリをインストールできます。それを電源とWi-Fiに接続し、常時オンラインにしてください。</string>
   <string name="mailbox_setup_download">最初に、Google PlayまたはBriarをダウンロードしたどこかで\"Briar Mailbox\"を検索して、他の端末上にメールボックスアプリをインストールします。\n
-		\nそして、メールボックスアプリによって表示されるQRコードをスキャンして、Briarとあなたのメールボックス結びつけます。</string>
+		\nそして、メールボックスアプリによって表示されるQRコードを読み取って、Briarとあなたのメールボックス結びつけます。</string>
   <string name="mailbox_setup_download_link">ダウンロードリンクを共有</string>
-  <string name="mailbox_setup_button_scan">メールボックスのQRコードをスキャン</string>
-  <string name="permission_camera_qr_denied_body">カメラへのアクセスをが拒否されましたが、QRコードをスキャンするにはカメラを使用する必要があります。\n\nカメラへのアクセスの許可を考えてください。</string>
+  <string name="mailbox_setup_button_scan">メールボックスのQRコードを読み取る</string>
+  <string name="permission_camera_qr_denied_body">あなたはカメラにアクセスすることを拒否しましたが、QRコードを読み取るには、カメラを使用する必要があります。\n\nアクセス権を付与することを考慮願います。</string>
+  <string name="mailbox_setup_connecting">メールボックスへ接続中…</string>
   <!--This string is shown when connecting to a Mailbox for the first time. The placeholder will be replaced with a duration, e.g. "2 minutes".-->
+  <string name="mailbox_setup_connecting_info">%1sまでかかる場合があります</string>
+  <string name="mailbox_qr_code_too_old">読み取ったQRコードは、古いバージョンのBriarメールボックスから生じました。\n\nBriarメールボックスを最新版にアップグレードしてから、もう一度お試しください。</string>
+  <string name="mailbox_qr_code_too_new">読み取ったQRコードは、新しいバージョンのBriarメールボックスから生じました。\n\nBriarを最新版にアップグレードしてから、もう一度お試しください。</string>
+  <string name="contact_qr_code_for_mailbox">読み取ったQRコードは、Briarの連絡先を追加するためのものです。\n\n連絡先を追加したいならば、連絡先一覧に行き、+アイコンをタップしてください。</string>
+  <string name="mailbox_setup_qr_code_wrong_description">読み取ったQRコードは、Briarメールボックスから生じたものではありません。メールボックス端末上のBriarメールボックスアプリを開き、提示されたQRコードを読み取ってください。</string>
   <string name="mailbox_setup_already_paired_title">メールボックスは既に結びつけられています</string>
   <string name="mailbox_setup_already_paired_description">あなたの端末上のメールボックスの結びつけを解き、再試行してください。</string>
   <string name="mailbox_setup_io_error_title">接続できません</string>
@@ -705,16 +716,22 @@
   <string name="screen_filter_review_apps">アプリを確認</string>
   <!--Permission Requests-->
   <string name="permission_camera_title">カメラへのアクセス許可</string>
-  <string name="permission_camera_request_body">QRコードをスキャンするには、Briarはカメラにアクセスする必要があります。</string>
+  <string name="permission_camera_request_body">QRコードを読み取るには、Briarはカメラにアクセスする必要があります。</string>
   <string name="permission_location_title">位置情報へのアクセスの許可</string>
   <string name="permission_location_request_body">Bluetooth端末を検出するには、Briarがあなたの位置情報へのアクセスを必要とします。\n\nBriarはあなたの場所を保存したり、誰とも共有したりしません。</string>
   <string name="permission_camera_location_title">カメラと位置情報</string>
-  <string name="permission_camera_location_request_body">QRコードをスキャンするには、Briarはカメラにアクセスする必要があります。\n\nBluetooth端末を検出するには、Briarは現在地情報にアクセスする許可が必要です。\n\nBriarは現在地を保存したり、誰とも共有したりしません。</string>
-  <string name="permission_camera_denied_body">カメラへのアクセスをが拒否されましたが、連絡先を追加するにはカメラを使用する必要があります。\n\nカメラへのアクセスの許可を考えてください。</string>
-  <string name="permission_location_denied_body">あなたの位置情報にアクセスすることを拒否しましたが、BriarはBluetooth端末を発見するのに、この権限が必要です。\n\nアクセス権を付与することを考慮願います。</string>
+  <string name="permission_camera_location_request_body">QRコードを読み取るには、Briarはカメラにアクセスする必要があります。\n\nBluetooth端末を検出するには、Briarは現在地情報にアクセスする許可が必要です。\n\nBriarは現在地を保存したり、誰とも共有したりしません。</string>
+  <string name="permission_camera_bluetooth_title">カメラと付近の端末</string>
+  <string name="permission_camera_bluetooth_request_body">QRコードを読み取るには、Briarはカメラにアクセスする必要があります。\n\nBluetooth端末を検出するには、Briarは付近の端末を探し接続する許可が必要です。</string>
+  <string name="permission_camera_denied_body">あなたはカメラにアクセスすることを拒否しましたが、連絡先を追加するには、カメラを使用する必要があります。\n\nアクセス権を付与することを考慮願います。</string>
+  <string name="permission_location_denied_body">あなたは位置情報にアクセスすることを拒否しましたが、BriarはBluetooth端末を発見するのに、この権限が必要です。\n\nアクセス権を付与することを考慮願います。</string>
   <string name="permission_location_setting_title">位置情報設定</string>
   <string name="permission_location_setting_body">端末の位置情報設定は、Bluetoothを介して他の端末を見つけるために、オンにする必要があります。続けるには位置情報を有効にしてください。その後、位置情報を無効にできます。</string>
+  <string name="permission_location_setting_hotspot_body">端末の位置情報設定は、Wi-Fiホットスポットを作成するために、オンにする必要があります。続けるには位置情報を有効にしてください。その後、位置情報を無効にできます。</string>
   <string name="permission_location_setting_button">位置情報を有効化</string>
+  <string name="permission_bluetooth_title">付近の端末の権限</string>
+  <string name="permission_bluetooth_body">Bluetooth通信を使用するには、Briarは付近の端末を探し接続する権限が必要です。</string>
+  <string name="permission_bluetooth_denied_body">あなたは付近の端末にアクセスすることを拒否しましたが、BriarはBluetoothを使用するのに、この権限が必要です。\n\nアクセス権を付与することを考慮願います。</string>
   <string name="qr_code">QRコード</string>
   <string name="show_qr_code_fullscreen">QRコードを全画面表示する</string>
   <!--App Locking-->
@@ -737,17 +754,19 @@
   <string name="hotspot_notification_title">Briarをオフラインで共有</string>
   <string name="hotspot_button_connected">次へ</string>
   <string name="permission_hotspot_location_request_body">Wi-Fiホットスポットを作るには、Briarはあなたの位置情報にアクセスする権限が必要です。\n\nBriarはあなたの位置情報を保存せず、誰かに共有することもありません。</string>
-  <string name="permission_hotspot_location_denied_body">あなたの位置情報にアクセスすることを拒否しましたが、BriarはWi-Fiホットスポットを作るのに、この権限が必要です。\n\nアクセス権を付与することを考慮願います。</string>
+  <string name="permission_hotspot_location_request_precise_body">Wi-Fiホットスポットを作るには、Briarはあなたの正確な位置情報にアクセスする権限が必要です。\n\nBriarはあなたの位置情報を保存せず、誰かに共有することもありません。</string>
+  <string name="permission_hotspot_location_denied_body">あなたは位置情報にアクセスすることを拒否しましたが、BriarはWi-Fiホットスポットを作るのに、この権限が必要です。\n\nアクセス権を付与することを考慮願います。</string>
+  <string name="permission_hotspot_location_denied_precise_body">あなたは正確な位置情報にアクセスすることを拒否しましたが、BriarはWi-Fiホットスポットを作るのに、この権限が必要です。\n\nアクセス権を付与することを考慮願います。</string>
   <string name="wifi_settings_title">Wi-Fi設定</string>
   <string name="wifi_settings_request_enable_body">Wi-Fiホットスポットを作るには、BriarWi-Fiの使用が必要です。有効にしてください。</string>
   <string name="hotspot_tab_manual">手動</string>
   <!--The placeholder to be inserted into the string 'hotspot_manual_wifi': People can connect by %s-->
-  <string name="hotspot_scanning_a_qr_code">QRコードをスキャン</string>
+  <string name="hotspot_scanning_a_qr_code">QRコードを読み取る</string>
   <!--Wi-Fi setup-->
   <!--The %s placeholder will be replaced with the translation of 'hotspot_scanning_a_qr_code'-->
   <string name="hotspot_manual_wifi">あなたの電話機はWi-Fiホットスポットを提供しています。Briarのダウンロードを希望する人は、以下の方法で端末のWi-Fi設定に追加するか、または %s によるホットスポットに接続してください。そのホットスポットに接続されたら、「次へ」を押してください。</string>
   <string name="hotspot_manual_wifi_ssid">ネットワーク名</string>
-  <string name="hotspot_qr_wifi">あなたの電話機はWi-Fiホットスポットを提供しています。Briarのダウンロードを希望する人は、このQRコードをスキャンしてホットスポットに接続してください。そのホットスポットに接続されたら、「次へ」を押してください。</string>
+  <string name="hotspot_qr_wifi">あなたの電話機はWi-Fiホットスポットを提供しています。Briarのダウンロードを希望する人は、このQRコードを読み取ってホットスポットに接続してください。そのホットスポットに接続されたら、「次へ」を押してください。</string>
   <string name="hotspot_no_peers_connected">接続された端末なし</string>
   <plurals name="hotspot_peers_connected">
     <item quantity="other">%s機の接続された端末</item>
@@ -756,7 +775,7 @@
   <!--The %s placeholder will be replaced with the translation of 'hotspot_scanning_a_qr_code'-->
   <string name="hotspot_manual_site">あなたの電話機はWi-Fiホットスポットを提供しています。ホットスポットに接続された人は、ウェブブラウザまたは %s 内で以下のリンクを入力して、Briarをダウンロードできます。</string>
   <string name="hotspot_manual_site_address">アドレス（URL）</string>
-  <string name="hotspot_qr_site">あなたの電話機はWi-Fiホットスポットを提供しています。ホットスポットに接続された人は、このQRコードをスキャンして、Briarをダウンロードできます。</string>
+  <string name="hotspot_qr_site">あなたの電話機はWi-Fiホットスポットを提供しています。ホットスポットに接続された人は、このQRコードを読み取って、Briarをダウンロードできます。</string>
   <!--e.g. Download Briar 1.2.20-->
   <string name="website_download_title_1">Briar %sをダウンロード</string>
   <string name="website_download_intro_1">近くの誰かが、あなたとBriarを共有しました。</string>

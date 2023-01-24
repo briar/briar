@@ -283,7 +283,11 @@
   <string name="duplicate_link_dialog_text_3">%1$sနှင့်%2$s တူညီသောလင့်ခ်ကို သင့်အား ပေးပို့ခဲ့သည်။ \n\n သူတို့ထဲမှ တစ်ဦးက သင့်အဆက်အသွယ်များသည် မည်သူဖြစ်သည်ကို ရှာဖွေရန် ကြိုးစားနေပေမည်။ \n\nသင်သည် အခြားသူတစ်ဦးထံမှ တူညီသောလင့်ခ်ကို ရရှိထားကြောင်း ၎င်းတို့အား မပြောပါနှင့်။</string>
   <string name="pending_contact_updated_toast">ဆိုင်းငံ့ထားသော အဆက်အသွယ်ကို အပ်ဒိတ်လုပ်ပြီး</string>
   <!--Peer trust levels-->
+  <string name="peer_trust_level_unverified">မစိစစ်ရသေးသော အဆက်အသွယ်</string>
+  <string name="peer_trust_level_verified">စိစစ်ထားပြီးသော အဆက်အသွယ်
+</string>
   <string name="peer_trust_level_ourselves">ကျွနု်ပ်ကို</string>
+  <string name="peer_trust_level_stranger">သူစိမ်း</string>
   <!--Introductions-->
   <string name="introduction_onboarding_title">သင့်ရဲ့ အဆက်အသွယ်လိပ်စာများကို မိတ်ဆက်ပါ</string>
   <string name="introduction_menu_item">မိတ်ဆက်ခြင်း ပြုလုပ်ပါ</string>
@@ -404,6 +408,8 @@
   <string name="forum_declined_toast">ဖိတ်ကြားမှု ငြင်းဆိုခဲ့သည်</string>
   <string name="shared_by_format">%s မှ မျှဝေခဲ့သည်</string>
   <string name="forum_invitation_already_sharing">မျှဝေထားခြင်းဖြစ်သည်</string>
+  <string name="forum_invitation_already_invited">ဖိတ်ကြားစာ ပို့ပြီးပြီ</string>
+  <string name="forum_invitation_invite_received">ဖိတ်ကြားစာ လက်ခံရရှိသည်</string>
   <string name="forum_invitation_response_accepted_sent">%s မှ ဖိတ်ကြားမှုကို သင်သည် လက်ခံခဲ့ပါသည်။</string>
   <string name="forum_invitation_response_declined_sent">%s မှ ဖိတ်ကြားမှုကို သင်သည် ငြင်းဆိုခဲ့ပါသည်။</string>
   <string name="forum_invitation_response_declined_auto">%s မှ ပို့ထားသော ဖိုရမ်သို့ ဖိတ်ခေါ်ချက်ကို အလိုအလျောက် ငြင်းပယ်ခဲ့ပါသည်။</string>
