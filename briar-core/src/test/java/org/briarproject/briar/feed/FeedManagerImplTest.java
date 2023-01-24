@@ -39,12 +39,12 @@ import okhttp3.OkHttpClient;
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
 
-import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.Collections.singletonList;
 import static okhttp3.mockwebserver.SocketPolicy.DISCONNECT_DURING_RESPONSE_BODY;
 import static org.briarproject.bramble.test.TestUtils.getGroup;
 import static org.briarproject.bramble.test.TestUtils.getLocalAuthor;
 import static org.briarproject.bramble.test.TestUtils.getMessage;
+import static org.briarproject.bramble.util.StringUtils.UTF_8;
 import static org.briarproject.briar.api.feed.FeedConstants.KEY_FEEDS;
 import static org.briarproject.briar.api.feed.FeedManager.CLIENT_ID;
 import static org.briarproject.briar.api.feed.FeedManager.MAJOR_VERSION;
