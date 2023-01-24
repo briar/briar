@@ -118,6 +118,11 @@ class AndroidNetworkManager implements NetworkManager, Service {
 		try {
 			NetworkInfo net = connectivityManager.getActiveNetworkInfo();
 			boolean connected = net != null && net.isConnected();
+			// Research into Android's behavior to check network connectivity
+			// (https://code.briarproject.org/briar/public-mesh-research/-/issues/19)
+			// has shown that NetworkInfo#isConnected() returns true if the device
+			// is connected to any Wifi, independent of whether any specific IP
+			// address can be reached using it or any domain names can be resolved.
 			boolean wifi = false, ipv6Only = false;
 			if (connected) {
 				wifi = net.getType() == TYPE_WIFI;
