@@ -1,7 +1,6 @@
 package org.briarproject.briar.android.blog;
 
 import android.os.Bundle;
-import android.widget.Toast;
 
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.activity.ActivityComponent;
@@ -15,10 +14,6 @@ import javax.inject.Inject;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.FragmentManager;
 import androidx.lifecycle.ViewModelProvider;
-
-import static org.briarproject.briar.android.blog.RssFeedViewModel.ImportResult.EXISTS;
-import static org.briarproject.briar.android.blog.RssFeedViewModel.ImportResult.FAILED;
-import static org.briarproject.briar.android.blog.RssFeedViewModel.ImportResult.IMPORTED;
 
 @MethodsNotNullByDefault
 @ParametersNotNullByDefault
@@ -50,13 +45,13 @@ public class RssFeedActivity extends BriarActivity
 		viewModel.getImportResult().observeEvent(this, this::onImportResult);
 	}
 
-	private void onImportResult(RssFeedViewModel.ImportResult result) {
-		if (result == IMPORTED) {
+	private void onImportResult(boolean result) {
+		if (result) {
 			FragmentManager fm = getSupportFragmentManager();
 			if (fm.findFragmentByTag(RssFeedImportFragment.TAG) != null) {
 				onBackPressed();
 			}
-		} else if (result == FAILED) {
+		} else {
 			String url = viewModel.getUrlFailedImport();
 			if (url == null) {
 				throw new AssertionError();
@@ -65,9 +60,6 @@ public class RssFeedActivity extends BriarActivity
 					RssFeedImportFailedDialogFragment.newInstance(url);
 			dialog.show(getSupportFragmentManager(),
 					RssFeedImportFailedDialogFragment.TAG);
-		} else if (result == EXISTS) {
-			Toast.makeText(this, R.string.blogs_rss_feeds_import_exists,
-					Toast.LENGTH_LONG).show();
 		}
 	}
 }

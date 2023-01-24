@@ -7,11 +7,16 @@ import org.briarproject.nullsafety.NotNullByDefault;
 import java.util.List;
 
 import javax.annotation.Nullable;
+import javax.inject.Inject;
 
 @NotNullByDefault
 class FeedMatcherImpl implements FeedMatcher {
 
 	private static final int MIN_MATCHING_FIELDS = 2;
+
+	@Inject
+	FeedMatcherImpl() {
+	}
 
 	@Nullable
 	@Override

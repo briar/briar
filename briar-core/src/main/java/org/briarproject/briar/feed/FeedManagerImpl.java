@@ -38,6 +38,7 @@ import org.briarproject.briar.api.blog.BlogPost;
 import org.briarproject.briar.api.blog.BlogPostFactory;
 import org.briarproject.briar.api.feed.Feed;
 import org.briarproject.briar.api.feed.FeedManager;
+import org.briarproject.briar.api.feed.RssProperties;
 import org.briarproject.nullsafety.NotNullByDefault;
 
 import java.io.IOException;
@@ -90,6 +91,7 @@ class FeedManagerImpl implements FeedManager, EventListener, OpenDatabaseHook,
 	private final BlogManager blogManager;
 	private final BlogPostFactory blogPostFactory;
 	private final FeedFactory feedFactory;
+	private final FeedMatcher feedMatcher;
 	private final Clock clock;
 	private final WeakSingletonProvider<OkHttpClient> httpClientProvider;
 	private final AtomicBoolean fetcherStarted = new AtomicBoolean(false);
@@ -105,6 +107,7 @@ class FeedManagerImpl implements FeedManager, EventListener, OpenDatabaseHook,
 			BlogManager blogManager,
 			BlogPostFactory blogPostFactory,
 			FeedFactory feedFactory,
+			FeedMatcher feedMatcher,
 			WeakSingletonProvider<OkHttpClient> httpClientProvider,
 			Clock clock) {
 		this.scheduler = scheduler;
@@ -115,6 +118,7 @@ class FeedManagerImpl implements FeedManager, EventListener, OpenDatabaseHook,
 		this.blogManager = blogManager;
 		this.blogPostFactory = blogPostFactory;
 		this.feedFactory = feedFactory;
+		this.feedMatcher = feedMatcher;
 		this.httpClientProvider = httpClientProvider;
 		this.clock = clock;
 	}
@@ -163,16 +167,28 @@ class FeedManagerImpl implements FeedManager, EventListener, OpenDatabaseHook,
 	public Feed addFeed(String url) throws DbException, IOException {
 		// fetch feed to get posts and metadata
 		SyndFeed sf = fetchSyndFeed(url);
+		RssProperties properties = new RssProperties(url, sf.getTitle(),
+				sf.getDescription(), sf.getAuthor(), sf.getLink(), sf.getUri());
 
-		Feed feed = feedFactory.createFeed(url, sf);
+		// check whether the properties match an existing feed
+		List<Feed> candidates = db.transactionWithResult(true, this::getFeeds);
+		Feed matched = feedMatcher.findMatchingFeed(properties, candidates);
 
-		// store feed metadata and new blog
-		db.transaction(false, txn -> {
-			blogManager.addBlog(txn, feed.getBlog());
-			List<Feed> feeds = getFeeds(txn);
-			feeds.add(feed);
-			storeFeeds(txn, feeds);
-		});
+		Feed feed;
+		if (matched == null) {
+			LOG.info("Adding new feed");
+			feed = feedFactory.createFeed(url, sf);
+			// store feed metadata and new blog
+			db.transaction(false, txn -> {
+				blogManager.addBlog(txn, feed.getBlog());
+				List<Feed> feeds = getFeeds(txn);
+				feeds.add(feed);
+				storeFeeds(txn, feeds);
+			});
+		} else {
+			LOG.info("New feed matches an existing feed");
+			feed = matched;
+		}
 
 		// post entries
 		long lastEntryTime = postFeedEntries(feed, sf.getEntries());
@@ -359,7 +375,7 @@ class FeedManagerImpl implements FeedManager, EventListener, OpenDatabaseHook,
 		}
 	}
 
-	long postFeedEntries(Feed feed, List<SyndEntry> entries)
+	private long postFeedEntries(Feed feed, List<SyndEntry> entries)
 			throws DbException {
 
 		return db.transactionWithResult(false, txn -> {
