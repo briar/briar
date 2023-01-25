@@ -31,7 +31,6 @@ import org.briarproject.bramble.api.sync.GroupId;
 import org.briarproject.bramble.api.system.Clock;
 import org.briarproject.bramble.api.system.TaskScheduler;
 import org.briarproject.bramble.api.system.Wakeful;
-import org.briarproject.bramble.util.StringUtils;
 import org.briarproject.briar.api.blog.Blog;
 import org.briarproject.briar.api.blog.BlogManager;
 import org.briarproject.briar.api.blog.BlogManager.RemoveBlogHook;
@@ -39,6 +38,7 @@ import org.briarproject.briar.api.blog.BlogPost;
 import org.briarproject.briar.api.blog.BlogPostFactory;
 import org.briarproject.briar.api.feed.Feed;
 import org.briarproject.briar.api.feed.FeedManager;
+import org.briarproject.briar.api.feed.RssProperties;
 import org.briarproject.nullsafety.NotNullByDefault;
 
 import java.io.IOException;
@@ -47,7 +47,11 @@ import java.security.GeneralSecurityException;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
+import java.util.ListIterator;
+import java.util.Map;
 import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Logger;
@@ -61,17 +65,21 @@ import okhttp3.Request;
 import okhttp3.Response;
 import okhttp3.ResponseBody;
 
+import static java.util.Collections.singletonList;
 import static java.util.Collections.sort;
 import static java.util.logging.Level.WARNING;
+import static java.util.logging.Logger.getLogger;
+import static org.briarproject.bramble.util.IoUtils.tryToClose;
 import static org.briarproject.bramble.util.LogUtils.logException;
+import static org.briarproject.bramble.util.StringUtils.isNullOrEmpty;
+import static org.briarproject.bramble.util.StringUtils.truncateUtf8;
 import static org.briarproject.briar.api.blog.BlogConstants.MAX_BLOG_POST_TEXT_LENGTH;
 import static org.briarproject.briar.api.feed.FeedConstants.FETCH_DELAY_INITIAL;
 import static org.briarproject.briar.api.feed.FeedConstants.FETCH_INTERVAL;
 import static org.briarproject.briar.api.feed.FeedConstants.FETCH_UNIT;
 import static org.briarproject.briar.api.feed.FeedConstants.KEY_FEEDS;
-import static org.briarproject.briar.util.HtmlUtils.ARTICLE;
-import static org.briarproject.briar.util.HtmlUtils.STRIP_ALL;
-import static org.briarproject.briar.util.HtmlUtils.clean;
+import static org.briarproject.briar.util.HtmlUtils.cleanAll;
+import static org.briarproject.briar.util.HtmlUtils.cleanArticle;
 
 @ThreadSafe
 @NotNullByDefault
@@ -79,7 +87,7 @@ class FeedManagerImpl implements FeedManager, EventListener, OpenDatabaseHook,
 		RemoveBlogHook {
 
 	private static final Logger LOG =
-			Logger.getLogger(FeedManagerImpl.class.getName());
+			getLogger(FeedManagerImpl.class.getName());
 
 	private final TaskScheduler scheduler;
 	private final Executor ioExecutor;
@@ -89,6 +97,7 @@ class FeedManagerImpl implements FeedManager, EventListener, OpenDatabaseHook,
 	private final BlogManager blogManager;
 	private final BlogPostFactory blogPostFactory;
 	private final FeedFactory feedFactory;
+	private final FeedMatcher feedMatcher;
 	private final Clock clock;
 	private final WeakSingletonProvider<OkHttpClient> httpClientProvider;
 	private final AtomicBoolean fetcherStarted = new AtomicBoolean(false);
@@ -104,6 +113,7 @@ class FeedManagerImpl implements FeedManager, EventListener, OpenDatabaseHook,
 			BlogManager blogManager,
 			BlogPostFactory blogPostFactory,
 			FeedFactory feedFactory,
+			FeedMatcher feedMatcher,
 			WeakSingletonProvider<OkHttpClient> httpClientProvider,
 			Clock clock) {
 		this.scheduler = scheduler;
@@ -114,6 +124,7 @@ class FeedManagerImpl implements FeedManager, EventListener, OpenDatabaseHook,
 		this.blogManager = blogManager;
 		this.blogPostFactory = blogPostFactory;
 		this.feedFactory = feedFactory;
+		this.feedMatcher = feedMatcher;
 		this.httpClientProvider = httpClientProvider;
 		this.clock = clock;
 	}
@@ -160,37 +171,49 @@ class FeedManagerImpl implements FeedManager, EventListener, OpenDatabaseHook,
 
 	@Override
 	public Feed addFeed(String url) throws DbException, IOException {
-		// fetch syndication feed to get its metadata
-		SyndFeed f = fetchSyndFeed(url);
+		// fetch feed to get posts and metadata
+		SyndFeed sf = fetchAndCleanFeed(url);
+		return addFeed(url, sf);
+	}
 
-		Feed feed = feedFactory.createFeed(url, f);
+	@Override
+	public Feed addFeed(InputStream in) throws DbException, IOException {
+		// fetch feed to get posts and metadata
+		SyndFeed sf = fetchAndCleanFeed(in);
+		return addFeed(null, sf);
+	}
 
-		// store feed and new blog
-		Transaction txn = db.startTransaction(false);
-		try {
-			blogManager.addBlog(txn, feed.getBlog());
-			List<Feed> feeds = getFeeds(txn);
-			feeds.add(feed);
-			storeFeeds(txn, feeds);
-			db.commitTransaction(txn);
-		} finally {
-			db.endTransaction(txn);
+	private Feed addFeed(@Nullable String url, SyndFeed sf) throws DbException {
+		// extract properties from the feed
+		RssProperties properties = new RssProperties(url, sf.getTitle(),
+				sf.getDescription(), sf.getAuthor(), sf.getLink(), sf.getUri());
+
+		// check whether the properties match an existing feed
+		List<Feed> candidates = db.transactionWithResult(true, this::getFeeds);
+		Feed matched = feedMatcher.findMatchingFeed(properties, candidates);
+
+		Feed feed;
+		if (matched == null) {
+			LOG.info("Adding new feed");
+			feed = feedFactory.createFeed(url, sf);
+			// store feed metadata and new blog
+			db.transaction(false, txn -> {
+				blogManager.addBlog(txn, feed.getBlog());
+				List<Feed> feeds = getFeeds(txn);
+				feeds.add(feed);
+				storeFeeds(txn, feeds);
+			});
+		} else {
+			LOG.info("New feed matches an existing feed");
+			feed = matched;
 		}
 
-		// fetch feed again and post entries
-		Feed updatedFeed = fetchFeed(feed);
+		// post entries
+		long lastEntryTime = postFeedEntries(feed, sf.getEntries());
+		Feed updatedFeed = feedFactory.updateFeed(feed, sf, lastEntryTime);
 
-		// store feed again to also store last added entry
-		txn = db.startTransaction(false);
-		try {
-			List<Feed> feeds = getFeeds(txn);
-			feeds.remove(feed);
-			feeds.add(updatedFeed);
-			storeFeeds(txn, feeds);
-			db.commitTransaction(txn);
-		} finally {
-			db.endTransaction(txn);
-		}
+		// store feed metadata again to also store last entry time
+		updateFeeds(singletonList(updatedFeed));
 
 		return updatedFeed;
 	}
@@ -198,14 +221,9 @@ class FeedManagerImpl implements FeedManager, EventListener, OpenDatabaseHook,
 	@Override
 	public void removeFeed(Feed feed) throws DbException {
 		LOG.info("Removing RSS feed...");
-		Transaction txn = db.startTransaction(false);
-		try {
-			// this will call removingBlog() where the feed itself gets removed
-			blogManager.removeBlog(txn, feed.getBlog());
-			db.commitTransaction(txn);
-		} finally {
-			db.endTransaction(txn);
-		}
+		// this will call removingBlog() where the feed itself gets removed
+		db.transaction(false, txn ->
+				blogManager.removeBlog(txn, feed.getBlog()));
 	}
 
 	@Override
@@ -215,10 +233,12 @@ class FeedManagerImpl implements FeedManager, EventListener, OpenDatabaseHook,
 		// delete blog's RSS feed if we have it
 		boolean found = false;
 		List<Feed> feeds = getFeeds(txn);
-		for (Feed f : feeds) {
+		Iterator<Feed> it = feeds.iterator();
+		while (it.hasNext()) {
+			Feed f = it.next();
 			if (f.getBlogId().equals(b.getId())) {
+				it.remove();
 				found = true;
-				feeds.remove(f);
 				break;
 			}
 		}
@@ -248,7 +268,7 @@ class FeedManagerImpl implements FeedManager, EventListener, OpenDatabaseHook,
 		return feeds;
 	}
 
-	private void storeFeeds(@Nullable Transaction txn, List<Feed> feeds)
+	private void storeFeeds(Transaction txn, List<Feed> feeds)
 			throws DbException {
 
 		BdfList feedList = new BdfList();
@@ -257,19 +277,29 @@ class FeedManagerImpl implements FeedManager, EventListener, OpenDatabaseHook,
 		}
 		BdfDictionary gm = BdfDictionary.of(new BdfEntry(KEY_FEEDS, feedList));
 		try {
-			if (txn == null) {
-				clientHelper.mergeGroupMetadata(getLocalGroup().getId(), gm);
-			} else {
-				clientHelper.mergeGroupMetadata(txn, getLocalGroup().getId(),
-						gm);
-			}
+			clientHelper.mergeGroupMetadata(txn, getLocalGroup().getId(), gm);
 		} catch (FormatException e) {
 			throw new DbException(e);
 		}
 	}
 
-	private void storeFeeds(List<Feed> feeds) throws DbException {
-		storeFeeds(null, feeds);
+	/**
+	 * Updates the given feeds in the stored list of feeds, without affecting
+	 * any other feeds in the list or re-adding any of the given feeds that
+	 * have been removed from the list.
+	 */
+	private void updateFeeds(List<Feed> updatedFeeds) throws DbException {
+		Map<GroupId, Feed> updatedMap = new HashMap<>();
+		for (Feed feed : updatedFeeds) updatedMap.put(feed.getBlogId(), feed);
+		db.transaction(false, txn -> {
+			List<Feed> feeds = getFeeds(txn);
+			ListIterator<Feed> it = feeds.listIterator();
+			while (it.hasNext()) {
+				Feed updated = updatedMap.get(it.next().getBlogId());
+				if (updated != null) it.set(updated);
+			}
+			storeFeeds(txn, feeds);
+		});
 	}
 
 	/**
@@ -295,65 +325,69 @@ class FeedManagerImpl implements FeedManager, EventListener, OpenDatabaseHook,
 			return;
 		}
 
+		if (feeds.isEmpty()) {
+			LOG.info("No RSS feeds to update");
+			return;
+		}
+
 		// Fetch and update all feeds
-		List<Feed> newFeeds = new ArrayList<>(feeds.size());
+		List<Feed> updatedFeeds = new ArrayList<>(feeds.size());
 		for (Feed feed : feeds) {
 			try {
-				newFeeds.add(fetchFeed(feed));
+				String url = feed.getProperties().getUrl();
+				if (url == null) continue;
+				// fetch and clean feed
+				SyndFeed sf = fetchAndCleanFeed(url);
+				// sort and add new entries
+				long lastEntryTime = postFeedEntries(feed, sf.getEntries());
+				updatedFeeds.add(
+						feedFactory.updateFeed(feed, sf, lastEntryTime));
 			} catch (IOException | DbException e) {
 				logException(LOG, WARNING, e);
-				newFeeds.add(feed);
 			}
 		}
 
 		// Store updated feeds
 		try {
-			storeFeeds(newFeeds);
+			updateFeeds(updatedFeeds);
 		} catch (DbException e) {
 			logException(LOG, WARNING, e);
 		}
 		LOG.info("Done updating RSS feeds");
 	}
 
-	private SyndFeed fetchSyndFeed(String url) throws IOException {
-		// fetch feed
-		InputStream stream = getFeedInputStream(url);
-		SyndFeed f = getSyndFeed(stream);
-		stream.close();
-
-		if (f.getEntries().size() == 0)
-			throw new IOException("Feed has no entries");
-
-		// clean title
-		String title =
-				StringUtils.isNullOrEmpty(f.getTitle()) ? null : f.getTitle();
-		if (title != null) title = clean(title, STRIP_ALL);
-		f.setTitle(title);
-
-		// clean description
-		String description =
-				StringUtils.isNullOrEmpty(f.getDescription()) ? null :
-						f.getDescription();
-		if (description != null) description = clean(description, STRIP_ALL);
-		f.setDescription(description);
-
-		// clean author
-		String author =
-				StringUtils.isNullOrEmpty(f.getAuthor()) ? null : f.getAuthor();
-		if (author != null) author = clean(author, STRIP_ALL);
-		f.setAuthor(author);
-
-		return f;
+	private SyndFeed fetchAndCleanFeed(String url) throws IOException {
+		return fetchAndCleanFeed(getFeedInputStream(url));
 	}
 
-	private Feed fetchFeed(Feed feed) throws IOException, DbException {
-		// fetch and clean feed
-		SyndFeed f = fetchSyndFeed(feed.getUrl());
+	private SyndFeed fetchAndCleanFeed(InputStream in) throws IOException {
+		SyndFeed sf;
+		try {
+			sf = getSyndFeed(in);
+		} finally {
+			tryToClose(in, LOG, WARNING);
+		}
 
-		// sort and add new entries
-		long lastEntryTime = postFeedEntries(feed, f.getEntries());
+		// clean title
+		String title = sf.getTitle();
+		if (title != null) title = cleanAll(title);
+		sf.setTitle(isNullOrEmpty(title) ? "RSS" : title);
 
-		return feedFactory.createFeed(feed, f, lastEntryTime);
+		// clean description
+		String description = sf.getDescription();
+		if (description != null) description = cleanAll(description);
+		sf.setDescription(isNullOrEmpty(description) ? null : description);
+
+		// clean author
+		String author = sf.getAuthor();
+		if (author != null) author = cleanAll(author);
+		sf.setAuthor(isNullOrEmpty(author) ? null : author);
+
+		// set other relevant fields to null if empty
+		if ("".equals(sf.getLink())) sf.setLink(null);
+		if ("".equals(sf.getUri())) sf.setUri(null);
+
+		return sf;
 	}
 
 	private InputStream getFeedInputStream(String url) throws IOException {
@@ -380,12 +414,11 @@ class FeedManagerImpl implements FeedManager, EventListener, OpenDatabaseHook,
 		}
 	}
 
-	long postFeedEntries(Feed feed, List<SyndEntry> entries)
+	private long postFeedEntries(Feed feed, List<SyndEntry> entries)
 			throws DbException {
 
-		long lastEntryTime = feed.getLastEntryTime();
-		Transaction txn = db.startTransaction(false);
-		try {
+		return db.transactionWithResult(false, txn -> {
+			long lastEntryTime = feed.getLastEntryTime();
 			//noinspection Java8ListSort
 			sort(entries, getEntryComparator());
 			for (SyndEntry entry : entries) {
@@ -404,11 +437,8 @@ class FeedManagerImpl implements FeedManager, EventListener, OpenDatabaseHook,
 					if (entryTime > lastEntryTime) lastEntryTime = entryTime;
 				}
 			}
-			db.commitTransaction(txn);
-		} finally {
-			db.endTransaction(txn);
-		}
-		return lastEntryTime;
+			return lastEntryTime;
+		});
 	}
 
 	private void postEntry(Transaction txn, Feed feed, SyndEntry entry) {
@@ -417,7 +447,7 @@ class FeedManagerImpl implements FeedManager, EventListener, OpenDatabaseHook,
 		// build post text
 		StringBuilder b = new StringBuilder();
 
-		if (!StringUtils.isNullOrEmpty(entry.getTitle())) {
+		if (!isNullOrEmpty(entry.getTitle())) {
 			b.append("<h1>").append(entry.getTitle()).append("</h1>");
 		}
 		for (SyndContent content : entry.getContents()) {
@@ -430,7 +460,7 @@ class FeedManagerImpl implements FeedManager, EventListener, OpenDatabaseHook,
 				b.append(entry.getDescription().getValue());
 		}
 		b.append("<p>");
-		if (!StringUtils.isNullOrEmpty(entry.getAuthor())) {
+		if (!isNullOrEmpty(entry.getAuthor())) {
 			b.append("-- ").append(entry.getAuthor());
 		}
 		if (entry.getPublishedDate() != null) {
@@ -442,7 +472,7 @@ class FeedManagerImpl implements FeedManager, EventListener, OpenDatabaseHook,
 		}
 		b.append("</p>");
 		String link = entry.getLink();
-		if (!StringUtils.isNullOrEmpty(link)) {
+		if (!isNullOrEmpty(link)) {
 			b.append("<a href=\"").append(link).append("\">").append(link)
 					.append("</a>");
 		}
@@ -472,8 +502,8 @@ class FeedManagerImpl implements FeedManager, EventListener, OpenDatabaseHook,
 	}
 
 	private String getPostText(String text) {
-		text = clean(text, ARTICLE);
-		return StringUtils.truncateUtf8(text, MAX_BLOG_POST_TEXT_LENGTH);
+		text = cleanArticle(text);
+		return truncateUtf8(text, MAX_BLOG_POST_TEXT_LENGTH);
 	}
 
 	private Comparator<SyndEntry> getEntryComparator() {

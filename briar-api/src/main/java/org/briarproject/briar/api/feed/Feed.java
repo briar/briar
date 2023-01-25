@@ -5,45 +5,25 @@ import org.briarproject.bramble.api.sync.GroupId;
 import org.briarproject.briar.api.blog.Blog;
 import org.briarproject.nullsafety.NotNullByDefault;
 
-import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 
 @Immutable
 @NotNullByDefault
-public class Feed implements Comparable<Feed> {
+public class Feed {
 
-	private final String url;
 	private final Blog blog;
 	private final LocalAuthor localAuthor;
-	@Nullable
-	private final String description, rssAuthor;
+	private final RssProperties properties;
 	private final long added, updated, lastEntryTime;
 
-	public Feed(String url, Blog blog, LocalAuthor localAuthor,
-			@Nullable String description, @Nullable String rssAuthor,
+	public Feed(Blog blog, LocalAuthor localAuthor, RssProperties properties,
 			long added, long updated, long lastEntryTime) {
-		this.url = url;
 		this.blog = blog;
 		this.localAuthor = localAuthor;
-		this.description = description;
-		this.rssAuthor = rssAuthor;
+		this.properties = properties;
 		this.added = added;
 		this.updated = updated;
 		this.lastEntryTime = lastEntryTime;
-	}
-
-	public Feed(String url, Blog blog, LocalAuthor localAuthor,
-			@Nullable String description, @Nullable String rssAuthor,
-			long added) {
-		this(url, blog, localAuthor, description, rssAuthor, added, 0L, 0L);
-	}
-
-	public Feed(String url, Blog blog, LocalAuthor localAuthor, long added) {
-		this(url, blog, localAuthor, null, null, added, 0L, 0L);
-	}
-
-	public String getUrl() {
-		return url;
 	}
 
 	public GroupId getBlogId() {
@@ -62,14 +42,8 @@ public class Feed implements Comparable<Feed> {
 		return blog.getName();
 	}
 
-	@Nullable
-	public String getDescription() {
-		return description;
-	}
-
-	@Nullable
-	public String getRssAuthor() {
-		return rssAuthor;
+	public RssProperties getProperties() {
+		return properties;
 	}
 
 	public long getAdded() {
@@ -95,12 +69,7 @@ public class Feed implements Comparable<Feed> {
 	}
 
 	@Override
-	public int compareTo(Feed o) {
-		if (this == o) return 0;
-		long aTime = getAdded(), bTime = o.getAdded();
-		if (aTime > bTime) return -1;
-		if (aTime < bTime) return 1;
-		return 0;
+	public int hashCode() {
+		return blog.hashCode();
 	}
-
 }

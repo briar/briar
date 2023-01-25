@@ -28,8 +28,7 @@ class RssFeedAdapter extends ListAdapter<Feed, RssFeedAdapter.FeedViewHolder> {
 		super(new DiffUtil.ItemCallback<Feed>() {
 			@Override
 			public boolean areItemsTheSame(Feed a, Feed b) {
-				return a.getUrl().equals(b.getUrl()) &&
-						a.getBlogId().equals(b.getBlogId()) &&
+				return a.getBlogId().equals(b.getBlogId()) &&
 						a.getAdded() == b.getAdded();
 			}
 
@@ -86,8 +85,8 @@ class RssFeedAdapter extends ListAdapter<Feed, RssFeedAdapter.FeedViewHolder> {
 			delete.setOnClickListener(v -> listener.onDeleteClick(item));
 
 			// Author
-			if (item.getRssAuthor() != null) {
-				author.setText(item.getRssAuthor());
+			if (item.getProperties().getAuthor() != null) {
+				author.setText(item.getProperties().getAuthor());
 				author.setVisibility(VISIBLE);
 				authorLabel.setVisibility(VISIBLE);
 			} else {
@@ -100,8 +99,8 @@ class RssFeedAdapter extends ListAdapter<Feed, RssFeedAdapter.FeedViewHolder> {
 			updated.setText(formatDate(ctx, item.getUpdated()));
 
 			// Description
-			if (item.getDescription() != null) {
-				description.setText(item.getDescription());
+			if (item.getProperties().getDescription() != null) {
+				description.setText(item.getProperties().getDescription());
 				description.setVisibility(VISIBLE);
 			} else {
 				description.setVisibility(GONE);

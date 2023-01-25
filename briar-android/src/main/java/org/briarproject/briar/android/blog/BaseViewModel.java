@@ -41,7 +41,6 @@ import static java.util.logging.Logger.getLogger;
 import static org.briarproject.bramble.util.LogUtils.logDuration;
 import static org.briarproject.bramble.util.LogUtils.logException;
 import static org.briarproject.bramble.util.LogUtils.now;
-import static org.briarproject.briar.util.HtmlUtils.ARTICLE;
 
 @NotNullByDefault
 abstract class BaseViewModel extends DbViewModel implements EventListener {
@@ -115,7 +114,7 @@ abstract class BaseViewModel extends DbViewModel implements EventListener {
 	@DatabaseExecutor
 	private String getPostText(Transaction txn, MessageId m)
 			throws DbException {
-		return HtmlUtils.clean(blogManager.getPostText(txn, m), ARTICLE);
+		return HtmlUtils.cleanArticle(blogManager.getPostText(txn, m));
 	}
 
 	LiveData<LiveResult<BlogPostItem>> loadBlogPost(GroupId g, MessageId m) {
