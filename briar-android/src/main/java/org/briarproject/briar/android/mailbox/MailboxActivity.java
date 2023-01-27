@@ -245,6 +245,7 @@ public class MailboxActivity extends BriarActivity {
 	}
 
 	private void onUnPaired(boolean tellUserToWipeMailbox) {
+		viewModel.clearProblemNotification();
 		if (tellUserToWipeMailbox) {
 			showFragment(getSupportFragmentManager(), new BlankFragment(),
 					BlankFragment.TAG);
