@@ -1,9 +1,13 @@
 package org.briarproject.briar.android.blog;
 
+import android.net.Uri;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -13,18 +17,27 @@ import android.widget.ProgressBar;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.activity.ActivityComponent;
 import org.briarproject.briar.android.fragment.BaseFragment;
+import org.briarproject.briar.android.fragment.ProgressFragment;
+import org.briarproject.briar.android.util.ActivityLaunchers.GetContentAdvanced;
+import org.briarproject.briar.android.util.ActivityLaunchers.OpenDocumentAdvanced;
 import org.briarproject.nullsafety.MethodsNotNullByDefault;
 import org.briarproject.nullsafety.ParametersNotNullByDefault;
 
 import javax.annotation.Nullable;
 import javax.inject.Inject;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.annotation.RequiresApi;
+import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 
+import static android.os.Build.VERSION.SDK_INT;
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
 import static android.view.inputmethod.EditorInfo.IME_ACTION_DONE;
 import static org.briarproject.briar.android.util.UiUtils.hideSoftKeyboard;
+import static org.briarproject.briar.android.util.UiUtils.launchActivityToOpenFile;
+import static org.briarproject.briar.android.util.UiUtils.showFragment;
 
 @MethodsNotNullByDefault
 @ParametersNotNullByDefault
@@ -39,6 +52,15 @@ public class RssFeedImportFragment extends BaseFragment {
 	private Button importButton;
 	private ProgressBar progressBar;
 
+	@RequiresApi(19)
+	private final ActivityResultLauncher<String[]> docLauncher =
+			registerForActivityResult(new OpenDocumentAdvanced(),
+					this::onFileChosen);
+
+	private final ActivityResultLauncher<String> contentLauncher =
+			registerForActivityResult(new GetContentAdvanced(),
+					this::onFileChosen);
+
 	@Override
 	public void injectFragment(ActivityComponent component) {
 		component.inject(this);
@@ -52,6 +74,7 @@ public class RssFeedImportFragment extends BaseFragment {
 			@Nullable ViewGroup container,
 			@Nullable Bundle savedInstanceState) {
 		requireActivity().setTitle(getString(R.string.blogs_rss_feeds_import));
+		if (SDK_INT >= 19) setHasOptionsMenu(true);
 		View v = inflater.inflate(R.layout.fragment_rss_feed_import,
 				container, false);
 
@@ -93,8 +116,37 @@ public class RssFeedImportFragment extends BaseFragment {
 	}
 
 	@Override
+	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+		if (SDK_INT >= 19) {
+			inflater.inflate(R.menu.rss_feed_import_actions, menu);
+		}
+		super.onCreateOptionsMenu(menu, inflater);
+	}
+
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		if (item.getItemId() == R.id.action_import_file && SDK_INT >= 19) {
+			launchActivityToOpenFile(requireContext(), docLauncher,
+					contentLauncher, "*/*");
+			return true;
+		}
+		return super.onOptionsItemSelected(item);
+	}
+
+	@Override
 	public String getUniqueTag() {
 		return TAG;
+	}
+
+	private void onFileChosen(@Nullable Uri uri) {
+		if (uri == null) return;
+		// show progress fragment
+		Fragment f = ProgressFragment.newInstance(
+				getString(R.string.blogs_rss_feeds_import_progress));
+		String tag = ProgressFragment.TAG;
+		showFragment(getParentFragmentManager(), f, tag);
+		// view model will import and change state that activity will react to
+		viewModel.importFeed(uri);
 	}
 
 	private void enableOrDisableImportButton() {

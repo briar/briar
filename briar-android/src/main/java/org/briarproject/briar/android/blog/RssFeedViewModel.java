@@ -1,6 +1,8 @@
 package org.briarproject.briar.android.blog;
 
 import android.app.Application;
+import android.content.ContentResolver;
+import android.net.Uri;
 import android.util.Patterns;
 
 import org.briarproject.bramble.api.db.DatabaseExecutor;
@@ -11,6 +13,10 @@ import org.briarproject.bramble.api.lifecycle.IoExecutor;
 import org.briarproject.bramble.api.lifecycle.LifecycleManager;
 import org.briarproject.bramble.api.sync.GroupId;
 import org.briarproject.bramble.api.system.AndroidExecutor;
+import org.briarproject.briar.android.blog.RssImportResult.FileImportError;
+import org.briarproject.briar.android.blog.RssImportResult.FileImportSuccess;
+import org.briarproject.briar.android.blog.RssImportResult.UrlImportError;
+import org.briarproject.briar.android.blog.RssImportResult.UrlImportSuccess;
 import org.briarproject.briar.android.viewmodel.DbViewModel;
 import org.briarproject.briar.android.viewmodel.LiveEvent;
 import org.briarproject.briar.android.viewmodel.LiveResult;
@@ -20,6 +26,7 @@ import org.briarproject.briar.api.feed.FeedManager;
 import org.briarproject.nullsafety.NotNullByDefault;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
@@ -30,6 +37,7 @@ import java.util.logging.Logger;
 import javax.inject.Inject;
 
 import androidx.annotation.Nullable;
+import androidx.annotation.UiThread;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
@@ -52,11 +60,9 @@ class RssFeedViewModel extends DbViewModel {
 	private final MutableLiveData<LiveResult<List<Feed>>> feeds =
 			new MutableLiveData<>();
 
-	@Nullable
-	private volatile String urlFailedImport = null;
 	private final MutableLiveData<Boolean> isImporting =
 			new MutableLiveData<>(false);
-	private final MutableLiveEvent<Boolean> importResult =
+	private final MutableLiveEvent<RssImportResult> importResult =
 			new MutableLiveEvent<>();
 
 	@Inject
@@ -120,7 +126,7 @@ class RssFeedViewModel extends DbViewModel {
 		});
 	}
 
-	LiveEvent<Boolean> getImportResult() {
+	LiveEvent<RssImportResult> getImportResult() {
 		return importResult;
 	}
 
@@ -130,7 +136,6 @@ class RssFeedViewModel extends DbViewModel {
 
 	void importFeed(String url) {
 		isImporting.setValue(true);
-		urlFailedImport = null;
 		ioExecutor.execute(() -> {
 			try {
 				Feed feed = feedManager.addFeed(url);
@@ -145,19 +150,38 @@ class RssFeedViewModel extends DbViewModel {
 					updated = feedList;
 				}
 				feeds.postValue(new LiveResult<>(updated));
-				importResult.postEvent(true);
+				importResult.postEvent(new UrlImportSuccess());
 			} catch (DbException | IOException e) {
 				logException(LOG, WARNING, e);
-				urlFailedImport = url;
-				importResult.postEvent(false);
+				importResult.postEvent(new UrlImportError(url));
 			} finally {
 				isImporting.postValue(false);
 			}
 		});
 	}
 
-	@Nullable
-	String getUrlFailedImport() {
-		return urlFailedImport;
+	@UiThread
+	void importFeed(Uri uri) {
+		ContentResolver contentResolver = getApplication().getContentResolver();
+		ioExecutor.execute(() -> {
+			try (InputStream is = contentResolver.openInputStream(uri)) {
+				Feed feed = feedManager.addFeed(is);
+				// Update the feed if it was already present
+				List<Feed> feedList = getList(feeds);
+				if (feedList == null) feedList = new ArrayList<>();
+				List<Feed> updated = updateListItems(feedList,
+						f -> f.equals(feed), f -> feed);
+				// Add the feed if it wasn't already present
+				if (updated == null) {
+					feedList.add(feed);
+					updated = feedList;
+				}
+				feeds.postValue(new LiveResult<>(updated));
+				importResult.postEvent(new FileImportSuccess());
+			} catch (IOException | DbException e) {
+				logException(LOG, WARNING, e);
+				importResult.postEvent(new FileImportError());
+			}
+		});
 	}
 }
