@@ -140,7 +140,8 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 	private final long maxLatency;
 	private final int maxIdleTime;
 	private final int socketTimeout;
-	private final File torDirectory, geoIpFile, configFile;
+	private final File torDirectory;
+	private final File configFile;
 	private final int torSocksPort;
 	private final int torControlPort;
 	private final File doneFile, cookieFile;
@@ -195,7 +196,6 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 		this.torDirectory = torDirectory;
 		this.torSocksPort = torSocksPort;
 		this.torControlPort = torControlPort;
-		geoIpFile = new File(torDirectory, "geoip");
 		configFile = new File(torDirectory, "torrc");
 		doneFile = new File(torDirectory, "done");
 		cookieFile = new File(torDirectory, ".tor/control_auth_cookie");
@@ -332,12 +332,6 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 		// The done file may already exist from a previous installation
 		//noinspection ResultOfMethodCallIgnored
 		doneFile.delete();
-		// The GeoIP file may exist from a previous installation - we can
-		// save some space by deleting it.
-		// TODO: Remove after a reasonable migration period
-		//  (added 2022-03-29)
-		//noinspection ResultOfMethodCallIgnored
-		geoIpFile.delete();
 		installTorExecutable();
 		installObfs4Executable();
 		installSnowflakeExecutable();

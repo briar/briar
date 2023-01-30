@@ -27,8 +27,6 @@ public interface TorConstants {
 	int PREF_TOR_NETWORK_AUTOMATIC = 0;
 	int PREF_TOR_NETWORK_WITHOUT_BRIDGES = 1;
 	int PREF_TOR_NETWORK_WITH_BRIDGES = 2;
-	// TODO: Remove when settings migration code is removed
-	int PREF_TOR_NETWORK_NEVER = 3;
 
 	// Default values for local settings
 	boolean DEFAULT_PREF_PLUGIN_ENABLE = true;
