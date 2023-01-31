@@ -11,7 +11,6 @@ import org.briarproject.briar.android.blog.RssImportResult.UrlImportError;
 import org.briarproject.briar.android.blog.RssImportResult.UrlImportSuccess;
 import org.briarproject.briar.android.fragment.BaseFragment.BaseFragmentListener;
 import org.briarproject.briar.android.fragment.ErrorFragment;
-import org.briarproject.briar.android.fragment.FinalFragment;
 import org.briarproject.nullsafety.MethodsNotNullByDefault;
 import org.briarproject.nullsafety.ParametersNotNullByDefault;
 
@@ -70,14 +69,6 @@ public class RssFeedActivity extends BriarActivity
 			// pop stack back to before the initial import fragment
 			fm.popBackStackImmediate(RssFeedImportFragment.TAG,
 					POP_BACK_STACK_INCLUSIVE);
-			// show success fragment
-			Fragment f = FinalFragment.newInstance(
-					R.string.blogs_rss_feeds_import_success,
-					R.drawable.ic_check_circle_outline,
-					R.color.briar_brand_green, 0
-			);
-			String tag = FinalFragment.TAG;
-			showFragment(fm, f, tag);
 		} else if (result instanceof FileImportError) {
 			// pop stack back to initial import fragment
 			fm.popBackStackImmediate(RssFeedImportFragment.TAG, 0);
