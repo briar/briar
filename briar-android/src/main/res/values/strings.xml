@@ -519,7 +519,9 @@
 	<string name="blogs_rss_feeds_import">Import RSS Feed</string>
 	<string name="blogs_rss_feeds_import_button">Import</string>
 	<string name="blogs_rss_feeds_import_hint">Enter the URL of the RSS feed</string>
+	<string name="blogs_rss_feeds_import_progress">Importing RSS Feed…</string>
 	<string name="blogs_rss_feeds_import_error">We are sorry! There was an error importing your feed.</string>
+	<string name="blogs_rss_feeds_import_title">Import feed from file</string>
 	<string name="blogs_rss_feeds">RSS Feeds</string>
 	<string name="blogs_rss_feeds_manage_imported">Imported:</string>
 	<string name="blogs_rss_feeds_manage_author">Author:</string>
