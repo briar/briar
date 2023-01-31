@@ -13,6 +13,7 @@ import org.briarproject.bramble.api.data.MetadataParser;
 import org.briarproject.bramble.api.db.DatabaseComponent;
 import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.db.Metadata;
+import org.briarproject.bramble.api.db.NoSuchGroupException;
 import org.briarproject.bramble.api.db.Transaction;
 import org.briarproject.bramble.api.lifecycle.LifecycleManager.OpenDatabaseHook;
 import org.briarproject.bramble.api.sync.ClientId;
@@ -109,7 +110,24 @@ abstract class SharingManagerImpl<S extends Shareable>
 		// Create a local group to indicate that we've set this client up
 		Group localGroup = contactGroupFactory.createLocalGroup(getClientId(),
 				getMajorVersion());
-		if (db.containsGroup(txn, localGroup.getId())) return;
+
+		if (db.containsGroup(txn, localGroup.getId())) {
+			// Check each contact one by one and see if a group already exists.
+			// If none exists, call addingContact() for that contact.
+			for (Contact c : db.getContacts(txn)) {
+				try {
+					getGroupCount(txn, c.getId());
+				} catch (NoSuchGroupException e) {
+					System.out.println(
+							"no such group for " + c.getAuthor().getName() +
+									" " +
+									c.getAlias());
+					addingContact(txn, c);
+				}
+			}
+			return;
+		}
+
 		db.addGroup(txn, localGroup);
 		// Set things up for any pre-existing contacts
 		for (Contact c : db.getContacts(txn)) addingContact(txn, c);
