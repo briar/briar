@@ -2,6 +2,12 @@ package org.briarproject.briar.privategroup.invitation;
 
 interface GroupInvitationConstants {
 
+	/**
+	 * Metadata key for the client's local group, indicating that contact
+	 * groups have been created for all contacts.
+	 */
+	String GROUP_KEY_SETUP = "setup";
+
 	// Message metadata keys
 	String MSG_KEY_MESSAGE_TYPE = "messageType";
 	String MSG_KEY_PRIVATE_GROUP_ID = "privateGroupId";

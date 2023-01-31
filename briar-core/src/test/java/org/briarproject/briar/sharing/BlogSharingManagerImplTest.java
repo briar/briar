@@ -5,6 +5,7 @@ import org.briarproject.bramble.api.client.ContactGroupFactory;
 import org.briarproject.bramble.api.contact.Contact;
 import org.briarproject.bramble.api.contact.ContactId;
 import org.briarproject.bramble.api.data.BdfDictionary;
+import org.briarproject.bramble.api.data.BdfEntry;
 import org.briarproject.bramble.api.data.MetadataParser;
 import org.briarproject.bramble.api.db.DatabaseComponent;
 import org.briarproject.bramble.api.db.DbException;
@@ -27,10 +28,11 @@ import org.jmock.Expectations;
 import org.junit.Test;
 
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
+import static java.util.Collections.emptyMap;
+import static java.util.Collections.singletonList;
 import static org.briarproject.bramble.api.sync.Group.Visibility.SHARED;
 import static org.briarproject.bramble.test.TestUtils.getAuthor;
 import static org.briarproject.bramble.test.TestUtils.getContact;
@@ -40,6 +42,7 @@ import static org.briarproject.bramble.test.TestUtils.getMessage;
 import static org.briarproject.bramble.test.TestUtils.getRandomId;
 import static org.briarproject.briar.api.blog.BlogSharingManager.CLIENT_ID;
 import static org.briarproject.briar.api.blog.BlogSharingManager.MAJOR_VERSION;
+import static org.briarproject.briar.sharing.SharingConstants.GROUP_KEY_SETUP;
 
 public class BlogSharingManagerImplTest extends BrambleMockTestCase {
 
@@ -57,14 +60,16 @@ public class BlogSharingManagerImplTest extends BrambleMockTestCase {
 	private final ContactGroupFactory contactGroupFactory =
 			context.mock(ContactGroupFactory.class);
 	private final BlogManager blogManager = context.mock(BlogManager.class);
+	@SuppressWarnings("unchecked")
+	private final ProtocolEngine<Blog> engine =
+			context.mock(ProtocolEngine.class);
 
 	private final LocalAuthor localAuthor = getLocalAuthor();
 	private final Author author = getAuthor();
 	private final Contact contact =
 			getContact(author, localAuthor.getId(), true);
 	private final ContactId contactId = contact.getId();
-	private final Collection<Contact> contacts =
-			Collections.singletonList(contact);
+	private final Collection<Contact> contacts = singletonList(contact);
 	private final Group localGroup = getGroup(CLIENT_ID, MAJOR_VERSION);
 	private final Group contactGroup = getGroup(CLIENT_ID, MAJOR_VERSION);
 	private final Group blogGroup =
@@ -73,9 +78,8 @@ public class BlogSharingManagerImplTest extends BrambleMockTestCase {
 	private final Group localBlogGroup =
 			getGroup(BlogManager.CLIENT_ID, BlogManager.MAJOR_VERSION);
 	private final Blog localBlog = new Blog(localBlogGroup, localAuthor, false);
-	@SuppressWarnings("unchecked")
-	private final ProtocolEngine<Blog> engine =
-			context.mock(ProtocolEngine.class);
+	private final BdfDictionary localGroupMeta =
+			BdfDictionary.of(new BdfEntry(GROUP_KEY_SETUP, true));
 
 	@SuppressWarnings("unchecked")
 	public BlogSharingManagerImplTest() {
@@ -104,9 +108,16 @@ public class BlogSharingManagerImplTest extends BrambleMockTestCase {
 			oneOf(db).containsGroup(txn, localGroup.getId());
 			will(returnValue(false));
 			oneOf(db).addGroup(txn, localGroup);
+			oneOf(clientHelper).mergeGroupMetadata(txn, localGroup.getId(),
+					localGroupMeta);
 			// Get contacts
 			oneOf(db).getContacts(txn);
 			will(returnValue(contacts));
+			oneOf(contactGroupFactory).createContactGroup(CLIENT_ID,
+					MAJOR_VERSION, contact);
+			will(returnValue(contactGroup));
+			oneOf(db).containsGroup(txn, contactGroup.getId());
+			will(returnValue(false));
 		}});
 		// Set things up for the contact
 		expectAddingContact(txn);
@@ -115,7 +126,7 @@ public class BlogSharingManagerImplTest extends BrambleMockTestCase {
 	}
 
 	private void expectAddingContact(Transaction txn) throws Exception {
-		Map<MessageId, BdfDictionary> sessions = Collections.emptyMap();
+		Map<MessageId, BdfDictionary> sessions = emptyMap();
 
 		context.checking(new Expectations() {{
 			// Create the contact group and share it with the contact
@@ -145,16 +156,53 @@ public class BlogSharingManagerImplTest extends BrambleMockTestCase {
 	}
 
 	@Test
-	public void testOpenDatabaseHookSubsequentTime() throws Exception {
+	public void testOpenDatabaseHookSubsequentTimeWithoutSetupFlag()
+			throws Exception {
 		Transaction txn = new Transaction(null, false);
 
 		context.checking(new Expectations() {{
-			// The local group exists - everything has been set up
+			// The local group exists but the metadata flag has not been set
 			oneOf(contactGroupFactory).createLocalGroup(CLIENT_ID,
 					MAJOR_VERSION);
 			will(returnValue(localGroup));
 			oneOf(db).containsGroup(txn, localGroup.getId());
 			will(returnValue(true));
+			oneOf(clientHelper).getGroupMetadataAsDictionary(txn,
+					localGroup.getId());
+			will(returnValue(new BdfDictionary()));
+			// Store the metadata flag
+			oneOf(clientHelper).mergeGroupMetadata(txn, localGroup.getId(),
+					localGroupMeta);
+			// Check whether the contact group exists - it doesn't
+			oneOf(db).getContacts(txn);
+			will(returnValue(contacts));
+			oneOf(contactGroupFactory).createContactGroup(CLIENT_ID,
+					MAJOR_VERSION, contact);
+			will(returnValue(contactGroup));
+			oneOf(db).containsGroup(txn, contactGroup.getId());
+			will(returnValue(false));
+		}});
+		// Set things up for the contact
+		expectAddingContact(txn);
+
+		blogSharingManager.onDatabaseOpened(txn);
+	}
+
+	@Test
+	public void testOpenDatabaseHookSubsequentTimeWithSetupFlag()
+			throws Exception {
+		Transaction txn = new Transaction(null, false);
+
+		context.checking(new Expectations() {{
+			// The local group exists and the metadata flag has been set
+			oneOf(contactGroupFactory).createLocalGroup(CLIENT_ID,
+					MAJOR_VERSION);
+			will(returnValue(localGroup));
+			oneOf(db).containsGroup(txn, localGroup.getId());
+			will(returnValue(true));
+			oneOf(clientHelper).getGroupMetadataAsDictionary(txn,
+					localGroup.getId());
+			will(returnValue(localGroupMeta));
 		}});
 
 		blogSharingManager.onDatabaseOpened(txn);

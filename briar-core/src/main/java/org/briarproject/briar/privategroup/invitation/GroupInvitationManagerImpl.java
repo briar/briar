@@ -8,6 +8,7 @@ import org.briarproject.bramble.api.contact.Contact;
 import org.briarproject.bramble.api.contact.ContactId;
 import org.briarproject.bramble.api.contact.ContactManager.ContactHook;
 import org.briarproject.bramble.api.data.BdfDictionary;
+import org.briarproject.bramble.api.data.BdfEntry;
 import org.briarproject.bramble.api.data.BdfList;
 import org.briarproject.bramble.api.data.MetadataParser;
 import org.briarproject.bramble.api.db.DatabaseComponent;
@@ -63,6 +64,7 @@ import static org.briarproject.briar.privategroup.invitation.CreatorState.ERROR;
 import static org.briarproject.briar.privategroup.invitation.CreatorState.INVITED;
 import static org.briarproject.briar.privategroup.invitation.CreatorState.JOINED;
 import static org.briarproject.briar.privategroup.invitation.CreatorState.START;
+import static org.briarproject.briar.privategroup.invitation.GroupInvitationConstants.GROUP_KEY_SETUP;
 import static org.briarproject.briar.privategroup.invitation.MessageType.ABORT;
 import static org.briarproject.briar.privategroup.invitation.MessageType.INVITE;
 import static org.briarproject.briar.privategroup.invitation.MessageType.JOIN;
@@ -114,13 +116,35 @@ class GroupInvitationManagerImpl extends ConversationClientImpl
 
 	@Override
 	public void onDatabaseOpened(Transaction txn) throws DbException {
-		// Create a local group to indicate that we've set this client up
+		// If the feature flag for this client was set and then cleared, we may
+		// have set things up for some pre-existing contacts and not others.
+		// If the local group exists and has GROUP_KEY_SETUP == true in its
+		// metadata then we've set things up for all contacts. Otherwise we
+		// need to check whether a contact group exists for each contact.
 		Group localGroup = contactGroupFactory.createLocalGroup(CLIENT_ID,
 				MAJOR_VERSION);
-		if (db.containsGroup(txn, localGroup.getId())) return;
-		db.addGroup(txn, localGroup);
-		// Set things up for any pre-existing contacts
-		for (Contact c : db.getContacts(txn)) addingContact(txn, c);
+		try {
+			if (db.containsGroup(txn, localGroup.getId())) {
+				// If GROUP_KEY_SETUP == true then we're done
+				BdfDictionary meta = clientHelper
+						.getGroupMetadataAsDictionary(txn, localGroup.getId());
+				if (meta.getBoolean(GROUP_KEY_SETUP, false)) return;
+			} else {
+				db.addGroup(txn, localGroup);
+			}
+			BdfDictionary meta =
+					BdfDictionary.of(new BdfEntry(GROUP_KEY_SETUP, true));
+			clientHelper.mergeGroupMetadata(txn, localGroup.getId(), meta);
+		} catch (FormatException e) {
+			throw new DbException(e);
+		}
+		// Set things up for any contacts that haven't already been set up
+		for (Contact c : db.getContacts(txn)) {
+			Group contactGroup = getContactGroup(c);
+			if (!db.containsGroup(txn, contactGroup.getId())) {
+				addingContact(txn, c);
+			}
+		}
 	}
 
 	@Override

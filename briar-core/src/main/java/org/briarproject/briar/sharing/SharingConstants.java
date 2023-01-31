@@ -4,6 +4,12 @@ import org.briarproject.briar.client.MessageTrackerConstants;
 
 interface SharingConstants {
 
+	/**
+	 * Metadata key for the client's local group, indicating that contact
+	 * groups have been created for all contacts.
+	 */
+	String GROUP_KEY_SETUP = "setup";
+
 	// Message metadata keys
 	String MSG_KEY_MESSAGE_TYPE = "messageType";
 	String MSG_KEY_SHAREABLE_ID = "shareableId";

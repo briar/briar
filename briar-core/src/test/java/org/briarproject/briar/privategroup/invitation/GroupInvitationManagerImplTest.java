@@ -24,8 +24,8 @@ import org.briarproject.bramble.test.BrambleMockTestCase;
 import org.briarproject.bramble.test.DbExpectations;
 import org.briarproject.bramble.test.TestUtils;
 import org.briarproject.briar.api.client.MessageTracker;
-import org.briarproject.briar.api.client.SessionId;
 import org.briarproject.briar.api.client.ProtocolStateException;
+import org.briarproject.briar.api.client.SessionId;
 import org.briarproject.briar.api.conversation.ConversationMessageHeader;
 import org.briarproject.briar.api.privategroup.PrivateGroup;
 import org.briarproject.briar.api.privategroup.PrivateGroupFactory;
@@ -39,7 +39,6 @@ import org.jmock.imposters.ByteBuddyClassImposteriser;
 import org.junit.Test;
 
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -47,7 +46,9 @@ import javax.annotation.Nullable;
 
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
+import static java.util.Collections.emptyMap;
 import static java.util.Collections.singletonList;
+import static java.util.Collections.singletonMap;
 import static junit.framework.TestCase.fail;
 import static org.briarproject.bramble.api.sync.Group.Visibility.SHARED;
 import static org.briarproject.bramble.api.sync.validation.IncomingMessageHook.DeliveryAction.ACCEPT_DO_NOT_SHARE;
@@ -67,6 +68,7 @@ import static org.briarproject.briar.api.sharing.SharingManager.SharingStatus.ER
 import static org.briarproject.briar.api.sharing.SharingManager.SharingStatus.INVITE_RECEIVED;
 import static org.briarproject.briar.api.sharing.SharingManager.SharingStatus.SHAREABLE;
 import static org.briarproject.briar.api.sharing.SharingManager.SharingStatus.SHARING;
+import static org.briarproject.briar.privategroup.invitation.GroupInvitationConstants.GROUP_KEY_SETUP;
 import static org.briarproject.briar.privategroup.invitation.MessageType.ABORT;
 import static org.briarproject.briar.privategroup.invitation.MessageType.INVITE;
 import static org.briarproject.briar.privategroup.invitation.MessageType.JOIN;
@@ -124,9 +126,10 @@ public class GroupInvitationManagerImplTest extends BrambleMockTestCase {
 	private final BdfDictionary bdfSession =
 			BdfDictionary.of(new BdfEntry("f", "o"));
 	private final Map<MessageId, BdfDictionary> oneResult =
-			Collections.singletonMap(storageMessage.getId(), bdfSession);
-	private final Map<MessageId, BdfDictionary> noResults =
-			Collections.emptyMap();
+			singletonMap(storageMessage.getId(), bdfSession);
+	private final Map<MessageId, BdfDictionary> noResults = emptyMap();
+	private final BdfDictionary localGroupMeta =
+			BdfDictionary.of(new BdfEntry(GROUP_KEY_SETUP, true));
 
 
 	public GroupInvitationManagerImplTest() {
@@ -167,21 +170,64 @@ public class GroupInvitationManagerImplTest extends BrambleMockTestCase {
 			oneOf(db).containsGroup(txn, localGroup.getId());
 			will(returnValue(false));
 			oneOf(db).addGroup(txn, localGroup);
+			oneOf(clientHelper).mergeGroupMetadata(txn, localGroup.getId(),
+					localGroupMeta);
 			oneOf(db).getContacts(txn);
 			will(returnValue(singletonList(contact)));
+			oneOf(contactGroupFactory).createContactGroup(CLIENT_ID,
+					MAJOR_VERSION, contact);
+			will(returnValue(contactGroup));
+			oneOf(db).containsGroup(txn, contactGroup.getId());
+			will(returnValue(false));
 		}});
 		expectAddingContact(contact, emptyList());
 		groupInvitationManager.onDatabaseOpened(txn);
 	}
 
 	@Test
-	public void testOpenDatabaseHookSubsequentTime() throws Exception {
+	public void testOpenDatabaseHookSubsequentTimeWithoutSetupFlag()
+			throws Exception {
 		context.checking(new Expectations() {{
+			// The local group exists but the metadata flag has not been set
 			oneOf(contactGroupFactory).createLocalGroup(CLIENT_ID,
 					MAJOR_VERSION);
 			will(returnValue(localGroup));
 			oneOf(db).containsGroup(txn, localGroup.getId());
 			will(returnValue(true));
+			oneOf(clientHelper).getGroupMetadataAsDictionary(txn,
+					localGroup.getId());
+			will(returnValue(new BdfDictionary()));
+			// Store the metadata flag
+			oneOf(clientHelper).mergeGroupMetadata(txn, localGroup.getId(),
+					localGroupMeta);
+			// Check whether the contact group exists - it doesn't
+			oneOf(db).getContacts(txn);
+			will(returnValue(singletonList(contact)));
+			oneOf(contactGroupFactory).createContactGroup(CLIENT_ID,
+					MAJOR_VERSION, contact);
+			will(returnValue(contactGroup));
+			oneOf(db).containsGroup(txn, contactGroup.getId());
+			will(returnValue(false));
+		}});
+		// Set things up for the contact
+		expectAddingContact(contact, emptyList());
+
+		groupInvitationManager.onDatabaseOpened(txn);
+	}
+
+	@Test
+	public void testOpenDatabaseHookSubsequentTimeWithSetupFlag()
+			throws Exception {
+		context.checking(new Expectations() {{
+			// The local group exists and the metadata flag has been set
+			oneOf(contactGroupFactory).createLocalGroup(CLIENT_ID,
+					MAJOR_VERSION);
+			will(returnValue(localGroup));
+			oneOf(db).containsGroup(txn, localGroup.getId());
+			will(returnValue(true));
+			oneOf(clientHelper).getGroupMetadataAsDictionary(txn,
+					localGroup.getId());
+			will(returnValue(localGroupMeta));
 		}});
 		groupInvitationManager.onDatabaseOpened(txn);
 	}
@@ -957,9 +1003,9 @@ public class GroupInvitationManagerImplTest extends BrambleMockTestCase {
 				BdfDictionary.of(new BdfEntry("f3", "o"));
 
 		expectGetSession(oneResult, sessionId, contactGroup.getId());
-		expectGetSession(Collections.singletonMap(storageId2, bdfSession2),
+		expectGetSession(singletonMap(storageId2, bdfSession2),
 				sessionId, contactGroup2.getId());
-		expectGetSession(Collections.singletonMap(storageId3, bdfSession3),
+		expectGetSession(singletonMap(storageId3, bdfSession3),
 				sessionId, contactGroup3.getId());
 
 		context.checking(new Expectations() {{
