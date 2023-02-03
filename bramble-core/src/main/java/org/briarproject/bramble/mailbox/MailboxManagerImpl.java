@@ -1,5 +1,6 @@
 package org.briarproject.bramble.mailbox;
 
+import org.briarproject.bramble.api.FormatException;
 import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.db.Transaction;
 import org.briarproject.bramble.api.db.TransactionManager;
@@ -11,12 +12,15 @@ import org.briarproject.bramble.api.mailbox.MailboxSettingsManager;
 import org.briarproject.bramble.api.mailbox.MailboxStatus;
 import org.briarproject.bramble.api.mailbox.MailboxVersion;
 import org.briarproject.bramble.api.system.Clock;
+import org.briarproject.bramble.util.Base32;
 import org.briarproject.nullsafety.NotNullByDefault;
 
 import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.Executor;
 import java.util.logging.Logger;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.GuardedBy;
@@ -26,6 +30,7 @@ import javax.inject.Inject;
 import static java.util.logging.Level.WARNING;
 import static java.util.logging.Logger.getLogger;
 import static org.briarproject.bramble.util.LogUtils.logException;
+import static org.briarproject.bramble.util.StringUtils.ISO_8859_1;
 
 @Immutable
 @NotNullByDefault
@@ -96,6 +101,22 @@ class MailboxManagerImpl implements MailboxManager {
 			}
 		});
 		return created;
+	}
+
+	@Override
+	public String convertBase32Payload(String base32Payload)
+			throws FormatException {
+		Pattern regex = Pattern.compile("(briar-mailbox://)?([a-z2-7]{104})");
+		Matcher matcher = regex.matcher(base32Payload);
+		if (!matcher.find()) throw new FormatException();
+		String base32 = matcher.group(2);
+		byte[] payloadBytes;
+		try {
+			payloadBytes = Base32.decode(base32, false);
+		} catch (IllegalArgumentException e) {
+			throw new FormatException();
+		}
+		return new String(payloadBytes, ISO_8859_1);
 	}
 
 	@Override
