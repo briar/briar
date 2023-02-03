@@ -1,5 +1,6 @@
 package org.briarproject.bramble.mailbox;
 
+import org.briarproject.bramble.api.FormatException;
 import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.db.Transaction;
 import org.briarproject.bramble.api.db.TransactionManager;
@@ -9,17 +10,23 @@ import org.briarproject.bramble.api.mailbox.event.OwnMailboxConnectionStatusEven
 import org.briarproject.bramble.api.system.Clock;
 import org.briarproject.bramble.test.BrambleMockTestCase;
 import org.briarproject.bramble.test.DbExpectations;
+import org.briarproject.bramble.util.Base32;
 import org.junit.Test;
 
 import java.io.IOException;
+import java.util.Locale;
 import java.util.Random;
 import java.util.concurrent.Executor;
 
+import static org.briarproject.bramble.util.StringUtils.ISO_8859_1;
 import static org.briarproject.bramble.api.mailbox.MailboxConstants.CLIENT_SUPPORTS;
 import static org.briarproject.bramble.test.TestUtils.getMailboxProperties;
+import static org.briarproject.bramble.test.TestUtils.getRandomBytes;
 import static org.briarproject.bramble.test.TestUtils.hasEvent;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 public class MailboxManagerImplTest extends BrambleMockTestCase {
 
@@ -125,4 +132,32 @@ public class MailboxManagerImplTest extends BrambleMockTestCase {
 		assertTrue(manager.checkConnection());
 	}
 
+	@Test
+	public void testConvertBase32Payload() throws FormatException {
+		byte[] payload = getRandomBytes(65);
+		String base32payload = Base32.encode(payload).toLowerCase(Locale.ROOT);
+		String expected = new String(payload, ISO_8859_1);
+		try {
+			manager.convertBase32Payload("foo bar");
+			fail();
+		} catch (FormatException e) {
+			// expected
+		}
+		try { // doesn't work with shorter link
+			manager.convertBase32Payload("briar-mailbox://" +
+					base32payload.substring(0, base32payload.length() - 1));
+			fail();
+		} catch (FormatException e) {
+			// expected
+		}
+		// works with white-spaces
+		assertEquals(expected, manager.convertBase32Payload(
+				"foo bar  briar-mailbox://" + base32payload + " foo bar"));
+		// even works without white-space at the end
+		assertEquals(expected, manager.convertBase32Payload(
+				"foo bar  briar-mailbox://" + base32payload + "foobar"));
+		// even works without schema and extra chars at end
+		assertEquals(expected, manager.convertBase32Payload(
+				"foo bar " + base32payload + "foobar"));
+	}
 }

@@ -1,5 +1,6 @@
 package org.briarproject.bramble.api.mailbox;
 
+import org.briarproject.bramble.api.FormatException;
 import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.db.Transaction;
 import org.briarproject.bramble.api.lifecycle.IoExecutor;
@@ -33,6 +34,16 @@ public interface MailboxManager {
 	 * @param qrCodePayload The ISO-8859-1 encoded bytes of the mailbox QR code.
 	 */
 	MailboxPairingTask startPairingTask(String qrCodePayload);
+
+	/**
+	 * Takes a textual QR code representation in
+	 * {@link org.briarproject.bramble.util.Base32} format and converts it
+	 * into a qrCodePayload as expected by {@link #startPairingTask(String)}.
+	 *
+	 * @throws FormatException when the provided payload did not include a
+	 * proper briar-mailbox:// link.
+	 */
+	String convertBase32Payload(String base32Payload) throws FormatException;
 
 	/**
 	 * Can be used by the UI to test the mailbox connection.
