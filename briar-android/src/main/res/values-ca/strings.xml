@@ -489,7 +489,6 @@ Així que l\'actualitzi li veureu una icona diferent .</string>
   <string name="blogs_rss_feeds_import_button">Subscriu-me</string>
   <string name="blogs_rss_feeds_import_hint">Escriviu l\'URL del canal de notícies RSS</string>
   <string name="blogs_rss_feeds_import_error">Ens sap greu! S\'ha produït un error en subscriure-us al vostre canal de notícies.</string>
-  <string name="blogs_rss_feeds_import_exists">Aquest canal ja s\'ha importat.</string>
   <string name="blogs_rss_feeds">Canals RSS</string>
   <string name="blogs_rss_feeds_manage_imported">Importat:</string>
   <string name="blogs_rss_feeds_manage_author">Autor:</string>

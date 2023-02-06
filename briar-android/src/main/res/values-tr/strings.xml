@@ -482,7 +482,6 @@
   <string name="blogs_rss_feeds_import_button">İçe Aktar</string>
   <string name="blogs_rss_feeds_import_hint">RSS beslemesi URL\'sini girin</string>
   <string name="blogs_rss_feeds_import_error">Üzgünüz! RSS beslemeniz içe aktarılırken bir hata oluştu.</string>
-  <string name="blogs_rss_feeds_import_exists">Bu besleme zaten içe aktarılmış.</string>
   <string name="blogs_rss_feeds">RSS beslemeleri</string>
   <string name="blogs_rss_feeds_manage_imported">İçe Aktarıldı:</string>
   <string name="blogs_rss_feeds_manage_author">Yazar:</string>
@@ -594,9 +593,7 @@
   <string name="mailbox_setup_download_link">İndirme Bağlantısını Paylaş</string>
   <string name="mailbox_setup_button_scan">Mailbox Karekodunu Tara</string>
   <string name="permission_camera_qr_denied_body">Kameraya erişimi engellediniz, ancak Mailbox karekodunu taramak için kamerayı kullanmanız gerekiyor.\n\nLütfen erişim izni vermeyi düşünün.</string>
-  <string name="mailbox_setup_connecting">Bağlantı kuruluyor…</string>
-  <string name="mailbox_setup_qr_code_wrong_title">Yanlış Karekod</string>
-  <string name="mailbox_setup_qr_code_wrong_description">Taranan kod geçersiz. Lütfen Briar Mailbox uygulamasını Mailbox aygıtınızda açın ve gösterdiği Karekodu tarayın.</string>
+  <!--This string is shown when connecting to a Mailbox for the first time. The placeholder will be replaced with a duration, e.g. "2 minutes".-->
   <string name="mailbox_setup_already_paired_title">Mailbox zaten bağlanmış</string>
   <string name="mailbox_setup_already_paired_description">Diğer aygıttan Mailbox bağlantısını kaldırın ve tekrar deneyin</string>
   <string name="mailbox_setup_io_error_title">Bağlantı kurulamıyor</string>

@@ -423,6 +423,10 @@
   <string name="forum_declined_toast">邀請已謝絕</string>
   <string name="shared_by_format">由 %s 分享</string>
   <string name="forum_invitation_already_sharing">已在分享</string>
+  <string name="forum_invitation_already_invited">已發送邀請</string>
+  <string name="forum_invitation_invite_received">已收到邀請</string>
+  <string name="forum_invitation_not_supported">此聯絡人無法使用</string>
+  <string name="forum_invitation_error">出錯，出了點問題與您無關</string>
   <string name="forum_invitation_response_accepted_sent">您接受了來自 %s的論壇邀請</string>
   <string name="forum_invitation_response_declined_sent">您謝絕了來自 %s的論壇邀請</string>
   <string name="forum_invitation_response_declined_auto">來自%s論壇的邀請已自動拒絕</string>
@@ -473,7 +477,6 @@
   <string name="blogs_rss_feeds_import_button">導入</string>
   <string name="blogs_rss_feeds_import_hint">輸入 RSS 訂閱源鏈接</string>
   <string name="blogs_rss_feeds_import_error">抱歉！導入訂閱源時發生錯誤。</string>
-  <string name="blogs_rss_feeds_import_exists">此來源已滙入</string>
   <string name="blogs_rss_feeds">RSS 消息源</string>
   <string name="blogs_rss_feeds_manage_imported">已導入：</string>
   <string name="blogs_rss_feeds_manage_author">作者：</string>

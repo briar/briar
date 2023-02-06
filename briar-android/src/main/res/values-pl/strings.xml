@@ -244,6 +244,7 @@
   <string name="menu_contact">Kontakt</string>
   <!--Adding Contacts-->
   <string name="add_contact_title">Dodaj kontakt w pobliżu</string>
+  <string name="add_contact_error_two_way">Czy oboje skanowaliście nawzajem swoje kody QR?</string>
   <string name="face_to_face">Musisz spotkać się z osobą którą chcesz dodać jako kontakt.\n\nTo uniemożliwi komukolwiek udawanie Ciebie lub czytanie Twoich wiadomości w przyszłości.</string>
   <string name="continue_button">Kontynuuj</string>
   <string name="try_again_button">Spróbuj ponownie</string>
@@ -259,6 +260,7 @@
   <string name="authenticating_with_device">Autoryzowanie z urządzeniem\u2026</string>
   <string name="connection_error_title">Nie udało się połączyć z kontaktem</string>
   <string name="connection_error_feedback">Jeśli problem będzie występować dalej, proszę <a href="feedback">wysłać opinię</a> aby pomóc nam ulepszyć aplikację.</string>
+  <string name="info_both_must_scan">Oboje musicie skanować nawzajem swoje kody QR</string>
   <!--Adding Contacts Remotely-->
   <string name="add_contact_remotely_title_case">Dodaj Kontakt na odległość</string>
   <string name="add_contact_nearby_title">Dodaj kontakt w pobliżu</string>
@@ -318,6 +320,7 @@
   <string name="different_person_button">Inna osoba</string>
   <string name="duplicate_link_dialog_text_3">%1$si  %2$s wysłał ci ten sam link.\n\nJeden z nich może próbować odkryć, kim są twoje kontakty.\n\nNie mów im, że otrzymałeś ten sam link od kogoś innego.</string>
   <string name="pending_contact_updated_toast">Oczekujący kontakt zaktualizowany</string>
+  <string name="info_both_must_enter_links">Oboje musicie dodać swoje linki</string>
   <!--Peer trust levels-->
   <string name="peer_trust_level_unverified">Niezweryfikowane kontakty</string>
   <string name="peer_trust_level_verified">Zweryfikowane kontakty</string>
@@ -351,6 +354,7 @@
   <string name="connect_via_bluetooth_intro">W przypadku gdy połączenia przez Bluetooth nie działają automatycznie, możesz użyć tego ekranu do połączenia ręcznego.\n\nTwój kontakt musi znajdować się w pobliżu, żeby to zadziałało.\n\nTy i Twój kontakt powinniście jednocześnie wcisnąć \"Start\".</string>
   <string name="connect_via_bluetooth_already_discovering">Próba połączenia przez Bluetooth jest już w trakcie. Spróbuj ponownie za chwilę.</string>
   <string name="connect_via_bluetooth_no_location_permission">Nie można kontynuować bez dostępu do lokalizacji</string>
+  <string name="connect_via_bluetooth_no_bluetooth_permission">Nie można kontynuować bez pozwolenia na urządzenia w pobliżu</string>
   <string name="connect_via_bluetooth_start">Łączenie przez Bluetooth...</string>
   <string name="connect_via_bluetooth_success">Udało się połączyć przez Bluetooth.</string>
   <string name="connect_via_bluetooth_error">Nie można się połączyć przez Bluetooth.</string>
@@ -453,6 +457,10 @@
   <string name="forum_declined_toast">Zaproszenie odrzucone</string>
   <string name="shared_by_format">Udostępnione przez %s</string>
   <string name="forum_invitation_already_sharing">Już udostępnione</string>
+  <string name="forum_invitation_already_invited">Wysłano już zaproszenie</string>
+  <string name="forum_invitation_invite_received">Odebrano już zaproszenie</string>
+  <string name="forum_invitation_not_supported">Nie obsługiwane przez ten kontakt</string>
+  <string name="forum_invitation_error">Błąd. Jest to błąd w naszej aplikacji, to nie twoja wina</string>
   <string name="forum_invitation_response_accepted_sent">Przyjąłeś zaproszenie do forum od %s</string>
   <string name="forum_invitation_response_declined_sent">Odrzuciłeś zaproszenie do forum od %s</string>
   <string name="forum_invitation_response_declined_auto">Zaproszenie do forum od %s zostało automatycznie odrzucone.</string>
@@ -505,8 +513,9 @@
   <string name="blogs_rss_feeds_import">Zaimportuj kanał RSS</string>
   <string name="blogs_rss_feeds_import_button">Zaimportuj</string>
   <string name="blogs_rss_feeds_import_hint">Wprowadź adres URL do kanału RSS</string>
+  <string name="blogs_rss_feeds_import_progress">Importowanie kanału RSS…</string>
   <string name="blogs_rss_feeds_import_error">Przepraszamy! Wystąpił błąd podczas importowania twojego kanału RSS</string>
-  <string name="blogs_rss_feeds_import_exists">Ten feed został już zaimportowany.</string>
+  <string name="blogs_rss_feeds_import_title">Importuj kanał z pliku</string>
   <string name="blogs_rss_feeds">Feedy RSS</string>
   <string name="blogs_rss_feeds_manage_imported">Zaimportowane:</string>
   <string name="blogs_rss_feeds_manage_author">Autor:</string>
@@ -618,7 +627,9 @@
   <string name="mailbox_setup_download_link">Udostępnij łącze pobierania</string>
   <string name="mailbox_setup_button_scan">Zeskanuj kod QR aplikacji Mailbox</string>
   <string name="permission_camera_qr_denied_body">Odmówiłeś dostępu do aparatu, ale zeskanowanie kodu QR wymaga użycia aparatu.\n\nRozważ przyznanie dostępu.</string>
+  <string name="mailbox_setup_connecting">Łączenie się ze Skrzynką odbiorczą…</string>
   <!--This string is shown when connecting to a Mailbox for the first time. The placeholder will be replaced with a duration, e.g. "2 minutes".-->
+  <string name="mailbox_setup_connecting_info">Może to potrwać do %1s</string>
   <string name="mailbox_setup_already_paired_title">Mailbox już podłączony</string>
   <string name="mailbox_setup_already_paired_description">Odłącz Mailbox na drugim urządzeniu i spróbuj ponownie.</string>
   <string name="mailbox_setup_io_error_title">Nie udało się połączyć</string>
@@ -756,11 +767,15 @@ Brak dostępu do aparatu. Spróbuj ponownie, może po ponownym uruchomieniu urz�
   <string name="permission_location_request_body">Aby odkryć urządzenia Bluetooth, Briar potrzebuje zezwolenia na dostęp do twojej lokalizacji.\n\nBriar nie przechowuje twojej lokalizacji ani nie udostępnia jej nikomu.</string>
   <string name="permission_camera_location_title">Kamera i lokalizacja</string>
   <string name="permission_camera_location_request_body">Aby zeskanować kod QR, Briar potrzebuje dostępu do kamery.\n\nAby odkryć urządzenia Bluetooth, Briar potrzebuje zezwolenia na dostęp do Twojej lokalizacji.\n\nBriar nie przechowuje Twojej lokalizacji ani nie udostępnia jej nikomu.</string>
+  <string name="permission_camera_bluetooth_title">Aparat i urządzenia w pobliżu</string>
   <string name="permission_camera_denied_body">Odmówiłeś dostępu do aparatu, lecz dodawanie kontaktów wymaga jego użycia.\n\nProszę rozważyć udzielenie dostępu do aparatu</string>
   <string name="permission_location_denied_body">Zabroniłeś dostępu do Twojej lokalizacji, ale Briar potrzebuje tego uprawnienia do wykrywania urządzeń Bluetooth.\n\nRozważ przyznanie  tego dostępu.</string>
   <string name="permission_location_setting_title">Ustawienia lokalizacji</string>
   <string name="permission_location_setting_body">Ustawienie lokalizacji urządzenia musi być włączone, aby można było znaleźć inne urządzenia przez Bluetooth. Włącz lokalizację, aby kontynuować. Później możesz ją ponownie wyłączyć.</string>
   <string name="permission_location_setting_button">Włącz lokalizację</string>
+  <string name="permission_bluetooth_title">Pozwolenie do urządzeń w pobliżu</string>
+  <string name="permission_bluetooth_body">Aby korzystać z komunikacji Bluetooth, Briar potrzebuje uprawnień do znajdowania i łączenia się z pobliskimi urządzeniami.</string>
+  <string name="permission_bluetooth_denied_body">Odmówiono dostępu do pobliskich urządzeń, ale Briar potrzebuje tego uprawnienia, aby korzystać z Bluetooth.\n\nRozważ udzielenie dostępu.</string>
   <string name="qr_code">Kod QR</string>
   <string name="show_qr_code_fullscreen">Pokaż QR na pełnym ekranie</string>
   <!--App Locking-->

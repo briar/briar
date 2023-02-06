@@ -510,7 +510,6 @@
   <string name="blogs_rss_feeds_import_button">وارد کردن</string>
   <string name="blogs_rss_feeds_import_hint">آدرس خوراک RSS را وارد کنید</string>
   <string name="blogs_rss_feeds_import_error">متاسفیم!  وارد کردن خوراک شما با خطا مواجه شده است.</string>
-  <string name="blogs_rss_feeds_import_exists">این خوراک وارد شده است.</string>
   <string name="blogs_rss_feeds">خوراک های RSS</string>
   <string name="blogs_rss_feeds_manage_imported">وارد شده:</string>
   <string name="blogs_rss_feeds_manage_author">نویسنده:</string>

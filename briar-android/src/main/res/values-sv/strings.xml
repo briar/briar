@@ -478,7 +478,6 @@ Vänlige installera Briar på en nyare enhet.</string>
   <string name="blogs_rss_feeds_import_button">Importera</string>
   <string name="blogs_rss_feeds_import_hint">Skriv URL till RSS-flödet</string>
   <string name="blogs_rss_feeds_import_error">Tyvärr! Något gick fel när flödet skulle importeras.</string>
-  <string name="blogs_rss_feeds_import_exists">Det flödet importeras redan.</string>
   <string name="blogs_rss_feeds">RSS-flöden</string>
   <string name="blogs_rss_feeds_manage_imported">Importerade:</string>
   <string name="blogs_rss_feeds_manage_author">Författare:</string>

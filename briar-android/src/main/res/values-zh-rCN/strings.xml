@@ -473,8 +473,9 @@
   <string name="blogs_rss_feeds_import">导入 RSS 订阅源</string>
   <string name="blogs_rss_feeds_import_button">导入</string>
   <string name="blogs_rss_feeds_import_hint">输入 RSS 订阅源链接</string>
+  <string name="blogs_rss_feeds_import_progress">导入 RSS 订阅源中…</string>
   <string name="blogs_rss_feeds_import_error">抱歉！导入订阅源时发生错误。</string>
-  <string name="blogs_rss_feeds_import_exists">已经导入那个源</string>
+  <string name="blogs_rss_feeds_import_title">从文件导入源</string>
   <string name="blogs_rss_feeds">RSS源 </string>
   <string name="blogs_rss_feeds_manage_imported">已导入：</string>
   <string name="blogs_rss_feeds_manage_author">作者：</string>

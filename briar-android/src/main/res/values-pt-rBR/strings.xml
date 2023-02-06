@@ -488,7 +488,6 @@
   <string name="blogs_rss_feeds_import_button">Importar</string>
   <string name="blogs_rss_feeds_import_hint">Entre a URL do feed RSS</string>
   <string name="blogs_rss_feeds_import_error">Nós lamentamos! Houve um erro ao importar seu Feed.</string>
-  <string name="blogs_rss_feeds_import_exists">Esse feed já foi importado.</string>
   <string name="blogs_rss_feeds">Feeds RSS</string>
   <string name="blogs_rss_feeds_manage_imported">Importado:</string>
   <string name="blogs_rss_feeds_manage_author">Autor:</string>

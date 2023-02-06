@@ -104,7 +104,7 @@
   <string name="bt_plugin_status_disabled">Briar е настроен да не използва Bluetooth</string>
   <!--Notifications-->
   <string name="reminder_notification_title">Отписани сте от Briar</string>
-  <string name="reminder_notification_text">Докоснете за повторно влизане.</string>
+  <string name="reminder_notification_text">За да влезете, докоснете</string>
   <string name="reminder_notification_channel_title">Напомняне за вход в Briar</string>
   <string name="reminder_notification_dismiss">Отказ</string>
   <string name="ongoing_notification_title">Вписани в Briar</string>
@@ -235,6 +235,8 @@
   <string name="qr_code_invalid">Кодът за QR е недействителен</string>
   <string name="qr_code_too_old_1">Сканираният код за QR е от по-ранно издание на Briar.\n\nНека вашия контакт инсталира последното издание и да пробва отново.</string>
   <string name="qr_code_too_new_1">Сканираният код за QR е от по-ново издание на Briar.\n\nИнсталирайте последното издание и пробвайте отново.</string>
+  <string name="mailbox_qr_code_for_contact">Сканираният код за QR е от Briar Пощенска кутия.\n\nАко искате да свържете Пощенска кутия използвайте Настройки &gt; Пощенска кутия от менюто.</string>
+  <string name="qr_code_format_unknown">Сканираният код за QR не предназначен за добавяне на контакт в Briar.\n\nЗа тази цел използвайте кода, на екрана на контакта ви.</string>
   <string name="camera_error">Грешка в камерата</string>
   <string name="connecting_to_device">Свързване с устройство\u2026</string>
   <string name="authenticating_with_device">Удостоверяване с устройство\u2026</string>
@@ -480,7 +482,6 @@
   <string name="blogs_rss_feeds_import_button">Внасяне</string>
   <string name="blogs_rss_feeds_import_hint">Aдрес на емисия</string>
   <string name="blogs_rss_feeds_import_error">Грешка при внасяне на емисията.</string>
-  <string name="blogs_rss_feeds_import_exists">Емисията вече е внесена.</string>
   <string name="blogs_rss_feeds">Емисии на RSS</string>
   <string name="blogs_rss_feeds_manage_imported">Внесена:</string>
   <string name="blogs_rss_feeds_manage_author">Автор:</string>
@@ -591,7 +592,9 @@
   <string name="mailbox_setup_download_link">Споделяне на препратка за изтегляне</string>
   <string name="mailbox_setup_button_scan">Сканиране на кода за QR на пощенска кутия</string>
   <string name="permission_camera_qr_denied_body">Отказахте достъп до камерата, но достъп е необходим за сканиране на кодове за QR.\n\nОбмислете дали да не дадете разрешение.</string>
+  <string name="mailbox_setup_connecting">Свързване с Пощенска кутия…</string>
   <!--This string is shown when connecting to a Mailbox for the first time. The placeholder will be replaced with a duration, e.g. "2 minutes".-->
+  <string name="mailbox_setup_connecting_info">Може да отнеме %1s</string>
   <string name="mailbox_setup_already_paired_title">Пощенската кутия е вече свързана</string>
   <string name="mailbox_setup_already_paired_description">Прекъснете връзката с пощенската кутия от другото устройство и опитайте отново.</string>
   <string name="mailbox_setup_io_error_title">Грешка при свързване</string>

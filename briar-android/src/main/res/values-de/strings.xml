@@ -60,8 +60,8 @@
   <string name="old_android_expiry_date_reached">Briar wird auf Android 4 nicht mehr unterstützt.\nBitte installiere Briar auf einem neueren Gerät.</string>
   <string name="old_android_delete_account">Du kannst auf die Schaltfläche unten tippen, um dein Konto von diesem Gerät zu löschen.</string>
   <string name="delete_account_button">Konto löschen</string>
-  <string name="startup_open_database">Datenbank wird entschlüsselt...</string>
-  <string name="startup_migrate_database">Datenbank wird aktualisiert...</string>
+  <string name="startup_open_database">Datenbank wird entschlüsselt…</string>
+  <string name="startup_migrate_database">Datenbank wird aktualisiert…</string>
   <string name="startup_compact_database">Datenbank wird komprimiert…</string>
   <!--Navigation Drawer-->
   <string name="nav_drawer_open_description">Navigationsleiste öffnen</string>
@@ -266,9 +266,9 @@
   <string name="pending_contact_requests_snackbar">Es gibt ausstehende Kontaktanfragen</string>
   <string name="pending_contact_requests">Ausstehende Kontaktanfragen</string>
   <string name="no_pending_contacts">Keine ausstehenden Kontakte</string>
-  <string name="waiting_for_contact_to_come_online">Warte auf Online-Aktivität des Kontakts ...</string>
+  <string name="waiting_for_contact_to_come_online">Warte auf Online-Aktivität des Kontakts…</string>
   <string name="connecting">Verbinde…</string>
-  <string name="adding_contact">Kontakt hinzufügen...</string>
+  <string name="adding_contact">Kontakt hinzufügen…</string>
   <string name="adding_contact_failed">Hinzufügen von Kontakt ist fehlgeschlagen</string>
   <string name="dialog_title_remove_pending_contact">Entfernung bestätigen</string>
   <string name="dialog_message_remove_pending_contact">Dieser Kontakt befindet sich noch beim Hinzufügen. Wenn er jetzt entfernt wird, wird das Hinzufügen abgebrochen.</string>
@@ -487,8 +487,9 @@
   <string name="blogs_rss_feeds_import">RSS-Feed importieren</string>
   <string name="blogs_rss_feeds_import_button">Importieren</string>
   <string name="blogs_rss_feeds_import_hint">URL des RSS-Feeds eingeben</string>
+  <string name="blogs_rss_feeds_import_progress">RSS-Feed wird importiert…</string>
   <string name="blogs_rss_feeds_import_error">Es tut uns Leid! Es gab einen Fehler beim Importieren deines Feeds.</string>
-  <string name="blogs_rss_feeds_import_exists">Dieser Feed ist bereits importiert.</string>
+  <string name="blogs_rss_feeds_import_title">Feed aus Datei importieren</string>
   <string name="blogs_rss_feeds">RSS-Feeds</string>
   <string name="blogs_rss_feeds_manage_imported">Importiert:</string>
   <string name="blogs_rss_feeds_manage_author">Autor:</string>
@@ -729,7 +730,7 @@
   <string name="dev_report_saved">Der Bericht wurde gespeichert. Er wird verschickt, wenn du dich das nächste Mal bei Briar anmeldest.</string>
   <string name="dev_report_error">Fehler: Senden des Reports fehlgeschlagen</string>
   <!--Sign Out-->
-  <string name="progress_title_logout">Von Briar abmelden...</string>
+  <string name="progress_title_logout">Von Briar abmelden…</string>
   <!--Screen Filters & Tapjacking-->
   <string name="screen_filter_title">Bildschirmüberlagerung erkannt</string>
   <string name="screen_filter_body">Eine andere App überlagert Briar. Um deine Sicherheit zu gewährleisten, reagiert Briar in diesem Fall nicht auf deine Eingaben.\n\nDie folgenden Apps könnten überlagern:\n\n%1$s</string>

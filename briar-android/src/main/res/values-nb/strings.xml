@@ -477,7 +477,6 @@
   <string name="blogs_rss_feeds_import_button">Importer</string>
   <string name="blogs_rss_feeds_import_hint">Skriv inn nettadresse for RSS-strøm</string>
   <string name="blogs_rss_feeds_import_error">Vi beklager! Feil under importering av strøm.</string>
-  <string name="blogs_rss_feeds_import_exists">Den feed\'en er importert allerede</string>
   <string name="blogs_rss_feeds">RSS-feed\'er</string>
   <string name="blogs_rss_feeds_manage_imported">Importert:</string>
   <string name="blogs_rss_feeds_manage_author">Forfatter:</string>

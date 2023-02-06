@@ -323,6 +323,7 @@
   <string name="connect_via_bluetooth_intro">Bluetooth接続が自動的に行われない場合は、この画面を使って手動で接続することができます。\n\nこの機能を利用するには、あなたの連絡先が近くにある必要があります。\n\nあなたと連絡先が同時に\"開始\"を押してください。</string>
   <string name="connect_via_bluetooth_already_discovering">既にBluetooth経由での接続を試行中です。すぐに再試行してください。</string>
   <string name="connect_via_bluetooth_no_location_permission">位置情報の権限なくして続行不可能</string>
+  <string name="connect_via_bluetooth_no_bluetooth_permission">付近の端末の権限なくして続行不可能</string>
   <string name="connect_via_bluetooth_start">Bluetooth経由で接続中…</string>
   <string name="connect_via_bluetooth_success">Bluetooth経由で接続に成功</string>
   <string name="connect_via_bluetooth_error">Bluetooth経由で接続不可能。</string>
@@ -348,9 +349,9 @@
   <string name="groups_member_created">%sがグループを作成しました</string>
   <string name="groups_member_joined_you">グループに参加しました</string>
   <string name="groups_member_joined">%sがグループに参加しました</string>
-  <string name="groups_leave">グループをやめる</string>
+  <string name="groups_leave">グループを脱退</string>
   <string name="groups_leave_dialog_title">グループをやめる確認</string>
-  <string name="groups_leave_dialog_message">このグループをやめてもよろしいですか？</string>
+  <string name="groups_leave_dialog_message">このグループを脱退してもよろしいですか？</string>
   <string name="groups_dissolve">グループを削除</string>
   <string name="groups_dissolve_dialog_title">グループの削除の確認</string>
   <string name="groups_dissolve_dialog_message">このグループを削除してもよろしいですか？\n\nグループを削除すると、他のすべてのメンバーは会話を続けることができなくなり、最新のメッセージは受信できなくなります。</string>
@@ -394,10 +395,10 @@
   <string name="forum_new_message_hint">新しい投稿</string>
   <string name="forum_message_reply_hint">新しい返信</string>
   <string name="btn_reply">返信</string>
-  <string name="forum_leave">フォーラムをやめる</string>
+  <string name="forum_leave">フォーラムを脱退</string>
   <string name="dialog_title_leave_forum">フォーラムをやめる確認</string>
-  <string name="dialog_message_leave_forum">このフォーラムをやめてもよろしいですか？\n\nこのフォーラムで共有した連絡先は更新の受信を停止します。</string>
-  <string name="dialog_button_leave">脱退する</string>
+  <string name="dialog_message_leave_forum">このフォーラムを脱退してもよろしいですか？\n\nこのフォーラムで共有した連絡先は更新の受信を停止します。</string>
+  <string name="dialog_button_leave">脱退</string>
   <string name="forum_left_toast">フォーラムをやめました</string>
   <!--Forum Sharing-->
   <string name="forum_share_button">フォーラムを共有</string>
@@ -416,6 +417,10 @@
   <string name="forum_declined_toast">招待を辞退しました</string>
   <string name="shared_by_format">%sによって共有されました。</string>
   <string name="forum_invitation_already_sharing">既に共有しています</string>
+  <string name="forum_invitation_already_invited">招待は既に送信しました</string>
+  <string name="forum_invitation_invite_received">招待は既に受信されました</string>
+  <string name="forum_invitation_not_supported">この連絡先によってサポートされていません</string>
+  <string name="forum_invitation_error">エラー。これはバグか、そうでなければ、あなたの誤りです</string>
   <string name="forum_invitation_response_accepted_sent">%sからのフォーラムへの招待を受け入れました。</string>
   <string name="forum_invitation_response_declined_sent">%sからのフォーラムへの招待を辞退しました。</string>
   <string name="forum_invitation_response_declined_auto">%sからのフォーラムへの招待は自動的に辞退されました。</string>
@@ -465,8 +470,9 @@
   <string name="blogs_rss_feeds_import">RSSフィードをインポート</string>
   <string name="blogs_rss_feeds_import_button">インポート</string>
   <string name="blogs_rss_feeds_import_hint">RSSフィードのURLを入力してください</string>
+  <string name="blogs_rss_feeds_import_progress">RSSフィードをインポート中…</string>
   <string name="blogs_rss_feeds_import_error">申し訳ありません！ フィードのインポート中にエラーが発生しました。</string>
-  <string name="blogs_rss_feeds_import_exists">そのフィードは既にインポートされています。</string>
+  <string name="blogs_rss_feeds_import_title">ファイルからフィードをインポート</string>
   <string name="blogs_rss_feeds">RSSフィード</string>
   <string name="blogs_rss_feeds_manage_imported">インポート済み：</string>
   <string name="blogs_rss_feeds_manage_author">著者:</string>

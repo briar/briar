@@ -477,7 +477,6 @@
   <string name="blogs_rss_feeds_import_button">იმპორტი</string>
   <string name="blogs_rss_feeds_import_hint">შეიყვანეთ RSS არხის URL</string>
   <string name="blogs_rss_feeds_import_error">ვწუხვართ! არხის იმპორტირებისას შეცდომა წარმოიშვა.</string>
-  <string name="blogs_rss_feeds_import_exists">არხი უკვე იმპორტირებულია.</string>
   <string name="blogs_rss_feeds">RSS არხები</string>
   <string name="blogs_rss_feeds_manage_imported">იმპორტირებული:</string>
   <string name="blogs_rss_feeds_manage_author">ავტორი:</string>

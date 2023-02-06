@@ -466,7 +466,6 @@
   <string name="blogs_rss_feeds_import_button">Flytja inn</string>
   <string name="blogs_rss_feeds_import_hint">Settu inn slóðina á RSS-streymið</string>
   <string name="blogs_rss_feeds_import_error">Því miður! Það kom upp villa við að flytja inn streymið.</string>
-  <string name="blogs_rss_feeds_import_exists">Þegar er búið að flytja inn þetta streymi.</string>
   <string name="blogs_rss_feeds">RSS-fréttastreymi</string>
   <string name="blogs_rss_feeds_manage_imported">Flutt inn:</string>
   <string name="blogs_rss_feeds_manage_author">Höfundur:</string>

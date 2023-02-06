@@ -488,8 +488,9 @@ dhe s’mund të hapet me këtë version.\n\nJu lutemi, përmirësojeni me versi
   <string name="blogs_rss_feeds_import">Importoni Prurje RSS</string>
   <string name="blogs_rss_feeds_import_button">Importo</string>
   <string name="blogs_rss_feeds_import_hint">Jepni URL-në e prurjes RSS</string>
+  <string name="blogs_rss_feeds_import_progress">Po importohet Prurje RSS…</string>
   <string name="blogs_rss_feeds_import_error">Na ndjeni! Pati një gabim me importimin e prurjes tuaj.</string>
-  <string name="blogs_rss_feeds_import_exists">Ajo prurje është importuar tashmë.</string>
+  <string name="blogs_rss_feeds_import_title">Importo prurje nga kartelë</string>
   <string name="blogs_rss_feeds">Prurje RSS</string>
   <string name="blogs_rss_feeds_manage_imported">Të importuara:</string>
   <string name="blogs_rss_feeds_manage_author">Autor:</string>

@@ -460,7 +460,6 @@
   <string name="blogs_rss_feeds_import_button">တင်သွင်းမည်</string>
   <string name="blogs_rss_feeds_import_hint">RSS သတင်းပို့စ်အလွှာ၏ URL ရိုက်ထည့်ပေးပါ</string>
   <string name="blogs_rss_feeds_import_error">ဝမ်းနည်းပါသည်! သင့် သတင်းပို့စ်အလွှာအား တင်သွင်းရာတွင် ပျက်ကွက်မှု ဖြစ်ခဲ့ပါသည်။</string>
-  <string name="blogs_rss_feeds_import_exists">Feed ကို တင်ပို့ပြီး ဖြစ်သည်။</string>
   <string name="blogs_rss_feeds">RSS သတင်းလွှာများ</string>
   <string name="blogs_rss_feeds_manage_imported">တင်သွင်းထားသော</string>
   <string name="blogs_rss_feeds_manage_author">စာရေးဆရာ -</string>

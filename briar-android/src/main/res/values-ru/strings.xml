@@ -462,7 +462,7 @@
   <string name="forum_invitation_already_invited">Приглашение уже отправлено</string>
   <string name="forum_invitation_invite_received">Приглашение уже получено</string>
   <string name="forum_invitation_not_supported">Не поддерживается этим контактом</string>
-  <string name="forum_invitation_error">Ошибка. Это программная ошибка, а не ваша вина</string>
+  <string name="forum_invitation_error">Это ошибка программы. Вы тут ни причем.</string>
   <string name="forum_invitation_response_accepted_sent">Вы приняли приглашение на форум от %s.</string>
   <string name="forum_invitation_response_declined_sent">Вы отклонили приглашение на форум от %s.</string>
   <string name="forum_invitation_response_declined_auto">Приглашение на форум от %s было отклонено автоматически.</string>
@@ -515,8 +515,9 @@
   <string name="blogs_rss_feeds_import">Импорт RSS-ленты</string>
   <string name="blogs_rss_feeds_import_button">Импорт</string>
   <string name="blogs_rss_feeds_import_hint">Введите URL-адрес RSS-ленты</string>
+  <string name="blogs_rss_feeds_import_progress">Импорт RSS-лент...</string>
   <string name="blogs_rss_feeds_import_error">Мы сожалеем! Произошла ошибка при импорте ленты.</string>
-  <string name="blogs_rss_feeds_import_exists">Эта лента уже импортирована.</string>
+  <string name="blogs_rss_feeds_import_title">Импорт ленты из файла</string>
   <string name="blogs_rss_feeds">RSS-ленты</string>
   <string name="blogs_rss_feeds_manage_imported">Импортирован:</string>
   <string name="blogs_rss_feeds_manage_author">Автор:</string>

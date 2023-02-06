@@ -505,7 +505,6 @@
   <string name="blogs_rss_feeds_import_button">Імпортувати</string>
   <string name="blogs_rss_feeds_import_hint">Введіть URL-посилання RSS-стрічки</string>
   <string name="blogs_rss_feeds_import_error">Нам шкода! Виникла помилка під час імпорту вашої стрічки.</string>
-  <string name="blogs_rss_feeds_import_exists">Цю стрічку вже імпортовано.</string>
   <string name="blogs_rss_feeds">RSS-стрічки</string>
   <string name="blogs_rss_feeds_manage_imported">Імпортовано:</string>
   <string name="blogs_rss_feeds_manage_author">Автор:</string>

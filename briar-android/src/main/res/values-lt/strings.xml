@@ -313,6 +313,7 @@
   <string name="duplicate_link_dialog_text_3">%1$s ir %2$s išsiuntė jums tą pačią nuorodą.\n\nGali būti, kad vienas iš šių asmenų bando sužinoti kas yra jūsų adresatų sąraše.\n\nNesakykite šiems asmenims, kad gavote tokią pačią nuorodą iš kito asmens.</string>
   <string name="pending_contact_updated_toast">Laukiantis adresatas atnaujintas</string>
   <!--Peer trust levels-->
+  <string name="peer_trust_level_stranger">Nepažįstamasis</string>
   <!--Introductions-->
   <string name="introduction_onboarding_title">Supažindinkite savo adresatus</string>
   <string name="introduction_menu_item">Supažindinti</string>
@@ -442,6 +443,8 @@
   <string name="forum_declined_toast">Pakvietimas atmestas</string>
   <string name="shared_by_format">Bendrina %s</string>
   <string name="forum_invitation_already_sharing">Jau bendrinama</string>
+  <string name="forum_invitation_already_invited">Pakvietimas jau išsiųstas</string>
+  <string name="forum_invitation_invite_received">Pakvietimas jau gautas</string>
   <string name="forum_invitation_response_accepted_sent">Jūs priėmėte pakvietimą į forumą iš %s.</string>
   <string name="forum_invitation_response_declined_sent">Jūs atmetėte pakvietimą į forumą iš %s.</string>
   <string name="forum_invitation_response_declined_auto">Pakvietimas į forumą nuo %s buvo automatiškai atmestas.</string>
@@ -495,7 +498,6 @@
   <string name="blogs_rss_feeds_import_button">Importuoti</string>
   <string name="blogs_rss_feeds_import_hint">Įveskite RSS kanalo URL</string>
   <string name="blogs_rss_feeds_import_error">Atleiskite! Importuojant jūsų kanalą, įvyko klaida.</string>
-  <string name="blogs_rss_feeds_import_exists">Tas kanalas jau yra importuotas.</string>
   <string name="blogs_rss_feeds">RSS kanalai</string>
   <string name="blogs_rss_feeds_manage_imported">Importuota:</string>
   <string name="blogs_rss_feeds_manage_author">Autorius:</string>

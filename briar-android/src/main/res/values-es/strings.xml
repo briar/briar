@@ -495,7 +495,6 @@
   <string name="blogs_rss_feeds_import_button">Importar</string>
   <string name="blogs_rss_feeds_import_hint">Introduce la URL del canal RSS</string>
   <string name="blogs_rss_feeds_import_error">¡Lo sentimos! Hubo un error importando tu canal.</string>
-  <string name="blogs_rss_feeds_import_exists">Ese canal ya está importado.</string>
   <string name="blogs_rss_feeds">Canales RSS</string>
   <string name="blogs_rss_feeds_manage_imported">Importado:</string>
   <string name="blogs_rss_feeds_manage_author">Autor:</string>

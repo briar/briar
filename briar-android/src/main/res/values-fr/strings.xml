@@ -482,7 +482,6 @@
   <string name="blogs_rss_feeds_import_button">Importer</string>
   <string name="blogs_rss_feeds_import_hint">Saisir l’URL du fil RSS</string>
   <string name="blogs_rss_feeds_import_error">Nous sommes désolés ! Une erreur est survenue lors de l’importation de votre fil.</string>
-  <string name="blogs_rss_feeds_import_exists">Ce fil est déjà importé.</string>
   <string name="blogs_rss_feeds">Fils RSS</string>
   <string name="blogs_rss_feeds_manage_imported">Importés :</string>
   <string name="blogs_rss_feeds_manage_author">Auteur :</string>

@@ -446,6 +446,10 @@
   <string name="forum_declined_toast">Invitația a fost refuzată</string>
   <string name="shared_by_format">Partajat de %s</string>
   <string name="forum_invitation_already_sharing">Deja partajat</string>
+  <string name="forum_invitation_already_invited">Invitație deja trimisă</string>
+  <string name="forum_invitation_invite_received">Invitație deja primită</string>
+  <string name="forum_invitation_not_supported">Nu este susținut de acest contact</string>
+  <string name="forum_invitation_error">Eroare. Aceasta este o eroare și nu este vina dumneavoastră</string>
   <string name="forum_invitation_response_accepted_sent">Ați acceptat invitația la forum de la %s.</string>
   <string name="forum_invitation_response_declined_sent">Ați refuzat invitația la forum de la %s.</string>
   <string name="forum_invitation_response_declined_auto">Invitația la forumu de la %s a fost refuzată automat.</string>
@@ -497,8 +501,9 @@
   <string name="blogs_rss_feeds_import">Importați flux RSS</string>
   <string name="blogs_rss_feeds_import_button">Importați</string>
   <string name="blogs_rss_feeds_import_hint">Introduceți adresa URL a fluxului RSS</string>
+  <string name="blogs_rss_feeds_import_progress">Importarea RSS Feed…</string>
   <string name="blogs_rss_feeds_import_error">Ne pare rău, dar a apărut o eroare la importarea fluxului dvs.</string>
-  <string name="blogs_rss_feeds_import_exists">Fluxul respectiv este deja importat.</string>
+  <string name="blogs_rss_feeds_import_title">Importați feed din fișier</string>
   <string name="blogs_rss_feeds">Fluxuri RSS</string>
   <string name="blogs_rss_feeds_manage_imported">Importat:</string>
   <string name="blogs_rss_feeds_manage_author">Autor:</string>
