@@ -145,19 +145,7 @@ public class MailboxStatusFragment extends Fragment {
 		@DrawableRes int iconRes;
 		String title;
 		String message = null;
-		if (status.hasProblem(System.currentTimeMillis())) {
-			tintRes = R.color.briar_red_500;
-			title = getString(R.string.mailbox_status_failure_title);
-			iconRes = R.drawable.alerts_and_states_error;
-			showUnlinkWarning = false;
-			wizardButton.setVisibility(VISIBLE);
-		} else if (status.getAttemptsSinceSuccess() > 0) {
-			iconRes = R.drawable.ic_help_outline_white;
-			title = getString(R.string.mailbox_status_problem_title);
-			tintRes = R.color.briar_orange_500;
-			showUnlinkWarning = false;
-			wizardButton.setVisibility(VISIBLE);
-		} else if (status.getMailboxCompatibility() < 0) {
+		if (status.getMailboxCompatibility() < 0) {
 			tintRes = R.color.briar_red_500;
 			if (status.getMailboxCompatibility() == API_CLIENT_TOO_OLD) {
 				title = getString(R.string.mailbox_status_app_too_old_title);
@@ -172,6 +160,18 @@ public class MailboxStatusFragment extends Fragment {
 			iconRes = R.drawable.alerts_and_states_error;
 			showUnlinkWarning = true;
 			wizardButton.setVisibility(GONE);
+		} else if (status.hasProblem(System.currentTimeMillis())) {
+			tintRes = R.color.briar_red_500;
+			title = getString(R.string.mailbox_status_failure_title);
+			iconRes = R.drawable.alerts_and_states_error;
+			showUnlinkWarning = false;
+			wizardButton.setVisibility(VISIBLE);
+		} else if (status.getAttemptsSinceSuccess() > 0) {
+			iconRes = R.drawable.ic_help_outline_white;
+			title = getString(R.string.mailbox_status_problem_title);
+			tintRes = R.color.briar_orange_500;
+			showUnlinkWarning = false;
+			wizardButton.setVisibility(VISIBLE);
 		} else {
 			iconRes = R.drawable.ic_check_circle_outline;
 			title = getString(R.string.mailbox_status_connected_title);
