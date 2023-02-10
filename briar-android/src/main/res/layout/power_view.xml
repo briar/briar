@@ -52,10 +52,10 @@
 		android:layout_height="24dp"
 		android:layout_margin="@dimen/margin_medium"
 		android:contentDescription="@string/help"
-		android:tint="@color/briar_button_text_positive"
 		app:layout_constraintBottom_toBottomOf="@+id/button"
 		app:layout_constraintEnd_toEndOf="parent"
 		app:layout_constraintTop_toTopOf="@+id/button"
-		app:srcCompat="@drawable/ic_help_outline_white" />
+		app:srcCompat="@drawable/ic_help_outline_white"
+		app:tint="@color/briar_button_text_positive" />
 
 </merge>

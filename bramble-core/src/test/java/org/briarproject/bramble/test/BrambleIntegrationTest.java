@@ -234,12 +234,12 @@ public abstract class BrambleIntegrationTest<C extends BrambleIntegrationTestCom
 	}
 
 	protected void awaitPendingMessageDelivery(int num)
-			throws TimeoutException {
+			throws TimeoutException, InterruptedException {
 		awaitPendingMessageDelivery(num, TIMEOUT);
 	}
 
 	protected void awaitPendingMessageDelivery(int num, long timeout)
-			throws TimeoutException {
+			throws TimeoutException, InterruptedException {
 		deliveryWaiter.await(timeout, num);
 		assertEquals("Messages delivered", num, deliveryCounter.getAndSet(0));
 
