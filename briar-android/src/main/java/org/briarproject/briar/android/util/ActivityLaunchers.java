@@ -13,7 +13,6 @@ import androidx.activity.result.contract.ActivityResultContracts.OpenDocument;
 import androidx.activity.result.contract.ActivityResultContracts.OpenMultipleDocuments;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 
 import static android.app.Activity.RESULT_CANCELED;
 import static android.bluetooth.BluetoothAdapter.ACTION_REQUEST_DISCOVERABLE;
@@ -26,7 +25,6 @@ import static org.briarproject.bramble.util.AndroidUtils.getSupportedImageConten
 @NotNullByDefault
 public class ActivityLaunchers {
 
-	@RequiresApi(19)
 	public static class CreateDocumentAdvanced extends CreateDocument {
 		@NonNull
 		@Override
@@ -48,7 +46,6 @@ public class ActivityLaunchers {
 		}
 	}
 
-	@RequiresApi(19)
 	public static class OpenDocumentAdvanced extends OpenDocument {
 		@NonNull
 		@Override
@@ -69,13 +66,11 @@ public class ActivityLaunchers {
 			putShowAdvancedExtra(i);
 			i.setType("image/*");
 			i.addFlags(FLAG_GRANT_READ_URI_PERMISSION);
-			if (SDK_INT >= 19)
-				i.putExtra(EXTRA_MIME_TYPES, getSupportedImageContentTypes());
+			i.putExtra(EXTRA_MIME_TYPES, getSupportedImageContentTypes());
 			return i;
 		}
 	}
 
-	@RequiresApi(18)
 	public static class GetMultipleImagesAdvanced extends GetMultipleContents {
 		@NonNull
 		@Override
@@ -84,13 +79,11 @@ public class ActivityLaunchers {
 			putShowAdvancedExtra(i);
 			i.setType("image/*");
 			i.addFlags(FLAG_GRANT_READ_URI_PERMISSION);
-			if (SDK_INT >= 19)
-				i.putExtra(EXTRA_MIME_TYPES, getSupportedImageContentTypes());
+			i.putExtra(EXTRA_MIME_TYPES, getSupportedImageContentTypes());
 			return i;
 		}
 	}
 
-	@RequiresApi(19)
 	public static class OpenImageDocumentAdvanced extends OpenDocument {
 		@NonNull
 		@Override
@@ -99,13 +92,11 @@ public class ActivityLaunchers {
 			putShowAdvancedExtra(i);
 			i.setType("image/*");
 			i.addFlags(FLAG_GRANT_READ_URI_PERMISSION);
-			if (SDK_INT >= 19)
-				i.putExtra(EXTRA_MIME_TYPES, getSupportedImageContentTypes());
+			i.putExtra(EXTRA_MIME_TYPES, getSupportedImageContentTypes());
 			return i;
 		}
 	}
 
-	@RequiresApi(19)
 	public static class OpenMultipleImageDocumentsAdvanced
 			extends OpenMultipleDocuments {
 		@NonNull
@@ -115,8 +106,7 @@ public class ActivityLaunchers {
 			putShowAdvancedExtra(i);
 			i.setType("image/*");
 			i.addFlags(FLAG_GRANT_READ_URI_PERMISSION);
-			if (SDK_INT >= 19)
-				i.putExtra(EXTRA_MIME_TYPES, getSupportedImageContentTypes());
+			i.putExtra(EXTRA_MIME_TYPES, getSupportedImageContentTypes());
 			return i;
 		}
 	}

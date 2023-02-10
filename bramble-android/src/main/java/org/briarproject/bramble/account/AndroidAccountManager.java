@@ -20,7 +20,6 @@ import javax.annotation.Nullable;
 import javax.annotation.concurrent.GuardedBy;
 import javax.inject.Inject;
 
-import static android.os.Build.VERSION.SDK_INT;
 import static java.util.Arrays.asList;
 import static java.util.logging.Level.INFO;
 import static org.briarproject.bramble.util.IoUtils.deleteFileOrDir;
@@ -105,15 +104,11 @@ class AndroidAccountManager extends AccountManagerImpl
 		}
 		files.add(appContext.getFilesDir());
 		addIfNotNull(files, appContext.getExternalCacheDir());
-		if (SDK_INT >= 19) {
-			for (File file : appContext.getExternalCacheDirs()) {
-				addIfNotNull(files, file);
-			}
+		for (File file : appContext.getExternalCacheDirs()) {
+			addIfNotNull(files, file);
 		}
-		if (SDK_INT >= 21) {
-			for (File file : appContext.getExternalMediaDirs()) {
-				addIfNotNull(files, file);
-			}
+		for (File file : appContext.getExternalMediaDirs()) {
+			addIfNotNull(files, file);
 		}
 		// Clear the cache directory but don't delete it
 		File cacheDir = appContext.getCacheDir();

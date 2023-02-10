@@ -294,10 +294,8 @@ class AndroidNotificationManagerImpl implements AndroidNotificationManager,
 		b.setOngoing(true);
 		Intent i = new Intent(appContext, SplashScreenActivity.class);
 		b.setContentIntent(getActivity(appContext, 0, i, getImmutableFlags(0)));
-		if (SDK_INT >= 21) {
-			b.setCategory(CATEGORY_SERVICE);
-			b.setVisibility(VISIBILITY_SECRET);
-		}
+		b.setCategory(CATEGORY_SERVICE);
+		b.setVisibility(VISIBILITY_SECRET);
 		b.setPriority(PRIORITY_MIN);
 		return b.build();
 	}
@@ -773,8 +771,7 @@ class AndroidNotificationManagerImpl implements AndroidNotificationManager,
 		i.setAction(ACTION_STOP_HOTSPOT);
 		PendingIntent actionIntent =
 				getActivity(appContext, 0, i, getImmutableFlags(0));
-		int icon = SDK_INT >= 21 ? R.drawable.ic_portable_wifi_off : 0;
-		b.addAction(icon, actionTitle, actionIntent);
+		b.addAction(R.drawable.ic_portable_wifi_off, actionTitle, actionIntent);
 		notificationManager.notify(HOTSPOT_NOTIFICATION_ID, b.build());
 	}
 

@@ -24,7 +24,6 @@ import androidx.preference.Preference;
 import androidx.preference.PreferenceFragmentCompat;
 import androidx.preference.PreferenceGroup;
 
-import static android.os.Build.VERSION.SDK_INT;
 import static java.util.Objects.requireNonNull;
 import static org.briarproject.briar.android.AppModule.getAndroidComponent;
 import static org.briarproject.briar.android.TestingConstants.IS_DEBUG_BUILD;
@@ -49,11 +48,9 @@ public class SettingsFragment extends PreferenceFragmentCompat {
 	private SettingsViewModel viewModel;
 	private AvatarPreference prefAvatar;
 
-	@Nullable
-	private final ActivityResultLauncher<String[]> docLauncher = SDK_INT >= 19 ?
+	private final ActivityResultLauncher<String[]> docLauncher =
 			registerForActivityResult(new OpenImageDocumentAdvanced(),
-					this::onImageSelected) :
-			null;
+					this::onImageSelected);
 	private final ActivityResultLauncher<String> contentLauncher =
 			registerForActivityResult(new GetImageAdvanced(),
 					this::onImageSelected);

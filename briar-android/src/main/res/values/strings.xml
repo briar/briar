@@ -55,10 +55,6 @@
 		<item quantity="one">This is a test version of Briar. Your account will expire in %d day and cannot be renewed.</item>
 		<item quantity="other">This is a test version of Briar. Your account will expire in %d days and cannot be renewed.</item>
 	</plurals>
-	<plurals name="old_android_expiry_warning">
-		<item quantity="one">Android 4 is no longer supported. Briar will stop working on %s (in %d day). Please install Briar on a newer device and create a new account.</item>
-		<item quantity="other">Android 4 is no longer supported. Briar will stop working on %s (in %d days). Please install Briar on a newer device and create a new account.</item>
-	</plurals>
 	<string name="expiry_date_reached">This software has expired.\nThank you for testing!</string>
 	<string name="download_briar">To continue using Briar, please download the latest release.</string>
 	<string name="create_new_account">You will need to create a new account, but you can use the same nickname.</string>

@@ -21,7 +21,6 @@ import javax.inject.Inject;
 
 import static android.content.Intent.FLAG_ACTIVITY_CLEAR_TOP;
 import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
-import static android.os.Build.VERSION.SDK_INT;
 import static androidx.preference.PreferenceManager.setDefaultValues;
 import static java.lang.System.currentTimeMillis;
 import static java.util.logging.Logger.getLogger;
@@ -50,12 +49,8 @@ public class SplashScreenActivity extends BaseActivity {
 	public void onCreate(@Nullable Bundle state) {
 		super.onCreate(state);
 
-		if (SDK_INT >= 21) {
-			getWindow().setExitTransition(new Fade());
-		}
-
+		getWindow().setExitTransition(new Fade());
 		setPreferencesDefaults();
-
 		setContentView(R.layout.splash);
 
 		if (accountManager.hasDatabaseKey()) {
@@ -65,14 +60,9 @@ public class SplashScreenActivity extends BaseActivity {
 			int duration =
 					getResources().getInteger(R.integer.splashScreenDuration);
 			new Handler().postDelayed(() -> {
-				if (currentTimeMillis() >= EXPIRY_DATE) {
-					if (IS_DEBUG_BUILD) {
-						LOG.info("Expired: debug build");
-						startNextActivity(ExpiredActivity.class);
-					} else {
-						LOG.info("Expired: running on old Android");
-						startNextActivity(ExpiredOldAndroidActivity.class);
-					}
+				if (IS_DEBUG_BUILD && currentTimeMillis() >= EXPIRY_DATE) {
+					LOG.info("Expired");
+					startNextActivity(ExpiredActivity.class);
 				} else {
 					startNextActivity(ENTRY_ACTIVITY);
 				}

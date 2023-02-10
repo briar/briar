@@ -1,6 +1,5 @@
 package org.briarproject.bramble.plugin.tcp;
 
-import android.annotation.TargetApi;
 import android.app.Application;
 import android.net.ConnectivityManager;
 import android.net.LinkAddress;
@@ -37,7 +36,6 @@ import javax.net.SocketFactory;
 import static android.content.Context.CONNECTIVITY_SERVICE;
 import static android.content.Context.WIFI_SERVICE;
 import static android.net.NetworkCapabilities.TRANSPORT_WIFI;
-import static android.os.Build.VERSION.SDK_INT;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.list;
 import static java.util.Collections.singletonList;
@@ -118,7 +116,7 @@ class AndroidLanTcpPlugin extends LanTcpPlugin {
 		// If there's no wifi IPv4 address, we might be a client on an
 		// IPv6-only wifi network. We can only detect this on API 21+
 		if (wifi == null) {
-			return SDK_INT >= 21 ? getWifiClientIpv6Address() : null;
+			return getWifiClientIpv6Address();
 		}
 		// Use the wifi IPv4 address to determine which interface's IPv6
 		// address we should return (if the interface has a suitable address)
@@ -172,7 +170,6 @@ class AndroidLanTcpPlugin extends LanTcpPlugin {
 	 * Returns a link-local IPv6 address for the wifi client interface, or null
 	 * if there's no such interface or it doesn't have a suitable address.
 	 */
-	@TargetApi(21)
 	@Nullable
 	private InetAddress getWifiClientIpv6Address() {
 		// https://issuetracker.google.com/issues/175055271
@@ -234,7 +231,6 @@ class AndroidLanTcpPlugin extends LanTcpPlugin {
 	// On API 21 and later, a socket that is not created with the wifi
 	// network's socket factory may try to connect via another network
 	private SocketFactory getSocketFactory() {
-		if (SDK_INT < 21) return SocketFactory.getDefault();
 		// https://issuetracker.google.com/issues/175055271
 		try {
 			for (Network net : connectivityManager.getAllNetworks()) {
@@ -302,7 +298,7 @@ class AndroidLanTcpPlugin extends LanTcpPlugin {
 		Pair<InetAddress, Boolean> wifi = getWifiIpv4Address();
 		// If there's no wifi IPv4 address, we might be a client on an
 		// IPv6-only wifi network. We can only detect this on API 21+
-		if (wifi == null && SDK_INT >= 21) {
+		if (wifi == null) {
 			InetAddress ipv6 = getWifiClientIpv6Address();
 			if (ipv6 != null) return new Pair<>(ipv6, false);
 		}

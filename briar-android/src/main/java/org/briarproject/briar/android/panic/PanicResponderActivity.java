@@ -19,7 +19,6 @@ import info.guardianproject.panic.Panic;
 import info.guardianproject.panic.PanicResponder;
 import info.guardianproject.trustedintents.TrustedIntents;
 
-import static android.os.Build.VERSION.SDK_INT;
 import static java.util.logging.Logger.getLogger;
 import static org.briarproject.briar.android.panic.PanicPreferencesFragment.KEY_LOCK;
 import static org.briarproject.briar.android.panic.PanicPreferencesFragment.KEY_PURGE;
@@ -73,12 +72,7 @@ public class PanicResponderActivity extends BriarActivity {
 				}
 			}
 		}
-
-		if (SDK_INT >= 21) {
-			finishAndRemoveTask();
-		} else {
-			finish();
-		}
+		finishAndRemoveTask();
 	}
 
 	@Override

@@ -26,6 +26,7 @@ import org.briarproject.briar.android.util.BriarSnackbarBuilder;
 import org.briarproject.briar.android.view.PullDownLayout;
 import org.briarproject.nullsafety.MethodsNotNullByDefault;
 import org.briarproject.nullsafety.ParametersNotNullByDefault;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
@@ -41,13 +42,11 @@ import androidx.viewpager2.adapter.FragmentStateAdapter;
 import androidx.viewpager2.widget.ViewPager2;
 
 import static android.graphics.Color.TRANSPARENT;
-import static android.os.Build.VERSION.SDK_INT;
 import static android.view.View.GONE;
 import static android.view.View.SYSTEM_UI_FLAG_FULLSCREEN;
 import static android.view.View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN;
 import static android.view.View.SYSTEM_UI_FLAG_LAYOUT_STABLE;
 import static android.view.View.VISIBLE;
-import static android.view.WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS;
 import static com.google.android.material.snackbar.Snackbar.LENGTH_LONG;
 import static java.util.Objects.requireNonNull;
 import static org.briarproject.briar.android.util.UiUtils.formatDateAbsolute;
@@ -77,11 +76,9 @@ public class ImageActivity extends BriarActivity
 	private List<AttachmentItem> attachments;
 	private MessageId conversationMessageId;
 
-	@Nullable
-	private final ActivityResultLauncher<String> launcher = SDK_INT >= 19 ?
+	private final ActivityResultLauncher<String> launcher =
 			registerForActivityResult(new CreateDocumentAdvanced(),
-					this::onImageUriSelected) :
-			null;
+					this::onImageUriSelected);
 
 	@Override
 	public void injectActivity(ActivityComponent component) {
@@ -97,10 +94,8 @@ public class ImageActivity extends BriarActivity
 		// Transitions
 		if (state == null) supportPostponeEnterTransition();
 		Window window = getWindow();
-		if (SDK_INT >= 21) {
-			Transition transition = new Fade();
-			setSceneTransitionAnimation(transition, null, transition);
-		}
+		Transition transition = new Fade();
+		setSceneTransitionAnimation(transition, null, transition);
 
 		// Intent Extras
 		Intent i = getIntent();
@@ -124,12 +119,7 @@ public class ImageActivity extends BriarActivity
 		layout.getViewTreeObserver().addOnGlobalLayoutListener(this);
 
 		// Status Bar
-		if (SDK_INT >= 21) {
-			window.setStatusBarColor(TRANSPARENT);
-		} else if (SDK_INT >= 19) {
-			// we can't make the status bar transparent, but translucent
-			window.addFlags(FLAG_TRANSLUCENT_STATUS);
-		}
+		window.setStatusBarColor(TRANSPARENT);
 
 		// Toolbar
 		appBarLayout = findViewById(R.id.appBarLayout);
@@ -257,16 +247,12 @@ public class ImageActivity extends BriarActivity
 
 	private void showSaveImageDialog() {
 		OnClickListener okListener = (dialog, which) -> {
-			if (SDK_INT >= 19) {
-				String name = viewModel.getFileName() + "." +
-						getVisibleAttachment().getExtension();
-				try {
-					requireNonNull(launcher).launch(name);
-				} catch (ActivityNotFoundException e) {
-					viewModel.onSaveImageError();
-				}
-			} else {
-				viewModel.saveImage(getVisibleAttachment());
+			String name = viewModel.getFileName() + "." +
+					getVisibleAttachment().getExtension();
+			try {
+				launcher.launch(name);
+			} catch (ActivityNotFoundException e) {
+				viewModel.onSaveImageError();
 			}
 		};
 		Builder builder = new Builder(this, R.style.BriarDialogTheme);
@@ -295,7 +281,7 @@ public class ImageActivity extends BriarActivity
 				.show();
 	}
 
-	AttachmentItem getVisibleAttachment() {
+	private AttachmentItem getVisibleAttachment() {
 		return attachments.get(viewPager.getCurrentItem());
 	}
 
@@ -307,6 +293,7 @@ public class ImageActivity extends BriarActivity
 			super(ImageActivity.this);
 		}
 
+		@NotNull
 		@Override
 		public Fragment createFragment(int position) {
 			Fragment f = ImageFragment.newInstance(

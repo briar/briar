@@ -56,16 +56,8 @@ public class Localizer {
 	// Get Locale from BCP-47 tag
 	@Nullable
 	public static Locale getLocaleFromTag(String tag) {
-		if (tag.equals("default"))
-			return null;
-		if (SDK_INT >= 21) {
-			return Locale.forLanguageTag(tag);
-		}
-		if (tag.contains("-")) {
-			String[] langArray = tag.split("-");
-			return new Locale(langArray[0], langArray[1]);
-		} else
-			return new Locale(tag);
+		if (tag.equals("default")) return null;
+		return Locale.forLanguageTag(tag);
 	}
 
 	/*
@@ -94,12 +86,8 @@ public class Localizer {
 		if (locale.equals(currentLocale))
 			return context;
 		Locale.setDefault(locale);
-		if (SDK_INT >= 17) {
-			conf.setLocale(locale);
-			context = context.createConfigurationContext(conf);
-		} else
-			conf.locale = locale;
-		//noinspection deprecation
+		conf.setLocale(locale);
+		context = context.createConfigurationContext(conf);
 		res.updateConfiguration(conf, res.getDisplayMetrics());
 		return context;
 	}

@@ -11,7 +11,7 @@ android {
 	}
 
 	defaultConfig {
-		minSdkVersion 16
+		minSdkVersion 21
 		targetSdkVersion 31
 		versionCode 10500
 		versionName "1.5.0"

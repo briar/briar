@@ -55,7 +55,6 @@ import org.briarproject.briar.android.fragment.BaseFragment.BaseFragmentListener
 import org.briarproject.briar.android.introduction.IntroductionActivity;
 import org.briarproject.briar.android.privategroup.conversation.GroupActivity;
 import org.briarproject.briar.android.removabledrive.RemovableDriveActivity;
-import org.briarproject.briar.android.util.ActivityLaunchers.GetImageAdvanced;
 import org.briarproject.briar.android.util.ActivityLaunchers.GetMultipleImagesAdvanced;
 import org.briarproject.briar.android.util.ActivityLaunchers.OpenMultipleImageDocumentsAdvanced;
 import org.briarproject.briar.android.util.BriarSnackbarBuilder;
@@ -122,13 +121,11 @@ import androidx.vectordrawable.graphics.drawable.VectorDrawableCompat;
 import de.hdodenhof.circleimageview.CircleImageView;
 import uk.co.samuelwall.materialtaptargetprompt.MaterialTapTargetPrompt;
 
-import static android.os.Build.VERSION.SDK_INT;
 import static android.view.Gravity.RIGHT;
 import static android.widget.Toast.LENGTH_SHORT;
 import static androidx.core.app.ActivityOptionsCompat.makeSceneTransitionAnimation;
 import static androidx.lifecycle.Lifecycle.State.STARTED;
 import static androidx.recyclerview.widget.SortedList.INVALID_POSITION;
-import static java.util.Collections.singletonList;
 import static java.util.Collections.sort;
 import static java.util.Objects.requireNonNull;
 import static java.util.logging.Level.INFO;
@@ -200,18 +197,13 @@ public class ConversationActivity extends BriarActivity
 		requireNonNull(name);
 		loadMessages();
 	};
-	@Nullable
-	private final ActivityResultLauncher<String[]> docLauncher = SDK_INT >= 19 ?
+
+	private final ActivityResultLauncher<String[]> docLauncher =
 			registerForActivityResult(new OpenMultipleImageDocumentsAdvanced(),
-					this::onImagesChosen) :
-			null;
+					this::onImagesChosen);
 	private final ActivityResultLauncher<String> contentLauncher =
-			SDK_INT >= 18 ?
-					registerForActivityResult(new GetMultipleImagesAdvanced(),
-							this::onImagesChosen) :
-					registerForActivityResult(new GetImageAdvanced(), uri -> {
-						if (uri != null) onImagesChosen(singletonList(uri));
-					});
+			registerForActivityResult(new GetMultipleImagesAdvanced(),
+					this::onImagesChosen);
 
 	private AttachmentRetriever attachmentRetriever;
 	private ConversationViewModel viewModel;
@@ -242,13 +234,11 @@ public class ConversationActivity extends BriarActivity
 
 	@Override
 	public void onCreate(@Nullable Bundle state) {
-		if (SDK_INT >= 21) {
-			// Spurious lint warning - using END causes a crash
-			@SuppressLint("RtlHardcoded")
-			Transition slide = new Slide(RIGHT);
-			slide.setDuration(TRANSITION_DURATION_MS);
-			setSceneTransitionAnimation(slide, null, slide);
-		}
+		// Spurious lint warning - using END causes a crash
+		@SuppressLint("RtlHardcoded")
+		Transition slide = new Slide(RIGHT);
+		slide.setDuration(TRANSITION_DURATION_MS);
+		setSceneTransitionAnimation(slide, null, slide);
 		super.onCreate(state);
 
 		Intent i = getIntent();
@@ -389,10 +379,6 @@ public class ConversationActivity extends BriarActivity
 						this::showIntroductionOnboarding);
 			}
 		});
-		// Transfer Data feature only supported on API 19+
-		if (SDK_INT >= 19) {
-			menu.findItem(R.id.action_transfer_data).setVisible(true);
-		}
 		// enable alias and bluetooth action once available
 		observeOnce(viewModel.getContactItem(), this, contact -> {
 			menu.findItem(R.id.action_set_alias).setEnabled(true);
@@ -434,11 +420,9 @@ public class ConversationActivity extends BriarActivity
 			startActivity(intent);
 			return true;
 		} else if (itemId == R.id.action_transfer_data) {
-			if (SDK_INT >= 19) {
-				Intent intent = new Intent(this, RemovableDriveActivity.class);
-				intent.putExtra(CONTACT_ID, contactId.getInt());
-				startActivity(intent);
-			}
+			Intent intent = new Intent(this, RemovableDriveActivity.class);
+			intent.putExtra(CONTACT_ID, contactId.getInt());
+			startActivity(intent);
 			return true;
 		} else if (itemId == R.id.action_delete_all_messages) {
 			askToDeleteAllMessages();
@@ -955,14 +939,10 @@ public class ConversationActivity extends BriarActivity
 
 	private void showImageOnboarding(Boolean show) {
 		if (!show) return;
-		if (SDK_INT >= 21) {
-			// show onboarding only after the enter transition has ended
-			// otherwise the tap target animation won't play
-			textInputView.postDelayed(this::showImageOnboarding,
-					TRANSITION_DURATION_MS + ONBOARDING_DELAY_MS);
-		} else {
-			showImageOnboarding();
-		}
+		// show onboarding only after the enter transition has ended
+		// otherwise the tap target animation won't play
+		textInputView.postDelayed(this::showImageOnboarding,
+				TRANSITION_DURATION_MS + ONBOARDING_DELAY_MS);
 	}
 
 	private void showImageOnboarding() {
@@ -973,14 +953,10 @@ public class ConversationActivity extends BriarActivity
 
 	private void showIntroductionOnboarding(@Nullable Boolean show) {
 		if (show == null || !show) return;
-		if (SDK_INT >= 21) {
-			// show onboarding only after the enter transition has ended
-			// otherwise the tap target animation won't play
-			textInputView.postDelayed(this::showIntroductionOnboarding,
-					TRANSITION_DURATION_MS + ONBOARDING_DELAY_MS);
-		} else {
-			showIntroductionOnboarding();
-		}
+		// show onboarding only after the enter transition has ended
+		// otherwise the tap target animation won't play
+		textInputView.postDelayed(this::showIntroductionOnboarding,
+				TRANSITION_DURATION_MS + ONBOARDING_DELAY_MS);
 	}
 
 	private void showIntroductionOnboarding() {

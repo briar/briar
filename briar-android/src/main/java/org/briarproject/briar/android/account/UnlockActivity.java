@@ -32,7 +32,6 @@ import static org.briarproject.briar.android.activity.RequestCodes.REQUEST_KEYGU
 import static org.briarproject.briar.android.util.UiUtils.hasKeyguardLock;
 import static org.briarproject.briar.android.util.UiUtils.hasUsableFingerprint;
 
-@RequiresApi(21)
 @MethodsNotNullByDefault
 @ParametersNotNullByDefault
 public class UnlockActivity extends BaseActivity {

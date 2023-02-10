@@ -19,7 +19,6 @@ import javax.inject.Inject;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import androidx.annotation.StringRes;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
@@ -29,7 +28,6 @@ import static java.util.Objects.requireNonNull;
 import static org.briarproject.briar.android.conversation.ConversationActivity.CONTACT_ID;
 import static org.briarproject.briar.android.util.UiUtils.showFragment;
 
-@RequiresApi(19)
 @MethodsNotNullByDefault
 @ParametersNotNullByDefault
 public class RemovableDriveActivity extends BriarActivity {

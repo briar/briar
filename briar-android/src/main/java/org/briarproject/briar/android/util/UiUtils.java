@@ -51,7 +51,6 @@ import androidx.annotation.ColorInt;
 import androidx.annotation.ColorRes;
 import androidx.annotation.DrawableRes;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import androidx.annotation.UiThread;
 import androidx.appcompat.app.AlertDialog;
 import androidx.core.content.ContextCompat;
@@ -108,8 +107,6 @@ import static java.util.logging.Level.WARNING;
 import static java.util.logging.Logger.getLogger;
 import static org.briarproject.bramble.util.LogUtils.logException;
 import static org.briarproject.briar.android.TestingConstants.EXPIRY_DATE;
-import static org.briarproject.briar.android.TestingConstants.IS_OLD_ANDROID;
-import static org.briarproject.briar.android.TestingConstants.OLD_ANDROID_WARN_DATE;
 import static org.briarproject.briar.android.reporting.CrashReportActivity.EXTRA_APP_LOGCAT;
 import static org.briarproject.briar.android.reporting.CrashReportActivity.EXTRA_APP_START_TIME;
 import static org.briarproject.briar.android.reporting.CrashReportActivity.EXTRA_INITIAL_COMMENT;
@@ -244,11 +241,6 @@ public class UiUtils {
 		return (EXPIRY_DATE - now) / DAYS.toMillis(1);
 	}
 
-	public static boolean shouldWarnOldAndroidExpiry() {
-		return IS_OLD_ANDROID &&
-				System.currentTimeMillis() >= OLD_ANDROID_WARN_DATE;
-	}
-
 	public static SpannableStringBuilder getTeaser(Context ctx, Spanned text) {
 		if (text.length() < TEASER_LENGTH)
 			throw new IllegalArgumentException(
@@ -376,7 +368,6 @@ public class UiUtils {
 	}
 
 	public static boolean hasKeyguardLock(Context ctx) {
-		if (SDK_INT < 21) return false;
 		KeyguardManager keyguardManager =
 				(KeyguardManager) ctx.getSystemService(KEYGUARD_SERVICE);
 		if (keyguardManager == null) return false;
@@ -438,7 +429,6 @@ public class UiUtils {
 				keyEvent.getKeyCode() == KEYCODE_ENTER;
 	}
 
-	@RequiresApi(api = 21)
 	public static void excludeSystemUi(Transition transition) {
 		transition.excludeTarget(android.R.id.statusBarBackground, true);
 		transition.excludeTarget(android.R.id.navigationBarBackground, true);
@@ -480,7 +470,6 @@ public class UiUtils {
 	}
 
 	public static boolean isRtl(Context ctx) {
-		if (SDK_INT < 17) return false;
 		return ctx.getResources().getConfiguration().getLayoutDirection() ==
 				LAYOUT_DIRECTION_RTL;
 	}
@@ -507,7 +496,7 @@ public class UiUtils {
 		view.setVisibility(small ? GONE : VISIBLE);
 	}
 
-	public static boolean isSmallScreenRelativeToFontSize(Context ctx) {
+	private static boolean isSmallScreenRelativeToFontSize(Context ctx) {
 		Configuration config = ctx.getResources().getConfiguration();
 		if (config.fontScale == 0f) return true;
 		return config.screenHeightDp / config.fontScale < 600;
@@ -546,7 +535,7 @@ public class UiUtils {
 	}
 
 	public static void launchActivityToOpenFile(Context ctx,
-			@Nullable ActivityResultLauncher<String[]> docLauncher,
+			ActivityResultLauncher<String[]> docLauncher,
 			ActivityResultLauncher<String> contentLauncher,
 			String contentType) {
 		// Try GET_CONTENT, fall back to OPEN_DOCUMENT if available
@@ -556,13 +545,11 @@ public class UiUtils {
 		} catch (ActivityNotFoundException e) {
 			logException(LOG, WARNING, e);
 		}
-		if (docLauncher != null) {
-			try {
-				docLauncher.launch(new String[] {contentType});
-				return;
-			} catch (ActivityNotFoundException e) {
-				logException(LOG, WARNING, e);
-			}
+		try {
+			docLauncher.launch(new String[] {contentType});
+			return;
+		} catch (ActivityNotFoundException e) {
+			logException(LOG, WARNING, e);
 		}
 		Toast.makeText(ctx, R.string.error_start_activity, LENGTH_LONG).show();
 	}
