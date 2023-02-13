@@ -43,7 +43,7 @@ def torBinariesDir = 'src/main/resources'
 
 task cleanTorBinaries {
 	doLast {
-		delete fileTree(torBinariesDir) { include '*.zip' }
+		delete fileTree(torBinariesDir)
 	}
 }
 

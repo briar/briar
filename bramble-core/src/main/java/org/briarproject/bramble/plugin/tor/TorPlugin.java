@@ -55,7 +55,6 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Logger;
 import java.util.regex.Pattern;
-import java.util.zip.ZipInputStream;
 
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.GuardedBy;
@@ -101,6 +100,7 @@ import static org.briarproject.bramble.util.LogUtils.logException;
 import static org.briarproject.bramble.util.PrivacyUtils.scrubOnion;
 import static org.briarproject.bramble.util.StringUtils.UTF_8;
 import static org.briarproject.bramble.util.StringUtils.isNullOrEmpty;
+import static org.briarproject.nullsafety.NullSafety.requireNonNull;
 
 @MethodsNotNullByDefault
 @ParametersNotNullByDefault
@@ -348,7 +348,7 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 		if (LOG.isLoggable(INFO))
 			LOG.info("Installing Tor binary for " + architecture);
 		File torFile = getTorExecutableFile();
-		extract(getTorInputStream(), torFile);
+		extract(getExecutableInputStream("tor"), torFile);
 		if (!torFile.setExecutable(true, true)) throw new IOException();
 	}
 
@@ -356,7 +356,7 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 		if (LOG.isLoggable(INFO))
 			LOG.info("Installing obfs4proxy binary for " + architecture);
 		File obfs4File = getObfs4ExecutableFile();
-		extract(getObfs4InputStream(), obfs4File);
+		extract(getExecutableInputStream("obfs4proxy"), obfs4File);
 		if (!obfs4File.setExecutable(true, true)) throw new IOException();
 	}
 
@@ -364,28 +364,18 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 		if (LOG.isLoggable(INFO))
 			LOG.info("Installing snowflake binary for " + architecture);
 		File snowflakeFile = getSnowflakeExecutableFile();
-		extract(getSnowflakeInputStream(), snowflakeFile);
+		extract(getExecutableInputStream("snowflake"), snowflakeFile);
 		if (!snowflakeFile.setExecutable(true, true)) throw new IOException();
 	}
 
-	private InputStream getTorInputStream() throws IOException {
-		return getZipInputStream("tor");
+	private InputStream getExecutableInputStream(String basename) {
+		String ext = getExecutableExtension();
+		return requireNonNull(resourceProvider
+				.getResourceInputStream(architecture + "/" + basename, ext));
 	}
 
-	private InputStream getObfs4InputStream() throws IOException {
-		return getZipInputStream("obfs4proxy");
-	}
-
-	private InputStream getSnowflakeInputStream() throws IOException {
-		return getZipInputStream("snowflake");
-	}
-
-	private InputStream getZipInputStream(String basename) throws IOException {
-		InputStream in = resourceProvider
-				.getResourceInputStream(basename + "_" + architecture, ".zip");
-		ZipInputStream zin = new ZipInputStream(in);
-		if (zin.getNextEntry() == null) throw new IOException();
-		return zin;
+	protected String getExecutableExtension() {
+		return "";
 	}
 
 	private static void append(StringBuilder strb, String name, Object value) {

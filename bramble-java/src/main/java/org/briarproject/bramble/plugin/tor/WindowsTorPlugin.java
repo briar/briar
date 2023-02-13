@@ -94,4 +94,8 @@ class WindowsTorPlugin extends JavaTorPlugin {
 		if (!success.take()) throw new PluginException();
 	}
 
+	@Override
+	protected String getExecutableExtension() {
+		return ".exe";
+	}
 }

@@ -62,9 +62,9 @@ public class UnixTorPluginFactory extends TorPluginFactory {
 		if (LOG.isLoggable(INFO)) {
 			LOG.info("System's os.arch is " + arch);
 		}
-		if (arch.equals("amd64")) return "linux-x86_64";
-		else if (arch.equals("aarch64")) return "linux-aarch64";
-		else if (arch.equals("arm")) return "linux-armhf";
+		if (arch.equals("amd64")) return "x86_64";
+		else if (arch.equals("aarch64")) return "aarch64";
+		else if (arch.equals("arm")) return "armhf";
 		return null;
 	}
 
