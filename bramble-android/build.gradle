@@ -71,7 +71,7 @@ def torLibsDir = 'src/main/jniLibs'
 task cleanTorBinaries {
 	outputs.dir torLibsDir
 	doLast {
-		delete fileTree(torLibsDir) { include '**/*.so' }
+		delete fileTree(torLibsDir)
 	}
 }
 
@@ -80,34 +80,9 @@ clean.dependsOn cleanTorBinaries
 task unpackTorBinaries {
 	outputs.dir torLibsDir
 	doLast {
-		configurations.tor.each { outer ->
-			zipTree(outer).each { inner ->
-				if (inner.name.endsWith('_arm_pie.zip')) {
-					copy {
-						from zipTree(inner)
-						into torLibsDir
-						rename '(.*)', 'armeabi-v7a/lib$1.so'
-					}
-				} else if (inner.name.endsWith('_arm64_pie.zip')) {
-					copy {
-						from zipTree(inner)
-						into torLibsDir
-						rename '(.*)', 'arm64-v8a/lib$1.so'
-					}
-				} else if (inner.name.endsWith('_x86_pie.zip')) {
-					copy {
-						from zipTree(inner)
-						into torLibsDir
-						rename '(.*)', 'x86/lib$1.so'
-					}
-				} else if (inner.name.endsWith('_x86_64_pie.zip')) {
-					copy {
-						from zipTree(inner)
-						into torLibsDir
-						rename '(.*)', 'x86_64/lib$1.so'
-					}
-				}
-			}
+		copy {
+			from configurations.tor.collect { zipTree(it) }
+			into torLibsDir
 		}
 	}
 	dependsOn cleanTorBinaries
