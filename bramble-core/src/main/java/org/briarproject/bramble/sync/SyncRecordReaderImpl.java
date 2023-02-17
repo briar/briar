@@ -30,6 +30,7 @@ import static org.briarproject.bramble.api.sync.RecordTypes.OFFER;
 import static org.briarproject.bramble.api.sync.RecordTypes.PRIORITY;
 import static org.briarproject.bramble.api.sync.RecordTypes.REQUEST;
 import static org.briarproject.bramble.api.sync.RecordTypes.VERSIONS;
+import static org.briarproject.bramble.api.sync.SyncConstants.MAX_MESSAGE_LENGTH;
 import static org.briarproject.bramble.api.sync.SyncConstants.MAX_SUPPORTED_VERSIONS;
 import static org.briarproject.bramble.api.sync.SyncConstants.MESSAGE_HEADER_LENGTH;
 import static org.briarproject.bramble.api.sync.SyncConstants.PRIORITY_NONCE_BYTES;
@@ -125,6 +126,8 @@ class SyncRecordReaderImpl implements SyncRecordReader {
 		if (nextRecord == null) throw new AssertionError();
 		byte[] payload = nextRecord.getPayload();
 		if (payload.length <= MESSAGE_HEADER_LENGTH)
+			throw new FormatException();
+		if (payload.length > MAX_MESSAGE_LENGTH)
 			throw new FormatException();
 		// Validate timestamp
 		long timestamp = ByteUtils.readUint64(payload, UniqueId.LENGTH);
