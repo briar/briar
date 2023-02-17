@@ -51,10 +51,6 @@ public class SyncRecordReaderImplTest extends BrambleMockTestCase {
 			context.mock(MessageFactory.class);
 	private final RecordReader recordReader = context.mock(RecordReader.class);
 
-	private final MessageId messageId = new MessageId(getRandomId());
-	private final GroupId groupId = new GroupId(getRandomId());
-	private final long timestamp = System.currentTimeMillis();
-
 	private final SyncRecordReader reader =
 			new SyncRecordReaderImpl(messageFactory, recordReader);
 
@@ -203,6 +199,10 @@ public class SyncRecordReaderImplTest extends BrambleMockTestCase {
 	}
 
 	private void expectCreateMessage(int bodyLength) {
+		MessageId messageId = new MessageId(getRandomId());
+		GroupId groupId = new GroupId(getRandomId());
+		long timestamp = System.currentTimeMillis();
+
 		context.checking(new Expectations() {{
 			Matcher<byte[]> matcher = new PredicateMatcher<>(byte[].class,
 					b -> b.length == MESSAGE_HEADER_LENGTH + bodyLength);
