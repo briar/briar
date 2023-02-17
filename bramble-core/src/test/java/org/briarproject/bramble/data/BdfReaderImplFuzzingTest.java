@@ -32,7 +32,7 @@ public class BdfReaderImplFuzzingTest extends BrambleTestCase {
 			buf[1] = 0x14; // Length 20 bytes
 			in.reset();
 			BdfReaderImpl r = new BdfReaderImpl(in, DEFAULT_NESTED_LIMIT,
-					DEFAULT_MAX_BUFFER_SIZE);
+					DEFAULT_MAX_BUFFER_SIZE, true);
 			try {
 				int length = r.readString().length();
 				assertTrue(length <= 20);

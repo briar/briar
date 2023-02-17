@@ -39,15 +39,18 @@ class BdfReaderImpl implements BdfReader {
 
 	private final InputStream in;
 	private final int nestedLimit, maxBufferSize;
+	private final boolean canonical;
 
 	private boolean hasLookahead = false, eof = false;
 	private byte next;
 	private byte[] buf = new byte[8];
 
-	BdfReaderImpl(InputStream in, int nestedLimit, int maxBufferSize) {
+	BdfReaderImpl(InputStream in, int nestedLimit, int maxBufferSize,
+			boolean canonical) {
 		this.in = in;
 		this.nestedLimit = nestedLimit;
 		this.maxBufferSize = maxBufferSize;
+		this.canonical = canonical;
 	}
 
 	private void readLookahead() throws IOException {
@@ -188,13 +191,22 @@ class BdfReaderImpl implements BdfReader {
 
 	private short readInt16() throws IOException {
 		readIntoBuffer(2);
-		return (short) (((buf[0] & 0xFF) << 8) + (buf[1] & 0xFF));
+		short value = (short) (((buf[0] & 0xFF) << 8) + (buf[1] & 0xFF));
+		if (canonical && value >= Byte.MIN_VALUE && value <= Byte.MAX_VALUE) {
+			// Value could have been encoded as an INT_8
+			throw new FormatException();
+		}
+		return value;
 	}
 
 	private int readInt32() throws IOException {
 		readIntoBuffer(4);
 		int value = 0;
 		for (int i = 0; i < 4; i++) value |= (buf[i] & 0xFF) << (24 - i * 8);
+		if (canonical && value >= Short.MIN_VALUE && value <= Short.MAX_VALUE) {
+			// Value could have been encoded as an INT_16
+			throw new FormatException();
+		}
 		return value;
 	}
 
@@ -202,6 +214,11 @@ class BdfReaderImpl implements BdfReader {
 		readIntoBuffer(8);
 		long value = 0;
 		for (int i = 0; i < 8; i++) value |= (buf[i] & 0xFFL) << (56 - i * 8);
+		if (canonical && value >= Integer.MIN_VALUE &&
+				value <= Integer.MAX_VALUE) {
+			// Value could have been encoded as an INT_32
+			throw new FormatException();
+		}
 		return value;
 	}
 
@@ -382,8 +399,16 @@ class BdfReaderImpl implements BdfReader {
 		if (level > nestedLimit) throw new FormatException();
 		BdfDictionary dictionary = new BdfDictionary();
 		readDictionaryStart();
-		while (!hasDictionaryEnd())
-			dictionary.put(readString(), readObject(level + 1));
+		String prevKey = null;
+		while (!hasDictionaryEnd()) {
+			String key = readString();
+			if (canonical && prevKey != null && key.compareTo(prevKey) <= 0) {
+				// Keys not unique and sorted
+				throw new FormatException();
+			}
+			dictionary.put(key, readObject(level + 1));
+			prevKey = key;
+		}
 		readDictionaryEnd();
 		return dictionary;
 	}

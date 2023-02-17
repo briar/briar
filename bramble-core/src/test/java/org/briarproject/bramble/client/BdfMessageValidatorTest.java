@@ -56,7 +56,7 @@ public class BdfMessageValidatorTest extends ValidatorTestCase {
 		context.checking(new Expectations() {{
 			oneOf(clock).currentTimeMillis();
 			will(returnValue(timestamp - MAX_CLOCK_DIFFERENCE));
-			oneOf(clientHelper).toList(message.getBody());
+			oneOf(clientHelper).toList(message, true);
 			will(returnValue(body));
 			oneOf(metadataEncoder).encode(dictionary);
 			will(returnValue(meta));
@@ -86,7 +86,7 @@ public class BdfMessageValidatorTest extends ValidatorTestCase {
 		context.checking(new Expectations() {{
 			oneOf(clock).currentTimeMillis();
 			will(returnValue(timestamp));
-			oneOf(clientHelper).toList(shortMessage.getBody());
+			oneOf(clientHelper).toList(shortMessage, true);
 			will(returnValue(body));
 			oneOf(metadataEncoder).encode(dictionary);
 			will(returnValue(meta));
@@ -114,7 +114,7 @@ public class BdfMessageValidatorTest extends ValidatorTestCase {
 		context.checking(new Expectations() {{
 			oneOf(clock).currentTimeMillis();
 			will(returnValue(timestamp));
-			oneOf(clientHelper).toList(message.getBody());
+			oneOf(clientHelper).toList(message, true);
 			will(throwException(new FormatException()));
 		}});
 
@@ -126,7 +126,7 @@ public class BdfMessageValidatorTest extends ValidatorTestCase {
 		context.checking(new Expectations() {{
 			oneOf(clock).currentTimeMillis();
 			will(returnValue(timestamp));
-			oneOf(clientHelper).toList(message.getBody());
+			oneOf(clientHelper).toList(message, true);
 			will(returnValue(body));
 		}});
 

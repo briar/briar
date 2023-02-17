@@ -11,6 +11,7 @@ import java.io.ByteArrayInputStream;
 import static org.briarproject.bramble.api.data.BdfDictionary.NULL_VALUE;
 import static org.briarproject.bramble.api.data.BdfReader.DEFAULT_MAX_BUFFER_SIZE;
 import static org.briarproject.bramble.data.BdfReaderImpl.DEFAULT_NESTED_LIMIT;
+import static org.briarproject.bramble.util.StringUtils.UTF_8;
 import static org.briarproject.bramble.util.StringUtils.fromHexString;
 import static org.briarproject.bramble.util.StringUtils.getRandomString;
 import static org.briarproject.bramble.util.StringUtils.toHexString;
@@ -88,6 +89,18 @@ public class BdfReaderImplTest extends BrambleTestCase {
 		assertTrue(r.eof());
 	}
 
+	@Test(expected = FormatException.class)
+	public void testReadLong16CouldHaveBeenLong8Max() throws Exception {
+		setContents("22" + "007F");
+		r.readLong();
+	}
+
+	@Test(expected = FormatException.class)
+	public void testReadLong16CouldHaveBeenLong8Min() throws Exception {
+		setContents("22" + "FF80");
+		r.readLong();
+	}
+
 	@Test
 	public void testSkipLong16() throws Exception {
 		setContents("22" + "0080");
@@ -106,6 +119,18 @@ public class BdfReaderImplTest extends BrambleTestCase {
 		assertTrue(r.eof());
 	}
 
+	@Test(expected = FormatException.class)
+	public void testReadLong32CouldHaveBeenLong16Max() throws Exception {
+		setContents("24" + "00007FFF");
+		r.readLong();
+	}
+
+	@Test(expected = FormatException.class)
+	public void testReadLong32CouldHaveBeenLong16Min() throws Exception {
+		setContents("24" + "FFFF8000");
+		r.readLong();
+	}
+
 	@Test
 	public void testSkipLong32() throws Exception {
 		setContents("24" + "00008000");
@@ -122,6 +147,18 @@ public class BdfReaderImplTest extends BrambleTestCase {
 		assertEquals(Long.MAX_VALUE, r.readLong());
 		assertEquals(Long.MIN_VALUE, r.readLong());
 		assertTrue(r.eof());
+	}
+
+	@Test(expected = FormatException.class)
+	public void testReadLong64CouldHaveBeenLong32Max() throws Exception {
+		setContents("28" + "000000007FFFFFFF");
+		r.readLong();
+	}
+
+	@Test(expected = FormatException.class)
+	public void testReadLong64CouldHaveBeenLong32Min() throws Exception {
+		setContents("28" + "FFFFFFFF80000000");
+		r.readLong();
 	}
 
 	@Test
@@ -162,7 +199,7 @@ public class BdfReaderImplTest extends BrambleTestCase {
 	@Test
 	public void testReadString8() throws Exception {
 		String longest = getRandomString(Byte.MAX_VALUE);
-		String longHex = toHexString(longest.getBytes("UTF-8"));
+		String longHex = toHexString(longest.getBytes(UTF_8));
 		// "foo", the empty string, and 127 random letters
 		setContents("41" + "03" + "666F6F" + "41" + "00" +
 				"41" + "7F" + longHex);
@@ -186,7 +223,7 @@ public class BdfReaderImplTest extends BrambleTestCase {
 	@Test
 	public void testSkipString8() throws Exception {
 		String longest = getRandomString(Byte.MAX_VALUE);
-		String longHex = toHexString(longest.getBytes("UTF-8"));
+		String longHex = toHexString(longest.getBytes(UTF_8));
 		// "foo", the empty string, and 127 random letters
 		setContents("41" + "03" + "666F6F" + "41" + "00" +
 				"41" + "7F" + longHex);
@@ -199,9 +236,9 @@ public class BdfReaderImplTest extends BrambleTestCase {
 	@Test
 	public void testReadString16() throws Exception {
 		String shortest = getRandomString(Byte.MAX_VALUE + 1);
-		String shortHex = toHexString(shortest.getBytes("UTF-8"));
+		String shortHex = toHexString(shortest.getBytes(UTF_8));
 		String longest = getRandomString(Short.MAX_VALUE);
-		String longHex = toHexString(longest.getBytes("UTF-8"));
+		String longHex = toHexString(longest.getBytes(UTF_8));
 		// 128 random letters and 2^15 -1 random letters
 		setContents("42" + "0080" + shortHex + "42" + "7FFF" + longHex);
 		assertEquals(shortest, r.readString());
@@ -213,7 +250,7 @@ public class BdfReaderImplTest extends BrambleTestCase {
 	public void testReadString16ChecksMaxLength() throws Exception {
 		int maxBufferSize = Byte.MAX_VALUE + 1;
 		String valid = getRandomString(Byte.MAX_VALUE + 1);
-		String validHex = toHexString(valid.getBytes("UTF-8"));
+		String validHex = toHexString(valid.getBytes(UTF_8));
 		String invalidhex = validHex + "20";
 		// 128 random letters, the same plus a space
 		setContents("42" + "0080" + validHex
@@ -223,12 +260,20 @@ public class BdfReaderImplTest extends BrambleTestCase {
 		r.readString();
 	}
 
+	@Test(expected = FormatException.class)
+	public void testReadString16CouldHaveBeenString8() throws Exception {
+		String longest = getRandomString(Byte.MAX_VALUE);
+		String longHex = toHexString(longest.getBytes(UTF_8));
+		setContents("42" + "007F" + longHex);
+		r.readString();
+	}
+
 	@Test
 	public void testSkipString16() throws Exception {
 		String shortest = getRandomString(Byte.MAX_VALUE + 1);
-		String shortHex = toHexString(shortest.getBytes("UTF-8"));
+		String shortHex = toHexString(shortest.getBytes(UTF_8));
 		String longest = getRandomString(Short.MAX_VALUE);
-		String longHex = toHexString(longest.getBytes("UTF-8"));
+		String longHex = toHexString(longest.getBytes(UTF_8));
 		// 128 random letters and 2^15 - 1 random letters
 		setContents("42" + "0080" + shortHex + "42" + "7FFF" + longHex);
 		r.skipString();
@@ -239,7 +284,7 @@ public class BdfReaderImplTest extends BrambleTestCase {
 	@Test
 	public void testReadString32() throws Exception {
 		String shortest = getRandomString(Short.MAX_VALUE + 1);
-		String shortHex = toHexString(shortest.getBytes("UTF-8"));
+		String shortHex = toHexString(shortest.getBytes(UTF_8));
 		// 2^15 random letters
 		setContents("44" + "00008000" + shortHex);
 		assertEquals(shortest, r.readString());
@@ -250,7 +295,7 @@ public class BdfReaderImplTest extends BrambleTestCase {
 	public void testReadString32ChecksMaxLength() throws Exception {
 		int maxBufferSize = Short.MAX_VALUE + 1;
 		String valid = getRandomString(maxBufferSize);
-		String validHex = toHexString(valid.getBytes("UTF-8"));
+		String validHex = toHexString(valid.getBytes(UTF_8));
 		String invalidHex = validHex + "20";
 		// 2^15 random letters, the same plus a space
 		setContents("44" + "00008000" + validHex +
@@ -260,10 +305,18 @@ public class BdfReaderImplTest extends BrambleTestCase {
 		r.readString();
 	}
 
+	@Test(expected = FormatException.class)
+	public void testReadString32CouldHaveBeenString16() throws Exception {
+		String longest = getRandomString(Short.MAX_VALUE);
+		String longHex = toHexString(longest.getBytes(UTF_8));
+		setContents("44" + "00007FFF" + longHex);
+		r.readString();
+	}
+
 	@Test
 	public void testSkipString32() throws Exception {
 		String shortest = getRandomString(Short.MAX_VALUE + 1);
-		String shortHex = toHexString(shortest.getBytes("UTF-8"));
+		String shortHex = toHexString(shortest.getBytes(UTF_8));
 		// 2^15 random letters, twice
 		setContents("44" + "00008000" + shortHex +
 				"44" + "00008000" + shortHex);
@@ -275,7 +328,7 @@ public class BdfReaderImplTest extends BrambleTestCase {
 	@Test
 	public void testReadUtf8String() throws Exception {
 		String unicode = "\uFDD0\uFDD1\uFDD2\uFDD3";
-		String hex = toHexString(unicode.getBytes("UTF-8"));
+		String hex = toHexString(unicode.getBytes(UTF_8));
 		// STRING_8 tag, "foo", the empty string, and the test string
 		setContents("41" + "03" + "666F6F" + "41" + "00" + "41" + "0C" + hex);
 		assertEquals("foo", r.readString());
@@ -348,6 +401,14 @@ public class BdfReaderImplTest extends BrambleTestCase {
 		r.readRaw();
 	}
 
+	@Test(expected = FormatException.class)
+	public void testReadRaw16CouldHaveBeenRaw8() throws Exception {
+		byte[] longest = new byte[Byte.MAX_VALUE];
+		String longHex = toHexString(longest);
+		setContents("52" + "007F" + longHex);
+		r.readRaw();
+	}
+
 	@Test
 	public void testSkipRaw16() throws Exception {
 		byte[] shortest = new byte[Byte.MAX_VALUE + 1];
@@ -382,6 +443,14 @@ public class BdfReaderImplTest extends BrambleTestCase {
 				"54" + "00008001" + invalidHex, maxBufferSize);
 		assertArrayEquals(valid, r.readRaw());
 		assertTrue(r.hasRaw());
+		r.readRaw();
+	}
+
+	@Test(expected = FormatException.class)
+	public void testReadRaw32CouldHaveBeenRaw16() throws Exception {
+		byte[] longest = new byte[Short.MAX_VALUE];
+		String longHex = toHexString(longest);
+		setContents("54" + "00007FFF" + longHex);
 		r.readRaw();
 	}
 
@@ -465,9 +534,9 @@ public class BdfReaderImplTest extends BrambleTestCase {
 
 	@Test
 	public void testReadDictionary() throws Exception {
-		// A dictionary containing "foo" -> 123 and "bar" -> null
-		setContents("70" + "41" + "03" + "666F6F" + "21" + "7B" +
-				"41" + "03" + "626172" + "00" + "80");
+		// A dictionary containing "bar" -> null and "foo" -> 123
+		setContents("70" + "41" + "03" + "626172" + "00" +
+				"41" + "03" + "666F6F" + "21" + "7B" + "80");
 		BdfDictionary dictionary = r.readDictionary();
 		assertEquals(2, dictionary.size());
 		assertTrue(dictionary.containsKey("foo"));
@@ -557,10 +626,10 @@ public class BdfReaderImplTest extends BrambleTestCase {
 	@Test
 	public void testNestedListWithinDepthLimit() throws Exception {
 		// A list containing a list containing a list containing a list...
-		String lists = "";
-		for (int i = 1; i <= DEFAULT_NESTED_LIMIT; i++) lists += "60";
-		for (int i = 1; i <= DEFAULT_NESTED_LIMIT; i++) lists += "80";
-		setContents(lists);
+		StringBuilder lists = new StringBuilder();
+		for (int i = 1; i <= DEFAULT_NESTED_LIMIT; i++) lists.append("60");
+		for (int i = 1; i <= DEFAULT_NESTED_LIMIT; i++) lists.append("80");
+		setContents(lists.toString());
 		r.readList();
 		assertTrue(r.eof());
 	}
@@ -568,23 +637,25 @@ public class BdfReaderImplTest extends BrambleTestCase {
 	@Test(expected = FormatException.class)
 	public void testNestedListOutsideDepthLimit() throws Exception {
 		// A list containing a list containing a list containing a list...
-		String lists = "";
-		for (int i = 1; i <= DEFAULT_NESTED_LIMIT + 1; i++) lists += "60";
-		for (int i = 1; i <= DEFAULT_NESTED_LIMIT + 1; i++) lists += "80";
-		setContents(lists);
+		StringBuilder lists = new StringBuilder();
+		for (int i = 1; i <= DEFAULT_NESTED_LIMIT + 1; i++) lists.append("60");
+		for (int i = 1; i <= DEFAULT_NESTED_LIMIT + 1; i++) lists.append("80");
+		setContents(lists.toString());
 		r.readList();
 	}
 
 	@Test
 	public void testNestedDictionaryWithinDepthLimit() throws Exception {
 		// A dictionary containing a dictionary containing a dictionary...
-		String dicts = "";
-		for (int i = 1; i <= DEFAULT_NESTED_LIMIT; i++)
-			dicts += "70" + "41" + "03" + "666F6F";
-		dicts += "11";
-		for (int i = 1; i <= DEFAULT_NESTED_LIMIT; i++)
-			dicts += "80";
-		setContents(dicts);
+		StringBuilder dicts = new StringBuilder();
+		for (int i = 1; i <= DEFAULT_NESTED_LIMIT; i++) {
+			dicts.append("70").append("41").append("03").append("666F6F");
+		}
+		dicts.append("11");
+		for (int i = 1; i <= DEFAULT_NESTED_LIMIT; i++) {
+			dicts.append("80");
+		}
+		setContents(dicts.toString());
 		r.readDictionary();
 		assertTrue(r.eof());
 	}
@@ -592,13 +663,15 @@ public class BdfReaderImplTest extends BrambleTestCase {
 	@Test(expected = FormatException.class)
 	public void testNestedDictionaryOutsideDepthLimit() throws Exception {
 		// A dictionary containing a dictionary containing a dictionary...
-		String dicts = "";
-		for (int i = 1; i <= DEFAULT_NESTED_LIMIT + 1; i++)
-			dicts += "70" + "41" + "03" + "666F6F";
-		dicts += "11";
-		for (int i = 1; i <= DEFAULT_NESTED_LIMIT + 1; i++)
-			dicts += "80";
-		setContents(dicts);
+		StringBuilder dicts = new StringBuilder();
+		for (int i = 1; i <= DEFAULT_NESTED_LIMIT + 1; i++) {
+			dicts.append("70").append("41").append("03").append("666F6F");
+		}
+		dicts.append("11");
+		for (int i = 1; i <= DEFAULT_NESTED_LIMIT + 1; i++) {
+			dicts.append("80");
+		}
+		setContents(dicts.toString());
 		r.readDictionary();
 	}
 
@@ -625,6 +698,6 @@ public class BdfReaderImplTest extends BrambleTestCase {
 	private void setContents(String hex, int maxBufferSize)
 			throws FormatException {
 		ByteArrayInputStream in = new ByteArrayInputStream(fromHexString(hex));
-		r = new BdfReaderImpl(in, DEFAULT_NESTED_LIMIT, maxBufferSize);
+		r = new BdfReaderImpl(in, DEFAULT_NESTED_LIMIT, maxBufferSize, true);
 	}
 }

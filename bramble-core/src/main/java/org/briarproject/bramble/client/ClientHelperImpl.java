@@ -155,7 +155,13 @@ class ClientHelperImpl implements ClientHelper {
 	@Override
 	public BdfList getMessageAsList(Transaction txn, MessageId m)
 			throws DbException, FormatException {
-		return toList(db.getMessage(txn, m).getBody());
+		return getMessageAsList(txn, m, true);
+	}
+
+	@Override
+	public BdfList getMessageAsList(Transaction txn, MessageId m,
+			boolean canonical) throws DbException, FormatException {
+		return toList(db.getMessage(txn, m), canonical);
 	}
 
 	@Override
@@ -313,8 +319,13 @@ class ClientHelperImpl implements ClientHelper {
 
 	@Override
 	public BdfList toList(byte[] b, int off, int len) throws FormatException {
+		return toList(b, off, len, true);
+	}
+
+	private BdfList toList(byte[] b, int off, int len, boolean canonical)
+			throws FormatException {
 		ByteArrayInputStream in = new ByteArrayInputStream(b, off, len);
-		BdfReader reader = bdfReaderFactory.createReader(in);
+		BdfReader reader = bdfReaderFactory.createReader(in, canonical);
 		try {
 			BdfList list = reader.readList();
 			if (!reader.eof()) throw new FormatException();
@@ -328,12 +339,18 @@ class ClientHelperImpl implements ClientHelper {
 
 	@Override
 	public BdfList toList(byte[] b) throws FormatException {
-		return toList(b, 0, b.length);
+		return toList(b, 0, b.length, true);
 	}
 
 	@Override
 	public BdfList toList(Message m) throws FormatException {
 		return toList(m.getBody());
+	}
+
+	@Override
+	public BdfList toList(Message m, boolean canonical) throws FormatException {
+		byte[] b = m.getBody();
+		return toList(b, 0, b.length, canonical);
 	}
 
 	@Override

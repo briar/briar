@@ -27,7 +27,10 @@ class TransportPropertyValidator extends BdfMessageValidator {
 
 	TransportPropertyValidator(ClientHelper clientHelper,
 			MetadataEncoder metadataEncoder, Clock clock) {
-		super(clientHelper, metadataEncoder, clock);
+		// Accept transport properties in non-canonical form
+		// TODO: Remove this after a reasonable migration period
+		//  (added 2023-02-17)
+		super(clientHelper, metadataEncoder, clock, false);
 	}
 
 	@Override
