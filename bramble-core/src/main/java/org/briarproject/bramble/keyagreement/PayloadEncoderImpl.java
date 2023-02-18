@@ -1,5 +1,6 @@
 package org.briarproject.bramble.keyagreement;
 
+import org.briarproject.bramble.api.data.BdfList;
 import org.briarproject.bramble.api.data.BdfWriter;
 import org.briarproject.bramble.api.data.BdfWriterFactory;
 import org.briarproject.bramble.api.keyagreement.Payload;
@@ -32,13 +33,14 @@ class PayloadEncoderImpl implements PayloadEncoder {
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 		int formatIdAndVersion = (QR_FORMAT_ID << 5) | QR_FORMAT_VERSION;
 		out.write(formatIdAndVersion);
+		BdfList payload = new BdfList();
+		payload.add(p.getCommitment());
+		for (TransportDescriptor d : p.getTransportDescriptors()) {
+			payload.add(d.getDescriptor());
+		}
 		BdfWriter w = bdfWriterFactory.createWriter(out);
 		try {
-			w.writeListStart(); // Payload start
-			w.writeRaw(p.getCommitment());
-			for (TransportDescriptor d : p.getTransportDescriptors())
-				w.writeList(d.getDescriptor());
-			w.writeListEnd(); // Payload end
+			w.writeList(payload);
 		} catch (IOException e) {
 			// Shouldn't happen with ByteArrayOutputStream
 			throw new AssertionError(e);

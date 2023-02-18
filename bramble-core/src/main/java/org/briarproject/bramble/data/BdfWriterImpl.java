@@ -169,16 +169,6 @@ final class BdfWriterImpl implements BdfWriter {
 	}
 
 	@Override
-	public void writeListStart() throws IOException {
-		out.write(LIST);
-	}
-
-	@Override
-	public void writeListEnd() throws IOException {
-		out.write(END);
-	}
-
-	@Override
 	public void writeDictionary(Map<?, ?> m) throws IOException {
 		out.write(DICTIONARY);
 		// Write entries in canonical order
@@ -192,16 +182,6 @@ final class BdfWriterImpl implements BdfWriter {
 			writeString(key);
 			writeObject(m.get(key));
 		}
-		out.write(END);
-	}
-
-	@Override
-	public void writeDictionaryStart() throws IOException {
-		out.write(DICTIONARY);
-	}
-
-	@Override
-	public void writeDictionaryEnd() throws IOException {
 		out.write(END);
 	}
 }

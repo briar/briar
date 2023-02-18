@@ -180,33 +180,6 @@ public class BdfWriterImplTest extends BrambleTestCase {
 	}
 
 	@Test
-	public void testWriteDelimitedList() throws IOException {
-		w.writeListStart();
-		w.writeLong(1);
-		w.writeString("foo");
-		w.writeLong(128);
-		w.writeListEnd();
-		// LIST tag, 1 as integer, "foo" as string, 128 as integer, END tag
-		checkContents("60" + "21" + "01" +
-				"41" + "03" + "666F6F" +
-				"22" + "0080" + "80");
-	}
-
-	@Test
-	public void testWriteDelimitedDictionary() throws IOException {
-		w.writeDictionaryStart();
-		w.writeString("foo");
-		w.writeLong(123);
-		w.writeString("bar");
-		w.writeNull();
-		w.writeDictionaryEnd();
-		// DICTIONARY tag, "foo" as string, 123 as integer, "bar" as string,
-		// NULL tag, END tag
-		checkContents("70" + "41" + "03" + "666F6F" +
-				"21" + "7B" + "41" + "03" + "626172" + "00" + "80");
-	}
-
-	@Test
 	public void testWriteNestedDictionariesAndLists() throws IOException {
 		Map<String, Object> inner = new LinkedHashMap<>();
 		inner.put("bar", new byte[0]);
