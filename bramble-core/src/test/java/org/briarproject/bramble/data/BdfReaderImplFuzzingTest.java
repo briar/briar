@@ -1,5 +1,6 @@
 package org.briarproject.bramble.data;
 
+import org.briarproject.bramble.api.FormatException;
 import org.briarproject.bramble.test.BrambleTestCase;
 import org.junit.Before;
 import org.junit.Test;
@@ -32,10 +33,13 @@ public class BdfReaderImplFuzzingTest extends BrambleTestCase {
 			in.reset();
 			BdfReaderImpl r = new BdfReaderImpl(in, DEFAULT_NESTED_LIMIT,
 					DEFAULT_MAX_BUFFER_SIZE);
-			int length = r.readString().length();
-			assertTrue(length >= 0);
-			assertTrue(length <= 20);
-			assertTrue(r.eof());
+			try {
+				int length = r.readString().length();
+				assertTrue(length <= 20);
+				assertTrue(r.eof());
+			} catch (FormatException e) {
+				// Expected when bytes are not valid UTF-8
+			}
 		}
 	}
 }
