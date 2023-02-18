@@ -33,7 +33,7 @@ import static org.briarproject.bramble.util.StringUtils.fromUtf8;
 
 @NotThreadSafe
 @NotNullByDefault
-class BdfReaderImpl implements BdfReader {
+final class BdfReaderImpl implements BdfReader {
 
 	private static final byte[] EMPTY_BUFFER = new byte[0];
 
@@ -229,6 +229,31 @@ class BdfReaderImpl implements BdfReader {
 		else if (next == INT_16) skip(2);
 		else if (next == INT_32) skip(4);
 		else skip(8);
+		hasLookahead = false;
+	}
+
+	@Override
+	public boolean hasInt() throws IOException {
+		if (!hasLookahead) readLookahead();
+		if (eof) return false;
+		return next == INT_8 || next == INT_16 || next == INT_32;
+	}
+
+	@Override
+	public int readInt() throws IOException {
+		if (!hasInt()) throw new FormatException();
+		hasLookahead = false;
+		if (next == INT_8) return readInt8();
+		if (next == INT_16) return readInt16();
+		return readInt32();
+	}
+
+	@Override
+	public void skipInt() throws IOException {
+		if (!hasInt()) throw new FormatException();
+		if (next == INT_8) skip(1);
+		else if (next == INT_16) skip(2);
+		else skip(4);
 		hasLookahead = false;
 	}
 

@@ -162,9 +162,32 @@ public class BdfReaderImplTest extends BrambleTestCase {
 	}
 
 	@Test
-	public void testSkipLong() throws Exception {
+	public void testSkipLong64() throws Exception {
 		setContents("28" + "0000000080000000");
 		r.skipLong();
+		assertTrue(r.eof());
+	}
+
+	@Test
+	public void testReadInt() throws Exception {
+		setContents("21" + "7F" + "21" + "80"
+				+ "22" + "7FFF" + "22" + "8000"
+				+ "24" + "7FFFFFFF" + "24" + "80000000");
+		assertEquals(Byte.MAX_VALUE, r.readInt());
+		assertEquals(Byte.MIN_VALUE, r.readInt());
+		assertEquals(Short.MAX_VALUE, r.readInt());
+		assertEquals(Short.MIN_VALUE, r.readInt());
+		assertEquals(Integer.MAX_VALUE, r.readInt());
+		assertEquals(Integer.MIN_VALUE, r.readInt());
+		assertTrue(r.eof());
+	}
+
+	@Test
+	public void testSkipInt() throws Exception {
+		setContents("21" + "7F" + "22" + "7FFF" + "24" + "7FFFFFFF");
+		r.skipInt();
+		r.skipInt();
+		r.skipInt();
 		assertTrue(r.eof());
 	}
 

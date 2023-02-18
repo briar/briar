@@ -38,7 +38,7 @@ import static org.briarproject.bramble.util.StringUtils.UTF_8;
 
 @NotThreadSafe
 @NotNullByDefault
-class BdfWriterImpl implements BdfWriter {
+final class BdfWriterImpl implements BdfWriter {
 
 	private final OutputStream out;
 
