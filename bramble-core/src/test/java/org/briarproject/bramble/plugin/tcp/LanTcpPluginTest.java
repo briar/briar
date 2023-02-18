@@ -223,7 +223,7 @@ public class LanTcpPluginTest extends BrambleTestCase {
 		assertTrue(addr instanceof Inet4Address);
 		assertFalse(addr.isLoopbackAddress());
 		assertTrue(addr.isLinkLocalAddress() || addr.isSiteLocalAddress());
-		int port = descriptor.getLong(2).intValue();
+		int port = descriptor.getInt(2);
 		assertTrue(port > 0 && port < 65536);
 		// The plugin should be listening on the port
 		InetSocketAddress socketAddr = new InetSocketAddress(addr, port);

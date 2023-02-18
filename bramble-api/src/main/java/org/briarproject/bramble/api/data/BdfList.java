@@ -13,7 +13,7 @@ import javax.annotation.concurrent.NotThreadSafe;
 import static org.briarproject.bramble.api.data.BdfDictionary.NULL_VALUE;
 
 @NotThreadSafe
-public class BdfList extends ArrayList<Object> {
+public final class BdfList extends ArrayList<Object> {
 
 	/**
 	 * Factory method for constructing lists inline.
@@ -33,15 +33,15 @@ public class BdfList extends ArrayList<Object> {
 		super(items);
 	}
 
+	@SuppressWarnings("BooleanMethodIsAlwaysInverted")
 	private boolean isInRange(int index) {
 		return index >= 0 && index < size();
 	}
 
 	public Boolean getBoolean(int index) throws FormatException {
-		if (!isInRange(index)) throw new FormatException();
-		Object o = get(index);
-		if (o instanceof Boolean) return (Boolean) o;
-		throw new FormatException();
+		Boolean value = getOptionalBoolean(index);
+		if (value == null) throw new FormatException();
+		return value;
 	}
 
 	@Nullable
@@ -53,21 +53,16 @@ public class BdfList extends ArrayList<Object> {
 		throw new FormatException();
 	}
 
-	public Boolean getBoolean(int index, Boolean defaultValue) {
-		if (!isInRange(index)) return defaultValue;
-		Object o = get(index);
-		if (o instanceof Boolean) return (Boolean) o;
-		return defaultValue;
+	public Boolean getBoolean(int index, Boolean defaultValue)
+			throws FormatException {
+		Boolean value = getOptionalBoolean(index);
+		return value == null ? defaultValue : value;
 	}
 
 	public Long getLong(int index) throws FormatException {
-		if (!isInRange(index)) throw new FormatException();
-		Object o = get(index);
-		if (o instanceof Long) return (Long) o;
-		if (o instanceof Integer) return ((Integer) o).longValue();
-		if (o instanceof Short) return ((Short) o).longValue();
-		if (o instanceof Byte) return ((Byte) o).longValue();
-		throw new FormatException();
+		Long value = getOptionalLong(index);
+		if (value == null) throw new FormatException();
+		return value;
 	}
 
 	@Nullable
@@ -82,22 +77,37 @@ public class BdfList extends ArrayList<Object> {
 		throw new FormatException();
 	}
 
-	public Long getLong(int index, Long defaultValue) {
-		if (!isInRange(index)) return defaultValue;
-		Object o = get(index);
-		if (o instanceof Long) return (Long) o;
-		if (o instanceof Integer) return ((Integer) o).longValue();
-		if (o instanceof Short) return ((Short) o).longValue();
-		if (o instanceof Byte) return ((Byte) o).longValue();
-		return defaultValue;
+	public Long getLong(int index, Long defaultValue) throws FormatException {
+		Long value = getOptionalLong(index);
+		return value == null ? defaultValue : value;
+	}
+
+	public Integer getInt(int index) throws FormatException {
+		Integer value = getOptionalInt(index);
+		if (value == null) throw new FormatException();
+		return value;
+	}
+
+	@Nullable
+	public Integer getOptionalInt(int index) throws FormatException {
+		Long value = getOptionalLong(index);
+		if (value == null) return null;
+		if (value < Integer.MIN_VALUE || value > Integer.MAX_VALUE) {
+			throw new FormatException();
+		}
+		return value.intValue();
+	}
+
+	public Integer getInt(int index, Integer defaultValue)
+			throws FormatException {
+		Integer value = getOptionalInt(index);
+		return value == null ? defaultValue : value;
 	}
 
 	public Double getDouble(int index) throws FormatException {
-		if (!isInRange(index)) throw new FormatException();
-		Object o = get(index);
-		if (o instanceof Double) return (Double) o;
-		if (o instanceof Float) return ((Float) o).doubleValue();
-		throw new FormatException();
+		Double value = getOptionalDouble(index);
+		if (value == null) throw new FormatException();
+		return value;
 	}
 
 	@Nullable
@@ -110,19 +120,16 @@ public class BdfList extends ArrayList<Object> {
 		throw new FormatException();
 	}
 
-	public Double getDouble(int index, Double defaultValue) {
-		if (!isInRange(index)) return defaultValue;
-		Object o = get(index);
-		if (o instanceof Double) return (Double) o;
-		if (o instanceof Float) return ((Float) o).doubleValue();
-		return defaultValue;
+	public Double getDouble(int index, Double defaultValue)
+			throws FormatException {
+		Double value = getOptionalDouble(index);
+		return value == null ? defaultValue : value;
 	}
 
 	public String getString(int index) throws FormatException {
-		if (!isInRange(index)) throw new FormatException();
-		Object o = get(index);
-		if (o instanceof String) return (String) o;
-		throw new FormatException();
+		String value = getOptionalString(index);
+		if (value == null) throw new FormatException();
+		return value;
 	}
 
 	@Nullable
@@ -134,19 +141,16 @@ public class BdfList extends ArrayList<Object> {
 		throw new FormatException();
 	}
 
-	public String getString(int index, String defaultValue) {
-		if (!isInRange(index)) return defaultValue;
-		Object o = get(index);
-		if (o instanceof String) return (String) o;
-		return defaultValue;
+	public String getString(int index, String defaultValue)
+			throws FormatException {
+		String value = getOptionalString(index);
+		return value == null ? defaultValue : value;
 	}
 
 	public byte[] getRaw(int index) throws FormatException {
-		if (!isInRange(index)) throw new FormatException();
-		Object o = get(index);
-		if (o instanceof byte[]) return (byte[]) o;
-		if (o instanceof Bytes) return ((Bytes) o).getBytes();
-		throw new FormatException();
+		byte[] value = getOptionalRaw(index);
+		if (value == null) throw new FormatException();
+		return value;
 	}
 
 	@Nullable
@@ -159,19 +163,16 @@ public class BdfList extends ArrayList<Object> {
 		throw new FormatException();
 	}
 
-	public byte[] getRaw(int index, byte[] defaultValue) {
-		if (!isInRange(index)) return defaultValue;
-		Object o = get(index);
-		if (o instanceof byte[]) return (byte[]) o;
-		if (o instanceof Bytes) return ((Bytes) o).getBytes();
-		return defaultValue;
+	public byte[] getRaw(int index, byte[] defaultValue)
+			throws FormatException {
+		byte[] value = getOptionalRaw(index);
+		return value == null ? defaultValue : value;
 	}
 
 	public BdfList getList(int index) throws FormatException {
-		if (!isInRange(index)) throw new FormatException();
-		Object o = get(index);
-		if (o instanceof BdfList) return (BdfList) o;
-		throw new FormatException();
+		BdfList value = getOptionalList(index);
+		if (value == null) throw new FormatException();
+		return value;
 	}
 
 	@Nullable
@@ -183,18 +184,16 @@ public class BdfList extends ArrayList<Object> {
 		throw new FormatException();
 	}
 
-	public BdfList getList(int index, BdfList defaultValue) {
-		if (!isInRange(index)) return defaultValue;
-		Object o = get(index);
-		if (o instanceof BdfList) return (BdfList) o;
-		return defaultValue;
+	public BdfList getList(int index, BdfList defaultValue)
+			throws FormatException {
+		BdfList value = getOptionalList(index);
+		return value == null ? defaultValue : value;
 	}
 
 	public BdfDictionary getDictionary(int index) throws FormatException {
-		if (!isInRange(index)) throw new FormatException();
-		Object o = get(index);
-		if (o instanceof BdfDictionary) return (BdfDictionary) o;
-		throw new FormatException();
+		BdfDictionary value = getOptionalDictionary(index);
+		if (value == null) throw new FormatException();
+		return value;
 	}
 
 	@Nullable
@@ -207,10 +206,9 @@ public class BdfList extends ArrayList<Object> {
 		throw new FormatException();
 	}
 
-	public BdfDictionary getDictionary(int index, BdfDictionary defaultValue) {
-		if (!isInRange(index)) return defaultValue;
-		Object o = get(index);
-		if (o instanceof BdfDictionary) return (BdfDictionary) o;
-		return defaultValue;
+	public BdfDictionary getDictionary(int index, BdfDictionary defaultValue)
+			throws FormatException {
+		BdfDictionary value = getOptionalDictionary(index);
+		return value == null ? defaultValue : value;
 	}
 }

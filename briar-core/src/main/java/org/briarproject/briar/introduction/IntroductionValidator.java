@@ -47,7 +47,7 @@ class IntroductionValidator extends BdfMessageValidator {
 	@Override
 	protected BdfMessageContext validateMessage(Message m, Group g,
 			BdfList body) throws FormatException {
-		MessageType type = MessageType.fromValue(body.getLong(0).intValue());
+		MessageType type = MessageType.fromValue(body.getInt(0));
 
 		switch (type) {
 			case REQUEST:

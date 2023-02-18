@@ -301,8 +301,8 @@ class ClientVersioningManagerImpl implements ClientVersioningManager,
 		for (int i = 0; i < size; i++) {
 			BdfList cv = body.getList(i);
 			ClientId clientId = new ClientId(cv.getString(0));
-			int majorVersion = cv.getLong(1).intValue();
-			int minorVersion = cv.getLong(2).intValue();
+			int majorVersion = cv.getInt(1);
+			int minorVersion = cv.getInt(2);
 			parsed.add(new ClientVersion(clientId, majorVersion, minorVersion));
 		}
 		return parsed;
@@ -408,8 +408,8 @@ class ClientVersioningManagerImpl implements ClientVersioningManager,
 			throws FormatException {
 		// Client ID, major version, minor version, active
 		ClientId clientId = new ClientId(clientState.getString(0));
-		int majorVersion = clientState.getLong(1).intValue();
-		int minorVersion = clientState.getLong(2).intValue();
+		int majorVersion = clientState.getInt(1);
+		int minorVersion = clientState.getInt(2);
 		boolean active = clientState.getBoolean(3);
 		return new ClientState(clientId, majorVersion, minorVersion, active);
 	}

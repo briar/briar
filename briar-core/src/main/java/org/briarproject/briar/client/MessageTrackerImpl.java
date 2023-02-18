@@ -114,8 +114,8 @@ class MessageTrackerImpl implements MessageTracker {
 		try {
 			BdfDictionary d = clientHelper.getGroupMetadataAsDictionary(txn, g);
 			return new GroupCount(
-					d.getLong(GROUP_KEY_MSG_COUNT, 0L).intValue(),
-					d.getLong(GROUP_KEY_UNREAD_COUNT, 0L).intValue(),
+					d.getInt(GROUP_KEY_MSG_COUNT, 0),
+					d.getInt(GROUP_KEY_UNREAD_COUNT, 0),
 					d.getLong(GROUP_KEY_LATEST_MSG, 0L)
 			);
 		} catch (FormatException e) {

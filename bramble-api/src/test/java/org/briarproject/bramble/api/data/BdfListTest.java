@@ -5,31 +5,31 @@ import org.briarproject.bramble.api.FormatException;
 import org.briarproject.bramble.test.BrambleTestCase;
 import org.junit.Test;
 
-import java.util.Arrays;
-import java.util.Collections;
-
+import static java.lang.Boolean.TRUE;
+import static java.util.Arrays.asList;
+import static java.util.Collections.emptyList;
 import static org.briarproject.bramble.api.data.BdfDictionary.NULL_VALUE;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 
 public class BdfListTest extends BrambleTestCase {
 
 	@Test
 	public void testConstructors() {
-		assertEquals(Collections.emptyList(), new BdfList());
-		assertEquals(Arrays.asList(1, 2, NULL_VALUE),
-				new BdfList(Arrays.asList(1, 2, NULL_VALUE)));
+		assertEquals(emptyList(), new BdfList());
+		assertEquals(asList(1, 2, NULL_VALUE),
+				new BdfList(asList(1, 2, NULL_VALUE)));
 	}
 
 	@Test
 	public void testFactoryMethod() {
-		assertEquals(Collections.emptyList(), BdfList.of());
-		assertEquals(Arrays.asList(1, 2, NULL_VALUE),
-				BdfList.of(1, 2, NULL_VALUE));
+		assertEquals(emptyList(), BdfList.of());
+		assertEquals(asList(1, 2, NULL_VALUE), BdfList.of(1, 2, NULL_VALUE));
 	}
 
 	@Test
-	public void testIntegerPromotion() throws Exception {
+	public void testLongPromotion() throws Exception {
 		BdfList list = new BdfList();
 		list.add((byte) 1);
 		list.add((short) 2);
@@ -39,6 +39,31 @@ public class BdfListTest extends BrambleTestCase {
 		assertEquals(Long.valueOf(2), list.getLong(1));
 		assertEquals(Long.valueOf(3), list.getLong(2));
 		assertEquals(Long.valueOf(4), list.getLong(3));
+	}
+
+	@Test
+	public void testIntPromotionAndDemotion() throws Exception {
+		BdfList list = new BdfList();
+		list.add((byte) 1);
+		list.add((short) 2);
+		list.add(3);
+		list.add(4L);
+		assertEquals(Integer.valueOf(1), list.getInt(0));
+		assertEquals(Integer.valueOf(2), list.getInt(1));
+		assertEquals(Integer.valueOf(3), list.getInt(2));
+		assertEquals(Integer.valueOf(4), list.getInt(3));
+	}
+
+	@Test(expected = FormatException.class)
+	public void testIntUnderflow() throws Exception {
+		BdfList list = BdfList.of(Integer.MIN_VALUE - 1L);
+		list.getInt(0);
+	}
+
+	@Test(expected = FormatException.class)
+	public void testIntOverflow() throws Exception {
+		BdfList list = BdfList.of(Integer.MAX_VALUE + 1L);
+		list.getInt(0);
 	}
 
 	@Test
@@ -63,61 +88,6 @@ public class BdfListTest extends BrambleTestCase {
 		assertArrayEquals(new byte[123], second);
 	}
 
-	@Test
-	@SuppressWarnings("ConstantConditions")
-	public void testIndexOutOfBoundsReturnsDefaultValue() throws Exception {
-		BdfList list = BdfList.of(1, 2, 3);
-		boolean defaultBoolean = true;
-		assertEquals(defaultBoolean, list.getBoolean(-1, defaultBoolean));
-		assertEquals(defaultBoolean, list.getBoolean(3, defaultBoolean));
-		Long defaultLong = 123L;
-		assertEquals(defaultLong, list.getLong(-1, defaultLong));
-		assertEquals(defaultLong, list.getLong(3, defaultLong));
-		Double defaultDouble = 1.23;
-		assertEquals(defaultDouble, list.getDouble(-1, defaultDouble));
-		assertEquals(defaultDouble, list.getDouble(3, defaultDouble));
-		String defaultString = "123";
-		assertEquals(defaultString, list.getString(-1, defaultString));
-		assertEquals(defaultString, list.getString(3, defaultString));
-		byte[] defaultBytes = new byte[] {1, 2, 3};
-		assertArrayEquals(defaultBytes, list.getRaw(-1, defaultBytes));
-		assertArrayEquals(defaultBytes, list.getRaw(3, defaultBytes));
-		BdfList defaultList = BdfList.of(1, 2, 3);
-		assertEquals(defaultList, list.getList(-1, defaultList));
-		assertEquals(defaultList, list.getList(3, defaultList));
-		BdfDictionary defaultDict = BdfDictionary.of(
-				new BdfEntry("1", 1),
-				new BdfEntry("2", 2),
-				new BdfEntry("3", 3)
-		);
-		assertEquals(defaultDict, list.getDictionary(-1, defaultDict));
-		assertEquals(defaultDict, list.getDictionary(3, defaultDict));
-	}
-
-	@Test
-	@SuppressWarnings("ConstantConditions")
-	public void testWrongTypeReturnsDefaultValue() throws Exception {
-		BdfList list = BdfList.of(1, 2, 3, true);
-		boolean defaultBoolean = true;
-		assertEquals(defaultBoolean, list.getBoolean(0, defaultBoolean));
-		Long defaultLong = 123L;
-		assertEquals(defaultLong, list.getLong(3, defaultLong));
-		Double defaultDouble = 1.23;
-		assertEquals(defaultDouble, list.getDouble(0, defaultDouble));
-		String defaultString = "123";
-		assertEquals(defaultString, list.getString(0, defaultString));
-		byte[] defaultBytes = new byte[] {1, 2, 3};
-		assertArrayEquals(defaultBytes, list.getRaw(0, defaultBytes));
-		BdfList defaultList = BdfList.of(1, 2, 3);
-		assertEquals(defaultList, list.getList(0, defaultList));
-		BdfDictionary defaultDict = BdfDictionary.of(
-				new BdfEntry("1", 1),
-				new BdfEntry("2", 2),
-				new BdfEntry("3", 3)
-		);
-		assertEquals(defaultDict, list.getDictionary(0, defaultDict));
-	}
-
 	@Test(expected = FormatException.class)
 	public void testNegativeIndexForBooleanThrowsFormatException()
 			throws Exception {
@@ -128,6 +98,12 @@ public class BdfListTest extends BrambleTestCase {
 	public void testNegativeIndexForOptionalBooleanThrowsFormatException()
 			throws Exception {
 		new BdfList().getOptionalBoolean(-1);
+	}
+
+	@Test(expected = FormatException.class)
+	public void testNegativeIndexForDefaultBooleanThrowsFormatException()
+			throws Exception {
+		new BdfList().getBoolean(-1, true);
 	}
 
 	@Test(expected = FormatException.class)
@@ -143,6 +119,30 @@ public class BdfListTest extends BrambleTestCase {
 	}
 
 	@Test(expected = FormatException.class)
+	public void testNegativeIndexForDefaultLongThrowsFormatException()
+			throws Exception {
+		new BdfList().getLong(-1, 1L);
+	}
+
+	@Test(expected = FormatException.class)
+	public void testNegativeIndexForIntThrowsFormatException()
+			throws Exception {
+		new BdfList().getInt(-1);
+	}
+
+	@Test(expected = FormatException.class)
+	public void testNegativeIndexForOptionalIntThrowsFormatException()
+			throws Exception {
+		new BdfList().getOptionalInt(-1);
+	}
+
+	@Test(expected = FormatException.class)
+	public void testNegativeIndexForDefaultIntThrowsFormatException()
+			throws Exception {
+		new BdfList().getInt(-1, 1);
+	}
+
+	@Test(expected = FormatException.class)
 	public void testNegativeIndexForDoubleThrowsFormatException()
 			throws Exception {
 		new BdfList().getDouble(-1);
@@ -152,6 +152,12 @@ public class BdfListTest extends BrambleTestCase {
 	public void testNegativeIndexForOptionalDoubleThrowsFormatException()
 			throws Exception {
 		new BdfList().getOptionalDouble(-1);
+	}
+
+	@Test(expected = FormatException.class)
+	public void testNegativeIndexForDefaultDoubleThrowsFormatException()
+			throws Exception {
+		new BdfList().getDouble(-1, 1D);
 	}
 
 	@Test(expected = FormatException.class)
@@ -167,6 +173,12 @@ public class BdfListTest extends BrambleTestCase {
 	}
 
 	@Test(expected = FormatException.class)
+	public void testNegativeIndexForDefaultStringThrowsFormatException()
+			throws Exception {
+		new BdfList().getString(-1, "");
+	}
+
+	@Test(expected = FormatException.class)
 	public void testNegativeIndexForRawThrowsFormatException()
 			throws Exception {
 		new BdfList().getRaw(-1);
@@ -176,6 +188,12 @@ public class BdfListTest extends BrambleTestCase {
 	public void testNegativeIndexForOptionalRawThrowsFormatException()
 			throws Exception {
 		new BdfList().getOptionalRaw(-1);
+	}
+
+	@Test(expected = FormatException.class)
+	public void testNegativeIndexForDefaultRawThrowsFormatException()
+			throws Exception {
+		new BdfList().getRaw(-1, new byte[0]);
 	}
 
 	@Test(expected = FormatException.class)
@@ -190,6 +208,11 @@ public class BdfListTest extends BrambleTestCase {
 		new BdfList().getOptionalList(-1);
 	}
 
+	@Test(expected = FormatException.class)
+	public void testNegativeIndexForDefaultListThrowsFormatException()
+			throws Exception {
+		new BdfList().getList(-1, new BdfList());
+	}
 
 	@Test(expected = FormatException.class)
 	public void testNegativeIndexForDictionaryThrowsFormatException()
@@ -201,6 +224,12 @@ public class BdfListTest extends BrambleTestCase {
 	public void testNegativeIndexForOptionalDictionaryThrowsFormatException()
 			throws Exception {
 		new BdfList().getOptionalDictionary(-1);
+	}
+
+	@Test(expected = FormatException.class)
+	public void testNegativeIndexForDefaultDictionaryThrowsFormatException()
+			throws Exception {
+		new BdfList().getDictionary(-1, new BdfDictionary());
 	}
 
 	@Test(expected = FormatException.class)
@@ -216,6 +245,12 @@ public class BdfListTest extends BrambleTestCase {
 	}
 
 	@Test(expected = FormatException.class)
+	public void testTooLargeIndexForDefaultBooleanThrowsFormatException()
+			throws Exception {
+		new BdfList().getBoolean(0, true);
+	}
+
+	@Test(expected = FormatException.class)
 	public void testTooLargeIndexForLongThrowsFormatException()
 			throws Exception {
 		new BdfList().getLong(0);
@@ -225,6 +260,30 @@ public class BdfListTest extends BrambleTestCase {
 	public void testTooLargeIndexForOptionalLongThrowsFormatException()
 			throws Exception {
 		new BdfList().getOptionalLong(0);
+	}
+
+	@Test(expected = FormatException.class)
+	public void testTooLargeIndexForDefaultLongThrowsFormatException()
+			throws Exception {
+		new BdfList().getLong(0, 1L);
+	}
+
+	@Test(expected = FormatException.class)
+	public void testTooLargeIndexForIntThrowsFormatException()
+			throws Exception {
+		new BdfList().getInt(0);
+	}
+
+	@Test(expected = FormatException.class)
+	public void testTooLargeIndexForOptionalIntThrowsFormatException()
+			throws Exception {
+		new BdfList().getOptionalInt(0);
+	}
+
+	@Test(expected = FormatException.class)
+	public void testTooLargeIndexForDefaultIntThrowsFormatException()
+			throws Exception {
+		new BdfList().getInt(0, 1);
 	}
 
 	@Test(expected = FormatException.class)
@@ -240,6 +299,12 @@ public class BdfListTest extends BrambleTestCase {
 	}
 
 	@Test(expected = FormatException.class)
+	public void testTooLargeIndexForDefaultDoubleThrowsFormatException()
+			throws Exception {
+		new BdfList().getDouble(0, 1D);
+	}
+
+	@Test(expected = FormatException.class)
 	public void testTooLargeIndexForStringThrowsFormatException()
 			throws Exception {
 		new BdfList().getString(0);
@@ -249,6 +314,12 @@ public class BdfListTest extends BrambleTestCase {
 	public void testTooLargeIndexForOptionalStringThrowsFormatException()
 			throws Exception {
 		new BdfList().getOptionalString(0);
+	}
+
+	@Test(expected = FormatException.class)
+	public void testTooLargeIndexForDefaultStringThrowsFormatException()
+			throws Exception {
+		new BdfList().getString(0, "");
 	}
 
 	@Test(expected = FormatException.class)
@@ -264,6 +335,12 @@ public class BdfListTest extends BrambleTestCase {
 	}
 
 	@Test(expected = FormatException.class)
+	public void testTooLargeIndexForDefaultRawThrowsFormatException()
+			throws Exception {
+		new BdfList().getRaw(0, new byte[0]);
+	}
+
+	@Test(expected = FormatException.class)
 	public void testTooLargeIndexForListThrowsFormatException()
 			throws Exception {
 		new BdfList().getList(0);
@@ -275,6 +352,11 @@ public class BdfListTest extends BrambleTestCase {
 		new BdfList().getOptionalList(0);
 	}
 
+	@Test(expected = FormatException.class)
+	public void testTooLargeIndexForDefaultListThrowsFormatException()
+			throws Exception {
+		new BdfList().getList(0, new BdfList());
+	}
 
 	@Test(expected = FormatException.class)
 	public void testTooLargeIndexForDictionaryThrowsFormatException()
@@ -287,6 +369,13 @@ public class BdfListTest extends BrambleTestCase {
 			throws Exception {
 		new BdfList().getOptionalDictionary(0);
 	}
+
+	@Test(expected = FormatException.class)
+	public void testTooLargeIndexForDefaultDictionaryThrowsFormatException()
+			throws Exception {
+		new BdfList().getDictionary(0, new BdfDictionary());
+	}
+
 	@Test(expected = FormatException.class)
 	public void testWrongTypeForBooleanThrowsFormatException()
 			throws Exception {
@@ -297,6 +386,12 @@ public class BdfListTest extends BrambleTestCase {
 	public void testWrongTypeForOptionalBooleanThrowsFormatException()
 			throws Exception {
 		BdfList.of(123).getOptionalBoolean(0);
+	}
+
+	@Test(expected = FormatException.class)
+	public void testWrongTypeForDefaultBooleanThrowsFormatException()
+			throws Exception {
+		BdfList.of(123).getBoolean(0, true);
 	}
 
 	@Test(expected = FormatException.class)
@@ -311,6 +406,29 @@ public class BdfListTest extends BrambleTestCase {
 	}
 
 	@Test(expected = FormatException.class)
+	public void testWrongTypeForDefaultLongThrowsFormatException()
+			throws Exception {
+		BdfList.of(1.23).getLong(0, 1L);
+	}
+
+	@Test(expected = FormatException.class)
+	public void testWrongTypeForIntThrowsFormatException() throws Exception {
+		BdfList.of(1.23).getInt(0);
+	}
+
+	@Test(expected = FormatException.class)
+	public void testWrongTypeForOptionalIntThrowsFormatException()
+			throws Exception {
+		BdfList.of(1.23).getOptionalInt(0);
+	}
+
+	@Test(expected = FormatException.class)
+	public void testWrongTypeForDefaultIntThrowsFormatException()
+			throws Exception {
+		BdfList.of(1.23).getInt(0, 1);
+	}
+
+	@Test(expected = FormatException.class)
 	public void testWrongTypeForDoubleThrowsFormatException() throws Exception {
 		BdfList.of(123).getDouble(0);
 	}
@@ -319,6 +437,12 @@ public class BdfListTest extends BrambleTestCase {
 	public void testWrongTypeForOptionalDoubleThrowsFormatException()
 			throws Exception {
 		BdfList.of(123).getOptionalDouble(0);
+	}
+
+	@Test(expected = FormatException.class)
+	public void testWrongTypeForDefaultDoubleThrowsFormatException()
+			throws Exception {
+		BdfList.of(123).getDouble(0, 1D);
 	}
 
 	@Test(expected = FormatException.class)
@@ -333,6 +457,12 @@ public class BdfListTest extends BrambleTestCase {
 	}
 
 	@Test(expected = FormatException.class)
+	public void testWrongTypeForDefaultStringThrowsFormatException()
+			throws Exception {
+		BdfList.of(123).getString(0, "");
+	}
+
+	@Test(expected = FormatException.class)
 	public void testWrongTypeForRawThrowsFormatException() throws Exception {
 		BdfList.of(123).getRaw(0);
 	}
@@ -341,6 +471,12 @@ public class BdfListTest extends BrambleTestCase {
 	public void testWrongTypeForOptionalRawThrowsFormatException()
 			throws Exception {
 		BdfList.of(123).getOptionalRaw(0);
+	}
+
+	@Test(expected = FormatException.class)
+	public void testWrongTypeForDefaultRawThrowsFormatException()
+			throws Exception {
+		BdfList.of(123).getRaw(0, new byte[0]);
 	}
 
 	@Test(expected = FormatException.class)
@@ -354,6 +490,11 @@ public class BdfListTest extends BrambleTestCase {
 		BdfList.of(123).getOptionalList(0);
 	}
 
+	@Test(expected = FormatException.class)
+	public void testWrongTypeForDefaultListThrowsFormatException()
+			throws Exception {
+		BdfList.of(123).getList(0, new BdfList());
+	}
 
 	@Test(expected = FormatException.class)
 	public void testWrongTypeForDictionaryThrowsFormatException()
@@ -365,5 +506,82 @@ public class BdfListTest extends BrambleTestCase {
 	public void testWrongTypeForOptionalDictionaryThrowsFormatException()
 			throws Exception {
 		BdfList.of(123).getOptionalDictionary(0);
+	}
+
+	@Test(expected = FormatException.class)
+	public void testWrongTypeForDefaultDictionaryThrowsFormatException()
+			throws Exception {
+		BdfList.of(123).getDictionary(0, new BdfDictionary());
+	}
+
+	@Test(expected = FormatException.class)
+	public void testNullValueForBooleanThrowsFormatException()
+			throws Exception {
+		BdfList.of(NULL_VALUE).getBoolean(0);
+	}
+
+	@Test(expected = FormatException.class)
+	public void testNullValueForLongThrowsFormatException() throws Exception {
+		BdfList.of(NULL_VALUE).getLong(0);
+	}
+
+	@Test(expected = FormatException.class)
+	public void testNullValueForIntThrowsFormatException() throws Exception {
+		BdfList.of(NULL_VALUE).getInt(0);
+	}
+
+	@Test(expected = FormatException.class)
+	public void testNullValueForDoubleThrowsFormatException() throws Exception {
+		BdfList.of(NULL_VALUE).getDouble(0);
+	}
+
+	@Test(expected = FormatException.class)
+	public void testNullValueForStringThrowsFormatException() throws Exception {
+		BdfList.of(NULL_VALUE).getString(0);
+	}
+
+	@Test(expected = FormatException.class)
+	public void testNullValueForRawThrowsFormatException() throws Exception {
+		BdfList.of(NULL_VALUE).getRaw(0);
+	}
+
+	@Test(expected = FormatException.class)
+	public void testNullValueForListThrowsFormatException() throws Exception {
+		BdfList.of(NULL_VALUE).getList(0);
+	}
+
+	@Test(expected = FormatException.class)
+	public void testNullValueForDictionaryThrowsFormatException()
+			throws Exception {
+		BdfList.of(NULL_VALUE).getDictionary(0);
+	}
+
+	@Test
+	public void testOptionalMethodsReturnNullForNullValue() throws Exception {
+		BdfList list = BdfList.of(NULL_VALUE);
+		assertNull(list.getOptionalBoolean(0));
+		assertNull(list.getOptionalLong(0));
+		assertNull(list.getOptionalInt(0));
+		assertNull(list.getOptionalDouble(0));
+		assertNull(list.getOptionalString(0));
+		assertNull(list.getOptionalRaw(0));
+		assertNull(list.getOptionalList(0));
+		assertNull(list.getOptionalDictionary(0));
+	}
+
+	@Test
+	public void testDefaultMethodsReturnDefaultForNullValue() throws Exception {
+		BdfList list = BdfList.of(NULL_VALUE);
+		assertEquals(TRUE, list.getBoolean(0, TRUE));
+		assertEquals(Long.valueOf(123L), list.getLong(0, 123L));
+		assertEquals(Integer.valueOf(123), list.getInt(0, 123));
+		assertEquals(Double.valueOf(123D), list.getDouble(0, 123D));
+		assertEquals("123", list.getString(0, "123"));
+		byte[] defaultRaw = {1, 2, 3};
+		assertArrayEquals(defaultRaw, list.getRaw(0, defaultRaw));
+		BdfList defaultList = BdfList.of(1, 2, 3);
+		assertEquals(defaultList, list.getList(0, defaultList));
+		BdfDictionary defaultDict = BdfDictionary.of(new BdfEntry("123", 123));
+		assertEquals(defaultDict, list.getDictionary(0, defaultDict));
 	}
 }

@@ -378,7 +378,7 @@ class ClientHelperImpl implements ClientHelper {
 	public Author parseAndValidateAuthor(BdfList author)
 			throws FormatException {
 		checkSize(author, 3);
-		int formatVersion = author.getLong(0).intValue();
+		int formatVersion = author.getInt(0);
 		if (formatVersion != FORMAT_VERSION) throw new FormatException();
 		String name = author.getString(1);
 		checkLength(name, 1, MAX_AUTHOR_NAME_LENGTH);
@@ -489,8 +489,7 @@ class ClientHelperImpl implements ClientHelper {
 			if (element.size() != 2) {
 				throw new FormatException();
 			}
-			list.add(new MailboxVersion(element.getLong(0).intValue(),
-					element.getLong(1).intValue()));
+			list.add(new MailboxVersion(element.getInt(0), element.getInt(1)));
 		}
 		// Sort the list of versions for easier comparison
 		sort(list);
@@ -503,7 +502,7 @@ class ClientHelperImpl implements ClientHelper {
 		try {
 			BdfDictionary meta =
 					getGroupMetadataAsDictionary(txn, contactGroupId);
-			return new ContactId(meta.getLong(GROUP_KEY_CONTACT_ID).intValue());
+			return new ContactId(meta.getInt(GROUP_KEY_CONTACT_ID));
 		} catch (FormatException e) {
 			throw new DbException(e); // Invalid group metadata
 		}

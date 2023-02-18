@@ -487,7 +487,7 @@ class BlogManagerImpl extends BdfIncomingMessageHook implements BlogManager,
 	}
 
 	private String getPostText(BdfList message) throws FormatException {
-		MessageType type = MessageType.valueOf(message.getLong(0).intValue());
+		MessageType type = MessageType.valueOf(message.getInt(0));
 		if (type == POST) {
 			// Type, text, signature
 			return message.getString(1);
@@ -621,7 +621,6 @@ class BlogManagerImpl extends BdfIncomingMessageHook implements BlogManager,
 	}
 
 	private MessageType getMessageType(BdfDictionary d) throws FormatException {
-		Long longType = d.getLong(KEY_TYPE);
-		return MessageType.valueOf(longType.intValue());
+		return MessageType.valueOf(d.getInt(KEY_TYPE));
 	}
 }

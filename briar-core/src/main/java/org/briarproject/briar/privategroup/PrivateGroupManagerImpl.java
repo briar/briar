@@ -530,8 +530,7 @@ class PrivateGroupManagerImpl extends BdfIncomingMessageHook
 			BdfList body, BdfDictionary meta)
 			throws DbException, FormatException {
 
-		MessageType type =
-				MessageType.valueOf(meta.getLong(KEY_TYPE).intValue());
+		MessageType type = MessageType.valueOf(meta.getInt(KEY_TYPE));
 		switch (type) {
 			case JOIN:
 				handleJoinMessage(txn, m, meta);
@@ -576,8 +575,8 @@ class PrivateGroupManagerImpl extends BdfIncomingMessageHook
 					.getMessageMetadataAsDictionary(txn, parentId);
 			if (timestamp <= parentMeta.getLong(KEY_TIMESTAMP))
 				throw new FormatException();
-			MessageType parentType = MessageType
-					.valueOf(parentMeta.getLong(KEY_TYPE).intValue());
+			MessageType parentType =
+					MessageType.valueOf(parentMeta.getInt(KEY_TYPE));
 			if (parentType != POST)
 				throw new FormatException();
 		}
@@ -592,8 +591,8 @@ class PrivateGroupManagerImpl extends BdfIncomingMessageHook
 		if (!getAuthor(meta).equals(getAuthor(previousMeta)))
 			throw new FormatException();
 		// previous message must be a POST or JOIN
-		MessageType previousType = MessageType
-				.valueOf(previousMeta.getLong(KEY_TYPE).intValue());
+		MessageType previousType =
+				MessageType.valueOf(previousMeta.getInt(KEY_TYPE));
 		if (previousType != JOIN && previousType != POST)
 			throw new FormatException();
 		// track message and broadcast event
@@ -641,8 +640,7 @@ class PrivateGroupManagerImpl extends BdfIncomingMessageHook
 
 	private Visibility getVisibility(BdfDictionary meta)
 			throws FormatException {
-		return Visibility
-				.valueOf(meta.getLong(GROUP_KEY_VISIBILITY).intValue());
+		return Visibility.valueOf(meta.getInt(GROUP_KEY_VISIBILITY));
 	}
 
 }

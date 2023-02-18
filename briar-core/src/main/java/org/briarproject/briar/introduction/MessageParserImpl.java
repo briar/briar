@@ -59,8 +59,8 @@ class MessageParserImpl implements MessageParser {
 	@Override
 	public MessageMetadata parseMetadata(BdfDictionary d)
 			throws FormatException {
-		MessageType type = MessageType
-				.fromValue(d.getLong(MSG_KEY_MESSAGE_TYPE).intValue());
+		MessageType type =
+				MessageType.fromValue(d.getInt(MSG_KEY_MESSAGE_TYPE));
 		byte[] sessionIdBytes = d.getOptionalRaw(MSG_KEY_SESSION_ID);
 		SessionId sessionId =
 				sessionIdBytes == null ? null : new SessionId(sessionIdBytes);

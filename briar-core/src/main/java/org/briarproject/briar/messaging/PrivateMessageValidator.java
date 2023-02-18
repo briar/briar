@@ -84,7 +84,7 @@ class PrivateMessageValidator implements MessageValidator {
 				context = validateLegacyPrivateMessage(m, list);
 			} else {
 				// Private message or attachment
-				int messageType = list.getLong(0).intValue();
+				int messageType = list.getInt(0);
 				if (messageType == PRIVATE_MESSAGE) {
 					if (!reader.eof()) throw new FormatException();
 					context = validatePrivateMessage(m, list);

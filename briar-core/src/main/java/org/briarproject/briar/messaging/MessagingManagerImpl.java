@@ -371,7 +371,7 @@ class MessagingManagerImpl implements MessagingManager, IncomingMessageHook,
 		try {
 			BdfDictionary meta =
 					clientHelper.getGroupMetadataAsDictionary(txn, g);
-			return new ContactId(meta.getLong(GROUP_KEY_CONTACT_ID).intValue());
+			return new ContactId(meta.getInt(GROUP_KEY_CONTACT_ID));
 		} catch (FormatException e) {
 			throw new DbException(e);
 		}
@@ -381,7 +381,7 @@ class MessagingManagerImpl implements MessagingManager, IncomingMessageHook,
 	public ContactId getContactId(GroupId g) throws DbException {
 		try {
 			BdfDictionary meta = clientHelper.getGroupMetadataAsDictionary(g);
-			return new ContactId(meta.getLong(GROUP_KEY_CONTACT_ID).intValue());
+			return new ContactId(meta.getInt(GROUP_KEY_CONTACT_ID));
 		} catch (FormatException e) {
 			throw new DbException(e);
 		}

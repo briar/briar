@@ -712,9 +712,9 @@ class GroupInvitationManagerImpl extends ConversationClientImpl
 			// get all sessions and their states
 			Map<GroupId, DeletableSession> sessions = new HashMap<>();
 			for (BdfDictionary d : metadata.values()) {
-				if (!sessionParser.isSession(d)) continue;
 				Session<?> session;
 				try {
+					if (!sessionParser.isSession(d)) continue;
 					session = sessionParser.parseSession(g, d);
 				} catch (FormatException e) {
 					throw new DbException(e);
@@ -776,13 +776,12 @@ class GroupInvitationManagerImpl extends ConversationClientImpl
 
 		// assign protocol messages to their sessions
 		for (Entry<MessageId, BdfDictionary> entry : metadata.entrySet()) {
-			// skip all sessions, we are only interested in messages
-			BdfDictionary d = entry.getValue();
-			if (sessionParser.isSession(d)) continue;
-
 			// parse message metadata and skip messages not visible in UI
 			MessageMetadata m;
 			try {
+				// skip all sessions, we are only interested in messages
+				BdfDictionary d = entry.getValue();
+				if (sessionParser.isSession(d)) continue;
 				m = messageParser.parseMetadata(d);
 			} catch (FormatException e) {
 				throw new DbException(e);

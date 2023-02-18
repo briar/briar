@@ -71,8 +71,8 @@ class MessageParserImpl implements MessageParser {
 	@Override
 	public MessageMetadata parseMetadata(BdfDictionary meta)
 			throws FormatException {
-		MessageType type = MessageType.fromValue(
-				meta.getLong(MSG_KEY_MESSAGE_TYPE).intValue());
+		MessageType type =
+				MessageType.fromValue(meta.getInt(MSG_KEY_MESSAGE_TYPE));
 		GroupId privateGroupId =
 				new GroupId(meta.getRaw(MSG_KEY_PRIVATE_GROUP_ID));
 		long timestamp = meta.getLong(MSG_KEY_TIMESTAMP);
