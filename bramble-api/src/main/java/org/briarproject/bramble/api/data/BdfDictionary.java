@@ -10,6 +10,27 @@ import java.util.TreeMap;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.NotThreadSafe;
 
+/**
+ * A BDF dictionary contains zero or more key-value pairs, where the keys
+ * are strings and the values are BDF objects, which may be primitive types
+ * (null, boolean, integer, float, string, raw) or nested containers (list,
+ * dictionary).
+ * <p>
+ * Note that a BDF integer has the same range as a Java long, while a BDF
+ * float has the same range as a Java double. Method names in this class
+ * correspond to the Java types.
+ * <p>
+ * The getX() methods throw {@link FormatException} if the specified key is
+ * absent, the value is null, or the value does not have the requested type.
+ * <p>
+ * The getOptionalX() methods return null if the specified key is absent or
+ * the value is null, or throw {@link FormatException} if the value does not
+ * have the requested type.
+ * <p>
+ * The getX() methods that take a default value return the default value if
+ * the specified key is absent or the value is null, or throw
+ * {@link FormatException} if the value does not have the requested type.
+ */
 @NotThreadSafe
 public final class BdfDictionary extends TreeMap<String, Object> {
 
@@ -80,12 +101,33 @@ public final class BdfDictionary extends TreeMap<String, Object> {
 		return value == null ? defaultValue : value;
 	}
 
+	/**
+	 * Returns the integer with the specified key.
+	 * <p>
+	 * This method should be used in preference to
+	 * <code>getLong(key).intValue()</code> as it checks for
+	 * overflow/underflow.
+	 *
+	 * @throws FormatException if there is no value at the specified key,
+	 * or if the value is null or cannot be represented as a Java int.
+	 */
 	public Integer getInt(String key) throws FormatException {
 		Integer value = getOptionalInt(key);
 		if (value == null) throw new FormatException();
 		return value;
 	}
 
+	/**
+	 * Returns the integer with the specified key, or null if the key is
+	 * absent or the value is null.
+	 * <p>
+	 * This method should be used in preference to
+	 * <code>getOptionalLong(key).intValue()</code> as it checks for
+	 * overflow/underflow.
+	 *
+	 * @throws FormatException if the value at the specified key is not null
+	 * and cannot be represented as a Java int.
+	 */
 	@Nullable
 	public Integer getOptionalInt(String key) throws FormatException {
 		Long value = getOptionalLong(key);
@@ -96,6 +138,17 @@ public final class BdfDictionary extends TreeMap<String, Object> {
 		return value.intValue();
 	}
 
+	/**
+	 * Returns the integer with the specified key, or the given default
+	 * value if the key is absent or the value is null.
+	 * <p>
+	 * This method should be used in preference to
+	 * <code>getLong(key, defaultValue).intValue()</code> as it checks for
+	 * overflow/underflow.
+	 *
+	 * @throws FormatException if the value at the specified key is not null
+	 * and cannot be represented as a Java int.
+	 */
 	public Integer getInt(String key, Integer defaultValue)
 			throws FormatException {
 		Integer value = getOptionalInt(key);
