@@ -49,6 +49,9 @@ public interface ClientHelper {
 	BdfList getMessageAsList(Transaction txn, MessageId m) throws DbException,
 			FormatException;
 
+	BdfList getMessageAsList(Transaction txn, MessageId m, boolean canonical)
+			throws DbException, FormatException;
+
 	BdfDictionary getGroupMetadataAsDictionary(GroupId g) throws DbException,
 			FormatException;
 
@@ -105,6 +108,8 @@ public interface ClientHelper {
 	BdfList toList(byte[] b) throws FormatException;
 
 	BdfList toList(Message m) throws FormatException;
+
+	BdfList toList(Message m, boolean canonical) throws FormatException;
 
 	BdfList toList(Author a);
 

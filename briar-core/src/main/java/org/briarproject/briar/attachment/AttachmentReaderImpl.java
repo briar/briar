@@ -56,7 +56,7 @@ public class AttachmentReaderImpl implements AttachmentReader {
 			String contentType = meta.getString(MSG_KEY_CONTENT_TYPE);
 			if (!contentType.equals(h.getContentType()))
 				throw new NoSuchMessageException();
-			int offset = meta.getLong(MSG_KEY_DESCRIPTOR_LENGTH).intValue();
+			int offset = meta.getInt(MSG_KEY_DESCRIPTOR_LENGTH);
 			InputStream stream = new ByteArrayInputStream(body, offset,
 					body.length - offset);
 			return new Attachment(h, stream);

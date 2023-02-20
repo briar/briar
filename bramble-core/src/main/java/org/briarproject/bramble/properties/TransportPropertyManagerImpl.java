@@ -201,7 +201,7 @@ class TransportPropertyManagerImpl implements TransportPropertyManager,
 			// Retrieve and parse the latest local properties
 			for (Entry<TransportId, LatestUpdate> e : latest.entrySet()) {
 				BdfList message = clientHelper.getMessageAsList(txn,
-						e.getValue().messageId);
+						e.getValue().messageId, false);
 				local.put(e.getKey(), parseProperties(message));
 			}
 			return local;
@@ -222,7 +222,7 @@ class TransportPropertyManagerImpl implements TransportPropertyManager,
 				if (latest != null) {
 					// Retrieve and parse the latest local properties
 					BdfList message = clientHelper.getMessageAsList(txn,
-							latest.messageId);
+							latest.messageId, false);
 					p = parseProperties(message);
 				}
 				return p == null ? new TransportProperties() : p;
@@ -252,7 +252,7 @@ class TransportPropertyManagerImpl implements TransportPropertyManager,
 				local = new TransportProperties();
 			} else {
 				BdfList message = clientHelper.getMessageAsList(txn,
-						latest.messageId);
+						latest.messageId, false);
 				local = parseProperties(message);
 			}
 			storeLocalProperties(txn, c, t, local);
@@ -272,8 +272,8 @@ class TransportPropertyManagerImpl implements TransportPropertyManager,
 				remote = new TransportProperties();
 			} else {
 				// Retrieve and parse the latest remote properties
-				BdfList message =
-						clientHelper.getMessageAsList(txn, latest.messageId);
+				BdfList message = clientHelper.getMessageAsList(txn,
+						latest.messageId, false);
 				remote = parseProperties(message);
 			}
 			// Merge in any discovered properties
@@ -317,7 +317,7 @@ class TransportPropertyManagerImpl implements TransportPropertyManager,
 					changed = true;
 				} else {
 					BdfList message = clientHelper.getMessageAsList(txn,
-							latest.messageId);
+							latest.messageId, false);
 					TransportProperties old = parseProperties(message);
 					merged = new TransportProperties(old);
 					for (Entry<String, String> e : p.entrySet()) {

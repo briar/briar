@@ -2,11 +2,13 @@ package org.briarproject.bramble.data;
 
 import org.briarproject.bramble.api.Bytes;
 import org.briarproject.bramble.api.FormatException;
+import org.briarproject.bramble.api.data.BdfDictionary;
 import org.briarproject.bramble.api.data.BdfWriter;
 import org.briarproject.nullsafety.NotNullByDefault;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -15,6 +17,7 @@ import java.util.Map.Entry;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.NotThreadSafe;
 
+import static java.util.Collections.sort;
 import static org.briarproject.bramble.api.data.BdfDictionary.NULL_VALUE;
 import static org.briarproject.bramble.data.Types.DICTIONARY;
 import static org.briarproject.bramble.data.Types.END;
@@ -33,10 +36,11 @@ import static org.briarproject.bramble.data.Types.STRING_16;
 import static org.briarproject.bramble.data.Types.STRING_32;
 import static org.briarproject.bramble.data.Types.STRING_8;
 import static org.briarproject.bramble.data.Types.TRUE;
+import static org.briarproject.bramble.util.StringUtils.UTF_8;
 
 @NotThreadSafe
 @NotNullByDefault
-class BdfWriterImpl implements BdfWriter {
+final class BdfWriterImpl implements BdfWriter {
 
 	private final OutputStream out;
 
@@ -113,7 +117,7 @@ class BdfWriterImpl implements BdfWriter {
 
 	@Override
 	public void writeString(String s) throws IOException {
-		byte[] b = s.getBytes("UTF-8");
+		byte[] b = s.getBytes(UTF_8);
 		if (b.length <= Byte.MAX_VALUE) {
 			out.write(STRING_8);
 			out.write((byte) b.length);
@@ -161,39 +165,33 @@ class BdfWriterImpl implements BdfWriter {
 		else if (o instanceof String) writeString((String) o);
 		else if (o instanceof byte[]) writeRaw((byte[]) o);
 		else if (o instanceof Bytes) writeRaw(((Bytes) o).getBytes());
-		else if (o instanceof List) writeList((List) o);
-		else if (o instanceof Map) writeDictionary((Map) o);
+		else if (o instanceof List) writeList((List<?>) o);
+		else if (o instanceof Map) writeDictionary((Map<?, ?>) o);
 		else throw new FormatException();
-	}
-
-	@Override
-	public void writeListStart() throws IOException {
-		out.write(LIST);
-	}
-
-	@Override
-	public void writeListEnd() throws IOException {
-		out.write(END);
 	}
 
 	@Override
 	public void writeDictionary(Map<?, ?> m) throws IOException {
 		out.write(DICTIONARY);
-		for (Entry<?, ?> e : m.entrySet()) {
-			if (!(e.getKey() instanceof String)) throw new FormatException();
-			writeString((String) e.getKey());
-			writeObject(e.getValue());
+		if (m instanceof BdfDictionary) {
+			// Entries are already sorted and keys are known to be strings
+			for (Entry<String, Object> e : ((BdfDictionary) m).entrySet()) {
+				writeString(e.getKey());
+				writeObject(e.getValue());
+			}
+		} else {
+			// Check that keys are strings, write entries in canonical order
+			List<String> keys = new ArrayList<>(m.size());
+			for (Object k : m.keySet()) {
+				if (!(k instanceof String)) throw new FormatException();
+				keys.add((String) k);
+			}
+			sort(keys);
+			for (String key : keys) {
+				writeString(key);
+				writeObject(m.get(key));
+			}
 		}
-		out.write(END);
-	}
-
-	@Override
-	public void writeDictionaryStart() throws IOException {
-		out.write(DICTIONARY);
-	}
-
-	@Override
-	public void writeDictionaryEnd() throws IOException {
 		out.write(END);
 	}
 }

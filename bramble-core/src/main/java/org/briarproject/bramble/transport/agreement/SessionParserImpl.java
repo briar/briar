@@ -32,8 +32,7 @@ class SessionParserImpl implements SessionParser {
 
 	@Override
 	public Session parseSession(BdfDictionary meta) throws FormatException {
-		State state =
-				State.fromValue(meta.getLong(SESSION_KEY_STATE).intValue());
+		State state = State.fromValue(meta.getInt(SESSION_KEY_STATE));
 
 		MessageId lastLocalMessageId = null;
 		byte[] lastLocalMessageIdBytes =
@@ -56,9 +55,9 @@ class SessionParserImpl implements SessionParser {
 		Long localTimestamp = meta.getOptionalLong(SESSION_KEY_LOCAL_TIMESTAMP);
 
 		KeySetId keySetId = null;
-		Long keySetIdLong = meta.getOptionalLong(SESSION_KEY_KEY_SET_ID);
-		if (keySetIdLong != null) {
-			keySetId = new KeySetId(keySetIdLong.intValue());
+		Integer keySetIdInt = meta.getOptionalInt(SESSION_KEY_KEY_SET_ID);
+		if (keySetIdInt != null) {
+			keySetId = new KeySetId(keySetIdInt);
 		}
 
 		return new Session(state, lastLocalMessageId, localKeyPair,

@@ -33,21 +33,24 @@ import static org.briarproject.bramble.util.StringUtils.fromUtf8;
 
 @NotThreadSafe
 @NotNullByDefault
-class BdfReaderImpl implements BdfReader {
+final class BdfReaderImpl implements BdfReader {
 
 	private static final byte[] EMPTY_BUFFER = new byte[0];
 
 	private final InputStream in;
 	private final int nestedLimit, maxBufferSize;
+	private final boolean canonical;
 
 	private boolean hasLookahead = false, eof = false;
 	private byte next;
 	private byte[] buf = new byte[8];
 
-	BdfReaderImpl(InputStream in, int nestedLimit, int maxBufferSize) {
+	BdfReaderImpl(InputStream in, int nestedLimit, int maxBufferSize,
+			boolean canonical) {
 		this.in = in;
 		this.nestedLimit = nestedLimit;
 		this.maxBufferSize = maxBufferSize;
+		this.canonical = canonical;
 	}
 
 	private void readLookahead() throws IOException {
@@ -188,13 +191,22 @@ class BdfReaderImpl implements BdfReader {
 
 	private short readInt16() throws IOException {
 		readIntoBuffer(2);
-		return (short) (((buf[0] & 0xFF) << 8) + (buf[1] & 0xFF));
+		short value = (short) (((buf[0] & 0xFF) << 8) + (buf[1] & 0xFF));
+		if (canonical && value >= Byte.MIN_VALUE && value <= Byte.MAX_VALUE) {
+			// Value could have been encoded as an INT_8
+			throw new FormatException();
+		}
+		return value;
 	}
 
 	private int readInt32() throws IOException {
 		readIntoBuffer(4);
 		int value = 0;
 		for (int i = 0; i < 4; i++) value |= (buf[i] & 0xFF) << (24 - i * 8);
+		if (canonical && value >= Short.MIN_VALUE && value <= Short.MAX_VALUE) {
+			// Value could have been encoded as an INT_16
+			throw new FormatException();
+		}
 		return value;
 	}
 
@@ -202,6 +214,11 @@ class BdfReaderImpl implements BdfReader {
 		readIntoBuffer(8);
 		long value = 0;
 		for (int i = 0; i < 8; i++) value |= (buf[i] & 0xFFL) << (56 - i * 8);
+		if (canonical && value >= Integer.MIN_VALUE &&
+				value <= Integer.MAX_VALUE) {
+			// Value could have been encoded as an INT_32
+			throw new FormatException();
+		}
 		return value;
 	}
 
@@ -212,6 +229,31 @@ class BdfReaderImpl implements BdfReader {
 		else if (next == INT_16) skip(2);
 		else if (next == INT_32) skip(4);
 		else skip(8);
+		hasLookahead = false;
+	}
+
+	@Override
+	public boolean hasInt() throws IOException {
+		if (!hasLookahead) readLookahead();
+		if (eof) return false;
+		return next == INT_8 || next == INT_16 || next == INT_32;
+	}
+
+	@Override
+	public int readInt() throws IOException {
+		if (!hasInt()) throw new FormatException();
+		hasLookahead = false;
+		if (next == INT_8) return readInt8();
+		if (next == INT_16) return readInt16();
+		return readInt32();
+	}
+
+	@Override
+	public void skipInt() throws IOException {
+		if (!hasInt()) throw new FormatException();
+		if (next == INT_8) skip(1);
+		else if (next == INT_16) skip(2);
+		else skip(4);
 		hasLookahead = false;
 	}
 
@@ -323,33 +365,17 @@ class BdfReaderImpl implements BdfReader {
 	private BdfList readList(int level) throws IOException {
 		if (!hasList()) throw new FormatException();
 		if (level > nestedLimit) throw new FormatException();
-		BdfList list = new BdfList();
-		readListStart();
-		while (!hasListEnd()) list.add(readObject(level + 1));
-		readListEnd();
-		return list;
-	}
-
-	@Override
-	public void readListStart() throws IOException {
-		if (!hasList()) throw new FormatException();
 		hasLookahead = false;
-	}
-
-	@Override
-	public boolean hasListEnd() throws IOException {
-		return hasEnd();
+		BdfList list = new BdfList();
+		while (!hasEnd()) list.add(readObject(level + 1));
+		readEnd();
+		return list;
 	}
 
 	private boolean hasEnd() throws IOException {
 		if (!hasLookahead) readLookahead();
 		if (eof) return false;
 		return next == END;
-	}
-
-	@Override
-	public void readListEnd() throws IOException {
-		readEnd();
 	}
 
 	private void readEnd() throws IOException {
@@ -361,7 +387,7 @@ class BdfReaderImpl implements BdfReader {
 	public void skipList() throws IOException {
 		if (!hasList()) throw new FormatException();
 		hasLookahead = false;
-		while (!hasListEnd()) skipObject();
+		while (!hasEnd()) skipObject();
 		hasLookahead = false;
 	}
 
@@ -380,35 +406,27 @@ class BdfReaderImpl implements BdfReader {
 	private BdfDictionary readDictionary(int level) throws IOException {
 		if (!hasDictionary()) throw new FormatException();
 		if (level > nestedLimit) throw new FormatException();
-		BdfDictionary dictionary = new BdfDictionary();
-		readDictionaryStart();
-		while (!hasDictionaryEnd())
-			dictionary.put(readString(), readObject(level + 1));
-		readDictionaryEnd();
-		return dictionary;
-	}
-
-	@Override
-	public void readDictionaryStart() throws IOException {
-		if (!hasDictionary()) throw new FormatException();
 		hasLookahead = false;
-	}
-
-	@Override
-	public boolean hasDictionaryEnd() throws IOException {
-		return hasEnd();
-	}
-
-	@Override
-	public void readDictionaryEnd() throws IOException {
+		BdfDictionary dictionary = new BdfDictionary();
+		String prevKey = null;
+		while (!hasEnd()) {
+			String key = readString();
+			if (canonical && prevKey != null && key.compareTo(prevKey) <= 0) {
+				// Keys not unique and sorted
+				throw new FormatException();
+			}
+			dictionary.put(key, readObject(level + 1));
+			prevKey = key;
+		}
 		readEnd();
+		return dictionary;
 	}
 
 	@Override
 	public void skipDictionary() throws IOException {
 		if (!hasDictionary()) throw new FormatException();
 		hasLookahead = false;
-		while (!hasDictionaryEnd()) {
+		while (!hasEnd()) {
 			skipString();
 			skipObject();
 		}

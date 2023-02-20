@@ -63,7 +63,7 @@ class GroupMessageValidator extends BdfMessageValidator {
 		checkSize(body, 4, 6);
 
 		// Message type (int)
-		int type = body.getLong(0).intValue();
+		int type = body.getInt(0);
 
 		// Member (author)
 		BdfList memberList = body.getList(1);

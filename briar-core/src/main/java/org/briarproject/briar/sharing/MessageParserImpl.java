@@ -64,8 +64,8 @@ abstract class MessageParserImpl<S extends Shareable>
 	@Override
 	public MessageMetadata parseMetadata(BdfDictionary meta)
 			throws FormatException {
-		MessageType type = MessageType
-				.fromValue(meta.getLong(MSG_KEY_MESSAGE_TYPE).intValue());
+		MessageType type =
+				MessageType.fromValue(meta.getInt(MSG_KEY_MESSAGE_TYPE));
 		GroupId shareableId = new GroupId(meta.getRaw(MSG_KEY_SHAREABLE_ID));
 		long timestamp = meta.getLong(MSG_KEY_TIMESTAMP);
 		boolean local = meta.getBoolean(MSG_KEY_LOCAL);

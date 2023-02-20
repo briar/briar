@@ -24,13 +24,5 @@ public interface BdfWriter {
 
 	void writeList(Collection<?> c) throws IOException;
 
-	void writeListStart() throws IOException;
-
-	void writeListEnd() throws IOException;
-
 	void writeDictionary(Map<?, ?> m) throws IOException;
-
-	void writeDictionaryStart() throws IOException;
-
-	void writeDictionaryEnd() throws IOException;
 }

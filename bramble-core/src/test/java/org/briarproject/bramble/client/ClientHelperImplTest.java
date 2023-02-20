@@ -546,7 +546,7 @@ public class ClientHelperImplTest extends BrambleMockTestCase {
 
 		context.checking(new Expectations() {{
 			oneOf(bdfReaderFactory)
-					.createReader(with(any(InputStream.class)));
+					.createReader(with(any(InputStream.class)), with(true));
 			will(returnValue(bdfReader));
 			oneOf(bdfReader).readList();
 			will(returnValue(list));

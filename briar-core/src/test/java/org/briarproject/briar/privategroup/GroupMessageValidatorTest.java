@@ -651,7 +651,7 @@ public class GroupMessageValidatorTest extends ValidatorTestCase {
 			MessageType type, BdfList member,
 			Collection<MessageId> dependencies) throws FormatException {
 		BdfDictionary d = c.getDictionary();
-		assertEquals(type.getInt(), d.getLong(KEY_TYPE).intValue());
+		assertEquals(type.getInt(), d.getInt(KEY_TYPE).intValue());
 		assertEquals(message.getTimestamp(),
 				d.getLong(KEY_TIMESTAMP).longValue());
 		assertFalse(d.getBoolean(KEY_READ));

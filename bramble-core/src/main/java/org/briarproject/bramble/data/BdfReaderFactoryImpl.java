@@ -18,12 +18,18 @@ class BdfReaderFactoryImpl implements BdfReaderFactory {
 	@Override
 	public BdfReader createReader(InputStream in) {
 		return new BdfReaderImpl(in, DEFAULT_NESTED_LIMIT,
-				DEFAULT_MAX_BUFFER_SIZE);
+				DEFAULT_MAX_BUFFER_SIZE, true);
+	}
+
+	@Override
+	public BdfReader createReader(InputStream in, boolean canonical) {
+		return new BdfReaderImpl(in, DEFAULT_NESTED_LIMIT,
+				DEFAULT_MAX_BUFFER_SIZE, canonical);
 	}
 
 	@Override
 	public BdfReader createReader(InputStream in, int nestedLimit,
-			int maxBufferSize) {
-		return new BdfReaderImpl(in, nestedLimit, maxBufferSize);
+			int maxBufferSize, boolean canonical) {
+		return new BdfReaderImpl(in, nestedLimit, maxBufferSize, canonical);
 	}
 }

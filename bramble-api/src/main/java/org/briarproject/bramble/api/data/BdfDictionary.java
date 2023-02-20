@@ -11,7 +11,7 @@ import javax.annotation.Nullable;
 import javax.annotation.concurrent.NotThreadSafe;
 
 @NotThreadSafe
-public class BdfDictionary extends TreeMap<String, Object> {
+public final class BdfDictionary extends TreeMap<String, Object> {
 
 	public static final Object NULL_VALUE = new Object();
 
@@ -39,9 +39,9 @@ public class BdfDictionary extends TreeMap<String, Object> {
 	}
 
 	public Boolean getBoolean(String key) throws FormatException {
-		Object o = get(key);
-		if (o instanceof Boolean) return (Boolean) o;
-		throw new FormatException();
+		Boolean value = getOptionalBoolean(key);
+		if (value == null) throw new FormatException();
+		return value;
 	}
 
 	@Nullable
@@ -52,19 +52,16 @@ public class BdfDictionary extends TreeMap<String, Object> {
 		throw new FormatException();
 	}
 
-	public Boolean getBoolean(String key, Boolean defaultValue) {
-		Object o = get(key);
-		if (o instanceof Boolean) return (Boolean) o;
-		return defaultValue;
+	public Boolean getBoolean(String key, Boolean defaultValue)
+			throws FormatException {
+		Boolean value = getOptionalBoolean(key);
+		return value == null ? defaultValue : value;
 	}
 
 	public Long getLong(String key) throws FormatException {
-		Object o = get(key);
-		if (o instanceof Long) return (Long) o;
-		if (o instanceof Integer) return ((Integer) o).longValue();
-		if (o instanceof Short) return ((Short) o).longValue();
-		if (o instanceof Byte) return ((Byte) o).longValue();
-		throw new FormatException();
+		Long value = getOptionalLong(key);
+		if (value == null) throw new FormatException();
+		return value;
 	}
 
 	@Nullable
@@ -78,20 +75,37 @@ public class BdfDictionary extends TreeMap<String, Object> {
 		throw new FormatException();
 	}
 
-	public Long getLong(String key, Long defaultValue) {
-		Object o = get(key);
-		if (o instanceof Long) return (Long) o;
-		if (o instanceof Integer) return ((Integer) o).longValue();
-		if (o instanceof Short) return ((Short) o).longValue();
-		if (o instanceof Byte) return ((Byte) o).longValue();
-		return defaultValue;
+	public Long getLong(String key, Long defaultValue) throws FormatException {
+		Long value = getOptionalLong(key);
+		return value == null ? defaultValue : value;
+	}
+
+	public Integer getInt(String key) throws FormatException {
+		Integer value = getOptionalInt(key);
+		if (value == null) throw new FormatException();
+		return value;
+	}
+
+	@Nullable
+	public Integer getOptionalInt(String key) throws FormatException {
+		Long value = getOptionalLong(key);
+		if (value == null) return null;
+		if (value < Integer.MIN_VALUE || value > Integer.MAX_VALUE) {
+			throw new FormatException();
+		}
+		return value.intValue();
+	}
+
+	public Integer getInt(String key, Integer defaultValue)
+			throws FormatException {
+		Integer value = getOptionalInt(key);
+		return value == null ? defaultValue : value;
 	}
 
 	public Double getDouble(String key) throws FormatException {
-		Object o = get(key);
-		if (o instanceof Double) return (Double) o;
-		if (o instanceof Float) return ((Float) o).doubleValue();
-		throw new FormatException();
+		Double value = getOptionalDouble(key);
+		if (value == null) throw new FormatException();
+		return value;
 	}
 
 	@Nullable
@@ -103,17 +117,16 @@ public class BdfDictionary extends TreeMap<String, Object> {
 		throw new FormatException();
 	}
 
-	public Double getDouble(String key, Double defaultValue) {
-		Object o = get(key);
-		if (o instanceof Double) return (Double) o;
-		if (o instanceof Float) return ((Float) o).doubleValue();
-		return defaultValue;
+	public Double getDouble(String key, Double defaultValue)
+			throws FormatException {
+		Double value = getOptionalDouble(key);
+		return value == null ? defaultValue : value;
 	}
 
 	public String getString(String key) throws FormatException {
-		Object o = get(key);
-		if (o instanceof String) return (String) o;
-		throw new FormatException();
+		String value = getOptionalString(key);
+		if (value == null) throw new FormatException();
+		return value;
 	}
 
 	@Nullable
@@ -124,17 +137,16 @@ public class BdfDictionary extends TreeMap<String, Object> {
 		throw new FormatException();
 	}
 
-	public String getString(String key, String defaultValue) {
-		Object o = get(key);
-		if (o instanceof String) return (String) o;
-		return defaultValue;
+	public String getString(String key, String defaultValue)
+			throws FormatException {
+		String value = getOptionalString(key);
+		return value == null ? defaultValue : value;
 	}
 
 	public byte[] getRaw(String key) throws FormatException {
-		Object o = get(key);
-		if (o instanceof byte[]) return (byte[]) o;
-		if (o instanceof Bytes) return ((Bytes) o).getBytes();
-		throw new FormatException();
+		byte[] value = getOptionalRaw(key);
+		if (value == null) throw new FormatException();
+		return value;
 	}
 
 	@Nullable
@@ -146,17 +158,16 @@ public class BdfDictionary extends TreeMap<String, Object> {
 		throw new FormatException();
 	}
 
-	public byte[] getRaw(String key, byte[] defaultValue) {
-		Object o = get(key);
-		if (o instanceof byte[]) return (byte[]) o;
-		if (o instanceof Bytes) return ((Bytes) o).getBytes();
-		return defaultValue;
+	public byte[] getRaw(String key, byte[] defaultValue)
+			throws FormatException {
+		byte[] value = getOptionalRaw(key);
+		return value == null ? defaultValue : value;
 	}
 
 	public BdfList getList(String key) throws FormatException {
-		Object o = get(key);
-		if (o instanceof BdfList) return (BdfList) o;
-		throw new FormatException();
+		BdfList value = getOptionalList(key);
+		if (value == null) throw new FormatException();
+		return value;
 	}
 
 	@Nullable
@@ -167,16 +178,16 @@ public class BdfDictionary extends TreeMap<String, Object> {
 		throw new FormatException();
 	}
 
-	public BdfList getList(String key, BdfList defaultValue) {
-		Object o = get(key);
-		if (o instanceof BdfList) return (BdfList) o;
-		return defaultValue;
+	public BdfList getList(String key, BdfList defaultValue)
+			throws FormatException {
+		BdfList value = getOptionalList(key);
+		return value == null ? defaultValue : value;
 	}
 
 	public BdfDictionary getDictionary(String key) throws FormatException {
-		Object o = get(key);
-		if (o instanceof BdfDictionary) return (BdfDictionary) o;
-		throw new FormatException();
+		BdfDictionary value = getOptionalDictionary(key);
+		if (value == null) throw new FormatException();
+		return value;
 	}
 
 	@Nullable
@@ -188,9 +199,9 @@ public class BdfDictionary extends TreeMap<String, Object> {
 		throw new FormatException();
 	}
 
-	public BdfDictionary getDictionary(String key, BdfDictionary defaultValue) {
-		Object o = get(key);
-		if (o instanceof BdfDictionary) return (BdfDictionary) o;
-		return defaultValue;
+	public BdfDictionary getDictionary(String key, BdfDictionary defaultValue)
+			throws FormatException {
+		BdfDictionary value = getOptionalDictionary(key);
+		return value == null ? defaultValue : value;
 	}
 }

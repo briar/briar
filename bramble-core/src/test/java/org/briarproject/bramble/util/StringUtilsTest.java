@@ -88,51 +88,58 @@ public class StringUtilsTest extends BrambleTestCase {
 	}
 
 	@Test
-	public void testFromUtf8AcceptsNullCharacterUsingStandardUtf8() {
+	public void testFromUtf8AcceptsNullCharacterUsingStandardUtf8()
+			throws Exception {
 		// The UTF-8 encoding of the null character is valid
-		assertEquals("\u0000", StringUtils.fromUtf8(new byte[1]));
+		byte[] utf8 = new byte[1];
+		String actual = StringUtils.fromUtf8(utf8);
+		assertEquals("\u0000", actual);
+		// When we convert back to UTF-8 we should get the original encoding
+		assertArrayEquals(utf8, StringUtils.toUtf8(actual));
 	}
 
-	@Test
-	public void testFromUtf8RemovesNullCharacterUsingModifiedUtf8() {
+	@Test(expected = FormatException.class)
+	public void testFromUtf8RejectsNullCharacterUsingModifiedUtf8()
+			throws Exception {
 		// The modified UTF-8 encoding of the null character is not valid
 		byte[] b = new byte[] {
 				(byte) 0xC0, (byte) 0x80, // Null character as modified UTF-8
 				(byte) 0xC8, (byte) 0x85 // U+0205
 		};
-		// Conversion should ignore the invalid character and return the rest
-		String expected = "\u0205";
-		assertEquals(expected, StringUtils.fromUtf8(b));
+		StringUtils.fromUtf8(b);
 	}
 
 	@Test
-	public void testFromUtf8AcceptsSupplementaryCharacterUsingStandardUtf8() {
+	public void testFromUtf8AcceptsSupplementaryCharacterUsingStandardUtf8()
+			throws Exception {
 		// The UTF-8 encoding of a supplementary character is valid and should
 		// be converted to a surrogate pair
-		byte[] b = new byte[] {
+		byte[] utf8 = new byte[] {
 				(byte) 0xF0, (byte) 0x90, (byte) 0x90, (byte) 0x80, // U+10400
 				(byte) 0xC8, (byte) 0x85 // U+0205
 		};
 		String expected = "\uD801\uDC00\u0205"; // Surrogate pair
-		assertEquals(expected, StringUtils.fromUtf8(b));
+		String actual = StringUtils.fromUtf8(utf8);
+		assertEquals(expected, actual);
+		// When we convert back to UTF-8 we should get the original encoding
+		assertArrayEquals(utf8, StringUtils.toUtf8(actual));
 	}
 
-	@Test
-	public void testFromUtf8RemovesSupplementaryCharacterUsingModifiedUtf8() {
+	@Test(expected = FormatException.class)
+	public void testFromUtf8RejectsSupplementaryCharacterUsingModifiedUtf8()
+			throws Exception {
 		// The CESU-8 or modified UTF-8 encoding of a supplementary character
 		// is not valid
-		byte[] b = new byte[] {
+		byte[] utf8 = new byte[] {
 				(byte) 0xED, (byte) 0xA0, (byte) 0x81, // U+10400 as CSEU-8
 				(byte) 0xED, (byte) 0xB0, (byte) 0x80,
 				(byte) 0xC8, (byte) 0x85 // U+0205
 		};
-		// Conversion should ignore the invalid character and return the rest
-		String expected = "\u0205";
-		assertEquals(expected, StringUtils.fromUtf8(b));
+		StringUtils.fromUtf8(utf8);
 	}
 
 	@Test
-	public void testFromUtf8EmptyInput() {
+	public void testFromUtf8EmptyInput() throws Exception {
 		assertEquals("", StringUtils.fromUtf8(new byte[0]));
 	}
 

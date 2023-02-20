@@ -14,6 +14,7 @@ import java.util.regex.Pattern;
 import javax.annotation.Nullable;
 
 import static java.nio.charset.CodingErrorAction.IGNORE;
+import static java.nio.charset.CodingErrorAction.REPORT;
 import static java.util.regex.Pattern.CASE_INSENSITIVE;
 
 @SuppressWarnings("CharsetObjectCanBeUsed")
@@ -52,26 +53,38 @@ public class StringUtils {
 		return s.getBytes(UTF_8);
 	}
 
-	public static String fromUtf8(byte[] bytes) {
-		return fromUtf8(bytes, 0, bytes.length);
+	public static String fromUtf8(byte[] bytes) throws FormatException {
+		return fromUtf8(bytes, 0, bytes.length, true);
 	}
 
-	public static String fromUtf8(byte[] bytes, int off, int len) {
+	public static String fromUtf8(byte[] bytes, int off, int len)
+			throws FormatException {
+		return fromUtf8(bytes, off, len, true);
+	}
+
+	private static String fromUtf8(byte[] bytes, int off, int len,
+			boolean strict) throws FormatException {
 		CharsetDecoder decoder = UTF_8.newDecoder();
-		decoder.onMalformedInput(IGNORE);
-		decoder.onUnmappableCharacter(IGNORE);
+		decoder.onMalformedInput(strict ? REPORT : IGNORE);
+		decoder.onUnmappableCharacter(strict ? REPORT : IGNORE);
 		ByteBuffer buffer = ByteBuffer.wrap(bytes, off, len);
 		try {
 			return decoder.decode(buffer).toString();
 		} catch (CharacterCodingException e) {
-			throw new AssertionError(e);
+			throw new FormatException();
 		}
 	}
 
 	public static String truncateUtf8(String s, int maxUtf8Length) {
 		byte[] utf8 = toUtf8(s);
 		if (utf8.length <= maxUtf8Length) return s;
-		return fromUtf8(utf8, 0, maxUtf8Length);
+		// Don't be strict when converting back, so that if we truncate a
+		// multi-byte character the whole character gets dropped
+		try {
+			return fromUtf8(utf8, 0, maxUtf8Length, false);
+		} catch (FormatException e) {
+			throw new AssertionError(e);
+		}
 	}
 
 	/**

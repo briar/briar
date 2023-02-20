@@ -182,7 +182,7 @@ class MessagingManagerImpl implements MessagingManager, IncomingMessageHook,
 		try {
 			BdfDictionary metaDict = metadataParser.parse(meta);
 			// Message type is null for version 0.0 private messages
-			Long messageType = metaDict.getOptionalLong(MSG_KEY_MSG_TYPE);
+			Integer messageType = metaDict.getOptionalInt(MSG_KEY_MSG_TYPE);
 			if (messageType == null) {
 				incomingPrivateMessage(txn, m, metaDict, true, emptyList());
 			} else if (messageType == PRIVATE_MESSAGE) {
@@ -371,7 +371,7 @@ class MessagingManagerImpl implements MessagingManager, IncomingMessageHook,
 		try {
 			BdfDictionary meta =
 					clientHelper.getGroupMetadataAsDictionary(txn, g);
-			return new ContactId(meta.getLong(GROUP_KEY_CONTACT_ID).intValue());
+			return new ContactId(meta.getInt(GROUP_KEY_CONTACT_ID));
 		} catch (FormatException e) {
 			throw new DbException(e);
 		}
@@ -381,7 +381,7 @@ class MessagingManagerImpl implements MessagingManager, IncomingMessageHook,
 	public ContactId getContactId(GroupId g) throws DbException {
 		try {
 			BdfDictionary meta = clientHelper.getGroupMetadataAsDictionary(g);
-			return new ContactId(meta.getLong(GROUP_KEY_CONTACT_ID).intValue());
+			return new ContactId(meta.getInt(GROUP_KEY_CONTACT_ID));
 		} catch (FormatException e) {
 			throw new DbException(e);
 		}
@@ -419,7 +419,7 @@ class MessagingManagerImpl implements MessagingManager, IncomingMessageHook,
 			if (meta == null) continue;
 			try {
 				// Message type is null for version 0.0 private messages
-				Long messageType = meta.getOptionalLong(MSG_KEY_MSG_TYPE);
+				Integer messageType = meta.getOptionalInt(MSG_KEY_MSG_TYPE);
 				if (messageType != null && messageType != PRIVATE_MESSAGE)
 					continue;
 				long timestamp = meta.getLong(MSG_KEY_TIMESTAMP);
@@ -453,7 +453,8 @@ class MessagingManagerImpl implements MessagingManager, IncomingMessageHook,
 			Map<MessageId, BdfDictionary> messages =
 					clientHelper.getMessageMetadataAsDictionary(txn, g);
 			for (Entry<MessageId, BdfDictionary> entry : messages.entrySet()) {
-				Long type = entry.getValue().getOptionalLong(MSG_KEY_MSG_TYPE);
+				Integer type =
+						entry.getValue().getOptionalInt(MSG_KEY_MSG_TYPE);
 				if (type == null || type == PRIVATE_MESSAGE)
 					result.add(entry.getKey());
 			}
@@ -527,7 +528,7 @@ class MessagingManagerImpl implements MessagingManager, IncomingMessageHook,
 		try {
 			BdfDictionary meta =
 					clientHelper.getMessageMetadataAsDictionary(txn, m);
-			Long messageType = meta.getOptionalLong(MSG_KEY_MSG_TYPE);
+			Integer messageType = meta.getOptionalInt(MSG_KEY_MSG_TYPE);
 			if (messageType != null && messageType == PRIVATE_MESSAGE) {
 				for (AttachmentHeader h : parseAttachmentHeaders(g, meta)) {
 					try {
@@ -554,7 +555,7 @@ class MessagingManagerImpl implements MessagingManager, IncomingMessageHook,
 			int unreadCount = 0;
 			for (Entry<MessageId, BdfDictionary> entry : metadata.entrySet()) {
 				BdfDictionary meta = entry.getValue();
-				Long messageType = meta.getOptionalLong(MSG_KEY_MSG_TYPE);
+				Integer messageType = meta.getOptionalInt(MSG_KEY_MSG_TYPE);
 				if (messageType == null || messageType == PRIVATE_MESSAGE) {
 					msgCount++;
 					if (!meta.getBoolean(MSG_KEY_READ)) unreadCount++;

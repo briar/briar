@@ -167,6 +167,6 @@ class BlogPostFactoryImpl implements BlogPostFactory {
 	}
 
 	private MessageType getType(BdfList body) throws FormatException {
-		return MessageType.valueOf(body.getLong(0).intValue());
+		return MessageType.valueOf(body.getInt(0));
 	}
 }

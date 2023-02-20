@@ -419,7 +419,7 @@ class LanTcpPlugin extends TcpPlugin {
 	private InetSocketAddress parseSocketAddress(BdfList descriptor)
 			throws FormatException {
 		byte[] address = descriptor.getRaw(1);
-		int port = descriptor.getLong(2).intValue();
+		int port = descriptor.getInt(2);
 		if (port < 1 || port > MAX_16_BIT_UNSIGNED) throw new FormatException();
 		try {
 			InetAddress addr = InetAddress.getByAddress(address);

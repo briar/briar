@@ -177,8 +177,8 @@ class TransportKeyAgreementManagerImpl extends BdfIncomingMessageHook
 	protected DeliveryAction incomingMessage(Transaction txn, Message m,
 			BdfList body, BdfDictionary meta)
 			throws DbException, FormatException {
-		MessageType type = MessageType.fromValue(
-				meta.getLong(MSG_KEY_MESSAGE_TYPE).intValue());
+		MessageType type =
+				MessageType.fromValue(meta.getInt(MSG_KEY_MESSAGE_TYPE));
 		TransportId t = new TransportId(meta.getString(MSG_KEY_TRANSPORT_ID));
 		if (LOG.isLoggable(INFO)) {
 			LOG.info("Received " + type + " message for " + t);

@@ -72,7 +72,7 @@ class SessionParserImpl implements SessionParser {
 
 	@Override
 	public Role getRole(BdfDictionary d) throws FormatException {
-		return Role.fromValue(d.getLong(SESSION_KEY_ROLE).intValue());
+		return Role.fromValue(d.getInt(SESSION_KEY_ROLE));
 	}
 
 	@Override
@@ -97,7 +97,7 @@ class SessionParserImpl implements SessionParser {
 		MessageId lastRemoteMessageId =
 				getMessageId(d, SESSION_KEY_LAST_REMOTE_MESSAGE_ID);
 		long localTimestamp = d.getLong(SESSION_KEY_LOCAL_TIMESTAMP);
-		GroupId groupId = getGroupId(d, SESSION_KEY_GROUP_ID);
+		GroupId groupId = getGroupId(d);
 		Author author = getAuthor(d, SESSION_KEY_AUTHOR);
 		return new Introducee(sessionId, groupId, author, localTimestamp,
 				lastLocalMessageId, lastRemoteMessageId);
@@ -126,12 +126,10 @@ class SessionParserImpl implements SessionParser {
 		MessageId lastLocalMessageId =
 				getMessageId(d, SESSION_KEY_LAST_LOCAL_MESSAGE_ID);
 		long localTimestamp = d.getLong(SESSION_KEY_LOCAL_TIMESTAMP);
-		PublicKey ephemeralPublicKey =
-				getEphemeralPublicKey(d, SESSION_KEY_EPHEMERAL_PUBLIC_KEY);
+		PublicKey ephemeralPublicKey = getEphemeralPublicKey(d);
 		BdfDictionary tpDict =
 				d.getOptionalDictionary(SESSION_KEY_TRANSPORT_PROPERTIES);
-		PrivateKey ephemeralPrivateKey =
-				getEphemeralPrivateKey(d, SESSION_KEY_EPHEMERAL_PRIVATE_KEY);
+		PrivateKey ephemeralPrivateKey = getEphemeralPrivateKey(d);
 		Map<TransportId, TransportProperties> transportProperties =
 				tpDict == null ? null : clientHelper
 						.parseAndValidateTransportPropertiesMap(tpDict);
@@ -147,8 +145,7 @@ class SessionParserImpl implements SessionParser {
 		Author remoteAuthor = getAuthor(d, SESSION_KEY_REMOTE_AUTHOR);
 		MessageId lastRemoteMessageId =
 				getMessageId(d, SESSION_KEY_LAST_REMOTE_MESSAGE_ID);
-		PublicKey ephemeralPublicKey =
-				getEphemeralPublicKey(d, SESSION_KEY_EPHEMERAL_PUBLIC_KEY);
+		PublicKey ephemeralPublicKey = getEphemeralPublicKey(d);
 		BdfDictionary tpDict =
 				d.getOptionalDictionary(SESSION_KEY_TRANSPORT_PROPERTIES);
 		Map<TransportId, TransportProperties> transportProperties =
@@ -162,7 +159,7 @@ class SessionParserImpl implements SessionParser {
 	}
 
 	private int getState(BdfDictionary d) throws FormatException {
-		return d.getLong(SESSION_KEY_STATE).intValue();
+		return d.getInt(SESSION_KEY_STATE);
 	}
 
 	private SessionId getSessionId(BdfDictionary d) throws FormatException {
@@ -177,9 +174,8 @@ class SessionParserImpl implements SessionParser {
 		return b == null ? null : new MessageId(b);
 	}
 
-	private GroupId getGroupId(BdfDictionary d, String key)
-			throws FormatException {
-		return new GroupId(d.getRaw(key));
+	private GroupId getGroupId(BdfDictionary d) throws FormatException {
+		return new GroupId(d.getRaw(SESSION_KEY_GROUP_ID));
 	}
 
 	private Author getAuthor(BdfDictionary d, String key)
@@ -193,23 +189,22 @@ class SessionParserImpl implements SessionParser {
 		if (d == null) return null;
 		Map<TransportId, KeySetId> map = new HashMap<>(d.size());
 		for (String key : d.keySet()) {
-			map.put(new TransportId(key),
-					new KeySetId(d.getLong(key).intValue()));
+			map.put(new TransportId(key), new KeySetId(d.getInt(key)));
 		}
 		return map;
 	}
 
 	@Nullable
-	private PublicKey getEphemeralPublicKey(BdfDictionary d, String key)
-		throws FormatException {
-		byte[] keyBytes = d.getOptionalRaw(key);
+	private PublicKey getEphemeralPublicKey(BdfDictionary d)
+			throws FormatException {
+		byte[] keyBytes = d.getOptionalRaw(SESSION_KEY_EPHEMERAL_PUBLIC_KEY);
 		return keyBytes == null ? null : new AgreementPublicKey(keyBytes);
 	}
 
 	@Nullable
-	private PrivateKey getEphemeralPrivateKey(BdfDictionary d, String key)
-		throws FormatException {
-		byte[] keyBytes = d.getOptionalRaw(key);
+	private PrivateKey getEphemeralPrivateKey(BdfDictionary d)
+			throws FormatException {
+		byte[] keyBytes = d.getOptionalRaw(SESSION_KEY_EPHEMERAL_PRIVATE_KEY);
 		return keyBytes == null ? null : new AgreementPrivateKey(keyBytes);
 	}
 }
