@@ -313,6 +313,7 @@
   <string name="duplicate_link_dialog_text_3">%1$s ir %2$s išsiuntė jums tą pačią nuorodą.\n\nGali būti, kad vienas iš šių asmenų bando sužinoti kas yra jūsų adresatų sąraše.\n\nNesakykite šiems asmenims, kad gavote tokią pačią nuorodą iš kito asmens.</string>
   <string name="pending_contact_updated_toast">Laukiantis adresatas atnaujintas</string>
   <!--Peer trust levels-->
+  <string name="peer_trust_level_ourselves">Aš</string>
   <string name="peer_trust_level_stranger">Nepažįstamasis</string>
   <!--Introductions-->
   <string name="introduction_onboarding_title">Supažindinkite savo adresatus</string>
@@ -445,6 +446,7 @@
   <string name="forum_invitation_already_sharing">Jau bendrinama</string>
   <string name="forum_invitation_already_invited">Pakvietimas jau išsiųstas</string>
   <string name="forum_invitation_invite_received">Pakvietimas jau gautas</string>
+  <string name="forum_invitation_error">Klaida. Tai yra triktis ir ne jūsų kaltė</string>
   <string name="forum_invitation_response_accepted_sent">Jūs priėmėte pakvietimą į forumą iš %s.</string>
   <string name="forum_invitation_response_declined_sent">Jūs atmetėte pakvietimą į forumą iš %s.</string>
   <string name="forum_invitation_response_declined_auto">Pakvietimas į forumą nuo %s buvo automatiškai atmestas.</string>
@@ -497,7 +499,9 @@
   <string name="blogs_rss_feeds_import">Importuoti RSS kanalą</string>
   <string name="blogs_rss_feeds_import_button">Importuoti</string>
   <string name="blogs_rss_feeds_import_hint">Įveskite RSS kanalo URL</string>
+  <string name="blogs_rss_feeds_import_progress">Importuojamas RSS kanalas…</string>
   <string name="blogs_rss_feeds_import_error">Atleiskite! Importuojant jūsų kanalą, įvyko klaida.</string>
+  <string name="blogs_rss_feeds_import_title">Importuoti kanalą iš failo</string>
   <string name="blogs_rss_feeds">RSS kanalai</string>
   <string name="blogs_rss_feeds_manage_imported">Importuota:</string>
   <string name="blogs_rss_feeds_manage_author">Autorius:</string>
@@ -607,6 +611,7 @@
   <string name="mailbox_setup_download_link">Bendrinti atsisiuntimo nuorodą</string>
   <string name="mailbox_setup_button_scan">Skenuoti pašto dėžutės QR kodą</string>
   <!--This string is shown when connecting to a Mailbox for the first time. The placeholder will be replaced with a duration, e.g. "2 minutes".-->
+  <string name="mailbox_setup_connecting_info">Tai gali užtrukti iki %1s</string>
   <string name="mailbox_setup_already_paired_title">Pašto dėžutė jau susieta</string>
   <string name="mailbox_setup_io_error_title">Nepavyko prisijungti</string>
   <string name="mailbox_setup_io_error_description">Įsitikinkite, kad abu įrenginiai yra prisijungę prie interneto ir bandykite dar kartą.</string>
@@ -643,6 +648,7 @@
   <string name="briar_changelog">\u2022 <a href="">Keitinių žurnalas</a></string>
   <string name="briar_privacy_policy">\u2022 <a href="">Privatumo politika</a></string>
   <!--Here translators can add their names or Transifex usernames(eg "Thanks to all the contributors at the Localization Lab, especially Tom, Matthew and Jerry")-->
+  <string name="translator_thanks">Dėkojame talkininkams iš Localization Lab, ypač Moo už vertimą į lietuvių kalbą</string>
   <!--Conversation Settings-->
   <string name="disappearing_messages_title">Išnykstančios žinutės</string>
   <string name="disappearing_messages_explanation_long">Įjungus šį nustatymą, naujos žinutės
