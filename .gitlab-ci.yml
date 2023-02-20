@@ -83,8 +83,8 @@ android test:
 test_reproducible:
   stage: check_reproducibility
   script:
-    - "curl -X POST -F token=${RELEASE_CHECK_TOKEN} -F ref=master -F variables[RELEASE_TAG]='briar ${CI_COMMIT_REF_NAME}' https://code.briarproject.org/api/v4/projects/61/trigger/pipeline"
-    - "curl -X POST -F token=${RELEASE_JAR_CHECK_TOKEN} -F ref=main -F variables[RELEASE_TAG]='briar-headless ${CI_COMMIT_REF_NAME}' https://code.briarproject.org/api/v4/projects/307/trigger/pipeline"
+    - "curl -X POST -F token=${RELEASE_CHECK_TOKEN} -F ref=master -F variables[RELEASE_TAG]=\"briar ${CI_COMMIT_REF_NAME}\" https://code.briarproject.org/api/v4/projects/61/trigger/pipeline"
+    - "curl -X POST -F token=${RELEASE_JAR_CHECK_TOKEN} -F ref=main -F variables[RELEASE_TAG]=\"briar-headless ${CI_COMMIT_REF_NAME}\" https://code.briarproject.org/api/v4/projects/307/trigger/pipeline"
   only:
     - tags
 
