@@ -2,6 +2,7 @@ package org.briarproject.bramble.data;
 
 import org.briarproject.bramble.api.Bytes;
 import org.briarproject.bramble.api.FormatException;
+import org.briarproject.bramble.api.data.BdfDictionary;
 import org.briarproject.bramble.api.data.BdfWriter;
 import org.briarproject.nullsafety.NotNullByDefault;
 
@@ -11,6 +12,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.NotThreadSafe;
@@ -171,16 +173,24 @@ final class BdfWriterImpl implements BdfWriter {
 	@Override
 	public void writeDictionary(Map<?, ?> m) throws IOException {
 		out.write(DICTIONARY);
-		// Write entries in canonical order
-		List<String> keys = new ArrayList<>(m.size());
-		for (Object k : m.keySet()) {
-			if (!(k instanceof String)) throw new FormatException();
-			keys.add((String) k);
-		}
-		sort(keys);
-		for (String key : keys) {
-			writeString(key);
-			writeObject(m.get(key));
+		if (m instanceof BdfDictionary) {
+			// Entries are already sorted and keys are known to be strings
+			for (Entry<String, Object> e : ((BdfDictionary) m).entrySet()) {
+				writeString(e.getKey());
+				writeObject(e.getValue());
+			}
+		} else {
+			// Check that keys are strings, write entries in canonical order
+			List<String> keys = new ArrayList<>(m.size());
+			for (Object k : m.keySet()) {
+				if (!(k instanceof String)) throw new FormatException();
+				keys.add((String) k);
+			}
+			sort(keys);
+			for (String key : keys) {
+				writeString(key);
+				writeObject(m.get(key));
+			}
 		}
 		out.write(END);
 	}

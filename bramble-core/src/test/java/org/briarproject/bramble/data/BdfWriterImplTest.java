@@ -1,5 +1,6 @@
 package org.briarproject.bramble.data;
 
+import org.briarproject.bramble.api.data.BdfDictionary;
 import org.briarproject.bramble.test.BrambleTestCase;
 import org.briarproject.bramble.util.StringUtils;
 import org.junit.Test;
@@ -168,10 +169,26 @@ public class BdfWriterImplTest extends BrambleTestCase {
 
 	@Test
 	public void testWriteDictionary() throws IOException {
-		// Use LinkedHashMap to get predictable iteration order
+		// Add entries to dictionary in descending order - they should be
+		// output in ascending order. Use LinkedHashMap to get predictable
+		// iteration order
 		Map<String, Object> m = new LinkedHashMap<>();
-		for (int i = 0; i < 4; i++) m.put(String.valueOf(i), i);
+		for (int i = 3; i >= 0; i--) m.put(String.valueOf(i), i);
 		w.writeDictionary(m);
+		// DICTIONARY tag, keys as strings and values as integers, END tag
+		checkContents("70" + "41" + "01" + "30" + "21" + "00" +
+				"41" + "01" + "31" + "21" + "01" +
+				"41" + "01" + "32" + "21" + "02" +
+				"41" + "01" + "33" + "21" + "03" + "80");
+	}
+
+	@Test
+	public void testWriteBdfDictionary() throws IOException {
+		// Add entries to dictionary in descending order - they should be
+		// output in ascending order
+		BdfDictionary d = new BdfDictionary();
+		for (int i = 3; i >= 0; i--) d.put(String.valueOf(i), i);
+		w.writeDictionary(d);
 		// DICTIONARY tag, keys as strings and values as integers, END tag
 		checkContents("70" + "41" + "01" + "30" + "21" + "00" +
 				"41" + "01" + "31" + "21" + "01" +
