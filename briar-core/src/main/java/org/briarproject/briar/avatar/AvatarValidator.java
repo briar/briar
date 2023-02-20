@@ -76,7 +76,7 @@ class AvatarValidator implements MessageValidator {
 		// 0.0: Message Type, Version, Content-Type
 		checkSize(body, 3);
 		// Message Type
-		long messageType = body.getLong(0);
+		long messageType = body.getInt(0);
 		if (messageType != MSG_TYPE_UPDATE) throw new FormatException();
 		// Version
 		long version = body.getLong(1);

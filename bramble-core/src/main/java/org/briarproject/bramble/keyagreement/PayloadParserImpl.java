@@ -73,7 +73,7 @@ class PayloadParserImpl implements PayloadParser {
 		List<TransportDescriptor> recognised = new ArrayList<>();
 		for (int i = 1; i < payload.size(); i++) {
 			BdfList descriptor = payload.getList(i);
-			long transportId = descriptor.getLong(0);
+			int transportId = descriptor.getInt(0);
 			if (transportId == TRANSPORT_ID_BLUETOOTH) {
 				TransportId id = BluetoothConstants.ID;
 				recognised.add(new TransportDescriptor(id, descriptor));

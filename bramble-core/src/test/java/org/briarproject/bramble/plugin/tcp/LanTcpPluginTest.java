@@ -217,7 +217,7 @@ public class LanTcpPluginTest extends BrambleTestCase {
 		// The plugin should have bound a socket and stored the port number
 		BdfList descriptor = kal.getDescriptor();
 		assertEquals(3, descriptor.size());
-		assertEquals(TRANSPORT_ID_LAN, descriptor.getLong(0).longValue());
+		assertEquals(TRANSPORT_ID_LAN, descriptor.getInt(0).intValue());
 		byte[] address = descriptor.getRaw(1);
 		InetAddress addr = InetAddress.getByAddress(address);
 		assertTrue(addr instanceof Inet4Address);

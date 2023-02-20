@@ -366,7 +366,7 @@ class PrivateGroupManagerImpl extends BdfIncomingMessageHook
 			// parse the metadata
 			for (Entry<MessageId, BdfDictionary> entry : metadata.entrySet()) {
 				BdfDictionary meta = entry.getValue();
-				if (meta.getLong(KEY_TYPE) == JOIN.getInt()) {
+				if (meta.getInt(KEY_TYPE) == JOIN.getInt()) {
 					headers.add(getJoinMessageHeader(txn, g, entry.getKey(),
 							meta, authorInfos));
 				} else {
