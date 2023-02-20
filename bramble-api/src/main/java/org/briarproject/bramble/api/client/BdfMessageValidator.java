@@ -31,6 +31,12 @@ public abstract class BdfMessageValidator implements MessageValidator {
 	protected final Clock clock;
 	protected final boolean canonical;
 
+	/**
+	 * Transitional alternative to
+	 * {@link #BdfMessageValidator(ClientHelper, MetadataEncoder, Clock)} that
+	 * accepts messages in non-canonical form, for backward compatibility.
+	 */
+	@Deprecated
 	protected BdfMessageValidator(ClientHelper clientHelper,
 			MetadataEncoder metadataEncoder, Clock clock, boolean canonical) {
 		this.clientHelper = clientHelper;
