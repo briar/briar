@@ -60,23 +60,11 @@ public interface BdfReader {
 
 	BdfList readList() throws IOException;
 
-	void readListStart() throws IOException;
-
-	boolean hasListEnd() throws IOException;
-
-	void readListEnd() throws IOException;
-
 	void skipList() throws IOException;
 
 	boolean hasDictionary() throws IOException;
 
 	BdfDictionary readDictionary() throws IOException;
-
-	void readDictionaryStart() throws IOException;
-
-	boolean hasDictionaryEnd() throws IOException;
-
-	void readDictionaryEnd() throws IOException;
 
 	void skipDictionary() throws IOException;
 }

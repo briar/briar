@@ -365,33 +365,17 @@ final class BdfReaderImpl implements BdfReader {
 	private BdfList readList(int level) throws IOException {
 		if (!hasList()) throw new FormatException();
 		if (level > nestedLimit) throw new FormatException();
-		BdfList list = new BdfList();
-		readListStart();
-		while (!hasListEnd()) list.add(readObject(level + 1));
-		readListEnd();
-		return list;
-	}
-
-	@Override
-	public void readListStart() throws IOException {
-		if (!hasList()) throw new FormatException();
 		hasLookahead = false;
-	}
-
-	@Override
-	public boolean hasListEnd() throws IOException {
-		return hasEnd();
+		BdfList list = new BdfList();
+		while (!hasEnd()) list.add(readObject(level + 1));
+		readEnd();
+		return list;
 	}
 
 	private boolean hasEnd() throws IOException {
 		if (!hasLookahead) readLookahead();
 		if (eof) return false;
 		return next == END;
-	}
-
-	@Override
-	public void readListEnd() throws IOException {
-		readEnd();
 	}
 
 	private void readEnd() throws IOException {
@@ -403,7 +387,7 @@ final class BdfReaderImpl implements BdfReader {
 	public void skipList() throws IOException {
 		if (!hasList()) throw new FormatException();
 		hasLookahead = false;
-		while (!hasListEnd()) skipObject();
+		while (!hasEnd()) skipObject();
 		hasLookahead = false;
 	}
 
@@ -422,10 +406,10 @@ final class BdfReaderImpl implements BdfReader {
 	private BdfDictionary readDictionary(int level) throws IOException {
 		if (!hasDictionary()) throw new FormatException();
 		if (level > nestedLimit) throw new FormatException();
+		hasLookahead = false;
 		BdfDictionary dictionary = new BdfDictionary();
-		readDictionaryStart();
 		String prevKey = null;
-		while (!hasDictionaryEnd()) {
+		while (!hasEnd()) {
 			String key = readString();
 			if (canonical && prevKey != null && key.compareTo(prevKey) <= 0) {
 				// Keys not unique and sorted
@@ -434,31 +418,15 @@ final class BdfReaderImpl implements BdfReader {
 			dictionary.put(key, readObject(level + 1));
 			prevKey = key;
 		}
-		readDictionaryEnd();
-		return dictionary;
-	}
-
-	@Override
-	public void readDictionaryStart() throws IOException {
-		if (!hasDictionary()) throw new FormatException();
-		hasLookahead = false;
-	}
-
-	@Override
-	public boolean hasDictionaryEnd() throws IOException {
-		return hasEnd();
-	}
-
-	@Override
-	public void readDictionaryEnd() throws IOException {
 		readEnd();
+		return dictionary;
 	}
 
 	@Override
 	public void skipDictionary() throws IOException {
 		if (!hasDictionary()) throw new FormatException();
 		hasLookahead = false;
-		while (!hasDictionaryEnd()) {
+		while (!hasEnd()) {
 			skipString();
 			skipObject();
 		}

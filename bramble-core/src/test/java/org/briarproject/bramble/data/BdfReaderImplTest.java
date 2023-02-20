@@ -527,25 +527,6 @@ public class BdfReaderImplTest extends BrambleTestCase {
 	}
 
 	@Test
-	public void testReadListManually() throws Exception {
-		// A list containing 1, "foo", and null
-		setContents("60" + "21" + "01" +
-				"41" + "03" + "666F6F" +
-				"00" + "80");
-		r.readListStart();
-		assertFalse(r.hasListEnd());
-		assertEquals(1, r.readLong());
-		assertFalse(r.hasListEnd());
-		assertEquals("foo", r.readString());
-		assertFalse(r.hasListEnd());
-		assertTrue(r.hasNull());
-		r.readNull();
-		assertTrue(r.hasListEnd());
-		r.readListEnd();
-		assertTrue(r.eof());
-	}
-
-	@Test
 	public void testSkipList() throws Exception {
 		// A list containing 1, "foo", and 128
 		setContents("60" + "21" + "01" +
@@ -607,26 +588,6 @@ public class BdfReaderImplTest extends BrambleTestCase {
 		assertArrayEquals(new byte[] {1, 2, 3}, (byte[]) dictionary.get("foo"));
 		assertTrue(r.hasDictionary());
 		r.readDictionary();
-	}
-
-	@Test
-	public void testReadDictionaryManually() throws Exception {
-		// A dictionary containing "foo" -> 123 and "bar" -> null
-		setContents("70" + "41" + "03" + "666F6F" + "21" + "7B" +
-				"41" + "03" + "626172" + "00" + "80");
-		r.readDictionaryStart();
-		assertFalse(r.hasDictionaryEnd());
-		assertEquals("foo", r.readString());
-		assertFalse(r.hasDictionaryEnd());
-		assertEquals(123, r.readLong());
-		assertFalse(r.hasDictionaryEnd());
-		assertEquals("bar", r.readString());
-		assertFalse(r.hasDictionaryEnd());
-		assertTrue(r.hasNull());
-		r.readNull();
-		assertTrue(r.hasDictionaryEnd());
-		r.readDictionaryEnd();
-		assertTrue(r.eof());
 	}
 
 	@Test
