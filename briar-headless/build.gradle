@@ -13,6 +13,15 @@ plugins {
 }
 apply from: 'witness.gradle'
 
+configurations {
+	windows {
+		extendsFrom runtimeClasspath
+	}
+	linux {
+		extendsFrom runtimeClasspath
+	}
+}
+
 sourceCompatibility = 1.8
 targetCompatibility = 1.8
 
@@ -20,6 +29,14 @@ dependencies {
 	implementation project(':bramble-core')
 	implementation project(':bramble-java')
 	implementation project(':briar-core')
+
+	linux "org.briarproject:tor-linux:$tor_version"
+	linux "org.briarproject:obfs4proxy-linux:$obfs4proxy_version"
+	linux "org.briarproject:snowflake-linux:$snowflake_version"
+
+	windows "org.briarproject:tor-windows:$tor_version"
+	windows "org.briarproject:obfs4proxy-windows:$obfs4proxy_version"
+	windows "org.briarproject:snowflake-windows:$snowflake_version"
 
 	implementation 'org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.7.10'
 	implementation 'io.javalin:javalin:3.5.0'
@@ -47,7 +64,8 @@ dependencies {
 	kaptTest "com.google.dagger:dagger-compiler:$dagger_version"
 }
 
-void jarFactory(Jar jarTask, jarArchitecture) {
+void jarFactory(Jar jarTask, os, architecture, configuration) {
+	def jarArchitecture = os + "-" + architecture
 	jarTask.dependsOn(
 			':bramble-api:jar',
 			':bramble-core:jar',
@@ -66,21 +84,22 @@ void jarFactory(Jar jarTask, jarArchitecture) {
 	}
 	jarTask.setArchiveClassifier(jarArchitecture)
 	jarTask.from {
-		configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
+		configuration.collect { it.isDirectory() ? it : zipTree(it) }
 	}
 			{
 				it.duplicatesStrategy(DuplicatesStrategy.EXCLUDE)
-				String[] architectures = [
-						"linux-aarch64",
-						"linux-armhf",
-						"linux-x86_64",
-						"windows-x86_64"
-				]
-				for (String arch : architectures) {
-					if (arch != jarArchitecture) {
-						exclude "obfs4proxy_" + arch + ".zip"
-						exclude "tor_" + arch + ".zip"
-						exclude "snowflake_" + arch + ".zip"
+				if (os == "linux") {
+					String[] architectures = [
+							"aarch64",
+							"armhf",
+							"x86_64",
+					]
+					for (String arch : architectures) {
+						if (arch != architecture) {
+							exclude arch + "/obfs4proxy"
+							exclude arch + "/tor"
+							exclude arch + "/snowflake"
+						}
 					}
 				}
 				exclude 'META-INF/*.SF', 'META-INF/*.DSA', 'META-INF/*.RSA'
@@ -118,19 +137,19 @@ void jarFactory(Jar jarTask, jarArchitecture) {
 }
 
 task aarch64LinuxJar(type: Jar) {
-	jarFactory(it, 'linux-aarch64')
+	jarFactory(it, 'linux', 'aarch64', configurations.linux)
 }
 
 task armhfLinuxJar(type: Jar) {
-	jarFactory(it, 'linux-armhf')
+	jarFactory(it, 'linux', 'armhf', configurations.linux)
 }
 
 task x86LinuxJar(type: Jar) {
-	jarFactory(it, 'linux-x86_64')
+	jarFactory(it, 'linux', 'x86_64', configurations.linux)
 }
 
 task windowsJar(type: Jar) {
-	jarFactory(it, 'windows-x86_64')
+	jarFactory(it, 'windows', 'x86_64', configurations.windows)
 }
 
 task linuxJars {

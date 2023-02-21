@@ -7,10 +7,6 @@ apply plugin: 'witness'
 apply from: 'witness.gradle'
 apply from: '../dagger.gradle'
 
-configurations {
-	tor
-}
-
 dependencies {
 	implementation project(':bramble-core')
 
@@ -19,12 +15,9 @@ dependencies {
 	implementation "net.java.dev.jna:jna:$jna_version"
 	implementation "net.java.dev.jna:jna-platform:$jna_version"
 
-	tor "org.briarproject:tor-linux:$tor_version"
-	tor "org.briarproject:tor-windows:$tor_version"
-	tor "org.briarproject:obfs4proxy-linux:$obfs4proxy_version"
-	tor "org.briarproject:obfs4proxy-windows:$obfs4proxy_version"
-	tor "org.briarproject:snowflake-linux:$snowflake_version"
-	tor "org.briarproject:snowflake-windows:$snowflake_version"
+	testImplementation "org.briarproject:tor-linux:$tor_version"
+	testImplementation "org.briarproject:obfs4proxy-linux:$obfs4proxy_version"
+	testImplementation "org.briarproject:snowflake-linux:$snowflake_version"
 
 	annotationProcessor "com.google.dagger:dagger-compiler:$dagger_version"
 
@@ -37,31 +30,6 @@ dependencies {
 	testImplementation "com.squareup.okhttp3:okhttp:$okhttp_version"
 
 	testAnnotationProcessor "com.google.dagger:dagger-compiler:$dagger_version"
-}
-
-def torBinariesDir = 'src/main/resources'
-
-task cleanTorBinaries {
-	doLast {
-		delete fileTree(torBinariesDir)
-	}
-}
-
-clean.dependsOn cleanTorBinaries
-
-task unpackTorBinaries {
-	doLast {
-		copy {
-			from configurations.tor.collect { zipTree(it) }
-			into torBinariesDir
-		}
-	}
-	dependsOn cleanTorBinaries
-}
-
-processResources {
-	inputs.dir torBinariesDir
-	dependsOn unpackTorBinaries
 }
 
 tasks.withType(Test) {
