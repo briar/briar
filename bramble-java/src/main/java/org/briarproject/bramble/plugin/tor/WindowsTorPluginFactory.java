@@ -62,7 +62,7 @@ public class WindowsTorPluginFactory extends TorPluginFactory {
 		if (LOG.isLoggable(INFO)) {
 			LOG.info("System's os.arch is " + arch);
 		}
-		if (arch.equals("amd64")) return "windows-x86_64";
+		if (arch.equals("amd64")) return "x86_64";
 		return null;
 	}
 
