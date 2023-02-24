@@ -20,7 +20,7 @@
   <string name="dnkm_huawei_protected_text">Будь ласка, натисніть кнопку, що знаходиться нижче і впевніться у тому, що Briar захищено на екрані \"Захищені додатки\".</string>
   <string name="dnkm_huawei_protected_button">Захистити Briar</string>
   <string name="dnkm_huawei_protected_help">Якщо Briar немає у списку захищених додатків, він не зможе працювати у фоновому режимі.</string>
-  <string name="dnkm_huawei_app_launch_text">Будь ласка, торкніть кнопку внизу, відкрийте екран «Запуск програми» й переконайтесь, що Briar має налаштування «Керувати вручну».</string>
+  <string name="dnkm_huawei_app_launch_text">Будь ласка, торкніться кнопки внизу, відкрийте екран «Запуск програми» й переконайтесь, що Briar має налаштування «Керувати вручну».</string>
   <string name="dnkm_huawei_app_launch_help">Якщо не вказати «Керувати вручну» для Briar на екрані «Запуск програми», він не зможе працювати в фоновому режимі.</string>
   <string name="dnkm_xiaomi_text">Щоб Briar працював у фоновому режимі, закріпіть його в переліку недавніх застосунків.</string>
   <string name="dnkm_xiaomi_button">Захистити Briar</string>
@@ -515,7 +515,7 @@
   <string name="blogs_rss_feeds_manage_empty_state">Немає RSS-стрічок до відображення\n\nНатисніть на символ \"+\", щоб імпортувати стрічку</string>
   <string name="blogs_rss_feeds_manage_error">Під час завантаження ваших стрічок виникла проблема. Будь ласка, спробуйте пізніше.</string>
   <!--Settings Profile Picture-->
-  <string name="change_profile_picture">Торкніть, щоб змінити зображення профілю</string>
+  <string name="change_profile_picture">Торкніться, щоб змінити зображення профілю</string>
   <string name="dialog_confirm_profile_picture_title">Змінити зображення профілю</string>
   <string name="dialog_confirm_profile_picture_remark">Лише ваші контакти можуть бачити це зображення</string>
   <string name="change_profile_picture_failed_message">Перепрошуємо, щось пішло не так при оновленні вашого зображення профілю</string>
@@ -826,12 +826,12 @@
   <string name="removable_drive_explanation">Якщо не вдається з\'єднатися з контактом через інтернет, Wi-Fi та Bluetooth, Briar ще може передавати повідомлення за допомогою флешки чи SD-картки.\n\nКоли ви натиснете кнопку «Надіслати дані», будь-які дані в очікуванні надсилання контактові буде записано на флешку. Зокрема дані особистих повідомлень, прикріплень, блогів, форумів і приватних груп.\n\nПеред записом на флешку все буде зашифровано.\n\nОтримавши флешку, ваш контакт зможе імпортувати повідомлення в свій Briar кнопкою «Отримати дані».</string>
   <string name="removable_drive_title_send">Надіслати дані</string>
   <string name="removable_drive_title_receive">Отримати дані</string>
-  <string name="removable_drive_send_intro">Торкніть кнопку внизу, щоб створити файл зашифрованих повідомлень. Ви зможете обрати, куди зберегти файл.\n\nЯкщо бажаєте зберегти файл на флешку, під\'єднайте її зараз.</string>
+  <string name="removable_drive_send_intro">Торкніться кнопки внизу, щоб створити файл із зашифрованими повідомленнями. Ви зможете обрати, куди зберегти файл.\n\nЯкщо бажаєте зберегти файл на флешку, під\'єднайте її зараз.</string>
   <string name="removable_drive_send_no_data">Жодне повідомлення не очікує на надсилання цьому контактові.</string>
   <string name="removable_drive_send_not_supported">Контакт використовує стару версію Briar чи старий пристрій, що не підтримує цієї можливості.</string>
   <string name="removable_drive_send_button">Оберіть файл експорту</string>
   <string name="removable_drive_ongoing">Дочекайтесь завершення поточного завдання</string>
-  <string name="removable_drive_receive_intro">Торкніть кнопку внизу, щоб обрати файл, надісланий вам контактом.\n\nЯкщо файл на флешці, під\'єднайте її зараз.</string>
+  <string name="removable_drive_receive_intro">Торкніться кнопки внизу, щоб обрати файл, надісланий вам контактом.\n\nЯкщо файл на флешці, під\'єднайте її зараз.</string>
   <string name="removable_drive_receive_button">Оберіть файл імпорту</string>
   <string name="removable_drive_success_send_title">Експорт успішний</string>
   <string name="removable_drive_success_send_text">Дані успішно експортовано. Маєте 28 днів, щоб передати файл контактові.\n\nЯкщо файл на флешці, перед від\'єднанням вимкніть її за допомогою сповіщення в рядку стану.</string>

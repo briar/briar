@@ -443,6 +443,7 @@
   <string name="forum_declined_toast">La invitación ha sido rechazada</string>
   <string name="shared_by_format">Compartido por %s</string>
   <string name="forum_invitation_already_sharing">Ya se está compartiendo</string>
+  <string name="forum_invitation_already_invited">Invitación ya enviada</string>
   <string name="forum_invitation_response_accepted_sent">Aceptaste la invitación al foro de %s.</string>
   <string name="forum_invitation_response_declined_sent">Rechazaste la invitación al foro de %s.</string>
   <string name="forum_invitation_response_declined_auto">La invitación al foro de %s fue automáticamente rechazada.</string>

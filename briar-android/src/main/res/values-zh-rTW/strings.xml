@@ -476,7 +476,9 @@
   <string name="blogs_rss_feeds_import">導入 RSS 訂閱源</string>
   <string name="blogs_rss_feeds_import_button">導入</string>
   <string name="blogs_rss_feeds_import_hint">輸入 RSS 訂閱源鏈接</string>
+  <string name="blogs_rss_feeds_import_progress">滙入 RSS 消息來源</string>
   <string name="blogs_rss_feeds_import_error">抱歉！導入訂閱源時發生錯誤。</string>
+  <string name="blogs_rss_feeds_import_title">透過檔案滙入消息源</string>
   <string name="blogs_rss_feeds">RSS 消息源</string>
   <string name="blogs_rss_feeds_manage_imported">已導入：</string>
   <string name="blogs_rss_feeds_manage_author">作者：</string>
