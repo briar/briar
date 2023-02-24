@@ -55,7 +55,17 @@ public interface PrivateGroupManager {
 	/**
 	 * Removes a dissolved private group.
 	 */
+	void removePrivateGroup(Transaction txn, GroupId g) throws DbException;
+
+	/**
+	 * Removes a dissolved private group.
+	 */
 	void removePrivateGroup(GroupId g) throws DbException;
+
+	/**
+	 * Returns the ID of the user's previous message sent to the group
+	 */
+	MessageId getPreviousMsgId(Transaction txn, GroupId g) throws DbException;
 
 	/**
 	 * Returns the ID of the user's previous message sent to the group
@@ -112,7 +122,8 @@ public interface PrivateGroupManager {
 	/**
 	 * Returns true if the given private group was created by us.
 	 */
-	boolean isOurPrivateGroup(Transaction txn, PrivateGroup g) throws DbException;
+	boolean isOurPrivateGroup(Transaction txn, PrivateGroup g)
+			throws DbException;
 
 	/**
 	 * Returns the text of the private group message with the given ID.
@@ -160,6 +171,12 @@ public interface PrivateGroupManager {
 	 * Returns the group count for the given private group.
 	 */
 	GroupCount getGroupCount(GroupId g) throws DbException;
+
+	/**
+	 * Marks a message as read or unread and updates the group count.
+	 */
+	void setReadFlag(Transaction txn, GroupId g, MessageId m, boolean read)
+			throws DbException;
 
 	/**
 	 * Marks a message as read or unread and updates the group count.

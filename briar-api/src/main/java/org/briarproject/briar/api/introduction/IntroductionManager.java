@@ -30,6 +30,12 @@ public interface IntroductionManager extends ConversationClient {
 	boolean canIntroduce(Contact c1, Contact c2) throws DbException;
 
 	/**
+	 * Returns true if both contacts can be introduced at this moment.
+	 */
+	boolean canIntroduce(Transaction txn, Contact c1, Contact c2)
+			throws DbException;
+
+	/**
 	 * The current minor version of the introduction client.
 	 */
 	int MINOR_VERSION = 1;
@@ -39,6 +45,12 @@ public interface IntroductionManager extends ConversationClient {
 	 */
 	void makeIntroduction(Contact c1, Contact c2, @Nullable String text)
 			throws DbException;
+
+	/**
+	 * Sends two initial introduction messages.
+	 */
+	void makeIntroduction(Transaction txn, Contact c1, Contact c2,
+			@Nullable String text) throws DbException;
 
 	/**
 	 * Responds to an introduction.

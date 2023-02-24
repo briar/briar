@@ -300,36 +300,37 @@ class IntroductionManagerImpl extends ConversationClientImpl
 
 	@Override
 	public boolean canIntroduce(Contact c1, Contact c2) throws DbException {
-		Transaction txn = db.startTransaction(true);
+		return db.transactionWithResult(true,
+				txn -> canIntroduce(txn, c1, c2));
+	}
+
+	public boolean canIntroduce(Transaction txn, Contact c1, Contact c2)
+			throws DbException {
 		try {
-			boolean can = canIntroduce(txn, c1, c2);
-			db.commitTransaction(txn);
-			return can;
+			// Look up the session, if there is one
+			Author introducer = identityManager.getLocalAuthor(txn);
+			SessionId sessionId =
+					crypto.getSessionId(introducer, c1.getAuthor(),
+							c2.getAuthor());
+			StoredSession ss = getSession(txn, sessionId);
+			if (ss == null) return true;
+			IntroducerSession session =
+					sessionParser.parseIntroducerSession(ss.bdfSession);
+			return session.getState().isComplete();
 		} catch (FormatException e) {
 			throw new DbException(e);
-		} finally {
-			db.endTransaction(txn);
 		}
 	}
 
-	private boolean canIntroduce(Transaction txn, Contact c1, Contact c2)
-			throws DbException, FormatException {
-		// Look up the session, if there is one
-		Author introducer = identityManager.getLocalAuthor(txn);
-		SessionId sessionId =
-				crypto.getSessionId(introducer, c1.getAuthor(),
-						c2.getAuthor());
-		StoredSession ss = getSession(txn, sessionId);
-		if (ss == null) return true;
-		IntroducerSession session =
-				sessionParser.parseIntroducerSession(ss.bdfSession);
-		return session.getState().isComplete();
+	public void makeIntroduction(Contact c1, Contact c2, @Nullable String text)
+			throws DbException {
+		db.transaction(false,
+				txn -> makeIntroduction(txn, c1, c2, text));
 	}
 
 	@Override
-	public void makeIntroduction(Contact c1, Contact c2, @Nullable String text)
-			throws DbException {
-		Transaction txn = db.startTransaction(false);
+	public void makeIntroduction(Transaction txn, Contact c1, Contact c2,
+			@Nullable String text) throws DbException {
 		try {
 			// Look up the session, if there is one
 			Author introducer = identityManager.getLocalAuthor(txn);
@@ -363,11 +364,8 @@ class IntroductionManagerImpl extends ConversationClientImpl
 			session = introducerEngine.onRequestAction(txn, session, text);
 			// Store the updated session
 			storeSession(txn, storageId, session);
-			db.commitTransaction(txn);
 		} catch (FormatException e) {
 			throw new DbException(e);
-		} finally {
-			db.endTransaction(txn);
 		}
 	}
 

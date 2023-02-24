@@ -150,40 +150,35 @@ class PrivateGroupManagerImpl extends BdfIncomingMessageHook
 	}
 
 	@Override
-	public void removePrivateGroup(GroupId g) throws DbException {
-		Transaction txn = db.startTransaction(false);
-		try {
-			for (PrivateGroupHook hook : hooks) {
-				hook.removingGroup(txn, g);
-			}
-			Group group = db.getGroup(txn, g);
-			db.removeGroup(txn, group);
-			db.commitTransaction(txn);
-		} finally {
-			db.endTransaction(txn);
+	public void removePrivateGroup(Transaction txn, GroupId g)
+			throws DbException {
+		for (PrivateGroupHook hook : hooks) {
+			hook.removingGroup(txn, g);
 		}
+		Group group = db.getGroup(txn, g);
+		db.removeGroup(txn, group);
+	}
+
+	@Override
+	public void removePrivateGroup(GroupId g) throws DbException {
+		db.transaction(false, txn -> removePrivateGroup(txn, g));
 	}
 
 	@Override
 	public MessageId getPreviousMsgId(GroupId g) throws DbException {
-		MessageId previousMsgId;
-		Transaction txn = db.startTransaction(true);
-		try {
-			previousMsgId = getPreviousMsgId(txn, g);
-			db.commitTransaction(txn);
-		} catch (FormatException e) {
-			throw new DbException(e);
-		} finally {
-			db.endTransaction(txn);
-		}
-		return previousMsgId;
+		return db.transactionWithResult(true,
+				txn -> getPreviousMsgId(txn, g));
 	}
 
-	private MessageId getPreviousMsgId(Transaction txn, GroupId g)
-			throws DbException, FormatException {
-		BdfDictionary d = clientHelper.getGroupMetadataAsDictionary(txn, g);
-		byte[] previousMsgIdBytes = d.getRaw(KEY_PREVIOUS_MSG_ID);
-		return new MessageId(previousMsgIdBytes);
+	public MessageId getPreviousMsgId(Transaction txn, GroupId g)
+			throws DbException {
+		try {
+			BdfDictionary d = clientHelper.getGroupMetadataAsDictionary(txn, g);
+			byte[] previousMsgIdBytes = d.getRaw(KEY_PREVIOUS_MSG_ID);
+			return new MessageId(previousMsgIdBytes);
+		} catch (FormatException e) {
+			throw new DbException(e);
+		}
 	}
 
 	private void setPreviousMsgId(Transaction txn, GroupId g,
@@ -484,10 +479,15 @@ class PrivateGroupManagerImpl extends BdfIncomingMessageHook
 	}
 
 	@Override
+	public void setReadFlag(Transaction txn, GroupId g, MessageId m,
+			boolean read) throws DbException {
+		messageTracker.setReadFlag(txn, g, m, read);
+	}
+
+	@Override
 	public void setReadFlag(GroupId g, MessageId m, boolean read)
 			throws DbException {
-		db.transaction(false, txn ->
-				messageTracker.setReadFlag(txn, g, m, read));
+		db.transaction(false, txn -> setReadFlag(txn, g, m, read));
 	}
 
 	@Override
