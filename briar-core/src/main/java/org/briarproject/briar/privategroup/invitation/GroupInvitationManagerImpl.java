@@ -319,8 +319,16 @@ class GroupInvitationManagerImpl extends ConversationClientImpl
 	public void sendInvitation(GroupId privateGroupId, ContactId c,
 			@Nullable String text, long timestamp, byte[] signature,
 			long autoDeleteTimer) throws DbException {
+		db.transaction(false,
+				txn -> sendInvitation(txn, privateGroupId, c, text, timestamp,
+						signature, autoDeleteTimer));
+	}
+
+	@Override
+	public void sendInvitation(Transaction txn, GroupId privateGroupId,
+			ContactId c, @Nullable String text, long timestamp,
+			byte[] signature, long autoDeleteTimer) throws DbException {
 		SessionId sessionId = getSessionId(privateGroupId);
-		Transaction txn = db.startTransaction(false);
 		try {
 			// Look up the session, if there is one
 			Contact contact = db.getContact(txn, c);
@@ -344,11 +352,8 @@ class GroupInvitationManagerImpl extends ConversationClientImpl
 					timestamp, signature, autoDeleteTimer);
 			// Store the updated session
 			storeSession(txn, storageId, session);
-			db.commitTransaction(txn);
 		} catch (FormatException e) {
 			throw new DbException(e);
-		} finally {
-			db.endTransaction(txn);
 		}
 	}
 
@@ -359,10 +364,22 @@ class GroupInvitationManagerImpl extends ConversationClientImpl
 	}
 
 	@Override
+	public void respondToInvitation(Transaction txn, ContactId c,
+			PrivateGroup g, boolean accept) throws DbException {
+		respondToInvitation(txn, c, getSessionId(g.getId()), accept);
+	}
+
+	@Override
 	public void respondToInvitation(ContactId c, SessionId sessionId,
 			boolean accept) throws DbException {
 		db.transaction(false,
 				txn -> respondToInvitation(txn, c, sessionId, accept, false));
+	}
+
+	@Override
+	public void respondToInvitation(Transaction txn, ContactId c,
+			SessionId sessionId, boolean accept) throws DbException {
+		respondToInvitation(txn, c, sessionId, accept, false);
 	}
 
 	private void respondToInvitation(Transaction txn, ContactId c,
@@ -390,7 +407,12 @@ class GroupInvitationManagerImpl extends ConversationClientImpl
 
 	@Override
 	public void revealRelationship(ContactId c, GroupId g) throws DbException {
-		Transaction txn = db.startTransaction(false);
+		db.transaction(false, txn -> revealRelationship(txn, c, g));
+	}
+
+	@Override
+	public void revealRelationship(Transaction txn, ContactId c, GroupId g)
+			throws DbException {
 		try {
 			// Look up the session
 			Contact contact = db.getContact(txn, c);
@@ -404,11 +426,8 @@ class GroupInvitationManagerImpl extends ConversationClientImpl
 			session = peerEngine.onJoinAction(txn, session);
 			// Store the updated session
 			storeSession(txn, ss.storageId, session);
-			db.commitTransaction(txn);
 		} catch (FormatException e) {
 			throw new DbException(e);
-		} finally {
-			db.endTransaction(txn);
 		}
 	}
 
@@ -495,9 +514,14 @@ class GroupInvitationManagerImpl extends ConversationClientImpl
 
 	@Override
 	public Collection<GroupInvitationItem> getInvitations() throws DbException {
+		return db.transactionWithResult(true, this::getInvitations);
+	}
+
+	@Override
+	public Collection<GroupInvitationItem> getInvitations(Transaction txn)
+			throws DbException {
 		List<GroupInvitationItem> items = new ArrayList<>();
 		BdfDictionary query = messageParser.getInvitesAvailableToAnswerQuery();
-		Transaction txn = db.startTransaction(true);
 		try {
 			// Look up the available invite messages for each contact
 			for (Contact c : db.getContacts(txn)) {
@@ -507,11 +531,8 @@ class GroupInvitationManagerImpl extends ConversationClientImpl
 				for (MessageId m : results)
 					items.add(parseGroupInvitationItem(txn, c, m));
 			}
-			db.commitTransaction(txn);
 		} catch (FormatException e) {
 			throw new DbException(e);
-		} finally {
-			db.endTransaction(txn);
 		}
 		return items;
 	}
@@ -519,15 +540,20 @@ class GroupInvitationManagerImpl extends ConversationClientImpl
 	@Override
 	public SharingStatus getSharingStatus(Contact c, GroupId privateGroupId)
 			throws DbException {
+		return db.transactionWithResult(true,
+				txn -> getSharingStatus(txn, c, privateGroupId));
+	}
+
+	@Override
+	public SharingStatus getSharingStatus(Transaction txn, Contact c,
+			GroupId privateGroupId) throws DbException {
 		GroupId contactGroupId = getContactGroup(c).getId();
 		SessionId sessionId = getSessionId(privateGroupId);
-		Transaction txn = db.startTransaction(true);
 		try {
 			Visibility client = clientVersioningManager.getClientVisibility(txn,
 					c.getId(), PrivateGroupManager.CLIENT_ID,
 					PrivateGroupManager.MAJOR_VERSION);
 			StoredSession ss = getSession(txn, contactGroupId, sessionId);
-			db.commitTransaction(txn);
 			// The group can't be shared unless the contact supports the client
 			if (client != SHARED) return SharingStatus.NOT_SUPPORTED;
 			// If there's no session, the contact can be invited
@@ -548,8 +574,6 @@ class GroupInvitationManagerImpl extends ConversationClientImpl
 			throw new AssertionError("Unhandled state: " + state.name());
 		} catch (FormatException e) {
 			throw new DbException(e);
-		} finally {
-			db.endTransaction(txn);
 		}
 	}
 
