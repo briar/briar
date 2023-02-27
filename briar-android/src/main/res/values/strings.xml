@@ -249,6 +249,7 @@
 	<string name="exchanging_contact_details">Exchanging contact details\u2026</string>
 	<string name="contact_added_toast">Contact added: %s</string>
 	<string name="contact_already_exists">Contact %s already exists</string>
+	<string name="contact_already_exists_general">Contact already exists</string>
 	<string name="qr_code_invalid">The QR code is invalid</string>
 	<string name="qr_code_too_old_1">The QR code you have scanned comes from an older version of Briar.\n\nPlease ask your contact to upgrade to the latest version and then try again.</string>
 	<string name="qr_code_too_new_1">The QR code you have scanned comes from a newer version of Briar.\n\nPlease upgrade to the latest version and then try again.</string>
