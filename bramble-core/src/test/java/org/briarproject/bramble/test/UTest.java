@@ -10,6 +10,8 @@ import java.util.List;
 
 import javax.annotation.Nonnull;
 
+import static java.lang.Double.compare;
+import static java.lang.Double.parseDouble;
 import static org.briarproject.bramble.test.UTest.Result.INCONCLUSIVE;
 import static org.briarproject.bramble.test.UTest.Result.LARGER;
 import static org.briarproject.bramble.test.UTest.Result.SMALLER;
@@ -134,7 +136,7 @@ public class UTest {
 		if (nA < 5 || nB < 5) die("Too few values for U test\n");
 
 		double zCritical;
-		if (args.length == 3) zCritical = Double.valueOf(args[2]);
+		if (args.length == 3) zCritical = parseDouble(args[2]);
 		else zCritical = Z_CRITICAL_0_01;
 
 		switch (test(a, b, zCritical)) {
@@ -161,7 +163,7 @@ public class UTest {
 			BufferedReader in;
 			in = new BufferedReader(new FileReader(filename));
 			String s;
-			while ((s = in.readLine()) != null) values.add(new Double(s));
+			while ((s = in.readLine()) != null) values.add(parseDouble(s));
 			in.close();
 		} catch (FileNotFoundException fnf) {
 			die(filename + " not found");
@@ -187,9 +189,7 @@ public class UTest {
 
 		@Override
 		public int compareTo(@Nonnull Value v) {
-			if (value < v.value) return -1;
-			if (value > v.value) return 1;
-			return 0;
+			return compare(value, v.value);
 		}
 	}
 }
