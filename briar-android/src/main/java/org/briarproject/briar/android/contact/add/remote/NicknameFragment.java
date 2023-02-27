@@ -171,7 +171,7 @@ public class NicknameFragment extends BaseFragment {
 	private void handleExistingContact(String name, Author existing) {
 		OnClickListener listener = (d, w) -> {
 			d.dismiss();
-			String str = getString(R.string.contact_already_exists, name);
+			String str = getString(R.string.contact_already_exists_general);
 			Toast.makeText(getContext(), str, LENGTH_LONG).show();
 			finish();
 		};
