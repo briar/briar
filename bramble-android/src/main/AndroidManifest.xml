@@ -8,10 +8,10 @@
 
 	<uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 	<uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
-	<!-- The BLUETOOTH permission was supposed to be removed in API 31 but is still needed on some Xiaomi/Redmi/POCO devices running API 31 -->
+	<!-- The BLUETOOTH permission was supposed to be removed in API 31 but is still needed on some Xiaomi/Redmi/POCO devices running API 31 and Nubia devices running API 32 -->
 	<uses-permission
 		android:name="android.permission.BLUETOOTH"
-		android:maxSdkVersion="31" />
+		android:maxSdkVersion="32" />
 	<uses-permission
 		android:name="android.permission.BLUETOOTH_ADMIN"
 		android:maxSdkVersion="30" />
