@@ -32,7 +32,7 @@
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
 				android:hint="@string/choose_nickname"
-				android:imeOptions="actionNext"
+				android:imeOptions="flagNoPersonalizedLearning|actionNext"
 				android:inputType="text|textCapWords"
 				android:maxLines="1" />
 

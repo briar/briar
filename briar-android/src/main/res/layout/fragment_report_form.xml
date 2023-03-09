@@ -28,6 +28,7 @@
 				android:id="@+id/user_comment"
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
+				android:imeOptions="flagNoPersonalizedLearning"
 				android:inputType="textMultiLine|textCapSentences"
 				tools:hint="@string/describe_crash" />
 
@@ -51,6 +52,7 @@
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
 				android:hint="@string/optional_contact_email"
+				android:imeOptions="flagNoPersonalizedLearning"
 				android:inputType="textEmailAddress"
 				android:maxLines="1" />
 
@@ -61,8 +63,8 @@
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
 			android:layout_marginLeft="@dimen/margin_large"
-			android:layout_marginRight="@dimen/margin_large"
 			android:layout_marginTop="@dimen/margin_large"
+			android:layout_marginRight="@dimen/margin_large"
 			android:text="@string/privacy_policy"
 			android:textAppearance="@style/TextAppearance.MaterialComponents.Body1"
 			app:layout_constraintStart_toStartOf="parent"

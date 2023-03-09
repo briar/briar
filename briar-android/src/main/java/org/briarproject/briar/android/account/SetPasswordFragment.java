@@ -65,7 +65,8 @@ public class SetPasswordFragment extends SetupFragment {
 
 		if (!viewModel.needToShowDozeFragment()) {
 			nextButton.setText(R.string.create_account_button);
-			passwordConfirmation.setImeOptions(IME_ACTION_DONE);
+			int options = passwordConfirmation.getImeOptions();
+			passwordConfirmation.setImeOptions(options | IME_ACTION_DONE);
 		}
 
 		viewModel.getIsCreatingAccount()
