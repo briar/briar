@@ -235,6 +235,7 @@ dhe s’mund të hapet me këtë version.\n\nJu lutemi, përmirësojeni me versi
   <string name="exchanging_contact_details">Po shkëmbehen hollësi kontaktesh\u2026</string>
   <string name="contact_added_toast">Kontakti u shtua: %s</string>
   <string name="contact_already_exists">Kontakti %s ekziston tashmë</string>
+  <string name="contact_already_exists_general">Kontakti ekziston tashmë</string>
   <string name="qr_code_invalid">Kodi QR është i pavlefshëm</string>
   <string name="qr_code_too_old_1">Kodi QR që keni skanuar vjen prej një versioni të vjetër të Briar-it.\n\nJu lutemi, kërkojini kontaktit tuaj ta përmirësojë me versionin më të ri dhe mandej riprovoni.</string>
   <string name="qr_code_too_new_1">Kodi QR që keni skanuar vjen prej një versioni më të ri të Briar-it.\n\nJu lutemi, përmirësojeni me versionin më të ri dhe mandej riprovoni.</string>

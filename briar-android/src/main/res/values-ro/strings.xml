@@ -243,6 +243,7 @@
   <string name="exchanging_contact_details">Se face schimbul de date de contact\u2026</string>
   <string name="contact_added_toast">Contact adăugat: %s</string>
   <string name="contact_already_exists">Contactul %s există deja</string>
+  <string name="contact_already_exists_general">Contactul există deja</string>
   <string name="qr_code_invalid">Codul QR este nevalid!</string>
   <string name="qr_code_too_old_1">Codul QR pe care l-ați scanat provine de la o versiune Briar mai veche.\n\nSolicitați contactului să actualizeze aplicația la cea mai recentă versiune, după care încercați din nou.</string>
   <string name="qr_code_too_new_1">Codul QR pe care l-ați scanat provine de la o versiune Briar mai nouă.\n\nActualizați aplicația la cea mai recentă versiune, după care încercați din nou.</string>

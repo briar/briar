@@ -247,12 +247,14 @@
   <string name="exchanging_contact_details">Apsikeičiama adresato informacija\u2026</string>
   <string name="contact_added_toast">Adresatas pridėtas: %s</string>
   <string name="contact_already_exists">Adresatas %s jau yra</string>
+  <string name="contact_already_exists_general">Adresatas jau yra</string>
   <string name="qr_code_invalid">QR kodas yra neteisingas</string>
   <string name="camera_error">Kameros klaida</string>
   <string name="connecting_to_device">Jungiamasi prie įrenginio\u2026</string>
   <string name="authenticating_with_device">Tapatybės nustatymas su įrenginiu\u2026</string>
   <string name="connection_error_title">Nepavyko prisijungti prie jūsų adresato</string>
   <string name="connection_error_feedback">Jei ši problema išlieka, <a href="feedback">atsiųskite mums atsiliepimą</a>, kad padėtumėte mums patobulinti programėlę.</string>
+  <string name="info_both_must_scan">Jūs abu privalote nuskenuoti vienas kito QR kodus</string>
   <!--Adding Contacts Remotely-->
   <string name="add_contact_remotely_title_case">Pridėti adresatą per atstumą</string>
   <string name="add_contact_nearby_title">Pridėti šalia esantį adresatą</string>
@@ -266,7 +268,7 @@
   <string name="send_link_title">Apsikeiskite nuorodomis</string>
   <string name="add_contact_choose_nickname">Pasirinkite slapyvardį</string>
   <string name="add_contact_choose_a_nickname">Įveskite slapyvardį</string>
-  <string name="nickname_intro">Suteikite savo adresatui slapyvardį. Slapyvardį matysite tik jūs.</string>
+  <string name="nickname_intro">Suteikite adresatui slapyvardį. Slapyvardį matysite tik jūs.</string>
   <string name="your_link">Perduokite šią nuorodą adresatui, kurį norite pridėti</string>
   <string name="link_clip_label">Briar nuoroda</string>
   <string name="link_copied_toast">Nuoroda nukopijuota</string>
@@ -312,7 +314,10 @@
   <string name="different_person_button">Kitas asmuo</string>
   <string name="duplicate_link_dialog_text_3">%1$s ir %2$s išsiuntė jums tą pačią nuorodą.\n\nGali būti, kad vienas iš šių asmenų bando sužinoti kas yra jūsų adresatų sąraše.\n\nNesakykite šiems asmenims, kad gavote tokią pačią nuorodą iš kito asmens.</string>
   <string name="pending_contact_updated_toast">Laukiantis adresatas atnaujintas</string>
+  <string name="info_both_must_enter_links">Jūs abu privalote pridėti vienas kito nuorodas</string>
   <!--Peer trust levels-->
+  <string name="peer_trust_level_unverified">Nepatvirtintas adresatas</string>
+  <string name="peer_trust_level_verified">Patvirtintas adresatas</string>
   <string name="peer_trust_level_ourselves">Aš</string>
   <string name="peer_trust_level_stranger">Nepažįstamasis</string>
   <!--Introductions-->
@@ -610,9 +615,11 @@
 		\nGalite įsidiegti Briar pašto dėžutę laisvame atsarginiame įrenginyje. Palikite įrenginį prijungtą prie maitinimo šaltinio ir belaidžio (Wi-Fi) ryšio, kad jis būtų pastoviai prijungtas prie interneto.</string>
   <string name="mailbox_setup_download_link">Bendrinti atsisiuntimo nuorodą</string>
   <string name="mailbox_setup_button_scan">Skenuoti pašto dėžutės QR kodą</string>
+  <string name="mailbox_setup_connecting">Jungiamasi prie pašto dėžutės…</string>
   <!--This string is shown when connecting to a Mailbox for the first time. The placeholder will be replaced with a duration, e.g. "2 minutes".-->
   <string name="mailbox_setup_connecting_info">Tai gali užtrukti iki %1s</string>
   <string name="mailbox_setup_already_paired_title">Pašto dėžutė jau susieta</string>
+  <string name="mailbox_setup_already_paired_description">Atsiekite pašto dėžutę kitame įrenginyje ir bandykite dar kartą.</string>
   <string name="mailbox_setup_io_error_title">Nepavyko prisijungti</string>
   <string name="mailbox_setup_io_error_description">Įsitikinkite, kad abu įrenginiai yra prisijungę prie interneto ir bandykite dar kartą.</string>
   <string name="mailbox_setup_assertion_error_title">Pašto dėžutės klaida</string>
@@ -623,6 +630,7 @@
   <string name="tor_offline_button_check">Tikrinti ryšio nustatymus</string>
   <string name="mailbox_status_title">Pašto dėžutės būsena</string>
   <string name="mailbox_status_connected_title">Pašto dėžutė veikia</string>
+  <string name="mailbox_status_problem_title">Briar kyla nesklandumų jungiantis prie pašto dėžutės</string>
   <string name="mailbox_status_failure_title">Pašto dėžutė yra neprieinama</string>
   <string name="mailbox_status_app_too_old_title">Briar yra per sena</string>
   <string name="mailbox_status_app_too_old_message">Atnaujinkite Briar programėlę iki naujausios versijos ir bandykite dar kartą.</string>
@@ -637,6 +645,10 @@
   <string name="mailbox_status_unlink_dialog_question">Ar tikrai norite atsieti pašto dėžutę?</string>
   <string name="mailbox_status_unlink_no_wipe_title">Jūsų pašto dėžutė atsieta</string>
   <string name="mailbox_status_unlink_success">Jūsų pašto dėžutė atsieta</string>
+  <string name="mailbox_error_notification_channel_title">Problemos su Briar pašto dėžute</string>
+  <string name="mailbox_error_notification_title">Briar pašto dėžutė yra neprieinama</string>
+  <string name="mailbox_error_notification_text">Bakstelėkite norėdami išspręsti problemą.</string>
+  <string name="mailbox_error_wizard_button">Išspręsti problemą</string>
   <string name="mailbox_error_wizard_title">Pašto dėžutės nesklandumų šalinimo vediklis</string>
   <!--About-->
   <string name="about_title">Apie</string>

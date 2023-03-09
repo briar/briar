@@ -232,6 +232,7 @@
   <string name="exchanging_contact_details">Обмяна на данни за контакт\u2026</string>
   <string name="contact_added_toast">Добавен контакт: %s</string>
   <string name="contact_already_exists">Контактът %s вече съществува</string>
+  <string name="contact_already_exists_general">Контактът вече съществува</string>
   <string name="qr_code_invalid">Кодът за QR е недействителен</string>
   <string name="qr_code_too_old_1">Сканираният код за QR е от по-ранно издание на Briar.\n\nНека вашия контакт инсталира последното издание и да пробва отново.</string>
   <string name="qr_code_too_new_1">Сканираният код за QR е от по-ново издание на Briar.\n\nИнсталирайте последното издание и пробвайте отново.</string>
@@ -431,6 +432,10 @@
   <string name="forum_declined_toast">Поканата е отказана</string>
   <string name="shared_by_format">Споделен от %s</string>
   <string name="forum_invitation_already_sharing">Вече е споделен</string>
+  <string name="forum_invitation_already_invited">Поканата вече е изпратена</string>
+  <string name="forum_invitation_invite_received">Поканата вече е получена</string>
+  <string name="forum_invitation_not_supported">Не се поддържа от този контакт</string>
+  <string name="forum_invitation_error">Грешка. Това е дефект и не е причинено от вас</string>
   <string name="forum_invitation_response_accepted_sent">Приехте поканата от %s за членство във форум.</string>
   <string name="forum_invitation_response_declined_sent">Отказахте поканата на %s за членство във форум.</string>
   <string name="forum_invitation_response_declined_auto">Поканата от %s за членство във форум е отказана автоматично.</string>
@@ -481,7 +486,9 @@
   <string name="blogs_rss_feeds_import">Внасяне на емисия на RSS</string>
   <string name="blogs_rss_feeds_import_button">Внасяне</string>
   <string name="blogs_rss_feeds_import_hint">Aдрес на емисия</string>
+  <string name="blogs_rss_feeds_import_progress">Внасяне на емисия на RSS</string>
   <string name="blogs_rss_feeds_import_error">Грешка при внасяне на емисията.</string>
+  <string name="blogs_rss_feeds_import_title">Внасяне на емисия от файл</string>
   <string name="blogs_rss_feeds">Емисии на RSS</string>
   <string name="blogs_rss_feeds_manage_imported">Внесена:</string>
   <string name="blogs_rss_feeds_manage_author">Автор:</string>

@@ -252,6 +252,7 @@
   <string name="exchanging_contact_details">Wymienianie szczegółów dotyczących kontatku\u2026</string>
   <string name="contact_added_toast">Kontakt dodany: %s</string>
   <string name="contact_already_exists">Kontakt %s już istnieje</string>
+  <string name="contact_already_exists_general">Kontakt już istnieje</string>
   <string name="qr_code_invalid">Kod QR jest nieprawidłowy</string>
   <string name="qr_code_too_old_1">Zeskanowany kod QR pochodzi ze starszej wersji Briar.\n\nProszę poprosić Twój kontakt  o aktualizację do najnowszej wersji, a następnie spróbować ponownie.</string>
   <string name="qr_code_too_new_1">Zeskanowany kod QR pochodzi z nowszej wersji programu Briar.\n\nProszę zaktualizować go do najnowszej wersji, a następnie spróbować ponownie.</string>
@@ -630,6 +631,9 @@
   <string name="mailbox_setup_connecting">Łączenie się ze Skrzynką odbiorczą…</string>
   <!--This string is shown when connecting to a Mailbox for the first time. The placeholder will be replaced with a duration, e.g. "2 minutes".-->
   <string name="mailbox_setup_connecting_info">Może to potrwać do %1s</string>
+  <string name="mailbox_qr_code_too_old">Zeskanowany kod QR pochodzi ze starszej wersji skrzynki odbiorczej Briar.\n\nProszę zaktualizować ją do najnowszej wersji, a następnie spróbować ponownie.</string>
+  <string name="mailbox_qr_code_too_new">Zeskanowany kod QR pochodzi z nowszej wersji skrzynki odbiorczej Briar.\n\nProszę zaktualizować ją do najnowszej wersji, a następnie spróbować ponownie.</string>
+  <string name="mailbox_setup_qr_code_wrong_description">Zeskanowany kod QR nie pochodzi ze skrzynki odbiorczej Briar. Otwórz skrzynkę odbiorczą Briar na urządzeniu z Twoją skrzynką i zeskanuj wyświetlany kod QR. </string>
   <string name="mailbox_setup_already_paired_title">Mailbox już podłączony</string>
   <string name="mailbox_setup_already_paired_description">Odłącz Mailbox na drugim urządzeniu i spróbuj ponownie.</string>
   <string name="mailbox_setup_io_error_title">Nie udało się połączyć</string>
@@ -798,7 +802,9 @@ Brak dostępu do aparatu. Spróbuj ponownie, może po ponownym uruchomieniu urz�
   <string name="hotspot_notification_title">Udostępnianie Briar offline</string>
   <string name="hotspot_button_connected">Następny</string>
   <string name="permission_hotspot_location_request_body">Aby utworzyć hotspot Wi-Fi, Briar potrzebuje uprawnienia do dostępu do Twojej lokalizacji.\n\nBriar nie przechowuje Twojej lokalizacji ani nie udostępnia jej nikomu.</string>
+  <string name="permission_hotspot_location_request_precise_body">Aby utworzyć hotspot Wi-Fi, Briar potrzebuje uprawnienia do dostępu do Twojej dokładnej lokalizacji.\n\nBriar nie przechowuje Twojej lokalizacji ani nie udostępnia jej nikomu.</string>
   <string name="permission_hotspot_location_denied_body">Zabroniłeś dostępu do Twojej lokalizacji, ale Briar potrzebuje tego uprawnienia do tworzenia hotspotu Wi-Fi.\n\nRozważ przyznanie tego dostępu.</string>
+  <string name="permission_hotspot_location_denied_precise_body">Zabroniono dostępu do dokładnej lokalizacji. Briar potrzebuje tego uprawnienia do tworzenia hotspotu Wi-Fi.\n\nRozważ przyznanie tego dostępu.</string>
   <string name="wifi_settings_title">Ustawienia Wi-Fi</string>
   <string name="wifi_settings_request_enable_body">Aby utworzyć hotspot Wi-Fi, Briar potrzebuje użyć Wi-Fi. Włącz Wi-Fi.</string>
   <string name="hotspot_tab_manual">Manualne</string>

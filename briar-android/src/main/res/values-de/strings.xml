@@ -234,6 +234,7 @@
   <string name="exchanging_contact_details">Kontaktdetails werden ausgetauscht\u2026</string>
   <string name="contact_added_toast">Kontakt hinzugefügt: %s</string>
   <string name="contact_already_exists">Kontakt %s existiert bereits</string>
+  <string name="contact_already_exists_general">Kontakt existiert bereits</string>
   <string name="qr_code_invalid">Der QR-Code ist ungültig</string>
   <string name="qr_code_too_old_1">Der QR-Code, den du gescannt hast, kommt von einer älteren Version von Briar.\n\nBitte deinen Kontakt, zur neuesten Version upzudaten, und versuche es erneut.</string>
   <string name="qr_code_too_new_1">Der QR-Code, den du gescannt hast, kommt von einer neueren Version.\n\nBitte aktualisiere Briar auf die neueste Version und versuche es erneut.</string>

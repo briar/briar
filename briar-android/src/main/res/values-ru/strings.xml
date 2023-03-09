@@ -252,6 +252,7 @@
   <string name="exchanging_contact_details">Обмен контактными данными\u2026</string>
   <string name="contact_added_toast">Контакт добавлен: %s</string>
   <string name="contact_already_exists">Контакт %s уже существует</string>
+  <string name="contact_already_exists_general">Контакт уже существует</string>
   <string name="qr_code_invalid">Неверный QR-код</string>
   <string name="qr_code_too_old_1">QR-код, который вы сосканировали, сгенерирован в старой версии Briar.\n\nПопросите вашего собеседника обновиться до последней версии и повторите попытку.</string>
   <string name="qr_code_too_new_1">QR-код, который вы сосканировали, сгенерирован в новой версии Briar.\n\nОбновите приложение до последней версии и повторите попытку.</string>

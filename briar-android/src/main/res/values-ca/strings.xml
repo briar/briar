@@ -6,7 +6,7 @@
   <string name="setup_next">Següent</string>
   <string name="setup_password_intro">Establiu una contrasenya</string>
   <string name="setup_password_explanation">El compte de Briar s\'emmagatzema xifrat en el vostre dispositiu, no en el núvol. Si oblideu la contrasenya o desinstal·leu Briar no podreu recuperar el vostre compte ni les dades associades.\n\nTrieu una contrasenya llarga que sigui difícil d\'endevinar, com ara quatre paraules aleatòries o deu lletres, números i símbols aleatoris.</string>
-  <string name="dnkm_doze_intro">Per rebre missatges Briar necessita estar connectat en segon pla.</string>
+  <string name="dnkm_doze_intro">Per rebre missatges, Briar necessita estar connectat en segon pla.</string>
   <string name="dnkm_doze_explanation">Per rebre missatges Briar necessita estar connectat en segon pla. Desactiveu les optimitzacions de la bateria per permetre que Briar resti sempre connectat.</string>
   <string name="choose_nickname">Trieu el sobrenom</string>
   <string name="choose_password">Trieu la contrasenya</string>
@@ -19,10 +19,10 @@
   <string name="don_t_ask_again">No tornis a preguntar-ho</string>
   <string name="dnkm_huawei_protected_text">Feu un toc sobre el botó següent i assegureu-vos de que Briar consta com a protegit a la pantalla «Aplicacions protegides».</string>
   <string name="dnkm_huawei_protected_button">Protegeix Briar</string>
-  <string name="dnkm_huawei_protected_help">Si no afegiu Briar a la llista d\'aplicacions protegides, s\'evitarà que Briar s\'executi en segon pla.</string>
+  <string name="dnkm_huawei_protected_help">Si no afegeixes Briar a la llista d\'aplicacions protegides, no podrà executar-se en segon pla.</string>
   <string name="dnkm_huawei_app_launch_text">Premeu el botó, obriu la pantalla «Llença app» i assegureu-vos que Briar està configurat com «Gestiona a ma».</string>
   <string name="dnkm_huawei_app_launch_help">Si Briar no està configurat com a «Gestiona manualment» a la pantalla «Llença app», no podrà executar-se en segon pla.</string>
-  <string name="dnkm_xiaomi_text">Per executar-se en segon pla, Briar necessita ser blocat en la llista d\'aplicacions recents.</string>
+  <string name="dnkm_xiaomi_text">Per executar-se en segon pla, Briar necessita ser fixat en la llista d\'aplicacions recents.</string>
   <string name="dnkm_xiaomi_button">Protegeix Briar</string>
   <string name="dnkm_xiaomi_help">Si Briar no està blocat a la llista d\'aplicacions recents, no podrà executar-se en segon pla.</string>
   <string name="dnkm_xiaomi_dialog_body_old">1. Obriu la llista d\'aplicacions recents (de canvi d\'aplicació)\n\n2. Desplaceu avall  la icona de Briar  per mostrar la icona del cadenat\n\n3. Si el cadenat és obert, premeu per tancar-lo.</string>
@@ -235,6 +235,7 @@ Així que l\'actualitzi li veureu una icona diferent .</string>
   <string name="exchanging_contact_details">Intercanviant els detalls del contacte\u2026</string>
   <string name="contact_added_toast">S\'ha afegit el contacte %s</string>
   <string name="contact_already_exists">El contacte %s ja existia</string>
+  <string name="contact_already_exists_general">El contacte ja existeix</string>
   <string name="qr_code_invalid">El codi QR és invàlid</string>
   <string name="qr_code_too_old_1">El codi QR que heu escanejat prové d\'una versió anterior del Briar.\n\nDemaneu al vostre contacte que actualitzi a la versió més recent i, a continuació, torneu-ho a provar.</string>
   <string name="qr_code_too_new_1">El codi QR que heu escanejat prové d\'una versió més recent del Briar.\n\nActualitzeu a la darrera versió i torneu-ho a provar.</string>
@@ -488,7 +489,9 @@ Així que l\'actualitzi li veureu una icona diferent .</string>
   <string name="blogs_rss_feeds_import">Subscriure\'s al canal de notícies RSS</string>
   <string name="blogs_rss_feeds_import_button">Subscriu-me</string>
   <string name="blogs_rss_feeds_import_hint">Escriviu l\'URL del canal de notícies RSS</string>
+  <string name="blogs_rss_feeds_import_progress">Important fil d\'actualitat RSS...</string>
   <string name="blogs_rss_feeds_import_error">Ens sap greu! S\'ha produït un error en subscriure-us al vostre canal de notícies.</string>
+  <string name="blogs_rss_feeds_import_title">Importa fil d\'actualitat des d\'un fitxer</string>
   <string name="blogs_rss_feeds">Canals RSS</string>
   <string name="blogs_rss_feeds_manage_imported">Importat:</string>
   <string name="blogs_rss_feeds_manage_author">Autor:</string>
