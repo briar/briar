@@ -136,6 +136,7 @@
 					android:layout_width="match_parent"
 					android:layout_height="match_parent"
 					android:hint="@string/add_contact_choose_a_nickname"
+					android:imeOptions="flagNoPersonalizedLearning"
 					android:importantForAutofill="no"
 					android:inputType="text|textCapWords" />
 

@@ -25,7 +25,7 @@
 		android:layout_height="wrap_content"
 		android:layout_gravity="bottom"
 		android:background="@android:color/transparent"
-		android:imeOptions="actionSend"
+		android:imeOptions="flagNoPersonalizedLearning|actionSend"
 		android:inputType="textMultiLine|textCapSentences|textAutoCorrect"
 		android:minHeight="@dimen/text_input_height"
 		android:textColor="?android:attr/textColorPrimary"

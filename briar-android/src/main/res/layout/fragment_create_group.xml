@@ -19,6 +19,7 @@
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
 			android:hint="@string/groups_create_group_hint"
+			android:imeOptions="flagNoPersonalizedLearning"
 			android:importantForAutofill="no"
 			android:inputType="text|textCapSentences"
 			android:maxLines="1" />

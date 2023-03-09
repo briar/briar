@@ -23,7 +23,7 @@
 			android:background="@android:color/transparent"
 			android:gravity="top"
 			android:hint="@string/blogs_rss_feeds_import_hint"
-			android:imeOptions="actionDone"
+			android:imeOptions="flagNoPersonalizedLearning|actionDone"
 			android:importantForAutofill="no"
 			android:inputType="textUri"
 			android:padding="@dimen/margin_medium"
