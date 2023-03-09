@@ -2,6 +2,8 @@ package org.briarproject.bramble.mailbox;
 
 import org.briarproject.nullsafety.NotNullByDefault;
 
+import java.util.function.IntSupplier;
+
 import dagger.Module;
 import dagger.Provides;
 
@@ -11,15 +13,22 @@ import static org.briarproject.bramble.mailbox.AbstractMailboxIntegrationTest.UR
 @NotNullByDefault
 class TestModularMailboxModule {
 
+	private final IntSupplier portSupplier;
+
+	TestModularMailboxModule(IntSupplier portSupplier) {
+		this.portSupplier = portSupplier;
+	}
+
 	@Provides
 	MailboxConfig provideMailboxConfig(TestMailboxConfigImpl mailboxConfig) {
 		return mailboxConfig;
 	}
 
-	static UrlConverter urlConverter = onion -> URL_BASE;
-
 	@Provides
 	UrlConverter provideUrlConverter() {
-		return urlConverter;
+		return onion -> {
+			int port = portSupplier.getAsInt();
+			return URL_BASE + ":" + port;
+		};
 	}
 }

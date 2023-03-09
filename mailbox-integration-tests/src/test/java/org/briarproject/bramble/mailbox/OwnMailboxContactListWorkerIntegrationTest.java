@@ -15,15 +15,12 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import static org.briarproject.bramble.mailbox.MailboxIntegrationTestUtils.createMailboxApi;
 import static org.briarproject.bramble.mailbox.MailboxIntegrationTestUtils.retryUntilSuccessOrTimeout;
 import static org.briarproject.bramble.test.TestUtils.getSecretKey;
 import static org.junit.Assert.assertEquals;
 
 public class OwnMailboxContactListWorkerIntegrationTest
 		extends AbstractMailboxIntegrationTest {
-
-	private final MailboxApi api = createMailboxApi();
 
 	private MailboxProperties ownerProperties;
 

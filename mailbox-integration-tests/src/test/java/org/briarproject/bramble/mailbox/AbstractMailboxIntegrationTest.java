@@ -29,6 +29,7 @@ import org.junit.Before;
 import java.io.File;
 import java.util.Map;
 import java.util.concurrent.CountDownLatch;
+import java.util.function.IntSupplier;
 
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.briarproject.bramble.api.mailbox.MailboxAuthToken.fromString;
@@ -44,7 +45,7 @@ import static org.junit.Assert.fail;
 abstract class AbstractMailboxIntegrationTest
 		extends BrambleIntegrationTest<MailboxIntegrationTestComponent> {
 
-	static final String URL_BASE = "http://127.0.0.1:8000";
+	static final String URL_BASE = "http://127.0.0.1";
 
 	AbstractMailboxIntegrationTest() {
 		TestLogFormatter.use();
@@ -58,15 +59,16 @@ abstract class AbstractMailboxIntegrationTest
 	MailboxIntegrationTestComponent c1, c2;
 	Contact contact1From2, contact2From1;
 	TestMailbox mailbox;
-	MailboxApi api = createMailboxApi();
+	MailboxApi api;
 
 	@Before
 	@Override
 	public void setUp() throws Exception {
 		super.setUp();
-		c1 = startTestComponent(dir1, "Alice");
-		c2 = startTestComponent(dir2, "Bob");
 		mailbox = new TestMailbox(new File(testDir, "mailbox"));
+		c1 = startTestComponent(dir1, "Alice", () -> mailbox.getPort());
+		c2 = startTestComponent(dir2, "Bob", () -> mailbox.getPort());
+		api = createMailboxApi(() -> mailbox.getPort());
 		mailbox.startLifecycle();
 	}
 
@@ -82,16 +84,20 @@ abstract class AbstractMailboxIntegrationTest
 	}
 
 	private MailboxIntegrationTestComponent startTestComponent(
-			File databaseDir, String name) throws Exception {
+			File databaseDir, String name, IntSupplier portSupplier)
+			throws Exception {
 		TestThreadFactoryModule threadFactoryModule =
 				new TestThreadFactoryModule(name);
 		TestDatabaseConfigModule dbModule =
 				new TestDatabaseConfigModule(databaseDir);
+		TestModularMailboxModule mailboxModule =
+				new TestModularMailboxModule(portSupplier);
 		MailboxIntegrationTestComponent component =
 				DaggerMailboxIntegrationTestComponent
 						.builder()
 						.testThreadFactoryModule(threadFactoryModule)
 						.testDatabaseConfigModule(dbModule)
+						.testModularMailboxModule(mailboxModule)
 						.build();
 		injectEagerSingletons(component);
 

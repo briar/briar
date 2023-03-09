@@ -1,15 +1,20 @@
 package org.briarproject.bramble.mailbox;
 
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.IntSupplier;
 
 import static java.lang.System.currentTimeMillis;
+import static org.briarproject.bramble.mailbox.AbstractMailboxIntegrationTest.URL_BASE;
 import static org.briarproject.bramble.mailbox.MailboxTestUtils.createHttpClientProvider;
-import static org.briarproject.bramble.mailbox.TestModularMailboxModule.urlConverter;
 import static org.junit.Assert.fail;
 
 class MailboxIntegrationTestUtils {
 
-	static MailboxApi createMailboxApi() {
+	static MailboxApi createMailboxApi(IntSupplier portSupplier) {
+		UrlConverter urlConverter = onion -> {
+			int port = portSupplier.getAsInt(); //only access when needed
+			return URL_BASE + ":" + port;
+		};
 		return new MailboxApiImpl(createHttpClientProvider(), urlConverter);
 	}
 

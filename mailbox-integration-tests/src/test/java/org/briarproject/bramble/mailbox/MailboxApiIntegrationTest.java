@@ -49,7 +49,7 @@ public class MailboxApiIntegrationTest extends BrambleTestCase {
 	private TestMailbox mailbox;
 	private MailboxAuthToken setupToken;
 
-	private final MailboxApi api = createMailboxApi();
+	private MailboxApi api;
 
 	private MailboxProperties ownerProperties;
 
@@ -57,6 +57,7 @@ public class MailboxApiIntegrationTest extends BrambleTestCase {
 	public void setUp()
 			throws IOException, ApiException, InvalidMailboxIdException {
 		mailbox = new TestMailbox(dataDirectory.getRoot());
+		api = createMailboxApi(() -> mailbox.getPort());
 		mailbox.startLifecycle();
 
 		setupToken = MailboxAuthToken.fromString(mailbox.getSetupToken());
