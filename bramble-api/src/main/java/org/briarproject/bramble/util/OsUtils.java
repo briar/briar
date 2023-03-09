@@ -4,6 +4,8 @@ import org.briarproject.nullsafety.NotNullByDefault;
 
 import javax.annotation.Nullable;
 
+import static org.briarproject.bramble.util.StringUtils.startsWithIgnoreCase;
+
 @NotNullByDefault
 public class OsUtils {
 
@@ -13,15 +15,15 @@ public class OsUtils {
 	private static final String vendor = System.getProperty("java.vendor");
 
 	public static boolean isWindows() {
-		return os != null && os.contains("Windows");
+		return os != null && startsWithIgnoreCase(os, "Win");
 	}
 
 	public static boolean isMac() {
-		return os != null && os.contains("Mac OS");
+		return os != null && os.equalsIgnoreCase("Mac OS X");
 	}
 
 	public static boolean isLinux() {
-		return os != null && os.contains("Linux") && !isAndroid();
+		return os != null && startsWithIgnoreCase(os, "Linux") && !isAndroid();
 	}
 
 	public static boolean isAndroid() {
