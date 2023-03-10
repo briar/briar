@@ -2,7 +2,6 @@ package org.briarproject.bramble.contact;
 
 import org.briarproject.bramble.api.FormatException;
 import org.briarproject.bramble.api.Pair;
-import org.briarproject.bramble.api.Predicate;
 import org.briarproject.bramble.api.contact.ContactManager;
 import org.briarproject.bramble.api.contact.HandshakeManager;
 import org.briarproject.bramble.api.contact.PendingContact;
@@ -12,12 +11,12 @@ import org.briarproject.bramble.api.crypto.KeyPair;
 import org.briarproject.bramble.api.crypto.PublicKey;
 import org.briarproject.bramble.api.crypto.SecretKey;
 import org.briarproject.bramble.api.crypto.TransportCrypto;
-import org.briarproject.bramble.api.db.DatabaseComponent;
 import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.db.TransactionManager;
 import org.briarproject.bramble.api.identity.IdentityManager;
 import org.briarproject.bramble.api.record.Record;
 import org.briarproject.bramble.api.record.RecordReader;
+import org.briarproject.bramble.api.record.RecordReader.RecordPredicate;
 import org.briarproject.bramble.api.record.RecordReaderFactory;
 import org.briarproject.bramble.api.record.RecordWriter;
 import org.briarproject.bramble.api.record.RecordWriterFactory;
@@ -44,7 +43,7 @@ import static org.briarproject.bramble.util.ValidationUtils.checkLength;
 class HandshakeManagerImpl implements HandshakeManager {
 
 	// Ignore records with current protocol version, unknown record type
-	private static final Predicate<Record> IGNORE = r ->
+	private static final RecordPredicate IGNORE = r ->
 			r.getProtocolVersion() == PROTOCOL_VERSION &&
 					!isKnownRecordType(r.getRecordType());
 
@@ -61,7 +60,7 @@ class HandshakeManagerImpl implements HandshakeManager {
 	private final RecordWriterFactory recordWriterFactory;
 
 	@Inject
-	HandshakeManagerImpl(DatabaseComponent db,
+	HandshakeManagerImpl(TransactionManager db,
 			IdentityManager identityManager,
 			ContactManager contactManager,
 			TransportCrypto transportCrypto,
@@ -152,8 +151,8 @@ class HandshakeManagerImpl implements HandshakeManager {
 
 	private Record readRecord(RecordReader r, byte expectedType)
 			throws IOException {
-		// Accept records with current protocol version, expected type only
-		Predicate<Record> accept = rec ->
+		// Accept records with current protocol version, expected types only
+		RecordPredicate accept = rec ->
 				rec.getProtocolVersion() == PROTOCOL_VERSION &&
 						rec.getRecordType() == expectedType;
 		Record rec = r.readRecord(accept, IGNORE);

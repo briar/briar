@@ -1,10 +1,10 @@
 package org.briarproject.bramble.sync;
 
 import org.briarproject.bramble.api.FormatException;
-import org.briarproject.bramble.api.Predicate;
 import org.briarproject.bramble.api.UniqueId;
 import org.briarproject.bramble.api.record.Record;
 import org.briarproject.bramble.api.record.RecordReader;
+import org.briarproject.bramble.api.record.RecordReader.RecordPredicate;
 import org.briarproject.bramble.api.sync.Ack;
 import org.briarproject.bramble.api.sync.GroupId;
 import org.briarproject.bramble.api.sync.Message;
@@ -23,8 +23,6 @@ import org.junit.Test;
 
 import java.io.ByteArrayOutputStream;
 import java.util.List;
-
-import javax.annotation.Nullable;
 
 import static org.briarproject.bramble.api.record.Record.MAX_RECORD_PAYLOAD_BYTES;
 import static org.briarproject.bramble.api.sync.RecordTypes.ACK;
@@ -186,7 +184,7 @@ public class SyncRecordReaderImplTest extends BrambleMockTestCase {
 	@Test
 	public void testEofReturnsTrueWhenAtEndOfStream() throws Exception {
 		expectReadRecord(createAck());
-		expectReadRecord(null);
+		expectReadEof();
 
 		SyncRecordReader reader =
 				new SyncRecordReaderImpl(messageFactory, recordReader);
@@ -212,12 +210,22 @@ public class SyncRecordReaderImplTest extends BrambleMockTestCase {
 		}});
 	}
 
-	private void expectReadRecord(@Nullable Record record) throws Exception {
+	private void expectReadRecord(Record record) throws Exception {
 		context.checking(new Expectations() {{
-			//noinspection unchecked
-			oneOf(recordReader).readRecord(with(any(Predicate.class)),
-					with(any(Predicate.class)));
+			// Test that the `accept` predicate passed to the reader would
+			// accept the expected record
+			oneOf(recordReader).readRecord(with(new PredicateMatcher<>(
+							RecordPredicate.class, rp -> rp.test(record))),
+					with(any(RecordPredicate.class)));
 			will(returnValue(record));
+		}});
+	}
+
+	private void expectReadEof() throws Exception {
+		context.checking(new Expectations() {{
+			oneOf(recordReader).readRecord(with(any(RecordPredicate.class)),
+					with(any(RecordPredicate.class)));
+			will(returnValue(null));
 		}});
 	}
 

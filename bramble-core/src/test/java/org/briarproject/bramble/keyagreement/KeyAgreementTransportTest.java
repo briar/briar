@@ -1,6 +1,5 @@
 package org.briarproject.bramble.keyagreement;
 
-import org.briarproject.bramble.api.Predicate;
 import org.briarproject.bramble.api.keyagreement.KeyAgreementConnection;
 import org.briarproject.bramble.api.plugin.TransportConnectionReader;
 import org.briarproject.bramble.api.plugin.TransportConnectionWriter;
@@ -8,11 +7,13 @@ import org.briarproject.bramble.api.plugin.TransportId;
 import org.briarproject.bramble.api.plugin.duplex.DuplexTransportConnection;
 import org.briarproject.bramble.api.record.Record;
 import org.briarproject.bramble.api.record.RecordReader;
+import org.briarproject.bramble.api.record.RecordReader.RecordPredicate;
 import org.briarproject.bramble.api.record.RecordReaderFactory;
 import org.briarproject.bramble.api.record.RecordWriter;
 import org.briarproject.bramble.api.record.RecordWriterFactory;
 import org.briarproject.bramble.test.BrambleMockTestCase;
 import org.briarproject.bramble.test.CaptureArgumentAction;
+import org.briarproject.bramble.test.PredicateMatcher;
 import org.jmock.Expectations;
 import org.jmock.imposters.ByteBuddyClassImposteriser;
 import org.junit.Test;
@@ -20,8 +21,6 @@ import org.junit.Test;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.concurrent.atomic.AtomicReference;
-
-import javax.annotation.Nullable;
 
 import static org.briarproject.bramble.api.keyagreement.KeyAgreementConstants.PROTOCOL_VERSION;
 import static org.briarproject.bramble.api.keyagreement.RecordTypes.ABORT;
@@ -119,7 +118,7 @@ public class KeyAgreementTransportTest extends BrambleMockTestCase {
 	public void testReceiveKeyThrowsExceptionIfAtEndOfStream()
 			throws Exception {
 		setup();
-		expectReadRecord(null);
+		expectReadEof();
 
 		kat.receiveKey();
 	}
@@ -148,7 +147,7 @@ public class KeyAgreementTransportTest extends BrambleMockTestCase {
 	public void testReceiveConfirmThrowsExceptionIfAtEndOfStream()
 			throws Exception {
 		setup();
-		expectReadRecord(null);
+		expectReadEof();
 
 		kat.receiveConfirm();
 	}
@@ -209,12 +208,22 @@ public class KeyAgreementTransportTest extends BrambleMockTestCase {
 		assertArrayEquals(expectedPayload, actual.getPayload());
 	}
 
-	private void expectReadRecord(@Nullable Record record) throws Exception {
+	private void expectReadRecord(Record record) throws Exception {
 		context.checking(new Expectations() {{
-			//noinspection unchecked
-			oneOf(recordReader).readRecord(with(any(Predicate.class)),
-					with(any(Predicate.class)));
+			// Test that the `accept` predicate passed to the reader would
+			// accept the expected record
+			oneOf(recordReader).readRecord(with(new PredicateMatcher<>(
+							RecordPredicate.class, rp -> rp.test(record))),
+					with(any(RecordPredicate.class)));
 			will(returnValue(record));
+		}});
+	}
+
+	private void expectReadEof() throws Exception {
+		context.checking(new Expectations() {{
+			oneOf(recordReader).readRecord(with(any(RecordPredicate.class)),
+					with(any(RecordPredicate.class)));
+			will(returnValue(null));
 		}});
 	}
 }

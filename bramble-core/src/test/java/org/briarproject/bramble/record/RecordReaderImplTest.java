@@ -1,9 +1,9 @@
 package org.briarproject.bramble.record;
 
 import org.briarproject.bramble.api.FormatException;
-import org.briarproject.bramble.api.Predicate;
 import org.briarproject.bramble.api.record.Record;
 import org.briarproject.bramble.api.record.RecordReader;
+import org.briarproject.bramble.api.record.RecordReader.RecordPredicate;
 import org.briarproject.bramble.test.BrambleTestCase;
 import org.briarproject.bramble.util.ByteUtils;
 import org.junit.Test;
@@ -128,12 +128,12 @@ public class RecordReaderImplTest extends BrambleTestCase {
 		RecordReader reader = new RecordReaderImpl(in);
 
 		// Accept records with version 0, type 0 or 1
-		Predicate<Record> accept = r -> {
+		RecordPredicate accept = r -> {
 			byte version = r.getProtocolVersion(), type = r.getRecordType();
 			return version == 0 && (type == 0 || type == 1);
 		};
 		// Ignore records with version 0, any other type
-		Predicate<Record> ignore = r -> {
+		RecordPredicate ignore = r -> {
 			byte version = r.getProtocolVersion(), type = r.getRecordType();
 			return version == 0 && !(type == 0 || type == 1);
 		};
@@ -183,12 +183,12 @@ public class RecordReaderImplTest extends BrambleTestCase {
 		RecordReader reader = new RecordReaderImpl(in);
 
 		// Accept records with version 0, type 0 or 1
-		Predicate<Record> accept = r -> {
+		RecordPredicate accept = r -> {
 			byte version = r.getProtocolVersion(), type = r.getRecordType();
 			return version == 0 && (type == 0 || type == 1);
 		};
 		// Ignore records with version 0, any other type
-		Predicate<Record> ignore = r -> {
+		RecordPredicate ignore = r -> {
 			byte version = r.getProtocolVersion(), type = r.getRecordType();
 			return version == 0 && !(type == 0 || type == 1);
 		};

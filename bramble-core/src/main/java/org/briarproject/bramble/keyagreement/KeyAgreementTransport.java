@@ -1,11 +1,11 @@
 package org.briarproject.bramble.keyagreement;
 
-import org.briarproject.bramble.api.Predicate;
 import org.briarproject.bramble.api.keyagreement.KeyAgreementConnection;
 import org.briarproject.bramble.api.plugin.TransportId;
 import org.briarproject.bramble.api.plugin.duplex.DuplexTransportConnection;
 import org.briarproject.bramble.api.record.Record;
 import org.briarproject.bramble.api.record.RecordReader;
+import org.briarproject.bramble.api.record.RecordReader.RecordPredicate;
 import org.briarproject.bramble.api.record.RecordReaderFactory;
 import org.briarproject.bramble.api.record.RecordWriter;
 import org.briarproject.bramble.api.record.RecordWriterFactory;
@@ -34,12 +34,12 @@ class KeyAgreementTransport {
 			Logger.getLogger(KeyAgreementTransport.class.getName());
 
 	// Accept records with current protocol version, known record type
-	private static final Predicate<Record> ACCEPT = r ->
+	private static final RecordPredicate ACCEPT = r ->
 			r.getProtocolVersion() == PROTOCOL_VERSION &&
 					isKnownRecordType(r.getRecordType());
 
 	// Ignore records with current protocol version, unknown record type
-	private static final Predicate<Record> IGNORE = r ->
+	private static final RecordPredicate IGNORE = r ->
 			r.getProtocolVersion() == PROTOCOL_VERSION &&
 					!isKnownRecordType(r.getRecordType());
 
