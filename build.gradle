@@ -6,6 +6,7 @@ allprojects {
 		mavenLocal()
 		google()
 		maven { url "https://jitpack.io" }
+		maven { url "https://mvntmp.mobanisto.de" }
 	}
 	afterEvaluate {
 		tasks.withType(Test) {
@@ -32,8 +33,8 @@ buildscript {
 		// okhttp 3.12.x is supported until end of 2021, newer versions need minSdk 21
 		okhttp_version = "3.12.13"
 		jackson_version = "2.13.4"
-		tor_version = "0.4.7.13-2"
-		obfs4proxy_version = "0.0.14-tor2"
+		tor_version = "0.4.7.13"
+		obfs4proxy_version = "0.0.14"
 		snowflake_version = "2.5.1"
 		jsoup_version = '1.15.3'
 		bouncy_castle_version = '1.71'
