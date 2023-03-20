@@ -237,7 +237,7 @@
   <string name="qr_code_too_old_1">Сканираният код за QR е от по-ранно издание на Briar.\n\nНека вашия контакт инсталира последното издание и да пробва отново.</string>
   <string name="qr_code_too_new_1">Сканираният код за QR е от по-ново издание на Briar.\n\nИнсталирайте последното издание и пробвайте отново.</string>
   <string name="mailbox_qr_code_for_contact">Сканираният код за QR е от Briar Пощенска кутия.\n\nАко искате да свържете Пощенска кутия използвайте Настройки &gt; Пощенска кутия от менюто.</string>
-  <string name="qr_code_format_unknown">Сканираният код за QR не предназначен за добавяне на контакт в Briar.\n\nЗа тази цел използвайте кода, на екрана на контакта ви.</string>
+  <string name="qr_code_format_unknown">Сканираният код за QR не е предназначен за добавяне на контакт в Briar.\n\nЗа тази цел използвайте кода, на екрана на контакта ви.</string>
   <string name="camera_error">Грешка в камерата</string>
   <string name="connecting_to_device">Свързване с устройство\u2026</string>
   <string name="authenticating_with_device">Удостоверяване с устройство\u2026</string>
@@ -602,6 +602,10 @@
   <string name="mailbox_setup_connecting">Свързване с Пощенска кутия…</string>
   <!--This string is shown when connecting to a Mailbox for the first time. The placeholder will be replaced with a duration, e.g. "2 minutes".-->
   <string name="mailbox_setup_connecting_info">Може да отнеме %1s</string>
+  <string name="mailbox_qr_code_too_old">Сканираният код за QR е от по-ранно издание на Briar Пощенска кутия.\n\nИнсталирайте последното издание и пробвайте отново.</string>
+  <string name="mailbox_qr_code_too_new">Сканираният код за QR е от по-ново издание на Briar Пощенска кутия.\n\nИнсталирайте последното издание на Briar и пробвайте отново.</string>
+  <string name="contact_qr_code_for_mailbox">Сканираният код за QR е предназначен за добавяне на контакт в Briar.\n\nАко желаете да добавите контакт отворете списъка с контакти и дикоснете иконата с +.</string>
+  <string name="mailbox_setup_qr_code_wrong_description">Сканираният код за QR не е от Briar Пощенска кутия.\n\n Отворете приложението Briar Пощенска кутия на устройството, на което е инсталирано и сканирайте кода зя QR, който то предостави.</string>
   <string name="mailbox_setup_already_paired_title">Пощенската кутия е вече свързана</string>
   <string name="mailbox_setup_already_paired_description">Прекъснете връзката с пощенската кутия от другото устройство и опитайте отново.</string>
   <string name="mailbox_setup_io_error_title">Грешка при свързване</string>

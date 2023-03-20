@@ -244,6 +244,7 @@
   <string name="exchanging_contact_details">تبادیل جزییات مخاطبu2026\</string>
   <string name="contact_added_toast">مخاطب اضافه شد: %s</string>
   <string name="contact_already_exists">مخاطب %s از قبل وجود دارد</string>
+  <string name="contact_already_exists_general">مخاطب از قبل وجود دارد</string>
   <string name="qr_code_invalid">کد کیوآر نامعتبر می باشد</string>
   <string name="qr_code_too_old_1">کد QR که اسکن کرده‌اید مربوط به نسخه قدیمی Briar است.\n\nلطفا از مخاطب خود بخواهید به آخرین نسخه ارتقا دهد و سپس دوباره امتحان کنید.</string>
   <string name="qr_code_too_new_1">کد QR که اسکن کرده‌اید مربوط به نسخه جدیدتری از Briar است.\n\nلطفا به آخرین نسخه ارتقا دهید و سپس دوباره امتحان کنید.</string>
@@ -453,6 +454,10 @@
   <string name="forum_declined_toast">دعوت نامه رد شد</string>
   <string name="shared_by_format">به اشتراک گذاشته شده توسط %s</string>
   <string name="forum_invitation_already_sharing">در حال به اشتراک گذاری</string>
+  <string name="forum_invitation_already_invited">دعوتنامه قبلا ارسال شده است</string>
+  <string name="forum_invitation_invite_received">دعوتنامه قبلا دریافت شده است</string>
+  <string name="forum_invitation_not_supported">توسط این مخاطب پشتیبانی نمی‌شود</string>
+  <string name="forum_invitation_error">خطا. این یک اشکال است و تقصیر شما نیست</string>
   <string name="forum_invitation_response_accepted_sent">شما دعوت نامه فروم از %s را پذیرفتید.</string>
   <string name="forum_invitation_response_declined_sent">شما دعوت نامه فروم از %s را رد کردید.</string>
   <string name="forum_invitation_response_declined_auto">دعوت به تالار از %s به صورت خودکار رد شد.</string>
@@ -509,7 +514,9 @@
   <string name="blogs_rss_feeds_import">وارد کردن خوراک RSS</string>
   <string name="blogs_rss_feeds_import_button">وارد کردن</string>
   <string name="blogs_rss_feeds_import_hint">آدرس خوراک RSS را وارد کنید</string>
+  <string name="blogs_rss_feeds_import_progress">در حال وارد کردن خوراک RSS…</string>
   <string name="blogs_rss_feeds_import_error">متاسفیم!  وارد کردن خوراک شما با خطا مواجه شده است.</string>
+  <string name="blogs_rss_feeds_import_title">وارد کردن خوراک از پرونده</string>
   <string name="blogs_rss_feeds">خوراک های RSS</string>
   <string name="blogs_rss_feeds_manage_imported">وارد شده:</string>
   <string name="blogs_rss_feeds_manage_author">نویسنده:</string>
