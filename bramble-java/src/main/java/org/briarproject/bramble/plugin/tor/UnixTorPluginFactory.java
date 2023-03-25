@@ -68,7 +68,7 @@ public class UnixTorPluginFactory extends TorPluginFactory {
 			else if (arch.equals("aarch64")) return "aarch64";
 			else if (arch.equals("arm")) return "armhf";
 		} else if (isMac()) {
-			if (arch.equals("aarch64")) return "aarch64";
+			return "any";
 		}
 		return null;
 	}

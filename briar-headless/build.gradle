@@ -41,9 +41,9 @@ dependencies {
 	windows "org.briarproject:obfs4proxy-windows:$obfs4proxy_version"
 	windows "org.briarproject:snowflake-windows:$snowflake_version"
 
-	macos "org.briarproject:tor-macos:$tor_version"
-	macos "org.briarproject:obfs4proxy-macos:$obfs4proxy_version"
-	macos "org.briarproject:snowflake-macos:$snowflake_version"
+	macos "org.briarproject:tor-macos-torbrowser:$tor_version"
+	macos "org.briarproject:obfs4proxy-macos-torbrowser:$obfs4proxy_version"
+	macos "org.briarproject:snowflake-macos-torbrowser:$snowflake_version"
 
 	implementation 'org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.7.10'
 	implementation 'io.javalin:javalin:3.5.0'
