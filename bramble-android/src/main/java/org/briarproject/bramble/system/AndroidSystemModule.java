@@ -3,7 +3,6 @@ package org.briarproject.bramble.system;
 import org.briarproject.bramble.api.event.EventExecutor;
 import org.briarproject.bramble.api.lifecycle.LifecycleManager;
 import org.briarproject.bramble.api.system.AndroidExecutor;
-import org.briarproject.bramble.api.system.AndroidWakeLockManager;
 import org.briarproject.bramble.api.system.LocationUtils;
 import org.briarproject.bramble.api.system.ResourceProvider;
 import org.briarproject.bramble.api.system.SecureRandomProvider;
@@ -68,12 +67,5 @@ public class AndroidSystemModule {
 	@Singleton
 	ResourceProvider provideResourceProvider(AndroidResourceProvider provider) {
 		return provider;
-	}
-
-	@Provides
-	@Singleton
-	AndroidWakeLockManager provideWakeLockManager(
-			AndroidWakeLockManagerImpl wakeLockManager) {
-		return wakeLockManager;
 	}
 }

@@ -2,9 +2,9 @@ package org.briarproject.bramble.system;
 
 import android.app.Application;
 
+import org.briarproject.android.dontkillmelib.wakelock.AndroidWakeLockManager;
 import org.briarproject.bramble.api.lifecycle.LifecycleManager;
 import org.briarproject.bramble.api.system.AlarmListener;
-import org.briarproject.bramble.api.system.AndroidWakeLockManager;
 import org.briarproject.bramble.api.system.TaskScheduler;
 
 import java.util.concurrent.ScheduledExecutorService;

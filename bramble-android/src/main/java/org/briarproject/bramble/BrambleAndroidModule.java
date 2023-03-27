@@ -1,5 +1,6 @@
 package org.briarproject.bramble;
 
+import org.briarproject.android.dontkillmelib.wakelock.AndroidWakeLockModule;
 import org.briarproject.bramble.battery.AndroidBatteryModule;
 import org.briarproject.bramble.io.DnsModule;
 import org.briarproject.bramble.network.AndroidNetworkModule;
@@ -19,6 +20,7 @@ import dagger.Module;
 		AndroidSystemModule.class,
 		AndroidTaskSchedulerModule.class,
 		AndroidWakefulIoExecutorModule.class,
+		AndroidWakeLockModule.class,
 		DefaultThreadFactoryModule.class,
 		CircumventionModule.class,
 		DnsModule.class,
