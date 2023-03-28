@@ -73,7 +73,9 @@ void jarFactory(Jar jarTask, os, architecture, configuration) {
 			':bramble-core:jar',
 			':bramble-java:jar',
 			':briar-api:jar',
-			':briar-core:jar'
+			':briar-core:jar',
+			':onionwrapper-core:jar',
+			':onionwrapper-java:jar'
 	)
 	jarTask.dependsOn(jar)
 	jarTask.doFirst {
