@@ -1,7 +1,7 @@
 package org.briarproject.bramble.system;
 
+import org.briarproject.android.dontkillmelib.wakelock.AndroidWakeLockManager;
 import org.briarproject.bramble.api.lifecycle.IoExecutor;
-import org.briarproject.bramble.api.system.AndroidWakeLockManager;
 import org.briarproject.bramble.api.system.WakefulIoExecutor;
 
 import java.util.concurrent.Executor;

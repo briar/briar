@@ -40,6 +40,8 @@ configurations {
 }
 
 dependencies {
+	api 'org.briarproject:dont-kill-me-lib:0.2.6'
+
 	// In theory this dependency shouldn't be needed, but without it Android Studio's linter will
 	// complain about unresolved symbols for bramble-api test classes in bramble-android tests,
 	// even though the bramble-api test classes are provided by the testImplementation dependency

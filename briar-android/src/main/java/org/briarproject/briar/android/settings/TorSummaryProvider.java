@@ -3,7 +3,7 @@ package org.briarproject.briar.android.settings;
 import android.content.Context;
 
 import org.briarproject.bramble.api.system.LocationUtils;
-import org.briarproject.bramble.plugin.tor.CircumventionProvider;
+import org.briarproject.bramble.plugin.tor.wrapper.CircumventionProvider;
 import org.briarproject.briar.R;
 import org.briarproject.nullsafety.NotNullByDefault;
 

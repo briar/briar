@@ -5,7 +5,7 @@ import android.transition.Transition;
 import android.view.Window;
 import android.widget.CheckBox;
 
-import org.briarproject.bramble.api.system.AndroidWakeLockManager;
+import org.briarproject.android.dontkillmelib.wakelock.AndroidWakeLockManager;
 import org.briarproject.bramble.api.system.Wakeful;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.BriarApplication;

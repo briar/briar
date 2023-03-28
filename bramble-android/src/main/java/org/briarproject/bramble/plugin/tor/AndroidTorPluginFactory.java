@@ -2,9 +2,11 @@ package org.briarproject.bramble.plugin.tor;
 
 import android.app.Application;
 
+import org.briarproject.android.dontkillmelib.wakelock.AndroidWakeLockManager;
 import org.briarproject.bramble.api.battery.BatteryManager;
 import org.briarproject.bramble.api.crypto.CryptoComponent;
 import org.briarproject.bramble.api.event.EventBus;
+import org.briarproject.bramble.api.event.EventExecutor;
 import org.briarproject.bramble.api.lifecycle.IoExecutor;
 import org.briarproject.bramble.api.network.NetworkManager;
 import org.briarproject.bramble.api.plugin.Backoff;
@@ -13,11 +15,12 @@ import org.briarproject.bramble.api.plugin.PluginCallback;
 import org.briarproject.bramble.api.plugin.TorControlPort;
 import org.briarproject.bramble.api.plugin.TorDirectory;
 import org.briarproject.bramble.api.plugin.TorSocksPort;
-import org.briarproject.bramble.api.system.AndroidWakeLockManager;
 import org.briarproject.bramble.api.system.Clock;
 import org.briarproject.bramble.api.system.LocationUtils;
-import org.briarproject.bramble.api.system.ResourceProvider;
 import org.briarproject.bramble.api.system.WakefulIoExecutor;
+import org.briarproject.bramble.plugin.tor.wrapper.AndroidTorWrapper;
+import org.briarproject.bramble.plugin.tor.wrapper.CircumventionProvider;
+import org.briarproject.bramble.plugin.tor.wrapper.TorWrapper;
 import org.briarproject.nullsafety.NotNullByDefault;
 
 import java.io.File;
@@ -28,6 +31,7 @@ import javax.annotation.concurrent.Immutable;
 import javax.inject.Inject;
 import javax.net.SocketFactory;
 
+import static android.os.Build.VERSION.SDK_INT;
 import static org.briarproject.bramble.util.AndroidUtils.getSupportedArchitectures;
 
 @Immutable
@@ -39,13 +43,13 @@ public class AndroidTorPluginFactory extends TorPluginFactory {
 
 	@Inject
 	AndroidTorPluginFactory(@IoExecutor Executor ioExecutor,
+			@EventExecutor Executor eventExecutor,
 			@WakefulIoExecutor Executor wakefulIoExecutor,
 			NetworkManager networkManager,
 			LocationUtils locationUtils,
 			EventBus eventBus,
 			SocketFactory torSocketFactory,
 			BackoffFactory backoffFactory,
-			ResourceProvider resourceProvider,
 			CircumventionProvider circumventionProvider,
 			BatteryManager batteryManager,
 			Clock clock,
@@ -55,8 +59,8 @@ public class AndroidTorPluginFactory extends TorPluginFactory {
 			@TorControlPort int torControlPort,
 			Application app,
 			AndroidWakeLockManager wakeLockManager) {
-		super(ioExecutor, wakefulIoExecutor, networkManager, locationUtils,
-				eventBus, torSocketFactory, backoffFactory, resourceProvider,
+		super(ioExecutor, eventExecutor, wakefulIoExecutor, networkManager,
+				locationUtils, eventBus, torSocketFactory, backoffFactory,
 				circumventionProvider, batteryManager, clock, crypto,
 				torDirectory, torSocksPort, torControlPort);
 		this.app = app;
@@ -79,12 +83,18 @@ public class AndroidTorPluginFactory extends TorPluginFactory {
 	TorPlugin createPluginInstance(Backoff backoff,
 			TorRendezvousCrypto torRendezvousCrypto, PluginCallback callback,
 			String architecture) {
-		return new AndroidTorPlugin(ioExecutor,
-				wakefulIoExecutor, app, networkManager, locationUtils,
-				torSocketFactory, clock, resourceProvider,
-				circumventionProvider, batteryManager, wakeLockManager,
-				backoff, torRendezvousCrypto, callback, architecture,
-				MAX_LATENCY, MAX_IDLE_TIME, torDirectory, torSocksPort,
-				torControlPort);
+		TorWrapper tor = new AndroidTorWrapper(app, wakeLockManager,
+				ioExecutor, eventExecutor, architecture, torDirectory,
+				torSocksPort, torControlPort);
+		// Android versions 7.1 and newer can verify Let's Encrypt TLS certs
+		// signed with the IdentTrust DST Root X3 certificate. Older versions
+		// of Android consider the certificate to have expired at the end of
+		// September 2021.
+		boolean canVerifyLetsEncryptCerts = SDK_INT >= 25;
+		return new TorPlugin(ioExecutor, wakefulIoExecutor,
+				networkManager, locationUtils, torSocketFactory,
+				circumventionProvider, batteryManager, backoff,
+				torRendezvousCrypto, tor, callback, MAX_LATENCY,
+				MAX_IDLE_TIME, canVerifyLetsEncryptCerts);
 	}
 }

@@ -15,12 +15,12 @@ import android.os.IBinder;
 
 import com.bumptech.glide.Glide;
 
+import org.briarproject.android.dontkillmelib.wakelock.AndroidWakeLockManager;
 import org.briarproject.bramble.api.account.AccountManager;
 import org.briarproject.bramble.api.crypto.SecretKey;
 import org.briarproject.bramble.api.lifecycle.LifecycleManager;
 import org.briarproject.bramble.api.lifecycle.LifecycleManager.StartResult;
 import org.briarproject.bramble.api.system.AndroidExecutor;
-import org.briarproject.bramble.api.system.AndroidWakeLockManager;
 import org.briarproject.bramble.api.system.Clock;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.logout.HideUiActivity;

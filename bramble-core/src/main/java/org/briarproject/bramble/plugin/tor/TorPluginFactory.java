@@ -3,6 +3,7 @@ package org.briarproject.bramble.plugin.tor;
 import org.briarproject.bramble.api.battery.BatteryManager;
 import org.briarproject.bramble.api.crypto.CryptoComponent;
 import org.briarproject.bramble.api.event.EventBus;
+import org.briarproject.bramble.api.event.EventExecutor;
 import org.briarproject.bramble.api.lifecycle.IoExecutor;
 import org.briarproject.bramble.api.network.NetworkManager;
 import org.briarproject.bramble.api.plugin.Backoff;
@@ -17,8 +18,8 @@ import org.briarproject.bramble.api.plugin.duplex.DuplexPlugin;
 import org.briarproject.bramble.api.plugin.duplex.DuplexPluginFactory;
 import org.briarproject.bramble.api.system.Clock;
 import org.briarproject.bramble.api.system.LocationUtils;
-import org.briarproject.bramble.api.system.ResourceProvider;
 import org.briarproject.bramble.api.system.WakefulIoExecutor;
+import org.briarproject.bramble.plugin.tor.wrapper.CircumventionProvider;
 import org.briarproject.nullsafety.NotNullByDefault;
 
 import java.io.File;
@@ -45,13 +46,12 @@ abstract class TorPluginFactory implements DuplexPluginFactory {
 	private static final int MAX_POLLING_INTERVAL = 10 * 60 * 1000; // 10 mins
 	private static final double BACKOFF_BASE = 1.2;
 
-	protected final Executor ioExecutor, wakefulIoExecutor;
+	protected final Executor ioExecutor, eventExecutor, wakefulIoExecutor;
 	protected final NetworkManager networkManager;
 	protected final LocationUtils locationUtils;
 	protected final EventBus eventBus;
 	protected final SocketFactory torSocketFactory;
 	protected final BackoffFactory backoffFactory;
-	protected final ResourceProvider resourceProvider;
 	protected final CircumventionProvider circumventionProvider;
 	protected final BatteryManager batteryManager;
 	protected final Clock clock;
@@ -61,13 +61,13 @@ abstract class TorPluginFactory implements DuplexPluginFactory {
 	protected final int torControlPort;
 
 	TorPluginFactory(@IoExecutor Executor ioExecutor,
+			@EventExecutor Executor eventExecutor,
 			@WakefulIoExecutor Executor wakefulIoExecutor,
 			NetworkManager networkManager,
 			LocationUtils locationUtils,
 			EventBus eventBus,
 			SocketFactory torSocketFactory,
 			BackoffFactory backoffFactory,
-			ResourceProvider resourceProvider,
 			CircumventionProvider circumventionProvider,
 			BatteryManager batteryManager,
 			Clock clock,
@@ -76,13 +76,13 @@ abstract class TorPluginFactory implements DuplexPluginFactory {
 			@TorSocksPort int torSocksPort,
 			@TorControlPort int torControlPort) {
 		this.ioExecutor = ioExecutor;
+		this.eventExecutor = eventExecutor;
 		this.wakefulIoExecutor = wakefulIoExecutor;
 		this.networkManager = networkManager;
 		this.locationUtils = locationUtils;
 		this.eventBus = eventBus;
 		this.torSocketFactory = torSocketFactory;
 		this.backoffFactory = backoffFactory;
-		this.resourceProvider = resourceProvider;
 		this.circumventionProvider = circumventionProvider;
 		this.batteryManager = batteryManager;
 		this.clock = clock;

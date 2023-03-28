@@ -1,46 +1,39 @@
-package org.briarproject.bramble.plugin.tor;
+package org.briarproject.bramble.plugin.tor.wrapper;
 
 import android.app.Application;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
+import android.content.res.Resources;
+import android.os.Build;
 
-import org.briarproject.bramble.api.battery.BatteryManager;
-import org.briarproject.bramble.api.network.NetworkManager;
-import org.briarproject.bramble.api.plugin.Backoff;
-import org.briarproject.bramble.api.plugin.PluginCallback;
-import org.briarproject.bramble.api.system.AndroidWakeLock;
-import org.briarproject.bramble.api.system.AndroidWakeLockManager;
-import org.briarproject.bramble.api.system.Clock;
-import org.briarproject.bramble.api.system.LocationUtils;
-import org.briarproject.bramble.api.system.ResourceProvider;
-import org.briarproject.bramble.util.AndroidUtils;
-import org.briarproject.nullsafety.MethodsNotNullByDefault;
-import org.briarproject.nullsafety.ParametersNotNullByDefault;
+import org.briarproject.android.dontkillmelib.wakelock.AndroidWakeLock;
+import org.briarproject.android.dontkillmelib.wakelock.AndroidWakeLockManager;
+import org.briarproject.nullsafety.NotNullByDefault;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.Executor;
 import java.util.logging.Logger;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
-import javax.net.SocketFactory;
-
-import androidx.annotation.ChecksSdkIntAtLeast;
-
 import static android.os.Build.VERSION.SDK_INT;
 import static java.util.Arrays.asList;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Logger.getLogger;
 
-@MethodsNotNullByDefault
-@ParametersNotNullByDefault
-class AndroidTorPlugin extends TorPlugin {
+/**
+ * A Tor wrapper for the Android operating system.
+ */
+@NotNullByDefault
+public class AndroidTorWrapper extends AbstractTorWrapper {
 
 	private static final List<String> LIBRARY_ARCHITECTURES =
 			asList("armeabi-v7a", "arm64-v8a", "x86", "x86_64");
@@ -50,37 +43,39 @@ class AndroidTorPlugin extends TorPlugin {
 	private static final String SNOWFLAKE_LIB_NAME = "libsnowflake.so";
 
 	private static final Logger LOG =
-			getLogger(AndroidTorPlugin.class.getName());
+			getLogger(AndroidTorWrapper.class.getName());
 
 	private final Application app;
 	private final AndroidWakeLock wakeLock;
 	private final File torLib, obfs4Lib, snowflakeLib;
 
-	AndroidTorPlugin(Executor ioExecutor,
-			Executor wakefulIoExecutor,
-			Application app,
-			NetworkManager networkManager,
-			LocationUtils locationUtils,
-			SocketFactory torSocketFactory,
-			Clock clock,
-			ResourceProvider resourceProvider,
-			CircumventionProvider circumventionProvider,
-			BatteryManager batteryManager,
+	/**
+	 * @param app The application instance.
+	 * @param wakeLockManager The interface for managing a shared wake lock.
+	 * @param ioExecutor The wrapper will use this executor to run IO tasks,
+	 * some of which may run for the lifetime of the wrapper, so the executor
+	 * should have an unlimited thread pool.
+	 * @param eventExecutor The wrapper will use this executor to call the
+	 * {@link Observer observer} (if any). To ensure that events are observed
+	 * in the order they occur, this executor should have a single thread (eg
+	 * the app's main thread).
+	 * @param architecture The processor architecture of the Tor and pluggable
+	 * transport binaries.
+	 * @param torDirectory The directory where the Tor process should keep its
+	 * state.
+	 * @param torSocksPort The port number to use for Tor's SOCKS port.
+	 * @param torControlPort The port number to use for Tor's control port.
+	 */
+	public AndroidTorWrapper(Application app,
 			AndroidWakeLockManager wakeLockManager,
-			Backoff backoff,
-			TorRendezvousCrypto torRendezvousCrypto,
-			PluginCallback callback,
+			Executor ioExecutor,
+			Executor eventExecutor,
 			String architecture,
-			long maxLatency,
-			int maxIdleTime,
 			File torDirectory,
 			int torSocksPort,
 			int torControlPort) {
-		super(ioExecutor, wakefulIoExecutor, networkManager, locationUtils,
-				torSocketFactory, clock, resourceProvider,
-				circumventionProvider, batteryManager, backoff,
-				torRendezvousCrypto, callback, architecture, maxLatency,
-				maxIdleTime, torDirectory, torSocksPort, torControlPort);
+		super(ioExecutor, eventExecutor, architecture, torDirectory,
+				torSocksPort, torControlPort);
 		this.app = app;
 		wakeLock = wakeLockManager.createWakeLock("TorPlugin");
 		String nativeLibDir = app.getApplicationInfo().nativeLibraryDir;
@@ -106,22 +101,30 @@ class AndroidTorPlugin extends TorPlugin {
 	}
 
 	@Override
-	protected void enableNetwork(boolean enable) throws IOException {
+	public InputStream getResourceInputStream(String name, String extension) {
+		Resources res = app.getResources();
+		// Extension is ignored on Android, resources are retrieved without it
+		int resId = res.getIdentifier(name, "raw", app.getPackageName());
+		return res.openRawResource(resId);
+	}
+
+	@Override
+	public void enableNetwork(boolean enable) throws IOException {
 		if (enable) wakeLock.acquire();
-		super.enableNetwork(enable);
-		if (!enable) wakeLock.release();
+		try {
+			super.enableNetwork(enable);
+		} finally {
+			if (!enable) wakeLock.release();
+		}
 	}
 
 	@Override
-	@ChecksSdkIntAtLeast(api = 25)
-	protected boolean canVerifyLetsEncryptCerts() {
-		return SDK_INT >= 25;
-	}
-
-	@Override
-	public void stop() {
-		super.stop();
-		wakeLock.release();
+	public void stop() throws IOException {
+		try {
+			super.stop();
+		} finally {
+			wakeLock.release();
+		}
 	}
 
 	@Override
@@ -136,8 +139,8 @@ class AndroidTorPlugin extends TorPlugin {
 
 	@Override
 	protected File getSnowflakeExecutableFile() {
-		return snowflakeLib.exists()
-				? snowflakeLib : super.getSnowflakeExecutableFile();
+		return snowflakeLib.exists() ? snowflakeLib
+				: super.getSnowflakeExecutableFile();
 	}
 
 	@Override
@@ -184,6 +187,7 @@ class AndroidTorPlugin extends TorPlugin {
 		}
 		List<String> libPaths = getSupportedLibraryPaths(libName);
 		for (File apk : findApkFiles(sourceDir)) {
+			@SuppressWarnings("IOStreamConstructor")
 			ZipInputStream zin = new ZipInputStream(new FileInputStream(apk));
 			for (ZipEntry e = zin.getNextEntry(); e != null;
 					e = zin.getNextEntry()) {
@@ -228,11 +232,22 @@ class AndroidTorPlugin extends TorPlugin {
 	 */
 	private List<String> getSupportedLibraryPaths(String libName) {
 		List<String> architectures = new ArrayList<>();
-		for (String abi : AndroidUtils.getSupportedArchitectures()) {
+		for (String abi : getSupportedArchitectures()) {
 			if (LIBRARY_ARCHITECTURES.contains(abi)) {
 				architectures.add("lib/" + abi + "/" + libName);
 			}
 		}
 		return architectures;
+	}
+
+	private Collection<String> getSupportedArchitectures() {
+		List<String> abis = new ArrayList<>();
+		if (SDK_INT >= 21) {
+			abis.addAll(asList(Build.SUPPORTED_ABIS));
+		} else {
+			abis.add(Build.CPU_ABI);
+			if (Build.CPU_ABI2 != null) abis.add(Build.CPU_ABI2);
+		}
+		return abis;
 	}
 }

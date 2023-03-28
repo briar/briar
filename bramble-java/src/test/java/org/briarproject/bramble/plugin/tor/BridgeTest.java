@@ -5,6 +5,7 @@ import org.briarproject.bramble.api.Multiset;
 import org.briarproject.bramble.api.battery.BatteryManager;
 import org.briarproject.bramble.api.crypto.CryptoComponent;
 import org.briarproject.bramble.api.event.EventBus;
+import org.briarproject.bramble.api.event.EventExecutor;
 import org.briarproject.bramble.api.lifecycle.IoExecutor;
 import org.briarproject.bramble.api.network.NetworkManager;
 import org.briarproject.bramble.api.plugin.BackoffFactory;
@@ -15,7 +16,8 @@ import org.briarproject.bramble.api.system.Clock;
 import org.briarproject.bramble.api.system.LocationUtils;
 import org.briarproject.bramble.api.system.ResourceProvider;
 import org.briarproject.bramble.api.system.WakefulIoExecutor;
-import org.briarproject.bramble.plugin.tor.CircumventionProvider.BridgeType;
+import org.briarproject.bramble.plugin.tor.wrapper.CircumventionProvider;
+import org.briarproject.bramble.plugin.tor.wrapper.CircumventionProvider.BridgeType;
 import org.briarproject.bramble.test.BrambleJavaIntegrationTestComponent;
 import org.briarproject.bramble.test.BrambleTestCase;
 import org.briarproject.bramble.test.DaggerBrambleJavaIntegrationTestComponent;
@@ -45,11 +47,11 @@ import static java.util.Collections.singletonList;
 import static java.util.concurrent.TimeUnit.MINUTES;
 import static java.util.logging.Logger.getLogger;
 import static org.briarproject.bramble.api.plugin.Plugin.State.ACTIVE;
-import static org.briarproject.bramble.plugin.tor.CircumventionProvider.BridgeType.DEFAULT_OBFS4;
-import static org.briarproject.bramble.plugin.tor.CircumventionProvider.BridgeType.MEEK;
-import static org.briarproject.bramble.plugin.tor.CircumventionProvider.BridgeType.NON_DEFAULT_OBFS4;
-import static org.briarproject.bramble.plugin.tor.CircumventionProvider.BridgeType.SNOWFLAKE;
-import static org.briarproject.bramble.plugin.tor.CircumventionProvider.BridgeType.VANILLA;
+import static org.briarproject.bramble.plugin.tor.wrapper.CircumventionProvider.BridgeType.DEFAULT_OBFS4;
+import static org.briarproject.bramble.plugin.tor.wrapper.CircumventionProvider.BridgeType.MEEK;
+import static org.briarproject.bramble.plugin.tor.wrapper.CircumventionProvider.BridgeType.NON_DEFAULT_OBFS4;
+import static org.briarproject.bramble.plugin.tor.wrapper.CircumventionProvider.BridgeType.SNOWFLAKE;
+import static org.briarproject.bramble.plugin.tor.wrapper.CircumventionProvider.BridgeType.VANILLA;
 import static org.briarproject.bramble.test.TestUtils.deleteTestDirectory;
 import static org.briarproject.bramble.test.TestUtils.getTestDirectory;
 import static org.briarproject.bramble.test.TestUtils.isOptionalTestEnabled;
@@ -112,6 +114,9 @@ public class BridgeTest extends BrambleTestCase {
 	@Inject
 	@IoExecutor
 	Executor ioExecutor;
+	@Inject
+	@EventExecutor
+	Executor eventExecutor;
 	@Inject
 	@WakefulIoExecutor
 	Executor wakefulIoExecutor;
@@ -185,9 +190,9 @@ public class BridgeTest extends BrambleTestCase {
 				return singletonList(params.bridge);
 			}
 		};
-		factory = new UnixTorPluginFactory(ioExecutor, wakefulIoExecutor,
-				networkManager, locationUtils, eventBus, torSocketFactory,
-				backoffFactory, resourceProvider, bridgeProvider,
+		factory = new UnixTorPluginFactory(ioExecutor, eventExecutor,
+				wakefulIoExecutor, networkManager, locationUtils, eventBus,
+				torSocketFactory, backoffFactory, bridgeProvider,
 				batteryManager, clock, crypto, torDir, torSocksPort,
 				torControlPort);
 	}
@@ -207,7 +212,7 @@ public class BridgeTest extends BrambleTestCase {
 		DuplexPlugin duplexPlugin =
 				factory.createPlugin(new TestPluginCallback());
 		assertNotNull(duplexPlugin);
-		UnixTorPlugin plugin = (UnixTorPlugin) duplexPlugin;
+		TorPlugin plugin = (TorPlugin) duplexPlugin;
 
 		LOG.warning("Testing " + params.bridge);
 		try {

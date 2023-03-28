@@ -3,7 +3,7 @@ package org.briarproject.briar.android.splash;
 import android.content.Intent;
 import android.os.Bundle;
 
-import org.briarproject.bramble.api.system.AndroidWakeLockManager;
+import org.briarproject.android.dontkillmelib.wakelock.AndroidWakeLockManager;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.activity.ActivityComponent;
 import org.briarproject.briar.android.activity.BaseActivity;

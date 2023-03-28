@@ -3,6 +3,7 @@ package org.briarproject.bramble.plugin.tor;
 import org.briarproject.bramble.api.battery.BatteryManager;
 import org.briarproject.bramble.api.crypto.CryptoComponent;
 import org.briarproject.bramble.api.event.EventBus;
+import org.briarproject.bramble.api.event.EventExecutor;
 import org.briarproject.bramble.api.lifecycle.IoExecutor;
 import org.briarproject.bramble.api.network.NetworkManager;
 import org.briarproject.bramble.api.plugin.Backoff;
@@ -13,8 +14,10 @@ import org.briarproject.bramble.api.plugin.TorDirectory;
 import org.briarproject.bramble.api.plugin.TorSocksPort;
 import org.briarproject.bramble.api.system.Clock;
 import org.briarproject.bramble.api.system.LocationUtils;
-import org.briarproject.bramble.api.system.ResourceProvider;
 import org.briarproject.bramble.api.system.WakefulIoExecutor;
+import org.briarproject.bramble.plugin.tor.wrapper.CircumventionProvider;
+import org.briarproject.bramble.plugin.tor.wrapper.TorWrapper;
+import org.briarproject.bramble.plugin.tor.wrapper.UnixTorWrapper;
 import org.briarproject.nullsafety.NotNullByDefault;
 
 import java.io.File;
@@ -34,13 +37,13 @@ public class UnixTorPluginFactory extends TorPluginFactory {
 
 	@Inject
 	UnixTorPluginFactory(@IoExecutor Executor ioExecutor,
+			@EventExecutor Executor eventExecutor,
 			@WakefulIoExecutor Executor wakefulIoExecutor,
 			NetworkManager networkManager,
 			LocationUtils locationUtils,
 			EventBus eventBus,
 			SocketFactory torSocketFactory,
 			BackoffFactory backoffFactory,
-			ResourceProvider resourceProvider,
 			CircumventionProvider circumventionProvider,
 			BatteryManager batteryManager,
 			Clock clock,
@@ -48,8 +51,8 @@ public class UnixTorPluginFactory extends TorPluginFactory {
 			@TorDirectory File torDirectory,
 			@TorSocksPort int torSocksPort,
 			@TorControlPort int torControlPort) {
-		super(ioExecutor, wakefulIoExecutor, networkManager, locationUtils,
-				eventBus, torSocketFactory, backoffFactory, resourceProvider,
+		super(ioExecutor, eventExecutor, wakefulIoExecutor, networkManager,
+				locationUtils, eventBus, torSocketFactory, backoffFactory,
 				circumventionProvider, batteryManager, clock, crypto,
 				torDirectory, torSocksPort, torControlPort);
 	}
@@ -62,6 +65,7 @@ public class UnixTorPluginFactory extends TorPluginFactory {
 		if (LOG.isLoggable(INFO)) {
 			LOG.info("System's os.arch is " + arch);
 		}
+		//noinspection IfCanBeSwitch
 		if (arch.equals("amd64")) return "x86_64";
 		else if (arch.equals("aarch64")) return "aarch64";
 		else if (arch.equals("arm")) return "armhf";
@@ -72,11 +76,11 @@ public class UnixTorPluginFactory extends TorPluginFactory {
 	TorPlugin createPluginInstance(Backoff backoff,
 			TorRendezvousCrypto torRendezvousCrypto, PluginCallback callback,
 			String architecture) {
-		return new UnixTorPlugin(ioExecutor, wakefulIoExecutor,
-				networkManager, locationUtils, torSocketFactory, clock,
-				resourceProvider, circumventionProvider, batteryManager,
-				backoff, torRendezvousCrypto, callback, architecture,
-				MAX_LATENCY, MAX_IDLE_TIME, torDirectory, torSocksPort,
-				torControlPort);
+		TorWrapper tor = new UnixTorWrapper(ioExecutor, eventExecutor,
+				architecture, torDirectory, torSocksPort, torControlPort);
+		return new TorPlugin(ioExecutor, wakefulIoExecutor, networkManager,
+				locationUtils, torSocketFactory, circumventionProvider,
+				batteryManager, backoff, torRendezvousCrypto, tor, callback,
+				MAX_LATENCY, MAX_IDLE_TIME, true);
 	}
 }

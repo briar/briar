@@ -1,4 +1,4 @@
-package org.briarproject.bramble.plugin.tor;
+package org.briarproject.bramble.plugin.tor.wrapper;
 
 import org.briarproject.bramble.test.BrambleTestCase;
 import org.junit.Test;
@@ -7,16 +7,16 @@ import java.util.HashSet;
 import java.util.Set;
 
 import static java.util.Arrays.asList;
-import static org.briarproject.bramble.plugin.tor.CircumventionProvider.BLOCKED;
-import static org.briarproject.bramble.plugin.tor.CircumventionProvider.BRIDGES;
-import static org.briarproject.bramble.plugin.tor.CircumventionProvider.BridgeType.DEFAULT_OBFS4;
-import static org.briarproject.bramble.plugin.tor.CircumventionProvider.BridgeType.MEEK;
-import static org.briarproject.bramble.plugin.tor.CircumventionProvider.BridgeType.NON_DEFAULT_OBFS4;
-import static org.briarproject.bramble.plugin.tor.CircumventionProvider.BridgeType.SNOWFLAKE;
-import static org.briarproject.bramble.plugin.tor.CircumventionProvider.BridgeType.VANILLA;
-import static org.briarproject.bramble.plugin.tor.CircumventionProvider.DEFAULT_BRIDGES;
-import static org.briarproject.bramble.plugin.tor.CircumventionProvider.DPI_BRIDGES;
-import static org.briarproject.bramble.plugin.tor.CircumventionProvider.NON_DEFAULT_BRIDGES;
+import static org.briarproject.bramble.plugin.tor.wrapper.CircumventionProvider.BLOCKED;
+import static org.briarproject.bramble.plugin.tor.wrapper.CircumventionProvider.BRIDGES;
+import static org.briarproject.bramble.plugin.tor.wrapper.CircumventionProvider.BridgeType.DEFAULT_OBFS4;
+import static org.briarproject.bramble.plugin.tor.wrapper.CircumventionProvider.BridgeType.MEEK;
+import static org.briarproject.bramble.plugin.tor.wrapper.CircumventionProvider.BridgeType.NON_DEFAULT_OBFS4;
+import static org.briarproject.bramble.plugin.tor.wrapper.CircumventionProvider.BridgeType.SNOWFLAKE;
+import static org.briarproject.bramble.plugin.tor.wrapper.CircumventionProvider.BridgeType.VANILLA;
+import static org.briarproject.bramble.plugin.tor.wrapper.CircumventionProvider.DEFAULT_BRIDGES;
+import static org.briarproject.bramble.plugin.tor.wrapper.CircumventionProvider.DPI_BRIDGES;
+import static org.briarproject.bramble.plugin.tor.wrapper.CircumventionProvider.NON_DEFAULT_BRIDGES;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotEquals;
