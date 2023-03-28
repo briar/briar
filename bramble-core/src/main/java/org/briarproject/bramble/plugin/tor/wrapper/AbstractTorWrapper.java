@@ -21,6 +21,8 @@ import java.util.Map;
 import java.util.Scanner;
 import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.GuardedBy;
@@ -61,6 +63,8 @@ abstract class AbstractTorWrapper implements EventHandler, TorWrapper {
 	private static final String OWNER = "__OwningControllerProcess";
 	private static final int COOKIE_TIMEOUT_MS = 3000;
 	private static final int COOKIE_POLLING_INTERVAL_MS = 200;
+	private static final Pattern BOOTSTRAP_PERCENTAGE =
+			Pattern.compile("PROGRESS=(\\d{1,3})");
 
 	protected final Executor ioExecutor;
 	protected final Executor eventExecutor;
@@ -112,8 +116,8 @@ abstract class AbstractTorWrapper implements EventHandler, TorWrapper {
 	}
 
 	@Override
-	public void setStateObserver(@Nullable StateObserver stateObserver) {
-		state.setObserver(stateObserver);
+	public void setObserver(@Nullable Observer observer) {
+		state.setObserver(observer);
 	}
 
 	@Override
@@ -172,9 +176,10 @@ abstract class AbstractTorWrapper implements EventHandler, TorWrapper {
 		controlConnection.setEvents(asList(EVENTS));
 		// Check whether Tor has already bootstrapped
 		String info = controlConnection.getInfo("status/bootstrap-phase");
-		if (info != null && info.contains("PROGRESS=100")) {
-			LOG.info("Tor has already bootstrapped");
-			state.setBootstrapped();
+		if (info != null && info.contains("PROGRESS=")) {
+			int percentage = parseBootstrapPercentage(info);
+			if (percentage == 100) LOG.info("Tor has already bootstrapped");
+			state.setBootstrapPercentage(percentage);
 		}
 		// Check whether Tor has already built a circuit
 		info = controlConnection.getInfo("status/circuit-established");
@@ -410,7 +415,9 @@ abstract class AbstractTorWrapper implements EventHandler, TorWrapper {
 			if (parts.length < 2) {
 				LOG.warning("Failed to parse HS_DESC UPLOADED event");
 			} else if (LOG.isLoggable(INFO)) {
-				LOG.info("V3 descriptor uploaded for " + scrubOnion(parts[1]));
+				String onion = parts[1];
+				LOG.info("V3 descriptor uploaded for " + scrubOnion(onion));
+				state.onHsDescriptorUploaded(onion);
 			}
 		}
 	}
@@ -420,9 +427,10 @@ abstract class AbstractTorWrapper implements EventHandler, TorWrapper {
 	}
 
 	private void handleClientStatus(String msg) {
-		if (msg.startsWith("BOOTSTRAP PROGRESS=100")) {
-			LOG.info("Bootstrapped");
-			state.setBootstrapped();
+		if (msg.startsWith("BOOTSTRAP PROGRESS=")) {
+			int percentage = parseBootstrapPercentage(msg);
+			if (percentage == 100) LOG.info("Bootstrapped");
+			state.setBootstrapPercentage(percentage);
 		} else if (msg.startsWith("CIRCUIT_ESTABLISHED")) {
 			if (state.setCircuitBuilt(true)) LOG.info("Circuit built");
 		} else if (msg.startsWith("CIRCUIT_NOT_ESTABLISHED")) {
@@ -433,6 +441,21 @@ abstract class AbstractTorWrapper implements EventHandler, TorWrapper {
 				//  established circuits, which might still be functioning
 			}
 		}
+	}
+
+	private int parseBootstrapPercentage(String s) {
+		Matcher matcher = BOOTSTRAP_PERCENTAGE.matcher(s);
+		if (matcher.matches()) {
+			try {
+				return Integer.parseInt(matcher.group(1));
+			} catch (NumberFormatException e) {
+				// Fall through
+			}
+		}
+		if (LOG.isLoggable(WARNING)) {
+			LOG.warning("Failed to parse bootstrap percentage: " + s);
+		}
+		return 0;
 	}
 
 	private void handleGeneralStatus(String msg) {
@@ -512,7 +535,7 @@ abstract class AbstractTorWrapper implements EventHandler, TorWrapper {
 
 		@GuardedBy("this")
 		@Nullable
-		private StateObserver observer = null;
+		private Observer observer = null;
 
 		@GuardedBy("this")
 		private boolean started = false,
@@ -521,8 +544,13 @@ abstract class AbstractTorWrapper implements EventHandler, TorWrapper {
 				networkEnabled = false,
 				paddingEnabled = false,
 				ipv6Enabled = false,
-				bootstrapped = false,
 				circuitBuilt = false;
+
+		@GuardedBy("this")
+		private int bootstrapPercentage = 0;
+
+		@GuardedBy("this")
+		private List<String> bridges = emptyList();
 
 		@GuardedBy("this")
 		private int orConnectionsConnected = 0;
@@ -532,32 +560,25 @@ abstract class AbstractTorWrapper implements EventHandler, TorWrapper {
 		private TorState state = null;
 
 		private synchronized void setObserver(
-				@Nullable StateObserver observer) {
+				@Nullable Observer observer) {
 			this.observer = observer;
 		}
 
 		@GuardedBy("this")
-		private void updateObserver() {
+		private void updateState() {
 			TorState newState = getState();
 			if (newState != state) {
 				state = newState;
-				// Post the new state to the event executor. The contract of
-				// this executor is to execute tasks in the order they're
-				// submitted, so state changes will be observed in the correct
-				// order but outside the lock
 				if (observer != null) {
-					eventExecutor.execute(() ->
-							observer.observeState(newState));
+					// Notify the observer on the event executor
+					eventExecutor.execute(() -> observer.onState(newState));
 				}
 			}
 		}
 
-		@GuardedBy("this")
-		private List<String> bridges = emptyList();
-
 		private synchronized void setStarted() {
 			started = true;
-			updateObserver();
+			updateState();
 		}
 
 		@SuppressWarnings("BooleanMethodIsAlwaysInverted")
@@ -567,13 +588,18 @@ abstract class AbstractTorWrapper implements EventHandler, TorWrapper {
 
 		private synchronized void setStopped() {
 			stopped = true;
-			updateObserver();
+			updateState();
 		}
 
-		private synchronized void setBootstrapped() {
-			if (bootstrapped) return;
-			bootstrapped = true;
-			updateObserver();
+		private synchronized void setBootstrapPercentage(int percentage) {
+			if (percentage == bootstrapPercentage) return;
+			bootstrapPercentage = percentage;
+			if (observer != null) {
+				// Notify the observer on the event executor
+				eventExecutor.execute(() ->
+						observer.onBootstrapPercentage(percentage));
+			}
+			updateState();
 		}
 
 		/**
@@ -583,7 +609,7 @@ abstract class AbstractTorWrapper implements EventHandler, TorWrapper {
 		private synchronized boolean setCircuitBuilt(boolean built) {
 			if (built == circuitBuilt) return false; // Unchanged
 			circuitBuilt = built;
-			updateObserver();
+			updateState();
 			return true; // Changed
 		}
 
@@ -598,7 +624,7 @@ abstract class AbstractTorWrapper implements EventHandler, TorWrapper {
 			networkEnabled = enable;
 			if (!enable) circuitBuilt = false;
 			if (!wasInitialised || enable != wasEnabled) {
-				updateObserver();
+				updateState();
 			}
 			return enable != wasEnabled;
 		}
@@ -639,15 +665,15 @@ abstract class AbstractTorWrapper implements EventHandler, TorWrapper {
 			if (!started || stopped) return STARTING_STOPPING;
 			if (!networkInitialised) return CONNECTING;
 			if (!networkEnabled) return DISABLED;
-			return bootstrapped && circuitBuilt && orConnectionsConnected > 0
-					? CONNECTED : CONNECTING;
+			return bootstrapPercentage == 100 && circuitBuilt
+					&& orConnectionsConnected > 0 ? CONNECTED : CONNECTING;
 		}
 
 		private synchronized void onOrConnectionConnected() {
 			int oldConnected = orConnectionsConnected;
 			orConnectionsConnected++;
 			logOrConnections();
-			if (oldConnected == 0) updateObserver();
+			if (oldConnected == 0) updateState();
 		}
 
 		private synchronized void onOrConnectionClosed() {
@@ -659,7 +685,7 @@ abstract class AbstractTorWrapper implements EventHandler, TorWrapper {
 			}
 			logOrConnections();
 			if (orConnectionsConnected == 0 && oldConnected != 0) {
-				updateObserver();
+				updateState();
 			}
 		}
 
@@ -667,6 +693,14 @@ abstract class AbstractTorWrapper implements EventHandler, TorWrapper {
 		private void logOrConnections() {
 			if (LOG.isLoggable(INFO)) {
 				LOG.info(orConnectionsConnected + " OR connections connected");
+			}
+		}
+
+		private synchronized void onHsDescriptorUploaded(String onion) {
+			if (observer != null) {
+				// Notify the observer on the event executor
+				eventExecutor.execute(() ->
+						observer.onHsDescriptorUpload(onion));
 			}
 		}
 	}

@@ -28,6 +28,7 @@ import org.briarproject.bramble.api.system.LocationUtils;
 import org.briarproject.bramble.plugin.tor.CircumventionProvider.BridgeType;
 import org.briarproject.bramble.plugin.tor.wrapper.TorWrapper;
 import org.briarproject.bramble.plugin.tor.wrapper.TorWrapper.HiddenServiceProperties;
+import org.briarproject.bramble.plugin.tor.wrapper.TorWrapper.Observer;
 import org.briarproject.bramble.plugin.tor.wrapper.TorWrapper.TorState;
 import org.briarproject.nullsafety.InterfaceNotNullByDefault;
 import org.briarproject.nullsafety.NotNullByDefault;
@@ -148,10 +149,22 @@ class TorPlugin implements DuplexPlugin, EventListener {
 		// Don't execute more than one connection status check at a time
 		connectionStatusExecutor =
 				new PoliteExecutor("TorPlugin", ioExecutor, 1);
-		tor.setStateObserver(torState -> {
-			State s = state.getState(torState);
-			if (s == ACTIVE) backoff.reset();
-			callback.pluginStateChanged(s);
+		tor.setObserver(new Observer() {
+
+			@Override
+			public void onState(TorState torState) {
+				State s = state.getState(torState);
+				if (s == ACTIVE) backoff.reset();
+				callback.pluginStateChanged(s);
+			}
+
+			@Override
+			public void onBootstrapPercentage(int percentage) {
+			}
+
+			@Override
+			public void onHsDescriptorUpload(String onion) {
+			}
 		});
 	}
 

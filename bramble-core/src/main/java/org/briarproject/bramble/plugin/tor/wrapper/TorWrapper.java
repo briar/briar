@@ -34,7 +34,7 @@ public interface TorWrapper {
 	 * existing observer, or removes any existing observer if the argument is
 	 * null.
 	 */
-	void setStateObserver(@Nullable StateObserver stateObserver);
+	void setObserver(@Nullable Observer observer);
 
 	/**
 	 * Returns the current state of the wrapper.
@@ -129,16 +129,25 @@ public interface TorWrapper {
 
 	/**
 	 * An interface for observing changes to the {@link TorState state} of the
-	 * Tor process.
+	 * Tor process. All calls happen on the event executor supplied to the
+	 * wrapper's constructor.
 	 */
-	interface StateObserver {
+	interface Observer {
 
 		/**
-		 * This method is called whenever the state of the Tor process changes.
-		 * The call happens on the event executor supplied to the wrapper's
-		 * constructor.
+		 * Called whenever the state of the Tor process changes.
 		 */
-		void observeState(TorState s);
+		void onState(TorState s);
+
+		/**
+		 * Called whenever the bootstrap percentage changes.
+		 */
+		void onBootstrapPercentage(int percentage);
+
+		/**
+		 * Called whenever a hidden service descriptor is uploaded.
+		 */
+		void onHsDescriptorUpload(String onion);
 	}
 
 	class HiddenServiceProperties {

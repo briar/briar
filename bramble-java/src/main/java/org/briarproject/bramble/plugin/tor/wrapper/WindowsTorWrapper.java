@@ -24,9 +24,10 @@ public class WindowsTorWrapper extends JavaTorWrapper {
 	 * some of which may run for the lifetime of the wrapper, so the executor
 	 * should have an unlimited thread pool.
 	 * @param eventExecutor The wrapper will use this executor to call
-	 * {@link StateObserver#observeState(TorState)}. To ensure that state
-	 * changes are observed in the order they occur, this executor should have
-	 * a single thread (eg the app's main thread).
+	 * @param eventExecutor The wrapper will use this executor to call the
+	 * {@link Observer observer} (if any). To ensure that events are observed
+	 * in the order they occur, this executor should have a single thread (eg
+	 * the app's main thread).
 	 * @param architecture The processor architecture of the Tor and pluggable
 	 * transport binaries.
 	 * @param torDirectory The directory where the Tor process should keep its
