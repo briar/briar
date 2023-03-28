@@ -64,7 +64,7 @@ abstract class AbstractTorWrapper implements EventHandler, TorWrapper {
 	private static final int COOKIE_TIMEOUT_MS = 3000;
 	private static final int COOKIE_POLLING_INTERVAL_MS = 200;
 	private static final Pattern BOOTSTRAP_PERCENTAGE =
-			Pattern.compile("PROGRESS=(\\d{1,3})");
+			Pattern.compile(".*PROGRESS=(\\d{1,3}).*");
 
 	protected final Executor ioExecutor;
 	protected final Executor eventExecutor;
