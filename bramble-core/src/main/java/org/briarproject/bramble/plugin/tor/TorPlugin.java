@@ -25,14 +25,14 @@ import org.briarproject.bramble.api.rendezvous.RendezvousEndpoint;
 import org.briarproject.bramble.api.settings.Settings;
 import org.briarproject.bramble.api.settings.event.SettingsUpdatedEvent;
 import org.briarproject.bramble.api.system.LocationUtils;
-import org.briarproject.bramble.plugin.tor.wrapper.CircumventionProvider;
-import org.briarproject.bramble.plugin.tor.wrapper.CircumventionProvider.BridgeType;
-import org.briarproject.bramble.plugin.tor.wrapper.TorWrapper;
-import org.briarproject.bramble.plugin.tor.wrapper.TorWrapper.HiddenServiceProperties;
-import org.briarproject.bramble.plugin.tor.wrapper.TorWrapper.Observer;
-import org.briarproject.bramble.plugin.tor.wrapper.TorWrapper.TorState;
 import org.briarproject.nullsafety.InterfaceNotNullByDefault;
 import org.briarproject.nullsafety.NotNullByDefault;
+import org.briarproject.onionwrapper.CircumventionProvider;
+import org.briarproject.onionwrapper.CircumventionProvider.BridgeType;
+import org.briarproject.onionwrapper.TorWrapper;
+import org.briarproject.onionwrapper.TorWrapper.HiddenServiceProperties;
+import org.briarproject.onionwrapper.TorWrapper.Observer;
+import org.briarproject.onionwrapper.TorWrapper.TorState;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -78,12 +78,12 @@ import static org.briarproject.bramble.api.plugin.TorConstants.REASON_BATTERY;
 import static org.briarproject.bramble.api.plugin.TorConstants.REASON_COUNTRY_BLOCKED;
 import static org.briarproject.bramble.api.plugin.TorConstants.REASON_MOBILE_DATA;
 import static org.briarproject.bramble.plugin.tor.TorRendezvousCrypto.SEED_BYTES;
-import static org.briarproject.bramble.plugin.tor.wrapper.CircumventionProvider.BridgeType.MEEK;
-import static org.briarproject.bramble.plugin.tor.wrapper.CircumventionProvider.BridgeType.SNOWFLAKE;
 import static org.briarproject.bramble.util.IoUtils.tryToClose;
 import static org.briarproject.bramble.util.LogUtils.logException;
 import static org.briarproject.bramble.util.PrivacyUtils.scrubOnion;
 import static org.briarproject.bramble.util.StringUtils.isNullOrEmpty;
+import static org.briarproject.onionwrapper.CircumventionProvider.BridgeType.MEEK;
+import static org.briarproject.onionwrapper.CircumventionProvider.BridgeType.SNOWFLAKE;
 
 @InterfaceNotNullByDefault
 class TorPlugin implements DuplexPlugin, EventListener {

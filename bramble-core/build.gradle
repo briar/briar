@@ -10,6 +10,7 @@ apply from: '../dagger.gradle'
 
 dependencies {
 	api project(':bramble-api')
+	api project(':onionwrapper-core')
 
 	api 'org.briarproject:jtorctl:0.5'
 

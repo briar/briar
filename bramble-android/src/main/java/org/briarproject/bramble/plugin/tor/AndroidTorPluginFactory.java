@@ -18,10 +18,10 @@ import org.briarproject.bramble.api.plugin.TorSocksPort;
 import org.briarproject.bramble.api.system.Clock;
 import org.briarproject.bramble.api.system.LocationUtils;
 import org.briarproject.bramble.api.system.WakefulIoExecutor;
-import org.briarproject.bramble.plugin.tor.wrapper.AndroidTorWrapper;
-import org.briarproject.bramble.plugin.tor.wrapper.CircumventionProvider;
-import org.briarproject.bramble.plugin.tor.wrapper.TorWrapper;
 import org.briarproject.nullsafety.NotNullByDefault;
+import org.briarproject.onionwrapper.AndroidTorWrapper;
+import org.briarproject.onionwrapper.CircumventionProvider;
+import org.briarproject.onionwrapper.TorWrapper;
 
 import java.io.File;
 import java.util.concurrent.Executor;

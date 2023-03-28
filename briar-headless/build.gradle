@@ -29,6 +29,8 @@ dependencies {
 	implementation project(':bramble-core')
 	implementation project(':bramble-java')
 	implementation project(':briar-core')
+	implementation project(':onionwrapper-core')
+	implementation project(':onionwrapper-java')
 
 	linux "org.briarproject:tor-linux:$tor_version"
 	linux "org.briarproject:obfs4proxy-linux:$obfs4proxy_version"

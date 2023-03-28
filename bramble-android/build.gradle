@@ -49,6 +49,7 @@ dependencies {
 	implementation project(':bramble-api')
 
 	implementation project(':bramble-core')
+	implementation project(':onionwrapper-android')
 
 	implementation 'androidx.annotation:annotation:1.5.0'
 
