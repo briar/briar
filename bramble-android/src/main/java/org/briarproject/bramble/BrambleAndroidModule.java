@@ -4,7 +4,7 @@ import org.briarproject.android.dontkillmelib.wakelock.AndroidWakeLockModule;
 import org.briarproject.bramble.battery.AndroidBatteryModule;
 import org.briarproject.bramble.io.DnsModule;
 import org.briarproject.bramble.network.AndroidNetworkModule;
-import org.briarproject.bramble.plugin.tor.CircumventionModule;
+import org.briarproject.bramble.plugin.tor.wrapper.CircumventionModule;
 import org.briarproject.bramble.reporting.ReportingModule;
 import org.briarproject.bramble.socks.SocksModule;
 import org.briarproject.bramble.system.AndroidSystemModule;

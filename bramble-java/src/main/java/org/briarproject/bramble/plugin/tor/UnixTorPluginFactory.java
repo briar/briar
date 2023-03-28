@@ -15,6 +15,7 @@ import org.briarproject.bramble.api.plugin.TorSocksPort;
 import org.briarproject.bramble.api.system.Clock;
 import org.briarproject.bramble.api.system.LocationUtils;
 import org.briarproject.bramble.api.system.WakefulIoExecutor;
+import org.briarproject.bramble.plugin.tor.wrapper.CircumventionProvider;
 import org.briarproject.bramble.plugin.tor.wrapper.TorWrapper;
 import org.briarproject.bramble.plugin.tor.wrapper.UnixTorWrapper;
 import org.briarproject.nullsafety.NotNullByDefault;

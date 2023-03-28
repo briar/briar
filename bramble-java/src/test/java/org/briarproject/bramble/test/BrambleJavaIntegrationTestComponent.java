@@ -5,7 +5,7 @@ import org.briarproject.bramble.BrambleCoreModule;
 import org.briarproject.bramble.BrambleJavaModule;
 import org.briarproject.bramble.mailbox.ModularMailboxModule;
 import org.briarproject.bramble.plugin.tor.BridgeTest;
-import org.briarproject.bramble.plugin.tor.CircumventionProvider;
+import org.briarproject.bramble.plugin.tor.wrapper.CircumventionProvider;
 
 import javax.inject.Singleton;
 

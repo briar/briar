@@ -3,7 +3,7 @@ package org.briarproject.bramble;
 import org.briarproject.bramble.io.DnsModule;
 import org.briarproject.bramble.mailbox.ModularMailboxModule;
 import org.briarproject.bramble.network.JavaNetworkModule;
-import org.briarproject.bramble.plugin.tor.CircumventionModule;
+import org.briarproject.bramble.plugin.tor.wrapper.CircumventionModule;
 import org.briarproject.bramble.socks.SocksModule;
 import org.briarproject.bramble.system.JavaSystemModule;
 

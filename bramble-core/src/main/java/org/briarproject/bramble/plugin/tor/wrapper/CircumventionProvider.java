@@ -1,10 +1,13 @@
-package org.briarproject.bramble.plugin.tor;
+package org.briarproject.bramble.plugin.tor.wrapper;
 
 import org.briarproject.bramble.api.lifecycle.IoExecutor;
 import org.briarproject.nullsafety.NotNullByDefault;
 
 import java.util.List;
 
+import javax.annotation.concurrent.ThreadSafe;
+
+@ThreadSafe
 @NotNullByDefault
 public interface CircumventionProvider {
 

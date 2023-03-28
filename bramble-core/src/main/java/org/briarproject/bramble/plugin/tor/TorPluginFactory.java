@@ -19,6 +19,7 @@ import org.briarproject.bramble.api.plugin.duplex.DuplexPluginFactory;
 import org.briarproject.bramble.api.system.Clock;
 import org.briarproject.bramble.api.system.LocationUtils;
 import org.briarproject.bramble.api.system.WakefulIoExecutor;
+import org.briarproject.bramble.plugin.tor.wrapper.CircumventionProvider;
 import org.briarproject.nullsafety.NotNullByDefault;
 
 import java.io.File;

@@ -1,4 +1,4 @@
-package org.briarproject.bramble.plugin.tor;
+package org.briarproject.bramble.plugin.tor.wrapper;
 
 import org.briarproject.bramble.api.lifecycle.IoExecutor;
 import org.briarproject.nullsafety.NotNullByDefault;
@@ -16,11 +16,11 @@ import javax.annotation.concurrent.Immutable;
 import javax.inject.Inject;
 
 import static java.util.Arrays.asList;
-import static org.briarproject.bramble.plugin.tor.CircumventionProvider.BridgeType.DEFAULT_OBFS4;
-import static org.briarproject.bramble.plugin.tor.CircumventionProvider.BridgeType.MEEK;
-import static org.briarproject.bramble.plugin.tor.CircumventionProvider.BridgeType.NON_DEFAULT_OBFS4;
-import static org.briarproject.bramble.plugin.tor.CircumventionProvider.BridgeType.SNOWFLAKE;
-import static org.briarproject.bramble.plugin.tor.CircumventionProvider.BridgeType.VANILLA;
+import static org.briarproject.bramble.plugin.tor.wrapper.CircumventionProvider.BridgeType.DEFAULT_OBFS4;
+import static org.briarproject.bramble.plugin.tor.wrapper.CircumventionProvider.BridgeType.MEEK;
+import static org.briarproject.bramble.plugin.tor.wrapper.CircumventionProvider.BridgeType.NON_DEFAULT_OBFS4;
+import static org.briarproject.bramble.plugin.tor.wrapper.CircumventionProvider.BridgeType.SNOWFLAKE;
+import static org.briarproject.bramble.plugin.tor.wrapper.CircumventionProvider.BridgeType.VANILLA;
 import static org.briarproject.nullsafety.NullSafety.requireNonNull;
 
 @Immutable
