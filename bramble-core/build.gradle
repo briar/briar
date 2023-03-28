@@ -12,8 +12,6 @@ dependencies {
 	api project(':bramble-api')
 	api project(':onionwrapper-core')
 
-	api 'org.briarproject:jtorctl:0.5'
-
 	implementation "org.bouncycastle:bcprov-jdk15to18:$bouncy_castle_version"
 	//noinspection GradleDependency
 	implementation 'com.h2database:h2:1.4.192' // The last version that supports Java 1.6

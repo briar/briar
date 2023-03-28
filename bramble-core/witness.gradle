@@ -35,7 +35,6 @@ dependencyVerification {
         'org.apache-extras.beanshell:bsh:2.0b6:bsh-2.0b6.jar:a17955976070c0573235ee662f2794a78082758b61accffce8d3f8aedcd91047',
         'org.bitlet:weupnp:0.1.4:weupnp-0.1.4.jar:88df7e6504929d00bdb832863761385c68ab92af945b04f0770b126270a444fb',
         'org.bouncycastle:bcprov-jdk15to18:1.71:bcprov-jdk15to18-1.71.jar:143aaa4a40edd5fc2a18db7900059f6c16f4d931b94b94b20f7e2238e6662886',
-        'org.briarproject:jtorctl:0.5:jtorctl-0.5.jar:43f8c7d390169772b9a2c82ab806c8414c136a2a8636c555e22754bb7260793b',
         'org.briarproject:null-safety:0.1:null-safety-0.1.jar:161760de5e838cb982bafa973df820675d4397098e9a91637a36a306d43ba011',
         'org.briarproject:socks-socket:0.1:socks-socket-0.1.jar:e5898822d10f5390363c5dddb945891648c92cf93ba50709e07f0d173ec0eb4b',
         'org.checkerframework:checker-compat-qual:2.5.5:checker-compat-qual-2.5.5.jar:11d134b245e9cacc474514d2d66b5b8618f8039a1465cdc55bbc0b34e0008b7a',
