@@ -191,6 +191,66 @@
 			app:layout_constraintEnd_toEndOf="parent"
 			app:layout_constraintTop_toBottomOf="@+id/textViewForumMessages" />
 
+		<TextView
+			android:id="@+id/textViewPrivateGroups"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:layout_margin="@dimen/margin_medium"
+			android:text="Number of private groups"
+			app:layout_constraintStart_toStartOf="parent"
+			app:layout_constraintTop_toBottomOf="@+id/seekBarForumMessages" />
+
+		<SeekBar
+			android:id="@+id/seekBarPrivateGroups"
+			android:layout_width="0dp"
+			android:layout_height="wrap_content"
+			android:max="50"
+			android:paddingTop="5dp"
+			android:progress="5"
+			app:layout_constraintEnd_toStartOf="@+id/TextViewPrivateGroupsSb"
+			app:layout_constraintStart_toStartOf="parent"
+			app:layout_constraintTop_toBottomOf="@+id/textViewPrivateGroups" />
+
+		<TextView
+			android:id="@+id/TextViewPrivateGroupsSb"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:ems="2"
+			android:text="5"
+			app:layout_constraintBottom_toBottomOf="@+id/seekBarPrivateGroups"
+			app:layout_constraintEnd_toEndOf="parent"
+			app:layout_constraintTop_toBottomOf="@+id/textViewPrivateGroups" />
+
+		<TextView
+			android:id="@+id/textViewPrivateGroupMessages"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:layout_margin="@dimen/margin_medium"
+			android:text="Number of private group messages"
+			app:layout_constraintStart_toStartOf="parent"
+			app:layout_constraintTop_toBottomOf="@+id/seekBarPrivateGroups" />
+
+		<SeekBar
+			android:id="@+id/seekBarPrivateGroupMessages"
+			android:layout_width="0dp"
+			android:layout_height="wrap_content"
+			android:max="50"
+			android:paddingTop="5dp"
+			android:progress="20"
+			app:layout_constraintEnd_toStartOf="@+id/TextViewPrivateGroupMessagesSb"
+			app:layout_constraintStart_toStartOf="parent"
+			app:layout_constraintTop_toBottomOf="@+id/textViewPrivateGroupMessages" />
+
+		<TextView
+			android:id="@+id/TextViewPrivateGroupMessagesSb"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:ems="2"
+			android:text="20"
+			app:layout_constraintBottom_toBottomOf="@+id/seekBarPrivateGroupMessages"
+			app:layout_constraintEnd_toEndOf="parent"
+			app:layout_constraintTop_toBottomOf="@+id/textViewPrivateGroupMessages" />
+
 		<Button
 			android:id="@+id/buttonZeroValues"
 			style="@style/BriarButton"
@@ -201,7 +261,7 @@
 			android:text="Zero values"
 			app:layout_constraintEnd_toEndOf="parent"
 			app:layout_constraintStart_toStartOf="parent"
-			app:layout_constraintTop_toBottomOf="@+id/seekBarForumMessages"
+			app:layout_constraintTop_toBottomOf="@+id/seekBarPrivateGroupMessages"
 			app:layout_constraintVertical_bias="1.0" />
 
 		<Button

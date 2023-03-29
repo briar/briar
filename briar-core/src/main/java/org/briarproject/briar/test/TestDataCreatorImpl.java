@@ -470,10 +470,6 @@ public class TestDataCreatorImpl implements TestDataCreator {
 
 	private void createRandomForumPosts(Forum forum, List<Contact> contacts,
 			int numForumPosts) throws DbException {
-		if (contacts.isEmpty() && LOG.isLoggable(INFO)) {
-			LOG.info("No forum posts created due to missing contacts.");
-			return;
-		}
 		List<ForumPost> posts = new ArrayList<>();
 		for (int i = 0; i < numForumPosts; i++) {
 			Contact contact = contacts.get(random.nextInt(contacts.size()));
@@ -522,11 +518,6 @@ public class TestDataCreatorImpl implements TestDataCreator {
 
 	private void createRandomPrivateGroupMessages(PrivateGroup group,
 			List<Contact> contacts, int amount) throws DbException {
-		if (contacts.isEmpty() && LOG.isLoggable(INFO)) {
-			LOG.info("No private group messages created " +
-					"due to missing contacts.");
-			return;
-		}
 		List<GroupMessage> messages = new ArrayList<>();
 		PrivateKey creatorPrivateKey =
 				identityManager.getLocalAuthor().getPrivateKey();
