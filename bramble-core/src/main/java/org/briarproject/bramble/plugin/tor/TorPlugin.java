@@ -166,6 +166,10 @@ class TorPlugin implements DuplexPlugin, EventListener {
 			@Override
 			public void onHsDescriptorUpload(String onion) {
 			}
+
+			@Override
+			public void onClockSkewDetected(long skewSeconds) {
+			}
 		});
 	}
 

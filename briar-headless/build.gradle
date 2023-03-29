@@ -29,8 +29,6 @@ dependencies {
 	implementation project(':bramble-core')
 	implementation project(':bramble-java')
 	implementation project(':briar-core')
-	implementation project(':onionwrapper-core')
-	implementation project(':onionwrapper-java')
 
 	linux "org.briarproject:tor-linux:$tor_version"
 	linux "org.briarproject:obfs4proxy-linux:$obfs4proxy_version"
@@ -47,6 +45,7 @@ dependencies {
 	implementation "org.bouncycastle:bcprov-jdk15to18:$bouncy_castle_version"
 	implementation "com.squareup.okhttp3:okhttp:$okhttp_version"
 	implementation "com.fasterxml.jackson.core:jackson-databind:$jackson_version"
+	implementation "org.briarproject:onionwrapper-java:$onionwrapper_version"
 
 	kapt "com.google.dagger:dagger-compiler:$dagger_version"
 
@@ -73,9 +72,7 @@ void jarFactory(Jar jarTask, os, architecture, configuration) {
 			':bramble-core:jar',
 			':bramble-java:jar',
 			':briar-api:jar',
-			':briar-core:jar',
-			':onionwrapper-core:jar',
-			':onionwrapper-java:jar'
+			':briar-core:jar'
 	)
 	jarTask.dependsOn(jar)
 	jarTask.doFirst {

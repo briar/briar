@@ -6,12 +6,6 @@ include ':briar-api'
 include ':briar-core'
 include ':briar-android'
 include ':briar-headless'
-include ':onionwrapper-core'
-include ':onionwrapper-java'
-include ':onionwrapper-android'
-project (':onionwrapper-core').projectDir = file('onionwrapper/onionwrapper-core')
-project (':onionwrapper-java').projectDir = file('onionwrapper/onionwrapper-java')
-project (':onionwrapper-android').projectDir = file('onionwrapper/onionwrapper-android')
 // Enable the mailbox integration tests by passing
 // `MAILBOX_INTEGRATION_TESTS=true ./gradlew mailbox-integration-tests:test`
 // on the command line (for CI etc) or set `briar.mailbox_integration_tests=true`

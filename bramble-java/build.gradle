@@ -9,12 +9,12 @@ apply from: '../dagger.gradle'
 
 dependencies {
 	implementation project(':bramble-core')
-	implementation project(':onionwrapper-java')
 
 	implementation fileTree(dir: 'libs', include: '*.jar')
 	def jna_version = '4.5.2'
 	implementation "net.java.dev.jna:jna:$jna_version"
 	implementation "net.java.dev.jna:jna-platform:$jna_version"
+	implementation "org.briarproject:onionwrapper-java:$onionwrapper_version"
 
 	annotationProcessor "com.google.dagger:dagger-compiler:$dagger_version"
 

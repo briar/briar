@@ -10,7 +10,8 @@ apply from: '../dagger.gradle'
 
 dependencies {
 	api project(':bramble-api')
-	api project(':onionwrapper-core')
+
+	api "org.briarproject:onionwrapper-core:$onionwrapper_version"
 
 	implementation "org.bouncycastle:bcprov-jdk15to18:$bouncy_castle_version"
 	//noinspection GradleDependency
