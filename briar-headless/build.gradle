@@ -45,6 +45,7 @@ dependencies {
 	implementation "org.bouncycastle:bcprov-jdk15to18:$bouncy_castle_version"
 	implementation "com.squareup.okhttp3:okhttp:$okhttp_version"
 	implementation "com.fasterxml.jackson.core:jackson-databind:$jackson_version"
+	implementation "org.briarproject:onionwrapper-java:$onionwrapper_version"
 
 	kapt "com.google.dagger:dagger-compiler:$dagger_version"
 

@@ -1,4 +1,4 @@
-package org.briarproject.bramble.plugin.tor.wrapper;
+package org.briarproject.onionwrapper;
 
 import javax.inject.Singleton;
 
