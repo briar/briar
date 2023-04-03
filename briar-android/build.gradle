@@ -118,6 +118,8 @@ dependencies {
 	implementation 'com.google.android.material:material:1.8.0'
 	implementation 'androidx.recyclerview:recyclerview-selection:1.1.0'
 
+	// force kotlin standard lib to latest version to prevent jetifier issues
+	implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
 	implementation "com.squareup.okhttp3:okhttp:$okhttp_version"
 	implementation "org.jsoup:jsoup:$jsoup_version"
 	implementation 'info.guardianproject.panic:panic:1.0'
