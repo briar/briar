@@ -33,7 +33,6 @@ import org.briarproject.bramble.plugin.tcp.AndroidLanTcpPluginFactory;
 import org.briarproject.bramble.plugin.tor.AndroidTorPluginFactory;
 import org.briarproject.bramble.util.AndroidUtils;
 import org.briarproject.bramble.util.StringUtils;
-import org.briarproject.briar.BuildConfig;
 import org.briarproject.briar.android.account.DozeHelperModule;
 import org.briarproject.briar.android.account.LockManagerImpl;
 import org.briarproject.briar.android.account.SetupModule;
@@ -212,7 +211,7 @@ public class AppModule {
 			@Override
 			public Collection<SimplexPluginFactory> getSimplexFactories() {
 				List<SimplexPluginFactory> simplex = new ArrayList<>();
-				if (featureFlags.shouldEnableMailbox()) simplex.add(mailbox);
+				if (featureFlags.shouldEnableMailboxInCore()) simplex.add(mailbox);
 				if (SDK_INT >= 19) simplex.add(drive);
 				return simplex;
 			}
@@ -354,8 +353,8 @@ public class AppModule {
 			}
 
 			@Override
-			public boolean shouldEnableMailbox() {
-				return BuildConfig.DEBUG;
+			public boolean shouldEnableMailboxInCore() {
+				return true;
 			}
 
 			@Override

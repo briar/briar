@@ -80,7 +80,7 @@ public class MailboxModule {
 			FeatureFlags featureFlags) {
 		MailboxUpdateValidator validator = new MailboxUpdateValidator(
 				clientHelper, metadataEncoder, clock);
-		if (featureFlags.shouldEnableMailbox()) {
+		if (featureFlags.shouldEnableMailboxInCore()) {
 			validationManager.registerMessageValidator(CLIENT_ID,
 					MAJOR_VERSION, validator);
 		}
@@ -101,7 +101,7 @@ public class MailboxModule {
 			ClientVersioningManager clientVersioningManager,
 			MailboxSettingsManager mailboxSettingsManager,
 			MailboxUpdateManagerImpl mailboxUpdateManager) {
-		if (featureFlags.shouldEnableMailbox()) {
+		if (featureFlags.shouldEnableMailboxInCore()) {
 			lifecycleManager.registerOpenDatabaseHook(mailboxUpdateManager);
 			validationManager.registerIncomingMessageHook(CLIENT_ID,
 					MAJOR_VERSION, mailboxUpdateManager);
@@ -117,7 +117,7 @@ public class MailboxModule {
 	@Singleton
 	MailboxFileManager provideMailboxFileManager(FeatureFlags featureFlags,
 			EventBus eventBus, MailboxFileManagerImpl mailboxFileManager) {
-		if (featureFlags.shouldEnableMailbox()) {
+		if (featureFlags.shouldEnableMailboxInCore()) {
 			eventBus.addListener(mailboxFileManager);
 		}
 		return mailboxFileManager;
@@ -167,7 +167,7 @@ public class MailboxModule {
 				dbExecutor, db, contactManager, pluginManager,
 				mailboxSettingsManager, mailboxUpdateManager,
 				mailboxClientFactory, reachabilityMonitor);
-		if (featureFlags.shouldEnableMailbox()) {
+		if (featureFlags.shouldEnableMailboxInCore()) {
 			lifecycleManager.registerService(manager);
 			eventBus.addListener(manager);
 		}

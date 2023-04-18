@@ -83,15 +83,11 @@ public class SettingsFragment extends PreferenceFragmentCompat {
 
 		Preference prefMailbox =
 				requireNonNull(findPreference(PREF_KEY_MAILBOX));
-		if (viewModel.shouldEnableMailbox()) {
-			prefMailbox.setOnPreferenceClickListener(preference -> {
-				Intent i = new Intent(requireContext(), MailboxActivity.class);
-				startActivity(i);
-				return true;
-			});
-		} else {
-			prefMailbox.setVisible(false);
-		}
+		prefMailbox.setOnPreferenceClickListener(preference -> {
+			Intent i = new Intent(requireContext(), MailboxActivity.class);
+			startActivity(i);
+			return true;
+		});
 
 		Preference prefFeedback =
 				requireNonNull(findPreference(PREF_KEY_FEEDBACK));

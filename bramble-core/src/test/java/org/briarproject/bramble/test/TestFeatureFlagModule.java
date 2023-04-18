@@ -26,7 +26,7 @@ public class TestFeatureFlagModule {
 			}
 
 			@Override
-			public boolean shouldEnableMailbox() {
+			public boolean shouldEnableMailboxInCore() {
 				return true;
 			}
 
