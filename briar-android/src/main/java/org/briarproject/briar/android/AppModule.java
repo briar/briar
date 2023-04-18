@@ -211,7 +211,7 @@ public class AppModule {
 			@Override
 			public Collection<SimplexPluginFactory> getSimplexFactories() {
 				List<SimplexPluginFactory> simplex = new ArrayList<>();
-				if (featureFlags.shouldEnableMailboxInCore()) simplex.add(mailbox);
+				simplex.add(mailbox);
 				if (SDK_INT >= 19) simplex.add(drive);
 				return simplex;
 			}
@@ -349,11 +349,6 @@ public class AppModule {
 
 			@Override
 			public boolean shouldEnableDisappearingMessages() {
-				return true;
-			}
-
-			@Override
-			public boolean shouldEnableMailboxInCore() {
 				return true;
 			}
 

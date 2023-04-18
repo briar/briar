@@ -11,8 +11,6 @@ public interface FeatureFlags {
 
 	boolean shouldEnableDisappearingMessages();
 
-	boolean shouldEnableMailboxInCore();
-
 	boolean shouldEnablePrivateGroupsInCore();
 
 	boolean shouldEnableForumsInCore();
