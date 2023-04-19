@@ -256,6 +256,8 @@
   <string name="qr_code_invalid">Kod QR jest nieprawidłowy</string>
   <string name="qr_code_too_old_1">Zeskanowany kod QR pochodzi ze starszej wersji Briar.\n\nProszę poprosić Twój kontakt  o aktualizację do najnowszej wersji, a następnie spróbować ponownie.</string>
   <string name="qr_code_too_new_1">Zeskanowany kod QR pochodzi z nowszej wersji programu Briar.\n\nProszę zaktualizować go do najnowszej wersji, a następnie spróbować ponownie.</string>
+  <string name="mailbox_qr_code_for_contact">Zeskanowany kod QR pochodzi ze skrzynki odbiorczej Briar.\n\nJeśli chcesz połączyć skrzynkę odbiorczą, wybierz Ustawienia i Skrzynka odbiorcza z menu Briar.</string>
+  <string name="qr_code_format_unknown">Zeskanowany kod QR nie jest przeznaczony do dodawania kontaktu z Briar.\n\nZeskanuj kod QR wyświetlany na ekranie kontaktu.</string>
   <string name="camera_error">Błąd aparatu</string>
   <string name="connecting_to_device">Łączenie z urządzeniem\u2026</string>
   <string name="authenticating_with_device">Autoryzowanie z urządzeniem\u2026</string>
@@ -633,6 +635,7 @@
   <string name="mailbox_setup_connecting_info">Może to potrwać do %1s</string>
   <string name="mailbox_qr_code_too_old">Zeskanowany kod QR pochodzi ze starszej wersji skrzynki odbiorczej Briar.\n\nProszę zaktualizować ją do najnowszej wersji, a następnie spróbować ponownie.</string>
   <string name="mailbox_qr_code_too_new">Zeskanowany kod QR pochodzi z nowszej wersji skrzynki odbiorczej Briar.\n\nProszę zaktualizować ją do najnowszej wersji, a następnie spróbować ponownie.</string>
+  <string name="contact_qr_code_for_mailbox">Zeskanowany kod QR służy do dodawania kontaktu Briar.\n\nJeśli chcesz dodać kontakt, przejdź do listy kontaktów i naciśnij ikonę +.</string>
   <string name="mailbox_setup_qr_code_wrong_description">Zeskanowany kod QR nie pochodzi ze skrzynki odbiorczej Briar. Otwórz skrzynkę odbiorczą Briar na urządzeniu z Twoją skrzynką i zeskanuj wyświetlany kod QR. </string>
   <string name="mailbox_setup_already_paired_title">Mailbox już podłączony</string>
   <string name="mailbox_setup_already_paired_description">Odłącz Mailbox na drugim urządzeniu i spróbuj ponownie.</string>
@@ -772,10 +775,12 @@ Brak dostępu do aparatu. Spróbuj ponownie, może po ponownym uruchomieniu urz�
   <string name="permission_camera_location_title">Kamera i lokalizacja</string>
   <string name="permission_camera_location_request_body">Aby zeskanować kod QR, Briar potrzebuje dostępu do kamery.\n\nAby odkryć urządzenia Bluetooth, Briar potrzebuje zezwolenia na dostęp do Twojej lokalizacji.\n\nBriar nie przechowuje Twojej lokalizacji ani nie udostępnia jej nikomu.</string>
   <string name="permission_camera_bluetooth_title">Aparat i urządzenia w pobliżu</string>
+  <string name="permission_camera_bluetooth_request_body">Aby zeskanować kod QR, Briar potrzebuje dostępu do aparatu.\n\nAby wykryć urządzenia Bluetooth, Briar potrzebuje uprawnień do znajdowania i łączenia się z urządzeniami w pobliżu.</string>
   <string name="permission_camera_denied_body">Odmówiłeś dostępu do aparatu, lecz dodawanie kontaktów wymaga jego użycia.\n\nProszę rozważyć udzielenie dostępu do aparatu</string>
   <string name="permission_location_denied_body">Zabroniłeś dostępu do Twojej lokalizacji, ale Briar potrzebuje tego uprawnienia do wykrywania urządzeń Bluetooth.\n\nRozważ przyznanie  tego dostępu.</string>
   <string name="permission_location_setting_title">Ustawienia lokalizacji</string>
   <string name="permission_location_setting_body">Ustawienie lokalizacji urządzenia musi być włączone, aby można było znaleźć inne urządzenia przez Bluetooth. Włącz lokalizację, aby kontynuować. Później możesz ją ponownie wyłączyć.</string>
+  <string name="permission_location_setting_hotspot_body">Aby utworzyć hotspot Wi-Fi, musisz włączyć ustawienie lokalizacji urządzenia. Włącz lokalizację, aby kontynuować. Możesz ją później wyłączyć ponownie.</string>
   <string name="permission_location_setting_button">Włącz lokalizację</string>
   <string name="permission_bluetooth_title">Pozwolenie do urządzeń w pobliżu</string>
   <string name="permission_bluetooth_body">Aby korzystać z komunikacji Bluetooth, Briar potrzebuje uprawnień do znajdowania i łączenia się z pobliskimi urządzeniami.</string>

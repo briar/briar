@@ -28,7 +28,7 @@
   <string name="dnkm_xiaomi_dialog_body_old">1. Otevřete seznam nedávných aplikací (také známý jako přepínač aplikací)\n\n2. Přejeďte prstem dolů po obrazu Briaru pro zobrazení ikony zámku\n\n3. Pokud není zámek uzamčen, uzamkněte ho klepnutím na něj</string>
   <string name="dnkm_xiaomi_dialog_body_new">1. Otevřete seznam nedávných aplikací (také známý jako přepínač aplikací)\n\n2. Pokud má Briar vedle svého názvu malý obrázek zámku, nemusíte nic dělat\n\n3. Pokud tam žádný zámek není, stiskněte a podržte obraz Briaru, dokud se nezobrazí tlačítko visacího zámku, a pak na něj klepněte</string>
   <string name="dnkm_xiaomi_lock_apps_text">Klepněte na tlačítko níže pro otevření nastavení zabezpečení. Klepněte na „Zvýšení rychlosti“, poté na „Uzamčení aplikací“ a ujistěte se, že je Briar nastaven na „Uzamčeno“.</string>
-  <string name="dnkm_xiaomi_lock_apps_help">Pokud není Briar na obrazovce „Uzamknutí aplikací“ nastaven na „Uzamčeno“, nebude moci běžet na pozadí.</string>
+  <string name="dnkm_xiaomi_lock_apps_help">Pokud není Briar na obrazovce „Uzamčení aplikací“ nastaven na „Uzamčeno“, nebude moci běžet na pozadí.</string>
   <string name="dnkm_warning_dozed_1">Briar nemůže běžet na pozadí</string>
   <!--Login-->
   <string name="enter_password">Heslo</string>
@@ -243,7 +243,7 @@
   <string name="messaging_too_many_attachments_toast">Pouze prvních %d obrázků bude odesláno</string>
   <string name="menu_contact">Kontakt</string>
   <!--Adding Contacts-->
-  <string name="add_contact_title">Přidat kontakt nablízku</string>
+  <string name="add_contact_title">Přidat kontakt v okolí</string>
   <string name="add_contact_error_two_way">Oskenovali jste vy i druhá strana QR kód toho druhého?</string>
   <string name="face_to_face">Musíte se osobně setkat s osobou, kterou si chcete přidat jako kontakt.\n\nToto v budoucnu zabrání komukoli, aby se za vás vydával nebo četl Vaše zprávy.</string>
   <string name="continue_button">Pokračovat</string>
@@ -265,9 +265,9 @@
   <string name="connection_error_feedback">Pokud tento problém přetrvává, prosím <a href="feedback">odešlete zpětnou vazbu</a> abyste nám pomohli vylepšit aplikaci.</string>
   <string name="info_both_must_scan">Vy i kontakt musíte oskenovat QR kód toho druhého</string>
   <!--Adding Contacts Remotely-->
-  <string name="add_contact_remotely_title_case">Přidat kontakt vzdáleně</string>
-  <string name="add_contact_nearby_title">Přidat kontakt blízko</string>
-  <string name="add_contact_remotely_title">Přidat kontakt vzdáleně</string>
+  <string name="add_contact_remotely_title_case">Přidat vzdálený kontakt</string>
+  <string name="add_contact_nearby_title">Přidat kontakt v okolí</string>
+  <string name="add_contact_remotely_title">Přidat vzdálený kontakt</string>
   <string name="contact_link_intro">Sem vložte odkaz od vašeho kontaktu</string>
   <string name="contact_link_hint">Odkaz kontaktu</string>
   <string name="paste_button">Vložit</string>
@@ -331,30 +331,30 @@
   <string name="peer_trust_level_stranger">Neznámý</string>
   <!--Introductions-->
   <string name="introduction_onboarding_title">Uvést vaše kontakty</string>
-  <string name="introduction_onboarding_text">Představte vzájemně vaše kontakty, aby se spolu mohli spojit.</string>
-  <string name="introduction_menu_item">Vytvořit představení</string>
+  <string name="introduction_onboarding_text">Představte vzájemně vaše kontakty, aby se spolu mohly spojit.</string>
+  <string name="introduction_menu_item">Představit</string>
   <string name="introduction_activity_title">Vybrat kontakt</string>
   <string name="introduction_not_possible">Již máte jedno představení v běhu s těmito kontakty. Prosím nejprve nechte toto dokončit. Pokud vy nebo vaše kontakty nejste často online, může to nějakou dobu trvat.</string>
   <string name="introduction_message_title">Pozvat kontakty</string>
   <string name="introduction_message_hint">Přidat zprávu (volitelné)</string>
-  <string name="introduction_button">Vytvořit představení</string>
+  <string name="introduction_button">Představit</string>
   <string name="introduction_sent">Vaše představení bylo odesláno.</string>
   <string name="introduction_error">Vyskytla se chyba při tvorbě představení.</string>
   <string name="introduction_request_sent">Požádali jste o pozvání %1$s do %2$s.</string>
   <string name="introduction_request_received">%1$s vás požádal o uvedení do %2$s. Chcete přidat %2$s mezi vaše kontakty?</string>
   <string name="introduction_request_exists_received">%1$s vás požádal o představení s %2$s, ale %2$s je již ve vašich kontaktech. Pravděpodobně to %1$s neví, ale stále můžete odpovědět:</string>
   <string name="introduction_request_answered_received">%1$s vás žádá o pozvání do %2$s.</string>
-  <string name="introduction_response_accepted_sent">Přijali jste představení do %1$s.</string>
-  <string name="introduction_response_accepted_sent_info">Před tím, než bude přidán %1$s do kontaktů, musí souhlasit s představením. Toto může nějakou dobu trvat.</string>
-  <string name="introduction_response_declined_sent">Odmítli jste představení do %1$s.</string>
+  <string name="introduction_response_accepted_sent">Přijali jste představení %1$s.</string>
+  <string name="introduction_response_accepted_sent_info">Před tím, než bude %1$s přidán(a) do kontaktů, musí přijmout představení. Toto může nějakou dobu trvat.</string>
+  <string name="introduction_response_declined_sent">Odmítli jste představení %1$s.</string>
   <string name="introduction_response_declined_auto">Představení %1$s bylo automaticky zamítnuto.</string>
-  <string name="introduction_response_accepted_received">%1$s přijal představení do %2$s.</string>
-  <string name="introduction_response_declined_received">%1$s odmítl představení do %2$s.</string>
-  <string name="introduction_response_declined_received_by_introducee">%1$s řekl, že %2$s odmítl představení.</string>
+  <string name="introduction_response_accepted_received">%1$s přijal(a) představení %2$s.</string>
+  <string name="introduction_response_declined_received">%1$s odmítl(a) představení %2$s.</string>
+  <string name="introduction_response_declined_received_by_introducee">%1$s řekl(a), že %2$s odmítl(a) představení.</string>
   <!--Connect via Bluetooth-->
-  <string name="menu_item_connect_via_bluetooth">Spojení přes Bluetooth</string>
-  <string name="connect_via_bluetooth_title">Spojení přes Bluetooth</string>
-  <string name="connect_via_bluetooth_intro">V případě, že Bluetooth připojení nefunguje automaticky, můžete použít tuto obrazovku pro ruční připojení.\n\nVáš kontakt musí být poblíž, aby to fungovalo.\n\nVy i váš kontakt musíte klepnout na \"Start\" ve stejný čas.</string>
+  <string name="menu_item_connect_via_bluetooth">Připojit přes Bluetooth</string>
+  <string name="connect_via_bluetooth_title">Připojit přes Bluetooth</string>
+  <string name="connect_via_bluetooth_intro">V případě, že Bluetooth připojení nefunguje automaticky, můžete použít tuto obrazovku pro ruční připojení.\n\nVáš kontakt musí být v okolí, aby to fungovalo.\n\nVy i váš kontakt musíte klepnout na \"Start\" ve stejný čas.</string>
   <string name="connect_via_bluetooth_already_discovering">Již se pokoušíte o připojení přes Bluetooth. Zkuste to znovu za chvíli.</string>
   <string name="connect_via_bluetooth_no_location_permission">Není možné pokračovat bez povolení znát umístění</string>
   <string name="connect_via_bluetooth_no_bluetooth_permission">Není možné pokračovat bez povolení přístupu k zařízením v okolí</string>
@@ -415,7 +415,7 @@
   <string name="sharing_status_groups">Pouze zakladatel může pozvat nové členy do skupiny. Níže jsou všichni současní členové skupiny.</string>
   <!--Private Groups Revealing Contacts-->
   <string name="groups_reveal_contacts">Odkrýt kontakty</string>
-  <string name="groups_reveal_dialog_message">Můžete si vybrat, zda chcete své kontakty odhalit všem současným i budoucím členům této skupiny.\n\nPřidáním kontaktů je vaše připojení ke skupině rychlejší a spolehlivější, protože můžete komunikovat s odhalenými kontakty i když je tvůrce skupiny offline.</string>
+  <string name="groups_reveal_dialog_message">Můžete si vybrat, zda chcete své kontakty odhalit všem současným i budoucím členům této skupiny.\n\nPřidáním kontaktů je vaše připojení ke skupině rychlejší a spolehlivější, protože můžete komunikovat s odhalenými kontakty i když je zakladatel skupiny offline.</string>
   <string name="groups_reveal_visible">Vztah s kontaktem je viditelný ve skupině</string>
   <string name="groups_reveal_visible_revealed_by_us">Vztah s kontaktem je viditelný ve skupině (Tebou odkrytý)</string>
   <string name="groups_reveal_visible_revealed_by_contact">Vztah s kontaktem je viditelný ve skupině (byl odkrytý %s)</string>
@@ -495,7 +495,7 @@
   <string name="blogs_remove_blog_ok">Odstranit</string>
   <string name="blogs_blog_removed">Blog odstraněn</string>
   <string name="blogs_reblog_comment_hint">Přidat komentář (volitelné)</string>
-  <string name="blogs_reblog_button">Reblog</string>
+  <string name="blogs_reblog_button">Znovu-zveřejnit</string>
   <!--Blog Sharing-->
   <string name="blogs_sharing_share">Sdílet blog</string>
   <string name="blogs_sharing_error">Vyskytla se chyba při sdílení tohoto blogu.</string>
@@ -518,7 +518,7 @@
   <string name="blogs_rss_feeds_import_hint">Zadejte URL adresu RSS kanálu</string>
   <string name="blogs_rss_feeds_import_progress">Importování RSS kanálu...</string>
   <string name="blogs_rss_feeds_import_error">Omlouváme se! Vyskytla se chyba při importu vašeho kanálu.</string>
-  <string name="blogs_rss_feeds_import_title">Importovat kanál ze souboru</string>
+  <string name="blogs_rss_feeds_import_title">Import kanálu ze souboru</string>
   <string name="blogs_rss_feeds">RSS kanály</string>
   <string name="blogs_rss_feeds_manage_imported">Importováno:</string>
   <string name="blogs_rss_feeds_manage_author">Autor:</string>
@@ -527,7 +527,7 @@
   <string name="blogs_rss_remove_feed_dialog_message">Jste si jisti, že chcete odebrat tento kanál?\n\nPříspěvky budou odebrány z vašeho zařízení ale zůstanou na zařízeních jiných lidí.\n\nKontakty, se kterými jste tento kanál sdíleli, mohou přestat dostávat aktualizace.</string>
   <string name="blogs_rss_remove_feed_ok">Odstranit</string>
   <string name="blogs_rss_feeds_manage_empty_state">Žádné RSS kanály k zobrazení\n\nKlikněte na ikonu + pro nahrání příspěvků</string>
-  <string name="blogs_rss_feeds_manage_error">Vyskytl se problém s načtením vašeho kanálu příspěvků. Zkuste to prosím později.</string>
+  <string name="blogs_rss_feeds_manage_error">Vyskytl se problém při načtení vašich kanálů. Zkuste to prosím později.</string>
   <!--Settings Profile Picture-->
   <string name="change_profile_picture">Klepněte pro změnu svého profilového obrázku</string>
   <string name="dialog_confirm_profile_picture_title">Změnit profilový obrázek</string>
@@ -538,13 +538,13 @@
   <string name="pref_language_changed">Toto nastavení bude mít efekt když vykonáre restart svého Briar. Prosím odhlaste se a restartujte Briar.</string>
   <string name="pref_language_default">Podle systému</string>
   <string name="display_settings_title">Zobrazení</string>
-  <string name="pref_theme_title">Vzhled</string>
+  <string name="pref_theme_title">Motiv</string>
   <string name="pref_theme_light">Světlý</string>
   <string name="pref_theme_dark">Temný</string>
   <string name="pref_theme_auto">Automaticky (denní doba)</string>
   <string name="pref_theme_system">Podle systému</string>
   <!--Settings Connections-->
-  <string name="network_settings_title">Connections</string>
+  <string name="network_settings_title">Spojení</string>
   <string name="bluetooth_setting">Připojit se ke kontaktům přes Bluetooth</string>
   <string name="wifi_setting">Připojte se ke kontaktům na stejné Wi-Fi síti</string>
   <string name="tor_enable_title">Připojte se ke kontaktům přes internet</string>
@@ -797,7 +797,7 @@
   <string name="transports_help_text">Briar se může připojit k vašim kontaktům pomocí internetu, Wi-Fi nebo Bluetooth.\n\nVšechna internetová spojení jsou kvůli soukromí přenášena sítí Tor.\n\nPokud kontakt může být dosažen pomocí několika metod, Briar je využije zároveň.</string>
   <!--Share app offline-->
   <string name="hotspot_title">Sdílet tuto aplikaci offline</string>
-  <string name="hotspot_intro">Sdílejte tuto aplikaci s někým, kdo je blízko bez použití internetu, jen pomocí místní Wi-Fi sítě.
+  <string name="hotspot_intro">Sdílejte tuto aplikaci s někým, kdo je v okolí a to bez použití internetu, jen pomocí místní Wi-Fi sítě.
 		\n\nVáš telefon vytvoří Wi-Fi hotspot. Lidé v okolí se budou moci připojit k hotspotu a stáhnout aplikaci Briar z vašeho telefonu.</string>
   <string name="hotspot_button_start_sharing">Spustit hotspot</string>
   <string name="hotspot_button_stop_sharing">Zastavit hotspot</string>
