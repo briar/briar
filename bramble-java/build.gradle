@@ -11,7 +11,7 @@ dependencies {
 	implementation project(':bramble-core')
 
 	implementation fileTree(dir: 'libs', include: '*.jar')
-	def jna_version = '4.5.2'
+	def jna_version = '5.13.0'
 	implementation "net.java.dev.jna:jna:$jna_version"
 	implementation "net.java.dev.jna:jna-platform:$jna_version"
 	implementation "org.briarproject:onionwrapper-java:$onionwrapper_version"

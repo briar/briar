@@ -18,6 +18,7 @@ import org.briarproject.bramble.api.plugin.duplex.DuplexPluginFactory
 import org.briarproject.bramble.api.plugin.simplex.SimplexPluginFactory
 import org.briarproject.bramble.battery.DefaultBatteryManagerModule
 import org.briarproject.bramble.event.DefaultEventExecutorModule
+import org.briarproject.bramble.plugin.tor.MacTorPluginFactory
 import org.briarproject.bramble.plugin.tor.UnixTorPluginFactory
 import org.briarproject.bramble.plugin.tor.WindowsTorPluginFactory
 import org.briarproject.bramble.system.ClockModule
@@ -92,10 +93,12 @@ internal class HeadlessModule(private val appDir: File) {
     @Singleton
     internal fun providePluginConfig(
         unixTor: UnixTorPluginFactory,
+        macTor: MacTorPluginFactory,
         winTor: WindowsTorPluginFactory
     ): PluginConfig {
         val duplex: List<DuplexPluginFactory> = when {
-            isLinux() || isMac() -> listOf(unixTor)
+            isLinux() -> listOf(unixTor)
+            isMac() -> listOf(macTor)
             isWindows() -> listOf(winTor)
             else -> emptyList()
         }
