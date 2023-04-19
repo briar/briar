@@ -1,6 +1,5 @@
 package org.briarproject.bramble.mailbox;
 
-import org.briarproject.bramble.api.FeatureFlags;
 import org.briarproject.bramble.api.client.ClientHelper;
 import org.briarproject.bramble.api.contact.ContactManager;
 import org.briarproject.bramble.api.data.MetadataEncoder;
@@ -76,14 +75,11 @@ public class MailboxModule {
 			ValidationManager validationManager,
 			ClientHelper clientHelper,
 			MetadataEncoder metadataEncoder,
-			Clock clock,
-			FeatureFlags featureFlags) {
+			Clock clock) {
 		MailboxUpdateValidator validator = new MailboxUpdateValidator(
 				clientHelper, metadataEncoder, clock);
-		if (featureFlags.shouldEnableMailbox()) {
-			validationManager.registerMessageValidator(CLIENT_ID,
-					MAJOR_VERSION, validator);
-		}
+		validationManager.registerMessageValidator(CLIENT_ID, MAJOR_VERSION,
+				validator);
 		return validator;
 	}
 
@@ -95,31 +91,26 @@ public class MailboxModule {
 	@Provides
 	@Singleton
 	MailboxUpdateManager provideMailboxUpdateManager(
-			FeatureFlags featureFlags,
 			LifecycleManager lifecycleManager,
 			ValidationManager validationManager, ContactManager contactManager,
 			ClientVersioningManager clientVersioningManager,
 			MailboxSettingsManager mailboxSettingsManager,
 			MailboxUpdateManagerImpl mailboxUpdateManager) {
-		if (featureFlags.shouldEnableMailbox()) {
-			lifecycleManager.registerOpenDatabaseHook(mailboxUpdateManager);
-			validationManager.registerIncomingMessageHook(CLIENT_ID,
-					MAJOR_VERSION, mailboxUpdateManager);
-			contactManager.registerContactHook(mailboxUpdateManager);
-			clientVersioningManager.registerClient(CLIENT_ID, MAJOR_VERSION,
-					MINOR_VERSION, mailboxUpdateManager);
-			mailboxSettingsManager.registerMailboxHook(mailboxUpdateManager);
-		}
+		lifecycleManager.registerOpenDatabaseHook(mailboxUpdateManager);
+		validationManager.registerIncomingMessageHook(CLIENT_ID, MAJOR_VERSION,
+				mailboxUpdateManager);
+		contactManager.registerContactHook(mailboxUpdateManager);
+		clientVersioningManager.registerClient(CLIENT_ID, MAJOR_VERSION,
+				MINOR_VERSION, mailboxUpdateManager);
+		mailboxSettingsManager.registerMailboxHook(mailboxUpdateManager);
 		return mailboxUpdateManager;
 	}
 
 	@Provides
 	@Singleton
-	MailboxFileManager provideMailboxFileManager(FeatureFlags featureFlags,
-			EventBus eventBus, MailboxFileManagerImpl mailboxFileManager) {
-		if (featureFlags.shouldEnableMailbox()) {
-			eventBus.addListener(mailboxFileManager);
-		}
+	MailboxFileManager provideMailboxFileManager(EventBus eventBus,
+			MailboxFileManagerImpl mailboxFileManager) {
+		eventBus.addListener(mailboxFileManager);
 		return mailboxFileManager;
 	}
 
@@ -160,17 +151,14 @@ public class MailboxModule {
 			MailboxUpdateManager mailboxUpdateManager,
 			MailboxClientFactory mailboxClientFactory,
 			TorReachabilityMonitor reachabilityMonitor,
-			FeatureFlags featureFlags,
 			LifecycleManager lifecycleManager,
 			EventBus eventBus) {
 		MailboxClientManager manager = new MailboxClientManager(eventExecutor,
 				dbExecutor, db, contactManager, pluginManager,
 				mailboxSettingsManager, mailboxUpdateManager,
 				mailboxClientFactory, reachabilityMonitor);
-		if (featureFlags.shouldEnableMailbox()) {
-			lifecycleManager.registerService(manager);
-			eventBus.addListener(manager);
-		}
+		lifecycleManager.registerService(manager);
+		eventBus.addListener(manager);
 		return manager;
 	}
 }
