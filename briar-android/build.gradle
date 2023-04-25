@@ -115,7 +115,9 @@ dependencies {
 	implementation 'androidx.lifecycle:lifecycle-livedata:2.5.1'
 
 	implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
-	implementation 'com.google.android.material:material:1.8.0'
+	// check https://github.com/material-components/material-components-android/issues/3191
+	// before upgrading material library
+	implementation 'com.google.android.material:material:1.7.0'
 	implementation 'androidx.recyclerview:recyclerview-selection:1.1.0'
 
 	// force kotlin standard lib to latest version to prevent jetifier issues
