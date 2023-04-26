@@ -36,8 +36,8 @@ import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
 import static org.briarproject.bramble.api.crypto.CryptoConstants.MAX_AGREEMENT_PUBLIC_KEY_BYTES;
 import static org.briarproject.bramble.contact.HandshakeConstants.PROOF_BYTES;
+import static org.briarproject.bramble.contact.HandshakeConstants.PROTOCOL_MAJOR_VERSION;
 import static org.briarproject.bramble.contact.HandshakeConstants.PROTOCOL_MINOR_VERSION;
-import static org.briarproject.bramble.contact.HandshakeConstants.PROTOCOL_VERSION;
 import static org.briarproject.bramble.contact.HandshakeRecordTypes.RECORD_TYPE_EPHEMERAL_PUBLIC_KEY;
 import static org.briarproject.bramble.contact.HandshakeRecordTypes.RECORD_TYPE_MINOR_VERSION;
 import static org.briarproject.bramble.contact.HandshakeRecordTypes.RECORD_TYPE_PROOF_OF_OWNERSHIP;
@@ -49,7 +49,7 @@ class HandshakeManagerImpl implements HandshakeManager {
 
 	// Ignore records with current protocol version, unknown record type
 	private static final RecordPredicate IGNORE = r ->
-			r.getProtocolVersion() == PROTOCOL_VERSION &&
+			r.getProtocolVersion() == PROTOCOL_MAJOR_VERSION &&
 					!isKnownRecordType(r.getRecordType());
 
 	private static boolean isKnownRecordType(byte type) {
@@ -146,7 +146,7 @@ class HandshakeManagerImpl implements HandshakeManager {
 	}
 
 	private void sendPublicKey(RecordWriter w, PublicKey k) throws IOException {
-		w.writeRecord(new Record(PROTOCOL_VERSION,
+		w.writeRecord(new Record(PROTOCOL_MAJOR_VERSION,
 				RECORD_TYPE_EPHEMERAL_PUBLIC_KEY, k.getEncoded()));
 		w.flush();
 	}
@@ -205,7 +205,7 @@ class HandshakeManagerImpl implements HandshakeManager {
 	}
 
 	private void sendProof(RecordWriter w, byte[] proof) throws IOException {
-		w.writeRecord(new Record(PROTOCOL_VERSION,
+		w.writeRecord(new Record(PROTOCOL_MAJOR_VERSION,
 				RECORD_TYPE_PROOF_OF_OWNERSHIP, proof));
 		w.flush();
 	}
@@ -219,7 +219,8 @@ class HandshakeManagerImpl implements HandshakeManager {
 	}
 
 	private void sendMinorVersion(RecordWriter w) throws IOException {
-		w.writeRecord(new Record(PROTOCOL_VERSION, RECORD_TYPE_MINOR_VERSION,
+		w.writeRecord(new Record(PROTOCOL_MAJOR_VERSION,
+				RECORD_TYPE_MINOR_VERSION,
 				new byte[] {PROTOCOL_MINOR_VERSION}));
 		w.flush();
 	}
@@ -228,7 +229,7 @@ class HandshakeManagerImpl implements HandshakeManager {
 			throws IOException {
 		// Accept records with current protocol version, expected types only
 		RecordPredicate accept = rec ->
-				rec.getProtocolVersion() == PROTOCOL_VERSION &&
+				rec.getProtocolVersion() == PROTOCOL_MAJOR_VERSION &&
 						expectedTypes.contains(rec.getRecordType());
 		Record rec = r.readRecord(accept, IGNORE);
 		if (rec == null) throw new EOFException();

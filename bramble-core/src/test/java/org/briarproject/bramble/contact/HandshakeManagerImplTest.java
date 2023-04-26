@@ -32,8 +32,8 @@ import java.io.OutputStream;
 import java.util.Arrays;
 
 import static org.briarproject.bramble.contact.HandshakeConstants.PROOF_BYTES;
+import static org.briarproject.bramble.contact.HandshakeConstants.PROTOCOL_MAJOR_VERSION;
 import static org.briarproject.bramble.contact.HandshakeConstants.PROTOCOL_MINOR_VERSION;
-import static org.briarproject.bramble.contact.HandshakeConstants.PROTOCOL_VERSION;
 import static org.briarproject.bramble.contact.HandshakeRecordTypes.RECORD_TYPE_EPHEMERAL_PUBLIC_KEY;
 import static org.briarproject.bramble.contact.HandshakeRecordTypes.RECORD_TYPE_MINOR_VERSION;
 import static org.briarproject.bramble.contact.HandshakeRecordTypes.RECORD_TYPE_PROOF_OF_OWNERSHIP;
@@ -209,25 +209,25 @@ public class HandshakeManagerImplTest extends BrambleMockTestCase {
 	}
 
 	private void expectSendMinorVersion() throws Exception {
-		expectWriteRecord(new Record(PROTOCOL_VERSION,
+		expectWriteRecord(new Record(PROTOCOL_MAJOR_VERSION,
 				RECORD_TYPE_MINOR_VERSION,
 				new byte[] {PROTOCOL_MINOR_VERSION}));
 	}
 
 	private void expectReceiveMinorVersion() throws Exception {
-		expectReadRecord(new Record(PROTOCOL_VERSION,
+		expectReadRecord(new Record(PROTOCOL_MAJOR_VERSION,
 				RECORD_TYPE_MINOR_VERSION,
 				new byte[] {PROTOCOL_MINOR_VERSION}));
 	}
 
 	private void expectSendKey() throws Exception {
-		expectWriteRecord(new Record(PROTOCOL_VERSION,
+		expectWriteRecord(new Record(PROTOCOL_MAJOR_VERSION,
 				RECORD_TYPE_EPHEMERAL_PUBLIC_KEY,
 				ourEphemeralPublicKey.getEncoded()));
 	}
 
 	private void expectReceiveKey() throws Exception {
-		expectReadRecord(new Record(PROTOCOL_VERSION,
+		expectReadRecord(new Record(PROTOCOL_MAJOR_VERSION,
 				RECORD_TYPE_EPHEMERAL_PUBLIC_KEY,
 				theirEphemeralPublicKey.getEncoded()));
 	}
@@ -258,12 +258,12 @@ public class HandshakeManagerImplTest extends BrambleMockTestCase {
 	}
 
 	private void expectSendProof() throws Exception {
-		expectWriteRecord(new Record(PROTOCOL_VERSION,
+		expectWriteRecord(new Record(PROTOCOL_MAJOR_VERSION,
 				RECORD_TYPE_PROOF_OF_OWNERSHIP, ourProof));
 	}
 
 	private void expectReceiveProof() throws Exception {
-		expectReadRecord(new Record(PROTOCOL_VERSION,
+		expectReadRecord(new Record(PROTOCOL_MAJOR_VERSION,
 				RECORD_TYPE_PROOF_OF_OWNERSHIP, theirProof));
 	}
 

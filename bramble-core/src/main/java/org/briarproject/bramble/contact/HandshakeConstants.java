@@ -7,7 +7,7 @@ interface HandshakeConstants {
 	/**
 	 * The current major version of the handshake protocol.
 	 */
-	byte PROTOCOL_VERSION = 0;
+	byte PROTOCOL_MAJOR_VERSION = 0;
 
 	/**
 	 * The current minor version of the handshake protocol.
