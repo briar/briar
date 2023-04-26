@@ -19,9 +19,12 @@ public interface TestDataCreator {
 	 * @param numBlogPosts Number of blog posts to create.
 	 * @param numForums Number of forums to create.
 	 * @param numForumPosts Number of forum posts to create per forum.
+	 * @param numPrivateGroups Number of private groups to create.
+	 * @param numPrivateGroupMessages Number of messages to create per private group.
 	 */
 	void createTestData(int numContacts, int numPrivateMsgs, int avatarPercent,
-			int numBlogPosts, int numForums, int numForumPosts);
+			int numBlogPosts, int numForums, int numForumPosts,
+			int numPrivateGroups, int numPrivateGroupMessages);
 
 	@IoExecutor
 	Contact addContact(String name, boolean alias, boolean avatar)
