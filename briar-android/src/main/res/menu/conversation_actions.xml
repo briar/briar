@@ -35,7 +35,6 @@
 			<item
 				android:id="@+id/action_transfer_data"
 				android:title="@string/removable_drive_menu_title"
-				android:visible="false"
 				app:showAsAction="never" />
 		</menu>
 	</item>

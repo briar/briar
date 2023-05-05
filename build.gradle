@@ -25,24 +25,24 @@ buildscript {
 	}
 
 	ext {
-		kotlin_version = '1.7.10'
-		dagger_version = "2.43.2"
-		// okhttp 3.12.x is supported until end of 2021, newer versions need minSdk 21
-		okhttp_version = "3.12.13"
+		kotlin_version = '1.8.20'
+		dagger_version = "2.45"
+		okhttp_version = "4.10.0"
 		jackson_version = "2.13.4"
 		tor_version = "0.4.7.13-2"
 		obfs4proxy_version = "0.0.14-tor2"
 		snowflake_version = "2.5.1"
 		jsoup_version = '1.15.3'
-		bouncy_castle_version = '1.71'
+		bouncy_castle_version = '1.71' // 1.72 accidentally depends on Java 7
 		junit_version = "4.13.2"
 		jmock_version = '2.12.0'
-		mockwebserver_version = '4.9.3'
+		mockwebserver_version = '4.10.0'
 		onionwrapper_version = '0.0.1'
 	}
 	dependencies {
+		// upgrading this let's us run into https://github.com/gradle/gradle/issues/20330
 		classpath 'com.android.tools.build:gradle:7.2.2'
-		classpath 'ru.vyarus:gradle-animalsniffer-plugin:1.5.3'
+		classpath 'ru.vyarus:gradle-animalsniffer-plugin:1.7.0'
 		classpath files('libs/gradle-witness.jar')
 		classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
 	}

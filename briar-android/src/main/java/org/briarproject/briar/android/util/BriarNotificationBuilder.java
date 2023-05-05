@@ -8,7 +8,6 @@ import androidx.annotation.ColorRes;
 import androidx.core.app.NotificationCompat;
 import androidx.core.content.ContextCompat;
 
-import static android.os.Build.VERSION.SDK_INT;
 import static androidx.core.app.NotificationCompat.VISIBILITY_PRIVATE;
 
 public class BriarNotificationBuilder extends NotificationCompat.Builder {
@@ -24,7 +23,7 @@ public class BriarNotificationBuilder extends NotificationCompat.Builder {
 
 		setLights(ContextCompat.getColor(context, R.color.briar_lime_400),
 				750, 500);
-		if (SDK_INT >= 21) setVisibility(VISIBILITY_PRIVATE);
+		setVisibility(VISIBILITY_PRIVATE);
 	}
 
 	public BriarNotificationBuilder setColorRes(@ColorRes int res) {
@@ -33,7 +32,7 @@ public class BriarNotificationBuilder extends NotificationCompat.Builder {
 	}
 
 	public BriarNotificationBuilder setNotificationCategory(String category) {
-		if (SDK_INT >= 21) setCategory(category);
+		setCategory(category);
 		return this;
 	}
 

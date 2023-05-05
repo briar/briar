@@ -220,10 +220,10 @@ class BriarReportCollector {
 				method.setAccessible(true);
 				mobileEnabled = (Boolean) requireNonNull(method.invoke(cm));
 			} catch (ClassNotFoundException
-					| NoSuchMethodException
-					| IllegalArgumentException
-					| InvocationTargetException
-					| IllegalAccessException e) {
+			         | NoSuchMethodException
+			         | IllegalArgumentException
+			         | InvocationTargetException
+			         | IllegalAccessException e) {
 				connectivityInfo
 						.add("MobileDataReflectionException", e.toString());
 			}
@@ -300,15 +300,12 @@ class BriarReportCollector {
 					scanMode == SCAN_MODE_CONNECTABLE_DISCOVERABLE;
 			connectivityInfo.add("BluetoothDiscoverable", btDiscoverable);
 
-			if (SDK_INT >= 21) {
-				// Is Bluetooth LE scanning and advertising supported?
-				boolean btLeScan = bt.getBluetoothLeScanner() != null;
-				connectivityInfo.add("BluetoothLeScanningSupported", btLeScan);
-				boolean btLeAdvertise =
-						bt.getBluetoothLeAdvertiser() != null;
-				connectivityInfo.add("BluetoothLeAdvertisingSupported",
-						btLeAdvertise);
-			}
+			// Is Bluetooth LE scanning and advertising supported?
+			boolean btLeScan = bt.getBluetoothLeScanner() != null;
+			connectivityInfo.add("BluetoothLeScanningSupported", btLeScan);
+			boolean btLeAdvertise = bt.getBluetoothLeAdvertiser() != null;
+			connectivityInfo.add("BluetoothLeAdvertisingSupported",
+					btLeAdvertise);
 
 			Pair<String, String> p = getBluetoothAddressAndMethod(ctx, bt);
 			String address = p.getFirst();

@@ -1,5 +1,6 @@
 package org.briarproject.bramble.plugin.bluetooth;
 
+import android.annotation.SuppressLint;
 import android.app.Application;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
@@ -49,7 +50,6 @@ import static android.bluetooth.BluetoothAdapter.STATE_ON;
 import static android.bluetooth.BluetoothDevice.ACTION_FOUND;
 import static android.bluetooth.BluetoothDevice.DEVICE_TYPE_LE;
 import static android.bluetooth.BluetoothDevice.EXTRA_DEVICE;
-import static android.os.Build.VERSION.SDK_INT;
 import static java.util.Collections.shuffle;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static java.util.logging.Level.INFO;
@@ -60,6 +60,7 @@ import static org.briarproject.bramble.util.PrivacyUtils.scrubMacAddress;
 
 @MethodsNotNullByDefault
 @ParametersNotNullByDefault
+@SuppressLint("MissingPermission")
 class AndroidBluetoothPlugin extends
 		AbstractBluetoothPlugin<BluetoothSocket, BluetoothServerSocket> {
 
@@ -253,7 +254,7 @@ class AndroidBluetoothPlugin extends
 					} else if (ACTION_FOUND.equals(action)) {
 						BluetoothDevice d = i.getParcelableExtra(EXTRA_DEVICE);
 						// Ignore Bluetooth LE devices
-						if (SDK_INT < 18 || d.getType() != DEVICE_TYPE_LE) {
+						if (d.getType() != DEVICE_TYPE_LE) {
 							String address = d.getAddress();
 							if (LOG.isLoggable(INFO))
 								LOG.info("Discovered " +

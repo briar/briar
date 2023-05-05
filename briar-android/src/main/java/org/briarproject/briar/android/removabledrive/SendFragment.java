@@ -24,7 +24,6 @@ import javax.inject.Inject;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 import androidx.lifecycle.ViewModelProvider;
@@ -38,7 +37,6 @@ import static org.briarproject.bramble.util.LogUtils.logException;
 import static org.briarproject.briar.android.AppModule.getAndroidComponent;
 import static org.briarproject.briar.android.util.UiUtils.hideViewOnSmallScreen;
 
-@RequiresApi(19)
 @MethodsNotNullByDefault
 @ParametersNotNullByDefault
 public class SendFragment extends Fragment {

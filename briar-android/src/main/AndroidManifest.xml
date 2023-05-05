@@ -100,11 +100,6 @@
 			android:label="@string/app_name" />
 
 		<activity
-			android:name="org.briarproject.briar.android.splash.ExpiredOldAndroidActivity"
-			android:exported="false"
-			android:label="@string/app_name" />
-
-		<activity
 			android:name="org.briarproject.briar.android.login.StartupActivity"
 			android:exported="false"
 			android:label="@string/app_name" />

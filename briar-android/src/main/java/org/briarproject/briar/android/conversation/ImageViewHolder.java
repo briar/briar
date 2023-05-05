@@ -18,7 +18,6 @@ import androidx.annotation.DrawableRes;
 import androidx.recyclerview.widget.RecyclerView.ViewHolder;
 import androidx.recyclerview.widget.StaggeredGridLayoutManager.LayoutParams;
 
-import static android.os.Build.VERSION.SDK_INT;
 import static android.widget.ImageView.ScaleType.CENTER_CROP;
 import static android.widget.ImageView.ScaleType.FIT_CENTER;
 import static com.bumptech.glide.load.engine.DiskCacheStrategy.NONE;
@@ -58,10 +57,8 @@ class ImageViewHolder extends ViewHolder {
 			loadImage(attachment, r);
 			imageView.setScaleType(CENTER_CROP);
 		}
-		if (SDK_INT >= 21) {
-			imageView.setTransitionName(
-					attachment.getTransitionName(conversationItemId));
-		}
+		imageView.setTransitionName(
+				attachment.getTransitionName(conversationItemId));
 	}
 
 	private void setImageViewDimensions(AttachmentItem a, boolean single,

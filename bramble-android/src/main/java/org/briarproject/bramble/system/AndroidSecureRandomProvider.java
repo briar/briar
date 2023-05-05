@@ -31,8 +31,6 @@ import static android.provider.Settings.Secure.ANDROID_ID;
 @NotNullByDefault
 class AndroidSecureRandomProvider extends UnixSecureRandomProvider {
 
-	private static final int SEED_LENGTH = 32;
-
 	private final Context appContext;
 
 	@Inject
@@ -72,27 +70,6 @@ class AndroidSecureRandomProvider extends UnixSecureRandomProvider {
 		// Silence strict mode
 		StrictMode.ThreadPolicy tp = StrictMode.allowThreadDiskWrites();
 		super.writeSeed();
-		if (SDK_INT <= 18) applyOpenSslFix();
 		StrictMode.setThreadPolicy(tp);
-	}
-
-	// Based on https://android-developers.googleblog.com/2013/08/some-securerandom-thoughts.html
-	private void applyOpenSslFix() {
-		byte[] seed = new UnixSecureRandomSpi().engineGenerateSeed(
-				SEED_LENGTH);
-		try {
-			// Seed the OpenSSL PRNG
-			Class.forName("org.apache.harmony.xnet.provider.jsse.NativeCrypto")
-					.getMethod("RAND_seed", byte[].class)
-					.invoke(null, (Object) seed);
-			// Mix the output of the Linux PRNG into the OpenSSL PRNG
-			int bytesRead = (Integer) Class.forName(
-							"org.apache.harmony.xnet.provider.jsse.NativeCrypto")
-					.getMethod("RAND_load_file", String.class, long.class)
-					.invoke(null, "/dev/urandom", 1024);
-			if (bytesRead != 1024) throw new IOException();
-		} catch (Exception e) {
-			throw new SecurityException(e);
-		}
 	}
 }

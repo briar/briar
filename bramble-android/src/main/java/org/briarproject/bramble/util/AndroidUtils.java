@@ -11,14 +11,10 @@ import org.briarproject.bramble.api.Pair;
 import org.briarproject.nullsafety.NotNullByDefault;
 
 import java.io.File;
-import java.io.IOException;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
-import java.util.Scanner;
 
 import javax.annotation.Nullable;
 
@@ -29,7 +25,6 @@ import static android.content.pm.PackageManager.PERMISSION_GRANTED;
 import static android.os.Build.VERSION.SDK_INT;
 import static android.os.Process.myPid;
 import static android.os.Process.myUid;
-import static java.lang.Runtime.getRuntime;
 import static java.util.Arrays.asList;
 import static org.briarproject.nullsafety.NullSafety.requireNonNull;
 
@@ -43,14 +38,7 @@ public class AndroidUtils {
 	private static final String STORED_LOGCAT = "dev-logcat";
 
 	public static Collection<String> getSupportedArchitectures() {
-		List<String> abis = new ArrayList<>();
-		if (SDK_INT >= 21) {
-			abis.addAll(asList(Build.SUPPORTED_ABIS));
-		} else {
-			abis.add(Build.CPU_ABI);
-			if (Build.CPU_ABI2 != null) abis.add(Build.CPU_ABI2);
-		}
-		return abis;
+		return asList(Build.SUPPORTED_ABIS);
 	}
 
 	public static boolean hasBtConnectPermission(Context ctx) {
@@ -134,19 +122,6 @@ public class AndroidUtils {
 	 */
 	public static String[] getSupportedImageContentTypes() {
 		return new String[] {"image/jpeg", "image/png", "image/gif"};
-	}
-
-	@Nullable
-	public static String getSystemProperty(String propName) {
-		try {
-			Process p = getRuntime().exec("getprop " + propName);
-			Scanner s = new Scanner(p.getInputStream());
-			String line = s.nextLine();
-			s.close();
-			return line;
-		} catch (SecurityException | IOException e) {
-			return null;
-		}
 	}
 
 	public static boolean isUiThread() {

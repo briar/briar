@@ -13,8 +13,8 @@ dependencies {
 
 	implementation project(':bramble-core')
 
-	implementation 'com.rometools:rome:1.15.0'
-	implementation 'org.jdom:jdom2:2.0.6'
+	implementation 'com.rometools:rome:1.18.0'
+	implementation 'org.jdom:jdom2:2.0.6.1'
 	implementation "org.jsoup:jsoup:$jsoup_version"
 	implementation "com.squareup.okhttp3:okhttp:$okhttp_version"
 
@@ -23,7 +23,7 @@ dependencies {
 	testImplementation project(path: ':bramble-api', configuration: 'testOutput')
 	testImplementation project(path: ':bramble-core', configuration: 'testOutput')
 
-	testImplementation 'net.jodah:concurrentunit:0.4.2'
+	testImplementation 'net.jodah:concurrentunit:0.4.6'
 	testImplementation "junit:junit:$junit_version"
 	testImplementation "org.jmock:jmock:$jmock_version"
 	testImplementation "org.jmock:jmock-junit4:$jmock_version"

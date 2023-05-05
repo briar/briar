@@ -81,7 +81,6 @@ import org.briarproject.briar.android.sharing.ShareBlogFragment;
 import org.briarproject.briar.android.sharing.ShareForumActivity;
 import org.briarproject.briar.android.sharing.ShareForumFragment;
 import org.briarproject.briar.android.sharing.SharingModule;
-import org.briarproject.briar.android.splash.ExpiredOldAndroidActivity;
 import org.briarproject.briar.android.splash.SplashScreenActivity;
 import org.briarproject.briar.android.test.TestDataActivity;
 
@@ -183,8 +182,6 @@ public interface ActivityComponent {
 	void inject(HotspotActivity hotspotActivity);
 
 	void inject(RemovableDriveActivity activity);
-
-	void inject(ExpiredOldAndroidActivity activity);
 
 	// Fragments
 

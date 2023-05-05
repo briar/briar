@@ -27,7 +27,6 @@ import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
 import static android.os.Build.VERSION.SDK_INT;
 import static androidx.core.view.ViewCompat.LAYOUT_DIRECTION_LTR;
 import static java.util.Objects.requireNonNull;
-import static java.util.logging.Level.INFO;
 import static java.util.logging.Logger.getLogger;
 import static org.briarproject.briar.android.BriarApplication.ENTRY_ACTIVITY;
 import static org.briarproject.briar.android.navdrawer.NavDrawerActivity.SIGN_OUT_URI;
@@ -75,12 +74,6 @@ public class DisplayFragment extends PreferenceFragmentCompat {
 			Locale locale = Localizer.getLocaleFromTag(tag);
 			if (locale == null)
 				throw new IllegalStateException();
-			// Exclude RTL locales on API < 17, they won't be laid out correctly
-			if (SDK_INT < 17 && !isLeftToRight(locale)) {
-				if (LOG.isLoggable(INFO))
-					LOG.info("Skipping RTL locale " + tag);
-				continue;
-			}
 			String nativeName = locale.getDisplayName(locale);
 			// Fallback to English if the name is unknown in both native and
 			// current locale.

@@ -24,7 +24,6 @@ import java.util.logging.Logger;
 import javax.annotation.Nullable;
 import javax.inject.Inject;
 
-import androidx.annotation.RequiresApi;
 import androidx.annotation.StringRes;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AlertDialog;
@@ -105,7 +104,7 @@ public abstract class BriarActivity extends BaseActivity {
 			LOG.info("Not signed in, launching StartupActivity");
 			Intent i = new Intent(this, StartupActivity.class);
 			startActivityForResult(i, REQUEST_PASSWORD);
-		} else if (SDK_INT >= 21 && lockManager.isLocked() && !isFinishing()) {
+		} else if (lockManager.isLocked() && !isFinishing()) {
 			// Also check that the activity isn't finishing already.
 			// This is possible if we finished in onActivityResult().
 			// Launching another UnlockActivity would cause a loop.
@@ -135,8 +134,7 @@ public abstract class BriarActivity extends BaseActivity {
 	 * @param exitTransition used to move views out when starting a <b>new</b> activity.
 	 * @param returnTransition used when window is closing, because the activity is finishing.
 	 */
-	@RequiresApi(api = 21)
-	public void setSceneTransitionAnimation(
+	protected void setSceneTransitionAnimation(
 			@Nullable Transition enterTransition,
 			@Nullable Transition exitTransition,
 			@Nullable Transition returnTransition) {
@@ -232,8 +230,7 @@ public abstract class BriarActivity extends BaseActivity {
 
 	@Wakeful
 	private void finishAndExit() {
-		if (SDK_INT >= 21) finishAndRemoveTask();
-		else supportFinishAfterTransition();
+		finishAndRemoveTask();
 		LOG.info("Exiting");
 		BriarApplication app = (BriarApplication) getApplication();
 		if (!app.isInstrumentationTest()) System.exit(0);

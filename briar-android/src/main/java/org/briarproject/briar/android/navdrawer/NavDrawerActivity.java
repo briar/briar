@@ -75,15 +75,12 @@ import static org.briarproject.bramble.api.plugin.Plugin.State.ENABLING;
 import static org.briarproject.bramble.api.plugin.Plugin.State.STARTING_STOPPING;
 import static org.briarproject.briar.android.BriarService.EXTRA_STARTUP_FAILED;
 import static org.briarproject.briar.android.BriarService.EXTRA_START_RESULT;
-import static org.briarproject.briar.android.TestingConstants.EXPIRY_DATE;
 import static org.briarproject.briar.android.TestingConstants.IS_DEBUG_BUILD;
 import static org.briarproject.briar.android.activity.RequestCodes.REQUEST_PASSWORD;
 import static org.briarproject.briar.android.navdrawer.IntentRouter.handleExternalIntent;
-import static org.briarproject.briar.android.util.UiUtils.formatDateFull;
 import static org.briarproject.briar.android.util.UiUtils.getDaysUntilExpiry;
 import static org.briarproject.briar.android.util.UiUtils.observeOnce;
 import static org.briarproject.briar.android.util.UiUtils.resolveColorAttribute;
-import static org.briarproject.briar.android.util.UiUtils.shouldWarnOldAndroidExpiry;
 
 @MethodsNotNullByDefault
 @ParametersNotNullByDefault
@@ -140,11 +137,9 @@ public class NavDrawerActivity extends BriarActivity implements
 		setContentView(R.layout.activity_nav_drawer);
 
 		BriarApplication app = (BriarApplication) getApplication();
-		if (!app.isInstrumentationTest()) {
-			if (IS_DEBUG_BUILD || shouldWarnOldAndroidExpiry()) {
-				navDrawerViewModel.showExpiryWarning()
-						.observe(this, this::showExpiryWarning);
-			}
+		if (IS_DEBUG_BUILD && !app.isInstrumentationTest()) {
+			navDrawerViewModel.showExpiryWarning()
+					.observe(this, this::showExpiryWarning);
 		}
 		navDrawerViewModel.shouldAskForDozeWhitelisting().observe(this, ask -> {
 			if (ask) showDozeDialog(R.string.dnkm_doze_intro);
@@ -212,7 +207,7 @@ public class NavDrawerActivity extends BriarActivity implements
 	public void onStart() {
 		super.onStart();
 		lockManager.checkIfLockable();
-		if (IS_DEBUG_BUILD || shouldWarnOldAndroidExpiry()) {
+		if (IS_DEBUG_BUILD) {
 			navDrawerViewModel.checkExpiryWarning();
 		}
 	}
@@ -384,23 +379,14 @@ public class NavDrawerActivity extends BriarActivity implements
 			return;
 		}
 
-		String text;
-		if (IS_DEBUG_BUILD) {
-			text = getResources().getQuantityString(
-					R.plurals.expiry_warning, (int) daysUntilExpiry,
-					(int) daysUntilExpiry);
-		} else {
-			text = getResources().getQuantityString(
-					R.plurals.old_android_expiry_warning, (int) daysUntilExpiry,
-					formatDateFull(this, EXPIRY_DATE),
-					(int) daysUntilExpiry);
-		}
-
 		ViewGroup expiryWarning = findViewById(R.id.expiryWarning);
 		if (show) {
 			// show expiry warning text
 			TextView expiryWarningText =
 					expiryWarning.findViewById(R.id.expiryWarningText);
+			String text = getResources().getQuantityString(
+					R.plurals.expiry_warning, (int) daysUntilExpiry,
+					(int) daysUntilExpiry);
 			expiryWarningText.setText(text);
 			// make close button functional
 			ImageView expiryWarningClose =
@@ -432,7 +418,7 @@ public class NavDrawerActivity extends BriarActivity implements
 			}
 
 			@Override
-			public View getView(int position, View convertView,
+			public View getView(int position, @Nullable View convertView,
 					ViewGroup parent) {
 				View view;
 				if (convertView != null) {

@@ -212,7 +212,7 @@ public class AppModule {
 			public Collection<SimplexPluginFactory> getSimplexFactories() {
 				List<SimplexPluginFactory> simplex = new ArrayList<>();
 				simplex.add(mailbox);
-				if (SDK_INT >= 19) simplex.add(drive);
+				simplex.add(drive);
 				return simplex;
 			}
 

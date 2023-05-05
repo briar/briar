@@ -31,7 +31,6 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.ViewModelProvider;
 
-import static android.os.Build.VERSION.SDK_INT;
 import static android.widget.ImageView.ScaleType.FIT_START;
 import static com.bumptech.glide.load.engine.DiskCacheStrategy.NONE;
 import static org.briarproject.briar.android.attachment.AttachmentItem.State.AVAILABLE;
@@ -150,7 +149,7 @@ public class ImageFragment extends Fragment
 	public boolean onResourceReady(Drawable resource, Object model,
 			Target<Drawable> target, DataSource dataSource,
 			boolean isFirstResource) {
-		if (SDK_INT >= 21 && !(resource instanceof Animatable)) {
+		if (!(resource instanceof Animatable)) {
 			// set transition name only when not animatable,
 			// because the animation won't start otherwise
 			photoView.setTransitionName(

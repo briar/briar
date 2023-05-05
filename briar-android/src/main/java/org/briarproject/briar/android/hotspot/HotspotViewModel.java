@@ -25,7 +25,6 @@ import org.briarproject.nullsafety.NotNullByDefault;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.concurrent.Executor;
@@ -38,9 +37,6 @@ import androidx.annotation.UiThread;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
-import static android.os.Build.VERSION.SDK_INT;
-import static android.os.Environment.DIRECTORY_DOWNLOADS;
-import static android.os.Environment.getExternalStoragePublicDirectory;
 import static java.util.Objects.requireNonNull;
 import static java.util.logging.Level.WARNING;
 import static java.util.logging.Logger.getLogger;
@@ -168,25 +164,10 @@ class HotspotViewModel extends DbViewModel
 	}
 
 	void exportApk(Uri uri) {
-		if (SDK_INT < 19) throw new IllegalStateException();
 		try {
 			OutputStream out = getApplication().getContentResolver()
 					.openOutputStream(uri, "wt");
 			writeApk(out, uri);
-		} catch (FileNotFoundException e) {
-			handleException(e);
-		}
-	}
-
-	void exportApk() {
-		if (SDK_INT >= 19) throw new IllegalStateException();
-		File path = getExternalStoragePublicDirectory(DIRECTORY_DOWNLOADS);
-		//noinspection ResultOfMethodCallIgnored
-		path.mkdirs();
-		File file = new File(path, getApkFileName());
-		try {
-			OutputStream out = new FileOutputStream(file);
-			writeApk(out, Uri.fromFile(file));
 		} catch (FileNotFoundException e) {
 			handleException(e);
 		}

@@ -38,7 +38,7 @@ dependencies {
 	windows "org.briarproject:obfs4proxy-windows:$obfs4proxy_version"
 	windows "org.briarproject:snowflake-windows:$snowflake_version"
 
-	implementation 'org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.7.10'
+	implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
 	implementation 'io.javalin:javalin:3.5.0'
 	implementation 'org.slf4j:slf4j-simple:1.7.30'
 	implementation 'com.github.ajalt:clikt:2.2.0'
