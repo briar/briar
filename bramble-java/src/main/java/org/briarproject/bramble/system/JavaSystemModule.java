@@ -1,7 +1,8 @@
 package org.briarproject.bramble.system;
 
-import org.briarproject.bramble.api.system.LocationUtils;
 import org.briarproject.bramble.api.system.ResourceProvider;
+import org.briarproject.onionwrapper.JavaLocationUtilsFactory;
+import org.briarproject.onionwrapper.LocationUtils;
 
 import javax.inject.Singleton;
 
@@ -13,8 +14,8 @@ public class JavaSystemModule {
 
 	@Provides
 	@Singleton
-	LocationUtils provideLocationUtils(JavaLocationUtils locationUtils) {
-		return locationUtils;
+	LocationUtils provideLocationUtils() {
+		return JavaLocationUtilsFactory.createJavaLocationUtils();
 	}
 
 	@Provides

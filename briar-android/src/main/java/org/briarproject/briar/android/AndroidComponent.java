@@ -27,7 +27,6 @@ import org.briarproject.bramble.api.plugin.PluginManager;
 import org.briarproject.bramble.api.settings.SettingsManager;
 import org.briarproject.bramble.api.system.AndroidExecutor;
 import org.briarproject.bramble.api.system.Clock;
-import org.briarproject.bramble.api.system.LocationUtils;
 import org.briarproject.bramble.mailbox.ModularMailboxModule;
 import org.briarproject.bramble.plugin.file.RemovableDriveModule;
 import org.briarproject.bramble.system.ClockModule;
@@ -84,6 +83,7 @@ import org.briarproject.briar.api.privategroup.invitation.GroupInvitationFactory
 import org.briarproject.briar.api.privategroup.invitation.GroupInvitationManager;
 import org.briarproject.briar.api.test.TestDataCreator;
 import org.briarproject.onionwrapper.CircumventionProvider;
+import org.briarproject.onionwrapper.LocationUtils;
 
 import java.util.concurrent.Executor;
 

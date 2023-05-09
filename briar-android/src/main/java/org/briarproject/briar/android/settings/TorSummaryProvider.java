@@ -2,10 +2,10 @@ package org.briarproject.briar.android.settings;
 
 import android.content.Context;
 
-import org.briarproject.bramble.api.system.LocationUtils;
 import org.briarproject.briar.R;
 import org.briarproject.nullsafety.NotNullByDefault;
 import org.briarproject.onionwrapper.CircumventionProvider;
+import org.briarproject.onionwrapper.LocationUtils;
 
 import androidx.preference.ListPreference;
 import androidx.preference.Preference.SummaryProvider;
