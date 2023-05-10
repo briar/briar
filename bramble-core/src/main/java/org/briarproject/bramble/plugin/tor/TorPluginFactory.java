@@ -17,10 +17,10 @@ import org.briarproject.bramble.api.plugin.TransportId;
 import org.briarproject.bramble.api.plugin.duplex.DuplexPlugin;
 import org.briarproject.bramble.api.plugin.duplex.DuplexPluginFactory;
 import org.briarproject.bramble.api.system.Clock;
-import org.briarproject.bramble.api.system.LocationUtils;
 import org.briarproject.bramble.api.system.WakefulIoExecutor;
 import org.briarproject.nullsafety.NotNullByDefault;
 import org.briarproject.onionwrapper.CircumventionProvider;
+import org.briarproject.onionwrapper.LocationUtils;
 
 import java.io.File;
 import java.util.concurrent.Executor;
