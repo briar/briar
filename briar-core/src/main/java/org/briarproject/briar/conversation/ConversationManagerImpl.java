@@ -146,27 +146,37 @@ class ConversationManagerImpl implements ConversationManager {
 
 	@Override
 	public DeletionResult deleteAllMessages(ContactId c) throws DbException {
-		return db.transactionWithResult(false, txn -> {
-			DeletionResult result = new DeletionResult();
-			for (ConversationClient client : clients) {
-				result.addDeletionResult(client.deleteAllMessages(txn, c));
-			}
-			return result;
-		});
+		return db.transactionWithResult(false, txn ->
+				deleteAllMessages(txn, c));
+	}
+
+	@Override
+	public DeletionResult deleteAllMessages(Transaction txn, ContactId c)
+			throws DbException {
+		DeletionResult result = new DeletionResult();
+		for (ConversationClient client : clients) {
+			result.addDeletionResult(client.deleteAllMessages(txn, c));
+		}
+		return result;
 	}
 
 	@Override
 	public DeletionResult deleteMessages(ContactId c,
 			Collection<MessageId> toDelete) throws DbException {
-		return db.transactionWithResult(false, txn -> {
-			DeletionResult result = new DeletionResult();
-			for (ConversationClient client : clients) {
-				Set<MessageId> idSet = client.getMessageIds(txn, c);
-				idSet.retainAll(toDelete);
-				result.addDeletionResult(client.deleteMessages(txn, c, idSet));
-			}
-			return result;
-		});
+		return db.transactionWithResult(false, txn ->
+				deleteMessages(txn, c, toDelete));
+	}
+
+	@Override
+	public DeletionResult deleteMessages(Transaction txn, ContactId c,
+			Collection<MessageId> toDelete) throws DbException {
+		DeletionResult result = new DeletionResult();
+		for (ConversationClient client : clients) {
+			Set<MessageId> idSet = client.getMessageIds(txn, c);
+			idSet.retainAll(toDelete);
+			result.addDeletionResult(client.deleteMessages(txn, c, idSet));
+		}
+		return result;
 	}
 
 }

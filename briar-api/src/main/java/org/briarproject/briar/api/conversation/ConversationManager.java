@@ -97,10 +97,22 @@ public interface ConversationManager {
 	DeletionResult deleteAllMessages(ContactId c) throws DbException;
 
 	/**
+	 * Deletes all messages exchanged with the given contact.
+	 */
+	DeletionResult deleteAllMessages(Transaction txn, ContactId c)
+			throws DbException;
+
+	/**
 	 * Deletes the given set of messages associated with the given contact.
 	 */
 	DeletionResult deleteMessages(ContactId c, Collection<MessageId> messageIds)
 			throws DbException;
+
+	/**
+	 * Deletes the given set of messages associated with the given contact.
+	 */
+	DeletionResult deleteMessages(Transaction txn, ContactId c,
+			Collection<MessageId> messageIds) throws DbException;
 
 	@NotNullByDefault
 	interface ConversationClient {
