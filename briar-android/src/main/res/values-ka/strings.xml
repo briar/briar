@@ -49,10 +49,6 @@
     <item quantity="one">ესაა საცდელი ვერსიის Briar. თქვენს ანგარიშს %d დღეში გაუვა ვადა და ვეღარ გახანგრძლივდება.</item>
     <item quantity="other">ეს არის Briar-ის საცდელი ვერსია, რომლის ვადა %d დღეში ამოიწურება და მისი განახლება შეუძლებელია.</item>
   </plurals>
-  <plurals name="old_android_expiry_warning">
-    <item quantity="one">Android 4 აღარაა მხარდაჭერილი. Briar-ის გაუქმების ვადაა %s (%d დღეში). გთხოვთ, Briar გამოიყენოთ უფრო ახალ მოწყობილობაზე და ახალი ანგარიში შექმნათ.</item>
-    <item quantity="other">Android 4 აღარაა მხარდაჭერილი. Briar შეწყვეტს მუშაობას %s (%d დღეში). გთხოვთ, დააინსტალიროთ Briar უფრო ახალ მოწყობილობაზე და ახალი ანგარიში შექმნათ.</item>
-  </plurals>
   <string name="expiry_date_reached">პროგრამული უზრუნველყოფის ვადა ამოიწურა.\nგმადლობთ ტესტირებისთვის!</string>
   <string name="download_briar">თუ გსურთ, კვლავ გამოიყენოთ Briar, ჩამოტვირთეთ ბოლო გამოშვება.</string>
   <string name="create_new_account">დაგჭირდებათ ახალი ანგარიშის შექმნა, თუმცა იმავე მეტსახელის გამოყენება შეგეძლებათ.</string>

@@ -44,9 +44,6 @@
   <plurals name="expiry_warning">
     <item quantity="other">ဤအရာသည် Briar ၏ စမ်းသပ်ဆဲဗားရှင်းဖြစ်ပါသည်။ သင့်အကောင့်သည် %d ရက်ကြာလျှင် သက်တမ်းကုန်ဆုံးမည်ဖြစ်ပြီး သက်တမ်းတိုး၍မရနိုင်ပါ။</item>
   </plurals>
-  <plurals name="old_android_expiry_warning">
-    <item quantity="other">အန်းဒရိုက် ၄ ကို မပံ့ပိုးတော့ပါ။ Briar သည် %s(ရက်%dတွင်) အလုပ် မလုပ်တော့ပါ။ ကျေးဇူးပြု၍ Briar ကို စက်ပစ္စည်းအသစ်တွင် ထည့်သွင်းပြီး အကောင့်အသစ်တစ်ခု ဖန်တီးပါ။</item>
-  </plurals>
   <string name="expiry_date_reached">ဤဆော့ဖ်ဝဲသည် သက်တမ်းကုန်သွားပါပြီ။ \nစမ်းသပ်အသုံးပြုခြင်းအတွက် ကျေးဇူးတင်ပါသည်။</string>
   <string name="download_briar">Briar ကို ဆက်လက်အသုံးပြုရန် နောက်ဆုံးထွက်ထားသည်ကို ဒေါင်းလုဒ်လုပ်ပါ။</string>
   <string name="create_new_account">အကောင့်အသစ်ဖွင့်ရန် လိုအပ်သော်လည်း သုံးလက်စနာမည်ပြောင်ကို ဆက်သုံးနိုင်ပါသည်။</string>

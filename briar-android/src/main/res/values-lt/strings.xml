@@ -47,12 +47,6 @@
     <item quantity="many">Tai yra bandomoji Briar versija. Jūsų paskyros galiojimas pasibaigs po %d dienų ir negalės būti pratęstas.</item>
     <item quantity="other">Tai yra bandomoji Briar versija. Jūsų paskyros galiojimas pasibaigs po %d dienos ir negalės būti pratęstas.</item>
   </plurals>
-  <plurals name="old_android_expiry_warning">
-    <item quantity="one">„Android“ 4 yra daugiau nebepalaikoma. Briar nustos veikti ties %s (po %d dienos). Įsidiekite Briar naujesniame įrenginyje ir susikurkite naują paskyrą.</item>
-    <item quantity="few">„Android“ 4 yra daugiau nebepalaikoma. Briar nustos veikti ties %s (po %d dienų). Įsidiekite Briar naujesniame įrenginyje ir susikurkite naują paskyrą.</item>
-    <item quantity="many">„Android“ 4 yra daugiau nebepalaikoma. Briar nustos veikti ties %s (po %d dienų). Įsidiekite Briar naujesniame įrenginyje ir susikurkite naują paskyrą.</item>
-    <item quantity="other">„Android“ 4 yra daugiau nebepalaikoma. Briar nustos veikti ties %s (po %d dienos). Įsidiekite Briar naujesniame įrenginyje ir susikurkite naują paskyrą.</item>
-  </plurals>
   <string name="expiry_date_reached">Programinės įrangos galiojimas pasibaigė.\nDėkojame, kad išbandėte!</string>
   <string name="download_briar">Norėdami ir toliau naudotis Briar, atsisiųskite naujausią programos laidą.</string>
   <string name="create_new_account">Jūs turėsite susikurti paskyrą, tačiau galėsite naudoti tą patį slapyvardį.</string>
@@ -780,6 +774,7 @@
   <string name="hotspot_qr_site">Jūsų telefonas teikia belaidį (Wi-Fi) prieigos tašką. Žmonės, prisijungę prie prieigos taško, gali atsisiųsti Briar, skenuodami šį QR kodą.</string>
   <!--e.g. Download Briar 1.2.20-->
   <string name="website_download_title_1">Atsisiųsti Briar %s</string>
+  <string name="website_download_intro_1">Kažkas iš šalia esančių pradėjo bendrinti su jumis Briar.</string>
   <string name="website_download_button">Atsisiųsti Briar</string>
   <string name="website_download_outro">Kai atsisiuntimas pasibaigs, atverkite atsisiųstą failą ir jį įdiekite.</string>
   <string name="website_troubleshooting_title">Nesklandumų šalinimas</string>

@@ -40,7 +40,7 @@
   <string name="dialog_title_lost_password">Passwort vergessen</string>
   <string name="dialog_message_lost_password">Dein Briar-Konto ist verschlüsselt auf deinem Gerät  und nicht in der Cloud gespeichert, deshalb kannst du dein Passwort nicht zurücksetzen. Willst du dein Konto löschen und neu beginnen?\n\nAchtung: Deine bestehenden Identitäten, Kontakte und Nachrichten gehen dann für immer verloren.</string>
   <string name="startup_failed_activity_title">Fehler beim Starten von Briar</string>
-  <string name="startup_failed_clock_error">Briar konnte nicht gestartet werden, weil die Uhr deines Geräts falsch eingestellt ist.\n\Bitte stelle die Uhr deines Geräts auf die richtige Zeit ein und versuche es erneut.</string>
+  <string name="startup_failed_clock_error">Briar konnte nicht gestartet werden, weil die Uhr deines Geräts falsch eingestellt ist.\n\nBitte stelle die Uhr deines Geräts auf die richtige Zeit ein und versuche es erneut.</string>
   <string name="startup_failed_db_error">Briar konnte die Datenbank mit deinem Konto, deinen Kontakten und deinen Nachrichten nicht öffnen.\n\nBitte aktualisiere auf die neueste Version der App und versuche es erneut, oder richte ein neues Konto ein, indem du bei der Passwortabfrage \"Ich habe mein Passwort vergessen\" wählst.</string>
   <string name="startup_failed_data_too_old_error">Dein Konto wurde mit einer alten Version dieser App erstellt und kann mit dieser Version nicht geöffnet werden.\n\nDu musst entweder die alte Version neu installieren oder ein neues Konto einrichten, indem du bei der Passwortabfrage \"Ich habe mein Passwort vergessen\" wählst.</string>
   <string name="startup_failed_data_too_new_error">Dein Konto wurde mit einer neueren Version dieser App erstellt und kann mit dieser Version nicht geöffnet werden.\n\nBitte aktualisiere auf die neueste Version und versuche es erneut.</string>
@@ -48,10 +48,6 @@
   <plurals name="expiry_warning">
     <item quantity="one">Dies ist eine Testversion von Briar. Dein Konto läuft in %d Tag ab und kann nicht verlängert werden.</item>
     <item quantity="other">Dies ist eine Testversion von Briar. Dein Konto läuft in %d Tagen ab und kann nicht verlängert werden.</item>
-  </plurals>
-  <plurals name="old_android_expiry_warning">
-    <item quantity="one">Android 4 wird nicht mehr unterstützt. Briar wird nicht mehr auf %s funktionieren (in %d Tag). Bitte installiere es auf einem neueren Gerät und erstelle ein neues Konto.</item>
-    <item quantity="other">Android 4 wird nicht mehr unterstützt. Briar wird nicht mehr auf %s funktionieren (in %dTagen). Bitte installiere es auf einem neueren Gerät und erstelle ein neues Konto.</item>
   </plurals>
   <string name="expiry_date_reached">Diese Software ist abgelaufen.\nDanke, dass du Briar getestet hast!</string>
   <string name="download_briar">Bitte lade die aktuelle Version von Briar herunter, um es weiter zu benutzen.</string>

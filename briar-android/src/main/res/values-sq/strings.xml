@@ -50,10 +50,6 @@ dhe s’mund të hapet me këtë version.\n\nJu lutemi, përmirësojeni me versi
     <item quantity="one">Ky është një version beta i Briar-it. Llogaria juaj do të skadojë për %d ditë dhe s\’mund të rinovohet.</item>
     <item quantity="other">Ky është një version beta i Briar-it. Llogaria juaj do të skadojë për %d ditë dhe s\’mund të rinovohet.</item>
   </plurals>
-  <plurals name="old_android_expiry_warning">
-    <item quantity="one">Android 4 nuk mbulohet më. Briar-i do të reshtë së funksionuari më %s  (për %d ditë). Ju lutemi, instalojeni Briar-in në një pajisje më të re dhe krijoni një llogari të re.</item>
-    <item quantity="other">Android 4 nuk mbulohet më. Briar-i do të reshtë së funksionuari më %s (për %d ditë). Ju lutemi, instalojeni Briar-in në një pajisje më të re dhe krijoni një llogari të re.</item>
-  </plurals>
   <string name="expiry_date_reached">Ky software ka skaduar.\nFaleminderit që e provuat!</string>
   <string name="download_briar">Që të vazhdoni të përdorni Briar-in, ju lutemi shkarkoni versionin më të ri.</string>
   <string name="create_new_account">Do t’ju duhet të krijoni një llogari të re, por mund të përdorni të njëjtën nofkë.</string>

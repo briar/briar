@@ -49,10 +49,6 @@
     <item quantity="one">Bu Briar\'ın deneme sürümüdür. Hesabınız %d gün içinde sona erecek ve yenilenemez.</item>
     <item quantity="other">Bu Briar\'ın deneme sürümüdür. Hesabınız %d gün içinde geçersiz olacak ve yenilenmeyecektir.</item>
   </plurals>
-  <plurals name="old_android_expiry_warning">
-    <item quantity="one">Android 4 artık desteklenmiyor. Briar %s tarihinde (%d gün sonra) çalışmayı durduracaktır. Lütfen Briar\'ı daha yeni bir aygıta yükleyin ve yeni bir hesap oluşturun.</item>
-    <item quantity="other">Android 4 artık desteklenmiyor. Briar %s tarihinde (%d gün sonra) çalışmayı durduracaktır. Lütfen Briar\'ı daha yeni bir aygıta yükleyin ve yeni bir hesap oluşturun.</item>
-  </plurals>
   <string name="expiry_date_reached">Bu yazılımın süresi doldu.\nDenediğiniz için teşekkürler!</string>
   <string name="download_briar">Briar\'ı kullanmaya devam etmek için lütfen en son sürümü indirin.</string>
   <string name="create_new_account">Yeni bir hesap oluşturmanız gerekecek, fakat aynı takma adı kullanabilirsiniz.</string>

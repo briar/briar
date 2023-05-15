@@ -47,12 +47,6 @@
     <item quantity="many">Це тестова версія Briar. Термін дії вашого профілю спливає через %d днів. Його не можна продовжити.</item>
     <item quantity="other">Це тестова версія Briar. Термін дії вашого профілю спливає через %d дня. Його не можна продовжити.</item>
   </plurals>
-  <plurals name="old_android_expiry_warning">
-    <item quantity="one">Android 4 більше не підтримується. Briar припинить роботу %s (за %d день). Будь ласка, встановіть Briar на новіший пристрій і створіть новий обліковий запис.</item>
-    <item quantity="few">Android 4 більше не підтримується. Briar припинить роботу %s (за %d дні). Будь ласка, встановіть Briar на новіший пристрій і створіть новий обліковий запис.</item>
-    <item quantity="many">Android 4 більше не підтримується. Briar припинить роботу %s (за %d днів). Будь ласка, встановіть Briar на новіший пристрій і створіть новий обліковий запис.</item>
-    <item quantity="other">Android 4 більше не підтримується. Briar припинить роботу %s (за %d днів). Будь ласка, встановіть Briar на новіший пристрій і створіть новий обліковий запис.</item>
-  </plurals>
   <string name="expiry_date_reached">У цієї програми закінчився термін дії\nДякуємо, що тестували її!</string>
   <string name="download_briar">Щоб далі користуватися Briar, будь ласка, завантажте найновіший випуск.</string>
   <string name="create_new_account">Вам знадобиться створити новий обліковий запис, але ви можете використовувати те саме ім\'я користувача.</string>
@@ -240,6 +234,7 @@
   <string name="menu_contact">Контакти</string>
   <!--Adding Contacts-->
   <string name="add_contact_title">Додати контакт поблизу</string>
+  <string name="add_contact_error_two_way">Чи Ви відсканували QR коди один одного?</string>
   <string name="face_to_face">Ви маєте зустрітися з особою, яку ви бажаєте додати до списку контактів.\n\nЦе виключить можливість у майбутньому будь-кому видавати себе за вас або читати ваші повідомлення.</string>
   <string name="continue_button">Продовжити</string>
   <string name="try_again_button">Спробувати ще раз</string>

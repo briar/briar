@@ -49,10 +49,6 @@
     <item quantity="one">Aquesta és una versió de prova de Briar. El vostre compte expira en %d dia i no es pot renovar.</item>
     <item quantity="other">Aquesta és una versió de prova de Briar. El vostre compte caducarà en %d dies i no es podrà renovar.</item>
   </plurals>
-  <plurals name="old_android_expiry_warning">
-    <item quantity="one">L\'Android 4 ja no és compatible. El Briar deixarà de funcionar a %s (d\'aquí a %d dia). Instal·leu el Briar en un dispositiu més nou i creeu un compte nou.</item>
-    <item quantity="other">L\'Android 4 ja no és compatible. El Briar deixarà de funcionar a %s (d\'aquí a %d dies). Instal·leu el Briar en un dispositiu més nou i creeu un compte nou.</item>
-  </plurals>
   <string name="expiry_date_reached">Aquesta versió de Briar ha caducat.\nGràcies per haver-lo provat!</string>
   <string name="download_briar">Per continuar utilitzant Briar, baixeu la darrera versió.</string>
   <string name="create_new_account">Haureu de crear un compte nou, però podeu utilitzar el mateix sobrenom.</string>

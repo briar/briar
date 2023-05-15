@@ -51,9 +51,6 @@
   <plurals name="expiry_warning">
     <item quantity="other">這是 Briar 的測試版本。您的帳戶將在 %d 天後到期，且無法延期。</item>
   </plurals>
-  <plurals name="old_android_expiry_warning">
-    <item quantity="other">Briar 已不再支援 Android 4，它將在%s停止運作(%d天時間)，請在較新的設備上安裝Briar 並建立新帳號。</item>
-  </plurals>
   <string name="expiry_date_reached">本軟件已過期。\n感謝您的測試！</string>
   <string name="download_briar">爲了繼續使用 Briar，請下載最新版。</string>
   <string name="create_new_account">您要創建一個新帳戶，但可以續用現時的暱稱。</string>

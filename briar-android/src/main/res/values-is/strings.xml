@@ -45,10 +45,6 @@
     <item quantity="one">Þetta er prufuútgáfa af Briar. Notandaaðgangurinn þinn mun renna út eftir %d dag og er ekki hægt að endurnýja hann.</item>
     <item quantity="other">Þetta er prufuútgáfa af Briar. Notandaaðgangurinn þinn mun renna út eftir %d daga og er ekki hægt að endurnýja hann.</item>
   </plurals>
-  <plurals name="old_android_expiry_warning">
-    <item quantity="one">Android 4 er ekki lengur stutt. Briar mun hætta að virka á %s (eftir %d dag). Settu Briar upp á nýrra tæki og útbúðu nýjan aðgang.</item>
-    <item quantity="other">Android 4 er ekki lengur stutt. Briar mun hætta að virka á %s (eftir %d daga). Settu Briar upp á nýrra tæki og útbúðu nýjan aðgang.</item>
-  </plurals>
   <string name="expiry_date_reached">Þessi hugbúnaður er úreltur.\nTakk fyrir að hafa tekið þátt í prófunum!</string>
   <string name="download_briar">Til að halda áfram að nota Briar, ættirðu að sækja nýjustu útgáfuna.</string>
   <string name="create_new_account">Þú þarft að búa til nýjan notandaaðgang, en þú getur notað áfram sama stuttnefni.</string>

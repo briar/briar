@@ -46,11 +46,6 @@
     <item quantity="many">Ceci est une version d’essai de Briar. Votre compte arrivera à expiration dans %d jours et ne pourra pas être renouvelé.</item>
     <item quantity="other">Ceci est une version d’essai de Briar. Votre compte arrivera à expiration dans %d jours et ne pourra pas être renouvelé.</item>
   </plurals>
-  <plurals name="old_android_expiry_warning">
-    <item quantity="one">Android 4 n’est plus pris en charge. Briar cessera de fonctionner le %s (dans %d jour). Veuillez installer Briar sur un appareil plus récent et créer un nouveau compte.</item>
-    <item quantity="many">Android 4 n’est plus pris en charge. Briar cessera de fonctionner le %s (dans %d jours). Veuillez installer Briar sur un appareil plus récent et créer un nouveau compte.</item>
-    <item quantity="other">Android 4 n’est plus pris en charge. Briar cessera de fonctionner le %s (dans %d jours). Veuillez installer Briar sur un appareil plus récent et créer un nouveau compte.</item>
-  </plurals>
   <string name="expiry_date_reached">Ce logiciel est arrivé à expiration.\nMerci de l’avoir testé !</string>
   <string name="download_briar">Pour continuer à utiliser Briar, veuillez télécharger la dernière version.</string>
   <string name="create_new_account">Vous devrez créer un nouveau compte, mais vous pouvez utiliser le même pseudonyme.</string>

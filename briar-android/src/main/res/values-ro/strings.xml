@@ -50,11 +50,6 @@
     <item quantity="few">Aceasta este o versiune de test Briar. Contul dvs. va expira în %d zile și nu poate fi reînnoit.</item>
     <item quantity="other">Aceasta este o versiune de test Briar. Contul dvs. va expira în %d zile și nu poate fi reînnoit.</item>
   </plurals>
-  <plurals name="old_android_expiry_warning">
-    <item quantity="one">Versiunea Android 4 nu mai este acceptată. Briar nu va mai funcționa pe %s (în decurs de %d zi). Instalați Briar pe un dispozitiv mai nou și creați un cont nou.</item>
-    <item quantity="few">Versiunea Android 4 nu mai este acceptată. Briar nu va mai funcționa pe %s (în %d zile). Instalați Briar pe un dispozitiv mai nou și creați un cont nou.</item>
-    <item quantity="other">Versiunea Android 4 nu mai este acceptată. Briar nu va mai funcționa pe %s (în %d zile). Instalați Briar pe un dispozitiv mai nou și creați un cont nou.</item>
-  </plurals>
   <string name="expiry_date_reached">Acest program software a expirat.\nVă mulțumim că l-ați testat!</string>
   <string name="download_briar">Pentru a putea să utilizați Briar în continuare, descărcați cea mai recentă versiune.</string>
   <string name="create_new_account">Va trebui să creați un cont nou, dar puteți să folosiți același pseudonim.</string>

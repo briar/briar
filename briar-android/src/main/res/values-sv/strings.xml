@@ -49,10 +49,6 @@
     <item quantity="one">Det här är en test-version av Briar. Ditt konto kommer att upphöra om %d dagar och kan ej förnyas.</item>
     <item quantity="other">Det här är en test-version av Briar. Ditt konto kommer att upphöra om %d dag och kan ej förnyas.</item>
   </plurals>
-  <plurals name="old_android_expiry_warning">
-    <item quantity="one">Android 4 stöds ej längre. Briar kommer att sluta fungera den %s (om %d dag). Vänligen installera Briar på en ny enhet och skapa ett nytt konto.</item>
-    <item quantity="other">Android 4 stöds ej längre. Briar kommer att sluta fungera den %s (om %d dagar). Vänligen installera Briar på en nyare enhet och skapa ett nytt konto.</item>
-  </plurals>
   <string name="expiry_date_reached">Mjukvaran har gått ut.\nTack för att du bidragit till att testa!</string>
   <string name="download_briar">För att fortsätta använda Briar, hämta den senaste utgåvan.</string>
   <string name="create_new_account">Du måste skapa ett nytt konto, men du kan använda samma användarnamn.</string>

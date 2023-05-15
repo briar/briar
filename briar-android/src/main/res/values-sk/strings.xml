@@ -51,12 +51,6 @@
     <item quantity="many">Toto je testovacia verzia aplikácie Briar. Platnosť vášho účtu vyprší o %d dní a nie je možné ho obnoviť.</item>
     <item quantity="other">Toto je testovacia verzia aplikácie Briar. Platnosť vášho účtu vyprší o %d dní a nie je možné ho obnoviť.</item>
   </plurals>
-  <plurals name="old_android_expiry_warning">
-    <item quantity="one">Systém Android 4 už nie je podporovaný. Briar prestane fungovať na %s (za %d deň). Nainštalujte si Briar na novšie zariadenie a vytvorte si nový účet.</item>
-    <item quantity="few">Systém Android 4 už nie je podporovaný. Briar prestane fungovať na %s (za %d dni). Nainštalujte si Briar na novšie zariadenie a vytvorte si nový účet.</item>
-    <item quantity="many">Systém Android 4 už nie je podporovaný. Briar prestane fungovať na %s (za %d dní). Nainštalujte si Briar na novšie zariadenie a vytvorte si nový účet.</item>
-    <item quantity="other">Systém Android 4 už nie je podporovaný. Briar prestane fungovať na %s (za %d dní). Nainštalujte si Briar na novšie zariadenie a vytvorte si nový účet.</item>
-  </plurals>
   <string name="expiry_date_reached">Platnosť tohto softvéru vypršala.\nĎakujeme za testovanie!</string>
   <string name="download_briar">Ak chcete pokračovať v používaní aplikácie Briar, stiahnite si najnovšiu verziu.</string>
   <string name="create_new_account">Budete si musieť vytvoriť nový účet, ale môžete použiť rovnakú prezývku.</string>
