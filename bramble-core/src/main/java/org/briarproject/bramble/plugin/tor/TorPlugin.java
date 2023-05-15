@@ -311,6 +311,9 @@ class TorPlugin implements DuplexPlugin, EventListener {
 			tor.stop();
 		} catch (IOException e) {
 			logException(LOG, WARNING, e);
+		} catch (InterruptedException e) {
+			LOG.warning("Interrupted while stopping Tor");
+			Thread.currentThread().interrupt();
 		}
 	}
 
@@ -625,12 +628,21 @@ class TorPlugin implements DuplexPlugin, EventListener {
 		}
 
 		private synchronized State getState(TorState torState) {
-			if (torState == TorState.STARTING_STOPPING || !settingsChecked) {
+			// Treat TorState.STARTED as State.STARTING_STOPPING because it's
+			// only seen during startup, before TorWrapper#enableNetwork() is
+			// called for the first time
+			if (torState == TorState.NOT_STARTED ||
+					torState == TorState.STARTING ||
+					torState == TorState.STARTED ||
+					torState == TorState.STOPPING ||
+					torState == TorState.STOPPED ||
+					!settingsChecked) {
 				return STARTING_STOPPING;
 			}
 			if (reasonsDisabled != 0) return DISABLED;
 			if (torState == TorState.CONNECTING) return ENABLING;
 			if (torState == TorState.CONNECTED) return ACTIVE;
+			// The plugin is enabled in settings but the device is offline
 			return INACTIVE;
 		}
 
