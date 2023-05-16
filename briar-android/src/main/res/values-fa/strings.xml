@@ -696,7 +696,7 @@
   <string name="mailbox_error_wizard_info2">لطفا هنگامی که به دستگاه دسترسی دارید به این صفحه بازگردید.</string>
   <string name="mailbox_error_wizard_info3">لطفا با استفاده از دکمه زیر، پیوند Mailbox خود را لغو کنید.\n\nپس از لغو پیوند Mailbox قدیمی، می‌توانید هر زمان که خواستید یک Mailbox جدید راه‌اندازی کنید.</string>
   <!--About-->
-  <string name="about_title">درباره‌ی Psiphon</string>
+  <string name="about_title">درباره‌ی Briar</string>
   <string name="briar_version">نسخه Briar: %s</string>
   <string name="tor_version">نسخه Tor: %s</string>
   <string name="links">لینک ها</string>
