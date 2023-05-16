@@ -733,6 +733,8 @@
 
 	<!-- Settings Actions -->
 	<string name="pref_category_actions">Actions</string>
+	<string name="share_app_link">Share download link</string>
+	<string name="share_app_link_text">Download Briar at %s</string>
 	<string name="send_feedback">Send feedback</string>
 
 	<!-- Link Warning -->

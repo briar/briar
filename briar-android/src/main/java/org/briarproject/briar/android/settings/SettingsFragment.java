@@ -1,10 +1,12 @@
 package org.briarproject.briar.android.settings;
 
+import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.Toast;
 
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.mailbox.MailboxActivity;
@@ -24,6 +26,9 @@ import androidx.preference.Preference;
 import androidx.preference.PreferenceFragmentCompat;
 import androidx.preference.PreferenceGroup;
 
+import static android.content.Intent.ACTION_SEND;
+import static android.content.Intent.EXTRA_TEXT;
+import static android.widget.Toast.LENGTH_LONG;
 import static java.util.Objects.requireNonNull;
 import static org.briarproject.briar.android.AppModule.getAndroidComponent;
 import static org.briarproject.briar.android.TestingConstants.IS_DEBUG_BUILD;
@@ -37,10 +42,13 @@ public class SettingsFragment extends PreferenceFragmentCompat {
 	public static final String SETTINGS_NAMESPACE = "android-ui";
 
 	private static final String PREF_KEY_AVATAR = "pref_key_avatar";
+	private static final String PREF_KEY_SHARE_LINK = "pref_key_share_app_link";
 	private static final String PREF_KEY_FEEDBACK = "pref_key_send_feedback";
 	private static final String PREF_KEY_DEV = "pref_key_dev";
 	private static final String PREF_KEY_EXPLODE = "pref_key_explode";
 	private static final String PREF_KEY_MAILBOX = "pref_key_mailbox";
+
+	private static final String DOWNLOAD_URL = "https://briarproject.org/download/";
 
 	@Inject
 	ViewModelProvider.Factory viewModelFactory;
@@ -86,6 +94,21 @@ public class SettingsFragment extends PreferenceFragmentCompat {
 			return true;
 		});
 
+		Preference prefShareLink =
+				requireNonNull(findPreference(PREF_KEY_SHARE_LINK));
+		prefShareLink.setOnPreferenceClickListener(preference -> {
+			String text = getString(R.string.share_app_link_text, DOWNLOAD_URL);
+			Intent sendIntent = new Intent(ACTION_SEND);
+			sendIntent.putExtra(EXTRA_TEXT, text);
+			sendIntent.setType("text/plain");
+			try {
+				startActivity(Intent.createChooser(sendIntent, null));
+			} catch (ActivityNotFoundException e) {
+				Toast.makeText(requireContext(),
+						R.string.error_start_activity, LENGTH_LONG).show();
+			}
+			return true;
+		});
 		Preference prefFeedback =
 				requireNonNull(findPreference(PREF_KEY_FEEDBACK));
 		prefFeedback.setOnPreferenceClickListener(preference -> {

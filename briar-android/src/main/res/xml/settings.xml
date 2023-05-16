@@ -48,6 +48,11 @@
 				android:targetPackage="@string/app_package" />
 		</Preference>
 		<Preference
+			android:key="pref_key_share_app_link"
+			android:title="@string/share_app_link"
+			app:icon="@drawable/ic_settings_share_link">
+		</Preference>
+		<Preference
 			android:key="pref_key_send_feedback"
 			android:title="@string/send_feedback"
 			app:icon="@drawable/ic_feedback" />
