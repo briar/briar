@@ -16,7 +16,7 @@ public class DesktopSecureRandomModule {
 	@Provides
 	@Singleton
 	SecureRandomProvider provideSecureRandomProvider() {
-		if (isLinux() || isMac()) return new UnixSecureRandomProvider();
+		if (isLinux()) return new UnixSecureRandomProvider();
 		return () -> null; // Use system default
 	}
 }
