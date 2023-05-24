@@ -1,7 +1,6 @@
 package org.briarproject.bramble.contact;
 
 import org.briarproject.bramble.api.FormatException;
-import org.briarproject.bramble.api.Predicate;
 import org.briarproject.bramble.api.client.ClientHelper;
 import org.briarproject.bramble.api.contact.Contact;
 import org.briarproject.bramble.api.contact.ContactExchangeManager;
@@ -24,6 +23,7 @@ import org.briarproject.bramble.api.properties.TransportProperties;
 import org.briarproject.bramble.api.properties.TransportPropertyManager;
 import org.briarproject.bramble.api.record.Record;
 import org.briarproject.bramble.api.record.RecordReader;
+import org.briarproject.bramble.api.record.RecordReader.RecordPredicate;
 import org.briarproject.bramble.api.record.RecordReaderFactory;
 import org.briarproject.bramble.api.record.RecordWriter;
 import org.briarproject.bramble.api.record.RecordWriterFactory;
@@ -61,12 +61,12 @@ class ContactExchangeManagerImpl implements ContactExchangeManager {
 			getLogger(ContactExchangeManagerImpl.class.getName());
 
 	// Accept records with current protocol version, known record type
-	private static final Predicate<Record> ACCEPT = r ->
+	private static final RecordPredicate ACCEPT = r ->
 			r.getProtocolVersion() == PROTOCOL_VERSION &&
 					isKnownRecordType(r.getRecordType());
 
 	// Ignore records with current protocol version, unknown record type
-	private static final Predicate<Record> IGNORE = r ->
+	private static final RecordPredicate IGNORE = r ->
 			r.getProtocolVersion() == PROTOCOL_VERSION &&
 					!isKnownRecordType(r.getRecordType());
 

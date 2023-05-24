@@ -32,8 +32,15 @@ public interface RecordReader {
 	 * 'accept' or 'ignore' predicates
 	 */
 	@Nullable
-	Record readRecord(Predicate<Record> accept, Predicate<Record> ignore)
+	Record readRecord(RecordPredicate accept, RecordPredicate ignore)
 			throws IOException;
 
 	void close() throws IOException;
+
+	/**
+	 * Interface that reifies the generic interface {@code Predicate<Record>}
+	 * for easier testing.
+	 */
+	interface RecordPredicate extends Predicate<Record> {
+	}
 }
