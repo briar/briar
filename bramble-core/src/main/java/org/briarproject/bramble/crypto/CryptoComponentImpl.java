@@ -34,6 +34,7 @@ import java.security.NoSuchAlgorithmException;
 import java.security.Provider;
 import java.security.SecureRandom;
 import java.security.Security;
+import java.util.Locale;
 import java.util.logging.Logger;
 
 import javax.annotation.Nullable;
@@ -500,7 +501,7 @@ class CryptoComponentImpl implements CryptoComponent {
 		arraycopy(publicKey, 0, address, 0, publicKey.length);
 		arraycopy(checksum, 0, address, publicKey.length, ONION_CHECKSUM_BYTES);
 		address[address.length - 1] = ONION_HS_PROTOCOL_VERSION;
-		return Base32.encode(address).toLowerCase();
+		return Base32.encode(address).toLowerCase(Locale.US);
 	}
 
 }
