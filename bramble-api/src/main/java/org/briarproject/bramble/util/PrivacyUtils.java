@@ -6,6 +6,7 @@ import java.net.Inet4Address;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
+import java.util.Locale;
 
 import javax.annotation.Nullable;
 
@@ -51,7 +52,7 @@ public class PrivacyUtils {
 	}
 
 	private static String scrubIpv6Address(byte[] ipv6) {
-		String hex = toHexString(ipv6).toLowerCase();
+		String hex = toHexString(ipv6).toLowerCase(Locale.US);
 		return hex.substring(0, 2) + "[scrubbed]" + hex.substring(30);
 	}
 

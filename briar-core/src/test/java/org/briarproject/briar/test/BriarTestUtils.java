@@ -11,6 +11,8 @@ import org.briarproject.bramble.util.Base32;
 import org.briarproject.briar.api.client.MessageTracker;
 import org.briarproject.briar.api.client.MessageTracker.GroupCount;
 
+import java.util.Locale;
+
 import static java.lang.System.arraycopy;
 import static org.briarproject.bramble.api.contact.HandshakeLinkConstants.FORMAT_VERSION;
 import static org.briarproject.bramble.api.contact.HandshakeLinkConstants.RAW_LINK_BYTES;
@@ -52,7 +54,7 @@ public class BriarTestUtils {
 		byte[] publicKey = keyPair.getPublic().getEncoded();
 		linkBytes[0] = FORMAT_VERSION;
 		arraycopy(publicKey, 0, linkBytes, 1, RAW_LINK_BYTES - 1);
-		return ("briar://" + Base32.encode(linkBytes)).toLowerCase();
+		return ("briar://" + Base32.encode(linkBytes)).toLowerCase(Locale.US);
 	}
 
 }

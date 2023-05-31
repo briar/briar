@@ -4,6 +4,7 @@ import org.briarproject.bramble.identity.output
 import org.briarproject.briar.api.blog.BlogPostHeader
 import org.briarproject.briar.api.blog.MessageType
 import org.briarproject.briar.headless.json.JsonDict
+import java.util.Locale
 
 internal fun BlogPostHeader.output(text: String) = JsonDict(
     "text" to text,
@@ -18,4 +19,4 @@ internal fun BlogPostHeader.output(text: String) = JsonDict(
     "timestampReceived" to timeReceived
 )
 
-internal fun MessageType.output() = name.toLowerCase()
+internal fun MessageType.output() = name.lowercase(Locale.US)

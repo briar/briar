@@ -3,6 +3,7 @@ package org.briarproject.bramble.identity
 import org.briarproject.bramble.api.identity.Author
 import org.briarproject.briar.api.identity.AuthorInfo
 import org.briarproject.briar.headless.json.JsonDict
+import java.util.Locale
 
 fun Author.output() = JsonDict(
     "formatVersion" to formatVersion,
@@ -11,4 +12,4 @@ fun Author.output() = JsonDict(
     "publicKey" to publicKey.encoded
 )
 
-fun AuthorInfo.Status.output() = name.toLowerCase()
+fun AuthorInfo.Status.output() = name.lowercase(Locale.US)

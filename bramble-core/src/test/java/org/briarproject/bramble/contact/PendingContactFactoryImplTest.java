@@ -13,6 +13,7 @@ import org.jmock.Expectations;
 import org.junit.Test;
 
 import java.security.GeneralSecurityException;
+import java.util.Locale;
 
 import static java.lang.System.arraycopy;
 import static org.briarproject.bramble.api.contact.HandshakeLinkConstants.BASE32_LINK_BYTES;
@@ -174,7 +175,7 @@ public class PendingContactFactoryImplTest extends BrambleMockTestCase {
 		rawLink[0] = (byte) formatVersion;
 		byte[] publicKeyBytes = publicKey.getEncoded();
 		arraycopy(publicKeyBytes, 0, rawLink, 1, publicKeyBytes.length);
-		String base32 = Base32.encode(rawLink).toLowerCase();
+		String base32 = Base32.encode(rawLink).toLowerCase(Locale.US);
 		assertEquals(BASE32_LINK_BYTES, base32.length());
 		return base32;
 	}
