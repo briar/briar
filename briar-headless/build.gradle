@@ -96,7 +96,7 @@ void jarFactory(Jar jarTask, os, architecture, configuration) {
 	}
 			{
 				it.duplicatesStrategy(DuplicatesStrategy.EXCLUDE)
-				if (os == "linux") {
+				if (os == "linux" || os == "macos") {
 					String[] architectures = [
 							"aarch64",
 							"armhf",
@@ -107,6 +107,7 @@ void jarFactory(Jar jarTask, os, architecture, configuration) {
 							exclude arch + "/obfs4proxy"
 							exclude arch + "/tor"
 							exclude arch + "/snowflake"
+							exclude arch + "/libevent-*.dylib"
 						}
 					}
 				}

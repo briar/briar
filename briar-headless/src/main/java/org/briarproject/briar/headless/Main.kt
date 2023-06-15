@@ -28,7 +28,7 @@ import java.util.logging.Level.INFO
 import java.util.logging.Level.WARNING
 import java.util.logging.LogManager
 
-private const val DEFAULT_PORT = 7000
+private val DEFAULT_PORT = if (isMac()) 7001 else 7000
 private val DEFAULT_DATA_DIR = getProperty("user.home") + separator + ".briar"
 
 private class Main : CliktCommand(
