@@ -8,6 +8,7 @@ import okhttp3.Request
 import okhttp3.RequestBody.Companion.toRequestBody
 import okhttp3.Response
 import org.briarproject.bramble.BrambleCoreEagerSingletons
+import org.briarproject.bramble.BrambleJavaEagerSingletons
 import org.briarproject.bramble.api.crypto.CryptoComponent
 import org.briarproject.briar.BriarCoreEagerSingletons
 import org.briarproject.briar.api.test.TestDataCreator
@@ -38,6 +39,7 @@ abstract class IntegrationTest {
             .headlessTestModule(HeadlessTestModule(dataDir))
             .build()
         BrambleCoreEagerSingletons.Helper.injectEagerSingletons(app)
+        BrambleJavaEagerSingletons.Helper.injectEagerSingletons(app)
         BriarCoreEagerSingletons.Helper.injectEagerSingletons(app)
         HeadlessEagerSingletons.Helper.injectEagerSingletons(app)
         router = app.getRouter()

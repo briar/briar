@@ -8,6 +8,7 @@ import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.types.int
 import org.bouncycastle.util.encoders.Base64.toBase64String
 import org.briarproject.bramble.BrambleCoreEagerSingletons
+import org.briarproject.bramble.BrambleJavaEagerSingletons
 import org.briarproject.bramble.util.OsUtils.isLinux
 import org.briarproject.bramble.util.OsUtils.isMac
 import org.briarproject.briar.BriarCoreEagerSingletons
@@ -77,6 +78,7 @@ private class Main : CliktCommand(
         // We need to load the eager singletons directly after making the
         // dependency graphs
         BrambleCoreEagerSingletons.Helper.injectEagerSingletons(app)
+        BrambleJavaEagerSingletons.Helper.injectEagerSingletons(app)
         BriarCoreEagerSingletons.Helper.injectEagerSingletons(app)
         HeadlessEagerSingletons.Helper.injectEagerSingletons(app)
 
