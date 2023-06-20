@@ -14,12 +14,14 @@ import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.SocketException;
 import java.util.concurrent.Executor;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.logging.Logger;
 
 import javax.inject.Inject;
 
 import static java.util.Collections.list;
-import static java.util.concurrent.TimeUnit.MINUTES;
+import static java.util.concurrent.TimeUnit.SECONDS;
+import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
 import static java.util.logging.Logger.getLogger;
 import static org.briarproject.bramble.util.LogUtils.logException;
@@ -34,6 +36,8 @@ class JavaNetworkManager implements NetworkManager, Service {
 	private final TaskScheduler scheduler;
 	private final Executor ioExecutor;
 	private final EventBus eventBus;
+	private final AtomicReference<NetworkStatus> lastStatus =
+			new AtomicReference<>();
 
 	@Inject
 	JavaNetworkManager(TaskScheduler scheduler,
@@ -62,17 +66,26 @@ class JavaNetworkManager implements NetworkManager, Service {
 		} catch (SocketException e) {
 			logException(LOG, WARNING, e);
 		}
+		if (LOG.isLoggable(INFO)) {
+			LOG.info("Connected: " + connected
+					+ ", has IPv4 address: " + hasIpv4
+					+ ", has IPv6 unicast address: " + hasIpv6Unicast);
+		}
 		return new NetworkStatus(connected, false, !hasIpv4 && hasIpv6Unicast);
 	}
 
-	private void broadcastNetworkStatus() {
-		eventBus.broadcast(new NetworkStatusEvent(getNetworkStatus()));
+	private void broadcastNetworkStatusIfChanged() {
+		NetworkStatus status = getNetworkStatus();
+		NetworkStatus old = lastStatus.getAndSet(status);
+		if (!status.equals(old)) {
+			eventBus.broadcast(new NetworkStatusEvent(status));
+		}
 	}
 
 	@Override
 	public void startService() {
-		scheduler.scheduleWithFixedDelay(this::broadcastNetworkStatus,
-				ioExecutor, 0, 1, MINUTES);
+		scheduler.scheduleWithFixedDelay(this::broadcastNetworkStatusIfChanged,
+				ioExecutor, 0, 10, SECONDS);
 	}
 
 	@Override
