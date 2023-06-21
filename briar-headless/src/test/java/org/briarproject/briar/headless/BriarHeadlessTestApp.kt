@@ -3,6 +3,7 @@ package org.briarproject.briar.headless
 import dagger.Component
 import org.briarproject.bramble.BrambleCoreEagerSingletons
 import org.briarproject.bramble.BrambleCoreModule
+import org.briarproject.bramble.BrambleJavaEagerSingletons
 import org.briarproject.bramble.BrambleJavaModule
 import org.briarproject.bramble.api.crypto.CryptoComponent
 import org.briarproject.briar.BriarCoreEagerSingletons
@@ -20,7 +21,7 @@ import javax.inject.Singleton
 )
 @Singleton
 internal interface BriarHeadlessTestApp : BrambleCoreEagerSingletons, BriarCoreEagerSingletons,
-    HeadlessEagerSingletons {
+    BrambleJavaEagerSingletons, HeadlessEagerSingletons {
 
     fun getRouter(): Router
 
