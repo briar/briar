@@ -630,7 +630,9 @@ class TorPlugin implements DuplexPlugin, EventListener {
 		private synchronized State getState(TorState torState) {
 			// Treat TorState.STARTED as State.STARTING_STOPPING because it's
 			// only seen during startup, before TorWrapper#enableNetwork() is
-			// called for the first time
+			// called for the first time. TorState.NOT_STARTED and
+			// TorState.STOPPED are mapped to State.STARTING_STOPPING because
+			// that's the State before we've started and after we've stopped.
 			if (torState == TorState.NOT_STARTED ||
 					torState == TorState.STARTING ||
 					torState == TorState.STARTED ||
