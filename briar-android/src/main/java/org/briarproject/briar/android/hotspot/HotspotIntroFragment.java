@@ -89,7 +89,6 @@ public class HotspotIntroFragment extends Fragment {
 	}
 
 	private void onButtonClick(View view) {
-		startButton.setEnabled(false);
 		startHotspotIfConditionsFulfilled();
 	}
 
