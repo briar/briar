@@ -50,7 +50,9 @@ public class HotspotIntroFragment extends Fragment {
 
 	private final AbstractConditionManager conditionManager = SDK_INT < 29 ?
 			new ConditionManager(this, this::onPermissionUpdate) :
-			new ConditionManager29(this, this::onPermissionUpdate);
+			SDK_INT >= 33 ?
+					new ConditionManager33(this, this::onPermissionUpdate) :
+					new ConditionManager29(this, this::onPermissionUpdate);
 
 	@Override
 	public void onAttach(Context context) {
