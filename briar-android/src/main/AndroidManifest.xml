@@ -30,6 +30,7 @@
 		android:name="android.permission.WRITE_EXTERNAL_STORAGE"
 		android:maxSdkVersion="18"
 		tools:ignore="ScopedStorage" />
+	<uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
 
 	<uses-permission-sdk-23 android:name="android.permission.ACCESS_FINE_LOCATION" />
 	<uses-permission-sdk-23 android:name="android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS" />
