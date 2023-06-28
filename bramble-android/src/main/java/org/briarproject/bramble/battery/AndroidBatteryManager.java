@@ -17,13 +17,17 @@ import java.util.logging.Logger;
 
 import javax.inject.Inject;
 
+import androidx.annotation.RequiresApi;
+
 import static android.content.Intent.ACTION_BATTERY_CHANGED;
 import static android.content.Intent.ACTION_POWER_CONNECTED;
 import static android.content.Intent.ACTION_POWER_DISCONNECTED;
 import static android.os.BatteryManager.EXTRA_PLUGGED;
 import static android.os.Build.VERSION.SDK_INT;
+import static android.os.PowerManager.ACTION_DEVICE_IDLE_MODE_CHANGED;
 import static android.os.PowerManager.ACTION_DEVICE_LIGHT_IDLE_MODE_CHANGED;
 import static android.os.PowerManager.ACTION_LOW_POWER_STANDBY_ENABLED_CHANGED;
+import static android.os.PowerManager.ACTION_POWER_SAVE_MODE_CHANGED;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Logger.getLogger;
 
@@ -61,6 +65,8 @@ class AndroidBatteryManager implements BatteryManager, Service {
 		IntentFilter filter = new IntentFilter();
 		filter.addAction(ACTION_POWER_CONNECTED);
 		filter.addAction(ACTION_POWER_DISCONNECTED);
+		filter.addAction(ACTION_POWER_SAVE_MODE_CHANGED);
+		if (SDK_INT >= 23) filter.addAction(ACTION_DEVICE_IDLE_MODE_CHANGED);
 		if (SDK_INT >= 33) {
 			filter.addAction(ACTION_LOW_POWER_STANDBY_ENABLED_CHANGED);
 			filter.addAction(ACTION_DEVICE_LIGHT_IDLE_MODE_CHANGED);
@@ -84,7 +90,17 @@ class AndroidBatteryManager implements BatteryManager, Service {
 				eventBus.broadcast(new BatteryEvent(true));
 			else if (ACTION_POWER_DISCONNECTED.equals(action))
 				eventBus.broadcast(new BatteryEvent(false));
-			else if (SDK_INT >= 33 && LOG.isLoggable(INFO) &&
+			else if (SDK_INT >= 23 &&
+					ACTION_DEVICE_IDLE_MODE_CHANGED.equals(action) &&
+					LOG.isLoggable(INFO)) {
+				LOG.info("Device idle mode changed to: " +
+						getPowerManager(ctx).isDeviceIdleMode());
+			} else if (SDK_INT >= 23 &&
+					ACTION_POWER_SAVE_MODE_CHANGED.equals(action) &&
+					LOG.isLoggable(INFO)) {
+				LOG.info("Power save mode changed to: " +
+						getPowerManager(ctx).isPowerSaveMode());
+			} else if (SDK_INT >= 33 && LOG.isLoggable(INFO) &&
 					ACTION_LOW_POWER_STANDBY_ENABLED_CHANGED.equals(action)) {
 				PowerManager powerManager =
 						ctx.getSystemService(PowerManager.class);
@@ -92,11 +108,15 @@ class AndroidBatteryManager implements BatteryManager, Service {
 						powerManager.isLowPowerStandbyEnabled());
 			} else if (SDK_INT >= 33 && LOG.isLoggable(INFO) &&
 					ACTION_DEVICE_LIGHT_IDLE_MODE_CHANGED.equals(action)) {
-				PowerManager powerManager =
-						ctx.getSystemService(PowerManager.class);
+				PowerManager powerManager = getPowerManager(ctx);
 				LOG.info("Light idle mode now is: " +
 						powerManager.isDeviceLightIdleMode());
 			}
 		}
+	}
+
+	@RequiresApi(api = 23)
+	private PowerManager getPowerManager(Context ctx) {
+		return ctx.getSystemService(PowerManager.class);
 	}
 }
