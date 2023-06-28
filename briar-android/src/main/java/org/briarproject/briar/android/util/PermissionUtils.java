@@ -1,12 +1,10 @@
 package org.briarproject.briar.android.util;
 
-import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.location.LocationManager;
 import android.net.Uri;
-import android.widget.Toast;
 
 import org.briarproject.briar.R;
 import org.briarproject.nullsafety.MethodsNotNullByDefault;
@@ -29,10 +27,10 @@ import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
 import static android.content.pm.PackageManager.PERMISSION_GRANTED;
 import static android.os.Build.VERSION.SDK_INT;
 import static android.provider.Settings.ACTION_LOCATION_SOURCE_SETTINGS;
-import static android.widget.Toast.LENGTH_LONG;
 import static androidx.core.content.ContextCompat.checkSelfPermission;
 import static java.lang.Boolean.TRUE;
 import static org.briarproject.briar.BuildConfig.APPLICATION_ID;
+import static org.briarproject.briar.android.util.UiUtils.tryToStartActivity;
 
 @MethodsNotNullByDefault
 @ParametersNotNullByDefault
@@ -76,12 +74,7 @@ public class PermissionUtils {
 			i.addCategory(CATEGORY_DEFAULT);
 			i.setData(Uri.parse("package:" + APPLICATION_ID));
 			i.addFlags(FLAG_ACTIVITY_NEW_TASK);
-			try {
-				context.startActivity(i);
-			} catch (ActivityNotFoundException e) {
-				Toast.makeText(context, R.string.error_start_activity,
-						LENGTH_LONG).show();
-			}
+			tryToStartActivity(context, i);
 		};
 	}
 
@@ -128,12 +121,7 @@ public class PermissionUtils {
 		builder.setPositiveButton(R.string.permission_location_setting_button,
 				(dialog, which) -> {
 					Intent i = new Intent(ACTION_LOCATION_SOURCE_SETTINGS);
-					try {
-						ctx.startActivity(i);
-					} catch (ActivityNotFoundException e) {
-						Toast.makeText(ctx, R.string.error_start_activity,
-								LENGTH_LONG).show();
-					}
+					tryToStartActivity(ctx, i);
 				});
 		builder.show();
 	}

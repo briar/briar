@@ -157,6 +157,15 @@ public class UiUtils {
 		ta.commit();
 	}
 
+	public static void tryToStartActivity(Context ctx, Intent intent) {
+		try {
+			ctx.startActivity(intent);
+		} catch (ActivityNotFoundException e) {
+			Toast.makeText(ctx, R.string.error_start_activity, LENGTH_LONG)
+					.show();
+		}
+	}
+
 	public static String getContactDisplayName(Author author,
 			@Nullable String alias) {
 		String name = author.getName();

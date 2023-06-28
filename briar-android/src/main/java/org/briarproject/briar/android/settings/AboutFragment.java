@@ -1,6 +1,5 @@
 package org.briarproject.briar.android.settings;
 
-import android.content.ActivityNotFoundException;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -8,7 +7,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import org.briarproject.briar.BuildConfig;
 import org.briarproject.briar.R;
@@ -21,10 +19,9 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
-import static android.widget.Toast.LENGTH_LONG;
-import static java.util.logging.Level.WARNING;
+import static android.content.Intent.ACTION_VIEW;
 import static java.util.logging.Logger.getLogger;
-import static org.briarproject.bramble.util.LogUtils.logException;
+import static org.briarproject.briar.android.util.UiUtils.tryToStartActivity;
 
 @MethodsNotNullByDefault
 @ParametersNotNullByDefault
@@ -85,16 +82,9 @@ public class AboutFragment extends Fragment {
 	}
 
 	private void goToUrl(String url) {
-		Intent i = new Intent(Intent.ACTION_VIEW);
+		Intent i = new Intent(ACTION_VIEW);
 		i.setData(Uri.parse(url));
-		try {
-			startActivity(i);
-		} catch (ActivityNotFoundException e) {
-			logException(LOG, WARNING, e);
-			Toast.makeText(requireContext(),
-					R.string.error_start_activity, LENGTH_LONG).show();
-		}
-
+		tryToStartActivity(requireActivity(), i);
 	}
 
 }
