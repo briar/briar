@@ -66,7 +66,7 @@ public class MacTorPluginFactory extends TorPluginFactory {
 		if (LOG.isLoggable(INFO)) {
 			LOG.info("System's os.arch is " + arch);
 		}
-		if (arch.equals("amd64")) return "x86_64";
+		if (arch.equals("x86_64")) return "x86_64";
 		else if (arch.equals("aarch64")) return "aarch64";
 		return null;
 	}
