@@ -10,13 +10,19 @@ import org.briarproject.bramble.api.lifecycle.Service;
 import org.briarproject.briar.api.android.DozeWatchdog;
 
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.logging.Logger;
 
 import static android.content.Context.POWER_SERVICE;
 import static android.os.Build.VERSION.SDK_INT;
 import static android.os.PowerManager.ACTION_DEVICE_IDLE_MODE_CHANGED;
 import static android.os.PowerManager.ACTION_LOW_POWER_STANDBY_ENABLED_CHANGED;
+import static java.util.logging.Level.WARNING;
+import static java.util.logging.Logger.getLogger;
 
 class DozeWatchdogImpl implements DozeWatchdog, Service {
+
+	private static final Logger LOG =
+			getLogger(DozeWatchdogImpl.class.getName());
 
 	private final Context appContext;
 	private final AtomicBoolean dozed = new AtomicBoolean(false);
@@ -57,11 +63,14 @@ class DozeWatchdogImpl implements DozeWatchdog, Service {
 					(PowerManager) appContext.getSystemService(POWER_SERVICE);
 			if (ACTION_DEVICE_IDLE_MODE_CHANGED.equals(action)) {
 				if (pm.isDeviceIdleMode()) dozed.set(true);
-			} else if (ACTION_LOW_POWER_STANDBY_ENABLED_CHANGED.equals(
-					action)) {
-				// pm.isLowPowerStandbyEnabled();
-				// TODO what do we do with this now? Disable Tor?
-				//  broadcast network disabled events?
+			} else if (SDK_INT >= 33 &&
+					ACTION_LOW_POWER_STANDBY_ENABLED_CHANGED.equals(action)) {
+				if (pm.isLowPowerStandbyEnabled()) {
+					if (LOG.isLoggable(WARNING)) {
+						LOG.warning("System is in low power standby mode");
+					}
+					dozed.set(true);
+				}
 			}
 		}
 	}
