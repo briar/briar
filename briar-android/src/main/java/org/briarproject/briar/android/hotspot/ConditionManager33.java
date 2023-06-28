@@ -1,9 +1,6 @@
 package org.briarproject.briar.android.hotspot;
 
-import android.content.ActivityNotFoundException;
-import android.content.Intent;
 import android.provider.Settings;
-import android.widget.Toast;
 
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.util.Permission;
@@ -14,19 +11,15 @@ import java.util.logging.Logger;
 import androidx.activity.result.ActivityResultCaller;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts.RequestPermission;
-import androidx.activity.result.contract.ActivityResultContracts.StartActivityForResult;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.core.util.Consumer;
 
 import static android.Manifest.permission.NEARBY_WIFI_DEVICES;
-import static android.widget.Toast.LENGTH_LONG;
 import static androidx.core.app.ActivityCompat.shouldShowRequestPermissionRationale;
 import static java.lang.Boolean.TRUE;
 import static java.util.logging.Level.INFO;
-import static java.util.logging.Level.WARNING;
 import static java.util.logging.Logger.getLogger;
-import static org.briarproject.bramble.util.LogUtils.logException;
 
 /**
  * This class ensures that the conditions to open a hotspot are fulfilled on
@@ -44,7 +37,6 @@ class ConditionManager33 extends AbstractConditionManager {
 	private Permission nearbyWifiPermission = Permission.UNKNOWN;
 
 	private final ActivityResultLauncher<String> nearbyWifiRequest;
-	private final ActivityResultLauncher<Intent> wifiRequest;
 
 	ConditionManager33(ActivityResultCaller arc,
 			Consumer<Boolean> permissionUpdateCallback) {
@@ -55,11 +47,6 @@ class ConditionManager33 extends AbstractConditionManager {
 					onRequestPermissionResult(granted);
 					permissionUpdateCallback.accept(TRUE.equals(granted));
 				});
-		wifiRequest = arc.registerForActivityResult(
-				new StartActivityForResult(),
-				result -> permissionUpdateCallback
-						.accept(wifiManager.isWifiEnabled())
-		);
 	}
 
 	@Override
@@ -122,6 +109,11 @@ class ConditionManager33 extends AbstractConditionManager {
 		return false;
 	}
 
+	@Override
+	String getWifiSettingsAction() {
+		return Settings.Panel.ACTION_WIFI;
+	}
+
 	private void onRequestPermissionResult(@Nullable Boolean granted) {
 		if (granted != null && granted) {
 			nearbyWifiPermission = Permission.GRANTED;
@@ -135,16 +127,6 @@ class ConditionManager33 extends AbstractConditionManager {
 
 	private void requestPermissions() {
 		nearbyWifiRequest.launch(NEARBY_WIFI_DEVICES);
-	}
-
-	private void requestEnableWiFi() {
-		try {
-			wifiRequest.launch(new Intent(Settings.Panel.ACTION_WIFI));
-		} catch (ActivityNotFoundException e) {
-			logException(LOG, WARNING, e);
-			Toast.makeText(ctx, R.string.error_start_activity, LENGTH_LONG)
-					.show();
-		}
 	}
 
 }

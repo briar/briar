@@ -1,9 +1,6 @@
 package org.briarproject.briar.android.hotspot;
 
-import android.content.ActivityNotFoundException;
-import android.content.Intent;
 import android.provider.Settings;
-import android.widget.Toast;
 
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.util.Permission;
@@ -14,20 +11,16 @@ import java.util.logging.Logger;
 import androidx.activity.result.ActivityResultCaller;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts.RequestPermission;
-import androidx.activity.result.contract.ActivityResultContracts.StartActivityForResult;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.core.util.Consumer;
 
 import static android.Manifest.permission.ACCESS_FINE_LOCATION;
 import static android.os.Build.VERSION.SDK_INT;
-import static android.widget.Toast.LENGTH_LONG;
 import static androidx.core.app.ActivityCompat.shouldShowRequestPermissionRationale;
 import static java.lang.Boolean.TRUE;
 import static java.util.logging.Level.INFO;
-import static java.util.logging.Level.WARNING;
 import static java.util.logging.Logger.getLogger;
-import static org.briarproject.bramble.util.LogUtils.logException;
 import static org.briarproject.briar.android.util.PermissionUtils.isLocationEnabledForWiFi;
 import static org.briarproject.briar.android.util.PermissionUtils.showLocationDialog;
 
@@ -47,7 +40,6 @@ class ConditionManager29 extends AbstractConditionManager {
 	private Permission locationPermission = Permission.UNKNOWN;
 
 	private final ActivityResultLauncher<String> locationRequest;
-	private final ActivityResultLauncher<Intent> wifiRequest;
 
 	ConditionManager29(ActivityResultCaller arc,
 			Consumer<Boolean> permissionUpdateCallback) {
@@ -58,11 +50,6 @@ class ConditionManager29 extends AbstractConditionManager {
 					onRequestPermissionResult(granted);
 					permissionUpdateCallback.accept(TRUE.equals(granted));
 				});
-		wifiRequest = arc.registerForActivityResult(
-				new StartActivityForResult(),
-				result -> permissionUpdateCallback
-						.accept(wifiManager.isWifiEnabled())
-		);
 	}
 
 	@Override
@@ -136,6 +123,11 @@ class ConditionManager29 extends AbstractConditionManager {
 		return false;
 	}
 
+	@Override
+	String getWifiSettingsAction() {
+		return Settings.Panel.ACTION_WIFI;
+	}
+
 	private void onRequestPermissionResult(@Nullable Boolean granted) {
 		if (granted != null && granted) {
 			locationPermission = Permission.GRANTED;
@@ -149,16 +141,6 @@ class ConditionManager29 extends AbstractConditionManager {
 
 	private void requestPermissions() {
 		locationRequest.launch(ACCESS_FINE_LOCATION);
-	}
-
-	private void requestEnableWiFi() {
-		try {
-			wifiRequest.launch(new Intent(Settings.Panel.ACTION_WIFI));
-		} catch (ActivityNotFoundException e) {
-			logException(LOG, WARNING, e);
-			Toast.makeText(ctx, R.string.error_start_activity, LENGTH_LONG)
-					.show();
-		}
 	}
 
 }

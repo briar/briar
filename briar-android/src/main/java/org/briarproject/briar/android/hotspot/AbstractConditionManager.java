@@ -1,21 +1,27 @@
 package org.briarproject.briar.android.hotspot;
 
+import android.content.ActivityNotFoundException;
 import android.content.Context;
+import android.content.Intent;
 import android.net.wifi.WifiManager;
+import android.widget.Toast;
 
 import org.briarproject.briar.R;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.StringRes;
 import androidx.appcompat.app.AlertDialog;
 import androidx.core.util.Consumer;
 import androidx.fragment.app.FragmentActivity;
 
 import static android.content.Context.WIFI_SERVICE;
+import static android.widget.Toast.LENGTH_LONG;
 
 /**
  * Abstract base class for the ConditionManagers that ensure that the conditions
  * to open a hotspot are fulfilled. There are different extensions of this for
- * API levels lower than 29 and 29+.
+ * API levels lower than 29, 29+ and 33+.
  */
 abstract class AbstractConditionManager {
 
@@ -28,6 +34,7 @@ abstract class AbstractConditionManager {
 	final Consumer<Boolean> permissionUpdateCallback;
 	protected FragmentActivity ctx;
 	WifiManager wifiManager;
+	private ActivityResultLauncher<Intent> wifiRequest;
 
 	AbstractConditionManager(Consumer<Boolean> permissionUpdateCallback) {
 		this.permissionUpdateCallback = permissionUpdateCallback;
@@ -38,8 +45,12 @@ abstract class AbstractConditionManager {
 	 */
 	void init(FragmentActivity ctx) {
 		this.ctx = ctx;
-		this.wifiManager = (WifiManager) ctx.getApplicationContext()
+		wifiManager = (WifiManager) ctx.getApplicationContext()
 				.getSystemService(WIFI_SERVICE);
+		wifiRequest = ctx.registerForActivityResult(
+				new ActivityResultContracts.StartActivityForResult(),
+				result -> permissionUpdateCallback
+						.accept(wifiManager.isWifiEnabled()));
 	}
 
 	/**
@@ -57,6 +68,8 @@ abstract class AbstractConditionManager {
 	 */
 	abstract boolean checkAndRequestConditions();
 
+	abstract String getWifiSettingsAction();
+
 	void showRationale(Context ctx, @StringRes int title,
 			@StringRes int body, Runnable onContinueClicked,
 			Runnable onDismiss) {
@@ -67,6 +80,15 @@ abstract class AbstractConditionManager {
 				(dialog, which) -> onContinueClicked.run());
 		builder.setOnDismissListener(dialog -> onDismiss.run());
 		builder.show();
+	}
+
+	void requestEnableWiFi() {
+		try {
+			wifiRequest.launch(new Intent(getWifiSettingsAction()));
+		} catch (ActivityNotFoundException e) {
+			Toast.makeText(ctx, R.string.error_start_activity, LENGTH_LONG)
+					.show();
+		}
 	}
 
 }

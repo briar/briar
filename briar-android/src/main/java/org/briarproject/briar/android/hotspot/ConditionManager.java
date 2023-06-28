@@ -1,24 +1,15 @@
 package org.briarproject.briar.android.hotspot;
 
-import android.content.ActivityNotFoundException;
-import android.content.Intent;
 import android.provider.Settings;
-import android.widget.Toast;
 
 import org.briarproject.briar.R;
 
 import java.util.logging.Logger;
 
-import androidx.activity.result.ActivityResultCaller;
-import androidx.activity.result.ActivityResultLauncher;
-import androidx.activity.result.contract.ActivityResultContracts.StartActivityForResult;
 import androidx.core.util.Consumer;
 
-import static android.widget.Toast.LENGTH_LONG;
 import static java.util.logging.Level.INFO;
-import static java.util.logging.Level.WARNING;
 import static java.util.logging.Logger.getLogger;
-import static org.briarproject.bramble.util.LogUtils.logException;
 
 /**
  * This class ensures that the conditions to open a hotspot are fulfilled on
@@ -32,15 +23,8 @@ class ConditionManager extends AbstractConditionManager {
 	private static final Logger LOG =
 			getLogger(ConditionManager.class.getName());
 
-	private final ActivityResultLauncher<Intent> wifiRequest;
-
-	ConditionManager(ActivityResultCaller arc,
-			Consumer<Boolean> permissionUpdateCallback) {
-		super(permissionUpdateCallback);
-		wifiRequest = arc.registerForActivityResult(
-				new StartActivityForResult(),
-				result -> permissionUpdateCallback
-						.accept(wifiManager.isWifiEnabled()));
+	ConditionManager(Consumer<Boolean> permissionUpdateCallback) {
+		super( permissionUpdateCallback);
 	}
 
 	@Override
@@ -81,14 +65,9 @@ class ConditionManager extends AbstractConditionManager {
 		return false;
 	}
 
-	private void requestEnableWiFi() {
-		try {
-			wifiRequest.launch(new Intent(Settings.ACTION_WIFI_SETTINGS));
-		} catch (ActivityNotFoundException e) {
-			logException(LOG, WARNING, e);
-			Toast.makeText(ctx, R.string.error_start_activity, LENGTH_LONG)
-					.show();
-		}
+	@Override
+	String getWifiSettingsAction() {
+		return Settings.ACTION_WIFI_SETTINGS;
 	}
 
 }
