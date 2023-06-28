@@ -22,6 +22,7 @@ import static android.content.Intent.ACTION_POWER_CONNECTED;
 import static android.content.Intent.ACTION_POWER_DISCONNECTED;
 import static android.os.BatteryManager.EXTRA_PLUGGED;
 import static android.os.Build.VERSION.SDK_INT;
+import static android.os.PowerManager.ACTION_DEVICE_LIGHT_IDLE_MODE_CHANGED;
 import static android.os.PowerManager.ACTION_LOW_POWER_STANDBY_ENABLED_CHANGED;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Logger.getLogger;
@@ -62,6 +63,7 @@ class AndroidBatteryManager implements BatteryManager, Service {
 		filter.addAction(ACTION_POWER_DISCONNECTED);
 		if (SDK_INT >= 33) {
 			filter.addAction(ACTION_LOW_POWER_STANDBY_ENABLED_CHANGED);
+			filter.addAction(ACTION_DEVICE_LIGHT_IDLE_MODE_CHANGED);
 		}
 		appContext.registerReceiver(batteryReceiver, filter);
 	}
@@ -88,6 +90,12 @@ class AndroidBatteryManager implements BatteryManager, Service {
 						ctx.getSystemService(PowerManager.class);
 				LOG.info("Low power standby now is: " +
 						powerManager.isLowPowerStandbyEnabled());
+			} else if (SDK_INT >= 33 && LOG.isLoggable(INFO) &&
+					ACTION_DEVICE_LIGHT_IDLE_MODE_CHANGED.equals(action)) {
+				PowerManager powerManager =
+						ctx.getSystemService(PowerManager.class);
+				LOG.info("Light idle mode now is: " +
+						powerManager.isDeviceLightIdleMode());
 			}
 		}
 	}
