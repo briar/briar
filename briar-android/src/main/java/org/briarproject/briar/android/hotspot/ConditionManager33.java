@@ -5,6 +5,7 @@ import android.provider.Settings;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.util.Permission;
 import org.briarproject.briar.android.util.PermissionUtils;
+import org.briarproject.nullsafety.NotNullByDefault;
 
 import java.util.logging.Logger;
 
@@ -29,6 +30,7 @@ import static java.util.logging.Logger.getLogger;
  * all conditions are fulfilled.
  */
 @RequiresApi(33)
+@NotNullByDefault
 class ConditionManager33 extends AbstractConditionManager {
 
 	private static final Logger LOG =

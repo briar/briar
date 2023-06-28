@@ -5,6 +5,7 @@ import android.provider.Settings;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.util.Permission;
 import org.briarproject.briar.android.util.PermissionUtils;
+import org.briarproject.nullsafety.NotNullByDefault;
 
 import java.util.logging.Logger;
 
@@ -32,6 +33,7 @@ import static org.briarproject.briar.android.util.PermissionUtils.showLocationDi
  * all conditions are fulfilled.
  */
 @RequiresApi(29)
+@NotNullByDefault
 class ConditionManager29 extends AbstractConditionManager {
 
 	private static final Logger LOG =

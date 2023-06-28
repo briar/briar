@@ -3,6 +3,7 @@ package org.briarproject.briar.android.hotspot;
 import android.provider.Settings;
 
 import org.briarproject.briar.R;
+import org.briarproject.nullsafety.NotNullByDefault;
 
 import java.util.logging.Logger;
 
@@ -18,6 +19,7 @@ import static java.util.logging.Logger.getLogger;
  * As soon as {@link #checkAndRequestConditions()} returns true,
  * all conditions are fulfilled.
  */
+@NotNullByDefault
 class ConditionManager extends AbstractConditionManager {
 
 	private static final Logger LOG =
