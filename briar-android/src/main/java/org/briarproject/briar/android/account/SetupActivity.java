@@ -36,7 +36,7 @@ public class SetupActivity extends BaseActivity
 
 	@Inject
 	ViewModelProvider.Factory viewModelFactory;
-	SetupViewModel viewModel;
+	private SetupViewModel viewModel;
 
 	@Override
 	public void injectActivity(ActivityComponent component) {
@@ -71,16 +71,16 @@ public class SetupActivity extends BaseActivity
 		}
 	}
 
-	void showPasswordFragment() {
+	private void showPasswordFragment() {
 		showNextFragment(SetPasswordFragment.newInstance());
 	}
 
 	@TargetApi(23)
-	void showDozeFragment() {
+	private void showDozeFragment() {
 		showNextFragment(DozeFragment.newInstance());
 	}
 
-	void showApp() {
+	private void showApp() {
 		Intent i = new Intent(this, ENTRY_ACTIVITY);
 		i.setFlags(FLAG_ACTIVITY_NEW_TASK | FLAG_ACTIVITY_TASK_ON_HOME |
 				FLAG_ACTIVITY_CLEAR_TASK | FLAG_ACTIVITY_CLEAR_TOP);

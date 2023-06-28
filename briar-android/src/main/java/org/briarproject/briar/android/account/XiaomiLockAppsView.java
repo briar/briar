@@ -1,5 +1,6 @@
 package org.briarproject.briar.android.account;
 
+import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.util.AttributeSet;
 import android.widget.Toast;
@@ -60,12 +61,12 @@ class XiaomiLockAppsView extends PowerView {
 			getContext().startActivity(getXiaomiLockAppsIntent());
 			setChecked(true);
 			return;
-		} catch (SecurityException e) {
+		} catch (SecurityException | ActivityNotFoundException e) {
 			logException(LOG, WARNING, e);
+			Toast.makeText(getContext(),
+					R.string.dnkm_xiaomi_lock_apps_error_toast,
+					LENGTH_LONG).show();
 		}
-		Toast.makeText(getContext(),
-				R.string.dnkm_xiaomi_lock_apps_error_toast,
-				LENGTH_LONG).show();
 		// Let the user continue with setup
 		setChecked(true);
 	}

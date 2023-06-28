@@ -3,6 +3,7 @@ package org.briarproject.briar.android.fragment;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.Dialog;
+import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -12,6 +13,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.CheckBox;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.activity.BaseActivity;
@@ -19,6 +21,7 @@ import org.briarproject.briar.api.android.ScreenFilterMonitor;
 import org.briarproject.briar.api.android.ScreenFilterMonitor.AppDetails;
 import org.briarproject.nullsafety.MethodsNotNullByDefault;
 import org.briarproject.nullsafety.ParametersNotNullByDefault;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -32,6 +35,7 @@ import androidx.fragment.app.DialogFragment;
 import static android.os.Build.VERSION.SDK_INT;
 import static android.provider.Settings.ACTION_MANAGE_OVERLAY_PERMISSION;
 import static android.view.View.GONE;
+import static android.widget.Toast.LENGTH_LONG;
 
 @MethodsNotNullByDefault
 @ParametersNotNullByDefault
@@ -68,6 +72,7 @@ public class ScreenFilterDialogFragment extends DialogFragment {
 		((BaseActivity) requireActivity()).getActivityComponent().inject(this);
 	}
 
+	@NotNull
 	@Override
 	public Dialog onCreateDialog(@Nullable Bundle savedInstanceState) {
 		Activity activity = getActivity();
@@ -98,7 +103,13 @@ public class ScreenFilterDialogFragment extends DialogFragment {
 			builder.setNeutralButton(R.string.screen_filter_review_apps,
 					(dialog, which) -> {
 						Intent i = new Intent(ACTION_MANAGE_OVERLAY_PERMISSION);
-						startActivity(i);
+						try {
+							startActivity(i);
+						} catch (ActivityNotFoundException e) {
+							Toast.makeText(requireContext(),
+											R.string.error_start_activity, LENGTH_LONG)
+									.show();
+						}
 					});
 		}
 		builder.setPositiveButton(R.string.continue_button, (dialog, which) -> {

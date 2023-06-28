@@ -1,7 +1,9 @@
 package org.briarproject.briar.android.hotspot;
 
+import android.content.ActivityNotFoundException;
 import android.content.Intent;
 import android.provider.Settings;
+import android.widget.Toast;
 
 import org.briarproject.briar.R;
 
@@ -12,8 +14,11 @@ import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts.StartActivityForResult;
 import androidx.core.util.Consumer;
 
+import static android.widget.Toast.LENGTH_LONG;
 import static java.util.logging.Level.INFO;
+import static java.util.logging.Level.WARNING;
 import static java.util.logging.Logger.getLogger;
+import static org.briarproject.bramble.util.LogUtils.logException;
 
 /**
  * This class ensures that the conditions to open a hotspot are fulfilled on
@@ -77,7 +82,13 @@ class ConditionManager extends AbstractConditionManager {
 	}
 
 	private void requestEnableWiFi() {
-		wifiRequest.launch(new Intent(Settings.ACTION_WIFI_SETTINGS));
+		try {
+			wifiRequest.launch(new Intent(Settings.ACTION_WIFI_SETTINGS));
+		} catch (ActivityNotFoundException e) {
+			logException(LOG, WARNING, e);
+			Toast.makeText(ctx, R.string.error_start_activity, LENGTH_LONG)
+					.show();
+		}
 	}
 
 }

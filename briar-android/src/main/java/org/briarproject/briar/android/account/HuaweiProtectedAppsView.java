@@ -1,8 +1,10 @@
 package org.briarproject.briar.android.account;
 
 
+import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.util.AttributeSet;
+import android.widget.Toast;
 
 import org.briarproject.briar.R;
 import org.briarproject.nullsafety.NotNullByDefault;
@@ -12,6 +14,7 @@ import javax.annotation.Nullable;
 import androidx.annotation.StringRes;
 import androidx.annotation.UiThread;
 
+import static android.widget.Toast.LENGTH_LONG;
 import static org.briarproject.android.dontkillmelib.HuaweiUtils.getHuaweiProtectedAppsIntent;
 import static org.briarproject.android.dontkillmelib.HuaweiUtils.protectedAppsNeedsToBeShown;
 
@@ -49,7 +52,13 @@ class HuaweiProtectedAppsView extends PowerView {
 
 	@Override
 	protected void onButtonClick() {
-		getContext().startActivity(getHuaweiProtectedAppsIntent());
+		Context ctx = getContext();
+		try {
+			ctx.startActivity(getHuaweiProtectedAppsIntent());
+		} catch (ActivityNotFoundException e) {
+			Toast.makeText(ctx, R.string.error_start_activity, LENGTH_LONG)
+					.show();
+		}
 		setChecked(true);
 	}
 }

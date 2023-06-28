@@ -1,5 +1,6 @@
 package org.briarproject.briar.android.hotspot;
 
+import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
@@ -9,6 +10,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ProgressBar;
+import android.widget.Toast;
 
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.fragment.BaseFragment;
@@ -28,6 +30,7 @@ import static android.content.Intent.EXTRA_STREAM;
 import static android.content.Intent.FLAG_GRANT_READ_URI_PERMISSION;
 import static android.view.View.INVISIBLE;
 import static android.view.View.VISIBLE;
+import static android.widget.Toast.LENGTH_LONG;
 import static androidx.transition.TransitionManager.beginDelayedTransition;
 import static org.briarproject.briar.android.AppModule.getAndroidComponent;
 import static org.briarproject.briar.android.hotspot.HotspotViewModel.getApkFileName;
@@ -102,7 +105,12 @@ public class FallbackFragment extends BaseFragment {
 		i.putExtra(EXTRA_STREAM, uri);
 		i.setType("*/*"); // gives us all sharing options
 		i.addFlags(FLAG_GRANT_READ_URI_PERMISSION);
-		startActivity(Intent.createChooser(i, null));
+		try {
+			startActivity(Intent.createChooser(i, null));
+		} catch (ActivityNotFoundException e) {
+			Toast.makeText(requireContext(), R.string.error_start_activity,
+					LENGTH_LONG).show();
+		}
 	}
 
 }

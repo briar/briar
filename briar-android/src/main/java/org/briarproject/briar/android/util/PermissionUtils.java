@@ -47,7 +47,7 @@ public class PermissionUtils {
 		}
 	}
 
-	public static boolean isPermissionGranted(Context ctx, String permission) {
+	private static boolean isPermissionGranted(Context ctx, String permission) {
 		return checkSelfPermission(ctx, permission) ==
 				PERMISSION_GRANTED;
 	}
@@ -68,7 +68,7 @@ public class PermissionUtils {
 				gotPermission(ctx, grantedMap, BLUETOOTH_SCAN);
 	}
 
-	public static DialogInterface.OnClickListener getGoToSettingsListener(
+	private static DialogInterface.OnClickListener getGoToSettingsListener(
 			Context context) {
 		return (dialog, which) -> {
 			Intent i = new Intent();
@@ -76,7 +76,12 @@ public class PermissionUtils {
 			i.addCategory(CATEGORY_DEFAULT);
 			i.setData(Uri.parse("package:" + APPLICATION_ID));
 			i.addFlags(FLAG_ACTIVITY_NEW_TASK);
-			context.startActivity(i);
+			try {
+				context.startActivity(i);
+			} catch (ActivityNotFoundException e) {
+				Toast.makeText(context, R.string.error_start_activity,
+						LENGTH_LONG).show();
+			}
 		};
 	}
 
