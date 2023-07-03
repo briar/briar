@@ -22,13 +22,19 @@ import org.briarproject.nullsafety.ParametersNotNullByDefault;
 import javax.annotation.Nullable;
 import javax.inject.Inject;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts.RequestPermission;
 import androidx.appcompat.app.AlertDialog;
 import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.ViewModelProvider;
 
+import static android.Manifest.permission.POST_NOTIFICATIONS;
+import static android.content.pm.PackageManager.PERMISSION_GRANTED;
+import static android.os.Build.VERSION.SDK_INT;
 import static android.view.View.INVISIBLE;
 import static android.view.View.VISIBLE;
 import static android.view.inputmethod.EditorInfo.IME_ACTION_DONE;
+import static androidx.core.content.ContextCompat.checkSelfPermission;
 import static org.briarproject.bramble.api.crypto.DecryptionResult.KEY_STRENGTHENER_ERROR;
 import static org.briarproject.bramble.api.crypto.DecryptionResult.SUCCESS;
 import static org.briarproject.briar.android.login.LoginUtils.createKeyStrengthenerErrorDialog;
@@ -51,6 +57,10 @@ public class PasswordFragment extends BaseFragment implements TextWatcher {
 	private ProgressBar progress;
 	private TextInputLayout input;
 	private TextInputEditText password;
+
+	private final ActivityResultLauncher<String> requestPermissionLauncher =
+			registerForActivityResult(new RequestPermission(), isGranted ->
+					validatePassword());
 
 	@Override
 	public void injectFragment(ActivityComponent component) {
@@ -109,6 +119,17 @@ public class PasswordFragment extends BaseFragment implements TextWatcher {
 		hideSoftKeyboard(password);
 		signInButton.setVisibility(INVISIBLE);
 		progress.setVisibility(VISIBLE);
+		if (SDK_INT >= 33 &&
+				checkSelfPermission(requireContext(), POST_NOTIFICATIONS) !=
+						PERMISSION_GRANTED) {
+			// this calls validatePassword() when it returns
+			requestPermissionLauncher.launch(POST_NOTIFICATIONS);
+		} else {
+			validatePassword();
+		}
+	}
+
+	private void validatePassword() {
 		viewModel.validatePassword(password.getText().toString());
 	}
 

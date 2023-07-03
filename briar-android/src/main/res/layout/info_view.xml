@@ -13,10 +13,10 @@
 		android:layout_margin="@dimen/margin_medium"
 		android:contentDescription="@string/info"
 		android:drawablePadding="@dimen/margin_medium"
-		android:drawableTint="?attr/colorControlNormal"
 		android:gravity="center_vertical"
 		app:drawableLeftCompat="@drawable/ic_info_dark"
 		app:drawableStartCompat="@drawable/ic_info_dark"
+		app:drawableTint="?attr/colorControlNormal"
 		tools:text="Did you know that if you took all the veins out of your body and laid them out end to end, you would die?" />
 
 </merge>

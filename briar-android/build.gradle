@@ -25,7 +25,7 @@ android {
 
 	defaultConfig {
 		minSdkVersion 21
-		targetSdkVersion 31
+		targetSdkVersion 33
 		versionCode 10504
 		versionName "1.5.4"
 		applicationId "org.briarproject.briar.android"

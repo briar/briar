@@ -789,6 +789,7 @@
 	<string name="permission_camera_title">Camera permission</string>
 	<string name="permission_camera_request_body">To scan the QR code, Briar needs access to the camera.</string>
 	<string name="permission_location_title">Location permission</string>
+	<string name="permission_nearby_devices_title">Nearby devices permission</string>
 	<string name="permission_location_request_body">To discover Bluetooth devices, Briar needs permission to access your location.\n\nBriar does not store your location or share it with anyone.</string>
 	<string name="permission_camera_location_title">Camera and location</string>
 	<string name="permission_camera_location_request_body">To scan the QR code, Briar needs access to the camera.\n\nTo discover Bluetooth devices, Briar needs permission to access your location.\n\nBriar does not store your location or share it with anyone.</string>
@@ -833,6 +834,8 @@
 	<string name="permission_hotspot_location_request_precise_body">To create a Wi-Fi hotspot, Briar needs permission to access your precise location.\n\nBriar does not store your location or share it with anyone.</string>
 	<string name="permission_hotspot_location_denied_body">You have denied access to your location, but Briar needs this permission to create a Wi-Fi hotspot.\n\nPlease consider granting access.</string>
 	<string name="permission_hotspot_location_denied_precise_body">You have denied access to your precise location, but Briar needs this permission to create a Wi-Fi hotspot.\n\nPlease consider granting access.</string>
+	<string name="permission_hotspot_nearby_wifi_request_body">To create a Wi-Fi hotspot, Briar needs permission to access nearby devices.</string>
+	<string name="permission_hotspot_nearby_wifi_denied_body">You have denied access to nearby devices, but Briar needs this permission to create a Wi-Fi hotspot.\n\nPlease consider granting access.</string>
 	<string name="wifi_settings_title">Wi-Fi setting</string>
 	<string name="wifi_settings_request_enable_body">To create a Wi-Fi hotspot, Briar needs to use Wi-Fi. Please enable it.</string>
 

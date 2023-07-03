@@ -14,6 +14,7 @@ import androidx.annotation.UiThread;
 
 import static org.briarproject.android.dontkillmelib.HuaweiUtils.getHuaweiProtectedAppsIntent;
 import static org.briarproject.android.dontkillmelib.HuaweiUtils.protectedAppsNeedsToBeShown;
+import static org.briarproject.briar.android.util.UiUtils.tryToStartActivity;
 
 @UiThread
 @NotNullByDefault
@@ -49,7 +50,7 @@ class HuaweiProtectedAppsView extends PowerView {
 
 	@Override
 	protected void onButtonClick() {
-		getContext().startActivity(getHuaweiProtectedAppsIntent());
+		tryToStartActivity(getContext(), getHuaweiProtectedAppsIntent());
 		setChecked(true);
 	}
 }

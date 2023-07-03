@@ -16,38 +16,35 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.core.util.Consumer;
 
-import static android.Manifest.permission.ACCESS_FINE_LOCATION;
-import static android.os.Build.VERSION.SDK_INT;
+import static android.Manifest.permission.NEARBY_WIFI_DEVICES;
 import static androidx.core.app.ActivityCompat.shouldShowRequestPermissionRationale;
 import static java.lang.Boolean.TRUE;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Logger.getLogger;
-import static org.briarproject.briar.android.util.PermissionUtils.isLocationEnabledForWiFi;
-import static org.briarproject.briar.android.util.PermissionUtils.showLocationDialog;
 
 /**
  * This class ensures that the conditions to open a hotspot are fulfilled on
- * API levels >= 29 and < 33.
+ * API levels >= 33.
  * <p>
  * As soon as {@link #checkAndRequestConditions()} returns true,
  * all conditions are fulfilled.
  */
-@RequiresApi(29)
+@RequiresApi(33)
 @NotNullByDefault
-class ConditionManager29 extends AbstractConditionManager {
+class ConditionManager33 extends AbstractConditionManager {
 
 	private static final Logger LOG =
-			getLogger(ConditionManager29.class.getName());
+			getLogger(ConditionManager33.class.getName());
 
-	private Permission locationPermission = Permission.UNKNOWN;
+	private Permission nearbyWifiPermission = Permission.UNKNOWN;
 
-	private final ActivityResultLauncher<String> locationRequest;
+	private final ActivityResultLauncher<String> nearbyWifiRequest;
 
-	ConditionManager29(ActivityResultCaller arc,
+	ConditionManager33(ActivityResultCaller arc,
 			Consumer<Boolean> permissionUpdateCallback) {
 		super(permissionUpdateCallback);
 		// permissionUpdateCallback receives false if permissions were denied
-		locationRequest = arc.registerForActivityResult(
+		nearbyWifiRequest = arc.registerForActivityResult(
 				new RequestPermission(), granted -> {
 					onRequestPermissionResult(granted);
 					permissionUpdateCallback.accept(TRUE.equals(granted));
@@ -56,55 +53,44 @@ class ConditionManager29 extends AbstractConditionManager {
 
 	@Override
 	void onStart() {
-		locationPermission = Permission.UNKNOWN;
+		nearbyWifiPermission = Permission.UNKNOWN;
 	}
 
 	private boolean areEssentialPermissionsGranted() {
 		boolean isWifiEnabled = wifiManager.isWifiEnabled();
-		boolean isLocationEnabled = isLocationEnabledForWiFi(ctx);
 		if (LOG.isLoggable(INFO)) {
 			LOG.info(String.format("areEssentialPermissionsGranted(): " +
-							"locationPermission? %s, " +
-							"wifiManager.isWifiEnabled()? %b" +
-							"isLocationEnabled? %b",
-					locationPermission, isWifiEnabled, isLocationEnabled));
+							"nearbyWifiPermission? %s, " +
+							"wifiManager.isWifiEnabled()? %b",
+					nearbyWifiPermission, isWifiEnabled));
 		}
-		return locationPermission == Permission.GRANTED && isWifiEnabled &&
-				isLocationEnabled;
+		return nearbyWifiPermission == Permission.GRANTED && isWifiEnabled;
 	}
 
 	@Override
 	boolean checkAndRequestConditions() {
 		if (areEssentialPermissionsGranted()) return true;
 
-		if (locationPermission == Permission.UNKNOWN) {
+		if (nearbyWifiPermission == Permission.UNKNOWN) {
 			requestPermissions();
-			return false;
-		}
-		// ensure location is enabled (if needed on this device)
-		if (!isLocationEnabledForWiFi(ctx)) {
-			showLocationDialog(ctx, false);
 			return false;
 		}
 
 		// If the location permission has been permanently denied, ask the
 		// user to change the setting
-		if (locationPermission == Permission.PERMANENTLY_DENIED) {
-			int res = SDK_INT >= 31 ?
-					R.string.permission_hotspot_location_denied_precise_body :
-					R.string.permission_hotspot_location_denied_body;
+		if (nearbyWifiPermission == Permission.PERMANENTLY_DENIED) {
 			PermissionUtils.showDenialDialog(ctx,
-					R.string.permission_location_title, res,
+					R.string.permission_nearby_devices_title,
+					R.string.permission_hotspot_nearby_wifi_denied_body,
 					() -> permissionUpdateCallback.accept(false));
 			return false;
 		}
 
 		// Should we show the rationale for location permission?
-		if (locationPermission == Permission.SHOW_RATIONALE) {
-			int res = SDK_INT >= 31 ?
-					R.string.permission_hotspot_location_request_precise_body :
-					R.string.permission_hotspot_location_request_body;
-			showRationale(ctx, R.string.permission_location_title, res,
+		if (nearbyWifiPermission == Permission.SHOW_RATIONALE) {
+			showRationale(ctx,
+					R.string.permission_location_title,
+					R.string.permission_hotspot_nearby_wifi_request_body,
 					this::requestPermissions,
 					() -> permissionUpdateCallback.accept(false));
 			return false;
@@ -132,17 +118,17 @@ class ConditionManager29 extends AbstractConditionManager {
 
 	private void onRequestPermissionResult(@Nullable Boolean granted) {
 		if (granted != null && granted) {
-			locationPermission = Permission.GRANTED;
+			nearbyWifiPermission = Permission.GRANTED;
 		} else if (shouldShowRequestPermissionRationale(ctx,
-				ACCESS_FINE_LOCATION)) {
-			locationPermission = Permission.SHOW_RATIONALE;
+				NEARBY_WIFI_DEVICES)) {
+			nearbyWifiPermission = Permission.SHOW_RATIONALE;
 		} else {
-			locationPermission = Permission.PERMANENTLY_DENIED;
+			nearbyWifiPermission = Permission.PERMANENTLY_DENIED;
 		}
 	}
 
 	private void requestPermissions() {
-		locationRequest.launch(ACCESS_FINE_LOCATION);
+		nearbyWifiRequest.launch(NEARBY_WIFI_DEVICES);
 	}
 
 }

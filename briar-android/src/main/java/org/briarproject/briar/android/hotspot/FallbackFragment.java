@@ -31,6 +31,7 @@ import static android.view.View.VISIBLE;
 import static androidx.transition.TransitionManager.beginDelayedTransition;
 import static org.briarproject.briar.android.AppModule.getAndroidComponent;
 import static org.briarproject.briar.android.hotspot.HotspotViewModel.getApkFileName;
+import static org.briarproject.briar.android.util.UiUtils.tryToStartActivity;
 
 @MethodsNotNullByDefault
 @ParametersNotNullByDefault
@@ -102,7 +103,7 @@ public class FallbackFragment extends BaseFragment {
 		i.putExtra(EXTRA_STREAM, uri);
 		i.setType("*/*"); // gives us all sharing options
 		i.addFlags(FLAG_GRANT_READ_URI_PERMISSION);
-		startActivity(Intent.createChooser(i, null));
+		tryToStartActivity(requireActivity(), Intent.createChooser(i, null));
 	}
 
 }

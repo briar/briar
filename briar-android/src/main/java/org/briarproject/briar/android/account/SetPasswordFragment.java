@@ -19,10 +19,17 @@ import org.briarproject.nullsafety.ParametersNotNullByDefault;
 
 import javax.annotation.Nullable;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts.RequestPermission;
+
+import static android.Manifest.permission.POST_NOTIFICATIONS;
 import static android.content.Context.INPUT_METHOD_SERVICE;
+import static android.content.pm.PackageManager.PERMISSION_GRANTED;
+import static android.os.Build.VERSION.SDK_INT;
 import static android.view.View.INVISIBLE;
 import static android.view.View.VISIBLE;
 import static android.view.inputmethod.EditorInfo.IME_ACTION_DONE;
+import static androidx.core.content.ContextCompat.checkSelfPermission;
 import static org.briarproject.bramble.api.crypto.PasswordStrengthEstimator.QUITE_WEAK;
 import static org.briarproject.briar.android.util.UiUtils.setError;
 
@@ -37,6 +44,10 @@ public class SetPasswordFragment extends SetupFragment {
 	private TextInputEditText passwordConfirmation;
 	private StrengthMeter strengthMeter;
 	private Button nextButton;
+
+	private final ActivityResultLauncher<String> requestPermissionLauncher =
+			registerForActivityResult(new RequestPermission(), isGranted ->
+					setPassword());
 
 	public static SetPasswordFragment newInstance() {
 		return new SetPasswordFragment();
@@ -121,6 +132,18 @@ public class SetPasswordFragment extends SetupFragment {
 		IBinder token = passwordEntry.getWindowToken();
 		Object o = requireContext().getSystemService(INPUT_METHOD_SERVICE);
 		((InputMethodManager) o).hideSoftInputFromWindow(token, 0);
+		if (SDK_INT >= 33 &&
+				checkSelfPermission(requireContext(), POST_NOTIFICATIONS) !=
+						PERMISSION_GRANTED) {
+			// this calls setPassword() when it returns
+			requestPermissionLauncher.launch(POST_NOTIFICATIONS);
+		} else {
+			setPassword();
+		}
+	}
+
+	private void setPassword() {
 		viewModel.setPassword(passwordEntry.getText().toString());
 	}
+
 }

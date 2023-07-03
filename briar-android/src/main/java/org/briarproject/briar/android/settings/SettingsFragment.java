@@ -1,12 +1,10 @@
 package org.briarproject.briar.android.settings;
 
-import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
-import android.widget.Toast;
 
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.mailbox.MailboxActivity;
@@ -28,12 +26,12 @@ import androidx.preference.PreferenceGroup;
 
 import static android.content.Intent.ACTION_SEND;
 import static android.content.Intent.EXTRA_TEXT;
-import static android.widget.Toast.LENGTH_LONG;
 import static java.util.Objects.requireNonNull;
 import static org.briarproject.briar.android.AppModule.getAndroidComponent;
 import static org.briarproject.briar.android.TestingConstants.IS_DEBUG_BUILD;
 import static org.briarproject.briar.android.util.UiUtils.launchActivityToOpenFile;
 import static org.briarproject.briar.android.util.UiUtils.triggerFeedback;
+import static org.briarproject.briar.android.util.UiUtils.tryToStartActivity;
 
 @MethodsNotNullByDefault
 @ParametersNotNullByDefault
@@ -101,12 +99,8 @@ public class SettingsFragment extends PreferenceFragmentCompat {
 			Intent sendIntent = new Intent(ACTION_SEND);
 			sendIntent.putExtra(EXTRA_TEXT, text);
 			sendIntent.setType("text/plain");
-			try {
-				startActivity(Intent.createChooser(sendIntent, null));
-			} catch (ActivityNotFoundException e) {
-				Toast.makeText(requireContext(),
-						R.string.error_start_activity, LENGTH_LONG).show();
-			}
+			tryToStartActivity(requireActivity(),
+					Intent.createChooser(sendIntent, null));
 			return true;
 		});
 		Preference prefFeedback =

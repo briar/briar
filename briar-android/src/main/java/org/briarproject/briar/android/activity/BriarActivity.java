@@ -1,9 +1,11 @@
 package org.briarproject.briar.android.activity;
 
+import android.content.ActivityNotFoundException;
 import android.content.Intent;
 import android.transition.Transition;
 import android.view.Window;
 import android.widget.CheckBox;
+import android.widget.Toast;
 
 import org.briarproject.android.dontkillmelib.wakelock.AndroidWakeLockManager;
 import org.briarproject.bramble.api.system.Wakeful;
@@ -34,9 +36,12 @@ import static android.content.Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS;
 import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
 import static android.content.Intent.FLAG_ACTIVITY_NO_ANIMATION;
 import static android.os.Build.VERSION.SDK_INT;
+import static android.widget.Toast.LENGTH_LONG;
 import static java.util.logging.Level.INFO;
+import static java.util.logging.Level.WARNING;
 import static java.util.logging.Logger.getLogger;
 import static org.briarproject.android.dontkillmelib.DozeUtils.getDozeWhitelistingIntent;
+import static org.briarproject.bramble.util.LogUtils.logException;
 import static org.briarproject.briar.android.activity.RequestCodes.REQUEST_DOZE_WHITELISTING;
 import static org.briarproject.briar.android.activity.RequestCodes.REQUEST_PASSWORD;
 import static org.briarproject.briar.android.activity.RequestCodes.REQUEST_UNLOCK;
@@ -179,7 +184,13 @@ public abstract class BriarActivity extends BaseActivity {
 		b.setPositiveButton(R.string.fix,
 				(dialog, which) -> {
 					Intent i = getDozeWhitelistingIntent(BriarActivity.this);
-					startActivityForResult(i, REQUEST_DOZE_WHITELISTING);
+					try {
+						startActivityForResult(i, REQUEST_DOZE_WHITELISTING);
+					} catch (ActivityNotFoundException e) {
+						logException(LOG, WARNING, e);
+						Toast.makeText(this, R.string.error_start_activity,
+								LENGTH_LONG).show();
+					}
 					dialog.dismiss();
 				});
 		b.setNegativeButton(R.string.cancel,

@@ -1,6 +1,7 @@
 package org.briarproject.briar.android.account;
 
 import android.annotation.SuppressLint;
+import android.content.ActivityNotFoundException;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -8,6 +9,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ProgressBar;
+import android.widget.Toast;
 
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.account.PowerView.OnCheckedChangedListener;
@@ -18,6 +20,7 @@ import androidx.annotation.Nullable;
 
 import static android.view.View.INVISIBLE;
 import static android.view.View.VISIBLE;
+import static android.widget.Toast.LENGTH_LONG;
 import static org.briarproject.android.dontkillmelib.DozeUtils.getDozeWhitelistingIntent;
 import static org.briarproject.briar.android.activity.RequestCodes.REQUEST_DOZE_WHITELISTING;
 import static org.briarproject.briar.android.util.UiUtils.showOnboardingDialog;
@@ -113,7 +116,12 @@ public class DozeFragment extends SetupFragment
 	private void askForDozeWhitelisting() {
 		if (getContext() == null) return;
 		Intent i = getDozeWhitelistingIntent(getContext());
-		startActivityForResult(i, REQUEST_DOZE_WHITELISTING);
+		try {
+			startActivityForResult(i, REQUEST_DOZE_WHITELISTING);
+		} catch (ActivityNotFoundException e) {
+			Toast.makeText(requireContext(),
+					R.string.error_start_activity, LENGTH_LONG).show();
+		}
 	}
 
 	@Override

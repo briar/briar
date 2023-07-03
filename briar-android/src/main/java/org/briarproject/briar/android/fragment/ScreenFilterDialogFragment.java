@@ -19,6 +19,7 @@ import org.briarproject.briar.api.android.ScreenFilterMonitor;
 import org.briarproject.briar.api.android.ScreenFilterMonitor.AppDetails;
 import org.briarproject.nullsafety.MethodsNotNullByDefault;
 import org.briarproject.nullsafety.ParametersNotNullByDefault;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -32,6 +33,7 @@ import androidx.fragment.app.DialogFragment;
 import static android.os.Build.VERSION.SDK_INT;
 import static android.provider.Settings.ACTION_MANAGE_OVERLAY_PERMISSION;
 import static android.view.View.GONE;
+import static org.briarproject.briar.android.util.UiUtils.tryToStartActivity;
 
 @MethodsNotNullByDefault
 @ParametersNotNullByDefault
@@ -68,6 +70,7 @@ public class ScreenFilterDialogFragment extends DialogFragment {
 		((BaseActivity) requireActivity()).getActivityComponent().inject(this);
 	}
 
+	@NotNull
 	@Override
 	public Dialog onCreateDialog(@Nullable Bundle savedInstanceState) {
 		Activity activity = getActivity();
@@ -98,7 +101,7 @@ public class ScreenFilterDialogFragment extends DialogFragment {
 			builder.setNeutralButton(R.string.screen_filter_review_apps,
 					(dialog, which) -> {
 						Intent i = new Intent(ACTION_MANAGE_OVERLAY_PERMISSION);
-						startActivity(i);
+						tryToStartActivity(requireActivity(), i);
 					});
 		}
 		builder.setPositiveButton(R.string.continue_button, (dialog, which) -> {

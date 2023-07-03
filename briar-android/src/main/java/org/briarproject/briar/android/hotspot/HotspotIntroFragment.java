@@ -49,8 +49,10 @@ public class HotspotIntroFragment extends Fragment {
 	private TextView progressTextView;
 
 	private final AbstractConditionManager conditionManager = SDK_INT < 29 ?
-			new ConditionManager(this, this::onPermissionUpdate) :
-			new ConditionManager29(this, this::onPermissionUpdate);
+			new ConditionManager(this::onPermissionUpdate) :
+			SDK_INT >= 33 ?
+					new ConditionManager33(this, this::onPermissionUpdate) :
+					new ConditionManager29(this, this::onPermissionUpdate);
 
 	@Override
 	public void onAttach(Context context) {
@@ -87,7 +89,6 @@ public class HotspotIntroFragment extends Fragment {
 	}
 
 	private void onButtonClick(View view) {
-		startButton.setEnabled(false);
 		startHotspotIfConditionsFulfilled();
 	}
 

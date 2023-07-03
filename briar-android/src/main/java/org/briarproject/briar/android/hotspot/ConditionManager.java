@@ -1,15 +1,12 @@
 package org.briarproject.briar.android.hotspot;
 
-import android.content.Intent;
 import android.provider.Settings;
 
 import org.briarproject.briar.R;
+import org.briarproject.nullsafety.NotNullByDefault;
 
 import java.util.logging.Logger;
 
-import androidx.activity.result.ActivityResultCaller;
-import androidx.activity.result.ActivityResultLauncher;
-import androidx.activity.result.contract.ActivityResultContracts.StartActivityForResult;
 import androidx.core.util.Consumer;
 
 import static java.util.logging.Level.INFO;
@@ -22,20 +19,14 @@ import static java.util.logging.Logger.getLogger;
  * As soon as {@link #checkAndRequestConditions()} returns true,
  * all conditions are fulfilled.
  */
+@NotNullByDefault
 class ConditionManager extends AbstractConditionManager {
 
 	private static final Logger LOG =
 			getLogger(ConditionManager.class.getName());
 
-	private final ActivityResultLauncher<Intent> wifiRequest;
-
-	ConditionManager(ActivityResultCaller arc,
-			Consumer<Boolean> permissionUpdateCallback) {
-		super(permissionUpdateCallback);
-		wifiRequest = arc.registerForActivityResult(
-				new StartActivityForResult(),
-				result -> permissionUpdateCallback
-						.accept(wifiManager.isWifiEnabled()));
+	ConditionManager(Consumer<Boolean> permissionUpdateCallback) {
+		super( permissionUpdateCallback);
 	}
 
 	@Override
@@ -76,8 +67,9 @@ class ConditionManager extends AbstractConditionManager {
 		return false;
 	}
 
-	private void requestEnableWiFi() {
-		wifiRequest.launch(new Intent(Settings.ACTION_WIFI_SETTINGS));
+	@Override
+	String getWifiSettingsAction() {
+		return Settings.ACTION_WIFI_SETTINGS;
 	}
 
 }
