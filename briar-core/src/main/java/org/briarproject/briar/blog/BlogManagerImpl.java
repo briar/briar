@@ -257,12 +257,19 @@ class BlogManagerImpl extends BdfIncomingMessageHook implements BlogManager,
 	public void addLocalComment(LocalAuthor author, GroupId groupId,
 			@Nullable String comment, BlogPostHeader parentHeader)
 			throws DbException {
+		db.transaction(false, txn -> {
+			addLocalComment(txn, author, groupId, comment, parentHeader);
+		});
+	}
 
+	@Override
+	public void addLocalComment(Transaction txn, LocalAuthor author,
+			GroupId groupId, @Nullable String comment,
+			BlogPostHeader parentHeader) throws DbException {
 		MessageType type = parentHeader.getType();
 		if (type != POST && type != COMMENT)
 			throw new IllegalArgumentException("Comment on unknown type!");
 
-		Transaction txn = db.startTransaction(false);
 		try {
 			// Wrap post that we are commenting on
 			MessageId parentOriginalId =
@@ -281,6 +288,7 @@ class BlogManagerImpl extends BdfIncomingMessageHook implements BlogManager,
 			meta.put(KEY_ORIGINAL_PARENT_MSG_ID, parentOriginalId);
 			meta.put(KEY_PARENT_MSG_ID, parentCurrentId);
 			meta.put(KEY_AUTHOR, clientHelper.toList(author));
+			meta.put(KEY_READ, true);
 
 			// Send comment
 			clientHelper.addLocalMessage(txn, message, meta, true, false);
@@ -290,13 +298,10 @@ class BlogManagerImpl extends BdfIncomingMessageHook implements BlogManager,
 					message.getId(), meta);
 			BlogPostAddedEvent event = new BlogPostAddedEvent(groupId, h, true);
 			txn.attach(event);
-			db.commitTransaction(txn);
 		} catch (FormatException e) {
 			throw new DbException(e);
 		} catch (GeneralSecurityException e) {
 			throw new IllegalArgumentException("Invalid key of author", e);
-		} finally {
-			db.endTransaction(txn);
 		}
 	}
 
@@ -429,18 +434,17 @@ class BlogManagerImpl extends BdfIncomingMessageHook implements BlogManager,
 
 	@Override
 	public Collection<Blog> getBlogs() throws DbException {
+		return db.transactionWithResult(true, this::getBlogs);
+	}
+
+	@Override
+	public Collection<Blog> getBlogs(Transaction txn) throws DbException {
 		try {
 			List<Blog> blogs = new ArrayList<>();
-			Collection<Group> groups;
-			Transaction txn = db.startTransaction(true);
-			try {
-				groups = db.getGroups(txn, CLIENT_ID, MAJOR_VERSION);
-				for (Group g : groups) {
-					blogs.add(blogFactory.parseBlog(g));
-				}
-				db.commitTransaction(txn);
-			} finally {
-				db.endTransaction(txn);
+			Collection<Group> groups =
+					db.getGroups(txn, CLIENT_ID, MAJOR_VERSION);
+			for (Group g : groups) {
+				blogs.add(blogFactory.parseBlog(g));
 			}
 			return blogs;
 		} catch (FormatException e) {
@@ -555,10 +559,18 @@ class BlogManagerImpl extends BdfIncomingMessageHook implements BlogManager,
 
 	@Override
 	public void setReadFlag(MessageId m, boolean read) throws DbException {
+		db.transaction(true, txn -> {
+			setReadFlag(txn, m, read);
+		});
+	}
+
+	@Override
+	public void setReadFlag(Transaction txn, MessageId m, boolean read)
+			throws DbException {
 		try {
 			BdfDictionary meta = new BdfDictionary();
 			meta.put(KEY_READ, read);
-			clientHelper.mergeMessageMetadata(m, meta);
+			clientHelper.mergeMessageMetadata(txn, m, meta);
 		} catch (FormatException e) {
 			throw new RuntimeException(e);
 		}

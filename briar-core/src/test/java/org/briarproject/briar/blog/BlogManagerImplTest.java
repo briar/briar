@@ -20,6 +20,7 @@ import org.briarproject.bramble.api.sync.Group;
 import org.briarproject.bramble.api.sync.Message;
 import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.bramble.test.BrambleMockTestCase;
+import org.briarproject.bramble.test.DbExpectations;
 import org.briarproject.briar.api.blog.Blog;
 import org.briarproject.briar.api.blog.BlogCommentHeader;
 import org.briarproject.briar.api.blog.BlogFactory;
@@ -396,12 +397,12 @@ public class BlogManagerImplTest extends BrambleMockTestCase {
 				new BdfEntry(KEY_ORIGINAL_MSG_ID, commentId),
 				new BdfEntry(KEY_ORIGINAL_PARENT_MSG_ID, messageId),
 				new BdfEntry(KEY_PARENT_MSG_ID, messageId),
-				new BdfEntry(KEY_AUTHOR, authorList1)
+				new BdfEntry(KEY_AUTHOR, authorList1),
+				new BdfEntry(KEY_READ, true)
 		);
 
-		context.checking(new Expectations() {{
-			oneOf(db).startTransaction(false);
-			will(returnValue(txn));
+		context.checking(new DbExpectations() {{
+			oneOf(db).transaction(with(false), withDbRunnable(txn));
 			// Create the comment
 			oneOf(blogPostFactory).createBlogComment(blog1.getId(),
 					localAuthor1, comment, messageId, messageId);
@@ -422,8 +423,6 @@ public class BlogManagerImplTest extends BrambleMockTestCase {
 			will(returnValue(localAuthor1));
 			oneOf(authorManager).getAuthorInfo(txn, localAuthor1.getId());
 			will(returnValue(ourselvesInfo));
-			oneOf(db).commitTransaction(txn);
-			oneOf(db).endTransaction(txn);
 		}});
 
 		BlogPostHeader postHeader = new BlogPostHeader(POST, blog1.getId(),
@@ -492,12 +491,12 @@ public class BlogManagerImplTest extends BrambleMockTestCase {
 				new BdfEntry(KEY_ORIGINAL_MSG_ID, commentId),
 				new BdfEntry(KEY_ORIGINAL_PARENT_MSG_ID, messageId),
 				new BdfEntry(KEY_PARENT_MSG_ID, wrappedPostId),
-				new BdfEntry(KEY_AUTHOR, authorList2)
+				new BdfEntry(KEY_AUTHOR, authorList2),
+				new BdfEntry(KEY_READ, true)
 		);
 
-		context.checking(new Expectations() {{
-			oneOf(db).startTransaction(false);
-			will(returnValue(txn));
+		context.checking(new DbExpectations() {{
+			oneOf(db).transaction(with(false), withDbRunnable(txn));
 			// Wrap the original post for blog 2
 			oneOf(clientHelper).getMessageAsList(txn, messageId);
 			will(returnValue(originalPostBody));
@@ -533,8 +532,6 @@ public class BlogManagerImplTest extends BrambleMockTestCase {
 			will(returnValue(localAuthor1));
 			oneOf(authorManager).getAuthorInfo(txn, localAuthor1.getId());
 			will(returnValue(verifiedInfo));
-			oneOf(db).commitTransaction(txn);
-			oneOf(db).endTransaction(txn);
 		}});
 
 		BlogPostHeader originalPostHeader = new BlogPostHeader(POST,
@@ -603,12 +600,12 @@ public class BlogManagerImplTest extends BrambleMockTestCase {
 				new BdfEntry(KEY_ORIGINAL_MSG_ID, commentId),
 				new BdfEntry(KEY_ORIGINAL_PARENT_MSG_ID, rssMessageId),
 				new BdfEntry(KEY_PARENT_MSG_ID, wrappedPostId),
-				new BdfEntry(KEY_AUTHOR, authorList1)
+				new BdfEntry(KEY_AUTHOR, authorList1),
+				new BdfEntry(KEY_READ, true)
 		);
 
-		context.checking(new Expectations() {{
-			oneOf(db).startTransaction(false);
-			will(returnValue(txn));
+		context.checking(new DbExpectations() {{
+			oneOf(db).transaction(with(false), withDbRunnable(txn));
 			// Wrap the original post for blog 1
 			oneOf(clientHelper).getMessageAsList(txn, rssMessageId);
 			will(returnValue(originalPostBody));
@@ -642,8 +639,6 @@ public class BlogManagerImplTest extends BrambleMockTestCase {
 			will(returnValue(wrappedPostMeta));
 			oneOf(clientHelper).parseAndValidateAuthor(rssAuthorList);
 			will(returnValue(rssLocalAuthor));
-			oneOf(db).commitTransaction(txn);
-			oneOf(db).endTransaction(txn);
 		}});
 
 		BlogPostHeader originalPostHeader = new BlogPostHeader(POST,
@@ -728,12 +723,12 @@ public class BlogManagerImplTest extends BrambleMockTestCase {
 				new BdfEntry(KEY_ORIGINAL_MSG_ID, localCommentId),
 				new BdfEntry(KEY_ORIGINAL_PARENT_MSG_ID, originalCommentId),
 				new BdfEntry(KEY_PARENT_MSG_ID, wrappedCommentId),
-				new BdfEntry(KEY_AUTHOR, authorList2)
+				new BdfEntry(KEY_AUTHOR, authorList2),
+				new BdfEntry(KEY_READ, true)
 		);
 
-		context.checking(new Expectations() {{
-			oneOf(db).startTransaction(false);
-			will(returnValue(txn));
+		context.checking(new DbExpectations() {{
+			oneOf(db).transaction(with(false), withDbRunnable(txn));
 			// Rewrap the wrapped post for blog 2
 			oneOf(clientHelper).getMessageAsList(txn, wrappedPostId);
 			will(returnValue(wrappedPostBody));
@@ -790,8 +785,6 @@ public class BlogManagerImplTest extends BrambleMockTestCase {
 			will(returnValue(rewrappedPostMeta));
 			oneOf(clientHelper).parseAndValidateAuthor(rssAuthorList);
 			will(returnValue(rssLocalAuthor));
-			oneOf(db).commitTransaction(txn);
-			oneOf(db).endTransaction(txn);
 		}});
 
 		BlogPostHeader wrappedPostHeader = new BlogPostHeader(WRAPPED_POST,
