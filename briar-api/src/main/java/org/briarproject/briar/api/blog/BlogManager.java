@@ -75,6 +75,13 @@ public interface BlogManager {
 			throws DbException;
 
 	/**
+	 * Adds a comment to an existing blog post or reblogs it.
+	 */
+	void addLocalComment(Transaction txn, LocalAuthor author,
+			GroupId groupId, @Nullable String comment,
+			BlogPostHeader parentHeader) throws DbException;
+
+	/**
 	 * Returns the blog with the given ID.
 	 */
 	Blog getBlog(GroupId g) throws DbException;
@@ -98,6 +105,11 @@ public interface BlogManager {
 	 * Returns all blogs to which the user subscribes.
 	 */
 	Collection<Blog> getBlogs() throws DbException;
+
+	/**
+	 * Returns all blogs to which the user subscribes.
+	 */
+	Collection<Blog> getBlogs(Transaction txn) throws DbException;
 
 	/**
 	 * Returns the group IDs of all blogs to which the user subscribes.
@@ -135,6 +147,11 @@ public interface BlogManager {
 	 * Marks a blog post as read or unread.
 	 */
 	void setReadFlag(MessageId m, boolean read) throws DbException;
+
+	/**
+	 * Marks a blog post as read or unread.
+	 */
+	void setReadFlag(Transaction txn, MessageId m, boolean read) throws DbException;
 
 	/**
 	 * Registers a hook to be called whenever a blog is removed.
