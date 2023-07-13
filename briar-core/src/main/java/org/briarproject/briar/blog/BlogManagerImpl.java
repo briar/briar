@@ -281,6 +281,7 @@ class BlogManagerImpl extends BdfIncomingMessageHook implements BlogManager,
 			meta.put(KEY_ORIGINAL_PARENT_MSG_ID, parentOriginalId);
 			meta.put(KEY_PARENT_MSG_ID, parentCurrentId);
 			meta.put(KEY_AUTHOR, clientHelper.toList(author));
+			meta.put(KEY_READ, true);
 
 			// Send comment
 			clientHelper.addLocalMessage(txn, message, meta, true, false);
