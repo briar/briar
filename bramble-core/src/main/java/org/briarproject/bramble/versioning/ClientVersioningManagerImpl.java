@@ -22,6 +22,7 @@ import org.briarproject.bramble.api.sync.GroupId;
 import org.briarproject.bramble.api.sync.InvalidMessageException;
 import org.briarproject.bramble.api.sync.Message;
 import org.briarproject.bramble.api.sync.MessageId;
+import org.briarproject.bramble.api.sync.MessageStatus;
 import org.briarproject.bramble.api.sync.validation.IncomingMessageHook;
 import org.briarproject.bramble.api.system.Clock;
 import org.briarproject.bramble.api.versioning.ClientMajorVersion;
@@ -30,26 +31,26 @@ import org.briarproject.bramble.api.versioning.ClientVersioningManager;
 import org.briarproject.bramble.api.versioning.event.ClientVersionUpdatedEvent;
 import org.briarproject.nullsafety.NotNullByDefault;
 
-import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.logging.Logger;
 
 import javax.annotation.Nullable;
 import javax.inject.Inject;
 
 import static java.util.Collections.emptyList;
+import static java.util.logging.Logger.getLogger;
 import static org.briarproject.bramble.api.sync.Group.Visibility.INVISIBLE;
 import static org.briarproject.bramble.api.sync.Group.Visibility.SHARED;
 import static org.briarproject.bramble.api.sync.Group.Visibility.VISIBLE;
@@ -60,6 +61,9 @@ import static org.briarproject.bramble.versioning.ClientVersioningConstants.MSG_
 @NotNullByDefault
 class ClientVersioningManagerImpl implements ClientVersioningManager,
 		Service, OpenDatabaseHook, ContactHook, IncomingMessageHook {
+
+	private static final Logger LOG =
+			getLogger(ClientVersioningManagerImpl.class.getName());
 
 	private final DatabaseComponent db;
 	private final ClientHelper clientHelper;
@@ -131,27 +135,39 @@ class ClientVersioningManagerImpl implements ClientVersioningManager,
 
 	@Override
 	public void onDatabaseOpened(Transaction txn) throws DbException {
-		System.out.println("onDatabaseOpened " + localGroup.getId());
+		LOG.info("onDatabaseOpened " + localGroup.getId());
 		for (Contact c : db.getContacts(txn)) {
 			try {
-				System.out.println(
-						"find latest updates for " + c.getId().getInt());
+				// FIXME: DO NOT MERGE, this logs the contact name and alias
+				LOG.info(String.format(Locale.US,
+						"find latest updates for %d: %s (%s)",
+						c.getId().getInt(),
+						c.getAuthor().getName(),
+						c.getAlias()));
 				LatestUpdates latestUpdates = findLatestUpdates(txn, c.getId());
 				if (latestUpdates == null) {
-					System.out.println("none found");
+					LOG.info("none found");
 				} else {
 					if (latestUpdates.local != null) {
-						System.out.printf("local: %s; %d%n",
+						MessageStatus status = db.getMessageStatus(txn,
+								c.getId(), latestUpdates.local.messageId);
+						LOG.info(String.format(Locale.US,
+								"local: %s; sent: %b; seen: %b%n",
 								latestUpdates.local.messageId,
-								latestUpdates.local.updateVersion);
+								status.isSent(),
+								status.isSeen()));
 						Update update =
 								loadUpdate(txn, latestUpdates.local.messageId);
 						printUpdate(update);
 					}
 					if (latestUpdates.remote != null) {
-						System.out.printf("remote: %s; %d%n",
+						MessageStatus status = db.getMessageStatus(txn,
+								c.getId(), latestUpdates.remote.messageId);
+						LOG.info(String.format(Locale.US,
+								"remote: %s; sent: %b; seen: %b%n",
 								latestUpdates.remote.messageId,
-								latestUpdates.remote.updateVersion);
+								status.isSent(),
+								status.isSeen()));
 						Update update =
 								loadUpdate(txn, latestUpdates.remote.messageId);
 						printUpdate(update);
@@ -168,15 +184,16 @@ class ClientVersioningManagerImpl implements ClientVersioningManager,
 	}
 
 	private void printUpdate(Update update) {
-		System.out.printf("update version: %d%n",
-				update.updateVersion);
+		LOG.info(String.format(Locale.US, "update version: %d%n",
+				update.updateVersion));
 		for (ClientState state : update.states) {
-			System.out.printf("id: %s, major: %d, minor: %d, active: %b, %n",
+			LOG.info(String.format(Locale.US,
+					"id: %s, major: %d, minor: %d, active: %b, %n",
 					state.clientVersion.getClientId().getString(),
 					state.clientVersion.getClientMajorVersion()
 							.getMajorVersion(),
 					state.clientVersion.getMinorVersion(),
-					state.active);
+					state.active));
 		}
 	}
 
