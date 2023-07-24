@@ -30,6 +30,9 @@ import org.briarproject.bramble.api.versioning.ClientVersioningManager;
 import org.briarproject.bramble.api.versioning.event.ClientVersionUpdatedEvent;
 import org.briarproject.nullsafety.NotNullByDefault;
 
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -128,10 +131,53 @@ class ClientVersioningManagerImpl implements ClientVersioningManager,
 
 	@Override
 	public void onDatabaseOpened(Transaction txn) throws DbException {
+		System.out.println("onDatabaseOpened " + localGroup.getId());
+		for (Contact c : db.getContacts(txn)) {
+			try {
+				System.out.println(
+						"find latest updates for " + c.getId().getInt());
+				LatestUpdates latestUpdates = findLatestUpdates(txn, c.getId());
+				if (latestUpdates == null) {
+					System.out.println("none found");
+				} else {
+					if (latestUpdates.local != null) {
+						System.out.printf("local: %s; %d%n",
+								latestUpdates.local.messageId,
+								latestUpdates.local.updateVersion);
+						Update update =
+								loadUpdate(txn, latestUpdates.local.messageId);
+						printUpdate(update);
+					}
+					if (latestUpdates.remote != null) {
+						System.out.printf("remote: %s; %d%n",
+								latestUpdates.remote.messageId,
+								latestUpdates.remote.updateVersion);
+						Update update =
+								loadUpdate(txn, latestUpdates.remote.messageId);
+						printUpdate(update);
+					}
+				}
+			} catch (FormatException e) {
+				throw new RuntimeException(e);
+			}
+		}
 		if (db.containsGroup(txn, localGroup.getId())) return;
 		db.addGroup(txn, localGroup);
 		// Set things up for any pre-existing contacts
 		for (Contact c : db.getContacts(txn)) addingContact(txn, c);
+	}
+
+	private void printUpdate(Update update) {
+		System.out.printf("update version: %d%n",
+				update.updateVersion);
+		for (ClientState state : update.states) {
+			System.out.printf("id: %s, major: %d, minor: %d, active: %b, %n",
+					state.clientVersion.getClientId().getString(),
+					state.clientVersion.getClientMajorVersion()
+							.getMajorVersion(),
+					state.clientVersion.getMinorVersion(),
+					state.active);
+		}
 	}
 
 	@Override
