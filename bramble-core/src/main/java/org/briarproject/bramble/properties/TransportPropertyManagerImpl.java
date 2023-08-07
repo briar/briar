@@ -311,6 +311,7 @@ class TransportPropertyManagerImpl implements TransportPropertyManager,
 				if (latest == null) {
 					merged = new TransportProperties(p);
 					Iterator<String> it = merged.values().iterator();
+					//noinspection Java8CollectionRemoveIf
 					while (it.hasNext()) {
 						if (isNullOrEmpty(it.next())) it.remove();
 					}

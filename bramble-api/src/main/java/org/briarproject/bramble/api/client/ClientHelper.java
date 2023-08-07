@@ -49,6 +49,15 @@ public interface ClientHelper {
 	BdfList getMessageAsList(Transaction txn, MessageId m) throws DbException,
 			FormatException;
 
+	/**
+	 * Transitional alternative to
+	 * {@link #getMessageAsList(Transaction, MessageId)} that allows the
+	 * message to be in non-canonical form, for backward compatibility.
+	 *
+	 * @param canonical True if the message must be in canonical form (a
+	 * {@link FormatException} will be thrown if it's not.
+	 */
+	@Deprecated
 	BdfList getMessageAsList(Transaction txn, MessageId m, boolean canonical)
 			throws DbException, FormatException;
 
@@ -109,6 +118,14 @@ public interface ClientHelper {
 
 	BdfList toList(Message m) throws FormatException;
 
+	/**
+	 * Transitional alternative to {@link #toList(Message)} that allows the
+	 * message to be in non-canonical form, for backward compatibility.
+	 *
+	 * @param canonical True if the message must be in canonical form (a
+	 * {@link FormatException} will be thrown if it's not.
+	 */
+	@Deprecated
 	BdfList toList(Message m, boolean canonical) throws FormatException;
 
 	BdfList toList(Author a);

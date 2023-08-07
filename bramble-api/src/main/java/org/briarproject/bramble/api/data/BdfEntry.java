@@ -6,6 +6,11 @@ import java.util.Map.Entry;
 
 import javax.annotation.concurrent.Immutable;
 
+/**
+ * A convenience class for building {@link BdfDictionary BdfDictionaries}
+ * via the {@link BdfDictionary#of(Entry[]) factory method}. Entries in
+ * BdfDictionaries do not have to be BdfEntries.
+ */
 @Immutable
 @NotNullByDefault
 public class BdfEntry implements Entry<String, Object>, Comparable<BdfEntry> {

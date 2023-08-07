@@ -12,6 +12,29 @@ import javax.annotation.concurrent.NotThreadSafe;
 
 import static org.briarproject.bramble.api.data.BdfDictionary.NULL_VALUE;
 
+/**
+ * A BDF list contains zero or more BDF objects, which may be primitive types
+ * (null, boolean, integer, float, string, raw) or nested containers (list,
+ * dictionary).
+ * <p>
+ * Note that a BDF integer has the same range as a Java long, while a BDF
+ * float has the same range as a Java double. Method names in this class
+ * correspond to the Java types.
+ * <p>
+ * The getX() methods throw {@link FormatException} if the object at the
+ * specified index is null or does not have the requested type.
+ * <p>
+ * The getOptionalX() methods return null if the object at the specified
+ * index is null, or throw {@link FormatException} if the object does not
+ * have the requested type.
+ * <p>
+ * The getX() methods that take a default value return the default value if
+ * the object at the specified index is null, or throw
+ * {@link FormatException} if the object does not have the requested type.
+ * <p>
+ * All of the getters throw {@link FormatException} if the specified index is
+ * out of range.
+ */
 @NotThreadSafe
 public final class BdfList extends ArrayList<Object> {
 
@@ -82,12 +105,34 @@ public final class BdfList extends ArrayList<Object> {
 		return value == null ? defaultValue : value;
 	}
 
+	/**
+	 * Returns the integer at the specified index.
+	 * <p>
+	 * This method should be used in preference to
+	 * <code>getLong(index).intValue()</code> as it checks for
+	 * overflow/underflow.
+	 *
+	 * @throws FormatException if the index is out of range, or if the
+	 * value at the specified index is null or cannot be represented as a
+	 * Java int.
+	 */
 	public Integer getInt(int index) throws FormatException {
 		Integer value = getOptionalInt(index);
 		if (value == null) throw new FormatException();
 		return value;
 	}
 
+	/**
+	 * Returns the integer at the specified index, or null if the object at
+	 * the specified index is null.
+	 * <p>
+	 * This method should be used in preference to
+	 * <code>getOptionalLong(index).intValue()</code> as it checks for
+	 * overflow/underflow.
+	 *
+	 * @throws FormatException if the index is out of range, or if the value
+	 * at the specified index cannot be represented as a Java int.
+	 */
 	@Nullable
 	public Integer getOptionalInt(int index) throws FormatException {
 		Long value = getOptionalLong(index);
@@ -98,6 +143,17 @@ public final class BdfList extends ArrayList<Object> {
 		return value.intValue();
 	}
 
+	/**
+	 * Returns the integer at the specified index, or the given default value
+	 * if the object at the specified index is null.
+	 * <p>
+	 * This method should be used in preference to
+	 * <code>getLong(index, defaultValue).intValue()</code> as it checks for
+	 * overflow/underflow.
+	 *
+	 * @throws FormatException if the index is out of range, or if the value
+	 * at the specified index cannot be represented as a Java int.
+	 */
 	public Integer getInt(int index, Integer defaultValue)
 			throws FormatException {
 		Integer value = getOptionalInt(index);
