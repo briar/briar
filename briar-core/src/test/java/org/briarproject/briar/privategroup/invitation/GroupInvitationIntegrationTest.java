@@ -29,7 +29,7 @@ import javax.annotation.Nullable;
 
 import static java.util.Collections.emptySet;
 import static org.briarproject.briar.api.autodelete.AutoDeleteConstants.MIN_AUTO_DELETE_TIMER_MS;
-import static org.briarproject.briar.api.sharing.SharingManager.SharingStatus.INVITE_RECEIVED;
+import static org.briarproject.briar.api.sharing.SharingManager.SharingStatus.INVITE_SENT;
 import static org.briarproject.briar.api.sharing.SharingManager.SharingStatus.SHAREABLE;
 import static org.briarproject.briar.api.sharing.SharingManager.SharingStatus.SHARING;
 import static org.briarproject.briar.test.BriarTestUtils.assertGroupCount;
@@ -322,7 +322,7 @@ public class GroupInvitationIntegrationTest
 		sendInvitation(c0.getClock().currentTimeMillis(), null);
 
 		// invitation is not allowed before the first hasn't been answered
-		assertEquals(INVITE_RECEIVED, groupInvitationManager0
+		assertEquals(INVITE_SENT, groupInvitationManager0
 				.getSharingStatus(contact1From0, privateGroup.getId()));
 
 		// deliver invitation and response
