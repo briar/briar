@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources xmlns:tools="http://schemas.android.com/tools">
   <!--Setup-->
-  <string name="setup_title">Briar\'a Hoşgeldiniz</string>
+  <string name="setup_title">Briar uygulamasına hoş geldiniz</string>
   <string name="setup_name_explanation">Takma adınız, gönderdiğiniz herhangi bir içeriğin yanında gösterilecek. Hesabınızı oluşturduktan sonra onu değiştiremezsiniz.</string>
   <string name="setup_next">Sonraki</string>
   <string name="setup_password_intro">Bir Parola Seçin</string>
@@ -230,9 +230,12 @@
   <string name="exchanging_contact_details">Kişi ayrıntıları karşılıklı paylaşılıyor\u2026</string>
   <string name="contact_added_toast">Kişi eklendi: %s</string>
   <string name="contact_already_exists"> %s kişisi zaten var</string>
+  <string name="contact_already_exists_general">Kişi zaten var</string>
   <string name="qr_code_invalid">QR kodu hatalı</string>
   <string name="qr_code_too_old_1">Taradığınız QR kodu Briar\'ın eski bir sürümünden geliyor. Lütfen kişiye en son sürüme yükseltmesini ve tekrar denemesini söyleyin.</string>
   <string name="qr_code_too_new_1">Taradığınız QR kodu Briar\'ın daha yeni bir sürümünden geliyor. Lütfen en son sürüme yükseltin ve yeniden deneyin.</string>
+  <string name="mailbox_qr_code_for_contact">Taradığınız karekod Briar Mailbox\'tan geliyor.\n\nMailbox\'a bağlantı kurmak istiyorsanız, Briar menüsünden Ayarlar &gt; Mailbox seçin.</string>
+  <string name="qr_code_format_unknown">Taradığınız karekod bir Briar kişisi eklemek için değil.\n\nLütfen kişi ekranında görüntülenen karekodu tarayın.</string>
   <string name="camera_error">Kamera hatası</string>
   <string name="connecting_to_device">Aygıta bağlanıyor\u2026</string>
   <string name="authenticating_with_device">Aygıtla kimlik doğrulama\u2026</string>
@@ -427,6 +430,10 @@
   <string name="forum_declined_toast">Davet reddedildi</string>
   <string name="shared_by_format">%s tarafından paylaşıldı</string>
   <string name="forum_invitation_already_sharing">Zaten paylaşılıyor</string>
+  <string name="forum_invitation_already_invited">Davet zaten gönderildi</string>
+  <string name="forum_invitation_invite_received">Davet zaten alındı</string>
+  <string name="forum_invitation_not_supported">Bu kişi tarafından desteklenmiyor</string>
+  <string name="forum_invitation_error">Hata. Bu bir hata ama sizden kaynaklanmıyor</string>
   <string name="forum_invitation_response_accepted_sent">%s tarafından yapılan forum davetini kabul ettiniz.</string>
   <string name="forum_invitation_response_declined_sent">%s tarafından yapılan forum davetini reddettiniz.</string>
   <string name="forum_invitation_response_declined_auto">%s kişisinin forum daveti otomatik olarak reddedildi.</string>
@@ -477,7 +484,9 @@
   <string name="blogs_rss_feeds_import">RSS beslemelerini içe aktar</string>
   <string name="blogs_rss_feeds_import_button">İçe Aktar</string>
   <string name="blogs_rss_feeds_import_hint">RSS beslemesi URL\'sini girin</string>
+  <string name="blogs_rss_feeds_import_progress">RSS akışı içe aktarılıyor…</string>
   <string name="blogs_rss_feeds_import_error">Üzgünüz! RSS beslemeniz içe aktarılırken bir hata oluştu.</string>
+  <string name="blogs_rss_feeds_import_title">Akışı dosyadan içe aktar</string>
   <string name="blogs_rss_feeds">RSS beslemeleri</string>
   <string name="blogs_rss_feeds_manage_imported">İçe Aktarıldı:</string>
   <string name="blogs_rss_feeds_manage_author">Yazar:</string>
@@ -589,7 +598,13 @@
   <string name="mailbox_setup_download_link">İndirme Bağlantısını Paylaş</string>
   <string name="mailbox_setup_button_scan">Mailbox Karekodunu Tara</string>
   <string name="permission_camera_qr_denied_body">Kameraya erişimi engellediniz, ancak Mailbox karekodunu taramak için kamerayı kullanmanız gerekiyor.\n\nLütfen erişim izni vermeyi düşünün.</string>
+  <string name="mailbox_setup_connecting">Mailbox\'a bağlanıyor…</string>
   <!--This string is shown when connecting to a Mailbox for the first time. The placeholder will be replaced with a duration, e.g. "2 minutes".-->
+  <string name="mailbox_setup_connecting_info">Bu yaklaşık olarak %1s sürebilir</string>
+  <string name="mailbox_qr_code_too_old">Taradığınız karekod Briar Mailbox\'un daha eski bir sürümünden geliyor.\n\nLütfen Briar Mailbox\'u en son sürüme yükseltin ve yeniden deneyin.</string>
+  <string name="mailbox_qr_code_too_new">Taradığınız karekod Briar Mailbox\'un daha yeni bir sürümünden geliyor.\n\nLütfen Briar\'ı en son sürüme yükseltin ve yeniden deneyin.</string>
+  <string name="contact_qr_code_for_mailbox">Taradığınız karekod bir Briar kişisi eklemek için.\n\nEğer bir kişi eklemek istiyorsanız kişi listesine gidin ve + simgesine dokunun.</string>
+  <string name="mailbox_setup_qr_code_wrong_description">Taradığınız karekod Briar Mailbox\'tan gelmiyor.\n\nLütfen Briar Mailbox uygulamasını Mailbox aygıtında açın ve sunulan karekodu orada tarayın.</string>
   <string name="mailbox_setup_already_paired_title">Mailbox zaten bağlanmış</string>
   <string name="mailbox_setup_already_paired_description">Diğer aygıttan Mailbox bağlantısını kaldırın ve tekrar deneyin</string>
   <string name="mailbox_setup_io_error_title">Bağlantı kurulamıyor</string>
@@ -674,6 +689,8 @@
   <string name="disappearing_messages_summary">Bu konuşmadaki gelecekteki iletileri 7\u00A0gün içinde otomatik olarak kaybolacak şekilde ayarla.</string>
   <!--Settings Actions-->
   <string name="pref_category_actions">Eylemler</string>
+  <string name="share_app_link">İndirme bağlantısını paylaş</string>
+  <string name="share_app_link_text">%s adresinden Briar\'ı indir</string>
   <string name="send_feedback">Geri bildirim gönder</string>
   <!--Link Warning-->
   <string name="link_warning_title">Uyarı Bağlantısı</string>
@@ -723,6 +740,7 @@
   <string name="permission_camera_title">Kamera izinleri</string>
   <string name="permission_camera_request_body">QR kodunu taramak için Briar\'ın kameraya erişmesi gerekiyor.</string>
   <string name="permission_location_title">Konum izinleri</string>
+  <string name="permission_nearby_devices_title">Yakındaki cihazlar izni</string>
   <string name="permission_location_request_body">Bluetooth aygıtlarını keşfetmek için, Briar\'ın konumunuza erişmesi gerekiyor.\n\nBriar konum bilginizi kaydetmez ve kimseyle paylaşmaz.</string>
   <string name="permission_camera_location_title">Kamera ve konum</string>
   <string name="permission_camera_location_request_body">QR kodunu taramak için, Briar\'ın kameranıza erişmesi gerekiyor.\n\nBluetooth aygıtlarını keşfetmek için Briar\'ın konumunuza erişmesi gerekiyor.\n\nBriar konumunuzu saklamaz ve hiç kimseyle paylaşmaz.</string>
@@ -762,6 +780,8 @@
   <string name="permission_hotspot_location_request_precise_body">Bir kablosuz erişim noktası oluşturmak için, Briar kesin konumunuza erişim iznine ihtiyaç duyar.\n\nBriar konum bilginizi kaydetmez ve kimseyle paylaşmaz.</string>
   <string name="permission_hotspot_location_denied_body">Konuma erişimi engellediniz, ancak Briar\'ın Wi-Fi erişim noktası oluşturmak için bu izne ihtiyacı var.\n\nLütfen erişim izni vermeyi düşünün.</string>
   <string name="permission_hotspot_location_denied_precise_body">Kesin konumunuza erişimi engellediniz, ancak Briar\'ın Wi-Fi erişim noktası oluşturmak için bu izne ihtiyacı var.\n\nLütfen erişim izni vermeyi düşünün.</string>
+  <string name="permission_hotspot_nearby_wifi_request_body">Bir kablosuz erişim noktası oluşturmak için Briar\'ın yakınlardaki aygıtlara erişme iznine ihtiyaç duyuyor.</string>
+  <string name="permission_hotspot_nearby_wifi_denied_body">Yakınlardaki aygıtlara erişimi engellediniz, ancak Briar\'ın Wi-Fi erişim noktası oluşturmak için bu izne ihtiyacı var.\n\nLütfen erişim izni vermeyi düşünün.</string>
   <string name="wifi_settings_title">Kablosuz ağ ayarları</string>
   <string name="wifi_settings_request_enable_body">Bir kablosuz erişim noktası oluşturmak için Briar\'ın kablosuz ağı kullanması gerekiyor. Lütfen kablosuz ağı etkinleştirin.</string>
   <string name="hotspot_tab_manual">El ile</string>

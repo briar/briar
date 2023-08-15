@@ -51,12 +51,6 @@
     <item quantity="many">Toto je testovací verze Briar. Váš účet a jeho platnost vyprší po %d dnech a není možné ho obnovit.</item>
     <item quantity="other">Toto je testovací verze Briar. Váš účet a jeho platnost vyprší po %d dnech a není možné ho obnovit.</item>
   </plurals>
-  <plurals name="old_android_expiry_warning">
-    <item quantity="one">Systém Android 4 již není podporován. Briar přestane fungovat %s (za %d den). Nainstalujte si prosím Briar na novější zařízení a vytvořte si nový účet.</item>
-    <item quantity="few">Systém Android 4 již není podporován. Briar přestane fungovat %s (za %d dny). Nainstalujte si prosím Briar na novější zařízení a vytvořte si nový účet.</item>
-    <item quantity="many">Systém Android 4 již není podporován. Briar přestane fungovat %s (za %d dní). Nainstalujte si prosím Briar na novější zařízení a vytvořte si nový účet.</item>
-    <item quantity="other">Systém Android 4 již není podporován. Briar přestane fungovat %s (za %d dní). Nainstalujte si prosím Briar na novější zařízení a vytvořte si nový účet.</item>
-  </plurals>
   <string name="expiry_date_reached">Platnost tohoto software vypršela.\nDěkujeme za jeho otestování!</string>
   <string name="download_briar">Pro pokračování v používání aplikace Briar si prosím stáhněte její nejnovější verzi.</string>
   <string name="create_new_account">Budete potřebovat vytvořit nový účet, ale můžete použít stejné uživatelské jméno.</string>
@@ -721,6 +715,8 @@
   <string name="disappearing_messages_summary">Nastavte automatické zmizení zpráv této konverzace po 7\u00A0dnech.</string>
   <!--Settings Actions-->
   <string name="pref_category_actions">Akce</string>
+  <string name="share_app_link">Sdílet odkaz ke stažení</string>
+  <string name="share_app_link_text">Stáhnout Briar z %s</string>
   <string name="send_feedback">Poslat zpětnou vazbu</string>
   <!--Link Warning-->
   <string name="link_warning_title">Odkaz varování</string>
@@ -770,6 +766,7 @@
   <string name="permission_camera_title">Oprávnění pro přístup k fotoaparátu</string>
   <string name="permission_camera_request_body">Pro scan QR kódu, Briar vyžaduje přístup k fotoaparátu.</string>
   <string name="permission_location_title">Místní povolení</string>
+  <string name="permission_nearby_devices_title">Povolení pro zařízení v okolí</string>
   <string name="permission_location_request_body">Aby mohl Briar najít zařízení Bluetooth, potřebuje Briar povolení zjistit vaše umístění.\n\nBriar neukládá vaše umístění ani ho s nikým nesdílí.</string>
   <string name="permission_camera_location_title">Fotoaparát a umístění</string>
   <string name="permission_camera_location_request_body">Pro oskenování QR kódu potřebuje Briar přístup k fotoaparátu.\n\nPro nalezení zařízení Bluetooth potřebuje Briar povolení zjistit vaše umístění.\n\nBriar neukládá vaše umístění ani ho s nikým nesdílí.</string>
@@ -809,6 +806,8 @@
   <string name="permission_hotspot_location_request_precise_body">Pro vytvoření Wi-Fi hotspotu potřebuje Briar povolení zjistit vaše přesné umístění.\n\nBriar neukládá vaše umístění ani ho s nikým nesdílí.</string>
   <string name="permission_hotspot_location_denied_body">Zamítli jste přístup k vašemu umístění. Briar přístup potřebuje, aby mohl vytvořit Wi-Fi hotspot.\n\nProsím zvažte povolení přístupu.</string>
   <string name="permission_hotspot_location_denied_precise_body">Zamítli jste přístup k vašemu přesnému umístění. Briar přístup potřebuje, aby mohl vytvořit Wi-Fi hotspot.\n\nProsím zvažte povolení přístupu.</string>
+  <string name="permission_hotspot_nearby_wifi_request_body">Pro vytvoření Wi-Fi hotspotu, potřebuje Briar povolení přístupu k zařízením v okolí.</string>
+  <string name="permission_hotspot_nearby_wifi_denied_body">Odmítli jste přístup k zařízením v okolí i když Briar potřebuje povolení, aby mohl vytvořit Wi-Fi hotspot.\n\nProsím zvažte udělení přístupu.</string>
   <string name="wifi_settings_title">Wi-Fi volba</string>
   <string name="wifi_settings_request_enable_body">Pro vytvoření Wi-Fi hotspotu potřebuje Briar využít Wi-Fi. Prosím zapněte ji.</string>
   <string name="hotspot_tab_manual">Manuálně</string>

@@ -689,6 +689,8 @@
   <string name="disappearing_messages_summary">Zukünftige Nachrichten in dieser Unterhaltung werden automatisch nach 7\u00A0Tagen gelöscht.</string>
   <!--Settings Actions-->
   <string name="pref_category_actions">Aktionen</string>
+  <string name="share_app_link">Downloadlink teilen</string>
+  <string name="share_app_link_text">Briar bei %s herunterladen</string>
   <string name="send_feedback">Feedback senden</string>
   <!--Link Warning-->
   <string name="link_warning_title">Link-Warnung</string>
@@ -738,6 +740,7 @@
   <string name="permission_camera_title">Berechtigung Kamera</string>
   <string name="permission_camera_request_body">Um den QR-Code zu scannen, benötigt Briar Zugriff auf die Kamera.</string>
   <string name="permission_location_title">Berechtigung Standort</string>
+  <string name="permission_nearby_devices_title">Berechtigung für Geräte in der Nähe</string>
   <string name="permission_location_request_body">Um Bluetooth-Geräte zu finden, braucht Briar Zugriff auf deinen Standort.\n\nBriar speichert weder deinen Standort noch gibt es ihn an andere weiter.</string>
   <string name="permission_camera_location_title">Kamera und Standort</string>
   <string name="permission_camera_location_request_body">Um den QR-Code zu scannen, braucht Briar Zugriff auf die Kamera.\n\nUm Bluetooth-Geräte zu finden, braucht Briar Zugriff auf deinen Standort.\n\nBriar speichert weder deinen Standort noch gibt es ihn an andere weiter.</string>
@@ -777,6 +780,8 @@
   <string name="permission_hotspot_location_request_precise_body">Um einen WLAN-Hotspot zu erstellen, benötigt Briar die Berechtigung, auf deinen genauen Standort zuzugreifen.\n\nBriar speichert weder deinen Standort noch gibt es ihn an andere weiter.</string>
   <string name="permission_hotspot_location_denied_body">Du hast den Zugriff auf deinen Standort verweigert, aber Briar benötigt diese Berechtigung, um einen WLAN-Hotspot zu erstellen.\n\nBitte überlege, ob du Zugriff gewährst.</string>
   <string name="permission_hotspot_location_denied_precise_body">Du hast den Zugriff auf deinen genauen Standort verweigert, aber Briar benötigt diese Berechtigung, um einen WLAN-Hotspot zu erstellen.\n\nBitte überlege, ob du Zugriff gewährst.</string>
+  <string name="permission_hotspot_nearby_wifi_request_body">Um einen WLAN-Hotspot zu erstellen, benötigt Briar die Erlaubnis, auf Geräte in der Nähe zuzugreifen.</string>
+  <string name="permission_hotspot_nearby_wifi_denied_body">Du hast den Zugriff auf Geräte in der Nähe verweigert, aber Briar benötigt diese Berechtigung, um einen WLAN-Hotspot zu erstellen.\n\nBitte erwäge, den Zugriff zu gewähren.</string>
   <string name="wifi_settings_title">WLAN-Einstellungen</string>
   <string name="wifi_settings_request_enable_body">Um einen WLAN-Hotspot zu erstellen, benötigt Briar das WLAN. Bitte aktiviere es.</string>
   <string name="hotspot_tab_manual">Manuell</string>

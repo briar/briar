@@ -46,9 +46,6 @@
   <plurals name="expiry_warning">
     <item quantity="other">これは、Briarの試験バージョンです。 アカウントはあと%d日で期限切れになり、更新できません。</item>
   </plurals>
-  <plurals name="old_android_expiry_warning">
-    <item quantity="other">Android 4はサポートされなくなりました。Briarは(%d日後に)%s上での動作を停止します。新しい端末に Briarをインストールして、新規アカウントを作成してください。</item>
-  </plurals>
   <string name="expiry_date_reached">このソフトウェアの有効期限が切れました。試験に参加してくださりありがとうございます！</string>
   <string name="download_briar">Briarを使用し続けるには、最新のリリースをダウンロードしてください。</string>
   <string name="create_new_account">新規アカウントを作成する必要があります。同じニックネームも使用できます。</string>
@@ -214,7 +211,7 @@
   <string name="messaging_too_many_attachments_toast">最初の%d個の画像のみが送信されます。</string>
   <string name="menu_contact">連絡先</string>
   <!--Adding Contacts-->
-  <string name="add_contact_title">近くの人を連絡先に追加する</string>
+  <string name="add_contact_title">近くにいる人を連絡先に追加</string>
   <string name="add_contact_error_two_way">お互いのQRコードを読み取りましたか？</string>
   <string name="face_to_face">連絡先として追加したい人と会う必要があります。\n\nこれにより、だれかがあなたになりすましたり、メッセージを読んだりするのを防ぐことができます。</string>
   <string name="continue_button">続行</string>
@@ -254,7 +251,7 @@
   <string name="link_copied_toast">リンクをコピーしました</string>
   <string name="adding_contact_error">連絡先を追加中にエラーが発生しました。</string>
   <string name="pending_contact_requests_snackbar">保留中の連絡先への追加要求があります</string>
-  <string name="pending_contact_requests">連絡先追加要求</string>
+  <string name="pending_contact_requests">保留中の連絡先への追加要求</string>
   <string name="no_pending_contacts">保留中の連絡先追加要求はありません</string>
   <string name="waiting_for_contact_to_come_online">連絡先がオンラインになるのを待っています…</string>
   <string name="connecting">接続中…</string>
@@ -677,6 +674,8 @@
   <string name="disappearing_messages_summary">この会話の今後のメッセージは、自動的に7\u00A0日後に消えます。</string>
   <!--Settings Actions-->
   <string name="pref_category_actions">操作</string>
+  <string name="share_app_link">ダウンロードリンクを共有</string>
+  <string name="share_app_link_text">%s でBriarをダウンロード</string>
   <string name="send_feedback">フィードバックを送信</string>
   <!--Link Warning-->
   <string name="link_warning_title">リンクの警告</string>
@@ -726,6 +725,7 @@
   <string name="permission_camera_title">カメラの権限</string>
   <string name="permission_camera_request_body">QRコードを読み取るには、Briarはカメラにアクセスする必要があります。</string>
   <string name="permission_location_title">位置情報の権限</string>
+  <string name="permission_nearby_devices_title">付近の端末の権限</string>
   <string name="permission_location_request_body">Bluetooth端末を検出するには、Briarがあなたの位置情報へアクセスする権限を必要とします。\n\nBriarはあなたの場所を保存したり、誰とも共有したりしません。</string>
   <string name="permission_camera_location_title">カメラと位置情報</string>
   <string name="permission_camera_location_request_body">QRコードを読み取るには、Briarはカメラにアクセスする権限を必要とします。\n\nBluetooth端末を検出するには、Briarは現在地情報にアクセスする許可が必要です。\n\nBriarは現在地を保存したり、誰とも共有したりしません。</string>
@@ -765,8 +765,10 @@
   <string name="permission_hotspot_location_request_precise_body">Wi-Fiホットスポットを作るには、Briarはあなたの正確な位置情報にアクセスする権限が必要です。\n\nBriarはあなたの位置情報を保存せず、誰かに共有することもありません。</string>
   <string name="permission_hotspot_location_denied_body">あなたは位置情報にアクセスすることを拒否しましたが、BriarはWi-Fiホットスポットを作るのに、この権限が必要です。\n\nアクセス権を付与することを考慮願います。</string>
   <string name="permission_hotspot_location_denied_precise_body">あなたは正確な位置情報にアクセスすることを拒否しましたが、BriarはWi-Fiホットスポットを作るのに、この権限が必要です。\n\nアクセス権を付与することを考慮願います。</string>
+  <string name="permission_hotspot_nearby_wifi_request_body">Wi-Fiホットスポットを作るには、Briarは付近の端末にアクセスする権限が必要です。</string>
+  <string name="permission_hotspot_nearby_wifi_denied_body">あなたは付近の端末にアクセスすることを拒否しましたが、BriarはWi-Fiホットスポットを作るのに、この権限が必要です。\n\nアクセス権を付与することを考慮願います。</string>
   <string name="wifi_settings_title">Wi-Fi設定</string>
-  <string name="wifi_settings_request_enable_body">Wi-Fiホットスポットを作るには、BriarWi-Fiの使用が必要です。有効にしてください。</string>
+  <string name="wifi_settings_request_enable_body">Wi-Fiホットスポットを作るには、BriarはWi-Fiの使用が必要です。有効にしてください。</string>
   <string name="hotspot_tab_manual">手動</string>
   <!--The placeholder to be inserted into the string 'hotspot_manual_wifi': People can connect by %s-->
   <string name="hotspot_scanning_a_qr_code">QRコードを読み取る</string>

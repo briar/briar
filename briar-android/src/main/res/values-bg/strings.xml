@@ -27,8 +27,6 @@
   <string name="dnkm_xiaomi_help">Ако Briar не е заключен в списъка с последно използваните приложения, няма да работи на заден план.</string>
   <string name="dnkm_xiaomi_dialog_body_old">1. Отворете списъка с отворени приложения (списък за превключване на приложения)\n\n2. Плъзнете надолу върху изображението на Briar докато се покаже икона на катинар\n\n3. Ако катинарът е отключен го докоснете, за да го заключите</string>
   <string name="dnkm_xiaomi_dialog_body_new">1. Отворете списъка с последните приложения\n\n2. Ако до името на Briar има значка на катинарче, не е необходимо да правите нищо\n\n3. Ако няма – натиснете и задръжте изображението на Briar, докато се появи бутон за катинарче, след което го докоснете</string>
-  <string name="dnkm_xiaomi_lock_apps_text">Моля, докоснете бутона по-долу, за да отворите настройките за сигурност. Натиснете бутона \"Ускори\", след това натиснете \"Заключени приложения\" и се уверете, че Briar е \"Заключен\"</string>
-  <string name="dnkm_xiaomi_lock_apps_help">Ако Briar не е \"Заключен\" в менюто \"Заключени приложения\", няма да може да работи на заден план.</string>
   <string name="dnkm_warning_dozed_1">Briar не може да работи във фонов режим</string>
   <!--Login-->
   <string name="enter_password">Парола</string>
@@ -591,7 +589,7 @@
   <!--Mailbox-->
   <string name="mailbox_settings_title">Пощенска кутия</string>
   <string name="mailbox_setup_title">Настройка като пощенска кутия</string>
-  <string name="mailbox_setup_intro">Пощенската кутия ви дава възможност да получавате съобщения от вашите контакти докато сте извън мрежа. Кутията ще получава съобщенията и ще ги пази докато дойдете на линия.\n\nИнсталирайте приложението Birar Mailbox на резервно устройство. Снабдете го със захранване и постоянен достъп до безжична мрежа, така че да е винаги на линия.</string>
+  <string name="mailbox_setup_intro">Пощенската кутия дава възможност да получавате съобщения от вашите контакти докато сте без достъп до мрежа. Кутията ще получава съобщенията и ще ги пази докато дойдете на линия.\n\nИнсталирайте приложението Birar Mailbox на резервно устройство. Снабдете го със захранване и постоянен достъп до безжична мрежа, така че да е винаги на линия.</string>
   <string name="mailbox_setup_download">Първо инсталирайте приложението Mailbox на друго устройство като потърсите „Briar Mailbox“ в Google Play или от където сте инсталирали Briar.\n
 \nСлед това свържете Mailbox с Briar чрез сканиране на кода за QR от приложението Mailbox.</string>
   <string name="mailbox_setup_download_link">Споделяне на препратка за изтегляне</string>
@@ -633,7 +631,7 @@
   <string name="mailbox_status_unlink_button">Прекъсване на връзката</string>
   <string name="mailbox_status_unlink_dialog_title">Желаете ли да прекъснете връзката с пощенската кутия?</string>
   <string name="mailbox_status_unlink_dialog_question">Сигурни ли сте, че желаете да прекъснете връзката с пощенската кутия?</string>
-  <string name="mailbox_status_unlink_dialog_warning">Ако прекъснете връзката с пощенската кутия, няма да получавате съобщения докато Briar е без мрежа.</string>
+  <string name="mailbox_status_unlink_dialog_warning">Ако прекъснете връзката с пощенската кутия, няма да получавате съобщения докато Briar е без достъп до мрежа.</string>
   <string name="mailbox_status_unlink_no_wipe_title">Връзката с пощенската кутия е прекъсната</string>
   <string name="mailbox_status_unlink_no_wipe_message">За да завършите процеса, следващия път, когато имате достъп до устройството с пощенската кутия, отворете приложението на пощенската кутия и докоснете бутона „Прекъсване на връзката“.\n\nДаже и вече нямате достъп до устройството с пощенската кутия - не се притеснявайте. Вашата информация е шифрована, така че ще остане защитена, дори и да не завършите този процес.</string>
   <string name="mailbox_status_unlink_success">Връзката с пощенската кутия е прекъсната</string>
@@ -683,6 +681,8 @@
   <string name="disappearing_messages_summary">Бъдещите съобщения в разговора изчезват след 7\u00A0дни</string>
   <!--Settings Actions-->
   <string name="pref_category_actions">Действия</string>
+  <string name="share_app_link">Споделяне на препратка за изтегляне</string>
+  <string name="share_app_link_text">Изтеглете Брайар от %s</string>
   <string name="send_feedback">Изпращане на обратна връзка</string>
   <!--Link Warning-->
   <string name="link_warning_title">Предупреждение за препратка</string>
@@ -732,6 +732,7 @@
   <string name="permission_camera_title">Разрешение за камера</string>
   <string name="permission_camera_request_body">За да сканира кода за QR, Briar трябва да използва камерата.</string>
   <string name="permission_location_title">Разрешение за местоположение</string>
+  <string name="permission_nearby_devices_title">Разрешение за устройства наблизо</string>
   <string name="permission_location_request_body">За да открива устройства чрез Bluetooth, Briar се нуждае от разрешение за достъп до местоположението.\n\nBriar не го пази и не го споделя с никого.</string>
   <string name="permission_camera_location_title">Камера и местоположение</string>
   <string name="permission_camera_location_request_body">За да сканира кода за QR, Briar трябва да използва камерата.\n\nЗа да открива устройства чрез Bluetooth, Briar трябва да има достъп до местоположението.\n\nBriar не го пази и не го споделя с никого.</string>
@@ -758,19 +759,21 @@
   <!--Connections Screen-->
   <string name="transports_help_text">Briar може да се свърже с контактите ви през интернет, Wi-Fi или Bluetooth.\n\nЗа повече поверителност цялата връзка към интернет се пренасочва през мрежата на Tor.\n\nАко даден контакт може да бъде достъпен чрез няколко метода Briar ги използва успоредно.</string>
   <!--Share app offline-->
-  <string name="hotspot_title">Споделяне на приложението извън мрежа</string>
+  <string name="hotspot_title">Споделяне на приложението без достъп до мрежа</string>
   <string name="hotspot_intro">Споделете приложението с някого наблизо през Wi-Fi на устройствата, без използване на връзка с интернет.
 \n\nВашето устройство ще създаде безжична точка за достъп. Хората наблизо могат да се свържат към нея и да изтеглят Briar от вашето устройство.</string>
   <string name="hotspot_button_start_sharing">Включване на безжична точка</string>
   <string name="hotspot_button_stop_sharing">Спиране на безжична точка</string>
   <string name="hotspot_progress_text_start">Настройване на безжична точка…</string>
   <string name="hotspot_notification_channel_title">Безжична точка за достъп</string>
-  <string name="hotspot_notification_title">Споделяне на Briar извън мрежа</string>
+  <string name="hotspot_notification_title">Споделяне на Briar без достъп до мрежа</string>
   <string name="hotspot_button_connected">Напред</string>
   <string name="permission_hotspot_location_request_body">За да създаде безжична точка за достъп, Briar се нуждае от разрешение за достъп до местоположението.\n\nBriar не го пази и не го споделя с никого.</string>
   <string name="permission_hotspot_location_request_precise_body">За да създаде безжична точка за достъп, Briar се нуждае от разрешение за достъп до точното местоположение.\n\nBriar не го пази и не го споделя с никого.</string>
   <string name="permission_hotspot_location_denied_body">Отказахте достъп до местоположението, но достъп е необходим за създаване на безжична точка за достъп.\n\nОбмислете дали да не дадете разрешение.</string>
   <string name="permission_hotspot_location_denied_precise_body">Отказахте достъп до точното местоположение, но достъп е необходим за създаване на безжична точка за достъп.\n\nОбмислете дали да не дадете разрешение.</string>
+  <string name="permission_hotspot_nearby_wifi_request_body">За да създаде безжична точка за достъп, Briar се нуждае от права за достъп до околните устройства.</string>
+  <string name="permission_hotspot_nearby_wifi_denied_body">Отказахте достъп до околните устройства, но той е необходим за създаване на безжична точка за достъп.\n\nОбмислете дали да не дадете разрешение.</string>
   <string name="wifi_settings_title">Настройки на Wi-Fi</string>
   <string name="wifi_settings_request_enable_body">За да създаде безжична точка за достъп, Briar се нуждае от безжична мрежа. Включете Wi-Fi.</string>
   <string name="hotspot_tab_manual">Ръчно</string>

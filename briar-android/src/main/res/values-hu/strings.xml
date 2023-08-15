@@ -1,55 +1,60 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<resources>
-	<!--Setup-->
-	<string name="setup_title">Köszöntjük a Briar-ban</string>
-	<string name="setup_name_explanation">A beceneve fog megjelenni minden tartalom mellett amit Ön osztott meg. Nem tudja megváltoztatni a fiók létrehozása után.</string>
-	<string name="setup_next">Következő</string>
-	<string name="setup_password_intro">Válasszon jelszót</string>
-	<string name="setup_password_explanation">A Briar fiókja az eszközén kerül tárolásra titkosítva, nem a felhőben. Ha elfelejti a jelszavát, vagy eltávolítja a Briar-t, nincs lehetőség fiókja visszanyerésére.\n\nVálasszon egy hosszú, nehezen kitalálható jelszót, például négy tetszőleges szó vagy tíz tetszőleges betű, szám vagy szimbólum.</string>
-	<string name="dnkm_doze_title">Háttérkapcsolatok</string>
-	<string name="dnkm_doze_intro">Az üzenetek fogadásához a Briar-nak szüksége van a háttérben csatlakozásra.</string>
-	<string name="dnkm_doze_explanation">Az üzenetek fogadásához a Briarnak szüksége van háttérben csatlakozásra. Kérjük tiltsa le az akkumulátor optimalizációt, így a Briar kapcsolatban tud maradni.</string>
-	<string name="dnkm_doze_button">Kapcsolatok engedélyezése</string>
-	<string name="choose_nickname">Felhasználónév választása</string>
-	<string name="choose_password">Jelszó választása</string>
-	<string name="confirm_password">Jelszó megerősítése</string>
-	<string name="name_too_long">A név túl hosszú</string>
-	<string name="password_too_weak">A jelszó túl gyenge</string>
-	<string name="passwords_do_not_match">A jelszavak nem egyeznek</string>
-	<string name="create_account_button">Fiók létrehozása</string>
-	<string name="more_info">További információ</string>
-	<string name="don_t_ask_again">Ne kérdezze még egyszer</string>
-	<string name="dnkm_huawei_protected_text">Kérjük koppintson a gombra alább és ellenőrizze, hogy a Briar védett, a \"Védett alkalmazások\" képernyőn.</string>
-	<string name="dnkm_huawei_protected_button">A Briar védelme</string>
-	<string name="dnkm_huawei_protected_help">Ha Briar nincs hozzáadva a védett alkalmazások listájához, akkor nem képes futni a háttérben.</string>
-	<string name="dnkm_huawei_app_launch_text">Kérjük koppintson a gombra alább, hogy megnyissa az \"App indítás\" képernyőt és ellenőrizze, hogy a Briar beállított  \"Kézi kezelés\"-re.</string>
-	<string name="dnkm_huawei_app_launch_button">Az akkumulátor beállítások megnyitása</string>
-	<string name="dnkm_huawei_app_launch_help">Ha a Briar nincs beállítva \"Kézi kezelés\"-re az \"App indítás\" képernyőn, nem fog tudni futni a háttérben.</string>
-	<string name="dnkm_xiaomi_text">Ahhoz, hogy a háttérben fusson, a Briar-t rögzíteni kell a legutóbbi appok listáján.</string>
-	<string name="dnkm_xiaomi_button">A Briar védelme</string>
-	<string name="dnkm_xiaomi_help">Ha Briar nincs rögzítve a legutóbbi appok listájában, akkor nem képes futni a háttérben.</string>
-	<string name="dnkm_xiaomi_dialog_body_old">1. Nyissa meg a legutolsó appok listáját (másnéven az app váltót)\n\n2. Görgessen le a Briar képén, hogy megjelenjen a lakat ikon\n\n3. Ha a lakat nem zárt, koppintson a lezárásához</string>
-	<string name="dnkm_xiaomi_dialog_body_new">1. Nyissa meg a legutolsó appok listáját (másnéven az app váltót)\n\n2. Nyomja meg és tartsa nyomva a Briar képét, hogy megjelenjen a lakat ikon\n\n3. Ha a lakat nem zárt, koppintson a lezárásához</string>
-	<string name="dnkm_warning_dozed">%s nem tud futni a háttérben</string>
+<resources xmlns:tools="http://schemas.android.com/tools">
+  <!--Setup-->
+  <string name="setup_title">Köszöntünk a Briar-ban</string>
+  <string name="setup_name_explanation">A beceneved fog megjelenni minden tartalom mellett amit megosztottál. Nem tudod megváltoztatni a fiók létrehozása után.</string>
+  <string name="setup_next">Következő</string>
+  <string name="setup_password_intro">Válassz egy jelszót</string>
+  <string name="setup_password_explanation">A Briar fiókod az eszközödön kerül titkosítva tárolásra, nem pedig a felhőben. Ha elfelejted a jelszavad, vagy eltávolítod a Briar-t, nincs lehetőség fiókod  visszanyerésére.\n\nVálassz egy hosszú, nehezen kitalálható jelszót, például négy tetszőleges szó vagy tíz tetszőleges betű, szám vagy szimbólum.</string>
+  <string name="dnkm_doze_intro">Az üzenetek fogadásához a Briar-nak szüksége van a háttérben csatlakozásra.</string>
+  <string name="dnkm_doze_explanation">Az üzenetek fogadásához a Briarnak szüksége van háttérben csatlakozásra. Kérjük tiltsa le az akkumulátor optimalizációt, így a Briar kapcsolatban tud maradni.</string>
+  <string name="choose_nickname">Felhasználónév választása</string>
+  <string name="choose_password">Jelszó választása</string>
+  <string name="confirm_password">Jelszó megerősítése</string>
+  <string name="name_too_long">A név túl hosszú</string>
+  <string name="password_too_weak">A jelszó túl gyenge</string>
+  <string name="passwords_do_not_match">A jelszavak nem egyeznek</string>
+  <string name="create_account_button">Fiók létrehozása</string>
+  <string name="more_info">További információ</string>
+  <string name="don_t_ask_again">Ne kérdezze még egyszer</string>
+  <string name="dnkm_huawei_protected_text">Kérjük koppintson a gombra alább és ellenőrizze, hogy a Briar védett, a \"Védett alkalmazások\" képernyőn.</string>
+  <string name="dnkm_huawei_protected_button">A Briar védelme</string>
+  <string name="dnkm_huawei_protected_help">Ha Briar nincs hozzáadva a védett alkalmazások listájához, akkor nem képes futni a háttérben.</string>
+  <string name="dnkm_huawei_app_launch_text">Kérjük koppintson a gombra alább, hogy megnyissa az \"App indítás\" képernyőt és ellenőrizze, hogy a Briar beállított  \"Kézi kezelés\"-re.</string>
+  <string name="dnkm_huawei_app_launch_help">Ha a Briar nincs beállítva \"Kézi kezelés\"-re az \"App indítás\" képernyőn, nem fog tudni futni a háttérben.</string>
+  <string name="dnkm_xiaomi_text">Ahhoz, hogy a háttérben fusson, a Briar-t rögzíteni kell a legutóbbi appok listáján.</string>
+  <string name="dnkm_xiaomi_button">A Briar védelme</string>
+  <string name="dnkm_xiaomi_help">Ha Briar nincs rögzítve a legutóbbi appok listájában, akkor nem képes futni a háttérben.</string>
+  <string name="dnkm_xiaomi_dialog_body_old">1. Nyissa meg a legutolsó appok listáját (másnéven az app váltót)\n\n2. Görgessen le a Briar képén, hogy megjelenjen a lakat ikon\n\n3. Ha a lakat nem zárt, koppintson a lezárásához</string>
+  <string name="dnkm_xiaomi_dialog_body_new">1. Nyissa meg a legutóbbi alkalmazások listáját (alkalmazásváltónak is nevezik) 2. Ha Briar neve mellett van egy kis lakat képe, akkor nem kell semmit tennie 3. Ha nincs lakat, nyomja meg és tartsa lenyomva Briar képét, amíg meg nem jelenik a lakat gomb, majd koppintson rá</string>
+  <string name="dnkm_xiaomi_lock_apps_text">Kérjük, érintse meg az alábbi gombot a biztonsági beállítások megnyitásához. Koppintson a „Sebességnövelésre”, majd az „Alkalmazások zárolása” elemre, és győződjön meg arról, hogy a Briar beállítása „Zárolva”.</string>
+  <string name="dnkm_xiaomi_lock_apps_help">Ha a Briar az „Alkalmazások zárolása” képernyőn nincs „Zárolva”, nem tud a háttérben futni.</string>
+  <string name="dnkm_warning_dozed_1">A Briar nem tudott a háttérben futni</string>
   <!--Login-->
   <string name="enter_password">Jelszó</string>
   <string name="try_again">Hibás jelszó, próbáld újra</string>
   <string name="dialog_title_cannot_check_password">A jelszót nem sikerült ellenőrizni</string>
-  <string name="dialog_message_cannot_check_password">A Briar nem tudta ellenőrizni jelszavát. Kérjük indítja újra az eszközét a probléma megoldásához.</string>
+  <string name="dialog_message_cannot_check_password">A Briar nem tudta ellenőrizni jelszavad. Kérjük indítsd újra az eszközöd a probléma megoldásához.</string>
   <string name="sign_in_button">Bejelentkezés</string>
   <string name="forgotten_password">Elfelejtettem a jelszavam</string>
   <string name="dialog_title_lost_password">Elveszett jelszó</string>
-  <string name="dialog_message_lost_password">A Briar fiókja az eszközén kerül tárolásra titkosítva, nem a felhőben. Ha elfelejti a jelszavát, vagy eltávolítja a Briar-t, nincs lehetőség fiókja visszanyerésére.\n\nVálasszon egy hosszú, nehezen kitalálható jelszót, például négy tetszőleges szó vagy tíz tetszőleges betű, szám vagy szimbólum.</string>
+  <string name="dialog_message_lost_password">A Briar fiókod az eszközödön kerül titkosítva tárolásra, nem a felhőben. Ha elfelejted a jelszavad, vagy eltávolítod a Briar-t, nincs lehetőség fiókod  visszanyerésére.\n\nVálassz egy hosszú, nehezen kitalálható jelszót, például négy tetszőleges szó vagy tíz tetszőleges betű, szám vagy szimbólum.</string>
   <string name="startup_failed_activity_title">Briar indítási hiba</string>
-  <string name="startup_failed_clock_error">A Briar nem tud elindulni, mert az eszköz órája nem megfelelően jár.\n\nKérjük állítsa be az eszköz óráját a megfelelő időre és próbálja újra.</string>
+  <string name="startup_failed_clock_error">A Briar nem tud elindulni, mert az eszköz órája nem megfelelően jár.\n\nKérjük állítsd be az eszköz óráját a megfelelő időre és próbálja újra.</string>
+  <string name="startup_failed_db_error">Briar nem tudta megnyitni az Ön fiókját, névjegyeit és üzeneteit tartalmazó adatbázist. Kérjük, frissítsen az alkalmazás legújabb verziójára, és próbálja újra, vagy hozzon létre új fiókot az „Elfelejtettem a jelszavam” lehetőség kiválasztásával a jelszó kérése.</string>
+  <string name="startup_failed_data_too_old_error">Fiókja ennek az alkalmazásnak egy régi verziójával jött létre, és ezzel a verzióval nem nyitható meg. Újra kell telepítenie a régi verziót, vagy be kell állítania egy új fiókot az „Elfelejtettem a jelszavam” lehetőség kiválasztásával a jelszókérőnél.</string>
+  <string name="startup_failed_data_too_new_error">Fiókja az alkalmazás újabb verziójával jött létre, és ezzel a verzióval nem nyitható meg. Kérjük, frissítsen a legújabb verzióra, és próbálja újra.</string>
+  <string name="startup_failed_service_error">Briar nem tudott elindítani egy szükséges összetevőt. Kérjük, frissítsen az alkalmazás legújabb verziójára, és próbálja újra.</string>
   <plurals name="expiry_warning">
     <item quantity="one">Ez a teszt verziója a Briar-nak. A fiókja le fog járni %d napon belül és nem megújítható.</item>
-    <item quantity="other">Ez a teszt verziója a Briar-nak. A fiókja le fog járni %d napon belül és nem megújítható.</item>
+    <item quantity="other">Ez a teszt verziója a Briar-nak. A fiókod le fog járni %d napon belül és nem megújítható.</item>
   </plurals>
   <string name="expiry_date_reached">Ez a szoftver lejárt.\nKöszönjük a tesztelését!</string>
-  <string name="download_briar">A Briar használatának folytatásához kérjük töltse le a legújabb verziót.</string>
-  <string name="create_new_account">Új fiókot kell létrehoznia, de használhatja ugyanazt a becenevet.</string>
+  <string name="download_briar">A Briar használatának folytatásához kérjük töltsd le a legújabb verziót.</string>
+  <string name="create_new_account">Új fiókot kell létrehoznod, de használhatod ugyanazt a becenevet.</string>
   <string name="download_briar_button">Legújabb verzió letöltése</string>
+  <string name="old_android_expiry_date_reached">A Briar már nem fut Android 4 rendszeren. Kérjük, telepítse a Briart egy újabb eszközre.</string>
+  <string name="old_android_delete_account">Az alábbi gombra koppintva törölheti fiókját erről az eszközről.</string>
   <string name="delete_account_button">Fiók törlése</string>
   <string name="startup_open_database">Adatbázis dekódolása...</string>
   <string name="startup_migrate_database">Adatbázis frissítése</string>
@@ -81,27 +86,27 @@
   <!--Transports: Wi-Fi-->
   <string name="transport_lan">Wi-Fi</string>
   <string name="transport_lan_long">Azonos Wi-Fi hálózat</string>
-  <string name="lan_device_status_on">A telefonja Wi-Fi-hez csatlakoztatott.</string>
-  <string name="lan_device_status_off">A telefonja Wi-Fi-hez nem csatlakoztatott.</string>
+  <string name="lan_device_status_on">A telefonod Wi-Fi-hez csatlakoztatott.</string>
+  <string name="lan_device_status_off">A telefonod Wi-Fi-hez nem csatlakoztatott.</string>
   <string name="lan_plugin_status_enabling">A Briar csatlakozik a Wi-Fi hálózathoz</string>
   <string name="lan_plugin_status_active">A Briar csatlakoztatva a Wi-Fi hálózathoz</string>
   <string name="lan_plugin_status_inactive">A Briar nem tud csatlakozni a Wi-Fi hálózathoz</string>
   <string name="lan_plugin_status_disabled">A Briar Wi-Fi nélküli használatra van beállítva</string>
   <!--Transports: Bluetooth-->
   <string name="transport_bt">Bluetooth</string>
-  <string name="bt_device_status_on">A telefonja Bluetooth-ja bekapcsolva</string>
-  <string name="bt_device_status_off">A telefonja Bluetooth-ja kikapcsolva</string>
+  <string name="bt_device_status_on">A telefonod Bluetooth-ja bekapcsolva</string>
+  <string name="bt_device_status_off">A telefonod Bluetooth-ja kikapcsolva</string>
   <string name="bt_plugin_status_enabling">A Briar csatlakozik a Bluetooth-hoz</string>
   <string name="bt_plugin_status_active">A Briar csatlakoztatva a Bluetooth-hoz</string>
   <string name="bt_plugin_status_inactive">A Briar nem tud csatlakozni a Bluetooth-hoz</string>
   <string name="bt_plugin_status_disabled">A Briar Bluetooth nélküli használatra van beállítva</string>
   <!--Notifications-->
   <string name="reminder_notification_title">Kilépve a Briar-ból</string>
-  <string name="reminder_notification_text">Koppintson az újra belépéshez.</string>
+  <string name="reminder_notification_text">Koppints az újra belépéshez.</string>
   <string name="reminder_notification_channel_title">Briar Belépési emlékeztető</string>
   <string name="reminder_notification_dismiss">Kihagy</string>
   <string name="ongoing_notification_title">Belépve a Briar-ba</string>
-  <string name="ongoing_notification_text">Érintse meg a Briar megnyitásához.</string>
+  <string name="ongoing_notification_text">Érintsd meg a Briar megnyitásához.</string>
   <plurals name="private_message_notification_text">
     <item quantity="one">Új privát üzenet.</item>
     <item quantity="other">%d új privát üzenet.</item>
@@ -143,12 +148,13 @@
   <string name="fix">Javítás</string>
   <string name="help">Súgó</string>
   <string name="sorry">Sajnáljuk</string>
-  <string name="error_start_activity">Nem elérhető az ön rendszerén</string>
+  <string name="error_start_activity">Nem elérhető a rendszereden</string>
   <string name="status_heading">Állapot</string>
   <string name="error">Hiba</string>
+  <string name="info">Információk</string>
   <!--Contacts and Private Conversations-->
   <string name="no_contacts">Nincs megjeleníthető kapcsolat</string>
-  <string name="no_contacts_action">Koppintson a + gombra a kapcsolatok hozzáadásához</string>
+  <string name="no_contacts_action">Koppints a + gombra a kapcsolatok hozzáadásához</string>
   <string name="date_no_private_messages">Nincs üzenet.</string>
   <string name="no_private_messages">Nincs megjeleníthető üzenet</string>
   <string name="message_hint">Új üzenet</string>
@@ -163,11 +169,11 @@
   <string name="set_contact_alias_hint">Kapcsolat neve</string>
   <string name="menu_item_disappearing_messages">Eltűnő üzenetek</string>
   <!--The first placeholder will show a duration like "7 days". The second placeholder at the end will add "Tap to learn more."-->
-  <string name="auto_delete_msg_you_enabled">Az üzenetei eltűnnek %1$s. %2$s múlva</string>
+  <string name="auto_delete_msg_you_enabled">Az üzeneteid eltűnnek %1$s. %2$s múlva</string>
   <!--The placeholder at the end will add "Tap to learn more."-->
-  <string name="auto_delete_msg_you_disabled">Az üzenetei nem fognak eltűnni. %1$s</string>
+  <string name="auto_delete_msg_you_disabled">Az üzeneteid nem fognak eltűnni. %1$s</string>
   <!--The first placeholder will show a contact's name. The second placeholder will show a duration like "7 days". The third placeholder at the end will add "Tap to learn more."-->
-  <string name="auto_delete_msg_contact_enabled">%1$s üzenetei eltűnnek %2$s. %3$s múlva</string>
+  <string name="auto_delete_msg_contact_enabled">%1$s üzeneteid eltűnnek %2$s. %3$s múlva</string>
   <plurals name="duration_minutes">
     <item quantity="one">%d perc</item>
     <item quantity="other">%d perc</item>
@@ -181,11 +187,11 @@
     <item quantity="other">%d nap</item>
   </plurals>
   <!--The first placeholder will show a contact's name. The second placeholder at the end will add "Tap to learn more."-->
-  <string name="auto_delete_msg_contact_disabled">%1$s üzenetei nem fognak eltűnni. %2$s</string>
-  <string name="tap_to_learn_more">Koppintson a további információkért.</string>
+  <string name="auto_delete_msg_contact_disabled">%1$s üzeneteid nem fognak eltűnni. %2$s</string>
+  <string name="tap_to_learn_more">Koppints a további információkért.</string>
   <string name="auto_delete_changed_warning_title">Eltűnő üzenetek megváltoztak</string>
-  <string name="auto_delete_changed_warning_message_enabled">Azóta, hogy elkezdte írni az üzenetét, az eltűnő üzenetek engedélyezésre kerültek.</string>
-  <string name="auto_delete_changed_warning_message_disabled">Azóta, hogy elkezdte írni az üzenetét, az eltűnő üzenetek tiltásra kerültek.</string>
+  <string name="auto_delete_changed_warning_message_enabled">Azóta, hogy elkezdted írni az üzeneted, az eltűnő üzenetek engedélyezésre kerültek.</string>
+  <string name="auto_delete_changed_warning_message_disabled">Azóta, hogy elkezdted írni az üzeneted, az eltűnő üzenetek letiltottak.</string>
   <string name="auto_delete_changed_warning_send">Küldés mindenféleképpen</string>
   <string name="delete_all_messages">Minden üzenet törlése</string>
   <string name="dialog_title_delete_all_messages">Üzenet törlés megerősítése</string>
@@ -199,7 +205,7 @@
   <string name="dialog_message_not_deleted_not_all_selected_invitations">Egy meghívás törléséhez ki kell jelölnie a kérelmet és a választ.</string>
   <string name="delete_contact">Kapcsolat törlése</string>
   <string name="dialog_title_delete_contact">Kapcsolat törlésének megerősítése</string>
-  <string name="dialog_message_delete_contact">Biztosan eltávolítja ezt a kapcsolatot és minden vele történt üzenetváltását?</string>
+  <string name="dialog_message_delete_contact">Biztosan eltávolítod ezt a kapcsolatot és minden vele történt üzenetváltásod?</string>
   <string name="contact_deleted_toast">Kapcsolat törölve</string>
   <!--This is shown in the action bar when opening an image in fullscreen that the user sent-->
   <string name="you">Ön</string>
@@ -218,6 +224,7 @@ Biztosan szeretné menteni?</string>
   <string name="menu_contact">Kapcsolat</string>
   <!--Adding Contacts-->
   <string name="add_contact_title">Közeli kapcsolat hozzáadása</string>
+  <string name="add_contact_error_two_way">Mindketten beolvastátok egymás QR-kódjait?</string>
   <string name="face_to_face">Találkoznia kell a személlyel akit, hozzá szeretne adni a kapcsolatokhoz.\n\nEz megelőzi azt, hogy valaki megszemélyesítse Önt, vagy elolvassa későbbi üzeneteit.</string>
   <string name="continue_button">Folytatás</string>
   <string name="try_again_button">Újrapróbálkozás</string>
@@ -225,14 +232,16 @@ Biztosan szeretné menteni?</string>
   <string name="exchanging_contact_details">Kapcsolat részletek cseréje\u2026</string>
   <string name="contact_added_toast">Kapcsolat hozzáadva: %s</string>
   <string name="contact_already_exists">%s kapcsolat már létezik</string>
+  <string name="contact_already_exists_general">A kapcsolat már létezik</string>
   <string name="qr_code_invalid">A QR kód érvénytelen</string>
-  <string name="qr_code_too_old">A QR kód amit leolvasott egy korábbi %s  verzióhoz tartozik.\n\nKérje meg kapcsolatát, hogy frissítsen a legutolsó verzióra, majd próbálják újra.</string>
-  <string name="qr_code_too_new">A QR kód amit leolvasott egy újabb %s verzióhoz tartozik.\n\nKérjük, frissítsen a legutolsó verzióra, majd próbálják újra.</string>
+  <string name="qr_code_too_old_1">A beolvasott QR-kód a Briar egy régebbi verziójából származik. Kérje meg kapcsolattartóját, hogy frissítsen a legújabb verzióra, majd próbálja újra.</string>
+  <string name="qr_code_too_new_1">A beolvasott QR-kód a Briar egy régebbi verziójából származik. Kérje meg kapcsolattartóját, hogy frissítsen a legújabb verziót, majd próbálja újra.</string>
   <string name="camera_error">Kamera hiba</string>
   <string name="connecting_to_device">Csatlakozás az eszközhöz\u2026</string>
   <string name="authenticating_with_device">Azonosítás az eszközzel\u2026</string>
   <string name="connection_error_title">Nem sikerült csatlakozni a kapcsolatához</string>
   <string name="connection_error_feedback">Ha ez a probléma tartósan fennáll, kérjük <a href="feedback">küldjön visszajelzést</a> nekünk, hogy segítsen fejleszteni az appot.</string>
+  <string name="info_both_must_scan">Mindketten be kell szkennelniük egymás QR-kódjait</string>
   <!--Adding Contacts Remotely-->
   <string name="add_contact_remotely_title_case">Távoli kapcsolat hozzá adása</string>
   <string name="add_contact_nearby_title">Közeli kapcsolat hozzáadása</string>
@@ -246,7 +255,7 @@ Biztosan szeretné menteni?</string>
   <string name="send_link_title">Linkek cseréje</string>
   <string name="add_contact_choose_nickname">Becenév választása</string>
   <string name="add_contact_choose_a_nickname">Becenév megadása</string>
-  <string name="nickname_intro">Adja meg a kontakt becenevét. Csak ön láthatja.</string>
+  <string name="nickname_intro">Add meg a kapcsolatod becenevét. Csak te látod.</string>
   <string name="your_link">Adja oda ezt a linket annak a kapcsolatának, akit hozzá szeretne adni</string>
   <string name="link_clip_label">Briar link</string>
   <string name="link_copied_toast">Link másolva</string>
@@ -291,9 +300,15 @@ Kérjük frissítsen a legutolsó verzióra és próbálja újra.</string>
   <string name="different_person_button">Másik személy</string>
   <string name="duplicate_link_dialog_text_3">%1$s és %2$s ugyanazt a linket küldte.\n\nEgyikük lehet, hogy megpróbálja kikutatni, hogy kik a kapcsolatai.\n\nNe árulja el nekik, hogy ugyanazt a linket már megkapta mástól.</string>
   <string name="pending_contact_updated_toast">Várakozó kapcsolat frissítve</string>
+  <string name="info_both_must_enter_links">Mindkettőnek hozzá kell adnia egymás linkjét</string>
+  <!--Peer trust levels-->
+  <string name="peer_trust_level_unverified">Ellenőrizetlen kapcsolat</string>
+  <string name="peer_trust_level_verified">Ellenőrzött kapcsolat</string>
+  <string name="peer_trust_level_ourselves">Én</string>
+  <string name="peer_trust_level_stranger">Idegen</string>
   <!--Introductions-->
   <string name="introduction_onboarding_title">Kapcsolatai bemutatása</string>
-  <string name="introduction_onboarding_text">Bemutathatja kapcsolatait egymásnak, így nem szükséges, hogy találkozzanak személyesen, hogy kapcsolódhassanak a Briar-on.</string>
+  <string name="introduction_onboarding_text">Mutassa be ismerőseit egymásnak, hogy csatlakozhassanak a Briarhez.</string>
   <string name="introduction_menu_item">Bemutatkozás készítése</string>
   <string name="introduction_activity_title">Kapcsolat kiválasztása</string>
   <string name="introduction_not_possible">Jelenleg folyamatban van egy bemutatkozása ezekkel a kapcsolatokkal. Kérjük tegye lehetővé előbb ezek befejeződését. Ha a kapcsolatai ritkán vannak online, ez több időt is igénybe vehet.</string>
@@ -316,10 +331,14 @@ Kérjük frissítsen a legutolsó verzióra és próbálja újra.</string>
   <!--Connect via Bluetooth-->
   <string name="menu_item_connect_via_bluetooth">Csatlakozás bluetooth-on keresztül</string>
   <string name="connect_via_bluetooth_title">Csatlakozás bluetooth-on keresztül</string>
+  <string name="connect_via_bluetooth_intro">Ha a Bluetooth-kapcsolatok nem működnek automatikusan, ezt a képernyőt használhatja a manuális csatlakozáshoz. A kapcsolathoz a közelben kell lennie. Önnek és ismerősének egyszerre kell megnyomnia a „Start” gombot.</string>
+  <string name="connect_via_bluetooth_already_discovering">Már próbál csatlakozni Bluetooth-on keresztül. Kérjük, próbálja újra rövidesen.</string>
   <string name="connect_via_bluetooth_no_location_permission">Nem folytatható hely engedélyek nélkül</string>
+  <string name="connect_via_bluetooth_no_bluetooth_permission">Nem folytatható a közeli eszközök engedélye nélkül</string>
   <string name="connect_via_bluetooth_start">Csatlakozás Bluetooth-on...</string>
   <string name="connect_via_bluetooth_success">Sikeres csatlakozás Bluetooth-on.</string>
   <string name="connect_via_bluetooth_error">Nem sikerült csatlakozni Bluetooth-on.</string>
+  <string name="connect_via_bluetooth_error_not_supported">Az eszköz nem támogatja a Bluetooth-t.</string>
   <!--Private Groups-->
   <string name="groups_list_empty">Nincs megjeleníthető csoport</string>
   <string name="groups_list_empty_action">Koppintson a + ikonra csoport létrehozásához, vagy kérje meg kapcsolatait, hogy osszanak meg csoportokat Önnel</string>
@@ -412,6 +431,10 @@ Kérjük frissítsen a legutolsó verzióra és próbálja újra.</string>
   <string name="forum_declined_toast">Meghívás elutasítva</string>
   <string name="shared_by_format">Megosztva %s által</string>
   <string name="forum_invitation_already_sharing">Megosztás alatt</string>
+  <string name="forum_invitation_already_invited">A meghívó már elküldve</string>
+  <string name="forum_invitation_invite_received">A meghívó már megérkezett</string>
+  <string name="forum_invitation_not_supported">Nem támogatott ezen kapcsolat által</string>
+  <string name="forum_invitation_error">Hiba. Ez egy programhiba, nem a te hibád</string>
   <string name="forum_invitation_response_accepted_sent">Elfogadta a %s fórum meghívását.</string>
   <string name="forum_invitation_response_declined_sent">Elutasította %s a fórum meghívását.</string>
   <string name="forum_invitation_response_declined_auto"> %s fórum meghívása automatikusan elutasításra került.</string>
@@ -437,11 +460,11 @@ Kérjük frissítsen a legutolsó verzióra és próbálja újra.</string>
   <string name="blogs_feed_empty_state">Nincs megjelenítendő bejegyzés</string>
   <string name="blogs_feed_empty_state_action">A bejegyzések a kapcsolataitól és a blogoktól, amikre feliratkozott, itt jelennek meg.\n\nÉrintse meg a toll ikont egy blog bejegyzés írásához</string>
   <string name="blogs_remove_blog">Blog eltávolítása</string>
-  <string name="blogs_remove_blog_dialog_message">Biztosan eltávolítja ezt a blogot?
+  <string name="blogs_remove_blog_dialog_message">Biztosan eltávolítod ezt a blogot?
 
-A bejegyzések törlődni fognak az Ön eszközéről, de nem a többi ember eszközéről.
+A bejegyzések törlődni fognak az eszközödről, de a többi ember eszközéről nem .
 
-Kapcsolatai, akivel megosztotta ezt a blogot, lehet nem kapnak többé frissítést.</string>
+Kapcsolataid, akivel megosztottad ezt a blogot, lehet nem kapnak többé frissítést.</string>
   <string name="blogs_remove_blog_ok">Eltávolít</string>
   <string name="blogs_blog_removed">Blog eltávolítva</string>
   <string name="blogs_reblog_comment_hint">Megjegyzés hozzáadása (opcionális)</string>
@@ -466,8 +489,9 @@ Kapcsolatai, akivel megosztotta ezt a blogot, lehet nem kapnak többé frissít�
   <string name="blogs_rss_feeds_import">RSS feed importálása</string>
   <string name="blogs_rss_feeds_import_button">Importálás</string>
   <string name="blogs_rss_feeds_import_hint">Adja meg az RSS feed URL címét</string>
+  <string name="blogs_rss_feeds_import_progress">RSS feed importálása...</string>
   <string name="blogs_rss_feeds_import_error">Elnézését kérjük! Probléma akadt a feed-je importálásával.</string>
-  <string name="blogs_rss_feeds_import_exists">Ez a feed már importálva van.</string>
+  <string name="blogs_rss_feeds_import_title">Hírcsatorna importálása fájlból</string>
   <string name="blogs_rss_feeds">RSS Feed-ek</string>
   <string name="blogs_rss_feeds_manage_imported">Importálva:</string>
   <string name="blogs_rss_feeds_manage_author">Szerző:</string>
@@ -572,12 +596,79 @@ Vigyázat: Ez végleg törli az identitásait, kapcsolatait és üzeneteit</stri
   <string name="choose_ringtone_title">Csengőhang választása</string>
   <string name="cannot_load_ringtone">Sikertelen a csengőhang betöltése</string>
   <!--Mailbox-->
-  <string name="mailbox_setup_connecting">Csatlakozás...</string>
+  <string name="mailbox_settings_title">Postafiók</string>
+  <string name="mailbox_setup_title">Postafiók beàllítàsa</string>
+  <string name="mailbox_setup_intro">A postafiók lehetővé teszi a kapcsolatai számára, hogy üzeneteket küldjenek Önnek, miközben Ön offline állapotban van. A postafiók fogadja az üzeneteket, és tárolja őket, amíg az internethez nem kapcsolódik. Telepítheti a Briar postafiók alkalmazást egy tartalék eszközre. Tartsa csatlakoztatva az áramforráshoz és a Wi-Fi-hálózathoz, hogy mindig online legyen.</string>
+  <string name="mailbox_setup_download_link">Letöltési link megosztása</string>
+  <string name="mailbox_setup_button_scan">Olvassa be a postafiók QR-kódját</string>
+  <string name="permission_camera_qr_denied_body">Megtagadta a hozzáférést a kamerához, de a QR-kód beolvasásához a kamera használata szükséges. Kérjük, fontolja meg a hozzáférés megadását.</string>
+  <string name="mailbox_setup_connecting">Kapcsolódàs a postafiókhoz...</string>
+  <!--This string is shown when connecting to a Mailbox for the first time. The placeholder will be replaced with a duration, e.g. "2 minutes".-->
+  <string name="mailbox_setup_connecting_info">Ez akár%1s-ot is igénybe vehet</string>
+  <string name="mailbox_qr_code_too_old">A beolvasott QR-kód a Briar postafiók egy régebbi verziójából származik. Kérjük, frissítse a Briar postafiók a legújabb verzióra, majd próbálja újra.</string>
+  <string name="mailbox_qr_code_too_new">A beolvasott QR-kód a Briar postafiók újabb verziójából származik. Kérjük, frissítse a Briart a legújabb verzióra, majd próbálja újra.</string>
+  <string name="contact_qr_code_for_mailbox">A beolvasott QR-kód egy Briar-névjegy hozzáadására szolgál. Ha névjegyet szeretne hozzáadni, lépjen a névjegyzékbe, és koppintson a + ikonra.</string>
+  <string name="mailbox_setup_qr_code_wrong_description">A beolvasott QR-kód nem a Briar postafiókból származik.Kérjük, nyissa meg a Briar postafiók alkalmazást a postafiók eszközén, és olvassa be az abban megjelenő QR-kódot.</string>
+  <string name="mailbox_setup_already_paired_title">A Mailbox már linkelt</string>
+  <string name="mailbox_setup_already_paired_description">Válaszd le a Mailbox-ot a másik eszközödön és próbáld újra.</string>
+  <string name="mailbox_setup_io_error_title">Sikertelen a kapcsolódás</string>
+  <string name="mailbox_setup_io_error_description">Ellenőrizd, hogy mindkét eszköz csatlakoztatva van-e az internethez és próbáld újra.</string>
+  <string name="mailbox_setup_assertion_error_title">Postafiók hiba</string>
+  <string name="mailbox_setup_assertion_error_description">Kérjük, küldjön visszajelzést (anonim adatokkal) a Briar alkalmazáson keresztül, ha a probléma továbbra is fennáll.</string>
+  <string name="mailbox_setup_camera_error_description">Nem sikerült elérni a kamerát. Próbálja újra, talán az eszköz újraindítása után.</string>
   <string name="mailbox_setup_paired_title">Csatlakozva</string>
   <string name="tor_offline_title">Offline</string>
+  <string name="tor_offline_button_check">Ellenőrizze a kapcsolat beállításait</string>
+  <string name="mailbox_status_title">Postafiók állapota</string>
+  <string name="mailbox_status_connected_title">A Mailbox fut</string>
+  <string name="mailbox_status_problem_title">A Briar-nak problémái vannak a Mailbox-hoz csatlakozással</string>
+  <string name="mailbox_status_failure_title">A Mailbox nem elérhető</string>
+  <string name="mailbox_status_app_too_old_title">Briar túl régi</string>
+  <string name="mailbox_status_app_too_old_message">Frissísd a Briar-t a legutolsó app verzióra és próbáld újra.</string>
+  <string name="mailbox_status_mailbox_too_old_title">A Mailbox túl régi</string>
+  <string name="mailbox_status_mailbox_too_old_message">Frissítsd a Mailbox-ot a legutolsó app verzióra és próbáld újra.</string>
+  <string name="mailbox_status_check_button">Kapcsolat ellenőrzése</string>
   <!--Example for string substitution: Last connection: 3min ago-->
+  <string name="mailbox_status_connected_info">Utolsó csatlakozás: %s</string>
   <!--Indicates that there never was a connection to the mailbox. Last connection: Never-->
   <string name="mailbox_status_connected_never">Soha</string>
+  <string name="mailbox_status_unlink_button">Leválasztás</string>
+  <string name="mailbox_status_unlink_dialog_title">Leválassza a postafiókot?</string>
+  <string name="mailbox_status_unlink_dialog_question">Biztosan szeretnéd lecsatlakoztatni a Mailbox-od?</string>
+  <string name="mailbox_status_unlink_dialog_warning">Ha leválasztod a Mailbox-od, nem fogsz tudni üzeneteket kapni amíg a Briar offline.</string>
+  <string name="mailbox_status_unlink_no_wipe_title">A Mailbox-od lecsatlakoztatásra került</string>
+  <string name="mailbox_status_unlink_no_wipe_message">Ha legközelebb hozzáfér postafiókjához, nyissa meg a postafiók alkalmazást, és érintse meg a „Leválasztás” gombot a folyamat befejezéséhez. Ha már nem fér hozzá postafiókjához, ne aggódjon. Adatai titkosítva vannak, így akkor is biztonságban maradnak, ha nem fejezi be a folyamatot.</string>
+  <string name="mailbox_status_unlink_success">A Mailbox-od lecsatlakoztatásra került</string>
+  <string name="mailbox_error_notification_channel_title">Briar Mailbox probléma</string>
+  <string name="mailbox_error_notification_title">A Briar Mailbox nem elérhető</string>
+  <string name="mailbox_error_notification_text">Érintsd meg a hibajavításhoz.</string>
+  <string name="mailbox_error_wizard_button">Probléma javítása</string>
+  <string name="mailbox_error_wizard_title">Mailbox hibaelhárító varázsló</string>
+  <string name="mailbox_error_wizard_question1">Van hozzáférésed a Mailbox eszközödhöz?</string>
+  <string name="mailbox_error_wizard_answer1">Igen, most azonnal van hozzáférésem.</string>
+  <string name="mailbox_error_wizard_answer2">Épp most nem, de később hozzáférek.</string>
+  <string name="mailbox_error_wizard_answer3">Nem, nincs már hozzáférésem.</string>
+  <string name="mailbox_error_wizard_info1_1">Ellenőrizd, hogy a Mailbox eszközöd be van-e kapcsolva és csatlakoztatva van-e az internethez.</string>
+  <string name="mailbox_error_wizard_question1_1">Nyisd meg a Mailbox appot. Mit látsz?</string>
+  <string name="mailbox_error_wizard_answer1_1">A Mailbox beállításának lépéseit látom</string>
+  <string name="mailbox_error_wizard_answer1_2">Látok egy QR kódot</string>
+  <string name="mailbox_error_wizard_answer1_3">Azt látom \"Mailbox is running\"</string>
+  <string name="mailbox_error_wizard_answer1_4">Azt látom, hogy \"Device offline\"</string>
+  <string name="mailbox_error_wizard_info1_1_1">Kérjük válaszd le a Mailbox-ot a gombbal alább, aztán kövesd a lépéseket a Mailbox eszközön az újra csatlakoztatáshoz.</string>
+  <string name="mailbox_error_wizard_info_1_1_2">Kérjük válaszd le a Mailbox-ot a gombbal alább, aztán olvasd be a QR kódot  az újra csatlakoztatáshoz.</string>
+  <string name="mailbox_error_wizard_info1_1_4">Ellenőrizze, hogy a postafiók megfelelően csatlakozik-e az internethez. Ellenőrizze, hogy a postafiók órája a megfelelő időt, dátumot és időzónát mutatja-e. Ellenőrizze, hogy a postafiók és a Briar alkalmazások frissültek-e a legújabb verzióra. Indítsa újra a postafiók és a Briar eszközöket, és próbálja újra.</string>
+  <string name="mailbox_error_wizard_info2">Kérjük gyere vissza erre  képernyőre, ha van hozzáférésed az eszközhöz.</string>
+  <!--About-->
+  <string name="about_title">Névjegy</string>
+  <string name="briar_version">Briar verzió: %s</string>
+  <string name="tor_version">Tor verzió: %s</string>
+  <string name="links">Linkek</string>
+  <string name="briar_website">\u2022 <a href="">Weboldal</a></string>
+  <string name="briar_source_code">\u2022 <a href="">Forráskód</a> </string>
+  <string name="briar_changelog">\u2022 <a href="">Változásnapló</a></string>
+  <string name="briar_privacy_policy">\u2022 <a href="">Adatvédelmi irányelvek</a></string>
+  <!--Here translators can add their names or Transifex usernames(eg "Thanks to all the contributors at the Localization Lab, especially Tom, Matthew and Jerry")-->
+  <string name="translator_thanks">Köszönet minden közreműködőnek a Lokalizációs Laborban</string>
   <!--Conversation Settings-->
   <string name="disappearing_messages_title">Eltűnő üzenetek</string>
   <string name="disappearing_messages_explanation_long">Bekapcsolva ezt  beállítást az új
@@ -593,6 +684,7 @@ Vigyázat: Ez végleg törli az identitásait, kapcsolatait és üzeneteit</stri
   <string name="disappearing_messages_summary">Make future messages in this conversation automatically disappear after 7\u00A0days.</string>
   <!--Settings Actions-->
   <string name="pref_category_actions">Események</string>
+  <string name="share_app_link">Letöltési link megosztása</string>
   <string name="send_feedback">Visszajelzés küldése</string>
   <!--Link Warning-->
   <string name="link_warning_title">Link figyelmeztetés</string>
@@ -601,6 +693,7 @@ Vigyázat: Ez végleg törli az identitásait, kapcsolatait és üzeneteit</stri
   <string name="link_warning_open_link">Link megnyitása</string>
   <!--Crash Reporter-->
   <string name="crash_report_title">Briar összeomlási jelentés</string>
+  <string name="briar_crashed">Sajnáljuk, a Briar összeomlott</string>
   <string name="not_your_fault">Ez nem az Ön hibája.</string>
   <string name="please_send_report">Kérjük segítsen nekünk a Briar-t jobbá tenni, a hibajelentés elküldésével.</string>
   <string name="report_is_encrypted">Biztosítjuk, hogy a hibajelentés titkosított és biztonságos.</string>
@@ -608,6 +701,7 @@ Vigyázat: Ez végleg törli az identitásait, kapcsolatait és üzeneteit</stri
   <string name="describe_crash">Írja le mi történt (opcionális)</string>
   <string name="enter_feedback">Gépelje be visszajelzését</string>
   <string name="optional_contact_email">Email címe (opcionális)</string>
+  <string name="privacy_policy">Az adatok elküldésével Ön elfogadja a mi <a href="">Adatvédelmi irányelvünket</a></string>
   <string name="include_debug_report_crash">Névtelen adat beágyazása az összeomlásról</string>
   <string name="include_debug_report_feedback">Névtelen adat beágyazása az eszközről</string>
   <string name="dev_report_user_info">Felhasználó információ</string>
@@ -618,6 +712,7 @@ Vigyázat: Ez végleg törli az identitásait, kapcsolatait és üzeneteit</stri
   <string name="dev_report_memory">Memória</string>
   <string name="dev_report_storage">Tárhely</string>
   <string name="dev_report_connectivity">Csatlakozódás</string>
+  <string name="dev_report_network_usage">Hálózathasználat</string>
   <string name="dev_report_build_config">Build konfiguráció</string>
   <string name="dev_report_logcat">App log</string>
   <string name="dev_report_device_features">Eszköz szolgáltatások</string>
@@ -639,14 +734,21 @@ Vigyázat: Ez végleg törli az identitásait, kapcsolatait és üzeneteit</stri
   <string name="permission_camera_title">Kamera jogosultságok</string>
   <string name="permission_camera_request_body">A QR kód olvasáshoz a Briar-nak szüksége van kamera hozzáférésre.</string>
   <string name="permission_location_title">Hely engedélyek</string>
+  <string name="permission_nearby_devices_title">Közeli eszközök engedélye</string>
   <string name="permission_location_request_body">A Bluetooth eszközök észleléséhez a Briar-nak szükségve van a lokációhoz hozzáférésre.\n\nA Briar nem tárolja lokációját vagy ossza meg bárkivel.</string>
   <string name="permission_camera_location_title">Kamera és lokáció</string>
   <string name="permission_camera_location_request_body">A QR kód beszkenneléséhez a Briar-nak szüksége van a Kamerához hozzáférésre.\n\nA Bluetooth eszközök észleléséhez a Briar-nak szükségve van a lokációhoz hozzáférésre.\n\nA Briar nem tárolja lokációját vagy ossza meg bárkivel.</string>
+  <string name="permission_camera_bluetooth_title">Kamera és közeli eszközök</string>
+  <string name="permission_camera_bluetooth_request_body">A QR-kód beolvasásához Briarnak hozzá kell férnie a kamerához. A Bluetooth-eszközök felfedezéséhez Briarnak engedélyre van szüksége a közeli eszközök megkereséséhez és azokhoz való csatlakozáshoz.</string>
   <string name="permission_camera_denied_body">Megtiltotta hozzáférést a kamerához, de a kapcsolatok hozzáadásához szükséges a kamera.\n\nKérjük gondolja meg a jog megadását.</string>
   <string name="permission_location_denied_body">Megtiltotta hozzáférést a helyhez, azonban a Briar-nak szüksége van erre, hogy detektálja a Bluetooth eszközöket.\n\nKérjük gondolja meg a jog megadását.</string>
   <string name="permission_location_setting_title">Hely beállítás</string>
   <string name="permission_location_setting_body">Az eszköze hely beállításai be kell kapcsolva legyenek, hogy megtaláljon más eszközöket Bluetooth-on. Kérjük engedélyezze a folytatáshoz. Utána újra letilthatja.</string>
+  <string name="permission_location_setting_hotspot_body">Wi-Fi hotspot létrehozásához az eszköz helybeállítását be kell kapcsolni. A folytatáshoz engedélyezze a helymeghatározást. Utána újra kikapcsolhatja.</string>
   <string name="permission_location_setting_button">Hely engedélyezése</string>
+  <string name="permission_bluetooth_title">Közeli eszközök engedélye</string>
+  <string name="permission_bluetooth_body">A Bluetooth-kommunikáció használatához Briarnak engedélyre van szüksége a közeli eszközök megtalálásához és azokhoz való csatlakozáshoz.</string>
+  <string name="permission_bluetooth_denied_body">Megtagadta a hozzáférést a közeli eszközökhöz, de Briarnak szüksége van erre az engedélyre a Bluetooth használatához. Kérjük, fontolja meg a hozzáférés megadását.</string>
   <string name="qr_code">QR kód</string>
   <string name="show_qr_code_fullscreen">A QR kód teljes képernyősen</string>
   <!--App Locking-->
@@ -659,12 +761,28 @@ Vigyázat: Ez végleg törli az identitásait, kapcsolatait és üzeneteit</stri
   <!--Connections Screen-->
   <string name="transports_help_text">A Briar Interneten, Wi-Fi-n vagy Bluetooth-on keresztül csatlakozhat kapcsolataihoz.\n\nAz összes internetkapcsolat a Tor hálózaton megy keresztül megy az adatvédelem érdekében.\n\nHa egy kapcsolatot több módszerrel is el lehet érni, Briar párhuzamosan használja azokat.</string>
   <!--Share app offline-->
+  <string name="hotspot_title">Ossza meg ezt az alkalmazást offline</string>
+  <string name="hotspot_button_start_sharing">Hotspot indítása</string>
+  <string name="hotspot_button_stop_sharing">Hotspot leállítása</string>
+  <string name="hotspot_progress_text_start">Hotspot beállítása…</string>
   <string name="hotspot_notification_channel_title">Wifi hotspot</string>
+  <string name="hotspot_notification_title">Briar megosztása offline állapotban</string>
   <string name="hotspot_button_connected">Következő</string>
+  <string name="permission_hotspot_location_request_body">Wi-Fi hotspot létrehozásához a Briarnak engedélyre van szüksége ahhoz, hogy hozzáférjen az Ön tartózkodási helyéhez. A Briar nem tárolja az Ön tartózkodási helyét, és nem osztja meg senkivel.</string>
+  <string name="permission_hotspot_location_request_precise_body">Wi-Fi hotspot létrehozásához a Briarnak engedélyre van szüksége, hogy hozzáférjen az Ön pontos helyéhez. A Briar nem tárolja az Ön tartózkodási helyét, és nem osztja meg senkivel.</string>
+  <string name="permission_hotspot_location_denied_body">Megtagadta a hozzáférést a tartózkodási helyéhez, de Briarnak szüksége van erre az engedélyre Wi-Fi hotspot létrehozásához. Kérjük, fontolja meg a hozzáférés megadását.</string>
+  <string name="permission_hotspot_location_denied_precise_body">Megtagadta a hozzáférést a pontos tartózkodási helyéhez, de Briarnak szüksége van erre az engedélyre Wi-Fi hotspot létrehozásához. Kérjük, fontolja meg a hozzáférés megadását.</string>
+  <string name="wifi_settings_title">Wi-Fi beállítás</string>
+  <string name="wifi_settings_request_enable_body">Wi-Fi hotspot létrehozásához Briarnak Wi-Fi-t kell használnia. Kérjük, engedélyezze.</string>
   <string name="hotspot_tab_manual">Kézi</string>
   <!--The placeholder to be inserted into the string 'hotspot_manual_wifi': People can connect by %s-->
+  <string name="hotspot_scanning_a_qr_code">QR-kód beolvasása</string>
   <!--Wi-Fi setup-->
   <!--The %s placeholder will be replaced with the translation of 'hotspot_scanning_a_qr_code'-->
+  <string name="hotspot_manual_wifi">Telefonja Wi-Fi hotspotot biztosít. Azok az emberek, akik szeretnék letölteni a Briart, csatlakozhatnak a hotspothoz úgy, hogy hozzáadják azt eszközük Wi-Fi beállításaihoz az alábbi adatokkal vagy %s-al. Amikor csatlakoztak a hotspothoz, nyomja meg a „Tovább” gombot.</string>
+  <string name="hotspot_manual_wifi_ssid">Hálózat neve</string>
+  <string name="hotspot_qr_wifi">Telefonja Wi-Fi hotspotot biztosít. Azok, akik szeretnék letölteni a Briart, ennek a QR-kódnak a beolvasásával csatlakozhatnak a hotspothoz. Amikor csatlakoztak a hotspothoz, nyomja meg a „Tovább” gombot.</string>
+  <string name="hotspot_no_peers_connected">Nincsenek csatlakoztatva eszközök</string>
   <!--Download link-->
   <!--The %s placeholder will be replaced with the translation of 'hotspot_scanning_a_qr_code'-->
   <!--e.g. Download Briar 1.2.20-->

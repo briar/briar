@@ -50,11 +50,6 @@
     <item quantity="many">Questa è una versione di prova di Briar. Il tuo account scadrà fra %d giorni e non può essere rinnovato.</item>
     <item quantity="other">Questa è una versione di prova di Briar. Il tuo account scadrà fra %d giorni e non può essere rinnovato.</item>
   </plurals>
-  <plurals name="old_android_expiry_warning">
-    <item quantity="one">Android 4 non è più supportato. Briar smetterà di funzionare il %s (tra %d giorno). Installa Briar in un dispositivo più recente e crea un nuovo account.</item>
-    <item quantity="many">Android 4 non è più supportato. Briar smetterà di funzionare il %s (tra %d giorni). Installa Briar in un dispositivo più recente e crea un nuovo account.</item>
-    <item quantity="other">Android 4 non è più supportato. Briar smetterà di funzionare il %s (tra %d giorni). Installa Briar in un dispositivo più recente e crea un nuovo account.</item>
-  </plurals>
   <string name="expiry_date_reached">Questo software è scaduto.\nGrazie per il test!</string>
   <string name="download_briar">Per continuare a utilizzare Briar, scarica l\'ultima versione.</string>
   <string name="create_new_account">Avrai bisogno di creare un nuovo account, ma puoi usare lo stesso nickname.</string>
@@ -707,6 +702,8 @@
   <string name="disappearing_messages_summary">Fai sparire automaticamente i messaggi futuri di questa conversazione dopo 7\u00A0giorni.</string>
   <!--Settings Actions-->
   <string name="pref_category_actions">Azioni</string>
+  <string name="share_app_link">Condividi link di download</string>
+  <string name="share_app_link_text">Scarica Briar su %s</string>
   <string name="send_feedback">Invia feedback</string>
   <!--Link Warning-->
   <string name="link_warning_title">Attenzione Link</string>
@@ -756,6 +753,7 @@
   <string name="permission_camera_title">Autorizzazione fotocamera</string>
   <string name="permission_camera_request_body">Per scansionare il codice QR, Briar deve accedere alla fotocamera.</string>
   <string name="permission_location_title">Autorizzazione geolocalizzazione</string>
+  <string name="permission_nearby_devices_title">Autorizzazione dispositivi vicini</string>
   <string name="permission_location_request_body">Per trovare dispositivi Bluetooth, Briar ha bisogno di accedere alla tua posizione.\n\nBriar non memorizza la tua posizione, nè la condivide con terzi.</string>
   <string name="permission_camera_location_title">Fotocamera e geolocalizzazione</string>
   <string name="permission_camera_location_request_body">Per scansionare il codice QR, Briar ha bisogno di accedere alla fotocamera.\n\nPer trovare dispositivi Bluetooth, Briar ha bisogno di accedere alla tua posizione.\n\nBriar non memorizza la tua posizione, nè la condivide con terzi.</string>
@@ -795,6 +793,8 @@
   <string name="permission_hotspot_location_request_precise_body">Per creare un hotspot Wi-Fi, Briar ha bisogno dell\'autorizzazione per accedere alla tua posizione precisa.\n\nBriar non memorizza la tua posizione e non la condivide con nessuno.</string>
   <string name="permission_hotspot_location_denied_body">Hai negato l\'accesso alla tua posizione, ma Briar ha bisogno di questa autorizzazione per creare un hotspot Wi-Fi.\n\nPrendi in considerazione di consentirla.</string>
   <string name="permission_hotspot_location_denied_precise_body">Hai negato l\'accesso alla tua posizione, ma Briar ha bisogno di questa autorizzazione per creare un hotspot Wi-Fi.\n\nConsidera la possibilità di concedere l\'accesso.</string>
+  <string name="permission_hotspot_nearby_wifi_request_body">Per creare un hotspot Wi-Fi, Briar deve avere l\'autorizzazione per i dispositivi vicini.</string>
+  <string name="permission_hotspot_nearby_wifi_denied_body">Hai negato l\'accesso ai dispositivi vicini, ma Briar ha bisogno di questa autorizzazione per creare un hotspot Wi-Fi.\n\nPrendi in considerazione di consentirla.</string>
   <string name="wifi_settings_title">Impostazione Wi-Fi</string>
   <string name="wifi_settings_request_enable_body">Per creare un hotspot Wi-Fi, Briar deve usare il Wi-Fi. Prima attivalo.</string>
   <string name="hotspot_tab_manual">Manuale</string>

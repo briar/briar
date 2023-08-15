@@ -716,6 +716,8 @@
   <string name="disappearing_messages_summary">Nastaviť, aby budúce správy v tejto konverzácii automaticky zmizli po 7\u00A0dňoch.</string>
   <!--Settings Actions-->
   <string name="pref_category_actions">Akcie</string>
+  <string name="share_app_link">Zdieľať odkaz na stiahnutie</string>
+  <string name="share_app_link_text">Stiahnuť Briar na %s</string>
   <string name="send_feedback">Odoslať spätnú väzbu</string>
   <!--Link Warning-->
   <string name="link_warning_title">Varovanie o odkaze</string>
@@ -765,6 +767,7 @@
   <string name="permission_camera_title">Povolenie na používanie kamery</string>
   <string name="permission_camera_request_body">Na naskenovanie QR kódu potrebuje Briar prístup ku kamere.</string>
   <string name="permission_location_title">Povolenie na určenie polohy</string>
+  <string name="permission_nearby_devices_title">Povolenie pre blízke zariadenia</string>
   <string name="permission_location_request_body">Na zistenie zariadení Bluetooth potrebuje Briar povolenie na prístup k vašej polohe.\n\nBriar neukladá vašu polohu ani ju s nikým nezdieľa.</string>
   <string name="permission_camera_location_title">Kamera a poloha</string>
   <string name="permission_camera_location_request_body">Na skenovanie QR kódu potrebuje Briar prístup ku kamere.\n\nNa zistenie zariadení Bluetooth potrebuje Briar povolenie na prístup k vašej polohe.\n\nBriar neukladá vašu polohu ani ju s nikým nezdieľa.</string>
@@ -804,6 +807,8 @@
   <string name="permission_hotspot_location_request_precise_body">Na vytvorenie prístupového bodu Wi-Fi potrebuje Briar povolenie na prístup k vašej presnej polohe.\n\nBriar neukladá vašu polohu ani ju s nikým nezdieľa.</string>
   <string name="permission_hotspot_location_denied_body">Odmietli ste prístup k svojej polohe, ale Briar potrebuje toto povolenie na vytvorenie prístupového bodu Wi-Fi.\n\nProsím, zvážte udelenie prístupu.</string>
   <string name="permission_hotspot_location_denied_precise_body">Odmietli ste prístup k presnej polohe, ale Briar potrebuje toto povolenie na vytvorenie prístupového bodu Wi-Fi.\n\nProsím, zvážte udelenie prístupu.</string>
+  <string name="permission_hotspot_nearby_wifi_request_body">Na vytvorenie Wi-Fi prístupového bodu potrebuje aplikácia Briar povolenie na prístup k okolitým zariadeniam.</string>
+  <string name="permission_hotspot_nearby_wifi_denied_body">Odmietli ste prístup k okolitým zariadeniam, ale Briar potrebuje toto povolenie na vytvorenie prístupového bodu Wi-Fi.\n\nProsíme, zvážte udelenie prístupu.</string>
   <string name="wifi_settings_title">Nastavenie Wi-Fi</string>
   <string name="wifi_settings_request_enable_body">Ak chcete vytvoriť prístupový bod Wi-Fi, zariadenie Briar musí používať Wi-Fi. Povoľte ho.</string>
   <string name="hotspot_tab_manual">Manuálne</string>
