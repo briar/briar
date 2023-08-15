@@ -563,7 +563,7 @@ class GroupInvitationManagerImpl extends ConversationClientImpl
 					.parseCreatorSession(contactGroupId, ss.bdfSession);
 			CreatorState state = session.getState();
 			if (state == START) return SharingStatus.SHAREABLE;
-			if (state == INVITED) return SharingStatus.INVITE_RECEIVED;
+			if (state == INVITED) return SharingStatus.INVITE_SENT;
 			if (state == JOINED) return SharingStatus.SHARING;
 			// Apart from the common case that the contact LEFT the group,
 			// the creator can also be a LEFT state, after re-adding a contact

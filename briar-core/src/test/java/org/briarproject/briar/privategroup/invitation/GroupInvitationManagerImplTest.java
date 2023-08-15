@@ -64,7 +64,7 @@ import static org.briarproject.briar.api.privategroup.PrivateGroupConstants.MAX_
 import static org.briarproject.briar.api.privategroup.invitation.GroupInvitationManager.CLIENT_ID;
 import static org.briarproject.briar.api.privategroup.invitation.GroupInvitationManager.MAJOR_VERSION;
 import static org.briarproject.briar.api.sharing.SharingManager.SharingStatus.ERROR;
-import static org.briarproject.briar.api.sharing.SharingManager.SharingStatus.INVITE_RECEIVED;
+import static org.briarproject.briar.api.sharing.SharingManager.SharingStatus.INVITE_SENT;
 import static org.briarproject.briar.api.sharing.SharingManager.SharingStatus.SHAREABLE;
 import static org.briarproject.briar.api.sharing.SharingManager.SharingStatus.SHARING;
 import static org.briarproject.briar.privategroup.invitation.MessageType.ABORT;
@@ -876,7 +876,7 @@ public class GroupInvitationManagerImplTest extends BrambleMockTestCase {
 				.getSharingStatus(contact, privateGroup.getId()));
 
 		expectIsInvitationAllowed(CreatorState.INVITED);
-		assertEquals(INVITE_RECEIVED, groupInvitationManager
+		assertEquals(INVITE_SENT, groupInvitationManager
 				.getSharingStatus(contact, privateGroup.getId()));
 
 		expectIsInvitationAllowed(CreatorState.JOINED);
