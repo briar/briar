@@ -1,7 +1,7 @@
 # Briar
 Briar is a messaging app designed for activists, journalists, and anyone else who needs a safe, easy and robust way to communicate.
 
-Unlike traditional messaging tools such as email, Twitter or Telegram, Briar doesn't rely on a central server - messages are synchronized directly between the users' devices. 
+Unlike traditional messaging apps, Briar doesn't rely on a central server - messages are synchronized directly between the users' devices. 
 
 If the Internet's down, Briar can sync via Bluetooth or Wi-Fi, keeping information flowing in a crisis. If the Internet's up, Briar can sync via the Tor network, protecting users and their relationships from surveillance.
 
@@ -14,13 +14,15 @@ You can also [download the APK file](https://briarproject.org/apk) directly from
 our site.
 
 ## Useful links
-[briarproject.org](https://briarproject.org/)
+[Project website](https://briarproject.org/)
 
 [Source code](https://code.briarproject.org/briar/briar/tree/master)
 
-[Manual](https://briarproject.org/manual/)
+[User manual](https://briarproject.org/manual/)
 
 [Wiki](https://code.briarproject.org/briar/briar/-/wikis/home)
+
+[Privacy policy](https://briarproject.org/privacy)
 
 ## Reproducible builds
 
@@ -33,5 +35,5 @@ for reproduction.
 
 ## Donate
 
-[![Donate using Liberapay](https://briarproject.org/img/liberapay.svg)](https://liberapay.com/Briar/donate) [![Flattr this](https://briarproject.org/img/flattr-badge-large.png "Flattr this")](https://flattr.com/t/592836/)   
+[![Donate using Liberapay](https://briarproject.org/img/liberapay.svg)](https://liberapay.com/Briar/donate)   
 Bitcoin and BCH: 1NZCKkUCtJV2U2Y9hDb9uq8S7ksFCFGR6K
