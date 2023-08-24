@@ -1,5 +1,6 @@
 package org.briarproject.briar.android.contact.add.remote;
 
+import android.content.ActivityNotFoundException;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.os.Bundle;
@@ -20,6 +21,7 @@ import org.briarproject.briar.android.view.InfoView;
 import org.briarproject.nullsafety.MethodsNotNullByDefault;
 import org.briarproject.nullsafety.ParametersNotNullByDefault;
 
+import java.util.logging.Logger;
 import java.util.regex.Matcher;
 
 import javax.annotation.Nullable;
@@ -29,8 +31,12 @@ import androidx.core.app.ShareCompat.IntentBuilder;
 import androidx.lifecycle.ViewModelProvider;
 
 import static android.content.Context.CLIPBOARD_SERVICE;
+import static android.widget.Toast.LENGTH_LONG;
 import static android.widget.Toast.LENGTH_SHORT;
+import static java.util.logging.Level.WARNING;
+import static java.util.logging.Logger.getLogger;
 import static org.briarproject.bramble.api.contact.HandshakeLinkConstants.LINK_REGEX;
+import static org.briarproject.bramble.util.LogUtils.logException;
 import static org.briarproject.briar.android.util.UiUtils.hideViewOnSmallScreen;
 import static org.briarproject.briar.android.util.UiUtils.observeOnce;
 
@@ -39,6 +45,7 @@ import static org.briarproject.briar.android.util.UiUtils.observeOnce;
 public class LinkExchangeFragment extends BaseFragment {
 
 	private static final String TAG = LinkExchangeFragment.class.getName();
+	private static final Logger LOG = getLogger(TAG);
 
 	@Inject
 	ViewModelProvider.Factory viewModelFactory;
@@ -116,11 +123,18 @@ public class LinkExchangeFragment extends BaseFragment {
 		copyButton.setEnabled(true);
 
 		Button shareButton = v.findViewById(R.id.shareButton);
-		shareButton.setOnClickListener(view ->
+		shareButton.setOnClickListener(view -> {
+			try {
 				IntentBuilder.from(requireActivity())
 						.setText(link)
 						.setType("text/plain")
-						.startChooser());
+						.startChooser();
+			} catch (ActivityNotFoundException e) {
+				logException(LOG, WARNING, e);
+				Toast.makeText(requireContext(),
+						R.string.error_start_activity, LENGTH_LONG).show();
+			}
+		});
 		shareButton.setEnabled(true);
 
 		InfoView infoText = v.findViewById(R.id.infoView);
