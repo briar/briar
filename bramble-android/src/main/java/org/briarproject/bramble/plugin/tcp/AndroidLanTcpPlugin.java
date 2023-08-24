@@ -201,6 +201,7 @@ class AndroidLanTcpPlugin extends LanTcpPlugin {
 	@Nullable
 	private InetAddress getIpv6AddressForInterface(InetAddress ipv4) {
 		try {
+			// We may get an NPE from getByInetAddress() on Android 11
 			NetworkInterface iface = NetworkInterface.getByInetAddress(ipv4);
 			if (iface == null) return null;
 			for (InetAddress addr : list(iface.getInetAddresses())) {
@@ -208,7 +209,7 @@ class AndroidLanTcpPlugin extends LanTcpPlugin {
 			}
 			// No suitable address
 			return null;
-		} catch (SocketException e) {
+		} catch (SocketException | NullPointerException e) {
 			logException(LOG, WARNING, e);
 			return null;
 		}
