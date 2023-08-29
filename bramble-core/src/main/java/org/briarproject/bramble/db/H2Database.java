@@ -57,8 +57,7 @@ class H2Database extends JdbcDatabase {
 		this.config = config;
 		File dir = config.getDatabaseDirectory();
 		String path = new File(dir, "db").getAbsolutePath();
-		url = "jdbc:h2:split:" + path + ";CIPHER=AES;MULTI_THREADED=1"
-				+ ";WRITE_DELAY=0";
+		url = "jdbc:h2:split:" + path + ";CIPHER=AES;WRITE_DELAY=0";
 	}
 
 	@Override

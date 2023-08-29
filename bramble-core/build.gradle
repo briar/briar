@@ -14,8 +14,7 @@ dependencies {
 	api "org.briarproject:onionwrapper-core:$onionwrapper_version"
 
 	implementation "org.bouncycastle:bcprov-jdk15to18:$bouncy_castle_version"
-	//noinspection GradleDependency
-	implementation 'com.h2database:h2:1.4.192' // The last version that supports Java 1.6
+	implementation 'com.h2database:h2:1.4.200' // The last version that doesn't require NIO
 	implementation 'org.bitlet:weupnp:0.1.4'
 	implementation 'net.i2p.crypto:eddsa:0.2.0'
 	implementation 'org.whispersystems:curve25519-java:0.5.0'
