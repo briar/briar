@@ -7,14 +7,15 @@ import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.db.MigrationListener;
 import org.briarproject.bramble.api.sync.MessageFactory;
 import org.briarproject.bramble.api.system.Clock;
-import org.briarproject.bramble.util.StringUtils;
 import org.briarproject.nullsafety.NotNullByDefault;
+import org.sqlite.mc.SQLiteMCSqlCipherConfig;
 
 import java.io.File;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.Properties;
 import java.util.logging.Logger;
 
 import javax.annotation.Nullable;
@@ -27,19 +28,18 @@ import static org.briarproject.bramble.db.JdbcUtils.tryToClose;
 import static org.briarproject.bramble.util.IoUtils.isNonEmptyDirectory;
 
 /**
- * Contains all the HSQLDB-specific code for the database.
+ * Contains all the SQLite-specific code for the database.
  */
 @NotNullByDefault
-class HyperSqlDatabase extends JdbcDatabase {
+class SqliteDatabase extends JdbcDatabase {
 
-	private static final Logger LOG =
-			getLogger(HyperSqlDatabase.class.getName());
+	private static final Logger LOG = getLogger(SqliteDatabase.class.getName());
 
-	private static final String HASH_TYPE = "BINARY(32)";
-	private static final String SECRET_TYPE = "BINARY(32)";
-	private static final String BINARY_TYPE = "BINARY";
-	private static final String COUNTER_TYPE = "INTEGER NOT NULL"
-			+ " PRIMARY KEY GENERATED ALWAYS AS IDENTITY(START WITH 1)";
+	private static final String HASH_TYPE = "BLOB";
+	private static final String SECRET_TYPE = "BLOB";
+	private static final String BINARY_TYPE = "BLOB";
+	private static final String COUNTER_TYPE =
+			"INTEGER PRIMARY KEY AUTOINCREMENT";
 	private static final String STRING_TYPE = "VARCHAR";
 	private static final DatabaseTypes dbTypes = new DatabaseTypes(HASH_TYPE,
 			SECRET_TYPE, BINARY_TYPE, COUNTER_TYPE, STRING_TYPE);
@@ -48,46 +48,42 @@ class HyperSqlDatabase extends JdbcDatabase {
 	private final String url;
 
 	@Nullable
-	private volatile SecretKey key = null;
+	private volatile Properties properties = null;
 
 	@Inject
-	HyperSqlDatabase(DatabaseConfig config, MessageFactory messageFactory,
+	SqliteDatabase(DatabaseConfig config, MessageFactory messageFactory,
 			Clock clock) {
 		super(dbTypes, messageFactory, clock);
 		this.config = config;
 		File dir = config.getDatabaseDirectory();
 		String path = new File(dir, "db").getAbsolutePath();
-		url = "jdbc:hsqldb:file:" + path
-				+ ";sql.enforce_size=false;allow_empty_batch=true"
-				+ ";encrypt_lobs=true;crypt_type=AES";
+		url = "jdbc:sqlite:" + path + "?cipher=sqlcipher";
 	}
 
 	@Override
 	public boolean open(SecretKey key, @Nullable MigrationListener listener)
 			throws DbException {
-		this.key = key;
+		properties = SQLiteMCSqlCipherConfig.getDefault()
+				.withHexKey(key.getBytes())
+				.build()
+				.toProperties();
 		File dir = config.getDatabaseDirectory();
 		boolean reopen = isNonEmptyDirectory(dir);
 		if (LOG.isLoggable(INFO)) LOG.info("Reopening DB: " + reopen);
 		if (!reopen && dir.mkdirs()) LOG.info("Created database directory");
-		super.open("org.hsqldb.jdbc.JDBCDriver", reopen, key, listener);
+		super.open("org.sqlite.JDBC", reopen, key, listener);
 		return reopen;
 	}
 
 	@Override
 	public void close() throws DbException {
 		Connection c = null;
-		Statement s = null;
 		try {
-			closeAllConnections();
 			c = createConnection();
 			setDirty(c, false);
-			s = c.createStatement();
-			s.executeQuery("SHUTDOWN COMPACT");
-			s.close();
 			c.close();
+			closeAllConnections();
 		} catch (SQLException e) {
-			tryToClose(s, LOG, WARNING);
 			tryToClose(c, LOG, WARNING);
 			throw new DbException(e);
 		}
@@ -95,27 +91,24 @@ class HyperSqlDatabase extends JdbcDatabase {
 
 	@Override
 	protected Connection createConnection() throws DbException, SQLException {
-		SecretKey key = this.key;
-		if (key == null) throw new DbClosedException();
-		String hex = StringUtils.toHexString(key.getBytes());
-		return DriverManager.getConnection(url + ";crypt_key=" + hex);
-	}
-
-	@Override
-	protected void compactAndClose() throws DbException {
-		Connection c = null;
+		Properties properties = this.properties;
+		if (properties == null) throw new DbClosedException();
+		Connection c = DriverManager.getConnection(url, properties);
 		Statement s = null;
 		try {
-			closeAllConnections();
-			c = createConnection();
 			s = c.createStatement();
-			s.executeQuery("SHUTDOWN COMPACT");
+			s.execute("PRAGMA foreign_keys = ON");
 			s.close();
-			c.close();
 		} catch (SQLException e) {
 			tryToClose(s, LOG, WARNING);
 			tryToClose(c, LOG, WARNING);
 			throw new DbException(e);
 		}
+		return c;
+	}
+
+	@Override
+	protected void compactAndClose() throws DbException {
+		close();
 	}
 }

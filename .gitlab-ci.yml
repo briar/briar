@@ -104,3 +104,12 @@ mailbox integration test:
   script:
     - (cd briar-mailbox; git fetch; git reset --hard origin/main)
     - MAILBOX_INTEGRATION_TESTS=true ./gradlew --info mailbox-integration-tests:test
+
+db_performance_comparison_test:
+  extends: .base-test
+  stage: optional_tests
+  script:
+    - OPTIONAL_TESTS=org.briarproject.bramble.db.H2SqliteDatabasePerformanceComparisonTest ./gradlew --info -Djava.security.egd=file:/dev/urandom :bramble-core:test --tests H2SqliteDatabasePerformanceComparisonTest
+  rules:
+    - when: manual
+

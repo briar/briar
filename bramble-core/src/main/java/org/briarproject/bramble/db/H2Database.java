@@ -39,7 +39,8 @@ class H2Database extends JdbcDatabase {
 	private static final String HASH_TYPE = "BINARY(32)";
 	private static final String SECRET_TYPE = "BINARY(32)";
 	private static final String BINARY_TYPE = "BINARY";
-	private static final String COUNTER_TYPE = "INT NOT NULL AUTO_INCREMENT";
+	private static final String COUNTER_TYPE =
+			"INT NOT NULL AUTO_INCREMENT PRIMARY KEY";
 	private static final String STRING_TYPE = "VARCHAR";
 	private static final DatabaseTypes dbTypes = new DatabaseTypes(HASH_TYPE,
 			SECRET_TYPE, BINARY_TYPE, COUNTER_TYPE, STRING_TYPE);

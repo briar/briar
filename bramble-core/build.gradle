@@ -16,6 +16,7 @@ dependencies {
 	implementation "org.bouncycastle:bcprov-jdk15to18:$bouncy_castle_version"
 	//noinspection GradleDependency
 	implementation 'com.h2database:h2:1.4.192' // The last version that supports Java 1.6
+	implementation 'io.github.willena:sqlite-jdbc:3.41.2.1'
 	implementation 'org.bitlet:weupnp:0.1.4'
 	implementation 'net.i2p.crypto:eddsa:0.2.0'
 	implementation 'org.whispersystems:curve25519-java:0.5.0'

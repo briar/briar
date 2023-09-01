@@ -143,8 +143,8 @@ abstract class JdbcDatabase implements Database<Connection> {
 					+ " handshakePublicKey _BINARY," // Null if key is unknown
 					+ " localAuthorId _HASH NOT NULL,"
 					+ " verified BOOLEAN NOT NULL,"
+					// FIXME: SQLite interprets default '00' as string
 					+ " syncVersions _BINARY DEFAULT '00' NOT NULL,"
-					+ " PRIMARY KEY (contactId),"
 					+ " FOREIGN KEY (localAuthorId)"
 					+ " REFERENCES localAuthors (authorId)"
 					+ " ON DELETE CASCADE)";
@@ -295,11 +295,11 @@ abstract class JdbcDatabase implements Database<Connection> {
 					+ " active BOOLEAN NOT NULL,"
 					+ " rootKey _SECRET," // Null for rotation keys
 					+ " alice BOOLEAN," // Null for rotation keys
-					+ " PRIMARY KEY (transportId, keySetId),"
+					// FIXME: Primary key has changed, migration needed
 					+ " FOREIGN KEY (transportId)"
 					+ " REFERENCES transports (transportId)"
 					+ " ON DELETE CASCADE,"
-					+ " UNIQUE (keySetId),"
+					// FIXME: Unique constraint removed, migration needed
 					+ " FOREIGN KEY (contactId)"
 					+ " REFERENCES contacts (contactId)"
 					+ " ON DELETE CASCADE,"
@@ -357,6 +357,11 @@ abstract class JdbcDatabase implements Database<Connection> {
 	private static final String INDEX_MESSAGES_BY_CLEANUP_DEADLINE =
 			"CREATE INDEX IF NOT EXISTS messagesByCleanupDeadline"
 					+ " ON messages (cleanupDeadline)";
+
+	// FIXME: Migration needs to add new index
+	private static final String INDEX_OUTGOING_KEYS_BY_TRANSPORT_ID_KEYSET_ID =
+			"CREATE INDEX IF NOT EXISTS outgoingKeysByTransportIdKeysetId"
+					+ " ON outgoingKeys (transportId, keySetId)";
 
 	private static final Logger LOG =
 			getLogger(JdbcDatabase.class.getName());
@@ -564,6 +569,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 			s.executeUpdate(INDEX_STATUSES_BY_CONTACT_ID_TIMESTAMP);
 			s.executeUpdate(INDEX_STATUSES_BY_CONTACT_ID_TX_COUNT_TIMESTAMP);
 			s.executeUpdate(INDEX_MESSAGES_BY_CLEANUP_DEADLINE);
+			s.executeUpdate(INDEX_OUTGOING_KEYS_BY_TRANSPORT_ID_KEYSET_ID);
 			s.close();
 		} catch (SQLException e) {
 			tryToClose(s, LOG, WARNING);
@@ -2597,6 +2603,9 @@ abstract class JdbcDatabase implements Database<Connection> {
 			PublicKey publicKey = new AgreementPublicKey(rs.getBytes(1));
 			String alias = rs.getString(2);
 			long timestamp = rs.getLong(3);
+			if (rs.next()) throw new DbStateException();
+			rs.close();
+			ps.close();
 			return new PendingContact(p, publicKey, alias, timestamp);
 		} catch (SQLException e) {
 			tryToClose(rs, LOG, WARNING);
