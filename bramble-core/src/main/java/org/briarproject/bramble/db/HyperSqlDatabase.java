@@ -41,8 +41,10 @@ class HyperSqlDatabase extends JdbcDatabase {
 	private static final String COUNTER_TYPE = "INTEGER NOT NULL"
 			+ " PRIMARY KEY GENERATED ALWAYS AS IDENTITY(START WITH 1)";
 	private static final String STRING_TYPE = "VARCHAR";
+	private static final String EXPLAIN_COMMAND = "EXPLAIN PLAN FOR";
 	private static final DatabaseTypes dbTypes = new DatabaseTypes(HASH_TYPE,
-			SECRET_TYPE, BINARY_TYPE, COUNTER_TYPE, STRING_TYPE);
+			SECRET_TYPE, BINARY_TYPE, COUNTER_TYPE, STRING_TYPE,
+			EXPLAIN_COMMAND);
 
 	private final DatabaseConfig config;
 	private final String url;
@@ -70,7 +72,7 @@ class HyperSqlDatabase extends JdbcDatabase {
 		boolean reopen = isNonEmptyDirectory(dir);
 		if (LOG.isLoggable(INFO)) LOG.info("Reopening DB: " + reopen);
 		if (!reopen && dir.mkdirs()) LOG.info("Created database directory");
-		super.open("org.hsqldb.jdbc.JDBCDriver", reopen, key, listener);
+		super.open("org.hsqldb.jdbc.JDBCDriver", reopen, true, key, listener);
 		return reopen;
 	}
 

@@ -413,6 +413,9 @@ interface Database<T> {
 	 */
 	Collection<MessageId> getMessageIds(T txn, GroupId g) throws DbException;
 
+	Collection<String> explainGetMessageIds(T txn, GroupId g)
+			throws DbException;
+
 	/**
 	 * Returns the IDs of any delivered messages in the given group with
 	 * metadata that matches all entries in the given query. If the query is

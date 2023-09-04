@@ -2500,6 +2500,21 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 		assertEquals(NO_CLEANUP_DEADLINE, db.getNextCleanupDeadline(txn));
 	}
 
+	// FIXME: Remove
+	@Test
+	public void testExplainGetMessageIds() throws Exception {
+		Database<Connection> db = open(false);
+		Connection txn = db.startTransaction();
+		db.addGroup(txn, group);
+		Collection<String> explanation = db.explainGetMessageIds(txn, groupId);
+		db.commitTransaction(txn);
+		db.close();
+
+		System.out.println("getMessageIds(T, GroupId)");
+		for (String line : explanation) System.out.println(line);
+		System.out.println();
+	}
+
 	private Database<Connection> open(boolean resume) throws Exception {
 		return open(resume, new TestMessageFactory(), new SystemClock());
 	}

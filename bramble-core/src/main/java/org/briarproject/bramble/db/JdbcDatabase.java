@@ -359,9 +359,83 @@ abstract class JdbcDatabase implements Database<Connection> {
 					+ " ON messages (cleanupDeadline)";
 
 	// FIXME: Migration needs to add new index
-	private static final String INDEX_OUTGOING_KEYS_BY_TRANSPORT_ID_KEYSET_ID =
-			"CREATE INDEX IF NOT EXISTS outgoingKeysByTransportIdKeysetId"
+	private static final String INDEX_OUTGOING_KEYS_BY_TRANSPORT_ID_KEY_SET_ID =
+			"CREATE INDEX IF NOT EXISTS outgoingKeysByTransportIdKeySetId"
 					+ " ON outgoingKeys (transportId, keySetId)";
+
+	private static final String FOREIGN_INDEX_CONTACTS_BY_LOCAL_AUTHOR_ID =
+			"CREATE INDEX IF NOT EXISTS contactsByLocalAuthorId"
+					+ " ON contacts (localAuthorId)";
+
+	private static final String FOREIGN_INDEX_GROUP_METADATA_BY_GROUP_ID =
+			"CREATE INDEX IF NOT EXISTS groupMetadataByGroupId"
+					+ " ON groupMetadata (groupId)";
+
+	private static final String FOREIGN_INDEX_GROUP_VISIBILITIES_BY_CONTACT_ID =
+			"CREATE INDEX IF NOT EXISTS groupVisibilitiesByContactId"
+					+ " ON groupVisibilities (contactId)";
+
+	private static final String FOREIGN_INDEX_GROUP_VISIBILITIES_BY_GROUP_ID =
+			"CREATE INDEX IF NOT EXISTS groupVisibilitiesByGroupId"
+					+ " ON groupVisibilities (groupId)";
+
+	private static final String FOREIGN_INDEX_MESSAGES_BY_GROUP_ID =
+			"CREATE INDEX IF NOT EXISTS messagesByGroupId"
+					+ " ON messages (groupId)";
+
+	private static final String FOREIGN_INDEX_MESSAGE_METADATA_BY_MESSAGE_ID =
+			"CREATE INDEX IF NOT EXISTS messageMetadataByMessageId"
+					+ " ON messageMetadata (messageId)";
+
+	private static final String FOREIGN_INDEX_MESSAGE_METADATA_BY_GROUP_ID =
+			"CREATE INDEX IF NOT EXISTS messageMetadataByGroupId"
+					+ " ON messageMetadata (groupId)";
+
+	private static final String FOREIGN_INDEX_MESSAGE_DEPENDENCIES_BY_GROUP_ID =
+			"CREATE INDEX IF NOT EXISTS messageDependenciesByGroupId"
+					+ " ON messageDependencies (groupId)";
+
+	private static final String
+			FOREIGN_INDEX_MESSAGE_DEPENDENCIES_BY_MESSAGE_ID =
+			"CREATE INDEX IF NOT EXISTS messageDependenciesByMessageId"
+					+ " ON messageDependencies (messageId)";
+
+	private static final String FOREIGN_INDEX_OFFERS_BY_CONTACT_ID =
+			"CREATE INDEX IF NOT EXISTS offersByContactId"
+					+ " ON offers (contactId)";
+
+	private static final String FOREIGN_INDEX_STATUSES_BY_MESSAGE_ID =
+			"CREATE INDEX IF NOT EXISTS statusesByMessageId"
+					+ " ON statuses (messageId)";
+
+	private static final String FOREIGN_INDEX_STATUSES_BY_CONTACT_ID =
+			"CREATE INDEX IF NOT EXISTS statusesByContactId"
+					+ " ON statuses (contactId)";
+
+	private static final String FOREIGN_INDEX_STATUSES_BY_GROUP_ID =
+			"CREATE INDEX IF NOT EXISTS statusesByGroupId"
+					+ " ON statuses (groupId)";
+
+	private static final String FOREIGN_INDEX_OUTGOING_KEYS_BY_TRANSPORT_ID =
+			"CREATE INDEX IF NOT EXISTS outgoingKeysByTransportId"
+					+ " ON outgoingKeys (transportId)";
+
+	private static final String FOREIGN_INDEX_OUTGOING_KEYS_BY_CONTACT_ID =
+			"CREATE INDEX IF NOT EXISTS outgoingKeysByContactId"
+					+ " ON outgoingKeys (contactId)";
+
+	private static final String
+			FOREIGN_INDEX_OUTGOING_KEYS_BY_PENDING_CONTACT_ID =
+			"CREATE INDEX IF NOT EXISTS outgoingKeysByPendingContactId"
+					+ " ON outgoingKeys (pendingContactId)";
+
+	private static final String FOREIGN_INDEX_INCOMING_KEYS_BY_TRANSPORT_ID =
+			"CREATE INDEX IF NOT EXISTS incomingKeysByTransportId"
+					+ " ON incomingKeys (transportId)";
+
+	private static final String FOREIGN_INDEX_INCOMING_KEYS_BY_KEY_SET_ID =
+			"CREATE INDEX IF NOT EXISTS incomingKeysByKeySetId"
+					+ " ON incomingKeys (keySetId)";
 
 	private static final Logger LOG =
 			getLogger(JdbcDatabase.class.getName());
@@ -398,6 +472,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 	}
 
 	protected void open(String driverClass, boolean reopen,
+			boolean createForeignKeyIndexes,
 			@SuppressWarnings("unused") SecretKey key,
 			@Nullable MigrationListener listener) throws DbException {
 		// Load the JDBC driver
@@ -424,7 +499,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 			if (LOG.isLoggable(INFO)) {
 				LOG.info("db dirty? " + wasDirtyOnInitialisation);
 			}
-			createIndexes(txn);
+			createIndexes(txn, createForeignKeyIndexes);
 			setDirty(txn, true);
 			commitTransaction(txn);
 		} catch (DbException e) {
@@ -557,7 +632,8 @@ abstract class JdbcDatabase implements Database<Connection> {
 		}
 	}
 
-	private void createIndexes(Connection txn) throws DbException {
+	private void createIndexes(Connection txn, boolean createForeignKeyIndexes)
+			throws DbException {
 		Statement s = null;
 		try {
 			s = txn.createStatement();
@@ -569,7 +645,31 @@ abstract class JdbcDatabase implements Database<Connection> {
 			s.executeUpdate(INDEX_STATUSES_BY_CONTACT_ID_TIMESTAMP);
 			s.executeUpdate(INDEX_STATUSES_BY_CONTACT_ID_TX_COUNT_TIMESTAMP);
 			s.executeUpdate(INDEX_MESSAGES_BY_CLEANUP_DEADLINE);
-			s.executeUpdate(INDEX_OUTGOING_KEYS_BY_TRANSPORT_ID_KEYSET_ID);
+			s.executeUpdate(INDEX_OUTGOING_KEYS_BY_TRANSPORT_ID_KEY_SET_ID);
+			// Some DB implementations automatically create indexes on columns
+			// that are foreign keys, others don't
+			if (createForeignKeyIndexes) {
+				s.executeUpdate(FOREIGN_INDEX_CONTACTS_BY_LOCAL_AUTHOR_ID);
+				s.executeUpdate(FOREIGN_INDEX_GROUP_METADATA_BY_GROUP_ID);
+				s.executeUpdate(FOREIGN_INDEX_GROUP_VISIBILITIES_BY_CONTACT_ID);
+				s.executeUpdate(FOREIGN_INDEX_GROUP_VISIBILITIES_BY_GROUP_ID);
+				s.executeUpdate(FOREIGN_INDEX_MESSAGES_BY_GROUP_ID);
+				s.executeUpdate(FOREIGN_INDEX_MESSAGE_METADATA_BY_MESSAGE_ID);
+				s.executeUpdate(FOREIGN_INDEX_MESSAGE_METADATA_BY_GROUP_ID);
+				s.executeUpdate(FOREIGN_INDEX_MESSAGE_DEPENDENCIES_BY_GROUP_ID);
+				s.executeUpdate(
+						FOREIGN_INDEX_MESSAGE_DEPENDENCIES_BY_MESSAGE_ID);
+				s.executeUpdate(FOREIGN_INDEX_OFFERS_BY_CONTACT_ID);
+				s.executeUpdate(FOREIGN_INDEX_STATUSES_BY_MESSAGE_ID);
+				s.executeUpdate(FOREIGN_INDEX_STATUSES_BY_CONTACT_ID);
+				s.executeUpdate(FOREIGN_INDEX_STATUSES_BY_GROUP_ID);
+				s.executeUpdate(FOREIGN_INDEX_OUTGOING_KEYS_BY_TRANSPORT_ID);
+				s.executeUpdate(FOREIGN_INDEX_OUTGOING_KEYS_BY_CONTACT_ID);
+				s.executeUpdate(
+						FOREIGN_INDEX_OUTGOING_KEYS_BY_PENDING_CONTACT_ID);
+				s.executeUpdate(FOREIGN_INDEX_INCOMING_KEYS_BY_TRANSPORT_ID);
+				s.executeUpdate(FOREIGN_INDEX_INCOMING_KEYS_BY_KEY_SET_ID);
+			}
 			s.close();
 		} catch (SQLException e) {
 			tryToClose(s, LOG, WARNING);
@@ -1913,6 +2013,38 @@ abstract class JdbcDatabase implements Database<Connection> {
 			rs.close();
 			ps.close();
 			return ids;
+		} catch (SQLException e) {
+			tryToClose(rs, LOG, WARNING);
+			tryToClose(ps, LOG, WARNING);
+			throw new DbException(e);
+		}
+	}
+
+	@Override
+	public Collection<String> explainGetMessageIds(Connection txn, GroupId g)
+			throws DbException {
+		PreparedStatement ps = null;
+		ResultSet rs = null;
+		try {
+			String sql = dbTypes.replaceTypes("_EXPLAIN SELECT messageId"
+					+ " FROM messages"
+					+ " WHERE groupId = ? AND state = ?");
+			ps = txn.prepareStatement(sql);
+			ps.setBytes(1, g.getBytes());
+			ps.setInt(2, DELIVERED.getValue());
+			rs = ps.executeQuery();
+			int cols = rs.getMetaData().getColumnCount();
+			List<String> explanation = new ArrayList<>();
+			while (rs.next()) {
+				StringBuilder sb = new StringBuilder();
+				for (int i = 1; i <= cols; i++) {
+					sb.append(rs.getString(i)).append(' ');
+				}
+				explanation.add(sb.toString());
+			}
+			rs.close();
+			ps.close();
+			return explanation;
 		} catch (SQLException e) {
 			tryToClose(rs, LOG, WARNING);
 			tryToClose(ps, LOG, WARNING);

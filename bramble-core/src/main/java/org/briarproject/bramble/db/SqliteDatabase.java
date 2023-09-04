@@ -41,8 +41,10 @@ class SqliteDatabase extends JdbcDatabase {
 	private static final String COUNTER_TYPE =
 			"INTEGER PRIMARY KEY AUTOINCREMENT";
 	private static final String STRING_TYPE = "VARCHAR";
+	private static final String EXPLAIN_COMMAND = "EXPLAIN QUERY PLAN";
 	private static final DatabaseTypes dbTypes = new DatabaseTypes(HASH_TYPE,
-			SECRET_TYPE, BINARY_TYPE, COUNTER_TYPE, STRING_TYPE);
+			SECRET_TYPE, BINARY_TYPE, COUNTER_TYPE, STRING_TYPE,
+			EXPLAIN_COMMAND);
 
 	private final DatabaseConfig config;
 	private final String url;
@@ -71,7 +73,7 @@ class SqliteDatabase extends JdbcDatabase {
 		boolean reopen = isNonEmptyDirectory(dir);
 		if (LOG.isLoggable(INFO)) LOG.info("Reopening DB: " + reopen);
 		if (!reopen && dir.mkdirs()) LOG.info("Created database directory");
-		super.open("org.sqlite.JDBC", reopen, key, listener);
+		super.open("org.sqlite.JDBC", reopen, true, key, listener);
 		return reopen;
 	}
 
