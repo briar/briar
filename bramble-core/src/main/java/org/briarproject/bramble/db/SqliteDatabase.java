@@ -100,6 +100,7 @@ class SqliteDatabase extends JdbcDatabase {
 		try {
 			s = c.createStatement();
 			s.execute("PRAGMA foreign_keys = ON");
+			s.execute("PRAGMA secure_delete = ON");
 			s.close();
 		} catch (SQLException e) {
 			tryToClose(s, LOG, WARNING);
