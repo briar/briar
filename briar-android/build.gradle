@@ -21,6 +21,11 @@ android {
 
 	packagingOptions {
 		doNotStrip '**/*.so'
+		jniLibs {
+			// Unpack native libs from the APK rather than using them in-place. We package the
+			// Tor binaries as native libs and need them to be unpacked so we can execute them
+			useLegacyPackaging = true
+		}
 	}
 
 	defaultConfig {
@@ -31,14 +36,16 @@ android {
 		versionCode 10506
 		versionName "1.5.6"
 		applicationId "org.briarproject.briar.android"
-		buildConfigField "String", "TorVersion", "\"$tor_version\""
 
 		vectorDrawables.useSupportLibrary = true
+
+		buildConfigField "String", "TorVersion", "\"$tor_version\""
 		buildConfigField "String", "GitHash",
 				"\"${getStdout(['git', 'rev-parse', '--short=7', 'HEAD'], 'No commit hash')}\""
 		def now = (long) (System.currentTimeMillis() / 1000)
 		buildConfigField "Long", "BuildTimestamp",
 				"${getStdout(['git', 'log', '-n', '1', '--format=%ct'], now)}000L"
+
 		testInstrumentationRunner 'org.briarproject.briar.android.BriarTestRunner'
 		testInstrumentationRunnerArguments disableAnalytics: 'true'
 	}
