@@ -100,6 +100,10 @@ android {
 	}
 }
 
+// Workaround for https://github.com/gradle/gradle/issues/20330 to make gradle-witness work
+// with Android Gradle Plugin 7.4
+project.evaluationDependsOn(project.getRootProject().findProject("bramble-android").getPath())
+
 dependencies {
 	// In theory this dependency shouldn't be needed, but without it Android Studio's linter will
 	// complain about unresolved symbols for bramble-api test classes in briar-android tests,
