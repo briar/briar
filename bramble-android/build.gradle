@@ -80,7 +80,7 @@ task cleanJniLibs {
 	inputs.dir jniLibsDir
 	outputs.dir jniLibsDir
 	doLast {
-		delete fileTree(jniLibsDir)
+		delete fileTree(jniLibsDir).filter { it.name.endsWith('.so') }
 	}
 }
 
