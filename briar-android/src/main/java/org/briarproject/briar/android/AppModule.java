@@ -150,7 +150,8 @@ public class AppModule {
 		//FIXME: StrictMode
 		StrictMode.ThreadPolicy tp = StrictMode.allowThreadDiskReads();
 		StrictMode.allowThreadDiskWrites();
-		File dbDir = app.getApplicationContext().getDir("db", MODE_PRIVATE);
+		File dbDir = app.getApplicationContext().getDir("db_sqlite",
+				MODE_PRIVATE);
 		File keyDir = app.getApplicationContext().getDir("key", MODE_PRIVATE);
 		StrictMode.setThreadPolicy(tp);
 		KeyStrengthener keyStrengthener = SDK_INT >= 23

@@ -64,7 +64,7 @@ internal class HeadlessModule(private val appDir: File) {
     @Provides
     @Singleton
     internal fun provideDatabaseConfig(): DatabaseConfig {
-        val dbDir = File(appDir, "db")
+        val dbDir = File(appDir, "db_sqlite")
         val keyDir = File(appDir, "key")
         return HeadlessDatabaseConfig(dbDir, keyDir)
     }

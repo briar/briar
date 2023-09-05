@@ -24,7 +24,7 @@ public class DatabaseModule {
 	@Singleton
 	Database<Connection> provideDatabase(DatabaseConfig config,
 			MessageFactory messageFactory, Clock clock) {
-		return new H2Database(config, messageFactory, clock);
+		return new SqliteDatabase(config, messageFactory, clock);
 	}
 
 	@Provides
