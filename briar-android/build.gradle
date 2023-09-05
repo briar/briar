@@ -31,7 +31,7 @@ android {
 	defaultConfig {
 		// FIXME: sqlite-jdbc-crypt uses __register_atfork which is only available on API >= 23.
 		//  We might be able to solve this by recompiling (or asking upstream to recompile)
-		minSdkVersion 23
+		minSdkVersion 21
 		targetSdkVersion 33
 		versionCode 10506
 		versionName "1.5.6"
