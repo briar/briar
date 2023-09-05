@@ -10,9 +10,11 @@ import static org.junit.Assume.assumeTrue;
 
 public class HyperSqlDatabaseTest extends JdbcDatabaseTest {
 
+	@Override
 	@Before
 	public void setUp() {
 		assumeTrue(isCryptoStrengthUnlimited());
+		super.setUp();
 	}
 
 	@Override

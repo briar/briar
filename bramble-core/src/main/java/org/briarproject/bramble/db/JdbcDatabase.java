@@ -143,8 +143,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 					+ " handshakePublicKey _BINARY," // Null if key is unknown
 					+ " localAuthorId _HASH NOT NULL,"
 					+ " verified BOOLEAN NOT NULL,"
-					// FIXME: SQLite interprets default '00' as string
-					+ " syncVersions _BINARY DEFAULT '00' NOT NULL,"
+					+ " syncVersions _BINARY DEFAULT x'00' NOT NULL,"
 					+ " FOREIGN KEY (localAuthorId)"
 					+ " REFERENCES localAuthors (authorId)"
 					+ " ON DELETE CASCADE)";

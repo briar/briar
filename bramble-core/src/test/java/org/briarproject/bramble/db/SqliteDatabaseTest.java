@@ -10,19 +10,16 @@ import static org.junit.Assume.assumeTrue;
 
 public class SqliteDatabaseTest extends JdbcDatabaseTest {
 
+	@Override
 	@Before
 	public void setUp() {
 		assumeTrue(isCryptoStrengthUnlimited());
+		super.setUp();
 	}
 
 	@Override
 	protected JdbcDatabase createDatabase(DatabaseConfig config,
 			MessageFactory messageFactory, Clock clock) {
 		return new SqliteDatabase(config, messageFactory, clock);
-	}
-
-	@Override
-	public void testSyncVersions() {
-		// FIXME: Remove override when issue with default value is fixed
 	}
 }
