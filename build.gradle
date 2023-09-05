@@ -38,10 +38,10 @@ buildscript {
 		jmock_version = '2.12.0'
 		mockwebserver_version = '4.10.0'
 		onionwrapper_version = '0.0.5'
+		sqlite_jdbc_crypt_version = '3.41.2.1'
 	}
 	dependencies {
-		// upgrading this let's us run into https://github.com/gradle/gradle/issues/20330
-		classpath 'com.android.tools.build:gradle:7.2.2'
+		classpath 'com.android.tools.build:gradle:7.4.2'
 		classpath 'ru.vyarus:gradle-animalsniffer-plugin:1.7.0'
 		classpath files('libs/gradle-witness.jar')
 		classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"

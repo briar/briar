@@ -6,6 +6,9 @@
 -dontwarn org.h2.**
 -dontnote org.h2.**
 
+# Keep sqlite-jdbc-crypt classes that are loaded via reflection or accessed via JNI
+-keep class org.sqlite.** { *; }
+
 -keep class dagger.** { *; }
 -dontwarn dagger.**
 -dontnote dagger.**

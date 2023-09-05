@@ -11,7 +11,9 @@ android {
 	}
 
 	defaultConfig {
-		minSdkVersion 21
+		// FIXME: sqlite-jdbc-crypt uses __register_atfork which is only available on API >= 23.
+		//  We might be able to solve this by recompiling (or asking upstream to recompile)
+		minSdkVersion 23
 		targetSdkVersion 33
 		versionCode 10506
 		versionName "1.5.6"
@@ -37,6 +39,7 @@ android {
 
 configurations {
 	tor
+	sqliteJdbcCrypt
 }
 
 dependencies {
@@ -57,6 +60,8 @@ dependencies {
 	tor "org.briarproject:obfs4proxy-android:$obfs4proxy_version"
 	tor "org.briarproject:snowflake-android:$snowflake_version"
 
+	sqliteJdbcCrypt "io.github.willena:sqlite-jdbc:$sqlite_jdbc_crypt_version"
+
 	annotationProcessor "com.google.dagger:dagger-compiler:$dagger_version"
 
 	compileOnly 'javax.annotation:jsr250-api:1.0'
@@ -69,26 +74,50 @@ dependencies {
 	testImplementation "org.jmock:jmock-imposters:$jmock_version"
 }
 
-def torLibsDir = 'src/main/jniLibs'
+def jniLibsDir = 'src/main/jniLibs'
 
-task cleanTorBinaries {
-	outputs.dir torLibsDir
+task cleanJniLibs {
+	inputs.dir jniLibsDir
+	outputs.dir jniLibsDir
 	doLast {
-		delete fileTree(torLibsDir)
+		delete fileTree(jniLibsDir)
 	}
 }
 
-clean.dependsOn cleanTorBinaries
+clean.dependsOn cleanJniLibs
 
-task unpackTorBinaries {
-	outputs.dir torLibsDir
+task unpackJniLibs {
+	outputs.dir jniLibsDir
 	doLast {
+		// Tor
 		copy {
 			from configurations.tor.collect { zipTree(it) }
-			into torLibsDir
+			into jniLibsDir
+		}
+		// sqlite-jdbc-crypt
+		def archMap = [
+				aarch64: 'arm64-v8a',
+				arm    : 'armeabi-v7a',
+				x86    : 'x86',
+				x86_64 : 'x86_64'
+		]
+		configurations.sqliteJdbcCrypt.collect { File artifact ->
+			zipTree(artifact).each { File f ->
+				for (String arch : archMap.keySet()) {
+					if (f.absolutePath.endsWith("/Linux-Android/$arch/libsqlitejdbc.so")) {
+						def archDir = new File(jniLibsDir, archMap.get(arch))
+						archDir.mkdirs()
+						copy {
+							from f
+							into archDir
+						}
+						break
+					}
+				}
+			}
 		}
 	}
-	dependsOn cleanTorBinaries
+	dependsOn cleanJniLibs
 }
 
-preBuild.dependsOn unpackTorBinaries
+preBuild.dependsOn unpackJniLibs

@@ -25,8 +25,9 @@
 -dontnote com.android.org.conscrypt.SSLParametersImpl
 -dontnote org.apache.harmony.xnet.provider.jsse.SSLParametersImpl
 -dontnote sun.security.ssl.SSLContextImpl
--dontwarn org.conscrypt.OpenSSLProvider
--dontwarn org.conscrypt.Conscrypt
+-dontwarn org.bouncycastle.jsse.**
+-dontwarn org.conscrypt.**
+-dontwarn org.openjsse.**
 
 # HTML sanitiser
 -keep class org.jsoup.safety.Whitelist

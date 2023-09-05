@@ -24,7 +24,9 @@ android {
 	}
 
 	defaultConfig {
-		minSdkVersion 21
+		// FIXME: sqlite-jdbc-crypt uses __register_atfork which is only available on API >= 23.
+		//  We might be able to solve this by recompiling (or asking upstream to recompile)
+		minSdkVersion 23
 		targetSdkVersion 33
 		versionCode 10506
 		versionName "1.5.6"
@@ -78,6 +80,7 @@ android {
 	compileOptions {
 		sourceCompatibility JavaVersion.VERSION_1_8
 		targetCompatibility JavaVersion.VERSION_1_8
+		coreLibraryDesugaringEnabled true
 	}
 
 	testOptions {
@@ -142,6 +145,8 @@ dependencies {
 	annotationProcessor "com.github.bumptech.glide:compiler:$glideVersion"
 
 	compileOnly 'javax.annotation:jsr250-api:1.0'
+
+	coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:2.0.3'
 
 	testImplementation project(path: ':bramble-api', configuration: 'testOutput')
 	testImplementation project(path: ':bramble-core', configuration: 'testOutput')
