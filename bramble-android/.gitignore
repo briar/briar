@@ -4,3 +4,4 @@ build
 .settings
 src/main/res/raw/*.zip
 src/main/jniLibs
+!src/main/jniLibs/.gitkeep
