@@ -23,21 +23,18 @@ public class H2TransactionIsolationTest extends BrambleTestCase {
 
 	private static final String DROP_TABLE = "DROP TABLE foo IF EXISTS";
 	private static final String CREATE_TABLE = "CREATE TABLE foo"
-			+ " (key INT NOT NULL,"
+			+ " (_key INT NOT NULL,"
 			+ " counter INT NOT NULL)";
 	private static final String INSERT_ROW =
-			"INSERT INTO foo (key, counter) VALUES (1, 123)";
+			"INSERT INTO foo (_key, counter) VALUES (1, 123)";
 	private static final String GET_COUNTER =
-			"SELECT counter FROM foo WHERE key = 1";
+			"SELECT counter FROM foo WHERE _key = 1";
 	private static final String SET_COUNTER =
-			"UPDATE foo SET counter = ? WHERE key = 1";
+			"UPDATE foo SET counter = ? WHERE _key = 1";
 
 	private final File testDir = TestUtils.getTestDirectory();
 	private final File db = new File(testDir, "db");
-	private final String withMvcc = "jdbc:h2:split:" + db.getAbsolutePath()
-			+ ";MV_STORE=TRUE";
-	private final String withoutMvcc = "jdbc:h2:split:" + db.getAbsolutePath()
-			+ ";MV_STORE=FALSE;LOCK_MODE=1";
+	private final String url = "jdbc:h2:split:" + db.getAbsolutePath();
 
 	@Before
 	public void setUp() throws Exception {
@@ -52,14 +49,14 @@ public class H2TransactionIsolationTest extends BrambleTestCase {
 
 	@Test
 	public void testDoesNotReadUncommittedWritesWithMvcc() throws Exception {
-		Connection connection = openConnection(true);
+		Connection connection = openConnection();
 		try {
 			createTableAndInsertRow(connection);
 		} finally {
 			connection.close();
 		}
 		// Start the first transaction
-		Connection txn1 = openConnection(true);
+		Connection txn1 = openConnection();
 		try {
 			txn1.setAutoCommit(false);
 			// The first transaction should read the initial value
@@ -67,7 +64,7 @@ public class H2TransactionIsolationTest extends BrambleTestCase {
 			// The first transaction updates the value but doesn't commit it
 			assertEquals(1, setCounter(txn1, 234));
 			// Start the second transaction
-			Connection txn2 = openConnection(true);
+			Connection txn2 = openConnection();
 			try {
 				txn2.setAutoCommit(false);
 				// The second transaction should still read the initial value
@@ -86,14 +83,14 @@ public class H2TransactionIsolationTest extends BrambleTestCase {
 
 	@Test
 	public void testLastWriterWinsWithMvcc() throws Exception {
-		Connection connection = openConnection(true);
+		Connection connection = openConnection();
 		try {
 			createTableAndInsertRow(connection);
 		} finally {
 			connection.close();
 		}
 		// Start the first transaction
-		Connection txn1 = openConnection(true);
+		Connection txn1 = openConnection();
 		try {
 			txn1.setAutoCommit(false);
 			// The first transaction should read the initial value
@@ -101,7 +98,7 @@ public class H2TransactionIsolationTest extends BrambleTestCase {
 			// The first transaction updates the value but doesn't commit it
 			assertEquals(1, setCounter(txn1, 234));
 			// Start the second transaction
-			Connection txn2 = openConnection(true);
+			Connection txn2 = openConnection();
 			try {
 				txn2.setAutoCommit(false);
 				// The second transaction should still read the initial value
@@ -119,7 +116,7 @@ public class H2TransactionIsolationTest extends BrambleTestCase {
 			txn1.close();
 		}
 		// The second transaction was the last writer, so it should win
-		connection = openConnection(true);
+		connection = openConnection();
 		try {
 			assertEquals(345, getCounter(connection));
 		} finally {
@@ -129,20 +126,20 @@ public class H2TransactionIsolationTest extends BrambleTestCase {
 
 	@Test
 	public void testLockTimeoutOnRowWithMvcc() throws Exception {
-		Connection connection = openConnection(true);
+		Connection connection = openConnection();
 		try {
 			createTableAndInsertRow(connection);
 		} finally {
 			connection.close();
 		}
 		// Start the first transaction
-		Connection txn1 = openConnection(true);
+		Connection txn1 = openConnection();
 		try {
 			txn1.setAutoCommit(false);
 			// The first transaction should read the initial value
 			assertEquals(123, getCounter(txn1));
 			// Start the second transaction
-			Connection txn2 = openConnection(true);
+			Connection txn2 = openConnection();
 			try {
 				txn2.setAutoCommit(false);
 				// The second transaction should read the initial value
@@ -167,84 +164,8 @@ public class H2TransactionIsolationTest extends BrambleTestCase {
 		}
 	}
 
-	@Test
-	public void testReadLockTimeoutOnTableWithoutMvcc() throws Exception {
-		Connection connection = openConnection(false);
-		try {
-			createTableAndInsertRow(connection);
-		} finally {
-			connection.close();
-		}
-		// Start the first transaction
-		Connection txn1 = openConnection(false);
-		try {
-			txn1.setAutoCommit(false);
-			// The first transaction should read the initial value
-			assertEquals(123, getCounter(txn1));
-			// Start the second transaction
-			Connection txn2 = openConnection(false);
-			try {
-				txn2.setAutoCommit(false);
-				// The second transaction should read the initial value
-				assertEquals(123, getCounter(txn2));
-				// The first transaction tries to update the value
-				try {
-					setCounter(txn1, 345);
-					fail();
-				} catch (SQLException expected) {
-					// Expected: the table is locked by the second transaction
-				}
-				// Abort the transactions
-				txn1.rollback();
-				txn2.rollback();
-			} finally {
-				txn2.close();
-			}
-		} finally {
-			txn1.close();
-		}
-	}
-
-	@Test
-	public void testWriteLockTimeoutOnTableWithoutMvcc() throws Exception {
-		Connection connection = openConnection(false);
-		try {
-			createTableAndInsertRow(connection);
-		} finally {
-			connection.close();
-		}
-		// Start the first transaction
-		Connection txn1 = openConnection(false);
-		try {
-			txn1.setAutoCommit(false);
-			// The first transaction should read the initial value
-			assertEquals(123, getCounter(txn1));
-			// The first transaction updates the value but doesn't commit yet
-			assertEquals(1, setCounter(txn1, 345));
-			// Start the second transaction
-			Connection txn2 = openConnection(false);
-			try {
-				txn2.setAutoCommit(false);
-				// The second transaction tries to read the value
-				try {
-					getCounter(txn2);
-					fail();
-				} catch (SQLException expected) {
-					// Expected: the table is locked by the first transaction
-				}
-				// Abort the transactions
-				txn1.rollback();
-				txn2.rollback();
-			} finally {
-				txn2.close();
-			}
-		} finally {
-			txn1.close();
-		}
-	}
-
-	private Connection openConnection(boolean mvcc) throws SQLException {
-		return DriverManager.getConnection(mvcc ? withMvcc : withoutMvcc);
+	private Connection openConnection() throws SQLException {
+		return DriverManager.getConnection(url);
 	}
 
 	private void createTableAndInsertRow(Connection c) throws SQLException {

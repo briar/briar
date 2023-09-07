@@ -40,8 +40,7 @@ buildscript {
 		onionwrapper_version = '0.0.5'
 	}
 	dependencies {
-		// upgrading this let's us run into https://github.com/gradle/gradle/issues/20330
-		classpath 'com.android.tools.build:gradle:7.2.2'
+		classpath 'com.android.tools.build:gradle:7.4.2'
 		classpath 'ru.vyarus:gradle-animalsniffer-plugin:1.7.0'
 		classpath files('libs/gradle-witness.jar')
 		classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"

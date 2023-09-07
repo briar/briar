@@ -117,7 +117,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 			"CREATE TABLE settings"
 					+ " (namespace _STRING NOT NULL,"
 					+ " settingKey _STRING NOT NULL,"
-					+ " value _STRING NOT NULL,"
+					+ " settingValue _STRING NOT NULL,"
 					+ " PRIMARY KEY (namespace, settingKey))";
 
 	private static final String CREATE_LOCAL_AUTHORS =
@@ -143,7 +143,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 					+ " handshakePublicKey _BINARY," // Null if key is unknown
 					+ " localAuthorId _HASH NOT NULL,"
 					+ " verified BOOLEAN NOT NULL,"
-					+ " syncVersions _BINARY DEFAULT '00' NOT NULL,"
+					+ " syncVersions _BINARY DEFAULT X'00' NOT NULL,"
 					+ " PRIMARY KEY (contactId),"
 					+ " FOREIGN KEY (localAuthorId)"
 					+ " REFERENCES localAuthors (authorId)"
@@ -161,7 +161,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 			"CREATE TABLE groupMetadata"
 					+ " (groupId _HASH NOT NULL,"
 					+ " metaKey _STRING NOT NULL,"
-					+ " value _BINARY NOT NULL,"
+					+ " metaValue _BINARY NOT NULL,"
 					+ " PRIMARY KEY (groupId, metaKey),"
 					+ " FOREIGN KEY (groupId)"
 					+ " REFERENCES groups (groupId)"
@@ -206,7 +206,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 					+ " groupId _HASH NOT NULL," // Denormalised
 					+ " state INT NOT NULL," // Denormalised
 					+ " metaKey _STRING NOT NULL,"
-					+ " value _BINARY NOT NULL,"
+					+ " metaValue _BINARY NOT NULL,"
 					+ " PRIMARY KEY (messageId, metaKey),"
 					+ " FOREIGN KEY (messageId)"
 					+ " REFERENCES messages (messageId)"
@@ -1926,7 +1926,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 			Set<MessageId> intersection = null;
 			String sql = "SELECT messageId FROM messageMetadata"
 					+ " WHERE groupId = ? AND state = ?"
-					+ " AND metaKey = ? AND value = ?";
+					+ " AND metaKey = ? AND metaValue = ?";
 			for (Entry<String, byte[]> e : query.entrySet()) {
 				ps = txn.prepareStatement(sql);
 				ps.setBytes(1, g.getBytes());
@@ -1982,7 +1982,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 		PreparedStatement ps = null;
 		ResultSet rs = null;
 		try {
-			String sql = "SELECT messageId, metaKey, value"
+			String sql = "SELECT messageId, metaKey, metaValue"
 					+ " FROM messageMetadata"
 					+ " WHERE groupId = ? AND state = ?";
 			ps = txn.prepareStatement(sql);
@@ -2027,7 +2027,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 		PreparedStatement ps = null;
 		ResultSet rs = null;
 		try {
-			String sql = "SELECT metaKey, value FROM groupMetadata"
+			String sql = "SELECT metaKey, metaValue FROM groupMetadata"
 					+ " WHERE groupId = ?";
 			ps = txn.prepareStatement(sql);
 			ps.setBytes(1, g.getBytes());
@@ -2050,7 +2050,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 		PreparedStatement ps = null;
 		ResultSet rs = null;
 		try {
-			String sql = "SELECT metaKey, value FROM messageMetadata"
+			String sql = "SELECT metaKey, metaValue FROM messageMetadata"
 					+ " WHERE state = ? AND messageId = ?";
 			ps = txn.prepareStatement(sql);
 			ps.setInt(1, DELIVERED.getValue());
@@ -2074,7 +2074,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 		PreparedStatement ps = null;
 		ResultSet rs = null;
 		try {
-			String sql = "SELECT metaKey, value FROM messageMetadata"
+			String sql = "SELECT metaKey, metaValue FROM messageMetadata"
 					+ " WHERE (state = ? OR state = ?)"
 					+ " AND messageId = ?";
 			ps = txn.prepareStatement(sql);
@@ -2678,7 +2678,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 		PreparedStatement ps = null;
 		ResultSet rs = null;
 		try {
-			String sql = "SELECT settingKey, value FROM settings"
+			String sql = "SELECT settingKey, settingValue FROM settings"
 					+ " WHERE namespace = ?";
 			ps = txn.prepareStatement(sql);
 			ps.setString(1, namespace);
@@ -2914,7 +2914,8 @@ abstract class JdbcDatabase implements Database<Connection> {
 					g.getBytes(), meta, "groupMetadata", "groupId");
 			if (added.isEmpty()) return;
 			// Insert any keys that don't already exist
-			String sql = "INSERT INTO groupMetadata (groupId, metaKey, value)"
+			String sql = "INSERT INTO groupMetadata"
+					+ " (groupId, metaKey, metaValue)"
 					+ " VALUES (?, ?, ?)";
 			ps = txn.prepareStatement(sql);
 			ps.setBytes(1, g.getBytes());
@@ -2957,7 +2958,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 			ps.close();
 			// Insert any keys that don't already exist
 			sql = "INSERT INTO messageMetadata"
-					+ " (messageId, groupId, state, metaKey, value)"
+					+ " (messageId, groupId, state, metaKey, metaValue)"
 					+ " VALUES (?, ?, ?, ?, ?)";
 			ps = txn.prepareStatement(sql);
 			ps.setBytes(1, m.getBytes());
@@ -3016,7 +3017,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 			}
 			if (notRemoved.isEmpty()) return Collections.emptyMap();
 			// Update any keys that already exist
-			String sql = "UPDATE " + tableName + " SET value = ?"
+			String sql = "UPDATE " + tableName + " SET metaValue = ?"
 					+ " WHERE " + columnName + " = ? AND metaKey = ?";
 			ps = txn.prepareStatement(sql);
 			ps.setBytes(2, id);
@@ -3053,7 +3054,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 		PreparedStatement ps = null;
 		try {
 			// Update any settings that already exist
-			String sql = "UPDATE settings SET value = ?"
+			String sql = "UPDATE settings SET settingValue = ?"
 					+ " WHERE namespace = ? AND settingKey = ?";
 			ps = txn.prepareStatement(sql);
 			for (Entry<String, String> e : s.entrySet()) {
@@ -3069,7 +3070,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 				if (rows > 1) throw new DbStateException();
 			}
 			// Insert any settings that don't already exist
-			sql = "INSERT INTO settings (namespace, settingKey, value)"
+			sql = "INSERT INTO settings (namespace, settingKey, settingValue)"
 					+ " VALUES (?, ?, ?)";
 			ps = txn.prepareStatement(sql);
 			int updateIndex = 0, inserted = 0;
