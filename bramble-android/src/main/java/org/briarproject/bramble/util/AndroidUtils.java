@@ -64,10 +64,15 @@ public class AndroidUtils {
 		}
 		// Return the address from settings if it's valid and not fake
 		if (SDK_INT < 33) {
-			address = Settings.Secure.getString(ctx.getContentResolver(),
-					"bluetooth_address");
-			if (isValidBluetoothAddress(address)) {
-				return new Pair<>(address, "settings");
+			try {
+				address = Settings.Secure.getString(ctx.getContentResolver(),
+						"bluetooth_address");
+				if (isValidBluetoothAddress(address)) {
+					return new Pair<>(address, "settings");
+				}
+			} catch (SecurityException e) {
+				// Some custom ROMs throw this exception on SDK_INT < 33.
+				// Fall through
 			}
 		}
 		// Try to get the address via reflection
