@@ -474,7 +474,7 @@
   <string name="blogs_rss_feeds_import_progress">导入 RSS 订阅源中…</string>
   <string name="blogs_rss_feeds_import_error">抱歉！导入订阅源时发生错误。</string>
   <string name="blogs_rss_feeds_import_title">从文件导入源</string>
-  <string name="blogs_rss_feeds">RSS源 </string>
+  <string name="blogs_rss_feeds">RSS 源 </string>
   <string name="blogs_rss_feeds_manage_imported">已导入：</string>
   <string name="blogs_rss_feeds_manage_author">作者：</string>
   <string name="blogs_rss_feeds_manage_updated">最后更新于：</string>
@@ -676,6 +676,8 @@
   <string name="disappearing_messages_summary">在7\u00A0天之后，使此对话中的后续消息自动消失。</string>
   <!--Settings Actions-->
   <string name="pref_category_actions">操作</string>
+  <string name="share_app_link">分享下载链接</string>
+  <string name="share_app_link_text">Briar 下载地址 %s</string>
   <string name="send_feedback">提交反馈</string>
   <!--Link Warning-->
   <string name="link_warning_title">链接警告</string>
@@ -725,6 +727,7 @@
   <string name="permission_camera_title">相机权限</string>
   <string name="permission_camera_request_body">Briar 需要获得相机权限以扫描二维码。</string>
   <string name="permission_location_title">位置权限</string>
+  <string name="permission_nearby_devices_title">“附近设备”权限</string>
   <string name="permission_location_request_body">Briar 需要位置信息权限以发现蓝牙设备。\n\nBriar 不会存储您的位置或将它分享给任何人。</string>
   <string name="permission_camera_location_title">相机和位置</string>
   <string name="permission_camera_location_request_body"> Briar 需要相机权限以扫描二维码。\n\nBriar 需要位置信息权限以发现蓝牙设备。\n\nBriar 不会存储您的位置或将它分享给任何人。</string>
@@ -764,6 +767,8 @@
   <string name="permission_hotspot_location_request_precise_body">要创建无线热点，Briar 需要访问你的精确位置。\n\nBriar 不会储存你的位置也不会和任何人分享它。</string>
   <string name="permission_hotspot_location_denied_body">你拒绝了访问你的位置，但 Briar 需要这个权限才能创建 Wi-Fi 热点。\n\n请考虑授予访问权限。</string>
   <string name="permission_hotspot_location_denied_precise_body">你拒绝了 Briar 访问你的精确位置，但 Briar 需要这个权限才能创建 无线热点。\n\n请考虑授予访问权限。</string>
+  <string name="permission_hotspot_nearby_wifi_request_body">要创建 Wi-FI 热点，Briar 需要访问附近设备的权限。</string>
+  <string name="permission_hotspot_nearby_wifi_denied_body">你已拒绝对附近设备的访问，但 Briar 需要此权限在创建 Wi-FI 热点。\n\n请考虑授予权限。</string>
   <string name="wifi_settings_title">Wi-Fi 设置</string>
   <string name="wifi_settings_request_enable_body">要创建 Wi-Fi 热点，Briar 需要使用 Wi-Fi。请允许它。</string>
   <string name="hotspot_tab_manual">手动</string>

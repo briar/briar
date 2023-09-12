@@ -152,6 +152,7 @@ Vänlige installera Briar på en nyare enhet.</string>
   <string name="error_start_activity">Otillgänglig på ditt system</string>
   <string name="status_heading">Status</string>
   <string name="error">Fel</string>
+  <string name="info">Information</string>
   <!--Contacts and Private Conversations-->
   <string name="no_contacts">Inga kontakter</string>
   <string name="no_contacts_action">Tryck på plus-ikonen (+) för att lägga till en kontakt</string>
@@ -222,6 +223,7 @@ Vänlige installera Briar på en nyare enhet.</string>
   <string name="menu_contact">Kontakt</string>
   <!--Adding Contacts-->
   <string name="add_contact_title">Lägg till en närvarande kontakt</string>
+  <string name="add_contact_error_two_way">Skannade ni båda varandras QR-koder?</string>
   <string name="face_to_face">Du måste personligen träffa den som du vill lägga till som kontakt.\n\nDetta för att undvika att någon senare låtsas vara du eller läser dina meddelanden.</string>
   <string name="continue_button">Fortsätt</string>
   <string name="try_again_button">Försök igen</string>
@@ -229,9 +231,11 @@ Vänlige installera Briar på en nyare enhet.</string>
   <string name="exchanging_contact_details">Utbyter detaljer om kontakten\u2026</string>
   <string name="contact_added_toast">Kontakt tillagd: %s</string>
   <string name="contact_already_exists">Kontakten %s finns redan</string>
+  <string name="contact_already_exists_general">Kontakten finns redan</string>
   <string name="qr_code_invalid">QR-koden är felaktig</string>
   <string name="qr_code_too_old_1">QR-koden som du har skannat kommer från en äldre version av Briar.\n\nVar vänlig och be din kontakt att uppgradera till den senaste versionen och försök sedan igen.</string>
   <string name="qr_code_too_new_1">QR-koden som du har skannat kommer från en äldre version av Briar.\n\nVänligen uppgradera till den senaste versionen och försök igen.</string>
+  <string name="mailbox_qr_code_for_contact">QR-koden du skannade kommer från Briar Mailbox.\n\nOm du vill länka en Mailbox, välj Inställningar &gt; Mailbox från Briar-menyn.</string>
   <string name="camera_error">Kamerafel</string>
   <string name="connecting_to_device">Ansluter till enhet\u2026</string>
   <string name="authenticating_with_device">Autentiserar med enhet\u2026</string>
