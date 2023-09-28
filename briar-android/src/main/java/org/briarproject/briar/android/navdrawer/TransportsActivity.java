@@ -219,7 +219,8 @@ public class TransportsActivity extends BriarActivity {
 	}
 
 	private void onClicked(TransportId transportId, boolean enable) {
-		if (enable && SDK_INT >= 31 && !areBluetoothPermissionsGranted(this)) {
+		if (transportId.equals(BluetoothConstants.ID) && enable
+				&& SDK_INT >= 31 && !areBluetoothPermissionsGranted(this)) {
 			if (shouldShowRequestPermissionRationale(BLUETOOTH_CONNECT)) {
 				showRationale(this, R.string.permission_bluetooth_title,
 						R.string.permission_bluetooth_body,
