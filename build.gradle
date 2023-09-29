@@ -29,7 +29,7 @@ buildscript {
 		dagger_version = "2.45"
 		okhttp_version = "4.10.0"
 		jackson_version = "2.13.4"
-		tor_version = "0.4.7.14"
+		tor_version = "0.4.7.15"
 		obfs4proxy_version = "0.0.14-tor2"
 		snowflake_version = "2.5.1"
 		jsoup_version = '1.15.3'
@@ -37,7 +37,7 @@ buildscript {
 		junit_version = "4.13.2"
 		jmock_version = '2.12.0'
 		mockwebserver_version = '4.10.0'
-		onionwrapper_version = '0.0.5'
+		onionwrapper_version = '0.0.6'
 	}
 	dependencies {
 		// upgrading this let's us run into https://github.com/gradle/gradle/issues/20330

@@ -36,7 +36,7 @@ dependencyVerification {
 		'org.bouncycastle:bcprov-jdk15to18:1.71:bcprov-jdk15to18-1.71.jar:143aaa4a40edd5fc2a18db7900059f6c16f4d931b94b94b20f7e2238e6662886',
 		'org.briarproject:jtorctl:0.5:jtorctl-0.5.jar:43f8c7d390169772b9a2c82ab806c8414c136a2a8636c555e22754bb7260793b',
 		'org.briarproject:null-safety:0.1:null-safety-0.1.jar:161760de5e838cb982bafa973df820675d4397098e9a91637a36a306d43ba011',
-		'org.briarproject:onionwrapper-core:0.0.5:onionwrapper-core-0.0.5.jar:9071678323535cb3dfe0f3add96066037db43ea024333eba0117c759bcbd8d63',
+		'org.briarproject:onionwrapper-core:0.0.6:onionwrapper-core-0.0.6.jar:ed316fa600b9efa21f5643447f2e21b4db607889a41d526c03d61dec8d059c16',
 		'org.briarproject:socks-socket:0.1:socks-socket-0.1.jar:e5898822d10f5390363c5dddb945891648c92cf93ba50709e07f0d173ec0eb4b',
 		'org.checkerframework:checker-compat-qual:2.5.5:checker-compat-qual-2.5.5.jar:11d134b245e9cacc474514d2d66b5b8618f8039a1465cdc55bbc0b34e0008b7a',
 		'org.checkerframework:checker-qual:3.12.0:checker-qual-3.12.0.jar:ff10785ac2a357ec5de9c293cb982a2cbb605c0309ea4cc1cb9b9bc6dbe7f3cb',
