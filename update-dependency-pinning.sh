@@ -22,5 +22,8 @@ done
 for project in ${PROJECTS[@]}
 do
     echo "Calculating new checksums for ${project} ..."
-    ./gradlew -q --configure-on-demand ${project}:calculateChecksums | grep -v '^\(Skipping\|Verifying\|Welcome to Gradle\)' > ${project}/witness.gradle
+    ./gradlew -q --configure-on-demand ${project}:calculateChecksums \
+        | grep -v '^\(Skipping\|Verifying\|Welcome to Gradle\)' \
+        | sed "s/    /\t/g" \
+        > ${project}/witness.gradle
 done
