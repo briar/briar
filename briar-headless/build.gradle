@@ -75,11 +75,11 @@ dependencies {
 void jarFactory(Jar jarTask, os, architecture, configuration) {
 	def jarArchitecture = os + "-" + architecture
 	jarTask.dependsOn(
-			':bramble-api:jar',
-			':bramble-core:jar',
-			':bramble-java:jar',
-			':briar-api:jar',
-			':briar-core:jar'
+		':bramble-api:jar',
+		':bramble-core:jar',
+		':bramble-java:jar',
+		':briar-api:jar',
+		':briar-core:jar'
 	)
 	jarTask.dependsOn(jar)
 	jarTask.doFirst {
@@ -87,32 +87,32 @@ void jarFactory(Jar jarTask, os, architecture, configuration) {
 	}
 	jarTask.manifest {
 		attributes(
-				'Main-Class': 'org.briarproject.briar.headless.MainKt'
+			'Main-Class': 'org.briarproject.briar.headless.MainKt'
 		)
 	}
 	jarTask.setArchiveClassifier(jarArchitecture)
 	jarTask.from {
 		configuration.collect { it.isDirectory() ? it : zipTree(it) }
 	}
-			{
-				it.duplicatesStrategy(DuplicatesStrategy.EXCLUDE)
-				if (os == "linux" || os == "macos") {
-					String[] architectures = [
-							"aarch64",
-							"armhf",
-							"x86_64",
-					]
-					for (String arch : architectures) {
-						if (arch != architecture) {
-							exclude arch + "/obfs4proxy"
-							exclude arch + "/tor"
-							exclude arch + "/snowflake"
-							exclude arch + "/libevent-*.dylib"
-						}
+		{
+			it.duplicatesStrategy(DuplicatesStrategy.EXCLUDE)
+			if (os == "linux" || os == "macos") {
+				String[] architectures = [
+					"aarch64",
+					"armhf",
+					"x86_64",
+				]
+				for (String arch : architectures) {
+					if (arch != architecture) {
+						exclude arch + "/obfs4proxy"
+						exclude arch + "/tor"
+						exclude arch + "/snowflake"
+						exclude arch + "/libevent-*.dylib"
 					}
 				}
-				exclude 'META-INF/*.SF', 'META-INF/*.DSA', 'META-INF/*.RSA'
 			}
+			exclude 'META-INF/*.SF', 'META-INF/*.DSA', 'META-INF/*.RSA'
+		}
 	jarTask.with jar
 	jarTask.doLast {
 		// Rename the original jar

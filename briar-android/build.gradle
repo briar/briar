@@ -33,10 +33,10 @@ android {
 
 		vectorDrawables.useSupportLibrary = true
 		buildConfigField "String", "GitHash",
-				"\"${getStdout(['git', 'rev-parse', '--short=7', 'HEAD'], 'No commit hash')}\""
+			"\"${getStdout(['git', 'rev-parse', '--short=7', 'HEAD'], 'No commit hash')}\""
 		def now = (long) (System.currentTimeMillis() / 1000)
 		buildConfigField "Long", "BuildTimestamp",
-				"${getStdout(['git', 'log', '-n', '1', '--format=%ct'], now)}000L"
+			"${getStdout(['git', 'log', '-n', '1', '--format=%ct'], now)}000L"
 		testInstrumentationRunner 'org.briarproject.briar.android.BriarTestRunner'
 		testInstrumentationRunnerArguments disableAnalytics: 'true'
 	}
@@ -203,7 +203,7 @@ task verifyTranslations {
 		}
 		if (translations.size() != 0)
 			throw new GradleException("Translations\n" + translations.join("\n")
-					+ "\nhave no matching value folder")
+				+ "\nhave no matching value folder")
 
 		// Some devices use iw instead of he for hebrew
 		def hebrew_legacy = project.file("src/main/res/values-iw")
