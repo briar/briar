@@ -30,7 +30,6 @@ import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.action.ViewActions.click;
 import static androidx.test.espresso.action.ViewActions.closeSoftKeyboard;
 import static androidx.test.espresso.action.ViewActions.replaceText;
-import static androidx.test.espresso.action.ViewActions.scrollTo;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
 import static androidx.test.espresso.contrib.RecyclerViewActions.actionOnItemAtPosition;
 import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
@@ -181,7 +180,6 @@ public class PromoVideoTest extends ScreenshotTest {
 		sleep(DELAY_SMALL);
 
 		// add pending contact
-		onView(withId(R.id.addButton)).perform(scrollTo());
 		doClick(withId(R.id.addButton));
 		sleep(DELAY_LONG);
 
