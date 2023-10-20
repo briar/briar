@@ -62,7 +62,7 @@ public class PromoVideoTest extends ScreenshotTest {
 			new ActivityScenarioRule<>(SplashScreenActivity.class);
 
 	@Inject
-	protected ContactManager contactManager;
+	ContactManager contactManager;
 
 	private OverlayView overlayView;
 
@@ -212,7 +212,7 @@ public class PromoVideoTest extends ScreenshotTest {
 		}
 
 		// click on new contact
-		doItemClick(withId(R.id.recyclerView), 0);
+		doItemClick(withId(R.id.recyclerView));
 
 		sleep(DELAY_MEDIUM);
 
@@ -263,15 +263,14 @@ public class PromoVideoTest extends ScreenshotTest {
 				.perform(click());
 	}
 
-	private void doItemClick(final Matcher<View> viewMatcher, int pos)
+	private void doItemClick(final Matcher<View> viewMatcher)
 			throws InterruptedException {
 		if (isFilming) {
 			onView(viewMatcher).perform(
-					actionOnItemAtPosition(pos, visualClick(overlayView)));
+					actionOnItemAtPosition(0, visualClick(overlayView)));
 			sleep(500);
 		}
-		onView(viewMatcher).perform(
-				actionOnItemAtPosition(pos, click()));
+		onView(viewMatcher).perform(actionOnItemAtPosition(0, click()));
 	}
 
 	private void closeKeyboard(final Matcher<View> viewMatcher)
