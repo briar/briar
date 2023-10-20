@@ -4,7 +4,9 @@ import android.app.Activity;
 import android.content.Intent;
 
 import org.briarproject.bramble.api.account.AccountManager;
+import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.lifecycle.LifecycleManager;
+import org.briarproject.bramble.api.settings.Settings;
 import org.briarproject.bramble.api.settings.SettingsManager;
 import org.briarproject.briar.R;
 import org.briarproject.nullsafety.NotNullByDefault;
@@ -16,6 +18,11 @@ import androidx.test.espresso.intent.rule.IntentsTestRule;
 
 import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
 import static androidx.test.core.app.ApplicationProvider.getApplicationContext;
+import static org.briarproject.briar.api.android.SettingsConstants.SETTINGS_NAMESPACE;
+import static org.briarproject.briar.api.android.SettingsConstants.SHOW_ONBOARDING_IMAGE;
+import static org.briarproject.briar.api.android.SettingsConstants.SHOW_ONBOARDING_INTRODUCTION;
+import static org.briarproject.briar.api.android.SettingsConstants.SHOW_ONBOARDING_REVEAL_CONTACTS;
+import static org.briarproject.briar.api.android.SettingsConstants.SHOW_ONBOARDING_TRANSPORTS;
 
 
 @SuppressWarnings("WeakerAccess")
@@ -68,6 +75,16 @@ public abstract class UiTest {
 			try {
 				lifecycleManager.waitForStartup();
 			} catch (InterruptedException e) {
+				throw new AssertionError(e);
+			}
+			try {
+				Settings settings = new Settings();
+				settings.putBoolean(SHOW_ONBOARDING_TRANSPORTS, false);
+				settings.putBoolean(SHOW_ONBOARDING_IMAGE, false);
+				settings.putBoolean(SHOW_ONBOARDING_INTRODUCTION, false);
+				settings.putBoolean(SHOW_ONBOARDING_REVEAL_CONTACTS, false);
+				settingsManager.mergeSettings(settings, SETTINGS_NAMESPACE);
+			} catch (DbException e) {
 				throw new AssertionError(e);
 			}
 		}
