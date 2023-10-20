@@ -1,6 +1,5 @@
 package org.briarproject.briar.android.settings;
 
-import android.content.Intent;
 import android.view.Gravity;
 
 import org.briarproject.briar.R;
@@ -16,6 +15,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4;
 
 import static androidx.test.core.app.ApplicationProvider.getApplicationContext;
 import static androidx.test.espresso.Espresso.onView;
+import static androidx.test.espresso.Espresso.pressBack;
 import static androidx.test.espresso.action.ViewActions.click;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
 import static androidx.test.espresso.contrib.DrawerMatchers.isClosed;
@@ -31,9 +31,11 @@ import static org.junit.Assume.assumeTrue;
 @RunWith(AndroidJUnit4.class)
 public class SettingsActivityScreenshotTest extends ScreenshotTest {
 
+	// Start from the nav drawer activity so we can go back to it and take
+	// screenshots showing the effects of changing settings
 	@Rule
-	public CleanAccountTestRule<SettingsActivity> testRule =
-			new CleanAccountTestRule<>(SettingsActivity.class);
+	public CleanAccountTestRule<NavDrawerActivity> testRule =
+			new CleanAccountTestRule<>(NavDrawerActivity.class);
 
 	@Override
 	protected void inject(BriarUiTestComponent component) {
@@ -42,8 +44,10 @@ public class SettingsActivityScreenshotTest extends ScreenshotTest {
 
 	@Test
 	public void changeTheme() {
+		openNavDrawer();
 		onView(withText(R.string.settings_button))
-				.check(matches(isDisplayed()));
+				.check(matches(isDisplayed()))
+				.perform(click());
 
 		onView(withText(R.string.display_settings_title))
 				.perform(waitUntilMatches(isDisplayed()))
@@ -59,6 +63,8 @@ public class SettingsActivityScreenshotTest extends ScreenshotTest {
 				.check(matches(isDisplayed()))
 				.perform(click());
 
+		pressBack();
+		pressBack();
 		openNavDrawer();
 
 		screenshot("manual_dark_theme_nav_drawer", testRule.getActivity());
@@ -68,8 +74,8 @@ public class SettingsActivityScreenshotTest extends ScreenshotTest {
 				.check(matches(isDisplayed()))
 				.perform(click());
 		onView(withText(R.string.display_settings_title))
-				.check(matches(isDisplayed()))
-				.perform(click());
+				.perform(waitUntilMatches(isDisplayed()))
+				.perform(click(), click());
 		onView(withText(R.string.pref_theme_title))
 				.check(matches(isDisplayed()))
 				.perform(click());
@@ -82,6 +88,11 @@ public class SettingsActivityScreenshotTest extends ScreenshotTest {
 	public void appLock() {
 		assumeTrue("device has no screen lock",
 				hasScreenLock(getApplicationContext()));
+
+		openNavDrawer();
+		onView(withText(R.string.settings_button))
+				.check(matches(isDisplayed()))
+				.perform(click());
 
 		onView(withText(R.string.security_settings_title))
 				.perform(waitUntilMatches(isDisplayed()))
@@ -98,6 +109,8 @@ public class SettingsActivityScreenshotTest extends ScreenshotTest {
 
 		screenshot("manual_app_lock", testRule.getActivity());
 
+		pressBack();
+		pressBack();
 		openNavDrawer();
 
 		screenshot("manual_app_lock_nav_drawer", testRule.getActivity());
@@ -105,6 +118,11 @@ public class SettingsActivityScreenshotTest extends ScreenshotTest {
 
 	@Test
 	public void torSettings() {
+		openNavDrawer();
+		onView(withText(R.string.settings_button))
+				.check(matches(isDisplayed()))
+				.perform(click());
+
 		// click network/connections settings
 		onView(withText(R.string.network_settings_title))
 				.perform(waitUntilMatches(isDisplayed()))
@@ -119,15 +137,8 @@ public class SettingsActivityScreenshotTest extends ScreenshotTest {
 	}
 
 	private void openNavDrawer() {
-		// start main activity
-		Intent i =
-				new Intent(testRule.getActivity(), NavDrawerActivity.class);
-		testRule.getActivity().startActivity(i);
-
-		// open navigation drawer
 		onView(withId(R.id.drawer_layout))
 				.check(matches(isClosed(Gravity.START)))
 				.perform(DrawerActions.open());
 	}
-
 }
