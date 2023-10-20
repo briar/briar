@@ -30,15 +30,14 @@ import static java.util.logging.Logger.getLogger;
 import static org.briarproject.android.dontkillmelib.DozeUtils.needsDozeWhitelisting;
 import static org.briarproject.bramble.api.lifecycle.LifecycleManager.LifecycleState.STARTING_SERVICES;
 import static org.briarproject.bramble.util.LogUtils.logException;
-import static org.briarproject.briar.android.settings.SettingsFragment.SETTINGS_NAMESPACE;
+import static org.briarproject.briar.api.android.SettingsConstants.DOZE_ASK_AGAIN;
+import static org.briarproject.briar.api.android.SettingsConstants.SETTINGS_NAMESPACE;
 
 @NotNullByDefault
 public class BriarControllerImpl implements BriarController {
 
 	private static final Logger LOG =
 			getLogger(BriarControllerImpl.class.getName());
-
-	public static final String DOZE_ASK_AGAIN = "dozeAskAgain";
 
 	private final BriarServiceConnection serviceConnection;
 	private final AccountManager accountManager;

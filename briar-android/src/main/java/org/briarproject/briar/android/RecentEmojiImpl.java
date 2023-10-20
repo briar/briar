@@ -26,7 +26,8 @@ import javax.inject.Inject;
 
 import static java.util.logging.Level.WARNING;
 import static org.briarproject.bramble.util.LogUtils.logException;
-import static org.briarproject.briar.android.settings.SettingsFragment.SETTINGS_NAMESPACE;
+import static org.briarproject.briar.api.android.SettingsConstants.EMOJI_LRU_PREFERENCE;
+import static org.briarproject.briar.api.android.SettingsConstants.SETTINGS_NAMESPACE;
 
 @MethodsNotNullByDefault
 @ParametersNotNullByDefault
@@ -35,7 +36,6 @@ class RecentEmojiImpl implements RecentEmoji, OpenDatabaseHook {
 	private static final Logger LOG =
 			Logger.getLogger(RecentEmojiImpl.class.getName());
 
-	private static final String EMOJI_LRU_PREFERENCE = "pref_emoji_recent2";
 	private static final int EMOJI_LRU_SIZE = 50;
 
 	// UI thread

@@ -28,18 +28,16 @@ import static java.util.logging.Logger.getLogger;
 import static org.briarproject.android.dontkillmelib.DozeUtils.needsDozeWhitelisting;
 import static org.briarproject.bramble.util.LogUtils.logException;
 import static org.briarproject.briar.android.TestingConstants.EXPIRY_DATE;
-import static org.briarproject.briar.android.controller.BriarControllerImpl.DOZE_ASK_AGAIN;
-import static org.briarproject.briar.android.settings.SettingsFragment.SETTINGS_NAMESPACE;
+import static org.briarproject.briar.api.android.SettingsConstants.DOZE_ASK_AGAIN;
+import static org.briarproject.briar.api.android.SettingsConstants.EXPIRY_DATE_WARNING;
+import static org.briarproject.briar.api.android.SettingsConstants.SETTINGS_NAMESPACE;
+import static org.briarproject.briar.api.android.SettingsConstants.SHOW_ONBOARDING_TRANSPORTS;
 
 @NotNullByDefault
 public class NavDrawerViewModel extends DbViewModel {
 
 	private static final Logger LOG =
 			getLogger(NavDrawerViewModel.class.getName());
-
-	private static final String EXPIRY_DATE_WARNING = "expiryDateWarning";
-	private static final String SHOW_TRANSPORTS_ONBOARDING =
-			"showTransportsOnboarding";
 
 	private final SettingsManager settingsManager;
 
@@ -153,7 +151,7 @@ public class NavDrawerViewModel extends DbViewModel {
 				Settings settings =
 						settingsManager.getSettings(SETTINGS_NAMESPACE);
 				boolean show =
-						settings.getBoolean(SHOW_TRANSPORTS_ONBOARDING, true);
+						settings.getBoolean(SHOW_ONBOARDING_TRANSPORTS, true);
 				showTransportsOnboarding.postValue(show);
 			} catch (DbException e) {
 				handleException(e);
@@ -167,7 +165,7 @@ public class NavDrawerViewModel extends DbViewModel {
 		runOnDbThread(() -> {
 			try {
 				Settings settings = new Settings();
-				settings.putBoolean(SHOW_TRANSPORTS_ONBOARDING, false);
+				settings.putBoolean(SHOW_ONBOARDING_TRANSPORTS, false);
 				settingsManager.mergeSettings(settings, SETTINGS_NAMESPACE);
 			} catch (DbException e) {
 				handleException(e);

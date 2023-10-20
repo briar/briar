@@ -47,12 +47,12 @@ import static org.briarproject.briar.api.android.AndroidNotificationManager.BLOG
 import static org.briarproject.briar.api.android.AndroidNotificationManager.CONTACT_CHANNEL_ID;
 import static org.briarproject.briar.api.android.AndroidNotificationManager.FORUM_CHANNEL_ID;
 import static org.briarproject.briar.api.android.AndroidNotificationManager.GROUP_CHANNEL_ID;
-import static org.briarproject.briar.api.android.AndroidNotificationManager.PREF_NOTIFY_BLOG;
-import static org.briarproject.briar.api.android.AndroidNotificationManager.PREF_NOTIFY_FORUM;
-import static org.briarproject.briar.api.android.AndroidNotificationManager.PREF_NOTIFY_GROUP;
-import static org.briarproject.briar.api.android.AndroidNotificationManager.PREF_NOTIFY_PRIVATE;
-import static org.briarproject.briar.api.android.AndroidNotificationManager.PREF_NOTIFY_SOUND;
-import static org.briarproject.briar.api.android.AndroidNotificationManager.PREF_NOTIFY_VIBRATION;
+import static org.briarproject.briar.api.android.SettingsConstants.PREF_NOTIFY_BLOG;
+import static org.briarproject.briar.api.android.SettingsConstants.PREF_NOTIFY_FORUM;
+import static org.briarproject.briar.api.android.SettingsConstants.PREF_NOTIFY_GROUP;
+import static org.briarproject.briar.api.android.SettingsConstants.PREF_NOTIFY_PRIVATE;
+import static org.briarproject.briar.api.android.SettingsConstants.PREF_NOTIFY_SOUND;
+import static org.briarproject.briar.api.android.SettingsConstants.PREF_NOTIFY_VIBRATION;
 
 @MethodsNotNullByDefault
 @ParametersNotNullByDefault

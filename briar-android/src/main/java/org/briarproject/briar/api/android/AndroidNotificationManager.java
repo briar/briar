@@ -11,17 +11,6 @@ import org.briarproject.bramble.api.sync.GroupId;
  */
 public interface AndroidNotificationManager {
 
-	// Keys for notification preferences
-	String PREF_NOTIFY_PRIVATE = "notifyPrivateMessages";
-	String PREF_NOTIFY_GROUP = "notifyGroupMessages";
-	String PREF_NOTIFY_FORUM = "notifyForumPosts";
-	String PREF_NOTIFY_BLOG = "notifyBlogPosts";
-
-	String PREF_NOTIFY_SOUND = "notifySound";
-	String PREF_NOTIFY_RINGTONE_NAME = "notifyRingtoneName";
-	String PREF_NOTIFY_RINGTONE_URI = "notifyRingtoneUri";
-	String PREF_NOTIFY_VIBRATION = "notifyVibration";
-
 	// Notification IDs
 	int ONGOING_NOTIFICATION_ID = 1;
 	int REMINDER_NOTIFICATION_ID = 3;

@@ -41,10 +41,10 @@ import static java.util.concurrent.TimeUnit.MINUTES;
 import static java.util.logging.Level.WARNING;
 import static org.briarproject.bramble.util.AndroidUtils.getImmutableFlags;
 import static org.briarproject.bramble.util.LogUtils.logException;
-import static org.briarproject.briar.android.settings.SecurityFragment.PREF_SCREEN_LOCK;
-import static org.briarproject.briar.android.settings.SecurityFragment.PREF_SCREEN_LOCK_TIMEOUT;
-import static org.briarproject.briar.android.settings.SettingsFragment.SETTINGS_NAMESPACE;
 import static org.briarproject.briar.android.util.UiUtils.hasScreenLock;
+import static org.briarproject.briar.api.android.SettingsConstants.PREF_SCREEN_LOCK;
+import static org.briarproject.briar.api.android.SettingsConstants.PREF_SCREEN_LOCK_TIMEOUT;
+import static org.briarproject.briar.api.android.SettingsConstants.SETTINGS_NAMESPACE;
 
 @ThreadSafe
 @MethodsNotNullByDefault

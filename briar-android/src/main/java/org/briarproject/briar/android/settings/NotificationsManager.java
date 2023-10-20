@@ -27,15 +27,15 @@ import static java.util.logging.Logger.getLogger;
 import static org.briarproject.bramble.util.LogUtils.logDuration;
 import static org.briarproject.bramble.util.LogUtils.logException;
 import static org.briarproject.bramble.util.LogUtils.now;
-import static org.briarproject.briar.android.settings.SettingsFragment.SETTINGS_NAMESPACE;
-import static org.briarproject.briar.api.android.AndroidNotificationManager.PREF_NOTIFY_BLOG;
-import static org.briarproject.briar.api.android.AndroidNotificationManager.PREF_NOTIFY_FORUM;
-import static org.briarproject.briar.api.android.AndroidNotificationManager.PREF_NOTIFY_GROUP;
-import static org.briarproject.briar.api.android.AndroidNotificationManager.PREF_NOTIFY_PRIVATE;
-import static org.briarproject.briar.api.android.AndroidNotificationManager.PREF_NOTIFY_RINGTONE_NAME;
-import static org.briarproject.briar.api.android.AndroidNotificationManager.PREF_NOTIFY_RINGTONE_URI;
-import static org.briarproject.briar.api.android.AndroidNotificationManager.PREF_NOTIFY_SOUND;
-import static org.briarproject.briar.api.android.AndroidNotificationManager.PREF_NOTIFY_VIBRATION;
+import static org.briarproject.briar.api.android.SettingsConstants.PREF_NOTIFY_BLOG;
+import static org.briarproject.briar.api.android.SettingsConstants.PREF_NOTIFY_FORUM;
+import static org.briarproject.briar.api.android.SettingsConstants.PREF_NOTIFY_GROUP;
+import static org.briarproject.briar.api.android.SettingsConstants.PREF_NOTIFY_PRIVATE;
+import static org.briarproject.briar.api.android.SettingsConstants.PREF_NOTIFY_RINGTONE_NAME;
+import static org.briarproject.briar.api.android.SettingsConstants.PREF_NOTIFY_RINGTONE_URI;
+import static org.briarproject.briar.api.android.SettingsConstants.PREF_NOTIFY_SOUND;
+import static org.briarproject.briar.api.android.SettingsConstants.PREF_NOTIFY_VIBRATION;
+import static org.briarproject.briar.api.android.SettingsConstants.SETTINGS_NAMESPACE;
 
 @MethodsNotNullByDefault
 @ParametersNotNullByDefault

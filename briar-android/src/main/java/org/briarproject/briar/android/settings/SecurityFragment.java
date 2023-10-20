@@ -22,14 +22,12 @@ import static java.util.Objects.requireNonNull;
 import static org.briarproject.briar.android.AppModule.getAndroidComponent;
 import static org.briarproject.briar.android.settings.SettingsActivity.enableAndPersist;
 import static org.briarproject.briar.android.util.UiUtils.hasScreenLock;
+import static org.briarproject.briar.api.android.SettingsConstants.PREF_SCREEN_LOCK;
+import static org.briarproject.briar.api.android.SettingsConstants.PREF_SCREEN_LOCK_TIMEOUT;
 
 @MethodsNotNullByDefault
 @ParametersNotNullByDefault
 public class SecurityFragment extends PreferenceFragmentCompat {
-
-	public static final String PREF_SCREEN_LOCK = "pref_key_lock";
-	public static final String PREF_SCREEN_LOCK_TIMEOUT =
-			"pref_key_lock_timeout";
 
 	@Inject
 	ViewModelProvider.Factory viewModelFactory;

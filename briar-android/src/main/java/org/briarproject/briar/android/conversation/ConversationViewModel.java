@@ -68,11 +68,13 @@ import static java.util.logging.Logger.getLogger;
 import static org.briarproject.bramble.util.LogUtils.logDuration;
 import static org.briarproject.bramble.util.LogUtils.logException;
 import static org.briarproject.bramble.util.LogUtils.now;
-import static org.briarproject.briar.android.settings.SettingsFragment.SETTINGS_NAMESPACE;
 import static org.briarproject.briar.android.util.UiUtils.observeForeverOnce;
 import static org.briarproject.briar.android.view.TextSendController.SendState.ERROR;
 import static org.briarproject.briar.android.view.TextSendController.SendState.SENT;
 import static org.briarproject.briar.android.view.TextSendController.SendState.UNEXPECTED_TIMER;
+import static org.briarproject.briar.api.android.SettingsConstants.SETTINGS_NAMESPACE;
+import static org.briarproject.briar.api.android.SettingsConstants.SHOW_ONBOARDING_IMAGE;
+import static org.briarproject.briar.api.android.SettingsConstants.SHOW_ONBOARDING_INTRODUCTION;
 import static org.briarproject.briar.api.autodelete.AutoDeleteConstants.NO_AUTO_DELETE_TIMER;
 import static org.briarproject.briar.api.autodelete.AutoDeleteManager.DEFAULT_TIMER_DURATION;
 import static org.briarproject.briar.api.messaging.PrivateMessageFormat.TEXT_IMAGES;
@@ -84,11 +86,6 @@ public class ConversationViewModel extends DbViewModel
 
 	private static final Logger LOG =
 			getLogger(ConversationViewModel.class.getName());
-
-	private static final String SHOW_ONBOARDING_IMAGE =
-			"showOnboardingImage";
-	private static final String SHOW_ONBOARDING_INTRODUCTION =
-			"showOnboardingIntroduction";
 
 	private final TransactionManager db;
 	private final EventBus eventBus;

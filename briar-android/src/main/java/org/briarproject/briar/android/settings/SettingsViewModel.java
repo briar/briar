@@ -54,9 +54,9 @@ import static org.briarproject.bramble.util.AndroidUtils.getSupportedImageConten
 import static org.briarproject.bramble.util.LogUtils.logDuration;
 import static org.briarproject.bramble.util.LogUtils.logException;
 import static org.briarproject.bramble.util.LogUtils.now;
-import static org.briarproject.briar.android.settings.SecurityFragment.PREF_SCREEN_LOCK;
-import static org.briarproject.briar.android.settings.SecurityFragment.PREF_SCREEN_LOCK_TIMEOUT;
-import static org.briarproject.briar.android.settings.SettingsFragment.SETTINGS_NAMESPACE;
+import static org.briarproject.briar.api.android.SettingsConstants.PREF_SCREEN_LOCK;
+import static org.briarproject.briar.api.android.SettingsConstants.PREF_SCREEN_LOCK_TIMEOUT;
+import static org.briarproject.briar.api.android.SettingsConstants.SETTINGS_NAMESPACE;
 
 @MethodsNotNullByDefault
 @ParametersNotNullByDefault

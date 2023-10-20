@@ -37,8 +37,6 @@ import static org.briarproject.briar.android.util.UiUtils.tryToStartActivity;
 @ParametersNotNullByDefault
 public class SettingsFragment extends PreferenceFragmentCompat {
 
-	public static final String SETTINGS_NAMESPACE = "android-ui";
-
 	private static final String PREF_KEY_AVATAR = "pref_key_avatar";
 	private static final String PREF_KEY_SHARE_LINK = "pref_key_share_app_link";
 	private static final String PREF_KEY_FEEDBACK = "pref_key_send_feedback";
