@@ -56,6 +56,19 @@ public abstract class UiTest {
 		getApplicationContext().startActivity(i);
 	}
 
+	protected void disableOnboarding() {
+		try {
+			Settings settings = new Settings();
+			settings.putBoolean(SHOW_ONBOARDING_TRANSPORTS, false);
+			settings.putBoolean(SHOW_ONBOARDING_IMAGE, false);
+			settings.putBoolean(SHOW_ONBOARDING_INTRODUCTION, false);
+			settings.putBoolean(SHOW_ONBOARDING_REVEAL_CONTACTS, false);
+			settingsManager.mergeSettings(settings, SETTINGS_NAMESPACE);
+		} catch (DbException e) {
+			throw new AssertionError(e);
+		}
+	}
+
 	@NotNullByDefault
 	protected class CleanAccountTestRule<A extends Activity>
 			extends IntentsTestRule<A> {
@@ -77,17 +90,7 @@ public abstract class UiTest {
 			} catch (InterruptedException e) {
 				throw new AssertionError(e);
 			}
-			try {
-				Settings settings = new Settings();
-				settings.putBoolean(SHOW_ONBOARDING_TRANSPORTS, false);
-				settings.putBoolean(SHOW_ONBOARDING_IMAGE, false);
-				settings.putBoolean(SHOW_ONBOARDING_INTRODUCTION, false);
-				settings.putBoolean(SHOW_ONBOARDING_REVEAL_CONTACTS, false);
-				settingsManager.mergeSettings(settings, SETTINGS_NAMESPACE);
-			} catch (DbException e) {
-				throw new AssertionError(e);
-			}
+			disableOnboarding();
 		}
 	}
-
 }

@@ -23,13 +23,13 @@ public abstract class ScreenshotTest extends UiTest {
 	public static final LocaleTestRule localeTestRule = new LocaleTestRule();
 
 	@Inject
-	protected TestDataCreator testDataCreator;
+	TestDataCreator testDataCreator;
 	@Inject
-	protected ConnectionRegistry connectionRegistry;
+	ConnectionRegistry connectionRegistry;
 	@Inject
-	protected Clock clock;
+	Clock clock;
 
-	protected void screenshot(String name, ActivityScenarioRule<?> rule) {
+	void screenshot(String name, ActivityScenarioRule<?> rule) {
 		rule.getScenario().onActivity(activity -> screenshot(name, activity));
 	}
 
@@ -47,9 +47,4 @@ public abstract class ScreenshotTest extends UiTest {
 			Log.w("Screengrab", "Permission to write screenshot is missing.");
 		}
 	}
-
-	protected long getMinutesAgo(int minutes) {
-		return clock.currentTimeMillis() - minutes * 60 * 1000;
-	}
-
 }
