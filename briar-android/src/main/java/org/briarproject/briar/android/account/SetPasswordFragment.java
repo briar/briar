@@ -16,6 +16,7 @@ import com.google.android.material.textfield.TextInputLayout;
 
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.login.StrengthMeter;
+import org.briarproject.briar.android.util.AccountSetUpCriteria;
 import org.briarproject.nullsafety.MethodsNotNullByDefault;
 import org.briarproject.nullsafety.ParametersNotNullByDefault;
 
@@ -129,7 +130,8 @@ public class SetPasswordFragment extends SetupFragment {
 				getString(R.string.passwords_do_not_match),
 				password2.length() > 0 && !passwordsMatch);
 
-		boolean meetsCriteria = checkCriteria(password1);
+		AccountSetUpCriteria accountSetUpCriteria = new AccountSetUpCriteria();
+		boolean meetsCriteria = accountSetUpCriteria.checkCriteria(password1);
 		if (!meetsCriteria) {
 			passwordCriteria.setVisibility(VISIBLE);
 		} else {
@@ -140,40 +142,6 @@ public class SetPasswordFragment extends SetupFragment {
 		nextButton.setEnabled(enabled);
 		passwordConfirmation.setOnEditorActionListener(enabled ? this : null);
 
-	}
-
-	public boolean checkCriteria(String enteredPassword) {
-		Character[] symbols = {'!','@','#','$','%','^','&','*','(',')','_','+','-','=','{','}','[',']',':',';','"','<','>','?','/','|'};
-		ArrayList<Character> specialCharacters =
-				new ArrayList<>(Arrays.asList(symbols));
-		String upperCaseAlphabets = "QWERTYUIOPASDFGHJKLZXCVBNM";
-		String lowerCaseAlphabets = "qwertyuiopasdfghjklzxcvbnm";
-		String digits = "1234567890";
-		boolean containsSymbol = false;
-		boolean containsUpperCase = false;
-		boolean containsLowerCase = false;
-		boolean containsdigit = false;
-		for (char character : enteredPassword.toCharArray()) {
-			if (!containsSymbol || !containsdigit || !containsLowerCase || !containsUpperCase) {
-				if (specialCharacters.contains(character)) {
-					containsSymbol = true;
-				}
-				if (upperCaseAlphabets.contains(String.valueOf(character))) {
-					containsUpperCase = true;
-				}
-				if (lowerCaseAlphabets.contains(String.valueOf(character))) {
-					containsLowerCase = true;
-				}
-				if (digits.contains(String.valueOf(character))) {
-					containsdigit = true;
-				}
-			}
-		}
-		if (containsSymbol && containsdigit && containsLowerCase && containsUpperCase) {
-			return true;
-		} else {
-			return false;
-		}
 	}
 
 	@Override
