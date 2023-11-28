@@ -13,6 +13,7 @@ import org.briarproject.briar.android.Localizer;
 import androidx.appcompat.app.AppCompatActivity;
 
 import static android.content.Intent.ACTION_VIEW;
+import static android.os.Build.VERSION.SDK_INT;
 import static android.view.WindowManager.LayoutParams.FLAG_SECURE;
 import static org.briarproject.briar.android.TestingConstants.PREVENT_SCREENSHOTS;
 
@@ -24,6 +25,8 @@ public class ExpiredActivity extends AppCompatActivity
 		super.onCreate(state);
 
 		if (PREVENT_SCREENSHOTS) getWindow().addFlags(FLAG_SECURE);
+
+		if (SDK_INT >= 31) getWindow().setHideOverlayWindows(true);
 
 		setContentView(R.layout.activity_expired);
 		findViewById(R.id.download_briar_button).setOnClickListener(this);
@@ -38,7 +41,7 @@ public class ExpiredActivity extends AppCompatActivity
 
 	@Override
 	public void onClick(View v) {
-		Uri uri = Uri.parse("https://briarproject.org/download.html");
+		Uri uri = Uri.parse("https://briarproject.org/download-briar");
 		startActivity(new Intent(ACTION_VIEW, uri));
 		finish();
 	}
