@@ -432,7 +432,8 @@ class HotspotManager {
 
 	@RequiresApi(29)
 	private String getPassword() {
-		return getRandomString(8);
+		return getRandomString(4) + "-" + getRandomString(4) + "-" +
+				getRandomString(4) + "-" + getRandomString(4);
 	}
 
 	private static String createWifiLoginString(String ssid, String password) {
