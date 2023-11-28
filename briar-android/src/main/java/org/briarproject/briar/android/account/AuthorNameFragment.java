@@ -17,6 +17,7 @@ import org.briarproject.nullsafety.ParametersNotNullByDefault;
 import javax.annotation.Nullable;
 
 import static org.briarproject.bramble.api.identity.AuthorConstants.MAX_AUTHOR_NAME_LENGTH;
+import static org.briarproject.bramble.api.identity.AuthorConstants.PASSWORD_PLACEHOLDER;
 import static org.briarproject.bramble.util.StringUtils.toUtf8;
 import static org.briarproject.briar.android.util.UiUtils.setError;
 
@@ -59,6 +60,11 @@ public class AuthorNameFragment extends SetupFragment {
 	@Override
 	protected String getHelpText() {
 		return getString(R.string.setup_name_explanation);
+	}
+
+	@Override
+	protected void setPassword() {
+		viewModel.setPassword(PASSWORD_PLACEHOLDER);
 	}
 
 	@Override

@@ -34,6 +34,8 @@ import static org.briarproject.briar.android.util.UiUtils.setInputStateHidden;
 public class SetupActivity extends BaseActivity
 		implements BaseFragmentListener {
 
+	private static final int TARGET_API = 23;
+
 	@Inject
 	ViewModelProvider.Factory viewModelFactory;
 	private SetupViewModel viewModel;
@@ -75,7 +77,7 @@ public class SetupActivity extends BaseActivity
 		showNextFragment(SetPasswordFragment.newInstance());
 	}
 
-	@TargetApi(23)
+	@TargetApi(TARGET_API)
 	private void showDozeFragment() {
 		showNextFragment(DozeFragment.newInstance());
 	}

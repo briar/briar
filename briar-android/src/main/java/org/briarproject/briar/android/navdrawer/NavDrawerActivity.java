@@ -68,6 +68,7 @@ import static android.view.View.VISIBLE;
 import static androidx.core.view.GravityCompat.START;
 import static androidx.drawerlayout.widget.DrawerLayout.LOCK_MODE_LOCKED_CLOSED;
 import static androidx.lifecycle.Lifecycle.State.STARTED;
+import static java.util.concurrent.TimeUnit.DAYS;
 import static java.util.logging.Logger.getLogger;
 import static org.briarproject.bramble.api.lifecycle.LifecycleManager.LifecycleState.RUNNING;
 import static org.briarproject.bramble.api.plugin.Plugin.State.ACTIVE;
@@ -75,10 +76,10 @@ import static org.briarproject.bramble.api.plugin.Plugin.State.ENABLING;
 import static org.briarproject.bramble.api.plugin.Plugin.State.STARTING_STOPPING;
 import static org.briarproject.briar.android.BriarService.EXTRA_STARTUP_FAILED;
 import static org.briarproject.briar.android.BriarService.EXTRA_START_RESULT;
+import static org.briarproject.briar.android.TestingConstants.EXPIRY_DATE;
 import static org.briarproject.briar.android.TestingConstants.IS_DEBUG_BUILD;
 import static org.briarproject.briar.android.activity.RequestCodes.REQUEST_PASSWORD;
 import static org.briarproject.briar.android.navdrawer.IntentRouter.handleExternalIntent;
-import static org.briarproject.briar.android.util.UiUtils.getDaysUntilExpiry;
 import static org.briarproject.briar.android.util.UiUtils.observeOnce;
 import static org.briarproject.briar.android.util.UiUtils.resolveColorAttribute;
 
@@ -397,6 +398,11 @@ public class NavDrawerActivity extends BriarActivity implements
 		} else {
 			expiryWarning.setVisibility(GONE);
 		}
+	}
+
+	public static long getDaysUntilExpiry() {
+		long now = System.currentTimeMillis();
+		return (EXPIRY_DATE - now) / DAYS.toMillis(1);
 	}
 
 	private void initializeTransports() {

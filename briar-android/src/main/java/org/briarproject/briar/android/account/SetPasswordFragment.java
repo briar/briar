@@ -159,7 +159,8 @@ public class SetPasswordFragment extends SetupFragment {
 		}
 	}
 
-	private void setPassword() {
+	@Override
+	public void setPassword() {
 		viewModel.setPassword(passwordEntry.getText().toString());
 	}
 

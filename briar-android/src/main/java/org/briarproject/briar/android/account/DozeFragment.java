@@ -22,6 +22,7 @@ import static android.view.View.INVISIBLE;
 import static android.view.View.VISIBLE;
 import static android.widget.Toast.LENGTH_LONG;
 import static org.briarproject.android.dontkillmelib.DozeUtils.getDozeWhitelistingIntent;
+import static org.briarproject.bramble.api.identity.AuthorConstants.PASSWORD_PLACEHOLDER;
 import static org.briarproject.briar.android.activity.RequestCodes.REQUEST_DOZE_WHITELISTING;
 import static org.briarproject.briar.android.util.UiUtils.showOnboardingDialog;
 
@@ -87,6 +88,11 @@ public class DozeFragment extends SetupFragment
 	@Override
 	protected String getHelpText() {
 		return getString(R.string.dnkm_doze_explanation);
+	}
+
+	@Override
+	protected void setPassword() {
+		viewModel.setPassword(PASSWORD_PLACEHOLDER);
 	}
 
 	@Override

@@ -266,15 +266,15 @@ public class BriarService extends Service {
 
 	private void maybeClearGlideCache() {
 		if (isUiThread()) {
-			maybeClearGlideCacheUiThread();
+			clearGlideCacheUiThreadIfTimedOut();
 		} else {
 			LOG.warning("Low memory callback was not called on main thread");
-			androidExecutor.runOnUiThread(this::maybeClearGlideCacheUiThread);
+			androidExecutor.runOnUiThread(this::clearGlideCacheUiThreadIfTimedOut);
 		}
 	}
 
 	@UiThread
-	private void maybeClearGlideCacheUiThread() {
+	private void clearGlideCacheUiThreadIfTimedOut() {
 		long now = clock.currentTimeMillis();
 		if (now - glideCacheCleared >= MIN_GLIDE_CACHE_CLEAR_INTERVAL_MS) {
 			LOG.info("Clearing Glide cache");
