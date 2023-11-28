@@ -101,6 +101,8 @@ public abstract class BaseActivity extends AppCompatActivity
 		//          unlock screen is shown.
 		if (PREVENT_SCREENSHOTS) getWindow().addFlags(FLAG_SECURE);
 
+		if (SDK_INT >= 31) getWindow().setHideOverlayWindows(true);
+
 		for (ActivityLifecycleController alc : lifecycleControllers) {
 			alc.onActivityCreate(this);
 		}

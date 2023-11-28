@@ -33,11 +33,16 @@
 		tools:ignore="ScopedStorage" />
 	<uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
 
-	<uses-permission-sdk-23 android:name="android.permission.ACCESS_FINE_LOCATION"
+	<uses-permission-sdk-23
+		android:name="android.permission.ACCESS_FINE_LOCATION"
 		android:maxSdkVersion="32" />
 	<uses-permission-sdk-23 android:name="android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS" />
 	<uses-permission-sdk-23 android:name="android.permission.USE_BIOMETRIC" />
 	<uses-permission-sdk-23 android:name="android.permission.FOREGROUND_SERVICE" />
+
+	<uses-permission
+		android:name="android.permission.HIDE_OVERLAY_WINDOWS"
+		tools:targetApi="31" />
 
 	<application
 		android:name="org.briarproject.briar.android.BriarApplicationImpl"
