@@ -26,6 +26,9 @@
   <string name="dnkm_xiaomi_button">Proteger o Briar</string>
   <string name="dnkm_xiaomi_help">Se o Briar não estiver fixado à lista de aplicativos recentes, ele não poderá ser executado em segundo plano.</string>
   <string name="dnkm_xiaomi_dialog_body_old">1. Abra a lista de aplicativos recentes (também chamada de alternador de aplicativos)\n\n2. Deslize para baixo na imagem do Briar para mostrar o ícone de cadeado\n\n3. Se o cadeado não estiver trancado, toque para trancá-lo</string>
+  <string name="dnkm_xiaomi_dialog_body_new">1. Abra a lista de aplicativos recentes (também chamada de alternador de aplicativos)\n\n2. Se Briar tiver uma pequena imagem de um cadeado ao lado de seu nome, então você não precisa fazer nada\n\n3. Se não houver cadeado, pressione e segure a imagem de Briar até que o botão de cadeado apareça e, em seguida, toque nele</string>
+  <string name="dnkm_xiaomi_lock_apps_text">Toque no botão abaixo para abrir as configurações de segurança. Toque em \"Aumentar velocidade\", depois toque em \"Bloquear aplicativos\" e verifique se Briar está definido como \"Bloqueado\".</string>
+  <string name="dnkm_xiaomi_lock_apps_help">Se o Briar não estiver definido como \"Bloqueado\" na tela \"Bloquear aplicativos\", ele não poderá ser executado em segundo plano.</string>
   <string name="dnkm_warning_dozed_1">Briar não conseguiu executar no background</string>
   <!--Login-->
   <string name="enter_password">Senha</string>
@@ -153,6 +156,7 @@
   <string name="error_start_activity">Indisponível no seu sistema</string>
   <string name="status_heading">Status:</string>
   <string name="error">Erro</string>
+  <string name="info">Informação</string>
   <!--Contacts and Private Conversations-->
   <string name="no_contacts">Sem contatos para exibir</string>
   <string name="no_contacts_action">Toque no ícone + para adicionar um contato</string>
@@ -226,6 +230,7 @@
   <string name="menu_contact">Contato</string>
   <!--Adding Contacts-->
   <string name="add_contact_title">Adicionar contato que está próximo</string>
+  <string name="add_contact_error_two_way">Vocês dois escanearam os códigos QR um do outro?</string>
   <string name="face_to_face">Você deve estar frente-a-frente com a pessoa que deseja adicionar como contato.\n\nIsso evita que alguém se passe por você ou leia suas mensagens no futuro.</string>
   <string name="continue_button">Continuar</string>
   <string name="try_again_button">Tente novamente</string>
@@ -233,14 +238,18 @@
   <string name="exchanging_contact_details">Transferindo detalhes do contato\u2026</string>
   <string name="contact_added_toast">Contato adicionado: %s</string>
   <string name="contact_already_exists">Contato %s já existe</string>
+  <string name="contact_already_exists_general">O contato já existe</string>
   <string name="qr_code_invalid">O código QR é inválido</string>
   <string name="qr_code_too_old_1">O código QR que você escaneou é de uma versão mais antiga do Briar.\n\nPor favor, peça ao seu contato para atualizar para a versão mais recente e tente novamente.</string>
   <string name="qr_code_too_new_1">O código QR que você escaneou é de uma versão mais recente do Briar.\n\nPor favor, atualize para a versão mais recente e tente novamente.</string>
+  <string name="mailbox_qr_code_for_contact">O código QR que você escaneou vem da Caixa de Correio Briar.\n\nSe você quiser vincular uma Caixa de Correio, escolha Configurações &gt; Caixa de correio no menu Briar.</string>
+  <string name="qr_code_format_unknown">O código QR que você escaneou não se destina a adicionar um contato Briar.\n\nDigitalize o código QR mostrado na tela do seu contato.</string>
   <string name="camera_error">Erro da câmera</string>
   <string name="connecting_to_device">Conectando a device\u2026</string>
   <string name="authenticating_with_device">Autenticando com o dispositivo\u2026</string>
   <string name="connection_error_title">Não foi possível conectar-se ao seu contato</string>
   <string name="connection_error_feedback">Se o problema persistir, por favor <a href="feedback">envie um feedback</a> para nos ajudar a melhorar o app.</string>
+  <string name="info_both_must_scan">Você deve escanear os códigos QR um do outro</string>
   <!--Adding Contacts Remotely-->
   <string name="add_contact_remotely_title_case">Adicionar contato à distância</string>
   <string name="add_contact_nearby_title">Adicionar contato que está próximo</string>
@@ -299,6 +308,7 @@
   <string name="different_person_button">Pessoa diferente</string>
   <string name="duplicate_link_dialog_text_3">%1$s e %2$s enviaram o mesmo link para você.\n\nUm deles pode estar tentando descobrir quem são seus contatos.\n\nNão diga a eles que você recebeu o mesmo link de outra pessoa.</string>
   <string name="pending_contact_updated_toast">Contato pendente atualizado</string>
+  <string name="info_both_must_enter_links">Você deve adicionar os links um do outro</string>
   <!--Peer trust levels-->
   <string name="peer_trust_level_unverified">Contato não verificado</string>
   <string name="peer_trust_level_verified">Contato verificado</string>
@@ -332,6 +342,7 @@
   <string name="connect_via_bluetooth_intro">Caso as conexões Bluetooth não funcionem automaticamente, você pode usar essa tela para se conectar manualmente.\n\nSeu contato precisa estar próximo para isso dar certo.\n\nVocê e seu contato devem apertar \"Iniciar\" ao mesmo tempo.</string>
   <string name="connect_via_bluetooth_already_discovering">Tentando se conectar via Bluetooth no momento. Por favor, tente novamente em breve.</string>
   <string name="connect_via_bluetooth_no_location_permission">Não há como continuar sem a permissão de localização</string>
+  <string name="connect_via_bluetooth_no_bluetooth_permission">Não é possível continuar sem permissão de dispositivos próximos</string>
   <string name="connect_via_bluetooth_start">Conectando-se via Bluetooth...</string>
   <string name="connect_via_bluetooth_success">Conectado com sucesso via Bluetooth</string>
   <string name="connect_via_bluetooth_error">Não foi possível se conectar via Bluetooth.</string>
@@ -431,6 +442,10 @@
   <string name="forum_declined_toast">Convite recusado</string>
   <string name="shared_by_format">Compartilhado por %s</string>
   <string name="forum_invitation_already_sharing">Já compartilhado</string>
+  <string name="forum_invitation_already_invited">Convite já enviado</string>
+  <string name="forum_invitation_invite_received">Convite já recebido</string>
+  <string name="forum_invitation_not_supported">Não suportado por este contato</string>
+  <string name="forum_invitation_error">Erro. Isto é um bug e não é culpa sua</string>
   <string name="forum_invitation_response_accepted_sent">Você aceitou o convite do fórum do %s.</string>
   <string name="forum_invitation_response_declined_sent">Você recusou o convite de Fórum de %s.</string>
   <string name="forum_invitation_response_declined_auto">O convite ao fórum de %s foi automaticamente recusado.</string>
@@ -482,7 +497,9 @@
   <string name="blogs_rss_feeds_import">Importar Feed RSS</string>
   <string name="blogs_rss_feeds_import_button">Importar</string>
   <string name="blogs_rss_feeds_import_hint">Entre a URL do feed RSS</string>
+  <string name="blogs_rss_feeds_import_progress">Importando RSS Feed...</string>
   <string name="blogs_rss_feeds_import_error">Nós lamentamos! Houve um erro ao importar seu Feed.</string>
+  <string name="blogs_rss_feeds_import_title">Importar feed do arquivo</string>
   <string name="blogs_rss_feeds">Feeds RSS</string>
   <string name="blogs_rss_feeds_manage_imported">Importado:</string>
   <string name="blogs_rss_feeds_manage_author">Autor:</string>
@@ -594,7 +611,9 @@
   <string name="mailbox_setup_download_link">Compartilhar Link de Download</string>
   <string name="mailbox_setup_button_scan">Escanear código QR do Mailbox</string>
   <string name="permission_camera_qr_denied_body">Você negou acesso à câmera, mas escanear um código QR requer o uso da câmera.\n\nPor favor, considere conceder acesso.</string>
+  <string name="mailbox_setup_connecting">Conectando à caixa de email...</string>
   <!--This string is shown when connecting to a Mailbox for the first time. The placeholder will be replaced with a duration, e.g. "2 minutes".-->
+  <string name="mailbox_setup_connecting_info">Isso pode levar até %1s</string>
   <string name="mailbox_setup_already_paired_title">Mailbox já vinculado</string>
   <string name="mailbox_setup_already_paired_description">Desvincule o Mailbox no seu outro dispositivo e tente de novo.</string>
   <string name="mailbox_setup_io_error_title">Não foi possível conectar</string>
@@ -613,7 +632,9 @@
   <string name="mailbox_status_connected_title">Mailbox está em execução</string>
   <string name="mailbox_status_problem_title">Briar está tendo problemas em se conectar ao Mailbox</string>
   <string name="mailbox_status_failure_title">Mailbox está indisponível</string>
+  <string name="mailbox_status_app_too_old_title">O Briar é um antigo</string>
   <string name="mailbox_status_app_too_old_message">Atualize Briar para a versão mais recente do app e tente novamente.</string>
+  <string name="mailbox_status_mailbox_too_old_title">A Caixa de email é muito antiga</string>
   <string name="mailbox_status_mailbox_too_old_message">Atualize sua Caixa de Entrada para a versão mais recente do app e tente novamente.</string>
   <string name="mailbox_status_check_button">Verificar Conexão</string>
   <!--Example for string substitution: Last connection: 3min ago-->
@@ -677,6 +698,8 @@
   <string name="disappearing_messages_summary">Fazer as mensagens futuras nessa conversa desaparecerem automaticamente após 7\u00A0dias.</string>
   <!--Settings Actions-->
   <string name="pref_category_actions">Ações</string>
+  <string name="share_app_link">Compartilhar link de download</string>
+  <string name="share_app_link_text">Baixe o Briar em %s</string>
   <string name="send_feedback">Enviar feedback</string>
   <!--Link Warning-->
   <string name="link_warning_title">Aviso sobre Link</string>
@@ -726,14 +749,19 @@
   <string name="permission_camera_title">Permissão da câmera</string>
   <string name="permission_camera_request_body">O Briar precisa acessar a câmera para pode escanear o código QR.</string>
   <string name="permission_location_title">Permissão para localização</string>
+  <string name="permission_nearby_devices_title">Permissão de dispositivos próximos</string>
   <string name="permission_location_request_body">Para encontrar dispositivos Bluetooth, o Briar precisa de permissão para acessar sua localização.\n\nBriar não armazena sua localização nem a compartilha com ninguém.</string>
   <string name="permission_camera_location_title">Câmera e localização</string>
   <string name="permission_camera_location_request_body">Para escanear o código QR, o Briar precisa de acesso à câmera.\n\nPara encontrar dispositivos Bluetooth, o Briar precisa de permissão para acessar a localização.\n\nBriar não armazena sua localização nem a compartilha com ninguém.</string>
+  <string name="permission_camera_bluetooth_title">Câmera e dispositivos próximos</string>
   <string name="permission_camera_denied_body">Você negou acesso à câmera, mas para adicionar contatos você precisa da câmera.\n\nPor favor, pense em liberar o acesso a ela.</string>
   <string name="permission_location_denied_body">Você desabilitou o acesso à sua localização, no entanto o Briar precisa da permissão para saber se há dispositivos Bluetooth.\n\nPor favor, considere liberar o acesso.</string>
   <string name="permission_location_setting_title">Configuração de localização</string>
   <string name="permission_location_setting_body">A opção de localização de seu dispositivo deve estar ativada para achar outros dispositivos via Bluetooth. Por favor, ative a localização para continuar. Você pode desativá-la em seguida.</string>
   <string name="permission_location_setting_button">Ativar localização</string>
+  <string name="permission_bluetooth_title">Permissão de dispositivos próximos</string>
+  <string name="permission_bluetooth_body">Para usar a comunicação Bluetooth, Briar precisa de permissão para localizar e se conectar a dispositivos próximos.</string>
+  <string name="permission_bluetooth_denied_body">Você negou acesso a dispositivos próximos, mas a Briar precisa dessa permissão para usar Bluetooth.\n\nConsidere conceder acesso.</string>
   <string name="qr_code">Código QR</string>
   <string name="show_qr_code_fullscreen">Mostrar código QR em tela cheia</string>
   <!--App Locking-->
@@ -756,7 +784,10 @@
   <string name="hotspot_notification_title">Compartilhando Briar offline</string>
   <string name="hotspot_button_connected">Próximo</string>
   <string name="permission_hotspot_location_request_body">Para criar um hotspot Wi-Fi, o Briar precisa de permissão para acessar sua localização.\n\nBriar não armazena sua localização nem a compartilha com ninguém.</string>
+  <string name="permission_hotspot_location_request_precise_body">Para criar um hotspot Wi-Fi, o Briar precisa de permissão para acessar sua localização precisa.\n\nBriar não armazena sua localização nem a compartilha com ninguém.</string>
   <string name="permission_hotspot_location_denied_body">Você negou acesso à sua localização, mas o Briar precisa dessa permissão para criar um hotspot Wi-Fi.\n\nPor favor, considere conceder acesso.</string>
+  <string name="permission_hotspot_location_denied_precise_body">Você negou acesso à sua localização precisa, mas a Briar precisa dessa permissão para criar um ponto de acesso Wi-Fi.\n\nConsidere conceder acesso.</string>
+  <string name="permission_hotspot_nearby_wifi_request_body">Para criar um hotspot Wi-Fi, Briar precisa de permissão para acessar dispositivos próximos.</string>
   <string name="wifi_settings_title">Configurações de Wi-Fi</string>
   <string name="wifi_settings_request_enable_body">Para criar um hotspot Wi-Fi, o Briar precisa usar o Wi-Fi. Por favor, ative ele.</string>
   <string name="hotspot_tab_manual">Manual</string>

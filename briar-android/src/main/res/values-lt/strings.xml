@@ -316,6 +316,7 @@
   <string name="peer_trust_level_stranger">Nepažįstamasis</string>
   <!--Introductions-->
   <string name="introduction_onboarding_title">Supažindinkite savo adresatus</string>
+  <string name="introduction_onboarding_text">Supažindinkite adresatus vieną su kitu, kad jie galėtų susisiekti per Briar.</string>
   <string name="introduction_menu_item">Supažindinti</string>
   <string name="introduction_activity_title">Pasirinkite adresatą</string>
   <string name="introduction_not_possible">Jau vyksta vienas supažindinimas tarp šių adresatų. Iš pradžių, leiskite, kad jis būtų užbaigtas. Jeigu jūs ar jūsų adresatai retai būna prisijungę, tuomet tai gali šiek tiek užtrukti.</string>
@@ -398,7 +399,7 @@
   <string name="sharing_status_groups">Tik įkūrėjas gali kviesti naujus narius į grupę. Žemiau yra visi esami grupės nariai.</string>
   <!--Private Groups Revealing Contacts-->
   <string name="groups_reveal_contacts">Atskleisti adresatus</string>
-  <string name="groups_reveal_dialog_message">Galite pasirinkti ar atskleisti adresatus visiems esamiems ir būsimiems šios grupės nariams.\n\nAdresatų atskleidimas paverčia jūsų ryšį su grupe greitesnį ir labiau patikimą, nes galite bendrauti su atskleistais adresatais netgi tuomet, kai grupės įkūrėjas yra atsijungęs.</string>
+  <string name="groups_reveal_dialog_message">Galite pasirinkti, ar atskleisti adresatus visiems esamiems ir būsimiems šios grupės nariams.\n\nAdresatų atskleidimas paverčia jūsų ryšį su grupe greitesniu ir labiau patikimu, nes galite bendrauti su atskleistais adresatais netgi tuomet, kai grupės įkūrėjas yra atsijungęs.</string>
   <string name="groups_reveal_visible">Adresatų sąryšiai yra matomi grupei</string>
   <string name="groups_reveal_visible_revealed_by_us">Adresatų sąryšiai yra matomi grupei (atskleidėte jūs)</string>
   <string name="groups_reveal_visible_revealed_by_contact">Adresatų sąryšiai yra matomi grupei (atskleidė %s)</string>
@@ -453,7 +454,7 @@
   <string name="forum_invitation_response_declined_received">%s atmetė pakvietimą į forumą.</string>
   <string name="sharing_status">Bendrinimo būsena</string>
   <string name="sharing_status_forum">Bet kuris forumo narys gali jį bendrinti su savo adresatais. Jūs bendrinate šį forumą su šiais adresatais. Taip pat gali būti ir kitų narių, kurių nematote.</string>
-  <string name="shared_with">Bendrinama su %1$d (%2$d pasiekiami)</string>
+  <string name="shared_with">Bendrinama su %1$d (Prisijungę: %2$d)</string>
   <plurals name="forums_shared">
     <item quantity="one">Adresatų bendrinamas %d forumas</item>
     <item quantity="few">Adresatų bendrinami %d forumai</item>
@@ -605,7 +606,7 @@
   <!--Mailbox-->
   <string name="mailbox_settings_title">Pašto dėžutė</string>
   <string name="mailbox_setup_title">Pašto dėžutės sąranka</string>
-  <string name="mailbox_setup_intro">Pašto dėžutės leidžia adresatams siųsti jums žinutes, kol esate neprisijungę prie interneto. Žinutės bus siunčiamos į jūsų pašto dėžutę ir saugomos ten tol, kol prisijungsite prie interneto.\n
+  <string name="mailbox_setup_intro">Pašto dėžutė leidžia adresatams siųsti jums žinutes, kai esate neprisijungę prie interneto. Žinutės bus siunčiamos į jūsų pašto dėžutę ir saugomos ten tol, kol prisijungsite prie interneto.\n
 		\nGalite įsidiegti Briar pašto dėžutę laisvame atsarginiame įrenginyje. Palikite įrenginį prijungtą prie maitinimo šaltinio ir belaidžio (Wi-Fi) ryšio, kad jis būtų pastoviai prijungtas prie interneto.</string>
   <string name="mailbox_setup_download_link">Bendrinti atsisiuntimo nuorodą</string>
   <string name="mailbox_setup_button_scan">Skenuoti pašto dėžutės QR kodą</string>
@@ -670,6 +671,8 @@
   <string name="disappearing_messages_summary">Padaryti, kad būsimos žinutės šiame pokalbyje automatiškai išnyktų po 7\u00A0dienų.</string>
   <!--Settings Actions-->
   <string name="pref_category_actions">Veiksmai</string>
+  <string name="share_app_link">Bendrinti atsisiuntimo nuorodą</string>
+  <string name="share_app_link_text">Atsisiųskite Briar apsilankę adresu %s</string>
   <string name="send_feedback">Siųsti atsiliepimą</string>
   <!--Link Warning-->
   <string name="link_warning_title">Įspėjimas apie nuorodą</string>

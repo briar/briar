@@ -26,6 +26,7 @@
   <string name="dnkm_xiaomi_button">Protéger Briar</string>
   <string name="dnkm_xiaomi_help">Si Briar n’est pas verrouillée à la liste des applis récentes, elle ne pourra pas fonctionner en arrière-plan.</string>
   <string name="dnkm_xiaomi_dialog_body_old">1. Ouvrez la liste des applis récentes (aussi appelé sélecteur d’appli)\n\n2. Balayez l’image de Briar vers le bas pour afficher l’icône de verrou\n\n3. Si le verrou n’est pas verrouillé, touchez pour le verrouiller</string>
+  <string name="dnkm_warning_dozed_1">Briar n\'a pas pu fonctionner en arrière-plan</string>
   <!--Login-->
   <string name="enter_password">Mot de passe</string>
   <string name="try_again">Le mot de passe est erroné, réessayez</string>
@@ -226,6 +227,7 @@
   <string name="menu_contact">Contact</string>
   <!--Adding Contacts-->
   <string name="add_contact_title">Ajouter un contact à proximité</string>
+  <string name="add_contact_error_two_way">Avez-vous tous les deux balayer les codes QR de chacun ?</string>
   <string name="face_to_face">Vous devez rencontrer la personne que vous voulez ajouter comme contact, afin d’éviter que quelqu’un se fasse passer pour vous et puisse lire vos messages à l’avenir.</string>
   <string name="continue_button">Poursuivre</string>
   <string name="try_again_button">Ressayer</string>
@@ -233,12 +235,15 @@
   <string name="exchanging_contact_details">Échange des renseignements de contact\u2026</string>
   <string name="contact_added_toast">Contact ajouté : %s</string>
   <string name="contact_already_exists">Le contact %s existe déjà</string>
+  <string name="contact_already_exists_general">Contact déjà existant</string>
   <string name="qr_code_invalid">Le code QR est invalide</string>
+  <string name="qr_code_too_old_1">Le QR code que vous avez scanné provient d’une version plus ancienne de Briar.\n\nVeuillez demander à votre contact de mettre à niveau la version la plus récente et réessayer.</string>
   <string name="camera_error">Erreur de l’appareil photo</string>
   <string name="connecting_to_device">Connexion à l’appareil\u2026</string>
   <string name="authenticating_with_device">Autentification avec l’appareil\u2026</string>
   <string name="connection_error_title">Impossible de se connecter à votre contact</string>
   <string name="connection_error_feedback">Si le problème persiste, veuillez nous <a href="feedback">envoyer une rétroaction</a> pour nous aider à améliorer l’appli.</string>
+  <string name="info_both_must_scan">Vous devez tous les deux balayer les codes QR de chacun</string>
   <!--Adding Contacts Remotely-->
   <string name="add_contact_remotely_title_case">Ajouter un contact à distance</string>
   <string name="add_contact_nearby_title">Ajouter un contact à proximité</string>
@@ -297,7 +302,12 @@
   <string name="different_person_button">Une personne différente</string>
   <string name="duplicate_link_dialog_text_3">%1$s et %2$s vous ont envoyé le même lien.\n\nL\'une de ces personnes pourrait tenter de découvrir qui sont vos contacts.\n\nNe lui dites pas que vous avez reçu le même lien de quelqu’un d’autre.</string>
   <string name="pending_contact_updated_toast">Le contact en attente a été mis à jour</string>
+  <string name="info_both_must_enter_links">Vous devez tous les deux ajouter les liens de chacun</string>
   <!--Peer trust levels-->
+  <string name="peer_trust_level_unverified">Contact non vérifié</string>
+  <string name="peer_trust_level_verified">Contact vérifié</string>
+  <string name="peer_trust_level_ourselves">Moi</string>
+  <string name="peer_trust_level_stranger">Etranger</string>
   <!--Introductions-->
   <string name="introduction_onboarding_title">Présenter vos contacts</string>
   <string name="introduction_onboarding_text">Présentez vos contacts l\'un à l\'autre ainsi ils pourront se contacter via Briar.</string>
@@ -425,6 +435,8 @@
   <string name="forum_declined_toast">L’invitation a été refusée</string>
   <string name="shared_by_format">Partagé par %s</string>
   <string name="forum_invitation_already_sharing">Le forum est déjà partagé</string>
+  <string name="forum_invitation_already_invited">Invitation déjà envoyée</string>
+  <string name="forum_invitation_invite_received">Invitation déjà reçue</string>
   <string name="forum_invitation_response_accepted_sent">Vous avez accepté l’invitation de %s au forum.</string>
   <string name="forum_invitation_response_declined_sent">Vous avez refusé l’invitation de %s au forum.</string>
   <string name="forum_invitation_response_declined_auto">L’invitation au forum provenant de %s a été refusée automatiquement.</string>
@@ -476,7 +488,9 @@
   <string name="blogs_rss_feeds_import">Importer un fil RSS</string>
   <string name="blogs_rss_feeds_import_button">Importer</string>
   <string name="blogs_rss_feeds_import_hint">Saisir l’URL du fil RSS</string>
+  <string name="blogs_rss_feeds_import_progress">Importation d\'un flux RRS</string>
   <string name="blogs_rss_feeds_import_error">Nous sommes désolés ! Une erreur est survenue lors de l’importation de votre fil.</string>
+  <string name="blogs_rss_feeds_import_title">Importer le flux à partir d\'un fichier</string>
   <string name="blogs_rss_feeds">Fils RSS</string>
   <string name="blogs_rss_feeds_manage_imported">Importés :</string>
   <string name="blogs_rss_feeds_manage_author">Auteur :</string>
@@ -587,7 +601,9 @@
   <string name="mailbox_setup_download_link">Partager le lien de téléchargement</string>
   <string name="mailbox_setup_button_scan">Balayer le code QR de Boîte de courriel</string>
   <string name="permission_camera_qr_denied_body">Vous avez refusé l’accès à l’appareil photo, mais le balayage d’un code QR de contacts exige de l’utiliser.\n\nVeuillez envisager d’y accorder l’accès.</string>
+  <string name="mailbox_setup_connecting">Connexion à Mailbox…</string>
   <!--This string is shown when connecting to a Mailbox for the first time. The placeholder will be replaced with a duration, e.g. "2 minutes".-->
+  <string name="mailbox_setup_connecting_info">Cela peut prendre jusqu\'à %1s</string>
   <string name="mailbox_setup_already_paired_title">La Boîte de courriel est déjà reliée</string>
   <string name="mailbox_setup_already_paired_description">Annuler le lien avec la Boîte de courriel sur l’autre appareil et réessayer.</string>
   <string name="mailbox_setup_io_error_title">Connexion impossible</string>
@@ -602,6 +618,7 @@
   <string name="tor_offline_button_check">Vérifiez les paramètres de connexion.</string>
   <string name="mailbox_status_title">État de la Boîte de courriel</string>
   <string name="mailbox_status_connected_title">La Boîte de courriel est en cours d’exécution</string>
+  <string name="mailbox_status_app_too_old_title">Briar est trop ancien</string>
   <!--Example for string substitution: Last connection: 3min ago-->
   <!--Indicates that there never was a connection to the mailbox. Last connection: Never-->
   <string name="mailbox_status_connected_never">Jamais</string>
@@ -721,6 +738,7 @@ copies des messages que vous envoyez.
   <!--Transfer Data via Removable Drives-->
   <string name="removable_drive_menu_title">Se connecter par un lecteur amovible</string>
   <string name="removable_drive_success_receive_title">L’importation est réussie</string>
+  <string name="removable_drive_error_receive_title">Erreur lors de l\'importation de données</string>
   <!--Screenshots-->
   <!--This is a name to be used in screenshots. Feel free to change it to a local name.-->
   <string name="screenshot_alice">Laurence</string>

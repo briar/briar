@@ -364,8 +364,8 @@
   <string name="introduction_response_declined_received">لقد رفض/ت %1$sتقديمه/ا إلى %2$s.</string>
   <string name="introduction_response_declined_received_by_introducee">ي/تقول %1$sأن %2$s قد رفض/ت التقدمة.</string>
   <!--Connect via Bluetooth-->
-  <string name="menu_item_connect_via_bluetooth">الإتصال عبر بلوتوث</string>
-  <string name="connect_via_bluetooth_title">الإتصال عبر البلوتوث</string>
+  <string name="menu_item_connect_via_bluetooth">الاتصال عبر بلوتوث</string>
+  <string name="connect_via_bluetooth_title">الاتصال عبر البلوتوث</string>
   <string name="connect_via_bluetooth_intro">في حالة عدم عمل اتصالات البلوتوث تلقائيًا، يمكنك استخدام هذه الشاشة للاتصال يدويًا.\n\nيجب أن تكون جهة اتصالك قريبة حتى تعمل هذه الميزة.\n\nيجب عليك أنت وجهة اتصالك النقر على \"ابدأ\" في نفس الوقت.</string>
   <string name="connect_via_bluetooth_already_discovering">تحاول بالفعل الاتصال عبر البلوتوث. يُرجى المحاول مجددًا قريبا.</string>
   <string name="connect_via_bluetooth_no_location_permission">لا يمكن المتابعة بدون إذن الموقع</string>

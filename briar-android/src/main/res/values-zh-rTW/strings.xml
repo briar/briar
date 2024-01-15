@@ -4,47 +4,47 @@
   <string name="setup_title">歡迎來到 Briar</string>
   <string name="setup_name_explanation">您的暱稱將顯示在您發佈的任何內容旁。暱稱在創建帳戶後將無法更改。</string>
   <string name="setup_next">下一步</string>
-  <string name="setup_password_intro">設置密碼</string>
-  <string name="setup_password_explanation">您的 Briar 帳戶被加密儲存在您的裝置上，而非在雲端。卸載 Briar 或忘記密碼將導致帳戶無法恢復。請設置不易被猜出的長密碼，比如四個隨機英文單詞，或是由隨機字母、數字和符號組成的十位字符。</string>
-  <string name="dnkm_doze_intro">爲了接收消息，Briar 需要在後臺保持連接。</string>
-  <string name="dnkm_doze_explanation">Briar 需要保持背景網絡連接去接收消息。爲此，請停用電量優化選項。</string>
-  <string name="choose_nickname">設置暱稱</string>
-  <string name="choose_password">設置密碼</string>
-  <string name="confirm_password">確認密碼</string>
+  <string name="setup_password_intro">設定密碼</string>
+  <string name="setup_password_explanation">您的 Briar 帳戶被加密儲存在您的裝置上，而非在雲端。移除 Briar 或忘記密碼將導致帳戶無法恢復。請設定不易被猜出的長密碼，比如四個隨機英文單字，或是由隨機字母、數字和符號組成的十位字元。</string>
+  <string name="dnkm_doze_intro">為了接收訊息，Briar 需要在背景保持連線。</string>
+  <string name="dnkm_doze_explanation">Briar 需要保持背景網路連線以接收訊息。為此，請停用電量最佳化選項。</string>
+  <string name="choose_nickname">設定暱稱</string>
+  <string name="choose_password">設定您的密碼</string>
+  <string name="confirm_password">確認您的密碼</string>
   <string name="name_too_long">暱稱過長</string>
   <string name="password_too_weak">密碼不夠強</string>
   <string name="passwords_do_not_match">兩個密碼並不相同</string>
-  <string name="create_account_button">創建帳戶</string>
-  <string name="more_info">更多信息</string>
+  <string name="create_account_button">建立帳戶</string>
+  <string name="more_info">更多資訊</string>
   <string name="don_t_ask_again">不再詢問</string>
   <string name="dnkm_huawei_protected_text">輕按下方的按鈕將 Briar 加入“受保護的程式”列表。</string>
   <string name="dnkm_huawei_protected_button">保護 Briar</string>
-  <string name="dnkm_huawei_protected_help">如果 Briar 未被加入受保護程式列表，它將無法在背景運行。</string>
+  <string name="dnkm_huawei_protected_help">如果 Briar 未被加入受保護程式列表，它將無法在背景執行。</string>
   <string name="dnkm_huawei_app_launch_text">請輕觸下方按鍵以打開\"啟動軟體\"畫面，確認 Briar 調至\"手動管理\"模式</string>
   <string name="dnkm_huawei_app_launch_help">若 Briar 未調至\"手動管理\"模式，它將無法在背景中執行</string>
-  <string name="dnkm_xiaomi_text">為能在背景中執行，Briar 須被鎖定在最近使用應用軟體清單上</string>
+  <string name="dnkm_xiaomi_text">為了能在背景中執行，Briar 須被鎖定在最近使用的應用程式清單上</string>
   <string name="dnkm_xiaomi_button">保護 Briar</string>
-  <string name="dnkm_xiaomi_help">若 Briar 未鎖到最近使用的程式清單裏，它將無法背景中執行。</string>
-  <string name="dnkm_xiaomi_dialog_body_old">1. 打開最近使用的程式清單(亦稱軟體快速切換)n\n2，滑動到軟體圖像後會出現掛鎖圖標 \n\n3，若掛鎖為打開狀態，請輕觸它改變成關鎖。</string>
-  <string name="dnkm_xiaomi_dialog_body_new">1. 打開最近使用的程式清單(亦稱軟體快速切換)n\n2。若 Briar 旁邊出現掛鎖圖標則無須其它更動 \n\n3，若無掛鎖則輕觸軟體圖標直到現出掛鎖按鍵，點觸掛鎖進行更動。</string>
+  <string name="dnkm_xiaomi_help">若 Briar 未鎖到最近使用的應用程式清單裡，它將無法在背景中執行。</string>
+  <string name="dnkm_xiaomi_dialog_body_old">1. 開啟最近使用的應用程式清單(亦稱軟體快速切換)n\n2，滑動到軟體圖像後會出現掛鎖圖示 \n\n3，若掛鎖為開啟狀態，請輕觸它改變成關鎖。</string>
+  <string name="dnkm_xiaomi_dialog_body_new">1. 開啟最近使用的應用程式清單(亦稱軟體快速切換)n\n2。若 Briar 旁邊出現掛鎖圖示則無須其它更動 \n\n3，若無掛鎖則輕觸軟體圖示直到現出掛鎖按鈕，點觸掛鎖進行更動。</string>
   <string name="dnkm_xiaomi_lock_apps_text">請輕觸下方按鍵以開啟安全設定。觸點\"加速\"後再觸\"鎖定應用軟體\"，將其設置為鎖定狀態。</string>
   <string name="dnkm_xiaomi_lock_apps_help">若 Briar 在\"鎖定應用\"的畫面中未被設置為\"鎖定\"，則無法在背景中執行。</string>
-  <string name="dnkm_warning_dozed_1">Briar 無法在背景運行。</string>
+  <string name="dnkm_warning_dozed_1">Briar 無法在背景中執行。</string>
   <!--Login-->
   <string name="enter_password">密碼</string>
   <string name="try_again">密碼錯誤，請重試</string>
   <string name="dialog_title_cannot_check_password">無法檢查密碼</string>
-  <string name="dialog_message_cannot_check_password">Briar 無法代您檢查密碼，請重新啟動設備來解決此問題。
+  <string name="dialog_message_cannot_check_password">Briar 無法檢查您的密碼，請重新啟動您的裝置來解決此問題。
 </string>
-  <string name="sign_in_button">登錄</string>
+  <string name="sign_in_button">登入</string>
   <string name="forgotten_password">我忘記了密碼</string>
   <string name="dialog_title_lost_password">忘記密碼</string>
   <string name="dialog_message_lost_password">您的 Briar 帳戶被加密儲存在您的裝置上，而非在雲端。因此我們無法重置您的密碼。您是否希望刪除帳戶，重新開始？\n\n注意：刪除帳戶將永久失去您以前的身份、聯絡人和訊息。</string>
   <string name="startup_failed_activity_title">Briar 啓動失敗</string>
-  <string name="startup_failed_clock_error">由於您設備上的時間有誤，Briar 無法啟動
+  <string name="startup_failed_clock_error">由於您裝置上的時間有誤，Briar 無法啟動
 
-請重新設置好正確的時間後再試試。</string>
-  <string name="startup_failed_db_error">Briar 無法打開存有您帳號、聯絡人資料及聊天訊息的資料庫。\n\n請將 Briar 更新至最新版後再試試。再不然就得新建帳號，其方式是在彈出的密碼視窗中選取\"遺忘密碼\"來建立新帳號。</string>
+請重新設定好正確的時間後再試試。</string>
+  <string name="startup_failed_db_error">Briar 無法開啟存有您帳號、聯絡人資料及聊天訊息的資料庫。\n\n請將 Briar 更新至最新版後再試試。再不然就得新建帳號，其方式是在彈出的密碼視窗中選取\"忘記密碼\"來建立新帳號。</string>
   <string name="startup_failed_data_too_old_error">您的帳號在是之前的舊版本應用創建，但在本版本中無法啟用。\n\n您必須重新安裝舊的版本或是另設新帳號，請在彈出的密碼視窗中選取\"遺忘密碼\"來設新帳號。</string>
   <string name="startup_failed_data_too_new_error">您的帳號在是新版本的應用中建立，但在舊版中無法開啟。請更新到最新版後再試試看</string>
   <string name="startup_failed_service_error">Briar 無法啟動所需的元件\n\n請昇級至最新版後再重試</string>
@@ -728,6 +728,7 @@
   <string name="permission_camera_title">相機權限</string>
   <string name="permission_camera_request_body">Briar 需要獲得相機權限以掃描二維碼。</string>
   <string name="permission_location_title">位置權限</string>
+  <string name="permission_nearby_devices_title">精近設備授權</string>
   <string name="permission_location_request_body">Briar 需要位置信息權限以發現藍牙裝置。\n\nBriar 不會存儲您的位置或將它分享給任何人。</string>
   <string name="permission_camera_location_title">相機和位置</string>
   <string name="permission_camera_location_request_body"> Briar 需要相機權限以掃描二維碼。\n\nBriar 需要位置信息權限以發現藍牙裝置。\n\nBriar 不會存儲您的位置或將它分享給任何人。</string>
