@@ -37,7 +37,7 @@ buildscript {
 		junit_version = "4.13.2"
 		jmock_version = '2.12.0'
 		mockwebserver_version = '4.10.0'
-		onionwrapper_version = '0.0.6'
+		onionwrapper_version = '0.0.7'
 	}
 	dependencies {
 		// upgrading this let's us run into https://github.com/gradle/gradle/issues/20330
