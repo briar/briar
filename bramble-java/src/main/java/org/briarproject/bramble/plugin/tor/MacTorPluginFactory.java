@@ -19,7 +19,6 @@ import org.briarproject.onionwrapper.CircumventionProvider;
 import org.briarproject.onionwrapper.LocationUtils;
 import org.briarproject.onionwrapper.MacTorWrapper;
 import org.briarproject.onionwrapper.TorWrapper;
-import org.briarproject.onionwrapper.UnixTorWrapper;
 
 import java.io.File;
 import java.util.concurrent.Executor;
@@ -80,6 +79,6 @@ public class MacTorPluginFactory extends TorPluginFactory {
 		return new TorPlugin(ioExecutor, wakefulIoExecutor, networkManager,
 				locationUtils, torSocketFactory, circumventionProvider,
 				batteryManager, backoff, torRendezvousCrypto, tor, callback,
-				MAX_LATENCY, MAX_IDLE_TIME, true);
+				MAX_LATENCY, MAX_IDLE_TIME);
 	}
 }

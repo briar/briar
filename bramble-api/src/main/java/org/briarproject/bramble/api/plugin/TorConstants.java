@@ -46,6 +46,7 @@ public interface TorConstants {
 
 	/**
 	 * Reason flag returned by {@link Plugin#getReasonsDisabled()}.
+	 * Currently unused, but may be worth keeping for future use.
 	 */
 	int REASON_COUNTRY_BLOCKED = 8;
 }
