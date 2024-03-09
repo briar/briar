@@ -40,15 +40,12 @@ class TorSummaryProvider implements SummaryProvider<ListPreference> {
 		String country = locationUtils.getCurrentCountry();
 		String countryName = getCountryDisplayName(country);
 
-		boolean blocked =
-				circumventionProvider.isTorProbablyBlocked(country);
-		boolean useBridges = circumventionProvider.doBridgesWork(country);
+		boolean useBridgesByDefault =
+				circumventionProvider.shouldUseBridges(country);
 		String setting =
 				ctx.getString(R.string.tor_network_setting_without_bridges);
-		if (blocked && useBridges) {
+		if (useBridgesByDefault) {
 			setting = ctx.getString(R.string.tor_network_setting_with_bridges);
-		} else if (blocked) {
-			setting = ctx.getString(R.string.tor_network_setting_never);
 		}
 		return ctx.getString(R.string.tor_network_setting_summary, setting,
 				countryName);
