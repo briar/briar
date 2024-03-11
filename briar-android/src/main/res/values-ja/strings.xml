@@ -36,7 +36,7 @@
   <string name="sign_in_button">サインイン</string>
   <string name="forgotten_password">パスワードを忘れました</string>
   <string name="dialog_title_lost_password">パスワードを紛失</string>
-  <string name="dialog_message_lost_password">Briarアカウントはクラウド上ではなく、暗号化さた上であなたの端末に保存さています。したがって、Briarはパスワードをリセットできません。アカウントを削除して、はじめからやり直しますか？\n\n注意：あなたのID、連絡先、メッセージは永久に失われます。</string>
+  <string name="dialog_message_lost_password">Briarアカウントはクラウド上ではなく、暗号化された上であなたの端末に保存さています。したがって、Briarはパスワードをリセットできません。アカウントを削除して、はじめからやり直しますか？\n\n注意：あなたのID、連絡先、メッセージは永久に失われます。</string>
   <string name="startup_failed_activity_title">Briarの起動に失敗</string>
   <string name="startup_failed_clock_error">お使いの端末の時計が正しくないため、Briarは起動できませんでした。\n\n端末の時計を正しい時刻に設定してから、もう一度試してください。</string>
   <string name="startup_failed_db_error">Briarは、あなたのアカウント、連絡先、メッセージを含むデータベースを開くことができませんでした。\n\nアプリを最新版にアップグレードしてもう一度お試しいただくか、パスワード入力画面で「パスワードを忘れました」を選択して新規アカウントを設定してください。</string>
@@ -71,15 +71,15 @@
   <!--Transports: Tor-->
   <string name="transport_tor">インターネット</string>
   <string name="tor_device_status_online_wifi">電話機はWi-Fiでインターネットにアクセスできます</string>
-  <string name="tor_device_status_online_mobile">電話機はモバイルデータでインターネットにアクセスできます</string>
+  <string name="tor_device_status_online_mobile">電話機は携帯電話回線でインターネットにアクセスできます</string>
   <string name="tor_device_status_offline">電話機はインターネットに接続していません</string>
   <string name="tor_plugin_status_enabling">Briarはインターネットに接続中です</string>
   <string name="tor_plugin_status_active">Briarはインターネットに接続されました</string>
   <string name="tor_plugin_status_inactive">Briarはインターネットに接続できません</string>
   <string name="tor_plugin_status_disabled">Briarはインターネットを使用しないように設定されています</string>
-  <string name="tor_plugin_status_disabled_mobile_data">Briarはモバイルデータを使用しないように設定されています</string>
+  <string name="tor_plugin_status_disabled_mobile_data">Briarは携帯電話回線を使用しないように設定されています</string>
   <string name="tor_plugin_status_disabled_battery">Briarは電池で動作する時に、インターネットを使用しないように設定されています</string>
-  <string name="tor_plugin_status_disabled_country_blocked">Briarはこの国でインターネットを使わないように設定されています</string>
+  <string name="tor_plugin_status_disabled_country_blocked">Briarはこの国でインターネットを使用しないように設定されています</string>
   <!--Transports: Wi-Fi-->
   <string name="transport_lan">Wi-Fi</string>
   <string name="transport_lan_long">同じWi-Fiネットワーク</string>
@@ -319,7 +319,7 @@
   <!--Connect via Bluetooth-->
   <string name="menu_item_connect_via_bluetooth">Bluetooth経由で接続する</string>
   <string name="connect_via_bluetooth_title">Bluetooth経由で接続する</string>
-  <string name="connect_via_bluetooth_intro">Bluetooth接続が自動的に行われない場合は、この画面を使って手動で接続することができます。\n\nこの機能を利用するには、あなたの連絡先が近くにある必要があります。\n\nあなたと連絡先が同時に「開始」を押してください。</string>
+  <string name="connect_via_bluetooth_intro">Bluetooth接続が自動的に行われない場合は、この画面を使って手動で接続することができます。\n\nこの機能を使用するには、あなたの連絡先が近くにある必要があります。\n\nあなたと連絡先が同時に「開始」を押してください。</string>
   <string name="connect_via_bluetooth_already_discovering">既にBluetooth経由での接続を試行中です。すぐに再試行してください。</string>
   <string name="connect_via_bluetooth_no_location_permission">位置情報の権限なくして続行不可能</string>
   <string name="connect_via_bluetooth_no_bluetooth_permission">付近の端末の権限なくして続行不可能</string>
@@ -447,7 +447,7 @@
   <string name="blogs_remove_blog_dialog_message">このブログを削除してもよろしいですか？\n\n投稿は端末から削除されますが、他の人の端末からは削除されません。\n\nこのブログを共有した人に更新の受信を停止します。</string>
   <string name="blogs_remove_blog_ok">削除</string>
   <string name="blogs_blog_removed">ブログを削除しました</string>
-  <string name="blogs_reblog_comment_hint">コメントを追加する（任意）</string>
+  <string name="blogs_reblog_comment_hint">意見や補足を追加する（任意）</string>
   <string name="blogs_reblog_button">ブログ再掲</string>
   <!--Blog Sharing-->
   <string name="blogs_sharing_share">ブログを共有</string>
@@ -509,15 +509,15 @@
   <string name="tor_network_setting_never">インターネットに接続しない</string>
   <!--How and when Briar will connect to Tor: E.g. "Don't connect to the Internet (in China)" or "Use Tor network with bridges (in Belarus)"-->
   <string name="tor_network_setting_summary">自動：%1$s（%2$s内）</string>
-  <string name="tor_mobile_data_title">モバイルデータを使用する</string>
+  <string name="tor_mobile_data_title">携帯電話回線を使用する</string>
   <string name="tor_only_when_charging_title">充電時にのみインターネットに接続する</string>
   <string name="tor_only_when_charging_summary">端末が電池で動作する時に、インターネット接続を無効にする</string>
   <!--Settings Security and Panic-->
-  <string name="security_settings_title">セキュリティ</string>
+  <string name="security_settings_title">安全</string>
   <string name="pref_lock_title">アプリロック</string>
   <string name="pref_lock_summary">ログイン中に端末の画面ロックを使用して、Briarを保護します</string>
   <string name="pref_lock_disabled_summary">この機能を使用するには、端末の画面ロックを設定します</string>
-  <string name="pref_lock_timeout_title">\"Inactivity timeout\"された場合、アプリロックをロックする</string>
+  <string name="pref_lock_timeout_title">操作がない場合に時間切れになり、アプリロックをロックする</string>
   <!--The %s placeholder is replaced with the following time spans, e.g. 5 Minutes, 1 Hour-->
   <string name="pref_lock_timeout_summary">Briarを使用しない場合、%s後に自動的にロックします</string>
   <!--Will be shown in a list of lock times. Should fit into the %s of "automatically lock it after %s"-->
@@ -695,7 +695,7 @@
   <string name="privacy_policy">データを我々に送信することで、<a href="">プライバシーポリシー</a>に同意したことになります。</string>
   <string name="include_debug_report_crash">クラッシュに関する匿名のデータを添付する</string>
   <string name="include_debug_report_feedback">この端末に関する匿名のデータを添付する</string>
-  <string name="dev_report_user_info">ユーザー情報</string>
+  <string name="dev_report_user_info">利用者情報</string>
   <string name="dev_report_basic_info">基本情報</string>
   <string name="dev_report_device_info">端末情報</string>
   <string name="dev_report_stacktrace">スタックトレース</string>
@@ -793,7 +793,7 @@
   <string name="website_download_outro">ダウンロードが完了した後に、ダウンロードしたファイルを開いて、インストールしてください。</string>
   <string name="website_troubleshooting_title">トラブルシューティング</string>
   <string name="website_troubleshooting_1">アプリをインストールできない場合、別のブラウザアプリで試してください。</string>
-  <string name="website_troubleshooting_2_old">ダウンロードしたアプリをインストールするには、システム設定で\"提供元不明\"のアプリのインストールを許可する必要がある場合があります。その後、再度アプリのダウンロードが必要になる場合があります。アプリをインストールした後は、\"提供元不明\"の設定を解除することをお勧めします。</string>
+  <string name="website_troubleshooting_2_old">ダウンロードしたアプリをインストールするには、システム設定で「提供元不明」のアプリのインストールを許可する必要がある場合があります。その後、再度アプリのダウンロードが必要になる場合があります。アプリをインストールした後は、「提供元不明」の設定を解除することをお勧めします。</string>
   <string name="website_troubleshooting_2_new">ダウンロードしたアプリをインストールするには、ブラウザに不明なアプリのインストールを許可する必要がある場合があります。アプリをインストールした後は、ブラウザの不明なアプリのインストール許可を解除することをお勧めします。</string>
   <string name="hotspot_help_wifi_title">W-Fi接続の問題:</string>
   <string name="hotspot_help_wifi_1">双方の電話機でWi-Fiを無効にして、再び有効にするのを試してください。</string>
@@ -805,7 +805,7 @@
   <string name="hotspot_help_site_3">ファイアウォールアプリを使用している場合は、それがアクセスをブロックしていないか確認してください。</string>
   <string name="hotspot_help_site_4">サイトにはアクセスできるが、Briarアプリがダウンロードできない場合は、別のウェブブラウザアプリで試してみてください。</string>
   <string name="hotspot_help_fallback_title">どれもうまくいきませんか?</string>
-  <string name="hotspot_help_fallback_intro">他の方法で共有するために、アプリを.apkファイルとして保存してみてください。そのファイルをもう一方の端末に転送すれば、Briarをインストールすることができます。
+  <string name="hotspot_help_fallback_intro">他の方法で共有するために、アプリを.apkファイルとして保存してみてください。そのファイルをもう一方の端末に転送すると、Briarをインストールすることができます。
 		\n\nヒント: Bluetoothで共有する場合は、まずファイル名を.zipで終わるように名前変更する必要があるかもしれません。</string>
   <string name="hotspot_help_fallback_button">アプリを保存する</string>
   <!--error handling-->
@@ -821,7 +821,7 @@
   <!--Transfer Data via Removable Drives-->
   <string name="removable_drive_menu_title">リムーバブルドライブ経由で接続する</string>
   <string name="removable_drive_intro">インターネット、Wi-FiまたはBluetooth経由であなたの連絡先と接続できない場合、Briarは例えばUSBメモリーまたはSDカードのような、リムーバルドライブ上でメッセージを転送することもできます。</string>
-  <string name="removable_drive_explanation">インターネット、Wi-FiまたはBluetooth経由であなたの連絡先と接続できない場合、Briarは例えばUSBメモリーまたはSDカードのような、リムーバルドライブ上でメッセージを転送することもできます。\n\n\"データ送信\"ボタンを使用したとき、連絡先への送信を待っているデータは、リムーバブルドライブに書き込まれます。これは非公開メッセージ、添付、ブログ、フォーラムと非公開グループを含みます。\n\n連絡先はリムーバルドライブを受け取ったときに、Briar内にメッセージをインポートするため、「データ受信」ボタンを使用できます。</string>
+  <string name="removable_drive_explanation">インターネット、Wi-FiまたはBluetooth経由であなたの連絡先と接続できない場合、Briarは例えばUSBメモリーまたはSDカードのような、リムーバルドライブ上でメッセージを転送することもできます。\n\n「データ送信」ボタンを使用したとき、連絡先への送信を待っているデータは、リムーバブルドライブに書き込まれます。これは非公開メッセージ、添付、ブログ、フォーラムと非公開グループを含みます。\n\n連絡先はリムーバルドライブを受け取ったときに、Briar内にメッセージをインポートするため、「データ受信」ボタンを使用できます。</string>
   <string name="removable_drive_title_send">データ送信</string>
   <string name="removable_drive_title_receive">データ受信</string>
   <string name="removable_drive_send_intro">暗号化されたメッセージを含む新規ファイルを作成するには、下のボタンをタップしてください。ファイルの保存先を選択できます。\n\nリムーバブルドライブ上にファイルを保存したければ、ドライブを今挿れてください。</string>
@@ -832,7 +832,7 @@
   <string name="removable_drive_receive_intro">連絡先があなたに送信したファイルを選択するため、以下のボタンをタップしてください。\n\nそのファイルがリムーバルドライブ上にある場合、そのドライブを今挿入してください。</string>
   <string name="removable_drive_receive_button">インポート用ファイルを選択してください</string>
   <string name="removable_drive_success_send_title">エクスポート成功</string>
-  <string name="removable_drive_success_send_text">データのエクスポートが成功しました。28日以内に連絡先へファイルを転送することができます。\n\nファイルがリムーバブルドライブ上にある場合、それを着脱する前に、ステータスバー内の通知を利用してイジェクトしてください。</string>
+  <string name="removable_drive_success_send_text">データのエクスポートが成功しました。28日以内に連絡先へファイルを転送することができます。\n\nファイルがリムーバブルドライブ上にある場合、それを着脱する前に、ステータスバー内の通知を使用してイジェクトしてください。</string>
   <string name="removable_drive_success_receive_title">インポート成功</string>
   <string name="removable_drive_success_receive_text">全ての暗号化されたメッセージは、受信しているこのファイル内に含まれました。</string>
   <string name="removable_drive_error_send_title">データエクスポートでエラー</string>
