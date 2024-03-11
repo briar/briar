@@ -8,14 +8,20 @@ import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.ProgressBar;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.login.StrengthMeter;
+import org.briarproject.briar.android.util.AccountSetUpCriteria;
 import org.briarproject.nullsafety.MethodsNotNullByDefault;
 import org.briarproject.nullsafety.ParametersNotNullByDefault;
+
+import java.util.ArrayList;
+import java.util.Arrays;
 
 import javax.annotation.Nullable;
 
@@ -42,6 +48,7 @@ public class SetPasswordFragment extends SetupFragment {
 	private TextInputLayout passwordConfirmationWrapper;
 	private TextInputEditText passwordEntry;
 	private TextInputEditText passwordConfirmation;
+	private TextView passwordCriteria;
 	private StrengthMeter strengthMeter;
 	private Button nextButton;
 
@@ -68,6 +75,7 @@ public class SetPasswordFragment extends SetupFragment {
 				v.findViewById(R.id.password_confirm_wrapper);
 		passwordConfirmation = v.findViewById(R.id.password_confirm);
 		nextButton = v.findViewById(R.id.next);
+		passwordCriteria = v.findViewById(R.id.password_criteria);
 		ProgressBar progressBar = v.findViewById(R.id.progress);
 
 		passwordEntry.addTextChangedListener(this);
@@ -122,9 +130,18 @@ public class SetPasswordFragment extends SetupFragment {
 				getString(R.string.passwords_do_not_match),
 				password2.length() > 0 && !passwordsMatch);
 
-		boolean enabled = passwordsMatch && strongEnough;
+		AccountSetUpCriteria accountSetUpCriteria = new AccountSetUpCriteria();
+		boolean meetsCriteria = accountSetUpCriteria.checkCriteria(password1);
+		if (!meetsCriteria) {
+			passwordCriteria.setVisibility(VISIBLE);
+		} else {
+			passwordCriteria.setVisibility(INVISIBLE);
+		}
+
+		boolean enabled = passwordsMatch && strongEnough && meetsCriteria;
 		nextButton.setEnabled(enabled);
 		passwordConfirmation.setOnEditorActionListener(enabled ? this : null);
+
 	}
 
 	@Override
@@ -142,7 +159,8 @@ public class SetPasswordFragment extends SetupFragment {
 		}
 	}
 
-	private void setPassword() {
+	@Override
+	public void setPassword() {
 		viewModel.setPassword(passwordEntry.getText().toString());
 	}
 

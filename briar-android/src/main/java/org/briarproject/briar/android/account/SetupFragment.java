@@ -62,6 +62,8 @@ public abstract class SetupFragment extends BaseFragment implements TextWatcher,
 
 	protected abstract String getHelpText();
 
+	protected abstract void setPassword();
+
 	@Override
 	public void beforeTextChanged(CharSequence s, int start, int count,
 			int after) {
@@ -77,12 +79,17 @@ public abstract class SetupFragment extends BaseFragment implements TextWatcher,
 	@Override
 	public boolean onEditorAction(TextView textView, int actionId,
 			@Nullable KeyEvent keyEvent) {
-		if (actionId == IME_ACTION_NEXT || actionId == IME_ACTION_DONE ||
-				enterPressed(actionId, keyEvent)) {
+		if (isEligible(actionId, keyEvent)) {
 			onClick(textView);
 			return true;
 		}
 		return false;
+	}
+
+	private static boolean isEligible(int actionId,
+			@Nullable KeyEvent keyEvent) {
+		return actionId == IME_ACTION_NEXT || actionId == IME_ACTION_DONE ||
+				enterPressed(actionId, keyEvent);
 	}
 
 	@Override

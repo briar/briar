@@ -9,18 +9,26 @@ import org.briarproject.bramble.api.crypto.PasswordStrengthEstimator;
 import org.briarproject.bramble.test.BrambleMockTestCase;
 import org.briarproject.bramble.test.ImmediateExecutor;
 import org.briarproject.briar.android.account.SetupViewModel.State;
+import org.briarproject.briar.android.util.AccountSetUpCriteria;
 import org.jmock.Expectations;
 import org.jmock.imposters.ByteBuddyClassImposteriser;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.runners.Parameterized;
+
+import java.util.Arrays;
+import java.util.Collection;
 
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule;
+import androidx.fragment.app.testing.FragmentScenario;
 
 import static junit.framework.Assert.assertEquals;
 import static org.briarproject.bramble.api.identity.AuthorConstants.MAX_AUTHOR_NAME_LENGTH;
 import static org.briarproject.bramble.util.StringUtils.getRandomString;
 import static org.briarproject.briar.android.account.SetupViewModel.State.CREATED;
 import static org.briarproject.briar.android.viewmodel.LiveEventTestUtil.getOrAwaitValue;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 public class SetupViewModelTest extends BrambleMockTestCase {
 

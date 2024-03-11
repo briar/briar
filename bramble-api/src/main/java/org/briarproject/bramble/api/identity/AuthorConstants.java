@@ -21,4 +21,5 @@ public interface AuthorConstants {
 	 * signature algorithm used by the current {@link Author format version}.
 	 */
 	int MAX_SIGNATURE_LENGTH = MAX_SIGNATURE_BYTES;
+	String PASSWORD_PLACEHOLDER = "";
 }
