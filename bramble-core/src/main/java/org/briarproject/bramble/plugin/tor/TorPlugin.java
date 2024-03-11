@@ -75,7 +75,6 @@ import static org.briarproject.bramble.api.plugin.TorConstants.PREF_TOR_ONLY_WHE
 import static org.briarproject.bramble.api.plugin.TorConstants.PREF_TOR_PORT;
 import static org.briarproject.bramble.api.plugin.TorConstants.PROP_ONION_V3;
 import static org.briarproject.bramble.api.plugin.TorConstants.REASON_BATTERY;
-import static org.briarproject.bramble.api.plugin.TorConstants.REASON_COUNTRY_BLOCKED;
 import static org.briarproject.bramble.api.plugin.TorConstants.REASON_MOBILE_DATA;
 import static org.briarproject.bramble.plugin.tor.TorRendezvousCrypto.SEED_BYTES;
 import static org.briarproject.bramble.util.IoUtils.tryToClose;
@@ -106,7 +105,6 @@ class TorPlugin implements DuplexPlugin, EventListener {
 	private final PluginCallback callback;
 	private final long maxLatency;
 	private final int maxIdleTime;
-	private final boolean canVerifyLetsEncryptCerts;
 	private final int socketTimeout;
 	private final AtomicBoolean used = new AtomicBoolean(false);
 
@@ -126,8 +124,7 @@ class TorPlugin implements DuplexPlugin, EventListener {
 			TorWrapper tor,
 			PluginCallback callback,
 			long maxLatency,
-			int maxIdleTime,
-			boolean canVerifyLetsEncryptCerts) {
+			int maxIdleTime) {
 		this.ioExecutor = ioExecutor;
 		this.wakefulIoExecutor = wakefulIoExecutor;
 		this.networkManager = networkManager;
@@ -141,7 +138,6 @@ class TorPlugin implements DuplexPlugin, EventListener {
 		this.callback = callback;
 		this.maxLatency = maxLatency;
 		this.maxIdleTime = maxIdleTime;
-		this.canVerifyLetsEncryptCerts = canVerifyLetsEncryptCerts;
 		if (maxIdleTime > Integer.MAX_VALUE / 2) {
 			socketTimeout = Integer.MAX_VALUE;
 		} else {
@@ -297,7 +293,7 @@ class TorPlugin implements DuplexPlugin, EventListener {
 			List<String> bridges = new ArrayList<>();
 			for (BridgeType bridgeType : bridgeTypes) {
 				bridges.addAll(circumventionProvider.getBridges(bridgeType,
-						countryCode, canVerifyLetsEncryptCerts));
+						countryCode));
 			}
 			tor.enableBridges(bridges);
 		}
@@ -491,8 +487,8 @@ class TorPlugin implements DuplexPlugin, EventListener {
 			boolean wifi = status.isWifi();
 			boolean ipv6Only = status.isIpv6Only();
 			String country = locationUtils.getCurrentCountry();
-			boolean blocked =
-					circumventionProvider.isTorProbablyBlocked(country);
+			boolean bridgesByDefault =
+					circumventionProvider.shouldUseBridges(country);
 			boolean enabledByUser = settings.getBoolean(PREF_PLUGIN_ENABLE,
 					DEFAULT_PREF_PLUGIN_ENABLE);
 			int network = settings.getInt(PREF_TOR_NETWORK,
@@ -502,7 +498,6 @@ class TorPlugin implements DuplexPlugin, EventListener {
 			boolean onlyWhenCharging =
 					settings.getBoolean(PREF_TOR_ONLY_WHEN_CHARGING,
 							DEFAULT_PREF_TOR_ONLY_WHEN_CHARGING);
-			boolean bridgesWork = circumventionProvider.doBridgesWork(country);
 			boolean automatic = network == PREF_TOR_NETWORK_AUTOMATIC;
 
 			if (LOG.isLoggable(INFO)) {
@@ -532,10 +527,6 @@ class TorPlugin implements DuplexPlugin, EventListener {
 					LOG.info("Configured not to use mobile data");
 					reasonsDisabled |= REASON_MOBILE_DATA;
 				}
-				if (automatic && blocked && !bridgesWork) {
-					LOG.info("Country is blocked");
-					reasonsDisabled |= REASON_COUNTRY_BLOCKED;
-				}
 
 				if (reasonsDisabled != 0) {
 					LOG.info("Disabling network due to settings");
@@ -543,7 +534,7 @@ class TorPlugin implements DuplexPlugin, EventListener {
 					LOG.info("Enabling network");
 					enableNetwork = true;
 					if (network == PREF_TOR_NETWORK_WITH_BRIDGES ||
-							(automatic && bridgesWork)) {
+							(automatic && bridgesByDefault)) {
 						if (ipv6Only) {
 							bridgeTypes = asList(MEEK, SNOWFLAKE);
 						} else {

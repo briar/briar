@@ -78,6 +78,6 @@ public class WindowsTorPluginFactory extends TorPluginFactory {
 		return new TorPlugin(ioExecutor, wakefulIoExecutor, networkManager,
 				locationUtils, torSocketFactory, circumventionProvider,
 				batteryManager, backoff, torRendezvousCrypto, tor, callback,
-				MAX_LATENCY, MAX_IDLE_TIME, true);
+				MAX_LATENCY, MAX_IDLE_TIME);
 	}
 }

@@ -31,13 +31,13 @@ buildscript {
 		jackson_version = "2.13.4"
 		tor_version = "0.4.8.9-1"
 		obfs4proxy_version = "0.0.14-tor2"
-		snowflake_version = "2.5.1"
+		snowflake_version = "2.9.1"
 		jsoup_version = '1.15.3'
 		bouncy_castle_version = '1.71' // 1.72 accidentally depends on Java 7
 		junit_version = "4.13.2"
 		jmock_version = '2.12.0'
 		mockwebserver_version = '4.10.0'
-		onionwrapper_version = '0.0.7'
+		onionwrapper_version = '0.1.0'
 	}
 	dependencies {
 		// upgrading this let's us run into https://github.com/gradle/gradle/issues/20330

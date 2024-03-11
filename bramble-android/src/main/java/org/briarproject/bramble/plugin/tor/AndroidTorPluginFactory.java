@@ -31,7 +31,6 @@ import javax.annotation.concurrent.Immutable;
 import javax.inject.Inject;
 import javax.net.SocketFactory;
 
-import static android.os.Build.VERSION.SDK_INT;
 import static org.briarproject.bramble.util.AndroidUtils.getSupportedArchitectures;
 
 @Immutable
@@ -86,15 +85,10 @@ public class AndroidTorPluginFactory extends TorPluginFactory {
 		TorWrapper tor = new AndroidTorWrapper(app, wakeLockManager,
 				ioExecutor, eventExecutor, architecture, torDirectory,
 				torSocksPort, torControlPort);
-		// Android versions 7.1 and newer can verify Let's Encrypt TLS certs
-		// signed with the IdentTrust DST Root X3 certificate. Older versions
-		// of Android consider the certificate to have expired at the end of
-		// September 2021.
-		boolean canVerifyLetsEncryptCerts = SDK_INT >= 25;
 		return new TorPlugin(ioExecutor, wakefulIoExecutor,
 				networkManager, locationUtils, torSocketFactory,
 				circumventionProvider, batteryManager, backoff,
 				torRendezvousCrypto, tor, callback, MAX_LATENCY,
-				MAX_IDLE_TIME, canVerifyLetsEncryptCerts);
+				MAX_IDLE_TIME);
 	}
 }
