@@ -61,6 +61,7 @@ public class HotspotIntroFragment extends Fragment {
 		getAndroidComponent(activity).inject(this);
 		viewModel = new ViewModelProvider(activity, viewModelFactory)
 				.get(HotspotViewModel.class);
+		conditionManager.init(requireActivity());
 	}
 
 	@Override
@@ -75,8 +76,6 @@ public class HotspotIntroFragment extends Fragment {
 		progressTextView = v.findViewById(R.id.progressTextView);
 
 		startButton.setOnClickListener(this::onButtonClick);
-
-		conditionManager.init(requireActivity());
 
 		return v;
 	}
