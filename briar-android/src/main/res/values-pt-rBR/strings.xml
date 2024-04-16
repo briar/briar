@@ -614,6 +614,10 @@
   <string name="mailbox_setup_connecting">Conectando à caixa de email...</string>
   <!--This string is shown when connecting to a Mailbox for the first time. The placeholder will be replaced with a duration, e.g. "2 minutes".-->
   <string name="mailbox_setup_connecting_info">Isso pode levar até %1s</string>
+  <string name="mailbox_qr_code_too_old">O código QR que você escaneou vem de uma versão mais antiga do Briar Mailbox.\n\nAtualize o Briar Mailbox para a versão mais recente e tente novamente.</string>
+  <string name="mailbox_qr_code_too_new">O código QR que você escaneou vem de uma versão mais recente do Briar Mailbox.\n\nAtualize o Briar para a versão mais recente e tente novamente.</string>
+  <string name="contact_qr_code_for_mailbox">O código QR que você escaneou é para adicionar um contato Briar.\n\nSe você quiser adicionar um contato, vá para a lista de contatos e toque no ícone +.</string>
+  <string name="mailbox_setup_qr_code_wrong_description">O código QR que você escaneou não vem da Caixa de Correio Briar.\n\nAbra o aplicativo Caixa de Correio Briar em seu dispositivo de Caixa de Correio e digitalize o código QR que ele apresenta.</string>
   <string name="mailbox_setup_already_paired_title">Mailbox já vinculado</string>
   <string name="mailbox_setup_already_paired_description">Desvincule o Mailbox no seu outro dispositivo e tente de novo.</string>
   <string name="mailbox_setup_io_error_title">Não foi possível conectar</string>
@@ -754,10 +758,12 @@
   <string name="permission_camera_location_title">Câmera e localização</string>
   <string name="permission_camera_location_request_body">Para escanear o código QR, o Briar precisa de acesso à câmera.\n\nPara encontrar dispositivos Bluetooth, o Briar precisa de permissão para acessar a localização.\n\nBriar não armazena sua localização nem a compartilha com ninguém.</string>
   <string name="permission_camera_bluetooth_title">Câmera e dispositivos próximos</string>
+  <string name="permission_camera_bluetooth_request_body">Para digitalizar o código QR, Briar precisa de acesso à câmera.\n\nPara descobrir dispositivos Bluetooth, Briar precisa de permissão para encontrar e se conectar a dispositivos próximos.</string>
   <string name="permission_camera_denied_body">Você negou acesso à câmera, mas para adicionar contatos você precisa da câmera.\n\nPor favor, pense em liberar o acesso a ela.</string>
   <string name="permission_location_denied_body">Você desabilitou o acesso à sua localização, no entanto o Briar precisa da permissão para saber se há dispositivos Bluetooth.\n\nPor favor, considere liberar o acesso.</string>
   <string name="permission_location_setting_title">Configuração de localização</string>
   <string name="permission_location_setting_body">A opção de localização de seu dispositivo deve estar ativada para achar outros dispositivos via Bluetooth. Por favor, ative a localização para continuar. Você pode desativá-la em seguida.</string>
+  <string name="permission_location_setting_hotspot_body">A configuração de localização do dispositivo deve estar ativada para criar um ponto de acesso Wi-Fi. Habilite a localização para continuar. Você pode desativá-lo novamente depois.</string>
   <string name="permission_location_setting_button">Ativar localização</string>
   <string name="permission_bluetooth_title">Permissão de dispositivos próximos</string>
   <string name="permission_bluetooth_body">Para usar a comunicação Bluetooth, Briar precisa de permissão para localizar e se conectar a dispositivos próximos.</string>
@@ -788,6 +794,7 @@
   <string name="permission_hotspot_location_denied_body">Você negou acesso à sua localização, mas o Briar precisa dessa permissão para criar um hotspot Wi-Fi.\n\nPor favor, considere conceder acesso.</string>
   <string name="permission_hotspot_location_denied_precise_body">Você negou acesso à sua localização precisa, mas a Briar precisa dessa permissão para criar um ponto de acesso Wi-Fi.\n\nConsidere conceder acesso.</string>
   <string name="permission_hotspot_nearby_wifi_request_body">Para criar um hotspot Wi-Fi, Briar precisa de permissão para acessar dispositivos próximos.</string>
+  <string name="permission_hotspot_nearby_wifi_denied_body">Você negou acesso a dispositivos próximos, mas o Briar precisa dessa permissão para criar um ponto de acesso Wi-Fi.\n\nConsidere conceder acesso.</string>
   <string name="wifi_settings_title">Configurações de Wi-Fi</string>
   <string name="wifi_settings_request_enable_body">Para criar um hotspot Wi-Fi, o Briar precisa usar o Wi-Fi. Por favor, ative ele.</string>
   <string name="hotspot_tab_manual">Manual</string>

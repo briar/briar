@@ -242,6 +242,7 @@
   <string name="exchanging_contact_details">Обмін інформацією про контакти\u2026</string>
   <string name="contact_added_toast">Додали контакт: %s</string>
   <string name="contact_already_exists">Контакт %s вже існує</string>
+  <string name="contact_already_exists_general">Контакт вже існує</string>
   <string name="qr_code_invalid">QR-код неправильний</string>
   <string name="camera_error">Помилка камери</string>
   <string name="connecting_to_device">З\'єднання з пристроєм\u2026</string>
@@ -500,6 +501,7 @@
   <string name="blogs_rss_feeds_import_button">Імпортувати</string>
   <string name="blogs_rss_feeds_import_hint">Введіть URL-посилання RSS-стрічки</string>
   <string name="blogs_rss_feeds_import_error">Нам шкода! Виникла помилка під час імпорту вашої стрічки.</string>
+  <string name="blogs_rss_feeds_import_title">Імпортувати стрічку з файлу</string>
   <string name="blogs_rss_feeds">RSS-стрічки</string>
   <string name="blogs_rss_feeds_manage_imported">Імпортовано:</string>
   <string name="blogs_rss_feeds_manage_author">Автор:</string>
@@ -679,6 +681,7 @@
   <string name="disappearing_messages_summary">Знищувати майбутні повідомлення в цій розмові автоматично за 7\u00A0днів.</string>
   <!--Settings Actions-->
   <string name="pref_category_actions">Дії</string>
+  <string name="share_app_link_text">Завантажити Briar з %s</string>
   <string name="send_feedback">Надіслати відгук</string>
   <!--Link Warning-->
   <string name="link_warning_title">Попередження про посилання</string>
@@ -728,6 +731,7 @@
   <string name="permission_camera_title">Дозвіл камери</string>
   <string name="permission_camera_request_body">Щоб відсканувати цей QR-код, Briar потрібен доступ до камери.</string>
   <string name="permission_location_title">Дозвіл на дані про місцезнаходження</string>
+  <string name="permission_nearby_devices_title">Дозволи на пристроях поблизу</string>
   <string name="permission_location_request_body">Щоб знайти Bluetooth-пристрої, Briar потребує доступу до інформації про ваше місцезнаходження.\n\nBriar не зберігає дані про ваше місцезнаходження та не ділиться ні з ким цією інформацією.</string>
   <string name="permission_camera_location_title">Камера та місцезнаходження</string>
   <string name="permission_camera_location_request_body">Щоб відсканувати QR-код, Briar потребує доступу до камери.\n\nЩоб знайти Bluetooth-пристрої, Briar потребує доступу до інформації про ваше місцезнаходження.\n\nBriar не зберігає дані про ваше місцезнаходження та не ділиться ні з ким цією інформацією.</string>

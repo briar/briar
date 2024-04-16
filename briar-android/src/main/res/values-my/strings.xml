@@ -26,6 +26,12 @@
   <string name="dnkm_xiaomi_button">Briar ကို ကာကွယ်မည်</string>
   <string name="dnkm_xiaomi_help">ဖွင့်ထားသောအက်ပ်များစာရင်းတွင် လော့ခ်ချမထားပါက Briar ကို နောက်ကွယ်တွင် ဖွင့်ထားနိုင်မည်မဟုတ်ပါ။</string>
   <string name="dnkm_xiaomi_dialog_body_old">၁။ ဖွင့်ထားသောအက်ပ်များစာရင်း (တစ်နည်းအားဖြင့် အက်ပ်ပြောင်းရာ) ကို ဖွင့်ပါ\n\n၂။ သော့ခလောက်အိုင်ကွန်ပေါ်လာရန် Briar ပုံပေါ်မှ ပွတ်ဆွဲချပါ\n\n၃။ သော့ခတ်မထားပါက သော့ခတ်ရန်နှိပ်လိုက်ပါ</string>
+  <string name="dnkm_xiaomi_dialog_body_new">1. လတ်တလောအက်ပ်များစာရင်းကိုဖွင့်ပါ (အက်ပ်ပြောင်းကိရိယာဟုခေါ်သည်)\n\n2။ Briar သည် ၎င်း၏အမည်နံဘေးတွင် သော့ခလောက်ပုံငယ်တစ်ခုရှိနေပါက သင်ဘာမှလုပ်ရန်မလိုပါ\n\n3။ သော့ခလောက်မရှိပါက သော့ခလုပ်ခလုတ် ပေါ်လာသည်အထိ Briar ပုံကို နှိပ်ပြီး ဖိထားပါ၊ ထို့နောက် နှိပ်ပါ
+
+</string>
+  <string name="dnkm_xiaomi_lock_apps_text">လုံခြုံရေးဆက်တင်များကိုဖွင့်ရန် အောက်ပါခလုတ်ကိုနှိပ်ပါ။ \"အရှိန်မြှင့်ရန်\" ကိုနှိပ်ပြီးနောက် \"အက်ပ်များကို လော့ခ်ချပါ\" ကိုနှိပ်ပြီး Briar ကို \"လော့ခ်ချထားသည်\" ဟု သတ်မှတ်ကြောင်း သေချာပါစေ။</string>
+  <string name="dnkm_xiaomi_lock_apps_help">Briar သည် \"Lock apps\" မျက်နှာပြင်တွင် \"Locked\" ဟုသတ်မှတ်မထားပါက၊ ၎င်းသည် နောက်တွင် run နိုင်မည်မဟုတ်ပါ။</string>
+  <string name="dnkm_warning_dozed_1">Briar သည် နောက်တွင် မသုံးနိုင်ပါ</string>
   <!--Login-->
   <string name="enter_password">စကားဝှက်</string>
   <string name="try_again">စကားဝှက်မှားနေတယ်၊ ထပ်စမ်းကြည့်ပါ</string>
@@ -210,6 +216,7 @@
   <string name="menu_contact">ဆက်သွယ်ရန်</string>
   <!--Adding Contacts-->
   <string name="add_contact_title">အနီးနားရှိ အဆက်အသွယ်အား ထည့်သွင်းမည်</string>
+  <string name="add_contact_error_two_way">သင်နှစ်ယောက်လုံး၏ QR ကုဒ်များကို စကင်ဖတ်ကြပါသလား။</string>
   <string name="face_to_face">သင်သည် ဤလူပုဂ္ဂိုလ်အား အပြင်မှာတွေ့ရှိမှသာလျှင် ၎င်း၏အဆက်အသွယ်ကို ပေါင်းထည့်လို့ရပါမည်။ \n\n ဒါမှသာလျှင် နောင်တွင် အခြားလူများ သင့်အား အယောင်ဆောင်ခြင်း သို့မဟုတ် သင့်မက်ဆေ့ချ်များ ဖတ်ရှုခြင်း တို့ကို တားဆီးနိုင်ပါမည်။</string>
   <string name="continue_button">ဆက်လုပ်မည်</string>
   <string name="try_again_button">ထပ်မံကြိုးစားမည်</string>
@@ -217,12 +224,18 @@
   <string name="exchanging_contact_details">အဆက်အသွယ်အသေးစိတ်ကို ဖလှယ်နေသည် \u2026</string>
   <string name="contact_added_toast">ထည့်ပြီးသောအဆက်အသွယ် - %s ခု</string>
   <string name="contact_already_exists">အဆက်အသွယ်လိပ်စာ %s သည် ရှိနှင့်ပြီးဖြစ်သည်</string>
+  <string name="contact_already_exists_general">အဆက်အသွယ် ရှိပြီးသားပါ။</string>
   <string name="qr_code_invalid">ဒီ QR ကုဒ်သည် အသုံးပြုလို့ မဆီလျော်ပါ</string>
+  <string name="qr_code_too_old_1">သင်စကင်ဖတ်ထားသော QR ကုဒ်သည် Briar ဗားရှင်းအဟောင်းမှ လာပါသည်။\n\nကျေးဇူးပြုပြီး နောက်ဆုံးဗားရှင်းသို့ အဆင့်မြှင့်ရန် သင့်အဆက်အသွယ်ကို တောင်းဆိုပြီး ထပ်စမ်းကြည့်ပါ။</string>
+  <string name="qr_code_too_new_1">သင်စကင်ဖတ်ထားသော QR ကုဒ်သည် Briar ဗားရှင်းအသစ်မှ လာပါသည်။\n\nကျေးဇူးပြု၍ နောက်ဆုံးဗားရှင်းသို့ အဆင့်မြှင့်တင်ပြီးနောက် ထပ်စမ်းကြည့်ပါ။</string>
+  <string name="mailbox_qr_code_for_contact">သင်စကင်ဖတ်ထားသော QR ကုဒ်သည် Briar စာတိုက်ပုံးမှ လာပါသည်။\n\nစာတိုက်ပုံးကို လင့်ခ်ချိတ်လိုပါက၊ Briar မီနူးမှ ဆက်တင်များ &gt; စာတိုက်ပုံးကို ရွေးပါ။</string>
+  <string name="qr_code_format_unknown">သင်စကင်ဖတ်ထားသော QR ကုဒ်သည် Briar အဆက်အသွယ်ကို ထည့်ရန်အတွက် ရည်ရွယ်ခြင်းမဟုတ်ပါ။\n\nသင့်အဆက်အသွယ်၏မျက်နှာပြင်တွင်ပြသထားသည့် QR ကုဒ်ကို စကင်န်ဖတ်ပါ။</string>
   <string name="camera_error">ကင်မရာ ပြဿနာ</string>
   <string name="connecting_to_device">ဤစက်ပစ္စည်း \u2026 နှင့် ချိတ်ဆက်နေပါသည်</string>
   <string name="authenticating_with_device">ဤစက် \u2026 ကို စစ်မှန်ကြောင်း စစ်ဆေးနေပါသည်</string>
   <string name="connection_error_title">သင့်ရဲ့အဆက်အသွယ်လိပ်စာနှင့် ချိတ်ဆက်လို့မရပါ</string>
   <string name="connection_error_feedback">ဤပြဿနာသည် ဆက်လက်ဖြစ်ဆဲပါက ကျေးဇူးပြု၍ အပ္ပလီကေးရှင်းတိုးတက်ရန် <a href="feedback"> တုံ့ပြန်ချက် ပေးပို့ပေးပါ </a> ။</string>
+  <string name="info_both_must_scan">နှစ်ဦးစလုံးသည် တစ်ဦးနှင့်တစ်ဦး၏ QR ကုဒ်များကို စကင်န်ဖတ်ရပါမည်။</string>
   <!--Adding Contacts Remotely-->
   <string name="add_contact_remotely_title_case">အဝေးက အဆက်အသွယ်လိပ်စာကို ထည့်သွင်းမယ်</string>
   <string name="add_contact_nearby_title">အနီးနားရှိ အဆက်အသွယ်အား ထည့်သွင်းမယ်</string>
@@ -279,6 +292,7 @@
   <string name="different_person_button">နောက်တစ်ယောက် </string>
   <string name="duplicate_link_dialog_text_3">%1$sနှင့်%2$s တူညီသောလင့်ခ်ကို သင့်အား ပေးပို့ခဲ့သည်။ \n\n သူတို့ထဲမှ တစ်ဦးက သင့်အဆက်အသွယ်များသည် မည်သူဖြစ်သည်ကို ရှာဖွေရန် ကြိုးစားနေပေမည်။ \n\nသင်သည် အခြားသူတစ်ဦးထံမှ တူညီသောလင့်ခ်ကို ရရှိထားကြောင်း ၎င်းတို့အား မပြောပါနှင့်။</string>
   <string name="pending_contact_updated_toast">ဆိုင်းငံ့ထားသော အဆက်အသွယ်ကို အပ်ဒိတ်လုပ်ပြီး</string>
+  <string name="info_both_must_enter_links">နှစ်ဦးစလုံး အချင်းချင်း လင့်ခ်များ ထည့်ရပါမည်။</string>
   <!--Peer trust levels-->
   <string name="peer_trust_level_unverified">မစိစစ်ရသေးသော အဆက်အသွယ်</string>
   <string name="peer_trust_level_verified">စိစစ်ထားပြီးသော အဆက်အသွယ်
@@ -287,6 +301,7 @@
   <string name="peer_trust_level_stranger">သူစိမ်း</string>
   <!--Introductions-->
   <string name="introduction_onboarding_title">သင့်ရဲ့ အဆက်အသွယ်လိပ်စာများကို မိတ်ဆက်ပါ</string>
+  <string name="introduction_onboarding_text">Briar တွင် ချိတ်ဆက်နိုင်စေရန် သင်၏အဆက်အသွယ်များကို အချင်းချင်း မိတ်ဆက်ပေးပါ။</string>
   <string name="introduction_menu_item">မိတ်ဆက်ခြင်း ပြုလုပ်ပါ</string>
   <string name="introduction_activity_title">အဆက်အသွယ်လိပ်စာကို ရွေးထားပါ</string>
   <string name="introduction_not_possible">ဤအဆက်အသွယ်များနှင့် သင့်စီတွင် မိတ်ဆက်ခြင်းတစ်ခု ရှိလျက်ဖြစ်ပါသည်။ ပြီးစီးရန် ခွင့်ပြုပေးပါ။ သင်မှ သို့မဟုတ် သင့်အဆက်အသွယ်များမှ အွန်လိုင်းမတက်ရှိလျှင် ဤလုပ်ငန်းစဥ်သည် ကြန့်ကြာနိုင်ပါသည်။</string>
@@ -312,6 +327,7 @@
   <string name="connect_via_bluetooth_intro">ဘလူးတုသ်ချိတ်ဆက်မှုများ အလိုအလျောက် အလုပ်မလုပ်ပါက၊ သင်သည် ကိုယ်တိုင် ချိတ်ဆက်ရန် ဤစခရင်ကို အသုံးပြုနိုင်ပါသည်။ \n\n ၎င်းကို လုပ်ဆောင်ရန်အတွက် သင့်အဆက်အသွယ်သည် အနီးအနားတွင်ရှိရန် လိုအပ်ပါသည်။ \n\n သင်နှင့် သင့်အဆက်အသွယ်နှစ်ဦးစလုံးသည် \"Start\" ကို တစ်ပြိုင်နက်တည်း နှိပ်သင့်ပါသည်။</string>
   <string name="connect_via_bluetooth_already_discovering">ဘလူးတုသ်မှတစ်ဆင့် ချိတ်ဆက်ရန် ကြိုးစားနေပြီဖြစ်သည်။ ခဏနေ ထပ်မံစမ်းကြည့်ပါ။ </string>
   <string name="connect_via_bluetooth_no_location_permission">တည်နေရာ သုံးခွင့်မပါဘဲ ဆက်လက် မလုပ်ဆောင်နိုင်ပါ</string>
+  <string name="connect_via_bluetooth_no_bluetooth_permission">အနီးတဝိုက်ရှိ စက်ပစ္စည်းများ ခွင့်ပြုချက်မရှိဘဲ ရှေ့ဆက်၍မရပါ။</string>
   <string name="connect_via_bluetooth_start">ဘလူးတုသ်နှင့် ချိတ်ဆက်နေသည်...</string>
   <string name="connect_via_bluetooth_success">ဘလူးတုသ်နှင့် အောင်မြင်စွာ ချိတ်ဆက်ပြီး</string>
   <string name="connect_via_bluetooth_error">ဘလူးတုသ်မှ တစ်ဆင့် ချိတ်ဆက်၍ မရပါ။</string>
@@ -407,6 +423,8 @@
   <string name="forum_invitation_already_sharing">မျှဝေထားခြင်းဖြစ်သည်</string>
   <string name="forum_invitation_already_invited">ဖိတ်ကြားစာ ပို့ပြီးပြီ</string>
   <string name="forum_invitation_invite_received">ဖိတ်ကြားစာ လက်ခံရရှိသည်</string>
+  <string name="forum_invitation_not_supported">ဤအဆက်အသွယ်မှ မထောက်ပံ့ထားပါ</string>
+  <string name="forum_invitation_error">အမှား။ ဒါဟာ bug တစ်ခုဖြစ်ပြီး သင့်အပြစ်မဟုတ်ပါဘူး။</string>
   <string name="forum_invitation_response_accepted_sent">%s မှ ဖိတ်ကြားမှုကို သင်သည် လက်ခံခဲ့ပါသည်။</string>
   <string name="forum_invitation_response_declined_sent">%s မှ ဖိတ်ကြားမှုကို သင်သည် ငြင်းဆိုခဲ့ပါသည်။</string>
   <string name="forum_invitation_response_declined_auto">%s မှ ပို့ထားသော ဖိုရမ်သို့ ဖိတ်ခေါ်ချက်ကို အလိုအလျောက် ငြင်းပယ်ခဲ့ပါသည်။</string>
@@ -456,7 +474,9 @@
   <string name="blogs_rss_feeds_import">RSS သတင်းပို့စ်အလွှာ တင်သွင်းမည်</string>
   <string name="blogs_rss_feeds_import_button">တင်သွင်းမည်</string>
   <string name="blogs_rss_feeds_import_hint">RSS သတင်းပို့စ်အလွှာ၏ URL ရိုက်ထည့်ပေးပါ</string>
+  <string name="blogs_rss_feeds_import_progress">RSS Feed ကို ထည့်သွင်းနေသည်...</string>
   <string name="blogs_rss_feeds_import_error">ဝမ်းနည်းပါသည်! သင့် သတင်းပို့စ်အလွှာအား တင်သွင်းရာတွင် ပျက်ကွက်မှု ဖြစ်ခဲ့ပါသည်။</string>
+  <string name="blogs_rss_feeds_import_title">ဖိုင်မှ ဖိဒ်ကို ထည့်သွင်းပါ</string>
   <string name="blogs_rss_feeds">RSS သတင်းလွှာများ</string>
   <string name="blogs_rss_feeds_manage_imported">တင်သွင်းထားသော</string>
   <string name="blogs_rss_feeds_manage_author">စာရေးဆရာ -</string>
@@ -560,6 +580,7 @@
   <string name="cannot_load_ringtone">ဖုန်းမြည်သံမဖွင့်နိုင်ပါ</string>
   <!--Mailbox-->
   <string name="mailbox_settings_title">စာတိုက်ပုံး</string>
+  <string name="mailbox_setup_title">စာတိုက်ပုံး စနစ်ထည့်သွင်းခြင်း</string>
   <string name="mailbox_setup_intro">သင်အော့ဖ်လိုင်းဖြစ်နေချိန်တွင် သင့်အဆက်အသွယ်များကို မက်ဆေ့ခ်ျများပေးပို့ရန် စာတိုက်ပုံးကို ဖွင့်ပေးသည်။ သင်အွန်လိုင်းပေါ်မလာမချင်း စာတိုက်ပုံး သည် သင့်မက်ဆေ့ဂျ်များကို လက်ခံရရှိပြီး ၎င်းတို့ကို သိမ်းဆည်းပါမည်။\n
 \nသင်သည် Briar စာတိုက်ပုံး အက်ပ်ကို အားလပ်သည့်စက်ပစ္စည်းတစ်ခုတွင် ထည့်သွင်းနိုင်သည်။ ၎င်းကို ပါဝါနှင့် ဝိုင်ဖိုင်ချိတ်ဆက်ထားပါက ၎င်းကို အမြဲအွန်လိုင်းပေါ်နေစေပါသည်။</string>
   <string name="mailbox_setup_download">ပထမဦးစွာ၊ Google Play တွင် \"Briar စာတိုက်ပုံး\" ကို ရှာဖွေခြင်းဖြင့် အခြားစက်ပစ္စည်းပေါ်တွင် စာတိုက်ပုံး အက်ပ်ကို ထည့်သွင်းပါ။\n
@@ -567,13 +588,53 @@
   <string name="mailbox_setup_download_link">ဒေါင်းလုဒ်လင့်ခ်ကို မျှဝေပါ</string>
   <string name="mailbox_setup_button_scan">စာတိုက်ပုံး QR ကုဒ်ကို စကင်န်ဖတ်ပါ</string>
   <string name="permission_camera_qr_denied_body">သင်သည် ကင်မရာအသုံးပြုခွင့်ကို ငြင်းပယ်ထားသော်လည်း QR ကုဒ်ကို စကင်န်ဖတ်ရန် ကင်မရာကို အသုံးပြုရန် လိုအပ်ပါသည်။ \n\nကျေးဇူးပြု၍ ဝင်ရောက်ခွင့်ပြုရန် စဉ်းစားပါ။</string>
+  <string name="mailbox_setup_connecting">စာတိုက်ပုံးသို့ ချိတ်ဆက်နေသည်...</string>
   <!--This string is shown when connecting to a Mailbox for the first time. The placeholder will be replaced with a duration, e.g. "2 minutes".-->
+  <string name="mailbox_setup_connecting_info">%1sဤအထိ ကြာနိုင်သည်။</string>
+  <string name="mailbox_qr_code_too_old">သင်စကင်ဖတ်ထားသော QR ကုဒ်သည် Briar Mailbox ဗားရှင်းအဟောင်းမှ လာပါသည်။\n\nကျေးဇူးပြု၍ Briar Mailbox ကို နောက်ဆုံးဗားရှင်းသို့ အဆင့်မြှင့်တင်ပြီးနောက် ထပ်လုပ်ကြည့်ပါ။</string>
+  <string name="mailbox_qr_code_too_new">သင်စကင်ဖတ်ထားသော QR ကုဒ်သည် Briar Mailbox ၏ ဗားရှင်းအသစ်မှ လာပါသည်။\n\nကျေးဇူးပြု၍ Briar ကို နောက်ဆုံးဗားရှင်းသို့ အဆင့်မြှင့်ပြီး ထပ်စမ်းကြည့်ပါ။</string>
+  <string name="contact_qr_code_for_mailbox">သင်စကင်ဖတ်ထားသော QR ကုဒ်သည် Briar အဆက်အသွယ်တစ်ခုထည့်ရန်အတွက်ဖြစ်သည်။\n\nအဆက်အသွယ်တစ်ခုထည့်လိုပါက၊ ကျေးဇူးပြု၍ အဆက်အသွယ်စာရင်းသို့သွားကာ + အိုင်ကွန်ကိုနှိပ်ပါ။</string>
+  <string name="mailbox_setup_qr_code_wrong_description">သင်စကင်ဖတ်ထားသော QR ကုဒ်သည် Briar Mailbox မှ လာမည်မဟုတ်ပါ။\n\nကျေးဇူးပြု၍ သင့် Mailbox စက်တွင် Briar Mailbox အက်ပ်ကိုဖွင့်ပြီး ၎င်းတွင်ပါရှိသော QR ကုဒ်ကို စကင်န်ဖတ်ပါ။</string>
+  <string name="mailbox_setup_already_paired_title">Mailboxကို လင့်ခ်ချိတ်ထားပြီးသား</string>
+  <string name="mailbox_setup_already_paired_description">သင့်အခြားစက်ပစ္စည်းရှိ Mailbox ကို လင့်ခ်ဖြုတ်ပြီး ထပ်စမ်းကြည့်ပါ။</string>
+  <string name="mailbox_setup_io_error_title">ချိတ်ဆက်၍မရပါ</string>
+  <string name="mailbox_setup_io_error_description">စက်ပစ္စည်းနှစ်ခုလုံးသည် အင်တာနက်သို့ ချိတ်ဆက်ထားကြောင်း သေချာစေပြီး ထပ်စမ်းကြည့်ပါ။</string>
+  <string name="mailbox_setup_assertion_error_title">Mailbox ချို့ယွင်းမှု</string>
+  <string name="mailbox_setup_assertion_error_description">ပြဿနာဆက်ရှိနေပါက Briar အက်ပ်မှတစ်ဆင့် (အမည်မသိဒေတာဖြင့်) တုံ့ပြန်ချက်ပေးပို့ပါ။</string>
+  <string name="mailbox_setup_camera_error_description">ကင်မရာကို အသုံးပြု၍မရပါ။ စက်ပစ္စည်းကို ပြန်လည်စတင်ပြီးနောက် ဖြစ်နိုင်ပြီး ထပ်စမ်းကြည့်ပါ</string>
   <string name="mailbox_setup_paired_title">ချိတ်ဆက်ပြီးပါပြီ</string>
+  <string name="mailbox_setup_paired_description">သင့်Mailbox ကို Briar နှင့် အောင်မြင်စွာ ချိတ်ဆက်ထားသည်။\n 		\nသင့်Mailboxကို ပါဝါနှင့် Wi-Fi ချိတ်ဆက်ထားပါက ၎င်းသည် အမြဲအွန်လိုင်းပေါ်နေပါသည်။</string>
   <string name="tor_offline_title">အော့ဖ်လိုင်း</string>
+  <string name="tor_offline_description">ဤစက်ပစ္စည်းသည် အွန်လိုင်းရှိပြီး အင်တာနက်ချိတ်ဆက်မှုများကို ခွင့်ပြုထားကြောင်း သေချာပါစေ။\n 		\nထို့နောက်၊ ချိတ်ဆက်မှုဆက်တင်မျက်နှာပြင်ရှိ ကမ္ဘာလုံးအိုင်ကွန်ကို အစိမ်းရောင်ပြောင်းရန် စောင့်ပါ။</string>
   <string name="tor_offline_button_check">ချိတ်ဆက်မှု ဆက်တင်များကို စစ်ဆေးပါ</string>
+  <string name="mailbox_status_title">Mailbox အခြေအနေ</string>
+  <string name="mailbox_status_connected_title">Mailbox ကိုဖွင့်ထားသည်</string>
+  <string name="mailbox_status_problem_title">Briar သည် Mailbox သို့ ချိတ်ဆက်ရာတွင် အခက်အခဲရှိနေသည်။</string>
+  <string name="mailbox_status_failure_title">စာတိုက်ပုံးကို မရနိုင်ပါ</string>
+  <string name="mailbox_status_app_too_old_title">Briar သည်အရမ်းဟောင်းနေပြီ</string>
+  <string name="mailbox_status_app_too_old_message">Briar ကိုနောက်ဆုံးဗားရှင်းအထိ အသစ်ဆွဲပြီးပြန်ကြိုးစားကြည့်ပါ</string>
+  <string name="mailbox_status_mailbox_too_old_title">Mailbox သည်အရမ်းဟောင်းနေပါပြီ</string>
+  <string name="mailbox_status_mailbox_too_old_message">သင်၏ Mailbox ကို အက်ပ်၏ နောက်ဆုံးဗားရှင်းသို့ အပ်ဒိတ်လုပ်ပြီး ထပ်စမ်းကြည့်ပါ။</string>
+  <string name="mailbox_status_check_button">ချိတ်ဆက်ခြင်းကို စစ်ဆေးပါ</string>
   <!--Example for string substitution: Last connection: 3min ago-->
+  <string name="mailbox_status_connected_info">နောက်ဆုံးချိတ်ဆက်မှု- %s</string>
   <!--Indicates that there never was a connection to the mailbox. Last connection: Never-->
   <string name="mailbox_status_connected_never">ဘယ်တော့မှ</string>
+  <string name="mailbox_status_unlink_button">လင့်ခ်ဖြုတ်ပါ
+</string>
+  <string name="mailbox_status_unlink_dialog_title">စာတိုက်ပုံးကို လင့်ခ်ဖြုတ်မလား။</string>
+  <string name="mailbox_status_unlink_dialog_question">သင့်Mailbox ကို လင့်ခ်ဖြုတ်လိုသည်မှာ သေချာပါသလား။</string>
+  <string name="mailbox_status_unlink_dialog_warning">သင့်စာတိုက်ပုံးကို လင့်ခ်ဖြုတ်ပါက၊ Briar အော့ဖ်လိုင်းဖြစ်နေချိန်တွင် မက်ဆေ့ဂျ်များကို လက်ခံရရှိမည်မဟုတ်ပါ။</string>
+  <string name="mailbox_status_unlink_no_wipe_title">သင့်Mailboxကို လင့်ခ်ဖြုတ်လိုက်ပါပြီ။</string>
+  <string name="mailbox_status_unlink_no_wipe_message">သင့်Mailboxစက်ပစ္စည်းသို့ နောက်တစ်ကြိမ်ဝင်ရောက်ခွင့်ရသည့်အခါ၊ ကျေးဇူးပြု၍ Mailboxအက်ပ်ကိုဖွင့်ပြီး လုပ်ငန်းစဉ်ကို အပြီးသတ်ရန် \"လင့်ခ်ဖြုတ်ရန်\" ခလုတ်ကိုနှိပ်ပါ။\n\nသင့်Mailboxစက်ပစ္စည်းသို့ ဝင်ရောက်ခွင့်မရှိတော့ပါက စိတ်မပူပါနှင့်။ သင့်ဒေတာကို ကုဒ်ဝှက်ထားသောကြောင့် လုပ်ငန်းစဉ်ကို မပြီးမြောက်ပါက လုံခြုံစွာရှိနေပါမည်။</string>
+  <string name="mailbox_status_unlink_success">သင့်Mailboxကို လင့်ခ်ဖြုတ်လိုက်ပါပြီ။</string>
+  <string name="mailbox_error_notification_channel_title">Briar Mailbox ချို့ယွင်းမှု</string>
+  <string name="mailbox_error_notification_title">Briar Mailbox မရရှိနိုင်ပါ</string>
+  <string name="mailbox_error_notification_text">ပြဿနာကို ဖြေရှင်းရန် တို့ပါ။</string>
+  <string name="mailbox_error_wizard_button">ပြဿနာကို ဖြေရှင်းပါ</string>
+  <string name="mailbox_error_wizard_title">Mailbox ပြင်ဆင်မှု လုပ်ငန်းစဥ်</string>
+  <string name="mailbox_error_wizard_question1">သင့်Mailboxစက်သို့ ဝင်ရောက်ခွင့်ရှိပါသလား။</string>
+  <string name="mailbox_error_wizard_answer1">ဟုတ်တယ်၊ ကျွန်ုပ် အဲဒါကို အခုပဲ သုံးခွင့်ရတယ်။</string>
   <!--About-->
   <string name="about_title">အကြောင်း</string>
   <!--Here translators can add their names or Transifex usernames(eg "Thanks to all the contributors at the Localization Lab, especially Tom, Matthew and Jerry")-->
