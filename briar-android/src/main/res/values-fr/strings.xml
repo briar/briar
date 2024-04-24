@@ -437,6 +437,8 @@
   <string name="forum_invitation_already_sharing">Le forum est déjà partagé</string>
   <string name="forum_invitation_already_invited">Invitation déjà envoyée</string>
   <string name="forum_invitation_invite_received">Invitation déjà reçue</string>
+  <string name="forum_invitation_not_supported">Non pris en charge par ce contact</string>
+  <string name="forum_invitation_error">Erreur. C\'est un bogue et non votre faute</string>
   <string name="forum_invitation_response_accepted_sent">Vous avez accepté l’invitation de %s au forum.</string>
   <string name="forum_invitation_response_declined_sent">Vous avez refusé l’invitation de %s au forum.</string>
   <string name="forum_invitation_response_declined_auto">L’invitation au forum provenant de %s a été refusée automatiquement.</string>

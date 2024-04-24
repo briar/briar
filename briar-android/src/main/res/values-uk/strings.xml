@@ -26,6 +26,10 @@
   <string name="dnkm_xiaomi_button">Захистити Briar</string>
   <string name="dnkm_xiaomi_help">Якщо не закріпити Briar у переліку недавніх застосунків, він не зможе працювати в фоновому режимі.</string>
   <string name="dnkm_xiaomi_dialog_body_old">1. Відкрийте перелік недавніх застосунків (також називається перемикачем додатків)\n\n2. Проведіть униз по зображенню Briar, щоб з\'явився значок замка\n\n3. Якщо замок не замкнений, замкніть його дотиком</string>
+  <string name="dnkm_xiaomi_dialog_body_new">1. Відкрийте список нещодавніх програм (який також називається перемикачем програм)\n\n2. Якщо поруч з назвою Briar є маленьке зображення замка, вам не потрібно нічого робити\n\n3. Якщо зображення замка немає, натисніть і утримуйте зображення Briar, доки не з\'явиться кнопка із зображенням замка, а потім торкніться її</string>
+  <string name="dnkm_xiaomi_lock_apps_text">Натисніть кнопку нижче, щоб відкрити налаштування безпеки. Натисніть \"Підвищити швидкість\", потім \"Блокувати програми\" і переконайтеся, що для Briar встановлено значення \"Блоковано\".</string>
+  <string name="dnkm_xiaomi_lock_apps_help">Якщо для Briar не встановлено значення \"Блоковано\" на екрані \"Блокування програм\", він не зможе працювати у фоновому режимі.</string>
+  <string name="dnkm_warning_dozed_1">Briar не вдалося запустити у фоновому режимі</string>
   <!--Login-->
   <string name="enter_password">Пароль</string>
   <string name="try_again">Неправильний пароль, спробуйте ще раз</string>
@@ -244,11 +248,16 @@
   <string name="contact_already_exists">Контакт %s вже існує</string>
   <string name="contact_already_exists_general">Контакт вже існує</string>
   <string name="qr_code_invalid">QR-код неправильний</string>
+  <string name="qr_code_too_old_1">QR-код, який ви просканували, належить до старої версії Briar.\n\nПопросіть ваш контакт оновити програму до останньої версії, а потім спробуйте ще раз.</string>
+  <string name="qr_code_too_new_1">QR-код, який ви просканували, належить до новішої версії Briar.\n\nПерейдіть на останню версію і спробуйте ще раз.</string>
+  <string name="mailbox_qr_code_for_contact">QR-код, який ви просканували, походить з поштової скриньки Briar.\n\nЯкщо ви хочете прив\'язати поштову скриньку, будь ласка, виберіть Налаштування &gt; Поштова скринька в меню Briar.</string>
+  <string name="qr_code_format_unknown">Просканований вами QR-код не призначений для додавання контакту Briar.\n\nБудь ласка, проскануйте QR-код, показаний на екрані вашого контакту.</string>
   <string name="camera_error">Помилка камери</string>
   <string name="connecting_to_device">З\'єднання з пристроєм\u2026</string>
   <string name="authenticating_with_device">Автентифікація з пристроєм\u2026</string>
   <string name="connection_error_title">Неможливо з\'єднатися з вашим контактом</string>
   <string name="connection_error_feedback">Якщо ця проблема збережеться, будь ласка, <a href="feedback">надішліть відгук</a>, щоб допомогти нам вдосконалити цей додаток.</string>
+  <string name="info_both_must_scan">Ви повинні відсканувати QR-коди один одного</string>
   <!--Adding Contacts Remotely-->
   <string name="add_contact_remotely_title_case">Додати контакт віддалено</string>
   <string name="add_contact_nearby_title">Додати контакт поблизу</string>
@@ -308,6 +317,7 @@
   <string name="different_person_button">Різні особи</string>
   <string name="duplicate_link_dialog_text_3">%1$s та %2$s надіслали вам однакові посилання.\n\nХтось із них, можливо, намагається виявити ваші контакти.\n\nНе кажіть їм, що вже отримували це посилання від когось іще.</string>
   <string name="pending_contact_updated_toast">Оновлено нерозглянутий контакт</string>
+  <string name="info_both_must_enter_links">Ви повинні додати посилання один одного</string>
   <!--Peer trust levels-->
   <string name="peer_trust_level_unverified">Неперевірений контакт</string>
   <string name="peer_trust_level_verified">Перевірений контакт</string>
@@ -500,6 +510,7 @@
   <string name="blogs_rss_feeds_import">Імпортувати RSS-стрічку</string>
   <string name="blogs_rss_feeds_import_button">Імпортувати</string>
   <string name="blogs_rss_feeds_import_hint">Введіть URL-посилання RSS-стрічки</string>
+  <string name="blogs_rss_feeds_import_progress">Імпортується стрічка RSS…</string>
   <string name="blogs_rss_feeds_import_error">Нам шкода! Виникла помилка під час імпорту вашої стрічки.</string>
   <string name="blogs_rss_feeds_import_title">Імпортувати стрічку з файлу</string>
   <string name="blogs_rss_feeds">RSS-стрічки</string>
@@ -613,8 +624,13 @@
   <string name="mailbox_setup_download_link">Поширити посилання на завантаження</string>
   <string name="mailbox_setup_button_scan">Сканувати QR-код Mailbox</string>
   <string name="permission_camera_qr_denied_body">Ви заборонили доступ до камери, але камера потрібна для сканування QR-коду.\n\nБудь ласка, надайте доступ.</string>
+  <string name="mailbox_setup_connecting">Під\'єднується до Mailbox…</string>
   <!--This string is shown when connecting to a Mailbox for the first time. The placeholder will be replaced with a duration, e.g. "2 minutes".-->
   <string name="mailbox_setup_connecting_info">Це може зайняти до %1s</string>
+  <string name="mailbox_qr_code_too_old">Просканований вами QR-код належить до старої версії Briar Mailbox. Будь ласка, оновіть Briar Mailbox до останньої версії, а потім спробуйте ще раз.</string>
+  <string name="mailbox_qr_code_too_new">Просканований вами QR-код належить до новішої версії поштової скриньки Briar. Будь ласка, оновіть Briar до останньої версії, а потім спробуйте ще раз.</string>
+  <string name="contact_qr_code_for_mailbox">QR-код, який ви просканували, призначений для додавання контакту Briar.\n\nЯкщо ви хочете додати контакт, перейдіть до списку контактів і торкніться іконки +.</string>
+  <string name="mailbox_setup_qr_code_wrong_description">Просканований вами QR-код не від Briar Mailbox.\n\nБудь ласка, відкрийте програму Briar Mailbox на своєму поштовому пристрої та проскануйте поданий QR-код.</string>
   <string name="mailbox_setup_already_paired_title">Mailbox уже під\'єднано</string>
   <string name="mailbox_setup_already_paired_description">Від\'єднайте Mailbox від свого іншого пристрою й повторіть спробу.</string>
   <string name="mailbox_setup_io_error_title">Не вдалося з\'єднатися</string>
@@ -636,6 +652,7 @@
   <string name="mailbox_status_app_too_old_title">Версія Briar занадто стара</string>
   <string name="mailbox_status_app_too_old_message">Оновіть Briar до найновішої версії та спробуйте ще.</string>
   <string name="mailbox_status_mailbox_too_old_title">Версія потової скриньки занадто стара</string>
+  <string name="mailbox_status_mailbox_too_old_message">Оновіть свою поштову скриньку до останньої версії програми та спробуйте ще раз.</string>
   <string name="mailbox_status_check_button">Перевірити з\'єднання</string>
   <!--Example for string substitution: Last connection: 3min ago-->
   <string name="mailbox_status_connected_info">З\'єднання було: %s</string>
@@ -646,15 +663,32 @@
   <string name="mailbox_status_unlink_dialog_question">Ви впевнені що хочете від\'єднати поштову скриньку?</string>
   <string name="mailbox_status_unlink_dialog_warning">Якщо ви від\'єднаєте вашу поштову скриньку, ви не зможете отримувати повідомлення поки Briar не на зв\'язку</string>
   <string name="mailbox_status_unlink_no_wipe_title">Ваша поштова скринька від\'єднана</string>
+  <string name="mailbox_status_unlink_no_wipe_message">Наступного разу, коли у вас буде доступ до поштової скриньки, відкрийте програму \"Поштова скринька\" і натисніть кнопку \"Відв\'язати\", щоб завершити процес.\n\nЯкщо у вас більше немає доступу до поштової скриньки, не хвилюйтеся. Ваші дані зашифровано, тому вони залишаться в безпеці, навіть якщо ви не завершите процес.</string>
   <string name="mailbox_status_unlink_success">Ваша поштова скринька від\'єднана</string>
   <string name="mailbox_error_notification_channel_title">Проблема з поштовою скринькою Briar</string>
   <string name="mailbox_error_notification_title">Поштова скринька Briar не доступна</string>
   <string name="mailbox_error_notification_text">Натисніть щоб виправити проблему</string>
   <string name="mailbox_error_wizard_button">Виправити проблему</string>
+  <string name="mailbox_error_wizard_title">Майстер усунення несправностей Mailbox</string>
   <string name="mailbox_error_wizard_question1">Ви маєте доступ до вашого пристрою Mailbox?</string>
+  <string name="mailbox_error_wizard_answer1">Так, я маю доступ до нього прямо зараз.</string>
+  <string name="mailbox_error_wizard_answer2">Не зараз, але я можу отримати доступ до нього пізніше.</string>
+  <string name="mailbox_error_wizard_answer3">Ні, я більше не маю до нього доступу.</string>
+  <string name="mailbox_error_wizard_info1_1">Переконайтеся, що пристрій Mailbox увімкнено та під\'єднано до Інтернету.</string>
+  <string name="mailbox_error_wizard_question1_1">Відкрийте програму Mailbox. Що ви бачите?</string>
   <string name="mailbox_error_wizard_answer1_1">Я бачу вказівки щодо налаштування Mailbox</string>
   <string name="mailbox_error_wizard_answer1_2">Я бачу QR-код</string>
+  <string name="mailbox_error_wizard_answer1_3">Я бачу \"Поштова скринька працює\"</string>
+  <string name="mailbox_error_wizard_answer1_4">Я бачу \"Пристрій не в мережі\"</string>
+  <string name="mailbox_error_wizard_info1_1_1">Будь ласка, від\'єднайте вашу поштову скриньку за допомогою кнопки нижче, а потім дотримуйтесь інструкцій на поштовому пристрої, щоб прив\'язати її знову.</string>
+  <string name="mailbox_error_wizard_info_1_1_2">Будь ласка, від\'єднайте свою поштову скриньку за допомогою кнопки нижче, а потім проскануйте QR-код, щоб прив\'язати її знову.</string>
+  <string name="mailbox_error_wizard_info1_1_3">Будь ласка, скористайтеся кнопкою нижче, щоб перевірити з\'єднання між Briar та поштовою скринькою.\n\n
+Якщо з\'єднання знову не вдалося:\n
+		\u2022 Переконайтеся, що програми Поштова скринька та Briar оновлено до останньої версії.\n
+		\u2022 Перезапустіть поштову скриньку та Briar і повторіть спробу.</string>
+  <string name="mailbox_error_wizard_info1_1_4">Переконайтеся, що поштовий пристрій належним чином під\'єднано до Інтернету.\n\nПереконайтеся, що годинник на поштовому пристрої показує правильний час, дату та часовий пояс.\n\nПереконайтеся, що програми Поштова скринька та Briar оновлено до останньої версії.\n\nП перезапустіть поштову скриньку та Briar і повторіть спробу.</string>
   <string name="mailbox_error_wizard_info2">Будь ласка повертайтесь до цього екрану коли у вас буде доступ до пристрою</string>
+  <string name="mailbox_error_wizard_info3">Будь ласка, від\'єднайте свою поштову скриньку за допомогою кнопки нижче.\n\nПісля від\'єднання старої поштової скриньки ви можете створити нову поштову скриньку в будь-який час.</string>
   <!--About-->
   <string name="about_title">Про</string>
   <string name="briar_version">Версія Briar %s</string>
@@ -681,6 +715,7 @@
   <string name="disappearing_messages_summary">Знищувати майбутні повідомлення в цій розмові автоматично за 7\u00A0днів.</string>
   <!--Settings Actions-->
   <string name="pref_category_actions">Дії</string>
+  <string name="share_app_link">Поділитися посиланням для завантаження</string>
   <string name="share_app_link_text">Завантажити Briar з %s</string>
   <string name="send_feedback">Надіслати відгук</string>
   <!--Link Warning-->
@@ -736,12 +771,16 @@
   <string name="permission_camera_location_title">Камера та місцезнаходження</string>
   <string name="permission_camera_location_request_body">Щоб відсканувати QR-код, Briar потребує доступу до камери.\n\nЩоб знайти Bluetooth-пристрої, Briar потребує доступу до інформації про ваше місцезнаходження.\n\nBriar не зберігає дані про ваше місцезнаходження та не ділиться ні з ким цією інформацією.</string>
   <string name="permission_camera_bluetooth_title">Камера та пристрої поблизу</string>
+  <string name="permission_camera_bluetooth_request_body">Щоб просканувати QR-код, Briar повинен мати доступ до камери.\n\nЩоб виявити Bluetooth-пристрої, Briar повинен отримати дозвіл на пошук і під\'єднання до найближчих пристроїв.</string>
   <string name="permission_camera_denied_body">Ви відмовилися надати доступ до камери, але додавання контактів потребує використання камери.\n\nБудь ласка, подумайте про можливість надання доступу.</string>
   <string name="permission_location_denied_body">Ви заборонили доступ до місцеперебування, але Briar потребує цього доступу, щоб знаходити Bluetooth-пристрої.\n\nБудь ласка, надайте доступ.</string>
   <string name="permission_location_setting_title">Визначення місцеперебування</string>
   <string name="permission_location_setting_body">Ваш пристрій не дозволяє визначати місцеперебування, а це потрібно для знаходження інших пристроїв через Bluetooth. Будь ласка, увімкніть визначення місцеперебування, щоб продовжити. Згодом ви зможете знову його вимкнути.</string>
+  <string name="permission_location_setting_hotspot_body">Для створення точки доступу Wi-Fi на вашому пристрої має бути ввімкнена функція визначення місця знаходження. Будь ласка, увімкніть визначення місце знаходження, щоб продовжити. Згодом її можна буде знову вимкнути.</string>
   <string name="permission_location_setting_button">Увімкнути визначення місцеперебування</string>
   <string name="permission_bluetooth_title">Дозволи на пристроях поблизу</string>
+  <string name="permission_bluetooth_body">Щоб використовувати Bluetooth-зв\'язок, Briar потребує дозволу на пошук і під\'єднання до пристроїв, розташованих поблизу.</string>
+  <string name="permission_bluetooth_denied_body">Ви заборонили доступ до сусідніх пристроїв, але Briar потребує цього дозволу для використання Bluetooth.\n\nПодумайте, будь ласка, над тим, щоб дозволити доступ.</string>
   <string name="qr_code">QR-код</string>
   <string name="show_qr_code_fullscreen">Вивести QR-код на весь екран</string>
   <!--App Locking-->
@@ -764,7 +803,11 @@
   <string name="hotspot_notification_title">Поширення Briar поза мережею</string>
   <string name="hotspot_button_connected">Вперед</string>
   <string name="permission_hotspot_location_request_body">Для створення точки доступу Wi-Fi треба дозвіл на отримання місцеперебування.\n\nBriar не зберігає місцеперебування й нікому його не передає.</string>
+  <string name="permission_hotspot_location_request_precise_body">Щоб створити точку доступу Wi-Fi, Briar потрібен дозвіл на доступ до вашого точного місця знаходження.\n\nBriar не зберігає ваше місце знаходження і не передає його нікому.</string>
   <string name="permission_hotspot_location_denied_body">Ви заборонили доступ до місцеперебування, але Briar потребує цього доступу, щоб створити точку доступу Wi-Fi.\n\nБудь ласка, надайте доступ.</string>
+  <string name="permission_hotspot_location_denied_precise_body">Ви заборонили доступ до вашого точного місця знаходження, але Briar потребує цього дозволу для створення точки доступу Wi-Fi.\n\nПодумайте, будь ласка, над тим, щоб надати доступ.</string>
+  <string name="permission_hotspot_nearby_wifi_request_body">Щоб створити точку доступу Wi-Fi, Briar потрібен дозвіл на доступ до пристроїв, розташованих поблизу.</string>
+  <string name="permission_hotspot_nearby_wifi_denied_body">Ви заборонили доступ до сусідніх пристроїв, але Briar потребує цього дозволу для створення точки доступу Wi-Fi.\n\nПодумайте, будь ласка, над тим, щоб дозволити доступ.</string>
   <string name="wifi_settings_title">Налаштування Wi-Fi</string>
   <string name="wifi_settings_request_enable_body">Будь ласка, ввімкніть Wi-Fi, щоб Briar міг створити точку доступу.</string>
   <string name="hotspot_tab_manual">Вручну</string>
