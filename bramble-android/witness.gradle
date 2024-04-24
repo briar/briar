@@ -25,7 +25,7 @@ dependencyVerification {
 		'net.jcip:jcip-annotations:1.0:jcip-annotations-1.0.jar:be5805392060c71474bf6c9a67a099471274d30b83eef84bfc4e0889a4f1dcc0',
 		'net.ltgt.gradle.incap:incap:0.2:incap-0.2.jar:b625b9806b0f1e4bc7a2e3457119488de3cd57ea20feedd513db070a573a4ffd',
 		'org.apache-extras.beanshell:bsh:2.0b6:bsh-2.0b6.jar:a17955976070c0573235ee662f2794a78082758b61accffce8d3f8aedcd91047',
-		'org.briarproject:dont-kill-me-lib:0.2.7:dont-kill-me-lib-0.2.7.aar:8a9540941fd927e1c127096a7a9b4aa61ce2f2965d2e24f849be92f9e57213c4',
+		'org.briarproject:dont-kill-me-lib:0.2.8:dont-kill-me-lib-0.2.8.aar:e21173e480ee3f2364c142cc14db8dc6447be91bde9e62e4985c485ea0af9126',
 		'org.briarproject:jtorctl:0.5:jtorctl-0.5.jar:43f8c7d390169772b9a2c82ab806c8414c136a2a8636c555e22754bb7260793b',
 		'org.briarproject:null-safety:0.1:null-safety-0.1.jar:161760de5e838cb982bafa973df820675d4397098e9a91637a36a306d43ba011',
 		'org.briarproject:obfs4proxy-android:0.0.14-tor2:obfs4proxy-android-0.0.14-tor2.jar:a0a93770d6760ce57d9dbd31cc7177687374e00c3361dac22ab75e3b6e0f289e',

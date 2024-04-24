@@ -635,9 +635,34 @@
   <string name="mailbox_error_wizard_title">Mailbox ပြင်ဆင်မှု လုပ်ငန်းစဥ်</string>
   <string name="mailbox_error_wizard_question1">သင့်Mailboxစက်သို့ ဝင်ရောက်ခွင့်ရှိပါသလား။</string>
   <string name="mailbox_error_wizard_answer1">ဟုတ်တယ်၊ ကျွန်ုပ် အဲဒါကို အခုပဲ သုံးခွင့်ရတယ်။</string>
+  <string name="mailbox_error_wizard_answer2">လောလောဆယ် မဟုတ်သေးပေမယ့် နောက်ပိုင်းမှာ ဝင်သုံးလို့ရတယ်။</string>
+  <string name="mailbox_error_wizard_answer3">မဟုတ်ပါ၊ ကျွန်ုပ်တွင် ၎င်းကို အသုံးပြုခွင့်မရှိတော့ပါ။</string>
+  <string name="mailbox_error_wizard_info1_1">Mailbox ကို ဖွင့်ထားပြီး အင်တာနက်နှင့် ချိတ်ဆက်ထားကြောင်း စစ်ဆေးပါ။</string>
+  <string name="mailbox_error_wizard_question1_1">Mailbox အက်ပ်ကိုဖွင့်ပါ။ သင် ဘာမြင်လဲ။</string>
+  <string name="mailbox_error_wizard_answer1_1">Mailboxကို စနစ်ထည့်သွင်းရန် ညွှန်ကြားချက်များကို ကျွန်ုပ်တွေ့မြင်ရသည်။</string>
+  <string name="mailbox_error_wizard_answer1_2">QR ကုဒ်ကို ကျွန်ုပ်တွေ့တယ်။</string>
+  <string name="mailbox_error_wizard_answer1_3">\"Mailboxဖွင့်နေတယ်လို့\" ကျွန်ုပ်တွေ့တယ်</string>
+  <string name="mailbox_error_wizard_answer1_4">\"စက်ပစ္စည်း အော့ဖ်လိုင်း\" ကို မြင်သည်</string>
+  <string name="mailbox_error_wizard_info1_1_1">အောက်ပါခလုတ်ကို အသုံးပြု၍ သင့်Mailboxကို လင့်ခ်ဖြုတ်ပါ၊ ထို့နောက် ၎င်းကို ထပ်မံချိတ်ဆက်ရန် Mailbox ရှိ ညွှန်ကြားချက်များကို လိုက်နာပါ။</string>
+  <string name="mailbox_error_wizard_info_1_1_2">သင့်Mailbox ကို အောက်ဖော်ပြပါ ခလုတ်ကို အသုံးပြု၍ လင့်ခ်ဖြုတ်ပါ၊ ထို့နောက် ၎င်းကို ထပ်မံချိတ်ဆက်ရန် QR ကုဒ်ကို စကင်န်ဖတ်ပါ။</string>
+  <string name="mailbox_error_wizard_info1_1_3">Briar နှင့် Mailbox ကြား ချိတ်ဆက်မှုကို စစ်ဆေးရန် အောက်ပါခလုတ်ကို အသုံးပြုပါ။\n\n
+ချိတ်ဆက်မှု ထပ်မံ အဆင်မပြေပါက-\n
+\u2022 Mailbox နှင့် Briar အက်ပ်များကို နောက်ဆုံးဗားရှင်းသို့ အပ်ဒိတ်လုပ်ထားကြောင်း စစ်ဆေးပါ။\n
+\u2022 သင်၏ Mailbox နှင့် Briar စက်များကို ပြန်လည်စတင်ပြီး ထပ်စမ်းကြည့်ပါ။</string>
+  <string name="mailbox_error_wizard_info1_1_4">Mailbox စက်ပစ္စည်းသည် အင်တာနက်သို့ မှန်ကန်စွာချိတ်ဆက်ထားကြောင်း စစ်ဆေးပါ။\n\n Mailbox ကိရိယာရှိ နာရီသည် မှန်ကန်သောအချိန်၊ ရက်စွဲနှင့် အချိန်ဇုန်ကို ပြသကြောင်းစစ်ဆေးပါ။\n\nMailbox နှင့် Briar အက်ပ်များကို နောက်ဆုံးဗားရှင်းသို့ အပ်ဒိတ်လုပ်ထားကြောင်း စစ်ဆေးပါ။\ n\nသင်၏ Mailbox နှင့် Briar စက်များကို ပြန်လည်စတင်ပြီး ထပ်စမ်းကြည့်ပါ။</string>
+  <string name="mailbox_error_wizard_info2">သင်သည် စက်ပစ္စည်းကို အသုံးပြုခွင့်ရသည့်အခါ ဤဖန်သားပြင်သို့ ပြန်လာပါ။</string>
+  <string name="mailbox_error_wizard_info3">အောက်ပါခလုတ်ကို အသုံးပြု၍ သင့်Mailbox ကို လင့်ခ်ဖြုတ်ပါ။\n\nသင့်Mailboxဟောင်းကို လင့်ခ်ဖြုတ်ပြီးနောက်၊ သင်သည် Mailbox အသစ်ကို အချိန်မရွေး သတ်မှတ်နိုင်သည်။</string>
   <!--About-->
   <string name="about_title">အကြောင်း</string>
+  <string name="briar_version">Briar ဗားရှင်း - %s</string>
+  <string name="tor_version">Tor ဗားရှင်း - %s</string>
+  <string name="links">လင့်ခ်များ</string>
+  <string name="briar_website">\u2022 <a href="">၀က်ဘ်ဆိုဒ်</a></string>
+  <string name="briar_source_code">\u2022 <a href="">ဆိုစ့်ကုဒ်</a></string>
+  <string name="briar_changelog">\u2022 <a href="">ပြောင်းလဲမှုမှတ်တမ်း</a></string>
+  <string name="briar_privacy_policy">\u2022 <a href="">ကိုယ်ရေးကိုယ်တာမူဝါဒ</a></string>
   <!--Here translators can add their names or Transifex usernames(eg "Thanks to all the contributors at the Localization Lab, especially Tom, Matthew and Jerry")-->
+  <string name="translator_thanks">Localization Lab မှ ပံ့ပိုးကူညီသူများအားလုံးကို ကျေးဇူးတင်ပါသည်။</string>
   <!--Conversation Settings-->
   <string name="disappearing_messages_title">ပျောက်ကွယ် မက်ဆေ့ချ်များ</string>
   <string name="disappearing_messages_explanation_long">၎င်းအပြင်အဆင်ကို ဖွင့်ထားလျှင်
@@ -653,6 +678,8 @@
   <string name="disappearing_messages_summary">၎င်းစကားပြောဆိုမှုထဲရှိ နောင်မက်ဆေ့ချ်များကို 7\u00A0 ရက်အကြာတွင် အလိုအလျောက် ပျောက်ကွယ်မည်။</string>
   <!--Settings Actions-->
   <string name="pref_category_actions">လုပ်ဆောင်မှုများ</string>
+  <string name="share_app_link">ဒေါင်းလုဒ်လင့်ခ်ကို မျှဝေမည်</string>
+  <string name="share_app_link_text">Briar ကို ဒေါင်းလုဒ်လုပ်လုပ်ရန်နေရာ - %s</string>
   <string name="send_feedback">တုံ့ပြန်ချက် ပေးပို့မည်</string>
   <!--Link Warning-->
   <string name="link_warning_title">လင့်ခ် သတိပေးချက်</string>
@@ -669,6 +696,7 @@
   <string name="describe_crash">ဖြစ်စဥ်ကို ဖေါ်ပြပေးပါ (မဖြစ်မနေ ရေးစရာမလိုပါ)</string>
   <string name="enter_feedback">သင့် တုံ့ပြန်ချက်အား ရိုက်ထည့်ပေးပါ</string>
   <string name="optional_contact_email">သင့် အီးမေးလ်လိပ်စာ (မဖြစ်မနေ ရေးစရာမလိုပါ)</string>
+  <string name="privacy_policy">ကျွန်ုပ်တို့ထံ ဒေတာပေးပို့ခြင်းဖြင့် သင်သည် ကျွန်ုပ်တို့၏ <a href="">ကိုယ်ရေးကိုယ်တာမူဝါဒ</a> ကို သဘောတူပါသည်။</string>
   <string name="include_debug_report_crash">ပျက်ကွက်မှုနှင့် ပတ်သက်၍ ပုဂ္ဂိုလ်မထုတ်ဖေါ်နိုင်သော အချက်အလက်များ ထည့်မည်</string>
   <string name="include_debug_report_feedback">စက်ပစ္စည်းနှင့် ပတ်သက်၍ ပုဂ္ဂိုလ်မထုတ်ဖေါ်နိုင်သော အချက်အလက်များ ထည့်မည်</string>
   <string name="dev_report_user_info">သုံးသူ အချက်အလက်များ</string>
@@ -701,14 +729,21 @@
   <string name="permission_camera_title">ကင်မရာသုံးခွင့်</string>
   <string name="permission_camera_request_body">QR ကုဒ်အား စကင်ဖတ်ရန် Briar မှ ကင်မရာသုံးခွင့်လိုအပ်ပါသည်။</string>
   <string name="permission_location_title">တည်နေရာသုံးခွင့်</string>
+  <string name="permission_nearby_devices_title">အနီးနားရှိ စက်ပစ္စည်းများ ခွင့်ပြုချက်</string>
   <string name="permission_location_request_body">ဘလူးတုသ် စက်ပစ္စည်းများ ရှာဖွေရန် Briar မှ သင့် တည်နေရာသုံးခွင့် လိုအပ်ပါသည်။ \n\n Briar မှ သင့် တည်နေရာအား သိမ်းဆည်းခြင်းနှင့် မည်သူစီသို့ မျှဝေခြင်း မပြုလုပ်ပါ။</string>
   <string name="permission_camera_location_title">ကင်မရာ နှင့် တည်နေရာ</string>
   <string name="permission_camera_location_request_body">QR ကုဒ် စကင်ဖတ်ရန် Briar မှ ကင်မရာသုံးခွင့် လိုအပ်ပါသည်။ \n\n ဘလူးတုသ် စက်ပစ္စည်းများ ရှာဖွေရန် Briar မှ သင့် တည်နေရာသုံးခွင့် လိုအပ်ပါသည်။ \n\n Briar မှ သင့် တည်နေရာအား သိမ်းဆည်းခြင်းနှင့် မည်သူစီသို့ မျှဝေခြင်း မပြုလုပ်ပါ။</string>
+  <string name="permission_camera_bluetooth_title">ကင်မရာနှင့် အနီးနားရှိ စက်များ</string>
+  <string name="permission_camera_bluetooth_request_body">QR ကုဒ်ကို စကင်န်ဖတ်ရန်၊ Briar သည် ကင်မရာသို့ ဝင်ရောက်ခွင့် လိုအပ်ပါသည်။\n\nဘလူးတုသ်ကိရိယာများကို ရှာဖွေရန်၊ Briar သည် အနီးနားရှိ စက်များနှင့် ချိတ်ဆက်ရန် ခွင့်ပြုချက် လိုအပ်ပါသည်။</string>
   <string name="permission_camera_denied_body">သင်မှ ကင်မရာသုံးခွင့် ငြင်းပယ်ခဲ့ပါသည်၊ သို့သော်လည်း အဆက်အသွယ်များပေါင်းထည့်ရန် ကင်မရာသုံးခွင့် လိုအပ်ပါသည်။ \n\n ကျေးဇူးပြု၍ သုံးခွင့်ပေးရန် စဥ်းစားပေးပါ။</string>
   <string name="permission_location_denied_body">သင်မှ တည်နေရာသုံးခွင့် ငြင်းပယ်ခဲ့ပါသည်၊ သို့သော်လည်း ဘလူးတုသ်ရှာဖွေရန် Briar မှ ဤသုံးခွင့် လိုအပ်ပါသည်။ \n\n ကျေးဇူးပြု၍ သုံးခွင့်ပေးရန် စဥ်းစားပေးပါ။</string>
   <string name="permission_location_setting_title">နေရာ အပြင်အဆင်</string>
   <string name="permission_location_setting_body">သင့်စက်၏ နေရာအပြင်အဆင်ကို ဖွင့်ထားမှသာလျှင် အခြားစက်များမှ ဘလူးတုသ်ဖြင့် ရှာဖွေနိုင်ပါမည်။ ဆက်လက်ရန် နေရာသုံးခွင့် ဖွင့်ထားပေးပါ။ နောက်မှ ပြန်ပိတ်လို့ရပါသည်။</string>
+  <string name="permission_location_setting_hotspot_body">Wi-Fi ဟော့စပေါ့ဖန်တီးရန် သင့်စက်ပစ္စည်း၏ တည်နေရာဆက်တင်ကို ဖွင့်ရပါမည်။ ရှေ့ဆက်ရန် တည်နေရာကို ဖွင့်ပါ။ နောက်မှ ပြန်ပိတ်နိုင်ပါတယ်။</string>
   <string name="permission_location_setting_button">နေရာ ဖွင့်သုံးမည်</string>
+  <string name="permission_bluetooth_title">အနီးနားရှိ စက်ပစ္စည်းများ ခွင့်ပြုချက်</string>
+  <string name="permission_bluetooth_body">ဘလူးတုသ် ဆက်သွယ်ရေးကို အသုံးပြုရန်၊ Briar သည် အနီးနားရှိ စက်များနှင့် ချိတ်ဆက်ရန် ခွင့်ပြုချက် လိုအပ်ပါသည်။</string>
+  <string name="permission_bluetooth_denied_body">သင်သည် အနီးနားရှိ စက်များကို အသုံးပြုခွင့်ကို ငြင်းပယ်ထားသော်လည်း Briar သည် Bluetooth ကို အသုံးပြုရန် ဤခွင့်ပြုချက် လိုအပ်ပါသည်။\n\nကျေးဇူးပြု၍ အသုံးပြုခွင့်ပေးရန် စဉ်းစားပါ။</string>
   <string name="qr_code">QR ကုဒ်</string>
   <string name="show_qr_code_fullscreen">စကရင်အပြည့်တွင် QR ကုဒ် ပြပါ</string>
   <!--App Locking-->
@@ -730,7 +765,11 @@
   <string name="hotspot_notification_title">Briar အော့ဖ်လိုင်း မျှဝေခြင်း</string>
   <string name="hotspot_button_connected">ရှေ့သို့</string>
   <string name="permission_hotspot_location_request_body">ဝိုင်ဖိုင်ဟော့စပေါ့ ဖန်တီးရန်၊ Briar သည် သင့်တည်နေရာကို ဝင်ရောက်အသုံးပြုရန် ခွင့်ပြုချက် လိုအပ်ပါသည်။ \n\n Briar သည် သင့်တည်နေရာကို သိမ်းဆည်းထားခြင်း သို့မဟုတ် ၎င်းကို မည်သူနှင့်မျှ မမျှဝေပါ။</string>
+  <string name="permission_hotspot_location_request_precise_body">Wi-Fi ဟော့စပေါ့တစ်ခုဖန်တီးရန်၊ Briar သည် သင်၏တိကျသောတည်နေရာကို ဝင်ရောက်အသုံးပြုရန် ခွင့်ပြုချက်လိုအပ်ပါသည်။\n\nBriar သည် သင့်တည်နေရာကို သိမ်းဆည်းထားခြင်း သို့မဟုတ် ၎င်းကိုမည်သူနှင့်မျှ မမျှဝေပါ။</string>
   <string name="permission_hotspot_location_denied_body">သင့်တည်နေရာသို့ ဝင်ရောက်ခွင့်ကို သင်ငြင်းဆိုထားသော်လည်း Briar သည် ဝိုင်ဖိုင်ဟော့စပေါ့တစ်ခု ဖန်တီးရန် ဤခွင့်ပြုချက် လိုအပ်ပါသည်။ \n\n ကျေးဇူးပြု၍ အသုံးပြုခွင့်ပေးရန် စဉ်းစားပါ။</string>
+  <string name="permission_hotspot_location_denied_precise_body">သင်သည် သင်၏တိကျသောတည်နေရာကိုအသုံးပြုခွင့်ကို ငြင်းပယ်ထားသော်လည်း Briar သည် Wi-Fi ဟော့စပေါ့တစ်ခုဖန်တီးရန် ဤခွင့်ပြုချက်လိုအပ်ပါသည်။\n\nကျေးဇူးပြု၍ အသုံးပြုခွင့်ပေးရန် စဉ်းစားပါ။</string>
+  <string name="permission_hotspot_nearby_wifi_request_body">Wi-Fi ဟော့စပေါ့ ဖန်တီးရန်၊ Briar သည် အနီးနားရှိ စက်များကို အသုံးပြုခွင့် လိုအပ်ပါသည်။</string>
+  <string name="permission_hotspot_nearby_wifi_denied_body">သင်သည် အနီးတစ်ဝိုက်ရှိ စက်ပစ္စည်းများသို့ ဝင်သုံးခွင့်ကို ငြင်းပယ်ထားသော်လည်း Briar သည် Wi-Fi ဟော့စပေါ့တစ်ခု ဖန်တီးရန် ဤခွင့်ပြုချက် လိုအပ်ပါသည်။\n\nကျေးဇူးပြု၍ အသုံးပြုခွင့်ပေးရန် စဉ်းစားပါ။</string>
   <string name="wifi_settings_title">ဝိုင်ဖိုင်ဆက်တင်</string>
   <string name="wifi_settings_request_enable_body">ဝိုင်ဖိုင်ဟော့စပေါ့ ဖန်တီးရန်၊ Briar သည် ဝိုင်ဖိုင်ကို အသုံးပြုရန် လိုအပ်သည်။ ၎င်းကိုဖွင့်ပါ။</string>
   <string name="hotspot_tab_manual">လမ်းညွှန်စာအုပ်</string>
@@ -751,6 +790,9 @@
   <string name="hotspot_manual_site_address">လိပ်စာ (URL)</string>
   <string name="hotspot_qr_site">သင့်ဖုန်းသည် ဝိုင်ဖိုင်ဟော့စပေါ့ကို ပံ့ပိုးပေးနေသည်။ ဟော့စပေါ့သို့ ချိတ်ဆက်ထားသူများသည် ဤ QR ကုဒ်ကို စကင်န်ဖတ်ခြင်းဖြင့် Briar ကို ဒေါင်းလုဒ်လုပ်နိုင်ပါသည်။</string>
   <!--e.g. Download Briar 1.2.20-->
+  <string name="website_download_title_1">Briar ကိုဒေါင်းလုဒ်လုပ်ပါ။ %s</string>
+  <string name="website_download_intro_1">အနီးတစ်ဝိုက်ရှိ တစ်စုံတစ်ဦးက Briar ကို သင်နှင့် မျှဝေခဲ့သည်။</string>
+  <string name="website_download_button">Briar ကိုဒေါင်းလုဒ်လုပ်ပါ။</string>
   <string name="website_download_outro">ဒေါင်းလုဒ်ပြီးပါက ဒေါင်းလုဒ်လုပ်ထားသော ဖိုင်ကိုဖွင့်ပြီး ထည့်သွင်းပါ။</string>
   <string name="website_troubleshooting_title">ပြဿနာရှာဖွေပြင်ဆင်ခြင်း</string>
   <string name="website_troubleshooting_1">အက်ပ်ကို သင်ဒေါင်းလုဒ် မလုပ်နိုင်ပါက အခြား ဝဘ်ဘရောက်ဆာ အက်ပ်ဖြင့် ၎င်းကို စမ်းကြည့်ပါ။</string>
