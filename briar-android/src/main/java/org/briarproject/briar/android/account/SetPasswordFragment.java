@@ -31,7 +31,9 @@ import static android.view.View.VISIBLE;
 import static android.view.inputmethod.EditorInfo.IME_ACTION_DONE;
 import static androidx.core.content.ContextCompat.checkSelfPermission;
 import static org.briarproject.bramble.api.crypto.PasswordStrengthEstimator.QUITE_WEAK;
+import static org.briarproject.briar.android.util.UiUtils.hideViewOnSmallScreen;
 import static org.briarproject.briar.android.util.UiUtils.setError;
+import static org.briarproject.briar.android.util.UiUtils.showOnboardingDialog;
 
 @MethodsNotNullByDefault
 @ParametersNotNullByDefault
@@ -57,7 +59,6 @@ public class SetPasswordFragment extends SetupFragment {
 	public View onCreateView(LayoutInflater inflater,
 			@Nullable ViewGroup container,
 			@Nullable Bundle savedInstanceState) {
-		requireActivity().setTitle(getString(R.string.setup_password_intro));
 		View v = inflater.inflate(R.layout.fragment_setup_password, container,
 				false);
 
@@ -67,11 +68,14 @@ public class SetPasswordFragment extends SetupFragment {
 		passwordConfirmationWrapper =
 				v.findViewById(R.id.password_confirm_wrapper);
 		passwordConfirmation = v.findViewById(R.id.password_confirm);
+		Button infoButton = v.findViewById(R.id.info_button);
 		nextButton = v.findViewById(R.id.next);
 		ProgressBar progressBar = v.findViewById(R.id.progress);
 
 		passwordEntry.addTextChangedListener(this);
 		passwordConfirmation.addTextChangedListener(this);
+		infoButton.setOnClickListener(view ->
+				showOnboardingDialog(requireContext(), getHelpText()));
 		nextButton.setOnClickListener(this);
 
 		if (!viewModel.needToShowDozeFragment()) {
@@ -92,6 +96,12 @@ public class SetPasswordFragment extends SetupFragment {
 				});
 
 		return v;
+	}
+
+	@Override
+	public void onStart() {
+		super.onStart();
+		hideViewOnSmallScreen(requireView().findViewById(R.id.logo));
 	}
 
 	@Override
