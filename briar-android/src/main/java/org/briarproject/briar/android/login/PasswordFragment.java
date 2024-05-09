@@ -40,6 +40,7 @@ import static org.briarproject.bramble.api.crypto.DecryptionResult.SUCCESS;
 import static org.briarproject.briar.android.login.LoginUtils.createKeyStrengthenerErrorDialog;
 import static org.briarproject.briar.android.util.UiUtils.enterPressed;
 import static org.briarproject.briar.android.util.UiUtils.hideSoftKeyboard;
+import static org.briarproject.briar.android.util.UiUtils.hideViewOnSmallScreen;
 import static org.briarproject.briar.android.util.UiUtils.setError;
 import static org.briarproject.briar.android.util.UiUtils.showSoftKeyboard;
 
@@ -98,6 +99,12 @@ public class PasswordFragment extends BaseFragment implements TextWatcher {
 				.setOnClickListener(view -> onForgottenPasswordClick());
 
 		return v;
+	}
+
+	@Override
+	public void onStart() {
+		super.onStart();
+		hideViewOnSmallScreen(requireView().findViewById(R.id.logo));
 	}
 
 	@Override

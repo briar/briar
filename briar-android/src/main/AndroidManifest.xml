@@ -109,7 +109,7 @@
 		<activity
 			android:name="org.briarproject.briar.android.login.StartupActivity"
 			android:exported="false"
-			android:label="@string/app_name" />
+			android:theme="@style/BriarTheme.NoActionBar" />
 
 		<activity
 			android:name="org.briarproject.briar.android.account.SetupActivity"
