@@ -114,7 +114,7 @@
 		<activity
 			android:name="org.briarproject.briar.android.account.SetupActivity"
 			android:exported="false"
-			android:label="@string/setup_title" />
+			android:theme="@style/BriarTheme.NoActionBar" />
 
 		<activity
 			android:name="org.briarproject.briar.android.splash.SplashScreenActivity"
