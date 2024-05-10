@@ -33,6 +33,7 @@ import static java.util.logging.Level.FINE;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Logger.getLogger;
 import static org.briarproject.briar.android.TestingConstants.IS_DEBUG_BUILD;
+import static org.briarproject.briar.android.settings.DisplayFragment.PREF_THEME;
 
 public class BriarApplicationImpl extends Application
 		implements BriarApplication {
@@ -109,11 +110,11 @@ public class BriarApplicationImpl extends Application
 	}
 
 	private void setTheme(Context ctx, SharedPreferences prefs) {
-		String theme = prefs.getString("pref_key_theme", null);
+		String theme = prefs.getString(PREF_THEME, null);
 		if (theme == null) {
 			// set default value
-			theme = getString(R.string.pref_theme_light_value);
-			prefs.edit().putString("pref_key_theme", theme).apply();
+			theme = getString(R.string.pref_theme_system_value);
+			prefs.edit().putString(PREF_THEME, theme).apply();
 		}
 		// set theme
 		UiUtils.setTheme(ctx, theme);

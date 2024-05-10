@@ -543,7 +543,6 @@
 	<string name="pref_theme_title">Theme</string>
 	<string name="pref_theme_light">Light</string>
 	<string name="pref_theme_dark">Dark</string>
-	<string name="pref_theme_auto">Automatic (Daytime)</string>
 	<string name="pref_theme_system">System default</string>
 
 	<!-- Settings Connections -->

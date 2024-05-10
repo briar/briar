@@ -36,7 +36,7 @@ import static org.briarproject.briar.android.settings.SettingsActivity.EXTRA_THE
 public class DisplayFragment extends PreferenceFragmentCompat {
 
 	public static final String PREF_LANGUAGE = "pref_key_language";
-	private static final String PREF_THEME = "pref_key_theme";
+	public static final String PREF_THEME = "pref_key_theme";
 
 	private static final Logger LOG =
 			getLogger(DisplayFragment.class.getName());
