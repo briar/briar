@@ -11,9 +11,9 @@
 		android:layout_height="wrap_content"
 		android:layout_margin="@dimen/margin_xlarge">
 
-		<ProgressBar
+		<com.google.android.material.progressindicator.CircularProgressIndicator
 			android:id="@+id/progress"
-			style="?android:attr/progressBarStyleLarge"
+			style="@style/CircularProgress.Large"
 			android:layout_width="@dimen/hero_square"
 			android:layout_height="@dimen/hero_square"
 			android:indeterminate="true"

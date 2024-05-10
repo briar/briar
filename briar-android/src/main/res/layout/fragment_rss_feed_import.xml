@@ -42,9 +42,9 @@
 		android:text="@string/blogs_rss_feeds_import_button"
 		tools:enabled="true" />
 
-	<ProgressBar
+	<com.google.android.material.progressindicator.CircularProgressIndicator
 		android:id="@+id/progressBar"
-		style="?android:attr/progressBarStyle"
+		style="@style/CircularProgress"
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
 		android:layout_gravity="center"

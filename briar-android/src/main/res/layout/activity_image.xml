@@ -18,7 +18,7 @@
 		android:layout_height="wrap_content"
 		android:background="@color/msg_status_bubble_background">
 
-		<androidx.appcompat.widget.Toolbar
+		<com.google.android.material.appbar.MaterialToolbar
 			android:id="@+id/toolbar"
 			style="@style/BriarToolbar"
 			android:layout_width="match_parent"
@@ -50,7 +50,7 @@
 
 			</LinearLayout>
 
-		</androidx.appcompat.widget.Toolbar>
+		</com.google.android.material.appbar.MaterialToolbar>
 
 	</com.google.android.material.appbar.AppBarLayout>
 

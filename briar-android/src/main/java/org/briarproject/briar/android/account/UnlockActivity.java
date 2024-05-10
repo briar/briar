@@ -1,5 +1,6 @@
 package org.briarproject.briar.android.account;
 
+import android.annotation.SuppressLint;
 import android.app.KeyguardManager;
 import android.content.ActivityNotFoundException;
 import android.content.Intent;
@@ -113,6 +114,7 @@ public class UnlockActivity extends BaseActivity {
 	}
 
 	@Override
+	@SuppressLint("MissingSuperCall")
 	public void onBackPressed() {
 		moveTaskToBack(true);
 	}

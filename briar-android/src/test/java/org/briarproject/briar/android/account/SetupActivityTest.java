@@ -19,6 +19,7 @@ import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.action.ViewActions.clearText;
 import static androidx.test.espresso.action.ViewActions.click;
 import static androidx.test.espresso.action.ViewActions.replaceText;
+import static androidx.test.espresso.action.ViewActions.scrollTo;
 import static androidx.test.espresso.action.ViewActions.typeText;
 import static androidx.test.espresso.assertion.ViewAssertions.doesNotExist;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
@@ -75,6 +76,7 @@ public class SetupActivityTest {
 		onView(withId(R.id.next)).check(matches(isEnabled()));
 
 		// clicking the button shows progress bar, no doze because SDK_INT==21
+		onView(withId(R.id.next)).perform(scrollTo());
 		onView(withId(R.id.next)).perform(click());
 		onView(withId(R.id.progress)).check(matches(isDisplayed()));
 	}

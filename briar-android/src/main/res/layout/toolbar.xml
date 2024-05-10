@@ -5,10 +5,12 @@
 	android:layout_height="wrap_content"
 	tools:context="org.briarproject.briar.android.navdrawer.NavDrawerActivity">
 
-	<androidx.appcompat.widget.Toolbar
+	<com.google.android.material.appbar.MaterialToolbar
 		android:id="@+id/toolbar"
 		style="@style/BriarToolbar"
+		tools:subtitle="Subtitle"
 		android:layout_width="match_parent"
-		android:layout_height="wrap_content" />
+		android:layout_height="wrap_content"
+		tools:title="MaterialToolbar title" />
 
 </com.google.android.material.appbar.AppBarLayout>

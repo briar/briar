@@ -19,9 +19,9 @@
 
 	</org.briarproject.briar.android.view.LargeTextInputView>
 
-	<ProgressBar
+	<com.google.android.material.progressindicator.CircularProgressIndicator
 		android:id="@+id/progressBar"
-		style="?android:attr/progressBarStyleLarge"
+		style="@style/CircularProgress.Large"
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
 		android:layout_gravity="center"

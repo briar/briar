@@ -33,10 +33,7 @@
 	<Button
 		android:id="@+id/compositeSendButton"
 		style="@style/BriarButton"
-		android:layout_marginStart="@dimen/margin_small"
-		android:layout_marginLeft="@dimen/margin_small"
-		android:layout_marginEnd="@dimen/margin_small"
-		android:layout_marginRight="@dimen/margin_small"
+		android:layout_margin="@dimen/margin_medium"
 		tools:text="@string/send" />
 
 </merge>

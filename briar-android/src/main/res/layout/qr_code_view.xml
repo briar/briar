@@ -4,8 +4,8 @@
 	xmlns:tools="http://schemas.android.com/tools"
 	tools:showIn="@layout/fragment_keyagreement_qr">
 
-	<ProgressBar
-		style="?android:attr/progressBarStyleLarge"
+	<com.google.android.material.progressindicator.CircularProgressIndicator
+		style="@style/CircularProgress.Large"
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
 		android:layout_gravity="center" />

@@ -95,7 +95,6 @@
 			android:layout_marginTop="6dp"
 			android:text="@string/mailbox_error_wizard_button"
 			android:visibility="gone"
-			app:drawableTint="@color/briar_button_text_positive"
 			app:layout_constraintBottom_toTopOf="@+id/unlinkButton"
 			app:layout_constraintEnd_toEndOf="parent"
 			app:layout_constraintStart_toStartOf="parent"
@@ -114,8 +113,9 @@
 			app:layout_constraintEnd_toEndOf="parent"
 			app:layout_constraintStart_toStartOf="parent" />
 
-		<ProgressBar
+		<com.google.android.material.progressindicator.CircularProgressIndicator
 			android:id="@+id/unlinkProgress"
+			style="@style/CircularProgress"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
 			android:visibility="invisible"

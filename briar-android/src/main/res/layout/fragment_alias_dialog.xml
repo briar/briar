@@ -21,6 +21,7 @@
 		android:id="@+id/aliasEditLayout"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
+		android:layout_marginTop="16dp"
 		app:errorEnabled="true"
 		app:hintEnabled="false">
 
@@ -28,7 +29,6 @@
 			android:id="@+id/aliasEditText"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
-			android:layout_marginTop="16dp"
 			android:hint="@string/set_contact_alias_hint"
 			android:imeOptions="flagNoPersonalizedLearning"
 			android:inputType="text|textCapWords"
@@ -41,7 +41,7 @@
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
 		android:layout_marginStart="@dimen/margin_xxlarge"
-		android:layout_marginLeft="@dimen/margin_xxlarge"
+		android:layout_marginBottom="8dp"
 		android:gravity="end"
 		android:orientation="horizontal">
 

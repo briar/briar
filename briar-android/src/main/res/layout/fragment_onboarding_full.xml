@@ -7,7 +7,7 @@
 	android:background="@color/briar_primary"
 	android:orientation="vertical">
 
-	<androidx.appcompat.widget.Toolbar
+	<com.google.android.material.appbar.MaterialToolbar
 		android:id="@+id/toolbar"
 		style="@style/BriarToolbar"
 		android:layout_width="match_parent"

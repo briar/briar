@@ -30,18 +30,19 @@
 				app:srcCompat="@drawable/il_transfer_data_send"
 				tools:ignore="ContentDescription" />
 
-			<ProgressBar
+			<com.google.android.material.progressindicator.LinearProgressIndicator
 				android:id="@+id/progressBar"
-				style="?android:attr/progressBarStyleHorizontal"
 				android:layout_width="0dp"
 				android:layout_height="wrap_content"
 				android:layout_marginHorizontal="@dimen/margin_xlarge"
 				android:layout_marginTop="@dimen/margin_xlarge"
 				android:visibility="gone"
+				app:indicatorColor="@color/briar_accent"
 				app:layout_constraintBottom_toTopOf="@+id/introTextView"
 				app:layout_constraintEnd_toEndOf="parent"
 				app:layout_constraintStart_toStartOf="parent"
 				app:layout_constraintTop_toBottomOf="@+id/imageView"
+				tools:progress="50"
 				tools:visibility="visible" />
 
 			<TextView

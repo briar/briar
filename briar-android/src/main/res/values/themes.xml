@@ -1,14 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-	<style name="BriarTheme" parent="Theme.AppCompat.DayNight.DarkActionBar">
-		<item name="colorPrimary">@color/briar_primary</item>
-		<item name="colorPrimaryDark">@color/briar_primary_dark</item>
-		<item name="colorAccent">@color/briar_accent</item>
-		<item name="android:textColorLink">@color/briar_text_link</item>
+	<style name="BriarTheme" parent="Theme.Material3.DayNight">
+		<item name="colorPrimary">@color/md_theme_primary</item>
+		<item name="colorOnPrimary">@color/md_theme_onPrimary</item>
+		<item name="colorPrimaryContainer">@color/md_theme_primary</item>
+		<item name="colorOnPrimaryContainer">@color/md_theme_onPrimary</item>
+		<item name="colorSecondary">@color/md_theme_secondary</item>
+		<item name="colorOnSecondary">@color/md_theme_onSecondary</item>
+		<item name="android:colorBackground">@color/window_background</item>
+		<item name="colorOnBackground">@color/md_theme_onBackground</item>
+		<item name="colorSurface">@color/card_background</item>
+		<item name="colorOnSurface">@color/md_theme_onSurface</item>
+		<item name="android:statusBarColor">#000000</item>
+
 		<item name="android:windowBackground">@color/window_background</item>
+		<item name="android:textColorLink">@color/briar_text_link</item>
 		<item name="android:windowAnimationStyle">@style/ActivityAnimation</item>
 		<item name="windowActionModeOverlay">true</item>
+		<item name="toolbarStyle">@style/BriarToolbar</item>
 		<item name="alertDialogTheme">@style/BriarDialogTheme.Neutral</item>
 		<item name="preferenceTheme">@style/PreferenceThemeOverlay.v14.Material</item>
 	</style>
@@ -30,10 +40,8 @@
 		<item name="android:activityCloseExitAnimation">@anim/screen_new_out</item>
 	</style>
 
-	<style name="BriarDialogTheme" parent="Theme.AppCompat.DayNight.Dialog.MinWidth">
+	<style name="BriarDialogTheme" parent="Theme.Material3.DayNight.Dialog.MinWidth">
 		<item name="colorPrimary">@color/briar_primary</item>
-		<item name="colorPrimaryDark">@color/briar_primary_dark</item>
-		<item name="colorAccent">@color/briar_accent</item>
 		<item name="buttonBarPositiveButtonStyle">@style/BriarButtonFlat.Positive</item>
 		<item name="buttonBarNeutralButtonStyle">@style/BriarButtonFlat.Neutral</item>
 		<item name="buttonBarNegativeButtonStyle">@style/BriarButtonFlat.Negative</item>
@@ -71,13 +79,11 @@
 	</style>
 
 	<style name="OnboardingDialogTheme" parent="BriarDialogTheme">
-		<item name="android:background">@color/briar_primary</item>
-		<item name="android:textColorPrimary">@color/briar_text_primary_inverse</item>
-		<item name="android:textColorSecondary">@color/briar_text_secondary_inverse</item>
-		<item name="buttonBarNeutralButtonStyle">@style/Widget.AppCompat.Button.Borderless</item>
+		<item name="android:background">@color/md_theme_primaryContainer</item>
+		<item name="android:textColorPrimary">@color/md_theme_onPrimaryContainer</item>
 	</style>
 
-	<style name="TranslucentTheme" parent="Theme.AppCompat.NoActionBar">
+	<style name="TranslucentTheme" parent="Theme.Material3.DayNight.NoActionBar">
 		<item name="android:colorBackgroundCacheHint">@null</item>
 		<item name="android:windowAnimationStyle">@android:style/Animation</item>
 		<item name="android:windowBackground">@android:color/transparent</item>

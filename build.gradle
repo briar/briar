@@ -25,9 +25,9 @@ buildscript {
 	}
 
 	ext {
-		kotlin_version = '1.8.20'
-		dagger_version = "2.45"
-		okhttp_version = "4.10.0"
+		kotlin_version = '1.9.10'
+		dagger_version = "2.51.1"
+		okhttp_version = "4.12.0"
 		jackson_version = "2.13.4"
 		tor_version = "0.4.8.9-1"
 		obfs4proxy_version = "0.0.14-tor2"
