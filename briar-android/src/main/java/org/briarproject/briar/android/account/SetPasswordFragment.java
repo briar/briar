@@ -28,7 +28,6 @@ import static android.content.pm.PackageManager.PERMISSION_GRANTED;
 import static android.os.Build.VERSION.SDK_INT;
 import static android.view.View.INVISIBLE;
 import static android.view.View.VISIBLE;
-import static android.view.inputmethod.EditorInfo.IME_ACTION_DONE;
 import static androidx.core.content.ContextCompat.checkSelfPermission;
 import static org.briarproject.bramble.api.crypto.PasswordStrengthEstimator.QUITE_WEAK;
 import static org.briarproject.briar.android.util.UiUtils.hideViewOnSmallScreen;
@@ -80,8 +79,6 @@ public class SetPasswordFragment extends SetupFragment {
 
 		if (!viewModel.needToShowDozeFragment()) {
 			nextButton.setText(R.string.create_account_button);
-			int options = passwordConfirmation.getImeOptions();
-			passwordConfirmation.setImeOptions(options | IME_ACTION_DONE);
 		}
 
 		viewModel.getIsCreatingAccount()
