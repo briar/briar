@@ -30,6 +30,7 @@ import static android.view.View.INVISIBLE;
 import static android.view.View.VISIBLE;
 import static androidx.core.content.ContextCompat.checkSelfPermission;
 import static org.briarproject.bramble.api.crypto.PasswordStrengthEstimator.QUITE_WEAK;
+import static org.briarproject.bramble.api.crypto.PasswordStrengthEstimator.STRONG;
 import static org.briarproject.briar.android.util.UiUtils.hideViewOnSmallScreen;
 import static org.briarproject.briar.android.util.UiUtils.setError;
 import static org.briarproject.briar.android.util.UiUtils.showOnboardingDialog;
@@ -117,17 +118,27 @@ public class SetPasswordFragment extends SetupFragment {
 		String password2 = passwordConfirmation.getText().toString();
 		boolean passwordsMatch = password1.equals(password2);
 
-		strengthMeter
-				.setVisibility(password1.length() > 0 ? VISIBLE : INVISIBLE);
+		strengthMeter.setVisibility(!password1.isEmpty() ? VISIBLE : INVISIBLE);
 		float strength = viewModel.estimatePasswordStrength(password1);
 		strengthMeter.setStrength(strength);
 		boolean strongEnough = strength >= QUITE_WEAK;
 
+		if (!password1.isEmpty()) {
+			if (strength >= STRONG) {
+				passwordEntryWrapper.setHelperText(
+						getString(R.string.password_strong));
+			} else if (strength >= QUITE_WEAK) {
+				passwordEntryWrapper.setHelperText(
+						getString(R.string.password_quite_strong));
+			} else {
+				passwordEntryWrapper.setHelperTextEnabled(false);
+			}
+		}
 		setError(passwordEntryWrapper, getString(R.string.password_too_weak),
-				password1.length() > 0 && !strongEnough);
+				!password1.isEmpty() && !strongEnough);
 		setError(passwordConfirmationWrapper,
 				getString(R.string.passwords_do_not_match),
-				password2.length() > 0 && !passwordsMatch);
+				!password2.isEmpty() && !passwordsMatch);
 
 		boolean enabled = passwordsMatch && strongEnough;
 		nextButton.setEnabled(enabled);

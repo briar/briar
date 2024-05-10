@@ -17,6 +17,8 @@
 	<string name="confirm_password">Confirm your password</string>
 	<string name="name_too_long">Name is too long</string>
 	<string name="password_too_weak">Password is too weak</string>
+	<string name="password_quite_strong">Password is okay</string>
+	<string name="password_strong">Password is strong</string>
 	<string name="passwords_do_not_match">Passwords do not match</string>
 	<string name="create_account_button">Create Account</string>
 	<string name="more_info">More Information</string>
