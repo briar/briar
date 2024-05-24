@@ -28,10 +28,12 @@ import static android.content.pm.PackageManager.PERMISSION_GRANTED;
 import static android.os.Build.VERSION.SDK_INT;
 import static android.view.View.INVISIBLE;
 import static android.view.View.VISIBLE;
-import static android.view.inputmethod.EditorInfo.IME_ACTION_DONE;
 import static androidx.core.content.ContextCompat.checkSelfPermission;
 import static org.briarproject.bramble.api.crypto.PasswordStrengthEstimator.QUITE_WEAK;
+import static org.briarproject.bramble.api.crypto.PasswordStrengthEstimator.STRONG;
+import static org.briarproject.briar.android.util.UiUtils.hideViewOnSmallScreen;
 import static org.briarproject.briar.android.util.UiUtils.setError;
+import static org.briarproject.briar.android.util.UiUtils.showOnboardingDialog;
 
 @MethodsNotNullByDefault
 @ParametersNotNullByDefault
@@ -57,7 +59,6 @@ public class SetPasswordFragment extends SetupFragment {
 	public View onCreateView(LayoutInflater inflater,
 			@Nullable ViewGroup container,
 			@Nullable Bundle savedInstanceState) {
-		requireActivity().setTitle(getString(R.string.setup_password_intro));
 		View v = inflater.inflate(R.layout.fragment_setup_password, container,
 				false);
 
@@ -67,17 +68,18 @@ public class SetPasswordFragment extends SetupFragment {
 		passwordConfirmationWrapper =
 				v.findViewById(R.id.password_confirm_wrapper);
 		passwordConfirmation = v.findViewById(R.id.password_confirm);
+		Button infoButton = v.findViewById(R.id.info_button);
 		nextButton = v.findViewById(R.id.next);
 		ProgressBar progressBar = v.findViewById(R.id.progress);
 
 		passwordEntry.addTextChangedListener(this);
 		passwordConfirmation.addTextChangedListener(this);
+		infoButton.setOnClickListener(view ->
+				showOnboardingDialog(requireContext(), getHelpText()));
 		nextButton.setOnClickListener(this);
 
 		if (!viewModel.needToShowDozeFragment()) {
 			nextButton.setText(R.string.create_account_button);
-			int options = passwordConfirmation.getImeOptions();
-			passwordConfirmation.setImeOptions(options | IME_ACTION_DONE);
 		}
 
 		viewModel.getIsCreatingAccount()
@@ -92,6 +94,12 @@ public class SetPasswordFragment extends SetupFragment {
 				});
 
 		return v;
+	}
+
+	@Override
+	public void onStart() {
+		super.onStart();
+		hideViewOnSmallScreen(requireView().findViewById(R.id.logo));
 	}
 
 	@Override
@@ -110,17 +118,27 @@ public class SetPasswordFragment extends SetupFragment {
 		String password2 = passwordConfirmation.getText().toString();
 		boolean passwordsMatch = password1.equals(password2);
 
-		strengthMeter
-				.setVisibility(password1.length() > 0 ? VISIBLE : INVISIBLE);
+		strengthMeter.setVisibility(!password1.isEmpty() ? VISIBLE : INVISIBLE);
 		float strength = viewModel.estimatePasswordStrength(password1);
 		strengthMeter.setStrength(strength);
 		boolean strongEnough = strength >= QUITE_WEAK;
 
+		if (!password1.isEmpty()) {
+			if (strength >= STRONG) {
+				passwordEntryWrapper.setHelperText(
+						getString(R.string.password_strong));
+			} else if (strength >= QUITE_WEAK) {
+				passwordEntryWrapper.setHelperText(
+						getString(R.string.password_quite_strong));
+			} else {
+				passwordEntryWrapper.setHelperTextEnabled(false);
+			}
+		}
 		setError(passwordEntryWrapper, getString(R.string.password_too_weak),
-				password1.length() > 0 && !strongEnough);
+				!password1.isEmpty() && !strongEnough);
 		setError(passwordConfirmationWrapper,
 				getString(R.string.passwords_do_not_match),
-				password2.length() > 0 && !passwordsMatch);
+				!password2.isEmpty() && !passwordsMatch);
 
 		boolean enabled = passwordsMatch && strongEnough;
 		nextButton.setEnabled(enabled);

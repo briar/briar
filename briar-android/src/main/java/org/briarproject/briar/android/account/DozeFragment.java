@@ -23,6 +23,7 @@ import static android.view.View.VISIBLE;
 import static android.widget.Toast.LENGTH_LONG;
 import static org.briarproject.android.dontkillmelib.DozeUtils.getDozeWhitelistingIntent;
 import static org.briarproject.briar.android.activity.RequestCodes.REQUEST_DOZE_WHITELISTING;
+import static org.briarproject.briar.android.util.UiUtils.hideViewOnSmallScreen;
 import static org.briarproject.briar.android.util.UiUtils.showOnboardingDialog;
 
 @MethodsNotNullByDefault
@@ -77,6 +78,12 @@ public class DozeFragment extends SetupFragment
 				});
 
 		return v;
+	}
+
+	@Override
+	public void onStart() {
+		super.onStart();
+		hideViewOnSmallScreen(requireView().findViewById(R.id.logo));
 	}
 
 	@Override

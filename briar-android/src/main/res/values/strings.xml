@@ -17,6 +17,8 @@
 	<string name="confirm_password">Confirm your password</string>
 	<string name="name_too_long">Name is too long</string>
 	<string name="password_too_weak">Password is too weak</string>
+	<string name="password_quite_strong">Password is okay</string>
+	<string name="password_strong">Password is strong</string>
 	<string name="passwords_do_not_match">Passwords do not match</string>
 	<string name="create_account_button">Create Account</string>
 	<string name="more_info">More Information</string>
@@ -41,8 +43,9 @@
 	<string name="try_again">Wrong password, try again</string>
 	<string name="dialog_title_cannot_check_password">Cannot Check Password</string>
 	<string name="dialog_message_cannot_check_password">Briar cannot check your password. Please try rebooting your device to solve this problem.</string>
+	<string name="sign_in_title">Sign into Briar</string>
 	<string name="sign_in_button">Sign In</string>
-	<string name="forgotten_password">I have forgotten my password</string>
+	<string name="forgotten_password">Forgot your password?</string>
 	<string name="dialog_title_lost_password">Lost Password</string>
 	<string name="dialog_message_lost_password">Your Briar account is stored encrypted on your device, not in the cloud, so we can\'t reset your password. Would you like to delete your account and start again?\n\nCaution: Your identities, contacts and messages will be permanently lost.</string>
 	<string name="startup_failed_activity_title">Briar Startup Failure</string>

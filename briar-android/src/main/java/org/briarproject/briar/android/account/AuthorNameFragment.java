@@ -18,7 +18,9 @@ import javax.annotation.Nullable;
 
 import static org.briarproject.bramble.api.identity.AuthorConstants.MAX_AUTHOR_NAME_LENGTH;
 import static org.briarproject.bramble.util.StringUtils.toUtf8;
+import static org.briarproject.briar.android.util.UiUtils.hideViewOnSmallScreen;
 import static org.briarproject.briar.android.util.UiUtils.setError;
+import static org.briarproject.briar.android.util.UiUtils.showOnboardingDialog;
 
 @MethodsNotNullByDefault
 @ParametersNotNullByDefault
@@ -38,17 +40,25 @@ public class AuthorNameFragment extends SetupFragment {
 	public View onCreateView(LayoutInflater inflater,
 			@Nullable ViewGroup container,
 			@Nullable Bundle savedInstanceState) {
-		requireActivity().setTitle(getString(R.string.setup_title));
 		View v = inflater.inflate(R.layout.fragment_setup_author_name,
 				container, false);
 		authorNameWrapper = v.findViewById(R.id.nickname_entry_wrapper);
 		authorNameInput = v.findViewById(R.id.nickname_entry);
+		Button infoButton = v.findViewById(R.id.info_button);
 		nextButton = v.findViewById(R.id.next);
 
 		authorNameInput.addTextChangedListener(this);
+		infoButton.setOnClickListener(view ->
+				showOnboardingDialog(requireContext(), getHelpText()));
 		nextButton.setOnClickListener(this);
 
 		return v;
+	}
+
+	@Override
+	public void onStart() {
+		super.onStart();
+		hideViewOnSmallScreen(requireView().findViewById(R.id.logo));
 	}
 
 	@Override
