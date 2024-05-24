@@ -92,7 +92,6 @@ import static android.view.WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN;
 import static android.view.inputmethod.EditorInfo.IME_NULL;
 import static android.view.inputmethod.InputMethodManager.SHOW_IMPLICIT;
 import static android.widget.Toast.LENGTH_LONG;
-import static androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_AUTO_TIME;
 import static androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM;
 import static androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_NO;
 import static androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_YES;
@@ -349,12 +348,7 @@ public class UiUtils {
 		} else if (theme
 				.equals(ctx.getString(R.string.pref_theme_dark_value))) {
 			setDefaultNightMode(MODE_NIGHT_YES);
-		} else if (theme
-				.equals(ctx.getString(R.string.pref_theme_auto_value))) {
-			// TODO remove AUTO-setting as it is deprecated
-			setDefaultNightMode(MODE_NIGHT_AUTO_TIME);
-		} else if (theme
-				.equals(ctx.getString(R.string.pref_theme_system_value))) {
+		} else {
 			setDefaultNightMode(MODE_NIGHT_FOLLOW_SYSTEM);
 		}
 	}

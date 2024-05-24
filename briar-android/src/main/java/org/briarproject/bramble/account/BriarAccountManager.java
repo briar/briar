@@ -27,7 +27,7 @@ class BriarAccountManager extends AndroidAccountManager {
 			super.deleteAccount();
 			Localizer.reinitialize();
 			UiUtils.setTheme(appContext,
-					appContext.getString(R.string.pref_theme_light_value));
+					appContext.getString(R.string.pref_theme_system_value));
 		}
 	}
 }

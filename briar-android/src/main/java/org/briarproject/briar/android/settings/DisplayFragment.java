@@ -10,12 +10,9 @@ import org.briarproject.briar.android.util.UiUtils;
 import org.briarproject.nullsafety.NotNullByDefault;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
-import java.util.logging.Logger;
 
-import androidx.core.text.TextUtilsCompat;
 import androidx.fragment.app.FragmentActivity;
 import androidx.preference.ListPreference;
 import androidx.preference.Preference;
@@ -24,10 +21,7 @@ import androidx.preference.PreferenceFragmentCompat;
 import static android.content.Intent.FLAG_ACTIVITY_CLEAR_TASK;
 import static android.content.Intent.FLAG_ACTIVITY_CLEAR_TOP;
 import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
-import static android.os.Build.VERSION.SDK_INT;
-import static androidx.core.view.ViewCompat.LAYOUT_DIRECTION_LTR;
 import static java.util.Objects.requireNonNull;
-import static java.util.logging.Logger.getLogger;
 import static org.briarproject.briar.android.BriarApplication.ENTRY_ACTIVITY;
 import static org.briarproject.briar.android.navdrawer.NavDrawerActivity.SIGN_OUT_URI;
 import static org.briarproject.briar.android.settings.SettingsActivity.EXTRA_THEME_CHANGE;
@@ -36,10 +30,7 @@ import static org.briarproject.briar.android.settings.SettingsActivity.EXTRA_THE
 public class DisplayFragment extends PreferenceFragmentCompat {
 
 	public static final String PREF_LANGUAGE = "pref_key_language";
-	private static final String PREF_THEME = "pref_key_theme";
-
-	private static final Logger LOG =
-			getLogger(DisplayFragment.class.getName());
+	public static final String PREF_THEME = "pref_key_theme";
 
 	@Override
 	public void onCreatePreferences(Bundle bundle, String s) {
@@ -50,7 +41,6 @@ public class DisplayFragment extends PreferenceFragmentCompat {
 		language.setOnPreferenceChangeListener(this::onLanguageChanged);
 
 		ListPreference theme = requireNonNull(findPreference(PREF_THEME));
-		setThemeEntries(theme);
 		theme.setOnPreferenceChangeListener(this::onThemeChanged);
 	}
 
@@ -89,30 +79,6 @@ public class DisplayFragment extends PreferenceFragmentCompat {
 		}
 		language.setEntries(entries.toArray(new CharSequence[0]));
 		language.setEntryValues(entryValues.toArray(new CharSequence[0]));
-	}
-
-	private boolean isLeftToRight(Locale locale) {
-		// TextUtilsCompat returns the wrong direction for Hebrew on some phones
-		String language = locale.getLanguage();
-		if (language.equals("iw") || language.equals("he")) return false;
-		int direction = TextUtilsCompat.getLayoutDirectionFromLocale(locale);
-		return direction == LAYOUT_DIRECTION_LTR;
-	}
-
-	private void setThemeEntries(ListPreference theme) {
-		if (SDK_INT < 27) {
-			// remove System Default Theme option from preference entries
-			// as it is not functional on this API anyway
-			List<CharSequence> entries =
-					new ArrayList<>(Arrays.asList(theme.getEntries()));
-			entries.remove(getString(R.string.pref_theme_system));
-			theme.setEntries(entries.toArray(new CharSequence[0]));
-			// also remove corresponding value
-			List<CharSequence> values =
-					new ArrayList<>(Arrays.asList(theme.getEntryValues()));
-			values.remove(getString(R.string.pref_theme_system_value));
-			theme.setEntryValues(values.toArray(new CharSequence[0]));
-		}
 	}
 
 	private boolean onThemeChanged(Preference preference, Object newValue) {
