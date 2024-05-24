@@ -10,6 +10,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+
 import org.briarproject.bramble.api.sync.GroupId;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.activity.ActivityComponent;
@@ -27,7 +29,6 @@ import javax.inject.Inject;
 
 import androidx.annotation.Nullable;
 import androidx.annotation.UiThread;
-import androidx.appcompat.app.AlertDialog;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView.LayoutManager;
@@ -220,8 +221,8 @@ public class BlogFragment extends BaseFragment
 	}
 
 	private void showDeleteDialog() {
-		AlertDialog.Builder builder = new AlertDialog.Builder(requireContext(),
-				R.style.BriarDialogTheme);
+		MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(
+				requireContext(), R.style.BriarDialogTheme);
 		builder.setTitle(getString(R.string.blogs_remove_blog));
 		builder.setMessage(
 				getString(R.string.blogs_remove_blog_dialog_message));

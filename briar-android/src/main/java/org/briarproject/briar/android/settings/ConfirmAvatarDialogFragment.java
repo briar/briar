@@ -10,6 +10,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.activity.BaseActivity;
@@ -20,7 +21,6 @@ import org.briarproject.nullsafety.ParametersNotNullByDefault;
 import javax.inject.Inject;
 
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.FragmentActivity;
 import androidx.lifecycle.ViewModelProvider;
@@ -86,7 +86,7 @@ public class ConfirmAvatarDialogFragment extends DialogFragment {
 		);
 
 		int theme = R.style.BriarDialogTheme;
-		return new AlertDialog.Builder(activity, theme)
+		return new MaterialAlertDialogBuilder(activity, theme)
 				.setView(view)
 				.setTitle(R.string.dialog_confirm_profile_picture_title)
 				.setNegativeButton(R.string.cancel, null)

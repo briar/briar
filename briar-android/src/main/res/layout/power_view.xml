@@ -36,7 +36,7 @@
 
 	<Button
 		android:id="@+id/button"
-		style="@style/BriarButton"
+		style="@style/BriarButtonOutline"
 		android:layout_width="0dp"
 		android:layout_height="wrap_content"
 		android:layout_margin="@dimen/margin_medium"
@@ -55,7 +55,7 @@
 		app:layout_constraintBottom_toBottomOf="@+id/button"
 		app:layout_constraintEnd_toEndOf="parent"
 		app:layout_constraintTop_toTopOf="@+id/button"
-		app:srcCompat="@drawable/ic_help_outline_white"
+		app:srcCompat="@drawable/ic_info_white"
 		app:tint="@color/briar_button_text_positive" />
 
 </merge>

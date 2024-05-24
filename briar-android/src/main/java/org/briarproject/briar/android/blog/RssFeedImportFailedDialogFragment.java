@@ -4,6 +4,8 @@ import android.app.Dialog;
 import android.content.Context;
 import android.os.Bundle;
 
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.activity.BaseActivity;
 import org.briarproject.nullsafety.MethodsNotNullByDefault;
@@ -12,7 +14,6 @@ import org.briarproject.nullsafety.ParametersNotNullByDefault;
 import javax.inject.Inject;
 
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.DialogFragment;
 import androidx.lifecycle.ViewModelProvider;
 
@@ -47,8 +48,8 @@ public class RssFeedImportFailedDialogFragment extends DialogFragment {
 
 	@Override
 	public Dialog onCreateDialog(@Nullable Bundle savedInstanceState) {
-		AlertDialog.Builder builder =
-				new AlertDialog.Builder(requireActivity(),
+		MaterialAlertDialogBuilder builder =
+				new MaterialAlertDialogBuilder(requireActivity(),
 						R.style.BriarDialogTheme);
 		builder.setMessage(R.string.blogs_rss_feeds_import_error);
 		builder.setNegativeButton(R.string.cancel, null);

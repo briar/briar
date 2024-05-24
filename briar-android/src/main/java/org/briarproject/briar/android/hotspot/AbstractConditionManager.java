@@ -6,12 +6,13 @@ import android.content.Intent;
 import android.net.wifi.WifiManager;
 import android.widget.Toast;
 
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+
 import org.briarproject.briar.R;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.StringRes;
-import androidx.appcompat.app.AlertDialog;
 import androidx.core.util.Consumer;
 import androidx.fragment.app.FragmentActivity;
 
@@ -73,7 +74,8 @@ abstract class AbstractConditionManager {
 	void showRationale(Context ctx, @StringRes int title,
 			@StringRes int body, Runnable onContinueClicked,
 			Runnable onDismiss) {
-		AlertDialog.Builder builder = new AlertDialog.Builder(ctx);
+		MaterialAlertDialogBuilder builder =
+				new MaterialAlertDialogBuilder(ctx);
 		builder.setTitle(title);
 		builder.setMessage(body);
 		builder.setNeutralButton(R.string.continue_button,

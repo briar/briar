@@ -5,6 +5,8 @@ import android.view.MenuItem;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+
 import org.briarproject.bramble.api.mailbox.MailboxPairingState;
 import org.briarproject.bramble.api.mailbox.MailboxPairingState.ConnectionError;
 import org.briarproject.bramble.api.mailbox.MailboxPairingState.InvalidQrCode;
@@ -31,7 +33,6 @@ import org.briarproject.nullsafety.ParametersNotNullByDefault;
 import javax.inject.Inject;
 
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.lifecycle.ViewModelProvider;
@@ -249,8 +250,8 @@ public class MailboxActivity extends BriarActivity {
 		if (tellUserToWipeMailbox) {
 			showFragment(getSupportFragmentManager(), new BlankFragment(),
 					BlankFragment.TAG);
-			AlertDialog.Builder builder =
-					new AlertDialog.Builder(this, R.style.BriarDialogTheme);
+			MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(
+					this, R.style.BriarDialogTheme);
 			builder.setTitle(R.string.mailbox_status_unlink_no_wipe_title);
 			builder.setMessage(R.string.mailbox_status_unlink_no_wipe_message);
 			builder.setNeutralButton(R.string.got_it,

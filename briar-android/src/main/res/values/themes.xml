@@ -40,7 +40,7 @@
 		<item name="android:activityCloseExitAnimation">@anim/screen_new_out</item>
 	</style>
 
-	<style name="BriarDialogTheme" parent="Theme.Material3.DayNight.Dialog.MinWidth">
+	<style name="BriarDialogTheme" parent="Theme.Material3.DayNight.Dialog">
 		<item name="colorPrimary">@color/briar_primary</item>
 		<item name="buttonBarPositiveButtonStyle">@style/BriarButtonFlat.Positive</item>
 		<item name="buttonBarNeutralButtonStyle">@style/BriarButtonFlat.Neutral</item>

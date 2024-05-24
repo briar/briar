@@ -6,6 +6,8 @@ import android.content.Intent;
 import android.location.LocationManager;
 import android.net.Uri;
 
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+
 import org.briarproject.briar.R;
 import org.briarproject.nullsafety.MethodsNotNullByDefault;
 import org.briarproject.nullsafety.ParametersNotNullByDefault;
@@ -16,7 +18,6 @@ import androidx.activity.result.ActivityResultLauncher;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.StringRes;
-import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.FragmentActivity;
 
 import static android.Manifest.permission.BLUETOOTH_ADVERTISE;
@@ -108,8 +109,8 @@ public class PermissionUtils {
 	}
 
 	public static void showLocationDialog(Context ctx, boolean forBluetooth) {
-		AlertDialog.Builder builder =
-				new AlertDialog.Builder(ctx, R.style.BriarDialogTheme);
+		MaterialAlertDialogBuilder builder =
+				new MaterialAlertDialogBuilder(ctx, R.style.BriarDialogTheme);
 		builder.setTitle(R.string.permission_location_setting_title);
 		if (forBluetooth) {
 			builder.setMessage(R.string.permission_location_setting_body);
@@ -136,8 +137,8 @@ public class PermissionUtils {
 
 	public static void showDenialDialog(FragmentActivity ctx,
 			@StringRes int title, @StringRes int body, Runnable onDenied) {
-		AlertDialog.Builder builder =
-				new AlertDialog.Builder(ctx, R.style.BriarDialogTheme);
+		MaterialAlertDialogBuilder builder =
+				new MaterialAlertDialogBuilder(ctx, R.style.BriarDialogTheme);
 		builder.setTitle(title);
 		builder.setMessage(body);
 		builder.setPositiveButton(R.string.ok, getGoToSettingsListener(ctx));
@@ -148,8 +149,8 @@ public class PermissionUtils {
 
 	public static void showRationale(FragmentActivity ctx, @StringRes int title,
 			@StringRes int body, @Nullable Runnable onOk) {
-		AlertDialog.Builder builder =
-				new AlertDialog.Builder(ctx, R.style.BriarDialogTheme);
+		MaterialAlertDialogBuilder builder =
+				new MaterialAlertDialogBuilder(ctx, R.style.BriarDialogTheme);
 		builder.setTitle(title);
 		builder.setMessage(body);
 		builder.setNeutralButton(R.string.continue_button, (dialog, which) -> {

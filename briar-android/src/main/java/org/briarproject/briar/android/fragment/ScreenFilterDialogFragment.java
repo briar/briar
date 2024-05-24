@@ -13,6 +13,8 @@ import android.view.View;
 import android.widget.CheckBox;
 import android.widget.TextView;
 
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.activity.BaseActivity;
 import org.briarproject.briar.api.android.ScreenFilterMonitor;
@@ -27,7 +29,6 @@ import java.util.Collection;
 import javax.annotation.Nullable;
 import javax.inject.Inject;
 
-import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.DialogFragment;
 
 import static android.os.Build.VERSION.SDK_INT;
@@ -75,8 +76,8 @@ public class ScreenFilterDialogFragment extends DialogFragment {
 	public Dialog onCreateDialog(@Nullable Bundle savedInstanceState) {
 		Activity activity = getActivity();
 		if (activity == null) throw new IllegalStateException();
-		AlertDialog.Builder builder = new AlertDialog.Builder(activity,
-				R.style.BriarDialogThemeNoFilter);
+		MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(
+				activity, R.style.BriarDialogThemeNoFilter);
 		builder.setTitle(R.string.screen_filter_title);
 		Bundle args = getArguments();
 		if (args == null) throw new IllegalStateException();

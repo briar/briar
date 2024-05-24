@@ -9,6 +9,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ProgressBar;
 
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 
@@ -154,9 +155,11 @@ public class PasswordFragment extends BaseFragment implements TextWatcher {
 	}
 
 	private void onForgottenPasswordClick() {
-		AlertDialog.Builder builder = new AlertDialog.Builder(requireContext(),
-				R.style.BriarDialogTheme);
+		MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(
+				requireContext(), R.style.BriarDialogTheme);
 		builder.setTitle(R.string.dialog_title_lost_password);
+		builder.setBackgroundInsetStart(25);
+		builder.setBackgroundInsetEnd(25);
 		builder.setMessage(R.string.dialog_message_lost_password);
 		builder.setPositiveButton(R.string.cancel, null);
 		builder.setNegativeButton(R.string.delete,

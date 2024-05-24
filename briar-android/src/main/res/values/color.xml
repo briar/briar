@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+	<color name="briar_lime_950">#283E0F</color>
 	<color name="briar_lime_600">#67a60f</color>
 	<color name="briar_lime_600_new">#65A30D</color>
+	<color name="briar_lime_500">#82C91E</color>
 	<color name="briar_lime_400">#82c91e</color>
 	<color name="briar_lime_400_new">#A3E635</color>
 
@@ -91,8 +93,8 @@
 
 
 
-	<color name="md_theme_primary">@color/briar_lime_600_new</color>
-	<color name="md_theme_onPrimary">#FFFFFF</color>
+	<color name="md_theme_primary">@color/briar_lime_500</color>
+	<color name="md_theme_onPrimary">@color/briar_lime_950</color>
 	<color name="md_theme_primaryContainer">@color/briar_night_700</color>
 	<color name="md_theme_onPrimaryContainer">@android:color/white</color>
 	<color name="md_theme_secondary">@color/briar_night_700</color>

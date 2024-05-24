@@ -23,6 +23,7 @@
 		<item name="android:textSize">@dimen/text_size_medium</item>
 		<item name="android:padding">@dimen/margin_large</item>
 		<item name="android:minHeight">@dimen/button_size</item>
+		<item name="cornerRadius">6dp</item>
 	</style>
 
 	<style name="BriarButtonFlat" parent="Widget.Material3.Button.TextButton">
@@ -54,8 +55,9 @@
 		<item name="android:layout_width">match_parent</item>
 		<item name="android:layout_height">wrap_content</item>
 		<item name="android:textSize">@dimen/text_size_medium</item>
-		<item name="android:background">@drawable/button_outline</item>
 		<item name="android:padding">@dimen/margin_large</item>
+		<item name="android:minHeight">@dimen/button_size</item>
+		<item name="cornerRadius">6dp</item>
 	</style>
 
 	<style name="BriarButtonOutline.Negative" parent="BriarButtonOutline">

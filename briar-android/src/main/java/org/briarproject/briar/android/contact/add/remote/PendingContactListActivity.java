@@ -4,6 +4,7 @@ import android.content.DialogInterface.OnClickListener;
 import android.os.Bundle;
 import android.view.MenuItem;
 
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.snackbar.Snackbar;
 
 import org.briarproject.bramble.api.contact.PendingContactId;
@@ -21,7 +22,6 @@ import javax.annotation.Nullable;
 import javax.inject.Inject;
 
 import androidx.appcompat.app.ActionBar;
-import androidx.appcompat.app.AlertDialog;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
@@ -110,7 +110,7 @@ public class PendingContactListActivity extends BriarActivity
 		// show warning dialog
 		OnClickListener removeListener = (dialog, which) ->
 				removePendingContact(item.getPendingContact().getId());
-		AlertDialog.Builder builder = new AlertDialog.Builder(
+		MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(
 				PendingContactListActivity.this, R.style.BriarDialogTheme);
 		builder.setTitle(
 				getString(R.string.dialog_title_remove_pending_contact));

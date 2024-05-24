@@ -4,6 +4,8 @@ import android.app.Dialog;
 import android.content.Context;
 import android.os.Bundle;
 
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+
 import org.briarproject.bramble.api.sync.GroupId;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.activity.BaseActivity;
@@ -13,7 +15,6 @@ import org.briarproject.nullsafety.ParametersNotNullByDefault;
 import javax.inject.Inject;
 
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.DialogFragment;
 import androidx.lifecycle.ViewModelProvider;
 
@@ -51,8 +52,8 @@ public class RssFeedDeleteFeedDialogFragment extends DialogFragment {
 	public Dialog onCreateDialog(@Nullable Bundle savedInstanceState) {
 		GroupId groupId = new GroupId(
 				requireNonNull(requireArguments().getByteArray(GROUP_ID)));
-		AlertDialog.Builder builder = new AlertDialog.Builder(requireActivity(),
-				R.style.BriarDialogTheme);
+		MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(
+				requireActivity(), R.style.BriarDialogTheme);
 		builder.setTitle(getString(R.string.blogs_rss_remove_feed));
 		builder.setMessage(
 				getString(R.string.blogs_rss_remove_feed_dialog_message));
