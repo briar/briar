@@ -36,7 +36,7 @@
   <string name="dialog_title_cannot_check_password">لا يمكن التحقق من كلمة السر</string>
   <string name="dialog_message_cannot_check_password">لم يتمكن براير من التحقق من كلمة اسرّ. الرجاء إعادة تشغيل جهازك لحل المشكلة.</string>
   <string name="sign_in_button">تسجيل الدخول</string>
-  <string name="forgotten_password">نسيتُ كلمة السر</string>
+  <string name="forgotten_password">نسيت كلمة سرّك؟</string>
   <string name="dialog_title_lost_password">فقدت كلمة السر</string>
   <string name="dialog_message_lost_password">حسابك على Briar (براير) سيتم تخزينه مشفرا على جهازك، وليس على الإنترنت. لذا فلا يمكننا إعادة تعيين كلمة السر الخاصة بك. فهل تودّ/ين حذف حسابك والبدء من جديد؟\n\nتحذير: سيتمّ حذف هويّاتك وجهات اتصالك ورسائلك الى الأبد.</string>
   <string name="startup_failed_activity_title">فشل تشغيل Briar (براير)</string>
@@ -562,7 +562,6 @@
   <string name="pref_theme_title">السمة</string>
   <string name="pref_theme_light">نهاري</string>
   <string name="pref_theme_dark">ليلي</string>
-  <string name="pref_theme_auto">تلقائي (توقيت النهار)</string>
   <string name="pref_theme_system">الافتراضي بالنظام</string>
   <!--Settings Connections-->
   <string name="network_settings_title">شبكات الاتصال</string>

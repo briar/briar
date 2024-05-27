@@ -36,7 +36,6 @@
   <string name="dialog_title_cannot_check_password">Nie można zweryfikować hasła</string>
   <string name="dialog_message_cannot_check_password">Briar nie może sprawdzić Twojego hasła. Spróbuj ponownie uruchomić urządzenie aby rozwiązać ten problem.</string>
   <string name="sign_in_button">Zaloguj Się</string>
-  <string name="forgotten_password">Zapomniałem hasło</string>
   <string name="dialog_title_lost_password">Nie pamiętam hasła</string>
   <string name="dialog_message_lost_password">Twoje konto Briar jest zaszyfrowane na Twoim urządzeniu, nie w chmurze, więc nie będzie można zresetować Twojego hasła. Czy chcesz usunąć swoje konto i stworzyć nowe?\n\nUwaga: Twoje hasła, kontakty i wiadomości będą utracone.</string>
   <string name="startup_failed_activity_title">Briar nie mógł się uruchomić</string>
@@ -50,12 +49,6 @@
     <item quantity="few">To jest testowa wersja Briar. Twoje konto wygaśnie za %d dni i nie będzie odnowione.</item>
     <item quantity="many">To jest testowa wersja Briar. Twoje konto wygaśnie za %d dni i nie będzie odnowione.</item>
     <item quantity="other">To jest testowa wersja Briar. Twoje konto wygaśnie za %d dni i nie będzie odnowione.</item>
-  </plurals>
-  <plurals name="old_android_expiry_warning">
-    <item quantity="one">Android 4 nie jest już wspierany. Briar przestanie działać %s (za %d dzień). Zainstaluj Briar na nowszym urządzeniu i utwórz nowe konto.</item>
-    <item quantity="few">Android 4 nie jest już wspierany. Briar przestanie działać %s (za %d dni). Zainstaluj Briar na nowszym urządzeniu i utwórz nowe konto.</item>
-    <item quantity="many">Android 4 nie jest już wspierany. Briar przestanie działać %s (za %d dni). Zainstaluj Briar na nowszym urządzeniu i utwórz nowe konto.</item>
-    <item quantity="other">Android 4 nie jest już wspierany. Briar przestanie działać %s (za %d dni). Zainstaluj Briar na nowszym urządzeniu i utwórz nowe konto.</item>
   </plurals>
   <string name="expiry_date_reached">Ten program wygasł.\nDziękujemy za testy!</string>
   <string name="download_briar">Aby móc nadal korzystać z Briar, pobierz najnowszą wersję.</string>
@@ -541,7 +534,6 @@
   <string name="pref_theme_title">Motyw</string>
   <string name="pref_theme_light">Jasny</string>
   <string name="pref_theme_dark">Ciemny</string>
-  <string name="pref_theme_auto">Automatycznie (w czasie dnia)</string>
   <string name="pref_theme_system">Domyślny systemu</string>
   <!--Settings Connections-->
   <string name="network_settings_title">Połączenia</string>
@@ -771,6 +763,7 @@ Brak dostępu do aparatu. Spróbuj ponownie, może po ponownym uruchomieniu urz�
   <string name="permission_camera_title">Dostęp do aparatu</string>
   <string name="permission_camera_request_body">Aby zeskanować kod QR, Briar potrzebuje dostępu do aparatu.</string>
   <string name="permission_location_title">Zezwolenie na lokalizację </string>
+  <string name="permission_nearby_devices_title">Pozwolenie do urządzeń w pobliżu</string>
   <string name="permission_location_request_body">Aby odkryć urządzenia Bluetooth, Briar potrzebuje zezwolenia na dostęp do twojej lokalizacji.\n\nBriar nie przechowuje twojej lokalizacji ani nie udostępnia jej nikomu.</string>
   <string name="permission_camera_location_title">Kamera i lokalizacja</string>
   <string name="permission_camera_location_request_body">Aby zeskanować kod QR, Briar potrzebuje dostępu do kamery.\n\nAby odkryć urządzenia Bluetooth, Briar potrzebuje zezwolenia na dostęp do Twojej lokalizacji.\n\nBriar nie przechowuje Twojej lokalizacji ani nie udostępnia jej nikomu.</string>

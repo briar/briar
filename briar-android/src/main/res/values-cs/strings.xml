@@ -36,7 +36,6 @@
   <string name="dialog_title_cannot_check_password">Nepodařilo se zkontrolovat heslo</string>
   <string name="dialog_message_cannot_check_password">Briar nemůže zkontrolovat vaše heslo. Zkuste tento problém vyřešit restartováním zařízení.</string>
   <string name="sign_in_button">Přihlásit se</string>
-  <string name="forgotten_password">Nepamatuji si své heslo</string>
   <string name="dialog_title_lost_password">Ztracené heslo</string>
   <string name="dialog_message_lost_password">Váš Briar účet je šifrován a uložen ve vašem zařízení, nikoli v cloudu, z tohoto důvodu není možné obnovit Vaše heslo. Chcete odstranit svůj účet a začít znovu?\n\nUpozornění: Vaše identita, kontakty a zprávy budou permanentně ztraceny.</string>
   <string name="startup_failed_activity_title">Spuštění Briar selhalo.</string>
@@ -535,7 +534,6 @@
   <string name="pref_theme_title">Motiv</string>
   <string name="pref_theme_light">Světlý</string>
   <string name="pref_theme_dark">Temný</string>
-  <string name="pref_theme_auto">Automaticky (denní doba)</string>
   <string name="pref_theme_system">Podle systému</string>
   <!--Settings Connections-->
   <string name="network_settings_title">Spojení</string>

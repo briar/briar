@@ -38,7 +38,7 @@
   <string name="dialog_title_cannot_check_password">စကားဝှက်ကို စစ်ဆေး၍မရပါ</string>
   <string name="dialog_message_cannot_check_password">Briar က သင့်စကားဝှက်ကို မစစ်ဆေးနိုင်ပါ။ ဤပြဿနာကို ဖြေရှင်းရန် သင့်ကိရိယာကို ပိတ်၍ပြန်ဖွင့်ကြည့်ပါ။</string>
   <string name="sign_in_button">အကောင့်ဝင်မည်</string>
-  <string name="forgotten_password">ကျွန်ုပ်၏စကားဝှက်ကို မေ့သွားပါသည်</string>
+  <string name="forgotten_password">စကားဝှက်မေ့နေလား?</string>
   <string name="dialog_title_lost_password">စကားဝှက်ပျောက်ဆုံး</string>
   <string name="dialog_message_lost_password">သင့် Briar အကောင့်ကို ကလောက်တွင်မဟုတ်ဘဲ သင့်ကိရိယာတွင်သာ လျှို့ဝှက်ကုဒ်ပြောင်း သိမ်းဆည်းထားသောကြောင့် သင့်စကားဝှက်ကို ပြန်လည်သတ်မှတ်မပေးနိုင်ပါ။ သင့်အကောင့်ကို ဖျက်ပစ်ပြီး အသစ်ပြန်ဖွင့်ချင်ပါသလား။ \n\nသတိ - သင့်ကိုယ်ပိုင်အချက်အလက်များ၊ အဆက်အသွယ်များနှင့် မက်ဆေ့ချ်များအားလုံး အပြီး ပျက်သွားပါလိမ့်မည်။</string>
   <string name="startup_failed_activity_title">Briar မစတင်နိုင်ပါ</string>
@@ -499,7 +499,6 @@
   <string name="pref_theme_title">ပြသမှု အပြင်အဆင်</string>
   <string name="pref_theme_light">အနုရောင်</string>
   <string name="pref_theme_dark">အနက်ရောင်</string>
-  <string name="pref_theme_auto">အလိုအလျောက် (နေ့လည်ပိုင်း)</string>
   <string name="pref_theme_system">နဂိုမူလ စနစ်</string>
   <!--Settings Connections-->
   <string name="network_settings_title">ချိတ်ဆက်မှုများ</string>

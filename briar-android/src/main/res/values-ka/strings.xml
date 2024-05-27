@@ -36,7 +36,6 @@
   <string name="dialog_title_cannot_check_password">პაროლის შემოწმება ვერ ხერხდება</string>
   <string name="dialog_message_cannot_check_password">Briar ვერ ამოწმებს თქვენს პაროლს. ამ პრობლემის გადასაჭრელად, სცადეთ თქვენი მოწყობილობის გადატვირთვა.</string>
   <string name="sign_in_button">შესვლა</string>
-  <string name="forgotten_password">დამავიწყდა პაროლი</string>
   <string name="dialog_title_lost_password">დაკარგული პაროლი</string>
   <string name="dialog_message_lost_password">თქვენი Briar-ანგარიში დაშიფრული ინახება თქვენს მოწყობილობაზე და არა ონლაინ-საცავში. ასე რომ, ჩვენ ვერ გადავტვირთავთ თქვენს პაროლს. გსურთ წაშალოთ თქვენი ანგარიში და ახლიდან შექმნათ?\n\nგაფრთხილება: თქვენი ვინაობა, კონტაქტები და შეტყობინებები სამუდამოდ დაიკარგება.</string>
   <string name="startup_failed_activity_title">Briar-ის გაშვების შეცდომა</string>
@@ -495,7 +494,6 @@
   <string name="pref_theme_title">თემა</string>
   <string name="pref_theme_light">ნათელი</string>
   <string name="pref_theme_dark">მუქი</string>
-  <string name="pref_theme_auto">ავტომატური (დღისით)</string>
   <string name="pref_theme_system">სისტემის ნაგულისხმევი დანაყენები</string>
   <!--Settings Connections-->
   <string name="network_settings_title">კავშირი</string>

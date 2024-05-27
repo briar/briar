@@ -36,7 +36,6 @@
   <string name="dialog_title_cannot_check_password">A jelszót nem sikerült ellenőrizni</string>
   <string name="dialog_message_cannot_check_password">A Briar nem tudta ellenőrizni jelszavad. Kérjük indítsd újra az eszközöd a probléma megoldásához.</string>
   <string name="sign_in_button">Bejelentkezés</string>
-  <string name="forgotten_password">Elfelejtettem a jelszavam</string>
   <string name="dialog_title_lost_password">Elveszett jelszó</string>
   <string name="dialog_message_lost_password">A Briar fiókod az eszközödön kerül titkosítva tárolásra, nem a felhőben. Ha elfelejted a jelszavad, vagy eltávolítod a Briar-t, nincs lehetőség fiókod  visszanyerésére.\n\nVálassz egy hosszú, nehezen kitalálható jelszót, például négy tetszőleges szó vagy tíz tetszőleges betű, szám vagy szimbólum.</string>
   <string name="startup_failed_activity_title">Briar indítási hiba</string>
@@ -515,7 +514,6 @@ Kapcsolataid, akivel megosztottad ezt a blogot, lehet nem kapnak többé frissí
   <string name="pref_theme_title">Téma</string>
   <string name="pref_theme_light">Világos</string>
   <string name="pref_theme_dark">Sötét</string>
-  <string name="pref_theme_auto">Automatikus (napszaknak megfelelő)</string>
   <string name="pref_theme_system">Rendszer alapértelmezett</string>
   <!--Settings Connections-->
   <string name="network_settings_title">Kapcsolatok</string>

@@ -26,6 +26,9 @@
   <string name="dnkm_xiaomi_button">Protéger Briar</string>
   <string name="dnkm_xiaomi_help">Si Briar n’est pas verrouillée à la liste des applis récentes, elle ne pourra pas fonctionner en arrière-plan.</string>
   <string name="dnkm_xiaomi_dialog_body_old">1. Ouvrez la liste des applis récentes (aussi appelé sélecteur d’appli)\n\n2. Balayez l’image de Briar vers le bas pour afficher l’icône de verrou\n\n3. Si le verrou n’est pas verrouillé, touchez pour le verrouiller</string>
+  <string name="dnkm_xiaomi_dialog_body_new">1. Ouvrez la liste d\'applis récentes(aussi appelée sélecteur d\'appli)\n\n2. Si Briar affiche une petite image de cadenas à coté du nom, alors vous n\'avez rien à faire\n\n3. S\'il n\'y a pas de cadenas, pressez et maintenez l\'image de Briar jusqu\'à ce que le bouton cadenas apparaisse, alors tapotez-le.</string>
+  <string name="dnkm_xiaomi_lock_apps_text">Veuillez appuyer sur le bouton dessous pour accéder aux réglages de la sécurité. Appuyer sur « Boost speed », puis appuyer « Lock apps », et assurez-vous que Briar est réglé sur « Locked ».</string>
+  <string name="dnkm_xiaomi_lock_apps_help">Si Briar n\'est pas réglé sur « Locked » dans l\'écran « Lock apps », il sera incapable de fonctionner en arrière plan.</string>
   <string name="dnkm_warning_dozed_1">Briar n\'a pas pu fonctionner en arrière-plan</string>
   <!--Login-->
   <string name="enter_password">Mot de passe</string>
@@ -33,7 +36,7 @@
   <string name="dialog_title_cannot_check_password">Impossible de vérifier le mot de passe</string>
   <string name="dialog_message_cannot_check_password">Briar ne peut pas vérifier votre mot de passe. Veuillez essayer de redémarrer votre appareil pour résoudre ce problème.</string>
   <string name="sign_in_button">Connexion</string>
-  <string name="forgotten_password">J’ai oublié mon mot de passe</string>
+  <string name="forgotten_password">Mot de passe oublié?</string>
   <string name="dialog_title_lost_password">Mot de passe oublié</string>
   <string name="dialog_message_lost_password">Votre compte Briar est enregistré chiffré sur votre appareil, pas dans le nuage, et nous ne pouvons donc pas réinitialiser votre mot de passe. Voulez-vous supprimer votre compte et recommencer ?\n\nAttention : vos identités, contacts et messages seront perdus irrémédiablement.</string>
   <string name="startup_failed_activity_title">Échec de démarrage de Briar</string>
@@ -238,6 +241,8 @@
   <string name="contact_already_exists_general">Contact déjà existant</string>
   <string name="qr_code_invalid">Le code QR est invalide</string>
   <string name="qr_code_too_old_1">Le QR code que vous avez scanné provient d’une version plus ancienne de Briar.\n\nVeuillez demander à votre contact de mettre à niveau la version la plus récente et réessayer.</string>
+  <string name="qr_code_too_new_1">Le QR code que vous avez scanné provient d\'une nouvelle version de Briar\n\nVeuillez mettre à jour vers la dernière version et réessayer.</string>
+  <string name="qr_code_format_unknown">Le QR code que vous avez scanné n\'est pas fait pour ajouter un contact Briar\n\nVeuillez scanner le QR code affiché sur l\'écran de votre contact.</string>
   <string name="camera_error">Erreur de l’appareil photo</string>
   <string name="connecting_to_device">Connexion à l’appareil\u2026</string>
   <string name="authenticating_with_device">Autentification avec l’appareil\u2026</string>
@@ -336,6 +341,7 @@
   <string name="connect_via_bluetooth_intro">Au cas où les connexions Bluetooth ne fonctionneraient pas automatiquement, vous pouvez utiliser cet écran pour vous connecter manuellement.\n\nPour que cela fonctionne, votre contact doit être à proximité.\n\nVotre contact et vous devriez appuyer sur « Commencer » en même temps.</string>
   <string name="connect_via_bluetooth_already_discovering">Une tentative de connexion par Bluetooth est en cours. Veuillez réessayer dans un moment.</string>
   <string name="connect_via_bluetooth_no_location_permission">Impossible de poursuivre sans autoriser la position.</string>
+  <string name="connect_via_bluetooth_no_bluetooth_permission">Ne peut continuer sans les permissions des appareils à proximité.</string>
   <string name="connect_via_bluetooth_start">Connexion par Bluetooth…</string>
   <string name="connect_via_bluetooth_success">La connexion par Bluetooth est réussie</string>
   <string name="connect_via_bluetooth_error">Impossible de se connecter par Bluetooth.</string>
@@ -515,7 +521,6 @@
   <string name="pref_theme_title">Thème</string>
   <string name="pref_theme_light">Clair</string>
   <string name="pref_theme_dark">Sombre</string>
-  <string name="pref_theme_auto">Automatique (journée)</string>
   <string name="pref_theme_system">Valeur par défaut du système</string>
   <!--Settings Connections-->
   <string name="network_settings_title">Connexions </string>
@@ -606,6 +611,10 @@
   <string name="mailbox_setup_connecting">Connexion à Mailbox…</string>
   <!--This string is shown when connecting to a Mailbox for the first time. The placeholder will be replaced with a duration, e.g. "2 minutes".-->
   <string name="mailbox_setup_connecting_info">Cela peut prendre jusqu\'à %1s</string>
+  <string name="mailbox_qr_code_too_old">Le QR code que vous avez scanné provient d\'une ancienne version de Briar Mailbox.\n\nVeuillez mettre à jour Briar Mailbox vers la dernière version et reessayer.</string>
+  <string name="mailbox_qr_code_too_new">Le QR code que vous avez scanné provient d\'une nouvelle version de Briar Mailbox.\n\nVeuillez mettre à jour Briar vers la dernière version et reessayer.</string>
+  <string name="contact_qr_code_for_mailbox">Le QR code que vous avez scanné sert à ajouter un contact Briar.\n\nSi vous voulez ajouter un contact, veuillez aller dans la liste de contacts et appuyer sur l\'icône « + ».</string>
+  <string name="mailbox_setup_qr_code_wrong_description">Le QR code que vous avez scanné ne provient pas de la boîte à lettre Briar.\n\nVeuillez ouvrir l\'appli Mailbox de Briar sur votre appareil Boîte aux lettres et scanner le QR code qui y est présent.</string>
   <string name="mailbox_setup_already_paired_title">La Boîte de courriel est déjà reliée</string>
   <string name="mailbox_setup_already_paired_description">Annuler le lien avec la Boîte de courriel sur l’autre appareil et réessayer.</string>
   <string name="mailbox_setup_io_error_title">Connexion impossible</string>
@@ -617,13 +626,27 @@
   <string name="mailbox_setup_paired_description">Votre Boîte de courriel a été reliée avec succès à Briar.\n
 		\nGarder votre boîte de courriel connectée à l’alimentation et au Wi-Fi afin qu’elle soit toujours en ligne.</string>
   <string name="tor_offline_title">Hors ligne</string>
+  <string name="tor_offline_description">Assurez-vous que cet appareil est en ligne et que les connexions à internet sont autorisées.\n
+		\nEnsuite, attendez que l\'icône en forme de globe dans l\'écran des réglages de connexion soit vert.</string>
   <string name="tor_offline_button_check">Vérifiez les paramètres de connexion.</string>
   <string name="mailbox_status_title">État de la Boîte de courriel</string>
   <string name="mailbox_status_connected_title">La Boîte de courriel est en cours d’exécution</string>
+  <string name="mailbox_status_problem_title">Briar a des problèmes pour se connecter à la boîte aux lettres.</string>
+  <string name="mailbox_status_failure_title">La boîte aux lettres n\'est pas disponible.</string>
   <string name="mailbox_status_app_too_old_title">Briar est trop ancien</string>
+  <string name="mailbox_status_app_too_old_message">Mettez Briar à jour de la dernière version de l\'appli et essayez encore.</string>
+  <string name="mailbox_status_mailbox_too_old_message">Mettez à jour votre Boîte aux lettres vers la dernière version de l\'appli et réessayez.</string>
+  <string name="mailbox_status_check_button">Vérification de connexion</string>
   <!--Example for string substitution: Last connection: 3min ago-->
+  <string name="mailbox_status_connected_info">Dernière connexion: %s</string>
   <!--Indicates that there never was a connection to the mailbox. Last connection: Never-->
   <string name="mailbox_status_connected_never">Jamais</string>
+  <string name="mailbox_status_unlink_button">Dissocier</string>
+  <string name="mailbox_status_unlink_dialog_title">Dissocier la boite aux lettres?</string>
+  <string name="mailbox_status_unlink_dialog_question">Êtes vous sûr de vouloir dissocier votre Boîte aux lettres?</string>
+  <string name="mailbox_status_unlink_dialog_warning">Si vous dissociez votre Boîte aux lettres, vous ne pourrez plus recevoir de messages lorsque Briar est hors-ligne.</string>
+  <string name="mailbox_status_unlink_no_wipe_title">Votre Boîte à lettre a été dissociée</string>
+  <string name="mailbox_status_unlink_success">Votre Boîte à lettre a été dissociée</string>
   <!--About-->
   <string name="about_title">À propos</string>
   <string name="links">Liens</string>

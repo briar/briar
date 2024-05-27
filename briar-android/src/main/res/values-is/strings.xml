@@ -32,7 +32,6 @@
   <string name="dialog_title_cannot_check_password">Get ekki yfirfarið lykilorð</string>
   <string name="dialog_message_cannot_check_password">Briar getur ekki yfirfarið lykilorðið þitt. Prófaðu að endurræsa tækið þitt til að reyna að leysa þetta vandamál.</string>
   <string name="sign_in_button">Skrá inn</string>
-  <string name="forgotten_password">Ég hef gleymt lykilorðinu mínu</string>
   <string name="dialog_title_lost_password">Týnt lykilorð</string>
   <string name="dialog_message_lost_password">Notandaaðgangur þinn í Briar er geymdur dulritaður á tækinu þínu, ekki í tölvuskýi, þannig að við getum ekki endurstillt lykilorðið þitt. Myndirðu vilja eyða notandaaðgangnum þínum og byrja aftur?\n\nVarúð: Auðkennin þín, tengiliðir og skilaboð munu tapast óendurkræft.</string>
   <string name="startup_failed_activity_title">Bilun í ræsingu Briar</string>
@@ -484,7 +483,6 @@
   <string name="pref_theme_title">Þema</string>
   <string name="pref_theme_light">Ljóst</string>
   <string name="pref_theme_dark">Dökkt</string>
-  <string name="pref_theme_auto">Sjálfvirkt (eftir tíma dags)</string>
   <string name="pref_theme_system">Sjálfgefið í kerfinu</string>
   <!--Settings Connections-->
   <string name="network_settings_title">Tengingar</string>

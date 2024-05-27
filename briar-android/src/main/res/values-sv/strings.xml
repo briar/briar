@@ -36,7 +36,6 @@
   <string name="dialog_title_cannot_check_password">Kan ej kontrollera lösenordet</string>
   <string name="dialog_message_cannot_check_password">Briar kan inte kontrollera ditt lösenord. Prova att starta om din enhet och försök igen.</string>
   <string name="sign_in_button">Logga in</string>
-  <string name="forgotten_password">Jag har glömt mitt lösenord </string>
   <string name="dialog_title_lost_password">Glömt lösenord?</string>
   <string name="dialog_message_lost_password">Eftersom ditt Briar-konto lagras krypterat på din mobil eller läsplatta och inte hos en molntjänst kan vi inte återställa ditt lösenord. Vill du radera ditt konto och skapa ett nytt?\n\nCaution: Du kommer att förlora din profil, dina kontakter och dina meddelanden.</string>
   <string name="startup_failed_activity_title">Briar kunde inte starta</string>
@@ -500,7 +499,6 @@ Vänlige installera Briar på en nyare enhet.</string>
   <string name="pref_theme_title">Tema</string>
   <string name="pref_theme_light">Ljus</string>
   <string name="pref_theme_dark">Mörk</string>
-  <string name="pref_theme_auto">Automatisk (dagtid)</string>
   <string name="pref_theme_system">Systemets förval</string>
   <!--Settings Connections-->
   <string name="network_settings_title">Anslutningar</string>

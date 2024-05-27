@@ -13,6 +13,8 @@
   <string name="confirm_password">Ripohoni fjalëkalimin tuaj</string>
   <string name="name_too_long">Emri është shumë i gjatë</string>
   <string name="password_too_weak">Fjalëkalimi është shumë i dobët</string>
+  <string name="password_quite_strong">Fjalëkalimi është mirë</string>
+  <string name="password_strong">Fjalëkalimi është i fortë</string>
   <string name="passwords_do_not_match">Fjalëkalimet nuk përputhen</string>
   <string name="create_account_button">Krijoje Llogarinë</string>
   <string name="more_info">Më Tepër të Dhëna</string>
@@ -35,8 +37,9 @@
   <string name="try_again">Fjalëkalim i gabuar, riprovoni</string>
   <string name="dialog_title_cannot_check_password">S\’kontrollohet Dot Fjalëkalimi</string>
   <string name="dialog_message_cannot_check_password">Briar-i s’e kontrollon dot fjalëkalimin tuaj. Ju lutemi, që të zgjidhet ky problem, provoni të rinisni pajisjen tuaj.</string>
+  <string name="sign_in_title">Hyni në Briar</string>
   <string name="sign_in_button">Hyni</string>
-  <string name="forgotten_password">Kam harruar fjalëkalimin tim</string>
+  <string name="forgotten_password">Harruat fjalëkalimin tuaj?</string>
   <string name="dialog_title_lost_password">U humb Fjalëkalimi</string>
   <string name="dialog_message_lost_password">Llogaria juaj Briar depozitohet e fshehtëzuar në pajisjen tuaj, jo në re, ndaj s\’mund ta ricaktojmë fjalëkalimin tuaj. Do të donit ta fshini llogarinë tuaj dhe t\’ia filloni nga e para?\n\nKujdes: Identitetet, kontaktet dhe mesazhet tuaja do të humbin përgjithnjë.</string>
   <string name="startup_failed_activity_title">Dështim Nisjeje i Briar-it</string>
@@ -510,7 +513,6 @@ dhe s’mund të hapet me këtë version.\n\nJu lutemi, përmirësojeni me versi
   <string name="pref_theme_title">Temë</string>
   <string name="pref_theme_light">E çelët</string>
   <string name="pref_theme_dark">E errët</string>
-  <string name="pref_theme_auto">Automatike (Daytime)</string>
   <string name="pref_theme_system">Parazgjedhje sistemi</string>
   <!--Settings Connections-->
   <string name="network_settings_title">Lidhje</string>
@@ -690,6 +692,8 @@ Këtë rregullim mund ta ndryshojë edhe kontakti juaj, për të dy ju.</string>
   <string name="disappearing_messages_summary">Bëji mesazhet e ardhshëm në këtë bisedë të treten automatikisht pas 7\u00A0ditësh.</string>
   <!--Settings Actions-->
   <string name="pref_category_actions">Veprime</string>
+  <string name="share_app_link">Jepuni lidhjen e shkarkimit</string>
+  <string name="share_app_link_text">Shkarkojeni Briar-in te %s</string>
   <string name="send_feedback">Dërgoji përshtypjet</string>
   <!--Link Warning-->
   <string name="link_warning_title">Sinjalizim Lidhjeje</string>
@@ -738,6 +742,7 @@ Këtë rregullim mund ta ndryshojë edhe kontakti juaj, për të dy ju.</string>
   <string name="permission_camera_title">Leje mbi kamerën</string>
   <string name="permission_camera_request_body">Që të skanojë kodin QR, Briar-i lypset të hyjë te kamera.</string>
   <string name="permission_location_title">Leje vendi</string>
+  <string name="permission_nearby_devices_title">Leje pajisjesh atypari</string>
   <string name="permission_location_request_body">Që të pikasë pajisje Bluetooth, Briar-i lyp leje të njohë vendin tuaj.\n\nBriar-i nuk e depoziton vendin tuaj, as e ndan me dikë.</string>
   <string name="permission_camera_location_title">Kamera dhe vend</string>
   <string name="permission_camera_location_request_body">Që të skanojë kodin QR, Briar-it i duhet të përdorë kamerën.\n\nQë të pikasë pajisje Bluetooth, Briar-i lyp leje të njohë vendin tuaj.\n\nBriar-i nuk e depoziton vendin tuaj, as e ndan me dikë.</string>
@@ -780,6 +785,8 @@ Briar-i i përdor ato paralelisht.</string>
   <string name="permission_hotspot_location_request_precise_body">Që të krijohet një hotspot Wi-Fi, Briar-i lyp leje për të njohur saktësisht vendndodhjen tuaj.\n\nBriar-i nuk e depoziton apo ia jep dikujt atë.</string>
   <string name="permission_hotspot_location_denied_body">Keni mohuar njohjen e vendndodhjes tuaj, ndërkohë që Briar-it i duhet kjo leje për të krijuar një hotspot Wi-Fi.\n\nJu lutemi, shihni mundësinë e akordimit të kësaj lejeje.</string>
   <string name="permission_hotspot_location_denied_precise_body">Keni mohuar njohjen e saktë të vendndodhjes tuaj, ndërkohë që Briar-it i duhet kjo leje për të krijuar një hotspot Wi-Fi.\n\nJu lutemi, shihni mundësinë e akordimit të kësaj lejeje.</string>
+  <string name="permission_hotspot_nearby_wifi_request_body">Që të krijojë një hotspot Wi-Fi, Briar-it i duhet leje të përdorë pajisje atypari.</string>
+  <string name="permission_hotspot_nearby_wifi_denied_body">Keni mohuar përdorim pajisjesh atypari, por Briar-it i duhet kjo leje, që të krijojë një hotspot Wi-Fi.\n\nJu lutemi, shihni mundësinë e lejimit të përdorimit.</string>
   <string name="wifi_settings_title">Rregullim Wi-Fi-i</string>
   <string name="wifi_settings_request_enable_body">Që të krijohet një hotspot Wi-Fi, Briar-it i duhet të përdorë Wi-Fi-n. Ju lutemi, aktivizojeni.</string>
   <string name="hotspot_tab_manual">Dorazi</string>

@@ -36,7 +36,7 @@
   <string name="dialog_title_cannot_check_password">Не вдалося перевірити пароль</string>
   <string name="dialog_message_cannot_check_password">Briar не зміг перевірити ваш пароль. Будь ласка, спробуйте перезавантажити пристрій, щоб розв\'язати цю проблему.</string>
   <string name="sign_in_button">Увійти</string>
-  <string name="forgotten_password">Я забув(-ла) свій пароль</string>
+  <string name="forgotten_password">Забули свій пароль?</string>
   <string name="dialog_title_lost_password">Пароль втрачено</string>
   <string name="dialog_message_lost_password">Ваш обліковий запис Briar знаходиться в зашифрованому вигляді на вашому пристрої, а не зберігається на хмарі, тому ми не можемо відновити ваш пароль. Бажаєте вилучити свій обліковий запис та створити новий?\n\nЗастереження: ваші особисті дані, контакти та повідомлення будуть втрачені назавжди.</string>
   <string name="startup_failed_activity_title">Помилка при запуску Briar</string>
@@ -535,7 +535,6 @@
   <string name="pref_theme_title">Тема</string>
   <string name="pref_theme_light">Світла</string>
   <string name="pref_theme_dark">Темна</string>
-  <string name="pref_theme_auto">Автоматично (Денна)</string>
   <string name="pref_theme_system">Усталена в системі</string>
   <!--Settings Connections-->
   <string name="network_settings_title">З\'єднання</string>

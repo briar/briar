@@ -36,7 +36,7 @@
   <string name="dialog_title_cannot_check_password">Não foi possível verificar sua senha</string>
   <string name="dialog_message_cannot_check_password">Briar não conseguiu verificar sua senha. Por favor, tente reiniciar o dispositivo para resolver o problema.</string>
   <string name="sign_in_button">Entrar</string>
-  <string name="forgotten_password">Esqueci minha senha</string>
+  <string name="forgotten_password">Esqueceu a senha?</string>
   <string name="dialog_title_lost_password">Perdeu a senha</string>
   <string name="dialog_message_lost_password">Sua conta Briar é armazenada em seu dispositivo e criptografada, não na Nuvem, assim não podemos recuperar a senha. Você quer deletar sua conta e começar de novo?\n\nAtenção: Isso irá apagar permanentemente suas identidades, contatos e mensagens</string>
   <string name="startup_failed_activity_title">Inicialização do Briar falhou</string>
@@ -522,7 +522,6 @@
   <string name="pref_theme_title">Tema</string>
   <string name="pref_theme_light">Claro</string>
   <string name="pref_theme_dark">Escuro</string>
-  <string name="pref_theme_auto">Automático (dia)</string>
   <string name="pref_theme_system">Padrão do sistema</string>
   <!--Settings Connections-->
   <string name="network_settings_title">Conexões</string>

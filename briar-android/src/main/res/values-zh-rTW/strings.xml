@@ -37,7 +37,6 @@
   <string name="dialog_message_cannot_check_password">Briar 無法檢查您的密碼，請重新啟動您的裝置來解決此問題。
 </string>
   <string name="sign_in_button">登入</string>
-  <string name="forgotten_password">我忘記了密碼</string>
   <string name="dialog_title_lost_password">忘記密碼</string>
   <string name="dialog_message_lost_password">您的 Briar 帳戶被加密儲存在您的裝置上，而非在雲端。因此我們無法重置您的密碼。您是否希望刪除帳戶，重新開始？\n\n注意：刪除帳戶將永久失去您以前的身份、聯絡人和訊息。</string>
   <string name="startup_failed_activity_title">Briar 啓動失敗</string>
@@ -498,7 +497,6 @@
   <string name="pref_theme_title">主題</string>
   <string name="pref_theme_light">淺色</string>
   <string name="pref_theme_dark">深色</string>
-  <string name="pref_theme_auto">自動（白天）</string>
   <string name="pref_theme_system">系統默認</string>
   <!--Settings Connections-->
   <string name="network_settings_title">連線</string>

@@ -13,6 +13,8 @@
   <string name="confirm_password">Подтвердите пароль</string>
   <string name="name_too_long">Слишком длинное имя</string>
   <string name="password_too_weak">Пароль слишком слабый</string>
+  <string name="password_quite_strong">Пароль в порядке</string>
+  <string name="password_strong">Пароль надежный</string>
   <string name="passwords_do_not_match">Пароли не совпадают</string>
   <string name="create_account_button">Создать аккаунт</string>
   <string name="more_info">Дополнительная информация</string>
@@ -35,8 +37,9 @@
   <string name="try_again">Неверный пароль, повторите попытку</string>
   <string name="dialog_title_cannot_check_password">Не удается проверить пароль</string>
   <string name="dialog_message_cannot_check_password">Briar не может проверить ваш пароль. Пожалуйста, попробуйте перезагрузить устройство, чтобы решить эту проблему.</string>
+  <string name="sign_in_title">Войти в Briar</string>
   <string name="sign_in_button">Войти</string>
-  <string name="forgotten_password">Я забыл свой пароль</string>
+  <string name="forgotten_password">Забыли пароль?</string>
   <string name="dialog_title_lost_password">Пароль утерян</string>
   <string name="dialog_message_lost_password">Ваш аккаунт Briar хранится в зашифрованном виде только на устройстве, поэтому мы не можем сбросить пароль. Удалить аккаунт и начать заново?\n\nВнимание: ваши идентификаторы, контакты и сообщения будут потеряны навсегда.</string>
   <string name="startup_failed_activity_title">Сбой при запуске Briar</string>
@@ -535,7 +538,6 @@
   <string name="pref_theme_title">Тема</string>
   <string name="pref_theme_light">Светлая</string>
   <string name="pref_theme_dark">Темная</string>
-  <string name="pref_theme_auto">Авто (День)</string>
   <string name="pref_theme_system">По умолчанию</string>
   <!--Settings Connections-->
   <string name="network_settings_title">Подключения</string>

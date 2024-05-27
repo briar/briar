@@ -36,7 +36,7 @@
   <string name="dialog_title_cannot_check_password">Kan ikke sjekke passord</string>
   <string name="dialog_message_cannot_check_password">Briar kan ikke sjekke ditt passord. Vennligst prøv en omstart av enheten din for å løse dette problemet.</string>
   <string name="sign_in_button">Logg inn</string>
-  <string name="forgotten_password">Jeg har glemt passordet mitt</string>
+  <string name="forgotten_password">Glemt passordet ditt?</string>
   <string name="dialog_title_lost_password">Tapt passord</string>
   <string name="dialog_message_lost_password">Din Briar-konto er lagret kryptert på din enhet, ikke i skyen, så du kan ikke tilbakestille passordet ditt. Ønsker du å slette kontoen og starte igjen?\n\nMerk: Identitetene dine, kontaktene og meldingene vil gå tapt for alltid.</string>
   <string name="startup_failed_activity_title">Oppstartsfeil med Briar</string>
@@ -495,7 +495,6 @@
   <string name="pref_theme_title">Tema</string>
   <string name="pref_theme_light">Lyst</string>
   <string name="pref_theme_dark">Mørkt</string>
-  <string name="pref_theme_auto">Automatisk (Dagtid)</string>
   <string name="pref_theme_system">Systemforvalg</string>
   <!--Settings Connections-->
   <string name="network_settings_title">Tilkoblinger</string>

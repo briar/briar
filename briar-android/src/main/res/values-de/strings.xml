@@ -13,6 +13,8 @@
   <string name="confirm_password">Passwort bestätigen</string>
   <string name="name_too_long">Name ist zu lang</string>
   <string name="password_too_weak">Passwort ist zu schwach</string>
+  <string name="password_quite_strong">Password ist in Ordnung</string>
+  <string name="password_strong">Passwort ist stark</string>
   <string name="passwords_do_not_match">Passwörter stimmen nicht überein</string>
   <string name="create_account_button">Konto anlegen</string>
   <string name="more_info">Weitere Informationen</string>
@@ -35,8 +37,9 @@
   <string name="try_again">Passwort falsch, bitte erneut versuchen</string>
   <string name="dialog_title_cannot_check_password">Passwort kann nicht überprüft werden</string>
   <string name="dialog_message_cannot_check_password">Briar kann dein Passwort nicht überprüfen. Starte bitte dein Gerät neu und versuche damit, dieses Problem zu lösen.</string>
+  <string name="sign_in_title">In Briar anmelden</string>
   <string name="sign_in_button">Anmelden</string>
-  <string name="forgotten_password">Ich habe mein Passwort vergessen</string>
+  <string name="forgotten_password">Passwort vergessen?</string>
   <string name="dialog_title_lost_password">Passwort vergessen</string>
   <string name="dialog_message_lost_password">Dein Briar-Konto ist verschlüsselt auf deinem Gerät  und nicht in der Cloud gespeichert, deshalb kannst du dein Passwort nicht zurücksetzen. Willst du dein Konto löschen und neu beginnen?\n\nAchtung: Deine bestehenden Identitäten, Kontakte und Nachrichten gehen dann für immer verloren.</string>
   <string name="startup_failed_activity_title">Fehler beim Starten von Briar</string>
@@ -509,7 +512,6 @@
   <string name="pref_theme_title">Design</string>
   <string name="pref_theme_light">Hell</string>
   <string name="pref_theme_dark">Dunkel</string>
-  <string name="pref_theme_auto">Automatisch (Tageszeit)</string>
   <string name="pref_theme_system">Systemstandard</string>
   <!--Settings Connections-->
   <string name="network_settings_title">Verbindungen</string>
@@ -681,7 +683,7 @@
 		\n\nDer Countdown für die Nachrichtenkopie des Absenders beginnt, nachdem sie zugestellt wurde.
 		Für den Empfänger beginnt der Countdown, nachdem er die Nachricht gelesen hat.
 		\n\nNachrichten, die gelöscht werden, sind mit einem Bombensymbol gekennzeichnet.
-		\n\nDenke daran, dass die Empfänger weiterhin Kopien der von deinen gesendeten Nachrichten erstellen können.
+		\n\nDenke daran, dass die Empfänger weiterhin Kopien von deinen gesendeten Nachrichten erstellen können.
 		\n\nWenn du diese Einstellung änderst, gilt sie sofort für deine neuen Nachrichten und für die
 		Nachrichten deines Kontakts, sobald dieser deine nächste Nachricht erhält.
 		Dein Kontakt kann diese Einstellung auch für euch beide ändern.</string>
@@ -715,8 +717,8 @@
   <string name="dev_report_device_info">Geräteinformationen</string>
   <string name="dev_report_stacktrace">Stacktrace</string>
   <string name="dev_report_time_info">Zeitangaben</string>
-  <string name="dev_report_memory">Speicher</string>
-  <string name="dev_report_storage">Speicher</string>
+  <string name="dev_report_memory">Arbeitsspeicher</string>
+  <string name="dev_report_storage">Plattenspeicher</string>
   <string name="dev_report_connectivity">Konnektivität</string>
   <string name="dev_report_network_usage">Netzwerknutzung</string>
   <string name="dev_report_build_config">Buildkonfiguration</string>

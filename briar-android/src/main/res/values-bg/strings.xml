@@ -34,7 +34,6 @@
   <string name="dialog_title_cannot_check_password">Паролата не може да бъде проверена</string>
   <string name="dialog_message_cannot_check_password">Briar не може да провери вашата парола. Рестартирате устройството, за да разрешите проблема.</string>
   <string name="sign_in_button">Влизане</string>
-  <string name="forgotten_password">Забравена парола</string>
   <string name="dialog_title_lost_password">Забравена парола</string>
   <string name="dialog_message_lost_password">Профилът в Briar се съхранява шифриран на вашето устройство, а не в облака и за това паролата не може да бъде сменена. Желаете ли да профилът да бъде премахнат и да бъде направен нов?\n\nВнимание: Профилът, контактите и съобщенията ще бъдат безвъзвратно загубени.</string>
   <string name="startup_failed_activity_title">Неуспешно стартиране</string>
@@ -507,7 +506,6 @@
   <string name="pref_theme_title">Тема</string>
   <string name="pref_theme_light">Светла</string>
   <string name="pref_theme_dark">Тъмна</string>
-  <string name="pref_theme_auto">Автоматична (ден или нощ)</string>
   <string name="pref_theme_system">Спрямо системата</string>
   <!--Settings Connections-->
   <string name="network_settings_title">Свързаност</string>

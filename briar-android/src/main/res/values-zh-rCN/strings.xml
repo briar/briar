@@ -13,6 +13,8 @@
   <string name="confirm_password">确认密码</string>
   <string name="name_too_long">昵称过长</string>
   <string name="password_too_weak">密码强度不够</string>
+  <string name="password_quite_strong">密码强度没问题</string>
+  <string name="password_strong">密码够强</string>
   <string name="passwords_do_not_match">两次输入的密码不一致</string>
   <string name="create_account_button">创建帐户</string>
   <string name="more_info">更多信息</string>
@@ -35,8 +37,9 @@
   <string name="try_again">密码错误，请重试</string>
   <string name="dialog_title_cannot_check_password">无法检查密码</string>
   <string name="dialog_message_cannot_check_password">Briar 无法检查您的密码。请尝试重新启动您的设备以解决此问题。</string>
+  <string name="sign_in_title">登录 Briar</string>
   <string name="sign_in_button">登录</string>
-  <string name="forgotten_password">我忘记了密码</string>
+  <string name="forgotten_password">忘记了密码？</string>
   <string name="dialog_title_lost_password">密码遗失</string>
   <string name="dialog_message_lost_password">您的 Briar 帐户被加密储存在您的设备上，而非云端，因此我们无法重置您的密码。您是否希望删除帐户，重新开始？\n\n注意：删除帐户将导致您的身份信息、联系人和消息永久丢失。</string>
   <string name="startup_failed_activity_title">Briar 启动失败</string>
@@ -496,7 +499,6 @@
   <string name="pref_theme_title">主题</string>
   <string name="pref_theme_light">浅色</string>
   <string name="pref_theme_dark">深色</string>
-  <string name="pref_theme_auto">自动（白天）</string>
   <string name="pref_theme_system">系统默认</string>
   <!--Settings Connections-->
   <string name="network_settings_title">连接</string>

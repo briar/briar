@@ -36,7 +36,6 @@
   <string name="dialog_title_cannot_check_password">No es pot verificar la contrasenya</string>
   <string name="dialog_message_cannot_check_password">Briar no pot verificar la contrasenya. Proveu de reiniciar el vostre aparell per a solucionar aquest problema.</string>
   <string name="sign_in_button">Inicia la sessió</string>
-  <string name="forgotten_password">No recordo la contrasenya</string>
   <string name="dialog_title_lost_password">Contrasenya perduda</string>
   <string name="dialog_message_lost_password">El vostre compte de Briar s\'emmagatzema només en el vostre dispositiu i xifrat. La contrasenya, doncs, no es pot restablir. Voleu esborrar el compte i crear-ne un de nou?\n\nAtenció! Si esborreu el compte la vostra identitat, els contactes i els missatges antics es perdran per sempre.</string>
   <string name="startup_failed_activity_title">Error iniciant Briar</string>
@@ -510,7 +509,6 @@ Així que l\'actualitzi li veureu una icona diferent .</string>
   <string name="pref_theme_title">Tema</string>
   <string name="pref_theme_light">Clar</string>
   <string name="pref_theme_dark">Fosc</string>
-  <string name="pref_theme_auto">Automàtic (segons l\'hora)</string>
   <string name="pref_theme_system">Valor per defecte del sistema</string>
   <!--Settings Connections-->
   <string name="network_settings_title">Connexions</string>
@@ -739,6 +737,7 @@ Així que l\'actualitzi li veureu una icona diferent .</string>
   <string name="permission_camera_title">Permís de la càmera</string>
   <string name="permission_camera_request_body">Per escanejar el codi QR, Briar necessita accedir a la càmera.</string>
   <string name="permission_location_title">Permís d\'accés a la posició</string>
+  <string name="permission_nearby_devices_title">Permís de dispositius propers</string>
   <string name="permission_location_request_body">Per a descobrir dispositius Bluetooth, Briar necessita accedir a la vostra posició.\n\nBriar no guarda la vostra posició ni la comparteix amb ningú.</string>
   <string name="permission_camera_location_title">Permís d\'accés a la càmera i a la posició</string>
   <string name="permission_camera_location_request_body">Per escanejar el codi QR, Briar necessita accedir a la càmera.\n\nPer trobar dispositius Bluetooth, Briar necessita accedir a la vostra posició.\n\nBriar no guarda la vostra posició ni la comparteix amb ningú.</string>

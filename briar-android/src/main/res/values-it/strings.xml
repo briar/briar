@@ -36,7 +36,7 @@
   <string name="dialog_title_cannot_check_password">Impossibile controllare la password</string>
   <string name="dialog_message_cannot_check_password">Briar non riesce a controllare la tua password. Prova a riavviare il dispositivo per risolvere il problema.</string>
   <string name="sign_in_button">Entra</string>
-  <string name="forgotten_password">Ho dimenticato la password</string>
+  <string name="forgotten_password">Hai dimenticato la tua password?</string>
   <string name="dialog_title_lost_password">Password persa</string>
   <string name="dialog_message_lost_password">Il tuo account Briar si trova cifrato sul tuo dispositivo e non nel cloud, quindi non possiamo resettarti la tua password. Vorresti cancellare il tuo account e partire di nuovo?\n\nAttenzione: Le tue identità, contatti e messaggi verranno persi permanentemente.</string>
   <string name="startup_failed_activity_title">Fallimento Avvio Briar</string>
@@ -522,7 +522,6 @@
   <string name="pref_theme_title">Tema</string>
   <string name="pref_theme_light">Chiaro</string>
   <string name="pref_theme_dark">Scuro</string>
-  <string name="pref_theme_auto">Automatico ( Dì )</string>
   <string name="pref_theme_system">Default del sistema</string>
   <!--Settings Connections-->
   <string name="network_settings_title">Connessioni</string>

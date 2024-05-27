@@ -13,6 +13,8 @@
   <string name="confirm_password">Potvrďte svoje heslo</string>
   <string name="name_too_long">Meno je príliš dlhé</string>
   <string name="password_too_weak">Heslo je príliš slabé</string>
+  <string name="password_quite_strong">Heslo je v poriadku</string>
+  <string name="password_strong">Heslo je silné</string>
   <string name="passwords_do_not_match">Hesla sa nezhodujú</string>
   <string name="create_account_button">Vytvoriť účet</string>
   <string name="more_info">Viac informácií</string>
@@ -35,8 +37,9 @@
   <string name="try_again">Nesprávne heslo, skúste to znova</string>
   <string name="dialog_title_cannot_check_password">Nie je možné skontrolovať heslo</string>
   <string name="dialog_message_cannot_check_password">Briar nemôže skontrolovať vaše heslo. Skúste tento problém vyriešiť reštartovaním zariadenia.</string>
+  <string name="sign_in_title">Prihlásiť sa do Briar</string>
   <string name="sign_in_button">Prihlásiť sa</string>
-  <string name="forgotten_password">Zabudol som svoje heslo</string>
+  <string name="forgotten_password">Zabudli ste heslo?</string>
   <string name="dialog_title_lost_password">Zabudnuté heslo</string>
   <string name="dialog_message_lost_password">Vaše konto Briar je uložené šifrovane vo vašom zariadení, nie v cloude, takže vaše heslo nemôžeme resetovať. Chcete odstrániť svoj účet a začať znova?\n\nPozor:  Vaše identity, kontakty a správy budú natrvalo stratené.</string>
   <string name="startup_failed_activity_title">Zlyhanie spustenia aplikácie Briar</string>
@@ -535,7 +538,6 @@
   <string name="pref_theme_title">Téma</string>
   <string name="pref_theme_light">Svetlá</string>
   <string name="pref_theme_dark">Tmavá</string>
-  <string name="pref_theme_auto">Automatická (podľa denného času)</string>
   <string name="pref_theme_system">Predvolené systémom</string>
   <!--Settings Connections-->
   <string name="network_settings_title">Pripojenia</string>

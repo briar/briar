@@ -38,7 +38,7 @@
   <string name="dialog_title_cannot_check_password">قادر به بررسی رمز عبور نیست</string>
   <string name="dialog_message_cannot_check_password">Briar قادر به بررسی رمز عبور شما نیست. لطفا دستگاه خود را برای حل این مشکل راه اندازی مجدد کنید.</string>
   <string name="sign_in_button">ورود</string>
-  <string name="forgotten_password">گذرواژه خود را فراموش کرده ام</string>
+  <string name="forgotten_password">رمزعبور خود را فراموش کرده‌اید؟</string>
   <string name="dialog_title_lost_password">گذرواژه گمشده</string>
   <string name="dialog_message_lost_password">حساب کاربری Briar (برایر) شما به صورت رمزنگاری شده روی سیستم شما به جای حافظه ابری ذخیره شده است برای همین ما نمی توانیم گذرواژه شما را به صورت مجدد تنظیم کنیم. آیا مایل هستید تا حساب کاربری شما را پاک کنیم و دوباره از ابتدا شروع کنیم؟
 
@@ -541,7 +541,6 @@
   <string name="pref_theme_title">قالب</string>
   <string name="pref_theme_light">روشن</string>
   <string name="pref_theme_dark">تاریک</string>
-  <string name="pref_theme_auto">خودکار ( روز)</string>
   <string name="pref_theme_system">پیش فرض سیستم</string>
   <!--Settings Connections-->
   <string name="network_settings_title">اتصالات</string>
@@ -774,6 +773,7 @@
   <string name="permission_camera_title">دسترسی به دوربین</string>
   <string name="permission_camera_request_body">برای اسکن کردن کد کیوآر دسترسی به دوربین لازم است.</string>
   <string name="permission_location_title">اجازه موقعیت</string>
+  <string name="permission_nearby_devices_title">مجوز دستگاه‌های نزدیک</string>
   <string name="permission_location_request_body">برای پیدا کردن دستگاه‌های بلوتوث، Briar (برایر) نیاز به اجازه دسترسی به موقعیت شما دارد.
 
 Briar  (برایر) موقعیت شما را ذخیره نمی‌کند و آن را با کسی به اشتراک نمی‌گذارد.</string>

@@ -36,7 +36,6 @@
   <string name="dialog_title_cannot_check_password">Nu se poate verifica parola</string>
   <string name="dialog_message_cannot_check_password">Briar nu poate verifica parola. Încercați să reporniți dispozitivul pentru a rezolva această problemă.</string>
   <string name="sign_in_button">Autentificare</string>
-  <string name="forgotten_password">Am uitat parola</string>
   <string name="dialog_title_lost_password">Parolă uitată</string>
   <string name="dialog_message_lost_password">Contul dvs. Briar este stocat criptat pe dispozitivul dvs., nu în cloud, prin urmare nu putem reseta parola dvs. Doriți să vă ștergeți contul și să o luați de la capăt? Atenție: identitățile, contactele și mesajele dvs. vor fi pierdute definitiv.</string>
   <string name="startup_failed_activity_title">Eroare de pornire Briar</string>
@@ -522,7 +521,6 @@
   <string name="pref_theme_title">Temă</string>
   <string name="pref_theme_light">Luminoasă</string>
   <string name="pref_theme_dark">Întunecată</string>
-  <string name="pref_theme_auto">Automat (ziua)</string>
   <string name="pref_theme_system">Setări implicite sistem</string>
   <!--Settings Connections-->
   <string name="network_settings_title">Conexiuni</string>
@@ -702,6 +700,8 @@
   <string name="disappearing_messages_summary">Faceți ca mesajele viitoare din această conversație să dispară automat după 7 zile.</string>
   <!--Settings Actions-->
   <string name="pref_category_actions">Actiuni</string>
+  <string name="share_app_link">Partajează legătură de descărcare</string>
+  <string name="share_app_link_text">Descarcă Briar de la %s</string>
   <string name="send_feedback">Trimiteți feedback</string>
   <!--Link Warning-->
   <string name="link_warning_title">Avertisment privind un link</string>
@@ -751,6 +751,7 @@
   <string name="permission_camera_title">Acces la camera foto</string>
   <string name="permission_camera_request_body">Pentru a scana codul QR, Briar are nevoie de acces la cameră.</string>
   <string name="permission_location_title">Acces la locație</string>
+  <string name="permission_nearby_devices_title">Permisiunea dispozitivelor apropiate</string>
   <string name="permission_location_request_body">Pentru a putea descoperi dispozitive Bluetooth, Briar are nevoie de permisiunea de a accesa locația dvs.\n\nBriar nu stochează locația dvs. și nici nu o partajează cu nimeni.  </string>
   <string name="permission_camera_location_title">Cameră foto și locație</string>
   <string name="permission_camera_location_request_body">Pentru a scana codul QR, Briar are nevoie de acces la camera foto.\n\nPentru a putea descoperi dispozitive Bluetooth, Briar are nevoie de permisiunea de acces la locația dvs.\n\nBriar nu stochează locația dvs. și nici nu o partajează cu nimeni.</string>
@@ -790,6 +791,8 @@
   <string name="permission_hotspot_location_request_precise_body">Pentru a crea un hotspot Wi-Fi, Briar are nevoie de permisiunea de a accesa locația dumneavoastră exactă.\n\nBriar nu stochează locația dumneavoastră și nu o împărtășește cu nimeni.</string>
   <string name="permission_hotspot_location_denied_body">Ați refuzat accesul la locație, dar Briar are nevoie de această permisiune pentru a crea un hotspot Wi-Fi.\n\nVă rugăm să luați în considerare acordarea accesului.</string>
   <string name="permission_hotspot_location_denied_precise_body">Ați refuzat accesul la locația dumneavoastră exactă, dar Briar are nevoie de această permisiune pentru a crea un hotspot Wi-Fi.Vă rugăm să luați în considerare acordarea accesului.</string>
+  <string name="permission_hotspot_nearby_wifi_request_body">Pentru a putea crea un hotspot Wi-Fi, Briar are nevoie de permisiunea de accesare a dispozitivelor din apropiere.</string>
+  <string name="permission_hotspot_nearby_wifi_denied_body">Ați refuzat accesul la dispozitivele din apropiere, dar Briar are nevoie de această permisiune pentru a crea un hotspot Wi-Fi.\n\nVă rugăm să luați în considerare acordarea accesului.</string>
   <string name="wifi_settings_title">Se setează Wi-Fi</string>
   <string name="wifi_settings_request_enable_body">Pentru a crea un hotspot Wi-Fi, Briar trebuie să folosească Wi-Fi. Vă rugăm să activați funcția.</string>
   <string name="hotspot_tab_manual">Manual</string>

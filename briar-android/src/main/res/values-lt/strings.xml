@@ -9,10 +9,12 @@
   <string name="dnkm_doze_intro">Norint gauti žinutes, Briar turi išlikti fone prisijungusi.</string>
   <string name="dnkm_doze_explanation">Norint gauti žinutes, Briar turi išlikti fone prisijungusi. Išjunkite akumuliatoriaus naudojimo optimizavimą, kad Briar galėtų išlikti prisijungusi.</string>
   <string name="choose_nickname">Pasirinkite savo slapyvardį</string>
-  <string name="choose_password">Pasirinkite savo slaptažodį</string>
-  <string name="confirm_password">Pakartokite savo slaptažodį</string>
+  <string name="choose_password">Pasirinkite slaptažodį</string>
+  <string name="confirm_password">Pakartokite slaptažodį</string>
   <string name="name_too_long">Vardas yra per ilgas</string>
   <string name="password_too_weak">Slaptažodis yra per silpnas</string>
+  <string name="password_quite_strong">Geras slaptažodis</string>
+  <string name="password_strong">Stiprus slaptažodis</string>
   <string name="passwords_do_not_match">Slaptažodžiai nesutampa</string>
   <string name="create_account_button">Sukurti paskyrą</string>
   <string name="more_info">Daugiau informacijos</string>
@@ -25,20 +27,22 @@
   <string name="dnkm_xiaomi_text">Tam, kad galėtų veikti fone, Briar turi būti prirakinta prie paskiausiųjų programėlių sąrašo.</string>
   <string name="dnkm_xiaomi_button">Apsaugoti Briar</string>
   <string name="dnkm_xiaomi_help">Jei Briar nebus prirakinta prie paskiausiųjų programėlių sąrašo, ji negalės veikti fone.</string>
-  <string name="dnkm_xiaomi_dialog_body_old">1. Atverkite paskiausiųjų programėlių sąrašą (dar vadinamą programėlių perjungikliu)\n\n2. Ant Briar paveiksliuko perbraukite žemyn, kad būtų rodoma pakabinamos spynos piktograma\n\n3. Jei pakabinama spyna neužrakinta, bakstelėkite, kad ją užrakintumėte</string>
+  <string name="dnkm_xiaomi_dialog_body_old">1. Atverkite paskiausiųjų programėlių sąrašą (dar vadinamą programėlių perjungikliu)\n\n2. Ant Briar atvaizdo perbraukite žemyn, kad būtų rodoma pakabinamos spynos piktograma\n\n3. Jei pakabinama spyna neužrakinta, bakstelėkite, kad ją užrakintumėte</string>
+  <string name="dnkm_warning_dozed_1">Briar nepavyko pasileisti fone</string>
   <!--Login-->
   <string name="enter_password">Slaptažodis</string>
   <string name="try_again">Neteisingas slaptažodis, bandykite dar kartą</string>
   <string name="dialog_title_cannot_check_password">Nepavyksta patikrinti slaptažodžio</string>
   <string name="dialog_message_cannot_check_password">Briar nepavyksta patikrinti jūsų slaptažodžio. Norėdami išspręsti šią problemą, pabandykite paleisti įrenginį iš naujo.</string>
+  <string name="sign_in_title">Prisijunkite prie Briar</string>
   <string name="sign_in_button">Prisijungti</string>
-  <string name="forgotten_password">Aš pamiršau savo slaptažodį</string>
+  <string name="forgotten_password">Pamiršote slaptažodį?</string>
   <string name="dialog_title_lost_password">Prarastas slaptažodis</string>
   <string name="dialog_message_lost_password">Jūsų Briar paskyra yra saugoma šifruotu pavidalu jūsų įrenginyje, o ne debesijoje, todėl negalime atstatyti jūsų slaptažodžio. Ar norėtumėte ištrinti savo paskyrą ir pradėti iš naujo?\n\nDėmesio: Jūsų tapatybės, žinutės ir adresatai bus prarasti visiems laikams.</string>
   <string name="startup_failed_activity_title">Briar paleidimo nesėkmė</string>
   <string name="startup_failed_clock_error">Briar nepavyko pasileisti, nes jūsų įrenginio laikrodis rodo neteisingą laiką.\n\nNustatykite savo įrenginyje teisingą laiką ir bandykite dar kartą.</string>
-  <string name="startup_failed_db_error">Briar nepavyko atverti duomenų bazės su jūsų paskyra, adresatais ir žinutėmis.\n\nAtnaujinkite programėlę į naujausią versiją ir bandykite dar kartą arba nusistatykite naują paskyrą, slaptažodžio užklausos ekrane pasirinkę „Aš pamiršau savo slaptažodį“.</string>
-  <string name="startup_failed_data_too_old_error">Jūsų paskyra buvo sukurta naudojant seną šios programėlės versiją ir negali būti atverta naudojant šią versiją.\n\nJūs privalote arba iš naujo įsidiegti seną versiją, arba nusistatyti naują paskyrą, slaptažodžio užklausos ekrane pasirinkę „Aš pamiršau savo slaptažodį“.</string>
+  <string name="startup_failed_db_error">Briar nepavyko atverti duomenų bazės su jūsų paskyra, adresatais ir žinutėmis.\n\nAtnaujinkite programėlę į naujausią versiją ir bandykite dar kartą arba nusistatykite naują paskyrą, slaptažodžio užklausos ekrane pasirinkę „Aš pamiršau slaptažodį“.</string>
+  <string name="startup_failed_data_too_old_error">Jūsų paskyra buvo sukurta naudojant seną šios programėlės versiją ir negali būti atverta naudojant šią versiją.\n\nJūs privalote arba iš naujo įsidiegti seną versiją, arba nusistatyti naują paskyrą, slaptažodžio užklausos ekrane pasirinkę „Aš pamiršau slaptažodį“.</string>
   <string name="startup_failed_data_too_new_error">Jūsų paskyra buvo sukurta naudojant naujesnę šios programėlės versiją ir negali būti atverta naudojant šią versiją.\n\nAtnaujinkite programėlę į naujausią versiją ir bandykite dar kartą.</string>
   <string name="startup_failed_service_error">Briar nepavyko paleisti reikiamo komponento.\n\nAtnaujinkite programėlę į naujausią versiją ir bandykite dar kartą.</string>
   <plurals name="expiry_warning">
@@ -167,9 +171,9 @@
   <string name="message_hint_auto_delete">Nauja išnykstanti žinutė</string>
   <string name="message_error">Klaida, siunčiant žinutę</string>
   <string name="image_caption_hint">Pridėkite paaiškinimą (nebūtina)</string>
-  <string name="image_attach">Pridėti paveikslą</string>
-  <string name="image_attach_error">Nepavyko pridėti paveikslo(-ų)</string>
-  <string name="image_attach_error_too_big">Paveikslas per didelis. Apribojimas yra %d MB.</string>
+  <string name="image_attach">Pridėti atvaizdą</string>
+  <string name="image_attach_error">Nepavyko pridėti atvaizdo(-ų)</string>
+  <string name="image_attach_error_too_big">Atvaizdas per didelis. Apribojimas yra %d MB.</string>
   <string name="image_attach_error_invalid_mime_type">Nepalaikomas paveikslo formatas: %s</string>
   <string name="set_contact_alias">Pakeisti adresato vardą</string>
   <string name="set_contact_alias_hint">Adresato vardas</string>
@@ -221,19 +225,20 @@
   <string name="contact_deleted_toast">Adresatas ištrintas</string>
   <!--This is shown in the action bar when opening an image in fullscreen that the user sent-->
   <string name="you">Jūs</string>
-  <string name="save_image">Įrašyti paveikslą</string>
-  <string name="dialog_title_save_image">Įrašyti paveikslą?</string>
-  <string name="dialog_message_save_image">Įrašius šį paveikslą, kitoms programėlėms bus leista gauti prieigą prie jo.\n\nAr tikrai norite įrašyti?</string>
-  <string name="save_image_success">Paveikslas buvo įrašytas</string>
-  <string name="save_image_error">Nepavyko įrašyti paveikslo</string>
-  <string name="dialog_title_no_image_support">Paveikslai neprieinami</string>
-  <string name="dialog_message_no_image_support">Jūsų adresato Briar kol kas nepalaiko paveikslo priedų. Jam atnaujinus programėlę, jūs matysite kitokią piktogramą.</string>
-  <string name="dialog_title_image_support">Dabar šiam adresatui galite siųsti paveikslus</string>
-  <string name="dialog_message_image_support">Bakstelėkite šią piktogramą, norėdami pridėti paveikslus.</string>
-  <string name="messaging_too_many_attachments_toast">Bus išsiųsti tik %d pirmi paveikslai</string>
+  <string name="save_image">Įrašyti atvaizdą</string>
+  <string name="dialog_title_save_image">Įrašyti atvaizdą?</string>
+  <string name="dialog_message_save_image">Įrašius šį atvaizdą, kitoms programėlėms bus leista gauti prieigą prie jo.\n\nAr tikrai norite įrašyti?</string>
+  <string name="save_image_success">Atvaizdas buvo įrašytas</string>
+  <string name="save_image_error">Nepavyko įrašyti atvaizdo</string>
+  <string name="dialog_title_no_image_support">Atvaizdai neprieinami</string>
+  <string name="dialog_message_no_image_support">Jūsų adresato naudojama Briar kol kas nepalaiko atvaizdo priedų. Jam atnaujinus programėlę, jūs matysite kitokią piktogramą.</string>
+  <string name="dialog_title_image_support">Dabar šiam adresatui galite siųsti atvaizdus</string>
+  <string name="dialog_message_image_support">Bakstelėkite šią piktogramą, norėdami pridėti atvaizdus.</string>
+  <string name="messaging_too_many_attachments_toast">Bus išsiųsti tik %d pirmi atvaizdai</string>
   <string name="menu_contact">Susisiekti</string>
   <!--Adding Contacts-->
   <string name="add_contact_title">Pridėti šalia esantį adresatą</string>
+  <string name="add_contact_error_two_way">Ar jūs abu nuskenavote vienas kito QR kodus?</string>
   <string name="face_to_face">Jūs privalote susitikti gyvai su asmeniu, kurį norite pridėti kaip adresatą.\n\nTai neleis bet kam apsimetinėti jumis ar ateityje skaityti jūsų žinučių.</string>
   <string name="continue_button">Tęsti</string>
   <string name="try_again_button">Bandyti dar kartą</string>
@@ -243,6 +248,10 @@
   <string name="contact_already_exists">Adresatas %s jau yra</string>
   <string name="contact_already_exists_general">Adresatas jau yra</string>
   <string name="qr_code_invalid">QR kodas yra neteisingas</string>
+  <string name="qr_code_too_old_1">Jūsų nuskenuotas QR kodas yra iš senesnės Briar versijos.\n\nPaprašykite adresato, kad atnaujintų į naujausią versiją, o tuomet bandykite dar kartą.</string>
+  <string name="qr_code_too_new_1">Jūsų nuskenuotas QR kodas yra iš naujesnės Briar versijos.\n\nAtnaujinkite į naujausią versiją, o tuomet bandykite dar kartą.</string>
+  <string name="mailbox_qr_code_for_contact">Jūsų nuskenuotas QR kodas yra iš Briar pašto dėžutės.\n\nJei norite susieti pašto dėžutę, Briar meniu pasirinkite Nustatymai &gt; Pašto dėžutė.</string>
+  <string name="qr_code_format_unknown">Jūsų nuskenuotas QR kodas nėra skirtas Briar adresato pridėjimui.\n\nNuskenuokite jūsų adresato ekrane rodomą QR kodą.</string>
   <string name="camera_error">Kameros klaida</string>
   <string name="connecting_to_device">Jungiamasi prie įrenginio\u2026</string>
   <string name="authenticating_with_device">Tapatybės nustatymas su įrenginiu\u2026</string>
@@ -306,7 +315,7 @@
 	will be used in a dialog button, so if the translation of this string longer than 20 characters,
 	please use "No" instead, and use "Yes" for the "Same Person" button-->
   <string name="different_person_button">Kitas asmuo</string>
-  <string name="duplicate_link_dialog_text_3">%1$s ir %2$s išsiuntė jums tą pačią nuorodą.\n\nGali būti, kad vienas iš šių asmenų bando sužinoti kas yra jūsų adresatų sąraše.\n\nNesakykite šiems asmenims, kad gavote tokią pačią nuorodą iš kito asmens.</string>
+  <string name="duplicate_link_dialog_text_3">%1$s ir %2$s išsiuntė jums tą pačią nuorodą.\n\nGali būti, kad vienas iš šių asmenų bando sužinoti, kas yra jūsų adresatų sąraše.\n\nNesakykite šiems asmenims, kad gavote tokią pačią nuorodą iš kito asmens.</string>
   <string name="pending_contact_updated_toast">Laukiantis adresatas atnaujintas</string>
   <string name="info_both_must_enter_links">Jūs abu privalote pridėti vienas kito nuorodas</string>
   <!--Peer trust levels-->
@@ -446,9 +455,10 @@
   <string name="forum_invitation_already_sharing">Jau bendrinama</string>
   <string name="forum_invitation_already_invited">Pakvietimas jau išsiųstas</string>
   <string name="forum_invitation_invite_received">Pakvietimas jau gautas</string>
+  <string name="forum_invitation_not_supported">Nepalaikoma šio adresato</string>
   <string name="forum_invitation_error">Klaida. Tai yra triktis ir ne jūsų kaltė</string>
-  <string name="forum_invitation_response_accepted_sent">Jūs priėmėte pakvietimą į forumą iš %s.</string>
-  <string name="forum_invitation_response_declined_sent">Jūs atmetėte pakvietimą į forumą iš %s.</string>
+  <string name="forum_invitation_response_accepted_sent">Jūs priėmėte iš %s pakvietimą į forumą.</string>
+  <string name="forum_invitation_response_declined_sent">Jūs atmetėte iš %s pakvietimą į forumą.</string>
   <string name="forum_invitation_response_declined_auto">Pakvietimas į forumą nuo %s buvo automatiškai atmestas.</string>
   <string name="forum_invitation_response_accepted_received">%s priėmė pakvietimą į forumą.</string>
   <string name="forum_invitation_response_declined_received">%s atmetė pakvietimą į forumą.</string>
@@ -484,8 +494,8 @@
   <string name="blogs_sharing_error">Bendrinant šį tinklaraštį, įvyko klaida.</string>
   <string name="blogs_sharing_button">Bendrinti tinklaraštį</string>
   <string name="blogs_sharing_snackbar">Tinklaraštis bendrinamas su pasirinktais adresatais</string>
-  <string name="blogs_sharing_response_accepted_sent">Jūs priėmėte pakvietimą į tinklaraštį iš %s.</string>
-  <string name="blogs_sharing_response_declined_sent">Jūs atmetėte pakvietimą į tinklaraštį iš %s.</string>
+  <string name="blogs_sharing_response_accepted_sent">Jūs priėmėte iš %s pakvietimą į tinklaraštį.</string>
+  <string name="blogs_sharing_response_declined_sent">Jūs atmetėte iš %s pakvietimą į tinklaraštį.</string>
   <string name="blogs_sharing_response_declined_auto">Pakvietimas į tinklaraštį nuo %s buvo automatiškai atmestas.</string>
   <string name="blogs_sharing_response_accepted_received">%s priėmė pakvietimą į tinklaraštį.</string>
   <string name="blogs_sharing_response_declined_received">%s atmetė pakvietimą į tinklaraštį.</string>
@@ -524,7 +534,6 @@
   <string name="pref_theme_title">Apipavidalinimas</string>
   <string name="pref_theme_light">Šviesus</string>
   <string name="pref_theme_dark">Tamsus</string>
-  <string name="pref_theme_auto">Automatinis (Dienos metas)</string>
   <string name="pref_theme_system">Sistemos numatytasis</string>
   <!--Settings Connections-->
   <string name="network_settings_title">Ryšiai</string>
@@ -610,9 +619,14 @@
 		\nGalite įsidiegti Briar pašto dėžutę laisvame atsarginiame įrenginyje. Palikite įrenginį prijungtą prie maitinimo šaltinio ir belaidžio (Wi-Fi) ryšio, kad jis būtų pastoviai prijungtas prie interneto.</string>
   <string name="mailbox_setup_download_link">Bendrinti atsisiuntimo nuorodą</string>
   <string name="mailbox_setup_button_scan">Skenuoti pašto dėžutės QR kodą</string>
+  <string name="permission_camera_qr_denied_body">Jūs uždraudėte prieigą prie kameros, tačiau norint skenuoti QR kodą, reikia naudoti kamerą.\n\nApsvarstykite galimybę sutekti prieigą prie kameros.</string>
   <string name="mailbox_setup_connecting">Jungiamasi prie pašto dėžutės…</string>
   <!--This string is shown when connecting to a Mailbox for the first time. The placeholder will be replaced with a duration, e.g. "2 minutes".-->
   <string name="mailbox_setup_connecting_info">Tai gali užtrukti iki %1s</string>
+  <string name="mailbox_qr_code_too_old">Jūsų nuskenuotas QR kodas yra iš senesnės Briar pašto dėžutės versijos.\n\nAtnaujinkite į naujausią Briar pašto dėžutės versiją, o tuomet bandykite dar kartą.</string>
+  <string name="mailbox_qr_code_too_new">Jūsų nuskenuotas QR kodas yra iš naujesnės Briar pašto dėžutės versijos.\n\nAtnaujinkite į naujausią Briar versiją, o tuomet bandykite dar kartą.</string>
+  <string name="contact_qr_code_for_mailbox">Jūsų nuskenuotas QR kodas yra skirtas Briar adresato pridėjimui.\n\nJei norite pridėti adresatą, pereikite į adresatų sąrašą ir bakstelėkite „+“ piktogramą.</string>
+  <string name="mailbox_setup_qr_code_wrong_description">Jūsų nuskenuotas QR kodas nėra iš Briar pašto dėžutės.\n\nPašto dėžutės įrenginyje atverkite Briar pašto dėžutės programėlę ir nuskenuokite joje pateikiamą QR kodą.</string>
   <string name="mailbox_setup_already_paired_title">Pašto dėžutė jau susieta</string>
   <string name="mailbox_setup_already_paired_description">Atsiekite pašto dėžutę kitame įrenginyje ir bandykite dar kartą.</string>
   <string name="mailbox_setup_io_error_title">Nepavyko prisijungti</string>
@@ -621,7 +635,11 @@
   <string name="mailbox_setup_assertion_error_description">Jei problema išlieka, išsiųskite atsiliepimą (su anoniminiais duomenimis) per Briar programėlę.</string>
   <string name="mailbox_setup_camera_error_description">Nepavyko gauti prieigos prie kameros. Bandykite dar kartą, galbūt po to, kai paleisite įrenginį iš naujo.</string>
   <string name="mailbox_setup_paired_title">Prisijungta</string>
+  <string name="mailbox_setup_paired_description">Jūsų pašto dėžutė sėkmingai susieta su Briar.\n
+		\nLaikykite pašto dėžutę prijungtą prie elektros maitinimo šaltinio ir belaidžio (Wi-Fi) tinklo, kad ji visuomet būtų prisijungusi prie interneto.</string>
   <string name="tor_offline_title">Nepasiekiama</string>
+  <string name="tor_offline_description">Įsitikinkite, kad šis įrenginys yra prisijungęs prie interneto ir, kad yra leidžiami ryšiai su internetu.\n
+		\nPo to, palaukite, kol ryšio nustatymų ekrane gaublio piktograma užsidegs žaliai.</string>
   <string name="tor_offline_button_check">Tikrinti ryšio nustatymus</string>
   <string name="mailbox_status_title">Pašto dėžutės būsena</string>
   <string name="mailbox_status_connected_title">Pašto dėžutė veikia</string>
@@ -630,6 +648,7 @@
   <string name="mailbox_status_app_too_old_title">Briar yra per sena</string>
   <string name="mailbox_status_app_too_old_message">Atnaujinkite Briar programėlę iki naujausios versijos ir bandykite dar kartą.</string>
   <string name="mailbox_status_mailbox_too_old_title">Pašto dėžutė yra per sena</string>
+  <string name="mailbox_status_mailbox_too_old_message">Atnaujinkite pašto dėžutės programėlę iki naujausios versijos ir bandykite dar kartą.</string>
   <string name="mailbox_status_check_button">Tikrinti ryšį</string>
   <!--Example for string substitution: Last connection: 3min ago-->
   <string name="mailbox_status_connected_info">Paskutinis prisijungimas: %s</string>
@@ -638,13 +657,33 @@
   <string name="mailbox_status_unlink_button">Atsieti</string>
   <string name="mailbox_status_unlink_dialog_title">Atsieti pašto dėžutę?</string>
   <string name="mailbox_status_unlink_dialog_question">Ar tikrai norite atsieti pašto dėžutę?</string>
+  <string name="mailbox_status_unlink_dialog_warning">Jei atsiesite pašto dėžutę, nebegalėsite gauti žinučių, kai Briar neturi prieigos prie interneto.</string>
   <string name="mailbox_status_unlink_no_wipe_title">Jūsų pašto dėžutė atsieta</string>
+  <string name="mailbox_status_unlink_no_wipe_message">Kitą kartą, kai turėsite prieigą prie pašto dėžutės, atverkite pašto dėžutės programėlę ir bakstelėkite mygtuką „Atsieti“, kad užbaigtumėte procesą.\n\nJeigu daugiau nebeturite prieigos prie pašto dėžutės įrenginio, nesijaudinkite. Jūsų duomenys yra šifruoti, tad išliks saugūs netgi tuo atveju, jei neužbaigsite proceso.</string>
   <string name="mailbox_status_unlink_success">Jūsų pašto dėžutė atsieta</string>
   <string name="mailbox_error_notification_channel_title">Problemos su Briar pašto dėžute</string>
   <string name="mailbox_error_notification_title">Briar pašto dėžutė yra neprieinama</string>
   <string name="mailbox_error_notification_text">Bakstelėkite norėdami išspręsti problemą.</string>
   <string name="mailbox_error_wizard_button">Išspręsti problemą</string>
   <string name="mailbox_error_wizard_title">Pašto dėžutės nesklandumų šalinimo vediklis</string>
+  <string name="mailbox_error_wizard_question1">Ar turite prieigą prie savo pašto dėžutės įrenginio?</string>
+  <string name="mailbox_error_wizard_answer1">Taip, turiu prieigą prie jo dabar.</string>
+  <string name="mailbox_error_wizard_answer2">Šiuo metu neturiu, bet galiu gauti prieigą vėliau.</string>
+  <string name="mailbox_error_wizard_answer3">Ne, aš daugiau nebeturiu prieigos prie jo.</string>
+  <string name="mailbox_error_wizard_info1_1">Patikrinkite, ar pašto dėžutės įrenginys yra įjungtas ir prisijungęs prie interneto.</string>
+  <string name="mailbox_error_wizard_question1_1">Atverkite pašto dėžutės programėlę. Ką matote?</string>
+  <string name="mailbox_error_wizard_answer1_1">Aš matau instrukcijas, kaip nustatyti pašto dėžutę.</string>
+  <string name="mailbox_error_wizard_answer1_2">Aš matau QR kodą</string>
+  <string name="mailbox_error_wizard_answer1_3">Aš matau „Pašto dėžutė veikia“</string>
+  <string name="mailbox_error_wizard_info1_1_1">Atsiekite savo pašto dėžutę naudodami žemiau esantį mygtuką, o tuomet sekite instrukcijas pašto dėžutės įrenginyje, kad vėl ją susietumėte.</string>
+  <string name="mailbox_error_wizard_info_1_1_2">Atsiekite pašto dėžutę naudodami žemiau esantį mygtuką, o tuomet, nuskenuokite QR kodą, kad vėl ją susietumėte.</string>
+  <string name="mailbox_error_wizard_info1_1_3">Naudokite žemiau esantį mygtuką, kad patikrintumėte ryšį tarp Briar ir pašto dėžutės.\n\n
+		Jei ryšys ir vėl patiria nesėkmę:\n
+		\u2022 Patikrinkite, ar pašto dėžutės ir Briar programėlės yra atnaujintos į naujausią versiją.\n
+		\u2022 Paleiskite pašto dėžutės bei Briar įrenginius iš naujo ir bandykite dar kartą.</string>
+  <string name="mailbox_error_wizard_info1_1_4">Patikrinkite, ar pašto dėžutės įrenginys yra tinkamai prijungtas prie interneto.\n\nPatikrinkite, ar laikrodis pašto dėžutės įrenginyje rodo teisingą laiką, datą ir laiko juostą.\n\nPatikrinkite, ar pašto dėžutės ir Briar programėlės yra atnaujintos į naujausią versiją.\n\nPaleiskite pašto dėžutės bei Briar įrenginius iš naujo ir bandykite dar kartą.</string>
+  <string name="mailbox_error_wizard_info2">Grįžkite į šį langelį, kai turėsite prieigą prie įrenginio.</string>
+  <string name="mailbox_error_wizard_info3">Atsiekite pašto dėžutę naudodami žemiau esantį mygtuką.\n\nAtsieję seną pašto dėžutę galite bet kuriuo metu nusistatyti naują pašto dėžutę.</string>
   <!--About-->
   <string name="about_title">Apie</string>
   <string name="briar_version">Briar versija: %s</string>
@@ -725,10 +764,12 @@
   <string name="permission_location_request_body">Tam, kad galėtų atrasti Bluetooth įrenginius, Briar reikia gauti prieigą prie jūsų įrenginio vietovės.\n\nBriar nesaugo jūsų įrenginio vietovės ir su niekuo jos nebendrina.</string>
   <string name="permission_camera_location_title">Kamera ir įrenginio vietovė</string>
   <string name="permission_camera_location_request_body">Tam, kad galėtų nuskenuoti QR kodą, Briar reikia gauti prieigą prie jūsų kameros.\n\nTam, kad galėtų atrasti Bluetooth įrenginius, Briar reikia gauti prieigą prie jūsų įrenginio vietovės.\n\nBriar nesaugo jūsų įrenginio vietovės ir su niekuo jos nebendrina.</string>
+  <string name="permission_camera_bluetooth_request_body">Tam, kad galėtų nuskenuoti QR kodą, Briar reikia gauti prieigą prie jūsų kameros.\n\nTam, kad galėtų atrasti Bluetooth įrenginius, Briar reikia leidimo, skirto rasti ir prisijungti prie netoliese esančių įrenginių.</string>
   <string name="permission_camera_denied_body">Jūs uždraudėte prieigą prie kameros, tačiau norint pridėti adresatus, reikia naudoti kamerą.\n\nApsvarstykite galimybę sutekti prieigą prie kameros.</string>
   <string name="permission_location_denied_body">Jūs uždraudėte prieigą prie įrenginio vietovės, tačiau norint atrasti Bluetooth įrenginius, Briar reikia šio leidimo.\n\nApsvarstykite galimybę sutekti prieigą prie įrenginio vietovės.</string>
   <string name="permission_location_setting_title">Įrenginio vietovės nustatymas</string>
   <string name="permission_location_setting_body">Norint rasti kitus įrenginius per Bluetooth, privalo būti įjungtas jūsų įrenginio vietovės nustatymas. Norėdami tęsti, įjunkite įrenginio vietovę. Po to, galėsite ir vėl ją išjungti.</string>
+  <string name="permission_location_setting_hotspot_body">Norint sukurti belaidį (Wi-Fi) viešosios interneto prieigos tašką, privalo būti įjungtas jūsų įrenginio vietovės nustatymas. Norėdami tęsti, įjunkite įrenginio vietovę. Po to, galėsite ir vėl ją išjungti.</string>
   <string name="permission_location_setting_button">Įjungti įrenginio vietovę</string>
   <string name="qr_code">QR kodas</string>
   <string name="show_qr_code_fullscreen">Rodyti QR kodą visame ekrane</string>
@@ -744,25 +785,27 @@
   <!--Share app offline-->
   <string name="hotspot_title">Bendrinti šią programėlę nenaudojant interneto</string>
   <string name="hotspot_intro">Bendrinti šią programėlę su žmogumi, kuris neturi interneto ryšio, naudojant jūsų telefono belaidį (Wi-Fi) ryšį.
-		\n\nJūsų telefonas įjungs belaidį (Wi-Fi) prieigos tašką. Šalia esantys žmonės galės prisijungti prie prieigos taško ir atsisiųsti iš jūsų telefono Briar programėlę.</string>
+		\n\nJūsų telefonas įjungs belaidį (Wi-Fi) viešosios interneto prieigos tašką. Šalia esantys žmonės galės prisijungti prie prieigos taško ir atsisiųsti iš jūsų telefono Briar programėlę.</string>
   <string name="hotspot_button_start_sharing">Įjungti prieigos tašką</string>
   <string name="hotspot_button_stop_sharing">Išjungti prieigos tašką</string>
   <string name="hotspot_progress_text_start">Nustatomas prieigos taškas…</string>
   <string name="hotspot_notification_channel_title">Belaidis (Wi-Fi) prieigos taškas</string>
   <string name="hotspot_notification_title">Bendrinama Briar nenaudojant interneto</string>
   <string name="hotspot_button_connected">Kitas</string>
-  <string name="permission_hotspot_location_request_body">Tam, kad galėtų sukurti belaidį (Wi-Fi) prieigos tašką, Briar reikia gauti prieigą prie jūsų įrenginio vietovės.\n\nBriar nesaugo jūsų įrenginio vietovės ir su niekuo jos nebendrina.</string>
-  <string name="permission_hotspot_location_denied_body">Jūs uždraudėte prieigą prie įrenginio vietovės, tačiau norint sukurti belaidį (Wi-Fi) prieigos tašką, Briar reikia šio leidimo.\n\nApsvarstykite galimybę sutekti prieigą prie įrenginio vietovės.</string>
+  <string name="permission_hotspot_location_request_body">Tam, kad galėtų sukurti belaidį (Wi-Fi) viešosios interneto prieigos tašką, Briar reikia gauti prieigą prie jūsų įrenginio vietovės.\n\nBriar nesaugo jūsų įrenginio vietovės ir su niekuo jos nebendrina.</string>
+  <string name="permission_hotspot_location_request_precise_body">Tam, kad galėtų sukurti belaidį (Wi-Fi) viešosios interneto prieigos tašką, Briar reikia gauti prieigą prie jūsų tikslios įrenginio vietovės.\n\nBriar nesaugo jūsų įrenginio vietovės ir su niekuo jos nebendrina.</string>
+  <string name="permission_hotspot_location_denied_body">Jūs uždraudėte prieigą prie įrenginio vietovės, tačiau norint sukurti belaidį (Wi-Fi) viešosios interneto prieigos tašką, Briar reikia šio leidimo.\n\nApsvarstykite galimybę sutekti prieigą prie įrenginio vietovės.</string>
+  <string name="permission_hotspot_location_denied_precise_body">Jūs uždraudėte prieigą prie tikslios įrenginio vietovės, tačiau norint sukurti belaidį (Wi-Fi) viešosios interneto prieigos tašką, Briar reikia šio leidimo.\n\nApsvarstykite galimybę sutekti prieigą prie įrenginio vietovės.</string>
   <string name="wifi_settings_title">Belaidžio (Wi-Fi) nustatymas</string>
-  <string name="wifi_settings_request_enable_body">Tam, kad sukurtų belaidį (Wi-Fi) prieigos tašką, Briar turi naudoti belaidį (Wi-Fi) ryšį. Įjunkite jį.</string>
+  <string name="wifi_settings_request_enable_body">Tam, kad sukurtų belaidį (Wi-Fi) viešosios interneto prieigos tašką, Briar turi naudoti belaidį (Wi-Fi) ryšį. Įjunkite jį.</string>
   <string name="hotspot_tab_manual">Rankinis</string>
   <!--The placeholder to be inserted into the string 'hotspot_manual_wifi': People can connect by %s-->
   <string name="hotspot_scanning_a_qr_code">skenuodami QR kodą</string>
   <!--Wi-Fi setup-->
   <!--The %s placeholder will be replaced with the translation of 'hotspot_scanning_a_qr_code'-->
-  <string name="hotspot_manual_wifi">Jūsų telefonas teikia belaidį (Wi-Fi) prieigos tašką. Žmonės, norintys atsisiųsti Briar, gali prisijungti prie prieigos taško ir pridėti jį savo įrenginio belaidžio (Wi-Fi) ryšio nustatymuose naudodami informaciją žemiau arba %s. Prisijungę prie prieigos taško, jie turi paspausti „Kitas“.</string>
+  <string name="hotspot_manual_wifi">Jūsų telefonas teikia belaidį (Wi-Fi) viešosios interneto prieigos tašką. Žmonės, norintys atsisiųsti Briar, gali prisijungti prie prieigos taško ir pridėti jį savo įrenginio belaidžio (Wi-Fi) ryšio nustatymuose naudodami informaciją žemiau arba %s. Prisijungę prie prieigos taško, jie turi paspausti „Kitas“.</string>
   <string name="hotspot_manual_wifi_ssid">Tinklo pavadinimas</string>
-  <string name="hotspot_qr_wifi">Jūsų telefonas teikia belaidį (Wi-Fi) prieigos tašką. Žmonės, norintys atsisiųsti Briar, gali prisijungti prie prieigos taško skenuodami šį QR kodą. Prisijungę prie prieigos taško, jie turi paspausti „Kitas“.</string>
+  <string name="hotspot_qr_wifi">Jūsų telefonas teikia belaidį (Wi-Fi) viešosios interneto prieigos tašką. Žmonės, norintys atsisiųsti Briar, gali prisijungti prie prieigos taško skenuodami šį QR kodą. Prisijungę prie prieigos taško, jie turi paspausti „Kitas“.</string>
   <string name="hotspot_no_peers_connected">Nėra prisijungusių įrenginių</string>
   <plurals name="hotspot_peers_connected">
     <item quantity="one">%s prisijungęs įrenginys</item>
@@ -772,9 +815,9 @@
   </plurals>
   <!--Download link-->
   <!--The %s placeholder will be replaced with the translation of 'hotspot_scanning_a_qr_code'-->
-  <string name="hotspot_manual_site">Jūsų telefonas teikia belaidį (Wi-Fi) prieigos tašką. Žmonės, prisijungę prie prieigos taško, gali atsisiųsti Briar, įrašydami saityno naršyklėje šią nuorodą arba %s.</string>
+  <string name="hotspot_manual_site">Jūsų telefonas teikia belaidį (Wi-Fi) viešosios interneto prieigos tašką. Žmonės, prisijungę prie prieigos taško, gali atsisiųsti Briar, įrašydami saityno naršyklėje šią nuorodą arba %s.</string>
   <string name="hotspot_manual_site_address">Adresas (URL)</string>
-  <string name="hotspot_qr_site">Jūsų telefonas teikia belaidį (Wi-Fi) prieigos tašką. Žmonės, prisijungę prie prieigos taško, gali atsisiųsti Briar, skenuodami šį QR kodą.</string>
+  <string name="hotspot_qr_site">Jūsų telefonas teikia belaidį (Wi-Fi) viešosios interneto prieigos tašką. Žmonės, prisijungę prie prieigos taško, gali atsisiųsti Briar, skenuodami šį QR kodą.</string>
   <!--e.g. Download Briar 1.2.20-->
   <string name="website_download_title_1">Atsisiųsti Briar %s</string>
   <string name="website_download_intro_1">Kažkas iš šalia esančių pradėjo bendrinti su jumis Briar.</string>
@@ -787,7 +830,7 @@
   <string name="hotspot_help_wifi_title">Problemos jungiantis prie belaidžio (Wi-Fi):</string>
   <string name="hotspot_help_wifi_1">Pabandykite abiejuose telefonuose išjungti ir vėl įjungti belaidį (Wi-Fi) ryšį ir bandykite dar kartą.</string>
   <string name="hotspot_help_wifi_2">Jeigu jūsų telefonas skundžiasi, jog belaidžiame (Wi-Fi) tinkle nėra interneto ryšio, nurodykite jam, kad norite likti prisijungę.</string>
-  <string name="hotspot_help_wifi_3">Paleiskite telefoną, kuriame įjungtas belaidis (Wi-Fi) prieigos taškas, iš naujo, o tuomet paleiskite Briar ir bandykite bendrinti dar kartą.</string>
+  <string name="hotspot_help_wifi_3">Paleiskite telefoną, kuriame įjungtas belaidis (Wi-Fi) viešosios interneto prieigos taškas, iš naujo, o tuomet paleiskite Briar ir bandykite bendrinti dar kartą.</string>
   <string name="hotspot_help_site_title">Iškilo problemų apsilankant vietinėje svetainėje:</string>
   <string name="hotspot_help_site_1">Dar kartą įsitikinkite, kad tiksliai įvedėte nurodytą adresą. Maža klaida gali sukelti nesėkmę.</string>
   <string name="hotspot_help_site_2">Bandydami pasiekti šią svetainę, įsitikinkite, kad jūsų telefonas vis dar yra prisijungęs prie teisingo belaidžio (Wi-Fi) ryšio (žiūrėkite aukščiau).</string>

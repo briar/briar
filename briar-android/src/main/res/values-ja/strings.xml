@@ -34,7 +34,6 @@
   <string name="dialog_title_cannot_check_password">パスワードを確認できません</string>
   <string name="dialog_message_cannot_check_password">Briarがパスワードを確認することができませんでした。この問題を解決するには、端末の再起動を試してください。</string>
   <string name="sign_in_button">サインイン</string>
-  <string name="forgotten_password">パスワードを忘れました</string>
   <string name="dialog_title_lost_password">パスワードを紛失</string>
   <string name="dialog_message_lost_password">Briarアカウントはクラウド上ではなく、暗号化された上であなたの端末に保存さています。したがって、Briarはパスワードをリセットできません。アカウントを削除して、はじめからやり直しますか？\n\n注意：あなたのID、連絡先、メッセージは永久に失われます。</string>
   <string name="startup_failed_activity_title">Briarの起動に失敗</string>
@@ -494,7 +493,6 @@
   <string name="pref_theme_title">テーマ</string>
   <string name="pref_theme_light">明</string>
   <string name="pref_theme_dark">暗</string>
-  <string name="pref_theme_auto">自動（昼間）</string>
   <string name="pref_theme_system">システムのデフォルト</string>
   <!--Settings Connections-->
   <string name="network_settings_title">接続</string>

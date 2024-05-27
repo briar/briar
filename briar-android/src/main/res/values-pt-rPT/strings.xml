@@ -13,6 +13,8 @@
   <string name="confirm_password">Confirma a tua palavra-passe</string>
   <string name="name_too_long">O nome é muito longo</string>
   <string name="password_too_weak">A palavra-passe é muito fraca</string>
+  <string name="password_quite_strong">A palavra-passe é boa</string>
+  <string name="password_strong">A palavra-passe é forte</string>
   <string name="passwords_do_not_match">As palavras-passe não são iguais</string>
   <string name="create_account_button">Criar conta</string>
   <string name="more_info">Mais informação</string>
@@ -35,8 +37,9 @@
   <string name="try_again">Palavra-passe errada, tenta novamente</string>
   <string name="dialog_title_cannot_check_password">Não foi possível verificar a palavra-passe</string>
   <string name="dialog_message_cannot_check_password">O Briar não consegue verificar a tua palavra-passe. Tenta reiniciar o teu dispositivo para resolver este problema.</string>
+  <string name="sign_in_title">Iniciar sessão no Briar</string>
   <string name="sign_in_button">Iniciar sessão</string>
-  <string name="forgotten_password">Esqueci-me da minha palavra-passe</string>
+  <string name="forgotten_password">Esqueceu-se da sua palavra-passe?</string>
   <string name="dialog_title_lost_password">Palavra-passe perdida</string>
   <string name="dialog_message_lost_password">A tua conta Briar é armazenada de forma encriptada no teu dispositivo, não na nuvem, pelo que não podemos redefinir a tua palavra-passe. Gostarias de eliminar a tua conta e começar de novo?\n\nCuidado: as tuas identidades, contactos e mensagens serão perdidos permanentemente.</string>
   <string name="startup_failed_activity_title">Falha no arranque do Briar</string>
@@ -522,7 +525,6 @@
   <string name="pref_theme_title">Tema</string>
   <string name="pref_theme_light">Claro</string>
   <string name="pref_theme_dark">Escuro</string>
-  <string name="pref_theme_auto">Automático (diurno)</string>
   <string name="pref_theme_system">Predefinição do sistema</string>
   <!--Settings Connections-->
   <string name="network_settings_title">Conexões</string>

@@ -108,8 +108,8 @@
   <string name="ongoing_notification_title">Briar oturumu açıldı</string>
   <string name="ongoing_notification_text">Briar\'ı açmak için dokunun.</string>
   <plurals name="private_message_notification_text">
-    <item quantity="one">Yeni kişisel ileti.</item>
-    <item quantity="other">%d yeni kişisel ileti.</item>
+    <item quantity="one">Yeni özel ileti.</item>
+    <item quantity="other">%d yeni özel ileti.</item>
   </plurals>
   <plurals name="group_message_notification_text">
     <item quantity="one">Yeni grup iletisi.</item>
@@ -509,7 +509,6 @@
   <string name="pref_theme_title">Tema</string>
   <string name="pref_theme_light">Açık</string>
   <string name="pref_theme_dark">Koyu</string>
-  <string name="pref_theme_auto">Otomatik (Gündüz)</string>
   <string name="pref_theme_system">Sistem varsayılanı</string>
   <!--Settings Connections-->
   <string name="network_settings_title">Bağlantılar</string>
@@ -570,9 +569,9 @@
   <string name="notification_settings_title">Bildirimler</string>
   <string name="notify_sign_in_title">Oturum açmam anımsatılsın</string>
   <string name="notify_sign_in_summary">Telefon açıldığında ya da uygulama güncellendiğinde bir anımsatıcı görüntüler</string>
-  <string name="notify_private_messages_setting_title">Kişisel iletiler</string>
-  <string name="notify_private_messages_setting_summary">Kişisel ileti uyarıları görüntülensin</string>
-  <string name="notify_private_messages_setting_summary_26">Kişisel ileti uyarılarını yapılandır</string>
+  <string name="notify_private_messages_setting_title">Özel iletiler</string>
+  <string name="notify_private_messages_setting_summary">Özel ileti uyarıları görüntülensin</string>
+  <string name="notify_private_messages_setting_summary_26">Özel ileti uyarılarını yapılandır</string>
   <string name="notify_group_messages_setting_title">Grup iletileri</string>
   <string name="notify_group_messages_setting_summary">Grup iletisi uyarıları görüntülensin</string>
   <string name="notify_group_messages_setting_summary_26">Grup iletisi uyarılarını yapılandır</string>
@@ -837,7 +836,7 @@
   <!--Transfer Data via Removable Drives-->
   <string name="removable_drive_menu_title">Çıkarılabilir sürücü ile bağlan</string>
   <string name="removable_drive_intro">İnternet, Wi-Fi veya Bluetooth ile bağlantı kuramıyorsanız, Briar iletileri USB bellek veya SD kart gibi bir çıkarılabilir bir sürücüyle de aktarabilir.</string>
-  <string name="removable_drive_explanation">İnternet, Wi-Fi veya Bluetooth ile bağlantı kuramıyorsanız, Briar iletileri USB bellek veya SD kart gibi çıkarılabilir bir sürücüyle de aktarabilir.\n\n\"Verileri gönder\" düğmesini kullandığınızda, kişilere gönderilmeyi bekleyen veriler çıkarılabilir sürücüye yazılır. Bu verilerde, kişisel iletiler, ek dosyalar, günlükler, forumlar ve özel gruplar bulunur.\n\nÇıkarılabilir sürücüye kaydedilmeden önce her şey şifrelenir.\n\nKişiler çıkarılabilir sürücüyü aldığında, \"Verileri al\" düğmesini kullanarak iletileri Briar üzerine aktarabilir.</string>
+  <string name="removable_drive_explanation">İnternet, Wi-Fi veya Bluetooth ile bağlantı kuramıyorsanız, Briar iletileri USB bellek veya SD kart gibi çıkarılabilir bir sürücüyle de aktarabilir.\n\n\"Verileri gönder\" düğmesini kullandığınızda, kişilere gönderilmeyi bekleyen veriler çıkarılabilir sürücüye yazılır. Bu verilerde, özel iletiler, ek dosyalar, günlükler, forumlar ve özel gruplar bulunur.\n\nÇıkarılabilir sürücüye kaydedilmeden önce her şey şifrelenir.\n\nKişiler çıkarılabilir sürücüyü aldığında, \"Verileri al\" düğmesini kullanarak iletileri Briar üzerine aktarabilir.</string>
   <string name="removable_drive_title_send">Verileri gönder</string>
   <string name="removable_drive_title_receive">Verileri al</string>
   <string name="removable_drive_send_intro">Şifrelenmiş iletilerin bulunduğu yeni bir dosya oluşturmak için aşağıdaki düğmeye dokunun. Dosyanın kaydedileceği yeri seçebilirsiniz.\n\nÇıkarılabilir bir sürücü kullanmak istiyorsanız, sürücüyü şimdi takın.</string>
