@@ -40,7 +40,7 @@
 				app:tint="?attr/colorControlNormal"
 				tools:ignore="ContentDescription" />
 
-			<com.google.android.material.switchmaterial.SwitchMaterial
+			<com.google.android.material.materialswitch.MaterialSwitch
 				android:id="@+id/switchDisappearingMessages"
 				android:layout_width="0dp"
 				android:layout_height="wrap_content"
