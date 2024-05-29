@@ -160,8 +160,7 @@ public class UiUtils {
 		try {
 			ctx.startActivity(intent);
 		} catch (ActivityNotFoundException e) {
-			Toast.makeText(ctx, R.string.error_start_activity, LENGTH_LONG)
-					.show();
+			ToastUtils.showToast(ctx.getString(R.string.error_start_activity), ctx);
 		}
 	}
 
@@ -242,11 +241,6 @@ public class UiUtils {
 			return r.getQuantityString(R.plurals.duration_minutes, minutes,
 					minutes);
 		}
-	}
-
-	public static long getDaysUntilExpiry() {
-		long now = System.currentTimeMillis();
-		return (EXPIRY_DATE - now) / DAYS.toMillis(1);
 	}
 
 	public static SpannableStringBuilder getTeaser(Context ctx, Spanned text) {
@@ -523,7 +517,7 @@ public class UiUtils {
 			if (e.getCause() != null) {
 				msg += " caused by " + e.getCause().getClass().getSimpleName();
 			}
-			Toast.makeText(context, msg, LENGTH_LONG).show();
+			ToastUtils.showToast(msg, context);
 		});
 	}
 
@@ -554,7 +548,7 @@ public class UiUtils {
 		} catch (ActivityNotFoundException e) {
 			logException(LOG, WARNING, e);
 		}
-		Toast.makeText(ctx, R.string.error_start_activity, LENGTH_LONG).show();
+		ToastUtils.showToast(ctx.getString(R.string.error_start_activity), ctx);
 	}
 
 }

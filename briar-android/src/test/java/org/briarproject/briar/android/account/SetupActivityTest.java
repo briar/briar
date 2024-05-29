@@ -105,6 +105,7 @@ public class SetupActivityTest {
 		onView(withId(R.id.password_entry)).perform(clearText());
 		onView(withId(R.id.strength_meter))
 				.check(matches(strengthAndColor(NONE, RED)));
+		
 	}
 
 	private void moveToSetPasswordFragment() {
