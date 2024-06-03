@@ -26,7 +26,9 @@ public class BriarSnackbarBuilder {
 
 	public Snackbar make(View view, CharSequence text, int duration) {
 		Snackbar s = Snackbar.make(view, text, duration);
-		s.getView().setBackgroundResource(backgroundResId);
+		s.setBackgroundTint(getColor(view.getContext(), backgroundResId));
+		s.setTextColor(
+				getColor(view.getContext(), R.color.md_theme_onSecondary));
 		if (onClickListener != null) {
 			s.setActionTextColor(getColor(view.getContext(),
 					R.color.briar_button_text_positive));

@@ -75,15 +75,12 @@
 	<color name="briar_text_secondary_inverse">#b4ffffff</color>
 	<color name="briar_text_tertiary_inverse">#80ffffff</color>
 
-	<color name="preference_category">@color/briar_night_500</color>
 	<color name="preference_category_background">@color/window_background</color>
 
-	<color name="briar_button_background_color">@color/briar_accent</color>
 	<color name="briar_button_text_positive">@color/briar_blue_400</color>
 	<color name="briar_button_text_neutral">@color/briar_night_500</color>
 	<color name="briar_button_text_negative">@color/briar_red_500</color>
 	<color name="briar_button_text_disabled">#28000000</color>
-	<color name="briar_button_outline">@android:color/secondary_text_dark</color>
 
 	<color name="thread_indicator">@color/briar_gray_500</color>
 	<color name="thread_item_background">@color/window_background</color>
@@ -97,48 +94,10 @@
 	<color name="md_theme_onPrimary">@color/briar_lime_950</color>
 	<color name="md_theme_primaryContainer">@color/briar_night_700</color>
 	<color name="md_theme_onPrimaryContainer">@android:color/white</color>
+	<color name="md_theme_inversePrimary">#98DA27</color>
 	<color name="md_theme_secondary">@color/briar_night_700</color>
 	<color name="md_theme_onSecondary">@android:color/white</color>
 
-	<color name="md_theme_secondaryContainer">#576985</color>
-	<color name="md_theme_onSecondaryContainer">#FFFFFF</color>
-	<color name="md_theme_tertiary">#006E2F</color>
-	<color name="md_theme_onTertiary">#FFFFFF</color>
-	<color name="md_theme_tertiaryContainer">#4CF780</color>
-	<color name="md_theme_onTertiaryContainer">#004E1F</color>
-	<color name="md_theme_error">#A0000E</color>
-	<color name="md_theme_onError">#FFFFFF</color>
-	<color name="md_theme_errorContainer">#DC2626</color>
-	<color name="md_theme_onErrorContainer">#FFFFFF</color>
-	<color name="md_theme_background">#F7FBE8</color>
 	<color name="md_theme_onBackground">#191D12</color>
-	<color name="md_theme_surface">#F7FBE8</color>
 	<color name="md_theme_onSurface">#191D12</color>
-	<color name="md_theme_surfaceVariant">#DEE6CB</color>
-	<color name="md_theme_onSurfaceVariant">#424936</color>
-	<color name="md_theme_outline">#727A64</color>
-	<color name="md_theme_outlineVariant">#C2CAB0</color>
-	<color name="md_theme_scrim">#000000</color>
-	<color name="md_theme_inverseSurface">#2E3226</color>
-	<color name="md_theme_inverseOnSurface">#EFF3E0</color>
-	<color name="md_theme_inversePrimary">#98DA27</color>
-	<color name="md_theme_primaryFixed">#B2F746</color>
-	<color name="md_theme_onPrimaryFixed">#121F00</color>
-	<color name="md_theme_primaryFixedDim">#98DA27</color>
-	<color name="md_theme_onPrimaryFixedVariant">#334F00</color>
-	<color name="md_theme_secondaryFixed">#D4E3FF</color>
-	<color name="md_theme_onSecondaryFixed">#071C34</color>
-	<color name="md_theme_secondaryFixedDim">#B5C8E7</color>
-	<color name="md_theme_onSecondaryFixedVariant">#364862</color>
-	<color name="md_theme_tertiaryFixed">#66FF8E</color>
-	<color name="md_theme_onTertiaryFixed">#002109</color>
-	<color name="md_theme_tertiaryFixedDim">#30E36F</color>
-	<color name="md_theme_onTertiaryFixedVariant">#005321</color>
-	<color name="md_theme_surfaceDim">#D8DCCA</color>
-	<color name="md_theme_surfaceBright">#F7FBE8</color>
-	<color name="md_theme_surfaceContainerLowest">#FFFFFF</color>
-	<color name="md_theme_surfaceContainerLow">#F2F6E3</color>
-	<color name="md_theme_surfaceContainer">#ECF0DD</color>
-	<color name="md_theme_surfaceContainerHigh">#E6EAD8</color>
-	<color name="md_theme_surfaceContainerHighest">#E0E4D2</color>
 </resources>

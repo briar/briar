@@ -12,6 +12,7 @@
 		<item name="colorOnBackground">@color/md_theme_onBackground</item>
 		<item name="colorSurface">@color/card_background</item>
 		<item name="colorOnSurface">@color/md_theme_onSurface</item>
+		<item name="colorError">@color/briar_red_600</item>
 		<item name="android:statusBarColor">#000000</item>
 
 		<item name="android:windowBackground">@color/window_background</item>

@@ -78,7 +78,7 @@
 		android:layout_marginTop="6dp"
 		android:text="@string/hotspot_button_connected"
 		app:icon="@drawable/ic_check_white"
-		app:iconTint="@color/button_text"
+		app:iconTint="?attr/colorOnPrimary"
 		app:layout_constraintBottom_toTopOf="@+id/stopButton"
 		app:layout_constraintEnd_toEndOf="parent"
 		app:layout_constraintStart_toStartOf="parent"

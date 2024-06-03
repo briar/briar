@@ -54,7 +54,7 @@
 		android:layout_marginHorizontal="@dimen/margin_large"
 		android:text="@string/mailbox_setup_button_scan"
 		app:icon="@drawable/ic_qr_code"
-		app:iconTint="@color/button_text"
+		app:iconTint="?attr/colorOnPrimary"
 		app:layout_constraintBottom_toBottomOf="parent"
 		app:layout_constraintEnd_toEndOf="parent"
 		app:layout_constraintStart_toStartOf="parent"
