@@ -7,7 +7,7 @@
 		android:radius="32dp"/>
 
 	<solid
-		android:color="@color/step_bubble_completed_background"/>
+		android:color="@color/step_bubble_current_background"/>
 
 </shape>
 

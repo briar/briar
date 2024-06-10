@@ -7,9 +7,15 @@
 	<color name="briar_lime_400">#82c91e</color>
 	<color name="briar_lime_400_new">#A3E635</color>
 
+	<color name="briar_blue_900">#184080</color>
 	<color name="briar_blue_800">#134a81</color>
+	<color name="briar_blue_800_new">#1649A0</color>
 	<color name="briar_blue_600">#1b69b6</color>
+	<color name="briar_blue_600_new">#196FDE</color>
 	<color name="briar_blue_400">#418cd8</color>
+	<color name="briar_blue_400_new">#52ADF9</color>
+	<color name="briar_blue_300">#8BCAFD</color>
+	<color name="briar_blue_100">#DDEDFE</color>
 
 	<color name="briar_orange_200">#fed69f</color>
 	<color name="briar_orange_400">#FBBF24</color>
@@ -24,14 +30,18 @@
 	<color name="briar_night_950">#0e171f</color>
 	<color name="briar_night_800">#212d3b</color>
 	<color name="briar_night_700">#2e3d4f</color>
+	<color name="briar_night_700_new">#334155</color>
 	<color name="briar_night_600">#475569</color>
 	<color name="briar_night_500">#435b77</color>
+	<color name="briar_night_100">#F1F5F9</color>
 	<color name="briar_night_50">#ebf3fa</color>
 
 	<color name="briar_gray_900">#2e2e2e</color>
+	<color name="briar_gray_700">#374151</color>
 	<color name="briar_gray_500">#a7a7a7</color>
 	<color name="briar_gray_300">#cccccc</color>
 	<color name="briar_gray_200">#dfdfdf</color>
+	<color name="briar_gray_200_new">#E5E7EB</color>
 	<color name="briar_gray_100">#f2f2f2</color>
 
 	<color name="briar_brand_blue">@color/briar_night_700</color>
@@ -67,6 +77,13 @@
 	<color name="il_lime">@color/briar_lime_600_new</color>
 	<color name="il_orange">@color/briar_orange_500_new</color>
 	<color name="il_red">@color/briar_red_600</color>
+
+	<color name="step_bubble_completed_background">@color/briar_blue_100</color>
+	<color name="step_bubble_completed_foreground">@color/briar_blue_600_new</color>
+	<color name="step_bubble_current_background">@color/briar_blue_600_new</color>
+	<color name="step_bubble_current_foreground">@android:color/white</color>
+	<color name="step_bubble_future_background">@color/briar_gray_200_new</color>
+	<color name="step_bubble_future_foreground">@color/briar_gray_700</color>
 
 	<!-- text colors -->
 	<color name="briar_text_link">@color/briar_blue_400</color>

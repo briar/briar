@@ -146,20 +146,21 @@
 	<style name="StepBubble">
 		<item name="android:layout_width">28dp</item>
 		<item name="android:layout_height">28dp</item>
-		<!-- FIXME in dark theme accent is same color as StepBubble.Completed -->
-		<item name="android:background">@drawable/bubble_accent</item>
+		<item name="android:background">@drawable/bubble_current</item>
 		<item name="android:gravity">center</item>
-		<item name="android:textColor">@android:color/white</item>
+		<item name="android:textColor">@color/step_bubble_current_foreground</item>
 		<item name="android:textSize">18sp</item>
 	</style>
 
 	<style name="StepBubble.Upcoming">
-		<item name="android:alpha">0.5</item>
+		<item name="android:background">@drawable/bubble_future</item>
+		<item name="android:textColor">@color/step_bubble_future_foreground</item>
 	</style>
 
 	<style name="StepBubble.Completed">
 		<item name="android:background">@drawable/bubble_completed</item>
 		<item name="android:scaleType">center</item>
+		<item name="tint">@color/step_bubble_completed_foreground</item>
 		<item name="srcCompat">@drawable/ic_check_white</item>
 	</style>
 

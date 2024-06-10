@@ -49,7 +49,7 @@
 				android:layout_height="1dp"
 				android:layout_margin="16dp"
 				android:alpha="0.5"
-				android:background="@color/briar_accent"
+				android:background="@color/step_bubble_current_background"
 				app:layout_constraintBottom_toBottomOf="@+id/stepOne"
 				app:layout_constraintEnd_toStartOf="@+id/stepTwo"
 				app:layout_constraintStart_toEndOf="@+id/stepOne"
@@ -94,12 +94,12 @@
 				android:layout_width="38dp"
 				android:layout_height="38dp"
 				android:layout_marginTop="8dp"
-				android:background="@drawable/bubble_accent"
+				android:background="@drawable/bubble_current"
 				android:scaleType="center"
 				app:layout_constraintStart_toStartOf="parent"
 				app:layout_constraintTop_toBottomOf="@+id/imageView"
 				app:srcCompat="@drawable/ic_call_made"
-				app:tint="@android:color/white" />
+				app:tint="@color/step_bubble_current_foreground" />
 
 			<TextView
 				android:id="@+id/yourLink"
@@ -166,12 +166,12 @@
 				android:layout_width="38dp"
 				android:layout_height="38dp"
 				android:layout_marginTop="16dp"
-				android:background="@drawable/bubble_accent"
+				android:background="@drawable/bubble_current"
 				android:scaleType="center"
 				app:layout_constraintStart_toStartOf="parent"
 				app:layout_constraintTop_toBottomOf="@+id/copyButton"
 				app:srcCompat="@drawable/ic_call_received"
-				app:tint="@android:color/white" />
+				app:tint="@color/step_bubble_current_foreground" />
 
 			<TextView
 				android:id="@+id/inputLink"
