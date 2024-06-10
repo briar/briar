@@ -49,7 +49,7 @@
 				android:layout_height="1dp"
 				android:layout_margin="16dp"
 				android:alpha="0.5"
-				android:background="@color/step_bubble_current_background"
+				android:background="?colorTertiary"
 				app:layout_constraintBottom_toBottomOf="@+id/stepOne"
 				app:layout_constraintEnd_toStartOf="@+id/stepTwo"
 				app:layout_constraintStart_toEndOf="@+id/stepOne"
@@ -99,7 +99,7 @@
 				app:layout_constraintStart_toStartOf="parent"
 				app:layout_constraintTop_toBottomOf="@+id/imageView"
 				app:srcCompat="@drawable/ic_call_made"
-				app:tint="@color/step_bubble_current_foreground" />
+				app:tint="?colorOnTertiary" />
 
 			<TextView
 				android:id="@+id/yourLink"
@@ -171,7 +171,7 @@
 				app:layout_constraintStart_toStartOf="parent"
 				app:layout_constraintTop_toBottomOf="@+id/copyButton"
 				app:srcCompat="@drawable/ic_call_received"
-				app:tint="@color/step_bubble_current_foreground" />
+				app:tint="?colorOnTertiary" />
 
 			<TextView
 				android:id="@+id/inputLink"

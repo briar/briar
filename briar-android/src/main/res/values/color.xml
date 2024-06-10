@@ -78,13 +78,6 @@
 	<color name="il_orange">@color/briar_orange_500_new</color>
 	<color name="il_red">@color/briar_red_600</color>
 
-	<color name="step_bubble_completed_background">@color/briar_blue_100</color>
-	<color name="step_bubble_completed_foreground">@color/briar_blue_600_new</color>
-	<color name="step_bubble_current_background">@color/briar_blue_600_new</color>
-	<color name="step_bubble_current_foreground">@android:color/white</color>
-	<color name="step_bubble_future_background">@color/briar_gray_200_new</color>
-	<color name="step_bubble_future_foreground">@color/briar_gray_700</color>
-
 	<!-- text colors -->
 	<color name="briar_text_link">@color/briar_blue_400</color>
 	<color name="briar_text_link_inverse">@android:color/white</color>
@@ -115,8 +108,12 @@
 	<color name="md_theme_inversePrimary">#98DA27</color>
 	<color name="md_theme_secondary">@color/briar_night_700</color>
 	<color name="md_theme_onSecondary">@android:color/white</color>
-
+	<color name="md_theme_tertiaryContainer">@color/briar_blue_100</color>
+	<color name="md_theme_onTertiaryContainer">@color/briar_blue_600_new</color>
+	<color name="md_theme_tertiary">@color/briar_blue_600_new</color>
+	<color name="md_theme_onTertiary">@android:color/white</color>
 	<color name="md_theme_onBackground">#191D12</color>
 	<color name="md_theme_onSurface">#191D12</color>
+	<color name="md_theme_surfaceDim">@color/briar_gray_200_new</color>
 	<color name="md_theme_error">@color/briar_red_600</color>
 </resources>

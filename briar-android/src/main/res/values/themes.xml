@@ -8,10 +8,15 @@
 		<item name="colorOnPrimaryContainer">@color/md_theme_onPrimary</item>
 		<item name="colorSecondary">@color/md_theme_secondary</item>
 		<item name="colorOnSecondary">@color/md_theme_onSecondary</item>
+		<item name="colorTertiary">@color/md_theme_tertiary</item>
+		<item name="colorOnTertiary">@color/md_theme_onTertiary</item>
+		<item name="colorTertiaryContainer">@color/md_theme_tertiaryContainer</item>
+		<item name="colorOnTertiaryContainer">@color/md_theme_onTertiaryContainer</item>
 		<item name="android:colorBackground">@color/window_background</item>
 		<item name="colorOnBackground">@color/md_theme_onBackground</item>
 		<item name="colorSurface">@color/card_background</item>
 		<item name="colorOnSurface">@color/md_theme_onSurface</item>
+		<item name="colorSurfaceDim">@color/md_theme_surfaceDim</item>
 		<item name="colorError">@color/md_theme_error</item>
 		<item name="android:statusBarColor">#000000</item>
 

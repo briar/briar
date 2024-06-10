@@ -31,14 +31,12 @@
 	<color name="il_orange">@color/briar_orange_400</color>
 	<color name="il_red">@color/briar_red_500_new</color>
 
-	<color name="step_bubble_completed_background">@color/briar_blue_800_new</color>
-	<color name="step_bubble_completed_foreground">@color/briar_blue_300</color>
-	<color name="step_bubble_current_background">@color/briar_blue_400_new</color>
-	<color name="step_bubble_current_foreground">@color/briar_blue_900</color>
-	<color name="step_bubble_future_background">@color/briar_night_700_new</color>
-	<color name="step_bubble_future_foreground">@color/briar_night_100</color>
-
+	<color name="md_theme_tertiary">@color/briar_blue_400_new</color>
+	<color name="md_theme_onTertiary">@color/briar_blue_900</color>
+	<color name="md_theme_tertiaryContainer">@color/briar_blue_800_new</color>
+	<color name="md_theme_onTertiaryContainer">@color/briar_blue_300</color>
 	<color name="md_theme_onBackground">#E0E4D2</color>
 	<color name="md_theme_onSurface">#E0E4D2</color>
+	<color name="md_theme_surfaceDim">@color/briar_night_700_new</color>
 	<color name="md_theme_error">@color/briar_red_400</color>
 </resources>
