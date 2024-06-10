@@ -16,6 +16,7 @@
 	<color name="briar_orange_500">#fc9403</color>
 	<color name="briar_orange_500_new">#F59E0B</color>
 
+	<color name="briar_red_400">#f87171</color>
 	<color name="briar_red_500">#db3b21</color>
 	<color name="briar_red_500_new">#EF4444</color>
 	<color name="briar_red_600">#DC2626</color>
@@ -100,4 +101,5 @@
 
 	<color name="md_theme_onBackground">#191D12</color>
 	<color name="md_theme_onSurface">#191D12</color>
+	<color name="md_theme_error">@color/briar_red_600</color>
 </resources>

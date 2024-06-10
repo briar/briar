@@ -33,4 +33,5 @@
 
 	<color name="md_theme_onBackground">#E0E4D2</color>
 	<color name="md_theme_onSurface">#E0E4D2</color>
+	<color name="md_theme_error">@color/briar_red_400</color>
 </resources>
