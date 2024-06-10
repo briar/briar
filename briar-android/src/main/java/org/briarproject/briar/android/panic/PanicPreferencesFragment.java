@@ -10,6 +10,8 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.text.TextUtils;
 
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+
 import org.briarproject.briar.R;
 
 import java.util.ArrayList;
@@ -17,7 +19,6 @@ import java.util.logging.Logger;
 
 import javax.annotation.Nullable;
 
-import androidx.appcompat.app.AlertDialog;
 import androidx.preference.ListPreference;
 import androidx.preference.PreferenceFragmentCompat;
 import androidx.preference.SwitchPreferenceCompat;
@@ -201,8 +202,8 @@ public class PanicPreferencesFragment extends PreferenceFragmentCompat
 			getActivity().finish();
 		};
 
-		AlertDialog.Builder builder = new AlertDialog.Builder(getContext(),
-				R.style.BriarDialogTheme);
+		MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(
+				requireContext(), R.style.BriarDialogTheme);
 		builder.setTitle(getString(R.string.dialog_title_connect_panic_app));
 
 		CharSequence app = getString(R.string.unknown_app);

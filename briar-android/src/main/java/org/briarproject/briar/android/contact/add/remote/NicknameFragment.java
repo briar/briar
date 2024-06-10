@@ -55,6 +55,7 @@ public class NicknameFragment extends BaseFragment {
 
 	private TextInputLayout contactNameLayout;
 	private TextInputEditText contactNameInput;
+	private BriarButton addButton;
 
 	@Override
 	public String getUniqueTag() {
@@ -91,7 +92,7 @@ public class NicknameFragment extends BaseFragment {
 		contactNameLayout = v.findViewById(R.id.contactNameLayout);
 		contactNameInput = v.findViewById(R.id.contactNameInput);
 
-		BriarButton addButton = v.findViewById(R.id.addButton);
+		addButton = v.findViewById(R.id.addButton);
 		addButton.setOnClickListener(view -> onAddButtonClicked());
 
 		return v;
@@ -112,7 +113,7 @@ public class NicknameFragment extends BaseFragment {
 	@Nullable
 	private String getNicknameOrNull() {
 		Editable text = contactNameInput.getText();
-		if (text == null || text.toString().trim().length() == 0) {
+		if (text == null || text.toString().trim().isEmpty()) {
 			contactNameLayout.setError(getString(R.string.nickname_missing));
 			contactNameInput.requestFocus();
 			return null;
@@ -129,7 +130,10 @@ public class NicknameFragment extends BaseFragment {
 
 	private void onAddButtonClicked() {
 		String name = getNicknameOrNull();
-		if (name == null) return;  // invalid nickname
+		if (name == null) { // invalid nickname
+			addButton.reset();
+			return;
+		}
 
 		LifecycleOwner owner = getViewLifecycleOwner();
 		viewModel.getAddContactResult().observe(owner, result -> {

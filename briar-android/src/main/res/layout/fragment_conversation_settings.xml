@@ -5,7 +5,7 @@
 	android:layout_width="match_parent"
 	android:layout_height="match_parent">
 
-	<androidx.appcompat.widget.Toolbar
+	<com.google.android.material.appbar.MaterialToolbar
 		android:id="@+id/toolbar"
 		style="@style/BriarToolbar"
 		android:layout_width="match_parent"
@@ -40,7 +40,7 @@
 				app:tint="?attr/colorControlNormal"
 				tools:ignore="ContentDescription" />
 
-			<androidx.appcompat.widget.SwitchCompat
+			<com.google.android.material.materialswitch.MaterialSwitch
 				android:id="@+id/switchDisappearingMessages"
 				android:layout_width="0dp"
 				android:layout_height="wrap_content"
@@ -50,6 +50,7 @@
 				app:layout_constraintEnd_toEndOf="parent"
 				app:layout_constraintStart_toStartOf="parent"
 				app:layout_constraintTop_toBottomOf="@+id/imageViewBomb"
+				tools:checked="true"
 				tools:enabled="true" />
 
 			<Button

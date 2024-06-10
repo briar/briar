@@ -20,15 +20,17 @@
 		app:tint="@color/briar_accent"
 		tools:ignore="ContentDescription" />
 
-	<ProgressBar
+	<com.google.android.material.progressindicator.CircularProgressIndicator
 		android:id="@+id/progressBar"
-		style="?android:attr/progressBarStyleLarge"
+		style="@style/CircularProgress.Large"
 		android:layout_width="0dp"
 		android:layout_height="0dp"
+		app:indicatorColor="@color/briar_accent"
 		app:layout_constraintBottom_toBottomOf="@+id/imageView"
 		app:layout_constraintEnd_toEndOf="@+id/imageView"
 		app:layout_constraintStart_toStartOf="@+id/imageView"
-		app:layout_constraintTop_toTopOf="@+id/imageView" />
+		app:layout_constraintTop_toTopOf="@+id/imageView"
+		tools:progress="50" />
 
 	<TextView
 		android:id="@+id/textView"

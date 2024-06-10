@@ -49,7 +49,7 @@
 				android:layout_width="0dp"
 				android:layout_height="1dp"
 				android:layout_margin="16dp"
-				android:background="@color/briar_accent"
+				android:background="?colorTertiary"
 				app:layout_constraintBottom_toBottomOf="@+id/stepOne"
 				app:layout_constraintEnd_toStartOf="@+id/stepTwo"
 				app:layout_constraintStart_toEndOf="@+id/stepOne"
@@ -96,13 +96,13 @@
 				android:layout_width="38dp"
 				android:layout_height="38dp"
 				android:layout_marginTop="32dp"
-				android:background="@drawable/bubble_accent"
+				android:background="@drawable/bubble_current"
 				android:scaleType="center"
 				app:layout_constraintBottom_toTopOf="@+id/contactNameLayout"
 				app:layout_constraintStart_toStartOf="parent"
 				app:layout_constraintTop_toBottomOf="@+id/imageView"
 				app:srcCompat="@drawable/ic_person"
-				app:tint="@android:color/white" />
+				app:tint="?colorOnTertiary" />
 
 			<TextView
 				android:id="@+id/nicknameIntro"

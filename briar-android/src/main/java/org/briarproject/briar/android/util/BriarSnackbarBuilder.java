@@ -18,7 +18,8 @@ import static androidx.core.content.ContextCompat.getColor;
 public class BriarSnackbarBuilder {
 
 	@ColorRes
-	private int backgroundResId = R.color.briar_primary;
+	@Nullable
+	private Integer backgroundResId = null;
 	@StringRes
 	private int actionResId;
 	@Nullable
@@ -26,7 +27,11 @@ public class BriarSnackbarBuilder {
 
 	public Snackbar make(View view, CharSequence text, int duration) {
 		Snackbar s = Snackbar.make(view, text, duration);
-		s.getView().setBackgroundResource(backgroundResId);
+		if (backgroundResId != null) {
+			s.setBackgroundTint(getColor(view.getContext(), backgroundResId));
+			s.setTextColor(
+					getColor(view.getContext(), R.color.md_theme_onSecondary));
+		}
 		if (onClickListener != null) {
 			s.setActionTextColor(getColor(view.getContext(),
 					R.color.briar_button_text_positive));

@@ -1,5 +1,6 @@
 package org.briarproject.briar.android.reporting;
 
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
@@ -87,6 +88,7 @@ public class CrashReportActivity extends BaseActivity
 	}
 
 	@Override
+	@SuppressLint("MissingSuperCall")
 	public void onBackPressed() {
 		exit();
 	}

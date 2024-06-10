@@ -19,6 +19,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.snackbar.Snackbar;
 
 import org.briarproject.bramble.api.FeatureFlags;
@@ -101,7 +102,6 @@ import javax.inject.Inject;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.annotation.Nullable;
 import androidx.annotation.UiThread;
-import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.widget.ActionMenuView;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
@@ -812,8 +812,8 @@ public class ConversationActivity extends BriarActivity
 	}
 
 	private void askToDeleteAllMessages() {
-		AlertDialog.Builder builder =
-				new AlertDialog.Builder(this, R.style.BriarDialogTheme);
+		MaterialAlertDialogBuilder builder =
+				new MaterialAlertDialogBuilder(this, R.style.BriarDialogTheme);
 		builder.setTitle(getString(R.string.dialog_title_delete_all_messages));
 		builder.setMessage(
 				getString(R.string.dialog_message_delete_all_messages));
@@ -892,8 +892,8 @@ public class ConversationActivity extends BriarActivity
 		}
 		String msg = join(fails, "\n\n");
 		// show dialog
-		AlertDialog.Builder builder =
-				new AlertDialog.Builder(this, R.style.BriarDialogTheme);
+		MaterialAlertDialogBuilder builder =
+				new MaterialAlertDialogBuilder(this, R.style.BriarDialogTheme);
 		builder.setTitle(
 				getString(R.string.dialog_title_not_all_messages_deleted));
 		builder.setMessage(msg);
@@ -904,8 +904,8 @@ public class ConversationActivity extends BriarActivity
 	private void askToRemoveContact() {
 		DialogInterface.OnClickListener okListener =
 				(dialog, which) -> removeContact();
-		AlertDialog.Builder builder =
-				new AlertDialog.Builder(ConversationActivity.this,
+		MaterialAlertDialogBuilder builder =
+				new MaterialAlertDialogBuilder(ConversationActivity.this,
 						R.style.BriarDialogTheme);
 		builder.setTitle(getString(R.string.dialog_title_delete_contact));
 		builder.setMessage(

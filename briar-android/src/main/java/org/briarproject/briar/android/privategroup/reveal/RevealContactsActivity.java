@@ -9,6 +9,8 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
 
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+
 import org.briarproject.bramble.api.contact.ContactId;
 import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.sync.GroupId;
@@ -26,7 +28,6 @@ import javax.annotation.Nullable;
 import javax.inject.Inject;
 
 import androidx.annotation.LayoutRes;
-import androidx.appcompat.app.AlertDialog;
 
 @MethodsNotNullByDefault
 @ParametersNotNullByDefault
@@ -105,7 +106,8 @@ public class RevealContactsActivity extends ContactSelectorActivity
 	}
 
 	private void showOnboardingDialog() {
-		new AlertDialog.Builder(this, R.style.OnboardingDialogTheme)
+		new MaterialAlertDialogBuilder(this,
+				R.style.OnboardingDialogTheme)
 				.setMessage(getString(R.string.groups_reveal_dialog_message))
 				.setNeutralButton(R.string.got_it,
 						(dialog, which) -> dialog.cancel())

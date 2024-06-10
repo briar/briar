@@ -7,6 +7,8 @@ import android.view.Window;
 import android.widget.CheckBox;
 import android.widget.Toast;
 
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+
 import org.briarproject.android.dontkillmelib.wakelock.AndroidWakeLockManager;
 import org.briarproject.bramble.api.system.Wakeful;
 import org.briarproject.briar.R;
@@ -177,8 +179,8 @@ public abstract class BriarActivity extends BaseActivity {
 	}
 
 	protected void showDozeDialog(@StringRes int message) {
-		AlertDialog.Builder b =
-				new AlertDialog.Builder(this, R.style.BriarDialogTheme);
+		MaterialAlertDialogBuilder b =
+				new MaterialAlertDialogBuilder(this, R.style.BriarDialogTheme);
 		b.setMessage(message);
 		b.setView(R.layout.checkbox);
 		b.setPositiveButton(R.string.fix,

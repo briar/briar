@@ -1,8 +1,9 @@
 package org.briarproject.briar.android.settings;
 
-import android.app.AlertDialog;
 import android.content.Intent;
 import android.os.Bundle;
+
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.Localizer;
@@ -101,8 +102,8 @@ public class DisplayFragment extends PreferenceFragmentCompat {
 	private boolean onLanguageChanged(Preference preference, Object newValue) {
 		ListPreference language = (ListPreference) preference;
 		if (!language.getValue().equals(newValue)) {
-			AlertDialog.Builder builder =
-					new AlertDialog.Builder(getActivity());
+			MaterialAlertDialogBuilder builder =
+					new MaterialAlertDialogBuilder(requireContext());
 			builder.setTitle(R.string.pref_language_title);
 			builder.setMessage(R.string.pref_language_changed);
 			builder.setPositiveButton(R.string.sign_out_button, (d, i) -> {

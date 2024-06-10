@@ -7,7 +7,7 @@
 		android:radius="32dp"/>
 
 	<solid
-		android:color="?colorTertiaryContainer"/>
+		android:color="?colorTertiary"/>
 
 </shape>
 

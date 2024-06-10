@@ -87,9 +87,9 @@
 			app:layout_constraintStart_toStartOf="parent"
 			tools:enabled="true" />
 
-		<ProgressBar
+		<com.google.android.material.progressindicator.CircularProgressIndicator
 			android:id="@+id/progress"
-			style="?android:attr/progressBarStyle"
+			style="@style/CircularProgress"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
 			android:visibility="invisible"

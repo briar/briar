@@ -28,6 +28,7 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.textfield.TextInputLayout;
 
 import org.briarproject.bramble.api.contact.Contact;
@@ -52,7 +53,6 @@ import androidx.annotation.ColorRes;
 import androidx.annotation.DrawableRes;
 import androidx.annotation.Nullable;
 import androidx.annotation.UiThread;
-import androidx.appcompat.app.AlertDialog;
 import androidx.core.content.ContextCompat;
 import androidx.core.hardware.fingerprint.FingerprintManagerCompat;
 import androidx.core.text.HtmlCompat;
@@ -322,7 +322,7 @@ public class UiUtils {
 	}
 
 	public static void showOnboardingDialog(Context ctx, String text) {
-		new AlertDialog.Builder(ctx, R.style.OnboardingDialogTheme)
+		new MaterialAlertDialogBuilder(ctx, R.style.OnboardingDialogTheme)
 				.setMessage(text)
 				.setNeutralButton(R.string.got_it,
 						(dialog, which) -> dialog.cancel())

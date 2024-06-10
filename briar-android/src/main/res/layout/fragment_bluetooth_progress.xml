@@ -17,12 +17,12 @@
 		app:layout_constraintVertical_chainStyle="packed"
 		app:srcCompat="@drawable/il_bluetooth_connect" />
 
-	<ProgressBar
+	<com.google.android.material.progressindicator.LinearProgressIndicator
 		android:id="@+id/progressBar"
-		style="?android:attr/progressBarStyleHorizontal"
 		android:layout_width="0dp"
 		android:layout_height="wrap_content"
 		android:indeterminate="true"
+		app:indicatorColor="@color/briar_accent"
 		app:layout_constraintBottom_toTopOf="@+id/textView"
 		app:layout_constraintEnd_toEndOf="@+id/introImageView"
 		app:layout_constraintStart_toStartOf="@+id/introImageView"

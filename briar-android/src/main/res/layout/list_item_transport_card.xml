@@ -38,7 +38,7 @@
 
 		</LinearLayout>
 
-		<androidx.appcompat.widget.SwitchCompat
+		<com.google.android.material.materialswitch.MaterialSwitch
 			android:id="@+id/switchCompat"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"

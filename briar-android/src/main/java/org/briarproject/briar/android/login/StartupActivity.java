@@ -1,5 +1,6 @@
 package org.briarproject.briar.android.login;
 
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Bundle;
 
@@ -74,6 +75,7 @@ public class StartupActivity extends BaseActivity implements
 	}
 
 	@Override
+	@SuppressLint("MissingSuperCall")
 	public void onBackPressed() {
 		// Move task and activity to the background instead of showing another
 		// password prompt.

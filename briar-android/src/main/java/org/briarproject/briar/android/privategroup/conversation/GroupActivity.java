@@ -6,6 +6,8 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.activity.ActivityComponent;
 import org.briarproject.briar.android.privategroup.creation.GroupInviteActivity;
@@ -20,7 +22,6 @@ import org.briarproject.nullsafety.ParametersNotNullByDefault;
 import javax.annotation.Nullable;
 import javax.inject.Inject;
 
-import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.widget.Toolbar;
 import androidx.lifecycle.ViewModelProvider;
 
@@ -178,8 +179,8 @@ public class GroupActivity extends
 	}
 
 	private void showLeaveGroupDialog() {
-		AlertDialog.Builder builder =
-				new AlertDialog.Builder(this, R.style.BriarDialogTheme);
+		MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(
+				this, R.style.BriarDialogTheme);
 		builder.setTitle(getString(R.string.groups_leave_dialog_title));
 		builder.setMessage(getString(R.string.groups_leave_dialog_message));
 		builder.setNegativeButton(R.string.dialog_button_leave,
@@ -189,8 +190,8 @@ public class GroupActivity extends
 	}
 
 	private void showDissolveGroupDialog() {
-		AlertDialog.Builder builder =
-				new AlertDialog.Builder(this, R.style.BriarDialogTheme);
+		MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(
+				this, R.style.BriarDialogTheme);
 		builder.setTitle(getString(R.string.groups_dissolve_dialog_title));
 		builder.setMessage(getString(R.string.groups_dissolve_dialog_message));
 		builder.setNegativeButton(R.string.groups_dissolve_button,
@@ -206,8 +207,8 @@ public class GroupActivity extends
 	}
 
 	private void onGroupDissolved() {
-		AlertDialog.Builder builder =
-				new AlertDialog.Builder(this, R.style.BriarDialogTheme);
+		MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(
+				this, R.style.BriarDialogTheme);
 		builder.setTitle(getString(R.string.groups_dissolved_dialog_title));
 		builder.setMessage(getString(R.string.groups_dissolved_dialog_message));
 		builder.setNeutralButton(R.string.ok, null);

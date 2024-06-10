@@ -35,7 +35,7 @@
 		android:padding="4dp"
 		android:scaleType="center"
 		app:srcCompat="@drawable/social_send_now_white"
-		app:tint="@color/briar_accent" />
+		app:tint="?colorPrimary" />
 
 	<ImageView
 		android:id="@+id/bombBadge"
@@ -51,6 +51,7 @@
 
 	<ProgressBar
 		android:id="@+id/progressBar"
+		style="@style/CircularProgress"
 		android:layout_width="@dimen/text_input_height"
 		android:layout_height="@dimen/text_input_height"
 		android:visibility="invisible" />

@@ -13,6 +13,8 @@ import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+
 import org.briarproject.bramble.api.mailbox.MailboxStatus;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.view.BriarButton;
@@ -214,8 +216,8 @@ public class MailboxStatusFragment extends Fragment {
 	}
 
 	private void onUnlinkButtonClicked(boolean showWarning) {
-		AlertDialog.Builder builder = new AlertDialog.Builder(requireContext(),
-				R.style.BriarDialogTheme);
+		MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(
+				requireContext(), R.style.BriarDialogTheme);
 		builder.setTitle(R.string.mailbox_status_unlink_dialog_title);
 		String msg = getString(R.string.mailbox_status_unlink_dialog_question);
 		if (showWarning) {

@@ -8,12 +8,13 @@ import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.ProgressBar;
 
+import com.google.android.material.button.MaterialButton;
+
 import org.briarproject.briar.R;
 import org.briarproject.nullsafety.NotNullByDefault;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.view.ContextThemeWrapper;
-import androidx.appcompat.widget.AppCompatButton;
 
 import static android.content.Context.LAYOUT_INFLATER_SERVICE;
 import static androidx.transition.TransitionManager.beginDelayedTransition;
@@ -47,8 +48,8 @@ public class BriarButton extends FrameLayout {
 		attributes.recycle();
 
 		ContextThemeWrapper wrapper = new ContextThemeWrapper(context, style);
-		button = isInEditMode() ? new AppCompatButton(context) :
-				new AppCompatButton(wrapper, null, style);
+		button = isInEditMode() ? new MaterialButton(context) :
+				new MaterialButton(wrapper, null, style);
 		button.setText(text);
 		addView(button);
 		progressBar = findViewById(R.id.briar_button_progress_bar);

@@ -59,19 +59,17 @@
 			android:layout_width="0dp"
 			android:layout_height="wrap_content"
 			android:layout_marginHorizontal="@dimen/margin_large"
-			android:drawablePadding="8dp"
 			android:text="@string/hotspot_button_start_sharing"
-			app:drawableLeftCompat="@drawable/ic_wifi_tethering"
-			app:drawableStartCompat="@drawable/ic_wifi_tethering"
-			app:drawableTint="@color/button_text"
+			app:icon="@drawable/ic_wifi_tethering"
+			app:iconTint="?attr/colorOnPrimary"
 			app:layout_constraintBottom_toBottomOf="parent"
 			app:layout_constraintEnd_toEndOf="parent"
 			app:layout_constraintStart_toStartOf="parent"
 			tools:visibility="visible" />
 
-		<ProgressBar
+		<com.google.android.material.progressindicator.CircularProgressIndicator
 			android:id="@+id/progressBar"
-			style="?android:attr/progressBarStyle"
+			style="@style/CircularProgress"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
 			android:visibility="invisible"

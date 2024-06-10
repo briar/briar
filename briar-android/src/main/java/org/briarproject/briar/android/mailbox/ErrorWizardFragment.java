@@ -11,6 +11,7 @@ import android.widget.RadioGroup;
 import android.widget.ScrollView;
 
 import com.google.android.material.animation.ArgbEvaluatorCompat;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.view.BriarButton;
@@ -24,7 +25,6 @@ import javax.inject.Inject;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 import androidx.lifecycle.ViewModelProvider;
@@ -148,8 +148,8 @@ public class ErrorWizardFragment extends Fragment {
 	}
 
 	private void onUnlinkButtonClicked(View v) {
-		AlertDialog.Builder builder = new AlertDialog.Builder(requireContext(),
-				R.style.BriarDialogTheme);
+		MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(
+				requireContext(), R.style.BriarDialogTheme);
 		builder.setTitle(R.string.mailbox_status_unlink_dialog_title);
 		builder.setMessage(R.string.mailbox_status_unlink_dialog_question);
 		builder.setPositiveButton(R.string.cancel,

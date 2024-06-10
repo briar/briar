@@ -27,9 +27,9 @@
 			android:visibility="invisible"
 			tools:visibility="visible">
 
-			<ProgressBar
+			<com.google.android.material.progressindicator.CircularProgressIndicator
 				android:id="@+id/connect_progress"
-				style="?android:attr/progressBarStyleLarge"
+				style="@style/CircularProgress.Large"
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
 				app:layout_constraintBottom_toTopOf="@+id/connect_status"

@@ -32,6 +32,7 @@ import static android.widget.Toast.LENGTH_LONG;
 import static org.briarproject.bramble.api.crypto.DecryptionResult.KEY_STRENGTHENER_ERROR;
 import static org.briarproject.bramble.api.crypto.DecryptionResult.SUCCESS;
 import static org.briarproject.bramble.api.crypto.PasswordStrengthEstimator.QUITE_WEAK;
+import static org.briarproject.bramble.api.crypto.PasswordStrengthEstimator.STRONG;
 import static org.briarproject.briar.android.login.LoginUtils.createKeyStrengthenerErrorDialog;
 import static org.briarproject.briar.android.util.UiUtils.hideSoftKeyboard;
 import static org.briarproject.briar.android.util.UiUtils.setError;
@@ -123,12 +124,25 @@ public class ChangePasswordActivity extends BriarActivity
 		boolean passwordsMatch = firstPassword.equals(secondPassword);
 		float strength = viewModel.estimatePasswordStrength(firstPassword);
 		strengthMeter.setStrength(strength);
+
+		if (!firstPassword.isEmpty()) {
+			if (strength >= STRONG) {
+				newPasswordEntryWrapper.setHelperText(
+						getString(R.string.password_strong));
+			} else if (strength >= QUITE_WEAK) {
+				newPasswordEntryWrapper.setHelperText(
+						getString(R.string.password_quite_strong));
+			} else {
+				newPasswordEntryWrapper.setHelperTextEnabled(false);
+			}
+		}
+
 		setError(newPasswordEntryWrapper,
 				getString(R.string.password_too_weak),
-				firstPassword.length() > 0 && strength < QUITE_WEAK);
+				!firstPassword.isEmpty() && strength < QUITE_WEAK);
 		setError(newPasswordConfirmationWrapper,
 				getString(R.string.passwords_do_not_match),
-				secondPassword.length() > 0 && !passwordsMatch);
+				!secondPassword.isEmpty() && !passwordsMatch);
 		changePasswordButton.setEnabled(
 				!currentPassword.getText().toString().isEmpty() &&
 						passwordsMatch && strength >= QUITE_WEAK);

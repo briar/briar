@@ -7,7 +7,7 @@
 		android:radius="32dp"/>
 
 	<solid
-		android:color="@color/briar_accent"/>
+		android:color="?colorSurfaceDim"/>
 
 </shape>
 

@@ -7,6 +7,8 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.activity.ActivityComponent;
 import org.briarproject.briar.android.sharing.ForumSharingStatusActivity;
@@ -20,7 +22,6 @@ import org.briarproject.nullsafety.ParametersNotNullByDefault;
 import javax.annotation.Nullable;
 import javax.inject.Inject;
 
-import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.widget.Toolbar;
 import androidx.lifecycle.ViewModelProvider;
 
@@ -128,7 +129,7 @@ public class ForumActivity extends
 
 	private void showUnsubscribeDialog() {
 		OnClickListener okListener = (dialog, which) -> viewModel.deleteForum();
-		AlertDialog.Builder builder = new AlertDialog.Builder(this,
+		MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(this,
 				R.style.BriarDialogTheme);
 		builder.setTitle(getString(R.string.dialog_title_leave_forum));
 		builder.setMessage(getString(R.string.dialog_message_leave_forum));

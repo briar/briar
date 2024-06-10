@@ -3,7 +3,6 @@
 	<color name="briar_primary">@color/briar_night_800</color>
 	<color name="briar_accent">@color/briar_lime_600</color>
 
-	<color name="preference_category">@color/briar_accent</color>
 	<color name="preference_category_background">@color/briar_night_950</color>
 
 	<color name="color_primary">@android:color/white</color>
@@ -18,7 +17,6 @@
 	<color name="card_background">@color/briar_night_800</color>
 	<color name="item_background_highlight">@color/briar_night_700</color>
 
-	<color name="briar_button_background_color">@color/briar_night_500</color>
 	<color name="briar_button_text_neutral">@color/briar_blue_400</color>
 	<color name="briar_button_text_disabled">#23cccccc</color>
 
@@ -32,4 +30,13 @@
 	<color name="il_lime">@color/briar_lime_400_new</color>
 	<color name="il_orange">@color/briar_orange_400</color>
 	<color name="il_red">@color/briar_red_500_new</color>
+
+	<color name="md_theme_tertiary">@color/briar_blue_400_new</color>
+	<color name="md_theme_onTertiary">@color/briar_blue_900</color>
+	<color name="md_theme_tertiaryContainer">@color/briar_blue_800_new</color>
+	<color name="md_theme_onTertiaryContainer">@color/briar_blue_300</color>
+	<color name="md_theme_onBackground">#E0E4D2</color>
+	<color name="md_theme_onSurface">#E0E4D2</color>
+	<color name="md_theme_surfaceDim">@color/briar_night_700_new</color>
+	<color name="md_theme_error">@color/briar_red_400</color>
 </resources>

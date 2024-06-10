@@ -49,7 +49,7 @@
 				android:layout_height="1dp"
 				android:layout_margin="16dp"
 				android:alpha="0.5"
-				android:background="@color/briar_accent"
+				android:background="?colorTertiary"
 				app:layout_constraintBottom_toBottomOf="@+id/stepOne"
 				app:layout_constraintEnd_toStartOf="@+id/stepTwo"
 				app:layout_constraintStart_toEndOf="@+id/stepOne"
@@ -94,12 +94,12 @@
 				android:layout_width="38dp"
 				android:layout_height="38dp"
 				android:layout_marginTop="8dp"
-				android:background="@drawable/bubble_accent"
+				android:background="@drawable/bubble_current"
 				android:scaleType="center"
 				app:layout_constraintStart_toStartOf="parent"
 				app:layout_constraintTop_toBottomOf="@+id/imageView"
 				app:srcCompat="@drawable/ic_call_made"
-				app:tint="@android:color/white" />
+				app:tint="?colorOnTertiary" />
 
 			<TextView
 				android:id="@+id/yourLink"
@@ -137,11 +137,10 @@
 				style="@style/BriarButtonFlat.Positive.Tiny"
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
-				android:drawablePadding="8dp"
 				android:enabled="false"
 				android:text="@string/copy_button"
-				app:drawableLeftCompat="@drawable/ic_content_copy"
-				app:drawableStartCompat="@drawable/ic_content_copy"
+				app:icon="@drawable/ic_content_copy"
+				app:iconPadding="8dp"
 				app:layout_constraintEnd_toStartOf="@id/shareButton"
 				app:layout_constraintHorizontal_bias="1.0"
 				app:layout_constraintHorizontal_chainStyle="packed"
@@ -153,11 +152,10 @@
 				style="@style/BriarButtonFlat.Positive.Tiny"
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
-				android:drawablePadding="8dp"
 				android:enabled="false"
 				android:text="@string/share_button"
-				app:drawableLeftCompat="@drawable/social_share_blue"
-				app:drawableStartCompat="@drawable/social_share_blue"
+				app:icon="@drawable/social_share_blue"
+				app:iconPadding="8dp"
 				app:layout_constraintBottom_toBottomOf="@id/copyButton"
 				app:layout_constraintEnd_toEndOf="parent"
 				app:layout_constraintStart_toEndOf="@id/copyButton"
@@ -168,12 +166,12 @@
 				android:layout_width="38dp"
 				android:layout_height="38dp"
 				android:layout_marginTop="16dp"
-				android:background="@drawable/bubble_accent"
+				android:background="@drawable/bubble_current"
 				android:scaleType="center"
 				app:layout_constraintStart_toStartOf="parent"
 				app:layout_constraintTop_toBottomOf="@+id/copyButton"
 				app:srcCompat="@drawable/ic_call_received"
-				app:tint="@android:color/white" />
+				app:tint="?colorOnTertiary" />
 
 			<TextView
 				android:id="@+id/inputLink"
@@ -216,15 +214,14 @@
 				style="@style/BriarButtonFlat.Positive.Tiny"
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
-				android:drawablePadding="8dp"
 				android:text="@string/paste_button"
-				app:drawableLeftCompat="@drawable/ic_content_paste"
-				app:drawableStartCompat="@drawable/ic_content_paste"
+				app:icon="@drawable/ic_content_paste"
+				app:iconPadding="8dp"
+				app:layout_constraintBottom_toTopOf="@+id/infoView"
 				app:layout_constraintEnd_toEndOf="parent"
 				app:layout_constraintHorizontal_bias="1.0"
 				app:layout_constraintStart_toStartOf="parent"
 				app:layout_constraintTop_toBottomOf="@+id/linkInputLayout"
-				app:layout_constraintBottom_toTopOf="@+id/infoView"
 				app:layout_constraintVertical_bias="0.0" />
 
 			<org.briarproject.briar.android.view.InfoView
