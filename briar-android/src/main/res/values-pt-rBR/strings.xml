@@ -13,6 +13,8 @@
   <string name="confirm_password">Confirme sua senha</string>
   <string name="name_too_long">O nome está muito grande</string>
   <string name="password_too_weak">A senha está muito fraca</string>
+  <string name="password_quite_strong">A senha é OK</string>
+  <string name="password_strong">A senha é forte</string>
   <string name="passwords_do_not_match">As senhas não conferem</string>
   <string name="create_account_button">Criar conta</string>
   <string name="more_info">Informações adicionais</string>
@@ -35,6 +37,7 @@
   <string name="try_again">Senha Incorreta, tente novamente</string>
   <string name="dialog_title_cannot_check_password">Não foi possível verificar sua senha</string>
   <string name="dialog_message_cannot_check_password">Briar não conseguiu verificar sua senha. Por favor, tente reiniciar o dispositivo para resolver o problema.</string>
+  <string name="sign_in_title">Iniciar sessão no Briar</string>
   <string name="sign_in_button">Entrar</string>
   <string name="forgotten_password">Esqueceu a senha?</string>
   <string name="dialog_title_lost_password">Perdeu a senha</string>
