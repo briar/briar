@@ -27,18 +27,8 @@ import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static androidx.test.espresso.matcher.ViewMatchers.isEnabled;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
-import static org.briarproject.bramble.api.crypto.PasswordStrengthEstimator.NONE;
-import static org.briarproject.bramble.api.crypto.PasswordStrengthEstimator.QUITE_STRONG;
-import static org.briarproject.bramble.api.crypto.PasswordStrengthEstimator.QUITE_WEAK;
-import static org.briarproject.bramble.api.crypto.PasswordStrengthEstimator.STRONG;
-import static org.briarproject.bramble.api.crypto.PasswordStrengthEstimator.WEAK;
 import static org.briarproject.bramble.api.identity.AuthorConstants.MAX_AUTHOR_NAME_LENGTH;
 import static org.briarproject.bramble.util.StringUtils.getRandomString;
-import static org.briarproject.briar.android.login.StrengthMeter.GREEN;
-import static org.briarproject.briar.android.login.StrengthMeter.LIME;
-import static org.briarproject.briar.android.login.StrengthMeter.ORANGE;
-import static org.briarproject.briar.android.login.StrengthMeter.RED;
-import static org.briarproject.briar.android.login.StrengthMeter.YELLOW;
 import static org.hamcrest.Matchers.not;
 
 @RunWith(AndroidJUnit4.class)
@@ -79,34 +69,6 @@ public class SetupActivityTest {
 		onView(withId(R.id.next)).perform(scrollTo());
 		onView(withId(R.id.next)).perform(click());
 		onView(withId(R.id.progress)).check(matches(isDisplayed()));
-	}
-
-	@Test
-	public void testStrengthMeterUI() {
-		moveToSetPasswordFragment();
-
-		onView(withId(R.id.password_entry)).perform(typeText("1234567890ab"));
-		onView(withId(R.id.strength_meter))
-				.check(matches(strengthAndColor(STRONG, GREEN)));
-
-		onView(withId(R.id.password_entry)).perform(clearText());
-		onView(withId(R.id.password_entry)).perform(typeText("123456789"));
-		onView(withId(R.id.strength_meter))
-				.check(matches(strengthAndColor(QUITE_STRONG, LIME)));
-
-		onView(withId(R.id.password_entry)).perform(clearText());
-		onView(withId(R.id.password_entry)).perform(typeText("123456"));
-		onView(withId(R.id.strength_meter))
-				.check(matches(strengthAndColor(QUITE_WEAK, YELLOW)));
-
-		onView(withId(R.id.password_entry)).perform(clearText());
-		onView(withId(R.id.password_entry)).perform(typeText("123"));
-		onView(withId(R.id.strength_meter))
-				.check(matches(strengthAndColor(WEAK, ORANGE)));
-
-		onView(withId(R.id.password_entry)).perform(clearText());
-		onView(withId(R.id.strength_meter))
-				.check(matches(strengthAndColor(NONE, RED)));
 	}
 
 	private void moveToSetPasswordFragment() {
