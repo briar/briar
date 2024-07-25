@@ -48,8 +48,7 @@ public class BriarButton extends FrameLayout {
 		attributes.recycle();
 
 		ContextThemeWrapper wrapper = new ContextThemeWrapper(context, style);
-		button = isInEditMode() ? new MaterialButton(context) :
-				new MaterialButton(wrapper, null, style);
+		button = new MaterialButton(wrapper, null, style);
 		button.setText(text);
 		addView(button);
 		progressBar = findViewById(R.id.briar_button_progress_bar);
