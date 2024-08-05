@@ -666,104 +666,143 @@ Toca el icono + para importar uno</string>
   <string name="choose_ringtone_title">Elige tono de llamada</string>
   <string name="cannot_load_ringtone">No se puede cargar el tono de llamada</string>
   <!--Mailbox-->
-  <string name="mailbox_settings_title">Buzón</string>
-  <string name="mailbox_setup_title">Configuración del buzón</string>
-  <string name="mailbox_setup_intro">Un buzón permite que tus contactos te envíen mensajes mientras estás desconectado. El buzón recibirá tus mensajes y los almacenará hasta que te conectes.\n
-		\nPuedes instalar la aplicación Briar Mailbox en un dispositivo de repuesto. Mantenlo conectado a la corriente y al Wi-Fi para que esté siempre en línea.</string>
-  <string name="mailbox_setup_download">Primero, instala la aplicación Mailbox en otro dispositivo buscando \"Briar Mailbox\" en Google Play o donde descargaste Briar.\n
-		\nLuego, vincula tu buzón con Briar escaneando el código QR mostrado por la aplicación del buzón.</string>
+  <string name="mailbox_settings_title">Buzón de correo</string>
+  <string name="mailbox_setup_title">Configuración del buzón de correo</string>
+  <string name="mailbox_setup_intro">Un buzón de correo permite que tus contactos te envíen mensajes mientras estás desconectado. El buzón de correo recibirá tus mensajes y los almacenará hasta que te conectes.
+
+		
+Puedes instalar la aplicación Briar Mailbox en un dispositivo de repuesto. Mantenlo conectado a la corriente y al Wi-Fi para que esté siempre en línea.</string>
+  <string name="mailbox_setup_download">Primero, instala la aplicación buzón de correo en otro dispositivo buscando \"Briar Mailbox\" en Google Play o donde descargaste Briar.
+
+		
+Luego, vincula tu buzón de correo con Briar escaneando el código QR mostrado por la aplicación del buzón.</string>
   <string name="mailbox_setup_download_link">Compartir enlace de descarga</string>
-  <string name="mailbox_setup_button_scan">Escanear código QR del buzón</string>
-  <string name="permission_camera_qr_denied_body">Has denegado el acceso a la cámara, pero escanear un código QR requiere usar la cámara.\n\nPor favor, considera otorgar el acceso.</string>
-  <string name="mailbox_setup_connecting">Conectando con tu buzón...</string>
+  <string name="mailbox_setup_button_scan">Escanear código QR del buzón de correo</string>
+  <string name="permission_camera_qr_denied_body">Has denegado el acceso a la cámara, pero escanear un código QR requiere usar la cámara.
+
+Por favor, considera otorgar el acceso.</string>
+  <string name="mailbox_setup_connecting">Conectando con tu buzón de correo...</string>
   <!--This string is shown when connecting to a Mailbox for the first time. The placeholder will be replaced with a duration, e.g. "2 minutes".-->
   <string name="mailbox_setup_connecting_info">Esto puede tomar hasta %1s</string>
-  <string name="mailbox_qr_code_too_old">El código QR que has escaneado proviene de una versión anterior de Briar Mailbox.\n\nPor favor, actualiza Briar Mailbox a la última versión y luego inténtalo de nuevo.</string>
-  <string name="mailbox_qr_code_too_new">El código QR que has escaneado proviene de una versión más nueva de Briar Mailbox.\n\nPor favor, actualiza Briar a la última versión y luego inténtalo de nuevo.</string>
-  <string name="contact_qr_code_for_mailbox">El código QR que has escaneado es para agregar un contacto en Briar.\n\nSi deseas agregar un contacto, por favor ve a la lista de contactos y toca el ícono +.</string>
-  <string name="mailbox_setup_qr_code_wrong_description">El código QR que has escaneado no proviene de Briar Mailbox.\n\nPor favor, abre la aplicación Briar Mailbox en tu dispositivo de buzón y escanea el código QR que presenta.</string>
-  <string name="mailbox_setup_already_paired_title">Buzón ya vinculado</string>
-  <string name="mailbox_setup_already_paired_description">Desvincula el buzón en tu otro dispositivo e inténtalo de nuevo.</string>
+  <string name="mailbox_qr_code_too_old">El código QR que has escaneado proviene de una versión anterior de Briar Mailbox.
+
+Por favor, actualiza Briar Mailbox a la última versión y luego inténtalo de nuevo.</string>
+  <string name="mailbox_qr_code_too_new">El código QR que has escaneado proviene de una versión más nueva de Briar Mailbox.
+
+Por favor, actualiza Briar a la última versión y luego inténtalo de nuevo.</string>
+  <string name="contact_qr_code_for_mailbox">El código QR que has escaneado es para agregar un contacto en Briar.
+
+Si deseas agregar un contacto, por favor ve a la lista de contactos y toca el ícono +.</string>
+  <string name="mailbox_setup_qr_code_wrong_description">El código QR que has escaneado no proviene de Briar Mailbox.
+
+Por favor, abre la aplicación Briar Mailbox en tu dispositivo de buzón de correo y escanea el código QR que presenta.</string>
+  <string name="mailbox_setup_already_paired_title">Buzón de correo ya vinculado</string>
+  <string name="mailbox_setup_already_paired_description">Desvincula el buzón de correo en tu otro dispositivo e inténtalo de nuevo.</string>
   <string name="mailbox_setup_io_error_title">No se pudo conectar</string>
   <string name="mailbox_setup_io_error_description">Asegúrate de que ambos dispositivos estén conectados a Internet e inténtalo de nuevo.</string>
-  <string name="mailbox_setup_assertion_error_title">Error del buzón</string>
+  <string name="mailbox_setup_assertion_error_title">Error del buzón de correo</string>
   <string name="mailbox_setup_assertion_error_description">Por favor, envía comentarios (con datos anónimos) a través de la aplicación Briar si el problema persiste.</string>
   <string name="mailbox_setup_camera_error_description">No se pudo acceder a la cámara. Inténtalo de nuevo, quizás después de reiniciar el dispositivo.</string>
   <string name="mailbox_setup_paired_title">Conectado</string>
-  <string name="mailbox_setup_paired_description">Tu buzón ha sido vinculado correctamente con Briar.\n
-		\nMantén tu buzón conectado a la corriente y al Wi-Fi para que esté siempre en línea.</string>
+  <string name="mailbox_setup_paired_description">Tu buzón de correo ha sido vinculado correctamente con Briar.
+
+		
+Mantén tu buzón de correo conectado a la corriente y al Wi-Fi para que esté siempre en línea.</string>
   <string name="tor_offline_title">Desconectado</string>
-  <string name="tor_offline_description">Asegúrate de que este dispositivo esté en línea y que las conexiones a Internet estén permitidas.\n
-		\nLuego, espera a que el ícono del globo en la pantalla de configuración de conexiones se vuelva verde.</string>
+  <string name="tor_offline_description">Asegúrate de que este dispositivo esté en línea y que las conexiones a Internet estén permitidas.
+
+		
+Luego, espera a que el ícono del globo en la pantalla de configuración de conexiones se vuelva verde.</string>
   <string name="tor_offline_button_check">Comprobar la configuración de la conexión</string>
-  <string name="mailbox_status_title">Estado del buzón</string>
-  <string name="mailbox_status_connected_title">El buzón está funcionando</string>
-  <string name="mailbox_status_problem_title">Briar tiene problemas para conectarse al buzón</string>
-  <string name="mailbox_status_failure_title">El buzón no está disponible</string>
+  <string name="mailbox_status_title">Estado del buzón de correo</string>
+  <string name="mailbox_status_connected_title">El buzón de correo está funcionando</string>
+  <string name="mailbox_status_problem_title">Briar tiene problemas para conectarse al buzón de correo</string>
+  <string name="mailbox_status_failure_title">El buzón de correo no está disponible</string>
   <string name="mailbox_status_app_too_old_title">Briar está desactualizado</string>
   <string name="mailbox_status_app_too_old_message">Actualiza Briar a la última versión de la aplicación e inténtalo de nuevo.</string>
-  <string name="mailbox_status_mailbox_too_old_title">El buzón está desactualizado</string>
-  <string name="mailbox_status_mailbox_too_old_message">Actualiza tu buzón a la última versión de la aplicación y vuelve a intentarlo.</string>
+  <string name="mailbox_status_mailbox_too_old_title">El buzón de correo está desactualizado</string>
+  <string name="mailbox_status_mailbox_too_old_message">Actualiza tu buzón de correo a la última versión de la aplicación y vuelve a intentarlo.</string>
   <string name="mailbox_status_check_button">Verificar conexión</string>
   <!--Example for string substitution: Last connection: 3min ago-->
   <string name="mailbox_status_connected_info">Última conexión: %s</string>
   <!--Indicates that there never was a connection to the mailbox. Last connection: Never-->
   <string name="mailbox_status_connected_never">Nunca</string>
   <string name="mailbox_status_unlink_button">Desvincular</string>
-  <string name="mailbox_status_unlink_dialog_title">¿Desvincular el buzón?</string>
-  <string name="mailbox_status_unlink_dialog_question">¿Estás seguro de que quieres desvincular tu buzón?</string>
-  <string name="mailbox_status_unlink_dialog_warning">Si desvinculas tu buzón, no podrás recibir mensajes mientras Briar esté desconectado.</string>
-  <string name="mailbox_status_unlink_no_wipe_title">Tu buzón ha sido desvinculado</string>
-  <string name="mailbox_status_unlink_no_wipe_message">La próxima vez que tengas acceso a tu dispositivo de buzón, por favor abre la aplicación del buzón y toca el botón \"Desvincular\" para completar el proceso.\n\nSi ya no tienes acceso a tu dispositivo de buzón, no te preocupes. Tus datos están encriptados, por lo que permanecerán seguros aunque no completes el proceso.</string>
-  <string name="mailbox_status_unlink_success">Tu buzón ha sido desvinculado</string>
+  <string name="mailbox_status_unlink_dialog_title">¿Desvincular el buzón de correo?</string>
+  <string name="mailbox_status_unlink_dialog_question">¿Estás seguro de que quieres desvincular tu buzón de correo?</string>
+  <string name="mailbox_status_unlink_dialog_warning">Si desvinculas tu buzón de correo, no podrás recibir mensajes mientras Briar esté desconectado.</string>
+  <string name="mailbox_status_unlink_no_wipe_title">Tu buzón de correo ha sido desvinculado</string>
+  <string name="mailbox_status_unlink_no_wipe_message">La próxima vez que tengas acceso a tu dispositivo de buzón de correo, por favor abre la aplicación del buzón de correo y toca el botón \"Desvincular\" para completar el proceso.
+
+Si ya no tienes acceso a tu dispositivo de buzón de correo, no te preocupes. Tus datos están cifrados, por lo que permanecerán seguros aunque no completes el proceso.</string>
+  <string name="mailbox_status_unlink_success">Tu buzón de correo ha sido desvinculado</string>
   <string name="mailbox_error_notification_channel_title">Problema con Briar Mailbox</string>
   <string name="mailbox_error_notification_title">Briar Mailbox no está disponible</string>
   <string name="mailbox_error_notification_text">Toca para solucionar el problema.</string>
   <string name="mailbox_error_wizard_button">Solucionar problema</string>
-  <string name="mailbox_error_wizard_title">Asistente de solución de problemas del buzón</string>
-  <string name="mailbox_error_wizard_question1">¿Tienes acceso a tu dispositivo de buzón?</string>
+  <string name="mailbox_error_wizard_title">Asistente de solución de problemas del buzón de correo</string>
+  <string name="mailbox_error_wizard_question1">¿Tienes acceso a tu dispositivo de buzón de correo?</string>
   <string name="mailbox_error_wizard_answer1">Sí, tengo acceso a él ahora mismo.</string>
   <string name="mailbox_error_wizard_answer2">No ahora, pero podré acceder a él más tarde.</string>
   <string name="mailbox_error_wizard_answer3">No, ya no tengo acceso a él.</string>
-  <string name="mailbox_error_wizard_info1_1">Verifica que el dispositivo del buzón esté encendido y conectado a Internet.</string>
-  <string name="mailbox_error_wizard_question1_1">Abre la aplicación del buzón. ¿Qué ves?</string>
-  <string name="mailbox_error_wizard_answer1_1">Veo instrucciones para configurar el buzón</string>
+  <string name="mailbox_error_wizard_info1_1">Verifica que el dispositivo del buzón de correo esté encendido y conectado a Internet.</string>
+  <string name="mailbox_error_wizard_question1_1">Abre la aplicación del buzón de correo. ¿Qué ves?</string>
+  <string name="mailbox_error_wizard_answer1_1">Veo instrucciones para configurar el buzón de correo</string>
   <string name="mailbox_error_wizard_answer1_2">Veo un código QR</string>
-  <string name="mailbox_error_wizard_answer1_3">Veo \"El buzón está en funcionamiento\"</string>
+  <string name="mailbox_error_wizard_answer1_3">Veo \"El buzón de correo está en funcionamiento\"</string>
   <string name="mailbox_error_wizard_answer1_4">Veo \"Dispositivo sin conexión\"</string>
-  <string name="mailbox_error_wizard_info1_1_1">Por favor, desvincula tu buzón usando el botón de abajo, luego sigue las instrucciones en el dispositivo del buzón para vincularlo nuevamente.</string>
-  <string name="mailbox_error_wizard_info_1_1_2">Por favor, desvincula tu buzón usando el botón de abajo, y luego escanea el código QR para vincularlo nuevamente.</string>
-  <string name="mailbox_error_wizard_info1_1_3">Por favor, utilice el botón de abajo para comprobar la conexión entre Briar y el buzón.\n\n
-		Si la conexión vuelve a fallar:\n
-		\u2022 Comprueba que las aplicaciones del buzón y de Briar están actualizadas a la última versión.\n
-		\u2022 Reinicie sus dispositivos de buzón y Briar e inténtelo de nuevo.</string>
-  <string name="mailbox_error_wizard_info1_1_4">Verifica que el dispositivo del Buzón esté correctamente conectado a Internet.\n\nVerifique que el reloj del dispositivo del buzón muestre la hora, fecha y zona horaria correctas.\n\nVerifica que las aplicaciones del buzón y Briar estén actualizadas a la última versión.\n\nReinicia tus dispositivos del buzón y Briar e inténtalo de nuevo.</string>
+  <string name="mailbox_error_wizard_info1_1_1">Por favor, desvincula tu buzón de correo usando el botón de abajo, luego sigue las instrucciones en el dispositivo del buzón de correo para vincularlo nuevamente.</string>
+  <string name="mailbox_error_wizard_info_1_1_2">Por favor, desvincula tu buzón de correo usando el botón de abajo, y luego escanea el código QR para vincularlo nuevamente.</string>
+  <string name="mailbox_error_wizard_info1_1_3">Por favor, usa el botón de abajo para verificar la conexión entre Briar y el buzón de correo.
+
+Si la conexión falla de nuevo:
+
+• Verifica que las aplicaciones de buzón de correo y Briar estén actualizadas a la última versión.
+
+• Reinicia tus dispositivos de buzón de correo y Briar y vuelve a intentarlo.</string>
+  <string name="mailbox_error_wizard_info1_1_4">Verifica que el dispositivo del buzón de correo esté correctamente conectado a Internet.
+
+Verifique que el reloj del dispositivo del buzón de correo muestre la hora, fecha y zona horaria correctas.
+
+Verifica que las aplicaciones del buzón de correo y Briar estén actualizadas a la última versión.
+
+Reinicia tus dispositivos del buzón de correo y Briar e inténtalo de nuevo.</string>
   <string name="mailbox_error_wizard_info2">Por favor, vuelve a esta pantalla cuando tengas acceso al dispositivo.</string>
-  <string name="mailbox_error_wizard_info3">Por favor, desvincula tu buzón usando el botón de abajo.\n\nDespués de desvincular tu antiguo buzón, puedes configurar un nuevo buzón en cualquier momento.</string>
+  <string name="mailbox_error_wizard_info3">Por favor, desvincula tu buzón de correo usando el botón de abajo.
+
+Después de desvincular tu antiguo buzón de correo, puedes configurar un nuevo buzón de correo en cualquier momento.</string>
   <!--About-->
   <string name="about_title">Acerca de nosotros</string>
   <string name="briar_version">Versión Briar: %s</string>
   <string name="tor_version">Versión Tor:%s</string>
   <string name="links">Enlaces</string>
-  <string name="briar_website">\u2022 <a href="">Sitio Web</a></string>
-  <string name="briar_source_code">\u2022 <a href="">Código fuente</a></string>
-  <string name="briar_changelog">\u2022 <a href="">Registro de cambios</a></string>
-  <string name="briar_privacy_policy">\u2022 <a href="">Política de Privacidad</a></string>
+  <string name="briar_website">•  <a href="">Sitio Web</a></string>
+  <string name="briar_source_code">•  <a href="">Código fuente</a></string>
+  <string name="briar_changelog">•  <a href="">Registro de cambios</a></string>
+  <string name="briar_privacy_policy">•  <a href="">Política de Privacidad</a></string>
   <!--Here translators can add their names or Transifex usernames(eg "Thanks to all the contributors at the Localization Lab, especially Tom, Matthew and Jerry")-->
   <string name="translator_thanks">Gracias a todos los colaboradores de Localization Lab.</string>
   <!--Conversation Settings-->
   <string name="disappearing_messages_title">Mensajes que desaparecen</string>
   <string name="disappearing_messages_explanation_long">Activar este ajuste hará que los nuevos
 		mensajes en esta conversación desaparezcan automáticamente después de 7\u00A0días.
-		\n\nLa cuenta regresiva para la copia del mensaje del emisor empieza después de que haya sido entregado.
+		
+
+La cuenta regresiva para la copia del mensaje del emisor empieza después de que haya sido entregado.
 		La cuenta regresiva empieza para el receptor después de que haya leído el mensaje.
-		\n\nLos mensajes con caducidad están marcados con el ícono de una bomba.
-		\n\nTen presente que los receptores aún pueden hacer copias de los mensajes que envías.
-		\n\nSi cambias este ajuste, se aplicará a tus nuevos mensajes inmediatamente, y a los
+		
+
+Los mensajes con caducidad están marcados con el ícono de una bomba.
+		
+
+Ten presente que los receptores aún pueden hacer copias de los mensajes que envías.
+		
+
+Si cambias este ajuste, se aplicará a tus nuevos mensajes inmediatamente, y a los
 		mensajes de tus contactos una vez que reciban tu próximo mensaje.
 		Tu contacto también puede cambiar este ajuste para ambos.</string>
   <string name="learn_more">Aprende más</string>
-  <string name="disappearing_messages_summary">Haz que futuros mensajes en esta conversación desaparezcan automáticamente después de 7\u00A0days.</string>
+  <string name="disappearing_messages_summary">Haz que los futuros mensajes en esta conversación desaparezcan automáticamente después de 7 días.</string>
   <!--Settings Actions-->
   <string name="pref_category_actions">Acciones</string>
   <string name="share_app_link">Compartir enlace de descarga</string>
@@ -809,8 +848,14 @@ Toca el icono + para importar uno</string>
   <string name="progress_title_logout">Saliendo de Briar…</string>
   <!--Screen Filters & Tapjacking-->
   <string name="screen_filter_title">Superposición de pantalla detectada</string>
-  <string name="screen_filter_body">Otra aplicación está superponiéndose a Briar. Para proteger tu seguridad, Briar no responderá a toques cuando otra aplicación se esté superponiendo.\n\nLas siguientes aplicaciones podrían estar superponiéndose:\n\n%1$s</string>
-  <string name="screen_filter_body_api_30">Otra aplicación está superponiéndose a Briar. Para proteger tu seguridad, Briar no responderá a toques cuando otra aplicación se esté superponiendo.\n\nRevisa las aplicaciones a continuación para encontrar la aplicación responsable.</string>
+  <string name="screen_filter_body">Otra aplicación está superponiéndose a Briar. Para proteger tu seguridad, Briar no responderá a toques cuando otra aplicación se esté superponiendo.
+
+Las siguientes aplicaciones podrían estar superponiéndose:
+
+%1$s</string>
+  <string name="screen_filter_body_api_30">Otra aplicación está superponiéndose a Briar. Para proteger tu seguridad, Briar no responderá a toques cuando otra aplicación se esté superponiendo.
+
+Revisa las aplicaciones a continuación para encontrar la aplicación responsable.</string>
   <string name="screen_filter_allow">Permitir que estas aplicaciones dibujen en la parte superior</string>
   <string name="screen_filter_review_apps">Revisar aplicaciones</string>
   <!--Permission Requests-->
@@ -818,20 +863,34 @@ Toca el icono + para importar uno</string>
   <string name="permission_camera_request_body">Para escanear el código QR, Briar necesita acceso a la cámara.</string>
   <string name="permission_location_title">Permiso de ubicación</string>
   <string name="permission_nearby_devices_title">Permiso para dispositivos cercanos</string>
-  <string name="permission_location_request_body">Para descubrir dispositivos Bluetooth, Briar necesita permiso para acceder a tu ubicación.\n\nBriar no almacena tu ubicación ni la comparte con nadie.</string>
+  <string name="permission_location_request_body">Para descubrir dispositivos Bluetooth, Briar necesita permiso para acceder a tu ubicación.
+
+Briar no almacena tu ubicación ni la comparte con nadie.</string>
   <string name="permission_camera_location_title">Cámara y ubicación</string>
-  <string name="permission_camera_location_request_body">Para escanear el código QR, Briar necesita acceso a la cámara.\n\nPara descubrir dispositivos Bluetooth, Briar necesita permiso para acceder a su ubicación.\n\nBriar no almacena tu ubicación ni la comparte con nadie.</string>
+  <string name="permission_camera_location_request_body">Para escanear el código QR, Briar necesita acceso a la cámara.
+
+Para descubrir dispositivos Bluetooth, Briar necesita permiso para acceder a su ubicación.
+
+Briar no almacena tu ubicación ni la comparte con nadie.</string>
   <string name="permission_camera_bluetooth_title">Cámara y dispositivos cercanos</string>
-  <string name="permission_camera_bluetooth_request_body">Para escanear el código QR, Briar necesita acceso a la cámara.\n\nPara descubrir dispositivos Bluetooth, Briar necesita permiso para encontrar y conectarse a dispositivos cercanos.</string>
-  <string name="permission_camera_denied_body">Has denegado el acceso a la cámara, pero agregar contactos requiere usar la cámara.\n\nPor favor, considera otorgar acceso.</string>
-  <string name="permission_location_denied_body">Has denegado el acceso a tu ubicación, pero Briar necesita este permiso para descubrir dispositivos Bluetooth.\n\nPor favor, considera otorgar acceso.</string>
+  <string name="permission_camera_bluetooth_request_body">Para escanear el código QR, Briar necesita acceso a la cámara.
+
+Para descubrir dispositivos Bluetooth, Briar necesita permiso para encontrar y conectarse a dispositivos cercanos.</string>
+  <string name="permission_camera_denied_body">Has denegado el acceso a la cámara, pero agregar contactos requiere usar la cámara.
+
+Por favor, considera otorgar acceso.</string>
+  <string name="permission_location_denied_body">Has denegado el acceso a tu ubicación, pero Briar necesita este permiso para descubrir dispositivos Bluetooth.
+
+Por favor, considera otorgar acceso.</string>
   <string name="permission_location_setting_title">Herramientas de localización</string>
   <string name="permission_location_setting_body">La configuración de ubicación de tu dispositivo debe estar activada para encontrar otros dispositivos vía Bluetooth. Por favor, habilita la ubicación para continuar. Luego puedes desactivarla nuevamente.</string>
   <string name="permission_location_setting_hotspot_body">La configuración de ubicación de tu dispositivo debe estar activada para crear un punto de acceso Wi-Fi. Por favor, habilita la ubicación para continuar. Luego puedes desactivarla nuevamente.</string>
   <string name="permission_location_setting_button">Habilitar ubicación</string>
   <string name="permission_bluetooth_title">Permiso para dispositivos cercanos</string>
   <string name="permission_bluetooth_body">Para utilizar la comunicación Bluetooth, Briar necesita permiso para encontrar dispositivos cercanos y conectarse a ellos.</string>
-  <string name="permission_bluetooth_denied_body">Ha denegado el acceso a los dispositivos cercanos, pero Briar necesita este permiso para usar Bluetooth.\n\nConsidere conceder acceso.</string>
+  <string name="permission_bluetooth_denied_body">Ha denegado el acceso a los dispositivos cercanos, pero Briar necesita este permiso para usar Bluetooth.
+
+Considere conceder acceso.</string>
   <string name="qr_code">Código QR</string>
   <string name="show_qr_code_fullscreen">Mostrar código QR en pantalla completa</string>
   <!--App Locking-->
@@ -842,23 +901,39 @@ Toca el icono + para importar uno</string>
   <string name="lock_is_locked">Briar está bloqueado</string>
   <string name="lock_tap_to_unlock">Toca para desbloquear</string>
   <!--Connections Screen-->
-  <string name="transports_help_text">Briar puede conectarse a tus contactos a través de Internet, Wi-Fi o Bluetooth.\n\nTodas las conexiones a Internet pasan por la red Tor para mayor privacidad.\n\nSi un contacto puede ser alcanzado por varios métodos, Briar los utiliza en paralelo.</string>
+  <string name="transports_help_text">Briar puede conectarse a tus contactos a través de Internet, Wi-Fi o Bluetooth.
+
+Todas las conexiones a Internet pasan por la red Tor para mayor privacidad.
+
+Si un contacto puede ser alcanzado por varios métodos, Briar los utiliza en paralelo.</string>
   <!--Share app offline-->
   <string name="hotspot_title">Comparte esta aplicación sin conexión</string>
   <string name="hotspot_intro">Comparte esta aplicación con alguien cercano sin conexión a Internet utilizando el Wi-Fi de tu teléfono.
-		\n\nTu teléfono iniciará un punto de acceso Wi-Fi. Las personas cercanas podrán conectarse al punto de acceso y descargar la aplicación Briar desde tu teléfono.</string>
+		
+
+Tu teléfono iniciará un punto de acceso Wi-Fi. Las personas cercanas podrán conectarse al punto de acceso y descargar la aplicación Briar desde tu teléfono.</string>
   <string name="hotspot_button_start_sharing">Iniciar punto de acceso</string>
   <string name="hotspot_button_stop_sharing">Detener punto de acceso</string>
   <string name="hotspot_progress_text_start">Configurando punto de acceso…</string>
   <string name="hotspot_notification_channel_title">Punto de acceso Wi-Fi</string>
   <string name="hotspot_notification_title">Compartir Briar sin conexión</string>
   <string name="hotspot_button_connected">Siguiente</string>
-  <string name="permission_hotspot_location_request_body">Para crear un punto de acceso Wi-Fi, Briar necesita permiso para acceder a tu ubicación.\n\nBriar no almacena tu ubicación ni la comparte con nadie.</string>
-  <string name="permission_hotspot_location_request_precise_body">Para crear un punto de acceso Wi-Fi, Briar necesita permiso para acceder a tu ubicación precisa.\n\nBriar no almacena tu ubicación ni la comparte con nadie.</string>
-  <string name="permission_hotspot_location_denied_body">Has denegado el acceso a tu ubicación, pero Briar necesita este permiso para crear un punto de acceso Wi-Fi.\n\nConsidera conceder el acceso.</string>
-  <string name="permission_hotspot_location_denied_precise_body">Has denegado el acceso a tu ubicación precisa, pero Briar necesita este permiso para crear un punto de acceso Wi-Fi.\n\nConsidera conceder acceso.</string>
+  <string name="permission_hotspot_location_request_body">Para crear un punto de acceso Wi-Fi, Briar necesita permiso para acceder a tu ubicación.
+
+Briar no almacena tu ubicación ni la comparte con nadie.</string>
+  <string name="permission_hotspot_location_request_precise_body">Para crear un punto de acceso Wi-Fi, Briar necesita permiso para acceder a tu ubicación precisa.
+
+Briar no almacena tu ubicación ni la comparte con nadie.</string>
+  <string name="permission_hotspot_location_denied_body">Has denegado el acceso a tu ubicación, pero Briar necesita este permiso para crear un punto de acceso Wi-Fi.
+
+Considera conceder el acceso.</string>
+  <string name="permission_hotspot_location_denied_precise_body">Has denegado el acceso a tu ubicación precisa, pero Briar necesita este permiso para crear un punto de acceso Wi-Fi.
+
+Considera conceder acceso.</string>
   <string name="permission_hotspot_nearby_wifi_request_body">Para crear un punto de acceso Wi-Fi, Briar necesita permiso para acceder a los dispositivos cercanos.</string>
-  <string name="permission_hotspot_nearby_wifi_denied_body">Ha denegado el acceso a los dispositivos cercanos, pero Briar necesita este permiso para crear un punto de acceso Wi-Fi.\n\nConsidera conceder acceso.</string>
+  <string name="permission_hotspot_nearby_wifi_denied_body">Ha denegado el acceso a los dispositivos cercanos, pero Briar necesita este permiso para crear un punto de acceso Wi-Fi.
+
+Considera conceder acceso.</string>
   <string name="wifi_settings_title">Herramientas Wi-Fi</string>
   <string name="wifi_settings_request_enable_body">Para crear un punto de acceso Wi-Fi, Briar necesita usar Wi-Fi. Por favor, habilítalo.</string>
   <string name="hotspot_tab_manual">Manual</string>
@@ -900,7 +975,9 @@ Toca el icono + para importar uno</string>
   <string name="hotspot_help_site_4">Si puedes visitar el sitio, pero no descargar la aplicación Briar, pruébalo con una aplicación de navegador web diferente.</string>
   <string name="hotspot_help_fallback_title">¿No funciona nada?</string>
   <string name="hotspot_help_fallback_intro">Puedes intentar guardar la aplicación como archivo .apk para compartirlo de cualquier otra manera. Una vez que el archivo ha sido transferido al otro dispositivo, se puede usar para instalar Briar.
-		\n\nConsejo: Para compartir vía Bluetooth, puede que necesites renombrar el archivo para que termine con .zip primero.</string>
+		
+
+Consejo: Para compartir vía Bluetooth, puede que necesites renombrar el archivo para que termine con .zip primero.</string>
   <string name="hotspot_help_fallback_button">Guardar aplicación</string>
   <!--error handling-->
   <string name="hotspot_error_intro">Algo salió mal al intentar compartir la aplicación a través de Wi-Fi:</string>
@@ -909,28 +986,48 @@ Toca el icono + para importar uno</string>
   <string name="hotspot_error_start_callback_failed_unknown">El punto de acceso no pudo iniciarse debido a un error desconocido, motivo %d</string>
   <string name="hotspot_error_start_callback_no_group_info">El punto de acceso no pudo iniciarse: no hay información del grupo</string>
   <string name="hotspot_error_web_server_start">Error al iniciar el servidor web</string>
-  <string name="hotspot_error_web_server_serve">Error al presentar el sitio web.\n\nEnvíe comentarios (con datos anónimos) a través de la aplicación Briar si el problema persiste.</string>
+  <string name="hotspot_error_web_server_serve">Error al presentar el sitio web.
+
+Envíe comentarios (con datos anónimos) a través de la aplicación Briar si el problema persiste.</string>
   <string name="hotspot_flag_test">Advertencia: esta aplicación se instaló con Android Studio y NO se puede instalar en otro dispositivo.</string>
-  <string name="hotspot_error_framework_busy">Incapaz de iniciar el punto de acceso.\n\nSi tienes otro punto de acceso ejecutándose o estás compartiendo tu conexión de Internet vía Wi-Fi, intenta detener eso e intentar de nuevo luego.</string>
+  <string name="hotspot_error_framework_busy">Incapaz de iniciar el punto de acceso.
+
+Si tienes otro punto de acceso ejecutándose o estás compartiendo tu conexión de Internet vía Wi-Fi, intenta detener eso e intentar de nuevo luego.</string>
   <!--Transfer Data via Removable Drives-->
   <string name="removable_drive_menu_title">Conectar a través de Disco Removible</string>
   <string name="removable_drive_intro">Si no puedes conectarte con tu contacto a través de Internet, Wi-Fi o Bluetooth, Briar también puedes transferir mensajes en una unidad extraíble, como una memoria USB o una tarjeta SD.</string>
-  <string name="removable_drive_explanation">Si no puedes conectarte con tu contacto vía Internet, Wi-Fi o Bluetooth, Briar también puede transferir mensajes en una unidad extraíble, tal como una memoria USB o tarjeta SD.\n\nCuando usas el botón \"Enviar Datos\", cualquier dato que esté esperando ser enviado al contacto se escribirá en la unidad extraíble. Esto incluye mensajes privados, adjuntos, blogs, foros y grupos privados.\n\nTodo se encriptará antes de ser escrito en la unidad extraíble.\n\nCuando tu contacto reciba la unidad extraíble, puede usar el botón \"Recibir Datos\" para importar los mensajes en Briar.</string>
+  <string name="removable_drive_explanation">Si no puedes conectarte con tu contacto vía Internet, Wi-Fi o Bluetooth, Briar también puede transferir mensajes en una unidad extraíble, tal como una memoria USB o tarjeta SD.
+
+Cuando usas el botón \"Enviar Datos\", cualquier dato que esté esperando ser enviado al contacto se escribirá en la unidad extraíble. Esto incluye mensajes privados, adjuntos, blogs, foros y grupos privados.
+
+Todo se encriptará antes de ser escrito en la unidad extraíble.
+
+Cuando tu contacto reciba la unidad extraíble, puede usar el botón \"Recibir Datos\" para importar los mensajes en Briar.</string>
   <string name="removable_drive_title_send">Enviar datos</string>
   <string name="removable_drive_title_receive">Recibir datos</string>
-  <string name="removable_drive_send_intro">Pulsa el botón de abajo para crear un nuevo archivo conteniendo los mensajes cifrados. Puedes elegir dónde será guardado el archivo.\n\nSi quieres guardarlo en una unidad extraíble, inserta la unidad ahora.</string>
+  <string name="removable_drive_send_intro">Pulsa el botón de abajo para crear un nuevo archivo conteniendo los mensajes cifrados. Puedes elegir dónde será guardado el archivo.
+
+Si quieres guardarlo en una unidad extraíble, inserta la unidad ahora.</string>
   <string name="removable_drive_send_no_data">Actualmente no hay mensajes en espera de ser enviados a este contacto.</string>
   <string name="removable_drive_send_not_supported">Este contacto está usando una versión antigua de Briar o un dispositivo antiguo que no admite esta función.</string>
   <string name="removable_drive_send_button">Selecciona el archivo para exportar</string>
   <string name="removable_drive_ongoing">Por favor, espera a que se complete la tarea en curso</string>
-  <string name="removable_drive_receive_intro">Toca el botón a continuación para elegir el archivo que te envió tu contacto.\n\nSi el archivo está en una unidad extraíble, inserta la unidad ahora.</string>
+  <string name="removable_drive_receive_intro">Toca el botón a continuación para elegir el archivo que te envió tu contacto.
+
+Si el archivo está en una unidad extraíble, inserta la unidad ahora.</string>
   <string name="removable_drive_receive_button">Elige el archivo para importar</string>
   <string name="removable_drive_success_send_title">Exportación exitosa</string>
-  <string name="removable_drive_success_send_text">Los datos se exportaron correctamente. Ahora tienes 28 días para enviar el archivo a tu contacto.\n\nSi el archivo está en una unidad extraíble, utiliza la notificación en la barra de estado para expulsar la unidad antes de desconectarla.</string>
+  <string name="removable_drive_success_send_text">Los datos se exportaron correctamente. Ahora tienes 28 días para enviar el archivo a tu contacto.
+
+Si el archivo está en una unidad extraíble, utiliza la notificación en la barra de estado para expulsar la unidad antes de desconectarla.</string>
   <string name="removable_drive_success_receive_title">Importación exitosa</string>
   <string name="removable_drive_success_receive_text">Se han recibido todos los mensajes cifrados contenidos en este archivo.</string>
   <string name="removable_drive_error_send_title">Error al exportar datos</string>
-  <string name="removable_drive_error_send_text">Se produjo un error al escribir datos en el archivo.\n\nSi estás usando una unidad extraíble, asegúrate de que está insertada correctamente y vuelve a intentarlo.\n\nSi el error persiste, envía comentarios para informar al equipo de Briar sobre el problema.</string>
+  <string name="removable_drive_error_send_text">Se produjo un error al escribir datos en el archivo.
+
+Si estás usando una unidad extraíble, asegúrate de que está insertada correctamente y vuelve a intentarlo.
+
+Si el error persiste, envía comentarios para informar al equipo de Briar sobre el problema.</string>
   <string name="removable_drive_error_receive_title">Error al importar datos</string>
   <string name="removable_drive_error_receive_text">El archivo seleccionado no contiene nada que Briar pueda reconocer.
 

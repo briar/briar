@@ -13,6 +13,8 @@
   <string name="confirm_password">Conferma la tua password</string>
   <string name="name_too_long">Nome troppo lungo</string>
   <string name="password_too_weak">La password è troppo debole</string>
+  <string name="password_quite_strong">La password è buona</string>
+  <string name="password_strong">La password è robusta</string>
   <string name="passwords_do_not_match">La password non corrisponde</string>
   <string name="create_account_button">Crea account</string>
   <string name="more_info">Ulteriori Informazioni</string>
@@ -35,6 +37,7 @@
   <string name="try_again">Password sbagliata, riprova</string>
   <string name="dialog_title_cannot_check_password">Impossibile controllare la password</string>
   <string name="dialog_message_cannot_check_password">Briar non riesce a controllare la tua password. Prova a riavviare il dispositivo per risolvere il problema.</string>
+  <string name="sign_in_title">Accedi a Briar</string>
   <string name="sign_in_button">Entra</string>
   <string name="forgotten_password">Hai dimenticato la tua password?</string>
   <string name="dialog_title_lost_password">Password persa</string>

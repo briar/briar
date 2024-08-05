@@ -13,6 +13,8 @@
   <string name="confirm_password">Parolanızı onaylayın</string>
   <string name="name_too_long">Ad çok uzun</string>
   <string name="password_too_weak">Parola çok zayıf</string>
+  <string name="password_quite_strong">Parola uygun</string>
+  <string name="password_strong">Parola güçlü</string>
   <string name="passwords_do_not_match">Parola ile onayı aynı değil</string>
   <string name="create_account_button">Hesap aç</string>
   <string name="more_info">Diğer bilgiler</string>
@@ -35,6 +37,7 @@
   <string name="try_again">Parola yanlış, yeniden deneyin</string>
   <string name="dialog_title_cannot_check_password">Parola denetlenemedi</string>
   <string name="dialog_message_cannot_check_password">Briar parolanızı denetleyemedi. Sorunu çözmek için lütfen aygıtınızı yeniden başlatın.</string>
+  <string name="sign_in_title">Briar\'da oturum aç</string>
   <string name="sign_in_button">Oturum aç</string>
   <string name="forgotten_password">Parolamı unuttum</string>
   <string name="dialog_title_lost_password">Parolamı unuttum</string>

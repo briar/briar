@@ -13,6 +13,8 @@
   <string name="confirm_password">Потвърдете парола</string>
   <string name="name_too_long">Името е твърде дълго</string>
   <string name="password_too_weak">Паролата е твърде слаба</string>
+  <string name="password_quite_strong">Паролата е добра</string>
+  <string name="password_strong">Паролата е силна</string>
   <string name="passwords_do_not_match">Паролите не съвпадат</string>
   <string name="create_account_button">Създаване на профил</string>
   <string name="more_info">Повече информация</string>
@@ -33,7 +35,9 @@
   <string name="try_again">Грешна парола, опитайте отново</string>
   <string name="dialog_title_cannot_check_password">Паролата не може да бъде проверена</string>
   <string name="dialog_message_cannot_check_password">Briar не може да провери вашата парола. Рестартирате устройството, за да разрешите проблема.</string>
+  <string name="sign_in_title">Вписване в Briar</string>
   <string name="sign_in_button">Влизане</string>
+  <string name="forgotten_password">Забравихте паролата си?</string>
   <string name="dialog_title_lost_password">Забравена парола</string>
   <string name="dialog_message_lost_password">Профилът в Briar се съхранява шифриран на вашето устройство, а не в облака и за това паролата не може да бъде сменена. Желаете ли да профилът да бъде премахнат и да бъде направен нов?\n\nВнимание: Профилът, контактите и съобщенията ще бъдат безвъзвратно загубени.</string>
   <string name="startup_failed_activity_title">Неуспешно стартиране</string>

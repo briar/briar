@@ -13,6 +13,8 @@
   <string name="confirm_password">تأكيد كلمة السر</string>
   <string name="name_too_long">الاسم طويل جدا</string>
   <string name="password_too_weak">كلمة السر ضعيفة جدا</string>
+  <string name="password_quite_strong">كلمة السر جيدة</string>
+  <string name="password_strong">كلمة السر قوية</string>
   <string name="passwords_do_not_match">كلمات السر غير متطابقة</string>
   <string name="create_account_button">إنشاء الحساب</string>
   <string name="more_info">معلومات أكثر</string>
@@ -35,6 +37,7 @@
   <string name="try_again">كلمة السرّ خاطئة, الرجاء المحاولة مجدّدا</string>
   <string name="dialog_title_cannot_check_password">لا يمكن التحقق من كلمة السر</string>
   <string name="dialog_message_cannot_check_password">لم يتمكن براير من التحقق من كلمة اسرّ. الرجاء إعادة تشغيل جهازك لحل المشكلة.</string>
+  <string name="sign_in_title">تسجيل الدخول إلى براير</string>
   <string name="sign_in_button">تسجيل الدخول</string>
   <string name="forgotten_password">نسيت كلمة سرّك؟</string>
   <string name="dialog_title_lost_password">فقدت كلمة السر</string>
