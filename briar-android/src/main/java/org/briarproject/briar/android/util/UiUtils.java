@@ -1,12 +1,15 @@
 package org.briarproject.briar.android.util;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.ActivityManager;
 import android.app.ActivityManager.MemoryInfo;
 import android.app.KeyguardManager;
 import android.content.ActivityNotFoundException;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.graphics.drawable.Drawable;
@@ -67,6 +70,7 @@ import androidx.lifecycle.Observer;
 import androidx.vectordrawable.graphics.drawable.VectorDrawableCompat;
 
 import static android.content.Context.KEYGUARD_SERVICE;
+import static android.content.Context.RECEIVER_NOT_EXPORTED;
 import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
 import static android.os.Build.MANUFACTURER;
 import static android.os.Build.VERSION.SDK_INT;
@@ -399,7 +403,7 @@ public class UiUtils {
 	public static void startDevReportActivity(Context ctx,
 			Class<? extends FragmentActivity> activity, @Nullable Throwable t,
 			@Nullable Long appStartTime, @Nullable byte[] logKey, @Nullable
-			String initialComment) {
+	String initialComment) {
 		// Collect memory stats from the current process, not the crash
 		// reporter process
 		ActivityManager am =

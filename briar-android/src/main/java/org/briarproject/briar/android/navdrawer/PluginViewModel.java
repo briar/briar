@@ -48,6 +48,7 @@ import static java.util.logging.Level.INFO;
 import static java.util.logging.Logger.getLogger;
 import static org.briarproject.bramble.api.plugin.Plugin.PREF_PLUGIN_ENABLE;
 import static org.briarproject.bramble.api.plugin.Plugin.State.STARTING_STOPPING;
+import static org.briarproject.bramble.util.AndroidUtils.registerReceiver;
 import static org.briarproject.bramble.util.LogUtils.logDuration;
 import static org.briarproject.bramble.util.LogUtils.now;
 
@@ -96,7 +97,7 @@ public class PluginViewModel extends DbViewModel implements EventListener {
 		this.eventBus = eventBus;
 		eventBus.addListener(this);
 		receiver = new BluetoothStateReceiver();
-		app.registerReceiver(receiver, new IntentFilter(ACTION_STATE_CHANGED));
+		registerReceiver(app, receiver, new IntentFilter(ACTION_STATE_CHANGED));
 		networkStatus.setValue(networkManager.getNetworkStatus());
 		torPluginState.setValue(getTransportState(TorConstants.ID));
 		wifiPluginState.setValue(getTransportState(LanTcpConstants.ID));

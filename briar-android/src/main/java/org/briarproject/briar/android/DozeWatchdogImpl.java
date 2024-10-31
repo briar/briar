@@ -21,6 +21,7 @@ import static android.os.PowerManager.ACTION_DEVICE_LIGHT_IDLE_MODE_CHANGED;
 import static android.os.PowerManager.ACTION_LOW_POWER_STANDBY_ENABLED_CHANGED;
 import static java.util.logging.Level.WARNING;
 import static java.util.logging.Logger.getLogger;
+import static org.briarproject.bramble.util.AndroidUtils.registerReceiver;
 
 class DozeWatchdogImpl implements DozeWatchdog, Service {
 
@@ -48,7 +49,7 @@ class DozeWatchdogImpl implements DozeWatchdog, Service {
 			filter.addAction(ACTION_DEVICE_LIGHT_IDLE_MODE_CHANGED);
 			filter.addAction(ACTION_LOW_POWER_STANDBY_ENABLED_CHANGED);
 		}
-		appContext.registerReceiver(receiver, filter);
+		registerReceiver(appContext, receiver, filter);
 	}
 
 	@Override

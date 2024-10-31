@@ -388,7 +388,6 @@ abstract class AbstractBluetoothPlugin<S, SS> implements BluetoothPlugin,
 		}
 		// Validate the UUID
 		try {
-			//noinspection ResultOfMethodCallIgnored
 			UUID.fromString(uuid);
 		} catch (IllegalArgumentException e) {
 			if (LOG.isLoggable(WARNING)) LOG.warning("Invalid UUID " + uuid);
