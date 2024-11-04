@@ -39,6 +39,7 @@
 	<uses-permission-sdk-23 android:name="android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS" />
 	<uses-permission-sdk-23 android:name="android.permission.USE_BIOMETRIC" />
 	<uses-permission-sdk-23 android:name="android.permission.FOREGROUND_SERVICE" />
+	<uses-permission-sdk-23 android:name="android.permission.FOREGROUND_SERVICE_CONNECTED_DEVICE" />
 	<uses-permission-sdk-23 android:name="android.permission.FOREGROUND_SERVICE_DATA_SYNC" />
 
 	<uses-permission
@@ -70,7 +71,7 @@
 		<service
 			android:name="org.briarproject.briar.android.BriarService"
 			android:exported="false"
-			android:foregroundServiceType="dataSync">
+			android:foregroundServiceType="connectedDevice|dataSync">
 			<intent-filter>
 				<action android:name="org.briarproject.briar.android.BriarService" />
 			</intent-filter>
