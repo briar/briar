@@ -238,7 +238,7 @@ class AndroidBluetoothPlugin extends
 		filter.addAction(ACTION_DISCOVERY_STARTED);
 		filter.addAction(ACTION_DISCOVERY_FINISHED);
 		filter.addAction(ACTION_FOUND);
-		AndroidUtils.registerReceiver(app, receiver, filter);
+		registerReceiver(app, receiver, filter);
 		try {
 			if (adapter.startDiscovery()) {
 				long now = clock.currentTimeMillis();
