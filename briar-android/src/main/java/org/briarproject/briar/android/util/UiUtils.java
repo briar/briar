@@ -398,8 +398,8 @@ public class UiUtils {
 
 	public static void startDevReportActivity(Context ctx,
 			Class<? extends FragmentActivity> activity, @Nullable Throwable t,
-			@Nullable Long appStartTime, @Nullable byte[] logKey, @Nullable
-			String initialComment) {
+			@Nullable Long appStartTime, @Nullable byte[] logKey,
+			@Nullable String initialComment) {
 		// Collect memory stats from the current process, not the crash
 		// reporter process
 		ActivityManager am =

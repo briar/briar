@@ -22,6 +22,7 @@ import org.briarproject.bramble.api.lifecycle.LifecycleManager;
 import org.briarproject.bramble.api.lifecycle.LifecycleManager.StartResult;
 import org.briarproject.bramble.api.system.AndroidExecutor;
 import org.briarproject.bramble.api.system.Clock;
+import org.briarproject.bramble.util.AndroidUtils;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.logout.HideUiActivity;
 import org.briarproject.briar.api.android.AndroidNotificationManager;
@@ -174,7 +175,8 @@ public class BriarService extends Service {
 			filter.addAction(ACTION_SHUTDOWN);
 			filter.addAction("android.intent.action.QUICKBOOT_POWEROFF");
 			filter.addAction("com.htc.intent.action.QUICKBOOT_POWEROFF");
-			registerReceiver(receiver, filter);
+			AndroidUtils.registerReceiver(getApplicationContext(), receiver,
+					filter);
 		}, "LifecycleStartup");
 	}
 
@@ -220,7 +222,9 @@ public class BriarService extends Service {
 			super.onDestroy();
 			LOG.info("Destroyed");
 			stopForeground(true);
-			if (receiver != null) unregisterReceiver(receiver);
+			if (receiver != null) {
+				getApplicationContext().unregisterReceiver(receiver);
+			}
 			// Stop the services in a background thread
 			wakeLockManager.executeWakefully(() -> {
 				if (started) lifecycleManager.stopServices();

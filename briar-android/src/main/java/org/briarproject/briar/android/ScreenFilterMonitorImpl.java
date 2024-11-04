@@ -49,6 +49,7 @@ import static android.content.pm.PackageManager.GET_PERMISSIONS;
 import static android.content.pm.PackageManager.GET_SIGNATURES;
 import static android.os.Build.VERSION.SDK_INT;
 import static java.util.logging.Level.WARNING;
+import static org.briarproject.bramble.util.AndroidUtils.registerReceiver;
 import static org.briarproject.bramble.util.LogUtils.logException;
 
 @NotNullByDefault
@@ -207,7 +208,7 @@ class ScreenFilterMonitorImpl implements ScreenFilterMonitor, Service {
 			filter.addAction(ACTION_PACKAGE_REPLACED);
 			filter.addDataScheme("package");
 			receiver = new PackageBroadcastReceiver();
-			app.registerReceiver(receiver, filter);
+			registerReceiver(app, receiver, filter);
 			cachedApps = null;
 		});
 	}

@@ -55,6 +55,7 @@ import static java.util.concurrent.TimeUnit.SECONDS;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
 import static java.util.logging.Logger.getLogger;
+import static org.briarproject.bramble.util.AndroidUtils.registerReceiver;
 import static org.briarproject.bramble.util.LogUtils.logException;
 import static org.briarproject.nullsafety.NullSafety.requireNonNull;
 
@@ -103,7 +104,7 @@ class AndroidNetworkManager implements NetworkManager, Service {
 		filter.addAction(WIFI_AP_STATE_CHANGED_ACTION);
 		filter.addAction(WIFI_P2P_THIS_DEVICE_CHANGED_ACTION);
 		if (SDK_INT >= 23) filter.addAction(ACTION_DEVICE_IDLE_MODE_CHANGED);
-		app.registerReceiver(networkStateReceiver, filter);
+		registerReceiver(app, networkStateReceiver, filter);
 	}
 
 	@Override

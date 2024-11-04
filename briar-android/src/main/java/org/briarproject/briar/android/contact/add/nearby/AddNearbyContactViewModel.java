@@ -88,6 +88,7 @@ import static org.briarproject.bramble.api.plugin.Plugin.State.ACTIVE;
 import static org.briarproject.bramble.api.plugin.Plugin.State.DISABLED;
 import static org.briarproject.bramble.api.plugin.Plugin.State.INACTIVE;
 import static org.briarproject.bramble.api.plugin.Plugin.State.STARTING_STOPPING;
+import static org.briarproject.bramble.util.AndroidUtils.registerReceiver;
 import static org.briarproject.bramble.util.LogUtils.logException;
 import static org.briarproject.bramble.util.StringUtils.ISO_8859_1;
 import static org.briarproject.briar.android.contact.add.nearby.AddNearbyContactPermissionManager.areEssentialPermissionsGranted;
@@ -208,7 +209,7 @@ class AddNearbyContactViewModel extends AndroidViewModel
 		qrCodeDecoder = new QrCodeDecoder(androidExecutor, ioExecutor, this);
 		eventBus.addListener(this);
 		IntentFilter filter = new IntentFilter(ACTION_SCAN_MODE_CHANGED);
-		getApplication().registerReceiver(bluetoothReceiver, filter);
+		registerReceiver(getApplication(), bluetoothReceiver, filter);
 	}
 
 	@Override

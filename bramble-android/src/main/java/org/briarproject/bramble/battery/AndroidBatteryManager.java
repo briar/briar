@@ -30,6 +30,7 @@ import static android.os.PowerManager.ACTION_LOW_POWER_STANDBY_ENABLED_CHANGED;
 import static android.os.PowerManager.ACTION_POWER_SAVE_MODE_CHANGED;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Logger.getLogger;
+import static org.briarproject.bramble.util.AndroidUtils.registerReceiver;
 
 class AndroidBatteryManager implements BatteryManager, Service {
 
@@ -52,7 +53,7 @@ class AndroidBatteryManager implements BatteryManager, Service {
 	public boolean isCharging() {
 		// Get the sticky intent for ACTION_BATTERY_CHANGED
 		IntentFilter filter = new IntentFilter(ACTION_BATTERY_CHANGED);
-		Intent i = appContext.registerReceiver(null, filter);
+		Intent i = registerReceiver(appContext, null, filter);
 		if (i == null) return false;
 		int status = i.getIntExtra(EXTRA_PLUGGED, 0);
 		return status != 0;
@@ -71,7 +72,7 @@ class AndroidBatteryManager implements BatteryManager, Service {
 			filter.addAction(ACTION_LOW_POWER_STANDBY_ENABLED_CHANGED);
 			filter.addAction(ACTION_DEVICE_LIGHT_IDLE_MODE_CHANGED);
 		}
-		appContext.registerReceiver(batteryReceiver, filter);
+		registerReceiver(appContext, batteryReceiver, filter);
 	}
 
 	@Override

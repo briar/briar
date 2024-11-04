@@ -56,6 +56,7 @@ import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
 import static java.util.logging.Logger.getLogger;
 import static org.briarproject.bramble.util.AndroidUtils.hasBtConnectPermission;
+import static org.briarproject.bramble.util.AndroidUtils.registerReceiver;
 import static org.briarproject.bramble.util.PrivacyUtils.scrubMacAddress;
 
 @MethodsNotNullByDefault
@@ -112,7 +113,7 @@ class AndroidBluetoothPlugin extends
 		filter.addAction(ACTION_STATE_CHANGED);
 		filter.addAction(ACTION_SCAN_MODE_CHANGED);
 		receiver = new BluetoothStateReceiver();
-		app.registerReceiver(receiver, filter);
+		registerReceiver(app, receiver, filter);
 	}
 
 	@Override
@@ -237,7 +238,7 @@ class AndroidBluetoothPlugin extends
 		filter.addAction(ACTION_DISCOVERY_STARTED);
 		filter.addAction(ACTION_DISCOVERY_FINISHED);
 		filter.addAction(ACTION_FOUND);
-		app.registerReceiver(receiver, filter);
+		registerReceiver(app, receiver, filter);
 		try {
 			if (adapter.startDiscovery()) {
 				long now = clock.currentTimeMillis();

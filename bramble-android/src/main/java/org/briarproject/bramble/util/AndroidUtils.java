@@ -2,7 +2,10 @@ package org.briarproject.bramble.util;
 
 import android.annotation.SuppressLint;
 import android.bluetooth.BluetoothAdapter;
+import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Build;
 import android.os.Looper;
 import android.provider.Settings;
@@ -21,6 +24,7 @@ import javax.annotation.Nullable;
 import static android.Manifest.permission.BLUETOOTH_CONNECT;
 import static android.app.PendingIntent.FLAG_IMMUTABLE;
 import static android.content.Context.MODE_PRIVATE;
+import static android.content.Context.RECEIVER_NOT_EXPORTED;
 import static android.content.pm.PackageManager.PERMISSION_GRANTED;
 import static android.os.Build.VERSION.SDK_INT;
 import static android.os.Process.myPid;
@@ -140,5 +144,21 @@ public class AndroidUtils {
 			return FLAG_IMMUTABLE | flags;
 		}
 		return flags;
+	}
+
+	/**
+	 * Could be replaced to a similar call in ContextCompat once we
+	 * use and upgrade to version 1.9.0 or higher of the AndroidX Core library.
+	 */
+	@Nullable
+	@SuppressLint("UnspecifiedRegisterReceiverFlag") // we specify where needed
+	public static Intent registerReceiver(Context ctx,
+			@Nullable BroadcastReceiver receiver, IntentFilter filter) {
+		if (SDK_INT >= 33) {
+			return ctx.registerReceiver(receiver, filter,
+					RECEIVER_NOT_EXPORTED);
+		} else {
+			return ctx.registerReceiver(receiver, filter);
+		}
 	}
 }
