@@ -222,7 +222,9 @@ public class BriarService extends Service {
 			super.onDestroy();
 			LOG.info("Destroyed");
 			stopForeground(true);
-			if (receiver != null) unregisterReceiver(receiver);
+			if (receiver != null) {
+				getApplicationContext().unregisterReceiver(receiver);
+			}
 			// Stop the services in a background thread
 			wakeLockManager.executeWakefully(() -> {
 				if (started) lifecycleManager.stopServices();
