@@ -34,16 +34,13 @@ dependencies {
 	implementation project(':briar-core')
 
 	linux "org.briarproject:tor-linux:$tor_version"
-	linux "org.briarproject:obfs4proxy-linux:$obfs4proxy_version"
-	linux "org.briarproject:snowflake-linux:$snowflake_version"
+	linux "org.briarproject:lyrebird-linux:$lyrebird_version"
 
 	windows "org.briarproject:tor-windows:$tor_version"
-	windows "org.briarproject:obfs4proxy-windows:$obfs4proxy_version"
-	windows "org.briarproject:snowflake-windows:$snowflake_version"
+	windows "org.briarproject:lyrebird-windows:$lyrebird_version"
 
 	macos "org.briarproject:tor-macos:$tor_version"
-	macos "org.briarproject:obfs4proxy-macos:$obfs4proxy_version"
-	macos "org.briarproject:snowflake-macos:$snowflake_version"
+	macos "org.briarproject:lyrebird-macos:$lyrebird_version"
 
 	implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
 	implementation 'io.javalin:javalin:3.5.0'

@@ -54,8 +54,7 @@ dependencies {
 	implementation "org.briarproject:onionwrapper-android:$onionwrapper_version"
 
 	tor "org.briarproject:tor-android:$tor_version"
-	tor "org.briarproject:obfs4proxy-android:$obfs4proxy_version"
-	tor "org.briarproject:snowflake-android:$snowflake_version"
+	tor "org.briarproject:lyrebird-android:$lyrebird_version"
 
 	annotationProcessor "com.google.dagger:dagger-compiler:$dagger_version"
 
