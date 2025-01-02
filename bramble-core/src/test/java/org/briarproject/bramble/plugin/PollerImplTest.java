@@ -21,11 +21,11 @@ import org.briarproject.bramble.api.properties.TransportProperties;
 import org.briarproject.bramble.api.properties.TransportPropertyManager;
 import org.briarproject.bramble.api.system.Clock;
 import org.briarproject.bramble.api.system.TaskScheduler;
+import org.briarproject.bramble.crypto.NeitherSecureNorRandom;
 import org.briarproject.bramble.test.BrambleMockTestCase;
 import org.briarproject.bramble.test.ImmediateExecutor;
 import org.briarproject.bramble.test.RunAction;
 import org.jmock.Expectations;
-import org.jmock.imposters.ByteBuddyClassImposteriser;
 import org.junit.Test;
 
 import java.security.SecureRandom;
@@ -55,7 +55,6 @@ public class PollerImplTest extends BrambleMockTestCase {
 			context.mock(TransportPropertyManager.class);
 	private final Clock clock = context.mock(Clock.class);
 	private final Cancellable cancellable = context.mock(Cancellable.class);
-	private final SecureRandom random;
 
 	private final Executor ioExecutor = new ImmediateExecutor();
 	private final TransportId transportId = getTransportId();
@@ -67,8 +66,8 @@ public class PollerImplTest extends BrambleMockTestCase {
 	private final PollerImpl poller;
 
 	public PollerImplTest() {
-		context.setImposteriser(ByteBuddyClassImposteriser.INSTANCE);
-		random = context.mock(SecureRandom.class);
+		// Use a fake SecureRandom that returns all zeroes
+		SecureRandom random = new NeitherSecureNorRandom();
 		Executor wakefulIoExecutor = new ImmediateExecutor();
 		poller = new PollerImpl(ioExecutor, wakefulIoExecutor, scheduler,
 				connectionManager, connectionRegistry, pluginManager,
@@ -352,12 +351,10 @@ public class PollerImplTest extends BrambleMockTestCase {
 			// Running the polling task schedules the next polling task
 			oneOf(plugin).getPollingInterval();
 			will(returnValue(pollingInterval));
-			oneOf(random).nextDouble();
-			will(returnValue(0.5));
 			oneOf(clock).currentTimeMillis();
 			will(returnValue(now));
 			oneOf(scheduler).schedule(with(any(Runnable.class)),
-					with(ioExecutor), with((long) (pollingInterval * 0.5)),
+					with(ioExecutor), with(0L),
 					with(MILLISECONDS));
 			will(returnValue(cancellable));
 			// Get the transport properties and connected contacts
@@ -396,12 +393,10 @@ public class PollerImplTest extends BrambleMockTestCase {
 			// Running the polling task schedules the next polling task
 			oneOf(plugin).getPollingInterval();
 			will(returnValue(pollingInterval));
-			oneOf(random).nextDouble();
-			will(returnValue(0.5));
 			oneOf(clock).currentTimeMillis();
 			will(returnValue(now));
 			oneOf(scheduler).schedule(with(any(Runnable.class)),
-					with(ioExecutor), with((long) (pollingInterval * 0.5)),
+					with(ioExecutor), with(0L),
 					with(MILLISECONDS));
 			will(returnValue(cancellable));
 			// Get the transport properties and connected contacts
