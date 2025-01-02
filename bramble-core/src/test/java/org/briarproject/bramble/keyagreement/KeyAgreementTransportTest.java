@@ -15,9 +15,10 @@ import org.briarproject.bramble.test.BrambleMockTestCase;
 import org.briarproject.bramble.test.CaptureArgumentAction;
 import org.briarproject.bramble.test.PredicateMatcher;
 import org.jmock.Expectations;
-import org.jmock.imposters.ByteBuddyClassImposteriser;
 import org.junit.Test;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.concurrent.atomic.AtomicReference;
@@ -51,16 +52,11 @@ public class KeyAgreementTransportTest extends BrambleMockTestCase {
 	private final KeyAgreementConnection keyAgreementConnection =
 			new KeyAgreementConnection(duplexTransportConnection, transportId);
 
-	private final InputStream inputStream;
-	private final OutputStream outputStream;
+	private final InputStream inputStream =
+			new ByteArrayInputStream(new byte[0]);
+	private final OutputStream outputStream = new ByteArrayOutputStream();
 
 	private KeyAgreementTransport kat;
-
-	public KeyAgreementTransportTest() {
-		context.setImposteriser(ByteBuddyClassImposteriser.INSTANCE);
-		inputStream = context.mock(InputStream.class);
-		outputStream = context.mock(OutputStream.class);
-	}
 
 	@Test
 	public void testSendKey() throws Exception {
