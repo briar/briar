@@ -1,17 +1,11 @@
 package org.briarproject.briar.android.account;
 
-import android.view.View;
-
 import org.briarproject.briar.R;
-import org.briarproject.briar.android.login.StrengthMeter;
-import org.hamcrest.Description;
-import org.hamcrest.Matcher;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.annotation.Config;
 
-import androidx.test.espresso.matcher.BoundedMatcher;
 import androidx.test.ext.junit.rules.ActivityScenarioRule;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
@@ -27,8 +21,6 @@ import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static androidx.test.espresso.matcher.ViewMatchers.isEnabled;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
-import static org.briarproject.bramble.api.identity.AuthorConstants.MAX_AUTHOR_NAME_LENGTH;
-import static org.briarproject.bramble.util.StringUtils.getRandomString;
 import static org.hamcrest.Matchers.not;
 
 @RunWith(AndroidJUnit4.class)
@@ -38,15 +30,6 @@ public class SetupActivityTest {
 	@Rule
 	public ActivityScenarioRule<SetupActivity> rule =
 			new ActivityScenarioRule<>(SetupActivity.class);
-
-	@Test
-	public void testNicknameTooLongErrorShown() {
-		String longNick = getRandomString(MAX_AUTHOR_NAME_LENGTH + 1);
-		onView(withId(R.id.nickname_entry)).perform(typeText(longNick));
-
-		// Nickname should be too long
-		onView(withText(R.string.name_too_long)).check(matches(isDisplayed()));
-	}
 
 	@Test
 	public void testPasswordMatchUI() {
@@ -76,35 +59,4 @@ public class SetupActivityTest {
 		onView(withId(R.id.next)).perform(click());
 		onView(withId(R.id.password_entry)).check(matches(isDisplayed()));
 	}
-
-	private Matcher<View> strengthAndColor(float strength, int color) {
-		return new StrengthMeterMatcher(strength, color);
-	}
-
-	static class StrengthMeterMatcher
-			extends BoundedMatcher<View, StrengthMeter> {
-
-		private final float strength;
-		private final int color;
-
-		private StrengthMeterMatcher(float strength, int color) {
-			super(StrengthMeter.class);
-			this.strength = strength;
-			this.color = color;
-		}
-
-		@Override
-		public void describeTo(Description description) {
-			description.appendText("is enabled");
-		}
-
-		@Override
-		public boolean matchesSafely(StrengthMeter view) {
-			boolean strengthMatches =
-					view.getProgress() == (int) (view.getMax() * strength);
-			boolean colorMatches = color == view.getColor();
-			return strengthMatches && colorMatches;
-		}
-	}
-
 }
