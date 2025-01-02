@@ -13,6 +13,8 @@
   <string name="confirm_password">Potvrďte své heslo</string>
   <string name="name_too_long">Jméno je příliš dlouhé</string>
   <string name="password_too_weak">Heslo je příliš slabé</string>
+  <string name="password_quite_strong">Heslo není špatné</string>
+  <string name="password_strong">Heslo je silné</string>
   <string name="passwords_do_not_match">Zadaná hesla se neshodují</string>
   <string name="create_account_button">Vytvořit účet</string>
   <string name="more_info">Další informace</string>
@@ -35,7 +37,9 @@
   <string name="try_again">Zadali jste špatné heslo, zkuste to znovu</string>
   <string name="dialog_title_cannot_check_password">Nepodařilo se zkontrolovat heslo</string>
   <string name="dialog_message_cannot_check_password">Briar nemůže zkontrolovat vaše heslo. Zkuste tento problém vyřešit restartováním zařízení.</string>
+  <string name="sign_in_title">Přihlásit do Briaru</string>
   <string name="sign_in_button">Přihlásit se</string>
+  <string name="forgotten_password">Zapomněli jste své heslo?</string>
   <string name="dialog_title_lost_password">Ztracené heslo</string>
   <string name="dialog_message_lost_password">Váš Briar účet je šifrován a uložen ve vašem zařízení, nikoli v cloudu, z tohoto důvodu není možné obnovit Vaše heslo. Chcete odstranit svůj účet a začít znovu?\n\nUpozornění: Vaše identita, kontakty a zprávy budou permanentně ztraceny.</string>
   <string name="startup_failed_activity_title">Spuštění Briar selhalo.</string>

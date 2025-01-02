@@ -37,7 +37,7 @@
   <string name="try_again">Parola yanlış, yeniden deneyin</string>
   <string name="dialog_title_cannot_check_password">Parola denetlenemedi</string>
   <string name="dialog_message_cannot_check_password">Briar parolanızı denetleyemedi. Sorunu çözmek için lütfen aygıtınızı yeniden başlatın.</string>
-  <string name="sign_in_title">Briar\'da oturum aç</string>
+  <string name="sign_in_title">Briar oturumu aç</string>
   <string name="sign_in_button">Oturum aç</string>
   <string name="forgotten_password">Parolamı unuttum</string>
   <string name="dialog_title_lost_password">Parolamı unuttum</string>

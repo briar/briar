@@ -13,6 +13,8 @@
   <string name="confirm_password">Confirmați parola</string>
   <string name="name_too_long">Numele este prea lung</string>
   <string name="password_too_weak">Parola este prea slabă</string>
+  <string name="password_quite_strong">Parola este în regulă  </string>
+  <string name="password_strong">Parola este puternică</string>
   <string name="passwords_do_not_match">Parolele nu sunt identice</string>
   <string name="create_account_button">Creați cont</string>
   <string name="more_info">Informații suplimentare</string>
@@ -35,7 +37,9 @@
   <string name="try_again">Parolă greșită, încercați din nou</string>
   <string name="dialog_title_cannot_check_password">Nu se poate verifica parola</string>
   <string name="dialog_message_cannot_check_password">Briar nu poate verifica parola. Încercați să reporniți dispozitivul pentru a rezolva această problemă.</string>
+  <string name="sign_in_title">Conectați-vă la Briar</string>
   <string name="sign_in_button">Autentificare</string>
+  <string name="forgotten_password">V-ați uitat parola?</string>
   <string name="dialog_title_lost_password">Parolă uitată</string>
   <string name="dialog_message_lost_password">Contul dvs. Briar este stocat criptat pe dispozitivul dvs., nu în cloud, prin urmare nu putem reseta parola dvs. Doriți să vă ștergeți contul și să o luați de la capăt? Atenție: identitățile, contactele și mesajele dvs. vor fi pierdute definitiv.</string>
   <string name="startup_failed_activity_title">Eroare de pornire Briar</string>

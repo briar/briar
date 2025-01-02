@@ -28,6 +28,9 @@
   <string name="dnkm_xiaomi_button">Apsaugoti Briar</string>
   <string name="dnkm_xiaomi_help">Jei Briar nebus prirakinta prie paskiausiųjų programėlių sąrašo, ji negalės veikti fone.</string>
   <string name="dnkm_xiaomi_dialog_body_old">1. Atverkite paskiausiųjų programėlių sąrašą (dar vadinamą programėlių perjungikliu)\n\n2. Ant Briar atvaizdo perbraukite žemyn, kad būtų rodoma pakabinamos spynos piktograma\n\n3. Jei pakabinama spyna neužrakinta, bakstelėkite, kad ją užrakintumėte</string>
+  <string name="dnkm_xiaomi_dialog_body_new">1. Atverkite paskiausiųjų programėlių sąrašą (dar vadinamą programėlių perjungikliu)\n\n2. Jei šalia Briar pavadinimo yra mažas pakabinamos spynos atvaizdas, tuomet jums nieko daugiau nebereikia daryti\n\n3. Jei pakabinamos spynos nėra, paspauskite ir palaikykite ant Briar atvaizdo tol, kol atsiras pakabinamos spynos mygtukas, ir tuomet bakstelėkite ant jo</string>
+  <string name="dnkm_xiaomi_lock_apps_text">Bakstelėkite mygtuką žemiau, kad atvertumėte saugumo nustatymus. Bakstelėkite „Padidinti greitį“ (angl. Boost speed), o tuomet, bakstelėkite „Užrakinti programėles“ (angl. Lock apps) ir įsitikinkite, kad Briar yra nustatyta į „Užrakinta“ (angl. Locked).</string>
+  <string name="dnkm_xiaomi_lock_apps_help">Jei „Užrakintų programėlių“ (angl. Locked apps) lange Briar nėra nustatyta į „Užrakinta“ (angl. Locked), tuomet Briar negalės veikti fone.</string>
   <string name="dnkm_warning_dozed_1">Briar nepavyko pasileisti fone</string>
   <!--Login-->
   <string name="enter_password">Slaptažodis</string>
@@ -144,7 +147,7 @@
   <string name="accept">Priimti</string>
   <string name="decline">Atmesti</string>
   <string name="online">Pasiekiama(-s)</string>
-  <string name="offline">Nepasiekiama(-s)</string>
+  <string name="offline">Nepasiekiama(s)</string>
   <string name="send">Siųsti</string>
   <string name="allow">Leisti</string>
   <string name="open">Atverti</string>
@@ -235,7 +238,7 @@
   <string name="dialog_title_image_support">Dabar šiam adresatui galite siųsti atvaizdus</string>
   <string name="dialog_message_image_support">Bakstelėkite šią piktogramą, norėdami pridėti atvaizdus.</string>
   <string name="messaging_too_many_attachments_toast">Bus išsiųsti tik %d pirmi atvaizdai</string>
-  <string name="menu_contact">Susisiekti</string>
+  <string name="menu_contact">Adresatas</string>
   <!--Adding Contacts-->
   <string name="add_contact_title">Pridėti šalia esantį adresatą</string>
   <string name="add_contact_error_two_way">Ar jūs abu nuskenavote vienas kito QR kodus?</string>
@@ -351,6 +354,7 @@
   <string name="connect_via_bluetooth_intro">Tuo atveju, jei Bluetooth ryšiai neveikia automatiškai, galite naudoti šį langą, kad prisijungtumėte rankiniu būdu.\n\nTam, kad tai suveiktų, jūsų adresatas turi būti šalia jūsų.\n\nJūs ir jūsų adresatas vienu metu turėtumėte paspausti „Pradėti“.</string>
   <string name="connect_via_bluetooth_already_discovering">Jau bandoma jungtis per Bluetooth. Netrukus bandykite dar kartą.</string>
   <string name="connect_via_bluetooth_no_location_permission">Nepavyksta tęsti be įrenginio vietovės leidimo</string>
+  <string name="connect_via_bluetooth_no_bluetooth_permission">Nepavyksta tęsti be įrenginių netoliese leidimo</string>
   <string name="connect_via_bluetooth_start">Jungiamasi per Bluetooth…</string>
   <string name="connect_via_bluetooth_success">Sėkmingai prisijungta per Bluetooth</string>
   <string name="connect_via_bluetooth_error">Nepavyko prisijungti per Bluetooth.</string>
@@ -617,6 +621,8 @@
   <string name="mailbox_setup_title">Pašto dėžutės sąranka</string>
   <string name="mailbox_setup_intro">Pašto dėžutė leidžia adresatams siųsti jums žinutes, kai esate neprisijungę prie interneto. Žinutės bus siunčiamos į jūsų pašto dėžutę ir saugomos ten tol, kol prisijungsite prie interneto.\n
 		\nGalite įsidiegti Briar pašto dėžutę laisvame atsarginiame įrenginyje. Palikite įrenginį prijungtą prie maitinimo šaltinio ir belaidžio (Wi-Fi) ryšio, kad jis būtų pastoviai prijungtas prie interneto.</string>
+  <string name="mailbox_setup_download">Pirmiausia, įsidiekite kitame įrenginyje pašto dėžutės programėlę: atverkite „Google Play“ ar kitą programėlių parduotuvę, iš kurios atsisiuntėte Briar, ir įrašykite į paiešką raktažodį „Briar Mailbox“.\n
+		\nTuomet, susiekite pašto dėžutę su Briar, nuskenuodami pašto dėžutės programėlėje rodomą QR kodą.</string>
   <string name="mailbox_setup_download_link">Bendrinti atsisiuntimo nuorodą</string>
   <string name="mailbox_setup_button_scan">Skenuoti pašto dėžutės QR kodą</string>
   <string name="permission_camera_qr_denied_body">Jūs uždraudėte prieigą prie kameros, tačiau norint skenuoti QR kodą, reikia naudoti kamerą.\n\nApsvarstykite galimybę sutekti prieigą prie kameros.</string>
@@ -675,6 +681,7 @@
   <string name="mailbox_error_wizard_answer1_1">Aš matau instrukcijas, kaip nustatyti pašto dėžutę.</string>
   <string name="mailbox_error_wizard_answer1_2">Aš matau QR kodą</string>
   <string name="mailbox_error_wizard_answer1_3">Aš matau „Pašto dėžutė veikia“</string>
+  <string name="mailbox_error_wizard_answer1_4">Aš matau „Internetas nepasiekiamas“</string>
   <string name="mailbox_error_wizard_info1_1_1">Atsiekite savo pašto dėžutę naudodami žemiau esantį mygtuką, o tuomet sekite instrukcijas pašto dėžutės įrenginyje, kad vėl ją susietumėte.</string>
   <string name="mailbox_error_wizard_info_1_1_2">Atsiekite pašto dėžutę naudodami žemiau esantį mygtuką, o tuomet, nuskenuokite QR kodą, kad vėl ją susietumėte.</string>
   <string name="mailbox_error_wizard_info1_1_3">Naudokite žemiau esantį mygtuką, kad patikrintumėte ryšį tarp Briar ir pašto dėžutės.\n\n
@@ -761,9 +768,11 @@
   <string name="permission_camera_title">Kameros leidimas</string>
   <string name="permission_camera_request_body">Norint nuskenuoti QR kodą, Briar reikia prieigos prie kameros.</string>
   <string name="permission_location_title">Įrenginio vietovės leidimas</string>
+  <string name="permission_nearby_devices_title">Įrenginių netoliese leidimas</string>
   <string name="permission_location_request_body">Tam, kad galėtų atrasti Bluetooth įrenginius, Briar reikia gauti prieigą prie jūsų įrenginio vietovės.\n\nBriar nesaugo jūsų įrenginio vietovės ir su niekuo jos nebendrina.</string>
   <string name="permission_camera_location_title">Kamera ir įrenginio vietovė</string>
   <string name="permission_camera_location_request_body">Tam, kad galėtų nuskenuoti QR kodą, Briar reikia gauti prieigą prie jūsų kameros.\n\nTam, kad galėtų atrasti Bluetooth įrenginius, Briar reikia gauti prieigą prie jūsų įrenginio vietovės.\n\nBriar nesaugo jūsų įrenginio vietovės ir su niekuo jos nebendrina.</string>
+  <string name="permission_camera_bluetooth_title">Kamera ir įrenginiai netoliese</string>
   <string name="permission_camera_bluetooth_request_body">Tam, kad galėtų nuskenuoti QR kodą, Briar reikia gauti prieigą prie jūsų kameros.\n\nTam, kad galėtų atrasti Bluetooth įrenginius, Briar reikia leidimo, skirto rasti ir prisijungti prie netoliese esančių įrenginių.</string>
   <string name="permission_camera_denied_body">Jūs uždraudėte prieigą prie kameros, tačiau norint pridėti adresatus, reikia naudoti kamerą.\n\nApsvarstykite galimybę sutekti prieigą prie kameros.</string>
   <string name="permission_location_denied_body">Jūs uždraudėte prieigą prie įrenginio vietovės, tačiau norint atrasti Bluetooth įrenginius, Briar reikia šio leidimo.\n\nApsvarstykite galimybę sutekti prieigą prie įrenginio vietovės.</string>
@@ -771,6 +780,9 @@
   <string name="permission_location_setting_body">Norint rasti kitus įrenginius per Bluetooth, privalo būti įjungtas jūsų įrenginio vietovės nustatymas. Norėdami tęsti, įjunkite įrenginio vietovę. Po to, galėsite ir vėl ją išjungti.</string>
   <string name="permission_location_setting_hotspot_body">Norint sukurti belaidį (Wi-Fi) viešosios interneto prieigos tašką, privalo būti įjungtas jūsų įrenginio vietovės nustatymas. Norėdami tęsti, įjunkite įrenginio vietovę. Po to, galėsite ir vėl ją išjungti.</string>
   <string name="permission_location_setting_button">Įjungti įrenginio vietovę</string>
+  <string name="permission_bluetooth_title">Įrenginių netoliese leidimas</string>
+  <string name="permission_bluetooth_body">Tam, kad naudotų Bluetooth komunikaciją, Briar reikia leidimo rasti ir prisijungti prie įrenginių netoliese.</string>
+  <string name="permission_bluetooth_denied_body">Jūs uždraudėte prieigą prie įrenginių netoliese, tačiau norint naudoti Bluetooth, Briar reikia šio leidimo.\n\nApsvarstykite galimybę sutekti prieigą prie įrenginių netoliese.</string>
   <string name="qr_code">QR kodas</string>
   <string name="show_qr_code_fullscreen">Rodyti QR kodą visame ekrane</string>
   <!--App Locking-->
@@ -796,6 +808,8 @@
   <string name="permission_hotspot_location_request_precise_body">Tam, kad galėtų sukurti belaidį (Wi-Fi) viešosios interneto prieigos tašką, Briar reikia gauti prieigą prie jūsų tikslios įrenginio vietovės.\n\nBriar nesaugo jūsų įrenginio vietovės ir su niekuo jos nebendrina.</string>
   <string name="permission_hotspot_location_denied_body">Jūs uždraudėte prieigą prie įrenginio vietovės, tačiau norint sukurti belaidį (Wi-Fi) viešosios interneto prieigos tašką, Briar reikia šio leidimo.\n\nApsvarstykite galimybę sutekti prieigą prie įrenginio vietovės.</string>
   <string name="permission_hotspot_location_denied_precise_body">Jūs uždraudėte prieigą prie tikslios įrenginio vietovės, tačiau norint sukurti belaidį (Wi-Fi) viešosios interneto prieigos tašką, Briar reikia šio leidimo.\n\nApsvarstykite galimybę sutekti prieigą prie įrenginio vietovės.</string>
+  <string name="permission_hotspot_nearby_wifi_request_body">Tam, kad sukurtų belaidį (Wi-Fi) viešosios interneto prieigos tašką, Briar reikia leidimo gauti prieigą prie įrenginių netoliese.</string>
+  <string name="permission_hotspot_nearby_wifi_denied_body">Jūs uždraudėte prieigą prie įrenginių netoliese, tačiau norint sukurti belaidį (Wi-Fi) viešosios interneto prieigos tašką, Briar reikia šio leidimo.\n\nApsvarstykite galimybę sutekti prieigą prie įrenginių netoliese.</string>
   <string name="wifi_settings_title">Belaidžio (Wi-Fi) nustatymas</string>
   <string name="wifi_settings_request_enable_body">Tam, kad sukurtų belaidį (Wi-Fi) viešosios interneto prieigos tašką, Briar turi naudoti belaidį (Wi-Fi) ryšį. Įjunkite jį.</string>
   <string name="hotspot_tab_manual">Rankinis</string>
