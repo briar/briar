@@ -14,20 +14,6 @@ interface HandshakeCrypto {
 
 	/**
 	 * Derives the master key from the given static and ephemeral keys using
-	 * the deprecated v0.0 key derivation method.
-	 * <p>
-	 * TODO: Remove this after a reasonable migration period (added 2023-03-10).
-	 *
-	 * @param alice Whether the local peer is Alice
-	 */
-	@Deprecated
-	SecretKey deriveMasterKey_0_0(PublicKey theirStaticPublicKey,
-			PublicKey theirEphemeralPublicKey, KeyPair ourStaticKeyPair,
-			KeyPair ourEphemeralKeyPair, boolean alice)
-			throws GeneralSecurityException;
-
-	/**
-	 * Derives the master key from the given static and ephemeral keys using
 	 * the v0.1 key derivation method.
 	 *
 	 * @param alice Whether the local peer is Alice

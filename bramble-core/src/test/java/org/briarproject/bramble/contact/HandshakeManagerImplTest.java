@@ -1,6 +1,7 @@
 package org.briarproject.bramble.contact;
 
 import org.briarproject.bramble.api.FormatException;
+import org.briarproject.bramble.api.UnsupportedVersionException;
 import org.briarproject.bramble.api.contact.ContactManager;
 import org.briarproject.bramble.api.contact.HandshakeManager.HandshakeResult;
 import org.briarproject.bramble.api.contact.PendingContact;
@@ -27,6 +28,7 @@ import org.junit.Test;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.EOFException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Arrays;
@@ -123,12 +125,12 @@ public class HandshakeManagerImplTest extends BrambleMockTestCase {
 		assertEquals(alice, result.isAlice());
 	}
 
-	@Test
+	@Test(expected = UnsupportedVersionException.class)
 	public void testHandshakeAsAliceWithPeerVersion_0_0() throws Exception {
 		testHandshakeWithPeerVersion_0_0(true);
 	}
 
-	@Test
+	@Test(expected = UnsupportedVersionException.class)
 	public void testHandshakeAsBobWithPeerVersion_0_0() throws Exception {
 		testHandshakeWithPeerVersion_0_0(false);
 	}
@@ -140,20 +142,8 @@ public class HandshakeManagerImplTest extends BrambleMockTestCase {
 		expectSendKey();
 		// Remote peer does not send minor version, so use old key derivation
 		expectReceiveKey();
-		expectDeriveMasterKey_0_0(alice);
-		expectDeriveProof(alice);
-		expectSendProof();
-		expectReceiveProof();
-		expectSendEof();
-		expectReceiveEof();
-		expectVerifyOwnership(alice, true);
 
-		HandshakeResult result = handshakeManager.handshake(
-				pendingContact.getId(), in, streamWriter);
-
-		assertArrayEquals(masterKey.getBytes(),
-				result.getMasterKey().getBytes());
-		assertEquals(alice, result.isAlice());
+		handshakeManager.handshake(pendingContact.getId(), in, streamWriter);
 	}
 
 	@Test(expected = FormatException.class)
@@ -235,15 +225,6 @@ public class HandshakeManagerImplTest extends BrambleMockTestCase {
 	private void expectDeriveMasterKey_0_1(boolean alice) throws Exception {
 		context.checking(new Expectations() {{
 			oneOf(handshakeCrypto).deriveMasterKey_0_1(theirStaticPublicKey,
-					theirEphemeralPublicKey, ourStaticKeyPair,
-					ourEphemeralKeyPair, alice);
-			will(returnValue(masterKey));
-		}});
-	}
-
-	private void expectDeriveMasterKey_0_0(boolean alice) throws Exception {
-		context.checking(new Expectations() {{
-			oneOf(handshakeCrypto).deriveMasterKey_0_0(theirStaticPublicKey,
 					theirEphemeralPublicKey, ourStaticKeyPair,
 					ourEphemeralKeyPair, alice);
 			will(returnValue(masterKey));
