@@ -56,38 +56,6 @@ public interface CryptoComponent {
 
 	/**
 	 * Derives a shared secret from two static and two ephemeral key pairs.
-	 * <p>
-	 * Do not use this method for new protocols. The shared secret can be
-	 * re-derived using the ephemeral public keys and both static private
-	 * keys, so keys derived from the shared secret should not be used if
-	 * forward secrecy is required. Use {@link #deriveSharedSecret(String,
-	 * PublicKey, PublicKey, KeyPair, KeyPair, boolean, byte[]...)} instead.
-	 * <p>
-	 * TODO: Remove this after a reasonable migration period (added 2023-03-10).
-	 * <p>
-	 *
-	 * @param label A namespaced label indicating the purpose of this shared
-	 * secret, to prevent it from being repurposed or colliding with a shared
-	 * secret derived for another purpose
-	 * @param theirStaticPublicKey The static public key of the remote party
-	 * @param theirEphemeralPublicKey The ephemeral public key of the remote
-	 * party
-	 * @param ourStaticKeyPair The static key pair of the local party
-	 * @param ourEphemeralKeyPair The ephemeral key pair of the local party
-	 * @param alice True if the local party is Alice
-	 * @param inputs Additional inputs that will be included in the
-	 * derivation of the shared secret
-	 * @return The shared secret
-	 */
-	@Deprecated
-	SecretKey deriveSharedSecretBadly(String label,
-			PublicKey theirStaticPublicKey, PublicKey theirEphemeralPublicKey,
-			KeyPair ourStaticKeyPair, KeyPair ourEphemeralKeyPair,
-			boolean alice, byte[]... inputs)
-			throws GeneralSecurityException;
-
-	/**
-	 * Derives a shared secret from two static and two ephemeral key pairs.
 	 *
 	 * @param label A namespaced label indicating the purpose of this shared
 	 * secret, to prevent it from being repurposed or colliding with a shared

@@ -223,36 +223,6 @@ class CryptoComponentImpl implements CryptoComponent {
 	}
 
 	@Override
-	@Deprecated
-	public SecretKey deriveSharedSecretBadly(String label,
-			PublicKey theirStaticPublicKey, PublicKey theirEphemeralPublicKey,
-			KeyPair ourStaticKeyPair, KeyPair ourEphemeralKeyPair,
-			boolean alice, byte[]... inputs) throws GeneralSecurityException {
-		PrivateKey ourStaticPrivateKey = ourStaticKeyPair.getPrivate();
-		PrivateKey ourEphemeralPrivateKey = ourEphemeralKeyPair.getPrivate();
-		byte[][] hashInputs = new byte[inputs.length + 3][];
-		// Alice static/Bob static
-		hashInputs[0] = performRawKeyAgreement(ourStaticPrivateKey,
-				theirStaticPublicKey);
-		// Alice static/Bob ephemeral, Bob static/Alice ephemeral
-		if (alice) {
-			hashInputs[1] = performRawKeyAgreement(ourStaticPrivateKey,
-					theirEphemeralPublicKey);
-			hashInputs[2] = performRawKeyAgreement(ourEphemeralPrivateKey,
-					theirStaticPublicKey);
-		} else {
-			hashInputs[1] = performRawKeyAgreement(ourEphemeralPrivateKey,
-					theirStaticPublicKey);
-			hashInputs[2] = performRawKeyAgreement(ourStaticPrivateKey,
-					theirEphemeralPublicKey);
-		}
-		arraycopy(inputs, 0, hashInputs, 3, inputs.length);
-		byte[] hash = hash(label, hashInputs);
-		if (hash.length != SecretKey.LENGTH) throw new IllegalStateException();
-		return new SecretKey(hash);
-	}
-
-	@Override
 	public SecretKey deriveSharedSecret(String label,
 			PublicKey theirStaticPublicKey, PublicKey theirEphemeralPublicKey,
 			KeyPair ourStaticKeyPair, KeyPair ourEphemeralKeyPair,

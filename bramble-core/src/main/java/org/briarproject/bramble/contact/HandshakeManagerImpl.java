@@ -2,6 +2,7 @@ package org.briarproject.bramble.contact;
 
 import org.briarproject.bramble.api.FormatException;
 import org.briarproject.bramble.api.Pair;
+import org.briarproject.bramble.api.UnsupportedVersionException;
 import org.briarproject.bramble.api.contact.ContactManager;
 import org.briarproject.bramble.api.contact.HandshakeManager;
 import org.briarproject.bramble.api.contact.PendingContact;
@@ -111,21 +112,12 @@ class HandshakeManagerImpl implements HandshakeManager {
 			sendMinorVersion(recordWriter);
 			sendPublicKey(recordWriter, ourEphemeralKeyPair.getPublic());
 		}
-		byte theirMinorVersion = theirMinorVersionAndKey.getFirst();
 		PublicKey theirEphemeralPublicKey = theirMinorVersionAndKey.getSecond();
 		SecretKey masterKey;
 		try {
-			if (theirMinorVersion > 0) {
-				masterKey = handshakeCrypto.deriveMasterKey_0_1(
-						theirStaticPublicKey, theirEphemeralPublicKey,
-						ourStaticKeyPair, ourEphemeralKeyPair, alice);
-			} else {
-				// TODO: Remove this branch after a reasonable migration
-				//  period (added 2023-03-10).
-				masterKey = handshakeCrypto.deriveMasterKey_0_0(
-						theirStaticPublicKey, theirEphemeralPublicKey,
-						ourStaticKeyPair, ourEphemeralKeyPair, alice);
-			}
+			masterKey = handshakeCrypto.deriveMasterKey_0_1(
+					theirStaticPublicKey, theirEphemeralPublicKey,
+					ourStaticKeyPair, ourEphemeralKeyPair, alice);
 		} catch (GeneralSecurityException e) {
 			throw new FormatException();
 		}
@@ -187,10 +179,11 @@ class HandshakeManagerImpl implements HandshakeManager {
 		} else {
 			// The remote peer did not send a minor version record, so the
 			// remote peer's protocol minor version is assumed to be zero
-			// TODO: Remove this branch after a reasonable migration period
-			//  (added 2023-03-10).
-			theirMinorVersion = 0;
-			theirEphemeralPublicKey = parsePublicKey(first);
+
+			// TODO: How communicate to user that contact seems to use a version
+			// of Briar that is too old? (be aware of MITM attacks)
+			// `RendezvousPollerImpl` broadcasts PendingContactState FAILED via EventBus
+			throw new UnsupportedVersionException(true);
 		}
 		return new Pair<>(theirMinorVersion, theirEphemeralPublicKey);
 	}

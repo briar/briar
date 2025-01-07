@@ -61,22 +61,6 @@ public class KeyAgreementTest extends BrambleTestCase {
 	}
 
 	@Test
-	public void testDerivesStaticEphemeralSharedSecretBadly() throws Exception {
-		String label = getRandomString(123);
-		KeyPair aStatic = crypto.generateAgreementKeyPair();
-		KeyPair aEphemeral = crypto.generateAgreementKeyPair();
-		KeyPair bStatic = crypto.generateAgreementKeyPair();
-		KeyPair bEphemeral = crypto.generateAgreementKeyPair();
-		SecretKey aShared = crypto.deriveSharedSecretBadly(label,
-				bStatic.getPublic(), bEphemeral.getPublic(), aStatic,
-				aEphemeral, true, inputs);
-		SecretKey bShared = crypto.deriveSharedSecretBadly(label,
-				aStatic.getPublic(), aEphemeral.getPublic(), bStatic,
-				bEphemeral, false, inputs);
-		assertArrayEquals(aShared.getBytes(), bShared.getBytes());
-	}
-
-	@Test
 	public void testDerivesStaticEphemeralSharedSecret() throws Exception {
 		String label = getRandomString(123);
 		KeyPair aStatic = crypto.generateAgreementKeyPair();

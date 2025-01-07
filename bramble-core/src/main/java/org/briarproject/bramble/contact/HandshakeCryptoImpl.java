@@ -13,7 +13,6 @@ import javax.inject.Inject;
 
 import static org.briarproject.bramble.contact.HandshakeConstants.ALICE_PROOF_LABEL;
 import static org.briarproject.bramble.contact.HandshakeConstants.BOB_PROOF_LABEL;
-import static org.briarproject.bramble.contact.HandshakeConstants.MASTER_KEY_LABEL_0_0;
 import static org.briarproject.bramble.contact.HandshakeConstants.MASTER_KEY_LABEL_0_1;
 
 @Immutable
@@ -30,27 +29,6 @@ class HandshakeCryptoImpl implements HandshakeCrypto {
 	@Override
 	public KeyPair generateEphemeralKeyPair() {
 		return crypto.generateAgreementKeyPair();
-	}
-
-	@Override
-	@Deprecated
-	public SecretKey deriveMasterKey_0_0(PublicKey theirStaticPublicKey,
-			PublicKey theirEphemeralPublicKey, KeyPair ourStaticKeyPair,
-			KeyPair ourEphemeralKeyPair, boolean alice) throws
-			GeneralSecurityException {
-		byte[] theirStatic = theirStaticPublicKey.getEncoded();
-		byte[] theirEphemeral = theirEphemeralPublicKey.getEncoded();
-		byte[] ourStatic = ourStaticKeyPair.getPublic().getEncoded();
-		byte[] ourEphemeral = ourEphemeralKeyPair.getPublic().getEncoded();
-		byte[][] inputs = {
-				alice ? ourStatic : theirStatic,
-				alice ? theirStatic : ourStatic,
-				alice ? ourEphemeral : theirEphemeral,
-				alice ? theirEphemeral : ourEphemeral
-		};
-		return crypto.deriveSharedSecretBadly(MASTER_KEY_LABEL_0_0,
-				theirStaticPublicKey, theirEphemeralPublicKey,
-				ourStaticKeyPair, ourEphemeralKeyPair, alice, inputs);
 	}
 
 	@Override
