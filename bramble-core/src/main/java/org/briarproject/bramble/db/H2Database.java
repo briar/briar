@@ -89,10 +89,16 @@ class H2Database extends JdbcDatabase {
 		try {
 			c = createConnection();
 			closeAllConnections();
-			setDirty(c, false);
+			LOG.info("Compacting DB");
 			s = c.createStatement();
 			s.execute("SHUTDOWN COMPACT");
+			LOG.info("Finished compacting DB");
 			s.close();
+			c.close();
+			// Reopen the DB to mark it as clean after compacting
+			c = createConnection();
+			setDirty(c, false);
+			LOG.info("Marked DB as clean");
 			c.close();
 		} catch (SQLException e) {
 			tryToClose(s, LOG, WARNING);
@@ -126,6 +132,7 @@ class H2Database extends JdbcDatabase {
 			closeAllConnections();
 			s = c.createStatement();
 			s.execute("SHUTDOWN COMPACT");
+			LOG.info("Finished compacting DB");
 			s.close();
 			c.close();
 		} catch (SQLException e) {
