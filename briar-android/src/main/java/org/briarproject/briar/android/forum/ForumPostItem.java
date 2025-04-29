@@ -9,7 +9,7 @@ import javax.annotation.concurrent.NotThreadSafe;
 public class ForumPostItem extends ThreadItem {
 
 	ForumPostItem(ForumPostHeader h) {
-		super(h.getId(), h.getParentId(), null, h.getTimestamp(), h.getAuthor(),
+		super(h.getId(), h.getParentId(), h.getTimestamp(), h.getAuthor(),
 				h.getAuthorInfo(), h.isRead());
 	}
 

@@ -85,6 +85,9 @@ public abstract class ThreadListActivity<I extends ThreadItem, A extends ThreadI
 		scrollListener = new ThreadScrollListener<>(adapter, viewModel,
 				upButton, downButton);
 		list.getRecyclerView().addOnScrollListener(scrollListener);
+		// This is a tradeoff between memory consumption for cached views
+		// and the cost of loading message text from the database
+		list.getRecyclerView().setItemViewCacheSize(20);
 
 		upButton.setOnClickListener(v -> {
 			int position = adapter.getVisibleUnreadPosTop(layoutManager);

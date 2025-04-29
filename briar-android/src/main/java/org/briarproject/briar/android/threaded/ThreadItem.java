@@ -19,8 +19,6 @@ public abstract class ThreadItem implements MessageNode {
 	private final MessageId messageId;
 	@Nullable
 	private final MessageId parentId;
-	@Nullable
-	private final String text;
 	private final long timestamp;
 	private final Author author;
 	private final AuthorInfo authorInfo;
@@ -28,21 +26,15 @@ public abstract class ThreadItem implements MessageNode {
 	private boolean isRead, highlighted;
 
 	public ThreadItem(MessageId messageId, @Nullable MessageId parentId,
-			@Nullable String text, long timestamp, Author author,
-			AuthorInfo authorInfo, boolean isRead) {
+			long timestamp, Author author, AuthorInfo authorInfo,
+			boolean isRead) {
 		this.messageId = messageId;
 		this.parentId = parentId;
-		this.text = text;
 		this.timestamp = timestamp;
 		this.author = author;
 		this.authorInfo = authorInfo;
 		this.isRead = isRead;
 		this.highlighted = false;
-	}
-
-	@Nullable
-	public String getText() {
-		return text;
 	}
 
 	public int getLevel() {

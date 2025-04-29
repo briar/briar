@@ -26,10 +26,8 @@ class JoinMessageItemViewHolder
 	}
 
 	@Override
-	public void bind(GroupMessageItem item, LifecycleOwner lifecycleOwner,
+	protected void setText(GroupMessageItem item, LifecycleOwner lifecycleOwner,
 			ThreadItemListener<GroupMessageItem> listener) {
-		super.bind(item, lifecycleOwner, listener);
-
 		if (isCreator) bindForCreator((JoinMessageItem) item);
 		else bind((JoinMessageItem) item);
 	}

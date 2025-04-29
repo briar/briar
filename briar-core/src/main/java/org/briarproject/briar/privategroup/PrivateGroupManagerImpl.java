@@ -170,6 +170,7 @@ class PrivateGroupManagerImpl extends BdfIncomingMessageHook
 				txn -> getPreviousMsgId(txn, g));
 	}
 
+	@Override
 	public MessageId getPreviousMsgId(Transaction txn, GroupId g)
 			throws DbException {
 		try {
@@ -605,9 +606,7 @@ class PrivateGroupManagerImpl extends BdfIncomingMessageHook
 			throws DbException, FormatException {
 		GroupMessageHeader header = getGroupMessageHeader(txn, m.getGroupId(),
 				m.getId(), meta, Collections.emptyMap());
-		String text = getMessageText(clientHelper.toList(m));
-		txn.attach(new GroupMessageAddedEvent(m.getGroupId(), header, text,
-				local));
+		txn.attach(new GroupMessageAddedEvent(m.getGroupId(), header, local));
 	}
 
 	private void attachJoinMessageAddedEvent(Transaction txn, Message m,
@@ -615,8 +614,7 @@ class PrivateGroupManagerImpl extends BdfIncomingMessageHook
 			throws DbException, FormatException {
 		JoinMessageHeader header = getJoinMessageHeader(txn, m.getGroupId(),
 				m.getId(), meta, Collections.emptyMap());
-		txn.attach(new GroupMessageAddedEvent(m.getGroupId(), header, "",
-				local));
+		txn.attach(new GroupMessageAddedEvent(m.getGroupId(), header, local));
 	}
 
 	private void addMember(Transaction txn, GroupId g, Author a, Visibility v)

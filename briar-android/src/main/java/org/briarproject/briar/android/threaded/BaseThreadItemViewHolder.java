@@ -53,19 +53,7 @@ public abstract class BaseThreadItemViewHolder<I extends ThreadItem>
 	public void bind(I item, LifecycleOwner lifecycleOwner,
 			ThreadItemListener<I> listener) {
 		boundMessageId = item.getId();
-		String text = item.getText();
-		if (text == null) {
-			textView.setText(null);
-			LiveData<String> textLiveData = listener.loadItemText(item.getId());
-			textLiveData.observe(lifecycleOwner, t -> {
-				// Check that the ViewHolder hasn't been re-bound while loading
-				if (item.getId().equals(boundMessageId)) {
-					textView.setText(t);
-				}
-			});
-		} else {
-			textView.setText(trim(text));
-		}
+		setText(item, lifecycleOwner, listener);
 		Linkify.addLinks(textView, Linkify.WEB_URLS);
 		makeLinksClickable(textView, listener::onLinkClick);
 
@@ -82,6 +70,18 @@ public abstract class BaseThreadItemViewHolder<I extends ThreadItem>
 		}
 	}
 
+	protected void setText(I item, LifecycleOwner lifecycleOwner,
+			ThreadItemListener<I> listener) {
+		textView.setText(null);
+		LiveData<String> textLiveData = listener.loadItemText(item.getId());
+		textLiveData.observe(lifecycleOwner, t -> {
+			// Check that the ViewHolder hasn't been re-bound while loading
+			if (item.getId().equals(boundMessageId)) {
+				textView.setText(trim(t));
+			}
+		});
+	}
+
 	private void animateFadeOut() {
 		setIsRecyclable(false);
 		ValueAnimator anim = new ValueAnimator();
@@ -94,6 +94,7 @@ public abstract class BaseThreadItemViewHolder<I extends ThreadItem>
 			@Override
 			public void onAnimationStart(Animator animation) {
 			}
+
 			@Override
 			public void onAnimationEnd(Animator animation) {
 				layout.setBackgroundResource(
@@ -101,9 +102,11 @@ public abstract class BaseThreadItemViewHolder<I extends ThreadItem>
 				layout.setActivated(false);
 				setIsRecyclable(true);
 			}
+
 			@Override
 			public void onAnimationCancel(Animator animation) {
 			}
+
 			@Override
 			public void onAnimationRepeat(Animator animation) {
 			}

@@ -14,8 +14,8 @@ class JoinMessageItem extends GroupMessageItem {
 
 	private final boolean isInitial;
 
-	JoinMessageItem(JoinMessageHeader h, String text) {
-		super(h, text);
+	JoinMessageItem(JoinMessageHeader h) {
+		super(h);
 		isInitial = h.isInitial();
 	}
 

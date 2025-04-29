@@ -99,7 +99,7 @@ class GroupViewModel extends ThreadListViewModel<GroupMessageItem> {
 			// only act on non-local messages in this group
 			if (!g.isLocal() && g.getGroupId().equals(groupId)) {
 				LOG.info("Group message received, adding...");
-				GroupMessageItem item = buildItem(g.getHeader(), g.getText());
+				GroupMessageItem item = buildItem(g.getHeader());
 				addItem(item, false);
 				// In case the join message comes from the creator,
 				// we need to reload the sharing contacts
@@ -167,33 +167,19 @@ class GroupViewModel extends ThreadListViewModel<GroupMessageItem> {
 			List<GroupMessageHeader> headers =
 					privateGroupManager.getHeaders(txn, groupId);
 			logDuration(LOG, "Loading headers", start);
-			start = now();
 			List<GroupMessageItem> items = new ArrayList<>();
 			for (GroupMessageHeader header : headers) {
-				items.add(loadItem(txn, header));
+				items.add(buildItem(header));
 			}
-			logDuration(LOG, "Loading bodies and creating items", start);
 			return items;
 		}, this::setItems);
 	}
 
-	private GroupMessageItem loadItem(Transaction txn,
-			GroupMessageHeader header) throws DbException {
-		String text;
+	private GroupMessageItem buildItem(GroupMessageHeader header) {
 		if (header instanceof JoinMessageHeader) {
-			// will be looked up later
-			text = "";
-		} else {
-			text = privateGroupManager.getMessageText(txn, header.getId());
+			return new JoinMessageItem((JoinMessageHeader) header);
 		}
-		return buildItem(header, text);
-	}
-
-	private GroupMessageItem buildItem(GroupMessageHeader header, String text) {
-		if (header instanceof JoinMessageHeader) {
-			return new JoinMessageItem((JoinMessageHeader) header, text);
-		}
-		return new GroupMessageItem(header, text);
+		return new GroupMessageItem(header);
 	}
 
 	@Override
@@ -221,19 +207,17 @@ class GroupViewModel extends ThreadListViewModel<GroupMessageItem> {
 			LOG.info("Creating group message...");
 			GroupMessage msg = groupMessageFactory.createGroupMessage(groupId,
 					timestamp, parentId, author, text, previousMsgId);
-			storePost(msg, text);
+			storePost(msg);
 		});
 	}
 
-	private void storePost(GroupMessage msg, String text) {
+	private void storePost(GroupMessage msg) {
 		runOnDbThread(false, txn -> {
 			long start = now();
 			GroupMessageHeader header =
 					privateGroupManager.addLocalMessage(txn, msg);
 			logDuration(LOG, "Storing group message", start);
-			txn.attach(() ->
-					addItem(buildItem(header, text), true)
-			);
+			txn.attach(() -> addItem(buildItem(header), true));
 		}, this::handleException);
 	}
 
