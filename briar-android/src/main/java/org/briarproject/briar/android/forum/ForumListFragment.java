@@ -40,7 +40,7 @@ public class ForumListFragment extends BaseFragment implements
 	private ForumListViewModel viewModel;
 	private BriarRecyclerView list;
 	private Snackbar snackbar;
-	private final ForumListAdapter adapter = new ForumListAdapter();
+	private ForumListAdapter adapter;
 
 	@Inject
 	ViewModelProvider.Factory viewModelFactory;
@@ -54,6 +54,7 @@ public class ForumListFragment extends BaseFragment implements
 		component.inject(this);
 		viewModel = new ViewModelProvider(this, viewModelFactory)
 				.get(ForumListViewModel.class);
+		adapter = new ForumListAdapter(viewModel);
 	}
 
 	@Nullable

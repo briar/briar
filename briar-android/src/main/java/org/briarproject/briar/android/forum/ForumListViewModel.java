@@ -1,6 +1,7 @@
 package org.briarproject.briar.android.forum;
 
 import android.app.Application;
+import android.widget.Toast;
 
 import org.briarproject.bramble.api.contact.event.ContactRemovedEvent;
 import org.briarproject.bramble.api.db.DatabaseExecutor;
@@ -15,6 +16,7 @@ import org.briarproject.bramble.api.sync.GroupId;
 import org.briarproject.bramble.api.sync.event.GroupAddedEvent;
 import org.briarproject.bramble.api.sync.event.GroupRemovedEvent;
 import org.briarproject.bramble.api.system.AndroidExecutor;
+import org.briarproject.briar.R;
 import org.briarproject.briar.android.viewmodel.DbViewModel;
 import org.briarproject.briar.android.viewmodel.LiveResult;
 import org.briarproject.briar.api.android.AndroidNotificationManager;
@@ -40,6 +42,7 @@ import androidx.annotation.UiThread;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
+import static android.widget.Toast.LENGTH_SHORT;
 import static java.util.logging.Logger.getLogger;
 import static org.briarproject.bramble.util.LogUtils.logDuration;
 import static org.briarproject.bramble.util.LogUtils.now;
@@ -180,4 +183,17 @@ class ForumListViewModel extends DbViewModel implements EventListener {
 		return numInvitations;
 	}
 
+	void deleteForum(GroupId groupId) {
+		runOnDbThread(() -> {
+			try {
+				Forum f = forumManager.getForum(groupId);
+				forumManager.removeForum(f);
+				androidExecutor.runOnUiThread(() -> Toast
+						.makeText(getApplication(), R.string.forum_left_toast,
+								LENGTH_SHORT).show());
+			} catch (DbException e) {
+				handleException(e);
+			}
+		});
+	}
 }
