@@ -6,9 +6,9 @@ sourceSets.configureEach { sourceSet ->
 
 idea {
 	module {
-		sourceDirs += compileJava.options.generatedSourceOutputDirectory
-		generatedSourceDirs += compileJava.options.generatedSourceOutputDirectory
-		testSourceDirs += compileTestJava.options.generatedSourceOutputDirectory
-		generatedSourceDirs += compileTestJava.options.generatedSourceOutputDirectory
+		sourceDirs += file(compileJava.options.generatedSourceOutputDirectory)
+		generatedSourceDirs += file(compileJava.options.generatedSourceOutputDirectory)
+		testSourceDirs += file(compileTestJava.options.generatedSourceOutputDirectory)
+		generatedSourceDirs += file(compileTestJava.options.generatedSourceOutputDirectory)
 	}
 }
