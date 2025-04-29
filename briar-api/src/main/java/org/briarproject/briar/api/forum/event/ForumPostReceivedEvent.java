@@ -16,13 +16,10 @@ public class ForumPostReceivedEvent extends Event {
 
 	private final GroupId groupId;
 	private final ForumPostHeader header;
-	private final String text;
 
-	public ForumPostReceivedEvent(GroupId groupId, ForumPostHeader header,
-			String text) {
+	public ForumPostReceivedEvent(GroupId groupId, ForumPostHeader header) {
 		this.groupId = groupId;
 		this.header = header;
-		this.text = text;
 	}
 
 	public GroupId getGroupId() {
@@ -31,9 +28,5 @@ public class ForumPostReceivedEvent extends Event {
 
 	public ForumPostHeader getHeader() {
 		return header;
-	}
-
-	public String getText() {
-		return text;
 	}
 }

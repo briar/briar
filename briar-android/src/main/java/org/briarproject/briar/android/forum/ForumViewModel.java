@@ -91,9 +91,7 @@ class ForumViewModel extends ThreadListViewModel<ForumPostItem> {
 			ForumPostReceivedEvent f = (ForumPostReceivedEvent) e;
 			if (f.getGroupId().equals(groupId)) {
 				LOG.info("Forum post received, adding...");
-				ForumPostItem item =
-						new ForumPostItem(f.getHeader(), f.getText());
-				addItem(item, false);
+				addItem(new ForumPostItem(f.getHeader()), false);
 			}
 		} else if (e instanceof ForumInvitationResponseReceivedEvent) {
 			ForumInvitationResponseReceivedEvent f =
@@ -139,20 +137,12 @@ class ForumViewModel extends ThreadListViewModel<ForumPostItem> {
 			List<ForumPostHeader> headers =
 					forumManager.getPostHeaders(txn, groupId);
 			logDuration(LOG, "Loading headers", start);
-			start = now();
 			List<ForumPostItem> items = new ArrayList<>();
 			for (ForumPostHeader header : headers) {
-				items.add(loadItem(txn, header));
+				items.add(new ForumPostItem(header));
 			}
-			logDuration(LOG, "Loading bodies and creating items", start);
 			return items;
 		}, this::setItems);
-	}
-
-	private ForumPostItem loadItem(Transaction txn, ForumPostHeader header)
-			throws DbException {
-		String text = forumManager.getPostText(txn, header.getId());
-		return new ForumPostItem(header, text);
 	}
 
 	@Override
@@ -175,21 +165,17 @@ class ForumViewModel extends ThreadListViewModel<ForumPostItem> {
 			@Nullable MessageId parentId, LocalAuthor author) {
 		cryptoExecutor.execute(() -> {
 			LOG.info("Creating forum post...");
-			ForumPost msg = forumManager.createLocalPost(groupId, text,
-					timestamp, parentId, author);
-			storePost(msg, text);
+			storePost(forumManager.createLocalPost(groupId, text,
+					timestamp, parentId, author));
 		});
 	}
 
-	private void storePost(ForumPost msg, String text) {
+	private void storePost(ForumPost msg) {
 		runOnDbThread(false, txn -> {
 			long start = now();
 			ForumPostHeader header = forumManager.addLocalPost(txn, msg);
 			logDuration(LOG, "Storing forum post", start);
-			txn.attach(() -> {
-				ForumPostItem item = new ForumPostItem(header, text);
-				addItem(item, true);
-			});
+			txn.attach(() -> addItem(new ForumPostItem(header), true));
 		}, this::handleException);
 	}
 
@@ -229,4 +215,9 @@ class ForumViewModel extends ThreadListViewModel<ForumPostItem> {
 		});
 	}
 
+	@Override
+	protected String getMessageText(Transaction txn, MessageId m)
+			throws DbException {
+		return forumManager.getPostText(txn, m);
+	}
 }

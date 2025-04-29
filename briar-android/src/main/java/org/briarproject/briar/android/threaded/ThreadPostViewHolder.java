@@ -10,6 +10,7 @@ import org.briarproject.nullsafety.NotNullByDefault;
 import java.util.Locale;
 
 import androidx.annotation.UiThread;
+import androidx.lifecycle.LifecycleOwner;
 
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
@@ -40,8 +41,9 @@ public class ThreadPostViewHolder<I extends ThreadItem>
 	}
 
 	@Override
-	public void bind(I item, ThreadItemListener<I> listener) {
-		super.bind(item, listener);
+	public void bind(I item, LifecycleOwner lifecycleOwner,
+			ThreadItemListener<I> listener) {
+		super.bind(item, lifecycleOwner, listener);
 
 		for (int i = 0; i < lvls.length; i++) {
 			lvls[i].setVisibility(i < item.getLevel() ? VISIBLE : GONE);

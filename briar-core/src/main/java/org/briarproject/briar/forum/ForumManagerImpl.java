@@ -83,10 +83,7 @@ class ForumManagerImpl extends BdfIncomingMessageHook implements ForumManager {
 		messageTracker.trackIncomingMessage(txn, m);
 
 		ForumPostHeader header = getForumPostHeader(txn, m.getId(), meta);
-		String text = getPostText(body);
-		ForumPostReceivedEvent event =
-				new ForumPostReceivedEvent(m.getGroupId(), header, text);
-		txn.attach(event);
+		txn.attach(new ForumPostReceivedEvent(m.getGroupId(), header));
 
 		return ACCEPT_SHARE;
 	}

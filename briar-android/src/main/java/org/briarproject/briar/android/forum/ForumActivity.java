@@ -54,7 +54,7 @@ public class ForumActivity extends
 
 	@Override
 	protected ThreadItemAdapter<ForumPostItem> createAdapter() {
-		return new ThreadItemAdapter<>(this);
+		return new ThreadItemAdapter<>(this, this);
 	}
 
 	@Override

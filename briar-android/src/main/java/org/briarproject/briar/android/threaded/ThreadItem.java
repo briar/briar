@@ -19,6 +19,7 @@ public abstract class ThreadItem implements MessageNode {
 	private final MessageId messageId;
 	@Nullable
 	private final MessageId parentId;
+	@Nullable
 	private final String text;
 	private final long timestamp;
 	private final Author author;
@@ -27,8 +28,8 @@ public abstract class ThreadItem implements MessageNode {
 	private boolean isRead, highlighted;
 
 	public ThreadItem(MessageId messageId, @Nullable MessageId parentId,
-			String text, long timestamp, Author author, AuthorInfo authorInfo,
-			boolean isRead) {
+			@Nullable String text, long timestamp, Author author,
+			AuthorInfo authorInfo, boolean isRead) {
 		this.messageId = messageId;
 		this.parentId = parentId;
 		this.text = text;
@@ -39,6 +40,7 @@ public abstract class ThreadItem implements MessageNode {
 		this.highlighted = false;
 	}
 
+	@Nullable
 	public String getText() {
 		return text;
 	}

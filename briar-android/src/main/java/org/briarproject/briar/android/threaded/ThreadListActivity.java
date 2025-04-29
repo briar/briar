@@ -257,4 +257,8 @@ public abstract class ThreadListActivity<I extends ThreadItem, A extends ThreadI
 
 	protected abstract int getMaxTextLength();
 
+	@Override
+	public LiveData<String> loadItemText(MessageId m) {
+		return getViewModel().loadMessageText(m);
+	}
 }

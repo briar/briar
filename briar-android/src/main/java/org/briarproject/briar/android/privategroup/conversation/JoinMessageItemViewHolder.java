@@ -9,6 +9,7 @@ import org.briarproject.briar.android.threaded.ThreadItemAdapter.ThreadItemListe
 import org.briarproject.nullsafety.NotNullByDefault;
 
 import androidx.annotation.UiThread;
+import androidx.lifecycle.LifecycleOwner;
 
 import static org.briarproject.briar.api.identity.AuthorInfo.Status.OURSELVES;
 
@@ -25,9 +26,9 @@ class JoinMessageItemViewHolder
 	}
 
 	@Override
-	public void bind(GroupMessageItem item,
+	public void bind(GroupMessageItem item, LifecycleOwner lifecycleOwner,
 			ThreadItemListener<GroupMessageItem> listener) {
-		super.bind(item, listener);
+		super.bind(item, lifecycleOwner, listener);
 
 		if (isCreator) bindForCreator((JoinMessageItem) item);
 		else bind((JoinMessageItem) item);

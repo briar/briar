@@ -284,4 +284,9 @@ class GroupViewModel extends ThreadListViewModel<GroupMessageItem> {
 		return isDissolved;
 	}
 
+	@Override
+	protected String getMessageText(Transaction txn, MessageId m)
+			throws DbException {
+		return privateGroupManager.getMessageText(txn, m);
+	}
 }

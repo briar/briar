@@ -11,16 +11,19 @@ import org.briarproject.briar.android.threaded.ThreadPostViewHolder;
 import org.briarproject.nullsafety.NotNullByDefault;
 
 import androidx.annotation.LayoutRes;
+import androidx.annotation.NonNull;
 import androidx.annotation.UiThread;
+import androidx.lifecycle.LifecycleOwner;
 
 @UiThread
 @NotNullByDefault
-class GroupMessageAdapter extends ThreadItemAdapter<GroupMessageItem> {
+public class GroupMessageAdapter extends ThreadItemAdapter<GroupMessageItem> {
 
 	private boolean isCreator = false;
 
-	GroupMessageAdapter(ThreadItemListener<GroupMessageItem> listener) {
-		super(listener);
+	GroupMessageAdapter(LifecycleOwner lifecycleOwner,
+			ThreadItemListener<GroupMessageItem> listener) {
+		super(lifecycleOwner, listener);
 	}
 
 	@LayoutRes
@@ -30,6 +33,7 @@ class GroupMessageAdapter extends ThreadItemAdapter<GroupMessageItem> {
 		return item.getLayout();
 	}
 
+	@NonNull
 	@Override
 	public BaseThreadItemViewHolder<GroupMessageItem> onCreateViewHolder(
 			ViewGroup parent, int type) {

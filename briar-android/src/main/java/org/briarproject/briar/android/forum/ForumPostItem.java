@@ -6,10 +6,10 @@ import org.briarproject.briar.api.forum.ForumPostHeader;
 import javax.annotation.concurrent.NotThreadSafe;
 
 @NotThreadSafe
-class ForumPostItem extends ThreadItem {
+public class ForumPostItem extends ThreadItem {
 
-	ForumPostItem(ForumPostHeader h, String text) {
-		super(h.getId(), h.getParentId(), text, h.getTimestamp(), h.getAuthor(),
+	ForumPostItem(ForumPostHeader h) {
+		super(h.getId(), h.getParentId(), null, h.getTimestamp(), h.getAuthor(),
 				h.getAuthorInfo(), h.isRead());
 	}
 

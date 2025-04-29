@@ -13,6 +13,8 @@ import javax.annotation.Nullable;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.UiThread;
+import androidx.lifecycle.LifecycleOwner;
+import androidx.lifecycle.LiveData;
 import androidx.recyclerview.widget.DiffUtil;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.ListAdapter;
@@ -27,9 +29,11 @@ public class ThreadItemAdapter<I extends ThreadItem>
 
 	static final int UNDEFINED = -1;
 
+	private final LifecycleOwner lifecycleOwner;
 	private final ThreadItemListener<I> listener;
 
-	public ThreadItemAdapter(ThreadItemListener<I> listener) {
+	public ThreadItemAdapter(LifecycleOwner lifecycleOwner,
+			ThreadItemListener<I> listener) {
 		super(new DiffUtil.ItemCallback<I>() {
 			@Override
 			public boolean areItemsTheSame(I a, I b) {
@@ -42,6 +46,7 @@ public class ThreadItemAdapter<I extends ThreadItem>
 						a.isRead() == b.isRead();
 			}
 		});
+		this.lifecycleOwner = lifecycleOwner;
 		this.listener = listener;
 	}
 
@@ -58,7 +63,7 @@ public class ThreadItemAdapter<I extends ThreadItem>
 	public void onBindViewHolder(@NonNull BaseThreadItemViewHolder<I> ui,
 			int position) {
 		I item = getItem(position);
-		ui.bind(item, listener);
+		ui.bind(item, lifecycleOwner, listener);
 	}
 
 	int findItemPosition(MessageId id) {
@@ -136,8 +141,12 @@ public class ThreadItemAdapter<I extends ThreadItem>
 	}
 
 	public interface ThreadItemListener<I> {
+
 		void onReplyClick(I item);
+
 		void onLinkClick(String url);
+
+		LiveData<String> loadItemText(MessageId m);
 	}
 
 }

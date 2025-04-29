@@ -10,17 +10,22 @@ import android.view.ViewGroup;
 import android.view.animation.AccelerateInterpolator;
 import android.widget.TextView;
 
-import org.briarproject.bramble.util.StringUtils;
+import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.threaded.ThreadItemAdapter.ThreadItemListener;
 import org.briarproject.briar.android.view.AuthorView;
 import org.briarproject.nullsafety.NotNullByDefault;
 
+import javax.annotation.Nullable;
+
 import androidx.annotation.CallSuper;
 import androidx.annotation.UiThread;
+import androidx.lifecycle.LifecycleOwner;
+import androidx.lifecycle.LiveData;
 import androidx.recyclerview.widget.RecyclerView;
 
 import static androidx.core.content.ContextCompat.getColor;
+import static org.briarproject.bramble.util.StringUtils.trim;
 import static org.briarproject.briar.android.util.UiUtils.makeLinksClickable;
 
 @UiThread
@@ -33,6 +38,8 @@ public abstract class BaseThreadItemViewHolder<I extends ThreadItem>
 	protected final TextView textView;
 	private final ViewGroup layout;
 	private final AuthorView author;
+	@Nullable
+	private MessageId boundMessageId = null;
 
 	public BaseThreadItemViewHolder(View v) {
 		super(v);
@@ -43,8 +50,22 @@ public abstract class BaseThreadItemViewHolder<I extends ThreadItem>
 	}
 
 	@CallSuper
-	public void bind(I item, ThreadItemListener<I> listener) {
-		textView.setText(StringUtils.trim(item.getText()));
+	public void bind(I item, LifecycleOwner lifecycleOwner,
+			ThreadItemListener<I> listener) {
+		boundMessageId = item.getId();
+		String text = item.getText();
+		if (text == null) {
+			textView.setText(null);
+			LiveData<String> textLiveData = listener.loadItemText(item.getId());
+			textLiveData.observe(lifecycleOwner, t -> {
+				// Check that the ViewHolder hasn't been re-bound while loading
+				if (item.getId().equals(boundMessageId)) {
+					textView.setText(t);
+				}
+			});
+		} else {
+			textView.setText(trim(text));
+		}
 		Linkify.addLinks(textView, Linkify.WEB_URLS);
 		makeLinksClickable(textView, listener::onLinkClick);
 

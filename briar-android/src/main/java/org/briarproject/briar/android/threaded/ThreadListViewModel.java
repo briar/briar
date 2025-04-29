@@ -6,6 +6,7 @@ import org.briarproject.bramble.api.crypto.CryptoExecutor;
 import org.briarproject.bramble.api.db.DatabaseExecutor;
 import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.db.NoSuchGroupException;
+import org.briarproject.bramble.api.db.Transaction;
 import org.briarproject.bramble.api.db.TransactionManager;
 import org.briarproject.bramble.api.event.Event;
 import org.briarproject.bramble.api.event.EventBus;
@@ -260,4 +261,14 @@ public abstract class ThreadListViewModel<I extends ThreadItem>
 		return scrollToItem.getAndSet(null);
 	}
 
+	public LiveData<String> loadMessageText(MessageId m) {
+		MutableLiveData<String> textLiveData = new MutableLiveData<>();
+		runOnDbThread(true, txn ->
+						textLiveData.postValue(getMessageText(txn, m)),
+				this::handleException);
+		return textLiveData;
+	}
+
+	protected abstract String getMessageText(Transaction txn, MessageId m)
+			throws DbException;
 }
