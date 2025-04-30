@@ -26,7 +26,7 @@
 		android:layout_marginRight="@dimen/listitem_horizontal_margin"
 		android:textColor="?android:attr/textColorPrimary"
 		android:textSize="@dimen/text_size_medium"
-		app:layout_constraintEnd_toStartOf="@id/menuButton"
+		app:layout_constraintEnd_toEndOf="parent"
 		app:layout_constraintStart_toEndOf="@+id/avatarView"
 		app:layout_constraintTop_toTopOf="parent"
 		tools:text="This is a name of a forum which can be long" />
@@ -44,19 +44,6 @@
 		app:layout_constraintTop_toBottomOf="@+id/forumNameView"
 		tools:text="@string/no_forum_posts" />
 
-	<ImageButton
-		android:id="@+id/menuButton"
-		style="@style/Widget.AppCompat.ActionButton.Overflow"
-		android:layout_width="48dp"
-		android:layout_height="48dp"
-		android:layout_margin="@dimen/listitem_horizontal_margin"
-		android:contentDescription="@string/menu"
-		app:icon="@drawable/ic_more_vert_accent"
-		app:layout_constraintBottom_toTopOf="@id/dateView"
-		app:layout_constraintEnd_toEndOf="parent"
-		app:layout_constraintStart_toEndOf="@+id/forumNameView"
-		app:layout_constraintTop_toTopOf="parent" />
-
 	<TextView
 		android:id="@+id/dateView"
 		android:layout_width="wrap_content"
@@ -66,7 +53,6 @@
 		android:textSize="@dimen/text_size_small"
 		app:layout_constraintBaseline_toBaselineOf="@+id/postCountView"
 		app:layout_constraintEnd_toEndOf="parent"
-		app:layout_constraintTop_toBottomOf="@id/menuButton"
 		tools:text="Dec 24" />
 
 	<View

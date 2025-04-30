@@ -936,6 +936,5 @@
 	<string name="screenshot_message_2">Hi Alice! Thanks for telling me about Briar!</string>
 	<!-- This is a message to be used in screenshots. -->
 	<string name="screenshot_message_3">No problem, hope you like it 😀</string>
-	<string name="menu">Menu</string>
 
 </resources>
