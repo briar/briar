@@ -217,19 +217,14 @@ public class BriarService extends Service {
 
 	@Override
 	public void onDestroy() {
-		// Hold a wake lock during shutdown
-		wakeLockManager.runWakefully(() -> {
-			super.onDestroy();
-			LOG.info("Destroyed");
-			stopForeground(true);
-			if (receiver != null) {
-				getApplicationContext().unregisterReceiver(receiver);
-			}
-			// Stop the services in a background thread
-			wakeLockManager.executeWakefully(() -> {
-				if (started) lifecycleManager.stopServices();
-			}, "LifecycleShutdown");
-		}, "LifecycleShutdown");
+		super.onDestroy();
+		LOG.info("Destroyed");
+		// Stop the lifecycle, if not already stopped
+		shutdown(false);
+		stopForeground(true);
+		if (receiver != null) {
+			getApplicationContext().unregisterReceiver(receiver);
+		}
 	}
 
 	@Override
@@ -299,8 +294,8 @@ public class BriarService extends Service {
 	private void shutdownFromBackground() {
 		// Hold a wake lock during shutdown
 		wakeLockManager.runWakefully(() -> {
-			// Stop the service
-			stopSelf();
+			// Begin lifecycle shutdown
+			shutdown(true);
 			// Hide the UI
 			hideUi();
 			// Wait for shutdown to complete, then exit
@@ -335,8 +330,18 @@ public class BriarService extends Service {
 	/**
 	 * Starts the shutdown process.
 	 */
-	public void shutdown() {
-		stopSelf(); // This will call onDestroy()
+	public void shutdown(boolean stopAndroidService) {
+		// Hold a wake lock during shutdown
+		wakeLockManager.runWakefully(() -> {
+			// Stop the lifecycle services in a background thread,
+			// then stop this Android service if needed
+			wakeLockManager.executeWakefully(() -> {
+				if (started) lifecycleManager.stopServices();
+				if (stopAndroidService) {
+					androidExecutor.runOnUiThread(() -> stopSelf());
+				}
+			}, "LifecycleShutdown");
+		}, "LifecycleShutdown");
 	}
 
 	public class BriarBinder extends Binder {
