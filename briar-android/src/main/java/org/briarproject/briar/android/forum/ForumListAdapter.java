@@ -13,15 +13,18 @@ import androidx.recyclerview.widget.ListAdapter;
 @NotNullByDefault
 class ForumListAdapter extends ListAdapter<ForumListItem, ForumViewHolder> {
 
-	ForumListAdapter() {
+	private final ForumListViewModel viewModel;
+
+	ForumListAdapter(ForumListViewModel viewModel) {
 		super(new ForumListCallback());
+		this.viewModel = viewModel;
 	}
 
 	@Override
 	public ForumViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
 		View v = LayoutInflater.from(parent.getContext()).inflate(
 				R.layout.list_item_forum, parent, false);
-		return new ForumViewHolder(v);
+		return new ForumViewHolder(v, viewModel);
 	}
 
 	@Override
