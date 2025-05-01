@@ -140,6 +140,12 @@ public class ThreadItemAdapter<I extends ThreadItem>
 		return getItem(position);
 	}
 
+	@Override
+	public void onViewRecycled(BaseThreadItemViewHolder<I> viewHolder) {
+		super.onViewRecycled(viewHolder);
+		viewHolder.onViewRecycled();
+	}
+
 	public interface ThreadItemListener<I> {
 
 		void onReplyClick(I item);

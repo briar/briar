@@ -121,4 +121,9 @@ public abstract class BaseThreadItemViewHolder<I extends ThreadItem>
 		return textView.getContext();
 	}
 
+	void onViewRecycled() {
+		// Reset the bound message ID so an asynchronous text loading task
+		// won't set the view's text while it's in the recycling pool
+		boundMessageId = null;
+	}
 }
