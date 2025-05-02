@@ -4,13 +4,11 @@ import android.animation.Animator;
 import android.animation.ArgbEvaluator;
 import android.animation.ValueAnimator;
 import android.content.Context;
-import android.text.util.Linkify;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.AccelerateInterpolator;
 import android.widget.TextView;
 
-import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.threaded.ThreadItemAdapter.ThreadItemListener;
 import org.briarproject.briar.android.view.AuthorView;
@@ -22,16 +20,20 @@ import androidx.annotation.CallSuper;
 import androidx.annotation.UiThread;
 import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.LiveData;
+import androidx.lifecycle.Observer;
 import androidx.recyclerview.widget.RecyclerView;
 
+import static android.text.util.Linkify.WEB_URLS;
+import static android.text.util.Linkify.addLinks;
 import static androidx.core.content.ContextCompat.getColor;
 import static org.briarproject.bramble.util.StringUtils.trim;
 import static org.briarproject.briar.android.util.UiUtils.makeLinksClickable;
+import static org.briarproject.nullsafety.NullSafety.requireNonNull;
 
 @UiThread
 @NotNullByDefault
 public abstract class BaseThreadItemViewHolder<I extends ThreadItem>
-		extends RecyclerView.ViewHolder {
+		extends RecyclerView.ViewHolder implements Observer<String> {
 
 	private final static int ANIMATION_DURATION = 5000;
 
@@ -39,7 +41,9 @@ public abstract class BaseThreadItemViewHolder<I extends ThreadItem>
 	private final ViewGroup layout;
 	private final AuthorView author;
 	@Nullable
-	private MessageId boundMessageId = null;
+	private ThreadItemListener<I> listener = null;
+	@Nullable
+	private LiveData<String> textLiveData = null;
 
 	public BaseThreadItemViewHolder(View v) {
 		super(v);
@@ -52,10 +56,7 @@ public abstract class BaseThreadItemViewHolder<I extends ThreadItem>
 	@CallSuper
 	public void bind(I item, LifecycleOwner lifecycleOwner,
 			ThreadItemListener<I> listener) {
-		boundMessageId = item.getId();
 		setText(item, lifecycleOwner, listener);
-		Linkify.addLinks(textView, Linkify.WEB_URLS);
-		makeLinksClickable(textView, listener::onLinkClick);
 
 		author.setAuthor(item.getAuthor(), item.getAuthorInfo());
 		author.setDate(item.getTimestamp());
@@ -72,14 +73,16 @@ public abstract class BaseThreadItemViewHolder<I extends ThreadItem>
 
 	protected void setText(I item, LifecycleOwner lifecycleOwner,
 			ThreadItemListener<I> listener) {
+		// Clear any existing text while we asynchronously load the new text
 		textView.setText(null);
-		LiveData<String> textLiveData = listener.loadItemText(item.getId());
-		textLiveData.observe(lifecycleOwner, t -> {
-			// Check that the ViewHolder hasn't been re-bound while loading
-			if (item.getId().equals(boundMessageId)) {
-				textView.setText(trim(t));
-			}
-		});
+		// Remember the listener so we can use it to create links later
+		this.listener = listener;
+		// If the view has been re-bound and we're already asynchronously
+		// loading text for another item, stop observing it
+		if (textLiveData != null) textLiveData.removeObserver(this);
+		// Asynchronously load the text for this item and observe the result
+		textLiveData = listener.loadItemText(item.getId());
+		textLiveData.observe(lifecycleOwner, this);
 	}
 
 	private void animateFadeOut() {
@@ -122,8 +125,23 @@ public abstract class BaseThreadItemViewHolder<I extends ThreadItem>
 	}
 
 	void onViewRecycled() {
-		// Reset the bound message ID so an asynchronous text loading task
-		// won't set the view's text while it's in the recycling pool
-		boundMessageId = null;
+		textView.setText(null);
+		if (textLiveData != null) {
+			textLiveData.removeObserver(this);
+			textLiveData = null;
+			listener = null;
+		}
+	}
+
+	@Override
+	public void onChanged(String s) {
+		if (textLiveData != null) {
+			textLiveData.removeObserver(this);
+			textLiveData = null;
+			textView.setText(trim(s));
+			addLinks(textView, WEB_URLS);
+			makeLinksClickable(textView, requireNonNull(listener)::onLinkClick);
+			listener = null;
+		}
 	}
 }
