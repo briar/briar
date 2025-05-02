@@ -174,7 +174,7 @@
 			android:id="@+id/seekBarForumMessages"
 			android:layout_width="0dp"
 			android:layout_height="wrap_content"
-			android:max="50"
+			android:max="10000"
 			android:paddingTop="5dp"
 			android:progress="20"
 			app:layout_constraintEnd_toStartOf="@+id/TextViewForumMessagesSb"

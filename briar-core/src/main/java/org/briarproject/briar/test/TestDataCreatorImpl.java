@@ -470,20 +470,19 @@ public class TestDataCreatorImpl implements TestDataCreator {
 
 	private void createRandomForumPosts(Forum forum, List<Contact> contacts,
 			int numForumPosts) throws DbException {
-		List<ForumPost> posts = new ArrayList<>();
+		List<MessageId> postIds = new ArrayList<>();
 		for (int i = 0; i < numForumPosts; i++) {
 			Contact contact = contacts.get(random.nextInt(contacts.size()));
 			LocalAuthor author = localAuthors.get(contact);
 			long timestamp = clock.currentTimeMillis() - (long) i * 60 * 1000;
 			String text = getRandomText();
 			MessageId parent = null;
-			if (random.nextBoolean() && posts.size() > 0) {
-				ForumPost parentPost = posts.get(random.nextInt(posts.size()));
-				parent = parentPost.getMessage().getId();
+			if (random.nextBoolean() && !postIds.isEmpty()) {
+				parent = postIds.get(random.nextInt(postIds.size()));
 			}
 			ForumPost post = forumManager.createLocalPost(forum.getId(), text,
 					timestamp, parent, author);
-			posts.add(post);
+			postIds.add(post.getMessage().getId());
 			db.transaction(false, txn ->
 					db.receiveMessage(txn, contact.getId(), post.getMessage()));
 		}
@@ -573,7 +572,7 @@ public class TestDataCreatorImpl implements TestDataCreator {
 	}
 
 	private String getRandomText() {
-		int minLength = 3 + random.nextInt(500);
+		int minLength = 30_000;
 		int maxWordLength = 15;
 		StringBuilder sb = new StringBuilder();
 		while (sb.length() < minLength) {
