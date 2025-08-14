@@ -35,10 +35,6 @@ android {
 	}
 }
 
-configurations {
-	tor
-}
-
 dependencies {
 	api 'org.briarproject:dont-kill-me-lib:0.2.8'
 
@@ -51,10 +47,6 @@ dependencies {
 	implementation project(':bramble-core')
 
 	implementation 'androidx.annotation:annotation:1.5.0'
-	implementation "org.briarproject:onionwrapper-android:$onionwrapper_version"
-
-	tor "org.briarproject:tor-android:$tor_version"
-	tor "org.briarproject:lyrebird-android:$lyrebird_version"
 
 	annotationProcessor "com.google.dagger:dagger-compiler:$dagger_version"
 
@@ -67,27 +59,3 @@ dependencies {
 	testImplementation "org.jmock:jmock-junit4:$jmock_version"
 	testImplementation "org.jmock:jmock-imposters:$jmock_version"
 }
-
-def torLibsDir = 'src/main/jniLibs'
-
-task cleanTorBinaries {
-	outputs.dir torLibsDir
-	doLast {
-		delete fileTree(torLibsDir)
-	}
-}
-
-clean.dependsOn cleanTorBinaries
-
-task unpackTorBinaries {
-	outputs.dir torLibsDir
-	doLast {
-		copy {
-			from configurations.tor.collect { zipTree(it) }
-			into torLibsDir
-		}
-	}
-	dependsOn cleanTorBinaries
-}
-
-preBuild.dependsOn unpackTorBinaries
