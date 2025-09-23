@@ -16,16 +16,18 @@ def getStdout = { command, defaultValue ->
 }
 
 android {
-	compileSdk 34
-	buildToolsVersion '34.0.0'
-
+	compileSdk 35
+	buildToolsVersion '35.0.0'
 	packagingOptions {
-		doNotStrip '**/*.so'
+		jniLibs {
+			keepDebugSymbols += ['**/*.so']
+		}
 	}
+
 
 	defaultConfig {
 		minSdkVersion 21
-		targetSdkVersion 34
+		targetSdkVersion 35
 		versionCode 10514
 		versionName "1.5.14"
 		applicationId "org.briarproject.briar.android"
@@ -86,15 +88,11 @@ android {
 			includeAndroidResources = true
 		}
 	}
-
-	lintOptions {
-		warning 'MissingTranslation'
-		warning 'MissingDefaultResource'
-		warning 'ImpliedQuantity'
-		warning 'ExtraTranslation'
-		// FIXME
-		warning 'InvalidPackage'
+	namespace 'org.briarproject.briar'
+	lint {
+		warning 'MissingTranslation', 'MissingDefaultResource', 'ImpliedQuantity', 'ExtraTranslation', 'InvalidPackage'
 	}
+
 }
 
 dependencies {
