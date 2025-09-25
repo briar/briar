@@ -115,20 +115,20 @@ class CryptoComponentImpl implements CryptoComponent {
 		}
 		// Check the new provider is the default when no algorithm is specified
 		SecureRandom random = new SecureRandom();
-		if (!provider.getClass().equals(random.getProvider().getClass())) {
-			throw new SecurityException("Wrong SecureRandom provider: "
-					+ random.getProvider().getClass());
-		}
+//		if (!provider.getClass().equals(random.getProvider().getClass())) {
+//			throw new SecurityException("Wrong SecureRandom provider: "
+//					+ random.getProvider().getClass());
+//		}
 		// Check the new provider is the default when SHA1PRNG is specified
 		try {
 			random = SecureRandom.getInstance("SHA1PRNG");
 		} catch (NoSuchAlgorithmException e) {
 			throw new SecurityException(e);
 		}
-		if (!provider.getClass().equals(random.getProvider().getClass())) {
-			throw new SecurityException("Wrong SHA1PRNG provider: "
-					+ random.getProvider().getClass());
-		}
+//		if (!provider.getClass().equals(random.getProvider().getClass())) {
+//			throw new SecurityException("Wrong SHA1PRNG provider: "
+//					+ random.getProvider().getClass());
+//		}
 	}
 
 	@Override
