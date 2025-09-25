@@ -25,8 +25,13 @@ configurations {
 	}
 }
 
-sourceCompatibility = 1.8
-targetCompatibility = 1.8
+kotlin {
+	jvmToolchain(17)
+}
+
+compileJava {
+	options.release = 17
+}
 
 dependencies {
 	implementation project(':bramble-core')
