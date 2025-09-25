@@ -52,3 +52,10 @@ animalsniffer {
 configurations {
 	testOutput.extendsFrom(testCompile)
 }
+task jarTest(type: Jar, dependsOn: testClasses) {
+	from sourceSets.test.output, sourceSets.main.output
+	archiveClassifier = 'test'
+}
+artifacts {
+	testOutput jarTest
+}
