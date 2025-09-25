@@ -216,6 +216,8 @@ task verifyTranslations {
 	}
 }
 
+// Force evaluation of bramble-android before briar-android
+project.evaluationDependsOn(project.getRootProject().findProject("bramble-android").getPath())
 project.afterEvaluate {
 	preBuild.dependsOn.add(verifyTranslations)
 }
