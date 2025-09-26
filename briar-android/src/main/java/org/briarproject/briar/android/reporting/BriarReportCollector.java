@@ -283,8 +283,11 @@ class BriarReportCollector {
 
 			// Is Bluetooth enabled?
 			@SuppressLint("HardwareIds")
-			boolean btEnabled = hasBtConnectPermission(ctx) && bt.isEnabled()
-					&& !isNullOrEmpty(bt.getAddress());
+			boolean btEnabled = hasBtConnectPermission(ctx) && bt.isEnabled();
+			try {
+				btEnabled = btEnabled && !isNullOrEmpty(bt.getAddress());
+			} catch (SecurityException ignored) {
+			}
 			connectivityInfo.add("BluetoothEnabled", btEnabled);
 
 			// Is Bluetooth connectable?
