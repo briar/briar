@@ -107,6 +107,8 @@ class CryptoComponentImpl implements CryptoComponent {
 	}
 
 	// Based on https://android-developers.googleblog.com/2013/08/some-securerandom-thoughts.html
+	// "Applications which run exclusively on Android KitKat (4.4) or above do
+	// not need to take any special action to work around this bug."
 	private void installSecureRandomProvider(Provider provider) {
 		Provider[] providers = Security.getProviders("SecureRandom.SHA1PRNG");
 		if (providers == null || providers.length == 0
@@ -115,20 +117,24 @@ class CryptoComponentImpl implements CryptoComponent {
 		}
 		// Check the new provider is the default when no algorithm is specified
 		SecureRandom random = new SecureRandom();
-//		if (!provider.getClass().equals(random.getProvider().getClass())) {
-//			throw new SecurityException("Wrong SecureRandom provider: "
-//					+ random.getProvider().getClass());
-//		}
+		if (!provider.getClass().equals(random.getProvider().getClass())) {
+			if (LOG.isLoggable(INFO)) {
+				LOG.info("Briar's PRNG isn't used: " + provider.getClass());
+				LOG.info("Instead, this PRNG is used: " + random.getProvider().getClass());
+			}
+		}
 		// Check the new provider is the default when SHA1PRNG is specified
 		try {
 			random = SecureRandom.getInstance("SHA1PRNG");
 		} catch (NoSuchAlgorithmException e) {
 			throw new SecurityException(e);
 		}
-//		if (!provider.getClass().equals(random.getProvider().getClass())) {
-//			throw new SecurityException("Wrong SHA1PRNG provider: "
-//					+ random.getProvider().getClass());
-//		}
+		if (!provider.getClass().equals(random.getProvider().getClass())) {
+			if (LOG.isLoggable(INFO)) {
+				LOG.info("Briar's PRNG isn't used: " + provider.getClass());
+				LOG.info("Instead, this PRNG is used: " + random.getProvider().getClass());
+			}
+		}
 	}
 
 	@Override
