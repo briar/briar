@@ -50,10 +50,8 @@ dependencies {
 	implementation 'androidx.annotation:annotation:1.5.0'
 	implementation "org.briarproject:onionwrapper-android:$onionwrapper_version"
 
-	// tor "org.briarproject:tor-android:$tor_version"
-	// tor "org.briarproject:lyrebird-android:$lyrebird_version"
-	tor files("lib/tor-android-0.4.8.16.jar")
-	tor files("lib/lyrebird-android-" + lyrebird_version + ".jar")
+	tor "org.briarproject:tor-android:$tor_version"
+	tor "org.briarproject:lyrebird-android:$lyrebird_version"
 
 	annotationProcessor "com.google.dagger:dagger-compiler:$dagger_version"
 
