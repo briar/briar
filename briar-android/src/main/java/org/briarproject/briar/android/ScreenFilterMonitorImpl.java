@@ -208,7 +208,7 @@ class ScreenFilterMonitorImpl implements ScreenFilterMonitor, Service {
 			filter.addAction(ACTION_PACKAGE_REPLACED);
 			filter.addDataScheme("package");
 			receiver = new PackageBroadcastReceiver();
-			registerReceiver(app, receiver, filter);
+			registerReceiver(app, receiver, filter, false);
 			cachedApps = null;
 		});
 	}

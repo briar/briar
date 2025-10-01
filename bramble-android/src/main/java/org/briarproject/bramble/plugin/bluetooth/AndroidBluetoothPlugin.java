@@ -113,7 +113,7 @@ class AndroidBluetoothPlugin extends
 		filter.addAction(ACTION_STATE_CHANGED);
 		filter.addAction(ACTION_SCAN_MODE_CHANGED);
 		receiver = new BluetoothStateReceiver();
-		registerReceiver(app, receiver, filter);
+		registerReceiver(app, receiver, filter, true);
 	}
 
 	@Override
@@ -238,7 +238,7 @@ class AndroidBluetoothPlugin extends
 		filter.addAction(ACTION_DISCOVERY_STARTED);
 		filter.addAction(ACTION_DISCOVERY_FINISHED);
 		filter.addAction(ACTION_FOUND);
-		registerReceiver(app, receiver, filter);
+		registerReceiver(app, receiver, filter, true);
 		try {
 			if (adapter.startDiscovery()) {
 				long now = clock.currentTimeMillis();

@@ -176,7 +176,7 @@ public class BriarService extends Service {
 			filter.addAction("android.intent.action.QUICKBOOT_POWEROFF");
 			filter.addAction("com.htc.intent.action.QUICKBOOT_POWEROFF");
 			AndroidUtils.registerReceiver(getApplicationContext(), receiver,
-					filter);
+					filter, false);
 		}, "LifecycleStartup");
 	}
 
