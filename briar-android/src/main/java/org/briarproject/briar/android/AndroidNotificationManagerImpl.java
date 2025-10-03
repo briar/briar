@@ -1,7 +1,6 @@
 package org.briarproject.briar.android;
 
 import android.annotation.TargetApi;
-import android.app.ActivityOptions;
 import android.app.Application;
 import android.app.Notification;
 import android.app.NotificationChannel;
@@ -10,8 +9,6 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
-import android.os.Build;
-import android.os.Bundle;
 
 import org.briarproject.bramble.api.Multiset;
 import org.briarproject.bramble.api.contact.ContactId;
@@ -66,13 +63,11 @@ import androidx.annotation.UiThread;
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.TaskStackBuilder;
 
-import static android.app.ActivityOptions.MODE_BACKGROUND_ACTIVITY_START_ALLOWED;
 import static android.app.Notification.DEFAULT_LIGHTS;
 import static android.app.Notification.DEFAULT_SOUND;
 import static android.app.Notification.DEFAULT_VIBRATE;
 import static android.app.NotificationManager.IMPORTANCE_DEFAULT;
 import static android.app.NotificationManager.IMPORTANCE_LOW;
-import static android.app.PendingIntent.FLAG_IMMUTABLE;
 import static android.app.PendingIntent.getActivity;
 import static android.app.PendingIntent.getBroadcast;
 import static android.content.Context.NOTIFICATION_SERVICE;
@@ -405,16 +400,6 @@ class AndroidNotificationManagerImpl implements AndroidNotificationManager,
 	private void setDeleteIntent(BriarNotificationBuilder b, Uri uri) {
 		Intent i = new Intent(appContext, NotificationCleanupService.class);
 		i.setData(uri);
-		if (SDK_INT >=
-				Build.VERSION_CODES.VANILLA_ICE_CREAM) {
-			Bundle options = ActivityOptions.makeBasic()
-					.setPendingIntentCreatorBackgroundActivityStartMode(
-							MODE_BACKGROUND_ACTIVITY_START_ALLOWED
-					).toBundle();
-			b.setDeleteIntent(
-					getActivity(appContext, 0, i, FLAG_IMMUTABLE, options));
-			return;
-		}
 		b.setDeleteIntent(PendingIntent.getService(appContext, nextRequestId++,
 				i, getImmutableFlags(0)));
 	}
