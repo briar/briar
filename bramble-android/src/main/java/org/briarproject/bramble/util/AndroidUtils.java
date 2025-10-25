@@ -25,6 +25,7 @@ import javax.annotation.Nullable;
 import static android.Manifest.permission.BLUETOOTH_CONNECT;
 import static android.app.PendingIntent.FLAG_IMMUTABLE;
 import static android.content.Context.MODE_PRIVATE;
+import static android.content.Context.RECEIVER_EXPORTED;
 import static android.content.Context.RECEIVER_NOT_EXPORTED;
 import static android.content.pm.PackageManager.PERMISSION_GRANTED;
 import static android.os.Build.VERSION.SDK_INT;
@@ -168,10 +169,11 @@ public class AndroidUtils {
 	@Nullable
 	@SuppressLint("UnspecifiedRegisterReceiverFlag") // we specify where needed
 	public static Intent registerReceiver(Context ctx,
-			@Nullable BroadcastReceiver receiver, IntentFilter filter) {
+			@Nullable BroadcastReceiver receiver, IntentFilter filter,
+			boolean export) {
 		if (SDK_INT >= 33) {
 			return ctx.registerReceiver(receiver, filter,
-					RECEIVER_NOT_EXPORTED);
+					export ? RECEIVER_EXPORTED : RECEIVER_NOT_EXPORTED);
 		} else {
 			return ctx.registerReceiver(receiver, filter);
 		}
