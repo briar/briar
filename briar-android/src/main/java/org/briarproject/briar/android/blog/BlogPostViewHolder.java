@@ -18,7 +18,6 @@ import org.briarproject.briar.api.blog.BlogPostHeader;
 import org.briarproject.nullsafety.NotNullByDefault;
 
 import androidx.annotation.UiThread;
-import androidx.core.text.HtmlCompat;
 import androidx.core.view.ViewCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -107,9 +106,7 @@ class BlogPostViewHolder extends RecyclerView.ViewHolder {
 		}
 
 		// post text
-		String rawText = item.getText() != null ? item.getText() : "";
-		Spanned postText = item.isRssFeed() ? getSpanned(rawText) :
-				HtmlCompat.fromHtml(rawText, HtmlCompat.FROM_HTML_MODE_COMPACT);
+		Spanned postText = getSpanned(item.getText());
 		if (fullText) {
 			text.setText(postText);
 			text.setTextIsSelectable(true);

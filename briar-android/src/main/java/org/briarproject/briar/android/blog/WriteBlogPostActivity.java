@@ -3,7 +3,6 @@ package org.briarproject.briar.android.blog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.SpannableStringBuilder;
-import android.text.util.Linkify;
 import android.view.MenuItem;
 import android.widget.ProgressBar;
 
@@ -14,7 +13,6 @@ import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.identity.IdentityManager;
 import org.briarproject.bramble.api.identity.LocalAuthor;
 import org.briarproject.bramble.api.sync.GroupId;
-import org.briarproject.bramble.util.StringUtils;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.activity.ActivityComponent;
 import org.briarproject.briar.android.activity.BriarActivity;
@@ -26,7 +24,6 @@ import org.briarproject.briar.api.attachment.AttachmentHeader;
 import org.briarproject.briar.api.blog.BlogManager;
 import org.briarproject.briar.api.blog.BlogPost;
 import org.briarproject.briar.api.blog.BlogPostFactory;
-import org.briarproject.briar.util.HtmlUtils;
 import org.briarproject.nullsafety.MethodsNotNullByDefault;
 import org.briarproject.nullsafety.ParametersNotNullByDefault;
 
@@ -37,19 +34,24 @@ import java.util.logging.Logger;
 import javax.inject.Inject;
 
 import androidx.annotation.Nullable;
-import androidx.core.text.HtmlCompat;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
+import static android.text.util.Linkify.WEB_URLS;
+import static android.text.util.Linkify.addLinks;
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
+import static androidx.core.text.HtmlCompat.TO_HTML_PARAGRAPH_LINES_INDIVIDUAL;
+import static androidx.core.text.HtmlCompat.toHtml;
 import static com.google.android.material.snackbar.BaseTransientBottomBar.LENGTH_SHORT;
 import static java.util.logging.Level.WARNING;
 import static org.briarproject.bramble.util.LogUtils.logException;
 import static org.briarproject.bramble.util.StringUtils.isNullOrEmpty;
+import static org.briarproject.bramble.util.StringUtils.toUtf8;
 import static org.briarproject.briar.android.view.TextSendController.SendState;
 import static org.briarproject.briar.android.view.TextSendController.SendState.SENT;
 import static org.briarproject.briar.api.blog.BlogConstants.MAX_BLOG_POST_TEXT_LENGTH;
+import static org.briarproject.briar.util.HtmlUtils.cleanArticle;
 
 @MethodsNotNullByDefault
 @ParametersNotNullByDefault
@@ -127,13 +129,11 @@ public class WriteBlogPostActivity extends BriarActivity
 		if (isNullOrEmpty(text)) throw new AssertionError();
 
 		SpannableStringBuilder ssb = SpannableStringBuilder.valueOf(text);
-		Linkify.addLinks(ssb, Linkify.WEB_URLS);
-		String html = HtmlUtils.clean(
-				HtmlCompat.toHtml(ssb,
-						HtmlCompat.TO_HTML_PARAGRAPH_LINES_INDIVIDUAL),
-				HtmlUtils.ARTICLE);
+		addLinks(ssb, WEB_URLS);
+		String html = cleanArticle(toHtml(ssb,
+				TO_HTML_PARAGRAPH_LINES_INDIVIDUAL));
 
-		int textLength = StringUtils.toUtf8(html).length;
+		int textLength = toUtf8(html).length;
 		if (textLength > MAX_BLOG_POST_TEXT_LENGTH) {
 			Snackbar.make(input, R.string.text_too_long, LENGTH_SHORT).show();
 			return new MutableLiveData<>(null);
