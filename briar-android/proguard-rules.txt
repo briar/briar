@@ -4,6 +4,7 @@
 -keepattributes SourceFile, LineNumberTable, *Annotation*, Signature, InnerClasses, EnclosingMethod
 
 -keep,includedescriptorclasses class org.briarproject.briar.android.**,org.briarproject.briar.api.android.** { *; }
+-keep class org.briarproject.bramble.system.UnixSecureRandomSpi { *; }
 
 # QR codes
 -keep class com.google.zxing.Result

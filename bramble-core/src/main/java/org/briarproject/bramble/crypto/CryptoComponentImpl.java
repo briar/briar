@@ -118,10 +118,8 @@ class CryptoComponentImpl implements CryptoComponent {
 		// Check the new provider is the default when no algorithm is specified
 		SecureRandom random = new SecureRandom();
 		if (!provider.getClass().equals(random.getProvider().getClass())) {
-			if (LOG.isLoggable(INFO)) {
-				LOG.info("Briar's PRNG isn't used: " + provider.getClass());
-				LOG.info("Instead, this PRNG is used: " + random.getProvider().getClass());
-			}
+			throw new SecurityException("Wrong SecureRandom provider: "
+					+ random.getProvider().getClass());
 		}
 		// Check the new provider is the default when SHA1PRNG is specified
 		try {
@@ -130,10 +128,8 @@ class CryptoComponentImpl implements CryptoComponent {
 			throw new SecurityException(e);
 		}
 		if (!provider.getClass().equals(random.getProvider().getClass())) {
-			if (LOG.isLoggable(INFO)) {
-				LOG.info("Briar's PRNG isn't used: " + provider.getClass());
-				LOG.info("Instead, this PRNG is used: " + random.getProvider().getClass());
-			}
+			throw new SecurityException("Wrong SHA1PRNG provider: "
+					+ random.getProvider().getClass());
 		}
 	}
 
