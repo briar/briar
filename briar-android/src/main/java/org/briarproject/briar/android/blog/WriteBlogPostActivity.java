@@ -2,8 +2,11 @@ package org.briarproject.briar.android.blog;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.SpannableStringBuilder;
 import android.view.MenuItem;
 import android.widget.ProgressBar;
+
+import com.google.android.material.snackbar.Snackbar;
 
 import org.briarproject.bramble.api.FormatException;
 import org.briarproject.bramble.api.db.DbException;
@@ -34,14 +37,21 @@ import androidx.annotation.Nullable;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
+import static android.text.util.Linkify.WEB_URLS;
+import static android.text.util.Linkify.addLinks;
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
+import static androidx.core.text.HtmlCompat.TO_HTML_PARAGRAPH_LINES_INDIVIDUAL;
+import static androidx.core.text.HtmlCompat.toHtml;
+import static com.google.android.material.snackbar.BaseTransientBottomBar.LENGTH_SHORT;
 import static java.util.logging.Level.WARNING;
 import static org.briarproject.bramble.util.LogUtils.logException;
 import static org.briarproject.bramble.util.StringUtils.isNullOrEmpty;
+import static org.briarproject.bramble.util.StringUtils.toUtf8;
 import static org.briarproject.briar.android.view.TextSendController.SendState;
 import static org.briarproject.briar.android.view.TextSendController.SendState.SENT;
 import static org.briarproject.briar.api.blog.BlogConstants.MAX_BLOG_POST_TEXT_LENGTH;
+import static org.briarproject.briar.util.HtmlUtils.cleanArticle;
 
 @MethodsNotNullByDefault
 @ParametersNotNullByDefault
@@ -118,12 +128,23 @@ public class WriteBlogPostActivity extends BriarActivity
 			List<AttachmentHeader> headers, long expectedAutoDeleteTimer) {
 		if (isNullOrEmpty(text)) throw new AssertionError();
 
+		SpannableStringBuilder ssb = SpannableStringBuilder.valueOf(text);
+		addLinks(ssb, WEB_URLS);
+		String html = cleanArticle(toHtml(ssb,
+				TO_HTML_PARAGRAPH_LINES_INDIVIDUAL));
+
+		int textLength = toUtf8(html).length;
+		if (textLength > MAX_BLOG_POST_TEXT_LENGTH) {
+			Snackbar.make(input, R.string.text_too_long, LENGTH_SHORT).show();
+			return new MutableLiveData<>(null);
+		}
+
 		// hide publish button, show progress bar
 		input.hideSoftKeyboard();
 		input.setVisibility(GONE);
 		progressBar.setVisibility(VISIBLE);
 
-		storePost(text);
+		storePost(html);
 		return new MutableLiveData<>(SENT);
 	}
 
