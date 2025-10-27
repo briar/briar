@@ -29,10 +29,10 @@ buildscript {
 		dagger_version = "2.51.1"
 		okhttp_version = "4.12.0"
 		jackson_version = "2.13.4"
-		tor_version = "0.4.8.14"
-		lyrebird_version = "0.5.0-3"
+		tor_version = "0.4.8.19"
+		lyrebird_version = "0.6.2"
 		jsoup_version = '1.15.3'
-		bouncy_castle_version = '1.71' // 1.72 accidentally depends on Java 7
+		bouncy_castle_version = '1.82'
 		junit_version = "4.13.2"
 		jmock_version = '2.12.0'
 		mockwebserver_version = '4.10.0'
