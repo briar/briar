@@ -104,7 +104,7 @@ class AndroidNetworkManager implements NetworkManager, Service {
 		filter.addAction(WIFI_AP_STATE_CHANGED_ACTION);
 		filter.addAction(WIFI_P2P_THIS_DEVICE_CHANGED_ACTION);
 		if (SDK_INT >= 23) filter.addAction(ACTION_DEVICE_IDLE_MODE_CHANGED);
-		registerReceiver(app, networkStateReceiver, filter);
+		registerReceiver(app, networkStateReceiver, filter, false);
 	}
 
 	@Override

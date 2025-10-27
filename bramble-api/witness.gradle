@@ -12,8 +12,8 @@ dependencyVerification {
 		'org.apache-extras.beanshell:bsh:2.0b6:bsh-2.0b6.jar:a17955976070c0573235ee662f2794a78082758b61accffce8d3f8aedcd91047',
 		'org.briarproject:null-safety:0.1:null-safety-0.1.jar:161760de5e838cb982bafa973df820675d4397098e9a91637a36a306d43ba011',
 		'org.codehaus.mojo.signature:java16:1.1:java16-1.1.signature:53799223a2c98dba2d0add810bed76315460df285c69e4f397ae6098f87dd619',
-		'org.codehaus.mojo:animal-sniffer-ant-tasks:1.22:animal-sniffer-ant-tasks-1.22.jar:3f6afeb3e09301d2d7179ed1db21e3ad8846c1e38415ad832a395138ae3f4218',
-		'org.codehaus.mojo:animal-sniffer:1.22:animal-sniffer-1.22.jar:f18c11a25bdd8b520b9c6a28cbb6f33007c812ab0051b6be3f0778e660aa501c',
+		'org.codehaus.mojo:animal-sniffer-annotations:1.24:animal-sniffer-annotations-1.24.jar:c720e6e5bcbe6b2f48ded75a47bccdb763eede79d14330102e0d352e3d89ed92',
+		'org.codehaus.mojo:animal-sniffer:1.24:animal-sniffer-1.24.jar:65d028de87134f0955e3a964fe438fc3e99e77b237a77e5e165869a8ff59db5f',
 		'org.hamcrest:hamcrest-core:2.1:hamcrest-core-2.1.jar:e09109e54a289d88506b9bfec987ddd199f4217c9464132668351b9a4f00bee9',
 		'org.hamcrest:hamcrest-library:2.1:hamcrest-library-2.1.jar:b7e2b6895b3b679f0e47b6380fda391b225e9b78505db9d8bdde8d3cc8d52a21',
 		'org.hamcrest:hamcrest:2.1:hamcrest-2.1.jar:ba93b2e3a562322ba432f0a1b53addcc55cb188253319a020ed77f824e692050',
@@ -24,6 +24,6 @@ dependencyVerification {
 		'org.jmock:jmock:2.12.0:jmock-2.12.0.jar:266d07314c0cd343c46ff8a55601272de8cf406807caf55e6f313295f83d10be',
 		'org.objenesis:objenesis:3.0.1:objenesis-3.0.1.jar:7a8ff780b9ff48415d7c705f60030b0acaa616e7f823c98eede3b63508d4e984',
 		'org.ow2.asm:asm:7.1:asm-7.1.jar:4ab2fa2b6d2cc9ccb1eaa05ea329c407b47b13ed2915f62f8c4b8cc96258d4de',
-		'org.ow2.asm:asm:9.3:asm-9.3.jar:1263369b59e29c943918de11d6d6152e2ec6085ce63e5710516f8c67d368e4bc',
+		'org.ow2.asm:asm:9.7:asm-9.7.jar:adf46d5e34940bdf148ecdd26a9ee8eea94496a72034ff7141066b3eea5c4e9d',
 	]
 }

@@ -49,7 +49,7 @@ class DozeWatchdogImpl implements DozeWatchdog, Service {
 			filter.addAction(ACTION_DEVICE_LIGHT_IDLE_MODE_CHANGED);
 			filter.addAction(ACTION_LOW_POWER_STANDBY_ENABLED_CHANGED);
 		}
-		registerReceiver(appContext, receiver, filter);
+		registerReceiver(appContext, receiver, filter, false);
 	}
 
 	@Override

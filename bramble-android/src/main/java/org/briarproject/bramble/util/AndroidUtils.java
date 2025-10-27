@@ -18,22 +18,29 @@ import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Collection;
+import java.util.logging.Logger;
 
 import javax.annotation.Nullable;
 
 import static android.Manifest.permission.BLUETOOTH_CONNECT;
 import static android.app.PendingIntent.FLAG_IMMUTABLE;
 import static android.content.Context.MODE_PRIVATE;
+import static android.content.Context.RECEIVER_EXPORTED;
 import static android.content.Context.RECEIVER_NOT_EXPORTED;
 import static android.content.pm.PackageManager.PERMISSION_GRANTED;
 import static android.os.Build.VERSION.SDK_INT;
 import static android.os.Process.myPid;
 import static android.os.Process.myUid;
 import static java.util.Arrays.asList;
+import static java.util.logging.Level.INFO;
+import static java.util.logging.Logger.getLogger;
 import static org.briarproject.nullsafety.NullSafety.requireNonNull;
 
 @NotNullByDefault
 public class AndroidUtils {
+
+	private static final Logger LOG =
+			getLogger(AndroidUtils.class.getName());
 
 	// Fake Bluetooth address returned by BluetoothAdapter on API 23 and later
 	private static final String FAKE_BLUETOOTH_ADDRESS = "02:00:00:00:00:00";
@@ -60,11 +67,20 @@ public class AndroidUtils {
 		// If we don't have permission to access the adapter's address, let
 		// the caller know we can't find it
 		if (!hasBtConnectPermission(ctx)) return new Pair<>("", "");
-		// Return the adapter's address if it's valid and not fake
+
 		@SuppressLint("HardwareIds")
-		String address = adapter.getAddress();
-		if (isValidBluetoothAddress(address)) {
-			return new Pair<>(address, "adapter");
+		String address;
+		// Return the adapter's address if it's valid and not fake
+		try {
+			address = adapter.getAddress();
+			if (isValidBluetoothAddress(address)) {
+				return new Pair<>(address, "adapter");
+			}
+		} catch (SecurityException e) {
+			if (LOG.isLoggable(INFO)) {
+				LOG.info("Security exception when getting BT address: " +
+						e.getMessage());
+			}
 		}
 		// Return the address from settings if it's valid and not fake
 		if (SDK_INT < 33) {
@@ -153,10 +169,11 @@ public class AndroidUtils {
 	@Nullable
 	@SuppressLint("UnspecifiedRegisterReceiverFlag") // we specify where needed
 	public static Intent registerReceiver(Context ctx,
-			@Nullable BroadcastReceiver receiver, IntentFilter filter) {
+			@Nullable BroadcastReceiver receiver, IntentFilter filter,
+			boolean export) {
 		if (SDK_INT >= 33) {
 			return ctx.registerReceiver(receiver, filter,
-					RECEIVER_NOT_EXPORTED);
+					export ? RECEIVER_EXPORTED : RECEIVER_NOT_EXPORTED);
 		} else {
 			return ctx.registerReceiver(receiver, filter);
 		}

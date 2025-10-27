@@ -97,7 +97,8 @@ public class PluginViewModel extends DbViewModel implements EventListener {
 		this.eventBus = eventBus;
 		eventBus.addListener(this);
 		receiver = new BluetoothStateReceiver();
-		registerReceiver(app, receiver, new IntentFilter(ACTION_STATE_CHANGED));
+		registerReceiver(app, receiver, new IntentFilter(ACTION_STATE_CHANGED),
+				false);
 		networkStatus.setValue(networkManager.getNetworkStatus());
 		torPluginState.setValue(getTransportState(TorConstants.ID));
 		wifiPluginState.setValue(getTransportState(LanTcpConstants.ID));
