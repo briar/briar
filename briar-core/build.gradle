@@ -41,7 +41,7 @@ configurations {
 }
 task jarTest(type: Jar, dependsOn: testClasses) {
 	from sourceSets.test.output, sourceSets.main.output
-	classifier = 'test'
+	archiveClassifier = 'test'
 }
 artifacts {
 	testOutput jarTest

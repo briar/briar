@@ -209,7 +209,7 @@ class AddNearbyContactViewModel extends AndroidViewModel
 		qrCodeDecoder = new QrCodeDecoder(androidExecutor, ioExecutor, this);
 		eventBus.addListener(this);
 		IntentFilter filter = new IntentFilter(ACTION_SCAN_MODE_CHANGED);
-		registerReceiver(getApplication(), bluetoothReceiver, filter);
+		registerReceiver(getApplication(), bluetoothReceiver, filter, false);
 	}
 
 	@Override

@@ -1,5 +1,6 @@
 package org.briarproject.briar.android.view;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.util.AttributeSet;
 import android.view.View;
@@ -38,6 +39,7 @@ public class SnackbarAwareBehavior<V extends View> extends Behavior<V> {
 		setMargin(child, 0);
 	}
 
+	@SuppressLint("RestrictedApi")
 	@Override
 	public boolean layoutDependsOn(CoordinatorLayout parent,
 			V child, View dependency) {

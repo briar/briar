@@ -53,7 +53,7 @@ class AndroidBatteryManager implements BatteryManager, Service {
 	public boolean isCharging() {
 		// Get the sticky intent for ACTION_BATTERY_CHANGED
 		IntentFilter filter = new IntentFilter(ACTION_BATTERY_CHANGED);
-		Intent i = registerReceiver(appContext, null, filter);
+		Intent i = registerReceiver(appContext, null, filter, false);
 		if (i == null) return false;
 		int status = i.getIntExtra(EXTRA_PLUGGED, 0);
 		return status != 0;
@@ -72,7 +72,7 @@ class AndroidBatteryManager implements BatteryManager, Service {
 			filter.addAction(ACTION_LOW_POWER_STANDBY_ENABLED_CHANGED);
 			filter.addAction(ACTION_DEVICE_LIGHT_IDLE_MODE_CHANGED);
 		}
-		registerReceiver(appContext, batteryReceiver, filter);
+		registerReceiver(appContext, batteryReceiver, filter, false);
 	}
 
 	@Override

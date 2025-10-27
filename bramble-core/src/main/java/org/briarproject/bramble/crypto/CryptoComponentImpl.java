@@ -107,6 +107,8 @@ class CryptoComponentImpl implements CryptoComponent {
 	}
 
 	// Based on https://android-developers.googleblog.com/2013/08/some-securerandom-thoughts.html
+	// "Applications which run exclusively on Android KitKat (4.4) or above do
+	// not need to take any special action to work around this bug."
 	private void installSecureRandomProvider(Provider provider) {
 		Provider[] providers = Security.getProviders("SecureRandom.SHA1PRNG");
 		if (providers == null || providers.length == 0

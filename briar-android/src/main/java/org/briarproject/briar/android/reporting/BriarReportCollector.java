@@ -200,6 +200,7 @@ class BriarReportCollector {
 				storageInfo);
 	}
 
+	@SuppressLint({"HardwareIds", "MissingPermission"})
 	private ReportItem getConnectivity() {
 		MultiReportInfo connectivityInfo = new MultiReportInfo();
 
@@ -282,13 +283,14 @@ class BriarReportCollector {
 			connectivityInfo.add("BluetoothAvailable", true);
 
 			// Is Bluetooth enabled?
-			@SuppressLint("HardwareIds")
-			boolean btEnabled = hasBtConnectPermission(ctx) && bt.isEnabled()
-					&& !isNullOrEmpty(bt.getAddress());
+			boolean btEnabled = hasBtConnectPermission(ctx) && bt.isEnabled();
+			try {
+				btEnabled = btEnabled && !isNullOrEmpty(bt.getAddress());
+			} catch (SecurityException ignored) {
+			}
 			connectivityInfo.add("BluetoothEnabled", btEnabled);
 
 			// Is Bluetooth connectable?
-			@SuppressLint("MissingPermission")
 			int scanMode = areBluetoothPermissionsGranted(ctx) ?
 					bt.getScanMode() : -1;
 			boolean btConnectable = scanMode == SCAN_MODE_CONNECTABLE ||
