@@ -13,6 +13,8 @@
   <string name="confirm_password">Confirmeu la contrasenya</string>
   <string name="name_too_long">El nom és massa llarg</string>
   <string name="password_too_weak">La contrasenya és massa feble</string>
+  <string name="password_quite_strong">La contrasenya és acceptable</string>
+  <string name="password_strong">La contrasenya és forta</string>
   <string name="passwords_do_not_match">Les contrasenyes no coincideixen</string>
   <string name="create_account_button">Crea el compte</string>
   <string name="more_info">Més informació</string>
@@ -35,7 +37,9 @@
   <string name="try_again">La contrasenya és incorrecta, torneu a escriure-la</string>
   <string name="dialog_title_cannot_check_password">No es pot verificar la contrasenya</string>
   <string name="dialog_message_cannot_check_password">Briar no pot verificar la contrasenya. Proveu de reiniciar el vostre aparell per a solucionar aquest problema.</string>
+  <string name="sign_in_title">Donar-se d\'alta a Briar</string>
   <string name="sign_in_button">Inicia la sessió</string>
+  <string name="forgotten_password">Heu oblidat la contrasenya?</string>
   <string name="dialog_title_lost_password">Contrasenya perduda</string>
   <string name="dialog_message_lost_password">El vostre compte de Briar s\'emmagatzema només en el vostre dispositiu i xifrat. La contrasenya, doncs, no es pot restablir. Voleu esborrar el compte i crear-ne un de nou?\n\nAtenció! Si esborreu el compte la vostra identitat, els contactes i els missatges antics es perdran per sempre.</string>
   <string name="startup_failed_activity_title">Error iniciant Briar</string>
@@ -688,6 +692,8 @@ Així que l\'actualitzi li veureu una icona diferent .</string>
   <string name="disappearing_messages_summary">Feu que els missatges futurs d\'aquesta conversa desapareguin automàticament al cap de 7\u00A0dies.</string>
   <!--Settings Actions-->
   <string name="pref_category_actions">Accions</string>
+  <string name="share_app_link">Comparteix l\'enllaç de descàrrega</string>
+  <string name="share_app_link_text">Descarrega Briar de %s</string>
   <string name="send_feedback">Envieu comentaris</string>
   <!--Link Warning-->
   <string name="link_warning_title">Avís d\'enllaç</string>
@@ -777,6 +783,8 @@ Així que l\'actualitzi li veureu una icona diferent .</string>
   <string name="permission_hotspot_location_request_precise_body">Per crear un punt d\'accés Wi-Fi, el Briar necessita permís per accedir a la vostra ubicació precisa.\n\nel Briar no emmagatzema la vostra ubicació ni la comparteix amb ningú.</string>
   <string name="permission_hotspot_location_denied_body">Heu denegat l\'accés a la vostra ubicació, però el Briar necessita aquest permís per crear un punt d\'accés Wi-Fi.\n\nPenseu en concedir l\'accés.</string>
   <string name="permission_hotspot_location_denied_precise_body">Heu denegat l\'accés a la vostra ubicació precisa, però el Briar necessita aquest permís per crear un punt d\'accés Wi-Fi.\n\nPenseu en concedir l\'accés.</string>
+  <string name="permission_hotspot_nearby_wifi_request_body">Per a crear un punt d\'accés Wi-Fi, cal que doneu permís a Briar per accedir als dispositius propers.</string>
+  <string name="permission_hotspot_nearby_wifi_denied_body">Heu prohibit l\'accés als dispositius propers, però a Briar li cal aquest permís per a crear un punt d\'accés Wi-Fi.\n\nSi us plau, penseu a concedir el dit permís.</string>
   <string name="wifi_settings_title">Configuració Wi-Fi</string>
   <string name="wifi_settings_request_enable_body">Per crear un punt d\'accés Wi-Fi, el Briar ha d\'utilitzar Wi-Fi.  Activeu-lo.</string>
   <string name="hotspot_tab_manual">Manual</string>
