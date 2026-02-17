@@ -129,7 +129,7 @@ dependencyVerification {
 		'org.briarproject:null-safety:0.1:null-safety-0.1.jar:161760de5e838cb982bafa973df820675d4397098e9a91637a36a306d43ba011',
 		'org.briarproject:onionwrapper-android:0.1.4:onionwrapper-android-0.1.4.aar:15231f0b2ad44df8eb1dd362a989ba3f88ebdc9b02a9128daa72a8da83651bf0',
 		'org.briarproject:onionwrapper-core:0.1.4:onionwrapper-core-0.1.4.jar:d0a48de7198d48eb0182a25d109bc06811484d1da799c6dfa5e2581285880a49',
-		'org.briarproject:tor-android:0.4.8.21:tor-android-0.4.8.21.jar:0b797b2a4f07430b4465f784ee579c8c19b5def921a655caba4622b232ae2118',
+		'org.briarproject:tor-android:0.4.8.22:tor-android-0.4.8.22.jar:637e3e87ada5478f7f092b5e1f1a6551f32d76621fe31c47cf2628f51eb87a0d',
 		'org.checkerframework:checker-compat-qual:2.5.5:checker-compat-qual-2.5.5.jar:11d134b245e9cacc474514d2d66b5b8618f8039a1465cdc55bbc0b34e0008b7a',
 		'org.checkerframework:checker-qual:3.33.0:checker-qual-3.33.0.jar:e316255bbfcd9fe50d165314b85abb2b33cb2a66a93c491db648e498a82c2de1',
 		'org.checkerframework:checker-qual:3.41.0:checker-qual-3.41.0.jar:2f9f245bf68e4259d610894f2406dc1f6363dc639302bd566e8272e4f4541172',
