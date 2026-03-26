@@ -736,7 +736,7 @@
 	<!-- Settings Actions -->
 	<string name="pref_category_actions">Actions</string>
 	<string name="share_app_link">Share download link</string>
-	<string name="share_app_link_text">Download Briar at %s</string>
+	<string name="share_app_link_text">Download Harbor at %s</string>
 	<string name="send_feedback">Send feedback</string>
 
 	<!-- Link Warning -->
@@ -824,12 +824,12 @@
 	<!-- Share app offline -->
 	<string name="hotspot_title">Share this app offline</string>
 	<string name="hotspot_intro">Share this app with someone nearby without an Internet connection by using your phone\'s Wi-Fi.
-		\n\nYour phone will start a Wi-Fi hotspot. People nearby can connect to the hotspot and download the Briar app from your phone.</string>
+		\n\nYour phone will start a Wi-Fi hotspot. People nearby can connect to the hotspot and download the Harbor app from your phone.</string>
 	<string name="hotspot_button_start_sharing">Start hotspot</string>
 	<string name="hotspot_button_stop_sharing">Stop hotspot</string>
 	<string name="hotspot_progress_text_start">Setting up hotspot…</string>
 	<string name="hotspot_notification_channel_title">Wi-Fi hotspot</string>
-	<string name="hotspot_notification_title">Sharing Briar offline</string>
+	<string name="hotspot_notification_title">Sharing Harbor offline</string>
 	<string name="hotspot_button_connected">Next</string>
 
 	<string name="permission_hotspot_location_request_body">To create a Wi-Fi hotspot, Briar needs permission to access your location.\n\nBriar does not store your location or share it with anyone.</string>
@@ -847,9 +847,9 @@
 
 	<!-- Wi-Fi setup -->
 	<!-- The %s placeholder will be replaced with the translation of 'hotspot_scanning_a_qr_code' -->
-	<string name="hotspot_manual_wifi">Your phone is providing a Wi-Fi hotspot. People who want to download Briar can connect to the hotspot by adding it in their device\'s Wi-Fi settings using the details below or by %s. When they have connected to the hotspot, press \'Next\'.</string>
+	<string name="hotspot_manual_wifi">Your phone is providing a Wi-Fi hotspot. People who want to download Harbor can connect to the hotspot by adding it in their device\'s Wi-Fi settings using the details below or by %s. When they have connected to the hotspot, press \'Next\'.</string>
 	<string name="hotspot_manual_wifi_ssid">Network name</string>
-	<string name="hotspot_qr_wifi">Your phone is providing a Wi-Fi hotspot. People who want to download Briar can connect to the hotspot by scanning this QR code. When they have connected to the hotspot, press \'Next\'.</string>
+	<string name="hotspot_qr_wifi">Your phone is providing a Wi-Fi hotspot. People who want to download Harbor can connect to the hotspot by scanning this QR code. When they have connected to the hotspot, press \'Next\'.</string>
 	<string name="hotspot_no_peers_connected">No devices connected</string>
 	<plurals name="hotspot_peers_connected">
 		<item quantity="one">%s device connected</item>
@@ -858,14 +858,14 @@
 
 	<!-- Download link -->
 	<!-- The %s placeholder will be replaced with the translation of 'hotspot_scanning_a_qr_code' -->
-	<string name="hotspot_manual_site">Your phone is providing a Wi-Fi hotspot. People who are connected to the hotspot can download Briar by typing the following link in a web browser or %s.</string>
+	<string name="hotspot_manual_site">Your phone is providing a Wi-Fi hotspot. People who are connected to the hotspot can download Harbor by typing the following link in a web browser or %s.</string>
 	<string name="hotspot_manual_site_address">Address (URL)</string>
-	<string name="hotspot_qr_site">Your phone is providing a Wi-Fi hotspot. People who are connected to the hotspot can download Briar by scanning this QR code.</string>
+	<string name="hotspot_qr_site">Your phone is providing a Wi-Fi hotspot. People who are connected to the hotspot can download Harbor by scanning this QR code.</string>
 
-	<!-- e.g. Download Briar 1.2.20 -->
-	<string name="website_download_title_1">Download Briar %s</string>
-	<string name="website_download_intro_1">Someone nearby shared Briar with you.</string>
-	<string name="website_download_button">Download Briar</string>
+	<!-- e.g. Download Harbor 1.2.20 -->
+	<string name="website_download_title_1">Download Harbor %s</string>
+	<string name="website_download_intro_1">Someone nearby shared Harbor with you.</string>
+	<string name="website_download_button">Download Harbor</string>
 	<string name="website_download_outro">After the download is complete, open the downloaded file and install it.</string>
 	<string name="website_troubleshooting_title">Troubleshooting</string>
 	<string name="website_troubleshooting_1">If you cannot download the app, try it with a different web browser app.</string>

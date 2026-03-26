@@ -54,6 +54,28 @@ public class HarborBrandingDefaultsTest {
 				"appContext.getString(R.string.pref_theme_dark_value)");
 	}
 
+	@Test
+	public void testOfflineShareCopyUsesHarbor() throws IOException {
+		assertFileContains("src/main/res/values/strings.xml",
+				"<string name=\"share_app_link_text\">Download Harbor at %s</string>");
+		assertFileContains("src/main/res/values/strings.xml",
+				"<string name=\"hotspot_intro\">Share this app with someone nearby without an Internet connection by using your phone\\'s Wi-Fi.");
+		assertFileContains("src/main/res/values/strings.xml",
+				"download the Harbor app from your phone.</string>");
+		assertFileContains("src/main/res/values/strings.xml",
+				"<string name=\"hotspot_notification_title\">Sharing Harbor offline</string>");
+		assertFileContains("src/main/res/values/strings.xml",
+				"People who want to download Harbor can connect to the hotspot");
+		assertFileContains("src/main/res/values/strings.xml",
+				"People who are connected to the hotspot can download Harbor");
+		assertFileContains("src/main/res/values/strings.xml",
+				"<string name=\"website_download_title_1\">Download Harbor %s</string>");
+		assertFileContains("src/main/res/values/strings.xml",
+				"<string name=\"website_download_intro_1\">Someone nearby shared Harbor with you.</string>");
+		assertFileContains("src/main/res/values/strings.xml",
+				"<string name=\"website_download_button\">Download Harbor</string>");
+	}
+
 	private static void assertFileContains(String moduleRelativePath,
 			String expectedText) throws IOException {
 		String contents = new String(
