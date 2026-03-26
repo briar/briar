@@ -113,7 +113,7 @@ public class BriarApplicationImpl extends Application
 		String theme = prefs.getString(PREF_THEME, null);
 		if (theme == null) {
 			// set default value
-			theme = getString(R.string.pref_theme_system_value);
+			theme = getString(R.string.pref_theme_dark_value);
 			prefs.edit().putString(PREF_THEME, theme).apply();
 		}
 		// set theme
