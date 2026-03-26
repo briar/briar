@@ -14,6 +14,7 @@ import org.briarproject.briar.messaging.MessagingModule;
 import org.briarproject.briar.privategroup.PrivateGroupModule;
 import org.briarproject.briar.privategroup.invitation.GroupInvitationModule;
 import org.briarproject.briar.sharing.SharingModule;
+import org.briarproject.briar.telegram.TelegramModule;
 import org.briarproject.briar.test.TestModule;
 
 import dagger.Module;
@@ -33,6 +34,7 @@ import dagger.Module;
 		MessagingModule.class,
 		PrivateGroupModule.class,
 		SharingModule.class,
+		TelegramModule.class,
 		TestModule.class
 })
 public class BriarCoreModule {

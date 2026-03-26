@@ -82,6 +82,7 @@ import org.briarproject.briar.api.privategroup.PrivateGroupManager;
 import org.briarproject.briar.api.privategroup.invitation.GroupInvitationFactory;
 import org.briarproject.briar.api.privategroup.invitation.GroupInvitationManager;
 import org.briarproject.briar.api.test.TestDataCreator;
+import org.briarproject.briar.api.telegram.TelegramConnector;
 import org.briarproject.onionwrapper.CircumventionProvider;
 import org.briarproject.onionwrapper.LocationUtils;
 
@@ -204,6 +205,8 @@ public interface AndroidComponent
 	ViewModelProvider.Factory viewModelFactory();
 
 	FeatureFlags featureFlags();
+
+	TelegramConnector telegramConnector();
 
 	AndroidWakeLockManager wakeLockManager();
 

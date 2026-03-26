@@ -34,6 +34,19 @@ public class TelegramFeatureFlagsDefaultsTest {
 				"public boolean shouldEnableTelegramConnector() {\n\t\t\t\treturn false;");
 	}
 
+	@Test
+	public void testTelegramConnectorStubIsWiredIntoCoreGraph()
+			throws IOException {
+		assertFileContains("../briar-api/src/main/java/org/briarproject/briar/api/telegram/TelegramConnector.java",
+				"boolean isEnabled();");
+		assertFileContains("../briar-core/src/main/java/org/briarproject/briar/telegram/TelegramModule.java",
+				"if (featureFlags.shouldEnableTelegramConnector()) {\n\t\t\treturn new StubTelegramConnector();\n\t\t}\n\t\treturn new NoOpTelegramConnector();");
+		assertFileContains("../briar-core/src/main/java/org/briarproject/briar/BriarCoreModule.java",
+				"TelegramModule.class,");
+		assertFileContains("src/main/java/org/briarproject/briar/android/AndroidComponent.java",
+				"TelegramConnector telegramConnector();");
+	}
+
 	private static void assertFileContains(String moduleRelativePath,
 			String expectedText) throws IOException {
 		String contents = new String(
