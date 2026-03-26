@@ -122,5 +122,6 @@ internal class HeadlessModule(private val appDir: File) {
         override fun shouldEnablePrivateGroupsInCore() = false
         override fun shouldEnableForumsInCore() = true
         override fun shouldEnableBlogsInCore() = true
+        override fun shouldEnableTelegramConnector() = false
     }
 }

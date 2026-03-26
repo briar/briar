@@ -366,6 +366,11 @@ public class AppModule {
 			public boolean shouldEnableBlogsInCore() {
 				return true;
 			}
+
+			@Override
+			public boolean shouldEnableTelegramConnector() {
+				return false;
+			}
 		};
 	}
 }

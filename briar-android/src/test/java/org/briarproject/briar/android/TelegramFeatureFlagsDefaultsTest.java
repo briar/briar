@@ -1,0 +1,58 @@
+package org.briarproject.briar.android;
+
+import org.junit.Test;
+
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+
+import static junit.framework.Assert.assertTrue;
+
+public class TelegramFeatureFlagsDefaultsTest {
+
+	@Test
+	public void testFeatureFlagsExposeTelegramConnectorGate() throws IOException {
+		assertFileContains("../bramble-api/src/main/java/org/briarproject/bramble/api/FeatureFlags.java",
+				"boolean shouldEnableTelegramConnector();");
+	}
+
+	@Test
+	public void testAndroidAndHeadlessDefaultTelegramConnectorToDisabled()
+			throws IOException {
+		assertFileContains("src/main/java/org/briarproject/briar/android/AppModule.java",
+				"public boolean shouldEnableTelegramConnector() {\n\t\t\t\treturn false;");
+		assertFileContains("../briar-headless/src/main/java/org/briarproject/briar/headless/HeadlessModule.kt",
+				"override fun shouldEnableTelegramConnector() = false");
+	}
+
+	@Test
+	public void testTestFeatureFlagsDefaultTelegramConnectorToDisabled()
+			throws IOException {
+		assertFileContains("../bramble-core/src/test/java/org/briarproject/bramble/test/TestFeatureFlagModule.java",
+				"public boolean shouldEnableTelegramConnector() {\n\t\t\t\treturn false;");
+	}
+
+	private static void assertFileContains(String moduleRelativePath,
+			String expectedText) throws IOException {
+		String contents = new String(
+				Files.readAllBytes(resolveModulePath(moduleRelativePath)),
+				StandardCharsets.UTF_8);
+		assertTrue("Expected to find '" + expectedText + "' in "
+				+ moduleRelativePath, contents.contains(expectedText));
+	}
+
+	private static Path resolveModulePath(String moduleRelativePath) {
+		Path cwd = Paths.get("").toAbsolutePath().normalize();
+		Path direct = cwd.resolve(moduleRelativePath).normalize();
+		if (Files.exists(direct)) return direct;
+
+		Path nested = cwd.resolve("briar-android").resolve(moduleRelativePath)
+				.normalize();
+		if (Files.exists(nested)) return nested;
+
+		throw new IllegalStateException("Could not resolve module path: "
+				+ moduleRelativePath + " from " + cwd);
+	}
+}
