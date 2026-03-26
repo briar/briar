@@ -29,6 +29,18 @@ public class HarborBrandingDefaultsTest {
 	}
 
 	@Test
+	public void testSplashAndSignInBrandingUseAppNameText() throws IOException {
+		assertFileContains("src/main/res/layout/fragment_password.xml",
+				"android:text=\"@string/app_name\"");
+		assertFileContains("src/main/res/layout/fragment_password.xml",
+				"@drawable/navigation_drawer_mark");
+		assertFileContains("src/main/res/layout/splash.xml",
+				"android:text=\"@string/app_name\"");
+		assertFileContains("src/main/res/layout/splash.xml",
+				"@drawable/navigation_drawer_mark");
+	}
+
+	@Test
 	public void testDebugAppNameIsHarborDebug() throws IOException {
 		assertFileContains("src/debug/res/values/strings.xml",
 				"<string name=\"app_name\" translatable=\"false\">Harbor Debug</string>");
