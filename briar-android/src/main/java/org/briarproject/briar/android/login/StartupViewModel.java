@@ -55,6 +55,8 @@ public class StartupViewModel extends AndroidViewModel
 			new MutableLiveEvent<>();
 	private final MutableLiveEvent<Boolean> accountDeleted =
 			new MutableLiveEvent<>();
+	private final MutableLiveEvent<Boolean> showTelegramLoginPlaceholder =
+			new MutableLiveEvent<>();
 	private final MutableLiveData<State> state = new MutableLiveData<>();
 
 	@Inject
@@ -130,8 +132,16 @@ public class StartupViewModel extends AndroidViewModel
 		return accountDeleted;
 	}
 
+	LiveEvent<Boolean> getShowTelegramLoginPlaceholder() {
+		return showTelegramLoginPlaceholder;
+	}
+
 	LiveData<State> getState() {
 		return state;
+	}
+
+	void showTelegramLoginPlaceholder() {
+		showTelegramLoginPlaceholder.setEvent(true);
 	}
 
 	boolean shouldShowTelegramLogin() {

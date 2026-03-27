@@ -176,15 +176,7 @@ public class PasswordFragment extends BaseFragment implements TextWatcher {
 	}
 
 	private void onTelegramLoginClick() {
-		MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(
-				requireContext(), R.style.BriarDialogTheme);
-		builder.setTitle(R.string.telegram_connector_login_title);
-		builder.setBackgroundInsetStart(25);
-		builder.setBackgroundInsetEnd(25);
-		builder.setMessage(R.string.telegram_connector_login_message);
-		builder.setPositiveButton(R.string.ok, null);
-		AlertDialog dialog = builder.create();
-		dialog.show();
+		viewModel.showTelegramLoginPlaceholder();
 	}
 
 	@Override

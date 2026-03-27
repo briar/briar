@@ -198,8 +198,6 @@ public class TelegramFeatureFlagsDefaultsTest {
 				"telegramLoginButton.setVisibility(\n\t\t\t\tviewModel.shouldShowTelegramLogin() ? VISIBLE : GONE);");
 		assertFileContains("src/main/java/org/briarproject/briar/android/login/PasswordFragment.java",
 				"telegramLoginButton.setOnClickListener(\n\t\t\t\tview -> onTelegramLoginClick());");
-		assertFileContains("src/main/java/org/briarproject/briar/android/login/PasswordFragment.java",
-				"private void onTelegramLoginClick() {");
 		assertFileContains("src/main/res/layout/fragment_password.xml",
 				"android:id=\"@+id/btn_telegram_login\"");
 		assertFileContains("src/main/res/values/strings.xml",
@@ -208,6 +206,25 @@ public class TelegramFeatureFlagsDefaultsTest {
 				"<string name=\"telegram_connector_login_title\">Telegram login</string>");
 		assertFileContains("src/main/res/values/strings.xml",
 				"<string name=\"telegram_connector_login_message\">Telegram login is staged for internal Harbor testing. Briar password sign-in remains the active path in this build.</string>");
+	}
+
+	@Test
+	public void testStartupActivityOwnsTelegramLoginPlaceholderRouting()
+			throws IOException {
+		assertFileContains("src/main/java/org/briarproject/briar/android/login/StartupViewModel.java",
+				"private final MutableLiveEvent<Boolean> showTelegramLoginPlaceholder =\n\t\t\tnew MutableLiveEvent<>();");
+		assertFileContains("src/main/java/org/briarproject/briar/android/login/StartupViewModel.java",
+				"LiveEvent<Boolean> getShowTelegramLoginPlaceholder() {");
+		assertFileContains("src/main/java/org/briarproject/briar/android/login/StartupViewModel.java",
+				"void showTelegramLoginPlaceholder() {\n\t\tshowTelegramLoginPlaceholder.setEvent(true);\n\t}");
+		assertFileContains("src/main/java/org/briarproject/briar/android/login/PasswordFragment.java",
+				"private void onTelegramLoginClick() {\n\t\tviewModel.showTelegramLoginPlaceholder();\n\t}");
+		assertFileContains("src/main/java/org/briarproject/briar/android/login/StartupActivity.java",
+				"viewModel.getShowTelegramLoginPlaceholder().observeEvent(this,\n\t\t\t\topen -> {");
+		assertFileContains("src/main/java/org/briarproject/briar/android/login/StartupActivity.java",
+				"if (open) showTelegramLoginPlaceholder();");
+		assertFileContains("src/main/java/org/briarproject/briar/android/login/StartupActivity.java",
+				"private void showTelegramLoginPlaceholder() {");
 	}
 
 	@Test
