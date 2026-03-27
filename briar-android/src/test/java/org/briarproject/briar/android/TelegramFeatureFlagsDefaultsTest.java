@@ -351,6 +351,21 @@ public class TelegramFeatureFlagsDefaultsTest {
 	}
 
 	@Test
+	public void testStartupActivityShowsTelegramIdentityHandoffConfirmation()
+			throws IOException {
+		assertFileContains("src/main/java/org/briarproject/briar/android/login/StartupViewModel.java",
+				"private final MutableLiveEvent<String> telegramLinkedIdentityStaged =\n\t\t\tnew MutableLiveEvent<>();");
+		assertFileContains("src/main/java/org/briarproject/briar/android/login/StartupViewModel.java",
+				"LiveEvent<String> getTelegramLinkedIdentityStaged() {\n\t\treturn telegramLinkedIdentityStaged;\n\t}");
+		assertFileContains("src/main/java/org/briarproject/briar/android/login/StartupViewModel.java",
+				"telegramLinkedIdentityStaged.postEvent(pendingTelegramLinkedIdentity);");
+		assertFileContains("src/main/java/org/briarproject/briar/android/login/StartupActivity.java",
+				"viewModel.getTelegramLinkedIdentityStaged().observeEvent(this,\n\t\t\t\tidentifier -> {\n\t\t\t\t\tToast.makeText(this,\n\t\t\t\t\t\t\tgetString(\n\t\t\t\t\t\t\t\t\tR.string.telegram_connector_login_handoff_staged,\n\t\t\t\t\t\t\t\t\tidentifier),\n\t\t\t\t\t\t\tLENGTH_LONG).show();\n\t\t\t\t});");
+		assertFileContains("src/main/res/values/strings.xml",
+				"<string name=\"telegram_connector_login_handoff_staged\">Telegram identity staged for Harbor internal testing: %1$s</string>");
+	}
+
+	@Test
 	public void testConnectionsSettingsExposeTelegramSetupPlaceholder()
 			throws IOException {
 		assertFileContains("src/main/java/org/briarproject/briar/android/settings/ConnectionsFragment.java",

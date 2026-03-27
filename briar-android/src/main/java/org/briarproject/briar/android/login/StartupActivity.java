@@ -3,6 +3,7 @@ package org.briarproject.briar.android.login;
 import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Bundle;
+import android.widget.Toast;
 
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.BriarService;
@@ -24,6 +25,7 @@ import static android.content.Intent.FLAG_ACTIVITY_CLEAR_TASK;
 import static android.content.Intent.FLAG_ACTIVITY_CLEAR_TOP;
 import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
 import static android.content.Intent.FLAG_ACTIVITY_TASK_ON_HOME;
+import static android.widget.Toast.LENGTH_LONG;
 import static org.briarproject.briar.android.login.StartupViewModel.State.SIGNED_IN;
 import static org.briarproject.briar.android.login.StartupViewModel.State.SIGNED_OUT;
 import static org.briarproject.briar.android.login.StartupViewModel.State.STARTED;
@@ -67,6 +69,14 @@ public class StartupActivity extends BaseActivity implements
 		viewModel.getAccountDeleted().observeEvent(this, deleted -> {
 			if (deleted) onAccountDeleted();
 		});
+		viewModel.getTelegramLinkedIdentityStaged().observeEvent(this,
+				identifier -> {
+					Toast.makeText(this,
+							getString(
+									R.string.telegram_connector_login_handoff_staged,
+									identifier),
+							LENGTH_LONG).show();
+				});
 		viewModel.getState().observe(this, this::onStateChanged);
 	}
 

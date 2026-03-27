@@ -68,6 +68,8 @@ public class StartupViewModel extends AndroidViewModel
 			new MutableLiveEvent<>();
 	private final MutableLiveEvent<Boolean> accountDeleted =
 			new MutableLiveEvent<>();
+	private final MutableLiveEvent<String> telegramLinkedIdentityStaged =
+			new MutableLiveEvent<>();
 	private final MutableLiveData<State> state = new MutableLiveData<>();
 	private final MutableLiveData<Boolean> showingTelegramLoginConfirmation =
 			new MutableLiveData<>(false);
@@ -150,6 +152,10 @@ public class StartupViewModel extends AndroidViewModel
 		return accountDeleted;
 	}
 
+	LiveEvent<String> getTelegramLinkedIdentityStaged() {
+		return telegramLinkedIdentityStaged;
+	}
+
 	LiveData<State> getState() {
 		return state;
 	}
@@ -201,6 +207,7 @@ public class StartupViewModel extends AndroidViewModel
 			settings.put("pref_key_telegram_linked_identity",
 					pendingTelegramLinkedIdentity);
 			settingsManager.mergeSettings(settings, SETTINGS_NAMESPACE);
+			telegramLinkedIdentityStaged.postEvent(pendingTelegramLinkedIdentity);
 			pendingTelegramLinkedIdentity = "";
 		} catch (DbException e) {
 			logException(LOG, WARNING, e);
