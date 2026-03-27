@@ -23,6 +23,7 @@ import androidx.annotation.RequiresApi;
 import androidx.fragment.app.FragmentActivity;
 import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.preference.EditTextPreference;
 import androidx.preference.ListPreference;
 import androidx.preference.Preference;
 import androidx.preference.PreferenceFragmentCompat;
@@ -30,6 +31,7 @@ import androidx.preference.SwitchPreferenceCompat;
 
 import static android.Manifest.permission.BLUETOOTH_CONNECT;
 import static android.os.Build.VERSION.SDK_INT;
+import static org.briarproject.bramble.util.StringUtils.isNullOrEmpty;
 import static org.briarproject.briar.android.AppModule.getAndroidComponent;
 import static org.briarproject.briar.android.settings.SettingsActivity.enableAndPersist;
 import static org.briarproject.briar.android.util.PermissionUtils.areBluetoothPermissionsGranted;
@@ -51,6 +53,8 @@ public class ConnectionsFragment extends PreferenceFragmentCompat {
 	static final String PREF_KEY_TOR_ONLY_WHEN_CHARGING =
 			"pref_key_tor_only_when_charging";
 	static final String PREF_KEY_TELEGRAM_STATUS = "pref_key_telegram_status";
+	static final String PREF_KEY_TELEGRAM_LINKED_IDENTITY =
+			"pref_key_telegram_linked_identity";
 
 	@Inject
 	ViewModelProvider.Factory viewModelFactory;
@@ -68,6 +72,7 @@ public class ConnectionsFragment extends PreferenceFragmentCompat {
 	private SwitchPreferenceCompat torMobile;
 	private SwitchPreferenceCompat torOnlyWhenCharging;
 	private Preference telegramStatus;
+	private EditTextPreference telegramLinkedIdentity;
 
 	@RequiresApi(31)
 	private final ActivityResultLauncher<String[]> requestPermissionLauncher =
@@ -94,6 +99,8 @@ public class ConnectionsFragment extends PreferenceFragmentCompat {
 		torMobile = findPreference(PREF_KEY_TOR_MOBILE_DATA);
 		torOnlyWhenCharging = findPreference(PREF_KEY_TOR_ONLY_WHEN_CHARGING);
 		telegramStatus = findPreference(PREF_KEY_TELEGRAM_STATUS);
+		telegramLinkedIdentity =
+				findPreference(PREF_KEY_TELEGRAM_LINKED_IDENTITY);
 
 		torNetwork.setSummaryProvider(viewModel.torSummaryProvider);
 		telegramStatus.setVisible(telegramConnector.isEnabled());
@@ -105,6 +112,15 @@ public class ConnectionsFragment extends PreferenceFragmentCompat {
 			showTelegramSetupDialog(requireSettingsActivity()
 					.isTelegramConnectorReady());
 			return true;
+		});
+		telegramLinkedIdentity.setVisible(telegramConnector.isEnabled());
+		telegramLinkedIdentity.setPreferenceDataStore(viewModel.settingsStore);
+		telegramLinkedIdentity.setSummaryProvider(preference -> {
+			String linkedIdentity = telegramLinkedIdentity.getText();
+			if (!isNullOrEmpty(linkedIdentity)) return linkedIdentity;
+			return getString(requireSettingsActivity().isTelegramConnectorReady()
+					? R.string.telegram_connector_identity_empty_summary
+					: R.string.telegram_connector_identity_locked_summary);
 		});
 
 		if (SDK_INT >= 31) {
@@ -164,6 +180,13 @@ public class ConnectionsFragment extends PreferenceFragmentCompat {
 			torOnlyWhenCharging.setChecked(enabled);
 			enableAndPersist(torOnlyWhenCharging);
 		});
+		viewModel.getTelegramLinkedIdentity().observe(lifecycleOwner,
+				value -> {
+					telegramLinkedIdentity.setText(value);
+					telegramLinkedIdentity.setPersistent(true);
+					telegramLinkedIdentity.setEnabled(requireSettingsActivity()
+							.isTelegramConnectorReady());
+				});
 	}
 
 	@Override

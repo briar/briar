@@ -71,4 +71,14 @@
 		app:iconSpaceReserved="false"
 		app:singleLineTitle="false" />
 
+	<EditTextPreference
+		android:dialogMessage="@string/telegram_connector_identity_dialog_message"
+		android:dialogTitle="@string/telegram_connector_identity_title"
+		android:enabled="false"
+		android:key="pref_key_telegram_linked_identity"
+		android:persistent="false"
+		android:title="@string/telegram_connector_identity_title"
+		app:iconSpaceReserved="false"
+		app:singleLineTitle="false" />
+
 </PreferenceScreen>

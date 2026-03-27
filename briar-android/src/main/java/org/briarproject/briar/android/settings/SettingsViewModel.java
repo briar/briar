@@ -92,6 +92,8 @@ class SettingsViewModel extends DbViewModel implements EventListener {
 			new MutableLiveData<>();
 	private final MutableLiveData<String> screenLockTimeout =
 			new MutableLiveData<>();
+	private final MutableLiveData<String> telegramLinkedIdentity =
+			new MutableLiveData<>();
 
 	@Inject
 	SettingsViewModel(Application application,
@@ -205,7 +207,13 @@ class SettingsViewModel extends DbViewModel implements EventListener {
 		screenLockTimeout.postValue(String.valueOf(
 				settings.getInt(PREF_SCREEN_LOCK_TIMEOUT, defaultTimeout)
 		));
+		telegramLinkedIdentity.postValue(settings.get(
+				ConnectionsFragment.PREF_KEY_TELEGRAM_LINKED_IDENTITY));
 		notificationsManager.updateSettings(settings);
+	}
+
+	LiveData<String> getTelegramLinkedIdentity() {
+		return telegramLinkedIdentity;
 	}
 
 	void setAvatar(Uri uri) {

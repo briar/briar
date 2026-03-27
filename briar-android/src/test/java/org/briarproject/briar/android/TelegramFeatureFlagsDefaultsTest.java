@@ -92,6 +92,31 @@ public class TelegramFeatureFlagsDefaultsTest {
 				"<string name=\"telegram_connector_setup_unavailable_message\">Sign into Harbor and finish app startup before Telegram account linking can be tested. Connector syncing is still inactive in this build.</string>");
 	}
 
+	@Test
+	public void testConnectionsSettingsExposeTelegramIdentityLinkingSeam()
+			throws IOException {
+		assertFileContains("src/main/java/org/briarproject/briar/android/settings/ConnectionsFragment.java",
+				"static final String PREF_KEY_TELEGRAM_LINKED_IDENTITY =\n\t\t\t\"pref_key_telegram_linked_identity\";");
+		assertFileContains("src/main/java/org/briarproject/briar/android/settings/ConnectionsFragment.java",
+				"telegramLinkedIdentity.setPreferenceDataStore(viewModel.settingsStore);");
+		assertFileContains("src/main/java/org/briarproject/briar/android/settings/ConnectionsFragment.java",
+				"telegramLinkedIdentity.setSummaryProvider(preference -> {");
+		assertFileContains("src/main/java/org/briarproject/briar/android/settings/ConnectionsFragment.java",
+				"viewModel.getTelegramLinkedIdentity().observe(lifecycleOwner,\n\t\t\t\tvalue -> {");
+		assertFileContains("src/main/java/org/briarproject/briar/android/settings/ConnectionsFragment.java",
+				"telegramLinkedIdentity.setText(value);");
+		assertFileContains("src/main/java/org/briarproject/briar/android/settings/SettingsViewModel.java",
+				"private final MutableLiveData<String> telegramLinkedIdentity =\n\t\t\tnew MutableLiveData<>();");
+		assertFileContains("src/main/java/org/briarproject/briar/android/settings/SettingsViewModel.java",
+				"telegramLinkedIdentity.postValue(settings.get(\n\t\t\t\tConnectionsFragment.PREF_KEY_TELEGRAM_LINKED_IDENTITY));");
+		assertFileContains("src/main/res/xml/settings_connections.xml",
+				"android:key=\"pref_key_telegram_linked_identity\"");
+		assertFileContains("src/main/res/values/strings.xml",
+				"<string name=\"telegram_connector_identity_title\">Telegram account</string>");
+		assertFileContains("src/main/res/values/strings.xml",
+				"<string name=\"telegram_connector_identity_empty_summary\">No Telegram account linked yet.</string>");
+	}
+
 	private static void assertFileContains(String moduleRelativePath,
 			String expectedText) throws IOException {
 		String contents = new String(
