@@ -109,6 +109,12 @@ public class HotspotActivity extends BriarActivity
 		}
 	}
 
+	@Override
+	protected void onTelegramLinkedIdentityAvailable(
+			@Nullable String linkedIdentity) {
+		showTelegramLinkedIdentitySubtitle(linkedIdentity);
+	}
+
 	private void showErrorFragment(String error) {
 		FragmentManager fm = getSupportFragmentManager();
 		String tag = HotspotErrorFragment.TAG;
