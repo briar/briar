@@ -18,6 +18,7 @@ import javax.inject.Inject;
 
 import androidx.annotation.Nullable;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.fragment.app.Fragment;
 
 import static android.content.Intent.FLAG_ACTIVITY_CLEAR_TASK;
 import static android.content.Intent.FLAG_ACTIVITY_CLEAR_TOP;
@@ -27,6 +28,7 @@ import static org.briarproject.briar.android.login.StartupViewModel.State.SIGNED
 import static org.briarproject.briar.android.login.StartupViewModel.State.SIGNED_OUT;
 import static org.briarproject.briar.android.login.StartupViewModel.State.STARTED;
 import static org.briarproject.briar.android.login.StartupViewModel.State.STARTING;
+import static org.briarproject.briar.android.login.StartupViewModel.State.TELEGRAM_LOGIN;
 
 @MethodsNotNullByDefault
 @ParametersNotNullByDefault
@@ -65,10 +67,6 @@ public class StartupActivity extends BaseActivity implements
 		viewModel.getAccountDeleted().observeEvent(this, deleted -> {
 			if (deleted) onAccountDeleted();
 		});
-		viewModel.getShowTelegramLoginPlaceholder().observeEvent(this,
-				open -> {
-					if (open) showTelegramLoginPlaceholder();
-				});
 		viewModel.getState().observe(this, this::onStateChanged);
 	}
 
@@ -91,7 +89,9 @@ public class StartupActivity extends BaseActivity implements
 		if (state == SIGNED_OUT) {
 			// Configuration changes such as screen rotation
 			// can cause this to get called again.
-			showInitialFragment(new PasswordFragment());
+			showPasswordFragment();
+		} else if (state == TELEGRAM_LOGIN) {
+			showTelegramLoginPlaceholder();
 		} else if (state == SIGNED_IN || state == STARTING) {
 			startService(new Intent(this, BriarService.class));
 			showNextFragment(new OpenDatabaseFragment());
@@ -110,6 +110,20 @@ public class StartupActivity extends BaseActivity implements
 		i.addFlags(FLAG_ACTIVITY_NEW_TASK | FLAG_ACTIVITY_CLEAR_TOP |
 				FLAG_ACTIVITY_CLEAR_TASK | FLAG_ACTIVITY_TASK_ON_HOME);
 		startActivity(i);
+	}
+
+	private void showPasswordFragment() {
+		Fragment current = getSupportFragmentManager()
+				.findFragmentById(R.id.fragmentContainer);
+		if (current instanceof PasswordFragment) return;
+
+		if (getSupportFragmentManager().findFragmentByTag(PasswordFragment.TAG)
+				!= null &&
+				getSupportFragmentManager().getBackStackEntryCount() > 0) {
+			getSupportFragmentManager().popBackStack();
+		} else {
+			showInitialFragment(new PasswordFragment());
+		}
 	}
 
 	private void showTelegramLoginPlaceholder() {

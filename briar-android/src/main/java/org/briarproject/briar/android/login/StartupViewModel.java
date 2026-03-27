@@ -37,12 +37,13 @@ import static org.briarproject.briar.android.login.StartupViewModel.State.SIGNED
 import static org.briarproject.briar.android.login.StartupViewModel.State.SIGNED_OUT;
 import static org.briarproject.briar.android.login.StartupViewModel.State.STARTED;
 import static org.briarproject.briar.android.login.StartupViewModel.State.STARTING;
+import static org.briarproject.briar.android.login.StartupViewModel.State.TELEGRAM_LOGIN;
 
 @NotNullByDefault
 public class StartupViewModel extends AndroidViewModel
 		implements EventListener {
 
-	enum State {SIGNED_OUT, SIGNED_IN, STARTING, MIGRATING, COMPACTING, STARTED}
+	enum State {SIGNED_OUT, TELEGRAM_LOGIN, SIGNED_IN, STARTING, MIGRATING, COMPACTING, STARTED}
 
 	private final AccountManager accountManager;
 	private final AndroidNotificationManager notificationManager;
@@ -54,8 +55,6 @@ public class StartupViewModel extends AndroidViewModel
 	private final MutableLiveEvent<DecryptionResult> passwordValidated =
 			new MutableLiveEvent<>();
 	private final MutableLiveEvent<Boolean> accountDeleted =
-			new MutableLiveEvent<>();
-	private final MutableLiveEvent<Boolean> showTelegramLoginPlaceholder =
 			new MutableLiveEvent<>();
 	private final MutableLiveData<State> state = new MutableLiveData<>();
 
@@ -99,7 +98,7 @@ public class StartupViewModel extends AndroidViewModel
 			else if (s == COMPACTING_DATABASE) state.setValue(COMPACTING);
 			else state.setValue(STARTING);
 		} else {
-			state.setValue(SIGNED_OUT);
+			if (state.getValue() != TELEGRAM_LOGIN) state.setValue(SIGNED_OUT);
 		}
 	}
 
@@ -132,16 +131,16 @@ public class StartupViewModel extends AndroidViewModel
 		return accountDeleted;
 	}
 
-	LiveEvent<Boolean> getShowTelegramLoginPlaceholder() {
-		return showTelegramLoginPlaceholder;
-	}
-
 	LiveData<State> getState() {
 		return state;
 	}
 
 	void showTelegramLoginPlaceholder() {
-		showTelegramLoginPlaceholder.setEvent(true);
+		state.setValue(TELEGRAM_LOGIN);
+	}
+
+	void showPasswordFragment() {
+		state.setValue(SIGNED_OUT);
 	}
 
 	boolean shouldShowTelegramLogin() {

@@ -46,6 +46,7 @@ import org.briarproject.briar.android.login.ChangePasswordActivity;
 import org.briarproject.briar.android.login.OpenDatabaseFragment;
 import org.briarproject.briar.android.login.PasswordFragment;
 import org.briarproject.briar.android.login.StartupActivity;
+import org.briarproject.briar.android.login.TelegramLoginPlaceholderFragment;
 import org.briarproject.briar.android.mailbox.MailboxActivity;
 import org.briarproject.briar.android.navdrawer.NavDrawerActivity;
 import org.briarproject.briar.android.navdrawer.TransportsActivity;
@@ -190,6 +191,8 @@ public interface ActivityComponent {
 	void inject(PasswordFragment imageFragment);
 
 	void inject(OpenDatabaseFragment activity);
+
+	void inject(TelegramLoginPlaceholderFragment fragment);
 
 	void inject(ContactListFragment fragment);
 

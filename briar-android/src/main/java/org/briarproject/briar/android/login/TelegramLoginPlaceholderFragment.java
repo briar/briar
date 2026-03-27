@@ -6,15 +6,24 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import org.briarproject.briar.R;
+import org.briarproject.briar.android.activity.ActivityComponent;
 import org.briarproject.briar.android.fragment.BaseFragment;
 import org.briarproject.nullsafety.MethodsNotNullByDefault;
 import org.briarproject.nullsafety.ParametersNotNullByDefault;
 
 import javax.annotation.Nullable;
+import javax.inject.Inject;
+
+import androidx.lifecycle.ViewModelProvider;
 
 @MethodsNotNullByDefault
 @ParametersNotNullByDefault
 public class TelegramLoginPlaceholderFragment extends BaseFragment {
+
+	@Inject
+	ViewModelProvider.Factory viewModelFactory;
+
+	private StartupViewModel viewModel;
 
 	static final String TAG =
 			TelegramLoginPlaceholderFragment.class.getName();
@@ -24,13 +33,20 @@ public class TelegramLoginPlaceholderFragment extends BaseFragment {
 	}
 
 	@Override
+	public void injectFragment(ActivityComponent component) {
+		component.inject(this);
+		viewModel = new ViewModelProvider(requireActivity(),
+				viewModelFactory).get(StartupViewModel.class);
+	}
+
+	@Override
 	public View onCreateView(LayoutInflater inflater,
 			@Nullable ViewGroup container,
 			@Nullable Bundle savedInstanceState) {
 		View v = inflater.inflate(R.layout.fragment_telegram_login_placeholder,
 				container, false);
 		v.findViewById(R.id.btn_telegram_login_back)
-				.setOnClickListener(view -> getParentFragmentManager().popBackStack());
+				.setOnClickListener(view -> viewModel.showPasswordFragment());
 		return v;
 	}
 

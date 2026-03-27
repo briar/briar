@@ -212,17 +212,21 @@ public class TelegramFeatureFlagsDefaultsTest {
 	public void testStartupActivityOwnsTelegramLoginPlaceholderRouting()
 			throws IOException {
 		assertFileContains("src/main/java/org/briarproject/briar/android/login/StartupViewModel.java",
-				"private final MutableLiveEvent<Boolean> showTelegramLoginPlaceholder =\n\t\t\tnew MutableLiveEvent<>();");
+				"enum State {SIGNED_OUT, TELEGRAM_LOGIN, SIGNED_IN, STARTING, MIGRATING, COMPACTING, STARTED}");
 		assertFileContains("src/main/java/org/briarproject/briar/android/login/StartupViewModel.java",
-				"LiveEvent<Boolean> getShowTelegramLoginPlaceholder() {");
+				"void showTelegramLoginPlaceholder() {\n\t\tstate.setValue(TELEGRAM_LOGIN);\n\t}");
 		assertFileContains("src/main/java/org/briarproject/briar/android/login/StartupViewModel.java",
-				"void showTelegramLoginPlaceholder() {\n\t\tshowTelegramLoginPlaceholder.setEvent(true);\n\t}");
+				"void showPasswordFragment() {\n\t\tstate.setValue(SIGNED_OUT);\n\t}");
 		assertFileContains("src/main/java/org/briarproject/briar/android/login/PasswordFragment.java",
 				"private void onTelegramLoginClick() {\n\t\tviewModel.showTelegramLoginPlaceholder();\n\t}");
 		assertFileContains("src/main/java/org/briarproject/briar/android/login/StartupActivity.java",
-				"viewModel.getShowTelegramLoginPlaceholder().observeEvent(this,\n\t\t\t\topen -> {");
+				"if (state == SIGNED_OUT) {");
 		assertFileContains("src/main/java/org/briarproject/briar/android/login/StartupActivity.java",
-				"if (open) showTelegramLoginPlaceholder();");
+				"showPasswordFragment();");
+		assertFileContains("src/main/java/org/briarproject/briar/android/login/StartupActivity.java",
+				"} else if (state == TELEGRAM_LOGIN) {\n\t\t\tshowTelegramLoginPlaceholder();\n\t\t}");
+		assertFileContains("src/main/java/org/briarproject/briar/android/login/StartupActivity.java",
+				"private void showPasswordFragment() {");
 		assertFileContains("src/main/java/org/briarproject/briar/android/login/StartupActivity.java",
 				"private void showTelegramLoginPlaceholder() {");
 	}
@@ -241,9 +245,17 @@ public class TelegramFeatureFlagsDefaultsTest {
 		assertFileContains("src/main/java/org/briarproject/briar/android/login/TelegramLoginPlaceholderFragment.java",
 				"View v = inflater.inflate(R.layout.fragment_telegram_login_placeholder,\n\t\t\t\tcontainer, false);");
 		assertFileContains("src/main/java/org/briarproject/briar/android/login/TelegramLoginPlaceholderFragment.java",
-				"v.findViewById(R.id.btn_telegram_login_back)\n\t\t\t\t.setOnClickListener(view -> getParentFragmentManager().popBackStack());");
+				"ViewModelProvider.Factory viewModelFactory;");
+		assertFileContains("src/main/java/org/briarproject/briar/android/login/TelegramLoginPlaceholderFragment.java",
+				"component.inject(this);");
+		assertFileContains("src/main/java/org/briarproject/briar/android/login/TelegramLoginPlaceholderFragment.java",
+				"viewModel = new ViewModelProvider(requireActivity(),\n\t\t\t\tviewModelFactory).get(StartupViewModel.class);");
+		assertFileContains("src/main/java/org/briarproject/briar/android/login/TelegramLoginPlaceholderFragment.java",
+				"v.findViewById(R.id.btn_telegram_login_back)\n\t\t\t\t.setOnClickListener(view -> viewModel.showPasswordFragment());");
 		assertFileContains("src/main/java/org/briarproject/briar/android/login/TelegramLoginPlaceholderFragment.java",
 				"return TAG;");
+		assertFileContains("src/main/java/org/briarproject/briar/android/activity/ActivityComponent.java",
+				"void inject(TelegramLoginPlaceholderFragment fragment);");
 		assertFileContains("src/main/res/layout/fragment_telegram_login_placeholder.xml",
 				"android:id=\"@+id/btn_telegram_login_back\"");
 		assertFileContains("src/main/res/values/strings.xml",
