@@ -104,16 +104,7 @@ public class TransportsActivity extends BriarActivity {
 	@Override
 	protected void onTelegramLinkedIdentityAvailable(
 			@Nullable String linkedIdentity) {
-		ActionBar actionBar = getSupportActionBar();
-		if (actionBar == null) return;
-		if (getBriarController().isTelegramConnectorReady()
-				&& linkedIdentity != null && !linkedIdentity.isEmpty()) {
-			actionBar.setSubtitle(getString(
-					R.string.telegram_connector_transports_subtitle,
-					linkedIdentity));
-		} else {
-			actionBar.setSubtitle(null);
-		}
+		showTelegramLinkedIdentitySubtitle(linkedIdentity);
 	}
 
 	@Override

@@ -97,6 +97,14 @@ public class TelegramFeatureFlagsDefaultsTest {
 				"onTelegramLinkedIdentityAvailable(linkedIdentity);");
 		assertFileContains("src/main/java/org/briarproject/briar/android/activity/BriarActivity.java",
 				"protected void onTelegramLinkedIdentityAvailable(\n\t\t\t@Nullable String linkedIdentity) {");
+		assertFileContains("src/main/java/org/briarproject/briar/android/activity/BriarActivity.java",
+				"protected void showTelegramLinkedIdentitySubtitle(\n\t\t\t@Nullable String linkedIdentity) {");
+		assertFileContains("src/main/java/org/briarproject/briar/android/activity/BriarActivity.java",
+				"if (getBriarController().isTelegramConnectorReady()\n\t\t\t\t&& linkedIdentity != null && !linkedIdentity.isEmpty()) {");
+		assertFileContains("src/main/java/org/briarproject/briar/android/activity/BriarActivity.java",
+				"actionBar.setSubtitle(getString(\n\t\t\t\t\tR.string.telegram_connector_transports_subtitle,\n\t\t\t\t\tlinkedIdentity));");
+		assertFileContains("src/main/java/org/briarproject/briar/android/activity/BriarActivity.java",
+				"actionBar.setSubtitle(null);");
 	}
 
 	@Test
@@ -105,11 +113,7 @@ public class TelegramFeatureFlagsDefaultsTest {
 		assertFileContains("src/main/java/org/briarproject/briar/android/navdrawer/TransportsActivity.java",
 				"protected void onTelegramLinkedIdentityAvailable(\n\t\t\t@Nullable String linkedIdentity) {");
 		assertFileContains("src/main/java/org/briarproject/briar/android/navdrawer/TransportsActivity.java",
-				"getBriarController().isTelegramConnectorReady()");
-		assertFileContains("src/main/java/org/briarproject/briar/android/navdrawer/TransportsActivity.java",
-				"actionBar.setSubtitle(getString(\n\t\t\t\t\tR.string.telegram_connector_transports_subtitle,\n\t\t\t\t\tlinkedIdentity));");
-		assertFileContains("src/main/java/org/briarproject/briar/android/navdrawer/TransportsActivity.java",
-				"actionBar.setSubtitle(null);");
+				"showTelegramLinkedIdentitySubtitle(linkedIdentity);");
 		assertFileContains("src/main/res/values/strings.xml",
 				"<string name=\"telegram_connector_transports_subtitle\">Telegram account staged: %1$s</string>");
 	}
@@ -120,11 +124,7 @@ public class TelegramFeatureFlagsDefaultsTest {
 		assertFileContains("src/main/java/org/briarproject/briar/android/navdrawer/NavDrawerActivity.java",
 				"protected void onTelegramLinkedIdentityAvailable(\n\t\t\t@Nullable String linkedIdentity) {");
 		assertFileContains("src/main/java/org/briarproject/briar/android/navdrawer/NavDrawerActivity.java",
-				"getBriarController().isTelegramConnectorReady()");
-		assertFileContains("src/main/java/org/briarproject/briar/android/navdrawer/NavDrawerActivity.java",
-				"actionBar.setSubtitle(getString(\n\t\t\t\t\tR.string.telegram_connector_transports_subtitle,\n\t\t\t\t\tlinkedIdentity));");
-		assertFileContains("src/main/java/org/briarproject/briar/android/navdrawer/NavDrawerActivity.java",
-				"actionBar.setSubtitle(null);");
+				"showTelegramLinkedIdentitySubtitle(linkedIdentity);");
 	}
 
 	@Test

@@ -218,6 +218,20 @@ public abstract class BriarActivity extends BaseActivity {
 			@Nullable String linkedIdentity) {
 	}
 
+	protected void showTelegramLinkedIdentitySubtitle(
+			@Nullable String linkedIdentity) {
+		ActionBar actionBar = getSupportActionBar();
+		if (actionBar == null) return;
+		if (getBriarController().isTelegramConnectorReady()
+				&& linkedIdentity != null && !linkedIdentity.isEmpty()) {
+			actionBar.setSubtitle(getString(
+					R.string.telegram_connector_transports_subtitle,
+					linkedIdentity));
+		} else {
+			actionBar.setSubtitle(null);
+		}
+	}
+
 	protected void signOut(boolean removeFromRecentApps,
 			boolean deleteAccount) {
 		// Hold a wake lock to ensure we exit before the device goes to sleep
