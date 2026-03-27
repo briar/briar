@@ -115,6 +115,19 @@ public class TelegramFeatureFlagsDefaultsTest {
 	}
 
 	@Test
+	public void testNavDrawerActivitySurfacesTelegramIdentityOutsideSettings()
+			throws IOException {
+		assertFileContains("src/main/java/org/briarproject/briar/android/navdrawer/NavDrawerActivity.java",
+				"protected void onTelegramLinkedIdentityAvailable(\n\t\t\t@Nullable String linkedIdentity) {");
+		assertFileContains("src/main/java/org/briarproject/briar/android/navdrawer/NavDrawerActivity.java",
+				"getBriarController().isTelegramConnectorReady()");
+		assertFileContains("src/main/java/org/briarproject/briar/android/navdrawer/NavDrawerActivity.java",
+				"actionBar.setSubtitle(getString(\n\t\t\t\t\tR.string.telegram_connector_transports_subtitle,\n\t\t\t\t\tlinkedIdentity));");
+		assertFileContains("src/main/java/org/briarproject/briar/android/navdrawer/NavDrawerActivity.java",
+				"actionBar.setSubtitle(null);");
+	}
+
+	@Test
 	public void testConnectionsSettingsExposeTelegramSetupPlaceholder()
 			throws IOException {
 		assertFileContains("src/main/java/org/briarproject/briar/android/settings/ConnectionsFragment.java",

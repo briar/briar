@@ -52,6 +52,7 @@ import androidx.annotation.DrawableRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.StringRes;
+import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
@@ -190,6 +191,21 @@ public class NavDrawerActivity extends BriarActivity implements
 		if (state == null) {
 			// do not call this again when there's existing state
 			onNewIntent(getIntent());
+		}
+	}
+
+	@Override
+	protected void onTelegramLinkedIdentityAvailable(
+			@Nullable String linkedIdentity) {
+		ActionBar actionBar = getSupportActionBar();
+		if (actionBar == null) return;
+		if (getBriarController().isTelegramConnectorReady()
+				&& linkedIdentity != null && !linkedIdentity.isEmpty()) {
+			actionBar.setSubtitle(getString(
+					R.string.telegram_connector_transports_subtitle,
+					linkedIdentity));
+		} else {
+			actionBar.setSubtitle(null);
 		}
 	}
 
