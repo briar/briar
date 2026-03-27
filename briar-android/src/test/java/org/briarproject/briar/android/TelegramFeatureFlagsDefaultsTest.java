@@ -100,6 +100,21 @@ public class TelegramFeatureFlagsDefaultsTest {
 	}
 
 	@Test
+	public void testTransportsActivitySurfacesTelegramIdentityOutsideSettings()
+			throws IOException {
+		assertFileContains("src/main/java/org/briarproject/briar/android/navdrawer/TransportsActivity.java",
+				"protected void onTelegramLinkedIdentityAvailable(\n\t\t\t@Nullable String linkedIdentity) {");
+		assertFileContains("src/main/java/org/briarproject/briar/android/navdrawer/TransportsActivity.java",
+				"getBriarController().isTelegramConnectorReady()");
+		assertFileContains("src/main/java/org/briarproject/briar/android/navdrawer/TransportsActivity.java",
+				"actionBar.setSubtitle(getString(\n\t\t\t\t\tR.string.telegram_connector_transports_subtitle,\n\t\t\t\t\tlinkedIdentity));");
+		assertFileContains("src/main/java/org/briarproject/briar/android/navdrawer/TransportsActivity.java",
+				"actionBar.setSubtitle(null);");
+		assertFileContains("src/main/res/values/strings.xml",
+				"<string name=\"telegram_connector_transports_subtitle\">Telegram account staged: %1$s</string>");
+	}
+
+	@Test
 	public void testConnectionsSettingsExposeTelegramSetupPlaceholder()
 			throws IOException {
 		assertFileContains("src/main/java/org/briarproject/briar/android/settings/ConnectionsFragment.java",
