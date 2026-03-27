@@ -77,6 +77,21 @@ public class TelegramFeatureFlagsDefaultsTest {
 				"public boolean isTelegramConnectorReady() {\n\t\treturn accountSignedIn() && telegramConnector.isEnabled();\n\t}");
 	}
 
+	@Test
+	public void testConnectionsSettingsExposeTelegramSetupPlaceholder()
+			throws IOException {
+		assertFileContains("src/main/java/org/briarproject/briar/android/settings/ConnectionsFragment.java",
+				"telegramStatus.setOnPreferenceClickListener(preference -> {");
+		assertFileContains("src/main/java/org/briarproject/briar/android/settings/ConnectionsFragment.java",
+				"showTelegramSetupDialog(requireSettingsActivity()\n\t\t\t\t\t.isTelegramConnectorReady());");
+		assertFileContains("src/main/java/org/briarproject/briar/android/settings/ConnectionsFragment.java",
+				"private void showTelegramSetupDialog(boolean ready) {");
+		assertFileContains("src/main/res/values/strings.xml",
+				"<string name=\"telegram_connector_setup_ready_message\">Telegram account linking is the next Harbor internal test step. Connector syncing is still inactive in this build.</string>");
+		assertFileContains("src/main/res/values/strings.xml",
+				"<string name=\"telegram_connector_setup_unavailable_message\">Sign into Harbor and finish app startup before Telegram account linking can be tested. Connector syncing is still inactive in this build.</string>");
+	}
+
 	private static void assertFileContains(String moduleRelativePath,
 			String expectedText) throws IOException {
 		String contents = new String(

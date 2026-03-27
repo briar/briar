@@ -4,6 +4,8 @@ import android.content.Context;
 import android.os.Bundle;
 import android.view.View;
 
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+
 import org.briarproject.briar.R;
 import org.briarproject.briar.api.telegram.TelegramConnector;
 import org.briarproject.nullsafety.MethodsNotNullByDefault;
@@ -99,6 +101,11 @@ public class ConnectionsFragment extends PreferenceFragmentCompat {
 				.isTelegramConnectorReady()
 				? R.string.telegram_connector_settings_ready_summary
 				: R.string.telegram_connector_settings_summary);
+		telegramStatus.setOnPreferenceClickListener(preference -> {
+			showTelegramSetupDialog(requireSettingsActivity()
+					.isTelegramConnectorReady());
+			return true;
+		});
 
 		if (SDK_INT >= 31) {
 			enableBluetooth.setOnPreferenceChangeListener((p, value) -> {
@@ -179,6 +186,18 @@ public class ConnectionsFragment extends PreferenceFragmentCompat {
 					R.string.permission_bluetooth_title,
 					R.string.permission_bluetooth_denied_body);
 		}
+	}
+
+	private void showTelegramSetupDialog(boolean ready) {
+		int message = ready
+				? R.string.telegram_connector_setup_ready_message
+				: R.string.telegram_connector_setup_unavailable_message;
+		new MaterialAlertDialogBuilder(requireContext(),
+				R.style.BriarDialogTheme)
+				.setTitle(R.string.telegram_connector_settings_title)
+				.setMessage(message)
+				.setPositiveButton(R.string.ok, null)
+				.show();
 	}
 
 	private SettingsActivity requireSettingsActivity() {
