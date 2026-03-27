@@ -79,6 +79,10 @@ public class StartupActivity extends BaseActivity implements
 	@Override
 	@SuppressLint("MissingSuperCall")
 	public void onBackPressed() {
+		if (viewModel.getState().getValue() == TELEGRAM_LOGIN) {
+			viewModel.showPasswordFragment();
+			return;
+		}
 		// Move task and activity to the background instead of showing another
 		// password prompt.
 		// onActivityResult() won't be called in BriarActivity

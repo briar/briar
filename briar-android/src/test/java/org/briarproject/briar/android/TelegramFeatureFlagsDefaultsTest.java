@@ -226,6 +226,8 @@ public class TelegramFeatureFlagsDefaultsTest {
 		assertFileContains("src/main/java/org/briarproject/briar/android/login/StartupActivity.java",
 				"} else if (state == TELEGRAM_LOGIN) {\n\t\t\tshowTelegramLoginPlaceholder();\n\t\t}");
 		assertFileContains("src/main/java/org/briarproject/briar/android/login/StartupActivity.java",
+				"if (viewModel.getState().getValue() == TELEGRAM_LOGIN) {\n\t\t\tviewModel.showPasswordFragment();\n\t\t\treturn;\n\t\t}");
+		assertFileContains("src/main/java/org/briarproject/briar/android/login/StartupActivity.java",
 				"private void showPasswordFragment() {");
 		assertFileContains("src/main/java/org/briarproject/briar/android/login/StartupActivity.java",
 				"private void showTelegramLoginPlaceholder() {");
