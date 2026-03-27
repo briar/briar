@@ -104,13 +104,15 @@ public class ConnectionsFragment extends PreferenceFragmentCompat {
 
 		torNetwork.setSummaryProvider(viewModel.torSummaryProvider);
 		telegramStatus.setVisible(telegramConnector.isEnabled());
+		telegramStatus.setSelectable(telegramConnector.isEnabled());
 		telegramStatus.setSummary(requireSettingsActivity()
 				.isTelegramConnectorReady()
 				? R.string.telegram_connector_settings_ready_summary
 				: R.string.telegram_connector_settings_summary);
 		telegramStatus.setOnPreferenceClickListener(preference -> {
 			showTelegramSetupDialog(requireSettingsActivity()
-					.isTelegramConnectorReady());
+					.isTelegramConnectorReady(),
+					telegramLinkedIdentity.getText());
 			return true;
 		});
 		telegramLinkedIdentity.setVisible(telegramConnector.isEnabled());
@@ -211,10 +213,17 @@ public class ConnectionsFragment extends PreferenceFragmentCompat {
 		}
 	}
 
-	private void showTelegramSetupDialog(boolean ready) {
-		int message = ready
-				? R.string.telegram_connector_setup_ready_message
-				: R.string.telegram_connector_setup_unavailable_message;
+	private void showTelegramSetupDialog(boolean ready,
+			@Nullable String linkedIdentity) {
+		CharSequence message = getString(
+				R.string.telegram_connector_setup_unavailable_message);
+		if (ready) {
+			message = isNullOrEmpty(linkedIdentity)
+					? getString(R.string.telegram_connector_setup_ready_message)
+					: getString(
+							R.string.telegram_connector_setup_configured_message,
+							linkedIdentity);
+		}
 		new MaterialAlertDialogBuilder(requireContext(),
 				R.style.BriarDialogTheme)
 				.setTitle(R.string.telegram_connector_settings_title)
