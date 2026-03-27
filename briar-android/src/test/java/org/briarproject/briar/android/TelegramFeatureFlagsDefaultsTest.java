@@ -521,6 +521,21 @@ public class TelegramFeatureFlagsDefaultsTest {
 	}
 
 	@Test
+	public void testTelegramVerificationCompletionResetsWhenIdentityChanges()
+			throws IOException {
+		assertFileContains("src/main/java/org/briarproject/briar/android/settings/ConnectionsFragment.java",
+				"clearTelegramVerificationCompletionIfIdentityChanged(value);");
+		assertFileContains("src/main/java/org/briarproject/briar/android/settings/ConnectionsFragment.java",
+				"private void clearTelegramVerificationCompletionIfIdentityChanged(\n\t\t\t@Nullable String linkedIdentity) {");
+		assertFileContains("src/main/java/org/briarproject/briar/android/settings/ConnectionsFragment.java",
+				"if (isNullOrEmpty(telegramAuthenticationPlaceholderCompletedIdentity)) return;");
+		assertFileContains("src/main/java/org/briarproject/briar/android/settings/ConnectionsFragment.java",
+				"if (!telegramAuthenticationPlaceholderCompletedIdentity.equals(linkedIdentity)) {");
+		assertFileContains("src/main/java/org/briarproject/briar/android/settings/ConnectionsFragment.java",
+				"telegramAuthenticationPlaceholderCompletedIdentity = null;");
+	}
+
+	@Test
 	public void testConnectionsSettingsExposeTelegramIdentityLinkingSeam()
 			throws IOException {
 		assertFileContains("src/main/java/org/briarproject/briar/android/settings/ConnectionsFragment.java",

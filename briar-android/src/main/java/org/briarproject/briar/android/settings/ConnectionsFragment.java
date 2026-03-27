@@ -200,6 +200,7 @@ public class ConnectionsFragment extends PreferenceFragmentCompat {
 							.isTelegramConnectorReady());
 					telegramVerification.setEnabled(requireSettingsActivity().isTelegramConnectorReady()
 							&& !isNullOrEmpty(value));
+					clearTelegramVerificationCompletionIfIdentityChanged(value);
 					updateTelegramVerificationState(value);
 					if (requireSettingsActivity().consumeOpenTelegramSetup()) {
 						showTelegramSetupDialog(requireSettingsActivity()
@@ -296,6 +297,14 @@ public class ConnectionsFragment extends PreferenceFragmentCompat {
 		telegramVerification.setSummary(getString(
 				R.string.telegram_connector_verification_ready_summary,
 				linkedIdentity));
+	}
+
+	private void clearTelegramVerificationCompletionIfIdentityChanged(
+			@Nullable String linkedIdentity) {
+		if (isNullOrEmpty(telegramAuthenticationPlaceholderCompletedIdentity)) return;
+		if (!telegramAuthenticationPlaceholderCompletedIdentity.equals(linkedIdentity)) {
+			telegramAuthenticationPlaceholderCompletedIdentity = null;
+		}
 	}
 
 	private void showTelegramAuthenticationPlaceholder(String linkedIdentity) {
