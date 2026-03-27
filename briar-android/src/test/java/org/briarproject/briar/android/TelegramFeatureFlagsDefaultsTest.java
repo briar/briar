@@ -360,9 +360,46 @@ public class TelegramFeatureFlagsDefaultsTest {
 		assertFileContains("src/main/java/org/briarproject/briar/android/login/StartupViewModel.java",
 				"telegramLinkedIdentityStaged.postEvent(pendingTelegramLinkedIdentity);");
 		assertFileContains("src/main/java/org/briarproject/briar/android/login/StartupActivity.java",
-				"viewModel.getTelegramLinkedIdentityStaged().observeEvent(this,\n\t\t\t\tidentifier -> {\n\t\t\t\t\tToast.makeText(this,\n\t\t\t\t\t\t\tgetString(\n\t\t\t\t\t\t\t\t\tR.string.telegram_connector_login_handoff_staged,\n\t\t\t\t\t\t\t\t\tidentifier),\n\t\t\t\t\t\t\tLENGTH_LONG).show();\n\t\t\t\t});");
+				"viewModel.getTelegramLinkedIdentityStaged().observeEvent(this,\n\t\t\t\tidentifier -> {\n\t\t\t\t\tstagedTelegramLoginIdentity = identifier;\n\t\t\t\t\tToast.makeText(this,\n\t\t\t\t\t\t\tgetString(\n\t\t\t\t\t\t\t\t\tR.string.telegram_connector_login_handoff_staged,\n\t\t\t\t\t\t\t\t\tidentifier),\n\t\t\t\t\t\t\tLENGTH_LONG).show();\n\t\t\t\t});");
 		assertFileContains("src/main/res/values/strings.xml",
 				"<string name=\"telegram_connector_login_handoff_staged\">Telegram identity staged for Harbor internal testing: %1$s</string>");
+	}
+
+	@Test
+	public void testStartupLoginCanOfferTelegramSetupEntrypointAfterFreshHandoff()
+			throws IOException {
+		assertFileContains("src/main/java/org/briarproject/briar/android/login/StartupActivity.java",
+				"public static final String EXTRA_STAGED_TELEGRAM_LOGIN_IDENTITY =\n\t\t\t\"briar.STAGED_TELEGRAM_LOGIN_IDENTITY\";");
+		assertFileContains("src/main/java/org/briarproject/briar/android/login/StartupActivity.java",
+				"private String stagedTelegramLoginIdentity = \"\";");
+		assertFileContains("src/main/java/org/briarproject/briar/android/login/StartupActivity.java",
+				"stagedTelegramLoginIdentity = identifier;");
+		assertFileContains("src/main/java/org/briarproject/briar/android/login/StartupActivity.java",
+				"result.putExtra(EXTRA_STAGED_TELEGRAM_LOGIN_IDENTITY,\n\t\t\t\t\t\tstagedTelegramLoginIdentity);");
+		assertFileContains("src/main/java/org/briarproject/briar/android/activity/BriarActivity.java",
+				"private static final String EXTRA_PENDING_TELEGRAM_LOGIN_ENTRYPOINT =\n\t\t\t\"briar.PENDING_TELEGRAM_LOGIN_ENTRYPOINT\";");
+		assertFileContains("src/main/java/org/briarproject/briar/android/activity/BriarActivity.java",
+				"String stagedIdentity = data.getStringExtra(\n\t\t\t\t\t\tStartupActivity.EXTRA_STAGED_TELEGRAM_LOGIN_IDENTITY);");
+		assertFileContains("src/main/java/org/briarproject/briar/android/activity/BriarActivity.java",
+				"getIntent().putExtra(EXTRA_PENDING_TELEGRAM_LOGIN_ENTRYPOINT,\n\t\t\t\t\t\t\tstagedIdentity);");
+		assertFileContains("src/main/java/org/briarproject/briar/android/activity/BriarActivity.java",
+				"maybeShowTelegramLoginSetupEntryPoint();");
+		assertFileContains("src/main/java/org/briarproject/briar/android/activity/BriarActivity.java",
+				"private void maybeShowTelegramLoginSetupEntryPoint() {");
+		assertFileContains("src/main/java/org/briarproject/briar/android/activity/BriarActivity.java",
+				"getIntent().removeExtra(EXTRA_PENDING_TELEGRAM_LOGIN_ENTRYPOINT);");
+		assertFileContains("src/main/java/org/briarproject/briar/android/activity/BriarActivity.java",
+				"R.string.telegram_connector_login_entrypoint_message,\n\t\t\t\t\t\tlinkedIdentity))");
+		assertFileContains("src/main/java/org/briarproject/briar/android/activity/BriarActivity.java",
+				"Intent i = new Intent(this, SettingsActivity.class);");
+		assertFileContains("src/main/java/org/briarproject/briar/android/activity/BriarActivity.java",
+				"i.setAction(ACTION_MANAGE_NETWORK_USAGE);");
+		assertFileContains("src/main/res/values/strings.xml",
+				"<string name=\"telegram_connector_login_entrypoint_message\">Telegram identity staged for Harbor internal testing: %1$s\\n\\nOpen Telegram setup to continue the placeholder flow.</string>");
+		assertFileContains("src/main/res/values/strings.xml",
+				"<string name=\"telegram_connector_login_entrypoint_continue_button\">Open Telegram setup</string>");
+		assertFileContains("src/main/res/values/strings.xml",
+				"<string name=\"telegram_connector_login_entrypoint_cancel_button\">Stay in Harbor</string>");
 	}
 
 	@Test

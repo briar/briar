@@ -37,10 +37,14 @@ import static org.briarproject.briar.android.login.StartupViewModel.State.TELEGR
 public class StartupActivity extends BaseActivity implements
 		BaseFragmentListener {
 
+	public static final String EXTRA_STAGED_TELEGRAM_LOGIN_IDENTITY =
+			"briar.STAGED_TELEGRAM_LOGIN_IDENTITY";
+
 	@Inject
 	ViewModelProvider.Factory viewModelFactory;
 
 	private StartupViewModel viewModel;
+	private String stagedTelegramLoginIdentity = "";
 
 	@Override
 	public void injectActivity(ActivityComponent component) {
@@ -71,6 +75,7 @@ public class StartupActivity extends BaseActivity implements
 		});
 		viewModel.getTelegramLinkedIdentityStaged().observeEvent(this,
 				identifier -> {
+					stagedTelegramLoginIdentity = identifier;
 					Toast.makeText(this,
 							getString(
 									R.string.telegram_connector_login_handoff_staged,
@@ -114,7 +119,12 @@ public class StartupActivity extends BaseActivity implements
 			startService(new Intent(this, BriarService.class));
 			showNextFragment(new OpenDatabaseFragment());
 		} else if (state == STARTED) {
-			setResult(RESULT_OK);
+			Intent result = new Intent();
+			if (!stagedTelegramLoginIdentity.isEmpty()) {
+				result.putExtra(EXTRA_STAGED_TELEGRAM_LOGIN_IDENTITY,
+						stagedTelegramLoginIdentity);
+			}
+			setResult(RESULT_OK, result);
 			supportFinishAfterTransition();
 			overridePendingTransition(R.anim.screen_new_in,
 					R.anim.screen_old_out);

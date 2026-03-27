@@ -19,6 +19,7 @@ import org.briarproject.briar.android.controller.DbController;
 import org.briarproject.briar.android.controller.handler.UiResultHandler;
 import org.briarproject.briar.android.login.StartupActivity;
 import org.briarproject.briar.android.logout.ExitActivity;
+import org.briarproject.briar.android.settings.SettingsActivity;
 import org.briarproject.briar.api.android.LockManager;
 import org.briarproject.nullsafety.MethodsNotNullByDefault;
 import org.briarproject.nullsafety.ParametersNotNullByDefault;
@@ -37,6 +38,7 @@ import static android.content.Intent.FLAG_ACTIVITY_CLEAR_TASK;
 import static android.content.Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS;
 import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
 import static android.content.Intent.FLAG_ACTIVITY_NO_ANIMATION;
+import static android.content.Intent.ACTION_MANAGE_NETWORK_USAGE;
 import static android.os.Build.VERSION.SDK_INT;
 import static android.widget.Toast.LENGTH_LONG;
 import static java.util.logging.Level.INFO;
@@ -56,6 +58,8 @@ public abstract class BriarActivity extends BaseActivity {
 
 	public static final String GROUP_ID = "briar.GROUP_ID";
 	public static final String GROUP_NAME = "briar.GROUP_NAME";
+	private static final String EXTRA_PENDING_TELEGRAM_LOGIN_ENTRYPOINT =
+			"briar.PENDING_TELEGRAM_LOGIN_ENTRYPOINT";
 
 	private static final Logger LOG =
 			getLogger(BriarActivity.class.getName());
@@ -84,6 +88,14 @@ public abstract class BriarActivity extends BaseActivity {
 			// Recreate the activity so any DB tasks that failed before
 			// signing in can be retried
 			if (result == RESULT_OK) {
+				if (data != null) {
+					String stagedIdentity = data.getStringExtra(
+						StartupActivity.EXTRA_STAGED_TELEGRAM_LOGIN_IDENTITY);
+					if (stagedIdentity != null && !stagedIdentity.isEmpty()) {
+						getIntent().putExtra(EXTRA_PENDING_TELEGRAM_LOGIN_ENTRYPOINT,
+							stagedIdentity);
+					}
+				}
 				if (LOG.isLoggable(INFO)) {
 					LOG.info("Recreating " + getClass().getSimpleName()
 							+ " after signing in");
@@ -119,6 +131,7 @@ public abstract class BriarActivity extends BaseActivity {
 			Intent i = new Intent(this, UnlockActivity.class);
 			startActivityForResult(i, REQUEST_UNLOCK);
 		} else {
+			maybeShowTelegramLoginSetupEntryPoint();
 			briarController.getTelegramLinkedIdentity(new UiResultHandler<String>(this) {
 				@Override
 				public void onResultUi(@Nullable String linkedIdentity) {
@@ -212,6 +225,31 @@ public abstract class BriarActivity extends BaseActivity {
 				briarController.doNotAskAgainForDozeWhiteListing();
 		});
 		b.show();
+	}
+
+	private void maybeShowTelegramLoginSetupEntryPoint() {
+		String linkedIdentity = getIntent().getStringExtra(
+				EXTRA_PENDING_TELEGRAM_LOGIN_ENTRYPOINT);
+		if (linkedIdentity == null || linkedIdentity.isEmpty()) return;
+		getIntent().removeExtra(EXTRA_PENDING_TELEGRAM_LOGIN_ENTRYPOINT);
+		new MaterialAlertDialogBuilder(this, R.style.BriarDialogTheme)
+				.setTitle(R.string.telegram_connector_settings_title)
+				.setMessage(getString(
+						R.string.telegram_connector_login_entrypoint_message,
+						linkedIdentity))
+				.setPositiveButton(
+						R.string.telegram_connector_login_entrypoint_continue_button,
+						(dialog, which) -> openTelegramSetupSettings())
+				.setNegativeButton(
+						R.string.telegram_connector_login_entrypoint_cancel_button,
+						null)
+				.show();
+	}
+
+	private void openTelegramSetupSettings() {
+		Intent i = new Intent(this, SettingsActivity.class);
+		i.setAction(ACTION_MANAGE_NETWORK_USAGE);
+		startActivity(i);
 	}
 
 	protected void onTelegramLinkedIdentityAvailable(
