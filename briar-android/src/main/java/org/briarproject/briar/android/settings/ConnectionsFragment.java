@@ -228,12 +228,23 @@ public class ConnectionsFragment extends PreferenceFragmentCompat {
 							R.string.telegram_connector_setup_configured_message,
 							linkedIdentity);
 		}
-		new MaterialAlertDialogBuilder(requireContext(),
-				R.style.BriarDialogTheme)
-				.setTitle(R.string.telegram_connector_settings_title)
-				.setMessage(message)
-				.setPositiveButton(R.string.ok, null)
-				.show();
+		MaterialAlertDialogBuilder builder =
+				new MaterialAlertDialogBuilder(requireContext(),
+						R.style.BriarDialogTheme)
+						.setTitle(R.string.telegram_connector_settings_title)
+						.setMessage(message);
+		builder.setPositiveButton(ready
+				? R.string.telegram_connector_setup_continue_button
+				: R.string.ok,
+				(dialog, which) -> {
+					if (ready) showTelegramIdentityEditor();
+				});
+		if (ready) builder.setNegativeButton(R.string.cancel, null);
+		builder.show();
+	}
+
+	private void showTelegramIdentityEditor() {
+		telegramLinkedIdentity.performClick();
 	}
 
 	private SettingsActivity requireSettingsActivity() {

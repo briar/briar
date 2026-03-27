@@ -439,6 +439,21 @@ public class TelegramFeatureFlagsDefaultsTest {
 	}
 
 	@Test
+	public void testTelegramSetupPlaceholderCanContinueToIdentityReview()
+			throws IOException {
+		assertFileContains("src/main/java/org/briarproject/briar/android/settings/ConnectionsFragment.java",
+				"builder.setPositiveButton(ready\n\t\t\t\t? R.string.telegram_connector_setup_continue_button\n\t\t\t\t: R.string.ok,");
+		assertFileContains("src/main/java/org/briarproject/briar/android/settings/ConnectionsFragment.java",
+				"if (ready) showTelegramIdentityEditor();");
+		assertFileContains("src/main/java/org/briarproject/briar/android/settings/ConnectionsFragment.java",
+				"builder.setNegativeButton(R.string.cancel, null);");
+		assertFileContains("src/main/java/org/briarproject/briar/android/settings/ConnectionsFragment.java",
+				"private void showTelegramIdentityEditor() {\n\t\ttelegramLinkedIdentity.performClick();\n\t}");
+		assertFileContains("src/main/res/values/strings.xml",
+				"<string name=\"telegram_connector_setup_continue_button\">Review Telegram identity</string>");
+	}
+
+	@Test
 	public void testConnectionsSettingsExposeTelegramIdentityLinkingSeam()
 			throws IOException {
 		assertFileContains("src/main/java/org/briarproject/briar/android/settings/ConnectionsFragment.java",

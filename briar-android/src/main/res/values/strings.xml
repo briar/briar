@@ -130,6 +130,7 @@
 	<string name="telegram_connector_settings_ready_summary">Connector foundations are ready for internal Harbor testing. Telegram syncing is not active yet.</string>
 	<string name="telegram_connector_settings_summary">Connector foundations are enabled for internal Harbor testing. Telegram syncing is not active yet.</string>
 	<string name="telegram_connector_setup_ready_message">Telegram account linking is the next Harbor internal test step. Connector syncing is still inactive in this build.</string>
+	<string name="telegram_connector_setup_continue_button">Review Telegram identity</string>
 	<string name="telegram_connector_setup_unavailable_message">Sign into Harbor and finish app startup before Telegram account linking can be tested. Connector syncing is still inactive in this build.</string>
 	<string name="telegram_connector_setup_configured_message">Telegram account %1$s is stored for internal Harbor linking tests. Connector syncing is still inactive in this build.</string>
 	<string name="telegram_connector_transports_subtitle">Telegram account staged: %1$s</string>
