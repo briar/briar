@@ -5,9 +5,11 @@
 	android:layout_height="match_parent"
 	android:fillViewport="true">
 
-	<androidx.constraintlayout.widget.ConstraintLayout
+	<LinearLayout
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
+		android:gravity="center_horizontal"
+		android:orientation="vertical"
 		android:padding="@dimen/margin_activity_vertical">
 
 		<ImageView
@@ -15,10 +17,7 @@
 			android:layout_width="88dp"
 			android:layout_height="88dp"
 			android:contentDescription="@string/app_name"
-			android:src="@drawable/navigation_drawer_mark"
-			app:layout_constraintEnd_toEndOf="parent"
-			app:layout_constraintStart_toStartOf="parent"
-			app:layout_constraintTop_toTopOf="parent" />
+			android:src="@drawable/navigation_drawer_mark" />
 
 		<TextView
 			android:id="@+id/title"
@@ -26,10 +25,7 @@
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
 			android:layout_marginTop="24dp"
-			android:text="@string/telegram_connector_login_title"
-			app:layout_constraintEnd_toEndOf="parent"
-			app:layout_constraintStart_toStartOf="parent"
-			app:layout_constraintTop_toBottomOf="@+id/imageView" />
+			android:text="@string/telegram_connector_login_title" />
 
 		<TextView
 			android:id="@+id/message"
@@ -40,29 +36,65 @@
 			android:paddingLeft="@dimen/margin_large"
 			android:paddingRight="@dimen/margin_large"
 			android:text="@string/telegram_connector_login_message"
-			android:textSize="@dimen/text_size_large"
-			app:layout_constraintEnd_toEndOf="parent"
-			app:layout_constraintStart_toStartOf="parent"
-			app:layout_constraintTop_toBottomOf="@+id/title" />
+			android:textSize="@dimen/text_size_large" />
 
-		<com.google.android.material.textfield.TextInputLayout
-			android:id="@+id/telegram_login_identifier_layout"
+		<LinearLayout
+			android:id="@+id/telegram_login_identifier_step"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
 			android:layout_marginTop="24dp"
-			android:hint="@string/telegram_connector_login_identifier_hint"
-			app:layout_constraintEnd_toEndOf="parent"
-			app:layout_constraintStart_toStartOf="parent"
-			app:layout_constraintTop_toBottomOf="@+id/message">
+			android:orientation="vertical">
 
-			<com.google.android.material.textfield.TextInputEditText
-				android:id="@+id/telegram_login_identifier"
+			<com.google.android.material.textfield.TextInputLayout
+				android:id="@+id/telegram_login_identifier_layout"
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
-				android:inputType="textNoSuggestions"
-				android:maxLines="1" />
+				android:hint="@string/telegram_connector_login_identifier_hint">
 
-		</com.google.android.material.textfield.TextInputLayout>
+				<com.google.android.material.textfield.TextInputEditText
+					android:id="@+id/telegram_login_identifier"
+					android:layout_width="match_parent"
+					android:layout_height="wrap_content"
+					android:inputType="textNoSuggestions"
+					android:maxLines="1" />
+
+			</com.google.android.material.textfield.TextInputLayout>
+
+			<com.google.android.material.button.MaterialButton
+				android:id="@+id/btn_telegram_login_continue"
+				style="@style/BriarButton"
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:layout_marginTop="16dp"
+				android:text="@string/telegram_connector_login_continue_button" />
+
+		</LinearLayout>
+
+		<LinearLayout
+			android:id="@+id/telegram_login_confirmation"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:layout_marginTop="24dp"
+			android:orientation="vertical"
+			android:visibility="gone">
+
+			<TextView
+				android:id="@+id/telegram_login_confirmation_message"
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:gravity="center"
+				android:textSize="@dimen/text_size_large" />
+
+			<com.google.android.material.button.MaterialButton
+				android:id="@+id/btn_telegram_login_confirmation_back"
+				style="@style/BriarButtonFlat.Neutral"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:layout_gravity="center_horizontal"
+				android:layout_marginTop="16dp"
+				android:text="@string/telegram_connector_login_confirmation_back_button" />
+
+		</LinearLayout>
 
 		<com.google.android.material.button.MaterialButton
 			android:id="@+id/btn_telegram_login_back"
@@ -70,11 +102,8 @@
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
 			android:layout_marginTop="24dp"
-			android:text="@string/telegram_connector_login_back_button"
-			app:layout_constraintEnd_toEndOf="parent"
-			app:layout_constraintStart_toStartOf="parent"
-			app:layout_constraintTop_toBottomOf="@+id/telegram_login_identifier_layout" />
+			android:text="@string/telegram_connector_login_back_button" />
 
-	</androidx.constraintlayout.widget.ConstraintLayout>
+	</LinearLayout>
 
 </ScrollView>

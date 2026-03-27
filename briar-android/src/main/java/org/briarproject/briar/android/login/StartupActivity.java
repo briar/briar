@@ -80,6 +80,10 @@ public class StartupActivity extends BaseActivity implements
 	@SuppressLint("MissingSuperCall")
 	public void onBackPressed() {
 		if (viewModel.getState().getValue() == TELEGRAM_LOGIN) {
+			if (viewModel.isShowingTelegramLoginConfirmation()) {
+				viewModel.showTelegramLoginIdentifierStep();
+				return;
+			}
 			viewModel.showPasswordFragment();
 			return;
 		}

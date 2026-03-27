@@ -57,6 +57,8 @@ public class StartupViewModel extends AndroidViewModel
 	private final MutableLiveEvent<Boolean> accountDeleted =
 			new MutableLiveEvent<>();
 	private final MutableLiveData<State> state = new MutableLiveData<>();
+	private final MutableLiveData<Boolean> showingTelegramLoginConfirmation =
+			new MutableLiveData<>(false);
 	private String telegramLoginIdentifier = "";
 
 	@Inject
@@ -137,6 +139,7 @@ public class StartupViewModel extends AndroidViewModel
 	}
 
 	void showTelegramLoginPlaceholder() {
+		showingTelegramLoginConfirmation.setValue(false);
 		state.setValue(TELEGRAM_LOGIN);
 	}
 
@@ -148,7 +151,25 @@ public class StartupViewModel extends AndroidViewModel
 		telegramLoginIdentifier = identifier;
 	}
 
+	void showTelegramLoginConfirmation() {
+		showingTelegramLoginConfirmation.setValue(true);
+	}
+
+	void showTelegramLoginIdentifierStep() {
+		showingTelegramLoginConfirmation.setValue(false);
+	}
+
+	boolean isShowingTelegramLoginConfirmation() {
+		Boolean showing = showingTelegramLoginConfirmation.getValue();
+		return showing != null && showing;
+	}
+
+	LiveData<Boolean> getTelegramLoginConfirmation() {
+		return showingTelegramLoginConfirmation;
+	}
+
 	void showPasswordFragment() {
+		showingTelegramLoginConfirmation.setValue(false);
 		state.setValue(SIGNED_OUT);
 	}
 
