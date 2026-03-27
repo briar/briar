@@ -54,10 +54,16 @@ public class TelegramFeatureFlagsDefaultsTest {
 				"TelegramConnector telegramConnector;");
 		assertFileContains("src/main/java/org/briarproject/briar/android/settings/ConnectionsFragment.java",
 				"telegramStatus.setVisible(telegramConnector.isEnabled());");
+		assertFileContains("src/main/java/org/briarproject/briar/android/settings/ConnectionsFragment.java",
+				"telegramStatus.setSummary(requireSettingsActivity()\n\t\t\t\t.isTelegramConnectorReady()\n\t\t\t\t? R.string.telegram_connector_settings_ready_summary\n\t\t\t\t: R.string.telegram_connector_settings_summary);");
+		assertFileContains("src/main/java/org/briarproject/briar/android/settings/SettingsActivity.java",
+				"boolean isTelegramConnectorReady() {\n\t\treturn getBriarController().isTelegramConnectorReady();\n\t}");
 		assertFileContains("src/main/res/xml/settings_connections.xml",
 				"android:key=\"pref_key_telegram_status\"");
 		assertFileContains("src/main/res/values/strings.xml",
 				"<string name=\"telegram_connector_settings_title\">Telegram connector</string>");
+		assertFileContains("src/main/res/values/strings.xml",
+				"<string name=\"telegram_connector_settings_ready_summary\">Connector foundations are ready for internal Harbor testing. Telegram syncing is not active yet.</string>");
 	}
 
 	@Test

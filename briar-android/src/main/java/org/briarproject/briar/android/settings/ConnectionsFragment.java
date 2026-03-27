@@ -95,6 +95,10 @@ public class ConnectionsFragment extends PreferenceFragmentCompat {
 
 		torNetwork.setSummaryProvider(viewModel.torSummaryProvider);
 		telegramStatus.setVisible(telegramConnector.isEnabled());
+		telegramStatus.setSummary(requireSettingsActivity()
+				.isTelegramConnectorReady()
+				? R.string.telegram_connector_settings_ready_summary
+				: R.string.telegram_connector_settings_summary);
 
 		if (SDK_INT >= 31) {
 			enableBluetooth.setOnPreferenceChangeListener((p, value) -> {
@@ -175,5 +179,9 @@ public class ConnectionsFragment extends PreferenceFragmentCompat {
 					R.string.permission_bluetooth_title,
 					R.string.permission_bluetooth_denied_body);
 		}
+	}
+
+	private SettingsActivity requireSettingsActivity() {
+		return (SettingsActivity) requireActivity();
 	}
 }

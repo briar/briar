@@ -249,6 +249,10 @@ public abstract class BriarActivity extends BaseActivity {
 		if (!app.isInstrumentationTest()) System.exit(0);
 	}
 
+	protected BriarController getBriarController() {
+		return briarController;
+	}
+
 	@Deprecated
 	public void runOnDbThread(Runnable task) {
 		dbController.runOnDbThread(task);

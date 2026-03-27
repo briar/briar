@@ -82,6 +82,10 @@ public class SettingsActivity extends BriarActivity
 		return true;
 	}
 
+	boolean isTelegramConnectorReady() {
+		return getBriarController().isTelegramConnectorReady();
+	}
+
 	private void showNextFragment(FragmentManager fragmentManager, Fragment f) {
 		fragmentManager.beginTransaction()
 				.setCustomAnimations(R.anim.step_next_in,
