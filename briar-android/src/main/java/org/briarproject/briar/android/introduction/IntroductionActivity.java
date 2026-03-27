@@ -9,6 +9,7 @@ import org.briarproject.briar.android.activity.ActivityComponent;
 import org.briarproject.briar.android.activity.BriarActivity;
 import org.briarproject.briar.android.fragment.BaseFragment.BaseFragmentListener;
 
+import javax.annotation.Nullable;
 import javax.inject.Inject;
 
 import androidx.annotation.NonNull;
@@ -70,6 +71,12 @@ public class IntroductionActivity extends BriarActivity
 		if (secondContactId != null) {
 			outState.putInt(BUNDLE_CONTACT2, secondContactId.getInt());
 		}
+	}
+
+	@Override
+	protected void onTelegramLinkedIdentityAvailable(
+			@Nullable String linkedIdentity) {
+		showTelegramLinkedIdentitySubtitle(linkedIdentity);
 	}
 
 }
