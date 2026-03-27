@@ -2,6 +2,7 @@ package org.briarproject.briar.android.login;
 
 import android.app.Application;
 
+import org.briarproject.bramble.api.FeatureFlags;
 import org.briarproject.bramble.api.account.AccountManager;
 import org.briarproject.bramble.api.crypto.DecryptionException;
 import org.briarproject.bramble.api.crypto.DecryptionResult;
@@ -46,6 +47,7 @@ public class StartupViewModel extends AndroidViewModel
 	private final AccountManager accountManager;
 	private final AndroidNotificationManager notificationManager;
 	private final EventBus eventBus;
+	private final FeatureFlags featureFlags;
 	@IoExecutor
 	private final Executor ioExecutor;
 
@@ -61,12 +63,14 @@ public class StartupViewModel extends AndroidViewModel
 			LifecycleManager lifecycleManager,
 			AndroidNotificationManager notificationManager,
 			EventBus eventBus,
-			@IoExecutor Executor ioExecutor) {
+			@IoExecutor Executor ioExecutor,
+			FeatureFlags featureFlags) {
 		super(app);
 		this.accountManager = accountManager;
 		this.notificationManager = notificationManager;
 		this.eventBus = eventBus;
 		this.ioExecutor = ioExecutor;
+		this.featureFlags = featureFlags;
 
 		updateState(lifecycleManager.getLifecycleState());
 		eventBus.addListener(this);
@@ -128,6 +132,10 @@ public class StartupViewModel extends AndroidViewModel
 
 	LiveData<State> getState() {
 		return state;
+	}
+
+	boolean shouldShowTelegramLogin() {
+		return featureFlags.shouldEnableTelegramConnector();
 	}
 
 	@UiThread

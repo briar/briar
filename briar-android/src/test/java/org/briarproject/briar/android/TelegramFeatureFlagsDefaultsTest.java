@@ -182,6 +182,35 @@ public class TelegramFeatureFlagsDefaultsTest {
 	}
 
 	@Test
+	public void testPasswordFragmentExposesTelegramLoginPlaceholder()
+			throws IOException {
+		assertFileContains("src/main/java/org/briarproject/briar/android/login/StartupViewModel.java",
+				"private final FeatureFlags featureFlags;");
+		assertFileContains("src/main/java/org/briarproject/briar/android/login/StartupViewModel.java",
+				"FeatureFlags featureFlags) {");
+		assertFileContains("src/main/java/org/briarproject/briar/android/login/StartupViewModel.java",
+				"this.featureFlags = featureFlags;");
+		assertFileContains("src/main/java/org/briarproject/briar/android/login/StartupViewModel.java",
+				"boolean shouldShowTelegramLogin() {\n\t\treturn featureFlags.shouldEnableTelegramConnector();\n\t}");
+		assertFileContains("src/main/java/org/briarproject/briar/android/login/PasswordFragment.java",
+				"telegramLoginButton = v.findViewById(R.id.btn_telegram_login);");
+		assertFileContains("src/main/java/org/briarproject/briar/android/login/PasswordFragment.java",
+				"telegramLoginButton.setVisibility(\n\t\t\t\tviewModel.shouldShowTelegramLogin() ? VISIBLE : GONE);");
+		assertFileContains("src/main/java/org/briarproject/briar/android/login/PasswordFragment.java",
+				"telegramLoginButton.setOnClickListener(\n\t\t\t\tview -> onTelegramLoginClick());");
+		assertFileContains("src/main/java/org/briarproject/briar/android/login/PasswordFragment.java",
+				"private void onTelegramLoginClick() {");
+		assertFileContains("src/main/res/layout/fragment_password.xml",
+				"android:id=\"@+id/btn_telegram_login\"");
+		assertFileContains("src/main/res/values/strings.xml",
+				"<string name=\"telegram_connector_login_button\">Continue with Telegram</string>");
+		assertFileContains("src/main/res/values/strings.xml",
+				"<string name=\"telegram_connector_login_title\">Telegram login</string>");
+		assertFileContains("src/main/res/values/strings.xml",
+				"<string name=\"telegram_connector_login_message\">Telegram login is staged for internal Harbor testing. Briar password sign-in remains the active path in this build.</string>");
+	}
+
+	@Test
 	public void testConnectionsSettingsExposeTelegramSetupPlaceholder()
 			throws IOException {
 		assertFileContains("src/main/java/org/briarproject/briar/android/settings/ConnectionsFragment.java",

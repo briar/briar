@@ -32,6 +32,7 @@ import androidx.lifecycle.ViewModelProvider;
 import static android.Manifest.permission.POST_NOTIFICATIONS;
 import static android.content.pm.PackageManager.PERMISSION_GRANTED;
 import static android.os.Build.VERSION.SDK_INT;
+import static android.view.View.GONE;
 import static android.view.View.INVISIBLE;
 import static android.view.View.VISIBLE;
 import static android.view.inputmethod.EditorInfo.IME_ACTION_DONE;
@@ -56,6 +57,7 @@ public class PasswordFragment extends BaseFragment implements TextWatcher {
 
 	private StartupViewModel viewModel;
 	private Button signInButton;
+	private Button telegramLoginButton;
 	private ProgressBar progress;
 	private TextInputLayout input;
 	private TextInputEditText password;
@@ -84,6 +86,11 @@ public class PasswordFragment extends BaseFragment implements TextWatcher {
 		});
 
 		signInButton = v.findViewById(R.id.btn_sign_in);
+		telegramLoginButton = v.findViewById(R.id.btn_telegram_login);
+		telegramLoginButton.setVisibility(
+				viewModel.shouldShowTelegramLogin() ? VISIBLE : GONE);
+		telegramLoginButton.setOnClickListener(
+				view -> onTelegramLoginClick());
 		signInButton.setOnClickListener(view -> onSignInButtonClicked());
 		progress = v.findViewById(R.id.progress_wheel);
 		input = v.findViewById(R.id.password_layout);
@@ -164,6 +171,18 @@ public class PasswordFragment extends BaseFragment implements TextWatcher {
 		builder.setPositiveButton(R.string.cancel, null);
 		builder.setNegativeButton(R.string.delete,
 				(dialog, which) -> viewModel.deleteAccount());
+		AlertDialog dialog = builder.create();
+		dialog.show();
+	}
+
+	private void onTelegramLoginClick() {
+		MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(
+				requireContext(), R.style.BriarDialogTheme);
+		builder.setTitle(R.string.telegram_connector_login_title);
+		builder.setBackgroundInsetStart(25);
+		builder.setBackgroundInsetEnd(25);
+		builder.setMessage(R.string.telegram_connector_login_message);
+		builder.setPositiveButton(R.string.ok, null);
 		AlertDialog dialog = builder.create();
 		dialog.show();
 	}
