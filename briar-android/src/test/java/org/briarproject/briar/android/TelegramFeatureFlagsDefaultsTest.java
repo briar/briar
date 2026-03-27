@@ -454,6 +454,37 @@ public class TelegramFeatureFlagsDefaultsTest {
 	}
 
 	@Test
+	public void testTelegramIdentityReviewCanContinueToVerificationPlaceholder()
+			throws IOException {
+		assertFileContains("src/main/java/org/briarproject/briar/android/settings/ConnectionsFragment.java",
+				"static final String PREF_KEY_TELEGRAM_VERIFICATION = \"pref_key_telegram_verification\";");
+		assertFileContains("src/main/java/org/briarproject/briar/android/settings/ConnectionsFragment.java",
+				"private Preference telegramVerification;");
+		assertFileContains("src/main/java/org/briarproject/briar/android/settings/ConnectionsFragment.java",
+				"telegramVerification = findPreference(PREF_KEY_TELEGRAM_VERIFICATION);");
+		assertFileContains("src/main/java/org/briarproject/briar/android/settings/ConnectionsFragment.java",
+				"telegramVerification.setVisible(telegramConnector.isEnabled());");
+		assertFileContains("src/main/java/org/briarproject/briar/android/settings/ConnectionsFragment.java",
+				"telegramVerification.setSummaryProvider(preference -> {");
+		assertFileContains("src/main/java/org/briarproject/briar/android/settings/ConnectionsFragment.java",
+				"telegramVerification.setOnPreferenceClickListener(preference -> {");
+		assertFileContains("src/main/java/org/briarproject/briar/android/settings/ConnectionsFragment.java",
+				"showTelegramVerificationDialog(telegramLinkedIdentity.getText());");
+		assertFileContains("src/main/java/org/briarproject/briar/android/settings/ConnectionsFragment.java",
+				"telegramVerification.setEnabled(requireSettingsActivity().isTelegramConnectorReady()\n\t\t\t\t\t\t\t&& !isNullOrEmpty(value));");
+		assertFileContains("src/main/java/org/briarproject/briar/android/settings/ConnectionsFragment.java",
+				"private void showTelegramVerificationDialog(@Nullable String linkedIdentity) {");
+		assertFileContains("src/main/res/xml/settings_connections.xml",
+				"android:key=\"pref_key_telegram_verification\"");
+		assertFileContains("src/main/res/values/strings.xml",
+				"<string name=\"telegram_connector_verification_title\">Telegram verification</string>");
+		assertFileContains("src/main/res/values/strings.xml",
+				"<string name=\"telegram_connector_verification_ready_summary\">Continue internal Harbor verification for Telegram account %1$s.</string>");
+		assertFileContains("src/main/res/values/strings.xml",
+				"<string name=\"telegram_connector_verification_dialog_message\">Telegram verification for %1$s stays in Harbor local-only placeholder flow. Real Telegram authentication and syncing are still inactive in this build.</string>");
+	}
+
+	@Test
 	public void testConnectionsSettingsExposeTelegramIdentityLinkingSeam()
 			throws IOException {
 		assertFileContains("src/main/java/org/briarproject/briar/android/settings/ConnectionsFragment.java",

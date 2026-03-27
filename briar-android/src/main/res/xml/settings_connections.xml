@@ -81,4 +81,12 @@
 		app:iconSpaceReserved="false"
 		app:singleLineTitle="false" />
 
+	<Preference
+		android:enabled="false"
+		android:key="pref_key_telegram_verification"
+		android:summary="@string/telegram_connector_verification_locked_summary"
+		android:title="@string/telegram_connector_verification_title"
+		app:iconSpaceReserved="false"
+		app:singleLineTitle="false" />
+
 </PreferenceScreen>
