@@ -265,6 +265,27 @@ public class TelegramFeatureFlagsDefaultsTest {
 	}
 
 	@Test
+	public void testTelegramLoginPlaceholderStagesIdentifierInput()
+			throws IOException {
+		assertFileContains("src/main/java/org/briarproject/briar/android/login/StartupViewModel.java",
+				"private String telegramLoginIdentifier = \"\";");
+		assertFileContains("src/main/java/org/briarproject/briar/android/login/StartupViewModel.java",
+				"String getTelegramLoginIdentifier() {\n\t\treturn telegramLoginIdentifier;\n\t}");
+		assertFileContains("src/main/java/org/briarproject/briar/android/login/StartupViewModel.java",
+				"void setTelegramLoginIdentifier(String identifier) {\n\t\ttelegramLoginIdentifier = identifier;\n\t}");
+		assertFileContains("src/main/java/org/briarproject/briar/android/login/TelegramLoginPlaceholderFragment.java",
+				"TextInputEditText identifier =\n\t\t\t\tv.findViewById(R.id.telegram_login_identifier);");
+		assertFileContains("src/main/java/org/briarproject/briar/android/login/TelegramLoginPlaceholderFragment.java",
+				"identifier.setText(viewModel.getTelegramLoginIdentifier());");
+		assertFileContains("src/main/java/org/briarproject/briar/android/login/TelegramLoginPlaceholderFragment.java",
+				"viewModel.setTelegramLoginIdentifier(s.toString());");
+		assertFileContains("src/main/res/layout/fragment_telegram_login_placeholder.xml",
+				"android:id=\"@+id/telegram_login_identifier\"");
+		assertFileContains("src/main/res/values/strings.xml",
+				"<string name=\"telegram_connector_login_identifier_hint\">Telegram identifier</string>");
+	}
+
+	@Test
 	public void testConnectionsSettingsExposeTelegramSetupPlaceholder()
 			throws IOException {
 		assertFileContains("src/main/java/org/briarproject/briar/android/settings/ConnectionsFragment.java",

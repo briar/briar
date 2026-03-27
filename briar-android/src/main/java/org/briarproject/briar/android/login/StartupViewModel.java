@@ -57,6 +57,7 @@ public class StartupViewModel extends AndroidViewModel
 	private final MutableLiveEvent<Boolean> accountDeleted =
 			new MutableLiveEvent<>();
 	private final MutableLiveData<State> state = new MutableLiveData<>();
+	private String telegramLoginIdentifier = "";
 
 	@Inject
 	StartupViewModel(Application app,
@@ -137,6 +138,14 @@ public class StartupViewModel extends AndroidViewModel
 
 	void showTelegramLoginPlaceholder() {
 		state.setValue(TELEGRAM_LOGIN);
+	}
+
+	String getTelegramLoginIdentifier() {
+		return telegramLoginIdentifier;
+	}
+
+	void setTelegramLoginIdentifier(String identifier) {
+		telegramLoginIdentifier = identifier;
 	}
 
 	void showPasswordFragment() {

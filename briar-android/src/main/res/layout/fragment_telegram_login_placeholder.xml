@@ -45,6 +45,25 @@
 			app:layout_constraintStart_toStartOf="parent"
 			app:layout_constraintTop_toBottomOf="@+id/title" />
 
+		<com.google.android.material.textfield.TextInputLayout
+			android:id="@+id/telegram_login_identifier_layout"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:layout_marginTop="24dp"
+			android:hint="@string/telegram_connector_login_identifier_hint"
+			app:layout_constraintEnd_toEndOf="parent"
+			app:layout_constraintStart_toStartOf="parent"
+			app:layout_constraintTop_toBottomOf="@+id/message">
+
+			<com.google.android.material.textfield.TextInputEditText
+				android:id="@+id/telegram_login_identifier"
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:inputType="textNoSuggestions"
+				android:maxLines="1" />
+
+		</com.google.android.material.textfield.TextInputLayout>
+
 		<com.google.android.material.button.MaterialButton
 			android:id="@+id/btn_telegram_login_back"
 			style="@style/BriarButton"
@@ -54,7 +73,7 @@
 			android:text="@string/telegram_connector_login_back_button"
 			app:layout_constraintEnd_toEndOf="parent"
 			app:layout_constraintStart_toStartOf="parent"
-			app:layout_constraintTop_toBottomOf="@+id/message" />
+			app:layout_constraintTop_toBottomOf="@+id/telegram_login_identifier_layout" />
 
 	</androidx.constraintlayout.widget.ConstraintLayout>
 
