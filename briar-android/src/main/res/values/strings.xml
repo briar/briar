@@ -52,6 +52,7 @@
 	<string name="telegram_connector_login_identifier_hint">Telegram identifier</string>
 	<string name="telegram_connector_login_continue_button">Continue</string>
 	<string name="telegram_connector_login_confirmation_message">Telegram identifier staged for internal Harbor testing: %1$s</string>
+	<string name="telegram_connector_login_confirmation_continue_button">Return to Harbor sign-in</string>
 	<string name="telegram_connector_login_confirmation_back_button">Back to identifier</string>
 	<string name="telegram_connector_login_back_button">Use Harbor password instead</string>
 	<string name="dialog_title_lost_password">Lost Password</string>

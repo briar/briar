@@ -86,6 +86,14 @@
 				android:textSize="@dimen/text_size_large" />
 
 			<com.google.android.material.button.MaterialButton
+				android:id="@+id/btn_telegram_login_confirmation_continue"
+				style="@style/BriarButton"
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:layout_marginTop="16dp"
+				android:text="@string/telegram_connector_login_confirmation_continue_button" />
+
+			<com.google.android.material.button.MaterialButton
 				android:id="@+id/btn_telegram_login_confirmation_back"
 				style="@style/BriarButtonFlat.Neutral"
 				android:layout_width="wrap_content"

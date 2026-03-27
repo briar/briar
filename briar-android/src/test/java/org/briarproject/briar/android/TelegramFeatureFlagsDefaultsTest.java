@@ -323,6 +323,17 @@ public class TelegramFeatureFlagsDefaultsTest {
 	}
 
 	@Test
+	public void testTelegramLoginConfirmationCanReturnToPasswordFlow()
+			throws IOException {
+		assertFileContains("src/main/java/org/briarproject/briar/android/login/TelegramLoginPlaceholderFragment.java",
+				"v.findViewById(R.id.btn_telegram_login_confirmation_continue)\n\t\t\t\t.setOnClickListener(view -> {\n\t\t\t\t\tviewModel.showPasswordFragment();\n\t\t\t\t});");
+		assertFileContains("src/main/res/layout/fragment_telegram_login_placeholder.xml",
+				"android:id=\"@+id/btn_telegram_login_confirmation_continue\"");
+		assertFileContains("src/main/res/values/strings.xml",
+				"<string name=\"telegram_connector_login_confirmation_continue_button\">Return to Harbor sign-in</string>");
+	}
+
+	@Test
 	public void testConnectionsSettingsExposeTelegramSetupPlaceholder()
 			throws IOException {
 		assertFileContains("src/main/java/org/briarproject/briar/android/settings/ConnectionsFragment.java",

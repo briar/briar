@@ -55,12 +55,14 @@ public class TelegramLoginPlaceholderFragment extends BaseFragment {
 		TextView confirmationMessage =
 				v.findViewById(R.id.telegram_login_confirmation_message);
 		View continueButton = v.findViewById(R.id.btn_telegram_login_continue);
+		View passwordFallbackButton = v.findViewById(R.id.btn_telegram_login_back);
 		TextInputEditText identifier =
 				v.findViewById(R.id.telegram_login_identifier);
 		identifier.setText(viewModel.getTelegramLoginIdentifier());
 		viewModel.getTelegramLoginConfirmation().observe(getViewLifecycleOwner(),
 				showing -> showCurrentStep(identifierStep, confirmationStep,
-						continueButton, confirmationMessage));
+						continueButton, confirmationMessage,
+						passwordFallbackButton));
 		identifier.addTextChangedListener(new TextWatcher() {
 			@Override
 			public void beforeTextChanged(CharSequence s, int start, int count,
@@ -76,12 +78,16 @@ public class TelegramLoginPlaceholderFragment extends BaseFragment {
 			public void afterTextChanged(Editable s) {
 				viewModel.setTelegramLoginIdentifier(s.toString());
 				showCurrentStep(identifierStep, confirmationStep, continueButton,
-						confirmationMessage);
+						confirmationMessage, passwordFallbackButton);
 			}
 		});
 		v.findViewById(R.id.btn_telegram_login_continue)
 				.setOnClickListener(view -> {
 					viewModel.showTelegramLoginConfirmation();
+				});
+		v.findViewById(R.id.btn_telegram_login_confirmation_continue)
+				.setOnClickListener(view -> {
+					viewModel.showPasswordFragment();
 				});
 		v.findViewById(R.id.btn_telegram_login_confirmation_back)
 				.setOnClickListener(view -> {
@@ -90,24 +96,27 @@ public class TelegramLoginPlaceholderFragment extends BaseFragment {
 		v.findViewById(R.id.btn_telegram_login_back)
 				.setOnClickListener(view -> viewModel.showPasswordFragment());
 		showCurrentStep(identifierStep, confirmationStep, continueButton,
-				confirmationMessage);
+				confirmationMessage, passwordFallbackButton);
 		return v;
 	}
 
 	private void showCurrentStep(View identifierStep, View confirmationStep,
-			View continueButton, TextView confirmationMessage) {
+			View continueButton, TextView confirmationMessage,
+			View passwordFallbackButton) {
 		boolean hasIdentifier =
 				!viewModel.getTelegramLoginIdentifier().trim().isEmpty();
 		continueButton.setEnabled(hasIdentifier);
 		if (viewModel.isShowingTelegramLoginConfirmation()) {
 			identifierStep.setVisibility(View.GONE);
 			confirmationStep.setVisibility(View.VISIBLE);
+			passwordFallbackButton.setVisibility(View.GONE);
 			confirmationMessage.setText(getString(
 					R.string.telegram_connector_login_confirmation_message,
 					viewModel.getTelegramLoginIdentifier()));
 		} else {
 			identifierStep.setVisibility(View.VISIBLE);
 			confirmationStep.setVisibility(View.GONE);
+			passwordFallbackButton.setVisibility(View.VISIBLE);
 		}
 	}
 
