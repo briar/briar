@@ -173,6 +173,15 @@ public class TelegramFeatureFlagsDefaultsTest {
 	}
 
 	@Test
+	public void testGroupMemberListActivitySurfacesTelegramIdentityOutsideSettings()
+			throws IOException {
+		assertFileContains("src/main/java/org/briarproject/briar/android/privategroup/memberlist/GroupMemberListActivity.java",
+				"protected void onTelegramLinkedIdentityAvailable(\n\t\t\t@Nullable String linkedIdentity) {");
+		assertFileContains("src/main/java/org/briarproject/briar/android/privategroup/memberlist/GroupMemberListActivity.java",
+				"showTelegramLinkedIdentitySubtitle(linkedIdentity);");
+	}
+
+	@Test
 	public void testConnectionsSettingsExposeTelegramSetupPlaceholder()
 			throws IOException {
 		assertFileContains("src/main/java/org/briarproject/briar/android/settings/ConnectionsFragment.java",

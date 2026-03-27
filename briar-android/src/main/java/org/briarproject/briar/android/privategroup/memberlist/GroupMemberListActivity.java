@@ -69,6 +69,12 @@ public class GroupMemberListActivity extends BriarActivity
 	}
 
 	@Override
+	protected void onTelegramLinkedIdentityAvailable(
+			@Nullable String linkedIdentity) {
+		showTelegramLinkedIdentitySubtitle(linkedIdentity);
+	}
+
+	@Override
 	public void onStart() {
 		super.onStart();
 		loadMembers();
