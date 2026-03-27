@@ -60,6 +60,17 @@ public class TelegramFeatureFlagsDefaultsTest {
 				"<string name=\"telegram_connector_settings_title\">Telegram connector</string>");
 	}
 
+	@Test
+	public void testBriarControllerExposesTelegramConnectorReadinessSeam()
+			throws IOException {
+		assertFileContains("src/main/java/org/briarproject/briar/android/controller/BriarController.java",
+				"boolean isTelegramConnectorReady();");
+		assertFileContains("src/main/java/org/briarproject/briar/android/controller/BriarControllerImpl.java",
+				"private final TelegramConnector telegramConnector;");
+		assertFileContains("src/main/java/org/briarproject/briar/android/controller/BriarControllerImpl.java",
+				"public boolean isTelegramConnectorReady() {\n\t\treturn accountSignedIn() && telegramConnector.isEnabled();\n\t}");
+	}
+
 	private static void assertFileContains(String moduleRelativePath,
 			String expectedText) throws IOException {
 		String contents = new String(
