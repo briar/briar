@@ -118,13 +118,21 @@ public abstract class BriarActivity extends BaseActivity {
 			LOG.info("Locked, launching UnlockActivity");
 			Intent i = new Intent(this, UnlockActivity.class);
 			startActivityForResult(i, REQUEST_UNLOCK);
-		} else if (SDK_INT >= 23) {
-			briarController.hasDozed(new UiResultHandler<Boolean>(this) {
+		} else {
+			briarController.getTelegramLinkedIdentity(new UiResultHandler<String>(this) {
 				@Override
-				public void onResultUi(Boolean result) {
-					if (result) showDozeDialog(R.string.dnkm_warning_dozed_1);
+				public void onResultUi(@Nullable String linkedIdentity) {
+					onTelegramLinkedIdentityAvailable(linkedIdentity);
 				}
 			});
+			if (SDK_INT >= 23) {
+				briarController.hasDozed(new UiResultHandler<Boolean>(this) {
+					@Override
+					public void onResultUi(Boolean result) {
+						if (result) showDozeDialog(R.string.dnkm_warning_dozed_1);
+					}
+				});
+			}
 		}
 	}
 
@@ -204,6 +212,10 @@ public abstract class BriarActivity extends BaseActivity {
 				briarController.doNotAskAgainForDozeWhiteListing();
 		});
 		b.show();
+	}
+
+	protected void onTelegramLinkedIdentityAvailable(
+			@Nullable String linkedIdentity) {
 	}
 
 	protected void signOut(boolean removeFromRecentApps,

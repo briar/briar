@@ -89,6 +89,17 @@ public class TelegramFeatureFlagsDefaultsTest {
 	}
 
 	@Test
+	public void testBriarActivityLoadsTelegramIdentityDuringResume()
+			throws IOException {
+		assertFileContains("src/main/java/org/briarproject/briar/android/activity/BriarActivity.java",
+				"briarController.getTelegramLinkedIdentity(new UiResultHandler<String>(this) {");
+		assertFileContains("src/main/java/org/briarproject/briar/android/activity/BriarActivity.java",
+				"onTelegramLinkedIdentityAvailable(linkedIdentity);");
+		assertFileContains("src/main/java/org/briarproject/briar/android/activity/BriarActivity.java",
+				"protected void onTelegramLinkedIdentityAvailable(\n\t\t\t@Nullable String linkedIdentity) {");
+	}
+
+	@Test
 	public void testConnectionsSettingsExposeTelegramSetupPlaceholder()
 			throws IOException {
 		assertFileContains("src/main/java/org/briarproject/briar/android/settings/ConnectionsFragment.java",
