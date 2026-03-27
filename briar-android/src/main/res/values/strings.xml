@@ -137,6 +137,7 @@
 	<string name="telegram_connector_verification_locked_summary">Finish Harbor sign-in before continuing to the Telegram verification placeholder.</string>
 	<string name="telegram_connector_verification_needs_identity_summary">Review the Telegram account above before continuing to verification.</string>
 	<string name="telegram_connector_verification_ready_summary">Continue internal Harbor verification for Telegram account %1$s.</string>
+	<string name="telegram_connector_verification_completed_summary">Authentication placeholder reviewed for Telegram account %1$s.</string>
 	<string name="telegram_connector_verification_dialog_message">Telegram verification for %1$s stays in Harbor local-only placeholder flow. Real Telegram authentication and syncing are still inactive in this build.</string>
 	<string name="telegram_connector_verification_continue_button">Open authentication placeholder</string>
 	<string name="telegram_connector_auth_placeholder_title">Telegram authentication</string>

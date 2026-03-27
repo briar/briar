@@ -465,13 +465,15 @@ public class TelegramFeatureFlagsDefaultsTest {
 		assertFileContains("src/main/java/org/briarproject/briar/android/settings/ConnectionsFragment.java",
 				"telegramVerification.setVisible(telegramConnector.isEnabled());");
 		assertFileContains("src/main/java/org/briarproject/briar/android/settings/ConnectionsFragment.java",
-				"telegramVerification.setSummaryProvider(preference -> {");
-		assertFileContains("src/main/java/org/briarproject/briar/android/settings/ConnectionsFragment.java",
 				"telegramVerification.setOnPreferenceClickListener(preference -> {");
+		assertFileContains("src/main/java/org/briarproject/briar/android/settings/ConnectionsFragment.java",
+				"updateTelegramVerificationState(telegramLinkedIdentity.getText());");
 		assertFileContains("src/main/java/org/briarproject/briar/android/settings/ConnectionsFragment.java",
 				"showTelegramVerificationDialog(telegramLinkedIdentity.getText());");
 		assertFileContains("src/main/java/org/briarproject/briar/android/settings/ConnectionsFragment.java",
 				"telegramVerification.setEnabled(requireSettingsActivity().isTelegramConnectorReady()\n\t\t\t\t\t\t\t&& !isNullOrEmpty(value));");
+		assertFileContains("src/main/java/org/briarproject/briar/android/settings/ConnectionsFragment.java",
+				"private void updateTelegramVerificationState(@Nullable String linkedIdentity) {");
 		assertFileContains("src/main/java/org/briarproject/briar/android/settings/ConnectionsFragment.java",
 				"private void showTelegramVerificationDialog(@Nullable String linkedIdentity) {");
 		assertFileContains("src/main/res/xml/settings_connections.xml",
@@ -501,6 +503,21 @@ public class TelegramFeatureFlagsDefaultsTest {
 				"<string name=\"telegram_connector_auth_placeholder_title\">Telegram authentication</string>");
 		assertFileContains("src/main/res/values/strings.xml",
 				"<string name=\"telegram_connector_auth_placeholder_message\">Telegram authentication for %1$s remains a Harbor local-only placeholder. Real Telegram sign-in and syncing are still inactive in this build.</string>");
+	}
+
+	@Test
+	public void testTelegramAuthPlaceholderCompletionUpdatesVerificationSummary()
+			throws IOException {
+		assertFileContains("src/main/java/org/briarproject/briar/android/settings/ConnectionsFragment.java",
+				"private String telegramAuthenticationPlaceholderCompletedIdentity;");
+		assertFileContains("src/main/java/org/briarproject/briar/android/settings/ConnectionsFragment.java",
+				"telegramAuthenticationPlaceholderCompletedIdentity = linkedIdentity;");
+		assertFileContains("src/main/java/org/briarproject/briar/android/settings/ConnectionsFragment.java",
+				"updateTelegramVerificationState(linkedIdentity);");
+		assertFileContains("src/main/java/org/briarproject/briar/android/settings/ConnectionsFragment.java",
+				"linkedIdentity.equals(telegramAuthenticationPlaceholderCompletedIdentity)");
+		assertFileContains("src/main/res/values/strings.xml",
+				"<string name=\"telegram_connector_verification_completed_summary\">Authentication placeholder reviewed for Telegram account %1$s.</string>");
 	}
 
 	@Test

@@ -75,6 +75,7 @@ public class ConnectionsFragment extends PreferenceFragmentCompat {
 	private Preference telegramStatus;
 	private EditTextPreference telegramLinkedIdentity;
 	private Preference telegramVerification;
+	private String telegramAuthenticationPlaceholderCompletedIdentity;
 
 	@RequiresApi(31)
 	private final ActivityResultLauncher<String[]> requestPermissionLauncher =
@@ -128,24 +129,11 @@ public class ConnectionsFragment extends PreferenceFragmentCompat {
 					: R.string.telegram_connector_identity_locked_summary);
 		});
 		telegramVerification.setVisible(telegramConnector.isEnabled());
-		telegramVerification.setSummaryProvider(preference -> {
-			String linkedIdentity = telegramLinkedIdentity.getText();
-			if (!requireSettingsActivity().isTelegramConnectorReady()) {
-				return getString(
-						R.string.telegram_connector_verification_locked_summary);
-			}
-			if (isNullOrEmpty(linkedIdentity)) {
-				return getString(
-						R.string.telegram_connector_verification_needs_identity_summary);
-			}
-			return getString(
-					R.string.telegram_connector_verification_ready_summary,
-					linkedIdentity);
-		});
 		telegramVerification.setOnPreferenceClickListener(preference -> {
 			showTelegramVerificationDialog(telegramLinkedIdentity.getText());
 			return true;
 		});
+		updateTelegramVerificationState(telegramLinkedIdentity.getText());
 
 		if (SDK_INT >= 31) {
 			enableBluetooth.setOnPreferenceChangeListener((p, value) -> {
@@ -212,6 +200,7 @@ public class ConnectionsFragment extends PreferenceFragmentCompat {
 							.isTelegramConnectorReady());
 					telegramVerification.setEnabled(requireSettingsActivity().isTelegramConnectorReady()
 							&& !isNullOrEmpty(value));
+					updateTelegramVerificationState(value);
 					if (requireSettingsActivity().consumeOpenTelegramSetup()) {
 						showTelegramSetupDialog(requireSettingsActivity()
 								.isTelegramConnectorReady(), value);
@@ -287,6 +276,28 @@ public class ConnectionsFragment extends PreferenceFragmentCompat {
 				.show();
 	}
 
+	private void updateTelegramVerificationState(@Nullable String linkedIdentity) {
+		if (!requireSettingsActivity().isTelegramConnectorReady()) {
+			telegramVerification.setSummary(
+					R.string.telegram_connector_verification_locked_summary);
+			return;
+		}
+		if (isNullOrEmpty(linkedIdentity)) {
+			telegramVerification.setSummary(
+					R.string.telegram_connector_verification_needs_identity_summary);
+			return;
+		}
+		if (linkedIdentity.equals(telegramAuthenticationPlaceholderCompletedIdentity)) {
+			telegramVerification.setSummary(getString(
+					R.string.telegram_connector_verification_completed_summary,
+					linkedIdentity));
+			return;
+		}
+		telegramVerification.setSummary(getString(
+				R.string.telegram_connector_verification_ready_summary,
+				linkedIdentity));
+	}
+
 	private void showTelegramAuthenticationPlaceholder(String linkedIdentity) {
 		new MaterialAlertDialogBuilder(requireContext(),
 				R.style.BriarDialogTheme)
@@ -294,7 +305,10 @@ public class ConnectionsFragment extends PreferenceFragmentCompat {
 				.setMessage(getString(
 						R.string.telegram_connector_auth_placeholder_message,
 						linkedIdentity))
-				.setPositiveButton(R.string.ok, null)
+				.setPositiveButton(R.string.ok, (dialog, which) -> {
+					telegramAuthenticationPlaceholderCompletedIdentity = linkedIdentity;
+					updateTelegramVerificationState(linkedIdentity);
+				})
 				.show();
 	}
 
