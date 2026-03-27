@@ -87,7 +87,7 @@ public class TelegramLoginPlaceholderFragment extends BaseFragment {
 				});
 		v.findViewById(R.id.btn_telegram_login_confirmation_continue)
 				.setOnClickListener(view -> {
-					viewModel.showPasswordFragment();
+					viewModel.completeTelegramLoginConfirmation();
 				});
 		v.findViewById(R.id.btn_telegram_login_confirmation_back)
 				.setOnClickListener(view -> {

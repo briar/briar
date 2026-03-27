@@ -4,6 +4,7 @@ import android.app.Application;
 
 import org.briarproject.bramble.api.FeatureFlags;
 import org.briarproject.bramble.api.account.AccountManager;
+import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.crypto.DecryptionException;
 import org.briarproject.bramble.api.crypto.DecryptionResult;
 import org.briarproject.bramble.api.event.Event;
@@ -13,12 +14,15 @@ import org.briarproject.bramble.api.lifecycle.IoExecutor;
 import org.briarproject.bramble.api.lifecycle.LifecycleManager;
 import org.briarproject.bramble.api.lifecycle.LifecycleManager.LifecycleState;
 import org.briarproject.bramble.api.lifecycle.event.LifecycleEvent;
+import org.briarproject.bramble.api.settings.Settings;
+import org.briarproject.bramble.api.settings.SettingsManager;
 import org.briarproject.briar.android.viewmodel.LiveEvent;
 import org.briarproject.briar.android.viewmodel.MutableLiveEvent;
 import org.briarproject.briar.api.android.AndroidNotificationManager;
 import org.briarproject.nullsafety.NotNullByDefault;
 
 import java.util.concurrent.Executor;
+import java.util.logging.Logger;
 
 import javax.inject.Inject;
 
@@ -31,6 +35,7 @@ import static org.briarproject.bramble.api.crypto.DecryptionResult.SUCCESS;
 import static org.briarproject.bramble.api.lifecycle.LifecycleManager.LifecycleState.COMPACTING_DATABASE;
 import static org.briarproject.bramble.api.lifecycle.LifecycleManager.LifecycleState.MIGRATING_DATABASE;
 import static org.briarproject.bramble.api.lifecycle.LifecycleManager.LifecycleState.STARTING_SERVICES;
+import static org.briarproject.bramble.util.LogUtils.logException;
 import static org.briarproject.briar.android.login.StartupViewModel.State.COMPACTING;
 import static org.briarproject.briar.android.login.StartupViewModel.State.MIGRATING;
 import static org.briarproject.briar.android.login.StartupViewModel.State.SIGNED_IN;
@@ -38,6 +43,9 @@ import static org.briarproject.briar.android.login.StartupViewModel.State.SIGNED
 import static org.briarproject.briar.android.login.StartupViewModel.State.STARTED;
 import static org.briarproject.briar.android.login.StartupViewModel.State.STARTING;
 import static org.briarproject.briar.android.login.StartupViewModel.State.TELEGRAM_LOGIN;
+import static org.briarproject.briar.android.settings.SettingsFragment.SETTINGS_NAMESPACE;
+import static java.util.logging.Level.WARNING;
+import static java.util.logging.Logger.getLogger;
 
 @NotNullByDefault
 public class StartupViewModel extends AndroidViewModel
@@ -45,10 +53,14 @@ public class StartupViewModel extends AndroidViewModel
 
 	enum State {SIGNED_OUT, TELEGRAM_LOGIN, SIGNED_IN, STARTING, MIGRATING, COMPACTING, STARTED}
 
+	private static final Logger LOG =
+			getLogger(StartupViewModel.class.getName());
+
 	private final AccountManager accountManager;
 	private final AndroidNotificationManager notificationManager;
 	private final EventBus eventBus;
 	private final FeatureFlags featureFlags;
+	private final SettingsManager settingsManager;
 	@IoExecutor
 	private final Executor ioExecutor;
 
@@ -60,6 +72,7 @@ public class StartupViewModel extends AndroidViewModel
 	private final MutableLiveData<Boolean> showingTelegramLoginConfirmation =
 			new MutableLiveData<>(false);
 	private String telegramLoginIdentifier = "";
+	private volatile String pendingTelegramLinkedIdentity = "";
 
 	@Inject
 	StartupViewModel(Application app,
@@ -68,12 +81,14 @@ public class StartupViewModel extends AndroidViewModel
 			AndroidNotificationManager notificationManager,
 			EventBus eventBus,
 			@IoExecutor Executor ioExecutor,
+			SettingsManager settingsManager,
 			FeatureFlags featureFlags) {
 		super(app);
 		this.accountManager = accountManager;
 		this.notificationManager = notificationManager;
 		this.eventBus = eventBus;
 		this.ioExecutor = ioExecutor;
+		this.settingsManager = settingsManager;
 		this.featureFlags = featureFlags;
 
 		updateState(lifecycleManager.getLifecycleState());
@@ -118,6 +133,7 @@ public class StartupViewModel extends AndroidViewModel
 		ioExecutor.execute(() -> {
 			try {
 				accountManager.signIn(password);
+				storePendingTelegramLinkedIdentity();
 				passwordValidated.postEvent(SUCCESS);
 				state.postValue(SIGNED_IN);
 			} catch (DecryptionException e) {
@@ -155,6 +171,11 @@ public class StartupViewModel extends AndroidViewModel
 		showingTelegramLoginConfirmation.setValue(true);
 	}
 
+	void completeTelegramLoginConfirmation() {
+		pendingTelegramLinkedIdentity = telegramLoginIdentifier.trim();
+		showPasswordFragment();
+	}
+
 	void showTelegramLoginIdentifierStep() {
 		showingTelegramLoginConfirmation.setValue(false);
 	}
@@ -171,6 +192,19 @@ public class StartupViewModel extends AndroidViewModel
 	void showPasswordFragment() {
 		showingTelegramLoginConfirmation.setValue(false);
 		state.setValue(SIGNED_OUT);
+	}
+
+	private void storePendingTelegramLinkedIdentity() {
+		if (pendingTelegramLinkedIdentity.isEmpty()) return;
+		try {
+			Settings settings = new Settings();
+			settings.put("pref_key_telegram_linked_identity",
+					pendingTelegramLinkedIdentity);
+			settingsManager.mergeSettings(settings, SETTINGS_NAMESPACE);
+			pendingTelegramLinkedIdentity = "";
+		} catch (DbException e) {
+			logException(LOG, WARNING, e);
+		}
 	}
 
 	boolean shouldShowTelegramLogin() {

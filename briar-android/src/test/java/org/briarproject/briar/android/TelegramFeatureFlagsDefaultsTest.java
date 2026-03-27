@@ -326,11 +326,28 @@ public class TelegramFeatureFlagsDefaultsTest {
 	public void testTelegramLoginConfirmationCanReturnToPasswordFlow()
 			throws IOException {
 		assertFileContains("src/main/java/org/briarproject/briar/android/login/TelegramLoginPlaceholderFragment.java",
-				"v.findViewById(R.id.btn_telegram_login_confirmation_continue)\n\t\t\t\t.setOnClickListener(view -> {\n\t\t\t\t\tviewModel.showPasswordFragment();\n\t\t\t\t});");
+				"v.findViewById(R.id.btn_telegram_login_confirmation_continue)\n\t\t\t\t.setOnClickListener(view -> {\n\t\t\t\t\tviewModel.completeTelegramLoginConfirmation();\n\t\t\t\t});");
 		assertFileContains("src/main/res/layout/fragment_telegram_login_placeholder.xml",
 				"android:id=\"@+id/btn_telegram_login_confirmation_continue\"");
 		assertFileContains("src/main/res/values/strings.xml",
 				"<string name=\"telegram_connector_login_confirmation_continue_button\">Return to Harbor sign-in</string>");
+	}
+
+	@Test
+	public void testTelegramLoginCompletionStagesLinkedIdentityAfterPasswordSignIn()
+			throws IOException {
+		assertFileContains("src/main/java/org/briarproject/briar/android/login/StartupViewModel.java",
+				"private volatile String pendingTelegramLinkedIdentity = \"\";");
+		assertFileContains("src/main/java/org/briarproject/briar/android/login/StartupViewModel.java",
+				"void completeTelegramLoginConfirmation() {\n\t\tpendingTelegramLinkedIdentity = telegramLoginIdentifier.trim();\n\t\tshowPasswordFragment();\n\t}");
+		assertFileContains("src/main/java/org/briarproject/briar/android/login/StartupViewModel.java",
+				"accountManager.signIn(password);\n\t\t\t\tstorePendingTelegramLinkedIdentity();\n\t\t\t\tpasswordValidated.postEvent(SUCCESS);");
+		assertFileContains("src/main/java/org/briarproject/briar/android/login/StartupViewModel.java",
+				"private void storePendingTelegramLinkedIdentity() {\n\t\tif (pendingTelegramLinkedIdentity.isEmpty()) return;");
+		assertFileContains("src/main/java/org/briarproject/briar/android/login/StartupViewModel.java",
+				"settings.put(\"pref_key_telegram_linked_identity\",");
+		assertFileContains("src/main/java/org/briarproject/briar/android/login/StartupViewModel.java",
+				"settingsManager.mergeSettings(settings, SETTINGS_NAMESPACE);");
 	}
 
 	@Test
