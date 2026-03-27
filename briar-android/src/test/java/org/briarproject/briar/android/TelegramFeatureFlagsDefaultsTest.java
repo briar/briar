@@ -47,6 +47,19 @@ public class TelegramFeatureFlagsDefaultsTest {
 				"TelegramConnector telegramConnector();");
 	}
 
+	@Test
+	public void testConnectionsSettingsCanObserveTelegramConnectorAvailability()
+			throws IOException {
+		assertFileContains("src/main/java/org/briarproject/briar/android/settings/ConnectionsFragment.java",
+				"TelegramConnector telegramConnector;");
+		assertFileContains("src/main/java/org/briarproject/briar/android/settings/ConnectionsFragment.java",
+				"telegramStatus.setVisible(telegramConnector.isEnabled());");
+		assertFileContains("src/main/res/xml/settings_connections.xml",
+				"android:key=\"pref_key_telegram_status\"");
+		assertFileContains("src/main/res/values/strings.xml",
+				"<string name=\"telegram_connector_settings_title\">Telegram connector</string>");
+	}
+
 	private static void assertFileContains(String moduleRelativePath,
 			String expectedText) throws IOException {
 		String contents = new String(

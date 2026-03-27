@@ -113,6 +113,8 @@
 	<string name="bt_plugin_status_active">Briar is connected to Bluetooth</string>
 	<string name="bt_plugin_status_inactive">Briar can\'t connect to Bluetooth</string>
 	<string name="bt_plugin_status_disabled">Briar is configured not to use Bluetooth</string>
+	<string name="telegram_connector_settings_title">Telegram connector</string>
+	<string name="telegram_connector_settings_summary">Connector foundations are enabled for internal Harbor testing. Telegram syncing is not active yet.</string>
 
 	<!-- Notifications -->
 	<string name="reminder_notification_title">Signed out of Harbor</string>

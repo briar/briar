@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.view.View;
 
 import org.briarproject.briar.R;
+import org.briarproject.briar.api.telegram.TelegramConnector;
 import org.briarproject.nullsafety.MethodsNotNullByDefault;
 import org.briarproject.nullsafety.ParametersNotNullByDefault;
 
@@ -21,6 +22,7 @@ import androidx.fragment.app.FragmentActivity;
 import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.preference.ListPreference;
+import androidx.preference.Preference;
 import androidx.preference.PreferenceFragmentCompat;
 import androidx.preference.SwitchPreferenceCompat;
 
@@ -46,9 +48,13 @@ public class ConnectionsFragment extends PreferenceFragmentCompat {
 			"pref_key_tor_mobile_data";
 	static final String PREF_KEY_TOR_ONLY_WHEN_CHARGING =
 			"pref_key_tor_only_when_charging";
+	static final String PREF_KEY_TELEGRAM_STATUS = "pref_key_telegram_status";
 
 	@Inject
 	ViewModelProvider.Factory viewModelFactory;
+
+	@Inject
+	TelegramConnector telegramConnector;
 
 	private SettingsViewModel viewModel;
 	private ConnectionsManager connectionsManager;
@@ -59,6 +65,7 @@ public class ConnectionsFragment extends PreferenceFragmentCompat {
 	private ListPreference torNetwork;
 	private SwitchPreferenceCompat torMobile;
 	private SwitchPreferenceCompat torOnlyWhenCharging;
+	private Preference telegramStatus;
 
 	@RequiresApi(31)
 	private final ActivityResultLauncher<String[]> requestPermissionLauncher =
@@ -84,8 +91,10 @@ public class ConnectionsFragment extends PreferenceFragmentCompat {
 		torNetwork = findPreference(PREF_KEY_TOR_NETWORK);
 		torMobile = findPreference(PREF_KEY_TOR_MOBILE_DATA);
 		torOnlyWhenCharging = findPreference(PREF_KEY_TOR_ONLY_WHEN_CHARGING);
+		telegramStatus = findPreference(PREF_KEY_TELEGRAM_STATUS);
 
 		torNetwork.setSummaryProvider(viewModel.torSummaryProvider);
+		telegramStatus.setVisible(telegramConnector.isEnabled());
 
 		if (SDK_INT >= 31) {
 			enableBluetooth.setOnPreferenceChangeListener((p, value) -> {
