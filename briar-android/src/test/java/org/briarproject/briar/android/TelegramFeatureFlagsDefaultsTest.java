@@ -485,6 +485,25 @@ public class TelegramFeatureFlagsDefaultsTest {
 	}
 
 	@Test
+	public void testTelegramVerificationPlaceholderCanContinueToAuthenticationPlaceholder()
+			throws IOException {
+		assertFileContains("src/main/java/org/briarproject/briar/android/settings/ConnectionsFragment.java",
+				".setPositiveButton(\n\t\t\t\t\t\tR.string.telegram_connector_verification_continue_button,");
+		assertFileContains("src/main/java/org/briarproject/briar/android/settings/ConnectionsFragment.java",
+				"showTelegramAuthenticationPlaceholder(linkedIdentity))");
+		assertFileContains("src/main/java/org/briarproject/briar/android/settings/ConnectionsFragment.java",
+				".setNegativeButton(R.string.cancel, null)");
+		assertFileContains("src/main/java/org/briarproject/briar/android/settings/ConnectionsFragment.java",
+				"private void showTelegramAuthenticationPlaceholder(String linkedIdentity) {");
+		assertFileContains("src/main/res/values/strings.xml",
+				"<string name=\"telegram_connector_verification_continue_button\">Open authentication placeholder</string>");
+		assertFileContains("src/main/res/values/strings.xml",
+				"<string name=\"telegram_connector_auth_placeholder_title\">Telegram authentication</string>");
+		assertFileContains("src/main/res/values/strings.xml",
+				"<string name=\"telegram_connector_auth_placeholder_message\">Telegram authentication for %1$s remains a Harbor local-only placeholder. Real Telegram sign-in and syncing are still inactive in this build.</string>");
+	}
+
+	@Test
 	public void testConnectionsSettingsExposeTelegramIdentityLinkingSeam()
 			throws IOException {
 		assertFileContains("src/main/java/org/briarproject/briar/android/settings/ConnectionsFragment.java",

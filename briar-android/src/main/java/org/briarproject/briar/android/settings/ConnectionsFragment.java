@@ -279,6 +279,21 @@ public class ConnectionsFragment extends PreferenceFragmentCompat {
 				.setMessage(getString(
 						R.string.telegram_connector_verification_dialog_message,
 						linkedIdentity))
+				.setPositiveButton(
+						R.string.telegram_connector_verification_continue_button,
+						(dialog, which) ->
+								showTelegramAuthenticationPlaceholder(linkedIdentity))
+				.setNegativeButton(R.string.cancel, null)
+				.show();
+	}
+
+	private void showTelegramAuthenticationPlaceholder(String linkedIdentity) {
+		new MaterialAlertDialogBuilder(requireContext(),
+				R.style.BriarDialogTheme)
+				.setTitle(R.string.telegram_connector_auth_placeholder_title)
+				.setMessage(getString(
+						R.string.telegram_connector_auth_placeholder_message,
+						linkedIdentity))
 				.setPositiveButton(R.string.ok, null)
 				.show();
 	}
