@@ -249,6 +249,7 @@ public abstract class BriarActivity extends BaseActivity {
 	private void openTelegramSetupSettings() {
 		Intent i = new Intent(this, SettingsActivity.class);
 		i.setAction(ACTION_MANAGE_NETWORK_USAGE);
+		i.putExtra(SettingsActivity.EXTRA_OPEN_TELEGRAM_SETUP, true);
 		startActivity(i);
 	}
 

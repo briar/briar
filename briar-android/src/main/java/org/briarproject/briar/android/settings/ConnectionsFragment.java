@@ -188,6 +188,10 @@ public class ConnectionsFragment extends PreferenceFragmentCompat {
 					telegramLinkedIdentity.setPersistent(true);
 					telegramLinkedIdentity.setEnabled(requireSettingsActivity()
 							.isTelegramConnectorReady());
+					if (requireSettingsActivity().consumeOpenTelegramSetup()) {
+						showTelegramSetupDialog(requireSettingsActivity()
+								.isTelegramConnectorReady(), value);
+					}
 				});
 	}
 

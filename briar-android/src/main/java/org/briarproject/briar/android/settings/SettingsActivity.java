@@ -26,6 +26,7 @@ import static android.content.Intent.ACTION_MANAGE_NETWORK_USAGE;
 public class SettingsActivity extends BriarActivity
 		implements OnPreferenceStartFragmentCallback {
 
+	public static final String EXTRA_OPEN_TELEGRAM_SETUP = "openTelegramSetup";
 	static final String EXTRA_THEME_CHANGE = "themeChange";
 
 	@Override
@@ -84,6 +85,13 @@ public class SettingsActivity extends BriarActivity
 
 	boolean isTelegramConnectorReady() {
 		return getBriarController().isTelegramConnectorReady();
+	}
+
+	boolean consumeOpenTelegramSetup() {
+		boolean openTelegramSetup = getIntent().getBooleanExtra(
+				EXTRA_OPEN_TELEGRAM_SETUP, false);
+		getIntent().removeExtra(EXTRA_OPEN_TELEGRAM_SETUP);
+		return openTelegramSetup;
 	}
 
 	private void showNextFragment(FragmentManager fragmentManager, Fragment f) {

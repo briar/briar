@@ -403,6 +403,23 @@ public class TelegramFeatureFlagsDefaultsTest {
 	}
 
 	@Test
+	public void testPostSignInTelegramSetupEntrypointCanAutoOpenPlaceholder()
+			throws IOException {
+		assertFileContains("src/main/java/org/briarproject/briar/android/settings/SettingsActivity.java",
+				"static final String EXTRA_OPEN_TELEGRAM_SETUP = \"openTelegramSetup\";");
+		assertFileContains("src/main/java/org/briarproject/briar/android/settings/SettingsActivity.java",
+				"boolean consumeOpenTelegramSetup() {\n\t\tboolean openTelegramSetup = getIntent().getBooleanExtra(\n\t\t\t\tEXTRA_OPEN_TELEGRAM_SETUP, false);\n\t\tgetIntent().removeExtra(EXTRA_OPEN_TELEGRAM_SETUP);\n\t\treturn openTelegramSetup;\n\t}");
+		assertFileContains("src/main/java/org/briarproject/briar/android/activity/BriarActivity.java",
+				"i.putExtra(SettingsActivity.EXTRA_OPEN_TELEGRAM_SETUP, true);");
+		assertFileContains("src/main/java/org/briarproject/briar/android/settings/ConnectionsFragment.java",
+				"if (requireSettingsActivity().consumeOpenTelegramSetup()) {");
+		assertFileContains("src/main/java/org/briarproject/briar/android/settings/ConnectionsFragment.java",
+				"showTelegramSetupDialog(requireSettingsActivity()");
+		assertFileContains("src/main/java/org/briarproject/briar/android/settings/ConnectionsFragment.java",
+				".isTelegramConnectorReady(), value);");
+	}
+
+	@Test
 	public void testConnectionsSettingsExposeTelegramSetupPlaceholder()
 			throws IOException {
 		assertFileContains("src/main/java/org/briarproject/briar/android/settings/ConnectionsFragment.java",
