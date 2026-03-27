@@ -69,6 +69,12 @@ public class AddContactActivity extends BriarActivity implements
 	}
 
 	@Override
+	protected void onTelegramLinkedIdentityAvailable(
+			@Nullable String linkedIdentity) {
+		showTelegramLinkedIdentitySubtitle(linkedIdentity);
+	}
+
+	@Override
 	protected void onNewIntent(Intent i) {
 		super.onNewIntent(i);
 		String action = i.getAction();

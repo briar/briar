@@ -146,6 +146,15 @@ public class TelegramFeatureFlagsDefaultsTest {
 	}
 
 	@Test
+	public void testAddContactActivitySurfacesTelegramIdentityOutsideSettings()
+			throws IOException {
+		assertFileContains("src/main/java/org/briarproject/briar/android/contact/add/remote/AddContactActivity.java",
+				"protected void onTelegramLinkedIdentityAvailable(\n\t\t\t@Nullable String linkedIdentity) {");
+		assertFileContains("src/main/java/org/briarproject/briar/android/contact/add/remote/AddContactActivity.java",
+				"showTelegramLinkedIdentitySubtitle(linkedIdentity);");
+	}
+
+	@Test
 	public void testConnectionsSettingsExposeTelegramSetupPlaceholder()
 			throws IOException {
 		assertFileContains("src/main/java/org/briarproject/briar/android/settings/ConnectionsFragment.java",
