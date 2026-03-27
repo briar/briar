@@ -228,6 +228,29 @@ public class TelegramFeatureFlagsDefaultsTest {
 	}
 
 	@Test
+	public void testStartupActivityShowsTelegramLoginPlaceholderFragment()
+			throws IOException {
+		assertFileContains("src/main/java/org/briarproject/briar/android/login/StartupActivity.java",
+				"private void showTelegramLoginPlaceholder() {\n\t\tshowNextFragment(TelegramLoginPlaceholderFragment.newInstance());\n\t}");
+		assertFileContains("src/main/java/org/briarproject/briar/android/login/TelegramLoginPlaceholderFragment.java",
+				"public class TelegramLoginPlaceholderFragment extends BaseFragment {");
+		assertFileContains("src/main/java/org/briarproject/briar/android/login/TelegramLoginPlaceholderFragment.java",
+				"static final String TAG =\n\t\t\tTelegramLoginPlaceholderFragment.class.getName();");
+		assertFileContains("src/main/java/org/briarproject/briar/android/login/TelegramLoginPlaceholderFragment.java",
+				"static TelegramLoginPlaceholderFragment newInstance() {\n\t\treturn new TelegramLoginPlaceholderFragment();\n\t}");
+		assertFileContains("src/main/java/org/briarproject/briar/android/login/TelegramLoginPlaceholderFragment.java",
+				"View v = inflater.inflate(R.layout.fragment_telegram_login_placeholder,\n\t\t\t\tcontainer, false);");
+		assertFileContains("src/main/java/org/briarproject/briar/android/login/TelegramLoginPlaceholderFragment.java",
+				"v.findViewById(R.id.btn_telegram_login_back)\n\t\t\t\t.setOnClickListener(view -> getParentFragmentManager().popBackStack());");
+		assertFileContains("src/main/java/org/briarproject/briar/android/login/TelegramLoginPlaceholderFragment.java",
+				"return TAG;");
+		assertFileContains("src/main/res/layout/fragment_telegram_login_placeholder.xml",
+				"android:id=\"@+id/btn_telegram_login_back\"");
+		assertFileContains("src/main/res/values/strings.xml",
+				"<string name=\"telegram_connector_login_back_button\">Use Harbor password instead</string>");
+	}
+
+	@Test
 	public void testConnectionsSettingsExposeTelegramSetupPlaceholder()
 			throws IOException {
 		assertFileContains("src/main/java/org/briarproject/briar/android/settings/ConnectionsFragment.java",

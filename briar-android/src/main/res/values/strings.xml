@@ -49,6 +49,7 @@
 	<string name="telegram_connector_login_button">Continue with Telegram</string>
 	<string name="telegram_connector_login_title">Telegram login</string>
 	<string name="telegram_connector_login_message">Telegram login is staged for internal Harbor testing. Briar password sign-in remains the active path in this build.</string>
+	<string name="telegram_connector_login_back_button">Use Harbor password instead</string>
 	<string name="dialog_title_lost_password">Lost Password</string>
 	<string name="dialog_message_lost_password">Your Harbor account is stored encrypted on your device, not in the cloud, so we can\'t reset your password. Would you like to delete your account and start again?\n\nCaution: Your identities, contacts and messages will be permanently lost.</string>
 	<string name="startup_failed_activity_title">Harbor Startup Failure</string>

@@ -4,8 +4,6 @@ import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Bundle;
 
-import com.google.android.material.dialog.MaterialAlertDialogBuilder;
-
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.BriarService;
 import org.briarproject.briar.android.account.SetupActivity;
@@ -19,7 +17,6 @@ import org.briarproject.nullsafety.ParametersNotNullByDefault;
 import javax.inject.Inject;
 
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.AlertDialog;
 import androidx.lifecycle.ViewModelProvider;
 
 import static android.content.Intent.FLAG_ACTIVITY_CLEAR_TASK;
@@ -116,15 +113,7 @@ public class StartupActivity extends BaseActivity implements
 	}
 
 	private void showTelegramLoginPlaceholder() {
-		MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(
-				this, R.style.BriarDialogTheme);
-		builder.setTitle(R.string.telegram_connector_login_title);
-		builder.setBackgroundInsetStart(25);
-		builder.setBackgroundInsetEnd(25);
-		builder.setMessage(R.string.telegram_connector_login_message);
-		builder.setPositiveButton(R.string.ok, null);
-		AlertDialog dialog = builder.create();
-		dialog.show();
+		showNextFragment(TelegramLoginPlaceholderFragment.newInstance());
 	}
 
 	@Override

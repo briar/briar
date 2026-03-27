@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:app="http://schemas.android.com/apk/res-auto"
+	android:layout_width="match_parent"
+	android:layout_height="match_parent"
+	android:fillViewport="true">
+
+	<androidx.constraintlayout.widget.ConstraintLayout
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:padding="@dimen/margin_activity_vertical">
+
+		<ImageView
+			android:id="@+id/imageView"
+			android:layout_width="88dp"
+			android:layout_height="88dp"
+			android:contentDescription="@string/app_name"
+			android:src="@drawable/navigation_drawer_mark"
+			app:layout_constraintEnd_toEndOf="parent"
+			app:layout_constraintStart_toStartOf="parent"
+			app:layout_constraintTop_toTopOf="parent" />
+
+		<TextView
+			android:id="@+id/title"
+			style="@style/TextAppearance.AppCompat.Large"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_marginTop="24dp"
+			android:text="@string/telegram_connector_login_title"
+			app:layout_constraintEnd_toEndOf="parent"
+			app:layout_constraintStart_toStartOf="parent"
+			app:layout_constraintTop_toBottomOf="@+id/imageView" />
+
+		<TextView
+			android:id="@+id/message"
+			android:layout_width="0dp"
+			android:layout_height="wrap_content"
+			android:layout_marginTop="16dp"
+			android:gravity="center"
+			android:paddingLeft="@dimen/margin_large"
+			android:paddingRight="@dimen/margin_large"
+			android:text="@string/telegram_connector_login_message"
+			android:textSize="@dimen/text_size_large"
+			app:layout_constraintEnd_toEndOf="parent"
+			app:layout_constraintStart_toStartOf="parent"
+			app:layout_constraintTop_toBottomOf="@+id/title" />
+
+		<com.google.android.material.button.MaterialButton
+			android:id="@+id/btn_telegram_login_back"
+			style="@style/BriarButton"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:layout_marginTop="24dp"
+			android:text="@string/telegram_connector_login_back_button"
+			app:layout_constraintEnd_toEndOf="parent"
+			app:layout_constraintStart_toStartOf="parent"
+			app:layout_constraintTop_toBottomOf="@+id/message" />
+
+	</androidx.constraintlayout.widget.ConstraintLayout>
+
+</ScrollView>
