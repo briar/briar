@@ -113,6 +113,19 @@ public class BriarControllerImpl implements BriarController {
 	}
 
 	@Override
+	public void getTelegramLinkedIdentity(ResultHandler<String> handler) {
+		databaseExecutor.execute(() -> {
+			try {
+				Settings settings =
+						settingsManager.getSettings(SETTINGS_NAMESPACE);
+				handler.onResult(settings.get("pref_key_telegram_linked_identity"));
+			} catch (DbException e) {
+				logException(LOG, WARNING, e);
+			}
+		});
+	}
+
+	@Override
 	public void hasDozed(ResultHandler<Boolean> handler) {
 		BriarApplication app = (BriarApplication) activity.getApplication();
 		if (app.isInstrumentationTest() || !dozeWatchdog.getAndResetDozeFlag()

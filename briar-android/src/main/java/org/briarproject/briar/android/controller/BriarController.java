@@ -13,6 +13,8 @@ public interface BriarController extends ActivityLifecycleController {
 
 	boolean isTelegramConnectorReady();
 
+	void getTelegramLinkedIdentity(ResultHandler<String> handler);
+
 	/**
 	 * Returns true via the handler when the app has dozed
 	 * without being white-listed.

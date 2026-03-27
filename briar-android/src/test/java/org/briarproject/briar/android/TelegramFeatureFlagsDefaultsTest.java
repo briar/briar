@@ -78,6 +78,17 @@ public class TelegramFeatureFlagsDefaultsTest {
 	}
 
 	@Test
+	public void testBriarControllerExposesTelegramIdentityStagingSeam()
+			throws IOException {
+		assertFileContains("src/main/java/org/briarproject/briar/android/controller/BriarController.java",
+				"void getTelegramLinkedIdentity(ResultHandler<String> handler);");
+		assertFileContains("src/main/java/org/briarproject/briar/android/controller/BriarControllerImpl.java",
+				"public void getTelegramLinkedIdentity(ResultHandler<String> handler) {");
+		assertFileContains("src/main/java/org/briarproject/briar/android/controller/BriarControllerImpl.java",
+				"handler.onResult(settings.get(\"pref_key_telegram_linked_identity\"));");
+	}
+
+	@Test
 	public void testConnectionsSettingsExposeTelegramSetupPlaceholder()
 			throws IOException {
 		assertFileContains("src/main/java/org/briarproject/briar/android/settings/ConnectionsFragment.java",
