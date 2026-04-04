@@ -226,9 +226,11 @@ public class TelegramFeatureFlagsDefaultsTest {
 		assertFileContains("src/main/java/org/briarproject/briar/android/login/StartupViewModel.java",
 				"private final FeatureFlags featureFlags;");
 		assertFileContains("src/main/java/org/briarproject/briar/android/login/StartupViewModel.java",
-				"FeatureFlags featureFlags) {");
+				"FeatureFlags featureFlags,\n\t\t\tTelegramAuthSession telegramAuthSession) {");
 		assertFileContains("src/main/java/org/briarproject/briar/android/login/StartupViewModel.java",
 				"this.featureFlags = featureFlags;");
+		assertFileContains("src/main/java/org/briarproject/briar/android/login/StartupViewModel.java",
+				"this.telegramAuthSession = telegramAuthSession;");
 		assertFileContains("src/main/java/org/briarproject/briar/android/login/StartupViewModel.java",
 				"boolean shouldShowTelegramLogin() {\n\t\treturn featureFlags.shouldEnableTelegramConnector();\n\t}");
 		assertFileContains("src/main/java/org/briarproject/briar/android/login/PasswordFragment.java",
@@ -253,9 +255,9 @@ public class TelegramFeatureFlagsDefaultsTest {
 		assertFileContains("src/main/java/org/briarproject/briar/android/login/StartupViewModel.java",
 				"enum State {SIGNED_OUT, TELEGRAM_LOGIN, SIGNED_IN, STARTING, MIGRATING, COMPACTING, STARTED}");
 		assertFileContains("src/main/java/org/briarproject/briar/android/login/StartupViewModel.java",
-				"void showTelegramLoginPlaceholder() {\n\t\tshowingTelegramLoginConfirmation.setValue(false);\n\t\tstate.setValue(TELEGRAM_LOGIN);\n\t}");
+				"void showTelegramLoginPlaceholder() {\n\t\ttelegramAuthSession.start();\n\t\ttelegramAuthState.setValue(telegramAuthSession.getCurrentState());\n\t\tstate.setValue(TELEGRAM_LOGIN);\n\t}");
 		assertFileContains("src/main/java/org/briarproject/briar/android/login/StartupViewModel.java",
-				"void showPasswordFragment() {\n\t\tshowingTelegramLoginConfirmation.setValue(false);\n\t\tstate.setValue(SIGNED_OUT);\n\t}");
+				"void showPasswordFragment() {\n\t\ttelegramAuthSession.close();\n\t\ttelegramAuthState.setValue(telegramAuthSession.getCurrentState());\n\t\tstate.setValue(SIGNED_OUT);\n\t}");
 		assertFileContains("src/main/java/org/briarproject/briar/android/login/PasswordFragment.java",
 				"private void onTelegramLoginClick() {\n\t\tviewModel.showTelegramLoginPlaceholder();\n\t}");
 		assertFileContains("src/main/java/org/briarproject/briar/android/login/StartupActivity.java",
@@ -330,25 +332,33 @@ public class TelegramFeatureFlagsDefaultsTest {
 	public void testTelegramLoginPlaceholderStagesConfirmationStep()
 			throws IOException {
 		assertFileContains("src/main/java/org/briarproject/briar/android/login/StartupViewModel.java",
-				"private final MutableLiveData<Boolean> showingTelegramLoginConfirmation =\n\t\t\tnew MutableLiveData<>(false);");
+				"private final TelegramAuthSession telegramAuthSession;");
 		assertFileContains("src/main/java/org/briarproject/briar/android/login/StartupViewModel.java",
-				"void showTelegramLoginPlaceholder() {\n\t\tshowingTelegramLoginConfirmation.setValue(false);\n\t\tstate.setValue(TELEGRAM_LOGIN);\n\t}");
+				"private final MutableLiveData<TelegramAuthState> telegramAuthState =\n\t\t\tnew MutableLiveData<>(TelegramAuthState.CLOSED);");
 		assertFileContains("src/main/java/org/briarproject/briar/android/login/StartupViewModel.java",
-				"void showTelegramLoginConfirmation() {\n\t\tshowingTelegramLoginConfirmation.setValue(true);\n\t}");
+				"TelegramAuthSession telegramAuthSession) {");
 		assertFileContains("src/main/java/org/briarproject/briar/android/login/StartupViewModel.java",
-				"void showTelegramLoginIdentifierStep() {\n\t\tshowingTelegramLoginConfirmation.setValue(false);\n\t}");
+				"this.telegramAuthSession = telegramAuthSession;");
 		assertFileContains("src/main/java/org/briarproject/briar/android/login/StartupViewModel.java",
-				"boolean isShowingTelegramLoginConfirmation() {\n\t\tBoolean showing = showingTelegramLoginConfirmation.getValue();\n\t\treturn showing != null && showing;\n\t}");
+				"LiveData<TelegramAuthState> getTelegramAuthState() {\n\t\treturn telegramAuthState;\n\t}");
+		assertFileContains("src/main/java/org/briarproject/briar/android/login/StartupViewModel.java",
+				"void submitTelegramLoginIdentifier() {\n\t\ttelegramAuthSession.submitIdentifier(telegramLoginIdentifier);\n\t\ttelegramAuthState.setValue(telegramAuthSession.getCurrentState());\n\t}");
+		assertFileContains("src/main/java/org/briarproject/briar/android/login/StartupViewModel.java",
+				"void showTelegramLoginIdentifierStep() {\n\t\ttelegramAuthSession.close();\n\t\ttelegramAuthSession.start();\n\t\ttelegramAuthState.setValue(telegramAuthSession.getCurrentState());\n\t}");
+		assertFileContains("src/main/java/org/briarproject/briar/android/login/StartupViewModel.java",
+				"boolean isShowingTelegramLoginConfirmation() {\n\t\tTelegramAuthState authState = telegramAuthState.getValue();\n\t\treturn authState == TelegramAuthState.CODE_ENTRY ||\n\t\t\t\tauthState == TelegramAuthState.PASSWORD_ENTRY ||\n\t\t\t\tauthState == TelegramAuthState.READY;\n\t}");
 		assertFileContains("src/main/java/org/briarproject/briar/android/login/StartupActivity.java",
 				"if (viewModel.isShowingTelegramLoginConfirmation()) {\n\t\t\t\tviewModel.showTelegramLoginIdentifierStep();\n\t\t\t\treturn;\n\t\t\t}");
 		assertFileContains("src/main/java/org/briarproject/briar/android/login/TelegramLoginPlaceholderFragment.java",
 				"v.findViewById(R.id.btn_telegram_login_continue)\n\t\t\t\t.setOnClickListener(view -> {");
 		assertFileContains("src/main/java/org/briarproject/briar/android/login/TelegramLoginPlaceholderFragment.java",
-				"viewModel.showTelegramLoginConfirmation();");
+				"viewModel.submitTelegramLoginIdentifier();");
 		assertFileContains("src/main/java/org/briarproject/briar/android/login/TelegramLoginPlaceholderFragment.java",
 				"v.findViewById(R.id.btn_telegram_login_confirmation_back)\n\t\t\t\t.setOnClickListener(view -> {");
 		assertFileContains("src/main/java/org/briarproject/briar/android/login/TelegramLoginPlaceholderFragment.java",
 				"viewModel.showTelegramLoginIdentifierStep();");
+		assertFileContains("src/main/java/org/briarproject/briar/android/login/TelegramLoginPlaceholderFragment.java",
+				"viewModel.getTelegramAuthState().observe(getViewLifecycleOwner(),\n\t\t\t\tauthState -> showCurrentStep(identifierStep, confirmationStep,\n\t\t\t\t\t\tcontinueButton, confirmationMessage,\n\t\t\t\t\t\tpasswordFallbackButton));");
 		assertFileContains("src/main/java/org/briarproject/briar/android/login/TelegramLoginPlaceholderFragment.java",
 				"confirmationMessage.setText(getString(\n\t\t\t\t\tR.string.telegram_connector_login_confirmation_message,\n\t\t\t\t\tviewModel.getTelegramLoginIdentifier()));");
 		assertFileContains("src/main/res/layout/fragment_telegram_login_placeholder.xml",

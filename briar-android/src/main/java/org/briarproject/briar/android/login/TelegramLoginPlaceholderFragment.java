@@ -59,8 +59,8 @@ public class TelegramLoginPlaceholderFragment extends BaseFragment {
 		TextInputEditText identifier =
 				v.findViewById(R.id.telegram_login_identifier);
 		identifier.setText(viewModel.getTelegramLoginIdentifier());
-		viewModel.getTelegramLoginConfirmation().observe(getViewLifecycleOwner(),
-				showing -> showCurrentStep(identifierStep, confirmationStep,
+		viewModel.getTelegramAuthState().observe(getViewLifecycleOwner(),
+				authState -> showCurrentStep(identifierStep, confirmationStep,
 						continueButton, confirmationMessage,
 						passwordFallbackButton));
 		identifier.addTextChangedListener(new TextWatcher() {
@@ -83,7 +83,7 @@ public class TelegramLoginPlaceholderFragment extends BaseFragment {
 		});
 		v.findViewById(R.id.btn_telegram_login_continue)
 				.setOnClickListener(view -> {
-					viewModel.showTelegramLoginConfirmation();
+					viewModel.submitTelegramLoginIdentifier();
 				});
 		v.findViewById(R.id.btn_telegram_login_confirmation_continue)
 				.setOnClickListener(view -> {

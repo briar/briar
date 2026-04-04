@@ -19,6 +19,8 @@ import org.briarproject.bramble.api.settings.SettingsManager;
 import org.briarproject.briar.android.viewmodel.LiveEvent;
 import org.briarproject.briar.android.viewmodel.MutableLiveEvent;
 import org.briarproject.briar.api.android.AndroidNotificationManager;
+import org.briarproject.briar.api.telegram.TelegramAuthSession;
+import org.briarproject.briar.api.telegram.TelegramAuthState;
 import org.briarproject.nullsafety.NotNullByDefault;
 
 import java.util.concurrent.Executor;
@@ -61,6 +63,7 @@ public class StartupViewModel extends AndroidViewModel
 	private final EventBus eventBus;
 	private final FeatureFlags featureFlags;
 	private final SettingsManager settingsManager;
+	private final TelegramAuthSession telegramAuthSession;
 	@IoExecutor
 	private final Executor ioExecutor;
 
@@ -71,8 +74,8 @@ public class StartupViewModel extends AndroidViewModel
 	private final MutableLiveEvent<String> telegramLinkedIdentityStaged =
 			new MutableLiveEvent<>();
 	private final MutableLiveData<State> state = new MutableLiveData<>();
-	private final MutableLiveData<Boolean> showingTelegramLoginConfirmation =
-			new MutableLiveData<>(false);
+	private final MutableLiveData<TelegramAuthState> telegramAuthState =
+			new MutableLiveData<>(TelegramAuthState.CLOSED);
 	private String telegramLoginIdentifier = "";
 	private volatile String pendingTelegramLinkedIdentity = "";
 
@@ -84,7 +87,8 @@ public class StartupViewModel extends AndroidViewModel
 			EventBus eventBus,
 			@IoExecutor Executor ioExecutor,
 			SettingsManager settingsManager,
-			FeatureFlags featureFlags) {
+			FeatureFlags featureFlags,
+			TelegramAuthSession telegramAuthSession) {
 		super(app);
 		this.accountManager = accountManager;
 		this.notificationManager = notificationManager;
@@ -92,6 +96,7 @@ public class StartupViewModel extends AndroidViewModel
 		this.ioExecutor = ioExecutor;
 		this.settingsManager = settingsManager;
 		this.featureFlags = featureFlags;
+		this.telegramAuthSession = telegramAuthSession;
 
 		updateState(lifecycleManager.getLifecycleState());
 		eventBus.addListener(this);
@@ -161,7 +166,8 @@ public class StartupViewModel extends AndroidViewModel
 	}
 
 	void showTelegramLoginPlaceholder() {
-		showingTelegramLoginConfirmation.setValue(false);
+		telegramAuthSession.start();
+		telegramAuthState.setValue(telegramAuthSession.getCurrentState());
 		state.setValue(TELEGRAM_LOGIN);
 	}
 
@@ -173,8 +179,13 @@ public class StartupViewModel extends AndroidViewModel
 		telegramLoginIdentifier = identifier;
 	}
 
-	void showTelegramLoginConfirmation() {
-		showingTelegramLoginConfirmation.setValue(true);
+	LiveData<TelegramAuthState> getTelegramAuthState() {
+		return telegramAuthState;
+	}
+
+	void submitTelegramLoginIdentifier() {
+		telegramAuthSession.submitIdentifier(telegramLoginIdentifier);
+		telegramAuthState.setValue(telegramAuthSession.getCurrentState());
 	}
 
 	void completeTelegramLoginConfirmation() {
@@ -183,20 +194,21 @@ public class StartupViewModel extends AndroidViewModel
 	}
 
 	void showTelegramLoginIdentifierStep() {
-		showingTelegramLoginConfirmation.setValue(false);
+		telegramAuthSession.close();
+		telegramAuthSession.start();
+		telegramAuthState.setValue(telegramAuthSession.getCurrentState());
 	}
 
 	boolean isShowingTelegramLoginConfirmation() {
-		Boolean showing = showingTelegramLoginConfirmation.getValue();
-		return showing != null && showing;
-	}
-
-	LiveData<Boolean> getTelegramLoginConfirmation() {
-		return showingTelegramLoginConfirmation;
+		TelegramAuthState authState = telegramAuthState.getValue();
+		return authState == TelegramAuthState.CODE_ENTRY ||
+				authState == TelegramAuthState.PASSWORD_ENTRY ||
+				authState == TelegramAuthState.READY;
 	}
 
 	void showPasswordFragment() {
-		showingTelegramLoginConfirmation.setValue(false);
+		telegramAuthSession.close();
+		telegramAuthState.setValue(telegramAuthSession.getCurrentState());
 		state.setValue(SIGNED_OUT);
 	}
 
