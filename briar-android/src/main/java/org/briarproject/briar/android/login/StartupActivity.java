@@ -37,6 +37,8 @@ import static org.briarproject.briar.android.login.StartupViewModel.State.TELEGR
 public class StartupActivity extends BaseActivity implements
 		BaseFragmentListener {
 
+	private static final String KEY_STAGED_TELEGRAM_LOGIN_IDENTITY =
+			"stagedTelegramLoginIdentity";
 	public static final String EXTRA_STAGED_TELEGRAM_LOGIN_IDENTITY =
 			"briar.STAGED_TELEGRAM_LOGIN_IDENTITY";
 
@@ -60,6 +62,10 @@ public class StartupActivity extends BaseActivity implements
 		overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
 
 		setContentView(R.layout.activity_fragment_container);
+		if (state != null) {
+			stagedTelegramLoginIdentity = state.getString(
+					KEY_STAGED_TELEGRAM_LOGIN_IDENTITY, "");
+		}
 
 		if (!viewModel.accountExists()) {
 			// TODO ideally we would not have to delete the account again
@@ -83,6 +89,13 @@ public class StartupActivity extends BaseActivity implements
 							LENGTH_LONG).show();
 				});
 		viewModel.getState().observe(this, this::onStateChanged);
+	}
+
+	@Override
+	protected void onSaveInstanceState(Bundle state) {
+		super.onSaveInstanceState(state);
+		state.putString(KEY_STAGED_TELEGRAM_LOGIN_IDENTITY,
+				stagedTelegramLoginIdentity);
 	}
 
 	@Override

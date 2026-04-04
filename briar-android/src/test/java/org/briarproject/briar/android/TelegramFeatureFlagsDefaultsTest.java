@@ -367,6 +367,17 @@ public class TelegramFeatureFlagsDefaultsTest {
 	}
 
 	@Test
+	public void testStartupActivityPersistsTelegramIdentityHandoffAcrossRecreation()
+			throws IOException {
+		assertFileContains("src/main/java/org/briarproject/briar/android/login/StartupActivity.java",
+				"private static final String KEY_STAGED_TELEGRAM_LOGIN_IDENTITY =\n\t\t\t\"stagedTelegramLoginIdentity\";");
+		assertFileContains("src/main/java/org/briarproject/briar/android/login/StartupActivity.java",
+				"if (state != null) {\n\t\t\tstagedTelegramLoginIdentity = state.getString(\n\t\t\t\t\tKEY_STAGED_TELEGRAM_LOGIN_IDENTITY, \"\");\n\t\t}");
+		assertFileContains("src/main/java/org/briarproject/briar/android/login/StartupActivity.java",
+				"protected void onSaveInstanceState(Bundle state) {\n\t\tsuper.onSaveInstanceState(state);\n\t\tstate.putString(KEY_STAGED_TELEGRAM_LOGIN_IDENTITY,\n\t\t\t\tstagedTelegramLoginIdentity);\n\t}");
+	}
+
+	@Test
 	public void testStartupLoginCanOfferTelegramSetupEntrypointAfterFreshHandoff()
 			throws IOException {
 		assertFileContains("src/main/java/org/briarproject/briar/android/login/StartupActivity.java",
