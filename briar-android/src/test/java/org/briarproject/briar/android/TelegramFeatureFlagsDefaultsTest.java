@@ -67,8 +67,27 @@ public class TelegramFeatureFlagsDefaultsTest {
 				"void close();");
 		assertFileContains("../briar-core/src/main/java/org/briarproject/briar/telegram/TelegramModule.java",
 				"TelegramAuthSession provideTelegramAuthSession(FeatureFlags featureFlags) {");
+		assertFileContains("../briar-core/src/main/java/org/briarproject/briar/telegram/TelegramAuthSessionImpl.java",
+				"class TelegramAuthSessionImpl implements TelegramAuthSession {");
 		assertFileContains("../briar-core/src/main/java/org/briarproject/briar/telegram/TelegramModule.java",
-				"if (featureFlags.shouldEnableTelegramConnector()) {\n\t\t\treturn new StubTelegramAuthSession();\n\t\t}\n\t\treturn new NoOpTelegramAuthSession();");
+				"if (featureFlags.shouldEnableTelegramConnector()) {\n\t\t\treturn new TelegramAuthSessionImpl(\n\t\t\t\t\tnew StubTelegramTdlibLoginClient());\n\t\t}\n\t\treturn new TelegramAuthSessionImpl(new NoOpTelegramTdlibLoginClient());");
+	}
+
+	@Test
+	public void testTelegramAuthSessionUsesHarborOwnedTdlibFacade()
+			throws IOException {
+		assertFileContains("../briar-core/src/main/java/org/briarproject/briar/telegram/TelegramTdlibLoginClient.java",
+				"interface TelegramTdlibLoginClient {");
+		assertFileContains("../briar-core/src/main/java/org/briarproject/briar/telegram/TelegramTdlibLoginClient.java",
+				"TelegramAuthState submitIdentifier(String identifier);");
+		assertFileContains("../briar-core/src/main/java/org/briarproject/briar/telegram/TelegramTdlibLoginClient.java",
+				"TelegramAuthState submitCode(String code);");
+		assertFileContains("../briar-core/src/main/java/org/briarproject/briar/telegram/TelegramTdlibLoginClient.java",
+				"TelegramAuthState submitPassword(String password);");
+		assertFileContains("../briar-core/src/main/java/org/briarproject/briar/telegram/TelegramAuthSessionImpl.java",
+				"private final TelegramTdlibLoginClient tdlibLoginClient;");
+		assertFileContains("../briar-core/src/main/java/org/briarproject/briar/telegram/TelegramAuthSessionImpl.java",
+				"TelegramAuthSessionImpl(TelegramTdlibLoginClient tdlibLoginClient) {");
 	}
 
 	@Test
@@ -147,68 +166,17 @@ public class TelegramFeatureFlagsDefaultsTest {
 	}
 
 	@Test
-	public void testTransportsActivitySurfacesTelegramIdentityOutsideSettings()
+	public void testTelegramIdentityConsumersSurfaceOutsideSettings()
 			throws IOException {
-		assertFileContains("src/main/java/org/briarproject/briar/android/navdrawer/TransportsActivity.java",
-				"protected void onTelegramLinkedIdentityAvailable(\n\t\t\t@Nullable String linkedIdentity) {");
-		assertFileContains("src/main/java/org/briarproject/briar/android/navdrawer/TransportsActivity.java",
-				"showTelegramLinkedIdentitySubtitle(linkedIdentity);");
+		assertTelegramSubtitleConsumer("src/main/java/org/briarproject/briar/android/navdrawer/TransportsActivity.java");
+		assertTelegramSubtitleConsumer("src/main/java/org/briarproject/briar/android/navdrawer/NavDrawerActivity.java");
+		assertTelegramSubtitleConsumer("src/main/java/org/briarproject/briar/android/hotspot/HotspotActivity.java");
+		assertTelegramSubtitleConsumer("src/main/java/org/briarproject/briar/android/contact/add/remote/PendingContactListActivity.java");
+		assertTelegramSubtitleConsumer("src/main/java/org/briarproject/briar/android/contact/add/remote/AddContactActivity.java");
+		assertTelegramSubtitleConsumer("src/main/java/org/briarproject/briar/android/contact/add/nearby/AddNearbyContactActivity.java");
+		assertTelegramSubtitleConsumer("src/main/java/org/briarproject/briar/android/introduction/IntroductionActivity.java");
 		assertFileContains("src/main/res/values/strings.xml",
 				"<string name=\"telegram_connector_transports_subtitle\">Telegram account staged: %1$s</string>");
-	}
-
-	@Test
-	public void testNavDrawerActivitySurfacesTelegramIdentityOutsideSettings()
-			throws IOException {
-		assertFileContains("src/main/java/org/briarproject/briar/android/navdrawer/NavDrawerActivity.java",
-				"protected void onTelegramLinkedIdentityAvailable(\n\t\t\t@Nullable String linkedIdentity) {");
-		assertFileContains("src/main/java/org/briarproject/briar/android/navdrawer/NavDrawerActivity.java",
-				"showTelegramLinkedIdentitySubtitle(linkedIdentity);");
-	}
-
-	@Test
-	public void testHotspotActivitySurfacesTelegramIdentityOutsideSettings()
-			throws IOException {
-		assertFileContains("src/main/java/org/briarproject/briar/android/hotspot/HotspotActivity.java",
-				"protected void onTelegramLinkedIdentityAvailable(\n\t\t\t@Nullable String linkedIdentity) {");
-		assertFileContains("src/main/java/org/briarproject/briar/android/hotspot/HotspotActivity.java",
-				"showTelegramLinkedIdentitySubtitle(linkedIdentity);");
-	}
-
-	@Test
-	public void testPendingContactListActivitySurfacesTelegramIdentityOutsideSettings()
-			throws IOException {
-		assertFileContains("src/main/java/org/briarproject/briar/android/contact/add/remote/PendingContactListActivity.java",
-				"protected void onTelegramLinkedIdentityAvailable(\n\t\t\t@Nullable String linkedIdentity) {");
-		assertFileContains("src/main/java/org/briarproject/briar/android/contact/add/remote/PendingContactListActivity.java",
-				"showTelegramLinkedIdentitySubtitle(linkedIdentity);");
-	}
-
-	@Test
-	public void testAddContactActivitySurfacesTelegramIdentityOutsideSettings()
-			throws IOException {
-		assertFileContains("src/main/java/org/briarproject/briar/android/contact/add/remote/AddContactActivity.java",
-				"protected void onTelegramLinkedIdentityAvailable(\n\t\t\t@Nullable String linkedIdentity) {");
-		assertFileContains("src/main/java/org/briarproject/briar/android/contact/add/remote/AddContactActivity.java",
-				"showTelegramLinkedIdentitySubtitle(linkedIdentity);");
-	}
-
-	@Test
-	public void testAddNearbyContactActivitySurfacesTelegramIdentityOutsideSettings()
-			throws IOException {
-		assertFileContains("src/main/java/org/briarproject/briar/android/contact/add/nearby/AddNearbyContactActivity.java",
-				"protected void onTelegramLinkedIdentityAvailable(\n\t\t\t@Nullable String linkedIdentity) {");
-		assertFileContains("src/main/java/org/briarproject/briar/android/contact/add/nearby/AddNearbyContactActivity.java",
-				"showTelegramLinkedIdentitySubtitle(linkedIdentity);");
-	}
-
-	@Test
-	public void testIntroductionActivitySurfacesTelegramIdentityOutsideSettings()
-			throws IOException {
-		assertFileContains("src/main/java/org/briarproject/briar/android/introduction/IntroductionActivity.java",
-				"protected void onTelegramLinkedIdentityAvailable(\n\t\t\t@Nullable String linkedIdentity) {");
-		assertFileContains("src/main/java/org/briarproject/briar/android/introduction/IntroductionActivity.java",
-				"showTelegramLinkedIdentitySubtitle(linkedIdentity);");
 	}
 
 	@Test
@@ -721,6 +689,14 @@ public class TelegramFeatureFlagsDefaultsTest {
 				StandardCharsets.UTF_8);
 		assertFalse("Expected not to find '" + unexpectedText + "' in "
 				+ moduleRelativePath, contents.contains(unexpectedText));
+	}
+
+	private static void assertTelegramSubtitleConsumer(String moduleRelativePath)
+			throws IOException {
+		assertFileContains(moduleRelativePath,
+				"protected void onTelegramLinkedIdentityAvailable(\n\t\t\t@Nullable String linkedIdentity) {");
+		assertFileContains(moduleRelativePath,
+				"showTelegramLinkedIdentitySubtitle(linkedIdentity);");
 	}
 
 	private static Path resolveModulePath(String moduleRelativePath) {

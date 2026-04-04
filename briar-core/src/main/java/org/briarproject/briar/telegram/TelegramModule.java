@@ -25,8 +25,9 @@ public class TelegramModule {
 	@Singleton
 	TelegramAuthSession provideTelegramAuthSession(FeatureFlags featureFlags) {
 		if (featureFlags.shouldEnableTelegramConnector()) {
-			return new StubTelegramAuthSession();
+			return new TelegramAuthSessionImpl(
+					new StubTelegramTdlibLoginClient());
 		}
-		return new NoOpTelegramAuthSession();
+		return new TelegramAuthSessionImpl(new NoOpTelegramTdlibLoginClient());
 	}
 }
