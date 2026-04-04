@@ -77,6 +77,7 @@ public class StartupViewModel extends AndroidViewModel
 	private final MutableLiveData<TelegramAuthState> telegramAuthState =
 			new MutableLiveData<>(TelegramAuthState.CLOSED);
 	private String telegramLoginIdentifier = "";
+	private String telegramLoginCode = "";
 	private volatile String pendingTelegramLinkedIdentity = "";
 
 	@Inject
@@ -166,6 +167,7 @@ public class StartupViewModel extends AndroidViewModel
 	}
 
 	void showTelegramLoginPlaceholder() {
+		telegramLoginCode = "";
 		telegramAuthSession.start();
 		telegramAuthState.setValue(telegramAuthSession.getCurrentState());
 		state.setValue(TELEGRAM_LOGIN);
@@ -179,12 +181,26 @@ public class StartupViewModel extends AndroidViewModel
 		telegramLoginIdentifier = identifier;
 	}
 
+	String getTelegramLoginCode() {
+		return telegramLoginCode;
+	}
+
+	void setTelegramLoginCode(String code) {
+		telegramLoginCode = code;
+	}
+
 	LiveData<TelegramAuthState> getTelegramAuthState() {
 		return telegramAuthState;
 	}
 
 	void submitTelegramLoginIdentifier() {
+		telegramLoginCode = "";
 		telegramAuthSession.submitIdentifier(telegramLoginIdentifier);
+		telegramAuthState.setValue(telegramAuthSession.getCurrentState());
+	}
+
+	void submitTelegramLoginCode() {
+		telegramAuthSession.submitCode(telegramLoginCode);
 		telegramAuthState.setValue(telegramAuthSession.getCurrentState());
 	}
 
@@ -194,6 +210,7 @@ public class StartupViewModel extends AndroidViewModel
 	}
 
 	void showTelegramLoginIdentifierStep() {
+		telegramLoginCode = "";
 		telegramAuthSession.close();
 		telegramAuthSession.start();
 		telegramAuthState.setValue(telegramAuthSession.getCurrentState());
@@ -207,6 +224,7 @@ public class StartupViewModel extends AndroidViewModel
 	}
 
 	void showPasswordFragment() {
+		telegramLoginCode = "";
 		telegramAuthSession.close();
 		telegramAuthState.setValue(telegramAuthSession.getCurrentState());
 		state.setValue(SIGNED_OUT);
