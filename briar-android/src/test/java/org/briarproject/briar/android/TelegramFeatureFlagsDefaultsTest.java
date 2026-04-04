@@ -54,17 +54,7 @@ public class TelegramFeatureFlagsDefaultsTest {
 		assertFileContains("../briar-api/src/main/java/org/briarproject/briar/api/telegram/TelegramAuthState.java",
 				"public enum TelegramAuthState {\n\tIDENTIFIER_ENTRY,\n\tCODE_ENTRY,\n\tPASSWORD_ENTRY,\n\tREADY,\n\tCLOSED,\n\tRECOVERABLE_ERROR\n}");
 		assertFileContains("../briar-api/src/main/java/org/briarproject/briar/api/telegram/TelegramAuthSession.java",
-				"TelegramAuthState getCurrentState();");
-		assertFileContains("../briar-api/src/main/java/org/briarproject/briar/api/telegram/TelegramAuthSession.java",
-				"void start();");
-		assertFileContains("../briar-api/src/main/java/org/briarproject/briar/api/telegram/TelegramAuthSession.java",
-				"void submitIdentifier(String identifier);");
-		assertFileContains("../briar-api/src/main/java/org/briarproject/briar/api/telegram/TelegramAuthSession.java",
-				"void submitCode(String code);");
-		assertFileContains("../briar-api/src/main/java/org/briarproject/briar/api/telegram/TelegramAuthSession.java",
-				"void submitPassword(String password);");
-		assertFileContains("../briar-api/src/main/java/org/briarproject/briar/api/telegram/TelegramAuthSession.java",
-				"void close();");
+				"public interface TelegramAuthSession {\n\n\tTelegramAuthState getCurrentState();\n\n\tvoid start();\n\n\tvoid submitIdentifier(String identifier);\n\n\tvoid submitCode(String code);\n\n\tvoid submitPassword(String password);\n\n\tvoid close();\n}");
 		assertFileContains("../briar-core/src/main/java/org/briarproject/briar/telegram/TelegramModule.java",
 				"TelegramAuthSession provideTelegramAuthSession(FeatureFlags featureFlags) {");
 		assertFileContains("../briar-core/src/main/java/org/briarproject/briar/telegram/TelegramAuthSessionImpl.java",
@@ -77,32 +67,18 @@ public class TelegramFeatureFlagsDefaultsTest {
 	public void testTelegramAuthSessionUsesHarborOwnedTdlibFacade()
 			throws IOException {
 		assertFileContains("../briar-core/src/main/java/org/briarproject/briar/telegram/TelegramTdlibLoginClient.java",
-				"interface TelegramTdlibLoginClient {");
-		assertFileContains("../briar-core/src/main/java/org/briarproject/briar/telegram/TelegramTdlibLoginClient.java",
-				"TelegramAuthState submitIdentifier(String identifier);");
-		assertFileContains("../briar-core/src/main/java/org/briarproject/briar/telegram/TelegramTdlibLoginClient.java",
-				"TelegramAuthState submitCode(String code);");
-		assertFileContains("../briar-core/src/main/java/org/briarproject/briar/telegram/TelegramTdlibLoginClient.java",
-				"TelegramAuthState submitPassword(String password);");
+				"interface TelegramTdlibLoginClient {\n\n\tTelegramAuthState start();\n\n\tTelegramAuthState submitIdentifier(String identifier);\n\n\tTelegramAuthState submitCode(String code);\n\n\tTelegramAuthState submitPassword(String password);\n\n\tTelegramAuthState close();\n}");
 		assertFileContains("../briar-core/src/main/java/org/briarproject/briar/telegram/TelegramAuthSessionImpl.java",
-				"private final TelegramTdlibLoginClient tdlibLoginClient;");
-		assertFileContains("../briar-core/src/main/java/org/briarproject/briar/telegram/TelegramAuthSessionImpl.java",
-				"TelegramAuthSessionImpl(TelegramTdlibLoginClient tdlibLoginClient) {");
+				"class TelegramAuthSessionImpl implements TelegramAuthSession {\n\n\tprivate final TelegramTdlibLoginClient tdlibLoginClient;\n\tprivate TelegramAuthState currentState = TelegramAuthState.CLOSED;\n\n\tTelegramAuthSessionImpl(TelegramTdlibLoginClient tdlibLoginClient) {");
 	}
 
 	@Test
 	public void testBriarAndroidCanConsumePrebuiltTdlibAndroidArtifacts()
 			throws IOException {
 		assertFileContains("build.gradle",
-				"def tdlibDir = rootProject.file('third_party/tdlib')");
+				"def tdlibDir = rootProject.file('third_party/tdlib')\ndef tdlibJavaDir = new File(tdlibDir, 'java')\ndef tdlibJniLibsDir = new File(tdlibDir, 'libs')");
 		assertFileContains("build.gradle",
-				"def tdlibJavaDir = new File(tdlibDir, 'java')");
-		assertFileContains("build.gradle",
-				"def tdlibJniLibsDir = new File(tdlibDir, 'libs')");
-		assertFileContains("build.gradle",
-				"java.srcDirs += [tdlibJavaDir]");
-		assertFileContains("build.gradle",
-				"jniLibs.srcDirs += [tdlibJniLibsDir]");
+				"java.srcDirs += [tdlibJavaDir]\n\t\t\tjniLibs.srcDirs += [tdlibJniLibsDir]");
 	}
 
 	@Test
