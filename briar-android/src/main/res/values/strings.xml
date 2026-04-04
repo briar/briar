@@ -51,6 +51,7 @@
 	<string name="telegram_connector_login_message">Telegram login is staged for internal Harbor testing. Briar password sign-in remains the active path in this build.</string>
 	<string name="telegram_connector_login_identifier_hint">Telegram identifier</string>
 	<string name="telegram_connector_login_code_hint">Telegram login code</string>
+	<string name="telegram_connector_login_password_hint">Telegram password or 2FA code</string>
 	<string name="telegram_connector_login_continue_button">Continue</string>
 	<string name="telegram_connector_login_confirmation_message">Telegram identifier staged for internal Harbor testing: %1$s</string>
 	<string name="telegram_connector_login_confirmation_continue_button">Return to Harbor sign-in</string>
