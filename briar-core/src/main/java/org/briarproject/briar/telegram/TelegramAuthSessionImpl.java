@@ -55,6 +55,10 @@ class NoOpTelegramTdlibLoginClient implements TelegramTdlibLoginClient {
 @NotNullByDefault
 class StubTelegramTdlibLoginClient implements TelegramTdlibLoginClient {
 	private static final long AUTHORIZATION_UPDATE_TIMEOUT_MS = 250L;
+	private final AtomicReference<String> authorizationStateClassName =
+			new AtomicReference<>("");
+	private CountDownLatch updateReceived = new CountDownLatch(0);
+	private String lastAuthorizationStateClassName = "";
 	private Object tdlibClient;
 	@Override
 	public TelegramAuthState start() {
@@ -62,13 +66,39 @@ class StubTelegramTdlibLoginClient implements TelegramTdlibLoginClient {
 		if (StubTelegramTdlibLoginClient.class.getResource("/org/drinkless/tdlib/Client.class") == null) {
 			return TelegramAuthState.RECOVERABLE_ERROR;
 		}
-		return mapAuthorizationStateClassName(awaitAuthorizationStateClassName());
+		return mapAuthorizationStateClassName(awaitAuthorizationStateClassName(true));
 	}
 	@Override
 	public TelegramAuthState submitIdentifier(String identifier) {
-		return hasText(identifier)
-				? TelegramAuthState.CODE_ENTRY
-				: TelegramAuthState.RECOVERABLE_ERROR;
+		if (!hasText(identifier) || tdlibClient == null) {
+			return TelegramAuthState.RECOVERABLE_ERROR;
+		}
+		try {
+			if ("AuthorizationStateWaitTdlibParameters".equals(
+					lastAuthorizationStateClassName)) {
+				prepareAuthorizationUpdate();
+				send(createSetTdlibParametersRequest());
+				if (!"AuthorizationStateWaitPhoneNumber".equals(
+						awaitPreparedAuthorizationStateClassName())) {
+					return TelegramAuthState.RECOVERABLE_ERROR;
+				}
+			}
+			if (!"AuthorizationStateWaitPhoneNumber".equals(
+					lastAuthorizationStateClassName)) {
+				return TelegramAuthState.RECOVERABLE_ERROR;
+			}
+			prepareAuthorizationUpdate();
+			send(createSetAuthenticationPhoneNumberRequest(identifier));
+			return mapAuthorizationStateClassName(
+					awaitPreparedAuthorizationStateClassName());
+		} catch (ReflectiveOperationException | LinkageError e) {
+			closeTdlibClient();
+			return TelegramAuthState.RECOVERABLE_ERROR;
+		} catch (InterruptedException e) {
+			Thread.currentThread().interrupt();
+			closeTdlibClient();
+			return TelegramAuthState.RECOVERABLE_ERROR;
+		}
 	}
 	@Override
 	public TelegramAuthState submitCode(String code) {
@@ -87,19 +117,11 @@ class StubTelegramTdlibLoginClient implements TelegramTdlibLoginClient {
 		closeTdlibClient();
 		return TelegramAuthState.CLOSED;
 	}
-	private String awaitAuthorizationStateClassName() {
-		CountDownLatch updateReceived = new CountDownLatch(1);
-		AtomicReference<String> authorizationStateClassName =
-				new AtomicReference<>("");
+	private String awaitAuthorizationStateClassName(boolean createClient) {
+		prepareAuthorizationUpdate();
 		try {
-			tdlibClient = createTdlibClient(updateReceived,
-					authorizationStateClassName);
-			if (tdlibClient == null || !updateReceived.await(
-					AUTHORIZATION_UPDATE_TIMEOUT_MS, TimeUnit.MILLISECONDS)) {
-				closeTdlibClient();
-				return "";
-			}
-			return authorizationStateClassName.get();
+			if (createClient) tdlibClient = createTdlibClient();
+			return awaitPreparedAuthorizationStateClassName();
 		} catch (ReflectiveOperationException | LinkageError e) {
 			closeTdlibClient();
 			return "";
@@ -109,9 +131,20 @@ class StubTelegramTdlibLoginClient implements TelegramTdlibLoginClient {
 			return "";
 		}
 	}
-	private Object createTdlibClient(CountDownLatch updateReceived,
-			AtomicReference<String> authorizationStateClassName)
-			throws ReflectiveOperationException {
+	private void prepareAuthorizationUpdate() {
+		authorizationStateClassName.set("");
+		updateReceived = new CountDownLatch(1);
+	}
+	private String awaitPreparedAuthorizationStateClassName()
+			throws InterruptedException {
+		if (tdlibClient == null || !updateReceived.await(
+				AUTHORIZATION_UPDATE_TIMEOUT_MS, TimeUnit.MILLISECONDS)) {
+			closeTdlibClient();
+			return "";
+		}
+		return lastAuthorizationStateClassName = authorizationStateClassName.get();
+	}
+	private Object createTdlibClient() throws ReflectiveOperationException {
 		Class<?> clientClass = Class.forName("org.drinkless.tdlib.Client");
 		Class<?> resultHandlerClass =
 				Class.forName("org.drinkless.tdlib.Client$ResultHandler");
@@ -136,6 +169,51 @@ class StubTelegramTdlibLoginClient implements TelegramTdlibLoginClient {
 		Method create = clientClass.getMethod("create", resultHandlerClass,
 				exceptionHandlerClass, exceptionHandlerClass);
 		return create.invoke(null, updateHandler, null, null);
+	}
+	private Object createSetTdlibParametersRequest()
+			throws ReflectiveOperationException {
+		Object request = Class.forName(
+				"org.drinkless.tdlib.TdApi$SetTdlibParameters")
+				.getConstructor().newInstance();
+		setFieldIfPresent(request, "useTestDc", false);
+		setFieldIfPresent(request, "databaseDirectory", "harbor-telegram");
+		setFieldIfPresent(request, "filesDirectory", "harbor-telegram");
+		setFieldIfPresent(request, "databaseEncryptionKey", new byte[0]);
+		setFieldIfPresent(request, "useFileDatabase", true);
+		setFieldIfPresent(request, "useChatInfoDatabase", true);
+		setFieldIfPresent(request, "useMessageDatabase", true);
+		setFieldIfPresent(request, "useSecretChats", true);
+		setFieldIfPresent(request, "apiId", 94575);
+		setFieldIfPresent(request, "apiHash", "a3406de8d171bb422bb6ddf3bbd800e2");
+		setFieldIfPresent(request, "systemLanguageCode", "en");
+		setFieldIfPresent(request, "deviceModel", "Harbor Android");
+		setFieldIfPresent(request, "systemVersion", "Android");
+		setFieldIfPresent(request, "applicationVersion", "Harbor");
+		return request;
+	}
+	private Object createSetAuthenticationPhoneNumberRequest(String identifier)
+			throws ReflectiveOperationException {
+		Class<?> settingsClass = Class.forName(
+				"org.drinkless.tdlib.TdApi$PhoneNumberAuthenticationSettings");
+		return Class.forName(
+				"org.drinkless.tdlib.TdApi$SetAuthenticationPhoneNumber")
+				.getConstructor(String.class, settingsClass)
+				.newInstance(identifier, null);
+	}
+	private void setFieldIfPresent(Object target, String name, Object value)
+			throws ReflectiveOperationException {
+		try {
+			target.getClass().getField(name).set(target, value);
+		} catch (NoSuchFieldException e) {
+		}
+	}
+	private void send(Object request) throws ReflectiveOperationException {
+		Class<?> functionClass =
+				Class.forName("org.drinkless.tdlib.TdApi$Function");
+		Class<?> resultHandlerClass =
+				Class.forName("org.drinkless.tdlib.Client$ResultHandler");
+		tdlibClient.getClass().getMethod("send", functionClass,
+				resultHandlerClass).invoke(tdlibClient, request, null);
 	}
 	private String getAuthorizationStateClassName(Object update)
 			throws ReflectiveOperationException {
