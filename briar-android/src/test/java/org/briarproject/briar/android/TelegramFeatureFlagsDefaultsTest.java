@@ -268,6 +268,8 @@ public class TelegramFeatureFlagsDefaultsTest {
 	@Test
 	public void testTelegramLoginPlaceholderStagesIdentifierInput()
 			throws IOException {
+		assertFileContains("src/main/res/layout/fragment_telegram_login_placeholder.xml",
+				"android:id=\"@+id/message\"\n\t\t\tandroid:layout_width=\"match_parent\"");
 		assertFileContains("src/main/java/org/briarproject/briar/android/login/StartupViewModel.java",
 				"private String telegramLoginIdentifier = \"\";");
 		assertFileContains("src/main/java/org/briarproject/briar/android/login/StartupViewModel.java",
