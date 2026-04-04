@@ -69,7 +69,7 @@ public class TelegramFeatureFlagsDefaultsTest {
 		assertFileContains("../briar-core/src/main/java/org/briarproject/briar/telegram/TelegramTdlibLoginClient.java",
 				"interface TelegramTdlibLoginClient {\n\n\tTelegramAuthState start();\n\n\tTelegramAuthState submitIdentifier(String identifier);\n\n\tTelegramAuthState submitCode(String code);\n\n\tTelegramAuthState submitPassword(String password);\n\n\tTelegramAuthState close();\n}");
 		assertFileContains("../briar-core/src/main/java/org/briarproject/briar/telegram/TelegramAuthSessionImpl.java",
-				"class TelegramAuthSessionImpl implements TelegramAuthSession {\n\n\tprivate final TelegramTdlibLoginClient tdlibLoginClient;\n\tprivate TelegramAuthState currentState = TelegramAuthState.CLOSED;\n\n\tTelegramAuthSessionImpl(TelegramTdlibLoginClient tdlibLoginClient) {");
+				"return StubTelegramTdlibLoginClient.class.getResource(\"/org/drinkless/tdlib/Client.class\") != null ? TelegramAuthState.IDENTIFIER_ENTRY : TelegramAuthState.RECOVERABLE_ERROR;");
 	}
 
 	@Test

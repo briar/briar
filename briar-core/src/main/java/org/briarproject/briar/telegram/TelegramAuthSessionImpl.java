@@ -79,7 +79,7 @@ class StubTelegramTdlibLoginClient implements TelegramTdlibLoginClient {
 
 	@Override
 	public TelegramAuthState start() {
-		return TelegramAuthState.IDENTIFIER_ENTRY;
+		return StubTelegramTdlibLoginClient.class.getResource("/org/drinkless/tdlib/Client.class") != null ? TelegramAuthState.IDENTIFIER_ENTRY : TelegramAuthState.RECOVERABLE_ERROR;
 	}
 
 	@Override
