@@ -8,6 +8,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
+import static junit.framework.Assert.assertFalse;
 import static junit.framework.Assert.assertTrue;
 
 public class TelegramFeatureFlagsDefaultsTest {
@@ -173,11 +174,11 @@ public class TelegramFeatureFlagsDefaultsTest {
 	}
 
 	@Test
-	public void testGroupMemberListActivitySurfacesTelegramIdentityOutsideSettings()
+	public void testGroupMemberListActivityDoesNotSurfaceTelegramIdentity()
 			throws IOException {
-		assertFileContains("src/main/java/org/briarproject/briar/android/privategroup/memberlist/GroupMemberListActivity.java",
+		assertFileNotContains("src/main/java/org/briarproject/briar/android/privategroup/memberlist/GroupMemberListActivity.java",
 				"protected void onTelegramLinkedIdentityAvailable(\n\t\t\t@Nullable String linkedIdentity) {");
-		assertFileContains("src/main/java/org/briarproject/briar/android/privategroup/memberlist/GroupMemberListActivity.java",
+		assertFileNotContains("src/main/java/org/briarproject/briar/android/privategroup/memberlist/GroupMemberListActivity.java",
 				"showTelegramLinkedIdentitySubtitle(linkedIdentity);");
 	}
 
@@ -580,6 +581,15 @@ public class TelegramFeatureFlagsDefaultsTest {
 				StandardCharsets.UTF_8);
 		assertTrue("Expected to find '" + expectedText + "' in "
 				+ moduleRelativePath, contents.contains(expectedText));
+	}
+
+	private static void assertFileNotContains(String moduleRelativePath,
+			String unexpectedText) throws IOException {
+		String contents = new String(
+				Files.readAllBytes(resolveModulePath(moduleRelativePath)),
+				StandardCharsets.UTF_8);
+		assertFalse("Expected not to find '" + unexpectedText + "' in "
+				+ moduleRelativePath, contents.contains(unexpectedText));
 	}
 
 	private static Path resolveModulePath(String moduleRelativePath) {
