@@ -49,6 +49,21 @@ public class TelegramFeatureFlagsDefaultsTest {
 	}
 
 	@Test
+	public void testBriarAndroidCanConsumePrebuiltTdlibAndroidArtifacts()
+			throws IOException {
+		assertFileContains("build.gradle",
+				"def tdlibDir = rootProject.file('third_party/tdlib')");
+		assertFileContains("build.gradle",
+				"def tdlibJavaDir = new File(tdlibDir, 'java')");
+		assertFileContains("build.gradle",
+				"def tdlibJniLibsDir = new File(tdlibDir, 'libs')");
+		assertFileContains("build.gradle",
+				"java.srcDirs += [tdlibJavaDir]");
+		assertFileContains("build.gradle",
+				"jniLibs.srcDirs += [tdlibJniLibsDir]");
+	}
+
+	@Test
 	public void testConnectionsSettingsCanObserveTelegramConnectorAvailability()
 			throws IOException {
 		assertFileContains("src/main/java/org/briarproject/briar/android/settings/ConnectionsFragment.java",

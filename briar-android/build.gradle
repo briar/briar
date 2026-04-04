@@ -15,6 +15,10 @@ def getStdout = { command, defaultValue ->
 	}
 }
 
+def tdlibDir = rootProject.file('third_party/tdlib')
+def tdlibJavaDir = new File(tdlibDir, 'java')
+def tdlibJniLibsDir = new File(tdlibDir, 'libs')
+
 android {
 	compileSdk 35
 	buildToolsVersion '35.0.0'
@@ -74,6 +78,13 @@ android {
 	variantFilter { variant ->
 		if (variant.flavors*.name.contains("screenshot") && variant.buildType.name == "release") {
 			setIgnore(true)
+		}
+	}
+	sourceSets {
+		main {
+			// Consume official TDLib Android build output when present.
+			java.srcDirs += [tdlibJavaDir]
+			jniLibs.srcDirs += [tdlibJniLibsDir]
 		}
 	}
 
