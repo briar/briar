@@ -78,19 +78,16 @@ public class TelegramFeatureFlagsDefaultsTest {
 	@Test
 	public void testConnectionsSettingsCanObserveTelegramConnectorAvailability()
 			throws IOException {
-		assertFileContains("src/main/java/org/briarproject/briar/android/settings/ConnectionsFragment.java",
-				"TelegramConnector telegramConnector;");
-		assertFileContains("src/main/java/org/briarproject/briar/android/settings/ConnectionsFragment.java",
-				"telegramStatus.setVisible(telegramConnector.isEnabled());");
-		assertFileContains("src/main/java/org/briarproject/briar/android/settings/ConnectionsFragment.java",
+		assertConnectionsFragmentContainsAll(
+				"TelegramConnector telegramConnector;",
+				"telegramStatus.setVisible(telegramConnector.isEnabled());",
 				"telegramStatus.setSummary(requireSettingsActivity()\n\t\t\t\t.isTelegramConnectorReady()\n\t\t\t\t? R.string.telegram_connector_settings_ready_summary\n\t\t\t\t: R.string.telegram_connector_settings_summary);");
 		assertFileContains("src/main/java/org/briarproject/briar/android/settings/SettingsActivity.java",
 				"boolean isTelegramConnectorReady() {\n\t\treturn getBriarController().isTelegramConnectorReady();\n\t}");
 		assertFileContains("src/main/res/xml/settings_connections.xml",
 				"android:key=\"pref_key_telegram_status\"");
-		assertFileContains("src/main/res/values/strings.xml",
-				"<string name=\"telegram_connector_settings_title\">Telegram connector</string>");
-		assertFileContains("src/main/res/values/strings.xml",
+		assertStringsContainAll(
+				"<string name=\"telegram_connector_settings_title\">Telegram connector</string>",
 				"<string name=\"telegram_connector_settings_ready_summary\">Connector foundations are ready for internal Harbor testing. Telegram syncing is not active yet.</string>");
 	}
 	@Test
@@ -116,19 +113,13 @@ public class TelegramFeatureFlagsDefaultsTest {
 	@Test
 	public void testBriarActivityLoadsTelegramIdentityDuringResume()
 			throws IOException {
-		assertFileContains("src/main/java/org/briarproject/briar/android/activity/BriarActivity.java",
-				"briarController.getTelegramLinkedIdentity(new UiResultHandler<String>(this) {");
-		assertFileContains("src/main/java/org/briarproject/briar/android/activity/BriarActivity.java",
-				"onTelegramLinkedIdentityAvailable(linkedIdentity);");
-		assertFileContains("src/main/java/org/briarproject/briar/android/activity/BriarActivity.java",
-				"protected void onTelegramLinkedIdentityAvailable(\n\t\t\t@Nullable String linkedIdentity) {");
-		assertFileContains("src/main/java/org/briarproject/briar/android/activity/BriarActivity.java",
-				"protected void showTelegramLinkedIdentitySubtitle(\n\t\t\t@Nullable String linkedIdentity) {");
-		assertFileContains("src/main/java/org/briarproject/briar/android/activity/BriarActivity.java",
-				"if (getBriarController().isTelegramConnectorReady()\n\t\t\t\t&& linkedIdentity != null && !linkedIdentity.isEmpty()) {");
-		assertFileContains("src/main/java/org/briarproject/briar/android/activity/BriarActivity.java",
-				"actionBar.setSubtitle(getString(\n\t\t\t\t\tR.string.telegram_connector_transports_subtitle,\n\t\t\t\t\tlinkedIdentity));");
-		assertFileContains("src/main/java/org/briarproject/briar/android/activity/BriarActivity.java",
+		assertBriarActivityContainsAll(
+				"briarController.getTelegramLinkedIdentity(new UiResultHandler<String>(this) {",
+				"onTelegramLinkedIdentityAvailable(linkedIdentity);",
+				"protected void onTelegramLinkedIdentityAvailable(\n\t\t\t@Nullable String linkedIdentity) {",
+				"protected void showTelegramLinkedIdentitySubtitle(\n\t\t\t@Nullable String linkedIdentity) {",
+				"if (getBriarController().isTelegramConnectorReady()\n\t\t\t\t&& linkedIdentity != null && !linkedIdentity.isEmpty()) {",
+				"actionBar.setSubtitle(getString(\n\t\t\t\t\tR.string.telegram_connector_transports_subtitle,\n\t\t\t\t\tlinkedIdentity));",
 				"actionBar.setSubtitle(null);");
 	}
 	@Test
@@ -167,25 +158,18 @@ public class TelegramFeatureFlagsDefaultsTest {
 	@Test
 	public void testStartupActivityOwnsTelegramLoginPlaceholderRouting()
 			throws IOException {
-		assertFileContains("src/main/java/org/briarproject/briar/android/login/StartupViewModel.java",
-				"enum State {SIGNED_OUT, TELEGRAM_LOGIN, SIGNED_IN, STARTING, MIGRATING, COMPACTING, STARTED}");
-		assertFileContains("src/main/java/org/briarproject/briar/android/login/StartupViewModel.java",
-				"void showTelegramLoginPlaceholder() {\n\t\ttelegramLoginCode = telegramLoginPassword = \"\";\n\t\ttelegramAuthSession.start();\n\t\ttelegramAuthState.setValue(telegramAuthSession.getCurrentState());\n\t\tstate.setValue(TELEGRAM_LOGIN);\n\t}");
-		assertFileContains("src/main/java/org/briarproject/briar/android/login/StartupViewModel.java",
+		assertStartupViewModelContainsAll(
+				"enum State {SIGNED_OUT, TELEGRAM_LOGIN, SIGNED_IN, STARTING, MIGRATING, COMPACTING, STARTED}",
+				"void showTelegramLoginPlaceholder() {\n\t\ttelegramLoginCode = telegramLoginPassword = \"\";\n\t\ttelegramAuthSession.start();\n\t\ttelegramAuthState.setValue(telegramAuthSession.getCurrentState());\n\t\tstate.setValue(TELEGRAM_LOGIN);\n\t}",
 				"void showPasswordFragment() {\n\t\ttelegramLoginCode = telegramLoginPassword = \"\";\n\t\ttelegramAuthSession.close();\n\t\ttelegramAuthState.setValue(telegramAuthSession.getCurrentState());\n\t\tstate.setValue(SIGNED_OUT);\n\t}");
 		assertFileContains("src/main/java/org/briarproject/briar/android/login/PasswordFragment.java",
 				"private void onTelegramLoginClick() {\n\t\tviewModel.showTelegramLoginPlaceholder();\n\t}");
-		assertFileContains("src/main/java/org/briarproject/briar/android/login/StartupActivity.java",
-				"if (state == SIGNED_OUT) {");
-		assertFileContains("src/main/java/org/briarproject/briar/android/login/StartupActivity.java",
-				"showPasswordFragment();");
-		assertFileContains("src/main/java/org/briarproject/briar/android/login/StartupActivity.java",
-				"} else if (state == TELEGRAM_LOGIN) {\n\t\t\tshowTelegramLoginPlaceholder();\n\t\t}");
-		assertFileContains("src/main/java/org/briarproject/briar/android/login/StartupActivity.java",
-				"if (viewModel.getState().getValue() == TELEGRAM_LOGIN) {\n\t\t\tif (viewModel.isShowingTelegramLoginConfirmation()) {\n\t\t\t\tviewModel.showTelegramLoginIdentifierStep();\n\t\t\t\treturn;\n\t\t\t}\n\t\t\tviewModel.showPasswordFragment();\n\t\t\treturn;\n\t\t}");
-		assertFileContains("src/main/java/org/briarproject/briar/android/login/StartupActivity.java",
-				"private void showPasswordFragment() {");
-		assertFileContains("src/main/java/org/briarproject/briar/android/login/StartupActivity.java",
+		assertStartupActivityContainsAll(
+				"if (state == SIGNED_OUT) {",
+				"showPasswordFragment();",
+				"} else if (state == TELEGRAM_LOGIN) {\n\t\t\tshowTelegramLoginPlaceholder();\n\t\t}",
+				"if (viewModel.getState().getValue() == TELEGRAM_LOGIN) {\n\t\t\tif (viewModel.isShowingTelegramLoginConfirmation()) {\n\t\t\t\tviewModel.showTelegramLoginIdentifierStep();\n\t\t\t\treturn;\n\t\t\t}\n\t\t\tviewModel.showPasswordFragment();\n\t\t\treturn;\n\t\t}",
+				"private void showPasswordFragment() {",
 				"private void showTelegramLoginPlaceholder() {");
 	}
 	@Test
@@ -193,21 +177,17 @@ public class TelegramFeatureFlagsDefaultsTest {
 			throws IOException {
 		assertFileContains("src/main/res/layout/fragment_telegram_login_placeholder.xml",
 				"android:id=\"@+id/message\"\n\t\t\tandroid:layout_width=\"match_parent\"");
-		assertFileContains("src/main/java/org/briarproject/briar/android/login/StartupViewModel.java",
-				"private String telegramLoginIdentifier = \"\";");
-		assertFileContains("src/main/java/org/briarproject/briar/android/login/StartupViewModel.java",
-				"String getTelegramLoginIdentifier() {\n\t\treturn telegramLoginIdentifier;\n\t}");
-		assertFileContains("src/main/java/org/briarproject/briar/android/login/StartupViewModel.java",
+		assertStartupViewModelContainsAll(
+				"private String telegramLoginIdentifier = \"\";",
+				"String getTelegramLoginIdentifier() {\n\t\treturn telegramLoginIdentifier;\n\t}",
 				"void setTelegramLoginIdentifier(String identifier) {\n\t\ttelegramLoginIdentifier = identifier;\n\t}");
-		assertFileContains("src/main/java/org/briarproject/briar/android/login/TelegramLoginPlaceholderFragment.java",
-				"TextInputEditText identifier =\n\t\t\t\tv.findViewById(R.id.telegram_login_identifier);");
-		assertFileContains("src/main/java/org/briarproject/briar/android/login/TelegramLoginPlaceholderFragment.java",
-				"identifier.setText(viewModel.getTelegramLoginIdentifier());");
-		assertFileContains("src/main/java/org/briarproject/briar/android/login/TelegramLoginPlaceholderFragment.java",
+		assertTelegramLoginPlaceholderFragmentContainsAll(
+				"TextInputEditText identifier =\n\t\t\t\tv.findViewById(R.id.telegram_login_identifier);",
+				"identifier.setText(viewModel.getTelegramLoginIdentifier());",
 				"viewModel.setTelegramLoginIdentifier(s.toString());");
 		assertFileContains("src/main/res/layout/fragment_telegram_login_placeholder.xml",
 				"android:id=\"@+id/telegram_login_identifier\"");
-		assertFileContains("src/main/res/values/strings.xml",
+		assertStringsContainAll(
 				"<string name=\"telegram_connector_login_identifier_hint\">Telegram identifier</string>");
 	}
 	@Test
@@ -256,41 +236,26 @@ public class TelegramFeatureFlagsDefaultsTest {
 	@Test
 	public void testTelegramLoginPlaceholderStagesConfirmationStep()
 			throws IOException {
-		assertFileContains("src/main/java/org/briarproject/briar/android/login/StartupViewModel.java",
-				"private final TelegramAuthSession telegramAuthSession;");
-		assertFileContains("src/main/java/org/briarproject/briar/android/login/StartupViewModel.java",
-				"private final MutableLiveData<TelegramAuthState> telegramAuthState =\n\t\t\tnew MutableLiveData<>(TelegramAuthState.CLOSED);");
-		assertFileContains("src/main/java/org/briarproject/briar/android/login/StartupViewModel.java",
-				"TelegramAuthSession telegramAuthSession) {");
-		assertFileContains("src/main/java/org/briarproject/briar/android/login/StartupViewModel.java",
-				"this.telegramAuthSession = telegramAuthSession;");
-		assertFileContains("src/main/java/org/briarproject/briar/android/login/StartupViewModel.java",
-				"LiveData<TelegramAuthState> getTelegramAuthState() {\n\t\treturn telegramAuthState;\n\t}");
-		assertFileContains("src/main/java/org/briarproject/briar/android/login/StartupViewModel.java",
-				"void submitTelegramLoginIdentifier() {\n\t\ttelegramLoginCode = telegramLoginPassword = \"\";\n\t\ttelegramAuthSession.submitIdentifier(telegramLoginIdentifier);\n\t\ttelegramAuthState.setValue(telegramAuthSession.getCurrentState());\n\t}");
-		assertFileContains("src/main/java/org/briarproject/briar/android/login/StartupViewModel.java",
-				"void showTelegramLoginIdentifierStep() {\n\t\ttelegramLoginCode = telegramLoginPassword = \"\";\n\t\ttelegramAuthSession.close();\n\t\ttelegramAuthSession.start();\n\t\ttelegramAuthState.setValue(telegramAuthSession.getCurrentState());\n\t}");
-		assertFileContains("src/main/java/org/briarproject/briar/android/login/StartupViewModel.java",
+		assertStartupViewModelContainsAll(
+				"private final TelegramAuthSession telegramAuthSession;",
+				"private final MutableLiveData<TelegramAuthState> telegramAuthState =\n\t\t\tnew MutableLiveData<>(TelegramAuthState.CLOSED);",
+				"TelegramAuthSession telegramAuthSession) {",
+				"this.telegramAuthSession = telegramAuthSession;",
+				"LiveData<TelegramAuthState> getTelegramAuthState() {\n\t\treturn telegramAuthState;\n\t}",
+				"void submitTelegramLoginIdentifier() {\n\t\ttelegramLoginCode = telegramLoginPassword = \"\";\n\t\ttelegramAuthSession.submitIdentifier(telegramLoginIdentifier);\n\t\ttelegramAuthState.setValue(telegramAuthSession.getCurrentState());\n\t}",
+				"void showTelegramLoginIdentifierStep() {\n\t\ttelegramLoginCode = telegramLoginPassword = \"\";\n\t\ttelegramAuthSession.close();\n\t\ttelegramAuthSession.start();\n\t\ttelegramAuthState.setValue(telegramAuthSession.getCurrentState());\n\t}",
 				"boolean isShowingTelegramLoginConfirmation() {\n\t\tTelegramAuthState authState = telegramAuthState.getValue();\n\t\treturn authState == TelegramAuthState.CODE_ENTRY ||\n\t\t\t\tauthState == TelegramAuthState.PASSWORD_ENTRY ||\n\t\t\t\tauthState == TelegramAuthState.READY;\n\t}");
-		assertFileContains("src/main/java/org/briarproject/briar/android/login/StartupActivity.java",
+		assertStartupActivityContainsAll(
 				"if (viewModel.isShowingTelegramLoginConfirmation()) {\n\t\t\t\tviewModel.showTelegramLoginIdentifierStep();\n\t\t\t\treturn;\n\t\t\t}");
-		assertFileContains("src/main/java/org/briarproject/briar/android/login/TelegramLoginPlaceholderFragment.java",
-				"v.findViewById(R.id.btn_telegram_login_continue)\n\t\t\t\t.setOnClickListener(view -> {");
-		assertFileContains("src/main/java/org/briarproject/briar/android/login/TelegramLoginPlaceholderFragment.java",
-				"viewModel.submitTelegramLoginIdentifier();");
-		assertFileContains("src/main/java/org/briarproject/briar/android/login/TelegramLoginPlaceholderFragment.java",
-				"v.findViewById(R.id.btn_telegram_login_confirmation_back)\n\t\t\t\t.setOnClickListener(view -> {");
-		assertFileContains("src/main/java/org/briarproject/briar/android/login/TelegramLoginPlaceholderFragment.java",
-				"viewModel.showTelegramLoginIdentifierStep();");
-		assertFileContains("src/main/java/org/briarproject/briar/android/login/TelegramLoginPlaceholderFragment.java",
-				"viewModel.getTelegramAuthState().observe(getViewLifecycleOwner(),\n\t\t\t\tauthState -> showCurrentStep(identifierStep, codeEntryStep,\n\t\t\t\t\t\tpasswordEntryStep, confirmationStep, continueButton,\n\t\t\t\t\t\tcodeContinueButton, passwordContinueButton,\n\t\t\t\t\t\tconfirmationMessage, passwordFallbackButton));");
-		assertFileContains("src/main/java/org/briarproject/briar/android/login/TelegramLoginPlaceholderFragment.java",
-				"passwordFallbackButton.setVisibility(View.VISIBLE);");
-		assertFileContains("src/main/java/org/briarproject/briar/android/login/TelegramLoginPlaceholderFragment.java",
-				"} else if (authState == TelegramAuthState.PASSWORD_ENTRY) {\n\t\t\tidentifierStep.setVisibility(View.GONE);\n\t\t\tcodeEntryStep.setVisibility(View.GONE);\n\t\t\tpasswordEntryStep.setVisibility(View.VISIBLE);\n\t\t\tconfirmationStep.setVisibility(View.GONE);");
-		assertFileContains("src/main/java/org/briarproject/briar/android/login/TelegramLoginPlaceholderFragment.java",
-				"} else if (authState == TelegramAuthState.READY) {\n\t\t\tidentifierStep.setVisibility(View.GONE);\n\t\t\tcodeEntryStep.setVisibility(View.GONE);\n\t\t\tpasswordEntryStep.setVisibility(View.GONE);\n\t\t\tconfirmationStep.setVisibility(View.VISIBLE);");
-		assertFileContains("src/main/java/org/briarproject/briar/android/login/TelegramLoginPlaceholderFragment.java",
+		assertTelegramLoginPlaceholderFragmentContainsAll(
+				"v.findViewById(R.id.btn_telegram_login_continue)\n\t\t\t\t.setOnClickListener(view -> {",
+				"viewModel.submitTelegramLoginIdentifier();",
+				"v.findViewById(R.id.btn_telegram_login_confirmation_back)\n\t\t\t\t.setOnClickListener(view -> {",
+				"viewModel.showTelegramLoginIdentifierStep();",
+				"viewModel.getTelegramAuthState().observe(getViewLifecycleOwner(),\n\t\t\t\tauthState -> showCurrentStep(identifierStep, codeEntryStep,\n\t\t\t\t\t\tpasswordEntryStep, confirmationStep, continueButton,\n\t\t\t\t\t\tcodeContinueButton, passwordContinueButton,\n\t\t\t\t\t\tconfirmationMessage, passwordFallbackButton));",
+				"passwordFallbackButton.setVisibility(View.VISIBLE);",
+				"} else if (authState == TelegramAuthState.PASSWORD_ENTRY) {\n\t\t\tidentifierStep.setVisibility(View.GONE);\n\t\t\tcodeEntryStep.setVisibility(View.GONE);\n\t\t\tpasswordEntryStep.setVisibility(View.VISIBLE);\n\t\t\tconfirmationStep.setVisibility(View.GONE);",
+				"} else if (authState == TelegramAuthState.READY) {\n\t\t\tidentifierStep.setVisibility(View.GONE);\n\t\t\tcodeEntryStep.setVisibility(View.GONE);\n\t\t\tpasswordEntryStep.setVisibility(View.GONE);\n\t\t\tconfirmationStep.setVisibility(View.VISIBLE);",
 				"confirmationMessage.setText(getString(\n\t\t\t\t\tR.string.telegram_connector_login_confirmation_message,\n\t\t\t\t\tviewModel.getTelegramLoginIdentifier()));");
 		assertFileContains("src/main/res/layout/fragment_telegram_login_placeholder.xml",
 				"android:id=\"@+id/telegram_login_confirmation\"");
@@ -298,85 +263,62 @@ public class TelegramFeatureFlagsDefaultsTest {
 				"android:id=\"@+id/btn_telegram_login_continue\"");
 		assertFileContains("src/main/res/layout/fragment_telegram_login_placeholder.xml",
 				"android:id=\"@+id/btn_telegram_login_confirmation_back\"");
-		assertFileContains("src/main/res/values/strings.xml",
-				"<string name=\"telegram_connector_login_continue_button\">Continue</string>");
-		assertFileContains("src/main/res/values/strings.xml",
+		assertStringsContainAll(
+				"<string name=\"telegram_connector_login_continue_button\">Continue</string>",
 				"<string name=\"telegram_connector_login_confirmation_message\">Telegram identifier staged for internal Harbor testing: %1$s</string>");
 	}
 	@Test
 	public void testTelegramLoginCompletionStagesLinkedIdentityAfterPasswordSignIn()
 			throws IOException {
-		assertFileContains("src/main/java/org/briarproject/briar/android/login/StartupViewModel.java",
-				"private volatile String pendingTelegramLinkedIdentity = \"\";");
-		assertFileContains("src/main/java/org/briarproject/briar/android/login/StartupViewModel.java",
-				"void completeTelegramLoginConfirmation() {\n\t\tpendingTelegramLinkedIdentity = telegramLoginIdentifier.trim();\n\t\tshowPasswordFragment();\n\t}");
-		assertFileContains("src/main/java/org/briarproject/briar/android/login/StartupViewModel.java",
-				"accountManager.signIn(password);\n\t\t\t\tstorePendingTelegramLinkedIdentity();\n\t\t\t\tpasswordValidated.postEvent(SUCCESS);");
-		assertFileContains("src/main/java/org/briarproject/briar/android/login/StartupViewModel.java",
-				"private void storePendingTelegramLinkedIdentity() {\n\t\tif (pendingTelegramLinkedIdentity.isEmpty()) return;");
-		assertFileContains("src/main/java/org/briarproject/briar/android/login/StartupViewModel.java",
-				"settings.put(\"pref_key_telegram_linked_identity\",");
-		assertFileContains("src/main/java/org/briarproject/briar/android/login/StartupViewModel.java",
+		assertStartupViewModelContainsAll(
+				"private volatile String pendingTelegramLinkedIdentity = \"\";",
+				"void completeTelegramLoginConfirmation() {\n\t\tpendingTelegramLinkedIdentity = telegramLoginIdentifier.trim();\n\t\tshowPasswordFragment();\n\t}",
+				"accountManager.signIn(password);\n\t\t\t\tstorePendingTelegramLinkedIdentity();\n\t\t\t\tpasswordValidated.postEvent(SUCCESS);",
+				"private void storePendingTelegramLinkedIdentity() {\n\t\tif (pendingTelegramLinkedIdentity.isEmpty()) return;",
+				"settings.put(\"pref_key_telegram_linked_identity\",",
 				"settingsManager.mergeSettings(settings, SETTINGS_NAMESPACE);");
 	}
 	@Test
 	public void testStartupActivityShowsTelegramIdentityHandoffConfirmation()
 			throws IOException {
-		assertFileContains("src/main/java/org/briarproject/briar/android/login/StartupViewModel.java",
-				"private final MutableLiveEvent<String> telegramLinkedIdentityStaged =\n\t\t\tnew MutableLiveEvent<>();");
-		assertFileContains("src/main/java/org/briarproject/briar/android/login/StartupViewModel.java",
-				"LiveEvent<String> getTelegramLinkedIdentityStaged() {\n\t\treturn telegramLinkedIdentityStaged;\n\t}");
-		assertFileContains("src/main/java/org/briarproject/briar/android/login/StartupViewModel.java",
+		assertStartupViewModelContainsAll(
+				"private final MutableLiveEvent<String> telegramLinkedIdentityStaged =\n\t\t\tnew MutableLiveEvent<>();",
+				"LiveEvent<String> getTelegramLinkedIdentityStaged() {\n\t\treturn telegramLinkedIdentityStaged;\n\t}",
 				"telegramLinkedIdentityStaged.postEvent(pendingTelegramLinkedIdentity);");
-		assertFileContains("src/main/java/org/briarproject/briar/android/login/StartupActivity.java",
+		assertStartupActivityContainsAll(
 				"viewModel.getTelegramLinkedIdentityStaged().observeEvent(this,\n\t\t\t\tidentifier -> {\n\t\t\t\t\tstagedTelegramLoginIdentity = identifier;\n\t\t\t\t\tToast.makeText(this,\n\t\t\t\t\t\t\tgetString(\n\t\t\t\t\t\t\t\t\tR.string.telegram_connector_login_handoff_staged,\n\t\t\t\t\t\t\t\t\tidentifier),\n\t\t\t\t\t\t\tLENGTH_LONG).show();\n\t\t\t\t});");
-		assertFileContains("src/main/res/values/strings.xml",
+		assertStringsContainAll(
 				"<string name=\"telegram_connector_login_handoff_staged\">Telegram identity staged for Harbor internal testing: %1$s</string>");
 	}
 	@Test
 	public void testStartupActivityPersistsTelegramIdentityHandoffAcrossRecreation()
 			throws IOException {
-		assertFileContains("src/main/java/org/briarproject/briar/android/login/StartupActivity.java",
-				"private static final String KEY_STAGED_TELEGRAM_LOGIN_IDENTITY =\n\t\t\t\"stagedTelegramLoginIdentity\";");
-		assertFileContains("src/main/java/org/briarproject/briar/android/login/StartupActivity.java",
-				"if (state != null) {\n\t\t\tstagedTelegramLoginIdentity = state.getString(\n\t\t\t\t\tKEY_STAGED_TELEGRAM_LOGIN_IDENTITY, \"\");\n\t\t}");
-		assertFileContains("src/main/java/org/briarproject/briar/android/login/StartupActivity.java",
+		assertStartupActivityContainsAll(
+				"private static final String KEY_STAGED_TELEGRAM_LOGIN_IDENTITY =\n\t\t\t\"stagedTelegramLoginIdentity\";",
+				"if (state != null) {\n\t\t\tstagedTelegramLoginIdentity = state.getString(\n\t\t\t\t\tKEY_STAGED_TELEGRAM_LOGIN_IDENTITY, \"\");\n\t\t}",
 				"protected void onSaveInstanceState(Bundle state) {\n\t\tsuper.onSaveInstanceState(state);\n\t\tstate.putString(KEY_STAGED_TELEGRAM_LOGIN_IDENTITY,\n\t\t\t\tstagedTelegramLoginIdentity);\n\t}");
 	}
 	@Test
 	public void testStartupLoginCanOfferTelegramSetupEntrypointAfterFreshHandoff()
 			throws IOException {
-		assertFileContains("src/main/java/org/briarproject/briar/android/login/StartupActivity.java",
-				"public static final String EXTRA_STAGED_TELEGRAM_LOGIN_IDENTITY =\n\t\t\t\"briar.STAGED_TELEGRAM_LOGIN_IDENTITY\";");
-		assertFileContains("src/main/java/org/briarproject/briar/android/login/StartupActivity.java",
-				"private String stagedTelegramLoginIdentity = \"\";");
-		assertFileContains("src/main/java/org/briarproject/briar/android/login/StartupActivity.java",
-				"stagedTelegramLoginIdentity = identifier;");
-		assertFileContains("src/main/java/org/briarproject/briar/android/login/StartupActivity.java",
+		assertStartupActivityContainsAll(
+				"public static final String EXTRA_STAGED_TELEGRAM_LOGIN_IDENTITY =\n\t\t\t\"briar.STAGED_TELEGRAM_LOGIN_IDENTITY\";",
+				"private String stagedTelegramLoginIdentity = \"\";",
+				"stagedTelegramLoginIdentity = identifier;",
 				"result.putExtra(EXTRA_STAGED_TELEGRAM_LOGIN_IDENTITY,\n\t\t\t\t\t\tstagedTelegramLoginIdentity);");
-		assertFileContains("src/main/java/org/briarproject/briar/android/activity/BriarActivity.java",
-				"private static final String EXTRA_PENDING_TELEGRAM_LOGIN_ENTRYPOINT =\n\t\t\t\"briar.PENDING_TELEGRAM_LOGIN_ENTRYPOINT\";");
-		assertFileContains("src/main/java/org/briarproject/briar/android/activity/BriarActivity.java",
-				"String stagedIdentity = data.getStringExtra(\n\t\t\t\t\t\tStartupActivity.EXTRA_STAGED_TELEGRAM_LOGIN_IDENTITY);");
-		assertFileContains("src/main/java/org/briarproject/briar/android/activity/BriarActivity.java",
-				"getIntent().putExtra(EXTRA_PENDING_TELEGRAM_LOGIN_ENTRYPOINT,\n\t\t\t\t\t\t\tstagedIdentity);");
-		assertFileContains("src/main/java/org/briarproject/briar/android/activity/BriarActivity.java",
-				"maybeShowTelegramLoginSetupEntryPoint();");
-		assertFileContains("src/main/java/org/briarproject/briar/android/activity/BriarActivity.java",
-				"private void maybeShowTelegramLoginSetupEntryPoint() {");
-		assertFileContains("src/main/java/org/briarproject/briar/android/activity/BriarActivity.java",
-				"getIntent().removeExtra(EXTRA_PENDING_TELEGRAM_LOGIN_ENTRYPOINT);");
-		assertFileContains("src/main/java/org/briarproject/briar/android/activity/BriarActivity.java",
-				"R.string.telegram_connector_login_entrypoint_message,\n\t\t\t\t\t\tlinkedIdentity))");
-		assertFileContains("src/main/java/org/briarproject/briar/android/activity/BriarActivity.java",
-				"Intent i = new Intent(this, SettingsActivity.class);");
-		assertFileContains("src/main/java/org/briarproject/briar/android/activity/BriarActivity.java",
+		assertBriarActivityContainsAll(
+				"private static final String EXTRA_PENDING_TELEGRAM_LOGIN_ENTRYPOINT =\n\t\t\t\"briar.PENDING_TELEGRAM_LOGIN_ENTRYPOINT\";",
+				"String stagedIdentity = data.getStringExtra(\n\t\t\t\t\t\tStartupActivity.EXTRA_STAGED_TELEGRAM_LOGIN_IDENTITY);",
+				"getIntent().putExtra(EXTRA_PENDING_TELEGRAM_LOGIN_ENTRYPOINT,\n\t\t\t\t\t\t\tstagedIdentity);",
+				"maybeShowTelegramLoginSetupEntryPoint();",
+				"private void maybeShowTelegramLoginSetupEntryPoint() {",
+				"getIntent().removeExtra(EXTRA_PENDING_TELEGRAM_LOGIN_ENTRYPOINT);",
+				"R.string.telegram_connector_login_entrypoint_message,\n\t\t\t\t\t\tlinkedIdentity))",
+				"Intent i = new Intent(this, SettingsActivity.class);",
 				"i.setAction(ACTION_MANAGE_NETWORK_USAGE);");
-		assertFileContains("src/main/res/values/strings.xml",
-				"<string name=\"telegram_connector_login_entrypoint_message\">Telegram identity staged for Harbor internal testing: %1$s\\n\\nOpen Telegram setup to continue the placeholder flow.</string>");
-		assertFileContains("src/main/res/values/strings.xml",
-				"<string name=\"telegram_connector_login_entrypoint_continue_button\">Open Telegram setup</string>");
-		assertFileContains("src/main/res/values/strings.xml",
+		assertStringsContainAll(
+				"<string name=\"telegram_connector_login_entrypoint_message\">Telegram identity staged for Harbor internal testing: %1$s\\n\\nOpen Telegram setup to continue the placeholder flow.</string>",
+				"<string name=\"telegram_connector_login_entrypoint_continue_button\">Open Telegram setup</string>",
 				"<string name=\"telegram_connector_login_entrypoint_cancel_button\">Stay in Harbor</string>");
 	}
 	@Test
@@ -386,149 +328,110 @@ public class TelegramFeatureFlagsDefaultsTest {
 				"static final String EXTRA_OPEN_TELEGRAM_SETUP = \"openTelegramSetup\";");
 		assertFileContains("src/main/java/org/briarproject/briar/android/settings/SettingsActivity.java",
 				"boolean consumeOpenTelegramSetup() {\n\t\tboolean openTelegramSetup = getIntent().getBooleanExtra(\n\t\t\t\tEXTRA_OPEN_TELEGRAM_SETUP, false);\n\t\tgetIntent().removeExtra(EXTRA_OPEN_TELEGRAM_SETUP);\n\t\treturn openTelegramSetup;\n\t}");
-		assertFileContains("src/main/java/org/briarproject/briar/android/activity/BriarActivity.java",
+		assertBriarActivityContainsAll(
 				"i.putExtra(SettingsActivity.EXTRA_OPEN_TELEGRAM_SETUP, true);");
-		assertFileContains("src/main/java/org/briarproject/briar/android/settings/ConnectionsFragment.java",
-				"if (requireSettingsActivity().consumeOpenTelegramSetup()) {");
-		assertFileContains("src/main/java/org/briarproject/briar/android/settings/ConnectionsFragment.java",
-				"showTelegramSetupDialog(requireSettingsActivity()");
-		assertFileContains("src/main/java/org/briarproject/briar/android/settings/ConnectionsFragment.java",
+		assertConnectionsFragmentContainsAll(
+				"if (requireSettingsActivity().consumeOpenTelegramSetup()) {",
+				"showTelegramSetupDialog(requireSettingsActivity()",
 				".isTelegramConnectorReady(), value);");
 	}
 	@Test
 	public void testConnectionsSettingsExposeTelegramSetupPlaceholder()
 			throws IOException {
-		assertFileContains("src/main/java/org/briarproject/briar/android/settings/ConnectionsFragment.java",
-				"telegramStatus.setSelectable(telegramConnector.isEnabled());");
-		assertFileContains("src/main/java/org/briarproject/briar/android/settings/ConnectionsFragment.java",
-				"telegramStatus.setOnPreferenceClickListener(preference -> {");
-		assertFileContains("src/main/java/org/briarproject/briar/android/settings/ConnectionsFragment.java",
-				"showTelegramSetupDialog(requireSettingsActivity()\n\t\t\t\t\t.isTelegramConnectorReady(),\n\t\t\t\t\ttelegramLinkedIdentity.getText());");
-		assertFileContains("src/main/java/org/briarproject/briar/android/settings/ConnectionsFragment.java",
+		assertConnectionsFragmentContainsAll(
+				"telegramStatus.setSelectable(telegramConnector.isEnabled());",
+				"telegramStatus.setOnPreferenceClickListener(preference -> {",
+				"showTelegramSetupDialog(requireSettingsActivity()\n\t\t\t\t\t.isTelegramConnectorReady(),\n\t\t\t\t\ttelegramLinkedIdentity.getText());",
 				"private void showTelegramSetupDialog(boolean ready,\n\t\t\t@Nullable String linkedIdentity) {");
-		assertFileContains("src/main/res/values/strings.xml",
-				"<string name=\"telegram_connector_setup_ready_message\">Telegram account linking is the next Harbor internal test step. Connector syncing is still inactive in this build.</string>");
-		assertFileContains("src/main/res/values/strings.xml",
-				"<string name=\"telegram_connector_setup_unavailable_message\">Sign into Harbor and finish app startup before Telegram account linking can be tested. Connector syncing is still inactive in this build.</string>");
-		assertFileContains("src/main/res/values/strings.xml",
+		assertStringsContainAll(
+				"<string name=\"telegram_connector_setup_ready_message\">Telegram account linking is the next Harbor internal test step. Connector syncing is still inactive in this build.</string>",
+				"<string name=\"telegram_connector_setup_unavailable_message\">Sign into Harbor and finish app startup before Telegram account linking can be tested. Connector syncing is still inactive in this build.</string>",
 				"<string name=\"telegram_connector_setup_configured_message\">Telegram account %1$s is stored for internal Harbor linking tests. Connector syncing is still inactive in this build.</string>");
 	}
 	@Test
 	public void testTelegramSetupPlaceholderCanContinueToIdentityReview()
 			throws IOException {
-		assertFileContains("src/main/java/org/briarproject/briar/android/settings/ConnectionsFragment.java",
-				"builder.setPositiveButton(ready\n\t\t\t\t? R.string.telegram_connector_setup_continue_button\n\t\t\t\t: R.string.ok,");
-		assertFileContains("src/main/java/org/briarproject/briar/android/settings/ConnectionsFragment.java",
-				"if (ready) showTelegramIdentityEditor();");
-		assertFileContains("src/main/java/org/briarproject/briar/android/settings/ConnectionsFragment.java",
-				"builder.setNegativeButton(R.string.cancel, null);");
-		assertFileContains("src/main/java/org/briarproject/briar/android/settings/ConnectionsFragment.java",
+		assertConnectionsFragmentContainsAll(
+				"builder.setPositiveButton(ready\n\t\t\t\t? R.string.telegram_connector_setup_continue_button\n\t\t\t\t: R.string.ok,",
+				"if (ready) showTelegramIdentityEditor();",
+				"builder.setNegativeButton(R.string.cancel, null);",
 				"private void showTelegramIdentityEditor() {\n\t\ttelegramLinkedIdentity.performClick();\n\t}");
-		assertFileContains("src/main/res/values/strings.xml",
+		assertStringsContainAll(
 				"<string name=\"telegram_connector_setup_continue_button\">Review Telegram identity</string>");
 	}
 	@Test
 	public void testTelegramIdentityReviewCanContinueToVerificationPlaceholder()
 			throws IOException {
-		assertFileContains("src/main/java/org/briarproject/briar/android/settings/ConnectionsFragment.java",
-				"static final String PREF_KEY_TELEGRAM_VERIFICATION = \"pref_key_telegram_verification\";");
-		assertFileContains("src/main/java/org/briarproject/briar/android/settings/ConnectionsFragment.java",
-				"private Preference telegramVerification;");
-		assertFileContains("src/main/java/org/briarproject/briar/android/settings/ConnectionsFragment.java",
-				"telegramVerification = findPreference(PREF_KEY_TELEGRAM_VERIFICATION);");
-		assertFileContains("src/main/java/org/briarproject/briar/android/settings/ConnectionsFragment.java",
-				"telegramVerification.setVisible(telegramConnector.isEnabled());");
-		assertFileContains("src/main/java/org/briarproject/briar/android/settings/ConnectionsFragment.java",
-				"telegramVerification.setOnPreferenceClickListener(preference -> {");
-		assertFileContains("src/main/java/org/briarproject/briar/android/settings/ConnectionsFragment.java",
-				"updateTelegramVerificationState(telegramLinkedIdentity.getText());");
-		assertFileContains("src/main/java/org/briarproject/briar/android/settings/ConnectionsFragment.java",
-				"showTelegramVerificationDialog(telegramLinkedIdentity.getText());");
-		assertFileContains("src/main/java/org/briarproject/briar/android/settings/ConnectionsFragment.java",
-				"telegramVerification.setEnabled(requireSettingsActivity().isTelegramConnectorReady()\n\t\t\t\t\t\t\t&& !isNullOrEmpty(value));");
-		assertFileContains("src/main/java/org/briarproject/briar/android/settings/ConnectionsFragment.java",
-				"private void updateTelegramVerificationState(@Nullable String linkedIdentity) {");
-		assertFileContains("src/main/java/org/briarproject/briar/android/settings/ConnectionsFragment.java",
+		assertConnectionsFragmentContainsAll(
+				"static final String PREF_KEY_TELEGRAM_VERIFICATION = \"pref_key_telegram_verification\";",
+				"private Preference telegramVerification;",
+				"telegramVerification = findPreference(PREF_KEY_TELEGRAM_VERIFICATION);",
+				"telegramVerification.setVisible(telegramConnector.isEnabled());",
+				"telegramVerification.setOnPreferenceClickListener(preference -> {",
+				"updateTelegramVerificationState(telegramLinkedIdentity.getText());",
+				"showTelegramVerificationDialog(telegramLinkedIdentity.getText());",
+				"telegramVerification.setEnabled(requireSettingsActivity().isTelegramConnectorReady()\n\t\t\t\t\t\t\t&& !isNullOrEmpty(value));",
+				"private void updateTelegramVerificationState(@Nullable String linkedIdentity) {",
 				"private void showTelegramVerificationDialog(@Nullable String linkedIdentity) {");
 		assertFileContains("src/main/res/xml/settings_connections.xml",
 				"android:key=\"pref_key_telegram_verification\"");
-		assertFileContains("src/main/res/values/strings.xml",
-				"<string name=\"telegram_connector_verification_title\">Telegram verification</string>");
-		assertFileContains("src/main/res/values/strings.xml",
-				"<string name=\"telegram_connector_verification_ready_summary\">Continue internal Harbor verification for Telegram account %1$s.</string>");
-		assertFileContains("src/main/res/values/strings.xml",
+		assertStringsContainAll(
+				"<string name=\"telegram_connector_verification_title\">Telegram verification</string>",
+				"<string name=\"telegram_connector_verification_ready_summary\">Continue internal Harbor verification for Telegram account %1$s.</string>",
 				"<string name=\"telegram_connector_verification_dialog_message\">Telegram verification for %1$s stays in Harbor local-only placeholder flow. Real Telegram authentication and syncing are still inactive in this build.</string>");
 	}
 	@Test
 	public void testTelegramVerificationPlaceholderCanContinueToAuthenticationPlaceholder()
 			throws IOException {
-		assertFileContains("src/main/java/org/briarproject/briar/android/settings/ConnectionsFragment.java",
-				".setPositiveButton(\n\t\t\t\t\t\tR.string.telegram_connector_verification_continue_button,");
-		assertFileContains("src/main/java/org/briarproject/briar/android/settings/ConnectionsFragment.java",
-				"showTelegramAuthenticationPlaceholder(linkedIdentity))");
-		assertFileContains("src/main/java/org/briarproject/briar/android/settings/ConnectionsFragment.java",
-				".setNegativeButton(R.string.cancel, null)");
-		assertFileContains("src/main/java/org/briarproject/briar/android/settings/ConnectionsFragment.java",
+		assertConnectionsFragmentContainsAll(
+				".setPositiveButton(\n\t\t\t\t\t\tR.string.telegram_connector_verification_continue_button,",
+				"showTelegramAuthenticationPlaceholder(linkedIdentity))",
+				".setNegativeButton(R.string.cancel, null)",
 				"private void showTelegramAuthenticationPlaceholder(String linkedIdentity) {");
-		assertFileContains("src/main/res/values/strings.xml",
-				"<string name=\"telegram_connector_verification_continue_button\">Open authentication placeholder</string>");
-		assertFileContains("src/main/res/values/strings.xml",
-				"<string name=\"telegram_connector_auth_placeholder_title\">Telegram authentication</string>");
-		assertFileContains("src/main/res/values/strings.xml",
+		assertStringsContainAll(
+				"<string name=\"telegram_connector_verification_continue_button\">Open authentication placeholder</string>",
+				"<string name=\"telegram_connector_auth_placeholder_title\">Telegram authentication</string>",
 				"<string name=\"telegram_connector_auth_placeholder_message\">Telegram authentication for %1$s remains a Harbor local-only placeholder. Real Telegram sign-in and syncing are still inactive in this build.</string>");
 	}
 	@Test
 	public void testTelegramAuthPlaceholderCompletionUpdatesVerificationSummary()
 			throws IOException {
-		assertFileContains("src/main/java/org/briarproject/briar/android/settings/ConnectionsFragment.java",
-				"private String telegramAuthenticationPlaceholderCompletedIdentity;");
-		assertFileContains("src/main/java/org/briarproject/briar/android/settings/ConnectionsFragment.java",
-				"telegramAuthenticationPlaceholderCompletedIdentity = linkedIdentity;");
-		assertFileContains("src/main/java/org/briarproject/briar/android/settings/ConnectionsFragment.java",
-				"updateTelegramVerificationState(linkedIdentity);");
-		assertFileContains("src/main/java/org/briarproject/briar/android/settings/ConnectionsFragment.java",
+		assertConnectionsFragmentContainsAll(
+				"private String telegramAuthenticationPlaceholderCompletedIdentity;",
+				"telegramAuthenticationPlaceholderCompletedIdentity = linkedIdentity;",
+				"updateTelegramVerificationState(linkedIdentity);",
 				"linkedIdentity.equals(telegramAuthenticationPlaceholderCompletedIdentity)");
-		assertFileContains("src/main/res/values/strings.xml",
+		assertStringsContainAll(
 				"<string name=\"telegram_connector_verification_completed_summary\">Authentication placeholder reviewed for Telegram account %1$s.</string>");
 	}
 	@Test
 	public void testCompletedVerificationDialogMentionsPreviouslyReviewedPlaceholder()
 			throws IOException {
-		assertFileContains("src/main/java/org/briarproject/briar/android/settings/ConnectionsFragment.java",
-				"boolean alreadyReviewed = hasCompletedTelegramVerification(linkedIdentity);");
-		assertFileContains("src/main/java/org/briarproject/briar/android/settings/ConnectionsFragment.java",
-				"R.string.telegram_connector_verification_dialog_completed_message");
-		assertFileContains("src/main/java/org/briarproject/briar/android/settings/ConnectionsFragment.java",
+		assertConnectionsFragmentContainsAll(
+				"boolean alreadyReviewed = hasCompletedTelegramVerification(linkedIdentity);",
+				"R.string.telegram_connector_verification_dialog_completed_message",
 				"private boolean hasCompletedTelegramVerification(\n\t\t\t@Nullable String linkedIdentity) {");
-		assertFileContains("src/main/res/values/strings.xml",
+		assertStringsContainAll(
 				"<string name=\"telegram_connector_verification_dialog_completed_message\">Telegram verification for %1$s is reopening the Harbor local-only placeholder flow after the authentication placeholder was already reviewed. Real Telegram authentication and syncing are still inactive in this build.</string>");
 	}
 	@Test
 	public void testTelegramVerificationCompletionResetsWhenIdentityChanges()
 			throws IOException {
-		assertFileContains("src/main/java/org/briarproject/briar/android/settings/ConnectionsFragment.java",
-				"clearTelegramVerificationCompletionIfIdentityChanged(value);");
-		assertFileContains("src/main/java/org/briarproject/briar/android/settings/ConnectionsFragment.java",
-				"private void clearTelegramVerificationCompletionIfIdentityChanged(\n\t\t\t@Nullable String linkedIdentity) {");
-		assertFileContains("src/main/java/org/briarproject/briar/android/settings/ConnectionsFragment.java",
-				"if (isNullOrEmpty(telegramAuthenticationPlaceholderCompletedIdentity)) return;");
-		assertFileContains("src/main/java/org/briarproject/briar/android/settings/ConnectionsFragment.java",
-				"if (!telegramAuthenticationPlaceholderCompletedIdentity.equals(linkedIdentity)) {");
-		assertFileContains("src/main/java/org/briarproject/briar/android/settings/ConnectionsFragment.java",
+		assertConnectionsFragmentContainsAll(
+				"clearTelegramVerificationCompletionIfIdentityChanged(value);",
+				"private void clearTelegramVerificationCompletionIfIdentityChanged(\n\t\t\t@Nullable String linkedIdentity) {",
+				"if (isNullOrEmpty(telegramAuthenticationPlaceholderCompletedIdentity)) return;",
+				"if (!telegramAuthenticationPlaceholderCompletedIdentity.equals(linkedIdentity)) {",
 				"telegramAuthenticationPlaceholderCompletedIdentity = null;");
 	}
 	@Test
 	public void testConnectionsSettingsExposeTelegramIdentityLinkingSeam()
 			throws IOException {
-		assertFileContains("src/main/java/org/briarproject/briar/android/settings/ConnectionsFragment.java",
-				"static final String PREF_KEY_TELEGRAM_LINKED_IDENTITY =\n\t\t\t\"pref_key_telegram_linked_identity\";");
-		assertFileContains("src/main/java/org/briarproject/briar/android/settings/ConnectionsFragment.java",
-				"telegramLinkedIdentity.setPreferenceDataStore(viewModel.settingsStore);");
-		assertFileContains("src/main/java/org/briarproject/briar/android/settings/ConnectionsFragment.java",
-				"telegramLinkedIdentity.setSummaryProvider(preference -> {");
-		assertFileContains("src/main/java/org/briarproject/briar/android/settings/ConnectionsFragment.java",
-				"viewModel.getTelegramLinkedIdentity().observe(lifecycleOwner,\n\t\t\t\tvalue -> {");
-		assertFileContains("src/main/java/org/briarproject/briar/android/settings/ConnectionsFragment.java",
+		assertConnectionsFragmentContainsAll(
+				"static final String PREF_KEY_TELEGRAM_LINKED_IDENTITY =\n\t\t\t\"pref_key_telegram_linked_identity\";",
+				"telegramLinkedIdentity.setPreferenceDataStore(viewModel.settingsStore);",
+				"telegramLinkedIdentity.setSummaryProvider(preference -> {",
+				"viewModel.getTelegramLinkedIdentity().observe(lifecycleOwner,\n\t\t\t\tvalue -> {",
 				"telegramLinkedIdentity.setText(value);");
 		assertFileContains("src/main/java/org/briarproject/briar/android/settings/SettingsViewModel.java",
 				"private final MutableLiveData<String> telegramLinkedIdentity =\n\t\t\tnew MutableLiveData<>();");
@@ -536,9 +439,8 @@ public class TelegramFeatureFlagsDefaultsTest {
 				"telegramLinkedIdentity.postValue(settings.get(\n\t\t\t\tConnectionsFragment.PREF_KEY_TELEGRAM_LINKED_IDENTITY));");
 		assertFileContains("src/main/res/xml/settings_connections.xml",
 				"android:key=\"pref_key_telegram_linked_identity\"");
-		assertFileContains("src/main/res/values/strings.xml",
-				"<string name=\"telegram_connector_identity_title\">Telegram account</string>");
-		assertFileContains("src/main/res/values/strings.xml",
+		assertStringsContainAll(
+				"<string name=\"telegram_connector_identity_title\">Telegram account</string>",
 				"<string name=\"telegram_connector_identity_empty_summary\">No Telegram account linked yet.</string>");
 	}
 	private static void assertFileContains(String moduleRelativePath,
@@ -569,6 +471,40 @@ public class TelegramFeatureFlagsDefaultsTest {
 				"protected void onTelegramLinkedIdentityAvailable(\n\t\t\t@Nullable String linkedIdentity) {");
 		assertFileContains(moduleRelativePath,
 				"showTelegramLinkedIdentitySubtitle(linkedIdentity);");
+	}
+	private static void assertBriarActivityContainsAll(String... expectedTexts)
+			throws IOException {
+		assertFileContainsAll(
+				"src/main/java/org/briarproject/briar/android/activity/BriarActivity.java",
+				expectedTexts);
+	}
+	private static void assertConnectionsFragmentContainsAll(
+			String... expectedTexts) throws IOException {
+		assertFileContainsAll(
+				"src/main/java/org/briarproject/briar/android/settings/ConnectionsFragment.java",
+				expectedTexts);
+	}
+	private static void assertStartupActivityContainsAll(String... expectedTexts)
+			throws IOException {
+		assertFileContainsAll(
+				"src/main/java/org/briarproject/briar/android/login/StartupActivity.java",
+				expectedTexts);
+	}
+	private static void assertStartupViewModelContainsAll(String... expectedTexts)
+			throws IOException {
+		assertFileContainsAll(
+				"src/main/java/org/briarproject/briar/android/login/StartupViewModel.java",
+				expectedTexts);
+	}
+	private static void assertStringsContainAll(String... expectedTexts)
+			throws IOException {
+		assertFileContainsAll("src/main/res/values/strings.xml", expectedTexts);
+	}
+	private static void assertTelegramLoginPlaceholderFragmentContainsAll(
+			String... expectedTexts) throws IOException {
+		assertFileContainsAll(
+				"src/main/java/org/briarproject/briar/android/login/TelegramLoginPlaceholderFragment.java",
+				expectedTexts);
 	}
 	private static Path resolveModulePath(String moduleRelativePath) {
 		Path cwd = Paths.get("").toAbsolutePath().normalize();
