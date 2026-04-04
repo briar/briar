@@ -49,6 +49,29 @@ public class TelegramFeatureFlagsDefaultsTest {
 	}
 
 	@Test
+	public void testTelegramAuthSessionSeamIsWiredWithoutTdlibTypes()
+			throws IOException {
+		assertFileContains("../briar-api/src/main/java/org/briarproject/briar/api/telegram/TelegramAuthState.java",
+				"public enum TelegramAuthState {\n\tIDENTIFIER_ENTRY,\n\tCODE_ENTRY,\n\tPASSWORD_ENTRY,\n\tREADY,\n\tCLOSED,\n\tRECOVERABLE_ERROR\n}");
+		assertFileContains("../briar-api/src/main/java/org/briarproject/briar/api/telegram/TelegramAuthSession.java",
+				"TelegramAuthState getCurrentState();");
+		assertFileContains("../briar-api/src/main/java/org/briarproject/briar/api/telegram/TelegramAuthSession.java",
+				"void start();");
+		assertFileContains("../briar-api/src/main/java/org/briarproject/briar/api/telegram/TelegramAuthSession.java",
+				"void submitIdentifier(String identifier);");
+		assertFileContains("../briar-api/src/main/java/org/briarproject/briar/api/telegram/TelegramAuthSession.java",
+				"void submitCode(String code);");
+		assertFileContains("../briar-api/src/main/java/org/briarproject/briar/api/telegram/TelegramAuthSession.java",
+				"void submitPassword(String password);");
+		assertFileContains("../briar-api/src/main/java/org/briarproject/briar/api/telegram/TelegramAuthSession.java",
+				"void close();");
+		assertFileContains("../briar-core/src/main/java/org/briarproject/briar/telegram/TelegramModule.java",
+				"TelegramAuthSession provideTelegramAuthSession(FeatureFlags featureFlags) {");
+		assertFileContains("../briar-core/src/main/java/org/briarproject/briar/telegram/TelegramModule.java",
+				"if (featureFlags.shouldEnableTelegramConnector()) {\n\t\t\treturn new StubTelegramAuthSession();\n\t\t}\n\t\treturn new NoOpTelegramAuthSession();");
+	}
+
+	@Test
 	public void testBriarAndroidCanConsumePrebuiltTdlibAndroidArtifacts()
 			throws IOException {
 		assertFileContains("build.gradle",
