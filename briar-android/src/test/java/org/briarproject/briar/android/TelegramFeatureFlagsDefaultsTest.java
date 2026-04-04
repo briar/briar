@@ -65,7 +65,7 @@ public class TelegramFeatureFlagsDefaultsTest {
 		assertFileContainsAll("../briar-core/src/main/java/org/briarproject/briar/telegram/TelegramAuthSessionImpl.java",
 				"case \"AuthorizationStateWaitTdlibParameters\":\n\t\t\tcase \"AuthorizationStateWaitPhoneNumber\":\n\t\t\t\treturn TelegramAuthState.IDENTIFIER_ENTRY;",
 				"send(createSetTdlibParametersRequest());",
-				"send(createSetAuthenticationPhoneNumberRequest(identifier));");
+				"send(createSetAuthenticationPhoneNumberRequest(identifier));", "send(createCheckAuthenticationCodeRequest(code));");
 	}
 	@Test
 	public void testBriarAndroidCanConsumePrebuiltTdlibAndroidArtifacts()

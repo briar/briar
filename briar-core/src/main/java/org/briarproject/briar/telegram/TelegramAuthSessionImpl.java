@@ -102,9 +102,22 @@ class StubTelegramTdlibLoginClient implements TelegramTdlibLoginClient {
 	}
 	@Override
 	public TelegramAuthState submitCode(String code) {
-		return hasText(code)
-				? TelegramAuthState.PASSWORD_ENTRY
-				: TelegramAuthState.RECOVERABLE_ERROR;
+		if (!hasText(code) || tdlibClient == null
+				|| !"AuthorizationStateWaitCode".equals(lastAuthorizationStateClassName)) {
+			return TelegramAuthState.RECOVERABLE_ERROR;
+		}
+		try {
+			prepareAuthorizationUpdate();
+			send(createCheckAuthenticationCodeRequest(code));
+			return mapAuthorizationStateClassName(awaitPreparedAuthorizationStateClassName());
+		} catch (ReflectiveOperationException | LinkageError e) {
+			closeTdlibClient();
+			return TelegramAuthState.RECOVERABLE_ERROR;
+		} catch (InterruptedException e) {
+			Thread.currentThread().interrupt();
+			closeTdlibClient();
+			return TelegramAuthState.RECOVERABLE_ERROR;
+		}
 	}
 	@Override
 	public TelegramAuthState submitPassword(String password) {
@@ -199,6 +212,10 @@ class StubTelegramTdlibLoginClient implements TelegramTdlibLoginClient {
 				"org.drinkless.tdlib.TdApi$SetAuthenticationPhoneNumber")
 				.getConstructor(String.class, settingsClass)
 				.newInstance(identifier, null);
+	}
+	private Object createCheckAuthenticationCodeRequest(String code) throws ReflectiveOperationException {
+		return Class.forName("org.drinkless.tdlib.TdApi$CheckAuthenticationCode")
+				.getConstructor(String.class).newInstance(code);
 	}
 	private void setFieldIfPresent(Object target, String name, Object value)
 			throws ReflectiveOperationException {
