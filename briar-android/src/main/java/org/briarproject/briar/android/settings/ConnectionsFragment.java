@@ -263,11 +263,14 @@ public class ConnectionsFragment extends PreferenceFragmentCompat {
 
 	private void showTelegramVerificationDialog(@Nullable String linkedIdentity) {
 		if (isNullOrEmpty(linkedIdentity)) return;
+		boolean alreadyReviewed = hasCompletedTelegramVerification(linkedIdentity);
 		new MaterialAlertDialogBuilder(requireContext(),
 				R.style.BriarDialogTheme)
 				.setTitle(R.string.telegram_connector_verification_title)
 				.setMessage(getString(
-						R.string.telegram_connector_verification_dialog_message,
+						alreadyReviewed
+								? R.string.telegram_connector_verification_dialog_completed_message
+								: R.string.telegram_connector_verification_dialog_message,
 						linkedIdentity))
 				.setPositiveButton(
 						R.string.telegram_connector_verification_continue_button,
@@ -288,7 +291,7 @@ public class ConnectionsFragment extends PreferenceFragmentCompat {
 					R.string.telegram_connector_verification_needs_identity_summary);
 			return;
 		}
-		if (linkedIdentity.equals(telegramAuthenticationPlaceholderCompletedIdentity)) {
+		if (hasCompletedTelegramVerification(linkedIdentity)) {
 			telegramVerification.setSummary(getString(
 					R.string.telegram_connector_verification_completed_summary,
 					linkedIdentity));
@@ -305,6 +308,12 @@ public class ConnectionsFragment extends PreferenceFragmentCompat {
 		if (!telegramAuthenticationPlaceholderCompletedIdentity.equals(linkedIdentity)) {
 			telegramAuthenticationPlaceholderCompletedIdentity = null;
 		}
+	}
+
+	private boolean hasCompletedTelegramVerification(
+			@Nullable String linkedIdentity) {
+		return !isNullOrEmpty(linkedIdentity)
+				&& linkedIdentity.equals(telegramAuthenticationPlaceholderCompletedIdentity);
 	}
 
 	private void showTelegramAuthenticationPlaceholder(String linkedIdentity) {

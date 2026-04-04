@@ -521,6 +521,19 @@ public class TelegramFeatureFlagsDefaultsTest {
 	}
 
 	@Test
+	public void testCompletedVerificationDialogMentionsPreviouslyReviewedPlaceholder()
+			throws IOException {
+		assertFileContains("src/main/java/org/briarproject/briar/android/settings/ConnectionsFragment.java",
+				"boolean alreadyReviewed = hasCompletedTelegramVerification(linkedIdentity);");
+		assertFileContains("src/main/java/org/briarproject/briar/android/settings/ConnectionsFragment.java",
+				"R.string.telegram_connector_verification_dialog_completed_message");
+		assertFileContains("src/main/java/org/briarproject/briar/android/settings/ConnectionsFragment.java",
+				"private boolean hasCompletedTelegramVerification(\n\t\t\t@Nullable String linkedIdentity) {");
+		assertFileContains("src/main/res/values/strings.xml",
+				"<string name=\"telegram_connector_verification_dialog_completed_message\">Telegram verification for %1$s is reopening the Harbor local-only placeholder flow after the authentication placeholder was already reviewed. Real Telegram authentication and syncing are still inactive in this build.</string>");
+	}
+
+	@Test
 	public void testTelegramVerificationCompletionResetsWhenIdentityChanges()
 			throws IOException {
 		assertFileContains("src/main/java/org/briarproject/briar/android/settings/ConnectionsFragment.java",
