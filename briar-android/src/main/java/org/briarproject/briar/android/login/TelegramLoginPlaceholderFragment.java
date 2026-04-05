@@ -187,7 +187,7 @@ public class TelegramLoginPlaceholderFragment extends BaseFragment {
 		passwordContinueButton.setEnabled(hasPassword);
 		message.setText(getLoginMessage(authState));
 		passwordFallbackButton.setVisibility(View.VISIBLE);
-		if (authState == TelegramAuthState.CODE_ENTRY) {
+		if (authState == TelegramAuthState.CODE_ENTRY || authState == TelegramAuthState.RECOVERABLE_ERROR && viewModel.getTelegramRecoverableErrorDetail() == RecoverableErrorDetail.INVALID_CODE) {
 			identifierStep.setVisibility(View.GONE);
 			codeEntryStep.setVisibility(View.VISIBLE);
 			passwordEntryStep.setVisibility(View.GONE);

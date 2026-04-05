@@ -224,9 +224,8 @@ public class TelegramFeatureFlagsDefaultsTest {
 				"<string name=\"telegram_connector_login_retry_message\">Telegram login hit a recoverable issue in this build. Check your identifier or local TDLib setup, then continue to retry. You can also use Harbor password instead.</string>");
 	}
 	@Test
-	public void testTelegramLoginPasswordRetryKeepsPasswordEntryVisible() throws IOException {
-		assertTelegramLoginPlaceholderFragmentContainsAll("authState == TelegramAuthState.PASSWORD_ENTRY ||",
-				"viewModel.getTelegramRecoverableErrorDetail()\n\t\t\t\t\t\t== RecoverableErrorDetail.INVALID_PASSWORD)");
+	public void testTelegramLoginCodeRetryKeepsCodeEntryVisible() throws IOException {
+		assertTelegramLoginPlaceholderFragmentContainsAll("if (authState == TelegramAuthState.CODE_ENTRY || authState == TelegramAuthState.RECOVERABLE_ERROR && viewModel.getTelegramRecoverableErrorDetail() == RecoverableErrorDetail.INVALID_CODE) {");
 	}
 	@Test
 	public void testTelegramLoginCompletionStagesLinkedIdentityAfterPasswordSignIn()
