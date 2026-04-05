@@ -121,9 +121,23 @@ class StubTelegramTdlibLoginClient implements TelegramTdlibLoginClient {
 	}
 	@Override
 	public TelegramAuthState submitPassword(String password) {
-		return hasText(password)
-				? TelegramAuthState.READY
-				: TelegramAuthState.RECOVERABLE_ERROR;
+		if (!hasText(password) || tdlibClient == null
+				|| !"AuthorizationStateWaitPassword".equals(lastAuthorizationStateClassName)) {
+			return TelegramAuthState.RECOVERABLE_ERROR;
+		}
+		try {
+			prepareAuthorizationUpdate();
+			send(createCheckAuthenticationPasswordRequest(password));
+			return mapAuthorizationStateClassName(
+					awaitPreparedAuthorizationStateClassName());
+		} catch (ReflectiveOperationException | LinkageError e) {
+			closeTdlibClient();
+			return TelegramAuthState.RECOVERABLE_ERROR;
+		} catch (InterruptedException e) {
+			Thread.currentThread().interrupt();
+			closeTdlibClient();
+			return TelegramAuthState.RECOVERABLE_ERROR;
+		}
 	}
 	@Override
 	public TelegramAuthState close() {
@@ -216,6 +230,11 @@ class StubTelegramTdlibLoginClient implements TelegramTdlibLoginClient {
 	private Object createCheckAuthenticationCodeRequest(String code) throws ReflectiveOperationException {
 		return Class.forName("org.drinkless.tdlib.TdApi$CheckAuthenticationCode")
 				.getConstructor(String.class).newInstance(code);
+	}
+	private Object createCheckAuthenticationPasswordRequest(String password)
+			throws ReflectiveOperationException {
+		return Class.forName("org.drinkless.tdlib.TdApi$CheckAuthenticationPassword")
+				.getConstructor(String.class).newInstance(password);
 	}
 	private void setFieldIfPresent(Object target, String name, Object value)
 			throws ReflectiveOperationException {

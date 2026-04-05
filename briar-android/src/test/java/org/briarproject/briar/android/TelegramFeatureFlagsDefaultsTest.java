@@ -65,7 +65,9 @@ public class TelegramFeatureFlagsDefaultsTest {
 		assertFileContainsAll("../briar-core/src/main/java/org/briarproject/briar/telegram/TelegramAuthSessionImpl.java",
 				"case \"AuthorizationStateWaitTdlibParameters\":\n\t\t\tcase \"AuthorizationStateWaitPhoneNumber\":\n\t\t\t\treturn TelegramAuthState.IDENTIFIER_ENTRY;",
 				"send(createSetTdlibParametersRequest());",
-				"send(createSetAuthenticationPhoneNumberRequest(identifier));", "send(createCheckAuthenticationCodeRequest(code));");
+				"send(createSetAuthenticationPhoneNumberRequest(identifier));",
+				"send(createCheckAuthenticationCodeRequest(code));",
+				"send(createCheckAuthenticationPasswordRequest(password));");
 	}
 	@Test
 	public void testBriarAndroidCanConsumePrebuiltTdlibAndroidArtifacts()
@@ -445,67 +447,48 @@ public class TelegramFeatureFlagsDefaultsTest {
 	}
 	private static void assertFileContains(String moduleRelativePath,
 			String expectedText) throws IOException {
-		String contents = new String(
-				Files.readAllBytes(resolveModulePath(moduleRelativePath)),
-				StandardCharsets.UTF_8);
-		assertTrue("Expected to find '" + expectedText + "' in "
-				+ moduleRelativePath, contents.contains(expectedText));
+		String contents = new String(Files.readAllBytes(
+				resolveModulePath(moduleRelativePath)), StandardCharsets.UTF_8);
+		assertTrue("Expected to find '" + expectedText + "' in " +
+				moduleRelativePath, contents.contains(expectedText));
 	}
 	private static void assertFileContainsAll(String moduleRelativePath,
-			String... expectedTexts) throws IOException {
-		for (String expectedText : expectedTexts) {
-			assertFileContains(moduleRelativePath, expectedText);
-		}
-	}
+			String... expectedTexts) throws IOException { for (String expectedText
+			: expectedTexts) assertFileContains(moduleRelativePath, expectedText); }
 	private static void assertFileNotContains(String moduleRelativePath,
 			String unexpectedText) throws IOException {
-		String contents = new String(
-				Files.readAllBytes(resolveModulePath(moduleRelativePath)),
-				StandardCharsets.UTF_8);
-		assertFalse("Expected not to find '" + unexpectedText + "' in "
-				+ moduleRelativePath, contents.contains(unexpectedText));
+		String contents = new String(Files.readAllBytes(
+				resolveModulePath(moduleRelativePath)), StandardCharsets.UTF_8);
+		assertFalse("Expected not to find '" + unexpectedText + "' in " +
+				moduleRelativePath, contents.contains(unexpectedText));
 	}
 	private static void assertTelegramSubtitleConsumer(String moduleRelativePath)
-			throws IOException {
-		assertFileContains(moduleRelativePath,
-				"protected void onTelegramLinkedIdentityAvailable(\n\t\t\t@Nullable String linkedIdentity) {");
-		assertFileContains(moduleRelativePath,
-				"showTelegramLinkedIdentitySubtitle(linkedIdentity);");
-	}
+			throws IOException { assertFileContains(moduleRelativePath,
+			"protected void onTelegramLinkedIdentityAvailable(\n\t\t\t@Nullable String linkedIdentity) {");
+		assertFileContains(moduleRelativePath, "showTelegramLinkedIdentitySubtitle(linkedIdentity);"); }
 	private static void assertBriarActivityContainsAll(String... expectedTexts)
-			throws IOException {
-		assertFileContainsAll(
-				"src/main/java/org/briarproject/briar/android/activity/BriarActivity.java",
-				expectedTexts);
-	}
+			throws IOException { assertFileContainsAll(
+			"src/main/java/org/briarproject/briar/android/activity/BriarActivity.java",
+			expectedTexts); }
 	private static void assertConnectionsFragmentContainsAll(
-			String... expectedTexts) throws IOException {
-		assertFileContainsAll(
-				"src/main/java/org/briarproject/briar/android/settings/ConnectionsFragment.java",
-				expectedTexts);
-	}
+			String... expectedTexts) throws IOException { assertFileContainsAll(
+			"src/main/java/org/briarproject/briar/android/settings/ConnectionsFragment.java",
+			expectedTexts); }
 	private static void assertStartupActivityContainsAll(String... expectedTexts)
-			throws IOException {
-		assertFileContainsAll(
-				"src/main/java/org/briarproject/briar/android/login/StartupActivity.java",
-				expectedTexts);
-	}
+			throws IOException { assertFileContainsAll(
+			"src/main/java/org/briarproject/briar/android/login/StartupActivity.java",
+			expectedTexts); }
 	private static void assertStartupViewModelContainsAll(String... expectedTexts)
-			throws IOException {
-		assertFileContainsAll(
-				"src/main/java/org/briarproject/briar/android/login/StartupViewModel.java",
-				expectedTexts);
-	}
+			throws IOException { assertFileContainsAll(
+			"src/main/java/org/briarproject/briar/android/login/StartupViewModel.java",
+			expectedTexts); }
 	private static void assertStringsContainAll(String... expectedTexts)
-			throws IOException {
-		assertFileContainsAll("src/main/res/values/strings.xml", expectedTexts);
-	}
+			throws IOException { assertFileContainsAll(
+			"src/main/res/values/strings.xml", expectedTexts); }
 	private static void assertTelegramLoginPlaceholderFragmentContainsAll(
-			String... expectedTexts) throws IOException {
-		assertFileContainsAll(
-				"src/main/java/org/briarproject/briar/android/login/TelegramLoginPlaceholderFragment.java",
-				expectedTexts);
-	}
+			String... expectedTexts) throws IOException { assertFileContainsAll(
+			"src/main/java/org/briarproject/briar/android/login/TelegramLoginPlaceholderFragment.java",
+			expectedTexts); }
 	private static Path resolveModulePath(String moduleRelativePath) {
 		Path cwd = Paths.get("").toAbsolutePath().normalize();
 		Path direct = cwd.resolve(moduleRelativePath).normalize();
