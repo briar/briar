@@ -212,7 +212,7 @@ public class TelegramFeatureFlagsDefaultsTest {
 				"viewModel.submitTelegramLoginIdentifier();",
 				"v.findViewById(R.id.btn_telegram_login_confirmation_back)\n\t\t\t\t.setOnClickListener(view -> {",
 				"viewModel.showTelegramLoginIdentifierStep();",
-				"} else if (authState == TelegramAuthState.PASSWORD_ENTRY) {\n\t\t\tidentifierStep.setVisibility(View.GONE);\n\t\t\tcodeEntryStep.setVisibility(View.GONE);\n\t\t\tpasswordEntryStep.setVisibility(View.VISIBLE);\n\t\t\tconfirmationStep.setVisibility(View.GONE);",
+				"} else if (authState == TelegramAuthState.PASSWORD_ENTRY ||\n\t\t\t\tauthState == TelegramAuthState.RECOVERABLE_ERROR &&\n\t\t\t\t\t\tviewModel.getTelegramRecoverableErrorDetail()\n\t\t\t\t\t\t== RecoverableErrorDetail.INVALID_PASSWORD) {\n\t\t\tidentifierStep.setVisibility(View.GONE);\n\t\t\tcodeEntryStep.setVisibility(View.GONE);\n\t\t\tpasswordEntryStep.setVisibility(View.VISIBLE);\n\t\t\tconfirmationStep.setVisibility(View.GONE);",
 				"} else if (authState == TelegramAuthState.READY) {\n\t\t\tidentifierStep.setVisibility(View.GONE);\n\t\t\tcodeEntryStep.setVisibility(View.GONE);\n\t\t\tpasswordEntryStep.setVisibility(View.GONE);\n\t\t\tconfirmationStep.setVisibility(View.VISIBLE);",
 				"message.setText(getLoginMessage(authState));",
 				"private int getLoginMessage(TelegramAuthState authState) {\n\t\tif (authState != TelegramAuthState.RECOVERABLE_ERROR) {\n\t\t\treturn R.string.telegram_connector_login_message;\n\t\t}\n\t\tRecoverableErrorDetail detail =\n\t\t\t\tviewModel.getTelegramRecoverableErrorDetail();\n\t\tif (detail == RecoverableErrorDetail.MISSING_TDLIB) return R.string.telegram_connector_login_tdlib_missing_message;\n\t\tif (detail == RecoverableErrorDetail.INVALID_IDENTIFIER) return R.string.telegram_connector_login_identifier_invalid_message;\n\t\tif (detail == RecoverableErrorDetail.INVALID_PASSWORD) return R.string.telegram_connector_login_password_invalid_message;\n\t\treturn detail == RecoverableErrorDetail.INVALID_CODE\n\t\t\t\t? R.string.telegram_connector_login_code_invalid_message\n\t\t\t\t: R.string.telegram_connector_login_retry_message;\n\t}",
@@ -224,6 +224,14 @@ public class TelegramFeatureFlagsDefaultsTest {
 				"<string name=\"telegram_connector_login_identifier_invalid_message\">Telegram did not accept that identifier in this build. Check it, then continue to retry. You can also use Harbor password instead.</string>", "<string name=\"telegram_connector_login_code_invalid_message\">Telegram did not accept that login code in this build. Check it, then continue to retry. You can also use Harbor password instead.</string>",
 				"<string name=\"telegram_connector_login_password_invalid_message\">Telegram did not accept that password or 2FA entry in this build. Check it, then continue to retry. You can also use Harbor password instead.</string>",
 				"<string name=\"telegram_connector_login_retry_message\">Telegram login hit a recoverable issue in this build. Check your identifier or local TDLib setup, then continue to retry. You can also use Harbor password instead.</string>");
+	}
+	@Test
+	public void testTelegramLoginPasswordRetryKeepsPasswordEntryVisible()
+			throws IOException {
+		assertTelegramLoginPlaceholderFragmentContainsAll(
+				"authState == TelegramAuthState.PASSWORD_ENTRY ||",
+				"viewModel.getTelegramRecoverableErrorDetail()\n" +
+						"\t\t\t\t\t\t== RecoverableErrorDetail.INVALID_PASSWORD)");
 	}
 	@Test
 	public void testTelegramLoginCompletionStagesLinkedIdentityAfterPasswordSignIn()

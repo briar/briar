@@ -192,7 +192,10 @@ public class TelegramLoginPlaceholderFragment extends BaseFragment {
 			codeEntryStep.setVisibility(View.VISIBLE);
 			passwordEntryStep.setVisibility(View.GONE);
 			confirmationStep.setVisibility(View.GONE);
-		} else if (authState == TelegramAuthState.PASSWORD_ENTRY) {
+		} else if (authState == TelegramAuthState.PASSWORD_ENTRY ||
+				authState == TelegramAuthState.RECOVERABLE_ERROR &&
+						viewModel.getTelegramRecoverableErrorDetail()
+						== RecoverableErrorDetail.INVALID_PASSWORD) {
 			identifierStep.setVisibility(View.GONE);
 			codeEntryStep.setVisibility(View.GONE);
 			passwordEntryStep.setVisibility(View.VISIBLE);
