@@ -1,14 +1,14 @@
 package org.briarproject.briar.api.telegram;
 
 import org.briarproject.nullsafety.NotNullByDefault;
-
 @NotNullByDefault
 public interface TelegramAuthSession {
 
 	enum RecoverableErrorDetail {
 		NONE,
 		MISSING_TDLIB,
-		INVALID_IDENTIFIER
+		INVALID_IDENTIFIER,
+		INVALID_CODE
 	}
 
 	TelegramAuthState getCurrentState();
