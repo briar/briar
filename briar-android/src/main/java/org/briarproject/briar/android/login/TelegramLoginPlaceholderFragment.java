@@ -217,9 +217,13 @@ public class TelegramLoginPlaceholderFragment extends BaseFragment {
 		if (authState != TelegramAuthState.RECOVERABLE_ERROR) {
 			return R.string.telegram_connector_login_message;
 		}
-		return viewModel.getTelegramRecoverableErrorDetail() ==
-				RecoverableErrorDetail.MISSING_TDLIB
-				? R.string.telegram_connector_login_tdlib_missing_message
+		RecoverableErrorDetail detail =
+				viewModel.getTelegramRecoverableErrorDetail();
+		if (detail == RecoverableErrorDetail.MISSING_TDLIB) {
+			return R.string.telegram_connector_login_tdlib_missing_message;
+		}
+		return detail == RecoverableErrorDetail.INVALID_IDENTIFIER
+				? R.string.telegram_connector_login_identifier_invalid_message
 				: R.string.telegram_connector_login_retry_message;
 	}
 

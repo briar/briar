@@ -7,7 +7,8 @@ public interface TelegramAuthSession {
 
 	enum RecoverableErrorDetail {
 		NONE,
-		MISSING_TDLIB
+		MISSING_TDLIB,
+		INVALID_IDENTIFIER
 	}
 
 	TelegramAuthState getCurrentState();

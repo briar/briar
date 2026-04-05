@@ -101,7 +101,9 @@ class StubTelegramTdlibLoginClient implements TelegramTdlibLoginClient {
 				return recoverableError(RecoverableErrorDetail.NONE);
 			}
 			prepareAuthorizationUpdate();
-			send(createSetAuthenticationPhoneNumberRequest(identifier));
+			if (sendReturnsError(createSetAuthenticationPhoneNumberRequest(identifier))) {
+				return recoverableError(RecoverableErrorDetail.INVALID_IDENTIFIER);
+			}
 			return mapAuthorizationStateClassName(
 					awaitPreparedAuthorizationStateClassName());
 		} catch (ReflectiveOperationException | LinkageError e) {
@@ -263,6 +265,31 @@ class StubTelegramTdlibLoginClient implements TelegramTdlibLoginClient {
 				Class.forName("org.drinkless.tdlib.Client$ResultHandler");
 		tdlibClient.getClass().getMethod("send", functionClass,
 				resultHandlerClass).invoke(tdlibClient, request, null);
+	}
+	private boolean sendReturnsError(Object request)
+			throws ReflectiveOperationException, InterruptedException {
+		AtomicReference<String> resultClassName = new AtomicReference<>("");
+		CountDownLatch resultReceived = new CountDownLatch(1);
+		Class<?> functionClass =
+				Class.forName("org.drinkless.tdlib.TdApi$Function");
+		Class<?> resultHandlerClass =
+				Class.forName("org.drinkless.tdlib.Client$ResultHandler");
+		Object resultHandler = Proxy.newProxyInstance(
+				resultHandlerClass.getClassLoader(),
+				new Class<?>[] {resultHandlerClass},
+				(proxy, method, args) -> {
+					if ("onResult".equals(method.getName()) && args != null
+							&& args.length == 1 && resultClassName.compareAndSet("",
+							args[0] == null ? "" : args[0].getClass().getSimpleName())) {
+						resultReceived.countDown();
+					}
+					return null;
+				});
+		tdlibClient.getClass().getMethod("send", functionClass,
+				resultHandlerClass).invoke(tdlibClient, request, resultHandler);
+		if (!resultReceived.await(AUTHORIZATION_UPDATE_TIMEOUT_MS,
+				TimeUnit.MILLISECONDS)) closeTdlibClient();
+		return "Error".equals(resultClassName.get());
 	}
 	private String getAuthorizationStateClassName(Object update)
 			throws ReflectiveOperationException {
