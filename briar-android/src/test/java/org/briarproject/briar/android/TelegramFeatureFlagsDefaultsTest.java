@@ -16,14 +16,12 @@ public class TelegramFeatureFlagsDefaultsTest {
 		assertFileContains("../bramble-api/src/main/java/org/briarproject/bramble/api/FeatureFlags.java", "boolean shouldEnableTelegramConnector();");
 	}
 	@Test
-	public void testAndroidAndHeadlessDefaultTelegramConnectorToDisabled()
-			throws IOException {
+	public void testAndroidAndHeadlessDefaultTelegramConnectorToDisabled() throws IOException {
 		assertFileContains("src/main/java/org/briarproject/briar/android/AppModule.java", "public boolean shouldEnableTelegramConnector() {\n\t\t\t\treturn false;");
 		assertFileContains("../briar-headless/src/main/java/org/briarproject/briar/headless/HeadlessModule.kt", "override fun shouldEnableTelegramConnector() = false");
 	}
 	@Test
-	public void testTestFeatureFlagsDefaultTelegramConnectorToDisabled()
-			throws IOException {
+	public void testTestFeatureFlagsDefaultTelegramConnectorToDisabled() throws IOException {
 		assertFileContains("../bramble-core/src/test/java/org/briarproject/bramble/test/TestFeatureFlagModule.java", "public boolean shouldEnableTelegramConnector() {\n\t\t\t\treturn false;");
 	}
 	@Test
@@ -226,12 +224,9 @@ public class TelegramFeatureFlagsDefaultsTest {
 				"<string name=\"telegram_connector_login_retry_message\">Telegram login hit a recoverable issue in this build. Check your identifier or local TDLib setup, then continue to retry. You can also use Harbor password instead.</string>");
 	}
 	@Test
-	public void testTelegramLoginPasswordRetryKeepsPasswordEntryVisible()
-			throws IOException {
-		assertTelegramLoginPlaceholderFragmentContainsAll(
-				"authState == TelegramAuthState.PASSWORD_ENTRY ||",
-				"viewModel.getTelegramRecoverableErrorDetail()\n" +
-						"\t\t\t\t\t\t== RecoverableErrorDetail.INVALID_PASSWORD)");
+	public void testTelegramLoginPasswordRetryKeepsPasswordEntryVisible() throws IOException {
+		assertTelegramLoginPlaceholderFragmentContainsAll("authState == TelegramAuthState.PASSWORD_ENTRY ||",
+				"viewModel.getTelegramRecoverableErrorDetail()\n\t\t\t\t\t\t== RecoverableErrorDetail.INVALID_PASSWORD)");
 	}
 	@Test
 	public void testTelegramLoginCompletionStagesLinkedIdentityAfterPasswordSignIn()
