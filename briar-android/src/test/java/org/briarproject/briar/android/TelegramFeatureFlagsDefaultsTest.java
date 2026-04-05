@@ -202,7 +202,7 @@ public class TelegramFeatureFlagsDefaultsTest {
 				"RecoverableErrorDetail getTelegramRecoverableErrorDetail() {\n\t\treturn telegramAuthSession.getRecoverableErrorDetail();\n\t}",
 				"void submitTelegramLoginIdentifier() {\n\t\ttelegramLoginCode = telegramLoginPassword = \"\";\n\t\ttelegramAuthSession.submitIdentifier(telegramLoginIdentifier);\n\t\ttelegramAuthState.setValue(telegramAuthSession.getCurrentState());\n\t}",
 				"void showTelegramLoginIdentifierStep() {\n\t\ttelegramLoginCode = telegramLoginPassword = \"\";\n\t\ttelegramAuthSession.close();\n\t\ttelegramAuthSession.start();\n\t\ttelegramAuthState.setValue(telegramAuthSession.getCurrentState());\n\t}",
-				"boolean isShowingTelegramLoginConfirmation() {\n\t\tTelegramAuthState authState = telegramAuthState.getValue();\n\t\treturn authState == TelegramAuthState.CODE_ENTRY ||\n\t\t\t\tauthState == TelegramAuthState.PASSWORD_ENTRY ||\n\t\t\t\tauthState == TelegramAuthState.READY;\n\t}");
+				"boolean isShowingTelegramLoginConfirmation() {\n\t\tTelegramAuthState authState = telegramAuthState.getValue();\n\t\treturn authState == TelegramAuthState.CODE_ENTRY ||\n\t\t\t\tauthState == TelegramAuthState.PASSWORD_ENTRY ||\n\t\t\t\tauthState == TelegramAuthState.READY ||\n\t\t\t\tauthState == TelegramAuthState.RECOVERABLE_ERROR &&\n\t\t\t\t\t\t(getTelegramRecoverableErrorDetail() == RecoverableErrorDetail.INVALID_CODE ||\n\t\t\t\t\t\t\t\tgetTelegramRecoverableErrorDetail() == RecoverableErrorDetail.INVALID_PASSWORD);\n\t}");
 		assertStartupActivityContainsAll(
 				"if (viewModel.isShowingTelegramLoginConfirmation()) {\n\t\t\t\tviewModel.showTelegramLoginIdentifierStep();\n\t\t\t\treturn;\n\t\t\t}");
 		assertTelegramLoginPlaceholderFragmentContainsAll(

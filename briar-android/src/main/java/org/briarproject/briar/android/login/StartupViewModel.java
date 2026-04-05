@@ -239,7 +239,10 @@ public class StartupViewModel extends AndroidViewModel
 		TelegramAuthState authState = telegramAuthState.getValue();
 		return authState == TelegramAuthState.CODE_ENTRY ||
 				authState == TelegramAuthState.PASSWORD_ENTRY ||
-				authState == TelegramAuthState.READY;
+				authState == TelegramAuthState.READY ||
+				authState == TelegramAuthState.RECOVERABLE_ERROR &&
+						(getTelegramRecoverableErrorDetail() == RecoverableErrorDetail.INVALID_CODE ||
+								getTelegramRecoverableErrorDetail() == RecoverableErrorDetail.INVALID_PASSWORD);
 	}
 
 	void showPasswordFragment() {
