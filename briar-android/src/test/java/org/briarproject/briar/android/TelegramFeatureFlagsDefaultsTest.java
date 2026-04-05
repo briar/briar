@@ -1,15 +1,11 @@
 package org.briarproject.briar.android;
-
 import org.junit.Test;
-
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-
 import static junit.framework.Assert.assertTrue;
-
 public class TelegramFeatureFlagsDefaultsTest {
 	@Test
 	public void testFeatureFlagsExposeTelegramConnectorGate() throws IOException {
