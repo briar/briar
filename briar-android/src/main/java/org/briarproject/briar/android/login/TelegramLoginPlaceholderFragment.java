@@ -29,6 +29,7 @@ public class TelegramLoginPlaceholderFragment extends BaseFragment {
 	@Inject
 	ViewModelProvider.Factory viewModelFactory;
 
+	private TextView message;
 	private StartupViewModel viewModel;
 
 	static final String TAG =
@@ -56,6 +57,7 @@ public class TelegramLoginPlaceholderFragment extends BaseFragment {
 		View passwordEntryStep =
 				v.findViewById(R.id.telegram_login_password_step);
 		View confirmationStep = v.findViewById(R.id.telegram_login_confirmation);
+		TextView message = v.findViewById(R.id.message);
 		TextView confirmationMessage =
 				v.findViewById(R.id.telegram_login_confirmation_message);
 		View continueButton = v.findViewById(R.id.btn_telegram_login_continue);
@@ -70,6 +72,7 @@ public class TelegramLoginPlaceholderFragment extends BaseFragment {
 				v.findViewById(R.id.telegram_login_code);
 		TextInputEditText password =
 				v.findViewById(R.id.telegram_login_password);
+		this.message = message;
 		identifier.setText(viewModel.getTelegramLoginIdentifier());
 		code.setText(viewModel.getTelegramLoginCode());
 		password.setText(viewModel.getTelegramLoginPassword());
@@ -181,6 +184,9 @@ public class TelegramLoginPlaceholderFragment extends BaseFragment {
 		continueButton.setEnabled(hasIdentifier);
 		codeContinueButton.setEnabled(hasCode);
 		passwordContinueButton.setEnabled(hasPassword);
+		message.setText(authState == TelegramAuthState.RECOVERABLE_ERROR
+				? R.string.telegram_connector_login_retry_message
+				: R.string.telegram_connector_login_message);
 		passwordFallbackButton.setVisibility(View.VISIBLE);
 		if (authState == TelegramAuthState.CODE_ENTRY) {
 			identifierStep.setVisibility(View.GONE);

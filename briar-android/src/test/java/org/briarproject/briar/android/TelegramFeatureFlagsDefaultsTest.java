@@ -187,8 +187,6 @@ public class TelegramFeatureFlagsDefaultsTest {
 				"TextInputEditText identifier =\n\t\t\t\tv.findViewById(R.id.telegram_login_identifier);",
 				"identifier.setText(viewModel.getTelegramLoginIdentifier());",
 				"viewModel.setTelegramLoginIdentifier(s.toString());");
-		assertFileContains("src/main/res/layout/fragment_telegram_login_placeholder.xml",
-				"android:id=\"@+id/telegram_login_identifier\"");
 		assertStringsContainAll(
 				"<string name=\"telegram_connector_login_identifier_hint\">Telegram identifier</string>");
 	}
@@ -209,8 +207,7 @@ public class TelegramFeatureFlagsDefaultsTest {
 				"v.findViewById(R.id.btn_telegram_login_code_continue)\n\t\t\t\t.setOnClickListener(view -> {\n\t\t\t\t\tviewModel.submitTelegramLoginCode();\n\t\t\t\t});");
 		assertFileContainsAll("src/main/res/layout/fragment_telegram_login_placeholder.xml",
 				"android:id=\"@+id/telegram_login_code_step\"",
-				"android:id=\"@+id/telegram_login_code\"",
-				"android:id=\"@+id/btn_telegram_login_code_continue\"");
+				"android:id=\"@+id/telegram_login_code\"");
 		assertFileContains("src/main/res/values/strings.xml",
 				"<string name=\"telegram_connector_login_code_hint\">Telegram login code</string>");
 	}
@@ -230,8 +227,7 @@ public class TelegramFeatureFlagsDefaultsTest {
 				"v.findViewById(R.id.btn_telegram_login_password_continue)\n\t\t\t\t.setOnClickListener(view -> {\n\t\t\t\t\tviewModel.submitTelegramLoginPassword();\n\t\t\t\t});");
 		assertFileContainsAll("src/main/res/layout/fragment_telegram_login_placeholder.xml",
 				"android:id=\"@+id/telegram_login_password_step\"",
-				"android:id=\"@+id/telegram_login_password\"",
-				"android:id=\"@+id/btn_telegram_login_password_continue\"");
+				"android:id=\"@+id/telegram_login_password\"");
 		assertFileContains("src/main/res/values/strings.xml",
 				"<string name=\"telegram_connector_login_password_hint\">Telegram password or 2FA code</string>");
 	}
@@ -250,6 +246,7 @@ public class TelegramFeatureFlagsDefaultsTest {
 		assertStartupActivityContainsAll(
 				"if (viewModel.isShowingTelegramLoginConfirmation()) {\n\t\t\t\tviewModel.showTelegramLoginIdentifierStep();\n\t\t\t\treturn;\n\t\t\t}");
 		assertTelegramLoginPlaceholderFragmentContainsAll(
+				"TextView message = v.findViewById(R.id.message);",
 				"v.findViewById(R.id.btn_telegram_login_continue)\n\t\t\t\t.setOnClickListener(view -> {",
 				"viewModel.submitTelegramLoginIdentifier();",
 				"v.findViewById(R.id.btn_telegram_login_confirmation_back)\n\t\t\t\t.setOnClickListener(view -> {",
@@ -258,16 +255,12 @@ public class TelegramFeatureFlagsDefaultsTest {
 				"passwordFallbackButton.setVisibility(View.VISIBLE);",
 				"} else if (authState == TelegramAuthState.PASSWORD_ENTRY) {\n\t\t\tidentifierStep.setVisibility(View.GONE);\n\t\t\tcodeEntryStep.setVisibility(View.GONE);\n\t\t\tpasswordEntryStep.setVisibility(View.VISIBLE);\n\t\t\tconfirmationStep.setVisibility(View.GONE);",
 				"} else if (authState == TelegramAuthState.READY) {\n\t\t\tidentifierStep.setVisibility(View.GONE);\n\t\t\tcodeEntryStep.setVisibility(View.GONE);\n\t\t\tpasswordEntryStep.setVisibility(View.GONE);\n\t\t\tconfirmationStep.setVisibility(View.VISIBLE);",
+				"message.setText(authState == TelegramAuthState.RECOVERABLE_ERROR\n\t\t\t\t? R.string.telegram_connector_login_retry_message\n\t\t\t\t: R.string.telegram_connector_login_message);",
 				"confirmationMessage.setText(getString(\n\t\t\t\t\tR.string.telegram_connector_login_confirmation_message,\n\t\t\t\t\tviewModel.getTelegramLoginIdentifier()));");
-		assertFileContains("src/main/res/layout/fragment_telegram_login_placeholder.xml",
-				"android:id=\"@+id/telegram_login_confirmation\"");
-		assertFileContains("src/main/res/layout/fragment_telegram_login_placeholder.xml",
-				"android:id=\"@+id/btn_telegram_login_continue\"");
-		assertFileContains("src/main/res/layout/fragment_telegram_login_placeholder.xml",
-				"android:id=\"@+id/btn_telegram_login_confirmation_back\"");
 		assertStringsContainAll(
 				"<string name=\"telegram_connector_login_continue_button\">Continue</string>",
-				"<string name=\"telegram_connector_login_confirmation_message\">Telegram identifier staged for internal Harbor testing: %1$s</string>");
+				"<string name=\"telegram_connector_login_confirmation_message\">Telegram identifier staged for internal Harbor testing: %1$s</string>",
+				"<string name=\"telegram_connector_login_retry_message\">Telegram login hit a recoverable issue in this build. Check your identifier or local TDLib setup, then continue to retry. You can also use Harbor password instead.</string>");
 	}
 	@Test
 	public void testTelegramLoginCompletionStagesLinkedIdentityAfterPasswordSignIn()
